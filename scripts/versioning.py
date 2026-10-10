@@ -14,7 +14,7 @@
 清单读到了、路径也对（稳定指针的修复是有效的），**唯独版本号被拒**。
 两段 `3021.2` 也不行 —— semver 就是要三段。
 
-官方 UI **自己**也用严格三段正则解析这两个版本（`out/official-ui/assets/index-*.js`
+界面**自己**也用严格三段正则解析这两个版本（`app/renderer/src/infra/from-vendor.js`
 里的 `parseSemver`：`/^(\\d+)\\.(\\d+)\\.(\\d+)…/`）。四段会解析成 `null`，
 于是 `compareSemver()` 恒返回 0 ——「更新详情」里算不出落后了几个版本，
 error 阶段的横幅判断也直接走不通。
@@ -62,7 +62,7 @@ import sys
 # 人读版本的形状：三段或四段纯数字。第四段缺省 0。
 HUMAN_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?$")
 
-# **官方 UI 的那个正则**（`out/official-ui/assets/index-*.js` 的 `parseSemver`，
+# **界面的那个正则**（`app/renderer/src/infra/from-vendor.js` 的 `parseSemver`，
 # 一字不改地抄过来）。这里不用 npm 的 semver 判，是因为真正解析这两个版本号的
 # 就是这份代码 —— 判据必须和消费方一致，否则「我们说合法、它说不合法」的结果
 # 还是收不到更新。

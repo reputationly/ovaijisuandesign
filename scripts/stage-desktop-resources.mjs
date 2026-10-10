@@ -18,8 +18,8 @@
  * | `skills/` | `locateBundledSkills`（skills/seed.ts:9） |
  * | `home-showcase/` | `homeShowcaseDir()`（home-showcase.ts:250） |
  *
- * 另外两样不走 resources/：`out/official-ui` 在 asar 里（`protocol.ts:34` 读
- * `app.getAppPath()/out/official-ui`），`resources/home-showcase` 里的 media 由首启预热
+ * 另外两样不走 resources/：`out/recovered-ui` 在 asar 里（`protocol.ts` 的 rendererRoot() 读
+ * `app.getAppPath()/out/recovered-ui`），`resources/home-showcase` 里的 media 由首启预热
  * 写到 userData（`showcase-warm.ts`）—— 包内那份 `resources/` 是只读的，写不进去。
  *
  * ## 三件不能想当然的事

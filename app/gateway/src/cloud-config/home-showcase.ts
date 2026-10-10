@@ -50,7 +50,7 @@ export type AssetName = (typeof HOME_SHOWCASE_ASSET_FILES)[number];
 
 /**
  * 素材地址写成相对路径：gateway 端口每次启动都可能换，写死 host:port 的话渲染层缓存的上一份配置就失效了。
- * 渲染层按自己连的 gateway 地址补全（见 app/official-ui/patches.mjs 的 home-showcase.local-assets）。
+ * 渲染层按自己连的 gateway 地址补全（见 app/renderer/src/generation/use-skill-categories.js 的 localHomeShowcaseAssetUrl）。
  * 云端配置的图片 key（`<sha1 前 16 位>-<文件名>`）也从这里走，所以收 string 而不只是 legacy 的 8 个名字。
  */
 export const homeShowcaseAssetUrl = (name: string) => `/${HOME_SHOWCASE_ASSET_ROUTE}/${encodeURIComponent(name)}`;

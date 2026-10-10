@@ -124,7 +124,7 @@ export interface AutoUpdaterLike {
 
 /**
  * **官方 UI 的 `parseSemver` 正则**，一字不改地从
- * `out/official-ui/assets/index-*.js` 抄过来。
+ * `app/renderer/src/infra/from-vendor.js` 抄过来。
  *
  * 主进程和渲染层必须用同一个判据。两边不一致的话，我们这边一切正常，
  * 用户那边 `parseSemver()` 返回 `null` → `compareSemver()` 恒为 0 →

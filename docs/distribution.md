@@ -306,7 +306,7 @@ sort -V 之后   1.1.8.1 < 1.1.8.2 < 1.1.8.3 < 3.0.12.1
 
 清单读到了、路径也对，唯独版本号被拒。官方 UI 那边更早一道关：它**自己**就用
 严格三段正则解析 `currentVersion` / `targetVersion`
-（`out/official-ui/assets/index-*.js` 的 `parseSemver`），四段返回 `null`，
+（`app/renderer/src/infra/from-vendor.js` 的 `parseSemver`），四段返回 `null`，
 于是 `compareSemver()` 恒为 0 ——「更新详情」算不出落后几个版本。
 
 **两处必须同时是对的那一个值**，否则用户每次点「检查更新」都被告知有新版、

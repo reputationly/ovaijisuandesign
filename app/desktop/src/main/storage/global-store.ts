@@ -88,7 +88,7 @@ export function defaultConfig(workingDirectory: string): Record<string, unknown>
     skillAutoUpdate: true,
     localFileRevealAllowedDirs: [],
     autoFeedbackEnabled: false,
-    // 客户端不支持水印：默认无水印，也不再弹「AI 生成水印设置」（界面侧见 official-ui 补丁第十五节）
+    // 客户端不支持水印：默认无水印，也不再弹「AI 生成水印设置」（界面侧默认值见 app/renderer/src/infra/from-vendor.js）
     watermarkEnabled: false,
     watermarkOnboardingShown: true,
     assetCenterHidden: false,

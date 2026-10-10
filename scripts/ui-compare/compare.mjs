@@ -1,23 +1,27 @@
-// 逐屏对比：同一份测试数据，分别用两种界面（默认 official-raw 对 recovered）起桌面应用，
-// 访问同一组页面、截图、逐像素比较，并收集控制台报错。界面还原每一步都靠它验收。
+// 逐屏对比：同一份测试数据起桌面应用，访问同一组页面、截图，和基线逐像素比较，并收集控制台报错。
+// 界面每次改动都靠它验收。
 //
-//   node scripts/ui-compare/compare.mjs [基准模式=official-raw] [对比模式=recovered]
+//   node scripts/ui-compare/compare.mjs [基准=golden] [对比模式=recovered]
+//   node scripts/ui-compare/compare.mjs --record [模式=recovered]     # 把这一份界面的截图录成基线
 //
-// 前提：app/desktop 已构建（pnpm --filter @ov/desktop build，会生成 out/official-ui 等）、
-//       official-raw 用 node app/official-ui/build.mjs --raw 生成、recovered 用 pnpm --filter @ov/renderer build。
-// 结果写到 .probe/ui-compare/<时间>/：每页两张截图 + 差异图 + report.json；终端打印每页差异比例。
+// 基准写 golden 时读录好的基线截图（默认 .probe/ui-golden/，可用 GOLDEN=目录 指定），不再起第二个应用；
+// 写成别的就是 OV_UI 的取值（recovered / ours），两种界面各起一次对比。ONLY 只跑几屏时，录基线也只更新这几屏。
+// 前提：app/desktop 已构建（pnpm --filter @ov/desktop build，会顺带构建 app/renderer 到 out/recovered-ui）。
+// 结果写到 .probe/ui-compare/<时间>/：每页截图 + 差异图 + report.json；终端打印每页差异比例。
 //
 // 注意：卡片封面是 CDN 上的 mp4，属外部资源、与仓库代码无关，采集时会被挡掉（见 BLOCKED_URLS）。
 // 不挡的话同一份界面连跑两次都能差出 7%——差异来自视频下到第几帧，会掩盖真正的界面差异。
 import { spawn } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const sharp = createRequire(path.join(repo, "app/gateway/package.json"))("sharp");
-const [baseMode = "official-raw", testMode = "recovered"] = process.argv.slice(2);
+const RECORD = process.argv[2] === "--record";
+const [baseMode = "golden", testMode = "recovered"] = RECORD ? ["golden", process.argv[3] ?? "recovered"] : process.argv.slice(2);
+const GOLDEN = process.env.GOLDEN ? path.resolve(process.env.GOLDEN) : path.join(repo, ".probe/ui-golden");
 
 const ROOT = "/tmp/ov-cmp";
 const FIXTURE = path.join(repo, "scripts/ui-compare/fixture");
@@ -35,15 +39,17 @@ const ALL_PAGES = [
   { id: "projects-new", url: "/projects", tabs: ["新建项目"] },
   { id: "projects-new-local", url: "/projects", tabs: ["新建项目", "新建本地项目"] },
   { id: "creations", url: "/creations" },
+  // ComfyUI 工作流不做：直接打开 /workflows 会回首页
   { id: "workflows", url: "/workflows" },
-  { id: "workflows-mine", url: "/workflows", tabs: ["我的工作流"] },
-  { id: "workflows-import", url: "/workflows", tabs: ["导入/新建工作流"] },
   { id: "skills", url: "/skills" },
   // 技能页的其它标签（地址参数会被页面忽略，只能点）
   { id: "skills-connectors", url: "/skills", tabs: ["插件"] },
   { id: "skills-mine", url: "/skills", tabs: ["我的 Skill"] },
   { id: "skill-community", url: "/skill-community" },
   { id: "changelog", url: "/changelog" },
+  // 左下角连接状态点开的用户菜单，和设置里的「平台接入」分区
+  { id: "user-menu", url: "/projects", tabs: [{ ui: "user-menu.trigger" }, { wait: 800 }] },
+  { id: "settings-platform", url: "/projects", tabs: [{ ui: "user-menu.trigger" }, { wait: 600 }, { ui: "user-menu.settings" }, { wait: 800 }, "平台接入", { wait: 1500 }] },
   { id: "global-search", url: "/projects", tabs: [{ event: "hilo:open-global-search" }, { wait: 1500 }] },
   { id: "global-search-query", url: "/projects", tabs: [{ event: "hilo:open-global-search" }, { wait: 1500 }, { type: "ws" }, { wait: 2000 }] },
   { id: "ws-a", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}` },
@@ -58,9 +64,8 @@ const ALL_PAGES = [
   { id: "ws-text-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-text" }, { wait: 2000 }] },
   { id: "ws-table-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-table" }, { wait: 2000 }] },
   { id: "ws-text-editor", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node", mouse: true }, { wait: 400 }, { ui: "canvas.menu-add-text", mouse: true }, { ui: "canvas.text-node", last: true, mouse: true, timeout: 8000 }, { wait: 500 }, { ui: "canvas-text-edit", mouse: true, last: true, timeout: 8000 }, { untilSelector: ".canvas-text-fullscreen-editor .ProseMirror", timeout: 15000 }, { insert: "对比用的一段文字" }, { wait: 2500 }] },
-  { id: "ws-browser", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.switch-to-browser" }, { wait: 2500 }] },
-  // 切到仅对话会记在工作区里，后面的画布屏就找不到节点。所以放在最后，并先回到画布。
-  { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.switch-to-canvas", mouse: true }, { wait: 600 }, { ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 500 }, { ui: "workspace.view-mode.chat-only", mouse: true }, { wait: 1200 }] },
+  // 切到仅对话会记在工作区里，后面的画布屏就找不到节点。所以放在最后。
+  { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 500 }, { ui: "workspace.view-mode.chat-only", mouse: true }, { wait: 1200 }] },
   // 会真的创建一个项目（数据目录每种模式都会重建），所以放最后，免得影响别的屏
   { id: "project-created", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用项目" }, "创建项目", { wait: 4000 }] },
   { id: "project-assets", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用资产项目" }, "创建项目", { wait: 4000 }, "项目资产", { wait: 2000 }] },
@@ -396,8 +401,32 @@ async function diff(a, b, out) {
 }
 
 if (!existsSync(FIXTURE)) throw new Error(`缺少测试数据 ${FIXTURE}`);
+// 基线：每屏一张 <屏>.png，报错记在 errors.json
+function readGolden() {
+  const errorsFile = path.join(GOLDEN, "errors.json");
+  const errors = existsSync(errorsFile) ? JSON.parse(readFileSync(errorsFile, "utf8")) : {};
+  const missing = PAGES.filter((p) => !existsSync(path.join(GOLDEN, `${p.id}.png`))).map((p) => p.id);
+  if (missing.length) throw new Error(`基线里缺这些屏：${missing.join(",")}，先跑 --record 录一份`);
+  return Object.fromEntries(PAGES.map((p) => [p.id, { file: path.join(GOLDEN, `${p.id}.png`), errors: errors[p.id] ?? [] }]));
+}
+function writeGolden(results) {
+  mkdirSync(GOLDEN, { recursive: true });
+  const errorsFile = path.join(GOLDEN, "errors.json");
+  const errors = existsSync(errorsFile) ? JSON.parse(readFileSync(errorsFile, "utf8")) : {};
+  for (const [id, r] of Object.entries(results)) {
+    copyFileSync(r.file, path.join(GOLDEN, `${id}.png`));
+    errors[id] = r.errors;
+  }
+  writeFileSync(errorsFile, JSON.stringify(errors, null, 2));
+}
+if (RECORD) {
+  console.log(`录基线：${testMode} → ${path.relative(repo, GOLDEN)}`);
+  writeGolden(await runMode(testMode));
+  console.log(`已录 ${PAGES.length} 屏`);
+  process.exit(0);
+}
 console.log(`对比 ${baseMode} ↔ ${testMode}，结果在 ${path.relative(repo, outDir)}`);
-const base = await runMode(baseMode);
+const base = baseMode === "golden" ? readGolden() : await runMode(baseMode);
 const test = await runMode(testMode);
 const report = [];
 for (const p of PAGES) {

@@ -82,7 +82,7 @@
 | 缺什么 | 影响 |
 |---|---|
 | 官方应用 `/Applications/MiniMax Design.app` | 用仓库里的 `reference/3.0.16/` 代替：主进程、渲染层、gateway、mcp-tools、插件、agent 配置原文都在 |
-| `reference/` 下的本机探测产物：`ui-inventory/`、`main-inventory/`、`shots/` | 界面清单和截图不在，需要时直接读 `reference/3.0.16/app/out/renderer` |
+| `reference/` 下的本机探测产物：`ui-inventory/`、`main-inventory/`、`shots/` | 界面清单和截图不在，需要时直接读界面源码 `app/renderer/src` |
 | 用户的平台配置和 key（`~/Library/Application Support/ovaijisuandesign/config.json`） | 不能打真实平台 |
 | macOS 图形界面 | 不能启动 Electron、截图、和官方并排比对 |
 
@@ -94,7 +94,7 @@
   - P2 的后端补齐：gateway 路由、主进程服务、飞书 / 微信移植；
   - P3 打包脚本和 CI；
   - 所有单元测试和 e2e 测试（vitest，gateway 用假平台）。
-  - 界面代码也可以在云上写（参照渲染层在 `reference/3.0.16/app/out/renderer`），但验收要回本机。
+  - 界面代码也可以在云上写（源码在 `app/renderer`），但验收要回本机。
 - **必须在本机做**：
   - 截图比对、和官方并排看界面；
   - 真实平台联调。
@@ -102,6 +102,10 @@
 ---
 
 ## 四、待办（按优先级）
+
+> **2026-10-10 界面改用源码**：`app/renderer` 是从参照渲染层还原出的源码，原来 `app/official-ui` 的补丁都已写进源码，
+> `app/official-ui`、`scripts/official-ui` 和 `reference/*/app/out/renderer` 已删除。`app://` 默认用 `out/recovered-ui`。
+> 界面改动直接改源码，用 `scripts/ui-compare/compare.mjs` 和录好的基线截图逐屏对比验收。下面 2026-09-26 那条只作历史记录。
 
 > **2026-09-26 界面路线改变（用户定）：直接用参照 3.0.16 的渲染层编译产物当界面**，不再从头重写。
 > - 构建：`app/official-ui/build.mjs` 把 `reference/3.0.16/app/out/renderer` 拷到 `app/desktop/out/official-ui` 并打补丁（`patches.mjs`：品牌、去登录营销弹窗、隐藏浏览器和 ComfyUI）；补丁命中次数对不上就构建失败。

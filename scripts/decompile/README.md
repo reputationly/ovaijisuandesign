@@ -2,6 +2,10 @@
 
 把参照渲染层（`reference/<版本>/app/out/renderer`）还原成可维护的源码，放在 `app/renderer`。计划和进度见 `docs/remaining-work.md`。
 
+> **还原已完成，这里的脚本只作记录。** 2026-10-10 起界面直接用 `app/renderer` 的源码，参照渲染层
+> `reference/*/app/out/renderer` 和对比基准 `app/official-ui` 都已删除；要重跑这些脚本得先从 git 历史里把它们取回来。
+> `gen-renderer.mjs` 会整个覆盖 `app/renderer/src`，**不要再跑**。界面改动的验收见 `scripts/ui-compare/compare.mjs`（和录好的基线截图比）。
+
 先装依赖：`cd scripts/decompile && npm install`（不在 pnpm 工作区里）。
 
 ## 阶段 0：可构建的源码基线

@@ -24,14 +24,12 @@ export function registerAppScheme() {
 
 /**
  * 界面用哪一份（`OV_UI`）：
- * - 默认：`out/official-ui`（参照渲染层 + 补丁，app/official-ui/build.mjs 生成）
- * - `recovered`：`out/recovered-ui`（还原中的界面源码，app/renderer 构建）
- * - `official-raw`：`out/official-ui-raw`（参照渲染层原样、不打补丁，和 recovered 做逐屏对比用）
+ * - 默认 / `recovered`：`out/recovered-ui`（界面源码 app/renderer 构建）
  * - `ours`：我们早先自己写的 `out/renderer`
  */
 export function rendererRoot(): string {
-  const dirs: Record<string, string> = { recovered: "out/recovered-ui", "official-raw": "out/official-ui-raw", ours: "out/renderer" };
-  const picked = join(app.getAppPath(), dirs[process.env.OV_UI ?? ""] ?? "out/official-ui");
+  const dirs: Record<string, string> = { recovered: "out/recovered-ui", ours: "out/renderer" };
+  const picked = join(app.getAppPath(), dirs[process.env.OV_UI ?? ""] ?? "out/recovered-ui");
   return existsSync(join(picked, "index.html")) ? picked : join(app.getAppPath(), "out/renderer");
 }
 

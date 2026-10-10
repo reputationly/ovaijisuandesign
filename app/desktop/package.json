@@ -8,8 +8,8 @@
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
-    "dev": "node ../official-ui/build.mjs && electron-vite dev",
-    "build": "electron-vite build && node ../official-ui/build.mjs",
+    "dev": "pnpm --filter @ov/renderer build && electron-vite dev",
+    "build": "electron-vite build && pnpm --filter @ov/renderer build",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run --passWithNoTests"
   },

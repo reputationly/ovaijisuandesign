@@ -30,7 +30,7 @@
 `tag.py` 只管人读的四段，不参与编码。
 
 **版本号必须是纯数字分段。** 官方 UI 用严格三段正则解析它
-（`out/official-ui/assets/index-*.js` 的 `parseSemver`），我们自己也拒
+（`app/renderer/src/infra/from-vendor.js` 的 `parseSemver`），我们自己也拒
 非数字段：带后缀的版本号（`3.0.12-ovaijisuan-20260909`）会让客户端
 **静默地永远收不到更新** —— 不报错、不提示，只是永远认为自己是最新的。
 """

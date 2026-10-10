@@ -2,8 +2,9 @@
 
 对照 MiniMax Design 3.0.16，写于 2026-09-26，同日更新（gateway 本地可用路由补齐之后）。参照原文都在 `reference/3.0.16/`。
 
-> 参照版本已升到 **3.0.21**（2026-10-01）：界面改从 `reference/3.0.21/app/out/renderer` 拷，
-> 补丁 64 条；`reference/3.0.16/` 和 `3.0.20/` 留着对照。下文提到 3.0.16 的地方，
+> 参照版本已升到 **3.0.21**（2026-10-01）；`reference/3.0.16/` 和 `3.0.20/` 留着对照。
+> 2026-10-10 起界面改用还原出来的源码 `app/renderer`（构建到 `app/desktop/out/recovered-ui`），
+> 原来的"拷参照渲染层 + 打补丁"（`app/official-ui`）连同 `reference/*/app/out/renderer` 已删除，补丁改动都已写进源码。下文提到 3.0.16 的地方，
 > 除版本号本身外结论未变（gateway / mcp-tools / 插件 / agent 配置在 3.0.20 → 3.0.21 之间没动）。
 
 三种来源：
@@ -30,9 +31,8 @@
 
 ### B. 直接用编译产物
 
-| 部分 | 位置 | 说明 |
-|---|---|---|
-| **界面（渲染层）** | `reference/3.0.21/app/out/renderer` → 构建时拷到 `app/desktop/out/official-ui` | 唯一在运行时直接用的编译产物；打 64 个补丁（`app/official-ui/patches.mjs`） |
+运行时已经没有直接用的编译产物。界面原来是 `reference/3.0.21/app/out/renderer` 拷进来再打补丁，2026-10-10 换成源码 `app/renderer`
+（Vite + Tailwind 构建，第三方库仍有一部分以打包后的形式放在 `src/vendor.js` / `src/vendor-inline/`），逐屏截图和原来的界面一致。
 
 `reference/3.0.16/` 里的 gateway、mcp-tools、opencode 插件、主进程也是编译产物，但**只作对照参考，运行时不用**。
 
@@ -69,7 +69,7 @@
 
 | 部分 | 参照 | 我们 | 来源 | 对齐程度 |
 |---|---|---|---|---|
-| **界面（渲染层）** | `app.asar` 的 `out/renderer`，约 51 万行（含第三方库） | 同一份编译产物，构建时打 58 个补丁（`app/official-ui/`） | **原样 + 补丁** | 界面代码和参照一致；补丁只改品牌、去登录 / 营销弹窗、隐藏浏览器和 ComfyUI 入口 |
+| **界面（渲染层）** | `app.asar` 的 `out/renderer`，约 51 万行（含第三方库） | `app/renderer`，从参照还原出的源码 | **还原 + 改动** | 界面和参照一致；我们的改动（品牌、去登录 / 营销弹窗、隐藏浏览器 / ComfyUI / 模型选择、平台接入设置、连接状态等）直接写在源码里 |
 | **preload** | `out/preload/index.mjs`，约 6000 行 | `app/desktop/src/preload/index.ts`，约 370 行 | 重写 | 暴露的对象和通道白名单与参照一致；登录固定为本机用户；内置浏览器不暴露 |
 | **主进程** | `out/main`，约 29 万行（含第三方库） | `app/desktop/src/main`，约 8700 行 | 重写 | 编排（gateway / opencode 拉起、多工作区、身份、恢复）对齐；约 165 个 IPC 通道里核心的都按参照形状实现，范围外的给形状正确的空实现 |
 | **gateway** | `gateway/dist/main.js`，NestJS，466 条路由 | `app/gateway`，NestJS，约 1.3 万行 | 重写 | **258 / 466** 条路由。**范围内的已全部补齐**；剩下 208 条是范围外（团队、账号、计费、技能市场运营、云端项目、ComfyUI、插件、浏览器、遥测）和暂缓的资产中心 / 反馈 / 水印，明细见 [`gateway-api.md`](gateway-api.md) |

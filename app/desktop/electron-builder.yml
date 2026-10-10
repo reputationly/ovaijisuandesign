@@ -38,9 +38,9 @@ productName: 蒜狸小助手
 directories:
   output: dist-electron
 
-# 只把主进程/预加载/渲染层自己的代码和 official-ui 打进 asar；运行时依赖走 extraResources。
-# `out/` 是 electron-vite 的产物，**必须进 asar** —— 官方 UI 由 protocol.ts:34 从
-# `app.getAppPath()/out/official-ui` 读。
+# 只把主进程/预加载和界面（out/recovered-ui，app/renderer 构建）打进 asar；运行时依赖走 extraResources。
+# `out/` **必须进 asar** —— 界面由 protocol.ts 的 rendererRoot() 从
+# `app.getAppPath()/out/recovered-ui` 读。
 files:
   - out/**/*
   - package.json
