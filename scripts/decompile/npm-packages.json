@@ -80,7 +80,7 @@
   {"name":"@xyflow/react","version":"12.10.2"},
   {"name":"date-fns","version":"4.4.0"},
   {"name":"entities","version":"6.0.1"},
-  {"name":"lucide-react","version":"1.41.0"},
+  {"name":"lucide-react","version":"1.42.0"},
   {"name":"mediabunny","version":"1.52.3"},
   {"name":"micromark-util-character","version":"2.1.1"},
   {"name":"micromark-factory-destination","version":"2.0.1"},
@@ -141,6 +141,6 @@
   {"name":"style-to-js","version":"1.1.21"},
   {"name":"@tanstack/form-core","version":"1.33.5"},
   {"name":"js-yaml","version":"4.3.2"},
-  {"name":"prosemirror-commands","version":"1.7.2"},
+  {"name":"prosemirror-commands","version":"1.7.1"},
   {"name":"tailwind-merge","version":"3.5.0"}
 ]

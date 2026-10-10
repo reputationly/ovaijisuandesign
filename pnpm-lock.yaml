@@ -449,6 +449,9 @@ importers:
       js-yaml:
         specifier: 4.3.2
         version: 4.3.2
+      lucide-react:
+        specifier: 1.42.0
+        version: 1.42.0(react@19.2.4)
       mdast-util-from-markdown:
         specifier: 2.0.3
         version: 2.0.3
@@ -497,6 +500,9 @@ importers:
       orderedmap:
         specifier: 2.1.1
         version: 2.1.1
+      prosemirror-commands:
+        specifier: 1.7.1
+        version: 1.7.1
       prosemirror-history:
         specifier: 1.5.0
         version: 1.5.0
@@ -3246,6 +3252,11 @@ packages:
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
 
+  lucide-react@1.42.0:
+    resolution: {integrity: sha512-b3jprplnoLS8n5etw1z8xODe3hF/yjKATrTitsrKrnjUhCef5BdDct6Ppv3zVvzFwmtfWgLO6XNM3C9fAD93ug==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
@@ -3571,8 +3582,8 @@ packages:
   prosemirror-changeset@2.4.3:
     resolution: {integrity: sha512-J8jqUZ1xybXKY44v3K0c8m8ZTIqJPVT34t2UVyxv4VEWoNd5C9t5Y52GNuMriRJ3IpNxOSE2R60vN4qBrTMcyQ==}
 
-  prosemirror-commands@1.7.2:
-    resolution: {integrity: sha512-q6Q6szxqdu9Xd6EcdKsqXghu5nQdZTpB4Q9yd04WRc7/jt763e/rT60Owh0L1GYY+T46o5rD+9lEN36dZS43tw==}
+  prosemirror-commands@1.7.1:
+    resolution: {integrity: sha512-rT7qZnQtx5c0/y/KlYaGvtG411S97UaL6gdp6RIZ23DLHanMYLyfGBV5DtSnZdthQql7W+lEVbpSfwtO8T+L2w==}
 
   prosemirror-dropcursor@1.8.3:
     resolution: {integrity: sha512-FoYbsJR8gK+DGlqhNoE29Loa38eIZPzQRIb1VMaDNBoo4OLP6vVof/jR8qFY/6XvUd6Dhug8MDCHl2a/h8RTfQ==}
@@ -5528,7 +5539,7 @@ snapshots:
   '@tiptap/pm@3.31.3':
     dependencies:
       prosemirror-changeset: 2.4.3
-      prosemirror-commands: 1.7.2
+      prosemirror-commands: 1.7.1
       prosemirror-dropcursor: 1.8.3
       prosemirror-gapcursor: 1.4.1
       prosemirror-history: 1.5.0
@@ -6818,6 +6829,10 @@ snapshots:
     dependencies:
       react: 19.2.4
 
+  lucide-react@1.42.0(react@19.2.4):
+    dependencies:
+      react: 19.2.4
+
   magic-string@0.30.21:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
@@ -7209,7 +7224,7 @@ snapshots:
     dependencies:
       prosemirror-transform: 1.12.1
 
-  prosemirror-commands@1.7.2:
+  prosemirror-commands@1.7.1:
     dependencies:
       prosemirror-model: 1.25.11
       prosemirror-state: 1.4.4

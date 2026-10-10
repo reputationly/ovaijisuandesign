@@ -629,6 +629,12 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
       }
     }
   }
+  // 打包器辅助函数（getDefaultExportFromCjs 这类）贴在包旁边时形状也会命中，收进来之后
+  // main 还在用它，就会被要求是包的导出。它不属于任何包，直接排除。
+  for (const i of [...mine]) {
+    const names = namesOf[i];
+    if (names.length && names.every(isBundlerHelper)) mine.delete(i);
+  }
   if (!mine.size) return fail(report, "vendor 里没找到这个包的代码（版本不对？）");
 
   // 反复检查三种冲突。冲突落在短语句 / 夹缝语句 / 簇外的误命中上（多半是邻居包的，let x = 0
@@ -721,6 +727,7 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
   const pj = JSON.parse(readFileSync(path.join(pkgDir, "package.json"), "utf8"));
   report.deps = Object.keys({ ...pj.dependencies, ...pj.peerDependencies });
   imports.push(...mapped);
+  if (!mine.size) return fail(report, "认出来的语句在冲突检查里被全部剔除了");
   report.imports = mapped.length;
   report.lines = [...mine].reduce((s, i) => s + (body[i].loc ? body[i].loc.end.line - body[i].loc.start.line + 1 : 0), 0);
   return mine;
