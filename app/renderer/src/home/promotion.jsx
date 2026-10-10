@@ -64,8 +64,7 @@ export function usePromotion() {
     staleTime: 6e4,
     retry: false
   });
-  const now = Date.now();
-  const isShow = !!data && now >= data.startTimeMs && now < data.endTimeMs;
+  const isShow = false;
   return {
     isShow,
     data: isShow ? data : null

@@ -1,13 +1,12 @@
 // general-section.jsx
-import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, Bot, Brain$2 as Brain, ChevronLeftIcon, CircleArrowUp, CurrentWorkspaceContext, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogTitle$2, getRuntimeConfig, Globe, jsxRuntimeExports, Library, Loader2, Monitor, Pencil, Plus, reactExports, ShieldAlert, Smartphone, Sun, useNavigate, usePlatform, useQueries, useQuery, useTranslation, XIcon } from "../vendor.js";
+import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, Brain$2 as Brain, ChevronLeftIcon, CircleArrowUp, CurrentWorkspaceContext, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogTitle$2, getRuntimeConfig, Globe, jsxRuntimeExports, Library, Loader2, Monitor, Pencil, Plus, reactExports, ServerIcon, ShieldAlert, Smartphone, Sun, useNavigate, usePlatform, useQueries, useQuery, useTranslation, XIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
+import { PlatformSection } from "../settings/platform-section.jsx";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useAssetCenterSettings } from "./use-asset-center-settings.js";
 import {
-  Blocks,
   Cable,
-  CircleUserRound,
   Folder,
   HardDrive,
   Moon,
@@ -781,11 +780,6 @@ const SECTIONS = [
     labelKey: "settings.general",
   },
   {
-    id: "account",
-    icon: CircleUserRound,
-    labelKey: "settings.account.title",
-  },
-  {
     id: "storage",
     icon: HardDrive,
     labelKey: "settings.storageSection",
@@ -796,9 +790,9 @@ const SECTIONS = [
     labelKey: "settings.networkSection",
   },
   {
-    id: "models",
-    icon: Bot,
-    labelKey: "settings.models.title",
+    id: "platform",
+    icon: ServerIcon,
+    labelKey: "ov.platform.nav",
   },
   {
     id: "memory",
@@ -814,11 +808,6 @@ const SECTIONS = [
     id: "assetCenter",
     icon: Library,
     labelKey: "settings.assetCenter.title",
-  },
-  {
-    id: "comfyui",
-    icon: Blocks,
-    labelKey: "settings.comfyui.title",
   },
   {
     id: "advanced",
@@ -1102,7 +1091,6 @@ function GeneralSection() {
   const electron = isElectron();
   const isMac2 = isMacPlatform();
   const { app: platformApp } = usePlatform();
-  const removeWatermarkChecked = !(config2.watermarkEnabled ?? true);
   return (
     <div className="space-y-2">
       <SettingGroup>
@@ -1178,32 +1166,6 @@ function GeneralSection() {
             />
           </SettingRow>
         )}
-        <SettingRow
-          label={t2("settings.removeWatermark")}
-          description={t2("settings.removeWatermarkDesc")}
-        >
-          <div className="flex flex-col items-end gap-1">
-            <Switch
-              checked={removeWatermarkChecked}
-              onCheckedChange={(checked) =>
-                void set2("watermarkEnabled", !checked)
-              }
-              data-action-ui-id="settings.remove-watermark-toggle"
-            />
-            <span
-              className="whitespace-nowrap text-xs text-muted-foreground"
-              aria-live="polite"
-            >
-              {t2("settings.watermarkStatusCurrent", {
-                status: t2(
-                  removeWatermarkChecked
-                    ? "settings.watermarkStatusOff"
-                    : "settings.watermarkStatusOn",
-                ),
-              })}
-            </span>
-          </div>
-        </SettingRow>
       </SettingGroup>
       {electron && (
         <SettingGroup title={t2("settings.groupSystem")}>
@@ -1575,6 +1537,7 @@ const SECTION_COMPONENTS = {
   account: AccountSection,
   storage: StorageSection,
   network: NetworkSection,
+  platform: PlatformSection,
   models: CustomModelSection,
   memory: MemorySection,
   imBridge: ImBridgeSection,

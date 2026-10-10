@@ -94,8 +94,8 @@ export function parseProjectArchiveSection(value) {
 const SHOWCASE_MINIMUM_ITEM_COUNT = 9;
 export const HOME_SHOWCASE_MAX_ITEMS_PER_COLLECTION = 64;
 export const HOME_SHOWCASE_MAX_TOTAL_ITEMS = 256;
-export const DEFAULT_SHOWCASE_ATTRIBUTION = "MiniMax Design官方";
-export const DEFAULT_SHOWCASE_ATTRIBUTION_EN = "MiniMax Design Official";
+export const DEFAULT_SHOWCASE_ATTRIBUTION = "蒜狸小助手官方";
+export const DEFAULT_SHOWCASE_ATTRIBUTION_EN = "Suanli Assistant Official";
 export const DEFAULT_SHOWCASE_DESCRIPTION =
   "展现 H3 在镜头运动、主体一致性与音画协同上的高质量生成能力。";
 export const DEFAULT_SHOWCASE_DESCRIPTION_EN =

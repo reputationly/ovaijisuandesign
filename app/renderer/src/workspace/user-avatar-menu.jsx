@@ -1,5 +1,5 @@
 // user-avatar-menu.jsx
-import { Check, ChevronRight$1 as ChevronRight, Copy, getRuntimeConfig, GraduationCap, jsxRuntimeExports, Monitor, Palette, reactDomExports, reactExports, Smartphone, Sun, SwatchBook, usePlatform, useQueryClient, User, useTranslation, Wrench } from "../vendor.js";
+import { ChevronRight$1 as ChevronRight, getRuntimeConfig, jsxRuntimeExports, Monitor, Palette, reactDomExports, reactExports, Smartphone, Sun, SwatchBook, usePlatform, useQueryClient, useTranslation, Wrench } from "../vendor.js";
 import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   Icon,
@@ -18,15 +18,14 @@ import {
   useBrowserHoverPreview,
 } from "../infra/dialog-content.jsx";
 import {
-  BookOpen,
   Brain,
   FileText,
-  LogOut,
   Moon,
   Settings,
   Users,
 } from "../media-editing/package.jsx";
 import { useTheme } from "../generation/use-model-catalog-scope-key.js";
+import { ConnectionDot, ConnectionPill } from "./connection-indicator.jsx";
 import { SegmentedSwitch } from "../canvas/popover-title.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
@@ -39,7 +38,6 @@ import {
 } from "../assets/credit-query-keys.jsx";
 import { QuickZoomPresence } from "../canvas/canvas-high-blast-delete-dialog.jsx";
 import {
-  getTutorialUrl,
   getUserProtocolUrl,
   Tabs,
   TabsContent,
@@ -54,7 +52,6 @@ import {
 import {
   HailuoCreditRow,
   MpCreditRow,
-  SubscriptionRenewalBadge,
   useCanMigrate,
   useMpSubscribeUrl,
   useMpWallet,
@@ -641,27 +638,6 @@ function useUserProtocolSubmenu(anchorRef) {
 }
 function protocolKeysForRegion() {
   return USER_PROTOCOL_KEYS_BY_REGION[getRuntimeConfig().region];
-}
-function UserProtocolMenuRow({ submenu }) {
-  const { t: t2 } = useTranslation();
-  const protocolKeys = protocolKeysForRegion();
-  if (protocolKeys.length === 0) return null;
-  return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: hover menu trigger row
-    <div
-      ref={submenu.rowRef}
-      onMouseEnter={submenu.show}
-      onMouseLeave={submenu.scheduleHide}
-    >
-      <MenuButton
-        icon={BookOpen}
-        label={t2("userMenu.protocol")}
-        ariaExpanded={submenu.open}
-        onClick={submenu.show}
-        dataActionUiId="user-menu.protocol"
-      />
-    </div>
-  );
 }
 function UserProtocolFlyout({ submenu, onClose }) {
   const { t: t2 } = useTranslation();
@@ -1272,36 +1248,9 @@ export function UserAvatarMenu({
       dedupedToast.error(t2("common.copyFailed"));
     }
   }, [user.userID, t2]);
-  const initial = user.username?.charAt(0).toUpperCase();
   const avatarSrc = useResizedAvatar(user.avatar);
   const showUISpecEntry = canUseDebugTooling();
   const showDebugPanelEntry = showUISpecEntry;
-  const renderAvatar = (
-    sizeClassName,
-    fallbackIconSize,
-    fallbackTextClassName,
-    showBadge = false,
-  ) => (
-    <span className={cn("relative shrink-0 rounded-full", sizeClassName)}>
-      {avatarSrc ? (
-        <img
-          src={avatarSrc}
-          alt=""
-          className="h-full w-full rounded-full object-cover"
-        />
-      ) : (
-        <span
-          className={cn(
-            "flex h-full w-full items-center justify-center rounded-full bg-primary font-medium text-primary-foreground",
-            fallbackTextClassName ?? (showUsername ? "text-xs" : "text-sm"),
-          )}
-        >
-          {initial || <User size={fallbackIconSize} />}
-        </span>
-      )}
-      {showBadge && <SubscriptionRenewalBadge />}
-    </span>
-  );
   return (
     <>
       <div
@@ -1316,7 +1265,6 @@ export function UserAvatarMenu({
                 ref={triggerRef}
                 type="button"
                 data-action-ui-id="user-menu.trigger"
-                title={user.username || t2("sidebar.user")}
                 aria-haspopup="dialog"
                 aria-expanded={open}
                 aria-controls={menuId}
@@ -1331,10 +1279,7 @@ export function UserAvatarMenu({
                       : "group-hover/avatar-trigger:bg-[var(--home-sidebar-nav-hover)]",
                   )}
                 >
-                  {renderAvatar("size-7", 14, void 0, showRenewalBadge)}
-                  <span className="min-w-0 flex-1 truncate text-body-14">
-                    {user.username || t2("sidebar.user")}
-                  </span>
+                  <ConnectionPill />
                 </span>
               </button>
             </div>
@@ -1358,7 +1303,6 @@ export function UserAvatarMenu({
                 ref={triggerRef}
                 type="button"
                 data-action-ui-id="user-menu.trigger"
-                title={user.username || t2("sidebar.user")}
                 aria-haspopup="dialog"
                 aria-expanded={open}
                 aria-controls={menuId}
@@ -1370,7 +1314,7 @@ export function UserAvatarMenu({
                     : "hover:bg-[var(--home-sidebar-nav-hover)]",
                 )}
               >
-                {renderAvatar("size-7", 14, "text-xs", showRenewalBadge)}
+                <ConnectionDot />
               </button>
             </div>
           </SidebarBottomActionStack>
@@ -1413,40 +1357,6 @@ export function UserAvatarMenu({
           }
         >
           <UserMenuRootView>
-            <div className="px-4 pt-4 pb-3">
-              <div className="flex min-w-0 items-center gap-3">
-                {renderAvatar("size-10", 20, "text-base")}
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-medium text-foreground text-title-15">
-                    {user.username || t2("sidebar.user")}
-                  </div>
-                  {user.userID && (
-                    <button
-                      type="button"
-                      className="group mt-0.5 flex max-w-full cursor-pointer items-center gap-1 rounded-sm text-body-12 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
-                      onClick={handleCopyUID}
-                      aria-label={`${t2("common.copy")} UID ${user.userID}`}
-                    >
-                      <span className="truncate">
-                        {"UID : "}
-                        {user.userID}
-                      </span>
-                      {copied ? (
-                        <Check size={11} className="shrink-0 text-primary" />
-                      ) : (
-                        <Copy
-                          size={11}
-                          className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                        />
-                      )}
-                      <span className="sr-only" aria-live="polite">
-                        {copied ? t2("common.copied") : ""}
-                      </span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
             {teamIntegrationEnabled || showPersonalCreditSummary ? (
               <UserMenuAccountSummary>
                 {teamIntegrationEnabled ? (
@@ -1591,33 +1501,6 @@ export function UserAvatarMenu({
                 />
               </MenuSection>
               <MenuSection title={t2("userMenu.sectionHelp")}>
-                <MenuButton
-                  icon={GraduationCap}
-                  label={t2("userMenu.tutorial")}
-                  onClick={() => {
-                    closeMenu();
-                    void openExternalUrl(
-                      platform2,
-                      getTutorialUrl(getRuntimeConfig().region),
-                      {
-                        source: "sidebar.tutorial",
-                      },
-                    );
-                  }}
-                  dataActionUiId="user-menu.tutorial"
-                />
-                {onChangelog && (
-                  <MenuButton
-                    icon={FileText}
-                    label={t2("homeSidebar.changelog")}
-                    onClick={() => {
-                      closeMenu();
-                      onChangelog();
-                    }}
-                    dataActionUiId="user-menu.changelog"
-                  />
-                )}
-                <UserProtocolMenuRow submenu={protocolSubmenu} />
                 <VersionRow menuOpen={open} />
               </MenuSection>
               {(showUISpecEntry || showDebugPanelEntry) && (
@@ -1646,19 +1529,6 @@ export function UserAvatarMenu({
                   )}
                 </MenuSection>
               )}
-              <div className="px-1 py-1">
-                <MenuButton
-                  icon={LogOut}
-                  label={t2("sidebar.logout")}
-                  onClick={() => {
-                    closeMenu();
-                    onLogout();
-                  }}
-                  dataActionUiId="user-menu.logout"
-                  showChevron={false}
-                  destructive={true}
-                />
-              </div>
             </div>
           </UserMenuRootView>
         </UserMenuPopoverShell>

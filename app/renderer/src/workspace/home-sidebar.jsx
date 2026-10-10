@@ -1,5 +1,5 @@
 // home-sidebar.jsx
-import { ArrowUpRight, ChevronDown, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Library, MonochromeIcon, Plus, reactExports, storageKeys, useNavigate, usePlatform, useQueryClient, useStorage, useTranslation, Workflow } from "../vendor.js";
+import { ArrowUpRight, ChevronDown, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Library, MonochromeIcon, Plus, reactExports, storageKeys, useNavigate, usePlatform, useQueryClient, useStorage, useTranslation } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Tooltip,
@@ -452,13 +452,6 @@ export function HomeSidebar({
       label: t2("homeSidebar.skillCommunity"),
       badgeTarget: "connectors",
       releaseBadge: sidebarBadges.connectors,
-    },
-    {
-      to: "/workflows",
-      icon: Workflow,
-      label: t2("homeSidebar.comfyWorkflows"),
-      badgeTarget: "workflows",
-      releaseBadge: sidebarBadges.workflows,
     },
   ];
   const projectsBadge = sidebarBadges.projects;

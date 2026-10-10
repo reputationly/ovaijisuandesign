@@ -9,12 +9,8 @@ import { getCreationGuideUrlsByLocale } from "../vendor-inline/vscode-base/graph
 import { __jsx } from "../shared/jsx-runtime.js";
 import { openUrlInBuiltinBrowser } from "../workspace/resolve-retry-message-payload.jsx";
 
-export function CreationGuidePlaceholder({
-  guides,
-  source,
-  triggerMention,
-  triggerSlash,
-}) {
+export function CreationGuidePlaceholder({ source, triggerMention, triggerSlash }) {
+  const guides = [];
   const { t: t2, i18n } = useTranslation();
   const platform2 = usePlatform();
   const guideUrls = getCreationGuideUrlsByLocale(i18n.language);

@@ -2,7 +2,7 @@
 import { API_PATHS, ArrowUpRight, Bot, Check, getRuntimeConfig, jsxRuntimeExports, Music, reactDomExports, reactExports, useGatewayScope, usePlatform, useQuery, useQueryClient, useTranslation, Video } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { ImageOutlineIcon, PencilLine } from "../media-editing/package.jsx";
+import { ImageOutlineIcon } from "../media-editing/package.jsx";
 import {
   ClockIcon,
   formatResolutionRange,
@@ -282,13 +282,6 @@ function AgentReasoningSelector({ model, selectedId, onSelect }) {
     </fieldset>
   );
 }
-const SELECTABLE_AGENT_MODEL_ORDER = new Map([
-  ["gamma/gamma_high", 0],
-  ["alpha/alpha", 1],
-  ["alpha/claude-opus-5-5", 1],
-  ["gamma/gamma-6-astra", 2],
-  ["gamma/gpt-6-astra", 2],
-]);
 function normalizeAgentModels(value, custom) {
   if (
     !value ||
@@ -335,13 +328,7 @@ function normalizeAgentModels(value, custom) {
     };
   });
   const models = [
-    ...normalizedModels
-      .filter((model) => SELECTABLE_AGENT_MODEL_ORDER.has(model.id))
-      .sort(
-        (a2, b3) =>
-          (SELECTABLE_AGENT_MODEL_ORDER.get(a2.id) ?? 0) -
-          (SELECTABLE_AGENT_MODEL_ORDER.get(b3.id) ?? 0),
-      ),
+    ...normalizedModels,
     ...(custom?.models ?? []),
   ];
   const defaultId =
@@ -1228,10 +1215,6 @@ export function MediaModelSelector({
     );
     handleClose();
   };
-  const handleConfigureCustom = () => {
-    handleClose();
-    openSettings("models");
-  };
   const popover = (
     <QuickZoomPresence value={open ? position2 : null}>
       {(position22, motionProps) =>
@@ -1260,19 +1243,7 @@ export function MediaModelSelector({
             <CapabilityPopoverHeader
               title={t2("chat.mediaModels.title")}
               description={t2("chat.mediaModels.selectionDescription")}
-              trailing={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="xs"
-                  onClick={handleConfigureCustom}
-                  data-action-ui-id="chat-model-configure-custom"
-                  className="text-muted-foreground"
-                >
-                  <Icon icon={PencilLine} size="sm" strokeWidth={1.5} />
-                  {t2("chat.mediaModels.custom.configure")}
-                </Button>
-              }
+              trailing={false}
             />
             <SegmentedSwitch
               value={activeTab}

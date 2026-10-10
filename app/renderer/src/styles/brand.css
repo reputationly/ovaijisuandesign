@@ -1,0 +1,14 @@
+@font-face {
+  font-family: "Suanli Brand";
+  src: url("../brand/suanli-brand.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+.suanli-wordmark {
+  font-family: "Suanli Brand", var(--font-heading, system-ui), sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--hub-wordmark-foreground, currentColor);
+  -webkit-font-smoothing: antialiased;
+}

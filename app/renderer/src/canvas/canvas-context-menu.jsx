@@ -1,31 +1,26 @@
 // canvas-context-menu.jsx
 import {
   CanvasNodeType,
-  ChevronRight$1 as ChevronRight,
   CompositedSvg,
   getBezierPath,
   jsxRuntimeExports,
-  PlusCircle,
   Position,
   reactDomExports,
   reactExports,
   useReactFlow,
   useStore$3 as useStore,
   useTranslation,
-  Workflow,
-} from "../vendor.js";
+  } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   ImageOutlineIcon,
   useCanvasBridge,
 } from "../media-editing/package.jsx";
 import {
-  QuickZoomPresence,
   useDismissMenu,
 } from "./canvas-high-blast-delete-dialog.jsx";
 import {
   CLIP_STUDIO_PLUGIN_ID,
-  COMFYUI_PLUGIN_ID,
   DIRECTOR_STAGE_PLUGIN_ID,
   formatPluginAddNodeType,
   PANORAMA_VIEWER_PLUGIN_ID,
@@ -101,7 +96,6 @@ const MENU_HEADER_HEIGHT_PX = 32;
 const MENU_CHROME_HEIGHT_PX = 18;
 const MENU_ROW_GAP_PX = 0;
 const MENU_MAX_ROW_COUNT = 8;
-const SUBMENU_WIDTH_PX = MENU_WIDTH_PX;
 const MENU_ESTIMATED_HEIGHT_PX =
   MENU_CHROME_HEIGHT_PX +
   MENU_HEADER_HEIGHT_PX +
@@ -291,196 +285,6 @@ function MenuItem({
         </span>
       ) : null}
     </button>
-  );
-}
-function ComfyUiSubmenu({
-  open,
-  onOpen,
-  onCloseSubmenu,
-  onCreateNode,
-  onClose,
-  flowPosition,
-}) {
-  const { t: t2 } = useTranslation();
-  const {
-    addNodeMenuBadges,
-    fetchComfyUiWorkflows,
-    onAddNodeMenuBadgeComplete,
-    onPaneContextMenuAction,
-    openComfyUiWorkflow,
-    openComfyUiWorkflowLibrary,
-  } = useCanvasBridge();
-  const reportMenuAction = reactExports.useCallback(
-    (menuItem) => {
-      try {
-        onPaneContextMenuAction?.({
-          menuItem,
-        });
-      } catch {}
-    },
-    [onPaneContextMenuAction],
-  );
-  const [workflows, setWorkflows] = reactExports.useState([]);
-  const [loading, setLoading] = reactExports.useState(false);
-  const [loaded, setLoaded] = reactExports.useState(false);
-  const [openToLeft, setOpenToLeft] = reactExports.useState(false);
-  const requestRef = reactExports.useRef(null);
-  const hoverDismissRef = reactExports.useRef(null);
-  const handleCancelHoverDismiss = reactExports.useCallback(() => {
-    if (hoverDismissRef.current !== null) {
-      clearTimeout(hoverDismissRef.current);
-      hoverDismissRef.current = null;
-    }
-  }, []);
-  reactExports.useEffect(() => {
-    if (!open) handleCancelHoverDismiss();
-    return handleCancelHoverDismiss;
-  }, [open, handleCancelHoverDismiss]);
-  const loadWorkflows = reactExports.useCallback(() => {
-    if (loaded || loading || !fetchComfyUiWorkflows || requestRef.current)
-      return;
-    setLoading(true);
-    const request = fetchComfyUiWorkflows()
-      .then((items) => {
-        setWorkflows(items.filter((item) => item.source === "user"));
-        setLoaded(true);
-      })
-      .catch(() => {
-        setLoaded(true);
-        setWorkflows([]);
-      })
-      .finally(() => {
-        requestRef.current = null;
-        setLoading(false);
-      });
-    requestRef.current = request;
-  }, [fetchComfyUiWorkflows, loaded, loading]);
-  const handleMouseEnter = reactExports.useCallback(
-    (event) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const menu = event.currentTarget.closest(
-        '[data-action-ui-id="canvas.add-node-menu"]',
-      );
-      const rightEdge = menu ? menu.offsetLeft + menu.offsetWidth : rect.right;
-      setOpenToLeft(rightEdge + SUBMENU_WIDTH_PX + 8 > window.innerWidth);
-      onOpen();
-      loadWorkflows();
-    },
-    [loadWorkflows, onOpen],
-  );
-  return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: tracks the shared hover boundary; menu buttons and Escape own all actions.
-    <div
-      className="relative"
-      onMouseEnter={handleCancelHoverDismiss}
-      onMouseLeave={() => {
-        handleCancelHoverDismiss();
-        if (!open) return;
-        hoverDismissRef.current = setTimeout(() => {
-          hoverDismissRef.current = null;
-          onCloseSubmenu();
-        }, 150);
-      }}
-    >
-      <MenuItem
-        icon={<Workflow size={20} strokeWidth={1.8} />}
-        label={t2("canvas.comfyui")}
-        description={t2("canvas.comfyuiDesc")}
-        badge={addNodeMenuBadges?.comfyUi}
-        trailingIcon={
-          <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" />
-        }
-        dataActionUiId="canvas.menu-add-comfyui"
-        onMouseEnter={handleMouseEnter}
-        onClick={(event) => {
-          completeAddNodeMenuBadge(onAddNodeMenuBadgeComplete, "comfyUi");
-          reportMenuAction("canvas.menu-add-comfyui");
-          handleMouseEnter(event);
-        }}
-      />
-      <QuickZoomPresence value={open ? true : null}>
-        {(_2, motionProps) => (
-          <div
-            {...motionProps}
-            role="menu"
-            aria-label={t2("canvas.comfyui")}
-            className={`dp-motion-quick-zoom absolute right-auto bottom-0 z-10 flex max-h-[min(70vh,640px)] w-[240px] flex-col overflow-y-auto rounded-[16px] border p-2 ${openToLeft ? "right-[calc(100%+8px)]" : "left-[calc(100%+8px)]"}`}
-            style={{
-              transformOrigin: openToLeft ? "bottom right" : "bottom left",
-              backgroundColor: "var(--canvas-controls-bg)",
-              borderColor:
-                "var(--canvas-border-subtle, var(--canvas-controls-border))",
-              boxShadow: "var(--canvas-prompt-panel-shadow)",
-            }}
-            onMouseEnter={loadWorkflows}
-          >
-            <div className="flex h-7 items-center justify-between px-2">
-              <button
-                type="button"
-                className="ml-auto cursor-pointer text-xs opacity-60 transition-opacity hover:opacity-100"
-                style={{
-                  color: "var(--canvas-controls-text)",
-                }}
-                data-action-ui-id="canvas.menu-comfyui-explore-more"
-                onClick={() => {
-                  completeAddNodeMenuBadge(
-                    onAddNodeMenuBadgeComplete,
-                    "comfyUi",
-                  );
-                  openComfyUiWorkflowLibrary?.();
-                  onClose();
-                  reportMenuAction("canvas.menu-comfyui-explore-more");
-                }}
-              >
-                {t2("skills.popover.exploreMore")}
-              </button>
-            </div>
-            <MenuItem
-              icon={<PlusCircle size={20} strokeWidth={1.8} />}
-              label={t2("canvas.comfyui.newNode")}
-              description={t2("canvas.comfyui.newNodeDesc")}
-              dataActionUiId="canvas.menu-comfyui-new-node"
-              onClick={() => {
-                completeAddNodeMenuBadge(onAddNodeMenuBadgeComplete, "comfyUi");
-                onCreateNode();
-                reportMenuAction("canvas.menu-comfyui-new-node");
-              }}
-            />
-            {loading && (
-              <div
-                className="flex h-10 items-center px-2 text-xs opacity-60"
-                style={{
-                  color: "var(--canvas-controls-text)",
-                }}
-              >
-                {t2("common.loading")}
-              </div>
-            )}
-            {!loading &&
-              workflows.map((workflow) => (
-                <MenuItem
-                  key={workflow.id}
-                  icon={<Workflow size={20} strokeWidth={1.8} />}
-                  label={workflow.title}
-                  description={
-                    workflow.short_desc || t2("canvas.comfyui.userWorkflow")
-                  }
-                  dataActionUiId={`canvas.menu-add-comfyui-workflow-${workflow.id}`}
-                  onClick={() => {
-                    completeAddNodeMenuBadge(
-                      onAddNodeMenuBadgeComplete,
-                      "comfyUi",
-                    );
-                    void openComfyUiWorkflow?.(workflow.id, flowPosition);
-                    onClose();
-                    reportMenuAction("canvas.menu-comfyui-saved-workflow");
-                  }}
-                />
-              ))}
-          </div>
-        )}
-      </QuickZoomPresence>
-    </div>
   );
 }
 function ConnectionLineOverlay({ source }) {
@@ -787,18 +591,6 @@ export function CanvasContextMenu({
               );
               onAddNode(formatPluginAddNodeType(CLIP_STUDIO_PLUGIN_ID));
             })
-          }
-        />
-        <ComfyUiSubmenu
-          open={comfyUiOpen}
-          onOpen={handleOpenComfyUi}
-          onCloseSubmenu={handleCloseComfyUi}
-          onClose={handleClose}
-          flowPosition={flowPosition}
-          onCreateNode={() =>
-            handleClick2(() =>
-              onAddNode(formatPluginAddNodeType(COMFYUI_PLUGIN_ID)),
-            )
           }
         />
       </div>

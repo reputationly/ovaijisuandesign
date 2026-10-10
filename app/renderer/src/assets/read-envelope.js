@@ -11,6 +11,16 @@ export const HOME_DRAFT_WORKSPACE = "__home__";
 
 export const HOME_DRAFT_SESSION_KEY = "__compose__";
 
+// 附件的提交所有权（commitOperationId / commitSourcePath）是进程内的运行时状态，台账清理由
+// upload-commit-finalize outbox 负责；存进草稿会在重启后变成没人释放的所有权，挡住后续替换附件。
+export function stripForPersist(attachment) {
+  const { commitOperationId: _operationId, commitSourcePath: _sourcePath, ...rest } = attachment;
+  return {
+    ...rest,
+    previewUrl: "",
+  };
+}
+
 export function cloneSelectedMediaModels(models) {
   if (!models) return void 0;
   return {
@@ -58,7 +68,7 @@ export function readEnvelope(key2) {
       v: SCHEMA_VERSION,
       text: parsed.text,
       ...editorDocSnapshot(parsed.editorDoc),
-      attachments: Array.isArray(parsed.attachments) ? parsed.attachments : [],
+      attachments: (Array.isArray(parsed.attachments) ? parsed.attachments : []).map(stripForPersist),
       savedAt: parsed.savedAt,
       dropped: typeof parsed.dropped === "number" ? parsed.dropped : 0,
       ...(parsed.selectedMediaModels &&

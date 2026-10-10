@@ -59,11 +59,6 @@ const TABS = [
     labelKey: "mention.popover.workflows",
     fallback: "Workflows",
   },
-  {
-    key: "models",
-    labelKey: "mention.popover.models",
-    fallback: "Models",
-  },
 ];
 const FILE_KIND_FILTERS = [
   {

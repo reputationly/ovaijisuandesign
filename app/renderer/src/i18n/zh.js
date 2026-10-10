@@ -27,18 +27,15 @@ const zh = {
   "canvas.minimap.hide": "隐藏小地图",
   "canvas.minimap.show": "显示小地图",
   "connectors.catalog.libtv.title": "LibTV",
-  "connectors.catalog.libtv.description":
-    "使用 LibTV 创作图片和视频，将结果回传到 Design 画布。",
+  "connectors.catalog.libtv.description": "使用 LibTV 创作图片和视频，将结果回传到蒜狸画布。",
   "connectors.libtv.title": "连接 LibTV",
   "connectors.libtv.description":
     "在浏览器登录 LibTV 账户，连接你的项目与创作工具。",
-  "connectors.libtv.hint":
-    "请先打开一个 Design 任务。登录授权不会生成媒体或消耗创作积分。",
+  "connectors.libtv.hint": "请先打开一个蒜狸任务。登录授权不会生成媒体或消耗创作积分。",
   "connectors.libtv.authorize": "登录并连接",
   "connectors.libtv.waiting":
     "请在五分钟内完成浏览器授权。可暂时关闭此窗口，浏览器中的授权仍会继续。",
-  "connectors.libtv.runtimeRequired":
-    "请打开一个 Design 任务，等待就绪后重新连接。",
+  "connectors.libtv.runtimeRequired": "请打开一个蒜狸任务，等待就绪后重新连接。",
   "connectors.libtv.busy":
     "LibTV 正在连接中。请完成当前浏览器登录，再检查连接状态。",
   "connectors.libtv.conflict":
@@ -109,13 +106,13 @@ const zh = {
   "about.description": "图片、视频、音频创意工作流编辑器",
   "about.license": "许可证",
   "about.runtime": "运行时",
-  "about.title": "关于 MiniMax Design",
+  "about.title": "关于蒜狸小助手",
   "about.version": "版本",
   "account.delete.accountName": "账户名",
   "account.delete.ackDataErased": "我已了解所有数据将被永久删除",
   "account.delete.ackSelfInitiated": "我确认此操作是我本人主动申请并同意的",
   "account.delete.blockCheckUnavailable": "暂时无法完成注销预检，请稍后重试",
-  "account.delete.blockGroupDesign": "MiniMax Design",
+  "account.delete.blockGroupDesign": "蒜狸小助手",
   "account.delete.blockGroupHailuo": "海螺视频",
   "account.delete.blockHailuoFallback":
     "当前账号存在未处理的订阅或订单，暂无法注销",
@@ -133,15 +130,15 @@ const zh = {
   "account.delete.confirmTitle": "注销账号",
   "account.delete.failed": "账号注销失败，请稍后重试。",
   "account.delete.hailuoTitle": "海螺视频账号",
-  "account.delete.hubPersonalTitle": "MiniMax Design 个人账号",
-  "account.delete.hubTeamsTitle": "MiniMax Design 团队账号",
+  "account.delete.hubPersonalTitle": "蒜狸小助手个人账号",
+  "account.delete.hubTeamsTitle": "蒜狸小助手团队账号",
   "account.delete.remainingCredits": "积分包余额",
   "account.delete.resendCodeIn": "{{seconds}}s 后重发",
   "account.delete.sendCode": "发送验证码",
   "account.delete.submitButton": "确认注销",
   "account.delete.subscriptionPlan": "订阅计划",
   "account.delete.subtitle":
-    "注销后将无法登录当前海螺视频（网页端和手机端）及 MiniMax Design 的所有账号，账号中的个人数据、服务记录、账号积分及其他相关信息都将被清除且无法恢复。",
+    "注销后将无法登录当前海螺视频（网页端和手机端）及蒜狸小助手的所有账号，账号中的个人数据、服务记录、账号积分及其他相关信息都将被清除且无法恢复。",
   "account.delete.successToast": "账号注销中...",
   "account.delete.teamRemainingCredits": "团队剩余积分",
   "account.delete.title": "确认注销账号",
@@ -149,9 +146,9 @@ const zh = {
   "account.delete.verifyCodeLabel": "验证码",
   "account.delete.verifyCodePlaceholder": "请输入验证码",
   "account.delete.warning.contentErased":
-    "您在海螺 AI 网页端、海螺 AI 手机端以及 MiniMax Design 中的所有内容（包括云端视频和个人资料）将被永久删除，且无法找回",
+    "您在海螺 AI 网页端、海螺 AI 手机端以及蒜狸小助手中的所有内容（包括云端视频和个人资料）将被永久删除，且无法找回",
   "account.delete.warning.creditsCleared":
-    "海螺 AI 以及 MiniMax Design 账号中的积分都将全部清零",
+    "海螺 AI 以及蒜狸小助手账号中的积分都将全部清零",
   "account.delete.warning.irreversible": "账户注销后将无法恢复",
   "account.delete.warning.noNewUserBonus":
     "重新注册时不再享受新用户福利。请慎重考虑，一旦确认注销，操作将无法撤销",
@@ -261,10 +258,10 @@ const zh = {
   "assetCenter.errors.gatewayNotReady": "服务正在启动中，请稍等片刻",
   "assetCenter.errors.importEntityConflict": "该主体已存在",
   "assetCenter.errors.importInvalidZip":
-    "主体解析失败，只支持 MiniMax Design 导出的主体文件",
+    "主体解析失败，只支持蒜狸小助手导出的主体文件",
   "assetCenter.errors.importManifestInvalid": "导入文件格式不正确",
   "assetCenter.errors.importVersionUnsupported":
-    "无法解析该 zip 文件，仅支持上传 MiniMax Design 导出的主体包文件",
+    "无法解析该 zip 文件，仅支持上传蒜狸小助手导出的主体包文件",
   "assetCenter.errors.internalError": "操作失败，请重试",
   "assetCenter.errors.invalidRequest": "请求参数有误",
   "assetCenter.errors.network": "网络连接失败，请检查网络后重试",
@@ -530,7 +527,7 @@ const zh = {
   "attachmentFaceNotice.cancel": "取消",
   "attachmentFaceNotice.confirm": "确认",
   "attachmentFaceNotice.description":
-    "我们为您（“用户”）提供“参考”功能（“本功能”），协助您更好地使用我们提供的内容生成服务（“服务”）。您可以在视频生成、图片生成等服务中使用相应的参考功能，在使用本功能之前，请您认真阅读并充分理解《参考功能使用须知》（“本须知”），您以点击确认等方式同意本须知以及《用户协议》《隐私政策》（统称“服务协议”）的，方可使用本功能。使用本功能过程中，请您持续关注并遵守本须知及各项服务协议的要求，让我们共同创造和维护良好的网络环境和产品生态。\n\n一、服务使用规则\n1. 您理解、确认并承诺，您在使用本服务和本功能时输入、提交、上传、发布的各项内容（包括但不限于文字、图片、音频、视频等各种形式的内容及其中包含的文本、音乐、声音、图形图像、视觉设计、作品等所有组成部分，“输入内容”）均由您原创、拥有完整权利或已取得充分、合法、有效授权，输入内容的知识产权、所有权、人格权（包括但不限于肖像权等）、数据权益和/或其他相关权益由您和/或授权您的第三方依法享有，同时不侵犯任何人的知识产权、人格权、数据权益、商业秘密等合法权益，您应当就提供输入内容的行为独立承担责任。\n2. 如您的输入内容包含自然人的人脸、肖像、声音（统称“自然人特征”）的，您应当保证对该等信息享有充分的权利或您已取得权利人充分、合法、有效的授权。如您未就相关自然人特征取得必要授权，您不应在使用MiniMax Design或本功能时输入该等内容，否则，您应当独立承担由此导致的后果和责任。我们可能会对您输入内容中的自然人特征的特征点、矢量点进行检测和分析，以协助您使用服务，但我们不会将该等信息用于识别特定自然人。\n3. 您使用MiniMax Design和本功能的，应当将服务、输入内容以及服务生成、输出的各项内容（“输出内容”）用于合法合规的用途，不应将其用于违法违规的用途，不得利用服务或输入内容、输出内容侵害他人合法权益，相关禁止行为和/或禁止的目的或用途（“禁止用途”）包括但不限于：（1）生成、发布、传播煽动颠覆国家政权、推翻社会主义制度，危害国家安全和利益、损害国家形象，煽动分裂国家、破坏国家统一和社会稳定，宣扬恐怖主义、极端主义，宣扬民族仇恨、民族歧视，暴力、淫秽色情，以及虚假有害信息等法律、行政法规禁止的内容；（2）损害、丑化他人形象;（3）损害他人名誉;（4）冒用他人身份或名义;（5）贬低他人人格;（6）侮辱、诽谤、贬损、恶搞他人;（7）侵害未成年人合法权益或损害未成年人身心健康;（8）编造或传播谣言、虚假信息;（9）MiniMax各项服务协议中所禁止的行为;（10）其他违反法律法规或者侵犯他人合法权益的情形。如您从事了禁止行为或将服务、输入内容、输出内容用于禁止用途，您应当独立承担全部后果和责任，如给我们造成损失的，您应当赔偿。\n4. 如发现您的输入内容或输出内容存在违法违规、违反本须知或违反服务协议的情形时，我们有权视情况采取删除、屏蔽、拒绝输出相关内容等措施，并有权对您的账号采取冻结、封禁或关闭等处置措施。如您发现输入内容或输出内容存在前述情形的，应当立即采取删除、更换内容等适当措施，避免相关内容的生成或传播，并及时向我们反馈相关情况。\n5. 您知悉、理解并认可，为遵守相关法律法规的规定以及为明确输出内容的权利归属或使用限制，我们有权在输出内容中添加标识、水印，且在您浏览、导出、下载输出内容时有权再次以提示语等显著形式告知您如何使用上述输出内容及其限制。除非另有约定，您不得篡改或移除我们在输出内容中添加的标识、水印。同时，您使用输出内容时应当根据实际使用场景进行必要的标识和提示，说明其为AI生成内容，避免造成误导或混淆，如因您未进行必要的标识和提示而导致的任何后果和责任由您独立承担。\n6. 由于输出内容均产生于技术模型，尽管我们已经努力在改善模型算法，但是由于技术发展的局限性，仍不能保证服务或输出内容的适用性、准确性、可靠性、完整性。您知悉、理解并认可，本功能仅为辅助您使用MiniMax Design的内容生成服务而设置，我们不对本功能的适用性、准确性、可靠性、完整性作出任何保证或承担任何责任，您亦不会因此向我们提出任何主张。\n\n二、服务完善和意见反馈\n1. 我们将不断完善本服务和本功能，并适时修订、更新本须知及服务协议。如本功能或本须知有任何变更，我们将在功能相关界面告知您。如您不同意相关变更，请停止使用本功能。您继续使用本功能的，即视为已同意、接受修改后的版本，并应当予以遵守。\n2. 欢迎您在使用服务的过程中向我们反馈您的意见和建议，帮助我们优化和完善服务。同时，我们高度重视保护知识产权和人格权等合法权益。如果您认为服务或者他人对服务的使用存在侵犯您合法权益的情形，请通过feedback@hailuoai.com与我们联系，并提供相应的合法权益证明资料和侵权内容凭证等，我们将第一时间进行核实、处理，对违规内容采取删除、屏蔽等必要措施。",
+    "我们为您（“用户”）提供“参考”功能（“本功能”），协助您更好地使用我们提供的内容生成服务（“服务”）。您可以在视频生成、图片生成等服务中使用相应的参考功能，在使用本功能之前，请您认真阅读并充分理解《参考功能使用须知》（“本须知”），您以点击确认等方式同意本须知以及《用户协议》《隐私政策》（统称“服务协议”）的，方可使用本功能。使用本功能过程中，请您持续关注并遵守本须知及各项服务协议的要求，让我们共同创造和维护良好的网络环境和产品生态。\n\n一、服务使用规则\n1. 您理解、确认并承诺，您在使用本服务和本功能时输入、提交、上传、发布的各项内容（包括但不限于文字、图片、音频、视频等各种形式的内容及其中包含的文本、音乐、声音、图形图像、视觉设计、作品等所有组成部分，“输入内容”）均由您原创、拥有完整权利或已取得充分、合法、有效授权，输入内容的知识产权、所有权、人格权（包括但不限于肖像权等）、数据权益和/或其他相关权益由您和/或授权您的第三方依法享有，同时不侵犯任何人的知识产权、人格权、数据权益、商业秘密等合法权益，您应当就提供输入内容的行为独立承担责任。\n2. 如您的输入内容包含自然人的人脸、肖像、声音（统称“自然人特征”）的，您应当保证对该等信息享有充分的权利或您已取得权利人充分、合法、有效的授权。如您未就相关自然人特征取得必要授权，您不应在使用蒜狸小助手或本功能时输入该等内容，否则，您应当独立承担由此导致的后果和责任。我们可能会对您输入内容中的自然人特征的特征点、矢量点进行检测和分析，以协助您使用服务，但我们不会将该等信息用于识别特定自然人。\n3. 您使用蒜狸小助手和本功能的，应当将服务、输入内容以及服务生成、输出的各项内容（“输出内容”）用于合法合规的用途，不应将其用于违法违规的用途，不得利用服务或输入内容、输出内容侵害他人合法权益，相关禁止行为和/或禁止的目的或用途（“禁止用途”）包括但不限于：（1）生成、发布、传播煽动颠覆国家政权、推翻社会主义制度，危害国家安全和利益、损害国家形象，煽动分裂国家、破坏国家统一和社会稳定，宣扬恐怖主义、极端主义，宣扬民族仇恨、民族歧视，暴力、淫秽色情，以及虚假有害信息等法律、行政法规禁止的内容；（2）损害、丑化他人形象;（3）损害他人名誉;（4）冒用他人身份或名义;（5）贬低他人人格;（6）侮辱、诽谤、贬损、恶搞他人;（7）侵害未成年人合法权益或损害未成年人身心健康;（8）编造或传播谣言、虚假信息;（9）MiniMax各项服务协议中所禁止的行为;（10）其他违反法律法规或者侵犯他人合法权益的情形。如您从事了禁止行为或将服务、输入内容、输出内容用于禁止用途，您应当独立承担全部后果和责任，如给我们造成损失的，您应当赔偿。\n4. 如发现您的输入内容或输出内容存在违法违规、违反本须知或违反服务协议的情形时，我们有权视情况采取删除、屏蔽、拒绝输出相关内容等措施，并有权对您的账号采取冻结、封禁或关闭等处置措施。如您发现输入内容或输出内容存在前述情形的，应当立即采取删除、更换内容等适当措施，避免相关内容的生成或传播，并及时向我们反馈相关情况。\n5. 您知悉、理解并认可，为遵守相关法律法规的规定以及为明确输出内容的权利归属或使用限制，我们有权在输出内容中添加标识、水印，且在您浏览、导出、下载输出内容时有权再次以提示语等显著形式告知您如何使用上述输出内容及其限制。除非另有约定，您不得篡改或移除我们在输出内容中添加的标识、水印。同时，您使用输出内容时应当根据实际使用场景进行必要的标识和提示，说明其为AI生成内容，避免造成误导或混淆，如因您未进行必要的标识和提示而导致的任何后果和责任由您独立承担。\n6. 由于输出内容均产生于技术模型，尽管我们已经努力在改善模型算法，但是由于技术发展的局限性，仍不能保证服务或输出内容的适用性、准确性、可靠性、完整性。您知悉、理解并认可，本功能仅为辅助您使用蒜狸小助手的内容生成服务而设置，我们不对本功能的适用性、准确性、可靠性、完整性作出任何保证或承担任何责任，您亦不会因此向我们提出任何主张。\n\n二、服务完善和意见反馈\n1. 我们将不断完善本服务和本功能，并适时修订、更新本须知及服务协议。如本功能或本须知有任何变更，我们将在功能相关界面告知您。如您不同意相关变更，请停止使用本功能。您继续使用本功能的，即视为已同意、接受修改后的版本，并应当予以遵守。\n2. 欢迎您在使用服务的过程中向我们反馈您的意见和建议，帮助我们优化和完善服务。同时，我们高度重视保护知识产权和人格权等合法权益。如果您认为服务或者他人对服务的使用存在侵犯您合法权益的情形，请通过feedback@hailuoai.com与我们联系，并提供相应的合法权益证明资料和侵权内容凭证等，我们将第一时间进行核实、处理，对违规内容采取删除、屏蔽等必要措施。",
   "attachmentFaceNotice.title": "参考功能使用须知",
   "auth.confirmBrowserLogin.title": "确认登录账号",
   "auth.confirmBrowserLogin.description":
@@ -541,7 +538,7 @@ const zh = {
   "auth.loginGate.bullet2": "从一句想法开始，Design陪你一路落地",
   "auth.loginGate.button": "立即登录",
   "auth.loginGate.subtitle": "最强创作 Agent + 顶尖通用多模态模型",
-  "auth.loginGate.title": "MiniMax Design 全面接入 H3",
+  "auth.loginGate.title": "蒜狸小助手全面接入 H3",
   "auth.loginNetworkError": "登录验证失败，请检查网络后重试",
   "auth.loginPageExpired":
     "此登录页面已失效，请使用最新打开的登录页面，或返回客户端重新登录。",
@@ -585,7 +582,7 @@ const zh = {
   "bundleError.diagnosis.macosVersionUnsupported.suggestion1":
     "macOS 12 及更早版本不支持当前本地 AI 服务。",
   "bundleError.diagnosis.macosVersionUnsupported.suggestion2":
-    "重复重试无法解决，请先升级系统，升级完成后重新打开 MiniMax Design。",
+    "重复重试无法解决，请先升级系统，升级完成后重新打开蒜狸小助手。",
   "bundleError.diagnosis.macosVersionUnsupported.title": "系统版本过低",
   "bundleError.diagnosis.networkProxy.message":
     "检测到本地 AI 服务启动时可能遇到网络、VPN 或代理问题。",
@@ -695,7 +692,7 @@ const zh = {
   "bundleError.diagnosis.windowsCpuUnsupported.suggestion1":
     "升级 Windows 或重复安装无法补充处理器指令集。",
   "bundleError.diagnosis.windowsCpuUnsupported.suggestion2":
-    "请在较新的 64 位电脑上安装 MiniMax Design。",
+    "请在较新的 64 位电脑上安装蒜狸小助手。",
   "bundleError.diagnosis.windowsCpuUnsupported.title": "当前处理器不受支持",
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.message":
     "Windows 无法加载本地 AI 服务需要的系统组件。",
@@ -704,7 +701,7 @@ const zh = {
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion1":
     "先重启电脑，避免更新或安全软件仍占用旧文件。",
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion2":
-    "如果仍然失败，请重新安装最新版 MiniMax Design。",
+    "如果仍然失败，请重新安装最新版蒜狸小助手。",
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.title":
     "Windows 组件加载失败",
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.message":
@@ -714,16 +711,16 @@ const zh = {
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion1":
     "关闭占用大量内存的程序，并确保系统盘和项目盘有足够空间。",
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion2":
-    "释放资源后完全退出 MiniMax Design，再重新打开。",
+    "释放资源后完全退出蒜狸小助手，再重新打开。",
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.title": "系统资源不足",
   "bundleError.diagnosis.windowsRuntimeTerminated.message":
     "本地 AI 服务被系统、安装程序或其他程序强制结束。",
   "bundleError.diagnosis.windowsRuntimeTerminated.primaryAction":
-    "重新打开 MiniMax Design",
+    "重新打开蒜狸小助手",
   "bundleError.diagnosis.windowsRuntimeTerminated.suggestion1":
     "如果正在安装更新，请等待安装完成后再打开。",
   "bundleError.diagnosis.windowsRuntimeTerminated.suggestion2":
-    "否则请完全退出 MiniMax Design 后重新打开。",
+    "否则请完全退出蒜狸小助手后重新打开。",
   "bundleError.diagnosis.windowsRuntimeTerminated.title": "本地 AI 服务被终止",
   "bundleError.diagnosis.windowsVersionUnsupported.message":
     "当前 Windows 版本无法运行本地 AI 服务，请升级至 Windows 10 1809、Windows Server 2019 或更高版本。",
@@ -2408,7 +2405,7 @@ const zh = {
   "chat.emptyRecommendations.skillTab.clipAgent": "剪辑Skill",
   "chat.emptyRecommendations.skillTab.directorAgent": "导演台Skill",
   "chat.emptyRecommendations.skillTab.textAgent": "文本Skill",
-  "chat.emptyRecommendations.subtitle": "探索 H3，开启全新体验",
+  "chat.emptyRecommendations.subtitle": "说一句话，剩下的交给蒜狸",
   "chat.emptyRecommendations.subtitle.clipAgent":
     "通过对话调整视频片段、字幕和画面效果",
   "chat.emptyRecommendations.subtitle.directorAgent":
@@ -2485,7 +2482,7 @@ const zh = {
   "chat.fileChip.locateOnCanvas": "在画布上定位",
   "chat.fileReference.openOnce": "仅本次打开",
   "chat.fileReference.permissionDescription":
-    "这个本地路径不在 MiniMax Design 已信任的文件夹内。你可以仅本次在系统文件管理器中显示它，或信任它的父文件夹用于之后的对话文件引用。",
+    "这个本地路径不在蒜狸小助手已信任的文件夹内。你可以仅本次在系统文件管理器中显示它，或信任它的父文件夹用于之后的对话文件引用。",
   "chat.fileReference.permissionExpired": "文件权限已过期，请重试。",
   "chat.fileReference.permissionTitle": "显示本地文件？",
   "chat.fileReference.sensitivePath": "该路径受保护，无法从对话中打开。",
@@ -2803,14 +2800,14 @@ const zh = {
     "主体库适合保存角色、场景、风格包和常用素材，跨创作页复用。",
   "chat.tips.assetCenter.3": "把资产加入创作页后，可以在画布或对话里继续引用。",
   "chat.tips.discovery.1":
-    "可以把生成结果拖回对话，继续让 MiniMax Design 修改或扩展。",
+    "可以把生成结果拖回对话，继续让蒜狸小助手修改或扩展。",
   "chat.tips.discovery.10": "可以把常用工作流保存成 Skill，下次直接复用。",
   "chat.tips.discovery.11":
     "可以在新工作区尝试不同方向，保留当前项目不受影响。",
   "chat.tips.discovery.4":
-    "可以在画布中选中多个素材，让 MiniMax Design 基于它们一起创作。",
+    "可以在画布中选中多个素材，让蒜狸小助手基于它们一起创作。",
   "chat.tips.discovery.5":
-    "可以直接告诉 MiniMax Design 使用哪个模型、比例、时长或清晰度。",
+    "可以直接告诉蒜狸小助手使用哪个模型、比例、时长或清晰度。",
   "chat.tips.discovery.6": "生成失败后，可以基于错误原因调整要求后重试。",
   "chat.tips.discovery.8": "可以在时间线中预览剪辑效果，再决定是否导出。",
   "chat.tips.discovery.9": "可以用搜索快速找到历史生成文件、素材和节点。",
@@ -3126,7 +3123,7 @@ const zh = {
     "资产中心已改名为「主体库」，搬到了创作页（画布）里，让你在创作时更方便地取用素材。",
   "coachMark.home.assetCenterRelocation.title": "资产中心搬家啦",
   "coachMark.home.atKey.desc":
-    "想引用具体某张图或指定某个模型？输入 @ 直接挑——文件、模型都能选",
+    "想引用具体某张图或某个文件？输入 @ 直接挑——文件、素材都能选",
   "coachMark.home.atKey.title": "使用「@」键",
   "coachMark.home.projectLibrary.desc":
     "所有项目都在这里集中管理。点击下一步，为你创建一个示例项目，快速上手工作区。",
@@ -3207,7 +3204,7 @@ const zh = {
   "colorAdjust.vibrance": "自然饱和度",
   "colorAdjust.vignette": "暗角",
   "colorAdjust.whites": "白色",
-  "common.appName": "MiniMax Design",
+  "common.appName": "蒜狸小助手",
   "common.audio": "音频",
   "common.back": "返回",
   "common.cancel": "取消",
@@ -3355,13 +3352,13 @@ const zh = {
   "connectors.runtimeState.installing": "正在安装连接组件",
   "connectors.runtimeState.waitingHostApp": "等待应用连接",
   "connectors.catalog.illustrator.description":
-    "支持将品牌想法、草图和产品资料制作成可编辑的矢量图形，完成标志、图标、插画、海报与包装设计，并为视频动画提供分层素材，适合 MiniMax Design 的图片制作和视觉资产沉淀。",
+    "支持将品牌想法、草图和产品资料制作成可编辑的矢量图形，完成标志、图标、插画、海报与包装设计，并为视频动画提供分层素材，适合蒜狸小助手的图片制作和视觉资产沉淀。",
   "connectors.catalog.illustrator.title": "Illustrator",
   "connectors.catalog.photoshop.description":
     "支持把产品图、照片和设计素材加工成电商主图、海报、社媒视觉和项目贴图，完成抠图、修图、合成、调色和多尺寸输出，并保留可编辑图层。",
   "connectors.catalog.photoshop.title": "Photoshop",
   "connectors.catalog.shopify.description":
-    "把 MiniMax Design 的产出发布到你的 Shopify 店铺:创建商品草稿、上传商品图与广告素材、起草店铺页面。",
+    "把蒜狸小助手的产出发布到你的 Shopify 店铺:创建商品草稿、上传商品图与广告素材、起草店铺页面。",
   "connectors.catalog.shopify.title": "Shopify",
   "connectors.catalog.touchdesigner.description":
     "支持把音乐、摄像头、人体动作或现场信号变成实时视觉，用于舞台、展览和互动装置，制作粒子、3D、投影映射和现场画面。",
@@ -3373,7 +3370,7 @@ const zh = {
     "用 AI 驱动 Unreal 编辑器：生成和编辑 Actor，搭建蓝图，调整材质与 Niagara 特效，编排 Sequencer 镜头，并在项目中执行编辑器 Python。",
   "connectors.catalog.unreal.title": "Unreal Engine",
   "connectors.catalogDescription":
-    "选择服务，扩展 MiniMax Design 可访问的信息与可完成的工作。",
+    "选择服务，扩展蒜狸小助手可访问的信息与可完成的工作。",
   "connectors.catalogTitle": "探索插件",
   "connectors.connector.error.addon_install_failed": "安装插件到应用程序失败",
   "connectors.connector.error.busy": "安装已在进行中",
@@ -3482,7 +3479,7 @@ const zh = {
   "connectors.detail.figma.promptTitle.1": "广告分镜解读",
   "connectors.detail.figma.promptTitle.2": "设计规范提取",
   "connectors.detail.illustrator.description":
-    "支持将品牌想法、草图和产品资料制作成可编辑的矢量图形，完成标志、图标、插画、海报与包装设计，并为视频动画提供分层素材，适合 MiniMax Design 的图片制作和视觉资产沉淀。",
+    "支持将品牌想法、草图和产品资料制作成可编辑的矢量图形，完成标志、图标、插画、海报与包装设计，并为视频动画提供分层素材，适合蒜狸小助手的图片制作和视觉资产沉淀。",
   "connectors.detail.illustrator.prompt.0":
     "用 Adobe Illustrator 制作一张未来城市主题矢量海报：加入高楼、悬浮列车、霓虹招牌和标题“NEON CITY”，采用蓝紫配色，保留可编辑路径、文字和图层，输出 AI、SVG 和 PNG。",
   "connectors.detail.illustrator.prompt.1":
@@ -3493,7 +3490,7 @@ const zh = {
   "connectors.detail.illustrator.promptTitle.1": "制作品牌海报多版本",
   "connectors.detail.illustrator.promptTitle.2": "制作产品动画分层素材",
   "connectors.detail.shopify.description":
-    "连接你的 Shopify 店铺,直接从 MiniMax Design 发布生成的商品图、商品文案和页面内容。商品默认创建为草稿,页面保持未发布,经你确认后才上线。",
+    "连接你的 Shopify 店铺,直接从蒜狸小助手发布生成的商品图、商品文案和页面内容。商品默认创建为草稿,页面保持未发布,经你确认后才上线。",
   "connectors.detail.shopify.prompt.0":
     "用刚生成的海报图在 Shopify 创建一个商品草稿,标题叫「极光陶瓷马克杯」,并根据设计简报撰写商品描述",
   "connectors.detail.shopify.prompt.1":
@@ -3560,14 +3557,14 @@ const zh = {
   "connectors.customDialog.descriptionPlaceholder": "例如：查询商品和市场数据",
   "connectors.customDialog.enabled": "添加后启用",
   "connectors.customDialog.enabledHint":
-    "启用后，允许 MiniMax Design 在创作对话中调用此插件。",
+    "启用后，允许蒜狸小助手在创作对话中调用此插件。",
   "connectors.customDialog.environment": "环境变量（JSON）",
   "connectors.customDialog.error.invalid_config": "请检查服务名称和连接配置。",
   "connectors.customDialog.error.loadFailed": "无法读取连接器配置，请重试。",
   "connectors.customDialog.error.requestFailed":
     "无法保存此 MCP 服务，请重试。",
   "connectors.customDialog.error.reserved_name":
-    "该服务名称已被 MiniMax Design 保留。",
+    "该服务名称已被蒜狸小助手保留。",
   "connectors.customDialog.error.server_exists": "已存在同名 MCP 服务。",
   "connectors.customDialog.error.server_not_found":
     "此插件已不存在，请刷新列表后重试。",
@@ -3592,7 +3589,7 @@ const zh = {
   "connectors.customDialog.stdioRisk":
     "此命令将在你的电脑上以当前用户权限运行，请仅添加来源可信的 MCP 服务。",
   "connectors.customDialog.subtitle":
-    "填写 MCP 服务的连接信息，将其接入 MiniMax Design。",
+    "填写 MCP 服务的连接信息，将其接入蒜狸小助手。",
   "connectors.customDialog.timeout": "超时时间（毫秒）",
   "connectors.customDialog.timeoutError":
     "请输入 1 至 3600000 之间的整数，单位为毫秒。",
@@ -3665,8 +3662,7 @@ const zh = {
   "connectors.detail.houdini.promptTitle.0": "重建埃菲尔铁塔",
   "connectors.detail.houdini.promptTitle.1": "制作火箭发射特效",
   "connectors.detail.houdini.promptTitle.2": "制作建筑坍塌特效",
-  "connectors.detail.libtv.description":
-    "使用 LibTV 创作图片和视频，将结果回传到 Design 画布。图片和视频生成直接使用 LibTV 账户积分，不消耗 Design 积分。",
+  "connectors.detail.libtv.description": "使用 LibTV 创作图片和视频，将结果回传到蒜狸画布。图片和视频生成直接使用 LibTV 账户积分，不消耗蒜狸积分。",
   "connectors.detail.libtv.prompt.0":
     "用 LibTV 生成一张春日香水视觉图：磨砂玻璃香水瓶放在浅色石台上，背景是柔焦花园，清晨逆光，真实产品摄影质感。竖版 3:4，共 1 张；请自动选择当前可用的兼容模型和分辨率，完成后放回当前画布。",
   "connectors.detail.libtv.prompt.1":
@@ -3776,7 +3772,7 @@ const zh = {
   "connectors.oauth.cancelFailed": "无法确认授权已停止，请重试。",
   "connectors.oauth.connect": "连接并授权",
   "connectors.oauth.instructions":
-    "点击连接后会在默认浏览器打开官方授权页。官网已登录不代表已授权 MiniMax Design，授权站点也可能要求再次登录。请核对权限并完成授权后返回；授权期间保持本页面打开，取消会停用本次连接。",
+    "点击连接后会在默认浏览器打开官方授权页。官网已登录不代表已授权蒜狸小助手，授权站点也可能要求再次登录。请核对权限并完成授权后返回；授权期间保持本页面打开，取消会停用本次连接。",
   "connectors.oauth.waiting":
     "正在连接服务并等待浏览器授权，请在官方页面核对权限后返回…",
   "connectors.quick.alreadyConnected": "{{name}} 已连接",
@@ -3798,7 +3794,7 @@ const zh = {
     "{{name}} 插件安装未完成，请重试或查看设置指引。",
   "connectors.quick.installError.title": "安装失败",
   "connectors.quick.installing.description":
-    "请保持 MiniMax Design 打开。安装完成后会自动检查连接状态。",
+    "请保持蒜狸小助手打开。安装完成后会自动检查连接状态。",
   "connectors.quick.installing.title": "正在安装 {{name}} 插件",
   "connectors.quick.ready.description":
     "已找到 {{name}} 的相关安装信息，检测结果仅供参考。你可以继续安装插件，安装后我们会检查实际连接状态。",
@@ -3875,7 +3871,7 @@ const zh = {
   "credits.creditsLeft": "剩余积分",
   "credits.creditsRules": "积分规则",
   "credits.creditsRulesMP": "积分规则",
-  "credits.detailsOnlyHubNote": "本面板仅展示 MiniMax Design 的积分消耗记录。",
+  "credits.detailsOnlyHubNote": "本面板仅展示蒜狸小助手的积分消耗记录。",
   "credits.detailsTitle": "积分详情",
   "credits.detailsTitleMP": "积分明细",
   "credits.entries": "条记录",
@@ -4157,7 +4153,7 @@ const zh = {
   "debugPanel.reliability.uploaded": "日志上传已触发",
   "debugPanel.reliability.uploading": "上传中…",
   "debugPanel.serverPopup.description":
-    "模拟新用户首次进入 MiniMax Design 的状态。点击后窗口会刷新一次,弹窗按运营配置、当前账号身份、频率规则重新判断是否出现。如果运营还没上架弹窗,或者当前账号不符合触发条件,刷新后不会弹任何东西,跟其他用户首次进入 MiniMax Design 时看到的一致。",
+    "模拟新用户首次进入蒜狸小助手的状态。点击后窗口会刷新一次,弹窗按运营配置、当前账号身份、频率规则重新判断是否出现。如果运营还没上架弹窗,或者当前账号不符合触发条件,刷新后不会弹任何东西,跟其他用户首次进入蒜狸小助手时看到的一致。",
   "debugPanel.serverPopup.notLoggedIn": "请先登录",
   "debugPanel.serverPopup.replay": "重新触发",
   "debugPanel.serverPopup.title": "运营弹窗",
@@ -4240,7 +4236,7 @@ const zh = {
   "debugPanel.teamPreview.case.creditCheckout.title":
     "购买权限 · Owner 与 Member",
   "debugPanel.teamPreview.case.creditCheckoutFlow.awaitingDescription":
-    "结算页已在外部打开；MiniMax Design 重新激活后才刷新积分数据。",
+    "结算页已在外部打开；蒜狸小助手重新激活后才刷新积分数据。",
   "debugPanel.teamPreview.case.creditCheckoutFlow.description":
     "覆盖创建结算、外部返回、数据刷新和余额更新。",
   "debugPanel.teamPreview.case.creditCheckoutFlow.title":
@@ -4948,7 +4944,7 @@ const zh = {
   "home.gatewayStarting": "本地服务启动中…",
   "home.greeting": "你好 {{name}}",
   "home.heroSubtitle": "属于你的多模态Agent团队",
-  "home.heroTitle": "MiniMax <brand>Design</brand>",
+  "home.heroTitle": "<brand>蒜狸小助手</brand>",
   "home.idea2video": "idea2video",
   "home.ideaToVideo": "创意转视频",
   "home.imageGen": "图片生成",
@@ -5104,7 +5100,7 @@ const zh = {
   "imBridge.menuLabel.domestic": "接入飞书 / 微信",
   "imBridge.menuLabel.overseas": "Connect Lark / Telegram",
   "imBridge.preventSleep.description":
-    "开启后，MiniMax Design 会让电脑保持唤醒，避免远程任务中断；显示器仍可关闭。",
+    "开启后，蒜狸小助手会让电脑保持唤醒，避免远程任务中断；显示器仍可关闭。",
   "imBridge.preventSleep.title": "保持电脑唤醒",
   "imBridge.title": "接入 IM",
   "imBridge.title.domestic": "接入飞书 / 微信",
@@ -5222,22 +5218,22 @@ const zh = {
   "mediaplan.migration.amountMax": "全部",
   "mediaplan.migration.amountPlaceholder": "0",
   "mediaplan.migration.cetaCurrentBalanceHint":
-    "MiniMax Design 现有 {{balance}}",
+    "蒜狸小助手现有 {{balance}}",
   "mediaplan.migration.confirmCheckText":
     "我已了解：转入后这部分贝壳将从海螺网页端扣除，操作不可退回",
   "mediaplan.migration.confirmCta": "确认转入",
   "mediaplan.migration.deadline":
-    "**{{days}} 天后** MiniMax Design 将通过 Media Plan 使用 · 截止 **{{date}}**",
+    "**{{days}} 天后** 蒜狸小助手将通过 Media Plan 使用 · 截止 **{{date}}**",
   "mediaplan.migration.failed": "转入失败，请稍后重试",
   "mediaplan.migration.fromHailuo": "转出贝壳",
   "mediaplan.migration.hailuoBalanceHint": "海螺余额 {{balance}}",
   "mediaplan.migration.hubCurrentBalanceHint":
-    "MiniMax Design 现有 {{balance}}",
+    "蒜狸小助手现有 {{balance}}",
   "mediaplan.migration.menuEntry": "转入 Media Plan 积分",
   "mediaplan.migration.noteDeadline":
     "截止 {{date}} 前可转入，过期后入口关闭，后续海螺贝壳仅可在海螺端内使用",
   "mediaplan.migration.noteDirection":
-    "**单向转入**：转入的额度仅在 MiniMax Design 中使用，对应贝壳将从海螺网页端余额中扣除。",
+    "**单向转入**：转入的额度仅在蒜狸小助手中使用，对应贝壳将从海螺网页端余额中扣除。",
   "mediaplan.migration.noteIrreversible":
     "仅订阅积分与充值积分可转入，免费积分不支持转入",
   "mediaplan.migration.noteRatio":
@@ -5247,7 +5243,7 @@ const zh = {
   "mediaplan.migration.noteValue":
     "**仅数值变化**：实际生成消耗的金额一致，单价不变。",
   "mediaplan.migration.popup.deadline":
-    "{{days}} 天后 MiniMax Design 将通过 Media Plan 使用 · 截止 {{date}}",
+    "{{days}} 天后蒜狸小助手将通过 Media Plan 使用 · 截止 {{date}}",
   "mediaplan.migration.popup.deadlineIconAlt": "倒计时",
   "mediaplan.migration.popup.detailsAriaLabel": "查看积分迁移说明",
   "mediaplan.migration.popup.redeemCta": "转入海螺贝壳",
@@ -5255,18 +5251,18 @@ const zh = {
   "mediaplan.migration.popup.redeemHintTerm": "按 1：{{ratio}} 抵扣，不可退回",
   "mediaplan.migration.popup.skip": "稍后再说",
   "mediaplan.migration.subtitle":
-    "从海螺转入贝壳余额到 MiniMax Design，比例 1 : {{ratio}}",
+    "从海螺转入贝壳余额到蒜狸小助手，比例 1 : {{ratio}}",
   "mediaplan.migration.success": "转入成功，实际转入 {{amount}} 贝壳",
-  "mediaplan.migration.title": "转入MiniMax Design积分",
-  "mediaplan.migration.toCeta": "MiniMax Design 积分",
-  "mediaplan.migration.toHub": "MiniMax Design 积分",
-  "mediaplan.migration.willReceive": "将获得 {{credits}} MiniMax Design 积分",
-  "mediaplan.userMenu.exchangeTrigger": "转入 MiniMax Design",
+  "mediaplan.migration.title": "转入蒜狸小助手积分",
+  "mediaplan.migration.toCeta": "蒜狸小助手积分",
+  "mediaplan.migration.toHub": "蒜狸小助手积分",
+  "mediaplan.migration.willReceive": "将获得 {{credits}} 蒜狸小助手积分",
+  "mediaplan.userMenu.exchangeTrigger": "转入蒜狸小助手",
   "mediaplan.userMenu.hailuoBalanceLabel": "海螺网页端余额",
   "mediaplan.userMenu.hailuoTooltip":
-    "海螺 AI 的贝壳余额，可转入 MiniMax Design 作为积分，积分有效期一年",
+    "海螺 AI 的贝壳余额，可转入蒜狸小助手作为积分，积分有效期一年",
   "mediaplan.userMenu.migrationHint":
-    "{{days}} 天后 MiniMax Design 将通过 Media Plan 使用，可按 1 : {{ratio}} 转入抵扣。",
+    "{{days}} 天后蒜狸小助手将通过 Media Plan 使用，可按 1 : {{ratio}} 转入抵扣。",
   "mediaplan.userMenu.mpCreditLabel": "积分余额",
   "memory.assetDangling": "素材已从库中移除，此 pin 已失效",
   "memory.assetMissing": "asset_uri 缺失或格式错误",
@@ -5402,7 +5398,7 @@ const zh = {
     "在此项目中加载跨项目用户记忆。项目记忆仍会加载。",
   "memory.loadUserMemory.label": "加载用户记忆",
   "memory.lowToast.description":
-    "可用内存（{{available}}MB）持续低于 {{threshold}}MB，可能导致 MiniMax Design 停止响应。请关闭其他大型应用或重启电脑。",
+    "可用内存（{{available}}MB）持续低于 {{threshold}}MB，可能导致蒜狸小助手停止响应。请关闭其他大型应用或重启电脑。",
   "memory.lowToast.title": "系统内存不足",
   "memory.matchBody": "正文",
   "memory.matchBoth": "描述+正文",
@@ -5593,7 +5589,7 @@ const zh = {
     "本地项目用于整理本地创作页面。可以按作品、主题或任务创建项目，将相关页面归入其中，集中查看和管理项目页面与资产（项目内容不会自动与其他设备或用户共享）",
   "project.create.localTitle": "新建本地项目",
   "project.create.nameLabel": "项目名称",
-  "project.create.namePlaceholder": "例如：MiniMax宣传片",
+  "project.create.namePlaceholder": "例如：蒜狸宣传片",
   "project.create.submit": "创建项目",
   "project.create.team": "共创项目",
   "project.create.teamDescription":
@@ -5633,8 +5629,7 @@ const zh = {
   "project.invite.copied": "已复制",
   "project.invite.copyFailed": "生成邀请链接失败，请重试",
   "project.invite.copyLink": "复制邀请链接",
-  "project.invite.expiryNote":
-    "邀请链接 24 小时内有效，请发送给参与项目共创的 Design 用户",
+  "project.invite.expiryNote": "邀请链接 24 小时内有效，请发送给参与项目共创的蒜狸用户",
   "project.invite.membersFailed": "成员列表加载失败",
   "project.invite.membersLabel": "成员",
   "project.invite.membersTitle": "“{{name}}”的成员",
@@ -5717,7 +5712,7 @@ const zh = {
   "projectArchive.export.success": "项目已导出",
   "projectArchive.import.failed": "导入失败",
   "projectArchive.import.failure.archiveInvalid":
-    "无法读取此项目压缩包。请确认文件完整，并由 MiniMax Design 导出后重新导入。",
+    "无法读取此项目压缩包。请确认文件完整，并由蒜狸小助手导出后重新导入。",
   "projectArchive.import.failure.archiveTooLarge":
     "项目模板因文件过大暂不可用，请上传日志以便排查。",
   "projectArchive.import.failure.destinationConflict":
@@ -5820,17 +5815,17 @@ const zh = {
   "projects.create": "创建",
   "promoBanner.close": "关闭",
   "promoBubble.close": "关闭",
-  "promoBubble.cta": "在 MiniMax Design 上体验",
+  "promoBubble.cta": "在蒜狸小助手上体验",
   "promotion.badge": "Seedance 2.0 限时 35折",
   "promotion.dialog.bullet1":
-    "全体会员在 MiniMax Design 内使用 Seedance2.0 系列模型享受 35折 折扣",
+    "全体会员在蒜狸小助手内使用 Seedance2.0 系列模型享受 35折 折扣",
   "promotion.dialog.bullet2": "720P 视频生成低至 0.5 元/秒，全网最低价",
   "promotion.dialog.bullet3": "现已支持 AI 人物形象视频，快来开始你的创作",
   "promotion.dialog.cancel": "取消",
   "promotion.dialog.cta": "立即体验",
   "promotion.dialog.title": "Seedance 2.0 限时 35折 折扣",
   "proxy.toastDescription":
-    "检测到系统代理或 VPN，可能导致连接异常。建议将 MiniMax Design 加入代理白名单，或在使用 MiniMax Design 时关闭代理。",
+    "检测到系统代理或 VPN，可能导致连接异常。建议将蒜狸小助手加入代理白名单，或在使用蒜狸小助手时关闭代理。",
   "proxy.toastTitle": "检测到代理 / VPN",
   "recentAssets.clear": "清空",
   "recentAssets.copyPath": "复制路径",
@@ -6062,16 +6057,16 @@ const zh = {
   "settings.imBridge.addFlow.authDescription.feishu":
     "打开飞书扫一扫，并在手机上点击「开通并授权」",
   "settings.imBridge.addFlow.authQrHint.feishu":
-    "MiniMax Design 只读取任务所需的飞书信息，建议将应用可用范围设为仅自己可见",
+    "蒜狸小助手只读取任务所需的飞书信息，建议将应用可用范围设为仅自己可见",
   "settings.imBridge.addFlow.authTitle.feishu": "再次扫码授权",
-  "settings.imBridge.addFlow.currentDevice": "当前设备：MiniMax Design",
+  "settings.imBridge.addFlow.currentDevice": "当前设备：蒜狸小助手",
   "settings.imBridge.addFlow.defaultAgentName.feishu": "飞书智能体",
   "settings.imBridge.addFlow.defaultAgentName.wechat": "微信 ClawBot",
   "settings.imBridge.addFlow.done": "我知道了",
   "settings.imBridge.addFlow.help": "连接失败？查看帮助",
   "settings.imBridge.addFlow.instructions.confirm": "在手机上确认连接",
   "settings.imBridge.addFlow.instructions.confirmDescription":
-    "确认将该账号连接到当前电脑上的 MiniMax Design",
+    "确认将该账号连接到当前电脑上的蒜狸小助手",
   "settings.imBridge.addFlow.instructions.open.feishu": "打开飞书扫一扫",
   "settings.imBridge.addFlow.instructions.open.wechat": "打开微信扫一扫",
   "settings.imBridge.addFlow.instructions.openDescription":
@@ -6080,7 +6075,7 @@ const zh = {
   "settings.imBridge.addFlow.instructions.returnDescription":
     "连接成功后，即可在聊天中发送任务",
   "settings.imBridge.addFlow.notice":
-    "任务由当前电脑上的 MiniMax Design 执行。关闭应用、断网或电脑进入睡眠后，远程任务可能无法继续。",
+    "任务由当前电脑上的蒜狸小助手执行。关闭应用、断网或电脑进入睡眠后，远程任务可能无法继续。",
   "settings.imBridge.addFlow.qrAlt.feishu": "飞书连接二维码",
   "settings.imBridge.addFlow.qrAlt.feishuAuth": "飞书授权二维码",
   "settings.imBridge.addFlow.qrAlt.wechat": "微信连接二维码",
@@ -6108,9 +6103,9 @@ const zh = {
   "settings.imBridge.addFlow.stepHint.auth.feishu":
     "这一步用于授予飞书权限，请扫码后在手机上点击开通并授权。",
   "settings.imBridge.addFlow.stepHint.done.feishu":
-    "连接和授权完成后，即可在飞书中给 MiniMax Design 分配任务。",
+    "连接和授权完成后，即可在飞书中给蒜狸小助手分配任务。",
   "settings.imBridge.addFlow.stepHint.done.wechat":
-    "连接完成后，即可在微信中给 MiniMax Design 分配任务。",
+    "连接完成后，即可在微信中给蒜狸小助手分配任务。",
   "settings.imBridge.addFlow.stepHint.scan.feishu":
     "使用飞书扫码，选择已有智能体 CLI，或点击创建一键获取智能体。",
   "settings.imBridge.addFlow.stepHint.scan.wechat":
@@ -6127,7 +6122,7 @@ const zh = {
   "settings.imBridge.addFlow.successGuide.feishu.2":
     "发送任务，查看执行状态和结果通知，随时随地创作",
   "settings.imBridge.addFlow.successGuide.feishu.3":
-    "使用时保持 MiniMax Design 打开，并确保电脑联网",
+    "使用时保持蒜狸小助手打开，并确保电脑联网",
   "settings.imBridge.addFlow.successGuide.feishu.4":
     "将机器人拉入群聊后，群内成员将具备访问本地数据的能力，请谨慎使用",
   "settings.imBridge.addFlow.successGuide.title": "使用指南",
@@ -6136,7 +6131,7 @@ const zh = {
   "settings.imBridge.addFlow.successGuide.wechat.2":
     "发送任务，查看执行状态和结果通知，随时随地创作",
   "settings.imBridge.addFlow.successGuide.wechat.3":
-    "使用时保持 MiniMax Design 打开，并确保电脑联网",
+    "使用时保持蒜狸小助手打开，并确保电脑联网",
   "settings.imBridge.addFlow.successGuide.wechat.4":
     "请勿向 ClawBot 发送密码、验证码等敏感信息",
   "settings.imBridge.addFlow.successNextStep.feishu":
@@ -6182,25 +6177,25 @@ const zh = {
   "settings.imBridge.credentialUpdate.failed": "IM 连接更新失败，请重试。",
   "settings.imBridge.credentialUpdate.success": "已更新，请重新扫码连接。",
   "settings.imBridge.description":
-    "在 IM 中 @ 机器人即可远程操控本机的 MiniMax Design。所有消息直达本机，无云端中转。",
+    "在 IM 中 @ 机器人即可远程操控本机的蒜狸小助手。所有消息直达本机，无云端中转。",
   "settings.imBridge.description.domestic":
-    "在飞书 / 微信中 @ 机器人即可远程操控本机的 MiniMax Design。所有消息直达本机，无云端中转。",
+    "在飞书 / 微信中 @ 机器人即可远程操控本机的蒜狸小助手。所有消息直达本机，无云端中转。",
   "settings.imBridge.description.overseas":
-    "@-mention the bot in Lark / Telegram to control MiniMax Design on this device remotely. Messages flow directly to this device — no cloud relay.",
+    "@-mention the bot in Lark / Telegram to control 蒜狸小助手 on this device remotely. Messages flow directly to this device — no cloud relay.",
   "settings.imBridge.empty.benefit.receiveResult": "接收结果通知",
   "settings.imBridge.empty.benefit.sendTask": "远程发送任务",
   "settings.imBridge.empty.benefit.viewStatus": "查看执行状态",
   "settings.imBridge.empty.description":
-    "连接一个账号后，你可以在 IM 中远程控制本机的 MiniMax Design。",
+    "连接一个账号后，你可以在 IM 中远程控制本机的蒜狸小助手。",
   "settings.imBridge.empty.description.domestic":
-    "连接一个飞书或微信账号后，你可以在 IM 中远程控制本机的 MiniMax Design。",
+    "连接一个飞书或微信账号后，你可以在 IM 中远程控制本机的蒜狸小助手。",
   "settings.imBridge.empty.description.overseas":
-    "Connect a Lark or Telegram account to control MiniMax Design on this computer from IM.",
+    "Connect a Lark or Telegram account to control 蒜狸小助手 on this computer from IM.",
   "settings.imBridge.empty.title": "未连接 IM 账号",
   "settings.imBridge.errors.listFailed": "加载失败：{{message}}",
   "settings.imBridge.errors.removeFailed": "移除账号失败，请重试。",
   "settings.imBridge.executionNotice":
-    "使用前请保持 MiniMax Design 打开、电脑联网，并避免电脑进入睡眠。",
+    "使用前请保持蒜狸小助手打开、电脑联网，并避免电脑进入睡眠。",
   "settings.imBridge.feishu.mode.manual": "手动填写",
   "settings.imBridge.feishu.mode.qr": "扫码创建",
   "settings.imBridge.feishu.qr.cancel": "取消",
@@ -6235,11 +6230,11 @@ const zh = {
   "settings.imBridge.field.optional": "可选",
   "settings.imBridge.field.verificationToken": "Verification Token",
   "settings.imBridge.hero.description.domestic":
-    "连接后，你可以直接在飞书或微信中发送消息，任务将在当前电脑上的 MiniMax Design 中执行。",
+    "连接后，你可以直接在飞书或微信中发送消息，任务将在当前电脑上的蒜狸小助手中执行。",
   "settings.imBridge.hero.description.overseas":
-    "After connecting, you can send messages in Lark or Telegram, and tasks will run in MiniMax Design on this computer.",
+    "After connecting, you can send messages in Lark or Telegram, and tasks will run in 蒜狸小助手 on this computer.",
   "settings.imBridge.hero.title":
-    "绑定 IM 工具，随时随地给 MiniMax Design 分配任务",
+    "绑定 IM 工具，随时随地给蒜狸小助手分配任务",
   "settings.imBridge.loading": "加载中…",
   "settings.imBridge.localProcessing":
     "消息仅在你的电脑端处理，不经过云端转发。",
@@ -6350,6 +6345,33 @@ const zh = {
   "settings.models.showKey": "显示 API Key",
   "settings.models.title": "模型接入",
   "settings.network.proxyGroup": "代理",
+  "ov.platform.title": "平台接入",
+  "ov.platform.desc": "对话和生成都走平台。令牌保存在本机，填过一次之后不再要求输入；模型由平台统一配置，这里只展示。",
+  "ov.platform.baseUrl": "接口地址",
+  "ov.platform.apiKey": "令牌（API Key）",
+  "ov.platform.apiKeyHelp": "令牌保存在本机。留空则保留已保存的令牌。",
+  "ov.platform.modelsTitle": "正在使用的模型",
+  "ov.platform.chatModel": "对话",
+  "ov.platform.image": "文生图",
+  "ov.platform.imageEdit": "图生图",
+  "ov.platform.video": "视频",
+  "ov.platform.videoRef": "参考生视频",
+  "ov.platform.videoUpscale": "视频超分",
+  "ov.platform.imageUpscale": "图片超分",
+  "ov.platform.music": "文生音乐",
+  "ov.platform.musicEdit": "翻唱 / 重绘",
+  "ov.platform.speech": "语音合成",
+  "ov.platform.notEnabled": "未启用",
+  "ov.platform.save": "保存",
+  "ov.platform.saving": "保存中…",
+  "ov.platform.saved": "已保存，马上生效。",
+  "ov.platform.saveFailed": "保存失败，请重试。",
+  "ov.platform.loadFailed": "暂时无法读取平台配置。",
+  "ov.settings.platform": "平台接入",
+  "ov.platform.nav": "平台接入",
+  "ov.connection.connected": "已连接",
+  "ov.connection.disconnected": "未连接",
+  "ov.connection.checking": "检测中…",
   "settings.network.proxyMode": "连接方式",
   "settings.network.proxyMode.auto": "自动",
   "settings.network.proxyMode.direct": "不使用代理",
@@ -6397,7 +6419,7 @@ const zh = {
   "settings.softwareUpdate.statusCheckingDesc": "正在连接更新服务，请稍候。",
   "settings.softwareUpdate.statusDownloadingDesc": "正在下载更新包。",
   "settings.softwareUpdate.statusLatest": "已是最新版本",
-  "settings.softwareUpdate.statusLatestDesc": "MiniMax Design 当前无需更新。",
+  "settings.softwareUpdate.statusLatestDesc": "蒜狸小助手当前无需更新。",
   "settings.softwareUpdate.statusReadyDesc":
     "更新已下载完成，重启后会安装新版本。",
   "settings.softwareUpdate.statusReadyWithVersion": "{{version}} 已准备就绪",
@@ -6759,18 +6781,18 @@ const zh = {
   "skills.group.fromCommunity": "来自社区",
   "skills.group.localCreated": "本地创建",
   "skills.header.createSkill": "创建 Skill",
-  "skills.header.createViaHub": "通过 MiniMax Design 创建",
+  "skills.header.createViaHub": "通过蒜狸小助手创建",
   "skills.header.install": "导入 Skill",
   "skills.header.submitSkill": "Skill 投稿",
   "skills.heroDescription":
-    "发现、安装并管理 Skill，扩展 MiniMax Design 的创作能力",
+    "发现、安装并管理 Skill，扩展蒜狸小助手的创作能力",
   "skills.hubDescription":
     "发现 Skill，并连接外部工具与数据源，扩展创作工作流。",
   "skills.hubTitle": "技能 · 插件",
   "skills.import.adaptFailed": "创建适配项目失败",
   "skills.import.adaptPrompt":
-    "/skill-creator 请将 {{stagingPath}}/SKILL.md 中的第三方 Skill 适配到当前 MiniMax Design 环境。读取文件内容，分析其依赖和工具，以 MiniMax Design 兼容格式重写，并保存到用户 Skill 目录。",
-  "skills.import.adaptToHub": "适配到 MiniMax Design",
+    "/skill-creator 请将 {{stagingPath}}/SKILL.md 中的第三方 Skill 适配到当前蒜狸小助手环境。读取文件内容，分析其依赖和工具，以蒜狸小助手兼容格式重写，并保存到用户 Skill 目录。",
+  "skills.import.adaptToHub": "适配到蒜狸小助手",
   "skills.import.autoFixHint": "已自动优化格式",
   "skills.import.continueAdd": "继续导入",
   "skills.import.directInstall": "直接导入",
@@ -6806,9 +6828,9 @@ const zh = {
   "skills.import.requirements": "文件要求",
   "skills.import.success": "Skill 导入成功",
   "skills.import.thirdPartyHint":
-    "检测到第三方 Skill，建议适配到 MiniMax Design 环境以获得最佳体验",
+    "检测到第三方 Skill，建议适配到蒜狸小助手环境以获得最佳体验",
   "skills.import.title": "导入 Skill",
-  "skills.import.tryInHub": "在 MiniMax Design 中试用",
+  "skills.import.tryInHub": "在蒜狸小助手中试用",
   "skills.import.unsupportedType": "请选择 .zip 文件或 SKILL.md 文件",
   "skills.installSuccess.debugAction": "去调试",
   "skills.layout.grid": "网格",
@@ -6839,10 +6861,10 @@ const zh = {
   "skills.market.creatorPlanDemoToggleEmpty": "演示：查看空状态",
   "skills.market.creatorPlanDemoToggleHas": "演示：切回有数据",
   "skills.market.creatorPlanDisplayNameHint":
-    "默认使用你在 MiniMax Design 的用户名，可自行修改。",
+    "默认使用你在蒜狸小助手的用户名，可自行修改。",
   "skills.market.creatorPlanDisplayNameLabel": "作者名",
   "skills.market.creatorPlanDisplayNamePlaceholder":
-    "默认使用你在 MiniMax Design 的用户名，可自行修改",
+    "默认使用你在蒜狸小助手的用户名，可自行修改",
   "skills.market.creatorPlanEmptyDesc": "你的账户里还没有可发布的 skill",
   "skills.market.creatorPlanEmptyTitle": "暂无可选的 Skill",
   "skills.market.creatorPlanFooterNote": "官方将在 14 个工作日内反馈结果",
@@ -6911,7 +6933,7 @@ const zh = {
   "skills.market.updateError": '更新 Skill "{{name}}" 失败',
   "skills.market.updateSuccess": 'Skill "{{name}}" 更新成功',
   "skills.market.useInChat": "在对话中使用",
-  "skills.market.verifiedOfficial": "MiniMax Design 官方认证",
+  "skills.market.verifiedOfficial": "蒜狸小助手官方认证",
   "skills.market.version": "v{{version}}",
   "skills.marketplaceTabs.plugin": "插件",
   "skills.marketplaceTabs.pluginTooltip":
@@ -7025,11 +7047,9 @@ const zh = {
     "可审核投稿、发布已通过的 Skill，并维护标签和市场展示配置。",
   "skills.operation.fullOperations": "完整运营权限",
   "skills.operation.globalSortWeight": "全局排序权重",
-  "skills.operation.reviewerRoleHint":
-    "普通运营：可查看详情、Design 验收和审核",
+  "skills.operation.reviewerRoleHint": "普通运营：可查看详情、蒜狸验收和审核",
   "skills.operation.reviewerPermissionTitle": "普通运营权限",
-  "skills.operation.reviewerPermissionDescription":
-    "可查看投稿、在 Design 验收、通过或拒绝；不能发布和配置资源。",
+  "skills.operation.reviewerPermissionDescription": "可查看投稿、在蒜狸验收、通过或拒绝；不能发布和配置资源。",
   "skills.operation.reviewOnly": "仅审核",
   "skills.operation.reviewTab": "待审核",
   "skills.operation.configurationTab": "标签配置",
@@ -7078,7 +7098,7 @@ const zh = {
   "skills.operation.changeItem.package": "Skill 包",
   "skills.operation.changeItem.metadata": "展示信息",
   "skills.operation.viewDetails": "查看详情",
-  "skills.operation.testDesign": "在 Design 验收",
+  "skills.operation.testDesign": "在蒜狸验收",
   "skills.operation.markPassed": "标记验收通过",
   "skills.operation.reject": "拒绝",
   "skills.operation.approveToConfig": "审核通过",
@@ -7093,8 +7113,8 @@ const zh = {
   "skills.operation.status.rejected": "Rejected",
   "skills.operation.designPrompt":
     "请使用候选 Skill {{skillName}} 完成一次真实创作验收。候选包位于 {{stagingPath}}，先阅读其中的 SKILL.md，严格按 Skill 流程执行，并总结结果与问题。不要安装或覆盖线上版本。",
-  "skills.operation.designError": "无法启动 Design 验收",
-  "skills.operation.pass_designSuccess": "已标记 Design 验收通过",
+  "skills.operation.designError": "无法启动蒜狸验收",
+  "skills.operation.pass_designSuccess": "已标记蒜狸验收通过",
   "skills.operation.approveSuccess": "审核通过，已进入待发布",
   "skills.operation.rejectSuccess": "已拒绝投稿",
   "skills.operation.batchApproveSuccess": "所选投稿已进入待发布",
@@ -7235,7 +7255,7 @@ const zh = {
   "skills.plugin.previewError": "预览加载失败",
   "skills.plugin.previewLoading": "预览加载中...",
   "skills.plugin.previewTooLarge": "预览文件过大",
-  "skills.plugin.publisher": "MiniMax Design",
+  "skills.plugin.publisher": "蒜狸小助手",
   "skills.plugin.searchPlaceholder": "搜索插件",
   "skills.plugin.section.market": "所有插件",
   "skills.plugin.section.recent": "最近使用",
@@ -7255,7 +7275,7 @@ const zh = {
   "skills.plugin.viewDetail": "查看详情",
   "skills.plugin.viewWorkflow": "查看工作流",
   "skills.plugin.workflow": "工作流",
-  "skills.popover.addCreate": "用 MiniMax Design 创建",
+  "skills.popover.addCreate": "用蒜狸小助手创建",
   "skills.popover.addImport": "导入技能",
   "skills.popover.addSkills": "添加技能",
   "skills.popover.buttonLabel": "技能",
@@ -7340,9 +7360,9 @@ const zh = {
   "skills.submission.categoriesHint":
     "选择最符合该 Skill 的品类，审核时会最终确认。",
   "skills.submission.categoryPlaceholder": "请选择垂直品类",
-  "skills.submission.chooseDesign": "从 Design 选择",
+  "skills.submission.chooseDesign": "从蒜狸选择",
   "skills.submission.chooseDesignDesc":
-    "自动读取通过 MiniMax Design 创建的 Skill 信息。",
+    "自动读取通过蒜狸小助手创建的 Skill 信息。",
   "skills.submission.chooseDesignPlaceholder": "选择已创建的 Skill",
   "skills.submission.chooseNewPackage": "选择新的 Skill 包",
   "skills.submission.choosePackage": "选择 ZIP / .tar.gz",
@@ -7376,7 +7396,7 @@ const zh = {
   "skills.submission.howToUsePlaceholder":
     "说明用户需要提供什么，以及如何开始使用",
   "skills.submission.incomplete": "请完整填写 Skill 信息",
-  "skills.submission.noDesignSkills": "暂无 Design 创建的 Skill。",
+  "skills.submission.noDesignSkills": "暂无蒜狸创建的 Skill。",
   "skills.submission.outputs": "交付内容",
   "skills.submission.outputsHint": "说明最终交付物，15–40 个中文字符",
   "skills.submission.outputsPlaceholder": "说明用户最终可以获得的主要交付物",
@@ -8219,7 +8239,7 @@ const zh = {
   "topbar.diagnostics.recommendation.observability_blocked":
     "观测上报链路被阻断，问题追踪可能不完整。",
   "topbar.diagnostics.recommendation.try_direct_proxy_mode":
-    "如果本地代理影响 MiniMax Design 域名，可尝试直连模式。",
+    "如果本地代理影响蒜狸小助手域名，可尝试直连模式。",
   "topbar.diagnostics.recommendation.try_system_proxy_mode":
     "如果当前网络必须走 VPN 或代理，可尝试系统代理模式。",
   "topbar.diagnostics.recommendation.tun_detected":
@@ -8427,11 +8447,11 @@ const zh = {
   "update.error": "检查更新失败",
   "update.errorAdvice": "请重试检查更新，或上传日志后下载最新版覆盖安装。",
   "update.failureCode.CHILD_PID_QUERY_UNAVAILABLE":
-    "系统限制了 Windows 进程查询，自动安装无法安全继续。请下载完整安装包，退出 MiniMax Design 后覆盖安装",
+    "系统限制了 Windows 进程查询，自动安装无法安全继续。请下载完整安装包，退出蒜狸小助手后覆盖安装",
   "update.failureCode.CHILD_PID_SNAPSHOT_UNAVAILABLE":
-    "无法确认后台进程状态，为避免损坏安装目录已停止自动安装。请退出 MiniMax Design 后使用完整安装包覆盖安装",
+    "无法确认后台进程状态，为避免损坏安装目录已停止自动安装。请退出蒜狸小助手后使用完整安装包覆盖安装",
   "update.failureCode.CHILD_PROCESS_EXIT_GUARD_FAILED":
-    "仍有 MiniMax Design 后台进程占用安装目录。请重启 Windows 后使用完整安装包覆盖安装",
+    "仍有蒜狸小助手后台进程占用安装目录。请重启 Windows 后使用完整安装包覆盖安装",
   "update.failureCode.HANDOFF_STATE_CORRUPTED":
     "上次安装的状态记录已损坏，无法确认结果。请检查当前版本；如未更新，请使用签名有效的完整安装包覆盖安装",
   "update.failureCode.INSTALLER_LAUNCH_FAILED":
@@ -8443,7 +8463,7 @@ const zh = {
   "update.failureCode.INSTALL_CLEANUP_FAILED":
     "无法安全停止运行中的任务，已取消安装。请结束任务后重试，或退出应用后使用完整安装包覆盖安装",
   "update.failureCode.INSTALL_FAILED":
-    "安装程序执行失败。请关闭 MiniMax Design 后重试安装，仍失败请下载完整安装包覆盖安装",
+    "安装程序执行失败。请关闭蒜狸小助手后重试安装，仍失败请下载完整安装包覆盖安装",
   "update.failureCode.INSTALL_INCOMPLETE":
     "安装后的关键文件不完整。请检查 Windows 安全中心的保护历史记录，并仅使用发布者签名有效的完整安装包覆盖安装",
   "update.failureCode.INSTALL_MARKER_CORRUPT":
@@ -8457,9 +8477,9 @@ const zh = {
   "update.failureCode.INSTALL_STAGING_FAILED":
     "无法安全暂存完整安装包，请检查磁盘空间和当前用户目录权限后重试",
   "update.failureCode.INSTDIR_JUNCTION_INVALID":
-    "应用安装路径连接异常，自动安装已停止。请下载完整安装包，退出 MiniMax Design 后覆盖安装",
+    "应用安装路径连接异常，自动安装已停止。请下载完整安装包，退出蒜狸小助手后覆盖安装",
   "update.failureCode.INSTDIR_MULTI_INSTALL":
-    "检测到本机存在多份 MiniMax Design 安装，当前运行的这份不是系统注册的安装位置，自动更新已在修改文件前停止。请只保留一份安装：卸载或删除多余副本后，从官网下载最新版完整安装包重新安装",
+    "检测到本机存在多份蒜狸小助手安装，当前运行的这份不是系统注册的安装位置，自动更新已在修改文件前停止。请只保留一份安装：卸载或删除多余副本后，从官网下载最新版完整安装包重新安装",
   "update.failureCode.INSTDIR_NOT_WRITABLE":
     "安装目录不可写，请检查权限或以管理员身份重试",
   "update.failureCode.INSTDIR_DATA_OVERLAP":
@@ -8482,16 +8502,16 @@ const zh = {
   "update.failureCode.TEMP_SPACE_UNKNOWN":
     "无法确认系统临时目录所在磁盘的可用空间。请检查 TEMP 目录权限后重试",
   "update.failureCode.UPDATER_EXECUTABLE_MISSING":
-    "自动更新组件已丢失，安装无法继续。请退出 MiniMax Design 后使用完整安装包覆盖安装",
+    "自动更新组件已丢失，安装无法继续。请退出蒜狸小助手后使用完整安装包覆盖安装",
   "update.failureCode.UPDATE_PROXY_PROTOCOL_UNSUPPORTED":
     "当前 SOCKS 代理不支持应用内自动更新。请切换为直连或 HTTP 代理，或下载完整安装包手动更新",
   "update.failureCode.UPDATE_RUNTIME_UNAVAILABLE":
-    "自动更新组件不可用。请退出 MiniMax Design 后从官网重新安装",
+    "自动更新组件不可用。请退出蒜狸小助手后从官网重新安装",
   "update.failureCode.USER_CANCELLED": "你已取消本次安装，可在准备好后重新安装",
   "update.failureCode.USER_DATA_LOCKED":
     "更新时检测到你的生成资产存放在安装目录内且被其他程序占用，为保护数据已取消本次更新。请关闭可能占用这些文件的程序（如资源管理器、杀毒软件扫描）后重试",
   "update.forced.body":
-    "本次更新包含{{reason}}，旧版本将无法继续使用。请升级后继续使用 MiniMax Design。",
+    "本次更新包含{{reason}}，旧版本将无法继续使用。请升级后继续使用蒜狸小助手。",
   "update.forced.btn.download": "立即下载更新",
   "update.forced.btn.exit": "退出应用",
   "update.forced.btn.manualDownload": "下载官方安装包",
@@ -8517,11 +8537,11 @@ const zh = {
     "请切换为直连或 HTTP 代理后重试检查，也可以使用完整安装包更新。",
   "update.notAvailable": "已是最新版本",
   "update.shortcut.availableTitleWithVersion":
-    "MiniMax Design {{version}} 可更新",
+    "蒜狸小助手 {{version}} 可更新",
   "update.shortcut.bodyFallback": "包含问题修复和体验优化。",
   "update.shortcut.readyTitle": "更新已准备就绪",
   "update.shortcut.readyTitleWithVersion":
-    "MiniMax Design {{version}} 已准备就绪",
+    "蒜狸小助手 {{version}} 已准备就绪",
   "update.shortcut.releaseNotes": "更新详情",
   "update.shortcut.settings": "设置",
   "update.shortcut.tooltip": "有可用更新",
@@ -8533,7 +8553,7 @@ const zh = {
   "update.title.downloading": "下载中…",
   "update.title.error": "更新失败",
   "update.title.ready": "有可用更新",
-  "update.toastDescription": "MiniMax Design 有新版本 ({{version}}) 可安装。",
+  "update.toastDescription": "蒜狸小助手有新版本 ({{version}}) 可安装。",
   "update.toastTitle": "有可用更新",
   "update.version.checkCta": "检测",
   "update.version.checking": "检查中...",
@@ -8544,7 +8564,7 @@ const zh = {
   "userMenu.community": "社区",
   "userMenu.creditsHint": "积分详情请查看海螺官网",
   "userMenu.creditsTooltipPrefix":
-    "MiniMax Design 会实时将你的 token 用量折算为海螺积分。访问",
+    "蒜狸小助手会实时将你的 token 用量折算为海螺积分。访问",
   "userMenu.creditsTooltipSuffix": "查看详情。",
   "userMenu.feedback": "反馈",
   "userMenu.feedbackGroupTitle": "海螺视频-官方交流群",
@@ -8552,7 +8572,7 @@ const zh = {
   "userMenu.feedbackQrTitle": "官方交流群",
   "userMenu.guide": "引导",
   "userMenu.hailuoBalanceLabel": "海螺余额",
-  "userMenu.hailuoBalanceRedeemCta": "转入 MiniMax Design",
+  "userMenu.hailuoBalanceRedeemCta": "转入蒜狸小助手",
   "userMenu.hailuoWeb": "海螺网页端",
   "userMenu.manageSubscription": "订阅",
   "userMenu.memoryManagement": "记忆管理",
@@ -9113,14 +9133,14 @@ const zh = {
   "workspace.folderPermission.allow": "允许",
   "workspace.folderPermission.allowToast": "权限添加成功",
   "workspace.folderPermission.allowTooltip":
-    "MiniMax Design 仅在本项目内拥有所选工作区的操作权限。",
+    "蒜狸小助手仅在本项目内拥有所选工作区的操作权限。",
   "workspace.folderPermission.alwaysAllow": "始终允许",
   "workspace.folderPermission.alwaysAllowToast":
     "权限添加成功，可在<1>设置/高级</1>中修改",
   "workspace.folderPermission.alwaysAllowTooltip":
-    "MiniMax Design 将持续拥有所选工作区的操作权限。",
+    "蒜狸小助手将持续拥有所选工作区的操作权限。",
   "workspace.folderPermission.body":
-    "授予后，MiniMax Design 对该文件夹及其子文件夹里的内容将拥有读取、写入、删除的能力。",
+    "授予后，蒜狸小助手对该文件夹及其子文件夹里的内容将拥有读取、写入、删除的能力。",
   "workspace.folderPermission.title": "文件夹访问权限",
   "workspace.initialAttachments.failed": "附件未能载入当前项目，消息尚未发送。",
   "workspace.layout.canvasOnly": "仅画布",
@@ -9297,7 +9317,7 @@ const zh = {
   "connectors.detail.quark-drive.prompt.1": "在网盘里找出上个月的合同文档",
   "connectors.detail.quark-drive.prompt.2": "给这个文件夹创建一个分享链接",
   "connectors.google-drive.consent":
-    "授权在浏览器中的 Google 官方页面完成。MiniMax Design 只在本机保存授权凭证，且仅申请授权页上展示的 Drive 文件权限；你的 Google 密码不会经过 MiniMax Design。",
+    "授权在浏览器中的 Google 官方页面完成。蒜狸小助手只在本机保存授权凭证，且仅申请授权页上展示的 Drive 文件权限；你的 Google 密码不会经过蒜狸小助手。",
   "connectors.google-drive.description":
     "使用你的 Google 账号授权，让 Agent 把成果存到你的云端硬盘，并继续加工它上传过的文件。",
   "connectors.google-drive.title": "连接 Google Drive",
@@ -9386,9 +9406,9 @@ const zh = {
   "connectors.catalog.baidu-drive.description":
     "上传、下载和分享应用目录中的文件",
   "connectors.detail.baidu-drive.description":
-    "连接百度网盘，读取并分析你授权的文档、图片、视频等素材，生成 MiniMax Design 创作 Brief、脚本、分镜和视觉参考，并将结果保存回网盘。访问范围限于“我的应用数据/bdpan”，支持文件上传、下载、搜索和分享；其他目录的素材可通过分享链接转存后使用。",
+    "连接百度网盘，读取并分析你授权的文档、图片、视频等素材，生成蒜狸小助手创作 Brief、脚本、分镜和视觉参考，并将结果保存回网盘。访问范围限于“我的应用数据/bdpan”，支持文件上传、下载、搜索和分享；其他目录的素材可通过分享链接转存后使用。",
   "connectors.detail.baidu-drive.prompt.0":
-    "帮我从百度网盘指定文件夹整理产品资料和品牌规范，提炼卖点、目标人群、品牌语气、视觉规范与禁用元素，生成 MiniMax Design 创作 Brief，并附引用文件名和路径。",
+    "帮我从百度网盘指定文件夹整理产品资料和品牌规范，提炼卖点、目标人群、品牌语气、视觉规范与禁用元素，生成蒜狸小助手创作 Brief，并附引用文件名和路径。",
   "connectors.detail.baidu-drive.prompt.1":
     "帮我整理指定目录中的文字、图片和视频，分析图片构图/色彩、视频主体/镜头/字幕/音频与可复用片段，给出视觉参考。",
   "connectors.detail.baidu-drive.prompt.2":
@@ -9792,7 +9812,7 @@ const zh = {
   "connectors.category.data-research": "数据研究",
   "connectors.category.enterprise": "企业",
   "connectors.category.other": "其他",
-  "connectors.origin.hub": "MiniMax Design",
+  "connectors.origin.hub": "蒜狸小助手",
   "connectors.origin.workbuddy": "WorkBuddy",
   "connectors.origin.kimi-desktop": "Kimi",
   "connectors.origin.minimax-code": "MiniMax Code",

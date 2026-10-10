@@ -16486,12 +16486,23 @@ const Plug$1 = createLucideIcon("Plug", [["path", {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
+// 产品自己的加号：竖线两端带圆点，替换 lucide 原图形。
 const Plus$1 = createLucideIcon("Plus", [["path", {
-  d: "M5 12h14",
-  key: "1ays0h"
+  d: "M12 5.5v13",
+  key: "ov-plus-v"
 }], ["path", {
-  d: "M12 5v14",
-  key: "s699le"
+  d: "M5.5 12h13",
+  key: "ov-plus-h"
+}], ["circle", {
+  cx: "12",
+  cy: "5.5",
+  r: "1.7",
+  key: "ov-plus-top"
+}], ["circle", {
+  cx: "12",
+  cy: "18.5",
+  r: "1.7",
+  key: "ov-plus-bottom"
 }]]);
 /**
  * @license lucide-react v0.468.0 - ISC

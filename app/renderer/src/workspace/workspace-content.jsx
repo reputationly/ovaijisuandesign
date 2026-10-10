@@ -47,7 +47,6 @@ import { resolveCanvasSidebarRightEdgeInset } from "./workspace-asset-center-rel
 import { useGlobalSidebar } from "../media-editing/derive-session-task-snapshot.jsx";
 import { ChatPanel } from "../chat/chat-panel.jsx";
 import { WorkspaceBrowser } from "./workspace-browser.jsx";
-import { WorkspaceViewSwitch } from "./workspace-view-switch.jsx";
 import { WorkspaceDisplayModeSwitcher } from "./workspace-display-mode-switcher.jsx";
 import { WorkspaceStage } from "./workspace-stage.jsx";
 function useAccountSubmissionAllowed(kind) {
@@ -1170,14 +1169,6 @@ export function WorkspaceContent({
         toolbarPlacement={stageLayout.toolbarCorner}
         layoutRelocationKey={stageState.paneOrder}
       />
-      {isActive2 && canvasOpen && (!editSurfaceActive || browserOpen) ? (
-        <div className="workspace-view-switch absolute left-2 top-2 z-20">
-          <WorkspaceViewSwitch
-            target={browserOpen ? "canvas" : "browser"}
-            onClick={handleToggleBrowser}
-          />
-        </div>
-      ) : null}
       {isActive2 && browserOpen && canvasOpen ? (
         <div className="absolute inset-0 z-10">
           <WorkspaceBrowser

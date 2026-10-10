@@ -8,6 +8,7 @@ import {
   removeKey,
   SCHEMA_VERSION,
   storageKey,
+  stripForPersist,
 } from "./read-envelope.js";
 import { gatewayUrl } from "../infra/gateway-http-error.jsx";
 
@@ -17,13 +18,6 @@ function isRecoverableAttachment(attachment) {
     typeof attachment.relativePath === "string" &&
     attachment.relativePath.length > 0
   );
-}
-
-function stripForPersist(attachment) {
-  return {
-    ...attachment,
-    previewUrl: "",
-  };
 }
 
 function hydrateAttachment(attachment, resolveUrl) {

@@ -63,9 +63,7 @@ function useWindowTitleSync(entries2, currentWorkspaceId, platform2) {
     const active2 = entries2.find(
       (e2) => e2.workspaceId === currentWorkspaceId,
     );
-    const title = active2
-      ? `${active2.projectName} - MiniMax Design`
-      : "MiniMax Design";
+    const title = active2 ? `${active2.projectName} - 蒜狸小助手` : "蒜狸小助手";
     platform2.window.setTitle(title);
   }, [currentWorkspaceId, entries2, platform2.window]);
 }

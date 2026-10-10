@@ -34,7 +34,7 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
   requestAssetSource,
   skillLabel,
   hideMediaModelSelector = false,
-  showModelSelector = true,
+  showModelSelector = false,
   showSkillSelector = true,
 }) {
   const { t: t2 } = useTranslation();

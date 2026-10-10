@@ -1,10 +1,8 @@
 // model-chip.jsx
 import {
   Bot,
-  CompositedSvg,
   jsxRuntimeExports,
   Music,
-  reactDomExports,
   reactExports,
   ScrollText,
   useTranslation,
@@ -12,8 +10,6 @@ import {
 } from "../vendor.js";
 import { CanvasReleaseRegionContext } from "../canvas/separator.jsx";
 import {
-  ClockIcon,
-  formatResolutionRange,
   GeneralImageIcon,
   GptImageDomesticIcon,
   GptImageOverseasIcon,
@@ -23,7 +19,6 @@ import {
   MinimaxIcon,
   NanoBananaIcon,
   SeedreamIcon,
-  SpeakerIcon,
   usePortalAnchorPlacement,
   VeoDomesticIcon,
   VeoOverseasIcon,
@@ -32,7 +27,7 @@ import {
 import { __jsx } from "../shared/jsx-runtime.js";
 import { svgBase } from "./expand-arrow-icon.jsx";
 import { ImageOutlineIcon, Mic } from "../media-editing/package.jsx";
-import { Tooltip } from "./missing-asset-card.jsx";
+import "./missing-asset-card.jsx";
 import {
   hasPromotionToastCopy,
   isPromotionActive,
@@ -74,43 +69,8 @@ function ClaudeOverseasIcon(props) {
     </svg>
   );
 }
-const MIDJOURNEY_RESOLUTION_FALLBACK = {
-  "midjourney-8.2": "2K",
-};
-function lastNonAutoOption(options) {
-  const explicit = options.filter(
-    (option2) => option2.toLowerCase() !== "auto",
-  );
-  return explicit.at(-1) ?? options.at(-1);
-}
-function clarityModeToResolution(mode2) {
-  switch (mode2) {
-    case "4k":
-      return "4K";
-    case "pro":
-      return "1080P";
-    case "std":
-      return "720P";
-    default:
-      return void 0;
-  }
-}
-function resolveCanvasImageResolution(modelId, resolutionOptions) {
-  return (
-    formatResolutionRange(resolutionOptions) ??
-    MIDJOURNEY_RESOLUTION_FALLBACK[modelId]
-  );
-}
-function resolveCanvasVideoResolution(resolutionOptions, modeOptions) {
-  return (
-    formatResolutionRange(resolutionOptions) ??
-    clarityModeToResolution(lastNonAutoOption(modeOptions))
-  );
-}
 const PANEL_MIN_HEIGHT = 120;
 const PANEL_MAX_HEIGHT = 320;
-const PANEL_MIN_WIDTH = 280;
-const PANEL_MAX_WIDTH = 360;
 const TEXT_MODEL_ICONS = {
   minimax: {
     domestic: MinimaxIcon,
@@ -148,15 +108,6 @@ function isMiniMaxH3Model(model) {
       value.includes("minimax h3") ||
       value.includes("hailuo03") ||
       value === "minimax_v3",
-  );
-}
-function isMiniMaxH3MaxModel(model) {
-  const values3 = [model.id, model.name, model.model_name].map((value) =>
-    typeof value === "string" ? value.toLowerCase() : "",
-  );
-  return values3.some(
-    (value) =>
-      value.includes("minimax-h3-max") || value.includes("minimax h3 max"),
   );
 }
 function pickModelIcon(model, mediaType, region = "overseas") {
@@ -240,97 +191,6 @@ function inferMediaType(model) {
   if ("aspect_ratio" in params || "resolution" in params) return "image";
   return "unknown";
 }
-function formatDurationRange(opts) {
-  if (!opts || opts.length === 0) return void 0;
-  if (opts.length === 1) return `${opts[0]}s`;
-  const nums = opts
-    .map((o2) => Number.parseFloat(o2))
-    .filter((n2) => Number.isFinite(n2));
-  if (nums.length === 0) return void 0;
-  const min2 = Math.min(...nums);
-  const max2 = Math.max(...nums);
-  return min2 === max2 ? `${min2}s` : `${min2}-${max2}s`;
-}
-function CheckIcon({ size: size2 = 16, className }) {
-  return (
-    <CompositedSvg
-      width={size2}
-      height={size2}
-      viewBox="0 0 16 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      role="presentation"
-      aria-hidden={true}
-    >
-      <path
-        d="M13.3333 4L5.99996 11.3333L2.66663 8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </CompositedSvg>
-  );
-}
-function resolveVideoModelAudioCapability(model) {
-  const params = model.params ?? {};
-  if (
-    "generate_audio" in params ||
-    "sound" in params ||
-    isMiniMaxH3Model(model)
-  ) {
-    return "with-audio";
-  }
-  return (model.max_audio_refs ?? 0) > 0 ? "audio-driven" : void 0;
-}
-function buildSubtitleData(model, mediaType, t2) {
-  const params = model.params ?? {};
-  const out = {};
-  if (mediaType === "image") {
-    out.resolution = resolveCanvasImageResolution(
-      model.id,
-      params.resolution?.options ?? [],
-    );
-  } else if (mediaType === "video") {
-    out.resolution = resolveCanvasVideoResolution(
-      params.resolution?.options ?? [],
-      params.mode?.options ?? [],
-    );
-    out.duration = formatDurationRange(params.duration?.options);
-    out.audio = resolveVideoModelAudioCapability(model);
-    if (model.audioExtension) {
-      out.capability = t2("canvas.modelSubtitle.audioExtension", {
-        defaultValue: "Audio Extension",
-      });
-    }
-  } else if (mediaType === "audio-tts" || mediaType === "audio-music") {
-    out.audio = "with-audio";
-    if (
-      mediaType === "audio-tts" &&
-      model.id.toLowerCase().includes("speech-2.8")
-    ) {
-      out.capability = t2("canvas.modelSubtitle.textToSpeech", {
-        defaultValue: "Text to Speech",
-      });
-    } else if (mediaType === "audio-tts" && model.backend === "seedaudio") {
-      out.capability = t2("canvas.modelSubtitle.fullAudioScene", {
-        defaultValue: "Full Audio Scene",
-      });
-    }
-  } else if (mediaType === "text-llm" && model.subtitle) {
-    out.capability = t2(`canvas.modelSubtitle.${model.subtitle.label}`, {
-      defaultValue: model.subtitle.label,
-    });
-    out.latency = model.subtitle.latency;
-  }
-  return out;
-}
-function hasAnySubtitle(d2) {
-  return Boolean(
-    d2.resolution || d2.duration || d2.audio || d2.capability || d2.latency,
-  );
-}
 export function ModelChip({
   models,
   selectedModelId,
@@ -348,10 +208,6 @@ export function ModelChip({
   const triggerRef = reactExports.useRef(null);
   const panelRef = reactExports.useRef(null);
   const selected2 = models.find((m3) => m3.id === selectedModelId);
-  const triggerLabel = loading
-    ? t2("canvas.loadingModels")
-    : (selected2?.name ??
-      (showEmptyHint ? t2("canvas.noModels") : t2("canvas.model")));
   const mediaType = reactExports.useMemo(
     () => inferMediaType(models[0]),
     [models],
@@ -408,212 +264,5 @@ export function ModelChip({
     },
     [onChange, models, onPromotionClick],
   );
-  return (
-    <div className="relative">
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={(e2) => {
-          e2.stopPropagation();
-          if (!disabled2) setOpen((v2) => !v2);
-        }}
-        disabled={disabled2}
-        title={t2("canvas.model")}
-        data-action-ui-id="popover.model-chip"
-        className="h-8 px-2 text-[13px] font-normal tracking-[-0.52px] leading-[20px] opacity-70 text-foreground hover:enabled:opacity-100 disabled:cursor-default disabled:opacity-40 truncate min-w-0 max-w-[220px] flex items-center gap-1.5 canvas-prompt-control"
-      >
-        {TriggerIcon && (
-          <TriggerIcon
-            size={14}
-            strokeWidth={1.5}
-            className="shrink-0 opacity-80"
-          />
-        )}
-        <span className="truncate">{triggerLabel}</span>
-      </button>
-      {open &&
-        placement &&
-        reactDomExports.createPortal(
-          // biome-ignore lint/a11y/noStaticElementInteractions: panel only stops bubbling
-          // biome-ignore lint/a11y/useKeyWithClickEvents: same reason
-          <div
-            ref={panelRef}
-            data-side={placement.side}
-            className="canvas-portal-popover-in nowheel fixed z-[10001] overflow-y-auto scrollbar-none rounded-[16px] border p-1 shadow-lg"
-            style={{
-              left: placement.left,
-              top: placement.top,
-              bottom: placement.bottom,
-              minWidth: PANEL_MIN_WIDTH,
-              maxWidth: PANEL_MAX_WIDTH,
-              maxHeight: placement.maxHeight,
-              background: "var(--canvas-controls-bg)",
-              borderColor: "var(--canvas-controls-border)",
-            }}
-            onClick={(e2) => e2.stopPropagation()}
-          >
-            <div className="px-2 pt-1.5 pb-1 text-[11px] font-medium text-muted-foreground select-none">
-              {t2("canvas.model")}
-            </div>
-            {loading && (
-              <div className="px-2 py-1.5 text-sm text-muted-foreground select-none">
-                {t2("canvas.loadingModels")}
-              </div>
-            )}
-            {!loading && models.length === 0 && showEmptyHint && (
-              <div className="px-2 py-1.5 text-sm text-muted-foreground text-center select-none">
-                {t2("canvas.noModels")}
-              </div>
-            )}
-            {!loading &&
-              displayModels.map((m3) => {
-                const active2 = m3.id === selectedModelId;
-                const bareId = m3.id.includes("/")
-                  ? m3.id.slice(m3.id.indexOf("/") + 1)
-                  : m3.id;
-                const isRowDisabled =
-                  (disabledModelIds?.has(m3.id) ||
-                    disabledModelIds?.has(bareId)) ??
-                  false;
-                const sub = buildSubtitleData(m3, inferMediaType(m3), t2);
-                const hasSubtitle = hasAnySubtitle(sub);
-                const RowIcon = pickModelIcon(m3, mediaType, releaseRegion);
-                const isNewModel = m3.name === "MiniMax-H3 Audio";
-                const promotionTagLabel = m3.promotion?.toastTitle?.trim();
-                const modelHoverDescription = isMiniMaxH3MaxModel(m3)
-                  ? m3.id.toLowerCase().includes("h3-max-turbo")
-                    ? t2("canvas.minimaxH3MaxTurbo.hoverDescription", {
-                        defaultValue:
-                          "H3 Max Turbo supports text-to-video and image-to-video, but not omnireference.",
-                      })
-                    : t2("canvas.minimaxH3Max.hoverDescription", {
-                        defaultValue:
-                          "H3 Max is a video generation model post-trained by fal.ai on MiniMax H3 and optimized for high-speed generation. It supports omnireference, text-to-video, and image-to-video.",
-                      })
-                  : void 0;
-                const row = (
-                  <button
-                    key={m3.id}
-                    type="button"
-                    onClick={(e2) => {
-                      e2.stopPropagation();
-                      if (!isRowDisabled) handleSelect(m3.id);
-                    }}
-                    data-action-ui-id="popover.model-option"
-                    data-model-id={m3.id}
-                    className={`mt-0.5 flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors duration-150 first:mt-0 ${isRowDisabled ? "opacity-40 cursor-not-allowed" : "text-foreground hover:bg-foreground/[0.04]"}`}
-                  >
-                    <span
-                      data-model-icon-tile={true}
-                      className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[var(--canvas-model-selector-icon-border)] bg-transparent [border-width:var(--divider-width)]"
-                    >
-                      <span className="flex items-center justify-center text-[var(--canvas-controls-text-muted-solid)] opacity-[var(--canvas-controls-text-muted-opacity)]">
-                        <RowIcon size={20} strokeWidth={1.5} />
-                      </span>
-                    </span>
-                    <span className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-                      <span className="flex items-center gap-1 min-w-0">
-                        <span className="truncate text-[13px] font-normal leading-5">
-                          {m3.name}
-                        </span>
-                        {isNewModel && (
-                          <span
-                            data-action-ui-id="popover.model-new-tag"
-                            className="shrink-0 rounded-md bg-foreground px-1.5 py-0.5 text-[11px] font-medium leading-none text-background"
-                          >
-                            {t2("canvas.modelNew", {
-                              defaultValue: "New",
-                            })}
-                          </span>
-                        )}
-                        {isPromotionActive(m3.promotion) &&
-                          promotionTagLabel && (
-                            <span
-                              title={promotionTagLabel}
-                              data-action-ui-id="popover.model-promotion-tag"
-                              className="shrink-0 max-w-[140px] truncate rounded-md bg-brand-accent px-1.5 py-0.5 text-[11px] font-medium leading-none text-brand-accent-foreground"
-                            >
-                              {promotionTagLabel}
-                            </span>
-                          )}
-                      </span>
-                      {(isRowDisabled && disabledReason) || hasSubtitle ? (
-                        <span className="flex items-center gap-1.5 truncate text-[12px] leading-4 text-foreground opacity-50">
-                          {isRowDisabled && disabledReason ? (
-                            <span>{disabledReason}</span>
-                          ) : (
-                            <>
-                              {sub.resolution && <span>{sub.resolution}</span>}
-                              {sub.resolution && sub.duration && (
-                                <span
-                                  aria-hidden={true}
-                                  className="w-px h-2.5 bg-foreground/15"
-                                />
-                              )}
-                              {sub.duration && (
-                                <span className="flex items-center gap-0.5">
-                                  <ClockIcon />
-                                  <span>{sub.duration}</span>
-                                </span>
-                              )}
-                              {(sub.resolution || sub.duration) &&
-                                sub.audio && (
-                                  <span
-                                    aria-hidden={true}
-                                    className="w-px h-2.5 bg-foreground/15"
-                                  />
-                                )}
-                              {sub.audio && (
-                                <span className="flex items-center">
-                                  <SpeakerIcon />
-                                </span>
-                              )}
-                              {sub.capability && <span>{sub.capability}</span>}
-                              {sub.capability && sub.latency && (
-                                <span
-                                  aria-hidden={true}
-                                  className="w-px h-2.5 bg-foreground/15"
-                                />
-                              )}
-                              {sub.latency && (
-                                <span className="flex items-center gap-0.5">
-                                  <ClockIcon />
-                                  <span>{sub.latency}</span>
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </span>
-                      ) : null}
-                    </span>
-                    {active2 && (
-                      <span className="shrink-0 ml-auto self-center size-4 flex items-center justify-center text-foreground">
-                        <CheckIcon size={16} />
-                      </span>
-                    )}
-                  </button>
-                );
-                const hoverDescription =
-                  isRowDisabled && disabledReason
-                    ? disabledReason
-                    : modelHoverDescription;
-                if (hoverDescription) {
-                  return (
-                    <Tooltip
-                      key={`tip-${m3.id}`}
-                      content={hoverDescription}
-                      side="right"
-                      className="max-w-[320px] whitespace-normal leading-5"
-                    >
-                      {row}
-                    </Tooltip>
-                  );
-                }
-                return row;
-              })}
-          </div>,
-          document.body,
-        )}
-    </div>
-  );
+  return null;
 }

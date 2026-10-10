@@ -1,6 +1,7 @@
 // use-skill-categories.js
 import { API_PATHS, reactExports } from "../vendor.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
+import { getBaseUrl } from "../infra/gateway-http-error.jsx";
 import { PENDING_AUTO_UPDATE_KEY } from "./use-mention-models.jsx";
 
 export function normalizeSkillCategoriesResponse(value) {
@@ -112,10 +113,28 @@ const TRUSTED_HOME_ASSET_HOSTS = new Set([
   "cdn.hailuoai.video",
 ]);
 
+// 本地 gateway 的首页示例素材路由。配置里写相对路径，按当前 gateway 地址补全（端口每次启动都可能变）；
+// 已补全的绝对地址同源同前缀也放行。
+function localHomeShowcaseAssetUrl(text2) {
+  let origin;
+  try {
+    origin = new URL(getBaseUrl() ?? "").origin;
+  } catch {
+    return void 0;
+  }
+  try {
+    const url2 = text2.startsWith("/") && !text2.startsWith("//") ? new URL(text2, origin) : new URL(text2);
+    return url2.origin === origin && url2.pathname.startsWith("/api/v1/home/showcase-assets/") ? url2.toString() : void 0;
+  } catch {
+    return void 0;
+  }
+}
 export function normalizeHomeQuickStartAssetUrl(value) {
   if (typeof value !== "string") return void 0;
   const text2 = value.trim();
   if (!text2) return void 0;
+  const localUrl = localHomeShowcaseAssetUrl(text2);
+  if (localUrl) return localUrl;
   try {
     const url2 = new URL(text2);
     const trustedHost = TRUSTED_HOME_ASSET_HOSTS.has(

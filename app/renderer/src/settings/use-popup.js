@@ -154,10 +154,9 @@ export function usePopup() {
   const creditAccount = useCreditAccountState();
   const { i18n } = useTranslation();
   const updater = useOptionalUpdaterContext();
-  const forcedUpdate = updater?.state.forced ?? false;
   const queryScope = creditAccount.queryScope;
   const userID = user?.userID;
-  const enabled = !forcedUpdate && !isLoading && isLoggedIn && !!userID;
+  const enabled = false;
   const fallbackQueryKey = userID
     ? [...creditQueryKeys.popupByIdentity(userID), i18n.language]
     : null;

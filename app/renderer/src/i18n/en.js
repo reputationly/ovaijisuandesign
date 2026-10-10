@@ -24,18 +24,15 @@ export const en = {
   "canvas.minimap.hide": "Hide minimap",
   "canvas.minimap.show": "Show minimap",
   "connectors.catalog.libtv.title": "LibTV",
-  "connectors.catalog.libtv.description":
-    "Create images and video with LibTV, then bring the results onto your Design canvas.",
+  "connectors.catalog.libtv.description": "Create images and video with LibTV, then bring the results onto your Suanli canvas.",
   "connectors.libtv.title": "Connect LibTV",
   "connectors.libtv.description":
     "Sign in to your LibTV account in the browser to connect your projects and creative tools.",
-  "connectors.libtv.hint":
-    "Open a Design task before connecting. Sign-in does not generate media or spend credits.",
+  "connectors.libtv.hint": "Open a Suanli task before connecting. Sign-in does not generate media or spend credits.",
   "connectors.libtv.authorize": "Sign in and connect",
   "connectors.libtv.waiting":
     "Complete authorization in the browser within five minutes. You can close this window; browser authorization will continue.",
-  "connectors.libtv.runtimeRequired":
-    "Open a Design task, wait for it to be ready, then connect again.",
+  "connectors.libtv.runtimeRequired": "Open a Suanli task, wait for it to be ready, then connect again.",
   "connectors.libtv.busy":
     "LibTV preparation is already in progress. Complete the current browser sign-in, then check the connection.",
   "connectors.libtv.conflict":
@@ -118,7 +115,7 @@ export const en = {
   "about.description": "Creative workflow editor for image, video, and audio.",
   "about.license": "License",
   "about.runtime": "Runtime",
-  "about.title": "About MiniMax Design",
+  "about.title": "About Suanli Assistant",
   "about.version": "Version",
   "account.delete.accountName": "Account Name",
   "account.delete.ackDataErased":
@@ -127,7 +124,7 @@ export const en = {
     "I confirm this action is initiated and agreed by myself",
   "account.delete.blockCheckUnavailable":
     "We couldn't verify your account deletion eligibility right now. Please try again later.",
-  "account.delete.blockGroupDesign": "MiniMax Design",
+  "account.delete.blockGroupDesign": "Suanli Assistant",
   "account.delete.blockGroupHailuo": "Hailuo Video",
   "account.delete.blockHailuoFallback":
     "Your account has an active subscription or unsettled order and cannot be deleted yet.",
@@ -147,15 +144,15 @@ export const en = {
   "account.delete.confirmTitle": "Are you sure?",
   "account.delete.failed": "Account deletion failed. Please try again later.",
   "account.delete.hailuoTitle": "Hailuo Video Account",
-  "account.delete.hubPersonalTitle": "MiniMax Design Personal Account",
-  "account.delete.hubTeamsTitle": "MiniMax Design Team Accounts",
+  "account.delete.hubPersonalTitle": "Suanli Assistant Personal Account",
+  "account.delete.hubTeamsTitle": "Suanli Assistant Team Accounts",
   "account.delete.remainingCredits": "Remaining top-up credits",
   "account.delete.resendCodeIn": "Resend in {{seconds}}s",
   "account.delete.sendCode": "Send Code",
   "account.delete.submitButton": "Confirm Deletion",
   "account.delete.subscriptionPlan": "Subscription Plan",
   "account.delete.subtitle":
-    "After deletion you will no longer be able to log in to Hailuo Video (web and app) or MiniMax Design. Personal data, service records, credits and other related information will be erased and cannot be recovered.",
+    "After deletion you will no longer be able to log in to Hailuo Video (web and app) or Suanli Assistant. Personal data, service records, credits and other related information will be erased and cannot be recovered.",
   "account.delete.successToast": "Account Winding Down",
   "account.delete.teamRemainingCredits": "Team Credits",
   "account.delete.title": "Confirm Account Deletion",
@@ -164,9 +161,9 @@ export const en = {
   "account.delete.verifyCodeLabel": "Verification Code",
   "account.delete.verifyCodePlaceholder": "Enter verification code",
   "account.delete.warning.contentErased":
-    "All content from your Hailuo AI web, Hailuo AI app, and MiniMax Design accounts (including cloud videos and personal data) will be permanently deleted and cannot be recovered",
+    "All content from your Hailuo AI web, Hailuo AI app, and Suanli Assistant accounts (including cloud videos and personal data) will be permanently deleted and cannot be recovered",
   "account.delete.warning.creditsCleared":
-    "All credits in your Hailuo AI and MiniMax Design accounts will be cleared",
+    "All credits in your Hailuo AI and Suanli Assistant accounts will be cleared",
   "account.delete.warning.irreversible":
     "Account deletion is permanent and irreversible",
   "account.delete.warning.noNewUserBonus":
@@ -288,10 +285,10 @@ export const en = {
     "Service is starting, please wait a moment",
   "assetCenter.errors.importEntityConflict": "This subject already exists",
   "assetCenter.errors.importInvalidZip":
-    "Failed to parse subject. Only files exported from MiniMax Design are supported.",
+    "Failed to parse subject. Only files exported from Suanli Assistant are supported.",
   "assetCenter.errors.importManifestInvalid": "Invalid import file format",
   "assetCenter.errors.importVersionUnsupported":
-    "Unable to parse this zip file. Only subject packages exported from MiniMax Design are supported.",
+    "Unable to parse this zip file. Only subject packages exported from Suanli Assistant are supported.",
   "assetCenter.errors.internalError": "Operation failed, please try again",
   "assetCenter.errors.invalidRequest": "Invalid request",
   "assetCenter.errors.network":
@@ -622,11 +619,11 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "auth.loginGate.button": "Log in",
   "auth.loginGate.subtitle":
     "The Most Powerful Creative Agent + Leading General-Purpose Multimodal Model",
-  "auth.loginGate.title": "MiniMax Design, Now with H3",
+  "auth.loginGate.title": "Suanli Assistant, Now with H3",
   "auth.loginNetworkError":
     "Login verification failed. Please check your network and try again.",
   "auth.loginPageExpired":
-    "This sign-in page is no longer valid. Use the latest sign-in page, or start sign-in again in MiniMax Design.",
+    "This sign-in page is no longer valid. Use the latest sign-in page, or start sign-in again in Suanli Assistant.",
   "auth.loginRequired": "Login Required",
   "auth.loginRequiredDesc": "Please log in to continue.",
   "auth.logoutFailed": "Logout failed",
@@ -667,7 +664,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "bundleError.diagnosis.macosVersionUnsupported.suggestion1":
     "macOS 12 and earlier do not support the current local AI service.",
   "bundleError.diagnosis.macosVersionUnsupported.suggestion2":
-    "Retrying will not fix this. Upgrade macOS first, then reopen MiniMax Design.",
+    "Retrying will not fix this. Upgrade macOS first, then reopen Suanli Assistant.",
   "bundleError.diagnosis.macosVersionUnsupported.title":
     "macOS version is too old",
   "bundleError.diagnosis.networkProxy.message":
@@ -786,7 +783,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "bundleError.diagnosis.windowsCpuUnsupported.suggestion1":
     "Upgrading Windows or reinstalling cannot add a missing CPU instruction set.",
   "bundleError.diagnosis.windowsCpuUnsupported.suggestion2":
-    "Install MiniMax Design on a newer 64-bit computer.",
+    "Install Suanli Assistant on a newer 64-bit computer.",
   "bundleError.diagnosis.windowsCpuUnsupported.title":
     "This processor is not supported",
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.message":
@@ -796,7 +793,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion1":
     "Restart first so updates or security software release old files.",
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion2":
-    "If it still fails, reinstall the latest MiniMax Design.",
+    "If it still fails, reinstall the latest Suanli Assistant.",
   "bundleError.diagnosis.windowsRuntimeDependencyFailed.title":
     "A Windows component failed to load",
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.message":
@@ -806,17 +803,17 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion1":
     "Close memory-heavy apps and free space on the system and project drives.",
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion2":
-    "After freeing resources, fully quit and reopen MiniMax Design.",
+    "After freeing resources, fully quit and reopen Suanli Assistant.",
   "bundleError.diagnosis.windowsRuntimeResourceExhausted.title":
     "Not enough system resources",
   "bundleError.diagnosis.windowsRuntimeTerminated.message":
     "The local AI service was stopped by Windows, an installer, or another program.",
   "bundleError.diagnosis.windowsRuntimeTerminated.primaryAction":
-    "Reopen MiniMax Design",
+    "Reopen Suanli Assistant",
   "bundleError.diagnosis.windowsRuntimeTerminated.suggestion1":
     "If an update is installing, wait for it to finish before reopening.",
   "bundleError.diagnosis.windowsRuntimeTerminated.suggestion2":
-    "Otherwise, fully quit and reopen MiniMax Design.",
+    "Otherwise, fully quit and reopen Suanli Assistant.",
   "bundleError.diagnosis.windowsRuntimeTerminated.title":
     "The local AI service was terminated",
   "bundleError.diagnosis.windowsVersionUnsupported.message":
@@ -2601,7 +2598,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "chat.emptyRecommendations.skillTab.clipAgent": "Clip Skill",
   "chat.emptyRecommendations.skillTab.directorAgent": "Director Stage Skill",
   "chat.emptyRecommendations.skillTab.textAgent": "Text Skill",
-  "chat.emptyRecommendations.subtitle": "Explore H3 today!",
+  "chat.emptyRecommendations.subtitle": "Say the word, Suanli does the rest",
   "chat.emptyRecommendations.subtitle.clipAgent":
     "Edit video clips, subtitles, and visual effects through conversation",
   "chat.emptyRecommendations.subtitle.directorAgent":
@@ -2692,7 +2689,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "chat.fileChip.locateOnCanvas": "Locate on canvas",
   "chat.fileReference.openOnce": "Open once",
   "chat.fileReference.permissionDescription":
-    "This local path is outside MiniMax Design's trusted folders. You can reveal it once or trust its parent folder for future chat file references.",
+    "This local path is outside Suanli Assistant's trusted folders. You can reveal it once or trust its parent folder for future chat file references.",
   "chat.fileReference.permissionExpired": "File permission expired. Try again.",
   "chat.fileReference.permissionTitle": "Reveal local file?",
   "chat.fileReference.sensitivePath":
@@ -3043,15 +3040,15 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "chat.tips.assetCenter.3":
     "After adding an asset to a project, you can keep referencing it on the canvas or in chat.",
   "chat.tips.discovery.1":
-    "Drag generated results back into chat to ask MiniMax Design for edits or extensions.",
+    "Drag generated results back into chat to ask Suanli Assistant for edits or extensions.",
   "chat.tips.discovery.10":
     "Save frequent workflows as Skills so you can reuse them next time.",
   "chat.tips.discovery.11":
     "Try a different direction in a new workspace without changing the current project.",
   "chat.tips.discovery.4":
-    "Select multiple canvas assets and ask MiniMax Design to create from them together.",
+    "Select multiple canvas assets and ask Suanli Assistant to create from them together.",
   "chat.tips.discovery.5":
-    "Tell MiniMax Design the model, aspect ratio, duration, or quality you want.",
+    "Tell Suanli Assistant the model, aspect ratio, duration, or quality you want.",
   "chat.tips.discovery.6":
     "After a failed generation, adjust the request using the error reason and retry.",
   "chat.tips.discovery.8":
@@ -3405,7 +3402,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "coachMark.home.slashKey.desc": "Need a dedicated Skill to help out",
   "coachMark.home.slashKey.title": 'Use the "/" key',
   "coachMark.home.workspace.desc":
-    "Pick a local folder to work in. The MiniMax Design agent will read and write files there first, making local tasks like asset organizing and format conversion easier.",
+    "Pick a local folder to work in. The Suanli Assistant agent will read and write files there first, making local tasks like asset organizing and format conversion easier.",
   "coachMark.home.workspace.title": "New: select a workspace",
   "coachMark.mediaPlaceholder": "Media placeholder",
   "coachMark.next": "Next",
@@ -3478,7 +3475,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "colorAdjust.vibrance": "Vibrance",
   "colorAdjust.vignette": "Vignette",
   "colorAdjust.whites": "Whites",
-  "common.appName": "MiniMax Design",
+  "common.appName": "Suanli Assistant",
   "common.audio": "Audio",
   "common.back": "Back",
   "common.cancel": "Cancel",
@@ -3630,13 +3627,13 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "connectors.runtimeState.installing": "Installing plugin",
   "connectors.runtimeState.waitingHostApp": "Waiting for application",
   "connectors.catalog.illustrator.description":
-    "Turn brand ideas, sketches, and product information into editable vector artwork for logos, icons, illustrations, posters, and packaging. Create layered assets for video and animation, supporting image creation and a reusable visual asset library in MiniMax Design.",
+    "Turn brand ideas, sketches, and product information into editable vector artwork for logos, icons, illustrations, posters, and packaging. Create layered assets for video and animation, supporting image creation and a reusable visual asset library in Suanli Assistant.",
   "connectors.catalog.illustrator.title": "Illustrator",
   "connectors.catalog.photoshop.description":
     "Turn product photos, photographs, and design assets into e-commerce hero images, posters, social visuals, and texture maps with masking, retouching, compositing, color correction, multi-size exports, and editable layers.",
   "connectors.catalog.photoshop.title": "Photoshop",
   "connectors.catalog.shopify.description":
-    "Publish MiniMax Design output to your Shopify store: create product drafts, upload product images and ad assets, and draft store pages.",
+    "Publish Suanli Assistant output to your Shopify store: create product drafts, upload product images and ad assets, and draft store pages.",
   "connectors.catalog.shopify.title": "Shopify",
   "connectors.catalog.touchdesigner.description":
     "Turn music, cameras, body movement, or live signals into real-time visuals for stages, exhibitions, and interactive installations, with particles, 3D, projection mapping, and live output.",
@@ -3648,7 +3645,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "Drive the Unreal Editor with AI: spawn and edit actors, build Blueprints, tweak materials and Niagara effects, arrange Sequencer shots, and run editor Python in your project.",
   "connectors.catalog.unreal.title": "Unreal Engine",
   "connectors.catalogDescription":
-    "Choose a service to extend what MiniMax Design can access and complete.",
+    "Choose a service to extend what Suanli Assistant can access and complete.",
   "connectors.catalogTitle": "Explore plugins",
   "connectors.connector.error.addon_install_failed":
     "Failed to install addon into the application",
@@ -3770,7 +3767,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "connectors.detail.figma.promptTitle.1": "Ad Storyboard Review",
   "connectors.detail.figma.promptTitle.2": "Design Specification Extraction",
   "connectors.detail.illustrator.description":
-    "Turn brand ideas, sketches, and product information into editable vector artwork for logos, icons, illustrations, posters, and packaging. Create layered assets for video and animation, supporting image creation and a reusable visual asset library in MiniMax Design.",
+    "Turn brand ideas, sketches, and product information into editable vector artwork for logos, icons, illustrations, posters, and packaging. Create layered assets for video and animation, supporting image creation and a reusable visual asset library in Suanli Assistant.",
   "connectors.detail.illustrator.prompt.0":
     "Use Adobe Illustrator to create a futuristic city vector poster with skyscrapers, hovering trains, neon signs, and the title “NEON CITY”. Use a blue and purple palette, preserve editable paths, text, and layers, and export AI, SVG, and PNG files.",
   "connectors.detail.illustrator.prompt.1":
@@ -3784,7 +3781,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "connectors.detail.illustrator.promptTitle.2":
     "Prepare Layered Animation Assets",
   "connectors.detail.shopify.description":
-    "Connect your Shopify store to publish generated product images, listing copy, and page content directly from MiniMax Design. Products are created as drafts and pages stay unpublished until you review them.",
+    "Connect your Shopify store to publish generated product images, listing copy, and page content directly from Suanli Assistant. Products are created as drafts and pages stay unpublished until you review them.",
   "connectors.detail.shopify.prompt.0":
     'Create a draft product on Shopify with the poster image we just generated, titled "Aurora Ceramic Mug", and write the product description from the design brief',
   "connectors.detail.shopify.prompt.1":
@@ -3859,7 +3856,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "e.g. Query product and market data",
   "connectors.customDialog.enabled": "Enable after adding",
   "connectors.customDialog.enabledHint":
-    "Allow MiniMax Design to use this plugin in creative conversations when enabled.",
+    "Allow Suanli Assistant to use this plugin in creative conversations when enabled.",
   "connectors.customDialog.environment": "Environment variables (JSON)",
   "connectors.customDialog.error.invalid_config":
     "Check the server name and connection settings.",
@@ -3868,7 +3865,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "connectors.customDialog.error.requestFailed":
     "Could not save this MCP server. Try again.",
   "connectors.customDialog.error.reserved_name":
-    "This server name is reserved by MiniMax Design.",
+    "This server name is reserved by Suanli Assistant.",
   "connectors.customDialog.error.server_exists":
     "An MCP server with this name already exists.",
   "connectors.customDialog.error.server_not_found":
@@ -3896,7 +3893,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "connectors.customDialog.stdioRisk":
     "This command runs on your computer with your current user permissions. Only add MCP services from trusted sources.",
   "connectors.customDialog.subtitle":
-    "Enter the connection details to add this MCP service to MiniMax Design.",
+    "Enter the connection details to add this MCP service to Suanli Assistant.",
   "connectors.customDialog.timeout": "Timeout (ms)",
   "connectors.customDialog.timeoutError":
     "Enter a timeout from 1 to 3,600,000 milliseconds using a whole number.",
@@ -3972,8 +3969,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "connectors.detail.houdini.promptTitle.0": "Rebuild the Eiffel Tower",
   "connectors.detail.houdini.promptTitle.1": "Simulate a Rocket Launch",
   "connectors.detail.houdini.promptTitle.2": "Simulate a Building Collapse",
-  "connectors.detail.libtv.description":
-    "Create images and video with LibTV, then bring the results onto your Design canvas. Image and video generation uses credits from your LibTV account, without consuming Design credits.",
+  "connectors.detail.libtv.description": "Create images and video with LibTV, then bring the results onto your Suanli canvas. Image and video generation uses credits from your LibTV account, without consuming Suanli credits.",
   "connectors.detail.libtv.prompt.0":
     "Use LibTV to create one spring perfume visual: a frosted glass perfume bottle on a pale stone plinth, a softly blurred garden behind it, morning backlight, and realistic product photography. Use a 3:4 portrait frame. Choose a currently available compatible model and resolution, then bring the finished image back to the current canvas.",
   "connectors.detail.libtv.prompt.1":
@@ -4093,7 +4089,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "Could not confirm authorization stopped. Try again.",
   "connectors.oauth.connect": "Connect and authorize",
   "connectors.oauth.instructions":
-    "Connect to open the official authorization page in your default browser. Being signed in on the provider website does not grant MiniMax Design access; the authorization site may ask you to sign in again. Review access there, then return to MiniMax Design. Keep this page open while authorizing; cancelling disables this connection.",
+    "Connect to open the official authorization page in your default browser. Being signed in on the provider website does not grant Suanli Assistant access; the authorization site may ask you to sign in again. Review access there, then return to Suanli Assistant. Keep this page open while authorizing; cancelling disables this connection.",
   "connectors.oauth.waiting":
     "Connecting to the service and waiting for browser authorization. Review access on the official site, then return here…",
   "connectors.quick.alreadyConnected": "{{name}} is already connected",
@@ -4116,7 +4112,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "The {{name}} plugin could not be installed. Retry or view the setup guide.",
   "connectors.quick.installError.title": "Installation Failed",
   "connectors.quick.installing.description":
-    "Keep MiniMax Design open. The connection status will be checked automatically after installation.",
+    "Keep Suanli Assistant open. The connection status will be checked automatically after installation.",
   "connectors.quick.installing.title": "Installing {{name}} Plugin",
   "connectors.quick.ready.description":
     "Installation information for {{name}} was found. Detection is only a hint; the actual connection will be checked after the plugin is installed.",
@@ -4196,7 +4192,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "credits.creditsRules": "Credits rules",
   "credits.creditsRulesMP": "Credits rules",
   "credits.detailsOnlyHubNote":
-    "This panel only shows MiniMax Design credit consumption records.",
+    "This panel only shows Suanli Assistant credit consumption records.",
   "credits.detailsTitle": "Credits Details",
   "credits.detailsTitleMP": "Credits Details",
   "credits.entries": "entries",
@@ -4494,7 +4490,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "debugPanel.reliability.uploaded": "Log upload triggered",
   "debugPanel.reliability.uploading": "Uploading…",
   "debugPanel.serverPopup.description":
-    "Simulate a fresh user entering MiniMax Design. The window refreshes once and the popup is re-evaluated against the marketing config, current account identity and frequency rules. If marketing has nothing live or the account does not match a trigger, nothing pops — same as another user seeing MiniMax Design for the first time.",
+    "Simulate a fresh user entering Suanli Assistant. The window refreshes once and the popup is re-evaluated against the marketing config, current account identity and frequency rules. If marketing has nothing live or the account does not match a trigger, nothing pops — same as another user seeing Suanli Assistant for the first time.",
   "debugPanel.serverPopup.notLoggedIn": "Please sign in first",
   "debugPanel.serverPopup.replay": "Replay",
   "debugPanel.serverPopup.title": "Marketing popup",
@@ -4584,7 +4580,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "debugPanel.teamPreview.case.creditCheckout.title":
     "Purchase permission · Owner and Member",
   "debugPanel.teamPreview.case.creditCheckoutFlow.awaitingDescription":
-    "Checkout opened externally. Credit data will refresh only after MiniMax Design becomes active again.",
+    "Checkout opened externally. Credit data will refresh only after Suanli Assistant becomes active again.",
   "debugPanel.teamPreview.case.creditCheckoutFlow.description":
     "Walk through checkout creation, external return, refresh, and updated balance.",
   "debugPanel.teamPreview.case.creditCheckoutFlow.title":
@@ -5339,7 +5335,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "home.gatewayStarting": "Starting local service…",
   "home.greeting": "Hello {{name}}",
   "home.heroSubtitle": "Your Multimodal Agent Team",
-  "home.heroTitle": "MiniMax <brand>Design</brand>",
+  "home.heroTitle": "Suanli <brand>Assistant</brand>",
   "home.idea2video": "idea2video",
   "home.ideaToVideo": "Idea to Video",
   "home.imageGen": "Image Generation",
@@ -5507,7 +5503,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "imBridge.menuLabel.domestic": "Connect Lark / WeChat",
   "imBridge.menuLabel.overseas": "Connect Lark / Telegram",
   "imBridge.preventSleep.description":
-    "When enabled, MiniMax Design keeps this computer awake to avoid interrupting remote tasks. Your display can still turn off.",
+    "When enabled, Suanli Assistant keeps this computer awake to avoid interrupting remote tasks. Your display can still turn off.",
   "imBridge.preventSleep.title": "Keep computer awake",
   "imBridge.title": "IM Bridge",
   "imBridge.title.domestic": "Connect Lark / WeChat",
@@ -5632,31 +5628,31 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "mediaplan.migration.amountLabel": "Transfer Hailuo Credits",
   "mediaplan.migration.amountMax": "Max",
   "mediaplan.migration.amountPlaceholder": "0",
-  "mediaplan.migration.cetaCurrentBalanceHint": "MiniMax Design: {{balance}}",
+  "mediaplan.migration.cetaCurrentBalanceHint": "Suanli Assistant: {{balance}}",
   "mediaplan.migration.confirmCheckText":
     "I understand: these Hailuo credits will be deducted from Hailuo Web and the operation is irreversible.",
   "mediaplan.migration.confirmCta": "Confirm transfer",
   "mediaplan.migration.deadline":
-    "**{{days}} days** until MiniMax Design switches to Media Plan · ends **{{date}}**",
+    "**{{days}} days** until Suanli Assistant switches to Media Plan · ends **{{date}}**",
   "mediaplan.migration.failed": "Transfer failed, please try again later",
   "mediaplan.migration.fromHailuo": "Transfer out",
   "mediaplan.migration.hailuoBalanceHint": "Hailuo credits {{balance}}",
-  "mediaplan.migration.hubCurrentBalanceHint": "MiniMax Design: {{balance}}",
+  "mediaplan.migration.hubCurrentBalanceHint": "Suanli Assistant: {{balance}}",
   "mediaplan.migration.menuEntry": "Transfer to Media Plan",
   "mediaplan.migration.noteDeadline":
     "Available until {{date}}, entry closes after expiration",
   "mediaplan.migration.noteDirection":
-    "**One-way transfer**: Transferred credits are usable in MiniMax Design only; the Hailuo credits are deducted from Hailuo Web.",
+    "**One-way transfer**: Transferred credits are usable in Suanli Assistant only; the Hailuo credits are deducted from Hailuo Web.",
   "mediaplan.migration.noteIrreversible":
     "Only subscription credits and purchased credits can be transferred — free credits are not eligible.",
   "mediaplan.migration.noteRatio":
-    "1 Hailuo credit = {{ratio}} MiniMax Design credits — display-only rescale, actual cost unchanged",
+    "1 Hailuo credit = {{ratio}} Suanli Assistant credits — display-only rescale, actual cost unchanged",
   "mediaplan.migration.noteValidity":
     "**Credits valid for 1 year**: Transferred MP credits expire 1 year after transfer.",
   "mediaplan.migration.noteValue":
     "**Same cost, new unit**: Your per-action cost stays the same — only the credit unit changes.",
   "mediaplan.migration.popup.deadline":
-    "MiniMax Design switches to Media Plan in **{{days}} days** · ends **{{date}}**",
+    "Suanli Assistant switches to Media Plan in **{{days}} days** · ends **{{date}}**",
   "mediaplan.migration.popup.deadlineIconAlt": "Countdown",
   "mediaplan.migration.popup.detailsAriaLabel": "View migration details",
   "mediaplan.migration.popup.redeemCta": "Transfer Hailuo Credits",
@@ -5665,21 +5661,21 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "1 : {{ratio}} ratio, non-refundable",
   "mediaplan.migration.popup.skip": "Maybe later",
   "mediaplan.migration.subtitle":
-    "Transfer Hailuo credits to MiniMax Design, ratio 1 : {{ratio}}",
+    "Transfer Hailuo credits to Suanli Assistant, ratio 1 : {{ratio}}",
   "mediaplan.migration.success":
     "Transfer successful, {{amount}} Hailuo credits transferred",
-  "mediaplan.migration.title": "Transfer to MiniMax Design credits",
-  "mediaplan.migration.toCeta": "MiniMax Design credits",
-  "mediaplan.migration.toHub": "MiniMax Design credits",
+  "mediaplan.migration.title": "Transfer to Suanli Assistant credits",
+  "mediaplan.migration.toCeta": "Suanli Assistant credits",
+  "mediaplan.migration.toHub": "Suanli Assistant credits",
   "mediaplan.migration.willReceive":
-    "You will receive {{credits}} MiniMax Design credits",
+    "You will receive {{credits}} Suanli Assistant credits",
   "mediaplan.userMenu.exchangeTrigger": "Transfer",
   "mediaplan.userMenu.hailuoBalanceLabel": "Hailuo credits",
   "mediaplan.userMenu.hailuoTooltip":
-    "Your Hailuo AI credits. Transfer to MiniMax Design as credits, valid for one year.",
+    "Your Hailuo AI credits. Transfer to Suanli Assistant as credits, valid for one year.",
   "mediaplan.userMenu.migrationHint":
-    "MiniMax Design switches to Media Plan in **{{days}} days**. Convert at **1 : {{ratio}}**.",
-  "mediaplan.userMenu.mpCreditLabel": "MiniMax Design Credits",
+    "Suanli Assistant switches to Media Plan in **{{days}} days**. Convert at **1 : {{ratio}}**.",
+  "mediaplan.userMenu.mpCreditLabel": "Suanli Assistant Credits",
   "memory.assetDangling": "Asset no longer exists in vault — pin is stale",
   "memory.assetMissing": "asset_uri missing or malformed",
   "memory.assetUriPlaceholder": "hilo://asset/01H...",
@@ -5824,7 +5820,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "Include cross-project user memory in this workspace. Project memory still loads.",
   "memory.loadUserMemory.label": "Load user memory",
   "memory.lowToast.description":
-    "Available memory ({{available}}MB) has stayed below {{threshold}}MB, which may cause MiniMax Design to stop responding. Please close other large applications or restart your computer.",
+    "Available memory ({{available}}MB) has stayed below {{threshold}}MB, which may cause Suanli Assistant to stop responding. Please close other large applications or restart your computer.",
   "memory.lowToast.title": "System memory is running low",
   "memory.matchBody": "body",
   "memory.matchBoth": "desc+body",
@@ -6023,7 +6019,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "Local projects organize creation pages on this device. Create projects by work, theme, or task, then add related pages to view and manage project pages and assets together. Project content is not automatically shared with other devices or users.",
   "project.create.localTitle": "New local project",
   "project.create.nameLabel": "Project name",
-  "project.create.namePlaceholder": "e.g. MiniMax promo video",
+  "project.create.namePlaceholder": "e.g. Suanli promo video",
   "project.create.submit": "Create Project",
   "project.create.team": "Collaborative project",
   "project.create.teamDescription":
@@ -6067,8 +6063,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "project.invite.copied": "Copied",
   "project.invite.copyFailed": "Failed to create invite link, please try again",
   "project.invite.copyLink": "Copy invitation link",
-  "project.invite.expiryNote":
-    "This invitation link is valid for 24 hours. Please send it to the Design users participating in the project.",
+  "project.invite.expiryNote": "This invitation link is valid for 24 hours. Please send it to the Suanli users participating in the project.",
   "project.invite.membersFailed": "Failed to load members",
   "project.invite.membersLabel": "Members",
   "project.invite.membersTitle": "Members of {{name}}",
@@ -6164,7 +6159,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "projectArchive.export.success": "Project exported",
   "projectArchive.import.failed": "Import failed",
   "projectArchive.import.failure.archiveInvalid":
-    "This project archive could not be read. Check that the file is complete and was exported from MiniMax Design, then try again.",
+    "This project archive could not be read. Check that the file is complete and was exported from Suanli Assistant, then try again.",
   "projectArchive.import.failure.archiveTooLarge":
     "This project template is unavailable because its file is too large. Upload logs for troubleshooting.",
   "projectArchive.import.failure.destinationConflict":
@@ -6271,10 +6266,10 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "projects.create": "Create",
   "promoBanner.close": "Dismiss",
   "promoBubble.close": "Dismiss",
-  "promoBubble.cta": "Try on MiniMax Design",
+  "promoBubble.cta": "Try on Suanli Assistant",
   "promotion.badge": "Seedance 2.0 — 65% off",
   "promotion.dialog.bullet1":
-    "All members get a 65% discount on Seedance 2.0 model usage in MiniMax Design",
+    "All members get a 65% discount on Seedance 2.0 model usage in Suanli Assistant",
   "promotion.dialog.bullet2":
     "720P from just $0.5/sec — the lowest on the market",
   "promotion.dialog.bullet3": "Start creating now",
@@ -6282,7 +6277,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "promotion.dialog.cta": "Try it now",
   "promotion.dialog.title": "Seedance 2.0 — Limited-time 65% off",
   "proxy.toastDescription":
-    "A system proxy or VPN is active. This may cause connection issues. For best experience, add MiniMax Design to your proxy bypass list or disable the proxy while using MiniMax Design.",
+    "A system proxy or VPN is active. This may cause connection issues. For best experience, add Suanli Assistant to your proxy bypass list or disable the proxy while using Suanli Assistant.",
   "proxy.toastTitle": "Proxy / VPN detected",
   "recentAssets.clear": "Clear",
   "recentAssets.copyPath": "Copy path",
@@ -6390,7 +6385,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.account.noTeams": "No team accounts",
   "settings.account.teamsTitle": "Team Accounts",
   "settings.account.title": "Account",
-  "settings.account.uidLabel": "Hailuo UID",
+  "settings.account.uidLabel": "UID",
   "settings.advanced": "Advanced",
   "settings.appearance": "Appearance",
   "settings.assetCenter.browse": "Choose Folder",
@@ -6532,16 +6527,16 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.imBridge.addFlow.authDescription.feishu":
     "Open Lark Scan, then tap Enable and authorize on your phone",
   "settings.imBridge.addFlow.authQrHint.feishu":
-    "MiniMax Design only reads the Lark info needed for tasks. Limit app availability to yourself if possible",
+    "Suanli Assistant only reads the Lark info needed for tasks. Limit app availability to yourself if possible",
   "settings.imBridge.addFlow.authTitle.feishu": "Scan again to authorize",
-  "settings.imBridge.addFlow.currentDevice": "Current device: MiniMax Design",
+  "settings.imBridge.addFlow.currentDevice": "Current device: Suanli Assistant",
   "settings.imBridge.addFlow.defaultAgentName.feishu": "Lark agent",
   "settings.imBridge.addFlow.defaultAgentName.wechat": "WeChat ClawBot",
   "settings.imBridge.addFlow.done": "I got it",
   "settings.imBridge.addFlow.help": "Connection failed? View help",
   "settings.imBridge.addFlow.instructions.confirm": "Confirm on your phone",
   "settings.imBridge.addFlow.instructions.confirmDescription":
-    "Confirm that this account connects to MiniMax Design on this computer",
+    "Confirm that this account connects to Suanli Assistant on this computer",
   "settings.imBridge.addFlow.instructions.open.feishu": "Open Lark Scan",
   "settings.imBridge.addFlow.instructions.open.wechat": "Open WeChat Scan",
   "settings.imBridge.addFlow.instructions.openDescription":
@@ -6550,7 +6545,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.imBridge.addFlow.instructions.returnDescription":
     "After connecting, you can send tasks in chat",
   "settings.imBridge.addFlow.notice":
-    "Tasks run in MiniMax Design on this computer. If the app closes, the network disconnects, or the computer sleeps, remote tasks may stop.",
+    "Tasks run in Suanli Assistant on this computer. If the app closes, the network disconnects, or the computer sleeps, remote tasks may stop.",
   "settings.imBridge.addFlow.qrAlt.feishu": "Lark connection QR code",
   "settings.imBridge.addFlow.qrAlt.feishuAuth": "Lark authorization QR code",
   "settings.imBridge.addFlow.qrAlt.wechat": "WeChat connection QR code",
@@ -6578,9 +6573,9 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.imBridge.addFlow.stepHint.auth.feishu":
     "Grant Lark permissions. Scan, then tap Enable and authorize.",
   "settings.imBridge.addFlow.stepHint.done.feishu":
-    "After setup, you can assign tasks to MiniMax Design from Lark.",
+    "After setup, you can assign tasks to Suanli Assistant from Lark.",
   "settings.imBridge.addFlow.stepHint.done.wechat":
-    "After connection finishes, you can assign tasks to MiniMax Design from WeChat.",
+    "After connection finishes, you can assign tasks to Suanli Assistant from WeChat.",
   "settings.imBridge.addFlow.stepHint.scan.feishu":
     "Scan with Lark to choose an existing agent CLI, or create one.",
   "settings.imBridge.addFlow.stepHint.scan.wechat":
@@ -6597,7 +6592,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.imBridge.addFlow.successGuide.feishu.2":
     "Send tasks, check updates, and create from anywhere",
   "settings.imBridge.addFlow.successGuide.feishu.3":
-    "Keep MiniMax Design open and your computer online",
+    "Keep Suanli Assistant open and your computer online",
   "settings.imBridge.addFlow.successGuide.feishu.4":
     "After adding the bot to a group chat, group members will have access to local data. Use with caution",
   "settings.imBridge.addFlow.successGuide.title": "Quick guide",
@@ -6606,7 +6601,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.imBridge.addFlow.successGuide.wechat.2":
     "Send tasks, check updates, and create from anywhere",
   "settings.imBridge.addFlow.successGuide.wechat.3":
-    "Keep MiniMax Design open and your computer online",
+    "Keep Suanli Assistant open and your computer online",
   "settings.imBridge.addFlow.successGuide.wechat.4":
     "Do not send passwords, verification codes, or other sensitive information to ClawBot",
   "settings.imBridge.addFlow.successNextStep.feishu":
@@ -6619,7 +6614,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "Loading the authorization QR code…",
   "settings.imBridge.addFlow.viewGuide": "Guide",
   "settings.imBridge.addRemaining.description":
-    "You can add another IM entry to use MiniMax Design from different platforms.",
+    "You can add another IM entry to use Suanli Assistant from different platforms.",
   "settings.imBridge.addRemaining.title": "Connect another account",
   "settings.imBridge.advanced.title": "Advanced settings",
   "settings.imBridge.alreadyBound":
@@ -6657,27 +6652,27 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.imBridge.credentialUpdate.success":
     "Updated. Please scan again to reconnect.",
   "settings.imBridge.description":
-    "Control your MiniMax Design from IM by @-mentioning the bot. Messages flow directly to this device — no cloud relay.",
+    "Control your Suanli Assistant from IM by @-mentioning the bot. Messages flow directly to this device — no cloud relay.",
   "settings.imBridge.description.domestic":
-    "@-mention the bot in Lark / WeChat to control MiniMax Design on this device remotely. Messages flow directly to this device — no cloud relay.",
+    "@-mention the bot in Lark / WeChat to control Suanli Assistant on this device remotely. Messages flow directly to this device — no cloud relay.",
   "settings.imBridge.description.overseas":
-    "@-mention the bot in Lark / Telegram to control MiniMax Design on this device remotely. Messages flow directly to this device — no cloud relay.",
+    "@-mention the bot in Lark / Telegram to control Suanli Assistant on this device remotely. Messages flow directly to this device — no cloud relay.",
   "settings.imBridge.empty.benefit.receiveResult":
     "Receive result notifications",
   "settings.imBridge.empty.benefit.sendTask": "Send tasks remotely",
   "settings.imBridge.empty.benefit.viewStatus": "View execution status",
   "settings.imBridge.empty.description":
-    "Connect an account to control MiniMax Design on this computer from IM.",
+    "Connect an account to control Suanli Assistant on this computer from IM.",
   "settings.imBridge.empty.description.domestic":
-    "Connect Lark or WeChat to control MiniMax Design from IM.",
+    "Connect Lark or WeChat to control Suanli Assistant from IM.",
   "settings.imBridge.empty.description.overseas":
-    "Connect a Lark or Telegram account to control MiniMax Design on this computer from IM.",
+    "Connect a Lark or Telegram account to control Suanli Assistant on this computer from IM.",
   "settings.imBridge.empty.title": "No IM account connected",
   "settings.imBridge.errors.listFailed": "Failed to load: {{message}}",
   "settings.imBridge.errors.removeFailed":
     "Failed to remove the account. Please try again.",
   "settings.imBridge.executionNotice":
-    "Before using this, keep MiniMax Design open, keep this computer online, and prevent it from sleeping.",
+    "Before using this, keep Suanli Assistant open, keep this computer online, and prevent it from sleeping.",
   "settings.imBridge.feishu.mode.manual": "Manual",
   "settings.imBridge.feishu.mode.qr": "QR Code",
   "settings.imBridge.feishu.qr.cancel": "Cancel",
@@ -6717,9 +6712,9 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.imBridge.hero.description.domestic":
     "Send messages in Lark or WeChat to run tasks on this computer.",
   "settings.imBridge.hero.description.overseas":
-    "After connecting, you can send messages in Lark or Telegram, and tasks will run in MiniMax Design on this computer.",
+    "After connecting, you can send messages in Lark or Telegram, and tasks will run in Suanli Assistant on this computer.",
   "settings.imBridge.hero.title":
-    "Connect IM tools and assign tasks to MiniMax Design from anywhere",
+    "Connect IM tools and assign tasks to Suanli Assistant from anywhere",
   "settings.imBridge.loading": "Loading…",
   "settings.imBridge.localProcessing":
     "Messages are processed only on your computer and are not relayed through the cloud.",
@@ -6842,6 +6837,33 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "settings.models.showKey": "Show API Key",
   "settings.models.title": "Model access",
   "settings.network.proxyGroup": "Proxy",
+  "ov.platform.title": "Platform",
+  "ov.platform.desc": "Chat and generation both run on the platform. The token stays on this machine and is only asked for once. Models are set by the platform and shown here for reference.",
+  "ov.platform.baseUrl": "Base URL",
+  "ov.platform.apiKey": "Token (API Key)",
+  "ov.platform.apiKeyHelp": "Stored on this device. Leave blank to keep the saved token.",
+  "ov.platform.modelsTitle": "Models in use",
+  "ov.platform.chatModel": "Chat",
+  "ov.platform.image": "Text to image",
+  "ov.platform.imageEdit": "Image edit",
+  "ov.platform.video": "Video",
+  "ov.platform.videoRef": "Reference video",
+  "ov.platform.videoUpscale": "Video upscale",
+  "ov.platform.imageUpscale": "Image upscale",
+  "ov.platform.music": "Text to music",
+  "ov.platform.musicEdit": "Cover / repaint",
+  "ov.platform.speech": "Speech",
+  "ov.platform.notEnabled": "Not enabled",
+  "ov.platform.save": "Save",
+  "ov.platform.saving": "Saving…",
+  "ov.platform.saved": "Saved. Takes effect right away.",
+  "ov.platform.saveFailed": "Could not save. Please try again.",
+  "ov.platform.loadFailed": "Could not load platform settings.",
+  "ov.settings.platform": "Platform",
+  "ov.platform.nav": "Platform",
+  "ov.connection.connected": "Connected",
+  "ov.connection.disconnected": "Not connected",
+  "ov.connection.checking": "Checking…",
   "settings.network.proxyMode": "Connection mode",
   "settings.network.proxyMode.auto": "Auto",
   "settings.network.proxyMode.direct": "No proxy",
@@ -6896,7 +6918,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "Downloading the update package.",
   "settings.softwareUpdate.statusLatest": "You're up to date",
   "settings.softwareUpdate.statusLatestDesc":
-    "MiniMax Design does not need an update right now.",
+    "Suanli Assistant does not need an update right now.",
   "settings.softwareUpdate.statusReadyDesc":
     "The update is downloaded. Restart to install the new version.",
   "settings.softwareUpdate.statusReadyWithVersion": "{{version}} is ready",
@@ -7276,18 +7298,18 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.group.fromCommunity": "From Community",
   "skills.group.localCreated": "Locally Created",
   "skills.header.createSkill": "Create Skill",
-  "skills.header.createViaHub": "Create via MiniMax Design",
+  "skills.header.createViaHub": "Create via Suanli Assistant",
   "skills.header.install": "Import Skill",
   "skills.header.submitSkill": "Submit Skill",
   "skills.heroDescription":
-    "Discover, install, and manage skills to extend MiniMax Design across your creation flows.",
+    "Discover, install, and manage skills to extend Suanli Assistant across your creation flows.",
   "skills.hubDescription":
     "Discover Skills and connect external tools and data sources for your creation workflows.",
   "skills.hubTitle": "Skill · Plugin",
   "skills.import.adaptFailed": "Failed to create adaptation project",
   "skills.import.adaptPrompt":
-    "/skill-creator Please adapt the third-party skill at {{stagingPath}}/SKILL.md to the current MiniMax Design environment. Read the file content, analyze its dependencies and tools, rewrite it in MiniMax Design-compatible format, and save to the user skills directory.",
-  "skills.import.adaptToHub": "Adapt to MiniMax Design",
+    "/skill-creator Please adapt the third-party skill at {{stagingPath}}/SKILL.md to the current Suanli Assistant environment. Read the file content, analyze its dependencies and tools, rewrite it in Suanli Assistant-compatible format, and save to the user skills directory.",
+  "skills.import.adaptToHub": "Adapt to Suanli Assistant",
   "skills.import.autoFixHint": "Format auto-optimized",
   "skills.import.continueAdd": "Import Another",
   "skills.import.directInstall": "Import Directly",
@@ -7328,9 +7350,9 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.import.requirements": "File requirements",
   "skills.import.success": "Skill imported successfully",
   "skills.import.thirdPartyHint":
-    "Third-party skill detected. Adapting to MiniMax Design is recommended for the best experience.",
+    "Third-party skill detected. Adapting to Suanli Assistant is recommended for the best experience.",
   "skills.import.title": "Import Skill",
-  "skills.import.tryInHub": "Try in MiniMax Design",
+  "skills.import.tryInHub": "Try in Suanli Assistant",
   "skills.import.unsupportedType": "Please select a .zip or SKILL.md file",
   "skills.installSuccess.debugAction": "Debug",
   "skills.layout.grid": "Grid",
@@ -7364,10 +7386,10 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.market.creatorPlanDemoToggleEmpty": "Demo: view empty state",
   "skills.market.creatorPlanDemoToggleHas": "Demo: switch back to data",
   "skills.market.creatorPlanDisplayNameHint":
-    "Defaults to your MiniMax Design username, editable.",
+    "Defaults to your Suanli Assistant username, editable.",
   "skills.market.creatorPlanDisplayNameLabel": "Author Name",
   "skills.market.creatorPlanDisplayNamePlaceholder":
-    "Defaults to your MiniMax Design username, editable",
+    "Defaults to your Suanli Assistant username, editable",
   "skills.market.creatorPlanEmptyDesc":
     "You don't have any skills available to submit yet",
   "skills.market.creatorPlanEmptyTitle": "No skills available",
@@ -7442,7 +7464,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.market.updateError": 'Failed to update skill "{{name}}"',
   "skills.market.updateSuccess": 'Skill "{{name}}" updated successfully',
   "skills.market.useInChat": "Use in chat",
-  "skills.market.verifiedOfficial": "Verified by MiniMax Design",
+  "skills.market.verifiedOfficial": "Verified by Suanli Assistant",
   "skills.market.version": "v{{version}}",
   "skills.marketplaceTabs.plugin": "Plugins",
   "skills.marketplaceTabs.pluginTooltip":
@@ -7564,11 +7586,9 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "Can review submissions, publish approved Skills, and maintain taxonomy and marketplace display configuration.",
   "skills.operation.fullOperations": "Full operations",
   "skills.operation.globalSortWeight": "Global sort weight",
-  "skills.operation.reviewerRoleHint":
-    "Operations: inspect, validate in Design, and review submissions",
+  "skills.operation.reviewerRoleHint": "Operations: inspect, validate in Suanli, and review submissions",
   "skills.operation.reviewerPermissionTitle": "Reviewer permissions",
-  "skills.operation.reviewerPermissionDescription":
-    "Can view submissions, validate them in Design, approve, or reject; publishing and configuration are unavailable.",
+  "skills.operation.reviewerPermissionDescription": "Can view submissions, validate them in Suanli, approve, or reject; publishing and configuration are unavailable.",
   "skills.operation.reviewOnly": "Review only",
   "skills.operation.reviewTab": "Pending Review",
   "skills.operation.configurationTab": "Tag Configuration",
@@ -7618,7 +7638,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.operation.changeItem.package": "Skill package",
   "skills.operation.changeItem.metadata": "Listing metadata",
   "skills.operation.viewDetails": "View details",
-  "skills.operation.testDesign": "Test in Design",
+  "skills.operation.testDesign": "Test in Suanli",
   "skills.operation.markPassed": "Mark passed",
   "skills.operation.reject": "Reject",
   "skills.operation.approveToConfig": "Approve",
@@ -7633,8 +7653,8 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.operation.status.rejected": "Rejected",
   "skills.operation.designPrompt":
     "Run one real creation acceptance test with candidate skill {{skillName}}. The candidate package is at {{stagingPath}}. Read SKILL.md first, follow its workflow exactly, then summarize the result and any issues. Do not install it or replace the live version.",
-  "skills.operation.designError": "Failed to start Design validation",
-  "skills.operation.pass_designSuccess": "Design validation marked as passed",
+  "skills.operation.designError": "Failed to start Suanli validation",
+  "skills.operation.pass_designSuccess": "Suanli validation marked as passed",
   "skills.operation.approveSuccess": "Approved and moved to Ready to publish",
   "skills.operation.rejectSuccess": "Submission rejected",
   "skills.operation.batchApproveSuccess":
@@ -7783,7 +7803,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.plugin.previewError": "Preview failed to load",
   "skills.plugin.previewLoading": "Loading preview...",
   "skills.plugin.previewTooLarge": "Preview file is too large",
-  "skills.plugin.publisher": "MiniMax Design",
+  "skills.plugin.publisher": "Suanli Assistant",
   "skills.plugin.searchPlaceholder": "Search plugins",
   "skills.plugin.section.market": "All plugins",
   "skills.plugin.section.recent": "Recent",
@@ -7803,7 +7823,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.plugin.viewDetail": "View detail",
   "skills.plugin.viewWorkflow": "Workflow",
   "skills.plugin.workflow": "Workflow",
-  "skills.popover.addCreate": "Create with MiniMax Design",
+  "skills.popover.addCreate": "Create with Suanli Assistant",
   "skills.popover.addImport": "Import Skill",
   "skills.popover.addSkills": "Add Skills",
   "skills.popover.buttonLabel": "Skills",
@@ -7894,9 +7914,9 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.submission.categoriesHint":
     "Choose one primary category and up to two related categories.",
   "skills.submission.categoryPlaceholder": "Select a primary category",
-  "skills.submission.chooseDesign": "Choose from Design",
+  "skills.submission.chooseDesign": "Choose from Suanli",
   "skills.submission.chooseDesignDesc":
-    "Read information from a Skill created in MiniMax Design.",
+    "Read information from a Skill created in Suanli Assistant.",
   "skills.submission.chooseDesignPlaceholder": "Select a Skill you've created",
   "skills.submission.chooseNewPackage": "Choose a new package",
   "skills.submission.choosePackage": "Choose ZIP / .tar.gz",
@@ -7935,7 +7955,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "skills.submission.howToUsePlaceholder":
     "Describe what users need to provide and how to get started",
   "skills.submission.incomplete": "Complete all Skill information first",
-  "skills.submission.noDesignSkills": "No Skills created in Design yet.",
+  "skills.submission.noDesignSkills": "No Skills created in Suanli yet.",
   "skills.submission.outputs": "Outputs",
   "skills.submission.outputsHint":
     "Describe the deliverables in 30–100 characters",
@@ -8883,7 +8903,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "topbar.diagnostics.recommendation.observability_blocked":
     "Observability endpoints are blocked; issue tracing may be incomplete.",
   "topbar.diagnostics.recommendation.try_direct_proxy_mode":
-    "Try Direct mode if a local proxy is breaking MiniMax Design domains.",
+    "Try Direct mode if a local proxy is breaking Suanli Assistant domains.",
   "topbar.diagnostics.recommendation.try_system_proxy_mode":
     "Try System proxy mode if your network requires VPN or proxy access.",
   "topbar.diagnostics.recommendation.tun_detected":
@@ -9106,11 +9126,11 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "update.errorAdvice":
     "Retry checking for updates, or upload logs and install the latest version manually.",
   "update.failureCode.CHILD_PID_QUERY_UNAVAILABLE":
-    "Windows process queries are restricted, so automatic installation cannot continue safely. Download the full installer, exit MiniMax Design, then install it over the current app.",
+    "Windows process queries are restricted, so automatic installation cannot continue safely. Download the full installer, exit Suanli Assistant, then install it over the current app.",
   "update.failureCode.CHILD_PID_SNAPSHOT_UNAVAILABLE":
-    "Background process state could not be confirmed, so automatic installation was stopped to protect the install folder. Exit MiniMax Design and use the full installer.",
+    "Background process state could not be confirmed, so automatic installation was stopped to protect the install folder. Exit Suanli Assistant and use the full installer.",
   "update.failureCode.CHILD_PROCESS_EXIT_GUARD_FAILED":
-    "A MiniMax Design background process is still using the install folder. Restart Windows, then install with the full installer.",
+    "A Suanli Assistant background process is still using the install folder. Restart Windows, then install with the full installer.",
   "update.failureCode.HANDOFF_STATE_CORRUPTED":
     "The previous installation status is damaged, so its result cannot be confirmed. Check the current version; if it was not updated, install over the app with a full installer that has a valid signature.",
   "update.failureCode.INSTALLER_LAUNCH_FAILED":
@@ -9122,7 +9142,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "update.failureCode.INSTALL_CLEANUP_FAILED":
     "Running tasks could not be stopped safely, so installation was cancelled. Finish those tasks and retry, or exit the app and use the full installer.",
   "update.failureCode.INSTALL_FAILED":
-    "The installer failed to run. Close MiniMax Design and retry. If it still fails, download the full installer and install over the current app.",
+    "The installer failed to run. Close Suanli Assistant and retry. If it still fails, download the full installer and install over the current app.",
   "update.failureCode.INSTALL_INCOMPLETE":
     "Critical files are incomplete after installation. Check Windows Security Protection History, then install over the app using a full installer with a valid publisher signature.",
   "update.failureCode.INSTALL_MARKER_CORRUPT":
@@ -9136,9 +9156,9 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "update.failureCode.INSTALL_STAGING_FAILED":
     "The full installer could not be staged safely. Check disk space and permissions for your user profile, then retry.",
   "update.failureCode.INSTDIR_JUNCTION_INVALID":
-    "The app install-path junction is invalid, so automatic installation was stopped. Download the full installer, exit MiniMax Design, then install it over the current app.",
+    "The app install-path junction is invalid, so automatic installation was stopped. Download the full installer, exit Suanli Assistant, then install it over the current app.",
   "update.failureCode.INSTDIR_MULTI_INSTALL":
-    "Multiple MiniMax Design installations were detected on this device, and this running copy is not the registered install location, so automatic updating stopped before changing any files. Keep only one installation: uninstall or remove the extra copies, then download the latest full installer from the official website and reinstall.",
+    "Multiple Suanli Assistant installations were detected on this device, and this running copy is not the registered install location, so automatic updating stopped before changing any files. Keep only one installation: uninstall or remove the extra copies, then download the latest full installer from the official website and reinstall.",
   "update.failureCode.INSTDIR_NOT_WRITABLE":
     "The install folder is not writable. Check permissions and retry.",
   "update.failureCode.INSTDIR_DATA_OVERLAP":
@@ -9162,17 +9182,17 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "update.failureCode.TEMP_SPACE_UNKNOWN":
     "Free space in the system temporary folder could not be verified. Check TEMP folder permissions and retry.",
   "update.failureCode.UPDATER_EXECUTABLE_MISSING":
-    "The automatic update component is missing, so installation cannot continue. Exit MiniMax Design and install over it with the full installer.",
+    "The automatic update component is missing, so installation cannot continue. Exit Suanli Assistant and install over it with the full installer.",
   "update.failureCode.UPDATE_PROXY_PROTOCOL_UNSUPPORTED":
     "In-app updates do not support the current SOCKS proxy. Switch to a direct or HTTP proxy connection, or download the full installer.",
   "update.failureCode.UPDATE_RUNTIME_UNAVAILABLE":
-    "The automatic update component is unavailable. Exit MiniMax Design and reinstall it from the official website.",
+    "The automatic update component is unavailable. Exit Suanli Assistant and reinstall it from the official website.",
   "update.failureCode.USER_CANCELLED":
     "You cancelled this installation. Retry when you are ready.",
   "update.failureCode.USER_DATA_LOCKED":
     "The update was cancelled to protect your generated assets: they are stored inside the install folder and are currently in use by another program. Close programs that may be using these files (e.g. Explorer, antivirus scans) and retry.",
   "update.forced.body":
-    "This update includes {{reason}}. The old version can no longer be used. Please update to continue using MiniMax Design.",
+    "This update includes {{reason}}. The old version can no longer be used. Please update to continue using Suanli Assistant.",
   "update.forced.btn.download": "Download now",
   "update.forced.btn.exit": "Exit app",
   "update.forced.btn.manualDownload": "Download official installer",
@@ -9200,11 +9220,11 @@ By continuing to use the Function, you acknowledge that you have read, understoo
     "Switch to a direct connection or an HTTP proxy, then retry the update check. You can also use the full installer.",
   "update.notAvailable": "You're up to date",
   "update.shortcut.availableTitleWithVersion":
-    "MiniMax Design {{version}} is available",
+    "Suanli Assistant {{version}} is available",
   "update.shortcut.bodyFallback": "Includes fixes and experience improvements.",
   "update.shortcut.readyTitle": "Update is ready",
   "update.shortcut.readyTitleWithVersion":
-    "MiniMax Design {{version}} is ready",
+    "Suanli Assistant {{version}} is ready",
   "update.shortcut.releaseNotes": "Release notes",
   "update.shortcut.settings": "Settings",
   "update.shortcut.tooltip": "Update available",
@@ -9218,7 +9238,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "update.title.error": "Update failed",
   "update.title.ready": "Update available",
   "update.toastDescription":
-    "MiniMax Design has a new version ({{version}}) available.",
+    "Suanli Assistant has a new version ({{version}}) available.",
   "update.toastTitle": "Update Available",
   "update.version.checkCta": "Check",
   "update.version.checking": "Checking...",
@@ -9229,7 +9249,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "userMenu.community": "Community",
   "userMenu.creditsHint": "For credits details, please check Hailuo web",
   "userMenu.creditsTooltipPrefix":
-    "MiniMax Design converts your token usage into Hailuo Credits in real time. Visit",
+    "Suanli Assistant converts your token usage into Hailuo Credits in real time. Visit",
   "userMenu.creditsTooltipSuffix": "for details.",
   "userMenu.feedback": "Feedback",
   "userMenu.feedbackGroupTitle": "Hailuo AI - Official Group",
@@ -9829,14 +9849,14 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "workspace.folderPermission.allow": "Allow",
   "workspace.folderPermission.allowToast": "Permission added",
   "workspace.folderPermission.allowTooltip":
-    "MiniMax Design can access the selected workspace within this project only.",
+    "Suanli Assistant can access the selected workspace within this project only.",
   "workspace.folderPermission.alwaysAllow": "Always Allow",
   "workspace.folderPermission.alwaysAllowToast":
     "Permission added. Edit it in <1>Settings / Advanced</1>.",
   "workspace.folderPermission.alwaysAllowTooltip":
-    "MiniMax Design will keep access to the selected workspace across sessions.",
+    "Suanli Assistant will keep access to the selected workspace across sessions.",
   "workspace.folderPermission.body":
-    "Once granted, MiniMax Design can read, write, and delete content inside this folder and its subfolders.",
+    "Once granted, Suanli Assistant can read, write, and delete content inside this folder and its subfolders.",
   "workspace.folderPermission.title": "Folder Access",
   "workspace.initialAttachments.failed":
     "Attachments could not be loaded into this project. Your message has not been sent.",
@@ -10028,7 +10048,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "connectors.detail.quark-drive.prompt.2":
     "Create a share link for this folder",
   "connectors.google-drive.consent":
-    "Authorization runs on Google's official page in your browser. MiniMax Design only stores the resulting credentials locally on this device and requests just the Drive file scopes shown on the consent screen; your Google password never touches MiniMax Design.",
+    "Authorization runs on Google's official page in your browser. Suanli Assistant only stores the resulting credentials locally on this device and requests just the Drive file scopes shown on the consent screen; your Google password never touches Suanli Assistant.",
   "connectors.google-drive.description":
     "Authorize with your Google account to let the Agent save its results to your Drive and keep working on the files it uploads.",
   "connectors.google-drive.title": "Connect Google Drive",
@@ -10126,9 +10146,9 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "connectors.catalog.baidu-drive.description":
     "Upload, download, and share files in your application folder",
   "connectors.detail.baidu-drive.description":
-    "Connect Baidu Netdisk to read and analyze documents, images, videos, and other assets you authorize. Turn them into MiniMax Design creative briefs, scripts, storyboards, and visual references, then save the results back to your drive. Access is limited to My Application Data/bdpan, with support for uploading, downloading, searching, and sharing files. Assets from other folders can be saved into this directory through shared links.",
+    "Connect Baidu Netdisk to read and analyze documents, images, videos, and other assets you authorize. Turn them into Suanli Assistant creative briefs, scripts, storyboards, and visual references, then save the results back to your drive. Access is limited to My Application Data/bdpan, with support for uploading, downloading, searching, and sharing files. Assets from other folders can be saved into this directory through shared links.",
   "connectors.detail.baidu-drive.prompt.0":
-    "Organize the product information and brand guidelines in a specified Baidu Netdisk folder. Extract selling points, target audiences, brand voice, visual guidelines, and prohibited elements to create a MiniMax Design creative brief, with source filenames and paths.",
+    "Organize the product information and brand guidelines in a specified Baidu Netdisk folder. Extract selling points, target audiences, brand voice, visual guidelines, and prohibited elements to create a Suanli Assistant creative brief, with source filenames and paths.",
   "connectors.detail.baidu-drive.prompt.1":
     "Organize the text, images, and videos in a specified folder. Analyze image composition and colors, as well as video subjects, shots, subtitles, audio, and reusable segments, to provide visual references.",
   "connectors.detail.baidu-drive.prompt.2":
@@ -10568,7 +10588,7 @@ By continuing to use the Function, you acknowledge that you have read, understoo
   "connectors.category.data-research": "Data & Research",
   "connectors.category.enterprise": "Enterprise",
   "connectors.category.other": "Other",
-  "connectors.origin.hub": "MiniMax Design",
+  "connectors.origin.hub": "Suanli Assistant",
   "connectors.origin.workbuddy": "WorkBuddy",
   "connectors.origin.kimi-desktop": "Kimi",
   "connectors.origin.minimax-code": "MiniMax Code",

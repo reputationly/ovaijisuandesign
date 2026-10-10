@@ -1,6 +1,5 @@
 // asset-center-relocation-coach-mark.jsx
 import {
-  getRuntimeConfig,
   reactExports,
   resolveNewProjectPreferences,
   storageKeys,
@@ -95,10 +94,7 @@ export function AssetCenterRelocationCoachMark() {
   const [closedForSession, setClosedForSession] = reactExports.useState(false);
   const [handoffStarted, setHandoffStarted] = reactExports.useState(false);
   const [ctaLoading, setCtaLoading] = reactExports.useState(false);
-  const configReady =
-    configHydrated &&
-    (getRuntimeConfig().region !== "domestic" ||
-      config2.watermarkOnboardingShown === true);
+  const configReady = configHydrated;
   const candidate =
     configReady &&
     relocation.relocationPending &&

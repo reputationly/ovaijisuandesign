@@ -1,20 +1,7 @@
 // parse-connector-selection.js
 
 // normalize-tag-registry.js
-const BUILTIN_AGENT_MODEL_ACCESS = {
-  "alpha/alpha": {
-    requirement: "membership",
-  },
-  "alpha/claude-opus-5-5": {
-    requirement: "membership",
-  },
-  "gamma/gamma-6-astra": {
-    requirement: "membership",
-  },
-  "gamma/gpt-6-astra": {
-    requirement: "membership",
-  },
-};
+const BUILTIN_AGENT_MODEL_ACCESS = {};
 
 export function agentModelMatchesSelection(model, selectedId) {
   return (

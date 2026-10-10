@@ -102,6 +102,7 @@ import { GeneralPopup } from "./general-popup.jsx";
 import { FeaturePopup } from "./feature-popup.jsx";
 import { BULLET_KEYS, HubWordmark } from "../infra/inline-rename-input.jsx";
 import { HubLogo } from "../infra/hub-logo.jsx";
+import { usePlatformFirstRun } from "./platform-section.jsx";
 import { CDN_LOGIN_GATE_HERO } from "../workspace/context-menu-content.jsx";
 import {
   ACTIVE_CUSTOM_MODEL_QUERY_KEY,
@@ -177,15 +178,8 @@ function LoginGateProvider({ children: children2 }) {
     }
     if (!hasEverLoggedInHydrated) return;
     if (hasEverLoggedIn) return;
-    if (!sessionDismissedRef.current) {
-      setIsOpen(true);
-    }
   }, [user, isLoading, hasEverLoggedIn, hasEverLoggedInHydrated]);
-  const forceOpen = reactExports.useCallback(() => {
-    sessionDismissedRef.current = false;
-    writeSessionDismissed(false);
-    setIsOpen(true);
-  }, []);
+  const forceOpen = reactExports.useCallback(() => {}, []);
   const dismissForSession = reactExports.useCallback(() => {
     sessionDismissedRef.current = true;
     writeSessionDismissed(true);
@@ -402,6 +396,7 @@ function SettingsDialogProvider({ children: children2 }) {
   reactExports.useEffect(() => {
     if (!isLoggedIn) setOpen(false);
   }, [isLoggedIn]);
+  usePlatformFirstRun(openSettings);
   reactExports.useEffect(() => {
     if (!window.hilo?.ipcRenderer) return;
     const off = window.hilo.ipcRenderer.on(
@@ -1181,8 +1176,7 @@ function WatermarkOnboarding() {
   const { set: set2 } = useSettings();
   const [pendingRemove, setPendingRemove] = reactExports.useState(false);
   const isDomestic = getRuntimeConfig().region === "domestic";
-  const candidate =
-    isHydrated && !!config2 && config2.watermarkOnboardingShown !== true;
+  const candidate = false;
   const granted = useModalSlot(STARTUP_MODAL_IDS.watermarkOnboarding, {
     candidate,
   });

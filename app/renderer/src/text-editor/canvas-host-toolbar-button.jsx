@@ -78,7 +78,7 @@ export function CanvasWatermarkChip({ variant = "floating" }) {
   const { t: t2 } = useTranslation();
   const { openSettings } = useSettingsDialog();
   const [config2] = useStorage("global.config");
-  const watermarkEnabled = config2?.watermarkEnabled ?? true;
+  const watermarkEnabled = false;
   if (!watermarkEnabled) return null;
   const handleWatermarkSettings = () => {
     openSettings("general");

@@ -160,6 +160,9 @@ const Route$b = createFileRoute("/_home/")({
 const $$splitComponentImporter$9 = () =>
   (() => import("../workflows/index.jsx"))();
 const Route$a = createFileRoute("/_home/workflows/")({
+  beforeLoad: () => {
+    throw redirect({ to: "/" });
+  },
   component: lazyRouteComponent($$splitComponentImporter$9, "component"),
   validateSearch: (search2) => ({
     tab:
@@ -817,7 +820,7 @@ function TopbarContent({ onFullScreenChange, onAppControlsInsetChange }) {
               height: "env(titlebar-area-height, 100%)",
             }}
           >
-            <span className="shrink-0">MiniMax Design</span>
+            <span className="shrink-0">蒜狸小助手</span>
             <HomeMenuButton />
           </div>
         ) : null}

@@ -170,8 +170,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.macosVersionUnsupported.suggestion2",
-        zh: "重复重试无法解决，请先升级系统，升级完成后重新打开 MiniMax Design。",
-        en: "Retrying will not fix this. Upgrade macOS first, then reopen MiniMax Design.",
+        zh: "重复重试无法解决，请先升级系统，升级完成后重新打开蒜狸小助手。",
+        en: "Retrying will not fix this. Upgrade macOS first, then reopen Suanli Assistant.",
       },
     ],
     runbook: "macos_version_unsupported",
@@ -269,8 +269,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.windowsCpuUnsupported.suggestion2",
-        zh: "请在较新的 64 位电脑上安装 MiniMax Design。",
-        en: "Install MiniMax Design on a newer 64-bit computer.",
+        zh: "请在较新的 64 位电脑上安装蒜狸小助手。",
+        en: "Install Suanli Assistant on a newer 64-bit computer.",
       },
     ],
     runbook: "windows_cpu_unsupported",
@@ -302,8 +302,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.windowsRuntimeDependencyFailed.suggestion2",
-        zh: "如果仍然失败，请重新安装最新版 MiniMax Design。",
-        en: "If it still fails, reinstall the latest MiniMax Design.",
+        zh: "如果仍然失败，请重新安装最新版蒜狸小助手。",
+        en: "If it still fails, reinstall the latest Suanli Assistant.",
       },
     ],
     runbook: "windows_runtime_dependency_failed",
@@ -368,8 +368,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.windowsRuntimeResourceExhausted.suggestion2",
-        zh: "释放资源后完全退出 MiniMax Design，再重新打开。",
-        en: "After freeing resources, fully quit and reopen MiniMax Design.",
+        zh: "释放资源后完全退出蒜狸小助手，再重新打开。",
+        en: "After freeing resources, fully quit and reopen Suanli Assistant.",
       },
     ],
     runbook: "windows_runtime_resource_exhausted",
@@ -390,8 +390,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
     },
     primaryAction: {
       key: "bundleError.diagnosis.windowsRuntimeTerminated.primaryAction",
-      zh: "重新打开 MiniMax Design",
-      en: "Reopen MiniMax Design",
+      zh: "重新打开蒜狸小助手",
+      en: "Reopen Suanli Assistant",
     },
     suggestions: [
       {
@@ -401,8 +401,8 @@ export const WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY = {
       },
       {
         key: "bundleError.diagnosis.windowsRuntimeTerminated.suggestion2",
-        zh: "否则请完全退出 MiniMax Design 后重新打开。",
-        en: "Otherwise, fully quit and reopen MiniMax Design.",
+        zh: "否则请完全退出蒜狸小助手后重新打开。",
+        en: "Otherwise, fully quit and reopen Suanli Assistant.",
       },
     ],
     runbook: "windows_runtime_terminated",
