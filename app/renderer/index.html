@@ -42,7 +42,10 @@
       }
     </style>
     <script type="module" src="./src/main.jsx"></script>
-    <link rel="stylesheet" href="./src/index-DhaBhXjN.css">
+    <!-- 顺序和原来一致：组件样式 → Tailwind 生成的样式和手写主题 → 组件样式 -->
+    <link rel="stylesheet" href="./src/styles/before.css">
+    <link rel="stylesheet" href="./src/styles/tailwind.css">
+    <link rel="stylesheet" href="./src/styles/after.css">
   </head>
   <body>
     <div id="root">

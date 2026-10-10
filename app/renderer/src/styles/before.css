@@ -1,0 +1,4899 @@
+/* Only audited monochrome entry points. Keep the flood's inherited alpha intact. */
+svg[data-icon-compositing='color-union'] > :not(defs) {
+  color: rgb(from currentColor r g b / 1);
+}
+/* Artwork labels must not enter copied chat text or filenames. */
+.file-type-icon { display: inline-block; flex: none; vertical-align: middle; overflow: hidden; -webkit-user-select: none; user-select: none; }
+.file-type-icon[data-category="photoshop"] { --fi-body: var(--file-icon-photoshop-body); --fi-accent: var(--file-icon-photoshop-accent); --fi-label: var(--file-icon-photoshop-label); }
+.file-type-icon[data-category="vector"] { --fi-body: var(--file-icon-vector-body); --fi-accent: var(--file-icon-vector-accent); --fi-label: var(--file-icon-vector-label); }
+.file-type-icon[data-category="pdf"] { --fi-body: var(--file-icon-pdf-body); --fi-accent: var(--file-icon-pdf-accent); --fi-label: var(--file-icon-pdf-label); }
+.file-type-icon[data-category="document"] { --fi-body: var(--file-icon-document-body); --fi-accent: var(--file-icon-document-accent); --fi-label: var(--file-icon-document-label); }
+.file-type-icon[data-category="spreadsheet"] { --fi-body: var(--file-icon-spreadsheet-body); --fi-accent: var(--file-icon-spreadsheet-accent); --fi-label: var(--file-icon-spreadsheet-label); }
+.file-type-icon[data-category="presentation"] { --fi-body: var(--file-icon-presentation-body); --fi-accent: var(--file-icon-presentation-accent); --fi-label: var(--file-icon-presentation-label); }
+.file-type-icon[data-category="image"] { --fi-body: var(--file-icon-image-body); --fi-accent: var(--file-icon-image-accent); --fi-label: var(--file-icon-image-label); }
+.file-type-icon[data-category="video"] { --fi-body: var(--file-icon-video-body); --fi-accent: var(--file-icon-video-accent); --fi-label: var(--file-icon-video-label); }
+.file-type-icon[data-category="design"] { --fi-body: var(--file-icon-design-body); --fi-accent: var(--file-icon-design-accent); --fi-label: var(--file-icon-design-label); }
+.file-type-icon[data-category="audio"] { --fi-body: var(--file-icon-audio-body); --fi-accent: var(--file-icon-audio-accent); --fi-label: var(--file-icon-audio-label); }
+.file-type-icon[data-category="archive"] { --fi-body: var(--file-icon-archive-body); --fi-accent: var(--file-icon-archive-accent); --fi-label: var(--file-icon-archive-label); }
+.file-type-icon[data-category="code"] { --fi-body: var(--file-icon-code-body); --fi-accent: var(--file-icon-code-accent); --fi-label: var(--file-icon-code-label); }
+.file-type-icon[data-category="neutral"] { --fi-body: var(--file-icon-neutral-body); --fi-accent: var(--file-icon-neutral-accent); --fi-label: var(--file-icon-neutral-label); }
+.file-type-icon__body { fill: var(--fi-body); }
+.file-type-icon__accent { fill: var(--fi-accent); }
+.file-type-icon__label { fill: var(--fi-label); }
+.file-type-icon__text { font-family: Arial, Helvetica, sans-serif; font-weight: 800; }
+.file-type-icon[data-status="unknown"] { --fi-badge: var(--file-icon-unknown-background); --fi-badge-ink: var(--file-icon-unknown-foreground); }
+.file-type-icon[data-status="unreadable"] { --fi-badge: var(--file-icon-unreadable-background); --fi-badge-ink: var(--file-icon-unreadable-foreground); }
+.file-type-icon__badge > circle { fill: var(--fi-badge); }
+.file-type-icon__badge > path { fill: none; stroke: var(--fi-badge-ink); stroke-width: 2.2; stroke-linecap: round; }
+.file-type-icon__badge > .file-type-icon__dot { fill: var(--fi-badge-ink); }
+@media (forced-colors: active) {
+  .file-type-icon { forced-color-adjust: none; }
+  .file-type-icon__body, .file-type-icon__label, .file-type-icon__badge > circle { fill: CanvasText; }
+  .file-type-icon__accent, .file-type-icon__badge > .file-type-icon__dot { fill: Canvas; }
+  .file-type-icon__badge > path { stroke: Canvas; }
+}
+/* Opt-in presentation for action lists; compound pickers keep their own density. */
+/* Change these shared tokens to update every ActionList consumer together. */
+:root {
+  --action-list-panel-radius: var(--radius, 0.75rem);
+  --action-list-panel-padding: 4px;
+  --action-list-border-width: 1px;
+  --action-list-border-color: var(--canvas-border-subtle, var(--elevated-border-color));
+  --action-list-background: var(--canvas-controls-bg, var(--popover));
+  --action-list-hover: var(--canvas-controls-hover, var(--popup-item-hover));
+  --action-list-divider: var(--canvas-divider-subtle, var(--border));
+  --action-list-destructive: var(--destructive);
+  --action-list-destructive-hover: color-mix(in srgb, var(--destructive) 10%, transparent);
+  --action-list-row-gap: 2px;
+  --action-list-font-size: 14px;
+  --action-list-font-weight: 400;
+  --action-list-line-height: 20px;
+  --action-list-item-radius: calc(var(--radius, 0.75rem) * 0.8);
+  --action-list-item-height: 36px;
+  --action-list-item-padding: 8px;
+  --action-list-icon-gap: 8px;
+  --action-list-icon-size: 16px;
+  --action-list-separator-margin: 4px;
+  --action-list-foreground: #262626;
+  --action-list-shadow: 0 8px 32px #00000014, 0 2px 8px #0000000a;
+}
+
+.dark {
+  --action-list-foreground: #ffffff;
+  --action-list-shadow: 0 8px 32px #00000026, 0 2px 8px #0000001a;
+}
+
+.action-list-menu.action-list-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--action-list-row-gap);
+  padding: var(--action-list-panel-padding);
+  border: var(--action-list-border-width) solid var(--action-list-border-color);
+  border-radius: var(--action-list-panel-radius);
+  background: var(--action-list-background);
+  color: var(--action-list-foreground);
+  box-shadow: var(--action-list-shadow);
+  font-size: var(--action-list-font-size);
+  font-weight: var(--action-list-font-weight);
+  line-height: var(--action-list-line-height);
+}
+
+.action-list-menu .action-list-item {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--action-list-icon-gap);
+  min-height: var(--action-list-item-height);
+  padding: var(--action-list-item-padding);
+  border-radius: var(--action-list-item-radius);
+  color: inherit;
+  font-size: var(--action-list-font-size);
+  font-weight: var(--action-list-font-weight);
+  line-height: var(--action-list-line-height);
+  width: 100%;
+  cursor: default;
+  user-select: none;
+  text-align: left;
+  white-space: nowrap;
+  outline: none;
+  transition: background-color 150ms, color 150ms;
+}
+
+/* Match list-row-hit-area: the two adjacent controls each own half the gap. */
+.action-list-menu .action-list-item::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--action-list-row-gap) / -2) 0;
+  z-index: -1;
+  border-radius: 0;
+}
+
+.action-list-menu > :first-child::before { top: 0; }
+.action-list-menu > :last-child::before { bottom: 0; }
+
+.action-list-menu .action-list-item:is(:hover, :focus-visible, [data-highlighted], [data-popup-open], [data-open]):not(:disabled):not([data-disabled]) {
+  background: var(--action-list-hover);
+}
+
+.action-list-menu .action-list-item[data-variant='destructive'] {
+  color: var(--action-list-destructive);
+}
+
+.action-list-menu .action-list-item[data-variant='destructive']:is(:hover, :focus-visible, [data-highlighted]):not(:disabled):not([data-disabled]) {
+  background: var(--action-list-destructive-hover);
+  color: var(--action-list-destructive);
+}
+
+.action-list-menu .action-list-item > svg {
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.action-list-menu .action-list-separator {
+  flex-shrink: 0;
+  height: 1px;
+  margin: var(--action-list-separator-margin) 0;
+  border: 0;
+  background: var(--action-list-divider);
+}
+
+.action-list-menu .action-list-item:is(:disabled, [data-disabled]) {
+  pointer-events: none;
+  opacity: 0.5;
+}
+.hilo-slider {
+  min-width: 0;
+}
+/* The control already supplies the vertical gap around its visible track. */
+.hilo-slider-field__header,
+.hilo-slider-field__header > *,
+.hilo-slider-field__marks {
+  margin-block: 0;
+}
+.hilo-slider__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  margin-inline: 7px;
+  touch-action: none;
+  user-select: none;
+  cursor: pointer;
+}
+.hilo-slider__control::before {
+  content: '';
+  position: absolute;
+  inset: 0 -7px;
+}
+.hilo-slider[data-variant='standard'][data-size='compact'][data-orientation='horizontal'] .hilo-slider__control {
+  height: 24px;
+}
+.hilo-slider__track {
+  width: 100%;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--slider-track);
+}
+.hilo-slider__indicator {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--slider-fill);
+}
+.hilo-slider__thumb {
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: 1px solid var(--slider-thumb-border);
+  border-radius: 50%;
+  background: var(--slider-handle);
+  box-shadow: 0 2px 4px var(--slider-thumb-border);
+  outline: none;
+  cursor: pointer;
+}
+.hilo-slider__thumb input {
+  cursor: pointer;
+}
+.hilo-slider__thumb:has(:focus-visible) {
+  outline: 2px solid var(--slider-focus);
+  outline-offset: 3px;
+}
+.hilo-slider:not([data-disabled]) .hilo-slider__control:hover .hilo-slider__indicator,
+.hilo-slider[data-dragging] .hilo-slider__indicator,
+.hilo-slider:has(:focus-visible) .hilo-slider__indicator {
+  background: var(--slider-fill-active);
+}
+.hilo-slider[data-disabled] {
+  opacity: 0.35;
+}
+.hilo-slider[data-disabled] .hilo-slider__control {
+  cursor: default;
+}
+.hilo-slider[data-disabled] .hilo-slider__thumb,
+.hilo-slider[data-disabled] .hilo-slider__thumb input {
+  cursor: default;
+}
+.hilo-slider[data-variant='filled'] .hilo-slider__control {
+  margin-inline: 0;
+}
+.hilo-slider[data-variant='filled'] .hilo-slider__control::before {
+  inset-inline: 0;
+}
+.hilo-slider[data-variant='filled'] .hilo-slider__track {
+  height: 32px;
+  border-radius: 8px;
+}
+.hilo-slider[data-variant='filled'][data-size='compact'] .hilo-slider__track {
+  height: 28px;
+}
+.hilo-slider__tick {
+  position: absolute;
+  top: 50%;
+  width: 1px;
+  height: 6px;
+  margin-inline-start: -0.5px;
+  transform: translateY(-50%);
+  background: var(--slider-tick);
+  pointer-events: none;
+}
+.hilo-slider[data-variant='filled'] .hilo-slider__thumb {
+  width: 2px;
+  height: 8px;
+  border: 0;
+  border-radius: 1px;
+  box-shadow: none;
+  opacity: 0.45;
+}
+.hilo-slider[data-variant='filled'][data-dragging] .hilo-slider__thumb,
+.hilo-slider[data-variant='filled']:has(:focus-visible) .hilo-slider__thumb {
+  opacity: 1;
+}
+.hilo-slider[data-variant='filled']:has(:focus-visible) .hilo-slider__track {
+  outline: 2px solid var(--slider-focus);
+  outline-offset: 3px;
+}
+.hilo-slider[data-variant='filled'] .hilo-slider__thumb:has(:focus-visible) {
+  outline: none;
+}
+.hilo-slider[data-variant='filled'][data-disabled] .hilo-slider__thumb {
+  opacity: 0;
+}
+.hilo-slider[data-orientation='vertical'] {
+  width: 44px;
+  height: 100%;
+  min-height: 160px;
+}
+.hilo-slider[data-orientation='vertical'] .hilo-slider__control {
+  width: 44px;
+  height: calc(100% - 14px);
+  min-height: 146px;
+  margin: 7px 0;
+  justify-content: center;
+}
+.hilo-slider[data-orientation='vertical'] .hilo-slider__control::before {
+  inset: -7px 0;
+}
+.hilo-slider[data-orientation='vertical'] .hilo-slider__track {
+  width: 4px;
+  height: 100%;
+  min-height: 146px;
+}
+@media (forced-colors: active) {
+  .hilo-slider__tick { background: ButtonText; forced-color-adjust: none; }
+  .hilo-slider__track { background: Canvas; outline: 1px solid ButtonText; }
+  .hilo-slider__indicator { background: Highlight; forced-color-adjust: none; }
+  .hilo-slider__thumb { background: ButtonFace; border-color: ButtonText; }
+  .hilo-slider[data-variant='filled'] .hilo-slider__thumb { background: HighlightText; forced-color-adjust: none; opacity: 1; }
+}
+
+/* Rounded tool sliders indicate position, not cumulative progress. */
+.hilo-slider[data-variant='rounded'] {
+  --slider-rounded-radius: 8px;
+}
+.hilo-slider[data-variant='rounded'][data-thumb-size='18'] {
+  --slider-rounded-radius: 9px;
+}
+.hilo-slider[data-variant='rounded'] .hilo-slider__control {
+  margin-inline: var(--slider-rounded-radius);
+}
+.hilo-slider[data-variant='rounded'][data-size='compact'] .hilo-slider__control {
+  height: 24px;
+}
+.hilo-slider[data-variant='rounded'] .hilo-slider__control::before {
+  inset-inline: calc(-1 * var(--slider-rounded-radius));
+}
+.hilo-slider[data-variant='rounded'] .hilo-slider__track {
+  position: relative;
+  flex-shrink: 0;
+  width: calc(100% + 2 * var(--slider-rounded-radius));
+  margin-inline: calc(-1 * var(--slider-rounded-radius));
+  height: 16px;
+  background: var(--slider-rounded-track);
+}
+.hilo-slider[data-variant='rounded'][data-track-appearance='temperature'] .hilo-slider__track {
+  background: var(--slider-temperature-gradient);
+}
+.hilo-slider[data-variant='rounded'] .hilo-slider__indicator {
+  display: none;
+}
+.hilo-slider[data-variant='rounded'] .hilo-slider__thumb {
+  width: calc(2 * var(--slider-rounded-radius));
+  height: calc(2 * var(--slider-rounded-radius));
+  border-color: var(--slider-rounded-thumb-border);
+  background: var(--slider-rounded-thumb);
+  box-shadow: none;
+}
+.hilo-slider[data-variant='rounded']:not([data-disabled]) .hilo-slider__control:hover .hilo-slider__thumb,
+.hilo-slider[data-variant='rounded'][data-dragging] .hilo-slider__thumb {
+  box-shadow: 0 0 0 1px var(--slider-rounded-thumb-border);
+}
+.hilo-slider__marker {
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  margin-inline-start: -2px;
+  transform: translateY(-50%);
+  background: var(--slider-rounded-marker);
+  pointer-events: none;
+}
+@media (forced-colors: active) {
+  .hilo-slider[data-variant='rounded'] .hilo-slider__track { background: Canvas; }
+  .hilo-slider[data-variant='rounded'] .hilo-slider__thumb { background: ButtonFace; border-color: ButtonText; }
+  .hilo-slider__marker { background: ButtonText; forced-color-adjust: none; }
+}
+.audio-preview-controls {
+  width: 100%;
+  padding-top: 8px;
+}
+
+.audio-preview-seek {
+  height: 4px;
+  cursor: pointer;
+  appearance: none;
+  border-radius: 999px;
+  background: var(--canvas-controls-border);
+}
+
+.audio-preview-seek:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.audio-preview-seek::-webkit-slider-thumb {
+  width: 12px;
+  height: 12px;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: var(--canvas-controls-text);
+}
+
+.audio-preview-seek::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--canvas-controls-text);
+}
+/*
+ * compat.css — Hub design-token 兼容层（多角度）
+ * --------------------------------------------------------------------------
+ * 源页面 packages/pages/src/ToolAppPage/components/MultiAngleLeftPanel 使用
+ * MiniMax 设计系统的 `--hl_*` 颜色变量与 `bg-hl_* / text-hl_* / border-hl_*`
+ * 工具类。插件的 Tailwind v4 + hub.css 环境里并不存在这些类，为了 1:1 还原
+ * 左侧面板，这里把用到的 token 补齐为手写 CSS（模式沿用 n-storyboard 的
+ * compat.css，token 值逐字对齐 @hl/tailwindcss-plugin color-scheme）。
+ *
+ * 插件宿主通过 <html>.dark 切换深浅色，这里同样提供 .dark 覆盖。
+ */
+
+.multi-angle-theme {
+  /* 背景层 */
+  --hl_bg_01: #ffffff;
+  --hl_bg_03: #ffffff;
+  --hl_bg_04: #fcfcfd;
+  --hl_bg_05: rgba(200, 206, 218, 0.2);
+  --hl_bg_07: #ffffff;
+  --hl_bg_08: rgba(200, 206, 218, 0.3);
+  /* Relight 左侧控制卡与 Portal 浮层共用实色，避免底图透色造成视觉色差。 */
+  --hl_relight_surface: #f5f6f8;
+
+  /* 文本层（浅色主题：深字） */
+  --hl_text_00: #15171f;
+  --hl_text_01: rgba(20, 22, 31, 0.9);
+  --hl_text_02: rgba(20, 22, 31, 0.7);
+  --hl_text_03: rgba(18, 20, 31, 0.45);
+  --hl_text_04: rgba(18, 20, 31, 0.25);
+  --hl_text_05: #f5f6ff;
+  --hl_text_06: #f5f6ff;
+  --hl_text_08: #ffffff;
+
+  /* 描边 / 分割线 */
+  --hl_line_00: rgba(24, 22, 31, 0.2);
+  --hl_line_01: rgba(24, 22, 31, 0.12);
+  --hl_line_04: rgba(24, 22, 31, 0.45);
+  --hl_slider_thumb_border: rgba(24, 22, 31, 0.4);
+  /* bg_08 在白色轨道上的等效实色，避免透明层漏出零点。 */
+  --hl_slider_thumb_fill: #eff0f4;
+  --hl_color_temp_gradient: linear-gradient(
+    90deg,
+    #cb7a3a 0%,
+    #b8a06d 35%,
+    #85a6aa 58%,
+    #4b98a8 100%
+  );
+
+  /* 白色透明叠加（浅色主题下取黑色系等价） */
+  --hl_white_20: rgba(0, 0, 0, 0.2);
+  --hl_white_30: rgba(0, 0, 0, 0.3);
+  --hl_white_48: rgba(255, 255, 255, 0.48);
+
+  /* 品牌色 / 错误色 */
+  --hl_brand_00: #7657ff;
+  --hl_alpha_75: rgba(118, 87, 255, 0.75);
+  --hl_error_fill: #f4526a;
+
+  /* 球体线框（源 LightBall/constants FALLBACK_WIRE_COLOR / EQUATOR_COLOR） */
+  --hl_wire_color: rgba(192, 192, 208, 0.6);
+  --hl_equator_color: rgba(192, 192, 208, 0.8);
+  /* 浅色背景会吞掉高色温光柱，预览时保留色相并压低亮度、增强不透明度。 */
+  --hl_relight_cone_brightness: 0.58;
+  --hl_relight_cone_opacity_multiplier: 1.35;
+
+  /* 3D 相机模型（浅色） */
+  --hl_camera_body: #9ba7b8;
+  --hl_camera_back: #8894a4;
+  --hl_camera_side: #a7b2c1;
+  --hl_camera_side_dark: #7b8797;
+  --hl_camera_top: #a7b2c1;
+  --hl_camera_top_light: #b9c3d0;
+  --hl_camera_bottom: #7b8797;
+  --hl_camera_edge: #969ea9;
+  --hl_camera_top_edge: #9ca6b3;
+  --hl_camera_handle: #9aa8bc;
+  --hl_camera_lens_base: #e5e7eb;
+  --hl_camera_lens_dark: #7b848f;
+  --hl_camera_lens_core: #646d78;
+  --hl_camera_ring_1: #e5e7eb;
+  --hl_camera_ring_2: #d1d5db;
+  --hl_camera_screen: #566170;
+  --hl_camera_screen_edge: #aeb8c5;
+}
+
+.dark .multi-angle-theme {
+  --hl_bg_01: #1a1a1a;
+  --hl_bg_03: #1a1a1a;
+  --hl_bg_04: #202128;
+  --hl_bg_05: #242424;
+  --hl_bg_07: #333333;
+  --hl_bg_08: rgba(102, 105, 122, 0.3);
+  --hl_relight_surface: #242424;
+
+  --hl_text_00: #f5f6ff;
+  --hl_text_01: rgba(235, 238, 255, 0.85);
+  --hl_text_02: rgba(235, 238, 255, 0.65);
+  --hl_text_03: rgba(224, 229, 255, 0.35);
+  --hl_text_04: rgba(224, 229, 255, 0.2);
+  --hl_text_05: #15171f;
+  --hl_text_06: #f5f6ff;
+  --hl_text_08: #ffffff;
+
+  --hl_line_00: rgba(255, 255, 255, 0.12);
+  --hl_line_01: rgba(255, 255, 255, 0.08);
+  --hl_line_04: rgba(255, 255, 255, 0.45);
+  --hl_slider_thumb_border: rgba(255, 255, 255, 0.12);
+  --hl_slider_thumb_fill: var(--hl_text_08);
+  --hl_color_temp_gradient: linear-gradient(
+    90deg,
+    #56351f 0%,
+    #61513a 35%,
+    #596062 58%,
+    #2c5d69 100%
+  );
+
+  --hl_white_20: rgba(255, 255, 255, 0.16);
+  --hl_white_30: rgba(255, 255, 255, 0.3);
+  --hl_white_48: rgba(255, 255, 255, 0.48);
+
+  --hl_brand_00: #7657ff;
+  --hl_alpha_75: rgba(118, 87, 255, 0.75);
+  --hl_error_fill: #f4526a;
+
+  --hl_wire_color: rgba(255, 255, 255, 0.45);
+  --hl_equator_color: rgba(255, 255, 255, 0.65);
+  --hl_relight_cone_brightness: 1;
+  --hl_relight_cone_opacity_multiplier: 1;
+
+  /* 3D 相机模型（暗色） */
+  --hl_camera_body: #3b4654;
+  --hl_camera_back: #303946;
+  --hl_camera_side: #465261;
+  --hl_camera_side_dark: #2c3544;
+  --hl_camera_top: #5a6676;
+  --hl_camera_top_light: #6b7788;
+  --hl_camera_bottom: #27313f;
+  --hl_camera_edge: #8b939d;
+  --hl_camera_top_edge: #9ca3af;
+  --hl_camera_handle: #8f96a0;
+  --hl_camera_lens_base: #d1d5db;
+  --hl_camera_lens_dark: #4b5563;
+  --hl_camera_lens_core: #374151;
+  --hl_camera_ring_1: #d1d5db;
+  --hl_camera_ring_2: #9ca3af;
+  --hl_camera_screen: #161d28;
+  --hl_camera_screen_edge: #667284;
+}
+
+/* ============ 颜色工具类 ============ */
+.bg-hl_bg_01 {
+  background-color: var(--hl_bg_01);
+}
+.bg-hl_bg_03 {
+  background-color: var(--hl_bg_03);
+}
+.bg-hl_bg_04 {
+  background-color: var(--hl_bg_04);
+}
+.bg-hl_bg_05 {
+  background-color: var(--hl_bg_05);
+}
+.bg-hl_bg_07 {
+  background-color: var(--hl_bg_07);
+}
+.bg-hl_bg_08 {
+  background-color: var(--hl_bg_08);
+}
+.bg-hl_brand_00 {
+  background-color: var(--hl_brand_00);
+}
+.bg-hl_text_00 {
+  background-color: var(--hl_text_00);
+}
+.bg-hl_text_01 {
+  background-color: var(--hl_text_01);
+}
+.bg-hl_text_03 {
+  background-color: var(--hl_text_03);
+}
+.bg-hl_text_06 {
+  background-color: var(--hl_text_06);
+}
+.bg-hl_text_08 {
+  background-color: var(--hl_text_08);
+}
+.bg-hl_slider_thumb {
+  background-color: var(--hl_slider_thumb_fill);
+}
+.bg-hl_line_01 {
+  background-color: var(--hl_line_01);
+}
+
+.text-hl_brand_00 {
+  color: var(--hl_brand_00);
+}
+.text-hl_text_00 {
+  color: var(--hl_text_00);
+}
+.text-hl_text_01 {
+  color: var(--hl_text_01);
+}
+.text-hl_text_02 {
+  color: var(--hl_text_02);
+}
+.text-hl_text_03 {
+  color: var(--hl_text_03);
+}
+.text-hl_text_04 {
+  color: var(--hl_text_04);
+}
+.text-hl_text_05 {
+  color: var(--hl_text_05);
+}
+.text-hl_white_30 {
+  color: var(--hl_white_30);
+}
+.text-hl_white_48 {
+  color: var(--hl_white_48);
+}
+
+.border-hl_brand_00 {
+  border-color: var(--hl_brand_00);
+}
+.border-hl_line_00 {
+  border-color: var(--hl_line_00);
+}
+.border-hl_line_01 {
+  border-color: var(--hl_line_01);
+}
+.border-hl_line_04 {
+  border-color: var(--hl_line_04);
+}
+.border-hl_slider_thumb {
+  border-color: var(--hl_slider_thumb_border);
+}
+
+.ring-hl_brand_00 {
+  --tw-ring-color: var(--hl_brand_00);
+}
+.ring-hl_text_00 {
+  --tw-ring-color: var(--hl_text_00);
+}
+
+.placeholder\:text-hl_text_03::placeholder {
+  color: var(--hl_text_03);
+}
+
+/* hover: 变体（Tailwind v4 无法为任意手写类生成，这里补用到的几个） */
+.hover\:bg-hl_bg_05:hover {
+  background-color: var(--hl_bg_05);
+}
+.hover\:bg-hl_text_01:hover {
+  background-color: var(--hl_text_01);
+}
+.hover\:text-hl_text_00:hover {
+  color: var(--hl_text_00);
+}
+.hover\:text-hl_text_02:hover {
+  color: var(--hl_text_02);
+}
+.hover\:text-hl_brand_00:hover {
+  color: var(--hl_brand_00);
+}
+.hover\:text-hl_error_fill:hover {
+  color: var(--hl_error_fill);
+}
+.hover\:border-hl_line_04:hover {
+  border-color: var(--hl_line_04);
+}
+.hover\:border-hl_brand_00:hover {
+  border-color: var(--hl_brand_00);
+}
+.disabled\:bg-hl_text_03:disabled {
+  background-color: var(--hl_text_03);
+}
+
+/* 隐藏滚动条（对齐源 LeftPanel 的 no-scrollbar）。 */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hilo-checkbox {
+  --cb-size: 20px;
+  --cb-target: 32px;
+  --cb-backplate-bleed: 2px;
+  --cb-fill-duration: 120ms;
+  --cb-draw-duration: 160ms;
+  --cb-ease: cubic-bezier(.2, 0, 0, 1);
+  position: relative;
+  box-sizing: border-box;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--cb-target);
+  height: var(--cb-target);
+  min-width: var(--cb-target);
+  min-height: var(--cb-target);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cb-text);
+  cursor: pointer;
+  outline: none;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+}
+.hilo-checkbox[data-size="sm"] { --cb-size: 16px; --cb-target: 28px; }
+.hilo-checkbox[data-size="lg"] { --cb-size: 24px; --cb-target: 44px; }
+.hilo-checkbox[data-appearance="card"] {
+  --cb-filled: var(--cb-card-filled);
+  --cb-circle-end: var(--cb-card-circle-end);
+  --cb-mark: var(--cb-card-mark);
+  background-image: radial-gradient(circle closest-side,
+    transparent calc(var(--cb-size) * .46875),
+    var(--cb-backplate-fill) calc(var(--cb-size) * .48125),
+    var(--cb-backplate-fill) calc(100% - .5px), transparent 100%);
+  background-size: calc(var(--cb-size) + 2 * var(--cb-backplate-bleed)) calc(var(--cb-size) + 2 * var(--cb-backplate-bleed));
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.hilo-checkbox__visual {
+  display: block; width: var(--cb-size); height: var(--cb-size); overflow: visible;
+  border-radius: 6px;
+}
+.hilo-checkbox[data-shape="circle"] .hilo-checkbox__visual { border-radius: 50%; }
+.hilo-checkbox__surface { fill: var(--cb-empty); stroke: var(--cb-border); stroke-width: 1.25; transition: fill var(--cb-fill-duration) var(--cb-ease), stroke var(--cb-fill-duration) var(--cb-ease); }
+.hilo-checkbox__circle { display: none; }
+.hilo-checkbox[data-shape="circle"] .hilo-checkbox__square { display: none; }
+.hilo-checkbox[data-shape="circle"] .hilo-checkbox__circle { display: block; }
+.hilo-checkbox[data-shape="circle"] .hilo-checkbox__surface { fill: transparent; }
+.hilo-checkbox[data-appearance="card"]:not([data-disabled]):not([data-checked]):not([data-indeterminate]) .hilo-checkbox__visual .hilo-checkbox__surface { fill: var(--cb-card-mask); }
+.hilo-checkbox__gradient { opacity: 0; transition: opacity var(--cb-fill-duration) var(--cb-ease); }
+.hilo-checkbox__stop-start { stop-color: var(--cb-filled); }
+.hilo-checkbox__stop-end { stop-color: var(--cb-circle-end); }
+.hilo-checkbox__check, .hilo-checkbox__mixed { fill: none; stroke: var(--cb-mark); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.hilo-checkbox__check { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; transition: stroke-dashoffset var(--cb-draw-duration) var(--cb-ease), opacity 100ms linear; }
+.hilo-checkbox__mixed { opacity: 0; transform: scaleX(.5); transform-origin: center; transition: opacity var(--cb-fill-duration) linear, transform var(--cb-fill-duration) var(--cb-ease); }
+.hilo-checkbox:is([data-checked], [data-indeterminate]) .hilo-checkbox__visual .hilo-checkbox__surface { fill: var(--cb-filled); stroke: var(--cb-filled); }
+.hilo-checkbox:is([data-checked], [data-indeterminate]) .hilo-checkbox__visual .hilo-checkbox__gradient { opacity: 1; }
+.hilo-checkbox[data-checked]:not([data-indeterminate]) .hilo-checkbox__visual .hilo-checkbox__check { stroke-dashoffset: 0; opacity: 1; }
+.hilo-checkbox[data-indeterminate] .hilo-checkbox__visual .hilo-checkbox__mixed { opacity: 1; transform: scaleX(1); }
+@media (hover: hover) {
+  .hilo-checkbox:hover:not([data-disabled]):not([data-checked]):not([data-indeterminate]):not([aria-invalid="true"]) .hilo-checkbox__visual .hilo-checkbox__surface { stroke: var(--cb-border-hover); }
+}
+.hilo-checkbox:focus-visible .hilo-checkbox__visual { outline: 2px solid var(--cb-focus); outline-offset: 3px; }
+.hilo-checkbox[aria-invalid="true"] .hilo-checkbox__visual .hilo-checkbox__surface { stroke: var(--cb-error); }
+.hilo-checkbox[data-disabled] { color: var(--cb-disabled-text); cursor: not-allowed; }
+.hilo-checkbox[data-disabled] .hilo-checkbox__visual .hilo-checkbox__surface { fill: var(--cb-disabled-bg); stroke: var(--cb-disabled-border); }
+.hilo-checkbox[data-disabled] .hilo-checkbox__visual .hilo-checkbox__gradient { opacity: 0; }
+.hilo-checkbox[data-disabled] .hilo-checkbox__visual :is(.hilo-checkbox__check,.hilo-checkbox__mixed) { stroke: var(--cb-disabled-mark); }
+@media (pointer: coarse) { .hilo-checkbox[data-size] { --cb-target: 44px; } }
+@media (prefers-reduced-motion: reduce) {
+  .hilo-checkbox .hilo-checkbox__visual, .hilo-checkbox .hilo-checkbox__visual * { transition: none; animation: none; }
+}
+
+.hilo-checkbox-field { display: inline-flex; align-items: flex-start; gap: 0; max-width: 100%; color: var(--cb-text); }
+/* Pair the control with its own label. Keep the full target inside layout;
+ * place its visual 6px from the copy instead of adding another host gap. */
+.hilo-checkbox-label { column-gap: 0; }
+:is(.hilo-checkbox-field, .hilo-checkbox-label) > .hilo-checkbox {
+  justify-items: end;
+  padding-inline-end: 6px;
+}
+:is(.hilo-checkbox-field, .hilo-checkbox-label) > .hilo-checkbox[data-appearance="card"] {
+  background-position: right calc(6px - var(--cb-backplate-bleed)) center;
+}
+:dir(rtl):is(.hilo-checkbox-field, .hilo-checkbox-label) > .hilo-checkbox[data-appearance="card"] {
+  background-position: left calc(6px - var(--cb-backplate-bleed)) center;
+}
+.hilo-checkbox-field__copy { display: flex; flex-direction: column; min-width: 0; padding-block: 5px; font-size: 14px; line-height: 22px; overflow-wrap: anywhere; }
+.hilo-checkbox-field[data-size="sm"] .hilo-checkbox-field__copy { padding-block: 3px; font-size: 13px; }
+.hilo-checkbox-field[data-size="lg"] .hilo-checkbox-field__copy { padding-block: 10px; font-size: 16px; line-height: 24px; }
+.hilo-checkbox-field__description, .hilo-checkbox-field__error { margin-top: 2px; font-size: 12px; line-height: 20px; }
+.hilo-checkbox-field__description { color: var(--cb-muted); }
+.hilo-checkbox-field__error { color: var(--cb-error); }
+.hilo-checkbox-field:has(.hilo-checkbox[data-disabled]) { color: var(--cb-disabled-text); }
+.hilo-checkbox-field:has(.hilo-checkbox[data-disabled]) .hilo-checkbox-field__description { color: var(--cb-disabled-text); }
+@media (pointer: coarse) {
+  .hilo-checkbox-field[data-size] .hilo-checkbox-field__copy { padding-block: 11px; }
+  .hilo-checkbox-field[data-size="lg"] .hilo-checkbox-field__copy { padding-block: 10px; }
+}
+@media (forced-colors: active) {
+  .hilo-checkbox[data-appearance] { --cb-border: ButtonText; --cb-border-hover: Highlight; --cb-empty: Canvas; --cb-filled: Highlight; --cb-circle-end: Highlight; --cb-mark: HighlightText; --cb-focus: Highlight; --cb-error: LinkText; --cb-disabled-bg: Canvas; --cb-disabled-border: GrayText; --cb-disabled-mark: GrayText; background-image: none; }
+  .hilo-checkbox__visual { forced-color-adjust: none; }
+  .hilo-checkbox[data-appearance="card"]:not([data-disabled]):not([data-checked]):not([data-indeterminate]) .hilo-checkbox__surface { fill: Canvas; }
+}
+/* this gets exported as style.css and can be used for the default theming */
+/* these are the necessary styles for React/Svelte Flow, they get used by base.css and style.css */
+
+.react-flow {
+  direction: ltr;
+
+  --xy-edge-stroke-default: #b1b1b7;
+  --xy-edge-stroke-width-default: 1;
+  --xy-edge-stroke-selected-default: #555;
+
+  --xy-connectionline-stroke-default: #b1b1b7;
+  --xy-connectionline-stroke-width-default: 1;
+
+  --xy-attribution-background-color-default: rgba(255, 255, 255, 0.5);
+
+  --xy-minimap-background-color-default: #fff;
+  --xy-minimap-mask-background-color-default: rgba(240, 240, 240, 0.6);
+  --xy-minimap-mask-stroke-color-default: transparent;
+  --xy-minimap-mask-stroke-width-default: 1;
+  --xy-minimap-node-background-color-default: #e2e2e2;
+  --xy-minimap-node-stroke-color-default: transparent;
+  --xy-minimap-node-stroke-width-default: 2;
+
+  --xy-background-color-default: transparent;
+  --xy-background-pattern-dots-color-default: #91919a;
+  --xy-background-pattern-lines-color-default: #eee;
+  --xy-background-pattern-cross-color-default: #e2e2e2;
+}
+
+.react-flow.dark {
+  --xy-edge-stroke-default: #3e3e3e;
+  --xy-edge-stroke-width-default: 1;
+  --xy-edge-stroke-selected-default: #727272;
+
+  --xy-connectionline-stroke-default: #b1b1b7;
+  --xy-connectionline-stroke-width-default: 1;
+
+  --xy-attribution-background-color-default: rgba(150, 150, 150, 0.25);
+
+  --xy-minimap-background-color-default: #141414;
+  --xy-minimap-mask-background-color-default: rgba(60, 60, 60, 0.6);
+  --xy-minimap-mask-stroke-color-default: transparent;
+  --xy-minimap-mask-stroke-width-default: 1;
+  --xy-minimap-node-background-color-default: #2b2b2b;
+  --xy-minimap-node-stroke-color-default: transparent;
+  --xy-minimap-node-stroke-width-default: 2;
+
+  --xy-background-color-default: #141414;
+  --xy-background-pattern-dots-color-default: #777;
+  --xy-background-pattern-lines-color-default: #777;
+  --xy-background-pattern-cross-color-default: #777;
+}
+
+.react-flow {
+  background-color: var(--xy-background-color, var(--xy-background-color-default));
+}
+
+.react-flow__background {
+  background-color: var(--xy-background-color-props, var(--xy-background-color, var(--xy-background-color-default)));
+}
+
+.react-flow__container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.react-flow__pane {
+  z-index: 1;
+}
+
+.react-flow__pane.draggable {
+    cursor: grab;
+  }
+
+.react-flow__pane.dragging {
+    cursor: grabbing;
+  }
+
+.react-flow__pane.selection {
+    cursor: pointer;
+  }
+
+.react-flow__viewport {
+  transform-origin: 0 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.react-flow__renderer {
+  z-index: 4;
+}
+
+.react-flow__selection {
+  z-index: 6;
+}
+
+.react-flow__nodesselection-rect:focus,
+.react-flow__nodesselection-rect:focus-visible {
+  outline: none;
+}
+
+.react-flow__edge-path {
+  stroke: var(--xy-edge-stroke, var(--xy-edge-stroke-default));
+  stroke-width: var(--xy-edge-stroke-width, var(--xy-edge-stroke-width-default));
+  fill: none;
+}
+
+.react-flow__connection-path {
+  stroke: var(--xy-connectionline-stroke, var(--xy-connectionline-stroke-default));
+  stroke-width: var(--xy-connectionline-stroke-width, var(--xy-connectionline-stroke-width-default));
+  fill: none;
+}
+
+.react-flow .react-flow__edges {
+  position: absolute;
+}
+
+.react-flow .react-flow__edges svg {
+    overflow: visible;
+    position: absolute;
+    pointer-events: none;
+  }
+
+.react-flow__edge {
+  pointer-events: visibleStroke;
+}
+
+.react-flow__edge.selectable {
+    cursor: pointer;
+  }
+
+.react-flow__edge.animated path {
+    stroke-dasharray: 5;
+    animation: dashdraw 0.5s linear infinite;
+  }
+
+.react-flow__edge.animated path.react-flow__edge-interaction {
+    stroke-dasharray: none;
+    animation: none;
+  }
+
+.react-flow__edge.inactive {
+    pointer-events: none;
+  }
+
+.react-flow__edge.selected,
+  .react-flow__edge:focus,
+  .react-flow__edge:focus-visible {
+    outline: none;
+  }
+
+.react-flow__edge.selected .react-flow__edge-path,
+  .react-flow__edge.selectable:focus .react-flow__edge-path,
+  .react-flow__edge.selectable:focus-visible .react-flow__edge-path {
+    stroke: var(--xy-edge-stroke-selected, var(--xy-edge-stroke-selected-default));
+  }
+
+.react-flow__edge-textwrapper {
+    pointer-events: all;
+  }
+
+.react-flow__edge .react-flow__edge-text {
+    pointer-events: none;
+    user-select: none;
+  }
+
+/* Arrowhead marker styles - use CSS custom properties as default */
+.react-flow__arrowhead polyline {
+  stroke: var(--xy-edge-stroke, var(--xy-edge-stroke-default));
+}
+
+.react-flow__arrowhead polyline.arrowclosed {
+  fill: var(--xy-edge-stroke, var(--xy-edge-stroke-default));
+}
+
+.react-flow__connection {
+  pointer-events: none;
+}
+
+.react-flow__connection .animated {
+    stroke-dasharray: 5;
+    animation: dashdraw 0.5s linear infinite;
+  }
+
+svg.react-flow__connectionline {
+  z-index: 1001;
+  overflow: visible;
+  position: absolute;
+}
+
+.react-flow__nodes {
+  pointer-events: none;
+  transform-origin: 0 0;
+}
+
+.react-flow__node {
+  position: absolute;
+  user-select: none;
+  pointer-events: all;
+  transform-origin: 0 0;
+  box-sizing: border-box;
+  cursor: default;
+}
+
+.react-flow__node.selectable {
+    cursor: pointer;
+  }
+
+.react-flow__node.draggable {
+    cursor: grab;
+    pointer-events: all;
+  }
+
+.react-flow__node.draggable.dragging {
+      cursor: grabbing;
+    }
+
+.react-flow__nodesselection {
+  z-index: 3;
+  transform-origin: left top;
+  pointer-events: none;
+}
+
+.react-flow__nodesselection-rect {
+    position: absolute;
+    pointer-events: all;
+    cursor: grab;
+  }
+
+.react-flow__handle {
+  position: absolute;
+  pointer-events: none;
+  min-width: 5px;
+  min-height: 5px;
+}
+
+.react-flow__handle.connectingfrom {
+    pointer-events: all;
+  }
+
+.react-flow__handle.connectionindicator {
+    pointer-events: all;
+    cursor: crosshair;
+  }
+
+.react-flow__handle-bottom {
+    top: auto;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 50%);
+  }
+
+.react-flow__handle-top {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+.react-flow__handle-left {
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+  }
+
+.react-flow__handle-right {
+    top: 50%;
+    right: 0;
+    transform: translate(50%, -50%);
+  }
+
+.react-flow__edgeupdater {
+  cursor: move;
+  pointer-events: all;
+}
+
+.react-flow__pane.selection .react-flow__panel {
+  pointer-events: none;
+}
+
+.react-flow__panel {
+  position: absolute;
+  z-index: 5;
+  margin: 15px;
+}
+
+.react-flow__panel.top {
+    top: 0;
+  }
+
+.react-flow__panel.bottom {
+    bottom: 0;
+  }
+
+.react-flow__panel.top.center, .react-flow__panel.bottom.center {
+      left: 50%;
+      transform: translateX(-15px) translateX(-50%);
+    }
+
+.react-flow__panel.left {
+    left: 0;
+  }
+
+.react-flow__panel.right {
+    right: 0;
+  }
+
+.react-flow__panel.left.center, .react-flow__panel.right.center {
+      top: 50%;
+      transform: translateY(-15px) translateY(-50%);
+    }
+
+.react-flow__attribution {
+  font-size: 10px;
+  background: var(--xy-attribution-background-color, var(--xy-attribution-background-color-default));
+  padding: 2px 3px;
+  margin: 0;
+}
+
+.react-flow__attribution a {
+    text-decoration: none;
+    color: #999;
+  }
+
+@keyframes dashdraw {
+  from {
+    stroke-dashoffset: 10;
+  }
+}
+
+.react-flow__edgelabel-renderer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+  left: 0;
+  top: 0;
+}
+
+.react-flow__viewport-portal {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  user-select: none;
+}
+
+.react-flow__minimap {
+  background: var(
+    --xy-minimap-background-color-props,
+    var(--xy-minimap-background-color, var(--xy-minimap-background-color-default))
+  );
+}
+
+.react-flow__minimap-svg {
+    display: block;
+  }
+
+.react-flow__minimap-mask {
+    fill: var(
+      --xy-minimap-mask-background-color-props,
+      var(--xy-minimap-mask-background-color, var(--xy-minimap-mask-background-color-default))
+    );
+    stroke: var(
+      --xy-minimap-mask-stroke-color-props,
+      var(--xy-minimap-mask-stroke-color, var(--xy-minimap-mask-stroke-color-default))
+    );
+    stroke-width: var(
+      --xy-minimap-mask-stroke-width-props,
+      var(--xy-minimap-mask-stroke-width, var(--xy-minimap-mask-stroke-width-default))
+    );
+  }
+
+.react-flow__minimap-node {
+    fill: var(
+      --xy-minimap-node-background-color-props,
+      var(--xy-minimap-node-background-color, var(--xy-minimap-node-background-color-default))
+    );
+    stroke: var(
+      --xy-minimap-node-stroke-color-props,
+      var(--xy-minimap-node-stroke-color, var(--xy-minimap-node-stroke-color-default))
+    );
+    stroke-width: var(
+      --xy-minimap-node-stroke-width-props,
+      var(--xy-minimap-node-stroke-width, var(--xy-minimap-node-stroke-width-default))
+    );
+  }
+
+.react-flow__background {
+  pointer-events: none;
+  z-index: -1;
+}
+
+.react-flow__background-pattern.dots {
+    fill: var(
+      --xy-background-pattern-color-props,
+      var(--xy-background-pattern-color, var(--xy-background-pattern-dots-color-default))
+    );
+  }
+
+.react-flow__background-pattern.lines {
+    stroke: var(
+      --xy-background-pattern-color-props,
+      var(--xy-background-pattern-color, var(--xy-background-pattern-lines-color-default))
+    );
+  }
+
+.react-flow__background-pattern.cross {
+    stroke: var(
+      --xy-background-pattern-color-props,
+      var(--xy-background-pattern-color, var(--xy-background-pattern-cross-color-default))
+    );
+  }
+
+.react-flow__controls {
+  display: flex;
+  flex-direction: column;
+}
+
+.react-flow__controls.horizontal {
+    flex-direction: row;
+  }
+
+.react-flow__controls-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 26px;
+    width: 26px;
+    padding: 4px;
+  }
+
+.react-flow__controls-button svg {
+      width: 100%;
+      max-width: 12px;
+      max-height: 12px;
+      fill: currentColor;
+    }
+.react-flow {
+  --xy-node-color-default: inherit;
+  --xy-node-border-default: 1px solid #1a192b;
+  --xy-node-background-color-default: #fff;
+  --xy-node-group-background-color-default: rgba(240, 240, 240, 0.25);
+  --xy-node-boxshadow-hover-default: 0 1px 4px 1px rgba(0, 0, 0, 0.08);
+  --xy-node-boxshadow-selected-default: 0 0 0 0.5px #1a192b;
+  --xy-node-border-radius-default: 3px;
+
+  --xy-handle-background-color-default: #1a192b;
+  --xy-handle-border-color-default: #fff;
+
+  --xy-selection-background-color-default: rgba(0, 89, 220, 0.08);
+  --xy-selection-border-default: 1px dotted rgba(0, 89, 220, 0.8);
+
+  --xy-controls-button-background-color-default: #fefefe;
+  --xy-controls-button-background-color-hover-default: #f4f4f4;
+  --xy-controls-button-color-default: inherit;
+  --xy-controls-button-color-hover-default: inherit;
+  --xy-controls-button-border-color-default: #eee;
+  --xy-controls-box-shadow-default: 0 0 2px 1px rgba(0, 0, 0, 0.08);
+
+  --xy-edge-label-background-color-default: #ffffff;
+  --xy-edge-label-color-default: inherit;
+}
+
+.react-flow.dark {
+  --xy-node-color-default: #f8f8f8;
+  --xy-node-border-default: 1px solid #3c3c3c;
+  --xy-node-background-color-default: #1e1e1e;
+  --xy-node-group-background-color-default: rgba(240, 240, 240, 0.25);
+  --xy-node-boxshadow-hover-default: 0 1px 4px 1px rgba(255, 255, 255, 0.08);
+  --xy-node-boxshadow-selected-default: 0 0 0 0.5px #999;
+
+  --xy-handle-background-color-default: #bebebe;
+  --xy-handle-border-color-default: #1e1e1e;
+
+  --xy-selection-background-color-default: rgba(200, 200, 220, 0.08);
+  --xy-selection-border-default: 1px dotted rgba(200, 200, 220, 0.8);
+
+  --xy-controls-button-background-color-default: #2b2b2b;
+  --xy-controls-button-background-color-hover-default: #3e3e3e;
+  --xy-controls-button-color-default: #f8f8f8;
+  --xy-controls-button-color-hover-default: #fff;
+  --xy-controls-button-border-color-default: #5b5b5b;
+  --xy-controls-box-shadow-default: 0 0 2px 1px rgba(0, 0, 0, 0.08);
+
+  --xy-edge-label-background-color-default: #141414;
+  --xy-edge-label-color-default: #f8f8f8;
+}
+
+.react-flow__edge.updating .react-flow__edge-path {
+      stroke: #777;
+    }
+
+.react-flow__edge-text {
+    font-size: 10px;
+  }
+
+.react-flow__node.selectable:focus,
+  .react-flow__node.selectable:focus-visible {
+    outline: none;
+  }
+
+.react-flow__node-input,
+.react-flow__node-default,
+.react-flow__node-output,
+.react-flow__node-group {
+  padding: 10px;
+  border-radius: var(--xy-node-border-radius, var(--xy-node-border-radius-default));
+  width: 150px;
+  font-size: 12px;
+  color: var(--xy-node-color, var(--xy-node-color-default));
+  text-align: center;
+  border: var(--xy-node-border, var(--xy-node-border-default));
+  background-color: var(--xy-node-background-color, var(--xy-node-background-color-default));
+}
+
+.react-flow__node-input.selectable:hover, .react-flow__node-default.selectable:hover, .react-flow__node-output.selectable:hover, .react-flow__node-group.selectable:hover {
+      box-shadow: var(--xy-node-boxshadow-hover, var(--xy-node-boxshadow-hover-default));
+    }
+
+.react-flow__node-input.selectable.selected,
+    .react-flow__node-input.selectable:focus,
+    .react-flow__node-input.selectable:focus-visible,
+    .react-flow__node-default.selectable.selected,
+    .react-flow__node-default.selectable:focus,
+    .react-flow__node-default.selectable:focus-visible,
+    .react-flow__node-output.selectable.selected,
+    .react-flow__node-output.selectable:focus,
+    .react-flow__node-output.selectable:focus-visible,
+    .react-flow__node-group.selectable.selected,
+    .react-flow__node-group.selectable:focus,
+    .react-flow__node-group.selectable:focus-visible {
+      box-shadow: var(--xy-node-boxshadow-selected, var(--xy-node-boxshadow-selected-default));
+    }
+
+.react-flow__node-group {
+  background-color: var(--xy-node-group-background-color, var(--xy-node-group-background-color-default));
+}
+
+.react-flow__nodesselection-rect,
+.react-flow__selection {
+  background: var(--xy-selection-background-color, var(--xy-selection-background-color-default));
+  border: var(--xy-selection-border, var(--xy-selection-border-default));
+}
+
+.react-flow__nodesselection-rect:focus,
+  .react-flow__nodesselection-rect:focus-visible,
+  .react-flow__selection:focus,
+  .react-flow__selection:focus-visible {
+    outline: none;
+  }
+
+.react-flow__handle {
+  width: 6px;
+  height: 6px;
+  background-color: var(--xy-handle-background-color, var(--xy-handle-background-color-default));
+  border: 1px solid var(--xy-handle-border-color, var(--xy-handle-border-color-default));
+  border-radius: 100%;
+}
+
+.react-flow__controls {
+  box-shadow: var(--xy-controls-box-shadow, var(--xy-controls-box-shadow-default));
+}
+
+.react-flow__controls-button {
+    border: none;
+    background: var(--xy-controls-button-background-color, var(--xy-controls-button-background-color-default));
+    border-bottom: 1px solid
+      var(
+        --xy-controls-button-border-color-props,
+        var(--xy-controls-button-border-color, var(--xy-controls-button-border-color-default))
+      );
+    color: var(
+      --xy-controls-button-color-props,
+      var(--xy-controls-button-color, var(--xy-controls-button-color-default))
+    );
+    cursor: pointer;
+    user-select: none;
+  }
+
+.react-flow__controls-button:hover {
+      background: var(
+        --xy-controls-button-background-color-hover-props,
+        var(--xy-controls-button-background-color-hover, var(--xy-controls-button-background-color-hover-default))
+      );
+      color: var(
+        --xy-controls-button-color-hover-props,
+        var(--xy-controls-button-color-hover, var(--xy-controls-button-color-hover-default))
+      );
+    }
+
+.react-flow__controls-button:disabled {
+      pointer-events: none;
+    }
+
+.react-flow__controls-button:disabled svg {
+        fill-opacity: 0.4;
+      }
+
+.react-flow__controls-button:last-child {
+    border-bottom: none;
+  }
+
+.react-flow__controls.horizontal .react-flow__controls-button {
+    border-bottom: none;
+    border-right: 1px solid
+      var(
+        --xy-controls-button-border-color-props,
+        var(--xy-controls-button-border-color, var(--xy-controls-button-border-color-default))
+      );
+  }
+
+.react-flow__controls.horizontal .react-flow__controls-button:last-child {
+    border-right: none;
+  }
+.react-flow {
+  --xy-resize-background-color-default: #3367d9;
+}
+
+.react-flow__resize-control {
+  position: absolute;
+}
+
+.react-flow__resize-control.left,
+.react-flow__resize-control.right {
+  cursor: ew-resize;
+}
+
+.react-flow__resize-control.top,
+.react-flow__resize-control.bottom {
+  cursor: ns-resize;
+}
+
+.react-flow__resize-control.top.left,
+.react-flow__resize-control.bottom.right {
+  cursor: nwse-resize;
+}
+
+.react-flow__resize-control.bottom.left,
+.react-flow__resize-control.top.right {
+  cursor: nesw-resize;
+}
+
+/* handle styles */
+.react-flow__resize-control.handle {
+  width: 5px;
+  height: 5px;
+  border: 1px solid #fff;
+  border-radius: 1px;
+  background-color: var(--xy-resize-background-color, var(--xy-resize-background-color-default));
+  translate: -50% -50%;
+}
+
+.react-flow__resize-control.handle.left {
+  left: 0;
+  top: 50%;
+}
+.react-flow__resize-control.handle.right {
+  left: 100%;
+  top: 50%;
+}
+.react-flow__resize-control.handle.top {
+  left: 50%;
+  top: 0;
+}
+.react-flow__resize-control.handle.bottom {
+  left: 50%;
+  top: 100%;
+}
+.react-flow__resize-control.handle.top.left {
+  left: 0;
+}
+.react-flow__resize-control.handle.bottom.left {
+  left: 0;
+}
+.react-flow__resize-control.handle.top.right {
+  left: 100%;
+}
+.react-flow__resize-control.handle.bottom.right {
+  left: 100%;
+}
+
+/* line styles */
+.react-flow__resize-control.line {
+  border-color: var(--xy-resize-background-color, var(--xy-resize-background-color-default));
+  border-width: 0;
+  border-style: solid;
+}
+
+.react-flow__resize-control.line.left,
+.react-flow__resize-control.line.right {
+  width: 1px;
+  transform: translate(-50%, 0);
+  top: 0;
+  height: 100%;
+}
+
+.react-flow__resize-control.line.left {
+  left: 0;
+  border-left-width: 1px;
+}
+
+.react-flow__resize-control.line.right {
+  left: 100%;
+  border-right-width: 1px;
+}
+
+.react-flow__resize-control.line.top,
+.react-flow__resize-control.line.bottom {
+  height: 1px;
+  transform: translate(0, -50%);
+  left: 0;
+  width: 100%;
+}
+
+.react-flow__resize-control.line.top {
+  top: 0;
+  border-top-width: 1px;
+}
+
+.react-flow__resize-control.line.bottom {
+  border-bottom-width: 1px;
+  top: 100%;
+}
+
+.react-flow__edge-textbg {
+  fill: var(--xy-edge-label-background-color, var(--xy-edge-label-background-color-default));
+}
+
+.react-flow__edge-text {
+  fill: var(--xy-edge-label-color, var(--xy-edge-label-color-default));
+}
+
+/*
+ * Single-SVG edge container: hint to the compositor that the entire edge
+ * layer should sit on its own raster layer. With one shared <svg> for all
+ * edges, pan/zoom only needs to translate the SVG transform — never repaint
+ * the edge contents — so promoting it explicitly avoids paint storms on
+ * graphs with hundreds of connections.
+ */
+svg.react-flow__edges {
+  will-change: transform;
+  contain: layout style;
+}
+/* Canvas context toolbar design source. Both densities share typography and states.
+ * Keep business callers on these roles instead of overriding their appearance. */
+:root,
+.dark {
+  --canvas-toolbar-font-size: 13px;
+  --canvas-toolbar-font-weight: 400;
+  --canvas-toolbar-letter-spacing: 0.025em;
+  --canvas-toolbar-line-height: 20px;
+  --canvas-toolbar-bg: var(--canvas-controls-bg);
+  --canvas-toolbar-fg: var(--canvas-controls-text);
+  --canvas-toolbar-muted-fg: var(--canvas-controls-text-muted);
+  --canvas-toolbar-border: var(--brutalist-border-subtle);
+  --canvas-toolbar-border-hover: var(--brutalist-border);
+  --canvas-toolbar-border-width: 1px;
+  --canvas-toolbar-radius: 12px;
+  --canvas-toolbar-padding: 2px;
+  --canvas-toolbar-padding-inline: var(--canvas-toolbar-padding);
+  --canvas-toolbar-height: 46px;
+  --canvas-toolbar-gap: 2px;
+  --canvas-toolbar-shadow: none;
+  --canvas-toolbar-action-bg: transparent;
+  --canvas-toolbar-action-hover: var(--canvas-controls-hover);
+  --canvas-toolbar-action-active: var(--canvas-controls-active);
+  --canvas-toolbar-action-radius: max(0px, calc(var(--canvas-toolbar-radius) - var(--canvas-toolbar-padding) - var(--canvas-toolbar-border-width)));
+  --canvas-toolbar-action-padding: 8px;
+  --canvas-toolbar-action-height: calc(var(--canvas-toolbar-height) - 2 * (var(--canvas-toolbar-padding) + var(--canvas-toolbar-border-width)));
+  --canvas-toolbar-compact-padding: var(--canvas-toolbar-action-padding);
+  --canvas-toolbar-icon-size: 16px;
+  --canvas-toolbar-icon-gap: 2px;
+  --canvas-toolbar-price-font-size: 13px;
+  --canvas-toolbar-price-icon-size: 12px;
+  --canvas-toolbar-disabled-opacity: 0.5;
+  --canvas-toolbar-divider-width: var(--divider-width, 0.5px);
+  --canvas-toolbar-divider-height: 20px;
+  --canvas-toolbar-divider-gap: 4px;
+  --canvas-toolbar-divider-color: color-mix(in srgb, var(--canvas-controls-text) 10%, transparent);
+  --canvas-toolbar-primary-bg: var(--canvas-primary-btn-bg);
+  --canvas-toolbar-primary-hover: var(--canvas-primary-btn-bg-hover);
+  --canvas-toolbar-primary-fg: var(--canvas-primary-btn-icon);
+  --canvas-toolbar-new-feature: var(--brand-accent);
+}
+
+.canvas-toolbar-surface,
+.canvas-toolbar-menu {
+  --toolbar-control-height: var(--canvas-toolbar-action-height);
+  --toolbar-control-padding: var(--canvas-toolbar-action-padding);
+  --toolbar-icon-size: var(--canvas-toolbar-icon-size);
+}
+
+.canvas-toolbar-surface {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--canvas-toolbar-height);
+  width: max-content;
+  gap: var(--canvas-toolbar-gap);
+  padding: var(--canvas-toolbar-padding) var(--canvas-toolbar-padding-inline);
+  border: var(--canvas-toolbar-border-width) solid var(--canvas-toolbar-border);
+  border-radius: var(--canvas-toolbar-radius);
+  background: var(--canvas-toolbar-bg);
+  color: var(--canvas-toolbar-fg);
+  box-shadow: var(--canvas-toolbar-shadow);
+  font-size: var(--canvas-toolbar-font-size);
+  font-weight: var(--canvas-toolbar-font-weight);
+  line-height: var(--canvas-toolbar-line-height);
+  letter-spacing: var(--canvas-toolbar-letter-spacing);
+  user-select: none;
+  transition: border-color 150ms, background-color 150ms;
+}
+
+.canvas-toolbar-surface:hover,
+.canvas-toolbar-surface:focus-within {
+  border-color: var(--canvas-toolbar-border-hover);
+}
+
+.canvas-toolbar-surface[data-density='compact'],
+.canvas-toolbar-menu[data-density='compact'] {
+  --toolbar-control-padding: var(--canvas-toolbar-compact-padding);
+}
+
+.canvas-toolbar-action {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: var(--toolbar-control-height, var(--canvas-toolbar-action-height));
+  min-width: var(--toolbar-control-height, var(--canvas-toolbar-action-height));
+  width: auto;
+  gap: var(--canvas-toolbar-icon-gap);
+  padding: 0 var(--toolbar-control-padding, var(--canvas-toolbar-action-padding));
+  border: 0;
+  border-radius: var(--canvas-toolbar-action-radius);
+  background: var(--canvas-toolbar-action-bg);
+  color: var(--canvas-toolbar-fg);
+  font-size: var(--canvas-toolbar-font-size);
+  font-weight: var(--canvas-toolbar-font-weight);
+  line-height: var(--canvas-toolbar-line-height);
+  letter-spacing: var(--canvas-toolbar-letter-spacing);
+  white-space: nowrap;
+  transition: background-color 150ms, color 150ms;
+}
+
+.canvas-toolbar-action:hover:where(:not(:disabled):not([aria-disabled='true'])),
+.canvas-toolbar-action[data-popup-open] {
+  background: var(--canvas-toolbar-action-hover);
+}
+
+.canvas-toolbar-action[aria-pressed='true'],
+.canvas-toolbar-action[data-active='true'],
+.canvas-toolbar-action[aria-selected='true'],
+.canvas-toolbar-action[data-dragging='true'] {
+  background: var(--canvas-toolbar-action-active);
+}
+
+.canvas-toolbar-action:disabled,
+.canvas-toolbar-action[aria-disabled='true'] {
+  opacity: var(--canvas-toolbar-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.canvas-toolbar-action:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.canvas-toolbar-action > svg:not([data-toolbar-icon='disclosure']) {
+  flex-shrink: 0;
+  width: var(--toolbar-icon-size, var(--canvas-toolbar-icon-size));
+  height: var(--toolbar-icon-size, var(--canvas-toolbar-icon-size));
+}
+
+.canvas-toolbar-label,
+.canvas-toolbar-input {
+  font-size: var(--canvas-toolbar-font-size);
+  font-weight: var(--canvas-toolbar-font-weight);
+  line-height: var(--canvas-toolbar-line-height);
+  letter-spacing: var(--canvas-toolbar-letter-spacing);
+}
+
+.canvas-toolbar-separator {
+  align-self: center;
+  flex-shrink: 0;
+  width: var(--canvas-toolbar-divider-width);
+  height: var(--canvas-toolbar-divider-height);
+  margin: 0 var(--canvas-toolbar-divider-gap);
+  background: var(--canvas-toolbar-divider-color);
+}
+
+/* Portal menus cannot inherit the surface's font; share the same design roles. */
+.canvas-toolbar-menu {
+  border: var(--canvas-toolbar-border-width) solid var(--canvas-toolbar-border);
+  border-radius: var(--canvas-toolbar-radius);
+  background: var(--canvas-toolbar-bg);
+  color: var(--canvas-toolbar-fg);
+  font-size: var(--canvas-toolbar-font-size);
+  font-weight: var(--canvas-toolbar-font-weight);
+  letter-spacing: var(--canvas-toolbar-letter-spacing);
+  box-shadow: var(--canvas-toolbar-shadow);
+  line-height: var(--canvas-toolbar-line-height);
+}
+
+.canvas-toolbar-menu-item {
+  font-size: var(--canvas-toolbar-font-size);
+  font-weight: var(--canvas-toolbar-font-weight);
+  letter-spacing: var(--canvas-toolbar-letter-spacing);
+  border-radius: var(--canvas-toolbar-action-radius);
+  color: var(--canvas-toolbar-fg);
+  background: var(--canvas-toolbar-action-bg);
+  line-height: var(--canvas-toolbar-line-height);
+}
+
+.canvas-toolbar-menu-item:hover,
+.canvas-toolbar-menu-item[data-highlighted] {
+  background: var(--canvas-toolbar-action-hover);
+}
+
+/* Compound actions keep independently focusable main/disclosure targets. */
+.canvas-toolbar-split {
+  display: flex;
+  align-items: center;
+  gap: var(--canvas-toolbar-gap);
+}
+
+/* A lone SVG needs no caller hint; compound icons and sticker content opt in explicitly. */
+.canvas-toolbar-action:has(> svg:only-child),
+.canvas-toolbar-action[data-content='icon'],
+.canvas-toolbar-action[data-content='sticker'],
+.canvas-toolbar-action.canvas-toolbar-disclosure {
+  box-sizing: border-box;
+  width: var(--toolbar-control-height, var(--canvas-toolbar-action-height));
+  padding-inline: 0;
+}
+
+.canvas-toolbar-action[data-variant='primary'] {
+  background: var(--canvas-toolbar-primary-bg);
+  color: var(--canvas-toolbar-primary-fg);
+}
+
+.canvas-toolbar-action[data-variant='primary']:hover:not(:disabled):not([aria-disabled='true']) {
+  background: var(--canvas-toolbar-primary-hover);
+}
+
+.canvas-toolbar-action[data-variant='destructive']:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--destructive) 10%, transparent);
+  color: var(--destructive);
+}
+
+.canvas-toolbar-menu :where([data-slot='dropdown-menu-item'], [data-slot='dropdown-menu-sub-trigger']) {
+  font-size: var(--canvas-toolbar-font-size);
+  font-weight: var(--canvas-toolbar-font-weight);
+  letter-spacing: var(--canvas-toolbar-letter-spacing);
+  color: var(--canvas-toolbar-fg);
+  border-radius: var(--canvas-toolbar-action-radius);
+}
+
+.canvas-toolbar-menu-item:focus-visible,
+.canvas-toolbar-menu-item[data-popup-open],
+.canvas-toolbar-menu :where([data-slot='dropdown-menu-item'], [data-slot='dropdown-menu-sub-trigger']):is(:hover, :focus, [data-highlighted], [data-popup-open]) {
+  background: var(--canvas-toolbar-action-hover);
+}
+
+.canvas-toolbar-menu-item[data-active='true'] {
+  background: var(--canvas-toolbar-action-active);
+}
+
+.canvas-toolbar-menu-item:is(:disabled, [data-disabled]),
+.canvas-toolbar-menu :where([data-disabled]) {
+  opacity: var(--canvas-toolbar-disabled-opacity);
+  pointer-events: none;
+}
+
+.canvas-toolbar-menu-separator {
+  height: var(--canvas-toolbar-divider-width);
+  margin: var(--canvas-toolbar-divider-gap);
+  background: var(--canvas-toolbar-divider-color);
+}
+
+/* Prices are secondary metadata, with a smaller icon than the action itself. */
+:is(.canvas-toolbar-surface, .canvas-toolbar-menu) [data-slot='credit-cost-badge'] {
+  font-size: var(--canvas-toolbar-price-font-size);
+  gap: var(--canvas-toolbar-icon-gap);
+}
+
+:is(.canvas-toolbar-surface, .canvas-toolbar-menu) [data-slot='credit-cost-badge'] > svg {
+  width: var(--canvas-toolbar-price-icon-size);
+  height: var(--canvas-toolbar-price-icon-size);
+  flex-shrink: 0;
+}
+
+/* Menu icons follow the same sizing token as pinned toolbar actions. */
+.canvas-toolbar-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--canvas-toolbar-icon-size);
+  height: var(--canvas-toolbar-icon-size);
+}
+
+.canvas-toolbar-menu-icon > svg {
+  flex-shrink: 0;
+  width: var(--canvas-toolbar-icon-size);
+  height: var(--canvas-toolbar-icon-size);
+}
+
+/* Keep each artwork's calibrated intrinsic size. A shared 20px stage scales
+   to the List's 16px slot; forcing every SVG to 20px enlarges full-bleed icons. */
+.canvas-toolbar-action-list-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--action-list-icon-size);
+  width: var(--action-list-icon-size);
+  height: var(--action-list-icon-size);
+}
+
+.canvas-toolbar-action-list-icon > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  transform: scale(calc(var(--action-list-icon-size) / 20px));
+}
+/* Design Spec motion primitive. Tokens are shared by desktop and canvas. */
+:root {
+  --dp-quick-zoom-duration-in: 125ms;
+  --dp-quick-zoom-duration-out: 90ms;
+  --dp-quick-zoom-scale-from: 0.88;
+  --dp-quick-zoom-ease-out: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --dp-quick-zoom-ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.dp-motion-quick-zoom {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: var(--dp-quick-zoom-origin, var(--transform-origin, center));
+  transition:
+    opacity var(--dp-quick-zoom-duration-in) var(--dp-quick-zoom-ease-out),
+    transform var(--dp-quick-zoom-duration-in) var(--dp-quick-zoom-ease-out);
+  will-change: opacity, transform;
+}
+
+/* Also covers conditionally mounted, initially-open popups. */
+@starting-style {
+  .dp-motion-quick-zoom {
+    opacity: 0;
+    transform: scale(var(--dp-quick-zoom-scale-from));
+  }
+}
+
+.dp-motion-quick-zoom[data-starting-style],
+.dp-motion-quick-zoom[data-ending-style] {
+  opacity: 0;
+  transform: scale(var(--dp-quick-zoom-scale-from));
+}
+
+/* Select drag/drop needs the closed surface removed immediately. */
+.dp-motion-quick-zoom[data-ending-style][data-motion-exit-disabled] {
+  transition-duration: 0ms;
+}
+
+.dp-motion-quick-zoom[data-ending-style] {
+  pointer-events: none;
+  transition-duration: var(--dp-quick-zoom-duration-out);
+  transition-timing-function: var(--dp-quick-zoom-ease-in);
+}
+
+/* Base UI 1.3 also marks normal Escape/keyboard clicks as instant. Keep
+ * those animated; only library-requested trigger/group switches skip motion. */
+.dp-motion-quick-zoom[data-instant]:not([data-instant='dismiss']):not([data-instant='click']):not([data-instant='focus']) {
+  transition-duration: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-motion-quick-zoom,
+  .dp-motion-quick-zoom[data-starting-style],
+  .dp-motion-quick-zoom[data-ending-style] {
+    transform: none;
+    transition-duration: 0ms;
+    will-change: auto;
+  }
+
+  @starting-style {
+    .dp-motion-quick-zoom {
+      transform: none;
+    }
+  }
+}
+
+/* ---- Live viewport zoom, broadcast per element (NOT inherited) ----
+ *
+ * `--canvas-zoom` is the live ReactFlow viewport zoom (transform[2]),
+ * pushed onto each consumer element by CanvasShell via the zoom counter
+ * registry (see hooks/use-zoom-counter.ts). Consumers read it through
+ * `calc(... var(--canvas-zoom))` to counter-scale UI chrome (selection
+ * outlines, group label chip, header strip) so they stay at constant
+ * physical pixel size regardless of viewport zoom.
+ *
+ * `inherits: false` is the WHOLE POINT of the registered property:
+ *   - With the default (inherits: true), setting --canvas-zoom on the
+ *     canvas root forces the browser to invalidate style on the entire
+ *     subtree on every wheel tick. On a 500+ node canvas that's ~5000
+ *     candidate elements per frame — recalc-style alone can blow the
+ *     16ms budget and tank pan/zoom to single-digit fps.
+ *   - With inherits: false, each setProperty only invalidates the
+ *     element it was written to. CanvasShell broadcasts to a small
+ *     registry (mounted frames + visible headers) so
+ *     wheel-tick cost stays O(registered elements) instead of O(tree).
+ *
+ * Trade-off: the value no longer flows through inheritance, so every
+ * frame that reads it registers with `useRegisterZoomCounter`. Its single
+ * leaf paint layer explicitly opts into inheritance; other descendants do
+ * not inherit the property, keeping invalidation scoped to frame chrome.
+ */
+@property --canvas-zoom {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+/* ---- Canvas sub-system token palette ---- */
+:root {
+  --canvas-prompt-panel-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.06);
+  --canvas-bg-warm: #f3f0ea;
+  --canvas-bg-cool: #eef2f5;
+  --canvas-bg-paper: #f6f2e9;
+  --canvas-bg-sage: #eef3ed;
+  --canvas-bg-mist-blue: #edf3f7;
+  --canvas-bg-lavender: #f3eff8;
+  --canvas-bg-blush: #f7f0f0;
+  --canvas-bg-sand: #f3ebdd;
+  /* Canvas-only default cursor: 32px transparent asset with a native-sized visual body. */
+  --canvas-cursor-default-url: url("data:image/svg+xml,%3csvg%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cg%20transform='translate(1.7%202.6)%20scale(1.15)'%20filter='url(%23cursor-compass-shadow)'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M2.6026%201.25887C2.14769%201.57925%201.92202%202.13594%202.02544%202.68264L4.0909%2013.6015C4.20634%2014.2118%204.70531%2014.6761%205.32233%2014.7473C5.93936%2014.8185%206.53098%2014.4801%206.78242%2013.9122L8.60873%209.78712L13.1079%209.45735C13.7274%209.41195%2014.2453%208.96892%2014.3861%208.36398C14.527%207.75903%2014.258%207.13282%2013.7222%206.81851L4.13758%201.19514C3.65768%200.913581%203.0575%200.938501%202.6026%201.25887Z'%20fill='white'%20/%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M2.95509%202.50587C2.92062%202.32363%202.99585%202.13807%203.14748%202.03128C3.29912%201.92449%203.49917%201.91618%203.65914%202.01003L13.2438%207.6334C13.4224%207.73817%2013.512%207.94691%2013.4651%208.14856C13.4182%208.35021%2013.2455%208.49788%2013.039%208.51302L7.9738%208.88427L5.91773%2013.5283C5.83391%2013.7176%205.6367%2013.8304%205.43103%2013.8067C5.22536%2013.7829%205.05903%2013.6282%205.02055%2013.4247L2.95509%202.50587Z'%20fill='black'%20/%3e%3c/g%3e%3cdefs%3e%3cfilter%20id='cursor-compass-shadow'%20x='1.00061'%20y='0'%20width='14.4226'%20height='15.7568'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'%20/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'%20/%3e%3cfeOffset%20dy='0.270222'%20/%3e%3cfeGaussianBlur%20stdDeviation='0.225185'%20/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'%20/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.2%200'%20/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow'%20/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'%20/%3e%3cfeOffset%20/%3e%3cfeGaussianBlur%20stdDeviation='0.5'%20/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'%20/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.32%200'%20/%3e%3cfeBlend%20mode='normal'%20in2='effect1_dropShadow'%20result='effect2_dropShadow'%20/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect2_dropShadow'%20result='shape'%20/%3e%3c/filter%3e%3c/defs%3e%3c/svg%3e");
+  --canvas-cursor-default: var(--canvas-cursor-default-url) 4 4, default;
+  --canvas-node-highlight: #3b82f6;
+  --canvas-recent-marker: #6D6CFF;
+  /* Text-assistant emphasis: selection, caret, annotation, and local CTA share
+   * one purple semantic accent instead of inheriting the generic canvas blue. */
+  --canvas-alignment-guide: #A78BFA;
+  --canvas-text-accent: #6D6CFF;
+  --canvas-text-accent-foreground: #ffffff;
+  --canvas-text-accent-soft: color-mix(in srgb, var(--canvas-text-accent) 16%, transparent);
+  --canvas-minimap-viewport-accent: #7352a9;
+  --canvas-minimap-viewport-fill: rgba(255, 255, 255, 0.42);
+  /* Minimap selection: same purple as the canvas selection frame, with a
+   * light glow around the node's edge (glow stays hex — it feeds canvas 2D). */
+  --canvas-minimap-selected: var(--canvas-text-accent);
+  --canvas-minimap-selected-glow: #6D6CFFA6;
+  /* Moving source-to-target pulse painted over selected edge base strokes. */
+  --canvas-edge-flow: #8B72FF;
+  --canvas-edge-flow-glow: #C996FF;
+  --canvas-param-selected-bg: #0000000a;
+  --canvas-param-selected-border: var(--foreground);
+  --canvas-media-play-icon: #ffffff;
+  /* Empty-node roles share the existing video starter palette. */
+  --canvas-empty-placeholder-fg: color-mix(in srgb, var(--canvas-controls-text) 18%, var(--canvas-node-bg));
+  --canvas-empty-guidance-fg: var(--canvas-controls-text-muted);
+  --canvas-empty-action-fg: var(--canvas-controls-text);
+  --canvas-empty-action-icon-fg: var(--canvas-empty-action-fg);
+  --canvas-empty-action-bg: color-mix(in srgb, var(--canvas-empty-video-action-bg, var(--canvas-controls-hover)) 50%, var(--canvas-node-bg));
+  --canvas-empty-action-bg-hover: var(--canvas-empty-video-action-bg-hover, var(--canvas-controls-active));
+  --canvas-media-node-radius: 10px;
+  --canvas-media-node-inner-radius: 8px;
+  --canvas-media-control-bg: rgba(0, 0, 0, 0.55);
+  --canvas-media-control-bg-hover: rgba(0, 0, 0, 0.7);
+  --canvas-media-control-fg: #ffffff;
+  --canvas-media-icon-shadow: 0 0 6px rgba(0, 0, 0, 0.45);
+  --canvas-reference-thumbnail-gradient: rgba(0, 0, 0, 0.08);
+  --canvas-media-stack-fill: color-mix(in srgb, var(--canvas-node-border) 64%, transparent);
+  --canvas-media-stack-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 220' preserveAspectRatio='none'%3E%3Cpath d='M0%200C6.62742%200%2012%205.37258%2012%2012V208C12%20214.627%206.62742%20220%200%20220V0Z' fill='black'/%3E%3C/svg%3E");
+  --canvas-video-control-fg: #ffffff;
+  --canvas-video-control-label: rgba(255, 255, 255, 0.92);
+  --canvas-video-control-hover: rgba(255, 255, 255, 0.14);
+  --canvas-video-control-progress: #ffffff;
+  --canvas-video-control-track: rgba(255, 255, 255, 0.35);
+  --canvas-video-control-shadow: rgba(0, 0, 0, 0.9);
+}
+
+/* Rich-prompt chip representing a completed canvas rectangle selection. */
+.canvas-redraw-region-chip {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-end: 0.3em;
+  border: 1px solid color-mix(in srgb, var(--canvas-text-accent) 48%, transparent);
+  border-radius: var(--radius-sm, 4px);
+  background: var(--canvas-text-accent-soft);
+  color: var(--canvas-text-accent);
+  padding: 2px 6px;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.dark {
+  --canvas-bg-warm: #211f1b;
+  --canvas-bg-cool: #1b2024;
+  --canvas-bg-paper: #262219;
+  --canvas-bg-sage: #1d251f;
+  --canvas-bg-mist-blue: #1b242a;
+  --canvas-bg-lavender: #241f2b;
+  --canvas-bg-blush: #291f21;
+  --canvas-bg-sand: #282116;
+  --canvas-cursor-default: var(--canvas-cursor-default-url) 4 4, default;
+  --canvas-node-highlight: #60a5fa;
+  --canvas-recent-marker: #8B8AFF;
+  --canvas-alignment-guide: #A78BFA;
+  --canvas-text-accent: #8B8AFF;
+  --canvas-text-accent-foreground: #ffffff;
+  --canvas-text-accent-soft: color-mix(in srgb, var(--canvas-text-accent) 24%, transparent);
+  --canvas-minimap-viewport-accent: #ceb8f7;
+  --canvas-minimap-viewport-fill: color-mix(in srgb, var(--background) 52%, transparent);
+  --canvas-minimap-selected: var(--canvas-text-accent);
+  --canvas-minimap-selected-glow: #8B8AFFB3;
+  --canvas-edge-flow: #c4b5fd;
+  --canvas-edge-flow-glow: rgba(167, 139, 250, 0.24);
+  --canvas-param-selected-bg: #ffffff1a;
+  --canvas-param-selected-border: var(--foreground);
+  /* Empty-node roles share the existing video starter palette. */
+  --canvas-empty-placeholder-fg: color-mix(in srgb, var(--canvas-controls-text) 18%, var(--canvas-node-bg));
+  --canvas-empty-guidance-fg: var(--canvas-controls-text-muted);
+  --canvas-empty-action-fg: var(--canvas-controls-text);
+  --canvas-empty-action-icon-fg: var(--canvas-empty-action-fg);
+  --canvas-empty-action-bg: color-mix(in srgb, var(--canvas-empty-video-action-bg, var(--canvas-controls-hover)) 50%, var(--canvas-node-bg));
+  --canvas-empty-action-bg-hover: var(--canvas-empty-video-action-bg-hover, var(--canvas-controls-active));
+  --canvas-media-play-icon: #ffffff;
+  --canvas-media-control-bg: rgba(0, 0, 0, 0.55);
+  --canvas-media-control-bg-hover: rgba(0, 0, 0, 0.7);
+  --canvas-media-control-fg: #ffffff;
+  --canvas-media-icon-shadow: 0 0 6px rgba(0, 0, 0, 0.45);
+  --canvas-reference-thumbnail-gradient: rgba(0, 0, 0, 0.08);
+  --canvas-media-stack-fill: color-mix(in srgb, var(--canvas-node-border) 64%, transparent);
+  --canvas-media-stack-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 220' preserveAspectRatio='none'%3E%3Cpath d='M0%200C6.62742%200%2012%205.37258%2012%2012V208C12%20214.627%206.62742%20220%200%20220V0Z' fill='black'/%3E%3C/svg%3E");
+  --canvas-video-control-fg: #ffffff;
+  --canvas-video-control-label: rgba(255, 255, 255, 0.92);
+  --canvas-video-control-hover: rgba(255, 255, 255, 0.14);
+  --canvas-video-control-progress: #ffffff;
+  --canvas-video-control-track: rgba(255, 255, 255, 0.35);
+  --canvas-video-control-shadow: rgba(0, 0, 0, 0.9);
+}
+
+/* ---- ReactFlow overrides ---- */
+[data-hilo-canvas-root="true"]:focus,
+[data-hilo-canvas-root="true"]:focus-visible {
+  outline: none;
+}
+
+/* Token-backed thumbnails used by the canvas appearance picker. */
+.canvas-appearance-preview[data-canvas-tone='default'] {
+  background-color: var(--canvas-bg, var(--background));
+}
+
+.canvas-appearance-preview[data-canvas-tone='warm-gray'] {
+  background-color: var(--canvas-bg-warm);
+}
+
+.canvas-appearance-preview[data-canvas-tone='cool-gray'] {
+  background-color: var(--canvas-bg-cool);
+}
+
+.canvas-appearance-preview[data-canvas-tone='paper'] {
+  background-color: var(--canvas-bg-paper);
+}
+
+.canvas-appearance-preview[data-canvas-tone='sage'] {
+  background-color: var(--canvas-bg-sage);
+}
+
+.canvas-appearance-preview[data-canvas-tone='mist-blue'] {
+  background-color: var(--canvas-bg-mist-blue);
+}
+
+.canvas-appearance-preview[data-canvas-tone='lavender'] {
+  background-color: var(--canvas-bg-lavender);
+}
+
+.canvas-appearance-preview[data-canvas-tone='blush'] {
+  background-color: var(--canvas-bg-blush);
+}
+
+.canvas-appearance-preview[data-canvas-tone='sand'] {
+  background-color: var(--canvas-bg-sand);
+}
+
+.canvas-appearance-preview[data-background-pattern='dots'] {
+  background-image: radial-gradient(
+    circle,
+    var(--canvas-bg-dot, var(--canvas-controls-border)) 1px,
+    transparent 1px
+  );
+  background-size: 10px 10px;
+}
+
+.canvas-appearance-preview[data-background-pattern='grid'] {
+  background-image:
+    linear-gradient(var(--canvas-bg-dot, var(--canvas-controls-border)) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      var(--canvas-bg-dot, var(--canvas-controls-border)) 1px,
+      transparent 1px
+    );
+  background-size: 12px 12px;
+}
+
+/* Ordinary headers hide below the 15% visibility boundary. Tagged headers
+ * retain only their color landmark; their icon and asset name disappear with
+ * ordinary headers so overview mode has one consistent information level.
+ * CanvasShell toggles one ancestor class, avoiding a synchronous React
+ * mount/unmount of every visible header inside the wheel event. */
+.canvas-node-headers-hidden .node-floating-ui:not([data-has-color-tag='true']) {
+  display: none;
+}
+
+.canvas-node-headers-hidden
+  .node-floating-ui[data-has-color-tag='true']
+  [data-node-header-title] {
+  display: none;
+}
+
+/* ---- Pan-perf: promote the viewport into its own compositor layer ----
+ *
+ * ReactFlow updates `.react-flow__viewport`'s `transform` on every wheel /
+ * drag event. Without an explicit `will-change`, Chromium reassesses layer
+ * promotion of the entire subtree on each transform change — with hundreds
+ * of <canvas>-bearing nodes (each a candidate GPU texture), this Layerize
+ * step routinely hits 300+ ms per frame on dense graphs (measured: 327 ms
+ * Layerize self-time on a 539-node / 856-edge canvas at 5% zoom).
+ *
+ * `will-change: transform` tells the compositor "this element's transform
+ * will change; keep its subtree promoted as a stable layer" — so a pan
+ * just translates the existing layer instead of rebuilding the layer
+ * tree. Layerize drops to single-digit ms; pan goes from ~3 fps back to
+ * 60 fps on the same graph.
+ *
+/* ---- Pan-perf: promote only the heavy media nodes, NOT the whole viewport ----
+ *
+ * History: we used to promote `.react-flow__viewport` itself
+ * (`.canvas-panning .react-flow__viewport { will-change: transform }`). That
+ * gave a buttery 60 fps pan because the whole subtree became one stable
+ * compositor layer the GPU just translates. But the layer is rasterized at the
+ * *un-scaled* layout resolution of the union of EVERY rendered node's bbox,
+ * times dpr² — and `onlyRenderVisibleElements` keeps almost every node mounted
+ * at low zoom (a 1512px viewport at zoom 0.18 spans ~8000 layout px). Measured:
+ * a 65-node markdown canvas at zoom 0.187 pinned a 3672×2572 union → 144 MB for
+ * a single window, scaling with node count × spread and stacking across
+ * windows. Text / file nodes that would otherwise never touch the GPU got
+ * dragged onto that giant parent texture.
+ *
+ * Fix: don't promote the parent. During a pan, promote only the *media* nodes
+ * (image / video / audio / placeholder) individually. Each such layer's
+ * texture is bounded by that one card's own size (≈ its real pixel content,
+ * which for images is already GPU-resident), so a dense text canvas mints zero
+ * giant textures. Media nodes still pan as cached layers (no per-frame
+ * re-raster); text / table / file / group nodes repaint each frame instead —
+ * cheap, because their content is plain DOM shrunk toward screen-pixel density
+ * at the low zooms where this matters. HTML file nodes render via <iframe>,
+ * which the browser already composites on its own layer regardless.
+ *
+ * Promotion is still gated on `.canvas-panning` (added on `onMoveStart`,
+ * removed debounced on `onMoveEnd`, and torn down immediately if the gesture
+ * turns out to be a zoom — see CanvasShell), so idle canvases pay nothing.
+ */
+.canvas-panning .react-flow__node-image,
+.canvas-panning .react-flow__node-video,
+.canvas-panning .react-flow__node-audio,
+.canvas-panning .react-flow__node-placeholder {
+  will-change: transform;
+}
+
+/* ---- Drag-perf: promote the dragged node(s) onto their own layer ----
+ *
+ * Same Layerize failure mode as the pan case above, but triggered by NODE
+ * drag instead of viewport pan: XYDrag rewrites the dragged wrapper's inline
+ * `transform` every pointermove frame, and without a compositor hint each
+ * rewrite forces Chromium to re-run layer assignment across the entire
+ * document — with ~500 <canvas>-bearing image nodes each being a promotion
+ * candidate, Layerize alone measured 8.9s over a 2s drag (62 runs × ~143 ms;
+ * drag fps ≈ 6). `.canvas-panning` doesn't apply here because the viewport
+ * itself never moves during a node drag.
+ *
+ * ReactFlow tags every wrapper in the active drag selection with `.dragging`
+ * (NodeWrapper/index.tsx), so promoting exactly those nodes keeps the texture
+ * cost bounded by the drag selection size (usually 1 node), while the
+ * per-frame transform update takes the direct compositor path — no
+ * re-Layerize, no repaint of neighbours. The hint drops off the moment the
+ * drag ends, so idle canvases pay nothing.
+ */
+.react-flow__node.dragging {
+  will-change: transform;
+}
+
+/* ---- Box-select preview: live border without React selection commits ----
+ *
+ * Pane updates this class imperatively while the selection rectangle moves.
+ * Keeping it on the ReactFlow wrapper avoids mounting each node's toolbar /
+ * resize chrome mid-gesture. Recolor each node's existing frame so the preview
+ * uses the same stroke position and width as a committed selection.
+ */
+.react-flow__node.box-select-preview {
+  outline: none;
+}
+
+/* No layout border: background and paint layer share the same outer box. */
+.canvas-node-frame {
+  --canvas-node-frame-color: var(--canvas-node-border);
+  --canvas-node-frame-width: 1px;
+}
+
+/* A single inset stroke, painted above media without taking layout space.
+   Shadow spread retains fractional precision that CSS borders/outlines round
+   to device pixels before the viewport transform (notably at 400% zoom). */
+.canvas-node-frame > .canvas-node-stroke {
+  position: absolute;
+  inset: 0;
+  z-index: 99;
+  pointer-events: none;
+  border-radius: inherit;
+  /* This property is non-inheriting; only this paint layer opts into it. */
+  --canvas-zoom: inherit;
+  box-shadow: inset 0 0 0 calc(var(--canvas-node-frame-width) / var(--canvas-zoom, 1)) var(--canvas-node-frame-color);
+}
+
+.canvas-node-frame[data-node-frame-hidden="true"] > .canvas-node-stroke {
+  display: none;
+}
+
+.canvas-node-frame[data-node-selected="true"],
+.canvas-node-frame:focus-within,
+.react-flow__node:focus-visible .canvas-node-frame,
+.react-flow__node.box-select-preview .canvas-node-frame {
+  --canvas-node-frame-color: var(--canvas-node-border-selected);
+  --canvas-node-frame-width: 1.5px;
+}
+
+/* ---- Edges & connection line render below nodes ----
+ *
+ * React Flow defaults: connectionline z-index 1001 (above everything).
+ * We want both committed edges and the in-flight drag line to sit beneath
+ * cards, so when the user drags a connection across other nodes the line
+ * passes under them and the cards stay visually dominant. The
+ * cursor-following + mouseup-to-commit behavior is React Flow's default —
+ * only the layer order changes here.
+ */
+.react-flow .react-flow__edges,
+.react-flow .react-flow__edgelabel-renderer {
+  z-index: 0;
+}
+
+.react-flow svg.react-flow__connectionline {
+  z-index: 0;
+}
+
+/* ---- Edge SVG layer: drop the always-on GPU promotion ----
+ *
+ * @xyflow/react ships `.react-flow__edges { will-change: transform }` so its
+ * SVG edge layer pans as a stable compositor layer. But once `<EdgesCanvas>`
+ * took over the *visible* bezier strokes, this SVG layer carries only the
+ * transparent hit-area `<path>` per edge — nothing that benefits from a GPU
+ * texture. Meanwhile the hint forces the compositor to rasterize the whole
+ * layer, whose bounds span the union of every edge's bbox (the entire graph,
+ * not the visible window). On a dense canvas (measured: 760 edges) that
+ * texture's footprint scales with zoom² and balloons VRAM when zoomed —
+ * exactly the failure mode we removed for `.canvas-panning`. Since the layer
+ * is invisible geometry now, drop the promotion entirely: pan still moves it
+ * via the parent viewport transform, and the visible edges (on the canvas)
+ * are unaffected. Same reasoning applies to the per-edge interaction paths.
+ */
+.react-flow .react-flow__edges,
+.react-flow .react-flow__edge-interaction {
+  will-change: auto;
+}
+
+/* Dragging connection line: match the default edge stroke from EdgesCanvas
+ * (1.5 flow units, scales with viewport zoom) and the canvas edge color so
+ * the in-flight drag preview reads as "the line you're about to create".
+ * No `vector-effect: non-scaling-stroke` here — we want the preview line
+ * to scale alongside the edges and nodes when the user zooms. */
+.react-flow__connection-path {
+  stroke: var(--canvas-edge);
+  stroke-width: 1.5;
+}
+
+.react-flow .react-flow__nodes {
+  position: relative;
+  z-index: 1;
+}
+
+.react-flow__pane {
+  cursor: var(--canvas-cursor-default) !important;
+}
+
+.react-flow__pane.dragging {
+  cursor: var(--canvas-cursor-default) !important;
+}
+
+.react-flow__node {
+  cursor: var(--canvas-cursor-default) !important;
+}
+
+/* Sticker mode replaces the compass cursor with the selected Sticker preview. */
+[data-hilo-canvas-root='true'][data-sticker-mode='true'] .react-flow__pane,
+[data-hilo-canvas-root='true'][data-sticker-mode='true'] .react-flow,
+[data-hilo-canvas-root='true'][data-sticker-mode='true'] .react-flow__node {
+  cursor: none !important;
+}
+
+.sticker-cursor-preview-art {
+  display: inline-flex;
+  height: 100%;
+  position: relative;
+  transform-origin: 50% 50%;
+  transition: transform 90ms ease-out;
+  width: 100%;
+}
+
+.sticker-cursor-preview-art.is-pressed {
+  transform: scale(0.82) rotate(-8deg);
+}
+
+.sticker-cursor-preview-image,
+.sticker-cursor-preview-emoji {
+  display: block;
+  height: 100%;
+  opacity: 0.48;
+  width: 100%;
+}
+
+.sticker-cursor-preview-image {
+  object-fit: contain;
+}
+
+.sticker-cursor-preview-emoji {
+  font-size: 2.5rem;
+  line-height: 42px;
+  text-align: center;
+}
+
+.sticker-cursor-preview-stamp {
+  bottom: -3px;
+  height: 22px;
+  object-fit: contain;
+  position: absolute;
+  right: -5px;
+  width: 22px;
+}
+
+/* Stickers are the top visual layer inside the canvas world. Keep them below
+ * chrome/popovers while ensuring they remain visible above selected nodes and
+ * image overlays. The inner StickerArt owns transient animation transforms so
+ * ReactFlow's world-coordinate transform remains untouched. */
+.react-flow__node.react-flow__node-sticker {
+  z-index: 1002 !important;
+}
+
+.sticker-art {
+  display: inline-flex;
+  position: relative;
+  transform: rotate(var(--sticker-rotation, 0deg));
+  transform-origin: center;
+}
+
+[data-sticker-fresh] .sticker-art {
+  animation: sticker-stamp-contact 480ms cubic-bezier(0.2, 0.86, 0.28, 1) both;
+}
+
+.sticker-burst {
+  height: 0;
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  width: 0;
+  z-index: 0;
+}
+
+.sticker-spark {
+  height: 0.45rem;
+  left: -0.225rem;
+  position: absolute;
+  top: -0.225rem;
+  transform: rotate(var(--sticker-spark-angle));
+  width: 0.45rem;
+}
+
+.sticker-spark::before {
+  animation: sticker-spark-burst 360ms cubic-bezier(0.16, 0.72, 0.28, 1) 92ms both;
+  background: var(--canvas-controls-text);
+  clip-path: polygon(50% 0, 61% 38%, 100% 50%, 61% 62%, 50% 100%, 39% 62%, 0 50%, 39% 38%);
+  content: '';
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+}
+
+@keyframes sticker-stamp-contact {
+  0% {
+    opacity: 0.72;
+    transform: translateY(-0.375rem) rotate(var(--sticker-rotation, 0deg)) scale(0.76);
+  }
+  17% {
+    opacity: 1;
+    transform: translateY(0.2rem) rotate(var(--sticker-rotation, 0deg)) scaleX(1.08)
+      scaleY(0.56);
+  }
+  46% {
+    transform: translateY(-0.1rem) rotate(var(--sticker-rotation, 0deg)) scale(1.12);
+  }
+  72% {
+    transform: translateY(0.03rem) rotate(var(--sticker-rotation, 0deg)) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--sticker-rotation, 0deg)) scale(1);
+  }
+}
+
+@keyframes sticker-spark-burst {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.85rem) scale(0.18);
+  }
+  34% {
+    opacity: 0.84;
+    transform: translateY(-1.9rem) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2.7rem) scale(0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sticker-fresh] .sticker-art {
+    animation: none;
+  }
+
+  [data-sticker-fresh] .sticker-burst {
+    display: none;
+  }
+}
+
+/* Canvas default-arrow normalization.
+ *
+ * The custom cursor is the canvas' replacement for the native arrow. ReactFlow
+ * and several node internals still set `cursor: default` / `cursor: auto` on
+ * wrappers, disabled controls, read-only sub cards, and overlay surfaces. Those
+ * declarations override the pane/node cursor and make the pointer flicker back
+ * to the OS arrow while moving across a node.
+ *
+ * Keep this rule intentionally narrow: only arrow-equivalent cursors are mapped
+ * to the custom cursor. Semantic cursors such as pointer, text, grab/grabbing,
+ * move, resize, zoom, and not-allowed keep their own declarations. Tailwind
+ * disabled variants are included because their resolved cursor is still the OS
+ * arrow; menus portaled outside the canvas root intentionally keep host cursors. */
+[data-hilo-canvas-root="true"] :where(
+  .cursor-default,
+  .cursor-auto,
+  .disabled\:cursor-default:disabled,
+  .disabled\:cursor-auto:disabled,
+  .aria-disabled\:cursor-default[aria-disabled='true'],
+  .aria-disabled\:cursor-auto[aria-disabled='true'],
+  .hilo-color-slider,
+  [style*="cursor: default"],
+  [style*="cursor: auto"]
+) {
+  cursor: var(--canvas-cursor-default) !important;
+}
+
+[data-hilo-canvas-root="true"] .hilo-color-slider::-webkit-slider-thumb,
+[data-hilo-canvas-root="true"] .hilo-color-slider::-moz-range-thumb {
+  cursor: var(--canvas-cursor-default) !important;
+}
+
+/* ---- Multi-image overlay host: lift above neighbours ----
+ *
+ * A multi-image node whose floating overlay is open paints sub-cards OUTSIDE
+ * its own bounding box (negative left/top offsets in multi-image-overlay.tsx).
+ * Without an elevated stacking context those cards render BEHIND adjacent
+ * nodes that come later in DOM order. `:has()` (already used below for the
+ * connecting-handle rule) targets exactly the node wrapper that currently
+ * contains an open overlay and lifts it.
+ *
+ * z-index 1001: above selected nodes (ReactFlow's elevateNodesOnSelect ≈ 1000)
+ * so the overlay covers neighbours, but below the model-picker popover
+ * (NodeToolbar portal, z-index 1100 in popover-shell.tsx) which renders in a
+ * separate stacking context anyway. `!important` overrides the inline z-index
+ * ReactFlow writes onto the wrapper.
+ */
+.react-flow__node:has([data-action-ui-id="canvas.image-node.multi-image-overlay"]),
+.react-flow__node:has([data-action-ui-id="canvas.video-node.multi-video-overlay"]) {
+  z-index: 1001 !important;
+}
+
+/* Collapsed multi-media affordance. The two right-side masked strips mirror
+   the Figma stack marker while keeping ReactFlow's measured node size stable. */
+.canvas-media-stack {
+  --canvas-media-stack-gap: 8px;
+  --canvas-media-stack-width: 12px;
+
+  overflow: visible;
+  isolation: isolate;
+}
+
+.canvas-media-stack::before,
+.canvas-media-stack::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  background: var(--canvas-media-stack-fill);
+  -webkit-mask-image: var(--canvas-media-stack-mask);
+  mask-image: var(--canvas-media-stack-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  z-index: -1;
+}
+
+.canvas-media-stack::before {
+  top: max(8px, 6%);
+  right: calc(0px - var(--canvas-media-stack-gap) - var(--canvas-media-stack-width));
+  bottom: max(8px, 5%);
+  width: var(--canvas-media-stack-width);
+}
+
+.canvas-media-stack::after {
+  top: max(18px, 16%);
+  right: calc(
+    0px - var(--canvas-media-stack-gap) - var(--canvas-media-stack-gap) -
+      var(--canvas-media-stack-width) - var(--canvas-media-stack-width)
+  );
+  bottom: max(18px, 13%);
+  width: var(--canvas-media-stack-width);
+}
+
+.canvas-media-stack > :first-child:not(.canvas-node-stroke),
+.canvas-media-stack > .canvas-node-stroke + * {
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.canvas-video-player-controls {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.58) 0%,
+    rgba(0, 0, 0, 0.28) 58%,
+    transparent 100%
+  );
+}
+
+.canvas-media-primary-actions > [data-action-ui-id="canvas.image-node.count-badge"] {
+  position: static !important;
+}
+
+.canvas-media-expanded-frame {
+  box-sizing: border-box;
+  border: 4px solid color-mix(in srgb, var(--canvas-node-border) 64%, transparent);
+  border-radius: calc(var(--canvas-media-node-radius) + 10px);
+  transform-origin: center;
+  animation: canvas-media-expanded-frame-in 160ms ease-out both;
+}
+
+.canvas-media-expanded-card {
+  transform-origin: center;
+  animation: canvas-media-expanded-card-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[data-state='closing'] .canvas-media-expanded-frame {
+  animation: canvas-media-expanded-frame-out 140ms ease-in both;
+}
+
+[data-state='closing'] .canvas-media-expanded-card {
+  pointer-events: none;
+  animation: canvas-media-expanded-card-out 140ms ease-in both;
+  animation-delay: 0ms !important;
+}
+
+@keyframes canvas-media-expanded-card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes canvas-media-expanded-card-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+}
+
+@keyframes canvas-media-expanded-frame-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes canvas-media-expanded-frame-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas-media-expanded-card,
+  .canvas-media-expanded-frame {
+    animation: none;
+  }
+}
+
+.react-flow__node.selectable:hover {
+  cursor: var(--canvas-cursor-default) !important;
+}
+
+/* Sticker placement owns the pointer while the mode is active.  Keep this
+ * block after the default-arrow and hover normalization above: those rules
+ * intentionally restore the compass cursor for ordinary canvas work, but
+ * their later/similar-specificity selectors used to win when the pointer
+ * crossed a node (or one of ReactFlow's cursor-default internals).  The
+ * floating StickerCursorPreview is the only visual cursor in this state, so
+ * every element in the ReactFlow surface must suppress the native/compass
+ * cursor.  Toolbar controls live outside `.react-flow` and retain their
+ * normal pointer affordances.
+ */
+[data-hilo-canvas-root='true'][data-sticker-mode='true'] .react-flow,
+[data-hilo-canvas-root='true'][data-sticker-mode='true'] .react-flow__pane,
+[data-hilo-canvas-root='true'][data-sticker-mode='true'] .react-flow__node,
+[data-hilo-canvas-root='true'][data-sticker-mode='true'] .react-flow__node.selectable:hover,
+[data-hilo-canvas-root='true'][data-sticker-mode='true'] .react-flow__nodesselection-rect,
+[data-hilo-canvas-root='true'][data-sticker-mode='true'] .react-flow * {
+  cursor: none !important;
+}
+
+/* Sticker mode's preview must yield to selected-node chrome. The toolbar is
+ * mounted inside ReactFlow's renderer, so the broad `.react-flow *` rule
+ * above would otherwise hide the native cursor over it and leave the stamp
+ * preview visually parked underneath. Restore the normal canvas arrow on the
+ * chrome surface and the hand cursor on its actionable controls. */
+[data-hilo-canvas-root='true'][data-sticker-mode='true']
+  .react-flow
+  .react-flow__node-toolbar:has([data-canvas-chrome='true']),
+[data-hilo-canvas-root='true'][data-sticker-mode='true']
+  .react-flow
+  .react-flow__node-toolbar:has([data-canvas-chrome='true']) * {
+  cursor: var(--canvas-cursor-default) !important;
+}
+
+[data-hilo-canvas-root='true'][data-sticker-mode='true']
+  .react-flow
+  .react-flow__node-toolbar:has([data-canvas-chrome='true'])
+  button,
+[data-hilo-canvas-root='true'][data-sticker-mode='true']
+  .react-flow
+  .react-flow__node-toolbar:has([data-canvas-chrome='true'])
+  [role='button'] {
+  cursor: pointer !important;
+}
+
+/* ReactFlow ships a built-in `.react-flow__node-group` rule with
+ * `padding: 10px; border: 1px solid #1a192b; border-radius: 5px` to make
+ * stock React Flow groups look like grouping containers.
+ * Our GroupNode draws its own border/background/radius, so the wrapper's
+ * padding and border push the inner
+ * <div> 11px down-right and create the off-center "background offset".
+ * Strip both — the inner element handles all visual chrome. */
+.react-flow__node.react-flow__node-group {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* xyflow-system also applies a hover/selected box-shadow exclusively to
+ * `.react-flow__node-group` (see @xyflow/system/styles/style.css:84-94) —
+ * a soft drop shadow on hover and a 0.5px selection ring. Our other node
+ * types use custom registered names and never hit that rule, so the
+ * shadow looks inconsistent on group nodes alone. The outline drawn by
+ * GroupNode itself is the canonical selection feedback; suppress the
+ * stock shadows in both states. */
+.react-flow__node.react-flow__node-group.selectable:hover,
+.react-flow__node.react-flow__node-group.selectable.selected,
+.react-flow__node.react-flow__node-group.selectable:focus,
+.react-flow__node.react-flow__node-group.selectable:focus-visible {
+  box-shadow: none;
+}
+
+/* Collapsed group: the visible frame is suppressed by GroupNode's frameStyle
+ * (transparent + outline:none), but the ReactFlow node wrapper still occupies
+ * the original `width × height` and would otherwise intercept clicks across
+ * the now-invisible region — making it look like clicking empty canvas
+ * mysteriously selects something. Disable pointer events on the wrapper so
+ * the area is fully passthrough. The chip itself opts back in via its inline
+ * `pointer-events: auto`, so the toggle / rename interactions still work. */
+.react-flow__node.react-flow__node-group.canvas-group-collapsed {
+  pointer-events: none;
+}
+
+/* ---- Space-pan mode: hold Space to grab-hand pan ---- */
+.canvas-space-pan .react-flow__pane {
+  cursor: grab !important;
+}
+
+.canvas-space-pan .react-flow__pane.dragging {
+  cursor: grabbing !important;
+}
+
+.canvas-space-pan .react-flow__node {
+  pointer-events: none !important;
+  cursor: grab !important;
+}
+
+.canvas-space-pan .react-flow__nodesselection-rect {
+  pointer-events: none !important;
+}
+
+.react-flow__nodesselection-rect {
+  cursor: var(--canvas-cursor-default) !important;
+  border-color: var(--canvas-node-border-selected) !important;
+  background: var(--canvas-selection-bg) !important;
+}
+
+/* 拖拽框选时的 marquee selection rect — ReactFlow 默认蓝色,覆盖为品牌紫,
+   跟其他品牌强调场景(首页登录、skill chip)同款 token。
+   `.react-flow__selection` 是 ReactFlow 拖框选时的临时矩形,
+   跟已选节点外框(.react-flow__nodesselection-rect)是两个 class。 */
+.react-flow__selection {
+  background: color-mix(in srgb, var(--brand-accent) 12%, transparent) !important;
+  border: 1px solid var(--brand-accent) !important;
+}
+
+/* Drag alignment lives above world nodes/selection, below popovers. The SVG
+   is in screen space, so its rules and distance labels never scale with zoom. */
+.canvas-alignment-guides {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1003;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--canvas-alignment-guide);
+}
+
+.canvas-alignment-guides line,
+.canvas-alignment-guides path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+.canvas-alignment-guides [data-guide-kind='alignment'] line {
+  stroke-dasharray: 2 3;
+}
+
+.canvas-alignment-guides text {
+  fill: currentColor;
+  stroke: var(--canvas-bg);
+  stroke-width: 3;
+  paint-order: stroke;
+  font-size: 11px;
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* Hide the multi-selection bounding box when only 0 or 1 nodes are selected */
+[data-selection-count="0"] .react-flow__nodesselection,
+[data-selection-count="1"] .react-flow__nodesselection {
+  display: none !important;
+}
+
+/* A host-rendered node context menu is the only relevant chrome while it is
+   open. Keep the underlying selection for action targeting, but hide both the
+   top NodeToolbar and bottom PopoverShell (both use XYFlow's toolbar root).
+   The canvas context-menu hook owns the suppression lifecycle so a popover
+   staged by right-click selection cannot flash open as the menu dismisses. */
+[data-hilo-canvas-root='true'][data-selection-chrome-suppressed='true']
+  .react-flow__node-toolbar {
+  display: none !important;
+}
+
+/* NodeToolbar portals mount directly under `.react-flow__renderer`, outside
+ * the viewport stacking context. The world viewport sits at z-index 2 and
+ * Sticker nodes are intentionally elevated to 1002, so the toolbar must opt
+ * into the canvas chrome tier explicitly or its hit area can fall through to
+ * the pane while Sticker mode is armed. Only the shared toolbar palette marks
+ * itself as canvas chrome; node popovers keep their dedicated 1100 tier. */
+.react-flow__node-toolbar:has([data-canvas-chrome='true']) {
+  pointer-events: auto;
+  z-index: 10100 !important;
+}
+
+/* ---- Node connection entry: persistent 18px plus, in screen pixels ---- */
+.node-handle-plus {
+  position: absolute;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(calc(1 / var(--canvas-zoom, 1))) translateY(-50%);
+  transform-origin: 0 0;
+  opacity: 0;
+  pointer-events: none;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: opacity 140ms ease-out;
+}
+
+.node-handle-plus[data-side="right"] {
+  left: 0;
+  transform: scale(calc(1 / var(--canvas-zoom, 1))) translate(0, -50%);
+}
+
+.node-handle-plus[data-side="left"] {
+  left: 0;
+  transform: scale(calc(1 / var(--canvas-zoom, 1))) translate(-28px, -50%);
+}
+
+.node-handle-icon {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: none;
+}
+
+.node-handle-plus[data-selected],
+.react-flow__node:hover .node-handle-plus,
+.node-handle-plus[data-connection-target],
+.node-handle-plus[data-near] {
+  opacity: 1;
+}
+
+/* The 40px operation surface extends outwards, never into the node content
+   or edge resize strip. The 28px visual box keeps its center 14px out. */
+.node-handle-hit-area {
+  position: absolute;
+  top: -6px;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+}
+
+.node-handle-plus[data-side="left"] .node-handle-hit-area {
+  left: auto;
+  right: 0;
+}
+
+.node-handle-plus[data-selected] .node-handle-hit-area,
+.react-flow__node:hover .node-handle-hit-area,
+.node-handle-plus[data-connection-target] .node-handle-hit-area,
+.node-handle-plus[data-near] .node-handle-hit-area {
+  pointer-events: auto;
+}
+
+.node-handle-plus[data-connection-target],
+.node-handle-plus[data-near] {
+  color: var(--fg-default);
+}
+
+.node-handle-plus[data-hidden] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.node-handle-plus[data-hidden] .node-handle-hit-area {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node-handle-plus {
+    transition: none;
+  }
+}
+
+/* ---- Canvas edge and alignment-snap toggle icons ---- */
+/* Two stacked glyphs cross-fade; the "off" glyph adds a diagonal slash that
+   draws in when hiding edges and erases when showing them. `data-icon-state`
+   sets the resting glyph (also the reduced-motion end state); the JS-applied
+   `is-opening` / `is-closing` classes run the transition keyframes. */
+.canvas-toggle-stack {
+  position: relative;
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.canvas-toggle-stack svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-toggle-icon-off {
+  opacity: 1;
+}
+
+.canvas-toggle-icon-on {
+  opacity: 0;
+}
+
+.canvas-toggle-stack[data-icon-state='on'] .canvas-toggle-icon-off {
+  opacity: 0;
+}
+
+.canvas-toggle-stack[data-icon-state='on'] .canvas-toggle-icon-on {
+  opacity: 1;
+}
+
+.canvas-toggle-slash {
+  fill: none;
+  stroke: currentColor;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+/* opening = edges becoming visible: fade to the un-slashed "on" glyph and
+   erase the slash. */
+.canvas-toggle-stack.is-opening .canvas-toggle-icon-off {
+  animation: canvas-toggle-off-out 210ms ease both;
+}
+
+.canvas-toggle-stack.is-opening .canvas-toggle-icon-on {
+  animation: canvas-toggle-on-in 210ms ease both;
+}
+
+.canvas-toggle-stack.is-opening .canvas-toggle-slash {
+  animation: canvas-toggle-slash-erase 170ms ease both;
+}
+
+/* closing = edges becoming hidden: fade the "on" glyph out and draw the slash. */
+.canvas-toggle-stack.is-closing .canvas-toggle-icon-on {
+  animation: canvas-toggle-on-out 120ms ease both;
+}
+
+.canvas-toggle-stack.is-closing .canvas-toggle-icon-off {
+  opacity: 1;
+}
+
+.canvas-toggle-stack.is-closing .canvas-toggle-slash {
+  animation: canvas-toggle-slash-draw 180ms ease 40ms both;
+}
+
+@keyframes canvas-toggle-off-out {
+  0%,
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes canvas-toggle-on-in {
+  0%,
+  64% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes canvas-toggle-on-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes canvas-toggle-slash-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes canvas-toggle-slash-erase {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 1;
+  }
+}
+
+/* Reduced motion: JS already skips the class toggles, but guard here too so
+   the target glyph (via data-icon-state) is presented with no animation even
+   if a class lingers. */
+@media (prefers-reduced-motion: reduce) {
+  .canvas-toggle-stack.is-opening .canvas-toggle-icon-off,
+  .canvas-toggle-stack.is-opening .canvas-toggle-icon-on,
+  .canvas-toggle-stack.is-opening .canvas-toggle-slash,
+  .canvas-toggle-stack.is-closing .canvas-toggle-icon-on,
+  .canvas-toggle-stack.is-closing .canvas-toggle-slash {
+    animation: none;
+  }
+}
+
+.canvas-toggle-stack {
+  flex: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .canvas-toggle-stack[data-icon-state='on'].is-closing .canvas-toggle-icon-off {
+    opacity: 0;
+  }
+}
+
+.canvas-toggle-snap {
+  width: 15px;
+  height: 15px;
+}
+
+/* ---- Keyframes ---- */
+@keyframes canvas-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes canvas-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes i2v-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* First/last-frame swap uses two equivalent animation-name pairs so repeated
+   clicks restart the motion without remounting the attachment slots. */
+@keyframes canvas-frame-slot-swap-from-right-a {
+  0% {
+    z-index: 2;
+    transform: translateX(calc(100% + 32px)) translateY(0) rotate(0deg) scale(1);
+  }
+  18% {
+    z-index: 2;
+    transform: translateX(calc(94% + 30px)) translateY(-2px) rotate(-1deg) scale(1);
+  }
+  35% {
+    z-index: 2;
+    transform: translateX(calc(76% + 24px)) translateY(-7px) rotate(-2deg) scale(0.995);
+  }
+  50% {
+    z-index: 2;
+    transform: translateX(calc(50% + 16px)) translateY(-10px) rotate(0deg) scale(0.99);
+  }
+  65% {
+    z-index: 2;
+    transform: translateX(calc(24% + 8px)) translateY(-7px) rotate(2deg) scale(0.995);
+  }
+  82% {
+    z-index: 2;
+    transform: translateX(calc(6% + 2px)) translateY(-2px) rotate(1deg) scale(1);
+  }
+  100% {
+    z-index: 2;
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes canvas-frame-slot-swap-from-left-a {
+  0% {
+    z-index: 1;
+    transform: translateX(calc(-100% - 32px)) translateY(0) rotate(0deg) scale(1);
+  }
+  18% {
+    z-index: 1;
+    transform: translateX(calc(-94% - 30px)) translateY(2px) rotate(1deg) scale(1);
+  }
+  35% {
+    z-index: 1;
+    transform: translateX(calc(-76% - 24px)) translateY(7px) rotate(2deg) scale(0.995);
+  }
+  50% {
+    z-index: 1;
+    transform: translateX(calc(-50% - 16px)) translateY(10px) rotate(0deg) scale(0.99);
+  }
+  65% {
+    z-index: 1;
+    transform: translateX(calc(-24% - 8px)) translateY(7px) rotate(-2deg) scale(0.995);
+  }
+  82% {
+    z-index: 1;
+    transform: translateX(calc(-6% - 2px)) translateY(2px) rotate(-1deg) scale(1);
+  }
+  100% {
+    z-index: 1;
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes canvas-frame-slot-swap-from-right-b {
+  0% {
+    z-index: 2;
+    transform: translateX(calc(100% + 32px)) translateY(0) rotate(0deg) scale(1);
+  }
+  18% {
+    z-index: 2;
+    transform: translateX(calc(94% + 30px)) translateY(-2px) rotate(-1deg) scale(1);
+  }
+  35% {
+    z-index: 2;
+    transform: translateX(calc(76% + 24px)) translateY(-7px) rotate(-2deg) scale(0.995);
+  }
+  50% {
+    z-index: 2;
+    transform: translateX(calc(50% + 16px)) translateY(-10px) rotate(0deg) scale(0.99);
+  }
+  65% {
+    z-index: 2;
+    transform: translateX(calc(24% + 8px)) translateY(-7px) rotate(2deg) scale(0.995);
+  }
+  82% {
+    z-index: 2;
+    transform: translateX(calc(6% + 2px)) translateY(-2px) rotate(1deg) scale(1);
+  }
+  100% {
+    z-index: 2;
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes canvas-frame-slot-swap-from-left-b {
+  0% {
+    z-index: 1;
+    transform: translateX(calc(-100% - 32px)) translateY(0) rotate(0deg) scale(1);
+  }
+  18% {
+    z-index: 1;
+    transform: translateX(calc(-94% - 30px)) translateY(2px) rotate(1deg) scale(1);
+  }
+  35% {
+    z-index: 1;
+    transform: translateX(calc(-76% - 24px)) translateY(7px) rotate(2deg) scale(0.995);
+  }
+  50% {
+    z-index: 1;
+    transform: translateX(calc(-50% - 16px)) translateY(10px) rotate(0deg) scale(0.99);
+  }
+  65% {
+    z-index: 1;
+    transform: translateX(calc(-24% - 8px)) translateY(7px) rotate(-2deg) scale(0.995);
+  }
+  82% {
+    z-index: 1;
+    transform: translateX(calc(-6% - 2px)) translateY(2px) rotate(-1deg) scale(1);
+  }
+  100% {
+    z-index: 1;
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+:is(
+  .canvas-frame-slot-swap-from-right-a,
+  .canvas-frame-slot-swap-from-right-b,
+  .canvas-frame-slot-swap-from-left-a,
+  .canvas-frame-slot-swap-from-left-b
+) {
+  animation-duration: 260ms;
+  animation-timing-function: linear;
+}
+
+.canvas-frame-slot-swap-from-right-a {
+  animation-name: canvas-frame-slot-swap-from-right-a;
+}
+
+.canvas-frame-slot-swap-from-left-a {
+  animation-name: canvas-frame-slot-swap-from-left-a;
+}
+
+.canvas-frame-slot-swap-from-right-b {
+  animation-name: canvas-frame-slot-swap-from-right-b;
+}
+
+.canvas-frame-slot-swap-from-left-b {
+  animation-name: canvas-frame-slot-swap-from-left-b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(
+    .canvas-frame-slot-swap-from-right-a,
+    .canvas-frame-slot-swap-from-right-b,
+    .canvas-frame-slot-swap-from-left-a,
+    .canvas-frame-slot-swap-from-left-b
+  ) {
+    animation: none;
+  }
+}
+
+@keyframes canvas-portal-popover-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes canvas-portal-popover-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.canvas-portal-popover-in[data-side='top'] {
+  animation: canvas-portal-popover-in-top 0.12s ease-out;
+}
+
+.canvas-portal-popover-in[data-side='bottom'] {
+  animation: canvas-portal-popover-in-bottom 0.12s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas-portal-popover-in {
+    animation: none;
+  }
+}
+
+@keyframes i2v-pulse {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes lightbox-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Selection toolbar enter: 浮入 (Y 下→上 + fade-in,缓出曲线 ease-out).
+   配合 NodeToolbar 用 React mount 触发,只在元素首次出现时跑一次. */
+@keyframes toolbar-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Selection toolbar exit: 浮出 (Y 上→下 + fade-out,缓入曲线 ease-in).
+   配合 React 延迟 unmount 组件 (data-state="exiting") 触发 -- 卸载前先跑这段
+   再实际从 DOM 移除. 关键帧反过来 + 起点不写 from(继承当前 to 状态)避免抖. */
+@keyframes toolbar-fade-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Frame 内 overlay enter -- 顶部元素(下载按钮/静音键): 从上方滑入 + fade-in. */
+@keyframes media-overlay-top-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Frame 内 overlay enter -- 底部元素(progress/控件): 从下方滑入 + fade-in. */
+@keyframes media-overlay-bottom-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes context-menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes crop-panel-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes eq-bar-1 {
+  0% { height: 15%; }
+  20% { height: 85%; }
+  45% { height: 35%; }
+  70% { height: 95%; }
+  100% { height: 15%; }
+}
+@keyframes eq-bar-2 {
+  0% { height: 40%; }
+  15% { height: 90%; }
+  40% { height: 20%; }
+  65% { height: 75%; }
+  85% { height: 50%; }
+  100% { height: 40%; }
+}
+@keyframes eq-bar-3 {
+  0% { height: 25%; }
+  30% { height: 100%; }
+  50% { height: 45%; }
+  75% { height: 80%; }
+  100% { height: 25%; }
+}
+@keyframes eq-bar-4 {
+  0% { height: 60%; }
+  25% { height: 20%; }
+  50% { height: 90%; }
+  80% { height: 30%; }
+  100% { height: 60%; }
+}
+@keyframes eq-bar-5 {
+  0% { height: 30%; }
+  20% { height: 70%; }
+  40% { height: 100%; }
+  60% { height: 25%; }
+  80% { height: 65%; }
+  100% { height: 30%; }
+}
+
+/* ---- Generating-state progress bar ---- */
+
+.generating-wash {
+  position: relative;
+  overflow: hidden;
+  background: var(--canvas-node-bg, #f5f5f5);
+}
+.generating-wash::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--gen-progress, 0%);
+  background: oklch(0.95 0 0);
+  transition: width 300ms ease-out;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.dark .generating-wash::before {
+  background: oklch(0.35 0 0);
+}
+.generating-wash::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--gen-progress, 0%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.82 0 0 / 0.3),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: generating-shimmer 2.6s linear infinite;
+  transition: width 300ms ease-out;
+  pointer-events: none;
+  z-index: 2;
+}
+.dark .generating-wash::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.55 0 0 / 0.25),
+    transparent
+  );
+  background-size: 200% 100%;
+}
+
+.generating-wash--queued::before {
+  width: 100%;
+  background: color-mix(
+    in oklch,
+    var(--canvas-controls-bg, var(--canvas-node-bg)) 78%,
+    var(--canvas-node-bg)
+  );
+}
+
+.generating-wash--queued::after {
+  inset: 12px;
+  width: auto;
+  border: 1.5px dashed color-mix(in oklch, var(--foreground) 18%, transparent);
+  border-radius: calc(var(--canvas-media-node-inner-radius) - 2px);
+  background: none;
+  animation: queued-outline-pulse 2.4s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes queued-outline-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes generating-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: 0 0; }
+}
+
+
+/* ---- Connection-drag flowing-border highlight ----
+ *
+ * While the user drags a connection from a source handle, the receiving node
+ * gets a "flowing light" border. Whole-card and outside-entry reception use
+ * the same target resolver as connect-end. The wrapper
+ * gets the `is-connecting` class via `useConnection()` in canvas-shell so the
+ * effect cleanly turns off the moment the gesture ends. Source node never
+ * triggers this because the cursor has already left it by the time the drag
+ * starts.
+ *
+ * Single layer:
+ *   ::before — tight 2px halo right against the node edge (the "border"),
+ *   a horizontally-flowing linear-gradient animated by sliding
+ *   background-position from 100% → -100% (`flowing-light` keyframes).
+ * (The former ::after blurred outer glow was removed — filter: blur is
+ * banned on canvas elements for compositing/perf reasons.)
+ *
+ * Project visual rules:
+ *   - The pseudo-element inherits the node shell's radius.
+ *   - z-index: -1 sits behind the NodeBody so the inner content stays clean;
+ *     only the inset overflow (-2px / -6px) shows up as the visible band.
+ *   - Light source uses `var(--foreground)` + alpha so it reads as a dark
+ *     band on light canvas and a bright band on dark canvas (adapts to
+ *     both light and dark themes).
+ */
+.is-connecting .canvas-node-shell::before {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: inherit;
+  transition: opacity 0.2s;
+  z-index: -1;
+  inset: -2px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 20%,
+      color-mix(in oklch, var(--foreground) 35%, transparent) 40%,
+      color-mix(in oklch, var(--foreground) 90%, transparent) 50%,
+      color-mix(in oklch, var(--foreground) 35%, transparent) 60%,
+      transparent 80%,
+      transparent 100%
+    )
+    0 0 / 200% 200%;
+}
+
+/* The shared drop resolver marks one valid target, including when the cursor
+   is outside the card over its entry. Source and disabled nodes never light. */
+.is-connecting .node-connection-target .canvas-node-shell::before {
+  opacity: 1;
+  animation: flowing-light 2s linear infinite;
+}
+
+@keyframes flowing-light {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: -100% 50%;
+  }
+}
+
+/* ---- Newly-added node highlight ----
+ *
+ * Scale-in animation + persistent outline when a node arrives via WS
+ * incremental update (generation result, MCP add, etc.). The
+ * `is-newly-added` class is toggled by NodeShell when the node id is
+ * present in `recentlyAddedStore` (30s TTL, matching minimap red pin
+ * marker duration).
+ *
+ * Brand-accent outline + pulsing box-shadow glow for the full 30s.
+ */
+.canvas-node-shell.is-newly-added {
+  outline: 2px solid var(--canvas-node-highlight);
+  outline-offset: 2px;
+  box-shadow: 0 0 20px 6px color-mix(in oklch, var(--canvas-node-highlight) 50%, transparent);
+  animation: newly-added-pop 800ms ease-out 1 both, newly-added-glow 2s ease-in-out infinite;
+}
+
+@keyframes newly-added-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes newly-added-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 3px color-mix(in oklch, var(--canvas-node-highlight) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 18px 6px color-mix(in oklch, var(--canvas-node-highlight) 60%, transparent);
+  }
+}
+
+/* ---- Generating-state breathing stroke ---- */
+@keyframes generating-breathe {
+  0%, 100% { box-shadow: inset 0 0 0 calc(1px / var(--canvas-zoom, 1)) color-mix(in oklch, var(--foreground) 12%, transparent); }
+  50% { box-shadow: inset 0 0 0 calc(1px / var(--canvas-zoom, 1)) color-mix(in oklch, var(--foreground) 35%, transparent); }
+}
+
+.is-generating.canvas-node-shell {
+  outline: none;
+}
+
+.is-generating.canvas-node-shell .canvas-node-frame:not([data-node-selected="true"]):not(:focus-within) > .canvas-node-stroke {
+  animation: generating-breathe 3s ease-in-out infinite;
+}
+
+.react-flow__node:focus-visible .canvas-node-frame > .canvas-node-stroke,
+.react-flow__node.box-select-preview .canvas-node-frame > .canvas-node-stroke {
+  animation: none !important;
+}
+
+/* Loading sub-cards reuse the same stroke without shifting layout. */
+[data-generating-sub] > .canvas-node-stroke {
+  animation: generating-breathe 3s ease-in-out infinite;
+}
+
+[data-generating-sub]:focus-within > .canvas-node-stroke {
+  animation: none;
+}
+
+@keyframes generating-text-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 生成态节点 / 多图子卡内的 wash 强制媒体卡片圆角裁剪，
+   避免 progress fill / shimmer 在节点 stroke 外溢出。
+   也覆盖旧调用点传入的 inline `border-radius`。 */
+.is-generating.canvas-node-shell .generating-wash,
+[data-generating-sub] .generating-wash {
+  border-radius: var(--canvas-media-node-inner-radius) !important;
+  overflow: hidden;
+}
+
+/* ---- Connection-drag disabled target ----
+ *
+ * Mid-drag, every node the source already has a direct edge to is marked
+ * with `node-conn-disabled` by `ConnectingDisabledMarker`. The card visibly
+ * dims and we suppress the flowing-light hover so the user gets immediate
+ * feedback that this target won't accept another connection. Cursor flips
+ * to `not-allowed` for the same reason.
+ *
+ * Scoped under `.is-connecting` so the disabled look only appears during the
+ * actual drag — the card returns to normal the instant the gesture ends.
+ */
+.is-connecting .react-flow__node.node-conn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  transition: opacity 0.15s ease;
+}
+
+.is-connecting .react-flow__node.node-conn-disabled .canvas-node-shell {
+  cursor: not-allowed !important;
+}
+
+/* Suppress the flowing-light hover halo for disabled targets — the dimmed
+ * card already communicates the state, the halo would contradict it. */
+.is-connecting
+  .react-flow__node.node-conn-disabled
+  .canvas-node-shell:hover::before,
+.is-connecting
+  .react-flow__node.node-conn-disabled
+  .canvas-node-shell:hover::after {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+/* ---- Auto-hide scrollbar (visible only while scrolling) ---- */
+.autohide-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s;
+}
+.autohide-scrollbar:hover {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+.autohide-scrollbar::-webkit-scrollbar { width: 4px; }
+.autohide-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.autohide-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+  transition: background 0.3s;
+}
+.autohide-scrollbar:hover::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); }
+.autohide-scrollbar.scrollbar-2::-webkit-scrollbar { width: 2px; }
+.autohide-scrollbar.scrollbar-2::-webkit-scrollbar-thumb { border-radius: 1px; }
+
+.dark .autohide-scrollbar:hover { scrollbar-color: rgba(255, 255, 255, 0.2) transparent; }
+.dark .autohide-scrollbar:hover::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+
+/* ---- Fullscreen table custom overlay scrollbar ---- */
+/* Hide the native scrollbar — the overlay-thumb component renders a
+   visible substitute via React portals / absolute positioning. */
+.native-scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+}
+.native-scrollbar-hidden::-webkit-scrollbar { display: none; }
+
+.hilo-overlay-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.22);
+  transition: background 0.15s;
+}
+.hilo-overlay-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+.hilo-overlay-scrollbar-thumb.dragging {
+  background: rgba(0, 0, 0, 0.42);
+}
+.dark .hilo-overlay-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+}
+.dark .hilo-overlay-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+.dark .hilo-overlay-scrollbar-thumb.dragging {
+  background: rgba(255, 255, 255, 0.42);
+}
+
+/* ---- MiniMap theme ---- */
+.react-flow__minimap {
+  background: var(--background) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+.react-flow__minimap-canvas-panel {
+  padding: 0;
+}
+.react-flow__minimap-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.react-flow__minimap-mask {
+  fill: color-mix(in srgb, var(--foreground) 8%, transparent) !important;
+}
+.react-flow__minimap-viewport-indicator {
+  fill: var(--canvas-minimap-viewport-fill);
+  stroke: var(--canvas-minimap-viewport-accent);
+  stroke-width: var(--xy-minimap-viewport-dispersed-stroke-width);
+  stroke-opacity: 1;
+  opacity: 0;
+  transition-property: opacity, stroke-width;
+  transition-duration: 240ms, 260ms;
+  transition-timing-function:
+    cubic-bezier(0.4, 0, 0.7, 0.2),
+    cubic-bezier(0.4, 0, 0.7, 0.2);
+}
+.react-flow__minimap-viewport-indicator[data-visible='true'] {
+  stroke-width: var(--xy-minimap-viewport-stroke-width);
+  opacity: 1;
+  transition-duration: 280ms, 320ms;
+  transition-timing-function:
+    cubic-bezier(0.16, 1, 0.3, 1),
+    cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .react-flow__minimap-viewport-indicator {
+    transition-duration: 0.01ms, 0.01ms;
+  }
+}
+.react-flow__minimap-node {
+  fill: var(--muted-foreground) !important;
+  opacity: 0.5;
+  stroke: none !important;
+}
+
+/* Keep prompt content inset separate from the panel and its toolbars. */
+[data-action-ui-id='popover.shell'] [data-action-ui-id='popover.prompt-input'] {
+  padding: 6px;
+}
+[data-action-ui-id='popover.shell'] .canvas-prompt-empty-state {
+  inset: 6px;
+}
+
+/* ---- Tiptap text editor styles ---- */
+.canvas-prompt-font-size-editor .ProseMirror,
+.canvas-prompt-font-size-textarea {
+  font-size: calc(var(--canvas-prompt-font-size, 15) * 1px);
+  line-height: 1.5;
+}
+
+/* Custom empty-state renderers (for example the H3 guide) must share the
+ * same typography as the editable prompt content. */
+.canvas-prompt-font-size-editor .canvas-prompt-empty-state {
+  font-size: calc(var(--canvas-prompt-font-size, 15) * 1px);
+  line-height: 1.5;
+}
+
+/* Inline reference chips use fixed pixel geometry at the 16px baseline.
+ * Scale the whole NodeView (text, thumbnail, icons, padding and hit targets)
+ * with the prompt preference so references stay proportional to surrounding
+ * text while preserving every existing chip interaction. Chromium's `zoom`
+ * participates in inline layout, unlike transform: scale(), so adjacent text
+ * and chips do not overlap at either end of the font-size range. */
+.canvas-prompt-font-size-editor .canvas-prompt-reference-chip-wrapper {
+  zoom: var(--canvas-prompt-font-scale, 1);
+  /* `zoom` scales margins too. Divide before layout so the visible distance
+   * from adjacent prompt text stays exactly 2px at every font-size setting. */
+  margin-inline: calc(2px / var(--canvas-prompt-font-scale, 1));
+  /* Keep the wrapper's baseline metrics at the same fixed geometry as the
+   * chip itself. Inheriting the prompt font size here and then applying zoom
+   * makes Chromium count the font-size change twice at the upper end of the
+   * 8–36px range, which pushes the chip below the surrounding text. */
+  font-size: 16px;
+  line-height: 24px;
+  /* The chip is exactly one prompt line tall after zoom. Bottom alignment
+   * avoids inline-flex baseline descent from adding extra pixels to the line. */
+  vertical-align: bottom;
+}
+
+.tiptap-editor-wrapper .ProseMirror:focus { outline: none; }
+.tiptap-editor-wrapper .ProseMirror p { margin: 0 0 0.25em; }
+.tiptap-editor-wrapper .ProseMirror h1 { font-size: 1.5em; font-weight: 700; margin: 0 0 0.5em; }
+.tiptap-editor-wrapper .ProseMirror h2 { font-size: 1.25em; font-weight: 600; margin: 0 0 0.5em; }
+.tiptap-editor-wrapper .ProseMirror h3 { font-size: 1.1em; font-weight: 600; margin: 0 0 0.5em; }
+.tiptap-editor-wrapper .ProseMirror ul { padding-left: 1.5em; margin: 0 0 0.5em; list-style-type: disc; }
+.tiptap-editor-wrapper .ProseMirror ol { padding-left: 1.5em; margin: 0 0 0.5em; list-style-type: decimal; }
+.tiptap-editor-wrapper .ProseMirror li { margin: 0.15em 0; }
+.tiptap-editor-wrapper .ProseMirror li p { margin: 0; }
+.tiptap-editor-wrapper .ProseMirror hr { border: none; border-top: var(--divider-width) solid var(--border-muted, #f2f3f5); margin: 0.75em 0; }
+.tiptap-editor-wrapper .ProseMirror strong { font-weight: 700; }
+.tiptap-editor-wrapper .ProseMirror em { font-style: italic; }
+.tiptap-editor-wrapper .ProseMirror code { background: var(--bg-surface-secondary, #f7f7f7); padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace; }
+.tiptap-editor-wrapper .ProseMirror pre { background: var(--bg-surface-secondary, #f7f7f7); padding: 0.75em 1em; border-radius: 6px; margin: 0.5em 0; overflow-x: auto; }
+.tiptap-editor-wrapper .ProseMirror pre code { background: none; padding: 0; }
+.tiptap-editor-wrapper .ProseMirror blockquote { border-left: 3px solid var(--border-muted, #f2f3f5); padding-left: 1em; margin: 0.5em 0; color: var(--fg-muted, #525252); }
+.tiptap-editor-wrapper .ProseMirror a { color: var(--primary, #2563eb); text-decoration: underline; text-underline-offset: 2px; }
+/* Compact preview (`.cv-skip`) is non-interactive — keep the link styling but
+ * swallow all mouse interaction (no pointer cursor, no hover, no click). The
+ * fullscreen editor (plain `.ProseMirror`) keeps the interactive cursor +
+ * hover emphasis and routes clicks to the system browser. */
+.tiptap-editor-wrapper .ProseMirror.cv-skip a { pointer-events: none; cursor: default; }
+.tiptap-editor-wrapper .ProseMirror:not(.cv-skip) a { cursor: pointer; }
+.tiptap-editor-wrapper .ProseMirror:not(.cv-skip) a:hover { text-decoration-thickness: 2px; }
+.tiptap-editor-wrapper .ProseMirror .is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--fg-disabled, #919191);
+  pointer-events: none;
+  height: 0;
+}
+
+.tiptap-editor-wrapper .ProseMirror::selection,
+.tiptap-editor-wrapper .ProseMirror ::selection {
+  background: color-mix(in srgb, var(--canvas-text-accent) 28%, transparent);
+}
+/* prosemirror-view adds `ProseMirror-hideselection` while a non-visible
+   selection (table CellSelection / NodeSelection) is active and expects the
+   native highlight to disappear. The accent ::selection rule above outranks
+   tiptap's injected `.ProseMirror-hideselection *::selection` reset, which
+   left a stale text highlight on the head cell stacked over the grey
+   `selectedCell` overlays while dragging across table cells. */
+.tiptap-editor-wrapper .ProseMirror.ProseMirror-hideselection::selection,
+.tiptap-editor-wrapper .ProseMirror.ProseMirror-hideselection ::selection {
+  background: transparent;
+}
+
+/* Keep the selected passage visibly highlighted while focus sits in the
+   sibling chat/agent input — the native ::selection follows DOM focus, so a
+   ProseMirror decoration re-paints the stored selection on blur
+   (blur-selection-extension.ts). */
+.tiptap-editor-wrapper .canvas-blur-selection {
+  background: color-mix(in srgb, var(--canvas-text-accent) 28%, transparent);
+  border-radius: 2px;
+}
+
+/* ---- Fullscreen find widget match highlights ---- */
+.tiptap-editor-wrapper .canvas-find-match {
+  background: color-mix(in srgb, var(--canvas-text-accent) 22%, transparent);
+  border-radius: 2px;
+}
+.tiptap-editor-wrapper .canvas-find-match-active {
+  background: color-mix(in srgb, var(--canvas-text-accent) 45%, transparent);
+  outline: 1px solid var(--canvas-text-accent);
+}
+
+/* ---- Document annotation highlights ----
+   `--canvas-text-accent-soft` / `--canvas-diff-*-bg` are declared per theme in the
+   host's canvas-theme.css; the inline values here are the standalone-package
+   fallback only, and use the same accent as the find-highlight rules above so
+   a canvas mounted without the desktop theme stays self-consistent. */
+.tiptap-editor-wrapper .canvas-annotation-mark {
+  background: var(--canvas-text-accent-soft);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.tiptap-editor-wrapper .canvas-annotation-mark-active {
+  background: color-mix(in srgb, var(--canvas-text-accent) 34%, transparent);
+  box-shadow: inset 0 -2px 0 var(--canvas-text-accent);
+}
+
+/* ---- Diff review (Cursor / VSCode-style agent-edit review) ----
+   Red block = replaced/deleted original text rendered WITH its original
+   formatting (background alone marks deletion — no strike-through, exactly
+   like VSCode inline diffs); green run = the agent's new text (background
+   only); chip bar = per-hunk 撤销 / 接受 on its own right-aligned row below
+   the new content (Cursor's Undo / Keep). Colors ride on CSS vars with
+   oklch fallbacks so themes can override without touching this file. */
+.tiptap-editor-wrapper .canvas-diff-add {
+  background: var(--canvas-diff-add-bg, oklch(0.72 0.19 145 / 0.18));
+  border-radius: 2px;
+}
+/* Table hunks keep the old value inside the affected cell. This avoids
+   hoisting every deleted cell above the table and preserves row/column
+   context while still making old vs new distinguishable without color. */
+.tiptap-editor-wrapper .canvas-diff-del-inline {
+  display: inline;
+  margin-inline-end: 0.3em;
+  padding-inline: 0.2em;
+  background: var(--canvas-diff-del-bg, oklch(0.63 0.21 25 / 0.12));
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  user-select: none;
+}
+.tiptap-editor-wrapper .canvas-diff-del {
+  background: var(--canvas-diff-del-bg, oklch(0.63 0.21 25 / 0.12));
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin: 4px 0 8px;
+  user-select: none;
+  /* Defensive reset — the widget sits between top-level blocks, but if a
+     mapped position ever lands it inside a heading/strong context the
+     original typography must not leak into the whole block. */
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1em;
+}
+/* The deleted content keeps the document's own typography (the widget sits
+   inside .ProseMirror, so heading/list/table rules above apply). Tighten
+   trailing margins so the red block hugs its content. */
+.tiptap-editor-wrapper .canvas-diff-del-content > :last-child {
+  margin-bottom: 0;
+}
+.tiptap-editor-wrapper .canvas-diff-del-plain {
+  white-space: pre-wrap;
+}
+/* Right-aligned control row below the hunk's new content. */
+.tiptap-editor-wrapper .canvas-diff-controls-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 2px 0 10px;
+  user-select: none;
+}
+/* Joined chip bar, Cursor-style: quiet Undo + solid-green Keep. */
+.tiptap-editor-wrapper .canvas-diff-controls {
+  display: inline-flex;
+  align-items: stretch;
+  overflow: hidden;
+  border-radius: 5px;
+  border: 1px solid var(--canvas-node-border, #e0e0e0);
+  background: var(--canvas-node-bg, #fff);
+  box-shadow: 0 1px 4px oklch(0 0 0 / 0.08);
+  white-space: nowrap;
+}
+.tiptap-editor-wrapper .canvas-diff-controls-btn {
+  font-size: 11px;
+  line-height: 1;
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  color: var(--fg-muted, #666);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.tiptap-editor-wrapper .canvas-diff-controls-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.tiptap-editor-wrapper .canvas-diff-controls-btn-undo {
+  border-right: 1px solid var(--canvas-node-border, #e0e0e0);
+}
+.tiptap-editor-wrapper .canvas-diff-controls-btn-undo:not(:disabled):hover {
+  background: var(--bg-subtle, #f5f5f5);
+  color: var(--fg-default, #141414);
+}
+.tiptap-editor-wrapper .canvas-diff-controls-btn-accept {
+  background: var(--canvas-primary-btn-bg, #000000d9);
+  color: var(--canvas-primary-btn-icon, #fff);
+  font-weight: 500;
+}
+.tiptap-editor-wrapper .canvas-diff-controls-btn-accept:not(:disabled):hover {
+  background: var(--canvas-primary-btn-bg-hover, #000000b3);
+}
+
+/* ---- Tiptap table styles ---- */
+.tiptap-editor-wrapper .ProseMirror table { border-collapse: collapse; width: 100%; margin: 0.5em 0; table-layout: auto; }
+/* Fullscreen editing keeps each wide Markdown table in its own horizontal
+   viewport. The native bar stays hidden so macOS cannot auto-hide it; the
+   shared OverlayScrollbar supplies a persistent thumb only while overflow
+   exists. Preview tables do not receive this NodeView or these classes. */
+.canvas-text-fullscreen-editor .canvas-markdown-table-scroll-shell {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0.5em 0;
+}
+.canvas-text-fullscreen-editor .canvas-markdown-table-scroll-viewport {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+.canvas-text-fullscreen-editor .canvas-markdown-table-scroll-viewport > table {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+}
+.canvas-text-fullscreen-editor .canvas-markdown-table-scroll-viewport th,
+.canvas-text-fullscreen-editor .canvas-markdown-table-scroll-viewport td {
+  max-width: var(--canvas-markdown-table-cell-max-width, 200px);
+  overflow-wrap: anywhere;
+}
+.tiptap-editor-wrapper .ProseMirror th,
+.tiptap-editor-wrapper .ProseMirror td { border: 1px solid var(--border-muted, #e5e5e5); padding: 0.35em 0.6em; text-align: left; vertical-align: top; min-width: 60px; position: relative; }
+.tiptap-editor-wrapper .ProseMirror th { font-weight: 600; background: var(--bg-surface-secondary, #f7f7f7); }
+.tiptap-editor-wrapper .ProseMirror th p,
+.tiptap-editor-wrapper .ProseMirror td p { margin: 0; }
+/* Cross-cell selection (prosemirror-tables CellSelection): once a drag
+   crosses a cell boundary the selection is upgraded to a CellSelection and
+   the browser's native text highlight disappears — prosemirror-tables marks
+   the covered cells with a `selectedCell` class and expects host CSS to
+   paint the highlight. Without this rule the selection works (copy/merge
+   still apply) but is completely invisible.
+   Scoped to `.ProseMirror-focused` (prosemirror-view toggles it with DOM
+   focus): while focus sits in the sibling chat/agent input the blur
+   decoration (blur-selection-extension.ts) already repaints the selected
+   cell text, and stacking the grey cell overlays on top of it reads as a
+   double highlight. */
+.tiptap-editor-wrapper .ProseMirror.ProseMirror-focused .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: oklch(from var(--primary, #2563eb) l c h / 0.12);
+  pointer-events: none;
+}
+
+/* ---- Off-viewport paint skipping for read-only markdown previews ---- */
+/* When the node card is outside the browser viewport (zoom/pan), skip
+   layout/paint for the whole markdown subtree. `contain-intrinsic-size`
+   reserves a placeholder height close to the actual card body so layout
+   doesn't thrash when content is materialized — using a value larger than
+   the card causes a transient scrollbar flash on first paint. */
+.tiptap-editor-wrapper .ProseMirror.cv-skip {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
+  /* prosemirror-view injects `white-space: break-spaces` on .ProseMirror,
+     which makes the formatting newlines react-markdown emits between block
+     elements (e.g. `</p>\n<p>`) render as visible blank lines. The preview
+     is not an editable surface, so fall back to normal whitespace handling. */
+  white-space: normal;
+}
+.tiptap-editor-wrapper .canvas-text-preview {
+  font-size: 11px;
+  line-height: 1.4;
+}
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview p {
+  margin-bottom: 0.2em;
+}
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview h1 {
+  font-size: 1.4em;
+  margin-bottom: 0.45em;
+}
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview h2 {
+  font-size: 1.18em;
+  margin-bottom: 0.4em;
+}
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview h3 {
+  font-size: 1.06em;
+  margin-bottom: 0.35em;
+}
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview ul,
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview ol {
+  margin-bottom: 0.4em;
+  padding-left: 1.35em;
+}
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview li {
+  margin: 0.1em 0;
+}
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview table {
+  margin: 0.35em 0;
+}
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview th,
+.tiptap-editor-wrapper .ProseMirror.canvas-text-preview td {
+  min-width: 56px;
+  padding: 0.28em 0.5em;
+}
+
+/* ---- Plain text editor styles ---- */
+.plain-text-editor {
+  color: var(--fg-default, #141414);
+  caret-color: var(--canvas-text-accent);
+  font-family: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+  line-height: 1.55;
+  white-space: pre;
+  overflow-wrap: normal;
+  tab-size: 2;
+}
+
+.canvas-text-fullscreen-plain-editor {
+  caret-color: var(--canvas-text-accent);
+}
+
+.canvas-text-fullscreen-plain-editor::selection {
+  background: color-mix(in srgb, var(--canvas-text-accent) 28%, transparent);
+}
+
+/* ============================================================
+   NodeResizer (8-direction) — corner handles + edge lines
+   ------------------------------------------------------------
+   The default ReactFlow handles are 5x5 squares + visible
+   borders. Override to:
+     - hide handles entirely unless a single node is selected
+       (CanvasShell tags the wrapper with `data-selection-count`)
+     - on the 4 corners: 12x12 invisible hit-area (cursor switches
+       to nwse / nesw-resize) with a visible 10x10 circular chrome
+       drawn via ::after — Figma-style "white fill + foreground
+       stroke" handle, sized to leave 1px of hit-area padding so
+       the cursor still lands cleanly on the corner
+     - on the 4 edges: 8px invisible hit-area (cursor switches to
+       ns / ew-resize), no visible chrome — each node draws its
+       own selection outline, and an extra stroke here would
+       collide with it.
+   Multi-select intentionally does NOT enable any of these — the
+   user's intent there is "move the group", and per-node resize
+   chrome / hit areas would conflict with that gesture.
+   ============================================================ */
+
+.canvas-node-resize-frame > .react-flow__resize-control {
+  --canvas-zoom: inherit;
+}
+
+/* NodeResizer's built-in autoScale only compensates below 100% zoom.
+   Counter-scale the controls at every zoom without React subscriptions. */
+.canvas-node-resize-frame > .react-flow__resize-control.handle {
+  scale: calc(1 / var(--canvas-zoom, 1));
+}
+
+/* By default no chrome — selecting the node opts in. */
+.react-flow__resize-control.handle {
+  width: 0;
+  height: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* xyflow's NodeResizer renders each edge line with an inline
+ * `border: 1px solid #3367d9` (blue). That inline style outranks a plain
+ * rule, so zeroing border-width here is not enough — we must force the
+ * color transparent with !important. Each node draws its own selection
+ * outline; these lines are invisible hit-areas only (width set below).
+ * Without this, the blue edge leaks out in MULTI-select, where the
+ * `[data-selection-count="1"]` overrides below don't apply. */
+.react-flow__resize-control.line {
+  border-width: 0;
+  border-style: solid;
+  border-color: transparent !important;
+}
+
+/* Single-selection only: enlarge the corner hit area. Slightly
+   larger than the 8px edge so the diagonal cursor wins on the
+   corner overlap without being so big it covers node content. */
+[data-selection-count="1"] .react-flow__node.selected .react-flow__resize-control.handle {
+  /* Above NodeFrameStroke (99): the opaque control must cover the outline. */
+  z-index: 100;
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+/* Visible 10x10 circular chrome at each corner. The handle
+   div is `position: absolute` and centered on the corner point via
+   ReactFlow's `translate(-50%, -50%)`, so the ::after pin uses the
+   same translate trick to sit dead-center inside the 12x12 hit-area.
+   The 1.5px stroke matches the selected frame. Colors use
+   the same selected-border token as the frame in both themes. */
+[data-selection-count="1"] .react-flow__node.selected .react-flow__resize-control.handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  background: var(--background);
+  box-shadow: inset 0 0 0 1.5px var(--canvas-node-border-selected);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Edge lines: thicken hit area to 8px so the cursor change is easy
+   to land. ReactFlow's `transform: translate(-50%)` already centers
+   the strip on the node edge, so widening keeps it visually centered.
+   Single-selection only — see header comment. */
+[data-selection-count="1"] .react-flow__node.selected .react-flow__resize-control.line {
+  border-width: 0;
+}
+[data-selection-count="1"] .react-flow__node.selected .react-flow__resize-control.line.left,
+[data-selection-count="1"] .react-flow__node.selected .react-flow__resize-control.line.right {
+  width: calc(8px / var(--canvas-zoom, 1));
+}
+[data-selection-count="1"] .react-flow__node.selected .react-flow__resize-control.line.top,
+[data-selection-count="1"] .react-flow__node.selected .react-flow__resize-control.line.bottom {
+  height: calc(8px / var(--canvas-zoom, 1));
+}
+
+/* While a resize gesture is in flight (NodeResizeFrame toggles these
+   classes on <body>), pin the cursor on every element so the pointer
+   doesn't flicker when it slips off the small handle / line hit area
+   into a child element with its own cursor rule. */
+body.canvas-resizing-nwse,
+body.canvas-resizing-nwse *,
+body.canvas-resizing-nwse *::before,
+body.canvas-resizing-nwse *::after {
+  cursor: nwse-resize !important;
+}
+body.canvas-resizing-nesw,
+body.canvas-resizing-nesw *,
+body.canvas-resizing-nesw *::before,
+body.canvas-resizing-nesw *::after {
+  cursor: nesw-resize !important;
+}
+body.canvas-resizing-ns,
+body.canvas-resizing-ns *,
+body.canvas-resizing-ns *::before,
+body.canvas-resizing-ns *::after {
+  cursor: ns-resize !important;
+}
+body.canvas-resizing-ew,
+body.canvas-resizing-ew *,
+body.canvas-resizing-ew *::before,
+body.canvas-resizing-ew *::after {
+  cursor: ew-resize !important;
+}
+
+/* While a resize gesture is in flight, force iframes (HTML file-node
+   preview is the only one in the canvas) to be transparent to mouse
+   input. An iframe is its own browsing context and captures every
+   pointer event before it reaches the outer window — once the cursor
+   slips from the resize handle into the iframe, the NodeResizer's
+   window-level pointermove / pointerup never fires and the gesture
+   silently dies mid-drag. Mirrors the same pointer-events: none flip
+   that html-viewer.tsx already does for the unselected and
+   connection-in-progress states; this catches the third case the
+   React-side gating can't see (resize is a body-class signal). */
+body.canvas-resizing-nwse iframe,
+body.canvas-resizing-nesw iframe,
+body.canvas-resizing-ns iframe,
+body.canvas-resizing-ew iframe {
+  pointer-events: none !important;
+}
+
+/* ---- HTML viewer fullscreen container ---------------------------------
+ * The HtmlViewer wraps its iframe in a [popover="manual"] div so it can
+ * be promoted to the top layer via Popover API on demand. The browser's
+ * UA stylesheet sets [popover] { display: none } by default, which would
+ * hide the iframe in normal in-canvas mode — so we override `display`
+ * back to `block` and lay it out fluidly. The `:popover-open` selector
+ * fires when `showPopover()` has been called: the container then leaves
+ * the canvas's transformed ancestor chain (top layer is rooted at the
+ * viewport) and we pin it inset:0.
+ *
+ * Why Popover API and not requestFullscreen():
+ *   - Top layer is stack-based, so plugin host dialogs (which we route
+ *     into the same popover via Base UI's <DialogPortal container={…}>)
+ *     stack above the iframe correctly. requestFullscreen() hides every
+ *     non-descendant element, breaking that.
+ *   - DOM doesn't move — the iframe element keeps its identity, so its
+ *     contentWindow / postMessage channel / plugin handshake all survive.
+ *
+ * Browser support: Popover API ships in Chromium 114+ and the desktop
+ * app runs Electron 43+ (Chromium 150+), so it's always available. */
+.html-viewer-popover {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: var(--background);
+  /* Override UA default that would otherwise sit at the corner of the
+     viewport when popover-closed (display: none means we never see it,
+     but explicit inset reset future-proofs against UA changes). */
+  inset: auto;
+  overflow: hidden;
+}
+
+.html-viewer-popover:popover-open {
+  position: fixed;
+  /* Asymmetric gutter — top is wider (56px) to host the close button
+     in its own band so it never overlaps popover content; the other
+     three sides keep a tighter 32px frame for the modal feel. The
+     close button sits at top:12px in the viewport, 32px tall, so it
+     ends at 44px — leaves a 12px breath strip above the popover. */
+  top: 3.5rem;
+  right: 2rem;
+  bottom: 2rem;
+  left: 2rem;
+  width: auto;
+  height: auto;
+  background: var(--background);
+  /* Subtle ring + shadow gives the popover a defined edge against the
+     blurred backdrop. Matches the resting elevation of other modals. */
+  box-shadow: 0 10px 40px oklch(0 0 0 / 0.35);
+}
+
+/* Launcher editors can occupy only the Canvas pane while the existing Chat
+ * pane remains visible. The top layer preserves the live iframe and plugin
+ * bridge; bounds are measured from the owning workspace viewport. */
+.html-viewer-popover[data-presentation='canvas']:popover-open {
+  box-sizing: border-box;
+  top: var(--html-viewer-canvas-top);
+  left: var(--html-viewer-canvas-left);
+  width: var(--html-viewer-canvas-width);
+  height: var(--html-viewer-canvas-height);
+  right: auto;
+  bottom: auto;
+  padding-top: 2.5rem;
+  box-shadow: none;
+}
+
+.html-viewer-popover[data-presentation='canvas']:popover-open > iframe {
+  border-top: var(--divider-width) solid var(--border);
+}
+
+/* Top-layer backdrop. Popover elements ship with a `::backdrop` pseudo
+ * just like `<dialog>`; styling it gives the same dimmed-canvas treatment
+ * the MediaLightbox already does for image / video / audio previews.
+ * The blur is a soft cue that the rest of the app is paused — not a
+ * full blackout, so the user keeps spatial context. Backdrop blur is
+ * acceptable here: while the popover is open the canvas is not being
+ * panned/zoomed, so the compositing cost doesn't hit interactive frames. */
+.html-viewer-popover:popover-open::backdrop {
+  background: oklch(0 0 0 / 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.html-viewer-popover[data-presentation='canvas']:popover-open::backdrop {
+  pointer-events: none;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Installed plugin cards need a host-owned delete target above the iframe.
+ * An unselected iframe intentionally has pointer-events disabled so the first
+ * click normally selects/opens it; keeping this control in the host layer lets
+ * the top-right × delete the node immediately even in thumbnail state. */
+.html-viewer-inline-remove {
+  position: absolute;
+  /* Match the plugin bootstrap's own top-right close footprint exactly. The
+   * opaque host control covers that iframe button instead of rendering a
+   * second × above/right of it, while remaining clickable when the iframe is
+   * intentionally pointer-disabled in thumbnail mode. */
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.html-viewer-inline-remove:hover {
+  background: transparent;
+  color: var(--foreground);
+}
+
+.html-viewer-inline-remove:focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* Floating exit-fullscreen affordance painted on top of the iframe.
+ * Hidden in non-popover mode and only the .html-viewer-popover:popover-open
+ * descendant variant is shown — keeps the in-canvas card clean. */
+.html-viewer-popover-actions {
+  display: none;
+}
+
+.html-viewer-popover:popover-open > .html-viewer-popover-actions {
+  display: flex;
+  /* Anchor to the viewport, not the popover box — the button visually
+     sits in the backdrop gutter outside the popover's top-right
+     corner. `position: fixed` works even though the parent is in the
+     top layer; the button is rendered in the same top-layer subtree,
+     so it paints above the backdrop. Top:12 / right:12 lands the
+     32×32 footprint at (top:12, bottom:44) and (right:12, left:viewport-44),
+     entirely inside the 56px top gutter and clear of the popover box. */
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  gap: 0.25rem;
+}
+
+.html-viewer-popover-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  /* The chrome is a thin rounded "glass" pad — low-opacity black base and a faint white hairline frame the icon
+     against the dimmed backdrop without competing with surrounding
+     UI. */
+  border-radius: 8px;
+  background: oklch(0 0 0 / 0.1);
+  color: oklch(1 0 0 / 0.85);
+  border: 1px solid oklch(1 0 0 / 0.1);
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
+}
+
+.html-viewer-popover-action:hover {
+  background: oklch(0 0 0 / 0.6);
+  color: oklch(1 0 0 / 1);
+  border-color: oklch(1 0 0 / 0.2);
+}
+
+.html-viewer-popover-action:focus-visible {
+  outline: 1px solid oklch(1 0 0 / 0.6);
+  outline-offset: 1px;
+}
+
+.html-viewer-popover[data-presentation='canvas']:popover-open > .html-viewer-popover-actions {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+}
+
+.html-viewer-popover[data-presentation='canvas'] .html-viewer-popover-action {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border-color: var(--border);
+  box-shadow: var(--canvas-shadow-menu);
+}
+
+/* ComfyUI's inline template action stays just below the node surface in both
+ * themes. Relative OKLCH lightness keeps the same subtle contrast in light
+ * and dark mode without introducing a separate hard-coded color pair. */
+.comfyui-template-action,
+.comfyui-template-action:hover {
+  background: oklch(from var(--card) calc(l - 0.03) c h);
+  color: var(--foreground);
+}
+
+/* ---- File preview: speed-highlight-backed code viewer ----
+ *
+ * Speed-Highlight emits `<div><div class="shj-numbers">…</div><div>…</div></div>`
+ * in multiline mode and uses CSS counters for the line numbers — the
+ * library ships its own theme stylesheet, but it bakes a 10px border
+ * radius, 30px padding, 18px Consolas, and a hardcoded white background
+ * into `[class*=shj-lang-]`, all of which clash with the canvas design
+ * tokens (rounded-none, text-xs, dark mode). We skip the upstream theme
+ * and define just the bits we need: flex layout for the numbers + code
+ * column, the line-number counter, and the token colour palette.
+ *
+ * Token palette is GitHub Light / Dark, applied via the `.dark` class
+ * the rest of the canvas already uses. `contain: layout paint` keeps the
+ * browser from style-recalc'ing the whole tree when an unrelated canvas
+ * interaction (toolbar hover, node selection, ReactFlow transform churn)
+ * tries to invalidate the subtree. We deliberately do NOT use
+ * `content-visibility: auto` on the line-number divs — the spec is
+ * ambiguous about whether `counter-increment` runs inside skipped
+ * subtrees, and Chromium currently treats off-screen counters as
+ * un-incremented, which breaks line numbering for files larger than the
+ * viewport.
+ */
+.hilo-code-viewer {
+  contain: layout paint;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+}
+.hilo-code-viewer > div {
+  display: flex;
+}
+.hilo-code-viewer .shj-numbers {
+  counter-reset: line;
+  flex: 0 0 auto;
+  padding-right: 12px;
+  user-select: none;
+}
+.hilo-code-viewer .shj-numbers div::before {
+  counter-increment: line;
+  content: counter(line);
+  display: block;
+  text-align: right;
+  color: oklch(from var(--muted-foreground) l c h / 0.7);
+}
+.hilo-code-viewer > div > div:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: pre;
+  outline: none;
+}
+
+/* GitHub Light token palette (matches the previous shiki theme). */
+.hilo-code-viewer .shj-syn-cmnt {
+  color: #6e7781;
+  font-style: italic;
+}
+.hilo-code-viewer .shj-syn-kwd,
+.hilo-code-viewer .shj-syn-err,
+.hilo-code-viewer .shj-syn-deleted {
+  color: #cf222e;
+}
+.hilo-code-viewer .shj-syn-class {
+  color: #953800;
+}
+.hilo-code-viewer .shj-syn-num,
+.hilo-code-viewer .shj-syn-bool,
+.hilo-code-viewer .shj-syn-var,
+.hilo-code-viewer .shj-syn-type,
+.hilo-code-viewer .shj-syn-oper,
+.hilo-code-viewer .shj-syn-section {
+  color: #0550ae;
+}
+.hilo-code-viewer .shj-syn-str,
+.hilo-code-viewer .shj-syn-insert {
+  color: #0a3069;
+}
+.hilo-code-viewer .shj-syn-esc {
+  color: #0a3069;
+  opacity: 0.7;
+}
+.hilo-code-viewer .shj-syn-func {
+  color: #8250df;
+}
+
+/* GitHub Dark token palette. */
+.dark .hilo-code-viewer .shj-syn-cmnt {
+  color: #8b949e;
+}
+.dark .hilo-code-viewer .shj-syn-kwd,
+.dark .hilo-code-viewer .shj-syn-err,
+.dark .hilo-code-viewer .shj-syn-deleted {
+  color: #ff7b72;
+}
+.dark .hilo-code-viewer .shj-syn-class {
+  color: #ffa657;
+}
+.dark .hilo-code-viewer .shj-syn-num,
+.dark .hilo-code-viewer .shj-syn-bool,
+.dark .hilo-code-viewer .shj-syn-var,
+.dark .hilo-code-viewer .shj-syn-type,
+.dark .hilo-code-viewer .shj-syn-oper,
+.dark .hilo-code-viewer .shj-syn-section {
+  color: #79c0ff;
+}
+.dark .hilo-code-viewer .shj-syn-str,
+.dark .hilo-code-viewer .shj-syn-insert {
+  color: #a5d6ff;
+}
+.dark .hilo-code-viewer .shj-syn-esc {
+  color: #a5d6ff;
+  opacity: 0.7;
+}
+.dark .hilo-code-viewer .shj-syn-func {
+  color: #d2a8ff;
+}
+
+/* ---- Empty canvas onboarding -------------------------------------------
+ *
+ * Compact foreground guidance for an empty Canvas. It intentionally has no
+ * card or chip background. The parent Panel stays pointer-transparent so the
+ * real canvas gestures continue to work underneath the visual guide.
+ */
+.react-flow__panel.canvas-onboarding-panel {
+  top: 50% !important;
+  left: 50% !important;
+  width: min(640px, calc(100% - 48px));
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.canvas-onboarding-ui-layer,
+.canvas-onboarding-ui-layer * {
+  box-sizing: border-box;
+}
+
+.canvas-onboarding-ui-layer {
+  width: 100%;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  padding: 0 24px;
+  --canvas-onboarding-cursor-rays: var(--brand-accent);
+  --canvas-onboarding-cursor-shell: var(--card);
+  --canvas-onboarding-cursor-stroke: color-mix(in srgb, var(--foreground) 20%, transparent);
+  --canvas-onboarding-cursor-shadow: color-mix(in srgb, var(--foreground) 16%, transparent);
+  color: var(--foreground);
+  font-family: var(--font-sans, ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark .canvas-onboarding-ui-layer {
+  --canvas-onboarding-cursor-rays: color-mix(in srgb, var(--brand-accent) 82%, var(--foreground));
+  --canvas-onboarding-cursor-shell: var(--brand-accent-foreground);
+  --canvas-onboarding-cursor-stroke: color-mix(in srgb, var(--brand-accent-foreground) 58%, transparent);
+  --canvas-onboarding-cursor-shadow: rgb(0 0 0 / 55%);
+}
+
+.canvas-onboarding-primary-anchor {
+  position: relative;
+  width: max-content;
+}
+
+.canvas-onboarding-primary-line,
+.canvas-onboarding-secondary-line {
+  width: max-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  user-select: none;
+}
+
+.canvas-onboarding-primary-line {
+  gap: 8px;
+}
+
+.canvas-onboarding-primary-action,
+.canvas-onboarding-primary-result {
+  color: var(--foreground);
+  font-size: var(--text-title-16, 16px);
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.canvas-onboarding-primary-action {
+  font-weight: 600;
+}
+
+.canvas-onboarding-primary-result {
+  margin-inline-start: 8px;
+  font-weight: 400;
+}
+
+.canvas-onboarding-cursor-icon,
+.canvas-onboarding-mouse-icon {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.canvas-onboarding-cursor-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  color: var(--canvas-onboarding-cursor-rays);
+  filter: drop-shadow(0 2px 2px var(--canvas-onboarding-cursor-shadow));
+  animation: canvas-onboarding-cursor-double-click 3.8s linear infinite;
+  transform-origin: 50% 62%;
+}
+
+.canvas-onboarding-cursor-rays {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  opacity: 0;
+  animation: canvas-onboarding-cursor-rays 3.8s linear infinite;
+}
+
+.canvas-onboarding-cursor-rays path {
+  stroke-width: 1.45;
+  stroke-linejoin: round;
+}
+
+.canvas-onboarding-cursor-shell {
+  fill: var(--canvas-onboarding-cursor-shell);
+  stroke: var(--canvas-onboarding-cursor-stroke);
+  stroke-width: 0.7;
+}
+
+.canvas-onboarding-cursor-accent {
+  fill: var(--brand-accent);
+}
+
+.canvas-onboarding-secondary-line {
+  position: absolute;
+  top: calc(100% + 36px);
+  left: 50%;
+  gap: 13px;
+  transform: translateX(-50%);
+  color: var(--muted-foreground);
+  font-size: var(--text-body-14, 14px);
+  line-height: 1;
+}
+
+.canvas-onboarding-secondary-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.canvas-onboarding-space-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-radius: 8px;
+  color: var(--muted-foreground);
+  background: transparent;
+  font-size: var(--text-body-14, 14px);
+  line-height: 1;
+}
+
+.canvas-onboarding-mouse-icon {
+  width: 20px;
+  height: 20px;
+  color: color-mix(in srgb, var(--muted-foreground) 83%, transparent);
+}
+
+.canvas-onboarding-mouse-wheel {
+  stroke: var(--brand-accent);
+  stroke-width: 1.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: canvas-onboarding-wheel-stretch 2.6s ease-in-out infinite;
+}
+
+@keyframes canvas-onboarding-cursor-double-click {
+  0%,
+  18%,
+  100% {
+    transform: scale(1);
+  }
+  3%,
+  11% {
+    transform: scale(0.88);
+  }
+  6%,
+  14% {
+    transform: scale(1);
+  }
+}
+
+@keyframes canvas-onboarding-cursor-rays {
+  0%,
+  1%,
+  7%,
+  8%,
+  9%,
+  15%,
+  16%,
+  100% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  3%,
+  11% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  5%,
+  12% {
+    opacity: 0.18;
+    transform: scale(0.84);
+  }
+}
+
+@keyframes canvas-onboarding-wheel-stretch {
+  0%,
+  100% {
+    transform: scaleY(0.78);
+  }
+  18% {
+    transform: scaleY(1);
+  }
+  36% {
+    transform: scaleY(1.6);
+  }
+  53% {
+    transform: scaleY(0.76);
+  }
+  70% {
+    transform: scaleY(1.28);
+  }
+  86% {
+    transform: scaleY(0.84);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas-onboarding-ui-layer *,
+  .canvas-onboarding-ui-layer *::before,
+  .canvas-onboarding-ui-layer *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.canvas-bottom-toast[data-state='open'] {
+  animation: canvas-bottom-toast-enter 180ms ease-out both;
+}
+
+.canvas-bottom-toast[data-state='closed'] {
+  animation: canvas-bottom-toast-exit 160ms ease-in both;
+}
+
+@keyframes canvas-bottom-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes canvas-bottom-toast-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas-bottom-toast {
+    animation-duration: 0.01ms !important;
+    transform: none !important;
+  }
+}
+
+
+/* Prompt controls share the panel's nested corner treatment. */
+.canvas-prompt-control {
+  border-radius: 8px;
+  transition: background-color 150ms, opacity 150ms, color 150ms;
+}
+
+.canvas-prompt-control:hover:enabled {
+  background-color: var(--canvas-controls-hover);
+}
+/* Design Spec motion primitive. Tokens are shared by desktop and canvas. */
+:root {
+  --dp-quick-zoom-duration-in: 125ms;
+  --dp-quick-zoom-duration-out: 90ms;
+  --dp-quick-zoom-scale-from: 0.88;
+  --dp-quick-zoom-ease-out: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --dp-quick-zoom-ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.dp-motion-quick-zoom {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: var(--dp-quick-zoom-origin, var(--transform-origin, center));
+  transition:
+    opacity var(--dp-quick-zoom-duration-in) var(--dp-quick-zoom-ease-out),
+    transform var(--dp-quick-zoom-duration-in) var(--dp-quick-zoom-ease-out);
+  will-change: opacity, transform;
+}
+
+/* Also covers conditionally mounted, initially-open popups. */
+@starting-style {
+  .dp-motion-quick-zoom {
+    opacity: 0;
+    transform: scale(var(--dp-quick-zoom-scale-from));
+  }
+}
+
+.dp-motion-quick-zoom[data-starting-style],
+.dp-motion-quick-zoom[data-ending-style] {
+  opacity: 0;
+  transform: scale(var(--dp-quick-zoom-scale-from));
+}
+
+/* Select drag/drop needs the closed surface removed immediately. */
+.dp-motion-quick-zoom[data-ending-style][data-motion-exit-disabled] {
+  transition-duration: 0ms;
+}
+
+.dp-motion-quick-zoom[data-ending-style] {
+  pointer-events: none;
+  transition-duration: var(--dp-quick-zoom-duration-out);
+  transition-timing-function: var(--dp-quick-zoom-ease-in);
+}
+
+/* Base UI 1.3 also marks normal Escape/keyboard clicks as instant. Keep
+ * those animated; only library-requested trigger/group switches skip motion. */
+.dp-motion-quick-zoom[data-instant]:not([data-instant='dismiss']):not([data-instant='click']):not([data-instant='focus']) {
+  transition-duration: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-motion-quick-zoom,
+  .dp-motion-quick-zoom[data-starting-style],
+  .dp-motion-quick-zoom[data-ending-style] {
+    transform: none;
+    transition-duration: 0ms;
+    will-change: auto;
+  }
+
+  @starting-style {
+    .dp-motion-quick-zoom {
+      transform: none;
+    }
+  }
+}
