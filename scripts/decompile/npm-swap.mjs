@@ -554,7 +554,9 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
   // `const win = typeof window !== "undefined" ? window : void 0;` 整体 40 字刚好过线，
   // 剥掉 `const_=` 只剩 33 字的通用片段，能匹配上任何声明了同名风格的包，于是被当成
   // 这个包的长语句锚点，把不相干的语句拉成簇、再被 main 用到就成了"不是包的导出"。
-  const strong = (i) => hit[i] && bodies[i].length >= 40;
+  // 字符串抹掉之后，纯字符串表 {_:"_",_:"_"} 和任何包里的同类表都会撞车，不能当锚点。
+  const genericObject = /^\{(?:_:"_"(?:,_:"_")*)?\}$/;
+  const strong = (i) => hit[i] && bodies[i].length >= 40 && !genericObject.test(bodies[i]);
   const head = (i) => src.slice(body[i].start, body[i].start + 60).replace(/\s+/g, " ");
   // 属于这个包：长语句命中；短语句命中且前后最近的长语句也是它的；夹在它的长语句中间（≤3 条）没命中的
   // （打包时被改写过，比如 process.env.NODE_ENV 被替换）也算。
