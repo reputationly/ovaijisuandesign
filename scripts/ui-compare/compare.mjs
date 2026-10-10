@@ -48,6 +48,15 @@ const ALL_PAGES = [
   { id: "global-search-query", url: "/projects", tabs: [{ event: "hilo:open-global-search" }, { wait: 1500 }, { type: "ws" }, { wait: 2000 }] },
   { id: "ws-a", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}` },
   { id: "ws-b", url: `/workspace?workspaceId=${encodeURIComponent(WS_B)}` },
+  // 画布 / 对话里要点开才出现的界面。会改画布内容的放在只读步骤后面。
+  { id: "ws-add-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { wait: 800 }] },
+  { id: "ws-zoom", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.toolbar-zoom-menu" }, { wait: 600 }] },
+  { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 500 }, { ui: "workspace.view-mode.chat-only", mouse: true }, { wait: 1200 }] },
+  { id: "ws-chat-skill", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "chat-skill-btn" }, { wait: 800 }] },
+  { id: "ws-select-image", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 800 }] },
+  { id: "ws-text-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-text" }, { wait: 2000 }] },
+  { id: "ws-table-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-table" }, { wait: 2000 }] },
+  { id: "ws-browser", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.switch-to-browser" }, { wait: 2500 }] },
   // 会真的创建一个项目（数据目录每种模式都会重建），所以放最后，免得影响别的屏
   { id: "project-created", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用项目" }, "创建项目", { wait: 4000 }] },
   { id: "project-assets", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用资产项目" }, "创建项目", { wait: 4000 }, "项目资产", { wait: 2000 }] },
@@ -97,6 +106,27 @@ const clickByText = (text) => `(() => {
   if (!el) return false;
   el.click();
   return true;
+})()`;
+
+// 点 data-action-ui-id。画布节点靠 pointerdown 选中，所以三种事件都发。
+const clickByUiId = (id) => `(() => {
+  const list = [...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].filter((e) => e.getBoundingClientRect().width > 0);
+  const el = list[0];
+  if (!el) return false;
+  const r = el.getBoundingClientRect();
+  const opts = { bubbles: true, cancelable: true, clientX: r.x + r.width / 2, clientY: r.y + Math.min(r.height / 2, 24), pointerId: 1, pointerType: "mouse", isPrimary: true, button: 0 };
+  el.dispatchEvent(new PointerEvent("pointerdown", opts));
+  el.dispatchEvent(new PointerEvent("pointerup", opts));
+  el.click();
+  return true;
+})()`;
+
+// 有些菜单只认真实鼠标（合成 click 点得到元素，但菜单不展开）。返回点击坐标。
+const uiCenter = (id) => `(() => {
+  const el = [...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].find((e) => e.getBoundingClientRect().width > 0);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
 })()`;
 
 // 往弹窗里第一个可见输入框填字（走原生 setter 再发 input 事件，React 才认）
@@ -249,11 +279,22 @@ async function runMode(mode) {
       for (const label of p.tabs ?? []) {
         // 字符串 = 点这段文字；{ type: "xx" } = 往弹窗输入框填字；{ event: "名字" } = 在窗口上触发事件；{ wait: ms } = 多等一会儿
         if (typeof label === "object" && label.wait) { await sleep(label.wait); continue; }
+        const labelName = typeof label !== "object" ? label : label.ui ?? label.event ?? label.type ?? "输入框";
+        if (typeof label === "object" && label.mouse && label.ui) {
+          const pos = await c.send("Runtime.evaluate", { expression: uiCenter(label.ui), returnByValue: true });
+          const point = pos.result?.result?.value;
+          if (!point) throw new Error(`${p.id}：界面上找不到「${labelName}」，页面没切过去`);
+          await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
+          await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
+          await sleep(1500);
+          continue;
+        }
         const expression = typeof label !== "object" ? clickByText(label)
+          : label.ui ? clickByUiId(label.ui)
           : label.event ? `(() => { window.dispatchEvent(new Event(${JSON.stringify(label.event)})); return true; })()`
           : typeIntoDialog(label.type);
         const r = await c.send("Runtime.evaluate", { expression, returnByValue: true });
-        if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${typeof label === "object" ? "输入框" : label}」，页面没切过去`);
+        if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${labelName}」，页面没切过去`);
         await sleep(1500);
       }
       const buf = await stableShot(c);
