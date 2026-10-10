@@ -1,13 +1,6 @@
 // image-node-inner.jsx
-import {
-  BACKEND_VIBE_STORYBOARD,
-  dedupedToast,
-  reactExports,
-  useAssetMetadataApi,
-  useReactFlow,
-  useTranslation,
-  useUpdateNodeInternals,
-} from "../vendor.js";
+import { BACKEND_VIBE_STORYBOARD, reactExports, useReactFlow, useTranslation, useUpdateNodeInternals } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   MEDIA_OVERLAY_EXIT_ANIMATION_MS,

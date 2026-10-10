@@ -7,14 +7,8 @@ import {
   DATA_DIRECTORY_STATUS_CHANGED_EVENT,
   getDataDirectoryMainService,
 } from "./get-data-directory-main-service.js";
-import {
-  dedupedToast,
-  reactExports,
-  storageKeys,
-  usePlatform,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, storageKeys, usePlatform, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { useSettings } from "./use-settings.js";
 import {
   hideVisiblePreviewTabs,

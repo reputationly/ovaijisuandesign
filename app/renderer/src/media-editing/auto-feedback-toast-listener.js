@@ -1,11 +1,6 @@
 // auto-feedback-toast-listener.js
-import {
-  dedupedToast,
-  reactExports,
-  useNavigate,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, useNavigate, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { buildWorkspaceSearch } from "../workspace/use-deep-link-router.js";
 import {
   useGatewayFetch,

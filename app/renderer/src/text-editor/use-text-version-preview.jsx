@@ -1,18 +1,7 @@
 // use-text-version-preview.jsx
 import { TEXT_VERSION_TIER_S_MAX_BYTES } from "../generation/to-workspace-browser-url.js";
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight$1 as ChevronRight,
-  Copy,
-  dedupedToast,
-  GitCompare,
-  Markdown$1 as Markdown,
-  reactExports,
-  remarkGfm,
-  RotateCcw,
-  useTranslation,
-} from "../vendor.js";
+import { ArrowLeft, ChevronLeft, ChevronRight$1 as ChevronRight, Copy, GitCompare, Markdown$1 as Markdown, reactExports, remarkGfm, RotateCcw, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { bumpFileVersion } from "../infra/use-plugin-metadata-store.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";

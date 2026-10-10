@@ -1,12 +1,6 @@
 // use-attachment-state.js
-import {
-  dedupedToast,
-  MEDIA_LINEAGE_MAX_REFERENCES,
-  reactExports,
-  useAssetMetadataApi,
-  useAssetMetadataStore,
-  useTranslation,
-} from "../vendor.js";
+import { MEDIA_LINEAGE_MAX_REFERENCES, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import {
   useCanvasBridge,
   useCanvasIsBoxSelecting,

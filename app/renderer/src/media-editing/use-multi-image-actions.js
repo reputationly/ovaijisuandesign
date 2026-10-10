@@ -1,5 +1,6 @@
 // use-multi-image-actions.js
-import { reactExports, useAssetMetadataApi } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import {
   useIsOverlayOpen,
   useMultiImageOverlayApi,

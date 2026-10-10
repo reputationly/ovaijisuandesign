@@ -1,14 +1,7 @@
 // perform-gateway-fetch.js
 import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
-import {
-  buildRendererCommonParams,
-  GROUP_ID_HEADER,
-  HILO_WORKSPACE_IDENTITY_HEADER,
-  isWorkspaceIdentityErrorCode,
-  withWorkspaceGatewayHeaders,
-  WORKSPACE_IDENTITY_MISMATCH_CODE,
-  WorkspaceGatewayClient,
-} from "../vendor.js";
+import { GROUP_ID_HEADER, HILO_WORKSPACE_IDENTITY_HEADER, isWorkspaceIdentityErrorCode, withWorkspaceGatewayHeaders, WORKSPACE_IDENTITY_MISMATCH_CODE, WorkspaceGatewayClient } from "../vendor.js";
+import { buildRendererCommonParams } from "./agent-http-client.js";
 import {
   authExpiredBus,
   GatewayHttpError,

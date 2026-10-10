@@ -1,5 +1,6 @@
 // use-assets-ref-validate.js
-import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { extractCanvasEditorText } from "./parse-prompt-to-tiptap.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import {

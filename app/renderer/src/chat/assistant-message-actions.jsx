@@ -1,12 +1,6 @@
 // assistant-message-actions.jsx
-import {
-  Check,
-  Copy,
-  dedupedToast,
-  MonochromeIcon,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { Check, Copy, MonochromeIcon, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   DropdownMenu,
   Icon,

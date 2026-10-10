@@ -1,11 +1,6 @@
 // invite-members-page.jsx
-import {
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Badge } from "../infra/badge-variants.jsx";

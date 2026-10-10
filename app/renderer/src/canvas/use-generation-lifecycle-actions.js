@@ -1,5 +1,6 @@
 // use-generation-lifecycle-actions.js
-import { API_PATHS, canvasLog, dedupedToast, reactExports } from "../vendor.js";
+import { API_PATHS, reactExports } from "../vendor.js";
+import { canvasLog, dedupedToast } from "../infra/agent-http-client.js";
 
 function mapGenerationCancelResponse(raw2) {
   if (!raw2 || typeof raw2 !== "object") {

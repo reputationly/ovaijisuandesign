@@ -1,15 +1,6 @@
 // use-canvas.js
-import {
-  CanvasNodeType,
-  dedupedToast,
-  reactExports,
-  useAssetMetadataApi,
-  useEdgesState,
-  useNodesState,
-  useReactFlow,
-  useStoreApi,
-  useTranslation,
-} from "../vendor.js";
+import { CanvasNodeType, reactExports, useEdgesState, useNodesState, useReactFlow, useStoreApi, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { resolvePlaceholderFlowSize } from "./node-registry.js";
 import {
   isPluginNode,

@@ -6,7 +6,8 @@ import {
   isHailuo03VideoTrialEligibleResolution,
   stringValue,
 } from "../generation/use-mention-models.jsx";
-import { CanvasNodeType, dedupedToast, reactExports } from "../vendor.js";
+import { CanvasNodeType, reactExports } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 function recordField(value) {
   return value && typeof value === "object" ? value : void 0;
 }

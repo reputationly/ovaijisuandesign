@@ -1,5 +1,6 @@
 // use-remote-tool-session.js
-import { guardAccountSubmission, reactExports } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { guardAccountSubmission } from "../infra/agent-http-client.js";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 
 const DIALOG_MARKER_TTL_MS = 3e4;

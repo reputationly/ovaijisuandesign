@@ -4,18 +4,8 @@ import {
   scopedAssetsQueryKey,
   scopeParts,
 } from "./credit-query-keys.jsx";
-import {
-  decisionVersion,
-  evaluateAccountSubmission,
-  GatewayScopeContext,
-  getRuntimeConfig,
-  guardAccountSubmission,
-  listeners$8 as listeners,
-  normalizeGatewayBaseUrl,
-  PopoverTrigger$1,
-  reactExports,
-  WorkspaceGatewayClient,
-} from "../vendor.js";
+import { decisionVersion, GatewayScopeContext, getRuntimeConfig, listeners$8 as listeners, normalizeGatewayBaseUrl, PopoverTrigger$1, reactExports, WorkspaceGatewayClient } from "../vendor.js";
+import { evaluateAccountSubmission, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export async function refreshAssetIndex({ qc, gatewayScopeKey }) {
   await qc.invalidateQueries({

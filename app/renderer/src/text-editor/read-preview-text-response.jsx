@@ -1,12 +1,6 @@
 // read-preview-text-response.jsx
-import {
-  API_PATHS,
-  canvasLog,
-  dedupedToast,
-  observeClientMediaUpload,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { canvasLog, dedupedToast, observeClientMediaUpload } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
 import { Button } from "../infra/dialog-content.jsx";

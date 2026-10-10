@@ -1,12 +1,6 @@
 // sortable-tag-row.jsx
-import {
-  CSS$1 as CSS,
-  dedupedToast,
-  reactExports,
-  useSortable,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { CSS$1 as CSS, reactExports, useSortable, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Icon,
   Tooltip,

@@ -1,18 +1,6 @@
 // video-color-adjust-dialog.jsx
-import {
-  BlobSource,
-  BufferTarget,
-  dedupedToast,
-  jsxRuntimeExports,
-  Mp4OutputFormat,
-  Output,
-  PlaybackPauseIcon$1 as PlaybackPauseIcon,
-  PlaybackPlayIcon$1 as PlaybackPlayIcon,
-  reactExports,
-  UrlSource,
-  useTranslation,
-  WebMOutputFormat,
-} from "../vendor.js";
+import { BlobSource, BufferTarget, jsxRuntimeExports, Mp4OutputFormat, Output, PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon, reactExports, UrlSource, useTranslation, WebMOutputFormat } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { VolumeIcon, VolumeMuteIcon } from "./build-video-thumb-base.jsx";
 import {

@@ -1,20 +1,6 @@
 // hailuo-credit-row.jsx
-import {
-  ArrowRight,
-  ChevronRight$1 as ChevronRight,
-  evaluateAccountSubmission,
-  guardAccountSubmission,
-  Info$1 as Info,
-  PopoverArrow$1,
-  PopoverPopup,
-  PopoverPortal,
-  PopoverPositioner,
-  reactExports,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { ArrowRight, ChevronRight$1 as ChevronRight, Info$1 as Info, PopoverArrow$1, PopoverPopup, PopoverPortal, PopoverPositioner, reactExports, useMutation, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { evaluateAccountSubmission, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import {

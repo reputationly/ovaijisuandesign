@@ -2,14 +2,8 @@
 import { projectLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
-import {
-  dedupedToast,
-  reactExports,
-  storageKeys,
-  usePlatform,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, storageKeys, usePlatform, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
 import { useNavigateToWorkspace } from "./use-deep-link-router.js";
 import { getFileManagerLabelKey } from "../settings/request-prompt-prefill.jsx";

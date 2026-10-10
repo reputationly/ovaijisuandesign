@@ -1,14 +1,6 @@
 // text-node-inner.jsx
-import {
-  ClipboardList,
-  dedupedToast,
-  jsxRuntimeExports,
-  Markdown$1 as Markdown,
-  reactExports,
-  remarkGfm,
-  useAssetMetadataApi,
-  useTranslation,
-} from "../vendor.js";
+import { ClipboardList, jsxRuntimeExports, Markdown$1 as Markdown, reactExports, remarkGfm, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   classifyMarkdownAsset,

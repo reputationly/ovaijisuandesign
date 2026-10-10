@@ -1,39 +1,6 @@
 // general-section.jsx
-import {
-  AlertCircle,
-  AlertTriangle,
-  ArrowUpRight,
-  Bell,
-  Bot,
-  Brain$2 as Brain,
-  ChevronLeftIcon,
-  CircleArrowUp,
-  CurrentWorkspaceContext,
-  dedupedToast,
-  DialogBackdrop,
-  DialogClose$1 as DialogClose,
-  DialogDescription$2,
-  DialogPopup,
-  DialogTitle$2,
-  getRuntimeConfig,
-  Globe,
-  jsxRuntimeExports,
-  Library,
-  Loader2,
-  Monitor,
-  Pencil,
-  Plus,
-  reactExports,
-  ShieldAlert,
-  Smartphone,
-  Sun,
-  useNavigate,
-  usePlatform,
-  useQueries,
-  useQuery,
-  useTranslation,
-  XIcon,
-} from "../vendor.js";
+import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, Bot, Brain$2 as Brain, ChevronLeftIcon, CircleArrowUp, CurrentWorkspaceContext, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogTitle$2, getRuntimeConfig, Globe, jsxRuntimeExports, Library, Loader2, Monitor, Pencil, Plus, reactExports, ShieldAlert, Smartphone, Sun, useNavigate, usePlatform, useQueries, useQuery, useTranslation, XIcon } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useAssetCenterSettings } from "./use-asset-center-settings.js";

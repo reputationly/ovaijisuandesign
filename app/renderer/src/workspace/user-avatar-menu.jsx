@@ -1,26 +1,6 @@
 // user-avatar-menu.jsx
-import {
-  Check,
-  ChevronRight$1 as ChevronRight,
-  Copy,
-  dedupedToast,
-  getRuntimeConfig,
-  GraduationCap,
-  guardAccountSubmission,
-  jsxRuntimeExports,
-  Monitor,
-  Palette,
-  reactDomExports,
-  reactExports,
-  Smartphone,
-  Sun,
-  SwatchBook,
-  usePlatform,
-  useQueryClient,
-  User,
-  useTranslation,
-  Wrench,
-} from "../vendor.js";
+import { Check, ChevronRight$1 as ChevronRight, Copy, getRuntimeConfig, GraduationCap, jsxRuntimeExports, Monitor, Palette, reactDomExports, reactExports, Smartphone, Sun, SwatchBook, usePlatform, useQueryClient, User, useTranslation, Wrench } from "../vendor.js";
+import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   Icon,
   openExternalUrl,

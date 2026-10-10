@@ -1,6 +1,7 @@
 // comfy-ui-download-progress-host.jsx
 import { countUnavailableComfyUiModels } from "../vendor-inline/vscode-base/linked-list.js";
-import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   ComfyUiDownloadProgressContext,
   isActiveComfyUiDownloadTask,

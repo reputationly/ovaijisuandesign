@@ -1,12 +1,6 @@
 // use-hailuo03-video-trial.js
-import {
-  dedupedToast,
-  reactExports,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, useMutation, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   claimHailuo03VideoTrial,
   EMPTY_HAILUO03_VIDEO_TRIAL_STATUS,

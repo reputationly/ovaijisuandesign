@@ -1,12 +1,6 @@
 // canvas-tag-picker-panel.jsx
-import {
-  Check,
-  dedupedToast,
-  Minus,
-  Plus,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { Check, Minus, Plus, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Icon,
   Tooltip,

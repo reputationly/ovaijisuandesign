@@ -3,11 +3,8 @@ import {
   buildResourceDragItem,
   parseResourceDrag,
 } from "../text-editor/build-asr-gateway-request.js";
-import {
-  dedupedToast,
-  useTranslation,
-  WORKSPACE_STORAGE_DEFAULTS,
-} from "../vendor.js";
+import { useTranslation, WORKSPACE_STORAGE_DEFAULTS } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { findEntryByPath } from "../workspace/set-home-widget-dev-preview-mode.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";

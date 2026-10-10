@@ -1,22 +1,6 @@
 // media-model-selector.jsx
-import {
-  API_PATHS,
-  ArrowUpRight,
-  Bot,
-  Check,
-  dedupedToast,
-  getRuntimeConfig,
-  jsxRuntimeExports,
-  Music,
-  reactDomExports,
-  reactExports,
-  useGatewayScope,
-  usePlatform,
-  useQuery,
-  useQueryClient,
-  useTranslation,
-  Video,
-} from "../vendor.js";
+import { API_PATHS, ArrowUpRight, Bot, Check, getRuntimeConfig, jsxRuntimeExports, Music, reactDomExports, reactExports, useGatewayScope, usePlatform, useQuery, useQueryClient, useTranslation, Video } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageOutlineIcon, PencilLine } from "../media-editing/package.jsx";
 import {

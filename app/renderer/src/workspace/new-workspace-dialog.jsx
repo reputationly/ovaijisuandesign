@@ -1,21 +1,6 @@
 // new-workspace-dialog.jsx
-import {
-  AlertTriangle,
-  ChevronDown,
-  dedupedToast,
-  isWorkspaceFolderMissingError,
-  jsxRuntimeExports,
-  Plus,
-  reactExports,
-  resolveNewProjectPreferences,
-  updateNewProjectPreferences,
-  useNewProjectFolder,
-  usePlatform,
-  useStorage,
-  useTranslation,
-  workspaceLog,
-  X$7 as X,
-} from "../vendor.js";
+import { AlertTriangle, ChevronDown, isWorkspaceFolderMissingError, jsxRuntimeExports, Plus, reactExports, resolveNewProjectPreferences, updateNewProjectPreferences, useNewProjectFolder, usePlatform, useStorage, useTranslation, workspaceLog, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   DropdownMenu,
   Tooltip,

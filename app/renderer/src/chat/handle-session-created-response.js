@@ -1,7 +1,7 @@
 // handle-session-created-response.js
 import { DRAFT_NEW_TAB } from "../workspace/resolve-retry-message-payload.jsx";
 import { recordAction } from "../infra/gateway-http-error.jsx";
-import { dedupedToast } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
 export function isSessionCachePolicyEnabled(storageKey2) {
   try {

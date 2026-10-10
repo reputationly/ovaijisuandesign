@@ -1,15 +1,6 @@
 // panorama-node.jsx
-import {
-  dedupedToast,
-  Grid2X2,
-  Grid3X3,
-  Position,
-  Power,
-  reactExports,
-  useAssetMetadataStore,
-  useReactFlow,
-  useTranslation,
-} from "../vendor.js";
+import { Grid2X2, Grid3X3, Position, Power, reactExports, useReactFlow, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { NodeResizeFrame } from "../infra/node-resize-frame-inner.jsx";
 import { TooltipProvider } from "../infra/create-recently-added-store.js";

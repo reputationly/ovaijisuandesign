@@ -8,18 +8,8 @@ import {
   useTeamMembersFeedQuery,
   useTeamQuotaQuery,
 } from "./use-team-transactions-feed-query.jsx";
-import {
-  activateAccountSubmissionGuard,
-  dedupedToast,
-  deriveActiveScope,
-  evaluateAccountSubmission,
-  getRuntimeConfig,
-  reactExports,
-  updateAccountSubmissionDecision,
-  useQuery,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { deriveActiveScope, getRuntimeConfig, reactExports, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { activateAccountSubmissionGuard, dedupedToast, evaluateAccountSubmission, updateAccountSubmissionDecision } from "../infra/agent-http-client.js";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import { teamApi } from "./team-api.js";
 import {

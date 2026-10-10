@@ -7,14 +7,8 @@ import {
   memoryQueryKeys,
   useMemoryEntry,
 } from "./changelog-table.jsx";
-import {
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  useMutation,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   useGatewayFetch,
   useGatewayScopeKey,

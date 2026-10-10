@@ -1,22 +1,6 @@
 // canvas-area.jsx
-import {
-  API_PATHS,
-  browserAssetSourceMetadata,
-  canvasLog,
-  CanvasNodeType,
-  dedupedToast,
-  FolderClosed,
-  getRuntimeConfig,
-  inferMediaKind,
-  logMediaLineage,
-  reactExports,
-  useAssetMetadataApi,
-  useCurrentWorkspace,
-  useGatewayScope,
-  usePlatform,
-  useScopedHttpClient,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, browserAssetSourceMetadata, CanvasNodeType, FolderClosed, getRuntimeConfig, inferMediaKind, reactExports, useCurrentWorkspace, useGatewayScope, usePlatform, useTranslation } from "../vendor.js";
+import { canvasLog, dedupedToast, logMediaLineage, useAssetMetadataApi, useScopedHttpClient } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   blobToDataUri,

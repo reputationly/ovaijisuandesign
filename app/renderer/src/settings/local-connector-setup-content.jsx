@@ -1,19 +1,6 @@
 // local-connector-setup-content.jsx
-import {
-  Check,
-  CircleAlert,
-  connectorSummaryActionLabelKey,
-  dedupedToast,
-  focusManager,
-  isCancelledError,
-  jsxRuntimeExports,
-  Loader2,
-  queryOptions,
-  reactExports,
-  usePlatform,
-  useQueries,
-  useTranslation,
-} from "../vendor.js";
+import { Check, CircleAlert, connectorSummaryActionLabelKey, focusManager, isCancelledError, jsxRuntimeExports, Loader2, queryOptions, reactExports, usePlatform, useQueries, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, cn$2 as cn, DialogHeader } from "../infra/dialog-content.jsx";

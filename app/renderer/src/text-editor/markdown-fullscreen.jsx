@@ -33,34 +33,8 @@ import {
   pruneExpiredDiffReviewWriteAcks,
   reconstructDiffReviewBaseline,
 } from "./build-decorations.js";
-import {
-  ActionListPanel,
-  ActionListSeparator,
-  BubbleMenu,
-  commands_exports,
-  Decoration$1 as Decoration,
-  DecorationSet,
-  dedupedToast,
-  EditorContent,
-  Extension,
-  Grid2x2Plus,
-  jsxRuntimeExports,
-  Plugin,
-  PluginKey,
-  reactDomExports,
-  reactExports,
-  redo$1 as redo,
-  src_default$1,
-  Table$2 as Table,
-  TableCell$1 as TableCell,
-  TableHeader$1 as TableHeader,
-  TableRow$1 as TableRow,
-  TextSelection,
-  undo$1 as undo,
-  undoDepth$1 as undoDepth,
-  useEditor,
-  useTranslation,
-} from "../vendor.js";
+import { ActionListPanel, ActionListSeparator, BubbleMenu, commands_exports, Decoration$1 as Decoration, DecorationSet, EditorContent, Extension, Grid2x2Plus, jsxRuntimeExports, Plugin, PluginKey, reactDomExports, reactExports, redo$1 as redo, src_default$1, Table$2 as Table, TableCell$1 as TableCell, TableHeader$1 as TableHeader, TableRow$1 as TableRow, TextSelection, undo$1 as undo, undoDepth$1 as undoDepth, useEditor, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AnnotationIcon } from "../canvas/fullscreen-icon.jsx";
 import {

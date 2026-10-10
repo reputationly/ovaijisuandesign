@@ -1,14 +1,7 @@
 // retained-workspace-runtime-host.jsx
 import { entries } from "../assets/credit-query-keys.jsx";
-import {
-  dedupedToast,
-  HILO_WORKSPACE_GENERATION_QUERY,
-  HILO_WORKSPACE_IDENTITY_QUERY,
-  HILO_WORKSPACE_INSTANCE_QUERY,
-  reactExports,
-  useNavigate,
-  useTranslation,
-} from "../vendor.js";
+import { HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, reactExports, useNavigate, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { resolveWorkspaceFailureDiagnosis } from "../canvas/resolve-workspace-failure-diagnosis.js";
 import { Button } from "../infra/dialog-content.jsx";

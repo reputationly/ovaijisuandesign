@@ -5,15 +5,8 @@ import {
   INetworkDiagnosticsMainService,
 } from "../workspace/home-service.jsx";
 import { isElectron } from "../infra/use-canvas-node-assets-store.js";
-import {
-  AlertTriangle,
-  Check,
-  Copy,
-  dedupedToast,
-  reactExports,
-  useQuery,
-  useTranslation,
-} from "../vendor.js";
+import { AlertTriangle, Check, Copy, reactExports, useQuery, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { ACTIVE_CUSTOM_MODEL_QUERY_KEY } from "../generation/use-model-catalog-scope-key.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function SummaryRow({ label, value }) {

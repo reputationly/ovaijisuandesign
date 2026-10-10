@@ -6,14 +6,8 @@ import {
   useCanvasTagName,
 } from "../assets/use-canvas-model-registry-hydration.js";
 import { getFileName } from "../canvas/uploading-assets.jsx";
-import {
-  API_PATHS,
-  dedupedToast,
-  getRuntimeConfig,
-  reactExports,
-  useAssetMetadataApi,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, getRuntimeConfig, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { PROJECT_EXPORT_ACTIVITY_HEARTBEAT_INTERVAL_MS } from "../generation/to-workspace-browser-url.js";
 import { useCanvasAssetNodeIds } from "../infra/use-canvas-node-assets-store.js";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";

@@ -1,12 +1,6 @@
 // account-switcher-view.jsx
-import {
-  ChevronLeft,
-  dedupedToast,
-  Plus,
-  reactExports,
-  useQuery,
-  useTranslation,
-} from "../vendor.js";
+import { ChevronLeft, Plus, reactExports, useQuery, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   IDENTITY_GC_MS,
   IDENTITY_STALE_MS,

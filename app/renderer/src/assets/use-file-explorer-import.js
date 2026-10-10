@@ -1,10 +1,6 @@
 // use-file-explorer-import.js
-import {
-  API_PATHS,
-  dedupedToast,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { getFileName } from "../canvas/uploading-assets.jsx";
 import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js";

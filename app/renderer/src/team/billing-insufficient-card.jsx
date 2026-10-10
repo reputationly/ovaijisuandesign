@@ -1,12 +1,6 @@
 // billing-insufficient-card.jsx
-import {
-  CircleAlert,
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { CircleAlert, jsxRuntimeExports, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {

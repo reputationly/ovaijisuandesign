@@ -1,17 +1,6 @@
 // message-input-base.jsx
-import {
-  ArrowUp,
-  dedupedToast,
-  DOMParser$1 as DOMParser,
-  EditorContent,
-  jsxRuntimeExports,
-  reactExports,
-  Slice,
-  src_default$1,
-  useCurrentWorkspace,
-  useEditor,
-  useTranslation,
-} from "../vendor.js";
+import { ArrowUp, DOMParser$1 as DOMParser, EditorContent, jsxRuntimeExports, reactExports, Slice, src_default$1, useCurrentWorkspace, useEditor, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   chatLog,
   Tooltip,

@@ -1,21 +1,6 @@
 // asset-center-panel.jsx
-import {
-  API_PATHS,
-  ChevronRight$1 as ChevronRight,
-  dedupedToast,
-  jsxRuntimeExports,
-  Loader2,
-  PreviewCardPopup,
-  PreviewCardPortal,
-  PreviewCardPositioner,
-  PreviewCardRoot,
-  reactDomExports,
-  reactExports,
-  Search,
-  useCurrentWorkspace,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { API_PATHS, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Loader2, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, reactDomExports, reactExports, Search, useCurrentWorkspace, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { cn$2 as cn } from "../infra/dialog-content.jsx";

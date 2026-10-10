@@ -1,18 +1,6 @@
 // use-placeholder-asset-source.jsx
-import {
-  API_PATHS,
-  createAssetMutator,
-  inferMediaKind,
-  PreviewCardPopup,
-  PreviewCardPortal,
-  PreviewCardPositioner,
-  PreviewCardRoot,
-  PreviewCardTrigger$1,
-  probeMediaDurationSec,
-  reactExports,
-  useAssetMetadataApi,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, inferMediaKind, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, PreviewCardTrigger$1, probeMediaDurationSec, reactExports, useTranslation } from "../vendor.js";
+import { createAssetMutator, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import {

@@ -1,12 +1,6 @@
 // canvas-redraw-bottom-bar.jsx
-import {
-  jsxRuntimeExports,
-  mergeAttributes,
-  Node$3 as Node,
-  reactExports,
-  useAssetMetadataStore,
-  useTranslation,
-} from "../vendor.js";
+import { jsxRuntimeExports, mergeAttributes, Node$3 as Node, reactExports, useTranslation } from "../vendor.js";
+import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   CloseIcon,

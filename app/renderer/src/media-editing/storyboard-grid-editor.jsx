@@ -1,12 +1,6 @@
 // storyboard-grid-editor.jsx
-import {
-  BACKEND_VIBE_STORYBOARD,
-  dedupedToast,
-  Plus,
-  reactExports,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { BACKEND_VIBE_STORYBOARD, Plus, reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { useCanvasBridge } from "./package.jsx";

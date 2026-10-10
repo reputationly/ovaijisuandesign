@@ -5,24 +5,8 @@ import {
   hideVisiblePreviewTabs,
   requestWorkspaceRuntimeClose,
 } from "../assets/credit-query-keys.jsx";
-import {
-  AlertTriangle,
-  API_PATHS,
-  clientExports,
-  createFileRoute,
-  createRootRoute,
-  dedupedToast,
-  jsxRuntimeExports,
-  lazyRouteComponent,
-  reactExports,
-  redirect,
-  useGatewayScope,
-  useNavigate,
-  usePlatform,
-  useQueryClient,
-  useStorage,
-  useTranslation,
-} from "../vendor.js";
+import { AlertTriangle, API_PATHS, clientExports, createFileRoute, createRootRoute, jsxRuntimeExports, lazyRouteComponent, reactExports, redirect, useGatewayScope, useNavigate, usePlatform, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   DATA_DIRECTORY_STATUS_CHANGED_EVENT,

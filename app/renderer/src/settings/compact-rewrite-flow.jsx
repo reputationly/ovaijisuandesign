@@ -1,14 +1,6 @@
 // compact-rewrite-flow.jsx
-import {
-  ChevronLeft,
-  dedupedToast,
-  jsxRuntimeExports,
-  LoaderCircle,
-  reactExports,
-  useMutation,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { ChevronLeft, jsxRuntimeExports, LoaderCircle, reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Button,

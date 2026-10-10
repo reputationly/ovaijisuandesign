@@ -1,14 +1,6 @@
 // use-folder-permission-gate.jsx
-import {
-  dedupedToast,
-  reactExports,
-  ShieldCheck,
-  Trans,
-  usePlatform,
-  useStorage,
-  useTranslation,
-  workspaceLog,
-} from "../vendor.js";
+import { reactExports, ShieldCheck, Trans, usePlatform, useStorage, useTranslation, workspaceLog } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AlertDialog, Button } from "../infra/dialog-content.jsx";
 import {

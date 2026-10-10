@@ -12,14 +12,8 @@ import {
   canvasTagRegistryQueryKey,
   WSConnectionContext,
 } from "../workspace/asset-lineage-query-key.js";
-import {
-  API_PATHS,
-  guardAccountSubmission,
-  reactExports,
-  useAssetMetadataApi,
-  useGatewayScope,
-  useQueryClient,
-} from "../vendor.js";
+import { API_PATHS, reactExports, useGatewayScope, useQueryClient } from "../vendor.js";
+import { guardAccountSubmission, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { remoteToolLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { buildWSUrl } from "../infra/gateway-http-error.jsx";

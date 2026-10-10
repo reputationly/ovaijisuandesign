@@ -1,13 +1,6 @@
 // workspace-runtime-content.jsx
-import {
-  API_PATHS,
-  createAssetMetadataStore,
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  useNavigate,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, jsxRuntimeExports, reactExports, useNavigate, useTranslation } from "../vendor.js";
+import { createAssetMetadataStore, dedupedToast } from "../infra/agent-http-client.js";
 import { buildWorkspaceSearch } from "./use-deep-link-router.js";
 import { useTopbarActions, workspaceEvents } from "./topbar-state-context.jsx";
 import {

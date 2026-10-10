@@ -1,12 +1,6 @@
 // team-member-settings-page.jsx
-import {
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  useMutation,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   creditQueryKeys,

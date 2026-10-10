@@ -1,16 +1,6 @@
 // entity-row.jsx
-import {
-  classifyFileType,
-  dedupedToast,
-  File$3 as File,
-  FolderInput$2 as FolderInput,
-  jsxRuntimeExports,
-  Music$2 as Music,
-  Plus,
-  reactExports,
-  useTranslation,
-  Video$2 as Video,
-} from "../vendor.js";
+import { classifyFileType, File$3 as File, FolderInput$2 as FolderInput, jsxRuntimeExports, Music$2 as Music, Plus, reactExports, useTranslation, Video$2 as Video } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Download,

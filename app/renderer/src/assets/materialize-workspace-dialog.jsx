@@ -1,14 +1,6 @@
 // materialize-workspace-dialog.jsx
-import {
-  CheckCircle2,
-  dedupedToast,
-  Loader2,
-  reactExports,
-  ShieldAlert,
-  usePlatform,
-  useStorage,
-  useTranslation,
-} from "../vendor.js";
+import { CheckCircle2, Loader2, reactExports, ShieldAlert, usePlatform, useStorage, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { getFileManagerLabelKey } from "../settings/request-prompt-prefill.jsx";
 import { FolderOpen } from "../media-editing/package.jsx";

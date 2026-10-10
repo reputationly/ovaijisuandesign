@@ -1,16 +1,6 @@
 // local-assets-sidebar-panel.jsx
-import {
-  API_PATHS,
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  dedupedToast,
-  FolderInput,
-  FolderPlus,
-  jsxRuntimeExports,
-  reactExports,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, ChevronDown, ChevronRight$1 as ChevronRight, FolderInput, FolderPlus, jsxRuntimeExports, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   AssetRowThumb,

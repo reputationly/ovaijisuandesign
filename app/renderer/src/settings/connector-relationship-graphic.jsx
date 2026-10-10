@@ -1,13 +1,6 @@
 // connector-relationship-graphic.jsx
-import {
-  dedupedToast,
-  jsxRuntimeExports,
-  Link2,
-  reactExports,
-  ShieldAlert,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { jsxRuntimeExports, Link2, reactExports, ShieldAlert, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { cdnRegionalImage } from "../workspace/topbar-state-context.jsx";

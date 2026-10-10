@@ -1,15 +1,7 @@
 // video-action-surface.jsx
 import { useVideoStarterPresetStore } from "../canvas/use-video-starter-preset-store.js";
-import {
-  dedupedToast,
-  isUserProvidedAssetModel,
-  jsxRuntimeExports,
-  reactDomExports,
-  reactExports,
-  useAssetMetadataApi,
-  useReactFlow,
-  useTranslation,
-} from "../vendor.js";
+import { isUserProvidedAssetModel, jsxRuntimeExports, reactDomExports, reactExports, useReactFlow, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   ENHANCE_POPOVER_HEIGHT,

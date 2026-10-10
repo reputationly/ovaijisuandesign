@@ -1,20 +1,6 @@
 // recent-project-row.jsx
-import {
-  API_PATHS,
-  Check,
-  CircleAlert,
-  CircleX,
-  CompositedSvg,
-  Copy,
-  dedupedToast,
-  FolderX,
-  MonochromeIcon,
-  Pin,
-  reactExports,
-  usePlatform,
-  useQuery,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, Check, CircleAlert, CircleX, CompositedSvg, Copy, FolderX, MonochromeIcon, Pin, reactExports, usePlatform, useQuery, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DeferredThumbnailImage } from "./deferred-thumbnail-image-generation.jsx";

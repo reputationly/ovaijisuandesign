@@ -1,23 +1,6 @@
 // asset-picker-dialog.jsx
-import {
-  ChevronDown,
-  dedupedToast,
-  inferMediaKind,
-  jsxRuntimeExports,
-  LayoutGrid,
-  LayoutList,
-  Loader2,
-  measurePerf,
-  MenuPopup,
-  MenuPortal,
-  MenuPositioner,
-  MonitorUp,
-  reactExports,
-  Search,
-  useAssetMetadataStore,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { ChevronDown, inferMediaKind, jsxRuntimeExports, LayoutGrid, LayoutList, Loader2, measurePerf, MenuPopup, MenuPortal, MenuPositioner, MonitorUp, reactExports, Search, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ScrollableAssetView } from "./scrollable-asset-view.jsx";
 import { PageStateBoundary } from "./page-state-boundary.jsx";

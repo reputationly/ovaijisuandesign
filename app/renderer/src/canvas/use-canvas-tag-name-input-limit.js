@@ -1,5 +1,6 @@
 // use-canvas-tag-name-input-limit.js
-import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   CANVAS_TAG_NAME_MAX_LENGTH,
   countCanvasTagNameUnits,

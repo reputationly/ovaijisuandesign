@@ -1,13 +1,6 @@
 // rich-prompt-input.jsx
-import {
-  EditorContent,
-  Extension,
-  reactExports,
-  src_default$1,
-  useAssetMetadataApi,
-  useEditor,
-  usePromptFontSizeStore,
-} from "../vendor.js";
+import { EditorContent, Extension, reactExports, src_default$1, useEditor, usePromptFontSizeStore } from "../vendor.js";
+import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PromptInputMetaRow } from "../generation/prompt-font-size-control.jsx";
 import {

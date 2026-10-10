@@ -1,11 +1,6 @@
 // use-group-execution.js
-import {
-  CanvasNodeType,
-  dedupedToast,
-  reactExports,
-  useAssetMetadataApi,
-  useTranslation,
-} from "../vendor.js";
+import { CanvasNodeType, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import {
   resolveReferenceAudios,
   resolveReferenceTexts,

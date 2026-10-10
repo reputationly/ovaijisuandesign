@@ -1,23 +1,6 @@
 // diagnostics-status-button.jsx
-import {
-  ActivityIcon,
-  AlertTriangleIcon,
-  CheckCircle2Icon,
-  ClipboardIcon,
-  CloudIcon,
-  dedupedToast,
-  DownloadIcon,
-  FolderOpenIcon,
-  MonochromeIcon,
-  reactExports,
-  ServerIcon,
-  ShieldCheckIcon,
-  UploadIcon$1 as UploadIcon,
-  UsersIcon,
-  useTranslation,
-  WifiIcon,
-  WifiOffIcon,
-} from "../vendor.js";
+import { ActivityIcon, AlertTriangleIcon, CheckCircle2Icon, ClipboardIcon, CloudIcon, DownloadIcon, FolderOpenIcon, MonochromeIcon, reactExports, ServerIcon, ShieldCheckIcon, UploadIcon$1 as UploadIcon, UsersIcon, useTranslation, WifiIcon, WifiOffIcon } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { isGatewayReady } from "../media-editing/derive-session-task-snapshot.jsx";
 import {

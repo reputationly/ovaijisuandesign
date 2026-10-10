@@ -4,7 +4,8 @@ import {
   getParentDir,
   isInvalidDropTarget,
 } from "./use-file-explorer-canvas-integration.js";
-import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js";
 

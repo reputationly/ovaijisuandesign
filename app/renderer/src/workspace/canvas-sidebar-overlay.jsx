@@ -1,13 +1,6 @@
 // canvas-sidebar-overlay.jsx
-import {
-  dedupedToast,
-  reactExports,
-  useCurrentWorkspace,
-  usePlatform,
-  useStorage,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { reactExports, useCurrentWorkspace, usePlatform, useStorage, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { useWorkspaceProject } from "./normalize-project-entries.js";
 import { useProjectAssetsService } from "../infra/new-folder-dialog.jsx";
 import { useProjectActions } from "../settings/use-project-actions.js";

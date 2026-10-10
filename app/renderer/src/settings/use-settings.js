@@ -1,12 +1,6 @@
 // use-settings.js
-import {
-  dedupedToast,
-  reactExports,
-  storageKeys,
-  useQueryClient,
-  useStorage,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, storageKeys, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { ACTIVE_CUSTOM_MODEL_QUERY_KEY } from "../generation/use-model-catalog-scope-key.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";

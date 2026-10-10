@@ -1,5 +1,6 @@
 // parse-prompt-to-tiptap.js
-import { reactExports, useAssetMetadataApi } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { useCanvasActions } from "../media-editing/use-canvas-actions.js";
 import { resolveReferenceAudios } from "../generation/resolve-reference-texts.js";
 import { getAssetMetaByNodeIdFromStore } from "../canvas/fullscreen-icon.jsx";

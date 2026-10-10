@@ -3,21 +3,8 @@ import {
   classifyRawErrorText,
   ErrorCodes,
 } from "../generation/normalize-skill-detail-metadata.js";
-import {
-  AlertCircle,
-  CreditCard,
-  ExternalLink,
-  guardAccountSubmission,
-  jsxRuntimeExports,
-  KeyRound,
-  reactExports,
-  ServerOff,
-  ShieldAlert,
-  usePlatform,
-  useTranslation,
-  WifiOff,
-  Zap,
-} from "../vendor.js";
+import { AlertCircle, CreditCard, ExternalLink, jsxRuntimeExports, KeyRound, reactExports, ServerOff, ShieldAlert, usePlatform, useTranslation, WifiOff, Zap } from "../vendor.js";
+import { guardAccountSubmission } from "../infra/agent-http-client.js";
 import { Upload } from "../media-editing/package.jsx";
 import { INSUFFICIENT_BALANCE_TEXT_PATTERN } from "../generation/to-workspace-browser-url.js";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";

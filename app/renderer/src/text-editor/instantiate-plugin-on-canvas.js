@@ -1,6 +1,6 @@
 // instantiate-plugin-on-canvas.js
 import { Emitter } from "../vendor-inline/vscode-base/vs-buffer.js";
-import { dedupedToast } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 const STORAGE_KEY = "canvasSidebar.recentPlugins";
 const MAX_STORED = 50;
 class PluginRecentsStore {

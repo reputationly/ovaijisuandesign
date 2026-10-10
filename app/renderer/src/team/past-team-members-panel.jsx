@@ -1,15 +1,6 @@
 // past-team-members-panel.jsx
-import {
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  Search,
-  useQuery,
-  useQueryClient,
-  UserRoundPlus,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, Search, useQuery, useQueryClient, UserRoundPlus, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   MEMBERSHIP_GC_MS,
   MEMBERSHIP_STALE_MS,

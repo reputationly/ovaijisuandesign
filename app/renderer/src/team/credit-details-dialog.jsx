@@ -7,20 +7,8 @@ import {
   useMpWallet,
 } from "./hailuo-credit-row.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
-import {
-  ChevronLeft,
-  ChevronRight$1 as ChevronRight,
-  dedupedToast,
-  getRuntimeConfig,
-  guardAccountSubmission,
-  Info$1 as Info,
-  reactExports,
-  Trans,
-  usePlatform,
-  useQuery,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { ChevronLeft, ChevronRight$1 as ChevronRight, getRuntimeConfig, Info$1 as Info, reactExports, Trans, usePlatform, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   creditQueryKeys,
   Popover,

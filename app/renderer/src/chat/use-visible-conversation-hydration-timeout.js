@@ -1,5 +1,6 @@
 // use-visible-conversation-hydration-timeout.js
-import { dedupedToast, reactExports } from "../vendor.js";
+import { reactExports } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { DRAFT_NEW_TAB } from "../workspace/resolve-retry-message-payload.jsx";
 
 export function useSessionSwitchTimeout(switching, onTimeout, timeoutMs = 1e4) {

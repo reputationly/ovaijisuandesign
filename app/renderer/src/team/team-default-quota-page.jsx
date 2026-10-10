@@ -1,11 +1,6 @@
 // team-default-quota-page.jsx
-import {
-  dedupedToast,
-  reactExports,
-  useMutation,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import {

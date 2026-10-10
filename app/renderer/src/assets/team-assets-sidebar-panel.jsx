@@ -1,17 +1,6 @@
 // team-assets-sidebar-panel.jsx
-import {
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  dedupedToast,
-  FolderInput,
-  FolderPlus,
-  getVisibleCloudUploads,
-  jsxRuntimeExports,
-  LoaderCircle,
-  reactExports,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { ChevronDown, ChevronRight$1 as ChevronRight, FolderInput, FolderPlus, getVisibleCloudUploads, jsxRuntimeExports, LoaderCircle, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import {

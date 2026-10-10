@@ -1,10 +1,6 @@
 // feedback-dialog.jsx
-import {
-  dedupedToast,
-  reactExports,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { useRouterState } from "../vendor-inline/vscode-base/linked-list.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { submitFeedback } from "../infra/submit-feedback.js";

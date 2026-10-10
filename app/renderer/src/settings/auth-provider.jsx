@@ -1,12 +1,6 @@
 // auth-provider.jsx
-import {
-  dedupedToast,
-  getRuntimeConfig,
-  reactExports,
-  useNavigate,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { getRuntimeConfig, reactExports, useNavigate, usePlatform, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   entriesByWorkspace,
   flushWorkspaceCanvasPersistence,

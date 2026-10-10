@@ -1,10 +1,6 @@
 // use-project-delete.js
-import {
-  dedupedToast,
-  reactExports,
-  useQuery,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, useQuery, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   fetchWorkspaceThumbnails,
   WORKSPACE_THUMBNAILS_STALE_TIME,

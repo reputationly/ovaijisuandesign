@@ -1,5 +1,6 @@
 // new-folder-dialog.jsx
-import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "./agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   checkTextSafety,

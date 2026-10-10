@@ -1,14 +1,7 @@
 // bundle-error-screen.jsx
 import { WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY } from "../workspace/workspace-failure-diagnosis-registry.js";
-import {
-  AlertTriangle,
-  ChevronDown,
-  dedupedToast,
-  Info$1 as Info,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { AlertTriangle, ChevronDown, Info$1 as Info, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "./agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   runFullNetworkDiagnostics,

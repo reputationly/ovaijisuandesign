@@ -1,12 +1,6 @@
 // dissolve-team-dialog.jsx
-import {
-  AlertTriangle,
-  dedupedToast,
-  reactExports,
-  useMutation,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { AlertTriangle, reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { isCreditTransferTarget } from "./team-panel-loading.jsx";
 import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";

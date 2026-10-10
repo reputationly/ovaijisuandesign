@@ -1,5 +1,6 @@
 // use-txt2-text.js
-import { canvasLog, dedupedToast, instance, reactExports } from "../vendor.js";
+import { instance, reactExports } from "../vendor.js";
+import { canvasLog, dedupedToast } from "../infra/agent-http-client.js";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { stripErrorHtml } from "../infra/create-recently-added-store.js";
 import { useGeneratingStateApi } from "../media-editing/package.jsx";

@@ -1,11 +1,6 @@
 // use-copy.jsx
-import {
-  ArrowDown,
-  getRuntimeConfig,
-  reactExports,
-  useAssetMetadataStore,
-  useTranslation,
-} from "../vendor.js";
+import { ArrowDown, getRuntimeConfig, reactExports, useTranslation } from "../vendor.js";
+import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { isMacPlatform } from "../workspace/shortcut-hint.jsx";
 import { useGeneratingStateStore } from "../media-editing/package.jsx";

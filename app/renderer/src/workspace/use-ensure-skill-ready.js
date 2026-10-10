@@ -1,10 +1,6 @@
 // use-ensure-skill-ready.js
-import {
-  API_PATHS,
-  dedupedToast,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { beginSkillApplyingToast } from "../generation/settle-operation.js";
 import { homeService } from "./home-service.jsx";

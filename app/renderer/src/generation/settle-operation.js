@@ -1,5 +1,6 @@
 // settle-operation.js
-import { dedupedToast, instance } from "../vendor.js";
+import { instance } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 
 const SKILL_APPLYING_TOAST_ID = "skill-applying";
 

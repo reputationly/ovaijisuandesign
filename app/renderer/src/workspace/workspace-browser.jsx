@@ -1,19 +1,6 @@
 // workspace-browser.jsx
-import {
-  ArrowLeft,
-  ArrowRight,
-  ArrowUpRight,
-  dedupedToast,
-  Globe,
-  jsxRuntimeExports,
-  MoreHorizontal,
-  Plus,
-  reactExports,
-  RotateCw,
-  usePlatform,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Globe, jsxRuntimeExports, MoreHorizontal, Plus, reactExports, RotateCw, usePlatform, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Icon,
   Tooltip,

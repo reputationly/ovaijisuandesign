@@ -1,5 +1,6 @@
 // use-file-explorer-grid-delegates.js
-import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { findEntryByPath } from "../workspace/set-home-widget-dev-preview-mode.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { getFileName } from "../canvas/uploading-assets.jsx";

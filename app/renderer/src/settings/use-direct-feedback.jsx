@@ -1,11 +1,6 @@
 // use-direct-feedback.jsx
-import {
-  Check,
-  dedupedToast,
-  Loader2,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { Check, Loader2, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   FeedbackContext,
   IPC_CHANNELS,

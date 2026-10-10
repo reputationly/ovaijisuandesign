@@ -1,11 +1,6 @@
 // use-chat.js
-import {
-  dedupedToast,
-  guardAccountSubmission,
-  reactExports,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { chatLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import {

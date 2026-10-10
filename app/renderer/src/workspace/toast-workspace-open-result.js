@@ -1,6 +1,6 @@
 // toast-workspace-open-result.js
 import { isChineseLocale } from "./topbar-state-context.jsx";
-import { dedupedToast } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { getDesktopSettingsMainService } from "../team/copy-icon-button.jsx";

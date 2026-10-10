@@ -1,10 +1,6 @@
 // use-media-actions.js
-import {
-  dedupedToast,
-  reactExports,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { isAbsoluteLocalFilePath } from "./restart-banner.jsx";
 import {
   getErrorMessage,

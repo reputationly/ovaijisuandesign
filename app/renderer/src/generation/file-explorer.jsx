@@ -1,16 +1,6 @@
 // file-explorer.jsx
-import {
-  dedupedToast,
-  LayoutGrid,
-  LayoutList,
-  reactExports,
-  useCurrentWorkspace,
-  usePlatform,
-  useQueryClient,
-  useStorage,
-  useTranslation,
-  useVirtualizer,
-} from "../vendor.js";
+import { LayoutGrid, LayoutList, reactExports, useCurrentWorkspace, usePlatform, useQueryClient, useStorage, useTranslation, useVirtualizer } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   AlertDialog,

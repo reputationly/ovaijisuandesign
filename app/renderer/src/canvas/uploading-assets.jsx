@@ -3,15 +3,8 @@ import {
   requestJson,
   resolveTypeBucket,
 } from "../assets/list-all-cloud-folders.js";
-import {
-  classifyFileType,
-  Cloud,
-  CloudDownload,
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { classifyFileType, Cloud, CloudDownload, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {

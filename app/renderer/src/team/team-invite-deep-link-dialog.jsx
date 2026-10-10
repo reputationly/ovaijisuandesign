@@ -1,13 +1,6 @@
 // team-invite-deep-link-dialog.jsx
-import {
-  dedupedToast,
-  getRuntimeConfig,
-  Loader2,
-  reactExports,
-  ShieldCheck,
-  UserRound,
-  useTranslation,
-} from "../vendor.js";
+import { getRuntimeConfig, Loader2, reactExports, ShieldCheck, UserRound, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useTeamAccount } from "../assets/credit-query-keys.jsx";
 import { CalendarDays, Users } from "../media-editing/package.jsx";

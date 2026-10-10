@@ -12,16 +12,8 @@ import {
   requestPromptPrefill,
   requestRandomInspiration,
 } from "./request-prompt-prefill.jsx";
-import {
-  dedupedToast,
-  reactExports,
-  useNavigate,
-  usePlatform,
-  useQuery,
-  useQueryClient,
-  useStorage,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, useNavigate, usePlatform, useQuery, useQueryClient, useStorage, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { TRACK_EVENTS } from "../infra/track-events.js";

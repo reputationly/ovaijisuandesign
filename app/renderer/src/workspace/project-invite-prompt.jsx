@@ -2,12 +2,8 @@
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Users } from "../media-editing/package.jsx";
 import { AlertDialog, cn$2 as cn } from "../infra/dialog-content.jsx";
-import {
-  dedupedToast,
-  reactExports,
-  useNavigate,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, useNavigate, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { projectLog } from "../vendor-inline/vscode-base/graph.jsx";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { useLoginGuard } from "../infra/schedule.js";

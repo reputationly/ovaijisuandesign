@@ -2587,3 +2587,11 @@ export function tryParseJson$1(raw2) {
     return void 0;
   }
 }
+
+export const BROWSER_IMAGE_EDIT_ACTIONS = ["remove-background", "upscale", "describe-prompt", "separate-layers"];
+
+export function isBrowserImageEditAction(value) {
+  return typeof value === "string" && BROWSER_IMAGE_EDIT_ACTIONS.includes(value);
+}
+
+export const BROWSER_IMAGE_EDIT_EVENT = "hilo:browser-image-edit";

@@ -1,16 +1,6 @@
 // use-img2-image.js
-import {
-  AccountSubmissionBlockedError,
-  canvasLog,
-  dedupedToast,
-  instance,
-  logMediaLineage,
-  MEDIA_LINEAGE_MAX_REFERENCES,
-  MEDIA_LINEAGE_REQUEST_HEADER,
-  mediaLineageRequestId,
-  reactExports,
-  useAssetMetadataApi,
-} from "../vendor.js";
+import { AccountSubmissionBlockedError, instance, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, mediaLineageRequestId, reactExports } from "../vendor.js";
+import { canvasLog, dedupedToast, logMediaLineage, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { stripErrorHtml } from "../infra/create-recently-added-store.js";
 import { useGeneratingStateApi } from "./package.jsx";

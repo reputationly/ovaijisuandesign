@@ -27,16 +27,8 @@ import {
   VENDOR_PARAM_KEYS,
   withMiniMaxH3ParamHints,
 } from "./domestic-param-labels.jsx";
-import {
-  AlertTriangle,
-  API_PATHS,
-  CompositedSvg,
-  dedupedToast,
-  jsxRuntimeExports,
-  Loader2,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { AlertTriangle, API_PATHS, CompositedSvg, jsxRuntimeExports, Loader2, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Icon,

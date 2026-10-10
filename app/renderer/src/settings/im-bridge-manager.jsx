@@ -1,16 +1,6 @@
 // im-bridge-manager.jsx
-import {
-  ArrowUpRight,
-  dedupedToast,
-  getDefaultExportFromCjs$1 as getDefaultExportFromCjs,
-  getRuntimeConfig,
-  Info$1 as Info,
-  jsxRuntimeExports,
-  reactExports,
-  requireLib,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { ArrowUpRight, getDefaultExportFromCjs$1 as getDefaultExportFromCjs, getRuntimeConfig, Info$1 as Info, jsxRuntimeExports, reactExports, requireLib, usePlatform, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   getImBridgeMainService,
   IntegrationActionButton,

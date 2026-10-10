@@ -1,25 +1,6 @@
 // asset-center-page.jsx
-import {
-  ArrowLeft,
-  Check,
-  CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-  dedupedToast,
-  LayoutGrid,
-  Loader2,
-  Plus,
-  reactExports,
-  Search,
-  ShieldAlert,
-  useMutation,
-  useNavigate,
-  useQuery,
-  useQueryClient,
-  useSearch,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { ArrowLeft, Check, CheckCircle2, ChevronDown, ChevronUp, LayoutGrid, Loader2, Plus, reactExports, Search, ShieldAlert, useMutation, useNavigate, useQuery, useQueryClient, useSearch, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
 import { EntityCard } from "./entity-card.jsx";

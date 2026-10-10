@@ -1,4 +1,4 @@
-import { CanvasNodeType, GROUP_LABEL_MAX_LENGTH, SIZE_STROKE_WIDTH_MAP, getDefaultStrokeWidth, HILO_APP_ID, HILO_BIZ_ID, HILO_DEFAULT_VERSION_CODE, VERSION_CODE_SEMVER_CORE_PATTERN, normalizeVersionCodeForCloud, ASSET_MODEL_USER_UPLOADED, ASSET_MODEL_IMPORTED, isUserProvidedAssetModel, regionToLocale, RUNTIME_CONFIG_KEY, DEFAULT_RUNTIME_CONFIG, parseSemver, compareSemver, CONNECTOR_TOKEN_SOURCE, MEDIA_EXTENSIONS, inferMediaKind, LIBTV_CONNECTOR, MEDIA_LINEAGE_REQUEST_HEADER, MEDIA_LINEAGE_MAX_HASH_BYTES, MEDIA_LINEAGE_HEADER_BYTES, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_MAX_TEXT, mediaLineageToken, mediaLineagePath, mediaLineageFilename, mediaLineageFormat, finite$1, mediaLineageFields, mediaLineageError, isMediaLineageImage, HILO_WORKSPACE_IDENTITY_HEADER, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_HEADER, HILO_WORKSPACE_INSTANCE_QUERY, HILO_WORKSPACE_GENERATION_HEADER, HILO_WORKSPACE_GENERATION_QUERY, HILO_CANVAS_WRITER_REVISION_HEADER, WORKSPACE_IDENTITY_MISMATCH_CODE, WORKSPACE_IDENTITY_REQUIRED_CODE, workspaceGatewayIdentityHeaders, isWorkspaceIdentityErrorCode, encodePath, DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT, VIDEO_PLAYBACK_IDENTITY_QUERY_KEYS, videoPlaybackPath, HILO_HUB_BIZ_LINE, API_PATHS, BACKEND_VIBE_STORYBOARD, GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT, GROUP_ID_HEADER, PERF_LOG_FLUSH, PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, measurePerfCounters, measurePerf, mergePerfMetadata, clamp$c, AUTO_PAN_DISTANCE, maskAutoPanSides, hasDraggedAncestor, getDragSnapReferenceBounds, getDragSnapAffectedIds, getDragBounds, interpolateNumber, AUTO_PAN_ARM_SLACK, getNodesSelectionActiveOnPointerUp, edgeZones, DEFAULT_LARGE_MOVE_FACTOR, getKeyboardMoveFactor, OVERSCAN_PX, RECOMPUTE_DELTA_PX, cascadeAbsolutePosition, AssetMetadataStoreContext, clamp$b, AUTO_DEDUPE_ID_PREFIX, isPlainToastContent, hashToastFingerprint, withAutomaticDedupeId, PROMPT_FONT_SIZE_MIN, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_DEFAULT, STORAGE_KEY$a, normalizePromptFontSize, readPersistedPromptFontSize, persistPromptFontSize, stateAttributesMapping$a, clamp$a, FRAME_HEADER_SIZE$1, Bitstream2, NOT_DIRTY, CHILD_DIRTY, CONTENT_DIRTY, NODE_DIRTY, none$3, noSpec, own$a, normalizeTableCellAlign, parseAlign, normalizeTableCellAlignFromAttributes, createAlignAttribute, parseColgroupWidth, parseColwidth, COLLAPSIBLE_WHITESPACE, isEmptyCellElement, fillEmptyCellContent, getColStyleDeclaration, updateColumns, TableView2, createColGroup, getTableNodeTypes, escapeTableCellPipes, preprocessTablePipes, collapseWhitespace, renderTableToMarkdown, rangeFrom, rangeTo, WidgetType2, EmptyLine, CommentEnd, ProcessingEnd, define_process_env_default$1, lessThan, greaterThan, slash$1, question$1, bang, dash$1, descendantOp, Unit, identifier$2, callee, VariableName, queryIdentifier, queryVariableName, QueryCallee, flowPointToMiniMap, findHitTarget, IMAGE_EDIT_TOOLS, STORAGE_KEY$6, DEFAULT_TOOL, isMergedImageEditTool, readPersisted, probeMediaDurationSec, VIDEO_EXTENSIONS$1, AUDIO_EXTENSIONS$1, mediaKindFromFile, _cachedConfig, getRuntimeConfig, getCssSelector, CatchBoundaryImpl, dummyStore, STATIC_TRANSITIONING_PROPS, intersectionObserverOptions, isCtrlEvent, define_process_env_default, EventEmitter3, customMcpNameIdentity, PlatformContext, usePlatform, MAX_VALUE_LEN, fmtValue, workspaceGatewayUrl, withWorkspaceGatewayHeaders, WorkspaceGatewayClient, canReplayAfterRecovery, isIdentityError, GENERATE_ERROR_CODES, normalizeGenerationFailurePresentation, normalizeGenerateErrorCode, LOG_TAG, defaultLogger, DEFAULT_READ_TIMEOUT_MS, DEFAULT_GENERATE_TIMEOUT_MS, DEFAULT_GENERATE_VIDEO_TIMEOUT_MS, MAX_CANVAS_WRITER_WORKSPACES, CANVAS_WRITER_REVISIONS_PER_MS, canvasWriterRevisions, nextCanvasWriterRevision, advanceCanvasWriterRevision, normalizeRecoveredBinding, headersToRecord, isSafeIdentityRecoveryMethod, ApiError, selectedRequestGroupId, setSelectedRequestGroupId, normalizeGatewayBaseUrl, toCloudLang, getOsName, getBrowserName, getDeviceMemory, GLOBAL_STORAGE_VERSION, GLOBAL_STORAGE_DEFAULTS, WORKSPACE_STORAGE_VERSION, WORKSPACE_STORAGE_DEFAULTS, noop2, resolveEnabled, parseCreditAmount, invalidDisplay, unavailableDisplay, minCreditAmount, deriveTeamCreditDisplay, deriveActiveScope, isBillableSubmission, ACCOUNT_SUBMISSION_BLOCKED_EVENT, dispatchAccountSubmissionBlocked, GatewayScopeContext, useGatewayScope, useGatewayBaseUrl, CurrentWorkspaceContext, useCurrentWorkspace, storageKeys, storageWriteQueues, enqueueStorageWrite, LS_PREFIX, UNDEFINED_STORAGE_VALUE, isUndefinedStorageValue, toStorageQueryData, resolveStorageQueryData, localCacheKey, readLocalCache$2, writeLocalCache$2, removeLocalCache, _rendererGlobalDefaults, getRendererGlobalDefaults, ACCOUNT_SENSITIVE_CANVAS_PATHS, AccountSubmissionBlockedError, resolveNewProjectPreferences, updateNewProjectPreferences, CDN_BASE_MAP, PUBLIC_ASSET_BASE_MAP, getCdnRegion, cdnPublicAsset, CDN_TOUCHDESIGNER_COMPONENTS, matchesLocalConnectorServer, libtvIconUrl, namesMatch, originsMatch, BROWSER_ASSET_SOURCE_METADATA_KEYS, safeSourcePageUrl, browserAssetSourceMetadata, MAX_ACTIVE_FINGERPRINTS, FINGERPRINT_WAIT_MS, MAX_ACTIVE_HEADER_READS, activeHeaderReads, activeFingerprints, mediaFingerprintFile, mediaLineageRequestId, warnEnrollError, ShikiError3, Context2, Target2, $2, tryParseJson$1 } from "./infra/from-vendor.js";
+import { CanvasNodeType, GROUP_LABEL_MAX_LENGTH, SIZE_STROKE_WIDTH_MAP, getDefaultStrokeWidth, HILO_APP_ID, HILO_BIZ_ID, HILO_DEFAULT_VERSION_CODE, VERSION_CODE_SEMVER_CORE_PATTERN, normalizeVersionCodeForCloud, ASSET_MODEL_USER_UPLOADED, ASSET_MODEL_IMPORTED, isUserProvidedAssetModel, regionToLocale, RUNTIME_CONFIG_KEY, DEFAULT_RUNTIME_CONFIG, parseSemver, compareSemver, CONNECTOR_TOKEN_SOURCE, MEDIA_EXTENSIONS, inferMediaKind, LIBTV_CONNECTOR, MEDIA_LINEAGE_REQUEST_HEADER, MEDIA_LINEAGE_MAX_HASH_BYTES, MEDIA_LINEAGE_HEADER_BYTES, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_MAX_TEXT, mediaLineageToken, mediaLineagePath, mediaLineageFilename, mediaLineageFormat, finite$1, mediaLineageFields, mediaLineageError, isMediaLineageImage, HILO_WORKSPACE_IDENTITY_HEADER, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_HEADER, HILO_WORKSPACE_INSTANCE_QUERY, HILO_WORKSPACE_GENERATION_HEADER, HILO_WORKSPACE_GENERATION_QUERY, HILO_CANVAS_WRITER_REVISION_HEADER, WORKSPACE_IDENTITY_MISMATCH_CODE, WORKSPACE_IDENTITY_REQUIRED_CODE, workspaceGatewayIdentityHeaders, isWorkspaceIdentityErrorCode, encodePath, DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT, VIDEO_PLAYBACK_IDENTITY_QUERY_KEYS, videoPlaybackPath, HILO_HUB_BIZ_LINE, API_PATHS, BACKEND_VIBE_STORYBOARD, GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT, GROUP_ID_HEADER, PERF_LOG_FLUSH, PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, measurePerfCounters, measurePerf, mergePerfMetadata, clamp$c, AUTO_PAN_DISTANCE, maskAutoPanSides, hasDraggedAncestor, getDragSnapReferenceBounds, getDragSnapAffectedIds, getDragBounds, interpolateNumber, AUTO_PAN_ARM_SLACK, getNodesSelectionActiveOnPointerUp, edgeZones, DEFAULT_LARGE_MOVE_FACTOR, getKeyboardMoveFactor, OVERSCAN_PX, RECOMPUTE_DELTA_PX, cascadeAbsolutePosition, AssetMetadataStoreContext, clamp$b, AUTO_DEDUPE_ID_PREFIX, isPlainToastContent, hashToastFingerprint, withAutomaticDedupeId, PROMPT_FONT_SIZE_MIN, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_DEFAULT, STORAGE_KEY$a, normalizePromptFontSize, readPersistedPromptFontSize, persistPromptFontSize, stateAttributesMapping$a, clamp$a, FRAME_HEADER_SIZE$1, Bitstream2, NOT_DIRTY, CHILD_DIRTY, CONTENT_DIRTY, NODE_DIRTY, none$3, noSpec, own$a, normalizeTableCellAlign, parseAlign, normalizeTableCellAlignFromAttributes, createAlignAttribute, parseColgroupWidth, parseColwidth, COLLAPSIBLE_WHITESPACE, isEmptyCellElement, fillEmptyCellContent, getColStyleDeclaration, updateColumns, TableView2, createColGroup, getTableNodeTypes, escapeTableCellPipes, preprocessTablePipes, collapseWhitespace, renderTableToMarkdown, rangeFrom, rangeTo, WidgetType2, EmptyLine, CommentEnd, ProcessingEnd, define_process_env_default$1, lessThan, greaterThan, slash$1, question$1, bang, dash$1, descendantOp, Unit, identifier$2, callee, VariableName, queryIdentifier, queryVariableName, QueryCallee, flowPointToMiniMap, findHitTarget, IMAGE_EDIT_TOOLS, STORAGE_KEY$6, DEFAULT_TOOL, isMergedImageEditTool, readPersisted, probeMediaDurationSec, VIDEO_EXTENSIONS$1, AUDIO_EXTENSIONS$1, mediaKindFromFile, _cachedConfig, getRuntimeConfig, getCssSelector, CatchBoundaryImpl, dummyStore, STATIC_TRANSITIONING_PROPS, intersectionObserverOptions, isCtrlEvent, define_process_env_default, EventEmitter3, customMcpNameIdentity, PlatformContext, usePlatform, MAX_VALUE_LEN, fmtValue, workspaceGatewayUrl, withWorkspaceGatewayHeaders, WorkspaceGatewayClient, canReplayAfterRecovery, isIdentityError, GENERATE_ERROR_CODES, normalizeGenerationFailurePresentation, normalizeGenerateErrorCode, LOG_TAG, defaultLogger, DEFAULT_READ_TIMEOUT_MS, DEFAULT_GENERATE_TIMEOUT_MS, DEFAULT_GENERATE_VIDEO_TIMEOUT_MS, MAX_CANVAS_WRITER_WORKSPACES, CANVAS_WRITER_REVISIONS_PER_MS, canvasWriterRevisions, nextCanvasWriterRevision, advanceCanvasWriterRevision, normalizeRecoveredBinding, headersToRecord, isSafeIdentityRecoveryMethod, ApiError, selectedRequestGroupId, setSelectedRequestGroupId, normalizeGatewayBaseUrl, toCloudLang, getOsName, getBrowserName, getDeviceMemory, GLOBAL_STORAGE_VERSION, GLOBAL_STORAGE_DEFAULTS, WORKSPACE_STORAGE_VERSION, WORKSPACE_STORAGE_DEFAULTS, noop2, resolveEnabled, parseCreditAmount, invalidDisplay, unavailableDisplay, minCreditAmount, deriveTeamCreditDisplay, deriveActiveScope, isBillableSubmission, ACCOUNT_SUBMISSION_BLOCKED_EVENT, dispatchAccountSubmissionBlocked, GatewayScopeContext, useGatewayScope, useGatewayBaseUrl, CurrentWorkspaceContext, useCurrentWorkspace, storageKeys, storageWriteQueues, enqueueStorageWrite, LS_PREFIX, UNDEFINED_STORAGE_VALUE, isUndefinedStorageValue, toStorageQueryData, resolveStorageQueryData, localCacheKey, readLocalCache$2, writeLocalCache$2, removeLocalCache, _rendererGlobalDefaults, getRendererGlobalDefaults, ACCOUNT_SENSITIVE_CANVAS_PATHS, AccountSubmissionBlockedError, resolveNewProjectPreferences, updateNewProjectPreferences, CDN_BASE_MAP, PUBLIC_ASSET_BASE_MAP, getCdnRegion, cdnPublicAsset, CDN_TOUCHDESIGNER_COMPONENTS, matchesLocalConnectorServer, libtvIconUrl, namesMatch, originsMatch, BROWSER_ASSET_SOURCE_METADATA_KEYS, safeSourcePageUrl, browserAssetSourceMetadata, MAX_ACTIVE_FINGERPRINTS, FINGERPRINT_WAIT_MS, MAX_ACTIVE_HEADER_READS, activeHeaderReads, activeFingerprints, mediaFingerprintFile, mediaLineageRequestId, warnEnrollError, ShikiError3, Context2, Target2, $2, tryParseJson$1, BROWSER_IMAGE_EDIT_ACTIONS, isBrowserImageEditAction, BROWSER_IMAGE_EDIT_EVENT } from "./infra/from-vendor.js";
 import { keymap as keymap$1, keydownHandler } from "prosemirror-keymap";
 import { ErrorBoundary as C$5 } from "react-error-boundary";
 import { mergeClasses } from "lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs";
@@ -12656,80 +12656,14 @@ const createImpl = createState2 => {
   return useBoundStore;
 };
 const create$2 = createState2 => createState2 ? createImpl(createState2) : createImpl;
-function createAssetMetadataStore() {
-  return createStore$1((set2, get3) => ({
-    assets: /* @__PURE__ */new Map(),
-    get: assetId => get3().assets.get(assetId),
-    set: (assetId, meta2) => set2(state2 => {
-      const next2 = new Map(state2.assets);
-      next2.set(assetId, meta2);
-      return {
-        assets: next2
-      };
-    }),
-    merge: (assetId, partial) => set2(state2 => {
-      const next2 = new Map(state2.assets);
-      const existing = next2.get(assetId);
-      if (!existing) {
-        const missing = ["url", "name", "path", "type"].filter(k2 => partial[k2] === void 0);
-        if (missing.length > 0) {
-          console.warn(`[asset-metadata-store] merge: first write for ${assetId} missing required field(s): ${missing.join(", ")}`);
-        }
-      }
-      next2.set(assetId, {
-        ...(existing ?? {}),
-        ...partial
-      });
-      return {
-        assets: next2
-      };
-    }),
-    mergeAsset: (assetId, partial) => set2(state2 => {
-      const base2 = state2.assets.get(assetId);
-      if (!base2) return state2;
-      const next2 = new Map(state2.assets);
-      next2.set(assetId, {
-        ...base2,
-        ...partial
-      });
-      for (const [key2, meta2] of state2.assets) {
-        if (key2 === assetId) continue;
-        if (meta2.path !== base2.path) continue;
-        next2.set(key2, {
-          ...meta2,
-          ...partial
-        });
-      }
-      return {
-        assets: next2
-      };
-    }),
-    setMany: entries2 => set2(state2 => {
-      const next2 = new Map(state2.assets);
-      for (const [id2, meta2] of entries2) {
-        next2.set(id2, meta2);
-      }
-      return {
-        assets: next2
-      };
-    }),
-    replaceAll: entries2 => set2({
-      assets: new Map(entries2)
-    }),
-    clear: () => set2({
-      assets: /* @__PURE__ */new Map()
-    })
-  }));
-}
-const defaultAssetMetadataStore = createAssetMetadataStore();
 
-function useAssetMetadataApi() {
-  return reactExports.useContext(AssetMetadataStoreContext) ?? defaultAssetMetadataStore;
-}
-const useAssetMetadataStore = selector2 => useStore$2(useAssetMetadataApi(), selector2);
-useAssetMetadataStore.getState = defaultAssetMetadataStore.getState;
-useAssetMetadataStore.setState = defaultAssetMetadataStore.setState;
-useAssetMetadataStore.subscribe = defaultAssetMetadataStore.subscribe;
+
+
+
+
+
+
+
 const playGeometry = /* @__PURE__ */jsxRuntimeExports.jsx("path", {
   d: "M6.13281 5.74789C6.13286 5.37642 6.53561 5.14439 6.85742 5.32992L11.04 7.74301C11.3621 7.92878 11.3621 8.39318 11.04 8.57895L6.85742 10.992C6.53566 11.1775 6.13295 10.9454 6.13281 10.5741V5.74789Z",
   fill: "var(--primary-foreground)"
@@ -28471,10 +28405,7 @@ const Toaster$1 = /* @__PURE__ */React.forwardRef(function Toaster(props, ref) {
 
 
 
-const dedupedToast = (message2, data2) =>
-// `toast.message` follows Sonner's update-by-id path. The callable helper
-// uses a separate history path that can retain duplicate ids.
-toast.message(message2, withAutomaticDedupeId("normal", message2, data2));
+
 function useRender(params) {
   return useRenderElement(params.defaultTagName ?? "div", params, params);
 }
@@ -156416,7 +156347,7 @@ function makeLogger(category) {
     error: (action, meta2) => emit$6(category, "error", action, meta2)
   };
 }
-const canvasLog = makeLogger("canvas");
+
 const workspaceLog = makeLogger("workspace");
 const TabsRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 function useTabsRootContext() {
@@ -157416,10 +157347,8 @@ function useActivationDirectionDetector(activeTabValue, orientation, tabsListEle
     return "none";
   }, [getTabElement, orientation, previousTabEdge, tabsListElement, activeTabValue]);
 }
-const BROWSER_IMAGE_EDIT_ACTIONS = ["remove-background", "upscale", "describe-prompt", "separate-layers"];
-function isBrowserImageEditAction(value) {
-  return typeof value === "string" && BROWSER_IMAGE_EDIT_ACTIONS.includes(value);
-}
+
+
 
 
 
@@ -157431,39 +157360,6 @@ function readRecord(value) {
 }
 
 
-function generationResponseFromApiError(error) {
-  if (error.type !== "http") return void 0;
-  let parsedBody;
-  try {
-    parsedBody = readRecord(JSON.parse(error.body));
-  } catch {
-    parsedBody = void 0;
-  }
-  const directFailure = parsedBody?.ok === false ? parsedBody : void 0;
-  const inferredPresentation = error.status >= 400 && error.status < 500 && error.status !== 408 ? "terminal" : "status_unknown";
-  const fallbackCode = error.status === 408 ? "timeout" : error.status >= 500 ? "backend_error" : "client_error";
-  const message2 = typeof directFailure?.error === "string" && directFailure.error || error.parsedError?.message || error.body || `Gateway HTTP ${error.status}`;
-  const userMessage = typeof directFailure?.user_message === "string" && directFailure.user_message || error.parsedError?.user_message;
-  const failurePresentation = normalizeGenerationFailurePresentation(directFailure?.failure_presentation) ?? inferredPresentation;
-  return {
-    ok: false,
-    error: message2,
-    error_code: normalizeGenerateErrorCode(directFailure?.error_code, fallbackCode),
-    failure_presentation: failurePresentation,
-    ...(userMessage ? {
-      user_message: userMessage
-    } : {}),
-    ...(typeof directFailure?.recovery_handle === "string" && directFailure.recovery_handle.length > 0 ? {
-      recovery_handle: directFailure.recovery_handle
-    } : {}),
-    ...(typeof directFailure?.provider_task_id === "string" && directFailure.provider_task_id.length > 0 ? {
-      provider_task_id: directFailure.provider_task_id
-    } : {}),
-    ...(typeof directFailure?.cloud_trace_id === "string" && directFailure.cloud_trace_id.length > 0 ? {
-      cloud_trace_id: directFailure.cloud_trace_id
-    } : {})
-  };
-}
 
 
 
@@ -157476,775 +157372,14 @@ function generationResponseFromApiError(error) {
 
 
 
-class AgentHttpClient {
-  baseUrl;
-  headers;
-  commonParams;
-  fetch;
-  beforeRequest;
-  logger;
-  workspaceClaim;
-  workspaceBinding;
-  workspaceClient;
-  recoverWorkspace;
-  constructor(options = {}) {
-    this.workspaceBinding = options.workspaceBinding;
-    this.baseUrl = (options.workspaceBinding?.baseUrl ?? options.baseUrl ?? DEFAULT_RUNTIME_CONFIG.gatewayUrl).replace(/\/$/, "");
-    this.workspaceClaim = options.workspaceBinding?.claim ?? options.workspaceClaim;
-    this.headers = options.workspaceBinding ? headersToRecord(withWorkspaceGatewayHeaders(options.workspaceBinding, options.headers)) : {
-      ...(options.headers ?? {}),
-      ...(this.workspaceClaim ? {
-        [HILO_WORKSPACE_IDENTITY_HEADER]: this.workspaceClaim
-      } : {})
-    };
-    this.commonParams = options.commonParams;
-    this.fetch = options.fetch ?? globalThis.fetch.bind(globalThis);
-    this.beforeRequest = options.beforeRequest;
-    this.logger = options.logger ?? defaultLogger;
-    this.recoverWorkspace = options.recoverWorkspace;
-    this.workspaceClient = this.workspaceBinding ? this.createWorkspaceGatewayClient(this.workspaceBinding) : void 0;
-  }
-  // --------------------------------------------------------
-  // URL helpers
-  // --------------------------------------------------------
-  url(path2) {
-    const url2 = path2.includes("://") ? path2 : `${this.baseUrl}${path2}`;
-    return this.appendCommonParams(url2);
-  }
-  urlWithParams(path2, params) {
-    const base2 = path2.includes("://") ? path2 : `${this.baseUrl}${path2}`;
-    if (!params) return this.appendCommonParams(base2);
-    const filtered = Object.entries(params).filter(([, v2]) => v2 !== void 0);
-    if (filtered.length === 0) return this.appendCommonParams(base2);
-    const qs = new URLSearchParams(filtered).toString();
-    return this.appendCommonParams(`${base2}?${qs}`);
-  }
-  appendCommonParams(url2) {
-    const params = typeof this.commonParams === "function" ? this.commonParams() : this.commonParams;
-    if (!params) return url2;
-    const parsed = new URL(url2);
-    for (const [key2, value] of Object.entries(params)) {
-      if (value !== void 0 && value !== "") {
-        parsed.searchParams.set(key2, String(value));
-      }
-    }
-    return parsed.toString();
-  }
-  // --------------------------------------------------------
-  // File operations
-  // --------------------------------------------------------
-  async listFiles(params, opts) {
-    const url2 = this.urlWithParams(API_PATHS.files, {
-      type: params?.type,
-      sort: params?.sort
-    });
-    return this.get(url2, opts);
-  }
-  async mkdir(req, opts) {
-    return this.post(API_PATHS.mkdir, req, opts);
-  }
-  async rename(req, opts) {
-    return this.post(API_PATHS.rename, req, opts);
-  }
-  async forkRename(req, opts) {
-    return this.post(API_PATHS.forkRename, req, opts);
-  }
-  async move(req, opts) {
-    return this.post(API_PATHS.move, req, opts);
-  }
-  async copy(req, opts) {
-    return this.post(API_PATHS.copy, req, opts);
-  }
-  async deleteFiles(req, opts) {
-    return this.post(API_PATHS.deleteFiles, req, opts);
-  }
-  async upload(file, filename, folder, opts) {
-    const form = new FormData();
-    form.append("file", file, filename);
-    if (folder) form.append("folder", folder);
-    if (opts?.staging) form.append("staging", "true");
-    const url2 = this.url(API_PATHS.upload);
-    const signal = this.combineSignals(opts?.signal, opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS);
-    const resp = await this.request(url2, {
-      method: "POST",
-      headers: {
-        ...this.headers,
-        ...opts?.headers
-      },
-      body: form,
-      signal
-    });
-    return this.handleResponse(resp, url2, "POST");
-  }
-  /** Persist a shallow metadata patch on an enrolled workspace asset. */
-  async updateAssetMetadata(id2, patch2, opts) {
-    return this.patch(`/api/assets/${encodeURIComponent(id2)}/metadata`, {
-      patch: patch2
-    }, opts);
-  }
-  /**
-   * Delete staged uploads from `.hilo/.tmp/uploads/`. Best-effort cleanup for
-   * transient files uploaded with `{ staging: true }` that are no longer
-   * needed (e.g. grid-split HD source tiles after super-resolution completes).
-   */
-  async deleteStagedFiles(paths, opts) {
-    return this.post(API_PATHS.uploadStagingDelete, {
-      paths
-    }, opts);
-  }
-  fileUrl(relativePath) {
-    return this.appendWorkspaceClaim(`${this.baseUrl}${API_PATHS.serveFile(relativePath)}`);
-  }
-  fileUrlById(assetId) {
-    return this.appendWorkspaceClaim(`${this.baseUrl}${API_PATHS.serveFileById(assetId)}`);
-  }
-  async writeContent(path2, content2, opts) {
-    const {
-      unique: unique2,
-      ...reqOpts
-    } = opts ?? {};
-    return this.put(API_PATHS.writeContent, unique2 ? {
-      path: path2,
-      content: content2,
-      unique: true
-    } : {
-      path: path2,
-      content: content2
-    }, reqOpts);
-  }
-  /**
-   * Create a fresh `.md` text asset in the workspace root.
-   *
-   * The gateway derives the filename from the first line of `content` (sanitised
-   * + truncated, with `-N` suffix on collision; falls back to a timestamp when
-   * `content` yields no usable seed). Always produces a new `assetId`; never
-   * overwrites an existing file.
-   *
-   * Primary call site is the canvas paste handler — see ADR write-up in
-   * `CreateTextAssetRequest` for the design tradeoff.
-   */
-  async createTextAsset(content2, opts) {
-    const req = {
-      content: content2
-    };
-    return this.post(API_PATHS.createTextAsset, req, opts);
-  }
-  async readContent(path2, opts) {
-    const res = await this.get(API_PATHS.readContent(path2), opts);
-    return res.content;
-  }
-  // --------------------------------------------------------
-  // Text document versions (named snapshots)
-  //
-  // Note the absence of a content field on save: the gateway snapshots the
-  // document off disk, so saving a 15 MB file costs a few hundred bytes of
-  // request body instead of a second full upload.
-  // --------------------------------------------------------
-  async listTextVersions(ref, opts) {
-    const query = new URLSearchParams();
-    if (ref.assetId) query.set("assetId", ref.assetId);
-    if (ref.path) query.set("path", ref.path);
-    return this.get(`${API_PATHS.textVersions}?${query.toString()}`, opts);
-  }
-  async saveTextVersion(req, opts) {
-    return this.post(API_PATHS.textVersions, req, opts);
-  }
-  async readTextVersionContent(id2, range2, opts) {
-    return this.get(API_PATHS.textVersionContent(id2, range2?.offset ?? 0, range2?.limit), opts);
-  }
-  async diffTextVersion(params, opts) {
-    return this.get(API_PATHS.textVersionDiff(params), opts);
-  }
-  async restoreTextVersion(id2, body2 = {}, opts) {
-    return this.post(API_PATHS.textVersionRestore(id2), body2, opts);
-  }
-  async materializeTextVersion(id2, opts) {
-    return this.post(API_PATHS.textVersionMaterialize(id2), {}, opts);
-  }
-  async summarizeTextVersionNote(req, opts) {
-    return this.post(API_PATHS.textVersionSummarize, req, opts);
-  }
-  async updateTextVersion(id2, patch2, opts) {
-    return this.patch(API_PATHS.textVersion(id2), patch2, opts);
-  }
-  async deleteTextVersion(id2, opts) {
-    return this.del(API_PATHS.textVersion(id2), opts);
-  }
-  thumbnailUrl(relativePath) {
-    return this.appendWorkspaceClaim(`${this.baseUrl}${API_PATHS.thumbnail(relativePath)}`);
-  }
-  // --------------------------------------------------------
-  // Assets
-  // --------------------------------------------------------
-  async getAssets(folder, opts) {
-    return this.get(API_PATHS.assets(folder), opts);
-  }
-  async getAllAssets(opts) {
-    return this.get(API_PATHS.allAssets, opts);
-  }
-  // --------------------------------------------------------
-  // Canvas
-  // --------------------------------------------------------
-  async getCanvas(opts) {
-    return this.get(API_PATHS.canvas, opts);
-  }
-  async saveCanvas(canvas, saveOptions, opts) {
-    const start2 = performance.now();
-    try {
-      const writerRevision = this.workspaceBinding ? nextCanvasWriterRevision(this.workspaceBinding) : void 0;
-      const body2 = saveOptions?.deletionIntent ? {
-        ...canvas,
-        deletionIntent: saveOptions.deletionIntent
-      } : canvas;
-      const saveAtRevision = revision => this.post(API_PATHS.canvas, body2, {
-        ...opts,
-        headers: {
-          ...opts?.headers,
-          ...(revision !== void 0 ? {
-            [HILO_CANVAS_WRITER_REVISION_HEADER]: String(revision)
-          } : {})
-        }
-      });
-      const result = await saveAtRevision(writerRevision);
-      if (this.workspaceBinding) {
-        advanceCanvasWriterRevision(this.workspaceBinding, result.revision);
-      }
-      measurePerf(PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, start2, {
-        nodes: canvas.nodes?.length ?? 0,
-        edges: canvas.edges?.length ?? 0,
-        mode: canvas.mode
-      });
-      return result;
-    } catch (err) {
-      measurePerf(PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, start2, {
-        nodes: canvas.nodes?.length ?? 0,
-        edges: canvas.edges?.length ?? 0,
-        mode: canvas.mode,
-        error: err instanceof Error ? err.message : String(err)
-      });
-      throw err;
-    }
-  }
-  async reportCanvasRecovery(report) {
-    await this.post(API_PATHS.canvasRecovery, report);
-  }
-  async addCanvasNode(req, opts) {
-    return this.post(API_PATHS.addCanvasNode, req, opts);
-  }
-  // --------------------------------------------------------
-  // Generation (default: 10 min; video: 21 min to cover async poll window)
-  // --------------------------------------------------------
-  async listModels(opts) {
-    return this.get(API_PATHS.models, opts);
-  }
-  async listImageModels(opts) {
-    return this.get(API_PATHS.imageModels, opts);
-  }
-  async listVideoModels(opts) {
-    return this.get(API_PATHS.videoModels, opts);
-  }
-  async listSpeechModels(opts) {
-    return this.get(API_PATHS.speechModels, opts);
-  }
-  async listMusicModels(opts) {
-    return this.get(API_PATHS.musicModels, opts);
-  }
-  async listSpeechVoices(opts) {
-    return this.get(API_PATHS.speechVoices, opts);
-  }
-  /**
-   * POST /api/speech/voice_design — design a brand-new voice from a text
-   * description plus a preview_text. Cloud gateway returns the new
-   * voice_id and a CDN URL for the trial audio; the local gateway then
-   * downloads the audio into the workspace and registers it as an asset
-   * so the canvas surfaces a new voice-design node automatically.
-   *
-   * `source_node_id` (optional) — when set, the gateway adds a placeholder
-   * node beside it for the duration of the call so the user gets immediate
-   * visual feedback during the 5-30s upstream call.
-   *
-   * Default timeout matches generation endpoints — voice_design typically
-   * completes in 5-30s but the upstream can occasionally take longer.
-   */
-  async designVoice(req, opts) {
-    return this.post(API_PATHS.speechVoiceDesign, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async generateImage(req, opts) {
-    return this.postGeneration(API_PATHS.generateImage, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async generateVideo(req, opts) {
-    return this.postGeneration(API_PATHS.generateVideo, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_VIDEO_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async generateSpeech(req, opts) {
-    return this.postGeneration(API_PATHS.generateSpeech, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async generateMusic(req, opts) {
-    return this.postGeneration(API_PATHS.generateMusic, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async generateText(req, opts) {
-    return this.postGeneration(API_PATHS.generateText, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  // --------------------------------------------------------
-  // Editing (longer default timeout: 10 min)
-  // --------------------------------------------------------
-  async concatenateVideos(req, opts) {
-    return this.post(API_PATHS.concatenateVideos, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async embedAudio(req, opts) {
-    return this.post(API_PATHS.embedAudio, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async extractAudio(req, opts) {
-    return this.post(API_PATHS.extractAudio, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async voiceIsolation(req, opts) {
-    return this.post(API_PATHS.voiceIsolation, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async lipSync(req, opts) {
-    return this.post(API_PATHS.lipSync, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async asr(req, opts) {
-    return this.post(API_PATHS.asr, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  // --------------------------------------------------------
-  // Nano-banana 2 image edits (sync — same timeout as generation)
-  // --------------------------------------------------------
-  /**
-   * Image quality enhancement via 火山引擎 MediaKit (provider `mediakit_enhance`).
-   * Same sync timeout window as the banana edits — the gateway uploads the
-   * source image to CDN, calls the cloud sync enhance endpoint, and downloads
-   * the upgraded image back into the workspace before resolving.
-   */
-  async enhanceImageMediaKit(req, opts) {
-    return this.post(API_PATHS.enhanceImageMediaKit, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async eraseBanana(req, opts) {
-    return this.post(API_PATHS.eraseBanana, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async redrawBanana(req, opts) {
-    return this.post(API_PATHS.redrawBanana, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async outpaintBanana(req, opts) {
-    return this.post(API_PATHS.outpaintBanana, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async moveObjectBanana(req, opts) {
-    return this.post(API_PATHS.moveObjectBanana, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async removeBackground(req, opts) {
-    return this.post(API_PATHS.removeBackground, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async layerDecompose(req, opts) {
-    return this.post(API_PATHS.layerDecompose, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  // --------------------------------------------------------
-  // MediaKit AI video enhancement (resolution upscale + frame interpolation)
-  //
-  // The cloud round-trip submits a job, polls the task, and downloads the
-  // result file into the workspace — the timeout reflects the worst-case
-  // upscale + interpolation pipeline (4K + 60fps).
-  // --------------------------------------------------------
-  async enhanceVideoMediaKit(req, opts) {
-    return this.post(API_PATHS.enhanceVideoMediaKit, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  async hailuo03VideoSuperResolution(req, opts) {
-    return this.post(API_PATHS.hailuo03VideoSuperResolution, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  // --------------------------------------------------------
-  // MediaKit subtitle/text erasure (OCR detect + AIGC restore)
-  //
-  // Shares the upload + poll + download pipeline with enhance-video; the
-  // gateway-side service round-trips to the cloud MediaKit erase-video-subtitle
-  // endpoint. Same long timeout window as enhance (cloud job runs 30-90s+
-  // depending on duration / resolution).
-  // --------------------------------------------------------
-  async eraseSubtitleMediaKit(req, opts) {
-    return this.post(API_PATHS.eraseSubtitleMediaKit, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  // --------------------------------------------------------
-  // MediaKit ASR subtitle generation (audio -> text + timestamps -> SRT file)
-  //
-  // Same long timeout window as enhance / erase-subtitle (cloud round-trip
-  // 30-180s depending on duration). Output is an SRT file (file asset)
-  // landing on the canvas via WS placeholder lifecycle.
-  // --------------------------------------------------------
-  async asrMediaKit(req, opts) {
-    return this.post(API_PATHS.asrMediaKit, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  // --------------------------------------------------------
-  // Whisper ASR subtitle generation — for non-zh/en languages.
-  //
-  // Same shape as asrMediaKit but goes through the cloud
-  // /api/v1/audio/asr endpoint, where GetASRClient routes
-  // non-Tencent-whitelist languages to WhisperASR. Output is
-  // an SRT file landing via WS placeholder lifecycle.
-  // --------------------------------------------------------
-  async asrWhisper(req, opts) {
-    return this.post(API_PATHS.asrWhisper, req, {
-      timeoutMs: opts?.timeoutMs ?? DEFAULT_GENERATE_TIMEOUT_MS,
-      signal: opts?.signal,
-      headers: opts?.headers
-    });
-  }
-  // --------------------------------------------------------
-  // Internal helpers
-  // --------------------------------------------------------
-  combineSignals(userSignal, timeoutMs) {
-    const timeoutSignal = AbortSignal.timeout(timeoutMs);
-    return userSignal ? AbortSignal.any([userSignal, timeoutSignal]) : timeoutSignal;
-  }
-  /**
-   * Wrapper around fetch that classifies errors and logs them.
-   * All fetch calls go through here so network/timeout/abort errors
-   * are consistently reported.
-   */
-  async request(url2, init2, allowWorkspaceRecovery = true, applyDispatchAdmission = true) {
-    if (applyDispatchAdmission) {
-      await this.beforeRequest?.(url2, init2);
-    }
-    try {
-      const activeWorkspaceClient = this.workspaceClient;
-      const response = activeWorkspaceClient ? await activeWorkspaceClient.request(url2, init2) : await this.fetch(url2, init2);
-      if (activeWorkspaceClient) {
-        this.applyWorkspaceBinding(activeWorkspaceClient.binding);
-      }
-      if (!activeWorkspaceClient && allowWorkspaceRecovery && this.recoverWorkspace && isSafeIdentityRecoveryMethod(init2.method) && (await this.isWorkspaceIdentityError(response))) {
-        const recovered = await this.recoverWorkspace();
-        if (recovered) {
-          const recoveredBinding = normalizeRecoveredBinding(recovered);
-          const nextBaseUrl = recoveredBinding.baseUrl.replace(/\/$/, "");
-          const previous2 = new URL(url2);
-          previous2.searchParams.delete(HILO_WORKSPACE_IDENTITY_QUERY);
-          previous2.searchParams.delete(HILO_WORKSPACE_INSTANCE_QUERY);
-          previous2.searchParams.delete(HILO_WORKSPACE_GENERATION_QUERY);
-          this.baseUrl = nextBaseUrl;
-          this.workspaceClaim = recoveredBinding.claim;
-          this.workspaceBinding = recoveredBinding.binding;
-          this.headers = recoveredBinding.binding ? headersToRecord(withWorkspaceGatewayHeaders(recoveredBinding.binding, this.headers)) : {
-            ...this.headers,
-            [HILO_WORKSPACE_IDENTITY_HEADER]: recoveredBinding.claim
-          };
-          const retryHeaders = recoveredBinding.binding ? withWorkspaceGatewayHeaders(recoveredBinding.binding, init2.headers) : new Headers(init2.headers);
-          if (!recoveredBinding.binding) {
-            retryHeaders.set(HILO_WORKSPACE_IDENTITY_HEADER, recoveredBinding.claim);
-          }
-          const retryUrl = this.appendWorkspaceClaim(`${nextBaseUrl}${previous2.pathname}${previous2.search}${previous2.hash}`);
-          const retryResponse = await this.request(retryUrl, {
-            ...init2,
-            headers: retryHeaders
-          }, false, false);
-          if (recoveredBinding.binding) {
-            this.workspaceClient = this.createWorkspaceGatewayClient(recoveredBinding.binding);
-          }
-          return retryResponse;
-        }
-      }
-      return response;
-    } catch (err) {
-      throw this.classifyAndLogFetchError(err, url2, init2.method ?? "GET");
-    }
-  }
-  appendWorkspaceClaim(url2) {
-    if (!this.workspaceClaim) return url2;
-    const parsed = new URL(url2);
-    parsed.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, this.workspaceClaim);
-    if (this.workspaceBinding) {
-      parsed.searchParams.set(HILO_WORKSPACE_INSTANCE_QUERY, this.workspaceBinding.instanceId);
-      parsed.searchParams.set(HILO_WORKSPACE_GENERATION_QUERY, String(this.workspaceBinding.generation));
-    }
-    return parsed.toString();
-  }
-  createWorkspaceGatewayClient(binding) {
-    return new WorkspaceGatewayClient({
-      binding,
-      fetch: this.fetch,
-      recoverWorkspace: this.recoverWorkspace ? async () => {
-        const recovered = await this.recoverWorkspace?.();
-        return recovered && "claim" in recovered ? recovered : void 0;
-      } : void 0
-    });
-  }
-  applyWorkspaceBinding(binding) {
-    this.workspaceBinding = binding;
-    this.workspaceClaim = binding.claim;
-    this.baseUrl = binding.baseUrl.replace(/\/$/, "");
-    this.headers = headersToRecord(withWorkspaceGatewayHeaders(binding, this.headers));
-  }
-  async isWorkspaceIdentityError(response) {
-    if (response.status !== 409 && response.status !== 428) return false;
-    try {
-      const body2 = await response.clone().json();
-      return isWorkspaceIdentityErrorCode(body2.code);
-    } catch {
-      return false;
-    }
-  }
-  async get(path2, opts) {
-    const url2 = this.url(path2);
-    const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
-      method: "GET",
-      headers: {
-        ...this.headers,
-        ...opts?.headers
-      },
-      signal: this.combineSignals(opts?.signal, timeoutMs)
-    });
-    return this.handleResponse(resp, url2, "GET");
-  }
-  async post(path2, body2, opts) {
-    const url2 = this.url(path2);
-    const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
-      method: "POST",
-      headers: {
-        ...this.headers,
-        "Content-Type": "application/json",
-        ...opts?.headers
-      },
-      body: JSON.stringify(body2),
-      signal: this.combineSignals(opts?.signal, timeoutMs)
-    });
-    return this.handleResponse(resp, url2, "POST");
-  }
-  async postGeneration(path2, body2, opts) {
-    try {
-      return await this.post(path2, body2, opts);
-    } catch (error) {
-      if (error instanceof ApiError) {
-        const response = generationResponseFromApiError(error);
-        if (response) return response;
-      }
-      throw error;
-    }
-  }
-  async put(path2, body2, opts) {
-    const url2 = this.url(path2);
-    const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
-      method: "PUT",
-      headers: {
-        ...this.headers,
-        "Content-Type": "application/json",
-        ...opts?.headers
-      },
-      body: JSON.stringify(body2),
-      signal: this.combineSignals(opts?.signal, timeoutMs)
-    });
-    return this.handleResponse(resp, url2, "PUT");
-  }
-  async patch(path2, body2, opts) {
-    const url2 = this.url(path2);
-    const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
-      method: "PATCH",
-      headers: {
-        ...this.headers,
-        "Content-Type": "application/json",
-        ...opts?.headers
-      },
-      body: JSON.stringify(body2),
-      signal: this.combineSignals(opts?.signal, timeoutMs)
-    });
-    return this.handleResponse(resp, url2, "PATCH");
-  }
-  async del(path2, opts) {
-    const url2 = this.url(path2);
-    const timeoutMs = opts?.timeoutMs ?? DEFAULT_READ_TIMEOUT_MS;
-    const resp = await this.request(url2, {
-      method: "DELETE",
-      headers: {
-        ...this.headers,
-        ...opts?.headers
-      },
-      signal: this.combineSignals(opts?.signal, timeoutMs)
-    });
-    return this.handleResponse(resp, url2, "DELETE");
-  }
-  async handleResponse(resp, url2, method) {
-    const text2 = await resp.text().catch(() => resp.statusText);
-    if (!resp.ok) {
-      const error = new ApiError(resp.status, text2, url2, method, "http");
-      if (resp.status >= 500) {
-        this.logger.error(`${LOG_TAG} ${method} ${url2} -> ${resp.status} ${text2.slice(0, 200)}`);
-      } else {
-        this.logger.warn(`${LOG_TAG} ${method} ${url2} -> ${resp.status} ${text2.slice(0, 200)}`);
-      }
-      throw error;
-    }
-    if (!text2 || text2.trim().length === 0) {
-      if (resp.status === 204 || resp.status === 205) {
-        return void 0;
-      }
-      const error = new ApiError(resp.status, "Invalid JSON response: empty body", url2, method, "parse");
-      this.logger.error(`${LOG_TAG} ${method} ${url2} -> parse error: empty body`);
-      throw error;
-    }
-    try {
-      return JSON.parse(text2);
-    } catch {
-      const error = new ApiError(resp.status, `Invalid JSON response: ${text2.slice(0, 200)}`, url2, method, "parse");
-      this.logger.error(`${LOG_TAG} ${method} ${url2} -> parse error: ${text2.slice(0, 200)}`);
-      throw error;
-    }
-  }
-  /**
-   * Classify a raw fetch error into ApiErrorType, log it, and wrap in ApiError.
-   *
-   * | Raw error              | Type      | Log level |
-   * |------------------------|-----------|-----------|
-   * | TypeError              | network   | error     |
-   * | DOMException Timeout   | timeout   | warn      |
-   * | DOMException Abort     | abort     | (silent)  |
-   * | Other                  | network   | error     |
-   */
-  classifyAndLogFetchError(err, url2, method) {
-    if (err instanceof DOMException && err.name === "TimeoutError") {
-      this.logger.warn(`${LOG_TAG} ${method} ${url2} -> timeout`);
-      return new ApiError(0, `Request timeout: ${err.message}`, url2, method, "timeout");
-    }
-    if (err instanceof DOMException && err.name === "AbortError") {
-      return new ApiError(0, `Request aborted: ${err.message}`, url2, method, "abort");
-    }
-    if (err instanceof TypeError) {
-      this.logger.error(`${LOG_TAG} ${method} ${url2} -> network error: ${err.message}`);
-      return new ApiError(0, err.message, url2, method, "network");
-    }
-    const message2 = err instanceof Error ? err.message : String(err);
-    this.logger.error(`${LOG_TAG} ${method} ${url2} -> unknown error: ${message2}`);
-    return new ApiError(0, message2, url2, method, "network");
-  }
-}
 
 
 
 
 
-function buildRendererCommonParams() {
-  const cfg = getRuntimeConfig();
-  const deviceId = cfg.deviceId?.trim();
-  const rawVersionCode = cfg.appVersion?.trim() || HILO_DEFAULT_VERSION_CODE;
-  const params = {
-    device_platform: "desktop",
-    app_id: HILO_APP_ID,
-    version_code: normalizeVersionCodeForCloud(rawVersionCode),
-    biz_id: HILO_BIZ_ID,
-    unix: Date.now(),
-    os_name: getOsName(),
-    browser_name: getBrowserName(),
-    browser_language: navigator.language,
-    browser_platform: navigator.platform,
-    screen_width: screen.width,
-    screen_height: screen.height
-  };
-  const lang = toCloudLang(instance.language) || cfg.locale;
-  if (lang) {
-    params.lang = lang;
-  }
-  const deviceMemory = getDeviceMemory(cfg.totalMemoryMb);
-  if (deviceMemory !== void 0) {
-    params.device_memory = deviceMemory;
-  }
-  const cpuCoreNum = navigator.hardwareConcurrency || cfg.cpuCount;
-  if (cpuCoreNum !== void 0) {
-    params.cpu_core_num = cpuCoreNum;
-  }
-  if (deviceId) {
-    params.uuid = deviceId;
-    params.device_id = deviceId;
-  }
-  return params;
-}
+
+
+
 
 
 
@@ -161359,152 +160494,20 @@ function useMutation(options, queryClient2) {
 
 
 
-let state = {
-  integrationActivated: false,
-  snapshot: null,
-  contract: null,
-  creditSummary: null
-};
+
 let decisionVersion = 0;
 const listeners$8 = /* @__PURE__ */new Set();
 function emit$5() {
   decisionVersion += 1;
   for (const listener of listeners$8) listener();
 }
-function activateAccountSubmissionGuard() {
-  if (state.integrationActivated) return;
-  state = {
-    ...state,
-    integrationActivated: true
-  };
-  emit$5();
-}
-function updateAccountSubmissionDecision(snapshot2, contract, creditSummary = null) {
-  const selectedScope = snapshot2?.status === "ready" ? deriveActiveScope(snapshot2) : null;
-  const incomingSummaryMatches = selectedScope !== null && creditSummary !== null && creditSummary.groupId === selectedScope.groupId;
-  const effectiveCreditSummary = incomingSummaryMatches ? creditSummary : null;
-  state = {
-    ...state,
-    snapshot: snapshot2,
-    contract,
-    creditSummary: effectiveCreditSummary
-  };
-  setSelectedRequestGroupId(selectedScope?.groupId ?? null);
-  emit$5();
-}
-function evaluateAccountSubmission(kind) {
-  if (!state.integrationActivated) return {
-    allowed: true,
-    mode: "LEGACY_PERSONAL"
-  };
-  const {
-    snapshot: snapshot2,
-    contract
-  } = state;
-  if (!snapshot2) return {
-    allowed: false,
-    reasonCode: "canonical_context_pending"
-  };
-  if (snapshot2.status !== "ready") {
-    return {
-      allowed: false,
-      reasonCode: `canonical_context_${snapshot2.status}`
-    };
-  }
-  const scope = deriveActiveScope(snapshot2);
-  if (!scope) return {
-    allowed: false,
-    reasonCode: "canonical_scope_missing"
-  };
-  if (snapshot2.activeContext.accountType === "PERSONAL") {
-    if (kind === "team_checkout") {
-      return {
-        allowed: false,
-        reasonCode: "team_checkout_requires_team_context"
-      };
-    }
-    if (kind === "team_credit_transfer") {
-      return {
-        allowed: false,
-        reasonCode: "team_checkout_requires_team_context"
-      };
-    }
-    return {
-      allowed: true,
-      mode: "CANONICAL",
-      sequence: snapshot2.sequence,
-      scope
-    };
-  }
-  if (kind === "personal_checkout" || kind === "personal_credit_mutation") {
-    return {
-      allowed: false,
-      reasonCode: "personal_checkout_requires_personal_context"
-    };
-  }
-  if (!contract) return {
-    allowed: false,
-    reasonCode: "team_contract_unavailable"
-  };
-  if (contract.compatibility === "UPGRADE_REQUIRED") {
-    return {
-      allowed: false,
-      reasonCode: "upgrade_required"
-    };
-  }
-  if (contract.compatibility !== "SUPPORTED") {
-    return {
-      allowed: false,
-      reasonCode: "team_temporarily_unavailable"
-    };
-  }
-  if (!contract.gates.teamRead) return {
-    allowed: false,
-    reasonCode: "team_read_disabled"
-  };
-  if (!contract.gates.teamBilling) {
-    return {
-      allowed: false,
-      reasonCode: "team_billing_disabled"
-    };
-  }
-  if (isBillableSubmission(kind) && state.creditSummary?.groupId === scope.groupId) {
-    const credit = deriveTeamCreditDisplay(state.creditSummary);
-    if (credit.status === "READY") {
-      if (credit.mode === "LIMITED" && credit.memberRemaining === "0") {
-        return {
-          allowed: false,
-          reasonCode: "quota_insufficient"
-        };
-      }
-      if (credit.teamRemaining === "0") {
-        return {
-          allowed: false,
-          reasonCode: "team_balance_insufficient"
-        };
-      }
-    }
-  }
-  return {
-    allowed: true,
-    mode: "CANONICAL",
-    sequence: snapshot2.sequence,
-    scope
-  };
-}
 
 
 
-function guardAccountSubmission(kind) {
-  const decision = evaluateAccountSubmission(kind);
-  if (!decision.allowed) {
-    dispatchAccountSubmissionBlocked({
-      kind,
-      reasonCode: decision.reasonCode
-    });
-  }
-  return decision;
-}
+
+
+
+
 
 
 
@@ -165867,18 +164870,7 @@ const ProgressRoot = /* @__PURE__ */reactExports.forwardRef(function ProgressRoo
 });
 
 
-function guardCanvasAccountRequest(url2, init2) {
-  if ((init2.method ?? "GET").toUpperCase() !== "POST") return;
-  const pathname = new URL(url2, window.location.origin).pathname;
-  if (!ACCOUNT_SENSITIVE_CANVAS_PATHS.has(pathname)) return;
-  const decision = guardAccountSubmission("canvas");
-  if (!decision.allowed) throw new AccountSubmissionBlockedError(decision.reasonCode);
-  if (decision.mode === "CANONICAL") {
-    const headers = new Headers(init2.headers);
-    headers.set(GROUP_ID_HEADER, decision.scope.groupId);
-    init2.headers = headers;
-  }
-}
+
 var lib = {};
 var propTypes = {
   exports: {}
@@ -169701,47 +168693,10 @@ function editorDocSnapshot(value) {
 
 
 
-function logMediaLineage(record2) {
-  try {
-    const fields = mediaLineageFields(record2);
-    if (record2.errorKind) canvasLog.warn("media-lineage", fields);else canvasLog.info("media-lineage", fields);
-  } catch {}
-}
 
 
-async function observeClientMediaUpload(file, filename, source, operation) {
-  if (!isMediaLineageImage(filename, file.type)) return operation();
-  const requestId = mediaLineageRequestId();
-  logMediaLineage({
-    stage: "upload.selected",
-    requestId,
-    source: source ?? "unknown",
-    filename,
-    declaredMime: file.type,
-    input: await mediaFingerprintFile(file)
-  });
-  try {
-    const result = await operation(requestId ? {
-      [MEDIA_LINEAGE_REQUEST_HEADER]: requestId
-    } : void 0);
-    logMediaLineage({
-      stage: "upload.bound",
-      requestId,
-      assetId: result.id,
-      filename,
-      path: result.relative
-    });
-    return result;
-  } catch (error) {
-    logMediaLineage({
-      stage: "upload.client-failed",
-      requestId,
-      filename,
-      ...mediaLineageError(error)
-    });
-    throw error;
-  }
-}
+
+
 function basename$8(path2) {
   return path2.split("/").pop() ?? "";
 }
@@ -169749,100 +168704,7 @@ function uploadResponseFilename(res, originalName) {
   return /\.gif$/i.test(res.relative) && !/\.gif$/i.test(originalName) ? basename$8(res.relative) : originalName;
 }
 
-function createAssetMutator({
-  httpClient,
-  assetMetadataStore,
-  probeDurationSec = probeMediaDurationSec,
-  inferKind: inferKind2
-}) {
-  const store = assetMetadataStore ?? useAssetMetadataStore;
-  const mirror = (assetId, partial) => {
-    store.getState().merge(assetId, partial);
-  };
-  return {
-    async writeText(path2, content2, opts) {
-      const res = await httpClient.writeContent(path2, content2, opts);
-      warnEnrollError("writeText", res);
-      if (res.assetId) {
-        mirror(res.assetId, {
-          type: "text",
-          path: res.path,
-          name: basename$8(res.path),
-          url: httpClient.fileUrlById(res.assetId)
-        });
-      }
-      return res;
-    },
-    async createTextAsset(content2, opts) {
-      const res = await httpClient.createTextAsset(content2, opts);
-      warnEnrollError("createTextAsset", res);
-      const name2 = basename$8(res.path);
-      mirror(res.assetId, {
-        type: "text",
-        path: res.path,
-        name: name2,
-        url: httpClient.fileUrlById(res.assetId)
-      });
-      return {
-        assetId: res.assetId,
-        path: res.path,
-        name: name2
-      };
-    },
-    async upload(file, name2, kind, opts) {
-      const filename = name2 ?? file.name;
-      const durationPromise = probeDurationSec(file).catch(() => 0);
-      const res = await observeClientMediaUpload(file, filename, opts?.source, headers => httpClient.upload(file, filename, void 0, {
-        staging: opts?.staging,
-        ...(headers ? {
-          headers
-        } : {})
-      }));
-      const durationSec = await durationPromise;
-      warnEnrollError("upload", res);
-      if (res.id) {
-        const resolvedKind = kind ?? inferKind2?.(file) ?? "file";
-        const serverDurationSec = typeof res.durationMs === "number" && res.durationMs > 0 ? res.durationMs / 1e3 : 0;
-        mirror(res.id, {
-          type: resolvedKind,
-          path: res.relative,
-          name: uploadResponseFilename(res, filename),
-          url: httpClient.fileUrlById(res.id),
-          ...(typeof res.width === "number" ? {
-            width: res.width
-          } : {}),
-          ...(typeof res.height === "number" ? {
-            height: res.height
-          } : {}),
-          ...(serverDurationSec > 0 ? {
-            durationSec: serverDurationSec
-          } : durationSec > 0 ? {
-            durationSec
-          } : {})
-        });
-      }
-      return res;
-    },
-    async deleteStaged(paths) {
-      if (paths.length === 0) return;
-      try {
-        await httpClient.deleteStagedFiles(paths);
-      } catch (err) {
-        console.warn("[asset-mutator] deleteStaged failed:", err);
-      }
-    },
-    async fork(req, opts) {
-      const res = await httpClient.forkRename(req, opts);
-      mirror(res.new_id, {
-        type: res.type,
-        path: res.new_path,
-        name: res.new_name,
-        url: httpClient.fileUrlById(res.new_id)
-      });
-      return res;
-    }
-  };
-}
+
 const GRID_COLUMN_COUNT_WIDE = 5;
 function estimateGridRowSize(containerWidth, columnCount) {
   const horizontalPadding = 20;
@@ -169853,31 +168715,7 @@ function estimateGridRowSize(containerWidth, columnCount) {
   const rowGap = 8;
   return thumbnailHeight + infoHeight + rowGap;
 }
-function useScopedHttpClient() {
-  const activeGatewayUrl = useGatewayBaseUrl();
-  const {
-    gatewayBinding,
-    recoverWorkspace,
-    workspaceClaim
-  } = useGatewayScope();
-  return reactExports.useMemo(() => {
-    if (!activeGatewayUrl) return null;
-    const hiloLogger = window.hilo?.logger;
-    const logger = hiloLogger ? {
-      warn: msg => hiloLogger.warn(msg, "http-client"),
-      error: msg => hiloLogger.error(msg, "http-client")
-    } : void 0;
-    return new AgentHttpClient({
-      baseUrl: activeGatewayUrl,
-      logger,
-      commonParams: buildRendererCommonParams,
-      beforeRequest: guardCanvasAccountRequest,
-      workspaceBinding: gatewayBinding,
-      workspaceClaim,
-      recoverWorkspace
-    });
-  }, [activeGatewayUrl, gatewayBinding, recoverWorkspace, workspaceClaim]);
-}
+
 function createConnectorInventory(load2) {
   let snapshot2 = {
     servers: [],
@@ -190678,7 +189516,7 @@ var un = () => e2 => {
     });
   });
 };
-const BROWSER_IMAGE_EDIT_EVENT = "hilo:browser-image-edit";
+
 function isBrowserImageEditRequest(value) {
   if (!value || typeof value !== "object") return false;
   const request = value;
@@ -190693,82 +189531,7 @@ function browserImageEditPrompt(t2, action) {
   };
   return prompts[action]();
 }
-function useBrowserImageEdit(options) {
-  const {
-    t: t2
-  } = useTranslation();
-  const client2 = useScopedHttpClient();
-  const assetMetadataStore = useAssetMetadataApi();
-  const mutator = reactExports.useMemo(() => client2 ? createAssetMutator({
-    httpClient: client2,
-    assetMetadataStore
-  }) : null, [client2, assetMetadataStore]);
-  const latest2 = reactExports.useRef({
-    ...options,
-    client: client2,
-    mutator,
-    t: t2
-  });
-  latest2.current = {
-    ...options,
-    client: client2,
-    mutator,
-    t: t2
-  };
-  const inFlight = reactExports.useRef(false);
-  reactExports.useEffect(() => {
-    let disposed = false;
-    const handleEdit = event => {
-      const snapshot2 = latest2.current;
-      const request = event.detail;
-      if (!snapshot2.isActiveRef.current || !isBrowserImageEditRequest(request)) return;
-      event.preventDefault();
-      if (inFlight.current || snapshot2.locked || !snapshot2.client || !snapshot2.mutator) {
-        dedupedToast.warning(snapshot2.t("workspace.browser.imageEdit.notReady", "对话暂未就绪或正在准备其他任务，请稍后再试"));
-        return;
-      }
-      if (!snapshot2.canSend()) return;
-      inFlight.current = true;
-      const client22 = snapshot2.client;
-      const mutator2 = snapshot2.mutator;
-      const notice = dedupedToast.loading(snapshot2.t("workspace.browser.imageEdit.preparing", "正在准备图片编辑任务…"));
-      void (async () => {
-        try {
-          const uploaded = await mutator2.upload(request.file, request.file.name, "image", {
-            source: "attachment"
-          });
-          if (!uploaded.id || !uploaded.relative) throw new Error("Image upload did not return an asset");
-          await client22.updateAssetMetadata(uploaded.id, browserAssetSourceMetadata(request)).catch(error => workspaceLog.warn("Browser image source metadata unavailable", {
-            error
-          }));
-          const current2 = latest2.current;
-          if (disposed || !current2.isActiveRef.current || current2.sessionId !== snapshot2.sessionId || current2.locked || current2.client !== client22) {
-            if (!disposed) dedupedToast.warning(current2.t("workspace.browser.imageEdit.contextChanged", "目标对话已切换，图片已保存到项目，请回到原对话后重新操作"));
-            return;
-          }
-          if (!current2.canSend()) return;
-          if (!current2.send(browserImageEditPrompt(current2.t, request.action), [uploaded.relative])) {
-            dedupedToast.error(current2.t("workspace.browser.imageEdit.sendFailed", "编辑任务未发送，图片已保存到项目，请在对话就绪后重新操作"));
-          }
-        } catch (error) {
-          workspaceLog.error("Browser image edit dispatch failed", {
-            action: request.action,
-            error
-          });
-          if (!disposed) dedupedToast.error(latest2.current.t("workspace.browser.imageEdit.prepareFailed", "图片准备失败，未发送编辑任务，请稍后再试"));
-        } finally {
-          dedupedToast.dismiss(notice);
-          inFlight.current = false;
-        }
-      })();
-    };
-    window.addEventListener(BROWSER_IMAGE_EDIT_EVENT, handleEdit);
-    return () => {
-      disposed = true;
-      window.removeEventListener(BROWSER_IMAGE_EDIT_EVENT, handleEdit);
-    };
-  }, []);
-}
+
 function localizedI18nText(text2, language2) {
   return language2.toLowerCase().startsWith("zh") ? text2.zh : text2.en;
 }
@@ -193133,4 +191896,4 @@ const ScrollAreaCorner = /* @__PURE__ */reactExports.forwardRef(function ScrollA
   }
   return element2;
 });
-export { $$8, $t$2, ACCOUNT_SUBMISSION_BLOCKED_EVENT, ADTS, AES_128_BLOCK_SIZE, API_PATHS, ARCHIVE_ZIPPER, AUDIO_CODECS, AUTH_TRACK_EVENTS, AccordionHeader, AccordionItem$1, AccordionPanel, AccordionRoot, AccordionTrigger$1, AccountSubmissionBlockedError, ActionListItem, ActionListPanel, ActionListSeparator, ActiveOverlay, ActiveSnippet, Activity, ActivityIcon, AdtsInputFormat, AdtsOutputFormat, AlertCircle, AlertDialogRoot, AlertTriangle, AlertTriangleIcon, AlignCenter$1, AlignLeft$1, AlignRight$1, Animation, AnnounceMargin, ApiError, AppWindow, Archive, ArrowDown, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowLeftToLine, ArrowRight, ArrowRight$1, ArrowRightToLine, ArrowUp, ArrowUp$1, ArrowUpDown, ArrowUpFromLine, ArrowUpRight, ArrowUpRight$1, ArrowUpToLine, AssetMetadataStoreContext, At$3, AtSign, Attribute2, AttributeList, AttributeName, AttributeValue, AudioLines, AudioLines$1, AudioResampler, AudioSample, AudioSampleSink, AudioSampleSource, AudioWaveform$1, AvatarImage$1, AvatarRootContext, B$7, BACKEND_VIBE_STORYBOARD, BASE64_DATA_URI_REGEX, BODY, BROWSER_ASSET_SOURCE_METADATA_KEYS, BROWSER_IMAGE_EDIT_EVENT, BadgeCheck, BadgeInfo, Ban$1, Bell, Bell$1, BellRing, BidiSpan, BlobSource, BlockComment, BlockPolicy, Blocks$1, Bold$1, BookOpen$1, BookUser, Bookmark$1, Bot, Box, BoxSelect, Boxes, Brain$1, Brain$2, Break, Brush$1, Bs, Bt$1, BubbleMenu, BufferContext, BufferTarget, Bug, Bug$1, Building2$1, Button$3, CDN_BASE_MAP, CDN_BROWSER_START_ICON, CONNECTOR_STATUS_VISUAL, CONNECTOR_TOKEN_SOURCE, CSS$1, Cable$1, CachedOrder, Calculator, CalendarDays$1, Camera$1, CanvasNodeType, CanvasSink, CaseSensitive$1, CatchBoundary, CatchNotFound, ChangeSet, CharCategory, ChartNoAxesCombined, Check, Check$1, Check$2, CheckCheck, CheckCircle2, CheckCircle2Icon, CheckboxRoot, ChevronDown, ChevronDown$1, ChevronDown$2, ChevronDownIcon$1, ChevronLeft, ChevronLeft$1, ChevronLeftIcon, ChevronRight$1, ChevronRight$2, ChevronRightIcon, ChevronUp, ChevronUpIcon, Chrome$1, Circle$1, CircleAlert, CircleAlert$1, CircleAlert$2, CircleArrowUp, CircleCheck, CircleCheckIcon, CircleHelp$1, CircleIcon, CircleMinus, CircleUserRound$1, CircleX, CircleX$1, Clapperboard$1, Clapperboard$2, ClientOnly, Clipboard, ClipboardIcon, ClipboardList, ClipboardPaste$1, Clock$1, Clock3$1, CloseTag, Cloud, CloudDownload, CloudIcon, CloudOff$1, CloudUpload, Code$1, Cog, Cog$1, Command, CommentEnd, CompartmentInstance, Compass, CompositedSvg, ConnectionTargetMarker, ContextMenuRoot, ContextMenuTrigger$1, ContextTracker, ConversionCanceledError, Copy, Copy$1, CopyPlus, CornerDownRight$1, CreditCard, Crosshair, Crown, Crown$1, Ct$3, CurrentWorkspaceContext, CustomAudioEncoder, CustomPathedSource, D$1, D$7, DEFAULT_RUNTIME_CONFIG, DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT, DOMParser$1, DOMSelectionState, DOMSerializer, DateLib, DayFlag, Decoration$1, Decoration2, DecorationSet, DefaultBufferLength, DefaultSplit, Demuxer, Dialect, Dialect_noMatch, Dialect_selfClosing, DialogBackdrop, DialogClose$1, DialogDescription$2, DialogPopup, DialogPortal$2, DialogRoot, DialogTitle$2, DialogTrigger$1, Direction, DndContext, DocInput, DocView, Download$1, Download$2, DownloadIcon, DragOverlay, Droplet$1, Ds, Dt$2, E$4, E2, EdgeLabelRenderer, EditContextManager, EditorContent, EditorSelection, Element$1, Ellipsis, EmacsyPendingKeys, Emoji, EmptyLine, EncodedAudioPacketSource, EncodedPacket, EncodedPacketSink, EncodedVideoPacketSource, EndTag, ErrorComponent, Es, Et$2, EventEmitter$2, Expand$1, Extension, ExternalLink, ExternalLink$2, ExternalTokenizer, Eye, Eye$1, Eye$2, EyeIcon$1, EyeOff, EyeOffIcon$1, F$6, FALLBACK_NUMBER_OF_CHANNELS, FALLBACK_SAMPLE_RATE, FILE_TYPE_EXTENSIONS, FLAC, FOLD, Facet, FieldControl, FieldRoot, File$3, FileArchive$1, FileAudio$1, FileClock$1, FileCode$1, FileDiff$1, FileImage, FileInput$1, FileJson2$1, FilePlus2, FileText$1, FileVideo$1, FileWarning$1, Files$1, Film, Film$2, FlacInputFormat, FlacOutputFormat, Flag$1, FlatBufferCursor, Folder$1, FolderClock, FolderClosed, FolderInput, FolderInput$2, FolderKey$1, FolderMinus, FolderOpen$1, FolderOpenIcon, FolderPlus, FolderUp, FolderX, Ft$2, G$1, G$5, GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT, GFM, GLOBAL_STORAGE_VERSION, GRID_COLUMN_COUNT_WIDE, GROUP_ID_HEADER, GatewayScopeContext, Gauge, GiftIcon, GitCompare, GlobalAttrs, Globe, Globe2, GraduationCap, Grid2X2, Grid2x2Plus, Grid3X3, GripHorizontalIcon, GripVertical, Gt$1, H, H$5, HILO_HUB_BIZ_LINE, HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_HEADER, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, HLS_MIME_TYPE, HTMLBlockStyle, Hand, Handle, HardDrive$1, Headphones, Headphones$2, History$1, HistoryIcon, HlsInputAudioTrackBacking, HlsInputVideoTrackBacking, Home, House, Hs, Ht$1, I, ICON_STROKE_SPEC, IV_STRING_REGEX, IconCompositingContext, Identifier, ImagePlus, Import, Inbox, IncompleteCloseTag, IncompleteTag, IndentContext, InfiniteQueryObserver, Info$1, InfoIcon$1, InlineDelimiter, InnerParse, InputAudioTrack, InputFormat, InputStream, InputVideoTrack, IsobmffInputFormat, It$1, Italic$1, IterMode, J$6, JPEG, Jo, K$6, K2, KeyRound, Keyboard, KeyboardSensor, Keymaps, L, L$7, LIBTV_CONNECTOR, LTR, LanguageDescription, LanguageSupport, Languages, Layers, Layers2, Layers3, LayoutGrid, LayoutList, LayoutTemplate, LeafBlock, Library, Library$1, Lightbulb, LineBreakPlaceholder, LineComment, Link2, Link2$1, List$1, ListChecks, Loader2, Loader2Icon, LoaderCircle, LoaderCircle$1, LocalTokenGroup, Lock, LockKeyhole, LogOut$1, Ls, Lt$1, M, MATROSKA, MEDIA_EXTENSIONS, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, MIN_SELECTED_NODE_SIZE, MP3, MP4, MPEG_TS, Mail, Map$1, MapPin, Markdown$1, MatroskaInputFormat, Maximize, Maximize2$1, Megaphone$1, Megaphone$2, MenuGroup, MenuGroupLabel, MenuItem$3, MenuPopup, MenuPortal, MenuPositioner, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuRoot, MenuSubmenuRoot, MenuSubmenuTrigger, MenuTrigger, MessageCircle, MessageCircleMore, MessageSquare$1, MessageSquareMore, MessageSquarePlus$1, MessageSquareQuote$1, Mic$1, Minimize2$1, Minus, MinusIcon, MismatchedStartCloseTag, MkvOutputFormat, Monitor, MonitorUp, MonochromeIcon, Moon$1, MoreHorizontal, MousePointer2$1, MovOutputFormat, Mp3InputFormat, Mp3OutputFormat, Mp4OutputFormat, Mt$1, Music, Music$2, Music2, N, N$4, NODE_HIT_SLOP, NON_PCM_AUDIO_CODECS, Network, Network$1, Newspaper, NoMatchStartCloseTag, Node$3, Node$4, NodeResizer, NodeSelection, NodeToolbar$1, NodeViewWrapper, NotLast, NotebookPen, Nt$1, NullTarget, OGG, OctagonXIcon, OggInputFormat, OggOutputFormat, OpenTag, Operation, Ot$2, Output, OutputTrackGroup, P$7, PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, PERF_LOG_FLUSH, PROMPT_FONT_SIZE_DEFAULT, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_MIN, Package$2, PackageSearch, Palette, Panel, PanelBottomClose, PanelGroup, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PanelsTopLeft, Paperclip$1, Parser$1, PathedSource, PenLine$1, Pencil, PencilLine$1, PencilRuler, PencilRuler$1, PendingKeys, Phone, Pin, Pin$1, PinIcon, PinOff, PlatformContext, PlaybackCirclePauseIcon$1, PlaybackCirclePlayIcon$1, PlaybackCircleToggleIcon, PlaybackNextIcon$1, PlaybackPauseIcon$1, PlaybackPlayIcon$1, PlaybackPreviousIcon$1, PlaybackStopIcon$1, Plug$1, Plugin, PluginInstance, PluginKey, Plus, Plus$1, Plus$2, PlusCircle, Podcast, PointerSensor, PopoverArrow$1, PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot, PopoverTrigger$1, Position, Power, Prec, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, PreviewCardTrigger$1, ProcessingEnd, ProgressRoot, ProgressRootContext, Pt$2, Punctuation, Puzzle$1, QTFF, QUALITY_HIGH, QUERY_KEY$1, QueryClient, QueryClientProvider, QueryType, QuickTimeInputFormat, R$1, R$4, R$6, RTL, RadioGroup$1, RadioIndicator, RadioRoot, Range$1, RangeSetBuilder, React, ReactFlow$1, ReactFlowProvider, ReactNodeViewRenderer, ReadableStreamSource, Reader, ReceiptText$1, Redo2, Regex, Repeat2, Replace$1, ReplaceAll$1, RotateCcw, RotateCcw$1, RotateCw, RouterCore, Rs, Rt$2, Rule$1, S$7, SAMPLING_RATES, SELECTED_GLOW_BLUR, SKIP, SPECIAL_CONNECTORS, Save, Scan, Scissors, ScopeNodes, ScriptText, ScrollAreaCorner, ScrollAreaRoot, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaViewport, ScrollRestoration, ScrollTarget, ScrollText, Search, Search$1, Search$2, SearchIcon, SegmentedInput, SelectGroupContext, SelectIcon, SelectItem$2, SelectItemIndicator, SelectItemText, SelectList, SelectPopup, SelectPortal, SelectPositioner, SelectRoot, SelectScrollDownArrow, SelectScrollUpArrow, SelectTrigger$2, SelectValue$2, Selection, SelectionMode, SelfClosingEndTag, Send, ServerIcon, ServerOff, Settings$1, Settings2$1, Share2, Share2$2, ShieldAlert, ShieldAlert$1, ShieldCheck, ShieldCheck$1, ShieldCheckIcon, ShieldOff, ShoppingBag$1, ShoppingBag$2, Shuffle, Slash, Slice, SliderControl$1, SliderIndicator, SliderRoot, SliderThumb, SliderTrack, SlidersHorizontal$1, Smartphone, Smartphone$1, Snippet, SortableContext, Source, SourceRef, Sparkles$1, Speech, Split, Sprout$1, Square$2, SquareDashed, SquareMousePointer, SquareMousePointer$1, Ss, St$2, Stack, StackBufferCursor, Stamp$1, StartCloseScriptTag, StartCloseStyleTag, StartCloseTag, StartCloseTextareaTag, StartScriptTag, StartSelfClosingTag, StartStyleTag, StartTag, StartTextareaTag, StarterKit, StateEffect, StateField, Step, StepMap, StepResult, StickyNote, StringQuery, StyleModule, StyleText, Subscript, Sun, Superscript, SwatchBook, SwitchRoot, SwitchThumb, TAB_CONTENT_ENTER_CLASS_NAME, TAG_BYTERANGE, TAG_DISCONTINUITY, TAG_ENDLIST, TAG_EXTINF, TAG_I_FRAMES_ONLY, TAG_I_FRAME_STREAM_INF, TAG_KEY, TAG_MAP, TAG_MEDIA, TAG_MEDIA_SEQUENCE, TAG_PLAYLIST_TYPE, TAG_PROGRAM_DATE_TIME, TAG_STREAM_INF, TAG_TARGETDURATION, Table$2, TableCell$1, TableHeader$1, TableRow$1, TableView2, TabsIndicator, TabsList$1, TabsPanel, TabsRoot, TabsTab, Tag, Tag$1, TagName, Tags, Text, TextSelection, TextareaText, ThumbsDown, ThumbsUp, ThumbsUp$1, Tile, Toaster$1, Toggle$1, ToggleGroup$1, TokenCache, TokenGroup, TooltipPopup, TooltipPortal, TooltipPositioner, TooltipProvider$2, TooltipRoot, TooltipTrigger$1, TrackSynchronizer, Trans, Transaction2, Trash2$1, Trash2$2, Trash2Icon, TreeElement, TreeFragment, TrendingUp, TriangleAlert, TriangleAlert$1, TriangleAlertIcon, Tt$2, Tv, Type, Type$2, U, U$3, UI, UNDETERMINED_LANGUAGE, Underline$1, Undo2, Ungroup$1, UnquotedAttributeValue, UnsupportedInputFormatError, Upload$1, UploadIcon$1, UrlSource, User, UserRound, UserRound$1, UserRoundPlus, Users$1, UsersIcon, Ut, Ut$2, V$6, VIDEO_CODECS, Video, Video$1, Video$2, VideoOff, VideoSample, VideoSampleSink, VideoSampleSource, ViewPlugin, ViewState, ViewUpdate, ViewportPortal, Volume2, Volume2Icon, VolumeX$1, VolumeXIcon, W$1, W$7, WAVE, WEBM, WORKSPACE_IDENTITY_MISMATCH_CODE, WORKSPACE_STORAGE_DEFAULTS, Wand2, WandSparkles, WavOutputFormat, WaveInputFormat, WebMInputFormat, WebMOutputFormat, WholeWord, WidgetType2, WifiIcon, WifiOff, WifiOff$1, WifiOffIcon, Workflow, Workflow$1, WorkspaceGatewayClient, Wrench, Wrench$1, Wrench$2, X$6, X$7, X$8, XIcon, XYMinimap, Y$4, Yt$2, Z$4, Zap, Zap$1, ZoomIn, ZoomOut, _$5, __addDisposableResource, __disposeResources, __insertCSS, __ovVitePreload, __webpack_exports__, __webpack_exports__getDocument, _t$2, activateAccountSubmissionGuard, addCursorAbove, addCursorBelow, addsSelectionRange, allowMultipleSelections, an, android, applyDOMChange, applyDOMChangeInner, arrayArgmin, arrayCount, arrayMove, asArray$1, assert$3, assertNever, astTop, at, at$3, atElementStart, atRules, atomicRanges, attrsEqual, attrsFromFacet, audioSampleToInterleavedFormat, avatarStateAttributesMapping, b2, base64ToBytes, basicMouseSelection, batch, bidiIsolatedRanges, binarySearchLessOrEqual, bindHandler, blankLine$1, blockWrappers, braceR, brokenClipboardAPI, browser, browserAssetSourceMetadata, bt$3, buildAdtsHeaderTemplate, buildKeymap, buildOfficialConnectorList, buildRendererCommonParams, byGroup, byTag, c$4, callOrReturn, canIgnoreLine, canvasLog, captureCopy, cdnPublicAsset, ceilToMultipleOfTwo, changeBySelectedLine, changeFilter, charType, checkCover, checkRanges, checkSelection, checkSide, clamp$9, clampCropRectangle, classifyFileType, clickAddsSelectionRange, clientExports, clipboardInputFilter, clipboardOutputFilter, closeHistory, closestCenter, clsx, cn, collectMediaResultRecords, combineConfig, commands_exports, commentContent, commentContent$1, compareSemver, completeAttrName, completeAttrValue, completeCloseTag, completeFromList, completeStartTag, completeTag, connectorDescription, connectorPromptActionLabelKey, connectorSummaryActionLabelKey, contains, contentAttributes, contextNodeForDelete, continuedIndent, convertMatchersToTimeZone, copiedRange, copyLineDown, copyLineUp, countColumn, create$2, createAes128CbcDecryptStream, createAssetMetadataStore, createAssetMutator, createConnectorInventory, createControlledPromise, createFileRoute, createGetModifiers, createLucideIcon, createNoonOverrides, createRootRoute, createStore$1, createTailwindMerge, createVisitor, crelt, ct$3, cursorCharLeft, cursorCharRight, cursorDocEnd, cursorDocStart, cursorGroupLeft, cursorGroupRight, cursorLayer, cursorLineBoundaryBackward, cursorLineBoundaryForward, cursorLineBoundaryLeft, cursorLineBoundaryRight, cursorLineDown, cursorLineEnd, cursorLineStart, cursorLineUp, cutAt, cutFragments, cva, d, d$3, data, dayPickerContext, decisionVersion, declSelector, decodeArray, decodeHtmlEntities, decorations$1, dedupedToast, defaultSchema, defineLanguageFacet, deleteLine, delimitedIndent, delimitedStrategy, deriveActiveScope, deriveTeamCreditDisplay, desc, descendant, desktopMediaIcon, dispatchAccountSubmissionBlocked, dispatchKey, dist, dn, domBoundsAround, dontComplete, dragMovesSelection$1, dragScrollMargin, dragScrollSpeed, dropText, dt, dt$4, dynamicFacetSlot, editable, editorAttributes, editorDocSnapshot, elementName, elementName$1, emptyConnectorMarketPolicy, enUS, encodeHtmlEntities, endTag$1, ensureAddr, ensureAnchor, enterFragments, estimateGridRowSize, et$4, evaluateAccountSubmission, eventAttributes, eventBelongsToEditor, exceptionSink, extendSel, f$3, f$4, fieldSelection, findChild, findClusterBreak, findConnectionTarget, findConnectorMentions, findFinished, findHcpConnector, findHitTarget, findName, findOpenTag, findSectionEnd, findTagName, firefoxCopyCutHack, flatIndent, flatten, flattenExtensions, floorToDivisor, flowPointToMiniMap, flush, focusChangeEffect, focusChangeTransaction, focusManager, focusPreventScroll, foldInside, foldService, formatDate, formatErrorMessage, fr, ft$3, g$2, gatherCompletions, generateJSON, getAddr, getAttrs, getBezierPath, getBoundsOfRects, getCdnRegion, getChildren, getClickType, getComponents, getContext, getDataAttributes, getDefaultExportFromCjs$1, getEncodableAudioCodecs, getExtensionField, getFileActivityKind, getFirstEncodableVideoCodec, getFormatters, getHighlighters, getIconStrokeWidth, getIndentUnit, getInternalNodesBounds, getIsolatedRanges, getLabels, getListIndent, getLocationChangeInfo, getMediaTagAutoselect, getMediaTagDefault, getMergedHcpCatalog, getMonthOptions, getNodeDimensions, getRoot, getRuntimeConfig, getSchema, getScrollMargins, getSelection$1, getSkillCoverUrl, getStoreFactory, getStyleForModifiers, getViewportForBounds, getVisibleCloudUploads, getWeekdays, getYearOptions, gt$2, guardAccountSubmission, h$5, hasMediaAnalysisFailure, hasSelection, hcpToDefinition, highlightTags, highlighterFacet, historyConfig, historyField_, historyKeymap, hooks, horizontalListSortingStrategy, ht$2, identifier$1, identifiers, ignoreClosed, inList, indentLess, indentMore, indentService, indentString, indentWithTab, inferCodecFromCodecString, inferMediaKind, initReactI18next, inputHandler, insertSemi, instance, interestingNode, invariant, iosVirtualKeyboardOpen, isAtEnd, isAtxHeading, isBlockElement, isBlockquote, isBulletList, isCancelledError, isDateRange, isEmptyToEnd, isEquivalentPosition, isFocusChange, isHTMLBlock, isHeading, isInPrimarySelection, isInputPending, isIso639Dash2LanguageCode, isList, isNotFound, isParent, isRecord$2, isRecord$g, isRedirect, isScrolledToBottom, isServer$1, isSetextUnderline, isSkillsOnly, isUserProvidedAssetModel, isVarArg, isWorkspaceFolderMissingError, isWorkspaceIdentityErrorCode, isolatesEq, it$3, j$5, je, joinPaths$1, jsx, jsxRuntimeExports, jsxSublanguage, k, k$6, keywords, kt, kt$2, languageData, last$1, lazyRouteComponent, leftOverSpace, lineEnd, lineSeparator, listeners$8, ln, localizedI18nText, logException, logMediaLineage, lt$3, ltrAtCursor, m$4, makeCategorizer, makeLogger, marksEqual, matchContext, matchNodeContext, matchPlainBrackets, matchesLocalConnectorServer, matchesRemoteConnectorServer, maybeNest, measurePerf, mediaLineageRequestId, mergeAttributes, mergeInputTrackQueries, mergeProps$1, minCreditAmount, missingCloseTag, mn, modifierCodes, moveByChar, moveLineDown, moveLineUp, moveSel, moveToField, moveToLineBoundary, moveVertically, mt$2, n$1, namesMatch, nativeSelectionHidden, ne, newline, nn, noSemicolon, noSemicolonType, noTokens, nodeHasDimensions, nodeSizeCache, nodeToMiniMapRect, nonEmpty$1, nonPlainText, nonTightList, none, normalizeGatewayBaseUrl, normalizeIndent, normalizeLabel$1, normalizeRotation, nt$4, o$4, observeClientMediaUpload, observeOptions, observers, operatorToken, orderTidyNodes, ot$3, outerDecorations, p$4, p$5, pair, panelConfig, parseAacAudioSpecificConfig, parsePsshBoxContents, parseSemver, pe, pendingLogLines, phrase, pickedCompletion, pinnedTidyNodeIds, posAtCoords, prefer, preprocessLanguageCode, probeMediaDurationSec, progressStateAttributesMapping, promiseWithResolvers, properties$1, pseudoClasses, psshBoxesAreEqual, pt$2, punchRanges, pushStackDedup, q$5, qe, queryIdentifiers, queryInputTracks, queryOptions, r$5, rangeEnd, rangeFrom, rangeIncludesDate, rangeTo, raw, re, reactDomExports, reactExports, readAllLines, readAscii, readBytes, readMp3FrameHeader, readOnly, redirect, redo, redo$1, redoDepth, redoDepth$1, regexpCursor, regionToLocale, registerDynamicHcpManifests, registerEncoder, remarkGfm, remarkParse, remarkRehype, removeItem, renumberList, replaceEqualDeep$1, requestIdle, requireJszip_min, requireLib, resolveConfig, resolveConnectorIcon, resolveConnectorSetupAsset, resolveNewProjectPreferences, resolveTransaction, rn, rootRouteId, routerContext, rt$3, runHandlers, safariSelectionRangeHack, sameArray$1, sameSelPos, sanitize, satisfiesMinHubVersion, scanLineResult, scriptText, scriptTokens, scrollHandler, scrollIntoView, scrollMargins, scrollableParents, selectAll, selectCharLeft, selectCharRight, selectDocEnd, selectDocStart, selectGeneratedMediaNodeIds, selectGroupLeft, selectGroupRight, selectLine, selectLineBoundaryBackward, selectLineBoundaryForward, selectLineBoundaryLeft, selectLineBoundaryRight, selectLineDown, selectLineEnd, selectLineStart, selectLineUp, selectedRequestGroupId, selectionConfig, selectionFromPoints, selectionLayer, selectionPoints, selfClosers, setActive, setSel, shallow, shimExports, simplifySelection, skipAtoms, skipAtomsForSelection, skipSpace, skipSpaceBack, sliceBuf, sn, sortExtensions, sortableKeyboardCoordinates, sourceRequestsAreEqual, space$2, spaces, spec_AtKeyword, spec_LessThan, spec_QueryCallee, spec_callee, spec_identifier, spec_identifier$1, spec_queryIdentifier, spec_word, splitLine, src_default$1, st$3, storageKeys, stringCursor, stripNullChildren, styleModule, styleText, styleTokens, supportsConnectorDialog, tagHighlighter, tagNameAfter, tagStart, tags, tags$1, textFilter, textareaText, textareaTokens, tidyNodeName, toDataView, toInterleavedAudioFormat, toJsxRuntime, toRelative, toTimeZone, toValidatedInputTrackQuery, toast, toggleBlockComment, toggleComment, toggleTabFocusMode, topIndent, tr$2, transactionExtender, transactionFilter, transposeChars, trimPathRight, tryParseJson$1, tt$4, typescriptKeywords, u$3, ue, un, undo, undo$1, undoDepth, undoDepth$1, unified, unitToken, updateAccountSubmissionDecision, updateNewProjectPreferences, updateSel, urlAttributes, useAnimation, useAssetMetadataApi, useAssetMetadataStore, useAvatarRootContext, useBaseQuery, useBaseUiId, useBrowserImageEdit, useCalendar, useConnection, useCurrentWorkspace, useEdgesState, useEditor, useEditorState$1, useFocus, useGatewayBaseUrl, useGatewayScope, useIsMutating, useIsoLayoutEffect, useMusicPromptLayout, useMutation, useNavigate, useNewProjectFolder, useNodeId, useNodesData, useNodesInitialized, useNodesState, useParams, usePlatform, usePopoverRootContext, usePromptFontSizeStore, useQueries, useQuery, useQueryClient, useReactFlow, useRender, useRenderElement, useRouter, useScopedHttpClient, useSearch, useSelectGroupContext, useSelection, useSensor, useSensors, useSortable, useStorage, useStore, useStore$2, useStore$3, useStoreApi, useTimeout, useTranslation, useUpdateNodeInternals, useVirtualizer, ut$2, v$7, validRegExp, validateAudioOptions, validateInputFormatOptions, validateMetadataTags, validateVideoOptions, valueToPercent, variable, verbose, verticalListSortingStrategy, videoPlaybackPath, viewPlugin, visit, visitParents, vt$2, w2, wait$1, warnForPart, we, withArtworkOpacity, withAutomaticDedupeId, withIconCompositing, withWorkspaceGatewayHeaders, workspaceGatewayUrl, workspaceLog, wt$3, x$4, xt$2, y$1, y$6, yt$2, z$3, z$4, z$7, zt$2 };
+export { $$8, $t$2, ACCOUNT_SUBMISSION_BLOCKED_EVENT, ADTS, AES_128_BLOCK_SIZE, API_PATHS, ARCHIVE_ZIPPER, AUDIO_CODECS, AUTH_TRACK_EVENTS, AccordionHeader, AccordionItem$1, AccordionPanel, AccordionRoot, AccordionTrigger$1, AccountSubmissionBlockedError, ActionListItem, ActionListPanel, ActionListSeparator, ActiveOverlay, ActiveSnippet, Activity, ActivityIcon, AdtsInputFormat, AdtsOutputFormat, AlertCircle, AlertDialogRoot, AlertTriangle, AlertTriangleIcon, AlignCenter$1, AlignLeft$1, AlignRight$1, Animation, AnnounceMargin, ApiError, AppWindow, Archive, ArrowDown, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowLeftToLine, ArrowRight, ArrowRight$1, ArrowRightToLine, ArrowUp, ArrowUp$1, ArrowUpDown, ArrowUpFromLine, ArrowUpRight, ArrowUpRight$1, ArrowUpToLine, AssetMetadataStoreContext, At$3, AtSign, Attribute2, AttributeList, AttributeName, AttributeValue, AudioLines, AudioLines$1, AudioResampler, AudioSample, AudioSampleSink, AudioSampleSource, AudioWaveform$1, AvatarImage$1, AvatarRootContext, B$7, BACKEND_VIBE_STORYBOARD, BASE64_DATA_URI_REGEX, BODY, BROWSER_ASSET_SOURCE_METADATA_KEYS, BROWSER_IMAGE_EDIT_EVENT, BadgeCheck, BadgeInfo, Ban$1, Bell, Bell$1, BellRing, BidiSpan, BlobSource, BlockComment, BlockPolicy, Blocks$1, Bold$1, BookOpen$1, BookUser, Bookmark$1, Bot, Box, BoxSelect, Boxes, Brain$1, Brain$2, Break, Brush$1, Bs, Bt$1, BubbleMenu, BufferContext, BufferTarget, Bug, Bug$1, Building2$1, Button$3, CDN_BASE_MAP, CDN_BROWSER_START_ICON, CONNECTOR_STATUS_VISUAL, CONNECTOR_TOKEN_SOURCE, CSS$1, Cable$1, CachedOrder, Calculator, CalendarDays$1, Camera$1, CanvasNodeType, CanvasSink, CaseSensitive$1, CatchBoundary, CatchNotFound, ChangeSet, CharCategory, ChartNoAxesCombined, Check, Check$1, Check$2, CheckCheck, CheckCircle2, CheckCircle2Icon, CheckboxRoot, ChevronDown, ChevronDown$1, ChevronDown$2, ChevronDownIcon$1, ChevronLeft, ChevronLeft$1, ChevronLeftIcon, ChevronRight$1, ChevronRight$2, ChevronRightIcon, ChevronUp, ChevronUpIcon, Chrome$1, Circle$1, CircleAlert, CircleAlert$1, CircleAlert$2, CircleArrowUp, CircleCheck, CircleCheckIcon, CircleHelp$1, CircleIcon, CircleMinus, CircleUserRound$1, CircleX, CircleX$1, Clapperboard$1, Clapperboard$2, ClientOnly, Clipboard, ClipboardIcon, ClipboardList, ClipboardPaste$1, Clock$1, Clock3$1, CloseTag, Cloud, CloudDownload, CloudIcon, CloudOff$1, CloudUpload, Code$1, Cog, Cog$1, Command, CommentEnd, CompartmentInstance, Compass, CompositedSvg, ConnectionTargetMarker, ContextMenuRoot, ContextMenuTrigger$1, ContextTracker, ConversionCanceledError, Copy, Copy$1, CopyPlus, CornerDownRight$1, CreditCard, Crosshair, Crown, Crown$1, Ct$3, CurrentWorkspaceContext, CustomAudioEncoder, CustomPathedSource, D$1, D$7, DEFAULT_RUNTIME_CONFIG, DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT, DOMParser$1, DOMSelectionState, DOMSerializer, DateLib, DayFlag, Decoration$1, Decoration2, DecorationSet, DefaultBufferLength, DefaultSplit, Demuxer, Dialect, Dialect_noMatch, Dialect_selfClosing, DialogBackdrop, DialogClose$1, DialogDescription$2, DialogPopup, DialogPortal$2, DialogRoot, DialogTitle$2, DialogTrigger$1, Direction, DndContext, DocInput, DocView, Download$1, Download$2, DownloadIcon, DragOverlay, Droplet$1, Ds, Dt$2, E$4, E2, EdgeLabelRenderer, EditContextManager, EditorContent, EditorSelection, Element$1, Ellipsis, EmacsyPendingKeys, Emoji, EmptyLine, EncodedAudioPacketSource, EncodedPacket, EncodedPacketSink, EncodedVideoPacketSource, EndTag, ErrorComponent, Es, Et$2, EventEmitter$2, Expand$1, Extension, ExternalLink, ExternalLink$2, ExternalTokenizer, Eye, Eye$1, Eye$2, EyeIcon$1, EyeOff, EyeOffIcon$1, F$6, FALLBACK_NUMBER_OF_CHANNELS, FALLBACK_SAMPLE_RATE, FILE_TYPE_EXTENSIONS, FLAC, FOLD, Facet, FieldControl, FieldRoot, File$3, FileArchive$1, FileAudio$1, FileClock$1, FileCode$1, FileDiff$1, FileImage, FileInput$1, FileJson2$1, FilePlus2, FileText$1, FileVideo$1, FileWarning$1, Files$1, Film, Film$2, FlacInputFormat, FlacOutputFormat, Flag$1, FlatBufferCursor, Folder$1, FolderClock, FolderClosed, FolderInput, FolderInput$2, FolderKey$1, FolderMinus, FolderOpen$1, FolderOpenIcon, FolderPlus, FolderUp, FolderX, Ft$2, G$1, G$5, GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT, GFM, GLOBAL_STORAGE_VERSION, GRID_COLUMN_COUNT_WIDE, GROUP_ID_HEADER, GatewayScopeContext, Gauge, GiftIcon, GitCompare, GlobalAttrs, Globe, Globe2, GraduationCap, Grid2X2, Grid2x2Plus, Grid3X3, GripHorizontalIcon, GripVertical, Gt$1, H, H$5, HILO_HUB_BIZ_LINE, HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_HEADER, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, HLS_MIME_TYPE, HTMLBlockStyle, Hand, Handle, HardDrive$1, Headphones, Headphones$2, History$1, HistoryIcon, HlsInputAudioTrackBacking, HlsInputVideoTrackBacking, Home, House, Hs, Ht$1, I, ICON_STROKE_SPEC, IV_STRING_REGEX, IconCompositingContext, Identifier, ImagePlus, Import, Inbox, IncompleteCloseTag, IncompleteTag, IndentContext, InfiniteQueryObserver, Info$1, InfoIcon$1, InlineDelimiter, InnerParse, InputAudioTrack, InputFormat, InputStream, InputVideoTrack, IsobmffInputFormat, It$1, Italic$1, IterMode, J$6, JPEG, Jo, K$6, K2, KeyRound, Keyboard, KeyboardSensor, Keymaps, L, L$7, LIBTV_CONNECTOR, LTR, LanguageDescription, LanguageSupport, Languages, Layers, Layers2, Layers3, LayoutGrid, LayoutList, LayoutTemplate, LeafBlock, Library, Library$1, Lightbulb, LineBreakPlaceholder, LineComment, Link2, Link2$1, List$1, ListChecks, Loader2, Loader2Icon, LoaderCircle, LoaderCircle$1, LocalTokenGroup, Lock, LockKeyhole, LogOut$1, Ls, Lt$1, M, MATROSKA, MEDIA_EXTENSIONS, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, MIN_SELECTED_NODE_SIZE, MP3, MP4, MPEG_TS, Mail, Map$1, MapPin, Markdown$1, MatroskaInputFormat, Maximize, Maximize2$1, Megaphone$1, Megaphone$2, MenuGroup, MenuGroupLabel, MenuItem$3, MenuPopup, MenuPortal, MenuPositioner, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuRoot, MenuSubmenuRoot, MenuSubmenuTrigger, MenuTrigger, MessageCircle, MessageCircleMore, MessageSquare$1, MessageSquareMore, MessageSquarePlus$1, MessageSquareQuote$1, Mic$1, Minimize2$1, Minus, MinusIcon, MismatchedStartCloseTag, MkvOutputFormat, Monitor, MonitorUp, MonochromeIcon, Moon$1, MoreHorizontal, MousePointer2$1, MovOutputFormat, Mp3InputFormat, Mp3OutputFormat, Mp4OutputFormat, Mt$1, Music, Music$2, Music2, N, N$4, NODE_HIT_SLOP, NON_PCM_AUDIO_CODECS, Network, Network$1, Newspaper, NoMatchStartCloseTag, Node$3, Node$4, NodeResizer, NodeSelection, NodeToolbar$1, NodeViewWrapper, NotLast, NotebookPen, Nt$1, NullTarget, OGG, OctagonXIcon, OggInputFormat, OggOutputFormat, OpenTag, Operation, Ot$2, Output, OutputTrackGroup, P$7, PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, PERF_LOG_FLUSH, PROMPT_FONT_SIZE_DEFAULT, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_MIN, Package$2, PackageSearch, Palette, Panel, PanelBottomClose, PanelGroup, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PanelsTopLeft, Paperclip$1, Parser$1, PathedSource, PenLine$1, Pencil, PencilLine$1, PencilRuler, PencilRuler$1, PendingKeys, Phone, Pin, Pin$1, PinIcon, PinOff, PlatformContext, PlaybackCirclePauseIcon$1, PlaybackCirclePlayIcon$1, PlaybackCircleToggleIcon, PlaybackNextIcon$1, PlaybackPauseIcon$1, PlaybackPlayIcon$1, PlaybackPreviousIcon$1, PlaybackStopIcon$1, Plug$1, Plugin, PluginInstance, PluginKey, Plus, Plus$1, Plus$2, PlusCircle, Podcast, PointerSensor, PopoverArrow$1, PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot, PopoverTrigger$1, Position, Power, Prec, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, PreviewCardTrigger$1, ProcessingEnd, ProgressRoot, ProgressRootContext, Pt$2, Punctuation, Puzzle$1, QTFF, QUALITY_HIGH, QUERY_KEY$1, QueryClient, QueryClientProvider, QueryType, QuickTimeInputFormat, R$1, R$4, R$6, RTL, RadioGroup$1, RadioIndicator, RadioRoot, Range$1, RangeSetBuilder, React, ReactFlow$1, ReactFlowProvider, ReactNodeViewRenderer, ReadableStreamSource, Reader, ReceiptText$1, Redo2, Regex, Repeat2, Replace$1, ReplaceAll$1, RotateCcw, RotateCcw$1, RotateCw, RouterCore, Rs, Rt$2, Rule$1, S$7, SAMPLING_RATES, SELECTED_GLOW_BLUR, SKIP, SPECIAL_CONNECTORS, Save, Scan, Scissors, ScopeNodes, ScriptText, ScrollAreaCorner, ScrollAreaRoot, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaViewport, ScrollRestoration, ScrollTarget, ScrollText, Search, Search$1, Search$2, SearchIcon, SegmentedInput, SelectGroupContext, SelectIcon, SelectItem$2, SelectItemIndicator, SelectItemText, SelectList, SelectPopup, SelectPortal, SelectPositioner, SelectRoot, SelectScrollDownArrow, SelectScrollUpArrow, SelectTrigger$2, SelectValue$2, Selection, SelectionMode, SelfClosingEndTag, Send, ServerIcon, ServerOff, Settings$1, Settings2$1, Share2, Share2$2, ShieldAlert, ShieldAlert$1, ShieldCheck, ShieldCheck$1, ShieldCheckIcon, ShieldOff, ShoppingBag$1, ShoppingBag$2, Shuffle, Slash, Slice, SliderControl$1, SliderIndicator, SliderRoot, SliderThumb, SliderTrack, SlidersHorizontal$1, Smartphone, Smartphone$1, Snippet, SortableContext, Source, SourceRef, Sparkles$1, Speech, Split, Sprout$1, Square$2, SquareDashed, SquareMousePointer, SquareMousePointer$1, Ss, St$2, Stack, StackBufferCursor, Stamp$1, StartCloseScriptTag, StartCloseStyleTag, StartCloseTag, StartCloseTextareaTag, StartScriptTag, StartSelfClosingTag, StartStyleTag, StartTag, StartTextareaTag, StarterKit, StateEffect, StateField, Step, StepMap, StepResult, StickyNote, StringQuery, StyleModule, StyleText, Subscript, Sun, Superscript, SwatchBook, SwitchRoot, SwitchThumb, TAB_CONTENT_ENTER_CLASS_NAME, TAG_BYTERANGE, TAG_DISCONTINUITY, TAG_ENDLIST, TAG_EXTINF, TAG_I_FRAMES_ONLY, TAG_I_FRAME_STREAM_INF, TAG_KEY, TAG_MAP, TAG_MEDIA, TAG_MEDIA_SEQUENCE, TAG_PLAYLIST_TYPE, TAG_PROGRAM_DATE_TIME, TAG_STREAM_INF, TAG_TARGETDURATION, Table$2, TableCell$1, TableHeader$1, TableRow$1, TableView2, TabsIndicator, TabsList$1, TabsPanel, TabsRoot, TabsTab, Tag, Tag$1, TagName, Tags, Text, TextSelection, TextareaText, ThumbsDown, ThumbsUp, ThumbsUp$1, Tile, Toaster$1, Toggle$1, ToggleGroup$1, TokenCache, TokenGroup, TooltipPopup, TooltipPortal, TooltipPositioner, TooltipProvider$2, TooltipRoot, TooltipTrigger$1, TrackSynchronizer, Trans, Transaction2, Trash2$1, Trash2$2, Trash2Icon, TreeElement, TreeFragment, TrendingUp, TriangleAlert, TriangleAlert$1, TriangleAlertIcon, Tt$2, Tv, Type, Type$2, U, U$3, UI, UNDETERMINED_LANGUAGE, Underline$1, Undo2, Ungroup$1, UnquotedAttributeValue, UnsupportedInputFormatError, Upload$1, UploadIcon$1, UrlSource, User, UserRound, UserRound$1, UserRoundPlus, Users$1, UsersIcon, Ut, Ut$2, V$6, VIDEO_CODECS, Video, Video$1, Video$2, VideoOff, VideoSample, VideoSampleSink, VideoSampleSource, ViewPlugin, ViewState, ViewUpdate, ViewportPortal, Volume2, Volume2Icon, VolumeX$1, VolumeXIcon, W$1, W$7, WAVE, WEBM, WORKSPACE_IDENTITY_MISMATCH_CODE, WORKSPACE_STORAGE_DEFAULTS, Wand2, WandSparkles, WavOutputFormat, WaveInputFormat, WebMInputFormat, WebMOutputFormat, WholeWord, WidgetType2, WifiIcon, WifiOff, WifiOff$1, WifiOffIcon, Workflow, Workflow$1, WorkspaceGatewayClient, Wrench, Wrench$1, Wrench$2, X$6, X$7, X$8, XIcon, XYMinimap, Y$4, Yt$2, Z$4, Zap, Zap$1, ZoomIn, ZoomOut, _$5, __addDisposableResource, __disposeResources, __insertCSS, __ovVitePreload, __webpack_exports__, __webpack_exports__getDocument, _t$2, addCursorAbove, addCursorBelow, addsSelectionRange, allowMultipleSelections, an, android, applyDOMChange, applyDOMChangeInner, arrayArgmin, arrayCount, arrayMove, asArray$1, assert$3, assertNever, astTop, at, at$3, atElementStart, atRules, atomicRanges, attrsEqual, attrsFromFacet, audioSampleToInterleavedFormat, avatarStateAttributesMapping, b2, base64ToBytes, basename$8, basicMouseSelection, batch, bidiIsolatedRanges, binarySearchLessOrEqual, bindHandler, blankLine$1, blockWrappers, braceR, brokenClipboardAPI, browser, browserAssetSourceMetadata, browserImageEditPrompt, bt$3, buildAdtsHeaderTemplate, buildKeymap, buildOfficialConnectorList, byGroup, byTag, c$4, callOrReturn, canIgnoreLine, captureCopy, cdnPublicAsset, ceilToMultipleOfTwo, changeBySelectedLine, changeFilter, charType, checkCover, checkRanges, checkSelection, checkSide, clamp$9, clampCropRectangle, classifyFileType, clickAddsSelectionRange, clientExports, clipboardInputFilter, clipboardOutputFilter, closeHistory, closestCenter, clsx, cn, collectMediaResultRecords, combineConfig, commands_exports, commentContent, commentContent$1, compareSemver, completeAttrName, completeAttrValue, completeCloseTag, completeFromList, completeStartTag, completeTag, connectorDescription, connectorPromptActionLabelKey, connectorSummaryActionLabelKey, contains, contentAttributes, contextNodeForDelete, continuedIndent, convertMatchersToTimeZone, copiedRange, copyLineDown, copyLineUp, countColumn, create$2, createAes128CbcDecryptStream, createConnectorInventory, createControlledPromise, createFileRoute, createGetModifiers, createLucideIcon, createNoonOverrides, createRootRoute, createStore$1, createTailwindMerge, createVisitor, crelt, ct$3, cursorCharLeft, cursorCharRight, cursorDocEnd, cursorDocStart, cursorGroupLeft, cursorGroupRight, cursorLayer, cursorLineBoundaryBackward, cursorLineBoundaryForward, cursorLineBoundaryLeft, cursorLineBoundaryRight, cursorLineDown, cursorLineEnd, cursorLineStart, cursorLineUp, cutAt, cutFragments, cva, d, d$3, data, dayPickerContext, decisionVersion, declSelector, decodeArray, decodeHtmlEntities, decorations$1, defaultSchema, defineLanguageFacet, deleteLine, delimitedIndent, delimitedStrategy, deriveActiveScope, deriveTeamCreditDisplay, desc, descendant, desktopMediaIcon, dispatchAccountSubmissionBlocked, dispatchKey, dist, dn, domBoundsAround, dontComplete, dragMovesSelection$1, dragScrollMargin, dragScrollSpeed, dropText, dt, dt$4, dynamicFacetSlot, editable, editorAttributes, editorDocSnapshot, elementName, elementName$1, emit$5, emptyConnectorMarketPolicy, enUS, encodeHtmlEntities, endTag$1, ensureAddr, ensureAnchor, enterFragments, estimateGridRowSize, et$4, eventAttributes, eventBelongsToEditor, exceptionSink, extendSel, f$3, f$4, fieldSelection, findChild, findClusterBreak, findConnectionTarget, findConnectorMentions, findFinished, findHcpConnector, findHitTarget, findName, findOpenTag, findSectionEnd, findTagName, firefoxCopyCutHack, flatIndent, flatten, flattenExtensions, floorToDivisor, flowPointToMiniMap, flush, focusChangeEffect, focusChangeTransaction, focusManager, focusPreventScroll, foldInside, foldService, formatDate, formatErrorMessage, fr, ft$3, g$2, gatherCompletions, generateJSON, getAddr, getAttrs, getBezierPath, getBoundsOfRects, getCdnRegion, getChildren, getClickType, getComponents, getContext, getDataAttributes, getDefaultExportFromCjs$1, getEncodableAudioCodecs, getExtensionField, getFileActivityKind, getFirstEncodableVideoCodec, getFormatters, getHighlighters, getIconStrokeWidth, getIndentUnit, getInternalNodesBounds, getIsolatedRanges, getLabels, getListIndent, getLocationChangeInfo, getMediaTagAutoselect, getMediaTagDefault, getMergedHcpCatalog, getMonthOptions, getNodeDimensions, getRoot, getRuntimeConfig, getSchema, getScrollMargins, getSelection$1, getSkillCoverUrl, getStoreFactory, getStyleForModifiers, getViewportForBounds, getVisibleCloudUploads, getWeekdays, getYearOptions, gt$2, h$5, hasMediaAnalysisFailure, hasSelection, hcpToDefinition, highlightTags, highlighterFacet, historyConfig, historyField_, historyKeymap, hooks, horizontalListSortingStrategy, ht$2, identifier$1, identifiers, ignoreClosed, inList, indentLess, indentMore, indentService, indentString, indentWithTab, inferCodecFromCodecString, inferMediaKind, initReactI18next, inputHandler, insertSemi, instance, interestingNode, invariant, iosVirtualKeyboardOpen, isAtEnd, isAtxHeading, isBlockElement, isBlockquote, isBrowserImageEditRequest, isBulletList, isCancelledError, isDateRange, isEmptyToEnd, isEquivalentPosition, isFocusChange, isHTMLBlock, isHeading, isInPrimarySelection, isInputPending, isIso639Dash2LanguageCode, isList, isNotFound, isParent, isRecord$2, isRecord$g, isRedirect, isScrolledToBottom, isServer$1, isSetextUnderline, isSkillsOnly, isUserProvidedAssetModel, isVarArg, isWorkspaceFolderMissingError, isWorkspaceIdentityErrorCode, isolatesEq, it$3, j$5, je, joinPaths$1, jsx, jsxRuntimeExports, jsxSublanguage, k, k$6, keywords, kt, kt$2, languageData, last$1, lazyRouteComponent, leftOverSpace, lineEnd, lineSeparator, listeners$8, ln, localizedI18nText, logException, lt$3, ltrAtCursor, m$4, makeCategorizer, makeLogger, marksEqual, matchContext, matchNodeContext, matchPlainBrackets, matchesLocalConnectorServer, matchesRemoteConnectorServer, maybeNest, measurePerf, mediaLineageRequestId, mergeAttributes, mergeInputTrackQueries, mergeProps$1, minCreditAmount, missingCloseTag, mn, modifierCodes, moveByChar, moveLineDown, moveLineUp, moveSel, moveToField, moveToLineBoundary, moveVertically, mt$2, n$1, namesMatch, nativeSelectionHidden, ne, newline, nn, noSemicolon, noSemicolonType, noTokens, nodeHasDimensions, nodeSizeCache, nodeToMiniMapRect, nonEmpty$1, nonPlainText, nonTightList, none, normalizeGatewayBaseUrl, normalizeIndent, normalizeLabel$1, normalizeRotation, nt$4, o$4, observeOptions, observers, operatorToken, orderTidyNodes, ot$3, outerDecorations, p$4, p$5, pair, panelConfig, parseAacAudioSpecificConfig, parsePsshBoxContents, parseSemver, pe, pendingLogLines, phrase, pickedCompletion, pinnedTidyNodeIds, posAtCoords, prefer, preprocessLanguageCode, probeMediaDurationSec, progressStateAttributesMapping, promiseWithResolvers, properties$1, pseudoClasses, psshBoxesAreEqual, pt$2, punchRanges, pushStackDedup, q$5, qe, queryIdentifiers, queryInputTracks, queryOptions, r$5, rangeEnd, rangeFrom, rangeIncludesDate, rangeTo, raw, re, reactDomExports, reactExports, readAllLines, readAscii, readBytes, readMp3FrameHeader, readOnly, readRecord, redirect, redo, redo$1, redoDepth, redoDepth$1, regexpCursor, regionToLocale, registerDynamicHcpManifests, registerEncoder, remarkGfm, remarkParse, remarkRehype, removeItem, renumberList, replaceEqualDeep$1, requestIdle, requireJszip_min, requireLib, resolveConfig, resolveConnectorIcon, resolveConnectorSetupAsset, resolveNewProjectPreferences, resolveTransaction, rn, rootRouteId, routerContext, rt$3, runHandlers, safariSelectionRangeHack, sameArray$1, sameSelPos, sanitize, satisfiesMinHubVersion, scanLineResult, scriptText, scriptTokens, scrollHandler, scrollIntoView, scrollMargins, scrollableParents, selectAll, selectCharLeft, selectCharRight, selectDocEnd, selectDocStart, selectGeneratedMediaNodeIds, selectGroupLeft, selectGroupRight, selectLine, selectLineBoundaryBackward, selectLineBoundaryForward, selectLineBoundaryLeft, selectLineBoundaryRight, selectLineDown, selectLineEnd, selectLineStart, selectLineUp, selectedRequestGroupId, selectionConfig, selectionFromPoints, selectionLayer, selectionPoints, selfClosers, setActive, setSel, shallow, shimExports, simplifySelection, skipAtoms, skipAtomsForSelection, skipSpace, skipSpaceBack, sliceBuf, sn, sortExtensions, sortableKeyboardCoordinates, sourceRequestsAreEqual, space$2, spaces, spec_AtKeyword, spec_LessThan, spec_QueryCallee, spec_callee, spec_identifier, spec_identifier$1, spec_queryIdentifier, spec_word, splitLine, src_default$1, st$3, storageKeys, stringCursor, stripNullChildren, styleModule, styleText, styleTokens, supportsConnectorDialog, tagHighlighter, tagNameAfter, tagStart, tags, tags$1, textFilter, textareaText, textareaTokens, tidyNodeName, toDataView, toInterleavedAudioFormat, toJsxRuntime, toRelative, toTimeZone, toValidatedInputTrackQuery, toast, toggleBlockComment, toggleComment, toggleTabFocusMode, topIndent, tr$2, transactionExtender, transactionFilter, transposeChars, trimPathRight, tryParseJson$1, tt$4, typescriptKeywords, u$3, ue, un, undo, undo$1, undoDepth, undoDepth$1, unified, unitToken, updateNewProjectPreferences, updateSel, uploadResponseFilename, urlAttributes, useAnimation, useAvatarRootContext, useBaseQuery, useBaseUiId, useCalendar, useConnection, useCurrentWorkspace, useEdgesState, useEditor, useEditorState$1, useFocus, useGatewayBaseUrl, useGatewayScope, useIsMutating, useIsoLayoutEffect, useMusicPromptLayout, useMutation, useNavigate, useNewProjectFolder, useNodeId, useNodesData, useNodesInitialized, useNodesState, useParams, usePlatform, usePopoverRootContext, usePromptFontSizeStore, useQueries, useQuery, useQueryClient, useReactFlow, useRender, useRenderElement, useRouter, useSearch, useSelectGroupContext, useSelection, useSensor, useSensors, useSortable, useStorage, useStore, useStore$2, useStore$3, useStoreApi, useTimeout, useTranslation, useUpdateNodeInternals, useVirtualizer, ut$2, v$7, validRegExp, validateAudioOptions, validateInputFormatOptions, validateMetadataTags, validateVideoOptions, valueToPercent, variable, verbose, verticalListSortingStrategy, videoPlaybackPath, viewPlugin, visit, visitParents, vt$2, w2, wait$1, warnForPart, we, withArtworkOpacity, withAutomaticDedupeId, withIconCompositing, withWorkspaceGatewayHeaders, workspaceGatewayUrl, workspaceLog, wt$3, x$4, xt$2, y$1, y$6, yt$2, z$3, z$4, z$7, zt$2 };

@@ -1,11 +1,6 @@
 // promo-banner.jsx
-import {
-  dedupedToast,
-  reactExports,
-  usePlatform,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { reactExports, usePlatform, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   isBillingPromotionActive,
   useBillingPromotion,

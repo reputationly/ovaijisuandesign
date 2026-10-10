@@ -3,12 +3,8 @@ import {
   getNodeFlowRect,
   useCanvasOverlayStore,
 } from "../canvas/use-start-crop-from-node.js";
-import {
-  createStore$1 as createStore,
-  reactExports,
-  useAssetMetadataStore,
-  useStore$2 as useStore,
-} from "../vendor.js";
+import { createStore$1 as createStore, reactExports, useStore$2 as useStore } from "../vendor.js";
+import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { useCanvasActions } from "./use-canvas-actions.js";
 import { buildImageNodeView } from "../canvas/build-slot-from-node.js";
 import { useNodeIsEmpty } from "../infra/create-recently-added-store.js";

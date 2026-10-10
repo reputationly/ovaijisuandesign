@@ -1,16 +1,7 @@
 // promote-to-asset-form.jsx
 import { ENTITY_TYPES } from "./audio-play-button.jsx";
-import {
-  AtSign,
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  dedupedToast,
-  jsxRuntimeExports,
-  Loader2,
-  reactExports,
-  ShieldAlert,
-  useTranslation,
-} from "../vendor.js";
+import { AtSign, ChevronDown, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Loader2, reactExports, ShieldAlert, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   DropdownMenu,
   Tooltip,

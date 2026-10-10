@@ -10,17 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../generation/select-content.jsx";
-import {
-  dedupedToast,
-  jsxRuntimeExports,
-  NodeToolbar$1 as NodeToolbar,
-  Position,
-  reactExports,
-  useNodeId,
-  useStore$3 as useStore,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { jsxRuntimeExports, NodeToolbar$1 as NodeToolbar, Position, reactExports, useNodeId, useStore$3 as useStore, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { WATERMARK_PANEL_WIDTH } from "./storyboard-resize-max-edge.js";
 import {
   useCanvasIsBoxSelecting,

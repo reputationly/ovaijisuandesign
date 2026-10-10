@@ -1,18 +1,6 @@
 // canvas-view-inner.jsx
-import {
-  CanvasNodeType,
-  Check,
-  ChevronDown,
-  dedupedToast,
-  Loader2Icon,
-  reactExports,
-  useAssetMetadataApi,
-  useNodesInitialized,
-  useReactFlow,
-  useStore$3 as useStore,
-  useStoreApi,
-  useTranslation,
-} from "../vendor.js";
+import { CanvasNodeType, Check, ChevronDown, Loader2Icon, reactExports, useNodesInitialized, useReactFlow, useStore$3 as useStore, useStoreApi, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   applyReactFlowSelectionWriteback,

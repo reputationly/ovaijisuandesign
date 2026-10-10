@@ -1,14 +1,6 @@
 // team-credit-page.jsx
-import {
-  dedupedToast,
-  deriveTeamCreditDisplay,
-  jsxRuntimeExports,
-  reactExports,
-  usePlatform,
-  useQuery,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { deriveTeamCreditDisplay, jsxRuntimeExports, reactExports, usePlatform, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { deriveMpCreditSummary } from "./hailuo-credit-row.jsx";
 import {
   canonicalCreditScope,

@@ -2,11 +2,8 @@
 import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { formatTime } from "../media-editing/package.jsx";
-import {
-  classifyFileType,
-  guardAccountSubmission,
-  reactExports,
-} from "../vendor.js";
+import { classifyFileType, reactExports } from "../vendor.js";
+import { guardAccountSubmission } from "../infra/agent-http-client.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
 import { PreviewCardContent } from "../text-editor/use-placeholder-asset-source.jsx";

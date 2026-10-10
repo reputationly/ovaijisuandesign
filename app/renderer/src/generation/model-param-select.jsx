@@ -1,5 +1,6 @@
 // model-param-select.jsx
-import { Copy, dedupedToast, reactExports, useTranslation } from "../vendor.js";
+import { Copy, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   getReferenceNavigationDefaults,

@@ -1,20 +1,6 @@
 // session-tab-strip.jsx
-import {
-  CircleAlert,
-  dedupedToast,
-  GripVertical,
-  jsxRuntimeExports,
-  NotebookPen,
-  Pencil,
-  PencilRuler,
-  Plus,
-  reactExports,
-  Scissors,
-  useQuery,
-  useStorage,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { CircleAlert, GripVertical, jsxRuntimeExports, NotebookPen, Pencil, PencilRuler, Plus, reactExports, Scissors, useQuery, useStorage, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FourCornerLoading, sessionDisplayName } from "./chat-empty-state.jsx";
 import {

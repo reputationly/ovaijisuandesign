@@ -22,13 +22,8 @@ import {
   popoverDraftIsDirty,
   translateOptionValue,
 } from "./param-label-fallbacks.js";
-import {
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  useAssetMetadataApi,
-  useTranslation,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   PromptPlaceholder,

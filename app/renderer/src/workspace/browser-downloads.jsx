@@ -1,11 +1,6 @@
 // browser-downloads.jsx
-import {
-  API_PATHS,
-  dedupedToast,
-  reactExports,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Icon,
   Tooltip,

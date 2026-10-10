@@ -1,13 +1,6 @@
 // use-warn-missing-asset-meta.jsx
-import {
-  dedupedToast,
-  MenuRoot,
-  MenuSubmenuRoot,
-  MenuTrigger,
-  reactExports,
-  toast,
-  withAutomaticDedupeId,
-} from "../vendor.js";
+import { MenuRoot, MenuSubmenuRoot, MenuTrigger, reactExports, toast, withAutomaticDedupeId } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn } from "../infra/dialog-content.jsx";
 import { parseNodeId } from "../canvas/find-free-position-from-anchor.js";

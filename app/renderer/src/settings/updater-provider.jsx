@@ -1,11 +1,6 @@
 // updater-provider.jsx
-import {
-  compareSemver,
-  dedupedToast,
-  getRuntimeConfig,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { compareSemver, getRuntimeConfig, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   canUseUpdaterDevPreview,
   setUpdaterDevPreviewMode,

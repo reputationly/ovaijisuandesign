@@ -1,17 +1,8 @@
 // multi-angle-editor.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CANVAS_SIZE, ToolResetIcon } from "./plane-quad.jsx";
-import {
-  CompositedSvg,
-  dedupedToast,
-  NodeToolbar$1 as NodeToolbar,
-  Position,
-  reactExports,
-  useNodeId,
-  useStore$3 as useStore,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { CompositedSvg, NodeToolbar$1 as NodeToolbar, Position, reactExports, useNodeId, useStore$3 as useStore, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { CreditCostBadge, Tooltip } from "../generation/missing-asset-card.jsx";
 import {
   LeftPanel,

@@ -1,5 +1,6 @@
 // use-file-explorer-missing-recovery.js
-import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 
 export function useFileExplorerMissingRecovery({

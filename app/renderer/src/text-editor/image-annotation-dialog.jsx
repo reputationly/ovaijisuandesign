@@ -1,19 +1,6 @@
 // image-annotation-dialog.jsx
-import {
-  ArrowUpRight,
-  ChevronDown,
-  dedupedToast,
-  Grid3X3,
-  jsxRuntimeExports,
-  Minus,
-  reactExports,
-  Redo2,
-  Tag$1 as Tag,
-  Undo2,
-  usePlatform,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { ArrowUpRight, ChevronDown, Grid3X3, jsxRuntimeExports, Minus, reactExports, Redo2, Tag$1 as Tag, Undo2, usePlatform, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Brush,
   Circle,

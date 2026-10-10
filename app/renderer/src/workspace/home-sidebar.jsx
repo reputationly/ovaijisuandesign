@@ -1,22 +1,6 @@
 // home-sidebar.jsx
-import {
-  ArrowUpRight,
-  ChevronDown,
-  ChevronRight$1 as ChevronRight,
-  dedupedToast,
-  jsxRuntimeExports,
-  Library,
-  MonochromeIcon,
-  Plus,
-  reactExports,
-  storageKeys,
-  useNavigate,
-  usePlatform,
-  useQueryClient,
-  useStorage,
-  useTranslation,
-  Workflow,
-} from "../vendor.js";
+import { ArrowUpRight, ChevronDown, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Library, MonochromeIcon, Plus, reactExports, storageKeys, useNavigate, usePlatform, useQueryClient, useStorage, useTranslation, Workflow } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Tooltip,
   TooltipProvider,

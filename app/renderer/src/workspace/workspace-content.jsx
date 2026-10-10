@@ -1,14 +1,8 @@
 // workspace-content.jsx
 import { useAccountSubmissionDecision } from "../assets/gateway-scope-provider.jsx";
 import { useWorkspaceRemoteToolOptional } from "../canvas/resolve-workspace-failure-diagnosis.js";
-import {
-  BROWSER_IMAGE_EDIT_EVENT,
-  ChevronDown,
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { BROWSER_IMAGE_EDIT_EVENT, ChevronDown, jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { useDiffReviewStore } from "../text-editor/use-diff-review-store.js";
 import {
   useGatewayFetch,

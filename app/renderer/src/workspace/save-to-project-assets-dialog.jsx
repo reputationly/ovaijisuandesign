@@ -5,15 +5,8 @@ import {
   getProjectAssetWritePolicy,
   PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
 } from "../assets/wrap-as-asset-center-error.js";
-import {
-  API_PATHS,
-  dedupedToast,
-  FolderPlus,
-  Loader2,
-  reactExports,
-  useCurrentWorkspace,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, FolderPlus, Loader2, reactExports, useCurrentWorkspace, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { gatewayUrl } from "../infra/gateway-http-error.jsx";
 import { checkCloudAssetUpload } from "../assets/check-cloud-asset-upload.js";

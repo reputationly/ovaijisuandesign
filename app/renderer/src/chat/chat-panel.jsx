@@ -1,15 +1,6 @@
 // chat-panel.jsx
-import {
-  dedupedToast,
-  guardAccountSubmission,
-  Loader2,
-  reactExports,
-  useBrowserImageEdit,
-  useCurrentWorkspace,
-  useNavigate,
-  useTranslation,
-  workspaceLog,
-} from "../vendor.js";
+import { Loader2, reactExports, useCurrentWorkspace, useNavigate, useTranslation, workspaceLog } from "../vendor.js";
+import { dedupedToast, guardAccountSubmission, useBrowserImageEdit } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   buildSelectionQuote,

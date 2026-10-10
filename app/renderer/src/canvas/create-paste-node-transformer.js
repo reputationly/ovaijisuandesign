@@ -1,10 +1,7 @@
 // create-paste-node-transformer.js
 import { resolveNodeAssetId } from "./remove-nodes-and-promote-group-mains.js";
-import {
-  CanvasNodeType,
-  reactExports,
-  useAssetMetadataApi,
-} from "../vendor.js";
+import { CanvasNodeType, reactExports } from "../vendor.js";
+import { useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { getClipboard } from "./partition-user-removal-elements.js";
 
 function readSourcePath(sourceNode, clipboard2, assetMetadataStore) {

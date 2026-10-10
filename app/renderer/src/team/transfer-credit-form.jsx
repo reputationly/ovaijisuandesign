@@ -1,14 +1,6 @@
 // transfer-credit-form.jsx
-import {
-  AlertTriangle,
-  dedupedToast,
-  dispatchAccountSubmissionBlocked,
-  guardAccountSubmission,
-  reactExports,
-  useMutation,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { AlertTriangle, dispatchAccountSubmissionBlocked, reactExports, useMutation, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   creditQueryKeys,

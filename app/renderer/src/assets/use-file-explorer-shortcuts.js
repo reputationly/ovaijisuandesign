@@ -1,5 +1,6 @@
 // use-file-explorer-shortcuts.js
-import { dedupedToast, reactExports, useTranslation } from "../vendor.js";
+import { reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { activeToastIds } from "./post-check-conflicts.js";
 import { refreshAssetIndex } from "./gateway-scope-provider.jsx";
 import { useStableCallback } from "./use-cloud-review-nodes.js";

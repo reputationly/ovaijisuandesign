@@ -3,12 +3,8 @@ import { kelvinToHex, roundAngle } from "./color-stops.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CANVAS_SIZE, ToolResetIcon } from "./plane-quad.jsx";
 import { LightBall } from "./light-ball.jsx";
-import {
-  dedupedToast,
-  Loader2,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { Loader2, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { ToolSlider } from "./tool-slider.jsx";
 import { LeftPanel, SegmentedControl } from "./segmented-control.jsx";
 import { Ban, useCanvasBridge } from "./package.jsx";

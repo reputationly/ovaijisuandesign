@@ -6,15 +6,8 @@ import {
 } from "../infra/use-plugin-metadata-store.js";
 import { canUseDebugTooling } from "../workspace/use-deep-link-router.js";
 import { getWorkspaceContentBudgetSnapshot } from "../infra/aggregate-snapshots.js";
-import {
-  dedupedToast,
-  DialogPortal$2 as DialogPortal,
-  instance,
-  PopoverRoot,
-  reactExports,
-  SelectRoot,
-  workspaceLog,
-} from "../vendor.js";
+import { DialogPortal$2 as DialogPortal, instance, PopoverRoot, reactExports, SelectRoot, workspaceLog } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { showVisiblePreviewTab } from "../workspace/show-visible-preview-tab.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 function resolveCanvasRenderPolicy(platform2, override = {}) {

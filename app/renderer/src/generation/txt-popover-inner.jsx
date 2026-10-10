@@ -1,17 +1,6 @@
 // txt-popover-inner.jsx
-import {
-  ChevronDown,
-  dedupedToast,
-  jsxRuntimeExports,
-  Lock,
-  reactDomExports,
-  reactExports,
-  useAssetMetadataApi,
-  useAssetMetadataStore,
-  useMusicPromptLayout,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { ChevronDown, jsxRuntimeExports, Lock, reactDomExports, reactExports, useMusicPromptLayout, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { summarizeParams } from "./summarize-params.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";

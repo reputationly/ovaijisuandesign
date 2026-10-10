@@ -10,15 +10,8 @@ import {
   PlusIcon,
   renameColumn,
 } from "../media-editing/canvas-sticker-assets.jsx";
-import {
-  classifyFileType,
-  CompositedSvg,
-  jsxRuntimeExports,
-  reactDomExports,
-  reactExports,
-  useAssetMetadataStore,
-  useTranslation,
-} from "../vendor.js";
+import { classifyFileType, CompositedSvg, jsxRuntimeExports, reactDomExports, reactExports, useTranslation } from "../vendor.js";
+import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   addColumn,

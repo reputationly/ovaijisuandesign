@@ -1,23 +1,6 @@
 // context-menu-content.jsx
-import {
-  ActionListItem,
-  ActionListPanel,
-  ActionListSeparator,
-  CDN_BASE_MAP,
-  cdnPublicAsset,
-  ChevronRightIcon,
-  ContextMenuTrigger$1,
-  dedupedToast,
-  getCdnRegion,
-  MenuItem$3 as MenuItem,
-  MenuPopup,
-  MenuPortal,
-  MenuPositioner,
-  MenuSubmenuRoot,
-  MenuSubmenuTrigger,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { ActionListItem, ActionListPanel, ActionListSeparator, CDN_BASE_MAP, cdnPublicAsset, ChevronRightIcon, ContextMenuTrigger$1, getCdnRegion, MenuItem$3 as MenuItem, MenuPopup, MenuPortal, MenuPositioner, MenuSubmenuRoot, MenuSubmenuTrigger, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   cn$2 as cn,

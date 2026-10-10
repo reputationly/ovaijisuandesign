@@ -1,25 +1,6 @@
 // memory-manager.jsx
-import {
-  API_PATHS,
-  dedupedToast,
-  getRuntimeConfig,
-  jsxRuntimeExports,
-  LoaderCircle,
-  normalizeGatewayBaseUrl,
-  Plus,
-  reactExports,
-  RotateCcw,
-  Search,
-  Undo2,
-  useCurrentWorkspace,
-  useGatewayBaseUrl,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useStorage,
-  useTranslation,
-  WandSparkles,
-} from "../vendor.js";
+import { API_PATHS, getRuntimeConfig, jsxRuntimeExports, LoaderCircle, normalizeGatewayBaseUrl, Plus, reactExports, RotateCcw, Search, Undo2, useCurrentWorkspace, useGatewayBaseUrl, useMutation, useQuery, useQueryClient, useStorage, useTranslation, WandSparkles } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   BASE,

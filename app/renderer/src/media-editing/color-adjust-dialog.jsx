@@ -1,11 +1,6 @@
 // color-adjust-dialog.jsx
-import {
-  dedupedToast,
-  jsxRuntimeExports,
-  Loader2,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { jsxRuntimeExports, Loader2, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ColorAdjustSlider } from "./color-adjust-slider.jsx";
 import { Dialog } from "../canvas/separator.jsx";

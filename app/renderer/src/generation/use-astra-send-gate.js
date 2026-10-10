@@ -4,13 +4,8 @@ import {
   isCustomModelId,
   RESOURCE_DRAG_MIME,
 } from "../text-editor/build-asr-gateway-request.js";
-import {
-  dedupedToast,
-  guardAccountSubmission,
-  reactExports,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { useOptionalTeamAccount } from "../assets/credit-query-keys.jsx";
 import {

@@ -1,23 +1,6 @@
 // markdown-link.jsx
-import {
-  API_PATHS,
-  ArrowUpRight,
-  classifyFileType,
-  Copy,
-  Crosshair,
-  dedupedToast,
-  defaultSchema,
-  ExternalLink,
-  G$1 as G,
-  Globe,
-  jsxRuntimeExports,
-  reactExports,
-  useCurrentWorkspace,
-  usePlatform,
-  useTranslation,
-  Video,
-  VideoOff,
-} from "../vendor.js";
+import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, defaultSchema, ExternalLink, G$1 as G, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   cleanRaw,
   hasLocalFileLinkProtocol,

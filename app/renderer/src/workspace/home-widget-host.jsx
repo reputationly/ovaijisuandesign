@@ -4,13 +4,8 @@ import {
   HOME_WIDGET_DEV_PREVIEW_EVENT,
   snapshot,
 } from "./set-home-widget-dev-preview-mode.js";
-import {
-  dedupedToast,
-  reactExports,
-  usePlatform,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { reactExports, usePlatform, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";

@@ -1,14 +1,7 @@
 // migration-popup.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
-import {
-  dedupedToast,
-  guardAccountSubmission,
-  InfoIcon$1 as InfoIcon,
-  jsxRuntimeExports,
-  reactExports,
-  usePlatform,
-  useTranslation,
-} from "../vendor.js";
+import { InfoIcon$1 as InfoIcon, jsxRuntimeExports, reactExports, usePlatform, useTranslation } from "../vendor.js";
+import { dedupedToast, guardAccountSubmission } from "../infra/agent-http-client.js";
 import {
   openExternalUrl,
   Tooltip,

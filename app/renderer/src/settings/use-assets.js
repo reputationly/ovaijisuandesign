@@ -1,13 +1,6 @@
 // use-assets.js
-import {
-  API_PATHS,
-  dedupedToast,
-  reactExports,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, reactExports, useMutation, useQuery, useQueryClient, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   ASSETS_QUERY_KEY,
   FILE_CONTENT_QUERY_KEY,

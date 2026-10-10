@@ -1,17 +1,6 @@
 // selection-toolbar-inner.jsx
-import {
-  CanvasNodeType,
-  CompositedSvg,
-  jsxRuntimeExports,
-  LayoutTemplate,
-  NodeToolbar$1 as NodeToolbar,
-  Position,
-  reactDomExports,
-  reactExports,
-  useAssetMetadataStore,
-  useStore$3 as useStore,
-  useTranslation,
-} from "../vendor.js";
+import { CanvasNodeType, CompositedSvg, jsxRuntimeExports, LayoutTemplate, NodeToolbar$1 as NodeToolbar, Position, reactDomExports, reactExports, useStore$3 as useStore, useTranslation } from "../vendor.js";
+import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   DropdownMenu,

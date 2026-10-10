@@ -1,20 +1,6 @@
 // chat-rating-controls.jsx
-import {
-  dedupedToast,
-  isRecord$g,
-  jsxRuntimeExports,
-  MonochromeIcon,
-  reactExports,
-  RotateCcw,
-  ThumbsDown,
-  ThumbsUp,
-  useIsMutating,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useTranslation,
-  X$7 as X,
-} from "../vendor.js";
+import { isRecord$g, jsxRuntimeExports, MonochromeIcon, reactExports, RotateCcw, ThumbsDown, ThumbsUp, useIsMutating, useMutation, useQuery, useQueryClient, useTranslation, X$7 as X } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { submitFeedback } from "../infra/submit-feedback.js";
 import {
   chatLog,

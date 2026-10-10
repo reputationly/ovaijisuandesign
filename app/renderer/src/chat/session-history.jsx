@@ -1,18 +1,6 @@
 // session-history.jsx
-import {
-  API_PATHS,
-  dedupedToast,
-  DownloadIcon,
-  EyeIcon$1 as EyeIcon,
-  EyeOffIcon$1 as EyeOffIcon,
-  HistoryIcon,
-  PinIcon,
-  reactExports,
-  SearchIcon,
-  usePlatform,
-  useStorage,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, DownloadIcon, EyeIcon$1 as EyeIcon, EyeOffIcon$1 as EyeOffIcon, HistoryIcon, PinIcon, reactExports, SearchIcon, usePlatform, useStorage, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Tooltip,
   TooltipTrigger,

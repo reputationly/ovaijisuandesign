@@ -1,12 +1,6 @@
 // i2-v-popover-inner.jsx
-import {
-  dedupedToast,
-  jsxRuntimeExports,
-  reactExports,
-  useAssetMetadataApi,
-  useReactFlow,
-  useTranslation,
-} from "../vendor.js";
+import { jsxRuntimeExports, reactExports, useReactFlow, useTranslation } from "../vendor.js";
+import { dedupedToast, useAssetMetadataApi } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   buildSpecialI2VSubmitParams,

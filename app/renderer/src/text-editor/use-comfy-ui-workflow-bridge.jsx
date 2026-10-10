@@ -1,10 +1,6 @@
 // use-comfy-ui-workflow-bridge.jsx
-import {
-  API_PATHS,
-  dedupedToast,
-  reactExports,
-  useTranslation,
-} from "../vendor.js";
+import { API_PATHS, reactExports, useTranslation } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { mapLocalComfyUiWorkflows } from "./canvas-host-toolbar-button.jsx";
 import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
