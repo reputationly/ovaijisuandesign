@@ -5,156 +5,7 @@ function resolveEventIpCountry(eventValue, fallback) {
   return typeof eventValue === "string" ? eventValue : fallback;
 }
 
-const TRACK_PROJECT_NAME = "hub";
-
-const TRACK_SERVER_URL = {
-  domestic: {
-    prod: "https://data.hailuoai.com/meerkat-reporter/api/report?project=hub",
-    nonprod:
-      "https://bigdata-test.xingyeai.com/meerkat-reporter/api/report?project=hub",
-  },
-  overseas: {
-    prod: "https://data.hailuoai.video/meerkat-reporter/api/report?project=hub",
-    nonprod:
-      "https://bigdata-test.talkie-ai.com/meerkat-reporter/api/report?project=hub",
-  },
-};
-
-function resolveTrackServerUrl(region, channel) {
-  const bucket = channel === "prod" ? "prod" : "nonprod";
-  return TRACK_SERVER_URL[region][bucket];
-}
-
 const MAX_PENDING_EVENTS = 100;
-
-// shared/detect-os-parts.js
-function normalizePlatform(p3) {
-  switch (p3) {
-    case "darwin":
-      return "macos";
-    case "win32":
-      return "windows";
-    case "linux":
-      return "linux";
-    default:
-      return p3;
-  }
-}
-
-function safeRequireNodeOs() {
-  if (typeof process === "undefined" || !process.versions?.node) return null;
-  try {
-    const req = new Function("m", "return require(m)");
-    return req("node:os");
-  } catch {
-    return null;
-  }
-}
-
-function detectOsParts() {
-  const nodeOs = safeRequireNodeOs();
-  if (nodeOs) {
-    return {
-      name: normalizePlatform(nodeOs.platform()),
-      version: nodeOs.release(),
-      arch: nodeOs.arch(),
-    };
-  }
-  const name2 =
-    typeof process !== "undefined" && process.platform
-      ? normalizePlatform(process.platform)
-      : (navigator?.userAgentData?.platform ?? "unknown");
-  const arch =
-    typeof process !== "undefined" && process.arch ? process.arch : "";
-  let version2 = "";
-  if (typeof navigator !== "undefined" && navigator.userAgent) {
-    const m3 = navigator.userAgent.match(/\(([^)]+)\)/);
-    if (m3) {
-      const part = m3[1]
-        .split(";")
-        .map((s2) => s2.trim())
-        .find((s2) => /Mac OS X|Windows NT|Linux/i.test(s2));
-      if (part) version2 = part;
-    }
-  }
-  return {
-    name: name2,
-    version: version2,
-    arch,
-  };
-}
-
-function joinOs(parts) {
-  return [parts.name, parts.version, parts.arch].filter(Boolean).join(" ");
-}
-
-function safeIntlOptions() {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions();
-  } catch {
-    return null;
-  }
-}
-
-function detectElectronVersion(override) {
-  if (override) return override;
-  if (typeof process === "undefined") return void 0;
-  return process.versions?.electron;
-}
-
-function detectChromeVersion(override) {
-  if (override) return override;
-  if (typeof process === "undefined") return void 0;
-  return process.versions?.chrome;
-}
-
-function detectCpuCount(override) {
-  if (typeof override === "number") return override;
-  const nodeOs = safeRequireNodeOs();
-  if (!nodeOs) return void 0;
-  try {
-    return nodeOs.cpus().length;
-  } catch {
-    return void 0;
-  }
-}
-
-function detectTotalMemoryMb(override) {
-  if (typeof override === "number") return override;
-  const nodeOs = safeRequireNodeOs();
-  if (!nodeOs) return void 0;
-  try {
-    return Math.round(nodeOs.totalmem() / 1024 / 1024);
-  } catch {
-    return void 0;
-  }
-}
-
-function buildBaseProps(opts) {
-  const parts = detectOsParts();
-  const intl = safeIntlOptions();
-  return {
-    app_version: opts.appVersion,
-    process_type: opts.processType,
-    os: opts.os ?? joinOs(parts),
-    os_name: parts.name,
-    os_version: parts.version,
-    arch: parts.arch,
-    region: opts.region,
-    channel: opts.channel,
-    env: opts.env,
-    device_id: opts.deviceId,
-    download_source: opts.downloadSource ?? "default",
-    update_backend: opts.updateBackend ?? "electron-updater",
-    ip_country: opts.ipCountry ?? "",
-    electron_version: detectElectronVersion(opts.electronVersion),
-    chrome_version: detectChromeVersion(opts.chromeVersion),
-    cpu_count: detectCpuCount(opts.cpuCount),
-    total_memory_mb: detectTotalMemoryMb(opts.totalMemoryMb),
-    locale: opts.locale ?? intl?.locale,
-    timezone: opts.timezone ?? intl?.timeZone,
-  };
-}
 
 const USER_BINDING_FALLBACK_MS = 1e4;
 
@@ -164,9 +15,8 @@ let _baseProps = null;
 
 export let _initialized = false;
 
-export let _trackingDisabled = false;
-
-let _initPromise = null;
+// 神策上报已停用：不再加载统计脚本，trackEvent 直接返回。
+export let _trackingDisabled = true;
 
 export let _pendingUser = null;
 
@@ -270,35 +120,9 @@ function _applyPendingUserIfReady(version2) {
     });
 }
 
-export function initTrack(opts) {
-  if (_initPromise) return _initPromise;
-  _initPromise = (async () => {
-    try {
-      const mod = await (() => import("../mmx-sensor-track.esm-VwEZ9g-g.js"))();
-      const sdk = mod.default;
-      const serverUrl =
-        opts.serverUrlOverride ??
-        resolveTrackServerUrl(opts.region, opts.channel);
-      await sdk.init({
-        server_url: serverUrl,
-        project_name: TRACK_PROJECT_NAME,
-        debug: opts.debug ?? false,
-      });
-      const baseProps = buildBaseProps(opts);
-      await sdk.registerPage(baseProps);
-      _sdk = sdk;
-      _baseProps = baseProps;
-      _initialized = true;
-      _applyPendingUserIfReady(_userBindingVersion);
-      _flushPendingEvents();
-    } catch (err) {
-      console.warn("[track] init failed, becoming no-op:", err);
-      _initialized = false;
-      _trackingDisabled = true;
-      _pendingEvents = [];
-    }
-  })();
-  return _initPromise;
+export function initTrack() {
+  _markUserReady();
+  return Promise.resolve();
 }
 
 export function setTrackUser(userId, profile) {
