@@ -57,7 +57,7 @@ const ALL_PAGES = [
   { id: "ws-multi-angle", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 600 }, { ui: "canvas.node-multi-angle" }, { until: "canvas.multi-angle.popover" }] },
   { id: "ws-text-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-text" }, { wait: 2000 }] },
   { id: "ws-table-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-table" }, { wait: 2000 }] },
-  { id: "ws-text-editor", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-text" }, { ui: "canvas.text-node", last: true, mouse: true, timeout: 8000 }, { wait: 500 }, { ui: "canvas-text-edit", mouse: true, last: true, timeout: 8000 }, { untilSelector: ".canvas-text-fullscreen-editor .ProseMirror", timeout: 15000 }, { insert: "对比用的一段文字" }, { wait: 2500 }] },
+  { id: "ws-text-editor", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node", mouse: true }, { wait: 400 }, { ui: "canvas.menu-add-text", mouse: true }, { ui: "canvas.text-node", last: true, mouse: true, timeout: 8000 }, { wait: 500 }, { ui: "canvas-text-edit", mouse: true, last: true, timeout: 8000 }, { untilSelector: ".canvas-text-fullscreen-editor .ProseMirror", timeout: 15000 }, { insert: "对比用的一段文字" }, { wait: 2500 }] },
   { id: "ws-browser", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.switch-to-browser" }, { wait: 2500 }] },
   // 切到仅对话会记在工作区里，后面的画布屏就找不到节点。所以放在最后，并先回到画布。
   { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.switch-to-canvas", mouse: true }, { wait: 600 }, { ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 500 }, { ui: "workspace.view-mode.chat-only", mouse: true }, { wait: 1200 }] },
@@ -121,7 +121,8 @@ const clickByText = (text) => `(() => {
 
 // 点 data-action-ui-id。画布节点靠 pointerdown 选中，所以三种事件都发。
 const clickByUiId = (id, last) => `(() => {
-  const list = [...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].filter((e) => e.getBoundingClientRect().width > 0);
+  const onScreen = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth; };
+  const list = [...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].filter(onScreen);
   const el = list[${last ? "length - 1" : "0"}];
   if (!el) return false;
   const r = el.getBoundingClientRect();
@@ -134,13 +135,15 @@ const clickByUiId = (id, last) => `(() => {
 
 // 有些菜单只认真实鼠标（合成 click 点得到元素，但菜单不展开）。返回点击坐标。
 const uiCenter = (id, last) => `(() => {
-  const list = [...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].filter((e) => e.getBoundingClientRect().width > 0);
-  const el = list[${last ? "length - 1" : "0"}];
+  const onScreen = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth; };
+  const all = [...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].filter((e) => e.getBoundingClientRect().width > 0);
+  let el = ${last ? "all.filter(onScreen).at(-1)" : "all.filter(onScreen)[0]"};
+  if (!el && all.length) { el = ${last ? "all.at(-1)" : "all[0]"}; el.scrollIntoView({ block: "center", inline: "center" }); }
   if (!el) return null;
   const r = el.getBoundingClientRect();
   return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
 })()`;
-const uiVisible = (id) => `!![...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].some((e) => e.getBoundingClientRect().width > 0)`;
+const uiVisible = (id) => `!![...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].some((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth; })`;
 const cssVisible = (sel) => `!!document.querySelector(${JSON.stringify(sel)})?.getBoundingClientRect().width`;
 const editorPoint = `(() => {
   const el = document.querySelector(".canvas-text-fullscreen-editor .ProseMirror") ?? document.querySelector(".cm-content");
