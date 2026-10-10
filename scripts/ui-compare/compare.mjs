@@ -51,12 +51,16 @@ const ALL_PAGES = [
   // 画布 / 对话里要点开才出现的界面。会改画布内容的放在只读步骤后面。
   { id: "ws-add-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { wait: 800 }] },
   { id: "ws-zoom", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.toolbar-zoom-menu" }, { wait: 600 }] },
-  { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 500 }, { ui: "workspace.view-mode.chat-only", mouse: true }, { wait: 1200 }] },
   { id: "ws-chat-skill", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "chat-skill-btn" }, { wait: 800 }] },
   { id: "ws-select-image", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 800 }] },
+  { id: "ws-relight", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 600 }, { ui: "canvas.node-relight" }, { until: "canvas.relight.popover" }] },
+  { id: "ws-multi-angle", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 600 }, { ui: "canvas.node-multi-angle" }, { until: "canvas.multi-angle.popover" }] },
   { id: "ws-text-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-text" }, { wait: 2000 }] },
   { id: "ws-table-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-table" }, { wait: 2000 }] },
+  { id: "ws-text-editor", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-text" }, { ui: "canvas.text-node", last: true, mouse: true, timeout: 8000 }, { wait: 500 }, { ui: "canvas-text-edit", mouse: true, last: true, timeout: 8000 }, { untilSelector: ".canvas-text-fullscreen-editor .ProseMirror", timeout: 15000 }, { insert: "对比用的一段文字" }, { wait: 2500 }] },
   { id: "ws-browser", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.switch-to-browser" }, { wait: 2500 }] },
+  // 切到仅对话会记在工作区里，后面的画布屏就找不到节点。所以放在最后，并先回到画布。
+  { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.switch-to-canvas", mouse: true }, { wait: 600 }, { ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 500 }, { ui: "workspace.view-mode.chat-only", mouse: true }, { wait: 1200 }] },
   // 会真的创建一个项目（数据目录每种模式都会重建），所以放最后，免得影响别的屏
   { id: "project-created", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用项目" }, "创建项目", { wait: 4000 }] },
   { id: "project-assets", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用资产项目" }, "创建项目", { wait: 4000 }, "项目资产", { wait: 2000 }] },
@@ -65,8 +69,15 @@ const ALL_PAGES = [
 const ONLY = process.env.ONLY?.split(",").filter(Boolean);
 const PAGES = ONLY ? ALL_PAGES.filter((p) => ONLY.includes(p.id)) : ALL_PAGES;
 if (ONLY && PAGES.length !== ONLY.length) throw new Error(`ONLY 里有不存在的页面：${ONLY.filter((id) => !ALL_PAGES.some((p) => p.id === id)).join(",")}`);
-const NO_ANIMATION = "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}";
+const NO_ANIMATION = "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}.cm-cursor,.cm-dropCursor{visibility:hidden!important}";
 // 截图前让页面静下来：视频（封面已被挡掉，这里顺手停在第 0 帧）停住，等图片加载完。
+// 新建会话的标题带随机 id（会话 b1888e / Session 20cf09），两边各生成一个，像素对不上。截图前把这段文字改成固定值。
+const MASK_VOLATILE = `(() => {
+  const re = /^(会话|Session)\\s+[0-9a-z]{4,}$/i;
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) if (re.test(node.nodeValue.trim())) node.nodeValue = "会话";
+})()`;
 const SETTLE = `(async()=>{
   for (const v of document.querySelectorAll("video")) { try { v.pause(); v.currentTime = 0; } catch {} }
   await Promise.all([...document.images].filter((i) => !i.complete).map((i) => new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 3000); })));
@@ -109,9 +120,9 @@ const clickByText = (text) => `(() => {
 })()`;
 
 // 点 data-action-ui-id。画布节点靠 pointerdown 选中，所以三种事件都发。
-const clickByUiId = (id) => `(() => {
+const clickByUiId = (id, last) => `(() => {
   const list = [...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].filter((e) => e.getBoundingClientRect().width > 0);
-  const el = list[0];
+  const el = list[${last ? "length - 1" : "0"}];
   if (!el) return false;
   const r = el.getBoundingClientRect();
   const opts = { bubbles: true, cancelable: true, clientX: r.x + r.width / 2, clientY: r.y + Math.min(r.height / 2, 24), pointerId: 1, pointerType: "mouse", isPrimary: true, button: 0 };
@@ -122,11 +133,20 @@ const clickByUiId = (id) => `(() => {
 })()`;
 
 // 有些菜单只认真实鼠标（合成 click 点得到元素，但菜单不展开）。返回点击坐标。
-const uiCenter = (id) => `(() => {
-  const el = [...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].find((e) => e.getBoundingClientRect().width > 0);
+const uiCenter = (id, last) => `(() => {
+  const list = [...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].filter((e) => e.getBoundingClientRect().width > 0);
+  const el = list[${last ? "length - 1" : "0"}];
   if (!el) return null;
   const r = el.getBoundingClientRect();
   return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+})()`;
+const uiVisible = (id) => `!![...document.querySelectorAll(${JSON.stringify(`[data-action-ui-id="${id}"]`)})].some((e) => e.getBoundingClientRect().width > 0)`;
+const cssVisible = (sel) => `!!document.querySelector(${JSON.stringify(sel)})?.getBoundingClientRect().width`;
+const editorPoint = `(() => {
+  const el = document.querySelector(".canvas-text-fullscreen-editor .ProseMirror") ?? document.querySelector(".cm-content");
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return { x: r.x + Math.min(48, r.width / 2), y: r.y + Math.min(28, r.height / 2) };
 })()`;
 
 // 往弹窗里第一个可见输入框填字（走原生 setter 再发 input 事件，React 才认）
@@ -168,6 +188,7 @@ async function stableShot(c) {
     await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
     await c.send("Runtime.evaluate", { expression: SETTLE, awaitPromise: true });
     await sleep(700);
+    await c.send("Runtime.evaluate", { expression: MASK_VOLATILE });
     const shot = await c.send("Page.captureScreenshot", { format: "png" });
     const buf = Buffer.from(shot.result.data, "base64");
     if (prev && (await ratio(prev, buf)) <= STABLE_TOL) return buf;
@@ -279,10 +300,43 @@ async function runMode(mode) {
       for (const label of p.tabs ?? []) {
         // 字符串 = 点这段文字；{ type: "xx" } = 往弹窗输入框填字；{ event: "名字" } = 在窗口上触发事件；{ wait: ms } = 多等一会儿
         if (typeof label === "object" && label.wait) { await sleep(label.wait); continue; }
+        if (typeof label === "object" && (label.until || label.untilSelector)) {
+          const deadline = Date.now() + (label.timeout ?? 8000);
+          const expression = label.until ? uiVisible(label.until) : cssVisible(label.untilSelector);
+          const what = label.until ?? label.untilSelector;
+          let seen = false;
+          while (Date.now() < deadline) {
+            const hit = await c.send("Runtime.evaluate", { expression, returnByValue: true });
+            if (hit.result?.result?.value) { seen = true; break; }
+            await sleep(300);
+          }
+          if (!seen) {
+            const snap = await c.send("Runtime.evaluate", { expression: `({ edit: !!document.querySelector('[data-action-ui-id="canvas-text-edit"]'), full: !!document.querySelector(".canvas-text-fullscreen-editor") })`, returnByValue: true });
+            throw new Error(`${p.id}：等不到「${what}」 ${JSON.stringify(snap.result?.result?.value ?? {})} ${c.errors().slice(-2).join(" | ")}`);
+          }
+          continue;
+        }
+        if (typeof label === "object" && label.insert) {
+          const pos = await c.send("Runtime.evaluate", { expression: editorPoint, returnByValue: true });
+          const point = pos.result?.result?.value;
+          if (!point) throw new Error(`${p.id}：找不到文本编辑器，打不进字`);
+          await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
+          await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
+          await sleep(300);
+          await c.send("Input.insertText", { text: label.insert });
+          await sleep(400);
+          continue;
+        }
         const labelName = typeof label !== "object" ? label : label.ui ?? label.event ?? label.type ?? "输入框";
         if (typeof label === "object" && label.mouse && label.ui) {
-          const pos = await c.send("Runtime.evaluate", { expression: uiCenter(label.ui), returnByValue: true });
-          const point = pos.result?.result?.value;
+          const deadline = Date.now() + (label.timeout ?? 4000);
+          let point = null;
+          while (Date.now() < deadline) {
+            const pos = await c.send("Runtime.evaluate", { expression: uiCenter(label.ui, label.last), returnByValue: true });
+            point = pos.result?.result?.value;
+            if (point) break;
+            await sleep(250);
+          }
           if (!point) throw new Error(`${p.id}：界面上找不到「${labelName}」，页面没切过去`);
           await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
           await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
@@ -290,7 +344,7 @@ async function runMode(mode) {
           continue;
         }
         const expression = typeof label !== "object" ? clickByText(label)
-          : label.ui ? clickByUiId(label.ui)
+          : label.ui ? clickByUiId(label.ui, label.last)
           : label.event ? `(() => { window.dispatchEvent(new Event(${JSON.stringify(label.event)})); return true; })()`
           : typeIntoDialog(label.type);
         const r = await c.send("Runtime.evaluate", { expression, returnByValue: true });
