@@ -1,43 +1,24 @@
 // 连接器标签页：分类筛选、排序菜单、头部与整页列表。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  H as homeService,
-  j as jsxRuntimeExports,
-  iT as ConnectorIcon,
-  e as Icon,
-  mz as CustomConnectorDialog,
-  au as cn,
-  mB as connectorTitle,
-  gC as CatalogPageHeading,
-  fM as Button,
-  Q as Plus,
-  mE as useConnectorInventory,
-  mF as useConnectorCatalog,
-  mG as connectorDescription,
-  k4 as Alert,
-  k7 as AlertDescription,
-  U as PageStateBoundary,
-  mH as findOfficialConnectorForServer,
-  S as Search,
-  mI as LocalConnectorDialog,
-  mJ as connectorReferenceFromServer,
-  mK as FilterMenu,
-  mL as FilterMenuTrigger,
-  bE as ChevronDown,
-  mM as FilterMenuContent,
-  mN as FilterMenuGroup,
-  mO as FilterMenuItem,
-  g6 as getRuntimeConfig,
-} from "../../main.jsx";
-import { P as PageSearchInput } from "../../index-CCILjxtP.js";
-import {
-  C as ConnectorCardContent,
-  b as buildConnectorCatalog,
-  i as isWebApiConnector,
-  d as isLocalConnector,
-} from "../../connector-catalog-data-DiTljgxj.js";
+import { useTranslation, reactExports, jsxRuntimeExports, Plus, connectorDescription, Search, ChevronDown, getRuntimeConfig } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { homeService } from "../../workspace/home-service.jsx";
+import { ConnectorIcon } from "../../settings/connector-relationship-graphic.jsx";
+import { Icon } from "../../vendor-inline/vscode-base/graph.jsx";
+import { CustomConnectorDialog } from "../../settings/custom-connector-dialog.jsx";
+import { cn$2 as cn, Button } from "../../infra/dialog-content.jsx";
+import { connectorTitle } from "../../settings/make-async-image-task.jsx";
+import { CatalogPageHeading } from "../../assets/catalog-page-heading.jsx";
+import { useConnectorInventory } from "../../text-editor/get-wire-content-text.jsx";
+import { useConnectorCatalog } from "../../settings/use-connector-catalog.js";
+import { Alert, AlertDescription } from "../../team/alert-variants.jsx";
+import { PageStateBoundary } from "../../assets/page-state-boundary.jsx";
+import { findOfficialConnectorForServer } from "../../settings/request-prompt-prefill.jsx";
+import { LocalConnectorDialog } from "../../settings/local-connector-dialog.jsx";
+import { connectorReferenceFromServer } from "../../generation/use-mention-models.jsx";
+import { FilterMenu, FilterMenuTrigger } from "../../workspace/set-home-widget-dev-preview-mode.js";
+import { FilterMenuContent, FilterMenuGroup, FilterMenuItem } from "../../generation/filter-trigger.jsx";
+import { PageSearchInput } from "../../shared/page-search-input.jsx";
+import { ConnectorCardContent, buildConnectorCatalog, isWebApiConnector, isLocalConnector } from "./connector-catalog-data.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import {
   BrowserConnectorCard,

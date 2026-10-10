@@ -1,5 +1,5 @@
 // 创作者计划的邀请卡片。
-import { h as useTranslation, Q as Plus } from "../../main.jsx";
+import { useTranslation, Plus } from "../../vendor.js";
 import { __jsx } from "../../shared/jsx-runtime.js";
 export function CreatorPlanInviteCard({ onOpen }) {
   const { t } = useTranslation();

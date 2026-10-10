@@ -1,21 +1,10 @@
 // 运营后台的批量发布弹窗。
-import {
-  h as useTranslation,
-  r as reactExports,
-  gj as DialogHeader,
-  fM as Button,
-  as as Dialog,
-  at as DialogContent,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  kS as DialogFooter,
-  iX as Label,
-  iY as Select,
-  iZ as SelectTrigger,
-  i_ as SelectValue,
-  i$ as SelectContent,
-  j0 as SelectItem,
-} from "../../main.jsx";
+import { useTranslation, reactExports } from "../../vendor.js";
+import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
+import { DialogTitle, DialogDescription } from "../../infra/badge-variants.jsx";
+import { Label } from "../../team/use-wallet-query.jsx";
+import { Select } from "../../assets/credit-query-keys.jsx";
+import { SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../infra/select-content.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { publicationSections } from "./operator.js";
 export function BatchPublishDialog({ count, onClose, onPublish }) {

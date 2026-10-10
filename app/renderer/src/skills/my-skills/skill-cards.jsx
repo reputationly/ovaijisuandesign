@@ -1,20 +1,9 @@
 // 技能列表里的卡片：普通技能、精选技能卡与精选区。
-import {
-  h as useTranslation,
-  j as jsxRuntimeExports,
-  kq as Switch,
-  au as cn,
-  U as PageStateBoundary,
-  lT as toDisplayName,
-  ft as Download,
-  mW as formatDownloads,
-  dy as MessageCircle,
-  dl as Loader2,
-  mX as getSkillCoverUrl,
-  lU as SkillCoverMedia,
-  fv as Eye,
-  bd as BadgeCheck,
-} from "../../main.jsx";
+import { useTranslation, jsxRuntimeExports, Download$2 as Download, MessageCircle, Loader2, getSkillCoverUrl, Eye$2 as Eye, BadgeCheck } from "../../vendor.js";
+import { Switch } from "../../generation/select-content.jsx";
+import { cn$2 as cn } from "../../infra/dialog-content.jsx";
+import { PageStateBoundary } from "../../assets/page-state-boundary.jsx";
+import { toDisplayName, formatDownloads, SkillCoverMedia } from "../../generation/use-mention-models.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 export function OtherSkillItem({ skill, installing, onInstall, onToggle, onDetail, onTryItOut }) {
   const { t, i18n } = useTranslation();

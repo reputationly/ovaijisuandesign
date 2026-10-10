@@ -19,7 +19,7 @@ import { startPerfObserver } from "./start-perf-observer.js";
 startPerfObserver();
 
 if (isElectron()) {
-  (() => import("../workbenchService-B3rZsapG.js"))();
+  (() => import("./workbench-service.js"))();
   startRendererDiagnosticsReporter(homeService.hiloApp);
 }
 
@@ -61,7 +61,7 @@ if (isElectron()) {
 
 if (window.__TEST_DRIVER_IPC__) {
   const ipc = window.__TEST_DRIVER_IPC__;
-  void (() => import("../test-driver-bridge-CFT8sZQ3.js"))().then((mod) => {
+  void (() => import("./test-driver-bridge.js"))().then((mod) => {
     mod.initTestDriverBridge(ipc);
   });
 }

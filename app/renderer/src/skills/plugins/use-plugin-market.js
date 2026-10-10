@@ -1,14 +1,8 @@
 // 插件市场的数据 hook：分页、筛选、搜索。
-import {
-  r as reactExports,
-  l as gatewayFetch,
-  m as API_PATHS,
-  nf as pluginEvents,
-  nA as trackPluginInstall,
-  nB as trackPluginInstallFailed,
-  nC as trackPluginUninstall,
-  nD as trackPluginUninstallFailed,
-} from "../../main.jsx";
+import { reactExports, API_PATHS } from "../../vendor.js";
+import { gatewayFetch } from "../../infra/gateway-fetch.js";
+import { pluginEvents } from "../../canvas/resolve-workspace-failure-diagnosis.js";
+import { trackPluginInstall, trackPluginInstallFailed, trackPluginUninstall, trackPluginUninstallFailed } from "../../assets/use-plugin-editor-output-selection.js";
 const DEFAULT_PAGE_SIZE = 20;
 const SKILL_TYPE = "plugin";
 export function usePluginMarket(entrySource) {

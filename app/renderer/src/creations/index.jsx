@@ -1,30 +1,19 @@
-import {
-  h as useTranslation,
-  v as useStorage,
-  w as useNavigate,
-  x as useNavigateToWorkspace,
-  y as useLoginGuard,
-  r as reactExports,
-  z as sortRecentWorkspaces,
-  B as usePersistPickedWorkspaceName,
-  C as useIsKnownWorkspacePath,
-  E as useProjectActions,
-  F as workspaceLog,
-  G as stageWorkspacePreview,
-  H as homeService,
-  t as trackEvent,
-  T as TRACK_EVENTS,
-  J as buildWorkspaceSearch,
-  K as workspaceRuntimeFromOpenResult,
-  M as handleNewWorkspaceOpenResult,
-  N as useNewWorkspaceDialog,
-  P as useRecentWorkspacesRefresh,
-  j as jsxRuntimeExports,
-  Q as Plus,
-  U as PageStateBoundary,
-} from "../main.jsx";
-import { u as useWorkspaceAvailability } from "../use-workspace-availability-Dj4GHjzL.js";
-import { W as WorkspaceCard } from "../WorkspaceCard-vSPE0nQy.js";
+import { useTranslation, useStorage, useNavigate, reactExports, workspaceLog, jsxRuntimeExports, Plus } from "../vendor.js";
+import { useNavigateToWorkspace, buildWorkspaceSearch } from "../workspace/use-deep-link-router.js";
+import { useLoginGuard } from "../infra/schedule.js";
+import { sortRecentWorkspaces } from "../workspace/normalize-project-entries.js";
+import { usePersistPickedWorkspaceName, useIsKnownWorkspacePath } from "../workspace/tool-label-definitions.js";
+import { useProjectActions } from "../settings/use-project-actions.js";
+import { stageWorkspacePreview, handleNewWorkspaceOpenResult } from "../workspace/context-menu-content.jsx";
+import { homeService } from "../workspace/home-service.jsx";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
+import { useNewWorkspaceDialog } from "../workspace/use-new-workspace-dialog.jsx";
+import { useRecentWorkspacesRefresh } from "../workspace/set-home-widget-dev-preview-mode.js";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { useWorkspaceAvailability } from "../workspace/use-workspace-availability.js";
+import { WorkspaceCard } from "../workspace/workspace-card.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 function CreationsPage() {
   const { t } = useTranslation();

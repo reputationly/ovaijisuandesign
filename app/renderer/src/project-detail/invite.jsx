@@ -1,43 +1,17 @@
 // 邀请成员：邀请面板、成员行与邀请弹窗。
-import {
-  hq as createProjectOperationId,
-  hr as logProjectOperationAttempt,
-  ht as logProjectOperationSuccess,
-  hu as logProjectOperationFailure,
-  h as useTranslation,
-  gm as useQueryClient,
-  g as useRuntimeConfig,
-  hv as useAuth,
-  r as reactExports,
-  hw as removeProjectMember,
-  a3 as dedupedToast,
-  hx as cloudErrorDisplayMessage,
-  hy as createProjectInviteLink,
-  hz as buildProjectInviteWebLink,
-  j as jsxRuntimeExports,
-  be as BadgeInfo,
-  f5 as Users,
-  fM as Button,
-  bz as Check,
-  di as Link2,
-  b$ as Clock,
-  gl as MemberRole,
-  fP as Avatar,
-  fQ as AvatarImage,
-  fR as AvatarFallback,
-  au as cn,
-  ae as DropdownMenu,
-  af as DropdownMenuTrigger,
-  bE as ChevronDown,
-  ah as DropdownMenuContent,
-  ai as DropdownMenuItem,
-  am as Trash2,
-  as as Dialog,
-  at as DialogContent,
-  gj as DialogHeader,
-  g8 as DialogTitle,
-} from "../main.jsx";
-import { m as memberAvatarColors } from "../ProjectMemberSummary-tUEX4nJc.js";
+import { createProjectOperationId, logProjectOperationAttempt, logProjectOperationSuccess, logProjectOperationFailure, removeProjectMember, cloudErrorDisplayMessage, createProjectInviteLink } from "../workspace/asset-lineage-query-key.js";
+import { useTranslation, useQueryClient, reactExports, jsxRuntimeExports, BadgeInfo, Check, Link2, ChevronDown } from "../vendor.js";
+import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
+import { useAuth } from "../assets/credit-query-keys.jsx";
+import { dedupedToast } from "../infra/agent-http-client.js";
+import { buildProjectInviteWebLink } from "../infra/schedule.js";
+import { Users, Clock, Trash2 } from "../media-editing/package.jsx";
+import { Button, cn$2 as cn, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
+import { MemberRole } from "../generation/normalize-skill-detail-metadata.js";
+import { Avatar, AvatarImage, AvatarFallback } from "../infra/inline-rename-input.jsx";
+import { DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
+import { DialogTitle } from "../infra/badge-variants.jsx";
+import { memberAvatarColors } from "../projects/project-member-summary.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { projectMembersQueryKey, useProjectMembers } from "./use-project-members.js";
 export function InviteProjectPanel({

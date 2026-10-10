@@ -1,73 +1,27 @@
 // 技能页路由入口：标签页切换、搜索与各视图的组装。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  H as homeService,
-  j as jsxRuntimeExports,
-  jS as AlertDialog,
-  jV as AlertDialogContent,
-  jW as AlertDialogHeader,
-  jX as AlertDialogTitle,
-  jY as AlertDialogDescription,
-  jZ as AlertDialogFooter,
-  j_ as AlertDialogCancel,
-  j$ as AlertDialogAction,
-  g7 as Badge,
-  fM as Button,
-  Q as Plus,
-  U as PageStateBoundary,
-  g6 as getRuntimeConfig,
-  l as gatewayFetch,
-  m as API_PATHS,
-  as as Dialog,
-  at as DialogContent,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  mT as useSkillCategories,
-  f0 as Upload,
-  o as usePlatform,
-  gE as Tabs,
-  gF as TabsList,
-  gG as TabsTrigger,
-  ew as Settings2,
-  nf as pluginEvents,
-  v as useStorage,
-  nh as pickLocalized,
-  gu as Tooltip,
-  gv as TooltipTrigger,
-  gw as TooltipContent,
-  nG as showSkillInstallSuccessToast,
-  nH as beginSkillApplyingToast,
-  fT as useSearch,
-  ar as useIsScrolling,
-  nK as useSidebarBadges,
-  nL as trackSkillMarketOpen,
-  hv as useAuth,
-  nM as trackSkillDetailView,
-  nN as trackSkillFilter,
-  mf as useMarketSkills,
-  nO as FEATURED_MARKET_PAGE_SIZE,
-  nP as OTHER_MARKET_PAGE_SIZE,
-  nQ as trackSkillTabSwitch,
-  nR as trackSkillToggle,
-  nS as mapSkillSource,
-  nT as trackSkillSearch,
-  nU as trackSkillUninstall,
-  nV as trackSkillUninstallFailed,
-  nW as trackSkillExport,
-  nX as getSkillShareUrl,
-  nY as trackSkillCreatorInvoke,
-  nZ as trackSkillTry,
-  aA as SkillIcon,
-  di as Link2,
-  gM as TAB_CONTENT_ENTER_CLASS_NAME,
-  d3 as Import,
-  n_ as SkillFilterBar,
-  ck as ExternalLink,
-  n$ as FEATURED_TAG,
-} from "../main.jsx";
-import { P as PageSearchInput } from "../index-CCILjxtP.js";
+import { useTranslation, reactExports, jsxRuntimeExports, Plus, getRuntimeConfig, API_PATHS, usePlatform, useStorage, useSearch, Link2, TAB_CONTENT_ENTER_CLASS_NAME, Import, ExternalLink } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
+import { homeService } from "../workspace/home-service.jsx";
+import { AlertDialog, Button, Dialog, DialogContent, TooltipContent } from "../infra/dialog-content.jsx";
+import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Badge, DialogTitle, DialogDescription } from "../infra/badge-variants.jsx";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { gatewayFetch } from "../infra/gateway-fetch.js";
+import { useSkillCategories } from "../generation/use-skill-categories.js";
+import { Upload, Settings2 } from "../media-editing/package.jsx";
+import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
+import { pluginEvents } from "../canvas/resolve-workspace-failure-diagnosis.js";
+import { pickLocalized } from "../generation/normalize-skill-detail-metadata.js";
+import { Tooltip, TooltipTrigger, getSkillShareUrl } from "../vendor-inline/vscode-base/graph.jsx";
+import { showSkillInstallSuccessToast, trackSkillMarketOpen, trackSkillDetailView, trackSkillFilter, trackSkillTabSwitch, trackSkillToggle, trackSkillSearch, trackSkillUninstall, trackSkillUninstallFailed, trackSkillExport, trackSkillCreatorInvoke, trackSkillTry } from "../workspace/use-new-workspace-dialog.jsx";
+import { beginSkillApplyingToast } from "../generation/settle-operation.js";
+import { useIsScrolling, useAuth } from "../assets/credit-query-keys.jsx";
+import { useSidebarBadges } from "../infra/split-pinned-inventory.js";
+import { useMarketSkills } from "../workspace/use-market-skills.js";
+import { FEATURED_MARKET_PAGE_SIZE, OTHER_MARKET_PAGE_SIZE, FEATURED_TAG } from "../generation/use-mention-models.jsx";
+import { mapSkillSource } from "../workspace/tool-label-definitions.js";
+import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
+import { SkillFilterBar } from "../workspace/skill-filter-bar.jsx";
+import { PageSearchInput } from "../shared/page-search-input.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AutoUpdateBannerPresence, useAutoUpdateBanner } from "./auto-update-banner.jsx";
 import { CommunityTabContent } from "./community-tab.jsx";

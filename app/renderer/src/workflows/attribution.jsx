@@ -1,16 +1,10 @@
 // 工作流署名与许可证的悬浮说明。
-import {
-  h as useTranslation,
-  fM as Button,
-  r as reactExports,
-  e as Icon,
-  it as Popover,
-  iv as PopoverContent,
-  iQ as PopoverTitle,
-  ck as ExternalLink,
-  o as usePlatform,
-  gB as openExternalUrl,
-} from "../main.jsx";
+import { useTranslation, reactExports, ExternalLink, usePlatform } from "../vendor.js";
+import { Button } from "../infra/dialog-content.jsx";
+import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
+import { Popover } from "../assets/credit-query-keys.jsx";
+import { PopoverContent } from "../team/hailuo-credit-row.jsx";
+import { PopoverTitle } from "../canvas/popover-title.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { comfyUiLicenseKey } from "./workflow-card-helpers.js";
 const LICENSE_POPOVER_CLOSE_DELAY_MS = 120;

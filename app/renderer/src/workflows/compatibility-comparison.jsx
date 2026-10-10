@@ -1,13 +1,7 @@
 // 兼容性对照表：需求与本机配置逐项对比。
-import {
-  h as useTranslation,
-  e as Icon,
-  bB as CheckCircle2,
-  bW as CircleX,
-  cL as Gauge,
-  bT as CircleMinus,
-  bR as CircleHelp,
-} from "../main.jsx";
+import { useTranslation, CheckCircle2, CircleX, Gauge, CircleMinus } from "../vendor.js";
+import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
+import { CircleHelp } from "../media-editing/package.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   buildCompatibilityRequirements,

@@ -1,12 +1,8 @@
 // 云端资产的空间用量面板。
-import {
-  h as useTranslation,
-  au as cn,
-  gu as Tooltip,
-  gv as TooltipTrigger,
-  gw as TooltipContent,
-  hD as formatBytes,
-} from "../../main.jsx";
+import { useTranslation } from "../../vendor.js";
+import { cn$2 as cn, TooltipContent } from "../../infra/dialog-content.jsx";
+import { Tooltip, TooltipTrigger } from "../../vendor-inline/vscode-base/graph.jsx";
+import { formatBytes } from "../../assets/use-cloud-review-nodes.js";
 import { __jsx } from "../../shared/jsx-runtime.js";
 export function CloudUsagePanel({
   usedBytes,

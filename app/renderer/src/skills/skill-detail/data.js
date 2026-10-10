@@ -1,11 +1,9 @@
 // 技能详情的数据：拉取、媒体整理、合并与可提交判断。
-import {
-  r as reactExports,
-  l as gatewayFetch,
-  nm as mapCloudSkillDetail,
-  nn as isSkillShowcaseUrl,
-  no as CDN_SKILL_SHOWCASE_FALLBACK,
-} from "../../main.jsx";
+import { reactExports } from "../../vendor.js";
+import { gatewayFetch } from "../../infra/gateway-fetch.js";
+import { mapCloudSkillDetail } from "../../generation/map-cloud-skill-to-market-skill-info.js";
+import { isSkillShowcaseUrl } from "../../generation/normalize-skill-detail-metadata.js";
+import { CDN_SKILL_SHOWCASE_FALLBACK } from "../../workspace/topbar-state-context.jsx";
 export function useSkillDetail(name, accountId, language) {
   const key = JSON.stringify([name, accountId, language]);
   const [snapshot, setSnapshot] = reactExports.useState();

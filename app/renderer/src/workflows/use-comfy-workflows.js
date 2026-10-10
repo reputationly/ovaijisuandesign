@@ -1,13 +1,8 @@
 // 工作流列表的数据 hook：用户工作流与精选工作流、安装状态对齐、变更通知。
-import {
-  h as useTranslation,
-  u as useGatewayReady,
-  g as useRuntimeConfig,
-  r as reactExports,
-  k as useQuery,
-  l as gatewayFetch,
-  m as API_PATHS,
-} from "../main.jsx";
+import { useTranslation, reactExports, useQuery, API_PATHS } from "../vendor.js";
+import { useGatewayReady } from "../infra/inline-rename-input.jsx";
+import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
+import { gatewayFetch } from "../infra/gateway-fetch.js";
 import { isInstalledFeaturedWorkflow, mapComfyWorkflowListResponse } from "./workflow-mapping.js";
 const comfyWorkflowsChanged = new EventTarget();
 const COMFY_WORKFLOWS_CHANGED_EVENT = "changed";

@@ -1,16 +1,11 @@
 // 项目成员概览气泡。
-import {
-  h as useTranslation,
-  r as reactExports,
-  gu as Tooltip,
-  gv as TooltipTrigger,
-  gw as TooltipContent,
-  it as Popover,
-  gt as TooltipProvider,
-  iu as PopoverTrigger,
-  iv as PopoverContent,
-} from "../main.jsx";
-import { P as ProjectMemberSummary } from "../ProjectMemberSummary-tUEX4nJc.js";
+import { useTranslation, reactExports } from "../vendor.js";
+import { Tooltip, TooltipTrigger, TooltipProvider } from "../vendor-inline/vscode-base/graph.jsx";
+import { TooltipContent } from "../infra/dialog-content.jsx";
+import { Popover } from "../assets/credit-query-keys.jsx";
+import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
+import { PopoverContent } from "../team/hailuo-credit-row.jsx";
+import { ProjectMemberSummary } from "../projects/project-member-summary.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { InviteProjectPanel } from "./invite.jsx";
 export function ProjectMemberSummaryPopover({ project, members, canManageMembers }) {

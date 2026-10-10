@@ -1,26 +1,12 @@
 // 下载工作流前的确认弹窗：模型依赖、许可证、兼容性与磁盘空间。
-import {
-  h as useTranslation,
-  fM as Button,
-  ez as ShieldCheck,
-  r as reactExports,
-  as as Dialog,
-  at as DialogContent,
-  gj as DialogHeader,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  f as Input,
-  kS as DialogFooter,
-  ck as ExternalLink,
-  o as usePlatform,
-  gB as openExternalUrl,
-  dQ as Package,
-  H as homeService,
-  hC as Checkbox,
-  cx as FileJson2,
-  cX as HardDrive,
-  j8 as LocalFolderIcon,
-} from "../main.jsx";
+import { useTranslation, ShieldCheck, reactExports, ExternalLink, usePlatform } from "../vendor.js";
+import { Button, Dialog, DialogContent, DialogHeader, DialogFooter } from "../infra/dialog-content.jsx";
+import { DialogTitle, DialogDescription } from "../infra/badge-variants.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
+import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
+import { Package, FileJson2, HardDrive } from "../media-editing/package.jsx";
+import { homeService, LocalFolderIcon } from "../workspace/home-service.jsx";
+import { Checkbox } from "../infra/checkbox.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { WorkflowCompatibilityComparison } from "./compatibility-comparison.jsx";
 import { useComfyUiLicenseAcceptance } from "./license-acceptance.js";

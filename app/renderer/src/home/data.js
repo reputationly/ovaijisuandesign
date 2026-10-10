@@ -1,5 +1,10 @@
 // 首页展示区的远端配置：拉取、错误分类，以及读取配置的 react-query hooks。
-import { r as reactExports, t as trackEvent, T as TRACK_EVENTS, u as useGatewayReady, k as useQuery, l as gatewayFetch, F as workspaceLog, m as API_PATHS, g as useRuntimeConfig } from "../main.jsx";
+import { reactExports, useQuery, workspaceLog, API_PATHS } from "../vendor.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { useGatewayReady } from "../infra/inline-rename-input.jsx";
+import { gatewayFetch } from "../infra/gateway-fetch.js";
+import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
 import { DEFAULT_HOME_SKILL_SHOWCASE_CONFIG, DEFAULT_HOME_TABS_SHOWCASE_CONFIG, EMPTY_HOME_PROJECT_SHOWCASE_CONFIG, HOME_PROJECT_SHOWCASE_CONFIG_KEY, HOME_PROJECT_SHOWCASE_SCHEMA_VERSION, HOME_SKILL_SHOWCASE_CONFIG_KEY, HOME_SKILL_SHOWCASE_SCHEMA_VERSION, HOME_TABS_SHOWCASE_CONFIG_KEY, HOME_TABS_SHOWCASE_SCHEMA_VERSION, parseHomeProjectShowcaseConfig, parseHomeSkillShowcaseConfig, parseHomeTabsShowcaseConfig } from "./config.js";
 const HOME_SHOWCASE_APOLLO_MAX_BYTES = 1e6;
 class HomeShowcaseApolloConfigError extends Error {

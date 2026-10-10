@@ -1,5 +1,5 @@
 // 本地资产的路径与节点推导，纯函数。
-import { hD as formatBytes } from "../../main.jsx";
+import { formatBytes } from "../../assets/use-cloud-review-nodes.js";
 function relParent(relPath) {
   const idx = relPath.lastIndexOf("/");
   return idx === -1 ? "" : relPath.slice(0, idx);

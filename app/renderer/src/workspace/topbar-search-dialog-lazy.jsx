@@ -144,12 +144,12 @@ var createRouter = (options) => {
   return new Router(options);
 };
 const $$splitComponentImporter$c = () =>
-  (() => import("../_home-COqe4OG7.js"))();
+  (() => import("../routes/home.jsx"))();
 const Route$d = createFileRoute("/_home")({
   component: lazyRouteComponent($$splitComponentImporter$c, "component"),
 });
 const $$splitComponentImporter$b = () =>
-  (() => import("../_app-BYKdG-ns.js"))();
+  (() => import("../routes/app.jsx"))();
 const Route$c = createFileRoute("/_app")({
   component: lazyRouteComponent($$splitComponentImporter$b, "component"),
 });
@@ -229,7 +229,7 @@ const Route$6 = createFileRoute("/_home/changelog/")({
   }),
 });
 const $$splitComponentImporter$5 = () =>
-  (() => import("../index-DRApim0M.js"))();
+  (() => import("../routes/asset-center.js"))();
 function validateAssetCenterSearch(search2) {
   const result = {};
   if (search2.action === "create") result.action = "create";
@@ -242,7 +242,7 @@ const Route$5 = createFileRoute("/_home/asset-center/")({
   validateSearch: validateAssetCenterSearch,
 });
 const $$splitComponentImporter$4 = () =>
-  (() => import("../index-HL7p23h1.js"))();
+  (() => import("../routes/workspace.js"))();
 function parseInitialAttachments(value) {
   if (Array.isArray(value) && value.every((v2) => typeof v2 === "string")) {
     return value;
@@ -379,7 +379,7 @@ const Route$2 = createFileRoute("/_home/projects/$projectId")({
   component: lazyRouteComponent($$splitComponentImporter$2, "component"),
 });
 const $$splitComponentImporter$1 = () =>
-  (() => import("../remote-tool-DZYmJVoR.js"))();
+  (() => import("../routes/remote-tool.jsx"))();
 const Route$1 = createFileRoute("/_app/debug/remote-tool")({
   validateSearch: (search2) => ({
     url: typeof search2.url === "string" ? search2.url : void 0,
@@ -396,7 +396,7 @@ function requireChatCaseDebugAccess(canUseDebug = canUseDebugTooling) {
   }
 }
 const $$splitComponentImporter = () =>
-  (() => import("../chat-case-_htrAxBf.js"))();
+  (() => import("../routes/chat-case.jsx"))();
 const Route2 = createFileRoute("/_app/debug/chat-case")({
   beforeLoad: () => requireChatCaseDebugAccess(),
   validateSearch: (search2) => ({

@@ -1,11 +1,6 @@
 // 插件市场标签页内容。
-import {
-  h as useTranslation,
-  r as reactExports,
-  j as jsxRuntimeExports,
-  U as PageStateBoundary,
-  dl as Loader2,
-} from "../../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, Loader2 } from "../../vendor.js";
+import { PageStateBoundary } from "../../assets/page-state-boundary.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { PluginMarketCard } from "./plugin-market-card.jsx";
 import { PluginMarketListItem } from "./plugin-market-detail.jsx";

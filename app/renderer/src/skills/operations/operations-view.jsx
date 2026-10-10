@@ -1,47 +1,21 @@
 // 运营后台主视图：待审、待发布、已发布与分类管理的容器。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  x as useNavigateToWorkspace,
-  H as homeService,
-  K as workspaceRuntimeFromOpenResult,
-  l9 as toastWorkspaceOpenResult,
-  gj as DialogHeader,
-  kq as Switch,
-  am as Trash2,
-  g7 as Badge,
-  fM as Button,
-  Q as Plus,
-  X,
-  mQ as normalizeSkillDetailMetadata,
-  mS as selectSkillStructuredInfo,
-  as as Dialog,
-  at as DialogContent,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  kS as DialogFooter,
-  iX as Label,
-  iY as Select,
-  iZ as SelectTrigger,
-  i_ as SelectValue,
-  i$ as SelectContent,
-  j0 as SelectItem,
-  f as Input,
-  kR as Textarea,
-  dl as Loader2,
-  bG as ChevronLeft,
-  bI as ChevronRight,
-  o as usePlatform,
-  gE as Tabs,
-  gF as TabsList,
-  gG as TabsTrigger,
-  ew as Settings2,
-  kf as TabsContent,
-  hC as Checkbox,
-  bz as Check,
-  n8 as GatewayHttpError,
-} from "../../main.jsx";
+import { useTranslation, reactExports, Plus, X$7 as X, Loader2, ChevronLeft, ChevronRight$1 as ChevronRight, usePlatform, Check } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { useNavigateToWorkspace } from "../../workspace/use-deep-link-router.js";
+import { homeService } from "../../workspace/home-service.jsx";
+import { workspaceRuntimeFromOpenResult } from "../../vendor-inline/vscode-base/linked-list.js";
+import { toastWorkspaceOpenResult } from "../../workspace/toast-workspace-open-result.js";
+import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
+import { Switch } from "../../generation/select-content.jsx";
+import { Trash2, Settings2 } from "../../media-editing/package.jsx";
+import { Badge, DialogTitle, DialogDescription, Textarea } from "../../infra/badge-variants.jsx";
+import { normalizeSkillDetailMetadata, selectSkillStructuredInfo } from "../../generation/normalize-skill-detail-metadata.js";
+import { Label } from "../../team/use-wallet-query.jsx";
+import { Select } from "../../assets/credit-query-keys.jsx";
+import { SelectTrigger, SelectValue, SelectContent, SelectItem, Input3 as Input } from "../../infra/select-content.jsx";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../workspace/shortcut-hint.jsx";
+import { Checkbox } from "../../infra/checkbox.jsx";
+import { GatewayHttpError } from "../../infra/gateway-http-error.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import {
   hasSubmissionShowcase,

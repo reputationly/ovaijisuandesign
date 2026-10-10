@@ -1083,7 +1083,7 @@ function renderInWorker(params) {
       new URL(
         /* @vite-ignore */
         "" +
-          new URL("../relight-reference.worker-Dx90rBtG.js", import.meta.url)
+          new URL("./relight-reference.worker.js", import.meta.url)
             .href,
         import.meta.url,
       ),

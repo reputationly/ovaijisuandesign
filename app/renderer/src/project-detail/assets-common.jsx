@@ -1,24 +1,11 @@
 // 资产列表的通用界面：表头、空态、错误态、骨架屏、行勾选与批量操作栏。
-import {
-  h as useTranslation,
-  fM as Button,
-  au as cn,
-  am as Trash2,
-  S as Search,
-  X,
-  hA as SegmentedSwitch,
-  dj as List,
-  aB as LayoutGrid,
-  aT as AlertTriangle,
-  hB as Skeleton,
-  d4 as Inbox,
-  hC as Checkbox,
-  gu as Tooltip,
-  gv as TooltipTrigger,
-  gw as TooltipContent,
-  cf as Download,
-  dl as Loader2,
-} from "../main.jsx";
+import { useTranslation, Search, X$7 as X, LayoutGrid, AlertTriangle, Inbox, Loader2 } from "../vendor.js";
+import { Button, cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { Trash2, List, Download } from "../media-editing/package.jsx";
+import { SegmentedSwitch } from "../canvas/popover-title.jsx";
+import { Skeleton } from "../team/use-wallet-query.jsx";
+import { Checkbox } from "../infra/checkbox.jsx";
+import { Tooltip, TooltipTrigger } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function AssetsHeader({
   breadcrumb,

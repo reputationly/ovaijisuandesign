@@ -1,5 +1,14 @@
 // 首次进入时的示例项目：准备、恢复可见性、导入内置包。
-import { h as useTranslation, a1 as useProjectStore, E as useProjectActions, lc as useProjectArchiveActions, x as useNavigateToWorkspace, v as useStorage, r as reactExports, p as projectLog, H as homeService, K as workspaceRuntimeFromOpenResult, l9 as toastWorkspaceOpenResult, a3 as dedupedToast } from "../main.jsx";
+import { useTranslation, useStorage, reactExports } from "../vendor.js";
+import { useProjectStore } from "../workspace/normalize-project-entries.js";
+import { useProjectActions } from "../settings/use-project-actions.js";
+import { useProjectArchiveActions } from "../workspace/use-project-archive-actions.js";
+import { useNavigateToWorkspace } from "../workspace/use-deep-link-router.js";
+import { projectLog } from "../vendor-inline/vscode-base/graph.jsx";
+import { homeService } from "../workspace/home-service.jsx";
+import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
+import { toastWorkspaceOpenResult } from "../workspace/toast-workspace-open-result.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
 const SAMPLE_PROJECT_ID = "builtin-sample-project";
 export function useSampleProject() {
   const {

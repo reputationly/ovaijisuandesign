@@ -1,5 +1,6 @@
 // 运营后台的列表数据 hook。
-import { r as reactExports, l as gatewayFetch, m as API_PATHS } from "../../main.jsx";
+import { reactExports, API_PATHS } from "../../vendor.js";
+import { gatewayFetch } from "../../infra/gateway-fetch.js";
 export function useOperations() {
   const [operations, setOperations] = reactExports.useState([]);
   const [loadingOps, setLoadingOps] = reactExports.useState(false);

@@ -1,20 +1,10 @@
 // 运营后台的分类权重编辑器与列表条目。
-import {
-  h as useTranslation,
-  kq as Switch,
-  am as Trash2,
-  fM as Button,
-  Q as Plus,
-  iY as Select,
-  iZ as SelectTrigger,
-  i_ as SelectValue,
-  i$ as SelectContent,
-  j0 as SelectItem,
-  f as Input,
-  mZ as useSortable,
-  m_ as CSS,
-  cV as GripVertical,
-} from "../../main.jsx";
+import { useTranslation, Plus, useSortable, CSS$1 as CSS, GripVertical } from "../../vendor.js";
+import { Switch } from "../../generation/select-content.jsx";
+import { Trash2 } from "../../media-editing/package.jsx";
+import { Button } from "../../infra/dialog-content.jsx";
+import { Select } from "../../assets/credit-query-keys.jsx";
+import { SelectTrigger, SelectValue, SelectContent, SelectItem, Input3 as Input } from "../../infra/select-content.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 function CategoryWeightEditor({
   categories,

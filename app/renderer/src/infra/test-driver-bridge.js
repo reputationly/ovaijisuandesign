@@ -1,3 +1,4 @@
+// test-driver-bridge.js
 function findVisibleElement(selector) {
   const all = document.querySelectorAll(selector);
   for (let i = 0; i < all.length; i++) {
@@ -15,7 +16,7 @@ function readText(selector) {
       action: `read ${selector}`,
       status: "fail",
       duration: performance.now() - start,
-      error: `Element not found: ${selector}`
+      error: `Element not found: ${selector}`,
     };
   }
   const text = (el.textContent ?? "").trim();
@@ -24,7 +25,7 @@ function readText(selector) {
     action: `read ${selector}`,
     status: "ok",
     duration: performance.now() - start,
-    detail: { text }
+    detail: { text },
   };
 }
 function readAttr(selector, attr, index) {
@@ -38,7 +39,7 @@ function readAttr(selector, attr, index) {
         action,
         status: "fail",
         duration: performance.now() - start,
-        error: `Element not found: ${selector}`
+        error: `Element not found: ${selector}`,
       };
     }
     const value2 = el.getAttribute(attr);
@@ -47,7 +48,7 @@ function readAttr(selector, attr, index) {
       action,
       status: "ok",
       duration: performance.now() - start,
-      detail: { value: value2, present: value2 !== null, matched: 1 }
+      detail: { value: value2, present: value2 !== null, matched: 1 },
     };
   }
   const all = document.querySelectorAll(selector);
@@ -59,7 +60,7 @@ function readAttr(selector, attr, index) {
       status: "fail",
       duration: performance.now() - start,
       error: `Index ${index} out of range (matched ${all.length} elements)`,
-      detail: { matched: all.length }
+      detail: { matched: all.length },
     };
   }
   const target = all[resolvedIndex];
@@ -69,7 +70,12 @@ function readAttr(selector, attr, index) {
     action,
     status: "ok",
     duration: performance.now() - start,
-    detail: { value, present: value !== null, matched: all.length, resolvedIndex }
+    detail: {
+      value,
+      present: value !== null,
+      matched: all.length,
+      resolvedIndex,
+    },
   };
 }
 function countElements(selector) {
@@ -80,12 +86,13 @@ function countElements(selector) {
     action: `count-elements ${selector}`,
     status: "ok",
     duration: performance.now() - start,
-    detail: { count }
+    detail: { count },
   };
 }
 function waitCount(selector, options) {
   const start = performance.now();
-  const threshold = options.min ?? (options.baseline !== void 0 ? options.baseline + 1 : NaN);
+  const threshold =
+    options.min ?? (options.baseline !== void 0 ? options.baseline + 1 : NaN);
   const action = `wait-count ${selector} >= ${threshold}`;
   if (Number.isNaN(threshold)) {
     return Promise.resolve({
@@ -93,7 +100,7 @@ function waitCount(selector, options) {
       action,
       status: "fail",
       duration: performance.now() - start,
-      error: "wait-count requires either `min` or `baseline`"
+      error: "wait-count requires either `min` or `baseline`",
     });
   }
   const currentCount = () => document.querySelectorAll(selector).length;
@@ -104,7 +111,7 @@ function waitCount(selector, options) {
       action,
       status: "ok",
       duration: performance.now() - start,
-      detail: { count: initial, threshold }
+      detail: { count: initial, threshold },
     });
   }
   return new Promise((resolve) => {
@@ -120,7 +127,7 @@ function waitCount(selector, options) {
         status: "fail",
         duration: performance.now() - start,
         error: `Timed out: count ${last} < ${threshold} after ${options.timeout}ms`,
-        detail: { count: last, threshold }
+        detail: { count: last, threshold },
       });
     }, options.timeout);
     const observer = new MutationObserver(() => {
@@ -135,10 +142,14 @@ function waitCount(selector, options) {
         action,
         status: "ok",
         duration: performance.now() - start,
-        detail: { count, threshold }
+        detail: { count, threshold },
       });
     });
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
   });
 }
 function waitAny(selectors, timeout) {
@@ -150,7 +161,7 @@ function waitAny(selectors, timeout) {
       action,
       status: "fail",
       duration: performance.now() - start,
-      error: "wait-any requires a non-empty `targets` array"
+      error: "wait-any requires a non-empty `targets` array",
     });
   }
   const findMatch = () => {
@@ -166,7 +177,7 @@ function waitAny(selectors, timeout) {
       action,
       status: "ok",
       duration: performance.now() - start,
-      detail: { matched_index: initial, matched_selector: selectors[initial] }
+      detail: { matched_index: initial, matched_selector: selectors[initial] },
     });
   }
   return new Promise((resolve) => {
@@ -180,7 +191,7 @@ function waitAny(selectors, timeout) {
         action,
         status: "fail",
         duration: performance.now() - start,
-        error: `Timed out: none of ${selectors.length} selectors matched after ${timeout}ms`
+        error: `Timed out: none of ${selectors.length} selectors matched after ${timeout}ms`,
       });
     }, timeout);
     const observer = new MutationObserver(() => {
@@ -195,10 +206,14 @@ function waitAny(selectors, timeout) {
         action,
         status: "ok",
         duration: performance.now() - start,
-        detail: { matched_index: idx, matched_selector: selectors[idx] }
+        detail: { matched_index: idx, matched_selector: selectors[idx] },
       });
     });
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
   });
 }
 async function waitStage(options) {
@@ -206,8 +221,12 @@ async function waitStage(options) {
   const expectedNew = options.expectedNew ?? 1;
   const autoAnswerDock = options.autoAnswerDock ?? true;
   const dockMaxRounds = options.dockMaxRounds ?? 20;
-  const readAttrs = options.readAttrs ?? ["data-artifact-path", "data-artifact-mime"];
-  const countNow = () => document.querySelectorAll(options.artifactSelector).length;
+  const readAttrs = options.readAttrs ?? [
+    "data-artifact-path",
+    "data-artifact-mime",
+  ];
+  const countNow = () =>
+    document.querySelectorAll(options.artifactSelector).length;
   const baseline = options.baseline ?? countNow();
   const threshold = baseline + expectedNew;
   const dockSelector = '[data-action-ui-id="chat-question-dock"]';
@@ -229,42 +248,46 @@ async function waitStage(options) {
     if (el instanceof HTMLElement) {
       el.click();
     } else {
-      el.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      el.dispatchEvent(
+        new MouseEvent("click", { bubbles: true, cancelable: true }),
+      );
     }
     return true;
   };
-  const sleep = (ms) => new Promise((r) => {
-    setTimeout(r, ms);
-  });
-  const waitForChange = (timeoutMs, predicate) => new Promise((resolve) => {
-    if (predicate()) {
-      resolve(true);
-      return;
-    }
-    let settled = false;
-    const timer = setTimeout(
-      () => {
+  const sleep = (ms) =>
+    new Promise((r) => {
+      setTimeout(r, ms);
+    });
+  const waitForChange = (timeoutMs, predicate) =>
+    new Promise((resolve) => {
+      if (predicate()) {
+        resolve(true);
+        return;
+      }
+      let settled = false;
+      const timer = setTimeout(
+        () => {
+          if (settled) return;
+          settled = true;
+          observer.disconnect();
+          resolve(false);
+        },
+        Math.max(0, timeoutMs),
+      );
+      const observer = new MutationObserver(() => {
         if (settled) return;
+        if (!predicate()) return;
         settled = true;
+        clearTimeout(timer);
         observer.disconnect();
-        resolve(false);
-      },
-      Math.max(0, timeoutMs)
-    );
-    const observer = new MutationObserver(() => {
-      if (settled) return;
-      if (!predicate()) return;
-      settled = true;
-      clearTimeout(timer);
-      observer.disconnect();
-      resolve(true);
+        resolve(true);
+      });
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+      });
     });
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true
-    });
-  });
   let dockRounds = 0;
   while (true) {
     const remaining = deadline - performance.now();
@@ -281,8 +304,8 @@ async function waitStage(options) {
           baselineCount: baseline,
           finalCount,
           dockRounds,
-          durationMs
-        }
+          durationMs,
+        },
       };
     }
     const matched = await waitForChange(remaining, () => {
@@ -304,8 +327,8 @@ async function waitStage(options) {
           finalCount: count,
           attrs: readArtifactAttrs(),
           dockRounds,
-          durationMs
-        }
+          durationMs,
+        },
       };
     }
     dockRounds++;
@@ -321,8 +344,8 @@ async function waitStage(options) {
           baselineCount: baseline,
           finalCount: count,
           dockRounds,
-          durationMs
-        }
+          durationMs,
+        },
       };
     }
     tryClick('[data-action-ui-id="chat-question-option-0"]');
@@ -345,13 +368,20 @@ async function click(selector) {
       action: `click ${selector}`,
       status: "fail",
       duration: performance.now() - start,
-      error: `Element not found: ${selector}`
+      error: `Element not found: ${selector}`,
     };
   }
   const rect = el instanceof Element ? el.getBoundingClientRect() : null;
   const clientX = rect ? rect.left + rect.width / 2 : 0;
   const clientY = rect ? rect.top + rect.height / 2 : 0;
-  const base = { bubbles: true, cancelable: true, clientX, clientY, view: window, button: 0 };
+  const base = {
+    bubbles: true,
+    cancelable: true,
+    clientX,
+    clientY,
+    view: window,
+    button: 0,
+  };
   el.dispatchEvent(new MouseEvent("mousemove", base));
   el.dispatchEvent(new MouseEvent("mouseover", base));
   el.dispatchEvent(new MouseEvent("mouseenter", { ...base, bubbles: false }));
@@ -369,19 +399,19 @@ async function click(selector) {
     index: 0,
     action: `click ${selector}`,
     status: "ok",
-    duration: performance.now() - start
+    duration: performance.now() - start,
   };
 }
 async function dismissMenu() {
   const start = performance.now();
   document.body.dispatchEvent(
-    new MouseEvent("mousedown", { bubbles: true, cancelable: true, button: 0 })
+    new MouseEvent("mousedown", { bubbles: true, cancelable: true, button: 0 }),
   );
   return {
     index: 0,
     action: "dismiss-menu",
     status: "ok",
-    duration: performance.now() - start
+    duration: performance.now() - start,
   };
 }
 async function dblclick(selector) {
@@ -393,18 +423,23 @@ async function dblclick(selector) {
       action: `dblclick ${selector}`,
       status: "fail",
       duration: performance.now() - start,
-      error: `Element not found: ${selector}`
+      error: `Element not found: ${selector}`,
     };
   }
-  const dispatchClick = () => el.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, detail: 1 }));
+  const dispatchClick = () =>
+    el.dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true, detail: 1 }),
+    );
   dispatchClick();
   dispatchClick();
-  el.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true, detail: 2 }));
+  el.dispatchEvent(
+    new MouseEvent("dblclick", { bubbles: true, cancelable: true, detail: 2 }),
+  );
   return {
     index: 0,
     action: `dblclick ${selector}`,
     status: "ok",
-    duration: performance.now() - start
+    duration: performance.now() - start,
   };
 }
 async function hover(selector) {
@@ -416,13 +451,19 @@ async function hover(selector) {
       action: `hover ${selector}`,
       status: "fail",
       duration: performance.now() - start,
-      error: `Element not found: ${selector}`
+      error: `Element not found: ${selector}`,
     };
   }
   const rect = el.getBoundingClientRect();
   const x = rect.left + rect.width / 2;
   const y = rect.top + rect.height / 2;
-  const opts = { bubbles: true, cancelable: true, clientX: x, clientY: y, view: window };
+  const opts = {
+    bubbles: true,
+    cancelable: true,
+    clientX: x,
+    clientY: y,
+    view: window,
+  };
   const chain = [];
   let node = el;
   while (node) {
@@ -430,7 +471,9 @@ async function hover(selector) {
     node = node.parentElement;
   }
   for (let i = chain.length - 1; i >= 0; i--) {
-    chain[i].dispatchEvent(new MouseEvent("mouseenter", { ...opts, bubbles: false }));
+    chain[i].dispatchEvent(
+      new MouseEvent("mouseenter", { ...opts, bubbles: false }),
+    );
   }
   el.dispatchEvent(new MouseEvent("mouseover", opts));
   el.dispatchEvent(new MouseEvent("mousemove", opts));
@@ -438,7 +481,7 @@ async function hover(selector) {
     index: 0,
     action: `hover ${selector}`,
     status: "ok",
-    duration: performance.now() - start
+    duration: performance.now() - start,
   };
 }
 async function contextmenu(selector) {
@@ -450,7 +493,7 @@ async function contextmenu(selector) {
       action: `contextmenu ${selector}`,
       status: "fail",
       duration: performance.now() - start,
-      error: `Element not found: ${selector}`
+      error: `Element not found: ${selector}`,
     };
   }
   const rect = el.getBoundingClientRect();
@@ -463,14 +506,14 @@ async function contextmenu(selector) {
       button: 2,
       buttons: 2,
       clientX: x,
-      clientY: y
-    })
+      clientY: y,
+    }),
   );
   return {
     index: 0,
     action: `contextmenu ${selector}`,
     status: "ok",
-    duration: performance.now() - start
+    duration: performance.now() - start,
   };
 }
 async function typeText(selector, value) {
@@ -483,13 +526,19 @@ async function typeText(selector, value) {
       action,
       status: "fail",
       duration: performance.now() - start,
-      error: `Element not found: ${selector}`
+      error: `Element not found: ${selector}`,
     };
   }
   if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
     el.focus();
-    const prototype = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
-    const nativeSetter = Object.getOwnPropertyDescriptor(prototype, "value")?.set;
+    const prototype =
+      el instanceof HTMLTextAreaElement
+        ? HTMLTextAreaElement.prototype
+        : HTMLInputElement.prototype;
+    const nativeSetter = Object.getOwnPropertyDescriptor(
+      prototype,
+      "value",
+    )?.set;
     const tracker = el._valueTracker;
     tracker?.setValue("");
     if (nativeSetter) {
@@ -502,13 +551,21 @@ async function typeText(selector, value) {
         bubbles: true,
         cancelable: true,
         data: value,
-        inputType: "insertText"
-      })
+        inputType: "insertText",
+      }),
     );
     el.dispatchEvent(new Event("change", { bubbles: true }));
-    return { index: 0, action, status: "ok", duration: performance.now() - start };
+    return {
+      index: 0,
+      action,
+      status: "ok",
+      duration: performance.now() - start,
+    };
   }
-  if (el instanceof HTMLElement && (el.isContentEditable || el.getAttribute("contenteditable") !== null)) {
+  if (
+    el instanceof HTMLElement &&
+    (el.isContentEditable || el.getAttribute("contenteditable") !== null)
+  ) {
     el.focus();
     const range = document.createRange();
     range.selectNodeContents(el);
@@ -519,8 +576,7 @@ async function typeText(selector, value) {
     }
     try {
       document.execCommand("delete", false);
-    } catch {
-    }
+    } catch {}
     let inserted = false;
     try {
       inserted = document.execCommand("insertText", false, value);
@@ -534,7 +590,7 @@ async function typeText(selector, value) {
         const pasteEvent = new ClipboardEvent("paste", {
           clipboardData: dt,
           bubbles: true,
-          cancelable: true
+          cancelable: true,
         });
         el.dispatchEvent(pasteEvent);
         inserted = true;
@@ -544,28 +600,38 @@ async function typeText(selector, value) {
           action,
           status: "fail",
           duration: performance.now() - start,
-          error: `Both execCommand and paste-event failed on contentEditable: ${selector} (${err instanceof Error ? err.message : String(err)})`
+          error: `Both execCommand and paste-event failed on contentEditable: ${selector} (${err instanceof Error ? err.message : String(err)})`,
         };
       }
     }
-    return { index: 0, action, status: "ok", duration: performance.now() - start };
+    return {
+      index: 0,
+      action,
+      status: "ok",
+      duration: performance.now() - start,
+    };
   }
   return {
     index: 0,
     action,
     status: "fail",
     duration: performance.now() - start,
-    error: `Element is not an input, textarea, or contentEditable: ${selector}`
+    error: `Element is not an input, textarea, or contentEditable: ${selector}`,
   };
 }
 async function tryAnswerDockIfPresent() {
-  if (!findVisibleElement('[data-action-ui-id="chat-question-dock"]')) return false;
-  const opt = findVisibleElement('[data-action-ui-id="chat-question-option-0"]');
+  if (!findVisibleElement('[data-action-ui-id="chat-question-dock"]'))
+    return false;
+  const opt = findVisibleElement(
+    '[data-action-ui-id="chat-question-option-0"]',
+  );
   if (opt instanceof HTMLElement) opt.click();
   await new Promise((r) => setTimeout(r, 200));
   const next = findVisibleElement('[data-action-ui-id="chat-question-next"]');
   if (next instanceof HTMLElement) next.click();
-  const submit = findVisibleElement('[data-action-ui-id="chat-question-submit"]');
+  const submit = findVisibleElement(
+    '[data-action-ui-id="chat-question-submit"]',
+  );
   if (submit instanceof HTMLElement) submit.click();
   return true;
 }
@@ -576,7 +642,7 @@ async function waitForElement(selector, timeout) {
       index: 0,
       action: `wait for ${selector}`,
       status: "ok",
-      duration: performance.now() - start
+      duration: performance.now() - start,
     };
   }
   return new Promise((resolve) => {
@@ -595,7 +661,7 @@ async function waitForElement(selector, timeout) {
         action: `wait for ${selector}`,
         status: "fail",
         duration: performance.now() - start,
-        error: `Timed out waiting for ${selector} after ${timeout}ms`
+        error: `Timed out waiting for ${selector} after ${timeout}ms`,
       });
     }, timeout);
     const observer = new MutationObserver(() => {
@@ -609,13 +675,13 @@ async function waitForElement(selector, timeout) {
         index: 0,
         action: `wait for ${selector}`,
         status: "ok",
-        duration: performance.now() - start
+        duration: performance.now() - start,
       });
     });
     observer.observe(document.body, {
       childList: true,
       subtree: true,
-      attributes: true
+      attributes: true,
     });
   });
 }
@@ -623,48 +689,71 @@ function checkCondition(step) {
   const el = findVisibleElement(step.target);
   switch (step.condition) {
     case "exists":
-      return el ? { passed: true } : { passed: false, error: `Element not found: ${step.target}` };
+      return el
+        ? { passed: true }
+        : { passed: false, error: `Element not found: ${step.target}` };
     case "not-exists":
-      return !el ? { passed: true } : { passed: false, error: `Element should not exist: ${step.target}` };
+      return !el
+        ? { passed: true }
+        : { passed: false, error: `Element should not exist: ${step.target}` };
     case "contains":
       if (!step.value) {
         return {
           passed: false,
-          error: `"contains" assertion requires a non-empty "value" to match against`
+          error: `"contains" assertion requires a non-empty "value" to match against`,
         };
       }
-      if (!el) return { passed: false, error: `Element not found: ${step.target}` };
+      if (!el)
+        return { passed: false, error: `Element not found: ${step.target}` };
       {
         const text = el.textContent ?? "";
-        return text.includes(step.value) ? { passed: true } : { passed: false, error: `Element text "${text}" does not contain "${step.value}"` };
+        return text.includes(step.value)
+          ? { passed: true }
+          : {
+              passed: false,
+              error: `Element text "${text}" does not contain "${step.value}"`,
+            };
       }
     case "not-empty":
-      if (!el) return { passed: false, error: `Element not found: ${step.target}` };
+      if (!el)
+        return { passed: false, error: `Element not found: ${step.target}` };
       {
         const content = el.textContent ?? "";
-        return content.trim().length > 0 ? { passed: true } : { passed: false, error: `Element is empty: ${step.target}` };
+        return content.trim().length > 0
+          ? { passed: true }
+          : { passed: false, error: `Element is empty: ${step.target}` };
       }
     case "visible":
-      if (!el) return { passed: false, error: `Element not found: ${step.target}` };
+      if (!el)
+        return { passed: false, error: `Element not found: ${step.target}` };
       {
         const rect = el.getBoundingClientRect();
         const style = window.getComputedStyle(el);
-        const isVisible = rect.width > 0 && rect.height > 0 && style.display !== "none" && style.visibility !== "hidden" && style.opacity !== "0";
-        return isVisible ? { passed: true } : { passed: false, error: `Element is not visible: ${step.target}` };
+        const isVisible =
+          rect.width > 0 &&
+          rect.height > 0 &&
+          style.display !== "none" &&
+          style.visibility !== "hidden" &&
+          style.opacity !== "0";
+        return isVisible
+          ? { passed: true }
+          : { passed: false, error: `Element is not visible: ${step.target}` };
       }
     case "count": {
       const expected = Number(step.value);
       if (!Number.isSafeInteger(expected) || expected < 0) {
         return {
           passed: false,
-          error: `"count" assertion requires a non-negative integer "value"`
+          error: `"count" assertion requires a non-negative integer "value"`,
         };
       }
       const actual = document.querySelectorAll(step.target).length;
-      return actual === expected ? { passed: true } : {
-        passed: false,
-        error: `Element count ${actual} does not equal ${expected}: ${step.target}`
-      };
+      return actual === expected
+        ? { passed: true }
+        : {
+            passed: false,
+            error: `Element count ${actual} does not equal ${expected}: ${step.target}`,
+          };
     }
   }
 }
@@ -673,7 +762,12 @@ async function assertElement(step) {
   const actionLabel = `assert ${step.condition} on ${step.target}`;
   const first = checkCondition(step);
   if (first.passed) {
-    return { index: 0, action: actionLabel, status: "ok", duration: performance.now() - start };
+    return {
+      index: 0,
+      action: actionLabel,
+      status: "ok",
+      duration: performance.now() - start,
+    };
   }
   if (!step.timeout) {
     return {
@@ -681,7 +775,7 @@ async function assertElement(step) {
       action: actionLabel,
       status: "fail",
       duration: performance.now() - start,
-      error: first.error
+      error: first.error,
     };
   }
   return new Promise((resolve) => {
@@ -696,7 +790,7 @@ async function assertElement(step) {
         action: actionLabel,
         status: "fail",
         duration: performance.now() - start,
-        error: last.passed ? void 0 : last.error
+        error: last.passed ? void 0 : last.error,
       });
     }, step.timeout);
     const observer = new MutationObserver(() => {
@@ -706,13 +800,18 @@ async function assertElement(step) {
       settled = true;
       clearTimeout(timer);
       observer.disconnect();
-      resolve({ index: 0, action: actionLabel, status: "ok", duration: performance.now() - start });
+      resolve({
+        index: 0,
+        action: actionLabel,
+        status: "ok",
+        duration: performance.now() - start,
+      });
     });
     observer.observe(document.body, {
       childList: true,
       subtree: true,
       attributes: true,
-      characterData: true
+      characterData: true,
     });
   });
 }
@@ -725,7 +824,7 @@ async function navigateTo(route) {
       index: 0,
       action: `navigate to ${route}`,
       status: "ok",
-      duration: performance.now() - start
+      duration: performance.now() - start,
     };
   } catch (err) {
     return {
@@ -733,7 +832,7 @@ async function navigateTo(route) {
       action: `navigate to ${route}`,
       status: "fail",
       duration: performance.now() - start,
-      error: err instanceof Error ? err.message : String(err)
+      error: err instanceof Error ? err.message : String(err),
     };
   }
 }
@@ -745,7 +844,7 @@ async function takeScreenshot(path) {
       action: "take screenshot",
       status: "fail",
       duration: performance.now() - start,
-      error: "Screenshot handler not initialised"
+      error: "Screenshot handler not initialised",
     };
   }
   try {
@@ -755,7 +854,7 @@ async function takeScreenshot(path) {
       action: "take screenshot",
       status: "ok",
       duration: performance.now() - start,
-      detail: { path: savedPath }
+      detail: { path: savedPath },
     };
   } catch (err) {
     return {
@@ -763,12 +862,14 @@ async function takeScreenshot(path) {
       action: "take screenshot",
       status: "fail",
       duration: performance.now() - start,
-      error: err instanceof Error ? err.message : String(err)
+      error: err instanceof Error ? err.message : String(err),
     };
   }
 }
-const WORKSPACE_BROWSER_HOST_PATTERN = /^wi-[a-f0-9]{32}-g[1-9][0-9]*\.hilo\.localhost$/;
-const WORKSPACE_BROWSER_PROBE_MESSAGE = "hilo:test-driver:workspace-browser-origin";
+const WORKSPACE_BROWSER_HOST_PATTERN =
+  /^wi-[a-f0-9]{32}-g[1-9][0-9]*\.hilo\.localhost$/;
+const WORKSPACE_BROWSER_PROBE_MESSAGE =
+  "hilo:test-driver:workspace-browser-origin";
 const WORKSPACE_BROWSER_PROBE_TOKEN_QUERY = "hilo_test_probe";
 const DEFAULT_PROBE_TIMEOUT_MS = 15e3;
 const MAX_PROBE_TIMEOUT_MS = 6e4;
@@ -778,7 +879,7 @@ function failResult(start, error) {
     action: "custom: probe-workspace-browser-origin",
     status: "fail",
     duration: performance.now() - start,
-    error
+    error,
   };
 }
 function readProbeParams(params) {
@@ -787,18 +888,27 @@ function readProbeParams(params) {
     return "probe-workspace-browser-origin requires params.url:string";
   }
   const rawTimeout = params?.timeout;
-  if (rawTimeout !== void 0 && (typeof rawTimeout !== "number" || !Number.isSafeInteger(rawTimeout) || rawTimeout < 1 || rawTimeout > MAX_PROBE_TIMEOUT_MS)) {
+  if (
+    rawTimeout !== void 0 &&
+    (typeof rawTimeout !== "number" ||
+      !Number.isSafeInteger(rawTimeout) ||
+      rawTimeout < 1 ||
+      rawTimeout > MAX_PROBE_TIMEOUT_MS)
+  ) {
     return `probe-workspace-browser-origin params.timeout must be an integer between 1 and ${MAX_PROBE_TIMEOUT_MS}`;
   }
   return {
     url: rawUrl,
-    timeout: rawTimeout
+    timeout: rawTimeout,
   };
 }
 function parseWorkspaceBrowserUrl(rawUrl) {
   try {
     const url = new URL(rawUrl);
-    if (url.protocol !== "http:" || !WORKSPACE_BROWSER_HOST_PATTERN.test(url.hostname)) {
+    if (
+      url.protocol !== "http:" ||
+      !WORKSPACE_BROWSER_HOST_PATTERN.test(url.hostname)
+    ) {
       return void 0;
     }
     return url;
@@ -810,7 +920,9 @@ function createProbeToken() {
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 }
 function readMessageRecord(data) {
-  return data !== null && typeof data === "object" && !Array.isArray(data) ? data : void 0;
+  return data !== null && typeof data === "object" && !Array.isArray(data)
+    ? data
+    : void 0;
 }
 async function probeWorkspaceBrowserOrigin(params) {
   const start = performance.now();
@@ -820,7 +932,7 @@ async function probeWorkspaceBrowserOrigin(params) {
   if (!url) {
     return failResult(
       start,
-      "probe-workspace-browser-origin only accepts http://wi-<instance>-g<generation>.hilo.localhost URLs"
+      "probe-workspace-browser-origin only accepts http://wi-<instance>-g<generation>.hilo.localhost URLs",
     );
   }
   const token = createProbeToken();
@@ -829,7 +941,8 @@ async function probeWorkspaceBrowserOrigin(params) {
   const iframe = document.createElement("iframe");
   iframe.dataset.hiloTestDriverProbe = "workspace-browser-origin";
   iframe.src = url.toString();
-  iframe.style.cssText = "position:fixed;left:-10000px;top:0;width:16px;height:16px;border:0;opacity:0.01;";
+  iframe.style.cssText =
+    "position:fixed;left:-10000px;top:0;width:16px;height:16px;border:0;opacity:0.01;";
   return new Promise((resolve) => {
     let settled = false;
     const finish = (result) => {
@@ -841,9 +954,13 @@ async function probeWorkspaceBrowserOrigin(params) {
       resolve(result);
     };
     const handleMessage = (event) => {
-      if (event.origin !== url.origin || event.source !== iframe.contentWindow) return;
+      if (event.origin !== url.origin || event.source !== iframe.contentWindow)
+        return;
       const record = readMessageRecord(event.data);
-      if (record?.type !== WORKSPACE_BROWSER_PROBE_MESSAGE || record.token !== token) {
+      if (
+        record?.type !== WORKSPACE_BROWSER_PROBE_MESSAGE ||
+        record.token !== token
+      ) {
         return;
       }
       const detail = readMessageRecord(record.detail) ?? {};
@@ -853,15 +970,23 @@ async function probeWorkspaceBrowserOrigin(params) {
           action: "custom: probe-workspace-browser-origin",
           status: "ok",
           duration: performance.now() - start,
-          detail: { origin: url.origin, ...detail }
+          detail: { origin: url.origin, ...detail },
         });
         return;
       }
-      const message = typeof record.error === "string" && record.error.length > 0 ? record.error : "workspace browser-origin fixture reported a failed check";
+      const message =
+        typeof record.error === "string" && record.error.length > 0
+          ? record.error
+          : "workspace browser-origin fixture reported a failed check";
       finish(failResult(start, message));
     };
     const timer = setTimeout(() => {
-      finish(failResult(start, `workspace browser-origin probe timed out after ${timeout}ms`));
+      finish(
+        failResult(
+          start,
+          `workspace browser-origin probe timed out after ${timeout}ms`,
+        ),
+      );
     }, timeout);
     window.addEventListener("message", handleMessage);
     document.body.append(iframe);
@@ -876,12 +1001,12 @@ function resolveTemplateVars(step) {
     date,
     time,
     datetime: `${date} ${time}`,
-    timestamp: String(Math.floor(now.getTime() / 1e3))
+    timestamp: String(Math.floor(now.getTime() / 1e3)),
   };
-  const replace = (s) => s.replace(/\{\{(\w+)\}\}/g, (match, key) => vars[key] ?? match);
-  return JSON.parse(
-    JSON.stringify(step),
-    (_key, value) => typeof value === "string" ? replace(value) : value
+  const replace = (s) =>
+    s.replace(/\{\{(\w+)\}\}/g, (match, key) => vars[key] ?? match);
+  return JSON.parse(JSON.stringify(step), (_key, value) =>
+    typeof value === "string" ? replace(value) : value,
   );
 }
 function describeAction(step) {
@@ -890,9 +1015,11 @@ function describeAction(step) {
   if ("contextmenu" in step) return `contextmenu ${step.contextmenu}`;
   if ("hover" in step) return `hover ${step.hover}`;
   if ("dismiss-menu" in step) return "dismiss-menu";
-  if ("type" in step) return `type "${step.type.value}" into ${step.type.target}`;
+  if ("type" in step)
+    return `type "${step.type.value}" into ${step.type.target}`;
   if ("wait" in step) return `wait for ${step.wait.target}`;
-  if ("assert" in step) return `assert ${step.assert.condition} on ${step.assert.target}`;
+  if ("assert" in step)
+    return `assert ${step.assert.condition} on ${step.assert.target}`;
   if ("navigate" in step) return `navigate to ${step.navigate}`;
   if ("screenshot" in step) return `screenshot ${step.screenshot.path}`;
   if ("sleep" in step) return `sleep ${step.sleep}ms`;
@@ -903,13 +1030,16 @@ function describeAction(step) {
     const idxLabel = idx !== void 0 ? `[${idx}]` : "";
     return `read-attr ${step["read-attr"].attr} from ${step["read-attr"].target}${idxLabel}`;
   }
-  if ("count-elements" in step) return `count-elements ${step["count-elements"].target}`;
+  if ("count-elements" in step)
+    return `count-elements ${step["count-elements"].target}`;
   if ("wait-count" in step) {
     const wc = step["wait-count"];
-    const threshold = wc.min ?? (wc.baseline !== void 0 ? wc.baseline + 1 : "?");
+    const threshold =
+      wc.min ?? (wc.baseline !== void 0 ? wc.baseline + 1 : "?");
     return `wait-count ${wc.target} >= ${threshold}`;
   }
-  if ("wait-any" in step) return `wait-any [${step["wait-any"].targets.join(", ")}]`;
+  if ("wait-any" in step)
+    return `wait-any [${step["wait-any"].targets.join(", ")}]`;
   if ("wait-stage" in step) {
     const ws = step["wait-stage"];
     const expected = ws.expectedNew ?? 1;
@@ -922,7 +1052,7 @@ function describeAction(step) {
 const DEBUG_PANEL_OPEN_EVENT = "hub:debug-panel-open";
 const DEBUG_FLAG_CHANGED_EVENT = "hilo:debug-flag-changed";
 const DEBUG_FLAG_KEYS = {
-  forceOfflineBanner: "hilo.debug.forceOfflineBanner"
+  forceOfflineBanner: "hilo.debug.forceOfflineBanner",
 };
 const ALLOWED_DEBUG_FLAG_KEYS = new Set(Object.values(DEBUG_FLAG_KEYS));
 const MAX_TEST_FILE_BYTES = 1024 * 1024;
@@ -934,13 +1064,17 @@ function readRuntimeConfigProbe() {
   const record = candidate;
   return {
     env: typeof record.env === "string" ? record.env : void 0,
-    channel: typeof record.channel === "string" ? record.channel : void 0
+    channel: typeof record.channel === "string" ? record.channel : void 0,
   };
 }
 function canUseDebugTooling() {
   const config = readRuntimeConfigProbe();
   if (!config) return true;
-  return config.env === "development" || config.env === "test" || config.channel !== "prod";
+  return (
+    config.env === "development" ||
+    config.env === "test" ||
+    config.channel !== "prod"
+  );
 }
 function isAllowedDebugFlagKey(key) {
   return ALLOWED_DEBUG_FLAG_KEYS.has(key);
@@ -950,9 +1084,11 @@ function readToggleChecked(element) {
     return element.checked;
   }
   const ariaChecked = element.getAttribute("aria-checked");
-  if (ariaChecked === "true" || ariaChecked === "false") return ariaChecked === "true";
+  if (ariaChecked === "true" || ariaChecked === "false")
+    return ariaChecked === "true";
   const dataState = element.dataset.state;
-  if (dataState === "checked" || dataState === "unchecked") return dataState === "checked";
+  if (dataState === "checked" || dataState === "unchecked")
+    return dataState === "checked";
   return void 0;
 }
 async function waitForToggleState(element, checked) {
@@ -971,7 +1107,7 @@ async function executeCustomAction(custom) {
       index: 0,
       action: `custom: ${custom.name}`,
       status: "ok",
-      duration: performance.now() - start
+      duration: performance.now() - start,
     };
   }
   if (custom.name === "set-debug-flag") {
@@ -983,7 +1119,8 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: "set-debug-flag requires params.key:string and params.enabled:boolean"
+        error:
+          "set-debug-flag requires params.key:string and params.enabled:boolean",
       };
     }
     if (!isAllowedDebugFlagKey(key)) {
@@ -992,7 +1129,7 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: `Unknown debug flag key: ${key}`
+        error: `Unknown debug flag key: ${key}`,
       };
     }
     if (!canUseDebugTooling()) {
@@ -1001,18 +1138,20 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: "Debug tooling is disabled in this runtime"
+        error: "Debug tooling is disabled in this runtime",
       };
     }
     if (enabled) localStorage.setItem(key, "1");
     else localStorage.removeItem(key);
-    window.dispatchEvent(new CustomEvent(DEBUG_FLAG_CHANGED_EVENT, { detail: { key } }));
+    window.dispatchEvent(
+      new CustomEvent(DEBUG_FLAG_CHANGED_EVENT, { detail: { key } }),
+    );
     return {
       index: 0,
       action: `custom: ${custom.name}`,
       status: "ok",
       duration: performance.now() - start,
-      detail: { key, enabled }
+      detail: { key, enabled },
     };
   }
   if (custom.name === "probe-workspace-browser-origin") {
@@ -1025,7 +1164,7 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: "Debug tooling is disabled in this runtime"
+        error: "Debug tooling is disabled in this runtime",
       };
     }
     const target = custom.params?.target;
@@ -1036,7 +1175,8 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: "set-toggle-state requires params.target:string and params.checked:boolean"
+        error:
+          "set-toggle-state requires params.target:string and params.checked:boolean",
       };
     }
     const element = document.querySelector(target);
@@ -1046,7 +1186,7 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: `Toggle not found: ${target}`
+        error: `Toggle not found: ${target}`,
       };
     }
     const initialChecked = readToggleChecked(element);
@@ -1056,17 +1196,17 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: `Element does not expose a supported toggle state: ${target}`
+        error: `Element does not expose a supported toggle state: ${target}`,
       };
     }
     if (initialChecked !== checked) element.click();
-    if (!await waitForToggleState(element, checked)) {
+    if (!(await waitForToggleState(element, checked))) {
       return {
         index: 0,
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: `Toggle did not reach checked=${checked}: ${target}`
+        error: `Toggle did not reach checked=${checked}: ${target}`,
       };
     }
     return {
@@ -1074,7 +1214,7 @@ async function executeCustomAction(custom) {
       action: `custom: ${custom.name}`,
       status: "ok",
       duration: performance.now() - start,
-      detail: { target, checked, changed: initialChecked !== checked }
+      detail: { target, checked, changed: initialChecked !== checked },
     };
   }
   if (custom.name === "set-file-input") {
@@ -1084,20 +1224,26 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: "Debug tooling is disabled in this runtime"
+        error: "Debug tooling is disabled in this runtime",
       };
     }
     const target = custom.params?.target;
     const name = custom.params?.name;
     const mimeType = custom.params?.mimeType;
     const base64 = custom.params?.base64;
-    if (typeof target !== "string" || typeof name !== "string" || typeof mimeType !== "string" || typeof base64 !== "string") {
+    if (
+      typeof target !== "string" ||
+      typeof name !== "string" ||
+      typeof mimeType !== "string" ||
+      typeof base64 !== "string"
+    ) {
       return {
         index: 0,
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: "set-file-input requires target, name, mimeType, and base64 string params"
+        error:
+          "set-file-input requires target, name, mimeType, and base64 string params",
       };
     }
     const input = document.querySelector(target);
@@ -1107,7 +1253,7 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: `File input not found: ${target}`
+        error: `File input not found: ${target}`,
       };
     }
     try {
@@ -1115,10 +1261,15 @@ async function executeCustomAction(custom) {
       if (decoded.length > MAX_TEST_FILE_BYTES) {
         throw new Error(`test file exceeds ${MAX_TEST_FILE_BYTES} bytes`);
       }
-      const bytes = Uint8Array.from(decoded, (character) => character.charCodeAt(0));
+      const bytes = Uint8Array.from(decoded, (character) =>
+        character.charCodeAt(0),
+      );
       const file = new File([bytes], name, { type: mimeType });
       if (typeof DataTransfer === "undefined") {
-        Object.defineProperty(input, "files", { configurable: true, value: [file] });
+        Object.defineProperty(input, "files", {
+          configurable: true,
+          value: [file],
+        });
       } else {
         const transfer = new DataTransfer();
         transfer.items.add(file);
@@ -1130,7 +1281,11 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "ok",
         duration: performance.now() - start,
-        detail: { count: input.files?.length ?? 0, name, size: bytes.byteLength }
+        detail: {
+          count: input.files?.length ?? 0,
+          name,
+          size: bytes.byteLength,
+        },
       };
     } catch (error) {
       return {
@@ -1138,7 +1293,7 @@ async function executeCustomAction(custom) {
         action: `custom: ${custom.name}`,
         status: "fail",
         duration: performance.now() - start,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -1147,7 +1302,7 @@ async function executeCustomAction(custom) {
     action: `custom: ${custom.name}`,
     status: "fail",
     duration: performance.now() - start,
-    error: `Unknown custom action: ${custom.name}`
+    error: `Unknown custom action: ${custom.name}`,
   };
 }
 async function executeOneStep(step) {
@@ -1157,8 +1312,10 @@ async function executeOneStep(step) {
   if ("contextmenu" in resolved) return contextmenu(resolved.contextmenu);
   if ("hover" in resolved) return hover(resolved.hover);
   if ("dismiss-menu" in resolved) return dismissMenu();
-  if ("type" in resolved) return typeText(resolved.type.target, resolved.type.value);
-  if ("wait" in resolved) return waitForElement(resolved.wait.target, resolved.wait.timeout);
+  if ("type" in resolved)
+    return typeText(resolved.type.target, resolved.type.value);
+  if ("wait" in resolved)
+    return waitForElement(resolved.wait.target, resolved.wait.timeout);
   if ("assert" in resolved) return assertElement(resolved.assert);
   if ("navigate" in resolved) return navigateTo(resolved.navigate);
   if ("screenshot" in resolved) return takeScreenshot(resolved.screenshot.path);
@@ -1167,12 +1324,17 @@ async function executeOneStep(step) {
     return readAttr(
       resolved["read-attr"].target,
       resolved["read-attr"].attr,
-      resolved["read-attr"].index
+      resolved["read-attr"].index,
     );
-  if ("count-elements" in resolved) return countElements(resolved["count-elements"].target);
+  if ("count-elements" in resolved)
+    return countElements(resolved["count-elements"].target);
   if ("wait-count" in resolved) {
     const wc = resolved["wait-count"];
-    return waitCount(wc.target, { min: wc.min, baseline: wc.baseline, timeout: wc.timeout });
+    return waitCount(wc.target, {
+      min: wc.min,
+      baseline: wc.baseline,
+      timeout: wc.timeout,
+    });
   }
   if ("wait-any" in resolved)
     return waitAny(resolved["wait-any"].targets, resolved["wait-any"].timeout);
@@ -1185,7 +1347,7 @@ async function executeOneStep(step) {
       expectedNew: ws.expectedNew,
       autoAnswerDock: ws.autoAnswerDock,
       dockMaxRounds: ws.dockMaxRounds,
-      readAttrs: ws.readAttrs
+      readAttrs: ws.readAttrs,
     });
   }
   if ("switch-window" in resolved) {
@@ -1194,7 +1356,7 @@ async function executeOneStep(step) {
       action: `switch-window ${resolved["switch-window"]}`,
       status: "skip",
       duration: 0,
-      error: "switch-window must be handled by main process"
+      error: "switch-window must be handled by main process",
     };
   }
   if ("reset" in resolved) {
@@ -1203,7 +1365,7 @@ async function executeOneStep(step) {
       action: "reset",
       status: "skip",
       duration: 0,
-      error: "reset must be handled by main process"
+      error: "reset must be handled by main process",
     };
   }
   if ("sleep" in resolved) {
@@ -1215,7 +1377,7 @@ async function executeOneStep(step) {
       index: 0,
       action: `sleep ${resolved.sleep}ms`,
       status: "ok",
-      duration: performance.now() - start
+      duration: performance.now() - start,
     };
   }
   if ("custom" in resolved) {
@@ -1226,11 +1388,11 @@ async function executeOneStep(step) {
     action: "unknown",
     status: "fail",
     duration: 0,
-    error: "Unknown step action"
+    error: "Unknown step action",
   };
 }
 async function executeSteps(steps, name = "unnamed") {
-  const startedAt = (/* @__PURE__ */ new Date()).toISOString();
+  const startedAt = /* @__PURE__ */ new Date().toISOString();
   const results = [];
   let failedStep;
   for (let i = 0; i < steps.length; i++) {
@@ -1247,19 +1409,23 @@ async function executeSteps(steps, name = "unnamed") {
   return {
     name,
     startedAt,
-    completedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    completedAt: /* @__PURE__ */ new Date().toISOString(),
     steps: results,
     status: failedStep !== void 0 ? "fail" : "pass",
-    failedStep
+    failedStep,
   };
 }
 function getAppState() {
-  const activeEl = document.querySelector('[data-action-ui-id="active-session"]');
+  const activeEl = document.querySelector(
+    '[data-action-ui-id="active-session"]',
+  );
   return {
     currentRoute: window.location.pathname + window.location.hash,
     windowTitle: document.title,
-    sessionCount: document.querySelectorAll('[data-action-ui-id="session-item"]').length,
-    focusedSessionId: activeEl?.getAttribute("data-session-id") ?? void 0
+    sessionCount: document.querySelectorAll(
+      '[data-action-ui-id="session-item"]',
+    ).length,
+    focusedSessionId: activeEl?.getAttribute("data-session-id") ?? void 0,
   };
 }
 function initTestDriverBridge(ipc) {
@@ -1287,11 +1453,9 @@ function initTestDriverBridge(ipc) {
       return {
         id: request.id,
         success: false,
-        error: err instanceof Error ? err.message : String(err)
+        error: err instanceof Error ? err.message : String(err),
       };
     }
   });
 }
-export {
-  initTestDriverBridge
-};
+export { initTestDriverBridge };

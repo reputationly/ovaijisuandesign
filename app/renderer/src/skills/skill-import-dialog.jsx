@@ -1,33 +1,19 @@
 // 技能导入弹窗：选择文件、校验、导入与错误提示。
-import {
-  mv as isValidSkillName,
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  x as useNavigateToWorkspace,
-  H as homeService,
-  K as workspaceRuntimeFromOpenResult,
-  l9 as toastWorkspaceOpenResult,
-  j as jsxRuntimeExports,
-  gj as DialogHeader,
-  au as cn,
-  fM as Button,
-  l as gatewayFetch,
-  m as API_PATHS,
-  as as Dialog,
-  at as DialogContent,
-  g8 as DialogTitle,
-  bB as CheckCircle2,
-  f as Input,
-  dl as Loader2,
-  ns as detectSkillImportFileExt,
-  nt as trackSkillImportFailed,
-  nu as trackSkillImport,
-  nv as chatLog,
-  aS as AlertCircle,
-  aO as FileText,
-  cy as FilePlus2,
-} from "../main.jsx";
+import { isValidSkillName } from "../generation/normalize-skill-detail-metadata.js";
+import { useTranslation, reactExports, jsxRuntimeExports, API_PATHS, CheckCircle2, Loader2, AlertCircle, FilePlus2 } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
+import { useNavigateToWorkspace } from "../workspace/use-deep-link-router.js";
+import { homeService } from "../workspace/home-service.jsx";
+import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
+import { toastWorkspaceOpenResult } from "../workspace/toast-workspace-open-result.js";
+import { DialogHeader, cn$2 as cn, Button, Dialog, DialogContent } from "../infra/dialog-content.jsx";
+import { gatewayFetch } from "../infra/gateway-fetch.js";
+import { DialogTitle } from "../infra/badge-variants.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
+import { detectSkillImportFileExt } from "../workspace/tool-label-definitions.js";
+import { trackSkillImportFailed, trackSkillImport } from "../workspace/use-new-workspace-dialog.jsx";
+import { chatLog } from "../vendor-inline/vscode-base/graph.jsx";
+import { FileText } from "../media-editing/package.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 const ACCEPTED_EXTENSIONS = new Set([".zip", ".md"]);
 function getFileExtension(name) {

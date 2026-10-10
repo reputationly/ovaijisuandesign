@@ -1,13 +1,9 @@
 // 更新日志页路由入口：左侧版本封面跟随悬停的条目，右侧列表与详情弹窗。
-import {
-  h as useTranslation,
-  y as useLoginGuard,
-  fT as useSearch,
-  hn as useChangelog,
-  r as reactExports,
-  ho as ChangelogTable,
-  hp as ChangelogDetailDialog,
-} from "../main.jsx";
+import { useTranslation, useSearch, reactExports } from "../vendor.js";
+import { useLoginGuard } from "../infra/schedule.js";
+import { useChangelog } from "../settings/use-active-runtime.js";
+import { ChangelogTable } from "../settings/changelog-table.jsx";
+import { ChangelogDetailDialog } from "../settings/changelog-detail-dialog.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FeaturedCard } from "./featured-card.jsx";
 import { buildChangelogRows, pickLocale } from "./rows.js";

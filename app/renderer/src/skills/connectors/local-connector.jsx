@@ -1,28 +1,17 @@
 // 本地连接器的介绍内容与详情弹窗。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  H as homeService,
-  j as jsxRuntimeExports,
-  j3 as ConnectorDialogFrame,
-  gj as DialogHeader,
-  j4 as ConnectorRelationshipGraphic,
-  j5 as ConnectorDialogScrollableBody,
-  j9 as ConnectorSummaryAction,
-  j2 as ConnectorPromptAction,
-  mB as connectorTitle,
-  j6 as ConnectorDetailNotice,
-  j1 as connectorSummaryActionLabelKey,
-  jf as ConnectorStatusPill,
-  mC as localizedI18nText,
-  mD as LocalConnectorSetupContent,
-  g7 as Badge,
-} from "../../main.jsx";
-import {
-  a as ConnectorDialogSummary,
-  c as ConnectorPromptList,
-} from "../../connector-catalog-data-DiTljgxj.js";
+import { useTranslation, reactExports, jsxRuntimeExports, connectorSummaryActionLabelKey, localizedI18nText } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { homeService } from "../../workspace/home-service.jsx";
+import { ConnectorDialogFrame } from "../../settings/connector-dialog-frame.jsx";
+import { DialogHeader } from "../../infra/dialog-content.jsx";
+import { ConnectorRelationshipGraphic } from "../../settings/connector-relationship-graphic.jsx";
+import { ConnectorDialogScrollableBody } from "../../settings/request-prompt-prefill.jsx";
+import { ConnectorSummaryAction, ConnectorDetailNotice } from "../../settings/connector-summary-action.jsx";
+import { ConnectorPromptAction, ConnectorStatusPill } from "../../settings/connector-prompt-action.jsx";
+import { connectorTitle } from "../../settings/make-async-image-task.jsx";
+import { LocalConnectorSetupContent } from "../../settings/local-connector-setup-content.jsx";
+import { Badge } from "../../infra/badge-variants.jsx";
+import { ConnectorDialogSummary, ConnectorPromptList } from "./connector-catalog-data.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { ConnectorCapabilityList, localizedCapabilityText } from "./browser-connector.jsx";
 import {

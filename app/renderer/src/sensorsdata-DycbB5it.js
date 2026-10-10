@@ -1,4 +1,4 @@
-import { fS as getDefaultExportFromCjs } from "./main.jsx";
+import { getDefaultExportFromCjs$1 as getDefaultExportFromCjs } from "./vendor.js";
 function _mergeNamespaces(n, m2) {
   for (var i = 0; i < m2.length; i++) {
     const e = m2[i];

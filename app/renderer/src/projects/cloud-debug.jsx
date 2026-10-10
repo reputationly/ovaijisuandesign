@@ -1,20 +1,11 @@
 // 项目列表页的云端项目调试入口：调试工具可用时才显示，列出云端项目与原始数据。
-import {
-  h as useTranslation,
-  r as reactExports,
-  gh as canUseDebugTooling,
-  gi as listCloudProjects,
-  j as jsxRuntimeExports,
-  c2 as CloudDownload,
-  as as Dialog,
-  at as DialogContent,
-  gj as DialogHeader,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  fM as Button,
-  gk as RetryIcon,
-  gl as MemberRole,
-} from "../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, CloudDownload } from "../vendor.js";
+import { canUseDebugTooling } from "../workspace/use-deep-link-router.js";
+import { listCloudProjects } from "../workspace/asset-lineage-query-key.js";
+import { Dialog, DialogContent, DialogHeader, Button } from "../infra/dialog-content.jsx";
+import { DialogTitle, DialogDescription } from "../infra/badge-variants.jsx";
+import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
+import { MemberRole } from "../generation/normalize-skill-detail-metadata.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 const INITIAL_STATE = {
   loading: false,

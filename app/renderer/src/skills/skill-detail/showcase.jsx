@@ -1,24 +1,10 @@
 // 技能详情里的展示：视频播放器、展示区、结构化概览。
-import {
-  h as useTranslation,
-  r as reactExports,
-  au as cn,
-  fM as Button,
-  mS as selectSkillStructuredInfo,
-  bG as ChevronLeft,
-  bI as ChevronRight,
-  no as CDN_SKILL_SHOWCASE_FALLBACK,
-  dZ as PlaybackPauseIcon,
-  ax as PlaybackPlayIcon,
-  np as ProgressBar,
-  fa as VolumeX,
-  f8 as Volume2,
-  d0 as ImageOffOutlineIcon,
-  dj as List,
-  dk as ListChecks,
-  b8 as ArrowUpRight,
-  dQ as Package,
-} from "../../main.jsx";
+import { useTranslation, reactExports, ChevronLeft, ChevronRight$1 as ChevronRight, PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon, Volume2, ListChecks, ArrowUpRight } from "../../vendor.js";
+import { cn$2 as cn, Button } from "../../infra/dialog-content.jsx";
+import { selectSkillStructuredInfo } from "../../generation/normalize-skill-detail-metadata.js";
+import { CDN_SKILL_SHOWCASE_FALLBACK } from "../../workspace/topbar-state-context.jsx";
+import { ProgressBar } from "../../media-editing/progress-bar-inner.jsx";
+import { VolumeX, ImageOffOutlineIcon, List, Package } from "../../media-editing/package.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { Carousel, CarouselContent, CarouselItem } from "../plugins/carousel.jsx";
 import { isSkillDetailVideo, skillDetailMedia } from "./data.js";

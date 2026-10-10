@@ -1,21 +1,14 @@
 // 技能页的状态 hook：布局、筛选、更新检查、同步状态、试用技能。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  x as useNavigateToWorkspace,
-  H as homeService,
-  K as workspaceRuntimeFromOpenResult,
-  l9 as toastWorkspaceOpenResult,
-  mw as workspaceEvents,
-  l as gatewayFetch,
-  m as API_PATHS,
-  nE as trackSkillInstallFailed,
-  nF as trackSkillInstallEvent,
-  nG as showSkillInstallSuccessToast,
-  nH as beginSkillApplyingToast,
-  nI as trackSkillInvoke,
-} from "../main.jsx";
+import { useTranslation, reactExports, API_PATHS } from "../vendor.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
+import { useNavigateToWorkspace } from "../workspace/use-deep-link-router.js";
+import { homeService } from "../workspace/home-service.jsx";
+import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
+import { toastWorkspaceOpenResult } from "../workspace/toast-workspace-open-result.js";
+import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
+import { gatewayFetch } from "../infra/gateway-fetch.js";
+import { trackSkillInstallFailed, trackSkillInstallEvent, showSkillInstallSuccessToast, trackSkillInvoke } from "../workspace/use-new-workspace-dialog.jsx";
+import { beginSkillApplyingToast } from "../generation/settle-operation.js";
 const LAYOUT_STORAGE_KEY = "skills.layout";
 const INITIAL_PER_TAB = {
   community: {

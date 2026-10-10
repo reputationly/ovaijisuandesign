@@ -1,5 +1,6 @@
 // 首页展示区的配置解析与默认值：只做校验和归一化，不依赖 React。
-import { lr as HOME_QUICK_START_MAX_SECTIONS, ls as parseProjectArchiveSection } from "../main.jsx";
+import { HOME_QUICK_START_MAX_SECTIONS } from "../workspace/parse-localized-text.js";
+import { parseProjectArchiveSection } from "../workspace/parse-project-archive-item.js";
 export const HOME_PROJECT_SHOWCASE_SCHEMA_VERSION = 1;
 export const EMPTY_HOME_PROJECT_SHOWCASE_CONFIG = {
   schemaVersion: HOME_PROJECT_SHOWCASE_SCHEMA_VERSION,

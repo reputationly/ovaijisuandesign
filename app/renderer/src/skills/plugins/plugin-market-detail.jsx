@@ -1,19 +1,11 @@
 // 插件市场详情：图标解析、首帧静态图、详情弹窗、预览视频与列表条目。
-import {
-  h as useTranslation,
-  r as reactExports,
-  j as jsxRuntimeExports,
-  am as Trash2,
-  g7 as Badge,
-  fM as Button,
-  as as Dialog,
-  at as DialogContent,
-  mW as formatDownloads,
-  dl as Loader2,
-  az as PluginIcon,
-  nh as pickLocalized,
-  cf as Download$1,
-} from "../../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, Loader2 } from "../../vendor.js";
+import { Trash2, Download as Download$1 } from "../../media-editing/package.jsx";
+import { Badge } from "../../infra/badge-variants.jsx";
+import { Button, Dialog, DialogContent } from "../../infra/dialog-content.jsx";
+import { formatDownloads } from "../../generation/use-mention-models.jsx";
+import { PluginIcon } from "../../workspace/home-service.jsx";
+import { pickLocalized } from "../../generation/normalize-skill-detail-metadata.js";
 import Autoplay from "embla-carousel-autoplay";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { Carousel, CarouselContent, CarouselItem } from "./carousel.jsx";

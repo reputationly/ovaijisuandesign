@@ -1,16 +1,9 @@
 // ComfyUI 模型下载区：下载任务行、进度与详情文案。
-import {
-  h as useTranslation,
-  kP as useComfyUiDownloadProgress,
-  kQ as isActiveComfyUiDownloadTask,
-  cf as Download,
-  ka as Progress,
-  fM as Button,
-  bU as PlaybackStopIcon,
-  X,
-  bO as CircleAlert,
-  ez as ShieldCheck,
-} from "../main.jsx";
+import { useTranslation, PlaybackStopIcon$1 as PlaybackStopIcon, X$7 as X, CircleAlert, ShieldCheck } from "../vendor.js";
+import { useComfyUiDownloadProgress, isActiveComfyUiDownloadTask } from "../vendor-inline/vscode-base/graph.jsx";
+import { Download } from "../media-editing/package.jsx";
+import { Progress } from "../team/team-management-detail-loading.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function ComfyUiModelDownloadSection() {
   const { t } = useTranslation();

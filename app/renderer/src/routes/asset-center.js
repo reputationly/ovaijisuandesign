@@ -1,4 +1,6 @@
-import { A as AssetCenterPage, n as normalizeWorkspaceId } from "./main.jsx";
+// asset-center.js
+import { AssetCenterPage } from "../assets/asset-center-page.jsx";
+import { normalizeWorkspaceId } from "../settings/use-active-runtime.js";
 function validateAssetCenterSearch(search) {
   const result = {};
   if (search.action === "create") result.action = "create";
@@ -7,7 +9,4 @@ function validateAssetCenterSearch(search) {
   return result;
 }
 const SplitComponent = AssetCenterPage;
-export {
-  SplitComponent as component,
-  validateAssetCenterSearch
-};
+export { SplitComponent as component, validateAssetCenterSearch };

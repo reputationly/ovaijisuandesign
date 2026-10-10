@@ -1,30 +1,11 @@
 // 搜索结果左侧的图标与缩略图：命令图标、媒体图标、工作区预览。
-import {
-  r as reactExports,
-  e as Icon,
-  S as Search,
-  ax as PlaybackPlayIcon,
-  ay as BookOpen,
-  az as PluginIcon,
-  aA as SkillIcon,
-  aB as LayoutGrid,
-  aC as FileTypeIcon,
-  aD as classifyFileType,
-  aE as MessageSquare,
-  aF as Folder,
-  aG as FolderOpen,
-  V as useWorkspaceThumbnails,
-  aH as Command,
-  aI as PackageSearch,
-  aJ as Brain,
-  aK as Settings,
-  aL as FolderPlus,
-  aM as MessageSquarePlus,
-  aN as Music,
-  aO as FileText,
-  aP as Video,
-  aQ as ImageOutlineIcon,
-} from "../main.jsx";
+import { reactExports, Search, PlaybackPlayIcon$1 as PlaybackPlayIcon, LayoutGrid, classifyFileType, Command, PackageSearch, FolderPlus, Music, Video } from "../vendor.js";
+import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
+import { BookOpen, MessageSquare, Folder, FolderOpen, Brain, Settings, MessageSquarePlus, FileText, ImageOutlineIcon } from "../media-editing/package.jsx";
+import { PluginIcon } from "../workspace/home-service.jsx";
+import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
+import { FileTypeIcon } from "../infra/file-type-icon.jsx";
+import { useWorkspaceThumbnails } from "../workspace/use-project-delete.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { THUMBNAIL_STABLE_DELAY_MS, THUMBNAIL_VISIBLE_ROOT_MARGIN } from "./constants.js";
 import { inferResultMediaFilter } from "./result-filters.js";

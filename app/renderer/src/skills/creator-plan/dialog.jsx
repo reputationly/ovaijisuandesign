@@ -1,43 +1,17 @@
 // 创作者计划投稿弹窗：安装包、封面、展示素材、分类与提交流程。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  j as jsxRuntimeExports,
-  gj as DialogHeader,
-  e as Icon,
-  g7 as Badge,
-  fM as Button,
-  k4 as Alert,
-  k7 as AlertDescription,
-  X,
-  mQ as normalizeSkillDetailMetadata,
-  mR as normalizeSkillContentLocale,
-  mS as selectSkillStructuredInfo,
-  as as Dialog,
-  at as DialogContent,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  kS as DialogFooter,
-  mT as useSkillCategories,
-  cq as FileArchive,
-  k6 as AlertTitle,
-  iX as Label,
-  mU as RadioGroup,
-  mV as RadioGroupItem,
-  f0 as Upload,
-  d5 as Info,
-  iY as Select,
-  iZ as SelectTrigger,
-  i_ as SelectValue,
-  i$ as SelectContent,
-  j0 as SelectItem,
-  bB as CheckCircle2,
-  f as Input,
-  kR as Textarea,
-  d1 as ImagePlus,
-  aP as Video,
-} from "../../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, X$7 as X, Info$1 as Info, CheckCircle2, ImagePlus, Video } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
+import { Icon } from "../../vendor-inline/vscode-base/graph.jsx";
+import { Badge, DialogTitle, DialogDescription, Textarea } from "../../infra/badge-variants.jsx";
+import { Alert, AlertDescription, AlertTitle } from "../../team/alert-variants.jsx";
+import { normalizeSkillDetailMetadata, normalizeSkillContentLocale, selectSkillStructuredInfo } from "../../generation/normalize-skill-detail-metadata.js";
+import { useSkillCategories } from "../../generation/use-skill-categories.js";
+import { FileArchive, Upload } from "../../media-editing/package.jsx";
+import { Label } from "../../team/use-wallet-query.jsx";
+import { RadioGroup, RadioGroupItem } from "../../media-editing/message-list-props-equal.jsx";
+import { Select } from "../../assets/credit-query-keys.jsx";
+import { SelectTrigger, SelectValue, SelectContent, SelectItem, Input3 as Input } from "../../infra/select-content.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { hasSubmissionShowcase, saveCreatorPlan, stageSkillPackage } from "./data.js";
 import { AssetPicker, Field$1, FormSection, PackagePicker } from "./form-parts.jsx";

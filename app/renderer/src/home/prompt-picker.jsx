@@ -1,5 +1,15 @@
 // 首页的项目选择器、提示词预填、随机灵感的桥接组件。
-import { h as useTranslation, r as reactExports, j as jsxRuntimeExports, Q as Plus, X, gx as useProjects, lw as useCreateProjectAndSelect, ae as DropdownMenu, gt as TooltipProvider, gu as Tooltip, gv as TooltipTrigger, af as DropdownMenuTrigger, f5 as Users, cI as FolderMinus, bE as ChevronDown, gw as TooltipContent, ah as DropdownMenuContent, ai as DropdownMenuItem, aF as Folder, lx as DropdownMenuSeparator, gN as CreateProjectDialog, ly as subscribePromptPrefill, lz as getPromptPrefillRequest, lA as useMentionModels, lB as completePromptPrefill, lC as claimPromptPrefill, lD as resolveModelPricingName, lL as subscribeRandomInspiration, lM as getRandomInspirationRequest, lN as getRandomInspirationQueryIds, lO as completeRandomInspiration } from "../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, Plus, X$7 as X, FolderMinus, ChevronDown } from "../vendor.js";
+import { useProjects } from "../workspace/normalize-project-entries.js";
+import { useCreateProjectAndSelect } from "../workspace/context-menu-content.jsx";
+import { DropdownMenu, TooltipProvider, Tooltip, TooltipTrigger } from "../vendor-inline/vscode-base/graph.jsx";
+import { DropdownMenuTrigger, TooltipContent, DropdownMenuContent, DropdownMenuItem } from "../infra/dialog-content.jsx";
+import { Users, Folder } from "../media-editing/package.jsx";
+import { DropdownMenuSeparator } from "../workspace/shortcut-hint.jsx";
+import { CreateProjectDialog } from "../workspace/create-project-dialog.jsx";
+import { subscribePromptPrefill, getPromptPrefillRequest, completePromptPrefill, claimPromptPrefill, subscribeRandomInspiration, getRandomInspirationRequest, getRandomInspirationQueryIds, completeRandomInspiration } from "../settings/request-prompt-prefill.jsx";
+import { useMentionModels } from "../generation/use-mention-models.jsx";
+import { resolveModelPricingName } from "../generation/build-model-pricing-name-maps.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function HomeProjectPicker({
   selectedProjectId,

@@ -1,35 +1,24 @@
 // 本地资产面板：目录浏览、搜索、移动、导入与批量操作。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  fM as Button,
-  au as cn,
-  o as usePlatform,
-  hF as useProjectAssetsService,
-  E as useProjectActions,
-  v as useStorage,
-  hL as gatewayUrl,
-  m as API_PATHS,
-  hM as withThumbnailWidth,
-  hQ as getProjectAssetWritePolicy,
-  hR as PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
-  hZ as useMoveDnd,
-  h$ as filterMoveOptions,
-  i0 as ROOT_KEY,
-  aL as FolderPlus,
-  f0 as Upload,
-  gk as RetryIcon,
-  i4 as AssetsDropzoneEmpty,
-  i9 as MoveNodeDialog,
-  ia as MediaLightbox,
-  io as importPickedFiles,
-  ip as localFolderOptions,
-  iq as NewLocalFolderDialog,
-  ir as RenameLocalNodeDialog,
-  is as DeleteLocalNodeDialog,
-} from "../../main.jsx";
-import { u as useWindowedList } from "../../ProjectMemberSummary-tUEX4nJc.js";
+import { useTranslation, reactExports, usePlatform, useStorage, API_PATHS, FolderPlus } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { Button, cn$2 as cn } from "../../infra/dialog-content.jsx";
+import { useProjectAssetsService } from "../../infra/new-folder-dialog.jsx";
+import { useProjectActions } from "../../settings/use-project-actions.js";
+import { gatewayUrl } from "../../infra/gateway-http-error.jsx";
+import { withThumbnailWidth } from "../../workspace/tool-label-definitions.js";
+import { getProjectAssetWritePolicy, PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS } from "../../assets/wrap-as-asset-center-error.js";
+import { useMoveDnd } from "../../infra/use-move-dnd.js";
+import { filterMoveOptions, localFolderOptions } from "../../assets/use-cloud-review-nodes.js";
+import { ROOT_KEY } from "../../assets/list-all-cloud-folders.js";
+import { Upload } from "../../media-editing/package.jsx";
+import { RetryIcon } from "../../workspace/use-prompt-icon.jsx";
+import { AssetsDropzoneEmpty } from "../../assets/assets-dropzone-empty.jsx";
+import { MoveNodeDialog } from "../../infra/move-node-dialog.jsx";
+import { MediaLightbox } from "../../assets/text-preview.jsx";
+import { importPickedFiles } from "../../canvas/uploading-assets.jsx";
+import { NewLocalFolderDialog, RenameLocalNodeDialog } from "../../assets/rename-local-node-dialog.jsx";
+import { DeleteLocalNodeDialog } from "../../canvas/delete-local-node-dialog.jsx";
+import { useWindowedList } from "../../projects/project-member-summary.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import {
   AssetsEmptyState,

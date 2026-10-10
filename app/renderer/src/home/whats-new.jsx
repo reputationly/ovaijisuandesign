@@ -1,5 +1,15 @@
 // 首页「有什么新变化」入口与 logo 动效。
-import { r as reactExports, t as trackEvent, T as TRACK_EVENTS, j as jsxRuntimeExports, bI as ChevronRight, hv as useAuth, lE as usePopup, lF as useOptionalUpdaterContext, lG as normalizeAnnouncements, lH as useBlockingModalPresence, lI as BLOCKING_MODAL_IDS, lJ as FeaturePopup, lK as HubLogo } from "../main.jsx";
+import { reactExports, jsxRuntimeExports, ChevronRight$1 as ChevronRight } from "../vendor.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { useAuth } from "../assets/credit-query-keys.jsx";
+import { usePopup } from "../settings/use-popup.js";
+import { useOptionalUpdaterContext } from "../settings/use-active-runtime.js";
+import { normalizeAnnouncements } from "../settings/use-auto-announcement.js";
+import { useBlockingModalPresence } from "../workspace/topbar-state-context.jsx";
+import { BLOCKING_MODAL_IDS } from "../infra/schedule.js";
+import { FeaturePopup } from "../settings/feature-popup.jsx";
+import { HubLogo } from "../infra/hub-logo.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 const HOME_WHATS_NEW_ITEM_DURATION_MS = 3e3;
 function HomeWhatsNewGiftIcon() {

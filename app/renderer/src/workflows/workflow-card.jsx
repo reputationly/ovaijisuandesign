@@ -1,14 +1,9 @@
 // 精选工作流卡片：封面（图片/视频）、下载进度。
-import {
-  h as useTranslation,
-  kP as useComfyUiDownloadProgress,
-  j as jsxRuntimeExports,
-  cf as Download,
-  ka as Progress,
-  fM as Button,
-  dX as PanelsTopLeft,
-  fv as Eye,
-} from "../main.jsx";
+import { useTranslation, jsxRuntimeExports, PanelsTopLeft, Eye$2 as Eye } from "../vendor.js";
+import { useComfyUiDownloadProgress } from "../vendor-inline/vscode-base/graph.jsx";
+import { Download } from "../media-editing/package.jsx";
+import { Progress } from "../team/team-management-detail-loading.jsx";
+import { Button } from "../infra/dialog-content.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { WorkflowCardAttributionPopover } from "./attribution.jsx";
 import {

@@ -1,33 +1,13 @@
 // 「我的工作流」列表里的单个条目：重命名、描述、删除等。
-import {
-  h as useTranslation,
-  j as jsxRuntimeExports,
-  fM as Button,
-  r as reactExports,
-  l as gatewayFetch,
-  m as API_PATHS,
-  aj as PencilIcon,
-  e as Icon,
-  am as Trash2,
-  dX as PanelsTopLeft,
-  as as Dialog,
-  at as DialogContent,
-  gj as DialogHeader,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  f as Input,
-  kR as Textarea,
-  kS as DialogFooter,
-  jS as AlertDialog,
-  jV as AlertDialogContent,
-  jW as AlertDialogHeader,
-  jX as AlertDialogTitle,
-  jY as AlertDialogDescription,
-  jZ as AlertDialogFooter,
-  j_ as AlertDialogCancel,
-  j$ as AlertDialogAction,
-  a3 as dedupedToast,
-} from "../main.jsx";
+import { useTranslation, jsxRuntimeExports, reactExports, API_PATHS, PanelsTopLeft } from "../vendor.js";
+import { Button, Dialog, DialogContent, DialogHeader, DialogFooter, AlertDialog } from "../infra/dialog-content.jsx";
+import { gatewayFetch } from "../infra/gateway-fetch.js";
+import { PencilIcon } from "../workspace/home-service.jsx";
+import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
+import { Trash2 } from "../media-editing/package.jsx";
+import { DialogTitle, DialogDescription, Textarea, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "../infra/badge-variants.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
+import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { notifyComfyWorkflowsChanged } from "./use-comfy-workflows.js";
 import { workflowDisplayName, workflowPresentation } from "./workflow-mapping.js";

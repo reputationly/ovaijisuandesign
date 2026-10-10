@@ -1,49 +1,29 @@
 // 项目详情页路由入口：标签页、资产面板与成员的组装。
-import {
-  h as useTranslation,
-  r as reactExports,
-  j as jsxRuntimeExports,
-  gl as MemberRole,
-  gu as Tooltip,
-  gv as TooltipTrigger,
-  gw as TooltipContent,
-  o as usePlatform,
-  E as useProjectActions,
-  v as useStorage,
-  bI as ChevronRight,
-  gt as TooltipProvider,
-  w as useNavigate,
-  iw as useParams,
-  fT as useSearch,
-  ix as useProject,
-  iy as useTopbarState,
-  y as useLoginGuard,
-  x as useNavigateToWorkspace,
-  P as useRecentWorkspacesRefresh,
-  p as projectLog,
-  gz as projectListLocation,
-  a9 as isWorkspacePathCaseInsensitivePlatform,
-  iz as mergeWorkspaceInventory,
-  iA as selectProjectWorkspaces,
-  H as homeService,
-  K as workspaceRuntimeFromOpenResult,
-  M as handleNewWorkspaceOpenResult,
-  t as trackEvent,
-  T as TRACK_EVENTS,
-  N as useNewWorkspaceDialog,
-  b0 as ArrowLeft,
-  f4 as UserRoundPlus,
-  gE as Tabs,
-  gF as TabsList,
-  Q as Plus,
-  U as PageStateBoundary,
-  gG as TabsTrigger,
-  d5 as Info,
-} from "../main.jsx";
-import { u as useWindowedList } from "../ProjectMemberSummary-tUEX4nJc.js";
-import { u as useWorkspaceAvailability } from "../use-workspace-availability-Dj4GHjzL.js";
-import { W as WorkspaceCard } from "../WorkspaceCard-vSPE0nQy.js";
-import "../use-hub-entries-BqMaebYB.js";
+import { useTranslation, reactExports, jsxRuntimeExports, usePlatform, useStorage, ChevronRight$1 as ChevronRight, useNavigate, useParams, useSearch, ArrowLeft, UserRoundPlus, Plus, Info$1 as Info } from "../vendor.js";
+import { MemberRole } from "../generation/normalize-skill-detail-metadata.js";
+import { Tooltip, TooltipTrigger, TooltipProvider, projectLog } from "../vendor-inline/vscode-base/graph.jsx";
+import { TooltipContent } from "../infra/dialog-content.jsx";
+import { useProjectActions } from "../settings/use-project-actions.js";
+import { useProject, isWorkspacePathCaseInsensitivePlatform } from "../workspace/normalize-project-entries.js";
+import { useTopbarState } from "../workspace/topbar-state-context.jsx";
+import { useLoginGuard } from "../infra/schedule.js";
+import { useNavigateToWorkspace } from "../workspace/use-deep-link-router.js";
+import { useRecentWorkspacesRefresh } from "../workspace/set-home-widget-dev-preview-mode.js";
+import { projectListLocation } from "../infra/split-pinned-inventory.js";
+import { mergeWorkspaceInventory } from "../workspace/merge-workspace-inventory.js";
+import { selectProjectWorkspaces } from "../workspace/tool-label-definitions.js";
+import { homeService } from "../workspace/home-service.jsx";
+import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
+import { handleNewWorkspaceOpenResult } from "../workspace/context-menu-content.jsx";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { useNewWorkspaceDialog } from "../workspace/use-new-workspace-dialog.jsx";
+import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { useWindowedList } from "../projects/project-member-summary.jsx";
+import { useWorkspaceAvailability } from "../workspace/use-workspace-availability.js";
+import { WorkspaceCard } from "../workspace/workspace-card.jsx";
+import "../workspace/use-hub-entries.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloudAssetsPanel } from "./cloud/cloud-assets-panel.jsx";
 import { InviteProjectDialog } from "./invite.jsx";

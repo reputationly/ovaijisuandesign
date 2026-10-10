@@ -1,28 +1,11 @@
 // 技能详情弹窗。
-import {
-  h as useTranslation,
-  r as reactExports,
-  j as jsxRuntimeExports,
-  kq as Switch,
-  mA as StrokeIcon,
-  au as cn,
-  fM as Button,
-  gk as RetryIcon,
-  X,
-  lT as toDisplayName,
-  mW as formatDownloads,
-  dl as Loader2,
-  bd as BadgeCheck,
-  cf as Download$1,
-  nq as reactDomExports,
-  f3 as UserRound,
-  nr as UPDATE_INDICATOR_STYLES,
-  gu as Tooltip,
-  gv as TooltipTrigger,
-  ex as Share2,
-  gw as TooltipContent,
-  aE as MessageSquare,
-} from "../../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, X$7 as X, Loader2, BadgeCheck, reactDomExports, UserRound, Share2 } from "../../vendor.js";
+import { Switch } from "../../generation/select-content.jsx";
+import { StrokeIcon, RetryIcon } from "../../workspace/use-prompt-icon.jsx";
+import { cn$2 as cn, Button, TooltipContent } from "../../infra/dialog-content.jsx";
+import { toDisplayName, formatDownloads, UPDATE_INDICATOR_STYLES } from "../../generation/use-mention-models.jsx";
+import { Download as Download$1, MessageSquare } from "../../media-editing/package.jsx";
+import { Tooltip, TooltipTrigger } from "../../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { canSubmitSkillDetail, mergeSkillDetail, useSkillDetail } from "./data.js";
 import { SkillShowcase, SkillStructuredOverview } from "./showcase.jsx";

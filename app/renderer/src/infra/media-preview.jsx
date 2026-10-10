@@ -586,12 +586,12 @@ function StrokeSpec() {
   );
 }
 const LibraryCatalog = reactExports.lazy(() =>
-  (() => import("../project-icon-catalog-CdFVT0Lu.js"))().then((module) => ({
+  (() => import("../debug-panel/project-icon-catalog.jsx"))().then((module) => ({
     default: module.ProjectIconCatalog,
   })),
 );
 const OpacityPreview = reactExports.lazy(() =>
-  (() => import("../index-BaJMuy1j.js"))().then((module) => ({
+  (() => import("../debug-panel/icon-opacity-preview-section.jsx"))().then((module) => ({
     default: module.IconOpacityPreviewSection,
   })),
 );

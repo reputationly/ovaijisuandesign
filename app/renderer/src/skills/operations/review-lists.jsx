@@ -1,18 +1,11 @@
 // 运营后台的待审核与待发布列表。
-import {
-  h as useTranslation,
-  r as reactExports,
-  g7 as Badge,
-  fM as Button,
-  iY as Select,
-  iZ as SelectTrigger,
-  i_ as SelectValue,
-  i$ as SelectContent,
-  j0 as SelectItem,
-  dl as Loader2,
-  hC as Checkbox,
-  aG as FolderOpen,
-} from "../../main.jsx";
+import { useTranslation, reactExports, Loader2 } from "../../vendor.js";
+import { Badge } from "../../infra/badge-variants.jsx";
+import { Button } from "../../infra/dialog-content.jsx";
+import { Select } from "../../assets/credit-query-keys.jsx";
+import { SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../infra/select-content.jsx";
+import { Checkbox } from "../../infra/checkbox.jsx";
+import { FolderOpen } from "../../media-editing/package.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { formatOperationTime } from "./format.js";
 import { publicationSections } from "./operator.js";

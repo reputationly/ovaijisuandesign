@@ -1,27 +1,15 @@
 // 本地资产节点的展示：面包屑、菜单、卡片与行。
-import {
-  h as useTranslation,
-  au as cn,
-  ae as DropdownMenu,
-  af as DropdownMenuTrigger,
-  am as Trash2,
-  hD as formatBytes,
-  bI as ChevronRight,
-  ib as resolveTypeBucket,
-  h3 as ContextMenu,
-  h4 as ContextMenuTrigger,
-  id as ProjectAssetThumbnail,
-  ag as MoreVerticalIcon,
-  ih as ActionDropdownMenuContent,
-  ii as ActionDropdownMenuItem,
-  aG as FolderOpen,
-  ik as PlatformFileManagerLabel,
-  aj as PencilIcon,
-  cG as FolderInput,
-  il as ActionContextMenuContent,
-  im as ActionContextMenuItem,
-  ck as ExternalLink,
-} from "../../main.jsx";
+import { useTranslation, ChevronRight$1 as ChevronRight, FolderInput, ExternalLink } from "../../vendor.js";
+import { cn$2 as cn, DropdownMenuTrigger } from "../../infra/dialog-content.jsx";
+import { DropdownMenu, MoreVerticalIcon } from "../../vendor-inline/vscode-base/graph.jsx";
+import { Trash2, FolderOpen } from "../../media-editing/package.jsx";
+import { formatBytes } from "../../assets/use-cloud-review-nodes.js";
+import { resolveTypeBucket } from "../../assets/list-all-cloud-folders.js";
+import { ContextMenu } from "../../workspace/topbar-state-context.jsx";
+import { ContextMenuTrigger, ActionDropdownMenuContent, ActionDropdownMenuItem, ActionContextMenuContent, ActionContextMenuItem } from "../../workspace/context-menu-content.jsx";
+import { ProjectAssetThumbnail } from "../../infra/project-asset-thumbnail-generation.jsx";
+import { PlatformFileManagerLabel } from "../../settings/request-prompt-prefill.jsx";
+import { PencilIcon } from "../../workspace/home-service.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { AssetsRowCheckbox } from "../assets-common.jsx";
 import { nodeMeta, nodeUpdatedAt } from "./local-nodes.js";

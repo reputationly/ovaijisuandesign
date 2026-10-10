@@ -1,5 +1,5 @@
 const __ovViteMapDeps = (i, m = __ovViteMapDeps, d = m.f || (m.f = ["./sensorsdata-DycbB5it.js", "./main.jsx", "./index-DhaBhXjN.css"])) => i.map(i => d[i]);
-import { _ as __ovVitePreload } from "./main.jsx";
+import { __ovVitePreload } from "./vendor.js";
 function _arrayLikeToArray(r, a) {
   (null == a || a > r.length) && (a = r.length);
   for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];

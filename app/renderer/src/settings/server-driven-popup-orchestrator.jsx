@@ -212,7 +212,7 @@ function LoginGateProvider({ children: children2 }) {
   );
 }
 const DebugPanelDialog = reactExports.lazy(() =>
-  (() => import("../DebugPanelDialog-C7RBwCiN.js"))(),
+  (() => import("../debug-panel/debug-panel-dialog.jsx"))(),
 );
 function canUseDebugPanel() {
   return canUseDebugTooling();

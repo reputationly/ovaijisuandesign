@@ -1,52 +1,24 @@
 // 连接器详情与管理：授权信息整理、管理操作、可见性开关、自定义连接器卡片。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  H as homeService,
-  j as jsxRuntimeExports,
-  j3 as ConnectorDialogFrame,
-  gj as DialogHeader,
-  j4 as ConnectorRelationshipGraphic,
-  j5 as ConnectorDialogScrollableBody,
-  j9 as ConnectorSummaryAction,
-  j2 as ConnectorPromptAction,
-  iT as ConnectorIcon,
-  kq as Switch,
-  e as Icon,
-  my as getMergedHcpCatalog,
-  lu as OFFICIAL_CONNECTORS,
-  mz as CustomConnectorDialog,
-  ja as IntegrationActionGroup,
-  jb as IntegrationActionButton,
-  jc as IntegrationLifecycleToggleButton,
-  jd as IntegrationMoreMenu,
-  mA as StrokeIcon,
-  am as Trash2,
-  aj as PencilIcon,
-  au as cn,
-  jS as AlertDialog,
-  jV as AlertDialogContent,
-  jW as AlertDialogHeader,
-  jX as AlertDialogTitle,
-  jY as AlertDialogDescription,
-  jZ as AlertDialogFooter,
-  j_ as AlertDialogCancel,
-  j$ as AlertDialogAction,
-  gc as matchesLocalConnectorServer,
-  mB as connectorTitle,
-  j6 as ConnectorDetailNotice,
-  j1 as connectorSummaryActionLabelKey,
-  jf as ConnectorStatusPill,
-  mC as localizedI18nText,
-  iV as CDN_CONNECTOR_CUSTOM,
-  eb as Plug,
-} from "../../main.jsx";
-import {
-  a as ConnectorDialogSummary,
-  c as ConnectorPromptList,
-  C as ConnectorCardContent,
-} from "../../connector-catalog-data-DiTljgxj.js";
+import { useTranslation, reactExports, jsxRuntimeExports, getMergedHcpCatalog, matchesLocalConnectorServer, connectorSummaryActionLabelKey, localizedI18nText } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { homeService, PencilIcon } from "../../workspace/home-service.jsx";
+import { ConnectorDialogFrame } from "../../settings/connector-dialog-frame.jsx";
+import { DialogHeader, cn$2 as cn, AlertDialog } from "../../infra/dialog-content.jsx";
+import { ConnectorRelationshipGraphic, ConnectorIcon } from "../../settings/connector-relationship-graphic.jsx";
+import { ConnectorDialogScrollableBody, OFFICIAL_CONNECTORS } from "../../settings/request-prompt-prefill.jsx";
+import { ConnectorSummaryAction, ConnectorDetailNotice } from "../../settings/connector-summary-action.jsx";
+import { ConnectorPromptAction, ConnectorStatusPill } from "../../settings/connector-prompt-action.jsx";
+import { Switch } from "../../generation/select-content.jsx";
+import { Icon } from "../../vendor-inline/vscode-base/graph.jsx";
+import { CustomConnectorDialog } from "../../settings/custom-connector-dialog.jsx";
+import { IntegrationActionGroup, IntegrationActionButton, IntegrationLifecycleToggleButton } from "../../settings/use-im-accounts.jsx";
+import { IntegrationMoreMenu } from "../../settings/integration-more-menu.jsx";
+import { StrokeIcon } from "../../workspace/use-prompt-icon.jsx";
+import { Trash2, Plug } from "../../media-editing/package.jsx";
+import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "../../infra/badge-variants.jsx";
+import { connectorTitle } from "../../settings/make-async-image-task.jsx";
+import { CDN_CONNECTOR_CUSTOM } from "../../workspace/topbar-state-context.jsx";
+import { ConnectorDialogSummary, ConnectorPromptList, ConnectorCardContent } from "./connector-catalog-data.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { ConnectorCapabilityList, localizedCapabilityText } from "./browser-connector.jsx";
 function profileFromManifest(manifest) {

@@ -1,19 +1,11 @@
 // 技能页「社区」标签页内容。
-import {
-  h as useTranslation,
-  r as reactExports,
-  j as jsxRuntimeExports,
-  U as PageStateBoundary,
-  iY as Select,
-  iZ as SelectTrigger,
-  i_ as SelectValue,
-  i$ as SelectContent,
-  j0 as SelectItem,
-  dl as Loader2,
-  hC as Checkbox,
-  nJ as skillCategoryCodes,
-  n$ as FEATURED_TAG,
-} from "../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, Loader2 } from "../vendor.js";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { Select } from "../assets/credit-query-keys.jsx";
+import { SelectTrigger, SelectValue, SelectContent, SelectItem } from "../infra/select-content.jsx";
+import { Checkbox } from "../infra/checkbox.jsx";
+import { skillCategoryCodes } from "../generation/normalize-skill-detail-metadata.js";
+import { FEATURED_TAG } from "../generation/use-mention-models.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CreatorPlanInviteCard } from "./creator-plan/invite-card.jsx";
 import { FeaturedSkillSection, OtherSkillItem } from "./my-skills/skill-cards.jsx";

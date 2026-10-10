@@ -1,28 +1,13 @@
 // 「我的技能」视图：单个条目与整体列表。
-import {
-  h as useTranslation,
-  r as reactExports,
-  kq as Switch,
-  jS as AlertDialog,
-  jV as AlertDialogContent,
-  jW as AlertDialogHeader,
-  jX as AlertDialogTitle,
-  jY as AlertDialogDescription,
-  jZ as AlertDialogFooter,
-  j_ as AlertDialogCancel,
-  j$ as AlertDialogAction,
-  fM as Button,
-  U as PageStateBoundary,
-  g6 as getRuntimeConfig,
-  lU as SkillCoverMedia,
-  jP as Card,
-  ae as DropdownMenu,
-  af as DropdownMenuTrigger,
-  dJ as MoreHorizontal,
-  ah as DropdownMenuContent,
-  ai as DropdownMenuItem,
-  lx as DropdownMenuSeparator,
-} from "../../main.jsx";
+import { useTranslation, reactExports, getRuntimeConfig, MoreHorizontal } from "../../vendor.js";
+import { Switch } from "../../generation/select-content.jsx";
+import { AlertDialog, Button, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../../infra/dialog-content.jsx";
+import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "../../infra/badge-variants.jsx";
+import { PageStateBoundary } from "../../assets/page-state-boundary.jsx";
+import { SkillCoverMedia } from "../../generation/use-mention-models.jsx";
+import { Card } from "../../media-editing/scroll-bar.jsx";
+import { DropdownMenu } from "../../vendor-inline/vscode-base/graph.jsx";
+import { DropdownMenuSeparator } from "../../workspace/shortcut-hint.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import {
   MY_SKILL_REVIEW_ACTIONS,

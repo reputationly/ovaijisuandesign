@@ -1,17 +1,9 @@
 // 插件市场的卡片：图标取色、封面横幅、工作流按钮。
-import {
-  h as useTranslation,
-  r as reactExports,
-  bd as BadgeCheck,
-  az as PluginIcon,
-  nh as pickLocalized,
-  cl as Eye$1,
-  fi as Workflow,
-  ni as pluginTrackBase,
-  nj as trackPluginWorkflowClick,
-  nk as trackPluginWorkflowOpen,
-  nl as trackPluginWorkflowOpenFailed,
-} from "../../main.jsx";
+import { useTranslation, reactExports, BadgeCheck, Eye as Eye$1, Workflow } from "../../vendor.js";
+import { PluginIcon } from "../../workspace/home-service.jsx";
+import { pickLocalized } from "../../generation/normalize-skill-detail-metadata.js";
+import { pluginTrackBase } from "../../generation/use-mention-models.jsx";
+import { trackPluginWorkflowClick, trackPluginWorkflowOpen, trackPluginWorkflowOpenFailed } from "../../assets/use-plugin-editor-output-selection.js";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import {
   getPluginTemplateProject,

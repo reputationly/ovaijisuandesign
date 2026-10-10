@@ -1,35 +1,23 @@
 // 浏览器连接器：状态、试用、详情弹窗与卡片，以及能力列表。
-import {
-  jh as useSettings,
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  x as useNavigateToWorkspace,
-  H as homeService,
-  K as workspaceRuntimeFromOpenResult,
-  l9 as toastWorkspaceOpenResult,
-  mw as workspaceEvents,
-  hm as useTheme,
-  j as jsxRuntimeExports,
-  j3 as ConnectorDialogFrame,
-  gj as DialogHeader,
-  j4 as ConnectorRelationshipGraphic,
-  mx as CDN_BROWSER_START_ICON,
-  j5 as ConnectorDialogScrollableBody,
-  j9 as ConnectorSummaryAction,
-  jg as IntegrationStatusPill,
-  j2 as ConnectorPromptAction,
-  iT as ConnectorIcon,
-  kq as Switch,
-  bo as Boxes,
-  er as ScrollText,
-  e as Icon,
-} from "../../main.jsx";
-import {
-  a as ConnectorDialogSummary,
-  c as ConnectorPromptList,
-  C as ConnectorCardContent,
-} from "../../connector-catalog-data-DiTljgxj.js";
+import { useSettings } from "../../settings/use-settings.js";
+import { useTranslation, reactExports, jsxRuntimeExports, CDN_BROWSER_START_ICON, Boxes, ScrollText } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { useNavigateToWorkspace } from "../../workspace/use-deep-link-router.js";
+import { homeService } from "../../workspace/home-service.jsx";
+import { workspaceRuntimeFromOpenResult } from "../../vendor-inline/vscode-base/linked-list.js";
+import { toastWorkspaceOpenResult } from "../../workspace/toast-workspace-open-result.js";
+import { workspaceEvents } from "../../workspace/topbar-state-context.jsx";
+import { useTheme } from "../../generation/use-model-catalog-scope-key.js";
+import { ConnectorDialogFrame } from "../../settings/connector-dialog-frame.jsx";
+import { DialogHeader } from "../../infra/dialog-content.jsx";
+import { ConnectorRelationshipGraphic, ConnectorIcon } from "../../settings/connector-relationship-graphic.jsx";
+import { ConnectorDialogScrollableBody } from "../../settings/request-prompt-prefill.jsx";
+import { ConnectorSummaryAction } from "../../settings/connector-summary-action.jsx";
+import { IntegrationStatusPill } from "../../settings/integration-status-pill.jsx";
+import { ConnectorPromptAction } from "../../settings/connector-prompt-action.jsx";
+import { Switch } from "../../generation/select-content.jsx";
+import { Icon } from "../../vendor-inline/vscode-base/graph.jsx";
+import { ConnectorDialogSummary, ConnectorPromptList, ConnectorCardContent } from "./connector-catalog-data.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 export function useBrowserConnector() {
   const { config, set } = useSettings();

@@ -1,5 +1,5 @@
 // 首页输入框随滚动与滚轮变化的动效 hook。
-import { r as reactExports } from "../main.jsx";
+import { reactExports } from "../vendor.js";
 import { COLLAPSE_SCROLL_DISTANCE_PX, COMPACT_HEIGHT_PX, COMPACT_LOGO_SCALE, COMPACT_MAX_WIDTH_PX, COMPACT_RADIUS_PX, COMPACT_SHOWCASE_GAP_RATIO, COMPACT_VIEWPORT_INSET_PX, EXPANDED_RADIUS_PX, LOGO_SAFE_TOP_INSET_PX, LOGO_TO_COMPOSER_GAP_PX, MOTION_EPSILON, SCROLL_HANDOFF_TOLERANCE_PX, WHEEL_GESTURE_IDLE_MS, WHEEL_HANDOFF_DETENT_MS, WHEEL_LINE_HEIGHT_PX, interpolate, resolveHomeCompactStackGeometry, resolveHomeComposerGeometry, resolveHomeComposerPresentationProgress, resolveHomeComposerProgress, resolveHomeShowcaseMotionOffset, resolveHomeShowcaseViewportGeometry } from "./geometry.js";
 import { REDUCED_MOTION_QUERY, setDatasetValue, toPixels } from "./motion-utils.js";
 const INITIAL_METRICS = {

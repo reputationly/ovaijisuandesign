@@ -1,4 +1,11 @@
-import { u as useGatewayReady, g as useRuntimeConfig, h as useTranslation, k as useQuery, l as gatewayFetch, m as API_PATHS, t as trackEvent, T as TRACK_EVENTS, p as projectLog } from "./main.jsx";
+// use-hub-entries.js
+import { useGatewayReady } from "../infra/inline-rename-input.jsx";
+import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
+import { useTranslation, useQuery, API_PATHS } from "../vendor.js";
+import { gatewayFetch } from "../infra/gateway-fetch.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { projectLog } from "../vendor-inline/vscode-base/graph.jsx";
 const EMPTY_HUB_ENTRIES = {};
 const HUB_ENTRIES_REFRESH_INTERVAL_MS = 6e4;
 const HUB_ENTRIES_MAX_BYTES = 128 * 1024;
@@ -9,7 +16,7 @@ const HUB_ENTRY_IDS = {
   /** 项目库「查看教程」按钮。 */
   projectTutorial: "project_tutorial",
   /** ComfyUI 工作流页「探索本地版」按钮。 */
-  workflowTutorial: "workflow_tutorial"
+  workflowTutorial: "workflow_tutorial",
 };
 function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -27,7 +34,12 @@ function boundedRegion(region) {
   return "other";
 }
 function boundedChannel(channel) {
-  if (channel === "dev" || channel === "test" || channel === "staging" || channel === "prod") {
+  if (
+    channel === "dev" ||
+    channel === "test" ||
+    channel === "staging" ||
+    channel === "prod"
+  ) {
     return channel;
   }
   return "other";
@@ -39,7 +51,7 @@ function reportHubEntryLoadFailure({
   channel,
   entryId,
   httpStatus,
-  durationMs
+  durationMs,
 }) {
   const properties = {
     phase,
@@ -47,18 +59,18 @@ function reportHubEntryLoadFailure({
     failure_kind: failureKind,
     region: boundedRegion(region),
     channel: boundedChannel(channel),
-    ...entryId ? { entry_id: entryId } : {},
-    ...httpStatus === void 0 ? {} : { http_status: httpStatus },
-    ...durationMs === void 0 ? {} : { duration_ms: Math.max(0, Math.round(durationMs)) }
+    ...(entryId ? { entry_id: entryId } : {}),
+    ...(httpStatus === void 0 ? {} : { http_status: httpStatus }),
+    ...(durationMs === void 0
+      ? {}
+      : { duration_ms: Math.max(0, Math.round(durationMs)) }),
   };
   try {
     trackEvent(TRACK_EVENTS.HUB_ENTRY_LOAD_RESULT, properties);
-  } catch {
-  }
+  } catch {}
   try {
     projectLog.warn("hub-entry-load-result", properties);
-  } catch {
-  }
+  } catch {}
 }
 function unwrapApolloValue(raw) {
   let current = raw;
@@ -76,11 +88,17 @@ function unwrapApolloValue(raw) {
       current = current.hub_entries;
       continue;
     }
-    if ("data" in current && (isRecord(current.data) || typeof current.data === "string")) {
+    if (
+      "data" in current &&
+      (isRecord(current.data) || typeof current.data === "string")
+    ) {
       current = current.data;
       continue;
     }
-    if ("value" in current && (isRecord(current.value) || typeof current.value === "string")) {
+    if (
+      "value" in current &&
+      (isRecord(current.value) || typeof current.value === "string")
+    ) {
       current = current.value;
       continue;
     }
@@ -99,14 +117,17 @@ function pickLocalizedText(value, locale) {
   const primary = value[locale];
   const fallback = value[locale === "zh" ? "en" : "zh"];
   if (typeof primary === "string" && primary.trim()) return truncate(primary);
-  if (typeof fallback === "string" && fallback.trim()) return truncate(fallback);
+  if (typeof fallback === "string" && fallback.trim())
+    return truncate(fallback);
   return void 0;
 }
 function pickWebUrl(value, httpsOnly = false) {
   if (typeof value !== "string") return void 0;
   try {
     const parsed = new URL(value.trim());
-    const validProtocol = httpsOnly ? parsed.protocol === "https:" : parsed.protocol === "http:" || parsed.protocol === "https:";
+    const validProtocol = httpsOnly
+      ? parsed.protocol === "https:"
+      : parsed.protocol === "http:" || parsed.protocol === "https:";
     if (!validProtocol || parsed.username || parsed.password) return void 0;
     return parsed.toString();
   } catch {
@@ -116,11 +137,17 @@ function pickWebUrl(value, httpsOnly = false) {
 function parseHubEntries(raw, locale) {
   const unwrapped = unwrapApolloValue(raw);
   if (!isRecord(unwrapped)) {
-    throw new HubEntriesParseError("invalid_payload", "hub_entries root must be an object");
+    throw new HubEntriesParseError(
+      "invalid_payload",
+      "hub_entries root must be an object",
+    );
   }
   const rawEntries = Object.entries(unwrapped);
   if (rawEntries.length > HUB_ENTRIES_MAX_COUNT) {
-    throw new HubEntriesParseError("entry_limit", "hub_entries entry limit exceeded");
+    throw new HubEntriesParseError(
+      "entry_limit",
+      "hub_entries entry limit exceeded",
+    );
   }
   const entries = {};
   for (const [id, value] of rawEntries) {
@@ -129,7 +156,7 @@ function parseHubEntries(raw, locale) {
       visible: value.visible !== false,
       title: pickLocalizedText(value.title, locale),
       url: pickWebUrl(value.url),
-      imageUrl: pickWebUrl(value.image_url, true)
+      imageUrl: pickWebUrl(value.image_url, true),
     };
   }
   return entries;
@@ -138,8 +165,14 @@ async function readBoundedHubEntriesJson(response) {
   const contentLength = response.headers.get("content-length");
   if (contentLength) {
     const declaredBytes = Number.parseInt(contentLength, 10);
-    if (Number.isFinite(declaredBytes) && declaredBytes > HUB_ENTRIES_MAX_BYTES) {
-      throw new HubEntriesParseError("oversized", "hub_entries payload exceeds byte limit");
+    if (
+      Number.isFinite(declaredBytes) &&
+      declaredBytes > HUB_ENTRIES_MAX_BYTES
+    ) {
+      throw new HubEntriesParseError(
+        "oversized",
+        "hub_entries payload exceeds byte limit",
+      );
     }
   }
   const reader = response.body?.getReader();
@@ -147,7 +180,10 @@ async function readBoundedHubEntriesJson(response) {
   if (!reader) {
     serialized = await response.text();
     if (textEncoder.encode(serialized).byteLength > HUB_ENTRIES_MAX_BYTES) {
-      throw new HubEntriesParseError("oversized", "hub_entries payload exceeds byte limit");
+      throw new HubEntriesParseError(
+        "oversized",
+        "hub_entries payload exceeds byte limit",
+      );
     }
   } else {
     const decoder = new TextDecoder();
@@ -160,7 +196,10 @@ async function readBoundedHubEntriesJson(response) {
         receivedBytes += value.byteLength;
         if (receivedBytes > HUB_ENTRIES_MAX_BYTES) {
           await reader.cancel();
-          throw new HubEntriesParseError("oversized", "hub_entries payload exceeds byte limit");
+          throw new HubEntriesParseError(
+            "oversized",
+            "hub_entries payload exceeds byte limit",
+          );
         }
         serialized += decoder.decode(value, { stream: true });
       }
@@ -172,7 +211,10 @@ async function readBoundedHubEntriesJson(response) {
   try {
     return JSON.parse(serialized);
   } catch {
-    throw new HubEntriesParseError("invalid_json", "hub_entries payload is not valid JSON");
+    throw new HubEntriesParseError(
+      "invalid_json",
+      "hub_entries payload is not valid JSON",
+    );
   }
 }
 function useHubEntries() {
@@ -193,7 +235,7 @@ function useHubEntries() {
           failureKind: "network",
           region,
           channel,
-          durationMs: performance.now() - startedAt
+          durationMs: performance.now() - startedAt,
         });
         throw error;
       }
@@ -204,7 +246,7 @@ function useHubEntries() {
           region,
           channel,
           httpStatus: response.status,
-          durationMs: performance.now() - startedAt
+          durationMs: performance.now() - startedAt,
         });
         throw new Error(`hub_entries HTTP ${response.status}`);
       }
@@ -214,10 +256,13 @@ function useHubEntries() {
       } catch (error) {
         reportHubEntryLoadFailure({
           phase: "parse",
-          failureKind: error instanceof HubEntriesParseError ? error.failureKind : "invalid_payload",
+          failureKind:
+            error instanceof HubEntriesParseError
+              ? error.failureKind
+              : "invalid_payload",
           region,
           channel,
-          durationMs: performance.now() - startedAt
+          durationMs: performance.now() - startedAt,
         });
         throw error;
       }
@@ -228,11 +273,8 @@ function useHubEntries() {
     refetchOnMount: "always",
     refetchOnReconnect: true,
     retry: false,
-    throwOnError: false
+    throwOnError: false,
   });
   return data ?? EMPTY_HUB_ENTRIES;
 }
-export {
-  HUB_ENTRY_IDS as H,
-  useHubEntries as u
-};
+export { HUB_ENTRY_IDS, useHubEntries };

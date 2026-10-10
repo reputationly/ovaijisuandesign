@@ -1,5 +1,5 @@
 // 文件大小格式化与下载进度估算，纯函数。
-import { kU as isComfyUiModelUnavailable } from "../main.jsx";
+import { isComfyUiModelUnavailable } from "../vendor-inline/vscode-base/linked-list.js";
 const BYTE_UNIT = 1024;
 const FILE_SIZE_UNITS = ["B", "KB", "MB", "GB", "TB"];
 export const DOWNLOAD_PROGRESS_INTERVAL_MS = 120;

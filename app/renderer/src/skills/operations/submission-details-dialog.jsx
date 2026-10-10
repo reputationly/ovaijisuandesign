@@ -1,23 +1,11 @@
 // 运营后台的投稿详情弹窗。
-import {
-  h as useTranslation,
-  gj as DialogHeader,
-  fM as Button,
-  mQ as normalizeSkillDetailMetadata,
-  as as Dialog,
-  at as DialogContent,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  kS as DialogFooter,
-  iX as Label,
-  iY as Select,
-  iZ as SelectTrigger,
-  i_ as SelectValue,
-  i$ as SelectContent,
-  j0 as SelectItem,
-  f as Input,
-  kR as Textarea,
-} from "../../main.jsx";
+import { useTranslation } from "../../vendor.js";
+import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
+import { normalizeSkillDetailMetadata } from "../../generation/normalize-skill-detail-metadata.js";
+import { DialogTitle, DialogDescription, Textarea } from "../../infra/badge-variants.jsx";
+import { Label } from "../../team/use-wallet-query.jsx";
+import { Select } from "../../assets/credit-query-keys.jsx";
+import { SelectTrigger, SelectValue, SelectContent, SelectItem, Input3 as Input } from "../../infra/select-content.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 export function SubmissionDetailsDialog({
   readOnly = false,

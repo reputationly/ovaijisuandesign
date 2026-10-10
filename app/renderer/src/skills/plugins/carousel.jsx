@@ -1,5 +1,6 @@
 // 轮播组件（基于 embla-carousel 的封装）。
-import { r as reactExports, au as cn } from "../../main.jsx";
+import { reactExports } from "../../vendor.js";
+import { cn$2 as cn } from "../../infra/dialog-content.jsx";
 import useEmblaCarousel from "embla-carousel-react";
 import { __jsx } from "../../shared/jsx-runtime.js";
 const CarouselContext = reactExports.createContext(null);

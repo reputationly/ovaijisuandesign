@@ -1,32 +1,16 @@
 // 云端资产节点的展示：面包屑、审核标记、菜单、卡片与行。
-import {
-  h as useTranslation,
-  j as jsxRuntimeExports,
-  au as cn,
-  ae as DropdownMenu,
-  af as DropdownMenuTrigger,
-  am as Trash2,
-  cf as Download,
-  hD as formatBytes,
-  bI as ChevronRight,
-  ib as resolveTypeBucket,
-  ic as resolveSyncState,
-  h3 as ContextMenu,
-  h4 as ContextMenuTrigger,
-  id as ProjectAssetThumbnail,
-  ie as NodeUpdatedMeta,
-  ig as SyncBadge,
-  ag as MoreVerticalIcon,
-  ih as ActionDropdownMenuContent,
-  ii as ActionDropdownMenuItem,
-  ij as isCloudFileDownloadEnabled,
-  aG as FolderOpen,
-  ik as PlatformFileManagerLabel,
-  aj as PencilIcon,
-  cG as FolderInput,
-  il as ActionContextMenuContent,
-  im as ActionContextMenuItem,
-} from "../../main.jsx";
+import { useTranslation, jsxRuntimeExports, ChevronRight$1 as ChevronRight, FolderInput } from "../../vendor.js";
+import { cn$2 as cn, DropdownMenuTrigger } from "../../infra/dialog-content.jsx";
+import { DropdownMenu, MoreVerticalIcon } from "../../vendor-inline/vscode-base/graph.jsx";
+import { Trash2, Download, FolderOpen } from "../../media-editing/package.jsx";
+import { formatBytes, resolveSyncState, isCloudFileDownloadEnabled } from "../../assets/use-cloud-review-nodes.js";
+import { resolveTypeBucket } from "../../assets/list-all-cloud-folders.js";
+import { ContextMenu } from "../../workspace/topbar-state-context.jsx";
+import { ContextMenuTrigger, ActionDropdownMenuContent, ActionDropdownMenuItem, ActionContextMenuContent, ActionContextMenuItem } from "../../workspace/context-menu-content.jsx";
+import { ProjectAssetThumbnail } from "../../infra/project-asset-thumbnail-generation.jsx";
+import { NodeUpdatedMeta, SyncBadge } from "../../canvas/uploading-assets.jsx";
+import { PlatformFileManagerLabel } from "../../settings/request-prompt-prefill.jsx";
+import { PencilIcon } from "../../workspace/home-service.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { AssetsRowCheckbox } from "../assets-common.jsx";
 export function Breadcrumb$1({ stack, onCrumb, crumbDnd, crumbDropActive }) {

@@ -1,61 +1,29 @@
 // 云端资产面板：目录浏览、上传、移动、下载、搜索与批量操作。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  hx as cloudErrorDisplayMessage,
-  j as jsxRuntimeExports,
-  fM as Button,
-  au as cn,
-  as as Dialog,
-  at as DialogContent,
-  gj as DialogHeader,
-  g8 as DialogTitle,
-  o as usePlatform,
-  hE as useCloudFolder,
-  hF as useProjectAssetsService,
-  E as useProjectActions,
-  hG as useTransfers,
-  hH as useCloudReviewNodes,
-  hI as useProjectMemberNames,
-  v as useStorage,
-  hJ as getCloudStorageUsage,
-  hK as useDownloadingNodeIds,
-  hL as gatewayUrl,
-  m as API_PATHS,
-  hM as withThumbnailWidth,
-  hN as onDidChangeCloudAssets,
-  hO as getVisibleCloudUploads,
-  hP as useCloudSearch,
-  hQ as getProjectAssetWritePolicy,
-  hR as PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
-  hS as gateCloudAssetUploads,
-  hT as rejectionToastText,
-  hU as cloudAssetMimeType,
-  hV as toastFolderDownloadSummary,
-  hW as deleteCloudNode,
-  hX as moveCloudNode,
-  hY as normalizeCloudParentId,
-  hZ as useMoveDnd,
-  h_ as useCloudMoveOptions,
-  h$ as filterMoveOptions,
-  i0 as ROOT_KEY,
-  i1 as debugDumpCloudProjectAssets,
-  aL as FolderPlus,
-  f0 as Upload,
-  i2 as CLOUD_ASSET_ACCEPT,
-  br as Bug,
-  gk as RetryIcon,
-  i3 as TransfersButton,
-  i4 as AssetsDropzoneEmpty,
-  i5 as UploadingAssets,
-  i6 as NewFolderDialog,
-  i7 as RenameNodeDialog,
-  i8 as DeleteNodeDialog,
-  i9 as MoveNodeDialog,
-  g9 as DialogDescription,
-  ia as MediaLightbox,
-} from "../../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, usePlatform, useStorage, API_PATHS, getVisibleCloudUploads, FolderPlus, Bug } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { cloudErrorDisplayMessage } from "../../workspace/asset-lineage-query-key.js";
+import { Button, cn$2 as cn, Dialog, DialogContent, DialogHeader } from "../../infra/dialog-content.jsx";
+import { DialogTitle, DialogDescription } from "../../infra/badge-variants.jsx";
+import { useCloudFolder } from "../../assets/use-cloud-folder.js";
+import { useProjectAssetsService, useTransfers, rejectionToastText, toastFolderDownloadSummary, NewFolderDialog } from "../../infra/new-folder-dialog.jsx";
+import { useProjectActions } from "../../settings/use-project-actions.js";
+import { useCloudReviewNodes, useProjectMemberNames, useDownloadingNodeIds, normalizeCloudParentId, useCloudMoveOptions, filterMoveOptions } from "../../assets/use-cloud-review-nodes.js";
+import { getCloudStorageUsage, onDidChangeCloudAssets, deleteCloudNode, moveCloudNode, ROOT_KEY } from "../../assets/list-all-cloud-folders.js";
+import { gatewayUrl } from "../../infra/gateway-http-error.jsx";
+import { withThumbnailWidth } from "../../workspace/tool-label-definitions.js";
+import { useCloudSearch } from "../../assets/use-cloud-search.js";
+import { getProjectAssetWritePolicy, PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS, cloudAssetMimeType, CLOUD_ASSET_ACCEPT } from "../../assets/wrap-as-asset-center-error.js";
+import { gateCloudAssetUploads } from "../../assets/gate-cloud-asset-uploads.js";
+import { useMoveDnd } from "../../infra/use-move-dnd.js";
+import { debugDumpCloudProjectAssets } from "../../assets/debug-dump-cloud-project-assets.js";
+import { Upload } from "../../media-editing/package.jsx";
+import { RetryIcon } from "../../workspace/use-prompt-icon.jsx";
+import { TransfersButton } from "../../canvas/transfers-button.jsx";
+import { AssetsDropzoneEmpty } from "../../assets/assets-dropzone-empty.jsx";
+import { UploadingAssets, RenameNodeDialog } from "../../canvas/uploading-assets.jsx";
+import { DeleteNodeDialog } from "../../infra/delete-node-dialog.jsx";
+import { MoveNodeDialog } from "../../infra/move-node-dialog.jsx";
+import { MediaLightbox } from "../../assets/text-preview.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import {
   AssetsEmptyState,

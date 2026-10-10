@@ -1,16 +1,8 @@
 // 技能上架申请弹窗。
-import {
-  h as useTranslation,
-  gj as DialogHeader,
-  g7 as Badge,
-  fM as Button,
-  mS as selectSkillStructuredInfo,
-  as as Dialog,
-  at as DialogContent,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  kS as DialogFooter,
-} from "../../main.jsx";
+import { useTranslation } from "../../vendor.js";
+import { DialogHeader, Button, Dialog, DialogContent, DialogFooter } from "../../infra/dialog-content.jsx";
+import { Badge, DialogTitle, DialogDescription } from "../../infra/badge-variants.jsx";
+import { selectSkillStructuredInfo } from "../../generation/normalize-skill-detail-metadata.js";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { MY_SKILL_STATUSES, mySkillStatus } from "./helpers.js";
 export function SkillApplicationDialog({ open, onOpenChange, submission, taxonomy = [] }) {

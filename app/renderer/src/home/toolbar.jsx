@@ -1,5 +1,13 @@
 // 首页工具栏。
-import { h as useTranslation, r as reactExports, ld as useMediaModels, t as trackEvent, T as TRACK_EVENTS, le as useAttachmentFaceNoticeGate, lf as isAllVisibleMediaModelsSelected, lg as countVisibleSelectedMediaModels, j as jsxRuntimeExports, Q as Plus, e as Icon, bn as Box, lh as MediaModelSelector, aA as SkillIcon, X, em as RotateCcw } from "../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, Plus, Box, X$7 as X, RotateCcw } from "../vendor.js";
+import { useMediaModels } from "../generation/normalize-model-info.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { useAttachmentFaceNoticeGate } from "../chat/use-attachment-face-notice-gate.jsx";
+import { isAllVisibleMediaModelsSelected, countVisibleSelectedMediaModels } from "../media-editing/wt.js";
+import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
+import { MediaModelSelector } from "../generation/media-model-selector.jsx";
+import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { HomeInputCoachMarks } from "./coach-marks.jsx";
 function ToolbarDivider() {

@@ -1,13 +1,8 @@
 // 技能页的小部件：同步横幅、标签说明气泡、创作者计划悬浮卡。
-import {
-  h as useTranslation,
-  r as reactExports,
-  d5 as Info,
-  dl as Loader2,
-  it as Popover,
-  iu as PopoverTrigger,
-  iv as PopoverContent,
-} from "../main.jsx";
+import { useTranslation, reactExports, Info$1 as Info, Loader2 } from "../vendor.js";
+import { Popover } from "../assets/credit-query-keys.jsx";
+import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
+import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function SyncBanner({ syncStatus, showComplete }) {
   const { t } = useTranslation();

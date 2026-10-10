@@ -1,33 +1,15 @@
 // 「使用此工作流」菜单：按最近项目与工作区分组。
-import {
-  h as useTranslation,
-  fM as Button,
-  r as reactExports,
-  dX as PanelsTopLeft,
-  o as usePlatform,
-  v as useStorage,
-  iy as useTopbarState,
-  a1 as useProjectStore,
-  k_ as isCaseInsensitiveOs,
-  k$ as workspaceInventoryPathKey,
-  l0 as resolveRecentProjectsSortMode,
-  ae as DropdownMenu,
-  af as DropdownMenuTrigger,
-  ah as DropdownMenuContent,
-  ai as DropdownMenuItem,
-  Q as Plus,
-  l1 as DropdownMenuSub,
-  l2 as DropdownMenuSubTrigger,
-  cE as FolderClock,
-  l3 as DropdownMenuSubContent,
-  gI as DropdownMenuGroup,
-  gJ as DropdownMenuLabel,
-  $ as workspaceDisplayName,
-  iz as mergeWorkspaceInventory,
-  l4 as splitPinnedInventory,
-  l5 as groupRecentWorkspacesByProject,
-  l6 as UNGROUPED_RECENT_GROUP_KEY,
-} from "../main.jsx";
+import { useTranslation, reactExports, PanelsTopLeft, usePlatform, useStorage, Plus, FolderClock } from "../vendor.js";
+import { Button, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from "../infra/dialog-content.jsx";
+import { useTopbarState } from "../workspace/topbar-state-context.jsx";
+import { useProjectStore, workspaceInventoryPathKey, resolveRecentProjectsSortMode } from "../workspace/normalize-project-entries.js";
+import { isCaseInsensitiveOs } from "../settings/use-active-runtime.js";
+import { DropdownMenu, DropdownMenuSub, DropdownMenuGroup } from "../vendor-inline/vscode-base/graph.jsx";
+import { DropdownMenuSubTrigger, DropdownMenuSubContent } from "../workspace/shortcut-hint.jsx";
+import { workspaceDisplayName } from "../generation/use-model-catalog-scope-key.js";
+import { mergeWorkspaceInventory } from "../workspace/merge-workspace-inventory.js";
+import { splitPinnedInventory } from "../infra/split-pinned-inventory.js";
+import { groupRecentWorkspacesByProject, UNGROUPED_RECENT_GROUP_KEY } from "../workspace/tool-label-definitions.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 function isWorkspaceUnavailable(item, unavailablePaths) {
   return (

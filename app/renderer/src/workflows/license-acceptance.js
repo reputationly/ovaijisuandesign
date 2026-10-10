@@ -1,5 +1,5 @@
 // ComfyUI 许可证确认：收集需要确认的许可证并记录当前账号的接受状态。
-import { r as reactExports, v as useStorage } from "../main.jsx";
+import { reactExports, useStorage } from "../vendor.js";
 import { comfyUiLicenseKey } from "./workflow-card-helpers.js";
 const ANONYMOUS_ACCOUNT_KEY = "anonymous";
 function uniqueRequiredLicenses(attributions) {

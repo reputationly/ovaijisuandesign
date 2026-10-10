@@ -1,50 +1,23 @@
 // 工作流页路由入口：列表、详情展开、下载与教程弹窗的组装。
-import {
-  h as useTranslation,
-  kP as useComfyUiDownloadProgress,
-  j as jsxRuntimeExports,
-  fM as Button,
-  X,
-  r as reactExports,
-  m as API_PATHS,
-  e as Icon,
-  a3 as dedupedToast,
-  o as usePlatform,
-  gB as openExternalUrl,
-  v as useStorage,
-  H as homeService,
-  j8 as LocalFolderIcon,
-  ay as BookOpen,
-  ae as DropdownMenu,
-  af as DropdownMenuTrigger,
-  ah as DropdownMenuContent,
-  ai as DropdownMenuItem,
-  Q as Plus,
-  w as useNavigate,
-  fT as useSearch,
-  l7 as useGatewayFetch,
-  J as buildWorkspaceSearch,
-  l8 as trackComfyUiWorkflowCatalogAction,
-  K as workspaceRuntimeFromOpenResult,
-  l9 as toastWorkspaceOpenResult,
-  G as stageWorkspacePreview,
-  la as trackComfyUiWorkflowInstall,
-  lb as trackComfyUiWorkflowInstallFailed,
-  gC as CatalogPageHeading,
-  dl as Loader2,
-  f0 as Upload,
-  bI as ChevronRight,
-  fi as Workflow,
-  gE as Tabs,
-  gF as TabsList,
-  gG as TabsTrigger,
-  gk as RetryIcon,
-  gM as TAB_CONTENT_ENTER_CLASS_NAME,
-  U as PageStateBoundary,
-} from "../main.jsx";
-import { u as useHubEntries, H as HUB_ENTRY_IDS } from "../use-hub-entries-BqMaebYB.js";
-import { u as useWorkspaceAvailability } from "../use-workspace-availability-Dj4GHjzL.js";
-import { P as PageSearchInput } from "../index-CCILjxtP.js";
+import { useTranslation, jsxRuntimeExports, X$7 as X, reactExports, API_PATHS, usePlatform, useStorage, Plus, useNavigate, useSearch, Loader2, ChevronRight$1 as ChevronRight, Workflow, TAB_CONTENT_ENTER_CLASS_NAME } from "../vendor.js";
+import { useComfyUiDownloadProgress, Icon, openExternalUrl, DropdownMenu } from "../vendor-inline/vscode-base/graph.jsx";
+import { Button, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../infra/dialog-content.jsx";
+import { dedupedToast } from "../infra/agent-http-client.js";
+import { homeService, LocalFolderIcon } from "../workspace/home-service.jsx";
+import { BookOpen, Upload } from "../media-editing/package.jsx";
+import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
+import { buildWorkspaceSearch } from "../workspace/use-deep-link-router.js";
+import { trackComfyUiWorkflowCatalogAction, trackComfyUiWorkflowInstall, trackComfyUiWorkflowInstallFailed } from "../media-editing/merge-browser-bookmarks.js";
+import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
+import { toastWorkspaceOpenResult } from "../workspace/toast-workspace-open-result.js";
+import { stageWorkspacePreview } from "../workspace/context-menu-content.jsx";
+import { CatalogPageHeading } from "../assets/catalog-page-heading.jsx";
+import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
+import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { useHubEntries, HUB_ENTRY_IDS } from "../workspace/use-hub-entries.js";
+import { useWorkspaceAvailability } from "../workspace/use-workspace-availability.js";
+import { PageSearchInput } from "../shared/page-search-input.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { WorkflowDownloadConfirmDialog } from "./download-confirm-dialog.jsx";
 import { ComfyUiModelDownloadSection } from "./download-section.jsx";

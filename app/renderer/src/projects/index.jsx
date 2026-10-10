@@ -1,46 +1,21 @@
 // 项目列表页路由入口：分类标签、搜索与排序、分页加载、新建与删除。
-import {
-  h as useTranslation,
-  r as reactExports,
-  j as jsxRuntimeExports,
-  fM as Button,
-  ae as DropdownMenu,
-  af as DropdownMenuTrigger,
-  ah as DropdownMenuContent,
-  w as useNavigate,
-  fT as useSearch,
-  o as usePlatform,
-  v as useStorage,
-  gx as useProjects,
-  E as useProjectActions,
-  gy as useProjectDelete,
-  gz as projectListLocation,
-  a3 as dedupedToast,
-  gA as getProjectTutorialUrl,
-  g6 as getRuntimeConfig,
-  gB as openExternalUrl,
-  gC as CatalogPageHeading,
-  Q as Plus,
-  gD as CreateProjectMenuContent,
-  ay as BookOpen,
-  gE as Tabs,
-  gF as TabsList,
-  gG as TabsTrigger,
-  gH as MonochromeIcon,
-  c5 as CloudUpload,
-  bE as ChevronDown,
-  gI as DropdownMenuGroup,
-  gJ as DropdownMenuLabel,
-  gK as DropdownMenuRadioGroup,
-  gL as DropdownMenuRadioItem,
-  gM as TAB_CONTENT_ENTER_CLASS_NAME,
-  U as PageStateBoundary,
-  gN as CreateProjectDialog,
-  gO as DissolveProjectDialog,
-} from "../main.jsx";
-import { u as useWindowedList } from "../ProjectMemberSummary-tUEX4nJc.js";
-import { u as useHubEntries, H as HUB_ENTRY_IDS } from "../use-hub-entries-BqMaebYB.js";
-import { P as PageSearchInput } from "../index-CCILjxtP.js";
+import { useTranslation, reactExports, jsxRuntimeExports, useNavigate, useSearch, usePlatform, useStorage, getRuntimeConfig, Plus, MonochromeIcon, CloudUpload, ChevronDown, TAB_CONTENT_ENTER_CLASS_NAME } from "../vendor.js";
+import { Button, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioItem } from "../infra/dialog-content.jsx";
+import { DropdownMenu, getProjectTutorialUrl, openExternalUrl, DropdownMenuGroup, DropdownMenuRadioGroup } from "../vendor-inline/vscode-base/graph.jsx";
+import { useProjects } from "../workspace/normalize-project-entries.js";
+import { useProjectActions } from "../settings/use-project-actions.js";
+import { useProjectDelete } from "../workspace/use-project-delete.js";
+import { projectListLocation } from "../infra/split-pinned-inventory.js";
+import { dedupedToast } from "../infra/agent-http-client.js";
+import { CatalogPageHeading } from "../assets/catalog-page-heading.jsx";
+import { CreateProjectMenuContent, DissolveProjectDialog } from "../infra/inline-rename-input.jsx";
+import { BookOpen } from "../media-editing/package.jsx";
+import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { CreateProjectDialog } from "../workspace/create-project-dialog.jsx";
+import { useWindowedList } from "./project-member-summary.jsx";
+import { useHubEntries, HUB_ENTRY_IDS } from "../workspace/use-hub-entries.js";
+import { PageSearchInput } from "../shared/page-search-input.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { CloudProjectsInspector } from "./cloud-debug.jsx";
 import { ProjectCard } from "./project-card.jsx";

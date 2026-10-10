@@ -1,5 +1,18 @@
 // 展示区的卡片、技能卡片、以及视频预览（含预览的状态与生命周期）。
-import { h as useTranslation, r as reactExports, t as trackEvent, T as TRACK_EVENTS, j as jsxRuntimeExports, e as Icon, aA as SkillIcon, fM as Button, F as workspaceLog, dn as LoaderCircle, lP as ProjectImportIcon, lQ as UsePromptIcon, fa as VolumeX, f8 as Volume2, dw as Maximize2, bd as BadgeCheck, lR as formatTime, lS as resolveSkillCoverUrl, lT as toDisplayName, lU as SkillCoverMedia, lV as FilledSkillIcon, o as usePlatform, lW as getCreationGuideUrlsByLocale, lX as buildInspirationMediaShowcaseCollections, lY as buildMediaShowcaseCollections, lZ as skillVerticals, gB as openExternalUrl, gE as Tabs, gF as TabsList, gG as TabsTrigger, l_ as TabsIndicator, l$ as StableTabLabel, kf as TabsContent, gk as RetryIcon, m0 as VideoLightbox } from "../main.jsx";
+import { useTranslation, reactExports, jsxRuntimeExports, workspaceLog, LoaderCircle, Volume2, BadgeCheck, usePlatform, TabsIndicator } from "../vendor.js";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { Icon, getCreationGuideUrlsByLocale, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
+import { SkillIcon, UsePromptIcon, RetryIcon } from "../workspace/use-prompt-icon.jsx";
+import { Button } from "../infra/dialog-content.jsx";
+import { ProjectImportIcon, FilledSkillIcon } from "../workspace/home-service.jsx";
+import { VolumeX, Maximize2, formatTime } from "../media-editing/package.jsx";
+import { resolveSkillCoverUrl, toDisplayName, SkillCoverMedia, StableTabLabel } from "../generation/use-mention-models.jsx";
+import { buildInspirationMediaShowcaseCollections } from "../workspace/build-inspiration-media-showcase-collections.js";
+import { buildMediaShowcaseCollections } from "../workspace/build-media-showcase-collections.js";
+import { skillVerticals } from "../generation/normalize-skill-detail-metadata.js";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../workspace/shortcut-hint.jsx";
+import { VideoLightbox } from "../media-editing/video-lightbox.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { homeShowcasePosterThumbnailUrl } from "./media-urls.js";
 import { prefersReducedMotion } from "./motion-utils.js";

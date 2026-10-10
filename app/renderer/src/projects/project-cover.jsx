@@ -1,17 +1,10 @@
 // 项目封面：取工作区缩略图、按可见性延迟加载、没有图时用稳定的渐变占位。
-import {
-  r as reactExports,
-  gm as useQueryClient,
-  gn as WORKSPACE_THUMBNAILS_QUERY_ROOT,
-  u as useGatewayReady,
-  go as useQueries,
-  gp as WORKSPACE_THUMBNAILS_STALE_TIME,
-  gq as fetchWorkspaceThumbnails,
-  gr as workspaceThumbnailsQueryKey,
-  aG as FolderOpen,
-  au as cn,
-  gs as DeferredThumbnailImage,
-} from "../main.jsx";
+import { reactExports, useQueryClient, useQueries } from "../vendor.js";
+import { WORKSPACE_THUMBNAILS_QUERY_ROOT, WORKSPACE_THUMBNAILS_STALE_TIME, fetchWorkspaceThumbnails, workspaceThumbnailsQueryKey } from "../workspace/tool-label-definitions.js";
+import { useGatewayReady } from "../infra/inline-rename-input.jsx";
+import { FolderOpen } from "../media-editing/package.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { DeferredThumbnailImage } from "../workspace/deferred-thumbnail-image-generation.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 const PROJECT_COVER_TILE_LIMIT = 4;
 export function useRefreshProjectCovers() {

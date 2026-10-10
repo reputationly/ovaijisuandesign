@@ -1,5 +1,5 @@
 // 技能审核的规则：分类、字段长度限制、包版本号的校验与比较，纯函数。
-import { mv as isValidSkillName } from "../main.jsx";
+import { isValidSkillName } from "../generation/normalize-skill-detail-metadata.js";
 export const HCP_CATEGORIES = [
   "design-3d",
   "design-2d",

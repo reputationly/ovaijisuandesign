@@ -1,4 +1,5 @@
-import { o as usePlatform, k as useQuery } from "./main.jsx";
+// use-workspace-availability.js
+import { usePlatform, useQuery } from "../vendor.js";
 const AVAILABILITY_QUERY_KEY = ["workspace-availability"];
 function useWorkspaceAvailability(workspaces) {
   const platform = usePlatform();
@@ -14,15 +15,13 @@ function useWorkspaceAvailability(workspaces) {
           } catch {
             return p;
           }
-        })
+        }),
       );
       return new Set(results.filter((p) => p !== null));
     },
     staleTime: Number.POSITIVE_INFINITY,
-    refetchOnWindowFocus: "always"
+    refetchOnWindowFocus: "always",
   });
   return data ?? /* @__PURE__ */ new Set();
 }
-export {
-  useWorkspaceAvailability as u
-};
+export { useWorkspaceAvailability };

@@ -1,11 +1,6 @@
 // 「我的技能」的状态、封面、文案推导与筛选，纯函数。
-import {
-  mQ as normalizeSkillDetailMetadata,
-  mS as selectSkillStructuredInfo,
-  lT as toDisplayName,
-  nJ as skillCategoryCodes,
-  lZ as skillVerticals,
-} from "../../main.jsx";
+import { normalizeSkillDetailMetadata, selectSkillStructuredInfo, skillCategoryCodes, skillVerticals } from "../../generation/normalize-skill-detail-metadata.js";
+import { toDisplayName } from "../../generation/use-mention-models.jsx";
 export const MY_SKILL_STATUSES = {
   private: ["skills.mine.status.private", "Private"],
   pending: ["skills.mine.status.pending", "Review pending"],

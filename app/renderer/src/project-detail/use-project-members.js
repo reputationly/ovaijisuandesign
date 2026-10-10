@@ -1,12 +1,6 @@
 // 项目成员列表的查询 hook 与缓存键。
-import {
-  k as useQuery,
-  hq as createProjectOperationId,
-  hr as logProjectOperationAttempt,
-  hs as listProjectMembers,
-  ht as logProjectOperationSuccess,
-  hu as logProjectOperationFailure,
-} from "../main.jsx";
+import { useQuery } from "../vendor.js";
+import { createProjectOperationId, logProjectOperationAttempt, listProjectMembers, logProjectOperationSuccess, logProjectOperationFailure } from "../workspace/asset-lineage-query-key.js";
 const PROJECT_MEMBERS_STALE_TIME_MS = 3e4;
 export function projectMembersQueryKey(projectId) {
   return ["project", projectId, "members"];

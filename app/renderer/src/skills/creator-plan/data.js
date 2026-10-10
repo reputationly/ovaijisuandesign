@@ -1,12 +1,7 @@
 // 创作者计划的数据层：投稿内容整理、上传、保存、提交记录查询与 hook。
-import {
-  r as reactExports,
-  mP as normalizePublicSkillShowcaseUrl,
-  l as gatewayFetch,
-  m as API_PATHS,
-  mQ as normalizeSkillDetailMetadata,
-  mR as normalizeSkillContentLocale,
-} from "../../main.jsx";
+import { reactExports, API_PATHS } from "../../vendor.js";
+import { normalizePublicSkillShowcaseUrl, normalizeSkillDetailMetadata, normalizeSkillContentLocale } from "../../generation/normalize-skill-detail-metadata.js";
+import { gatewayFetch } from "../../infra/gateway-fetch.js";
 import { DEFAULT_SKILL_PACKAGE_VERSION } from "../review-rules.js";
 export function hasSubmissionShowcase(showcase) {
   return showcase?.length === 1 && Boolean(normalizePublicSkillShowcaseUrl(showcase[0]));

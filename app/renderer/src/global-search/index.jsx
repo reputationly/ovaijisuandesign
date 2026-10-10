@@ -1,19 +1,12 @@
 // 全局搜索弹窗：输入框、筛选标签、分组结果列表与键盘操作。
-import {
-  r as reactExports,
-  h as useTranslation,
-  ar as useIsScrolling,
-  t as trackEvent,
-  T as TRACK_EVENTS,
-  as as Dialog,
-  at as DialogContent,
-  e as Icon,
-  S as Search,
-  au as cn,
-  U as PageStateBoundary,
-  av as KbdGroup,
-  aw as Kbd,
-} from "../main.jsx";
+import { reactExports, useTranslation, Search } from "../vendor.js";
+import { useIsScrolling } from "../assets/credit-query-keys.jsx";
+import { trackEvent } from "../infra/sanitize-track-props.js";
+import { TRACK_EVENTS } from "../infra/track-events.js";
+import { Dialog, DialogContent, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
+import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
+import { KbdGroup, Kbd } from "../workspace/shortcut-hint.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   CATEGORY_TYPE_LABEL_FALLBACKS,

@@ -1,21 +1,11 @@
 // 插件模板项目：地区适配、模板插件准备与一键导入。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  l as gatewayFetch,
-  m as API_PATHS,
-  n9 as CDN_TEMPLATE_PROJECT_WATERMARK_TOOL,
-  na as CDN_TEMPLATE_PROJECT_RELIGHT,
-  nb as CDN_TEMPLATE_PROJECT_PANORAMA_VIEWER,
-  nc as CDN_TEMPLATE_PROJECT_N_STORYBOARD,
-  nd as CDN_TEMPLATE_PROJECT_MULTI_SHOT,
-  ne as CDN_TEMPLATE_PROJECT_3D_DIRECTOR,
-  nf as pluginEvents,
-  lc as useProjectArchiveActions,
-  v as useStorage,
-  ng as SIDEBAR_TAB_STORAGE_KEY,
-} from "../../main.jsx";
+import { useTranslation, reactExports, API_PATHS, useStorage } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { gatewayFetch } from "../../infra/gateway-fetch.js";
+import { CDN_TEMPLATE_PROJECT_WATERMARK_TOOL, CDN_TEMPLATE_PROJECT_RELIGHT, CDN_TEMPLATE_PROJECT_PANORAMA_VIEWER, CDN_TEMPLATE_PROJECT_N_STORYBOARD, CDN_TEMPLATE_PROJECT_MULTI_SHOT, CDN_TEMPLATE_PROJECT_3D_DIRECTOR } from "../../workspace/topbar-state-context.jsx";
+import { pluginEvents } from "../../canvas/resolve-workspace-failure-diagnosis.js";
+import { useProjectArchiveActions } from "../../workspace/use-project-archive-actions.js";
+import { SIDEBAR_TAB_STORAGE_KEY } from "../../workspace/set-home-widget-dev-preview-mode.js";
 export function normalizePluginLocale(short) {
   if (!short) return "en-US";
   if (short.startsWith("zh")) return "zh-CN";

@@ -1,21 +1,10 @@
 // 工作流详情：右侧栏、署名区、封面媒体与详情主视图。
-import {
-  h as useTranslation,
-  kP as useComfyUiDownloadProgress,
-  cf as Download,
-  ka as Progress,
-  fM as Button,
-  bU as PlaybackStopIcon,
-  r as reactExports,
-  o as usePlatform,
-  gB as openExternalUrl,
-  ar as useIsScrolling,
-  dd as Layers3,
-  dQ as Package,
-  b0 as ArrowLeft,
-  ax as PlaybackPlayIcon,
-  dZ as PlaybackPauseIcon,
-} from "../main.jsx";
+import { useTranslation, PlaybackStopIcon$1 as PlaybackStopIcon, reactExports, usePlatform, Layers3, ArrowLeft, PlaybackPlayIcon$1 as PlaybackPlayIcon, PlaybackPauseIcon$1 as PlaybackPauseIcon } from "../vendor.js";
+import { useComfyUiDownloadProgress, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
+import { Download, Package } from "../media-editing/package.jsx";
+import { Progress } from "../team/team-management-detail-loading.jsx";
+import { Button } from "../infra/dialog-content.jsx";
+import { useIsScrolling } from "../assets/credit-query-keys.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { AttributionLicenseControl } from "./attribution.jsx";
 import {

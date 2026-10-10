@@ -1,5 +1,7 @@
 // 云端资产的调试数据查看器。
-import { h as useTranslation, a3 as dedupedToast, fM as Button, c9 as Copy } from "../../main.jsx";
+import { useTranslation, Copy } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { Button } from "../../infra/dialog-content.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 export function DebugDumpView({ dump }) {
   const { t } = useTranslation();

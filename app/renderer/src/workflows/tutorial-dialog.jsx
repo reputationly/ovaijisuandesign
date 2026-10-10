@@ -1,23 +1,10 @@
 // 工作流使用教程弹窗与常见问题。
-import {
-  h as useTranslation,
-  fM as Button,
-  e as Icon,
-  as as Dialog,
-  at as DialogContent,
-  gj as DialogHeader,
-  g8 as DialogTitle,
-  g9 as DialogDescription,
-  ck as ExternalLink,
-  o as usePlatform,
-  gB as openExternalUrl,
-  ay as BookOpen,
-  kV as Accordion,
-  kW as AccordionItem,
-  kX as AccordionTrigger,
-  kY as AccordionContent,
-  kZ as WORKFLOW_TUTORIAL_SOURCE_URL,
-} from "../main.jsx";
+import { useTranslation, ExternalLink, usePlatform } from "../vendor.js";
+import { Button, Dialog, DialogContent, DialogHeader } from "../infra/dialog-content.jsx";
+import { Icon, openExternalUrl, WORKFLOW_TUTORIAL_SOURCE_URL } from "../vendor-inline/vscode-base/graph.jsx";
+import { DialogTitle, DialogDescription } from "../infra/badge-variants.jsx";
+import { BookOpen } from "../media-editing/package.jsx";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "../media-editing/message-list-props-equal.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 const WORKFLOW_TUTORIAL_FAQ_ITEMS = [
   {

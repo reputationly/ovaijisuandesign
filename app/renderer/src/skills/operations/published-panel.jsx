@@ -1,43 +1,13 @@
 // 运营后台「已发布」面板：分页列表与投稿人筛选。
-import {
-  h as useTranslation,
-  r as reactExports,
-  a3 as dedupedToast,
-  jS as AlertDialog,
-  jV as AlertDialogContent,
-  jW as AlertDialogHeader,
-  jX as AlertDialogTitle,
-  jY as AlertDialogDescription,
-  jZ as AlertDialogFooter,
-  j_ as AlertDialogCancel,
-  j$ as AlertDialogAction,
-  g7 as Badge,
-  fM as Button,
-  X,
-  l as gatewayFetch,
-  m as API_PATHS,
-  lT as toDisplayName,
-  mT as useSkillCategories,
-  iY as Select,
-  iZ as SelectTrigger,
-  i_ as SelectValue,
-  i$ as SelectContent,
-  j0 as SelectItem,
-  f as Input,
-  dl as Loader2,
-  m$ as useSensors,
-  n0 as useSensor,
-  n1 as sortableKeyboardCoordinates,
-  n2 as KeyboardSensor,
-  n3 as PointerSensor,
-  eo as Save,
-  n4 as DndContext,
-  n5 as closestCenter,
-  n6 as SortableContext,
-  n7 as verticalListSortingStrategy,
-  bG as ChevronLeft,
-  bI as ChevronRight,
-} from "../../main.jsx";
+import { useTranslation, reactExports, X$7 as X, API_PATHS, Loader2, useSensors, useSensor, sortableKeyboardCoordinates, KeyboardSensor, PointerSensor, Save, DndContext, closestCenter, SortableContext, verticalListSortingStrategy, ChevronLeft, ChevronRight$1 as ChevronRight } from "../../vendor.js";
+import { dedupedToast } from "../../infra/agent-http-client.js";
+import { AlertDialog, Button } from "../../infra/dialog-content.jsx";
+import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Badge } from "../../infra/badge-variants.jsx";
+import { gatewayFetch } from "../../infra/gateway-fetch.js";
+import { toDisplayName } from "../../generation/use-mention-models.jsx";
+import { useSkillCategories } from "../../generation/use-skill-categories.js";
+import { Select } from "../../assets/credit-query-keys.jsx";
+import { SelectTrigger, SelectValue, SelectContent, SelectItem, Input3 as Input } from "../../infra/select-content.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { OperationsListItem } from "./category-weight-editor.jsx";
 import {

@@ -1,5 +1,5 @@
 // 工作流卡片用的推导函数：卡片元信息、下载任务状态判断。
-import { kT as countUnavailableComfyUiModels } from "../main.jsx";
+import { countUnavailableComfyUiModels } from "../vendor-inline/vscode-base/linked-list.js";
 import { isInstalledFeaturedWorkflow } from "./workflow-mapping.js";
 function formatFileSize$1(bytes) {
   if (bytes < 1024) return `${bytes} B`;

@@ -1,23 +1,11 @@
 // 项目列表里的单张项目卡片：封面、名称、成员与时间、重命名与删除菜单。
-import {
-  h as useTranslation,
-  r as reactExports,
-  ad as formatTimestampDot,
-  ab as ClickableArea,
-  gt as TooltipProvider,
-  gu as Tooltip,
-  gv as TooltipTrigger,
-  f5 as Users,
-  gw as TooltipContent,
-  ac as InlineRenameInput,
-  ae as DropdownMenu,
-  af as DropdownMenuTrigger,
-  ag as MoreVerticalIcon,
-  ah as DropdownMenuContent,
-  ai as DropdownMenuItem,
-  aj as PencilIcon,
-  am as Trash2,
-} from "../main.jsx";
+import { useTranslation, reactExports } from "../vendor.js";
+import { formatTimestampDot } from "../generation/use-model-catalog-scope-key.js";
+import { ClickableArea, InlineRenameInput } from "../infra/inline-rename-input.jsx";
+import { TooltipProvider, Tooltip, TooltipTrigger, DropdownMenu, MoreVerticalIcon } from "../vendor-inline/vscode-base/graph.jsx";
+import { Users, Trash2 } from "../media-editing/package.jsx";
+import { TooltipContent, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../infra/dialog-content.jsx";
+import { PencilIcon } from "../workspace/home-service.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ProjectCover } from "./project-cover.jsx";
 export function ProjectCard({ project, onOpen, onRename, onRequestDelete }) {

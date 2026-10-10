@@ -1,10 +1,7 @@
 // 运营后台的数据与规则：运营工作流 hook、权限、发布校验与批量发布组装。
-import {
-  r as reactExports,
-  l as gatewayFetch,
-  m as API_PATHS,
-  mY as normalizeSkillCategoriesResponse,
-} from "../../main.jsx";
+import { reactExports, API_PATHS } from "../../vendor.js";
+import { gatewayFetch } from "../../infra/gateway-fetch.js";
+import { normalizeSkillCategoriesResponse } from "../../generation/use-skill-categories.js";
 async function readJson(response) {
   if (!response.ok) {
     const message = await response.text().catch(() => "");

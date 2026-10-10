@@ -1,15 +1,10 @@
 // 技能自动更新横幅：显示/退出动画与状态订阅。
-import {
-  h as useTranslation,
-  r as reactExports,
-  fM as Button,
-  gk as RetryIcon,
-  X,
-  nw as useWSConnection,
-  nx as readPendingAutoUpdate,
-  ny as writePendingAutoUpdate,
-  nz as clearPendingAutoUpdate,
-} from "../main.jsx";
+import { useTranslation, reactExports, X$7 as X } from "../vendor.js";
+import { Button } from "../infra/dialog-content.jsx";
+import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
+import { useWSConnection } from "../workspace/asset-lineage-query-key.js";
+import { readPendingAutoUpdate, clearPendingAutoUpdate } from "../generation/use-skill-categories.js";
+import { writePendingAutoUpdate } from "../generation/use-mention-models.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 const EXIT_DURATION_MS = 220;
 function AutoUpdateBanner({ pending, restarting, onRestart, onDismiss }) {

@@ -1,5 +1,7 @@
 // 全局搜索结果的组装与打分：项目、会话、固定入口、推荐与最近记录、本地结果。
-import { ap as withThumbnail, aq as gatewayUrlFromBase, m as API_PATHS } from "../main.jsx";
+import { withThumbnail } from "../workspace/tool-label-definitions.js";
+import { gatewayUrlFromBase } from "../infra/gateway-http-error.jsx";
+import { API_PATHS } from "../vendor.js";
 import { CATEGORY_WEIGHT, HUB_PROJECT_RESULT_LIMIT } from "./constants.js";
 import { STATIC_RESULTS } from "./static-results.js";
 function normalize(value) {
