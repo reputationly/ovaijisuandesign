@@ -1,3 +1,6 @@
+import { keyName, base, shift } from "w3c-keyname";
+import { isShadowRoot, isElement, isHTMLElement as isHTMLElement$1, getComputedStyle as getComputedStyle$1, getNodeName, isNode as isNode$1, getWindow as getWindow$1, isWebKit as isWebKit$2, isLastTraversableNode, getParentNode, getFrameElement, getNodeScroll, getDocumentElement, isTopLayer, isOverflowElement, getOverflowAncestors, isContainingBlock, isTableElement, getContainingBlock } from "@floating-ui/utils/dom";
+import { floor, getSideAxis, getAlignmentAxis, getAxisLength, getSide as getSide$1, getAlignment, evaluate, getPaddingObject, rectToClientRect, min as min$2, getOppositeAlignmentPlacement, placements, getAlignmentSides, getOppositePlacement, getExpandedPlacements, getOppositeAxisPlacements, sides, max as max$2, getOppositeAxis, round, createCoords } from "@floating-ui/utils";
 import __ov_react from "react";
 import reactExports from "react";
 import __ov_react_jsx_runtime from "react/jsx-runtime";
@@ -143,12 +146,6 @@ var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof win
 function getDefaultExportFromCjs$1(x2) {
   return x2 && x2.__esModule && Object.prototype.hasOwnProperty.call(x2, "default") ? x2["default"] : x2;
 }
-
-
-
-
-
-
 const CanvasNodeType = {
   Image: "image",
   Video: "video",
@@ -160,36 +157,6 @@ const CanvasNodeType = {
   Group: "group",
   Sticker: "sticker"
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const GROUP_LABEL_MAX_LENGTH = 40;
 function normalizeLabel$1(label) {
   if (typeof label !== "string") return void 0;
@@ -197,80 +164,6 @@ function normalizeLabel$1(label) {
   if (trimmed.length === 0) return void 0;
   return trimmed.length > GROUP_LABEL_MAX_LENGTH ? trimmed.slice(0, GROUP_LABEL_MAX_LENGTH) : trimmed;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function requireReact() {
   return __ov_react;
 }
@@ -792,7 +685,6 @@ const Share2$2 = /* @__PURE__ */withIconCompositing(Share2$3);
 const ShoppingBag$2 = /* @__PURE__ */withIconCompositing(ShoppingBag$3);
 const Square$2 = /* @__PURE__ */withIconCompositing(Square$3);
 const Trash2$2 = /* @__PURE__ */withIconCompositing(Trash2$3);
-
 const Video$2 = /* @__PURE__ */withIconCompositing(Video$3);
 const Wrench$2 = /* @__PURE__ */withIconCompositing(Wrench$3);
 const HILO_APP_ID = "3001";
@@ -809,30 +701,9 @@ const ASSET_MODEL_IMPORTED = "imported";
 function isUserProvidedAssetModel(model) {
   return model === ASSET_MODEL_USER_UPLOADED || model === ASSET_MODEL_IMPORTED;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function isRecord$g(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-
-
-
-
 function regionToLocale(region) {
   return region === "overseas" ? "en" : "zh";
 }
@@ -865,10 +736,6 @@ function compareSemver(a2, b3) {
   if (pa.minor !== pb.minor) return pa.minor - pb.minor;
   return pa.patch - pb.patch;
 }
-
-
-
-
 function satisfiesMinHubVersion(minHubVersion, appVersion) {
   if (!minHubVersion) return true;
   if (parseSemver(minHubVersion) === null) return false;
@@ -927,8 +794,6 @@ function emptyConnectorMarketPolicy() {
   };
 }
 const CONNECTOR_TOKEN_SOURCE = String.raw`@connector:([a-zA-Z0-9_.-]{1,80})(?:\[([\p{Script=Han}a-zA-Z0-9_. -]{1,80})\])?(?=\s|$)`;
-
-
 function findConnectorMentions(text2) {
   return [...text2.matchAll(new RegExp(String.raw`(?<=^|\s)${CONNECTOR_TOKEN_SOURCE}`, "gu"))].map(match2 => ({
     serverName: match2[1],
@@ -974,7 +839,6 @@ const MEDIA_EXTENSIONS = {
   // a file-icon chip instead of trying to render the JSON as an image.
   ".htable": "file"
 };
-
 function inferMediaKind(mime, ext) {
   if (mime?.startsWith("image/")) return "image";
   if (mime?.startsWith("video/")) return "video";
@@ -985,39 +849,10 @@ function inferMediaKind(mime, ext) {
   const key2 = (ext.startsWith(".") ? ext : `.${ext}`).toLowerCase();
   return MEDIA_EXTENSIONS[key2] ?? "file";
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const LIBTV_CONNECTOR = {
   id: "libtv",
   url: "https://mcp.liblib.tv/mcp"
 };
-
 const MEDIA_LINEAGE_REQUEST_HEADER = "x-request-id";
 const MEDIA_LINEAGE_MAX_HASH_BYTES = 8 * 1024 * 1024;
 const MEDIA_LINEAGE_HEADER_BYTES = 32;
@@ -1112,8 +947,6 @@ function mediaLineageError(error) {
 function isMediaLineageImage(filename, mime) {
   return /^image\//i.test(mime ?? "") || /\.(?:png|jpe?g|webp|gif|bmp|tiff?|heic|heif|avif)$/i.test(filename);
 }
-
-
 const HILO_WORKSPACE_IDENTITY_HEADER = "x-hilo-workspace";
 const HILO_WORKSPACE_IDENTITY_QUERY = "hilo_workspace";
 const HILO_WORKSPACE_INSTANCE_HEADER = "x-hilo-workspace-instance";
@@ -1123,7 +956,6 @@ const HILO_WORKSPACE_GENERATION_QUERY = "hilo_workspace_generation";
 const HILO_CANVAS_WRITER_REVISION_HEADER = "x-hilo-canvas-writer-revision";
 const WORKSPACE_IDENTITY_MISMATCH_CODE = "WORKSPACE_IDENTITY_MISMATCH";
 const WORKSPACE_IDENTITY_REQUIRED_CODE = "WORKSPACE_IDENTITY_REQUIRED";
-
 function workspaceGatewayIdentityHeaders(binding) {
   return {
     [HILO_WORKSPACE_IDENTITY_HEADER]: binding.claim,
@@ -1524,72 +1356,9 @@ const API_PATHS = {
   // WebSocket
   wsChat: "/ws"
 };
-
-
-
-
-
 const BACKEND_VIBE_STORYBOARD = "vibe_storyboard";
-
-
-
-
-
-
-
-
-
-
-
-
-
 const GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT = "image_aspect_ratio_conflict";
-
-
-
-
-
-
-
-
-
 const GROUP_ID_HEADER = "x-group-id";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const PERF_LOG_FLUSH = "hilo:log:flush";
 const PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP = "hilo:canvas:persist-http-roundtrip";
 const measurePerfCounters = /* @__PURE__ */new Map();
@@ -1639,50 +1408,6 @@ function mergePerfMetadata(detail, metadata) {
     ...enriched
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function cc(names) {
   if (typeof names === "string" || typeof names === "number") return "" + names;
   let out = "";
@@ -13598,24 +13323,6 @@ const useTranslation = (ns2, props = {}) => {
     }
   });
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const createStoreImpl = createState2 => {
   let state2;
   const listeners2 = /* @__PURE__ */new Set();
@@ -13730,17 +13437,6 @@ const useAssetMetadataStore = selector2 => useStore$2(useAssetMetadataApi(), sel
 useAssetMetadataStore.getState = defaultAssetMetadataStore.getState;
 useAssetMetadataStore.setState = defaultAssetMetadataStore.setState;
 useAssetMetadataStore.subscribe = defaultAssetMetadataStore.subscribe;
-
-
-
-
-
-
-
-
-
-
-
 const playGeometry = /* @__PURE__ */jsxRuntimeExports.jsx("path", {
   d: "M6.13281 5.74789C6.13286 5.37642 6.53561 5.14439 6.85742 5.32992L11.04 7.74301C11.3621 7.92878 11.3621 8.39318 11.04 8.57895L6.85742 10.992C6.53566 11.1775 6.13295 10.9454 6.13281 10.5741V5.74789Z",
   fill: "var(--primary-foreground)"
@@ -18957,18 +18653,10 @@ const ZoomOut$1 = createLucideIcon("ZoomOut", [["circle", {
   y2: "11",
   key: "durymu"
 }]]);
-
-
-
-
-
 const ActivityIcon = /* @__PURE__ */withIconCompositing(Activity);
 const AlertCircle = /* @__PURE__ */withIconCompositing(CircleAlert$1);
 const AlertTriangle = /* @__PURE__ */withIconCompositing(TriangleAlert$1);
 const AlertTriangleIcon = /* @__PURE__ */withIconCompositing(TriangleAlert$1);
-
-
-
 const AppWindow = /* @__PURE__ */withIconCompositing(AppWindow$1);
 const Archive = /* @__PURE__ */withIconCompositing(Archive$1);
 const ArrowDown = /* @__PURE__ */withIconCompositing(ArrowDown$1);
@@ -18988,33 +18676,21 @@ const AudioLines = /* @__PURE__ */withIconCompositing(AudioLines$1);
 const AudioWaveform$1 = /* @__PURE__ */withIconCompositing(AudioWaveform$2);
 const BadgeCheck = /* @__PURE__ */withIconCompositing(BadgeCheck$1);
 const BadgeInfo = /* @__PURE__ */withIconCompositing(BadgeInfo$1);
-
 const Bell = /* @__PURE__ */withIconCompositing(Bell$1);
 const BellRing = /* @__PURE__ */withIconCompositing(BellRing$1);
-
 const Bold$1 = /* @__PURE__ */withIconCompositing(Bold$2);
-
 const BookUser = /* @__PURE__ */withIconCompositing(BookUser$1);
-
 const Bot = /* @__PURE__ */withIconCompositing(Bot$1);
 const Box = /* @__PURE__ */withIconCompositing(Box$1);
 const Boxes = /* @__PURE__ */withIconCompositing(Boxes$1);
 const BoxSelect = /* @__PURE__ */withIconCompositing(SquareDashed$1);
-
-
 const Bug = /* @__PURE__ */withIconCompositing(Bug$1);
-
-
 const Calculator = /* @__PURE__ */withIconCompositing(Calculator$1);
-
-
-
 const ChartNoAxesCombined = /* @__PURE__ */withIconCompositing(ChartNoAxesCombined$1);
 const Check = /* @__PURE__ */withIconCompositing(Check$1);
 const CheckCheck = /* @__PURE__ */withIconCompositing(CheckCheck$1);
 const CheckCircle2 = /* @__PURE__ */withIconCompositing(CircleCheck);
 const CheckCircle2Icon = /* @__PURE__ */withIconCompositing(CircleCheck);
-
 const ChevronDown = /* @__PURE__ */withIconCompositing(ChevronDown$1);
 const ChevronDownIcon$1 = /* @__PURE__ */withIconCompositing(ChevronDown$1);
 const ChevronLeft = /* @__PURE__ */withIconCompositing(ChevronLeft$1);
@@ -19023,26 +18699,17 @@ const ChevronRight$1 = /* @__PURE__ */withIconCompositing(ChevronRight$2);
 const ChevronRightIcon = /* @__PURE__ */withIconCompositing(ChevronRight$2);
 const ChevronUp = /* @__PURE__ */withIconCompositing(ChevronUp$1);
 const ChevronUpIcon = /* @__PURE__ */withIconCompositing(ChevronUp$1);
-
-
 const CircleAlert = /* @__PURE__ */withIconCompositing(CircleAlert$1);
 const CircleArrowUp = /* @__PURE__ */withIconCompositing(CircleArrowUp$1);
 const CircleCheckIcon = /* @__PURE__ */withIconCompositing(CircleCheck);
-
 const CircleIcon = /* @__PURE__ */withIconCompositing(Circle$1);
 const CircleMinus = /* @__PURE__ */withIconCompositing(CircleMinus$1);
-
 const CircleX = /* @__PURE__ */withIconCompositing(CircleX$1);
-
 const ClipboardIcon = /* @__PURE__ */withIconCompositing(Clipboard);
 const ClipboardList = /* @__PURE__ */withIconCompositing(ClipboardList$1);
-
-
-
 const Cloud = /* @__PURE__ */withIconCompositing(Cloud$1);
 const CloudDownload = /* @__PURE__ */withIconCompositing(CloudDownload$1);
 const CloudIcon = /* @__PURE__ */withIconCompositing(Cloud$1);
-
 const CloudUpload = /* @__PURE__ */withIconCompositing(CloudUpload$1);
 const Code$1 = /* @__PURE__ */withIconCompositing(Code$2);
 const Cog = /* @__PURE__ */withIconCompositing(Cog$1);
@@ -19050,43 +18717,23 @@ const Command = /* @__PURE__ */withIconCompositing(Command$1);
 const Compass = /* @__PURE__ */withIconCompositing(Compass$1);
 const Copy = /* @__PURE__ */withIconCompositing(Copy$1);
 const CopyPlus = /* @__PURE__ */withIconCompositing(CopyPlus$1);
-
 const CreditCard = /* @__PURE__ */withIconCompositing(CreditCard$1);
 const Crosshair = /* @__PURE__ */withIconCompositing(Crosshair$1);
 const Crown = /* @__PURE__ */withIconCompositing(Crown$1);
-
 const DownloadIcon = /* @__PURE__ */withIconCompositing(Download$1);
-
 const Ellipsis = /* @__PURE__ */withIconCompositing(Ellipsis$1);
-
 const ExternalLink = /* @__PURE__ */withIconCompositing(ExternalLink$1);
 const Eye = /* @__PURE__ */withIconCompositing(Eye$1);
 const EyeIcon$1 = /* @__PURE__ */withIconCompositing(Eye$1);
 const EyeOff = /* @__PURE__ */withIconCompositing(EyeOff$1);
 const EyeOffIcon$1 = /* @__PURE__ */withIconCompositing(EyeOff$1);
-
-
-
-
-
-
 const FileImage = /* @__PURE__ */withIconCompositing(FileImage$1);
-
-
 const FilePlus2 = /* @__PURE__ */withIconCompositing(FilePlus2$1);
-
-
-
-
 const Film = /* @__PURE__ */withIconCompositing(Film$1);
-
-
 const FolderClock = /* @__PURE__ */withIconCompositing(FolderClock$1);
 const FolderClosed = /* @__PURE__ */withIconCompositing(FolderClosed$1);
 const FolderInput = /* @__PURE__ */withIconCompositing(FolderInput$1);
-
 const FolderMinus = /* @__PURE__ */withIconCompositing(FolderMinus$1);
-
 const FolderOpenIcon = /* @__PURE__ */withIconCompositing(FolderOpen$1);
 const FolderPlus = /* @__PURE__ */withIconCompositing(FolderPlus$1);
 const FolderUp = /* @__PURE__ */withIconCompositing(FolderUp$1);
@@ -19103,9 +18750,7 @@ const Grid3X3 = /* @__PURE__ */withIconCompositing(Grid3x3);
 const GripHorizontalIcon = /* @__PURE__ */withIconCompositing(GripHorizontal);
 const GripVertical = /* @__PURE__ */withIconCompositing(GripVertical$1);
 const Hand = /* @__PURE__ */withIconCompositing(Hand$1);
-
 const Headphones = /* @__PURE__ */withIconCompositing(Headphones$1);
-
 const HistoryIcon = /* @__PURE__ */withIconCompositing(History$1);
 const Home = /* @__PURE__ */withIconCompositing(House);
 const ImagePlus = /* @__PURE__ */withIconCompositing(ImagePlus$1);
@@ -19126,42 +18771,30 @@ const LayoutTemplate = /* @__PURE__ */withIconCompositing(LayoutTemplate$1);
 const Library = /* @__PURE__ */withIconCompositing(Library$1);
 const Lightbulb = /* @__PURE__ */withIconCompositing(Lightbulb$1);
 const Link2 = /* @__PURE__ */withIconCompositing(Link2$1);
-
 const ListChecks = /* @__PURE__ */withIconCompositing(ListChecks$1);
 const Loader2 = /* @__PURE__ */withIconCompositing(LoaderCircle$1);
 const Loader2Icon = /* @__PURE__ */withIconCompositing(LoaderCircle$1);
 const LoaderCircle = /* @__PURE__ */withIconCompositing(LoaderCircle$1);
 const Lock = /* @__PURE__ */withIconCompositing(Lock$1);
 const LockKeyhole = /* @__PURE__ */withIconCompositing(LockKeyhole$1);
-
 const Mail = /* @__PURE__ */withIconCompositing(Mail$1);
 const Map$1 = /* @__PURE__ */withIconCompositing(Map$2);
 const MapPin = /* @__PURE__ */withIconCompositing(MapPin$1);
 const Maximize = /* @__PURE__ */withIconCompositing(Maximize$1);
-
-
 const MessageCircle = /* @__PURE__ */withIconCompositing(MessageCircle$1);
 const MessageCircleMore = /* @__PURE__ */withIconCompositing(MessageCircleMore$1);
-
 const MessageSquareMore = /* @__PURE__ */withIconCompositing(MessageSquareMore$1);
-
-
-
-
 const Minus = /* @__PURE__ */withIconCompositing(Minus$1);
 const MinusIcon = /* @__PURE__ */withIconCompositing(Minus$1);
 const Monitor = /* @__PURE__ */withIconCompositing(Monitor$1);
 const MonitorUp = /* @__PURE__ */withIconCompositing(MonitorUp$1);
-
 const MoreHorizontal = /* @__PURE__ */withIconCompositing(Ellipsis$1);
-
 const Music = /* @__PURE__ */withIconCompositing(Music$1);
 const Music2 = /* @__PURE__ */withIconCompositing(Music2$1);
 const Network = /* @__PURE__ */withIconCompositing(Network$1);
 const Newspaper = /* @__PURE__ */withIconCompositing(Newspaper$1);
 const NotebookPen = /* @__PURE__ */withIconCompositing(NotebookPen$1);
 const OctagonXIcon = /* @__PURE__ */withIconCompositing(OctagonX);
-
 const PackageSearch = /* @__PURE__ */withIconCompositing(PackageSearch$1);
 const Palette = /* @__PURE__ */withIconCompositing(Palette$1);
 const PanelBottomClose = /* @__PURE__ */withIconCompositing(PanelBottomClose$1);
@@ -19170,27 +18803,19 @@ const PanelLeftOpen = /* @__PURE__ */withIconCompositing(PanelLeftOpen$1);
 const PanelRightClose = /* @__PURE__ */withIconCompositing(PanelRightClose$1);
 const PanelRightOpen = /* @__PURE__ */withIconCompositing(PanelRightOpen$1);
 const PanelsTopLeft = /* @__PURE__ */withIconCompositing(PanelsTopLeft$1);
-
-
 const Pencil = /* @__PURE__ */withIconCompositing(Pencil$1);
-
 const PencilRuler = /* @__PURE__ */withIconCompositing(PencilRuler$1);
 const Phone = /* @__PURE__ */withIconCompositing(Phone$1);
 const Pin = /* @__PURE__ */withIconCompositing(Pin$1);
 const PinIcon = /* @__PURE__ */withIconCompositing(Pin$1);
 const PinOff = /* @__PURE__ */withIconCompositing(PinOff$1);
-
 const Plus = /* @__PURE__ */withIconCompositing(Plus$1);
 const PlusCircle = /* @__PURE__ */withIconCompositing(CirclePlus);
 const Podcast = /* @__PURE__ */withIconCompositing(Podcast$1);
 const Power = /* @__PURE__ */withIconCompositing(Power$1);
-
-
 const Redo2 = /* @__PURE__ */withIconCompositing(Redo2$1);
 const Regex = /* @__PURE__ */withIconCompositing(Regex$1);
 const Repeat2 = /* @__PURE__ */withIconCompositing(Repeat2$1);
-
-
 const RotateCcw = /* @__PURE__ */withIconCompositing(RotateCcw$1);
 const RotateCw = /* @__PURE__ */withIconCompositing(RotateCw$1);
 const Save = /* @__PURE__ */withIconCompositing(Save$1);
@@ -19202,53 +18827,40 @@ const SearchIcon = /* @__PURE__ */withIconCompositing(Search$1);
 const Send = /* @__PURE__ */withIconCompositing(Send$1);
 const ServerIcon = /* @__PURE__ */withIconCompositing(Server);
 const ServerOff = /* @__PURE__ */withIconCompositing(ServerOff$1);
-
-
 const Share2 = /* @__PURE__ */withIconCompositing(Share2$1);
 const ShieldAlert = /* @__PURE__ */withIconCompositing(ShieldAlert$1);
 const ShieldCheck = /* @__PURE__ */withIconCompositing(ShieldCheck$1);
 const ShieldCheckIcon = /* @__PURE__ */withIconCompositing(ShieldCheck$1);
 const ShieldOff = /* @__PURE__ */withIconCompositing(ShieldOff$1);
-
 const Shuffle = /* @__PURE__ */withIconCompositing(Shuffle$1);
 const Slash = /* @__PURE__ */withIconCompositing(Slash$1);
-
 const Smartphone = /* @__PURE__ */withIconCompositing(Smartphone$1);
-
 const Speech = /* @__PURE__ */withIconCompositing(Speech$1);
 const Split = /* @__PURE__ */withIconCompositing(Split$1);
-
-
 const SquareDashed = /* @__PURE__ */withIconCompositing(SquareDashed$1);
 const SquareMousePointer = /* @__PURE__ */withIconCompositing(SquareMousePointer$1);
-
 const StickyNote = /* @__PURE__ */withIconCompositing(StickyNote$1);
 const Sun = /* @__PURE__ */withIconCompositing(Sun$1);
 const SwatchBook = /* @__PURE__ */withIconCompositing(SwatchBook$1);
 const Tag$1 = /* @__PURE__ */withIconCompositing(Tag$2);
 const ThumbsDown = /* @__PURE__ */withIconCompositing(ThumbsDown$1);
 const ThumbsUp = /* @__PURE__ */withIconCompositing(ThumbsUp$1);
-
 const Trash2Icon = /* @__PURE__ */withIconCompositing(Trash2$1);
 const TrendingUp = /* @__PURE__ */withIconCompositing(TrendingUp$1);
 const TriangleAlert = /* @__PURE__ */withIconCompositing(TriangleAlert$1);
 const TriangleAlertIcon = /* @__PURE__ */withIconCompositing(TriangleAlert$1);
 const Tv = /* @__PURE__ */withIconCompositing(Tv$1);
-
 const Underline$1 = /* @__PURE__ */withIconCompositing(Underline$2);
 const Undo2 = /* @__PURE__ */withIconCompositing(Undo2$1);
-
 const UploadIcon$1 = /* @__PURE__ */withIconCompositing(Upload$1);
 const User = /* @__PURE__ */withIconCompositing(User$1);
 const UserRound = /* @__PURE__ */withIconCompositing(UserRound$1);
 const UserRoundPlus = /* @__PURE__ */withIconCompositing(UserRoundPlus$1);
-
 const UsersIcon = /* @__PURE__ */withIconCompositing(Users$1);
 const Video = /* @__PURE__ */withIconCompositing(Video$1);
 const VideoOff = /* @__PURE__ */withIconCompositing(VideoOff$1);
 const Volume2 = /* @__PURE__ */withIconCompositing(Volume2$1);
 const Volume2Icon = /* @__PURE__ */withIconCompositing(Volume2$1);
-
 const VolumeXIcon = /* @__PURE__ */withIconCompositing(VolumeX$1);
 const Wand2 = /* @__PURE__ */withIconCompositing(WandSparkles$1);
 const WandSparkles = /* @__PURE__ */withIconCompositing(WandSparkles$1);
@@ -19269,25 +18881,6 @@ function withArtworkOpacity(style2, opacity) {
     filter: [style2?.filter === "none" ? void 0 : style2?.filter, `opacity(${opacity})`].filter(Boolean).join(" ")
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const UNINITIALIZED = {};
 function useRefWithInit(init2, initArg) {
   const ref = reactExports.useRef(UNINITIALIZED);
@@ -19301,7 +18894,6 @@ let currentInstance = void 0;
 function getInstance() {
   return currentInstance;
 }
-
 function fastComponent(fn2) {
   const FastComponent = (props, forwardedRef) => {
     const instance2 = useRefWithInit(createInstance).current;
@@ -19395,161 +18987,6 @@ function useTimeout() {
   const timeout2 = useRefWithInit(Timeout.create).current;
   useOnMount(timeout2.disposeEffect);
   return timeout2;
-}
-function hasWindow() {
-  return typeof window !== "undefined";
-}
-function getNodeName(node2) {
-  if (isNode$1(node2)) {
-    return (node2.nodeName || "").toLowerCase();
-  }
-  return "#document";
-}
-function getWindow$1(node2) {
-  var _node$ownerDocument;
-  return (node2 == null || (_node$ownerDocument = node2.ownerDocument) == null ? void 0 : _node$ownerDocument.defaultView) || window;
-}
-function getDocumentElement(node2) {
-  var _ref;
-  return (_ref = (isNode$1(node2) ? node2.ownerDocument : node2.document) || window.document) == null ? void 0 : _ref.documentElement;
-}
-function isNode$1(value) {
-  if (!hasWindow()) {
-    return false;
-  }
-  return value instanceof Node || value instanceof getWindow$1(value).Node;
-}
-function isElement(value) {
-  if (!hasWindow()) {
-    return false;
-  }
-  return value instanceof Element || value instanceof getWindow$1(value).Element;
-}
-function isHTMLElement$1(value) {
-  if (!hasWindow()) {
-    return false;
-  }
-  return value instanceof HTMLElement || value instanceof getWindow$1(value).HTMLElement;
-}
-function isShadowRoot(value) {
-  if (!hasWindow() || typeof ShadowRoot === "undefined") {
-    return false;
-  }
-  return value instanceof ShadowRoot || value instanceof getWindow$1(value).ShadowRoot;
-}
-function isOverflowElement(element2) {
-  const {
-    overflow,
-    overflowX,
-    overflowY,
-    display
-  } = getComputedStyle$1(element2);
-  return /auto|scroll|overlay|hidden|clip/.test(overflow + overflowY + overflowX) && display !== "inline" && display !== "contents";
-}
-function isTableElement(element2) {
-  return /^(table|td|th)$/.test(getNodeName(element2));
-}
-function isTopLayer(element2) {
-  try {
-    if (element2.matches(":popover-open")) {
-      return true;
-    }
-  } catch (_e2) {}
-  try {
-    return element2.matches(":modal");
-  } catch (_e2) {
-    return false;
-  }
-}
-const willChangeRe = /transform|translate|scale|rotate|perspective|filter/;
-const containRe = /paint|layout|strict|content/;
-const isNotNone = value => !!value && value !== "none";
-let isWebKitValue;
-function isContainingBlock(elementOrCss) {
-  const css2 = isElement(elementOrCss) ? getComputedStyle$1(elementOrCss) : elementOrCss;
-  return isNotNone(css2.transform) || isNotNone(css2.translate) || isNotNone(css2.scale) || isNotNone(css2.rotate) || isNotNone(css2.perspective) || !isWebKit$2() && (isNotNone(css2.backdropFilter) || isNotNone(css2.filter)) || willChangeRe.test(css2.willChange || "") || containRe.test(css2.contain || "");
-}
-function getContainingBlock(element2) {
-  let currentNode = getParentNode(element2);
-  while (isHTMLElement$1(currentNode) && !isLastTraversableNode(currentNode)) {
-    if (isContainingBlock(currentNode)) {
-      return currentNode;
-    } else if (isTopLayer(currentNode)) {
-      return null;
-    }
-    currentNode = getParentNode(currentNode);
-  }
-  return null;
-}
-function isWebKit$2() {
-  if (isWebKitValue == null) {
-    isWebKitValue = typeof CSS !== "undefined" && CSS.supports && CSS.supports("-webkit-backdrop-filter", "none");
-  }
-  return isWebKitValue;
-}
-function isLastTraversableNode(node2) {
-  return /^(html|body|#document)$/.test(getNodeName(node2));
-}
-function getComputedStyle$1(element2) {
-  return getWindow$1(element2).getComputedStyle(element2);
-}
-function getNodeScroll(element2) {
-  if (isElement(element2)) {
-    return {
-      scrollLeft: element2.scrollLeft,
-      scrollTop: element2.scrollTop
-    };
-  }
-  return {
-    scrollLeft: element2.scrollX,
-    scrollTop: element2.scrollY
-  };
-}
-function getParentNode(node2) {
-  if (getNodeName(node2) === "html") {
-    return node2;
-  }
-  const result =
-  // Step into the shadow DOM of the parent of a slotted node.
-  node2.assignedSlot ||
-  // DOM Element detected.
-  node2.parentNode ||
-  // ShadowRoot detected.
-  isShadowRoot(node2) && node2.host ||
-  // Fallback.
-  getDocumentElement(node2);
-  return isShadowRoot(result) ? result.host : result;
-}
-function getNearestOverflowAncestor(node2) {
-  const parentNode2 = getParentNode(node2);
-  if (isLastTraversableNode(parentNode2)) {
-    return node2.ownerDocument ? node2.ownerDocument.body : node2.body;
-  }
-  if (isHTMLElement$1(parentNode2) && isOverflowElement(parentNode2)) {
-    return parentNode2;
-  }
-  return getNearestOverflowAncestor(parentNode2);
-}
-function getOverflowAncestors(node2, list2, traverseIframes) {
-  var _node$ownerDocument2;
-  if (list2 === void 0) {
-    list2 = [];
-  }
-  if (traverseIframes === void 0) {
-    traverseIframes = true;
-  }
-  const scrollableAncestor = getNearestOverflowAncestor(node2);
-  const isBody = scrollableAncestor === ((_node$ownerDocument2 = node2.ownerDocument) == null ? void 0 : _node$ownerDocument2.body);
-  const win2 = getWindow$1(scrollableAncestor);
-  if (isBody) {
-    const frameElement = getFrameElement(win2);
-    return list2.concat(win2, win2.visualViewport || [], isOverflowElement(scrollableAncestor) ? scrollableAncestor : [], frameElement && traverseIframes ? getOverflowAncestors(frameElement) : []);
-  } else {
-    return list2.concat(scrollableAncestor, getOverflowAncestors(scrollableAncestor, [], traverseIframes));
-  }
-}
-function getFrameElement(win2) {
-  return win2.parent && Object.getPrototypeOf(win2.parent) ? win2.frameElement : null;
 }
 const hasNavigator = typeof navigator !== "undefined";
 const nav$2 = getNavigatorData();
@@ -19749,134 +19186,8 @@ function isClickLikeEvent(event) {
   const type2 = event.type;
   return type2 === "click" || type2 === "mousedown" || type2 === "keydown" || type2 === "keyup";
 }
-const sides = ["top", "right", "bottom", "left"];
-const alignments = ["start", "end"];
-const placements = /* @__PURE__ */sides.reduce((acc, side) => acc.concat(side, side + "-" + alignments[0], side + "-" + alignments[1]), []);
-const min$2 = Math.min;
-const max$2 = Math.max;
-const round = Math.round;
-const floor = Math.floor;
-const createCoords = v2 => ({
-  x: v2,
-  y: v2
-});
-const oppositeSideMap = {
-  left: "right",
-  right: "left",
-  bottom: "top",
-  top: "bottom"
-};
 function clamp$b(start2, value, end2) {
   return max$2(start2, min$2(value, end2));
-}
-function evaluate(value, param) {
-  return typeof value === "function" ? value(param) : value;
-}
-function getSide$1(placement) {
-  return placement.split("-")[0];
-}
-function getAlignment(placement) {
-  return placement.split("-")[1];
-}
-function getOppositeAxis(axis) {
-  return axis === "x" ? "y" : "x";
-}
-function getAxisLength(axis) {
-  return axis === "y" ? "height" : "width";
-}
-function getSideAxis(placement) {
-  const firstChar = placement[0];
-  return firstChar === "t" || firstChar === "b" ? "y" : "x";
-}
-function getAlignmentAxis(placement) {
-  return getOppositeAxis(getSideAxis(placement));
-}
-function getAlignmentSides(placement, rects, rtl) {
-  if (rtl === void 0) {
-    rtl = false;
-  }
-  const alignment = getAlignment(placement);
-  const alignmentAxis = getAlignmentAxis(placement);
-  const length2 = getAxisLength(alignmentAxis);
-  let mainAlignmentSide = alignmentAxis === "x" ? alignment === (rtl ? "end" : "start") ? "right" : "left" : alignment === "start" ? "bottom" : "top";
-  if (rects.reference[length2] > rects.floating[length2]) {
-    mainAlignmentSide = getOppositePlacement(mainAlignmentSide);
-  }
-  return [mainAlignmentSide, getOppositePlacement(mainAlignmentSide)];
-}
-function getExpandedPlacements(placement) {
-  const oppositePlacement = getOppositePlacement(placement);
-  return [getOppositeAlignmentPlacement(placement), oppositePlacement, getOppositeAlignmentPlacement(oppositePlacement)];
-}
-function getOppositeAlignmentPlacement(placement) {
-  return placement.includes("start") ? placement.replace("start", "end") : placement.replace("end", "start");
-}
-const lrPlacement = ["left", "right"];
-const rlPlacement = ["right", "left"];
-const tbPlacement = ["top", "bottom"];
-const btPlacement = ["bottom", "top"];
-function getSideList(side, isStart, rtl) {
-  switch (side) {
-    case "top":
-    case "bottom":
-      if (rtl) return isStart ? rlPlacement : lrPlacement;
-      return isStart ? lrPlacement : rlPlacement;
-    case "left":
-    case "right":
-      return isStart ? tbPlacement : btPlacement;
-    default:
-      return [];
-  }
-}
-function getOppositeAxisPlacements(placement, flipAlignment, direction, rtl) {
-  const alignment = getAlignment(placement);
-  let list2 = getSideList(getSide$1(placement), direction === "start", rtl);
-  if (alignment) {
-    list2 = list2.map(side => side + "-" + alignment);
-    if (flipAlignment) {
-      list2 = list2.concat(list2.map(getOppositeAlignmentPlacement));
-    }
-  }
-  return list2;
-}
-function getOppositePlacement(placement) {
-  const side = getSide$1(placement);
-  return oppositeSideMap[side] + placement.slice(side.length);
-}
-function expandPaddingObject(padding) {
-  return {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    ...padding
-  };
-}
-function getPaddingObject(padding) {
-  return typeof padding !== "number" ? expandPaddingObject(padding) : {
-    top: padding,
-    right: padding,
-    bottom: padding,
-    left: padding
-  };
-}
-function rectToClientRect(rect) {
-  const {
-    x: x2,
-    y: y4,
-    width,
-    height
-  } = rect;
-  return {
-    width,
-    height,
-    top: y4,
-    left: x2,
-    right: x2 + width,
-    bottom: y4 + height,
-    x: x2,
-    y: y4
-  };
 }
 function isDifferentGridRow(index2, cols, prevRow) {
   return Math.floor(index2 / cols) !== prevRow;
@@ -24802,7 +24113,6 @@ function useStoreR19(store, selector2, a1, a2, a3) {
   const getSelection2 = reactExports.useCallback(() => selector2(store.getSnapshot(), a1, a2, a3), [store, selector2, a1, a2, a3]);
   return shimExports.useSyncExternalStore(store.subscribe, getSelection2, getSelection2);
 }
-
 function useStoreFast(store, selector2, a1, a2, a3) {
   const instance2 = getInstance();
   if (!instance2) {
@@ -28489,18 +27799,10 @@ function clsx() {
   for (var e2, t2, f2 = 0, n2 = "", o2 = arguments.length; f2 < o2; f2++) (e2 = arguments[f2]) && (t2 = r$6(e2)) && (n2 && (n2 += " "), n2 += t2);
   return n2;
 }
-
-
-
-
-
-
 const BODY = "M98.2014 38.8205L98.2662 45.3986V103.694C98.2662 107.132 96.9005 110.429 94.4697 112.86C92.0389 115.29 88.7421 116.656 85.3044 116.656H20.4955C17.0578 116.656 13.7609 115.29 11.3301 112.86C8.8993 110.429 7.53369 107.132 7.53369 103.694V12.9618C7.53369 9.5241 8.8993 6.22722 11.3301 3.79642C13.7609 1.36561 17.0578 0 20.4955 0H54.6822C57.7217 0 60.6576 1.06287 62.9907 3.00713L95.8747 30.4602C97.3459 31.6916 98.2014 33.5127 98.2014 35.4375V38.8141V38.8205Z";
 const FOLD = "M61.2405 4.17435C60.5923 3.62919 59.6022 4.08643 59.5969 4.93342L59.4548 27.6103C59.4538 28.6239 59.6531 29.6278 60.0412 30.5642C60.4294 31.5006 60.9987 32.3511 61.7165 33.0667C62.4344 33.7824 63.2866 34.3492 64.2241 34.7345C65.1617 35.1198 66.1662 35.316 67.1798 35.3119H95.5234C96.4565 35.3119 96.8812 34.1472 96.167 33.5466L61.2405 4.17435Z";
 const ARCHIVE_ZIPPER = "M11.1768 32.8037C12.1608 32.8037 12.9589 33.6009 12.959 34.585C12.959 35.569 12.1608 36.3672 11.1768 36.3672H6.47949V39.2822H11.1768C12.1608 39.2822 12.959 40.0804 12.959 41.0645C12.9589 42.0484 12.1608 42.8457 11.1768 42.8457H6.47949V46.0859H1.78223C0.79817 46.0859 -8.60288e-08 45.2878 0 44.3037C9.98125e-05 43.3197 0.798231 42.5225 1.78223 42.5225H6.47949V39.6064H1.78223C0.79817 39.6064 -8.60288e-08 38.8083 0 37.8242C0.000227585 36.8404 0.79831 36.043 1.78223 36.043H6.47949V32.8037H11.1768ZM11.1768 26C12.1608 26 12.959 26.7982 12.959 27.7822C12.9588 28.7661 12.1607 29.5635 11.1768 29.5635H6.47949V32.8037H1.78223C0.798182 32.8037 1.94808e-05 32.0055 0 31.0215C8.60291e-08 30.0374 0.79817 29.2393 1.78223 29.2393H6.47949V26H11.1768ZM6.79492 0C9.82327 0.000105874 12.3238 2.36775 12.4883 5.3916L12.9961 14.7529C13.1891 18.3098 10.3571 21.2997 6.79492 21.2998C3.23269 21.2998 0.400744 18.3099 0.59375 14.7529L1.10254 5.3916C1.26706 2.36773 3.76653 3.69844e-05 6.79492 0ZM6.79492 10.5C4.45169 10.5 2.55176 12.3999 2.55176 14.7432C2.55192 17.0863 4.45179 18.9853 6.79492 18.9854C9.13799 18.9852 11.0379 17.0862 11.0381 14.7432C11.0381 12.4 9.13809 10.5001 6.79492 10.5Z";
 const JPEG = "M15.9119 63.7994H20.071V75.8676C20.0653 76.9983 19.7955 77.9869 19.2614 78.8335C18.7273 79.6744 17.9886 80.3278 17.0455 80.7937C16.108 81.2596 15.0227 81.4926 13.7898 81.4926C12.6989 81.4926 11.7074 81.3023 10.8153 80.9216C9.92898 80.5409 9.22159 79.95 8.69318 79.1489C8.17045 78.3477 7.91193 77.3221 7.91761 76.0721H12.1193C12.1364 76.521 12.2216 76.9045 12.375 77.2227C12.5341 77.5352 12.7528 77.771 13.0312 77.9301C13.3097 78.0892 13.642 78.1687 14.0284 78.1687C14.4318 78.1687 14.7727 78.0835 15.0511 77.9131C15.3295 77.7369 15.5398 77.4784 15.6818 77.1375C15.8295 76.7966 15.9063 76.3733 15.9119 75.8676V63.7994ZM25.1195 81.254V63.7994H32.3297C33.6365 63.7994 34.7643 64.0551 35.7132 64.5665C36.6678 65.0721 37.4036 65.7795 37.9206 66.6886C38.4376 67.592 38.6962 68.6432 38.6962 69.842C38.6962 71.0466 38.432 72.1006 37.9036 73.004C37.3808 73.9017 36.6337 74.5977 35.6621 75.092C34.6905 75.5864 33.5371 75.8335 32.2018 75.8335H27.753V72.5096H31.4178C32.0541 72.5096 32.5854 72.3989 33.0115 72.1773C33.4433 71.9557 33.77 71.646 33.9916 71.2483C34.2132 70.8449 34.324 70.3761 34.324 69.842C34.324 69.3023 34.2132 68.8364 33.9916 68.4443C33.77 68.0466 33.4433 67.7398 33.0115 67.5239C32.5797 67.3079 32.0484 67.2 31.4178 67.2H29.3382V81.254H25.1195ZM43.1757 81.254V63.7994H55.3462V67.2256H47.3945V70.8051H54.724V74.2398H47.3945V77.8278H55.3462V81.254H43.1757ZM71.8428 69.5011C71.7462 69.1432 71.6041 68.8278 71.4166 68.5551C71.2291 68.2767 70.999 68.0409 70.7263 67.8477C70.4536 67.6545 70.1411 67.5096 69.7888 67.4131C69.4365 67.3108 69.0501 67.2596 68.6297 67.2596C67.7831 67.2596 67.0501 67.4642 66.4308 67.8733C65.8172 68.2824 65.3428 68.879 65.0075 69.6631C64.6723 70.4415 64.5047 71.3875 64.5047 72.5011C64.5047 73.6204 64.6666 74.575 64.9905 75.3648C65.3143 76.1545 65.7831 76.7568 66.3967 77.1716C67.0104 77.5864 67.7547 77.7937 68.6297 77.7937C69.4024 77.7937 70.0558 77.6687 70.5899 77.4187C71.1297 77.1631 71.5388 76.8023 71.8172 76.3364C72.0956 75.8704 72.2348 75.3221 72.2348 74.6915L73.0189 74.7852H68.7746V71.7085H76.3001V74.0182C76.3001 75.5807 75.9678 76.9187 75.303 78.0324C74.6439 79.146 73.7348 80.0011 72.5757 80.5977C71.4223 81.1943 70.0956 81.4926 68.5956 81.4926C66.9308 81.4926 65.4678 81.1318 64.2064 80.4102C62.945 79.6886 61.9621 78.6602 61.2575 77.325C60.553 75.9841 60.2007 74.3932 60.2007 72.5523C60.2007 71.1204 60.4138 69.8506 60.8399 68.7426C61.2661 67.629 61.8598 66.6858 62.6212 65.9131C63.3882 65.1403 64.2746 64.5551 65.2803 64.1574C66.2916 63.7596 67.3797 63.5608 68.5445 63.5608C69.5558 63.5608 70.4962 63.7057 71.3655 63.9954C72.2405 64.2852 73.0132 64.6943 73.6837 65.2227C74.3598 65.7511 74.9081 66.379 75.3286 67.1062C75.749 67.8335 76.0104 68.6318 76.1126 69.5011H71.8428Z";
-
-
 const FILE_TYPE_EXTENSIONS = {
   photoshop: ["psd", "psb"],
   vector: ["ai", "eps", "svg"],
@@ -28591,40 +27893,6 @@ function classifyFileType({
     typeLabel: extension2.toUpperCase() || "FILE"
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const CompositeRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 function useCompositeRootContext(optional = false) {
   const context = reactExports.useContext(CompositeRootContext);
@@ -28877,9 +28145,6 @@ const cva = (base2, config2) => props => {
   }, []);
   return cx(base2, getVariantClassNames, getCompoundVariantClassNames, props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);
 };
-
-
-
 function __insertCSS(code2) {
   if (typeof document == "undefined") return;
   let head2 = document.head || document.getElementsByTagName("head")[0];
@@ -29940,7 +29205,6 @@ const dedupedToast = (message2, data2) =>
 // `toast.message` follows Sonner's update-by-id path. The callable helper
 // uses a separate history path that can retain duplicate ids.
 toast.message(message2, withAutomaticDedupeId("normal", message2, data2));
-
 function useRender(params) {
   return useRenderElement(params.defaultTagName ?? "div", params, params);
 }
@@ -32316,7 +31580,6 @@ function useMenuParent() {
   }, [contextMenuContext, parentContext, menubarContext]);
   return parent;
 }
-
 const MenuSubmenuTrigger = /* @__PURE__ */reactExports.forwardRef(function SubmenuTriggerComponent(componentProps, forwardedRef) {
   const {
     render: render2,
@@ -32433,11 +31696,6 @@ const MenuSubmenuTrigger = /* @__PURE__ */reactExports.forwardRef(function Subme
   });
   return element2;
 });
-
-
-
-
-
 const PROMPT_FONT_SIZE_MIN = 8;
 const PROMPT_FONT_SIZE_MAX = 36;
 const PROMPT_FONT_SIZE_DEFAULT = 15;
@@ -35055,7 +34313,6 @@ function useSelectGroupContext() {
   }
   return context;
 }
-
 function areArraysEqual$1(array1, array2, itemComparer = (a2, b3) => a2 === b3) {
   return array1.length === array2.length && array1.every((value, index2) => itemComparer(value, array2[index2]));
 }
@@ -36753,8 +36010,6 @@ const PreviewCardPopup = /* @__PURE__ */reactExports.forwardRef(function Preview
   });
   return element2;
 });
-
-
 const PopoverRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 function usePopoverRootContext(optional) {
   const context = reactExports.useContext(PopoverRootContext);
@@ -37446,8 +36701,6 @@ const PopoverArrow$1 = /* @__PURE__ */reactExports.forwardRef(function PopoverAr
   });
   return element2;
 });
-
-
 
 /*!
  * Copyright (c) 2026-present, Vanilagy and contributors
@@ -58439,8 +57692,6 @@ const queryInputTracks = async (tracks, query) => {
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 polyfillSymbolDispose();
-
-
 class UnsupportedInputFormatError extends Error {
   /** Creates a new {@link UnsupportedInputFormatError}. */
   constructor(message2 = "Input has an unsupported or unrecognizable format.") {
@@ -67567,7 +66818,6 @@ var readMp3FrameHeader = (word, remainingBytes) => {
     bytesAdvanced: 1
   };
 };
-
 const DialogRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 function useDialogRootContext(optional) {
   const dialogRootContext = reactExports.useContext(DialogRootContext);
@@ -68116,7 +67366,6 @@ const DialogTrigger$1 = /* @__PURE__ */reactExports.forwardRef(function DialogTr
     stateAttributesMapping: triggerOpenStateMapping$1
   });
 });
-
 var __defProp$2 = Object.defineProperty;
 var __exportAll = (all2, no_symbols) => {
   let target = {};
@@ -73714,106 +72963,6 @@ function changedNodeViews(a2, b3) {
 }
 function checkStateComponent(plugin) {
   if (plugin.spec.state || plugin.spec.filterTransaction || plugin.spec.appendTransaction) throw new RangeError("Plugins passed directly to the view must not have a state component");
-}
-var base = {
-  8: "Backspace",
-  9: "Tab",
-  10: "Enter",
-  12: "NumLock",
-  13: "Enter",
-  16: "Shift",
-  17: "Control",
-  18: "Alt",
-  20: "CapsLock",
-  27: "Escape",
-  32: " ",
-  33: "PageUp",
-  34: "PageDown",
-  35: "End",
-  36: "Home",
-  37: "ArrowLeft",
-  38: "ArrowUp",
-  39: "ArrowRight",
-  40: "ArrowDown",
-  44: "PrintScreen",
-  45: "Insert",
-  46: "Delete",
-  59: ";",
-  61: "=",
-  91: "Meta",
-  92: "Meta",
-  106: "*",
-  107: "+",
-  108: ",",
-  109: "-",
-  110: ".",
-  111: "/",
-  144: "NumLock",
-  145: "ScrollLock",
-  160: "Shift",
-  161: "Shift",
-  162: "Control",
-  163: "Control",
-  164: "Alt",
-  165: "Alt",
-  173: "-",
-  186: ";",
-  187: "=",
-  188: ",",
-  189: "-",
-  190: ".",
-  191: "/",
-  192: "`",
-  219: "[",
-  220: "\\",
-  221: "]",
-  222: "'"
-};
-var shift = {
-  48: ")",
-  49: "!",
-  50: "@",
-  51: "#",
-  52: "$",
-  53: "%",
-  54: "^",
-  55: "&",
-  56: "*",
-  57: "(",
-  59: ":",
-  61: "+",
-  173: "_",
-  186: ":",
-  187: "+",
-  188: "<",
-  189: "_",
-  190: ">",
-  191: "?",
-  192: "~",
-  219: "{",
-  220: "|",
-  221: "}",
-  222: '"'
-};
-var mac$1 = typeof navigator != "undefined" && /Mac/.test(navigator.platform);
-var ie$5 = typeof navigator != "undefined" && /MSIE \d|Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(navigator.userAgent);
-for (var i$3 = 0; i$3 < 10; i$3++) base[48 + i$3] = base[96 + i$3] = String(i$3);
-for (var i$3 = 1; i$3 <= 24; i$3++) base[i$3 + 111] = "F" + i$3;
-for (var i$3 = 65; i$3 <= 90; i$3++) {
-  base[i$3] = String.fromCharCode(i$3 + 32);
-  shift[i$3] = String.fromCharCode(i$3);
-}
-for (var code$3 in base) if (!shift.hasOwnProperty(code$3)) shift[code$3] = base[code$3];
-function keyName(event) {
-  var ignoreKey = mac$1 && event.metaKey && event.shiftKey && !event.ctrlKey && !event.altKey || ie$5 && event.shiftKey && event.key && event.key.length == 1 || event.key == "Unidentified";
-  var name2 = !ignoreKey && event.key || (event.shiftKey ? shift : base)[event.keyCode] || event.key || "Unidentified";
-  if (name2 == "Esc") name2 = "Escape";
-  if (name2 == "Del") name2 = "Delete";
-  if (name2 == "Left") name2 = "ArrowLeft";
-  if (name2 == "Up") name2 = "ArrowUp";
-  if (name2 == "Right") name2 = "ArrowRight";
-  if (name2 == "Down") name2 = "ArrowDown";
-  return name2;
 }
 const mac = typeof navigator != "undefined" && /Mac|iP(hone|[oa]d)/.test(navigator.platform);
 const windows = typeof navigator != "undefined" && /Win/.test(navigator.platform);
@@ -86101,87 +85250,6 @@ const StarterKit = Extension.create({
     return extensions2;
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const FieldsetRootContext = /* @__PURE__ */reactExports.createContext({
   legendId: void 0,
   setLegendId: () => {},
@@ -86698,63 +85766,7 @@ function useCheckboxGroupContext(optional = true) {
   }
   return context;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var Xt$2 = Object.defineProperty;
-
 var a$1 = (t2, e2) => () => (t2 && (e2 = t2(t2 = 0)), e2);
 var s$4 = (t2, e2) => {
   for (var p3 in e2) Xt$2(t2, p3, {
@@ -87780,14 +86792,6 @@ var xe$1,
       match: /[a-zA-Z]\w*(?=:)/g
     }];
   });
-
-
-
-
-
-
-
-
 function commonjsRequire(path2) {
   throw new Error('Could not dynamically require "' + path2 + '". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.');
 }
@@ -112173,38 +111177,6 @@ __webpack_exports__.setLayerDimensions;
 __webpack_exports__.shadow;
 __webpack_exports__.stopEvent;
 __webpack_exports__.version;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function useCombinedRefs() {
   for (var _len = arguments.length, refs = new Array(_len), _key = 0; _key < _len; _key++) {
     refs[_key] = arguments[_key];
@@ -116324,44 +115296,6 @@ function isAfter$1(a2, b3) {
   }
   return a2.data.current.sortable.index < b3.data.current.sortable.index;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 let CheckboxRootDataAttributes = /* @__PURE__ */function (CheckboxRootDataAttributes2) {
   CheckboxRootDataAttributes2["checked"] = "data-checked";
   CheckboxRootDataAttributes2["unchecked"] = "data-unchecked";
@@ -116654,79 +115588,11 @@ const CheckboxRoot = /* @__PURE__ */reactExports.forwardRef(function CheckboxRoo
     })]
   });
 });
-
-
-
-
-
 const Operation = {
   Remove: "remove",
   Replace: "replace",
   Add: "add"
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "function" == typeof SuppressedError && SuppressedError;
 const r$5 = t2 => "replace" === t2.op && 0 === t2.path.length,
   n$1 = (t2, e2) => {
@@ -116840,32 +115706,6 @@ const r$5 = t2 => "replace" === t2.op && 0 === t2.path.length,
     }
     return true;
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function ok$1() {}
 function unreachable() {}
 function parse$2(value) {
@@ -130838,12 +129678,6 @@ function remarkGfm(options) {
   fromMarkdownExtensions.push(gfmFromMarkdown());
   toMarkdownExtensions.push(gfmToMarkdown(settings));
 }
-
-
-
-
-
-
 let readFromCache;
 let addToCache;
 if (typeof WeakMap != "undefined") {
@@ -135165,23 +133999,6 @@ g$2.walkTokens;
 g$2.parseInline;
 b$4.parse;
 x$6.lex;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function combineDOMRects(rect1, rect2) {
   const top2 = Math.min(rect1.top, rect2.top);
   const bottom = Math.max(rect1.bottom, rect2.bottom);
@@ -136183,29 +135000,6 @@ React.forwardRef(({
   }, [pluginInitialized, pluginEditor, updateDelay, resizeDelay, shouldShow, options, appendTo, resolvedPluginKey]);
   return reactDomExports.createPortal(children2, menuEl.current);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 let rangeFrom = [],
   rangeTo = [];
 function isExtendingChar(code2) {
@@ -137928,7 +136722,6 @@ class CompartmentInstance {
     return this;
   }
 }
-
 function flatten(extension2, compartments, newCompartments) {
   let result = [[], [], [], [], []];
   let seen2 = /* @__PURE__ */new Map();
@@ -139251,7 +138044,6 @@ function setAttrs(dom, attrs) {
     if (name2 == "style") dom.style.cssText = value;else if (dom.getAttribute(name2) != value) dom.setAttribute(name2, value);
   }
 }
-
 function getAttrs$1(dom) {
   let attrs = /* @__PURE__ */Object.create(null);
   for (let i2 = 0; i2 < dom.attributes.length; i2++) {
@@ -139932,7 +138724,6 @@ const ArabicTypes = /* @__PURE__ */dec("4444448826627288999999999992222222222222
 function charType(ch) {
   return ch <= 247 ? LowTypes[ch] : 1424 <= ch && ch <= 1524 ? 2 : 1536 <= ch && ch <= 1785 ? ArabicTypes[ch - 1536] : 1774 <= ch && ch <= 2220 ? 4 : 8192 <= ch && ch <= 8204 ? 256 : 64336 <= ch && ch <= 65023 ? 4 : 1;
 }
-
 class BidiSpan {
   /**
   The direction of this span.
@@ -139985,10 +138776,6 @@ function isolatesEq(a2, b3) {
   }
   return true;
 }
-
-
-
-
 let movedOver = "";
 function moveVisually(line, order2, dir, start2, forward) {
   var _a2;
@@ -140020,14 +138807,11 @@ function autoDirection(text2, from2, to) {
 }
 const clickAddsSelectionRange = /* @__PURE__ */Facet.define();
 const dragMovesSelection$1 = /* @__PURE__ */Facet.define();
-
 const exceptionSink = /* @__PURE__ */Facet.define();
-
 const inputHandler = /* @__PURE__ */Facet.define();
 const focusChangeEffect = /* @__PURE__ */Facet.define();
 const clipboardInputFilter = /* @__PURE__ */Facet.define();
 const clipboardOutputFilter = /* @__PURE__ */Facet.define();
-
 const nativeSelectionHidden = /* @__PURE__ */Facet.define({
   combine: values3 => values3.some(x2 => x2)
 });
@@ -144465,11 +143249,6 @@ function scaleBlock(block, scaler) {
     bBottom = scaler.toDOM(block.bottom);
   return new BlockInfo(block.from, block.length, bTop, bBottom - bTop, Array.isArray(block._content) ? block._content.map(b3 => scaleBlock(b3, scaler)) : block._content);
 }
-
-
-
-
-
 const observeOptions = {
   childList: true,
   characterData: true,
@@ -144477,7 +143256,6 @@ const observeOptions = {
   attributes: true,
   characterDataOldValue: true
 };
-
 function findChild(tile, dom, dir) {
   while (dom) {
     let curTile = Tile.get(dom);
@@ -144728,8 +143506,6 @@ class EditContextManager {
     for (let event in this.handlers) this.editContext.removeEventListener(event, this.handlers[event]);
   }
 }
-
-
 class CachedOrder {
   constructor(from2, to, dir, isolates, fresh, order2) {
     this.from = from2;
@@ -145321,8 +144097,6 @@ let Range$1 = class Range3 {
     this.to = to;
   }
 };
-
-
 var IterMode;
 (function (IterMode2) {
   IterMode2[IterMode2["ExcludeBuffers"] = 1] = "ExcludeBuffers";
@@ -146597,7 +145371,6 @@ function getHighlighters(state2) {
   let main2 = state2.facet(highlighterFacet);
   return main2.length ? main2 : state2.facet(fallbackHighlighter);
 }
-
 function matchPlainBrackets(state2, pos, dir, tree, tokenType, maxScanDistance, brackets) {
   if (dir < 0 ? !pos : pos == state2.doc.length) return null;
   let startCh = dir < 0 ? state2.sliceDoc(pos - 1, pos) : state2.sliceDoc(pos, pos + 1);
@@ -147835,7 +146608,6 @@ class LeafBlock {
     this.parsers = [];
   }
 }
-
 function space$2(ch) {
   return ch == 32 || ch == 9 || ch == 10 || ch == 13;
 }
@@ -147847,7 +146619,6 @@ function skipSpaceBack(line, i2, to) {
   while (i2 > to && space$2(line.charCodeAt(i2 - 1))) i2--;
   return i2;
 }
-
 function isBlockquote(line) {
   return line.next != 62 ? -1 : line.text.charCodeAt(line.pos + 1) == 32 ? 2 : 1;
 }
@@ -147858,7 +146629,6 @@ function inList(cx2, type2) {
 function isBulletList(line, cx2, breaking) {
   return (line.next == 45 || line.next == 43 || line.next == 42) && (line.pos == line.text.length - 1 || space$2(line.text.charCodeAt(line.pos + 1))) && (!breaking || inList(cx2, Type.BulletList) || line.skipSpace(line.pos + 2) < line.text.length) ? 1 : -1;
 }
-
 function isAtxHeading(line) {
   if (line.next != 35) return -1;
   let pos = line.pos + 1;
@@ -147953,9 +146723,6 @@ class TreeElement {
     return this.tree;
   }
 }
-
-
-
 class InlineDelimiter {
   constructor(type2, from2, to, side) {
     this.type = type2;
@@ -147964,7 +146731,6 @@ class InlineDelimiter {
     this.side = side;
   }
 }
-
 let Punctuation = /[!"#$%&'()*+,\-.\/:;<=>?@\[\\\]^_`{|}~\xA1\u2010-\u2027]/;
 try {
   Punctuation = new RegExp("[\\p{S}|\\p{P}]", "u");
@@ -149264,7 +148030,6 @@ function findFinished(stacks) {
   }
   return best;
 }
-
 const scriptText = 55,
   StartCloseScriptTag = 1,
   styleText = 56,
@@ -149437,9 +148202,6 @@ const lessThan = 60,
   question$1 = 63,
   bang = 33,
   dash$1 = 45;
-
-
-
 const tagStart = new ExternalTokenizer((input, stack) => {
   if (input.next != lessThan) {
     if (input.next < 0 && stack.context) input.acceptToken(missingCloseTag);
@@ -149707,7 +148469,6 @@ const pseudoClasses = /* @__PURE__ */["active", "after", "any-link", "autofill",
   type: "class",
   label: name2
 }));
-
 const tags = /* @__PURE__ */["a", "abbr", "address", "article", "aside", "b", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "figcaption", "figure", "footer", "form", "header", "hgroup", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "main", "meter", "nav", "ol", "output", "p", "pre", "ruby", "section", "select", "small", "source", "span", "strong", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "tr", "u", "ul"].map(name2 => ({
   type: "type",
   label: name2
@@ -149757,8 +148518,6 @@ const braceR = 125,
   question = 63,
   dot = 46,
   bracketL = 91;
-
-
 const noSemicolon = new ExternalTokenizer((input, stack) => {
   let {
       next: next2
@@ -150538,8 +149297,6 @@ const GlobalAttrs = {
 };
 const eventAttributes = /* @__PURE__ */"beforeunload copy cut dragstart dragover dragleave dragenter dragend drag paste focus blur change click load mousedown mouseenter mouseleave mouseup keydown keyup resize scroll unload".split(" ").map(n2 => "on" + n2);
 for (let a2 of eventAttributes) GlobalAttrs[a2] = null;
-
-
 function elementName(doc2, tree, max2 = doc2.length) {
   if (!tree) return "";
   let tag = tree.firstChild;
@@ -151220,90 +149977,11 @@ function charAfter(str2, index2) {
 function regexpWordTest(categorizer) {
   return (_from, _to, match2) => !match2[0].length || (categorizer(charBefore(match2.input, match2.index)) != CharCategory.Word || categorizer(charAfter(match2.input, match2.index)) != CharCategory.Word) && (categorizer(charAfter(match2.input, match2.index + match2[0].length)) != CharCategory.Word || categorizer(charBefore(match2.input, match2.index + match2[0].length)) != CharCategory.Word);
 }
-
-
-
-
-
 function phrase(view2, phrase2) {
   return view2.state.phrase(phrase2);
 }
 const AnnounceMargin = 30;
 const Break = /[\s\.,:;?!]/;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const useIsomorphicLayoutEffect = typeof document !== "undefined" ? reactExports.useLayoutEffect : reactExports.useEffect;
 function useVirtualizerBase({
   useFlushSync = true,
@@ -151340,42 +150018,6 @@ function useVirtualizer(options) {
     ...options
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const isIterable = obj => Symbol.iterator in obj;
 const hasIterableEntries = value =>
 // HACK: avoid checking entries type
@@ -151429,36 +150071,15 @@ function shallow(valueA, valueB) {
     entries: () => Object.entries(valueB)
   });
 }
-
-
 function flowPointToMiniMap(point2, layout) {
   return {
     x: layout.offsetX + (point2.x - layout.viewBox.x) * layout.scale,
     y: layout.offsetY + (point2.y - layout.viewBox.y) * layout.scale
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const MIN_SELECTED_NODE_SIZE = 4;
 const SELECTED_GLOW_BLUR = 5;
 const NODE_HIT_SLOP = 2;
-
-
-
-
 function nodeToMiniMapRect(node2, layout, minSize = 0) {
   const topLeft = flowPointToMiniMap({
     x: node2.x,
@@ -151475,7 +150096,6 @@ function nodeToMiniMapRect(node2, layout, minSize = 0) {
     height: paddedHeight
   };
 }
-
 const ENTRY_OFFSET = 14;
 const ENTRY_DROP_RADIUS = 24;
 function findHitTarget(nodeLookup, dropFlow, sourceId, excludedTargets) {
@@ -151609,147 +150229,6 @@ function ConnectionTargetMarker({
   }, [store, edges]);
   return null;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function selectGeneratedMediaNodeIds(nodes) {
   return nodes.filter(node2 => {
     if (node2.type !== CanvasNodeType.Image && node2.type !== CanvasNodeType.Video && node2.type !== CanvasNodeType.Audio) return false;
@@ -151759,121 +150238,6 @@ function selectGeneratedMediaNodeIds(nodes) {
     return !("backend" in data2 && data2.backend === BACKEND_VIBE_STORYBOARD) && !isUserProvidedAssetModel(model) && ("source_tool" in data2 && data2.source_tool || model);
   }).map(node2 => node2.id);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var ge = Object.defineProperty;
 var hn$2 = (e2, n2, t2) => n2 in e2 ? ge(e2, n2, {
   enumerable: true,
@@ -152519,141 +150883,6 @@ function Fn$2(e2, n2, t2, r2) {
   }
   return F$3(e2, n2, t2, r2);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function tr$2(e2) {
   e2.nodes().forEach(n2 => {
     if (e2.children(n2).length) {
@@ -152668,36 +150897,6 @@ function tr$2(e2) {
     e2.node(n2).dummy === "border" && e2.removeNode(n2);
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const nameCollator = new Intl.Collator("en", {
   numeric: true,
   sensitivity: "base"
@@ -152753,62 +150952,6 @@ function pinnedTidyNodeIds(nodes) {
   }
   return pinned;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const IMAGE_EDIT_TOOLS = ["redraw", "outpaint", "erase", "super-resolution", "remove-bg", "move-object"];
 const STORAGE_KEY$6 = "hilo:canvas:image-edit:last-used";
 const DEFAULT_TOOL = "redraw";
@@ -152835,7 +150978,6 @@ create$2((set2, get3) => ({
     } catch {}
   }
 }));
-
 async function probeMediaDurationSec(file) {
   const kind = mediaKindFromFile(file);
   if (!kind) return 0;
@@ -152874,20 +151016,6 @@ function mediaKindFromFile(file) {
   if (AUDIO_EXTENSIONS$1.has(ext)) return "audio";
   return void 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 let _cachedConfig = null;
 function getRuntimeConfig() {
   if (_cachedConfig) return _cachedConfig;
@@ -152914,9 +151042,6 @@ function getRuntimeConfig() {
   }
   return _cachedConfig;
 }
-
-
-
 const AUTH_TRACK_EVENTS = {
   AUTH_LOGIN_START: "auth_login_start",
   AUTH_LOGIN_DISPATCH: "auth_login_dispatch",
@@ -152926,24 +151051,7 @@ const AUTH_TRACK_EVENTS = {
   AUTH_LOGIN_CALLBACK_IGNORED: "auth_login_callback_ignored",
   AUTH_LOGOUT: "auth_logout"
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var reactUse = reactExports.use;
-
-
 function useIntersectionObserver(ref, callback, intersectionObserverOptions2 = {}, options = {}) {
   reactExports.useEffect(() => {
     if (!ref.current || options.disabled || typeof IntersectionObserver !== "function") return;
@@ -156673,7 +154781,6 @@ var BaseRootRoute = class extends BaseRoute {
     super(options);
   }
 };
-
 function CatchBoundary(props) {
   const errorComponent = props.errorComponent ?? ErrorComponent;
   return /* @__PURE__ */jsxRuntimeExports.jsx(CatchBoundaryImpl, {
@@ -157869,15 +155976,12 @@ function CatchNotFound(props) {
     children: props.children
   });
 }
-
 function ScriptOnce({
   children: children2
 }) {
   useRouter();
   return null;
 }
-
-
 var scroll_restoration_inline_default = 'function(t){let s;try{s=JSON.parse(sessionStorage.getItem(t.storageKey)||"{}")}catch(e){console.error(e);return}const c=t.key||window.history.state?.__TSR_key,r=c?s[c]:void 0;if(t.shouldScrollRestoration&&r&&typeof r=="object"&&Object.keys(r).length>0){for(const e in r){const o=r[e];if(!o||typeof o!="object")continue;const l=o.scrollX,i=o.scrollY;if(!(!Number.isFinite(l)||!Number.isFinite(i))){if(e==="window")window.scrollTo({top:i,left:l,behavior:t.behavior});else if(e){let n;try{n=document.querySelector(e)}catch{continue}n&&(n.scrollLeft=l,n.scrollTop=i)}}}return}const a=window.location.hash.split("#",2)[1];if(a){const e=window.history.state?.__hashScrollIntoViewOptions??!0;if(e){const o=document.getElementById(a);o&&o.scrollIntoView(e)}return}window.scrollTo({top:0,left:0,behavior:t.behavior})}';
 var defaultInlineScrollRestorationScript = `(${scroll_restoration_inline_default})(${escapeHtml(JSON.stringify({
   storageKey: storageKey$1,
@@ -157909,12 +156013,6 @@ function ScrollRestoration() {
     children: script2
   });
 }
-
-
-
-
-
-
 var getStoreFactory = opts => {
   return {
     createMutableStore: createStore,
@@ -157922,18 +156020,6 @@ var getStoreFactory = opts => {
     batch
   };
 };
-
-
-
-
-
-
-
-
-
-
-
-
 var define_process_env_default = {};
 const isString = obj => typeof obj === "string";
 const defer = () => {
@@ -160179,100 +158265,12 @@ instance.setDefaultNamespace;
 instance.hasLoadedNamespace;
 instance.loadNamespaces;
 instance.loadLanguages;
-
-
-
-
-
-
-
-
-
-
-
-
 function customMcpNameIdentity(name2) {
   return name2.trim().replace(/[^a-zA-Z0-9_-]/gu, "_").toLowerCase();
 }
 function isWorkspaceFolderMissingError(error) {
   return error instanceof Error && error.name === "WorkspaceFolderMissingError";
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function desktopMediaIcon(Glyph) {
   return reactExports.forwardRef(function DesktopMediaIcon({
     size: size2 = 16,
@@ -160285,7 +158283,6 @@ function desktopMediaIcon(Glyph) {
     });
   });
 }
-
 const ICON_STROKE_SPEC = [{
   size: 12,
   stroke: 1,
@@ -160316,28 +158313,7 @@ function getIconStrokeWidth(size2, viewBoxSize = 24) {
   if (!spec) throw new Error(`Unsupported stroke icon size: ${size2}`);
   return spec.stroke * viewBoxSize / size2;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const PlatformContext = reactExports.createContext(null);
-
-
 function usePlatform() {
   const ctx = reactExports.useContext(PlatformContext);
   if (!ctx) throw new Error("usePlatform must be used within AppProviders");
@@ -160381,20 +158357,8 @@ function makeLogger(category) {
     error: (action, meta2) => emit$6(category, "error", action, meta2)
   };
 }
-
-
-
-
 const canvasLog = makeLogger("canvas");
-
-
 const workspaceLog = makeLogger("workspace");
-
-
-
-
-
-
 const TabsRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 function useTabsRootContext() {
   const context = reactExports.useContext(TabsRootContext);
@@ -161393,19 +159357,10 @@ function useActivationDirectionDetector(activeTabValue, orientation, tabsListEle
     return "none";
   }, [getTabElement, orientation, previousTabEdge, tabsListElement, activeTabValue]);
 }
-
 const BROWSER_IMAGE_EDIT_ACTIONS = ["remove-background", "upscale", "describe-prompt", "separate-layers"];
 function isBrowserImageEditAction(value) {
   return typeof value === "string" && BROWSER_IMAGE_EDIT_ACTIONS.includes(value);
 }
-
-
-
-
-
-
-
-
 function workspaceGatewayUrl(binding, path2) {
   const baseUrl = binding.baseUrl.replace(/\/$/, "");
   const requested = new URL(path2, `${baseUrl}/`);
@@ -162397,35 +160352,13 @@ class ApiError extends Error {
     return this.body;
   }
 }
-
-
-
-
-
-
-
-
-
-
 let selectedRequestGroupId = null;
 function setSelectedRequestGroupId(groupId2) {
   selectedRequestGroupId = groupId2;
 }
-
-
-
-
 function normalizeGatewayBaseUrl(gatewayUrl2) {
   return gatewayUrl2?.replace(/\/$/, "") || void 0;
 }
-
-
-
-
-
-
-
-
 function buildRendererCommonParams() {
   const cfg = getRuntimeConfig();
   const deviceId = cfg.deviceId?.trim();
@@ -162488,40 +160421,6 @@ function getDeviceMemory(totalMemoryMb) {
   }
   return void 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var M$3 = (e2, i2, s2, u4, m3, a2, l2, h2) => {
   let d2 = document.documentElement,
     w3 = ["light", "dark"];
@@ -162575,26 +160474,6 @@ reactExports.memo(({
     }
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const GLOBAL_STORAGE_VERSION = 31;
 const GLOBAL_STORAGE_DEFAULTS = {
   _version: GLOBAL_STORAGE_VERSION,
@@ -162703,33 +160582,6 @@ const WORKSPACE_STORAGE_DEFAULTS = {
   hiddenSessionIds: [],
   capabilityCardSelections: {}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 let pendingLogLines = [];
 function flush() {
   if (pendingLogLines.length === 0) return;
@@ -162746,54 +160598,6 @@ function flush() {
     });
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function AlertDialogRoot(props) {
   const {
     children: children2,
@@ -162841,13 +160645,6 @@ function AlertDialogRoot(props) {
     }) : children2
   });
 }
-
-
-
-
-
-
-
 var Subscribable = class {
   constructor() {
     this.listeners = /* @__PURE__ */new Set();
@@ -165821,17 +163618,6 @@ function useMutation(options, queryClient2) {
     mutateAsync: result.mutate
   };
 }
-
-
-
-
-
-
-
-
-
-
-
 function parseCreditAmount(value) {
   if (/^-\d+$/.test(value)) {
     return {
@@ -166005,8 +163791,6 @@ function updateAccountSubmissionDecision(snapshot2, contract, creditSummary = nu
   setSelectedRequestGroupId(selectedScope?.groupId ?? null);
   emit$5();
 }
-
-
 function evaluateAccountSubmission(kind) {
   if (!state.integrationActivated) return {
     allowed: true,
@@ -166126,19 +163910,7 @@ function guardAccountSubmission(kind) {
   }
   return decision;
 }
-
-
-
-
-
-
-
-
-
-
-
 const GatewayScopeContext = reactExports.createContext(null);
-
 function useGatewayScope() {
   const context = reactExports.useContext(GatewayScopeContext);
   if (context) return context;
@@ -166153,26 +163925,10 @@ function useGatewayScope() {
     recoverWorkspace: void 0
   };
 }
-
 function useGatewayBaseUrl() {
   return useGatewayScope().baseUrl;
 }
-
-
-
-
-
-
-
 const QUERY_KEY$1 = ["models"];
-
-
-
-
-
-
-
-
 const CurrentWorkspaceContext = reactExports.createContext("");
 function useCurrentWorkspace() {
   return reactExports.useContext(CurrentWorkspaceContext);
@@ -170495,7 +168251,6 @@ function formatDate(value) {
   return `${year}/${month}/${day}`;
 }
 const ProgressRootContext = /* @__PURE__ */reactExports.createContext(void 0);
-
 let ProgressRootDataAttributes = /* @__PURE__ */function (ProgressRootDataAttributes2) {
   ProgressRootDataAttributes2["complete"] = "data-complete";
   ProgressRootDataAttributes2["indeterminate"] = "data-indeterminate";
@@ -170586,8 +168341,6 @@ const ProgressRoot = /* @__PURE__ */reactExports.forwardRef(function ProgressRoo
     children: element2
   });
 });
-
-
 const ACCOUNT_SENSITIVE_CANVAS_PATHS = /* @__PURE__ */new Set([API_PATHS.speechVoiceDesign, API_PATHS.generateImage, API_PATHS.generateVideo, API_PATHS.generateSpeech, API_PATHS.generateMusic, API_PATHS.generateText, API_PATHS.generateImageSubmit, API_PATHS.generateVideoSubmit, API_PATHS.generateSpeechSubmit, API_PATHS.generateMusicSubmit, API_PATHS.concatenateVideos, API_PATHS.embedAudio, API_PATHS.extractAudio, API_PATHS.voiceIsolation, API_PATHS.lipSync, API_PATHS.asr, API_PATHS.analyzeMedia, API_PATHS.superResolution, API_PATHS.eraseBanana, API_PATHS.redrawBanana, API_PATHS.outpaintBanana, API_PATHS.moveObjectBanana, API_PATHS.removeBackground, API_PATHS.layerDecompose, API_PATHS.enhanceImageMediaKit, API_PATHS.enhanceVideoMediaKit, API_PATHS.hailuo03VideoSuperResolution, API_PATHS.eraseSubtitleMediaKit, API_PATHS.asrMediaKit, API_PATHS.asrWhisper]);
 class AccountSubmissionBlockedError extends Error {
   constructor(reasonCode) {
@@ -170608,45 +168361,6 @@ function guardCanvasAccountRequest(url2, init2) {
     init2.headers = headers;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var lib = {};
 var propTypes = {
   exports: {}
@@ -171706,45 +169420,6 @@ function requireLib() {
   lib.default = QRCode2;
   return lib;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function resolveNewProjectPreferences(config2) {
   const rawPreferences = config2.newProjectPrefs;
   if (!rawPreferences || typeof rawPreferences !== "object" || Array.isArray(rawPreferences)) {
@@ -171804,94 +169479,6 @@ function useNewProjectFolder() {
   }, [folderPath, platform2.fs, setConfig]);
   return [folderPath, setFolderPath];
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function ContextMenuRoot(props) {
   const [anchor, setAnchor] = reactExports.useState({
     getBoundingClientRect() {
@@ -172078,7 +169665,6 @@ const ContextMenuTrigger$1 = /* @__PURE__ */reactExports.forwardRef(function Con
   });
   return element2;
 });
-
 const CDN_BASE_MAP = {
   domestic: "https://cdn.hailuoai.com/hailuo-video-web/public_assets",
   overseas: "https://cdn.hailuoai.video/open-hailuo-video-web/public_assets"
@@ -172087,7 +169673,6 @@ const PUBLIC_ASSET_BASE_MAP = {
   domestic: "https://cdn.hailuoai.com/public_assets",
   overseas: "https://cdn.hailuoai.video/public_assets"
 };
-
 function getCdnRegion() {
   try {
     const {
@@ -172098,13 +169683,10 @@ function getCdnRegion() {
     return "domestic";
   }
 }
-
-
 function cdnPublicAsset(files) {
   const region = getCdnRegion();
   return `${PUBLIC_ASSET_BASE_MAP[region]}/${files[region]}`;
 }
-
 const CDN_BROWSER_START_ICON = {
   light: cdnPublicAsset({
     domestic: "browser-start-light-c973f13f8fb1.png",
@@ -172115,19 +169697,6 @@ const CDN_BROWSER_START_ICON = {
     overseas: "browser-start-dark-96ed32bceae3.png"
   })
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
 const CDN_TOUCHDESIGNER_COMPONENTS = cdnPublicAsset({
   domestic: "touchdesigner-mcp-components-2.0.0.zip",
   overseas: "touchdesigner-mcp-components-2.0.0.zip"
@@ -172141,79 +169710,6 @@ const CONNECTOR_SETUP_ASSET_BY_KEY = {
 function resolveConnectorSetupAsset(setupAssetKey) {
   return CONNECTOR_SETUP_ASSET_BY_KEY[setupAssetKey];
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const AvatarRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 function useAvatarRootContext() {
   const context = reactExports.useContext(AvatarRootContext);
@@ -172316,50 +169812,6 @@ const AvatarImage$1 = /* @__PURE__ */reactExports.forwardRef(function AvatarImag
   }
   return element2;
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const h$4 = reactExports.createContext(null),
   c$3 = {
     didCatch: false,
@@ -172431,35 +169883,6 @@ let m$4 = class m extends reactExports.Component {
 function C$5(r2 = [], e2 = []) {
   return r2.length !== e2.length || r2.some((t2, o2) => !Object.is(t2, e2[o2]));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const FIGMA_DESKTOP_MCP = {
   name: "figma-desktop",
   endpoint: "http://127.0.0.1:3845/mcp"
@@ -172553,7 +169976,6 @@ const SPECIAL_CONNECTORS = {
     matches: server => server.name === LIBTV_CONNECTOR.id && server.transport !== "stdio" && originsMatch(server.endpoint, LIBTV_CONNECTOR.url)
   })
 };
-
 function buildOfficialConnectorList() {
   const result = [];
   for (const factory of Object.values(SPECIAL_CONNECTORS)) {
@@ -172567,19 +169989,6 @@ function buildOfficialConnectorList() {
   }
   return result;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 const aria = ["ariaDescribedBy", "ariaLabel", "ariaLabelledBy"];
 const defaultSchema = {
   ancestors: {
@@ -172926,160 +170335,6 @@ function findDefinition(definitions, key2) {
     return dataDefault;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function isVisibleCloudUpload(item) {
   return item.kind === "upload" && (item.status === "pending" || item.status === "uploading");
 }
@@ -173087,13 +170342,6 @@ function getVisibleCloudUploads(transfers, searchQuery) {
   const query = searchQuery.trim().toLowerCase();
   return transfers.filter(item => isVisibleCloudUpload(item) && item.name.toLowerCase().includes(query));
 }
-
-
-
-
-
-
-
 const ToggleGroupContext$1 = /* @__PURE__ */reactExports.createContext(void 0);
 function useToggleGroupContext(optional = true) {
   const context = reactExports.useContext(ToggleGroupContext$1);
@@ -173277,15 +170525,6 @@ const ToggleGroup$1 = /* @__PURE__ */reactExports.forwardRef(function ToggleGrou
     })
   });
 });
-
-
-
-
-
-
-
-
-
 const BROWSER_ASSET_SOURCE_METADATA_KEYS = {
   pageUrl: "source_page_url",
   pageTitle: "source_page_title",
@@ -173317,15 +170556,6 @@ function browserAssetSourceMetadata(source) {
     } : {})
   };
 }
-
-
-
-
-
-
-
-
-
 function t(t2, e2, i2, n2) {
   return new (i2 || (i2 = Promise))(function (s2, r2) {
     function o2(t3) {
@@ -175018,38 +172248,6 @@ E$4.BasePlugin = class extends e {
     this.emit("destroy"), this.subscriptions.forEach(t2 => t2()), this.subscriptions = [], this.isDestroyed = true, this.wavesurfer = void 0;
   }
 }, E$4.dom = r$4;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function cloneDraftEditorDoc(value) {
   if (!value || typeof value !== "object" || !("type" in value) || value.type !== "doc") return void 0;
   try {
@@ -175064,31 +172262,6 @@ function editorDocSnapshot(value) {
     editorDoc
   } : {};
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const MAX_ACTIVE_FINGERPRINTS = 2;
 const FINGERPRINT_WAIT_MS = 1e3;
 const MAX_ACTIVE_HEADER_READS = MEDIA_LINEAGE_MAX_REFERENCES;
@@ -175172,7 +172345,6 @@ async function mediaFingerprintFile(file) {
     clearTimeout(timer2);
   }
 }
-
 function mediaLineageRequestId() {
   try {
     return crypto.randomUUID();
@@ -175213,7 +172385,6 @@ async function observeClientMediaUpload(file, filename, source, operation) {
     throw error;
   }
 }
-
 function basename$8(path2) {
   return path2.split("/").pop() ?? "";
 }
@@ -175319,12 +172490,7 @@ function createAssetMutator({
     }
   };
 }
-
-
 const GRID_COLUMN_COUNT_WIDE = 5;
-
-
-
 function estimateGridRowSize(containerWidth, columnCount) {
   const horizontalPadding = 20;
   const columnGaps = (columnCount - 1) * 8;
@@ -175359,85 +172525,6 @@ function useScopedHttpClient() {
     });
   }, [activeGatewayUrl, gatewayBinding, recoverWorkspace, workspaceClaim]);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function createConnectorInventory(load2) {
   let snapshot2 = {
     servers: [],
@@ -175506,20 +172593,6 @@ function createConnectorInventory(load2) {
     }
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function getSkillCoverUrl(skill) {
   if (getRuntimeConfig().region === "overseas") {
     const overseasCover = skill.coverUrlEn?.trim();
@@ -175527,133 +172600,6 @@ function getSkillCoverUrl(skill) {
   }
   return skill.coverUrl?.trim() || "";
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 let ShikiError$2 = class ShikiError extends Error {
   constructor(message2) {
     super(message2);
@@ -195860,7 +192806,6 @@ function cloneWithoutChildren(node2) {
     children: []
   }) : structuredClone$1(node2);
 }
-
 var cn$1 = Object.defineProperty,
   un$1 = Object.defineProperties;
 var fn = Object.getOwnPropertyDescriptors;
@@ -195879,8 +192824,6 @@ var O = (n2, r2, e2) => r2 in n2 ? cn$1(n2, r2, {
     return n2;
   },
   k = (n2, r2) => un$1(n2, fn(r2));
-
-
 var M = /(\*\*)([^*]*\*?)$/,
   N = /(__)([^_]*?)$/,
   y$1 = /(\*\*\*)([^*]*?)$/,
@@ -195893,23 +192836,6 @@ var M = /(\*\*)([^*]*\*?)$/,
   H = /[\p{L}\p{N}_]/u,
   D$1 = /^```[^`\n]*```?$/,
   w2 = /^\*{4,}$/;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var jt = e2 => jsxRuntimeExports.jsx("svg", {
     color: "currentColor",
     height: 16,
@@ -196134,8 +193060,6 @@ var we = {
     });
   },
   L = () => reactExports.useContext(Ut);
-
-
 var ue = e2 => {
     var s2, a2;
     let t2 = [],
@@ -196275,11 +193199,6 @@ var Jo = reactExports.memo(({
   });
 }, (e2, t2) => E2(e2, t2));
 Jo.displayName = "MarkdownParagraph";
-
-
-
-
-
 var Is = /\[\^[\w-]{1,200}\](?!:)/,
   Ns = /\[\^[\w-]{1,200}\]:/;
 var Ls = /<(\w+)[\s>]/,
@@ -196420,22 +193339,6 @@ var un = () => e2 => {
     });
   });
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const BROWSER_IMAGE_EDIT_EVENT = "hilo:browser-image-edit";
 function isBrowserImageEditRequest(value) {
   if (!value || typeof value !== "object") return false;
@@ -196527,33 +193430,6 @@ function useBrowserImageEdit(options) {
     };
   }, []);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function localizedI18nText(text2, language2) {
   return language2.toLowerCase().startsWith("zh") ? text2.zh : text2.en;
 }
@@ -196623,17 +193499,6 @@ const connectorSummaryActionLabelKey = {
   try: "connectors.detail.try",
   update: "connectors.connector.update"
 };
-
-
-
-
-
-
-
-
-
-
-
 function tryParseJson$1(raw2) {
   try {
     return JSON.parse(raw2);
@@ -196651,13 +193516,6 @@ const FILE_ACTIVITY_KIND_BY_TOOL = {
 function getFileActivityKind(toolName2) {
   return FILE_ACTIVITY_KIND_BY_TOOL[toolName2];
 }
-
-
-
-
-
-
-
 function collectMediaResultRecords(payload) {
   if (Array.isArray(payload)) return payload.filter(isRecord$2);
   if (!isRecord$2(payload)) return [];
@@ -196668,61 +193526,6 @@ function hasMediaAnalysisFailure(toolResult) {
   if (!toolResult) return false;
   return collectMediaResultRecords(tryParseJson$1(toolResult)).some(record2 => isRecord$2(record2.semantic) && record2.semantic.source === "error" || isRecord$2(record2.metadata) && record2.metadata.ok === false);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const AccordionRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 function useAccordionRootContext() {
   const context = reactExports.useContext(AccordionRootContext);
@@ -198077,9 +194880,7 @@ const RadioGroup$1 = /* @__PURE__ */reactExports.forwardRef(function RadioGroup2
     })
   });
 });
-
 const TAB_CONTENT_ENTER_CLASS_NAME = "motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-1 motion-safe:duration-200";
-
 const ScrollAreaRootContext = /* @__PURE__ */reactExports.createContext(void 0);
 function useScrollAreaRootContext() {
   const context = reactExports.useContext(ScrollAreaRootContext);
@@ -198999,70 +195800,4 @@ const ScrollAreaCorner = /* @__PURE__ */reactExports.forwardRef(function ScrollA
   }
   return element2;
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export { $$8, $t$2, ACCOUNT_SUBMISSION_BLOCKED_EVENT, ADTS, AES_128_BLOCK_SIZE, API_PATHS, ARCHIVE_ZIPPER, AUDIO_CODECS, AUTH_TRACK_EVENTS, AccordionHeader, AccordionItem$1, AccordionPanel, AccordionRoot, AccordionTrigger$1, AccountSubmissionBlockedError, ActionListItem, ActionListPanel, ActionListSeparator, ActiveOverlay, ActiveSnippet, Activity, ActivityIcon, AdtsInputFormat, AdtsOutputFormat, AlertCircle, AlertDialogRoot, AlertTriangle, AlertTriangleIcon, AlignCenter$1, AlignLeft$1, AlignRight$1, Animation, AnnounceMargin, ApiError, AppWindow, Archive, ArrowDown, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowLeftToLine, ArrowRight, ArrowRight$1, ArrowRightToLine, ArrowUp, ArrowUp$1, ArrowUpDown, ArrowUpFromLine, ArrowUpRight, ArrowUpRight$1, ArrowUpToLine, AssetMetadataStoreContext, At$3, AtSign, Attribute2, AttributeList, AttributeName, AttributeValue, AudioLines, AudioLines$1, AudioResampler, AudioSample, AudioSampleSink, AudioSampleSource, AudioWaveform$1, AvatarImage$1, AvatarRootContext, B$7, BACKEND_VIBE_STORYBOARD, BASE64_DATA_URI_REGEX, BODY, BROWSER_ASSET_SOURCE_METADATA_KEYS, BROWSER_IMAGE_EDIT_EVENT, BadgeCheck, BadgeInfo, Ban$1, Bell, Bell$1, BellRing, BidiSpan, BlobSource, BlockComment, BlockPolicy, Blocks$1, Bold$1, BookOpen$1, BookUser, Bookmark$1, Bot, Box, BoxSelect, Boxes, Brain$1, Brain$2, Break, Brush$1, Bs, Bt$1, BubbleMenu, BufferContext, BufferTarget, Bug, Bug$1, Building2$1, Button$3, CDN_BASE_MAP, CDN_BROWSER_START_ICON, CONNECTOR_STATUS_VISUAL, CONNECTOR_TOKEN_SOURCE, CSS$1, Cable$1, CachedOrder, Calculator, CalendarDays$1, Camera$1, CanvasNodeType, CanvasSink, CaseSensitive$1, CatchBoundary, CatchNotFound, ChangeSet, CharCategory, ChartNoAxesCombined, Check, Check$1, Check$2, CheckCheck, CheckCircle2, CheckCircle2Icon, CheckboxRoot, ChevronDown, ChevronDown$1, ChevronDown$2, ChevronDownIcon$1, ChevronLeft, ChevronLeft$1, ChevronLeftIcon, ChevronRight$1, ChevronRight$2, ChevronRightIcon, ChevronUp, ChevronUpIcon, Chrome$1, Circle$1, CircleAlert, CircleAlert$1, CircleAlert$2, CircleArrowUp, CircleCheck, CircleCheckIcon, CircleHelp$1, CircleIcon, CircleMinus, CircleUserRound$1, CircleX, CircleX$1, Clapperboard$1, Clapperboard$2, ClientOnly, Clipboard, ClipboardIcon, ClipboardList, ClipboardPaste$1, Clock$1, Clock3$1, CloseTag, Cloud, CloudDownload, CloudIcon, CloudOff$1, CloudUpload, Code$1, Cog, Cog$1, Command, CommentEnd, CompartmentInstance, Compass, CompositedSvg, ConnectionTargetMarker, ContextMenuRoot, ContextMenuTrigger$1, ContextTracker, ConversionCanceledError, Copy, Copy$1, CopyPlus, CornerDownRight$1, CreditCard, Crosshair, Crown, Crown$1, Ct$3, CurrentWorkspaceContext, CustomAudioEncoder, CustomPathedSource, D$1, D$7, DEFAULT_RUNTIME_CONFIG, DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT, DOMParser$1, DOMSelectionState, DOMSerializer, DateLib, DayFlag, Decoration$1, Decoration2, DecorationSet, DefaultBufferLength, DefaultSplit, Demuxer, Dialect, Dialect_noMatch, Dialect_selfClosing, DialogBackdrop, DialogClose$1, DialogDescription$2, DialogPopup, DialogPortal$2, DialogRoot, DialogTitle$2, DialogTrigger$1, Direction, DndContext, DocInput, DocView, Download$1, Download$2, DownloadIcon, DragOverlay, Droplet$1, Ds, Dt$2, E$4, E2, EdgeLabelRenderer, EditContextManager, EditorContent, EditorSelection, Element$1, Ellipsis, EmacsyPendingKeys, Emoji, EmptyLine, EncodedAudioPacketSource, EncodedPacket, EncodedPacketSink, EncodedVideoPacketSource, EndTag, ErrorComponent, Es, Et$2, EventEmitter$2, Expand$1, Extension, ExternalLink, ExternalLink$2, ExternalTokenizer, Eye, Eye$1, Eye$2, EyeIcon$1, EyeOff, EyeOffIcon$1, F$6, FALLBACK_NUMBER_OF_CHANNELS, FALLBACK_SAMPLE_RATE, FILE_TYPE_EXTENSIONS, FLAC, FOLD, Facet, FieldControl, FieldRoot, File$3, FileArchive$1, FileAudio$1, FileClock$1, FileCode$1, FileDiff$1, FileImage, FileInput$1, FileJson2$1, FilePlus2, FileText$1, FileVideo$1, FileWarning$1, Files$1, Film, Film$2, FlacInputFormat, FlacOutputFormat, Flag$1, FlatBufferCursor, Folder$1, FolderClock, FolderClosed, FolderInput, FolderInput$2, FolderKey$1, FolderMinus, FolderOpen$1, FolderOpenIcon, FolderPlus, FolderUp, FolderX, Ft$2, G$1, G$5, GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT, GFM, GLOBAL_STORAGE_VERSION, GRID_COLUMN_COUNT_WIDE, GROUP_ID_HEADER, GatewayScopeContext, Gauge, GiftIcon, GitCompare, GlobalAttrs, Globe, Globe2, GraduationCap, Grid2X2, Grid2x2Plus, Grid3X3, GripHorizontalIcon, GripVertical, Gt$1, H, H$5, HILO_HUB_BIZ_LINE, HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_HEADER, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, HLS_MIME_TYPE, HTMLBlockStyle, Hand, Handle, HardDrive$1, Headphones, Headphones$2, History$1, HistoryIcon, HlsInputAudioTrackBacking, HlsInputVideoTrackBacking, Home, House, Hs, Ht$1, I, ICON_STROKE_SPEC, IV_STRING_REGEX, IconCompositingContext, Identifier, ImagePlus, Import, Inbox, IncompleteCloseTag, IncompleteTag, IndentContext, InfiniteQueryObserver, Info$1, InfoIcon$1, InlineDelimiter, InnerParse, InputAudioTrack, InputFormat, InputStream, InputVideoTrack, IsobmffInputFormat, It$1, Italic$1, IterMode, J$6, JPEG, Jo, K$6, K2, KeyRound, Keyboard, KeyboardSensor, Keymaps, L, L$7, LIBTV_CONNECTOR, LTR, LanguageDescription, LanguageSupport, Languages, Layers, Layers2, Layers3, LayoutGrid, LayoutList, LayoutTemplate, LeafBlock, Library, Library$1, Lightbulb, LineBreakPlaceholder, LineComment, Link2, Link2$1, List$1, ListChecks, Loader2, Loader2Icon, LoaderCircle, LoaderCircle$1, LocalTokenGroup, Lock, LockKeyhole, LogOut$1, Ls, Lt$1, M, MATROSKA, MEDIA_EXTENSIONS, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, MIN_SELECTED_NODE_SIZE, MP3, MP4, MPEG_TS, Mail, Map$1, MapPin, Markdown$1, MatroskaInputFormat, Maximize, Maximize2$1, Megaphone$1, Megaphone$2, MenuGroup, MenuGroupLabel, MenuItem$3, MenuPopup, MenuPortal, MenuPositioner, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuRoot, MenuSubmenuRoot, MenuSubmenuTrigger, MenuTrigger, MessageCircle, MessageCircleMore, MessageSquare$1, MessageSquareMore, MessageSquarePlus$1, MessageSquareQuote$1, Mic$1, Minimize2$1, Minus, MinusIcon, MismatchedStartCloseTag, MkvOutputFormat, Monitor, MonitorUp, MonochromeIcon, Moon$1, MoreHorizontal, MousePointer2$1, MovOutputFormat, Mp3InputFormat, Mp3OutputFormat, Mp4OutputFormat, Mt$1, Music, Music$2, Music2, N, N$4, NODE_HIT_SLOP, NON_PCM_AUDIO_CODECS, Network, Network$1, Newspaper, NoMatchStartCloseTag, Node$3, Node$4, NodeResizer, NodeSelection, NodeToolbar$1, NodeViewWrapper, NotLast, NotebookPen, Nt$1, NullTarget, OGG, OctagonXIcon, OggInputFormat, OggOutputFormat, OpenTag, Operation, Ot$2, Output, OutputTrackGroup, P$7, PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, PERF_LOG_FLUSH, PROMPT_FONT_SIZE_DEFAULT, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_MIN, Package$2, PackageSearch, Palette, Panel, PanelBottomClose, PanelGroup, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PanelsTopLeft, Paperclip$1, Parser$1, PathedSource, PenLine$1, Pencil, PencilLine$1, PencilRuler, PencilRuler$1, PendingKeys, Phone, Pin, Pin$1, PinIcon, PinOff, PlatformContext, PlaybackCirclePauseIcon$1, PlaybackCirclePlayIcon$1, PlaybackCircleToggleIcon, PlaybackNextIcon$1, PlaybackPauseIcon$1, PlaybackPlayIcon$1, PlaybackPreviousIcon$1, PlaybackStopIcon$1, Plug$1, Plugin, PluginInstance, PluginKey, Plus, Plus$1, Plus$2, PlusCircle, Podcast, PointerSensor, PopoverArrow$1, PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot, PopoverTrigger$1, Position, Power, Prec, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, PreviewCardTrigger$1, ProcessingEnd, ProgressRoot, ProgressRootContext, Pt$2, Punctuation, Puzzle$1, QTFF, QUALITY_HIGH, QUERY_KEY$1, QueryClient, QueryClientProvider, QueryType, QuickTimeInputFormat, R$1, R$4, R$6, RTL, RadioGroup$1, RadioIndicator, RadioRoot, Range$1, RangeSetBuilder, React, ReactFlow$1, ReactFlowProvider, ReactNodeViewRenderer, ReadableStreamSource, Reader, ReceiptText$1, Redo2, Regex, Repeat2, Replace$1, ReplaceAll$1, RotateCcw, RotateCcw$1, RotateCw, RouterCore, Rs, Rt$2, Rule$1, S$7, SAMPLING_RATES, SELECTED_GLOW_BLUR, SKIP, SPECIAL_CONNECTORS, Save, Scan, Scissors, ScopeNodes, ScriptText, ScrollAreaCorner, ScrollAreaRoot, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaViewport, ScrollRestoration, ScrollTarget, ScrollText, Search, Search$1, Search$2, SearchIcon, SegmentedInput, SelectGroupContext, SelectIcon, SelectItem$2, SelectItemIndicator, SelectItemText, SelectList, SelectPopup, SelectPortal, SelectPositioner, SelectRoot, SelectScrollDownArrow, SelectScrollUpArrow, SelectTrigger$2, SelectValue$2, Selection, SelectionMode, SelfClosingEndTag, Send, ServerIcon, ServerOff, Settings$1, Settings2$1, Share2, Share2$2, ShieldAlert, ShieldAlert$1, ShieldCheck, ShieldCheck$1, ShieldCheckIcon, ShieldOff, ShoppingBag$1, ShoppingBag$2, Shuffle, Slash, Slice, SliderControl$1, SliderIndicator, SliderRoot, SliderThumb, SliderTrack, SlidersHorizontal$1, Smartphone, Smartphone$1, Snippet, SortableContext, Source, SourceRef, Sparkles$1, Speech, Split, Sprout$1, Square$2, SquareDashed, SquareMousePointer, SquareMousePointer$1, Ss, St$2, Stack, StackBufferCursor, Stamp$1, StartCloseScriptTag, StartCloseStyleTag, StartCloseTag, StartCloseTextareaTag, StartScriptTag, StartSelfClosingTag, StartStyleTag, StartTag, StartTextareaTag, StarterKit, StateEffect, StateField, Step, StepMap, StepResult, StickyNote, StringQuery, StyleModule, StyleText, Subscript, Sun, Superscript, SwatchBook, SwitchRoot, SwitchThumb, TAB_CONTENT_ENTER_CLASS_NAME, TAG_BYTERANGE, TAG_DISCONTINUITY, TAG_ENDLIST, TAG_EXTINF, TAG_I_FRAMES_ONLY, TAG_I_FRAME_STREAM_INF, TAG_KEY, TAG_MAP, TAG_MEDIA, TAG_MEDIA_SEQUENCE, TAG_PLAYLIST_TYPE, TAG_PROGRAM_DATE_TIME, TAG_STREAM_INF, TAG_TARGETDURATION, Table$2, TableCell$1, TableHeader$1, TableRow$1, TableView2, TabsIndicator, TabsList$1, TabsPanel, TabsRoot, TabsTab, Tag, Tag$1, TagName, Tags, Text, TextSelection, TextareaText, ThumbsDown, ThumbsUp, ThumbsUp$1, Tile, Toaster$1, Toggle$1, ToggleGroup$1, TokenCache, TokenGroup, TooltipPopup, TooltipPortal, TooltipPositioner, TooltipProvider$2, TooltipRoot, TooltipTrigger$1, TrackSynchronizer, Trans, Transaction2, Trash2$1, Trash2$2, Trash2Icon, TreeElement, TreeFragment, TrendingUp, TriangleAlert, TriangleAlert$1, TriangleAlertIcon, Tt$2, Tv, Type, Type$2, U, U$3, UI, UNDETERMINED_LANGUAGE, Underline$1, Undo2, Ungroup$1, UnquotedAttributeValue, UnsupportedInputFormatError, Upload$1, UploadIcon$1, UrlSource, User, UserRound, UserRound$1, UserRoundPlus, Users$1, UsersIcon, Ut, Ut$2, V$6, VIDEO_CODECS, Video, Video$1, Video$2, VideoOff, VideoSample, VideoSampleSink, VideoSampleSource, ViewPlugin, ViewState, ViewUpdate, ViewportPortal, Volume2, Volume2Icon, VolumeX$1, VolumeXIcon, W$1, W$7, WAVE, WEBM, WORKSPACE_IDENTITY_MISMATCH_CODE, WORKSPACE_STORAGE_DEFAULTS, Wand2, WandSparkles, WavOutputFormat, WaveInputFormat, WebMInputFormat, WebMOutputFormat, WholeWord, WidgetType2, WifiIcon, WifiOff, WifiOff$1, WifiOffIcon, Workflow, Workflow$1, WorkspaceGatewayClient, Wrench, Wrench$1, Wrench$2, X$6, X$7, X$8, XIcon, XYMinimap, Y$4, Yt$2, Z$4, Zap, Zap$1, ZoomIn, ZoomOut, _$5, __addDisposableResource, __disposeResources, __insertCSS, __ovVitePreload, __webpack_exports__, __webpack_exports__getDocument, _t$2, activateAccountSubmissionGuard, addCursorAbove, addCursorBelow, addsSelectionRange, allowMultipleSelections, an, android, applyDOMChange, applyDOMChangeInner, arrayArgmin, arrayCount, arrayMove, asArray$1, assert$3, assertNever, astTop, at, at$3, atElementStart, atRules, atomicRanges, attrsEqual, attrsFromFacet, audioSampleToInterleavedFormat, avatarStateAttributesMapping, b2, base64ToBytes, basicMouseSelection, batch, bidiIsolatedRanges, binarySearchLessOrEqual, bindHandler, blankLine$1, blockWrappers, braceR, brokenClipboardAPI, browser, browserAssetSourceMetadata, bt$3, buildAdtsHeaderTemplate, buildKeymap, buildOfficialConnectorList, buildRendererCommonParams, byGroup, byTag, c$4, callOrReturn, canIgnoreLine, canvasLog, captureCopy, cdnPublicAsset, ceilToMultipleOfTwo, changeBySelectedLine, changeFilter, charType, checkCover, checkRanges, checkSelection, checkSide, clamp$9, clampCropRectangle, classifyFileType, clickAddsSelectionRange, clientExports, clipboardInputFilter, clipboardOutputFilter, closeHistory, closestCenter, clsx, cn, collectMediaResultRecords, combineConfig, commands_exports, commentContent, commentContent$1, compareSemver, completeAttrName, completeAttrValue, completeCloseTag, completeFromList, completeStartTag, completeTag, connectorDescription, connectorPromptActionLabelKey, connectorSummaryActionLabelKey, contains, contentAttributes, contextNodeForDelete, continuedIndent, convertMatchersToTimeZone, copiedRange, copyLineDown, copyLineUp, countColumn, create$2, createAes128CbcDecryptStream, createAssetMetadataStore, createAssetMutator, createConnectorInventory, createControlledPromise, createFileRoute, createGetModifiers, createLucideIcon, createNoonOverrides, createRootRoute, createStore$1, createTailwindMerge, createVisitor, crelt, ct$3, cursorCharLeft, cursorCharRight, cursorDocEnd, cursorDocStart, cursorGroupLeft, cursorGroupRight, cursorLayer, cursorLineBoundaryBackward, cursorLineBoundaryForward, cursorLineBoundaryLeft, cursorLineBoundaryRight, cursorLineDown, cursorLineEnd, cursorLineStart, cursorLineUp, cutAt, cutFragments, cva, d, d$3, data, dayPickerContext, decisionVersion, declSelector, decodeArray, decodeHtmlEntities, decorations$1, dedupedToast, defaultSchema, defineLanguageFacet, deleteLine, delimitedIndent, delimitedStrategy, deriveActiveScope, deriveTeamCreditDisplay, desc, descendant, desktopMediaIcon, dispatchAccountSubmissionBlocked, dispatchKey, dist, dn, domBoundsAround, dontComplete, dragMovesSelection$1, dragScrollMargin, dragScrollSpeed, dropText, dt, dt$4, dynamicFacetSlot, editable, editorAttributes, editorDocSnapshot, elementName, elementName$1, emptyConnectorMarketPolicy, enUS, encodeHtmlEntities, endTag$1, ensureAddr, ensureAnchor, enterFragments, estimateGridRowSize, et$4, evaluateAccountSubmission, eventAttributes, eventBelongsToEditor, exceptionSink, extendSel, f$3, f$4, fieldSelection, findChild, findClusterBreak, findConnectionTarget, findConnectorMentions, findFinished, findHcpConnector, findHitTarget, findName, findOpenTag, findSectionEnd, findTagName, firefoxCopyCutHack, flatIndent, flatten, flattenExtensions, floorToDivisor, flowPointToMiniMap, flush, focusChangeEffect, focusChangeTransaction, focusManager, focusPreventScroll, foldInside, foldService, formatDate, formatErrorMessage, fr, ft$3, g$2, gatherCompletions, generateJSON, getAddr, getAttrs, getBezierPath, getBoundsOfRects, getCdnRegion, getChildren, getClickType, getComponents, getContext, getDataAttributes, getDefaultExportFromCjs$1, getEncodableAudioCodecs, getExtensionField, getFileActivityKind, getFirstEncodableVideoCodec, getFormatters, getHighlighters, getIconStrokeWidth, getIndentUnit, getInternalNodesBounds, getIsolatedRanges, getLabels, getListIndent, getLocationChangeInfo, getMediaTagAutoselect, getMediaTagDefault, getMergedHcpCatalog, getMonthOptions, getNodeDimensions, getRoot, getRuntimeConfig, getSchema, getScrollMargins, getSelection$1, getSkillCoverUrl, getStoreFactory, getStyleForModifiers, getViewportForBounds, getVisibleCloudUploads, getWeekdays, getYearOptions, gt$2, guardAccountSubmission, h$5, hasMediaAnalysisFailure, hasSelection, hcpToDefinition, highlightTags, highlighterFacet, historyConfig, historyField_, historyKeymap, hooks, horizontalListSortingStrategy, ht$2, identifier$1, identifiers, ignoreClosed, inList, indentLess, indentMore, indentService, indentString, indentWithTab, inferCodecFromCodecString, inferMediaKind, initReactI18next, inputHandler, insertSemi, instance, interestingNode, invariant, iosVirtualKeyboardOpen, isAtEnd, isAtxHeading, isBlockElement, isBlockquote, isBulletList, isCancelledError, isDateRange, isEmptyToEnd, isEquivalentPosition, isFocusChange, isHTMLBlock, isHeading, isInPrimarySelection, isInputPending, isIso639Dash2LanguageCode, isList, isNotFound, isParent, isRecord$2, isRecord$g, isRedirect, isScrolledToBottom, isServer$1, isSetextUnderline, isSkillsOnly, isUserProvidedAssetModel, isVarArg, isWorkspaceFolderMissingError, isWorkspaceIdentityErrorCode, isolatesEq, it$3, j$5, je, joinPaths$1, jsx, jsxRuntimeExports, jsxSublanguage, k, k$6, keywords, kt, kt$2, languageData, last$1, lazyRouteComponent, leftOverSpace, lineEnd, lineSeparator, listeners$8, ln, localizedI18nText, logException, logMediaLineage, lt$3, ltrAtCursor, m$4, makeCategorizer, makeLogger, marksEqual, matchContext, matchNodeContext, matchPlainBrackets, matchesLocalConnectorServer, matchesRemoteConnectorServer, maybeNest, measurePerf, mediaLineageRequestId, mergeAttributes, mergeInputTrackQueries, mergeProps$1, minCreditAmount, missingCloseTag, mn, modifierCodes, moveByChar, moveLineDown, moveLineUp, moveSel, moveToField, moveToLineBoundary, moveVertically, mt$2, n$1, namesMatch, nativeSelectionHidden, ne, newline, nn, noSemicolon, noSemicolonType, noTokens, nodeHasDimensions, nodeSizeCache, nodeToMiniMapRect, nonEmpty$1, nonPlainText, nonTightList, none, normalizeGatewayBaseUrl, normalizeIndent, normalizeLabel$1, normalizeRotation, nt$4, o$4, observeClientMediaUpload, observeOptions, observers, operatorToken, orderTidyNodes, ot$3, outerDecorations, p$4, p$5, pair, panelConfig, parseAacAudioSpecificConfig, parsePsshBoxContents, parseSemver, pe, pendingLogLines, phrase, pickedCompletion, pinnedTidyNodeIds, posAtCoords, prefer, preprocessLanguageCode, probeMediaDurationSec, progressStateAttributesMapping, promiseWithResolvers, properties$1, pseudoClasses, psshBoxesAreEqual, pt$2, punchRanges, pushStackDedup, q$5, qe, queryIdentifiers, queryInputTracks, queryOptions, r$5, rangeEnd, rangeFrom, rangeIncludesDate, rangeTo, raw, re, reactDomExports, reactExports, readAllLines, readAscii, readBytes, readMp3FrameHeader, readOnly, redirect, redo, redo$1, redoDepth, redoDepth$1, regexpCursor, regionToLocale, registerDynamicHcpManifests, registerEncoder, remarkGfm, remarkParse, remarkRehype, removeItem, renumberList, replaceEqualDeep$1, requestIdle, requireJszip_min, requireLib, resolveConfig, resolveConnectorIcon, resolveConnectorSetupAsset, resolveNewProjectPreferences, resolveTransaction, rn, rootRouteId, routerContext, rt$3, runHandlers, safariSelectionRangeHack, sameArray$1, sameSelPos, sanitize, satisfiesMinHubVersion, scanLineResult, scriptText, scriptTokens, scrollHandler, scrollIntoView, scrollMargins, scrollableParents, selectAll, selectCharLeft, selectCharRight, selectDocEnd, selectDocStart, selectGeneratedMediaNodeIds, selectGroupLeft, selectGroupRight, selectLine, selectLineBoundaryBackward, selectLineBoundaryForward, selectLineBoundaryLeft, selectLineBoundaryRight, selectLineDown, selectLineEnd, selectLineStart, selectLineUp, selectedRequestGroupId, selectionConfig, selectionFromPoints, selectionLayer, selectionPoints, selfClosers, setActive, setSel, shallow, shimExports, simplifySelection, skipAtoms, skipAtomsForSelection, skipSpace, skipSpaceBack, sliceBuf, sn, sortExtensions, sortableKeyboardCoordinates, sourceRequestsAreEqual, space$2, spaces, spec_AtKeyword, spec_LessThan, spec_QueryCallee, spec_callee, spec_identifier, spec_identifier$1, spec_queryIdentifier, spec_word, splitLine, src_default$1, st$3, storageKeys, stringCursor, stripNullChildren, styleModule, styleText, styleTokens, supportsConnectorDialog, tagHighlighter, tagNameAfter, tagStart, tags, tags$1, textFilter, textareaText, textareaTokens, tidyNodeName, toDataView, toInterleavedAudioFormat, toJsxRuntime, toRelative, toTimeZone, toValidatedInputTrackQuery, toast, toggleBlockComment, toggleComment, toggleTabFocusMode, topIndent, tr$2, transactionExtender, transactionFilter, transposeChars, trimPathRight, tryParseJson$1, tt$4, typescriptKeywords, u$3, ue, un, undo, undo$1, undoDepth, undoDepth$1, unified, unitToken, updateAccountSubmissionDecision, updateNewProjectPreferences, updateSel, urlAttributes, useAnimation, useAssetMetadataApi, useAssetMetadataStore, useAvatarRootContext, useBaseQuery, useBaseUiId, useBrowserImageEdit, useCalendar, useConnection, useCurrentWorkspace, useEdgesState, useEditor, useEditorState$1, useFocus, useGatewayBaseUrl, useGatewayScope, useIsMutating, useIsoLayoutEffect, useMusicPromptLayout, useMutation, useNavigate, useNewProjectFolder, useNodeId, useNodesData, useNodesInitialized, useNodesState, useParams, usePlatform, usePopoverRootContext, usePromptFontSizeStore, useQueries, useQuery, useQueryClient, useReactFlow, useRender, useRenderElement, useRouter, useScopedHttpClient, useSearch, useSelectGroupContext, useSelection, useSensor, useSensors, useSortable, useStorage, useStore, useStore$2, useStore$3, useStoreApi, useTimeout, useTranslation, useUpdateNodeInternals, useVirtualizer, ut$2, v$7, validRegExp, validateAudioOptions, validateInputFormatOptions, validateMetadataTags, validateVideoOptions, valueToPercent, variable, verbose, verticalListSortingStrategy, videoPlaybackPath, viewPlugin, visit, visitParents, vt$2, w2, wait$1, warnForPart, we, withArtworkOpacity, withAutomaticDedupeId, withIconCompositing, withWorkspaceGatewayHeaders, workspaceGatewayUrl, workspaceLog, wt$3, x$4, xt$2, y$1, y$6, yt$2, z$3, z$4, z$7, zt$2 };

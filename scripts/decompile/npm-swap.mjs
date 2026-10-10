@@ -31,8 +31,76 @@ const KEYWORDS = new Set(
 // 比"形状"：去掉注释和空白，变量名（不跟在 . 后面的标识符）一律换成 _，关键字、字符串、属性名保留。
 // 另外抹掉打包器重新打印带来的差异：单参数箭头函数的括号、单双引号、分号、void 0、改名时的 let X = class Y、
 // 多行解构重新排成一行（{ a, b } 打印成多行时 rename 级联把属性也抹掉的问题也一并处理）。
+// 抹掉局部变量名，跳过正则和 `.属性`。字符串内容仍抹掉，和原来的整段替换一致。
+// 正则里的字母如果也抹掉，/Win/ 和 /Mac/ 会变成同一个形状。
+function wipeNames(text) {
+  let out = "";
+  let i = 0;
+  const identStart = (c) => c && /[A-Za-z_$]/.test(c);
+  const identCont = (c) => c && /[\w$]/.test(c);
+  while (i < text.length) {
+    const c = text[i];
+    if (c === "/" && text[i + 1] !== "/" && text[i + 1] !== "*") {
+      const prev = out.trimEnd().slice(-1);
+      if (!prev || /[=(:,;!&|?{}\[+\-*%<>~^]/.test(prev)) {
+        let j = i + 1;
+        let closed = false;
+        while (j < text.length && text[j] !== "\n") {
+          if (text[j] === "\\") { j += 2; continue; }
+          if (text[j] === "[") {
+            j++;
+            while (j < text.length && text[j] !== "]" && text[j] !== "\n") { if (text[j] === "\\") j++; j++; }
+            if (j < text.length && text[j] === "]") j++;
+            continue;
+          }
+          if (text[j] === "/") { closed = true; j++; break; }
+          j++;
+        }
+        if (closed) {
+          while (j < text.length && /[dgimsuy]/.test(text[j])) j++;
+          out += text.slice(i, j);
+          i = j;
+          continue;
+        }
+      }
+    }
+    if (c === "." && identStart(text[i + 1])) {
+      let j = i + 1;
+      while (identCont(text[j])) j++;
+      out += text.slice(i, j);
+      i = j;
+      continue;
+    }
+    if (text.startsWith("...", i)) {
+      let j = i + 3;
+      while (text[j] === " " || text[j] === "\n" || text[j] === "\t") j++;
+      if (identStart(text[j])) {
+        const start = j;
+        j++;
+        while (identCont(text[j])) j++;
+        const id = text.slice(start, j);
+        out += KEYWORDS.has(id) ? text.slice(i, j) : "..._";
+        i = j;
+        continue;
+      }
+    }
+    if (identStart(c)) {
+      let j = i + 1;
+      while (identCont(text[j])) j++;
+      const id = text.slice(i, j);
+      out += KEYWORDS.has(id) ? id : "_";
+      i = j;
+      continue;
+    }
+    out += c;
+    i++;
+  }
+  return out;
+}
+
 export const norm = (text) =>
   dropRedundantParens(
+    wipeNames(
     text
       .replace(/\/\*[\s\S]*?\*\//g, "")
       // 数字字面量归一：进制（0xffff → 65535）和科学计数法（1e3 → 1000）按值输出十进制。
@@ -49,11 +117,7 @@ export const norm = (text) =>
       .replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:\s*\2(?:[$\d]+)?\s*(?=[,}])/g, "$1$2")
       .replace(/'([^'\\\n]*)'/g, (m, s) => '"' + s.replace(/"/g, '\\"') + '"')
       .replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1")
-      // 展开里的标识符也要抹：`(\\.?)` 前缀在 `...state2` 上匹配不到分隔符（`2` 既不是 `.`
-      // 也不是标识符首字符），`...state2` 会原样留着，而同一模板的 `...state` 被抹成 `..._`——
-      // 两个版本的同一段代码因此对不上。`_(\\._)+` 也救不了，因为压根没变成 `_`。
-      .replace(/\.\.\.\s*([A-Za-z_$][\w$]*)/g, (m, id) => (KEYWORDS.has(id) ? m : "..." + "_"))
-      .replace(/(\.?)([A-Za-z_$][\w$]*)/g, (m, dot, id) => (dot || KEYWORDS.has(id) ? m : "_"))
+    )
       .replace(/_\.jsxs?\(/g, "_(")
       .replace(/_(\._)+/g, "_")
       .replace(/\s+/g, "")

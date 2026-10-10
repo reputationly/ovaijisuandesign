@@ -3,7 +3,7 @@
   {"name":"react-dom","version":"19.2.4","cjs":{"requireReactDom":"react-dom","requireClient":"react-dom/client"},"deps":["react","scheduler"]},
   {"name":"use-sync-external-store","version":"1.7.0","cjs":{"requireShim":"use-sync-external-store/shim","requireWithSelector":"use-sync-external-store/shim/with-selector"},"deps":["react"]},
   {"name":"@lezer/common","version":"1.5.2"},
-  {"name":"@floating-ui/utils","version":"0.2.12"},
+  {"name":"@floating-ui/utils","version":"0.2.11"},
   {"name":"@floating-ui/core","version":"1.7.5"},
   {"name":"@floating-ui/dom","version":"1.7.6"},
   {"name":"@floating-ui/react-dom","version":"2.1.9"},
