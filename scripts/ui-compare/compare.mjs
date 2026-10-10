@@ -6,6 +6,8 @@
 //
 // 基准写 golden 时读录好的基线截图（默认 .probe/ui-golden/，可用 GOLDEN=目录 指定），不再起第二个应用；
 // 写成别的就是 OV_UI 的取值（recovered / ours），两种界面各起一次对比。ONLY 只跑几屏时，录基线也只更新这几屏。
+// 基线是整轮按顺序录的，前面的屏会改应用状态（比如进过技能页，侧栏的新功能小圆点就消了）；
+// ONLY 跳过前面的屏再和基线比，可能差出这类零星像素，以整轮结果为准。
 // 前提：app/desktop 已构建（pnpm --filter @ov/desktop build，会顺带构建 app/renderer 到 out/recovered-ui）。
 // 结果写到 .probe/ui-compare/<时间>/：每页截图 + 差异图 + report.json；终端打印每页差异比例。
 //

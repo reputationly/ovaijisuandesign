@@ -6,7 +6,7 @@
 
 | 目录 | 来源（`MiniMax Design.app/Contents/Resources/` 下） | 内容 |
 |---|---|---|
-| `app/` | `app.asar` 解包（`npx @electron/asar extract`） | `out/main` 主进程、`out/preload`、`out/renderer` 渲染层（未压缩，保留组件名） |
+| `app/` | `app.asar` 解包（`npx @electron/asar extract`） | `out/main` 主进程、`out/preload`（渲染层 `out/renderer` 已还原成 `app/renderer` 源码，2026-10-10 从这里删除，要看原文去 git 历史） |
 | `gateway/` | `gateway/{dist,assets,package.json}` | NestJS gateway，466 条路由，`dist/main.js` 为主 bundle，另有 SQL 迁移 |
 | `mcp-tools/` | `mcp-tools/` | MCP server，54 个工具 |
 | `opencode-plugin-hilo/`、`opencode-plugin-trace/` | 同名目录 | opencode 插件（ESM，带 `.d.ts`） |
