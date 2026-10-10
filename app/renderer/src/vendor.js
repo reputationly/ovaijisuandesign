@@ -1,3 +1,4 @@
+import { keymap as keymap$1, keydownHandler } from "prosemirror-keymap";
 import { ErrorBoundary as C$5 } from "react-error-boundary";
 import { mergeClasses } from "lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs";
 import { chainCommands, newlineInCode, createParagraphNear, liftEmptyBlock, splitBlock as splitBlock$1, exitCode, joinUp, joinDown, joinBackward, joinForward, joinTextblockBackward, joinTextblockForward, lift, selectNodeBackward, selectNodeForward, selectParentNode, selectTextblockEnd, selectTextblockStart, setBlockType, wrapIn } from "prosemirror-commands";
@@ -72468,66 +72469,6 @@ function changedNodeViews(a2, b3) {
 }
 function checkStateComponent(plugin) {
   if (plugin.spec.state || plugin.spec.filterTransaction || plugin.spec.appendTransaction) throw new RangeError("Plugins passed directly to the view must not have a state component");
-}
-const mac = typeof navigator != "undefined" && /Mac|iP(hone|[oa]d)/.test(navigator.platform);
-const windows = typeof navigator != "undefined" && /Win/.test(navigator.platform);
-function normalizeKeyName$2(name2) {
-  let parts = name2.split(/-(?!$)/),
-    result = parts[parts.length - 1];
-  if (result == "Space") result = " ";
-  let alt, ctrl, shift2, meta2;
-  for (let i2 = 0; i2 < parts.length - 1; i2++) {
-    let mod = parts[i2];
-    if (/^(cmd|meta|m)$/i.test(mod)) meta2 = true;else if (/^a(lt)?$/i.test(mod)) alt = true;else if (/^(c|ctrl|control)$/i.test(mod)) ctrl = true;else if (/^s(hift)?$/i.test(mod)) shift2 = true;else if (/^mod$/i.test(mod)) {
-      if (mac) meta2 = true;else ctrl = true;
-    } else throw new Error("Unrecognized modifier name: " + mod);
-  }
-  if (alt) result = "Alt-" + result;
-  if (ctrl) result = "Ctrl-" + result;
-  if (meta2) result = "Meta-" + result;
-  if (shift2) result = "Shift-" + result;
-  return result;
-}
-function normalize$5(map3) {
-  let copy2 = /* @__PURE__ */Object.create(null);
-  for (let prop in map3) copy2[normalizeKeyName$2(prop)] = map3[prop];
-  return copy2;
-}
-function modifiers$1(name2, event, shift2 = true) {
-  if (event.altKey) name2 = "Alt-" + name2;
-  if (event.ctrlKey) name2 = "Ctrl-" + name2;
-  if (event.metaKey) name2 = "Meta-" + name2;
-  if (shift2 && event.shiftKey) name2 = "Shift-" + name2;
-  return name2;
-}
-function keymap$1(bindings) {
-  return new Plugin({
-    props: {
-      handleKeyDown: keydownHandler(bindings)
-    }
-  });
-}
-function keydownHandler(bindings) {
-  let map3 = normalize$5(bindings);
-  return function (view2, event) {
-    let name2 = keyName(event),
-      baseName,
-      direct = map3[modifiers$1(name2, event)];
-    if (direct && direct(view2.state, view2.dispatch, view2)) return true;
-    if (name2.length == 1 && name2 != " ") {
-      if (event.shiftKey) {
-        let noShift = map3[modifiers$1(name2, event, false)];
-        if (noShift && noShift(view2.state, view2.dispatch, view2)) return true;
-      }
-      if ((event.altKey || event.metaKey || event.ctrlKey) &&
-      // Ctrl-Alt may be used for AltGr on Windows
-      !(windows && event.ctrlKey && event.altKey) && (baseName = base[event.keyCode]) && baseName != name2) {
-        let fromCode = map3[modifiers$1(baseName, event)];
-        if (fromCode && fromCode(view2.state, view2.dispatch, view2)) return true;
-      }
-    }
-    return false;
-  };
 }
 function createChainableState(config2) {
   const {
