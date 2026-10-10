@@ -1,3 +1,4 @@
+import { ErrorBoundary as C$5 } from "react-error-boundary";
 import { mergeClasses } from "lucide-react/dist/esm/shared/src/utils/mergeClasses.mjs";
 import { chainCommands, newlineInCode, createParagraphNear, liftEmptyBlock, splitBlock as splitBlock$1, exitCode, joinUp, joinDown, joinBackward, joinForward, joinTextblockBackward, joinTextblockForward, lift, selectNodeBackward, selectNodeForward, selectParentNode, selectTextblockEnd, selectTextblockStart, setBlockType, wrapIn } from "prosemirror-commands";
 import { keyName, base, shift } from "w3c-keyname";
@@ -169384,9 +169385,6 @@ let m$4 = class m extends reactExports.Component {
     }, i2);
   }
 };
-function C$5(r2 = [], e2 = []) {
-  return r2.length !== e2.length || r2.some((t2, o2) => !Object.is(t2, e2[o2]));
-}
 const FIGMA_DESKTOP_MCP = {
   name: "figma-desktop",
   endpoint: "http://127.0.0.1:3845/mcp"
