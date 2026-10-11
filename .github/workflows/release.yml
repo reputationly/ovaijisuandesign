@@ -371,15 +371,33 @@ jobs:
           # 版本清单取**所有源的并集**。只看一个源的话，某个源独有的旧版会永远清不掉 ——
           # 比如 OBS 配得晚，早先几版只有 R2 有，反过来也一样。
           : > raw.txt
+          list_failed=0
           for s in "${SOURCES[@]}"; do
             IFS='|' read -r name ep bucket key secret <<< "$s"
-            aws s3 ls "s3://$bucket/$NS/" --endpoint-url "$ep" \
-              --query 'Prefixes[].Prefix' --output text 2>/dev/null \
-              | tr -d '/' | grep -E '^[0-9]+(\.[0-9]+)+$' >> raw.txt || true
+            # 两处都不能省：
+            # 1. `aws s3 ls` 不认 `--query`。带着它跑会直接失败。
+            # 2. 密钥在 R2_KEY / R2_SECRET 里，runner 上没有默认的 AWS 凭据。
+            #    删除那步会临时带上，列目录以前没带，于是命令失败。
+            # 失败又被 `|| true` 吃掉时，versions.txt 是空的，日志写成
+            # 「共 0 版，无需清理」，旧目录就一直留着。
+            # 这里把列目录的输出先落盘，只解析 `PRE <版本>/` 这种目录行。
+            if ! AWS_ACCESS_KEY_ID="$key" AWS_SECRET_ACCESS_KEY="$secret" \
+                aws s3 ls "s3://$bucket/$NS/" --endpoint-url "$ep" > "ls-$name.txt"; then
+              echo "::warning::$name 列出版本失败，这一轮不根据它删旧目录"
+              list_failed=1
+              continue
+            fi
+            awk '/PRE/ { gsub(/\//, "", $NF); print $NF }' "ls-$name.txt" \
+              | grep -E '^[0-9]+(\.[0-9]+)+$' >> raw.txt || true
           done
           sort -Vu raw.txt > versions.txt
           echo "$NS/ 下的版本：$(tr '\n' ' ' < versions.txt)"
           TOTAL=$(wc -l < versions.txt | tr -d ' ')
+          # 一个都没列出来、而且列目录失败了：不能当成「没有旧版」放过。
+          if [ "$list_failed" -eq 1 ] && [ "$TOTAL" -eq 0 ]; then
+            echo "::error::没有列到任何版本，而且至少有一个源列目录失败"
+            exit 1
+          fi
           [ "$TOTAL" -le "$KEEP" ] && { echo "共 $TOTAL 版，无需清理"; exit 0; }
 
           # 要删的是「排在 KEEP 之前的」，**每个源都删一遍**。
@@ -390,7 +408,7 @@ jobs:
             [ "$v" = "$CURRENT" ] && { echo "跳过当前版本 $v"; continue; }
             for s in "${SOURCES[@]}"; do
               IFS='|' read -r name ep bucket key secret <<< "$s"
-              echo "删除 $s 的 $v"
+              echo "删除 $name 的 $v"
               AWS_ACCESS_KEY_ID="$key" AWS_SECRET_ACCESS_KEY="$secret" \
                 aws s3 rm "s3://$bucket/$NS/$v/" --recursive --endpoint-url "$ep" || \
                 echo "  ⚠ $s 删 $v 失败（不影响其他源）"

@@ -13,8 +13,10 @@
 旧栈发的是 `tar.gz`（一个 Rust 二进制 + 静态产物打一个包），指针是自定义的
 `latest.json`。新栈是 electron-builder 的标准三件套：
 
-    mac-arm64/  蒜狸小助手-30.21.2-arm64.dmg  +  .dmg.blockmap  +  latest-mac.yml
-    mac-x64/    蒜狸小助手-30.21.2.dmg         +  .dmg.blockmap  +  latest-mac.yml
+    mac-arm64/  蒜狸小助手-30.21.2-arm64.dmg + .dmg.blockmap
+                蒜狸小助手-30.21.2-arm64-mac.zip + .zip.blockmap
+                latest-mac.yml
+    mac-x64/    同上，文件名不带 -arm64
     win-x64/    蒜狸小助手-30.21.2-Setup.exe  +  .exe.blockmap  +  latest.yml
 
 指针沿用 electron-updater 的 `latest-*.yml` 格式 —— 消费方（`electron-updater`、
@@ -22,16 +24,16 @@
 
 **`--version` 收的是人读四段（`3.0.21.2`），而文件名和清单里的版本是编码值
 （`30.21.2`）。** 这不是笔误 —— 四段不是合法 semver，而清单的 `version:` 必须能被
-`electron-updater` 和官方 UI 当 semver 解析。编码规则和它的单调性证明在
+`electron-updater` 当 semver 解析。编码规则和它的单调性证明在
 `scripts/versioning.py`，这里只负责断言 electron-builder 出的清单已经是编码值。
 
 **包名不带 sha，按版本存死。** 和旧栈不同，这里保留 electron-builder 的原始命名：
 `latest-*.yml` 里引用的就是它，**改名就得连 yml 一起改**，而 yml 是我们改地址的 ——
 多一处可以出错的地方。真要防「覆盖发布」，靠的是「版本号只增」而不是文件名。
 
-**打包阶段 electron-builder 自己写的 `latest-*.yml` 必须丢掉**（里面是占位域名），
-由本脚本按每个源自己的公开域名重新生成地址。概念和旧栈丢掉 `latest.json` 完全一样
-（`release.yml` 里那段注释）。
+打包阶段 electron-builder 自己写的 `latest-*.yml` **留着当输入**（里面的地址是占位域名）。
+本脚本只改摆进 `dist-desktop/` 的那份，按每个源自己的公开域名重写 `url` / `path`，
+不另造清单。原始文件留在 electron-builder 的输出目录里，不上传。
 """
 
 import argparse
@@ -94,9 +96,11 @@ DIR_TO_TARGET = {
 }
 
 # 每个 target 需要哪几个文件。少一个都不能发 —— 指针指向缺件就是 404。
+# mac 的 zip 不是可选项：electron-updater 的 MacUpdater 只安装 zip，
+# 清单里只有 dmg 时检查更新抛 `ZIP file not provided`。dmg 留给用户手动安装。
 NEEDS = {
-    "darwin-arm64": ("latest-mac.yml", ".dmg"),
-    "darwin-x64": ("latest-mac.yml", ".dmg"),
+    "darwin-arm64": ("latest-mac.yml", ".dmg", ".zip"),
+    "darwin-x64": ("latest-mac.yml", ".dmg", ".zip"),
     "win32-x64": ("latest.yml", ".exe"),
 }
 
@@ -151,27 +155,35 @@ def pick_files(target: str) -> list[Path]:
     同一版里出现两个同后缀包是硬错误：指针只能指一个，指错了就是用户下到别的版本。
     """
     out = electron_out(target)
-    if target.startswith("darwin"):
-        hits = [p for p in out.glob("*.dmg")]
-        manifest = out / "latest-mac.yml"
-    else:
-        hits = [p for p in out.glob("*.exe")]
-        manifest = out / "latest.yml"
-    if not hits:
-        fail(f"{target}: {out} 下没有匹配的产物（dmg/exe）。")
-    if len(hits) > 1:
-        fail(f"{target}: 有 {len(hits)} 个候选：{[p.name for p in hits]}。指针该指哪个说不清。")
+    manifest_name = "latest-mac.yml" if target.startswith("darwin") else "latest.yml"
+    manifest = out / manifest_name
+    pkgs: list[Path] = []
+    for suffix in NEEDS[target]:
+        if not suffix.startswith("."):
+            continue
+        hits = sorted(p for p in out.glob(f"*{suffix}") if p.is_file() and p.suffix == suffix)
+        if len(hits) != 1:
+            why = ""
+            if suffix == ".zip":
+                why = (
+                    "\n    macOS 的更新器只安装 zip。清单里只有 dmg 时，"
+                    "已安装的应用检查更新会抛 ZIP file not provided。"
+                    "electron-builder 的 mac.target 必须同时有 dmg 和 zip。"
+                )
+            shown = f"：{[p.name for p in hits]}" if hits else "。"
+            fail(f"{target}: {out} 下应有且只有 1 个 {suffix}，实际 {len(hits)} 个{shown}{why}")
+        pkgs.append(hits[0])
     if not manifest.is_file():
         fail(
             f"{target}: 缺 {manifest.name}。electron-builder 只有配了 publish 段才会生成更新清单。\n"
             f"    （在 {out} 找的 —— 三个平台各有一份同名清单，堆在一层会互相覆盖。）"
         )
-    pkg = hits[0]
-    files = [pkg, manifest]
-    bm = pkg.with_suffix(pkg.suffix + ".blockmap")
-    if not bm.is_file():
-        fail(f"{target}: 缺 {bm.name}（增量下载要用它）。")
-    files.append(bm)
+    files = [*pkgs, manifest]
+    for pkg in pkgs:
+        bm = pkg.with_suffix(pkg.suffix + ".blockmap")
+        if not bm.is_file():
+            fail(f"{target}: 缺 {bm.name}（增量下载要用它）。")
+        files.append(bm)
     return files
 
 
@@ -270,9 +282,9 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
     #   - 文件名 —— 少了就是 404
     #   - sha512 —— 少了更阴险，包能下下来，但 electron-updater 要等下载完
     #     才校验失败
-    local = {p.name: p for p in stage_dir.iterdir() if p.suffix in (".dmg", ".exe")}
+    local = {p.name: p for p in stage_dir.iterdir() if p.suffix in (".dmg", ".zip", ".exe")}
     if not local:
-        fail(f"{target}: {stage_dir} 下没有 dmg/exe，别的都无从谈起。")
+        fail(f"{target}: {stage_dir} 下没有 dmg/zip/exe，别的都无从谈起。")
 
     # **Windows 的包名里有空格**（`蒜狸小助手 Setup 30.21.3.exe`），所以取值
     # 必须用 `(.+?)` 而不是 `(\S+)` —— 后者一行都匹配不上，会误报成
@@ -281,6 +293,13 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
     names = {r.strip("'\"").rsplit("/", 1)[-1] for r in refs}
     if not names:
         fail(f"{target}: {name} 里没有 url/path 字段，消费方无从知道该下哪个包。")
+    if target.startswith("darwin") and not any(n.endswith(".zip") for n in names):
+        fail(
+            f"{target}: {name} 没有指向 .zip。\n"
+            f"    MacUpdater 只安装 zip，只有 dmg 时检查更新抛 ZIP file not provided。\n"
+            f"    2026-10-08 发出的 3.0.21.6 就是这样：稳定指针 latest-mac.yml 只写了 dmg，"
+            f"已安装的 Mac 客户端无法从公开源升级。dmg 可以同时列在清单里，但不能只有它。"
+        )
     stray = names - set(local)
     if stray:
         fail(

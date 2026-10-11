@@ -68,6 +68,8 @@ mac:
   category: public.app-category.productivity
   target:
     - target: dmg
+    # electron-updater 在 macOS 上吃 zip，不吃 dmg。dmg 给用户手动安装，zip 给更新源。
+    - target: zip
   # 图标**必须写死路径**。electron-builder 的图标本来是自动查找的，但只找 `build/`，
   # 而这个仓库的图标在 `resources/`（由 `scripts/app-icon.py` 从蒜狸形象生成）。找不到时
   # 它不报错，只在日志里留一行 `default Electron icon is used` —— 于是包照样绿着出，
@@ -79,6 +81,8 @@ mac:
   # 一碰资产库就炸。踩过一次：两个 DMG 都绿着出，x64 那个是坏的，而只查「文件在不在」
   # 的 verify 一点都看不出来。
   # 架构由命令行的 arch flag 决定；CI 矩阵一个 target 一个 runner，各自 stage 各自 rebuild。
+  # 没有开发者证书时 electron-builder 会跳过签名，并且不调用 afterSign。
+  # artifactBuildStarted 在打 dmg/zip 之前补 ad-hoc 指定要求，否则 Squirrel 拒绝安装更新。
   # hardenedRuntime / 公证（notarization）暂不开：需要 Apple 开发者证书和公证凭据，
   # 仓库里没有。开了反而会让 dmg 挂不上 —— 未签名公证的包 Gatekeeper 直接拒。
   # 要分发时再补，届时需要 entitlements 文件 + APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD。
@@ -101,3 +105,7 @@ nsis:
 # extraResources 里那份独立的 gateway 树，stage 脚本已经做过了，所以关掉 ——
 # 否则它会去 rebuild 根项目（那里根本没有原生模块），白跑一遍还可能失败。
 npmRebuild: false
+
+# 只在 darwin 上改签名；已有团队证书时脚本会跳过。hook 不能放到 app/desktop 外面。
+# 不用 afterSign：CI 没有证书时签名被跳过，这个钩子根本不会被调用。
+artifactBuildStarted: scripts/sign-mac-adhoc.cjs

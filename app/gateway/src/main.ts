@@ -1,4 +1,5 @@
 import { createApp } from "./bootstrap.js";
+import { installOutboundProxy } from "./outbound-proxy.js";
 import { installShutdownHandlers } from "./shutdown.js";
 
 /**
@@ -9,6 +10,7 @@ import { installShutdownHandlers } from "./shutdown.js";
  * `GATEWAY_NONCE`、`HILO_GATEWAY_ROLE`（workspace 时必须有 `WORKSPACE_DIR`）……
  */
 async function main() {
+  installOutboundProxy();
   const role = process.env.HILO_GATEWAY_ROLE;
   if (role === "workspace" && !process.env.WORKSPACE_DIR) {
     // 拒绝启动：workspace gateway 没有工作区就什么都做不了，

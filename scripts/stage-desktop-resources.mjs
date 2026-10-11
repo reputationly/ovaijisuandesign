@@ -49,7 +49,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { chmodSync, cpSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -209,6 +209,35 @@ function main() {
       ].join("\n"),
     );
   }
+
+  // rg 要和 opencode 放在同一目录：启动时 PATH 只追加 opencode 所在目录。
+  // ffmpeg / ffprobe 给剪辑和缩略图。开发机上参照应用里有这两份静态二进制；CI 没有时跳过，
+  // 不能因此让整次装配失败（干净机器上的包仍应尽量带上，见下面的警告）。
+  const refResources = process.platform === "darwin" ? "/Applications/MiniMax Design.app/Contents/Resources" : "";
+  const binDir = path.join(REPO, "app/packages/service/bin");
+  const rgName = process.platform === "win32" ? "rg.exe" : "rg";
+  const rgSrc = [path.join(binDir, rgName), refResources && path.join(refResources, "opencode", rgName)].find((p) => p && existsSync(p));
+  if (rgSrc && existsSync(path.join(OUT, "opencode"))) {
+    const rgDest = path.join(OUT, "opencode", rgName);
+    cpSync(rgSrc, rgDest);
+    chmodSync(rgDest, 0o755);
+    console.log(`  rg ← ${path.relative(REPO, rgSrc) || rgSrc}`);
+  } else {
+    console.log("\n⚠ 缺 rg。opencode 的搜索会失败。把 rg 放到 app/packages/service/bin/ 再装配。");
+  }
+  const ffDir = path.join(OUT, "ffmpeg");
+  mkdirSync(ffDir, { recursive: true });
+  let ffmpegCount = 0;
+  for (const name of process.platform === "win32" ? ["ffmpeg.exe", "ffprobe.exe"] : ["ffmpeg", "ffprobe"]) {
+    const src = [path.join(binDir, name), refResources && path.join(refResources, "ffmpeg", name)].find((p) => p && existsSync(p));
+    if (!src) continue;
+    const dest = path.join(ffDir, name);
+    cpSync(src, dest);
+    chmodSync(dest, 0o755);
+    ffmpegCount += 1;
+    console.log(`  ${name} ← ${path.relative(REPO, src) || src}`);
+  }
+  if (ffmpegCount < 2) console.log("\n⚠ ffmpeg / ffprobe 没配齐。发布包里剪辑和视频缩略图会找不到程序。");
 
   writeFileSync(
     path.join(OUT, ".staged.json"),

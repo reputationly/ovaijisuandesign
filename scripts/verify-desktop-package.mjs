@@ -151,7 +151,7 @@ function resourcesOf(dir) {
  *
  * **向上找，不按层级推。** 真实布局是：
  *
- *     dist-electron/latest-mac.yml                      ← 清单和 dmg 都在这层
+ *     dist-electron/latest-mac.yml                      ← 清单、dmg、更新用的 zip 都在这层
  *     dist-electron/mac-arm64/蒜狸小助手.app/Contents/Resources/…
  *
  * 而 `resources` 到输出根隔着**四层**（Resources → Contents → .app → mac-arm64），
@@ -279,8 +279,8 @@ function checkVersion(resources, expect) {
     console.log(`  ✅ app.asar 里 version = ${asar.version}（应用启动后 app.getVersion() 报的就是它）`);
   }
 
-  // 文件名里也带一遍 —— electron-builder 用同一个版本命名产物。
-  const pkgs = readdirSync(out).filter((f) => /\.(dmg|exe)$/.test(f));
+  // 文件名里也带一遍 —— electron-builder 用同一个版本命名产物。zip 是 mac 更新包，同样要带版本。
+  const pkgs = readdirSync(out).filter((f) => /\.(dmg|exe|zip)$/.test(f));
   if (pkgs.length === 0) {
     bad++;
     console.log(`  ❌ ${path.relative(REPO, out)} 下没有 dmg/exe 产物`);
@@ -290,6 +290,49 @@ function checkVersion(resources, expect) {
     else {
       bad++;
       console.log(`  ❌ 产物文件名 ${f} 里没有 ${expect}`);
+    }
+  }
+  return bad;
+}
+
+/**
+ * macOS 的 electron-updater 只安装 zip。清单里只有 dmg 时，装好的应用检查更新
+ * 会抛 `ZIP file not provided`。dmg 留给手动安装，不能代替 zip。
+ */
+function checkMacUpdateZip(resources) {
+  if (!resources.includes(`${path.sep}Contents${path.sep}Resources`)) return 0;
+  const out = outDirOf(resources);
+  if (!out) {
+    console.log("  ❌ mac 产物往上找不到同时有清单和安装包的目录，无法确认更新 zip");
+    return 1;
+  }
+  const manifest = path.join(out, "latest-mac.yml");
+  if (!existsSync(manifest)) {
+    console.log("  ❌ 找不到 latest-mac.yml，mac 更新器无从下载");
+    return 1;
+  }
+  const text = readFileSync(manifest, "utf8");
+  const refs = [...text.matchAll(/^\s*(?:-\s+)?(?:url|path):\s*(.+?)\s*$/gm)].map((m) =>
+    m[1].trim().replace(/^['"]|['"]$/g, ""),
+  );
+  const zipNames = [
+    ...new Set(refs.map((r) => r.split("/").pop()).filter((name) => name.endsWith(".zip"))),
+  ];
+  if (zipNames.length === 0) {
+    console.log("  ❌ latest-mac.yml 没有指向 .zip。MacUpdater 只安装 zip，只有 dmg 时检查更新会抛 ZIP file not provided");
+    return 1;
+  }
+  let bad = 0;
+  for (const name of zipNames) {
+    const file = path.join(out, name);
+    if (!existsSync(file)) {
+      bad++;
+      console.log(`  ❌ 清单指向 ${name}，但 ${path.relative(REPO, out)} 里没有这个 zip`);
+    } else if (!existsSync(`${file}.blockmap`)) {
+      bad++;
+      console.log(`  ❌ 缺 ${name}.blockmap（增量下载要用它）`);
+    } else {
+      console.log(`  ✅ 更新 zip 在清单里，文件和 blockmap 都在：${name}`);
     }
   }
   return bad;
@@ -535,6 +578,11 @@ function main() {
   if (expect) {
     console.log(`\n版本（期望 ${expect}，人读四段在 tag 和存储路径上，客户端比的是这个三段）`);
     bad += checkVersion(resources, expect);
+  }
+
+  if (resources.includes(`${path.sep}Contents${path.sep}Resources`)) {
+    console.log("\nmac 更新包");
+    bad += checkMacUpdateZip(resources);
   }
 
   // 更新源。**期望值从环境变量读**（`OV_UPDATE_FEED_BASE`）而不是另设一个 ——

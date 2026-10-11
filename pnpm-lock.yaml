@@ -255,6 +255,9 @@ importers:
       sharp:
         specifier: 0.35.4
         version: 0.35.4(@types/node@24.13.6)
+      undici:
+        specifier: 7.29.1
+        version: 7.29.1
     devDependencies:
       '@nestjs/testing':
         specifier: 11.2.4

@@ -646,6 +646,15 @@ export function usePersist(options) {
     }),
     [flushAndWaitLatest],
   );
+  // 主进程关窗口 / 退出前会调用这份列表，等画布写完再拆进程。
+  reactExports.useEffect(() => {
+    const list = (window.__ovFlushCanvas ??= []);
+    list.push(flushAndWaitLatest);
+    return () => {
+      const index = list.indexOf(flushAndWaitLatest);
+      if (index >= 0) list.splice(index, 1);
+    };
+  }, [flushAndWaitLatest]);
   reactExports.useEffect(() => {
     const unsubPersist = instance2.eventBus.on("persist:request", scheduleSave);
     const unsubFlush = instance2.eventBus.on("persist:flush", saveImmediately);

@@ -5,11 +5,11 @@
  * 的端口 → **立即**开窗口（不等任何 gateway）→ 应用级 gateway 后台启动 → 恢复上次的标签。
  * 工作区的 gateway + opencode 由 HiloApp 按需起，最多同时 5 套。
  */
-import { createWriteStream, mkdirSync, type WriteStream } from "node:fs";
+import { createWriteStream, existsSync, mkdirSync, readFileSync, type WriteStream } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 
-import { app, BrowserWindow, dialog, ipcMain, Notification, shell } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Notification, session, shell } from "electron";
 
 import { AppGateway, GatewayReadinessService, readinessView } from "./app-gateway.js";
 import { GatewayManager } from "./gateway/gateway-manager.js";
@@ -40,8 +40,21 @@ import { registerStorageIpc } from "./storage/storage-ipc.js";
 import { WorkspaceStorageRegistry } from "./storage/workspace-store.js";
 import { createSkillExportService } from "./skills/export.js";
 import { locateBundledSkills, seedBundledSkills } from "./skills/seed.js";
+import { childProxyEnv, electronProxyMode, normalizeProxyMode } from "./proxy-env.js";
 import { stubChannels } from "./stub-channels.js";
-import { createMainWindow, devHiddenWindow } from "./window.js";
+
+/** 联调时用文本文件代替系统文件框里选中的路径。文件不存在或是空的就走真对话框。 */
+function readDialogPointer(pointer: string | undefined): string | undefined {
+  const file = pointer?.trim();
+  if (!file) return undefined;
+  try {
+    const text = readFileSync(file, "utf8").trim();
+    return text || undefined;
+  } catch {
+    return undefined;
+  }
+}
+import { createMainWindow, devHiddenWindow, flushRenderer } from "./window.js";
 import { BundleHandle, createSerialGate } from "./workspace/bundle-handle.js";
 import { HiloApp } from "./workspace/hilo-app.js";
 import { identityHeaders } from "./workspace/identity.js";
@@ -150,7 +163,7 @@ async function boot(): Promise<Running | undefined> {
   // 每个 gateway 都要知道的两处位置：opencode 的会话库（项目导出导入读写它）、项目根（画布引用解析项目素材）。
   // opencode 的 XDG_DATA_HOME 指在 runtimeDir 下，见 opencode/index.ts。
   const opencodeDbPath = path.join(dirs.runtimeDir, "data-home", "opencode", "opencode.db");
-  const sharedGatewayEnv = {
+  const sharedGatewayEnv: Record<string, string> = {
     HILO_OPENCODE_DB: opencodeDbPath,
     HILO_PROJECTS_ROOT: dirs.projectsRoot,
     // 首页示例图的**可写**缓存。必须给一个包外的地方：发布包里 `resources/home-showcase`
@@ -159,6 +172,34 @@ async function boot(): Promise<Running | undefined> {
     // gateway 都指到同一份，不会每个项目重下一遍。
     HILO_HOMESHOWCASE_CACHE: path.join(dirs.userData, "home-showcase"),
   };
+  // 已在跑的 gateway 要重启才换代理；新拉起的读这份。设置里改模式时会刷新。
+  const applyProxyMode = async (mode: unknown) => {
+    const normalized = normalizeProxyMode(mode);
+    let resolved: string | undefined;
+    try {
+      await session.defaultSession.setProxy({ mode: electronProxyMode(normalized) });
+      if (normalized !== "direct") {
+        const probe = readPlatform(dirs.configPath).base_url || "https://example.com";
+        resolved = await session.defaultSession.resolveProxy(probe);
+      }
+    } catch (err) {
+      log(`[main] 设置系统代理失败：${err instanceof Error ? err.message : String(err)}`);
+    }
+    Object.assign(sharedGatewayEnv, childProxyEnv(normalized, resolved));
+    log(`[main] 代理模式 ${normalized}${normalized === "direct" ? "" : resolved ? ` ${resolved}` : "（系统没有代理）"}`);
+  };
+  const savedProxy = (store.get("config") as { networkProxyMode?: unknown } | undefined)?.networkProxyMode;
+  await applyProxyMode(savedProxy);
+  const bundledTool = (dir: string, name: string) => {
+    const file = process.platform === "win32" ? `${name}.exe` : name;
+    return [roots.resources && path.join(roots.resources, dir, file), roots.repoRoot && path.join(roots.repoRoot, "app/packages/service/bin", file)].find(
+      (p): p is string => !!p && existsSync(p),
+    );
+  };
+  const ffmpegBin = bundledTool("ffmpeg", "ffmpeg");
+  const ffprobeBin = bundledTool("ffmpeg", "ffprobe");
+  if (ffmpegBin) sharedGatewayEnv.FFMPEG_PATH = ffmpegBin;
+  if (ffprobeBin) sharedGatewayEnv.FFPROBE_PATH = ffprobeBin;
 
   // 应用级 gateway：先占端口，窗口拿到地址就能开
   mkdirSync(dirs.outputDir, { recursive: true });
@@ -309,10 +350,15 @@ async function boot(): Promise<Running | undefined> {
       templateDirs: () => [roots.resources && path.join(roots.resources, "project-templates"), roots.repoRoot && path.join(roots.repoRoot, "assets", "project-templates")].filter((d): d is string => !!d),
       downloadsDir: () => app.getPath("downloads"),
       showSaveDialog: (o) => {
+        // CDP 点不到系统保存框。OV_DIALOG_EXPORT_FILE 指向一个文本文件，里面是本次要保存的路径。
+        const forced = readDialogPointer(process.env.OV_DIALOG_EXPORT_FILE);
+        if (forced) return Promise.resolve({ canceled: false, filePath: forced });
         const w = BrowserWindow.getFocusedWindow();
         return w ? dialog.showSaveDialog(w, o) : dialog.showSaveDialog(o);
       },
       showOpenDialog: (o) => {
+        const forced = readDialogPointer(process.env.OV_DIALOG_IMPORT_FILE);
+        if (forced) return Promise.resolve({ canceled: false, filePaths: [forced] });
         const w = BrowserWindow.getFocusedWindow();
         const opts = o as Electron.OpenDialogOptions;
         return w ? dialog.showOpenDialog(w, opts) : dialog.showOpenDialog(opts);
@@ -331,7 +377,18 @@ async function boot(): Promise<Running | undefined> {
     },
     status: async () => connection.current(),
   });
-  for (const [name, svc] of Object.entries(stubChannels({ store, projectsRoot: dirs.projectsRoot, dataRoot: dirs.dataRoot, outputDir: dirs.outputDir, log: (l, m) => log(`[renderer ${l}] ${m}`) }))) {
+  for (const [name, svc] of Object.entries(stubChannels({
+    store,
+    projectsRoot: dirs.projectsRoot,
+    dataRoot: dirs.dataRoot,
+    outputDir: dirs.outputDir,
+    log: (l, m) => log(`[renderer ${l}] ${m}`),
+    applyProxyMode: (mode) => {
+      void applyProxyMode(mode);
+    },
+  }))) {
+    // updater 桩永远停在 idle。设置页读的是这条通道；真服务在下面注册，这里先跳过。
+    if (name === "updater") continue;
     registerChannel(name, svc);
   }
 
@@ -362,6 +419,9 @@ async function boot(): Promise<Running | undefined> {
     writeDismissed: (version, at) => void store.set("updaterDismissed", { version, at }),
     log,
   });
+  // 必须盖在 stub 之后：设置页、横幅走通道名 `updater`，`updater:check` 走下面的 raw-ipc。
+  // 两个入口要是同一个实例，否则主进程已经查到新版本，设置页仍显示「已是最新版本」。
+  registerChannel("updater", updaterService);
 
   const menuDeps = {
     createWorkspace: () => hilo.createWorkspace(),
@@ -469,6 +529,21 @@ if (!app.requestSingleInstanceLock()) {
     quitting = true;
     const r = running;
     void (async () => {
+      const saved = await Promise.all(BrowserWindow.getAllWindows().map((win) => flushRenderer(win))).then((results) => results.every(Boolean));
+      if (!saved && !devHiddenWindow()) {
+        const choice = await dialog.showMessageBox({
+          type: "warning",
+          message: "画布可能还没保存",
+          detail: "可以留在应用里再试一次，或仍然退出。",
+          buttons: ["取消", "仍然退出"],
+          defaultId: 0,
+          cancelId: 0,
+        });
+        if (choice.response !== 1) {
+          quitting = false;
+          return;
+        }
+      }
       await r.hilo.shutdown();
       await r.appGateway.stop();
       // 正常退出：恢复熔断计数清零

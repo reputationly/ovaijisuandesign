@@ -35,7 +35,7 @@
 | `replicate-official-stack` | 主线，已完成的都在这里 |
 | `ui-wave-1` | 界面第一波，已合进 `claude/beautiful-pascal-fa5c5l` 并补完 P0-1 的代码部分，剩本机截图验收 |
 | `wip/m8-agent-profiles` | 作废：改用参照原文（见 P0-2），不再合入，可以删 |
-| `main` | 2026-09-25 起和 `replicate-official-stack` 同步（用户定）：新栈在 `app/`，旧的 Rust + Tauri 代码（`crates/`、`apps/`、`mcp/`、`agent/`）还在，M10 再删；发布流水线只认 `v*` 标签，仍是旧栈的 |
+| `main` | 新栈在 `app/`。`crates/`、`apps/` 已不在工作区；`mcp/`、`agent/` 和根上的 `Cargo.lock` 已删。Windows 安装包还没在 Windows 上打开 |
 
 ### 已完成
 
@@ -67,11 +67,15 @@
 
 漂移核查用 `scripts/extract-mcp-tools.py` 和 `scripts/extract-gateway-routes.py`；两个脚本都只提取接口事实。
 
-真实平台验证过：对话、出图（`qwen-image-pro`）、文生视频（`minimax-h3-fl2va`）。
+真实平台验证过（2026-10-10，还原界面 `app/renderer`）：
+- 对话出图（`hub_generate_image` → `qwen-image-pro-enhanced`）、文生视频（`hub_generate_video` → `minimax-h3-2k`）。
+- 同一条对话续聊；画布工具栏扩图、重绘。
+- 新建本地项目、导入示例包、导出 zip 再导入、两个工作区切换。
+- 打出来的 macOS arm64 包（`app/desktop/dist-electron/蒜狸小助手-30.21.6-arm64.dmg`）用临时用户目录启动后，同样能出图。
 
 ### 已知问题
 
-- **界面没有对齐。**主线上跑的还是旧界面原样搬进 Electron 的样子，菜单、画布、聊天都和官方不一样。
+- **还不能当发布完成。**macOS arm64 的 dmg 已在本机打出。把 `蒜狸小助手-30.21.6-arm64.dmg` 装到空目录、用空的用户数据打开后，连上平台并出了一张图（`hub_generate_image`，`窗台晒太阳的橘猫.png`）。本机更新源上，30.21.6 下载了 30.21.7，ShipIt 安装成功并重新打开，版本是 30.21.7。升级要靠 ad-hoc 指定要求 `identifier "com.ovaijisuan.design"`；`app/desktop/scripts/sign-mac-adhoc.cjs` 会在出包时写上。没有证书、也不跑这个补丁时，Squirrel 会拒绝安装。这不是另一台空白电脑。Windows 安装包在 `app/desktop/dist-electron-win/`，布局核对过，更新源已写入公开地址，但这台机器打不开。公开源上的 `darwin-arm64/latest-mac.yml`（3.0.21.6）只指向 dmg；Mac 更新器只安装 zip，所以已安装的客户端从这条源检查更新会报 `ZIP file not provided`。`scripts/release-desktop.py` 现在拒绝只发 dmg 的 mac 清单，下一版发布才会把 zip 传上去。`crates/`、`apps/`、`mcp/`、`agent/` 和根上的 `Cargo.lock` 已经不在工作区。
 
 ---
 
@@ -207,7 +211,7 @@
    - 和参照不同又不打算改的见 `parity-gaps.md` 第三节「生成」。
 6. ~~**Skills 模块**~~：SkillsController 8 条 + SkillMarketController 里纯本地的 4 条（import、import/confirm-staging、fork、user/trash），按参照 JS 移植（`app/gateway/src/skills/`）；主进程把用户技能目录传给 gateway 和 opencode。旧界面「从 ~/.hub/skills 导入」按钮已删。不做的和行为差异见 `parity-gaps.md` 第三节。
 7. **飞书 / 微信**（官方放在主进程的 imBridge 通道）：从 `crates/gateway/src/{feishu,wechat}` 移植，35 个 Rust 测试一起移植。
-8. **主进程服务**，M5 里现在都是桩，按这个顺序补：desktopSettings、log、notification、trash / clipboard / skillExport、projectArchive、本地 projectAssets、dataDirectory、connectors、networkDiagnostics / assetCenter / 关窗确认。
+8. ~~**主进程服务**~~：log、通知、废纸篓、剪贴板、skillExport、projectArchive、本地 projectAssets、代理模式、关窗确认已经接上。仍是桩、且按范围不补的：desktopSettings 的自定义模型、数据目录迁移、连接器、资产中心、文件关联。
 9. **M5 的已知偏差**：
    - 没有「找不到文件夹，重新定位」对话框；
    - 全局存储没有加密 token；
@@ -223,10 +227,10 @@
 2. **原生模块要按 Electron 的 ABI 重编**（better-sqlite3；sharp 用的是 N-API，不受影响）：
    - 开发时 gateway 用系统 Node 跑（见 `app/desktop/src/main/paths.ts` 的 `nodeExecutable`）；
    - 发布包里 gateway 由 Electron 以 Node 模式运行，打包时必须用 `@electron/rebuild` 重编，否则第一次访问资产库就会抛 `NODE_MODULE_VERSION` 不一致。
-3. electron-vite build → 按目录出包 → `vpk pack`（macOS 和 Windows 都用 Velopack）；继续用双源 feed（R2 + GitHub）、四段版本号和 Velopack 的版本换算，见 `docs/distribution.md`。
-4. CI 换成 pnpm + turbo（`.github/workflows/ci.yml` 已经有 node job），加上打包流水线。
-5. 切换后删除：`crates/`、`apps/desktop`（Tauri）、`apps/canvas-web`、旧 `mcp/`、`agent/`、Cargo 文件和 Rust CI；改写 README 和 `docs/distribution.md`。
-6. 验收：在干净的 macOS / Windows 机器上安装运行，能从 feed 升级到下一个版本。
+3. 出包走 electron-builder（`.github/workflows/ci.yml` 和 `app/desktop/electron-builder.yml`），不是 Velopack。`electron-vite build` 之后 `electron-builder` 出 dmg、zip 和 nsis。mac 的更新清单必须指向 zip（更新器不安装 dmg）。`scripts/release-desktop.py` 和 `scripts/verify-desktop-package.mjs` 都会拒绝只有 dmg 的 mac 清单。
+4. CI 已是 pnpm + turbo，并带 macOS / Windows 的打包 job。
+5. `crates/`、`apps/desktop` 已不在工作区。`mcp/`、`agent/` 和根上的 `Cargo.lock` 已删。新栈不引用它们。Windows 安装包还没在 Windows 上打开。
+6. 2026-10-11 本机打出 macOS arm64 dmg，布局核对通过。从 dmg 拷到空目录、空用户数据下打开，出过一张图。同一天用本机更新源把 30.21.6 升到 30.21.7（设置页能看到新版本并下载；ShipIt 替换应用后重新打开，`CFBundleShortVersionString` 为 30.21.7）。未签名的 linker 签名过不了 Squirrel，两边都改成同一条 ad-hoc 指定要求后才装上；出包钩子 `app/desktop/scripts/sign-mac-adhoc.cjs` 现在会自动写上这条要求。Windows 安装包在 `app/desktop/dist-electron-win/蒜狸小助手 Setup 30.21.6.exe`。`scripts/verify-desktop-package.mjs` 对 `win-unpacked` 已通过：主程序、opencode、gateway、技能、示例项目都在，核对过的原生模块是 x64。sqlite 用 12.12.0 的 Electron ABI 148 预编译（12.11.1 没有这份）；canvas 和 xxhash 也放了 win32-x64 包。更新源已固化为 `https://design.aijisuan.kdns.fr/ovaijisuandesign`。线上 `win32-x64/latest.yml` 目前也是 30.21.6，所以这包检查更新时不会认为有新版本。这台 Mac 打不开这个安装包，所以不能当作已经装过。公开源 `darwin-arm64/latest-mac.yml` 目前只写了 3.0.21.6 的 dmg，已安装的 Mac 从这条源升不了级；下一版发布会带上 zip。设置页走的 `updater` 通道已挂上 `UpdaterService`，不再是永远 idle 的桩。
 
 ---
 

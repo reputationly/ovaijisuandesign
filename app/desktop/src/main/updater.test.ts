@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { fromService } from "./ipc/proxy.js";
 import {
   UpdaterService,
   currentUpdateTarget,
@@ -77,7 +78,7 @@ describe("自动更新：状态机", () => {
     expect(svc.getState().state.dismissedVersion).toBe("30.20.0");
 
     const r = await svc.check({ userTriggered: true });
-    expect(r).toEqual({ status: "available", version: "30.22.0" });
+    expect(r).toEqual({ accepted: true, status: "available", version: "30.22.0" });
     const s = svc.getState().state;
     expect(s.phase).toBe("available");
     expect(s.targetVersion).toBe("30.22.0");
@@ -91,7 +92,7 @@ describe("自动更新：状态机", () => {
     const u = fakeUpdater();
     u.checkForUpdates = vi.fn(async () => null);
     const svc = new UpdaterService(deps({ createAutoUpdater: () => u }));
-    expect(await svc.check()).toEqual({ status: "not-available" });
+    expect(await svc.check()).toEqual({ accepted: true, status: "not-available" });
     expect(svc.getState().state.phase).toBe("not-available");
     expect(svc.getState().state.error).toBeNull();
   });
@@ -108,7 +109,7 @@ describe("自动更新：状态机", () => {
       return { version: "30.21.5" };
     });
     const svc = new UpdaterService(deps({ createAutoUpdater: () => u }));
-    expect(await svc.check()).toEqual({ status: "not-available" });
+    expect(await svc.check()).toEqual({ accepted: true, status: "not-available" });
     expect(svc.getState().state.phase).toBe("not-available");
   });
 
@@ -119,7 +120,7 @@ describe("自动更新：状态机", () => {
       return { version: "30.21.6" };
     });
     const svc = new UpdaterService(deps({ createAutoUpdater: () => u }));
-    expect(await svc.check()).toEqual({ status: "available", version: "30.21.6" });
+    expect(await svc.check()).toEqual({ accepted: true, status: "available", version: "30.21.6" });
     expect(svc.getState().state.phase).toBe("available");
   });
 
@@ -154,9 +155,9 @@ describe("自动更新：状态机", () => {
       throw new Error("ECONNREFUSED");
     });
     const svc = new UpdaterService(deps({ createAutoUpdater: () => u }));
-    expect(await svc.check()).toEqual({ status: "error", error: "ECONNREFUSED" });
+    expect(await svc.check()).toEqual({ accepted: false, status: "error", error: "ECONNREFUSED" });
     expect(svc.getState().state.phase).toBe("error");
-    expect(svc.getState().state.error).toBe("ECONNREFUSED");
+    expect(svc.getState().state.error).toEqual({ message: "ECONNREFUSED" });
   });
 
   it("安装只在 downloaded 阶段真的退出进程，其余阶段按了也不动", async () => {
@@ -213,7 +214,7 @@ describe("自动更新：开发态与 target", () => {
 
   it("没有 autoUpdater（开发态 / 未配 feed）时如实说跳过了，不假装查过", async () => {
     const svc = new UpdaterService(deps({ createAutoUpdater: () => null }));
-    expect(await svc.check({ userTriggered: true })).toEqual({ status: "skipped", error: "开发模式不检查更新" });
+    expect(await svc.check({ userTriggered: true })).toEqual({ accepted: false, status: "skipped", error: "开发模式不检查更新" });
     // 状态还是 idle，别把「没查」报成「已是最新」
     expect(svc.getState().state.phase).toBe("idle");
   });
@@ -241,6 +242,20 @@ describe("自动更新：自报版本必须是三段 semver", () => {
     new UpdaterService(deps({ currentVersion: () => "3.0.21.2", log: (l) => void lines.push(l) }));
     expect(lines.join("\n")).toMatch(/不是三段 semver/);
     expect(lines.join("\n")).toMatch(/30\.21\.2/);
+  });
+
+  it("设置页走的通道能调到 check，并收到 available（原型方法也要能被 fromService 调到）", async () => {
+    const u = fakeUpdater();
+    const svc = new UpdaterService(deps({ createAutoUpdater: () => u }));
+    const channel = fromService(svc);
+    const phases: string[] = [];
+    channel.listen("", "onStateChanged")((e) => {
+      phases.push((e as { state: { phase: string } }).state.phase);
+    });
+    const r = await channel.call("", "check", [{ userTriggered: true }]);
+    expect(r).toMatchObject({ accepted: true, status: "available", version: "30.22.0" });
+    expect(phases).toContain("checking");
+    expect(phases).toContain("available");
   });
 
   it("版本合法时不啰嗦（正常出包不该有这条日志）", () => {

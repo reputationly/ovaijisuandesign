@@ -59,7 +59,8 @@ export interface UpdaterState {
   requiredReason: string | null;
   changelog: unknown | null;
   progress: { percent: number; bytesPerSecond: number; transferred: number; total: number; delta: number } | null;
-  error: string | null;
+  /** 渲染层读的是 `error.message`，不能只放字符串。 */
+  error: { message: string; code?: string; canRetry?: boolean; retryCount?: number } | null;
   lastCheckAt: number;
   userTriggeredDownload: boolean;
   activeCheckUserTriggered: boolean;
@@ -203,14 +204,19 @@ export class UpdaterService {
     this.changed.dispose();
   }
 
-  /** `opts.userTriggered` 是设置页「检查更新」和菜单项传进来的。 */
-  async check(opts?: { userTriggered?: boolean }): Promise<{ status: string; version?: string; error?: string }> {
+  /**
+   * `opts.userTriggered` 是设置页「检查更新」和菜单项传进来的。
+   *
+   * 返回值里的 `accepted` 是设置页手动检查在看的字段（`runManualUpdateCheck`）。
+   * 只有 `status` 没有 `accepted` 时，它会把一次成功的检查当成失败。
+   */
+  async check(opts?: { userTriggered?: boolean }): Promise<{ accepted: boolean; status: string; version?: string; error?: string }> {
     const userTriggered = opts?.userTriggered === true;
     this.trigger = userTriggered ? "user" : "auto";
     if (!this.updater) this.updater = this.deps.createAutoUpdater();
     if (!this.updater) {
       // 开发态：如实告诉调用方「没查」，而不是假装查过了。
-      return { status: "skipped", error: "开发模式不检查更新" };
+      return { accepted: false, status: "skipped", error: "开发模式不检查更新" };
     }
 
     this.patch({ phase: "checking", lastCheckAt: Date.now(), error: null, activeCheckUserTriggered: userTriggered });
@@ -235,11 +241,11 @@ export class UpdaterService {
       // 官方 UI 读的是 state 而不是返回值，所以横幅当时没出错 —— 但任何按
       // 返回值判断的调用方都会被骗。
       if (this.state.phase === "not-available") {
-        return { status: "not-available" };
+        return { accepted: true, status: "not-available" };
       }
       if (!latest) {
         this.patch({ phase: "not-available", targetVersion: null });
-        return { status: "not-available" };
+        return { accepted: true, status: "not-available" };
       }
       // 兜底：真 electron-updater 在 checkForUpdates() 期间会发 `update-available`，
       // 那条路已经把 phase 和 targetVersion 都设好了。但**只依赖事件顺序太脆** ——
@@ -257,11 +263,11 @@ export class UpdaterService {
           progress: null,
         });
       }
-      return { status: "available", version: latest };
+      return { accepted: true, status: "available", version: latest };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      this.patch({ phase: "error", error: message });
-      return { status: "error", error: message };
+      this.patch({ phase: "error", error: { message } });
+      return { accepted: false, status: "error", error: message };
     }
   }
 
@@ -272,7 +278,7 @@ export class UpdaterService {
     try {
       await this.updater.downloadUpdate();
     } catch (err) {
-      this.patch({ phase: "error", error: err instanceof Error ? err.message : String(err) });
+      this.patch({ phase: "error", error: { message: err instanceof Error ? err.message : String(err) } });
     }
   }
 
@@ -336,12 +342,12 @@ export class UpdaterService {
     u.on("update-downloaded", (info) =>
       this.patch({ phase: "downloaded", targetVersion: readVersion(info) ?? this.state.targetVersion, progress: null, userTriggeredDownload: false }),
     );
-    u.on("error", (err) => this.patch({ phase: "error", error: err instanceof Error ? err.message : String(err) }));
+    u.on("error", (err) => this.patch({ phase: "error", error: { message: err instanceof Error ? err.message : String(err) } }));
   }
 
   private patch(part: Partial<UpdaterState>): void {
     this.state = { ...this.state, ...part };
-    this.deps.log(`[updater] ${this.state.phase}${this.state.targetVersion ? ` → ${this.state.targetVersion}` : ""}${this.state.error ? ` (${this.state.error})` : ""}`);
+    this.deps.log(`[updater] ${this.state.phase}${this.state.targetVersion ? ` → ${this.state.targetVersion}` : ""}${this.state.error ? ` (${this.state.error.message})` : ""}`);
     this.changed.fire({ state: this.state, trigger: this.trigger });
   }
 }

@@ -1,6 +1,4 @@
 # pnpm workspace 根在仓库根，包在 app/ 下。
-# 旧栈（apps/canvas-web、mcp/，用 bun）不在 workspace 里 —— 新栈并排建，
-# M10 切换之前两边互不干扰。
 packages:
   - "app/*"
   - "app/packages/*"

@@ -11,22 +11,19 @@
 
 ---
 
-## 一、界面（差距最大）
+## 一、界面
 
-参照的渲染层可读应用代码约 30 万行，我们约 1.7 万行。主线上跑的仍是旧界面原样迁进 Electron；新界面只在 `ui-wave-1` 分支上做了第一波的一部分。**下面几乎每一项都属于 A。**
+2026-10-10 起界面是还原出的源码 `app/renderer`（构建到 `app/desktop/out/recovered-ui`），不再是旧界面。下面这张旧对照表作废。
 
-| 区域 | 参照 | 我们 |
-|---|---|---|
-| 应用菜单栏 | 完整菜单（文件、编辑、视图、窗口、帮助……）和快捷键 | 只有 M5 顺手加的几项，快捷键有猜的 |
-| 页面 | 首页、项目列表、项目详情、创作集、资产中心、技能 / 技能社区、工作流、更新日志；设置是 11 个分区的对话框 | 旧版的首页、素材库、画布、技能；新外壳和设置框的壳在 `ui-wave-1` |
-| 标签和窗口 | 单窗口，渲染层里放工作区标签，恢复时显示未启动的标签 | 主进程已支持（M5），界面还没接 |
-| 画布节点 | 9 种：image、video、audio、text、file（全景 / 插件 / 文件预览）、placeholder、table、group、sticker | 6 种，缺 file、table、sticker |
-| 画布交互 | 1732 个交互点、约 144 个菜单项：撤销重做、复制粘贴、对齐吸附、选中工具栏、右键菜单、快捷键；边、小地图、背景画在 `<canvas>` 上 | 少量菜单，没有撤销重做和复制粘贴，用 xyflow 自带的边和小地图 |
-| 画布模式 | 工具模式：select / hand / sticker；编辑模式：crop / outpaint / erase / redraw / move-object | 旧版的 4 种画布模式（其中 grid、storyboard 参照里没有） |
-| 节点弹层 | 生成弹层、裁剪、超分、扩图、擦除、重绘、移动物体、重打光、多角度、图层拆分、抠图 | 只有裁剪和超分（超分走 `/api/edit/super-resolution`，没有 8K 档：平台按 4K 总像素封顶） |
-| 聊天面板 | 约 4.6 万行：流式、markdown、思考块、工具卡、子 agent 块、提问栏、**工具确认卡**、**死循环防护卡**、上下文压缩提示、tiptap 输入框、会话标签、模型 / 模式 / Skill 选择器 | 约 1.6k 行；确认卡和防护卡**收到了却不显示**（用户看不到，agent 会一直等）；没有 markdown |
-| 组件体系 | Base UI、701 个设计 token、i18n（中英各 7578 条） | 主线：普通 React + 自写样式、244 个 token、没有 i18n；`ui-wave-1` 已补齐 token、i18n 和基础组件 |
-| 图标 | lucide 0.468.0 | 主线用 ^1.43，图标形状不一样；`ui-wave-1` 已钉到 0.468.0 |
+还和参照不一样、用户会碰到的：
+
+| 项 | 现状 |
+|---|---|
+| 应用菜单 | 文件（新建对话 `Cmd/Ctrl+N`、新建窗口 `Cmd/Ctrl+Shift+N`、导入 / 导出、关闭标签 `Cmd/Ctrl+W`、设置 `Cmd/Ctrl+,`）、系统编辑菜单（撤销、复制、粘贴）、视图、窗口。不是参照那份约 144 项的完整菜单 |
+| 统计 | 神策和观测云前端监控已停用 |
+| 代理 | 设置里的直连 / 系统会写进 Electron session，并传给之后启动的 gateway。已经在跑的 gateway 要重启应用才换 |
+| 关窗口 | 先等画布写完；写不完会问要不要仍然关闭或退出。Windows 上「最小化到托盘」那套对话框仍是范围外 |
+| 数据目录、连接器 | 用默认位置；不提供迁移和桌面软件连接器 |
 
 **B（故意不做，界面给禁用态或不显示）**：
 - 登录和账号；
@@ -40,26 +37,21 @@
 
 ## 二、主进程
 
-**A 还没做**：下面这些服务现在都是桩，只回最小值让界面能渲染。
+**A 还是桩**（界面能渲染，不做参照里的那套）：
 
-| 服务 | 参照里做什么 |
+| 服务 | 现状 |
 |---|---|
-| desktopSettings | 桌面设置读写（19–20 个方法） |
-| log | 日志、导出 |
-| notification | 系统通知 |
-| trash / clipboard / skillExport | 废纸篓、剪贴板、技能导出 |
-| projectArchive | 项目导入导出（打包 / 解包） |
-| projectAssets（本地部分） | 项目共享素材库（25 个方法） |
-| dataDirectory | 数据目录迁移 |
-| custom-mcp / generic-connector | 自定义 MCP、连接器 |
-| networkDiagnostics | 网络诊断 |
-| assetCenter | 资产中心 |
-| window 的关窗确认 | 有未保存内容时的确认 |
-| fileHandlers | 文件关联打开 |
+| desktopSettings | 主题、开机启动、防休眠能用；自定义模型不保存 |
+| dataDirectory | 始终是默认位置，迁移返回失败 |
+| custom-mcp / generic-connector | 不安装桌面软件连接器 |
+| assetCenter | 资产中心不启用 |
+| fileHandlers | 没有文件关联 |
+
+已经接上、不再是空桩的：log、系统通知、废纸篓、剪贴板、skillExport、projectArchive、本地 projectAssets、代理模式、关窗前等画布写完。网络诊断只回报代理模式，不跑探测。
 
 **B 故意不做**：
 - team-account、team-operation、team-data-invalidation；
-- updater（M10 用 Velopack 另做）；
+- updater：设置页接 `UpdaterService`（electron-updater）。没有开发者证书时出包钩子写 ad-hoc 指定要求，否则 Squirrel 拒绝安装；
 - imBridge 的云端部分；
 - comfyUiModelDownload；
 - 云端 projectAssets；
@@ -269,7 +261,7 @@
 
 | 项 | 参照 | 我们 |
 |---|---|---|
-| 安装与更新 | Velopack 安装包和更新 | 还没有：新栈没有安装包，发布的仍是旧 Rust + Tauri 版本 |
-| 随包资源 | opencode、rg、ffmpeg、agent 配置、项目模板 | 没打进包里 |
-| 原生模块 | 按 Electron 的 ABI 构建 | 只有系统 Node 的构建 |
-| 旧栈 | — | `crates/`、`apps/desktop`（Tauri）、`apps/canvas-web`、旧 `mcp/` 还在仓库里 |
+| 安装与更新 | Velopack 安装包和更新 | electron-builder 的 dmg / zip + electron-updater。2026-10-11 从 dmg 装到空目录后出过图，本机 feed（清单里是 zip）把 30.21.6 升到 30.21.7。公开源 3.0.21.6 的 `latest-mac.yml` 只有 dmg，Mac 更新器会报 `ZIP file not provided`；发布脚本已改为 mac 必须同时上传 zip，要等下一版发布才在公开源生效。未签名包过不了 Squirrel；这次升级是 ad-hoc 签名。Windows 安装包在 `dist-electron-win/`，还没在 Windows 上打开过 |
+| 随包资源 | opencode、rg、ffmpeg、agent 配置、项目模板 | macOS arm64 包里已核对 |
+| 原生模块 | 按 Electron 的 ABI 构建 | 打包时 `@electron/rebuild` 重编 better-sqlite3 |
+| 旧栈 | — | `crates/`、`apps/`、`mcp/`、`agent/` 已不在工作区。Windows 安装包还没在 Windows 上打开过 |

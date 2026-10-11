@@ -54,10 +54,20 @@ TARGETS = ("darwin-arm64", "darwin-x64", "win32-x64")
 # `<产品名>-<版本>[-arch].dmg` 不一样。别为了好写而简化成没空格 —— 上一版
 # 就是这么漏的：断言里用了 `(\S+)` 取包名，Windows 那一行匹配不上，误报成
 # 「没有 url/path 字段」，白跑了一轮发布。真实的线上文件名就是带空格的。
+# mac 每个 target 同时有 dmg（手动安装）和 zip（electron-updater 只安装这个）。
+# 载荷不同 → sha512 必然不同。
 LAYOUT = {
-    "darwin-arm64": (".dmg", f"蒜狸小助手-{ENCODED}-arm64.dmg", b"arm64-payload"),
-    "darwin-x64": (".dmg", f"蒜狸小助手-{ENCODED}.dmg", b"x64-payload"),
-    "win32-x64": (".exe", f"蒜狸小助手 Setup {ENCODED}.exe", b"win-payload"),
+    "darwin-arm64": {
+        "dmg": (f"蒜狸小助手-{ENCODED}-arm64.dmg", b"arm64-dmg"),
+        "zip": (f"蒜狸小助手-{ENCODED}-arm64-mac.zip", b"arm64-zip"),
+    },
+    "darwin-x64": {
+        "dmg": (f"蒜狸小助手-{ENCODED}.dmg", b"x64-dmg"),
+        "zip": (f"蒜狸小助手-{ENCODED}-mac.zip", b"x64-zip"),
+    },
+    "win32-x64": {
+        "exe": (f"蒜狸小助手 Setup {ENCODED}.exe", b"win-payload"),
+    },
 }
 
 FAILED: list[str] = []
@@ -71,34 +81,56 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         print(f"  ✗ {name}{chr(10) + '      ' + detail if detail else ''}")
 
 
-def manifest_for(pkg_name: str, payload: bytes) -> str:
+def manifest_for(entries: list[tuple[str, bytes]], primary: str) -> str:
     """照 electron-builder 的格式造一份 `latest-*.yml`。
 
     `url` / `path` 用**真实包名**而不是占位符 —— 占位符会先被「清单指向的包
     不在这个目录」拦下来，就测不到 sha512 那条断言了。
+
+    mac 的 `path` 指向 zip。electron-builder 在 dmg+zip 同时打开时就是这样写的，
+    MacUpdater 也只从 files 里找 `.zip`。
     """
-    d = base64.b64encode(hashlib.sha512(payload).digest()).decode()
-    return (
-        f"version: {ENCODED}\n"
-        f"files:\n  - url: {pkg_name}\n    sha512: {d}\n    size: {len(payload)}\n"
-        f"path: {pkg_name}\nsha512: {d}\nreleaseDate: '2026-10-07T00:00:00.000Z'\n"
-    )
+    lines = [f"version: {ENCODED}", "files:"]
+    primary_b64 = ""
+    for pkg_name, payload in entries:
+        digest = base64.b64encode(hashlib.sha512(payload).digest()).decode()
+        lines.append(f"  - url: {pkg_name}\n    sha512: {digest}\n    size: {len(payload)}")
+        if pkg_name == primary:
+            primary_b64 = digest
+    lines.append(f"path: {primary}")
+    lines.append(f"sha512: {primary_b64}")
+    lines.append("releaseDate: '2026-10-07T00:00:00.000Z'")
+    return "\n".join(lines) + "\n"
 
 
-def build(cross_mix: bool, work: Path) -> Path:
+def packages_of(target: str) -> list[tuple[str, bytes]]:
+    return [(name, payload) for name, payload in LAYOUT[target].values()]
+
+
+def build(cross_mix: bool, work: Path, *, dmg_only_mac: bool = False) -> Path:
     """造 `dist-electron/<target>/` 三个目录。
 
     `cross_mix=True` 把 x64 的清单复制进 arm64 的目录 —— **精确复现那次事故**。
+    `dmg_only_mac=True` 复现 2026-10-08 的线上清单：文件在，但 yml 只写 dmg。
     """
     out = work / "dist-electron"
-    for target, (ext, name, payload) in LAYOUT.items():
+    for target, kinds in LAYOUT.items():
         d = out / target
         d.mkdir(parents=True)
-        (d / name).write_bytes(payload)
-        (d / (name + ".blockmap")).write_text("bm")
-        (d / ("latest-mac.yml" if ext == ".dmg" else "latest.yml")).write_text(
-            manifest_for(name, payload), encoding="utf8"
-        )
+        entries = packages_of(target)
+        for name, payload in entries:
+            (d / name).write_bytes(payload)
+            (d / (name + ".blockmap")).write_text("bm")
+        listed = entries
+        primary = entries[0][0]
+        if target.startswith("darwin"):
+            zip_name = kinds["zip"][0]
+            primary = zip_name
+            if dmg_only_mac:
+                listed = [kinds["dmg"]]
+                primary = kinds["dmg"][0]
+        manifest_name = "latest-mac.yml" if target.startswith("darwin") else "latest.yml"
+        (d / manifest_name).write_text(manifest_for(listed, primary), encoding="utf8")
     if cross_mix:
         shutil.copy2(
             out / "darwin-x64" / "latest-mac.yml", out / "darwin-arm64" / "latest-mac.yml"
@@ -106,9 +138,9 @@ def build(cross_mix: bool, work: Path) -> Path:
     return out
 
 
-def run(cross_mix: bool):
+def run(cross_mix: bool, *, dmg_only_mac: bool = False):
     work = Path(tempfile.mkdtemp(prefix="ov-layout-"))
-    out = build(cross_mix, work)
+    out = build(cross_mix, work, dmg_only_mac=dmg_only_mac)
     rd.ELECTRON_OUT = out
     rd.DIST = work / "dist-desktop"
     argv = ["release-desktop.py", "--version", HUMAN, "--layout-only"]
@@ -139,8 +171,8 @@ for t in TARGETS:
         check(f"{t} 产出了清单", False, f"没有 {p}")
         continue
     text = p.read_text(encoding="utf8")
-    want_name = LAYOUT[t][1]
-    check(f"{t} 清单里指向自己的包（{want_name}）", want_name in text)
+    for want_name, _payload in packages_of(t):
+        check(f"{t} 清单里指向自己的包（{want_name}）", want_name in text)
     check(f"{t} 清单 version 是编码值 {ENCODED}", f"version: {ENCODED}" in text)
     check(f"{t} 清单里地址已重写成绝对地址", "https://cdn.selfcheck/" in text)
     import re
@@ -177,6 +209,24 @@ check(
     "错误信息点出了「按 target 分目录」这个病根",
     "分目录" in msg or "target" in msg,
     msg[:200],
+)
+
+# ---------------------------------------------------------------- 只有 dmg 的 mac 清单
+
+print("\nmac 清单只有 dmg：更新器装不了，发布必须拒绝")
+rc, _, _ = run(cross_mix=False, dmg_only_mac=True)
+check(f"退出码非 0（实际 {rc}）", rc != 0)
+buf = io.StringIO()
+try:
+    with contextlib.redirect_stderr(buf):
+        run(cross_mix=False, dmg_only_mac=True)
+except SystemExit:
+    pass
+msg = buf.getvalue()
+check(
+    "错误信息点出 mac 更新要 zip",
+    "zip" in msg.lower() or "ZIP" in msg,
+    msg[:300],
 )
 
 # ---------------------------------------------------------------- 结果

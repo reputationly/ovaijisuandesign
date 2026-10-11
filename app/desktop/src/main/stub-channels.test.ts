@@ -6,10 +6,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("electron", () => ({
   app: { getVersion: () => "9.9.9", getLoginItemSettings: () => ({ openAtLogin: false }), isPackaged: false, relaunch: vi.fn(), quit: vi.fn() },
-  BrowserWindow: { getFocusedWindow: () => null },
+  BrowserWindow: { getFocusedWindow: () => null, getAllWindows: () => [] },
   clipboard: { availableFormats: () => ["text/plain"] },
   nativeTheme: { themeSource: "system" },
   powerSaveBlocker: { start: vi.fn(() => 7), stop: vi.fn(), isStarted: vi.fn(() => true) },
+  Notification: { isSupported: () => false },
   shell: { trashItem: vi.fn(), openExternal: vi.fn() },
 }));
 

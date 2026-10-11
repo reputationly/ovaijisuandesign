@@ -7,7 +7,7 @@
  */
 import { format } from "node:util";
 
-import { app, BrowserWindow, clipboard, nativeTheme, powerSaveBlocker, shell } from "electron";
+import { app, BrowserWindow, clipboard, nativeTheme, Notification, powerSaveBlocker, shell } from "electron";
 
 import { Emitter, type Event } from "./ipc/events.js";
 import type { GlobalStore } from "./storage/global-store.js";
@@ -85,6 +85,8 @@ export interface StubDeps {
   dataRoot: string;
   outputDir: string;
   log: (level: string, message: string) => void;
+  /** 代理模式改了之后应用到 Electron session，并更新之后拉起的 gateway 环境。已在跑的进程要重启才换。 */
+  applyProxyMode?: (mode: string) => void;
 }
 
 function connectorStatus(id: unknown): Record<string, unknown> {
@@ -132,6 +134,38 @@ class PowerBlocker {
       this.id = null;
     }
   }
+}
+
+/** 生成结束、需要回答时的系统通知。窗口在前台时不弹，避免和界面重复。 */
+function notificationChannel(): object {
+  const clicked = new Emitter<string>();
+  const closed = new Emitter<string>();
+  let seq = 0;
+  return {
+    getPermissionStatus: () => ({ supported: Notification.isSupported(), status: Notification.isSupported() ? "granted" : "denied" }),
+    requestPermission: () => Notification.isSupported(),
+    show: (payload: unknown) => {
+      const body = (payload ?? {}) as { title?: string; body?: string; silent?: boolean };
+      if (BrowserWindow.getAllWindows().some((win) => win.isFocused())) return { success: true, id: null, suppressed: true };
+      if (!Notification.isSupported()) return { success: false, id: null, error: "unsupported" };
+      const id = `n${++seq}`;
+      const notice = new Notification({ title: String(body.title ?? ""), body: String(body.body ?? ""), silent: Boolean(body.silent) });
+      notice.on("click", () => {
+        const win = BrowserWindow.getAllWindows()[0];
+        if (win && !win.isDestroyed()) {
+          if (win.isMinimized()) win.restore();
+          win.show();
+          win.focus();
+        }
+        clicked.fire(id);
+      });
+      notice.on("close", () => closed.fire(id));
+      notice.show();
+      return { success: true, id };
+    },
+    onDidClickNotification: clicked.event,
+    onDidCloseNotification: closed.event,
+  };
 }
 
 export function stubChannels(deps: StubDeps): Record<string, object> {
@@ -313,10 +347,7 @@ export function stubChannels(deps: StubDeps): Record<string, object> {
         if (config().assetCenterHidden !== true) deps.store.set("config", { assetCenterHidden: true });
       },
     }),
-    notification: stub("notification",
-      { getPermissionStatus: () => ({ supported: true, status: "assumed-granted" }), requestPermission: () => true, show: () => ({ success: false, id: null }) },
-      ["onDidClickNotification", "onDidCloseNotification"],
-    ),
+    notification: notificationChannel(),
     networkDiagnostics: stub("networkDiagnostics", {
       getProxyMode: () => config().networkProxyMode ?? "auto",
       // 只记下选择（新开的工作区读它）；渲染层拿 success=false 会弹"切换失败"
@@ -325,6 +356,11 @@ export function stubChannels(deps: StubDeps): Record<string, object> {
           return { success: false, mode: config().networkProxyMode ?? "auto", restartHint: true, error: "invalid mode" };
         }
         deps.store.set("config", { networkProxyMode: mode });
+        try {
+          deps.applyProxyMode?.(mode);
+        } catch (err) {
+          deps.log("warn", `[proxy] 应用代理模式失败：${err instanceof Error ? err.message : String(err)}`);
+        }
         return { success: true, mode, restartHint: true };
       },
       runDiagnostics: () => diagnosticsSnapshot(),
@@ -358,8 +394,9 @@ export function stubChannels(deps: StubDeps): Record<string, object> {
       ["onDidChange"],
     ),
     "team-data-invalidation": stub("team-data-invalidation", {}, ["onDidInvalidate"]),
-    // 没有自动更新：状态机永远停在 idle。渲染层拿 getState().state 整个替换本地状态，缺字段会显示成 undefined。
-    // 手动检查时照样走一遍 checking → idle 的事件：界面点"检测"后会一直显示"检查中"，直到看到阶段变化。
+    // 生产进程不注册这条（index.ts 跳过名字 updater，改挂 UpdaterService）。
+    // 桩留在这里只为形状测试：状态机停在 idle，手动检查只闪一下 checking。
+    // 若误挂上它，设置页会一直显示「已是最新版本」，哪怕 raw-ipc 已经查到新版本。
     updater: stub("updater", {
       getState: () => ({ state: updaterIdleState(lastUpdateCheck), trigger: "auto" }),
       getVersion: () => app.getVersion(),
