@@ -282,11 +282,11 @@ sort -V 之后   1.1.8.1 < 1.1.8.2 < 1.1.8.3 < 3.0.12.1
 | 放在哪 | 形态 | 谁维护 |
 |---|---|---|
 | `app/desktop/package.json` 的 `hiloOfficialVersion` | `3.0.21` | **手改**，只在跟进参照应用的新版时 |
-| Git tag | `v30.21.8` | `scripts/tag.py --push` 自动算 |
-| 桶里的存储目录 | `30.21.8/` | CI 用 tag 推出来的 |
-| `app/desktop/package.json` 的 `version` | `30.21.8` | CI 出包前经 `set-desktop-version.py` 写入 |
-| `latest-*.yml` 的 `version:` | `30.21.8` | electron-builder 从上面那份抄 |
-| `app.getVersion()` | `30.21.8` | asar 里那份 package.json |
+| Git tag | `v30.21.7` | `scripts/tag.py --push` 自动算 |
+| 桶里的存储目录 | `30.21.7/` | CI 用 tag 推出来的 |
+| `app/desktop/package.json` 的 `version` | `30.21.7` | CI 出包前经 `set-desktop-version.py` 写入 |
+| `latest-*.yml` 的 `version:` | `30.21.7` | electron-builder 从上面那份抄 |
+| `app.getVersion()` | `30.21.7` | asar 里那份 package.json |
 
 编码规则：**前两段拼成一个数字，第四段缺省 0。**
 
