@@ -1,5 +1,6 @@
 // 运营后台「已发布」面板：分页列表与投稿人筛选。
-import { useTranslation, reactExports, X$7 as X, API_PATHS, Loader2, useSensors, useSensor, sortableKeyboardCoordinates, KeyboardSensor, PointerSensor, Save, DndContext, closestCenter, SortableContext, verticalListSortingStrategy, ChevronLeft, ChevronRight$1 as ChevronRight } from "../../vendor.js";
+import { useTranslation, reactExports, X$7 as X, API_PATHS, Loader2, useSensors, useSensor, KeyboardSensor, PointerSensor, Save, DndContext, closestCenter, ChevronLeft, ChevronRight$1 as ChevronRight } from "../../vendor.js";
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { dedupedToast } from "../../infra/agent-http-client.js";
 import { AlertDialog, Button } from "../../infra/dialog-content.jsx";
 import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction, Badge } from "../../infra/badge-variants.jsx";

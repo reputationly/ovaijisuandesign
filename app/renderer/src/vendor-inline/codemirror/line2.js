@@ -3,7 +3,6 @@ import {
   BidiSpan,
   Facet,
   StyleModule,
-  browser,
   skipSpace,
   space$2,
   inList,
@@ -104,7 +103,6 @@ export function buildTheme(main2, spec, scopes) {
     },
   });
 }
-export const useCharData = browser.ie && browser.ie_version <= 11;
 export const MaxBidiLine = 4096;
 export const BadMeasure = {};
 export const noProps = Object.create(null);

@@ -1,21 +1,23 @@
 // sortable-queued-row.jsx
 import {
   closestCenter,
-  CSS$1 as CSS,
   DndContext,
   jsxRuntimeExports,
   KeyboardSensor,
   Loader2,
   PointerSensor,
   reactExports,
-  SortableContext,
-  sortableKeyboardCoordinates,
   useSensor,
   useSensors,
-  useSortable,
   useTranslation,
-  verticalListSortingStrategy,
 } from "../vendor.js";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import {
   Icon,
   Tooltip,

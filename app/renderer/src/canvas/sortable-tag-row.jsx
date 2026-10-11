@@ -1,5 +1,7 @@
 // sortable-tag-row.jsx
-import { CSS$1 as CSS, reactExports, useSortable, useTranslation, X$7 as X } from "../vendor.js";
+import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import { CSS } from "@dnd-kit/utilities";
+import { useSortable } from "@dnd-kit/sortable";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Icon,

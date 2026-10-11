@@ -1,8 +1,5 @@
 // map-team-credit-summary.js
-import { InfiniteQueryObserver, useBaseQuery } from "../vendor.js";
-export function useInfiniteQuery(options, queryClient2) {
-  return useBaseQuery(options, InfiniteQueryObserver, queryClient2);
-}
+export { useInfiniteQuery } from "@tanstack/react-query";
 export class TeamApiError extends Error {
   constructor(payload, options) {
     super(`Team API request failed: ${payload.code}`, options);

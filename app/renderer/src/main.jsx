@@ -158,7 +158,6 @@ import "./media-editing/use-editor-state.js";
 import "./media-editing/image-inplace-editor.jsx";
 import "./media-editing/storyboard-resize-max-edge.js";
 import "./media-editing/watermark-popover.jsx";
-import "./vendor-inline/codemirror/input-state2.js";
 import "./media-editing/compute-multi-image-grid-positions.jsx";
 import "./media-editing/canvas-sticker-assets.jsx";
 import "./media-editing/create-column.jsx";

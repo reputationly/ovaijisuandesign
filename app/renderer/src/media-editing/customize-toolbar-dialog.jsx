@@ -1,12 +1,9 @@
 // customize-toolbar-dialog.jsx
 import {
-  arrayMove,
   closestCenter,
   CompositedSvg,
-  CSS$1 as CSS,
   DndContext,
   DragOverlay,
-  horizontalListSortingStrategy,
   jsxRuntimeExports,
   KeyboardSensor,
   Pin,
@@ -15,14 +12,19 @@ import {
   reactDomExports,
   reactExports,
   RotateCcw,
-  SortableContext,
-  sortableKeyboardCoordinates,
   useSensor,
   useSensors,
-  useSortable,
   useTranslation,
   X$7 as X,
 } from "../vendor.js";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  arrayMove,
+  horizontalListSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from "@dnd-kit/sortable";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Dialog } from "../canvas/separator.jsx";
 import {

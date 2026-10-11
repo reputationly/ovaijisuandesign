@@ -1,17 +1,21 @@
 // code-mirror-source-editor.jsx
 import {
   Decoration2,
-  historyKeymap,
-  indentWithTab,
   reactExports,
-  redo,
-  redoDepth,
   StateEffect,
   StateField,
   tags$1 as tags,
+} from "../vendor.js";
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  indentWithTab,
+  redo,
+  redoDepth,
   undo,
   undoDepth,
-} from "../vendor.js";
+} from "@codemirror/commands";
 import { EditorView2 } from "../vendor-inline/codemirror/editor-view2.js";
 import {
   drawSelection,
@@ -29,13 +33,11 @@ import {
   SearchQuery,
 } from "../vendor-inline/codemirror/delete-markup-backward.js";
 import { setSearchQuery } from "../vendor-inline/codemirror/line2.js";
+import { markdownLanguage } from "../vendor-inline/codemirror/insert-newline-continue-markup-command.js";
 import {
   Compartment,
   EditorState2,
 } from "../vendor-inline/codemirror/editor-state2.js";
-import { defaultKeymap } from "../vendor-inline/codemirror/base-theme.js";
-import { markdownLanguage } from "../vendor-inline/codemirror/insert-newline-continue-markup-command.js";
-import { history } from "../vendor-inline/codemirror/standard-keymap.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 const setSourceFindHighlights = StateEffect.define();
 const sourceFindMatch = Decoration2.mark({

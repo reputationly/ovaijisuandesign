@@ -1,51 +1,6 @@
 // linked-list.js
-import {
-  reactExports,
-  useRouter,
-  useStore,
-  RouterCore,
-  getStoreFactory,
-  replaceEqualDeep$1,
-  regionToLocale,
-  getRuntimeConfig,
-  instance,
-} from "../../vendor.js";
-export var Router = class extends RouterCore {
-  constructor(options) {
-    super(options, getStoreFactory);
-  }
-};
-export function useRouterState(opts) {
-  const contextRouter = useRouter({
-    warn: opts?.router === void 0,
-  });
-  const router2 = opts?.router || contextRouter;
-  const previousResult = reactExports.useRef(void 0);
-  return useStore(router2.stores.__store, (state2) => {
-    if (opts?.select) {
-      if (opts.structuralSharing ?? router2.options.defaultStructuralSharing) {
-        const newSlice = replaceEqualDeep$1(previousResult.current, opts.select(state2));
-        previousResult.current = newSlice;
-        return newSlice;
-      }
-      return opts.select(state2);
-    }
-    return state2;
-  });
-}
-export function useLocation(opts) {
-  const router2 = useRouter();
-  const previousResult = reactExports.useRef(void 0);
-  return useStore(router2.stores.location, (location2) => {
-    const selected2 = location2;
-    if (router2.options.defaultStructuralSharing) {
-      const shared = replaceEqualDeep$1(previousResult.current, selected2);
-      previousResult.current = shared;
-      return shared;
-    }
-    return selected2;
-  });
-}
+import { regionToLocale, getRuntimeConfig, instance } from "../../vendor.js";
+export { Router, useRouterState, useLocation } from "@tanstack/react-router";
 export const MAX_PENDING_RUM_EVENTS = 50;
 export const pendingRumEvents = [];
 export function toSafeRumError(error) {

@@ -402,7 +402,8 @@ function exportMap(pkgDir, name) {
 // 文件本身 import（d3-zoom/src/noevent.js）；有 "." 键的包（@base-ui/react）封锁，只能留在 vendor。
 function deepExportMap(pkgDir, name) {
   const pj = JSON.parse(readFileSync(path.join(pkgDir, "package.json"), "utf8"));
-  if (pj.exports && Object.keys(pj.exports).some((k) => k.startsWith("."))) return null;
+  // 只要写了 exports，子路径就被封住（d3-interpolate 的键是 umd/default，不是 ./src/*）。
+  if (pj.exports) return null;
   const map = new Map();
   for (const f of moduleGraph(pkgDir)) {
     const rel = path.relative(pkgDir, f).replaceAll("\\", "/");
@@ -461,7 +462,7 @@ const isInterop = (n) =>
   t.isVariableDeclaration(n) &&
   n.declarations.every((d) => t.isCallExpression(d.init) && t.isIdentifier(d.init.callee) && isBundlerHelper(d.init.callee.name));
 
-const baseCandidates = (n) => [...new Set([n, n.replace(/\$\d+$/, ""), n.replace(/\$\d+$/, "").replace(/\d+$/, ""), n.replace(/\$/g, "")])];
+const baseCandidates = (n) => [...new Set([n, n.replace(/\$\d+$/, ""), n.replace(/\$\d+$/, "").replace(/\d+$/, ""), n.replace(/\$/g, "")])].filter((c) => c === n || c.length >= 4);
 
 /**
  * 在 vendor AST 上做替换。src 是 vendor 语句的原文来源（bundle 源码），语句节点带 start/end。
@@ -639,13 +640,61 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
   }
   if (!mine.size) return fail(report, "vendor 里没找到这个包的代码（版本不对？）");
 
+  // 落在主簇行号范围内、但打包改写后形状对不上的语句，仍是同一份库
+  // （date-fns 的 eachMonthOfInterval 少了 step，引用的 normalizeInterval 却对得上）。
+  // 范围内的语句只要引用也不出这个范围，就收进来一起换。
+  let spanLo = Infinity;
+  let spanHi = -Infinity;
+  for (const i of mine) {
+    if (!inBody(i) || !body[i].loc) continue;
+    spanLo = Math.min(spanLo, body[i].loc.start.line);
+    spanHi = Math.max(spanHi, body[i].loc.end.line);
+  }
+  // 主簇正前方几十行常常是同一段库，形状没对上所以没进簇（find-cluster-break 贴在 state 前面）。
+  const SPAN_MARGIN = 60;
+  const inSpan = (i) => body[i].loc && body[i].loc.start.line >= spanLo - SPAN_MARGIN && body[i].loc.end.line <= spanHi;
+  const adopted = new Set();
+  const linked = (d) => mine.has(d) || adopted.has(d);
+  // 簇外的小闭包（h$6 = render、hastToHtml = toHtml）只要引用最终落回这个包或已换的 import，就一起收。
+  // 超过 30 条就停，避免把隔壁一整份库卷进来。
+  const reachable = (i) => inSpan(i) || hit[i];
+  const smallAlias = (i) => (bodies[i]?.length ?? 0) > 0 && bodies[i].length < 180;
+  const canPull = (i, stack) => {
+    if (mine.has(i) || adopted.has(i) || isImport(i)) return true;
+    if (stack.has(i)) return true;
+    if (!reachable(i) && !smallAlias(i)) return false;
+    if (!reachable(i) && stack.size >= 8) return false;
+    stack.add(i);
+    const ok = (n) => {
+      const d = declOf.get(n);
+      if (d === undefined || d === i || linked(d) || isImport(d) || isBundlerHelper(n) || isInterop(body[d])) return true;
+      return canPull(d, stack);
+    };
+    for (const n of refs[i]) if (!ok(n)) return false;
+    for (const n of mutates[i]) if (!ok(n)) return false;
+    return true;
+  };
+  const collectPull = (i, into, stack = new Set()) => {
+    if (mine.has(i) || adopted.has(i) || into.has(i) || isImport(i) || stack.has(i)) return;
+    if (!reachable(i) && !smallAlias(i)) return;
+    if (!reachable(i) && stack.size >= 8) return;
+    stack.add(i);
+    into.add(i);
+    const walk = (n) => {
+      const d = declOf.get(n);
+      if (d === undefined || d === i || linked(d) || into.has(d) || isImport(d) || isBundlerHelper(n) || isInterop(body[d])) return;
+      collectPull(d, into, stack);
+    };
+    for (const n of refs[i]) walk(n);
+    for (const n of mutates[i]) walk(n);
+  };
   // 反复检查三种冲突。冲突落在短语句 / 夹缝语句 / 簇外的误命中上（多半是邻居包的，let x = 0
   // 这种形状到处都有）就把它踢出去重来；落在主簇的长语句上说明真有问题，记下来报错。
   // 循环每轮要全量扫 body（上万条语句 × 几百轮 evict 是主要耗时），把规则 1、2 的 O(body)
   // 扫描改成一次预计算的倒排：
   //   declInMine   名字 → 声明它的 mine 语句（evict 时移除）
   //   outsideUsers 名字 → mine 外引用/挂属性它的语句集合（needed 就是它非空的那些）
-  const solid = (i) => strong(i) && inBody(i);
+  const solid = (i) => adopted.has(i) || (strong(i) && inBody(i));
   const { map: exportsMap, aliases } = exportMap(pkgDir, item.name);
   const deep = deepExportMap(pkgDir, item.name);
   // 匹配顺序：名字本身 → re-export 别名（identity → zoomIdentity）→ 模块内部名深路径
@@ -663,7 +712,7 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
   {
     const mineDecls = new Set(declInMine.keys());
     for (let i = 0; i < body.length; i++) {
-      if (mine.has(i) || isImport(i)) continue;
+      if (mine.has(i) || isImport(i) || (t.isExportNamedDeclaration(body[i]) && !body[i].source)) continue;
       let touches = false;
       for (const n of refs[i]) if (mineDecls.has(n)) {
         touches = true;
@@ -684,6 +733,7 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
   for (;;) {
     problems = [];
     const evict = new Set();
+    const absorb = new Set();
     // 1. 外面没认出的语句在初始化时给它的对象挂属性（X.none = …）：命中原文就收进来，否则冲突
     for (const i of outSet) {
       if (mine.has(i)) continue;
@@ -706,8 +756,25 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
       const e = mapName(n);
       if (e) mapped.push([e[0], e[1], n]);
       else if (solid(d)) {
-        const u = [...users].find((x) => !mine.has(x));
-        problems.push(`${n} 不是包的导出（${u == null ? "main 在用" : `被 ${head(u)} 引用`}）`);
+        const outsiders = [...users].filter((x) => !mine.has(x));
+        const stmts = outsiders.filter((x) => x != null);
+        if (!outsiders.includes(null) && stmts.length && stmts.every((u) => canPull(u, new Set()))) {
+          for (const u of stmts) collectPull(u, absorb);
+        } else {
+          const u = outsiders[0];
+          if (process.env.OV_SWAP_DEBUG && u != null && problems.length < 6) {
+            const lines = [...mine].map((i) => body[i].loc?.start.line).filter((x) => x != null);
+            const lo = Math.min(...lines);
+            const hi = Math.max(...lines);
+            const line = body[u].loc?.start.line;
+            const foreign = [...refs[u]].filter((r) => {
+              const dd = declOf.get(r);
+              return dd !== undefined && dd !== u && !mine.has(dd) && !isImport(dd) && !isBundlerHelper(r);
+            });
+            console.log(`    debug ${n} line ${line} cluster ${lo}-${hi} hit=${hit[u]} foreign=${foreign.slice(0, 8).join(",")}`);
+          }
+          problems.push(`${n} 不是包的导出（${u == null ? "main 在用" : `被 ${head(u)} 引用`}）`);
+        }
       } else evict.add(d);
     }
     // 3. 它的代码引用的 vendor 语句只能是已换成 npm 的包、打包器辅助函数或 CommonJS 互操作语句。
@@ -715,8 +782,42 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
     for (const i of mine) for (const n of refs[i]) {
       const d = declOf.get(n);
       if (d === undefined || mine.has(d) || isImport(d) || isBundlerHelper(n) || isInterop(body[d])) continue;
+      // 形状对不上、也不在这段库的行号里：那是隔壁库或没认出来的别名，留在原地。
+      if (!reachable(d)) continue;
+      if (canPull(d, new Set())) {
+        collectPull(d, absorb);
+        continue;
+      }
       if (solid(i)) problems.push(`引用了不属于它的 ${n}（${head(d)}）`);
       else evict.add(i);
+    }
+    if (absorb.size) {
+      for (const i of absorb) {
+        mine.add(i);
+        adopted.add(i);
+        for (const name of namesOf[i]) declInMine.set(name, i);
+      }
+      outsideUsers.clear();
+      outSet.clear();
+      const mineDecls = new Set();
+      for (const i of mine) for (const name of namesOf[i]) mineDecls.add(name);
+      for (let i = 0; i < body.length; i++) {
+        if (mine.has(i) || isImport(i) || (t.isExportNamedDeclaration(body[i]) && !body[i].source)) continue;
+        let touches = false;
+        for (const n of refs[i]) if (mineDecls.has(n)) {
+          touches = true;
+          if (!outsideUsers.has(n)) outsideUsers.set(n, new Set());
+          outsideUsers.get(n).add(i);
+        }
+        if (!touches) for (const n of mutates[i]) if (mineDecls.has(n)) {
+          touches = true;
+          if (!outsideUsers.has(n)) outsideUsers.set(n, new Set());
+          outsideUsers.get(n).add(i);
+        }
+        if (touches) outSet.add(i);
+      }
+      for (const n of externalRefs) if (declInMine.has(n)) outsideUsers.set(n, new Set([null]));
+      continue;
     }
     if (!evict.size) break;
     for (const d of evict) {

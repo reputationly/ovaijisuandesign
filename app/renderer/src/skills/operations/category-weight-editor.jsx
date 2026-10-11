@@ -1,5 +1,7 @@
 // 运营后台的分类权重编辑器与列表条目。
-import { useTranslation, Plus, useSortable, CSS$1 as CSS, GripVertical } from "../../vendor.js";
+import { useTranslation, Plus, GripVertical } from "../../vendor.js";
+import { CSS } from "@dnd-kit/utilities";
+import { useSortable } from "@dnd-kit/sortable";
 import { Switch } from "../../generation/select-content.jsx";
 import { Trash2 } from "../../media-editing/package.jsx";
 import { Button } from "../../infra/dialog-content.jsx";
