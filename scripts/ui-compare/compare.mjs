@@ -18,6 +18,7 @@ import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync,
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { generateFixtures } from "./generate-fixtures.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const sharp = createRequire(path.join(repo, "app/gateway/package.json"))("sharp");
@@ -31,16 +32,195 @@ const FIXTURE = path.join(repo, "scripts/ui-compare/fixture");
 const PORT = 9360;
 const WS_A = `${ROOT}/ws-a`;
 const WS_B = `${ROOT}/ws-b`;
+const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+const ISO_TIMESTAMP_PATTERN = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})\b/gi;
+const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
+// 当前已观察到的自比较噪声端点；只有确认是时序噪声后才加入。
+const NET_VOLATILE = [];
+const DOM_STATE_SCRIPT = `(() => {
+  const elements = [];
+  for (const element of document.querySelectorAll("*")) {
+    const tag = element.tagName.toLowerCase();
+    const attributes = {};
+    for (const attribute of element.attributes) {
+      const name = attribute.name.toLowerCase();
+      if (name === "data-action-ui-id" || name === "role" || name.startsWith("aria-") || name === "disabled" || name === "checked" || name === "contenteditable") {
+        attributes[name] = attribute.value;
+      }
+    }
+    if (!Object.keys(attributes).length && !["input", "textarea", "select"].includes(tag)) continue;
+    const ownText = [...element.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE).map((node) => node.nodeValue).join("").trim().slice(0, 200);
+    elements.push({
+      tag,
+      attributes,
+      value: "value" in element ? element.value : null,
+      checked: "checked" in element ? element.checked : null,
+      ownText,
+    });
+  }
+  return elements;
+})()`;
+const LOCAL_STORAGE_SCRIPT = `(() => {
+  const entries = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    entries.push([key, localStorage.getItem(key)]);
+  }
+  return entries;
+})()`;
+
+function normalizeText(value) {
+  return value
+    .replace(UUID_PATTERN, "<uuid>")
+    .replace(ISO_TIMESTAMP_PATTERN, "<t>")
+    .replace(/\b\d{13}\b/g, "<t>")
+    .replace(/((?:https?|wss?):\/\/(?:localhost|127\.0\.0\.1)):\d{1,5}\b/gi, "$1:<port>")
+    .replace(/((?:https?|wss?)%3A%2F%2F(?:localhost|127\.0\.0\.1))%3A\d{1,5}\b/gi, "$1%3A<port>")
+    .replace(/\b(?:会话|Session)\s+[0-9a-z]{4,}\b/gi, "会话");
+}
+function normalizeValue(value, key = "") {
+  if (typeof value === "string") return /session(?:_id|Id)$/i.test(key) ? "<session>" : normalizeText(value);
+  if (typeof value === "number" && Number.isInteger(value) && Math.abs(value) >= 1e12 && Math.abs(value) < 1e14) return "<t>";
+  if (Array.isArray(value)) return value.map((item) => normalizeValue(item));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((childKey) => [normalizeText(childKey), normalizeValue(value[childKey], childKey)]),
+    );
+  }
+  return value;
+}
+function normalizePayload(value) {
+  if (typeof value !== "string") return value ?? null;
+  const text = normalizeText(value);
+  try {
+    return JSON.stringify(normalizeValue(JSON.parse(text)));
+  } catch {
+    return text;
+  }
+}
+function localEndpoint(value) {
+  try {
+    const url = new URL(value);
+    if (!LOCAL_HOSTS.has(url.hostname)) return null;
+    const port = url.port ? ":<port>" : "";
+    return {
+      host: `${url.protocol}//${url.hostname}${port}`,
+      path: normalizeText(`${url.pathname}${url.search}`),
+    };
+  } catch {
+    return null;
+  }
+}
+function isNetVolatile(record) {
+  return NET_VOLATILE.some((endpoint) => record.path.includes(endpoint));
+}
+function snapshotNetwork(requests, frames) {
+  const normalizedRequests = requests
+    .filter((request) => !isNetVolatile(request))
+    .map((request) => normalizeValue(request));
+  const getRequests = [...new Set(
+    normalizedRequests
+      .filter((request) => request.method === "GET")
+      .map((request) => JSON.stringify(request)),
+  )].sort().map((request) => JSON.parse(request));
+  return {
+    getRequests,
+    nonGetRequests: normalizedRequests.filter((request) => request.method !== "GET"),
+    wsSent: frames
+      .filter((frame) => frame.direction === "sent" && !isNetVolatile(frame))
+      .map(({ direction, ...frame }) => normalizeValue(frame)),
+    wsReceived: frames
+      .filter((frame) => frame.direction === "received" && !isNetVolatile(frame))
+      .map(({ direction, ...frame }) => normalizeValue(frame)),
+  };
+}
+function comparableNetwork(network) {
+  return {
+    getRequests: network.getRequests,
+    nonGetRequests: network.nonGetRequests,
+    wsSent: network.wsSent,
+  };
+}
+function readHiloFiles(workspace) {
+  const root = path.join(workspace, ".hilo");
+  const files = {};
+  if (!existsSync(root)) return files;
+  const visit = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        visit(file);
+        continue;
+      }
+      if (!entry.isFile() || /\.(?:sqlite|db)(?:-(?:wal|shm|journal))?$/i.test(entry.name)) continue;
+      const relative = path.relative(root, file).split(path.sep).join("/");
+      const bytes = readFileSync(file);
+      const text = bytes.toString("utf8");
+      if (text.includes("\0")) {
+        files[relative] = bytes.toString("base64");
+        continue;
+      }
+      try {
+        files[relative] = normalizeValue(JSON.parse(text));
+      } catch {
+        files[relative] = normalizeText(text);
+      }
+    }
+  };
+  visit(root);
+  return files;
+}
+function shortValue(value) {
+  const text = typeof value === "string" ? value : JSON.stringify(value);
+  return text.length > 300 ? `${text.slice(0, 300)}…` : text;
+}
+function jsonDiff(expected, actual) {
+  const differences = [];
+  let omitted = 0;
+  const add = (difference) => {
+    if (differences.length < 40) differences.push(difference);
+    else omitted++;
+  };
+  const visit = (left, right, at = "$") => {
+    if (Object.is(left, right)) return;
+    if (Array.isArray(left) && Array.isArray(right)) {
+      if (left.length !== right.length) add({ path: `${at}.length`, expected: left.length, actual: right.length });
+      for (let i = 0; i < Math.min(left.length, right.length); i++) visit(left[i], right[i], `${at}[${i}]`);
+      return;
+    }
+    if (left && right && typeof left === "object" && typeof right === "object" && !Array.isArray(left) && !Array.isArray(right)) {
+      const keys = [...new Set([...Object.keys(left), ...Object.keys(right)])].sort();
+      for (const key of keys) {
+        if (!(key in left) || !(key in right)) add({ path: `${at}.${key}`, expected: key in left ? shortValue(left[key]) : "<missing>", actual: key in right ? shortValue(right[key]) : "<missing>" });
+        else visit(left[key], right[key], `${at}.${key}`);
+      }
+      return;
+    }
+    add({ path: at, expected: shortValue(left), actual: shortValue(right) });
+  };
+  visit(expected, actual);
+  if (omitted) differences.push({ omitted });
+  return differences;
+}
 function stabilizeFixtureTimes(dir) {
-  const files = readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name)
-    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-  files.forEach((name, index) => {
+  const files = [];
+  const visit = (current) => {
+    for (const entry of readdirSync(current, { withFileTypes: true })) {
+      const file = path.join(current, entry.name);
+      if (entry.isDirectory() && entry.name !== ".hilo") visit(file);
+      else if (entry.isFile()) files.push(file);
+    }
+  };
+  visit(dir);
+  files.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  files.forEach((file, index) => {
     const time = new Date(Date.UTC(2020, 0, 1, 0, 0, index));
-    utimesSync(path.join(dir, name), time, time);
+    utimesSync(file, time, time);
   });
 }
+const DISABLED_PAGES = [];
 // 要看的页面：路由 + 进页面后额外做的动作（可选）
 const ALL_PAGES = [
   { id: "home", url: "/" },
@@ -67,6 +247,7 @@ const ALL_PAGES = [
   { id: "global-search-query", url: "/projects", tabs: [{ event: "hilo:open-global-search" }, { wait: 1500 }, { type: "ws" }, { wait: 2000 }] },
   { id: "ws-a", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}` },
   { id: "ws-b", url: `/workspace?workspaceId=${encodeURIComponent(WS_B)}` },
+  { id: "ws-markdown", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "markdown" },
   // 画布 / 对话里要点开才出现的界面。会改画布内容的放在只读步骤后面。
   { id: "ws-add-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { wait: 800 }] },
   { id: "ws-zoom", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.toolbar-zoom-menu" }, { wait: 600 }] },
@@ -74,9 +255,16 @@ const ALL_PAGES = [
   { id: "ws-select-image", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 800 }] },
   { id: "ws-relight", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 600 }, { ui: "canvas.node-relight" }, { until: "canvas.relight.popover" }] },
   { id: "ws-multi-angle", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 600 }, { ui: "canvas.node-multi-angle" }, { until: "canvas.multi-angle.popover" }] },
+  { id: "ws-pdf", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "pdf" },
+  { id: "ws-video", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "video" },
+  { id: "ws-audio", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "audio" },
   { id: "ws-text-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-text" }, { wait: 2000 }] },
   { id: "ws-table-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { ui: "canvas.menu-add-table" }, { wait: 2000 }] },
   { id: "ws-text-editor", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node", mouse: true }, { wait: 400 }, { ui: "canvas.menu-add-text", mouse: true }, { ui: "canvas.text-node", last: true, mouse: true, timeout: 8000 }, { wait: 500 }, { ui: "canvas-text-edit", mouse: true, last: true, timeout: 8000 }, { untilSelector: ".canvas-text-fullscreen-editor .ProseMirror", timeout: 15000 }, { insert: "对比用的一段文字" }, { wait: 2500 }] },
+  { id: "ws-chat-input", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "chat", persistWaitMs: 1200 },
+  { id: "ws-code-editor", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "code-editor", persistWaitMs: 1200 },
+  { id: "ws-table-edit", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "table-edit", persistWaitMs: 1200 },
+  { id: "ws-canvas-ops", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "canvas-ops", persistWaitMs: 1200 },
   // 切到仅对话会记在工作区里，后面的画布屏就找不到节点。所以放在最后。
   { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 500 }, { ui: "workspace.view-mode.chat-only", mouse: true }, { wait: 1200 }] },
   // 会真的创建一个项目（数据目录每种模式都会重建），所以放最后，免得影响别的屏
@@ -86,6 +274,10 @@ const ALL_PAGES = [
 // 只跑指定几屏：ONLY=home,skills-mine node scripts/ui-compare/compare.mjs
 const ONLY = process.env.ONLY?.split(",").filter(Boolean);
 const PAGES = ONLY ? ALL_PAGES.filter((p) => ONLY.includes(p.id)) : ALL_PAGES;
+const DISABLED_ONLY = ONLY?.filter((id) => DISABLED_PAGES.some((page) => page.id === id)) ?? [];
+if (DISABLED_ONLY.length) {
+  throw new Error(`ONLY 请求了暂不参与门禁的页面：${DISABLED_ONLY.map((id) => `${id}（${DISABLED_PAGES.find((page) => page.id === id).reason}）`).join("；")}`);
+}
 if (ONLY && PAGES.length !== ONLY.length) throw new Error(`ONLY 里有不存在的页面：${ONLY.filter((id) => !ALL_PAGES.some((p) => p.id === id)).join(",")}`);
 const NO_ANIMATION = "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}.cm-cursor,.cm-dropCursor{visibility:hidden!important}";
 // 截图前让页面静下来：视频（封面已被挡掉，这里顺手停在第 0 帧）停住，等图片加载完。
@@ -97,7 +289,7 @@ const MASK_VOLATILE = `(() => {
   while ((node = walker.nextNode())) if (re.test(node.nodeValue.trim())) node.nodeValue = "会话";
 })()`;
 const SETTLE = `(async()=>{
-  for (const v of document.querySelectorAll("video")) { try { v.pause(); v.currentTime = 0; } catch {} }
+  for (const v of document.querySelectorAll("video,audio")) { try { v.pause(); if (v.dataset.ovCompareSeek) v.currentTime = Number(v.dataset.ovCompareSeek); else v.currentTime = 0; } catch {} }
   await Promise.all([...document.images].filter((i) => !i.complete).map((i) => new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 3000); })));
   await new Promise((r) => { requestAnimationFrame(() => requestAnimationFrame(r)); setTimeout(r, 500); });
 })()`;
@@ -233,9 +425,40 @@ async function cdp(port) {
         let seq = 0;
         const pending = new Map();
         const errors = [];
+        const requests = [];
+        const frames = [];
+        const websocketUrls = new Map();
+        let capturingNetwork = false;
         ws.onmessage = (ev) => {
           const m = JSON.parse(ev.data);
           if (m.id) pending.get(m.id)?.(m);
+          else if (m.method === "Network.webSocketCreated") {
+            websocketUrls.set(m.params.requestId, localEndpoint(m.params.url));
+          } else if (m.method === "Network.requestWillBeSent" && capturingNetwork) {
+            const request = m.params.request;
+            const endpoint = localEndpoint(request.url);
+            if (endpoint) {
+              requests.push({
+                method: String(request.method ?? "GET").toUpperCase(),
+                ...endpoint,
+                postData: normalizePayload(request.postData),
+              });
+              if (/^wss?:/i.test(request.url)) websocketUrls.set(m.params.requestId, endpoint);
+            }
+          } else if (
+            capturingNetwork &&
+            (m.method === "Network.webSocketFrameSent" || m.method === "Network.webSocketFrameReceived")
+          ) {
+            const endpoint = websocketUrls.get(m.params.requestId);
+            if (endpoint) {
+              frames.push({
+                direction: m.method === "Network.webSocketFrameSent" ? "sent" : "received",
+                ...endpoint,
+                opcode: m.params.response.opcode,
+                payload: normalizePayload(m.params.response.payloadData),
+              });
+            }
+          }
           else if (m.method === "Runtime.exceptionThrown") { const desc = m.params.exceptionDetails.exception?.description ?? m.params.exceptionDetails.text; errors.push("EXC " + desc.split("\n")[0]); if (process.env.STACK) console.log("STACK", desc.split("\n").slice(0, 8).join(" | ")); }
           else if (process.env.STACK && m.method === "Runtime.consoleAPICalled" && ["warning", "error", "log"].includes(m.params.type) && /rror|fail|catch|boundary/i.test(m.params.args.map((a) => a.value ?? a.description ?? "").join(" "))) { console.log("CONSOLE", m.params.type, m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").slice(0, 700)); if (m.params.type === "error") errors.push("ERR " + m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").split("\n")[0].slice(0, 300)); }
           else if (m.method === "Runtime.consoleAPICalled" && m.params.type === "error") errors.push("ERR " + m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").split("\n")[0].slice(0, 300));
@@ -255,14 +478,324 @@ async function cdp(port) {
         await send("Network.setBlockedURLs", { urls: BLOCKED_URLS });
         await send("Page.addScriptToEvaluateOnNewDocument", { source: SEEDED_RANDOM });
         // 日志里的随机 ID（UUID）和耗时每次不同，规整掉再比，否则同一条报错两边永远对不上
-        const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
-        const visible = () => errors.filter((e) => !/hailuoai\.com/.test(e)).map((e) => e.replace(UUID, "<uuid>").replace(/durationMs=\d+/g, "durationMs=<n>"));
-        return { send, errors: visible, clearErrors: () => (errors.length = 0), close: () => ws.close() };
+        const visible = () => errors.filter((e) => !/hailuoai\.com/.test(e)).map((e) => e.replace(UUID_PATTERN, "<uuid>").replace(/durationMs=\d+/g, "durationMs=<n>"));
+        return {
+          send,
+          errors: visible,
+          clearErrors: () => (errors.length = 0),
+          beginNetworkCapture: () => {
+            requests.length = 0;
+            frames.length = 0;
+            capturingNetwork = true;
+          },
+          endNetworkCapture: () => {
+            capturingNetwork = false;
+            return snapshotNetwork(requests, frames);
+          },
+          close: () => ws.close(),
+        };
       }
     } catch {}
     await sleep(500);
   }
   throw new Error("等不到界面页面");
+}
+
+async function capturePageDom(c) {
+  const result = await c.send("Runtime.evaluate", {
+    expression: DOM_STATE_SCRIPT,
+    returnByValue: true,
+  });
+  return normalizeValue(result.result?.result?.value ?? []);
+}
+async function capturePageState(c) {
+  const result = await c.send("Runtime.evaluate", {
+    expression: LOCAL_STORAGE_SCRIPT,
+    returnByValue: true,
+  });
+  const localStorage = Object.fromEntries(result.result?.result?.value ?? []);
+  return normalizeValue({
+    localStorage,
+    hilo: {
+      wsA: readHiloFiles(WS_A),
+      wsB: readHiloFiles(WS_B),
+    },
+  });
+}
+
+async function evalValue(c, expression) {
+  const result = await c.send("Runtime.evaluate", { expression, returnByValue: true });
+  return result.result?.result?.value;
+}
+async function waitForValue(c, expression, label, timeout = 10000) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    const value = await evalValue(c, expression);
+    if (value) return value;
+    await sleep(250);
+  }
+  throw new Error(`等待 ${label} 超时`);
+}
+async function clickUi(c, id, last = false) {
+  const point = await waitForValue(c, uiCenter(id, last), id, 8000);
+  await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
+  await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
+  await sleep(400);
+}
+async function clickNode(c, id) {
+  const point = await waitForValue(c, `(() => { const e=document.querySelector('.react-flow__node[data-id="${id}"]'); if(!e)return null; const r=e.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`, id);
+  await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
+  await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
+  await sleep(350);
+}
+async function clickNodeAction(c, nodeId, actionId) {
+  const selector = `.react-flow__node[data-id="${nodeId}"] [data-action-ui-id="${actionId}"]`;
+  const point = await waitForValue(c, `(() => { const e=document.querySelector(${JSON.stringify(selector)}); if(!e)return null; const r=e.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`, actionId);
+  await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
+  await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
+  await sleep(400);
+}
+async function key(c, key, code, modifiers = 0) {
+  await c.send("Input.dispatchKeyEvent", { type: "keyDown", key, code, modifiers });
+  await c.send("Input.dispatchKeyEvent", { type: "keyUp", key, code, modifiers });
+}
+async function uploadWorkspaceFile(c, filename) {
+  const point = await waitForValue(c, `(() => {
+    const pane = document.querySelector(".react-flow__pane");
+    if (!pane) return null;
+    const bounds = pane.getBoundingClientRect();
+    const nodes = [...document.querySelectorAll(".react-flow__node")].map((node) => node.getBoundingClientRect());
+    const candidates = [];
+    for (let y = bounds.top + 48; y <= bounds.bottom - 48; y += 48) {
+      for (let x = bounds.left + 48; x <= bounds.right - 48; x += 48) {
+        candidates.push({ x, y });
+      }
+    }
+    const center = { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
+    candidates.sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y));
+    return candidates.find(({ x, y }) => !nodes.some((r) => x >= r.left - 120 && x <= r.right + 120 && y >= r.top - 120 && y <= r.bottom + 120)) ?? null;
+  })()`, "canvas upload position");
+  const beforeCount = await evalValue(c, `document.querySelectorAll(".react-flow__node").length`);
+  await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "right", clickCount: 1 });
+  await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "right" });
+  await clickUi(c, "canvas.pane-menu-upload");
+  const inputReady = await waitForValue(c, `(() => [...document.querySelectorAll('input[type="file"]')].some((input) => input.accept === "*/*" || input.accept.includes("video")))()`, "canvas file picker", 5000);
+  if (!inputReady) throw new Error("找不到画布上传文件控件");
+  await c.send("DOM.enable");
+  const documentNode = await c.send("DOM.getDocument", { depth: -1 });
+  const fileInputs = await c.send("DOM.querySelectorAll", {
+    nodeId: documentNode.result.root.nodeId,
+    selector: 'input[type="file"]',
+  });
+  const inputAttributes = await Promise.all(fileInputs.result.nodeIds.map(async (nodeId) => {
+    const result = await c.send("DOM.getAttributes", { nodeId });
+    const attributes = result.result.attributes;
+    return {
+      nodeId,
+      accept: attributes[attributes.indexOf("accept") + 1] ?? "",
+    };
+  }));
+  const selectedInput = inputAttributes.find((input) => input.accept === "*/*") ??
+    inputAttributes.find((input) => input.accept.includes("video"));
+  if (!selectedInput) throw new Error(`无法定位画布上传文件控件：${JSON.stringify(inputAttributes)}`);
+  const { nodeId } = selectedInput;
+  const fixturePath = path.join(WS_A, "ui-compare-fixtures", filename);
+  const setFiles = await c.send("DOM.setFileInputFiles", { nodeId, files: [fixturePath] });
+  if (setFiles.error) throw new Error(`无法设置上传文件：${setFiles.error.message}`);
+  return waitForValue(c, `(() => {
+    const nodes = [...document.querySelectorAll(".react-flow__node")];
+    return nodes.length > ${beforeCount} ? nodes.at(-1)?.getAttribute("data-id") : null;
+  })()`, `上传 ${filename} 并创建画布节点`, 30000);
+}
+async function writeMarkdownDiagnostic(c) {
+  const details = await evalValue(c, `(() => {
+    const node = document.querySelector('.react-flow__node[data-id="c0a00000-0000-4000-8000-000000000002"]');
+    const preview = node?.querySelector(".canvas-text-preview, .canvas-text-node-content") ?? node;
+    return {
+      nodeFound: !!node,
+      nodeText: node?.innerText?.slice(0, 2000) ?? null,
+      nodeHtml: preview?.outerHTML?.slice(0, 40000) ?? null,
+      descendants: [...(preview?.querySelectorAll("h1,h2,p,pre,code,span,table,thead,tbody,tr,td,th") ?? [])]
+        .slice(0, 120)
+        .map((element) => ({ tag: element.tagName.toLowerCase(), className: element.className, style: element.getAttribute("style"), text: element.textContent?.slice(0, 160) })),
+      resources: performance.getEntriesByType("resource")
+        .filter((entry) => /preview\\.md|file/i.test(entry.name))
+        .map((entry) => ({ name: entry.name, responseStatus: entry.responseStatus, transferSize: entry.transferSize })),
+    };
+  })()`);
+  const dir = path.join(repo, ".probe/ui-compare/diag");
+  mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, `${new Date().toISOString().replace(/[:.]/g, "-")}-ws-markdown.json`);
+  writeFileSync(file, JSON.stringify(details, null, 2));
+  return file;
+}
+async function writeTableDiagnostic(c) {
+  const details = await evalValue(c, `(() => {
+    const node = [...document.querySelectorAll('[data-action-ui-id="canvas.table-node"]')].at(-1)?.closest(".react-flow__node");
+    return {
+      nodeHtml: node?.outerHTML?.slice(0, 40000) ?? null,
+      controls: [...(node?.querySelectorAll('button,[role="button"],[data-action-ui-id],input,[contenteditable="true"]') ?? [])]
+        .slice(0, 300)
+        .map((element) => ({
+          tag: element.tagName.toLowerCase(),
+          action: element.getAttribute("data-action-ui-id"),
+          role: element.getAttribute("role"),
+          ariaLabel: element.getAttribute("aria-label"),
+          title: element.getAttribute("title"),
+          text: element.textContent?.trim().slice(0, 200),
+        })),
+    };
+  })()`);
+  const dir = path.join(repo, ".probe/ui-compare/diag");
+  mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, `${new Date().toISOString().replace(/[:.]/g, "-")}-ws-table-edit.json`);
+  writeFileSync(file, JSON.stringify(details, null, 2));
+  return file;
+}
+async function runInteractionScenario(c, scenario) {
+  const ids = {
+    markdown: "c0a00000-0000-4000-8000-000000000002",
+    javascript: "c0a00000-0000-4000-8000-000000000003",
+    sourceMarkdown: "c0a00000-0000-4000-8000-000000000004",
+    imageA: "4db95676-40ee-49d0-8b2e-d010e25fd0e3",
+    imageB: "af64baa9-6c18-4b9e-b7f5-eae6d889bc71",
+  };
+  if (scenario === "pdf") {
+    const id = await uploadWorkspaceFile(c, "viewer.pdf");
+    await clickNodeAction(c, id, "canvas.file-node.preview-eye");
+    try {
+      await waitForValue(c, `(() => { const e=document.querySelector('.react-flow__node[data-id="${id}"] canvas'); if(!e||!e.width||!e.height)return false; try { const d=e.getContext("2d").getImageData(0,0,e.width,e.height).data; return d.some((x,i)=>i%4===3&&x>0); } catch { return false; } })()`, "PDF.js canvas render", 15000);
+    } catch {
+      const details = await evalValue(c, `(() => { const n=document.querySelector('.react-flow__node[data-id="${id}"]'); const resources=performance.getEntriesByType("resource").filter(x=>/viewer\\.pdf|fileUrl|asset-file/i.test(x.name)).map(x=>({name:x.name,duration:x.duration,responseStatus:x.responseStatus,transferSize:x.transferSize})); return {exists:!!n,text:n?.innerText?.slice(0,300),canvases:[...(n?.querySelectorAll("canvas")||[])].map(x=>({width:x.width,height:x.height})),resources,body:document.body.innerText.slice(0,500)}; })()`);
+      throw new Error(`PDF.js canvas render failed: ${JSON.stringify(details)}`);
+    }
+    return;
+  }
+  if (scenario === "markdown") {
+    try {
+      await waitForValue(c, `(() => { const n=document.querySelector('.react-flow__node[data-id="${ids.markdown}"]'); const code=n?.querySelector("pre > code.language-js"); return !!n&&!!n.querySelector(".ProseMirror h1")&&!!n.querySelector(".ProseMirror table tbody td")&&!!code; })()`, "Markdown fenced code and GFM table", 15000);
+    } catch {
+      const diagnostic = await writeMarkdownDiagnostic(c);
+      throw new Error(`Markdown preview did not match the expected structure; DOM diagnostic saved to ${diagnostic}`);
+    }
+    console.log(`Markdown preview DOM diagnostic saved to ${await writeMarkdownDiagnostic(c)}`);
+    return;
+  }
+  if (scenario === "video" || scenario === "audio") {
+    const id = await uploadWorkspaceFile(c, scenario === "video" ? "viewer.mp4" : "viewer.wav");
+    const tag = scenario;
+    await clickNode(c, id);
+    try {
+      await waitForValue(c, `(() => { const n=document.querySelector('.react-flow__node[data-id="${id}"]'); const m=n?.querySelector("${tag}"); return m&&m.readyState>=1?true:false; })()`, `${scenario} metadata`);
+    } catch {
+      const details = await evalValue(c, `(() => { const n=document.querySelector('.react-flow__node[data-id="${id}"]'); const m=n?.querySelector("${tag}"); return {nodeClass:n?.className,text:n?.innerText?.slice(0,500),html:n?.outerHTML?.slice(0,3000),media:m&&{src:m.getAttribute("src"),currentSrc:m.currentSrc,readyState:m.readyState,networkState:m.networkState,error:m.error&&{code:m.error.code,message:m.error.message}},resources:performance.getEntriesByType("resource").filter(x=>/viewer\\.(mp4|wav)|asset/i.test(x.name)).map(x=>({name:x.name,status:x.responseStatus}))}; })()`);
+      throw new Error(`${scenario} metadata failed: ${JSON.stringify(details)}`);
+    }
+    const playing = await evalValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); return !!m&&!m.paused; })()`);
+    const playAction = tag === "video" ? "canvas.video-player.toggle-play" : "canvas.audio.toggle-play";
+    if (!playing) {
+      if (tag === "video") {
+        const muted = await evalValue(c, `document.querySelector('.react-flow__node[data-id="${id}"] video')?.muted`);
+        if (!muted) await clickNodeAction(c, id, "canvas.video-player.toggle-mute");
+        const storePlaying = await evalValue(c, `(() => { const label=document.querySelector('.react-flow__node[data-id="${id}"] [data-action-ui-id="canvas.video-player.toggle-play"]')?.getAttribute("aria-label") ?? ""; return /pause|暂停/i.test(label); })()`);
+        if (storePlaying) await clickNodeAction(c, id, playAction);
+      }
+      await clickNodeAction(c, id, playAction);
+    }
+    try {
+      await waitForValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); return m&&!m.paused; })()`, `${scenario} playback`, 5000);
+    } catch {
+      const details = await evalValue(c, `(() => { const n=document.querySelector('.react-flow__node[data-id="${id}"]'); const m=n?.querySelector("${tag}"); const b=n?.querySelector('[data-action-ui-id="${playAction}"]'); return {html:n?.outerHTML?.slice(0,5000),paused:m?.paused,muted:m?.muted,readyState:m?.readyState,networkState:m?.networkState,error:m?.error&&{code:m.error.code,message:m.error.message},canPlayMp4:m?.canPlayType("video/mp4; codecs=avc1.42E01E"),playLabel:b?.getAttribute("aria-label")}; })()`);
+      throw new Error(`${scenario} playback failed: ${JSON.stringify(details)}`);
+    }
+    await evalValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); m.dataset.ovCompareSeek="0.4"; m.currentTime=0.4; return true; })()`);
+    await waitForValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); return m&&Math.abs(m.currentTime-0.4)<0.12; })()`, `${scenario} seek`);
+    if (await evalValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); return m&&!m.paused; })()`)) {
+      await clickNodeAction(c, id, playAction);
+    }
+    await waitForValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); return m&&m.paused; })()`, `${scenario} pause`);
+    return;
+  }
+  if (scenario === "chat") {
+    await clickUi(c, "message-input");
+    await c.send("Input.insertText", { text: "UI compare interaction" });
+    await key(c, "Enter", "Enter", 8);
+    await c.send("Input.insertText", { text: "second line" });
+    await key(c, "Enter", "Enter");
+    await sleep(1800);
+    return;
+  }
+  if (scenario === "code-editor") {
+    for (const id of [ids.javascript, ids.sourceMarkdown]) {
+      await clickNode(c, id);
+      await clickUi(c, "canvas-text-edit", true);
+      await waitForValue(c, `!!document.querySelector(".cm-content")`, "CodeMirror source editor");
+      await clickUi(c, "canvas-text-large-markdown-editor");
+      const editorPoint = await waitForValue(c, `(() => { const e=document.querySelector(".cm-content"); if(!e)return null; const r=e.getBoundingClientRect(); return {x:r.x+Math.min(20,r.width/2),y:r.y+Math.min(12,r.height/2)}; })()`, "CodeMirror editor surface");
+      await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: editorPoint.x, y: editorPoint.y, button: "left", clickCount: 1 });
+      await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: editorPoint.x, y: editorPoint.y, button: "left", clickCount: 1 });
+      await c.send("Input.insertText", { text: "\n// interaction edit" });
+      await key(c, "f", "KeyF", 2);
+      await waitForValue(c, `!!document.querySelector('[data-action-ui-id="canvas-text-find-input"]')`, "CodeMirror search");
+      await c.send("Input.insertText", { text: "fixture" });
+      await key(c, "Escape", "Escape");
+      await key(c, "Escape", "Escape");
+      await key(c, "z", "KeyZ", 2);
+      const closed = await evalValue(c, `(() => { const b=[...document.querySelectorAll("button")].find(x=>/close|关闭|退出/i.test((x.getAttribute("aria-label")||"")+" "+(x.title||""))&&x.getBoundingClientRect().width); if(b){b.click();return true;} return false; })()`);
+      if (!closed) await key(c, "Escape", "Escape");
+      await waitForValue(c, `(() => { const e=document.querySelector(".canvas-text-source-editor-surface"); return !e||!e.getBoundingClientRect().width; })()`, "CodeMirror close", 8000);
+    }
+    return;
+  }
+  if (scenario === "table-edit") {
+    await clickUi(c, "canvas.add-node");
+    await clickUi(c, "canvas.menu-add-table");
+    await waitForValue(c, `!!document.querySelector('[data-action-ui-id="canvas.table-node"]')`, "table node");
+    console.log(`Table node DOM diagnostic saved to ${await writeTableDiagnostic(c)}`);
+    await clickUi(c, "canvas.table-node", true);
+    const fullscreen = await waitForValue(c, `(() => { const e=[...document.querySelectorAll('[data-canvas-chrome] button')].find(x=>/fullscreen|全屏|编辑/i.test((x.getAttribute("aria-label")||"")+" "+(x.title||"")+" "+x.textContent)); if(!e)return null; const r=e.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`, "table fullscreen editor");
+    await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: fullscreen.x, y: fullscreen.y, button: "left", clickCount: 1 });
+    await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: fullscreen.x, y: fullscreen.y, button: "left", clickCount: 1 });
+    await waitForValue(c, `!!document.querySelector('[role="dialog"] table')`, "table editor");
+    const addRow = await waitForValue(c, `(() => { const e=[...document.querySelectorAll('[role="dialog"] button')].find(x=>/add row|添加行/i.test(x.textContent||"")); if(!e)return null; const r=e.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`, "table add-row control");
+    await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: addRow.x, y: addRow.y, button: "left", clickCount: 1 });
+    await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: addRow.x, y: addRow.y, button: "left", clickCount: 1 });
+    const cell = await waitForValue(c, `(() => { const e=document.querySelector('[role="dialog"] tbody tr td .cursor-text'); if(!e)return null; const r=e.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`, "table text cell");
+    await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: cell.x, y: cell.y, button: "left", clickCount: 1 });
+    await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: cell.x, y: cell.y, button: "left", clickCount: 1 });
+    await waitForValue(c, `!!document.activeElement?.matches('input,textarea,[contenteditable="true"]')`, "table cell editor", 5000);
+    await c.send("Input.insertText", { text: "table interaction" });
+    await key(c, "Tab", "Tab");
+    await waitForValue(c, `!![...document.querySelectorAll('[role="dialog"] tbody td')].find(e=>(e.textContent||"").includes("table interaction"))`, "table cell edit");
+    const filter = await evalValue(c, `(() => { const e=[...document.querySelectorAll('[role="dialog"] button')].find(x=>/filter|筛选/i.test((x.getAttribute("aria-label")||"")+" "+(x.title||"")+" "+x.textContent)); if(!e)return null; const r=e.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`);
+    if (filter) {
+      await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: filter.x, y: filter.y, button: "left", clickCount: 1 });
+      await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: filter.x, y: filter.y, button: "left", clickCount: 1 });
+      await waitForValue(c, `!![...document.querySelectorAll("*")].find(e=>/Set filter conditions|设置筛选条件|筛选条件/.test(e.textContent||""))`, "table filter panel", 5000);
+    }
+    const close = await waitForValue(c, `(() => { const e=[...document.querySelectorAll('[role="dialog"] button')].find(x=>/close|关闭/i.test((x.getAttribute("aria-label")||"")+" "+(x.title||"")+" "+x.textContent)); if(!e)return null; const r=e.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2}; })()`, "table editor close button");
+    await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: close.x, y: close.y, button: "left", clickCount: 1 });
+    await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: close.x, y: close.y, button: "left", clickCount: 1 });
+    await waitForValue(c, `!document.querySelector('[role="dialog"]')`, "table editor close");
+    await sleep(1000);
+    return;
+  }
+  if (scenario === "canvas-ops") {
+    const first = await evalValue(c, `(() => { const e=document.querySelector('.react-flow__node[data-id="${ids.imageA}"]'); const r=e?.getBoundingClientRect(); return r?{x:r.x+r.width/2,y:r.y+r.height/2}:null; })()`);
+    if (!first) throw new Error("画布节点不可见");
+    await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: first.x, y: first.y, button: "left", clickCount: 1 });
+    await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: first.x + 60, y: first.y + 40, button: "left", buttons: 1 });
+    await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: first.x + 60, y: first.y + 40, button: "left" });
+    await c.send("Input.dispatchMouseEvent", { type: "mouseWheel", x: first.x, y: first.y, deltaY: -120, deltaX: 0 });
+    const handles = await evalValue(c, `(() => { const a=document.querySelector('.react-flow__node[data-id="${ids.imageA}"] .react-flow__handle-right'); const b=document.querySelector('.react-flow__node[data-id="${ids.imageB}"] .react-flow__handle-left'); if(!a||!b)return null; const x=a.getBoundingClientRect(),y=b.getBoundingClientRect(); return {a:{x:x.x+x.width/2,y:x.y+y.height/2},b:{x:y.x+y.width/2,y:y.y+y.height/2}}; })()`);
+    if (handles) {
+      await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: handles.a.x, y: handles.a.y, button: "left" });
+      await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: handles.b.x, y: handles.b.y, button: "left", buttons: 1 });
+      await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: handles.b.x, y: handles.b.y, button: "left" });
+    }
+    await key(c, "z", "KeyZ", 2);
+    await key(c, "z", "KeyZ", 10);
+  }
 }
 
 async function runMode(mode) {
@@ -278,6 +811,8 @@ async function runMode(mode) {
   const wsBFixture = existsSync(path.join(FIXTURE, "ws-b")) ? path.join(FIXTURE, "ws-b") : path.join(FIXTURE, "ws-a");
   cpSync(path.join(FIXTURE, "ws-a"), WS_A, { recursive: true });
   cpSync(wsBFixture, WS_B, { recursive: true });
+  generateFixtures(WS_A);
+  generateFixtures(WS_B);
   stabilizeFixtureTimes(WS_A);
   stabilizeFixtureTimes(WS_B);
   const env = {
@@ -311,6 +846,7 @@ async function runMode(mode) {
     for (const p of PAGES) {
       console.log(`  ${mode} ${p.id}`);
       c.clearErrors();
+      c.beginNetworkCapture();
       await c.send("Runtime.evaluate", { expression: `location.assign(${JSON.stringify(`app://.${p.url}`)})` });
       await sleep(6000);
       await c.send("Runtime.evaluate", { expression: `(()=>{const s=document.createElement('style');s.textContent=${JSON.stringify(NO_ANIMATION)};document.head.appendChild(s)})()` });
@@ -404,13 +940,21 @@ async function runMode(mode) {
         if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${labelName}」，页面没切过去 ${c.errors().slice(-3).join(" | ")}`);
         await sleep(1500);
       }
+      if (p.scenario) await runInteractionScenario(c, p.scenario);
       const buf = await stableShot(c);
+      await sleep(p.persistWaitMs ?? 250);
+      const dom = await capturePageDom(c);
+      const state = await capturePageState(c);
+      const net = c.endNetworkCapture();
+      if (p.scenario === "chat" && !JSON.stringify({ requests: net.nonGetRequests, frames: net.wsSent }).includes("UI compare interaction")) {
+        throw new Error("chat input scenario did not emit the expected gateway request/frame");
+      }
       if (restoreDateNow) {
         await c.send("Runtime.evaluate", { expression: "if (window.__ovCompareOriginalDateNow) Date.now = window.__ovCompareOriginalDateNow; delete window.__ovCompareOriginalDateNow;" });
       }
       const file = path.join(outDir, `${p.id}.${mode}.png`);
       writeFileSync(file, buf);
-      results[p.id] = { file, errors: [...new Set(c.errors())] };
+      results[p.id] = { file, errors: [...new Set(c.errors())], net, dom, state };
     }
     c.close();
   } finally {
@@ -453,9 +997,19 @@ if (!existsSync(FIXTURE)) throw new Error(`缺少测试数据 ${FIXTURE}`);
 function readGolden() {
   const errorsFile = path.join(GOLDEN, "errors.json");
   const errors = existsSync(errorsFile) ? JSON.parse(readFileSync(errorsFile, "utf8")) : {};
-  const missing = PAGES.filter((p) => !existsSync(path.join(GOLDEN, `${p.id}.png`))).map((p) => p.id);
+  const channels = ["net", "dom", "state"];
+  const missing = PAGES.filter((p) =>
+    !existsSync(path.join(GOLDEN, `${p.id}.png`)) ||
+    channels.some((channel) => !existsSync(path.join(GOLDEN, `${p.id}.${channel}.json`))),
+  ).map((p) => p.id);
   if (missing.length) throw new Error(`基线里缺这些屏：${missing.join(",")}，先跑 --record 录一份`);
-  return Object.fromEntries(PAGES.map((p) => [p.id, { file: path.join(GOLDEN, `${p.id}.png`), errors: errors[p.id] ?? [] }]));
+  return Object.fromEntries(PAGES.map((p) => [p.id, {
+    file: path.join(GOLDEN, `${p.id}.png`),
+    errors: errors[p.id] ?? [],
+    net: JSON.parse(readFileSync(path.join(GOLDEN, `${p.id}.net.json`), "utf8")),
+    dom: JSON.parse(readFileSync(path.join(GOLDEN, `${p.id}.dom.json`), "utf8")),
+    state: JSON.parse(readFileSync(path.join(GOLDEN, `${p.id}.state.json`), "utf8")),
+  }]));
 }
 function writeGolden(results) {
   mkdirSync(GOLDEN, { recursive: true });
@@ -464,6 +1018,9 @@ function writeGolden(results) {
   for (const [id, r] of Object.entries(results)) {
     copyFileSync(r.file, path.join(GOLDEN, `${id}.png`));
     errors[id] = r.errors;
+    for (const channel of ["net", "dom", "state"]) {
+      writeFileSync(path.join(GOLDEN, `${id}.${channel}.json`), JSON.stringify(r[channel], null, 2));
+    }
   }
   writeFileSync(errorsFile, JSON.stringify(errors, null, 2));
 }
@@ -476,13 +1033,34 @@ if (RECORD) {
 console.log(`对比 ${baseMode} ↔ ${testMode}，结果在 ${path.relative(repo, outDir)}`);
 const base = baseMode === "golden" ? readGolden() : await runMode(baseMode);
 const test = await runMode(testMode);
-const report = [];
+const pages = [];
+let failed = false;
 for (const p of PAGES) {
   const d = await diff(base[p.id].file, test[p.id].file, path.join(outDir, `${p.id}.diff.png`));
   const newErrors = test[p.id].errors.filter((e) => !base[p.id].errors.includes(e));
-  report.push({ page: p.id, diffPct: +(d.ratio * 100).toFixed(3), note: d.note, newErrors, baseErrors: base[p.id].errors.length });
-  console.log(`${p.id.padEnd(16)} 差异 ${(d.ratio * 100).toFixed(3).padStart(7)}%  新增报错 ${newErrors.length}${d.note ? "  " + d.note : ""}`);
+  const channelDiffs = {
+    netDiff: jsonDiff(comparableNetwork(base[p.id].net), comparableNetwork(test[p.id].net)),
+    domDiff: jsonDiff(base[p.id].dom, test[p.id].dom),
+    stateDiff: jsonDiff(base[p.id].state, test[p.id].state),
+  };
+  const pixelDiff = d.ratio !== 0;
+  const pageFailed = pixelDiff || newErrors.length > 0 || Object.values(channelDiffs).some((items) => items.length > 0);
+  failed ||= pageFailed;
+  pages.push({
+    page: p.id,
+    diffPct: +(d.ratio * 100).toFixed(3),
+    pixelDiff,
+    note: d.note,
+    newErrors,
+    baseErrors: base[p.id].errors.length,
+    ...channelDiffs,
+  });
+  for (const channel of ["net", "dom", "state"]) {
+    writeFileSync(path.join(outDir, `${p.id}.${testMode}.${channel}.json`), JSON.stringify(test[p.id][channel], null, 2));
+  }
+  console.log(`${p.id.padEnd(18)} 像素差异 ${(d.ratio * 100).toFixed(3).padStart(7)}%  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
   for (const e of newErrors.slice(0, 3)) console.log("    " + e);
 }
+const report = { netVolatile: NET_VOLATILE, pages };
 writeFileSync(path.join(outDir, "report.json"), JSON.stringify(report, null, 2));
-process.exit(0);
+process.exit(failed ? 1 : 0);
