@@ -9,7 +9,7 @@ import { KeyboardCode, closestCorners, getFirstCollision, getScrollableAncestors
 import { StyleModule } from "style-mod";
 import { invariant, replaceEqualDeep as replaceEqualDeep$1, isDangerousProtocol, exactPathTest, removeTrailingSlash, deepEqual, functionalUpdate as functionalUpdate$1, preloadWarning, BaseRoute, BaseRootRoute, isModuleNotFoundError, isNotFound, escapeHtml, storageKey as storageKey$1, defaultGetScrollRestorationKey, createControlledPromise, getLocationChangeInfo, isRedirect, rootRouteId, trimPathRight, RouterCore, redirect } from "@tanstack/router-core";
 import { isServer as isServer$1 } from "@tanstack/router-core/isServer";
-import { Dropcursor, Gapcursor, UndoRedo, TrailingNode } from "@tiptap/extensions";
+import { Dropcursor, Gapcursor, Placeholder, UndoRedo, TrailingNode } from "@tiptap/extensions";
 import { createCustomEqual, sameValueZeroEqual, deepEqual as deepEqual$1 } from "fast-equals";
 import { EditorContext, NodeViewWrapper, ReactNodeViewRenderer, EditorContent, useEditor, useEditorState as useEditorState$1 } from "@tiptap/react";
 import { color as color$1 } from "d3-color";

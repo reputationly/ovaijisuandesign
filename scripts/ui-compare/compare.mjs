@@ -14,7 +14,7 @@
 // 注意：卡片封面是 CDN 上的 mp4，属外部资源、与仓库代码无关，采集时会被挡掉（见 BLOCKED_URLS）。
 // 不挡的话同一份界面连跑两次都能差出 7%——差异来自视频下到第几帧，会掩盖真正的界面差异。
 import { spawn } from "node:child_process";
-import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -30,6 +30,16 @@ const FIXTURE = path.join(repo, "scripts/ui-compare/fixture");
 const PORT = 9360;
 const WS_A = `${ROOT}/ws-a`;
 const WS_B = `${ROOT}/ws-b`;
+function stabilizeFixtureTimes(dir) {
+  const files = readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  files.forEach((name, index) => {
+    const time = new Date(Date.UTC(2020, 0, 1, 0, 0, index));
+    utimesSync(path.join(dir, name), time, time);
+  });
+}
 // 要看的页面：路由 + 进页面后额外做的动作（可选）
 const ALL_PAGES = [
   { id: "home", url: "/" },
@@ -265,6 +275,8 @@ async function runMode(mode) {
   cpSync(path.join(FIXTURE, "ud"), path.join(ROOT, "ud"), { recursive: true });
   cpSync(path.join(FIXTURE, "ws-a"), WS_A, { recursive: true });
   cpSync(path.join(FIXTURE, "ws-b"), WS_B, { recursive: true });
+  stabilizeFixtureTimes(WS_A);
+  stabilizeFixtureTimes(WS_B);
   const env = {
     ...process.env,
     OV_UI: mode,
@@ -358,7 +370,7 @@ async function runMode(mode) {
           : label.event ? `(() => { window.dispatchEvent(new Event(${JSON.stringify(label.event)})); return true; })()`
           : typeIntoDialog(label.type);
         const r = await c.send("Runtime.evaluate", { expression, returnByValue: true });
-        if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${labelName}」，页面没切过去`);
+        if (!r.result?.result?.value) throw new Error(`${p.id}：界面上找不到「${labelName}」，页面没切过去 ${c.errors().slice(-3).join(" | ")}`);
         await sleep(1500);
       }
       const buf = await stableShot(c);
@@ -439,3 +451,4 @@ for (const p of PAGES) {
   for (const e of newErrors.slice(0, 3)) console.log("    " + e);
 }
 writeFileSync(path.join(outDir, "report.json"), JSON.stringify(report, null, 2));
+process.exit(0);

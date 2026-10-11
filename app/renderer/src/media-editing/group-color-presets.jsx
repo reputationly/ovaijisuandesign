@@ -4,16 +4,14 @@ import { PluginNodeInner } from "./plugin-node-inner.jsx";
 import { FileNodeImpl } from "./file-node-impl.jsx";
 import { PANORAMA_VIEWER_PLUGIN_ID } from "./resolve-panorama-generation-presentation.js";
 import { PanoramaNode } from "./panorama-node.jsx";
-import { __webpack_exports__, reactExports } from "../vendor.js";
+import { GlobalWorkerOptions } from "pdfjs-dist/build/pdf.mjs";
+import { reactExports } from "../vendor.js";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";
 
 const pdfWorkerUrl =
   "" + new URL("../pdf.worker.min-yatZIOMy.mjs", import.meta.url).href;
 
-var __webpack_exports__GlobalWorkerOptions =
-  __webpack_exports__.GlobalWorkerOptions;
-
-__webpack_exports__GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 function FileNodeDispatcher(props) {
   const data2 = props.data;
