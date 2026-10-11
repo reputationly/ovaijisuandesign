@@ -274,11 +274,10 @@ async function runMode(mode) {
   for (const d of ["ud", "data"]) mkdirSync(path.join(ROOT, d));
   // 引导提示（coach mark）预先标成已看过：它们是延时弹出的，会让截图时有时无
   cpSync(path.join(FIXTURE, "ud"), path.join(ROOT, "ud"), { recursive: true });
-  const workspaceFixture = existsSync(path.join(FIXTURE, "ws-b"))
-    ? path.join(FIXTURE, "ws-b")
-    : path.join(FIXTURE, "ws-a");
-  cpSync(workspaceFixture, WS_A, { recursive: true });
-  cpSync(workspaceFixture, WS_B, { recursive: true });
+  // 仓库里只带 ws-a；本机有单独的 ws-b 就用它，没有就复制一份 ws-a
+  const wsBFixture = existsSync(path.join(FIXTURE, "ws-b")) ? path.join(FIXTURE, "ws-b") : path.join(FIXTURE, "ws-a");
+  cpSync(path.join(FIXTURE, "ws-a"), WS_A, { recursive: true });
+  cpSync(wsBFixture, WS_B, { recursive: true });
   stabilizeFixtureTimes(WS_A);
   stabilizeFixtureTimes(WS_B);
   const env = {
