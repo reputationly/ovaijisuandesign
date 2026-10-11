@@ -24,6 +24,7 @@ const sharp = createRequire(path.join(repo, "app/gateway/package.json"))("sharp"
 const RECORD = process.argv[2] === "--record";
 const [baseMode = "golden", testMode = "recovered"] = RECORD ? ["golden", process.argv[3] ?? "recovered"] : process.argv.slice(2);
 const GOLDEN = process.env.GOLDEN ? path.resolve(process.env.GOLDEN) : path.join(repo, ".probe/ui-golden");
+const GLOBAL_SEARCH_CAPTURE_AGE_MS = 4 * 60_000 + 30_000;
 
 const ROOT = "/tmp/ov-cmp";
 const FIXTURE = path.join(repo, "scripts/ui-compare/fixture");
@@ -273,8 +274,11 @@ async function runMode(mode) {
   for (const d of ["ud", "data"]) mkdirSync(path.join(ROOT, d));
   // 引导提示（coach mark）预先标成已看过：它们是延时弹出的，会让截图时有时无
   cpSync(path.join(FIXTURE, "ud"), path.join(ROOT, "ud"), { recursive: true });
-  cpSync(path.join(FIXTURE, "ws-a"), WS_A, { recursive: true });
-  cpSync(path.join(FIXTURE, "ws-b"), WS_B, { recursive: true });
+  const workspaceFixture = existsSync(path.join(FIXTURE, "ws-b"))
+    ? path.join(FIXTURE, "ws-b")
+    : path.join(FIXTURE, "ws-a");
+  cpSync(workspaceFixture, WS_A, { recursive: true });
+  cpSync(workspaceFixture, WS_B, { recursive: true });
   stabilizeFixtureTimes(WS_A);
   stabilizeFixtureTimes(WS_B);
   const env = {
@@ -319,7 +323,35 @@ async function runMode(mode) {
         if (!r.result?.result?.value && i >= 1) break;
       }
       // 鼠标挪到左上角：否则系统鼠标指针停在哪张卡片上，哪张就是悬停样式
+      let restoreDateNow = false;
       for (const label of p.tabs ?? []) {
+        if (p.id === "global-search" && typeof label === "object" && label.event === "hilo:open-global-search") {
+          const openedAt = await c.send("Runtime.evaluate", {
+            expression: `(() => {
+              const times = [];
+              const visit = (value) => {
+                if (!value || typeof value !== "object") return;
+                const openedAt = Number(value.openedAt);
+                if (Number.isFinite(openedAt)) times.push(openedAt);
+                for (const child of Object.values(value)) visit(child);
+              };
+              for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (!key?.includes("recentWorkspaces")) continue;
+                try { visit(JSON.parse(localStorage.getItem(key))); } catch {}
+              }
+              return times.length ? Math.max(...times) : null;
+            })()`,
+            returnByValue: true,
+          });
+          const latestOpenedAt = openedAt.result?.result?.value;
+          if (Number.isFinite(latestOpenedAt)) {
+            await c.send("Runtime.evaluate", {
+              expression: `window.__ovCompareOriginalDateNow ??= Date.now; Date.now = () => ${latestOpenedAt + GLOBAL_SEARCH_CAPTURE_AGE_MS};`,
+            });
+            restoreDateNow = true;
+          }
+        }
         // 字符串 = 点这段文字；{ type: "xx" } = 往弹窗输入框填字；{ event: "名字" } = 在窗口上触发事件；{ wait: ms } = 多等一会儿
         if (typeof label === "object" && label.wait) { await sleep(label.wait); continue; }
         if (typeof label === "object" && (label.until || label.untilSelector)) {
@@ -374,6 +406,9 @@ async function runMode(mode) {
         await sleep(1500);
       }
       const buf = await stableShot(c);
+      if (restoreDateNow) {
+        await c.send("Runtime.evaluate", { expression: "if (window.__ovCompareOriginalDateNow) Date.now = window.__ovCompareOriginalDateNow; delete window.__ovCompareOriginalDateNow;" });
+      }
       const file = path.join(outDir, `${p.id}.${mode}.png`);
       writeFileSync(file, buf);
       results[p.id] = { file, errors: [...new Set(c.errors())] };

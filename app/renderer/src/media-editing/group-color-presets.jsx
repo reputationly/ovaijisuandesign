@@ -4,7 +4,7 @@ import { PluginNodeInner } from "./plugin-node-inner.jsx";
 import { FileNodeImpl } from "./file-node-impl.jsx";
 import { PANORAMA_VIEWER_PLUGIN_ID } from "./resolve-panorama-generation-presentation.js";
 import { PanoramaNode } from "./panorama-node.jsx";
-import { GlobalWorkerOptions } from "pdfjs-dist/build/pdf.mjs";
+import { GlobalWorkerOptions } from "pdfjs-dist";
 import { reactExports } from "../vendor.js";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";
 
