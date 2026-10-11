@@ -31,17 +31,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from versioning import decode, encode_or_die  # noqa: E402
+from versioning import release_semver_or_die  # noqa: E402
 
 PKG = ROOT / "app/desktop/package.json"
 
 
 def main() -> int:
     if len(sys.argv) != 2:
-        print(f"用法：python3 {Path(__file__).name} <人读版本号，如 3.0.21.3>", file=sys.stderr)
+        print(f"用法：python3 {Path(__file__).name} <发布版本，如 30.21.8>", file=sys.stderr)
         return 2
-    human = sys.argv[1].strip()
-    encoded = encode_or_die(human, where=f"set-desktop-version {human}")
+    given = sys.argv[1].strip()
+    encoded = release_semver_or_die(given, where=f"set-desktop-version {given}")
 
     doc = json.loads(PKG.read_text(encoding="utf8"))
     before = str(doc.get("version", ""))
@@ -51,8 +51,7 @@ def main() -> int:
     PKG.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf8")
 
     print(f"✓ app/desktop/package.json  version: {before or '（无）'} → {encoded}")
-    print(f"  人读 {human}（解码回来是 {decode(encoded)}）")
-    print(f"  清单 version 和 app.getVersion() 都会报 {encoded} —— 两边一致才算能更新")
+    print(f"  清单 version 和 app.getVersion() 都会报 {encoded}")
     return 0
 
 

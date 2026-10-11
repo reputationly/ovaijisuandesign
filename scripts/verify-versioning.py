@@ -28,6 +28,7 @@ from versioning import (  # noqa: E402
     encode,
     is_strict_semver,
     parse_human,
+    release_semver,
 )
 
 FAILED: list[str] = []
@@ -173,6 +174,8 @@ check(
     parse_human("3.0.21") == (3, 0, 21, 0),
     f"实际 {parse_human('3.0.21')}",
 )
+check("30.21.8 已是发布号，不再编码", release_semver("30.21.8") == "30.21.8")
+check("旧的 3.0.21.8 编成 30.21.8", release_semver("3.0.21.8") == "30.21.8")
 
 # ---------------------------------------------------------------- 消费方能不能解析
 

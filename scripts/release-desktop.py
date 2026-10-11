@@ -22,10 +22,9 @@
 指针沿用 electron-updater 的 `latest-*.yml` 格式 —— 消费方（`electron-updater`、
 或任何按这个格式读的工具）不用改就能认。
 
-**`--version` 收的是人读四段（`3.0.21.2`），而文件名和清单里的版本是编码值
-（`30.21.2`）。** 这不是笔误 —— 四段不是合法 semver，而清单的 `version:` 必须能被
-`electron-updater` 当 semver 解析。编码规则和它的单调性证明在
-`scripts/versioning.py`，这里只负责断言 electron-builder 出的清单已经是编码值。
+**`--version` 收的是发布号 `30.21.N`。** tag、存储目录、包名、清单的 `version:`
+和应用自报的版本是同一个数。旧的四段 `3.0.21.N` 仍会先编成 `30.21.N` 再比较，
+新发布不再使用四段。规则在 `scripts/versioning.py`。
 
 **包名不带 sha，按版本存死。** 和旧栈不同，这里保留 electron-builder 的原始命名：
 `latest-*.yml` 里引用的就是它，**改名就得连 yml 一起改**，而 yml 是我们改地址的 ——
@@ -63,7 +62,7 @@ from release import (  # noqa: E402
     s3_upload,
     verify,
 )
-from versioning import encode_or_die  # noqa: E402
+from versioning import release_semver_or_die  # noqa: E402
 
 DIST = ROOT / "dist-desktop"
 
@@ -236,7 +235,7 @@ def rewrite_manifest(target: str, stage_dir: Path, base: str, namespace: str) ->
     # electron-builder 的 `version:` 取自 `app/desktop/package.json`，而那儿的值
     # 由 `scripts/set-desktop-version.py` 在出包前写成**编码后的三段**
     # （3.0.21.2 → 30.21.2）。这里只负责确认它对 —— 见下面 fail 的注释。
-    encoded = encode_or_die(ver, where=f"{target} 的 {name}")
+    encoded = release_semver_or_die(ver, where=f"{target} 的 {name}")
     found = re.search(r"^version:\s*(.+?)\s*$", text, flags=re.M)
     if not found:
         fail(f"{target}: {name} 里没有 version: 字段，消费方无从判断有没有新版。")

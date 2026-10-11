@@ -6,37 +6,14 @@
 
 ## 版本号规则
 
-四段 `MAJOR.MINOR.PATCH.BUILD`：
+发出去的号是三段 `30.21.N`。tag、存储目录、包名、清单和应用自报的版本用同一个。
+`hiloOfficialVersion`（`3.0.21`）只记下参照应用的版本，不出现在 tag 上。
+旧 tag `v3.0.21.N` 和 `v30.21.N` 算同一条线上的同一个迭代号。
 
-    3.0.12   .3
-    └──┬──┘   └┬┘
-   官方 MiniMax   本仓的迭代号
-   Design 的版本
-
-前三段是**基线**，写在 `app/desktop/package.json` 的 `hiloOfficialVersion`，
-只在跟进官方新版本时手改。第四段是本仓自己的迭代号，每发一版 +1，
-由这个脚本算。
-
-## 四段只是「人读」的那一半
-
-`tag.py` 算出来的四段会出现在 tag、桶里的存储目录、包文件名上 ——
-全是给人看的。而 `app/desktop/package.json` 的 `version` 那一栏是**另一回事**：
-它必须是编码后的三段 semver（`3.0.21.3` → `30.21.3`），因为
-`electron-updater` 拿更新清单里的 `version:` 和 `app.getVersion()` 比 semver，
-四段会被直接拒掉（真跑过：`does not have a valid semver version: "3.0.21.2"`）。
-
-编码规则、单调性证明、以及「越界就静默停更」的后果，都在
-**`scripts/versioning.py`** —— 整个仓库只有那一个文件知道怎么编码。
-`tag.py` 只管人读的四段，不参与编码。
-
-**版本号必须是纯数字分段。** 官方 UI 用严格三段正则解析它
-（`app/renderer/src/infra/from-vendor.js` 的 `parseSemver`），我们自己也拒
-非数字段：带后缀的版本号（`3.0.12-ovaijisuan-20260909`）会让客户端
-**静默地永远收不到更新** —— 不报错、不提示，只是永远认为自己是最新的。
+四段 `3.0.21.N` 不是合法 semver，electron-updater 会直接拒绝。所以新 tag 不再用它。
 """
 
 import argparse
-import re
 import subprocess
 import sys
 from pathlib import Path
@@ -47,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # 基线的读法只有一处，在 release.py 里。这里 import 而不是各写一份 ——
 # 以前两处各读各的，改了一处忘了另一处，症状是 tag 和清单对不上而两边都绿。
 from release import baseline  # noqa: E402
-from versioning import encode  # noqa: E402
+from versioning import encode, release_semver  # noqa: E402
 
 
 def git(*args: str) -> str:
@@ -57,14 +34,23 @@ def git(*args: str) -> str:
 
 
 def next_version(base: str, tags: list[str]) -> str:
-    """基线下已有的最大迭代号 +1。
+    """当前发布线上已有的最大迭代号 +1。返回 `30.21.N`。
 
-    只看**本基线**的 tag —— 基线从 3.0.11 跟到 3.0.12 时迭代号要从 1 重新起，
-    拿全局最大值的话会跳号（3.0.11.7 → 3.0.12.8），看着像丢了七个版本。
+    旧 tag `v3.0.21.7` 和现 tag `v30.21.7` 算同一个迭代号。基线从 3.0.21 跟到
+    3.0.22 时前缀变成 `30.22`，迭代号重新从 1 起。
     """
-    pat = re.compile(r"^v" + re.escape(base) + r"\.(\d+)$")
-    used = [int(m.group(1)) for t in tags if (m := pat.match(t))]
-    return f"{base}.{max(used, default=0) + 1}"
+    prefix = encode(base).rsplit(".", 1)[0]
+    used: list[int] = []
+    for tag in tags:
+        name = tag[1:] if tag.startswith("v") else tag
+        try:
+            semver = release_semver(name)
+        except ValueError:
+            continue
+        head, _, build = semver.rpartition(".")
+        if head == prefix and build.isdigit():
+            used.append(int(build))
+    return f"{prefix}.{max(used, default=0) + 1}"
 
 
 def main() -> int:
@@ -76,18 +62,14 @@ def main() -> int:
     tags = git("tag", "--list").splitlines()
     ver = next_version(base, tags)
     tag = f"v{ver}"
-    # 算完先问一遍编码能不能做。**在这里炸掉，好过在 CI 出完 800MB 的包之后
-    # 炸在 release-desktop.py 里** —— 那时候三个平台的钱已经花了。
-    encoded = encode(ver)
+    # 发布号本身就是三段 semver。这里再过一遍，编码规则坏了就在打 tag 前停。
+    encoded = encode(base)
 
-    same_base = sorted(t for t in tags if t.startswith(f"v{base}"))
-    print(f"官方基线    {base}   (app/desktop/package.json 的 hiloOfficialVersion)")
-    print(f"本基线已发  {' '.join(same_base) or '（还没有）'}")
+    same = sorted(t for t in tags if t.startswith(f"v{ver.rsplit('.', 1)[0]}.") or t.startswith(f"v{base}."))
+    print(f"参照基线    {base}   (app/desktop/package.json 的 hiloOfficialVersion，编码 {encoded})")
+    print(f"这条线已发  {' '.join(same) or '（还没有）'}")
     print(f"即将发布    {tag}")
-    # 印出来是为了**肉眼对得上**：人读四段在 tag 和存储路径上，编码三段在包文件名
-    # 和更新清单上。两者不同是设计，不是笔误。
-    print(f"清单/包名   {encoded}   (三段 semver；客户端靠它比大小)")
-    print(f"            set-desktop-version.py 会把 {encoded} 写进 package.json 的 version")
+    print(f"            tag、存储目录、包名、清单 version、app.getVersion() 都是 {ver}")
 
     if not args.push:
         print("\n（没加 --push，什么也没做）")

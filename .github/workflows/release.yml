@@ -25,10 +25,8 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
+      # 发布版本，三段 `30.21.N`。tag、存储目录、清单、包名、app.getVersion() 都用它。
       version: ${{ steps.v.outputs.version }}
-      # 同一版的**编码值**（三段 semver）。清单的 `version:`、包文件名、
-      # `app.getVersion()` 三处都用它，而 `version`（人读四段）只用在 tag
-      # 和存储路径上。两者必然不同，别在下游混用。
       semver: ${{ steps.v.outputs.semver }}
       prefix: ${{ steps.v.outputs.prefix }}
       cdn: ${{ steps.v.outputs.cdn }}
@@ -101,27 +99,22 @@ jobs:
             exit 0
           fi
 
-          # 版本号四段：**前三段跟官方 MiniMax Design 走，第四段是本仓的迭代号。**
-          # 完整人读版本号在 tag 里，校验前三段和基线一致 —— 对不上的话包名、
-          # 清单 URL、发布路径会各说各的。
-          #
-          # 后面那个 `encode` 是**真正的判据**：它验的不只是「四段纯数字」，
-          # 还验「主版本号是不是一位数」—— 越界的话编码会不再单调，新版本排到
-          # 旧版本后面，客户端就静默地永远收不到更新（`versioning.py` 开头有推导）。
-          # 用 `encoding.encode` 判而不是 `grep -E '^[0-9]+(\.[0-9]+){2,3}$'`：
-          # 后者放行一切四段数字，包括 10.0.0.0 那种会让更新停摆的。
+          # 发布号是三段 `30.21.N`：tag、存储目录、包名、清单、app.getVersion() 用同一个。
+          # 旧 tag `v3.0.21.N` 仍能编码成 `30.21.N`，但新 tag 不再用四段。
+          # 前缀必须落在当前基线的编码上（3.0.21 → 30.21），否则包名和更新比较各说各的。
           TAG="${GITHUB_REF_NAME#v}"
-          case "$TAG" in
-            "$BASE"|"$BASE".*) ;;
-            *) echo "::error::tag v$TAG 的前三段和 app/desktop/package.json 的 $BASE 对不上，先同步再发"; exit 1 ;;
-          esac
-          ENCODED=$(python3 -c "import sys;sys.path.insert(0,'scripts');from versioning import encode_or_die;print(encode_or_die('$TAG'))" 2>&1) || {
-            echo "::error::tag v$TAG 不是可用的版本号：$ENCODED"; exit 1;
+          SEMVER=$(python3 -c "import sys;sys.path.insert(0,'scripts');from versioning import release_semver_or_die;print(release_semver_or_die('$TAG'))" 2>&1) || {
+            echo "::error::tag v$TAG 不是可用的版本号：$SEMVER"; exit 1;
           }
-          echo "tag ${TAG}（人读）→ 清单/包名 ${ENCODED}（semver）"
+          PREFIX="${BASE_SEMVER%.*}"
+          case "$SEMVER" in
+            "$PREFIX".*) ;;
+            *) echo "::error::tag v$TAG 得到 $SEMVER，不在当前发布线 $PREFIX.x 上"; exit 1 ;;
+          esac
+          echo "tag ${TAG} → 发布版本 ${SEMVER}"
           {
-            echo "version=$TAG"
-            echo "semver=$ENCODED"
+            echo "version=$SEMVER"
+            echo "semver=$SEMVER"
             echo "prefix="
           } >> "$GITHUB_OUTPUT"
 

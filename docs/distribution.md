@@ -277,17 +277,16 @@ sort -V 之后   1.1.8.1 < 1.1.8.2 < 1.1.8.3 < 3.0.12.1
 
 #### 同一个版本号有两个人读形态
 
-四段 `3.0.21.3` 是**人读**的那一半，只出现在 git tag、桶里的存储目录、
-包文件名上。**机器比大小的那个形态是三段 semver**，因为消费者只认三段：
+发出去的版本号是三段 `30.21.N`。tag、桶里的目录、包名、清单和应用自报的版本是同一个数。`3.0.21` 只留在 `hiloOfficialVersion`，用来记得参照的是哪一版；旧 tag `v3.0.21.N` 读进来时才编码成 `30.21.N`。
 
 | 放在哪 | 形态 | 谁维护 |
 |---|---|---|
-| `app/desktop/package.json` 的 `hiloOfficialVersion` | `3.0.21` 三段 | **手改**，只在跟进官方新版时 |
-| Git tag | `v3.0.21.3` 四段 | `scripts/tag.py --push` 自动算 |
-| 桶里的存储目录 | `3.0.21.3/` 四段 | CI 用 tag 推出来的 |
-| `app/desktop/package.json` 的 `version` | `30.21.3` **编码三段** | CI 出包前经 `set-desktop-version.py` 写入 |
-| `latest-<target>/latest-*.yml` 的 `version:` | `30.21.3` 编码三段 | electron-builder 从上面那份抄 |
-| `app.getVersion()` | `30.21.3` 编码三段 | asar 里那份 package.json |
+| `app/desktop/package.json` 的 `hiloOfficialVersion` | `3.0.21` | **手改**，只在跟进参照应用的新版时 |
+| Git tag | `v30.21.8` | `scripts/tag.py --push` 自动算 |
+| 桶里的存储目录 | `30.21.8/` | CI 用 tag 推出来的 |
+| `app/desktop/package.json` 的 `version` | `30.21.8` | CI 出包前经 `set-desktop-version.py` 写入 |
+| `latest-*.yml` 的 `version:` | `30.21.8` | electron-builder 从上面那份抄 |
+| `app.getVersion()` | `30.21.8` | asar 里那份 package.json |
 
 编码规则：**前两段拼成一个数字，第四段缺省 0。**
 

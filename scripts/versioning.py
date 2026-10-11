@@ -23,8 +23,8 @@ error 阶段的横幅判断也直接走不通。
 
 |      | 形态      | 谁在用                                                          |
 | ---- | --------- | --------------------------------------------------------------- |
-| 人读 | `3.0.21.2` | git tag、桶里的存储目录、dmg / exe 文件名、CI 里的 `version` 输出 |
-| 机器 | `30.21.2`  | `app/desktop/package.json` 的 `version`、`latest-*.yml` 的 `version:`、`app.getVersion()` |
+| 发布 | `30.21.2`  | git tag、桶里的存储目录、dmg / exe 文件名、`package.json` 的 `version`、`latest-*.yml` 的 `version:`、`app.getVersion()` |
+| 旧 tag | `3.0.21.2` | 只在读旧 tag 时编码成上面那一栏，不再拿来发新版 |
 
 编码规则：**前两段拼成一个数字，第四段缺省 0。**
 
@@ -127,6 +127,38 @@ def decode(version: str) -> str:
 def is_strict_semver(version: str) -> bool:
     """这个版本号能被官方 UI 的 `parseSemver` 解析吗。"""
     return bool(STRICT_SEMVER_RE.match((version or "").strip()))
+
+
+def release_semver(version: str) -> str:
+    """发布用的三段版本。`30.21.8` 原样返回；旧的 `3.0.21.8` 编码成 `30.21.8`。
+
+    第一段大于 9 的三段号已经是发布版本，不能再编码：`30.21.8` 再编一次会因为
+    主版本号越界被拒绝。第一段是一位数的（`3.0.21` / `3.0.21.8`）仍走 `encode()`。
+    """
+    text = (version or "").strip()
+    if re.fullmatch(r"\d+\.\d+\.\d+", text) and int(text.split(".", 1)[0]) > MAJOR_MAX:
+        if not is_strict_semver(text):
+            raise ValueError(f"发布版本号不是三段 semver：{text!r}")
+        return text
+    return encode(text)
+
+
+def release_semver_or_die(version: str, where: str = "") -> str:
+    """`release_semver()`，失败时停掉发布。"""
+    try:
+        got = release_semver(version)
+    except ValueError as err:
+        prefix = f"{where}：" if where else ""
+        print(f"✗ {prefix}{err}", file=sys.stderr)
+        raise SystemExit(1)
+    if not is_strict_semver(got):
+        print(
+            f"✗ {where or '版本号'}：{version} 得到 {got!r}，"
+            f"但不满足三段 semver，客户端会判为非法",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+    return got
 
 
 def encode_or_die(version: str, where: str = "") -> str:
