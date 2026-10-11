@@ -24,7 +24,9 @@ jobs:
           NS=ovaijisuandesign
           SRC=3.0.21.7
           DST=30.21.7
-          aws s3 sync "s3://$BUCKET/$NS/$SRC/" "s3://$BUCKET/$NS/$DST/" --endpoint-url "$EP"
+          # R2 没有 GetObjectTagging。`sync` 会去读标签然后整批失败，大文件一个都拷不过去。
+          aws s3 cp "s3://$BUCKET/$NS/$SRC/" "s3://$BUCKET/$NS/$DST/" \
+            --recursive --copy-props none --endpoint-url "$EP"
 
           python3 - << 'PY'
           import os, subprocess, pathlib
