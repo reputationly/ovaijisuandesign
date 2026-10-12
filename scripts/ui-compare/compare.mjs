@@ -385,6 +385,7 @@ const SEEDED_RANDOM = `(() => {
     sections.push(...node.querySelectorAll('[data-action-ui-id="chat-empty-recommendations"]'));
     if (!sections.length) return;
     seededRecommendations = true;
+    window.__ovRandomTrace?.resets?.push({ afterN: window.__ovRandomTrace.count });
     s = seed;
   };
   Math.random = () => {
@@ -402,6 +403,58 @@ const SEEDED_RANDOM = `(() => {
       for (const node of record.addedNodes) resetForRecommendations(node);
     }
   }).observe(document, { childList: true, subtree: true });
+})();`;
+const RANDOM_TRACE = (expectedUrl) => `(() => {
+  if (location.pathname + location.search !== ${JSON.stringify(expectedUrl)}) return;
+  if (window.__ovRandomTrace) return;
+  const trace = window.__ovRandomTrace = { count: 0, calls: [], resets: [], poolCandidates: [], stackEntries: 0 };
+  const stackTop = () => (new Error().stack ?? "").split("\\n").slice(1, 7);
+  const random = Math.random;
+  Math.random = function() {
+    const n = ++trace.count;
+    if (trace.stackEntries < 3000) {
+      trace.calls.push({ n, stack: stackTop() });
+      trace.stackEntries++;
+    }
+    return Reflect.apply(random, this, arguments);
+  };
+  const filter = Array.prototype.filter;
+  Object.defineProperty(Array.prototype, "filter", {
+    configurable: true,
+    writable: true,
+    value: function(callback, thisArg) {
+      try {
+        if (Array.isArray(this) && this.length > 0 && this.length <= 1000) {
+          const ids = [];
+          let hasOnlyStringIds = true;
+          for (let i = 0; i < this.length; i++) {
+            const id = this[i]?.id;
+            if (typeof id !== "string") {
+              hasOnlyStringIds = false;
+              break;
+            }
+            ids.push(id);
+          }
+          if (hasOnlyStringIds && trace.stackEntries < 3000 && trace.poolCandidates.length < 100) {
+            const stack = stackTop();
+            if (stack.some((frame) => frame.includes("pickRecommendationBatch"))) {
+              trace.poolCandidates.push({ n: trace.count, ids, stack });
+              trace.stackEntries++;
+            }
+          }
+        }
+      } catch {}
+      return Reflect.apply(filter, this, arguments);
+    },
+  });
+  window.__ovRandomTraceRestore = () => {
+    Math.random = random;
+    Object.defineProperty(Array.prototype, "filter", {
+      configurable: true,
+      writable: true,
+      value: filter,
+    });
+  };
 })();`;
 // 点一个标签：先找叶子节点上文字完全一致的可见元素，点击会冒泡到标签自己的处理函数；
 // 找不到再找文字一致的 [role=tab] 或按钮（带图标时文字不在叶子节点上），最后允许以该文字开头（标签后面带角标或数量）。
@@ -1323,6 +1376,11 @@ async function runMode(mode) {
     for (const p of PAGES) {
       console.log(`  ${mode} ${p.id}`);
       c.clearErrors();
+      let randomTraceScriptIdentifier;
+      if (process.env.OV_RANDOM_TRACE === "1" && p.id === "ws-pdf") {
+        const script = await c.send("Page.addScriptToEvaluateOnNewDocument", { source: RANDOM_TRACE(p.url) });
+        randomTraceScriptIdentifier = script.result?.identifier;
+      }
       const documentURL = `app://.${p.url}`;
       c.beginNetworkCapture(documentURL);
       await c.send("Runtime.evaluate", { expression: `location.assign(${JSON.stringify(documentURL)})` });
@@ -1476,6 +1534,16 @@ async function runMode(mode) {
       const { dom, state } = await captureStablePageState(c);
       const buf = await stableShot(c);
       await c.waitForNetworkIdle();
+      if (randomTraceScriptIdentifier) {
+        const captured = await c.send("Runtime.evaluate", {
+          expression: "(() => { const trace = window.__ovRandomTrace ?? null; window.__ovRandomTraceRestore?.(); return trace; })()",
+          returnByValue: true,
+        });
+        const trace = captured.result?.result?.value;
+        if (!trace) throw new Error("OV_RANDOM_TRACE 已启用，但 ws-pdf 页面没有 RNG trace");
+        writeFileSync(path.join(outDir, `${p.id}.${mode}.random-trace.json`), JSON.stringify(trace, null, 2));
+        await c.send("Page.removeScriptToEvaluateOnNewDocument", { identifier: randomTraceScriptIdentifier });
+      }
       const net = c.endNetworkCapture();
       if (process.env.CAPTURE_TRACE === "1" && ["project-created", "ws-canvas-ops", "ws-pdf"].includes(p.id)) {
         writeFileSync(path.join(outDir, `${p.id}.${mode}.trace.json`), JSON.stringify(c.networkTrace(), null, 2));

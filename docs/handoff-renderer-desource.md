@@ -74,6 +74,8 @@
 
 **状态**：`DISABLED_PAGES` 为空；`NET_VOLATILE` 仅有 GET `/api/v1/home/showcase-assets/`。`BLOCKED_URLS` 只屏蔽外部展示素材 host `cdn.hailuoai.com`（封面视频）与 `cdn.hailuoai.video`（打光缩略图）。441a06b 的正式 40 页 golden 已按当前 harness 重录。
 
+**RNG trace（默认关闭）**：设置 `OV_RANDOM_TRACE=1` 才会在 `ws-pdf` 记录随机调用栈、reset 索引与推荐池 ID；基线与分支的 348-call 调用序列及 152-ID 推荐池（SHA-256 `beff55ae27e5aaa86bf77b3bbd04c37a5cb8511b13508608fd6cc33f01a12669`）一致，先前卡片差异不是换包造成。
+
 **441a06b 全量自比较**：两次 gate 等效运行都在第一次完整比较通过，没有触发第二轮：
 
 - `/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-12T08-56-10-445Z/report.json`
@@ -85,9 +87,17 @@
 
 原自比较中的其它问题本轮均未复现：`ws-chat-input` 使用关闭的本地 provider 端口保持请求 payload 可比较；`ws-pdf` 在场景后等待网络 idle；表格路径及相关 ID 在每页共享映射中规范化；项目页 state、workspace 请求和 toast DOM 均在上述完整报告中无差异。网络请求仍保留当前 loader/documentURL 范围，不通过删除端点消除差异。
 
-**分支 gate 状态：未通过。** 构建 11/11 package 成功，`check-undef` 检查 1125 个 renderer 源文件通过。两份完整报告为 `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T09-33-14-631Z/report.json` 和 `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T09-51-30-999Z/report.json`。`ws-pdf` 两次均在 pixel 通道失败：raw 1467 像素（0.148%），TOL∩non-AA 958 像素（0.09682245%，`pixelmatchNonAA` 990）；net、DOM、state、新增错误均为 0。两轮 `ws-pdf.non-aa.diff.png` SHA-256 相同，像素差异图显示红色集中在右侧助手推荐卡片的文字区域，而不是画布中的 PDF 内容。对应页面的 network/DOM/state 均无差异；`empty-chat-recommendations.jsx` 的推荐抽样使用 `Math.random`，但尚未证明它是这些特定文字差异的完整原因，因此未作未经证实的修改。
+**分支 gate 状态：通过（Phase 1 完成）。** 按原样运行 `scripts/ui-compare/gate.sh`：构建 11/11 packages 成功，`check-undef` 检查 1125 个 renderer 源文件通过；首次比较发现差异后自动完成第二次全量比较。报告：
 
-`ws-multi-angle` 仅第二次在同一像素通道出现相同差异，按新门禁规则列为“不稳定（一次失败）”且不阻断；两份报告路径同上。raw-only 信息差异包括 `ws-a` 5、`ws-code-editor` 11（第二轮另有 `ws-text-editor` 7），这些页面 `diffPctNonAA` 均为 0。两轮 `ws-select-image` 的 `newErrors` 均为空，历史 ProseMirror RangeError 已不再出现；安装目录也只有 `prosemirror-model@1.25.11`。包目录检查发现另有 `pdfjs-dist@4.10.38` 与 `pdfjs-dist@5.4.296`，但其与右侧推荐卡片文字差异无因果证据，未擅自做 override。故当前分支 gate 仍有可复现的 `ws-pdf` 像素差异，不能报告为通过。
+- `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T12-17-07-400Z/report.json`
+- `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T12-35-17-837Z/report.json`
+
+本轮一次性 flake（第二次同页同通道均通过）：
+
+- `skill-community`：第一次 DOM 差异 41 项，第二次通过。
+- `ws-chat-skill`：第一次 pixel 差异 40 个 raw 像素、28 个 TOL∩non-AA 像素（`pixelmatchNonAA` 28），第二次通过。
+
+没有同一页面在同一通道连续两次失败，gate 退出码为 0。第二份报告 40 页所有门禁通道均为 0；两份报告中 `ws-pdf` 均为 raw/non-AA/pixelmatch 0，网络、DOM、状态及新增错误也均为 0，因此先前右侧推荐卡片差异本轮未复现。此前 `ws-multi-angle` 的一次性像素差异也未在本轮出现；raw-only 信息差异为两轮均有 `ws-a` 5 像素和 `ws-code-editor` 7 像素，non-AA 均为 0。
 
 ## 运行环境（Linux 云机，已验证）
 
