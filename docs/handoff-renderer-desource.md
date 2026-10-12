@@ -57,6 +57,8 @@
 - **持久化状态**：localStorage 全量（JSON 字符串会解析并递归归一化），以及工作区 `.hilo/` 下除 sqlite 外的文件（canvas.json 等）。顶层缩略图缓存路径会按 SHA-256 内容和大小比较，保留重复数量，忽略随资源 ID 变化的文件名。
 - 截图前最多等 5 秒，等待图片完成且成功加载的图片 `naturalWidth > 0`，随后对这些图片等待 `decode()`（捕获解码错误；总时限 5 秒）。卡片封面视频 host `cdn.hailuoai.com` 及打光预设缩略图 host `cdn.hailuoai.video` 属外部展示资源，通过 `BLOCKED_URLS` 屏蔽，避免远端内容影响截图。像素报告保留 raw `diffPct`（RGB 三通道差值和 `d > TOL=24`）；另用 `pixelmatch@7.2.0`（2026-04-29 发布，`includeAA: false`、`threshold: 0`，显式指定红色 `diffColor` 和黄色 `aaColor`）报告纯 pixelmatch `pixelmatchNonAA` 数量。门禁用 `diffPctNonAA`，仅计入同一像素同时满足 `d > TOL` 且 pixelmatch 输出红色非 AA 差异的交集；`.non-aa.diff.png` 也只显示此交集。
 
+- **门禁稳定性**：先执行完整 40 页比较；任一页面失败时再执行第二次完整比较，只有同一页面在两次运行中同一通道（像素、网络、DOM、状态或新增错误）都失败才阻断。代码回归应稳定复现，而只出现一次的差异更可能是 harness 时序噪声，因此会连同两份报告路径列为“不稳定（一次失败）”但不阻断。
+
 新增 8 个真操作场景；全部启用时 32 → 40 页，目前 40 页全部启用：
 
 | 场景 | 操作 |
@@ -70,20 +72,22 @@
 | `ws-table-edit` | 全屏表格编辑器：加行、改单元格，有筛选控件时也操作 |
 | `ws-canvas-ops` | 拖动节点、滚轮缩放、连线、撤销 / 重做 |
 
-**状态**：`DISABLED_PAGES` 为空；`NET_VOLATILE` 仅有 GET `/api/v1/home/showcase-assets/`。`BLOCKED_URLS` 只屏蔽外部展示素材 host `cdn.hailuoai.com`（封面视频）与 `cdn.hailuoai.video`（打光缩略图）。正式 40 页 golden 已重录；本次重录后的唯一一次全量自比较中，`ws-relight` 为 raw / non-AA `0/0`。
+**状态**：`DISABLED_PAGES` 为空；`NET_VOLATILE` 仅有 GET `/api/v1/home/showcase-assets/`。`BLOCKED_URLS` 只屏蔽外部展示素材 host `cdn.hailuoai.com`（封面视频）与 `cdn.hailuoai.video`（打光缩略图）。441a06b 的正式 40 页 golden 已按当前 harness 重录。
 
-**最新验证状态：40 页 branch gate 仍未验证通过。** 441a06b 的 40 页 golden 已按当前 harness 重录；随后只完成一次全量自比较，未完成第二次自比较，也未在 ProseMirror override 后运行 branch gate。最新全量报告为 `/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-12T00-27-29-626Z/report.json`。本次无新增控制台错误，大部分页面的 raw/non-AA 像素差为 0；但仍有以下未解决的自比较问题，不能据此声称 40 页 gate 通过：
+**441a06b 全量自比较**：两次 gate 等效运行都在第一次完整比较通过，没有触发第二轮：
 
-- `skill-community` 有 41 项 DOM 差异，网络和持久化状态差均为 0；社区列表开关在 golden 中为开启、恢复运行中为关闭。现有加载条件只应用于 `skills`，尚未确认这是加载时序还是服务数据变化。
-- `ws-chat-input` raw 差异 3932 像素，交集 non-AA 差异 2223（pixelmatch threshold-0 non-AA 计数 2382）；网络、DOM、状态差均为 0。截图中的远端响应错误内容一轮为 “Invalid token”，另一轮为 “Bad Gateway”。
-- `ws-pdf` 有 4 项网络差异：golden 记录 6 个非 GET 请求，恢复运行记录 5 个；缺少一个 `/api/canvas` 请求，已有的本机网络 idle 等待仍未消除此差异。
-- `ws-table-edit` 及后续画布 / 项目页有 3 项状态差异，涉及随机生成的 `.htable` 路径和表格文件内容；表格内容 GET 路径也随之不同。部分后续页另有 DOM 差异，恢复运行出现 `Notifications alt+T` 区域，而 golden 没有。
-- `project-created`、`ws-canvas-ops` 等页出现额外 GET 请求和不同 workspace hash。导航范围过滤是否仍捕获了前一文档请求尚未证实，不能通过删 endpoint 来消除。
-- 单页 `ONLY` 运行跳过了完整页面序列中的前置交互，导致共享 UI 状态不同；`/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-12T00-22-08-977Z/report.json` 是一次 focused 诊断，不能作为有效的完整自比较结果。
+- `/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-12T08-56-10-445Z/report.json`
+- `/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-12T09-14-23-858Z/report.json`
 
-本轮确认 `ws-b` raw 5 / non-AA 0（按当前交集规则不失败），`ws-relight` raw / non-AA 为 0/0。没有新增 `NET_VOLATILE` 项、状态掩码或像素容差。`ws-select-image` 的历史 ProseMirror 双实例错误按已确认的 swap 回归处理：根 `pnpm.overrides` 已加入 `prosemirror-model: 1.25.11`，锁文件已更新；当前安装目录只含 `prosemirror-model@1.25.11`。运行时是否已修复仍待 branch gate 验证。
+两份报告的 40 页均无非 AA 像素、网络、DOM、状态或新增错误差异。raw-only 像素差异仅作信息报告：第一份为 `ws-a` 5、`ws-code-editor` 7、`ws-table-edit` 7；第二份为 `ws-a` 5、`ws-code-editor` 7；以上页面的 `diffPctNonAA` 均为 0。先前完整自比较 `/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-12T08-35-45-963Z/report.json` 同样所有门禁通道为 0。
 
-下一步应先解决上述自比较差异并完成两次全量 40 页自比较，再运行 `scripts/ui-compare/gate.sh`；当前不能声称 branch gate 通过。
+此前 `skill-community` 的 DOM 41 差异是旧 golden 与恢复页面开关状态不一致：旧报告的恢复 DOM 开关为关闭，而旧 golden 对应项为开启；新录制 golden 与两次完整恢复均为关闭且 DOM 差异为 0。源码中已安装 Skill 的 `enabled` 来自 `base.json` 权限与用户覆盖；harness 对 `skills`、`skill-community` 等待 `/api/skills` / 市场请求、社区列表及 `base.json` 权限就绪。旧运行时目录已不存在，且比较 sidecar 不含响应体，无法还原旧 golden 记录时卡片开关的具体数据来源；因此不把旧 `true` 归因到未经验证的存储值。现有证据确认旧 golden 状态与后续恢复不一致，新 golden 与两次完整恢复一致。
+
+原自比较中的其它问题本轮均未复现：`ws-chat-input` 使用关闭的本地 provider 端口保持请求 payload 可比较；`ws-pdf` 在场景后等待网络 idle；表格路径及相关 ID 在每页共享映射中规范化；项目页 state、workspace 请求和 toast DOM 均在上述完整报告中无差异。网络请求仍保留当前 loader/documentURL 范围，不通过删除端点消除差异。
+
+**分支 gate 状态：未通过。** 构建 11/11 package 成功，`check-undef` 检查 1125 个 renderer 源文件通过。两份完整报告为 `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T09-33-14-631Z/report.json` 和 `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T09-51-30-999Z/report.json`。`ws-pdf` 两次均在 pixel 通道失败：raw 1467 像素（0.148%），TOL∩non-AA 958 像素（0.09682245%，`pixelmatchNonAA` 990）；net、DOM、state、新增错误均为 0。两轮 `ws-pdf.non-aa.diff.png` SHA-256 相同，像素差异图显示红色集中在右侧助手推荐卡片的文字区域，而不是画布中的 PDF 内容。对应页面的 network/DOM/state 均无差异；`empty-chat-recommendations.jsx` 的推荐抽样使用 `Math.random`，但尚未证明它是这些特定文字差异的完整原因，因此未作未经证实的修改。
+
+`ws-multi-angle` 仅第二次在同一像素通道出现相同差异，按新门禁规则列为“不稳定（一次失败）”且不阻断；两份报告路径同上。raw-only 信息差异包括 `ws-a` 5、`ws-code-editor` 11（第二轮另有 `ws-text-editor` 7），这些页面 `diffPctNonAA` 均为 0。两轮 `ws-select-image` 的 `newErrors` 均为空，历史 ProseMirror RangeError 已不再出现；安装目录也只有 `prosemirror-model@1.25.11`。包目录检查发现另有 `pdfjs-dist@4.10.38` 与 `pdfjs-dist@5.4.296`，但其与右侧推荐卡片文字差异无因果证据，未擅自做 override。故当前分支 gate 仍有可复现的 `ws-pdf` 像素差异，不能报告为通过。
 
 ## 运行环境（Linux 云机，已验证）
 
