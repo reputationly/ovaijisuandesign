@@ -144,7 +144,7 @@ GOLDEN=<本仓库>/.probe/ui-golden xvfb-run -a node scripts/ui-compare/compare.
 - 全局搜索里「x 分钟前」随时间变，对比时只在这一页把 `Date.now` 固定到最近工作区时间之后 4 分 30 秒。
 - 文件列表按 mtime 排序，复制 fixture 后统一改 mtime。
 - 历史上 `ws-select-image` / `ws-relight` 自比较有过 ≤0.001% 的抖动，修完视口问题后没再出现。
-- Batch 1 的 `ws-add-node`、此前 `ws-pdf`，以及 Batch 2 补充全量第二轮中的 `ws-zoom` / `ws-audio` pixel 差异（raw 1467 / non-AA 958）具有相同的 diff PNG（SHA-256 `e38baa7dd90ae5c3151ef05be533ae577241177343deb18cda0a06806a24e6af`），对应不同页面上的 recurring alternate recommendation-card state；不修复。
+- Batch 1 的 `ws-add-node`、此前 `ws-pdf`，以及 Batch 2 补充全量第二轮中的 `ws-zoom` / `ws-audio` pixel 差异（raw 1467 / non-AA 958）具有相同的 diff PNG（SHA-256 `e38baa7dd90ae5c3151ef05be533ae577241177343deb18cda0a06806a24e6af`），对应不同页面上的 recurring alternate recommendation-card state。后续 Harness A 已定位共享 RNG 调用顺序差异并在 harness 中按 `pickRecommendationBatch` 重置；全量自比较结果见下文。
 
 ## 还剩的工作
 
@@ -331,9 +331,19 @@ hls.js@1.7.3  inline-style-parser@0.2.4  style-to-object@1.0.11  style-to-js@1.1
 
 - renderer 闭包相对既定基线没有其他变化：`@floating-ui/utils` 0.2.11/0.2.12、`@floating-ui/dom` 1.7.6/1.8.0、`@tanstack/history` 1.162.0/1.162.1、`@tanstack/router-core` 1.171.13/1.171.27 均保持；唯一新增版本为已按三份原始 `ShikiError` 证据批准的 `@shikijs/types@4.4.3`。
 - `check-undef` 通过；renderer build 11/11 packages 通过。Streamdown 高亮场景 `ws-chat-input` 两轮通过；`ws-markdown`、`ws-text-editor`、`ws-code-editor` 的 net/DOM/state/新增错误通道两轮均为 0。
-- `scripts/ui-compare/gate.sh` 两轮完整 40 页流程通过。第一轮 `project-assets` DOM 有 41 项差异，第二轮通过；第二轮 `ws-zoom` raw 1467 / non-AA 958 的一次性 pixel 差异与既往 `ws-pdf`、`ws-audio`、`ws-add-node` 右侧推荐卡片区域相同，diff PNG SHA-256 为 `e38baa7dd90ae5c3151ef05be533ae577241177343deb18cda0a06806a24e6af`，记录为 recurring alternate recommendation-card state，无修复。
+- `scripts/ui-compare/gate.sh` 两轮完整 40 页流程通过。第一轮 `project-assets` DOM 有 41 项差异，第二轮通过；第二轮 `ws-zoom` raw 1467 / non-AA 958 的一次性 pixel 差异与既往 `ws-pdf`、`ws-audio`、`ws-add-node` 右侧推荐卡片区域相同，diff PNG SHA-256 为 `e38baa7dd90ae5c3151ef05be533ae577241177343deb18cda0a06806a24e6af`。该批次当时未修复，后续 harness RNG 修复见下文。
 - 报告：`/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T15-31-47-663Z/report.json`、`/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T15-50-00-844Z/report.json`。
 - gate 前后均确认没有 compare、Electron、Xvfb、OpenCode 或 Gateway 残留进程；端口 9360–9362 空闲。
+
+## Harness A：推荐卡片 RNG 与 41 项 DOM 状态
+
+`OV_RANDOM_TRACE=1` 的 pre-fix 跨页 trace（`2026-10-12T16-37-05-396Z`、`2026-10-12T16-40-18-576Z`）显示：各 workspace 的推荐候选池 ID/内容一致，但 `pickRecommendationBatch` 的执行次序因 `showcaseBatch` 与 `skillBatch` 各自的 React effect 而异。它们共享一个 `Math.random` 序列；因此，一个批次此前是否被另一个批次消耗随机数会改变最终卡片。组件的两处 effect 和 `handleRefresh` 都调用 `pickRecommendationBatch`（`app/renderer/src/chat/empty-chat-recommendations.jsx`）；这不是候选池内容变化，也不需要改 app 行为。
+
+`scripts/ui-compare/compare.mjs` 现在只在 harness 中识别候选数组进入 `pickRecommendationBatch` 的过滤步骤，并在该批次第一次调用 `Math.random` 时重置到同一 seed。每批次仍使用相同 PRNG 和原选择算法，所以相同 pool 与 RNG stream 仍产生相同卡片；没有遮罩卡片区域。post-fix trace（`2026-10-12T16-45-39-559Z`）覆盖 `ws-a`、`ws-add-node`、`ws-audio`、`ws-pdf`、`ws-zoom`：虽各页批次调用顺序仍不同，最终可见卡片文本一致，trace 均记录批次 reset，message input 存在且无 runtime reconnect 文案。
+
+`project-assets` 的历史 41 项 DOM 差异是短暂的 runtime reconnect 文案占据 composer 位置。workspace 截图和 `project-assets` 现在在 harness 等待 message input 出现且 reconnect 文案消失后再采集；不隐藏页面内容。`skill-community` 的历史 41 项差异不是同一瞬时 runtime 状态：旧 golden 的 18 个开关与恢复页面状态相反，旧 sidecar 无响应体，无法再还原 golden 当时权限数据的具体来源；已有 `/api/skills`、市场请求、列表及 `base.json` readiness 等待，不据此猜测或改数据。新录制 golden 曾与两次恢复一致，最新自比较中这两页的 DOM 差异均为 0。
+
+A 要求的 `~/ov-golden`（HEAD `441a06b`）全量自比较报告：`/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-12T16-48-14-428Z/report.json`。40 页均为 `diffPixels=0`、`diffPixelsNonAA=0`，net/DOM/state/newErrors 总数均为 0；仅 `pixelmatchNonAA` 信息计数合计 16（`home` 2、`home-skill-inspiration` 7、`workflows` 7），不构成 pixel 差异。截图 runner 在 `ws-a`、`ws-select-image`、`ws-layout` 各重拍 8 次后使用最后一张，但上述页面最终比较仍全通过；没有复现右侧卡片 flake。
 
 ## 规矩（摘自 `remaining-work.md` 与用户要求）
 

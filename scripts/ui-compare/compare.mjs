@@ -378,6 +378,7 @@ const SEEDED_RANDOM = `(() => {
   const seed = 0x2545f491;
   let s = seed;
   let seededRecommendations = false;
+  let recommendationBatchPendingSeed = false;
   const resetForRecommendations = (node) => {
     if (seededRecommendations || !(node instanceof Element)) return;
     const sections = [];
@@ -388,7 +389,35 @@ const SEEDED_RANDOM = `(() => {
     window.__ovRandomTrace?.resets?.push({ afterN: window.__ovRandomTrace.count });
     s = seed;
   };
+  const filter = Array.prototype.filter;
+  Object.defineProperty(Array.prototype, "filter", {
+    configurable: true,
+    writable: true,
+    value: function(callback, thisArg) {
+      if (
+        this.length > 0 &&
+        this.length <= 1000 &&
+        typeof this[0]?.id === "string" &&
+        typeof this[this.length - 1]?.id === "string" &&
+        (new Error().stack ?? "").includes("pickRecommendationBatch")
+      ) {
+        recommendationBatchPendingSeed = true;
+      }
+      return Reflect.apply(filter, this, arguments);
+    },
+  });
   Math.random = () => {
+    if (
+      recommendationBatchPendingSeed &&
+      (new Error().stack ?? "").includes("pickRecommendationBatch")
+    ) {
+      s = seed;
+      recommendationBatchPendingSeed = false;
+      window.__ovRandomTrace?.resets?.push({
+        afterN: window.__ovRandomTrace.count,
+        reason: "pickRecommendationBatch",
+      });
+    }
     s = (s + 0x6d2b79f5) | 0;
     let t = Math.imul(s ^ (s >>> 15), 1 | s);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
@@ -923,6 +952,15 @@ async function waitForRetainedWorkspaceStage(c, pageId, timeout = 10000) {
   }
   throw new Error(`${pageId} 保留工作区 runtime 未就绪：${JSON.stringify(last)}`);
 }
+async function waitForWorkspaceChatReady(c, pageId, timeout = 15000) {
+  await waitForValue(c, `(() => {
+    const input = document.querySelector('[data-action-ui-id="message-input"]');
+    const reconnecting = [...document.querySelectorAll("body *")].some((element) =>
+      element.childElementCount === 0 && element.textContent.trim() === "正在重连运行时",
+    );
+    return !!input && !reconnecting;
+  })()`, `${pageId} 工作区聊天运行时恢复完成`, timeout);
+}
 async function waitForSkillProfile(timeout = 10000) {
   const file = path.join(ROOT, "data/.config-v2/base.json");
   const deadline = Date.now() + timeout;
@@ -1377,7 +1415,7 @@ async function runMode(mode) {
       console.log(`  ${mode} ${p.id}`);
       c.clearErrors();
       let randomTraceScriptIdentifier;
-      if (process.env.OV_RANDOM_TRACE === "1" && p.id === "ws-pdf") {
+      if (process.env.OV_RANDOM_TRACE === "1" && p.id.startsWith("ws-")) {
         const script = await c.send("Page.addScriptToEvaluateOnNewDocument", { source: RANDOM_TRACE(p.url) });
         randomTraceScriptIdentifier = script.result?.identifier;
       }
@@ -1508,6 +1546,9 @@ async function runMode(mode) {
           }
         })()`, "ws-a 会话焦点持久化");
       }
+      if (p.url.startsWith("/workspace?") || p.id === "project-assets") {
+        await waitForWorkspaceChatReady(c, p.id);
+      }
       await sleep(p.persistWaitMs ?? 1200);
       await c.waitForNetworkIdle();
       if (p.id === "ws-text-node") {
@@ -1536,11 +1577,25 @@ async function runMode(mode) {
       await c.waitForNetworkIdle();
       if (randomTraceScriptIdentifier) {
         const captured = await c.send("Runtime.evaluate", {
-          expression: "(() => { const trace = window.__ovRandomTrace ?? null; window.__ovRandomTraceRestore?.(); return trace; })()",
+          expression: `(() => {
+            const trace = window.__ovRandomTrace ?? null;
+            if (trace) {
+              trace.visibleCards = [...document.querySelectorAll('[data-action-ui-id="chat-showcase-card"]')].map((card) => ({
+                text: card.textContent?.trim() ?? "",
+                attributes: [...card.attributes].filter((attribute) => attribute.name.startsWith("data-") || attribute.name === "aria-label").map((attribute) => [attribute.name, attribute.value]),
+              }));
+              trace.runtime = {
+                reconnecting: [...document.querySelectorAll("body *")].filter((element) => element.childElementCount === 0 && /正在重连运行时/.test(element.textContent ?? "")).map((element) => element.textContent.trim()),
+                hasMessageInput: !!document.querySelector('[data-action-ui-id="message-input"]'),
+              };
+            }
+            window.__ovRandomTraceRestore?.();
+            return trace;
+          })()`,
           returnByValue: true,
         });
         const trace = captured.result?.result?.value;
-        if (!trace) throw new Error("OV_RANDOM_TRACE 已启用，但 ws-pdf 页面没有 RNG trace");
+        if (!trace) throw new Error(`OV_RANDOM_TRACE 已启用，但 ${p.id} 页面没有 RNG trace`);
         writeFileSync(path.join(outDir, `${p.id}.${mode}.random-trace.json`), JSON.stringify(trace, null, 2));
         await c.send("Page.removeScriptToEvaluateOnNewDocument", { identifier: randomTraceScriptIdentifier });
       }
