@@ -345,13 +345,23 @@ hls.js@1.7.3  inline-style-parser@0.2.4  style-to-object@1.0.11  style-to-js@1.1
 
 A 要求的 `~/ov-golden`（HEAD `441a06b`）全量自比较报告：`/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-12T16-48-14-428Z/report.json`。40 页均为 `diffPixels=0`、`diffPixelsNonAA=0`，net/DOM/state/newErrors 总数均为 0；仅 `pixelmatchNonAA` 信息计数合计 16（`home` 2、`home-skill-inspiration` 7、`workflows` 7），不构成 pixel 差异。截图 runner 在 `ws-a`、`ws-select-image`、`ws-layout` 各重拍 8 次后使用最后一张，但上述页面最终比较仍全通过；没有复现右侧卡片 flake。
 
-## Batch 4：parse5/entities 闭包延期
+## Batch 4：parse5/entities 闭包
 
-未做局部 swap，整个闭包仍内联。`parse5@8.0.1` 的 npm metadata 声明依赖 `entities@^8.0.0`，而 vendor 中唯一的 `EntityDecoder` 实现匹配 `entities@6.0.1`：内联类在 constructor 中初始化 `state`、`consumed`、`result`、`treeIndex`、`excess`、`decodeMode`；`entities@8.0.0` dist 已改为 class fields 声明。`6.0.1` 不满足 `parse5@8.0.1` 的 `^8.0.0` 范围，override 会违反已声明范围。
+将候选 `parse5` 版本逐个与内联声明做归一化函数体比较，命中数为：`7.0.0: 164`、`7.1.0: 166`、`7.1.1: 166`、`7.1.2: 168`、`7.2.0: 185`、`7.2.1: 185`、`7.3.0: 191`。`8.0.1` 也命中 191 个且名字集合相同；但它不符合相邻内联包的依赖约束。`hast-util-raw@9.1.0` 声明 `parse5 ^7.0.0`，而内联 `EntityDecoder` 与 `entities@6.0.1` 匹配（parse5 7.3.0 依赖 entities 6.x），故将 `npm-packages.json` 中的版本改为 `parse5@7.3.0`。
 
-闭包还包含非公开 parse5 内部消费者。内联 `hast-util-raw@9.1.0` 使用 `Parser`、`getFragmentParser`、`TokenType`、`getTagID`、`TokenizerMode` 及 parser/tokenizer 私有字段（如 `_processToken`）；npm dist `hast-util-raw@9.1.0` 声明 `parse5@^7.0.0`，不接受 `parse5@8.0.1`。其相关转换调用还连到 `hast-util-from-parse5`、`hast-util-to-parse5`、`rehype-raw`、`web-namespaces`、`hastscript`。因此不能只换 parse5/entities 或保留 inline raw adapter，否则仍是半套闭包。未采用其它 `hast-util-raw` 版本替代，因为其是否与内联代码匹配未经证实。
+整闭包换入：`parse5@7.3.0`、`entities@6.0.1`、`hast-util-raw@9.1.0`、`hast-util-from-parse5@8.0.3`、`hast-util-to-parse5@8.0.1`、`rehype-raw@7.0.0`、`web-namespaces@2.0.1`、`hastscript@9.0.1`、`devlop@1.1.0`。`vendor.js` 通过 npm imports 保留原有 vendor 导出别名，删除了对应的 parse5/raw/adapter 内联实现。
 
-结论：当前匹配的 `parse5@8.0.1`、`entities@6.0.1` 与 inline raw adapter 的 declared semver ranges 不能同时满足，整个闭包延期，等待可兼容的上游版本或新的版本决策。Batch 4 未改依赖、vendor 或 override；`vendor.js` 保持 **3,387,339 bytes**。未运行该批依赖安装、closure diff 或 UI gate；这不是验收通过。
+`vendor.js` 从 **3,387,339 bytes** 降至 **3,080,967 bytes**。renderer 闭包的多版本包仍为原基线中的五组（`@floating-ui/utils`、`@floating-ui/dom`、`@tanstack/history`、`@tanstack/router-core`、`@shikijs/types`），本批没有新增重复版本。构建 **11/11 packages** 和 `check-undef`（1120 个 renderer 文件）此前均通过；不要将这两项误写为 `SKIP_BUILD=1` 的 gate 子步骤。
+
+完整 40 页 UI gate 双轮通过。第一轮报告：`/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T19-15-24-053Z/report.json`；第二轮报告：`/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T19-33-47-521Z/report.json`。两轮阻断通道均通过；第二轮 `ws-a` 有 5 个 raw-only 像素、non-AA 为 0，其余页面像素阻断差异为 0；40 页网络、DOM、状态和新增错误均通过。
+
+## Batch 5：Base UI/Floating UI 闭包延期
+
+未做部分 swap。`.probe/desource/base-ui-map.json` 保存了全部 **209** 个冲突名（`@base-ui/react: 196`、`@base-ui/utils: 8`、`@floating-ui/react: 5`）及消费者语句/行号、导出映射或删除理由。分类计数：公开 API（a）**73**、仅闭包内部引用（b）**4**、闭包外消费者/尚无等价公共映射（c）**132**。`fastComponent` 的属性赋值位于闭包函数体中，归为 b；不是外部修改。13 个 app consumer 的候选映射中，Progress 和 Avatar 部件与 dist 实现已对比；Popover、Select、Separator 的等价性未独立验证，map 将其保留为未解决项。整批延期后，所有临时 app-only 改动均已还原，未留下对未安装依赖的引用。
+
+整批候选版本为 `@base-ui/react@1.3.0`、`@base-ui/utils@0.2.6`、`@floating-ui/react@0.27.20`。按闭包整体执行时，swap 工具仍报告 `@base-ui/utils` 7 处、`@base-ui/react` 188 处、`@floating-ui/react` 5 处冲突；新增的 all-or-nothing guard 阻止任何依赖清单或 `vendor.js` 写入。消费者表显示 132 个非公开冲突名仍有闭包外引用，尚未为它们逐一证明行为相同的公共替代 API。例如 vendor 内联 `DialogRoot` 使用 `useDialogRoot({ store, actionsRef, parentContext })`，而 `@base-ui/react@1.3.0` dist 还传入 `onOpenChange`、`triggerIdProp`；不能在未验证语义前直接将这一整套组件别名改指向 npm part。按“全换或整批延期”规则，整个 Base UI/Floating UI 家族延期。
+
+`@floating-ui/react-dom`、`tabbable` 在 vendor 中是 npm imports，未发现对应独立内联声明，因此没有纳入本批。`clsx` 的内联定义归于 `class-variance-authority@0.7.1`，不归于 Base UI；`@tanstack/form-core@1.33.5` 也未纳入，`resolveClassName`、`resolveStyle`、`useRenderElementProps` 属于 Base UI dist。未运行 Batch 5 的安装、closure diff、`check-undef` 或 UI gate。Batch 5 没有改变 `vendor.js`；仍为 **3,080,967 bytes**。
 
 ## 规矩（摘自 `remaining-work.md` 与用户要求）
 
