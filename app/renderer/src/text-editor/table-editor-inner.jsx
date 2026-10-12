@@ -32,14 +32,13 @@ import { VideoLightbox } from "../media-editing/video-lightbox.jsx";
 import { RESOURCE_DRAG_MIME } from "./build-asr-gateway-request.js";
 import { useCanvasBridge } from "../media-editing/package.jsx";
 import { setCell } from "./table-document-to-llm-content.js";
-import { createTable$1 as createTable } from "../vendor-inline/tanstack-table/row-sorting.js";
-import { createRow } from "../vendor-inline/tanstack-table/column-filtering.js";
 import {
-  applyFilter,
-  getMemoOptions,
-  memo$1,
-  visibleColumns,
-} from "../media-editing/create-column.jsx";
+  createRow,
+  createTable,
+  getCoreRowModel,
+} from "@tanstack/table-core";
+import { flexRender, useReactTable } from "@tanstack/react-table";
+import { applyFilter, visibleColumns } from "../media-editing/create-column.jsx";
 import { OverlayScrollbar } from "./overlay-scrollbar-inner.jsx";
 import { AddColumnDialog } from "../media-editing/add-column-dialog-inner.jsx";
 const VERTICAL_PADDING = 6;
@@ -682,119 +681,6 @@ function setRowHeightOverride(doc2, rowId, heightPx) {
     ...doc2,
     rows,
   };
-}
-function getCoreRowModel() {
-  return (table2) =>
-    memo$1(
-      () => [table2.options.data],
-      (data2) => {
-        const rowModel = {
-          rows: [],
-          flatRows: [],
-          rowsById: {},
-        };
-        const accessRows = function (originalRows, depth2, parentRow) {
-          if (depth2 === void 0) {
-            depth2 = 0;
-          }
-          const rows = [];
-          for (let i2 = 0; i2 < originalRows.length; i2++) {
-            const row = createRow(
-              table2,
-              table2._getRowId(originalRows[i2], i2, parentRow),
-              originalRows[i2],
-              i2,
-              depth2,
-              void 0,
-              parentRow == null ? void 0 : parentRow.id,
-            );
-            rowModel.flatRows.push(row);
-            rowModel.rowsById[row.id] = row;
-            rows.push(row);
-            if (table2.options.getSubRows) {
-              var _row$originalSubRows;
-              row.originalSubRows = table2.options.getSubRows(
-                originalRows[i2],
-                i2,
-              );
-              if (
-                (_row$originalSubRows = row.originalSubRows) != null &&
-                _row$originalSubRows.length
-              ) {
-                row.subRows = accessRows(row.originalSubRows, depth2 + 1, row);
-              }
-            }
-          }
-          return rows;
-        };
-        rowModel.rows = accessRows(data2);
-        return rowModel;
-      },
-      getMemoOptions(table2.options, "debugTable", "getRowModel", () =>
-        table2._autoResetPageIndex(),
-      ),
-    );
-}
-function isClassComponent(component) {
-  return (
-    typeof component === "function" &&
-    (() => {
-      const proto2 = Object.getPrototypeOf(component);
-      return proto2.prototype && proto2.prototype.isReactComponent;
-    })()
-  );
-}
-function isExoticComponent(component) {
-  return (
-    typeof component === "object" &&
-    typeof component.$$typeof === "symbol" &&
-    ["react.memo", "react.forward_ref"].includes(component.$$typeof.description)
-  );
-}
-function isReactComponent(component) {
-  return (
-    isClassComponent(component) ||
-    typeof component === "function" ||
-    isExoticComponent(component)
-  );
-}
-function flexRender(Comp, props) {
-  return !Comp
-    ? null
-    : isReactComponent(Comp)
-      ? reactExports.createElement(Comp, props)
-      : Comp;
-}
-function useReactTable(options) {
-  const resolvedOptions = {
-    state: {},
-    // Dummy state
-    onStateChange: () => {},
-    // noop
-    renderFallbackValue: null,
-    ...options,
-  };
-  const [tableRef] = reactExports.useState(() => ({
-    current: createTable(resolvedOptions),
-  }));
-  const [state2, setState] = reactExports.useState(
-    () => tableRef.current.initialState,
-  );
-  tableRef.current.setOptions((prev) => ({
-    ...prev,
-    ...options,
-    state: {
-      ...state2,
-      ...options.state,
-    },
-    // Similarly, we'll maintain both our internal state and any user-provided
-    // state.
-    onStateChange: (updater) => {
-      setState(updater);
-      options.onStateChange == null || options.onStateChange(updater);
-    },
-  }));
-  return tableRef.current;
 }
 const HEADER_HEIGHT = 36;
 const ROW_HANDLE_WIDTH = 56;

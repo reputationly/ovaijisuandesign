@@ -363,6 +363,39 @@ A 要求的 `~/ov-golden`（HEAD `441a06b`）全量自比较报告：`/home/ubun
 
 `@floating-ui/react-dom`、`tabbable` 在 vendor 中是 npm imports，未发现对应独立内联声明，因此没有纳入本批。`clsx` 的内联定义归于 `class-variance-authority@0.7.1`，不归于 Base UI；`@tanstack/form-core@1.33.5` 也未纳入，`resolveClassName`、`resolveStyle`、`useRenderElementProps` 属于 Base UI dist。未运行 Batch 5 的安装、closure diff、`check-undef` 或 UI gate。Batch 5 没有改变 `vendor.js`；仍为 **3,080,967 bytes**。
 
+## Batch 6：TanStack Table 闭包
+
+对照 Vite 实际解析的 ESM `exports["."].import` 入口，版本扫描最佳为 `@tanstack/table-core@8.21.3`（46/60 个唯一归一化声明体）和 `@tanstack/react-table@8.21.3`（4/5）。`.probe/desource/semantic-diff.mjs` 对 15 个 map 标记的差异做 alpha 归一化及最小 AST 节点比较；`.probe/desource/tanstack-table-semantic.json` 与更新后的 map 保存具体差异。分类 **N 15 / B 0**，因此未打 patch，直接换入 npm 包：
+
+| 声明 | N 类具体差异 |
+|---|---|
+| `Headers$1` | dist 为 16 个 memo 调用增加第三参数调试标签，例如 `getHeaderGroups`、`getLeafHeaders`。 |
+| `buildHeaderGroups` | 对象属性简写展开；`void 0` 与未遮蔽的全局 `undefined` 等价。 |
+| `createRow` | 对象属性简写展开；`void 0` 与全局 `undefined` 等价。 |
+| `ColumnOrdering` | dist 增加 memo 调试键 `getIndex`、`_getOrderColumnsFn`。 |
+| `ColumnPinning` | dist 为可见 cell 与 leaf-column getter 增加 6 个 memo 调试标签。 |
+| `ColumnSizing` | dist 增加 memo 调试键 `getStart`、`getAfter`。 |
+| `ColumnVisibility` | dist 增加 `_getAllVisibleCells`、`getVisibleCells`、`key` memo 标签。 |
+| `RowPagination` | dist 增加 `getPageOptions` memo 标签。 |
+| `RowPinning` | 对象属性简写及等价的 `void 0`/`undefined` 语法形式。 |
+| `RowSelection` | dist 为 selected、filtered-selected、grouped-selected row model 增加 memo 调试标签。 |
+| `createTable$1` | dist 添加 `NODE_ENV` 守卫的建表日志、缺失 row 错误分支及 memo 调试标签；Vite production 构建会裁掉诊断分支。 |
+| `createCell$1` | 对象属性简写展开，cell 值与控制流不变。 |
+| `getMemoOptions` | dist 的 `key` 为 `NODE_ENV === "development" && key`；production 常量折叠结果与 inline 的 `false` 相同。 |
+| `createColumn` | dist 添加 production 下不可达的 warning/error 分支及两个 memo 调试标签；其余为对象简写和 `void 0`/`undefined` 语法差异。 |
+| `isExoticComponent` | alpha 归一化后 AST 完全一致。 |
+
+删除三个 `vendor-inline/tanstack-table/` 文件，合计 **113,724 bytes**；另移除 `infra/shallow-copy.js` 中不再被引用的 TanStack `testFalsey`/`equals` helper。`create-column.jsx` 保留 app UI 代码，并将原库 helper 名称 re-export 到 `@tanstack/table-core`；`table-editor-inner.jsx` 改为从两个 npm 包导入 core 与 React adapter。六个受影响源文件相对 HEAD 净减 **122,932 bytes**。残留审计见 `.probe/desource/tanstack-table-residue.json`：没有旧路径引用、内联文件或本地实现体。`vendor.js` 保持 **3,068,053 bytes**。renderer 依赖清单新增 `@tanstack/react-table@8.21.3` 和 `@tanstack/table-core@8.21.3`；`pnpm-lock.yaml` 的 `app/renderer` importer 与两个包解析变更均归本闭包，`npm-packages.json` 同步记录两个候选版本。
+
+`check-undef` 检查 1117 个 renderer 文件通过；全 workspace build 为 **11/11 packages** 成功。task 67 查明此前 scoped 比较使用了过期的 repo 内 `.probe/ui-golden`，不作为 gate 证据。`scripts/ui-compare/gate.sh` 已改为默认使用 `$HOME/ov-golden/.probe/ui-golden`，并在 golden 目录缺失时立即报错退出。
+
+用默认路径、未设置 `GOLDEN`，完成两次完整 40 页 gate compare：
+
+- 第一轮：`.probe/ui-compare/2026-10-12T22-28-28-007Z/report.json`
+- 第二轮：`.probe/ui-compare/2026-10-12T22-46-39-129Z/report.json`
+
+两轮 40 页的 non-AA pixel、net、DOM、state、新增错误阻断通道均为 0；TanStack 重点页 `ws-table-node`、`ws-text-editor`、`ws-table-edit` 两轮全通过。第一轮 `ws-a` 有 5 个 raw-only 像素（non-AA 为 0），第二轮 raw/non-AA 均为 0。第一轮跑了 build、`check-undef`；第二轮跳过未变更源码对应的 build/check 步骤，但仍完整比较 40 页。两轮结束均确认 compare/Electron/Xvfb 退出、端口 9360–9362 空闲。旧的定向报告 `22-20-18-076Z`、`22-22-44-608Z` 对应过期 golden，不计入验收。
+
 ## 规矩（摘自 `remaining-work.md` 与用户要求）
 
 - 中文沟通、中文提交信息、中文注释（只写「为什么」）。

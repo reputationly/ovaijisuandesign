@@ -25,13 +25,6 @@ export function resolvePlaceholderCardSize(
   }
   return placeholderNodeSize(status, aspectRatio, mediaType);
 }
-export function testFalsey(val) {
-  return val === void 0 || val === null || val === "";
-}
-export const equals = (row, columnId, filterValue) => {
-  return row.getValue(columnId) === filterValue;
-};
-equals.autoRemove = (val) => testFalsey(val);
 function readDpr() {
   if (typeof window === "undefined") return 1;
   return window.devicePixelRatio || 1;

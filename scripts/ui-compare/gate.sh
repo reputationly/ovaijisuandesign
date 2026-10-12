@@ -8,7 +8,7 @@ if (( $# > 1 )); then
 fi
 source "$HOME/.nvm/nvm.sh"
 cd "$repo"
-golden="${1:-${GOLDEN:-$repo/.probe/ui-golden}}"
+golden="${1:-${GOLDEN:-$HOME/ov-golden/.probe/ui-golden}}"
 [[ "$golden" = /* ]] || golden="$repo/$golden"
 export GOLDEN="$golden"
 export ELECTRON_DISABLE_SANDBOX=1
@@ -16,6 +16,10 @@ export ELECTRON_OVERRIDE_DIST_PATH="$HOME/ov-electron-dist"
 export OPENCODE_BIN="${OPENCODE_BIN:-$HOME/.cache/opencode-v1.18.18/opencode}"
 unset ONLY
 
+if [[ ! -d "$GOLDEN" ]]; then
+  echo "Missing UI golden directory: $GOLDEN" >&2
+  exit 1
+fi
 if [[ ! -f "$GOLDEN/errors.json" ]]; then
   echo "Missing per-page console-error baseline: $GOLDEN/errors.json" >&2
   exit 1

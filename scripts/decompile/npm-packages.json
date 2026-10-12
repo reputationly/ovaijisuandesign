@@ -57,6 +57,8 @@
   {"name":"@shikijs/core","version":"3.23.0"},
   {"name":"@shikijs/engine-oniguruma","version":"4.4.3"},
   {"name":"@tanstack/query-core","version":"5.101.4"},
+  {"name":"@tanstack/react-table","version":"8.21.3"},
+  {"name":"@tanstack/table-core","version":"8.21.3"},
   {"name":"seroval","version":"1.5.6"},
   {"name":"seroval-plugins","version":"1.5.6"},
   {"name":"@tanstack/history","version":"1.162.1"},
