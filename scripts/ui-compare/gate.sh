@@ -25,10 +25,6 @@ if [[ ! -x "$OPENCODE_BIN" ]]; then
   exit 1
 fi
 
-if [[ ! -f scripts/ui-compare/fixture/config.json ]]; then
-  node -e 'require("node:fs").writeFileSync("scripts/ui-compare/fixture/config.json", JSON.stringify({ platform: { api_key: "ui-compare-placeholder" } }, null, 2) + "\n")'
-fi
-
 listener_pids() {
   ss -ltnp 'sport = :9360' |
     rg -o 'pid=[0-9]+' |

@@ -37,6 +37,19 @@ const WS_B = `${ROOT}/ws-b`;
 const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 const ISO_TIMESTAMP_PATTERN = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})\b/gi;
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
+const pageRandomIds = {
+  table: new Map(),
+  col: new Map(),
+  row: new Map(),
+  cond: new Map(),
+};
+function resetPageRandomIds() {
+  for (const ids of Object.values(pageRandomIds)) ids.clear();
+}
+function canonicalRandomId(ids, id, prefix) {
+  if (!ids.has(id)) ids.set(id, `${prefix}-${ids.size + 1}`);
+  return ids.get(id);
+}
 // 云端轮换展示素材会改变路径，与本地交互逻辑无关。
 const NET_VOLATILE = ["/api/v1/home/showcase-assets/"];
 const DOM_STATE_SCRIPT = `(() => {
@@ -87,7 +100,14 @@ function normalizeText(value) {
     .replace(/\b(request\s*id\s*[:：]\s*)[a-z0-9_-]{16,}/gi, "$1<request>")
     .replace(/((?:https?|wss?):\/\/(?:localhost|127\.0\.0\.1)):\d{1,5}\b/gi, "$1:<port>")
     .replace(/((?:https?|wss?)%3A%2F%2F(?:localhost|127\.0\.0\.1))%3A\d{1,5}\b/gi, "$1%3A<port>")
-    .replace(/\b(?:会话|Session)\s+[0-9a-z]{4,}\b/gi, "会话");
+    .replace(/\b(?:会话|Session)\s+[0-9a-z]{4,}\b/gi, "会话")
+    .replace(/([a-f0-9]{12})(?=(?:\.|%2e)htable\b)/gi, (_match, id) =>
+      canonicalRandomId(pageRandomIds.table, id.toLowerCase(), "table"),
+    )
+    .replace(/\b(col|row|cond)_([a-f0-9]{8})\b/gi, (_match, kind, id) => {
+      const prefix = kind.toLowerCase();
+      return canonicalRandomId(pageRandomIds[prefix], id.toLowerCase(), prefix);
+    });
 }
 function normalizeValue(value, key = "") {
   if (typeof value === "string") return /session(?:_id|Id)$/i.test(key) ? "<session>" : normalizeText(value);
@@ -174,6 +194,7 @@ function readHiloFiles(workspace) {
       }
       if (!entry.isFile() || /\.(?:sqlite|db)(?:-(?:wal|shm|journal))?$/i.test(entry.name)) continue;
       const relative = path.relative(root, file).split(path.sep).join("/");
+      const normalizedRelative = normalizeText(relative);
       const bytes = readFileSync(file);
       // 缩略图缓存文件名随远端资源 ID 变动；按内容摘要比较，仍保留重复文件数量和内容变化。
       if (/^\.thumbnails\/[^/]+$/.test(relative)) {
@@ -190,9 +211,9 @@ function readHiloFiles(workspace) {
         continue;
       }
       try {
-        files[relative] = normalizeValue(JSON.parse(text));
+        files[normalizedRelative] = normalizeValue(JSON.parse(text));
       } catch {
-        files[relative] = normalizeText(text);
+        files[normalizedRelative] = normalizeText(text);
       }
     }
   };
@@ -276,7 +297,7 @@ const ALL_PAGES = [
   { id: "global-search", url: "/projects", tabs: [{ event: "hilo:open-global-search" }, { wait: 1500 }] },
   { id: "global-search-query", url: "/projects", tabs: [{ event: "hilo:open-global-search" }, { wait: 1500 }, { type: "ws" }, { wait: 2000 }] },
   { id: "ws-a", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}` },
-  { id: "ws-b", url: `/workspace?workspaceId=${encodeURIComponent(WS_B)}` },
+  { id: "ws-b", url: `/workspace?workspaceId=${encodeURIComponent(WS_B)}`, waitForRequests: ["/api/v1/home/quick_start_config*"] },
   { id: "ws-markdown", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "markdown" },
   // 画布 / 对话里要点开才出现的界面。会改画布内容的放在只读步骤后面。
   { id: "ws-add-node", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.add-node" }, { wait: 800 }] },
@@ -352,16 +373,35 @@ const DISMISS_STARTUP = `(()=>{
 // 让两边都渲染成空白，剩下的差异才反映我们自己的改动。本地图片不受影响（走 127.0.0.1 的 local-file）。
 // 打光预设缩略图来自远端展示 CDN、并非本地逻辑；屏蔽后两构建都会渲染相同回退。
 const BLOCKED_URLS = ["*cdn.hailuoai.com*", "*cdn.hailuoai.video*"];
-// 聊天面板的“精选”推荐是 Math.random 洗牌抽出来的（每次挂载抽的不一样），两边各抽一次必然差出几张卡片的文字。
-// 每个新文档开头把 Math.random 换成固定种子的伪随机数：两边调用次序相同，抽到的就是同一批。渲染代码本身不动。
+// 聊天面板的“精选”推荐用 Math.random 洗牌；首个推荐区挂载时重置种子，避免页面启动阶段的随机调用次数影响卡片。
 const SEEDED_RANDOM = `(() => {
-  let s = 0x2545f491;
+  const seed = 0x2545f491;
+  let s = seed;
+  let seededRecommendations = false;
+  const resetForRecommendations = (node) => {
+    if (seededRecommendations || !(node instanceof Element)) return;
+    const sections = [];
+    if (node.matches('[data-action-ui-id="chat-empty-recommendations"]')) sections.push(node);
+    sections.push(...node.querySelectorAll('[data-action-ui-id="chat-empty-recommendations"]'));
+    if (!sections.length) return;
+    seededRecommendations = true;
+    s = seed;
+  };
   Math.random = () => {
     s = (s + 0x6d2b79f5) | 0;
     let t = Math.imul(s ^ (s >>> 15), 1 | s);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+  Object.defineProperty(window, "__ovCompareResetRandom", {
+    configurable: true,
+    value: () => { s = seed; },
+  });
+  new MutationObserver((records) => {
+    for (const record of records) {
+      for (const node of record.addedNodes) resetForRecommendations(node);
+    }
+  }).observe(document, { childList: true, subtree: true });
 })();`;
 // 点一个标签：先找叶子节点上文字完全一致的可见元素，点击会冒泡到标签自己的处理函数；
 // 找不到再找文字一致的 [role=tab] 或按钮（带图标时文字不在叶子节点上），最后允许以该文字开头（标签后面带角标或数量）。
@@ -448,6 +488,7 @@ async function stableShot(c) {
     await c.send("Runtime.evaluate", { expression: SETTLE, awaitPromise: true });
     await sleep(700);
     await c.send("Runtime.evaluate", { expression: MASK_VOLATILE });
+    await waitForNoToasts(c);
     const shot = await c.send("Page.captureScreenshot", { format: "png" });
     const buf = Buffer.from(shot.result.data, "base64");
     if (prev && (await ratio(prev, buf, 0)) <= STABLE_TOL) return buf;
@@ -473,6 +514,8 @@ async function cdp(port) {
         const errors = [];
         const requests = [];
         const frames = [];
+        const requestTrace = [];
+        const websocketTraceMetadata = new Map();
         const websocketUrls = new Map();
         const pendingLocalRequests = new Map();
         const completedLocalPaths = new Set();
@@ -492,7 +535,26 @@ async function cdp(port) {
             if (params.type === "Document" && params.frameId === mainFrameId) {
               navigationLoaderId = params.loaderId;
             }
-            if (navigationLoaderId && params.loaderId === navigationLoaderId) {
+            const inNavigationScope = Boolean(navigationLoaderId && params.loaderId === navigationLoaderId);
+            if (process.env.CAPTURE_TRACE === "1") {
+              try {
+                const url = new URL(request.url);
+                if (LOCAL_HOSTS.has(url.hostname)) {
+                  requestTrace.push({
+                    requestId: params.requestId,
+                    loaderId: params.loaderId,
+                    documentURL: params.documentURL,
+                    type: params.type,
+                    method: String(request.method ?? "GET").toUpperCase(),
+                    path: `${url.pathname}${url.search}`,
+                    timestamp: Date.now(),
+                    captured: inNavigationScope,
+                  });
+                  websocketTraceMetadata.set(params.requestId, requestTrace[requestTrace.length - 1]);
+                }
+              } catch {}
+            }
+            if (inNavigationScope) {
               const endpoint = localEndpoint(request.url);
               if (endpoint) {
                 requests.push({
@@ -532,6 +594,20 @@ async function cdp(port) {
                 opcode: m.params.response.opcode,
                 payload: normalizePayload(m.params.response.payloadData),
               });
+              if (process.env.CAPTURE_TRACE === "1") {
+                const metadata = websocketTraceMetadata.get(m.params.requestId);
+                requestTrace.push({
+                  requestId: m.params.requestId,
+                  loaderId: metadata?.loaderId,
+                  documentURL: metadata?.documentURL,
+                  type: "WebSocketFrame",
+                  direction: m.method === "Network.webSocketFrameSent" ? "sent" : "received",
+                  path: endpoint.path,
+                  payload: normalizePayload(m.params.response.payloadData),
+                  timestamp: Date.now(),
+                  captured: metadata?.captured ?? false,
+                });
+              }
             }
           }
           else if (m.method === "Runtime.exceptionThrown") { const desc = m.params.exceptionDetails.exception?.description ?? m.params.exceptionDetails.text; errors.push("EXC " + desc.split("\n")[0]); if (process.env.STACK) console.log("STACK", desc.split("\n").slice(0, 8).join(" | ")); }
@@ -563,6 +639,9 @@ async function cdp(port) {
           beginNetworkCapture: (documentURL) => {
             requests.length = 0;
             frames.length = 0;
+            requestTrace.length = 0;
+            websocketTraceMetadata.clear();
+            resetPageRandomIds();
             websocketUrls.clear();
             pendingLocalRequests.clear();
             completedLocalPaths.clear();
@@ -594,7 +673,18 @@ async function cdp(port) {
             }
             throw new Error(`等不到本机请求完成：${patterns.join(", ")}`);
           },
-          waitForNetworkIdle: async (timeoutMs = 10000, idleMs = 1000) => {
+          waitForWebSocketFrame: async (predicate, afterIndex = -1, timeoutMs = 90000) => {
+            const deadline = Date.now() + timeoutMs;
+            while (Date.now() < deadline) {
+              const index = frames.findIndex((frame, frameIndex) =>
+                frameIndex > afterIndex && predicate(frame),
+              );
+              if (index >= 0) return { frame: frames[index], index };
+              await sleep(100);
+            }
+            throw new Error(`等不到匹配的 WebSocket frame，索引起点 ${afterIndex}`);
+          },
+          waitForNetworkIdle: async (timeoutMs = 10000, idleMs = 3000) => {
             const deadline = Date.now() + timeoutMs;
             let idleSince = null;
             while (Date.now() < deadline) {
@@ -613,6 +703,7 @@ async function cdp(port) {
             capturingNetwork = false;
             return snapshotNetwork(requests, frames);
           },
+          networkTrace: () => [...requestTrace],
           close: () => ws.close(),
         };
       }
@@ -623,6 +714,7 @@ async function cdp(port) {
 }
 
 async function capturePageDom(c) {
+  await waitForNoToasts(c);
   const result = await c.send("Runtime.evaluate", {
     expression: DOM_STATE_SCRIPT,
     returnByValue: true,
@@ -630,6 +722,7 @@ async function capturePageDom(c) {
   return normalizeValue(result.result?.result?.value ?? []);
 }
 async function capturePageState(c) {
+  await waitForNoToasts(c);
   const result = await c.send("Runtime.evaluate", {
     expression: LOCAL_STORAGE_SCRIPT,
     returnByValue: true,
@@ -677,6 +770,14 @@ async function evalValue(c, expression) {
   const result = await c.send("Runtime.evaluate", { expression, returnByValue: true });
   return result.result?.result?.value;
 }
+async function waitForNoToasts(c, timeoutMs = 10000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await evalValue(c, `!document.querySelector('[data-sonner-toast]:not([data-removed="true"])')`)) return;
+    await sleep(100);
+  }
+  throw new Error(`等待 toast 自动消失超时（${timeoutMs}ms）`);
+}
 async function waitForValue(c, expression, label, timeout = 10000) {
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
@@ -685,6 +786,129 @@ async function waitForValue(c, expression, label, timeout = 10000) {
     await sleep(250);
   }
   throw new Error(`等待 ${label} 超时`);
+}
+async function refreshWorkspaceRecommendations(c) {
+  await waitForValue(c, `(() => {
+    const sections = new Set([...document.querySelectorAll('[data-action-ui-id="chat-showcase-card"]')]
+      .map((card) => card.closest('[data-action-ui-id="chat-empty-recommendations"]'))
+      .filter((section) => {
+        if (!section) return false;
+        const rect = section.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 &&
+          rect.top < innerHeight && rect.left < innerWidth;
+      }));
+    return sections.size > 0 && [...sections].every((section) =>
+      section.querySelectorAll('[data-action-ui-id="chat-showcase-card"]').length === 4,
+    );
+  })()`, "ws-b 快速开始推荐列表", 10000);
+  const refreshed = await evalValue(c, `(() => {
+    const sections = new Set([...document.querySelectorAll('[data-action-ui-id="chat-showcase-card"]')]
+      .map((card) => card.closest('[data-action-ui-id="chat-empty-recommendations"]'))
+      .filter((section) => {
+        if (!section) return false;
+        const rect = section.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 &&
+          rect.top < innerHeight && rect.left < innerWidth;
+      }));
+    let count = 0;
+    for (const section of sections) {
+      const button = section.querySelector('[data-action-ui-id="chat-empty-recommendations-refresh"]');
+      if (!button || button.disabled) continue;
+      window.__ovCompareResetRandom?.();
+      button.click();
+      count++;
+    }
+    return count;
+  })()`);
+  if (!refreshed) throw new Error("ws-b 找不到可刷新的快速开始推荐列表");
+  await sleep(500);
+}
+async function waitForStableCanvasGeometry(c, pageId, timeout = 10000) {
+  const deadline = Date.now() + timeout;
+  let previous = null;
+  let stable = 0;
+  let last = null;
+  while (Date.now() < deadline) {
+    last = await evalValue(c, `(() => {
+      const viewport = document.querySelector(".react-flow__viewport");
+      if (!viewport) return null;
+      const point = (rect) => [rect.x, rect.y, rect.width, rect.height].map((value) => Number(value.toFixed(3)));
+      const nodes = [...document.querySelectorAll(".react-flow__node")].map((node) => ({
+        rect: point(node.getBoundingClientRect()),
+        controls: [...node.querySelectorAll(".react-flow__resize-control, .react-flow__handle")].map((control) =>
+          point(control.getBoundingClientRect()),
+        ),
+      }));
+      return JSON.stringify({ transform: getComputedStyle(viewport).transform, nodes });
+    })()`);
+    if (last && last === previous) {
+      stable++;
+      if (stable >= 2) return;
+    } else {
+      stable = 0;
+    }
+    previous = last;
+    await sleep(500);
+  }
+  throw new Error(`${pageId} 画布几何 10 秒内未稳定：${last ?? "viewport 不存在"}`);
+}
+async function waitForRetainedWorkspaceStage(c, pageId, timeout = 10000) {
+  const deadline = Date.now() + timeout;
+  let last = null;
+  while (Date.now() < deadline) {
+    last = await evalValue(c, `(() => ({
+      stageCount: document.querySelectorAll('[data-action-ui-id="workspace-stage"]').length,
+      runtimeIds: [...document.querySelectorAll('[data-workspace-runtime-id]')].map((node) =>
+        node.getAttribute('data-workspace-runtime-id'),
+      ),
+      pendingIds: [...document.querySelectorAll('[data-workspace-runtime-pending]')].map((node) =>
+        node.getAttribute('data-workspace-runtime-pending'),
+      ),
+    }))()`);
+    if (last?.stageCount >= 2 && last.pendingIds.length === 0) return;
+    await sleep(500);
+  }
+  throw new Error(`${pageId} 保留工作区 runtime 未就绪：${JSON.stringify(last)}`);
+}
+async function waitForSkillProfile(timeout = 10000) {
+  const file = path.join(ROOT, "data/.config-v2/base.json");
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    try {
+      const config = JSON.parse(readFileSync(file, "utf8"));
+      const permissions = config?.agent?.["media-agent"]?.permission?.skill;
+      if (permissions?.["*"] === "allow") return;
+    } catch {}
+    await sleep(100);
+  }
+  throw new Error("等待 data/.config-v2/base.json 中 agent.media-agent.permission.skill[*] 就绪超时");
+}
+async function waitForInstalledSkillsReady(c) {
+  const mineTab = await c.send("Runtime.evaluate", {
+    expression: clickByUiId("skills-tab-mine"),
+    returnByValue: true,
+  });
+  if (!mineTab.result?.result?.value) throw new Error("技能页找不到「我的 Skill」标签");
+  await waitForValue(c, `(() => {
+    const root = document.querySelector('[data-action-ui-id="skills-scroll-container"]');
+    const tab = root?.querySelector('[data-action-ui-id="skills-tab-mine"]');
+    return tab?.getAttribute("aria-selected") === "true" &&
+      !!root?.querySelector('[data-layout-slot="skills-mine-content"]');
+  })()`, "已安装 Skill 列表加载完成");
+  const communityTab = await c.send("Runtime.evaluate", {
+    expression: clickByUiId("skills-tab-community"),
+    returnByValue: true,
+  });
+  if (!communityTab.result?.result?.value) throw new Error("技能页找不到「社区」标签");
+  await waitForValue(c, `(() => {
+    const root = document.querySelector('[data-action-ui-id="skills-scroll-container"]') ?? document;
+    const tab = root.querySelector('[data-action-ui-id="skills-tab-community"]');
+    const loading = [...root.querySelectorAll("p")].some((element) => /^(?:Loading market skills|加载市场 Skill 中)/i.test(element.textContent.trim()));
+    return tab?.getAttribute("aria-selected") === "true" &&
+      !loading &&
+      !!root.querySelector('[data-action-ui-id="market-community-featured"]') &&
+      !!root.querySelector('[data-action-ui-id="other-skill-item"]');
+  })()`, "技能社区列表加载完成");
 }
 async function clickUi(c, id, last = false) {
   const point = await waitForValue(c, uiCenter(id, last), id, 8000);
@@ -812,6 +1036,7 @@ async function runInteractionScenario(c, scenario) {
   };
   if (scenario === "pdf") {
     const id = await uploadWorkspaceFile(c, "viewer.pdf");
+    await c.waitForNetworkIdle(15000, 1600);
     await clickNodeAction(c, id, "canvas.file-node.preview-eye");
     const previewButton = `.react-flow__node[data-id="${id}"] [data-action-ui-id="canvas.file-node.view-card-from-preview"]`;
     if (!await waitForValue(c, `!!document.querySelector(${JSON.stringify(previewButton)})`, "PDF preview view", 2000).catch(() => false)) {
@@ -922,7 +1147,23 @@ async function runInteractionScenario(c, scenario) {
     await c.send("Input.insertText", { text: "second line" });
     await key(c, "Enter", "Enter");
     await waitForValue(c, `(() => { const input=document.querySelector('[data-action-ui-id="message-input"]'); return document.body.innerText.includes("UI compare interaction") && !input?.innerText.includes("UI compare interaction"); })()`, "chat message submission", 10000);
-    await waitForValue(c, `!!document.querySelector('[data-action-ui-id="message-stop-btn"], [role="status"][aria-label="生成中"]') || /invalid token/i.test(document.body.innerText)`, "chat response start or failure", 45000);
+    const sent = await c.waitForWebSocketFrame((frame) =>
+      frame.direction === "sent" &&
+      frame.payload.includes('"type":"message"') &&
+      frame.payload.includes("UI compare interaction"),
+    );
+    const accepted = await c.waitForWebSocketFrame(
+      (frame) => frame.direction === "received" && frame.payload.includes('"type":"message_accepted"'),
+      sent.index,
+    );
+    const failed = await c.waitForWebSocketFrame(
+      (frame) => frame.direction === "received" && frame.payload.includes('"type":"session_error"'),
+      accepted.index,
+    );
+    await c.waitForWebSocketFrame(
+      (frame) => frame.direction === "received" && frame.payload.includes('"type":"session_idle"'),
+      failed.index,
+    );
     await waitForValue(c, `!document.querySelector('[data-action-ui-id="message-stop-btn"], [role="status"][aria-label="生成中"]')`, "chat response completion", 90000);
     return;
   }
@@ -1057,7 +1298,7 @@ async function runMode(mode) {
     OV_USER_DATA_DIR: `${ROOT}/ud`,
     HILO_DATA_DIR: `${ROOT}/data`,
     OV_SKIP_LEGACY_MIGRATION: "1",
-    OV_CONFIG_PATH: path.join(FIXTURE, "config.json"),
+    OV_CONFIG_PATH: path.join(FIXTURE, "ui-compare-config.json"),
     OV_DEV_OPEN_WORKSPACES: `${WS_A}${path.delimiter}${WS_B}`,
     ...(process.env.OPENCODE_BIN ? {} : { OPENCODE_BIN: "/Applications/MiniMax Design.app/Contents/Resources/opencode/opencode" }),
   };
@@ -1074,6 +1315,7 @@ async function runMode(mode) {
   try {
     const c = await cdp(PORT);
     await sleep(15000); // 工作区 gateway / opencode 起来、首启示例项目导入
+    await waitForSkillProfile();
     for (let i = 0; i < 3; i++) {
       await c.send("Runtime.evaluate", { expression: DISMISS_STARTUP });
       await sleep(800);
@@ -1178,23 +1420,66 @@ async function runMode(mode) {
         await sleep(1500);
       }
       if (p.scenario) await runInteractionScenario(c, p.scenario);
+      if (p.scenario === "pdf") await c.waitForNetworkIdle(15000, 3000);
       if (p.waitForRequests) await c.waitForRequests(p.waitForRequests);
-      if (p.id === "skills") {
+      if (p.id === "ws-b") await refreshWorkspaceRecommendations(c);
+      if (p.id === "skills" || p.id === "skill-community") {
         await waitForValue(c, `(() => {
-          const root = document.querySelector('[data-action-ui-id="skills-scroll-container"]');
-          if (!root) return false;
+          const root = document.querySelector('[data-action-ui-id="skills-scroll-container"]') ?? document;
           const loading = [...root.querySelectorAll("p")].some((element) => /^(?:Loading market skills|加载市场 Skill 中)/i.test(element.textContent.trim()));
           return !loading &&
             !!root.querySelector('[data-action-ui-id="market-community-featured"]') &&
             !!root.querySelector('[data-action-ui-id="other-skill-item"]');
         })()`, "skills 社区列表加载完成");
       }
+      if (p.id === "skills") await waitForInstalledSkillsReady(c);
+      if (p.id === "skills-mine") {
+        await waitForValue(c, `(() => {
+          const root = document.querySelector('[data-layout-slot="skills-mine-content"]');
+          return !!root?.querySelector('[data-action-ui-id="skills-mine-item"]');
+        })()`, "我的 Skill 列表加载完成");
+      }
+      if (p.id === "ws-chat-input") await waitForRetainedWorkspaceStage(c, p.id);
+      if (p.id === "project-created" || p.id === "project-assets") {
+        await waitForValue(c, `(() => {
+          try {
+            const tabs = JSON.parse(localStorage.getItem("hilo:storage:global.workspaceSessionTabs") ?? "{}")[${JSON.stringify(WS_A)}];
+            return !!tabs?.focusedSessionId && tabs.openedTabIds?.includes(tabs.focusedSessionId);
+          } catch {
+            return false;
+          }
+        })()`, "ws-a 会话焦点持久化");
+      }
       await sleep(p.persistWaitMs ?? 1200);
       await c.waitForNetworkIdle();
+      if (p.id === "ws-text-node") {
+        const point = await waitForValue(c, `(() => {
+          const pane = document.querySelector(".react-flow__pane");
+          if (!pane) return null;
+          const bounds = pane.getBoundingClientRect();
+          for (const [xRatio, yRatio] of [[0.96, 0.12], [0.95, 0.55], [0.06, 0.12], [0.06, 0.55], [0.85, 0.85], [0.15, 0.85]]) {
+            const x = bounds.left + bounds.width * xRatio;
+            const y = bounds.top + bounds.height * yRatio;
+            const target = document.elementFromPoint(x, y);
+            if (target?.closest(".react-flow__pane") &&
+              !target.closest(".react-flow__node") &&
+              !target.closest(".react-flow__controls") &&
+              !target.closest("[data-canvas-chrome]")) return { x, y };
+          }
+          return null;
+        })()`, "画布空白区域");
+        await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
+        await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left" });
+        await waitForValue(c, `document.querySelectorAll(".react-flow__node.selected").length === 0`, "画布节点取消选择");
+        await waitForStableCanvasGeometry(c, p.id);
+      }
       const { dom, state } = await captureStablePageState(c);
       const buf = await stableShot(c);
       await c.waitForNetworkIdle();
       const net = c.endNetworkCapture();
+      if (process.env.CAPTURE_TRACE === "1" && ["project-created", "ws-canvas-ops", "ws-pdf"].includes(p.id)) {
+        writeFileSync(path.join(outDir, `${p.id}.${mode}.trace.json`), JSON.stringify(c.networkTrace(), null, 2));
+      }
       if (p.scenario === "chat" && !JSON.stringify({ requests: net.nonGetRequests, frames: net.wsSent }).includes("UI compare interaction")) {
         throw new Error("chat input scenario did not emit the expected gateway request/frame");
       }
