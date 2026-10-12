@@ -81,6 +81,10 @@ console.log(`解析 vendor.js（${(src.length / 1024 / 1024).toFixed(1)}MB）…
 const ast = parse(src, { sourceType: "module", plugins: ["jsx"] });
 const reports = swapPackages(ast, src, refs, list, { cacheDir: path.join(repo, ".probe/decompile/pkg-cache") });
 const done = reports.filter((r) => !r.error);
+if (only && done.length !== reports.length) {
+  console.error("指定包组未能完整替换，保留 vendor.js 和依赖清单不变");
+  process.exit(1);
+}
 if (!done.length) {
   console.log("一个都没换成，vendor.js 不改");
   process.exit(0);

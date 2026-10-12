@@ -66,6 +66,10 @@ overrides:
   '@tiptap/starter-kit>@tiptap/extensions': 3.31.3
   d3-drag>d3-dispatch: 3.0.1
   d3-drag>d3-selection: 3.0.0
+  hast-util-from-parse5>hastscript: 9.0.1
+  hast-util-raw>hast-util-from-parse5: 8.0.3
+  hast-util-raw>parse5: 7.3.0
+  hast-util-to-parse5>web-namespaces: 2.0.1
   micromark-extension-gfm-task-list-item>micromark-factory-space: 2.0.1
   micromark-extension-gfm-task-list-item>micromark-util-character: 2.1.1
   micromark-factory-destination>micromark-util-character: 2.1.1
@@ -79,6 +83,7 @@ overrides:
   micromark-util-combine-extensions>micromark-util-chunked: 2.0.1
   micromark-util-subtokenize>micromark-util-chunked: 2.0.1
   micromark>micromark-core-commonmark: 2.0.3
+  parse5>entities: 6.0.1
   prosemirror-gapcursor>prosemirror-view: 1.42.3
   prosemirror-history>prosemirror-state: 1.4.4
   prosemirror-history>prosemirror-transform: 1.12.1
@@ -640,6 +645,9 @@ importers:
       date-fns:
         specifier: 4.4.0
         version: 4.4.0
+      devlop:
+        specifier: 1.1.0
+        version: 1.1.0
       docx-preview:
         specifier: 0.3.7
         version: 0.3.7
@@ -652,15 +660,30 @@ importers:
       embla-carousel-react:
         specifier: 8.6.0
         version: 8.6.0(react@19.2.4)
+      entities:
+        specifier: 6.0.1
+        version: 6.0.1
       fast-equals:
         specifier: 5.4.1
         version: 5.4.1
+      hast-util-from-parse5:
+        specifier: 8.0.3
+        version: 8.0.3
+      hast-util-raw:
+        specifier: 9.1.0
+        version: 9.1.0
       hast-util-to-html:
         specifier: 9.0.5
         version: 9.0.5
+      hast-util-to-parse5:
+        specifier: 8.0.1
+        version: 8.0.1
       hast-util-whitespace:
         specifier: 3.0.0
         version: 3.0.0
+      hastscript:
+        specifier: 9.0.1
+        version: 9.0.1
       html-parse-stringify:
         specifier: 3.1.0
         version: 3.1.0
@@ -745,6 +768,9 @@ importers:
       orderedmap:
         specifier: 2.1.1
         version: 2.1.1
+      parse5:
+        specifier: 7.3.0
+        version: 7.3.0
       pdfjs-dist:
         specifier: 4.10.38
         version: 4.10.38
@@ -832,6 +858,9 @@ importers:
       w3c-keyname:
         specifier: 2.2.8
         version: 2.2.8
+      web-namespaces:
+        specifier: 2.0.1
+        version: 2.0.1
       zwitch:
         specifier: 2.0.4
         version: 2.0.4
@@ -3194,6 +3223,10 @@ packages:
     resolution: {integrity: sha512-nGXts5znJzmWPu+mIE9izCOzdg63oJca2mDzGWWTth7sr4aCToKcoyFVBQwN75Ij5Pf6p510EwkTqViTRzDV+w==}
     engines: {node: '>=10.13.0'}
 
+  entities@6.0.1:
+    resolution: {integrity: sha512-aN97NXWF6AWBTahfVOIrB/NShkzi5H7F9r1s9mD3cDj4Ko5f2qhhVoYMibXF7GlLveb/D2ioWay8lxI97Ven3g==}
+    engines: {node: '>=0.12'}
+
   env-paths@3.0.0:
     resolution: {integrity: sha512-dtJUTepzMW3Lm/NPxRf3wP4642UWhjL2sQxc+ym2YMj1m/H2zDNQOlezafzkHwn6sMstjHTwG6iQQsctDW/b1A==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -3406,11 +3439,26 @@ packages:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
 
+  hast-util-from-parse5@8.0.3:
+    resolution: {integrity: sha512-3kxEVkEKt0zvcZ3hCRYI8rqrgwtlIOFMWkbclACvjlDw8Li9S2hk/d51OI0nr/gIpdMHNepwgOKqZ/sy0Clpyg==}
+
+  hast-util-parse-selector@4.0.0:
+    resolution: {integrity: sha512-wkQCkSYoOGCRKERFWcxMVMOcYE2K1AaNLU8DXS9arxnLOUEWbOXKXiJUNzEpqZ3JOKpnha3jkFrumEjVliDe7A==}
+
+  hast-util-raw@9.1.0:
+    resolution: {integrity: sha512-Y8/SBAHkZGoNkpzqqfCldijcuUKh7/su31kEBp67cFY09Wy0mTRgtsLYsiIxMJxlu0f6AA5SUTbDR8K0rxnbUw==}
+
   hast-util-to-html@9.0.5:
     resolution: {integrity: sha512-OguPdidb+fbHQSU4Q4ZiLKnzWo8Wwsf5bZfbvu7//a9oTYoqD/fWpe96NuHkoS9h0ccGOTe0C4NGXdtS0iObOw==}
 
+  hast-util-to-parse5@8.0.1:
+    resolution: {integrity: sha512-MlWT6Pjt4CG9lFCjiz4BH7l9wmrMkfkJYCxFwKQic8+RTZgWPuWxwAfjJElsXkex7DJjfSJsQIt931ilUgmwdA==}
+
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
+
+  hastscript@9.0.1:
+    resolution: {integrity: sha512-g7df9rMFX/SPi34tyGCyUBREQoKkapwdY/T04Qn9TDWfHhAYt4/I0gMVirzK5wEzeUqIjEB+LXC/ypb7Aqno5w==}
 
   hono@4.13.9:
     resolution: {integrity: sha512-7dMkQmZoC4E6F7AtaQSPhlWAdnBti+j7rreMZl8QB4jFiEhP9TWbGWUMi8WYzBCgmgulxuvLQupKqo+Co6Omyg==}
@@ -3919,6 +3967,9 @@ packages:
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
+
+  parse5@7.3.0:
+    resolution: {integrity: sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==}
 
   parseurl@1.3.3:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
@@ -4591,6 +4642,9 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
+  vfile-location@5.0.3:
+    resolution: {integrity: sha512-5yXvWDEgqeiYiBe1lbxYF7UMAIm/IcopxMHrMQDq3nvKcjPKIhZklUKL+AE7J7uApI4kwe2snsK+eI6UTj9EHg==}
+
   vfile-message@4.0.3:
     resolution: {integrity: sha512-QTHzsGd1EhbZs4AsQ20JX1rC3cOlt/IWJruk893DfLRr57lcnOeMaWG4K0JrRta4mIJZKth2Au3mM3u03/JWKw==}
 
@@ -4679,6 +4733,9 @@ packages:
 
   wavesurfer.js@7.12.12:
     resolution: {integrity: sha512-fyKNuREQTliCl4b9w7pUzpFXQIkX5tcdYu1o6vBdH+NlUXvTxshvfbG2hj8OxDevzQNZlDTHzZGyAT3FhuutWw==}
+
+  web-namespaces@2.0.1:
+    resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
 
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
@@ -7032,6 +7089,8 @@ snapshots:
       graceful-fs: 4.2.11
       tapable: 2.3.3
 
+  entities@6.0.1: {}
+
   env-paths@3.0.0: {}
 
   es-define-property@1.0.1: {}
@@ -7312,6 +7371,37 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
+  hast-util-from-parse5@8.0.3:
+    dependencies:
+      '@types/hast': 3.0.5
+      '@types/unist': 3.0.3
+      devlop: 1.1.0
+      hastscript: 9.0.1
+      property-information: 7.1.0
+      vfile: 6.0.3
+      vfile-location: 5.0.3
+      web-namespaces: 2.0.1
+
+  hast-util-parse-selector@4.0.0:
+    dependencies:
+      '@types/hast': 3.0.5
+
+  hast-util-raw@9.1.0:
+    dependencies:
+      '@types/hast': 3.0.5
+      '@types/unist': 3.0.3
+      '@ungap/structured-clone': 1.4.0
+      hast-util-from-parse5: 8.0.3
+      hast-util-to-parse5: 8.0.1
+      html-void-elements: 3.0.0
+      mdast-util-to-hast: 13.2.1
+      parse5: 7.3.0
+      unist-util-position: 5.0.0
+      unist-util-visit: 5.1.0
+      vfile: 6.0.3
+      web-namespaces: 2.0.1
+      zwitch: 2.0.4
+
   hast-util-to-html@9.0.5:
     dependencies:
       '@types/hast': 3.0.5
@@ -7326,9 +7416,27 @@ snapshots:
       stringify-entities: 4.0.4
       zwitch: 2.0.4
 
+  hast-util-to-parse5@8.0.1:
+    dependencies:
+      '@types/hast': 3.0.5
+      comma-separated-tokens: 2.0.3
+      devlop: 1.1.0
+      property-information: 7.1.0
+      space-separated-tokens: 2.0.2
+      web-namespaces: 2.0.1
+      zwitch: 2.0.4
+
   hast-util-whitespace@3.0.0:
     dependencies:
       '@types/hast': 3.0.5
+
+  hastscript@9.0.1:
+    dependencies:
+      '@types/hast': 3.0.5
+      comma-separated-tokens: 2.0.3
+      hast-util-parse-selector: 4.0.0
+      property-information: 7.1.0
+      space-separated-tokens: 2.0.2
 
   hono@4.13.9: {}
 
@@ -7861,6 +7969,10 @@ snapshots:
   package-json-from-dist@1.0.1: {}
 
   pako@1.0.11: {}
+
+  parse5@7.3.0:
+    dependencies:
+      entities: 6.0.1
 
   parseurl@1.3.3: {}
 
@@ -8623,6 +8735,11 @@ snapshots:
 
   vary@1.1.2: {}
 
+  vfile-location@5.0.3:
+    dependencies:
+      '@types/unist': 3.0.3
+      vfile: 6.0.3
+
   vfile-message@4.0.3:
     dependencies:
       '@types/unist': 3.0.3
@@ -8716,6 +8833,8 @@ snapshots:
   w3c-keyname@2.2.8: {}
 
   wavesurfer.js@7.12.12: {}
+
+  web-namespaces@2.0.1: {}
 
   webpack-virtual-modules@0.6.2: {}
 

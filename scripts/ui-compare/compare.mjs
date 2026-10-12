@@ -373,10 +373,11 @@ const DISMISS_STARTUP = `(()=>{
 // 让两边都渲染成空白，剩下的差异才反映我们自己的改动。本地图片不受影响（走 127.0.0.1 的 local-file）。
 // 打光预设缩略图来自远端展示 CDN、并非本地逻辑；屏蔽后两构建都会渲染相同回退。
 const BLOCKED_URLS = ["*cdn.hailuoai.com*", "*cdn.hailuoai.video*"];
-// 聊天面板的“精选”推荐用 Math.random 洗牌；首个推荐区挂载时重置种子，避免页面启动阶段的随机调用次数影响卡片。
+// 推荐卡片用独立随机子流，避免 effect 顺序影响卡片，同时保留应用随机流的消耗顺序。
 const SEEDED_RANDOM = `(() => {
   const seed = 0x2545f491;
   let s = seed;
+  let recommendationS = seed;
   let seededRecommendations = false;
   let recommendationBatchPendingSeed = false;
   const resetForRecommendations = (node) => {
@@ -388,6 +389,7 @@ const SEEDED_RANDOM = `(() => {
     seededRecommendations = true;
     window.__ovRandomTrace?.resets?.push({ afterN: window.__ovRandomTrace.count });
     s = seed;
+    recommendationS = seed;
   };
   const filter = Array.prototype.filter;
   Object.defineProperty(Array.prototype, "filter", {
@@ -406,26 +408,38 @@ const SEEDED_RANDOM = `(() => {
       return Reflect.apply(filter, this, arguments);
     },
   });
-  Math.random = () => {
-    if (
-      recommendationBatchPendingSeed &&
-      (new Error().stack ?? "").includes("pickRecommendationBatch")
-    ) {
-      s = seed;
-      recommendationBatchPendingSeed = false;
-      window.__ovRandomTrace?.resets?.push({
-        afterN: window.__ovRandomTrace.count,
-        reason: "pickRecommendationBatch",
-      });
-    }
-    s = (s + 0x6d2b79f5) | 0;
-    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+  const nextRandom = (state) => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    return { state, value: ((t ^ (t >>> 14)) >>> 0) / 4294967296 };
+  };
+  Math.random = () => {
+    if ((new Error().stack ?? "").includes("pickRecommendationBatch")) {
+      if (recommendationBatchPendingSeed) {
+        recommendationS = seed;
+        recommendationBatchPendingSeed = false;
+        window.__ovRandomTrace?.resets?.push({
+          afterN: window.__ovRandomTrace.count,
+          reason: "pickRecommendationBatch",
+        });
+      }
+      const global = nextRandom(s);
+      s = global.state;
+      const recommendation = nextRandom(recommendationS);
+      recommendationS = recommendation.state;
+      return recommendation.value;
+    }
+    const next = nextRandom(s);
+    s = next.state;
+    return next.value;
   };
   Object.defineProperty(window, "__ovCompareResetRandom", {
     configurable: true,
-    value: () => { s = seed; },
+    value: () => {
+      s = seed;
+      recommendationS = seed;
+    },
   });
   new MutationObserver((records) => {
     for (const record of records) {

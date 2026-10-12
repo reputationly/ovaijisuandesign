@@ -825,7 +825,9 @@ function swapEsm(a, src, externalRefs, item, pkgDir, imports, report) {
       for (const n of namesOf[d]) declInMine.delete(n);
     }
   }
-  if (problems.length) return fail(report, `${problems.length} 处冲突：\n      ${[...new Set(problems)].slice(0, 6).join("\n      ")}`);
+  if (problems.length) {
+    return fail(report, `${problems.length} 处冲突：\n      ${[...new Set(problems)].slice(0, 6).join("\n      ")}`);
+  }
 
   const pj = JSON.parse(readFileSync(path.join(pkgDir, "package.json"), "utf8"));
   report.deps = Object.keys({ ...pj.dependencies, ...pj.peerDependencies });
