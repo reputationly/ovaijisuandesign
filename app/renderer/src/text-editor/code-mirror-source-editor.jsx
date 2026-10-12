@@ -1,11 +1,10 @@
 // code-mirror-source-editor.jsx
 import {
-  Decoration2,
   reactExports,
-  StateEffect,
-  StateField,
-  tags$1 as tags,
 } from "../vendor.js";
+import { StateEffect, StateField } from "@codemirror/state";
+import { Decoration as Decoration2 } from "@codemirror/view";
+import { tags } from "@lezer/highlight";
 import {
   defaultKeymap,
   history,
@@ -26,13 +25,15 @@ import {
 import {
   buildCodeMirrorSelectionAnchor,
   buildCodeMirrorSelectionState,
-  markdown,
   markdownLivePreview,
-  replaceAll,
-  search$1,
-  SearchQuery,
 } from "../vendor-inline/codemirror/delete-markup-backward.js";
-import { setSearchQuery } from "../vendor-inline/codemirror/line2.js";
+import { markdown } from "@codemirror/lang-markdown";
+import {
+  replaceAll,
+  SearchQuery,
+  search as search$1,
+  setSearchQuery,
+} from "@codemirror/search";
 import { markdownLanguage } from "../vendor-inline/codemirror/insert-newline-continue-markup-command.js";
 import {
   Compartment,

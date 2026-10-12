@@ -144,18 +144,16 @@ GOLDEN=<本仓库>/.probe/ui-golden xvfb-run -a node scripts/ui-compare/compare.
 - 全局搜索里「x 分钟前」随时间变，对比时只在这一页把 `Date.now` 固定到最近工作区时间之后 4 分 30 秒。
 - 文件列表按 mtime 排序，复制 fixture 后统一改 mtime。
 - 历史上 `ws-select-image` / `ws-relight` 自比较有过 ≤0.001% 的抖动，修完视口问题后没再出现。
+- Batch 1 的 `ws-add-node`、此前 `ws-pdf`，以及 Batch 2 补充全量第二轮中的 `ws-zoom` / `ws-audio` pixel 差异（raw 1467 / non-AA 958）具有相同的 diff PNG（SHA-256 `e38baa7dd90ae5c3151ef05be533ae577241177343deb18cda0a06806a24e6af`），对应不同页面上的 recurring alternate recommendation-card state；不修复。
 
 ## 还剩的工作
 
-### 1. vendor.js 里还没换成 npm 的库（约 40 个候选）
+### 1. vendor.js 里还没换成 npm 的库（27 个候选）
 
-`vendor.js` 现 3,727,360 bytes（约 3.7MB）。和 `scripts/decompile/npm-packages.json` 对比，剩下 37 个候选：
+`vendor.js` 现 3,577,639 bytes（约 3.6MB）。和 `scripts/decompile/npm-packages.json` 对比，剩下 27 个候选：
 
 ```
-@base-ui/utils@0.2.6  @base-ui/react@1.3.0  @marijn/find-cluster-break@1.0.4
-@codemirror/language@6.12.4  @codemirror/autocomplete@6.20.3  @codemirror/lang-javascript@6.2.5
-@codemirror/lang-html@6.4.12  @codemirror/lang-markdown@6.5.2  @codemirror/search@6.7.2
-@lezer/javascript@1.5.4  @lezer/css@1.3.4  @lezer/markdown@1.7.2
+@base-ui/utils@0.2.6  @base-ui/react@1.3.0
 @floating-ui/react@0.27.20  hast-util-to-html@9.0.5  @shikijs/core@3.23.0
 @shikijs/engine-oniguruma@4.4.3  @shikijs/primitive@4.0.2  seroval@1.5.6  seroval-plugins@1.5.6
 @tiptap/extension-blockquote@3.27.3  @tiptap/extension-bold@3.31.3
@@ -214,12 +212,12 @@ hls.js@1.7.3  inline-style-parser@0.2.4  style-to-object@1.0.11  style-to-js@1.1
 
 | 包 | Dist 标识符 / 字符串 | 分类 |
 |---|---|---|
-| `@marijn/find-cluster-break` | `findClusterBreak`、`isExtendingChar`、`includeExtending` | `findClusterBreak` 位于 `app/renderer/src/vendor.js:52`；另两个标识符 absent |
+| `@marijn/find-cluster-break` | `findClusterBreak`、`isExtendingChar`、`includeExtending` | 无独立实现；`findClusterBreak` 由 `@codemirror/state` 公共 import 提供，另两个标识符 absent |
 | `seroval` | `SerovalNode`、`createReference`、`getCrossReferenceHeader` | absent（not bundled；VS Code 的 `deserialize` 是另一套实现） |
 | `seroval-plugins` | `AbortSignalPlugin`、`BlobPlugin`、`URLSearchParamsPlugin` | absent（not bundled） |
-| `@tiptap/extension-blockquote` | `Blockquote`、`inputRegex`、`setBlockquote` | absent（not bundled；`Blockquote` 在 `vendor-inline/codemirror/base-theme.js` 是 CodeMirror 语法节点） |
+| `@tiptap/extension-blockquote` | `Blockquote`、`inputRegex`、`setBlockquote` | absent（not bundled；旧 `base-theme.js` 的 CodeMirror 语法节点已随 Batch 2 删除） |
 | `@tiptap/extension-bold` | `Bold`、`starInputRegex`、`underscoreInputRegex` | absent（not bundled；`Bold` 在 vendor 中仅命中 Lucide 图标） |
-| `@tiptap/extension-code-block` | `CodeBlock`、`exitCode`、`languageClassPrefix` | absent（not bundled；`CodeBlock` 在 `vendor-inline/codemirror` 是语法节点，`exitCode` 来自 ProseMirror commands） |
+| `@tiptap/extension-code-block` | `CodeBlock`、`exitCode`、`languageClassPrefix` | absent（not bundled；旧 `base-theme.js` 的 CodeMirror 语法节点已随 Batch 2 删除，`exitCode` 来自 ProseMirror commands） |
 | `zustand` | `createStoreImpl`、`subscribeWithSelector`、`createJSONStorage` | `createStoreImpl` 位于 `app/renderer/src/vendor.js` |
 | `decode-named-character-reference` | `decodeNamedCharacterReference`、`notin`、`NotEqualTilde` | 位于 `app/renderer/src/vendor.js` |
 | `regex` | `RegexTag`、`RawTemplate`、`InterpolatedValue` | absent（not bundled） |
@@ -246,11 +244,29 @@ hls.js@1.7.3  inline-style-parser@0.2.4  style-to-object@1.0.11  style-to-js@1.1
 
 注意版本：`package.json` 里 `@xyflow/react` 是 12.11.6，它依赖 `@xyflow/system@0.0.82`，但直接依赖钉的是 0.0.76。直接升到 0.0.82 会构建失败（缺 `devWarn` 导出），已退回。换 xyflow 时要一起理顺。
 
+**Batch 2 CodeMirror/Lezer 闭包**：一次联合 `ONLY=` 换入以下 14 个精确版本：`@lezer/common@1.5.2`、`@lezer/highlight@1.2.3`、`@lezer/lr@1.4.10`、`@codemirror/language@6.12.4`、`@codemirror/autocomplete@6.20.3`、`@lezer/javascript@1.5.4`、`@codemirror/lang-javascript@6.2.5`、`@lezer/html@1.3.13`、`@lezer/css@1.3.4`、`@codemirror/lang-css@6.3.1`、`@codemirror/lang-html@6.4.12`、`@lezer/markdown@1.7.2`、`@codemirror/lang-markdown@6.5.2`、`@codemirror/search@6.7.2`。其中 `@lezer/css@1.3.4` 通过根 `pnpm.overrides` 固定，并保留为 renderer 直接依赖；该版本匹配内联实现且满足 `@codemirror/lang-css@6.3.1` 的 `^1.1.7` 范围。
+
+联合工具报告无独立内联语句的 7 个闭包成员：`@codemirror/state@6.7.5`、`@codemirror/view@6.43.6`、`@codemirror/commands@6.10.4`、`@marijn/find-cluster-break@1.0.4`、`crelt@1.0.7`、`style-mod@4.1.4`、`w3c-keyname@2.2.8`。前 3 个及其余已安装依赖继续从 npm 闭包使用；没有为它们保留单独的 vendor 实现。`vendor-inline/codemirror/` 中复制的解析器、语言和搜索实现被替换为 npm 公共 API wrapper；selection bridge 与 Markdown preview 保留为 app 自有逻辑。`swap-current.mjs` 的显式 `ONLY=` 现在也会尝试 renderer 清单中的直接依赖，以覆盖此类内联拷贝。
+
+`vendor.js` 从 3,727,360 bytes 减至 3,577,639 bytes（净减 149,721）；`vendor-inline/codemirror/` 从 306,780 bytes 减至 12,216 bytes。renderer 闭包的多版本差异仍只有既定 5 组：`@floating-ui/utils` 0.2.11/0.2.12、`@floating-ui/dom` 1.7.6/1.8.0、`@tanstack/history` 1.162.0/1.162.1、`@tanstack/router-core` 1.171.13/1.171.27、`@shikijs/types` 3.23.0/4.0.2；没有新增重复包。
+
+剩余实现 grep 命中仅为 `vendor.js` 从 `@lezer/lr` 的 npm import/export `ExternalTokenizer`，以及其他 vendor 库的 `isParent` 子串（XYFlow）；CodeMirror/Lezer 内联实现与 prototype patch 均已移除。构建产物 `app/desktop/out/recovered-ui/assets/index-CFRbujhi.js` 中的单例标记各出现一次：state `Cyclic dependency between fields and/or facets`、view `Mark decorations may not be empty`、common `This node type doesn't define a deserialize function`。`check-undef` 检查 1120 个 renderer 源文件通过。
+
+**Batch 2 gate 与双轮交互验收**：原样运行 `scripts/ui-compare/gate.sh` 对仓库 `.probe/ui-golden` 比较，build 11/11 packages 与 `check-undef` 均通过，首轮 40 页所有阻断通道通过；gate 按设计在首轮无失败时不再自动启动第二轮。报告：
+
+- `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T14-11-09-761Z/report.json`
+
+为满足 CodeMirror 交互场景必须两轮通过的要求，另以 `ONLY` unset、相同 golden 和运行环境执行完整第二轮 compare。该独立 compare runner 退出码为 1，仅因下述非目标页 pixel 差异：
+
+- `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T14-31-41-782Z/report.json`
+
+`ws-markdown`、`ws-text-editor`、`ws-code-editor` 两份报告的 net/DOM/state/新增错误均为 0；pixel 的 TOL∩non-AA 也均为 0（`ws-code-editor` 两轮各有 7 个 raw-only 像素）。补充第二轮在首次报告通过的 `ws-b` 出现一次 raw 642 / TOL∩non-AA 408 的 pixel 差异；`ws-zoom` 与 `ws-audio` 各出现 raw 1467 / TOL∩non-AA 958，diff PNG 与上述推荐卡片 flake 的 SHA 相同。三页的 net/DOM/state/新增错误均为 0；与首轮对照均非同页重复失败，不构成可复现回归，未做 app 逻辑修改或包级 bisect。
+
 ### 2. `vendor-inline/`（约 2MB）
 
 | 目录 | 内容 | 大小 |
 |---|---|---|
-| `codemirror/` | CodeMirror 6 | 328K |
+| `codemirror/` | npm public-API wrappers and app-owned selection/Markdown logic | 12K |
 | `immer/` | 实为 mutative（`make-creator.js` 等） | 56K |
 | `minified/` | `ct.js` / `h.js` / `s2.js`，含 travels（撤销 / 重做）等 | 84K |
 | `tanstack-table/` | table-core | 120K |
