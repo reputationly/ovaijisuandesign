@@ -149,7 +149,7 @@ GOLDEN=<本仓库>/.probe/ui-golden xvfb-run -a node scripts/ui-compare/compare.
 
 ### 1. vendor.js 里还没换成 npm 的库（约 40 个候选）
 
-`vendor.js` 现约 3.7MB。和 `scripts/decompile/npm-packages.json` 对比，剩下的候选：
+`vendor.js` 现 3,748,669 bytes（约 3.7MB）。和 `scripts/decompile/npm-packages.json` 对比，剩下的候选：
 
 ```
 @base-ui/utils@0.2.6  @base-ui/react@1.3.0  @marijn/find-cluster-break@1.0.4
@@ -166,7 +166,53 @@ hls.js@1.7.3  inline-style-parser@0.2.4  style-to-object@1.0.11  style-to-js@1.1
 @tanstack/form-core@1.33.5
 ```
 
-有些包在 vendor 里可能根本没有代码（旧交接文档里提到 zustand、seroval 等），先 grep 确认。
+**单包摸底**：每个候选均从干净 `bf13e36` 单独运行 `ONLY=<pkg> node scripts/decompile/swap-current.mjs`，随后恢复 `vendor.js`、renderer `package.json` 和根 `package.json`。39 个包都未能单独换入；每次 `vendor.js` 删减均为 0 bytes，大小始终为 3,748,669 bytes。
+
+| 包@版本 | 单包结果 / 失败原因 | 删减字节 |
+|---|---|---:|
+| `@base-ui/utils@0.2.6` | 失败：8 处导出冲突，如 `fastComponent`、`formatErrorMessage`、`useTimeout` | 0 |
+| `@base-ui/react@1.3.0` | 失败：196 处冲突；vendor 其他语句给其对象挂属性，且 `useRefWithInit` 等不是公开导出 | 0 |
+| `@marijn/find-cluster-break@1.0.4` | vendor 中无匹配代码 | 0 |
+| `@codemirror/language@6.12.4` | 失败：9 处导出冲突，如 `cutFragments`、`requestIdle` | 0 |
+| `@codemirror/autocomplete@6.20.3` | 失败：3 处导出冲突，如 `ActiveSnippet`、`Snippet` | 0 |
+| `@codemirror/lang-javascript@6.2.5` | 失败：7 处导出冲突，如 `dontComplete`、`jsxSublanguage` | 0 |
+| `@codemirror/lang-html@6.4.12` | 失败：9 处导出冲突，如 `completeCloseTag`、`completeTag` | 0 |
+| `@codemirror/lang-markdown@6.5.2` | 失败：12 处导出冲突，如 `indentUnit`、`countColumn` | 0 |
+| `@codemirror/search@6.7.2` | 失败：5 处导出冲突，如 `validRegExp`、`StringQuery` | 0 |
+| `@lezer/javascript@1.5.4` | 失败：17 处导出冲突，如 `ExternalTokenizer`、`descendant` | 0 |
+| `@lezer/css@1.3.4` | 失败：5 处导出冲突，如 `space`、`descendant` | 0 |
+| `@lezer/markdown@1.7.2` | 失败：22 处导出冲突，如 `Type`、`isBulletList` | 0 |
+| `@floating-ui/react@0.27.20` | 失败：5 处导出冲突，如 `ownerDocument`、`getDelay` | 0 |
+| `hast-util-to-html@9.0.5` | 失败：4 处冲突，包括 `whitespace`、`closing` 非公开导出及引用别的包的 `stringifyEntities` | 0 |
+| `@shikijs/core@3.23.0` | 失败：引用不属于此包的 `hastToHtml` | 0 |
+| `@shikijs/engine-oniguruma@4.4.3` | 失败：1 处导出冲突，`ShikiError$1` 不是公开导出 | 0 |
+| `@shikijs/primitive@4.0.2` | 失败：2 处导出冲突，均涉及 `ShikiError` | 0 |
+| `seroval@1.5.6` | vendor 中无匹配代码 | 0 |
+| `seroval-plugins@1.5.6` | vendor 中无匹配代码 | 0 |
+| `@tiptap/extension-blockquote@3.27.3` | vendor 中无匹配代码 | 0 |
+| `@tiptap/extension-bold@3.31.3` | vendor 中无匹配代码 | 0 |
+| `@tiptap/extension-bubble-menu@3.31.3` | 失败：`FloatingMenuPlugin` 不是公开导出 | 0 |
+| `@tiptap/extension-code-block@3.30.2` | vendor 中无匹配代码 | 0 |
+| `@tiptap/extension-floating-menu@3.30.2` | 失败：`BubbleMenuPlugin` 不是公开导出 | 0 |
+| `zustand@5.0.15` | vendor 中无匹配代码 | 0 |
+| `@xyflow/react@12.10.2` | 失败：33 处导出冲突，如 `useStoreWithEqualityFn`、`StoreContext` | 0 |
+| `entities@6.0.1` | 失败：`EntryType` 不是公开导出 | 0 |
+| `mediabunny@1.52.3` | 失败：47 处导出冲突，如 `promiseWithResolvers`、`KILOBIT_RATES` | 0 |
+| `decode-named-character-reference@1.3.0` | vendor 中无匹配代码 | 0 |
+| `regex@6.1.0` | vendor 中无匹配代码 | 0 |
+| `regex-recursion@6.0.2` | vendor 中无匹配代码 | 0 |
+| `parse5@8.0.1` | 失败：2 处导出冲突，`TokenType`、`getTagID` 不是公开导出 | 0 |
+| `unist-util-visit@5.1.0` | vendor 中无匹配代码 | 0 |
+| `rehype-harden@1.1.8` | 失败：5 处导出冲突，包括 `empty`、`toResult`、`SKIP`、`createVisitor` | 0 |
+| `hls.js@1.7.3` | 失败：识别出的语句在冲突检查中全部被剔除 | 0 |
+| `inline-style-parser@0.2.4` | vendor 中无匹配代码 | 0 |
+| `style-to-object@1.0.11` | vendor 中无匹配代码 | 0 |
+| `style-to-js@1.1.21` | vendor 中无匹配代码 | 0 |
+| `@tanstack/form-core@1.33.5` | 失败：`resolveClassName`、`resolveStyle` 不是公开导出 | 0 |
+
+**无匹配代码的单独列表**：`@marijn/find-cluster-break`、`seroval`、`seroval-plugins`、`@tiptap/extension-blockquote`、`@tiptap/extension-bold`、`@tiptap/extension-code-block`、`zustand`、`decode-named-character-reference`、`regex`、`regex-recursion`、`unist-util-visit`、`inline-style-parser`、`style-to-object`、`style-to-js`。
+
+当前 survey 没有任何单包 clean swap，因此按“只纳入 survey clean 的包”筛选后，Batch 1 为空；尚未运行联合 `ONLY=`、`pnpm install`、checker 或 gate，也没有移出候选列表。需要决定是否允许把存在包间交叉引用/导出冲突的 Batch 1 成员作为家族联合试验，或暂缓此批次。
 
 注意版本：`package.json` 里 `@xyflow/react` 是 12.11.6，它依赖 `@xyflow/system@0.0.82`，但直接依赖钉的是 0.0.76。直接升到 0.0.82 会构建失败（缺 `devWarn` 导出），已退回。换 xyflow 时要一起理顺。
 
