@@ -349,7 +349,7 @@ A 要求的 `~/ov-golden`（HEAD `441a06b`）全量自比较报告：`/home/ubun
 
 未做局部 swap，整个闭包仍内联。`parse5@8.0.1` 的 npm metadata 声明依赖 `entities@^8.0.0`，而 vendor 中唯一的 `EntityDecoder` 实现匹配 `entities@6.0.1`：内联类在 constructor 中初始化 `state`、`consumed`、`result`、`treeIndex`、`excess`、`decodeMode`；`entities@8.0.0` dist 已改为 class fields 声明。`6.0.1` 不满足 `parse5@8.0.1` 的 `^8.0.0` 范围，override 会违反已声明范围。
 
-闭包还包含非公开 parse5 内部消费者。内联 `hast-util-raw@9.1.0` 使用 `Parser`、`getFragmentParser`、`TokenType`、`getTagID`、`TokenizerMode` 及 parser/tokenizer 私有字段（如 `_processToken`）；npm dist `hast-util-raw@9.1.0` 声明 `parse5@^7.0.0`，不接受 `parse5@8.0.1`。其相关转换调用还连到 `hast-util-from-parse5`、`hast-util-to-parse5`、`rehype-raw`、`web-namespaces`、`hastscript`。因此不能只换 parse5/entities 或保留 inline raw adapter，否则仍是半套闭包；npm 上已发布的 `hast-util-raw` 版本也没有满足 parse5 8 范围的实现。
+闭包还包含非公开 parse5 内部消费者。内联 `hast-util-raw@9.1.0` 使用 `Parser`、`getFragmentParser`、`TokenType`、`getTagID`、`TokenizerMode` 及 parser/tokenizer 私有字段（如 `_processToken`）；npm dist `hast-util-raw@9.1.0` 声明 `parse5@^7.0.0`，不接受 `parse5@8.0.1`。其相关转换调用还连到 `hast-util-from-parse5`、`hast-util-to-parse5`、`rehype-raw`、`web-namespaces`、`hastscript`。因此不能只换 parse5/entities 或保留 inline raw adapter，否则仍是半套闭包。未采用其它 `hast-util-raw` 版本替代，因为其是否与内联代码匹配未经证实。
 
 结论：当前匹配的 `parse5@8.0.1`、`entities@6.0.1` 与 inline raw adapter 的 declared semver ranges 不能同时满足，整个闭包延期，等待可兼容的上游版本或新的版本决策。Batch 4 未改依赖、vendor 或 override；`vendor.js` 保持 **3,387,339 bytes**。未运行该批依赖安装、closure diff 或 UI gate；这不是验收通过。
 
