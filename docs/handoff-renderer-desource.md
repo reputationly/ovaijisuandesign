@@ -148,9 +148,9 @@ GOLDEN=<本仓库>/.probe/ui-golden xvfb-run -a node scripts/ui-compare/compare.
 
 ## 还剩的工作
 
-### 1. vendor.js 里还没换成 npm 的库（27 个候选）
+### 1. vendor.js 内联包候选与摸底记录（历史候选表；完成状态见下文）
 
-`vendor.js` 现 3,577,639 bytes（约 3.6MB）。和 `scripts/decompile/npm-packages.json` 对比，剩下 27 个候选：
+下表是 Batch 2 完成后的历史候选快照：当时 `vendor.js` 为 3,577,639 bytes（约 3.6MB），尚有 27 个候选；后续完成状态见 Batch 3 与各批次结果记录。
 
 ```
 @base-ui/utils@0.2.6  @base-ui/react@1.3.0
@@ -290,6 +290,50 @@ hls.js@1.7.3  inline-style-parser@0.2.4  style-to-object@1.0.11  style-to-js@1.1
 ### 建议顺序
 
 完成功能对比的验收 → 1 → 2 → 3 → 4 → 5。每一批单独提交，过 `gate.sh` 才继续。
+
+## Batch 3：Shiki/HAST 闭包与声明体残留审计
+
+一次性替换 Shiki、HAST 序列化闭包及 `@tiptap/react/menus` 的 React 菜单子路径。换入或使用的准确版本：
+
+- Shiki：`@shikijs/core@3.23.0`、`@shikijs/engine-oniguruma@4.4.3`、`@shikijs/primitive@4.0.2`、`@shikijs/types@3.23.0`、`@shikijs/types@4.0.2`、`@shikijs/types@4.4.3`、`@shikijs/vscode-textmate@10.0.2`。
+- HAST：`hast-util-to-html@9.0.5`、`hast-util-whitespace@3.0.0`、`ccount@2.0.1`、`comma-separated-tokens@2.0.3`、`space-separated-tokens@2.0.2`、`property-information@7.1.0`、`html-void-elements@3.0.0`、`stringify-entities@4.0.4`、`character-entities@2.0.2`、`character-entities-html4@2.1.0`、`character-entities-legacy@3.0.0`、`zwitch@2.0.4`。
+- 菜单：`@tiptap/react/menus@3.31.3`，通过已安装的 `@tiptap/react@3.31.3` 子路径导入；保留 vendor 的导出名。
+- 同一构建继续使用既有 `@shikijs/engine-javascript@4.0.2`、`@shikijs/langs@3.23.0`、`@shikijs/themes@3.23.0` 与 `oniguruma-to-es@4.3.6`。没有找到需要再单独替换的 `regex` / `regex-recursion` 内联实现。
+
+`@shikijs/engine-oniguruma@4.4.3` 精确依赖 `@shikijs/types@4.4.3`，所以按原始 bundle 的版本映射保留此第三版本，没有 override 到不兼容版本。原始内联代码的三份 `ShikiError` 分别是 `ShikiError$2`（`@shikijs/types@3.23.0`，Shiki core）、`ShikiError$1`（`@shikijs/types@4.0.2`，primitive）和 `ShikiError3`（`@shikijs/engine-oniguruma@4.4.3` 自有类）。替换后构建资产 `index-5pYNPjYJ.js` 仍恰有三处 `this.name = "ShikiError"`：两份 types 类及一份 engine-oniguruma 类。此第三版本是原 bundle 已存在重复的忠实保留。
+
+旧 `wasm-DDgzZJey.js` 删除，改为 `@shikijs/engine-oniguruma/wasm-inlined`。构建输出中与 oniguruma 包源一致的 wasm payload 恰有一份：解码后 466,610 bytes，SHA-256 `fd885c2d12e5951e59d761ebd4a006e06254b1491fd6f530c92b69fb4d8d77d9`。主 bundle 另有一个不同用途、不同 hash 的 wasm payload，不是第二份 oniguruma wasm。`highlighted-body-OFNGDK62-D2hkhc6K.js` 是 app-owned Streamdown 内容组件而非库代码，已改名为 `app/renderer/src/chat/highlighted-code-block-body.js` 并更新 importer。React 菜单子路径的旧 FloatingMenu helpers/component 已删除；单独的 `@tiptap/extension-floating-menu@3.30.2` 插件实现保留内联，因为它与 renderer 的 Tiptap `3.31.3` 不同，替换会改变现有直接依赖版本。
+
+`vendor.js` 从 Batch 3 前的 **3,577,639 bytes** 降至 **3,387,339 bytes**，净减 **190,300 bytes**。
+
+### Batch 1–3 声明体审计结论
+
+按用户指定范围，解析 35 个已替换包/版本的 ESM entry module graph，对 `vendor.js` 和 `vendor-inline/` 的顶层 function/class/const 声明逐个检查；声明名匹配 `$N` 后缀，声明体按空白及标识符归一化。共比较 128 个包声明名—本地声明对（涉及 98 个本地声明）；其中 32 对声明体归一化后相同，96 对不同。32 对相同项都是短 helper/常量的跨包同形实现；逐条按周边调用点归属后，均属于未替换包或 app 自有代码，不是已替换包的残留。另对 `@tiptap/react/menus@3.31.3` 的单一 ESM entry 单独扫描了 27 个顶层声明；仅 2 个 `useIsomorphicLayoutEffect` 名称命中，声明体均不同，未发现菜单实现残留。Batch 1–3 swapped-package residue：**none**。React FloatingMenu helper/component 区块已移除；保留的 `FloatingMenuView` 属于未替换的 `@tiptap/extension-floating-menu@3.30.2` 插件。
+
+| 命中 | 实际归属 | 处置 / 判定 |
+|---|---|---|
+| `src_default$1 = Placeholder` 与 Bubble Menu 的短默认别名；`cache$1` 的 `Map` 初值 | Tiptap Placeholder 扩展；`getFormatter` 的 locale formatter cache（Base UI） | 仅是短赋值/通用初值归一碰撞；React BubbleMenu 实现已由 `@tiptap/react/menus` 提供。不是 BubbleMenu 或 CodeMirror 副本。 |
+| `emptyOptions$5` | Unicode identifier-name validator 附近的默认 options | 通用空对象常量；调用点不属于 swapped HAST/CodeMirror 包。 |
+| `cap` | 未替换的 `hast-util-to-jsx-runtime` 组件/属性转换代码 | `property-information` 中存在同形短 helper；本地调用链属于 JSX runtime，不属于已替换包。 |
+| `emptyOptions$4`、`emptyOptions$3`、`emptyOptions$2`；`own$9`、`own$8`、`own$7`、`own$6`、`own$4` | 分别位于 `hast-util-to-text`、`mdast-util-to-hast`、`remark-gfm`、`decode-named-character-reference`、`mdast-util-from-markdown`、`unified`、`rehype-sanitize` 的本地调用段 | 通用空对象 / `hasOwnProperty` 引用；对应 owner 均未在 Batch 1–3 替换，按其后续 batch 留存。 |
+| `emptyOptions`、`own$1`、`own`，以及 `__defProp` | `hast-util-to-parse5`/parse5 adapter；相邻 `__defProp$2` 属于 Tiptap Placeholder 上下文 | 这些 parse5/Tiptap 实现未在本批替换；不是 Shiki、HAST serializer 或 BubbleMenu 菜单实现。 |
+| `__defProp$1` | `vendor-inline/vscode-base/vs-buffer.js` 的 app-owned VS Code Buffer 模块 | 通用 Object.defineProperty helper；不是 Shiki engine 副本。 |
+| CodeMirror 的 `closedBracket`、Lezer LR 的 `verbose` | Batch 2 已确认的非公开旧实现 | 两项声明及 vendor 导出已删除；`indentString` 改为从 `@codemirror/language` 导入并保留 vendor 名称。`@codemirror/lang-javascript` 的 `cache$1` 命中属于 formatter cache，不是语言包。 |
+| `parse$2` 与旧 React FloatingMenu 组件/helpers | Batch 3 两项已替换实现 | `parse$2` 改用 `comma-separated-tokens` 的公开 `parse`；旧 React 菜单实现已删。`rehype-harden` / `@lezer/common` 等其余 swapped package 未检出相同实现残留。 |
+| 名称命中但 body 不同：`Tag`、`comment`、`heading`、`space`、`lt`、`endTag`、`properties`、`S`、`html`、`Type`、`Table`、`empty`、`search`、`re` 等 CodeMirror/Lezer 名称 | 对应本地声明与 npm ESM 声明归一化后不同；另有 `S$6` 在 `vendor-inline/immer/make-creator.js`、`count$1` 在 `vendor-inline/tanstack-table/column-filtering.js`、`lt$2` 在 `vendor-inline/minified/ct.js` | 是其他语法/HTML 适配器或已知未替换 inline 包的同名声明；不是 CodeMirror/Lezer 实现残留。 |
+| 名称命中但 body 不同：`one`、`all`、`handle`、`unknown`、`doctype`、`element`、`p`、`dt`、`tr`、`raw`、`text`、`root`、`aria`、`create`、`normalize`、`Info`、`mergeObjects`、`basename`、`toArray` | 本地函数体均不匹配对应 serializer/property-information/Shiki dist 声明；调用点位于 HAST/parse5 adapters、其他 HAST utilities 或 app/UI modules | 归类到仍延期的 HAST/parse5 closure、Base UI formatter 或 app 自有逻辑；同名不等于复制实现。 |
+
+因此 Batch 1、Batch 2、Batch 3 的 swapped package 声明体残留均为 **none**。`@tiptap/extension-floating-menu@3.30.2`、parse5 及其他表列 owner 是明确延期的未替换实现，不计作已替换包残留。
+
+补充边界：`infra/from-vendor.js` 的兼容导出表还保留 `descendantOp`、`VariableName` 等 CSS grammar token 数字；它们只是 app bridge 导出的 token IDs，不含 parser、`NodeProp`、class 或 prototype 实现，在 app 源码中没有除 vendor export/import bridge 以外的消费者。按要求范围它们不属于 `vendor.js` / `vendor-inline/` 声明审计。
+
+### Batch 3 验收
+
+- renderer 闭包相对既定基线没有其他变化：`@floating-ui/utils` 0.2.11/0.2.12、`@floating-ui/dom` 1.7.6/1.8.0、`@tanstack/history` 1.162.0/1.162.1、`@tanstack/router-core` 1.171.13/1.171.27 均保持；唯一新增版本为已按三份原始 `ShikiError` 证据批准的 `@shikijs/types@4.4.3`。
+- `check-undef` 通过；renderer build 11/11 packages 通过。Streamdown 高亮场景 `ws-chat-input` 两轮通过；`ws-markdown`、`ws-text-editor`、`ws-code-editor` 的 net/DOM/state/新增错误通道两轮均为 0。
+- `scripts/ui-compare/gate.sh` 两轮完整 40 页流程通过。第一轮 `project-assets` DOM 有 41 项差异，第二轮通过；第二轮 `ws-zoom` raw 1467 / non-AA 958 的一次性 pixel 差异与既往 `ws-pdf`、`ws-audio`、`ws-add-node` 右侧推荐卡片区域相同，diff PNG SHA-256 为 `e38baa7dd90ae5c3151ef05be533ae577241177343deb18cda0a06806a24e6af`，记录为 recurring alternate recommendation-card state，无修复。
+- 报告：`/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T15-31-47-663Z/report.json`、`/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T15-50-00-844Z/report.json`。
+- gate 前后均确认没有 compare、Electron、Xvfb、OpenCode 或 Gateway 残留进程；端口 9360–9362 空闲。
 
 ## 规矩（摘自 `remaining-work.md` 与用户要求）
 

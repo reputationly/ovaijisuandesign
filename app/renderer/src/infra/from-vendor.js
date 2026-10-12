@@ -2558,13 +2558,6 @@ export function warnEnrollError(op, res) {
   }
 }
 
-export class ShikiError3 extends Error {
-  constructor(message2) {
-    super(message2);
-    this.name = "ShikiError";
-  }
-}
-
 export const Context2 = Object.freeze({
   DEFAULT: "DEFAULT",
   CHAR_CLASS: "CHAR_CLASS"

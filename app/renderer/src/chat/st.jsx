@@ -19,7 +19,7 @@ var lr = (e2) => {
 };
 
 var cr = reactExports.lazy(() =>
-  (() => import("../highlighted-body-OFNGDK62-D2hkhc6K.js"))().then((e2) => ({
+  (() => import("./highlighted-code-block-body.js"))().then((e2) => ({
     default: e2.HighlightedCodeBlockBody,
   })),
 );
