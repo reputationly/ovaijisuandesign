@@ -1,3 +1,5 @@
+import { BubbleMenuPlugin } from "@tiptap/extension-bubble-menu";
+import { BlockPolicy } from "rehype-harden";
 import { select, pointer } from "d3-selection";
 import { drag as __npmDrag } from "d3-drag";
 import { zoom, zoomIdentity as identity$2, zoomTransform as __npmZoomTransform } from "d3-zoom";
@@ -75520,360 +75522,218 @@ g$2.walkTokens;
 g$2.parseInline;
 b$4.parse;
 x$6.lex;
-function combineDOMRects(rect1, rect2) {
-  const top2 = Math.min(rect1.top, rect2.top);
-  const bottom = Math.max(rect1.bottom, rect2.bottom);
-  const left = Math.min(rect1.left, rect2.left);
-  const width = Math.max(rect1.right, rect2.right) - left;
-  const height = bottom - top2;
-  return new DOMRect(left, top2, width, height);
+function getAutoPluginKey(pluginKey, defaultName) {
+  return pluginKey !== null && pluginKey !== void 0 ? pluginKey : new PluginKey(defaultName);
 }
-var BubbleMenuView = class {
-  get middlewares() {
-    const middlewares = [];
-    if (this.floatingUIOptions.flip) middlewares.push(flip$1(typeof this.floatingUIOptions.flip !== "boolean" ? this.floatingUIOptions.flip : void 0));
-    if (this.floatingUIOptions.shift) middlewares.push(shift$2(typeof this.floatingUIOptions.shift !== "boolean" ? this.floatingUIOptions.shift : void 0));
-    if (this.floatingUIOptions.offset) middlewares.push(offset$1(typeof this.floatingUIOptions.offset !== "boolean" ? this.floatingUIOptions.offset : void 0));
-    if (this.floatingUIOptions.arrow) middlewares.push(arrow$3(this.floatingUIOptions.arrow));
-    if (this.floatingUIOptions.size) middlewares.push(size$1(typeof this.floatingUIOptions.size !== "boolean" ? this.floatingUIOptions.size : void 0));
-    if (this.floatingUIOptions.autoPlacement) middlewares.push(autoPlacement(typeof this.floatingUIOptions.autoPlacement !== "boolean" ? this.floatingUIOptions.autoPlacement : void 0));
-    if (this.floatingUIOptions.hide) middlewares.push(hide$2(typeof this.floatingUIOptions.hide !== "boolean" ? this.floatingUIOptions.hide : void 0));
-    if (this.floatingUIOptions.inline) middlewares.push(inline(typeof this.floatingUIOptions.inline !== "boolean" ? this.floatingUIOptions.inline : void 0));
-    return middlewares;
-  }
-  get virtualElement() {
-    var _this$getReferencedVi, _this$view;
-    const {
-      selection: selection2
-    } = this.editor.state;
-    const referencedVirtualElement = (_this$getReferencedVi = this.getReferencedVirtualElement) === null || _this$getReferencedVi === void 0 ? void 0 : _this$getReferencedVi.call(this);
-    if (referencedVirtualElement) return referencedVirtualElement;
-    if (!((_this$view = this.view) === null || _this$view === void 0 || (_this$view = _this$view.dom) === null || _this$view === void 0 ? void 0 : _this$view.parentNode)) return;
-    const domRect = posToDOMRect(this.view, selection2.from, selection2.to);
-    let virtualElement = {
-      getBoundingClientRect: () => domRect,
-      getClientRects: () => [domRect]
-    };
-    if (selection2 instanceof NodeSelection) {
-      let node2 = this.view.nodeDOM(selection2.from);
-      const nodeViewWrapper = node2.dataset.nodeViewWrapper ? node2 : node2.querySelector("[data-node-view-wrapper]");
-      if (nodeViewWrapper) node2 = nodeViewWrapper;
-      if (node2) virtualElement = {
-        getBoundingClientRect: () => node2.getBoundingClientRect(),
-        getClientRects: () => [node2.getBoundingClientRect()]
-      };
-    }
-    if (selection2 instanceof CellSelection) {
-      const {
-        $anchorCell,
-        $headCell
-      } = selection2;
-      const from2 = $anchorCell ? $anchorCell.pos : $headCell.pos;
-      const to = $headCell ? $headCell.pos : $anchorCell.pos;
-      const fromDOM = this.view.nodeDOM(from2);
-      const toDOM = this.view.nodeDOM(to);
-      if (!fromDOM || !toDOM) return;
-      const clientRect2 = fromDOM === toDOM ? fromDOM.getBoundingClientRect() : combineDOMRects(fromDOM.getBoundingClientRect(), toDOM.getBoundingClientRect());
-      virtualElement = {
-        getBoundingClientRect: () => clientRect2,
-        getClientRects: () => [clientRect2]
-      };
-    }
-    return virtualElement;
-  }
-  constructor({
-    editor,
-    element: element2,
-    view: view2,
-    pluginKey = "bubbleMenu",
-    updateDelay = 250,
-    resizeDelay = 60,
-    shouldShow,
-    appendTo,
-    getReferencedVirtualElement,
-    options
-  }) {
-    var _options$scrollTarget;
-    this.preventHide = false;
-    this.isVisible = false;
-    this.scrollTarget = window;
-    this.floatingUIOptions = {
-      strategy: "absolute",
-      placement: "top",
-      offset: 8,
-      flip: {},
-      shift: {},
-      arrow: false,
-      size: false,
-      autoPlacement: false,
-      hide: false,
-      inline: false,
-      onShow: void 0,
-      onHide: void 0,
-      onUpdate: void 0,
-      onDestroy: void 0
-    };
-    this.shouldShow = ({
-      view: view3,
-      state: state2,
-      from: from2,
-      to
-    }) => {
-      const {
-        doc: doc2,
-        selection: selection2
-      } = state2;
-      const {
-        empty: empty2
-      } = selection2;
-      const isEmptyTextBlock = !doc2.textBetween(from2, to).length && isTextSelection(state2.selection);
-      const isChildOfMenu = this.element.contains(document.activeElement);
-      if (!(view3.hasFocus() || isChildOfMenu) || empty2 || isEmptyTextBlock || !this.editor.isEditable) return false;
-      return true;
-    };
-    this.mousedownHandler = () => {
-      this.preventHide = true;
-    };
-    this.dragstartHandler = () => {
-      this.hide();
-    };
-    this.resizeHandler = () => {
-      if (this.resizeDebounceTimer) clearTimeout(this.resizeDebounceTimer);
-      this.resizeDebounceTimer = window.setTimeout(() => {
-        this.updatePosition();
-      }, this.resizeDelay);
-    };
-    this.focusHandler = () => {
-      setTimeout(() => this.update(this.editor.view));
-    };
-    this.blurHandler = ({
-      event
-    }) => {
-      var _this$element$parentN;
-      if (this.editor.isDestroyed) {
-        this.destroy();
-        return;
-      }
-      if (this.preventHide) {
-        this.preventHide = false;
-        return;
-      }
-      if ((event === null || event === void 0 ? void 0 : event.relatedTarget) && ((_this$element$parentN = this.element.parentNode) === null || _this$element$parentN === void 0 ? void 0 : _this$element$parentN.contains(event.relatedTarget))) return;
-      if ((event === null || event === void 0 ? void 0 : event.relatedTarget) === this.editor.view.dom) return;
-      this.hide();
-    };
-    this.handleDebouncedUpdate = (view3, oldState) => {
-      const selectionChanged = !(oldState === null || oldState === void 0 ? void 0 : oldState.selection.eq(view3.state.selection));
-      const docChanged = !(oldState === null || oldState === void 0 ? void 0 : oldState.doc.eq(view3.state.doc));
-      if (!selectionChanged && !docChanged) return;
-      if (this.updateDebounceTimer) clearTimeout(this.updateDebounceTimer);
-      this.updateDebounceTimer = window.setTimeout(() => {
-        this.updateHandler(view3, selectionChanged, docChanged, oldState);
-      }, this.updateDelay);
-    };
-    this.updateHandler = (view3, selectionChanged, docChanged, oldState) => {
-      const {
-        composing
-      } = view3;
-      if (composing || !selectionChanged && !docChanged) return;
-      if (!this.getShouldShow(oldState)) {
-        this.hide();
-        return;
-      }
-      this.show();
-      this.updatePosition();
-    };
-    this.transactionHandler = ({
-      transaction: tr2
-    }) => {
-      const meta2 = tr2.getMeta(this.pluginKey);
-      if (meta2 === "updatePosition") this.updatePosition();else if (meta2 && typeof meta2 === "object" && meta2.type === "updateOptions") this.updateOptions(meta2.options);else if (meta2 === "hide") this.hide();else if (meta2 === "show") {
-        this.updatePosition();
-        this.show();
-      }
-    };
-    this.editor = editor;
-    this.element = element2;
-    this.view = view2;
-    this.pluginKey = pluginKey;
-    this.updateDelay = updateDelay;
-    this.resizeDelay = resizeDelay;
-    this.appendTo = appendTo;
-    this.scrollTarget = (_options$scrollTarget = options === null || options === void 0 ? void 0 : options.scrollTarget) !== null && _options$scrollTarget !== void 0 ? _options$scrollTarget : window;
-    this.getReferencedVirtualElement = getReferencedVirtualElement;
-    this.floatingUIOptions = {
-      ...this.floatingUIOptions,
-      ...options
-    };
-    this.element.tabIndex = 0;
-    if (shouldShow) this.shouldShow = shouldShow;
-    this.element.addEventListener("mousedown", this.mousedownHandler, {
+const useIsomorphicLayoutEffect$1 = typeof window !== "undefined" ? reactExports.useLayoutEffect : reactExports.useEffect;
+const PLUGIN_MANAGED_STYLE_PROPERTIES = /* @__PURE__ */new Set(["left", "opacity", "position", "top", "visibility", "width"]);
+const UNITLESS_STYLE_PROPERTIES = /* @__PURE__ */new Set(["animationIterationCount", "aspectRatio", "borderImageOutset", "borderImageSlice", "borderImageWidth", "columnCount", "columns", "fillOpacity", "flex", "flexGrow", "flexShrink", "fontWeight", "gridArea", "gridColumn", "gridColumnEnd", "gridColumnStart", "gridRow", "gridRowEnd", "gridRowStart", "lineClamp", "lineHeight", "opacity", "order", "orphans", "scale", "stopOpacity", "strokeDasharray", "strokeDashoffset", "strokeMiterlimit", "strokeOpacity", "strokeWidth", "tabSize", "widows", "zIndex", "zoom"]);
+const ATTRIBUTE_EXCLUSIONS = /* @__PURE__ */new Set(["children", "className", "style"]);
+const DIRECT_PROPERTY_KEYS = /* @__PURE__ */new Set(["tabIndex"]);
+const FORWARDED_ATTRIBUTE_KEYS = /* @__PURE__ */new Set(["accessKey", "autoCapitalize", "contentEditable", "contextMenu", "dir", "draggable", "enterKeyHint", "hidden", "id", "lang", "nonce", "role", "slot", "spellCheck", "tabIndex", "title", "translate"]);
+const SPECIAL_EVENT_NAMES = {
+  Blur: "focusout",
+  DoubleClick: "dblclick",
+  Focus: "focusin",
+  MouseEnter: "mouseenter",
+  MouseLeave: "mouseleave"
+};
+function isEventProp(key2, value) {
+  return /^on[A-Z]/.test(key2) && typeof value === "function";
+}
+function toAttributeName(key2) {
+  if (key2.startsWith("aria-") || key2.startsWith("data-")) return key2;
+  return key2;
+}
+function isForwardedAttributeKey(key2) {
+  return key2.startsWith("aria-") || key2.startsWith("data-") || FORWARDED_ATTRIBUTE_KEYS.has(key2);
+}
+function toStylePropertyName(key2) {
+  if (key2.startsWith("--")) return key2;
+  return key2.replace(/[A-Z]/g, match2 => `-${match2.toLowerCase()}`);
+}
+function toEventConfig(key2) {
+  var _SPECIAL_EVENT_NAMES$;
+  const useCapture = key2.endsWith("Capture");
+  const reactEventName = (useCapture ? key2.slice(0, -7) : key2).slice(2);
+  return {
+    eventName: (_SPECIAL_EVENT_NAMES$ = SPECIAL_EVENT_NAMES[reactEventName]) !== null && _SPECIAL_EVENT_NAMES$ !== void 0 ? _SPECIAL_EVENT_NAMES$ : reactEventName.toLowerCase(),
+    options: useCapture ? {
       capture: true
-    });
-    this.view.dom.addEventListener("dragstart", this.dragstartHandler);
-    this.editor.on("focus", this.focusHandler);
-    this.editor.on("blur", this.blurHandler);
-    this.editor.on("transaction", this.transactionHandler);
-    window.addEventListener("resize", this.resizeHandler);
-    this.scrollTarget.addEventListener("scroll", this.resizeHandler);
-    this.update(view2, view2.state);
-    if (this.getShouldShow()) {
-      this.show();
-      this.updatePosition();
-    }
-  }
-  updatePosition() {
-    if (!this.isVisible) return;
-    const virtualElement = this.virtualElement;
-    if (!virtualElement) return;
-    computePosition(virtualElement, this.element, {
-      placement: this.floatingUIOptions.placement,
-      strategy: this.floatingUIOptions.strategy,
-      middleware: this.middlewares
-    }).then(({
-      x: x2,
-      y: y4,
-      strategy,
-      middlewareData
-    }) => {
-      var _middlewareData$hide, _middlewareData$hide2;
-      if (!this.isVisible || this.editor.isDestroyed || !this.element.isConnected) return;
-      if (((_middlewareData$hide = middlewareData.hide) === null || _middlewareData$hide === void 0 ? void 0 : _middlewareData$hide.referenceHidden) || ((_middlewareData$hide2 = middlewareData.hide) === null || _middlewareData$hide2 === void 0 ? void 0 : _middlewareData$hide2.escaped)) {
-        this.element.style.visibility = "hidden";
-        return;
+    } : void 0
+  };
+}
+function createSyntheticEvent(element2, nativeEvent) {
+  let defaultPrevented = nativeEvent.defaultPrevented;
+  let propagationStopped = false;
+  const syntheticEvent = Object.create(nativeEvent);
+  Object.defineProperties(syntheticEvent, {
+    nativeEvent: {
+      value: nativeEvent
+    },
+    currentTarget: {
+      value: element2
+    },
+    target: {
+      value: nativeEvent.target
+    },
+    persist: {
+      value: () => void 0
+    },
+    isDefaultPrevented: {
+      value: () => defaultPrevented
+    },
+    isPropagationStopped: {
+      value: () => propagationStopped
+    },
+    preventDefault: {
+      value: () => {
+        defaultPrevented = true;
+        nativeEvent.preventDefault();
       }
-      this.element.style.visibility = "visible";
-      this.element.style.width = "max-content";
-      this.element.style.position = strategy;
-      this.element.style.left = `${x2}px`;
-      this.element.style.top = `${y4}px`;
-      if (this.isVisible && this.floatingUIOptions.onUpdate) this.floatingUIOptions.onUpdate();
-    });
+    },
+    stopPropagation: {
+      value: () => {
+        propagationStopped = true;
+        nativeEvent.stopPropagation();
+      }
+    }
+  });
+  return syntheticEvent;
+}
+function isDirectPropertyKey(key2) {
+  return DIRECT_PROPERTY_KEYS.has(key2);
+}
+function setDirectProperty(element2, key2, value) {
+  if (key2 === "tabIndex") {
+    element2.tabIndex = Number(value);
+    return;
   }
-  update(view2, oldState) {
-    const {
-      state: state2
-    } = view2;
-    const hasValidSelection = state2.selection.from !== state2.selection.to;
-    if (this.updateDelay > 0 && hasValidSelection) {
-      this.handleDebouncedUpdate(view2, oldState);
+  element2[key2] = value;
+}
+function clearDirectProperty(element2, key2) {
+  if (key2 === "tabIndex") {
+    element2.removeAttribute("tabindex");
+    return;
+  }
+  const propertyValue2 = element2[key2];
+  if (typeof propertyValue2 === "boolean") {
+    element2[key2] = false;
+    return;
+  }
+  if (typeof propertyValue2 === "number") {
+    element2[key2] = 0;
+    return;
+  }
+  element2[key2] = "";
+}
+function toStyleValue(styleName, value) {
+  if (typeof value !== "number" || value === 0 || styleName.startsWith("--") || UNITLESS_STYLE_PROPERTIES.has(styleName)) return String(value);
+  return `${value}px`;
+}
+function removeStyleProperty(element2, styleName) {
+  if (PLUGIN_MANAGED_STYLE_PROPERTIES.has(styleName)) return;
+  element2.style.removeProperty(toStylePropertyName(styleName));
+}
+function applyStyleProperty(element2, styleName, value) {
+  if (PLUGIN_MANAGED_STYLE_PROPERTIES.has(styleName)) return;
+  element2.style.setProperty(toStylePropertyName(styleName), toStyleValue(styleName, value));
+}
+function syncAttributes(element2, prevProps, nextProps) {
+  (/* @__PURE__ */new Set([...Object.keys(prevProps), ...Object.keys(nextProps)])).forEach(key2 => {
+    if (ATTRIBUTE_EXCLUSIONS.has(key2) || !isForwardedAttributeKey(key2) || isEventProp(key2, prevProps[key2]) || isEventProp(key2, nextProps[key2])) return;
+    const prevValue = prevProps[key2];
+    const nextValue = nextProps[key2];
+    if (prevValue === nextValue) return;
+    const attributeName = toAttributeName(key2);
+    if (nextValue == null || nextValue === false) {
+      if (isDirectPropertyKey(key2)) clearDirectProperty(element2, key2);
+      element2.removeAttribute(attributeName);
       return;
     }
-    const selectionChanged = !(oldState === null || oldState === void 0 ? void 0 : oldState.selection.eq(view2.state.selection));
-    const docChanged = !(oldState === null || oldState === void 0 ? void 0 : oldState.doc.eq(view2.state.doc));
-    this.updateHandler(view2, selectionChanged, docChanged, oldState);
-  }
-  getShouldShow(oldState) {
-    var _this$shouldShow;
-    const {
-      state: state2
-    } = this.view;
-    const {
-      selection: selection2
-    } = state2;
-    const {
-      ranges
-    } = selection2;
-    const from2 = Math.min(...ranges.map(range2 => range2.$from.pos));
-    const to = Math.max(...ranges.map(range2 => range2.$to.pos));
-    return ((_this$shouldShow = this.shouldShow) === null || _this$shouldShow === void 0 ? void 0 : _this$shouldShow.call(this, {
-      editor: this.editor,
-      element: this.element,
-      view: this.view,
-      state: state2,
-      oldState,
-      from: from2,
-      to
-    })) || false;
-  }
-  show() {
-    var _ref;
-    if (this.isVisible) return;
-    this.element.style.visibility = "visible";
-    this.element.style.opacity = "1";
-    const appendToElement = typeof this.appendTo === "function" ? this.appendTo() : this.appendTo;
-    (_ref = appendToElement !== null && appendToElement !== void 0 ? appendToElement : this.view.dom.parentElement) === null || _ref === void 0 || _ref.appendChild(this.element);
-    if (this.floatingUIOptions.onShow) this.floatingUIOptions.onShow();
-    this.isVisible = true;
-  }
-  hide() {
-    if (!this.isVisible) return;
-    this.element.style.visibility = "hidden";
-    this.element.style.opacity = "0";
-    this.element.remove();
-    if (this.floatingUIOptions.onHide) this.floatingUIOptions.onHide();
-    this.isVisible = false;
-  }
-  updateOptions(newProps) {
-    if (newProps.updateDelay !== void 0) this.updateDelay = newProps.updateDelay;
-    if (newProps.resizeDelay !== void 0) this.resizeDelay = newProps.resizeDelay;
-    if (newProps.appendTo !== void 0) this.appendTo = newProps.appendTo;
-    if (newProps.getReferencedVirtualElement !== void 0) this.getReferencedVirtualElement = newProps.getReferencedVirtualElement;
-    if (newProps.shouldShow !== void 0) {
-      if (newProps.shouldShow) this.shouldShow = newProps.shouldShow;
+    if (nextValue === true) {
+      if (isDirectPropertyKey(key2)) setDirectProperty(element2, key2, true);
+      element2.setAttribute(attributeName, "");
+      return;
     }
-    if (newProps.options !== void 0) {
-      var _newProps$options$scr;
-      const newScrollTarget = (_newProps$options$scr = newProps.options.scrollTarget) !== null && _newProps$options$scr !== void 0 ? _newProps$options$scr : window;
-      if (newScrollTarget !== this.scrollTarget) {
-        this.scrollTarget.removeEventListener("scroll", this.resizeHandler);
-        this.scrollTarget = newScrollTarget;
-        this.scrollTarget.addEventListener("scroll", this.resizeHandler);
-      }
-      this.floatingUIOptions = {
-        ...this.floatingUIOptions,
-        ...newProps.options
-      };
+    if (isDirectPropertyKey(key2)) {
+      setDirectProperty(element2, key2, nextValue);
+      return;
     }
-  }
-  destroy() {
-    this.hide();
-    this.element.removeEventListener("mousedown", this.mousedownHandler, {
-      capture: true
-    });
-    this.view.dom.removeEventListener("dragstart", this.dragstartHandler);
-    window.removeEventListener("resize", this.resizeHandler);
-    this.scrollTarget.removeEventListener("scroll", this.resizeHandler);
-    this.editor.off("focus", this.focusHandler);
-    this.editor.off("blur", this.blurHandler);
-    this.editor.off("transaction", this.transactionHandler);
-    if (this.floatingUIOptions.onDestroy) this.floatingUIOptions.onDestroy();
-  }
-};
-const BubbleMenuPlugin = options => {
-  return new Plugin({
-    key: typeof options.pluginKey === "string" ? new PluginKey(options.pluginKey) : options.pluginKey,
-    view: view2 => new BubbleMenuView({
-      view: view2,
-      ...options
-    })
+    element2.setAttribute(attributeName, String(nextValue));
   });
-};
-Extension.create({
-  name: "bubbleMenu",
-  addOptions() {
-    return {
-      element: null,
-      pluginKey: "bubbleMenu",
-      updateDelay: void 0,
-      appendTo: void 0,
-      shouldShow: null
-    };
-  },
-  addProseMirrorPlugins() {
-    if (!this.options.element) return [];
-    return [BubbleMenuPlugin({
-      pluginKey: this.options.pluginKey,
-      editor: this.editor,
-      element: this.options.element,
-      updateDelay: this.options.updateDelay,
-      options: this.options.options,
-      appendTo: this.options.appendTo,
-      getReferencedVirtualElement: this.options.getReferencedVirtualElement,
-      shouldShow: this.options.shouldShow
-    })];
+}
+function syncClassName(element2, prevClassName, nextClassName) {
+  if (prevClassName === nextClassName) return;
+  if (nextClassName) {
+    element2.className = nextClassName;
+    return;
   }
-});
+  element2.removeAttribute("class");
+}
+function syncStyles(element2, prevStyle, nextStyle) {
+  const previousStyle = prevStyle !== null && prevStyle !== void 0 ? prevStyle : {};
+  const currentStyle = nextStyle !== null && nextStyle !== void 0 ? nextStyle : {};
+  (/* @__PURE__ */new Set([...Object.keys(previousStyle), ...Object.keys(currentStyle)])).forEach(styleName => {
+    const prevValue = previousStyle[styleName];
+    const nextValue = currentStyle[styleName];
+    if (prevValue === nextValue) return;
+    if (nextValue == null) {
+      removeStyleProperty(element2, styleName);
+      return;
+    }
+    applyStyleProperty(element2, styleName, nextValue);
+  });
+}
+function syncEventListeners(element2, prevListeners, nextProps) {
+  prevListeners.forEach(({
+    eventName,
+    listener,
+    options
+  }) => {
+    element2.removeEventListener(eventName, listener, options);
+  });
+  const nextListeners = [];
+  Object.entries(nextProps).forEach(([key2, value]) => {
+    if (!isEventProp(key2, value)) return;
+    const {
+      eventName,
+      options
+    } = toEventConfig(key2);
+    const listener = event => {
+      value(createSyntheticEvent(element2, event));
+    };
+    element2.addEventListener(eventName, listener, options);
+    nextListeners.push({
+      eventName,
+      listener,
+      options
+    });
+  });
+  return nextListeners;
+}
+function useMenuElementProps(element2, props) {
+  const previousPropsRef = reactExports.useRef({});
+  const listenersRef = reactExports.useRef([]);
+  useIsomorphicLayoutEffect$1(() => {
+    const previousProps = previousPropsRef.current;
+    syncClassName(element2, previousProps.className, props.className);
+    syncStyles(element2, previousProps.style, props.style);
+    syncAttributes(element2, previousProps, props);
+    listenersRef.current = syncEventListeners(element2, listenersRef.current, props);
+    previousPropsRef.current = props;
+    return () => {
+      listenersRef.current.forEach(({
+        eventName,
+        listener,
+        options
+      }) => {
+        element2.removeEventListener(eventName, listener, options);
+      });
+      listenersRef.current = [];
+    };
+  }, [element2, props]);
+}
 var FloatingMenuView = class {
   getTextContent(node2) {
     return getText(node2, {
@@ -76167,218 +76027,6 @@ Extension.create({
     })];
   }
 });
-function getAutoPluginKey(pluginKey, defaultName) {
-  return pluginKey !== null && pluginKey !== void 0 ? pluginKey : new PluginKey(defaultName);
-}
-const useIsomorphicLayoutEffect$1 = typeof window !== "undefined" ? reactExports.useLayoutEffect : reactExports.useEffect;
-const PLUGIN_MANAGED_STYLE_PROPERTIES = /* @__PURE__ */new Set(["left", "opacity", "position", "top", "visibility", "width"]);
-const UNITLESS_STYLE_PROPERTIES = /* @__PURE__ */new Set(["animationIterationCount", "aspectRatio", "borderImageOutset", "borderImageSlice", "borderImageWidth", "columnCount", "columns", "fillOpacity", "flex", "flexGrow", "flexShrink", "fontWeight", "gridArea", "gridColumn", "gridColumnEnd", "gridColumnStart", "gridRow", "gridRowEnd", "gridRowStart", "lineClamp", "lineHeight", "opacity", "order", "orphans", "scale", "stopOpacity", "strokeDasharray", "strokeDashoffset", "strokeMiterlimit", "strokeOpacity", "strokeWidth", "tabSize", "widows", "zIndex", "zoom"]);
-const ATTRIBUTE_EXCLUSIONS = /* @__PURE__ */new Set(["children", "className", "style"]);
-const DIRECT_PROPERTY_KEYS = /* @__PURE__ */new Set(["tabIndex"]);
-const FORWARDED_ATTRIBUTE_KEYS = /* @__PURE__ */new Set(["accessKey", "autoCapitalize", "contentEditable", "contextMenu", "dir", "draggable", "enterKeyHint", "hidden", "id", "lang", "nonce", "role", "slot", "spellCheck", "tabIndex", "title", "translate"]);
-const SPECIAL_EVENT_NAMES = {
-  Blur: "focusout",
-  DoubleClick: "dblclick",
-  Focus: "focusin",
-  MouseEnter: "mouseenter",
-  MouseLeave: "mouseleave"
-};
-function isEventProp(key2, value) {
-  return /^on[A-Z]/.test(key2) && typeof value === "function";
-}
-function toAttributeName(key2) {
-  if (key2.startsWith("aria-") || key2.startsWith("data-")) return key2;
-  return key2;
-}
-function isForwardedAttributeKey(key2) {
-  return key2.startsWith("aria-") || key2.startsWith("data-") || FORWARDED_ATTRIBUTE_KEYS.has(key2);
-}
-function toStylePropertyName(key2) {
-  if (key2.startsWith("--")) return key2;
-  return key2.replace(/[A-Z]/g, match2 => `-${match2.toLowerCase()}`);
-}
-function toEventConfig(key2) {
-  var _SPECIAL_EVENT_NAMES$;
-  const useCapture = key2.endsWith("Capture");
-  const reactEventName = (useCapture ? key2.slice(0, -7) : key2).slice(2);
-  return {
-    eventName: (_SPECIAL_EVENT_NAMES$ = SPECIAL_EVENT_NAMES[reactEventName]) !== null && _SPECIAL_EVENT_NAMES$ !== void 0 ? _SPECIAL_EVENT_NAMES$ : reactEventName.toLowerCase(),
-    options: useCapture ? {
-      capture: true
-    } : void 0
-  };
-}
-function createSyntheticEvent(element2, nativeEvent) {
-  let defaultPrevented = nativeEvent.defaultPrevented;
-  let propagationStopped = false;
-  const syntheticEvent = Object.create(nativeEvent);
-  Object.defineProperties(syntheticEvent, {
-    nativeEvent: {
-      value: nativeEvent
-    },
-    currentTarget: {
-      value: element2
-    },
-    target: {
-      value: nativeEvent.target
-    },
-    persist: {
-      value: () => void 0
-    },
-    isDefaultPrevented: {
-      value: () => defaultPrevented
-    },
-    isPropagationStopped: {
-      value: () => propagationStopped
-    },
-    preventDefault: {
-      value: () => {
-        defaultPrevented = true;
-        nativeEvent.preventDefault();
-      }
-    },
-    stopPropagation: {
-      value: () => {
-        propagationStopped = true;
-        nativeEvent.stopPropagation();
-      }
-    }
-  });
-  return syntheticEvent;
-}
-function isDirectPropertyKey(key2) {
-  return DIRECT_PROPERTY_KEYS.has(key2);
-}
-function setDirectProperty(element2, key2, value) {
-  if (key2 === "tabIndex") {
-    element2.tabIndex = Number(value);
-    return;
-  }
-  element2[key2] = value;
-}
-function clearDirectProperty(element2, key2) {
-  if (key2 === "tabIndex") {
-    element2.removeAttribute("tabindex");
-    return;
-  }
-  const propertyValue2 = element2[key2];
-  if (typeof propertyValue2 === "boolean") {
-    element2[key2] = false;
-    return;
-  }
-  if (typeof propertyValue2 === "number") {
-    element2[key2] = 0;
-    return;
-  }
-  element2[key2] = "";
-}
-function toStyleValue(styleName, value) {
-  if (typeof value !== "number" || value === 0 || styleName.startsWith("--") || UNITLESS_STYLE_PROPERTIES.has(styleName)) return String(value);
-  return `${value}px`;
-}
-function removeStyleProperty(element2, styleName) {
-  if (PLUGIN_MANAGED_STYLE_PROPERTIES.has(styleName)) return;
-  element2.style.removeProperty(toStylePropertyName(styleName));
-}
-function applyStyleProperty(element2, styleName, value) {
-  if (PLUGIN_MANAGED_STYLE_PROPERTIES.has(styleName)) return;
-  element2.style.setProperty(toStylePropertyName(styleName), toStyleValue(styleName, value));
-}
-function syncAttributes(element2, prevProps, nextProps) {
-  (/* @__PURE__ */new Set([...Object.keys(prevProps), ...Object.keys(nextProps)])).forEach(key2 => {
-    if (ATTRIBUTE_EXCLUSIONS.has(key2) || !isForwardedAttributeKey(key2) || isEventProp(key2, prevProps[key2]) || isEventProp(key2, nextProps[key2])) return;
-    const prevValue = prevProps[key2];
-    const nextValue = nextProps[key2];
-    if (prevValue === nextValue) return;
-    const attributeName = toAttributeName(key2);
-    if (nextValue == null || nextValue === false) {
-      if (isDirectPropertyKey(key2)) clearDirectProperty(element2, key2);
-      element2.removeAttribute(attributeName);
-      return;
-    }
-    if (nextValue === true) {
-      if (isDirectPropertyKey(key2)) setDirectProperty(element2, key2, true);
-      element2.setAttribute(attributeName, "");
-      return;
-    }
-    if (isDirectPropertyKey(key2)) {
-      setDirectProperty(element2, key2, nextValue);
-      return;
-    }
-    element2.setAttribute(attributeName, String(nextValue));
-  });
-}
-function syncClassName(element2, prevClassName, nextClassName) {
-  if (prevClassName === nextClassName) return;
-  if (nextClassName) {
-    element2.className = nextClassName;
-    return;
-  }
-  element2.removeAttribute("class");
-}
-function syncStyles(element2, prevStyle, nextStyle) {
-  const previousStyle = prevStyle !== null && prevStyle !== void 0 ? prevStyle : {};
-  const currentStyle = nextStyle !== null && nextStyle !== void 0 ? nextStyle : {};
-  (/* @__PURE__ */new Set([...Object.keys(previousStyle), ...Object.keys(currentStyle)])).forEach(styleName => {
-    const prevValue = previousStyle[styleName];
-    const nextValue = currentStyle[styleName];
-    if (prevValue === nextValue) return;
-    if (nextValue == null) {
-      removeStyleProperty(element2, styleName);
-      return;
-    }
-    applyStyleProperty(element2, styleName, nextValue);
-  });
-}
-function syncEventListeners(element2, prevListeners, nextProps) {
-  prevListeners.forEach(({
-    eventName,
-    listener,
-    options
-  }) => {
-    element2.removeEventListener(eventName, listener, options);
-  });
-  const nextListeners = [];
-  Object.entries(nextProps).forEach(([key2, value]) => {
-    if (!isEventProp(key2, value)) return;
-    const {
-      eventName,
-      options
-    } = toEventConfig(key2);
-    const listener = event => {
-      value(createSyntheticEvent(element2, event));
-    };
-    element2.addEventListener(eventName, listener, options);
-    nextListeners.push({
-      eventName,
-      listener,
-      options
-    });
-  });
-  return nextListeners;
-}
-function useMenuElementProps(element2, props) {
-  const previousPropsRef = reactExports.useRef({});
-  const listenersRef = reactExports.useRef([]);
-  useIsomorphicLayoutEffect$1(() => {
-    const previousProps = previousPropsRef.current;
-    syncClassName(element2, previousProps.className, props.className);
-    syncStyles(element2, previousProps.style, props.style);
-    syncAttributes(element2, previousProps, props);
-    listenersRef.current = syncEventListeners(element2, listenersRef.current, props);
-    previousPropsRef.current = props;
-    return () => {
-      listenersRef.current.forEach(({
-        eventName,
-        listener,
-        options
-      }) => {
-        element2.removeEventListener(eventName, listener, options);
-      });
-      listenersRef.current = [];
-    };
-  }, [element2, props]);
-}
 const BubbleMenu = React.forwardRef(({
   pluginKey,
   editor,
@@ -97372,240 +97020,17 @@ function $$2(e2 = {}) {
   };
 }
 var G$1 = $$2();
-const BlockPolicy = {
-  indicator: "indicator",
-  textOnly: "text-only",
-  remove: "remove"
-};
-function parseUrl(url2, defaultOrigin) {
-  if (typeof url2 !== "string") return null;
-  try {
-    return new URL(url2);
-  } catch {
-    if (defaultOrigin) {
-      try {
-        return new URL(url2, defaultOrigin);
-      } catch {
-        return null;
-      }
-    }
-    if (url2.startsWith("/") || url2.startsWith("./") || url2.startsWith("../")) {
-      try {
-        return new URL(url2, "http://example.com");
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  }
-}
-function isPathRelativeUrl(url2) {
-  if (typeof url2 !== "string") return false;
-  return url2.startsWith("/") || url2.startsWith("./") || url2.startsWith("../");
-}
-const safeProtocols = /* @__PURE__ */new Set(["https:", "http:", "irc:", "ircs:", "mailto:", "xmpp:", "blob:"]);
-const blockedProtocols = /* @__PURE__ */new Set(["javascript:", "data:", "file:", "vbscript:"]);
-function transformUrl(url2, allowedPrefixes, defaultOrigin, allowDataImages = false, isImage2 = false, allowedProtocols = []) {
-  if (!url2) return null;
-  if (typeof url2 === "string" && url2.startsWith("#") && !isImage2) {
-    try {
-      const testUrl = new URL(url2, "http://example.com");
-      if (testUrl.hash === url2) {
-        return url2;
-      }
-    } catch {}
-  }
-  if (typeof url2 === "string" && url2.startsWith("data:")) {
-    if (isImage2 && allowDataImages && url2.startsWith("data:image/")) {
-      return url2;
-    }
-    return null;
-  }
-  if (typeof url2 === "string" && url2.startsWith("blob:")) {
-    try {
-      const blobUrl = new URL(url2);
-      if (blobUrl.protocol === "blob:" && url2.length > 5) {
-        const afterProtocol = url2.substring(5);
-        if (afterProtocol && afterProtocol.length > 0 && afterProtocol !== "invalid") {
-          return url2;
-        }
-      }
-    } catch {
-      return null;
-    }
-    return null;
-  }
-  const parsedUrl = parseUrl(url2, defaultOrigin);
-  if (!parsedUrl) return null;
-  if (blockedProtocols.has(parsedUrl.protocol)) {
-    return null;
-  }
-  const isProtocolAllowed = safeProtocols.has(parsedUrl.protocol) || allowedProtocols.includes(parsedUrl.protocol) || allowedProtocols.includes("*");
-  if (!isProtocolAllowed) return null;
-  if (parsedUrl.protocol === "mailto:" || !parsedUrl.protocol.match(/^https?:$/)) {
-    return parsedUrl.href;
-  }
-  const inputWasRelative = isPathRelativeUrl(url2);
-  if (parsedUrl && allowedPrefixes.some(prefix => {
-    const parsedPrefix = parseUrl(prefix, defaultOrigin);
-    if (!parsedPrefix) {
-      return false;
-    }
-    if (parsedPrefix.origin !== parsedUrl.origin) {
-      return false;
-    }
-    return parsedUrl.href.startsWith(parsedPrefix.href);
-  })) {
-    if (inputWasRelative) {
-      return parsedUrl.pathname + parsedUrl.search + parsedUrl.hash;
-    }
-    return parsedUrl.href;
-  }
-  if (allowedPrefixes.includes("*")) {
-    if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
-      return null;
-    }
-    if (inputWasRelative) {
-      return parsedUrl.pathname + parsedUrl.search + parsedUrl.hash;
-    }
-    return parsedUrl.href;
-  }
-  return null;
-}
-function stripNullChildren(node2) {
-  if ("children" in node2 && Array.isArray(node2.children)) {
-    node2.children = node2.children.filter(child => child != null);
-    for (const child of node2.children) {
-      stripNullChildren(child);
-    }
-  }
-}
-const SEEN = Symbol("node-seen");
-function resolveLinkBlockPolicy(node2, policy, blockedLinkClass) {
-  if (policy === BlockPolicy.remove) {
-    return {
-      type: "remove"
-    };
-  }
-  if (policy === BlockPolicy.textOnly) {
-    return {
-      type: "replace",
-      element: {
-        type: "element",
-        tagName: "span",
-        properties: {},
-        children: [...node2.children]
-      }
-    };
-  }
-  return {
-    type: "replace",
-    element: {
-      type: "element",
-      tagName: "span",
-      properties: {
-        title: "Blocked URL: " + String(node2.properties.href),
-        class: blockedLinkClass
-      },
-      children: [...node2.children, {
-        type: "text",
-        value: " [blocked]"
-      }]
-    }
-  };
-}
-function resolveImageBlockPolicy(node2, policy, blockedImageClass) {
-  if (policy === BlockPolicy.remove) {
-    return {
-      type: "remove"
-    };
-  }
-  if (policy === BlockPolicy.textOnly) {
-    const altText = String(node2.properties.alt || "");
-    if (!altText) {
-      return {
-        type: "remove"
-      };
-    }
-    return {
-      type: "replace",
-      element: {
-        type: "element",
-        tagName: "span",
-        properties: {},
-        children: [{
-          type: "text",
-          value: altText
-        }]
-      }
-    };
-  }
-  return {
-    type: "replace",
-    element: {
-      type: "element",
-      tagName: "span",
-      properties: {
-        class: blockedImageClass
-      },
-      children: [{
-        type: "text",
-        value: "[Image blocked: " + String(node2.properties.alt || "No description") + "]"
-      }]
-    }
-  };
-}
-const createVisitor = (defaultOrigin, allowedLinkPrefixes, allowedImagePrefixes, allowDataImages, allowedProtocols, blockedImageClass, blockedLinkClass, linkBlockPolicy, imageBlockPolicy) => {
-  const visitor = (node2, index2, parent) => {
-    if (node2.type !== "element" ||
-    // @ts-expect-error
-    node2[SEEN]) {
-      return CONTINUE;
-    }
-    if (node2.tagName === "a") {
-      const transformedUrl = transformUrl(node2.properties.href, allowedLinkPrefixes, defaultOrigin, false, false, allowedProtocols);
-      if (transformedUrl === null) {
-        node2[SEEN] = true;
-        visit(node2, visitor);
-        if (parent && typeof index2 === "number") {
-          const result = resolveLinkBlockPolicy(node2, linkBlockPolicy, blockedLinkClass);
-          if (result.type === "remove") {
-            parent.children.splice(index2, 1);
-            return [SKIP, index2];
-          }
-          parent.children[index2] = result.element;
-        }
-        return SKIP;
-      } else {
-        node2.properties.href = transformedUrl;
-        node2.properties.target = "_blank";
-        node2.properties.rel = "noopener noreferrer";
-        return CONTINUE;
-      }
-    }
-    if (node2.tagName === "img") {
-      const transformedUrl = transformUrl(node2.properties.src, allowedImagePrefixes, defaultOrigin, allowDataImages, true, allowedProtocols);
-      if (transformedUrl === null) {
-        node2[SEEN] = true;
-        visit(node2, visitor);
-        if (parent && typeof index2 === "number") {
-          const result = resolveImageBlockPolicy(node2, imageBlockPolicy, blockedImageClass);
-          if (result.type === "remove") {
-            parent.children.splice(index2, 1);
-            return [SKIP, index2];
-          }
-          parent.children[index2] = result.element;
-        }
-        return SKIP;
-      } else {
-        node2.properties.src = transformedUrl;
-        return CONTINUE;
-      }
-    }
-    return CONTINUE;
-  };
-  return visitor;
-};
+
+
+
+
+
+
+
+
+
+
+
 const search = /[#.]/g;
 function parseSelector(selector2, defaultTagName) {
   const value = selector2 || "";
@@ -109324,4 +108749,4 @@ const ScrollAreaCorner = /* @__PURE__ */reactExports.forwardRef(function ScrollA
   }
   return element2;
 });
-export { $$8, $t$2, ACCOUNT_SUBMISSION_BLOCKED_EVENT, ADTS, AES_128_BLOCK_SIZE, API_PATHS, ARCHIVE_ZIPPER, AUDIO_CODECS, AUTH_TRACK_EVENTS, AccordionHeader, AccordionItem$1, AccordionPanel, AccordionRoot, AccordionTrigger$1, AccountSubmissionBlockedError, ActionListItem, ActionListPanel, ActionListSeparator, ActiveOverlay, ActiveSnippet, Activity, ActivityIcon, AdtsInputFormat, AdtsOutputFormat, AlertCircle, AlertDialogRoot, AlertTriangle, AlertTriangleIcon, AlignCenter$1, AlignLeft$1, AlignRight$1, Animation, AnnounceMargin, ApiError, AppWindow, Archive, ArrowDown, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowLeftToLine, ArrowRight, ArrowRight$1, ArrowRightToLine, ArrowUp, ArrowUp$1, ArrowUpDown, ArrowUpFromLine, ArrowUpRight, ArrowUpRight$1, ArrowUpToLine, AssetMetadataStoreContext, At$3, AtSign, Attribute2, AttributeList, AttributeName, AttributeValue, AudioLines, AudioLines$1, AudioResampler, AudioSample, AudioSampleSink, AudioSampleSource, AudioWaveform$1, AvatarImage$1, AvatarRootContext, B$7, BACKEND_VIBE_STORYBOARD, BASE64_DATA_URI_REGEX, BODY, BROWSER_ASSET_SOURCE_METADATA_KEYS, BROWSER_IMAGE_EDIT_EVENT, BadgeCheck, BadgeInfo, Ban$1, Bell, Bell$1, BellRing, BidiSpan, BlobSource, BlockComment, BlockPolicy, Blocks$1, Bold$1, BookOpen$1, BookUser, Bookmark$1, Bot, Box, BoxSelect, Boxes, Brain$1, Brain$2, Break, Brush$1, Bs, Bt$1, BubbleMenu, BufferContext, BufferTarget, Bug, Bug$1, Building2$1, Button$3, CDN_BASE_MAP, CDN_BROWSER_START_ICON, CONNECTOR_STATUS_VISUAL, CONNECTOR_TOKEN_SOURCE, CSS$1, Cable$1, Calculator, CalendarDays$1, Camera$1, CanvasNodeType, CanvasSink, CaseSensitive$1, ChangeSet, CharCategory, ChartNoAxesCombined, Check, Check$1, Check$2, CheckCheck, CheckCircle2, CheckCircle2Icon, CheckboxRoot, ChevronDown, ChevronDown$1, ChevronDown$2, ChevronDownIcon$1, ChevronLeft, ChevronLeft$1, ChevronLeftIcon, ChevronRight$1, ChevronRight$2, ChevronRightIcon, ChevronUp, ChevronUpIcon, Chrome$1, Circle$1, CircleAlert, CircleAlert$1, CircleAlert$2, CircleArrowUp, CircleCheck, CircleCheckIcon, CircleHelp$1, CircleIcon, CircleMinus, CircleUserRound$1, CircleX, CircleX$1, Clapperboard$1, Clapperboard$2, ClientOnly, Clipboard, ClipboardIcon, ClipboardList, ClipboardPaste$1, Clock$1, Clock3$1, CloseTag, Cloud, CloudDownload, CloudIcon, CloudOff$1, CloudUpload, Code$1, Cog, Cog$1, Command, CommentEnd, Compass, CompositedSvg, ConnectionTargetMarker, ContextMenuRoot, ContextMenuTrigger$1, ContextTracker, ConversionCanceledError, Copy, Copy$1, CopyPlus, CornerDownRight$1, CreditCard, Crosshair, Crown, Crown$1, Ct$3, CurrentWorkspaceContext, CustomAudioEncoder, CustomPathedSource, D$1, D$7, DEFAULT_RUNTIME_CONFIG, DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT, DOMParser$1, DOMSerializer, DateLib, DayFlag, Decoration$1, Decoration2, DecorationSet, DefaultBufferLength, Demuxer, Dialect, Dialect_noMatch, Dialect_selfClosing, DialogBackdrop, DialogClose$1, DialogDescription$2, DialogPopup, DialogPortal$2, DialogRoot, DialogTitle$2, DialogTrigger$1, Direction, DndContext, DocInput, Download$1, Download$2, DownloadIcon, DragOverlay, Droplet$1, Ds, Dt$2, E$4, E2, EdgeLabelRenderer, EditorContent, EditorSelection, Element$1, Ellipsis, Emoji, EmptyLine, EncodedAudioPacketSource, EncodedPacket, EncodedPacketSink, EncodedVideoPacketSource, EndTag, Es, Et$2, EventEmitter$2, Expand$1, Extension, ExternalLink, ExternalLink$2, ExternalTokenizer, Eye, Eye$1, Eye$2, EyeIcon$1, EyeOff, EyeOffIcon$1, F$6, FALLBACK_NUMBER_OF_CHANNELS, FALLBACK_SAMPLE_RATE, FILE_TYPE_EXTENSIONS, FLAC, FOLD, Facet, FieldControl, FieldRoot, File$3, FileArchive$1, FileAudio$1, FileClock$1, FileCode$1, FileDiff$1, FileImage, FileInput$1, FileJson2$1, FilePlus2, FileText$1, FileVideo$1, FileWarning$1, Files$1, Film, Film$2, FlacInputFormat, FlacOutputFormat, Flag$1, FlatBufferCursor, Folder$1, FolderClock, FolderClosed, FolderInput, FolderInput$2, FolderKey$1, FolderMinus, FolderOpen$1, FolderOpenIcon, FolderPlus, FolderUp, FolderX, Ft$2, G$1, G$5, GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT, GFM, GLOBAL_STORAGE_VERSION, GRID_COLUMN_COUNT_WIDE, GROUP_ID_HEADER, GatewayScopeContext, Gauge, GiftIcon, GitCompare, GlobalAttrs, Globe, Globe2, GraduationCap, Grid2X2, Grid2x2Plus, Grid3X3, GripHorizontalIcon, GripVertical, Gt$1, H, H$5, HILO_HUB_BIZ_LINE, HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_HEADER, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, HLS_MIME_TYPE, HTMLBlockStyle, Hand, Handle, HardDrive$1, Headphones, Headphones$2, History$1, HistoryIcon, HlsInputAudioTrackBacking, HlsInputVideoTrackBacking, Home, House, Hs, Ht$1, I, ICON_STROKE_SPEC, IV_STRING_REGEX, IconCompositingContext, Identifier, ImagePlus, Import, Inbox, IncompleteCloseTag, IncompleteTag, IndentContext, InfiniteQueryObserver, Info$1, InfoIcon$1, InlineDelimiter, InnerParse, InputAudioTrack, InputFormat, InputStream, InputVideoTrack, IsobmffInputFormat, It$1, Italic$1, IterMode, J$6, JPEG, Jo, K$6, K2, KeyRound, Keyboard, KeyboardSensor, L, L$7, LIBTV_CONNECTOR, LanguageDescription, LanguageSupport, Languages, Layers, Layers2, Layers3, LayoutGrid, LayoutList, LayoutTemplate, LeafBlock, Library, Library$1, Lightbulb, LineComment, Link2, Link2$1, List$1, ListChecks, Loader2, Loader2Icon, LoaderCircle, LoaderCircle$1, LocalTokenGroup, Lock, LockKeyhole, LogOut$1, Ls, Lt$1, M, MATROSKA, MEDIA_EXTENSIONS, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, MIN_SELECTED_NODE_SIZE, MP3, MP4, MPEG_TS, Mail, Map$1, MapPin, Markdown$1, MatroskaInputFormat, Maximize, Maximize2$1, Megaphone$1, Megaphone$2, MenuGroup, MenuGroupLabel, MenuItem$3, MenuPopup, MenuPortal, MenuPositioner, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuRoot, MenuSubmenuRoot, MenuSubmenuTrigger, MenuTrigger, MessageCircle, MessageCircleMore, MessageSquare$1, MessageSquareMore, MessageSquarePlus$1, MessageSquareQuote$1, Mic$1, Minimize2$1, Minus, MinusIcon, MismatchedStartCloseTag, MkvOutputFormat, Monitor, MonitorUp, MonochromeIcon, Moon$1, MoreHorizontal, MousePointer2$1, MovOutputFormat, Mp3InputFormat, Mp3OutputFormat, Mp4OutputFormat, Mt$1, Music, Music$2, Music2, N, N$4, NODE_HIT_SLOP, NON_PCM_AUDIO_CODECS, Network, Network$1, Newspaper, NoMatchStartCloseTag, Node$3, Node$4, NodeResizer, NodeSelection, NodeToolbar$1, NodeViewWrapper, NotLast, NotebookPen, Nt$1, NullTarget, OGG, OctagonXIcon, OggInputFormat, OggOutputFormat, OpenTag, Operation, Ot$2, Output, OutputTrackGroup, P$7, PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, PERF_LOG_FLUSH, PROMPT_FONT_SIZE_DEFAULT, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_MIN, Package$2, PackageSearch, Palette, Panel, PanelBottomClose, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PanelsTopLeft, Paperclip$1, Parser$1, PathedSource, PenLine$1, Pencil, PencilLine$1, PencilRuler, PencilRuler$1, Phone, Pin, Pin$1, PinIcon, PinOff, PlatformContext, PlaybackCirclePauseIcon$1, PlaybackCirclePlayIcon$1, PlaybackCircleToggleIcon, PlaybackNextIcon$1, PlaybackPauseIcon$1, PlaybackPlayIcon$1, PlaybackPreviousIcon$1, PlaybackStopIcon$1, Plug$1, Plugin, PluginKey, Plus, Plus$1, Plus$2, PlusCircle, Podcast, PointerSensor, PopoverArrow$1, PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot, PopoverTrigger$1, Position, Power, Prec, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, PreviewCardTrigger$1, ProcessingEnd, ProgressRoot, ProgressRootContext, Pt$2, Punctuation, Puzzle$1, QTFF, QUALITY_HIGH, QUERY_KEY$1, QueryClient, QueryClientProvider, QueryType, QuickTimeInputFormat, R$1, R$4, R$6, RadioGroup$1, RadioIndicator, RadioRoot, Range$1, RangeSetBuilder, React, ReactFlow$1, ReactFlowProvider, ReactNodeViewRenderer, ReadableStreamSource, Reader, ReceiptText$1, Redo2, Regex, Repeat2, Replace$1, ReplaceAll$1, RotateCcw, RotateCcw$1, RotateCw, RouterCore, Rs, Rt$2, Rule$1, S$7, SAMPLING_RATES, SELECTED_GLOW_BLUR, SKIP, SPECIAL_CONNECTORS, Save, Scan, Scissors, ScopeNodes, ScriptText, ScrollAreaCorner, ScrollAreaRoot, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaViewport, ScrollText, Search, Search$1, Search$2, SearchIcon, SegmentedInput, SelectGroupContext, SelectIcon, SelectItem$2, SelectItemIndicator, SelectItemText, SelectList, SelectPopup, SelectPortal, SelectPositioner, SelectRoot, SelectScrollDownArrow, SelectScrollUpArrow, SelectTrigger$2, SelectValue$2, Selection, SelectionMode, SelfClosingEndTag, Send, ServerIcon, ServerOff, Settings$1, Settings2$1, Share2, Share2$2, ShieldAlert, ShieldAlert$1, ShieldCheck, ShieldCheck$1, ShieldCheckIcon, ShieldOff, ShoppingBag$1, ShoppingBag$2, Shuffle, Slash, Slice, SliderControl$1, SliderIndicator, SliderRoot, SliderThumb, SliderTrack, SlidersHorizontal$1, Smartphone, Smartphone$1, Snippet, Source, SourceRef, Sparkles$1, Speech, Split, Sprout$1, Square$2, SquareDashed, SquareMousePointer, SquareMousePointer$1, Ss, St$2, Stack, StackBufferCursor, Stamp$1, StartCloseScriptTag, StartCloseStyleTag, StartCloseTag, StartCloseTextareaTag, StartScriptTag, StartSelfClosingTag, StartStyleTag, StartTag, StartTextareaTag, StarterKit, StateEffect, StateField, Step, StepMap, StepResult, StickyNote, StringQuery, StyleModule, StyleText, Subscript, Sun, Superscript, SwatchBook, SwitchRoot, SwitchThumb, TAB_CONTENT_ENTER_CLASS_NAME, TAG_BYTERANGE, TAG_DISCONTINUITY, TAG_ENDLIST, TAG_EXTINF, TAG_I_FRAMES_ONLY, TAG_I_FRAME_STREAM_INF, TAG_KEY, TAG_MAP, TAG_MEDIA, TAG_MEDIA_SEQUENCE, TAG_PLAYLIST_TYPE, TAG_PROGRAM_DATE_TIME, TAG_STREAM_INF, TAG_TARGETDURATION, Table$2, TableCell$1, TableHeader$1, TableRow$1, TableView2, TabsIndicator, TabsList$1, TabsPanel, TabsRoot, TabsTab, Tag, Tag$1, TagName, Tags, Text, TextSelection, TextareaText, ThumbsDown, ThumbsUp, ThumbsUp$1, Toaster$1, Toggle$1, ToggleGroup$1, TokenCache, TokenGroup, TooltipPopup, TooltipPortal, TooltipPositioner, TooltipProvider$2, TooltipRoot, TooltipTrigger$1, TrackSynchronizer, Trans, Transaction2, Trash2$1, Trash2$2, Trash2Icon, TreeElement, TreeFragment, TrendingUp, TriangleAlert, TriangleAlert$1, TriangleAlertIcon, Tt$2, Tv, Type, Type$2, U, U$3, UI, UNDETERMINED_LANGUAGE, Underline$1, Undo2, Ungroup$1, UnquotedAttributeValue, UnsupportedInputFormatError, Upload$1, UploadIcon$1, UrlSource, User, UserRound, UserRound$1, UserRoundPlus, Users$1, UsersIcon, Ut, Ut$2, V$6, VIDEO_CODECS, Video, Video$1, Video$2, VideoOff, VideoSample, VideoSampleSink, VideoSampleSource, ViewPlugin, ViewportPortal, Volume2, Volume2Icon, VolumeX$1, VolumeXIcon, W$1, W$7, WAVE, WEBM, WORKSPACE_IDENTITY_MISMATCH_CODE, WORKSPACE_STORAGE_DEFAULTS, Wand2, WandSparkles, WavOutputFormat, WaveInputFormat, WebMInputFormat, WebMOutputFormat, WholeWord, WidgetType2, WifiIcon, WifiOff, WifiOff$1, WifiOffIcon, Workflow, Workflow$1, WorkspaceGatewayClient, Wrench, Wrench$1, Wrench$2, X$6, X$7, X$8, XIcon, XYMinimap, Y$4, Yt$2, Z$4, Zap, Zap$1, ZoomIn, ZoomOut, _$5, __addDisposableResource, __disposeResources, __insertCSS, __ovVitePreload, __webpack_exports__getDocument, _t$2, an, android, arrayArgmin, arrayCount, assert$3, assertNever, astTop, at, at$3, atRules, attrsEqual, audioSampleToInterleavedFormat, avatarStateAttributesMapping, b2, base64ToBytes, basename$8, batch, binarySearchLessOrEqual, blankLine$1, braceR, browserAssetSourceMetadata, browserImageEditPrompt, bt$3, buildAdtsHeaderTemplate, buildOfficialConnectorList, byTag, c$4, callOrReturn, canIgnoreLine, cdnPublicAsset, ceilToMultipleOfTwo, checkCover, checkRanges, checkSide, clamp$9, clampCropRectangle, classifyFileType, clientExports, closeHistory, closestCenter, clsx, cn, collectMediaResultRecords, combineConfig, commands_exports, commentContent, commentContent$1, compareSemver, completeAttrName, completeAttrValue, completeCloseTag, completeFromList, completeStartTag, completeTag, connectorDescription, connectorPromptActionLabelKey, connectorSummaryActionLabelKey, contextNodeForDelete, continuedIndent, convertMatchersToTimeZone, countColumn, create$2, createAes128CbcDecryptStream, createConnectorInventory, createControlledPromise, createFileRoute, createGetModifiers, createLucideIcon, createNoonOverrides, createRootRoute, createStore$1, createTailwindMerge, createVisitor, crelt, ct$3, cutAt, cutFragments, cva, d, d$3, data, dayPickerContext, decisionVersion, declSelector, decodeArray, decodeHtmlEntities, defaultSchema, defineLanguageFacet, delimitedIndent, delimitedStrategy, deriveActiveScope, deriveTeamCreditDisplay, desc, descendant, desktopMediaIcon, dispatchAccountSubmissionBlocked, dn, dontComplete, dt, dt$4, editorDocSnapshot, elementName, elementName$1, emit$5, emptyConnectorMarketPolicy, enUS, encodeHtmlEntities, endTag$1, ensureAnchor, enterFragments, estimateGridRowSize, et$4, eventAttributes, f$3, f$4, fieldSelection, findClusterBreak, findConnectionTarget, findConnectorMentions, findFinished, findHcpConnector, findHitTarget, findName, findOpenTag, findSectionEnd, findTagName, flatIndent, flattenExtensions, floorToDivisor, flowPointToMiniMap, flush, focusManager, foldInside, foldService, formatDate, formatErrorMessage, fr, ft$3, g$2, gatherCompletions, generateJSON, getAttrs, getBezierPath, getBoundsOfRects, getCdnRegion, getChildren, getComponents, getContext, getDataAttributes, getDefaultExportFromCjs$1, getEncodableAudioCodecs, getExtensionField, getFileActivityKind, getFirstEncodableVideoCodec, getFormatters, getHighlighters, getIconStrokeWidth, getIndentUnit, getInternalNodesBounds, getLabels, getListIndent, getLocationChangeInfo, getMediaTagAutoselect, getMediaTagDefault, getMergedHcpCatalog, getMonthOptions, getNodeDimensions, getRuntimeConfig, getSchema, getSkillCoverUrl, getStoreFactory, getStyleForModifiers, getViewportForBounds, getVisibleCloudUploads, getWeekdays, getYearOptions, gt$2, h$5, hasMediaAnalysisFailure, hcpToDefinition, highlightTags, highlighterFacet, hooks, horizontalListSortingStrategy, ht$2, identifier$1, identifiers, ignoreClosed, inList, indentService, indentString, inferCodecFromCodecString, inferMediaKind, initReactI18next, insertSemi, instance, invariant, isAtxHeading, isBlockquote, isBrowserImageEditRequest, isBulletList, isCancelledError, isDateRange, isHTMLBlock, isHeading, isInputPending, isIso639Dash2LanguageCode, isList, isNotFound, isParent, isRecord$2, isRecord$g, isRedirect, isServer$1, isSetextUnderline, isSkillsOnly, isUserProvidedAssetModel, isVarArg, isWorkspaceFolderMissingError, isWorkspaceIdentityErrorCode, it$3, j$5, je, joinPaths$1, jsx, jsxRuntimeExports, jsxSublanguage, k, k$6, keywords, kt, kt$2, last$1, lazyRouteComponent, leftOverSpace, lineEnd, listeners$8, ln, localizedI18nText, logException, lt$3, m$4, makeLogger, marksEqual, matchNodeContext, matchPlainBrackets, matchesLocalConnectorServer, matchesRemoteConnectorServer, maybeNest, measurePerf, mediaLineageRequestId, mergeAttributes, mergeInputTrackQueries, mergeProps$1, minCreditAmount, missingCloseTag, mn, moveToField, mt$2, n$1, namesMatch, ne, newline, nn, noSemicolon, noSemicolonType, noTokens, nodeHasDimensions, nodeSizeCache, nodeToMiniMapRect, nonEmpty$1, nonPlainText, nonTightList, none, normalizeGatewayBaseUrl, normalizeIndent, normalizeLabel$1, normalizeRotation, nt$4, o$4, operatorToken, orderTidyNodes, ot$3, p$4, p$5, pair, parseAacAudioSpecificConfig, parsePsshBoxContents, parseSemver, pe, pendingLogLines, phrase, pickedCompletion, pinnedTidyNodeIds, prefer, preprocessLanguageCode, probeMediaDurationSec, progressStateAttributesMapping, promiseWithResolvers, properties$1, pseudoClasses, psshBoxesAreEqual, pt$2, punchRanges, pushStackDedup, q$5, qe, queryIdentifiers, queryInputTracks, queryOptions, r$5, rangeFrom, rangeIncludesDate, rangeTo, raw, re, reactDomExports, reactExports, readAllLines, readAscii, readBytes, readMp3FrameHeader, readRecord, redirect, redo$1, redoDepth$1, regexpCursor, regionToLocale, registerDynamicHcpManifests, registerEncoder, remarkGfm, remarkParse, remarkRehype, removeItem, renumberList, replaceEqualDeep$1, requestIdle, requireJszip_min, requireLib, resolveConfig, resolveConnectorIcon, resolveConnectorSetupAsset, resolveNewProjectPreferences, rn, rootRouteId, rt$3, sanitize, satisfiesMinHubVersion, scanLineResult, scriptText, scriptTokens, selectGeneratedMediaNodeIds, selectedRequestGroupId, selfClosers, setActive, shallow, shimExports, skipSpace, skipSpaceBack, sliceBuf, sn, sortExtensions, sortableKeyboardCoordinates, sourceRequestsAreEqual, space$2, spaces, spec_AtKeyword, spec_LessThan, spec_QueryCallee, spec_callee, spec_identifier, spec_identifier$1, spec_queryIdentifier, spec_word, src_default$1, st$3, storageKeys, stringCursor, stripNullChildren, styleText, styleTokens, supportsConnectorDialog, tagHighlighter, tagNameAfter, tagStart, tags, tags$1, textareaText, textareaTokens, tidyNodeName, toDataView, toInterleavedAudioFormat, toJsxRuntime, toRelative, toTimeZone, toValidatedInputTrackQuery, toast, topIndent, tr$2, trimPathRight, tryParseJson$1, tt$4, typescriptKeywords, u$3, ue, un, undo$1, undoDepth$1, unified, unitToken, updateNewProjectPreferences, uploadResponseFilename, urlAttributes, useAnimation, useAvatarRootContext, useBaseUiId, useCalendar, useConnection, useCurrentWorkspace, useEdgesState, useEditor, useEditorState$1, useFocus, useGatewayBaseUrl, useGatewayScope, useIsMutating, useIsoLayoutEffect, useMusicPromptLayout, useMutation, useNavigate, useNewProjectFolder, useNodeId, useNodesData, useNodesInitialized, useNodesState, useParams, usePlatform, usePopoverRootContext, usePromptFontSizeStore, useQueries, useQuery, useQueryClient, useReactFlow, useRender, useRenderElement, useRouter, useSearch, useSelectGroupContext, useSelection, useSensor, useSensors, useStorage, useStore$2, useStore$3, useStoreApi, useTimeout, useTranslation, useUpdateNodeInternals, useVirtualizer, ut$2, v$7, validRegExp, validateAudioOptions, validateInputFormatOptions, validateMetadataTags, validateVideoOptions, valueToPercent, variable, verbose, verticalListSortingStrategy, videoPlaybackPath, visit, visitParents, vt$2, w2, wait$1, warnForPart, we, withArtworkOpacity, withAutomaticDedupeId, withIconCompositing, withWorkspaceGatewayHeaders, workspaceGatewayUrl, workspaceLog, wt$3, x$4, xt$2, y$1, y$6, yt$2, z$3, z$4, z$7, zt$2 };
+export { $$8, $t$2, ACCOUNT_SUBMISSION_BLOCKED_EVENT, ADTS, AES_128_BLOCK_SIZE, API_PATHS, ARCHIVE_ZIPPER, AUDIO_CODECS, AUTH_TRACK_EVENTS, AccordionHeader, AccordionItem$1, AccordionPanel, AccordionRoot, AccordionTrigger$1, AccountSubmissionBlockedError, ActionListItem, ActionListPanel, ActionListSeparator, ActiveOverlay, ActiveSnippet, Activity, ActivityIcon, AdtsInputFormat, AdtsOutputFormat, AlertCircle, AlertDialogRoot, AlertTriangle, AlertTriangleIcon, AlignCenter$1, AlignLeft$1, AlignRight$1, Animation, AnnounceMargin, ApiError, AppWindow, Archive, ArrowDown, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowLeftToLine, ArrowRight, ArrowRight$1, ArrowRightToLine, ArrowUp, ArrowUp$1, ArrowUpDown, ArrowUpFromLine, ArrowUpRight, ArrowUpRight$1, ArrowUpToLine, AssetMetadataStoreContext, At$3, AtSign, Attribute2, AttributeList, AttributeName, AttributeValue, AudioLines, AudioLines$1, AudioResampler, AudioSample, AudioSampleSink, AudioSampleSource, AudioWaveform$1, AvatarImage$1, AvatarRootContext, B$7, BACKEND_VIBE_STORYBOARD, BASE64_DATA_URI_REGEX, BODY, BROWSER_ASSET_SOURCE_METADATA_KEYS, BROWSER_IMAGE_EDIT_EVENT, BadgeCheck, BadgeInfo, Ban$1, Bell, Bell$1, BellRing, BidiSpan, BlobSource, BlockComment, BlockPolicy, Blocks$1, Bold$1, BookOpen$1, BookUser, Bookmark$1, Bot, Box, BoxSelect, Boxes, Brain$1, Brain$2, Break, Brush$1, Bs, Bt$1, BubbleMenu, BufferContext, BufferTarget, Bug, Bug$1, Building2$1, Button$3, CDN_BASE_MAP, CDN_BROWSER_START_ICON, CONNECTOR_STATUS_VISUAL, CONNECTOR_TOKEN_SOURCE, CSS$1, Cable$1, Calculator, CalendarDays$1, Camera$1, CanvasNodeType, CanvasSink, CaseSensitive$1, ChangeSet, CharCategory, ChartNoAxesCombined, Check, Check$1, Check$2, CheckCheck, CheckCircle2, CheckCircle2Icon, CheckboxRoot, ChevronDown, ChevronDown$1, ChevronDown$2, ChevronDownIcon$1, ChevronLeft, ChevronLeft$1, ChevronLeftIcon, ChevronRight$1, ChevronRight$2, ChevronRightIcon, ChevronUp, ChevronUpIcon, Chrome$1, Circle$1, CircleAlert, CircleAlert$1, CircleAlert$2, CircleArrowUp, CircleCheck, CircleCheckIcon, CircleHelp$1, CircleIcon, CircleMinus, CircleUserRound$1, CircleX, CircleX$1, Clapperboard$1, Clapperboard$2, ClientOnly, Clipboard, ClipboardIcon, ClipboardList, ClipboardPaste$1, Clock$1, Clock3$1, CloseTag, Cloud, CloudDownload, CloudIcon, CloudOff$1, CloudUpload, Code$1, Cog, Cog$1, Command, CommentEnd, Compass, CompositedSvg, ConnectionTargetMarker, ContextMenuRoot, ContextMenuTrigger$1, ContextTracker, ConversionCanceledError, Copy, Copy$1, CopyPlus, CornerDownRight$1, CreditCard, Crosshair, Crown, Crown$1, Ct$3, CurrentWorkspaceContext, CustomAudioEncoder, CustomPathedSource, D$1, D$7, DEFAULT_RUNTIME_CONFIG, DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT, DOMParser$1, DOMSerializer, DateLib, DayFlag, Decoration$1, Decoration2, DecorationSet, DefaultBufferLength, Demuxer, Dialect, Dialect_noMatch, Dialect_selfClosing, DialogBackdrop, DialogClose$1, DialogDescription$2, DialogPopup, DialogPortal$2, DialogRoot, DialogTitle$2, DialogTrigger$1, Direction, DndContext, DocInput, Download$1, Download$2, DownloadIcon, DragOverlay, Droplet$1, Ds, Dt$2, E$4, E2, EdgeLabelRenderer, EditorContent, EditorSelection, Element$1, Ellipsis, Emoji, EmptyLine, EncodedAudioPacketSource, EncodedPacket, EncodedPacketSink, EncodedVideoPacketSource, EndTag, Es, Et$2, EventEmitter$2, Expand$1, Extension, ExternalLink, ExternalLink$2, ExternalTokenizer, Eye, Eye$1, Eye$2, EyeIcon$1, EyeOff, EyeOffIcon$1, F$6, FALLBACK_NUMBER_OF_CHANNELS, FALLBACK_SAMPLE_RATE, FILE_TYPE_EXTENSIONS, FLAC, FOLD, Facet, FieldControl, FieldRoot, File$3, FileArchive$1, FileAudio$1, FileClock$1, FileCode$1, FileDiff$1, FileImage, FileInput$1, FileJson2$1, FilePlus2, FileText$1, FileVideo$1, FileWarning$1, Files$1, Film, Film$2, FlacInputFormat, FlacOutputFormat, Flag$1, FlatBufferCursor, Folder$1, FolderClock, FolderClosed, FolderInput, FolderInput$2, FolderKey$1, FolderMinus, FolderOpen$1, FolderOpenIcon, FolderPlus, FolderUp, FolderX, Ft$2, G$1, G$5, GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT, GFM, GLOBAL_STORAGE_VERSION, GRID_COLUMN_COUNT_WIDE, GROUP_ID_HEADER, GatewayScopeContext, Gauge, GiftIcon, GitCompare, GlobalAttrs, Globe, Globe2, GraduationCap, Grid2X2, Grid2x2Plus, Grid3X3, GripHorizontalIcon, GripVertical, Gt$1, H, H$5, HILO_HUB_BIZ_LINE, HILO_WORKSPACE_GENERATION_QUERY, HILO_WORKSPACE_IDENTITY_HEADER, HILO_WORKSPACE_IDENTITY_QUERY, HILO_WORKSPACE_INSTANCE_QUERY, HLS_MIME_TYPE, HTMLBlockStyle, Hand, Handle, HardDrive$1, Headphones, Headphones$2, History$1, HistoryIcon, HlsInputAudioTrackBacking, HlsInputVideoTrackBacking, Home, House, Hs, Ht$1, I, ICON_STROKE_SPEC, IV_STRING_REGEX, IconCompositingContext, Identifier, ImagePlus, Import, Inbox, IncompleteCloseTag, IncompleteTag, IndentContext, InfiniteQueryObserver, Info$1, InfoIcon$1, InlineDelimiter, InnerParse, InputAudioTrack, InputFormat, InputStream, InputVideoTrack, IsobmffInputFormat, It$1, Italic$1, IterMode, J$6, JPEG, Jo, K$6, K2, KeyRound, Keyboard, KeyboardSensor, L, L$7, LIBTV_CONNECTOR, LanguageDescription, LanguageSupport, Languages, Layers, Layers2, Layers3, LayoutGrid, LayoutList, LayoutTemplate, LeafBlock, Library, Library$1, Lightbulb, LineComment, Link2, Link2$1, List$1, ListChecks, Loader2, Loader2Icon, LoaderCircle, LoaderCircle$1, LocalTokenGroup, Lock, LockKeyhole, LogOut$1, Ls, Lt$1, M, MATROSKA, MEDIA_EXTENSIONS, MEDIA_LINEAGE_MAX_REFERENCES, MEDIA_LINEAGE_REQUEST_HEADER, MIN_SELECTED_NODE_SIZE, MP3, MP4, MPEG_TS, Mail, Map$1, MapPin, Markdown$1, MatroskaInputFormat, Maximize, Maximize2$1, Megaphone$1, Megaphone$2, MenuGroup, MenuGroupLabel, MenuItem$3, MenuPopup, MenuPortal, MenuPositioner, MenuRadioGroup, MenuRadioItem, MenuRadioItemIndicator, MenuRoot, MenuSubmenuRoot, MenuSubmenuTrigger, MenuTrigger, MessageCircle, MessageCircleMore, MessageSquare$1, MessageSquareMore, MessageSquarePlus$1, MessageSquareQuote$1, Mic$1, Minimize2$1, Minus, MinusIcon, MismatchedStartCloseTag, MkvOutputFormat, Monitor, MonitorUp, MonochromeIcon, Moon$1, MoreHorizontal, MousePointer2$1, MovOutputFormat, Mp3InputFormat, Mp3OutputFormat, Mp4OutputFormat, Mt$1, Music, Music$2, Music2, N, N$4, NODE_HIT_SLOP, NON_PCM_AUDIO_CODECS, Network, Network$1, Newspaper, NoMatchStartCloseTag, Node$3, Node$4, NodeResizer, NodeSelection, NodeToolbar$1, NodeViewWrapper, NotLast, NotebookPen, Nt$1, NullTarget, OGG, OctagonXIcon, OggInputFormat, OggOutputFormat, OpenTag, Operation, Ot$2, Output, OutputTrackGroup, P$7, PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP, PERF_LOG_FLUSH, PROMPT_FONT_SIZE_DEFAULT, PROMPT_FONT_SIZE_MAX, PROMPT_FONT_SIZE_MIN, Package$2, PackageSearch, Palette, Panel, PanelBottomClose, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PanelsTopLeft, Paperclip$1, Parser$1, PathedSource, PenLine$1, Pencil, PencilLine$1, PencilRuler, PencilRuler$1, Phone, Pin, Pin$1, PinIcon, PinOff, PlatformContext, PlaybackCirclePauseIcon$1, PlaybackCirclePlayIcon$1, PlaybackCircleToggleIcon, PlaybackNextIcon$1, PlaybackPauseIcon$1, PlaybackPlayIcon$1, PlaybackPreviousIcon$1, PlaybackStopIcon$1, Plug$1, Plugin, PluginKey, Plus, Plus$1, Plus$2, PlusCircle, Podcast, PointerSensor, PopoverArrow$1, PopoverPopup, PopoverPortal, PopoverPositioner, PopoverRoot, PopoverTrigger$1, Position, Power, Prec, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, PreviewCardTrigger$1, ProcessingEnd, ProgressRoot, ProgressRootContext, Pt$2, Punctuation, Puzzle$1, QTFF, QUALITY_HIGH, QUERY_KEY$1, QueryClient, QueryClientProvider, QueryType, QuickTimeInputFormat, R$1, R$4, R$6, RadioGroup$1, RadioIndicator, RadioRoot, Range$1, RangeSetBuilder, React, ReactFlow$1, ReactFlowProvider, ReactNodeViewRenderer, ReadableStreamSource, Reader, ReceiptText$1, Redo2, Regex, Repeat2, Replace$1, ReplaceAll$1, RotateCcw, RotateCcw$1, RotateCw, RouterCore, Rs, Rt$2, Rule$1, S$7, SAMPLING_RATES, SELECTED_GLOW_BLUR, SKIP, SPECIAL_CONNECTORS, Save, Scan, Scissors, ScopeNodes, ScriptText, ScrollAreaCorner, ScrollAreaRoot, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaViewport, ScrollText, Search, Search$1, Search$2, SearchIcon, SegmentedInput, SelectGroupContext, SelectIcon, SelectItem$2, SelectItemIndicator, SelectItemText, SelectList, SelectPopup, SelectPortal, SelectPositioner, SelectRoot, SelectScrollDownArrow, SelectScrollUpArrow, SelectTrigger$2, SelectValue$2, Selection, SelectionMode, SelfClosingEndTag, Send, ServerIcon, ServerOff, Settings$1, Settings2$1, Share2, Share2$2, ShieldAlert, ShieldAlert$1, ShieldCheck, ShieldCheck$1, ShieldCheckIcon, ShieldOff, ShoppingBag$1, ShoppingBag$2, Shuffle, Slash, Slice, SliderControl$1, SliderIndicator, SliderRoot, SliderThumb, SliderTrack, SlidersHorizontal$1, Smartphone, Smartphone$1, Snippet, Source, SourceRef, Sparkles$1, Speech, Split, Sprout$1, Square$2, SquareDashed, SquareMousePointer, SquareMousePointer$1, Ss, St$2, Stack, StackBufferCursor, Stamp$1, StartCloseScriptTag, StartCloseStyleTag, StartCloseTag, StartCloseTextareaTag, StartScriptTag, StartSelfClosingTag, StartStyleTag, StartTag, StartTextareaTag, StarterKit, StateEffect, StateField, Step, StepMap, StepResult, StickyNote, StringQuery, StyleModule, StyleText, Subscript, Sun, Superscript, SwatchBook, SwitchRoot, SwitchThumb, TAB_CONTENT_ENTER_CLASS_NAME, TAG_BYTERANGE, TAG_DISCONTINUITY, TAG_ENDLIST, TAG_EXTINF, TAG_I_FRAMES_ONLY, TAG_I_FRAME_STREAM_INF, TAG_KEY, TAG_MAP, TAG_MEDIA, TAG_MEDIA_SEQUENCE, TAG_PLAYLIST_TYPE, TAG_PROGRAM_DATE_TIME, TAG_STREAM_INF, TAG_TARGETDURATION, Table$2, TableCell$1, TableHeader$1, TableRow$1, TableView2, TabsIndicator, TabsList$1, TabsPanel, TabsRoot, TabsTab, Tag, Tag$1, TagName, Tags, Text, TextSelection, TextareaText, ThumbsDown, ThumbsUp, ThumbsUp$1, Toaster$1, Toggle$1, ToggleGroup$1, TokenCache, TokenGroup, TooltipPopup, TooltipPortal, TooltipPositioner, TooltipProvider$2, TooltipRoot, TooltipTrigger$1, TrackSynchronizer, Trans, Transaction2, Trash2$1, Trash2$2, Trash2Icon, TreeElement, TreeFragment, TrendingUp, TriangleAlert, TriangleAlert$1, TriangleAlertIcon, Tt$2, Tv, Type, Type$2, U, U$3, UI, UNDETERMINED_LANGUAGE, Underline$1, Undo2, Ungroup$1, UnquotedAttributeValue, UnsupportedInputFormatError, Upload$1, UploadIcon$1, UrlSource, User, UserRound, UserRound$1, UserRoundPlus, Users$1, UsersIcon, Ut, Ut$2, V$6, VIDEO_CODECS, Video, Video$1, Video$2, VideoOff, VideoSample, VideoSampleSink, VideoSampleSource, ViewPlugin, ViewportPortal, Volume2, Volume2Icon, VolumeX$1, VolumeXIcon, W$1, W$7, WAVE, WEBM, WORKSPACE_IDENTITY_MISMATCH_CODE, WORKSPACE_STORAGE_DEFAULTS, Wand2, WandSparkles, WavOutputFormat, WaveInputFormat, WebMInputFormat, WebMOutputFormat, WholeWord, WidgetType2, WifiIcon, WifiOff, WifiOff$1, WifiOffIcon, Workflow, Workflow$1, WorkspaceGatewayClient, Wrench, Wrench$1, Wrench$2, X$6, X$7, X$8, XIcon, XYMinimap, Y$4, Yt$2, Z$4, Zap, Zap$1, ZoomIn, ZoomOut, _$5, __addDisposableResource, __disposeResources, __insertCSS, __ovVitePreload, __webpack_exports__getDocument, _t$2, an, android, arrayArgmin, arrayCount, assert$3, assertNever, astTop, at, at$3, atRules, attrsEqual, audioSampleToInterleavedFormat, avatarStateAttributesMapping, b2, base64ToBytes, basename$8, batch, binarySearchLessOrEqual, blankLine$1, braceR, browserAssetSourceMetadata, browserImageEditPrompt, bt$3, buildAdtsHeaderTemplate, buildOfficialConnectorList, byTag, c$4, callOrReturn, canIgnoreLine, cdnPublicAsset, ceilToMultipleOfTwo, checkCover, checkRanges, checkSide, clamp$9, clampCropRectangle, classifyFileType, clientExports, closeHistory, closestCenter, clsx, cn, collectMediaResultRecords, combineConfig, commands_exports, commentContent, commentContent$1, compareSemver, completeAttrName, completeAttrValue, completeCloseTag, completeFromList, completeStartTag, completeTag, connectorDescription, connectorPromptActionLabelKey, connectorSummaryActionLabelKey, contextNodeForDelete, continuedIndent, convertMatchersToTimeZone, countColumn, create$2, createAes128CbcDecryptStream, createConnectorInventory, createControlledPromise, createFileRoute, createGetModifiers, createLucideIcon, createNoonOverrides, createRootRoute, createStore$1, createTailwindMerge, crelt, ct$3, cutAt, cutFragments, cva, d, d$3, data, dayPickerContext, decisionVersion, declSelector, decodeArray, decodeHtmlEntities, defaultSchema, defineLanguageFacet, delimitedIndent, delimitedStrategy, deriveActiveScope, deriveTeamCreditDisplay, desc, descendant, desktopMediaIcon, dispatchAccountSubmissionBlocked, dn, dontComplete, dt, dt$4, editorDocSnapshot, elementName, elementName$1, emit$5, emptyConnectorMarketPolicy, enUS, encodeHtmlEntities, endTag$1, ensureAnchor, enterFragments, estimateGridRowSize, et$4, eventAttributes, f$3, f$4, fieldSelection, findClusterBreak, findConnectionTarget, findConnectorMentions, findFinished, findHcpConnector, findHitTarget, findName, findOpenTag, findSectionEnd, findTagName, flatIndent, flattenExtensions, floorToDivisor, flowPointToMiniMap, flush, focusManager, foldInside, foldService, formatDate, formatErrorMessage, fr, ft$3, g$2, gatherCompletions, generateJSON, getAttrs, getBezierPath, getBoundsOfRects, getCdnRegion, getChildren, getComponents, getContext, getDataAttributes, getDefaultExportFromCjs$1, getEncodableAudioCodecs, getExtensionField, getFileActivityKind, getFirstEncodableVideoCodec, getFormatters, getHighlighters, getIconStrokeWidth, getIndentUnit, getInternalNodesBounds, getLabels, getListIndent, getLocationChangeInfo, getMediaTagAutoselect, getMediaTagDefault, getMergedHcpCatalog, getMonthOptions, getNodeDimensions, getRuntimeConfig, getSchema, getSkillCoverUrl, getStoreFactory, getStyleForModifiers, getViewportForBounds, getVisibleCloudUploads, getWeekdays, getYearOptions, gt$2, h$5, hasMediaAnalysisFailure, hcpToDefinition, highlightTags, highlighterFacet, hooks, horizontalListSortingStrategy, ht$2, identifier$1, identifiers, ignoreClosed, inList, indentService, indentString, inferCodecFromCodecString, inferMediaKind, initReactI18next, insertSemi, instance, invariant, isAtxHeading, isBlockquote, isBrowserImageEditRequest, isBulletList, isCancelledError, isDateRange, isHTMLBlock, isHeading, isInputPending, isIso639Dash2LanguageCode, isList, isNotFound, isParent, isRecord$2, isRecord$g, isRedirect, isServer$1, isSetextUnderline, isSkillsOnly, isUserProvidedAssetModel, isVarArg, isWorkspaceFolderMissingError, isWorkspaceIdentityErrorCode, it$3, j$5, je, joinPaths$1, jsx, jsxRuntimeExports, jsxSublanguage, k, k$6, keywords, kt, kt$2, last$1, lazyRouteComponent, leftOverSpace, lineEnd, listeners$8, ln, localizedI18nText, logException, lt$3, m$4, makeLogger, marksEqual, matchNodeContext, matchPlainBrackets, matchesLocalConnectorServer, matchesRemoteConnectorServer, maybeNest, measurePerf, mediaLineageRequestId, mergeAttributes, mergeInputTrackQueries, mergeProps$1, minCreditAmount, missingCloseTag, mn, moveToField, mt$2, n$1, namesMatch, ne, newline, nn, noSemicolon, noSemicolonType, noTokens, nodeHasDimensions, nodeSizeCache, nodeToMiniMapRect, nonEmpty$1, nonPlainText, nonTightList, none, normalizeGatewayBaseUrl, normalizeIndent, normalizeLabel$1, normalizeRotation, nt$4, o$4, operatorToken, orderTidyNodes, ot$3, p$4, p$5, pair, parseAacAudioSpecificConfig, parsePsshBoxContents, parseSemver, pe, pendingLogLines, phrase, pickedCompletion, pinnedTidyNodeIds, prefer, preprocessLanguageCode, probeMediaDurationSec, progressStateAttributesMapping, promiseWithResolvers, properties$1, pseudoClasses, psshBoxesAreEqual, pt$2, punchRanges, pushStackDedup, q$5, qe, queryIdentifiers, queryInputTracks, queryOptions, r$5, rangeFrom, rangeIncludesDate, rangeTo, raw, re, reactDomExports, reactExports, readAllLines, readAscii, readBytes, readMp3FrameHeader, readRecord, redirect, redo$1, redoDepth$1, regexpCursor, regionToLocale, registerDynamicHcpManifests, registerEncoder, remarkGfm, remarkParse, remarkRehype, removeItem, renumberList, replaceEqualDeep$1, requestIdle, requireJszip_min, requireLib, resolveConfig, resolveConnectorIcon, resolveConnectorSetupAsset, resolveNewProjectPreferences, rn, rootRouteId, rt$3, sanitize, satisfiesMinHubVersion, scanLineResult, scriptText, scriptTokens, selectGeneratedMediaNodeIds, selectedRequestGroupId, selfClosers, setActive, shallow, shimExports, skipSpace, skipSpaceBack, sliceBuf, sn, sortExtensions, sortableKeyboardCoordinates, sourceRequestsAreEqual, space$2, spaces, spec_AtKeyword, spec_LessThan, spec_QueryCallee, spec_callee, spec_identifier, spec_identifier$1, spec_queryIdentifier, spec_word, src_default$1, st$3, storageKeys, stringCursor, styleText, styleTokens, supportsConnectorDialog, tagHighlighter, tagNameAfter, tagStart, tags, tags$1, textareaText, textareaTokens, tidyNodeName, toDataView, toInterleavedAudioFormat, toJsxRuntime, toRelative, toTimeZone, toValidatedInputTrackQuery, toast, topIndent, tr$2, trimPathRight, tryParseJson$1, tt$4, typescriptKeywords, u$3, ue, un, undo$1, undoDepth$1, unified, unitToken, updateNewProjectPreferences, uploadResponseFilename, urlAttributes, useAnimation, useAvatarRootContext, useBaseUiId, useCalendar, useConnection, useCurrentWorkspace, useEdgesState, useEditor, useEditorState$1, useFocus, useGatewayBaseUrl, useGatewayScope, useIsMutating, useIsoLayoutEffect, useMusicPromptLayout, useMutation, useNavigate, useNewProjectFolder, useNodeId, useNodesData, useNodesInitialized, useNodesState, useParams, usePlatform, usePopoverRootContext, usePromptFontSizeStore, useQueries, useQuery, useQueryClient, useReactFlow, useRender, useRenderElement, useRouter, useSearch, useSelectGroupContext, useSelection, useSensor, useSensors, useStorage, useStore$2, useStore$3, useStoreApi, useTimeout, useTranslation, useUpdateNodeInternals, useVirtualizer, ut$2, v$7, validRegExp, validateAudioOptions, validateInputFormatOptions, validateMetadataTags, validateVideoOptions, valueToPercent, variable, verbose, verticalListSortingStrategy, videoPlaybackPath, visit, visitParents, vt$2, w2, wait$1, warnForPart, we, withArtworkOpacity, withAutomaticDedupeId, withIconCompositing, withWorkspaceGatewayHeaders, workspaceGatewayUrl, workspaceLog, wt$3, x$4, xt$2, y$1, y$6, yt$2, z$3, z$4, z$7, zt$2 };

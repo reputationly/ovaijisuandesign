@@ -1,10 +1,8 @@
 // qs.jsx
 import {
   at,
-  BlockPolicy,
   clsx,
   cn,
-  createVisitor,
   defaultSchema,
   E2,
   Jo,
@@ -17,11 +15,11 @@ import {
   reactDomExports,
   reactExports,
   remarkGfm,
-  stripNullChildren,
   toJsxRuntime,
   un,
   visit,
 } from "../vendor.js";
+import { harden } from "rehype-harden";
 import {
   Be,
   D3,
@@ -148,44 +146,6 @@ var Ct2 = (e2) => {
     n2 = t2.runSync(t2.parse(o2), o2);
   return Ps(n2, e2);
 };
-function harden({
-  defaultOrigin = "",
-  allowedLinkPrefixes = [],
-  allowedImagePrefixes = [],
-  allowDataImages = false,
-  allowedProtocols = [],
-  blockedImageClass = "inline-block bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-3 py-1 rounded text-sm",
-  blockedLinkClass = "text-gray-500",
-  linkBlockPolicy = BlockPolicy.indicator,
-  imageBlockPolicy = BlockPolicy.indicator,
-}) {
-  const hasSpecificLinkPrefixes =
-    allowedLinkPrefixes.length &&
-    !allowedLinkPrefixes.every((p3) => p3 === "*");
-  const hasSpecificImagePrefixes =
-    allowedImagePrefixes.length &&
-    !allowedImagePrefixes.every((p3) => p3 === "*");
-  if (!defaultOrigin && (hasSpecificLinkPrefixes || hasSpecificImagePrefixes)) {
-    throw new Error(
-      "defaultOrigin is required when allowedLinkPrefixes or allowedImagePrefixes are provided",
-    );
-  }
-  return (tree) => {
-    const visitor = createVisitor(
-      defaultOrigin,
-      allowedLinkPrefixes,
-      allowedImagePrefixes,
-      allowDataImages,
-      allowedProtocols,
-      blockedImageClass,
-      blockedLinkClass,
-      linkBlockPolicy,
-      imageBlockPolicy,
-    );
-    stripNullChildren(tree);
-    visit(tree, visitor);
-  };
-}
 var Gn = (e2, t2) => {
   if (!e2 || !t2) return t2;
   let o2 = `${e2}:`;

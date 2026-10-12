@@ -149,7 +149,7 @@ GOLDEN=<本仓库>/.probe/ui-golden xvfb-run -a node scripts/ui-compare/compare.
 
 ### 1. vendor.js 里还没换成 npm 的库（约 40 个候选）
 
-`vendor.js` 现 3,748,669 bytes（约 3.7MB）。和 `scripts/decompile/npm-packages.json` 对比，剩下的候选：
+`vendor.js` 现 3,727,360 bytes（约 3.7MB）。和 `scripts/decompile/npm-packages.json` 对比，剩下 37 个候选：
 
 ```
 @base-ui/utils@0.2.6  @base-ui/react@1.3.0  @marijn/find-cluster-break@1.0.4
@@ -158,10 +158,10 @@ GOLDEN=<本仓库>/.probe/ui-golden xvfb-run -a node scripts/ui-compare/compare.
 @lezer/javascript@1.5.4  @lezer/css@1.3.4  @lezer/markdown@1.7.2
 @floating-ui/react@0.27.20  hast-util-to-html@9.0.5  @shikijs/core@3.23.0
 @shikijs/engine-oniguruma@4.4.3  @shikijs/primitive@4.0.2  seroval@1.5.6  seroval-plugins@1.5.6
-@tiptap/extension-blockquote@3.27.3  @tiptap/extension-bold@3.31.3  @tiptap/extension-bubble-menu@3.31.3
+@tiptap/extension-blockquote@3.27.3  @tiptap/extension-bold@3.31.3
 @tiptap/extension-code-block@3.30.2  @tiptap/extension-floating-menu@3.30.2  zustand@5.0.15
 @xyflow/react@12.10.2  entities@6.0.1  mediabunny@1.52.3  decode-named-character-reference@1.3.0
-regex@6.1.0  regex-recursion@6.0.2  parse5@8.0.1  unist-util-visit@5.1.0  rehype-harden@1.1.8
+regex@6.1.0  regex-recursion@6.0.2  parse5@8.0.1  unist-util-visit@5.1.0
 hls.js@1.7.3  inline-style-parser@0.2.4  style-to-object@1.0.11  style-to-js@1.1.21
 @tanstack/form-core@1.33.5
 ```
@@ -210,9 +210,39 @@ hls.js@1.7.3  inline-style-parser@0.2.4  style-to-object@1.0.11  style-to-js@1.1
 | `style-to-js@1.1.21` | vendor 中无匹配代码 | 0 |
 | `@tanstack/form-core@1.33.5` | 失败：`resolveClassName`、`resolveStyle` 不是公开导出 | 0 |
 
-**无匹配代码的单独列表**：`@marijn/find-cluster-break`、`seroval`、`seroval-plugins`、`@tiptap/extension-blockquote`、`@tiptap/extension-bold`、`@tiptap/extension-code-block`、`zustand`、`decode-named-character-reference`、`regex`、`regex-recursion`、`unist-util-visit`、`inline-style-parser`、`style-to-object`、`style-to-js`。
+**无匹配包的源文件分类**：逐包在 `app/renderer/src`（包含 `vendor-inline`）检索了以下 npm dist 标识符。`serialize`、`parse` 等通用词不单独作为命中证据。
 
-当前 survey 没有任何单包 clean swap，因此按“只纳入 survey clean 的包”筛选后，Batch 1 为空；尚未运行联合 `ONLY=`、`pnpm install`、checker 或 gate，也没有移出候选列表。需要决定是否允许把存在包间交叉引用/导出冲突的 Batch 1 成员作为家族联合试验，或暂缓此批次。
+| 包 | Dist 标识符 / 字符串 | 分类 |
+|---|---|---|
+| `@marijn/find-cluster-break` | `findClusterBreak`、`isExtendingChar`、`includeExtending` | `findClusterBreak` 位于 `app/renderer/src/vendor.js:52`；另两个标识符 absent |
+| `seroval` | `SerovalNode`、`createReference`、`getCrossReferenceHeader` | absent（not bundled；VS Code 的 `deserialize` 是另一套实现） |
+| `seroval-plugins` | `AbortSignalPlugin`、`BlobPlugin`、`URLSearchParamsPlugin` | absent（not bundled） |
+| `@tiptap/extension-blockquote` | `Blockquote`、`inputRegex`、`setBlockquote` | absent（not bundled；`Blockquote` 在 `vendor-inline/codemirror/base-theme.js` 是 CodeMirror 语法节点） |
+| `@tiptap/extension-bold` | `Bold`、`starInputRegex`、`underscoreInputRegex` | absent（not bundled；`Bold` 在 vendor 中仅命中 Lucide 图标） |
+| `@tiptap/extension-code-block` | `CodeBlock`、`exitCode`、`languageClassPrefix` | absent（not bundled；`CodeBlock` 在 `vendor-inline/codemirror` 是语法节点，`exitCode` 来自 ProseMirror commands） |
+| `zustand` | `createStoreImpl`、`subscribeWithSelector`、`createJSONStorage` | `createStoreImpl` 位于 `app/renderer/src/vendor.js` |
+| `decode-named-character-reference` | `decodeNamedCharacterReference`、`notin`、`NotEqualTilde` | 位于 `app/renderer/src/vendor.js` |
+| `regex` | `RegexTag`、`RawTemplate`、`InterpolatedValue` | absent（not bundled） |
+| `regex-recursion` | `recursion`、`captureTransfers`、`hiddenCaptures` | absent（not bundled） |
+| `unist-util-visit` | `visitParents`、`SKIP`、`CONTINUE` | 位于 `app/renderer/src/vendor.js`；`visitParents` 另由 `app/renderer/src/vendor-inline/minified/s2.js` 使用 |
+| `inline-style-parser` | `COMMENT_REGEX`、`PROPERTY_REGEX`、`TYPE_DECLARATION` | 位于 `app/renderer/src/vendor.js:64079-64092` |
+| `style-to-object` | `StyleToObject`、`cjs$2.default` | 位于 `app/renderer/src/vendor.js:64228-64230` |
+| `style-to-js` | `StyleToJS`、`cjs` | 位于 `app/renderer/src/vendor.js:64309-64322` |
+
+**Batch 1 联合试验与最终状态**：批准的 8 包联合 `ONLY=` 试验后，6 个包仍有包间内部符号冲突。已手动换入 `@tiptap/extension-bubble-menu@3.31.3`（使用公开 `BubbleMenuPlugin`，保留 vendor 导出名）；`rehype-harden@1.1.8` 也改为公开 `harden` / `BlockPolicy` API，并从 vendor 删除旧实现及仅供该实现使用的内部 helper。`qs.jsx` 原先使用这些内部 helper，现改为直接调用包的公开 `harden`，行为与包公开实现一致。`FloatingMenu` 保留内联：精确候选 `3.30.2` 与现有 `@tiptap/react` / core `3.31.3` 不兼容，加入会引入第二个 Floating Menu 版本。
+
+延期包及理由：`hast-util-to-html@9.0.5` 仍有 `whitespace`、`closing` 非公开导出及 `stringifyEntities` 交叉引用；`entities@6.0.1` 的 `EntryType` 被 parse5 的 `FormattingElementList` 使用；`parse5@8.0.1` 需要非公开 `TokenType`、`getTagID`；`@tanstack/form-core@1.33.5` 的 `resolveClassName` / `resolveStyle` 仍被 `useRenderElementProps` 消费；`hls.js@1.7.3` 的识别语句全部在冲突检查中被剔除。以上均留在 vendor，未复制内部实现到 app 代码。Batch 结果为 2 个替换、6 个延期。
+
+`vendor.js` 从 3,748,669 bytes 减至 3,727,360 bytes（净减 21,309 bytes）。renderer 解析闭包在变更前后均只有既定的 5 组多版本包：`@floating-ui/utils` 0.2.11/0.2.12、`@floating-ui/dom` 1.7.6/1.8.0、`@tanstack/history` 1.162.0/1.162.1、`@tanstack/router-core` 1.171.13/1.171.27、`@shikijs/types` 3.23.0/4.0.2；没有新增多版本包。
+
+**Batch 验收结果**：`pnpm install` 成功；renderer 闭包的变更前后重复版本均与既定基线完全一致，没有新增多版本包。`node scripts/desource/check-undef.mjs` 检查 1125 个 renderer 源文件通过；`scripts/ui-compare/gate.sh` 的 build 为 11/11 packages 成功，双轮 40 页 gate 通过。报告：
+
+- `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T13-16-10-088Z/report.json`
+- `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-12T13-34-21-576Z/report.json`
+
+第一次仅 `ws-add-node` pixel 通道失败（raw 1467、TOL∩non-AA 958，`pixelmatchNonAA=958`）；第二次同页全部为 0，因此按双轮规则记为一次性 flake，不阻断 gate。其余页面两轮所有门禁通道均为 0；`ws-a` raw-only 均为 5，`ws-code-editor` raw-only 分别为 11 和 7，non-AA 均为 0。网络、DOM、状态及新增错误两轮均为 0。
+
+剩余内联实现检查：Bubble Menu 的 `BubbleMenuView`、`combineDOMRects` 等旧实现已不在 `vendor.js` / renderer 源码，vendor 保留原导出名并由 `@tiptap/extension-bubble-menu@3.31.3` 的公开 `BubbleMenuPlugin` 提供。rehype-harden 的旧 `createVisitor`、`stripNullChildren`、URL-policy helper 等已删除；`visitParents` / `SKIP` 仍由 `vendor-inline/minified/s2.js` 使用，所以保留其 unist 实现。rehype 调用点已改用公开 `harden` API，没有把包内部实现复制到 app。
 
 注意版本：`package.json` 里 `@xyflow/react` 是 12.11.6，它依赖 `@xyflow/system@0.0.82`，但直接依赖钉的是 0.0.76。直接升到 0.0.82 会构建失败（缺 `devWarn` 导出），已退回。换 xyflow 时要一起理顺。
 
