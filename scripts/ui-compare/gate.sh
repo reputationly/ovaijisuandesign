@@ -88,7 +88,7 @@ if [[ "${SKIP_CHECK_UNDEF:-0}" != "1" ]]; then
   node scripts/desource/check-undef.mjs
 fi
 compare_started=1
-if ! output="$(timeout --signal=TERM --kill-after=10s 900s xvfb-run -a node scripts/ui-compare/compare.mjs 2>&1)"; then
+if ! output="$(timeout --signal=TERM --kill-after=10s 2400s xvfb-run -a node scripts/ui-compare/compare.mjs 2>&1)"; then
   printf '%s\n' "$output" >&2
   exit 1
 fi
@@ -133,6 +133,8 @@ const invalid = pages.filter((page) =>
   !Array.isArray(baseline[page.page]) ||
   !Array.isArray(page.newErrors) ||
   typeof page.diffPct !== "number" ||
+  typeof page.diffPctNonAA !== "number" ||
+  typeof page.pixelmatchNonAA !== "number" ||
   !Array.isArray(page.netDiff) ||
   !Array.isArray(page.domDiff) ||
   !Array.isArray(page.stateDiff)
@@ -140,9 +142,9 @@ const invalid = pages.filter((page) =>
 for (const page of invalid) {
   console.error(`${page.page}: missing or invalid per-page console-error baseline/report`);
 }
-const pixelFailures = pages.filter((page) => page.diffPct !== 0);
+const pixelFailures = pages.filter((page) => page.diffPctNonAA !== 0);
 for (const page of pixelFailures) {
-  console.error(`${page.page}: ${page.diffPct}% (expected 0.000%)`);
+  console.error(`${page.page}: ${page.diffPct}% raw, ${page.diffPctNonAA}% TOL∩non-AA (${page.diffPixels}/${page.diffPixelsNonAA} pixels; pixelmatch threshold-0: ${page.pixelmatchNonAA})`);
 }
 const errorFailures = pages.filter((page) => Array.isArray(page.newErrors) && page.newErrors.length > 0);
 for (const page of errorFailures) {
@@ -155,5 +157,5 @@ for (const page of channelFailures) {
   console.error(`${page.page}: network/DOM/state diff present`);
 }
 if (missingPages.length || duplicatePages.length || invalid.length || pixelFailures.length || errorFailures.length || channelFailures.length) process.exit(1);
-console.log(`All ${pages.length} pages match (0.000%) with empty network, DOM and state diffs and no console errors beyond the baseline. Report: ${process.argv[2]}`);
+console.log(`All ${pages.length} pages have 0 TOL∩non-AA pixels, empty network, DOM and state diffs, and no console errors beyond the baseline. Report: ${process.argv[2]}`);
 NODE

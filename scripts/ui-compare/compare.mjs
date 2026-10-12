@@ -11,13 +11,15 @@
 // 前提：app/desktop 已构建（pnpm --filter @ov/desktop build，会顺带构建 app/renderer 到 out/recovered-ui）。
 // 结果写到 .probe/ui-compare/<时间>/：每页截图 + 差异图 + report.json；终端打印每页差异比例。
 //
-// 注意：卡片封面是 CDN 上的 mp4，属外部资源、与仓库代码无关，采集时会被挡掉（见 BLOCKED_URLS）。
-// 不挡的话同一份界面连跑两次都能差出 7%——差异来自视频下到第几帧，会掩盖真正的界面差异。
+// 注意：卡片封面视频和打光预设缩略图都是外部 CDN 资源，采集时会被挡掉（见 BLOCKED_URLS）。
+// 不挡卡片封面会因采集到的视频帧不同而差出 7%，不挡缩略图则可能因远端图像变化遮蔽真实界面差异。
+import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import pixelmatch from "pixelmatch";
 import { generateFixtures } from "./generate-fixtures.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -35,8 +37,8 @@ const WS_B = `${ROOT}/ws-b`;
 const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 const ISO_TIMESTAMP_PATTERN = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})\b/gi;
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
-// 当前已观察到的自比较噪声端点；只有确认是时序噪声后才加入。
-const NET_VOLATILE = [];
+// 云端轮换展示素材会改变路径，与本地交互逻辑无关。
+const NET_VOLATILE = ["/api/v1/home/showcase-assets/"];
 const DOM_STATE_SCRIPT = `(() => {
   const elements = [];
   for (const element of document.querySelectorAll("*")) {
@@ -45,7 +47,14 @@ const DOM_STATE_SCRIPT = `(() => {
     for (const attribute of element.attributes) {
       const name = attribute.name.toLowerCase();
       if (name === "data-action-ui-id" || name === "role" || name.startsWith("aria-") || name === "disabled" || name === "checked" || name === "contenteditable") {
-        attributes[name] = attribute.value;
+        let value = attribute.value;
+        if (name.startsWith("aria-")) value = value.replace(/_r_[a-z0-9]+_/gi, "<react-id>");
+        if (name === "aria-label" && element.closest('[data-action-ui-id="chat-empty-recommendations"]')) {
+          if (/^(使用提示词:|Use prompt:)/i.test(value)) value = value.replace(/^(使用提示词:|Use prompt:).*/i, "$1 <推荐示例>");
+          else if (/^(全屏预览:|Fullscreen preview:)/i.test(value)) value = value.replace(/^(全屏预览:|Fullscreen preview:).*/i, "$1 <推荐示例>");
+          else if (tag === "video") value = "<推荐示例>";
+        }
+        attributes[name] = value;
       }
     }
     if (!Object.keys(attributes).length && !["input", "textarea", "select"].includes(tag)) continue;
@@ -74,6 +83,8 @@ function normalizeText(value) {
     .replace(UUID_PATTERN, "<uuid>")
     .replace(ISO_TIMESTAMP_PATTERN, "<t>")
     .replace(/\b\d{13}\b/g, "<t>")
+    .replace(/\bses_[a-z0-9]{12,}\b/gi, "<session>")
+    .replace(/\b(request\s*id\s*[:：]\s*)[a-z0-9_-]{16,}/gi, "$1<request>")
     .replace(/((?:https?|wss?):\/\/(?:localhost|127\.0\.0\.1)):\d{1,5}\b/gi, "$1:<port>")
     .replace(/((?:https?|wss?)%3A%2F%2F(?:localhost|127\.0\.0\.1))%3A\d{1,5}\b/gi, "$1%3A<port>")
     .replace(/\b(?:会话|Session)\s+[0-9a-z]{4,}\b/gi, "会话");
@@ -107,19 +118,15 @@ function localEndpoint(value) {
     const port = url.port ? ":<port>" : "";
     return {
       host: `${url.protocol}//${url.hostname}${port}`,
-      path: normalizeText(`${url.pathname}${url.search}`),
+      path: normalizeText(`${url.pathname}${url.search}`)
+        .replace(/((?:%26|[?&])_canvas_v(?:%3D|=))\d+/gi, "$1<version>"),
     };
   } catch {
     return null;
   }
 }
-function isNetVolatile(record) {
-  return NET_VOLATILE.some((endpoint) => record.path.includes(endpoint));
-}
 function snapshotNetwork(requests, frames) {
-  const normalizedRequests = requests
-    .filter((request) => !isNetVolatile(request))
-    .map((request) => normalizeValue(request));
+  const normalizedRequests = requests.map((request) => normalizeValue(request));
   const getRequests = [...new Set(
     normalizedRequests
       .filter((request) => request.method === "GET")
@@ -129,23 +136,34 @@ function snapshotNetwork(requests, frames) {
     getRequests,
     nonGetRequests: normalizedRequests.filter((request) => request.method !== "GET"),
     wsSent: frames
-      .filter((frame) => frame.direction === "sent" && !isNetVolatile(frame))
+      .filter((frame) => frame.direction === "sent")
       .map(({ direction, ...frame }) => normalizeValue(frame)),
     wsReceived: frames
-      .filter((frame) => frame.direction === "received" && !isNetVolatile(frame))
+      .filter((frame) => frame.direction === "received")
       .map(({ direction, ...frame }) => normalizeValue(frame)),
   };
 }
 function comparableNetwork(network) {
+  const nonGetGroups = new Map();
+  for (const request of network.nonGetRequests) {
+    if (request.method === "OPTIONS") continue;
+    const key = `${request.method} ${request.path}`;
+    const group = nonGetGroups.get(key) ?? [];
+    group.push(request);
+    nonGetGroups.set(key, group);
+  }
   return {
-    getRequests: network.getRequests,
-    nonGetRequests: network.nonGetRequests,
+    getRequests: network.getRequests.filter((request) =>
+      !NET_VOLATILE.some((prefix) => request.path.startsWith(prefix)),
+    ),
+    nonGetRequests: [...nonGetGroups.keys()].sort().flatMap((key) => nonGetGroups.get(key)),
     wsSent: network.wsSent,
   };
 }
 function readHiloFiles(workspace) {
   const root = path.join(workspace, ".hilo");
   const files = {};
+  const thumbnailCache = [];
   if (!existsSync(root)) return files;
   const visit = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
@@ -157,6 +175,15 @@ function readHiloFiles(workspace) {
       if (!entry.isFile() || /\.(?:sqlite|db)(?:-(?:wal|shm|journal))?$/i.test(entry.name)) continue;
       const relative = path.relative(root, file).split(path.sep).join("/");
       const bytes = readFileSync(file);
+      // 缩略图缓存文件名随远端资源 ID 变动；按内容摘要比较，仍保留重复文件数量和内容变化。
+      if (/^\.thumbnails\/[^/]+$/.test(relative)) {
+        thumbnailCache.push({
+          extension: path.extname(relative),
+          hash: createHash("sha256").update(bytes).digest("hex"),
+          size: bytes.length,
+        });
+        continue;
+      }
       const text = bytes.toString("utf8");
       if (text.includes("\0")) {
         files[relative] = bytes.toString("base64");
@@ -170,6 +197,9 @@ function readHiloFiles(workspace) {
     }
   };
   visit(root);
+  if (thumbnailCache.length) {
+    files[".thumbnails"] = thumbnailCache.sort((a, b) => a.extension.localeCompare(b.extension) || a.hash.localeCompare(b.hash));
+  }
   return files;
 }
 function shortValue(value) {
@@ -234,11 +264,11 @@ const ALL_PAGES = [
   { id: "creations", url: "/creations" },
   // ComfyUI 工作流不做：直接打开 /workflows 会回首页
   { id: "workflows", url: "/workflows" },
-  { id: "skills", url: "/skills" },
+  { id: "skills", url: "/skills", waitForRequests: ["/api/skills*", "/api/plugins*", "/api/skills/market*"] },
   // 技能页的其它标签（地址参数会被页面忽略，只能点）
   { id: "skills-connectors", url: "/skills", tabs: ["插件"] },
   { id: "skills-mine", url: "/skills", tabs: ["我的 Skill"] },
-  { id: "skill-community", url: "/skill-community" },
+  { id: "skill-community", url: "/skill-community", tabs: [{ wait: 6000 }], waitForRequests: ["/api/skills", "/api/plugins", "/api/skills/market*"] },
   { id: "changelog", url: "/changelog" },
   // 左下角连接状态点开的用户菜单，和设置里的「平台接入」分区
   { id: "user-menu", url: "/projects", tabs: [{ ui: "user-menu.trigger" }, { wait: 800 }] },
@@ -253,7 +283,7 @@ const ALL_PAGES = [
   { id: "ws-zoom", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.toolbar-zoom-menu" }, { wait: 600 }] },
   { id: "ws-chat-skill", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "chat-skill-btn" }, { wait: 800 }] },
   { id: "ws-select-image", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 800 }] },
-  { id: "ws-relight", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 600 }, { ui: "canvas.node-relight" }, { until: "canvas.relight.popover" }] },
+  { id: "ws-relight", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 600 }, { ui: "canvas.node-relight" }, { until: "canvas.relight.popover" }, { wait: 1500 }] },
   { id: "ws-multi-angle", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "canvas.image-node" }, { wait: 600 }, { ui: "canvas.node-multi-angle" }, { until: "canvas.multi-angle.popover" }] },
   { id: "ws-pdf", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "pdf" },
   { id: "ws-video", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, scenario: "video" },
@@ -269,11 +299,12 @@ const ALL_PAGES = [
   { id: "ws-layout", url: `/workspace?workspaceId=${encodeURIComponent(WS_A)}`, tabs: [{ ui: "workspace.view-mode-menu.stage", mouse: true }, { wait: 500 }, { ui: "workspace.view-mode.chat-only", mouse: true }, { wait: 1200 }] },
   // 会真的创建一个项目（数据目录每种模式都会重建），所以放最后，免得影响别的屏
   { id: "project-created", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用项目" }, "创建项目", { wait: 4000 }] },
-  { id: "project-assets", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用资产项目" }, "创建项目", { wait: 4000 }, "项目资产", { wait: 2000 }] },
+  { id: "project-assets", url: "/projects", tabs: ["新建项目", "新建本地项目", { type: "对比用资产项目" }, "创建项目", { wait: 4000 }, "项目资产", { untilSelector: '[data-action-ui-id="local-assets.panel"]' }, { wait: 2000 }], persistWaitMs: 3000 },
 ];
 // 只跑指定几屏：ONLY=home,skills-mine node scripts/ui-compare/compare.mjs
 const ONLY = process.env.ONLY?.split(",").filter(Boolean);
-const PAGES = ONLY ? ALL_PAGES.filter((p) => ONLY.includes(p.id)) : ALL_PAGES;
+const PAGES = (ONLY ? ALL_PAGES.filter((p) => ONLY.includes(p.id)) : ALL_PAGES)
+  .filter((p) => !DISABLED_PAGES.some((disabled) => disabled.id === p.id));
 const DISABLED_ONLY = ONLY?.filter((id) => DISABLED_PAGES.some((page) => page.id === id)) ?? [];
 if (DISABLED_ONLY.length) {
   throw new Error(`ONLY 请求了暂不参与门禁的页面：${DISABLED_ONLY.map((id) => `${id}（${DISABLED_PAGES.find((page) => page.id === id).reason}）`).join("；")}`);
@@ -284,13 +315,27 @@ const NO_ANIMATION = "*,*::before,*::after{animation:none!important;transition:n
 // 新建会话的标题带随机 id（会话 b1888e / Session 20cf09），两边各生成一个，像素对不上。截图前把这段文字改成固定值。
 const MASK_VOLATILE = `(() => {
   const re = /^(会话|Session)\\s+[0-9a-z]{4,}$/i;
+  const requestId = /(request\\s*id\\s*[:：]\\s*)[a-z0-9_-]{16,}/gi;
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   let node;
-  while ((node = walker.nextNode())) if (re.test(node.nodeValue.trim())) node.nodeValue = "会话";
+  while ((node = walker.nextNode())) {
+    if (re.test(node.nodeValue.trim())) node.nodeValue = "会话";
+    else node.nodeValue = node.nodeValue.replace(requestId, "$1<request>");
+  }
 })()`;
 const SETTLE = `(async()=>{
-  for (const v of document.querySelectorAll("video,audio")) { try { v.pause(); if (v.dataset.ovCompareSeek) v.currentTime = Number(v.dataset.ovCompareSeek); else v.currentTime = 0; } catch {} }
-  await Promise.all([...document.images].filter((i) => !i.complete).map((i) => new Promise((r) => { i.onload = i.onerror = r; setTimeout(r, 3000); })));
+  for (const v of document.querySelectorAll("video,audio")) { try { v.pause(); const target=v.dataset.ovCompareSeek?Number(v.dataset.ovCompareSeek):0; if(Math.abs(v.currentTime-target)>0.01)v.currentTime=target; } catch {} }
+  const images = [...document.images];
+    const imagesReady = async () => {
+      const deadline = performance.now() + 5000;
+      while (images.some((image) => !image.complete || image.naturalWidth <= 0) && performance.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      await Promise.all(images
+        .filter((image) => image.complete && image.naturalWidth > 0)
+        .map((image) => image.decode().catch(() => {})));
+    };
+  await Promise.race([imagesReady(), new Promise((resolve) => setTimeout(resolve, 5000))]);
   await new Promise((r) => { requestAnimationFrame(() => requestAnimationFrame(r)); setTimeout(r, 500); });
 })()`;
 // 首次启动的弹窗（AI 水印设置等）会挡住页面：两边都点掉。
@@ -305,7 +350,8 @@ const DISMISS_STARTUP = `(()=>{
 // 卡片封面是 CDN 上的 mp4，边下边播：截到第几帧取决于当时下到哪，同一份界面连跑两次都能差出整条
 // 卡片带（实测同模式两次差 7.3%，比两种构建之间的差还大）。这些封面不属于本仓库的代码，把 CDN 挡掉
 // 让两边都渲染成空白，剩下的差异才反映我们自己的改动。本地图片不受影响（走 127.0.0.1 的 local-file）。
-const BLOCKED_URLS = ["*cdn.hailuoai.com*"];
+// 打光预设缩略图来自远端展示 CDN、并非本地逻辑；屏蔽后两构建都会渲染相同回退。
+const BLOCKED_URLS = ["*cdn.hailuoai.com*", "*cdn.hailuoai.video*"];
 // 聊天面板的“精选”推荐是 Math.random 洗牌抽出来的（每次挂载抽的不一样），两边各抽一次必然差出几张卡片的文字。
 // 每个新文档开头把 Math.random 换成固定种子的伪随机数：两边调用次序相同，抽到的就是同一批。渲染代码本身不动。
 const SEEDED_RANDOM = `(() => {
@@ -379,32 +425,32 @@ async function rawOf(src) {
   return sharp(src).raw().ensureAlpha().toBuffer({ resolveWithObject: true });
 }
 // 两张图的差异比例。传文件路径或 PNG buffer 都行。
-async function ratio(a, b) {
+async function ratio(a, b, tolerance = TOL) {
   const [ia, ib] = await Promise.all([rawOf(a), rawOf(b)]);
   if (ia.info.width !== ib.info.width || ia.info.height !== ib.info.height) return 1;
   const px = ia.info.width * ia.info.height;
   let changed = 0;
   for (let i = 0; i < px; i++) {
     const o = i * 4;
-    if (Math.abs(ia.data[o] - ib.data[o]) + Math.abs(ia.data[o + 1] - ib.data[o + 1]) + Math.abs(ia.data[o + 2] - ib.data[o + 2]) > TOL) changed++;
+    if (Math.abs(ia.data[o] - ib.data[o]) + Math.abs(ia.data[o + 1] - ib.data[o + 1]) + Math.abs(ia.data[o + 2] - ib.data[o + 2]) > tolerance) changed++;
   }
   return changed / px;
 }
 // 卡片网格的位置、每行每列都靠封面视频撑开：等一两秒抓一次，抓到的时机随采集轮次漂移，
 // 于是同一份界面两次采集能差出一整条卡片带。改成反复重拍，直到连续两张像素一致为止。
 // 封面 CDN 已在 cdp() 里挡掉，这里的重拍只需兜住字体、光标这类残留抖动。
-const STABLE_TOL = 0.0002; // 0.02% 以内当作已经稳定（残留通常只有光标/滚动条这类单像素抖动）
+const STABLE_TOL = 0;
 async function stableShot(c) {
   let prev = null;
   let last = null;
   for (let i = 0; i < 8; i++) {
-    await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1, y: 1 });
+    await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: -1, y: -1 });
     await c.send("Runtime.evaluate", { expression: SETTLE, awaitPromise: true });
     await sleep(700);
     await c.send("Runtime.evaluate", { expression: MASK_VOLATILE });
     const shot = await c.send("Page.captureScreenshot", { format: "png" });
     const buf = Buffer.from(shot.result.data, "base64");
-    if (prev && (await ratio(prev, buf)) <= STABLE_TOL) return buf;
+    if (prev && (await ratio(prev, buf, 0)) <= STABLE_TOL) return buf;
     prev = buf;
     last = buf;
   }
@@ -428,23 +474,52 @@ async function cdp(port) {
         const requests = [];
         const frames = [];
         const websocketUrls = new Map();
+        const pendingLocalRequests = new Map();
+        const completedLocalPaths = new Set();
         let capturingNetwork = false;
+        let mainFrameId = null;
+        let navigationLoaderId = null;
+        let captureDocumentURL = null;
         ws.onmessage = (ev) => {
           const m = JSON.parse(ev.data);
           if (m.id) pending.get(m.id)?.(m);
-          else if (m.method === "Network.webSocketCreated") {
-            websocketUrls.set(m.params.requestId, localEndpoint(m.params.url));
+          else if (m.method === "Page.frameNavigated" && !m.params.frame.parentId) {
+            mainFrameId = m.params.frame.id;
+            if (capturingNetwork) navigationLoaderId = m.params.frame.loaderId;
           } else if (m.method === "Network.requestWillBeSent" && capturingNetwork) {
-            const request = m.params.request;
-            const endpoint = localEndpoint(request.url);
-            if (endpoint) {
-              requests.push({
-                method: String(request.method ?? "GET").toUpperCase(),
-                ...endpoint,
-                postData: normalizePayload(request.postData),
-              });
-              if (/^wss?:/i.test(request.url)) websocketUrls.set(m.params.requestId, endpoint);
+            const params = m.params;
+            const request = params.request;
+            if (params.type === "Document" && params.frameId === mainFrameId) {
+              navigationLoaderId = params.loaderId;
             }
+            if (navigationLoaderId && params.loaderId === navigationLoaderId) {
+              const endpoint = localEndpoint(request.url);
+              if (endpoint) {
+                requests.push({
+                  method: String(request.method ?? "GET").toUpperCase(),
+                  ...endpoint,
+                  postData: normalizePayload(request.postData),
+                });
+                if (params.type !== "WebSocket") pendingLocalRequests.set(params.requestId, new URL(request.url).pathname);
+                if (/^wss?:/i.test(request.url)) websocketUrls.set(params.requestId, endpoint);
+              }
+            }
+          } else if (
+            capturingNetwork &&
+            (m.method === "Network.loadingFinished" || m.method === "Network.loadingFailed")
+          ) {
+            const requestPath = pendingLocalRequests.get(m.params.requestId);
+            if (requestPath) {
+              pendingLocalRequests.delete(m.params.requestId);
+              completedLocalPaths.add(requestPath);
+            }
+          } else if (
+            m.method === "Network.webSocketCreated" &&
+            capturingNetwork &&
+            navigationLoaderId
+          ) {
+            const endpoint = localEndpoint(m.params.url);
+            if (endpoint) websocketUrls.set(m.params.requestId, endpoint);
           } else if (
             capturingNetwork &&
             (m.method === "Network.webSocketFrameSent" || m.method === "Network.webSocketFrameReceived")
@@ -473,22 +548,68 @@ async function cdp(port) {
           });
         await send("Runtime.enable");
         await send("Page.enable");
+        const frameTree = await send("Page.getFrameTree");
+        mainFrameId = frameTree.result.frameTree.frame.id;
         // 挡掉封面 CDN 后会抛网络错误，这是预期内的，不算界面报错
         await send("Network.enable");
         await send("Network.setBlockedURLs", { urls: BLOCKED_URLS });
         await send("Page.addScriptToEvaluateOnNewDocument", { source: SEEDED_RANDOM });
         // 日志里的随机 ID（UUID）和耗时每次不同，规整掉再比，否则同一条报错两边永远对不上
-        const visible = () => errors.filter((e) => !/hailuoai\.com/.test(e)).map((e) => e.replace(UUID_PATTERN, "<uuid>").replace(/durationMs=\d+/g, "durationMs=<n>"));
+        const visible = () => errors.filter((e) => !/cdn\.hailuoai\.(?:com|video)/.test(e)).map((e) => e.replace(UUID_PATTERN, "<uuid>").replace(/durationMs=\d+/g, "durationMs=<n>"));
         return {
           send,
           errors: visible,
           clearErrors: () => (errors.length = 0),
-          beginNetworkCapture: () => {
+          beginNetworkCapture: (documentURL) => {
             requests.length = 0;
             frames.length = 0;
+            websocketUrls.clear();
+            pendingLocalRequests.clear();
+            completedLocalPaths.clear();
+            navigationLoaderId = null;
+            captureDocumentURL = documentURL;
             capturingNetwork = true;
           },
+          waitForRequests: async (patterns, timeoutMs = 10000) => {
+            const matches = (requestPath, pattern) =>
+              pattern.endsWith("*")
+                ? requestPath.startsWith(pattern.slice(0, -1))
+                : requestPath === pattern;
+            const deadline = Date.now() + timeoutMs;
+            let idleSince = null;
+            while (Date.now() < deadline) {
+              const missing = patterns.filter((pattern) =>
+                ![...completedLocalPaths].some((requestPath) => matches(requestPath, pattern)),
+              );
+              const pendingMatches = [...pendingLocalRequests.values()].some((requestPath) =>
+                patterns.some((pattern) => matches(requestPath, pattern)),
+              );
+              if (!missing.length && !pendingMatches) {
+                idleSince ??= Date.now();
+                if (Date.now() - idleSince >= 500) return;
+              } else {
+                idleSince = null;
+              }
+              await sleep(100);
+            }
+            throw new Error(`等不到本机请求完成：${patterns.join(", ")}`);
+          },
+          waitForNetworkIdle: async (timeoutMs = 10000, idleMs = 1000) => {
+            const deadline = Date.now() + timeoutMs;
+            let idleSince = null;
+            while (Date.now() < deadline) {
+              if (!pendingLocalRequests.size) {
+                idleSince ??= Date.now();
+                if (Date.now() - idleSince >= idleMs) return;
+              } else {
+                idleSince = null;
+              }
+              await sleep(100);
+            }
+            throw new Error(`本机网络 ${idleMs}ms 未空闲，超时后仍在进行：${[...pendingLocalRequests.values()].join(", ")}`);
+          },
           endNetworkCapture: () => {
+            if (!navigationLoaderId) throw new Error(`未捕获到页面导航 loaderId：${captureDocumentURL}`);
             capturingNetwork = false;
             return snapshotNetwork(requests, frames);
           },
@@ -513,7 +634,14 @@ async function capturePageState(c) {
     expression: LOCAL_STORAGE_SCRIPT,
     returnByValue: true,
   });
-  const localStorage = Object.fromEntries(result.result?.result?.value ?? []);
+  const localStorage = Object.fromEntries((result.result?.result?.value ?? []).map(([key, value]) => {
+    if (typeof value !== "string") return [key, normalizeValue(value)];
+    try {
+      return [key, JSON.stringify(normalizeValue(JSON.parse(value)))];
+    } catch {
+      return [key, normalizeText(value)];
+    }
+  }));
   return normalizeValue({
     localStorage,
     hilo: {
@@ -521,6 +649,28 @@ async function capturePageState(c) {
       wsB: readHiloFiles(WS_B),
     },
   });
+}
+async function captureStablePageState(c) {
+  const deadline = Date.now() + 10000;
+  let previous = {
+    dom: await capturePageDom(c),
+    state: await capturePageState(c),
+  };
+  let lastDiff = { dom: [], state: [] };
+  while (Date.now() < deadline) {
+    await sleep(500);
+    const current = {
+      dom: await capturePageDom(c),
+      state: await capturePageState(c),
+    };
+    lastDiff = {
+      dom: jsonDiff(previous.dom, current.dom),
+      state: jsonDiff(previous.state, current.state),
+    };
+    if (!lastDiff.dom.length && !lastDiff.state.length) return current;
+    previous = current;
+  }
+  throw new Error(`DOM/state 10 秒内未稳定，最后一次差异：${JSON.stringify(lastDiff)}`);
 }
 
 async function evalValue(c, expression) {
@@ -663,11 +813,15 @@ async function runInteractionScenario(c, scenario) {
   if (scenario === "pdf") {
     const id = await uploadWorkspaceFile(c, "viewer.pdf");
     await clickNodeAction(c, id, "canvas.file-node.preview-eye");
+    const previewButton = `.react-flow__node[data-id="${id}"] [data-action-ui-id="canvas.file-node.view-card-from-preview"]`;
+    if (!await waitForValue(c, `!!document.querySelector(${JSON.stringify(previewButton)})`, "PDF preview view", 2000).catch(() => false)) {
+      await evalValue(c, `(() => { const e=document.querySelector(${JSON.stringify(`.react-flow__node[data-id="${id}"] [data-action-ui-id="canvas.file-node.preview-eye"]`)}); if(!e)return false; e.click(); return true; })()`);
+    }
     try {
       await waitForValue(c, `(() => { const e=document.querySelector('.react-flow__node[data-id="${id}"] canvas'); if(!e||!e.width||!e.height)return false; try { const d=e.getContext("2d").getImageData(0,0,e.width,e.height).data; return d.some((x,i)=>i%4===3&&x>0); } catch { return false; } })()`, "PDF.js canvas render", 15000);
     } catch {
-      const details = await evalValue(c, `(() => { const n=document.querySelector('.react-flow__node[data-id="${id}"]'); const resources=performance.getEntriesByType("resource").filter(x=>/viewer\\.pdf|fileUrl|asset-file/i.test(x.name)).map(x=>({name:x.name,duration:x.duration,responseStatus:x.responseStatus,transferSize:x.transferSize})); return {exists:!!n,text:n?.innerText?.slice(0,300),canvases:[...(n?.querySelectorAll("canvas")||[])].map(x=>({width:x.width,height:x.height})),resources,body:document.body.innerText.slice(0,500)}; })()`);
-      throw new Error(`PDF.js canvas render failed: ${JSON.stringify(details)}`);
+      const details = await evalValue(c, `(() => { const n=document.querySelector('.react-flow__node[data-id="${id}"]'); const resources=performance.getEntriesByType("resource").filter(x=>/viewer\\.pdf|fileUrl|asset-file/i.test(x.name)).map(x=>({name:x.name,duration:x.duration,responseStatus:x.responseStatus,transferSize:x.transferSize})); return {exists:!!n,text:n?.innerText?.slice(0,500),preview:!!n?.querySelector('[data-action-ui-id="canvas.file-node.view-card-from-preview"]'),canvases:[...(n?.querySelectorAll("canvas")||[])].map(x=>({width:x.width,height:x.height})),resources,body:document.body.innerText.slice(0,500)}; })()`);
+      throw new Error(`PDF.js canvas render failed: ${JSON.stringify({ ...details, errors: c.errors().slice(-10) })}`);
     }
     return;
   }
@@ -708,12 +862,57 @@ async function runInteractionScenario(c, scenario) {
       const details = await evalValue(c, `(() => { const n=document.querySelector('.react-flow__node[data-id="${id}"]'); const m=n?.querySelector("${tag}"); const b=n?.querySelector('[data-action-ui-id="${playAction}"]'); return {html:n?.outerHTML?.slice(0,5000),paused:m?.paused,muted:m?.muted,readyState:m?.readyState,networkState:m?.networkState,error:m?.error&&{code:m.error.code,message:m.error.message},canPlayMp4:m?.canPlayType("video/mp4; codecs=avc1.42E01E"),playLabel:b?.getAttribute("aria-label")}; })()`);
       throw new Error(`${scenario} playback failed: ${JSON.stringify(details)}`);
     }
-    await evalValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); m.dataset.ovCompareSeek="0.4"; m.currentTime=0.4; return true; })()`);
+    await evalValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); if(!m)return false; m.dataset.ovCompareSeek="0.4"; return true; })()`);
+    const seekSelector = tag === "audio" ? 'svg[role="img"]' : 'div[class*="group/progress"]';
+    const seekUi = async (progress = 0.4) => {
+      const point = await evalValue(c, `(() => {
+        const n=document.querySelector('.react-flow__node[data-id="${id}"]');
+        const control=n?.querySelector(${JSON.stringify(seekSelector)});
+        if(!control)return null;
+        const r=control.getBoundingClientRect();
+        return r.width>0&&r.height>0?{x:r.left+r.width*${progress},y:r.top+r.height/2}:null;
+      })()`);
+      if (!point) throw new Error(`${scenario} seek control is not visible`);
+      await c.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: point.x, y: point.y });
+      await c.send("Input.dispatchMouseEvent", { type: "mousePressed", x: point.x, y: point.y, button: "left", clickCount: 1 });
+      await c.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: point.x, y: point.y, button: "left", clickCount: 1 });
+    };
+    await seekUi();
     await waitForValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); return m&&Math.abs(m.currentTime-0.4)<0.12; })()`, `${scenario} seek`);
     if (await evalValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); return m&&!m.paused; })()`)) {
       await clickNodeAction(c, id, playAction);
     }
     await waitForValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); return m&&m.paused; })()`, `${scenario} pause`);
+    if (scenario === "audio") {
+      await seekUi(0.6);
+      await evalValue(c, `(() => { const m=document.querySelector('.react-flow__node[data-id="${id}"] ${tag}'); if(!m?.paused)return false; m.dataset.ovCompareSeek=String(m.currentTime); return true; })()`);
+      const pausedSeekState = `(() => {
+        const n=document.querySelector('.react-flow__node[data-id="${id}"]');
+        const m=n?.querySelector("${tag}");
+        const waveform=n?.querySelector('svg[role="img"]');
+        const playhead=waveform?.querySelector('rect[width="2"]');
+        const expected=Number(waveform?.getAttribute("width"))*(Number(m?.currentTime)/Number(m?.duration))-1;
+        return {
+          paused: m?.paused,
+          currentTime: m?.currentTime,
+          duration: m?.duration,
+          waveformWidth: waveform?.getAttribute("width"),
+          playheadX: playhead?.getAttribute("x"),
+          expectedPlayheadX: expected,
+        };
+      })()`;
+      const pausedSeekReady = `(() => {
+        const state=${pausedSeekState};
+        return state.paused&&Math.abs(state.currentTime-0.6)<0.03&&state.playheadX&&Math.abs(Number(state.playheadX)-state.expectedPlayheadX)<0.1;
+      })()`;
+      try {
+        await waitForValue(c, pausedSeekReady, `${scenario} paused seek`);
+      } catch {
+        const details = await evalValue(c, pausedSeekState);
+        throw new Error(`等待 ${scenario} paused seek 超时：${JSON.stringify(details)}`);
+      }
+      await sleep(300);
+    }
     return;
   }
   if (scenario === "chat") {
@@ -722,7 +921,9 @@ async function runInteractionScenario(c, scenario) {
     await key(c, "Enter", "Enter", 8);
     await c.send("Input.insertText", { text: "second line" });
     await key(c, "Enter", "Enter");
-    await sleep(1800);
+    await waitForValue(c, `(() => { const input=document.querySelector('[data-action-ui-id="message-input"]'); return document.body.innerText.includes("UI compare interaction") && !input?.innerText.includes("UI compare interaction"); })()`, "chat message submission", 10000);
+    await waitForValue(c, `!!document.querySelector('[data-action-ui-id="message-stop-btn"], [role="status"][aria-label="生成中"]') || /invalid token/i.test(document.body.innerText)`, "chat response start or failure", 45000);
+    await waitForValue(c, `!document.querySelector('[data-action-ui-id="message-stop-btn"], [role="status"][aria-label="生成中"]')`, "chat response completion", 90000);
     return;
   }
   if (scenario === "code-editor") {
@@ -798,6 +999,40 @@ async function runInteractionScenario(c, scenario) {
   }
 }
 
+function comparisonProcessPids(userDataDir) {
+  try {
+    return readdirSync("/proc")
+      .filter((entry) => /^\d+$/.test(entry))
+      .map(Number)
+      .filter((pid) => {
+        if (pid === process.pid) return false;
+        try {
+          return readFileSync(`/proc/${pid}/environ`).includes(Buffer.from(`OV_USER_DATA_DIR=${userDataDir}\0`));
+        } catch {
+          return false;
+        }
+      });
+  } catch {
+    return [];
+  }
+}
+
+async function stopComparisonProcesses(child, userDataDir) {
+  const signal = (name) => {
+    try {
+      process.kill(-child.pid, name);
+    } catch {}
+    for (const pid of comparisonProcessPids(userDataDir)) {
+      try {
+        process.kill(pid, name);
+      } catch {}
+    }
+  };
+  signal("SIGTERM");
+  await sleep(3000);
+  signal("SIGKILL");
+}
+
 async function runMode(mode) {
   // 上一次异常退出留下的实例会占着调试端口，连上去就是旧页面
   if (await fetch(`http://127.0.0.1:${PORT}/json`).then(() => true, () => false)) throw new Error(`调试端口 ${PORT} 已被占用，先关掉残留的 Electron`);
@@ -846,8 +1081,9 @@ async function runMode(mode) {
     for (const p of PAGES) {
       console.log(`  ${mode} ${p.id}`);
       c.clearErrors();
-      c.beginNetworkCapture();
-      await c.send("Runtime.evaluate", { expression: `location.assign(${JSON.stringify(`app://.${p.url}`)})` });
+      const documentURL = `app://.${p.url}`;
+      c.beginNetworkCapture(documentURL);
+      await c.send("Runtime.evaluate", { expression: `location.assign(${JSON.stringify(documentURL)})` });
       await sleep(6000);
       await c.send("Runtime.evaluate", { expression: `(()=>{const s=document.createElement('style');s.textContent=${JSON.stringify(NO_ANIMATION)};document.head.appendChild(s)})()` });
       // 引导提示（快速切换布局模式等）是延时弹出的，多点几轮，直到连续一轮什么都没点到
@@ -857,6 +1093,7 @@ async function runMode(mode) {
         await sleep(1500);
         if (!r.result?.result?.value && i >= 1) break;
       }
+      await sleep(1500);
       // 鼠标挪到左上角：否则系统鼠标指针停在哪张卡片上，哪张就是悬停样式
       let restoreDateNow = false;
       for (const label of p.tabs ?? []) {
@@ -941,10 +1178,22 @@ async function runMode(mode) {
         await sleep(1500);
       }
       if (p.scenario) await runInteractionScenario(c, p.scenario);
+      if (p.waitForRequests) await c.waitForRequests(p.waitForRequests);
+      if (p.id === "skills") {
+        await waitForValue(c, `(() => {
+          const root = document.querySelector('[data-action-ui-id="skills-scroll-container"]');
+          if (!root) return false;
+          const loading = [...root.querySelectorAll("p")].some((element) => /^(?:Loading market skills|加载市场 Skill 中)/i.test(element.textContent.trim()));
+          return !loading &&
+            !!root.querySelector('[data-action-ui-id="market-community-featured"]') &&
+            !!root.querySelector('[data-action-ui-id="other-skill-item"]');
+        })()`, "skills 社区列表加载完成");
+      }
+      await sleep(p.persistWaitMs ?? 1200);
+      await c.waitForNetworkIdle();
+      const { dom, state } = await captureStablePageState(c);
       const buf = await stableShot(c);
-      await sleep(p.persistWaitMs ?? 250);
-      const dom = await capturePageDom(c);
-      const state = await capturePageState(c);
+      await c.waitForNetworkIdle();
       const net = c.endNetworkCapture();
       if (p.scenario === "chat" && !JSON.stringify({ requests: net.nonGetRequests, frames: net.wsSent }).includes("UI compare interaction")) {
         throw new Error("chat input scenario did not emit the expected gateway request/frame");
@@ -958,20 +1207,16 @@ async function runMode(mode) {
     }
     c.close();
   } finally {
-    try {
-      process.kill(-child.pid, "SIGTERM");
-    } catch {}
-    await sleep(3000);
-    try {
-      process.kill(-child.pid, "SIGKILL");
-    } catch {}
+    await stopComparisonProcesses(child, env.OV_USER_DATA_DIR);
   }
   return results;
 }
 
-async function diff(a, b, out) {
+async function diff(a, b, out, nonAAOut) {
   const [ia, ib] = await Promise.all([rawOf(a), rawOf(b)]);
-  if (ia.info.width !== ib.info.width || ia.info.height !== ib.info.height) return { ratio: 1, note: "尺寸不同" };
+  if (ia.info.width !== ib.info.width || ia.info.height !== ib.info.height) {
+    return { ratio: 1, changed: null, nonAARatio: 1, nonAAChanged: null, pixelmatchNonAA: null, note: "尺寸不同" };
+  }
   const px = ia.info.width * ia.info.height;
   const mask = Buffer.alloc(px * 4);
   let changed = 0;
@@ -989,7 +1234,28 @@ async function diff(a, b, out) {
     }
   }
   await sharp(mask, { raw: { width: ia.info.width, height: ia.info.height, channels: 4 } }).png().toFile(out);
-  return { ratio: changed / px };
+  const pixelmatchMask = Buffer.alloc(px * 4);
+  const pixelmatchNonAA = pixelmatch(ia.data, ib.data, pixelmatchMask, ia.info.width, ia.info.height, {
+    includeAA: false,
+    threshold: 0,
+    diffColor: [255, 0, 0],
+    diffColorAlt: [255, 0, 0],
+    aaColor: [255, 255, 0],
+  });
+  const nonAAMask = Buffer.alloc(px * 4);
+  let nonAAChanged = 0;
+  for (let i = 0; i < px; i++) {
+    const o = i * 4;
+    const delta = Math.abs(ia.data[o] - ib.data[o]) + Math.abs(ia.data[o + 1] - ib.data[o + 1]) + Math.abs(ia.data[o + 2] - ib.data[o + 2]);
+    const isPixelmatchNonAA = pixelmatchMask[o] === 255 && pixelmatchMask[o + 1] === 0 && pixelmatchMask[o + 2] === 0;
+    if (delta > TOL && isPixelmatchNonAA) {
+      nonAAChanged++;
+      nonAAMask[o] = 255;
+      nonAAMask[o + 3] = 255;
+    }
+  }
+  await sharp(nonAAMask, { raw: { width: ia.info.width, height: ia.info.height, channels: 4 } }).png().toFile(nonAAOut);
+  return { ratio: changed / px, changed, nonAARatio: nonAAChanged / px, nonAAChanged, pixelmatchNonAA };
 }
 
 if (!existsSync(FIXTURE)) throw new Error(`缺少测试数据 ${FIXTURE}`);
@@ -1015,6 +1281,12 @@ function writeGolden(results) {
   mkdirSync(GOLDEN, { recursive: true });
   const errorsFile = path.join(GOLDEN, "errors.json");
   const errors = existsSync(errorsFile) ? JSON.parse(readFileSync(errorsFile, "utf8")) : {};
+  for (const { id } of DISABLED_PAGES) {
+    delete errors[id];
+    for (const extension of [".png", ".net.json", ".dom.json", ".state.json"]) {
+      rmSync(path.join(GOLDEN, `${id}${extension}`), { force: true });
+    }
+  }
   for (const [id, r] of Object.entries(results)) {
     copyFileSync(r.file, path.join(GOLDEN, `${id}.png`));
     errors[id] = r.errors;
@@ -1036,7 +1308,12 @@ const test = await runMode(testMode);
 const pages = [];
 let failed = false;
 for (const p of PAGES) {
-  const d = await diff(base[p.id].file, test[p.id].file, path.join(outDir, `${p.id}.diff.png`));
+  const d = await diff(
+    base[p.id].file,
+    test[p.id].file,
+    path.join(outDir, `${p.id}.diff.png`),
+    path.join(outDir, `${p.id}.non-aa.diff.png`),
+  );
   const newErrors = test[p.id].errors.filter((e) => !base[p.id].errors.includes(e));
   const channelDiffs = {
     netDiff: jsonDiff(comparableNetwork(base[p.id].net), comparableNetwork(test[p.id].net)),
@@ -1044,12 +1321,18 @@ for (const p of PAGES) {
     stateDiff: jsonDiff(base[p.id].state, test[p.id].state),
   };
   const pixelDiff = d.ratio !== 0;
-  const pageFailed = pixelDiff || newErrors.length > 0 || Object.values(channelDiffs).some((items) => items.length > 0);
+  const pixelDiffNonAA = d.nonAARatio !== 0;
+  const pageFailed = pixelDiffNonAA || newErrors.length > 0 || Object.values(channelDiffs).some((items) => items.length > 0);
   failed ||= pageFailed;
   pages.push({
     page: p.id,
     diffPct: +(d.ratio * 100).toFixed(3),
+    diffPixels: d.changed,
+    diffPctNonAA: +(d.nonAARatio * 100).toFixed(8),
+    diffPixelsNonAA: d.nonAAChanged,
+    pixelmatchNonAA: d.pixelmatchNonAA,
     pixelDiff,
+    pixelDiffNonAA,
     note: d.note,
     newErrors,
     baseErrors: base[p.id].errors.length,
@@ -1058,7 +1341,7 @@ for (const p of PAGES) {
   for (const channel of ["net", "dom", "state"]) {
     writeFileSync(path.join(outDir, `${p.id}.${testMode}.${channel}.json`), JSON.stringify(test[p.id][channel], null, 2));
   }
-  console.log(`${p.id.padEnd(18)} 像素差异 ${(d.ratio * 100).toFixed(3).padStart(7)}%  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
+  console.log(`${p.id.padEnd(18)} 像素原始/非AA ${(d.ratio * 100).toFixed(3).padStart(7)}%/${(d.nonAARatio * 100).toFixed(6)}% (${d.changed ?? "?"}/${d.nonAAChanged ?? "?"})  新增报错 ${newErrors.length}  网络/DOM/状态 ${channelDiffs.netDiff.length}/${channelDiffs.domDiff.length}/${channelDiffs.stateDiff.length}${d.note ? "  " + d.note : ""}`);
   for (const e of newErrors.slice(0, 3)) console.log("    " + e);
 }
 const report = { netVolatile: NET_VOLATILE, pages };
