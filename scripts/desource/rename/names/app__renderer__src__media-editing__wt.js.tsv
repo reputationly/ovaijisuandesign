@@ -1,0 +1,66 @@
+key	new	依据
+Qo@76:5	emptyPluginList	提供没有配置 remark 或 rehype 插件时复用的空列表。
+en@77:5	defaultRemarkRehypeOptions	保存 remarkRehype 转换时默认启用危险 HTML 的选项。
+We@80:5	pluginFunctionNameCache	按函数对象缓存插件函数名以构造处理器缓存键。
+Cs@139:5	hasRehypeRawPlugin	检查 rehype 插件列表是否包含 rehypeRaw。
+Go@66:5	textifyRawHtmlPlugin	将语法树中的原始 HTML 节点替换为文本节点的 remark 插件。
+t2@57:7	codeText	保存渲染上下文中的代码文本，缺失时返回 null。
+e2@58:7	renderContext	读取包含代码文本的 Markdown 渲染上下文。
+t2@62:7	mermaidOptions	保存渲染上下文中的 Mermaid 配置，缺失时返回 null。
+e2@63:7	renderContext	读取包含 Mermaid 配置的 Markdown 渲染上下文。
+e2@66:17	tree	接收待访问并处理原始 HTML 节点的语法树。
+t2@67:22	node	接收 visit 当前访问的 HTML 节点并将其替换为文本节点。
+o2@67:26	childIndex	保存当前 HTML 节点在父节点中的子节点索引。
+n2@67:30	parentNode	保存当前 HTML 节点的父节点以替换其子节点。
+t2@87:20	processorOptions	接收 remark、rehype 插件及 remarkRehype 选项。
+o2@88:9	cachedKey	读取此选项对象已缓存的处理器键。
+n2@90:9	rehypePlugins	保存创建处理器时配置的 rehype 插件列表。
+r2@91:7	remarkPlugins	保存创建处理器时配置的 remark 插件列表。
+s2@92:7	remarkRehypeOptions	保存 remarkRehype 的额外转换选项。
+a2@97:9	serializePluginList	将插件列表及其选项序列化为缓存键片段。
+l2@116:7	rehypePluginKey	保存序列化后的 rehype 插件片段。
+i2@117:7	remarkPluginKey	保存序列化后的 remark 插件片段。
+d2@118:7	remarkRehypeOptionsKey	保存序列化后的 remarkRehype 选项片段。
+c3@119:7	cacheKey	组合插件和 remarkRehype 选项片段作为处理器缓存键。
+p3@94:11	defaultCacheKey	保存无插件配置时使用的默认缓存键。
+p3@97:15	pluginList	接收需要序列化的插件列表。
+m3@99:13	pluginSignature	累积插件名称及选项形成的签名字符串。
+u4@100:18	pluginIndex	遍历插件列表时表示当前插件位置的下标。
+f2@101:15	pluginEntry	保存当前插件或插件与选项组成的二元组。
+h2@103:18	plugin	保存二元组中的插件函数或插件标识。
+b3@103:22	pluginOptions	保存二元组中的插件配置对象。
+g2@105:19	cachedFunctionName	读取或缓存插件函数的名称用于生成签名。
+h2@110:17	cachedFunctionName	读取或缓存插件函数的名称用于生成签名。
+t2@122:7	processorOptions	接收用于计算处理器缓存键的插件和转换选项。
+o2@123:9	cacheKey	保存当前处理器选项对应的缓存键。
+n2@124:7	cachedProcessor	读取该缓存键对应的处理器实例。
+t2@127:7	processorOptions	接收需要关联处理器实例的选项。
+o2@127:11	processor	保存要按选项缓存的 unified 处理器实例。
+n2@128:9	cacheKey	保存处理器选项对应的缓存键。
+r2@130:11	oldestCacheKey	保存缓存中最早插入的键以便淘汰。
+e2@139:11	pluginList	接收待检查的 rehype 插件列表。
+t2@140:12	pluginEntry	检查列表项本身或其二元组中的插件是否为 rehypeRaw。
+e2@141:18	processorOptions	接收 Markdown 处理器的插件及转换选项。
+t2@142:7	rehypePlugins	保存配置的 rehype 插件列表。
+o2@143:5	remarkPlugins	保存配置的 remark 插件列表。
+n2@144:5	remarkPluginsWithHtmlFallback	在缺少 rehypeRaw 时追加原始 HTML 文本化插件。
+r2@145:5	remarkRehypeOptions	合并危险 HTML 默认值与调用方的转换选项。
+e2@153:18	url	原样返回调用方传入的 URL 值。
+e2@154:18	parentNode	保存需要修改子节点的父节点。
+t2@154:22	childIndex	保存要移除或替换的子节点索引。
+o2@154:26	shouldRemoveChild	为真时从父节点中移除指定子节点。
+n2@154:30	textContent	保存替换原节点的文本内容。
+e2@162:18	element	接收需要检查 URL 属性的语法树元素。
+t2@162:22	urlTransform	接收并转换元素 URL 属性的回调函数。
+o2@163:7	transformedUrl	保存 URL 转换回调返回的新 URL 值。
+n2@164:12	attributeName	遍历允许检查的 URL 属性名。
+r2@166:11	attributeValue	保存元素当前 URL 属性值。
+s2@167:9	allowedTags	保存该 URL 属性适用的元素标签列表或 null。
+e2@173:18	element	接收需要判断是否跳过的语法树元素。
+t2@173:22	childIndex	保存该元素在父节点中的子节点索引。
+o2@173:26	parentNode	保存该元素所属的父节点。
+n2@173:30	allowedElements	保存允许通过的元素标签列表。
+r2@173:34	disallowedElements	保存需要跳过的元素标签列表。
+s2@173:38	allowElement	保存调用方提供的元素允许判定回调。
+a2@174:7	shouldSkipElement	记录标签过滤或回调判定出的跳过结果。
+id2@237:28	selectionId	保存需要匹配可见媒体模型的选择标识。

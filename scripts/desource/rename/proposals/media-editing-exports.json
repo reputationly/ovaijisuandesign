@@ -1,5 +1,24 @@
 {
   "app/renderer/src/media-editing/package.jsx": {
     "File$1": "FileIcon"
+  },
+  "app/renderer/src/media-editing/wt.js": {
+    "et": "IncompleteCodeContext",
+    "tt": "useIsIncompleteCode",
+    "nt": "CodeMetadataContext",
+    "He": "useCodeMetadata",
+    "De": "defaultMarkdownTranslations",
+    "Be": "MarkdownTranslationContext",
+    "D3": "useMarkdownTranslations",
+    "Ve": "MarkdownRenderContext",
+    "ct2": "useMarkdownRenderContext",
+    "Li": "useMarkdownCode",
+    "de": "useMermaidOptions",
+    "wt": "MarkdownRenderCache",
+    "ks": "createMarkdownProcessor",
+    "on": "identityUrlTransform",
+    "vs": "replaceNodeWithText",
+    "xs": "transformUrlProperties",
+    "Ts": "shouldSkipElement"
   }
 }
