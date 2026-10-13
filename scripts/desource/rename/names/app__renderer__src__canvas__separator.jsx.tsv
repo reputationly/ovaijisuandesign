@@ -1,0 +1,7 @@
+key	old	new	依据
+subscribers$1@103:7	subscribers$1	zoomTierSubscribers	该集合保存 useStableZoomTier 的订阅者并在缩放层级变化时通知。
+notify$2@104:10	notify$2	notifyZoomTierSubscribers	该函数遍历缩放层级订阅者并触发更新。
+sub@57:11	sub	subtype	image MIME 类型去掉 image/ 前缀后得到的子类型用于生成文件扩展名。
+cb@91:14	cb	callback	notify 调用 stable zoom bucket 订阅集合中的该回调。
+cb@105:14	cb	callback	notifyZoomTierSubscribers 调用缩放层级订阅集合中的该回调。
+cb@117:20	cb	callback	subscribe 将该回调添加到缩放层级订阅集合并在取消时移除。

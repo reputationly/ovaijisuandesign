@@ -54,9 +54,9 @@ export const CanvasReleaseRegionContext =
   reactExports.createContext("overseas");
 export function getExtFromMime(mime, fallback = "mp4") {
   if (mime.startsWith("image/")) {
-    const sub = mime.slice("image/".length);
-    if (sub === "jpeg") return "jpg";
-    return sub.split("+")[0] || fallback;
+    const subtype = mime.slice("image/".length);
+    if (subtype === "jpeg") return "jpg";
+    return subtype.split("+")[0] || fallback;
   }
   if (mime.includes("webm")) return "webm";
   if (mime.includes("quicktime") || mime.includes("mov")) return "mov";
@@ -88,7 +88,7 @@ function bucketZoomForBitmap(zoom2) {
 }
 export const subscribers = new Set();
 function notify() {
-  for (const cb of subscribers) cb();
+  for (const callback of subscribers) callback();
 }
 export let currentBucket = 1;
 export function commitStableZoomBucket(zoom2) {
@@ -100,24 +100,24 @@ export function commitStableZoomBucket(zoom2) {
 export function seedStableZoomBucket(zoom2) {
   currentBucket = bucketZoomForBitmap(zoom2);
 }
-const subscribers$1 = new Set();
-function notify$2() {
-  for (const cb of subscribers$1) cb();
+const zoomTierSubscribers = new Set();
+function notifyZoomTierSubscribers() {
+  for (const callback of zoomTierSubscribers) callback();
 }
 let currentTier = 1;
 export function commitStableZoomTier(zoom2) {
   const next2 = getZoomTier(zoom2);
   if (next2 === currentTier) return;
   currentTier = next2;
-  notify$2();
+  notifyZoomTierSubscribers();
 }
 export function seedStableZoomTier(zoom2) {
   currentTier = getZoomTier(zoom2);
 }
-function subscribe(cb) {
-  subscribers$1.add(cb);
+function subscribe(callback) {
+  zoomTierSubscribers.add(callback);
   return () => {
-    subscribers$1.delete(cb);
+    zoomTierSubscribers.delete(callback);
   };
 }
 function getSnapshot() {

@@ -1,0 +1,7 @@
+key	old	new	依据
+end@14:7	end	rectEnd	该函数计算矩形在给定轴上的结束坐标。
+ref@29:14	ref	reference	该参考矩形用于计算与 moving 矩形的轴间距和对齐候选。
+a2@66:8	a2	leftCandidate	排序比较器左侧对齐候选的 delta、priority 和 separation 被依次比较。
+b3@66:12	b3	rightCandidate	排序比较器右侧对齐候选的 delta、priority 和 separation 被依次比较。
+ref@79:16	ref	reference	参考矩形用于扩展对齐辅助线的起止范围。
+ref@131:47	ref	reference	过滤保留与 viewport 相交的参考矩形。

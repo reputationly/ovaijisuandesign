@@ -12,8 +12,8 @@ export function findFreePositionFromAnchor(anchor, size2, occupied, options) {
     w: size2.width,
     h: size2.height,
   };
-  for (let i2 = 0; i2 < maxIterations; i2++) {
-    const blocker = occupied.find((o2) => rectsOverlap(candidate, o2));
+  for (let index = 0; index < maxIterations; index++) {
+    const blocker = occupied.find((occupiedRect) => rectsOverlap(candidate, occupiedRect));
     if (!blocker) break;
     if (shiftAxis === "x") {
       const nextX = blocker.x + blocker.w + gap;
@@ -62,15 +62,15 @@ export const DRAFT_PROTECTED_GENERATION_STATUSES = new Set([
 export function deriveEdgeId(sourceId, targetId) {
   return `${sourceId}->${targetId}`;
 }
-export function parseNodeId(id2) {
-  const sep = id2.lastIndexOf("~");
-  if (sep === -1)
+export function parseNodeId(nodeId) {
+  const separatorIndex = nodeId.lastIndexOf("~");
+  if (separatorIndex === -1)
     return {
-      assetId: id2,
+      assetId: nodeId,
     };
   return {
-    assetId: id2.slice(0, sep),
-    cloneId: id2.slice(sep + 1),
+    assetId: nodeId.slice(0, separatorIndex),
+    cloneId: nodeId.slice(separatorIndex + 1),
   };
 }
 export function isEmptyNode(node2) {

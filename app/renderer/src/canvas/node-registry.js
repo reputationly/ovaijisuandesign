@@ -44,7 +44,7 @@ export class NodeRegistry {
     const all2 = Array.from(this.types.values());
     if (!mode2) return all2;
     return all2.filter(
-      (t2) => !t2.supportedModes || t2.supportedModes.includes(mode2),
+      (definition) => !definition.supportedModes || definition.supportedModes.includes(mode2),
     );
   }
   /** Get all registered node component types as a Record for @xyflow */
@@ -82,23 +82,23 @@ export class PluginManager {
     }
     this.plugins.delete(pluginId);
   }
-  getPlugin(id2) {
-    return this.plugins.get(id2);
+  getPlugin(pluginId) {
+    return this.plugins.get(pluginId);
   }
   listPlugins() {
     return Array.from(this.plugins.values());
   }
   /** Collect toolbar items from active plugins only */
   getToolbarItems() {
-    return this.listActivePlugins().flatMap((p3) => p3.toolbarItems ?? []);
+    return this.listActivePlugins().flatMap((plugin) => plugin.toolbarItems ?? []);
   }
   /** Collect context menu items from active plugins only */
   getContextMenuItems() {
-    return this.listActivePlugins().flatMap((p3) => p3.contextMenuItems ?? []);
+    return this.listActivePlugins().flatMap((plugin) => plugin.contextMenuItems ?? []);
   }
   listActivePlugins() {
-    return Array.from(this.plugins.values()).filter((p3) =>
-      this.activePlugins.has(p3.id),
+    return Array.from(this.plugins.values()).filter((plugin) =>
+      this.activePlugins.has(plugin.id),
     );
   }
 }
@@ -213,8 +213,8 @@ export function fillStillApplies(node2, fill) {
 }
 
 export function findFillTarget(nodes, nodeId, fill) {
-  const n2 = nodes.find((node2) => node2.id === nodeId);
-  return n2 && fillStillApplies(n2, fill) ? n2 : null;
+  const node = nodes.find((node2) => node2.id === nodeId);
+  return node && fillStillApplies(node, fill) ? node : null;
 }
 
 export function resolvePlaceholderFlowSize(node2, inheritedSize) {

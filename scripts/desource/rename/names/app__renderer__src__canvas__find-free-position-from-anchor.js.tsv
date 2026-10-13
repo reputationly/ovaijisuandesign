@@ -1,0 +1,5 @@
+key	old	new	依据
+i2@15:12	i2	index	循环下标限制查找空闲位置时尝试的最大轮数。
+o2@16:36	o2	occupiedRect	occupied 集合中的矩形与当前候选位置进行重叠检测。
+id2@65:29	id2	nodeId	该节点标识被拆分为 assetId 及可选 cloneId。
+sep@66:9	sep	separatorIndex	lastIndexOf 返回分隔符波浪号在 nodeId 中的位置。

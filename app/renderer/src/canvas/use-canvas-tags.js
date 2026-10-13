@@ -65,11 +65,11 @@ export function useCanvasTags() {
   }, [queryClient2, queryKey]);
   const saveTagsMutation = useMutation({
     mutationFn: async (request) => {
-      const res = await gatewayFetch2(
+      const response = await gatewayFetch2(
         API_PATHS.assetTagMutationsBatch,
         createJsonMutationRequest("PATCH", request),
       );
-      return await res.json();
+      return await response.json();
     },
     onSuccess: (body2) => {
       for (const asset of body2.updatedAssets) {
@@ -105,7 +105,7 @@ export function useCanvasTags() {
   const createTag = reactExports.useCallback(
     async (name2, assets) => {
       try {
-        const res = await gatewayFetch2(
+        const response = await gatewayFetch2(
           API_PATHS.canvasTags,
           createJsonMutationRequest("POST", {
             name: name2,
@@ -113,7 +113,7 @@ export function useCanvasTags() {
             revision: registry2.revision,
           }),
         );
-        const body2 = await res.json();
+        const body2 = await response.json();
         queryClient2.setQueryData(queryKey, body2.registry);
         if (assets?.length)
           await updateAssignments(body2.tag.id, assets, "assign");
@@ -135,14 +135,14 @@ export function useCanvasTags() {
   const updateTag = reactExports.useCallback(
     async (tagId, patch2) => {
       try {
-        const res = await gatewayFetch2(
+        const response = await gatewayFetch2(
           API_PATHS.canvasTag(tagId),
           createJsonMutationRequest("PATCH", {
             ...patch2,
             revision: registry2.revision,
           }),
         );
-        const body2 = await res.json();
+        const body2 = await response.json();
         queryClient2.setQueryData(queryKey, body2.registry);
         return body2.tag;
       } catch (error) {
@@ -161,14 +161,14 @@ export function useCanvasTags() {
   const reorderTags = reactExports.useCallback(
     async (tagIds) => {
       try {
-        const res = await gatewayFetch2(
+        const response = await gatewayFetch2(
           API_PATHS.canvasTagOrder,
           createJsonMutationRequest("PUT", {
             tagIds,
             revision: registry2.revision,
           }),
         );
-        const body2 = await res.json();
+        const body2 = await response.json();
         queryClient2.setQueryData(queryKey, body2.registry);
       } catch (error) {
         await recoverRegistryAfterError();
@@ -185,21 +185,21 @@ export function useCanvasTags() {
   );
   const getTagImpact = reactExports.useCallback(
     async (tagId) => {
-      const res = await gatewayFetch2(API_PATHS.canvasTagImpact(tagId));
-      return await res.json();
+      const response = await gatewayFetch2(API_PATHS.canvasTagImpact(tagId));
+      return await response.json();
     },
     [gatewayFetch2],
   );
   const deleteTag = reactExports.useCallback(
     async (tagId) => {
       try {
-        const res = await gatewayFetch2(
+        const response = await gatewayFetch2(
           API_PATHS.canvasTag(tagId),
           createJsonMutationRequest("DELETE", {
             revision: registry2.revision,
           }),
         );
-        const body2 = await res.json();
+        const body2 = await response.json();
         queryClient2.setQueryData(queryKey, body2.registry);
         for (const asset of body2.updatedAssets) {
           assetMetadataStore.getState().mergeAsset(asset.id, {

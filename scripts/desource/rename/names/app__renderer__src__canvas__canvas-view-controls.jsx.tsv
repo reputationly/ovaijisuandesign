@@ -1,0 +1,7 @@
+key	old	new	依据
+Map@10:12	Map	MapIcon	vendor 中 Map$1 是画布小地图切换按钮所用的地图图标。
+X@16:10	X	CloseIcon	vendor 中 X$7 是 X Lucide 图标的合成组件，在此作为外观面板关闭图标。
+t2@97:14	t2	translate	CanvasTidyControlInner 使用该函数翻译整理菜单标签和提示。
+s2@250:23	s2	state	useStore selector 从 store state 读取 transform 的缩放分量。
+t2@316:14	t2	translate	CanvasViewControls 使用该函数翻译工具提示和无障碍标签。
+_2@485:15	_2	presenceValue	QuickZoomPresence 将当前或保留的 value 作为第一个 children 参数传入，此处不使用。

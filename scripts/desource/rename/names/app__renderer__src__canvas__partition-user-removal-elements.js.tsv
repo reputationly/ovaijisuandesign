@@ -1,0 +1,6 @@
+key	old	new	依据
+id2@50:14	id2	nodeId	该节点标识传给 resolveNode 以判断是否可删除。
+id2@88:65	id2	requestedNodeId	requestedNodeIds 中的标识用于查询对应节点。
+id2@111:14	id2	edgeId	requestedEdgeIds 中的标识用于读取边并更新可删或阻止集合。
+n2@211:38	n2	node	该节点的 assetId 和 data.assetId 被收集为从属素材标识。
+n2@220:14	n2	node	遍历已保存节点并分类为插件文件、分组子节点、克隆或独立节点。

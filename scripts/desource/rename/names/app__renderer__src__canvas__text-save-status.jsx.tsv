@@ -1,0 +1,7 @@
+key	old	new	依据
+a2@6:32	a2	leftAnchor	该锚点与右侧锚点逐项比较 exact、prefix、suffix 和 occurrence。
+b3@6:36	b3	rightAnchor	该锚点与左侧锚点逐项比较 exact、prefix、suffix 和 occurrence。
+a2@17:38	a2	leftState	该编辑选区状态提供 anchors、anchor 和 oversizedLength 用于相等判断。
+b3@17:42	b3	rightState	该编辑选区状态与左侧状态比较锚点及 oversizedLength。
+t2@35:14	t2	translate	该函数翻译版本保存和草稿保存状态提示。
+e2@94:29	e2	keyboardEvent	keydown 监听器检查 Escape 并阻止事件继续传播。

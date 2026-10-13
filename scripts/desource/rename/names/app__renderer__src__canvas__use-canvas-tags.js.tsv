@@ -1,0 +1,7 @@
+key	old	new	依据
+res@68:13	res	response	标签批量 PATCH 请求的响应体被解析并返回。
+res@108:15	res	response	创建标签请求的响应体被解析为注册表和新标签。
+res@138:15	res	response	更新标签请求的响应体被解析为注册表和标签。
+res@164:15	res	response	标签排序请求的响应体被解析为更新后的注册表。
+res@188:13	res	response	标签影响查询的响应体被解析并返回。
+res@196:15	res	response	删除标签请求的响应体被解析为注册表和更新的素材。

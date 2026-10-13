@@ -1,0 +1,7 @@
+key	old	new	依据
+err@106:40	err	error	factory Promise 被拒绝时删除 in-flight 项并重新抛出捕获错误。
+err@206:16	err	error	跨工作区媒体素材复制失败时，该错误被写入告警日志。
+err@233:18	err	error	跨工作区文件复制失败时，该错误被写入告警日志。
+err@246:16	err	error	文件素材复制失败时，该错误被写入告警日志。
+err@271:18	err	error	跨工作区文本素材复制失败时，该错误被写入告警日志。
+err@283:16	err	error	文本素材复制失败时，该错误被写入告警日志。

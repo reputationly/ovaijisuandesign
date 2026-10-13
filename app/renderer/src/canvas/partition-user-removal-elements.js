@@ -47,10 +47,10 @@ export function partitionDeletableIds(ids2, resolveNode2) {
   const deletableIds = [];
   let blockedGenerating = 0;
   let blockedRetained = 0;
-  for (const id2 of ids2) {
-    const node2 = resolveNode2(id2);
+  for (const nodeId of ids2) {
+    const node2 = resolveNode2(nodeId);
     if (!isNodeDeleteProtected(node2)) {
-      deletableIds.push(id2);
+      deletableIds.push(nodeId);
     } else if (isNodeGenerating(node2)) {
       blockedGenerating += 1;
     } else {
@@ -85,8 +85,8 @@ export function partitionUserRemovalElements({
   enforceProtection,
 }) {
   const nodeById = new Map(nodes.map((node2) => [node2.id, node2]));
-  const requestedNodes = Array.from(new Set(requestedNodeIds), (id2) =>
-    nodeById.get(id2),
+  const requestedNodes = Array.from(new Set(requestedNodeIds), (requestedNodeId) =>
+    nodeById.get(requestedNodeId),
   ).filter((node2) => node2 != null);
   const deletableNodeIds = new Set();
   const blockedNodeIds = new Set();
@@ -108,8 +108,8 @@ export function partitionUserRemovalElements({
       if (isNodeDeleteProtected(node2)) protectedNodeIds.add(node2.id);
     }
   }
-  for (const id2 of requestedEdgeIds) {
-    const edge = edgeById.get(id2);
+  for (const edgeId of requestedEdgeIds) {
+    const edge = edgeById.get(edgeId);
     if (!edge) continue;
     const endpointsSurvive =
       !deletableNodeIds.has(edge.source) && !deletableNodeIds.has(edge.target);
@@ -118,7 +118,7 @@ export function partitionUserRemovalElements({
       endpointsSurvive &&
       isEdgeAttachedToProtectedNode(edge, protectedNodeIds)
     ) {
-      blockedEdgeIds.add(id2);
+      blockedEdgeIds.add(edgeId);
       if (
         isNodeGenerating(nodeById.get(edge.source)) ||
         isNodeGenerating(nodeById.get(edge.target))
@@ -126,7 +126,7 @@ export function partitionUserRemovalElements({
         blockedGenerating = true;
       }
     } else {
-      deletableEdgeIds.add(id2);
+      deletableEdgeIds.add(edgeId);
     }
   }
   for (const edge of edges) {
@@ -208,41 +208,41 @@ export function buildSavedNodeIndex(savedNodes, hiddenAssetIds) {
   const cloneNodes = [];
   const standaloneNodes = [];
   const subordinateAssetIds = new Set();
-  const collectSubordinateAssetId = (n2) => {
-    if (typeof n2.assetId === "string" && n2.assetId.length > 0) {
-      subordinateAssetIds.add(n2.assetId);
+  const collectSubordinateAssetId = (node) => {
+    if (typeof node.assetId === "string" && node.assetId.length > 0) {
+      subordinateAssetIds.add(node.assetId);
     }
-    const dataAssetId = n2.data?.assetId;
+    const dataAssetId = node.data?.assetId;
     if (typeof dataAssetId === "string" && dataAssetId.length > 0) {
       subordinateAssetIds.add(dataAssetId);
     }
   };
-  for (const n2 of savedNodes) {
-    allSavedNodes.set(n2.id, n2);
+  for (const node of savedNodes) {
+    allSavedNodes.set(node.id, node);
     const isPluginFileNode =
-      n2.type === CanvasNodeType.File && typeof n2.data?.pluginId === "string";
+      node.type === CanvasNodeType.File && typeof node.data?.pluginId === "string";
     if (isPluginFileNode) {
-      standaloneNodes.push(n2);
+      standaloneNodes.push(node);
       continue;
     }
-    const isGroupedSub = !!n2.groupId && n2.meta?.hidden === true;
-    if (n2.meta?.hidden || isGroupedSub) {
-      collectSubordinateAssetId(n2);
-      standaloneNodes.push(n2);
+    const isGroupedSub = !!node.groupId && node.meta?.hidden === true;
+    if (node.meta?.hidden || isGroupedSub) {
+      collectSubordinateAssetId(node);
+      standaloneNodes.push(node);
       continue;
     }
-    if (isCloneNode(n2)) {
-      cloneNodes.push(n2);
+    if (isCloneNode(node)) {
+      cloneNodes.push(node);
       continue;
     }
-    if (isEmptyNode(n2) && !n2.assetId) {
-      standaloneNodes.push(n2);
+    if (isEmptyNode(node) && !node.assetId) {
+      standaloneNodes.push(node);
       continue;
     }
-    if (n2.assetId) {
-      savedByAssetId.set(n2.assetId, n2);
+    if (node.assetId) {
+      savedByAssetId.set(node.assetId, node);
     } else {
-      standaloneNodes.push(n2);
+      standaloneNodes.push(node);
     }
   }
   return {

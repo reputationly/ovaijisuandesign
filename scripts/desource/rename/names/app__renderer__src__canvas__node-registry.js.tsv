@@ -1,0 +1,7 @@
+key	old	new	依据
+t2@47:8	t2	definition	该插件节点定义的 supportedModes 用于筛选可用类型。
+id2@85:13	id2	pluginId	getPlugin 使用该标识从插件 Map 中读取插件实例。
+p3@93:46	p3	plugin	getToolbarItems 从每个活动插件读取 toolbarItems。
+p3@97:46	p3	plugin	getContextMenuItems 从每个活动插件读取 contextMenuItems。
+p3@100:54	p3	plugin	筛选插件 Map 中 activePlugins 所包含的活动插件。
+n2@216:9	n2	node	查找到的节点交给 fillStillApplies 检查后返回为填充目标。
