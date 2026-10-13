@@ -78,3 +78,180 @@ n2@219:35	n2	dummyNodeId	restoreNormalizedEdges 的 forEach 参数：每条长�
 t2@220:9	t2	node	restoreNormalizedEdges 的局部：dummyNodeId 当前指向的节点标签。
 r2@221:7	r2	originalLabel	restoreNormalizedEdges 的局部：从首个 dummy 节点取回的原始边标签。
 o2@222:7	o2	nextNodeId	restoreNormalizedEdges 的局部：沿 successors 取得的下一 dummy 节点或终点标识。
+ot@239:10	ot	runConfiguredRanker	按 graph.ranker 配置调用 network-simplex、tight-tree 或 longest-path 排名器；上游名 rank 会与 normalizeRanks 的局部 rank@95:11 冲突。
+e2@239:13	e2	graph	rank 的参数：读取 ranker 配置并交给相应排名器处理的图。
+n2@240:7	n2	ranker	rank 的局部：graph.ranker 配置值，决定使用哪个 rank 算法。
+Xe@258:5	Xe	rankGraph	指向 runConfiguredRanker 的布局阶段别名，用于在布局流水线中执行分层。
+at@259:10	at	assignDummyChainParents	沿每条 dummy chain 根据原边两端的 lowest common ancestor 与节点 rank 设置父节点。
+e2@259:13	e2	graph	assignDummyChainParents 的参数：包含 dummyChains、compound 节点与 rank 区间的图。
+n2@260:7	n2	postorderNums	assignDummyChainParents 的局部：lt2 根据 compound children 关系计算的 low/lim 序号表，供 dt 查找端点路径与 LCA。
+t2@261:35	t2	dummyNodeId	assignDummyChainParents 的 dummyChains 回调：当前 dummy 链节点标识。
+r2@262:9	r2	dummyNode	assignDummyChainParents 的局部：dummyNodeId 对应的节点标签。
+o2@263:7	o2	originalEdge	assignDummyChainParents 的局部：dummy 节点记录的原始边对象，用于取得端点。
+i2@264:7	i2	pathInfo	assignDummyChainParents 的局部：dt 根据原边端点在 nestingGraph 中找到的路径和 LCA。
+s2@265:7	s2	path	assignDummyChainParents 的局部：从原边端点到最低公共祖先的节点路径。
+a2@266:7	a2	lca	assignDummyChainParents 的局部：原边两端在 nestingGraph 中的最低公共祖先。
+d2@267:7	d2	pathIndex	assignDummyChainParents 的局部：沿 path 前进并选择 dummy 父节点的当前位置。
+l2@268:7	l2	parentCandidate	assignDummyChainParents 的局部：当前 rank 匹配的候选父节点。
+u4@269:7	u4	insideSourceSubgraph	assignDummyChainParents 的局部：标记 dummy 节点是否仍处于原边源端子图的阶段。
+Ue@284:5	Ue	assignDummyParents	指向 assignDummyChainParents 的布局阶段别名。
+$e@285:10	$e	buildNestingGraphForNode	递归创建 compound 节点的上下边界，并将子图与根节点通过带权 nesting edge 连接。
+e2@285:13	e2	graph	buildNestingGraphForNode 的参数：写入 border node、parent 关系和 nesting edge 的图。
+n2@285:17	n2	root	buildNestingGraphForNode 的参数：所有顶层 compound 子图连接到的根节点标识。
+t2@285:21	t2	nodeSep	buildNestingGraphForNode 的参数：嵌套边及根边使用的最小 rank 间隔。
+r2@285:25	r2	weight	buildNestingGraphForNode 的参数：用于维持子图紧凑的基础边权重。
+o2@285:29	o2	height	buildNestingGraphForNode 的参数：nesting 层级高度，用于计算顶层根边长度。
+i2@285:33	i2	depths	buildNestingGraphForNode 的参数：compound 节点对应的子树深度表。
+s2@285:37	s2	nodeId	buildNestingGraphForNode 的参数：当前递归处理的节点标识。
+c3@286:7	c3	nodeDepth	buildNestingGraphForNode 的局部：当前节点在 depths 中的深度或零默认值。
+a2@287:7	a2	children	buildNestingGraphForNode 的局部：当前节点的直接子节点标识列表。
+d2@296:7	d2	borderTop	buildNestingGraphForNode 的局部：当前 compound 节点的上边界 dummy node。
+l2@297:5	l2	borderBottom	buildNestingGraphForNode 的局部：当前 compound 节点的下边界 dummy node。
+u4@298:5	u4	nodeLabel	buildNestingGraphForNode 的局部：当前 compound 节点标签，用于写入 borderTop/borderBottom。
+h2@303:17	h2	childId	buildNestingGraphForNode 的 children 遍历回调：当前递归处理的子节点标识。
+y4@304:11	y4	childDepth	buildNestingGraphForNode 的局部：读取 depths[s2] 的可选链临时值。
+f2@306:11	f2	childLabel	buildNestingGraphForNode 的局部：子节点标签，包含其上下边界 dummy node 引用。
+g2@307:9	g2	childTop	buildNestingGraphForNode 的局部：子节点上边界标识；无 borderTop 时使用 childId。
+b3@308:9	b3	childBottom	buildNestingGraphForNode 的局部：子节点下边界标识；无 borderBottom 时使用 childId。
+m3@309:9	m3	edgeWeight	buildNestingGraphForNode 的局部：连接父子边界时使用的权重，按子节点是否有边界选择 weight 或两倍。
+E3@310:9	E3	minlen	buildNestingGraphForNode 的局部：父子边界 nesting edge 的最小 rank 距离。
+ut@328:10	ut	treeDepths	Dagre lib/nesting-graph.ts 的 treeDepths：递归记录每个 compound 节点到叶层的深度。
+e2@328:13	e2	graph	treeDepths 的参数：用于遍历 children 并生成深度表的图。
+n2@329:7	n2	depths	treeDepths 的局部：以节点标识为键保存其树深度的对象。
+t2@330:12	t2	assignDepth	treeDepths 的递归函数：先递归计算子节点深度，再记录当前节点深度。
+r2@330:15	r2	nodeId	assignDepth 的参数：当前要记录深度的节点标识。
+o2@330:19	o2	depth	assignDepth 的参数：当前节点相对根节点的层级深度。
+i2@331:9	i2	children	assignDepth 的局部：当前节点的直接子节点列表。
+s2@332:37	s2	childId	assignDepth 的 children 遍历回调：递归处理的子节点标识。
+r2@334:35	r2	nodeId	treeDepths 的顶层 children 遍历回调：从 depth 1 开始计算的根子节点标识。
+ct@336:10	ct	sumWeights	Dagre lib/nesting-graph.ts 的 sumWeights：累加图中全部边标签的 weight。
+e2@336:13	e2	graph	sumWeights 的参数：提供全部边及其权重标签的图。
+n2@337:29	n2	totalWeight	sumWeights 的 reduce 累加器：当前已累计的边权重。
+t2@337:33	t2	edge	sumWeights 的 reduce 回调：当前用于读取 weight 的边描述对象。
+Ke@339:10	Ke	runNestingGraph	Dagre lib/nesting-graph.ts 的 run：创建 nesting root、按深度计算 nodeSep，并递归添加子图边界。
+e2@339:13	e2	graph	runNestingGraph 的参数：需要增加 nesting root、边界节点和 nesting edge 的图。
+n2@340:7	n2	root	runNestingGraph 的局部：图中的 nesting root dummy node 标识。
+t2@341:5	t2	depths	runNestingGraph 的局部：各 compound 节点的树深度表。
+r2@342:5	r2	depthValues	runNestingGraph 的局部：由 depths 对象取出的数值，用来求最大层级。
+o2@343:5	o2	height	runNestingGraph 的局部：最大 nesting 深度减一后的图高。
+i2@344:5	i2	nodeSep	runNestingGraph 的局部：根据 height 计算的 rank 分隔因子。
+a2@346:25	a2	edge	runNestingGraph 的边遍历回调：其 minlen 乘以 nodeSep 后的当前边。
+s2@347:7	s2	weight	runNestingGraph 的局部：全部边权重和加一，用于保证子图紧凑。
+a2@348:28	a2	childId	runNestingGraph 的根子节点遍历回调：递归创建该子图的边界和 nesting edge。
+Je@351:10	Je	cleanupNestingGraph	移除 nesting root，并删除标记为 nestingEdge 的临时边。
+e2@351:13	e2	graph	cleanupNestingGraph 的参数：包含 nestingRoot 与临时 nesting edge 的图。
+n2@352:7	n2	graphLabel	cleanupNestingGraph 的局部：保存 nestingRoot 的图标签对象。
+t2@355:25	t2	edge	cleanupNestingGraph 的边遍历回调：检查并移除当前 nestingEdge。
+ft@359:10	ft	addBorderSegments	Dagre lib/add-border-segments.ts 的 addBorderSegments：为有 minRank 的 compound 节点逐层添加左右边界 dummy node。
+e2@359:13	e2	graph	addBorderSegments 的参数：含 compound 节点 rank 区间的图。
+n2@360:12	n2	addBorderSegmentsForNode	addBorderSegments 的递归函数：处理子节点后，为当前节点的每个 rank 添加左右边界。
+t2@360:15	t2	nodeId	addBorderSegmentsForNode 的参数：当前遍历的 compound 节点标识。
+r2@361:9	r2	children	addBorderSegmentsForNode 的局部：当前节点的直接子节点列表。
+o2@362:7	o2	nodeLabel	addBorderSegmentsForNode 的局部：当前节点标签，读取 minRank/maxRank 并写回 borderLeft/right。
+i2@365:16	i2	rank	addBorderSegmentsForNode 的 for 循环：当前创建边界 dummy node 的 rank。
+s2@365:33	s2	endRank	addBorderSegmentsForNode 的 for 循环上界：maxRank 加一，作为排他的终止 rank。
+Ze@372:5	Ze	insertBorderSegments	指向 addBorderSegments 的布局阶段别名。
+rn@373:10	rn	swapWidthHeight	Dagre lib/coordinate-system.ts 的 swapWidthHeight：遍历图节点和边标签并交换宽高。
+e2@373:13	e2	graph	swapWidthHeight 的参数：其节点和边标签需要交换 width/height 的图。
+n2@374:24	n2	nodeId	swapWidthHeight 的 nodes 遍历回调：当前节点标识。
+n2@375:25	n2	edgeId	swapWidthHeight 的 edges 遍历回调：当前边标识。
+nn@377:10	nn	adjustCoordinateSystem	当 rankdir 为 lr 或 rl 时，对图中节点和边标签调用 swapWidthHeight。
+e2@377:13	e2	graph	adjustCoordinateSystem 的参数：提供 rankdir 和待调整节点、边标签的图。
+t2@378:7	t2	rankdirValue	adjustCoordinateSystem 的局部：rankdir 读取结果的可选链临时值。
+n2@379:7	n2	rankdir	adjustCoordinateSystem 的局部：转成小写后的布局方向。
+bt@382:10	bt	reverseYCoordinates	对所有节点和边的 y 坐标取反，并同步处理边路径点。
+e2@382:13	e2	graph	reverseYCoordinates 的参数：其节点、边标签和边路径点需要翻转 y 坐标的图。
+n2@383:24	n2	nodeId	reverseYCoordinates 的 nodes 遍历回调：当前节点标识。
+n2@384:25	n2	edgeId	reverseYCoordinates 的 edges 遍历回调：当前边标识。
+r2@385:11	r2	points	reverseYCoordinates 的局部：边标签的可选 points 数组。
+t2@386:11	t2	edgeLabel	reverseYCoordinates 的局部：当前边标签，包含路径点及可选 y 坐标。
+gt@391:10	gt	swapXYCoordinates	对所有节点和边的 x/y 坐标互换，并同步处理边路径点。
+e2@391:13	e2	graph	swapXYCoordinates 的参数：其节点、边标签和路径点需要交换 x/y 的图。
+n2@392:24	n2	nodeId	swapXYCoordinates 的 nodes 遍历回调：当前节点标识。
+n2@393:25	n2	edgeId	swapXYCoordinates 的 edges 遍历回调：当前边标识。
+r2@394:11	r2	points	swapXYCoordinates 的局部：边标签的可选 points 数组。
+t2@395:11	t2	edgeLabel	swapXYCoordinates 的局部：当前边标签，包含路径点及可选 x 坐标。
+tn@400:10	tn	undoCoordinateSystem	Dagre lib/coordinate-system.ts 的 undo：按 rankdir 撤销 y 翻转、x/y 互换及宽高互换。
+e2@400:13	e2	graph	undoCoordinateSystem 的参数：提供 rankdir 并保存布局结果的图。
+t2@401:7	t2	rankdirValue	undoCoordinateSystem 的局部：rankdir 读取结果的可选链临时值。
+n2@402:7	n2	rankdir	undoCoordinateSystem 的局部：转成小写后的布局方向。
+re@406:10	re	buildInitialOrder	按 rank 排序叶节点并沿 successors 深度优先遍历，构造初始 layer 数组。
+e2@406:13	e2	graph	buildInitialOrder 的参数：提供叶节点、rank 和 successors 的图。
+n2@407:7	n2	visited	buildInitialOrder 的局部：避免 DFS 重复加入节点的访问表。
+t2@408:5	t2	leafNodes	buildInitialOrder 的局部：没有 children 的节点列表。
+d2@408:29	d2	nodeId	buildInitialOrder 的 filter 回调：当前用于判断是否为叶节点的标识。
+r2@409:5	r2	leafRanks	buildInitialOrder 的局部：leafNodes 对应的 rank 列表。
+d2@409:18	d2	nodeId	buildInitialOrder 的 map 回调：当前用于读取 rank 的叶节点标识。
+o2@410:5	o2	maxRank	buildInitialOrder 的局部：叶节点 rank 中的最大值。
+i2@411:5	i2	layers	buildInitialOrder 的局部：按 rank 索引并收集节点标识的二维数组。
+s2@412:12	s2	assignToLayer	buildInitialOrder 的递归函数：将节点加入对应 rank 层并递归遍历 successors。
+d2@412:15	d2	nodeId	assignToLayer 的参数：当前待加入层并继续遍历 successors 的节点标识。
+l2@415:9	l2	nodeLabel	assignToLayer 的局部：读取当前节点 rank 并选择目标 layer。
+u4@417:9	u4	successors	assignToLayer 的局部：当前节点的后继节点列表。
+d2@421:14	d2	leftNode	buildInitialOrder 的 sort 回调：比较 rank 时位于左侧的节点标识。
+l2@421:18	l2	rightNode	buildInitialOrder 的 sort 回调：比较 rank 时位于右侧的节点标识。
+oe@425:10	oe	crossCount	Dagre lib/order/cross-count.ts 的 crossCount：累加相邻层之间的交叉数。
+e2@425:13	e2	graph	crossCount 的参数：用于统计相邻层交叉边的图。
+n2@425:17	n2	layers	crossCount 的参数：按 rank 排列的节点层数组。
+t2@426:7	t2	totalCrossings	crossCount 的局部：累计相邻层的交叉边数。
+r2@427:12	r2	layerIndex	crossCount 的 for 循环：选择前后相邻两层的索引。
+sn@430:10	sn	buildLayerGraphs	从图中按 rank 构造多个用于排序的 layer graph，并包含 compound 节点跨层占位。
+e2@430:13	e2	graph	buildLayerGraphs 的参数：包含 rank/minRank/maxRank 的复合图。
+n2@430:17	n2	ranks	buildLayerGraphs 的参数：要构建 layer graph 的 rank 序列。
+t2@430:21	t2	relationship	buildLayerGraphs 的参数：取得相邻节点的入边或出边关系名。
+r2@431:7	r2	nodesByRank	buildLayerGraphs 的局部：按 rank 收集节点标识的 Map。
+o2@432:5	o2	addNodeToRank	buildLayerGraphs 的局部函数：将节点标识追加到指定 rank 的列表。
+i2@432:11	i2	rank	addNodeToRank 的参数：节点应加入的层索引。
+s2@432:15	s2	nodeId	addNodeToRank 的参数：要加入指定 rank 的节点标识。
+i2@435:12	i2	nodeId	buildLayerGraphs 的 nodes 遍历变量：当前检查是否需要加入多个 rank 的节点。
+s2@436:9	s2	nodeLabel	buildLayerGraphs 的局部：当前节点标签，读取 rank/minRank/maxRank。
+a2@441:16	a2	rank	buildLayerGraphs 的循环变量：遍历 compound 节点 minRank 到 maxRank 的层索引。
+i2@444:27	i2	rank	return 的 map 回调参数：当前 rank，用于构造对应的 layer graph。
+kt@448:10	kt	sortLayerGraphs	逐层运行子图排序并把返回顺序写回节点 order，同时满足左右边界和自定义约束。
+e2@448:13	e2	layerGraphs	 sortLayerGraphs 的参数：按 rank 构建、需要分别排序的图列表。
+n2@448:17	n2	ascending	sortLayerGraphs 的参数：控制当前 sweep 的 rank 遍历方向。
+t2@448:21	t2	constraints	sortLayerGraphs 的参数：需加入 layer graph 的左右顺序约束。
+r2@449:7	r2	constraintGraph	sortLayerGraphs 的局部：存放约束边并传给子图排序器的图。
+o2@450:24	o2	layerGraph	sortLayerGraphs 的 forEach 回调：当前待排序的 rank 图。
+a2@451:17	a2	constraint	sortLayerGraphs 的约束遍历回调：要写入 constraintGraph 的左右节点对。
+i2@452:9	i2	root	layerGraph 的局部：当前图的 compound 根节点标识。
+s2@453:7	s2	sortedSubgraph	sortLayerGraphs 的局部：W 返回的排序结果，包含顶点顺序 vs。
+a2@454:21	a2	nodeId	sortedSubgraph 的 vs 遍历回调：按结果顺序写回 order 的节点标识。
+d2@454:25	d2	orderIndex	sortedSubgraph 的 vs 遍历回调：节点在当前排序中的下标。
+an@457:10	an	assignOrder	Dagre lib/order/index.ts 的 assignOrder：将 layer 中的节点位置写回 node.order。
+e2@457:13	e2	graph	assignOrder 的参数：接收节点 order 写回操作的图。
+n2@457:17	n2	layers	assignOrder 的参数：以 rank 为键、节点顺序为值的层数组对象。
+t2@458:30	t2	layer	Object.values 的遍历回调：当前 rank 上的节点顺序列表。
+r2@459:17	r2	nodeId	assignOrder 的 forEach 回调：当前节点标识，其数组下标写入 node.order。
+o2@459:21	o2	orderIndex	assignOrder 的 forEach 回调：当前节点在 rank 层中的位置。
+B@462:10	B	order	Dagre lib/order/index.ts 的 order：初始化节点顺序后交替执行正反 sweep，保留交叉数最小的布局。
+e2@462:12	e2	graph	order 的参数：需要计算节点层内顺序的图。
+n2@462:16	n2	options	order 的参数：自定义排序、约束及禁用优化的配置。
+t2@467:7	t2	maxRank	order 的局部：图中最大 rank，用于生成正反 sweep 的 rank 序列。
+r2@468:5	r2	incomingLayerGraphs	order 的局部：按正向 rank 顺序以 inEdges 构建的 layer graphs。
+o2@469:5	o2	outgoingLayerGraphs	order 的局部：按反向 rank 顺序以 outEdges 构建的 layer graphs。
+i2@470:5	i2	bestLayers	order 的局部：初始化并在 sweep 期间保留交叉数最少的层顺序。
+s2@472:7	s2	bestCrossings	order 的局部：当前已找到的最小 crossing 数。
+a2@473:5	a2	bestLayerCandidate	order 的局部：当前待比较并可能保留的层顺序快照。
+d2@474:5	d2	constraints	order 的局部：调用者提供的左右顺序约束列表。
+l2@475:12	l2	sweepIndex	order 的 for 循环变量：决定本轮 sweep 的奇偶方向。
+u4@475:20	u4	sweepCount	order 的 for 循环变量：控制 sweep 轮数并在改进时重置。
+c3@477:9	c3	crossings	order 的局部：当前候选层顺序的交叉数。
+ln@484:10	ln	positionX	计算四种水平对齐的候选坐标，选择较窄的对齐并平衡最终 x 位置。
+e2@484:13	e2	graph	positionX 的参数：提供节点、层、尺寸和对齐信息的图。
+n2@485:7	n2	layers	positionX 的局部：按 rank 排列的节点 layer matrix。
+t2@486:5	t2	verticalAlignments	positionX 的局部：合并四种方向的 vertical alignment 映射。
+r2@487:5	r2	coordinates	positionX 的局部：按对齐方向组合得到的候选 x 坐标。
+o2@488:5	o2	order	positionX 的局部：当前处理的垂直方向 layer 顺序。
+s2@489:23	s2	verticalDirection	positionX 的外层 forEach 参数：当前向上或向下扫描方向。
+a2@491:27	a2	horizontalDirection	positionX 的内层 forEach 参数：当前向左或向右扫描方向。
+c3@492:37	c3	layer	positionX 的 map 回调：当前反转节点顺序的 layer。
+l2@493:13	l2	alignment	positionX 的局部：Ot 计算出的 root 与 align 信息。
+c3@497:14	c3	nodeId	positionX 传给 Ot 的回调参数：用于取得前驱或后继节点的标识。
+u4@500:11	u4	xCoordinates	positionX 的局部：It 根据 alignment 计算的一种方向候选坐标。
+c3@501:37	c3	xCoordinate	positionX 的 map 回调：取反得到对侧候选 x 坐标的值。
+i2@504:7	i2	smallestAlignment	positionX 的局部：Rt 从多种候选对齐中选择的最窄布局。
+un@507:10	un	position	Dagre lib/position/index.ts 的 position：将复合图转成非复合图、计算 y 并写回 positionX 返回的节点 x 坐标。
+e2@507:13	e2	graph	position 的参数：接收节点坐标布局的图。
+n2@510:38	n2	nodeId	position 写回坐标时遍历的 Object.entries 键：当前节点标识。
+t2@510:42	t2	xCoordinate	position 写回坐标时遍历的 Object.entries 值：当前节点的 x 坐标。

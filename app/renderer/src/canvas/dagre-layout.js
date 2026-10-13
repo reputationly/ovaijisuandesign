@@ -236,278 +236,278 @@ function restoreNormalizedEdges(graph) {
         (node = graph.node(dummyNodeId)));
   });
 }
-function ot(e2) {
-  let n2 = e2.graph().ranker;
-  if (typeof n2 == "function") return n2(e2);
-  switch (n2) {
+function runConfiguredRanker(graph) {
+  let ranker = graph.graph().ranker;
+  if (typeof ranker == "function") return ranker(graph);
+  switch (ranker) {
     case "network-simplex":
-      qe(e2);
+      qe(graph);
       break;
     case "tight-tree":
-      st(e2);
+      st(graph);
       break;
     case "longest-path":
-      it(e2);
+      it(graph);
       break;
     case "none":
       break;
     default:
-      qe(e2);
+      qe(graph);
   }
 }
-var Xe = ot;
-function at(e2) {
-  let n2 = lt2(e2);
-  e2.graph().dummyChains.forEach((t2) => {
-    let r2 = e2.node(t2),
-      o2 = r2.edgeObj,
-      i2 = dt(e2, n2, o2.v, o2.w),
-      s2 = i2.path,
-      a2 = i2.lca,
-      d2 = 0,
-      l2 = s2[d2],
-      u4 = true;
-    for (; t2 !== o2.w;) {
-      if (((r2 = e2.node(t2)), u4)) {
-        for (; (l2 = s2[d2]) !== a2 && e2.node(l2).maxRank < r2.rank;) d2++;
-        l2 === a2 && (u4 = false);
+var rankGraph = runConfiguredRanker;
+function assignDummyChainParents(graph) {
+  let postorderNums = lt2(graph);
+  graph.graph().dummyChains.forEach((dummyNodeId) => {
+    let dummyNode = graph.node(dummyNodeId),
+      originalEdge = dummyNode.edgeObj,
+      pathInfo = dt(graph, postorderNums, originalEdge.v, originalEdge.w),
+      path = pathInfo.path,
+      lca = pathInfo.lca,
+      pathIndex = 0,
+      parentCandidate = path[pathIndex],
+      insideSourceSubgraph = true;
+    for (; dummyNodeId !== originalEdge.w;) {
+      if (((dummyNode = graph.node(dummyNodeId)), insideSourceSubgraph)) {
+        for (; (parentCandidate = path[pathIndex]) !== lca && graph.node(parentCandidate).maxRank < dummyNode.rank;) pathIndex++;
+        parentCandidate === lca && (insideSourceSubgraph = false);
       }
-      if (!u4) {
-        for (; d2 < s2.length - 1 && e2.node(s2[d2 + 1]).minRank <= r2.rank;)
-          d2++;
-        l2 = s2[d2];
+      if (!insideSourceSubgraph) {
+        for (; pathIndex < path.length - 1 && graph.node(path[pathIndex + 1]).minRank <= dummyNode.rank;)
+          pathIndex++;
+        parentCandidate = path[pathIndex];
       }
-      (l2 !== void 0 && e2.setParent(t2, l2), (t2 = e2.successors(t2)[0]));
+      (parentCandidate !== void 0 && graph.setParent(dummyNodeId, parentCandidate), (dummyNodeId = graph.successors(dummyNodeId)[0]));
     }
   });
 }
-var Ue = at;
-function $e(e2, n2, t2, r2, o2, i2, s2) {
-  var c3;
-  let a2 = e2.children(s2);
-  if (!a2.length) {
-    s2 !== n2 &&
-      e2.setEdge(n2, s2, {
+var assignDummyParents = assignDummyChainParents;
+function buildNestingGraphForNode(graph, root, nodeSep, weight, height, depths, nodeId) {
+  var nodeDepth;
+  let children = graph.children(nodeId);
+  if (!children.length) {
+    nodeId !== root &&
+      graph.setEdge(root, nodeId, {
         weight: 0,
-        minlen: t2,
+        minlen: nodeSep,
       });
     return;
   }
-  let d2 = q(e2, "_bt"),
-    l2 = q(e2, "_bb"),
-    u4 = e2.node(s2);
-  (e2.setParent(d2, s2),
-    (u4.borderTop = d2),
-    e2.setParent(l2, s2),
-    (u4.borderBottom = l2),
-    a2.forEach((h2) => {
-      var y4;
-      $e(e2, n2, t2, r2, o2, i2, h2);
-      let f2 = e2.node(h2),
-        g2 = f2.borderTop ? f2.borderTop : h2,
-        b3 = f2.borderBottom ? f2.borderBottom : h2,
-        m3 = f2.borderTop ? r2 : 2 * r2,
-        E3 = g2 !== b3 ? 1 : o2 - ((y4 = i2[s2]) != null ? y4 : 0) + 1;
-      (e2.setEdge(d2, g2, {
-        weight: m3,
-        minlen: E3,
+  let borderTop = q(graph, "_bt"),
+    borderBottom = q(graph, "_bb"),
+    nodeLabel = graph.node(nodeId);
+  (graph.setParent(borderTop, nodeId),
+    (nodeLabel.borderTop = borderTop),
+    graph.setParent(borderBottom, nodeId),
+    (nodeLabel.borderBottom = borderBottom),
+    children.forEach((childId) => {
+      var childDepth;
+      buildNestingGraphForNode(graph, root, nodeSep, weight, height, depths, childId);
+      let childLabel = graph.node(childId),
+        childTop = childLabel.borderTop ? childLabel.borderTop : childId,
+        childBottom = childLabel.borderBottom ? childLabel.borderBottom : childId,
+        edgeWeight = childLabel.borderTop ? weight : 2 * weight,
+        minlen = childTop !== childBottom ? 1 : height - ((childDepth = depths[nodeId]) != null ? childDepth : 0) + 1;
+      (graph.setEdge(borderTop, childTop, {
+        weight: edgeWeight,
+        minlen,
         nestingEdge: true,
       }),
-        e2.setEdge(b3, l2, {
-          weight: m3,
-          minlen: E3,
+        graph.setEdge(childBottom, borderBottom, {
+          weight: edgeWeight,
+          minlen,
           nestingEdge: true,
         }));
     }),
-    e2.parent(s2) ||
-      e2.setEdge(n2, d2, {
+    graph.parent(nodeId) ||
+      graph.setEdge(root, borderTop, {
         weight: 0,
-        minlen: o2 + ((c3 = i2[s2]) != null ? c3 : 0),
+        minlen: height + ((nodeDepth = depths[nodeId]) != null ? nodeDepth : 0),
       }));
 }
-function ut(e2) {
-  let n2 = {};
-  function t2(r2, o2) {
-    let i2 = e2.children(r2);
-    (i2 && i2.length && i2.forEach((s2) => t2(s2, o2 + 1)), (n2[r2] = o2));
+function treeDepths(graph) {
+  let depths = {};
+  function assignDepth(nodeId, depth) {
+    let children = graph.children(nodeId);
+    (children && children.length && children.forEach((childId) => assignDepth(childId, depth + 1)), (depths[nodeId] = depth));
   }
-  return (e2.children(_).forEach((r2) => t2(r2, 1)), n2);
+  return (graph.children(_).forEach((nodeId) => assignDepth(nodeId, 1)), depths);
 }
-function ct(e2) {
-  return e2.edges().reduce((n2, t2) => n2 + e2.edge(t2).weight, 0);
+function sumWeights(graph) {
+  return graph.edges().reduce((totalWeight, edge) => totalWeight + graph.edge(edge).weight, 0);
 }
-function Ke(e2) {
-  let n2 = w$3(e2, "root", {}, "_root"),
-    t2 = ut(e2),
-    r2 = Object.values(t2),
-    o2 = L(Math.max, r2) - 1,
-    i2 = 2 * o2 + 1;
-  ((e2.graph().nestingRoot = n2),
-    e2.edges().forEach((a2) => (e2.edge(a2).minlen *= i2)));
-  let s2 = ct(e2) + 1;
-  (e2.children(_).forEach((a2) => $e(e2, n2, i2, s2, o2, t2, a2)),
-    (e2.graph().nodeRankFactor = i2));
+function runNestingGraph(graph) {
+  let root = w$3(graph, "root", {}, "_root"),
+    depths = treeDepths(graph),
+    depthValues = Object.values(depths),
+    height = L(Math.max, depthValues) - 1,
+    nodeSep = 2 * height + 1;
+  ((graph.graph().nestingRoot = root),
+    graph.edges().forEach((edge) => (graph.edge(edge).minlen *= nodeSep)));
+  let weight = sumWeights(graph) + 1;
+  (graph.children(_).forEach((childId) => buildNestingGraphForNode(graph, root, nodeSep, weight, height, depths, childId)),
+    (graph.graph().nodeRankFactor = nodeSep));
 }
-function Je(e2) {
-  let n2 = e2.graph();
-  (e2.removeNode(n2.nestingRoot),
-    delete n2.nestingRoot,
-    e2.edges().forEach((t2) => {
-      e2.edge(t2).nestingEdge && e2.removeEdge(t2);
+function cleanupNestingGraph(graph) {
+  let graphLabel = graph.graph();
+  (graph.removeNode(graphLabel.nestingRoot),
+    delete graphLabel.nestingRoot,
+    graph.edges().forEach((edge) => {
+      graph.edge(edge).nestingEdge && graph.removeEdge(edge);
     }));
 }
-function ft(e2) {
-  function n2(t2) {
-    let r2 = e2.children(t2),
-      o2 = e2.node(t2);
-    if ((r2.length && r2.forEach(n2), Object.hasOwn(o2, "minRank"))) {
-      ((o2.borderLeft = []), (o2.borderRight = []));
-      for (let i2 = o2.minRank, s2 = o2.maxRank + 1; i2 < s2; ++i2)
-        (Qe(e2, "borderLeft", "_bl", t2, o2, i2),
-          Qe(e2, "borderRight", "_br", t2, o2, i2));
+function addBorderSegments(graph) {
+  function addBorderSegmentsForNode(nodeId) {
+    let children = graph.children(nodeId),
+      nodeLabel = graph.node(nodeId);
+    if ((children.length && children.forEach(addBorderSegmentsForNode), Object.hasOwn(nodeLabel, "minRank"))) {
+      ((nodeLabel.borderLeft = []), (nodeLabel.borderRight = []));
+      for (let rank = nodeLabel.minRank, endRank = nodeLabel.maxRank + 1; rank < endRank; ++rank)
+        (Qe(graph, "borderLeft", "_bl", nodeId, nodeLabel, rank),
+          Qe(graph, "borderRight", "_br", nodeId, nodeLabel, rank));
     }
   }
-  e2.children(_).forEach(n2);
+  graph.children(_).forEach(addBorderSegmentsForNode);
 }
-var Ze = ft;
-function rn(e2) {
-  (e2.nodes().forEach((n2) => en(e2.node(n2))),
-    e2.edges().forEach((n2) => en(e2.edge(n2))));
+var insertBorderSegments = addBorderSegments;
+function swapWidthHeight(graph) {
+  (graph.nodes().forEach((nodeId) => en(graph.node(nodeId))),
+    graph.edges().forEach((edgeId) => en(graph.edge(edgeId))));
 }
-function nn(e2) {
-  var t2;
-  let n2 = (t2 = e2.graph().rankdir) == null ? void 0 : t2.toLowerCase();
-  (n2 === "lr" || n2 === "rl") && rn(e2);
+function adjustCoordinateSystem(graph) {
+  var rankdirValue;
+  let rankdir = (rankdirValue = graph.graph().rankdir) == null ? void 0 : rankdirValue.toLowerCase();
+  (rankdir === "lr" || rankdir === "rl") && swapWidthHeight(graph);
 }
-function bt(e2) {
-  (e2.nodes().forEach((n2) => ne(e2.node(n2))),
-    e2.edges().forEach((n2) => {
-      var r2;
-      let t2 = e2.edge(n2);
-      ((r2 = t2.points) == null || r2.forEach(ne),
-        Object.hasOwn(t2, "y") && ne(t2));
+function reverseYCoordinates(graph) {
+  (graph.nodes().forEach((nodeId) => ne(graph.node(nodeId))),
+    graph.edges().forEach((edgeId) => {
+      var points;
+      let edgeLabel = graph.edge(edgeId);
+      ((points = edgeLabel.points) == null || points.forEach(ne),
+        Object.hasOwn(edgeLabel, "y") && ne(edgeLabel));
     }));
 }
-function gt(e2) {
-  (e2.nodes().forEach((n2) => te(e2.node(n2))),
-    e2.edges().forEach((n2) => {
-      var r2;
-      let t2 = e2.edge(n2);
-      ((r2 = t2.points) == null || r2.forEach(te),
-        Object.hasOwn(t2, "x") && te(t2));
+function swapXYCoordinates(graph) {
+  (graph.nodes().forEach((nodeId) => te(graph.node(nodeId))),
+    graph.edges().forEach((edgeId) => {
+      var points;
+      let edgeLabel = graph.edge(edgeId);
+      ((points = edgeLabel.points) == null || points.forEach(te),
+        Object.hasOwn(edgeLabel, "x") && te(edgeLabel));
     }));
 }
-function tn(e2) {
-  var t2;
-  let n2 = (t2 = e2.graph().rankdir) == null ? void 0 : t2.toLowerCase();
-  ((n2 === "bt" || n2 === "rl") && bt(e2),
-    (n2 === "lr" || n2 === "rl") && (gt(e2), rn(e2)));
+function undoCoordinateSystem(graph) {
+  var rankdirValue;
+  let rankdir = (rankdirValue = graph.graph().rankdir) == null ? void 0 : rankdirValue.toLowerCase();
+  ((rankdir === "bt" || rankdir === "rl") && reverseYCoordinates(graph),
+    (rankdir === "lr" || rankdir === "rl") && (swapXYCoordinates(graph), swapWidthHeight(graph)));
 }
-function re(e2) {
-  let n2 = {},
-    t2 = e2.nodes().filter((d2) => !e2.children(d2).length),
-    r2 = t2.map((d2) => e2.node(d2).rank),
-    o2 = L(Math.max, r2),
-    i2 = k(o2 + 1).map(() => []);
-  function s2(d2) {
-    if (n2[d2]) return;
-    n2[d2] = true;
-    let l2 = e2.node(d2);
-    i2[l2.rank].push(d2);
-    let u4 = e2.successors(d2);
-    u4 && u4.forEach(s2);
+function buildInitialOrder(graph) {
+  let visited = {},
+    leafNodes = graph.nodes().filter((nodeId) => !graph.children(nodeId).length),
+    leafRanks = leafNodes.map((nodeId) => graph.node(nodeId).rank),
+    maxRank = L(Math.max, leafRanks),
+    layers = k(maxRank + 1).map(() => []);
+  function assignToLayer(nodeId) {
+    if (visited[nodeId]) return;
+    visited[nodeId] = true;
+    let nodeLabel = graph.node(nodeId);
+    layers[nodeLabel.rank].push(nodeId);
+    let successors = graph.successors(nodeId);
+    successors && successors.forEach(assignToLayer);
   }
   return (
-    t2.sort((d2, l2) => e2.node(d2).rank - e2.node(l2).rank).forEach(s2),
-    i2
+    leafNodes.sort((leftNode, rightNode) => graph.node(leftNode).rank - graph.node(rightNode).rank).forEach(assignToLayer),
+    layers
   );
 }
-function oe(e2, n2) {
-  let t2 = 0;
-  for (let r2 = 1; r2 < n2.length; ++r2) t2 += mt(e2, n2[r2 - 1], n2[r2]);
-  return t2;
+function crossCount(graph, layers) {
+  let totalCrossings = 0;
+  for (let layerIndex = 1; layerIndex < layers.length; ++layerIndex) totalCrossings += mt(graph, layers[layerIndex - 1], layers[layerIndex]);
+  return totalCrossings;
 }
-function sn(e2, n2, t2) {
-  let r2 = new Map(),
-    o2 = (i2, s2) => {
-      (r2.has(i2) || r2.set(i2, []), r2.get(i2).push(s2));
+function buildLayerGraphs(graph, ranks, relationship) {
+  let nodesByRank = new Map(),
+    addNodeToRank = (rank, nodeId) => {
+      (nodesByRank.has(rank) || nodesByRank.set(rank, []), nodesByRank.get(rank).push(nodeId));
     };
-  for (let i2 of e2.nodes()) {
-    let s2 = e2.node(i2);
+  for (let nodeId of graph.nodes()) {
+    let nodeLabel = graph.node(nodeId);
     if (
-      (typeof s2.rank == "number" && o2(s2.rank, i2),
-      typeof s2.minRank == "number" && typeof s2.maxRank == "number")
+      (typeof nodeLabel.rank == "number" && addNodeToRank(nodeLabel.rank, nodeId),
+      typeof nodeLabel.minRank == "number" && typeof nodeLabel.maxRank == "number")
     )
-      for (let a2 = s2.minRank; a2 <= s2.maxRank; a2++)
-        a2 !== s2.rank && o2(a2, i2);
+      for (let rank = nodeLabel.minRank; rank <= nodeLabel.maxRank; rank++)
+        rank !== nodeLabel.rank && addNodeToRank(rank, nodeId);
   }
-  return n2.map(function (i2) {
-    return de(e2, i2, t2, r2.get(i2) || []);
+  return ranks.map(function (rank) {
+    return de(graph, rank, relationship, nodesByRank.get(rank) || []);
   });
 }
-function kt(e2, n2, t2) {
-  let r2 = new p();
-  e2.forEach(function (o2) {
-    t2.forEach((a2) => r2.setEdge(a2.left, a2.right));
-    let i2 = o2.graph().root,
-      s2 = W(o2, i2, r2, n2);
-    (s2.vs.forEach((a2, d2) => (o2.node(a2).order = d2)), le(o2, r2, s2.vs));
+function sortLayerGraphs(layerGraphs, ascending, constraints) {
+  let constraintGraph = new p();
+  layerGraphs.forEach(function (layerGraph) {
+    constraints.forEach((constraint) => constraintGraph.setEdge(constraint.left, constraint.right));
+    let root = layerGraph.graph().root,
+      sortedSubgraph = W(layerGraph, root, constraintGraph, ascending);
+    (sortedSubgraph.vs.forEach((nodeId, orderIndex) => (layerGraph.node(nodeId).order = orderIndex)), le(layerGraph, constraintGraph, sortedSubgraph.vs));
   });
 }
-function an(e2, n2) {
-  Object.values(n2).forEach((t2) =>
-    t2.forEach((r2, o2) => (e2.node(r2).order = o2)),
+function assignOrder(graph, layers) {
+  Object.values(layers).forEach((layer) =>
+    layer.forEach((nodeId, orderIndex) => (graph.node(nodeId).order = orderIndex)),
   );
 }
-function B(e2, n2 = {}) {
-  if (typeof n2.customOrder == "function") {
-    n2.customOrder(e2, B);
+function order(graph, options = {}) {
+  if (typeof options.customOrder == "function") {
+    options.customOrder(graph, order);
     return;
   }
-  let t2 = X(e2),
-    r2 = sn(e2, k(1, t2 + 1), "inEdges"),
-    o2 = sn(e2, k(t2 - 1, -1, -1), "outEdges"),
-    i2 = re(e2);
-  if ((an(e2, i2), n2.disableOptimalOrderHeuristic)) return;
-  let s2 = Number.POSITIVE_INFINITY,
-    a2,
-    d2 = n2.constraints || [];
-  for (let l2 = 0, u4 = 0; u4 < 4; ++l2, ++u4) {
-    (kt(l2 % 2 ? r2 : o2, l2 % 4 >= 2, d2), (i2 = N(e2)));
-    let c3 = oe(e2, i2);
-    c3 < s2
-      ? ((u4 = 0), (a2 = Object.assign({}, i2)), (s2 = c3))
-      : c3 === s2 && (a2 = structuredClone(i2));
+  let maxRank = X(graph),
+    incomingLayerGraphs = buildLayerGraphs(graph, k(1, maxRank + 1), "inEdges"),
+    outgoingLayerGraphs = buildLayerGraphs(graph, k(maxRank - 1, -1, -1), "outEdges"),
+    bestLayers = buildInitialOrder(graph);
+  if ((assignOrder(graph, bestLayers), options.disableOptimalOrderHeuristic)) return;
+  let bestCrossings = Number.POSITIVE_INFINITY,
+    bestLayerCandidate,
+    constraints = options.constraints || [];
+  for (let sweepIndex = 0, sweepCount = 0; sweepCount < 4; ++sweepIndex, ++sweepCount) {
+    (sortLayerGraphs(sweepIndex % 2 ? incomingLayerGraphs : outgoingLayerGraphs, sweepIndex % 4 >= 2, constraints), (bestLayers = N(graph)));
+    let crossings = crossCount(graph, bestLayers);
+    crossings < bestCrossings
+      ? ((sweepCount = 0), (bestLayerCandidate = Object.assign({}, bestLayers)), (bestCrossings = crossings))
+      : crossings === bestCrossings && (bestLayerCandidate = structuredClone(bestLayers));
   }
-  an(e2, a2);
+  assignOrder(graph, bestLayerCandidate);
 }
-function ln(e2) {
-  let n2 = N(e2),
-    t2 = Object.assign(vt(e2, n2), _t(e2, n2)),
-    r2 = {},
-    o2;
-  ["u", "d"].forEach((s2) => {
-    ((o2 = s2 === "u" ? n2 : Object.values(n2).reverse()),
-      ["l", "r"].forEach((a2) => {
-        a2 === "r" && (o2 = o2.map((c3) => Object.values(c3).reverse()));
-        let l2 = Ot(
-            e2,
-            o2,
-            t2,
-            (c3) =>
-              (s2 === "u" ? e2.predecessors(c3) : e2.successors(c3)) || [],
+function positionX(graph) {
+  let layers = N(graph),
+    verticalAlignments = Object.assign(vt(graph, layers), _t(graph, layers)),
+    coordinates = {},
+    order;
+  ["u", "d"].forEach((verticalDirection) => {
+    ((order = verticalDirection === "u" ? layers : Object.values(layers).reverse()),
+      ["l", "r"].forEach((horizontalDirection) => {
+        horizontalDirection === "r" && (order = order.map((layer) => Object.values(layer).reverse()));
+        let alignment = Ot(
+            graph,
+            order,
+            verticalAlignments,
+            (nodeId) =>
+              (verticalDirection === "u" ? graph.predecessors(nodeId) : graph.successors(nodeId)) || [],
           ),
-          u4 = It(e2, o2, l2.root, l2.align, a2 === "r");
-        (a2 === "r" && (u4 = O(u4, (c3) => -c3)), (r2[s2 + a2] = u4));
+          xCoordinates = It(graph, order, alignment.root, alignment.align, horizontalDirection === "r");
+        (horizontalDirection === "r" && (xCoordinates = O(xCoordinates, (xCoordinate) => -xCoordinate)), (coordinates[verticalDirection + horizontalDirection] = xCoordinates));
       }));
   });
-  let i2 = Rt(e2, r2);
-  return (Pt(r2, i2), Mt(r2, e2.graph().align));
+  let smallestAlignment = Rt(graph, coordinates);
+  return (Pt(coordinates, smallestAlignment), Mt(coordinates, graph.graph().align));
 }
-function un(e2) {
-  ((e2 = asNonCompoundGraph(e2)),
-    Ft(e2),
-    Object.entries(ln(e2)).forEach(([n2, t2]) => (e2.node(n2).x = t2)));
+function position(graph) {
+  ((graph = asNonCompoundGraph(graph)),
+    Ft(graph),
+    Object.entries(positionX(graph)).forEach(([nodeId, xCoordinate]) => (graph.node(nodeId).x = xCoordinate)));
 }
 var Vt = ["nodesep", "edgesep", "ranksep", "marginx", "marginy"];
 var Wt = {
@@ -737,26 +737,26 @@ function Dt(e2, n2, t2) {
   (n2("    makeSpaceForEdgeLabels", () => Ut(e2)),
     n2("    removeSelfEdges", () => rr(e2)),
     n2("    acyclic", () => makeAcyclic(e2)),
-    n2("    nestingGraph.run", () => Ke(e2)),
-    n2("    rank", () => Xe(asNonCompoundGraph(e2))),
+    n2("    nestingGraph.run", () => runNestingGraph(e2)),
+    n2("    rank", () => rankGraph(asNonCompoundGraph(e2))),
     n2("    injectEdgeLabelProxies", () => Kt(e2)),
     n2("    removeEmptyRanks", () => removeEmptyRanks(e2)),
-    n2("    nestingGraph.cleanup", () => Je(e2)),
+    n2("    nestingGraph.cleanup", () => cleanupNestingGraph(e2)),
     n2("    normalizeRanks", () => normalizeRanks(e2)),
     n2("    assignRankMinMax", () => $t(e2)),
     n2("    removeEdgeLabelProxies", () => Jt(e2)),
     n2("    normalize.run", () => normalizeEdges(e2)),
-    n2("    parentDummyChains", () => Ue(e2)),
-    n2("    addBorderSegments", () => Ze(e2)),
-    n2("    order", () => B(e2, t2)),
+    n2("    parentDummyChains", () => assignDummyParents(e2)),
+    n2("    addBorderSegments", () => insertBorderSegments(e2)),
+    n2("    order", () => order(e2, t2)),
     n2("    insertSelfEdges", () => or(e2)),
-    n2("    adjustCoordinateSystem", () => nn(e2)),
-    n2("    position", () => un(e2)),
+    n2("    adjustCoordinateSystem", () => adjustCoordinateSystem(e2)),
+    n2("    position", () => position(e2)),
     n2("    positionSelfEdges", () => ir(e2)),
     n2("    removeBorderNodes", () => tr(e2)),
     n2("    normalize.undo", () => restoreNormalizedEdges(e2)),
     n2("    fixupEdgeLabelCoords", () => er(e2)),
-    n2("    undoCoordinateSystem", () => tn(e2)),
+    n2("    undoCoordinateSystem", () => undoCoordinateSystem(e2)),
     n2("    translateGraph", () => Qt(e2)),
     n2("    assignNodeIntersects", () => Zt(e2)),
     n2("    reversePoints", () => nr(e2)),
