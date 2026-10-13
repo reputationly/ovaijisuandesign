@@ -26,5 +26,15 @@
     "vt": "findType1Conflicts",
     "Ot": "verticalAlignment",
     "Rt": "findSmallestWidthAlignment"
+  },
+  "app/renderer/src/canvas/grid-slot-layout.js": {
+    "st": "tightTreeRanker",
+    "lt2": "computeLowLimValues",
+    "Qe": "addBorderNode",
+    "de": "buildLayerGraph",
+    "_t": "findType2Conflicts",
+    "Pt": "alignCoordinates",
+    "Mt": "balance",
+    "Ft": "positionY"
   }
 }

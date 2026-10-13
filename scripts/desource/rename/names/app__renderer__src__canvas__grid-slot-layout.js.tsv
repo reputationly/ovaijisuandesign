@@ -1,0 +1,116 @@
+key	old	new	依据
+p@18:17	p	Graph	来自 vendor.js 的 p$4 是 Graph 构造器，后续通过 setNode/setEdge 构建图。
+Gt@51:10	Gt	createRootNode	对应dagre lib/order/build-layer-graph.ts 的 createRootNode；createRootNode表示该步骤处理的图、节点、坐标或布局值。
+e2@19:20	e2	graph	对应dagre lib/rank/index.ts 的 tightTreeRanker；graph表示该步骤处理的图、节点、坐标或布局值。
+e2@22:21	e2	graph	对应画布 compound graph 的 low/lim 深度优先遍历；graph表示该步骤处理的图、节点、坐标或布局值。
+n2@23:7	n2	lowLimByNode	对应画布 compound graph 的 low/lim 深度优先遍历；lowLimByNode表示该步骤处理的图、节点、坐标或布局值。
+t2@24:5	t2	nextLim	对应画布 compound graph 的 low/lim 深度优先遍历；nextLim表示该步骤处理的图、节点、坐标或布局值。
+r2@25:12	r2	assignLowLim	对应画布 compound graph 的 low/lim 深度优先遍历；assignLowLim表示该步骤处理的图、节点、坐标或布局值。
+o2@25:15	o2	nodeId	对应画布 compound graph 的 low/lim 深度优先遍历；nodeId表示该步骤处理的图、节点、坐标或布局值。
+i2@26:9	i2	low	对应画布 compound graph 的 low/lim 深度优先遍历；low表示该步骤处理的图、节点、坐标或布局值。
+e2@35:20	e2	graph	对应dagre lib/add-border-segments.ts 的 addBorderNode；graph表示该步骤处理的图、节点、坐标或布局值。
+n2@35:24	n2	borderType	对应dagre lib/add-border-segments.ts 的 addBorderNode；borderType表示该步骤处理的图、节点、坐标或布局值。
+t2@35:28	t2	nodeOrder	对应dagre lib/add-border-segments.ts 的 addBorderNode；nodeOrder表示该步骤处理的图、节点、坐标或布局值。
+r2@35:32	r2	parentId	对应dagre lib/add-border-segments.ts 的 addBorderNode；parentId表示该步骤处理的图、节点、坐标或布局值。
+o2@35:36	o2	borderNodesByType	对应dagre lib/add-border-segments.ts 的 addBorderNode；borderNodesByType表示该步骤处理的图、节点、坐标或布局值。
+i2@35:40	i2	rank	对应dagre lib/add-border-segments.ts 的 addBorderNode；rank表示该步骤处理的图、节点、坐标或布局值。
+s2@36:7	s2	borderNodeLabel	对应dagre lib/add-border-segments.ts 的 addBorderNode；borderNodeLabel表示该步骤处理的图、节点、坐标或布局值。
+a2@42:5	a2	previousBorderNode	对应dagre lib/add-border-segments.ts 的 addBorderNode；previousBorderNode表示该步骤处理的图、节点、坐标或布局值。
+d2@43:5	d2	borderNode	对应dagre lib/add-border-segments.ts 的 addBorderNode；borderNode表示该步骤处理的图、节点、坐标或布局值。
+e2@51:13	e2	graph	对应dagre lib/order/build-layer-graph.ts 的 createRootNode；graph表示该步骤处理的图、节点、坐标或布局值。
+n2@52:7	n2	rootId	对应dagre lib/order/build-layer-graph.ts 的 createRootNode；rootId表示该步骤处理的图、节点、坐标或布局值。
+e2@56:20	e2	graph	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；graph表示该步骤处理的图、节点、坐标或布局值。
+n2@56:24	n2	rank	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；rank表示该步骤处理的图、节点、坐标或布局值。
+t2@56:28	t2	relationship	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；relationship表示该步骤处理的图、节点、坐标或布局值。
+r2@56:32	r2	nodeIds	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；nodeIds表示该步骤处理的图、节点、坐标或布局值。
+o2@58:7	o2	rootId	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；rootId表示该步骤处理的图、节点、坐标或布局值。
+i2@59:5	i2	layerGraph	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；layerGraph表示该步骤处理的图、节点、坐标或布局值。
+s2@65:29	s2	nodeId	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；nodeId表示该步骤处理的图、节点、坐标或布局值。
+s2@67:17	s2	nodeId	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；nodeId表示该步骤处理的图、节点、坐标或布局值。
+a2@68:11	a2	nodeLabel	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；nodeLabel表示该步骤处理的图、节点、坐标或布局值。
+d2@69:9	d2	parentId	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；parentId表示该步骤处理的图、节点、坐标或布局值。
+l2@72:13	l2	incidentEdges	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；incidentEdges表示该步骤处理的图、节点、坐标或布局值。
+u4@74:23	u4	edge	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；edge表示该步骤处理的图、节点、坐标或布局值。
+c3@75:17	c3	neighborId	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；neighborId表示该步骤处理的图、节点、坐标或布局值。
+h2@76:15	h2	existingEdgeLabel	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；existingEdgeLabel表示该步骤处理的图、节点、坐标或布局值。
+f2@77:15	f2	existingWeight	对应dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；existingWeight表示该步骤处理的图、节点、坐标或布局值。
+e2@92:20	e2	graph	对应dagre lib/position/bk.ts 的 findType2Conflicts；graph表示该步骤处理的图、节点、坐标或布局值。
+n2@92:24	n2	layering	对应dagre lib/position/bk.ts 的 findType2Conflicts；layering表示该步骤处理的图、节点、坐标或布局值。
+t2@93:7	t2	conflicts	对应dagre lib/position/bk.ts 的 findType2Conflicts；conflicts表示该步骤处理的图、节点、坐标或布局值。
+r2@94:12	r2	findConflictsInRange	对应dagre lib/position/bk.ts 的 findType2Conflicts；findConflictsInRange表示该步骤处理的图、节点、坐标或布局值。
+o2@108:12	o2	findType2ConflictsInLayer	对应dagre lib/position/bk.ts 的 findType2Conflicts；findType2ConflictsInLayer表示该步骤处理的图、节点、坐标或布局值。
+i2@94:15	i2	nodeIdsByOrder	对应dagre lib/position/bk.ts 的 findType2Conflicts；nodeIdsByOrder表示该步骤处理的图、节点、坐标或布局值。
+s2@94:19	s2	startIndex	对应dagre lib/position/bk.ts 的 findType2Conflicts；startIndex表示该步骤处理的图、节点、坐标或布局值。
+a2@94:23	a2	endIndex	对应dagre lib/position/bk.ts 的 findType2Conflicts；endIndex表示该步骤处理的图、节点、坐标或布局值。
+d2@94:27	d2	minOrder	对应dagre lib/position/bk.ts 的 findType2Conflicts；minOrder表示该步骤处理的图、节点、坐标或布局值。
+l2@94:31	l2	maxOrder	对应dagre lib/position/bk.ts 的 findType2Conflicts；maxOrder表示该步骤处理的图、节点、坐标或布局值。
+u4@95:24	u4	order	对应dagre lib/position/bk.ts 的 findType2Conflicts；order表示该步骤处理的图、节点、坐标或布局值。
+c3@96:11	c3	nodeId	对应dagre lib/position/bk.ts 的 findType2Conflicts；nodeId表示该步骤处理的图、节点、坐标或布局值。
+h2@98:13	h2	predecessors	对应dagre lib/position/bk.ts 的 findType2Conflicts；predecessors表示该步骤处理的图、节点、坐标或布局值。
+f2@100:23	f2	predecessorId	对应dagre lib/position/bk.ts 的 findType2Conflicts；predecessorId表示该步骤处理的图、节点、坐标或布局值。
+g2@102:17	g2	predecessorNode	对应dagre lib/position/bk.ts 的 findType2Conflicts；predecessorNode表示该步骤处理的图、节点、坐标或布局值。
+i2@108:15	i2	upperLayer	对应dagre lib/position/bk.ts 的 findType2Conflicts；upperLayer表示该步骤处理的图、节点、坐标或布局值。
+s2@108:19	s2	layerNodes	对应dagre lib/position/bk.ts 的 findType2Conflicts；layerNodes表示该步骤处理的图、节点、坐标或布局值。
+a2@109:9	a2	previousBoundaryOrder	对应dagre lib/position/bk.ts 的 findType2Conflicts；previousBoundaryOrder表示该步骤处理的图、节点、坐标或布局值。
+d2@110:7	d2	previousBorderOrder	对应dagre lib/position/bk.ts 的 findType2Conflicts；previousBorderOrder表示该步骤处理的图、节点、坐标或布局值。
+l2@111:7	l2	rangeStart	对应dagre lib/position/bk.ts 的 findType2Conflicts；rangeStart表示该步骤处理的图、节点、坐标或布局值。
+u4@113:19	u4	nodeId	对应dagre lib/position/bk.ts 的 findType2Conflicts；nodeId表示该步骤处理的图、节点、坐标或布局值。
+c3@113:23	c3	nodeIndex	对应dagre lib/position/bk.ts 的 findType2Conflicts；nodeIndex表示该步骤处理的图、节点、坐标或布局值。
+h2@115:15	h2	predecessors	对应dagre lib/position/bk.ts 的 findType2Conflicts；predecessors表示该步骤处理的图、节点、坐标或布局值。
+f2@117:17	f2	firstPredecessor	对应dagre lib/position/bk.ts 的 findType2Conflicts；firstPredecessor表示该步骤处理的图、节点、坐标或布局值。
+e2@132:20	e2	alignmentCoordinates	对应dagre lib/position/bk.ts 的 alignCoordinates；alignmentCoordinates表示该步骤处理的图、节点、坐标或布局值。
+n2@132:24	n2	referenceCoordinates	对应dagre lib/position/bk.ts 的 alignCoordinates；referenceCoordinates表示该步骤处理的图、节点、坐标或布局值。
+t2@133:7	t2	referenceCoordinateValues	对应dagre lib/position/bk.ts 的 alignCoordinates；referenceCoordinateValues表示该步骤处理的图、节点、坐标或布局值。
+r2@134:5	r2	referenceMinimum	对应dagre lib/position/bk.ts 的 alignCoordinates；referenceMinimum表示该步骤处理的图、节点、坐标或布局值。
+o2@135:5	o2	referenceMaximum	对应dagre lib/position/bk.ts 的 alignCoordinates；referenceMaximum表示该步骤处理的图、节点、坐标或布局值。
+i2@136:23	i2	verticalAlignment	对应dagre lib/position/bk.ts 的 alignCoordinates；verticalAlignment表示该步骤处理的图、节点、坐标或布局值。
+s2@137:25	s2	horizontalAlignment	对应dagre lib/position/bk.ts 的 alignCoordinates；horizontalAlignment表示该步骤处理的图、节点、坐标或布局值。
+a2@138:11	a2	alignmentKey	对应dagre lib/position/bk.ts 的 alignCoordinates；alignmentKey表示该步骤处理的图、节点、坐标或布局值。
+d2@139:9	d2	coordinatesForAlignment	对应dagre lib/position/bk.ts 的 alignCoordinates；coordinatesForAlignment表示该步骤处理的图、节点、坐标或布局值。
+l2@141:11	l2	coordinateValues	对应dagre lib/position/bk.ts 的 alignCoordinates；coordinateValues表示该步骤处理的图、节点、坐标或布局值。
+u4@142:9	u4	coordinateShift	对应dagre lib/position/bk.ts 的 alignCoordinates；coordinateShift表示该步骤处理的图、节点、坐标或布局值。
+c3@144:32	c3	coordinate	对应dagre lib/position/bk.ts 的 alignCoordinates；coordinate表示该步骤处理的图、节点、坐标或布局值。
+e2@148:20	e2	alignmentCoordinates	对应dagre lib/position/bk.ts 的 balance；alignmentCoordinates表示该步骤处理的图、节点、坐标或布局值。
+n2@148:24	n2	preferredAlignment	对应dagre lib/position/bk.ts 的 balance；preferredAlignment表示该步骤处理的图、节点、坐标或布局值。
+t2@149:7	t2	upperLeftAlignment	对应dagre lib/position/bk.ts 的 balance；upperLeftAlignment表示该步骤处理的图、节点、坐标或布局值。
+r2@151:14	r2	coordinate	对应dagre lib/position/bk.ts 的 balance；coordinate表示该步骤处理的图、节点、坐标或布局值。
+o2@151:18	o2	nodeId	对应dagre lib/position/bk.ts 的 balance；nodeId表示该步骤处理的图、节点、坐标或布局值。
+s2@152:13	s2	firstMedianCoordinate	对应dagre lib/position/bk.ts 的 balance；firstMedianCoordinate表示该步骤处理的图、节点、坐标或布局值。
+a2@152:17	a2	secondMedianCoordinate	对应dagre lib/position/bk.ts 的 balance；secondMedianCoordinate表示该步骤处理的图、节点、坐标或布局值。
+d2@154:15	d2	preferredAlignmentKey	对应dagre lib/position/bk.ts 的 balance；preferredAlignmentKey表示该步骤处理的图、节点、坐标或布局值。
+l2@155:13	l2	preferredCoordinates	对应dagre lib/position/bk.ts 的 balance；preferredCoordinates表示该步骤处理的图、节点、坐标或布局值。
+i2@158:13	i2	sortedCoordinates	对应dagre lib/position/bk.ts 的 balance；sortedCoordinates表示该步骤处理的图、节点、坐标或布局值。
+d2@159:17	d2	alignmentCoordinates	对应dagre lib/position/bk.ts 的 balance；alignmentCoordinates表示该步骤处理的图、节点、坐标或布局值。
+l2@160:17	l2	coordinateValue	对应dagre lib/position/bk.ts 的 balance；coordinateValue表示该步骤处理的图、节点、坐标或布局值。
+d2@163:18	d2	firstCoordinate	对应dagre lib/position/bk.ts 的 balance；firstCoordinate表示该步骤处理的图、节点、坐标或布局值。
+l2@163:22	l2	secondCoordinate	对应dagre lib/position/bk.ts 的 balance；secondCoordinate表示该步骤处理的图、节点、坐标或布局值。
+e2@171:20	e2	graph	对应dagre lib/position/index.ts 的 positionY；graph表示该步骤处理的图、节点、坐标或布局值。
+n2@172:7	n2	layering	对应dagre lib/position/index.ts 的 positionY；layering表示该步骤处理的图、节点、坐标或布局值。
+t2@173:5	t2	graphLabel	对应dagre lib/position/index.ts 的 positionY；graphLabel表示该步骤处理的图、节点、坐标或布局值。
+r2@174:5	r2	rankSeparation	对应dagre lib/position/index.ts 的 positionY；rankSeparation表示该步骤处理的图、节点、坐标或布局值。
+o2@175:5	o2	rankAlignment	对应dagre lib/position/index.ts 的 positionY；rankAlignment表示该步骤处理的图、节点、坐标或布局值。
+i2@176:5	i2	currentY	对应dagre lib/position/index.ts 的 positionY；currentY表示该步骤处理的图、节点、坐标或布局值。
+s2@177:15	s2	layer	对应dagre lib/position/index.ts 的 positionY；layer表示该步骤处理的图、节点、坐标或布局值。
+a2@178:9	a2	layerHeight	对应dagre lib/position/index.ts 的 positionY；layerHeight表示该步骤处理的图、节点、坐标或布局值。
+d2@178:25	d2	previousHeight	对应dagre lib/position/index.ts 的 positionY；previousHeight表示该步骤处理的图、节点、坐标或布局值。
+l2@178:29	l2	nodeId	对应dagre lib/position/index.ts 的 positionY；nodeId表示该步骤处理的图、节点、坐标或布局值。
+c3@179:11	c3	rawHeight	对应dagre lib/position/index.ts 的 positionY；rawHeight表示该步骤处理的图、节点、坐标或布局值。
+u4@180:11	u4	nodeHeight	对应dagre lib/position/index.ts 的 positionY；nodeHeight表示该步骤处理的图、节点、坐标或布局值。
+d2@183:18	d2	nodeId	对应dagre lib/position/index.ts 的 positionY；nodeId表示该步骤处理的图、节点、坐标或布局值。
+l2@184:11	l2	nodeLabel	对应dagre lib/position/index.ts 的 positionY；nodeLabel表示该步骤处理的图、节点、坐标或布局值。
+n2@199:39	n2	node	对应画布 GridSlotLayout 的网格/增量放置逻辑；node表示该步骤处理的图、节点、坐标或布局值。
+mode2@196:41	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@206:11	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@215:16	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@248:11	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+n2@253:41	n2	node	对应画布 GridSlotLayout 的网格/增量放置逻辑；node表示该步骤处理的图、节点、坐标或布局值。
+node2@255:16	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+export:st	st	tightTreeRanker	dagre lib/rank/index.ts 的 tightTreeRanker；暂不改导出名。
+export:lt2	lt2	computeLowLimValues	画布 compound graph 的 low/lim 深度优先遍历；暂不改导出名。
+export:Qe	Qe	addBorderNode	dagre lib/add-border-segments.ts 的 addBorderNode；暂不改导出名。
+export:de	de	buildLayerGraph	dagre lib/order/build-layer-graph.ts 的 buildLayerGraph；暂不改导出名。
+export:_t	_t	findType2Conflicts	dagre lib/position/bk.ts 的 findType2Conflicts；暂不改导出名。
+export:Pt	Pt	alignCoordinates	dagre lib/position/bk.ts 的 alignCoordinates；暂不改导出名。
+export:Mt	Mt	balance	dagre lib/position/bk.ts 的 balance；暂不改导出名。
+export:Ft	Ft	positionY	dagre lib/position/index.ts 的 positionY；暂不改导出名。
+file:grid-slot-layout.js	grid-slot-layout.js	canvas-grid-slot-layout.js	文件含 dagre 内联定位函数和 canvas 网格放置实现，提议采用描述性文件名。
