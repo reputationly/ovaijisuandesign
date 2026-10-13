@@ -40,11 +40,11 @@ import {
 } from "../workspace/context-menu-content.jsx";
 import { InlineColorValue } from "./use-mention-models.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
-import { Ae as CodeBlockCopyButton, ot, rt } from "../chat/ae.jsx";
-import { st } from "../chat/st.jsx";
+import { Ae as CodeBlockCopyButton, ot as CodeBlockContainer, rt as CodeBlockHeader } from "../chat/ae.jsx";
+import { st as HighlightedCodeBlock } from "../chat/st.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import { resolveChatFileReference } from "./resolve-chat-file-reference.js";
-import { cleanPath, tt } from "../media-editing/wt.js";
+import { cleanPath, tt as useIsIncompleteCode } from "../media-editing/wt.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   useResolveMediaUrl,
@@ -1481,7 +1481,7 @@ function DefaultCodeBlock({
   isIncomplete,
   language,
 }) {
-  return jsxRuntimeExports.jsx(st, {
+  return jsxRuntimeExports.jsx(HighlightedCodeBlock, {
     className,
     code: codeText,
     isIncomplete,
@@ -1561,12 +1561,12 @@ function FileReferenceCodeBlock({
       />
     );
   }
-  return jsxRuntimeExports.jsxs(ot, {
+  return jsxRuntimeExports.jsxs(CodeBlockContainer, {
     className,
     isIncomplete,
     language,
     children: [
-      jsxRuntimeExports.jsx(rt, {
+      jsxRuntimeExports.jsx(CodeBlockHeader, {
         language,
       }),
       <div className="pointer-events-none sticky top-2 z-10 -mt-10 flex h-8 items-center justify-end">
@@ -1601,7 +1601,7 @@ function MarkdownCodeBlock({
 }) {
   const language = codeBlockLanguage(className);
   const codeText = codeBlockContent(children);
-  const isIncomplete = tt();
+  const isIncomplete = useIsIncompleteCode();
   if (!("data-block" in props)) {
     return (
       <code className={className} {...props}>

@@ -148,13 +148,13 @@ export class ScopedAsyncCache {
     if (state?.scope !== scope || state.expiresAt <= now) return void 0;
     return state.value;
   }
-  load(scope, loader2, ttlMs = Number.POSITIVE_INFINITY) {
+  load(scope, loader, ttlMs = Number.POSITIVE_INFINITY) {
     this.setScope(scope);
     const state = this.state;
     const cached = this.peek(scope);
     if (cached !== void 0) return Promise.resolve(cached);
     if (state.request) return state.request;
-    const request = loader2()
+    const request = loader()
       .then((value) => {
         if (this.state !== state) throw scopeChangedError();
         state.value = value;

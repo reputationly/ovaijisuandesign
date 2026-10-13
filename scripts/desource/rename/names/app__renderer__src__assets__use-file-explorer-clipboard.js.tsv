@@ -7,3 +7,4 @@ gatewayFetch2@19:17	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的
 platform2@20:13	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
 data2@92:13	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
 dot2@135:17	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+ab@143:19	ab	arrayBuffer	从文件读取到、准备写入目标路径的 ArrayBuffer 数据。

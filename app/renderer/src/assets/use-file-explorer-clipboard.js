@@ -140,8 +140,8 @@ export function useFileExplorerClipboard({
           const filename = `pasted_${timestamp}_${rand}${ext}`;
           const destPath = joinFilePath(rootPath, filename);
           try {
-            const ab = await file.arrayBuffer();
-            await platform.fs.writeBinaryFile(destPath, ab);
+            const arrayBuffer = await file.arrayBuffer();
+            await platform.fs.writeBinaryFile(destPath, arrayBuffer);
             successCount++;
             newAbsPaths.push(destPath);
           } catch (err) {

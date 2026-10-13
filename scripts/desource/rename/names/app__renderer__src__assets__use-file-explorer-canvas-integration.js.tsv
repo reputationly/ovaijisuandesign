@@ -19,3 +19,5 @@ match22@127:11	match22	match	去掉打包器防重名追加的后缀，恢复原
 base2@129:13	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
 base2@141:11	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
 name2@179:13	name2	fileName	该值是从资源路径取得的文件名，用于构造拖拽载荷。
+df@60:11	df	rawDateFilter	从原始资产面板偏好中读取、待校验的日期筛选配置。
+tb@14:9	tb	normalizedTimeB	将空值归一为空字符串后的右侧排序时间。

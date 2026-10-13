@@ -23,3 +23,4 @@ path2@228:11	path2	path	去掉打包器防重名追加的后缀，恢复原名 p
 types2@330:11	types2	types	去掉打包器防重名追加的后缀，恢复原名 types，即该绑定持有的值。
 ext2@442:43	ext2	ext	去掉打包器防重名追加的后缀，恢复原名 ext，即该绑定持有的值。
 ext2@515:39	ext2	ext	去掉打包器防重名追加的后缀，恢复原名 ext，即该绑定持有的值。
+na@126:11	na	nextAsset	React.memo 前后两次渲染中待比较的下一轮资产记录。

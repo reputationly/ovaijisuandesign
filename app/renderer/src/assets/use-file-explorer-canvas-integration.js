@@ -11,11 +11,11 @@ import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
 import { getFileName } from "../canvas/uploading-assets.jsx";
 export function compareByTimeOrName(timeA, timeB, keyA, keyB, sortOrder) {
   const normalizedTimeA = timeA ?? "";
-  const tb = timeB ?? "";
-  if (normalizedTimeA === "" && tb === "") return keyA.localeCompare(keyB);
+  const normalizedTimeB = timeB ?? "";
+  if (normalizedTimeA === "" && normalizedTimeB === "") return keyA.localeCompare(keyB);
   if (normalizedTimeA === "") return 1;
-  if (tb === "") return -1;
-  const cmp = normalizedTimeA < tb ? -1 : normalizedTimeA > tb ? 1 : 0;
+  if (normalizedTimeB === "") return -1;
+  const cmp = normalizedTimeA < normalizedTimeB ? -1 : normalizedTimeA > normalizedTimeB ? 1 : 0;
   if (cmp !== 0) return sortOrder === "desc" ? -cmp : cmp;
   return keyA.localeCompare(keyB);
 }
@@ -57,12 +57,12 @@ export function normalizeAssetPanelPreferences(raw) {
   }
   let dateFilter = DEFAULTS.dateFilter;
   if (rawPreferences.dateFilter && typeof rawPreferences.dateFilter === "object") {
-    const df = rawPreferences.dateFilter;
-    const kind = df.kind;
+    const rawDateFilter = rawPreferences.dateFilter;
+    const kind = rawDateFilter.kind;
     if (typeof kind === "string" && VALID_DATE_KINDS.includes(kind)) {
       if (kind === "custom") {
-        const from = typeof df.from === "string" ? df.from : "";
-        const to = typeof df.to === "string" ? df.to : "";
+        const from = typeof rawDateFilter.from === "string" ? rawDateFilter.from : "";
+        const to = typeof rawDateFilter.to === "string" ? rawDateFilter.to : "";
         dateFilter = {
           kind: "custom",
           from,

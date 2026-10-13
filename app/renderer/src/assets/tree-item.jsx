@@ -123,16 +123,16 @@ function arePropsEqual(prev, next) {
   }
   if (prev.asset !== next.asset) {
     const previousAsset = prev.asset;
-    const na = next.asset;
-    if (!previousAsset || !na) return false;
-    if (previousAsset.id !== na.id) return false;
-    if (previousAsset.path !== na.path) return false;
-    if (previousAsset.name !== na.name) return false;
-    if (previousAsset.type !== na.type) return false;
-    if (previousAsset.status !== na.status) return false;
-    if (previousAsset.duration !== na.duration) return false;
-    if (previousAsset.candidate?.asset_id !== na.candidate?.asset_id) return false;
-    if (previousAsset.candidate?.path !== na.candidate?.path) return false;
+    const nextAsset = next.asset;
+    if (!previousAsset || !nextAsset) return false;
+    if (previousAsset.id !== nextAsset.id) return false;
+    if (previousAsset.path !== nextAsset.path) return false;
+    if (previousAsset.name !== nextAsset.name) return false;
+    if (previousAsset.type !== nextAsset.type) return false;
+    if (previousAsset.status !== nextAsset.status) return false;
+    if (previousAsset.duration !== nextAsset.duration) return false;
+    if (previousAsset.candidate?.asset_id !== nextAsset.candidate?.asset_id) return false;
+    if (previousAsset.candidate?.path !== nextAsset.candidate?.path) return false;
   }
   return arePropsRefEqualExcept(prev, next, SPECIAL_PROPS);
 }
