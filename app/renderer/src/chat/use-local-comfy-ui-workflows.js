@@ -56,18 +56,18 @@ function mapCurrentCanvasComfyUiWorkflowBindings(value) {
     const record2 = asRecord(candidate);
     if (!record2 || record2.pluginId !== "comfyui") return [];
     const nodeId = requiredString(record2, "id");
-    const id2 = requiredString(record2, "currentWorkflowId");
+    const currentWorkflowId = requiredString(record2, "currentWorkflowId");
     const title = requiredString(record2, "currentWorkflowName");
-    if (!nodeId || !id2 || !title || isWorkflowIdentity(title)) return [];
+    if (!nodeId || !currentWorkflowId || !title || isWorkflowIdentity(title)) return [];
     const copyOrdinal = positiveInteger(record2, "comfyuiTemplateCopyOrdinal");
     return [
       {
         nodeId,
         workflow: {
-          id: id2,
+          id: currentWorkflowId,
           name: title,
           title,
-          source: id2.startsWith("template:") ? "template" : "user",
+          source: currentWorkflowId.startsWith("template:") ? "template" : "user",
           canvasNodeId: nodeId,
           ...(copyOrdinal
             ? {

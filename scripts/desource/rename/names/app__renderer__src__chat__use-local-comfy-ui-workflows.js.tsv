@@ -1,0 +1,2 @@
+key	新名	依据
+id2@59:11	currentWorkflowId	`currentWorkflowId` 是从工作流配置中提取并校验的当前工作流 ID。

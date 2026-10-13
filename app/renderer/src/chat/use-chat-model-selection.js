@@ -76,13 +76,13 @@ export function useChatModelSelection({
     (modelId) => {
       editedRef.current.model = true;
       syncSelectedModelId(modelId);
-      const sid = sessionStore.getState().focusedSessionId;
-      if (sid) {
-        sessionStore.updateModelId(sid, modelId);
+      const sessionId = sessionStore.getState().focusedSessionId;
+      if (sessionId) {
+        sessionStore.updateModelId(sessionId, modelId);
         send2({
           type: "update_model",
           model_id: modelId,
-          session_id: sid,
+          session_id: sessionId,
         });
       }
     },
@@ -92,12 +92,12 @@ export function useChatModelSelection({
     (next2) => {
       editedRef.current.media = true;
       syncSelectedMediaModels(next2);
-      const sid = sessionStore.getState().focusedSessionId;
-      if (sid) {
-        sessionStore.setSelectedMediaModels(sid, next2);
+      const sessionId = sessionStore.getState().focusedSessionId;
+      if (sessionId) {
+        sessionStore.setSelectedMediaModels(sessionId, next2);
         send2({
           type: "update_selected_media_models",
-          session_id: sid,
+          session_id: sessionId,
           selected_media_models: next2,
         });
       }

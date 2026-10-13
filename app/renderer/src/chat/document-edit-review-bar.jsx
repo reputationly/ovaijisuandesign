@@ -2,7 +2,7 @@
 import {
   ChevronDown,
   ChevronUp,
-  Eye,
+  Eye as EyeIcon,
   jsxRuntimeExports,
   useTranslation,
 } from "../vendor.js";
@@ -12,7 +12,7 @@ import { useDiffReviewStore } from "../text-editor/use-diff-review-store.js";
 import { isDiffReviewSessionReady } from "../text-editor/is-diff-review-session-ready.js";
 import { Button } from "../infra/dialog-content.jsx";
 export function DocumentEditReviewBar() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const session = useDiffReviewStore((state2) => state2.session);
   const reverting = useDiffReviewStore((state2) => state2.reverting);
   const historyHandler = useDiffReviewStore((state2) => state2.historyHandler);
@@ -51,14 +51,14 @@ export function DocumentEditReviewBar() {
       {nav2 ? (
         <div className="flex min-w-0 flex-1 items-center gap-0.5">
           <span className="truncate text-muted-foreground">
-            {t2("canvas.diffReview.counter", "{{current}} / {{total}} 处修改", {
+            {translate("canvas.diffReview.counter", "{{current}} / {{total}} 处修改", {
               current: nav2.current,
               total: nav2.total,
             })}
           </span>
           <button
             type="button"
-            title={t2("canvas.diffReview.prev", "上一处")}
+            title={translate("canvas.diffReview.prev", "上一处")}
             onClick={() => nav2.step(-1)}
             className={navBtnClass}
             data-action-ui-id="chat-diff-review-prev"
@@ -67,7 +67,7 @@ export function DocumentEditReviewBar() {
           </button>
           <button
             type="button"
-            title={t2("canvas.diffReview.next", "下一处")}
+            title={translate("canvas.diffReview.next", "下一处")}
             onClick={() => nav2.step(1)}
             className={navBtnClass}
             data-action-ui-id="chat-diff-review-next"
@@ -77,7 +77,7 @@ export function DocumentEditReviewBar() {
         </div>
       ) : (
         <span className="min-w-0 flex-1 truncate text-muted-foreground">
-          {t2("chat.diffReview.pendingCount", "{{count}} 处修改待确认", {
+          {translate("chat.diffReview.pendingCount", "{{count}} 处修改待确认", {
             count: pendingCount,
           })}
         </span>
@@ -92,7 +92,7 @@ export function DocumentEditReviewBar() {
             onClick={() => void requestUndo()}
             data-action-ui-id="chat-diff-review-undo-all"
           >
-            {t2("chat.diffReview.undoAll", "全部撤销")}
+            {translate("chat.diffReview.undoAll", "全部撤销")}
           </Button>
           <Button
             size="sm"
@@ -101,7 +101,7 @@ export function DocumentEditReviewBar() {
             onClick={acceptAll}
             data-action-ui-id="chat-diff-review-accept-all"
           >
-            {t2("chat.diffReview.acceptAll", "全部接受")}
+            {translate("chat.diffReview.acceptAll", "全部接受")}
           </Button>
         </>
       ) : (
@@ -114,7 +114,7 @@ export function DocumentEditReviewBar() {
             onClick={() => void requestUndo()}
             data-action-ui-id="chat-diff-review-cancel"
           >
-            {t2("chat.diffReview.cancel", "取消")}
+            {translate("chat.diffReview.cancel", "取消")}
           </Button>
           <Button
             size="sm"
@@ -122,8 +122,8 @@ export function DocumentEditReviewBar() {
             onClick={() => requestOpenEditor(session.nodeId)}
             data-action-ui-id="chat-diff-review-view"
           >
-            <Eye size={14} strokeWidth={1.5} />
-            {t2("chat.diffReview.view", "查看")}
+            <EyeIcon size={14} strokeWidth={1.5} />
+            {translate("chat.diffReview.view", "查看")}
           </Button>
         </>
       )}

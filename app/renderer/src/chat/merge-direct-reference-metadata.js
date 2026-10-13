@@ -20,9 +20,9 @@ export function hasUnsupportedReferenceAudioFormat(path2) {
 export function getReferenceVideoDurationsMs(paths, assets, resolutions) {
   return paths.flatMap((path2) => {
     if (parseCanvasReference(path2)?.target === "entity") {
-      const row = resolutions.get(path2);
-      if (row?.status !== "available") return [];
-      return (row.metadata?.attachments ?? [])
+      const resolution = resolutions.get(path2);
+      if (resolution?.status !== "available") return [];
+      return (resolution.metadata?.attachments ?? [])
         .filter((item) => item.kind === "video")
         .map((item) => Math.round((item.metadata?.duration_sec ?? 0) * 1e3));
     }
@@ -41,9 +41,9 @@ export function getReferenceVideoDurationsMs(paths, assets, resolutions) {
 
 export function mergeDirectReferenceMetadata(assets, resolutions) {
   const merged = new Map(assets);
-  for (const [path2, row] of resolutions) {
-    if (row.status !== "available" || !row.metadata) continue;
-    const { reference, metadata } = row;
+  for (const [path2, resolution] of resolutions) {
+    if (resolution.status !== "available" || !resolution.metadata) continue;
+    const { reference, metadata } = resolution;
     const groups =
       reference.target === "entity"
         ? [...new Set(metadata.attachments.map((item) => item.kind))].map(
@@ -75,7 +75,7 @@ export function mergeDirectReferenceMetadata(assets, resolutions) {
           : void 0;
       merged.set(`${path2}:${kind}`, {
         path: path2,
-        name: row.name ?? reference.name,
+        name: resolution.name ?? reference.name,
         type: kind,
         url: "",
         durationSec,

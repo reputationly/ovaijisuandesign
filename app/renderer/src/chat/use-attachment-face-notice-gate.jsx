@@ -18,7 +18,7 @@ function AttachmentFaceNoticeDialog({
   onOpenChange,
   onConfirm,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent
@@ -27,10 +27,10 @@ function AttachmentFaceNoticeDialog({
       >
         <AlertDialogHeader className="min-h-0 place-items-stretch gap-4 text-left">
           <AlertDialogTitle className="font-heading text-sm font-medium">
-            {t2("attachmentFaceNotice.title")}
+            {translate("attachmentFaceNotice.title")}
           </AlertDialogTitle>
           <AlertDialogDescription className="scrollbar-fade max-h-[calc(60vh-8rem)] overflow-y-auto overscroll-none whitespace-pre-line pr-2 text-left text-wrap text-xs/relaxed text-muted-foreground [contain:paint] [scrollbar-gutter:stable] [will-change:scroll-position]">
-            {t2("attachmentFaceNotice.description")}
+            {translate("attachmentFaceNotice.description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -39,7 +39,7 @@ function AttachmentFaceNoticeDialog({
             disabled={confirming}
             data-action-ui-id="attachment-face-notice.cancel"
           >
-            {t2("attachmentFaceNotice.cancel")}
+            {translate("attachmentFaceNotice.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             type="button"
@@ -47,7 +47,7 @@ function AttachmentFaceNoticeDialog({
             onClick={onConfirm}
             data-action-ui-id="attachment-face-notice.confirm"
           >
-            {t2("attachmentFaceNotice.confirm")}
+            {translate("attachmentFaceNotice.confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

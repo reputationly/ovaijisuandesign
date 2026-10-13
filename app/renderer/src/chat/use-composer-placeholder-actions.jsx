@@ -60,18 +60,18 @@ function AudioWaveIcon({ className }) {
   );
 }
 export function FileKindIcon({ kind, className }) {
-  const cls = className ?? "w-3.5 h-3.5 text-muted-foreground";
-  if (kind === "image") return <ImageOutlineIcon className={cls} />;
-  if (kind === "video") return <FileVideo className={cls} />;
-  if (kind === "audio") return <AudioWaveIcon className={cls} />;
-  if (kind === "text") return <FileText className={cls} />;
-  return <File className={cls} />;
+  const iconClassName = className ?? "w-3.5 h-3.5 text-muted-foreground";
+  if (kind === "image") return <ImageOutlineIcon className={iconClassName} />;
+  if (kind === "video") return <FileVideo className={iconClassName} />;
+  if (kind === "audio") return <AudioWaveIcon className={iconClassName} />;
+  if (kind === "text") return <FileText className={iconClassName} />;
+  return <File className={iconClassName} />;
 }
 export function ModelTypeIcon({ mediaType, className }) {
-  const cls = className ?? "w-3.5 h-3.5 text-muted-foreground";
-  if (mediaType === "video") return <Video className={cls} />;
-  if (mediaType === "audio") return <Music className={cls} />;
-  return <ImageOutlineIcon className={cls} />;
+  const iconClassName = className ?? "w-3.5 h-3.5 text-muted-foreground";
+  if (mediaType === "video") return <Video className={iconClassName} />;
+  if (mediaType === "audio") return <Music className={iconClassName} />;
+  return <ImageOutlineIcon className={iconClassName} />;
 }
 export function folderBaseName(absPath) {
   const normalized = absPath.replace(/[/\\]+$/, "");

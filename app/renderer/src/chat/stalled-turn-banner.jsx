@@ -46,20 +46,20 @@ export function restoreQueuedMessageToComposer(
   requestAnimationFrame(() => input?.focus());
 }
 export function SessionListUnavailableNotice({ onRetry }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div
       className="mb-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground"
       data-action-ui-id="chat.session-list-unavailable"
     >
       <div className="font-medium text-foreground">
-        {t2(
+        {translate(
           "chat.sessionListUnavailable.title",
           "Chat is temporarily unavailable",
         )}
       </div>
       <div>
-        {t2(
+        {translate(
           "chat.sessionListUnavailable.description",
           "The current workspace, canvas, assets, and loaded messages remain available. Retry loading chat sessions.",
         )}
@@ -70,7 +70,7 @@ export function SessionListUnavailableNotice({ onRetry }) {
         className="mt-1.5 h-6 px-2 text-xs"
         onClick={onRetry}
       >
-        {t2("chat.retry", "Retry")}
+        {translate("chat.retry", "Retry")}
       </Button>
     </div>
   );
@@ -81,31 +81,31 @@ export function StalledTurnBanner({
   onKeepWaiting,
   onStop,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isHardCap = watchdog === "hard_cap";
   return (
     <div className="mb-2 border border-border [border-width:var(--divider-width)] rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
       <div className="font-medium text-foreground">
         {isHardCap
-          ? t2(
+          ? translate(
               "chat.stalled.hardCapTitle",
               "Task has been running for a long time",
             )
-          : t2(
+          : translate(
               "chat.stalled.title",
               "Task is running but hasn't responded for a while",
             )}
       </div>
       <div>
         {isHardCap
-          ? t2(
+          ? translate(
               "chat.stalled.hardCapDescription",
               "This task has been running for about {{minutes}} min. You can keep waiting or stop it.",
               {
                 minutes,
               },
             )
-          : t2(
+          : translate(
               "chat.stalled.description",
               "No new progress for about {{minutes}} min. You can keep waiting or stop this task.",
               {
@@ -121,7 +121,7 @@ export function StalledTurnBanner({
           data-action-ui-id="chat-stalled-keep-waiting-button"
           onClick={onKeepWaiting}
         >
-          {t2("chat.stalled.keepWaiting", "Keep waiting")}
+          {translate("chat.stalled.keepWaiting", "Keep waiting")}
         </Button>
         <Button
           size="sm"
@@ -130,7 +130,7 @@ export function StalledTurnBanner({
           data-action-ui-id="chat-stalled-stop-task-button"
           onClick={onStop}
         >
-          {t2("chat.stalled.stopTask", "Stop task")}
+          {translate("chat.stalled.stopTask", "Stop task")}
         </Button>
       </div>
     </div>
