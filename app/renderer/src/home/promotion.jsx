@@ -30,7 +30,7 @@ export function PromotionDialog({
   } = useTranslation();
   const title = t("promotion.dialog.title");
   const bullets = [t("promotion.dialog.bullet1"), t("promotion.dialog.bullet2"), t("promotion.dialog.bullet3")];
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent data-action-ui-id="promotion.dialog" className="w-[760px] h-[480px] max-w-none sm:max-w-none p-0 gap-0 grid grid-cols-[320px_1fr] overflow-hidden"><div className="w-[320px] h-[480px] bg-muted"><img src={CDN_PROMOTION_SEEDANCE} alt={title} className="w-full h-full object-cover" /></div><div className="flex h-[480px] flex-col"><div className="flex flex-1 flex-col justify-center gap-4 px-8"><DialogHeader className="text-left space-y-0"><DialogTitle className="font-heading text-2xl font-medium leading-tight text-foreground">{title}</DialogTitle><DialogDescription className="sr-only">{title}</DialogDescription></DialogHeader><ul className="flex flex-col gap-3 text-sm leading-relaxed text-muted-foreground">{bullets.map(b => <li key={b} className="flex gap-2.5"><span aria-hidden={true} className="mt-2 h-1 w-1 shrink-0 bg-foreground/60" /><span>{b}</span></li>)}</ul></div><DialogFooter className="px-8 pb-6 sm:justify-end gap-2"><Button variant="outline" data-action-ui-id="promotion.dialog.cancel" onClick={() => onOpenChange(false)}>{t("promotion.dialog.cancel")}</Button><Button data-action-ui-id="promotion.dialog.cta" onClick={() => onOpenChange(false)}>{t("promotion.dialog.cta")}<ArrowRight className="ml-1 h-4 w-4" /></Button></DialogFooter></div></DialogContent></Dialog>;
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent data-action-ui-id="promotion.dialog" className="w-[760px] h-[480px] max-w-none sm:max-w-none p-0 gap-0 grid grid-cols-[320px_1fr] overflow-hidden"><div className="w-[320px] h-[480px] bg-muted"><img src={CDN_PROMOTION_SEEDANCE} alt={title} className="w-full h-full object-cover" /></div><div className="flex h-[480px] flex-col"><div className="flex flex-1 flex-col justify-center gap-4 px-8"><DialogHeader className="text-left space-y-0"><DialogTitle className="font-heading text-2xl font-medium leading-tight text-foreground">{title}</DialogTitle><DialogDescription className="sr-only">{title}</DialogDescription></DialogHeader><ul className="flex flex-col gap-3 text-sm leading-relaxed text-muted-foreground">{bullets.map(bullet => <li key={bullet} className="flex gap-2.5"><span aria-hidden={true} className="mt-2 h-1 w-1 shrink-0 bg-foreground/60" /><span>{bullet}</span></li>)}</ul></div><DialogFooter className="px-8 pb-6 sm:justify-end gap-2"><Button variant="outline" data-action-ui-id="promotion.dialog.cancel" onClick={() => onOpenChange(false)}>{t("promotion.dialog.cancel")}</Button><Button data-action-ui-id="promotion.dialog.cta" onClick={() => onOpenChange(false)}>{t("promotion.dialog.cta")}<ArrowRight className="ml-1 h-4 w-4" /></Button></DialogFooter></div></DialogContent></Dialog>;
 }
 function extractPromotion(config) {
   if (!config || typeof config !== "object") return null;
@@ -72,10 +72,10 @@ export function usePromotion() {
 }
 const STORAGE_KEY = "hilo:promotion:lastShownDate";
 function todayStr() {
-  const d = new Date();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}-${m}-${day}`;
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
 }
 function readLastShown() {
   try {

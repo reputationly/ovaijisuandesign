@@ -39,8 +39,8 @@ export function HomeToolbar({
   const modelButtonRef = reactExports.useRef(null);
   const workspaceButtonRef = reactExports.useRef(null);
   const [modelPickerOpen, setModelPickerOpen] = reactExports.useState(false);
-  const handleFileChange = reactExports.useCallback(e => {
-    const selected = e.target.files;
+  const handleFileChange = reactExports.useCallback(changeEvent => {
+    const selected = changeEvent.target.files;
     if (selected && selected.length > 0) {
       trackEvent(TRACK_EVENTS.HOME_ATTACHMENT_ADD, {
         count: selected.length,
@@ -48,14 +48,14 @@ export function HomeToolbar({
       });
       addFromLocal(selected);
     }
-    e.target.value = "";
+    changeEvent.target.value = "";
   }, [addFromLocal]);
   const handleSkillsPopover = reactExports.useCallback(() => {
     trackEvent(TRACK_EVENTS.HOME_SKILLS_POPOVER_OPEN, {});
     triggerSlash();
   }, [triggerSlash]);
   const handleModelToggle = reactExports.useCallback(() => {
-    setModelPickerOpen(v => !v);
+    setModelPickerOpen(isOpen => !isOpen);
   }, []);
   const handleModelClose = reactExports.useCallback(() => {
     setModelPickerOpen(false);

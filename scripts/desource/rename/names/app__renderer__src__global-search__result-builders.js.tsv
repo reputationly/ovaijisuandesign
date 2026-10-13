@@ -1,0 +1,4 @@
+key	new	reason
+q@60:9	normalizedQuery	normalize(query) 归一化后的查询词
+w@88:48	workspace	workspaces 中的单个已打开工作区
+w@233:48	workspace	workspaces 中的单个已打开工作区

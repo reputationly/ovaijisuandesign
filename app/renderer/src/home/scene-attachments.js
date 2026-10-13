@@ -15,13 +15,13 @@ export function snapshotSelectedMediaModels(models) {
 }
 export const SCENE_ATTACHMENT_SOURCE = "scene-query";
 export const HOME_SHOWCASE_FEATURED_SKILL_SOURCE = "official-featured";
-function attachmentToMentionAttrs(att, label) {
-  const kind = att.type === "image" || att.type === "video" || att.type === "audio" ? att.type : "other";
-  const previewUrl = att.type === "image" && att.assetUrl ? att.assetUrl : null;
-  const mediaUrl = (att.type === "video" || att.type === "audio") && att.assetUrl ? att.assetUrl : null;
-  const isFolder = att.type === "folder";
+function attachmentToMentionAttrs(attachment, label) {
+  const kind = attachment.type === "image" || attachment.type === "video" || attachment.type === "audio" ? attachment.type : "other";
+  const previewUrl = attachment.type === "image" && attachment.assetUrl ? attachment.assetUrl : null;
+  const mediaUrl = (attachment.type === "video" || attachment.type === "audio") && attachment.assetUrl ? attachment.assetUrl : null;
+  const isFolder = attachment.type === "folder";
   return {
-    path: att.name,
+    path: attachment.name,
     name: label,
     modelName: null,
     mentionName: null,
@@ -32,30 +32,30 @@ function attachmentToMentionAttrs(att, label) {
     previewUrl,
     mediaUrl,
     isFolder,
-    folderId: isFolder ? `folder:${att.name}` : null,
+    folderId: isFolder ? `folder:${attachment.name}` : null,
     folderResolvedPath: null
   };
 }
 export function buildSceneSegments(rawText, attachments) {
   const lookup = new Map();
-  for (const a of attachments) {
-    lookup.set(a.name, a);
-    if (a.displayNames) {
-      for (const alias of a.displayNames) lookup.set(alias, a);
+  for (const attachment of attachments) {
+    lookup.set(attachment.name, attachment);
+    if (attachment.displayNames) {
+      for (const alias of attachment.displayNames) lookup.set(alias, attachment);
     }
   }
   const parts = rawText.split(/(\[[^\]]+\])/g);
   const segments = [];
   for (const part of parts) {
     if (!part) continue;
-    const m = part.match(/^\[(.+)\]$/);
-    if (m) {
-      const inner = m[1];
-      const att = lookup.get(inner);
-      if (att) {
+    const bracketMatch = part.match(/^\[(.+)\]$/);
+    if (bracketMatch) {
+      const inner = bracketMatch[1];
+      const attachment = lookup.get(inner);
+      if (attachment) {
         segments.push({
           type: "mentionRef",
-          attrs: attachmentToMentionAttrs(att, inner)
+          attrs: attachmentToMentionAttrs(attachment, inner)
         });
         continue;
       }

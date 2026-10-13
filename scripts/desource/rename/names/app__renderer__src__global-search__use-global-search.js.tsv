@@ -1,0 +1,4 @@
+key	new	reason
+q@29:13	trimmedQuery	query.trim() 去掉首尾空白后的查询词
+r@65:20	response	gatewayFetch 返回的 HTTP 响应
+r@100:20	response	gatewayFetch 返回的 HTTP 响应

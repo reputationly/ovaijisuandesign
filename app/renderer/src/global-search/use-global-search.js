@@ -26,13 +26,13 @@ export function useGlobalSearch(workspaces, options = {}) {
   const search = reactExports.useCallback(
     (query) => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      const q = query.trim();
-      if (!q) {
+      const trimmedQuery = query.trim();
+      if (!trimmedQuery) {
         clear();
         return;
       }
       const localResults = buildLocalResults(
-        q,
+        trimmedQuery,
         workspaces,
         recentWorkspaces,
         projects,
@@ -54,7 +54,7 @@ export function useGlobalSearch(workspaces, options = {}) {
             workspace.gatewayUrl,
             `/api/files/mention-search?${new URLSearchParams({
               workspace: workspace.folderPath,
-              q,
+              q: trimmedQuery,
               limit: "20",
             })}`,
             {
@@ -62,7 +62,7 @@ export function useGlobalSearch(workspaces, options = {}) {
               workspaceBinding: workspace.gatewayBinding,
             },
           )
-            .then((r) => r.json())
+            .then((response) => response.json())
             .then((data) =>
               readArrayField(data, "items").map((item) =>
                 withScore(
@@ -89,7 +89,7 @@ export function useGlobalSearch(workspaces, options = {}) {
           gatewayFetchFromBase(
             workspace.gatewayUrl,
             `/api/canvas/search?${new URLSearchParams({
-              query: q,
+              query: trimmedQuery,
               limit: "20",
             })}`,
             {
@@ -97,7 +97,7 @@ export function useGlobalSearch(workspaces, options = {}) {
               workspaceBinding: workspace.gatewayBinding,
             },
           )
-            .then((r) => r.json())
+            .then((response) => response.json())
             .then((data) =>
               readArrayField(data, "matches").map((match) =>
                 withScore(

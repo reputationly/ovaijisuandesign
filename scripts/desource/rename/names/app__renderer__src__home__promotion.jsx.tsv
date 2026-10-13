@@ -1,0 +1,4 @@
+key	new	reason
+b@33:796	bullet	bullets 中的一条要点文案
+d@75:9	now	new Date() 得到的当前时间
+m@76:9	month	两位补零的月份字符串

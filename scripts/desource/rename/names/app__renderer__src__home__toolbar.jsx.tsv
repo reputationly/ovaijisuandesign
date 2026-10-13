@@ -1,0 +1,3 @@
+key	new	reason
+e@42:53	changeEvent	文件 input 的 change 事件，读取 target.files
+v@58:24	isOpen	模型选择器当前是否打开，取反后作为新值
