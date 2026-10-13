@@ -8,24 +8,24 @@ export function categorizeByExtension(fileName) {
 }
 const DAY_MS = 24 * 60 * 60 * 1e3;
 function startOfDayMs(ms) {
-  const d2 = new Date(ms);
-  d2.setHours(0, 0, 0, 0);
-  return d2.getTime();
+  const date = new Date(ms);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
 }
 function endOfDayMs(ms) {
-  const d2 = new Date(ms);
-  d2.setHours(23, 59, 59, 999);
-  return d2.getTime();
+  const date = new Date(ms);
+  date.setHours(23, 59, 59, 999);
+  return date.getTime();
 }
-function parseCustomEndpoint(value, end2) {
+function parseCustomEndpoint(value, end) {
   if (!value) return null;
   const ms = Date.parse(value);
   if (Number.isNaN(ms)) return null;
-  return end2 === "start" ? startOfDayMs(ms) : endOfDayMs(ms);
+  return end === "start" ? startOfDayMs(ms) : endOfDayMs(ms);
 }
-export function computeDateBounds(filter2, now2) {
+export function computeDateBounds(filter, _unusedArg) {
   const nowMs = Date.now();
-  switch (filter2.kind) {
+  switch (filter.kind) {
     case "all":
       return null;
     case "today":
@@ -44,15 +44,15 @@ export function computeDateBounds(filter2, now2) {
         toMs: nowMs,
       };
     case "custom": {
-      const from2 = parseCustomEndpoint(filter2.from, "start");
-      const to = parseCustomEndpoint(filter2.to, "end");
-      if (from2 == null && to == null) return null;
-      const fromMs = from2 ?? Number.NEGATIVE_INFINITY;
-      const toMs = to ?? Number.POSITIVE_INFINITY;
+      const from = parseCustomEndpoint(filter.from, "start");
+      const endTimestamp = parseCustomEndpoint(filter.to, "end");
+      if (from == null && endTimestamp == null) return null;
+      const fromMs = from ?? Number.NEGATIVE_INFINITY;
+      const toMs = endTimestamp ?? Number.POSITIVE_INFINITY;
       if (fromMs > toMs) {
         console.warn(
           "[asset-filter] custom range from > to, ignoring filter:",
-          filter2,
+          filter,
         );
         return null;
       }
@@ -64,7 +64,7 @@ export function computeDateBounds(filter2, now2) {
     default: {
       console.warn(
         '[asset-filter] unknown dateFilter.kind, treating as "all":',
-        filter2,
+        filter,
       );
       return null;
     }

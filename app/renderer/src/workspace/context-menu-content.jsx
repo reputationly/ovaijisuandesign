@@ -1,5 +1,5 @@
 // context-menu-content.jsx
-import { ActionListItem, ActionListPanel, ActionListSeparator, CDN_BASE_MAP, cdnPublicAsset, ChevronRightIcon, ContextMenuTrigger$1, getCdnRegion, MenuItem$3 as MenuItem, MenuPopup, MenuPortal, MenuPositioner, MenuSubmenuRoot, MenuSubmenuTrigger, reactExports, useTranslation } from "../vendor.js";
+import { ActionListItem, ActionListPanel, ActionListSeparator, CDN_BASE_MAP, cdnPublicAsset, ChevronRightIcon, ContextMenuTrigger$1 as ContextMenuTriggerPrimitive, getCdnRegion, MenuItem$3 as MenuItem, MenuPopup, MenuPortal, MenuPositioner, MenuSubmenuRoot, MenuSubmenuTrigger, reactExports, useTranslation } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -22,25 +22,25 @@ import {
 import { useProjectActions } from "../settings/use-project-actions.js";
 import { DropdownMenuSeparator } from "./shortcut-hint.jsx";
 export function useCreateProjectAndSelect(onChange) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { createProject } = useProjectActions();
   const handleCreateProject = reactExports.useCallback(
-    async (name2, kind) => {
-      const result = await createProject(name2, kind);
+    async (projectName, kind) => {
+      const result = await createProject(projectName, kind);
       if (!result.project) {
         dedupedToast.error(
           result.errorMessage ??
-            t2(result.errorMessageKey ?? "project.create.failed"),
+            translate(result.errorMessageKey ?? "project.create.failed"),
         );
         return;
       }
       onChange(result.project.id);
     },
-    [createProject, onChange, t2],
+    [createProject, onChange, translate],
   );
   return handleCreateProject;
 }
-function handleWorkspaceOpenResult(result, t2, navigateToWorkspace) {
+function handleWorkspaceOpenResult(result, translate, navigateToWorkspace) {
   const runtime =
     result.kind === "opened" || result.kind === "reused"
       ? result.runtime
@@ -49,12 +49,12 @@ function handleWorkspaceOpenResult(result, t2, navigateToWorkspace) {
     navigateToWorkspace(runtime);
     return runtime;
   }
-  toastWorkspaceOpenResult(result, t2);
+  toastWorkspaceOpenResult(result, translate);
   return void 0;
 }
 export function handleNewWorkspaceOpenResult(
   result,
-  t2,
+  translate,
   navigateToWorkspace,
   alreadyKnown = false,
 ) {
@@ -63,7 +63,7 @@ export function handleNewWorkspaceOpenResult(
   if (isReopenOfKnown) {
     const runtime = result.runtime;
     dedupedToast.info(
-      t2("workspace.open.alreadyOpen", {
+      translate("workspace.open.alreadyOpen", {
         defaultValue: isChineseLocale()
           ? "该文件夹已有对应工作区，已为您切换过去。"
           : "This folder already has a workspace. Switched to it.",
@@ -72,17 +72,17 @@ export function handleNewWorkspaceOpenResult(
     navigateToWorkspace(runtime);
     return runtime;
   }
-  return handleWorkspaceOpenResult(result, t2, navigateToWorkspace);
+  return handleWorkspaceOpenResult(result, translate, navigateToWorkspace);
 }
 export async function stageWorkspacePreview({
-  hiloApp: hiloApp2,
+  hiloApp,
   folderPath,
-  t: t2,
+  t: translate,
   onStaged,
 }) {
-  const result = await hiloApp2.stageWorkspaceTab(folderPath);
+  const result = await hiloApp.stageWorkspaceTab(folderPath);
   if (result.kind !== "staged") {
-    toastWorkspaceOpenResult(result, t2);
+    toastWorkspaceOpenResult(result, translate);
     return void 0;
   }
   showVisiblePreviewTab(result.entry);
@@ -91,7 +91,7 @@ export async function stageWorkspacePreview({
 }
 export function ContextMenuTrigger({ className, ...props }) {
   return (
-    <ContextMenuTrigger$1
+    <ContextMenuTriggerPrimitive
       data-slot="context-menu-trigger"
       className={cn("select-none", className)}
       {...props}
@@ -155,7 +155,7 @@ export function ContextMenuSub({ ...props }) {
 function ContextMenuSubTrigger({
   className,
   inset,
-  children: children2,
+  children,
   ...props
 }) {
   return (
@@ -169,7 +169,7 @@ function ContextMenuSubTrigger({
       )}
       {...props}
     >
-      {children2}
+      {children}
       <ChevronRightIcon className="ml-auto" />
     </MenuSubmenuTrigger>
   );
@@ -256,15 +256,15 @@ function getCdnBase() {
   return CDN_BASE_MAP[getCdnRegion()];
 }
 let _cdnBase;
-function cdnUrl(path2) {
+function cdnUrl(path) {
   _cdnBase ??= getCdnBase();
-  return `${_cdnBase}/${path2}`;
+  return `${_cdnBase}/${path}`;
 }
-export function cdnAssetFile(path2) {
-  return cdnUrl(path2);
+export function cdnAssetFile(path) {
+  return cdnUrl(path);
 }
-function cdnImage(path2) {
-  return `${cdnUrl(path2)}${OSS_WEBP}`;
+function cdnImage(path) {
+  return `${cdnUrl(path)}${OSS_WEBP}`;
 }
 cdnImage("project-1.jpg");
 cdnImage("project-2.jpg");

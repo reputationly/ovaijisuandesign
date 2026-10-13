@@ -1,0 +1,12 @@
+key	old	new	依据
+children2@158:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+ContextMenuTrigger$1@2:112	ContextMenuTrigger$1	ContextMenuTriggerPrimitive	来自 vendor 的 ContextMenuTrigger 原语；本地同名组件负责外层包装。
+hiloApp2@78:12	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+name2@28:12	name2	projectName	用户输入或提交的项目名称。
+path2@259:17	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@263:30	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@266:19	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+t2@25:14	t2	translate	useTranslation 返回的翻译函数。
+t2@43:44	t2	translate	useTranslation 返回的翻译函数。
+t2@57:3	t2	translate	useTranslation 返回的翻译函数。
+t2@80:6	t2	translate	useTranslation 返回的翻译函数。

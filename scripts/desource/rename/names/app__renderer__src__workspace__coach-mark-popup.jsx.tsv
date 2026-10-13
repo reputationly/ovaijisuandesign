@@ -1,0 +1,25 @@
+key	old	new	依据
+_2@350:26	_2	_unusedArg	该参数在函数体中未使用，按约定标记为未使用参数。
+b3@35:13	b3	blue	当前像素的蓝色通道值。
+buckets2@30:11	buckets2	buckets	去掉打包器防重名追加的后缀，恢复原名 buckets，即该绑定持有的值。
+children2@175:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+color2@309:33	color2	color	去掉打包器防重名追加的后缀，恢复原名 color，即该绑定持有的值。
+cur@37:13	cur	colorBucket	按 RGB 颜色分桶后累计的像素记录。
+data2@29:19	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+e2@307:34	e2	loadEvent	图像加载错误事件。
+frame2@213:11	frame2	frame	去掉打包器防重名追加的后缀，恢复原名 frame，即该绑定持有的值。
+g2@34:13	g2	green	当前像素的绿色通道值。
+h2@19:11	h2	imageHeight	图像像素高度。
+i2@31:14	i2	pixelOffset	图像像素在像素缓冲区中的偏移量。
+i2@350:30	i2	stepIndex	当前引导步骤的索引。
+img@193:13	img	image	结合所在函数体的实际用途命名，说明该绑定持有的 image。
+key2@36:13	key2	bucketKey	由 RGB 通道值组合得到的颜色桶键。
+observer2@216:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+r2@103:11	r2	anchorRect	锚点元素的边界矩形。
+r2@33:13	r2	red	当前像素的红色通道值。
+ro@114:9	ro	resizeObserver	用于监听尺寸变化的 ResizeObserver。
+t2@177:14	t2	translate	useTranslation 返回的翻译函数。
+top2@79:9	top2	arrowTop	相对弹层计算出的箭头纵向位置。
+url2@191:16	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+w3@18:11	w3	imageWidth	图像像素宽度。
+X@12:10	X	CloseIcon	来自 vendor 的关闭图标组件。
