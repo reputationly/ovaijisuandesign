@@ -125,8 +125,8 @@ export function useReconnectingStuck(
       setStuck(false);
       return;
     }
-    const id2 = setTimeout(() => setStuck(true), thresholdMs);
-    return () => clearTimeout(id2);
+    const timeoutId = setTimeout(() => setStuck(true), thresholdMs);
+    return () => clearTimeout(timeoutId);
   }, [reconnecting, thresholdMs]);
   return stuck;
 }
@@ -139,7 +139,7 @@ export function ChatStartupNotice({
   reconnecting,
   showPreparing = true,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const connectingStalled = useReconnectingStuck(
     connecting,
     CONNECTING_STALLED_THRESHOLD_MS,
@@ -152,13 +152,13 @@ export function ChatStartupNotice({
         data-action-ui-id="chat.connecting-stalled-notice"
       >
         <div className="font-medium text-foreground">
-          {t2(
+          {translate(
             "chat.connectingStalled.title",
             "Still connecting to the local runtime...",
           )}
         </div>
         <div>
-          {t2(
+          {translate(
             "chat.connectingStalled.description",
             "Loading is taking longer than expected. Your chat history will appear once the connection is ready.",
           )}
@@ -173,10 +173,10 @@ export function ChatStartupNotice({
       data-action-ui-id="chat.starting-notice"
     >
       <div className="font-medium text-foreground">
-        {t2("chat.starting.title", "Preparing your Agent")}
+        {translate("chat.starting.title", "Preparing your Agent")}
       </div>
       <div>
-        {t2(
+        {translate(
           "chat.starting.description",
           "Chat history is ready. Sending will be available as soon as the local Agent finishes starting.",
         )}
@@ -253,7 +253,7 @@ export function isDocumentEditSubmissionForAnnotations(
   return (
     submittedAnnotationIds.length === annotations.length &&
     submittedAnnotationIds.every(
-      (id2, index2) => id2 === annotations[index2]?.id,
+      (annotationId, index2) => annotationId === annotations[index2]?.id,
     )
   );
 }

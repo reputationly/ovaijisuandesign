@@ -70,7 +70,7 @@ export function collectBindingSessionIds(binding) {
 export function collectTextEditSessionIds(bindings) {
   const ids2 = new Set();
   for (const binding of Object.values(bindings)) {
-    for (const id2 of collectBindingSessionIds(binding)) ids2.add(id2);
+    for (const sessionId of collectBindingSessionIds(binding)) ids2.add(sessionId);
   }
   return ids2;
 }
@@ -115,7 +115,7 @@ export function useModelDefaults({
   defaultSelectedMediaModels,
   onRememberDefaults,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const pendingRef = reactExports.useRef(null);
   const persistedRef = reactExports.useRef({});
   persistedRef.current = {
@@ -146,10 +146,10 @@ export function useModelDefaults({
           setRevision((revision) => revision + 1);
         }
         if (!saved)
-          dedupedToast.error(t2("chat.mediaModels.defaultSaveFailed"));
+          dedupedToast.error(translate("chat.mediaModels.defaultSaveFailed"));
       }
     },
-    [getDefaults2, onRememberDefaults, t2],
+    [getDefaults2, onRememberDefaults, translate],
   );
   const getDefaultModelId = reactExports.useCallback(
     () => getDefaults2().modelId,

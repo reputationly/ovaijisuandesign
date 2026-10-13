@@ -1,5 +1,5 @@
 // chat-rating-controls.jsx
-import { isRecord$g, jsxRuntimeExports, MonochromeIcon, reactExports, RotateCcw, ThumbsDown, ThumbsUp, useIsMutating, useMutation, useQuery, useQueryClient, useTranslation, X$7 as X } from "../vendor.js";
+import { isRecord$g, jsxRuntimeExports, MonochromeIcon, reactExports, RotateCcw, ThumbsDown, ThumbsUp, useIsMutating, useMutation, useQuery, useQueryClient, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { submitFeedback } from "../infra/submit-feedback.js";
 import {
@@ -22,7 +22,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import {
   Button,
-  cn$2 as cn,
+  cn$2 as mergeClassNames,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import { Textarea } from "../infra/badge-variants.jsx";
@@ -380,7 +380,7 @@ function acknowledgeChatRatingRetry(client2, key2, eventId) {
 }
 function useChatRating(target) {
   const { user, isLoggedIn } = useAuth();
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const fetchFeedback = useGatewayFetch();
   const workspaceKey = useGatewayScopeKey();
   const queryClient2 = useQueryClient();
@@ -506,8 +506,8 @@ function useChatRating(target) {
         },
         fetchFeedback,
         isCurrentIdentity: captureChatRatingIdentity(userId),
-        successMessage: t2("chat.rating.saved"),
-        errorMessage: t2("chat.rating.failed"),
+        successMessage: translate("chat.rating.saved"),
+        errorMessage: translate("chat.rating.failed"),
       });
       return true;
     } catch {
@@ -565,7 +565,7 @@ function normalizeCategory(category) {
     : "";
 }
 export function ChatRatingControls({ target, onOpenChange }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const {
     current: current2,
     submitting,
@@ -604,10 +604,10 @@ export function ChatRatingControls({ target, onOpenChange }) {
       onOpenChange(false);
     }
   };
-  const likeLabel = t2(
+  const likeLabel = translate(
     current2?.rating === "up" ? "chat.rating.removeLike" : "chat.rating.like",
   );
-  const dislikeLabel = t2("chat.rating.dislike");
+  const dislikeLabel = translate("chat.rating.dislike");
   return (
     <>
       <Tooltip>
@@ -620,7 +620,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
               aria-label={likeLabel}
               aria-pressed={current2?.rating === "up"}
               data-action-ui-id="chat-assistant-like"
-              className={cn(
+              className={mergeClassNames(
                 "icon-muted-control",
                 current2?.rating === "up" &&
                   "bg-muted text-brand-accent hover:text-brand-accent",
@@ -654,7 +654,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                     aria-label={dislikeLabel}
                     aria-pressed={current2?.rating === "down"}
                     data-action-ui-id="chat-assistant-dislike"
-                    className={cn(
+                    className={mergeClassNames(
                       "icon-muted-control",
                       current2?.rating === "down" &&
                         "bg-muted text-brand-accent hover:text-brand-accent",
@@ -682,21 +682,21 @@ export function ChatRatingControls({ target, onOpenChange }) {
           data-action-ui-id="chat-rating-popover"
         >
           <div className="flex items-center justify-between gap-3">
-            <PopoverTitle>{t2("chat.rating.title")}</PopoverTitle>
+            <PopoverTitle>{translate("chat.rating.title")}</PopoverTitle>
             <Button
               variant="ghost"
               size="icon-xs"
               disabled={submitting}
-              aria-label={t2("chat.rating.close")}
+              aria-label={translate("chat.rating.close")}
               onClick={() => handleOpenChange(false)}
               data-action-ui-id="chat-rating-close"
             >
-              <X strokeWidth={1.5} aria-hidden="true" />
+              <CloseIcon strokeWidth={1.5} aria-hidden="true" />
             </Button>
           </div>
           <fieldset disabled={submitting} className="flex flex-col gap-2">
             <legend className="mb-2 text-xs font-medium">
-              {t2("chat.rating.reasons")}
+              {translate("chat.rating.reasons")}
             </legend>
             <div className="flex flex-wrap gap-2">
               {CHAT_RATING_REASON_OPTIONS.map((reason) => {
@@ -707,7 +707,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                     variant={selected2 ? "default" : "outline"}
                     size="sm"
                     aria-pressed={selected2}
-                    className={cn(
+                    className={mergeClassNames(
                       "font-normal",
                       selected2 &&
                         "border-brand-accent bg-brand-accent text-brand-accent-foreground hover:bg-brand-accent/90 hover:text-brand-accent-foreground",
@@ -721,7 +721,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                       )
                     }
                   >
-                    {t2(`chat.rating.reason.${reason}`)}
+                    {translate(`chat.rating.reason.${reason}`)}
                   </Button>
                 );
               })}
@@ -733,15 +733,15 @@ export function ChatRatingControls({ target, onOpenChange }) {
                 onChange={(event) => setComment(event.target.value)}
                 maxLength={CHAT_RATING_COMMENT_MAX_LENGTH}
                 disabled={submitting}
-                aria-label={t2("chat.rating.comment")}
-                placeholder={t2("chat.rating.comment")}
+                aria-label={translate("chat.rating.comment")}
+                placeholder={translate("chat.rating.comment")}
                 data-action-ui-id="chat-rating-comment"
               />
             )}
           </fieldset>
           <fieldset disabled={submitting} className="flex flex-col gap-2">
             <legend className="mb-2 text-xs font-medium">
-              {t2("chat.rating.category")}
+              {translate("chat.rating.category")}
             </legend>
             <div className="flex flex-wrap gap-2">
               {CHAT_RATING_CATEGORY_OPTIONS.map((key2) => (
@@ -750,7 +750,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                   variant={category === key2 ? "default" : "outline"}
                   size="sm"
                   aria-pressed={category === key2}
-                  className={cn(
+                  className={mergeClassNames(
                     "font-normal",
                     category === key2 &&
                       "border-brand-accent bg-brand-accent text-brand-accent-foreground hover:bg-brand-accent/90 hover:text-brand-accent-foreground",
@@ -758,13 +758,13 @@ export function ChatRatingControls({ target, onOpenChange }) {
                   data-action-ui-id={`chat-rating-category-${key2}`}
                   onClick={() => setCategory(key2)}
                 >
-                  {t2(`chat.rating.category.${key2}`)}
+                  {translate(`chat.rating.category.${key2}`)}
                 </Button>
               ))}
             </div>
           </fieldset>
           <p className="text-xs text-muted-foreground">
-            {t2("chat.rating.contextHint")}
+            {translate("chat.rating.contextHint")}
           </p>
           <div className="flex gap-2">
             {current2?.rating === "down" && (
@@ -779,7 +779,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
                   }
                 }}
               >
-                {t2("chat.rating.withdraw")}
+                {translate("chat.rating.withdraw")}
               </Button>
             )}
             <Button
@@ -789,7 +789,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
               onClick={() => void handleSubmit()}
               data-action-ui-id="chat-rating-submit"
             >
-              {t2("chat.rating.submit")}
+              {translate("chat.rating.submit")}
             </Button>
           </div>
         </PopoverContent>
@@ -802,14 +802,14 @@ export function ChatRatingControls({ target, onOpenChange }) {
                 variant="ghost"
                 size="icon-xs"
                 onClick={() => void retry()}
-                aria-label={t2("chat.rating.retryLoad")}
+                aria-label={translate("chat.rating.retryLoad")}
                 data-action-ui-id="chat-rating-reload"
               >
                 <RotateCcw strokeWidth={1.5} aria-hidden="true" />
               </Button>
             }
           />
-          <TooltipContent>{t2("chat.rating.retryLoad")}</TooltipContent>
+          <TooltipContent>{translate("chat.rating.retryLoad")}</TooltipContent>
         </Tooltip>
       )}
     </>

@@ -1,0 +1,4 @@
+key	新名	依据
+fn2@66:11	logMethod	`logMethod` 是根据日志级别选出的 logger 方法。
+sid@85:39	sessionId	`sessionId` 是写入部件更新诊断信息的会话标识。
+sid@94:40	sessionId	`sessionId` 是写入部件接收诊断信息的会话标识。

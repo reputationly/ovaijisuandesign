@@ -63,10 +63,10 @@ export function useHistoryRailState(options) {
     if (rafIdRef.current != null) return;
     rafIdRef.current = requestAnimationFrame(() => {
       rafIdRef.current = null;
-      const el = scrollRef.current;
-      if (!el) return;
-      const nextMode = resolveHistoryRailMode(el.clientWidth);
-      const shouldShow = shouldShowHistoryRail(el.clientWidth, turnCount);
+      const scrollElement = scrollRef.current;
+      if (!scrollElement) return;
+      const nextMode = resolveHistoryRailMode(scrollElement.clientWidth);
+      const shouldShow = shouldShowHistoryRail(scrollElement.clientWidth, turnCount);
       setShowRail((prev) => (prev === shouldShow ? prev : shouldShow));
       setMode((prev) => {
         const resolved = shouldShow ? nextMode : "hidden";
@@ -74,8 +74,8 @@ export function useHistoryRailState(options) {
       });
       if (!shouldShow) return;
       const nextIndexes = findActiveTurns(
-        el.scrollTop,
-        el.clientHeight,
+        scrollElement.scrollTop,
+        scrollElement.clientHeight,
         virtualItemsRef.current,
       );
       const next2 = nextIndexes.at(-1) ?? -1;
@@ -90,24 +90,24 @@ export function useHistoryRailState(options) {
   }, [scrollRef, turnCount, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const el = scrollRef.current;
-    if (!el) return;
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) return;
     recompute();
     const handler = () => recompute();
-    el.addEventListener("scroll", handler, {
+    scrollElement.addEventListener("scroll", handler, {
       passive: true,
     });
     return () => {
-      el.removeEventListener("scroll", handler);
+      scrollElement.removeEventListener("scroll", handler);
       cancelRaf();
     };
   }, [scrollRef, recompute, cancelRaf, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const el = scrollRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
+    const scrollElement = scrollRef.current;
+    if (!scrollElement || typeof ResizeObserver === "undefined") return;
     const observer2 = new ResizeObserver(() => recompute());
-    observer2.observe(el);
+    observer2.observe(scrollElement);
     return () => observer2.disconnect();
   }, [scrollRef, recompute, enabled]);
   reactExports.useEffect(() => {

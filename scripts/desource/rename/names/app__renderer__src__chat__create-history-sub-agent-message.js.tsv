@@ -1,0 +1,5 @@
+key	新名	依据
+r2@115:8	subAgentMessage	`subAgentMessage` 是按任务部件、子会话或 agent 条件筛选的历史子代理消息。
+r2@124:8	subAgentMessage	`subAgentMessage` 是按子会话 ID 匹配的历史子代理消息。
+r2@133:8	subAgentMessage	`subAgentMessage` 是按任意 agent 条件匹配的历史子代理消息。
+r2@138:6	subAgentMessage	`subAgentMessage` 是按 agent 名称匹配的历史子代理消息。

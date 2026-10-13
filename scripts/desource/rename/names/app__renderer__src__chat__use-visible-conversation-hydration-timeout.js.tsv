@@ -1,0 +1,4 @@
+key	新名	依据
+t2@28:45	translate	`translate` 是用于生成会话切换超时提示的翻译函数。
+t2@40:3	translate	`translate` 是用于生成初始消息水合失败反馈的翻译函数。
+t2@70:50	translate	`translate` 是用于生成会话尚未连接提示的翻译函数。

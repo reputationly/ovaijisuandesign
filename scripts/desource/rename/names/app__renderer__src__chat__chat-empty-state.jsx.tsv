@@ -1,0 +1,5 @@
+key	新名	依据
+cn@6:18	mergeClassNames	`mergeClassNames` 合并组件所需的 Tailwind class 名。
+f2@57:18	currentFrame	`currentFrame` 是按动画帧数量循环更新的当前加载动画帧索引。
+t2@68:14	translate	`translate` 为空聊天和待发送消息状态获取本地化文案。
+t2@103:45	translate	`translate` 为会话备用显示名称生成本地化文案。

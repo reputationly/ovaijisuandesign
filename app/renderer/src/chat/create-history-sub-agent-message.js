@@ -112,33 +112,33 @@ export function findHistorySubAgentIndex(result, lookup) {
   if (partId) {
     return findLastIndex(
       result,
-      (r2) =>
-        r2.type === "sub_agent" &&
-        r2.partId === partId &&
-        matchesResolvedState(r2),
+      (subAgentMessage) =>
+        subAgentMessage.type === "sub_agent" &&
+        subAgentMessage.partId === partId &&
+        matchesResolvedState(subAgentMessage),
     );
   }
   if (lookup.childSessionId) {
     return findLastIndex(
       result,
-      (r2) =>
-        r2.type === "sub_agent" &&
-        r2.childSessionId === lookup.childSessionId &&
-        matchesResolvedState(r2),
+      (subAgentMessage) =>
+        subAgentMessage.type === "sub_agent" &&
+        subAgentMessage.childSessionId === lookup.childSessionId &&
+        matchesResolvedState(subAgentMessage),
     );
   }
   if (lookup.matchAnyAgent) {
     return findLastIndex(
       result,
-      (r2) => r2.type === "sub_agent" && matchesResolvedState(r2),
+      (subAgentMessage) => subAgentMessage.type === "sub_agent" && matchesResolvedState(subAgentMessage),
     );
   }
   return findLastIndex(
     result,
-    (r2) =>
-      r2.type === "sub_agent" &&
-      r2.agent === lookup.agent &&
-      matchesResolvedState(r2),
+    (subAgentMessage) =>
+      subAgentMessage.type === "sub_agent" &&
+      subAgentMessage.agent === lookup.agent &&
+      matchesResolvedState(subAgentMessage),
   );
 }
 

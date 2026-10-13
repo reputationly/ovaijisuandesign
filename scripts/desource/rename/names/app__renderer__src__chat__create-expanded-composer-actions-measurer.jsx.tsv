@@ -1,0 +1,5 @@
+key	新名	依据
+tr2@105:7	transaction	`transaction` 是用于更新引用节点路径的 ProseMirror 事务。
+pos@106:40	position	`position` 是引用节点在 ProseMirror 文档中的位置。
+row@183:31	actionsRow	`actionsRow` 是包含左右侧操作按钮的编辑器行元素。
+row@197:55	actionsRow	`actionsRow` 是复制并测量 composer 操作按钮布局的 DOM 行。

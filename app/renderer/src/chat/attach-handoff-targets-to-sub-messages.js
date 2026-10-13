@@ -63,13 +63,13 @@ export function extractChildSessionId(part) {
 export function logChat(message2, level = "info") {
   try {
     const logger = globalThis.hilo?.logger;
-    const fn2 =
+    const logMethod =
       level === "error"
         ? logger?.error
         : level === "warn"
           ? logger?.warn
           : logger?.info;
-    fn2?.(message2, "chat");
+    logMethod?.(message2, "chat");
   } catch {}
 }
 
@@ -82,16 +82,16 @@ function diagnosticToken(value) {
   return encodeURIComponent(String(value));
 }
 
-export function logPartUpdated(phase, sid, fields) {
+export function logPartUpdated(phase, sessionId, fields) {
   const details = fields
     .map(([key2, value]) => `${key2}=${diagnosticToken(value)}`)
     .join(" ");
   logChat(
-    `[part_updated] phase=${phase} sid=${diagnosticToken(sid)} ${details}`,
+    `[part_updated] phase=${phase} sid=${diagnosticToken(sessionId)} ${details}`,
   );
 }
 
-export function logPartUpdatedReceived(sid, part, runtimeId) {
+export function logPartUpdatedReceived(sessionId, part, runtimeId) {
   const fields = [
     ["part", part.id],
     ["partSession", part.sessionID],
@@ -107,7 +107,7 @@ export function logPartUpdatedReceived(sid, part, runtimeId) {
     ["runtime", runtimeId],
     ["binding", runtimeId ? "bound" : "unbound"],
   );
-  logPartUpdated("received", sid, fields);
+  logPartUpdated("received", sessionId, fields);
 }
 
 export function attachHandoffTargetsToSubMessages(messages2, targets) {

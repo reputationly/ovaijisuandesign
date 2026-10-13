@@ -1,0 +1,4 @@
+key	新名	依据
+el@66:13	scrollElement	`scrollElement` 是历史导航轨道读取滚动尺寸与位置的容器。
+el@93:11	scrollElement	`scrollElement` 是用于注册滚动监听器的历史记录容器。
+el@107:11	scrollElement	`scrollElement` 是 ResizeObserver 观察的历史记录容器。

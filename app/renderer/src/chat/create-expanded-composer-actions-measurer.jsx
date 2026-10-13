@@ -102,8 +102,8 @@ export function remapCommittedMentionPaths(
 ) {
   if (!editor || !committed?.length) return false;
   const pathMap = new Map(committed.map((entry) => [entry.from, entry.to]));
-  let tr2 = editor.state.tr;
-  editor.state.doc.descendants((node2, pos) => {
+  let transaction = editor.state.tr;
+  editor.state.doc.descendants((node2, position) => {
     if (node2.type.name !== "mentionRef") return;
     const attrs = node2.attrs;
     if (
@@ -115,7 +115,7 @@ export function remapCommittedMentionPaths(
     const nextPath = pathMap.get(attrs.path);
     if (!nextPath) return;
     const kind = attrs.kind;
-    tr2 = tr2.setNodeMarkup(pos, void 0, {
+    transaction = transaction.setNodeMarkup(position, void 0, {
       ...attrs,
       path: nextPath,
       thumbUrl:
@@ -136,8 +136,8 @@ export function remapCommittedMentionPaths(
         buildMentionPlayableUrl(scopedGatewayUrl, kind, nextPath) ?? null,
     });
   });
-  if (!tr2.docChanged) return false;
-  editor.view.dispatch(tr2);
+  if (!transaction.docChanged) return false;
+  editor.view.dispatch(transaction);
   return true;
 }
 const COMPOSER_ACTIONS_RELEASE_BUFFER_PX = 8;
@@ -180,8 +180,8 @@ function stripCloneMetadata(clone2) {
     .querySelector(RIGHT_ACTIONS_SELECTOR)
     ?.removeAttribute("data-composer-actions-right");
 }
-function createIntrinsicClone(row) {
-  const clone2 = row.cloneNode(true);
+function createIntrinsicClone(actionsRow) {
+  const clone2 = actionsRow.cloneNode(true);
   const left = clone2.querySelector(LEFT_ACTIONS_SELECTOR);
   const right = clone2.querySelector(RIGHT_ACTIONS_SELECTOR);
   const leftContent = left?.firstElementChild;
@@ -194,8 +194,8 @@ function createIntrinsicClone(row) {
   stripCloneMetadata(clone2);
   return clone2;
 }
-export function createExpandedComposerActionsMeasurer(row) {
-  const ownerDocument2 = row.ownerDocument;
+export function createExpandedComposerActionsMeasurer(actionsRow) {
+  const ownerDocument2 = actionsRow.ownerDocument;
   const host = ownerDocument2.createElement("div");
   host.dataset.composerExpandedMeasurement = "true";
   host.setAttribute("aria-hidden", "true");
@@ -212,7 +212,7 @@ export function createExpandedComposerActionsMeasurer(row) {
   host.style.zIndex = "-1";
   (ownerDocument2.body ?? ownerDocument2.documentElement).append(host);
   const refresh = () => {
-    host.replaceChildren(createIntrinsicClone(row));
+    host.replaceChildren(createIntrinsicClone(actionsRow));
   };
   const measure = () => {
     const width = Math.max(

@@ -25,8 +25,8 @@ export function useSessionSwitchErrorFeedback(switchError, setSwitchError) {
   }, [switchError]);
 }
 
-export function sessionSwitchTimeoutMessage(t2) {
-  return t2(
+export function sessionSwitchTimeoutMessage(translate) {
+  return translate(
     "chat.sessionSwitch.timeout",
     "Session switch timed out. Please try again.",
   );
@@ -37,7 +37,7 @@ const INITIAL_PAYLOAD_STALLED_TOAST_ID =
 
 export function useInitialPayloadHydrationStalledFeedback(
   stalled,
-  t2,
+  translate,
   onRetry,
 ) {
   const onRetryRef = reactExports.useRef(onRetry);
@@ -48,7 +48,7 @@ export function useInitialPayloadHydrationStalledFeedback(
       return;
     }
     dedupedToast.error(
-      t2(
+      translate(
         "chat.initialPayload.hydrationStalled",
         "Could not confirm the target conversation, so the first message was not sent. Retry to send it.",
       ),
@@ -56,7 +56,7 @@ export function useInitialPayloadHydrationStalledFeedback(
         id: INITIAL_PAYLOAD_STALLED_TOAST_ID,
         duration: Number.POSITIVE_INFINITY,
         action: {
-          label: t2("common.retry", "Retry"),
+          label: translate("common.retry", "Retry"),
           onClick: () => onRetryRef.current(),
         },
       },
@@ -64,11 +64,11 @@ export function useInitialPayloadHydrationStalledFeedback(
     return () => {
       dedupedToast.dismiss(INITIAL_PAYLOAD_STALLED_TOAST_ID);
     };
-  }, [stalled, t2]);
+  }, [stalled, translate]);
 }
 
-export function sessionSwitchNotConnectedMessage(t2) {
-  return t2(
+export function sessionSwitchNotConnectedMessage(translate) {
+  return translate(
     "chat.sessionSwitch.notConnected",
     "Not connected to the local runtime yet. Reconnecting — please try again shortly.",
   );

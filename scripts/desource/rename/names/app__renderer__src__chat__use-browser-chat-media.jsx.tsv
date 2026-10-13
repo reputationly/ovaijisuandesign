@@ -1,0 +1,4 @@
+key	新名	依据
+id2@128:11	timeoutId	`timeoutId` 是用于后续清理重连停滞计时器的定时器 ID。
+t2@142:14	translate	`translate` 为浏览器聊天媒体状态提供本地化文案。
+id2@256:8	annotationId	`annotationId` 标识当前处理的批注记录。

@@ -1,0 +1,5 @@
+key	新名	依据
+X@2:181	CloseIcon	`CloseIcon` 是评分弹层关闭操作使用的 X 形图标组件。
+cn@25:11	mergeClassNames	`mergeClassNames` 合并并规范化评分控件的 Tailwind class 名。
+t2@383:14	translate	`translate` 为聊天评分控件获取本地化文案。
+t2@568:14	translate	`translate` 为评分弹层内容获取本地化文案。
