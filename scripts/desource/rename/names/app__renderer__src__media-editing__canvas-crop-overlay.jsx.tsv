@@ -22,3 +22,17 @@ e2@466:29	clickEvent	阻止宽高比菜单按钮点击事件冒泡并切换菜�
 v2@468:40	isOpen	接收宽高比菜单状态更新函数的当前布尔值。
 e2@482:37	pointerEvent	阻止宽高比菜单内部的指针事件冒泡。
 opt@484:42	aspectOption	遍历裁剪宽高比选项。
+reset2@122:9	reset	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存重置裁剪区域并恢复默认比例的回调。
+drag2@35:11	drag	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存裁剪拖动开始时记录的指针和初始裁剪矩形。
+next2@46:11	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存根据指针移动计算出的下一个裁剪矩形。
+handle2@99:20	handle	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存正在拖动的裁剪控制柄类型。
+preset2@116:52	preset	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存用户选择的裁剪宽高比预设。
+children2@164:36	children	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存工具按钮内部的 React 子节点。
+position2@203:35	position	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存裁剪控制柄所在的边或角。
+onPointerDown2@203:61	onPointerDown	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存开始拖动对应裁剪控制柄的回调。
+position2@227:33	position	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存裁剪控制柄所在的边或角。
+onPointerDown2@227:59	onPointerDown	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存开始拖动对应裁剪控制柄的回调。
+CanvasCropOverlay2@238:12	CanvasCropOverlayView	原名 CanvasCropOverlay 会遮蔽外层导出的 CanvasCropOverlay@237:14，因此改为描述名 CanvasCropOverlayView；此处实现裁剪覆盖层视图。
+meta2@239:19	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前待裁剪图像的媒体元数据。
+transform2@245:11	transform	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存画布视口的位置和缩放状态。
+close2@269:13	closeAspectMenu	原名 close 被工具识别为全局名，因此按用途改为 closeAspectMenu；此处关闭裁剪宽高比预设菜单。

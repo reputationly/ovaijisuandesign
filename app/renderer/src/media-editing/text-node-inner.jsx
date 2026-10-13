@@ -229,12 +229,12 @@ function resolveTextPromptSeed({
   draftPrompt,
   nodePrompt,
   upstreamPresetPrompt,
-  markdown: markdown2,
+  markdown,
   sourceTool,
   promptSeedSource,
   description,
 }) {
-  const trimmedBody = markdown2.trim();
+  const trimmedBody = markdown.trim();
   const legacyAgentDescription =
     trimmedBody.length > LEGACY_AGENT_DESCRIPTION_LIMIT
       ? `${trimmedBody.slice(0, LEGACY_AGENT_DESCRIPTION_LIMIT)}…`
@@ -254,7 +254,7 @@ function resolveTextPromptSeed({
       prompt: quickPrompt,
       source: "quick",
     };
-  if (draftPrompt !== void 0 && draftPrompt !== markdown2) {
+  if (draftPrompt !== void 0 && draftPrompt !== markdown) {
     return {
       prompt: draftPrompt,
       source: "draft",
@@ -265,7 +265,7 @@ function resolveTextPromptSeed({
       prompt: "",
       source: "none",
     };
-  if (nodePrompt !== void 0 && nodePrompt !== markdown2) {
+  if (nodePrompt !== void 0 && nodePrompt !== markdown) {
     return {
       prompt: nodePrompt,
       source: "node",
@@ -283,7 +283,7 @@ function resolveTextPromptSeed({
   };
 }
 function shouldAutoOpenTextPopover({
-  selected: selected2,
+  selected,
   canSubmit,
   isMultiSelect,
   isBoxSelecting,
@@ -300,7 +300,7 @@ function shouldAutoOpenTextPopover({
   )
     return false;
   return (
-    selected2 &&
+    selected &&
     canSubmit &&
     !isMultiSelect &&
     !isBoxSelecting &&
@@ -320,27 +320,27 @@ function truncateForPreview(markdownText) {
       text: markdownText,
       truncated: false,
     };
-  const head2 = markdownText.slice(0, PREVIEW_CHAR_LIMIT);
+  const head = markdownText.slice(0, PREVIEW_CHAR_LIMIT);
   const minCut = Math.floor(PREVIEW_CHAR_LIMIT * PREVIEW_MIN_CUT_RATIO);
-  const paragraphIdx = head2.lastIndexOf("\n\n");
+  const paragraphIdx = head.lastIndexOf("\n\n");
   if (paragraphIdx >= minCut)
     return {
       text: markdownText.slice(0, paragraphIdx).trimEnd(),
       truncated: true,
     };
-  const lineIdx = head2.lastIndexOf("\n");
+  const lineIdx = head.lastIndexOf("\n");
   if (lineIdx >= minCut)
     return {
       text: markdownText.slice(0, lineIdx).trimEnd(),
       truncated: true,
     };
   return {
-    text: head2.trimEnd(),
+    text: head.trimEnd(),
     truncated: true,
   };
 }
 function TextPreviewInner({
-  markdown: markdown2,
+  markdown,
   loaded,
   plain,
   interactive,
@@ -349,15 +349,15 @@ function TextPreviewInner({
 }) {
   const { t } = useTranslation();
   const { text: previewText, truncated } = reactExports.useMemo(
-    () => truncateForPreview(markdown2),
-    [markdown2],
+    () => truncateForPreview(markdown),
+    [markdown],
   );
   const mdDir = reactExports.useMemo(() => deriveMdDir(mdPath), [mdPath]);
-  const urlTransform2 = reactExports.useMemo(
-    () => (url2) => resolveMarkdownAssetUrl(url2, mdDir, resolveFileUrl),
+  const urlTransform = reactExports.useMemo(
+    () => (url) => resolveMarkdownAssetUrl(url, mdDir, resolveFileUrl),
     [mdDir, resolveFileUrl],
   );
-  const components2 = reactExports.useMemo(
+  const components = reactExports.useMemo(
     () => ({
       img: ({ src, alt, title }) => {
         const kind = classifyMarkdownAsset(src);
@@ -405,21 +405,21 @@ function TextPreviewInner({
       >
         <Markdown
           remarkPlugins={[remarkGfm]}
-          urlTransform={urlTransform2}
-          components={components2}
+          urlTransform={urlTransform}
+          components={components}
         >
           {previewText}
         </Markdown>
       </div>
     ),
-    [previewText, urlTransform2, components2],
+    [previewText, urlTransform, components],
   );
   return (
     <div className="tiptap-editor-wrapper -mr-4 h-full overflow-hidden">
       <div
         className={`${interactive ? "nowheel " : ""}autohide-scrollbar h-full overflow-y-auto pr-4`}
       >
-        {loaded && !markdown2 ? (
+        {loaded && !markdown ? (
           <p
             className="ProseMirror text-xs pointer-events-none select-none"
             style={{
@@ -474,20 +474,20 @@ function mapTextModelInfoToModelInfo(modelInfo) {
 }
 export function TextNodeInner({
   id: textNodeId,
-  selected: selected2,
+  selected,
   width,
   height,
-  data: data2,
+  data,
 }) {
   const { t } = useTranslation();
-  const meta2 = useAssetMeta(textNodeId);
-  const dataPath = data2?.path;
-  const textPath = meta2?.path ?? dataPath;
+  const meta = useAssetMeta(textNodeId);
+  const dataPath = data?.path;
+  const textPath = meta?.path ?? dataPath;
   const isMultiSelect = useCanvasIsMultiSelect();
   const isDragging = useCanvasIsDragging();
   const isBoxSelecting = useCanvasIsBoxSelecting();
   const isPreviewInteractive =
-    !!selected2 && !isMultiSelect && !isDragging && !isBoxSelecting;
+    !!selected && !isMultiSelect && !isDragging && !isBoxSelecting;
   const [nodeWidth, setNodeWidth] = reactExports.useState(
     width || TEXT_CARD_DEFAULT_SIZE.width,
   );
@@ -501,7 +501,7 @@ export function TextNodeInner({
     if (typeof height === "number" && height > 0) setNodeHeight(height);
   }, [height]);
   const [fullscreen, setFullscreen] = reactExports.useState(false);
-  const [markdown2, setMarkdown] = reactExports.useState("");
+  const [markdown, setMarkdown] = reactExports.useState("");
   const [loaded, setLoaded] = reactExports.useState(false);
   const [loadedTextPath, setLoadedTextPath] = reactExports.useState(null);
   const editorContentReady = isTextEditorContentReady(
@@ -521,7 +521,7 @@ export function TextNodeInner({
     setFullscreen(true);
   }, [editorContentReady, textNodeId]);
   const pendingOpenNodeId = useDiffReviewStore(
-    (state2) => state2.pendingOpenNodeId,
+    (state) => state.pendingOpenNodeId,
   );
   reactExports.useEffect(() => {
     if (!editorContentReady || fullscreen || pendingOpenNodeId !== textNodeId) return;
@@ -534,26 +534,26 @@ export function TextNodeInner({
   const [showT2TPopover, setShowT2TPopover] =
     reactExports.useState(!!referenceReturnText);
   const [t2tPopoverKey, setT2TPopoverKey] = reactExports.useState(0);
-  const textRevision = data2?.textRevision;
+  const textRevision = data?.textRevision;
   const fileVersion = useFileVersion(textPath);
   const generating = useGenerating(textNodeId);
   const generatingStateStore = useGeneratingStateApi();
-  const nodeStatus = data2?.status;
+  const nodeStatus = data?.status;
   const dataGenerating = nodeStatus === "generating";
   const dataIncomplete = isGenerationErrorStatus(nodeStatus);
   const persistedErrorMessage =
-    dataIncomplete && typeof data2.errorMessage === "string"
-      ? data2.errorMessage
+    dataIncomplete && typeof data.errorMessage === "string"
+      ? data.errorMessage
       : void 0;
   const persistedErrorReason =
-    dataIncomplete && typeof data2.errorReason === "string"
-      ? data2.errorReason
+    dataIncomplete && typeof data.errorReason === "string"
+      ? data.errorReason
       : void 0;
   const persistedRetryPayload =
     dataIncomplete &&
-    data2.retryPayload &&
-    typeof data2.retryPayload === "object"
-      ? data2.retryPayload
+    data.retryPayload &&
+    typeof data.retryPayload === "object"
+      ? data.retryPayload
       : void 0;
   reactExports.useEffect(() => {
     if (persistedErrorMessage !== void 0) {
@@ -566,7 +566,7 @@ export function TextNodeInner({
     isGenerating,
     "text",
     resolveGenerationProgressStartedAt(
-      data2,
+      data,
       dataGenerating,
       generating?.generationStartedAt,
     ),
@@ -609,14 +609,14 @@ export function TextNodeInner({
     flushPersist,
     closeContextMenus,
   } = useCanvasActions();
-  const popoverDraft = getPopoverDraftMap(data2);
+  const popoverDraft = getPopoverDraftMap(data);
   const t2tDraft = popoverDraft?.t2t;
   const sourceTool =
-    meta2?.source_tool ??
-    (typeof data2?.source_tool === "string" ? data2.source_tool : void 0);
+    meta?.source_tool ??
+    (typeof data?.source_tool === "string" ? data.source_tool : void 0);
   const promptSeedSource =
-    typeof data2?.promptSeedSource === "string"
-      ? data2.promptSeedSource
+    typeof data?.promptSeedSource === "string"
+      ? data.promptSeedSource
       : void 0;
   const assetMetadataStore = useAssetMetadataApi();
   const reversePromptRef = reactExports.useRef(void 0);
@@ -653,8 +653,8 @@ export function TextNodeInner({
         ),
         defaultTextPaths: resolveReferenceTexts(
           sources,
-          Array.isArray(data2.referenceTextIds)
-            ? data2.referenceTextIds
+          Array.isArray(data.referenceTextIds)
+            ? data.referenceTextIds
             : void 0,
           assetMetadataStore,
           getNodeById,
@@ -721,8 +721,8 @@ export function TextNodeInner({
       attachment.modelSupportedKindsForAtPicker,
     ],
   );
-  const handleAddToChat = useAddToChat(textNodeId, meta2, onAddToChat, dataPath);
-  const onRename = useNodeRename(textNodeId, isCloneData(data2));
+  const handleAddToChat = useAddToChat(textNodeId, meta, onAddToChat, dataPath);
+  const onRename = useNodeRename(textNodeId, isCloneData(data));
   const isPlainText = !!textPath && textPath.toLowerCase().endsWith(".txt");
   const lastLoadedFromServerRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -761,9 +761,9 @@ export function TextNodeInner({
       return;
     }
     if (!createTextFile) return;
-    let pending2 = pendingLazyCreateRef.current;
-    if (!pending2) {
-      pending2 = (async () => {
+    let pending = pendingLazyCreateRef.current;
+    if (!pending) {
+      pending = (async () => {
         try {
           const created = await createTextFile();
           if (!created) return;
@@ -782,9 +782,9 @@ export function TextNodeInner({
           pendingLazyCreateRef.current = null;
         }
       })();
-      pendingLazyCreateRef.current = pending2;
+      pendingLazyCreateRef.current = pending;
     }
-    await pending2;
+    await pending;
     if (lazyCreatedPathRef.current) openFullscreen();
   }, [
     textPath,
@@ -794,7 +794,7 @@ export function TextNodeInner({
     textNodeId,
     openFullscreen,
   ]);
-  const handleDoubleClick2 = reactExports.useCallback(
+  const handleDoubleClick = reactExports.useCallback(
     (doubleClickEvent) => {
       doubleClickEvent.stopPropagation();
       if (isGenerating) return;
@@ -845,7 +845,7 @@ export function TextNodeInner({
   reactExports.useEffect(() => {
     if (
       !shouldAutoOpenTextPopover({
-        selected: !!selected2,
+        selected: !!selected,
         canSubmit: !!submitTxt2Text,
         isMultiSelect,
         isBoxSelecting,
@@ -858,7 +858,7 @@ export function TextNodeInner({
       return;
     setShowT2TPopover(true);
   }, [
-    selected2,
+    selected,
     submitTxt2Text,
     isMultiSelect,
     isBoxSelecting,
@@ -878,8 +878,8 @@ export function TextNodeInner({
   }, [ensureBackingFileAndOpen]);
   const persistMarkdownDraft = reactExports.useCallback(
     (nextMarkdown) => {
-      setMarkdown((current2) =>
-        current2 === nextMarkdown ? current2 : nextMarkdown,
+      setMarkdown((current) =>
+        current === nextMarkdown ? current : nextMarkdown,
       );
       const filePath = textPath ?? lazyCreatedPathRef.current;
       if (!filePath) {
@@ -887,14 +887,14 @@ export function TextNodeInner({
           return Promise.resolve();
         latestLazyDraftRef.current = nextMarkdown;
         if (pendingLazyCreateRef.current) return pendingLazyCreateRef.current;
-        const pending2 = (async () => {
+        const pending = (async () => {
           try {
             const created = await createTextFile();
             if (!created) return;
             lazyCreatedPathRef.current = created.path;
-            const latest2 = latestLazyDraftRef.current;
-            lastLoadedFromServerRef.current = latest2;
-            await saveTextContent(created.path, latest2).catch(() => {});
+            const latest = latestLazyDraftRef.current;
+            lastLoadedFromServerRef.current = latest;
+            await saveTextContent(created.path, latest).catch(() => {});
             fillEmptyPlaceholder(textNodeId, {
               assetId: created.assetId,
               type: "text",
@@ -906,8 +906,8 @@ export function TextNodeInner({
             pendingLazyCreateRef.current = null;
           }
         })();
-        pendingLazyCreateRef.current = pending2;
-        return pending2;
+        pendingLazyCreateRef.current = pending;
+        return pending;
       }
       if (!saveTextContent) return Promise.resolve();
       if (
@@ -938,8 +938,8 @@ export function TextNodeInner({
     if (isWorkspaceActive !== false || !fullscreen) return;
     handleCloseFullscreen();
   }, [fullscreen, handleCloseFullscreen, isWorkspaceActive]);
-  const markdownRef = reactExports.useRef(markdown2);
-  markdownRef.current = markdown2;
+  const markdownRef = reactExports.useRef(markdown);
+  markdownRef.current = markdown;
   const toolbarItems = reactExports.useMemo(() => {
     const items = [];
     items.push({
@@ -952,8 +952,8 @@ export function TextNodeInner({
         void handleWriteOwn();
       },
     });
-    const hasContent2 = markdown2.trim().length > 0;
-    const showPromote = !!onPromoteToAsset && !!meta2 && hasContent2;
+    const hasContent = markdown.trim().length > 0;
+    const showPromote = !!onPromoteToAsset && !!meta && hasContent;
     if (showPromote) {
       items.push({
         id: "promote-to-asset",
@@ -995,8 +995,8 @@ export function TextNodeInner({
     handleWriteOwn,
     textNodeId,
     onPromoteToAsset,
-    meta2,
-    markdown2,
+    meta,
+    markdown,
   ]);
   const hasVideoRef = attachment.videoPaths.length > 0;
   const hasAudioRef = attachment.audioPaths.length > 0;
@@ -1005,8 +1005,8 @@ export function TextNodeInner({
     if (!showT2TPopover || !fetchTextModels) return;
     let cancelled = false;
     fetchTextModels()
-      .then((list2) => {
-        if (!cancelled) setTextModels(list2);
+      .then((list) => {
+        if (!cancelled) setTextModels(list);
       })
       .catch(() => {});
     return () => {
@@ -1020,24 +1020,24 @@ export function TextNodeInner({
   }, [fetchTextModels]);
   const disabledTextModelIds = reactExports.useMemo(() => {
     if (!hasVideoRef && !hasAudioRef) return void 0;
-    const disabled2 = new Set();
+    const disabled = new Set();
     for (const modelInfo of textModels) {
       if (
         (hasVideoRef && !modelInfo.supportsVideo) ||
         (hasAudioRef && !modelInfo.supportsAudio)
       ) {
-        disabled2.add(modelInfo.id);
+        disabled.add(modelInfo.id);
         if (modelInfo.id.includes("/"))
-          disabled2.add(modelInfo.id.slice(modelInfo.id.indexOf("/") + 1));
+          disabled.add(modelInfo.id.slice(modelInfo.id.indexOf("/") + 1));
       }
     }
-    return disabled2.size > 0 ? disabled2 : void 0;
+    return disabled.size > 0 ? disabled : void 0;
   }, [hasVideoRef, hasAudioRef, textModels]);
   const t2tDraftPrompt =
     typeof t2tDraft?.prompt === "string" && t2tDraft.prompt.trim().length > 0
       ? t2tDraft.prompt
       : void 0;
-  const t2tDefaults = pickTextGenerationDefaults(t2tDraft, meta2);
+  const t2tDefaults = pickTextGenerationDefaults(t2tDraft, meta);
   const upstreamPresetPrompt = reactExports.useMemo(() => {
     const imageCount = attachment.imagePaths.length;
     const videoCount = attachment.videoPaths.length;
@@ -1076,8 +1076,8 @@ export function TextNodeInner({
     t,
   ]);
   const dataDisplayPrompt =
-    typeof data2?.displayPrompt === "string" ? data2.displayPrompt : void 0;
-  const metaPrompt = typeof meta2?.prompt === "string" ? meta2.prompt : void 0;
+    typeof data?.displayPrompt === "string" ? data.displayPrompt : void 0;
+  const metaPrompt = typeof meta?.prompt === "string" ? meta.prompt : void 0;
   const nodePrompt = [dataDisplayPrompt, metaPrompt].find(
     (promptText) => promptText && promptText.trim().length > 0,
   );
@@ -1086,12 +1086,12 @@ export function TextNodeInner({
     draftPrompt: t2tDraftPrompt,
     nodePrompt,
     upstreamPresetPrompt,
-    markdown: markdown2,
+    markdown,
     sourceTool,
     promptSeedSource,
     description:
-      meta2?.description ??
-      (typeof data2?.description === "string" ? data2.description : void 0),
+      meta?.description ??
+      (typeof data?.description === "string" ? data.description : void 0),
   });
   const t2tDefaultPromptJson =
     t2tPromptSeed.source === "draft" ? t2tDraft?.promptJson : void 0;
@@ -1100,30 +1100,30 @@ export function TextNodeInner({
   return (
     <NodeShell
       id={textNodeId}
-      tagIds={meta2?.tagIds}
+      tagIds={meta?.tagIds}
       width={nodeWidth}
       dataActionUiId="canvas.text-node"
     >
       <NodeHeader
         nodeType="text"
-        tagIds={meta2?.tagIds}
-        name={meta2?.name || t("canvas.text")}
-        selected={selected2}
+        tagIds={meta?.tagIds}
+        name={meta?.name || t("canvas.text")}
+        selected={selected}
         maxWidth={nodeWidth}
         onRename={onRename}
       />
       {isPreviewInteractive && (
         <NodeToolbar items={toolbarItems} visible={true} />
       )}
-      <NodeHandles nodeId={textNodeId} selected={!!selected2} />
+      <NodeHandles nodeId={textNodeId} selected={!!selected} />
       <NodeBody
         width={nodeWidth}
-        tagIds={meta2?.tagIds}
+        tagIds={meta?.tagIds}
         height={nodeHeight}
-        selected={!!selected2}
+        selected={!!selected}
         variant={hasGenerationError || isGenerating ? "media" : "panel"}
         onDoubleClick={
-          hasGenerationError || isGenerating ? void 0 : handleDoubleClick2
+          hasGenerationError || isGenerating ? void 0 : handleDoubleClick
         }
       >
         {hasGenerationError ? (
@@ -1148,7 +1148,7 @@ export function TextNodeInner({
             icon={<TextPlaceholderIcon />}
             progress={generatingProgress}
           />
-        ) : loaded && !markdown2 && !isMultiSelect && !isBoxSelecting ? (
+        ) : loaded && !markdown && !isMultiSelect && !isBoxSelecting ? (
           <TextNodeQuickActions
             onQuickPrompt={(prompt) => {
               selectNodeExclusive(textNodeId);
@@ -1163,7 +1163,7 @@ export function TextNodeInner({
           />
         ) : (
           <TextPreview
-            markdown={markdown2}
+            markdown={markdown}
             loaded={loaded}
             plain={isPlainText}
             interactive={isPreviewInteractive}
@@ -1172,7 +1172,7 @@ export function TextNodeInner({
           />
         )}
       </NodeBody>
-      {selected2 && (
+      {selected && (
         <NodeResizeFrame
           nodeId={textNodeId}
           minWidth={TEXT_CARD_MIN_SIZE.width}
@@ -1182,7 +1182,7 @@ export function TextNodeInner({
       )}
       {fullscreen && (
         <TextFullscreen
-          initialMarkdown={markdown2}
+          initialMarkdown={markdown}
           externalRevision={textRevision}
           onClose={handleCloseFullscreen}
           onDraftChange={persistMarkdownDraft}
@@ -1190,13 +1190,13 @@ export function TextNodeInner({
           sourceNodeId={textNodeId}
           documentPath={textPath ?? lazyCreatedPathRef.current ?? void 0}
           getCloseBlockReason={getFullscreenCloseBlockReason}
-          onEditingSelectionChange={(selection2) => {
+          onEditingSelectionChange={(selection) => {
             const session = editSessionRef.current;
-            if (session) onTextEditSelectionChange?.(session, selection2);
+            if (session) onTextEditSelectionChange?.(session, selection);
           }}
-          onAnnotationsChange={(snapshots2) => {
+          onAnnotationsChange={(snapshots) => {
             const session = editSessionRef.current;
-            if (session) onAnnotationsChange?.(session, snapshots2);
+            if (session) onAnnotationsChange?.(session, snapshots);
           }}
           onAnnotationActivate={(annotationId) => {
             const session = editSessionRef.current;
@@ -1244,8 +1244,8 @@ export function TextNodeInner({
           onAddReference={attachment.openPicker}
           onReplaceReference={attachment.replacePath}
           onEditReference={attachment.editImage}
-          onRemoveReference={(path2) =>
-            attachment.removePath(path2, {
+          onRemoveReference={(path) =>
+            attachment.removePath(path, {
               tearEdge: true,
             })
           }

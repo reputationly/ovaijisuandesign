@@ -97,15 +97,15 @@ export class TimelineRenderer {
     this.rulerCtx = this.rulerLayer.getContext("2d");
     this.rulerCacheKey = "";
   }
-  render(state2) {
+  render(state) {
     this.needsRender = false;
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this.clear();
     this.drawBackground();
-    this.drawRulerCached(state2);
-    this.drawTrack(state2);
-    this.drawCropOverlay(state2);
-    this.drawPlayhead(state2);
+    this.drawRulerCached(state);
+    this.drawTrack(state);
+    this.drawCropOverlay(state);
+    this.drawPlayhead(state);
   }
   clear() {
     this.ctx.clearRect(0, 0, this.width, this.height);
@@ -118,16 +118,16 @@ export class TimelineRenderer {
     this.ctx.fillStyle = this.colors.BACKGROUND;
     this.ctx.fillRect(0, 0, this.width, this.height);
   }
-  drawRulerCached(state2) {
+  drawRulerCached(state) {
     if (!this.rulerLayer || !this.rulerCtx) return;
-    const cacheKey = `${state2.scale}:${state2.scrollX}:${state2.totalDuration}:${this.width}`;
+    const cacheKey = `${state.scale}:${state.scrollX}:${state.totalDuration}:${this.width}`;
     if (this.rulerCacheKey !== cacheKey) {
-      this.drawRulerToLayer(state2);
+      this.drawRulerToLayer(state);
       this.rulerCacheKey = cacheKey;
     }
     this.ctx.drawImage(this.rulerLayer, 0, 0, this.width, this.rulerHeight);
   }
-  drawRulerToLayer(state2) {
+  drawRulerToLayer(state) {
     const context = this.rulerCtx;
     if (!context) return;
     const rulerH = this.rulerHeight;
@@ -135,14 +135,14 @@ export class TimelineRenderer {
     context.clearRect(0, 0, this.width, rulerH);
     const { RULER_LINE, RULER_TEXT } = this.colors;
     const { TRACK_PADDING_H } = TIMELINE_CONFIG;
-    const { scale: scale2, scrollX } = state2;
+    const { scale, scrollX } = state;
     const contentLeft = TRACK_PADDING_H;
     const contentRight = this.width - TRACK_PADDING_H;
-    const { interval: interval2, subDivisions } =
-      this.calculateInterval(scale2);
-    const startTime = Math.floor(scrollX / scale2 / interval2) * interval2;
+    const { interval, subDivisions } =
+      this.calculateInterval(scale);
+    const startTime = Math.floor(scrollX / scale / interval) * interval;
     const endTime =
-      Math.ceil((scrollX + this.width) / scale2 / interval2) * interval2;
+      Math.ceil((scrollX + this.width) / scale / interval) * interval;
     const centerY = rulerH / 2;
     context.font = "11px Inter, sans-serif";
     context.textBaseline = "middle";
@@ -150,8 +150,8 @@ export class TimelineRenderer {
     context.beginPath();
     context.rect(contentLeft, 0, contentRight - contentLeft, rulerH);
     context.clip();
-    for (let time = startTime; time <= endTime; time += interval2) {
-      const tickX = time * scale2 - scrollX + TRACK_PADDING_H;
+    for (let time = startTime; time <= endTime; time += interval) {
+      const tickX = time * scale - scrollX + TRACK_PADDING_H;
       if (tickX >= contentLeft - 8 && tickX <= contentRight + 8) {
         context.fillStyle = RULER_TEXT;
         const label = formatTimeShort(time);
@@ -169,13 +169,13 @@ export class TimelineRenderer {
     }
     context.fillStyle = RULER_LINE;
     context.beginPath();
-    for (let time = startTime; time <= endTime; time += interval2) {
-      const tickX = time * scale2 - scrollX + TRACK_PADDING_H;
+    for (let time = startTime; time <= endTime; time += interval) {
+      const tickX = time * scale - scrollX + TRACK_PADDING_H;
       const lastSubX =
-        tickX + (interval2 / subDivisions) * (subDivisions - 1) * scale2;
+        tickX + (interval / subDivisions) * (subDivisions - 1) * scale;
       if (tickX > contentRight || lastSubX < contentLeft) continue;
       for (let subdivisionIndex = 1; subdivisionIndex < subDivisions; subdivisionIndex++) {
-        const subX = tickX + (interval2 / subDivisions) * subdivisionIndex * scale2;
+        const subX = tickX + (interval / subDivisions) * subdivisionIndex * scale;
         if (subX > contentRight) break;
         if (subX < contentLeft) continue;
         context.moveTo(subX + 0.5, centerY);
@@ -185,7 +185,7 @@ export class TimelineRenderer {
     context.fill();
     context.restore();
   }
-  drawTrack(state2) {
+  drawTrack(state) {
     const trackY = this.rulerHeight + this.trackGap;
     const trackHeight = this.height - trackY;
     const { TRACK_PADDING_H } = TIMELINE_CONFIG;
@@ -199,22 +199,22 @@ export class TimelineRenderer {
       trackHeight,
     );
     context.clip();
-    this.drawClips(state2, trackY);
+    this.drawClips(state, trackY);
     context.restore();
   }
-  drawClips(state2, trackY) {
+  drawClips(state, trackY) {
     const { CLIP_BORDER_RADIUS, CLIP_PADDING, TRACK_PADDING_H } =
       TIMELINE_CONFIG;
     const trackHeight = this.height - this.rulerHeight - this.trackGap;
-    const { scale: scale2, scrollX, clips } = state2;
+    const { scale, scrollX, clips } = state;
     const contentRight = this.width - TRACK_PADDING_H;
-    clips.forEach((clip2) => {
-      const clipX = clip2.startTime * scale2 - scrollX + TRACK_PADDING_H;
+    clips.forEach((clip) => {
+      const clipX = clip.startTime * scale - scrollX + TRACK_PADDING_H;
       const sourceX =
-        (clip2.startTime - clip2.sourceOffset) * scale2 -
+        (clip.startTime - clip.sourceOffset) * scale -
         scrollX +
         TRACK_PADDING_H;
-      const clipWidth = clip2.duration * scale2;
+      const clipWidth = clip.duration * scale;
       const clipY = trackY + CLIP_PADDING;
       const clipHeight = trackHeight - CLIP_PADDING * 2;
       if (clipX + clipWidth < TRACK_PADDING_H || clipX > contentRight) return;
@@ -232,13 +232,13 @@ export class TimelineRenderer {
       this.drawRoundRect(clipX, clipY, clipWidth, clipHeight, CLIP_BORDER_RADIUS);
       this.ctx.fillStyle = this.colors.VIDEO_CLIP;
       this.ctx.fill();
-      const handled = this.hooks.drawClipContent?.(this.ctx, clip2, rect);
+      const handled = this.hooks.drawClipContent?.(this.ctx, clip, rect);
       if (!handled) {
-        if (clip2.type === "audio") {
-          this.drawAudioWaveform(clip2, clipX, clipY, clipWidth, clipHeight);
+        if (clip.type === "audio") {
+          this.drawAudioWaveform(clip, clipX, clipY, clipWidth, clipHeight);
         } else {
           this.drawVideoThumbnails(
-            clip2,
+            clip,
             clipX,
             clipY,
             clipWidth,
@@ -247,11 +247,11 @@ export class TimelineRenderer {
           );
         }
       }
-      this.hooks.drawClipOverlay?.(this.ctx, clip2, rect);
+      this.hooks.drawClipOverlay?.(this.ctx, clip, rect);
       this.ctx.restore();
     });
   }
-  drawVideoThumbnails(clip2, clipX, clipY, width, height, sourceX) {
+  drawVideoThumbnails(clip, clipX, clipY, width, height, sourceX) {
     const context = this.ctx;
     const radius = TIMELINE_CONFIG.CLIP_BORDER_RADIUS;
     context.save();
@@ -259,12 +259,12 @@ export class TimelineRenderer {
     context.clip();
     context.fillStyle = this.colors.THUMBNAIL_PLACEHOLDER;
     context.fillRect(clipX, clipY, width, height);
-    if (!this.thumbnailStore.has(clip2.assetId)) {
+    if (!this.thumbnailStore.has(clip.assetId)) {
       context.restore();
       return;
     }
     const aspect =
-      clip2.width && clip2.height ? clip2.width / clip2.height : 16 / 9;
+      clip.width && clip.height ? clip.width / clip.height : 16 / 9;
     const thumbH = Math.max(8, Math.floor(height));
     const thumbW = Math.max(12, Math.floor(thumbH * aspect));
     const maxTiles = Math.ceil(width / thumbW) + 1;
@@ -273,9 +273,9 @@ export class TimelineRenderer {
       if (tileX > clipX + width) break;
       if (tileX + thumbW < clipX) continue;
       const tileCenterT =
-        ((tileX + thumbW / 2 - sourceX) / width) * clip2.duration;
+        ((tileX + thumbW / 2 - sourceX) / width) * clip.duration;
       const thumb = this.thumbnailStore.getFrameAtTime(
-        clip2.assetId,
+        clip.assetId,
         tileCenterT,
       );
       if (thumb) {
@@ -299,13 +299,13 @@ export class TimelineRenderer {
     context.stroke();
     context.restore();
   }
-  drawAudioWaveform(clip2, clipX, clipY, width, height) {
+  drawAudioWaveform(clip, clipX, clipY, width, height) {
     const context = this.ctx;
     const radius = TIMELINE_CONFIG.CLIP_BORDER_RADIUS;
     context.save();
     this.drawRoundRect(clipX, clipY, width, height, radius);
     context.clip();
-    const peaks = this.waveformService?.getPeaks(clip2.assetId);
+    const peaks = this.waveformService?.getPeaks(clip.assetId);
     if (!peaks) {
       context.restore();
       return;
@@ -320,13 +320,13 @@ export class TimelineRenderer {
       context.restore();
       return;
     }
-    const secondsPerBar = clip2.duration / barCount;
+    const secondsPerBar = clip.duration / barCount;
     const centerY = clipY + height / 2;
     const amplitude = height / 2;
     context.fillStyle = this.colors.AUDIO_WAVEFORM;
     context.beginPath();
     for (let waveformBarIndex = 0; waveformBarIndex < barCount; waveformBarIndex++) {
-      const timeStart = clip2.sourceOffset + waveformBarIndex * secondsPerBar;
+      const timeStart = clip.sourceOffset + waveformBarIndex * secondsPerBar;
       const timeEnd = timeStart + secondsPerBar;
       const peakStart = Math.floor(timeStart * peaksPerSecond);
       const peakEnd = Math.min(Math.ceil(timeEnd * peaksPerSecond), peakCount);
@@ -345,16 +345,16 @@ export class TimelineRenderer {
     context.fill();
     context.restore();
   }
-  drawCropOverlay(state2) {
-    if (state2.cropRange) {
-      this.drawRangeFrame(state2, state2.cropRange, true);
+  drawCropOverlay(state) {
+    if (state.cropRange) {
+      this.drawRangeFrame(state, state.cropRange, true);
     }
-    for (const range2 of state2.segmentRanges) {
-      this.drawRangeFrame(state2, range2, false);
+    for (const range of state.segmentRanges) {
+      this.drawRangeFrame(state, range, false);
     }
   }
   /** Draws the trim frame and, for the active trim, its dimmed outside area. */
-  drawRangeFrame(state2, range2, drawMask) {
+  drawRangeFrame(state, range, drawMask) {
     const {
       CLIP_PADDING,
       CROP_HANDLE_WIDTH,
@@ -363,15 +363,15 @@ export class TimelineRenderer {
     } = TIMELINE_CONFIG;
     const { CROP_MASK, SEGMENT_MASK, CROP_HANDLE, CROP_HANDLE_INNER } =
       this.colors;
-    const { scale: scale2, scrollX } = state2;
+    const { scale, scrollX } = state;
     const context = this.ctx;
     const trackY = this.rulerHeight + this.trackGap + CLIP_PADDING;
     const trackH =
       this.height - this.rulerHeight - this.trackGap - CLIP_PADDING * 2;
     const cropLeftX =
-      range2.start * scale2 - scrollX + TRACK_PADDING_H - CROP_HANDLE_OUTSET;
+      range.start * scale - scrollX + TRACK_PADDING_H - CROP_HANDLE_OUTSET;
     const cropRightX =
-      range2.end * scale2 - scrollX + TRACK_PADDING_H + CROP_HANDLE_OUTSET;
+      range.end * scale - scrollX + TRACK_PADDING_H + CROP_HANDLE_OUTSET;
     const INDICATOR_W = 2;
     const INDICATOR_H = 12;
     const BORDER_W = 2;
@@ -383,7 +383,7 @@ export class TimelineRenderer {
     context.clip();
     if (drawMask) {
       context.fillStyle =
-        state2.segmentRanges.length > 0 ? SEGMENT_MASK : CROP_MASK;
+        state.segmentRanges.length > 0 ? SEGMENT_MASK : CROP_MASK;
       const maskLeftEnd = Math.min(windowLeft, this.width);
       if (maskLeftEnd > 0) {
         context.fillRect(0, trackY, maskLeftEnd, trackH);
@@ -453,12 +453,12 @@ export class TimelineRenderer {
     }
     context.restore();
   }
-  drawPlayhead(state2) {
-    if (state2.clips.length === 0) return;
+  drawPlayhead(state) {
+    if (state.clips.length === 0) return;
     const { TRACK_PADDING_H, CLIP_PADDING } = TIMELINE_CONFIG;
     const { PLAYHEAD, PLAYHEAD_FILL, PLAYHEAD_STROKE } = this.colors;
-    const { currentTime, scale: scale2, scrollX } = state2;
-    const playheadX = currentTime * scale2 - scrollX + TRACK_PADDING_H;
+    const { currentTime, scale, scrollX } = state;
+    const playheadX = currentTime * scale - scrollX + TRACK_PADDING_H;
     if (playheadX < TRACK_PADDING_H || playheadX > this.width - TRACK_PADDING_H) return;
     const context = this.ctx;
     const trackBottom = this.height - CLIP_PADDING;
@@ -505,12 +505,12 @@ export class TimelineRenderer {
     this.ctx.beginPath();
     this.ctx.roundRect(rectX, rectY, width, height, radius);
   }
-  calculateInterval(scale2) {
-    for (const config2 of TIME_INTERVALS) {
-      if (scale2 >= config2.minScale) {
+  calculateInterval(scale) {
+    for (const config of TIME_INTERVALS) {
+      if (scale >= config.minScale) {
         return {
-          interval: config2.interval,
-          subDivisions: config2.subDivisions,
+          interval: config.interval,
+          subDivisions: config.subDivisions,
         };
       }
     }
@@ -519,13 +519,13 @@ export class TimelineRenderer {
       subDivisions: 5,
     };
   }
-  destroy(clearCanvas2 = true) {
+  destroy(clearCanvas = true) {
     this.destroyed = true;
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
-    if (clearCanvas2) {
+    if (clearCanvas) {
       this.ctx.setTransform(1, 0, 0, 1, 0, 0);
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }

@@ -12,21 +12,21 @@ export function useEraseState() {
   const erasingNodeId = useCanvasOverlayStore((overlayState) =>
     overlayState.active?.kind === "erase" ? overlayState.active.nodeId : null,
   );
-  const meta2 = useCanvasOverlayStore((overlayState) =>
+  const meta = useCanvasOverlayStore((overlayState) =>
     overlayState.active?.kind === "erase" ? overlayState.active.meta : null,
   );
   const startErase = useCanvasOverlayStore((overlayState) => overlayState.startErase);
   const cancelErase = useCanvasOverlayStore((overlayState) => overlayState.cancelErase);
   return {
     erasingNodeId,
-    meta: meta2,
+    meta,
     startErase,
     cancelErase,
   };
 }
 function useStartCloudEditFromNode({
   id: nodeId,
-  meta: meta2,
+  meta,
   nodeWidth,
   nodeHeight,
   reactFlow,
@@ -35,13 +35,13 @@ function useStartCloudEditFromNode({
 }) {
   const handleConfirm = reactExports.useCallback(
     async (params) => {
-      if (!submit || !meta2?.path) return;
-      await submit(nodeId, meta2.path, params);
+      if (!submit || !meta?.path) return;
+      await submit(nodeId, meta.path, params);
     },
-    [nodeId, meta2?.path, submit],
+    [nodeId, meta?.path, submit],
   );
   const handleStart = reactExports.useCallback(() => {
-    if (!meta2?.url || !meta2.width || !meta2.height) return;
+    if (!meta?.url || !meta.width || !meta.height) return;
     const rect = getNodeFlowRect(reactFlow, nodeId, nodeWidth, nodeHeight);
     if (!rect) return;
     reactFlow.setNodes((nodes) =>
@@ -55,17 +55,17 @@ function useStartCloudEditFromNode({
       ),
     );
     startMode(nodeId, {
-      src: meta2.url,
-      name: meta2.name,
-      originalWidth: meta2.width,
-      originalHeight: meta2.height,
+      src: meta.url,
+      name: meta.name,
+      originalWidth: meta.width,
+      originalHeight: meta.height,
       nodeFlowX: rect.x,
       nodeFlowY: rect.y,
       nodeWidth: rect.width,
       nodeHeight: rect.height,
       onConfirm: handleConfirm,
     });
-  }, [nodeId, meta2, reactFlow, nodeWidth, nodeHeight, startMode, handleConfirm]);
+  }, [nodeId, meta, reactFlow, nodeWidth, nodeHeight, startMode, handleConfirm]);
   return {
     handleStart,
   };
@@ -85,14 +85,14 @@ export function useMoveObjectState() {
   const movingObjectNodeId = useCanvasOverlayStore((overlayState) =>
     overlayState.active?.kind === "move-object" ? overlayState.active.nodeId : null,
   );
-  const meta2 = useCanvasOverlayStore((overlayState) =>
+  const meta = useCanvasOverlayStore((overlayState) =>
     overlayState.active?.kind === "move-object" ? overlayState.active.meta : null,
   );
   const startMoveObject = useCanvasOverlayStore((overlayState) => overlayState.startMoveObject);
   const cancelMoveObject = useCanvasOverlayStore((overlayState) => overlayState.cancelMoveObject);
   return {
     movingObjectNodeId,
-    meta: meta2,
+    meta,
     startMoveObject,
     cancelMoveObject,
   };
@@ -101,14 +101,14 @@ export function useOutpaintState() {
   const outpaintingNodeId = useCanvasOverlayStore((overlayState) =>
     overlayState.active?.kind === "outpaint" ? overlayState.active.nodeId : null,
   );
-  const meta2 = useCanvasOverlayStore((overlayState) =>
+  const meta = useCanvasOverlayStore((overlayState) =>
     overlayState.active?.kind === "outpaint" ? overlayState.active.meta : null,
   );
   const startOutpaint = useCanvasOverlayStore((overlayState) => overlayState.startOutpaint);
   const cancelOutpaint = useCanvasOverlayStore((overlayState) => overlayState.cancelOutpaint);
   return {
     outpaintingNodeId,
-    meta: meta2,
+    meta,
     startOutpaint,
     cancelOutpaint,
   };
@@ -128,14 +128,14 @@ export function useRedrawState() {
   const redrawingNodeId = useCanvasOverlayStore((overlayState) =>
     overlayState.active?.kind === "redraw" ? overlayState.active.nodeId : null,
   );
-  const meta2 = useCanvasOverlayStore((overlayState) =>
+  const meta = useCanvasOverlayStore((overlayState) =>
     overlayState.active?.kind === "redraw" ? overlayState.active.meta : null,
   );
   const startRedraw = useCanvasOverlayStore((overlayState) => overlayState.startRedraw);
   const cancelRedraw = useCanvasOverlayStore((overlayState) => overlayState.cancelRedraw);
   return {
     redrawingNodeId,
-    meta: meta2,
+    meta,
     startRedraw,
     cancelRedraw,
   };
@@ -195,17 +195,17 @@ export const DEFAULT_PINNED = [
 export const DEFAULT_SHOW_LABELS = true;
 export function useSubImages(mainId) {
   const { getSubImages, subscribeGraphChange } = useCanvasActions();
-  const getSnapshot2 = reactExports.useCallback(
+  const getSnapshot = reactExports.useCallback(
     () => getSubImages(mainId),
     [getSubImages, mainId],
   );
   return reactExports.useSyncExternalStore(
     subscribeGraphChange,
-    getSnapshot2,
-    getSnapshot2,
+    getSnapshot,
+    getSnapshot,
   );
 }
-export function useImageNodeView(nodeId, data2) {
+export function useImageNodeView(nodeId, data) {
   const assetsMap = useAssetMetadataStore((assetMetadataState) => assetMetadataState.assets);
   const subImages = useSubImages(nodeId);
   const isUserEmpty = useNodeIsEmpty(nodeId);
@@ -232,36 +232,36 @@ export function useImageNodeView(nodeId, data2) {
     () =>
       buildImageNodeView(
         nodeId,
-        data2,
+        data,
         subImages,
         (assetId) => assetsMap.get(assetId),
         isUserEmpty,
         mainRound,
         nodeAssetId,
       ),
-    [nodeId, data2, subImages, assetsMap, isUserEmpty, mainRound, nodeAssetId],
+    [nodeId, data, subImages, assetsMap, isUserEmpty, mainRound, nodeAssetId],
   );
 }
 export function createMultiImageOverlayStore() {
-  return createStore((set2) => ({
+  return createStore((set) => ({
     openNodeId: null,
     open: (nodeId) =>
-      set2((state2) => {
-        if (state2.openNodeId === nodeId) return state2;
+      set((state) => {
+        if (state.openNodeId === nodeId) return state;
         return {
           openNodeId: nodeId,
         };
       }),
     close: (nodeId) =>
-      set2((state2) => {
-        if (state2.openNodeId !== nodeId) return state2;
+      set((state) => {
+        if (state.openNodeId !== nodeId) return state;
         return {
           openNodeId: null,
         };
       }),
     closeAll: () =>
-      set2((state2) => {
-        if (state2.openNodeId === null) return state2;
+      set((state) => {
+        if (state.openNodeId === null) return state;
         return {
           openNodeId: null,
         };
@@ -276,8 +276,8 @@ export function useMultiImageOverlayApi() {
     defaultMultiImageOverlayStore
   );
 }
-export const useMultiImageOverlayStore = (selector2) =>
-  useStore(useMultiImageOverlayApi(), selector2);
+export const useMultiImageOverlayStore = (selector) =>
+  useStore(useMultiImageOverlayApi(), selector);
 useMultiImageOverlayStore.getState = defaultMultiImageOverlayStore.getState;
 useMultiImageOverlayStore.setState = defaultMultiImageOverlayStore.setState;
 useMultiImageOverlayStore.subscribe = defaultMultiImageOverlayStore.subscribe;

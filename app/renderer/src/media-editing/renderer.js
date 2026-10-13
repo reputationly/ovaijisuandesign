@@ -8,7 +8,7 @@ function clearCanvas(context) {
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.restore();
 }
-function drawSelectionHandles(context, bounds, uiScale = 1, style2) {
+function drawSelectionHandles(context, bounds, uiScale = 1, style) {
   const positions = [
     {
       x: bounds.x,
@@ -27,16 +27,16 @@ function drawSelectionHandles(context, bounds, uiScale = 1, style2) {
       y: bounds.y + bounds.height,
     },
   ];
-  const size2 = uiScale > 0 ? HANDLE_SIZE / uiScale : HANDLE_SIZE;
+  const size = uiScale > 0 ? HANDLE_SIZE / uiScale : HANDLE_SIZE;
   const stroke = uiScale > 0 ? 1.5 / uiScale : 1.5;
   context.save();
-  context.fillStyle = style2?.selectionHandleFill ?? "#FFFFFF";
+  context.fillStyle = style?.selectionHandleFill ?? "#FFFFFF";
   context.strokeStyle =
-    style2?.selectionHandleStroke ?? style2?.selectionStroke ?? "#3370FF";
+    style?.selectionHandleStroke ?? style?.selectionStroke ?? "#3370FF";
   context.lineWidth = stroke;
   for (const handlePosition of positions) {
     context.beginPath();
-    context.rect(handlePosition.x - size2 / 2, handlePosition.y - size2 / 2, size2, size2);
+    context.rect(handlePosition.x - size / 2, handlePosition.y - size / 2, size, size);
     context.fill();
     context.stroke();
   }
@@ -152,8 +152,8 @@ export class Renderer {
   dprMql = null;
   dprListener = null;
   drawHelpers = {
-    getProcessedSource: (mode2, strength) =>
-      this.getProcessedSource(mode2, strength),
+    getProcessedSource: (mode, strength) =>
+      this.getProcessedSource(mode, strength),
   };
   pendingSelected = null;
   constructor() {
@@ -185,14 +185,14 @@ export class Renderer {
    */
   applyDimensions() {
     const { width, height } = this;
-    const scale2 = this.pixelScale;
-    this.main.width = Math.round(width * scale2);
-    this.main.height = Math.round(height * scale2);
+    const scale = this.pixelScale;
+    this.main.width = Math.round(width * scale);
+    this.main.height = Math.round(height * scale);
     this.main.style.width = `${width}px`;
     this.main.style.height = `${height}px`;
-    this.mainCtx.setTransform(scale2, 0, 0, scale2, 0, 0);
-    const physW = Math.round(width * scale2);
-    const physH = Math.round(height * scale2);
+    this.mainCtx.setTransform(scale, 0, 0, scale, 0, 0);
+    const physW = Math.round(width * scale);
+    const physH = Math.round(height * scale);
     for (const [layerCanvas, context] of [
       [this.bgLayer, this.bgCtx],
       [this.shapeLayer, this.shapeCtx],
@@ -200,7 +200,7 @@ export class Renderer {
     ]) {
       layerCanvas.width = physW;
       layerCanvas.height = physH;
-      context.setTransform(scale2, 0, 0, scale2, 0, 0);
+      context.setTransform(scale, 0, 0, scale, 0, 0);
     }
     this.composedSnapshot.width = width;
     this.composedSnapshot.height = height;
@@ -288,14 +288,14 @@ export class Renderer {
    * 选中状态绘制：放在主 canvas 合成最上层（不污染 shapeLayer），
    * 这样移动选中框时不需要重绘整个 shapeLayer。
    */
-  drawSelectionOverlay(selected2) {
-    if (!selected2) return;
-    selected2.drawSelection(this.mainCtx, this.uiScale);
+  drawSelectionOverlay(selected) {
+    if (!selected) return;
+    selected.drawSelection(this.mainCtx, this.uiScale);
     drawSelectionHandles(
       this.mainCtx,
-      selected2.getBounds(),
+      selected.getBounds(),
       this.uiScale,
-      selected2.style,
+      selected.style,
     );
   }
   /**
@@ -312,10 +312,10 @@ export class Renderer {
    * 导出 PNG 用：以 pixelScale 输出高清 canvas（背景图、文字、形状全部保持设备像素细节）。
    */
   exportComposed() {
-    const scale2 = this.pixelScale;
+    const scale = this.pixelScale;
     const outputCanvas = createOffscreen(
-      Math.round(this.width * scale2),
-      Math.round(this.height * scale2),
+      Math.round(this.width * scale),
+      Math.round(this.height * scale),
     );
     const outputContext = outputCanvas.getContext("2d");
     outputContext.drawImage(this.bgLayer, 0, 0);
@@ -325,20 +325,20 @@ export class Renderer {
   /**
    * 取或生成 (mode, strength) 全图处理版。LRU 限制最多 PROCESSED_CACHE_LIMIT 张。
    */
-  getProcessedSource(mode2, strength) {
+  getProcessedSource(mode, strength) {
     if (this.width <= 0 || this.height <= 0) return null;
-    const key2 = `${mode2}-${strength}`;
-    const cached = this.processedCache.get(key2);
+    const key = `${mode}-${strength}`;
+    const cached = this.processedCache.get(key);
     if (cached) {
-      this.processedCache.delete(key2);
-      this.processedCache.set(key2, cached);
+      this.processedCache.delete(key);
+      this.processedCache.set(key, cached);
       return cached;
     }
     const generated =
-      mode2 === "blur"
+      mode === "blur"
         ? generateBlur(this.bgSource, strength)
         : generateMosaic(this.bgSource, strength);
-    this.processedCache.set(key2, generated);
+    this.processedCache.set(key, generated);
     if (this.processedCache.size > PROCESSED_CACHE_LIMIT) {
       const oldest = this.processedCache.keys().next().value;
       if (oldest !== void 0) this.processedCache.delete(oldest);
@@ -355,9 +355,9 @@ export class Renderer {
   }
   composite() {
     this.pending.clear();
-    const scale2 = this.pixelScale;
+    const scale = this.pixelScale;
     this.mainCtx.save();
-    this.mainCtx.setTransform(scale2, 0, 0, scale2, 0, 0);
+    this.mainCtx.setTransform(scale, 0, 0, scale, 0, 0);
     this.mainCtx.clearRect(0, 0, this.width, this.height);
     this.mainCtx.drawImage(this.bgLayer, 0, 0, this.width, this.height);
     this.mainCtx.drawImage(this.shapeLayer, 0, 0, this.width, this.height);
@@ -377,11 +377,11 @@ export class Renderer {
    * 同时驱动 pixelScale：跨 tier（整数阶梯）时重建画布物理像素，让 shapes
    * 在外层放大时也能跟得上屏幕物理像素，避免被浏览器上采样变模糊。
    */
-  setUiScale(scale2) {
-    if (!Number.isFinite(scale2) || scale2 <= 0) return;
-    if (scale2 === this.uiScale) return;
+  setUiScale(scale) {
+    if (!Number.isFinite(scale) || scale <= 0) return;
+    if (scale === this.uiScale) return;
     const prevTier = this.uiScaleTier;
-    this.uiScale = scale2;
+    this.uiScale = scale;
     if (this.uiScaleTier !== prevTier) {
       this.applyDimensions();
     } else if (this.pendingSelected) {

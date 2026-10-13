@@ -8,7 +8,7 @@ const DRAG_THRESHOLD_PX = 4;
 export function ImageSplitOverlayInner({
   rows,
   cols,
-  selected: selected2,
+  selected,
   onToggle,
   onSelectCells,
 }) {
@@ -16,7 +16,7 @@ export function ImageSplitOverlayInner({
   const [hoverIndex, setHoverIndex] = reactExports.useState(null);
   const [marquee, setMarquee] = reactExports.useState(null);
   const pressRef = reactExports.useRef(null);
-  const cells2 = reactExports.useMemo(() => {
+  const gridCells = reactExports.useMemo(() => {
     const cells = [];
     for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
       for (let columnIndex = 0; columnIndex < cols; columnIndex++) {
@@ -66,10 +66,10 @@ export function ImageSplitOverlayInner({
     [rows, cols],
   );
   const indicesInRange = reactExports.useCallback(
-    (range2) =>
+    (range) =>
       rectCellIndices(
-        range2.r0 * cols + range2.c0,
-        range2.r1 * cols + range2.c1,
+        range.r0 * cols + range.c0,
+        range.r1 * cols + range.c1,
         cols,
       ),
     [cols],
@@ -78,12 +78,12 @@ export function ImageSplitOverlayInner({
     (pointerEvent) => {
       pointerEvent.stopPropagation();
       if (pointerEvent.button !== 0) return;
-      const index2 = cellIndexAt(pointerEvent.clientX, pointerEvent.clientY);
-      if (index2 == null) return;
+      const index = cellIndexAt(pointerEvent.clientX, pointerEvent.clientY);
+      if (index == null) return;
       pressRef.current = {
         x: pointerEvent.clientX,
         y: pointerEvent.clientY,
-        index: index2,
+        index,
         dragging: false,
       };
       containerRef.current?.setPointerCapture(pointerEvent.pointerId);
@@ -93,9 +93,9 @@ export function ImageSplitOverlayInner({
   const handlePointerMove = reactExports.useCallback(
     (pointerEvent) => {
       const press = pressRef.current;
-      const index2 = cellIndexAt(pointerEvent.clientX, pointerEvent.clientY);
+      const index = cellIndexAt(pointerEvent.clientX, pointerEvent.clientY);
       if (!press) {
-        setHoverIndex(index2);
+        setHoverIndex(index);
         return;
       }
       if (!press.dragging) {
@@ -103,12 +103,12 @@ export function ImageSplitOverlayInner({
         if (moved < DRAG_THRESHOLD_PX) return;
         press.dragging = true;
       }
-      if (index2 == null) return;
+      if (index == null) return;
       const startRow = Math.floor(press.index / cols);
       const startColumn = press.index % cols;
-      const endRow = Math.floor(index2 / cols);
-      const endColumn = index2 % cols;
-      const next2 = {
+      const endRow = Math.floor(index / cols);
+      const endColumn = index % cols;
+      const next = {
         r0: Math.min(startRow, endRow),
         r1: Math.max(startRow, endRow),
         c0: Math.min(startColumn, endColumn),
@@ -116,12 +116,12 @@ export function ImageSplitOverlayInner({
       };
       setMarquee((prev) =>
         prev &&
-        prev.r0 === next2.r0 &&
-        prev.r1 === next2.r1 &&
-        prev.c0 === next2.c0 &&
-        prev.c1 === next2.c1
+        prev.r0 === next.r0 &&
+        prev.r1 === next.r1 &&
+        prev.c0 === next.c0 &&
+        prev.c1 === next.c1
           ? prev
-          : next2,
+          : next,
       );
     },
     [cellIndexAt, cols],
@@ -158,12 +158,12 @@ export function ImageSplitOverlayInner({
       }}
       onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
     >
-      {rowLines.map((top2) => (
+      {rowLines.map((rowLineTop) => (
         <span
-          key={`r${top2}`}
+          key={`r${rowLineTop}`}
           className="pointer-events-none absolute right-0 left-0"
           style={{
-            top: `${top2}%`,
+            top: `${rowLineTop}%`,
             height: 1,
             zIndex: 5,
             background: "rgba(0,0,0,0.18)",
@@ -182,10 +182,10 @@ export function ImageSplitOverlayInner({
           }}
         />
       ))}
-      {cells2.map(({ index: index2, row: rowIndex, col: columnIndex }) => {
-        const isSelected = selected2.has(index2);
-        const inMarquee = previewSet?.has(index2) ?? false;
-        const isHovered = hoverIndex === index2 && !marquee;
+      {gridCells.map(({ index, row: rowIndex, col: columnIndex }) => {
+        const isSelected = selected.has(index);
+        const inMarquee = previewSet?.has(index) ?? false;
+        const isHovered = hoverIndex === index && !marquee;
         const highlighted = isHovered || inMarquee;
         const scrim = isSelected
           ? highlighted
@@ -197,7 +197,7 @@ export function ImageSplitOverlayInner({
         const showLabel = isSelected || highlighted;
         return (
           <div
-            key={index2}
+            key={index}
             aria-hidden="true"
             className="pointer-events-none absolute"
             style={{
