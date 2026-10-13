@@ -17,7 +17,7 @@ export function useCanvasAddNode({
   getPosition,
   getLastUsedModelParams,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return reactExports.useCallback(
     async (type2, positionOverride, dataOverride) => {
       const position2 = positionOverride ?? getPosition();
@@ -66,7 +66,7 @@ export function useCanvasAddNode({
           }
           const tablePath = newTablePath();
           const emptyDoc = createEmptyDocument(
-            t2("canvas.table.defaultColumn", "Text"),
+            translate("canvas.table.defaultColumn", "Text"),
           );
           const tableNodeId = crypto.randomUUID();
           try {
@@ -81,8 +81,8 @@ export function useCanvasAddNode({
               size: TABLE_CARD_DEFAULT_SIZE,
             });
             return tableNodeId;
-          } catch (err) {
-            console.error("[canvas] Failed to create table node:", err);
+          } catch (error) {
+            console.error("[canvas] Failed to create table node:", error);
             return null;
           }
         }
@@ -90,6 +90,6 @@ export function useCanvasAddNode({
           return null;
       }
     },
-    [saveTableContent, addNode2, getPosition, getLastUsedModelParams, t2],
+    [saveTableContent, addNode2, getPosition, getLastUsedModelParams, translate],
   );
 }

@@ -1,0 +1,4 @@
+key	old	new	依据
+a2@51:6	a2	leftEntry	排序比较器左侧的 workspace 键值项，其记录的 updatedAt 用于排序。
+b3@51:10	b3	rightEntry	排序比较器右侧的 workspace 键值项，其记录的 updatedAt 用于排序。
+_2@134:29	_2	removedWorkspaceState	解构取得将被移除的 workspace 标签状态；该值不再使用并由 rest 排除。

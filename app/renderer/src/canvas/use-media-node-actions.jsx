@@ -25,7 +25,7 @@ export function useMediaNodeActions({
   enableFrameExtract,
   onPromoteToAsset,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const reactFlow = useReactFlow();
   const [showLightbox, setShowLightbox] = reactExports.useState(false);
   const [lightboxIndexOverride, setLightboxIndexOverride] =
@@ -74,10 +74,10 @@ export function useMediaNodeActions({
     setLightboxIndexOverride(null);
   }, []);
   const handlePromoteToAsset = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       onPromoteToAsset?.([nodeId], {
-        x: e2.clientX,
-        y: e2.clientY,
+        x: clickEvent.clientX,
+        y: clickEvent.clientY,
       });
     },
     [nodeId, onPromoteToAsset],
@@ -104,7 +104,7 @@ export function useMediaNodeActions({
     const items = [
       {
         id: "add-to-chat",
-        label: t2("canvas.addToChat"),
+        label: translate("canvas.addToChat"),
         icon: <AddToChatIcon />,
         dataActionUiId: "canvas.node-add-to-chat",
         onClick: handleAddToChat,
@@ -112,14 +112,14 @@ export function useMediaNodeActions({
     ];
     items.push({
       id: "clip",
-      label: t2("canvas.clip"),
+      label: translate("canvas.clip"),
       icon: <ClipIcon />,
       onClick: handleClip,
     });
     if (enableFrameExtract) {
       items.push({
         id: "extract-frame",
-        label: t2("canvas.extractFrame"),
+        label: translate("canvas.extractFrame"),
         icon: <ExtractFrameIcon />,
         onClick: handleExtractFrame,
       });
@@ -127,7 +127,7 @@ export function useMediaNodeActions({
     if (onColorAdjust) {
       items.push({
         id: "color-adjust",
-        label: t2("canvas.colorAdjust"),
+        label: translate("canvas.colorAdjust"),
         icon: <ColorAdjustIcon />,
         onClick: onColorAdjust,
       });
@@ -136,8 +136,8 @@ export function useMediaNodeActions({
       items.push({
         id: "extract-audio",
         label: extractingAudio
-          ? t2("canvas.extractingAudio")
-          : t2("canvas.extractAudio"),
+          ? translate("canvas.extractingAudio")
+          : translate("canvas.extractAudio"),
         icon: extractingAudio ? <ToolbarSpinnerIcon /> : <ExtractAudioIcon />,
         onClick: handleExtractAudio,
         disabled: extractingAudio,
@@ -145,14 +145,14 @@ export function useMediaNodeActions({
     }
     items.push({
       id: "fullscreen",
-      label: t2("canvas.fullscreen"),
+      label: translate("canvas.fullscreen"),
       icon: <FullscreenIcon />,
       onClick: handleFullscreen,
     });
     if (onPromoteToAsset && meta2?.url) {
       items.push({
         id: "promote-to-asset",
-        label: t2("canvas.promoteToAsset"),
+        label: translate("canvas.promoteToAsset"),
         icon: <PromoteToAssetIcon />,
         forceLabel: true,
         dataActionUiId: "canvas.node-promote-to-asset",
@@ -174,7 +174,7 @@ export function useMediaNodeActions({
     onPromoteToAsset,
     meta2?.url,
     extractingAudio,
-    t2,
+    translate,
   ]);
   return {
     showLightbox,

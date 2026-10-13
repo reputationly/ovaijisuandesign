@@ -17,7 +17,7 @@ export function DeleteLocalNodeDialog({
   onConfirm,
   onCompleted,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [pending2, setPending] = reactExports.useState(false);
   const targets = batchNodes?.length ? batchNodes : node2 ? [node2] : [];
   const isBatch = targets.length > 1;
@@ -29,9 +29,9 @@ export function DeleteLocalNodeDialog({
       for (const target of targets) {
         try {
           await onConfirm(target);
-        } catch (err) {
+        } catch (error) {
           failed += 1;
-          dedupedToast.error(err instanceof Error ? err.message : String(err));
+          dedupedToast.error(error instanceof Error ? error.message : String(error));
         }
       }
       if (failed === 0) {
@@ -49,25 +49,25 @@ export function DeleteLocalNodeDialog({
         <DialogHeader>
           <DialogTitle className="text-body-14 leading-5 font-medium">
             {isBatch
-              ? t2("projectAssets.batchDeleteTitle", {
+              ? translate("projectAssets.batchDeleteTitle", {
                   count: targets.length,
                 })
               : isFolder
-                ? t2("localAssets.deleteFolderTitle", {
+                ? translate("localAssets.deleteFolderTitle", {
                     name: targets[0]?.name ?? "",
                   })
-                : t2("localAssets.deleteFileTitle", {
+                : translate("localAssets.deleteFileTitle", {
                     name: targets[0]?.name ?? "",
                   })}
           </DialogTitle>
           <DialogDescription className="text-[12px]/relaxed text-muted-foreground">
             {isBatch
-              ? t2("projectAssets.batchDeleteLocalBody", {
+              ? translate("projectAssets.batchDeleteLocalBody", {
                   count: targets.length,
                 })
               : isFolder
-                ? t2("localAssets.deleteFolderBody")
-                : t2("localAssets.deleteFileBody")}
+                ? translate("localAssets.deleteFolderBody")
+                : translate("localAssets.deleteFileBody")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -78,7 +78,7 @@ export function DeleteLocalNodeDialog({
             onClick={() => onOpenChange(false)}
             data-action-ui-id="local-assets.delete-cancel"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -87,7 +87,7 @@ export function DeleteLocalNodeDialog({
             onClick={() => void run2()}
             data-action-ui-id="local-assets.delete-confirm"
           >
-            {t2("localAssets.delete")}
+            {translate("localAssets.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

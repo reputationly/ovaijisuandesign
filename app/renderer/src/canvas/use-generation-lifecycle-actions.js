@@ -25,7 +25,7 @@ function mapGenerationCancelResponse(raw2) {
 
 export function useGenerationLifecycleActions({
   gatewayFetch: gatewayFetch2,
-  t: t2,
+  t: translate,
 }) {
   const handleCancelGeneration = reactExports.useCallback(
     async (nodeId) => {
@@ -42,21 +42,21 @@ export function useGenerationLifecycleActions({
         if (!response.ok)
           throw new Error(`generation cancel failed (${response.status})`);
         if (!mapGenerationCancelResponse(await response.json()).cancelled) {
-          dedupedToast.error(t2("canvas.cancelGenerationFailed"));
+          dedupedToast.error(translate("canvas.cancelGenerationFailed"));
           return false;
         }
-        dedupedToast.success(t2("canvas.generationCancelled"));
+        dedupedToast.success(translate("canvas.generationCancelled"));
         return true;
-      } catch (err) {
+      } catch (error) {
         canvasLog.error("cancel generation failed", {
           nodeId,
-          error: err instanceof Error ? err.message : String(err),
+          error: error instanceof Error ? error.message : String(error),
         });
-        dedupedToast.error(t2("canvas.cancelGenerationFailed"));
+        dedupedToast.error(translate("canvas.cancelGenerationFailed"));
         return false;
       }
     },
-    [gatewayFetch2, t2],
+    [gatewayFetch2, translate],
   );
   const handleDismissUnknownGeneration = reactExports.useCallback(
     async (nodeId) => {
@@ -76,20 +76,20 @@ export function useGenerationLifecycleActions({
         if (
           mapGenerationCancelResponse(await response.json()).dismissed !== true
         ) {
-          dedupedToast.error(t2("canvas.dismissGenerationStatusFailed"));
+          dedupedToast.error(translate("canvas.dismissGenerationStatusFailed"));
           return false;
         }
         return true;
-      } catch (err) {
+      } catch (error) {
         canvasLog.error("dismiss unknown generation failed", {
           nodeId,
-          error: err instanceof Error ? err.message : String(err),
+          error: error instanceof Error ? error.message : String(error),
         });
-        dedupedToast.error(t2("canvas.dismissGenerationStatusFailed"));
+        dedupedToast.error(translate("canvas.dismissGenerationStatusFailed"));
         return false;
       }
     },
-    [gatewayFetch2, t2],
+    [gatewayFetch2, translate],
   );
   return {
     handleCancelGeneration,

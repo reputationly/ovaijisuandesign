@@ -111,11 +111,11 @@ export function getNodePosition(node2, mode2) {
   if (slot) return slot;
   return ORIGIN;
 }
-export function setNodePosition(node2, mode2, pos) {
+export function setNodePosition(node2, mode2, position) {
   if (!node2.positions) node2.positions = {};
   node2.positions[mode2] = {
-    x: pos.x,
-    y: pos.y,
+    x: position.x,
+    y: position.y,
   };
 }
 export function getNodeSize(node2, mode2) {
@@ -135,10 +135,10 @@ export function computeCentroid(nodes, mode2) {
     };
   let sumX = 0;
   let sumY = 0;
-  for (const n2 of nodes) {
-    const pos = getNodePosition(n2, mode2);
-    sumX += pos.x;
-    sumY += pos.y;
+  for (const node of nodes) {
+    const position = getNodePosition(node, mode2);
+    sumX += position.x;
+    sumY += position.y;
   }
   return {
     x: sumX / nodes.length,

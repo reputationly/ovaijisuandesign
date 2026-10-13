@@ -1,0 +1,3 @@
+key	old	new	依据
+fps@11:9	fps	framesPerSecond	该值是响应 metadata 中经过有限且大于零校验的帧率。
+fps@69:13	fps	framesPerSecond	loadAssetFps 返回的帧率被写入对应素材 id 的结果映射。

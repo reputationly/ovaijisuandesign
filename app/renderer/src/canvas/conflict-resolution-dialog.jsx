@@ -24,8 +24,8 @@ import {
 } from "../infra/badge-variants.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
 export async function fetchTagRegistry(gatewayFetch2) {
-  const res = await gatewayFetch2(API_PATHS.tagRegistry);
-  const data2 = await res.json();
+  const response = await gatewayFetch2(API_PATHS.tagRegistry);
+  const data2 = await response.json();
   return normalizeTagRegistry(data2.registry);
 }
 export function useTagRegistry() {
@@ -58,7 +58,7 @@ export function ConflictResolutionDialog({
   onDecision,
   onDismiss,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [applyToAll, setApplyToAll] = reactExports.useState(false);
   const isFolder = conflict?.existingKind === "folder";
   const showApplyToAll = remainingCount > 0;
@@ -78,11 +78,11 @@ export function ConflictResolutionDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>
             {isFolder
-              ? t2("fileExplorer.folderAlreadyExists")
-              : t2("fileExplorer.fileAlreadyExists")}
+              ? translate("fileExplorer.folderAlreadyExists")
+              : translate("fileExplorer.fileAlreadyExists")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("fileExplorer.conflictDescription", {
+            {translate("fileExplorer.conflictDescription", {
               name: conflict?.name ?? "",
             })}
           </AlertDialogDescription>
@@ -98,7 +98,7 @@ export function ConflictResolutionDialog({
               htmlFor="apply-to-remaining-conflicts"
               className="cursor-pointer"
             >
-              {t2("fileExplorer.applyToRemaining", {
+              {translate("fileExplorer.applyToRemaining", {
                 count: remainingCount,
               })}
             </label>
@@ -110,14 +110,14 @@ export function ConflictResolutionDialog({
             onClick={() => decide("skip")}
             data-action-ui-id="asset-panel.conflict-skip"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             variant="secondary"
             onClick={() => decide("rename")}
             data-action-ui-id="asset-panel.conflict-rename"
           >
-            {t2("fileExplorer.conflictRename")}
+            {translate("fileExplorer.conflictRename")}
           </Button>
           <AlertDialogAction
             variant="destructive"
@@ -125,7 +125,7 @@ export function ConflictResolutionDialog({
             onClick={() => decide("overwrite")}
             data-action-ui-id="asset-panel.conflict-overwrite"
           >
-            {t2("fileExplorer.conflictOverwrite")}
+            {translate("fileExplorer.conflictOverwrite")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,0 +1,4 @@
+key	old	new	依据
+pos@114:47	pos	position	setNodePosition 将该位置对象的 x、y 坐标写入节点当前布局模式。
+n2@138:14	n2	node	循环读取每个节点的位置以计算节点集合的质心。
+pos@139:11	pos	position	getNodePosition 返回该节点在当前布局模式下的位置对象。

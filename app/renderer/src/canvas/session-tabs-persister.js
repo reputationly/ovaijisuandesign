@@ -48,7 +48,7 @@ function normalizeTabsRecord(value) {
 }
 function pruneTabsRecord(value) {
   const entries2 = Object.entries(value).sort(
-    (a2, b3) => b3[1].updatedAt - a2[1].updatedAt,
+    (leftEntry, rightEntry) => rightEntry[1].updatedAt - leftEntry[1].updatedAt,
   );
   return Object.fromEntries(entries2.slice(0, MAX_WORKSPACE_RECORDS));
 }
@@ -131,7 +131,7 @@ export class SessionTabsPersister {
       } catch {}
     }
     if (!(workspaceKey in current2)) return;
-    const { [workspaceKey]: _2, ...rest } = current2;
+    const { [workspaceKey]: removedWorkspaceState, ...rest } = current2;
     writeLocalCache(rest);
     if (storage) {
       try {

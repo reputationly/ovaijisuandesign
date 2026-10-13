@@ -70,12 +70,12 @@ function resolveStoredCanvasViewport(
   const snapshot2 = parseCanvasViewportSnapshot(serialized);
   if (!snapshot2) return void 0;
   const zoom2 = Math.min(maxZoom, Math.max(minZoom, snapshot2.zoom));
-  const x2 = width / 2 - snapshot2.centerX * zoom2;
-  const y4 = height / 2 - snapshot2.centerY * zoom2;
-  if (!Number.isFinite(x2) || !Number.isFinite(y4)) return void 0;
+  const viewportX = width / 2 - snapshot2.centerX * zoom2;
+  const viewportY = height / 2 - snapshot2.centerY * zoom2;
+  if (!Number.isFinite(viewportX) || !Number.isFinite(viewportY)) return void 0;
   return {
-    x: x2,
-    y: y4,
+    x: viewportX,
+    y: viewportY,
     zoom: zoom2,
   };
 }

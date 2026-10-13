@@ -13,11 +13,11 @@ export function applyChangesetToDraft(draft, changes, mode2) {
       : null;
   const updatedById =
     changes.updatedNodes && changes.updatedNodes.length > 0
-      ? new Map(changes.updatedNodes.map((n2) => [n2.id, n2]))
+      ? new Map(changes.updatedNodes.map((fileNode) => [fileNode.id, fileNode]))
       : null;
   const addedRuntime =
     changes.addedNodes && changes.addedNodes.length > 0
-      ? changes.addedNodes.map((n2) => fileNodeToRuntimeNode(n2, mode2))
+      ? changes.addedNodes.map((fileNode) => fileNodeToRuntimeNode(fileNode, mode2))
       : null;
   if (!removedSet && !updatedById && !addedRuntime) return;
   const next2 = [];
@@ -98,7 +98,7 @@ export function applyChangesetToDraft(draft, changes, mode2) {
     next2.push(node2);
   }
   if (addedRuntime) {
-    const existingIds = new Set(next2.map((n2) => n2.id));
+    const existingIds = new Set(next2.map((node) => node.id));
     for (const added of addedRuntime) {
       if (existingIds.has(added.id)) continue;
       existingIds.add(added.id);
