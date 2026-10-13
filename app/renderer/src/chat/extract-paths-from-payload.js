@@ -61,13 +61,13 @@ function textArtifactPath(result) {
     : void 0;
 }
 
-function collectTextWriteResult(result, seen2, artifacts) {
+function collectTextWriteResult(result, seen, artifacts) {
   if (result.ok === false || result.created !== true) return;
-  const path2 = textArtifactPath(result);
-  if (!path2) return;
+  const path = textArtifactPath(result);
+  if (!path) return;
   const nodeId = typeof result.nodeId === "string" ? result.nodeId : void 0;
   const assetId = typeof result.assetId === "string" ? result.assetId : void 0;
-  addArtifact(seen2, artifacts, "file", path2, {
+  addArtifact(seen, artifacts, "file", path, {
     ...(assetId
       ? {
           assetId,
@@ -82,54 +82,54 @@ function collectTextWriteResult(result, seen2, artifacts) {
 }
 
 function collectCanvasTextArtifacts(
-  toolName2,
+  toolName,
   argsPayload,
   resultPayload,
-  seen2,
+  seen,
   artifacts,
 ) {
   const args = asRecord(argsPayload);
   const result = asRecord(resultPayload);
   if (!result) return;
-  if (!CANVAS_WRITE_NODE_RE.test(toolName2)) return;
+  if (!CANVAS_WRITE_NODE_RE.test(toolName)) return;
   if (Array.isArray(result.results)) {
     for (const item of result.results) {
       const itemResult = asRecord(item);
       if (!itemResult || itemResult.kind !== "text") continue;
-      collectTextWriteResult(itemResult, seen2, artifacts);
+      collectTextWriteResult(itemResult, seen, artifacts);
     }
     return;
   }
   if (result.kind === "text" || args?.kind === "text") {
-    collectTextWriteResult(result, seen2, artifacts);
+    collectTextWriteResult(result, seen, artifacts);
   }
 }
 
 export function collectFromToolPayload(
-  toolName2,
+  toolName,
   argsPayload,
   payload,
-  seen2,
+  seen,
   artifacts,
 ) {
-  collectCanvasTextArtifacts(toolName2, argsPayload, payload, seen2, artifacts);
-  const category = categorizeToolAction(toolName2);
+  collectCanvasTextArtifacts(toolName, argsPayload, payload, seen, artifacts);
+  const category = categorizeToolAction(toolName);
   if (
     MEDIA_GEN_CATEGORIES.has(category) ||
-    getToolLabelId(toolName2) === "contentProcess"
+    getToolLabelId(toolName) === "contentProcess"
   ) {
     const fallbackMediaType = mediaTypeFromCategory(
-      resolveMediaTaskCategory(toolName2),
+      resolveMediaTaskCategory(toolName),
     );
     for (const path of extractPathsFromPayload(payload)) {
       addArtifact(
-        seen2,
+        seen,
         artifacts,
         inferArtifactTypeFromPath(path) ?? fallbackMediaType,
         path,
       );
     }
-    collectAssetOutputs(payload, seen2, artifacts);
+    collectAssetOutputs(payload, seen, artifacts);
     return;
   }
 }

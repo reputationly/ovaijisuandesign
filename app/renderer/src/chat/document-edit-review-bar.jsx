@@ -13,18 +13,18 @@ import { isDiffReviewSessionReady } from "../text-editor/is-diff-review-session-
 import { Button } from "../infra/dialog-content.jsx";
 export function DocumentEditReviewBar() {
   const { t: translate } = useTranslation();
-  const session = useDiffReviewStore((state2) => state2.session);
-  const reverting = useDiffReviewStore((state2) => state2.reverting);
-  const historyHandler = useDiffReviewStore((state2) => state2.historyHandler);
+  const session = useDiffReviewStore((state) => state.session);
+  const reverting = useDiffReviewStore((state) => state.reverting);
+  const historyHandler = useDiffReviewStore((state) => state.historyHandler);
   const activeEditorNodeId = useDiffReviewStore(
-    (state2) => state2.activeEditorNodeId,
+    (state) => state.activeEditorNodeId,
   );
-  const acceptAll = useDiffReviewStore((state2) => state2.acceptAll);
-  const requestUndo = useDiffReviewStore((state2) => state2.requestUndo);
+  const acceptAll = useDiffReviewStore((state) => state.acceptAll);
+  const requestUndo = useDiffReviewStore((state) => state.requestUndo);
   const requestOpenEditor = useDiffReviewStore(
-    (state2) => state2.requestOpenEditor,
+    (state) => state.requestOpenEditor,
   );
-  const navigation2 = useDiffReviewStore((state2) => state2.navigation);
+  const reviewNavigation = useDiffReviewStore((state) => state.navigation);
   if (!session) return null;
   const pendingCount = session.hunks.filter(
     (hunk) => hunk.status === "pending",
@@ -35,7 +35,7 @@ export function DocumentEditReviewBar() {
     reverting ||
     (!isDiffReviewSessionReady(session) &&
       (inEditor || historyHandler !== null));
-  const nav2 = inEditor ? navigation2 : null;
+  const nav = inEditor ? reviewNavigation : null;
   const navBtnClass =
     "flex h-6 w-6 items-center justify-center rounded transition-colors text-muted-foreground hover:bg-muted hover:text-foreground";
   return (
@@ -48,18 +48,18 @@ export function DocumentEditReviewBar() {
         strokeWidth={1.5}
         className="shrink-0 text-muted-foreground"
       />
-      {nav2 ? (
+      {nav ? (
         <div className="flex min-w-0 flex-1 items-center gap-0.5">
           <span className="truncate text-muted-foreground">
             {translate("canvas.diffReview.counter", "{{current}} / {{total}} 处修改", {
-              current: nav2.current,
-              total: nav2.total,
+              current: nav.current,
+              total: nav.total,
             })}
           </span>
           <button
             type="button"
             title={translate("canvas.diffReview.prev", "上一处")}
-            onClick={() => nav2.step(-1)}
+            onClick={() => nav.step(-1)}
             className={navBtnClass}
             data-action-ui-id="chat-diff-review-prev"
           >
@@ -68,7 +68,7 @@ export function DocumentEditReviewBar() {
           <button
             type="button"
             title={translate("canvas.diffReview.next", "下一处")}
-            onClick={() => nav2.step(1)}
+            onClick={() => nav.step(1)}
             className={navBtnClass}
             data-action-ui-id="chat-diff-review-next"
           >

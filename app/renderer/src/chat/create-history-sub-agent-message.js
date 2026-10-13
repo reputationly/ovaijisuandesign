@@ -5,9 +5,9 @@ function isRecord$c(value) {
   return !!value && typeof value === "object";
 }
 
-export function optionalStringField(value, key2) {
+export function optionalStringField(value, key) {
   if (!isRecord$c(value)) return void 0;
-  const field = value[key2];
+  const field = value[key];
   return typeof field === "string" && field.length > 0 ? field : void 0;
 }
 
@@ -37,15 +37,15 @@ const ERROR_PREFIX_PATTERN = /^\s*\w*(?:Error|Exception)\s*:/i;
 
 const MAX_KEYWORD_SCAN_LENGTH = 200;
 
-function looksLikeFailureText(text2) {
-  if (ERROR_PREFIX_PATTERN.test(text2)) return true;
+function looksLikeFailureText(text) {
+  if (ERROR_PREFIX_PATTERN.test(text)) return true;
   return (
-    text2.length <= MAX_KEYWORD_SCAN_LENGTH && ERROR_RESULT_PATTERN.test(text2)
+    text.length <= MAX_KEYWORD_SCAN_LENGTH && ERROR_RESULT_PATTERN.test(text)
   );
 }
 
-function isFailureResultContent(content2) {
-  const trimmed = content2.trim();
+function isFailureResultContent(content) {
+  const trimmed = content.trim();
   if (!trimmed) return false;
   try {
     const parsed = JSON.parse(trimmed);
@@ -57,8 +57,8 @@ function isFailureResultContent(content2) {
       parsed.success === false
     )
       return true;
-    return ["error", "message", "reason", "detail"].some((key2) => {
-      const value = parsed[key2];
+    return ["error", "message", "reason", "detail"].some((key) => {
+      const value = parsed[key];
       return typeof value === "string" && ERROR_RESULT_PATTERN.test(value);
     });
   } catch {
@@ -66,16 +66,16 @@ function isFailureResultContent(content2) {
   }
 }
 
-export function inferToolResultStatus(content2, explicitStatus) {
+export function inferToolResultStatus(content, explicitStatus) {
   const status = normalizeToolStatus(explicitStatus);
   if (status) return status;
-  return isFailureResultContent(content2) ? "error" : "ok";
+  return isFailureResultContent(content) ? "error" : "ok";
 }
 
-export function toolNameFromSubContent(content2) {
-  if (!content2) return void 0;
-  const colonIdx = content2.indexOf(": ");
-  return colonIdx > 0 ? content2.slice(0, colonIdx) : content2;
+export function toolNameFromSubContent(content) {
+  if (!content) return void 0;
+  const colonIdx = content.indexOf(": ");
+  return colonIdx > 0 ? content.slice(0, colonIdx) : content;
 }
 
 let _counter = 0;
@@ -107,8 +107,8 @@ export function subAgentHistoryPartId(taskPartId) {
 
 export function findHistorySubAgentIndex(result, lookup) {
   const partId = subAgentHistoryPartId(lookup.taskPartId);
-  const matchesResolvedState = (message2) =>
-    !lookup.unresolvedOnly || !message2.resolved;
+  const matchesResolvedState = (message) =>
+    !lookup.unresolvedOnly || !message.resolved;
   if (partId) {
     return findLastIndex(
       result,
@@ -143,7 +143,7 @@ export function findHistorySubAgentIndex(result, lookup) {
 }
 
 export function createHistorySubAgentMessage(
-  agent2,
+  agent,
   childSessionId,
   taskPartId,
   resolved,
@@ -155,7 +155,7 @@ export function createHistorySubAgentMessage(
     role: "agent",
     type: "sub_agent",
     content: "",
-    agent: agent2,
+    agent,
     ...(childSessionId
       ? {
           childSessionId,

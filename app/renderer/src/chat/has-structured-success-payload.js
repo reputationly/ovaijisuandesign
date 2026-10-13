@@ -18,46 +18,46 @@ import {
 const GENERATE_ERROR_CODE_PRE_SUBMIT_SHUTDOWN = "pre_submit_shutdown";
 const GENERATE_ERROR_CODE_STORAGE_FULL = "storage_full";
 const GENERATE_ERROR_CODE_QUEUE_PAUSED = "queue_paused";
-function getConfiguredToolLabelId(toolName2) {
+function getConfiguredToolLabelId(toolName) {
   return configuredLabelIds.find(({ patterns }) =>
-    patterns.some((pattern) => pattern.test(toolName2)),
+    patterns.some((pattern) => pattern.test(toolName)),
   )?.label;
 }
-export function getToolLabelId(toolName2) {
-  if (!toolName2) return "silent";
-  const builtIn = getBuiltInToolLabelId(toolName2);
+export function getToolLabelId(toolName) {
+  if (!toolName) return "silent";
+  const builtIn = getBuiltInToolLabelId(toolName);
   if (builtIn) return builtIn;
-  return getConfiguredToolLabelId(toolName2) ?? "silent";
+  return getConfiguredToolLabelId(toolName) ?? "silent";
 }
-export function resolveMediaTaskCategory(tool2) {
+export function resolveMediaTaskCategory(tool) {
   if (
-    tool2 === "hub_generate_image" ||
-    tool2 === "hub_image_remove_background" ||
-    tool2 === "hub_image_enhance" ||
-    tool2 === "hub_image_layer_decompose"
+    tool === "hub_generate_image" ||
+    tool === "hub_image_remove_background" ||
+    tool === "hub_image_enhance" ||
+    tool === "hub_image_layer_decompose"
   ) {
     return "imageGen";
   }
-  if (tool2 === "hub_generate_video") {
+  if (tool === "hub_generate_video") {
     return "videoGen";
   }
-  if (tool2 === "hub_merge_videos" || tool2 === "hub_batch_lip_sync") {
+  if (tool === "hub_merge_videos" || tool === "hub_batch_lip_sync") {
     return "videoEdit";
   }
   if (
-    tool2 === "hub_generate_audio_music" ||
-    tool2 === "hub_music_cover" ||
-    tool2 === "hub_lyrics_generation"
+    tool === "hub_generate_audio_music" ||
+    tool === "hub_music_cover" ||
+    tool === "hub_lyrics_generation"
   ) {
     return "musicGen";
   }
-  if (tool2 === "hub_generate_audio_speech" || tool2 === "hub_voice_prepare") {
+  if (tool === "hub_generate_audio_speech" || tool === "hub_voice_prepare") {
     return "audioGen";
   }
   return "other";
 }
-function stripDisplayOnlyToolResultNotes(text2) {
-  return text2
+function stripDisplayOnlyToolResultNotes(text) {
+  return text
     .split(/\r?\n/)
     .filter((line) => !/^\s*\[User Override\]/i.test(line))
     .filter((line) => !/^\s*User manually modified:/i.test(line))
@@ -69,20 +69,20 @@ function hasStructuredSuccessPayload(candidate) {
     const parsed = JSON.parse(candidate);
     if (Array.isArray(parsed)) return parsed.length > 0;
     if (!parsed || typeof parsed !== "object") return false;
-    const record2 = parsed;
-    if (record2.ok === true || record2.success === true) return true;
-    if (typeof record2.succeeded === "number" && record2.succeeded > 0)
+    const record = parsed;
+    if (record.ok === true || record.success === true) return true;
+    if (typeof record.succeeded === "number" && record.succeeded > 0)
       return true;
-    if (typeof record2.path === "string" && record2.path.length > 0)
+    if (typeof record.path === "string" && record.path.length > 0)
       return true;
     if (
-      Array.isArray(record2.paths) &&
-      record2.paths.some((path) => typeof path === "string")
+      Array.isArray(record.paths) &&
+      record.paths.some((path) => typeof path === "string")
     ) {
       return true;
     }
-    if (Array.isArray(record2.results)) {
-      return record2.results.some((item) => {
+    if (Array.isArray(record.results)) {
+      return record.results.some((item) => {
         if (!item || typeof item !== "object") return false;
         const result = item;
         if (result.ok === true) return true;
@@ -95,16 +95,16 @@ function hasStructuredSuccessPayload(candidate) {
       });
     }
     return (
-      typeof record2.lyrics === "string" ||
-      typeof record2.voice_id === "string" ||
-      typeof record2.cover_feature_id === "string"
+      typeof record.lyrics === "string" ||
+      typeof record.voice_id === "string" ||
+      typeof record.cover_feature_id === "string"
     );
   } catch {
     return false;
   }
 }
-export function normalizeJsonToolResult(text2) {
-  const trimmed = text2.trim();
+export function normalizeJsonToolResult(text) {
+  const trimmed = text.trim();
   if (trimmed.startsWith("{") || trimmed.startsWith("[")) return trimmed;
   const colonIndex = trimmed.indexOf(":");
   const embeddedStart = trimmed.search(/[[{]/);
@@ -177,13 +177,13 @@ export function generationFailurePresentation(toolResult) {
     const parsed = JSON.parse(displayResult);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
       return void 0;
-    const record2 = parsed;
+    const record = parsed;
     const direct = asGenerationFailurePresentation(
-      record2.failure_presentation,
+      record.failure_presentation,
     );
     if (direct) return direct;
-    if (!Array.isArray(record2.results)) return void 0;
-    const failures = record2.results.filter(
+    if (!Array.isArray(record.results)) return void 0;
+    const failures = record.results.filter(
       (item) =>
         !!item &&
         typeof item === "object" &&
@@ -241,8 +241,8 @@ export const GENERATION_ERROR_CODE_I18N = {
 export const GENERATION_FAILURE_ERROR_CODES = Object.freeze(
   Object.keys(GENERATION_ERROR_CODE_I18N),
 );
-export function artifactAssetTypeFromPath(path2, fallback = "file") {
-  const clean = path2.split(/[?#]/)[0] ?? path2;
+export function artifactAssetTypeFromPath(path, fallback = "file") {
+  const clean = path.split(/[?#]/)[0] ?? path;
   if (/\.(png|jpe?g|gif|webp|bmp|svg|ico|tiff?)$/i.test(clean)) return "image";
   if (/\.(mp4|mov|webm|avi|mkv|m4v)$/i.test(clean)) return "video";
   if (/\.(mp3|wav|m4a|aac|ogg|flac|aiff?)$/i.test(clean)) return "audio";
@@ -278,16 +278,16 @@ const LABEL_TO_CATEGORY = {
   transient: "other",
   silent: "other",
 };
-function refineCategory(toolName2, base2) {
-  if (base2 === "imageGen") {
-    const media = resolveMediaTaskCategory(toolName2);
+function refineCategory(toolName, base) {
+  if (base === "imageGen") {
+    const media = resolveMediaTaskCategory(toolName);
     return media === "other" ? "other" : media;
   }
-  if (base2 !== "read") return base2;
-  if (toolName2 === "bash") return "execute";
-  return getFileActivityKind(toolName2) ?? "read";
+  if (base !== "read") return base;
+  if (toolName === "bash") return "execute";
+  return getFileActivityKind(toolName) ?? "read";
 }
-export function categorizeToolAction(toolName2) {
-  const labelId = getToolLabelId(toolName2);
-  return refineCategory(toolName2, LABEL_TO_CATEGORY[labelId]);
+export function categorizeToolAction(toolName) {
+  const labelId = getToolLabelId(toolName);
+  return refineCategory(toolName, LABEL_TO_CATEGORY[labelId]);
 }

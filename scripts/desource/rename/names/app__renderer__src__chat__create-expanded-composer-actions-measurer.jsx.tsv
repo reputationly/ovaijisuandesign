@@ -3,3 +3,19 @@ tr2@105:7	transaction	`transaction` 是用于更新引用节点路径的 ProseMi
 pos@106:40	position	`position` 是引用节点在 ProseMirror 文档中的位置。
 row@183:31	actionsRow	`actionsRow` 是包含左右侧操作按钮的编辑器行元素。
 row@197:55	actionsRow	`actionsRow` 是复制并测量 composer 操作按钮布局的 DOM 行。
+schema2@14:37	schema	`schema` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@14:53	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+doc2@17:11	doc	`doc` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+node2@21:22	node	`node` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+gatewayUrl2@47:3	gatewayUrl	`gatewayUrl` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+base2@58:9	base	`base` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+gatewayUrl2@62:3	gatewayUrl	`gatewayUrl` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+node2@106:33	node	`node` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+element2@158:30	element	`element` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+clone2@165:29	clone	`clone` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+element2@166:14	element	`element` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+element2@169:14	element	`element` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+clone2@184:9	clone	`clone` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+ownerDocument2@198:9	ownerDocument	`ownerDocument` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+dispose2@224:9	dispose	`dispose` 是执行相应业务操作的函数；末尾数字是打包器为避免重名添加的后缀。
+children2@238:13	children	`children` 是标识值；末尾数字是打包器为避免重名添加的后缀。

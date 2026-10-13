@@ -7,3 +7,9 @@ out@89:3	artifacts	`artifacts` 是画布文本产物收集过程中传递的输�
 out@113:3	artifacts	`artifacts` 是工具载荷处理中接收各类文件产物的输出数组。
 cat@116:9	category	`category` 是根据工具动作名称解析出的媒体生成类别。
 p3@124:16	path	`path` 是从工具载荷提取并用于推断产物类型的路径。
+seen2@64:41	seen	`seen` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+path2@66:9	path	`path` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+toolName2@85:3	toolName	`toolName` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+seen2@88:3	seen	`seen` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+toolName2@109:3	toolName	`toolName` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+seen2@112:3	seen	`seen` 是标识值；末尾数字是打包器为避免重名添加的后缀。
