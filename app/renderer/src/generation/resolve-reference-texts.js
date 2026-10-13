@@ -2,18 +2,18 @@
 import { getAssetMetaByNodeIdFromStore } from "../canvas/fullscreen-icon.jsx";
 import { CanvasNodeType, reactExports, useReactFlow } from "../vendor.js";
 
-export function getDisabledOptions(paramKey, currentParams, constraints2) {
-  const disabled2 = new Set();
-  if (!constraints2) return disabled2;
-  for (const c3 of constraints2) {
+export function getDisabledOptions(paramKey, currentParams, constraints) {
+  const disabled = new Set();
+  if (!constraints) return disabled;
+  for (const c3Value of constraints) {
     if (
-      c3.disable.param === paramKey &&
-      currentParams[c3.if.param] === c3.if.eq
+      c3Value.disable.param === paramKey &&
+      currentParams[c3Value.if.param] === c3Value.if.eq
     ) {
-      for (const v2 of c3.disable.options) disabled2.add(v2);
+      for (const value of c3Value.disable.options) disabled.add(value);
     }
   }
-  return disabled2;
+  return disabled;
 }
 
 export function resolveReferenceTexts(
@@ -23,7 +23,7 @@ export function resolveReferenceTexts(
   getNodeById,
 ) {
   const paths = [];
-  const seen2 = new Set();
+  const seen = new Set();
   const store = assetMetadataStore.getState();
   for (const sourceId of incomingSourceIds) {
     const sourceMeta = getAssetMetaByNodeIdFromStore(
@@ -33,18 +33,18 @@ export function resolveReferenceTexts(
     if (
       sourceMeta?.path &&
       sourceMeta.type === "text" &&
-      !seen2.has(sourceMeta.path)
+      !seen.has(sourceMeta.path)
     ) {
-      seen2.add(sourceMeta.path);
+      seen.add(sourceMeta.path);
       paths.push(sourceMeta.path);
       continue;
     }
     if (getNodeById) {
-      const node2 = getNodeById(sourceId);
-      if (!node2 || node2.type !== CanvasNodeType.Text) continue;
-      const nodePath = node2.data.path;
-      if (nodePath && !seen2.has(nodePath)) {
-        seen2.add(nodePath);
+      const node = getNodeById(sourceId);
+      if (!node || node.type !== CanvasNodeType.Text) continue;
+      const nodePath = node.data.path;
+      if (nodePath && !seen.has(nodePath)) {
+        seen.add(nodePath);
         paths.push(nodePath);
       }
     }
@@ -56,9 +56,9 @@ export function resolveReferenceTexts(
       if (
         refMeta?.path &&
         refMeta.type === "text" &&
-        !seen2.has(refMeta.path)
+        !seen.has(refMeta.path)
       ) {
-        seen2.add(refMeta.path);
+        seen.add(refMeta.path);
         paths.push(refMeta.path);
       }
     }
@@ -82,7 +82,7 @@ export function resolveReferenceAudios(
   assetMetadataStore,
 ) {
   const paths = [];
-  const seen2 = new Set();
+  const seen = new Set();
   for (const sourceId of incomingSourceIds) {
     const sourceMeta = getAssetMetaByNodeIdFromStore(
       assetMetadataStore,
@@ -91,9 +91,9 @@ export function resolveReferenceAudios(
     if (
       sourceMeta?.path &&
       sourceMeta.type === "audio" &&
-      !seen2.has(sourceMeta.path)
+      !seen.has(sourceMeta.path)
     ) {
-      seen2.add(sourceMeta.path);
+      seen.add(sourceMeta.path);
       paths.push(sourceMeta.path);
     }
   }
@@ -102,8 +102,8 @@ export function resolveReferenceAudios(
     for (const refId of referenceAudioIds) {
       if (!refId) continue;
       const refMeta = store.assets.get(refId);
-      if (refMeta?.path && !seen2.has(refMeta.path)) {
-        seen2.add(refMeta.path);
+      if (refMeta?.path && !seen.has(refMeta.path)) {
+        seen.add(refMeta.path);
         paths.push(refMeta.path);
       }
     }

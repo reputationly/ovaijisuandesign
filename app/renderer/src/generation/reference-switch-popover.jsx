@@ -54,16 +54,16 @@ export function ReferenceSwitchPopover({
   anchorRect,
   getAnchorRect,
   currentPath,
-  config: config2,
+  config,
   resolveFileUrl,
   onSelect,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { getNodeById, getNodeIdByPath } = useCanvasActions();
   const { resolveThumbUrl } = useCanvasBridge();
-  const assets = useAssetMetadataStore((state2) => state2.assets);
-  const viewportTransform = useStore((state2) => state2.transform);
+  const assets = useAssetMetadataStore((state) => state.assets);
+  const viewportTransform = useStore((state) => state.transform);
   const panelRef = reactExports.useRef(null);
   const flyoutRef = reactExports.useRef(null);
   const activeCategoryRowRef = reactExports.useRef(null);
@@ -71,8 +71,8 @@ export function ReferenceSwitchPopover({
   const [activeKind, setActiveKind] = reactExports.useState(null);
   const [flyoutOffset, setFlyoutOffset] = reactExports.useState(0);
   const allowedKinds = reactExports.useMemo(
-    () => new Set(config2.kindFilter),
-    [config2.kindFilter],
+    () => new Set(config.kindFilter),
+    [config.kindFilter],
   );
   const cancelFlyoutClose = reactExports.useCallback(() => {
     if (flyoutCloseTimerRef.current === null) return;
@@ -96,56 +96,56 @@ export function ReferenceSwitchPopover({
   const items = reactExports.useMemo(() => {
     const result = [];
     const seenPaths = new Set();
-    assets.forEach((meta2, assetId) => {
-      const kind = mapKind(meta2.type);
+    assets.forEach((meta, assetId) => {
+      const kind = mapKind(meta.type);
       if (
         !isMentionCandidate(
           assetId,
           kind,
           allowedKinds,
-          config2.excludeAssetIds,
+          config.excludeAssetIds,
         )
       )
         return;
-      if (!meta2.path || seenPaths.has(meta2.path)) return;
+      if (!meta.path || seenPaths.has(meta.path)) return;
       const definedKind = kind;
       const alreadyAdded =
-        config2.existingPaths.has(meta2.path) || meta2.path === currentPath;
+        config.existingPaths.has(meta.path) || meta.path === currentPath;
       if (
         !passesBudgetGate(
           definedKind,
           alreadyAdded,
-          config2.constraints?.remainingByKind,
+          config.constraints?.remainingByKind,
         )
       )
         return;
-      seenPaths.add(meta2.path);
+      seenPaths.add(meta.path);
       result.push({
         assetId,
-        meta: meta2,
+        meta,
         kind: definedKind,
         alreadyAdded,
         thumbUrl:
           definedKind === "video"
-            ? (resolveThumbUrl?.(meta2.path, THUMB_PX, "video") ?? "")
+            ? (resolveThumbUrl?.(meta.path, THUMB_PX, "video") ?? "")
             : definedKind === "image"
-              ? (resolveThumbUrl?.(meta2.path, THUMB_PX, "image") ??
-                resolveFileUrl?.(meta2.path) ??
+              ? (resolveThumbUrl?.(meta.path, THUMB_PX, "image") ??
+                resolveFileUrl?.(meta.path) ??
                 "")
-              : (resolveFileUrl?.(meta2.path) ?? ""),
+              : (resolveFileUrl?.(meta.path) ?? ""),
         disabledReason: alreadyAdded
           ? void 0
-          : reasonForDisabled(definedKind, meta2, config2.constraints),
+          : reasonForDisabled(definedKind, meta, config.constraints),
       });
     });
-    result.sort((a2, b3) => a2.meta.name.localeCompare(b3.meta.name));
+    result.sort((item, itemValue) => item.meta.name.localeCompare(itemValue.meta.name));
     return result;
   }, [
     allowedKinds,
     assets,
-    config2.constraints,
-    config2.excludeAssetIds,
-    config2.existingPaths,
+    config.constraints,
+    config.excludeAssetIds,
+    config.existingPaths,
     currentPath,
     resolveFileUrl,
     resolveThumbUrl,
@@ -186,20 +186,20 @@ export function ReferenceSwitchPopover({
     const handlePointerDown = (event) => {
       if (!panelRef.current?.contains(event.target)) onClose();
     };
-    const handleKeyDown2 = (event) => {
+    const handleKeyDown = (event) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
       event.stopPropagation();
       onClose();
     };
     document.addEventListener("pointerdown", handlePointerDown, true);
-    document.addEventListener("keydown", handleKeyDown2, true);
+    document.addEventListener("keydown", handleKeyDown, true);
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown, true);
-      document.removeEventListener("keydown", handleKeyDown2, true);
+      document.removeEventListener("keydown", handleKeyDown, true);
     };
   }, [onClose]);
-  const computePosition2 = reactExports.useCallback((rect) => {
+  const computePosition = reactExports.useCallback((rect) => {
     const expandedWidth = PANEL_WIDTH * 2 + FLYOUT_GAP;
     const left = Math.min(
       Math.max(rect.left, VIEWPORT_MARGIN),
@@ -222,8 +222,8 @@ export function ReferenceSwitchPopover({
       left,
     };
   }, []);
-  const [position2, setPosition] = reactExports.useState(() =>
-    computePosition2(anchorRect),
+  const [position, setPosition] = reactExports.useState(() =>
+    computePosition(anchorRect),
   );
   const positioningInput = reactExports.useMemo(
     () => ({
@@ -234,9 +234,9 @@ export function ReferenceSwitchPopover({
   );
   reactExports.useLayoutEffect(() => {
     setPosition(
-      computePosition2(getAnchorRect?.() ?? positioningInput.anchorRect),
+      computePosition(getAnchorRect?.() ?? positioningInput.anchorRect),
     );
-  }, [computePosition2, getAnchorRect, positioningInput]);
+  }, [computePosition, getAnchorRect, positioningInput]);
   const alignFlyoutToActiveRow = reactExports.useCallback(() => {
     const container = panelRef.current;
     const row = activeCategoryRowRef.current;
@@ -245,11 +245,11 @@ export function ReferenceSwitchPopover({
     const containerTop = container.getBoundingClientRect().top;
     const desiredOffset = row.getBoundingClientRect().top - containerTop;
     const flyoutHeight = flyout.getBoundingClientRect().height;
-    const maxOffset2 = Math.max(
+    const maxOffset = Math.max(
       0,
       window.innerHeight - VIEWPORT_MARGIN - containerTop - flyoutHeight,
     );
-    setFlyoutOffset(Math.max(0, Math.min(desiredOffset, maxOffset2)));
+    setFlyoutOffset(Math.max(0, Math.min(desiredOffset, maxOffset)));
   }, []);
   const flyoutAlignmentInput = reactExports.useMemo(
     () => ({
@@ -310,13 +310,13 @@ export function ReferenceSwitchPopover({
     );
   };
   const renderItem = (item) => {
-    const selected2 = item.meta.path === currentPath;
+    const selected = item.meta.path === currentPath;
     return (
       <Tooltip
         key={item.meta.path}
         content={
           item.disabledReason
-            ? disabledReasonLabel(item.disabledReason, config2.constraints, t2)
+            ? disabledReasonLabel(item.disabledReason, config.constraints, translate)
             : void 0
         }
       >
@@ -338,7 +338,7 @@ export function ReferenceSwitchPopover({
             <span className="min-w-0 flex-1 truncate text-sm font-normal text-foreground">
               {item.meta.name}
             </span>
-            {selected2 && (
+            {selected && (
               <Check
                 size={14}
                 className="shrink-0 text-muted-foreground"
@@ -356,7 +356,7 @@ export function ReferenceSwitchPopover({
       ref={panelRef}
       className="fixed z-[10002]"
       style={{
-        ...position2,
+        ...position,
         width: PANEL_WIDTH,
       }}
       onMouseDown={(event) => event.preventDefault()}
@@ -365,7 +365,7 @@ export function ReferenceSwitchPopover({
     >
       <div
         role="dialog"
-        aria-label={t2("mention.switch.title", "Switch reference")}
+        aria-label={translate("mention.switch.title", "Switch reference")}
         className="elevated-surface-border flex flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg"
         style={{
           width: PANEL_WIDTH,
@@ -380,7 +380,7 @@ export function ReferenceSwitchPopover({
             {referenceItems.length > 0 && (
               <>
                 <div className="px-3 py-1.5 text-xs font-normal text-muted-foreground">
-                  {t2("mention.switch.current", "Current references")}
+                  {translate("mention.switch.current", "Current references")}
                 </div>
                 {referenceItems.map(renderItem)}
               </>
@@ -392,11 +392,11 @@ export function ReferenceSwitchPopover({
                   : "px-3 py-1.5 text-xs font-normal text-muted-foreground"
               }
             >
-              {t2("mention.switch.fromCanvas", "Add from canvas")}
+              {translate("mention.switch.fromCanvas", "Add from canvas")}
             </div>
           </div>
           {categoryRows.map(
-            ({ kind, labelKey, fallback, Icon: Icon2, count: count2 }) => (
+            ({ kind, labelKey, fallback, Icon, count }) => (
               <button
                 key={kind}
                 type="button"
@@ -424,12 +424,12 @@ export function ReferenceSwitchPopover({
                     height: THUMB_PX,
                   }}
                 >
-                  <Icon2 size={16} aria-hidden={true} />
+                  <Icon size={16} aria-hidden={true} />
                 </span>
                 <span className="flex-1 text-sm font-normal text-foreground">
-                  {t2(labelKey, fallback)}
+                  {translate(labelKey, fallback)}
                 </span>
-                <span className="text-xs text-muted-foreground">{count2}</span>
+                <span className="text-xs text-muted-foreground">{count}</span>
                 <ChevronRight
                   size={14}
                   className="text-muted-foreground"
@@ -451,7 +451,7 @@ export function ReferenceSwitchPopover({
         >
           <section
             ref={flyoutRef}
-            aria-label={t2(
+            aria-label={translate(
               KIND_ROWS.find((row) => row.kind === activeKind)?.labelKey ?? "",
               KIND_ROWS.find((row) => row.kind === activeKind)?.fallback ?? "",
             )}
@@ -471,7 +471,7 @@ export function ReferenceSwitchPopover({
                 categoryItems.map(renderItem)
               ) : (
                 <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-                  {t2("mention.switch.empty", "No available assets")}
+                  {translate("mention.switch.empty", "No available assets")}
                 </div>
               )}
             </div>

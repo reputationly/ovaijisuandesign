@@ -5,7 +5,7 @@ import {
   reactExports,
   SelectGroupContext,
   SelectIcon,
-  SelectItem$2,
+  SelectItem$2 as SelectItemPrimitive,
   SelectItemIndicator,
   SelectItemText,
   SelectList,
@@ -15,8 +15,8 @@ import {
   SelectRoot,
   SelectScrollDownArrow,
   SelectScrollUpArrow,
-  SelectTrigger$2,
-  SelectValue$2,
+  SelectTrigger$2 as SelectTriggerPrimitive,
+  SelectValue$2 as SelectValuePrimitive,
   SwitchRoot,
   SwitchThumb,
   useBaseUiId,
@@ -35,9 +35,9 @@ import {
 } from "./normalize-skill-detail-metadata.js";
 import { getDefaultParams } from "./param-label-fallbacks.js";
 import { Separator } from "../canvas/separator.jsx";
-const SelectGroup$1 = reactExports.forwardRef(
-  function SelectGroup2(componentProps, forwardedRef) {
-    const { className, render: render2, ...elementProps } = componentProps;
+const SelectGroupPrimitive = reactExports.forwardRef(
+  function SelectGroup(componentProps, forwardedRef) {
+    const { className, render, ...elementProps } = componentProps;
     const [labelId, setLabelId] = reactExports.useState();
     const contextValue = reactExports.useMemo(
       () => ({
@@ -46,7 +46,7 @@ const SelectGroup$1 = reactExports.forwardRef(
       }),
       [labelId, setLabelId],
     );
-    const element2 = useRenderElement("div", componentProps, {
+    const element = useRenderElement("div", componentProps, {
       ref: forwardedRef,
       props: [
         {
@@ -58,7 +58,7 @@ const SelectGroup$1 = reactExports.forwardRef(
     });
     return (
       <SelectGroupContext.Provider value={contextValue}>
-        {element2}
+        {element}
       </SelectGroupContext.Provider>
     );
   },
@@ -124,8 +124,8 @@ export function resolveAudioModeSelection(models, nextMode, remembered) {
         : getDefaultParams(candidate),
   };
 }
-function sortedRecordEntries(record2) {
-  return Object.entries(record2 ?? {}).sort(([left], [right]) => {
+function sortedRecordEntries(record) {
+  return Object.entries(record ?? {}).sort(([left], [right]) => {
     if (left === right) return 0;
     return left < right ? -1 : 1;
   });
@@ -151,10 +151,10 @@ export function createPopoverModelInitializationKey({
 export function stringRecordsEqual(left, right) {
   const leftKeys = Object.keys(left);
   if (leftKeys.length !== Object.keys(right).length) return false;
-  return leftKeys.every((key2) => left[key2] === right[key2]);
+  return leftKeys.every((key) => left[key] === right[key]);
 }
-export function getPlaceholder(mode2, model, initialAudioMode) {
-  if (mode2 === "text") {
+export function getPlaceholder(mode, model, initialAudioMode) {
+  if (mode === "text") {
     return {
       key: "canvas.txt.text.placeholder",
       defaultValue:
@@ -183,7 +183,7 @@ export function getPlaceholder(mode2, model, initialAudioMode) {
 }
 export function Switch({
   className,
-  size: size2 = "default",
+  size = "default",
   tone = "brand",
   ...props
 }) {
@@ -191,7 +191,7 @@ export function Switch({
     <SwitchRoot
       className={cn(
         "peer relative inline-flex shrink-0 cursor-pointer items-center rounded-full shadow-xs transition-colors after:absolute after:-inset-x-1 after:-inset-y-2 focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 data-[unchecked]:bg-input data-[unchecked]:hover:bg-foreground/15",
-        size2 === "sm" ? "h-4 w-7 p-0.5" : "h-5 w-10 p-[3px]",
+        size === "sm" ? "h-4 w-7 p-0.5" : "h-5 w-10 p-[3px]",
         tone === "neutral"
           ? "focus-visible:ring-ring/35 data-[checked]:bg-foreground/65 data-[checked]:hover:bg-foreground/75"
           : "focus-visible:ring-brand-accent/35 data-[checked]:bg-brand-accent data-[checked]:hover:bg-brand-accent/90",
@@ -202,7 +202,7 @@ export function Switch({
       <SwitchThumb
         className={cn(
           "pointer-events-none block rounded-full shadow-none ring-1 ring-foreground/5 transition-transform duration-150 ease-out will-change-transform data-[unchecked]:translate-x-0",
-          size2 === "sm"
+          size === "sm"
             ? "h-3 w-3.5 data-[checked]:translate-x-2.5"
             : "h-3.5 w-[18px] data-[checked]:translate-x-4",
           tone === "neutral" ? "bg-background" : "bg-brand-accent-foreground",
@@ -212,21 +212,21 @@ export function Switch({
   );
 }
 export function CanvasSwitch({
-  size: size2,
+  size,
   checked,
   onCheckedChange,
   "aria-label": ariaLabel,
-  disabled: disabled2,
+  disabled,
   "data-action-ui-id": actionUiId,
 }) {
   return (
     <Switch
-      size={size2}
+      size={size}
       tone="neutral"
       checked={checked}
       onCheckedChange={onCheckedChange}
       aria-label={ariaLabel}
-      disabled={disabled2}
+      disabled={disabled}
       data-action-ui-id={actionUiId}
       onPointerDown={(event) => event.stopPropagation()}
       onClick={(event) => event.stopPropagation()}
@@ -234,34 +234,34 @@ export function CanvasSwitch({
   );
 }
 const SelectGroupLabel = reactExports.forwardRef(
-  function SelectGroupLabel2(componentProps, forwardedRef) {
+  function SelectGroupLabel(componentProps, forwardedRef) {
     const {
       className,
-      render: render2,
+      render,
       id: idProp,
       ...elementProps
     } = componentProps;
     const { setLabelId } = useSelectGroupContext();
-    const id2 = useBaseUiId(idProp);
+    const id = useBaseUiId(idProp);
     useIsoLayoutEffect(() => {
-      setLabelId(id2);
-    }, [id2, setLabelId]);
-    const element2 = useRenderElement("div", componentProps, {
+      setLabelId(id);
+    }, [id, setLabelId]);
+    const element = useRenderElement("div", componentProps, {
       ref: forwardedRef,
       props: [
         {
-          id: id2,
+          id,
         },
         elementProps,
       ],
     });
-    return element2;
+    return element;
   },
 );
 export const Select = SelectRoot;
 export function SelectGroup({ className, ...props }) {
   return (
-    <SelectGroup$1
+    <SelectGroupPrimitive
       data-slot="select-group"
       className={cn("scroll-my-1", className)}
       {...props}
@@ -270,7 +270,7 @@ export function SelectGroup({ className, ...props }) {
 }
 export function SelectValue({ className, ...props }) {
   return (
-    <SelectValue$2
+    <SelectValuePrimitive
       data-slot="select-value"
       className={cn("flex min-w-0 flex-1 text-left", className)}
       {...props}
@@ -279,27 +279,27 @@ export function SelectValue({ className, ...props }) {
 }
 export function SelectTrigger({
   className,
-  size: size2 = "default",
-  children: children2,
+  size = "default",
+  children,
   ...props
 }) {
   return (
-    <SelectTrigger$2
+    <SelectTriggerPrimitive
       data-slot="select-trigger"
-      data-size={size2}
+      data-size={size}
       className={cn(
         "flex w-full items-center justify-between gap-1.5 rounded-md border border-input bg-transparent py-2 pr-2 pl-2.5 text-xs whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
     >
-      {children2}
+      {children}
       <SelectIcon
         render={
           <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
         }
       />
-    </SelectTrigger$2>
+    </SelectTriggerPrimitive>
   );
 }
 export function SelectLabel({ className, ...props }) {
@@ -313,12 +313,12 @@ export function SelectLabel({ className, ...props }) {
 }
 export function SelectItem({
   className,
-  children: children2,
+  children,
   showIndicator = true,
   ...props
 }) {
   return (
-    <SelectItem$2
+    <SelectItemPrimitive
       data-slot="select-item"
       className={cn(
         "list-row-hit-area relative flex w-full cursor-default items-center gap-2 rounded-sm py-2 pr-8 pl-3 text-xs text-[var(--canvas-controls-text)] outline-hidden select-none transition-colors hover:bg-[var(--canvas-controls-hover)] focus:bg-[var(--canvas-controls-hover)] data-highlighted:bg-[var(--canvas-controls-hover)] data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
@@ -327,7 +327,7 @@ export function SelectItem({
       {...props}
     >
       <SelectItemText className="flex min-w-0 flex-1 gap-2 truncate">
-        {children2}
+        {children}
       </SelectItemText>
       {showIndicator && (
         <SelectItemIndicator
@@ -341,7 +341,7 @@ export function SelectItem({
           <CheckIcon className="pointer-events-none" />
         </SelectItemIndicator>
       )}
-    </SelectItem$2>
+    </SelectItemPrimitive>
   );
 }
 export function SelectSeparator({ className, ...props }) {
@@ -383,7 +383,7 @@ function SelectScrollDownButton({ className, ...props }) {
 }
 export function SelectContent({
   className,
-  children: children2,
+  children,
   side = "bottom",
   sideOffset = 4,
   align = "start",
@@ -413,17 +413,17 @@ export function SelectContent({
           {...props}
         >
           <SelectScrollUpButton />
-          <SelectList>{children2}</SelectList>
+          <SelectList>{children}</SelectList>
           <SelectScrollDownButton />
         </SelectPopup>
       </SelectPositioner>
     </SelectPortal>
   );
 }
-export function nextAtPickerState(state2, payload) {
-  if (state2.open && payload.triggerRange.from === payload.triggerRange.to) {
+export function nextAtPickerState(state, payload) {
+  if (state.open && payload.triggerRange.from === payload.triggerRange.to) {
     return {
-      ...state2,
+      ...state,
       open: false,
     };
   }

@@ -100,7 +100,7 @@ export function resolveImageMode(params, model) {
   return resolveCanvasImageMode(params, model);
 }
 
-export function summarizeParams(t2, model, modelParams) {
+export function summarizeParams(translate, model, modelParams) {
   if (!model) return "";
   const parts = [];
   let hasAuto = false;
@@ -110,7 +110,7 @@ export function summarizeParams(t2, model, modelParams) {
     model.hiddenParamsByImageMode?.[imageMode] ?? [],
   );
   for (const std of STANDARD_PARAMS) {
-    const matchedKey = std.aliases.find((a2) => model.params[a2]);
+    const matchedKey = std.aliases.find((item) => model.params[item]);
     if (!matchedKey) continue;
     if (hiddenParams.has(matchedKey)) continue;
     if (isSeedance25VideoEdit && std.id === "duration") continue;
@@ -126,15 +126,15 @@ export function summarizeParams(t2, model, modelParams) {
       continue;
     }
     if (std.id === "image_mode") {
-      parts.push(imageModeOptionLabel(t2, value));
+      parts.push(imageModeOptionLabel(translate, value));
     } else if (std.id === "duration") {
       parts.push(`${value}s`);
     } else {
-      parts.push(translateOptionValue(t2, value));
+      parts.push(translateOptionValue(translate, value));
     }
   }
   if (parts.length === 0 && hasAuto)
-    return t2("canvas.param.option.auto", {
+    return translate("canvas.param.option.auto", {
       defaultValue: "Auto",
     });
   return parts.join(" · ");

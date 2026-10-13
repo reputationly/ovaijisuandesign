@@ -1,0 +1,23 @@
+key	old	new	依据
+SelectItem$2@8:3	SelectItem$2	SelectItemPrimitive	去掉打包器防重名追加的后缀，恢复原名 SelectItemPrimitive，即该绑定持有的值。
+SelectTrigger$2@18:3	SelectTrigger$2	SelectTriggerPrimitive	去掉打包器防重名追加的后缀，恢复原名 SelectTriggerPrimitive，即该绑定持有的值。
+SelectValue$2@19:3	SelectValue$2	SelectValuePrimitive	去掉打包器防重名追加的后缀，恢复原名 SelectValuePrimitive，即该绑定持有的值。
+SelectGroup$1@38:7	SelectGroup$1	SelectGroupPrimitive	去掉打包器防重名追加的后缀，恢复原名 SelectGroupPrimitive，即该绑定持有的值。
+id2@245:11	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+SelectGroup2@39:12	SelectGroup2	SelectGroup	去掉打包器防重名追加的后缀，恢复原名 SelectGroup，即该绑定持有的值。
+render2@40:32	render2	render	去掉打包器防重名追加的后缀，恢复原名 render，即该绑定持有的值。
+element2@49:11	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+record2@127:30	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+key2@154:26	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+mode2@156:32	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+size2@186:9	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@215:9	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+disabled2@219:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+SelectGroupLabel2@237:12	SelectGroupLabel2	SelectGroupLabel	去掉打包器防重名追加的后缀，恢复原名 SelectGroupLabel，即该绑定持有的值。
+render2@240:15	render2	render	去掉打包器防重名追加的后缀，恢复原名 render，即该绑定持有的值。
+element2@249:11	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+children2@283:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+size2@282:9	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+children2@316:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+children2@386:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+state2@423:35	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。

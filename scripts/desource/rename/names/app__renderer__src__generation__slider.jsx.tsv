@@ -1,0 +1,20 @@
+key	old	new	依据
+_2@249:12	_2	_unusedArg	去掉打包器防重名追加的后缀，恢复原名 _unusedArg，即该绑定持有的值。
+start2@24:9	start2	start	去掉打包器防重名追加的后缀，恢复原名 start，即该绑定持有的值。
+root2@24:19	root2	root	去掉打包器防重名追加的后缀，恢复原名 root，即该绑定持有的值。
+doc2@27:11	doc2	doc	去掉打包器防重名追加的后缀，恢复原名 doc，即该绑定持有的值。
+win2@28:11	win2	win	去掉打包器防重名追加的后缀，恢复原名 win，即该绑定持有的值。
+defaultValue2@90:17	defaultValue2	defaultValue	去掉打包器防重名追加的后缀，恢复原名 defaultValue，即该绑定持有的值。
+size2@81:9	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+values3@94:9	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
+count2@95:9	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+min2@98:9	min2	min	去掉打包器防重名追加的后缀，恢复原名 min，即该绑定持有的值。
+max2@99:9	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+offset2@108:9	offset2	offset	去掉打包器防重名追加的后缀，恢复原名 offset，即该绑定持有的值。
+root2@118:27	root2	root	去掉打包器防重名追加的后缀，恢复原名 root，即该绑定持有的值。
+touch2@159:15	touch2	touch	去掉打包器防重名追加的后缀，恢复原名 touch，即该绑定持有的值。
+state2@170:19	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+state2@221:20	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+index2@249:16	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+state2@264:27	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+state2@271:23	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
