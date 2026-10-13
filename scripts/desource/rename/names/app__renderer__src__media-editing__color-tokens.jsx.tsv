@@ -1,0 +1,6 @@
+key	new	依据
+values3@43:10	values	useState 保存的 CSS 变量名到当前计算样式值的映射对象。
+next2@46:13	next	本轮读取文档根元素后构建的 CSS 变量值映射。
+observer2@54:11	observer	监听根元素 class 属性变化并触发 CSS 变量重读的 MutationObserver。
+values3@66:9	values	useTokenValues 返回的 CSS 变量值映射，用于每个色块的标题和文本。
+name2@78:25	tokenName	当前色块对应的 CSS 变量名，用于显示名称和构造 var() 样式值。

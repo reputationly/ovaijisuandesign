@@ -8,12 +8,12 @@ import { useHoverPreview } from "./use-hover-preview.js";
 const PREVIEW_W = 320;
 const PREVIEW_MAX_H = 240;
 export function TextHoverPreview({
-  path: path2,
+  path,
   metadataOnly = false,
   loadTextContent: providedLoader,
   onReadFull,
-  active: active2 = true,
-  name: name2,
+  active: isActive = true,
+  name: previewName,
   anchorRect,
   anchorElement,
   action,
@@ -22,12 +22,12 @@ export function TextHoverPreview({
 }) {
   const { t: t2 } = useTranslation();
   const bridge = useCanvasBridge();
-  const effectiveActive = active2 && bridge.previewActive !== false;
-  const loader2 =
+  const effectiveActive = isActive && bridge.previewActive !== false;
+  const loader =
     providedLoader ?? bridge.loadPreviewTextContent ?? bridge.loadTextContent;
-  const state2 = usePreviewText(
-    path2,
-    loader2,
+  const state = usePreviewText(
+    path,
+    loader,
     effectiveActive && !metadataOnly,
   );
   const [previewHeight, setPreviewHeight] =
@@ -49,12 +49,12 @@ export function TextHoverPreview({
   reactExports.useLayoutEffect(() => {
     void layout.width;
     const preview = previewRef.current;
-    const content2 = contentRef.current;
-    if (!(content2 instanceof HTMLElement) || !preview) return;
+    const content = contentRef.current;
+    if (!(content instanceof HTMLElement) || !preview) return;
     const height =
-      preview.offsetHeight - content2.clientHeight + content2.scrollHeight;
+      preview.offsetHeight - content.clientHeight + content.scrollHeight;
     if (height) setPreviewHeight(Math.min(PREVIEW_MAX_H, height));
-  }, [state2, previewRef, layout.width]);
+  }, [state, previewRef, layout.width]);
   if (!effectiveActive) return null;
   return reactDomExports.createPortal(
     // biome-ignore lint/a11y/useSemanticElements: this portal groups a document preview with an optional action; fieldset is not appropriate here.
@@ -78,7 +78,7 @@ export function TextHoverPreview({
           data-testid="preview-file-name"
           className="min-w-0 max-h-20 flex-1 overflow-y-auto overscroll-contain whitespace-normal break-words [overflow-wrap:anywhere]"
         >
-          {name2}
+          {previewName}
         </span>
         {action && (
           <button
@@ -99,14 +99,14 @@ export function TextHoverPreview({
         ref={contentRef}
         className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-2.5 py-2 select-text text-[var(--canvas-controls-text)]"
       >
-        {!metadataOnly && <TextPreviewContent state={state2} summary={true} />}
+        {!metadataOnly && <TextPreviewContent state={state} summary={true} />}
       </div>
-      {!metadataOnly && onReadFull && loader2 && (
+      {!metadataOnly && onReadFull && loader && (
         <Button
           variant="ghost"
           size="sm"
           className="mx-2.5 mb-2 shrink-0 self-start"
-          disabled={state2.status === "too-large"}
+          disabled={state.status === "too-large"}
           data-action-ui-id="attachment-text.read-full"
           onClick={(event) => {
             event.stopPropagation();
