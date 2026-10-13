@@ -14,5 +14,8 @@
   },
   "app/renderer/src/chat/at.jsx": {
     "At": "CodeBlockBody"
+  },
+  "app/renderer/src/chat/st.jsx": {
+    "st": "HighlightedCodeBlock"
   }
 }

@@ -1,0 +1,23 @@
+key	新名	依据
+ot@4:10	CodeBlockContainer	`CodeBlockContainer` 渲染代码块外围容器及其代码属性。
+rt@4:14	CodeBlockHeader	`CodeBlockHeader` 显示代码语言的标题区域。
+y3@4:18	useClassNameMerger	`useClassNameMerger` 从渲染选项上下文取得类名合并函数。
+At@5:10	CodeBlockBody	`CodeBlockBody` 是渲染高亮结果的代码块主体组件。
+nt@6:10	codeMetadataContext	`codeMetadataContext` 保存当前代码文本供 Markdown 节点读取。
+lr@8:5	trimTrailingNewlines	`trimTrailingNewlines` 移除代码文本末尾连续的换行符。
+cr@21:5	LazyHighlightedCodeBlockBody	`LazyHighlightedCodeBlockBody` 延迟加载高亮代码块主体组件。
+e2@8:11	code	`code` 是被移除尾部换行符的字符串。
+t2@9:7	codeLength	`codeLength` 是当前代码字符串的长度及扫描位置上界。
+e2@22:62	module	`module` 是动态导入返回并提供代码块主体导出的模块对象。
+e2@28:9	code	`code` 是组件收到并用于显示及提供给代码上下文的源码文本。
+t2@29:13	language	`language` 是代码块的语言标识。
+o2@30:14	className	`className` 是代码块容器和主体使用的 CSS 类名。
+n2@31:13	children	`children` 是代码块标题区内的操作控件。
+r2@32:17	isIncomplete	`isIncomplete` 表示代码块是否仍处于未完成状态。
+s2@33:14	startLine	`startLine` 是代码块主体显示的首行行号。
+a2@34:16	lineNumbers	`lineNumbers` 控制代码块主体是否显示行号。
+l2@35:6	restProps	`restProps` 是转发给代码容器和主体的其余属性。
+i2@37:7	mergeClassNames	`mergeClassNames` 是代码块容器与操作栏调用的类名合并函数。
+d2@38:5	codeWithoutTrailingNewline	`codeWithoutTrailingNewline` 是去除末尾换行后用于高亮及元数据的代码文本。
+c3@39:5	fallbackResult	`fallbackResult` 是高亮组件加载期间供主体显示的原始代码结果。
+p3@48:17	codeLine	`codeLine` 是拆分源码后用于构建原始高亮 token 的单行文本。

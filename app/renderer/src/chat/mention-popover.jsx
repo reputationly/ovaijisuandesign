@@ -16,7 +16,7 @@ import { withThumbnail } from "../workspace/tool-label-definitions.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { PageStateBoundary } from "../assets/page-state-boundary.jsx";
-import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
+import { Button, cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
 import { AssetMentionList } from "../assets/asset-mention-list.jsx";
 import { Tabs, TabsList, TabsTrigger } from "../workspace/shortcut-hint.jsx";
 import { MESSAGE_INPUT_POPOVER_Z_INDEX } from "../assets/classify-upload-error.js";
@@ -200,7 +200,7 @@ function EmptyState({ text: text2 }) {
 }
 const MentionFileRow = reactExports.memo(function MentionFileRow2({
   item,
-  gi,
+  gi: globalIndex,
   isActive: isActive2,
   onSelect,
   onHover,
@@ -210,16 +210,16 @@ const MentionFileRow = reactExports.memo(function MentionFileRow2({
     [onSelect, item],
   );
   const handleHover = reactExports.useCallback(
-    () => onHover(gi),
-    [onHover, gi],
+    () => onHover(globalIndex),
+    [onHover, globalIndex],
   );
   return (
     <button
-      id={`mention-opt-${gi}`}
+      id={`mention-opt-${globalIndex}`}
       type="button"
       role="option"
       aria-selected={isActive2}
-      data-action-ui-id={`mention-opt-${gi}`}
+      data-action-ui-id={`mention-opt-${globalIndex}`}
       className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive2 ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
       onClick={handleClick2}
       onMouseEnter={handleHover}
@@ -234,7 +234,7 @@ const MentionFileRow = reactExports.memo(function MentionFileRow2({
 MentionFileRow.displayName = "MentionFileRow";
 const MentionModelRow = reactExports.memo(function MentionModelRow2({
   item,
-  gi,
+  gi: globalIndex,
   isActive: isActive2,
   isSearching,
   onSelect,
@@ -245,16 +245,16 @@ const MentionModelRow = reactExports.memo(function MentionModelRow2({
     [onSelect, item],
   );
   const handleHover = reactExports.useCallback(
-    () => onHover(gi),
-    [onHover, gi],
+    () => onHover(globalIndex),
+    [onHover, globalIndex],
   );
   return (
     <button
-      id={`mention-opt-${gi}`}
+      id={`mention-opt-${globalIndex}`}
       type="button"
       role="option"
       aria-selected={isActive2}
-      data-action-ui-id={`mention-opt-${gi}`}
+      data-action-ui-id={`mention-opt-${globalIndex}`}
       className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive2 ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
       onClick={handleClick2}
       onMouseEnter={handleHover}
@@ -274,7 +274,7 @@ const MentionModelRow = reactExports.memo(function MentionModelRow2({
 MentionModelRow.displayName = "MentionModelRow";
 const MentionConnectorRow = reactExports.memo(function MentionConnectorRow2({
   item,
-  gi,
+  gi: globalIndex,
   isActive: isActive2,
   onSelect,
   onHover,
@@ -284,12 +284,12 @@ const MentionConnectorRow = reactExports.memo(function MentionConnectorRow2({
     [onSelect, item],
   );
   const handleHover = reactExports.useCallback(
-    () => onHover(gi),
-    [onHover, gi],
+    () => onHover(globalIndex),
+    [onHover, globalIndex],
   );
   return (
     <button
-      id={`mention-opt-${gi}`}
+      id={`mention-opt-${globalIndex}`}
       type="button"
       role="option"
       aria-selected={isActive2}
@@ -308,23 +308,23 @@ const MentionConnectorRow = reactExports.memo(function MentionConnectorRow2({
 MentionConnectorRow.displayName = "MentionConnectorRow";
 const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow2({
   item,
-  gi,
+  gi: globalIndex,
   isActive: isActive2,
   onSelect,
   onHover,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const handleClick2 = reactExports.useCallback(
     () => onSelect(item),
     [onSelect, item],
   );
   const handleHover = reactExports.useCallback(
-    () => onHover(gi),
-    [onHover, gi],
+    () => onHover(globalIndex),
+    [onHover, globalIndex],
   );
   const title =
     item.context === "current-canvas" && item.workflow.copyOrdinal
-      ? `${item.workflow.title} · ${t2(
+      ? `${item.workflow.title} · ${translate(
           "canvas.comfyui.copySuffix",
           "Copy {{index}}",
           {
@@ -334,7 +334,7 @@ const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow2({
       : item.workflow.title;
   return (
     <button
-      id={`mention-opt-${gi}`}
+      id={`mention-opt-${globalIndex}`}
       type="button"
       role="option"
       aria-selected={isActive2}
@@ -362,15 +362,15 @@ const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow2({
       </span>
       <span className="shrink-0 text-[10px] text-muted-foreground/60">
         {item.context === "current-canvas"
-          ? t2("mention.popover.currentCanvasWorkflow", "Current Canvas")
-          : t2("mention.popover.localWorkflow", "Local")}
+          ? translate("mention.popover.currentCanvasWorkflow", "Current Canvas")
+          : translate("mention.popover.localWorkflow", "Local")}
       </span>
     </button>
   );
 });
 MentionWorkflowRow.displayName = "MentionWorkflowRow";
 export function MentionPopover({
-  id: id2,
+  id: popoverId,
   items,
   activeIndex,
   loading,
@@ -389,7 +389,7 @@ export function MentionPopover({
   position: position2 = "up",
   anchorRef,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const listRef = reactExports.useRef(null);
   const bodyRef = reactExports.useRef(null);
   const bodyScrollEndRef = reactExports.useRef(null);
@@ -417,9 +417,9 @@ export function MentionPopover({
       else files.push(item);
     }
     const tabs = new Set();
-    for (const m3 of models) {
-      const mt2 = m3.model.mediaType;
-      if (mt2 === "image" || mt2 === "video" || mt2 === "audio") tabs.add(mt2);
+    for (const modelEntry of models) {
+      const mediaType = modelEntry.model.mediaType;
+      if (mediaType === "image" || mediaType === "video" || mediaType === "audio") tabs.add(mediaType);
     }
     const order2 = ["image", "video", "audio"];
     return {
@@ -429,7 +429,7 @@ export function MentionPopover({
       fileItems: files,
       projectAssetItems: projectAssets,
       workflowItems: workflows,
-      availableTabs: order2.filter((t22) => tabs.has(t22)),
+      availableTabs: order2.filter((mediaTab) => tabs.has(mediaTab)),
     };
   }, [items]);
   const isSearching = query.length > 0;
@@ -488,9 +488,9 @@ export function MentionPopover({
     if (isSearching) return;
     const active2 = items[activeIndex];
     if (active2?.category !== "model") return;
-    const mt2 = active2.model.mediaType;
-    if (mt2 === "image" || mt2 === "video" || mt2 === "audio") {
-      if (mt2 !== modelTab) setModelTab(mt2);
+    const mediaType = active2.model.mediaType;
+    if (mediaType === "image" || mediaType === "video" || mediaType === "audio") {
+      if (mediaType !== modelTab) setModelTab(mediaType);
     }
   }, [activeIndex]);
   const handleTabClick = reactExports.useCallback(
@@ -509,8 +509,8 @@ export function MentionPopover({
                 : tab2 === "workflows"
                   ? "workflow"
                   : "model";
-      const idx = items.findIndex((it2) => it2.category === target);
-      if (idx >= 0) onHover(idx);
+      const categoryIndex = items.findIndex((item) => item.category === target);
+      if (categoryIndex >= 0) onHover(categoryIndex);
     },
     [items, onHover],
   );
@@ -518,7 +518,7 @@ export function MentionPopover({
     () =>
       isSearching
         ? modelItems
-        : modelItems.filter((m3) => m3.model.mediaType === modelTab),
+        : modelItems.filter((modelEntry) => modelEntry.model.mediaType === modelTab),
     [modelItems, modelTab, isSearching],
   );
   const currentCanvasWorkflowItems = reactExports.useMemo(
@@ -548,8 +548,8 @@ export function MentionPopover({
   ]);
   const globalIndexMap = reactExports.useMemo(() => {
     const map3 = new Map();
-    for (let i2 = 0; i2 < items.length; i2++) {
-      map3.set(items[i2], i2);
+    for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+      map3.set(items[itemIndex], itemIndex);
     }
     return map3;
   }, [items]);
@@ -575,8 +575,8 @@ export function MentionPopover({
     };
   }, []);
   const handleBodyScroll = reactExports.useCallback(() => {
-    const el = bodyRef.current;
-    if (el) el.dataset.scrolling = "true";
+    const bodyElement = bodyRef.current;
+    if (bodyElement) bodyElement.dataset.scrolling = "true";
     if (bodyScrollEndRef.current) {
       clearTimeout(bodyScrollEndRef.current);
     }
@@ -586,8 +586,8 @@ export function MentionPopover({
   }, []);
   reactExports.useEffect(() => {
     if (!onClose) return;
-    const handler = (e2) => {
-      if (listRef.current && !listRef.current.contains(e2.target)) {
+    const handler = (mouseEvent) => {
+      if (listRef.current && !listRef.current.contains(mouseEvent.target)) {
         onClose();
       }
     };
@@ -645,13 +645,13 @@ export function MentionPopover({
     };
   }, [anchorRef, position2]);
   const renderFileButton = (item) => {
-    const gi = globalIndexMap.get(item) ?? 0;
+    const globalIndex = globalIndexMap.get(item) ?? 0;
     return (
       <MentionFileRow
         key={`${item.category}:${item.file.path}`}
         item={item}
-        gi={gi}
-        isActive={gi === activeIndex}
+        gi={globalIndex}
+        isActive={globalIndex === activeIndex}
         onSelect={onSelect}
         onHover={onHover}
       />
@@ -660,20 +660,20 @@ export function MentionPopover({
   return reactDomExports.createPortal(
     <div
       ref={listRef}
-      id={id2}
+      id={popoverId}
       role="listbox"
       style={{
         visibility: "hidden",
       }}
       className="elevated-surface-border rounded-lg bg-popover p-0 text-popover-foreground shadow-lg"
-      onMouseDown={(e2) => e2.preventDefault()}
-      onWheel={(e2) => e2.stopPropagation()}
-      onTouchMove={(e2) => e2.stopPropagation()}
+      onMouseDown={(mouseEvent) => mouseEvent.preventDefault()}
+      onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+      onTouchMove={(touchEvent) => touchEvent.stopPropagation()}
     >
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <span className="text-sm font-medium">
           {"@ "}
-          {t2("mention.popover.heading", "Mention")}
+          {translate("mention.popover.heading", "Mention")}
         </span>
         {query && (
           <span className="text-xs text-muted-foreground truncate max-w-40">
@@ -698,7 +698,7 @@ export function MentionPopover({
               onClick={() => handleTabClick(key2)}
               className={`flex-1 shrink-0 whitespace-nowrap px-3 py-2 text-xs transition-colors ${isActive2 ? "text-foreground border-b-2 border-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
-              {t2(labelKey, fallback)}
+              {translate(labelKey, fallback)}
             </button>
           );
         })}
@@ -717,7 +717,7 @@ export function MentionPopover({
               </div>
             ) : (
               <EmptyState
-                text={t2(
+                text={translate(
                   "mention.popover.referencesEmpty",
                   "No referenced assets yet",
                 )}
@@ -730,13 +730,13 @@ export function MentionPopover({
             {connectorItems.length > 0 ? (
               <div className="shrink-0">
                 {connectorItems.map((item) => {
-                  const gi = globalIndexMap.get(item) ?? 0;
+                  const globalIndex = globalIndexMap.get(item) ?? 0;
                   return (
                     <MentionConnectorRow
                       key={`connector:${item.connector.serverName}`}
                       item={item}
-                      gi={gi}
-                      isActive={gi === activeIndex}
+                      gi={globalIndex}
+                      isActive={globalIndex === activeIndex}
                       onSelect={onSelect}
                       onHover={onHover}
                     />
@@ -745,11 +745,11 @@ export function MentionPopover({
               </div>
             ) : loading ? (
               <div className="flex flex-1 items-center justify-center px-3 text-xs text-muted-foreground select-none">
-                {t2("mention.popover.loading", "Searching...")}
+                {translate("mention.popover.loading", "Searching...")}
               </div>
             ) : (
               <EmptyState
-                text={t2(
+                text={translate(
                   "mention.popover.connectorsEmpty",
                   "No connected plugins",
                 )}
@@ -766,7 +766,7 @@ export function MentionPopover({
                   variant={fileKindFilter === "all" ? "default" : "ghost"}
                   size="xs"
                   data-action-ui-id="mention-file-filter-all"
-                  className={cn(
+                  className={mergeClassNames(
                     "shrink-0 whitespace-nowrap rounded-sm",
                     fileKindFilter === "all"
                       ? ""
@@ -774,7 +774,7 @@ export function MentionPopover({
                   )}
                   onClick={() => onFileKindFilterChange("all")}
                 >
-                  {t2("assetFilter.typeAll", "All")}
+                  {translate("assetFilter.typeAll", "All")}
                 </Button>
                 {FILE_KIND_FILTERS.map(({ kind, labelKey, fallback }) => (
                   <Button
@@ -783,7 +783,7 @@ export function MentionPopover({
                     variant={fileKindFilter === kind ? "default" : "ghost"}
                     size="xs"
                     data-action-ui-id={`mention-file-filter-${kind}`}
-                    className={cn(
+                    className={mergeClassNames(
                       "shrink-0 whitespace-nowrap rounded-sm",
                       fileKindFilter === kind
                         ? ""
@@ -795,7 +795,7 @@ export function MentionPopover({
                       )
                     }
                   >
-                    {t2(labelKey, fallback)}
+                    {translate(labelKey, fallback)}
                   </Button>
                 ))}
               </div>
@@ -804,11 +804,11 @@ export function MentionPopover({
               <div className="shrink-0">{fileItems.map(renderFileButton)}</div>
             ) : loading ? (
               <div className="flex-1 flex items-center justify-center px-3 text-xs text-muted-foreground select-none">
-                {t2("mention.popover.loading", "Searching...")}
+                {translate("mention.popover.loading", "Searching...")}
               </div>
             ) : (
               <EmptyState
-                text={t2("mention.popover.noResults", "No results")}
+                text={translate("mention.popover.noResults", "No results")}
               />
             )}
           </div>
@@ -821,11 +821,11 @@ export function MentionPopover({
               </div>
             ) : loading ? (
               <div className="flex-1 flex items-center justify-center px-3 text-xs text-muted-foreground select-none">
-                {t2("mention.popover.loading", "Searching...")}
+                {translate("mention.popover.loading", "Searching...")}
               </div>
             ) : (
               <EmptyState
-                text={t2(
+                text={translate(
                   "mention.popover.projectAssetsEmpty",
                   "No project assets",
                 )}
@@ -864,7 +864,7 @@ export function MentionPopover({
                     variant={modelTab === tab2 ? "default" : "ghost"}
                     size="xs"
                     data-action-ui-id={`mention-model-tab-${tab2}`}
-                    className={cn(
+                    className={mergeClassNames(
                       "shrink-0 whitespace-nowrap rounded-sm",
                       modelTab === tab2
                         ? ""
@@ -872,7 +872,7 @@ export function MentionPopover({
                     )}
                     onClick={() => setModelTab(tab2)}
                   >
-                    {t2(`mention.popover.${tab2}`, tab2)}
+                    {translate(`mention.popover.${tab2}`, tab2)}
                   </Button>
                 ))}
               </div>
@@ -880,13 +880,13 @@ export function MentionPopover({
             {visibleModelItems.length > 0 ? (
               <div className="shrink-0">
                 {visibleModelItems.map((item) => {
-                  const gi = globalIndexMap.get(item) ?? 0;
+                  const globalIndex = globalIndexMap.get(item) ?? 0;
                   return (
                     <MentionModelRow
                       key={`model:${item.model.id}`}
                       item={item}
-                      gi={gi}
-                      isActive={gi === activeIndex}
+                      gi={globalIndex}
+                      isActive={globalIndex === activeIndex}
                       isSearching={isSearching}
                       onSelect={onSelect}
                       onHover={onHover}
@@ -896,11 +896,11 @@ export function MentionPopover({
               </div>
             ) : loading ? (
               <div className="flex-1 flex items-center justify-center px-3 text-xs text-muted-foreground select-none">
-                {t2("mention.popover.loading", "Searching...")}
+                {translate("mention.popover.loading", "Searching...")}
               </div>
             ) : (
               <EmptyState
-                text={t2("mention.popover.noResults", "No results")}
+                text={translate("mention.popover.noResults", "No results")}
               />
             )}
           </div>
@@ -918,7 +918,7 @@ export function MentionPopover({
                     data-action-ui-id="mention-workflow-tab-current-canvas"
                     className="h-7 rounded-sm px-2 text-xs font-normal text-muted-foreground data-[active]:text-foreground"
                   >
-                    {t2(
+                    {translate(
                       "mention.popover.currentCanvasWorkflow",
                       "Current Canvas",
                     )}
@@ -928,7 +928,7 @@ export function MentionPopover({
                     data-action-ui-id="mention-workflow-tab-local"
                     className="h-7 rounded-sm px-2 text-xs font-normal text-muted-foreground data-[active]:text-foreground"
                   >
-                    {t2("mention.popover.localWorkflow", "Local")}
+                    {translate("mention.popover.localWorkflow", "Local")}
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -936,13 +936,13 @@ export function MentionPopover({
             {visibleWorkflowItems.length > 0 ? (
               <div className="shrink-0">
                 {visibleWorkflowItems.map((item) => {
-                  const gi = globalIndexMap.get(item) ?? 0;
+                  const globalIndex = globalIndexMap.get(item) ?? 0;
                   return (
                     <MentionWorkflowRow
                       key={`workflow:${item.context ?? "local"}:${item.canvasNodeId ?? item.workflow.id}:${item.workflow.copyOrdinal ?? ""}`}
                       item={item}
-                      gi={gi}
-                      isActive={gi === activeIndex}
+                      gi={globalIndex}
+                      isActive={globalIndex === activeIndex}
                       onSelect={onSelect}
                       onHover={onHover}
                     />
@@ -951,11 +951,11 @@ export function MentionPopover({
               </div>
             ) : workflowLoading ? (
               <div className="flex flex-1 items-center justify-center px-3 text-xs text-muted-foreground select-none">
-                {t2("mention.popover.loading", "Searching...")}
+                {translate("mention.popover.loading", "Searching...")}
               </div>
             ) : (
               <EmptyState
-                text={t2(
+                text={translate(
                   workflowScopeTab === "current-canvas" &&
                     showCurrentCanvasWorkflowTab
                     ? "mention.popover.currentCanvasWorkflowsEmpty"
@@ -972,7 +972,7 @@ export function MentionPopover({
       </div>
       {truncated && activeTab === "files" && fileItems.length > 0 && (
         <div className="px-3 py-1.5 border-t border-foreground/10 text-[11px] text-muted-foreground/70 leading-relaxed select-none">
-          {t2(
+          {translate(
             "mention.popover.truncated",
             "Showing partial results -- refine your search.",
           )}

@@ -4,3 +4,4 @@ app/renderer/src/chat/nn.jsx	app/renderer/src/chat/mermaid-renderer.jsx	`nn.jsx`
 app/renderer/src/chat/yt.js	app/renderer/src/chat/language-file-extensions.js	`yt.js` 导出按语言标识查询文件扩展名的映射表。
 app/renderer/src/chat/xn.js	app/renderer/src/chat/markdown-rendering-defaults.js	`xn.js` 导出代码主题列表和链接安全默认配置。
 app/renderer/src/chat/at.jsx	app/renderer/src/chat/code-block-body.jsx	`at.jsx` 仅导出负责渲染高亮代码块主体的组件。
+app/renderer/src/chat/st.jsx	app/renderer/src/chat/highlighted-code-block.jsx	`st.jsx` 导出封装代码块结构、语言标题和高亮主体的组件。

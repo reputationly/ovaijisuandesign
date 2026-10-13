@@ -1,0 +1,26 @@
+key	新名	依据
+cn@19:26	mergeClassNames	`mergeClassNames` 按来源实现合并并消解冲突的 CSS 类名。
+gi@203:3	globalIndex	`globalIndex` 是该文件候选项在完整提及列表中的位置。
+gi@237:3	globalIndex	`globalIndex` 是该模型候选项在完整提及列表中的位置。
+gi@277:3	globalIndex	`globalIndex` 是该连接器候选项在完整提及列表中的位置。
+gi@311:3	globalIndex	`globalIndex` 是该工作流候选项在完整提及列表中的位置。
+t2@316:14	translate	`translate` 是工作流条目查询本地化文案的函数。
+id2@373:7	popoverId	`popoverId` 是传给弹出列表容器的 DOM 标识。
+t2@392:14	translate	`translate` 是提及弹窗查询本地化文案的函数。
+m3@420:16	modelEntry	`modelEntry` 是用于推导可用媒体分类的模型候选记录。
+mt2@421:13	mediaType	`mediaType` 是模型记录的媒体分类，用于筛选支持的标签。
+t22@432:37	mediaTab	`mediaTab` 是正在判断是否可用的图像、视频或音频标签。
+mt2@491:11	mediaType	`mediaType` 是当前候选模型的媒体分类。
+idx@512:13	categoryIndex	`categoryIndex` 是目标分类首个候选项在提及列表中的位置。
+it2@512:36	item	`item` 是被检查类别的任意提及候选记录。
+m3@521:30	modelEntry	`modelEntry` 是按媒体标签筛选的模型候选记录。
+i2@551:14	itemIndex	`itemIndex` 是建立候选项到完整列表位置映射时的数组下标。
+el@578:11	bodyElement	`bodyElement` 是设置滚动状态标记的弹窗主体 DOM 元素。
+e2@589:22	mouseEvent	`mouseEvent` 是文档级鼠标按下处理器收到的事件。
+gi@648:11	globalIndex	`globalIndex` 是文件候选项在完整提及列表中的位置。
+e2@669:21	mouseEvent	`mouseEvent` 是阻止弹窗鼠标按下默认行为的事件。
+e2@670:17	wheelEvent	`wheelEvent` 是阻止滚轮事件向外传播的事件。
+e2@671:21	touchEvent	`touchEvent` 是阻止触摸移动事件向外传播的事件。
+gi@733:25	globalIndex	`globalIndex` 是连接器候选项在完整提及列表中的位置。
+gi@883:25	globalIndex	`globalIndex` 是模型候选项在完整提及列表中的位置。
+gi@939:25	globalIndex	`globalIndex` 是工作流候选项在完整提及列表中的位置。

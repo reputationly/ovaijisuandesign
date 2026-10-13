@@ -1,0 +1,28 @@
+key	新名	依据
+m3@78:21	message	`message` 是引用比较中当前响应数组的消息记录。
+i2@78:25	messageIndex	`messageIndex` 是比较消息数组中响应记录的位置。
+t0@179:11	startedAt	`startedAt` 是本次 store 通知开始计时的性能时间。
+id2@207:14	sessionId	`sessionId` 是被写入会话映射的标识。
+id2@251:17	sessionId	`sessionId` 是遍历会话映射时的会话标识。
+id2@270:5	sessionId	`sessionId` 是新建会话的标识。
+id2@327:17	sessionId	`sessionId` 是要更新模型选择的会话标识。
+id2@345:26	sessionId	`sessionId` 是要更新媒体模型白名单的会话标识。
+id2@358:24	sessionId	`sessionId` 是要更新历史加载状态的会话标识。
+id2@367:17	sessionId	`sessionId` 是待切换并应用快照的会话标识。
+id2@386:5	sessionId	`sessionId` 是待后台载入并应用快照的会话标识。
+id2@404:16	sessionId	`sessionId` 是待切换焦点的会话标识。
+id2@458:5	sessionId	`sessionId` 是应用会话快照时定位状态记录的标识。
+id2@536:17	sessionId	`sessionId` 是从会话、撤回及打开标签状态中移除的标识。
+r2@587:26	pendingReason	`pendingReason` 是用于判断工具是否需要用户操作的待处理原因记录。
+id2@604:11	sessionId	`sessionId` 是待加入打开标签列表的会话标识。
+id2@672:12	sessionId	`sessionId` 是待关闭标签对应的会话标识。
+idx@675:11	previousTabIndex	`previousTabIndex` 是关闭标签前会话在顺序数组中的位置。
+msg@796:15	message	`message` 是追加到指定会话消息列表的消息记录。
+m3@808:8	message	`message` 是待检查是否为未完成任务卡片的任意消息。
+m3@815:17	message	`message` 是待保留或标记为错误的任意消息。
+m3@839:8	message	`message` 是待检查是否为未解决确认请求的任意消息。
+m3@845:19	message	`message` 是待保留或解决的任意消息。
+m3@868:33	message	`message` 是待按 ID 检查是否仍存在的任意消息。
+m3@871:42	message	`message` 是待按 ID 从会话历史中移除的任意消息。
+id2@1009:54	sessionId	`sessionId` 是待检查是否仍存在于新会话映射中的打开标签标识。
+id2@1011:53	sessionId	`sessionId` 是待保留在打开标签顺序中的会话标识。

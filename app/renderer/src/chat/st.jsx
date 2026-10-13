@@ -1,53 +1,53 @@
 // st.jsx
 import { jsxRuntimeExports, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { ot, rt, y3 } from "./ae.jsx";
-import { At } from "./at.jsx";
-import { nt } from "../media-editing/wt.js";
+import { ot as CodeBlockContainer, rt as CodeBlockHeader, y3 as useClassNameMerger } from "./ae.jsx";
+import { At as CodeBlockBody } from "./at.jsx";
+import { nt as codeMetadataContext } from "../media-editing/wt.js";
 
-var lr = (e2) => {
-  let t2 = e2.length;
+var trimTrailingNewlines = (code) => {
+  let codeLength = code.length;
   for (
     ;
-    t2 > 0 &&
-    e2[t2 - 1] ===
+    codeLength > 0 &&
+    code[codeLength - 1] ===
       `
 `;
   )
-    t2--;
-  return e2.slice(0, t2);
+    codeLength--;
+  return code.slice(0, codeLength);
 };
 
-var cr = reactExports.lazy(() =>
-  (() => import("./highlighted-code-block-body.js"))().then((e2) => ({
-    default: e2.HighlightedCodeBlockBody,
+var LazyHighlightedCodeBlockBody = reactExports.lazy(() =>
+  (() => import("./highlighted-code-block-body.js"))().then((module) => ({
+    default: module.HighlightedCodeBlockBody,
   })),
 );
 
 export var st = ({
-  code: e2,
-  language: t2,
-  className: o2,
-  children: n2,
-  isIncomplete: r2 = false,
-  startLine: s2,
-  lineNumbers: a2,
-  ...l2
+  code,
+  language,
+  className,
+  children,
+  isIncomplete = false,
+  startLine,
+  lineNumbers,
+  ...restProps
 }) => {
-  let i2 = y3(),
-    d2 = reactExports.useMemo(() => lr(e2), [e2]),
-    c3 = reactExports.useMemo(
+  let mergeClassNames = useClassNameMerger(),
+    codeWithoutTrailingNewline = reactExports.useMemo(() => trimTrailingNewlines(code), [code]),
+    fallbackResult = reactExports.useMemo(
       () => ({
         bg: "transparent",
         fg: "inherit",
-        tokens: d2
+        tokens: codeWithoutTrailingNewline
           .split(
             `
 `,
           )
-          .map((p3) => [
+          .map((codeLine) => [
             {
-              content: p3,
+              content: codeLine,
               color: "inherit",
               bgColor: "transparent",
               htmlStyle: {},
@@ -55,61 +55,61 @@ export var st = ({
             },
           ]),
       }),
-      [d2],
+      [codeWithoutTrailingNewline],
     );
   return (
-    <nt.Provider
+    <codeMetadataContext.Provider
       value={{
-        code: e2,
+        code,
       }}
     >
-      {jsxRuntimeExports.jsxs(ot, {
-        isIncomplete: r2,
-        language: t2,
+      {jsxRuntimeExports.jsxs(CodeBlockContainer, {
+        isIncomplete,
+        language,
         children: [
-          jsxRuntimeExports.jsx(rt, {
-            language: t2,
+          jsxRuntimeExports.jsx(CodeBlockHeader, {
+            language,
           }),
-          n2 ? (
+          children ? (
             <div
-              className={i2(
+              className={mergeClassNames(
                 "pointer-events-none sticky top-2 z-10 -mt-10 flex h-8 items-center justify-end",
               )}
             >
               <div
-                className={i2(
+                className={mergeClassNames(
                   "pointer-events-auto flex shrink-0 items-center gap-2 rounded-md border border-sidebar bg-sidebar/80 px-1.5 py-1 supports-[backdrop-filter]:bg-sidebar/70 supports-[backdrop-filter]:backdrop-blur",
                 )}
                 data-streamdown="code-block-actions"
               >
-                {n2}
+                {children}
               </div>
             </div>
           ) : null,
           <reactExports.Suspense
             fallback={
-              <At
-                className={o2}
-                language={t2}
-                lineNumbers={a2}
-                result={c3}
-                startLine={s2}
-                {...l2}
+              <CodeBlockBody
+                className={className}
+                language={language}
+                lineNumbers={lineNumbers}
+                result={fallbackResult}
+                startLine={startLine}
+                {...restProps}
               />
             }
           >
-            {jsxRuntimeExports.jsx(cr, {
-              className: o2,
-              code: d2,
-              language: t2,
-              lineNumbers: a2,
-              raw: c3,
-              startLine: s2,
-              ...l2,
+            {jsxRuntimeExports.jsx(LazyHighlightedCodeBlockBody, {
+              className,
+              code: codeWithoutTrailingNewline,
+              language,
+              lineNumbers,
+              raw: fallbackResult,
+              startLine,
+              ...restProps,
             })}
           </reactExports.Suspense>,
         ],
       })}
-    </nt.Provider>
+    </codeMetadataContext.Provider>
   );
 };

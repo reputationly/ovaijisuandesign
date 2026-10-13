@@ -127,7 +127,7 @@ export function SessionHistory({
   const { filteredSessions, filteredHiddenSessions } =
     reactExports.useMemo(() => {
       const pinOrder = new Map(
-        pinnedSessionIds.map((sessionPreferenceId, index2) => [sessionPreferenceId, index2]),
+        pinnedSessionIds.map((pinnedId, index2) => [pinnedId, index2]),
       );
       const sorted = sessions.slice().sort((leftSession, rightSession) => {
         const aPinOrder = pinOrder.get(sessionPreferenceId(leftSession));
@@ -154,24 +154,24 @@ export function SessionHistory({
         ),
       };
     }, [sessions, search2, translate, pinnedSessionIds, hiddenSessionIds]);
-  const handleTogglePin = (sessionPreferenceId) => {
+  const handleTogglePin = (preferenceId) => {
     setPinnedSessionIds((previous2) =>
-      previous2.includes(sessionPreferenceId)
-        ? previous2.filter((sessionId) => sessionId !== sessionPreferenceId)
-        : [sessionPreferenceId, ...previous2],
+      previous2.includes(preferenceId)
+        ? previous2.filter((sessionId) => sessionId !== preferenceId)
+        : [preferenceId, ...previous2],
     );
   };
-  const handleHide = (sessionPreferenceId) => {
+  const handleHide = (preferenceId) => {
     setPinnedSessionIds((previous2) =>
-      previous2.filter((sessionId) => sessionId !== sessionPreferenceId),
+      previous2.filter((sessionId) => sessionId !== preferenceId),
     );
     setHiddenSessionIds((previous2) =>
-      previous2.includes(sessionPreferenceId) ? previous2 : [...previous2, sessionPreferenceId],
+      previous2.includes(preferenceId) ? previous2 : [...previous2, preferenceId],
     );
   };
-  const handleRestore = (sessionPreferenceId) => {
+  const handleRestore = (preferenceId) => {
     setHiddenSessionIds((previous2) =>
-      previous2.filter((sessionId) => sessionId !== sessionPreferenceId),
+      previous2.filter((sessionId) => sessionId !== preferenceId),
     );
   };
   const handleOpen = (sessionId) => {

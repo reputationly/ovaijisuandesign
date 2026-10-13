@@ -5,3 +5,4 @@ app/renderer/src/chat/xn.js	xn	defaultLinkSafety	`defaultLinkSafety` 是默认�
 app/renderer/src/chat/nn.jsx	po	MermaidRenderer	`MermaidRenderer` 负责懒加载并渲染 Mermaid 图表及其状态界面。
 app/renderer/src/chat/ae.jsx	R	markdownRenderOptionsContext	`markdownRenderOptionsContext` 保存 Shiki 主题、代码行号、Mermaid 与链接安全等 Markdown 渲染选项。
 app/renderer/src/chat/at.jsx	At	CodeBlockBody	`CodeBlockBody` 渲染高亮代码结果、语言标签及可选行号。
+app/renderer/src/chat/st.jsx	st	HighlightedCodeBlock	`HighlightedCodeBlock` 负责封装代码块容器、语言标题及高亮主体的加载和回退显示。
