@@ -1,0 +1,9 @@
+{
+  "app/renderer/src/vendor-inline/vscode-base/vs-buffer.js": {
+    "Event$1": "Event",
+    "__decorateClass$1": "applyMemberDecorators"
+  },
+  "app/renderer/src/vendor-inline/vscode-base/graph.jsx": {
+    "TUTORIAL_URL$2": "TUTORIAL_URL_BY_LOCALE"
+  }
+}

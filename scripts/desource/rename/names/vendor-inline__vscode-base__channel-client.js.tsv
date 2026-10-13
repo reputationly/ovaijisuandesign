@@ -1,0 +1,45 @@
+binding_key	old_name	new_name	basis
+Event$1@15:3	Event$1	eventApi	monaco 0.57.0 vs/base/common/event.js
+__decorateClass$1@16:3	__decorateClass$1	applyMemberDecorators	the helper applies decorators to a member descriptor; use a descriptive local alias while preserving the exported name
+msg@28:54	msg	message	the protocol callback carries an IPC message buffer
+command2@41:12	command2	command	第41行的声明与引用表明该绑定表示「command」；去除打包器数字后缀并保留绑定结构（call(command2, arg, cancellationToken) {）
+arg@41:22	arg	argument	the channel call forwards one command argument
+arg@47:21	arg	argument	the channel event listener forwards one event argument
+name2@55:31	name2	commandName	the request promise stores a channel command name
+arg@55:38	arg	argument	the request promise serializes one command argument
+id2@56:11	id2	id	第56行的声明与引用表明该绑定表示「id」；去除打包器数字后缀并保留绑定结构（const id2 = this.lastRequestId++;）
+type2@57:11	type2	type	第57行的声明与引用表明该绑定表示「type」；去除打包器数字后缀并保留绑定结构（const type2 = 100;）
+c3@70:33	c3	c	第70行的声明与引用表明该绑定表示「c」；去除打包器数字后缀并保留绑定结构（const result = new Promise((c3, e2) => {）
+e2@70:37	e2	e	第70行的声明与引用表明该绑定表示「e」；去除打包器数字后缀并保留绑定结构（const result = new Promise((c3, e2) => {）
+err@100:18	err	error	the catch binding is the failed request error
+_2@109:57	_2	_token	the cancellation-token callback parameter is intentionally unused
+name2@142:29	name2	eventName	the request event stores a channel event name
+arg@142:36	arg	argument	the request event serializes one event argument
+id2@143:11	id2	id	第143行的声明与引用表明该绑定表示「id」；去除打包器数字后缀并保留绑定结构（const id2 = this.lastRequestId++;）
+type2@144:11	type2	type	第144行的声明与引用表明该绑定表示「type」；去除打包器数字后缀并保留绑定结构（const type2 = 102;）
+err@159:20	err	error	the catch binding is the failed event request
+_2@167:59	_2	_token	the cancellation-token callback parameter is intentionally unused
+res@189:22	res	response	the event handler receives a channel response
+body2@207:16	body2	body	第207行的声明与引用表明该绑定表示「body」；去除打包器数字后缀并保留绑定结构（send(header, body2 = void 0) {）
+message2@213:14	message2	message	第213行的声明与引用表明该绑定表示「message」；去除打包器数字后缀并保留绑定结构（sendBuffer(message2) {）
+message2@221:12	message2	message	第221行的声明与引用表明该绑定表示「message」；去除打包器数字后缀并保留绑定结构（onBuffer(message2) {）
+err@226:14	err	error	the catch binding is a response decode error
+type2@240:11	type2	type	第240行的声明与引用表明该绑定表示「type」；去除打包器数字后缀并保留绑定结构（const type2 = header[0];）
+body2@241:9	body2	body	第241行的声明与引用表明该绑定表示「body」；去除打包器数字后缀并保留绑定结构（let body2;）
+err@244:14	err	error	the catch binding is a response body decode error
+type2@272:25	type2	type	第272行的声明与引用表明该绑定表示「type」；去除打包器数字后缀并保留绑定结构（onUndecodableResponse(type2, header, byteLength, cause) {）
+id2@279:11	id2	id	第279行的声明与引用表明该绑定表示「id」；去除打包器数字后缀并保留绑定结构（const id2 = header[1];）
+ctx@323:25	ctx	context	the IPC client serializes its channel context
+ProxyChannel2@345:3	ProxyChannel2	ProxyChannel	第345行的声明与引用表明该绑定表示「ProxyChannel」；去除打包器数字后缀并保留绑定结构（((ProxyChannel2) => {）
+service2@346:24	service2	service	第346行的声明与引用表明该绑定表示「service」；去除打包器数字后缀并保留绑定结构（function fromService(service2, disposables2, options) {）
+disposables2@346:34	disposables2	disposables	第346行的声明与引用表明该绑定表示「disposables」；去除打包器数字后缀并保留绑定结构（function fromService(service2, disposables2, options) {）
+key2@350:16	key2	key	第350行的声明与引用表明该绑定表示「key」；去除打包器数字后缀并保留绑定结构（for (const key2 in handler) {）
+_2@356:14	_2	_context	the proxy listen context parameter is intentionally unused
+arg@356:25	arg	argument	the proxy event listener forwards one event argument
+_2@376:12	_2	_context	the proxy call context parameter is intentionally unused
+command2@376:16	command2	command	第376行的声明与引用表明该绑定表示「command」；去除打包器数字后缀并保留绑定结构（call(_2, command2, args) {）
+i2@380:22	i2	i	第380行的声明与引用表明该绑定表示「i」；去除打包器数字后缀并保留绑定结构（for (let i2 = 0; i2 < args.length; i2++) {）
+res@384:15	res	result	the proxy call stores the target invocation result
+arg@409:23	arg	argument	the dynamic event proxy forwards one event argument
+name2@434:28	name2	propertyName	the helper tests an IPC property name
+name2@437:35	name2	propertyName	the helper tests an IPC dynamic-event property name

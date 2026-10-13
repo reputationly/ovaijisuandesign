@@ -1,0 +1,15 @@
+diff --git a/package.json b/package.json
+index 53df13969305ee78d97bb9e5b9ce497d583db376..a85461a8073d5ee898da164a5d6d152c60140b97 100644
+--- a/package.json
++++ b/package.json
+@@ -668,6 +668,10 @@
+         "default": "./esm/use-render/index.js"
+       }
+     },
++    "./esm/*": {
++      "import": "./esm/*",
++      "default": "./esm/*"
++    },
+     "./esm": null
+   },
+   "main": "./index.js",
