@@ -3,7 +3,7 @@ import { CanvasNodeType } from "../vendor.js";
 import { withParentId } from "./compute-group-bounds-from-children.js";
 export function ungroupInCanvas(canvas, groupId2) {
   const mode2 = canvas.mode;
-  const groupNode = canvas.nodes.find((n2) => n2.id === groupId2);
+  const groupNode = canvas.nodes.find((node) => node.id === groupId2);
   if (!groupNode || groupNode.type !== CanvasNodeType.Group) {
     return {
       canvas,
@@ -13,13 +13,13 @@ export function ungroupInCanvas(canvas, groupId2) {
     };
   }
   const groupModes = new Set();
-  for (const m3 of Object.keys(groupNode.positions ?? {})) {
-    groupModes.add(m3);
+  for (const mode of Object.keys(groupNode.positions ?? {})) {
+    groupModes.add(mode);
   }
   const groupAbsByMode = new Map();
-  for (const m3 of groupModes) {
-    const p3 = groupNode.positions?.[m3];
-    if (p3) groupAbsByMode.set(m3, p3);
+  for (const mode of groupModes) {
+    const position = groupNode.positions?.[mode];
+    if (position) groupAbsByMode.set(mode, position);
   }
   if (!groupAbsByMode.has(mode2)) {
     const availableModes = Array.from(groupAbsByMode.keys());
@@ -44,12 +44,12 @@ export function ungroupInCanvas(canvas, groupId2) {
       const newPositions = {
         ...(node2.positions ?? {}),
       };
-      for (const [m3, groupAbs] of groupAbsByMode) {
-        const rel = node2.positions?.[m3];
-        if (!rel) continue;
-        newPositions[m3] = {
-          x: rel.x + groupAbs.x,
-          y: rel.y + groupAbs.y,
+      for (const [mode, groupAbs] of groupAbsByMode) {
+        const relativePosition = node2.positions?.[mode];
+        if (!relativePosition) continue;
+        newPositions[mode] = {
+          x: relativePosition.x + groupAbs.x,
+          y: relativePosition.y + groupAbs.y,
         };
       }
       const next2 = withParentId(
@@ -81,31 +81,31 @@ export function isGroupedNode(node2) {
 }
 export function collectGroupMembers(nodes, groupId2) {
   const members = [];
-  for (let i2 = 0; i2 < nodes.length; i2 += 1) {
-    if (nodes[i2].groupId === groupId2)
+  for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex += 1) {
+    if (nodes[nodeIndex].groupId === groupId2)
       members.push({
-        node: nodes[i2],
-        i: i2,
+        node: nodes[nodeIndex],
+        i: nodeIndex,
       });
   }
-  members.sort((a2, b3) => {
-    const ra = Number.isInteger(a2.node.round)
-      ? a2.node.round
+  members.sort((leftMember, rightMember) => {
+    const leftRound = Number.isInteger(leftMember.node.round)
+      ? leftMember.node.round
       : Number.MAX_SAFE_INTEGER;
-    const rb = Number.isInteger(b3.node.round)
-      ? b3.node.round
+    const rightRound = Number.isInteger(rightMember.node.round)
+      ? rightMember.node.round
       : Number.MAX_SAFE_INTEGER;
-    if (ra !== rb) return ra - rb;
-    return a2.i - b3.i;
+    if (leftRound !== rightRound) return leftRound - rightRound;
+    return leftMember.i - rightMember.i;
   });
-  return members.map((x2) => x2.node);
+  return members.map((groupMember) => groupMember.node);
 }
 export function resolveMainNode(members) {
   if (members.length === 0) return void 0;
-  return members.find((m3) => m3.meta?.hidden !== true) ?? members[0];
+  return members.find((node) => node.meta?.hidden !== true) ?? members[0];
 }
 export function resolveGroupMainId(nodes, nodeId) {
-  const node2 = nodes.find((n2) => n2.id === nodeId);
+  const node2 = nodes.find((node) => node.id === nodeId);
   if (!node2 || !isGroupedNode(node2)) return nodeId;
   const main2 = resolveMainNode(collectGroupMembers(nodes, node2.groupId));
   return main2?.id ?? nodeId;
@@ -113,27 +113,27 @@ export function resolveGroupMainId(nodes, nodeId) {
 export function pickSuccessorMain(remaining, removedSortedIndex) {
   if (remaining.length === 0) return void 0;
   const sorted = remaining
-    .map((node2, i2) => ({
+    .map((node2, index) => ({
       node: node2,
-      i: i2,
+      i: index,
     }))
-    .sort((a2, b3) => {
-      const ra = Number.isInteger(a2.node.round)
-        ? a2.node.round
+    .sort((leftMember, rightMember) => {
+      const leftRound = Number.isInteger(leftMember.node.round)
+        ? leftMember.node.round
         : Number.MAX_SAFE_INTEGER;
-      const rb = Number.isInteger(b3.node.round)
-        ? b3.node.round
+      const rightRound = Number.isInteger(rightMember.node.round)
+        ? rightMember.node.round
         : Number.MAX_SAFE_INTEGER;
-      if (ra !== rb) return ra - rb;
-      return a2.i - b3.i;
+      if (leftRound !== rightRound) return leftRound - rightRound;
+      return leftMember.i - rightMember.i;
     })
-    .map((x2) => x2.node);
-  const idx = Math.max(0, removedSortedIndex);
-  return (sorted[idx] ?? sorted[sorted.length - 1])?.id;
+    .map((groupMember) => groupMember.node);
+  const successorIndex = Math.max(0, removedSortedIndex);
+  return (sorted[successorIndex] ?? sorted[sorted.length - 1])?.id;
 }
 export function removeGroup(nodes, groupId2) {
   const removed = new Set();
-  for (const n2 of nodes) if (n2.groupId === groupId2) removed.add(n2.id);
+  for (const node of nodes) if (node.groupId === groupId2) removed.add(node.id);
   if (removed.size === 0) {
     return {
       nodes: nodes.slice(),
@@ -142,7 +142,7 @@ export function removeGroup(nodes, groupId2) {
     };
   }
   return {
-    nodes: nodes.filter((n2) => !removed.has(n2.id)),
+    nodes: nodes.filter((node) => !removed.has(node.id)),
     removedIds: [...removed],
     updatedIds: [],
   };
@@ -150,8 +150,8 @@ export function removeGroup(nodes, groupId2) {
 export function imageNodeAssetId(node2) {
   if (typeof node2.assetId === "string" && node2.assetId.length > 0)
     return node2.assetId;
-  const da = node2.data?.assetId;
-  if (typeof da === "string" && da.length > 0) return da;
+  const nestedAssetId = node2.data?.assetId;
+  if (typeof nestedAssetId === "string" && nestedAssetId.length > 0) return nestedAssetId;
   return node2.id;
 }
 export function mirrorAssetIdIntoData(node2) {
@@ -168,7 +168,7 @@ export function mirrorAssetIdIntoData(node2) {
   };
 }
 export function promoteToMain(nodes, nodeId) {
-  const target = nodes.find((n2) => n2.id === nodeId);
+  const target = nodes.find((node) => node.id === nodeId);
   if (!target || !isGroupedNode(target)) {
     return {
       nodes: nodes.slice(),
@@ -186,13 +186,13 @@ export function promoteToMain(nodes, nodeId) {
     };
   }
   const updatedIds = [];
-  const out = nodes.map((n2) => {
-    if (n2.id === nodeId) {
-      updatedIds.push(n2.id);
+  const updatedNodes = nodes.map((node) => {
+    if (node.id === nodeId) {
+      updatedIds.push(node.id);
       const next2 = {
-        ...n2,
+        ...node,
         meta: {
-          ...(n2.meta ?? {}),
+          ...(node.meta ?? {}),
           hidden: false,
         },
         positions: {
@@ -211,22 +211,22 @@ export function promoteToMain(nodes, nodeId) {
       else delete next2.parentId;
       return mirrorAssetIdIntoData(next2);
     }
-    if (n2.id === oldMain.id) {
-      updatedIds.push(n2.id);
-      const { parentId: _p, ...rest } = n2;
+    if (node.id === oldMain.id) {
+      updatedIds.push(node.id);
+      const { parentId: _parentId, ...rest } = node;
       return {
         ...rest,
         meta: {
-          ...(n2.meta ?? {}),
+          ...(node.meta ?? {}),
           hidden: true,
         },
         positions: {},
       };
     }
-    return n2;
+    return node;
   });
   return {
-    nodes: out,
+    nodes: updatedNodes,
     removedIds: [],
     updatedIds,
     repointFollow: {
@@ -238,11 +238,11 @@ export function promoteToMain(nodes, nodeId) {
 export const DEFAULT_WORKFLOW_NODE_SPACING = 100;
 export const DEFAULT_PLACEMENT_GAP = DEFAULT_WORKFLOW_NODE_SPACING;
 export const DEFAULT_WORKFLOW_LAYER_SPACING = 100;
-export function rectsOverlap(a2, b3, margin = 0) {
+export function rectsOverlap(firstRect, secondRect, margin = 0) {
   return (
-    a2.x < b3.x + b3.w + margin &&
-    a2.x + a2.w + margin > b3.x &&
-    a2.y < b3.y + b3.h + margin &&
-    a2.y + a2.h + margin > b3.y
+    firstRect.x < secondRect.x + secondRect.w + margin &&
+    firstRect.x + firstRect.w + margin > secondRect.x &&
+    firstRect.y < secondRect.y + secondRect.h + margin &&
+    firstRect.y + firstRect.h + margin > secondRect.y
   );
 }

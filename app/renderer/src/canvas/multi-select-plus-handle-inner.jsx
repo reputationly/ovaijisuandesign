@@ -24,11 +24,11 @@ function targetsFullyConnectedFromAll(sources, edges) {
   if (sources.length === 0) return new Set();
   const sourceSet = new Set(sources);
   const reach = new Map();
-  for (const e2 of edges) {
-    if (!sourceSet.has(e2.source)) continue;
-    const bucket = reach.get(e2.target) ?? new Set();
-    bucket.add(e2.source);
-    reach.set(e2.target, bucket);
+  for (const edge of edges) {
+    if (!sourceSet.has(edge.source)) continue;
+    const bucket = reach.get(edge.target) ?? new Set();
+    bucket.add(edge.source);
+    reach.set(edge.target, bucket);
   }
   const fullyConnected = new Set();
   for (const [target, bucket] of reach) {
@@ -114,12 +114,12 @@ function PlusIcon() {
 function DragPreview({ cursorScreenX, cursorScreenY, sourceAnchors }) {
   const { flowToScreenPosition } = useReactFlow();
   useStore(
-    (s2) => ({
-      x: s2.transform[0],
-      y: s2.transform[1],
-      zoom: s2.transform[2],
+    (storeState) => ({
+      x: storeState.transform[0],
+      y: storeState.transform[1],
+      zoom: storeState.transform[2],
     }),
-    (a2, b3) => a2.x === b3.x && a2.y === b3.y && a2.zoom === b3.zoom,
+    (leftTransform, rightTransform) => leftTransform.x === rightTransform.x && leftTransform.y === rightTransform.y && leftTransform.zoom === rightTransform.zoom,
   );
   const paths = [];
   for (const anchor of sourceAnchors) {
@@ -150,11 +150,11 @@ function DragPreview({ cursorScreenX, cursorScreenY, sourceAnchors }) {
           zIndex: 49,
         }}
       >
-        {paths.map((d2, i2) => (
+        {paths.map((pathData, pathIndex) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: paths are positionally tied to sourceAnchors order
           <path
-            key={i2}
-            d={d2}
+            key={pathIndex}
+            d={pathData}
             fill="none"
             stroke="var(--canvas-edge)"
             strokeWidth={1.5}
@@ -195,20 +195,20 @@ function MultiSelectPlusHandleInner({
   onWireEdgesToTarget,
   hideAnchor = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isDragging = useCanvasIsDragging();
   const isBoxSelecting = useCanvasIsBoxSelecting();
-  const connectable = useStore((s2) => s2.nodesConnectable);
+  const connectable = useStore((storeState) => storeState.nodesConnectable);
   const { sourceNodeIds, isSingleGroupSelection } = useStore(
     reactExports.useCallback(
-      (s2) => resolveSelectionConnectionSources(s2.nodes, selectedIds),
+      (storeState) => resolveSelectionConnectionSources(storeState.nodes, selectedIds),
       [selectedIds],
     ),
-    (a2, b3) =>
-      a2.isSingleGroupSelection === b3.isSingleGroupSelection &&
-      a2.sourceNodeIds.length === b3.sourceNodeIds.length &&
-      a2.sourceNodeIds.every((id2, index2) => id2 === b3.sourceNodeIds[index2]),
+    (leftSources, rightSources) =>
+      leftSources.isSingleGroupSelection === rightSources.isSingleGroupSelection &&
+      leftSources.sourceNodeIds.length === rightSources.sourceNodeIds.length &&
+      leftSources.sourceNodeIds.every((nodeId, index2) => nodeId === rightSources.sourceNodeIds[index2]),
   );
   const buttonRef = reactExports.useRef(null);
   const [drag2, setDrag] = reactExports.useState(null);
@@ -238,23 +238,23 @@ function MultiSelectPlusHandleInner({
     [],
   );
   const onPointerDown2 = reactExports.useCallback(
-    (e2) => {
-      if (e2.button !== 0) return;
-      e2.stopPropagation();
-      e2.preventDefault();
+    (pointerEvent) => {
+      if (pointerEvent.button !== 0) return;
+      pointerEvent.stopPropagation();
+      pointerEvent.preventDefault();
       const button = buttonRef.current;
       if (!button) return;
       const nodeLookup = storeApi.getState().nodeLookup;
       const sourceAnchors = [];
-      for (const id2 of sourceNodeIdsRef.current) {
-        const node2 = nodeLookup.get(id2);
+      for (const nodeId of sourceNodeIdsRef.current) {
+        const node2 = nodeLookup.get(nodeId);
         if (!node2) continue;
-        const w3 = node2.measured?.width ?? node2.width ?? 0;
-        const h2 = node2.measured?.height ?? node2.height ?? 0;
-        if (!w3 || !h2) continue;
+        const width = node2.measured?.width ?? node2.width ?? 0;
+        const height = node2.measured?.height ?? node2.height ?? 0;
+        if (!width || !height) continue;
         sourceAnchors.push({
-          flowX: node2.internals.positionAbsolute.x + w3,
-          flowY: node2.internals.positionAbsolute.y + h2 / 2,
+          flowX: node2.internals.positionAbsolute.x + width,
+          flowY: node2.internals.positionAbsolute.y + height / 2,
         });
       }
       const rect = button.getBoundingClientRect();
@@ -263,32 +263,32 @@ function MultiSelectPlusHandleInner({
       setDrag({
         startScreenX,
         startScreenY,
-        cursorScreenX: e2.clientX,
-        cursorScreenY: e2.clientY,
+        cursorScreenX: pointerEvent.clientX,
+        cursorScreenY: pointerEvent.clientY,
         isDragging: false,
         sourceAnchors,
       });
-      const onMove = (ev) => {
+      const onMove = (pointerMoveEvent) => {
         setDrag((prev) => {
           if (!prev) return null;
-          const dx = ev.clientX - prev.startScreenX;
-          const dy = ev.clientY - prev.startScreenY;
+          const deltaX = pointerMoveEvent.clientX - prev.startScreenX;
+          const deltaY = pointerMoveEvent.clientY - prev.startScreenY;
           const beyondThreshold =
-            dx * dx + dy * dy >= CLICK_VS_DRAG_THRESHOLD_SQ_PX;
+            deltaX * deltaX + deltaY * deltaY >= CLICK_VS_DRAG_THRESHOLD_SQ_PX;
           return {
             ...prev,
-            cursorScreenX: ev.clientX,
-            cursorScreenY: ev.clientY,
+            cursorScreenX: pointerMoveEvent.clientX,
+            cursorScreenY: pointerMoveEvent.clientY,
             isDragging: prev.isDragging || beyondThreshold,
           };
         });
       };
-      const onUp = (ev) => {
+      const onUp = (pointerUpEvent) => {
         cleanup();
         const sources = sourceNodeIdsRef.current;
-        const dx = ev.clientX - startScreenX;
-        const dy = ev.clientY - startScreenY;
-        const wasDrag = dx * dx + dy * dy >= CLICK_VS_DRAG_THRESHOLD_SQ_PX;
+        const deltaX = pointerUpEvent.clientX - startScreenX;
+        const deltaY = pointerUpEvent.clientY - startScreenY;
+        const wasDrag = deltaX * deltaX + deltaY * deltaY >= CLICK_VS_DRAG_THRESHOLD_SQ_PX;
         setDrag(null);
         if (sources.length === 0) return;
         if (!wasDrag) {
@@ -300,8 +300,8 @@ function MultiSelectPlusHandleInner({
           return;
         }
         const dropFlow = screenToFlowPosition({
-          x: ev.clientX,
-          y: ev.clientY,
+          x: pointerUpEvent.clientX,
+          y: pointerUpEvent.clientY,
         });
         const sourceSet = new Set(sources);
         const fullyConnected = targetsFullyConnectedFromAll(
@@ -322,8 +322,8 @@ function MultiSelectPlusHandleInner({
         }
         onOpenAddNodeMenu({
           sourceNodeIds: sources,
-          screenX: ev.clientX,
-          screenY: ev.clientY,
+          screenX: pointerUpEvent.clientX,
+          screenY: pointerUpEvent.clientY,
           dropFlow,
         });
       };
@@ -358,7 +358,7 @@ function MultiSelectPlusHandleInner({
           ref={buttonRef}
           type="button"
           data-action-ui-id="canvas.selection-connect-plus"
-          aria-label={t2(
+          aria-label={translate(
             "canvas.connectSelectionToNewNode",
             "Connect selection to a new node",
           )}
@@ -372,7 +372,7 @@ function MultiSelectPlusHandleInner({
             visibility: drag2?.isDragging || hideAnchor ? "hidden" : "visible",
           }}
           onPointerDown={onPointerDown2}
-          onClick={(e2) => e2.stopPropagation()}
+          onClick={(clickEvent) => clickEvent.stopPropagation()}
         >
           <PlusIcon />
         </button>

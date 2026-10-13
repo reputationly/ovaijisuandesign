@@ -1,0 +1,22 @@
+key	old	new	依据
+a2@4:28	a2	leftValue	该参数是 JSON-like 深度比较的左侧值。
+b3@4:32	b3	rightValue	该参数是 JSON-like 深度比较的右侧值。
+i2@10:14	i2	index	该值是遍历数组的下标。
+k2@19:14	k2	key	该值是对象属性键。
+a2@25:20	a2	leftSize	该参数是尺寸比较的左侧尺寸。
+b3@25:24	b3	rightSize	该参数是尺寸比较的右侧尺寸。
+a2@31:25	a2	leftPositions	该参数是按模式保存的位置集合。
+b3@31:29	b3	rightPositions	该参数是用于比较的位置集合。
+k2@35:14	k2	key	该值是位置集合中的布局模式键。
+ap@36:11	ap	leftPosition	该值是左侧位置集合中当前模式的位置。
+bp@37:11	bp	rightPosition	该值是右侧位置集合中当前模式的位置。
+a2@47:21	a2	leftSizes	该参数是按模式保存的尺寸集合。
+b3@47:25	b3	rightSizes	该参数是用于比较的尺寸集合。
+k2@57:14	k2	key	该值是尺寸集合中的布局模式键。
+a2@63:37	a2	leftNode	该参数是待比较的左侧画布节点。
+b3@63:41	b3	rightNode	该参数是待比较的右侧画布节点。
+n2@80:33	n2	node	该值是当前节点数组中的节点。
+i2@82:12	i2	nodeIndex	该值是遍历新节点数组的下标。
+n2@95:14	n2	node	该值是需要按已保存位置分区的节点。
+n2@109:21	n2	node	该值是需要应用布局位置的节点。
+pos@110:11	pos	position	该值是按节点标识取得的目标布局位置。

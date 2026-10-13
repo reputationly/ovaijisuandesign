@@ -1,33 +1,33 @@
 // use-marquee-selection.js
 import { reactExports } from "../vendor.js";
 
-function intersects(a2, b3) {
+function intersects(firstRect, secondRect) {
   return (
-    a2.left < b3.right &&
-    a2.right > b3.left &&
-    a2.top < b3.bottom &&
-    a2.bottom > b3.top
+    firstRect.left < secondRect.right &&
+    firstRect.right > secondRect.left &&
+    firstRect.top < secondRect.bottom &&
+    firstRect.bottom > secondRect.top
   );
 }
 
 function reconcileMarquee(snapshot2, previous2, entryOrder, hits, canAdd) {
-  const candidates2 = new Map(hits.map((row) => [row.rowKey, row]));
-  const order2 = entryOrder.filter((id2) => candidates2.has(id2));
+  const candidates2 = new Map(hits.map((hit) => [hit.rowKey, hit]));
+  const order2 = entryOrder.filter((rowKey) => candidates2.has(rowKey));
   const queued = new Set(order2);
-  for (const row of hits) {
-    if (!queued.has(row.rowKey)) {
-      order2.push(row.rowKey);
-      queued.add(row.rowKey);
+  for (const hit of hits) {
+    if (!queued.has(hit.rowKey)) {
+      order2.push(hit.rowKey);
+      queued.add(hit.rowKey);
     }
   }
   const selection2 = new Map(snapshot2);
-  const add2 = (id2) => {
-    const row = candidates2.get(id2);
-    if (row && !selection2.has(id2) && canAdd(row, selection2))
-      selection2.set(id2, row);
+  const add2 = (rowKey) => {
+    const hit = candidates2.get(rowKey);
+    if (hit && !selection2.has(rowKey) && canAdd(hit, selection2))
+      selection2.set(rowKey, hit);
   };
-  for (const id2 of previous2.keys()) add2(id2);
-  for (const id2 of order2) add2(id2);
+  for (const rowKey of previous2.keys()) add2(rowKey);
+  for (const rowKey of order2) add2(rowKey);
   return {
     selection: selection2,
     entryOrder: order2,
@@ -97,16 +97,16 @@ export function useMarqueeSelection(options) {
       const bounds = scrollEl.getBoundingClientRect();
       const left = bounds.left + scrollEl.clientLeft;
       const top2 = bounds.top + scrollEl.clientTop;
-      const x2 = Math.max(
+      const localX = Math.max(
         0,
         Math.min(scrollEl.clientWidth, gesture.clientX - left),
       );
-      const y4 = Math.max(
+      const localY = Math.max(
         0,
         Math.min(scrollEl.clientHeight, gesture.clientY - top2),
       );
-      const endX = x2 + scrollEl.scrollLeft;
-      const endY = y4 + scrollEl.scrollTop;
+      const endX = localX + scrollEl.scrollLeft;
+      const endY = localY + scrollEl.scrollTop;
       const rect = {
         left: Math.min(gesture.originX, endX),
         top: Math.min(gesture.originY, endY),
@@ -124,8 +124,8 @@ export function useMarqueeSelection(options) {
           bottom: box2.bottom - top2 + scrollEl.scrollTop,
         });
       }
-      const hits = latest2.current.rows.filter((row) => {
-        const box2 = gesture?.measured.get(row.rowKey);
+      const hits = latest2.current.rows.filter((hit) => {
+        const box2 = gesture?.measured.get(hit.rowKey);
         return box2 && intersects(rect, box2);
       });
       const next2 = reconcileMarquee(
@@ -140,7 +140,7 @@ export function useMarqueeSelection(options) {
       const current2 = latest2.current.selected;
       if (
         current2.size !== next2.selection.size ||
-        [...current2].some(([id2, row]) => next2.selection.get(id2) !== row)
+        [...current2].some(([rowKey, row]) => next2.selection.get(rowKey) !== row)
       ) {
         latest2.current.onSelectionChange(next2.selection);
       }
@@ -157,14 +157,14 @@ export function useMarqueeSelection(options) {
     function tick() {
       if (!gesture?.active || !scrollEl) return;
       const bounds = scrollEl.getBoundingClientRect();
-      const y4 = gesture.clientY - bounds.top;
+      const pointerY = gesture.clientY - bounds.top;
       if (gesture.clientX >= bounds.left && gesture.clientX <= bounds.right) {
         const edge = Math.min(40, scrollEl.clientHeight / 4);
         const speed =
-          y4 < edge
-            ? -Math.min(16, (edge - y4) / 2)
-            : y4 > scrollEl.clientHeight - edge
-              ? Math.min(16, (y4 - scrollEl.clientHeight + edge) / 2)
+          pointerY < edge
+            ? -Math.min(16, (edge - pointerY) / 2)
+            : pointerY > scrollEl.clientHeight - edge
+              ? Math.min(16, (pointerY - scrollEl.clientHeight + edge) / 2)
               : 0;
         if (speed) scrollEl.scrollTop += speed;
       }
@@ -195,14 +195,14 @@ export function useMarqueeSelection(options) {
       )
         return;
       const bounds = scrollEl.getBoundingClientRect();
-      const x2 = event.clientX - bounds.left - scrollEl.clientLeft;
-      const y4 = event.clientY - bounds.top - scrollEl.clientTop;
+      const pointerX = event.clientX - bounds.left - scrollEl.clientLeft;
+      const pointerY = event.clientY - bounds.top - scrollEl.clientTop;
       if (
         inScroller &&
-        (x2 < 0 ||
-          y4 < 0 ||
-          x2 >= scrollEl.clientWidth ||
-          y4 >= scrollEl.clientHeight)
+        (pointerX < 0 ||
+          pointerY < 0 ||
+          pointerX >= scrollEl.clientWidth ||
+          pointerY >= scrollEl.clientHeight)
       )
         return;
       const snapshot2 = new Map(latest2.current.selected);
@@ -213,9 +213,9 @@ export function useMarqueeSelection(options) {
         clientX: event.clientX,
         clientY: event.clientY,
         originX:
-          Math.max(0, Math.min(scrollEl.clientWidth, x2)) + scrollEl.scrollLeft,
+          Math.max(0, Math.min(scrollEl.clientWidth, pointerX)) + scrollEl.scrollLeft,
         originY:
-          Math.max(0, Math.min(scrollEl.clientHeight, y4)) + scrollEl.scrollTop,
+          Math.max(0, Math.min(scrollEl.clientHeight, pointerY)) + scrollEl.scrollTop,
         active: false,
         snapshot: snapshot2,
         selection: snapshot2,

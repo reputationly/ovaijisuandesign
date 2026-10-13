@@ -25,26 +25,26 @@ import {
 
 function getString(data2, key2) {
   if (!data2 || typeof data2 !== "object") return "";
-  const v2 = data2[key2];
-  return typeof v2 === "string" ? v2 : "";
+  const stringValue = data2[key2];
+  return typeof stringValue === "string" ? stringValue : "";
 }
 
 function getStringRecord(data2, key2) {
   if (!data2 || typeof data2 !== "object") return {};
-  const v2 = data2[key2];
-  if (!v2 || typeof v2 !== "object") return {};
-  const out = {};
-  for (const [k2, val] of Object.entries(v2)) {
-    if (typeof val === "string") out[k2] = val;
+  const recordValue = data2[key2];
+  if (!recordValue || typeof recordValue !== "object") return {};
+  const stringRecord = {};
+  for (const [key, value] of Object.entries(recordValue)) {
+    if (typeof value === "string") stringRecord[key] = value;
   }
-  return out;
+  return stringRecord;
 }
 
 function getStringArray(data2, key2) {
   if (!data2 || typeof data2 !== "object") return void 0;
-  const v2 = data2[key2];
-  if (!Array.isArray(v2)) return void 0;
-  return v2.filter((item) => typeof item === "string" && item.length > 0);
+  const stringValues = data2[key2];
+  if (!Array.isArray(stringValues)) return void 0;
+  return stringValues.filter((item) => typeof item === "string" && item.length > 0);
 }
 
 async function dispatchToBridge(
@@ -271,7 +271,7 @@ async function runNode(
 }
 
 export function useGroupExecution(instance2) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const bridge = useCanvasBridge();
   const bridgeRef = reactExports.useRef(bridge);
   bridgeRef.current = bridge;
@@ -305,20 +305,20 @@ export function useGroupExecution(instance2) {
       const isCancelled = () => cancelledGroupsRef.current.has(groupId2);
       try {
         const graph = instance2.getGraph();
-        const childNodes = graph.nodes.filter((n2) => n2.parentId === groupId2);
+        const childNodes = graph.nodes.filter((node) => node.parentId === groupId2);
         if (childNodes.length === 0) {
-          dedupedToast.info(t2("canvas.execGroup.empty", "组内没有节点"));
+          dedupedToast.info(translate("canvas.execGroup.empty", "组内没有节点"));
           return;
         }
-        const childIds = new Set(childNodes.map((n2) => n2.id));
+        const childIds = new Set(childNodes.map((node) => node.id));
         const groupEdges = graph.edges.filter(
-          (e2) => childIds.has(e2.source) && childIds.has(e2.target),
+          (edge) => childIds.has(edge.source) && childIds.has(edge.target),
         );
         const incomingByTarget = new Map();
         for (const edge of graph.edges) {
           if (!childIds.has(edge.target)) continue;
-          const arr = incomingByTarget.get(edge.target);
-          if (arr) arr.push(edge.source);
+          const incomingSourceIds = incomingByTarget.get(edge.target);
+          if (incomingSourceIds) incomingSourceIds.push(edge.source);
           else incomingByTarget.set(edge.target, [edge.source]);
         }
         const { children: children2, parents } = buildAdjacency(
@@ -327,44 +327,44 @@ export function useGroupExecution(instance2) {
         );
         const levelMap = topoSortLevels(childIds, children2, parents);
         const layers = groupByLevel(levelMap);
-        const nodeMap = new Map(childNodes.map((n2) => [n2.id, n2]));
-        const allNodesById = new Map(graph.nodes.map((n2) => [n2.id, n2]));
+        const nodeMap = new Map(childNodes.map((node) => [node.id, node]));
+        const allNodesById = new Map(graph.nodes.map((node) => [node.id, node]));
         const getNodeById = (sourceId) => {
-          const n2 = allNodesById.get(sourceId);
-          return n2
+          const sourceNode = allNodesById.get(sourceId);
+          return sourceNode
             ? {
-                type: n2.type,
-                assetId: n2.assetId,
-                data: n2.data ?? {},
+                type: sourceNode.type,
+                assetId: sourceNode.assetId,
+                data: sourceNode.data ?? {},
               }
             : null;
         };
         const executable = new Set(
           childNodes
-            .filter((n2) => isReexecutableGenerationNode(n2))
-            .map((n2) => n2.id),
+            .filter((node) => isReexecutableGenerationNode(node))
+            .map((node) => node.id),
         );
         if (executable.size === 0) {
           dedupedToast.info(
-            t2("canvas.execGroup.noExecutable", "组内没有可执行节点"),
+            translate("canvas.execGroup.noExecutable", "组内没有可执行节点"),
           );
           return;
         }
         const totalLayers = layers.filter((layer2) =>
-          layer2.some((id2) => executable.has(id2)),
+          layer2.some((nodeId) => executable.has(nodeId)),
         ).length;
         let layerIdx = 0;
         for (const layer2 of layers) {
           if (isCancelled()) break;
           const toRun = layer2
-            .filter((id2) => executable.has(id2))
-            .map((id2) => nodeMap.get(id2))
-            .filter((n2) => !!n2);
+            .filter((nodeId) => executable.has(nodeId))
+            .map((nodeId) => nodeMap.get(nodeId))
+            .filter((node) => !!node);
           if (toRun.length === 0) continue;
           layerIdx++;
           if (totalLayers > 1) {
             dedupedToast.info(
-              t2("canvas.execGroup.layer", {
+              translate("canvas.execGroup.layer", {
                 current: layerIdx,
                 total: totalLayers,
                 defaultValue: `执行第 ${layerIdx}/${totalLayers} 层`,
@@ -392,19 +392,19 @@ export function useGroupExecution(instance2) {
             );
             if (onlyRecoverable) {
               dedupedToast.warning(
-                t2(
+                translate(
                   "canvas.execGroup.incomplete",
                   "部分任务仍在恢复，已暂停后续执行",
                 ),
               );
             } else {
-              dedupedToast.error(t2("canvas.execGroup.failed", "整组执行失败"));
+              dedupedToast.error(translate("canvas.execGroup.failed", "整组执行失败"));
             }
             return;
           }
         }
         if (!isCancelled()) {
-          dedupedToast.success(t2("canvas.execGroup.complete", "整组执行完成"));
+          dedupedToast.success(translate("canvas.execGroup.complete", "整组执行完成"));
         }
       } finally {
         if (tokensByGroupRef.current.get(groupId2) === myToken) {
@@ -416,7 +416,7 @@ export function useGroupExecution(instance2) {
         }
       }
     },
-    [instance2, t2],
+    [instance2, translate],
   );
   const cancelExecution = reactExports.useCallback((groupId2) => {
     if (!executingGroupIdsRef.current.has(groupId2)) return;

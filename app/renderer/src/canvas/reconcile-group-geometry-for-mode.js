@@ -32,11 +32,11 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
     if (node2.type !== CanvasNodeType.Group) continue;
     const children2 = childrenByParent.get(node2.id);
     if (!children2 || children2.length === 0) continue;
-    const visibleChildren = children2.filter((c3) => !c3.meta?.hidden);
+    const visibleChildren = children2.filter((child) => !child.meta?.hidden);
     if (visibleChildren.length === 0) continue;
     let allVisibleChildrenHavePos = true;
-    for (const c3 of visibleChildren) {
-      if (!c3.positions?.[mode2]) {
+    for (const child of visibleChildren) {
+      if (!child.positions?.[mode2]) {
         allVisibleChildrenHavePos = false;
         break;
       }
@@ -44,12 +44,12 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
     if (!allVisibleChildrenHavePos) continue;
     const groupPos = node2.positions?.[mode2];
     if (!groupPos) {
-      const absChildren = visibleChildren.map((c3) => {
-        const p3 = c3.positions?.[mode2];
+      const absChildren = visibleChildren.map((child) => {
+        const childPosition = child.positions?.[mode2];
         return {
-          position: p3,
-          size: c3.size,
-          type: c3.type,
+          position: childPosition,
+          size: child.size,
+          type: child.type,
         };
       });
       const { position: newGroupPos2, size: newGroupSize } =
@@ -65,17 +65,17 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
           [mode2]: newGroupSize,
         },
       });
-      for (const c3 of children2) {
-        const abs = c3.positions?.[mode2];
-        if (!abs) continue;
+      for (const child of children2) {
+        const absolutePosition = child.positions?.[mode2];
+        if (!absolutePosition) continue;
         const newRel = {
-          x: abs.x - newGroupPos2.x,
-          y: abs.y - newGroupPos2.y,
+          x: absolutePosition.x - newGroupPos2.x,
+          y: absolutePosition.y - newGroupPos2.y,
         };
-        updatedById.set(c3.id, {
-          ...c3,
+        updatedById.set(child.id, {
+          ...child,
           positions: {
-            ...(c3.positions ?? {}),
+            ...(child.positions ?? {}),
             [mode2]: newRel,
           },
         });
@@ -88,13 +88,13 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
     let relMinY = Number.POSITIVE_INFINITY;
     let relMaxX = Number.NEGATIVE_INFINITY;
     let relMaxY = Number.NEGATIVE_INFINITY;
-    for (const c3 of visibleChildren) {
-      const p3 = c3.positions?.[mode2];
-      const sz = c3.size ?? defaultNodeSizeForType(c3.type);
-      relMinX = Math.min(relMinX, p3.x);
-      relMinY = Math.min(relMinY, p3.y);
-      relMaxX = Math.max(relMaxX, p3.x + sz.width);
-      relMaxY = Math.max(relMaxY, p3.y + sz.height);
+    for (const child of visibleChildren) {
+      const childPosition = child.positions?.[mode2];
+      const childSize = child.size ?? defaultNodeSizeForType(child.type);
+      relMinX = Math.min(relMinX, childPosition.x);
+      relMinY = Math.min(relMinY, childPosition.y);
+      relMaxX = Math.max(relMaxX, childPosition.x + childSize.width);
+      relMaxY = Math.max(relMaxY, childPosition.y + childSize.height);
     }
     const disjoint =
       relMaxX <= 0 ||
@@ -103,12 +103,12 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
       relMinY >= groupSize.height;
     const frameMode = readGroupFrameMode(node2);
     if (disjoint && frameMode !== "manual") {
-      const absChildren = visibleChildren.map((c3) => {
-        const p3 = c3.positions?.[mode2];
+      const absChildren = visibleChildren.map((child) => {
+        const childPosition = child.positions?.[mode2];
         return {
-          position: p3,
-          size: c3.size,
-          type: c3.type,
+          position: childPosition,
+          size: child.size,
+          type: child.type,
         };
       });
       const { position: newGroupPos2, size: newGroupSize } =
@@ -133,17 +133,17 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
           [mode2]: newGroupSize,
         },
       });
-      for (const c3 of children2) {
-        const abs = c3.positions?.[mode2];
-        if (!abs) continue;
+      for (const child of children2) {
+        const absolutePosition = child.positions?.[mode2];
+        if (!absolutePosition) continue;
         const newRel = {
-          x: abs.x - newGroupPos2.x,
-          y: abs.y - newGroupPos2.y,
+          x: absolutePosition.x - newGroupPos2.x,
+          y: absolutePosition.y - newGroupPos2.y,
         };
-        updatedById.set(c3.id, {
-          ...c3,
+        updatedById.set(child.id, {
+          ...child,
           positions: {
-            ...(c3.positions ?? {}),
+            ...(child.positions ?? {}),
             [mode2]: newRel,
           },
         });
@@ -199,17 +199,17 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
       },
     });
     if (shiftX !== 0 || shiftY !== 0) {
-      for (const c3 of children2) {
-        const rel = c3.positions?.[mode2];
-        if (!rel) continue;
+      for (const child of children2) {
+        const relativePosition = child.positions?.[mode2];
+        if (!relativePosition) continue;
         const newRel = {
-          x: rel.x - shiftX,
-          y: rel.y - shiftY,
+          x: relativePosition.x - shiftX,
+          y: relativePosition.y - shiftY,
         };
-        updatedById.set(c3.id, {
-          ...c3,
+        updatedById.set(child.id, {
+          ...child,
           positions: {
-            ...(c3.positions ?? {}),
+            ...(child.positions ?? {}),
             [mode2]: newRel,
           },
         });
@@ -223,7 +223,7 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
       changed: false,
     };
   }
-  const nextNodes = canvas.nodes.map((n2) => updatedById.get(n2.id) ?? n2);
+  const nextNodes = canvas.nodes.map((node) => updatedById.get(node.id) ?? node);
   return {
     canvas: {
       ...canvas,

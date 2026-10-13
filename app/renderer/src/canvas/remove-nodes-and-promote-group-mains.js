@@ -142,13 +142,13 @@ export function isChildFullyInsideParent(
   parentSize,
 ) {
   if (!parentSize) return false;
-  const cw = childSize?.width ?? 0;
-  const ch = childSize?.height ?? 0;
+  const childWidth = childSize?.width ?? 0;
+  const childHeight = childSize?.height ?? 0;
   return (
     childAbsPos.x >= parentAbsPos.x &&
     childAbsPos.y >= parentAbsPos.y &&
-    childAbsPos.x + cw <= parentAbsPos.x + parentSize.width &&
-    childAbsPos.y + ch <= parentAbsPos.y + parentSize.height
+    childAbsPos.x + childWidth <= parentAbsPos.x + parentSize.width &&
+    childAbsPos.y + childHeight <= parentAbsPos.y + parentSize.height
   );
 }
 export function isChildFullyOutsideParent(
@@ -158,11 +158,11 @@ export function isChildFullyOutsideParent(
   parentSize,
 ) {
   if (!parentSize) return false;
-  const cw = childSize?.width ?? 0;
-  const ch = childSize?.height ?? 0;
+  const childWidth = childSize?.width ?? 0;
+  const childHeight = childSize?.height ?? 0;
   return (
-    childAbsPos.x + cw <= parentAbsPos.x ||
-    childAbsPos.y + ch <= parentAbsPos.y ||
+    childAbsPos.x + childWidth <= parentAbsPos.x ||
+    childAbsPos.y + childHeight <= parentAbsPos.y ||
     childAbsPos.x >= parentAbsPos.x + parentSize.width ||
     childAbsPos.y >= parentAbsPos.y + parentSize.height
   );
@@ -255,21 +255,21 @@ export function planGroupAwareRemoval(
   let snapshot2 = buildCanvasFileSnapshot(graph, mode2);
   const ungroupedChildrenByGroupId = new Map();
   const refusedGroupIds = new Set();
-  for (const id2 of requestedNodeIds) {
-    if (nodeById.get(id2)?.type !== CanvasNodeType.Group) continue;
-    const result = ungroupInCanvas(snapshot2, id2);
+  for (const nodeId of requestedNodeIds) {
+    if (nodeById.get(nodeId)?.type !== CanvasNodeType.Group) continue;
+    const result = ungroupInCanvas(snapshot2, nodeId);
     if (!result.removed) {
-      refusedGroupIds.add(id2);
+      refusedGroupIds.add(nodeId);
       continue;
     }
     snapshot2 = result.canvas;
-    ungroupedChildrenByGroupId.set(id2, result.updatedNodes);
+    ungroupedChildrenByGroupId.set(nodeId, result.updatedNodes);
   }
   const edgeById = new Map(graph.edges.map((edge) => [edge.id, edge]));
   return {
-    removalNodeIds: requestedNodeIds.filter((id2) => !refusedGroupIds.has(id2)),
-    removalEdgeIds: requestedEdgeIds.filter((id2) => {
-      const edge = edgeById.get(id2);
+    removalNodeIds: requestedNodeIds.filter((nodeId) => !refusedGroupIds.has(nodeId)),
+    removalEdgeIds: requestedEdgeIds.filter((edgeId) => {
+      const edge = edgeById.get(edgeId);
       return (
         !edge ||
         (!refusedGroupIds.has(edge.source) && !refusedGroupIds.has(edge.target))
@@ -279,19 +279,19 @@ export function planGroupAwareRemoval(
   };
 }
 export function isBoxOutsideRect(box2, rect) {
-  const a2 = {
+  const boxRect = {
     x: box2.minX,
     y: box2.minY,
     w: box2.maxX - box2.minX,
     h: box2.maxY - box2.minY,
   };
-  const b3 = {
+  const targetRect = {
     x: rect.x,
     y: rect.y,
     w: rect.width,
     h: rect.height,
   };
-  return !rectsOverlap(a2, b3);
+  return !rectsOverlap(boxRect, targetRect);
 }
 export function computeNodeGroupBounds(nodes, mode2) {
   let minX = Number.POSITIVE_INFINITY;
@@ -300,11 +300,11 @@ export function computeNodeGroupBounds(nodes, mode2) {
   let maxY = Number.NEGATIVE_INFINITY;
   for (const node2 of nodes) {
     const size2 = sizeOf(node2, mode2);
-    const pos = getNodePosition(node2, mode2);
-    minX = Math.min(minX, pos.x);
-    minY = Math.min(minY, pos.y);
-    maxX = Math.max(maxX, pos.x + size2.width);
-    maxY = Math.max(maxY, pos.y + size2.height);
+    const position = getNodePosition(node2, mode2);
+    minX = Math.min(minX, position.x);
+    minY = Math.min(minY, position.y);
+    maxX = Math.max(maxX, position.x + size2.width);
+    maxY = Math.max(maxY, position.y + size2.height);
   }
   return {
     minX,
@@ -319,18 +319,18 @@ export function computeNodeGroupBounds(nodes, mode2) {
 }
 export function centerNodeGroupAt(nodes, target, mode2) {
   const topLevel = nodes.filter(
-    (n2) => !n2.parentId && n2.meta?.hidden !== true,
+    (node) => !node.parentId && node.meta?.hidden !== true,
   );
   if (topLevel.length === 0) return;
   const { center } = computeNodeGroupBounds(topLevel, mode2);
-  const { x: cx2, y: cy } = center;
-  const dx = target.x - cx2;
-  const dy = target.y - cy;
+  const { x: centerX, y: centerY } = center;
+  const deltaX = target.x - centerX;
+  const deltaY = target.y - centerY;
   for (const node2 of topLevel) {
-    const cur = getNodePosition(node2, mode2);
+    const currentPosition = getNodePosition(node2, mode2);
     setNodePosition(node2, mode2, {
-      x: cur.x + dx,
-      y: cur.y + dy,
+      x: currentPosition.x + deltaX,
+      y: currentPosition.y + deltaY,
     });
   }
 }
@@ -368,14 +368,14 @@ export function normalizeOrphanChildForClipboard(
   mode2,
 ) {
   if (node2.groupId && node2.meta?.hidden === true) {
-    const groupMembers = allNodes.filter((n2) => n2.groupId === node2.groupId);
-    const main2 = groupMembers.find((n2) => n2.meta?.hidden !== true);
+    const groupMembers = allNodes.filter((node) => node.groupId === node2.groupId);
+    const main2 = groupMembers.find((node) => node.meta?.hidden !== true);
     const mainCopied = main2 ? copiedIds.has(main2.id) : false;
     if (!mainCopied) {
       const mainPos = main2
         ? getNodePosition(main2, mode2)
         : getNodePosition(node2, mode2);
-      const { groupId: _g, round: _r, ...rest } = node2;
+      const { groupId: _groupId, round: _round, ...rest } = node2;
       return {
         ...rest,
         meta: {
@@ -393,7 +393,7 @@ export function normalizeOrphanChildForClipboard(
     }
   }
   if (!node2.parentId || copiedIds.has(node2.parentId)) return node2;
-  const parent = allNodes.find((p3) => p3.id === node2.parentId);
+  const parent = allNodes.find((parentNode) => parentNode.id === node2.parentId);
   if (!parent)
     return {
       ...node2,

@@ -1,0 +1,24 @@
+key	old	new	依据
+e2@27:14	e2	edge	该值是用于汇总来源节点可达性的图边。
+s2@117:6	s2	storeState	该参数提供拖动预览所需的视口变换状态。
+a2@122:6	a2	leftTransform	该参数是视口变换比较中的第一份状态。
+b3@122:10	b3	rightTransform	该参数是视口变换比较中的第二份状态。
+d2@153:21	d2	pathData	该字符串是连线预览的 SVG path 数据。
+i2@153:25	i2	pathIndex	该值是 SVG path 数组中的下标。
+t2@198:14	t2	translate	该函数翻译多选加号手柄的辅助文案。
+s2@202:33	s2	storeState	该参数提供节点是否可连接的状态。
+s2@205:8	s2	storeState	该参数提供解析连接来源所需的节点状态。
+a2@208:6	a2	leftSources	该对象是选择连接来源比较的左侧结果。
+b3@208:10	b3	rightSources	该对象是选择连接来源比较的右侧结果。
+id2@211:31	id2	nodeId	该值是待比较的来源节点标识。
+e2@241:6	e2	pointerEvent	该值是触发拖动连接的指针事件。
+id2@249:18	id2	nodeId	该值是需要读取位置的来源节点标识。
+w3@252:15	w3	width	该值是来源节点测量或布局宽度。
+h2@253:15	h2	height	该值是来源节点测量或布局高度。
+ev@271:23	ev	pointerMoveEvent	该值是更新拖动预览位置的指针移动事件。
+dx@274:17	dx	deltaX	该值是鼠标相对起始点的水平位移。
+dy@275:17	dy	deltaY	该值是鼠标相对起始点的垂直位移。
+ev@286:21	ev	pointerUpEvent	该值是结束拖动连接的指针抬起事件。
+dx@289:15	dx	deltaX	该值是鼠标相对起始点的水平位移。
+dy@290:15	dy	deltaY	该值是鼠标相对起始点的垂直位移。
+e2@375:21	e2	clickEvent	该值是需要阻止冒泡的按钮点击事件。
