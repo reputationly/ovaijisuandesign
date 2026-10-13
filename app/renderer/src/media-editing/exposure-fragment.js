@@ -3,30 +3,30 @@
 // exposure-fragment.js
 export const clamp01 = (value) => Math.min(1, Math.max(0, value));
 
-const cubicBezier = (t2, p0, p1, p22, p3) => {
-  const u4 = 1 - t2;
+const cubicBezier = (progress, startValue, firstControlValue, secondControlValue, endValue) => {
+  const complementProgress = 1 - progress;
   return (
-    u4 * u4 * u4 * p0 +
-    3 * u4 * u4 * t2 * p1 +
-    3 * u4 * t2 * t2 * p22 +
-    t2 * t2 * t2 * p3
+    complementProgress * complementProgress * complementProgress * startValue +
+    3 * complementProgress * complementProgress * progress * firstControlValue +
+    3 * complementProgress * progress * progress * secondControlValue +
+    progress * progress * progress * endValue
   );
 };
 
 const PALETTE_SIZE = 256;
 
 export const buildCurvePalette = (lowControl, highControl) => {
-  const data2 = new Uint8Array(PALETTE_SIZE * 3);
-  for (let i2 = 0; i2 < PALETTE_SIZE; i2 += 1) {
-    const t2 = i2 / (PALETTE_SIZE - 1);
-    const y4 = cubicBezier(t2, 0, lowControl, highControl, 1);
-    const v2 = Math.round(clamp01(y4) * 255);
-    const idx = i2 * 3;
-    data2[idx] = v2;
-    data2[idx + 1] = v2;
-    data2[idx + 2] = v2;
+  const data = new Uint8Array(PALETTE_SIZE * 3);
+  for (let index = 0; index < PALETTE_SIZE; index += 1) {
+    const progress = index / (PALETTE_SIZE - 1);
+    const curveValue = cubicBezier(progress, 0, lowControl, highControl, 1);
+    const channelValue = Math.round(clamp01(curveValue) * 255);
+    const channelOffset = index * 3;
+    data[channelOffset] = channelValue;
+    data[channelOffset + 1] = channelValue;
+    data[channelOffset + 2] = channelValue;
   }
-  return data2;
+  return data;
 };
 
 export const vertexShader = `

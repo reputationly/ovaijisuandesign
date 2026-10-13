@@ -25,12 +25,12 @@ import {
 import { useCanvasActions } from "./use-canvas-actions.js";
 import { toWorkspaceBrowserUrl } from "../generation/to-workspace-browser-url.js";
 function ViewerNotFound({ messageKey, detail }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-muted px-6 text-center">
       <FileMissingIcon />
       <div className="text-sm font-medium text-foreground">
-        {t2(
+        {t(
           messageKey ?? "canvas.file.viewer.notFound",
           "找不到文件，可能已被删除或对应插件已卸载",
         )}
@@ -44,14 +44,14 @@ function ViewerNotFound({ messageKey, detail }) {
   );
 }
 const CANVAS_PRESENTATION_LAYOUT_SETTLE_MS = 250;
-function useUrlAvailability(url2, reloadKey) {
-  const [state2, setState] = reactExports.useState("checking");
+function useUrlAvailability(url, reloadKey) {
+  const [state, setState] = reactExports.useState("checking");
   const probeInput = reactExports.useMemo(
     () => ({
-      url: url2,
+      url,
       reloadKey,
     }),
-    [url2, reloadKey],
+    [url, reloadKey],
   );
   reactExports.useEffect(() => {
     const probeUrl = probeInput.url;
@@ -66,9 +66,9 @@ function useUrlAvailability(url2, reloadKey) {
       cache: "no-store",
       signal: controller.signal,
     })
-      .then((res) => {
+      .then((response) => {
         if (controller.signal.aborted) return;
-        if (res.status === 404) setState("not-found");
+        if (response.status === 404) setState("not-found");
         else setState("ok");
       })
       .catch((err) => {
@@ -78,16 +78,16 @@ function useUrlAvailability(url2, reloadKey) {
       });
     return () => controller.abort();
   }, [probeInput]);
-  return state2;
+  return state;
 }
 function getWindowBridge() {
-  const platform2 = window.__HILO_PLATFORM__;
-  return platform2?.window;
+  const platform = window.__HILO_PLATFORM__;
+  return platform?.window;
 }
 export function HtmlViewerInner({
   filePath,
   interactive,
-  displayName: displayName2,
+  displayName,
   pluginOpenRequest,
   supportsCanvasPresentation,
   surface,
@@ -95,10 +95,10 @@ export function HtmlViewerInner({
   reloadKey,
 }) {
   const inlineSurface = surface === "inline";
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const nodeId = useNodeId() ?? "";
   const actions = useCanvasActions();
-  const active2 = useCanvasActive();
+  const active = useCanvasActive();
   const {
     onPluginEditorOpen,
     pluginEditorAgentVisible,
@@ -106,11 +106,11 @@ export function HtmlViewerInner({
   } = useCanvasBridge();
   const pluginUrl = reactExports.useMemo(() => {
     if (!nodeId || !resolvePluginAssetUrl) return null;
-    const data2 = actions.getNodeById(nodeId)?.data;
-    const pid = typeof data2?.pluginId === "string" ? data2.pluginId : null;
+    const data = actions.getNodeById(nodeId)?.data;
+    const pluginId = typeof data?.pluginId === "string" ? data.pluginId : null;
     const entry =
-      typeof data2?.pluginEntry === "string" ? data2.pluginEntry : null;
-    return pid && entry ? resolvePluginAssetUrl(pid, entry) : null;
+      typeof data?.pluginEntry === "string" ? data.pluginEntry : null;
+    return pluginId && entry ? resolvePluginAssetUrl(pluginId, entry) : null;
   }, [nodeId, actions, resolvePluginAssetUrl]);
   const workspaceFileUrl = useFileUrl(filePath, {
     cacheBust: false,
@@ -120,17 +120,17 @@ export function HtmlViewerInner({
     if (!rawFileUrl) return rawFileUrl;
     const browserUrl = toWorkspaceBrowserUrl(rawFileUrl);
     if (!pluginOpenRequest) return browserUrl;
-    const url2 = new URL(browserUrl);
-    url2.searchParams.set("hubWorkflow", pluginOpenRequest.workflow);
-    url2.searchParams.set("hubWorkflowRequestId", pluginOpenRequest.requestId);
-    url2.searchParams.set("hubWorkflowCommand", pluginOpenRequest.command);
+    const url = new URL(browserUrl);
+    url.searchParams.set("hubWorkflow", pluginOpenRequest.workflow);
+    url.searchParams.set("hubWorkflowRequestId", pluginOpenRequest.requestId);
+    url.searchParams.set("hubWorkflowCommand", pluginOpenRequest.command);
     if (pluginOpenRequest.workflowId) {
-      url2.searchParams.set("hubWorkflowId", pluginOpenRequest.workflowId);
+      url.searchParams.set("hubWorkflowId", pluginOpenRequest.workflowId);
     }
     if (pluginOpenRequest.target) {
-      url2.searchParams.set("hubWorkflowTarget", pluginOpenRequest.target);
+      url.searchParams.set("hubWorkflowTarget", pluginOpenRequest.target);
     }
-    return url2.toString();
+    return url.toString();
   }, [rawFileUrl, pluginOpenRequest]);
   const [iframeEl, setIframeEl] = reactExports.useState(null);
   const fullscreenApi = useHtmlFullscreenApi();
@@ -150,9 +150,9 @@ export function HtmlViewerInner({
   const isFullscreen = presentation === "fullscreen";
   const [containerEl, setContainerElState] = reactExports.useState(null);
   const setContainerEl = reactExports.useCallback(
-    (el) => {
-      setContainerElState(el);
-      if (nodeId) fullscreenApi.getState().setContainerEl(nodeId, el);
+    (element) => {
+      setContainerElState(element);
+      if (nodeId) fullscreenApi.getState().setContainerEl(nodeId, element);
     },
     [nodeId, fullscreenApi],
   );
@@ -194,8 +194,8 @@ export function HtmlViewerInner({
       );
     };
     updateBounds();
-    const observer2 = new ResizeObserver(updateBounds);
-    observer2.observe(canvasHost);
+    const observer = new ResizeObserver(updateBounds);
+    observer.observe(canvasHost);
     let layoutSettleTimer = null;
     const mutationObserver = new MutationObserver(() => {
       updateBounds();
@@ -211,7 +211,7 @@ export function HtmlViewerInner({
     });
     window.addEventListener("resize", updateBounds);
     return () => {
-      observer2.disconnect();
+      observer.disconnect();
       mutationObserver.disconnect();
       if (layoutSettleTimer !== null) window.clearTimeout(layoutSettleTimer);
       window.removeEventListener("resize", updateBounds);
@@ -219,10 +219,10 @@ export function HtmlViewerInner({
   }, [containerEl, presentation]);
   reactExports.useEffect(() => {
     if (!containerEl || !nodeId) return;
-    const onToggle = (e2) => {
-      const tev = e2;
+    const onToggle = (toggleEvent) => {
+      const presentationEvent = toggleEvent;
       if (
-        tev.newState === "closed" &&
+        presentationEvent.newState === "closed" &&
         fullscreenApi.getState().nodeId === nodeId
       ) {
         fullscreenApi.getState().exit(nodeId);
@@ -232,16 +232,16 @@ export function HtmlViewerInner({
     return () => containerEl.removeEventListener("toggle", onToggle);
   }, [nodeId, fullscreenApi, containerEl]);
   reactExports.useEffect(() => {
-    if (!active2 || !isFullscreen || !nodeId) return;
-    const onKey = (e2) => {
-      if (e2.key !== "Escape") return;
-      e2.preventDefault();
-      e2.stopPropagation();
+    if (!active || !isFullscreen || !nodeId) return;
+    const onKey = (keyboardEvent) => {
+      if (keyboardEvent.key !== "Escape") return;
+      keyboardEvent.preventDefault();
+      keyboardEvent.stopPropagation();
       exitFullscreen();
     };
     document.addEventListener("keydown", onKey, true);
     return () => document.removeEventListener("keydown", onKey, true);
-  }, [active2, isFullscreen, nodeId, exitFullscreen]);
+  }, [active, isFullscreen, nodeId, exitFullscreen]);
   reactExports.useEffect(() => {
     if (!isFullscreen || inlineSurface) return;
     const bridge = getWindowBridge();
@@ -258,14 +258,14 @@ export function HtmlViewerInner({
     }
     fullscreenApi.getState().setPresentation(nodeId, "fullscreen");
   }, [fullscreenApi, nodeId, presentation, supportsCanvasPresentation]);
-  const isConnecting = useConnection((c3) => c3.inProgress);
+  const isConnecting = useConnection((connectionState) => connectionState.inProgress);
   const allowPointer =
     isPresented || inlineSurface ? true : interactive && !isConnecting;
   const availability = useUrlAvailability(fileUrl, reloadKey);
   if (!fileUrl) return <ViewerLoading />;
   if (availability === "checking") return <ViewerLoading />;
   if (availability === "not-found")
-    return <ViewerNotFound detail={displayName2} />;
+    return <ViewerNotFound detail={displayName} />;
   return (
     <div
       ref={setContainerEl}
@@ -282,7 +282,7 @@ export function HtmlViewerInner({
         key={reloadKey}
         ref={setIframeEl}
         src={fileUrl}
-        title={displayName2 ?? "HTML preview"}
+        title={displayName ?? "HTML preview"}
         loading="lazy"
         className={`${allowPointer ? "nowheel pointer-events-auto " : "pointer-events-none "}h-full w-full border-0 bg-background`}
       />
@@ -295,7 +295,7 @@ export function HtmlViewerInner({
             event.stopPropagation();
             actions.removeNode(nodeId);
           }}
-          aria-label={t2("shortcuts.action.deleteNode", "删除节点")}
+          aria-label={t("shortcuts.action.deleteNode", "删除节点")}
           data-action-ui-id="canvas.file-node.remove-plugin-inline"
         />
       )}
@@ -307,7 +307,7 @@ export function HtmlViewerInner({
               type="button"
               className="html-viewer-popover-action"
               onClick={() => onPluginEditorOpen?.()}
-              aria-label={t2("workspace.openChat", "Open Chat")}
+              aria-label={t("workspace.openChat", "Open Chat")}
               data-action-ui-id="canvas.file-node.open-agent"
             >
               <MessageSquare size={18} strokeWidth={1.5} aria-hidden="true" />
@@ -320,8 +320,8 @@ export function HtmlViewerInner({
             onClick={togglePresentation}
             aria-label={
               isFullscreen
-                ? t2("canvas.file.showInCanvas", "在画布中显示")
-                : t2("canvas.file.enterFullscreen", "全屏预览")
+                ? t("canvas.file.showInCanvas", "在画布中显示")
+                : t("canvas.file.enterFullscreen", "全屏预览")
             }
             data-action-ui-id="canvas.file-node.toggle-presentation"
           >
@@ -341,7 +341,7 @@ export function HtmlViewerInner({
               event.stopPropagation();
               actions.removeNode(nodeId);
             }}
-            aria-label={t2("shortcuts.action.deleteNode", "删除节点")}
+            aria-label={t("shortcuts.action.deleteNode", "删除节点")}
             data-action-ui-id="canvas.file-node.remove-plugin"
           >
             <X size={18} strokeWidth={1.5} aria-hidden="true" />
@@ -352,7 +352,7 @@ export function HtmlViewerInner({
             type="button"
             className="html-viewer-popover-action"
             onClick={exitFullscreen}
-            aria-label={t2("canvas.file.exitFullscreen", "退出全屏")}
+            aria-label={t("canvas.file.exitFullscreen", "退出全屏")}
             data-action-ui-id="canvas.file-node.exit-fullscreen"
           >
             <Minimize2 size={18} strokeWidth={1.5} aria-hidden="true" />

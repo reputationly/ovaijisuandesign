@@ -9,25 +9,25 @@ import { defaultLUTParams, defaultSettings } from "./default-settings.js";
 import { WebGLBackend } from "./web-gl-backend.js";
 import { WebGPUBackend } from "./web-gpu-backend.js";
 function analyzeImageLevels(imageData) {
-  const { data: data2, width, height } = imageData;
+  const { data, width, height } = imageData;
   const histogram = new Array(256).fill(0);
-  for (let i2 = 0; i2 < data2.length; i2 += 4) {
-    histogram[data2[i2]] += 1;
-    histogram[data2[i2 + 1]] += 1;
-    histogram[data2[i2 + 2]] += 1;
+  for (let byteOffset = 0; byteOffset < data.length; byteOffset += 4) {
+    histogram[data[byteOffset]] += 1;
+    histogram[data[byteOffset + 1]] += 1;
+    histogram[data[byteOffset + 2]] += 1;
   }
   const threshold = Math.round((width * height) / 1e3);
   let black = 0;
-  for (let i2 = 0; i2 < 256; i2++) {
-    if (histogram[i2] > threshold) {
-      black = i2;
+  for (let intensity = 0; intensity < 256; intensity++) {
+    if (histogram[intensity] > threshold) {
+      black = intensity;
       break;
     }
   }
   let white = 255;
-  for (let i2 = 255; i2 >= 0; i2--) {
-    if (histogram[i2] > threshold) {
-      white = i2;
+  for (let intensity = 255; intensity >= 0; intensity--) {
+    if (histogram[intensity] > threshold) {
+      white = intensity;
       break;
     }
   }
@@ -39,19 +39,19 @@ function analyzeImageLevels(imageData) {
   };
 }
 function analyzeImageVibrance(imageData) {
-  const { data: data2, width, height } = imageData;
+  const { data, width, height } = imageData;
   let saturationSum = 1;
   let brightnessSum = 1;
-  for (let i2 = 0; i2 < data2.length; i2 += 4) {
-    const r2 = data2[i2];
-    const g2 = data2[i2 + 1];
-    const b3 = data2[i2 + 2];
-    const min2 = Math.min(r2, g2, b3);
-    const max2 = Math.max(r2, g2, b3);
-    brightnessSum += max2 / 255;
-    const chroma = max2 - min2;
+  for (let byteOffset = 0; byteOffset < data.length; byteOffset += 4) {
+    const redChannel = data[byteOffset];
+    const greenChannel = data[byteOffset + 1];
+    const blueChannel = data[byteOffset + 2];
+    const min = Math.min(redChannel, greenChannel, blueChannel);
+    const max = Math.max(redChannel, greenChannel, blueChannel);
+    brightnessSum += max / 255;
+    const chroma = max - min;
     if (chroma > 0) {
-      saturationSum += chroma / max2;
+      saturationSum += chroma / max;
     }
   }
   const pixelCount = width * height;
@@ -167,10 +167,10 @@ export class ImageColorGrading {
       this.backend = new WebGPUBackend(this.canvas, backendOptions);
       try {
         await this.backend.init();
-      } catch (e2) {
+      } catch (error) {
         console.warn(
           "WebGPU initialization failed, falling back to WebGL:",
-          e2,
+          error,
         );
         this.backend = new WebGLBackend(this.canvas, backendOptions);
         this.backend.init();
@@ -187,14 +187,14 @@ export class ImageColorGrading {
     }
     await this.initPromise;
   }
-  async loadImage(url2) {
+  async loadImage(url) {
     await this.ensureBackend();
-    const bitmap = await this.decodeUrl(url2);
+    const bitmap = await this.decodeUrl(url);
     await this.adoptSource(bitmap);
   }
-  async loadFromImage(image2) {
+  async loadFromImage(image) {
     await this.ensureBackend();
-    const bitmap = await this.toBitmap(image2);
+    const bitmap = await this.toBitmap(image);
     await this.adoptSource(bitmap);
   }
   async loadFromFile(file) {
@@ -206,46 +206,46 @@ export class ImageColorGrading {
    * 用 createImageBitmap 异步解码，避免 new Image().onload 在主线程同步解码
    * 大图时卡住 UI。失败时回退到 HTMLImageElement 解码。
    */
-  async decodeUrl(url2) {
+  async decodeUrl(url) {
     if (
       typeof createImageBitmap === "function" &&
       typeof fetch === "function"
     ) {
       try {
-        const resp = await fetch(url2, {
+        const resp = await fetch(url, {
           mode: "cors",
         });
         if (resp.ok) return await createImageBitmap(await resp.blob());
       } catch {}
     }
-    const image2 = await new Promise((resolve, reject) => {
-      const el = new Image();
-      el.crossOrigin = "anonymous";
-      el.onload = () => resolve(el);
-      el.onerror = () => reject(new Error(`Failed to load image: ${url2}`));
-      el.src = url2;
+    const image = await new Promise((resolve, reject) => {
+      const imageElement = new Image();
+      imageElement.crossOrigin = "anonymous";
+      imageElement.onload = () => resolve(imageElement);
+      imageElement.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+      imageElement.src = url;
     });
-    return this.toBitmap(image2);
+    return this.toBitmap(image);
   }
   async decodeBlob(blob) {
     if (typeof createImageBitmap === "function") {
       return createImageBitmap(blob);
     }
-    const url2 = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
     try {
-      return await this.decodeUrl(url2);
+      return await this.decodeUrl(url);
     } finally {
-      URL.revokeObjectURL(url2);
+      URL.revokeObjectURL(url);
     }
   }
-  async toBitmap(image2) {
+  async toBitmap(image) {
     if (typeof createImageBitmap === "function") {
-      if (typeof image2.decode === "function") {
+      if (typeof image.decode === "function") {
         try {
-          await image2.decode();
+          await image.decode();
         } catch {}
       }
-      return createImageBitmap(image2);
+      return createImageBitmap(image);
     }
     throw new Error("createImageBitmap is not supported");
   }
@@ -271,13 +271,13 @@ export class ImageColorGrading {
    * 长边超过 maxPreviewSize 时降采样，否则复用原图（不额外分配）。
    */
   async buildPreview(source) {
-    const longEdge2 = Math.max(source.width, source.height);
-    if (this.maxPreviewSize <= 0 || longEdge2 <= this.maxPreviewSize) {
+    const longEdge = Math.max(source.width, source.height);
+    if (this.maxPreviewSize <= 0 || longEdge <= this.maxPreviewSize) {
       return source;
     }
-    const scale2 = this.maxPreviewSize / longEdge2;
-    const width = Math.max(1, Math.round(source.width * scale2));
-    const height = Math.max(1, Math.round(source.height * scale2));
+    const scale = this.maxPreviewSize / longEdge;
+    const width = Math.max(1, Math.round(source.width * scale));
+    const height = Math.max(1, Math.round(source.height * scale));
     try {
       return await createImageBitmap(source, {
         resizeWidth: width,
@@ -319,14 +319,14 @@ export class ImageColorGrading {
     let lut;
     if (typeof input === "string") {
       if (looksLikeUrl(input)) {
-        const text2 = await fetch(input).then((r2) => r2.text());
-        lut = parseCubeLUT(text2);
+        const text = await fetch(input).then((response) => response.text());
+        lut = parseCubeLUT(text);
       } else {
         lut = parseCubeLUT(input);
       }
     } else if (input instanceof File) {
-      const text2 = await input.text();
-      lut = parseCubeLUT(text2);
+      const text = await input.text();
+      lut = parseCubeLUT(text);
     } else {
       lut = input;
     }
@@ -349,11 +349,11 @@ export class ImageColorGrading {
    * 设置 LUT 应用强度 (0~100)
    */
   setLUTIntensity(intensity) {
-    const next2 = Math.max(0, Math.min(100, intensity)) / 100;
-    if (this.lutParams.intensity === next2) return;
+    const next = Math.max(0, Math.min(100, intensity)) / 100;
+    if (this.lutParams.intensity === next) return;
     this.lutParams = {
       ...this.lutParams,
-      intensity: next2,
+      intensity: next,
     };
     this.backend?.setLUTParams(this.lutParams);
     if (this.currentLUT) this.renderIfReady();
@@ -372,16 +372,16 @@ export class ImageColorGrading {
     this.backend.render(this.settings);
   }
   toDataURL(options) {
-    const format2 = options?.format || "image/png";
+    const format = options?.format || "image/png";
     const quality = options?.quality;
     const switched = this.enterFullRes();
     if (!switched) this.render();
-    const url2 = this.canvas.toDataURL(format2, quality);
+    const url = this.canvas.toDataURL(format, quality);
     if (switched) this.exitFullRes();
-    return url2;
+    return url;
   }
   toBlob(options) {
-    const format2 = options?.format || "image/png";
+    const format = options?.format || "image/png";
     const quality = options?.quality;
     const switched = this.enterFullRes();
     if (!switched) this.render();
@@ -395,7 +395,7 @@ export class ImageColorGrading {
             reject(new Error("Failed to create blob"));
           }
         },
-        format2,
+        format,
         quality,
       );
     });
@@ -503,11 +503,11 @@ export class ImageColorGrading {
     this.render();
     return newSettings;
   }
-  applyPreset(preset2) {
-    if (preset2 === "auto") {
+  applyPreset(preset) {
+    if (preset === "auto") {
       return this.autoFix();
     }
-    const presetSettings = presets[preset2];
+    const presetSettings = presets[preset];
     const newSettings = {
       ...defaultSettings,
       ...presetSettings,
