@@ -16,24 +16,24 @@ const DEFAULT_MUTED = true;
 function readPersisted() {
   if (typeof window === "undefined") return DEFAULT_MUTED;
   try {
-    const v2 = window.localStorage.getItem(STORAGE_KEY);
-    if (v2 === "0") return false;
-    if (v2 === "1") return true;
+    const storedMutedSetting = window.localStorage.getItem(STORAGE_KEY);
+    if (storedMutedSetting === "0") return false;
+    if (storedMutedSetting === "1") return true;
   } catch {}
   return DEFAULT_MUTED;
 }
-const useVideoMutedStore = create((set2, get3) => ({
+const useVideoMutedStore = create((setState, getState) => ({
   muted: readPersisted(),
   setMuted: (muted) => {
-    if (get3().muted === muted) return;
-    set2({
+    if (getState().muted === muted) return;
+    setState({
       muted,
     });
     try {
       window.localStorage.setItem(STORAGE_KEY, muted ? "1" : "0");
     } catch {}
   },
-  toggleMuted: () => get3().setMuted(!get3().muted),
+  toggleMuted: () => getState().setMuted(!getState().muted),
 }));
 function recoverPlayingVideoSurface(video, shouldBePlaying) {
   if (!video || !shouldBePlaying) return false;
@@ -45,13 +45,13 @@ function recoverPlayingVideoSurface(video, shouldBePlaying) {
   }
 }
 function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const videoRef = reactExports.useRef(null);
-  const isPlaying = useMediaPlayback((s2) => s2.playingId === nodeId);
-  const play = useMediaPlayback((s2) => s2.play);
-  const stop = useMediaPlayback((s2) => s2.stop);
-  const muted = useVideoMutedStore((s2) => s2.muted);
-  const toggleMuted = useVideoMutedStore((s2) => s2.toggleMuted);
+  const isPlaying = useMediaPlayback((playbackState) => playbackState.playingId === nodeId);
+  const play = useMediaPlayback((playbackState) => playbackState.play);
+  const stop = useMediaPlayback((playbackState) => playbackState.stop);
+  const muted = useVideoMutedStore((muteStore) => muteStore.muted);
+  const toggleMuted = useVideoMutedStore((muteStore) => muteStore.toggleMuted);
   useCanvasSurfaceRecovery(
     {
       surfaceType: "video",
@@ -64,43 +64,43 @@ function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
     play(nodeId);
   }, [play, nodeId]);
   reactExports.useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
     if (isPlaying) {
-      el.play().catch(() => {});
+      videoElement.play().catch(() => {});
     } else {
-      el.pause();
+      videoElement.pause();
     }
   }, [isPlaying]);
   reactExports.useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
     const handleEnded = () => {
       if (useMediaPlayback.getState().playingId !== nodeId) return;
-      el.currentTime = 0;
-      el.play().catch(() => {});
+      videoElement.currentTime = 0;
+      videoElement.play().catch(() => {});
     };
-    el.addEventListener("ended", handleEnded);
-    return () => el.removeEventListener("ended", handleEnded);
+    videoElement.addEventListener("ended", handleEnded);
+    return () => videoElement.removeEventListener("ended", handleEnded);
   }, [nodeId]);
   const handleTogglePlay = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       if (isPlaying) stop();
       else play(nodeId);
     },
     [isPlaying, play, stop, nodeId],
   );
   const handleToggleMute = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       toggleMuted();
     },
     [toggleMuted],
   );
   const handleFullscreen = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       onFullscreen?.();
     },
     [onFullscreen],
@@ -138,14 +138,14 @@ function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
           <button
             type="button"
             onClick={handleTogglePlay}
-            onDoubleClick={(e2) => e2.stopPropagation()}
+            onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
             data-action-ui-id="canvas.video-player.toggle-play"
             aria-label={
               isPlaying
-                ? t2("common.pause", {
+                ? t("common.pause", {
                     defaultValue: "Pause",
                   })
-                : t2("common.play", {
+                : t("common.play", {
                     defaultValue: "Play",
                   })
             }
@@ -162,14 +162,14 @@ function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
             <button
               type="button"
               onClick={handleToggleMute}
-              onDoubleClick={(e2) => e2.stopPropagation()}
+              onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
               data-action-ui-id="canvas.video-player.toggle-mute"
               aria-label={
                 muted
-                  ? t2("assetPreview.unmute", {
+                  ? t("assetPreview.unmute", {
                       defaultValue: "Unmute",
                     })
-                  : t2("assetPreview.mute", {
+                  : t("assetPreview.mute", {
                       defaultValue: "Mute",
                     })
               }
@@ -181,9 +181,9 @@ function VideoPlayerInner({ src, nodeId, width, height, onFullscreen }) {
               <button
                 type="button"
                 onClick={handleFullscreen}
-                onDoubleClick={(e2) => e2.stopPropagation()}
+                onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
                 data-action-ui-id="canvas.video-player.fullscreen"
-                aria-label={t2("canvas.fullscreen", {
+                aria-label={t("canvas.fullscreen", {
                   defaultValue: "Fullscreen",
                 })}
                 className="pointer-events-auto flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-[8px] border-0 bg-transparent text-[var(--canvas-video-control-fg)] transition-colors hover:bg-[var(--canvas-video-control-hover)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"

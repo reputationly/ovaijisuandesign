@@ -44,13 +44,13 @@ import {
   useUpstreamTextContent,
 } from "../assets/parse-prompt-to-tiptap.js";
 import { AudioClipPanel } from "./audio-preview.jsx";
-function resolveEffectiveAudioDraft(draft, meta2, hostStatus) {
+function resolveEffectiveAudioDraft(draft, meta, hostStatus) {
   const activeDraft = resolveActiveNodeDraft(draft, hostStatus);
   if (!activeDraft) return void 0;
-  if (!meta2?.model_id) return activeDraft;
+  if (!meta?.model_id) return activeDraft;
   if (activeDraft.dirty) return activeDraft;
   const draftPrompt = activeDraft.prompt?.trim() ?? "";
-  const metaPrompt = meta2.prompt?.trim() ?? "";
+  const metaPrompt = meta.prompt?.trim() ?? "";
   const hasEditedPrompt = draftPrompt.length > 0 && draftPrompt !== metaPrompt;
   const hasReferenceDraft =
     (activeDraft.imagePaths?.length ?? 0) > 0 ||
@@ -110,13 +110,13 @@ function resolveAudioPromptPopoverState({
   return "content";
 }
 function resolveAudioPromptPopoverGapOffset(input) {
-  const state2 = resolveAudioPromptPopoverState(input);
-  if (state2 !== "content") return AUDIO_FULL_BODY_POPOVER_GAP_OFFSET;
+  const state = resolveAudioPromptPopoverState(input);
+  if (state !== "content") return AUDIO_FULL_BODY_POPOVER_GAP_OFFSET;
   return (
     (AUDIO_GENERATED_SELECTED_BODY_HEIGHT - AUDIO_CARD_SIZE.height) * input.zoom
   );
 }
-function CopyIcon$1() {
+function VoiceCloneCopyIcon() {
   return (
     <CompositedSvg
       width="12"
@@ -150,7 +150,7 @@ function CheckIcon() {
   );
 }
 function VoiceCloneInfoCard({ voiceId, sourceLabel, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [copied, setCopied] = reactExports.useState(false);
   const handleCopy = reactExports.useCallback(async () => {
     try {
@@ -172,15 +172,15 @@ function VoiceCloneInfoCard({ voiceId, sourceLabel, onClose }) {
               color: "var(--canvas-accent-strong, rgb(79, 70, 229))",
             }}
           >
-            {t2("canvas.voiceClone.badge", "音色克隆")}
+            {t("canvas.voiceClone.badge", "音色克隆")}
           </span>
           <span className="text-[11px] text-[var(--fg-muted,#525252)]">
-            {t2("canvas.voiceClone.subtitle", "由 voice_clone 工具生成")}
+            {t("canvas.voiceClone.subtitle", "由 voice_clone 工具生成")}
           </span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[11px] text-[var(--fg-muted,#525252)]">
-            {t2("canvas.voiceClone.voiceIdLabel", "voice_id")}
+            {t("canvas.voiceClone.voiceIdLabel", "voice_id")}
           </span>
           <div
             className="flex items-center justify-between gap-2 rounded-sm border px-2 py-1"
@@ -199,19 +199,19 @@ function VoiceCloneInfoCard({ voiceId, sourceLabel, onClose }) {
               type="button"
               onClick={handleCopy}
               className="flex h-6 shrink-0 items-center gap-1 rounded-sm px-2 text-[11px] text-[var(--fg-muted,#525252)] hover:bg-[var(--bg-surface,#fff)] hover:text-[var(--fg-default,#141414)]"
-              title={t2("canvas.voiceClone.copy", "复制 voice_id")}
+              title={t("canvas.voiceClone.copy", "复制 voice_id")}
             >
-              {copied ? <CheckIcon /> : <CopyIcon$1 />}
+              {copied ? <CheckIcon /> : <VoiceCloneCopyIcon />}
               {copied
-                ? t2("canvas.voiceClone.copied", "已复制")
-                : t2("canvas.voiceClone.copy", "复制")}
+                ? t("canvas.voiceClone.copied", "已复制")
+                : t("canvas.voiceClone.copy", "复制")}
             </button>
           </div>
         </div>
         {sourceLabel && (
           <div className="flex flex-col gap-1">
             <span className="text-[11px] text-[var(--fg-muted,#525252)]">
-              {t2("canvas.voiceClone.sourceLabel", "克隆来源")}
+              {t("canvas.voiceClone.sourceLabel", "克隆来源")}
             </span>
             <p
               className="m-0 truncate rounded-sm border px-2 py-1 text-[12px] text-[var(--fg-default,#141414)]"
@@ -226,7 +226,7 @@ function VoiceCloneInfoCard({ voiceId, sourceLabel, onClose }) {
           </div>
         )}
         <div className="mt-auto rounded-sm border-l-2 border-[var(--fg-muted,#525252)] bg-[var(--bg-surface-secondary,#f7f7f7)] px-2 py-1.5 text-[11px] leading-snug text-[var(--fg-muted,#525252)]">
-          {t2(
+          {t(
             "canvas.voiceClone.usageHint",
             "复制 voice_id 后，可在 chat 中要求生成 TTS 时指定此音色，或继续在 MCP tool 调用中复用。",
           )}
@@ -252,7 +252,7 @@ function CopyIcon() {
     </CompositedSvg>
   );
 }
-function CheckIcon$2() {
+function VoiceDesignCheckIcon() {
   return (
     <CompositedSvg
       width="12"
@@ -275,7 +275,7 @@ function VoiceDesignInfoCard({
   onRedesign,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [copied, setCopied] = reactExports.useState(false);
   const [draftPrompt, setDraftPrompt] = reactExports.useState(
     voiceDescription ?? "",
@@ -312,15 +312,15 @@ function VoiceDesignInfoCard({
               color: "var(--canvas-accent-strong, rgb(79, 70, 229))",
             }}
           >
-            {t2("canvas.voiceDesign.badge", "音色设计")}
+            {t("canvas.voiceDesign.badge", "音色设计")}
           </span>
           <span className="text-[11px] text-[var(--fg-muted,#525252)]">
-            {t2("canvas.voiceDesign.subtitle", "由 design_voice 工具生成")}
+            {t("canvas.voiceDesign.subtitle", "由 design_voice 工具生成")}
           </span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[11px] text-[var(--fg-muted,#525252)]">
-            {t2("canvas.voiceDesign.voiceIdLabel", "voice_id")}
+            {t("canvas.voiceDesign.voiceIdLabel", "voice_id")}
           </span>
           <div
             className="flex items-center justify-between gap-2 rounded-sm border px-2 py-1"
@@ -339,18 +339,18 @@ function VoiceDesignInfoCard({
               type="button"
               onClick={handleCopy}
               className="flex h-6 shrink-0 items-center gap-1 rounded-sm px-2 text-[11px] text-[var(--fg-muted,#525252)] hover:bg-[var(--bg-surface,#fff)] hover:text-[var(--fg-default,#141414)]"
-              title={t2("canvas.voiceDesign.copy", "复制 voice_id")}
+              title={t("canvas.voiceDesign.copy", "复制 voice_id")}
             >
-              {copied ? <CheckIcon$2 /> : <CopyIcon />}
+              {copied ? <VoiceDesignCheckIcon /> : <CopyIcon />}
               {copied
-                ? t2("canvas.voiceDesign.copied", "已复制")
-                : t2("canvas.voiceDesign.copy", "复制")}
+                ? t("canvas.voiceDesign.copied", "已复制")
+                : t("canvas.voiceDesign.copy", "复制")}
             </button>
           </div>
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[11px] text-[var(--fg-muted,#525252)]">
-            {t2("canvas.voiceDesign.descriptionLabel", "音色描述")}
+            {t("canvas.voiceDesign.descriptionLabel", "音色描述")}
           </span>
           <textarea
             className="nopan nodrag nowheel resize-none rounded-sm border bg-[var(--bg-surface-secondary,#f7f7f7)] px-2 py-1 text-[12px] leading-snug text-[var(--fg-default,#141414)] outline-none focus:border-[var(--fg-default,#141414)]"
@@ -359,8 +359,8 @@ function VoiceDesignInfoCard({
               height: 56,
             }}
             value={draftPrompt}
-            onChange={(e2) => setDraftPrompt(e2.target.value)}
-            placeholder={t2(
+            onChange={(inputEvent) => setDraftPrompt(inputEvent.target.value)}
+            placeholder={t(
               "canvas.voiceDesign.descriptionPlaceholder",
               "例: 温暖低沉的成年男声，语速稍慢，带轻微北京口音",
             )}
@@ -369,7 +369,7 @@ function VoiceDesignInfoCard({
         </div>
         <div className="flex flex-col gap-1">
           <span className="text-[11px] text-[var(--fg-muted,#525252)]">
-            {t2("canvas.voiceDesign.trialTextLabel", "试听文本")}
+            {t("canvas.voiceDesign.trialTextLabel", "试听文本")}
           </span>
           <textarea
             className="nopan nodrag nowheel resize-none rounded-sm border bg-[var(--bg-surface-secondary,#f7f7f7)] px-2 py-1 text-[12px] leading-snug text-[var(--fg-default,#141414)] outline-none focus:border-[var(--fg-default,#141414)]"
@@ -378,8 +378,8 @@ function VoiceDesignInfoCard({
               height: 44,
             }}
             value={draftPreview}
-            onChange={(e2) => setDraftPreview(e2.target.value)}
-            placeholder={t2(
+            onChange={(inputEvent) => setDraftPreview(inputEvent.target.value)}
+            placeholder={t(
               "canvas.voiceDesign.trialTextPlaceholder",
               "例: 你好，今天天气真不错",
             )}
@@ -389,11 +389,11 @@ function VoiceDesignInfoCard({
         <div className="mt-1 flex items-center justify-between">
           <span className="text-[11px] text-[var(--fg-muted,#525252)]">
             {isUnchanged
-              ? t2(
+              ? t(
                   "canvas.voiceDesign.willRedesignSame",
                   "将用相同描述重新生成一个音色（保留当前节点）",
                 )
-              : t2(
+              : t(
                   "canvas.voiceDesign.willCreateNew",
                   "将生成新的音色节点（当前节点保留）",
                 )}
@@ -409,7 +409,7 @@ function VoiceDesignInfoCard({
               borderColor: "var(--fg-default, #141414)",
             }}
           >
-            {t2("canvas.voiceDesign.redesign", "重新设计音色")}
+            {t("canvas.voiceDesign.redesign", "重新设计音色")}
           </button>
         </div>
       </div>
@@ -424,7 +424,7 @@ const VIEWPORT_MARGIN = 8;
 const T2A_POPOVER_WIDTH = 580;
 const T2A_POPOVER_HEIGHT_COMPACT = 254;
 const T2A_POPOVER_HEIGHT_EXPANDED = 500;
-const zoomSelector = (s2) => s2.transform[2];
+const zoomSelector = (storeState) => storeState.transform[2];
 const SECONDS_PER_MINUTE = 60;
 const MIN_MUSIC_DURATION_SECONDS = 3;
 function formatActualMusicLength(durationSec) {
@@ -435,15 +435,15 @@ function formatActualMusicLength(durationSec) {
   const seconds = totalSeconds % SECONDS_PER_MINUTE;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
-function buildMetaAudioParams(meta2, isElevenLabsInstrumental) {
-  let params = meta2?.lyrics
+function buildMetaAudioParams(meta, isElevenLabsInstrumental) {
+  let params = meta?.lyrics
     ? {
-        ...(meta2?.params ?? {}),
-        lyrics: meta2.lyrics,
+        ...(meta?.params ?? {}),
+        lyrics: meta.lyrics,
       }
-    : meta2?.params;
+    : meta?.params;
   const actualInstrumentalLength = isElevenLabsInstrumental
-    ? formatActualMusicLength(meta2?.durationSec)
+    ? formatActualMusicLength(meta?.durationSec)
     : void 0;
   if (actualInstrumentalLength) {
     params = {
@@ -453,36 +453,36 @@ function buildMetaAudioParams(meta2, isElevenLabsInstrumental) {
   }
   return params;
 }
-function resolveDefaultAudioParams(draft, metaParams, upstreamParams, meta2) {
-  let base2 = draft?.params ?? metaParams ?? upstreamParams;
-  if (base2 && !base2.lyrics && meta2?.lyrics) {
-    base2 = {
-      ...base2,
-      lyrics: meta2.lyrics,
+function resolveDefaultAudioParams(draft, metaParams, upstreamParams, meta) {
+  let base = draft?.params ?? metaParams ?? upstreamParams;
+  if (base && !base.lyrics && meta?.lyrics) {
+    base = {
+      ...base,
+      lyrics: meta.lyrics,
     };
   }
-  if (base2 && meta2?.params?.voice_id) {
+  if (base && meta?.params?.voice_id) {
     return {
-      ...base2,
-      voice_id: meta2.params.voice_id,
+      ...base,
+      voice_id: meta.params.voice_id,
     };
   }
-  return base2;
+  return base;
 }
 function AudioPromptPopoverPlacement({
   isUserEmpty,
   isGenerating,
   hasAudioContent,
-  children: children2,
+  children,
 }) {
-  const zoom2 = useStore(zoomSelector);
+  const zoom = useStore(zoomSelector);
   const popoverGapOffset = resolveAudioPromptPopoverGapOffset({
     isUserEmpty,
     isGenerating,
     hasAudioContent,
-    zoom: zoom2,
+    zoom,
   });
-  return <>{children2(popoverGapOffset)}</>;
+  return <>{children(popoverGapOffset)}</>;
 }
 function buildPopoverPosition(rect, width, height) {
   const placeBelow = window.innerHeight - rect.bottom > height + 24;
@@ -491,23 +491,23 @@ function buildPopoverPosition(rect, width, height) {
     VIEWPORT_MARGIN,
     Math.min(window.innerWidth - width - VIEWPORT_MARGIN, desiredLeft),
   );
-  const top2 = placeBelow
+  const popoverTop = placeBelow
     ? rect.bottom + NODE_POPOVER_SAFE_GAP
     : Math.max(VIEWPORT_MARGIN, rect.top - height - NODE_POPOVER_SAFE_GAP);
   return {
-    top: top2,
+    top: popoverTop,
     left: clampedLeft,
     height,
   };
 }
 function FixedPortalCard({
-  top: top2,
+  top: portalTop,
   left,
   width,
   height,
   transitionHeight,
   promptLayout = false,
-  children: children2,
+  children,
 }) {
   return reactDomExports.createPortal(
     // biome-ignore lint/a11y/noStaticElementInteractions: portaled popover frame; child popover owns all interactive surfaces
@@ -518,7 +518,7 @@ function FixedPortalCard({
       data-action-ui-id={promptLayout ? "popover.shell" : void 0}
       style={{
         position: "fixed",
-        top: top2,
+        top: portalTop,
         left,
         width,
         height,
@@ -533,20 +533,20 @@ function FixedPortalCard({
         animation: "i2v-popover-in 0.15s ease-out",
         transition: transitionHeight ? "height 250ms ease-out" : void 0,
       }}
-      onMouseDown={(e2) => e2.stopPropagation()}
-      onClick={(e2) => e2.stopPropagation()}
+      onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+      onClick={(clickEvent) => clickEvent.stopPropagation()}
     >
-      {children2}
+      {children}
     </div>,
     document.body,
   );
 }
 export function AudioActionSurface({
   nodeId,
-  meta: meta2,
-  data: data2,
+  meta,
+  data,
   nodeWidth: _nodeWidth = AUDIO_CARD_SIZE.width,
-  selected: selected2,
+  selected,
   generating,
   isGenerating,
   isUserEmpty,
@@ -555,7 +555,7 @@ export function AudioActionSurface({
   mediaActions,
 }) {
   const generatingStateStore = useGeneratingStateApi();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const {
     submitTxt2Audio,
     submitDesignVoice,
@@ -573,7 +573,7 @@ export function AudioActionSurface({
     subscribeGraphChange,
   } = useCanvasActions();
   const assetMetadataStore = useAssetMetadataApi();
-  const modelInfo = useModelForAsset(meta2?.backend, meta2?.model_id, "audio");
+  const modelInfo = useModelForAsset(meta?.backend, meta?.model_id, "audio");
   const [showT2APopover, setShowT2APopover] = reactExports.useState(false);
   const [referenceTextPaths, setReferenceTextPaths] = reactExports.useState([]);
   const [referenceRevision, setReferenceRevision] = reactExports.useState(0);
@@ -584,15 +584,15 @@ export function AudioActionSurface({
     [subscribeGraphChange],
   );
   reactExports.useEffect(() => {
-    if (!showT2APopover && !selected2) return;
+    if (!showT2APopover && !selected) return;
     const sources = getIncomingSourceIds(nodeId);
-    const persistedTextIds = data2?.referenceTextIds;
+    const persistedTextIds = data?.referenceTextIds;
     setReferenceTextPaths(
       resolveReferenceTexts(
         sources,
         Array.isArray(persistedTextIds)
           ? persistedTextIds
-          : meta2?.referenceTextIds,
+          : meta?.referenceTextIds,
         assetMetadataStore,
         getNodeById,
       ),
@@ -605,25 +605,25 @@ export function AudioActionSurface({
     nodeId,
     referenceRevision,
     refreshUpstreamText,
-    selected2,
+    selected,
     showT2APopover,
   ]);
-  const t2aDraft = getPopoverDraft(data2, "t2a");
+  const t2aDraft = getPopoverDraft(data, "t2a");
   const [initialAudioMode, setInitialAudioMode] = reactExports.useState("tts");
   const [showVoiceDesignInfo, setShowVoiceDesignInfo] =
     reactExports.useState(false);
   const [showVoiceCloneInfo, setShowVoiceCloneInfo] =
     reactExports.useState(false);
   const isVoiceDesign =
-    meta2?.model_id === "voice-design" || meta2?.source_tool === "design_voice";
+    meta?.model_id === "voice-design" || meta?.source_tool === "design_voice";
   const isVoiceClone =
-    meta2?.model_id === "voice-clone" || meta2?.source_tool === "voice_clone";
+    meta?.model_id === "voice-clone" || meta?.source_tool === "voice_clone";
   const isElevenLabsMusic =
-    !isUserEmpty && meta2?.backend === BACKEND_ELEVENLABS_MUSIC;
+    !isUserEmpty && meta?.backend === BACKEND_ELEVENLABS_MUSIC;
   const isElevenLabsInstrumental =
-    meta2?.params?.is_instrumental === "instrumental";
+    meta?.params?.is_instrumental === "instrumental";
   const isElevenLabsVocal = isElevenLabsMusic && !isElevenLabsInstrumental;
-  const displayLyrics = getDisplayLyrics(meta2);
+  const displayLyrics = getDisplayLyrics(meta);
   const {
     showLightbox,
     showClipPanel,
@@ -660,7 +660,7 @@ export function AudioActionSurface({
             phase: "generating",
             prompt,
             model: modelId,
-            prevUrl: meta2?.url,
+            prevUrl: meta?.url,
             generationStartedAt: new Date().toISOString(),
           });
         }
@@ -670,38 +670,38 @@ export function AudioActionSurface({
         flushDraft: flushPersist,
         submit,
         onFlushError: () =>
-          dedupedToast.error(t2("canvas.promptDraftSaveFailed")),
+          dedupedToast.error(t("canvas.promptDraftSaveFailed")),
       });
     },
     [
       nodeId,
       submitTxt2Audio,
-      meta2?.url,
+      meta?.url,
       generatingStateStore,
       flushPersist,
-      t2,
+      t,
     ],
   );
   const [isolatingVoice, setIsolatingVoice] = reactExports.useState(false);
   const handleVoiceIsolate = reactExports.useCallback(async () => {
-    if (!submitVoiceIsolation || !meta2?.path || isolatingVoice) return;
+    if (!submitVoiceIsolation || !meta?.path || isolatingVoice) return;
     setIsolatingVoice(true);
     try {
-      await submitVoiceIsolation(nodeId, meta2.path);
+      await submitVoiceIsolation(nodeId, meta.path);
     } finally {
       setIsolatingVoice(false);
     }
-  }, [submitVoiceIsolation, meta2?.path, nodeId, isolatingVoice]);
+  }, [submitVoiceIsolation, meta?.path, nodeId, isolatingVoice]);
   const voiceIsolateCost =
-    meta2?.durationSec != null ? Math.ceil(meta2.durationSec / 15) : void 0;
+    meta?.durationSec != null ? Math.ceil(meta.durationSec / 15) : void 0;
   const voiceIsolateAllowed =
     !!submitVoiceIsolation &&
-    meta2?.durationSec != null &&
-    meta2.durationSec <= 300;
+    meta?.durationSec != null &&
+    meta.durationSec <= 300;
   const voiceIsolateOverLimit =
     !!submitVoiceIsolation &&
-    meta2?.durationSec != null &&
-    meta2.durationSec > 300;
+    meta?.durationSec != null &&
+    meta.durationSec > 300;
   reactExports.useCallback(() => {
     setShowVoiceDesignInfo(false);
     setShowVoiceCloneInfo(false);
@@ -709,8 +709,8 @@ export function AudioActionSurface({
     setShowT2APopover(true);
   }, []);
   const toolbarItems = (() => {
-    const findItem = (id2) => baseToolbarItems.find((i2) => i2.id === id2);
-    const clip2 = findItem("clip");
+    const findItem = (itemId) => baseToolbarItems.find((toolbarItem) => toolbarItem.id === itemId);
+    const clip = findItem("clip");
     const addToChat = findItem("add-to-chat");
     const fullscreen = findItem("fullscreen");
     const promote = findItem("promote-to-asset");
@@ -718,7 +718,7 @@ export function AudioActionSurface({
     if (voiceIsolateOverLimit) {
       voiceIsolate = {
         id: "voice-isolate",
-        label: t2("canvas.voiceIsolate.overLimit", {
+        label: t("canvas.voiceIsolate.overLimit", {
           defaultValue: "Audio over 300s is not supported",
         }),
         icon: <VoiceIsolateIcon />,
@@ -732,10 +732,10 @@ export function AudioActionSurface({
       voiceIsolate = {
         id: "voice-isolate",
         label: isolatingVoice
-          ? t2("canvas.voiceIsolating", {
+          ? t("canvas.voiceIsolating", {
               defaultValue: "Isolating...",
             })
-          : t2("canvas.voiceIsolate", {
+          : t("canvas.voiceIsolate", {
               defaultValue: "Voice Isolator",
             }),
         icon: isolatingVoice ? <ToolbarSpinnerIcon /> : <VoiceIsolateIcon />,
@@ -748,9 +748,9 @@ export function AudioActionSurface({
       };
     }
     const left = [];
-    if (clip2)
+    if (clip)
       left.push({
-        ...clip2,
+        ...clip,
         forceLabel: true,
       });
     if (voiceIsolate) left.push(voiceIsolate);
@@ -775,10 +775,10 @@ export function AudioActionSurface({
   const upstreamReferenceAudioPaths = useUpstreamReferenceAudios(nodeId);
   const lastUsedAudio = getLastUsedModelParams?.("t2a");
   const actualAudioModelId =
-    modelInfo?.id ?? meta2?.model_id ?? upstreamAudioMeta?.modelId;
+    modelInfo?.id ?? meta?.model_id ?? upstreamAudioMeta?.modelId;
   const effectiveT2ADraft = isElevenLabsVocal
     ? void 0
-    : resolveEffectiveAudioDraft(t2aDraft, meta2, data2?.status);
+    : resolveEffectiveAudioDraft(t2aDraft, meta, data?.status);
   const defaultTextPaths = resolveEditableTextReferencePaths(
     referenceTextPaths,
     resolveReferenceTexts(
@@ -789,16 +789,16 @@ export function AudioActionSurface({
     ),
     effectiveT2ADraft?.textPaths,
   );
-  const metaAudioParams = buildMetaAudioParams(meta2, isElevenLabsInstrumental);
+  const metaAudioParams = buildMetaAudioParams(meta, isElevenLabsInstrumental);
   const defaultAudioParams = resolveDefaultAudioParams(
     effectiveT2ADraft,
     metaAudioParams,
     upstreamAudioMeta?.params,
-    meta2,
+    meta,
   );
   const handleSaveT2ADraft = reactExports.useCallback(
     (draft) => {
-      if (!meta2?.model_id) {
+      if (!meta?.model_id) {
         savePopoverDraft(nodeId, "t2a", draft);
         return;
       }
@@ -810,21 +810,21 @@ export function AudioActionSurface({
         nodeId,
         "t2a",
         normalizeAudioDraftForPersistence(draft, {
-          prompt: meta2.prompt,
+          prompt: meta.prompt,
           modelId: actualAudioModelId,
           params: metaAudioParams,
         }),
       );
     },
-    [actualAudioModelId, meta2, metaAudioParams, nodeId, savePopoverDraft],
+    [actualAudioModelId, meta, metaAudioParams, nodeId, savePopoverDraft],
   );
   const canOpenPopover =
     isUserEmpty ||
-    (!!meta2?.model &&
-      !isUserProvidedAssetModel(meta2.model) &&
-      meta2.model !== "voice-isolation");
+    (!!meta?.model &&
+      !isUserProvidedAssetModel(meta.model) &&
+      meta.model !== "voice-isolation");
   reactExports.useEffect(() => {
-    if (!selected2) return;
+    if (!selected) return;
     if (!canOpenPopover) return;
     if (!isInteractiveSelect) return;
     if (isVoiceDesign) {
@@ -840,7 +840,7 @@ export function AudioActionSurface({
     if (showT2APopover) return;
     setShowT2APopover(true);
   }, [
-    selected2,
+    selected,
     canOpenPopover,
     isInteractiveSelect,
     isVoiceDesign,
@@ -887,13 +887,13 @@ export function AudioActionSurface({
     deselectVoiceCloneClose();
   }, [anchor, deselectVoiceCloneClose]);
   const handleElevenLabsRegenerate = reactExports.useCallback(
-    (replace2) => {
-      const modelId = meta2?.model_id ?? modelInfo?.id;
+    (replace) => {
+      const modelId = meta?.model_id ?? modelInfo?.id;
       if (!submitTxt2Audio || !modelId) return;
-      const prompt = meta2?.prompt ?? "";
-      const plan = meta2?.compositionPlan?.trim();
+      const prompt = meta?.prompt ?? "";
+      const plan = meta?.compositionPlan?.trim();
       const params = {
-        ...(meta2?.params ?? {}),
+        ...(meta?.params ?? {}),
         ...(plan
           ? {
               composition_plan_json: plan,
@@ -905,26 +905,26 @@ export function AudioActionSurface({
         prompt,
         modelId,
         params,
-        replace2 ? nodeId : void 0,
+        replace ? nodeId : void 0,
         void 0,
         BACKEND_ELEVENLABS_MUSIC,
       );
-      if (replace2) {
+      if (replace) {
         generatingStateStore.getState().mark(nodeId, {
           prompt,
           model: modelId,
-          prevUrl: meta2?.url,
+          prevUrl: meta?.url,
           generationStartedAt: new Date().toISOString(),
         });
       }
     },
     [
       submitTxt2Audio,
-      meta2?.model_id,
-      meta2?.prompt,
-      meta2?.params,
-      meta2?.compositionPlan,
-      meta2?.url,
+      meta?.model_id,
+      meta?.prompt,
+      meta?.params,
+      meta?.compositionPlan,
+      meta?.url,
       modelInfo?.id,
       nodeId,
       generatingStateStore,
@@ -939,13 +939,13 @@ export function AudioActionSurface({
   const toolbarVisible =
     anchor.kind === "rect"
       ? !isGenerating && !isUserEmpty
-      : selected2 && !isGenerating && !isUserEmpty && isInteractiveSelect;
+      : selected && !isGenerating && !isUserEmpty && isInteractiveSelect;
   const toolbarRenderShell =
     anchor.kind === "rect"
-      ? (children2) => {
+      ? (children) => {
           const rect = anchor.rect;
           const placeAbove = rect.top > TOOLBAR_HEIGHT + 16;
-          const top2 = placeAbove
+          const toolbarTop = placeAbove
             ? rect.top - TOOLBAR_HEIGHT - TOOLBAR_GAP
             : rect.bottom + TOOLBAR_GAP;
           const left = rect.left + rect.width / 2;
@@ -957,15 +957,15 @@ export function AudioActionSurface({
               data-clip-popover-portal="true"
               style={{
                 position: "fixed",
-                top: top2,
+                top: toolbarTop,
                 left,
                 transform: "translateX(-50%)",
                 zIndex: PORTAL_TOOLBAR_Z,
               }}
-              onMouseDown={(e2) => e2.stopPropagation()}
-              onClick={(e2) => e2.stopPropagation()}
+              onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+              onClick={(clickEvent) => clickEvent.stopPropagation()}
             >
-              {children2}
+              {children}
             </div>,
             document.body,
           );
@@ -977,17 +977,17 @@ export function AudioActionSurface({
           const baseHeight = props.expanded
             ? T2A_POPOVER_HEIGHT_EXPANDED
             : T2A_POPOVER_HEIGHT_COMPACT;
-          const pos = buildPopoverPosition(
+          const popoverPosition = buildPopoverPosition(
             anchor.rect,
             T2A_POPOVER_WIDTH,
             baseHeight + props.extraHeight,
           );
           return (
             <FixedPortalCard
-              top={pos.top}
-              left={pos.left}
+              top={popoverPosition.top}
+              left={popoverPosition.left}
               width={T2A_POPOVER_WIDTH}
-              height={pos.height}
+              height={popoverPosition.height}
               transitionHeight={true}
               promptLayout={true}
             >
@@ -1011,18 +1011,18 @@ export function AudioActionSurface({
           renderShell={toolbarRenderShell}
         />
       )}
-      {showLightbox && meta2?.url && (
+      {showLightbox && meta?.url && (
         <AudioLightbox
-          item={lightboxItemFromAssetMeta("audio", meta2)}
-          name={meta2.name}
+          item={lightboxItemFromAssetMeta("audio", meta)}
+          name={meta.name}
           lyrics={displayLyrics}
           onClose={closeLightbox}
         />
       )}
-      {showClipPanel && meta2?.url && (
+      {showClipPanel && meta?.url && (
         <AudioClipPanel
-          audioUrl={meta2.url}
-          audioName={meta2.name ?? "audio"}
+          audioUrl={meta.url}
+          audioName={meta.name ?? "audio"}
           onClose={closeClipPanel}
           onExport={handleClipExport}
         />
@@ -1031,7 +1031,7 @@ export function AudioActionSurface({
         <AudioPromptPopoverPlacement
           isUserEmpty={isUserEmpty}
           isGenerating={isGenerating}
-          hasAudioContent={!!meta2?.url}
+          hasAudioContent={!!meta?.url}
         >
           {(popoverGapOffset) => (
             <TxtPopover
@@ -1048,8 +1048,8 @@ export function AudioActionSurface({
               fetchTtsVoices={fetchTtsVoices}
               defaultPrompt={
                 isElevenLabsVocal
-                  ? meta2?.prompt
-                  : (effectiveT2ADraft?.prompt ?? meta2?.prompt)
+                  ? meta?.prompt
+                  : (effectiveT2ADraft?.prompt ?? meta?.prompt)
               }
               defaultModelId={
                 isElevenLabsVocal
@@ -1067,7 +1067,7 @@ export function AudioActionSurface({
               readOnlyLyrics={isElevenLabsVocal ? displayLyrics : void 0}
               readOnlyHint={
                 isElevenLabsVocal
-                  ? t2("canvas.elevenLabsMusic.editUnsupported", {
+                  ? t("canvas.elevenLabsMusic.editUnsupported", {
                       defaultValue: "暂不支持编辑",
                     })
                   : void 0
@@ -1079,7 +1079,7 @@ export function AudioActionSurface({
               }
               submitLabel={
                 anchor.kind === "rect"
-                  ? t2("canvas.clipUpstream.submitGenerate", {
+                  ? t("canvas.clipUpstream.submitGenerate", {
                       defaultValue: "生成",
                     })
                   : void 0
@@ -1089,8 +1089,8 @@ export function AudioActionSurface({
               resolveFileUrl={resolveFileUrl}
               defaultImagePaths={effectiveT2ADraft?.imagePaths}
               defaultAudioPaths={resolveDefaultReferencePaths(
-                initialAudioMode === "extension" && meta2?.path
-                  ? [meta2.path]
+                initialAudioMode === "extension" && meta?.path
+                  ? [meta.path]
                   : upstreamReferenceAudioPaths,
                 effectiveT2ADraft?.audioPaths,
               )}
@@ -1100,19 +1100,19 @@ export function AudioActionSurface({
           )}
         </AudioPromptPopoverPlacement>
       )}
-      {showVoiceDesignInfo && meta2?.voiceId && (
+      {showVoiceDesignInfo && meta?.voiceId && (
         <VoiceDesignInfoCard
-          voiceId={meta2.voiceId}
-          voiceDescription={meta2.description}
-          trialText={meta2.prompt}
+          voiceId={meta.voiceId}
+          voiceDescription={meta.description}
+          trialText={meta.prompt}
           onRedesign={handleRedesignVoice}
           onClose={handleVoiceDesignInfoClose}
         />
       )}
-      {showVoiceCloneInfo && meta2?.voiceId && (
+      {showVoiceCloneInfo && meta?.voiceId && (
         <VoiceCloneInfoCard
-          voiceId={meta2.voiceId}
-          sourceLabel={meta2.description}
+          voiceId={meta.voiceId}
+          sourceLabel={meta.description}
           onClose={handleVoiceCloneInfoClose}
         />
       )}
