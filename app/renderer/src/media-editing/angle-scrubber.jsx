@@ -46,23 +46,23 @@ function AngleGlyph() {
   );
 }
 function IconButton({
-  active: active2 = false,
-  disabled: disabled2 = false,
+  active = false,
+  disabled = false,
   onClick,
   title,
-  children: children2,
+  children,
 }) {
   return (
     <button
       type="button"
-      disabled={disabled2}
+      disabled={disabled}
       onClick={onClick}
       title={title}
       aria-label={title}
-      aria-pressed={active2}
+      aria-pressed={active}
       className="canvas-toolbar-action"
     >
-      {children2}
+      {children}
     </button>
   );
 }
@@ -70,16 +70,16 @@ function Divider() {
   return <div className="canvas-toolbar-separator" aria-hidden="true" />;
 }
 const ROTATE_SNAP_DEG = 1;
-function maybeSnapAngle(deg) {
-  const n2 = normalizeAngle(deg);
+function maybeSnapAngle(degrees) {
+  const normalizedAngle = normalizeAngle(degrees);
   for (const step of [-180, -90, 0, 90, 180]) {
-    if (Math.abs(n2 - step) <= ROTATE_SNAP_DEG) return step;
+    if (Math.abs(normalizedAngle - step) <= ROTATE_SNAP_DEG) return step;
   }
-  return n2;
+  return normalizedAngle;
 }
 const HEADER_FLOW_HEIGHT = 28;
 const TOOLBAR_GAP = 8;
-const zoomSelector = (s2) => s2.transform[2];
+const zoomSelector = (storeState) => storeState.transform[2];
 function CancelChip({ onClick, label }) {
   return (
     <button
@@ -94,7 +94,7 @@ function CancelChip({ onClick, label }) {
   );
 }
 function AngleScrubber({ value, onChange }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const buttonRef = reactExports.useRef(null);
   const draggingRef = reactExports.useRef(false);
   const startXRef = reactExports.useRef(0);
@@ -111,47 +111,47 @@ function AngleScrubber({ value, onChange }) {
     };
   }, []);
   const handlePointerDown = reactExports.useCallback(
-    (e2) => {
-      if (e2.button !== 0) return;
-      e2.preventDefault();
+    (pointerEvent) => {
+      if (pointerEvent.button !== 0) return;
+      pointerEvent.preventDefault();
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
       draggingRef.current = true;
-      e2.currentTarget.dataset.dragging = "true";
-      startXRef.current = e2.clientX;
+      pointerEvent.currentTarget.dataset.dragging = "true";
+      startXRef.current = pointerEvent.clientX;
       startAngleRef.current = value;
-      e2.currentTarget.setPointerCapture(e2.pointerId);
+      pointerEvent.currentTarget.setPointerCapture(pointerEvent.pointerId);
       document.body.style.cursor = "ew-resize";
     },
     [value],
   );
   const handlePointerMove = reactExports.useCallback(
-    (e2) => {
+    (pointerEvent) => {
       if (!draggingRef.current) return;
-      const deltaX = e2.clientX - startXRef.current;
-      const sensitivity = e2.shiftKey ? 2 : 0.5;
-      const next2 = clamp(
+      const deltaX = pointerEvent.clientX - startXRef.current;
+      const sensitivity = pointerEvent.shiftKey ? 2 : 0.5;
+      const next = clamp(
         startAngleRef.current + deltaX * sensitivity,
         ROTATE_ANGLE_MIN,
         ROTATE_ANGLE_MAX,
       );
-      onChange(next2);
+      onChange(next);
     },
     [onChange],
   );
   const handlePointerUp = reactExports.useCallback(
-    (e2) => {
+    (pointerEvent) => {
       if (!draggingRef.current) return;
       draggingRef.current = false;
-      if (e2.currentTarget.hasPointerCapture(e2.pointerId)) {
-        e2.currentTarget.releasePointerCapture(e2.pointerId);
+      if (pointerEvent.currentTarget.hasPointerCapture(pointerEvent.pointerId)) {
+        pointerEvent.currentTarget.releasePointerCapture(pointerEvent.pointerId);
       }
       resetBackground();
     },
     [resetBackground],
   );
-  const label = t2("canvas.rotate.scrub");
+  const label = t("canvas.rotate.scrub");
   return (
     <button
       ref={buttonRef}
@@ -181,8 +181,8 @@ function AngleInput({ value, onChange }) {
     }
   }, [value]);
   const commit = reactExports.useCallback(
-    (raw2) => {
-      const parsed = Number.parseFloat(raw2);
+    (raw) => {
+      const parsed = Number.parseFloat(raw);
       if (!Number.isFinite(parsed)) {
         setDraft(String(Math.round(value)));
         return;
@@ -202,37 +202,37 @@ function AngleInput({ value, onChange }) {
         type="text"
         inputMode="numeric"
         value={draft}
-        onChange={(e2) => setDraft(e2.currentTarget.value)}
+        onChange={(inputEvent) => setDraft(inputEvent.currentTarget.value)}
         onFocus={() => {
           focusedRef.current = true;
         }}
-        onBlur={(e2) => {
+        onBlur={(blurEvent) => {
           focusedRef.current = false;
-          commit(e2.currentTarget.value);
+          commit(blurEvent.currentTarget.value);
         }}
-        onKeyDown={(e2) => {
-          if (e2.key === "Enter") {
-            e2.currentTarget.blur();
-          } else if (e2.key === "ArrowUp") {
-            e2.preventDefault();
-            const next2 = clamp(
+        onKeyDown={(keyboardEvent) => {
+          if (keyboardEvent.key === "Enter") {
+            keyboardEvent.currentTarget.blur();
+          } else if (keyboardEvent.key === "ArrowUp") {
+            keyboardEvent.preventDefault();
+            const next = clamp(
               normalizeAngle(value + 1),
               ROTATE_ANGLE_MIN,
               ROTATE_ANGLE_MAX,
             );
-            onChange(next2);
-            setDraft(String(Math.round(next2)));
-          } else if (e2.key === "ArrowDown") {
-            e2.preventDefault();
-            const next2 = clamp(
+            onChange(next);
+            setDraft(String(Math.round(next)));
+          } else if (keyboardEvent.key === "ArrowDown") {
+            keyboardEvent.preventDefault();
+            const next = clamp(
               normalizeAngle(value - 1),
               ROTATE_ANGLE_MIN,
               ROTATE_ANGLE_MAX,
             );
-            onChange(next2);
-            setDraft(String(Math.round(next2)));
-          } else if (e2.key === "Escape") {
-            e2.currentTarget.blur();
+            onChange(next);
+            setDraft(String(Math.round(next)));
+          } else if (keyboardEvent.key === "Escape") {
+            keyboardEvent.currentTarget.blur();
           }
         }}
         className="w-8 bg-transparent text-center canvas-toolbar-input tabular-nums outline-none"
@@ -254,7 +254,7 @@ function AngleInput({ value, onChange }) {
 function ImageRotateEditToolbarInner({
   angle,
   onAngleChange,
-  onRotate90,
+  onRotate90: onRotate9,
   flipH,
   flipV,
   onFlipHorizontal,
@@ -265,31 +265,31 @@ function ImageRotateEditToolbarInner({
   canSave,
   visible,
 }) {
-  const { t: t2 } = useTranslation();
-  const zoom2 = useStore(zoomSelector);
-  const offset2 = HEADER_FLOW_HEIGHT * zoom2 + TOOLBAR_GAP;
+  const { t } = useTranslation();
+  const zoom = useStore(zoomSelector);
+  const offset = HEADER_FLOW_HEIGHT * zoom + TOOLBAR_GAP;
   return (
     <NodeToolbar
       isVisible={visible}
       position={Position.Top}
-      offset={offset2}
+      offset={offset}
       align="center"
     >
       <div
         className="canvas-toolbar-surface animate-[toolbar-fade-in_0.15s_ease-out]"
-        onPointerDown={(e2) => e2.stopPropagation()}
-        onWheel={(e2) => e2.stopPropagation()}
-        onContextMenu={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+        onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+        onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
         data-canvas-toolbar="true"
         data-density="compact"
       >
-        <CancelChip onClick={onCancel} label={t2("canvas.rotate.title")} />
+        <CancelChip onClick={onCancel} label={t("canvas.rotate.title")} />
         <Divider />
         <AngleInput value={angle} onChange={onAngleChange} />
         <Divider />
         <IconButton
-          onClick={onRotate90}
-          title={t2("canvas.rotate.step90", {
+          onClick={onRotate9}
+          title={t("canvas.rotate.step90", {
             degrees: ROTATE_STEP_DEG,
           })}
         >
@@ -298,14 +298,14 @@ function ImageRotateEditToolbarInner({
         <IconButton
           active={flipH}
           onClick={onFlipHorizontal}
-          title={t2("canvas.rotate.flipH")}
+          title={t("canvas.rotate.flipH")}
         >
           <FlipHorizontalIcon />
         </IconButton>
         <IconButton
           active={flipV}
           onClick={onFlipVertical}
-          title={t2("canvas.rotate.flipV")}
+          title={t("canvas.rotate.flipV")}
         >
           <FlipVerticalIcon />
         </IconButton>
@@ -316,9 +316,9 @@ function ImageRotateEditToolbarInner({
           onClick={onSave}
           className="canvas-toolbar-action"
           aria-label={
-            saving ? t2("canvas.rotate.saving") : t2("canvas.rotate.save")
+            saving ? t("canvas.rotate.saving") : t("canvas.rotate.save")
           }
-          title={saving ? t2("canvas.rotate.saving") : t2("canvas.rotate.save")}
+          title={saving ? t("canvas.rotate.saving") : t("canvas.rotate.save")}
           data-variant="primary"
         >
           <SendArrowIcon />
