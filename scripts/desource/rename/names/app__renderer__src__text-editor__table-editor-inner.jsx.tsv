@@ -44,8 +44,8 @@ r2@663:31	row	表格行
 v2@717:11	textValue	文本单元格的字符串值
 v2@728:11	numberValue	数字单元格的数值
 tr2@775:11	rowElement	拖拽手柄所在的 tr 元素，用作拖拽图像
-e2@827:6	pressEvent	列宽拖拽的按下事件，检查 button
-e2@924:6	mouseEvent	行高拖拽的按下事件，检查 button
+e2@827:6	pointerEvent	列宽拖拽手柄 onPointerDown 传入的指针事件，检查 button、读 clientX
+e2@924:6	pointerEvent	行高拖拽手柄 onPointerDown 传入的指针事件，检查 button、读 clientY
 c3@1185:50	column	表格列
 r2@1197:29	row	表格行
 n2@1203:10	count	已选行计数累加值

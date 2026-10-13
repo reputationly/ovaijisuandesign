@@ -176,7 +176,7 @@ export var MarkdownManager = class {
     var _options$marked,
       _options$indentation$,
       _options$indentation,
-      optionsIndentation,
+      optionsIndentationSize,
       _options$indentation2;
     this.activeParseLexer = null;
     this.extensionRanks = new Map();
@@ -204,15 +204,15 @@ export var MarkdownManager = class {
         ? _options$indentation$
         : "space";
     this.indentSize =
-      (optionsIndentation =
+      (optionsIndentationSize =
         options === null ||
         options === void 0 ||
         (_options$indentation2 = options.indentation) === null ||
         _options$indentation2 === void 0
           ? void 0
           : _options$indentation2.size) !== null &&
-      optionsIndentation !== void 0
-        ? optionsIndentation
+      optionsIndentationSize !== void 0
+        ? optionsIndentationSize
         : 2;
     this.baseExtensions =
       (options === null || options === void 0 ? void 0 : options.extensions) ||

@@ -824,11 +824,11 @@ function useColumnResize(apply2) {
     [],
   );
   const beginColumnResize = reactExports.useCallback(
-    (pressEvent, columnId, currentWidth) => {
-      pressEvent.preventDefault();
-      pressEvent.stopPropagation();
-      if (pressEvent.button !== 0) return;
-      const startX = pressEvent.clientX;
+    (pointerEvent, columnId, currentWidth) => {
+      pointerEvent.preventDefault();
+      pointerEvent.stopPropagation();
+      if (pointerEvent.button !== 0) return;
+      const startX = pointerEvent.clientX;
       const startWidth = currentWidth;
       let lastWidth = currentWidth;
       setPreviewWidth({
@@ -921,11 +921,11 @@ function useRowResize(apply2) {
     [],
   );
   const beginRowResize = reactExports.useCallback(
-    (mouseEvent, rowId, currentHeight) => {
-      mouseEvent.preventDefault();
-      mouseEvent.stopPropagation();
-      if (mouseEvent.button !== 0) return;
-      const startY = mouseEvent.clientY;
+    (pointerEvent, rowId, currentHeight) => {
+      pointerEvent.preventDefault();
+      pointerEvent.stopPropagation();
+      if (pointerEvent.button !== 0) return;
+      const startY = pointerEvent.clientY;
       const startHeight = currentHeight;
       let lastHeight = currentHeight;
       setPreviewRowHeight({

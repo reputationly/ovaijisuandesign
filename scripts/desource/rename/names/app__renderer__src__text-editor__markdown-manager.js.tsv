@@ -6,7 +6,7 @@ j2@744:20	j	原名 j，去掉打包器加的数字去重后缀
 i2@806:14	i	原名 i，去掉打包器加的数字去重后缀
 i2@1177:27	i	原名 i，去掉打包器加的数字去重后缀
 m3@102:16	mark	活动标记集中的标记，按类型和属性匹配
-_options$indentation$2@179:7	optionsIndentation	编译产生的临时变量，保存 options.indentation
+_options$indentation$2@179:7	optionsIndentationSize	编译产生的临时变量，保存 options.indentation.size（赋给 this.indentSize，缺省 2）
 t2@746:19	token	词法 token 列表中的当前 token
 m3@1062:33	mark	节点上的标记，判断是否为代码类标记
 a2@1293:16	a	sort 比较函数的前一个标记键
