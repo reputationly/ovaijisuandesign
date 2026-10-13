@@ -198,7 +198,7 @@ function groupSlotsByRound(slots) {
     bucket.push(slot);
   }
   return [...byRound.entries()]
-    .sort(([a2], [b3]) => a2 - b3)
+    .sort(([leftRound], [rightRound]) => leftRound - rightRound)
     .map(([, bucket]) => bucket);
 }
 
@@ -212,7 +212,7 @@ function buildImageGroupView(main2, subs, resolveMeta, opts) {
       : EMPTY_IMAGE_NODE_VIEW;
   }
   const mainSlot = buildSlotFromNode(main2, resolveMeta);
-  const subSlots = subs.map((s2) => buildSlotFromNode(s2, resolveMeta));
+  const subSlots = subs.map((subNode) => buildSlotFromNode(subNode, resolveMeta));
   const allSlots = assignRefundDisplayOwners([mainSlot, ...subSlots]);
   const rounds = groupSlotsByRound(allSlots);
   let activeRoundIndex = rounds.findIndex(
@@ -288,13 +288,13 @@ export function buildImageNodeView(
   nodeAssetId,
 ) {
   const resolve =
-    typeof metaById === "function" ? metaById : (id2) => metaById.get(id2);
+    typeof metaById === "function" ? metaById : (assetId) => metaById.get(assetId);
   const resolveSlotMeta = (assetId) => toSlotMeta(resolve(assetId));
-  const d2 = data2 ?? {};
+  const data = data2 ?? {};
   const { assetId: parsedAssetId } = parseNodeId(nodeId);
   const explicitAssetId =
-    typeof d2.assetId === "string" && d2.assetId.length > 0
-      ? d2.assetId
+    typeof data.assetId === "string" && data.assetId.length > 0
+      ? data.assetId
       : typeof nodeAssetId === "string" && nodeAssetId.length > 0
         ? nodeAssetId
         : void 0;
@@ -304,8 +304,8 @@ export function buildImageNodeView(
     isUserEmpty &&
     (!explicitAssetId || !mainMeta?.url) &&
     subImages.length === 0 &&
-    d2.status !== "loading" &&
-    !isGenerationErrorStatus(d2.status)
+    data.status !== "loading" &&
+    !isGenerationErrorStatus(data.status)
   ) {
     return {
       ...EMPTY_IMAGE_NODE_VIEW,
@@ -314,15 +314,15 @@ export function buildImageNodeView(
   }
   const fallbackRound =
     mainRound ??
-    subImages.reduce((max2, sub) => {
-      const r2 = sub.round;
-      return typeof r2 === "number" && r2 > max2 ? r2 : max2;
+    subImages.reduce((max2, subImage) => {
+      const round = subImage.round;
+      return typeof round === "number" && round > max2 ? round : max2;
     }, 0);
   const mainNode = {
     id: nodeId,
     type: "image",
     assetId: mainAssetId,
-    data: d2,
+    data,
     ...(fallbackRound > 0
       ? {
           round: fallbackRound,

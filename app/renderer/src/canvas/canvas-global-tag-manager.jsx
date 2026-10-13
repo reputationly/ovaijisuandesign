@@ -3,7 +3,7 @@ import {
   selectDownloadableCanvasAssets,
   useCanvasTagName,
 } from "../assets/use-canvas-model-registry-hydration.js";
-import { API_PATHS, ChevronLeft, ChevronRight$1 as ChevronRight, CircleX, Ellipsis, Loader2, Music2, reactExports, useTranslation, Video, X$7 as X } from "../vendor.js";
+import { API_PATHS, ChevronLeft, ChevronRight$1 as ChevronRight, CircleX, Ellipsis, Loader2, Music2, reactExports, useTranslation, Video, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -40,7 +40,7 @@ import {
   PreviewCardTrigger,
 } from "../text-editor/use-placeholder-asset-source.jsx";
 function summarizeCanvasTagDownloads(assets, canvasAssetIds, tags2) {
-  const knownTagIds = new Set(tags2.map(({ id: id2 }) => id2));
+  const knownTagIds = new Set(tags2.map(({ id: tagId }) => tagId));
   const assetCountsByTag = new Map();
   let taggedAssetCount = 0;
   for (const asset of selectDownloadableCanvasAssets(assets, canvasAssetIds)) {
@@ -104,7 +104,7 @@ export function CanvasGlobalTagManager({
   onDownloadTag,
   onDownloadAllTagged,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
   const resolveName2 = useCanvasTagName();
   const {
@@ -126,7 +126,7 @@ export function CanvasGlobalTagManager({
   const managerTriggerRef = reactExports.useRef(null);
   const paletteCloseTimerRef = reactExports.useRef(void 0);
   const managerId = reactExports.useId();
-  const label = t2("canvasTags.manage");
+  const label = translate("canvasTags.manage");
   const canvasItemsByTag = reactExports.useMemo(() => {
     const itemsByTag = new Map();
     for (const asset of workspaceAssets) {
@@ -223,8 +223,8 @@ export function CanvasGlobalTagManager({
   const hasLabelDefinitions = registry2.tags.some(isCanvasColorTag);
   const hasTaggedCanvasAssets = visibleTags.length > 0;
   const emptyStateLabel = hasLabelDefinitions
-    ? t2("canvasTags.noTaggedAssets")
-    : t2("canvasTags.noLabelsCreate");
+    ? translate("canvasTags.noTaggedAssets")
+    : translate("canvasTags.noLabelsCreate");
   const openPalette = () => {
     if (!hasTaggedCanvasAssets || open) return;
     if (paletteCloseTimerRef.current)
@@ -283,7 +283,7 @@ export function CanvasGlobalTagManager({
       await toggleTagForAssets(tag.id, taggedAssets);
       if (activeTagId === tag.id) onActiveTagChange(void 0);
     } catch {
-      dedupedToast.error(t2("canvasTags.clearTagFailed"));
+      dedupedToast.error(translate("canvasTags.clearTagFailed"));
     } finally {
       setClearingTagId(void 0);
     }
@@ -303,7 +303,7 @@ export function CanvasGlobalTagManager({
     const duplicate = isTagNameTaken(name2, resolvedNames, tag.id);
     if (validation || duplicate) {
       dedupedToast.error(
-        t2(
+        translate(
           duplicate
             ? "canvasTags.nameTaken"
             : validation === "required"
@@ -328,7 +328,7 @@ export function CanvasGlobalTagManager({
     } catch {
       setRenameDraft(currentName);
       finishRename();
-      dedupedToast.error(t2("canvasTags.saveFailed"));
+      dedupedToast.error(translate("canvasTags.saveFailed"));
     } finally {
       renameSavingRef.current = false;
     }
@@ -392,7 +392,7 @@ export function CanvasGlobalTagManager({
             collisionPadding={12}
             className="w-auto gap-0 p-1.5"
             role="group"
-            aria-label={t2("canvasTags.colorLabels")}
+            aria-label={translate("canvasTags.colorLabels")}
             onMouseEnter={openPalette}
             onMouseLeave={schedulePaletteClose}
             onFocusCapture={openPalette}
@@ -406,7 +406,7 @@ export function CanvasGlobalTagManager({
                 const name2 = resolveName2(tag);
                 const items = canvasItemsByTag.get(tag.id) ?? [];
                 const count2 = items.length;
-                const countLabel = t2("canvasTags.canvasAssetCount", {
+                const countLabel = translate("canvasTags.canvasAssetCount", {
                   count: count2,
                 });
                 const active2 = tag.id === activeTagId;
@@ -560,7 +560,7 @@ export function CanvasGlobalTagManager({
                                     data-node-id={item.nodeId}
                                     className="flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left text-sm transition-colors hover:bg-popup-item-hover focus-visible:bg-popup-item-hover focus-visible:outline-none"
                                     onClick={() => onLocateNode(item.nodeId)}
-                                    aria-label={t2("canvasTags.locateAsset", {
+                                    aria-label={translate("canvasTags.locateAsset", {
                                       name: item.label,
                                     })}
                                   >
@@ -601,7 +601,7 @@ export function CanvasGlobalTagManager({
                                 aria-hidden={true}
                               />
                             </span>
-                            <span>{t2("canvasTags.downloadCurrentTag")}</span>
+                            <span>{translate("canvasTags.downloadCurrentTag")}</span>
                           </button>
                           <button
                             type="button"
@@ -621,7 +621,7 @@ export function CanvasGlobalTagManager({
                                 aria-hidden={true}
                               />
                             </span>
-                            <span>{t2("canvasTags.clearCurrentTag")}</span>
+                            <span>{translate("canvasTags.clearCurrentTag")}</span>
                           </button>
                         </div>
                       </div>
@@ -636,8 +636,8 @@ export function CanvasGlobalTagManager({
                   data-focused-node-index={focusedNodeIndex ?? "overview"}
                 >
                   <CanvasToolbarExtensionButton
-                    label={t2("canvasTags.previousMatch")}
-                    title={t2("canvasTags.previousMatch")}
+                    label={translate("canvasTags.previousMatch")}
+                    title={translate("canvasTags.previousMatch")}
                     onClick={onFocusPrevious}
                     dataActionUiId="canvas.tag-filter-previous"
                     className="!min-w-6 !px-1"
@@ -645,8 +645,8 @@ export function CanvasGlobalTagManager({
                     <Icon icon={ChevronLeft} size="xs" aria-hidden={true} />
                   </CanvasToolbarExtensionButton>
                   <CanvasToolbarExtensionButton
-                    label={t2("canvasTags.nextMatch")}
-                    title={t2("canvasTags.nextMatch")}
+                    label={translate("canvasTags.nextMatch")}
+                    title={translate("canvasTags.nextMatch")}
                     onClick={onFocusNext}
                     dataActionUiId="canvas.tag-filter-next"
                     className="!min-w-6 !px-1"
@@ -657,13 +657,13 @@ export function CanvasGlobalTagManager({
               )}
               {activeTag ? (
                 <CanvasToolbarExtensionButton
-                  label={t2("canvasTags.clearFilter")}
-                  title={t2("canvasTags.clearFilter")}
+                  label={translate("canvasTags.clearFilter")}
+                  title={translate("canvasTags.clearFilter")}
                   onClick={onClearFilter}
                   dataActionUiId="canvas.tag-filter-clear"
                   className="canvas-global-tag-manager__palette-action"
                 >
-                  <Icon icon={X} size="md" aria-hidden={true} />
+                  <Icon icon={CloseIcon} size="md" aria-hidden={true} />
                 </CanvasToolbarExtensionButton>
               ) : (
                 <CanvasToolbarExtensionButton

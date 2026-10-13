@@ -1,0 +1,4 @@
+key	old	new	依据
+X@6:146	X	CloseIcon	vendor 中 X$7 是 X Lucide 图标的合成组件，用作关键词标签删除图标。
+id2@43:48	id2	tagId	已知标签标识集合由 tags 中每个 id 组成。
+t2@107:14	t2	translate	该函数翻译标签管理、下载和操作提示。

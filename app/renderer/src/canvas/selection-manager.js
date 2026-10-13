@@ -13,32 +13,32 @@ export class SelectionManager {
   bindEventBus(eventBus) {
     this.eventBus = eventBus;
   }
-  select(id2, additive = false) {
+  select(nodeId, additive = false) {
     if (!additive) this.selected.clear();
-    this.selected.add(id2);
+    this.selected.add(nodeId);
     this.notify();
   }
-  deselect(id2) {
-    this.selected.delete(id2);
+  deselect(nodeId) {
+    this.selected.delete(nodeId);
     this.notify();
   }
-  toggle(id2) {
-    if (this.selected.has(id2)) {
-      this.selected.delete(id2);
+  toggle(nodeId) {
+    if (this.selected.has(nodeId)) {
+      this.selected.delete(nodeId);
     } else {
-      this.selected.add(id2);
+      this.selected.add(nodeId);
     }
     this.notify();
   }
   set(ids2) {
     if (
       ids2.length === this.selected.size &&
-      ids2.every((id2) => this.selected.has(id2))
+      ids2.every((nodeId) => this.selected.has(nodeId))
     ) {
       return;
     }
     this.selected.clear();
-    for (const id2 of ids2) this.selected.add(id2);
+    for (const nodeId of ids2) this.selected.add(nodeId);
     this.notify();
   }
   clear() {
@@ -48,19 +48,19 @@ export class SelectionManager {
   }
   selectAll(nodeIds) {
     this.selected.clear();
-    for (const id2 of nodeIds) this.selected.add(id2);
+    for (const nodeId of nodeIds) this.selected.add(nodeId);
     this.notify();
   }
   selectByRect(rect, nodes, mode2, additive = false) {
     if (!additive) this.selected.clear();
     for (const node2 of nodes) {
       const size2 = getNodeSize(node2, mode2) ?? DEFAULT_NODE_SIZE;
-      const pos = getNodePosition(node2, mode2);
+      const position = getNodePosition(node2, mode2);
       if (
-        pos.x + size2.width > rect.x &&
-        pos.x < rect.x + rect.w &&
-        pos.y + size2.height > rect.y &&
-        pos.y < rect.y + rect.h
+        position.x + size2.width > rect.x &&
+        position.x < rect.x + rect.w &&
+        position.y + size2.height > rect.y &&
+        position.y < rect.y + rect.h
       ) {
         this.selected.add(node2.id);
       }
@@ -70,8 +70,8 @@ export class SelectionManager {
   getSelected() {
     return Array.from(this.selected);
   }
-  isSelected(id2) {
-    return this.selected.has(id2);
+  isSelected(nodeId) {
+    return this.selected.has(nodeId);
   }
   count() {
     return this.selected.size;

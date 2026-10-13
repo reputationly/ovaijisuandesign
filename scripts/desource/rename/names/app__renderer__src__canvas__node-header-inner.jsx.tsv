@@ -1,0 +1,8 @@
+key	old	new	依据
+X@7:10	X	CloseIcon	vendor 中 X$7 是 X Lucide 图标的合成组件，作为标签移除操作图标。
+t2@45:14	t2	translate	该函数翻译从素材移除标签的无障碍标签。
+e2@254:6	e2	doubleClickEvent	节点标题双击事件在允许重命名时阻止冒泡并开始编辑。
+e2@309:26	e2	changeEvent	输入框 change 事件将 target.value 写入重命名草稿。
+e2@312:29	e2	mouseEvent	输入框 mousedown 事件被阻止冒泡至画布。
+e2@313:25	e2	clickEvent	输入框 click 事件被阻止冒泡至画布。
+e2@314:31	e2	doubleClickEvent	输入框 double-click 事件被阻止冒泡至画布。

@@ -60,7 +60,7 @@ export function NodeQuickTagTrigger({
   className,
   counterScaleOrigin = "center",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const nodeId = useNodeId();
   const assetMeta = useAssetMeta(nodeId ?? "");
   const { onNodeTagRequest } = useCanvasBridge();
@@ -86,11 +86,11 @@ export function NodeQuickTagTrigger({
     return null;
   }
   return (
-    <Tooltip content={t2("canvasTags.entry")}>
+    <Tooltip content={translate("canvasTags.entry")}>
       <button
         ref={buttonRef}
         type="button"
-        aria-label={t2("canvasTags.entry")}
+        aria-label={translate("canvasTags.entry")}
         data-action-ui-id="canvas.node-tag-trigger"
         className={`nodrag nopan nowheel flex size-7 shrink-0 items-center justify-center rounded-full border-0 bg-popover text-popover-foreground outline-hidden transition-colors [--node-quick-tag-border-color:var(--brutalist-border-subtle)] hover:[--node-quick-tag-border-color:var(--brutalist-border)] focus-visible:[--node-quick-tag-border-color:var(--brutalist-border)] focus-visible:ring-0${className ? ` ${className}` : ""}`}
         style={{
@@ -148,8 +148,8 @@ export function useInlineRename({
     const trimmed = editValue.trim();
     if (!trimmed || !onCommit) return;
     const dotIdx = preserveExtension2 ? currentValue.lastIndexOf(".") : -1;
-    const ext = dotIdx > 0 ? currentValue.slice(dotIdx) : "";
-    const newValue = trimmed + ext;
+    const extension = dotIdx > 0 ? currentValue.slice(dotIdx) : "";
+    const newValue = trimmed + extension;
     if (newValue === currentValue) return;
     setOptimisticValue(newValue);
     onCommit(newValue);
@@ -159,12 +159,12 @@ export function useInlineRename({
     setEditing(false);
   }, []);
   const onKeyDown = reactExports.useCallback(
-    (e2) => {
-      if (e2.key === "Enter") {
-        e2.preventDefault();
+    (keyboardEvent) => {
+      if (keyboardEvent.key === "Enter") {
+        keyboardEvent.preventDefault();
         commit();
-      } else if (e2.key === "Escape") {
-        e2.preventDefault();
+      } else if (keyboardEvent.key === "Escape") {
+        keyboardEvent.preventDefault();
         cancel();
       }
     },
@@ -192,18 +192,18 @@ export function useInlineRename({
 }
 export function CanvasModalGuardProvider({ children: children2 }) {
   const [count2, setCount] = reactExports.useState(0);
-  const push2 = reactExports.useCallback(() => setCount((c3) => c3 + 1), []);
-  const pop = reactExports.useCallback(
-    () => setCount((c3) => Math.max(0, c3 - 1)),
+  const push2 = reactExports.useCallback(() => setCount((count) => count + 1), []);
+  const decrementCount = reactExports.useCallback(
+    () => setCount((count) => Math.max(0, count - 1)),
     [],
   );
   const value = reactExports.useMemo(
     () => ({
       count: count2,
       push: push2,
-      pop,
+      pop: decrementCount,
     }),
-    [count2, push2, pop],
+    [count2, push2, decrementCount],
   );
   return (
     <CanvasModalGuardContext.Provider value={value}>
@@ -212,14 +212,14 @@ export function CanvasModalGuardProvider({ children: children2 }) {
   );
 }
 export function useSuspendCanvasInteractions(active2) {
-  const ctx = reactExports.useContext(CanvasModalGuardContext);
-  const push2 = ctx?.push;
-  const pop = ctx?.pop;
+  const context = reactExports.useContext(CanvasModalGuardContext);
+  const push2 = context?.push;
+  const releaseGuard = context?.pop;
   reactExports.useEffect(() => {
-    if (!active2 || !push2 || !pop) return;
+    if (!active2 || !push2 || !releaseGuard) return;
     push2();
-    return () => pop();
-  }, [active2, push2, pop]);
+    return () => releaseGuard();
+  }, [active2, push2, releaseGuard]);
 }
 export function RecentlyAddedStoreProvider({ store, children: children2 }) {
   return reactExports.createElement(

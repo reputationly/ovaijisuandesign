@@ -1,0 +1,9 @@
+key	old	new	依据
+id2@16:10	id2	nodeId	select 将该节点标识加入当前选中集合。
+id2@21:12	id2	nodeId	deselect 从选中集合中移除该节点标识。
+id2@25:10	id2	nodeId	toggle 根据该节点标识是否已选中来添加或移除。
+id2@36:19	id2	nodeId	set 比较输入节点标识并据此更新选中集合。
+id2@41:16	id2	nodeId	该节点标识被加入当前选中集合。
+id2@51:16	id2	nodeId	selectAll 将传入的每个节点标识加入选中集合。
+pos@58:13	pos	position	getNodePosition 返回的节点坐标用于矩形相交判断。
+id2@73:14	id2	nodeId	isSelected 检查当前选中集合是否含有该节点标识。

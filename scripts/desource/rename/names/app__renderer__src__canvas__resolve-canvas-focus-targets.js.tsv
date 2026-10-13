@@ -1,0 +1,8 @@
+key	old	new	依据
+t2@67:39	t2	translate	该翻译器生成撤销或重做被阻止时的提示。
+t2@90:38	t2	translate	该翻译器生成删除被阻止时的提示。
+id2@168:27	id2	nodeId	ancestorGroups 从 nodeById 读取节点并逐级收集祖先分组。
+id2@179:48	id2	nodeId	对每个请求节点收集其祖先分组标识。
+id2@200:46	id2	nodeId	过滤出 nodeById 中存在的请求节点标识。
+id2@207:6	id2	nodeId	读取节点类型以筛选显式请求的分组节点。
+id2@224:34	id2	nodeId	读取节点的 parentId 以判断是否共享父分组。

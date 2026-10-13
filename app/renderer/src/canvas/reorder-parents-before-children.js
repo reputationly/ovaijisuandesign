@@ -53,9 +53,9 @@ export function toFlowEdge(edge, selectedNodeIds, hidden) {
 
 function buildChildCountByParent(nodes) {
   const counts = new Map();
-  for (const n2 of nodes) {
-    if (!n2.parentId) continue;
-    counts.set(n2.parentId, (counts.get(n2.parentId) ?? 0) + 1);
+  for (const node of nodes) {
+    if (!node.parentId) continue;
+    counts.set(node.parentId, (counts.get(node.parentId) ?? 0) + 1);
   }
   return counts;
 }
@@ -63,17 +63,17 @@ function buildChildCountByParent(nodes) {
 export function injectDerivedChildCounts(nodes, childCountByParent) {
   const counts = childCountByParent ?? buildChildCountByParent(nodes);
   let mutated = false;
-  const result = nodes.map((n2) => {
-    if (n2.type !== CanvasNodeType.Group) return n2;
-    const next2 = counts.get(n2.id) ?? 0;
-    const collapsedRaw = !!n2.meta?.collapsed;
-    const data2 = n2.data;
+  const result = nodes.map((node) => {
+    if (node.type !== CanvasNodeType.Group) return node;
+    const next2 = counts.get(node.id) ?? 0;
+    const collapsedRaw = !!node.meta?.collapsed;
+    const data2 = node.data;
     const prevCount = data2?.[GROUP_DERIVED_CHILD_COUNT_KEY];
     const prevCollapsed = data2?.[GROUP_DERIVED_COLLAPSED_KEY];
-    if (prevCount === next2 && prevCollapsed === collapsedRaw) return n2;
+    if (prevCount === next2 && prevCollapsed === collapsedRaw) return node;
     mutated = true;
     return {
-      ...n2,
+      ...node,
       data: {
         ...(data2 ?? {}),
         [GROUP_DERIVED_CHILD_COUNT_KEY]: next2,
@@ -86,45 +86,45 @@ export function injectDerivedChildCounts(nodes, childCountByParent) {
 
 export function reorderParentsBeforeChildren(nodes) {
   let hasParented = false;
-  for (const n2 of nodes) {
-    if (n2.parentId) {
+  for (const node of nodes) {
+    if (node.parentId) {
       hasParented = true;
       break;
     }
   }
   if (!hasParented) return nodes;
-  const parentOf = (n2) => n2.parentId;
+  const parentOf = (node) => node.parentId;
   const childrenByParent = new Map();
-  for (const n2 of nodes) {
-    const pid = parentOf(n2);
-    if (!pid) continue;
-    let bucket = childrenByParent.get(pid);
+  for (const node of nodes) {
+    const parentId = parentOf(node);
+    if (!parentId) continue;
+    let bucket = childrenByParent.get(parentId);
     if (!bucket) {
       bucket = [];
-      childrenByParent.set(pid, bucket);
+      childrenByParent.set(parentId, bucket);
     }
-    bucket.push(n2);
+    bucket.push(node);
   }
   const seen2 = new Set();
   const result = [];
-  for (const n2 of nodes) {
-    if (parentOf(n2)) continue;
-    if (seen2.has(n2.id)) continue;
-    seen2.add(n2.id);
-    result.push(n2);
-    const children2 = childrenByParent.get(n2.id);
+  for (const node of nodes) {
+    if (parentOf(node)) continue;
+    if (seen2.has(node.id)) continue;
+    seen2.add(node.id);
+    result.push(node);
+    const children2 = childrenByParent.get(node.id);
     if (children2) {
-      for (const c3 of children2) {
-        if (seen2.has(c3.id)) continue;
-        seen2.add(c3.id);
-        result.push(c3);
+      for (const child of children2) {
+        if (seen2.has(child.id)) continue;
+        seen2.add(child.id);
+        result.push(child);
       }
     }
   }
-  for (const n2 of nodes) {
-    if (seen2.has(n2.id)) continue;
-    seen2.add(n2.id);
-    result.push(n2);
+  for (const node of nodes) {
+    if (seen2.has(node.id)) continue;
+    seen2.add(node.id);
+    result.push(node);
   }
   return result;
 }

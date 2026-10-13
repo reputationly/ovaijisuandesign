@@ -1,0 +1,9 @@
+key	old	new	依据
+n2@132:24	n2	node	提示节点用于判断是否为已折叠分组。
+n2@157:41	n2	node	节点 Map 以每个节点的 id 为键保存图节点。
+id2@159:36	id2	targetNodeId	目标节点标识用于读取节点并构造上下文菜单目标。
+id2@221:51	id2	targetNodeId	目标节点标识用于判断是否存在图级上下文菜单目标。
+id2@240:28	id2	assetId	素材路径解析器按素材标识从 metadata store 查找路径。
+id2@246:47	id2	nodeId	可删除节点筛选器按节点标识从 nodesById 查找节点。
+id2@265:34	id2	assetId	素材路径解析器按素材标识从 metadata store 查找路径。
+id2@274:32	id2	assetId	素材路径解析器按素材标识从 metadata store 查找路径。

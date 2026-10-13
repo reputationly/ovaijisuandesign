@@ -64,49 +64,49 @@ export function resolveStickerPointerPlacement(
   };
 }
 
-export function historyBlockedMessage(t2, direction, reason) {
+export function historyBlockedMessage(translate, direction, reason) {
   if (reason === "task_retained") {
     return direction === "undo"
-      ? t2(
+      ? translate(
           "canvas.history.undoBlockedByRetainedTask",
           "该内容的生成任务已保留，暂无法撤销。请先处理卡片上的恢复提示",
         )
-      : t2(
+      : translate(
           "canvas.history.redoBlockedByRetainedTask",
           "该内容的生成任务已保留，暂无法重做。请先处理卡片上的恢复提示",
         );
   }
   return direction === "undo"
-    ? t2(
+    ? translate(
         "canvas.history.undoBlockedByGeneration",
         "生成中无法撤销，请等待生成完成后再试",
       )
-    : t2(
+    : translate(
         "canvas.history.redoBlockedByGeneration",
         "生成中无法重做，请等待生成完成后再试",
       );
 }
 
-export function deleteBlockedMessage(t2, reason) {
+export function deleteBlockedMessage(translate, reason) {
   if (reason === "task_retained") {
-    return t2(
+    return translate(
       "canvas.deleteBlockedByRetainedTask",
       "该内容的生成任务已保留，暂无法删除。请先处理卡片上的恢复提示",
     );
   }
   if (reason === "confirmation-stale") {
-    return t2(
+    return translate(
       "canvas.persistence.highBlastDeleteStale",
       "画布内容已发生变化，本次删除已取消，请重新操作",
     );
   }
   if (reason === "confirmation-unavailable") {
-    return t2(
+    return translate(
       "canvas.persistence.highBlastDeleteUnavailable",
       "暂时无法确认本次大量删除，画布内容未被修改，请稍后重试",
     );
   }
-  return t2(
+  return translate(
     "canvas.deleteBlockedByGeneration",
     "生成中的元素无法删除，请等待生成完成后再试",
   );
@@ -165,9 +165,9 @@ export function applyCanvasFocusSelection(selection2, nodeIds, shouldSelect) {
 }
 
 function collectAncestorGroupIds(nodeById, requestedNodeIds) {
-  const ancestorGroups = (id2) => {
+  const ancestorGroups = (nodeId) => {
     const groups = [];
-    let current2 = nodeById.get(id2);
+    let current2 = nodeById.get(nodeId);
     const visited = new Set();
     while (current2 && !visited.has(current2.id)) {
       visited.add(current2.id);
@@ -176,7 +176,7 @@ function collectAncestorGroupIds(nodeById, requestedNodeIds) {
     }
     return groups;
   };
-  return [...new Set(requestedNodeIds.flatMap((id2) => ancestorGroups(id2)))];
+  return [...new Set(requestedNodeIds.flatMap((nodeId) => ancestorGroups(nodeId)))];
 }
 
 function resolveCanvasAncestorGroupIds(nodes, requestedNodeIds) {
@@ -197,14 +197,14 @@ function expandCanvasAncestorGroups(target, requestedNodeIds) {
 
 function resolveCanvasFocusTargets(nodes, requestedNodeIds, preferParentGroup) {
   const nodeById = new Map(nodes.map((node2) => [node2.id, node2]));
-  const requested = requestedNodeIds.filter((id2) => nodeById.has(id2));
+  const requested = requestedNodeIds.filter((nodeId) => nodeById.has(nodeId));
   if (!preferParentGroup || requested.length === 0)
     return {
       nodeIds: requested,
     };
   const groupIdsToExpand = collectAncestorGroupIds(nodeById, requested);
   const explicitGroups = requested.filter(
-    (id2) => nodeById.get(id2)?.type === "group",
+    (nodeId) => nodeById.get(nodeId)?.type === "group",
   );
   if (
     explicitGroups.length === requested.length &&
@@ -221,7 +221,7 @@ function resolveCanvasFocusTargets(nodes, requestedNodeIds, preferParentGroup) {
       nodeIds: requested,
       groupIdsToExpand,
     };
-  const parents = requested.map((id2) => nodeById.get(id2)?.parentId);
+  const parents = requested.map((nodeId) => nodeById.get(nodeId)?.parentId);
   const sharedParentId = parents[0];
   if (
     !sharedParentId ||

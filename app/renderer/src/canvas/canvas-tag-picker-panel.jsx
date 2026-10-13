@@ -35,7 +35,7 @@ function TagRow({
   onEditingChange,
   onBlurSave,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
   const [editing, setEditing] = reactExports.useState(false);
   const [draft, setDraft] = reactExports.useState(label);
@@ -73,7 +73,7 @@ function TagRow({
     const duplicate = isTagNameTaken(name2, resolvedNames, tag.id);
     if (validation || duplicate) {
       dedupedToast.error(
-        t2(
+        translate(
           duplicate
             ? "canvasTags.nameTaken"
             : validation === "required"
@@ -96,7 +96,7 @@ function TagRow({
     } catch {
       setDraft(label);
       finishRename();
-      dedupedToast.error(t2("canvasTags.saveFailed"));
+      dedupedToast.error(translate("canvasTags.saveFailed"));
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -213,7 +213,7 @@ export function CanvasTagPickerPanel({
   onRenameEditingChange,
   onRenameBlurSave,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
   const tagName = useCanvasTagName();
   const {
@@ -267,7 +267,7 @@ export function CanvasTagPickerPanel({
           await toggleTagForAssets(tag.id, assets);
         }
       } catch {
-        dedupedToast.error(t2("canvasTags.saveFailed"));
+        dedupedToast.error(translate("canvasTags.saveFailed"));
       } finally {
         pendingTagIdsRef.current.delete(tag.id);
         setPendingTagIds((current2) => {
@@ -277,7 +277,7 @@ export function CanvasTagPickerPanel({
         });
       }
     },
-    [assets, assignTagToAssets, selectionMode, t2, toggleTagForAssets],
+    [assets, assignTagToAssets, selectionMode, translate, toggleTagForAssets],
   );
   const resetCreate = () => {
     setNewName("");
@@ -293,7 +293,7 @@ export function CanvasTagPickerPanel({
     }
     if (nameValidation) {
       dedupedToast.error(
-        t2(
+        translate(
           nameValidation === "required"
             ? "canvasTags.nameRequired"
             : "canvasTags.nameTooLong",
@@ -312,7 +312,7 @@ export function CanvasTagPickerPanel({
       }
       resetCreate();
     } catch {
-      dedupedToast.error(t2("canvasTags.saveFailed"));
+      dedupedToast.error(translate("canvasTags.saveFailed"));
       resetCreate();
     } finally {
       creatingSavingRef.current = false;
@@ -340,12 +340,12 @@ export function CanvasTagPickerPanel({
                       type="button"
                       className="cursor-help text-[13px] font-normal text-muted-foreground outline-hidden focus-visible:ring-2 focus-visible:ring-ring/50"
                     >
-                      {t2("canvasTags.colorLabels")}
+                      {translate("canvasTags.colorLabels")}
                     </button>
                   }
                 />
                 <TooltipContent className="max-w-64" side="top" align="start">
-                  {t2("canvasTags.canvasLabelInfo")}
+                  {translate("canvasTags.canvasLabelInfo")}
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -387,19 +387,19 @@ export function CanvasTagPickerPanel({
                       type="button"
                       className="cursor-help text-[13px] font-normal text-muted-foreground outline-hidden focus-visible:ring-2 focus-visible:ring-ring/50"
                     >
-                      {t2("canvasTags.keywords")}
+                      {translate("canvasTags.keywords")}
                     </button>
                   }
                 />
                 <TooltipContent className="max-w-64" side="top" align="start">
-                  {t2("canvasTags.keywordInfo")}
+                  {translate("canvasTags.keywordInfo")}
                 </TooltipContent>
               </Tooltip>
             </div>
             <button
               type="button"
               disabled={creating}
-              aria-label={t2("canvasTags.newKeyword")}
+              aria-label={translate("canvasTags.newKeyword")}
               data-action-ui-id="canvas.node-tag-create"
               className="-mr-1 flex h-[22px] shrink-0 cursor-default items-center gap-0.5 rounded-full border border-border px-[7px] text-[11px] text-foreground/70 outline-hidden hover:border-foreground/80 hover:bg-popup-item-hover hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
               onClick={() => {
@@ -414,7 +414,7 @@ export function CanvasTagPickerPanel({
                 strokeWidth={1.5}
                 aria-hidden={true}
               />
-              <span>{t2("canvasTags.add")}</span>
+              <span>{translate("canvasTags.add")}</span>
             </button>
           </div>
           {keywordTags.map((tag) => {
@@ -449,8 +449,8 @@ export function CanvasTagPickerPanel({
                 autoFocus={true}
                 value={newName}
                 disabled={creatingSaving}
-                placeholder={t2("canvasTags.keywordPlaceholder")}
-                aria-label={t2("canvasTags.keywordPlaceholder")}
+                placeholder={translate("canvasTags.keywordPlaceholder")}
+                aria-label={translate("canvasTags.keywordPlaceholder")}
                 data-action-ui-id="canvas.node-tag-create-input"
                 className="h-7 flex-1 rounded-[8px] border-[0.75px] px-2 text-[13px] focus-visible:ring-0"
                 onChange={(event) =>

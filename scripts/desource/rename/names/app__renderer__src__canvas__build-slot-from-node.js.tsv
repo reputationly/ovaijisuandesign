@@ -1,0 +1,8 @@
+key	old	new	依据
+a2@201:13	a2	leftRound	groupSlotsByRound 按轮次键升序比较排序左侧的轮次值。
+b3@201:19	b3	rightRound	groupSlotsByRound 按轮次键升序比较排序右侧的轮次值。
+s2@215:30	s2	subNode	每个子节点被转换为对应的图片槽位。
+d2@293:9	d2	data	data2 缺失时使用空对象并读取其中的 assetId 和生成状态。
+id2@291:50	id2	assetId	metaById 查找器按素材标识获取素材元数据。
+sub@317:29	sub	subImage	该子图片记录的 round 与主图片轮次一起决定回退轮次。
+r2@318:13	r2	round	子图片的数值轮次用于更新当前最大轮次。

@@ -129,7 +129,7 @@ export function useCanvasContextMenus({
       if (hintNodeId) {
         const hinted = instance2
           .getGraph()
-          .nodes.find((n2) => n2.id === hintNodeId);
+          .nodes.find((node) => node.id === hintNodeId);
         if (hinted?.type === CanvasNodeType.Group && hinted.meta?.collapsed)
           return;
       }
@@ -154,19 +154,19 @@ export function useCanvasContextMenus({
       const assetStore = assetMetadataStore.getState();
       const generatingByNode = generatingStateStore.getState().byNode;
       const nodesById = new Map(
-        instance2.getGraph().nodes.map((n2) => [n2.id, n2]),
+        instance2.getGraph().nodes.map((node) => [node.id, node]),
       );
-      const nodes = targetIds.map((id2) => {
-        const targetNode = nodesById.get(id2);
+      const nodes = targetIds.map((targetNodeId) => {
+        const targetNode = nodesById.get(targetNodeId);
         const nodeType = targetNode?.type ?? "unknown";
         const isMultiImage =
           nodeType === CanvasNodeType.Image &&
           typeof targetNode?.groupId === "string" &&
           [...nodesById.values()].some(
             (candidate) =>
-              candidate.id !== id2 && candidate.groupId === targetNode.groupId,
+              candidate.id !== targetNodeId && candidate.groupId === targetNode.groupId,
           );
-        const generatingInfo = generatingByNode.get(id2);
+        const generatingInfo = generatingByNode.get(targetNodeId);
         const isGenerating = isNodeGenerationActive(
           targetNode,
           generatingInfo !== void 0,
@@ -184,7 +184,7 @@ export function useCanvasContextMenus({
           nodeType === CanvasNodeType.Placeholder
         ) {
           return {
-            nodeId: id2,
+            nodeId: targetNodeId,
             nodeType,
             isGenerating,
             generationErrorStatus,
@@ -193,7 +193,7 @@ export function useCanvasContextMenus({
         if (nodeType === CanvasNodeType.Table) {
           const tableData = targetNode?.data;
           return {
-            nodeId: id2,
+            nodeId: targetNodeId,
             nodeType,
             filePath: tableData?.tablePath,
             fileType: "table",
@@ -204,10 +204,10 @@ export function useCanvasContextMenus({
             generationErrorStatus,
           };
         }
-        const { assetId } = parseNodeId(id2);
+        const { assetId } = parseNodeId(targetNodeId);
         const meta2 = assetStore.get(assetId);
         return {
-          nodeId: id2,
+          nodeId: targetNodeId,
           nodeType,
           filePath: meta2?.path,
           fileType: meta2?.type,
@@ -218,9 +218,9 @@ export function useCanvasContextMenus({
           generationErrorStatus,
         };
       });
-      const hasGraphLevelTarget = targetIds.some((id2, index2) =>
+      const hasGraphLevelTarget = targetIds.some((targetNodeId, index2) =>
         isGraphLevelContextMenuTarget(
-          nodesById.get(id2),
+          nodesById.get(targetNodeId),
           nodes[index2]?.filePath,
           !!nodes[index2]?.isGenerating,
         ),
@@ -237,13 +237,13 @@ export function useCanvasContextMenus({
       }
       instance2.copySelected({
         workspace: getCurrentWorkspace?.(),
-        resolveAssetPath: (id2) => assetMetadataStore.getState().get(id2)?.path,
+        resolveAssetPath: (assetId) => assetMetadataStore.getState().get(assetId)?.path,
       });
       event.preventDefault();
       const actions = {
         deleteSelected: () => {
           const { deletableIds, blockedCount, blockedReason } =
-            partitionDeletableIds(targetIds, (id2) => nodesById.get(id2));
+            partitionDeletableIds(targetIds, (nodeId) => nodesById.get(nodeId));
           if (blockedCount > 0) {
             instance2.eventBus.emit({
               type: "delete:blocked",
@@ -262,8 +262,8 @@ export function useCanvasContextMenus({
             instance2,
             {
               workspace: getCurrentWorkspace?.(),
-              resolveAssetPath: (id2) =>
-                assetMetadataStore.getState().get(id2)?.path,
+              resolveAssetPath: (assetId) =>
+                assetMetadataStore.getState().get(assetId)?.path,
             },
             onSystemCopy,
           );
@@ -271,8 +271,8 @@ export function useCanvasContextMenus({
         duplicateToCanvas: () => {
           instance2.copySelected({
             workspace: getCurrentWorkspace?.(),
-            resolveAssetPath: (id2) =>
-              assetMetadataStore.getState().get(id2)?.path,
+            resolveAssetPath: (assetId) =>
+              assetMetadataStore.getState().get(assetId)?.path,
           });
           void instance2.pasteFromClipboard();
         },

@@ -4,7 +4,7 @@ import {
   reactExports,
   useNodeId,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MAX_VISIBLE_CANVAS_TAG_COLORS } from "../infra/parse-connector-selection.js";
@@ -42,7 +42,7 @@ function resolveNodeTagPresentationColor(color2) {
   return token2 ? `var(${token2}, ${color2.toUpperCase()})` : color2;
 }
 function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const labelsRef = reactExports.useRef(null);
   const visibleTags = tags2.slice(0, NODE_TAG_MAX_VISIBLE_COLORS);
   useRegisterZoomCounter(labelsRef);
@@ -95,7 +95,7 @@ function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
             {canRemove ? (
               <button
                 type="button"
-                aria-label={t2("canvasTags.removeFromAsset")}
+                aria-label={translate("canvasTags.removeFromAsset")}
                 data-action-ui-id="canvas.node-tag-remove"
                 className="nodrag nopan nowheel pointer-events-none absolute right-0.5 flex size-4 scale-75 items-center justify-center rounded-full opacity-0 outline-hidden transition-opacity group-hover/tag:pointer-events-auto group-hover/tag:opacity-100 group-focus-within/tag:pointer-events-auto group-focus-within/tag:opacity-100 focus-visible:ring-2 focus-visible:ring-current/50"
                 style={{
@@ -108,7 +108,7 @@ function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
                   onTagRemove?.(tag);
                 }}
               >
-                <X className="size-3" strokeWidth={3} aria-hidden="true" />
+                <CloseIcon className="size-3" strokeWidth={3} aria-hidden="true" />
               </button>
             ) : null}
           </span>
@@ -251,9 +251,9 @@ function NodeHeaderInner({
     [nodeId, onNodeTagRemoveRequest],
   );
   const handleDoubleClick2 = reactExports.useCallback(
-    (e2) => {
+    (doubleClickEvent) => {
       if (!onRename) return;
-      e2.stopPropagation();
+      doubleClickEvent.stopPropagation();
       rename.beginEdit();
     },
     [onRename, rename.beginEdit],
@@ -306,12 +306,12 @@ function NodeHeaderInner({
                 width: "100%",
               }}
               value={rename.editValue}
-              onChange={(e2) => rename.setEditValue(e2.target.value)}
+              onChange={(changeEvent) => rename.setEditValue(changeEvent.target.value)}
               onBlur={rename.commit}
               onKeyDown={rename.onKeyDown}
-              onMouseDown={(e2) => e2.stopPropagation()}
-              onClick={(e2) => e2.stopPropagation()}
-              onDoubleClick={(e2) => e2.stopPropagation()}
+              onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+              onClick={(clickEvent) => clickEvent.stopPropagation()}
+              onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
             />
           ) : (
             // biome-ignore lint/a11y/noStaticElementInteractions: double-click rename trigger
