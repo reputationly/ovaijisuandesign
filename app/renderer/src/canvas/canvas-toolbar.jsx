@@ -5,7 +5,7 @@ import {
   Plus,
   reactExports,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { CANVAS_COMMAND_IDS } from "./use-active-mode.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -162,12 +162,12 @@ export function CanvasToolbar({
   beforeSticker,
   trailing,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const activeDefinition = activeCommand
     ? commandRegistry.get(activeCommand)
     : null;
   const stickerDefinition = commandRegistry.get(CANVAS_COMMAND_IDS.sticker);
-  const stickerLabel = t2("canvas.toolbar.stickers", "Stickers");
+  const stickerLabel = translate("canvas.toolbar.stickers", "Stickers");
   const commandPanelRef = reactExports.useRef(null);
   const stickerTriggerRef = reactExports.useRef(null);
   const commandPanelId = reactExports.useId();
@@ -241,22 +241,22 @@ export function CanvasToolbar({
               }}
               data-action-ui-id="canvas.command-panel"
               role="dialog"
-              aria-label={t2(panel.definition.labelKey)}
+              aria-label={translate(panel.definition.labelKey)}
             >
               <div className="mb-2 flex items-center justify-between gap-3">
                 <span className="text-xs font-medium text-[var(--canvas-controls-text)]">
-                  {t2(panel.definition.labelKey)}
+                  {translate(panel.definition.labelKey)}
                 </span>
                 <button
                   type="button"
                   className="canvas-monochrome-control flex size-6 items-center justify-center rounded-full text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"
-                  aria-label={t2("common.close", "Close")}
-                  title={t2("common.close", "Close")}
+                  aria-label={translate("common.close", "Close")}
+                  title={translate("common.close", "Close")}
                   data-action-ui-id="canvas.command-panel-close"
                   onClick={closeCommandPanel}
                 >
                   <MonochromeIcon tone="control">
-                    <X size={14} strokeWidth={1.5} aria-hidden="true" />
+                    <CloseIcon size={14} strokeWidth={1.5} aria-hidden="true" />
                   </MonochromeIcon>
                 </button>
               </div>
@@ -274,14 +274,14 @@ export function CanvasToolbar({
           }}
           data-action-ui-id="canvas.tool-dock"
           role="toolbar"
-          aria-label={t2("canvas.toolbar.label")}
+          aria-label={translate("canvas.toolbar.label")}
         >
-          {TOOL_COMMANDS.map(({ id: id2, icon, primary }) => {
-            const definition2 = commandRegistry.get(id2);
-            const label = t2(definition2.labelKey);
+          {TOOL_COMMANDS.map(({ id: commandId, icon, primary }) => {
+            const definition2 = commandRegistry.get(commandId);
+            const label = translate(definition2.labelKey);
             return (
               <ToolDockButton
-                key={id2}
+                key={commandId}
                 definition={definition2}
                 icon={icon}
                 primary={primary}
@@ -289,9 +289,9 @@ export function CanvasToolbar({
                 iconClassName={`transition-transform duration-200 ease-out motion-reduce:transition-none ${addNodeMenuOpen ? "rotate-45" : "rotate-0"}`}
                 label={label}
                 onClick={() => {
-                  if (id2 === CANVAS_COMMAND_IDS.addNode && onOpenAddNodeMenu)
+                  if (commandId === CANVAS_COMMAND_IDS.addNode && onOpenAddNodeMenu)
                     onOpenAddNodeMenu();
-                  else commandRegistry.execute(id2);
+                  else commandRegistry.execute(commandId);
                 }}
               />
             );
@@ -301,8 +301,8 @@ export function CanvasToolbar({
             commandRegistry={commandRegistry}
             mode={interactionMode}
             labels={{
-              move: t2("canvas.toolbar.move"),
-              hand: t2("canvas.toolbar.handTool"),
+              move: translate("canvas.toolbar.move"),
+              hand: translate("canvas.toolbar.handTool"),
             }}
           />
           {beforeSticker && (

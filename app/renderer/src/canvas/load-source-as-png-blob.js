@@ -2,11 +2,11 @@
 
 function loadImage(url2) {
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error(`Failed to load image: ${url2}`));
-    img.src = url2;
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Failed to load image: ${url2}`));
+    image.src = url2;
   });
 }
 
@@ -28,13 +28,13 @@ export async function loadSourceAsPngBlob(srcImageUrl, opts) {
   const canvas = document.createElement("canvas");
   canvas.width = srcImg.naturalWidth;
   canvas.height = srcImg.naturalHeight;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Failed to get 2d context for source encode");
+  const canvasContext = canvas.getContext("2d");
+  if (!canvasContext) throw new Error("Failed to get 2d context for source encode");
   if (opts?.background) {
-    ctx.fillStyle = opts.background;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    canvasContext.fillStyle = opts.background;
+    canvasContext.fillRect(0, 0, canvas.width, canvas.height);
   }
-  ctx.drawImage(srcImg, 0, 0);
+  canvasContext.drawImage(srcImg, 0, 0);
   return canvasToPngBlob(canvas);
 }
 
@@ -43,11 +43,11 @@ export async function compositeOutpaintCanvas(srcImageUrl, params) {
   const canvas = document.createElement("canvas");
   canvas.width = params.targetWidth;
   canvas.height = params.targetHeight;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Failed to get 2d context for outpaint composite");
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(
+  const canvasContext = canvas.getContext("2d");
+  if (!canvasContext) throw new Error("Failed to get 2d context for outpaint composite");
+  canvasContext.fillStyle = "#ffffff";
+  canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+  canvasContext.drawImage(
     srcImg,
     params.offsetX,
     params.offsetY,

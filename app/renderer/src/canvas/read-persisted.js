@@ -13,8 +13,8 @@ const PRE_WATERMARK_DEFAULT_PINNED = [
   "clip",
   "extract-audio",
 ];
-function isVideoToolbarToolId(v2) {
-  return VIDEO_TOOLBAR_TOOLS.includes(v2);
+function isVideoToolbarToolId(toolId) {
+  return VIDEO_TOOLBAR_TOOLS.includes(toolId);
 }
 function migrateToolbarOrder(pinned) {
   if (typeof window === "undefined") return pinned;
@@ -25,7 +25,7 @@ function migrateToolbarOrder(pinned) {
     return pinned;
   }
   const rest = pinned.filter(
-    (id2) => id2 !== "hailuo03-super-resolution" && id2 !== "enhance-video",
+    (toolId) => toolId !== "hailuo03-super-resolution" && toolId !== "enhance-video",
   );
   return ["hailuo03-super-resolution", ...rest];
 }
@@ -50,20 +50,20 @@ function readPersisted() {
         showLabels: DEFAULT_SHOW_LABELS,
       };
     }
-    const p3 = parsed;
-    const parsedPinned = Array.isArray(p3.pinned)
-      ? p3.pinned.filter(isVideoToolbarToolId)
+    const parsedState = parsed;
+    const parsedPinned = Array.isArray(parsedState.pinned)
+      ? parsedState.pinned.filter(isVideoToolbarToolId)
       : DEFAULT_PINNED;
     const migratedPinned = migrateToolbarOrder(parsedPinned);
     const pinned =
       migratedPinned.length === PRE_WATERMARK_DEFAULT_PINNED.length &&
       migratedPinned.every(
-        (id2, index2) => id2 === PRE_WATERMARK_DEFAULT_PINNED[index2],
+        (toolId, index2) => toolId === PRE_WATERMARK_DEFAULT_PINNED[index2],
       )
         ? DEFAULT_PINNED
         : migratedPinned;
     const showLabels =
-      typeof p3.showLabels === "boolean" ? p3.showLabels : DEFAULT_SHOW_LABELS;
+      typeof parsedState.showLabels === "boolean" ? parsedState.showLabels : DEFAULT_SHOW_LABELS;
     return {
       pinned,
       showLabels,

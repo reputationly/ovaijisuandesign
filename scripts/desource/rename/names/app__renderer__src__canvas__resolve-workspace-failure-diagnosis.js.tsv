@@ -1,0 +1,4 @@
+key	old	new	依据
+t2@7:27	t2	translator	该函数按 copy.key 和语言回退文本调用本地化翻译器。
+t2@13:57	t2	translator	该翻译器被传给各诊断字段的 translate helper。
+id2@33:22	id2	pluginId	firePluginsChanged 将该标识放入插件变更事件。

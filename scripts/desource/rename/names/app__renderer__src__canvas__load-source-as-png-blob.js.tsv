@@ -1,0 +1,4 @@
+key	old	new	依据
+img@5:11	img	image	new Image() 创建的图像对象负责跨域加载并在 load 时解析。
+ctx@31:9	ctx	canvasContext	该 2D canvas context 按背景填充并绘制源图像。
+ctx@46:9	ctx	canvasContext	该 2D canvas context 填充合成画布并绘制外扩源图像。

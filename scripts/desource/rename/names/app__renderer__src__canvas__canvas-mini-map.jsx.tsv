@@ -1,0 +1,5 @@
+key	old	new	依据
+x2@156:31	x2	x	roundedRect 将该横坐标传给 CanvasRenderingContext2D.roundRect。
+y4@156:35	y4	y	roundedRect 将该纵坐标传给 CanvasRenderingContext2D.roundRect。
+x2@802:11	x2	mapX	该值是鼠标 clientX 相对 mini-map 左边界的位置，用于命中节点矩形。
+y4@803:11	y4	mapY	该值是鼠标 clientY 相对 mini-map 上边界的位置，用于命中节点矩形。

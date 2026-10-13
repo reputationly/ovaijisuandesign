@@ -1,0 +1,4 @@
+key	old	new	依据
+X@8:10	X	CloseIcon	vendor 中 X$7 是 X Lucide 图标的合成组件，在此作为命令面板关闭按钮图标。
+t2@165:14	t2	translate	该函数翻译画布工具栏贴纸和命令面板标签。
+id2@279:37	id2	commandId	TOOL_COMMANDS 中解构出的命令标识用于查找定义和执行命令。

@@ -33,21 +33,21 @@ const HIDDEN_STYLE = {
 };
 
 export function CanvasE2EMarkersInner({ nodes }) {
-  const assets = useAssetMetadataStore((s2) => s2.assets);
+  const assets = useAssetMetadataStore((assetState) => assetState.assets);
   const mediaNodes = nodes.filter(
-    (n2) => n2.type !== void 0 && n2.type in NODE_TYPE_TO_ARTIFACT,
+    (node) => node.type !== void 0 && node.type in NODE_TYPE_TO_ARTIFACT,
   );
   if (mediaNodes.length === 0) return null;
   return (
     <div data-canvas-e2e-markers="" style={HIDDEN_STYLE} aria-hidden="true">
-      {mediaNodes.map((n2) => {
-        const { assetId } = parseNodeId(n2.id);
+      {mediaNodes.map((node) => {
+        const { assetId } = parseNodeId(node.id);
         const meta2 = assets.get(assetId);
         if (!meta2?.url) return null;
-        const artifactType = NODE_TYPE_TO_ARTIFACT[n2.type];
+        const artifactType = NODE_TYPE_TO_ARTIFACT[node.type];
         return (
           <span
-            key={n2.id}
+            key={node.id}
             data-action-ui-id={CHAT_ARTIFACT_UI_ID[artifactType]}
             data-artifact-type={artifactType}
             data-artifact-path={meta2.url}

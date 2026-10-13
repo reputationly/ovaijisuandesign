@@ -58,12 +58,12 @@ export function createCanvasResizeActions(instance2) {
       });
       requestPersist();
     },
-    moveAndResizeNode: (nodeId, x2, y4, width, height, data2) => {
+    moveAndResizeNode: (nodeId, x, y, width, height, data2) => {
       instance2.moveAndResizeNode(
         nodeId,
         {
-          x: x2,
-          y: y4,
+          x,
+          y,
         },
         {
           width,
@@ -73,12 +73,12 @@ export function createCanvasResizeActions(instance2) {
       );
       requestPersist();
     },
-    moveAndResizeImageGroupMembers: (nodeId, x2, y4, width, height, data2) => {
+    moveAndResizeImageGroupMembers: (nodeId, x, y, width, height, data2) => {
       instance2.moveAndResizeImageGroupMembers(
         nodeId,
         {
-          x: x2,
-          y: y4,
+          x,
+          y,
         },
         {
           width,

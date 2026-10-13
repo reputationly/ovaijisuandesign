@@ -1,0 +1,4 @@
+key	old	new	依据
+s2@36:41	s2	assetState	useAssetMetadataStore 选择器接收 store 状态并读取 assets 集合。
+n2@38:6	n2	node	过滤器检查候选画布节点是否为受支持的媒体类型。
+n2@43:24	n2	node	遍历媒体节点并读取其 id、type 及关联素材元数据。

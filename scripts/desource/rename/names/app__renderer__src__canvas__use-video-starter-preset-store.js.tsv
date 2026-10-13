@@ -1,0 +1,4 @@
+key	old	new	依据
+i2@57:12	i2	index	循环下标依次读取 memo 比较器两侧节点数组的节点。
+a2@58:11	a2	previousNode	prev.nodes 在当前下标处的节点用于和下一组节点比较。
+b3@59:11	b3	nextNode	next2.nodes 在当前下标处的节点用于和上一组节点比较。

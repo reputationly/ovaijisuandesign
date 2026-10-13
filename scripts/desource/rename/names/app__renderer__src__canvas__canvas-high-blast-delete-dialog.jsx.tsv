@@ -1,0 +1,5 @@
+key	old	new	依据
+t2@51:14	t2	translate	该函数翻译高数量删除确认对话框的标题、说明和按钮文本。
+e2@110:31	e2	mouseEvent	document mousedown 监听器用该事件 target 判断是否点击菜单外。
+e2@116:29	e2	keyboardEvent	document keydown 监听器检查 Escape 并处理键盘事件。
+ref@139:9	ref	presenceRef	该 React ref 指向 presence 动画元素，用于读取动画并传回子元素。

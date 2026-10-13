@@ -54,10 +54,10 @@ export const DEFAULT_SHOW_LABELS = true;
 export function arePropsEqual(prev, next2) {
   if (prev.nodes === next2.nodes) return true;
   if (prev.nodes.length !== next2.nodes.length) return false;
-  for (let i2 = 0; i2 < prev.nodes.length; i2++) {
-    const a2 = prev.nodes[i2];
-    const b3 = next2.nodes[i2];
-    if (a2.id !== b3.id || a2.type !== b3.type) return false;
+  for (let index = 0; index < prev.nodes.length; index++) {
+    const previousNode = prev.nodes[index];
+    const nextNode = next2.nodes[index];
+    if (previousNode.id !== nextNode.id || previousNode.type !== nextNode.type) return false;
   }
   return true;
 }

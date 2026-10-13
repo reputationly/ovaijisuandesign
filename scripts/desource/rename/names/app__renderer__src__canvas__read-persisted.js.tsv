@@ -1,0 +1,5 @@
+key	old	new	依据
+v2@16:31	v2	toolId	该参数与视频工具栏允许的工具 id 集合进行成员检查。
+id2@28:6	id2	toolId	筛选迁移后保留的视频工具栏工具标识。
+p3@53:11	p3	parsedState	该值是 JSON.parse 得到并通过对象校验的持久化配置。
+id2@61:10	id2	toolId	该工具标识与指定下标处的旧默认固定工具比较。

@@ -153,10 +153,10 @@ function resolveCssColor(element2, color2) {
   }
   return resolved;
 }
-function roundedRect(context, x2, y4, width, height, radius) {
+function roundedRect(context, x, y, width, height, radius) {
   const safeRadius = Math.max(0, Math.min(radius, width / 2, height / 2));
   context.beginPath();
-  context.roundRect(x2, y4, width, height, safeRadius);
+  context.roundRect(x, y, width, height, safeRadius);
 }
 function prepareLayer(existing, elementWidth, elementHeight, pixelRatio) {
   const canvas = existing ?? document.createElement("canvas");
@@ -799,8 +799,8 @@ export function CanvasMiniMap({
     const graph = graphRef.current;
     if (!canvas || !scene || !graph) return null;
     const bounds = canvas.getBoundingClientRect();
-    const x2 = clientX - bounds.left;
-    const y4 = clientY - bounds.top;
+    const mapX = clientX - bounds.left;
+    const mapY = clientY - bounds.top;
     let hitId = null;
     let hitArea = Number.POSITIVE_INFINITY;
     for (const node2 of graph.nodes) {
@@ -810,10 +810,10 @@ export function CanvasMiniMap({
         MIN_SELECTED_NODE_SIZE,
       );
       if (
-        x2 < rect.x - NODE_HIT_SLOP ||
-        x2 > rect.x + rect.width + NODE_HIT_SLOP ||
-        y4 < rect.y - NODE_HIT_SLOP ||
-        y4 > rect.y + rect.height + NODE_HIT_SLOP
+        mapX < rect.x - NODE_HIT_SLOP ||
+        mapX > rect.x + rect.width + NODE_HIT_SLOP ||
+        mapY < rect.y - NODE_HIT_SLOP ||
+        mapY > rect.y + rect.height + NODE_HIT_SLOP
       ) {
         continue;
       }

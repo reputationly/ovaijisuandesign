@@ -48,7 +48,7 @@ export function CanvasConfirmationDialog({
   );
 }
 export function CanvasHighBlastDeleteDialog({ instance: instance2 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [pendingRequest, setPendingRequest] = reactExports.useState(null);
   const pendingRequestRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -78,18 +78,18 @@ export function CanvasHighBlastDeleteDialog({ instance: instance2 }) {
   return (
     <CanvasConfirmationDialog
       open={pendingRequest !== null}
-      title={t2(
+      title={translate(
         "canvas.persistence.highBlastDeleteTitle",
         "确认删除大量画布内容",
       )}
-      description={t2("canvas.persistence.highBlastDeleteConfirm", {
+      description={translate("canvas.persistence.highBlastDeleteConfirm", {
         defaultValue:
           "此操作将从画布移除 {{nodeCount}} 个节点和 {{edgeCount}} 条连线。为防止误清空，请确认是否继续。",
         nodeCount: pendingRequest?.removedNodeCount ?? 0,
         edgeCount: pendingRequest?.removedEdgeCount ?? 0,
       })}
-      cancelLabel={t2("common.cancel", "取消")}
-      confirmLabel={t2("canvas.persistence.highBlastDeleteAction", "确认删除")}
+      cancelLabel={translate("common.cancel", "取消")}
+      confirmLabel={translate("canvas.persistence.highBlastDeleteAction", "确认删除")}
       onCancel={handleCancel}
       onConfirm={handleConfirm}
     />
@@ -107,17 +107,17 @@ export function useDismissMenu(
   const captureEscape = !!onEscape;
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const handleMouseDown2 = (e2) => {
-      if (trigger?.contains(e2.target)) return;
-      if (menuRef.current && !menuRef.current.contains(e2.target)) {
+    const handleMouseDown2 = (mouseEvent) => {
+      if (trigger?.contains(mouseEvent.target)) return;
+      if (menuRef.current && !menuRef.current.contains(mouseEvent.target)) {
         onClose();
       }
     };
-    const handleKeyDown2 = (e2) => {
-      if (e2.key !== "Escape") return;
+    const handleKeyDown2 = (keyboardEvent) => {
+      if (keyboardEvent.key !== "Escape") return;
       if (escapeHandlerRef.current?.()) {
-        e2.preventDefault();
-        e2.stopImmediatePropagation();
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopImmediatePropagation();
         return;
       }
       onClose();
@@ -136,13 +136,13 @@ export function useDismissMenu(
 export function QuickZoomPresence({ value, elementRef, children: children2 }) {
   const [retained, setRetained] = reactExports.useState(value);
   const internalRef = reactExports.useRef(null);
-  const ref = elementRef ?? internalRef;
+  const presenceRef = elementRef ?? internalRef;
   const open = value !== null;
   if (open && retained !== value) setRetained(value);
   reactExports.useLayoutEffect(() => {
     if (open || retained === null) return;
     let cancelled = false;
-    const animations = ref.current?.getAnimations?.() ?? [];
+    const animations = presenceRef.current?.getAnimations?.() ?? [];
     if (animations.length === 0) {
       setRetained(null);
       return;
@@ -155,12 +155,12 @@ export function QuickZoomPresence({ value, elementRef, children: children2 }) {
     return () => {
       cancelled = true;
     };
-  }, [open, retained, ref]);
+  }, [open, retained, presenceRef]);
   const content2 = value ?? retained;
   return content2 === null
     ? null
     : children2(content2, {
-        ref,
+        ref: presenceRef,
         "data-ending-style": open ? void 0 : "",
         inert: !open,
       });

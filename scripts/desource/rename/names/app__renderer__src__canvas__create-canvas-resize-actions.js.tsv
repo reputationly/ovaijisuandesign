@@ -1,0 +1,5 @@
+key	old	new	依据
+x2@61:33	x2	x	moveAndResizeNode 将该横坐标写入节点的新位置。
+y4@61:37	y4	y	moveAndResizeNode 将该纵坐标写入节点的新位置。
+x2@76:46	x2	x	moveAndResizeImageGroupMembers 将该横坐标写入组成员操作的位置参数。
+y4@76:50	y4	y	moveAndResizeImageGroupMembers 将该纵坐标写入组成员操作的位置参数。
