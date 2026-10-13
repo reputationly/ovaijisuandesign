@@ -157,6 +157,22 @@ console.log(view, a);
       dryRun: true,
       report: "report.json",
     })).toThrow(/export 模式/);
+
+    const nested = fixture();
+    const nestedSource = "export function render(props) { const value = props.input; return value; }\n";
+    put(nested, relative, nestedSource);
+    const nestedResult = renameIdentifiers({
+      root: nested,
+      map: {
+        [relative]: {
+          [keyFor(nestedSource, "props")]: "renderProps",
+          [keyFor(nestedSource, "value")]: "renderedValue",
+        },
+      },
+      dryRun: true,
+      report: "report.json",
+    });
+    expect(nestedResult.files[0].rejected).toEqual([]);
   });
 
   it("改名导出别名时保留原有外部名称", () => {

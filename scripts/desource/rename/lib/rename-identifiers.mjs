@@ -64,12 +64,18 @@ function originalOffsetForCurrent(offset, edits) {
 }
 
 function isExportDeclaration(bindingInfo) {
-  let current = bindingInfo.path;
-  while (current && !current.isProgram()) {
-    if (current.parentPath?.isExportNamedDeclaration() && current.parentPath.node.declaration === current.node) {
-      return true;
-    }
-    current = current.parentPath;
+  const bindingPath = bindingInfo.path;
+  if (
+    (bindingPath.isFunctionDeclaration() || bindingPath.isClassDeclaration()) &&
+    bindingPath.node.id === bindingInfo.identifier
+  ) {
+    return bindingPath.parentPath?.isExportNamedDeclaration() &&
+      bindingPath.parentPath.node.declaration === bindingPath.node;
+  }
+  if (bindingPath.isVariableDeclarator()) {
+    const declarationPath = bindingPath.parentPath;
+    return declarationPath.parentPath?.isExportNamedDeclaration() &&
+      declarationPath.parentPath.node.declaration === declarationPath.node;
   }
   return false;
 }
