@@ -17,5 +17,11 @@
   },
   "app/renderer/src/chat/st.jsx": {
     "st": "HighlightedCodeBlock"
+  },
+  "app/renderer/src/chat/fo.jsx": {
+    "fo": "MermaidFullscreenButton"
+  },
+  "app/renderer/src/chat/pe.jsx": {
+    "Pe": "TableDownloadMenu"
   }
 }

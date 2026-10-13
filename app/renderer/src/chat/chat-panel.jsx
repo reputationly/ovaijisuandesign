@@ -140,7 +140,7 @@ export function ChatPanel({
   onAnnotationClear,
   isPresented = true,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const { guard: loginGuard, LoginDialog } = useLoginGuard();
   const navigate = useNavigate();
   const { currentWorkspaceId } = useTopbarState();
@@ -277,34 +277,34 @@ export function ChatPanel({
     () =>
       pluginEditMode
         ? {
-            preparing: t2(
+            preparing: translate(
               "chat.pluginEditAgent.preparing",
               "Preparing editor Agent...",
             ),
-            prepareFailed: t2(
+            prepareFailed: translate(
               "chat.pluginEditAgent.prepareFailed",
               "Editor Agent could not be prepared. Close the editor and try again.",
             ),
-            preparingPlaceholder: t2(
+            preparingPlaceholder: translate(
               "chat.pluginEditAgent.preparingPlaceholder",
               "Editor Agent is getting ready...",
             ),
           }
         : {
-            preparing: t2(
+            preparing: translate(
               "chat.textEditAgent.preparing",
               "Preparing Text Assistant...",
             ),
-            prepareFailed: t2(
+            prepareFailed: translate(
               "chat.textEditAgent.prepareFailed",
               "Text Assistant could not be prepared. Close the editor and try again.",
             ),
-            preparingPlaceholder: t2(
+            preparingPlaceholder: translate(
               "chat.textEditAgent.preparingPlaceholder",
               "Text Assistant is getting ready...",
             ),
           },
-    [pluginEditMode, t2],
+    [pluginEditMode, translate],
   );
   const nodeEditChatStatus = pluginEditMode
     ? pluginEditChatStatus
@@ -321,9 +321,9 @@ export function ChatPanel({
     nodeEditSkillMode === "clip-editor";
   const nodeSkillLabel =
     nodeEditSkillMode === "director-stage"
-      ? t2("chat.emptyRecommendations.skillTab.directorAgent")
+      ? translate("chat.emptyRecommendations.skillTab.directorAgent")
       : nodeEditSkillMode === "clip-editor"
-        ? t2("chat.emptyRecommendations.skillTab.clipAgent")
+        ? translate("chat.emptyRecommendations.skillTab.clipAgent")
         : void 0;
   const textEditConversationReady =
     !nodeEditMode || nodeEditChatStatus === "ready";
@@ -439,11 +439,11 @@ export function ChatPanel({
   const [feedbackSentStageKey, setFeedbackSentStageKey] =
     reactExports.useState();
   const userMessageSignature = messages2
-    .filter((m3) => m3.role === "user" && m3.type === "text")
-    .map((m3) => m3.id)
+    .filter((message) => message.role === "user" && message.type === "text")
+    .map((message) => message.id)
     .join("\n");
   const userMessageHistory = reactExports.useMemo(
-    () => messages2.filter((m3) => m3.role === "user" && m3.type === "text"),
+    () => messages2.filter((message) => message.role === "user" && message.type === "text"),
     [userMessageSignature],
   );
   const mockToolConfirm = useDebugFlag(DEBUG_FLAGS.mockToolConfirm);
@@ -452,9 +452,9 @@ export function ChatPanel({
     [messages2],
   );
   const pendingLoopGuard = reactExports.useMemo(() => {
-    for (let i2 = messages2.length - 1; i2 >= 0; i2--) {
-      const m3 = messages2[i2];
-      if (m3.type === "loop_guard_ask" && !m3.resolved) return m3;
+    for (let messageIndex = messages2.length - 1; messageIndex >= 0; messageIndex--) {
+      const message = messages2[messageIndex];
+      if (message.type === "loop_guard_ask" && !message.resolved) return message;
     }
     return null;
   }, [messages2]);
@@ -463,7 +463,7 @@ export function ChatPanel({
       if (cause === "session_cancelled" || cause === "session_deleted") return;
       if (cause === "timeout") {
         dedupedToast.warning(
-          t2(
+          translate(
             "chat.loopGuard.timeoutNotice",
             "The confirmation expired before your choice was accepted. Please retry the operation.",
           ),
@@ -472,7 +472,7 @@ export function ChatPanel({
       }
       if (cause === "runtime_restarted") {
         dedupedToast.warning(
-          t2(
+          translate(
             "chat.loopGuard.runtimeRestartedNotice",
             "The local service reconnected, so this confirmation was cancelled. Please retry the operation.",
           ),
@@ -481,7 +481,7 @@ export function ChatPanel({
       }
       if (cause === "transport_closed") {
         dedupedToast.warning(
-          t2(
+          translate(
             "chat.loopGuard.transportClosedNotice",
             "The connection closed, so this confirmation was cancelled. Please retry the operation.",
           ),
@@ -489,30 +489,30 @@ export function ChatPanel({
         return;
       }
       dedupedToast.warning(
-        t2(
+        translate(
           "chat.loopGuard.unavailableNotice",
           "We could not verify whether this choice took effect. Check the current task state before retrying.",
         ),
       );
     },
-    [t2],
+    [translate],
   );
   const handleLoopGuardAckTimeout = reactExports.useCallback(() => {
     dedupedToast.warning(
-      t2(
+      translate(
         "chat.loopGuard.ackTimeoutNotice",
         "No confirmation result was received. You can choose again without losing the conversation.",
       ),
     );
-  }, [t2]);
+  }, [translate]);
   const handleConflictingLoopGuardSettlement = reactExports.useCallback(() => {
     dedupedToast.warning(
-      t2(
+      translate(
         "chat.loopGuard.conflictingDecisionNotice",
         "Another choice was already accepted for this confirmation. The earlier choice remains in effect.",
       ),
     );
-  }, [t2]);
+  }, [translate]);
   const {
     beginSubmission: beginLoopGuardSubmission,
     isSubmitting: isLoopGuardSubmitting,
@@ -526,12 +526,12 @@ export function ChatPanel({
   });
   const handleToolConfirmAckTimeout = reactExports.useCallback(() => {
     dedupedToast.warning(
-      t2(
+      translate(
         "chat.toolConfirm.ackTimeoutNotice",
         "No confirmation result was received. You can choose again without losing the conversation.",
       ),
     );
-  }, [t2]);
+  }, [translate]);
   const { submit: submitToolConfirm, submittingIds: submittingToolConfirmIds } =
     useToolConfirmSettlement({
       messages: messages2,
@@ -634,15 +634,15 @@ export function ChatPanel({
   );
   const recoveringChildSessionIds = reactExports.useMemo(() => {
     const ids2 = new Set();
-    for (const r2 of pendingReasons) {
-      if (r2.kind === "generation_recovery") {
-        for (const id2 of r2.childSessionIds ?? []) ids2.add(id2);
+    for (const pendingReason of pendingReasons) {
+      if (pendingReason.kind === "generation_recovery") {
+        for (const childSessionId of pendingReason.childSessionIds ?? []) ids2.add(childSessionId);
       }
     }
     return ids2;
   }, [pendingReasons]);
   const isRecovering = pendingReasons.some(
-    (r2) => r2.kind === "generation_recovery",
+    (pendingReason) => pendingReason.kind === "generation_recovery",
   );
   const connectionPhase = useChatConnectionPhase(workspaceId2, connected);
   const connecting = connectionPhase === "connecting";
@@ -653,43 +653,43 @@ export function ChatPanel({
   const reconnectBanner =
     reconnectingStuck && reclaimedByMemory
       ? {
-          title: t2(
+          title: translate(
             "chat.reconnecting.stuckMemoryTitle",
             "Low memory — still can't reach the runtime",
           ),
-          description: t2(
+          description: translate(
             "chat.reconnecting.stuckDescription",
             "Auto-reconnect isn't recovering. Close other memory-heavy apps, then restart the app and try again.",
           ),
         }
       : reconnectingStuck
         ? {
-            title: t2(
+            title: translate(
               "chat.reconnecting.stuckTitle",
               "Still can't reach the runtime",
             ),
-            description: t2(
+            description: translate(
               "chat.reconnecting.stuckDescription",
               "Auto-reconnect isn't recovering. Close other memory-heavy apps, then restart the app and try again.",
             ),
           }
         : reclaimedByMemory
           ? {
-              title: t2(
+              title: translate(
                 "chat.reconnecting.memoryTitle",
                 "Low system memory — runtime was reclaimed",
               ),
-              description: t2(
+              description: translate(
                 "chat.reconnecting.memoryDescription",
                 "Recovering automatically. Close some memory-heavy apps or workspaces and try again.",
               ),
             }
           : {
-              title: t2(
+              title: translate(
                 "chat.reconnecting.title",
                 "Reconnecting to runtime...",
               ),
-              description: t2(
+              description: translate(
                 "chat.reconnecting.description",
                 "Messages are paused until the connection is restored.",
               ),
@@ -761,7 +761,7 @@ export function ChatPanel({
   );
   const inputPlaceholderBusy = reactExports.useMemo(() => {
     if (textEditConversationFailed) {
-      return t2(
+      return translate(
         "chat.textEditAgent.failedPlaceholder",
         "Close the editor and try again.",
       );
@@ -770,30 +770,30 @@ export function ChatPanel({
       return nodeEditAgentLabels.preparingPlaceholder;
     }
     if (showcaseAttachmentsLoading) {
-      return t2("home.scene.loadingAssets", "Loading reference assets...");
+      return translate("home.scene.loadingAssets", "Loading reference assets...");
     }
     if (preparing) {
-      return t2("chat.starting.placeholder", "Agent is getting ready...");
+      return translate("chat.starting.placeholder", "Agent is getting ready...");
     }
     if (providersUnavailable) {
-      return t2(
+      return translate(
         "chat.providersUnavailable.placeholder",
         "AI service unavailable — chat is paused",
       );
     }
     if (runtimeUnavailable) {
-      return t2(
+      return translate(
         "chat.runtimeUnavailable.placeholder",
         "Runtime recovering — chat is paused",
       );
     }
     if (isRecovering) {
-      return t2("chat.recovering.placeholder", "正在恢复并继续生成…");
+      return translate("chat.recovering.placeholder", "正在恢复并继续生成…");
     }
     if (reconnecting) {
-      return t2("chat.reconnecting.placeholder", "Reconnecting...");
+      return translate("chat.reconnecting.placeholder", "Reconnecting...");
     }
-    return t2(
+    return translate(
       "chat.queue.placeholder",
       "Type ahead, your message will be queued...",
     );
@@ -807,11 +807,11 @@ export function ChatPanel({
     runtimeUnavailable,
     isRecovering,
     reconnecting,
-    t2,
+    translate,
   ]);
   const inputPlaceholder = reactExports.useMemo(() => {
     if (nodeEditMode && textEditConversationFailed) {
-      return t2(
+      return translate(
         "chat.textEditAgent.failedPlaceholder",
         "Close the editor and try again.",
       );
@@ -824,14 +824,14 @@ export function ChatPanel({
       nodeEditSkillMode === "clip-editor"
     ) {
       const placeholder = nodeAgentInputPlaceholder(nodeEditSkillMode);
-      return t2(placeholder.key, placeholder.fallback);
+      return translate(placeholder.key, placeholder.fallback);
     }
     if (textEditMode) {
       const placeholder = textAgentInputPlaceholder(hasTextEditSelection);
-      return t2(placeholder.key, placeholder.fallback);
+      return translate(placeholder.key, placeholder.fallback);
     }
     return waitingStageKey && feedbackSentStageKey !== waitingStageKey
-      ? t2(
+      ? translate(
           "productionPlan.feedbackPlaceholder",
           "输入文字将作为本阶段修改意见；添加附件则作为普通消息发送",
         )
@@ -842,7 +842,7 @@ export function ChatPanel({
     nodeEditAgentLabels,
     nodeEditMode,
     nodeEditSkillMode,
-    t2,
+    translate,
     textEditConversationFailed,
     textEditConversationReady,
     textEditMode,
@@ -874,7 +874,7 @@ export function ChatPanel({
           if (seq2 !== showcaseSelectionSeqRef.current || failed.length === 0)
             return;
           dedupedToast.warning(
-            t2("home.scene.assetFetchFailed", {
+            translate("home.scene.assetFetchFailed", {
               defaultValue: i18n.language.startsWith("zh")
                 ? "无法加载附件 {{names}}，请手动上传"
                 : "Failed to load attachment {{names}}, please upload manually",
@@ -895,7 +895,7 @@ export function ChatPanel({
             error,
           });
           dedupedToast.warning(
-            t2("home.scene.assetFetchFailed", {
+            translate("home.scene.assetFetchFailed", {
               defaultValue: i18n.language.startsWith("zh")
                 ? "无法加载场景附件，请手动上传"
                 : "Failed to load scene attachments, please upload manually",
@@ -916,7 +916,7 @@ export function ChatPanel({
           setShowcaseAttachmentsLoading(false);
         });
     },
-    [handleSelectedMediaModelsChange, i18n.language, selectedMediaModels, t2],
+    [handleSelectedMediaModelsChange, i18n.language, selectedMediaModels, translate],
   );
   reactExports.useEffect(
     () => () => {
@@ -941,53 +941,53 @@ export function ChatPanel({
     [],
   );
   const handleQuestionSend = reactExports.useCallback(
-    (msg) => {
-      if (msg.type === "question_reply" || msg.type === "question_reject") {
-        const sid = focusedSessionId;
+    (message) => {
+      if (message.type === "question_reply" || message.type === "question_reject") {
+        const sessionId = focusedSessionId;
         return sendWsMessage(
-          sid
+          sessionId
             ? {
-                ...msg,
-                session_id: sid,
+                ...message,
+                session_id: sessionId,
               }
-            : msg,
+            : message,
         );
       }
-      return sendWsMessage(msg);
+      return sendWsMessage(message);
     },
     [focusedSessionId, sendWsMessage],
   );
   const handleLoopGuardSend = reactExports.useCallback(
-    (msg) => {
-      if (msg.type === "loop_guard_reply") {
-        if (!beginLoopGuardSubmission(msg.id, msg.decision, msg.session_id))
+    (message) => {
+      if (message.type === "loop_guard_reply") {
+        if (!beginLoopGuardSubmission(message.id, message.decision, message.session_id))
           return;
-        sendWsMessage(msg);
+        sendWsMessage(message);
         return;
       }
-      sendWsMessage(msg);
+      sendWsMessage(message);
     },
     [beginLoopGuardSubmission, sendWsMessage],
   );
   const handleToolConfirmSend = reactExports.useCallback(
-    (msg) => {
-      if (msg.type === "tool_confirm_reply") {
-        const sid = focusedSessionId;
-        const devToolId = msg.id.startsWith("dev-confirm-")
-          ? msg.id.replace("dev-confirm-", "dev-tool-")
+    (message) => {
+      if (message.type === "tool_confirm_reply") {
+        const sessionId = focusedSessionId;
+        const devToolId = message.id.startsWith("dev-confirm-")
+          ? message.id.replace("dev-confirm-", "dev-tool-")
           : null;
-        if (sid && devToolId) {
+        if (sessionId && devToolId) {
           sessionStore.updateMessages(
-            sid,
+            sessionId,
             (prev) => {
-              const updated = applyToolConfirmReplyOptimisticUpdate(prev, msg);
-              return updated.map((m3) => {
-                if (m3.type !== "tool" || m3.id !== devToolId) return m3;
+              const updated = applyToolConfirmReplyOptimisticUpdate(prev, message);
+              return updated.map((updatedMessage) => {
+                if (updatedMessage.type !== "tool" || updatedMessage.id !== devToolId) return updatedMessage;
                 return {
-                  ...m3,
-                  toolStatus: msg.decision === "reject" ? "error" : "running",
+                  ...updatedMessage,
+                  toolStatus: message.decision === "reject" ? "error" : "running",
                   toolResult:
-                    msg.decision === "reject"
+                    message.decision === "reject"
                       ? JSON.stringify({
                           is_error: true,
                           error: "User rejected this tool call",
@@ -1002,14 +1002,14 @@ export function ChatPanel({
           );
         }
         if (devToolId) return true;
-        return submitToolConfirm(msg.id, sid, () =>
+        return submitToolConfirm(message.id, sessionId, () =>
           sendWsMessage({
-            ...msg,
-            session_id: sid ?? void 0,
+            ...message,
+            session_id: sessionId ?? void 0,
           }),
         );
       }
-      return sendWsMessage(msg);
+      return sendWsMessage(message);
     },
     [focusedSessionId, sessionStore, sendWsMessage, submitToolConfirm],
   );
@@ -1022,16 +1022,16 @@ export function ChatPanel({
       )
     )
       return;
-    for (const m3 of miniBarToolConfirms) {
-      const id2 = m3.requestId;
-      if (!id2) continue;
-      const edited = toolConfirmEdits[id2];
-      const original = m3.toolConfirmData?.args ?? {};
+    for (const toolConfirm of miniBarToolConfirms) {
+      const requestId = toolConfirm.requestId;
+      if (!requestId) continue;
+      const edited = toolConfirmEdits[requestId];
+      const original = toolConfirm.toolConfirmData?.args ?? {};
       const hasChanges =
         !!edited && JSON.stringify(edited) !== JSON.stringify(original);
       handleToolConfirmSend({
         type: "tool_confirm_reply",
-        id: id2,
+        id: requestId,
         decision: "confirm",
         ...(hasChanges
           ? {
@@ -1058,34 +1058,34 @@ export function ChatPanel({
     }
   }, [miniBarToolConfirms]);
   const handleAnyMessageSend = reactExports.useCallback(
-    (msg) => {
-      if (msg.type === "tool_confirm_reply") {
-        return handleToolConfirmSend(msg);
+    (message) => {
+      if (message.type === "tool_confirm_reply") {
+        return handleToolConfirmSend(message);
       }
-      if (msg.type === "question_reply" || msg.type === "question_reject") {
-        return handleQuestionSend(msg);
+      if (message.type === "question_reply" || message.type === "question_reject") {
+        return handleQuestionSend(message);
       }
-      if (msg.type === "user_reply") {
-        const sid = focusedSessionId;
-        if (sid) {
+      if (message.type === "user_reply") {
+        const sessionId = focusedSessionId;
+        if (sessionId) {
           sessionStore.updateMessages(
-            sid,
-            (messages22) => resolveLegacyInteractionReply(messages22, msg.id),
+            sessionId,
+            (messages22) => resolveLegacyInteractionReply(messages22, message.id),
             {
               affectsUserAttention: true,
             },
           );
         }
         return sendWsMessage(
-          sid
+          sessionId
             ? {
-                ...msg,
-                session_id: sid,
+                ...message,
+                session_id: sessionId,
               }
-            : msg,
+            : message,
         );
       }
-      return sendWsMessage(msg);
+      return sendWsMessage(message);
     },
     [
       focusedSessionId,
@@ -1188,7 +1188,7 @@ export function ChatPanel({
         };
         messageText =
           text2.trim() ||
-          t2(
+          translate(
             "chat.pendingAnnotations.submitMessage",
             "Apply {{count}} document annotations",
             {
@@ -1199,7 +1199,7 @@ export function ChatPanel({
         const oversizedLength = textEditSelectionRef?.current?.oversizedLength;
         if (oversizedLength) {
           dedupedToast.warning(
-            t2("chat.textEditAgent.selectionTooLong", {
+            translate("chat.textEditAgent.selectionTooLong", {
               count: oversizedLength,
               max: TEXT_EDIT_SELECTION_MAX_LENGTH,
             }),
@@ -1320,7 +1320,7 @@ export function ChatPanel({
       sendMessage,
       sendWsMessage,
       sessionMode,
-      t2,
+      translate,
       textEditMode,
       textEditSession,
       textEditSelectionRef,
@@ -1451,7 +1451,7 @@ export function ChatPanel({
       currentProductionStage,
       isFinalProductionStage,
     );
-    const content2 = t2(
+    const content2 = translate(
       confirmationCopy.messageKey,
       confirmationCopy.messageFallback,
       {
@@ -1470,7 +1470,7 @@ export function ChatPanel({
     productionPlan.isRevisionCurrent,
     productionPlan.planId,
     productionPlan.revision,
-    t2,
+    translate,
     userMessageHistory.length,
   ]);
   const productionPlanConfirmTransition =
@@ -1634,13 +1634,13 @@ export function ChatPanel({
     inputRef.current?.selectSkillByName("skill-creator");
   }, []);
   reactExports.useEffect(() => {
-    const d2 = workspaceEvents.onAddToChat(
+    const subscription = workspaceEvents.onAddToChat(
       ({ relativePath, filename, nodeId }) => {
         if (!isActiveRef.current) return;
         inputRef.current?.addFromAssetPath(relativePath, filename, nodeId);
       },
     );
-    return () => d2.dispose();
+    return () => subscription.dispose();
   }, []);
   useBrowserChatMedia(inputRef, isActiveRef, workspaceId2, focusedSessionId);
   useBrowserImageEdit({
@@ -1672,21 +1672,21 @@ export function ChatPanel({
       ),
   });
   reactExports.useEffect(() => {
-    const d2 = workspaceEvents.onAddPluginNodeToChat(
+    const subscription = workspaceEvents.onAddPluginNodeToChat(
       ({ nodeId, pluginId, name: name2 }) => {
         if (!isActiveRef.current) return;
         inputRef.current?.addFromPluginNode(nodeId, pluginId, name2);
       },
     );
-    return () => d2.dispose();
+    return () => subscription.dispose();
   }, []);
   reactExports.useEffect(() => {
-    const d2 = workspaceEvents.onAssetRenamed(
+    const subscription = workspaceEvents.onAssetRenamed(
       ({ oldPath, newPath, newFilename }) => {
         inputRef.current?.renameAttachment(oldPath, newPath, newFilename);
       },
     );
-    return () => d2.dispose();
+    return () => subscription.dispose();
   }, []);
   reactExports.useEffect(
     () =>
@@ -1708,13 +1708,13 @@ export function ChatPanel({
     workspaceEvents.fireChatInputReady(workspaceId2);
   }, [connected, sessionsLoading, switching, workspaceId2]);
   reactExports.useEffect(() => {
-    const d2 = workspaceEvents.onAddEntityToChat(
+    const subscription = workspaceEvents.onAddEntityToChat(
       ({ entityId, name: name2, type: type2 }) => {
         if (!isActiveRef.current) return;
         inputRef.current?.addFromEntity(entityId, name2, type2);
       },
     );
-    return () => d2.dispose();
+    return () => subscription.dispose();
   }, []);
   const [dragOver, setDragOver] = reactExports.useState(false);
   const [fileDragOver, setFileDragOver] = reactExports.useState(false);
@@ -1723,55 +1723,55 @@ export function ChatPanel({
     fileDragDepthRef.current = 0;
     setFileDragOver(false);
   }, []);
-  const handleChatPanelDragEnter = reactExports.useCallback((e2) => {
-    if (!hasFileDropPayload(e2.dataTransfer)) return;
-    e2.preventDefault();
-    e2.dataTransfer.dropEffect = "copy";
+  const handleChatPanelDragEnter = reactExports.useCallback((dragEvent) => {
+    if (!hasFileDropPayload(dragEvent.dataTransfer)) return;
+    dragEvent.preventDefault();
+    dragEvent.dataTransfer.dropEffect = "copy";
     fileDragDepthRef.current += 1;
     setFileDragOver(true);
   }, []);
-  const handleChatPanelDragOver = reactExports.useCallback((e2) => {
-    if (hasFileDropPayload(e2.dataTransfer)) {
-      e2.preventDefault();
-      e2.dataTransfer.dropEffect = "copy";
+  const handleChatPanelDragOver = reactExports.useCallback((dragEvent) => {
+    if (hasFileDropPayload(dragEvent.dataTransfer)) {
+      dragEvent.preventDefault();
+      dragEvent.dataTransfer.dropEffect = "copy";
       if (fileDragDepthRef.current === 0) fileDragDepthRef.current = 1;
       setFileDragOver(true);
       return;
     }
-    const types2 = e2.dataTransfer.types;
+    const types2 = dragEvent.dataTransfer.types;
     if (!types2.includes(SKILL_DRAG_MIME) && !types2.includes(ENTITY_DRAG_MIME))
       return;
-    e2.preventDefault();
-    e2.dataTransfer.dropEffect = "copy";
+    dragEvent.preventDefault();
+    dragEvent.dataTransfer.dropEffect = "copy";
     setDragOver(true);
   }, []);
-  const handleChatPanelDragLeave = reactExports.useCallback((e2) => {
+  const handleChatPanelDragLeave = reactExports.useCallback((dragEvent) => {
     if (fileDragDepthRef.current > 0) {
-      e2.preventDefault();
+      dragEvent.preventDefault();
       fileDragDepthRef.current = Math.max(0, fileDragDepthRef.current - 1);
       if (fileDragDepthRef.current === 0) setFileDragOver(false);
       return;
     }
-    if (e2.currentTarget.contains(e2.relatedTarget)) return;
+    if (dragEvent.currentTarget.contains(dragEvent.relatedTarget)) return;
     setDragOver(false);
   }, []);
   const handleChatPanelDrop = reactExports.useCallback(
-    (e2) => {
+    (dragEvent) => {
       setDragOver(false);
-      if (hasFileDropPayload(e2.dataTransfer)) {
-        e2.preventDefault();
-        e2.stopPropagation();
+      if (hasFileDropPayload(dragEvent.dataTransfer)) {
+        dragEvent.preventDefault();
+        dragEvent.stopPropagation();
         clearFileDragState();
         const handleFileDrop =
           questionFileDropHandlerRef.current ??
           inputRef.current?.handleFileDrop;
-        handleFileDrop?.(e2);
+        handleFileDrop?.(dragEvent);
         return;
       }
       clearFileDragState();
-      const entity = readEntityDragData(e2);
+      const entity = readEntityDragData(dragEvent);
       if (entity) {
-        e2.preventDefault();
+        dragEvent.preventDefault();
         if (!isActiveRef.current) return;
         inputRef.current?.addFromEntity(
           entity.entityId,
@@ -1786,15 +1786,15 @@ export function ChatPanel({
                 workspacePath: currentWorkspacePath,
               },
             })
-            .catch((err) => {
-              console.error("[chat] Materialize on entity drop failed:", err);
+            .catch((error) => {
+              console.error("[chat] Materialize on entity drop failed:", error);
             });
         }
         return;
       }
-      const raw2 = e2.dataTransfer.getData(SKILL_DRAG_MIME);
+      const raw2 = dragEvent.dataTransfer.getData(SKILL_DRAG_MIME);
       if (!raw2) return;
-      e2.preventDefault();
+      dragEvent.preventDefault();
       try {
         const data2 = JSON.parse(raw2);
         inputRef.current?.selectSkillDirect(data2.skill);
@@ -1816,7 +1816,7 @@ export function ChatPanel({
       onDragEnd={clearFileDragState}
       onDrop={handleChatPanelDrop}
     >
-      {fileDragOver && <FileDropFeedback label={t2("chat.dropFilesHere")} />}
+      {fileDragOver && <FileDropFeedback label={translate("chat.dropFilesHere")} />}
       {LoginDialog}
       <ChatHeaderContainer
         rightActions={headerActions}
@@ -1852,7 +1852,7 @@ export function ChatPanel({
             {textEditConversationReady ? (
               showConversationLoading ? (
                 <ChatHistoryLoadingState
-                  label={t2(
+                  label={translate(
                     "chat.starting.placeholder",
                     "Agent is getting ready...",
                   )}
@@ -1863,7 +1863,7 @@ export function ChatPanel({
                     messages={visibleMessages}
                     busy={busy}
                     busyLabel={
-                      mediaReviewing ? t2("chat.mediaReviewing") : void 0
+                      mediaReviewing ? translate("chat.mediaReviewing") : void 0
                     }
                     focusMessageId={inlineEditorFocusMessageId}
                     isPresented={isPresented}
@@ -1963,13 +1963,13 @@ export function ChatPanel({
               data-action-ui-id="chat.history-load-failed-notice"
             >
               <div className="font-medium text-foreground">
-                {t2(
+                {translate(
                   "chat.historyLoadFailed.title",
                   "Chat history is temporarily unavailable",
                 )}
               </div>
               <div>
-                {t2(
+                {translate(
                   "chat.historyLoadFailed.description",
                   "The current view was preserved, but the complete history could not be verified. Retry to reload it.",
                 )}
@@ -1983,21 +1983,21 @@ export function ChatPanel({
                 onClick={reloadSessionHistory}
               >
                 {historyReloading
-                  ? t2("common.loading", "Loading...")
-                  : t2("chat.retry", "Retry")}
+                  ? translate("common.loading", "Loading...")
+                  : translate("chat.retry", "Retry")}
               </Button>
             </div>
           )}
           {providersUnavailable && (
             <div className="mb-2 border border-border [border-width:var(--divider-width)] rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
               <div className="font-medium text-foreground">
-                {t2(
+                {translate(
                   "chat.providersUnavailable.title",
                   "AI service temporarily unavailable",
                 )}
               </div>
               <div>
-                {t2(
+                {translate(
                   "chat.providersUnavailable.description",
                   "Model providers could not be loaded. Canvas and assets still work; chat resumes automatically once the connection recovers.",
                 )}
@@ -2010,8 +2010,8 @@ export function ChatPanel({
                 onClick={handleRetryProviders}
               >
                 {retryingProviders
-                  ? t2("chat.providersUnavailable.retrying", "Retrying...")
-                  : t2("chat.retry", "Retry")}
+                  ? translate("chat.providersUnavailable.retrying", "Retrying...")
+                  : translate("chat.retry", "Retry")}
               </Button>
             </div>
           )}
@@ -2041,13 +2041,13 @@ export function ChatPanel({
           {runtimeUnavailable && !connectionUnavailable && (
             <div className="mb-2 border border-border [border-width:var(--divider-width)] rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
               <div className="font-medium text-foreground">
-                {t2(
+                {translate(
                   "chat.runtimeUnavailable.title",
                   "Local runtime is recovering",
                 )}
               </div>
               <div>
-                {t2(
+                {translate(
                   "chat.runtimeUnavailable.description",
                   "Workspace, canvas, and assets stay visible. Chat resumes after the local runtime reconnects.",
                 )}
