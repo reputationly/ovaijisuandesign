@@ -15,3 +15,19 @@ sa@458:17	subAgentMessage	`subAgentMessage` 是按索引定位并更新工具结
 s2@464:14	subMessage	`subMessage` 是查找工具结果时谓词收到的任意子消息。
 s2@472:44	subMessage	`subMessage` 是回退查找工具结果时谓词收到的任意子消息。
 sub@474:19	toolSubMessage	`toolSubMessage` 是已由工具类型索引定位的子代理工具消息。
+messages2@29:46	messages	`messages` 是聊天消息集合；末尾数字是打包器为避免重名添加的后缀。
+message2@32:14	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+current2@42:11	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@43:11	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+index2@50:20	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+messages2@69:39	messages	`messages` 是聊天消息集合；末尾数字是打包器为避免重名添加的后缀。
+message2@71:25	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+key2@81:11	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key22@73:13	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+prompt2@76:13	taskDisplayPrompt	`taskDisplayPrompt` 是从 task 工具参数提取的子代理任务提示，避免与全局 `prompt` 冲突。
+identity2@103:11	identity	`identity` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+tool2@112:17	tool	`tool` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+content2@121:15	content	`content` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+matches2@144:21	matches	`matches` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+toolName2@392:15	toolName	`toolName` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+toolName2@475:19	toolName	`toolName` 是标识值；末尾数字是打包器为避免重名添加的后缀。

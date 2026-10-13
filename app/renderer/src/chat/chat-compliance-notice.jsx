@@ -33,9 +33,9 @@ const EMPTY = {
   promotion: null,
   models: [],
 };
-function normalize(raw2) {
-  if (!raw2 || typeof raw2 !== "object") return EMPTY;
-  const promotionPayload = raw2;
+function normalize(raw) {
+  if (!raw || typeof raw !== "object") return EMPTY;
+  const promotionPayload = raw;
   return {
     promotion: promotionPayload.promotion ?? null,
     models: Array.isArray(promotionPayload.models) ? promotionPayload.models : [],
@@ -44,7 +44,7 @@ function normalize(raw2) {
 export function useBillingPromotion() {
   const gatewayReady = useGatewayReady();
   const { user, isLoggedIn, isLoading } = useAuth();
-  const { data: data2 } = useQuery({
+  const { data } = useQuery({
     queryKey: ["billing-promotion"],
     queryFn: async () => {
       try {
@@ -59,7 +59,7 @@ export function useBillingPromotion() {
     staleTime: 6e4,
     retry: false,
   });
-  return data2?.promotion ?? null;
+  return data?.promotion ?? null;
 }
 export function useActiveBillingPromotion() {
   const promotion = useBillingPromotion();
@@ -79,16 +79,16 @@ export function useChatReadiness() {
   return reactExports.useContext(ChatReadinessContext);
 }
 export function useSkillReloadNotification(hasActiveSession) {
-  const { subscribe: subscribe2 } = useWorkspaceWSConnection();
+  const { subscribe } = useWorkspaceWSConnection();
   const [pendingSkills, setPendingSkills] = reactExports.useState(null);
   reactExports.useEffect(() => {
-    return subscribe2((message) => {
+    return subscribe((message) => {
       if (message.type !== "skills_reload") return;
       const payload = message;
       const names = payload.unloadedSkills ?? [];
       if (names.length === 0) return;
       if (payload.autoUpdate) {
-        const pending2 = {
+        const pending = {
           updatedCount: names.length,
           updatedSkills: names,
           timestamp: Date.now(),
@@ -96,7 +96,7 @@ export function useSkillReloadNotification(hasActiveSession) {
         try {
           sessionStorage.setItem(
             PENDING_AUTO_UPDATE_KEY,
-            JSON.stringify(pending2),
+            JSON.stringify(pending),
           );
         } catch {}
         return;
@@ -109,7 +109,7 @@ export function useSkillReloadNotification(hasActiveSession) {
         setPendingSkills(names);
       }
     });
-  }, [subscribe2, hasActiveSession]);
+  }, [subscribe, hasActiveSession]);
   const reload = reactExports.useCallback(() => {
     window.hilo.opencode
       .restart()
@@ -125,17 +125,17 @@ export function useSkillReloadNotification(hasActiveSession) {
 }
 export function ChatComplianceNotice() {
   const { i18n, t: translate } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const { channel, region } = useRuntimeConfig();
   const guidelinesUrl = getMediaUsageGuidelinesUrl(region, channel);
   const handleGuidelinesClick = reactExports.useCallback(
     (event) => {
       event.preventDefault();
-      void openExternalUrl(platform2, guidelinesUrl, {
+      void openExternalUrl(platform, guidelinesUrl, {
         source: "chat.compliance-guidelines",
       });
     },
-    [guidelinesUrl, platform2],
+    [guidelinesUrl, platform],
   );
   return (
     <p

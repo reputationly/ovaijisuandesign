@@ -22,7 +22,7 @@ import { useFeedback } from "../settings/use-direct-feedback.jsx";
 const HOVER_MENU_CLOSE_DELAY_MS = 150;
 
 export function AssistantMessageActions({
-  content: content2,
+  content,
   requestId,
   alwaysVisible = false,
   ratingTarget,
@@ -102,7 +102,7 @@ export function AssistantMessageActions({
       data-always-visible={alwaysVisible ? "true" : void 0}
       className={`flex items-center gap-1 pt-1 text-muted-foreground transition-opacity duration-150 ${alwaysVisible || menuOpen || ratingOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0 group-hover/assistant:pointer-events-auto group-hover/assistant:opacity-100 group-focus-within/assistant:pointer-events-auto group-focus-within/assistant:opacity-100 focus-within:pointer-events-auto focus-within:opacity-100"}`}
     >
-      {content2 && (
+      {content && (
         <Tooltip>
           <TooltipTrigger
             closeOnClick={false}
@@ -110,7 +110,7 @@ export function AssistantMessageActions({
               <button
                 type="button"
                 data-action-ui-id="chat-assistant-copy"
-                onClick={() => void copyMessage(content2)}
+                onClick={() => void copyMessage(content)}
                 aria-label={copyLabel}
                 className="icon-muted-control inline-flex size-6 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
               >
@@ -164,7 +164,7 @@ export function AssistantMessageActions({
             <DropdownMenuItem
               data-action-ui-id="chat-assistant-menu-copy"
               className="px-3 py-2 text-body-14 font-normal"
-              onClick={() => void copyMessage(content2)}
+              onClick={() => void copyMessage(content)}
             >
               {translate("chat.copyMessage")}
             </DropdownMenuItem>

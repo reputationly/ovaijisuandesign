@@ -3,8 +3,8 @@ import { actionTrailLog } from "../vendor-inline/vscode-base/graph.jsx";
 
 let active = null;
 
-export function setActiveChatSnapshot(snapshot2) {
-  active = snapshot2;
+export function setActiveChatSnapshot(snapshot) {
+  active = snapshot;
 }
 
 export function clearActiveChatSnapshot(controller) {
@@ -17,20 +17,20 @@ export function getActiveChatSnapshot() {
   return active;
 }
 
-export function recordError(message2, data2) {
-  actionTrailLog.error(message2, data2);
+export function recordError(message, data) {
+  actionTrailLog.error(message, data);
 }
 
-export function subMessageSemanticKey(message2) {
+export function subMessageSemanticKey(message) {
   return JSON.stringify({
-    type: message2.type,
-    content: message2.content,
-    args: message2.args,
-    toolStatus: message2.toolStatus,
-    url: message2.url,
-    agent: message2.agent,
-    resolved: message2.resolved,
-    subMessages: message2.subMessages?.map(subMessageSemanticKey),
+    type: message.type,
+    content: message.content,
+    args: message.args,
+    toolStatus: message.toolStatus,
+    url: message.url,
+    agent: message.agent,
+    resolved: message.resolved,
+    subMessages: message.subMessages?.map(subMessageSemanticKey),
   });
 }
 
@@ -48,8 +48,8 @@ export function extractTaskDisplayPrompt(input) {
     }
   }
   if (!isRecord$d(parsed)) return void 0;
-  for (const key2 of ["prompt", "description"]) {
-    const value = parsed[key2];
+  for (const key of ["prompt", "description"]) {
+    const value = parsed[key];
     if (typeof value === "string" && value.trim()) return value;
   }
   return void 0;
@@ -60,7 +60,7 @@ export function extractChildSessionId(part) {
   return typeof sessionId === "string" ? sessionId : void 0;
 }
 
-export function logChat(message2, level = "info") {
+export function logChat(message, level = "info") {
   try {
     const logger = globalThis.hilo?.logger;
     const logMethod =
@@ -69,12 +69,12 @@ export function logChat(message2, level = "info") {
         : level === "warn"
           ? logger?.warn
           : logger?.info;
-    logMethod?.(message2, "chat");
+    logMethod?.(message, "chat");
   } catch {}
 }
 
-export function logRuntimeBinding(message2, level = "info") {
-  logChat(`[runtime-bind] ${message2}`, level);
+export function logRuntimeBinding(message, level = "info") {
+  logChat(`[runtime-bind] ${message}`, level);
 }
 
 function diagnosticToken(value) {
@@ -84,7 +84,7 @@ function diagnosticToken(value) {
 
 export function logPartUpdated(phase, sessionId, fields) {
   const details = fields
-    .map(([key2, value]) => `${key2}=${diagnosticToken(value)}`)
+    .map(([key, value]) => `${key}=${diagnosticToken(value)}`)
     .join(" ");
   logChat(
     `[part_updated] phase=${phase} sid=${diagnosticToken(sessionId)} ${details}`,
@@ -110,29 +110,29 @@ export function logPartUpdatedReceived(sessionId, part, runtimeId) {
   logPartUpdated("received", sessionId, fields);
 }
 
-export function attachHandoffTargetsToSubMessages(messages2, targets) {
-  if (targets.length === 0) return [...messages2];
-  return messages2.map((message2) => {
-    if (message2.type === "tool" && message2.callID) {
-      const matches2 = targets.filter(
-        (target) => target.tool_use_id === message2.callID,
+export function attachHandoffTargetsToSubMessages(messages, targets) {
+  if (targets.length === 0) return [...messages];
+  return messages.map((message) => {
+    if (message.type === "tool" && message.callID) {
+      const matches = targets.filter(
+        (target) => target.tool_use_id === message.callID,
       );
-      if (matches2.length > 0) {
+      if (matches.length > 0) {
         return {
-          ...message2,
+          ...message,
           interruption: "canvas_continuation",
-          generationHandoffTargets: matches2,
+          generationHandoffTargets: matches,
         };
       }
     }
-    return message2.subMessages
+    return message.subMessages
       ? {
-          ...message2,
+          ...message,
           subMessages: attachHandoffTargetsToSubMessages(
-            message2.subMessages,
+            message.subMessages,
             targets,
           ),
         }
-      : message2;
+      : message;
   });
 }

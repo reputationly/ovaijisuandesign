@@ -49,18 +49,18 @@ const SPINNERS = {
     interval: 80,
   },
 };
-export function BrailleSpinner({ type: type2 = "braille", className = "" }) {
-  const [frame2, setFrame2] = reactExports.useState(0);
-  const spinner = SPINNERS[type2];
+export function BrailleSpinner({ type = "braille", className = "" }) {
+  const [frame, setFrame] = reactExports.useState(0);
+  const spinner = SPINNERS[type];
   reactExports.useEffect(() => {
-    const timer2 = setInterval(() => {
-      setFrame2((currentFrame) => (currentFrame + 1) % spinner.frames.length);
+    const timer = setInterval(() => {
+      setFrame((currentFrame) => (currentFrame + 1) % spinner.frames.length);
     }, spinner.interval);
-    return () => clearInterval(timer2);
+    return () => clearInterval(timer);
   }, [spinner]);
   return (
     <span className={`font-mono inline-block ${className}`}>
-      {spinner.frames[frame2]}
+      {spinner.frames[frame]}
     </span>
   );
 }
@@ -112,14 +112,14 @@ export function sessionDisplayName(session, translate) {
 }
 export function FourCornerLoading({
   variant,
-  size: size2 = "md",
+  size = "md",
   label,
   className,
 }) {
   const classes = mergeClassNames(
     "four-corner-loading",
     `is-${variant}`,
-    `is-${size2}`,
+    `is-${size}`,
     className,
   );
   const dots = (

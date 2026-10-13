@@ -9,3 +9,13 @@ i2@60:12	index	`index` 是从子消息列表末尾向前扫描的当前位置。
 sub@61:11	subMessage	`subMessage` 是当前扫描到、尚未按类型筛选的子消息。
 ask@82:9	confirmationAsk	`confirmationAsk` 是在消息列表中按请求 ID 找到的确认请求。
 i2@100:12	index	`index` 是从确认请求位置向前扫描历史消息的当前位置。
+name2@24:26	toolName	`toolName` 是与确认请求中的目标工具名比较的名称，避免与全局 `name` 冲突。
+message2@28:29	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+tool2@33:9	tool	`tool` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+message2@47:33	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+tool2@49:9	tool	`tool` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+message2@58:34	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+messages2@76:55	messages	`messages` 是聊天消息集合；末尾数字是打包器为避免重名添加的后缀。
+next2@83:9	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+message2@78:6	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+message2@101:11	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。

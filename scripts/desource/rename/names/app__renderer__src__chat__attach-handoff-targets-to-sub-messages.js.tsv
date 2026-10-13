@@ -2,3 +2,14 @@ key	新名	依据
 fn2@66:11	logMethod	`logMethod` 是根据日志级别选出的 logger 方法。
 sid@85:39	sessionId	`sessionId` 是写入部件更新诊断信息的会话标识。
 sid@94:40	sessionId	`sessionId` 是写入部件接收诊断信息的会话标识。
+snapshot2@6:39	snapshot	`snapshot` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+message2@20:29	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+data2@20:39	data	`data` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+message2@24:39	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+key2@51:14	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+message2@63:25	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+message2@76:35	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+key2@87:12	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+messages2@113:51	messages	`messages` 是聊天消息集合；末尾数字是打包器为避免重名添加的后缀。
+message2@115:25	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+matches2@117:13	matches	`matches` 是标识值；末尾数字是打包器为避免重名添加的后缀。

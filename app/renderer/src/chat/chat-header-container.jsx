@@ -7,7 +7,7 @@ import {
   useWorkspaceChatSelector,
 } from "../assets/use-canvas-model-registry-hydration.js";
 
-const ChatHeader = reactExports.memo(function ChatHeader2({
+const ChatHeader = reactExports.memo(function MemoizedChatHeader({
   sessions,
   openedTabOrder,
   openedTabIds,

@@ -46,8 +46,8 @@ function isLabel(value) {
     value.trim().length > 0 &&
     value.length <= 256 &&
     Array.from(value).every((character) => {
-      const code2 = character.charCodeAt(0);
-      return code2 >= 32 && code2 !== 127;
+      const code = character.charCodeAt(0);
+      return code >= 32 && code !== 127;
     })
   );
 }
@@ -187,7 +187,7 @@ function buildChatRatingRequest(
   rating,
   reasons,
   category,
-  comment2,
+  comment,
   locale,
   supersedesTicketId = "",
 ) {
@@ -218,7 +218,7 @@ function buildChatRatingRequest(
     task_category: rating === "down" ? (taskCategory ?? "") : "",
     comment:
       rating === "down" && reasonCodes.includes("other")
-        ? comment2.trim().slice(0, CHAT_RATING_COMMENT_MAX_LENGTH)
+        ? comment.trim().slice(0, CHAT_RATING_COMMENT_MAX_LENGTH)
         : "",
     supersedes_ticket_id: supersedesTicketId,
   };
@@ -241,15 +241,15 @@ function buildChatRatingRequest(
   };
 }
 function captureChatRatingIdentity(userId) {
-  const groupId2 = getSelectedRequestGroupId();
+  const groupId = getSelectedRequestGroupId();
   return async () => {
     try {
       if (typeof __HILO_AUTH__ === "undefined") return false;
-      const { user, tokens: tokens2 } = await __HILO_AUTH__.getStoredAuth();
+      const { user, tokens } = await __HILO_AUTH__.getStoredAuth();
       return (
-        Boolean(tokens2.accessToken) &&
+        Boolean(tokens.accessToken) &&
         user.userID === userId &&
-        getSelectedRequestGroupId() === groupId2
+        getSelectedRequestGroupId() === groupId
       );
     } catch {
       return false;
@@ -274,7 +274,7 @@ function isRatingDetails(value) {
       )) &&
     Array.isArray(value.reason_codes) &&
     value.reason_codes.every((reason) =>
-      CHAT_FEEDBACK_REASONS.some((code2) => code2 === reason),
+      CHAT_FEEDBACK_REASONS.some((code) => code === reason),
     )
   );
 }
@@ -286,31 +286,31 @@ function isRatingState(value) {
     isRatingDetails(value)
   );
 }
-function loadLocalChatRatings(key2) {
+function loadLocalChatRatings(key) {
   try {
-    const raw2 = localStorage.getItem(key2);
-    if (!raw2) return [];
-    const value = JSON.parse(raw2);
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    const value = JSON.parse(raw);
     return Array.isArray(value) ? value.filter(isRatingState) : [];
   } catch {
     chatLog.warn("Feedback acknowledgement cache could not be read");
     return [];
   }
 }
-function storeLocalChatRating(key2, rating) {
+function storeLocalChatRating(key, rating) {
   try {
-    const others = loadLocalChatRatings(key2).filter(
+    const others = loadLocalChatRatings(key).filter(
       (item) => item.request_id !== rating.request_id,
     );
-    localStorage.setItem(key2, JSON.stringify([...others.slice(-999), rating]));
+    localStorage.setItem(key, JSON.stringify([...others.slice(-999), rating]));
   } catch {
     chatLog.warn(
       "Feedback saved, but its local acknowledgement could not be cached",
     );
   }
 }
-function chatRatingRetryStorageKey(workspaceKey, userId, sessionId, groupId2) {
-  return `hilo:chat-feedback-retry:v1:${JSON.stringify([workspaceKey, userId, sessionId, groupId2])}`;
+function chatRatingRetryStorageKey(workspaceKey, userId, sessionId, groupId) {
+  return `hilo:chat-feedback-retry:v1:${JSON.stringify([workspaceKey, userId, sessionId, groupId])}`;
 }
 function isPendingEvent(value) {
   return (
@@ -329,53 +329,53 @@ function isPendingEvent(value) {
     value.comment.length <= CHAT_RATING_COMMENT_MAX_LENGTH
   );
 }
-function pendingEvents(client2, key2) {
-  const cached = client2.getQueryData(["chat-rating-retry", key2]);
+function pendingEvents(client, key) {
+  const cached = client.getQueryData(["chat-rating-retry", key]);
   if (cached) return cached;
   try {
-    const value = JSON.parse(localStorage.getItem(key2) ?? "[]");
+    const value = JSON.parse(localStorage.getItem(key) ?? "[]");
     return Array.isArray(value) ? value.filter(isPendingEvent).slice(-1e3) : [];
   } catch {
     chatLog.warn("Feedback retry metadata could not be read");
     return [];
   }
 }
-function storePendingEvents(client2, key2, events2) {
-  client2.setQueryData(["chat-rating-retry", key2], events2);
+function storePendingEvents(client, key, events) {
+  client.setQueryData(["chat-rating-retry", key], events);
   try {
-    if (events2.length === 0) localStorage.removeItem(key2);
-    else localStorage.setItem(key2, JSON.stringify(events2));
+    if (events.length === 0) localStorage.removeItem(key);
+    else localStorage.setItem(key, JSON.stringify(events));
   } catch {
     chatLog.warn("Feedback retry metadata could not be persisted");
   }
 }
-function prepareChatRatingRetry(client2, key2, candidate) {
-  const events2 = pendingEvents(client2, key2);
-  const previous2 = events2.find(
-    (event2) => event2.request_id === candidate.request_id,
+function prepareChatRatingRetry(client, key, candidate) {
+  const events = pendingEvents(client, key);
+  const previous = events.find(
+    (ratingEvent) => ratingEvent.request_id === candidate.request_id,
   );
   const event =
-    previous2 &&
-    previous2.session_id === candidate.session_id &&
-    previous2.rating === candidate.rating &&
-    previous2.task_category === candidate.task_category &&
-    previous2.comment === candidate.comment &&
-    previous2.supersedes_ticket_id === candidate.supersedes_ticket_id &&
-    JSON.stringify(previous2.reason_codes) ===
+    previous &&
+    previous.session_id === candidate.session_id &&
+    previous.rating === candidate.rating &&
+    previous.task_category === candidate.task_category &&
+    previous.comment === candidate.comment &&
+    previous.supersedes_ticket_id === candidate.supersedes_ticket_id &&
+    JSON.stringify(previous.reason_codes) ===
       JSON.stringify(candidate.reason_codes)
-      ? previous2
+      ? previous
       : candidate;
-  const others = events2.filter(
+  const others = events.filter(
     (item) => item.request_id !== candidate.request_id,
   );
-  storePendingEvents(client2, key2, [...others.slice(-999), event]);
+  storePendingEvents(client, key, [...others.slice(-999), event]);
   return event;
 }
-function acknowledgeChatRatingRetry(client2, key2, eventId) {
+function acknowledgeChatRatingRetry(client, key, eventId) {
   storePendingEvents(
-    client2,
-    key2,
-    pendingEvents(client2, key2).filter((event) => event.event_id !== eventId),
+    client,
+    key,
+    pendingEvents(client, key).filter((event) => event.event_id !== eventId),
   );
 }
 function useChatRating(target) {
@@ -383,10 +383,10 @@ function useChatRating(target) {
   const { t: translate, i18n } = useTranslation();
   const fetchFeedback = useGatewayFetch();
   const workspaceKey = useGatewayScopeKey();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const userId = isLoggedIn ? user?.userID : void 0;
   const queryKey = ["chat-ratings", workspaceKey, userId, target.sessionId];
-  const storageKey2 = chatRatingStorageKey(
+  const storageKey = chatRatingStorageKey(
     workspaceKey,
     userId ?? "",
     target.sessionId,
@@ -400,7 +400,7 @@ function useChatRating(target) {
   ];
   const query = useQuery({
     queryKey,
-    queryFn: () => loadLocalChatRatings(storageKey2),
+    queryFn: () => loadLocalChatRatings(storageKey),
     enabled: Boolean(userId),
     staleTime: Number.POSITIVE_INFINITY,
     retry: false,
@@ -437,8 +437,8 @@ function useChatRating(target) {
         input.retryStorageKey,
         input.request.event.event_id,
       );
-      input.client.setQueryData(input.queryKey, (previous2 = []) => [
-        ...previous2.filter(
+      input.client.setQueryData(input.queryKey, (previous = []) => [
+        ...previous.filter(
           (item) => item.request_id !== input.target.requestId,
         ),
         saved,
@@ -456,10 +456,10 @@ function useChatRating(target) {
       mutationKey,
       exact: true,
     }) > 0;
-  const submit = async (rating, reasons = [], category = "", comment2 = "") => {
+  const submit = async (rating, reasons = [], category = "", comment = "") => {
     if (
       !userId ||
-      queryClient2.isMutating({
+      queryClient.isMutating({
         mutationKey,
         exact: true,
       }) > 0
@@ -480,20 +480,20 @@ function useChatRating(target) {
         rating,
         [...reasons],
         category,
-        comment2,
+        comment,
         i18n.language,
         query.data?.find((item) => item.request_id === capturedTarget.requestId)
           ?.ticket_id,
       );
       const event = prepareChatRatingRetry(
-        queryClient2,
+        queryClient,
         retryStorageKey,
         request.event,
       );
       await mutation.mutateAsync({
-        client: queryClient2,
+        client: queryClient,
         queryKey,
-        storageKey: storageKey2,
+        storageKey,
         retryStorageKey,
         target: capturedTarget,
         request: {
@@ -560,14 +560,14 @@ function normalizeReasons(reasonCodes) {
 }
 function normalizeCategory(category) {
   const normalized = LEGACY_CATEGORY_MAP[category] ?? category;
-  return CHAT_RATING_CATEGORY_OPTIONS.some((option2) => option2 === normalized)
+  return CHAT_RATING_CATEGORY_OPTIONS.some((option) => option === normalized)
     ? normalized
     : "";
 }
 export function ChatRatingControls({ target, onOpenChange }) {
   const { t: translate } = useTranslation();
   const {
-    current: current2,
+    current,
     submitting,
     submit,
     loading,
@@ -578,34 +578,34 @@ export function ChatRatingControls({ target, onOpenChange }) {
   const [open, setOpen] = reactExports.useState(false);
   const [reasons, setReasons] = reactExports.useState([]);
   const [category, setCategory] = reactExports.useState("");
-  const [comment2, setComment] = reactExports.useState("");
+  const [comment, setComment] = reactExports.useState("");
   const commentRef = reactExports.useRef(null);
   const hasOtherReason = reasons.includes("other");
   reactExports.useEffect(() => {
     if (open && hasOtherReason) commentRef.current?.focus();
   }, [open, hasOtherReason]);
-  const disabled2 = loading || submitting || !signedIn;
-  const handleOpenChange = (next2) => {
+  const disabled = loading || submitting || !signedIn;
+  const handleOpenChange = (next) => {
     if (submitting) return;
-    if (next2) {
-      setReasons(normalizeReasons(current2?.reason_codes ?? []));
-      setCategory(normalizeCategory(current2?.task_category ?? ""));
-      setComment(current2?.comment ?? "");
+    if (next) {
+      setReasons(normalizeReasons(current?.reason_codes ?? []));
+      setCategory(normalizeCategory(current?.task_category ?? ""));
+      setComment(current?.comment ?? "");
     }
-    setOpen(next2);
-    onOpenChange(next2);
+    setOpen(next);
+    onOpenChange(next);
   };
   const handleSubmit = async () => {
     if (reasons.length === 0 || !category) return;
     if (
-      await submit("down", reasons, category, hasOtherReason ? comment2 : "")
+      await submit("down", reasons, category, hasOtherReason ? comment : "")
     ) {
       setOpen(false);
       onOpenChange(false);
     }
   };
   const likeLabel = translate(
-    current2?.rating === "up" ? "chat.rating.removeLike" : "chat.rating.like",
+    current?.rating === "up" ? "chat.rating.removeLike" : "chat.rating.like",
   );
   const dislikeLabel = translate("chat.rating.dislike");
   return (
@@ -616,17 +616,17 @@ export function ChatRatingControls({ target, onOpenChange }) {
             <Button
               variant="ghost"
               size="icon-xs"
-              disabled={disabled2}
+              disabled={disabled}
               aria-label={likeLabel}
-              aria-pressed={current2?.rating === "up"}
+              aria-pressed={current?.rating === "up"}
               data-action-ui-id="chat-assistant-like"
               className={mergeClassNames(
                 "icon-muted-control",
-                current2?.rating === "up" &&
+                current?.rating === "up" &&
                   "bg-muted text-brand-accent hover:text-brand-accent",
               )}
               onClick={() =>
-                void submit(current2?.rating === "up" ? "none" : "up")
+                void submit(current?.rating === "up" ? "none" : "up")
               }
             >
               <MonochromeIcon tone="control">
@@ -650,13 +650,13 @@ export function ChatRatingControls({ target, onOpenChange }) {
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    disabled={disabled2}
+                    disabled={disabled}
                     aria-label={dislikeLabel}
-                    aria-pressed={current2?.rating === "down"}
+                    aria-pressed={current?.rating === "down"}
                     data-action-ui-id="chat-assistant-dislike"
                     className={mergeClassNames(
                       "icon-muted-control",
-                      current2?.rating === "down" &&
+                      current?.rating === "down" &&
                         "bg-muted text-brand-accent hover:text-brand-accent",
                     )}
                   >
@@ -700,24 +700,24 @@ export function ChatRatingControls({ target, onOpenChange }) {
             </legend>
             <div className="flex flex-wrap gap-2">
               {CHAT_RATING_REASON_OPTIONS.map((reason) => {
-                const selected2 = reasons.includes(reason);
+                const selected = reasons.includes(reason);
                 return (
                   <Button
                     key={reason}
-                    variant={selected2 ? "default" : "outline"}
+                    variant={selected ? "default" : "outline"}
                     size="sm"
-                    aria-pressed={selected2}
+                    aria-pressed={selected}
                     className={mergeClassNames(
                       "font-normal",
-                      selected2 &&
+                      selected &&
                         "border-brand-accent bg-brand-accent text-brand-accent-foreground hover:bg-brand-accent/90 hover:text-brand-accent-foreground",
                     )}
                     data-action-ui-id={`chat-rating-reason-${reason}`}
                     onClick={() =>
-                      setReasons((previous2) =>
-                        selected2
-                          ? previous2.filter((item) => item !== reason)
-                          : [...previous2, reason],
+                      setReasons((previous) =>
+                        selected
+                          ? previous.filter((item) => item !== reason)
+                          : [...previous, reason],
                       )
                     }
                   >
@@ -729,7 +729,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
             {hasOtherReason && (
               <Textarea
                 ref={commentRef}
-                value={comment2}
+                value={comment}
                 onChange={(event) => setComment(event.target.value)}
                 maxLength={CHAT_RATING_COMMENT_MAX_LENGTH}
                 disabled={submitting}
@@ -744,21 +744,21 @@ export function ChatRatingControls({ target, onOpenChange }) {
               {translate("chat.rating.category")}
             </legend>
             <div className="flex flex-wrap gap-2">
-              {CHAT_RATING_CATEGORY_OPTIONS.map((key2) => (
+              {CHAT_RATING_CATEGORY_OPTIONS.map((key) => (
                 <Button
-                  key={key2}
-                  variant={category === key2 ? "default" : "outline"}
+                  key={key}
+                  variant={category === key ? "default" : "outline"}
                   size="sm"
-                  aria-pressed={category === key2}
+                  aria-pressed={category === key}
                   className={mergeClassNames(
                     "font-normal",
-                    category === key2 &&
+                    category === key &&
                       "border-brand-accent bg-brand-accent text-brand-accent-foreground hover:bg-brand-accent/90 hover:text-brand-accent-foreground",
                   )}
-                  data-action-ui-id={`chat-rating-category-${key2}`}
-                  onClick={() => setCategory(key2)}
+                  data-action-ui-id={`chat-rating-category-${key}`}
+                  onClick={() => setCategory(key)}
                 >
-                  {translate(`chat.rating.category.${key2}`)}
+                  {translate(`chat.rating.category.${key}`)}
                 </Button>
               ))}
             </div>
@@ -767,7 +767,7 @@ export function ChatRatingControls({ target, onOpenChange }) {
             {translate("chat.rating.contextHint")}
           </p>
           <div className="flex gap-2">
-            {current2?.rating === "down" && (
+            {current?.rating === "down" && (
               <Button
                 variant="outline"
                 disabled={submitting}

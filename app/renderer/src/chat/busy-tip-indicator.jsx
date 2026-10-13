@@ -4,7 +4,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { useChatTips } from "./use-copy.jsx";
 import { BrailleSpinner } from "./chat-empty-state.jsx";
 
-export const BusyTipIndicator = reactExports.memo(function BusyTipIndicator2({
+export const BusyTipIndicator = reactExports.memo(function MemoizedBusyTipIndicator({
   label,
 }) {
   const { t: translate } = useTranslation();
