@@ -1,6 +1,6 @@
 key	old	new	依据
-children2@31:17	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
-active2@39:15	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
-disabled2@37:17	disabled2	disabled	原名 disabled2 的末尾 2 是打包器去重后缀；恢复词干 disabled，该绑定表示禁用状态。
-CanvasToolbarExtensionButton2@29:12	CanvasToolbarExtensionButton2	CanvasToolbarExtensionButton	原名 CanvasToolbarExtensionButton2 的末尾 2 是打包器去重后缀；恢复词干 CanvasToolbarExtensionButton，该绑定表示CanvasToolbarExtensionButton 对应的值。
-selected2@47:11	selected2	selected	原名 selected2 的末尾 2 是打包器去重后缀；恢复词干 selected，该绑定表示选中状态。
+children2@31:17	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@39:15	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+disabled2@37:17	disabled2	disabled	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+CanvasToolbarExtensionButton2@29:12	CanvasToolbarExtensionButton2	CanvasToolbarExtensionButton	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+selected2@47:11	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

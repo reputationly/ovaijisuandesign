@@ -9,6 +9,6 @@ d2@321:21	d2	path	每条 SVG 路径被渲染为对应的 edge path。
 i2@321:25	i2	pathIndex	该路径在 paths 中的位置用作 React key。
 t2@391:14	t2	translate	该组件翻译画布上下文菜单的标签和说明。
 s2@460:11	s2	allowedTypes	该集合表示当前上下文菜单允许创建的节点类型。
-position2@383:13	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
-handleClick2@437:9	handleClick2	handleClick	原名 handleClick2 的末尾 2 是打包器去重后缀；恢复词干 handleClick，该绑定表示handleClick 事件处理函数。
-element2@474:15	element2	element	原名 element2 的末尾 2 是打包器去重后缀；恢复词干 element，该绑定表示DOM 元素。
+position2@383:13	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleClick2@437:9	handleClick2	handleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@474:15	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

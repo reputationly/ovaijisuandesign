@@ -4,42 +4,42 @@ p0@24:22	p0	startValue	三次贝塞尔多项式的起点坐标标量。
 p1@24:26	p1	firstControlValue	三次贝塞尔多项式的第一个控制值。
 p22@24:30	p22	secondControlValue	三次贝塞尔多项式的第二个控制值。
 p3@24:35	p3	endValue	三次贝塞尔多项式的终点坐标标量。
-mt2@25:9	mt2	mt	贝塞尔多项式中 1 减去插值参数后的剩余权重。
-ex2@39:11	ex2	ex	线段零长度时查询点相对端点的水平差值，恢复去重后缀为 ex。
-ey2@40:11	ey2	ey	线段零长度时查询点相对端点的垂直差值，恢复去重后缀为 ey。
+mt2@25:9	mt2	mt	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+ex2@39:11	ex2	ex	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+ey2@40:11	ey2	ey	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 t2@43:7	t2	segmentRatio	查询点在线段方向上的投影比例，并限制在 0 到 1。
-cx2@45:9	cx2	cx	线段上距查询点最近的投影横坐标，恢复去重后缀为 cx。
-cp2@52:38	cp2	cp	描述三次贝塞尔曲线起点、控制点和终点坐标的数据对象，恢复去重后缀为 cp。
+cx2@45:9	cx2	cx	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+cp2@52:38	cp2	cp	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 i2@56:12	i2	index	当前处理的贝塞尔采样步数下标。
 t2@57:11	t2	progress	三次贝塞尔多项式中从起点到终点的插值参数。
 x2@58:11	x2	sampleX	当前贝塞尔采样点的横坐标。
 y4@59:11	y4	sampleY	当前贝塞尔采样点的纵坐标。
 dSq@60:11	dSq	distanceSquared	查询点到当前线段的平方距离。
-state2@69:3	state2	state	当前读取或订阅到的 React Flow store 状态对象。
-cp2@87:11	cp2	cp	描述三次贝塞尔曲线起点、控制点和终点坐标的数据对象，恢复去重后缀为 cp。
-element2@110:33	element2	element	检查是否遮挡边交互层的 DOM 元素。
-active2@133:11	active2	active	控制边交互层是否启用的布尔值。
+state2@69:3	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+cp2@87:11	cp2	cp	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@110:33	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@133:11	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 t2@136:14	t2	translate	useTranslation 返回的翻译函数。
-pos2@150:11	pos2	pos	当前光标在 React Flow 画布坐标系中的位置对象。
-zoom22@152:11	zoom22	zoom	当前 React Flow 视口缩放倍数。
-invZoom2@153:11	invZoom2	invZoom	当前视口缩放倍数的倒数，用于保持按钮屏幕尺寸。
-flow2@180:11	flow2	flow	React Flow 画布对应的 DOM 容器。
-rafId2@182:9	rafId2	rafId	当前待处理的动画帧请求标识。
-pending2@183:9	pending2	pending	等待动画帧处理的指针坐标记录。
-state2@196:13	state2	state	当前读取或订阅到的 React Flow store 状态对象。
-zoom22@197:13	zoom22	zoom	当前 React Flow 视口缩放倍数。
-state2@214:13	state2	state	当前读取或订阅到的 React Flow store 状态对象。
+pos2@150:11	pos2	pos	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom22@152:11	zoom22	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+invZoom2@153:11	invZoom2	invZoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+flow2@180:11	flow2	flow	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+rafId2@182:9	rafId2	rafId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+pending2@183:9	pending2	pending	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@196:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom22@197:13	zoom22	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@214:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 x22@217:12	x22	selectionLeft	当前选中节点包围框的左边界画布坐标。
 y22@218:12	y22	selectionTop	当前选中节点包围框的上边界画布坐标。
-node2@222:18	node2	node	当前被检查或遍历的 React Flow 节点对象。
+node2@222:18	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 e2@258:28	e2	pointerEvent	React Flow 容器收到的指针事件对象。
-onPointerDown2@275:11	onPointerDown2	onPointerDown	记录指针按下坐标的 pointerdown 事件处理器。
+onPointerDown2@275:11	onPointerDown2	onPointerDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 e2@275:29	e2	pointerEvent	React Flow 容器收到的指针事件对象。
 e2@281:29	e2	clickEvent	用于捕获画布点击并选择边的点击事件对象。
-state2@306:49	state2	state	当前读取或订阅到的 React Flow store 状态对象。
-id2@307:13	id2	id	当前悬停边或目标节点的标识值。
-id2@354:13	id2	id	当前悬停边或目标节点的标识值。
-zoom2@380:9	zoom2	viewportZoom	按钮定位渲染时读取的当前 React Flow 视口缩放倍数。
+state2@306:49	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@307:13	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@354:13	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@380:9	zoom2	viewportZoom	该值是 React Flow 视口的缩放倍数；与同一组件内的绑定 zoom@152:11 冲突，故使用 viewportZoom 区分。
 x2@382:9	x2	cursorFlowX	光标在 React Flow 画布坐标系中的横坐标。
 y4@383:9	y4	cursorFlowY	光标在 React Flow 画布坐标系中的纵坐标。
 e2@401:26	e2	mouseEvent	切割按钮收到的鼠标进入或离开事件对象。

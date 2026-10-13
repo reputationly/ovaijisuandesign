@@ -17,9 +17,9 @@ n2@80:33	n2	node	该值是当前节点数组中的节点。
 i2@82:12	i2	nodeIndex	该值是遍历新节点数组的下标。
 n2@95:14	n2	node	该值是需要按已保存位置分区的节点。
 n2@109:21	n2	node	该值是需要应用布局位置的节点。
-keys2@18:9	keys2	keys	原名 keys2 的末尾 2 是打包器去重后缀；恢复词干 keys，该绑定表示键集合。
-next2@83:11	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-mode2@92:52	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-mode2@108:43	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-instance2@124:3	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
-mode2@127:3	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+keys2@18:9	keys2	keys	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@83:11	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@92:52	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@108:43	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+instance2@124:3	instance2	instance	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@127:3	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

@@ -6,13 +6,13 @@ t2@70:14	t2	translate	该组件翻译上传状态和审核状态。
 t2@132:14	t2	translate	该组件翻译审核失败状态及提示。
 t2@190:14	t2	translate	该组件翻译下载状态和操作标签。
 t2@279:14	t2	translate	TransfersButton 翻译传输标题、失败提示和状态文本。
-active2@32:30	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
-onRemove2@69:46	onRemove2	onRemove	原名 onRemove2 的末尾 2 是打包器去重后缀；恢复词干 onRemove，该绑定表示移除事件回调。
-node2@131:32	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-onRemove2@189:50	onRemove2	onRemove	原名 onRemove2 的末尾 2 是打包器去重后缀；恢复词干 onRemove，该绑定表示移除事件回调。
-percent2@192:9	percent2	percent	原名 percent2 的末尾 2 是打包器去重后缀；恢复词干 percent，该绑定表示百分比数值。
-tab2@280:10	tab2	tab	原名 tab2 的末尾 2 是打包器去重后缀；恢复词干 tab，该绑定表示标签页对象。
-node2@291:47	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@328:25	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@331:25	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@417:33	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+active2@32:30	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+onRemove2@69:46	onRemove2	onRemove	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@131:32	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+onRemove2@189:50	onRemove2	onRemove	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+percent2@192:9	percent2	percent	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+tab2@280:10	tab2	tab	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@291:47	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@328:25	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@331:25	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@417:33	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

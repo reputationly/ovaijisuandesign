@@ -1044,19 +1044,19 @@ function BackgroundCanvas({ active = true, variant = "dots" }) {
       const startY = getVisibleGridStart(visMinY);
       if (variantRef.current === "grid") {
         const lineWidth = 0.5 / zoom;
-        for (let x2 = startX; x2 <= visMaxX; x2 += VISIBLE_GRID_GAP) {
-          ctx.fillRect(x2, visMinY, lineWidth, visMaxY - visMinY);
+        for (let gridX = startX; gridX <= visMaxX; gridX += VISIBLE_GRID_GAP) {
+          ctx.fillRect(gridX, visMinY, lineWidth, visMaxY - visMinY);
         }
-        for (let y4 = startY; y4 <= visMaxY; y4 += VISIBLE_GRID_GAP) {
-          ctx.fillRect(visMinX, y4, visMaxX - visMinX, lineWidth);
+        for (let gridY = startY; gridY <= visMaxY; gridY += VISIBLE_GRID_GAP) {
+          ctx.fillRect(visMinX, gridY, visMaxX - visMinX, lineWidth);
         }
         return;
       }
       ctx.beginPath();
-      for (let x2 = startX; x2 <= visMaxX; x2 += VISIBLE_GRID_GAP) {
-        for (let y4 = startY; y4 <= visMaxY; y4 += VISIBLE_GRID_GAP) {
-          ctx.moveTo(x2 + DOT_RADIUS, y4);
-          ctx.arc(x2, y4, DOT_RADIUS, 0, Math.PI * 2);
+      for (let gridX = startX; gridX <= visMaxX; gridX += VISIBLE_GRID_GAP) {
+        for (let gridY = startY; gridY <= visMaxY; gridY += VISIBLE_GRID_GAP) {
+          ctx.moveTo(gridX + DOT_RADIUS, gridY);
+          ctx.arc(gridX, gridY, DOT_RADIUS, 0, Math.PI * 2);
         }
       }
       ctx.fill();
@@ -1265,10 +1265,10 @@ function useNodeAlignmentSnap(enabled) {
           locks: {},
         };
       }
-      const [x2, y4, zoom] = state.transform;
+      const [translateX, translateY, zoom] = state.transform;
       const viewport = {
-        x: -x2 / zoom,
-        y: -y4 / zoom,
+        x: -translateX / zoom,
+        y: -translateY / zoom,
         width: state.width / zoom,
         height: state.height / zoom,
       };

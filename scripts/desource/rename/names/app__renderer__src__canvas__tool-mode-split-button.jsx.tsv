@@ -1,6 +1,6 @@
 key	old	new	依据
-id2@102:6	id2	id	commandRegistry.execute 接收该命令标识以切换画布工具模式。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@102:6	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 _2@189:11	_2	value	QuickZoomPresence 将保留的 value 作为第一个 children 参数传入，此处无需使用。
-mode2@16:62	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-handleKeyDown2@89:11	handleKeyDown2	handleKeyDown	原名 handleKeyDown2 的末尾 2 是打包器去重后缀；恢复词干 handleKeyDown，该绑定表示handleKeyDown 事件处理函数。
-current2@176:35	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+mode2@16:62	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleKeyDown2@89:11	handleKeyDown2	handleKeyDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@176:35	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

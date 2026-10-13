@@ -5,14 +5,14 @@ n2@106:6	n2	node	该值用于筛选同组且未被解除分组的节点。
 n2@116:20	n2	node	该参数是需要解除分组的节点。
 r2@119:30	r2	nodeWithoutParent	该对象是移除可选父节点字段后的节点数据。
 n2@143:26	n2	node	该值是正在转换的画布节点。
-main2@41:9	main2	main	原名 main2 的末尾 2 是打包器去重后缀；恢复词干 main，该绑定表示主节点。
-candidates2@50:9	candidates2	candidates	原名 candidates2 的末尾 2 是打包器去重后缀；恢复词干 candidates，该绑定表示candidates 对应的值。
-key2@61:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-node2@72:37	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-current2@73:9	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
-next2@74:9	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-key2@78:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-mode2@92:61	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-groupId2@101:9	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
-next2@158:13	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-next2@177:13	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+main2@41:9	main2	main	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+candidates2@50:9	candidates2	candidates	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@61:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@72:37	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@73:9	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@74:9	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@78:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@92:61	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+groupId2@101:9	groupId2	groupId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@158:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@177:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

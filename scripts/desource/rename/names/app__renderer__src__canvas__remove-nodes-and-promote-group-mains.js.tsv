@@ -1,53 +1,53 @@
 key	old	new	依据
-id2@258:14	id2	id	该值是需要从快照中解除分组的请求节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
-id2@270:46	id2	id	该值是待保留或移除的节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
-id2@271:46	id2	id	该值是待检查移除条件的边标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@258:14	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@270:46	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@271:46	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 a2@282:9	a2	boxRect	该矩形由节点边界框坐标构成。
 b3@288:9	b3	targetRect	该矩形是用于相交判断的目标矩形。
-cx2@326:14	cx2	cx	该值是节点组边界中心的水平坐标。；原名 cx2 的末尾 2 是打包器去重后缀；恢复词干 cx，该绑定表示横向中心坐标。
+cx2@326:14	cx2	cx	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 n2@322:6	n2	node	该值是需要筛选的顶层可见节点。
 n2@371:43	n2	memberNode	该值是正在检查的分组成员节点；使用 node 会遮蔽闭包引用的外层 node@365:3。
 n2@372:38	n2	mainNodeCandidate	该值是当前分组中未隐藏的主节点候选；避免遮蔽外层节点绑定。
 p3@396:33	p3	parentNode	该值是孤立子节点原有的父节点。
-node2@17:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-groupId2@21:14	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
-main2@23:11	main2	main	原名 main2 的末尾 2 是打包器去重后缀；恢复词干 main，该绑定表示主节点。
-node2@29:37	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@32:33	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-groupId2@33:14	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
-node2@34:39	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@37:21	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@45:21	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@47:32	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-next2@49:13	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-node2@91:32	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@96:42	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-current2@101:32	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
-node2@104:26	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@106:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-current2@113:35	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
-node2@171:38	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-data2@173:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
-key2@175:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-identity2@178:11	identity2	identity	原名 identity2 的末尾 2 是打包器去重后缀；恢复词干 identity，该绑定表示身份信息。
-node2@183:34	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@192:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@203:27	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@220:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@227:21	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-mode2@250:3	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-snapshot2@255:7	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
-node2@254:45	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-box2@281:34	box2	box	原名 box2 的末尾 2 是打包器去重后缀；恢复词干 box，该绑定表示边界框。
-mode2@296:47	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-node2@301:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-size2@302:11	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
-mode2@320:50	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-node2@329:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@339:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@347:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@365:3	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-mode2@368:3	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-main2@372:11	main2	main	原名 main2 的末尾 2 是打包器去重后缀；恢复词干 main，该绑定表示主节点。
-node2@416:36	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@427:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@17:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+groupId2@21:14	groupId2	groupId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+main2@23:11	main2	main	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@29:37	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@32:33	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+groupId2@33:14	groupId2	groupId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@34:39	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@37:21	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@45:21	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@47:32	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@49:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@91:32	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@96:42	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@101:32	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@104:26	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@106:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@113:35	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@171:38	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@173:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@175:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+identity2@178:11	identity2	identity	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@183:34	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@192:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@203:27	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@220:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@227:21	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@250:3	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+snapshot2@255:7	snapshot2	snapshot	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@254:45	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+box2@281:34	box2	box	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@296:47	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@301:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@302:11	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@320:50	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@329:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@339:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@347:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@365:3	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@368:3	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+main2@372:11	main2	main	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@416:36	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@427:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

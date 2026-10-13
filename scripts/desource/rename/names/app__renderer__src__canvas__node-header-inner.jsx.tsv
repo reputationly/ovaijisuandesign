@@ -6,11 +6,11 @@ e2@309:26	e2	changeEvent	输入框 change 事件将 target.value 写入重命名
 e2@312:29	e2	mouseEvent	输入框 mousedown 事件被阻止冒泡至画布。
 e2@313:25	e2	clickEvent	输入框 click 事件被阻止冒泡至画布。
 e2@314:31	e2	doubleClickEvent	输入框 double-click 事件被阻止冒泡至画布。
-color2@40:42	color2	color	原名 color2 的末尾 2 是打包器去重后缀；恢复词干 color，该绑定表示颜色值。
-token2@41:9	token2	token	原名 token2 的末尾 2 是打包器去重后缀；恢复词干 token，该绑定表示令牌值。
-tags2@44:32	tags2	tags	原名 tags2 的末尾 2 是打包器去重后缀；恢复词干 tags，该绑定表示标签集合。
-index2@63:30	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
-name2@219:9	name2	nodeName	该属性值是节点显示名称；name 是全局名，故使用 nodeName。
-selected2@223:13	selected2	selected	原名 selected2 的末尾 2 是打包器去重后缀；恢复词干 selected，该绑定表示选中状态。
-preserveExtension2@225:22	preserveExtension2	preserveExtension	原名 preserveExtension2 的末尾 2 是打包器去重后缀；恢复词干 preserveExtension，该绑定表示保留文件扩展名的判断结果。
-handleDoubleClick2@253:9	handleDoubleClick2	handleDoubleClick	原名 handleDoubleClick2 的末尾 2 是打包器去重后缀；恢复词干 handleDoubleClick，该绑定表示handleDoubleClick 事件处理函数。
+color2@40:42	color2	color	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+token2@41:9	token2	token	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+tags2@44:32	tags2	tags	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@63:30	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@219:9	name2	nodeName	该属性值是节点显示名称；与全局绑定 name 冲突，故使用 nodeName。
+selected2@223:13	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+preserveExtension2@225:22	preserveExtension2	preserveExtension	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleDoubleClick2@253:9	handleDoubleClick2	handleDoubleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

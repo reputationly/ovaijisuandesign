@@ -1,14 +1,14 @@
 key	old	new	依据
 n2@36:13	n2	inlineNode	walkInline 检查文本节点类型并读取其文本值。
 n2@47:11	n2	blockNode	walkBlocks 检查块节点类型并递归处理 content。
-doc2@22:7	doc2	doc	原名 doc2 的末尾 2 是打包器去重后缀；恢复词干 doc，该绑定表示文档对象。
-node2@34:16	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@45:23	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-record2@69:11	record2	record	原名 record2 的末尾 2 是打包器去重后缀；恢复词干 record，该绑定表示记录对象。
-data2@112:40	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
-copy2@115:7	copy2	copy	原名 copy2 的末尾 2 是打包器去重后缀；恢复词干 copy，该绑定表示复制操作。
-key2@122:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-key2@125:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-key2@128:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-key2@133:16	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-key2@180:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+doc2@22:7	doc2	doc	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@34:16	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@45:23	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+record2@69:11	record2	record	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@112:40	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+copy2@115:7	copy2	copy	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@122:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@125:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@128:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@133:16	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@180:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

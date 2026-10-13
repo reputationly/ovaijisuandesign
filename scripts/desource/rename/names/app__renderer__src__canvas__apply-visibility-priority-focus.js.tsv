@@ -1,26 +1,26 @@
 key	old	new	依据
-id2@20:14	id2	id	循环中的节点标识用于 nodeLookup 查找节点并写入矩形记录。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
-state2@16:10	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-node2@21:11	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-position2@25:11	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
-node2@104:24	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-values3@155:21	values3	values	原名 values3 的末尾 3 是打包器去重后缀；恢复词干 values，该绑定表示值集合。
-values3@162:9	values3	values	原名 values3 的末尾 3 是打包器去重后缀；恢复词干 values，该绑定表示值集合。
-url2@165:11	url2	url	原名 url2 的末尾 2 是打包器去重后缀；恢复词干 url，该绑定表示URL 地址。
-key2@166:16	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-candidates2@194:50	candidates2	candidates	原名 candidates2 的末尾 2 是打包器去重后缀；恢复词干 candidates，该绑定表示candidates 对应的值。
-candidates2@218:62	candidates2	candidates	原名 candidates2 的末尾 2 是打包器去重后缀；恢复词干 candidates，该绑定表示candidates 对应的值。
+id2@20:14	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@16:10	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@21:11	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@25:11	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@104:24	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+values3@155:21	values3	values	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+values3@162:9	values3	values	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@165:11	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@166:16	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+candidates2@194:50	candidates2	candidates	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+candidates2@218:62	candidates2	candidates	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 name2@228:10	name2	candidateName	该回调参数是当前候选文件名；与全局 name 冲突，故使用 candidateName。
-ids2@238:8	ids2	ids	原名 ids2 的末尾 2 是打包器去重后缀；恢复词干 ids，该绑定表示标识符集合。
-active2@240:11	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
-node2@259:41	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-mode2@259:59	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-position2@260:7	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
-mode2@277:59	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-node2@279:40	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@282:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-position2@284:11	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
-size2@285:11	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
-node2@313:40	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-data2@320:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
-node2@331:6	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+ids2@238:8	ids2	ids	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@240:11	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@259:41	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@259:59	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@260:7	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@277:59	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@279:40	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@282:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@284:11	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@285:11	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@313:40	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@320:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@331:6	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

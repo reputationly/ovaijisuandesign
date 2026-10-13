@@ -1,24 +1,24 @@
 key	old	new	依据
-subscribe$2@23:10	subscribe$2	subscribe	该函数订阅悬停边标识变化并返回取消订阅回调。；原名 subscribe$2 的末尾 $2 是打包器去重后缀；恢复词干 subscribe，该绑定表示订阅函数。
+subscribe$2@23:10	subscribe$2	subscribe	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 p3@18:28	p3	points	该参数是绘制边线时使用的起终点坐标。
-cp2@19:9	cp2	cp	该值是用于绘制贝塞尔曲线的控制点集合。；原名 cp2 的末尾 2 是打包器去重后缀；恢复词干 cp，该绑定表示cp 对应的值。
+cp2@19:9	cp2	cp	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 _2@77:8	_2	unusedValue	该参数是生成脉冲线段时未使用的数组值。
-zoom2@52:19	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
-zoom2@57:40	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
-elapsedMs2@61:9	elapsedMs2	elapsedMs	原名 elapsedMs2 的末尾 2 是打包器去重后缀；恢复词干 elapsedMs，该绑定表示已经过的毫秒数。
-index2@77:12	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
-active2@119:11	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
-hoveredId2@123:9	hoveredId2	hoveredId	原名 hoveredId2 的末尾 2 是打包器去重后缀；恢复词干 hoveredId，该绑定表示当前悬停对象的标识符。
-flow2@146:11	flow2	flow	原名 flow2 的末尾 2 是打包器去重后缀；恢复词干 flow，该绑定表示流程对象。
-rafId2@148:9	rafId2	rafId	原名 rafId2 的末尾 2 是打包器去重后缀；恢复词干 rafId，该绑定表示动画帧请求标识。
-schedule2@226:11	schedule2	schedule	原名 schedule2 的末尾 2 是打包器去重后缀；恢复词干 schedule，该绑定表示调度函数。
-canvas2@136:13	canvas2	canvas	原名 canvas2 的末尾 2 是打包器去重后缀；恢复词干 canvas，该绑定表示画布对象。
-state2@174:13	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-zoom2@175:22	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
-flow2@265:11	flow2	flow	原名 flow2 的末尾 2 是打包器去重后缀；恢复词干 flow，该绑定表示流程对象。
-rafId2@273:9	rafId2	rafId	原名 rafId2 的末尾 2 是打包器去重后缀；恢复词干 rafId，该绑定表示动画帧请求标识。
-schedule2@367:11	schedule2	schedule	原名 schedule2 的末尾 2 是打包器去重后缀；恢复词干 schedule，该绑定表示调度函数。
-canvas2@255:13	canvas2	canvas	原名 canvas2 的末尾 2 是打包器去重后缀；恢复词干 canvas，该绑定表示画布对象。
-state2@314:13	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-zoom2@315:22	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
-frame2@346:13	frame2	frame	原名 frame2 的末尾 2 是打包器去重后缀；恢复词干 frame，该绑定表示动画帧标识。
+zoom2@52:19	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@57:40	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+elapsedMs2@61:9	elapsedMs2	elapsedMs	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@77:12	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@119:11	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+hoveredId2@123:9	hoveredId2	hoveredId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+flow2@146:11	flow2	flow	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+rafId2@148:9	rafId2	rafId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+schedule2@226:11	schedule2	schedule	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+canvas2@136:13	canvas2	canvas	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@174:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@175:22	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+flow2@265:11	flow2	flow	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+rafId2@273:9	rafId2	rafId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+schedule2@367:11	schedule2	schedule	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+canvas2@255:13	canvas2	canvas	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@314:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@315:22	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+frame2@346:13	frame2	frame	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

@@ -2,11 +2,11 @@ key	old	new	依据
 i2@57:12	i2	index	循环下标依次读取 memo 比较器两侧节点数组的节点。
 a2@58:11	a2	previousNode	prev.nodes 在当前下标处的节点用于和下一组节点比较。
 b3@59:11	b3	nextNode	next2.nodes 在当前下标处的节点用于和上一组节点比较。
-set2@3:51	set2	set	原名 set2 的末尾 2 是打包器去重后缀；恢复词干 set，该绑定表示赋值函数。
-get3@3:57	get3	get	原名 get3 的末尾 3 是打包器去重后缀；恢复词干 get，该绑定表示取值函数。
-state2@7:11	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-state2@14:11	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-previous2@21:11	previous2	previous	原名 previous2 的末尾 2 是打包器去重后缀；恢复词干 previous，该绑定表示前一状态值。
-state2@23:13	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-next2@24:15	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-next2@54:37	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+set2@3:51	set2	set	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+get3@3:57	get3	get	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@7:11	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@14:11	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+previous2@21:11	previous2	previous	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@23:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@24:15	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@54:37	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

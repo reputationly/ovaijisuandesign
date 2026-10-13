@@ -1,11 +1,11 @@
 key	old	new	依据
-hash2@63:11	hash2	hash	原名 hash2 的末尾 2 是打包器去重后缀；恢复词干 hash，该绑定表示哈希值。
-snapshot2@66:11	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
-next2@168:11	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-snapshot2@232:14	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
-snapshot2@246:9	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
-next2@351:15	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-latest2@374:21	latest2	latest	原名 latest2 的末尾 2 是打包器去重后缀；恢复词干 latest，该绑定表示最新值。
-pending2@394:11	pending2	pending	原名 pending2 的末尾 2 是打包器去重后缀；恢复词干 pending，该绑定表示待处理状态。
-depth2@395:11	depth2	depth	原名 depth2 的末尾 2 是打包器去重后缀；恢复词干 depth，该绑定表示层级深度。
-snapshot2@403:16	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+hash2@63:11	hash2	hash	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+snapshot2@66:11	snapshot2	snapshot	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@168:11	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+snapshot2@232:14	snapshot2	snapshot	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+snapshot2@246:9	snapshot2	snapshot	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@351:15	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+latest2@374:21	latest2	latest	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+pending2@394:11	pending2	pending	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+depth2@395:11	depth2	depth	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+snapshot2@403:16	snapshot2	snapshot	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

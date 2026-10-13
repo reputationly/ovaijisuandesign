@@ -2,4 +2,4 @@ key	old	new	依据
 e2@109:6	e2	mouseEvent	画布 pane 双击事件被筛选后传给 onPaneDoubleClick。
 e2@120:6	e2	contextMenuEvent	画布 pane 右键事件被筛选后传给 onPaneContextMenu。
 e2@129:60	e2	mouseEvent	mousedown 捕获处理器读取事件目标并聚焦画布根元素。
-handleDoubleClick2@108:9	handleDoubleClick2	handleDoubleClick	原名 handleDoubleClick2 的末尾 2 是打包器去重后缀；恢复词干 handleDoubleClick，该绑定表示handleDoubleClick 事件处理函数。
+handleDoubleClick2@108:9	handleDoubleClick2	handleDoubleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

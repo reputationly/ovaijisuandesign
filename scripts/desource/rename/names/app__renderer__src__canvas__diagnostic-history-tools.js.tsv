@@ -1,10 +1,10 @@
 key	old	new	依据
 Ungroup$1@2:28	Ungroup$1	UngroupIcon	Lucide 导出名为 Ungroup 的图标组件，随后传给 withIconCompositing。；原名 Ungroup$1 的末尾 $1 是打包器去重后缀；恢复词干 UngroupIcon，该绑定表示UngroupIcon 对应的值。
-first2@6:7	first2	first	原名 first2 的末尾 2 是打包器去重后缀；恢复词干 first，该绑定表示首个值。
-index2@8:12	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
-code2@9:11	code2	code	原名 code2 的末尾 2 是打包器去重后缀；恢复词干 code，该绑定表示代码文本。
-tool2@15:34	tool2	tool	原名 tool2 的末尾 2 是打包器去重后缀；恢复词干 tool，该绑定表示工具对象。
-messages2@26:40	messages2	messages	原名 messages2 的末尾 2 是打包器去重后缀；恢复词干 messages，该绑定表示消息集合。
-message2@27:29	message2	message	原名 message2 的末尾 2 是打包器去重后缀；恢复词干 message，该绑定表示消息文本。
-displayName2@49:52	displayName2	displayName	原名 displayName2 的末尾 2 是打包器去重后缀；恢复词干 displayName，该绑定表示显示名称。
-dot2@59:9	dot2	dot	原名 dot2 的末尾 2 是打包器去重后缀；恢复词干 dot，该绑定表示点积结果。
+first2@6:7	first2	first	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@8:12	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+code2@9:11	code2	code	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+tool2@15:34	tool2	tool	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+messages2@26:40	messages2	messages	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+message2@27:29	message2	message	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+displayName2@49:52	displayName2	displayName	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+dot2@59:9	dot2	dot	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

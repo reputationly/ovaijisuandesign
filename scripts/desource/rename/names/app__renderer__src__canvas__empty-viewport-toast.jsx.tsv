@@ -4,22 +4,22 @@ w3@24:9	w3	width	节点测量或声明的宽度用于判断节点尺寸是否可
 h2@25:9	h2	height	节点测量或声明的高度用于判断节点尺寸是否可用。
 w3@30:9	w3	width	节点宽度用于计算其包围框的右边界。
 h2@31:9	h2	height	节点高度用于计算其包围框的下边界。
-id2@42:15	id2	id	nodeLookup 中最后一个尺寸可用节点的标识被返回。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
-id2@48:9	id2	id	该节点标识被放入 fitView 请求以便回到内容位置。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@42:15	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@48:9	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 s2@61:32	s2	state	该状态提供节点索引、画布尺寸和 viewport transform。
 t2@165:14	t2	translate	EmptyViewportToast 用该函数翻译返回内容和关闭操作。
-node2@22:23	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@28:18	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-state2@40:25	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-last2@41:7	last2	last	原名 last2 的末尾 2 是打包器去重后缀；恢复词干 last，该绑定表示末尾值。
-node2@42:20	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-zoom2@63:18	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
-node2@70:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-box2@72:11	box2	box	原名 box2 的末尾 2 是打包器去重后缀；恢复词干 box，该绑定表示边界框。
-message2@101:14	message2	message	原名 message2 的末尾 2 是打包器去重后缀；恢复词干 message，该绑定表示消息文本。
-timer2@96:11	timer2	timer	原名 timer2 的末尾 2 是打包器去重后缀；恢复词干 timer，该绑定表示定时器标识。
-active2@171:9	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
-rafId2@180:9	rafId2	rafId	原名 rafId2 的末尾 2 是打包器去重后缀；恢复词干 rafId，该绑定表示动画帧请求标识。
-state2@191:13	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-next2@192:13	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-empty2@198:13	empty2	empty	原名 empty2 的末尾 2 是打包器去重后缀；恢复词干 empty，该绑定表示空值状态。
+node2@22:23	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@28:18	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@40:25	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+last2@41:7	last2	last	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@42:20	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@63:18	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@70:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+box2@72:11	box2	box	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+message2@101:14	message2	message	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+timer2@96:11	timer2	timer	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@171:9	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+rafId2@180:9	rafId2	rafId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@191:13	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@192:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+empty2@198:13	empty2	empty	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

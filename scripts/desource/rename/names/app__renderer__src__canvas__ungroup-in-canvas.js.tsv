@@ -20,17 +20,17 @@ n2@171:30	n2	node	该值是需要提升为分组主节点的候选节点。
 n2@189:26	n2	node	该值是正在变换的画布节点。
 a2@241:30	a2	firstRect	该参数是矩形重叠判断中的第一个矩形。
 b3@241:34	b3	secondRect	该参数是矩形重叠判断中的第二个矩形。
-groupId2@4:41	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
-mode2@5:9	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-node2@41:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-next2@55:13	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-node2@79:31	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-groupId2@82:44	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
-node2@108:9	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-main2@110:9	main2	main	原名 main2 的末尾 2 是打包器去重后缀；恢复词干 main，该绑定表示主节点。
-node2@116:11	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-groupId2@134:36	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
-node2@150:34	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@157:39	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-data2@160:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
-next2@192:13	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+groupId2@4:41	groupId2	groupId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@5:9	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@41:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@55:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@79:31	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+groupId2@82:44	groupId2	groupId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@108:9	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+main2@110:9	main2	main	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@116:11	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+groupId2@134:36	groupId2	groupId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@150:34	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@157:39	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@160:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@192:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

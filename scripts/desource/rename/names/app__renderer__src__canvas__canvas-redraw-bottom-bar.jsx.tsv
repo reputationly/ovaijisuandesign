@@ -14,7 +14,7 @@ e2@227:34	e2	mouseEvent	该值是附件按钮鼠标进入时收到的事件。
 e2@231:34	e2	mouseEvent	该值是附件按钮鼠标离开时收到的事件。
 e2@269:34	e2	mouseEvent	该值是发送按钮鼠标进入时收到的事件。
 e2@273:34	e2	mouseEvent	该值是发送按钮鼠标离开时收到的事件。
-onRemove2@64:50	onRemove2	onRemove	原名 onRemove2 的末尾 2 是打包器去重后缀；恢复词干 onRemove，该绑定表示移除事件回调。
-url2@66:9	url2	url	原名 url2 的末尾 2 是打包器去重后缀；恢复词干 url，该绑定表示URL 地址。
-CanvasRedrawBottomBar2@108:12	CanvasRedrawBottomBar2	CanvasRedrawBottomBar	原名 CanvasRedrawBottomBar2 的末尾 2 是打包器去重后缀；恢复词干 CanvasRedrawBottomBar，该绑定表示CanvasRedrawBottomBar 对应的值。
-removeAttachment2@181:11	removeAttachment2	removeAttachment	原名 removeAttachment2 的末尾 2 是打包器去重后缀；恢复词干 removeAttachment，该绑定表示移除附件操作。
+onRemove2@64:50	onRemove2	onRemove	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@66:9	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+CanvasRedrawBottomBar2@108:12	CanvasRedrawBottomBar2	CanvasRedrawBottomBar	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+removeAttachment2@181:11	removeAttachment2	removeAttachment	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

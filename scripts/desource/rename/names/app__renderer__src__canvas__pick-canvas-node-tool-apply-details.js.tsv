@@ -4,23 +4,23 @@ h2@175:13	h2	mediaHeight	图像自然高度用于验证尺寸并设置结果高�
 w3@203:13	w3	mediaWidth	视频宽度用于验证尺寸并设置结果宽度。
 h2@204:13	h2	mediaHeight	视频高度用于验证尺寸并设置结果高度。
 b3@250:22	b3	blob	toBlob 回调收到的 PNG Blob 被传递给 Promise。
-isActive2@17:41	isActive2	isActive	原名 isActive2 的末尾 2 是打包器去重后缀；恢复词干 isActive，该绑定表示活动状态布尔值。
-current2@22:11	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
-workspaceId2@45:3	workspaceId2	workspaceId	原名 workspaceId2 的末尾 2 是打包器去重后缀；恢复词干 workspaceId，该绑定表示工作区标识符。
-active2@50:15	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
-now2@61:13	now2	now	原名 now2 的末尾 2 是打包器去重后缀；恢复词干 now，该绑定表示当前时间值。
-previous2@62:13	previous2	previous	原名 previous2 的末尾 2 是打包器去重后缀；恢复词干 previous，该绑定表示前一状态值。
-meta2@65:13	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-router2@84:9	router2	router	原名 router2 的末尾 2 是打包器去重后缀；恢复词干 router，该绑定表示路由器实例。
-location2@90:15	location2	routeLocation	该值是路由器构建的目标位置对象；location 是全局名，故使用 routeLocation。
-key2@136:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-key2@140:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-url2@170:11	url2	url	原名 url2 的末尾 2 是打包器去重后缀；恢复词干 url，该绑定表示URL 地址。
-url2@195:11	url2	url	原名 url2 的末尾 2 是打包器去重后缀；恢复词干 url，该绑定表示URL 地址。
-shortEdge2@259:9	shortEdge2	shortEdge	原名 shortEdge2 的末尾 2 是打包器去重后缀；恢复词干 shortEdge，该绑定表示短边长度。
-clampScale2@270:11	clampScale2	clampScale	原名 clampScale2 的末尾 2 是打包器去重后缀；恢复词干 clampScale，该绑定表示限制缩放范围的函数。
-node2@284:45	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-meta2@285:9	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-raw2@315:41	raw2	raw	原名 raw2 的末尾 2 是打包器去重后缀；恢复词干 raw，该绑定表示原始值。
-record2@319:9	record2	record	原名 record2 的末尾 2 是打包器去重后缀；恢复词干 record，该绑定表示记录对象。
-key2@325:26	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+isActive2@17:41	isActive2	isActive	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@22:11	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+workspaceId2@45:3	workspaceId2	workspaceId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@50:15	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+now2@61:13	now2	now	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+previous2@62:13	previous2	previous	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@65:13	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+router2@84:9	router2	router	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+location2@90:15	location2	routeLocation	该值是路由器构建的目标位置对象；与全局绑定 location 冲突，故使用 routeLocation。
+key2@136:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@140:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@170:11	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@195:11	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+shortEdge2@259:9	shortEdge2	shortEdge	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+clampScale2@270:11	clampScale2	clampScale	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@284:45	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@285:9	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+raw2@315:41	raw2	raw	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+record2@319:9	record2	record	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@325:26	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

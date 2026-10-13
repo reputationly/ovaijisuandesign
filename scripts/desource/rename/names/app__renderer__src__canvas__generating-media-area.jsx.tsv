@@ -1,9 +1,9 @@
 key	old	new	依据
 e2@190:8	e2	keyboardEvent	keydown 回调检查按键并阻止默认行为，再将键盘事件传给 onClick。
-size2@82:9	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
-size2@98:44	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
-size2@139:9	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
-size2@156:9	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
-style2@186:10	style2	style	原名 style2 的末尾 2 是打包器去重后缀；恢复词干 style，该绑定表示样式对象。
-handleKeyDown2@189:9	handleKeyDown2	handleKeyDown	原名 handleKeyDown2 的末尾 2 是打包器去重后缀；恢复词干 handleKeyDown，该绑定表示handleKeyDown 事件处理函数。
-selected2@230:13	selected2	selected	原名 selected2 的末尾 2 是打包器去重后缀；恢复词干 selected，该绑定表示选中状态。
+size2@82:9	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@98:44	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@139:9	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@156:9	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+style2@186:10	style2	style	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleKeyDown2@189:9	handleKeyDown2	handleKeyDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+selected2@230:13	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

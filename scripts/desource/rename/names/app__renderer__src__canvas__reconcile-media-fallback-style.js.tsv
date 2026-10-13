@@ -1,12 +1,12 @@
 key	old	new	依据
-id2@44:38	id2	id	该标识用于从 nodeLookup 查找节点并核对节点 id。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
-style2@16:38	style2	style	原名 style2 的末尾 2 是打包器去重后缀；恢复词干 style，该绑定表示样式对象。
-active2@16:46	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
-next2@22:9	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-key2@28:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-key2@38:33	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-active2@44:43	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
-style2@46:9	style2	style	原名 style2 的末尾 2 是打包器去重后缀；恢复词干 style，该绑定表示样式对象。
-state2@46:28	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-next2@54:13	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-node2@54:32	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+id2@44:38	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+style2@16:38	style2	style	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@16:46	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@22:9	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@28:14	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@38:33	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@44:43	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+style2@46:9	style2	style	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@46:28	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@54:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@54:32	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

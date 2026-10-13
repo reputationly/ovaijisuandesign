@@ -1,7 +1,7 @@
 key	old	new	依据
 t2@20:14	t2	translate	该函数翻译新建表格节点时的默认列标题。
-addNode2@16:12	addNode2	addNode	原名 addNode2 的末尾 2 是打包器去重后缀；恢复词干 addNode，该绑定表示添加节点操作。
-type2@22:12	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-position2@23:13	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
-size2@41:25	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
-data2@46:17	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+addNode2@16:12	addNode2	addNode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@22:12	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@23:13	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@41:25	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@46:17	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

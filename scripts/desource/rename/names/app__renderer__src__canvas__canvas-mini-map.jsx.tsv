@@ -1,47 +1,47 @@
 key	old	new	依据
-x2@156:31	x2	x	roundedRect 将该横坐标传给 CanvasRenderingContext2D.roundRect。
-y4@156:35	y4	y	roundedRect 将该纵坐标传给 CanvasRenderingContext2D.roundRect。
+x2@156:31	x2	x	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+y4@156:35	y4	y	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 x2@802:11	x2	mapX	该值是鼠标 clientX 相对 mini-map 左边界的位置，用于命中节点矩形。
 y4@803:11	y4	mapY	该值是鼠标 clientY 相对 mini-map 上边界的位置，用于命中节点矩形。
-offset2@36:9	offset2	offset	原名 offset2 的末尾 2 是打包器去重后缀；恢复词干 offset，该绑定表示偏移量。
-scale2@43:9	scale2	scale	原名 scale2 的末尾 2 是打包器去重后缀；恢复词干 scale，该绑定表示缩放比例。
-previous2@55:43	previous2	previous	原名 previous2 的末尾 2 是打包器去重后缀；恢复词干 previous，该绑定表示前一状态值。
-next2@55:54	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-point2@66:29	point2	point	原名 point2 的末尾 2 是打包器去重后缀；恢复词干 point，该绑定表示坐标点。
-timestamp2@73:14	timestamp2	timestamp	原名 timestamp2 的末尾 2 是打包器去重后缀；恢复词干 timestamp，该绑定表示时间戳。
-candidates2@80:33	candidates2	candidates	原名 candidates2 的末尾 2 是打包器去重后缀；恢复词干 candidates，该绑定表示candidates 对应的值。
-latest2@81:7	latest2	latest	原名 latest2 的末尾 2 是打包器去重后缀；恢复词干 latest，该绑定表示最新值。
-elapsedMs2@92:33	elapsedMs2	elapsedMs	原名 elapsedMs2 的末尾 2 是打包器去重后缀；恢复词干 elapsedMs，该绑定表示已经过的毫秒数。
-touch2@127:11	touch2	touch	原名 touch2 的末尾 2 是打包器去重后缀；恢复词干 touch，该绑定表示触摸状态。
-element2@141:26	element2	element	原名 element2 的末尾 2 是打包器去重后缀；恢复词干 element，该绑定表示DOM 元素。
-color2@141:36	color2	color	原名 color2 的末尾 2 是打包器去重后缀；恢复词干 color，该绑定表示颜色值。
-depth2@144:12	depth2	depth	原名 depth2 的末尾 2 是打包器去重后缀；恢复词干 depth，该绑定表示层级深度。
-next2@145:11	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-token2@147:16	token2	token	原名 token2 的末尾 2 是打包器去重后缀；恢复词干 token，该绑定表示令牌值。
-position2@179:13	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
-style2@180:10	style2	style	原名 style2 的末尾 2 是打包器去重后缀；恢复词干 style，该绑定表示样式对象。
-handleClick2@852:9	handleClick2	handleClick	原名 handleClick2 的末尾 2 是打包器去重后缀；恢复词干 handleClick，该绑定表示handleClick 事件处理函数。
-state2@211:6	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-timestamp2@222:47	timestamp2	timestamp	原名 timestamp2 的末尾 2 是打包器去重后缀；恢复词干 timestamp，该绑定表示时间戳。
-timestamp2@239:25	timestamp2	timestamp	原名 timestamp2 的末尾 2 是打包器去重后缀；恢复词干 timestamp，该绑定表示时间戳。
-state2@250:11	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-node2@262:18	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-dimensions2@266:15	dimensions2	dimensions	原名 dimensions2 的末尾 2 是打包器去重后缀；恢复词干 dimensions，该绑定表示尺寸信息。
-position22@267:15	position22	position	原名 position22 的末尾 22 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
-data2@276:15	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
-node2@293:34	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@295:20	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@296:17	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@298:20	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@299:17	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@329:13	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-base2@344:13	base2	base	原名 base2 的末尾 2 是打包器去重后缀；恢复词干 base，该绑定表示基础值。
-node2@355:18	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@394:13	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@409:13	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-key2@459:16	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-timestamp2@554:29	timestamp2	timestamp	原名 timestamp2 的末尾 2 是打包器去重后缀；恢复词干 timestamp，该绑定表示时间戳。
-frame2@604:18	frame2	frame	原名 frame2 的末尾 2 是打包器去重后缀；恢复词干 frame，该绑定表示动画帧标识。
-state2@694:51	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-node2@806:16	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-position22@868:13	position22	position	原名 position22 的末尾 22 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
+offset2@36:9	offset2	offset	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+scale2@43:9	scale2	scale	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+previous2@55:43	previous2	previous	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@55:54	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+point2@66:29	point2	point	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+timestamp2@73:14	timestamp2	timestamp	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+candidates2@80:33	candidates2	candidates	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+latest2@81:7	latest2	latest	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+elapsedMs2@92:33	elapsedMs2	elapsedMs	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+touch2@127:11	touch2	touch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@141:26	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+color2@141:36	color2	color	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+depth2@144:12	depth2	depth	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@145:11	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+token2@147:16	token2	token	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@179:13	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+style2@180:10	style2	style	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleClick2@852:9	handleClick2	handleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@211:6	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+timestamp2@222:47	timestamp2	timestamp	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+timestamp2@239:25	timestamp2	timestamp	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@250:11	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@262:18	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+dimensions2@266:15	dimensions2	dimensions	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position22@267:15	position22	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@276:15	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@293:34	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@295:20	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@296:17	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@298:20	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@299:17	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@329:13	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+base2@344:13	base2	base	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@355:18	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@394:13	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@409:13	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@459:16	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+timestamp2@554:29	timestamp2	timestamp	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+frame2@604:18	frame2	frame	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@694:51	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@806:16	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position22@868:13	position22	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

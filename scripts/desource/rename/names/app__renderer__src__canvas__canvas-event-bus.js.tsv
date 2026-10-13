@@ -10,18 +10,18 @@ v2@44:19	v2	value	该值是遍历数据条目对应的属性值。
 n2@59:46	n2	node	该值是历史状态中的当前节点。
 h2@142:11	h2	registeredHandler	该值是事件订阅中的回调函数。
 i2@187:11	i2	registeredInterceptor	该值是事件总线注册的拦截器回调。
-node2@39:29	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-data2@40:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
-current2@77:3	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
-history2@78:3	history2	historyManager	该参数提供撤销和重做状态访问方法；history 是全局名，故使用 historyManager。
-history2@100:3	history2	historyManager	该参数提供撤销和重做状态访问方法；history 是全局名，故使用 historyManager。
-pending2@101:3	pending2	pending	原名 pending2 的末尾 2 是打包器去重后缀；恢复词干 pending，该绑定表示待处理状态。
-current2@108:15	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
-node2@122:16	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@123:13	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-index2@126:14	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
-type2@136:6	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-set2@137:9	set2	set	原名 set2 的末尾 2 是打包器去重后缀；恢复词干 set，该绑定表示赋值函数。
-handlers2@167:11	handlers2	handlers	原名 handlers2 的末尾 2 是打包器去重后缀；恢复词干 handlers，该绑定表示事件处理器集合。
-type2@181:13	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-set2@182:9	set2	set	原名 set2 的末尾 2 是打包器去重后缀；恢复词干 set，该绑定表示赋值函数。
+node2@39:29	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@40:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@77:3	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+history2@78:3	history2	historyManager	该参数提供撤销和重做状态访问方法；与全局绑定 history 冲突，故使用 historyManager。
+history2@100:3	history2	historyManager	该参数提供撤销和重做状态访问方法；与全局绑定 history 冲突，故使用 historyManager。
+pending2@101:3	pending2	pending	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@108:15	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@122:16	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@123:13	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@126:14	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@136:6	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+set2@137:9	set2	set	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handlers2@167:11	handlers2	handlers	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@181:13	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+set2@182:9	set2	set	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

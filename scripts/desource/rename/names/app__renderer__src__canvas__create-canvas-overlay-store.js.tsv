@@ -4,9 +4,9 @@ s2@31:13	s2	state	cancelOutpaint 仅在当前 active 模式为 outpaint 时清�
 s2@47:13	s2	state	cancelErase 仅在当前 active 模式为 erase 时清空覆盖层状态。
 s2@63:13	s2	state	cancelRedraw 仅在当前 active 模式为 redraw 时清空覆盖层状态。
 s2@79:13	s2	state	cancelMoveObject 仅在当前 active 模式为 move-object 时清空覆盖层状态。
-set2@4:23	set2	set	原名 set2 的末尾 2 是打包器去重后缀；恢复词干 set，该绑定表示赋值函数。
-meta2@6:25	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-meta2@22:29	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-meta2@38:26	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-meta2@54:27	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-meta2@70:31	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
+set2@4:23	set2	set	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@6:25	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@22:29	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@38:26	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@54:27	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@70:31	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

@@ -1,12 +1,12 @@
 key	old	new	依据
 t2@3:65	t2	translate	该函数按资源类型和摘要键生成本地化文本。
-count2@3:43	count2	count	原名 count2 的末尾 2 是打包器去重后缀；恢复词干 count，该绑定表示数量。
-constraints2@4:9	constraints2	constraints	原名 constraints2 的末尾 2 是打包器去重后缀；恢复词干 constraints，该绑定表示约束集合。
-types2@5:9	types2	types	原名 types2 的末尾 2 是打包器去重后缀；恢复词干 types，该绑定表示类型集合。
-max2@22:7	max2	max	原名 max2 的末尾 2 是打包器去重后缀；恢复词干 max，该绑定表示最大值。
-selected2@50:9	selected2	selected	原名 selected2 的末尾 2 是打包器去重后缀；恢复词干 selected，该绑定表示选中状态。
-type2@9:11	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-type2@27:8	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-image2@30:11	image2	image	原名 image2 的末尾 2 是打包器去重后缀；恢复词干 image，该绑定表示图像对象。
-type2@80:14	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-type2@85:17	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
+count2@3:43	count2	count	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+constraints2@4:9	constraints2	constraints	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+types2@5:9	types2	types	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+max2@22:7	max2	max	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+selected2@50:9	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@9:11	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@27:8	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+image2@30:11	image2	image	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@80:14	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@85:17	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

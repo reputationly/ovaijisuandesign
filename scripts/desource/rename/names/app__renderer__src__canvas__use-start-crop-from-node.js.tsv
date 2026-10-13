@@ -4,16 +4,16 @@ s2@24:49	s2	state	选择器从 overlay store 读取当前裁剪节点标识。
 s2@27:40	s2	state	选择器从 overlay store 读取当前裁剪元数据。
 s2@30:44	s2	state	选择器从 overlay store 读取启动裁剪操作。
 s2@31:45	s2	state	选择器从 overlay store 读取取消裁剪操作。
-id2@40:7	id2	id	派生节点的位置根据原始节点标识和画布边、宽度计算。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
-id2@63:44	id2	id	getNodeFlowRect 按节点标识读取 React Flow 内部节点。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
-id2@88:7	id2	id	裁剪操作按原始节点标识读取矩形并启动 overlay。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@40:7	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@63:44	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@88:7	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 n2@119:18	n2	node	setNodes 遍历节点并清除每个已选节点的 selected 状态。
-min2@7:27	min2	min	原名 min2 的末尾 2 是打包器去重后缀；恢复词干 min，该绑定表示最小值。
-max2@7:33	max2	max	原名 max2 的末尾 2 是打包器去重后缀；恢复词干 max，该绑定表示最大值。
-selector2@18:39	selector2	selector	原名 selector2 的末尾 2 是打包器去重后缀；恢复词干 selector，该绑定表示选择器函数。
-meta2@27:9	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-meta2@41:9	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-position2@50:13	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
-node2@64:9	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-meta2@75:38	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-meta2@89:9	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
+min2@7:27	min2	min	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+max2@7:33	max2	max	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+selector2@18:39	selector2	selector	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@27:9	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@41:9	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@50:13	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@64:9	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@75:38	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@89:9	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

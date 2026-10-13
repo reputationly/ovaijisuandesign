@@ -1,4 +1,4 @@
 key	old	new	依据
-gatewayFetch2@33:38	gatewayFetch2	gatewayFetch	原名 gatewayFetch2 的末尾 2 是打包器去重后缀；恢复词干 gatewayFetch，该绑定表示网关请求函数。
-gatewayFetch2@45:51	gatewayFetch2	gatewayFetch	原名 gatewayFetch2 的末尾 2 是打包器去重后缀；恢复词干 gatewayFetch，该绑定表示网关请求函数。
-index2@64:13	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
+gatewayFetch2@33:38	gatewayFetch2	gatewayFetch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+gatewayFetch2@45:51	gatewayFetch2	gatewayFetch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@64:13	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

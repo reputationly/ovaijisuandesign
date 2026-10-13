@@ -1,27 +1,27 @@
 key	old	new	依据
 t2@47:8	t2	definition	该插件节点定义的 supportedModes 用于筛选可用类型。
-id2@85:13	id2	id	getPlugin 使用该标识从插件 Map 中读取插件实例。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@85:13	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 p3@93:46	p3	plugin	getToolbarItems 从每个活动插件读取 toolbarItems。
 p3@97:46	p3	plugin	getContextMenuItems 从每个活动插件读取 contextMenuItems。
 p3@100:54	p3	plugin	筛选插件 Map 中 activePlugins 所包含的活动插件。
 n2@216:9	n2	targetNode	查找到的节点交给 fillStillApplies 检查后作为填充目标；与回调参数 node@216:26 冲突，故用 targetNode。
-definition2@12:12	definition2	definition	原名 definition2 的末尾 2 是打包器去重后缀；恢复词干 definition，该绑定表示定义对象。
-type2@17:16	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-type2@21:14	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-type2@26:18	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-type2@30:17	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-type2@33:20	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-type2@36:20	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
-mode2@43:13	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-all2@44:11	all2	all	原名 all2 的末尾 2 是打包器去重后缀；恢复词干 all，该绑定表示all 对应的值。
-node2@129:33	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-mode2@138:45	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-data2@139:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
-node2@149:9	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-update2@181:49	update2	update	原名 update2 的末尾 2 是打包器去重后缀；恢复词干 update，该绑定表示更新操作。
-node2@188:33	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@206:35	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@210:34	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@216:26	node2	node	回调中逐个检查的画布节点；末尾 2 是打包器去重后缀，恢复词干 node。
-node2@220:44	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-data2@221:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+definition2@12:12	definition2	definition	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@17:16	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@21:14	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@26:18	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@30:17	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@33:20	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@36:20	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@43:13	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+all2@44:11	all2	all	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@129:33	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@138:45	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@139:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@149:9	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+update2@181:49	update2	update	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@188:33	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@206:35	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@210:34	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@216:26	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@220:44	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@221:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

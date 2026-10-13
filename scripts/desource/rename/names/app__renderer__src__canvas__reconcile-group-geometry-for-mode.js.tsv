@@ -11,11 +11,11 @@ p3@107:15	p3	childPosition	该值是子节点在当前布局模式下的位置�
 c3@136:18	c3	child	该值是需要按新分组坐标重算的子节点。
 c3@202:18	c3	child	该值是需要应用分组位移的子节点。
 n2@226:39	n2	node	该值是待替换或保留的画布节点。
-node2@10:29	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-raw2@11:9	raw2	raw	原名 raw2 的末尾 2 是打包器去重后缀；恢复词干 raw，该绑定表示原始值。
-mode2@15:55	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
-node2@17:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@31:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-children2@33:11	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
-newGroupPos2@55:25	newGroupPos2	newGroupPos	原名 newGroupPos2 的末尾 2 是打包器去重后缀；恢复词干 newGroupPos，该绑定表示新分组的位置坐标。
-newGroupPos2@114:25	newGroupPos2	newGroupPos	原名 newGroupPos2 的末尾 2 是打包器去重后缀；恢复词干 newGroupPos，该绑定表示新分组的位置坐标。
+node2@10:29	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+raw2@11:9	raw2	raw	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@15:55	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@17:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@31:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@33:11	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+newGroupPos2@55:25	newGroupPos2	newGroupPos	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+newGroupPos2@114:25	newGroupPos2	newGroupPos	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

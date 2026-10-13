@@ -10,41 +10,41 @@ i2@287:12	i2	index	该值是遍历附件数组的下标。
 t2@386:14	t2	translate	该函数翻译选择工具栏操作文案。
 s2@393:6	s2	storeState	该参数提供解析连接来源所需的节点查找表。
 s2@439:6	s2	storeState	该参数提供分组状态分析所需的节点查找表。
-id2@462:18	id2	id	该值是当前待分析的选中节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@462:18	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 a2@481:6	a2	leftAnalysis	该对象是分组能力比较的左侧结果。
 b3@481:10	b3	rightAnalysis	该对象是分组能力比较的右侧结果。
 s2@485:6	s2	storeState	该参数提供子集分组分析所需的节点查找表。
-id2@494:18	id2	id	该值是当前待分析的选中节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@494:18	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 a2@525:6	a2	leftAnalysis	该对象是同组子集比较的左侧结果。
 b3@525:10	b3	rightAnalysis	该对象是同组子集比较的右侧结果。
 s2@527:42	s2	storeState	该参数提供目标分组节点的查找表。
 e2@613:6	e2	pointerEvent	该值是用于更新分组背景色的指针事件。
 s2@621:38	s2	storeState	该参数提供判断表格节点选择状态的节点查找表。
-size2@82:30	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
-selected2@98:13	selected2	selected	原名 selected2 的末尾 2 是打包器去重后缀；恢复词干 selected，该绑定表示选中状态。
-children2@103:13	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
-onPointerDown2@160:11	onPointerDown2	onPointerDown	原名 onPointerDown2 的末尾 2 是打包器去重后缀；恢复词干 onPointerDown，该绑定表示指针按下事件回调。
-key2@241:36	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-preset2@242:21	preset2	preset	原名 preset2 的末尾 2 是打包器去重后缀；恢复词干 preset，该绑定表示预设值。
-path2@277:22	path2	path	原名 path2 的末尾 2 是打包器去重后缀；恢复词干 path，该绑定表示路径值。
-key2@280:34	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
-childrenOf2@303:9	childrenOf2	childrenOf	原名 childrenOf2 的末尾 2 是打包器去重后缀；恢复词干 childrenOf，该绑定表示子节点查询结果。
-pushPath2@318:9	pushPath2	pushPath	原名 pushPath2 的末尾 2 是打包器去重后缀；恢复词干 pushPath，该绑定表示追加路径操作。
-node2@300:29	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@306:18	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-siblings2@308:15	siblings2	siblings	原名 siblings2 的末尾 2 是打包器去重后缀；恢复词干 siblings，该绑定表示同级节点集合。
-path2@318:30	path2	path	原名 path2 的末尾 2 是打包器去重后缀；恢复词干 path，该绑定表示路径值。
-node2@330:11	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-meta2@350:11	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
-path2@355:11	path2	path	原名 path2 的末尾 2 是打包器去重后缀；恢复词干 path，该绑定表示路径值。
-state2@390:41	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
-path2@417:13	path2	path	原名 path2 的末尾 2 是打包器去重后缀；恢复词干 path，该绑定表示路径值。
-lower2@419:13	lower2	lower	原名 lower2 的末尾 2 是打包器去重后缀；恢复词干 lower，该绑定表示下界值。
-canGroup2@472:13	canGroup2	canGroup	原名 canGroup2 的末尾 2 是打包器去重后缀；恢复词干 canGroup，该绑定表示是否允许成组的布尔状态。
-node2@448:15	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@463:15	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@495:15	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-node2@530:11	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
-raw2@532:11	raw2	raw	原名 raw2 的末尾 2 是打包器去重后缀；恢复词干 raw，该绑定表示原始值。
-next2@603:6	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
-groupId2@604:13	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
+size2@82:30	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+selected2@98:13	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@103:13	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+onPointerDown2@160:11	onPointerDown2	onPointerDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@241:36	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+preset2@242:21	preset2	preset	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@277:22	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@280:34	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+childrenOf2@303:9	childrenOf2	childrenOf	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+pushPath2@318:9	pushPath2	pushPath	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@300:29	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@306:18	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+siblings2@308:15	siblings2	siblings	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@318:30	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@330:11	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@350:11	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@355:11	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@390:41	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@417:13	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+lower2@419:13	lower2	lower	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+canGroup2@472:13	canGroup2	canGroup	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@448:15	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@463:15	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@495:15	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@530:11	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+raw2@532:11	raw2	raw	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@603:6	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+groupId2@604:13	groupId2	groupId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

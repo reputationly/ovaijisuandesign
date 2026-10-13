@@ -1,6 +1,6 @@
 key	old	new	依据
 d2@53:21	d2	delta	该有符号距离用于计算贝塞尔曲线控制点的偏移量。
 p3@56:34	p3	connectionPoints	该对象包含 source/target 两端的 sx、sy、tx、ty 坐标。
-id2@95:34	id2	id	该标识用于更新当前悬停的边并避免重复通知。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
-offset2@70:9	offset2	offset	原名 offset2 的末尾 2 是打包器去重后缀；恢复词干 offset，该绑定表示偏移量。
-offset22@58:11	offset22	offset	原名 offset22 的末尾 22 是打包器去重后缀；恢复词干 offset，该绑定表示偏移量。
+id2@95:34	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+offset2@70:9	offset2	offset	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+offset22@58:11	offset22	offset	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

@@ -1,7 +1,7 @@
 key	old	new	依据
 t2@89:14	t2	translate	该函数翻译画布右键菜单各操作项的标签。
-disabled2@21:13	disabled2	disabled	原名 disabled2 的末尾 2 是打包器去重后缀；恢复词干 disabled，该绑定表示禁用状态。
-isMac2@26:9	isMac2	isMac	原名 isMac2 的末尾 2 是打包器去重后缀；恢复词干 isMac，该绑定表示macOS 平台状态布尔值。
-token2@47:26	token2	token	原名 token2 的末尾 2 是打包器去重后缀；恢复词干 token，该绑定表示令牌值。
-position2@79:13	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
-element2@107:13	element2	element	原名 element2 的末尾 2 是打包器去重后缀；恢复词干 element，该绑定表示DOM 元素。
+disabled2@21:13	disabled2	disabled	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+isMac2@26:9	isMac2	isMac	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+token2@47:26	token2	token	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@79:13	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@107:13	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
