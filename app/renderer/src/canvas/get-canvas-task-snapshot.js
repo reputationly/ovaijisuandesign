@@ -1,17 +1,17 @@
 // get-canvas-task-snapshot.js
 import { CanvasNodeType } from "../vendor.js";
 
-function isMonitorableNodeType(type2) {
+function isMonitorableNodeType(type) {
   return (
-    type2 === CanvasNodeType.Placeholder ||
-    type2 === CanvasNodeType.Image ||
-    type2 === CanvasNodeType.Video ||
-    type2 === CanvasNodeType.Audio
+    type === CanvasNodeType.Placeholder ||
+    type === CanvasNodeType.Image ||
+    type === CanvasNodeType.Video ||
+    type === CanvasNodeType.Audio
   );
 }
 
-function mediaTypeForNode(type2) {
-  switch (type2) {
+function mediaTypeForNode(type) {
+  switch (type) {
     case CanvasNodeType.Image:
       return "image";
     case CanvasNodeType.Video:
@@ -23,57 +23,57 @@ function mediaTypeForNode(type2) {
   }
 }
 
-function getComfyUiTaskSnapshot(node2) {
+function getComfyUiTaskSnapshot(node) {
   if (
-    node2.type !== CanvasNodeType.File ||
-    !node2.data ||
-    typeof node2.data !== "object"
+    node.type !== CanvasNodeType.File ||
+    !node.data ||
+    typeof node.data !== "object"
   )
     return null;
-  const data2 = node2.data;
-  if (data2.pluginId !== "comfyui") return null;
+  const data = node.data;
+  if (data.pluginId !== "comfyui") return null;
   const runningCount =
-    typeof data2.comfyuiRunSummary?.runningCount === "number"
-      ? Math.max(0, data2.comfyuiRunSummary.runningCount)
+    typeof data.comfyuiRunSummary?.runningCount === "number"
+      ? Math.max(0, data.comfyuiRunSummary.runningCount)
       : 0;
   const queuedCount =
-    typeof data2.comfyuiRunSummary?.queuedCount === "number"
-      ? Math.max(0, data2.comfyuiRunSummary.queuedCount)
+    typeof data.comfyuiRunSummary?.queuedCount === "number"
+      ? Math.max(0, data.comfyuiRunSummary.queuedCount)
       : 0;
   if (runningCount + queuedCount === 0) return null;
   const workflowName =
-    typeof data2.currentWorkflowName === "string"
-      ? data2.currentWorkflowName.trim()
+    typeof data.currentWorkflowName === "string"
+      ? data.currentWorkflowName.trim()
       : "";
   return {
-    id: node2.id,
+    id: node.id,
     label: workflowName || "ComfyUI workflow",
     detail: `${runningCount} running · ${queuedCount} queued`,
     status: "running",
   };
 }
 
-export function getCanvasTaskSnapshot(node2) {
-  const comfyUiTask = getComfyUiTaskSnapshot(node2);
+export function getCanvasTaskSnapshot(node) {
+  const comfyUiTask = getComfyUiTaskSnapshot(node);
   if (comfyUiTask) return comfyUiTask;
-  if (!isMonitorableNodeType(node2.type)) return null;
-  const data2 = node2.data;
+  if (!isMonitorableNodeType(node.type)) return null;
+  const data = node.data;
   if (
-    data2?.status !== "pending" &&
-    data2?.status !== "generating" &&
-    data2?.status !== "loading"
+    data?.status !== "pending" &&
+    data?.status !== "generating" &&
+    data?.status !== "loading"
   ) {
     return null;
   }
-  const status = data2.status;
-  const prompt = typeof data2.prompt === "string" ? data2.prompt.trim() : "";
-  const model = typeof data2.model === "string" ? data2.model.trim() : "";
+  const status = data.status;
+  const prompt = typeof data.prompt === "string" ? data.prompt.trim() : "";
+  const model = typeof data.model === "string" ? data.model.trim() : "";
   const mediaType =
-    typeof data2.mediaType === "string"
-      ? data2.mediaType
-      : mediaTypeForNode(node2.type);
+    typeof data.mediaType === "string"
+      ? data.mediaType
+      : mediaTypeForNode(node.type);
   return {
-    id: node2.id,
+    id: node.id,
     label: prompt || model || "Canvas generation",
     detail: model || void 0,
     status,
@@ -87,24 +87,24 @@ export function getCanvasTaskSnapshot(node2) {
           model,
         }
       : {}),
-    ...(typeof data2.model_id === "string"
+    ...(typeof data.model_id === "string"
       ? {
-          modelId: data2.model_id,
+          modelId: data.model_id,
         }
       : {}),
-    ...(typeof data2.backend === "string"
+    ...(typeof data.backend === "string"
       ? {
-          backend: data2.backend,
+          backend: data.backend,
         }
       : {}),
-    ...(typeof data2.cloudTaskId === "string"
+    ...(typeof data.cloudTaskId === "string"
       ? {
-          cloudTaskId: data2.cloudTaskId,
+          cloudTaskId: data.cloudTaskId,
         }
       : {}),
-    ...(typeof data2.providerTaskId === "string"
+    ...(typeof data.providerTaskId === "string"
       ? {
-          providerTaskId: data2.providerTaskId,
+          providerTaskId: data.providerTaskId,
         }
       : {}),
   };

@@ -236,11 +236,11 @@ export function CanvasRenderPolicyProvider({
   policy = DEFAULT_CANVAS_RENDER_POLICY,
   resumeEpoch = 0,
   onRecovery,
-  children: children2,
+  children,
 }) {
   const onRecoveryRef = reactExports.useRef(onRecovery);
   onRecoveryRef.current = onRecovery;
-  const scheduler2 = reactExports.useMemo(
+  const surfaceRecoveryScheduler = reactExports.useMemo(
     () =>
       new CanvasSurfaceRecoveryScheduler({
         maxPerFrame: policy.recoveryMaxPerFrame,
@@ -253,26 +253,26 @@ export function CanvasRenderPolicyProvider({
     [policy.recoveryFrameBudgetMs, policy.recoveryMaxPerFrame],
   );
   reactExports.useEffect(() => {
-    scheduler2.activate();
-    return () => scheduler2.dispose();
-  }, [scheduler2]);
+    surfaceRecoveryScheduler.activate();
+    return () => surfaceRecoveryScheduler.dispose();
+  }, [surfaceRecoveryScheduler]);
   reactExports.useEffect(() => {
     recordCanvasRenderPolicy(policy);
   }, [policy]);
   reactExports.useEffect(() => {
     recordCanvasResumeEpoch(resumeEpoch);
-    if (policy.recoverAfterResume) scheduler2.scheduleRecovery(resumeEpoch);
-  }, [policy.recoverAfterResume, resumeEpoch, scheduler2]);
+    if (policy.recoverAfterResume) surfaceRecoveryScheduler.scheduleRecovery(resumeEpoch);
+  }, [policy.recoverAfterResume, resumeEpoch, surfaceRecoveryScheduler]);
   const value = reactExports.useMemo(
     () => ({
       policy,
-      registerSurface: (registration) => scheduler2.register(registration),
+      registerSurface: (registration) => surfaceRecoveryScheduler.register(registration),
     }),
-    [policy, scheduler2],
+    [policy, surfaceRecoveryScheduler],
   );
   return (
     <CanvasRenderRuntimeContext.Provider value={value}>
-      {children2}
+      {children}
     </CanvasRenderRuntimeContext.Provider>
   );
 }

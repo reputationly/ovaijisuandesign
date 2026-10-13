@@ -178,11 +178,11 @@ export function RedrawIcon() {
     </CompositedSvg>
   );
 }
-export function SuperResolutionIcon({ size: size2 = 16 } = {}) {
+export function SuperResolutionIcon({ size = 16 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 20 20"
       fill="none"
       aria-hidden="true"
@@ -462,11 +462,11 @@ export function ExtractAudioIcon() {
 export function VoiceIsolateIcon() {
   return <Speech size={20} strokeWidth={1.5} aria-hidden="true" />;
 }
-export function GroupIcon({ size: size2 = 14 }) {
+export function GroupIcon({ size = 14 }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -479,11 +479,11 @@ export function GroupIcon({ size: size2 = 14 }) {
     </CompositedSvg>
   );
 }
-export function UngroupIcon({ size: size2 = 14 }) {
+export function UngroupIcon({ size = 14 }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 22 22"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -517,17 +517,17 @@ export function ToolbarSpinnerIcon() {
     />
   );
 }
-export function RenameIcon({ size: size2 = 14 }) {
-  return <Pencil size={size2} strokeWidth={1.75} aria-hidden="true" />;
+export function RenameIcon({ size = 14 }) {
+  return <Pencil size={size} strokeWidth={1.75} aria-hidden="true" />;
 }
 export function ImagePlaceholderIcon({
-  size: size2 = PLACEHOLDER_ICON_SIZE,
+  size = PLACEHOLDER_ICON_SIZE,
   className = PLACEHOLDER_ICON_CLASS,
 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 20 20"
       fill="currentColor"
       className={className}
