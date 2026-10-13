@@ -373,6 +373,22 @@ const DISMISS_STARTUP = `(()=>{
 // 让两边都渲染成空白，剩下的差异才反映我们自己的改动。本地图片不受影响（走 127.0.0.1 的 local-file）。
 // 打光预设缩略图来自远端展示 CDN、并非本地逻辑；屏蔽后两构建都会渲染相同回退。
 const BLOCKED_URLS = ["*cdn.hailuoai.com*", "*cdn.hailuoai.video*"];
+const SEEDED_DATE = `(() => {
+  const NativeDate = Date;
+  const epoch = NativeDate.UTC(2026, 9, 12, 4, 0, 0);
+  const elapsed = performance.now.bind(performance);
+  const now = () => Math.floor(epoch + elapsed());
+  const DateShim = new Proxy(NativeDate, {
+    apply() {
+      return new NativeDate(now()).toString();
+    },
+    construct(target, args, newTarget) {
+      return Reflect.construct(target, args.length ? args : [now()], newTarget);
+    },
+  });
+  Object.defineProperty(DateShim, "now", { configurable: true, value: now });
+  globalThis.Date = DateShim;
+})();`;
 // 推荐卡片用独立随机子流，避免 effect 顺序影响卡片，同时保留应用随机流的消耗顺序。
 const SEEDED_RANDOM = `(() => {
   const seed = 0x2545f491;
@@ -725,7 +741,7 @@ async function cdp(port) {
         // 挡掉封面 CDN 后会抛网络错误，这是预期内的，不算界面报错
         await send("Network.enable");
         await send("Network.setBlockedURLs", { urls: BLOCKED_URLS });
-        await send("Page.addScriptToEvaluateOnNewDocument", { source: SEEDED_RANDOM });
+        await send("Page.addScriptToEvaluateOnNewDocument", { source: `${SEEDED_DATE}\n${SEEDED_RANDOM}` });
         // 日志里的随机 ID（UUID）和耗时每次不同，规整掉再比，否则同一条报错两边永远对不上
         const visible = () => errors.filter((e) => !/cdn\.hailuoai\.(?:com|video)/.test(e)).map((e) => e.replace(UUID_PATTERN, "<uuid>").replace(/durationMs=\d+/g, "durationMs=<n>"));
         return {
