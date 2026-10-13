@@ -1,0 +1,25 @@
+key	新名	依据
+Brain$1@2:2996	VendorBrainIcon	`VendorBrainIcon` 是 vendor 模块导出的 Brain 图标别名；与媒体编辑模块的 Brain 图标区分，原导出名不变。
+Check$1@2:3016	VendorCheckIcon	`VendorCheckIcon` 是 vendor 模块中另一 Check 图标导出的本地别名，原导出名不变。
+ChevronDown$1@2:3042	ChevronDownVariantIcon	`ChevronDownVariantIcon` 是另一 vendor 下拉图标别名，与本文件已有的 ChevronDown 及 ChevronDownIcon 区分。
+CircleAlert$1@2:3074	CircleAlertVariantIcon	`CircleAlertVariantIcon` 是另一 CircleAlert 图标导出的本地别名，与已有 CircleAlert 区分。
+Clapperboard$1@2:3107	VendorClapperboardIcon	`VendorClapperboardIcon` 是 vendor 模块图标别名，与媒体编辑模块的 Clapperboard 区分。
+Download$1@2:3137	DownloadActionIcon	`DownloadActionIcon` 是 vendor 模块提供的下载操作图标别名，与其他 Download 图标区分。
+ExternalLink$1@2:3167	ExternalLinkActionIcon	`ExternalLinkActionIcon` 是 vendor 模块提供的外链操作图标别名，与已有 ExternalLink 区分。
+Eye$1@2:3192	EyeVariantIcon	`EyeVariantIcon` 是另一 vendor 眼睛图标别名，与已有 Eye 和 EyeIcon 区分。
+File$1@2:3209	VendorFileIcon	`VendorFileIcon` 是 vendor 模块导出的文件图标别名，与媒体编辑模块的 File 区分。
+Film$1@2:3227	VendorFilmIcon	`VendorFilmIcon` 是 vendor 模块导出的胶片图标别名，与媒体编辑模块的 Film 区分。
+FolderInput$1@2:3252	VendorFolderInputIcon	`VendorFolderInputIcon` 是 vendor 模块导出的文件夹导入图标别名，与媒体编辑模块的同名图标区分。
+Headphones$1@2:3283	VendorHeadphonesIcon	`VendorHeadphonesIcon` 是 vendor 模块导出的耳机图标别名，与媒体编辑模块的同名图标区分。
+Megaphone$1@2:3312	VendorMegaphoneIcon	`VendorMegaphoneIcon` 是 vendor 模块导出的扩音器图标别名，与媒体编辑模块的同名图标区分。
+Music$1@2:3336	MusicVariantIcon	`MusicVariantIcon` 是另一 vendor 音乐图标别名，与已有 Music 区分。
+Package$1@2:3358	VendorPackageIcon	`VendorPackageIcon` 是 vendor 模块导出的包裹图标别名，与媒体编辑模块的 Package 区分。
+Plus$1@2:3379	PlusVariantIcon	`PlusVariantIcon` 是另一 vendor 加号图标别名，与已有 Plus 区分。
+Search$1@2:3399	SearchVariantIcon	`SearchVariantIcon` 是另一 vendor 搜索图标别名，与已有 Search 和 SearchIcon 区分。
+Share2$1@2:3421	ShareVariantIcon	`ShareVariantIcon` 是 vendor 模块导出的分享图标别名；与本文件已有 Share2 区分，保留导出名。
+ShoppingBag$1@2:3448	VendorShoppingBagIcon	`VendorShoppingBagIcon` 是 vendor 模块导出的购物袋图标别名，与媒体编辑模块的同名图标区分。
+Square$1@2:3475	VendorSquareIcon	`VendorSquareIcon` 是 vendor 模块导出的方形图标别名，与媒体编辑模块的 Square 区分。
+Trash2$1@2:3497	VendorTrashIcon	`VendorTrashIcon` 是 vendor 模块导出的删除图标别名，与媒体编辑模块的 Trash2 区分。
+Video$1@2:3518	VideoVariantIcon	`VideoVariantIcon` 是另一 vendor 视频图标别名，与已有 Video 区分。
+Wrench$1@2:3539	VendorWrenchIcon	`VendorWrenchIcon` 是 vendor 模块导出的扳手图标别名，与媒体编辑模块的 Wrench 区分。
+t@4171:11	translate	`translate` 是项目图标目录查询显示文案的本地化函数。

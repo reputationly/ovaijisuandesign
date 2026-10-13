@@ -1,0 +1,36 @@
+key	新名	依据
+Button$2@2:71	PrimitiveButton	`PrimitiveButton` 是项目按钮包装组件使用的底层按钮；本地保留与包装组件不同的名称，导出名不变。
+cva@2:113	createVariantClassNames	`createVariantClassNames` 根据变体配置生成按钮类名。
+Pin$1@2:499	PinnedIcon	`PinnedIcon` 是固定项目行操作使用的图钉图标；仅调整本地别名，导出名不变。
+Button$1@3:20	DialogButton	`DialogButton` 是对话框模块导入的按钮，避免与本文件定义的按钮包装组件同名。
+cn@3:38	mergeClassNames	`mergeClassNames` 按来源实现合并并消解冲突的 CSS 类名。
+t@26:11	translate	`translate` 是页面图标诊断面板查询本地化文案的函数。
+id@33:11	animationFrameId	`animationFrameId` 是 requestAnimationFrame 返回并用于取消刷新的标识。
+ref@171:3	forwardedRef	`forwardedRef` 是 React forwardRef 提供并转交给 SVG 元素的 ref。
+LegacyRetryIcon2@169:58	LegacyRetryIconRenderer	`LegacyRetryIconRenderer` 是 LegacyRetryIcon 的内部转发渲染函数，避免遮蔽外层组件名。
+t@202:11	translate	`translate` 是旧版画布加载错误组件查询本地化文案的函数。
+t@362:32	translate	`translate` 是设置图标样例渲染回调接收的本地化函数。
+t@412:33	translate	`translate` 是诊断图标样例渲染回调接收的本地化函数。
+w@458:12	width	`width` 是解析后图标尺寸元组中的宽度值。
+h@458:15	height	`height` 是解析后图标尺寸元组中的高度值。
+x@467:9	offsetX	`offsetX` 是图标在预览矩形内居中时计算出的水平偏移。
+y@468:9	offsetY	`offsetY` 是图标在预览矩形内居中时计算出的垂直偏移。
+m@484:9	dimensionMatch	`dimensionMatch` 是尺寸文本正则匹配出的宽高内容。
+w@486:9	width	`width` 是从尺寸匹配结果解析出的数值宽度。
+h@487:9	height	`height` 是从尺寸匹配结果解析出的数值高度。
+s@529:11	sourceLine	`sourceLine` 是样例源码拆分出的待清理文本行。
+tok@531:22	token	`token` 是源码行切分后用于预览的单个语法标记。
+t@557:11	translate	`translate` 是当前图标样例组件查询本地化文案的函数。
+e@565:17	mouseEvent	`mouseEvent` 是预览样例按钮收到的点击事件。
+seg@583:28	segment	`segment` 是图标预览中用于绘制的一段样式或路径内容。
+i@583:33	segmentIndex	`segmentIndex` 是当前预览片段在数组中的位置。
+t@723:11	translate	`translate` 是侧边栏预览样例查询本地化文案的函数。
+to@953:5	destinationPath	`destinationPath` 是导航项指向的路由路径。
+handlePreview$1@1034:7	noopPreviewHandler	`noopPreviewHandler` 是由所有预览交互复用的空回调；名称按实际行为描述。
+t@1047:31	translate	`translate` 是侧边栏项目行样例渲染回调接收的本地化函数。
+t@1099:32	translate	`translate` 是侧边栏导航样例渲染回调接收的本地化函数。
+t@1179:31	translate	`translate` 是图钉操作样例渲染回调接收的本地化函数。
+Icon2@949:11	IconComponent	`IconComponent` 是从导航项记录中取出的图标组件。
+t@1314:31	translate	`translate` 是设置参数样例渲染回调接收的本地化函数。
+t@1337:31	translate	`translate` 是画布操作样例渲染回调接收的本地化函数。
+t@1395:11	translate	`translate` 是图标不透明度预览面板查询本地化文案的函数。
