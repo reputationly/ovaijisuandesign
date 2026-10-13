@@ -436,7 +436,7 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
     if (!stagingPath || !newName) return;
     if (needsAdaptationAfterRename) {
       setState("installing");
-      const fileExt2 = file ? detectSkillImportFileExt(file.name) : "other";
+      const fileExt = file ? detectSkillImportFileExt(file.name) : "other";
       try {
         const res = await gatewayFetch("/api/skills/import/confirm-staging", {
           method: "POST",
@@ -457,7 +457,7 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
             type: data.errorType,
           });
           trackSkillImportFailed({
-            fileExt: fileExt2,
+            fileExt,
             name: newName,
             error: new Error(data.error || "Install failed"),
             errorType: "business",
@@ -469,7 +469,7 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
         setState("needsAdaptation");
         trackSkillImport({
           skill_name: newName,
-          file_ext: fileExt2,
+          file_ext: fileExt,
           result: "renamed_adapt",
         });
       } catch (err) {
@@ -480,7 +480,7 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
           type: "network",
         });
         trackSkillImportFailed({
-          fileExt: fileExt2,
+          fileExt,
           name: newName,
           error: err,
           errorType: "network",

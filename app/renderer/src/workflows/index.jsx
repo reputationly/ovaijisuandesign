@@ -54,7 +54,7 @@ function WorkflowsPage() {
   const [detailWorkflow, setDetailWorkflow] = reactExports.useState(null);
   const importInputRef = reactExports.useRef(null);
   const inlineBrowserRef = reactExports.useRef(null);
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const query = useComfyWorkflows(activeTab);
   const { tasks: downloadTasks } = useComfyUiDownloadProgress();
   const hasActiveDownloads = downloadTasks.some(isActiveWorkflowDownloadTask);
@@ -134,7 +134,7 @@ function WorkflowsPage() {
       setImporting(true);
       const formData = new FormData();
       formData.append("file", file);
-      void gatewayFetch2(API_PATHS.comfyUiWorkflowImport, {
+      void gatewayFetch(API_PATHS.comfyUiWorkflowImport, {
         method: "POST",
         body: formData,
       })
@@ -156,7 +156,7 @@ function WorkflowsPage() {
         })
         .finally(() => setImporting(false));
     },
-    [gatewayFetch2, importing, t],
+    [gatewayFetch, importing, t],
   );
   const handleCreateBlankWorkflow = reactExports.useCallback(async () => {
     try {
@@ -296,7 +296,7 @@ function WorkflowsPage() {
             throw new Error(completed.error || "工作流仍有不可用模型");
           }
           stage = "workflow_install";
-          const response = await gatewayFetch2(API_PATHS.comfyUiWorkflowInstall(workflowId), {
+          const response = await gatewayFetch(API_PATHS.comfyUiWorkflowInstall(workflowId), {
             method: "POST",
           });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -312,12 +312,12 @@ function WorkflowsPage() {
         }
       })();
     },
-    [downloadWorkflow, gatewayFetch2, t],
+    [downloadWorkflow, gatewayFetch, t],
   );
   const handleDeleteWorkflow = reactExports.useCallback(
     async (workflow) => {
       try {
-        const response = await gatewayFetch2(API_PATHS.comfyUiWorkflowDelete(workflow.id), {
+        const response = await gatewayFetch(API_PATHS.comfyUiWorkflowDelete(workflow.id), {
           method: "DELETE",
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -335,7 +335,7 @@ function WorkflowsPage() {
         throw error;
       }
     },
-    [detailWorkflow?.id, gatewayFetch2, t],
+    [detailWorkflow?.id, gatewayFetch, t],
   );
   const handleOpenModelsFolder = reactExports.useCallback(() => {
     void homeService.comfyUiModelDownload.openModelsFolder().catch(() => {

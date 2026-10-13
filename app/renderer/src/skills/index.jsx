@@ -524,9 +524,9 @@ function SkillsPage() {
           force: true,
         });
         dedupedToast.success(t("skills.mine.offlineSuccess", "Skill 已下线"));
-      } catch (error2) {
+      } catch (error) {
         dedupedToast.error(
-          `${t("skills.mine.offlineError", "下线失败")}: ${error2 instanceof Error ? error2.message : String(error2)}`,
+          `${t("skills.mine.offlineError", "下线失败")}: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
     },

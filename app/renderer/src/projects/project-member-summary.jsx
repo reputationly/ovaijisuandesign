@@ -78,7 +78,7 @@ function useWindowedList(items, pageSize, resetKey) {
 }
 const VISIBLE_MEMBER_LIMIT = 2;
 const ProjectMemberSummary = reactExports.forwardRef(
-  function ProjectMemberSummary2(
+  function ProjectMemberSummary(
     { members, label, ariaLabel, ...buttonProps },
     ref,
   ) {
