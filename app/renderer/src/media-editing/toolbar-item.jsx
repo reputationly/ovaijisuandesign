@@ -5,7 +5,7 @@ import {
   ActionListSeparator,
   CompositedSvg,
   jsxRuntimeExports,
-  NodeToolbar$1,
+  NodeToolbar$1 as NodeToolbarPrimitive,
   Position,
   reactExports,
   useStore$3 as useStore,
@@ -32,13 +32,13 @@ import {
 } from "./package.jsx";
 const HEADER_FLOW_HEIGHT = 28;
 const TOOLBAR_GAP = 12;
-const zoomSelector = (s2) => s2.transform[2];
+const zoomSelector = (storeState) => storeState.transform[2];
 const TOOLBAR_ANIM_MS = 150;
 function useDelayedUnmount(visible, hidden) {
   const [shouldRender, setShouldRender] = reactExports.useState(
     visible && !hidden,
   );
-  const [state2, setState] = reactExports.useState(
+  const [state, setState] = reactExports.useState(
     visible ? "entering" : "exiting",
   );
   const timeoutRef = reactExports.useRef(null);
@@ -69,7 +69,7 @@ function useDelayedUnmount(visible, hidden) {
   }, [visible, hidden]);
   return {
     shouldRender,
-    state: state2,
+    state,
   };
 }
 function NewFeatureDot() {
@@ -99,7 +99,7 @@ function SubmenuChevron() {
     </CompositedSvg>
   );
 }
-function DropdownEntry({ child, isActive: isActive2 }) {
+function DropdownEntry({ child, isActive }) {
   if (child.renderSubmenu) {
     return (
       <DropdownMenuSub>
@@ -150,7 +150,7 @@ function DropdownEntry({ child, isActive: isActive2 }) {
         }}
         className="canvas-toolbar-menu-item"
         data-action-ui-id={`canvas.toolbar-menu-${child.id}`}
-        data-active={isActive2 || void 0}
+        data-active={isActive || void 0}
       >
         {child.icon && (
           <span className="canvas-toolbar-action-list-icon">
@@ -168,11 +168,11 @@ function DropdownEntry({ child, isActive: isActive2 }) {
     </Tooltip>
   );
 }
-function DropdownChildSlot({ child, isActive: isActive2, showSeparator }) {
+function DropdownChildSlot({ child, isActive, showSeparator }) {
   return (
     <>
       {showSeparator && <ActionListSeparator />}
-      <DropdownEntry child={child} isActive={isActive2} />
+      <DropdownEntry child={child} isActive={isActive} />
     </>
   );
 }
@@ -255,12 +255,12 @@ function ToolbarItem({ item, showSeparator }) {
                 />
               }
             >
-              {item.dropdownItems?.map((child, idx) => (
+              {item.dropdownItems?.map((child, dropdownChildIndex) => (
                 <DropdownChildSlot
                   key={child.id}
                   child={child}
                   isActive={item.activeChildId === child.id}
-                  showSeparator={!!child.separator && idx > 0}
+                  showSeparator={!!child.separator && dropdownChildIndex > 0}
                 />
               ))}
             </ActionListPanel>
@@ -300,12 +300,12 @@ function ToolbarItem({ item, showSeparator }) {
               />
             }
           >
-            {item.dropdownItems?.map((child, idx) => (
+            {item.dropdownItems?.map((child, dropdownChildIndex) => (
               <DropdownChildSlot
                 key={child.id}
                 child={child}
                 isActive={item.activeChildId === child.id}
-                showSeparator={!!child.separator && idx > 0}
+                showSeparator={!!child.separator && dropdownChildIndex > 0}
               />
             ))}
           </ActionListPanel>
@@ -340,12 +340,12 @@ function ToolbarItem({ item, showSeparator }) {
 }
 function NodeToolbarPalette({
   items,
-  state: state2 = "entering",
+  state = "entering",
   density = "standard",
 }) {
   if (items.length === 0) return null;
   const animation =
-    state2 === "entering"
+    state === "entering"
       ? `toolbar-fade-in ${TOOLBAR_ANIM_MS}ms ease-out`
       : `toolbar-fade-out ${TOOLBAR_ANIM_MS}ms ease-in forwards`;
   return (
@@ -359,11 +359,11 @@ function NodeToolbarPalette({
         data-canvas-chrome="true"
         onPointerDown={(event) => event.stopPropagation()}
       >
-        {items.map((item, i2) => (
+        {items.map((item, toolbarItemIndex) => (
           <ToolbarItem
             key={item.id}
             item={item}
-            showSeparator={item.separator && i2 > 0}
+            showSeparator={item.separator && toolbarItemIndex > 0}
           />
         ))}
       </ToolbarSurface>
@@ -371,31 +371,31 @@ function NodeToolbarPalette({
   );
 }
 function NodeToolbarInner({ items, visible, renderShell, density }) {
-  const zoom2 = useStore(zoomSelector);
+  const zoom = useStore(zoomSelector);
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
   const hidden = isDragging || isMultiSelect || isBoxSelecting;
-  const { shouldRender, state: state2 } = useDelayedUnmount(visible, hidden);
+  const { shouldRender, state } = useDelayedUnmount(visible, hidden);
   if (items.length === 0) return null;
   if (hidden) return null;
   if (!shouldRender) return null;
   const palette = (
-    <NodeToolbarPalette items={items} state={state2} density={density} />
+    <NodeToolbarPalette items={items} state={state} density={density} />
   );
   if (renderShell) {
     return <>{renderShell(palette)}</>;
   }
-  const offset2 = HEADER_FLOW_HEIGHT * zoom2 + TOOLBAR_GAP;
+  const offset = HEADER_FLOW_HEIGHT * zoom + TOOLBAR_GAP;
   return (
-    <NodeToolbar$1
+    <NodeToolbarPrimitive
       isVisible={true}
       position={Position.Top}
-      offset={offset2}
+      offset={offset}
       align="center"
     >
       {palette}
-    </NodeToolbar$1>
+    </NodeToolbarPrimitive>
   );
 }
 export const NodeToolbar = reactExports.memo(NodeToolbarInner);

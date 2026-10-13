@@ -1,0 +1,13 @@
+key	new	依据
+state2@13:10	state	编辑器 hook 当前持有的绘图工具状态对象。
+rafId2@16:9	rafId	等待编辑器挂载重试时申请的 requestAnimationFrame 编号。
+percent2@77:37	percent	按 0 到 100 范围输入的强度百分比。
+mode2@77:47	mode	选择马赛克或模糊半径范围的编辑模式。
+range2@78:9	range	当前编辑模式对应的强度数值范围配置。
+min2@85:30	min	强度范围允许的最小数值。
+max2@85:36	max	强度范围允许的最大数值。
+off@15:9	unsubscribe	移除编辑器 change 事件订阅的清理函数。
+s2@28:34	editorState	编辑器 change 回调传入的最新绘图状态。
+pct@79:9	percentage	将输入百分比限制在 0 到 100 后得到的数值。
+deg@88:32	degrees	待归一化的角度数值。
+a2@89:7	normalizedAngle	调整到 -180 到 180 度范围内的角度。

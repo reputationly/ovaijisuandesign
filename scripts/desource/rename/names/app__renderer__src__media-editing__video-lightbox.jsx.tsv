@@ -1,0 +1,13 @@
+key	new	依据
+length2@26:28	collectionLength	clampIndex 接收的视频条目总数；原名 length 会被识别为全局名。
+VideoLightbox2@74:57	VideoLightbox	渲染视频灯箱界面的 memoized 函数组件。
+active2@88:9	active	画布当前是否处于活动状态的布尔值。
+index2@93:10	index	当前灯箱显示的视频条目在列表中的索引。
+current2@100:9	currentVideoItem	按当前索引选出的活动视频条目，避免与索引更新回调中的 current 混淆。
+current22@132:15	current	视频列表索引状态更新回调收到的当前索引。
+current22@136:15	current	视频列表索引状态更新回调收到的当前索引。
+cn@20:10	mergeClassNames	合并 clsx 输入并用 Tailwind Merge 消除冲突类名的函数。
+t2@87:14	t	根据当前语言返回视频灯箱文案的翻译函数。
+e2@139:6	clickEvent	切换前后视频按钮收到并阻止冒泡的点击事件。
+e2@146:6	clickEvent	切换前后视频按钮收到并阻止冒泡的点击事件。
+e2@194:22	keyboardEvent	用于响应左右方向键切换视频的键盘事件。
