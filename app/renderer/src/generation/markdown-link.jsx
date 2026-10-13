@@ -70,7 +70,7 @@ import {
 } from "./use-astra-send-gate.js";
 import { joinFilePath } from "../assets/use-file-explorer-canvas-integration.js";
 import { MarkdownAudio } from "../media-editing/markdown-audio.jsx";
-import { Qs } from "../chat/qs.jsx";
+import { Qs } from "../chat/streamdown.jsx";
 function resolveMediaUrl(relativeUrl) {
   if (!relativeUrl) return void 0;
   if (/^https?:\/\//.test(relativeUrl)) return relativeUrl;
