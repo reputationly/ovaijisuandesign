@@ -25,3 +25,13 @@ e2@261:24	keyboardEvent	处理取消蒙版绘制的 Escape 键事件。
 e2@273:22	wheelEvent	阻止滚轮事件传递到画布缩放逻辑。
 e2@287:59	pointerEvent	记录按下位置是否位于遮罩背景本身。
 e2@291:6	clickEvent	处理点击遮罩背景取消蒙版绘制。
+index2@18:12	index	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“index”所表示的值。
+first2@68:14	first	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存待绘制笔划的起始坐标点。
+first22@43:18	activeLassoStartPoint	恢复 first 会与同函数后续分支的 first2@68:14 冲突；改为 activeLassoStartPoint，明确表示当前活动套索的起始坐标点。
+rest2@43:30	activeLassoRemainingPoints	恢复 rest 会与同函数后续分支的 rest@68:25 冲突；改为 activeLassoRemainingPoints，明确表示当前活动套索其余坐标点。
+first2@106:14	first	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存待绘制笔划的起始坐标点。
+meta2@118:9	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前图像的媒体元数据。
+last2@144:11	last	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存点列中的最后一个坐标点。
+point2@209:13	point	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存图像掩码笔划上的归一化坐标点。
+point2@222:13	point	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存图像掩码笔划上的归一化坐标点。
+node2@271:11	node	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前关联的画布节点对象。

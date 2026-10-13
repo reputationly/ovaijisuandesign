@@ -44,8 +44,8 @@ export class MosaicShape extends Shape {
       this.drawBrush(context, source, this.data);
     }
   }
-  drawRect(context, source, data2) {
-    const bounds = normalizeBounds(data2);
+  drawRect(context, source, data) {
+    const bounds = normalizeBounds(data);
     if (bounds.width <= 0 || bounds.height <= 0) return;
     context.save();
     context.beginPath();
@@ -54,8 +54,8 @@ export class MosaicShape extends Shape {
     context.drawImage(source, 0, 0);
     context.restore();
   }
-  drawBrush(context, source, data2) {
-    const { points, brushSize } = data2;
+  drawBrush(context, source, data) {
+    const { points, brushSize } = data;
     if (points.length === 0 || brushSize <= 0) return;
     const bounds = brushBounds(points, brushSize);
     if (bounds.width <= 0 || bounds.height <= 0) return;
@@ -80,13 +80,13 @@ export class MosaicShape extends Shape {
       tctx.moveTo(points[0].x - bounds.x, points[0].y - bounds.y);
       for (let pointIndex = 1; pointIndex < points.length - 1; pointIndex++) {
         const point = points[pointIndex];
-        const next2 = points[pointIndex + 1];
-        const midpointX = (point.x + next2.x) / 2;
-        const midpointY = (point.y + next2.y) / 2;
+        const next = points[pointIndex + 1];
+        const midpointX = (point.x + next.x) / 2;
+        const midpointY = (point.y + next.y) / 2;
         tctx.quadraticCurveTo(point.x - bounds.x, point.y - bounds.y, midpointX - bounds.x, midpointY - bounds.y);
       }
-      const last2 = points[points.length - 1];
-      tctx.lineTo(last2.x - bounds.x, last2.y - bounds.y);
+      const last = points[points.length - 1];
+      tctx.lineTo(last.x - bounds.x, last.y - bounds.y);
       tctx.stroke();
     }
     tctx.globalCompositeOperation = "source-over";

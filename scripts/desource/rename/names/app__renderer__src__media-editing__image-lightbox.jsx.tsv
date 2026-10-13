@@ -24,3 +24,13 @@ e2@285:6	doubleClickEvent	处理图片区域的双击缩放事件。
 img@289:15	imageElement	读取当前图片元素的自然尺寸和显示尺寸。
 id2@304:11	transitionTimeoutId	保存清除缩放过渡状态的定时器标识。
 e2@320:58	clickEvent	处理图片容器的点击事件。
+scale2@43:21	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存图片灯箱当前缩放比例。
+index2@56:10	index	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前灯箱媒体项的数组索引。
+ImageLightbox2@54:57	ImageLightboxView	原名 ImageLightbox 会遮蔽外层导出的 ImageLightbox@54:14，因此改为描述名 ImageLightboxView；此处实现灯箱视图组件。
+active2@64:9	active	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存画布当前是否处于活动状态。
+scale2@65:10	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存图片灯箱当前缩放比例。
+translate2@66:10	translate	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存图片拖拽平移的横纵偏移。
+current2@90:9	current	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前索引对应的灯箱媒体项。
+handleDoubleClick2@284:9	handleDoubleClick	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存双击图片时切换适配宽度和原始尺寸的处理函数。
+next2@233:13	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存按缩放下限计算出的下一缩放比例。
+image2@308:11	image	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存灯箱中当前显示的图像元素。

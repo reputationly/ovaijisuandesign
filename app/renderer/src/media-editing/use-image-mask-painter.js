@@ -15,8 +15,8 @@ function paintStrokes(
   fillStyle,
   activeStrokeIndex = -1,
 ) {
-  for (let index2 = 0; index2 < strokes.length; index2++) {
-    const stroke = strokes[index2];
+  for (let index = 0; index < strokes.length; index++) {
+    const stroke = strokes[index];
     if (stroke.points.length === 0) continue;
     if (stroke.mode === "rect") {
       if (stroke.points.length < 2) continue;
@@ -34,15 +34,15 @@ function paintStrokes(
       continue;
     }
     if (stroke.mode === "lasso") {
-      if (index2 === activeStrokeIndex) {
+      if (index === activeStrokeIndex) {
         if (stroke.points.length < 2) continue;
         context.save();
         context.globalCompositeOperation = "source-over";
         context.beginPath();
         {
-          const [first22, ...rest2] = stroke.points;
-          context.moveTo(first22.x * imagePxWidth, first22.y * imagePxHeight);
-          for (const point of rest2) {
+          const [activeLassoStartPoint, ...activeLassoRemainingPoints] = stroke.points;
+          context.moveTo(activeLassoStartPoint.x * imagePxWidth, activeLassoStartPoint.y * imagePxHeight);
+          for (const point of activeLassoRemainingPoints) {
             context.lineTo(point.x * imagePxWidth, point.y * imagePxHeight);
           }
         }
@@ -65,8 +65,8 @@ function paintStrokes(
       context.globalCompositeOperation = "source-over";
       context.fillStyle = fillStyle;
       context.beginPath();
-      const [first2, ...rest] = stroke.points;
-      context.moveTo(first2.x * imagePxWidth, first2.y * imagePxHeight);
+      const [first, ...rest] = stroke.points;
+      context.moveTo(first.x * imagePxWidth, first.y * imagePxHeight);
       for (const point of rest) {
         context.lineTo(point.x * imagePxWidth, point.y * imagePxHeight);
       }
@@ -103,8 +103,8 @@ function paintStrokes(
       context.fill();
     } else {
       context.beginPath();
-      const [first2, ...rest] = stroke.points;
-      context.moveTo(first2.x * imagePxWidth, first2.y * imagePxHeight);
+      const [first, ...rest] = stroke.points;
+      context.moveTo(first.x * imagePxWidth, first.y * imagePxHeight);
       for (const point of rest) {
         context.lineTo(point.x * imagePxWidth, point.y * imagePxHeight);
       }
@@ -115,7 +115,7 @@ function paintStrokes(
 }
 
 export function useImageMaskPainter({
-  meta: meta2,
+  meta,
   imagePos,
   onCancel,
   toolApi,
@@ -137,13 +137,13 @@ export function useImageMaskPainter({
   const lastDrawRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     const canvas = maskCanvasRef.current;
-    if (!canvas || !meta2 || !imagePos) return;
+    if (!canvas || !meta || !imagePos) return;
     const cssW = imagePos.w;
     const cssH = imagePos.h;
     if (cssW <= 0 || cssH <= 0) return;
-    const last2 = lastDrawRef.current;
+    const last = lastDrawRef.current;
     const sizeChanged =
-      !last2 || last2.cssW !== cssW || last2.cssH !== cssH || last2.dpr !== canvasPixelRatio;
+      !last || last.cssW !== cssW || last.cssH !== cssH || last.dpr !== canvasPixelRatio;
     const context = canvas.getContext("2d");
     if (!context) return;
     if (sizeChanged) {
@@ -159,7 +159,7 @@ export function useImageMaskPainter({
       };
     }
     context.clearRect(0, 0, cssW, cssH);
-    const brushScale = cssW / meta2.originalWidth;
+    const brushScale = cssW / meta.originalWidth;
     const strokes = selections.map((rect) => ({
       size: 0,
       mode: "rect",
@@ -193,7 +193,7 @@ export function useImageMaskPainter({
         context.restore();
       }
     }
-  }, [selections, draftSelection, imagePos, meta2, canvasPixelRatio, brushColor]);
+  }, [selections, draftSelection, imagePos, meta, canvasPixelRatio, brushColor]);
   const toNormalised = reactExports.useCallback((pointerEvent) => {
     const rect = paintRectRef.current?.getBoundingClientRect();
     if (!rect) return null;
@@ -206,23 +206,23 @@ export function useImageMaskPainter({
     (pointerEvent) => {
       if (!pointerEvent.isPrimary) return;
       if (pointerEvent.button !== 0) return;
-      const point2 = toNormalised(pointerEvent);
-      if (!point2) return;
+      const point = toNormalised(pointerEvent);
+      if (!point) return;
       pointerEvent.preventDefault();
       pointerEvent.stopPropagation();
       pointerEvent.currentTarget.setPointerCapture(pointerEvent.pointerId);
       paintingRef.current = true;
-      beginSelection(point2);
+      beginSelection(point);
     },
     [beginSelection, toNormalised],
   );
   const handlePointerMove = reactExports.useCallback(
     (pointerEvent) => {
       if (!pointerEvent.currentTarget.hasPointerCapture(pointerEvent.pointerId)) return;
-      const point2 = toNormalised(pointerEvent);
-      if (!point2) return;
+      const point = toNormalised(pointerEvent);
+      if (!point) return;
       pointerEvent.preventDefault();
-      extendSelection(point2);
+      extendSelection(point);
     },
     [extendSelection, toNormalised],
   );
@@ -268,16 +268,16 @@ export function useImageMaskPainter({
     return () => document.removeEventListener("keydown", handleKey, true);
   }, [onCancel]);
   reactExports.useEffect(() => {
-    const node2 = paintRectRef.current;
-    if (!node2) return;
+    const node = paintRectRef.current;
+    if (!node) return;
     const onWheel = (wheelEvent) => {
       wheelEvent.preventDefault();
       wheelEvent.stopPropagation();
     };
-    node2.addEventListener("wheel", onWheel, {
+    node.addEventListener("wheel", onWheel, {
       passive: false,
     });
-    return () => node2.removeEventListener("wheel", onWheel);
+    return () => node.removeEventListener("wheel", onWheel);
   }, []);
   const screenBrushPx = 0;
   const cursorStyle = {

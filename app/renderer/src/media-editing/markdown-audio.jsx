@@ -35,21 +35,21 @@ const BAR_COUNT = Math.floor(
 );
 const PLAYHEAD_COLOR = "var(--destructive)";
 let activeMarkdownAudio = null;
-function startExclusiveMarkdownAudio(next2) {
-  if (activeMarkdownAudio && activeMarkdownAudio !== next2) {
+function startExclusiveMarkdownAudio(next) {
+  if (activeMarkdownAudio && activeMarkdownAudio !== next) {
     activeMarkdownAudio.pause();
   }
-  activeMarkdownAudio = next2;
+  activeMarkdownAudio = next;
 }
-function clearExclusiveMarkdownAudio(current2) {
-  if (activeMarkdownAudio === current2) {
+function clearExclusiveMarkdownAudio(current) {
+  if (activeMarkdownAudio === current) {
     activeMarkdownAudio = null;
   }
 }
-function waveformHash(str2) {
+function waveformHash(str) {
   let hashValue = 5381;
-  for (let index = 0; index < str2.length; index++) {
-    hashValue = ((hashValue << 5) + hashValue + str2.charCodeAt(index)) | 0;
+  for (let index = 0; index < str.length; index++) {
+    hashValue = ((hashValue << 5) + hashValue + str.charCodeAt(index)) | 0;
   }
   return Math.abs(hashValue);
 }
@@ -60,13 +60,13 @@ function seededRandom(seed) {
     return randomState / 2147483647;
   };
 }
-function generateBars(name2, count2) {
-  const randomGenerator = seededRandom(waveformHash(name2));
-  const bars2 = [];
-  for (let index = 0; index < count2; index++) {
-    bars2.push(0.15 + randomGenerator() * 0.8);
+function generateBars(audioIdentity, count) {
+  const randomGenerator = seededRandom(waveformHash(audioIdentity));
+  const bars = [];
+  for (let index = 0; index < count; index++) {
+    bars.push(0.15 + randomGenerator() * 0.8);
   }
-  return bars2;
+  return bars;
 }
 function formatAudioTime(seconds) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -75,13 +75,13 @@ function formatAudioTime(seconds) {
   const remainderSeconds = total % 60;
   return `${minutes}:${remainderSeconds.toString().padStart(2, "0")}`;
 }
-const WaveformBars = reactExports.memo(function WaveformBars2({
-  bars: bars2,
+const WaveformBars = reactExports.memo(function WaveformBarsComponent({
+  bars,
   playedIndex,
 }) {
   return (
     <>
-      {bars2.map((ratio, index) => {
+      {bars.map((ratio, index) => {
         const barH = ratio * WAVEFORM_HEIGHT;
         const barX = index * (WAVEFORM_BAR_WIDTH + WAVEFORM_BAR_GAP);
         const barY = (WAVEFORM_HEIGHT - barH) / 2;
@@ -112,7 +112,7 @@ export function MarkdownAudio({
   dataSlot = "markdown-audio-chip",
 }) {
   const { t } = useTranslation();
-  const workspaceId2 = useCurrentWorkspace();
+  const workspaceId = useCurrentWorkspace();
   const audioRef = reactExports.useRef(null);
   const timeRef = reactExports.useRef(null);
   const playheadRef = reactExports.useRef(null);
@@ -121,7 +121,7 @@ export function MarkdownAudio({
   const [playing, setPlaying] = reactExports.useState(false);
   const [duration, setDuration] = reactExports.useState(0);
   const [playedIndex, setPlayedIndex] = reactExports.useState(-1);
-  const bars2 = reactExports.useMemo(
+  const bars = reactExports.useMemo(
     () => generateBars(alt || src, BAR_COUNT),
     [alt, src],
   );
@@ -141,22 +141,22 @@ export function MarkdownAudio({
   const dragSource = reactExports.useMemo(
     () => ({
       relativePath,
-      workspacePath: workspaceId2,
+      workspacePath: workspaceId,
       name: fileName,
       assetId: asset?.id,
     }),
-    [asset?.id, fileName, relativePath, workspaceId2],
+    [asset?.id, fileName, relativePath, workspaceId],
   );
   const canDrag = canWriteResourceDragData(dragSource);
-  const hasCanvasNode = useHasAssetOnCanvas(asset?.id, workspaceId2);
+  const hasCanvasNode = useHasAssetOnCanvas(asset?.id, workspaceId);
   const handleError = reactExports.useCallback(() => setError(true), []);
   const handleLoadedMetadata = reactExports.useCallback(() => {
     const audioElement = audioRef.current;
     if (audioElement) setDuration(audioElement.duration);
   }, []);
-  const updateTimeDisplay = reactExports.useCallback((current2, total) => {
+  const updateTimeDisplay = reactExports.useCallback((current, total) => {
     if (timeRef.current) {
-      timeRef.current.textContent = `${formatAudioTime(current2)} / ${formatAudioTime(total)}`;
+      timeRef.current.textContent = `${formatAudioTime(current)} / ${formatAudioTime(total)}`;
     }
   }, []);
   reactExports.useEffect(() => {
@@ -255,11 +255,11 @@ export function MarkdownAudio({
     [duration, updateTimeDisplay],
   );
   const handleLocate = reactExports.useCallback(() => {
-    if (!asset?.id || !workspaceId2) return;
-    const nodeIds = getNodeIdsForAsset(asset.id, workspaceId2);
+    if (!asset?.id || !workspaceId) return;
+    const nodeIds = getNodeIdsForAsset(asset.id, workspaceId);
     if (nodeIds.length === 0) return;
-    workspaceEvents.fireCanvasFocus(workspaceId2, nodeIds);
-  }, [asset?.id, workspaceId2]);
+    workspaceEvents.fireCanvasFocus(workspaceId, nodeIds);
+  }, [asset?.id, workspaceId]);
   const handleDragStart = reactExports.useCallback(
     (event) => {
       if (!writeResourceDragData(event, dragSource)) event.preventDefault();
@@ -349,7 +349,7 @@ export function MarkdownAudio({
           }}
           onClick={handleSeek}
         >
-          <WaveformBars bars={bars2} playedIndex={playedIndex} />
+          <WaveformBars bars={bars} playedIndex={playedIndex} />
           <rect
             ref={playheadRef}
             x={0}

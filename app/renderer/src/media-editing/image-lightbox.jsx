@@ -40,8 +40,8 @@ function isLightboxCopyShortcut(event) {
     (event.metaKey || event.ctrlKey) && !event.altKey && event.code === "KeyC"
   );
 }
-function clampScale(scale2) {
-  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale2));
+function clampScale(scale) {
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
 }
 function getWheelZoomScale(currentScale, event) {
   if (!Number.isFinite(currentScale) || currentScale <= 0) return 1;
@@ -51,9 +51,9 @@ function getWheelZoomScale(currentScale, event) {
     currentScale * Math.exp(-clampedDelta * WHEEL_ZOOM_SENSITIVITY),
   );
 }
-export const ImageLightbox = reactExports.memo(function ImageLightbox2({
+export const ImageLightbox = reactExports.memo(function ImageLightboxView({
   items,
-  index: index2,
+  index,
   onIndexChange,
   alt,
   onClose,
@@ -61,9 +61,9 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
   onSplitToNode,
 }) {
   const { t } = useTranslation();
-  const active2 = useCanvasActive();
-  const [scale2, setScale] = reactExports.useState(1);
-  const [translate2, setTranslate] = reactExports.useState({
+  const active = useCanvasActive();
+  const [scale, setScale] = reactExports.useState(1);
+  const [translate, setTranslate] = reactExports.useState({
     x: 0,
     y: 0,
   });
@@ -81,14 +81,14 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     y: 0,
   });
   const didDragRef = reactExports.useRef(false);
-  const scaleRef = reactExports.useRef(scale2);
-  const translateRef = reactExports.useRef(translate2);
-  scaleRef.current = scale2;
-  translateRef.current = translate2;
+  const scaleRef = reactExports.useRef(scale);
+  const translateRef = reactExports.useRef(translate);
+  scaleRef.current = scale;
+  translateRef.current = translate;
   const total = items.length;
   const isMulti = total > 1;
-  const current2 = items[index2];
-  const src = current2?.url ?? "";
+  const current = items[index];
+  const src = current?.url ?? "";
   const downloadLabel = t("canvas.lightbox.downloadCurrent");
   const downloadAllLabel = t("canvas.lightbox.downloadAll");
   const showInFolderLabel = t(getCanvasFileManagerLabelKey());
@@ -106,7 +106,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     handleContextMenu,
     contextMenu,
   } = useLightboxMediaActions({
-    item: current2,
+    item: current,
     items,
   });
   const hasActionButtons =
@@ -129,12 +129,12 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
   );
   const goPrev = reactExports.useCallback(() => {
     if (total <= 1) return;
-    onIndexChange((index2 - 1 + total) % total);
-  }, [index2, total, onIndexChange]);
+    onIndexChange((index - 1 + total) % total);
+  }, [index, total, onIndexChange]);
   const goNext = reactExports.useCallback(() => {
     if (total <= 1) return;
-    onIndexChange((index2 + 1) % total);
-  }, [index2, total, onIndexChange]);
+    onIndexChange((index + 1) % total);
+  }, [index, total, onIndexChange]);
   const handlePrevClick = reactExports.useCallback(
     (clickEvent) => {
       clickEvent.stopPropagation();
@@ -150,7 +150,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     [goNext],
   );
   reactExports.useEffect(() => {
-    if (!isMulti || !active2) return;
+    if (!isMulti || !active) return;
     const handler = (keyboardEvent) => {
       if (keyboardEvent.key === "ArrowLeft") {
         keyboardEvent.preventDefault();
@@ -164,9 +164,9 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [isMulti, active2, goPrev, goNext]);
+  }, [isMulti, active, goPrev, goNext]);
   reactExports.useEffect(() => {
-    if (!active2 || !canCopy) return;
+    if (!active || !canCopy) return;
     const handler = (keyboardEvent) => {
       if (!isLightboxCopyShortcut(keyboardEvent)) return;
       keyboardEvent.preventDefault();
@@ -175,9 +175,9 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     };
     document.addEventListener("keydown", handler, true);
     return () => document.removeEventListener("keydown", handler, true);
-  }, [active2, canCopy, handleCopyImage]);
+  }, [active, canCopy, handleCopyImage]);
   reactExports.useEffect(() => {
-    if (!active2 || !canCopy) return;
+    if (!active || !canCopy) return;
     const handler = (copyEvent) => {
       copyEvent.preventDefault();
       copyEvent.stopPropagation();
@@ -185,7 +185,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     };
     document.addEventListener("copy", handler, true);
     return () => document.removeEventListener("copy", handler, true);
-  }, [active2, canCopy, handleCopyImage]);
+  }, [active, canCopy, handleCopyImage]);
   reactExports.useEffect(() => {
     setScale(1);
     setTranslate({
@@ -193,7 +193,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
       y: 0,
     });
     setTransitioning(false);
-  }, [index2, src]);
+  }, [index, src]);
   const handleWheel = reactExports.useCallback((wheelEvent) => {
     wheelEvent.preventDefault();
     wheelEvent.stopPropagation();
@@ -230,15 +230,15 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     clickEvent.stopPropagation();
     setTransitioning(true);
     setScale((currentScale) => {
-      const next2 = Math.max(MIN_SCALE, currentScale / BUTTON_ZOOM_FACTOR);
-      if (next2 <= 1) {
+      const next = Math.max(MIN_SCALE, currentScale / BUTTON_ZOOM_FACTOR);
+      if (next <= 1) {
         setTranslate({
           x: 0,
           y: 0,
         });
         return 1;
       }
-      return next2;
+      return next;
     });
   }, []);
   const handleResetZoom = reactExports.useCallback((clickEvent) => {
@@ -281,11 +281,11 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     draggingRef.current = false;
     pointerEvent.target.releasePointerCapture(pointerEvent.pointerId);
   }, []);
-  const handleDoubleClick2 = reactExports.useCallback(
+  const handleDoubleClick = reactExports.useCallback(
     (doubleClickEvent) => {
       doubleClickEvent.stopPropagation();
       setTransitioning(true);
-      if (scale2 === 1) {
+      if (scale === 1) {
         const imageElement = imgRef.current;
         if (!imageElement) return;
         setScale(imageElement.naturalWidth / imageElement.width);
@@ -297,7 +297,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
         y: 0,
       });
     },
-    [scale2],
+    [scale],
   );
   reactExports.useEffect(() => {
     if (!transitioning) return;
@@ -305,16 +305,16 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     return () => clearTimeout(transitionTimeoutId);
   }, [transitioning]);
   reactExports.useEffect(() => {
-    const image2 = imgRef.current;
-    if (!image2 || typeof ResizeObserver === "undefined") return;
+    const image = imgRef.current;
+    if (!image || typeof ResizeObserver === "undefined") return;
     const updateHeaderLayout = (width) => {
       setIsCompactHeader(width < COMPACT_HEADER_MAX_WIDTH_PX);
     };
-    if (image2.clientWidth > 0) updateHeaderLayout(image2.clientWidth);
+    if (image.clientWidth > 0) updateHeaderLayout(image.clientWidth);
     const resizeObserver = new ResizeObserver(([entry]) => {
-      updateHeaderLayout(entry?.contentRect.width ?? image2.clientWidth);
+      updateHeaderLayout(entry?.contentRect.width ?? image.clientWidth);
     });
-    resizeObserver.observe(image2);
+    resizeObserver.observe(image);
     return () => resizeObserver.disconnect();
   }, []);
   const handleContainerClick = reactExports.useCallback((clickEvent) => {
@@ -324,10 +324,10 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
   }, []);
   const cursor = draggingRef.current
     ? "grabbing"
-    : scale2 > 1
+    : scale > 1
       ? "grab"
       : "default";
-  const scalePercent = `${Math.round(scale2 * 100)}%`;
+  const scalePercent = `${Math.round(scale * 100)}%`;
   return (
     <MediaLightbox
       onClose={onClose}
@@ -380,7 +380,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onDoubleClick={handleDoubleClick2}
+          onDoubleClick={handleDoubleClick}
           onClick={handleContainerClick}
         >
           {isMulti && (
@@ -388,7 +388,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
               className={`pointer-events-none absolute right-0 bottom-full z-50 whitespace-nowrap px-1 text-[11px] text-white/60 tabular-nums ${isCompactHeader ? "mb-14" : "mb-3"}`}
               data-action-ui-id="canvas.image-lightbox.counter"
             >
-              {index2 + 1}
+              {index + 1}
               {" / "}
               {total}
             </div>
@@ -399,7 +399,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
             alt={alt}
             className="relative z-0 max-w-[80vw] max-h-[calc(80vh-5.5rem)] object-contain rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.5)] select-none"
             style={{
-              transform: `translate(${translate2.x}px, ${translate2.y}px) scale(${scale2})`,
+              transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
               transition: transitioning ? "transform 0.2s ease-out" : "none",
             }}
             draggable={false}

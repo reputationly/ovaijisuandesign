@@ -22,3 +22,14 @@ a2@215:11	audioElement	读取需要暂停或开始播放的 audio DOM 元素。
 e2@233:6	clickEvent	接收用户点击波形并定位播放位置的事件。
 a2@234:13	audioElement	读取用于设置播放位置的 audio DOM 元素。
 p3@237:13	progressRatio	计算点击位置在波形总宽度中的归一化比例。
+next2@38:38	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前播放的 Markdown 音频元素。
+current2@44:38	current	去掉打包器为避免重名添加的数字后缀并恢复原名；此处接收当前 HTMLAudioElement，以判断是否清除独占播放引用。
+str2@49:23	str	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存计算波形哈希时使用的字符串。
+name2@63:23	audioIdentity	原名 name 被工具识别为全局名，因此按用途改为 audioIdentity；此处接收音频替代文本或资源地址以生成稳定的波形数据。
+count2@63:30	count	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存需要生成的波形条数量。
+bars2@65:9	bars	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存由音频标识确定的波形条高度比例列表。
+bars2@79:9	bars	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存由音频标识确定的波形条高度比例列表。
+WaveformBars2@78:49	WaveformBarsComponent	原名 WaveformBars 会遮蔽外层 WaveformBars@78:7 组件绑定，因此改为描述名 WaveformBarsComponent；此处将波形比例渲染成 SVG 条形。
+workspaceId2@115:9	workspaceId	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前工作区 ID。
+bars2@124:9	bars	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存由音频标识确定的波形条高度比例列表。
+current2@157:55	current	去掉打包器为避免重名添加的数字后缀并恢复原名；此处接收播放器当前时间，用于更新时间文本。

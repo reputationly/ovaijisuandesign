@@ -72,8 +72,8 @@ function frameSessionId(messageFrame) {
     ? messageFrame.session_id
     : "";
 }
-function withCode(err, code2) {
-  err.code = code2;
+function withCode(err, code) {
+  err.code = code;
   return err;
 }
 function assertPluginChatSubmissionAllowed() {
@@ -131,13 +131,13 @@ function recordLatePluginFrameAfterTimeout(
     ),
   ).catch(() => {});
 }
-export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
+export function usePluginChatBridge(gatewayFetch, webSocket, sessionStore) {
   const wsRef = reactExports.useRef(webSocket);
   wsRef.current = webSocket;
   const sessionStoreRef = reactExports.useRef(sessionStore);
   sessionStoreRef.current = sessionStore;
-  const gatewayFetchRef = reactExports.useRef(gatewayFetch2);
-  gatewayFetchRef.current = gatewayFetch2;
+  const gatewayFetchRef = reactExports.useRef(gatewayFetch);
+  gatewayFetchRef.current = gatewayFetch;
   const messageSubscribersRef = reactExports.useRef(new Set());
   const doneSubscribersRef = reactExports.useRef(new Set());
   const pendingSessionCreatesRef = reactExports.useRef(new Map());
@@ -158,28 +158,28 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
   }, []);
   const hasPendingPluginDeliveryForSession = reactExports.useCallback(
     (sessionId) => {
-      for (const pending2 of pendingPluginMessageDeliveriesRef.current.values()) {
-        if (pending2.sessionId === sessionId) return true;
+      for (const pending of pendingPluginMessageDeliveriesRef.current.values()) {
+        if (pending.sessionId === sessionId) return true;
       }
       return false;
     },
     [],
   );
   const clearPluginDelivery = reactExports.useCallback((clientMessageId) => {
-    const pending2 =
+    const pending =
       pendingPluginMessageDeliveriesRef.current.get(clientMessageId);
-    if (!pending2) return false;
-    clearTimeout(pending2.timer);
+    if (!pending) return false;
+    clearTimeout(pending.timer);
     pendingPluginMessageDeliveriesRef.current.delete(clientMessageId);
     return true;
   }, []);
   const clearPluginDeliveriesForSession = reactExports.useCallback(
     (sessionId) => {
-      for (const pending2 of pendingPluginMessageDeliveriesRef.current.values()) {
-        if (pending2.sessionId !== sessionId) continue;
-        clearTimeout(pending2.timer);
+      for (const pending of pendingPluginMessageDeliveriesRef.current.values()) {
+        if (pending.sessionId !== sessionId) continue;
+        clearTimeout(pending.timer);
         pendingPluginMessageDeliveriesRef.current.delete(
-          pending2.clientMessageId,
+          pending.clientMessageId,
         );
       }
     },
@@ -227,21 +227,21 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
     },
     [],
   );
-  const clearPendingSessionRequests = reactExports.useCallback((message2) => {
-    const pending2 = [...pendingSessionCreatesRef.current.values()];
+  const clearPendingSessionRequests = reactExports.useCallback((message) => {
+    const pending = [...pendingSessionCreatesRef.current.values()];
     pendingSessionCreatesRef.current.clear();
-    for (const request of pending2) {
+    for (const request of pending) {
       clearTimeout(request.timer);
-      request.reject(withCode(new Error(message2), "not_available"));
+      request.reject(withCode(new Error(message), "not_available"));
     }
   }, []);
   const schedulePluginMessageDeliveryTimeout = reactExports.useCallback(
     (sessionId, clientMessageId, expectedStatus, timeoutMs) => {
       clearPluginDelivery(clientMessageId);
-      const timer2 = setTimeout(() => {
-        const pending2 =
+      const timer = setTimeout(() => {
+        const pending =
           pendingPluginMessageDeliveriesRef.current.get(clientMessageId);
-        if (!pending2 || pending2.status !== expectedStatus) return;
+        if (!pending || pending.status !== expectedStatus) return;
         pendingPluginMessageDeliveriesRef.current.delete(clientMessageId);
         const timeoutStage =
           expectedStatus === "sent" ? "bridge_error" : "runtime_timeout";
@@ -276,7 +276,7 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
         sessionId,
         clientMessageId,
         status: expectedStatus,
-        timer: timer2,
+        timer,
       });
     },
     [
@@ -327,12 +327,12 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
   );
   const clearReceivedPluginDeliveriesForSession = reactExports.useCallback(
     (sessionId) => {
-      for (const pending2 of pendingPluginMessageDeliveriesRef.current.values()) {
+      for (const pending of pendingPluginMessageDeliveriesRef.current.values()) {
         if (
-          pending2.sessionId === sessionId &&
-          (pending2.status === "received" || pending2.status === "accepted")
+          pending.sessionId === sessionId &&
+          (pending.status === "received" || pending.status === "accepted")
         ) {
-          clearPluginDelivery(pending2.clientMessageId);
+          clearPluginDelivery(pending.clientMessageId);
         }
       }
     },
@@ -345,22 +345,22 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
       const sessionId = frameSessionId(messageFrame);
       if (messageFrame.type === "session_created") {
         if (!messageFrame.request_id) return;
-        const pending2 = pendingSessionCreatesRef.current.get(messageFrame.request_id);
-        if (!pending2) return;
+        const pending = pendingSessionCreatesRef.current.get(messageFrame.request_id);
+        if (!pending) return;
         pendingSessionCreatesRef.current.delete(messageFrame.request_id);
-        clearTimeout(pending2.timer);
-        pending2.resolve(messageFrame.session_id);
+        clearTimeout(pending.timer);
+        pending.resolve(messageFrame.session_id);
         return;
       }
       if (!sessionId) return;
       if (messageFrame.type === "message_received") {
-        const pending2 = pendingPluginMessageDeliveriesRef.current.get(
+        const pending = pendingPluginMessageDeliveriesRef.current.get(
           messageFrame.client_message_id,
         );
         if (
-          !pending2 ||
-          pending2.sessionId !== messageFrame.session_id ||
-          pending2.status !== "sent"
+          !pending ||
+          pending.sessionId !== messageFrame.session_id ||
+          pending.status !== "sent"
         ) {
           const timedOut = timedOutPluginMessageDeliveriesRef.current.get(
             messageFrame.client_message_id,
@@ -381,10 +381,10 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
         return;
       }
       if (messageFrame.type === "message_accepted") {
-        const pending2 = pendingPluginMessageDeliveriesRef.current.get(
+        const pending = pendingPluginMessageDeliveriesRef.current.get(
           messageFrame.client_message_id,
         );
-        if (!pending2 || pending2.sessionId !== sessionId) {
+        if (!pending || pending.sessionId !== sessionId) {
           const timedOut = timedOutPluginMessageDeliveriesRef.current.get(
             messageFrame.client_message_id,
           );
@@ -397,10 +397,10 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
         return;
       }
       if (messageFrame.type === "message_started") {
-        const pending2 = pendingPluginMessageDeliveriesRef.current.get(
+        const pending = pendingPluginMessageDeliveriesRef.current.get(
           messageFrame.client_message_id,
         );
-        if (!pending2 || pending2.sessionId !== sessionId) {
+        if (!pending || pending.sessionId !== sessionId) {
           const timedOut = timedOutPluginMessageDeliveriesRef.current.get(
             messageFrame.client_message_id,
           );
@@ -418,7 +418,7 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
           recordLatePluginFrameAfterTimeout(timedOut, messageFrame.type);
         }
         clearReceivedPluginDeliveriesForSession(sessionId);
-        const env2 = {
+        const env = {
           sessionId,
           kind: messageFrame.type,
           text: extractText(messageFrame),
@@ -427,7 +427,7 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
         };
         for (const subscriberCallback of messageSubscribersRef.current) {
           try {
-            subscriberCallback(env2);
+            subscriberCallback(env);
           } catch (err) {
             console.error("[plugin-chat] message subscriber threw", err);
           }
@@ -435,10 +435,10 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
         return;
       }
       if (messageFrame.type === "message_failed") {
-        const pending2 = pendingPluginMessageDeliveriesRef.current.get(
+        const pending = pendingPluginMessageDeliveriesRef.current.get(
           messageFrame.client_message_id,
         );
-        if (!pending2 || pending2.sessionId !== sessionId) {
+        if (!pending || pending.sessionId !== sessionId) {
           const timedOut = timedOutPluginMessageDeliveriesRef.current.get(
             messageFrame.client_message_id,
           );
@@ -513,8 +513,8 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
         );
       }
     }
-    return sessionStore.subscribe((state2) => {
-      const live = state2.sessions;
+    return sessionStore.subscribe((state) => {
+      const live = state.sessions;
       for (const sessionId of pluginOwnedSessionsRef.current) {
         if (!live.has(sessionId)) {
           pluginOwnedSessionsRef.current.delete(sessionId);
@@ -535,8 +535,8 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
       clearPendingSessionRequests(
         "hub.chat: bridge unmounted before create_session completed",
       );
-      for (const pending2 of pendingPluginMessageDeliveriesRef.current.values()) {
-        clearTimeout(pending2.timer);
+      for (const pending of pendingPluginMessageDeliveriesRef.current.values()) {
+        clearTimeout(pending.timer);
       }
       pendingPluginMessageDeliveriesRef.current.clear();
       timedOutPluginMessageDeliveriesRef.current.clear();
@@ -558,7 +558,7 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
     }
     const requestId = crypto.randomUUID();
     return new Promise((resolve, reject) => {
-      const timer2 = setTimeout(() => {
+      const timer = setTimeout(() => {
         pendingSessionCreatesRef.current.delete(requestId);
         reject(
           withCode(
@@ -570,7 +570,7 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
       pendingSessionCreatesRef.current.set(requestId, {
         resolve,
         reject,
-        timer: timer2,
+        timer,
       });
       const isCreateRequestSent = wsRef.current.send({
         type: "create_session",
@@ -583,7 +583,7 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
           : {}),
       });
       if (!isCreateRequestSent) {
-        clearTimeout(timer2);
+        clearTimeout(timer);
         pendingSessionCreatesRef.current.delete(requestId);
         reject(
           withCode(new Error("hub.chat: WS not connected"), "not_available"),
@@ -593,10 +593,10 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
   }, []);
   const sendChatMessage = reactExports.useCallback(
     async (args, callContext) => {
-      const content2 = typeof args.content === "string" ? args.content : "";
+      const content = typeof args.content === "string" ? args.content : "";
       const attachments = args.attachments ?? [];
       const canvasNodeAttachments = args.canvasNodeAttachments ?? [];
-      if (!content2.trim() && attachments.length === 0) {
+      if (!content.trim() && attachments.length === 0) {
         throw withCode(
           new Error("hub.chat: content or attachments required"),
           "invalid_args",
@@ -635,7 +635,7 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
           id: messageId,
           role: "user",
           type: "text",
-          content: content2,
+          content,
           attachments: chatAttachments,
         },
         sessionId,
@@ -660,10 +660,10 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
           }
         : void 0;
       const clientMessageId = crypto.randomUUID();
-      const sender = (message2) => wsRef.current.send(message2);
+      const sender = (message) => wsRef.current.send(message);
       const isChatMessageSent = accountScopedMessage.send("chat", sender, {
         type: "message",
-        content: content2,
+        content,
         agent_type: args.agentType ?? "general",
         attachments: attachments.length > 0 ? attachments : void 0,
         canvas_node_attachments:
@@ -687,7 +687,7 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
       markPluginMessageDeliverySent(sessionId, clientMessageId);
       trackEvent(TRACK_EVENTS.CHAT_MESSAGE_SEND, {
         session_id: sessionId,
-        text_length: content2.length,
+        text_length: content.length,
         attachment_count: attachments.length,
       });
       return {
@@ -739,7 +739,7 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
       doneSubscribersRef.current.delete(doneCallback);
     };
   }, []);
-  const fetchSkills2 = reactExports.useCallback(async () => {
+  const fetchSkills = reactExports.useCallback(async () => {
     if (skillsInFlightRef.current) return skillsInFlightRef.current;
     const skillsFetchPromise = (async () => {
       try {
@@ -750,13 +750,13 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
             "not_available",
           );
         }
-        const data2 = await resp.json();
-        const list2 = Array.isArray(data2) ? data2.map(mapSkillBrief) : [];
+        const data = await resp.json();
+        const list = Array.isArray(data) ? data.map(mapSkillBrief) : [];
         skillCacheRef.current = {
           at: Date.now(),
-          list: list2,
+          list,
         };
-        return list2;
+        return list;
       } finally {
         skillsInFlightRef.current = null;
       }
@@ -769,12 +769,12 @@ export function usePluginChatBridge(gatewayFetch2, webSocket, sessionStore) {
     if (cached && Date.now() - cached.at < SKILL_CACHE_TTL_MS) {
       return cached.list;
     }
-    return fetchSkills2();
-  }, [fetchSkills2]);
+    return fetchSkills();
+  }, [fetchSkills]);
   const getSkill = reactExports.useCallback(
-    async (name2) => {
-      const list2 = await listSkills();
-      return list2.find((skill) => skill.name === name2) ?? null;
+    async (skillName) => {
+      const list = await listSkills();
+      return list.find((skill) => skill.name === skillName) ?? null;
     },
     [listSkills],
   );
