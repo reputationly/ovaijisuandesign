@@ -1,6 +1,6 @@
 key	old	new	依据
-a2@365:14	a2	leftEntry	结合所在函数体的实际用途命名，说明该绑定持有的 leftEntry。
-b3@365:18	b3	rightEntry	结合所在函数体的实际用途命名，说明该绑定持有的 rightEntry。
+a2@365:14	a2	leftEntry	最近工作区排序比较中的左侧条目，包含优先级和原始索引。
+b3@365:18	b3	rightEntry	最近工作区排序比较中的右侧条目，包含优先级和原始索引。
 entries2@145:14	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
 index2@360:19	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
 index2@374:11	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
@@ -43,12 +43,12 @@ previous2@944:27	previous2	previous	去掉打包器防重名追加的后缀，�
 previous2@984:29	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
 previous2@985:29	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
 previous2@999:34	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
-project2@375:16	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
+project2@375:16	project2	project	从项目列表中读取或展示的项目对象。
 queryClient2@142:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
 selected2@1298:21	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
 snapshot2@823:13	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
 t2@135:14	t2	translate	useTranslation 返回的翻译函数。
 token2@170:11	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
-workspaceId2@350:13	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
-workspaceId2@505:13	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
-workspaceId2@913:17	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
+workspaceId2@350:13	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId2@505:13	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId2@913:17	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。

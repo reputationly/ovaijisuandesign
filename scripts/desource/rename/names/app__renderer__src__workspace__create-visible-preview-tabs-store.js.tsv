@@ -17,6 +17,6 @@ tab2@268:10	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab�
 tab2@271:10	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
 values3@33:27	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
 values3@72:11	values3	values	去掉打包器防重名追加的后缀，恢复原名 values，即该绑定持有的值。
-workspaceId2@21:9	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
-workspaceId2@235:15	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
-workspaceId22@12:11	workspaceId22	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
+workspaceId2@21:9	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId2@235:15	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId22@12:11	workspaceId22	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。

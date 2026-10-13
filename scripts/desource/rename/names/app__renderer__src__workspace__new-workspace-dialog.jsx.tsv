@@ -1,14 +1,14 @@
 key	old	new	依据
 config2@186:10	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
-e2@367:6	e2	keyboardEvent	结合所在函数体的实际用途命名，说明该绑定持有的 keyboardEvent。
-e2@423:28	e2	changeEvent	结合所在函数体的实际用途命名，说明该绑定持有的 changeEvent。
+e2@367:6	e2	keyboardEvent	新建工作区名称输入框收到的键盘事件。
+e2@423:28	e2	changeEvent	画布侧栏文件上传输入框触发的 change 事件。
 handleKeyDown2@366:9	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。
 Input3@35:10	Input3	Input	来自 select-content 模块的带图标输入框组件。
 name2@189:10	name2	newWorkspaceName	新建工作区名称输入框的当前值。
 next2@210:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
 platform2@185:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
-project2@124:34	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
-project2@53:6	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
+project2@124:34	project2	project	从项目列表中读取或展示的项目对象。
+project2@53:6	project2	project	从项目列表中读取或展示的项目对象。
 reset2@259:9	reset2	reset	去掉打包器防重名追加的后缀，恢复原名 reset，即该绑定持有的值。
 selected2@52:9	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
 service2@222:11	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。

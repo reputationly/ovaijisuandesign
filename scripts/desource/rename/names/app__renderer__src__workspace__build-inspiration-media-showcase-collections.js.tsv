@@ -16,10 +16,10 @@ e2@183:7	e2	bracketDepth	扫描方括号时的嵌套深度。
 e2@190:7	e2	insideInlineMath	当前位置是否处于行内数学公式中。
 e2@204:19	e2	markerCharacter	当前 Markdown 标记字符。
 e2@236:19	e2	previousCharacter	分隔符前一个字符。
-e2@259:5	e2	insideFencedCode	当前扫描位置是否处于代码围栏中。
+e2@259:5	e2	insideFencedCode	扫描位置是否处于代码围栏内部。
 e2@280:5	e2	asteriskRunLength	连续星号序列的长度。
-e2@301:5	e2	insideFencedCode	当前扫描位置是否处于代码围栏中。
-e2@322:5	e2	insideFencedCode	当前扫描位置是否处于代码围栏中。
+e2@301:5	e2	insideFencedCode	扫描位置是否处于代码围栏内部。
+e2@322:5	e2	insideFencedCode	扫描位置是否处于代码围栏内部。
 e2@341:19	e2	delimiterIndex	强调分隔符在文本中的索引。
 e2@356:7	e2	delimiterContent	强调分隔符之间的文本内容。
 e2@366:19	e2	delimiterIndex	强调分隔符在文本中的索引。
@@ -32,9 +32,9 @@ e2@457:7	e2	tripleAsteriskContent	三星号强调标记之间的文本内容。
 G@162:5	G	closingUnderscorePattern	匹配双下划线强调结束标记的正则。
 H@2:17	H	wordCharacterPattern	匹配 Unicode 字母、数字或下划线的正则。
 hn@119:5	hn	isFenceMarkerAtPosition	判断指定位置附近是否存在代码围栏标记。
-i2@105:5	i2	insideFencedCode	当前扫描位置是否处于代码围栏中。
+i2@105:5	i2	insideFencedCode	扫描位置是否处于代码围栏内部。
 i2@121:5	i2	hasFenceBeforePosition	指定位置之前是否存在代码围栏标记。
-i2@138:5	i2	insideFencedCode	当前扫描位置是否处于代码围栏中。
+i2@138:5	i2	insideFencedCode	扫描位置是否处于代码围栏内部。
 i2@161:31	i2	quoteMarker	引用块标记。
 i2@177:12	i2	scanIndex	当前遍历文本的索引。
 i2@184:12	i2	scanIndex	当前遍历文本的索引。
@@ -42,13 +42,13 @@ i2@191:5	i2	insideDisplayMath	当前位置是否处于块级数学公式中。
 i2@205:7	i2	lineStartIndex	当前文本行的起始索引。
 i2@236:23	i2	nextCharacter	分隔符后一个字符。
 i2@260:5	i2	textLength	当前文本长度。
-i2@281:5	i2	insideFencedCode	当前扫描位置是否处于代码围栏中。
+i2@281:5	i2	insideFencedCode	扫描位置是否处于代码围栏内部。
 i2@302:12	i2	scanIndex	当前遍历文本的索引。
 i2@323:12	i2	scanIndex	当前遍历文本的索引。
 i2@357:5	i2	delimiterIndex	强调分隔符在文本中的索引。
 i2@389:5	i2	delimiterIndex	强调分隔符在文本中的索引。
 i2@416:11	i2	previousCharacter	分隔符前一个字符。
-i2@443:7	i2	trailingText	强调片段之后剩余的文本。
+i2@443:7	i2	trailingText	开头下划线之后剩余的文本。
 i2@458:5	i2	delimiterIndex	强调分隔符在文本中的索引。
 kn@236:5	kn	isValidEmphasisDelimiter	依据标记两侧字符判断强调符号是否为有效分隔符。
 l2@206:12	l2	lineIndex	当前文本行的索引。
@@ -110,7 +110,7 @@ r2@341:15	r2	delimiterContent	强调分隔符之间的文本内容。
 r2@354:7	r2	match	正则匹配结果。
 r2@366:15	r2	delimiterContent	强调分隔符之间的文本内容。
 r2@379:7	r2	match	正则匹配结果。
-r2@397:7	r2	insideFencedCode	当前扫描位置是否处于代码围栏中。
+r2@397:7	r2	insideFencedCode	扫描位置是否处于代码围栏内部。
 r2@447:7	r2	doubleAsteriskCount	双星号强调标记数量。
 r2@451:15	r2	delimiterContent	强调分隔符之间的文本内容。
 r2@455:7	r2	match	正则匹配结果。

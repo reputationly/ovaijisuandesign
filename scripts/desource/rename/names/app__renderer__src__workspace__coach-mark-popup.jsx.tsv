@@ -12,7 +12,7 @@ g2@34:13	g2	green	当前像素的绿色通道值。
 h2@19:11	h2	imageHeight	图像像素高度。
 i2@31:14	i2	pixelOffset	图像像素在像素缓冲区中的偏移量。
 i2@350:30	i2	stepIndex	当前引导步骤的索引。
-img@193:13	img	image	结合所在函数体的实际用途命名，说明该绑定持有的 image。
+img@193:13	img	image	用于预加载媒体 URL 的浏览器 Image 对象。
 key2@36:13	key2	bucketKey	由 RGB 通道值组合得到的颜色桶键。
 observer2@216:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
 r2@103:11	r2	anchorRect	锚点元素的边界矩形。

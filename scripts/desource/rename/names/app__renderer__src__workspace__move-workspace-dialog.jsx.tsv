@@ -6,16 +6,16 @@ id2@189:44	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，�
 key2@202:9	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
 key2@254:22	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
 name2@327:9	name2	projectName	用户输入或提交的项目名称。
-p3@167:45	p3	project	结合所在函数体的实际用途命名，说明该绑定持有的 project。
-p3@173:37	p3	project	结合所在函数体的实际用途命名，说明该绑定持有的 project。
+p3@167:45	p3	project	从项目列表中读取或展示的项目对象。
+p3@173:37	p3	project	从项目列表中读取或展示的项目对象。
 path2@132:22	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
 path2@139:45	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
 path2@202:17	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
 path2@224:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
-project2@170:11	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
+project2@170:11	project2	project	从项目列表中读取或展示的项目对象。
 raw2@241:11	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
 state2@265:45	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
 t2@281:14	t2	translate	useTranslation 返回的翻译函数。
 t2@331:14	t2	translate	useTranslation 返回的翻译函数。
 t2@45:14	t2	translate	useTranslation 返回的翻译函数。
-v2@333:45	v2	isOpen	结合所在函数体的实际用途命名，说明该绑定持有的 isOpen。
+v2@333:45	v2	isOpen	AlertDialog 打开状态变更回调收到的布尔值。
