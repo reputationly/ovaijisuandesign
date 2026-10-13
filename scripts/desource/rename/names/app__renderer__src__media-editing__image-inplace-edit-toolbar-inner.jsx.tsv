@@ -1,0 +1,22 @@
+key	new	依据
+s2@275:23	state	接收用于读取画布缩放值的状态对象。
+c3@304:9	colorHex	保存去除井号后的六位十六进制颜色字符串。
+r2@306:9	redChannel	解析十六进制颜色中的红色分量。
+g2@307:9	greenChannel	解析十六进制颜色中的绿色分量。
+b3@308:9	blueChannel	解析十六进制颜色中的蓝色分量。
+t2@341:14	t	useTranslation 返回的翻译函数。
+e2@365:21	mouseEvent	处理字体大小菜单外部关闭逻辑的鼠标按下事件。
+t22@366:13	eventTarget	读取鼠标事件的目标元素。
+e2@372:20	keyboardEvent	处理字体大小菜单 Escape 键关闭事件。
+e2@384:21	mouseEvent	处理笔刷大小菜单外部关闭逻辑的鼠标按下事件。
+t22@385:13	eventTarget	读取鼠标事件的目标元素。
+e2@391:20	keyboardEvent	处理笔刷大小菜单 Escape 键关闭事件。
+bar@412:11	toolbarElement	读取用于定位样式弹出层的工具栏 DOM 元素。
+btn@414:11	toolButton	读取当前工具对应的按钮 DOM 元素。
+e2@439:25	pointerEvent	阻止工具栏包装器的指针按下事件冒泡。
+e2@440:19	wheelEvent	阻止工具栏包装器的滚轮事件冒泡。
+e2@441:25	contextMenuEvent	阻止工具栏包装器触发原生右键菜单。
+v2@539:39	textVariant	遍历用于文字标注的样式变体。
+v2@564:51	isOpen	接收字体大小菜单状态更新函数的当前布尔值。
+v2@674:56	isOpen	接收笔刷大小菜单状态更新函数的当前布尔值。
+e2@756:32	changeEvent	读取马赛克强度滑块变更事件中的数值。

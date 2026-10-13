@@ -1,0 +1,24 @@
+key	new	依据
+cn@21:18	mergeClassNames	调用来源模块导出的 Tailwind 类名合并函数。
+h2@50:7	hashValue	累积音频名称对应的确定性波形哈希值。
+i2@51:12	index	遍历输入字符串字符的数组下标。
+s2@57:7	randomState	保存可复现随机数生成器的当前状态。
+rng@64:9	randomGenerator	保存按音频名称播种的伪随机数生成函数。
+i2@66:12	index	遍历并生成波形柱高度的数组下标。
+m3@74:9	minutes	保存格式化音频时长的分钟数。
+s2@75:9	remainderSeconds	保存格式化音频时长剩余秒数。
+i2@84:26	index	遍历波形柱数组的下标。
+x2@86:15	barX	计算当前波形柱在 SVG 中的水平坐标。
+y4@87:15	barY	计算当前波形柱在 SVG 中的垂直坐标。
+t2@114:14	t	useTranslation 返回的翻译函数。
+a2@154:11	audioElement	读取播放器的 audio DOM 元素。
+a2@163:11	audioElement	读取用于更新播放进度的 audio DOM 元素。
+ct3@167:13	currentTime	读取播放器当前播放时间。
+d2@168:13	duration	读取音频总时长。
+idx@179:13	playedBarIndex	计算当前播放位置对应的波形柱下标。
+x2@172:15	playheadX	计算播放指针在 SVG 中的水平坐标。
+a2@210:11	audioElement	读取需要设置为独占播放的 audio DOM 元素。
+a2@215:11	audioElement	读取需要暂停或开始播放的 audio DOM 元素。
+e2@233:6	clickEvent	接收用户点击波形并定位播放位置的事件。
+a2@234:13	audioElement	读取用于设置播放位置的 audio DOM 元素。
+p3@237:13	progressRatio	计算点击位置在波形总宽度中的归一化比例。

@@ -1,0 +1,22 @@
+key	new	依据
+s2@34:24	skill	读取需要转换成精简对象的技能信息。
+msg@49:22	messageFrame	按消息类型读取可展示的文本内容。
+msg@60:23	messageFrame	判断并读取包含媒体资源的消息帧。
+m3@62:11	mediaMessage	保存包含媒体 URL 与路径的消息帧。
+msg@70:25	messageFrame	读取可用的会话标识字段。
+ws2@134:52	webSocket	接收用于订阅会话消息和发送请求的 WebSocket 客户端。
+cb@148:16	subscriberCallback	逐个调用已订阅的会话完成回调。
+msg@344:34	messageFrame	处理 WebSocket 推送的会话消息帧。
+sid@345:13	sessionId	读取消息帧关联的会话标识。
+cb@428:20	subscriberCallback	逐个调用已订阅的消息回调。
+id2@503:16	sessionId	遍历插件拥有且需要与初始会话集合核对的会话标识。
+id2@518:18	sessionId	遍历插件拥有且需要与实时会话集合核对的会话标识。
+ok2@575:13	isCreateRequestSent	保存创建会话请求是否成功发送的布尔结果。
+ctx@595:18	callContext	接收插件调用提供的上下文信息。
+ok2@664:13	isChatMessageSent	保存聊天消息是否成功发送的布尔结果。
+a2@623:41	canvasNodeAttachment	过滤没有关联画布节点标识的附件。
+p3@627:30	attachmentPath	读取聊天附件路径并构造资源信息。
+cb@730:59	messageCallback	接收订阅聊天消息的回调函数。
+cb@736:55	doneCallback	接收订阅聊天完成事件的回调函数。
+p3@744:11	skillsFetchPromise	保存正在进行的技能列表请求 Promise。
+s2@777:26	skill	查找名称与目标相同的技能对象。

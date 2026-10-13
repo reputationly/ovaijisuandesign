@@ -1,0 +1,27 @@
+key	new	依据
+ctx@10:3	context	接收绘制蒙版笔画使用的二维画布上下文。
+p0@23:14	rectangleStartPoint	读取矩形笔画的起始顶点。
+p1@23:18	rectangleEndPoint	读取矩形笔画的结束顶点。
+x2@24:13	rectangleLeft	计算矩形笔画在像素画布上的左边界。
+y4@25:13	rectangleTop	计算矩形笔画在像素画布上的上边界。
+w3@26:13	rectangleWidth	计算矩形笔画的像素宽度。
+h2@27:13	rectangleHeight	计算矩形笔画的像素高度。
+p3@45:22	point	读取活动套索笔画中的路径点。
+p3@70:18	point	读取已完成套索笔画中的路径点。
+p3@94:14	point	读取单点笔画的圆心位置。
+p3@108:18	point	读取笔画路径中的下一个点。
+dpr@133:9	canvasPixelRatio	读取绘制蒙版画布使用的设备像素比。
+ctx@147:11	context	读取蒙版画布的二维上下文。
+x2@179:13	draftLeft	计算未完成矩形选区的左边界。
+y4@180:13	draftTop	计算未完成矩形选区的上边界。
+w3@181:13	draftWidth	计算未完成矩形选区的宽度。
+h2@182:13	draftHeight	计算未完成矩形选区的高度。
+e2@197:50	pointerEvent	将指针事件位置转换为蒙版画布内的归一化坐标。
+e2@206:6	pointerEvent	处理开始绘制选区的指针按下事件。
+e2@220:6	pointerEvent	处理更新选区的指针移动事件。
+e2@236:6	pointerEvent	处理结束选区的指针释放事件。
+e2@254:55	contextMenuEvent	阻止蒙版绘制区域的原生右键菜单。
+e2@261:24	keyboardEvent	处理取消蒙版绘制的 Escape 键事件。
+e2@273:22	wheelEvent	阻止滚轮事件传递到画布缩放逻辑。
+e2@287:59	pointerEvent	记录按下位置是否位于遮罩背景本身。
+e2@291:6	clickEvent	处理点击遮罩背景取消蒙版绘制。
