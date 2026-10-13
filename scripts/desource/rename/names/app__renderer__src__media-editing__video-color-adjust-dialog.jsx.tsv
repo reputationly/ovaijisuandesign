@@ -1,0 +1,34 @@
+key	new	依据
+cn@39:10	classNames	组合 DialogContent 的布局和响应式宽度类名。
+r2@59:42	response	fetch 返回的 Blob Response，用于读取视频源 Blob。
+n2@70:19	dimension	makeEven 接收的视频尺寸数值并向下调整为偶数。
+e2@134:12	error	初始化视频转换失败时捕获的异常，释放输入后继续抛出。
+p3@140:30	progress	转换器上报的导出进度比例。
+v2@141:13	progressValue	限制在 0 到 1 范围内并用于节流上报的导出进度比例。
+el@193:11	videoElement	videoRef.current 指向的 HTMLVideoElement，用于同步静音和音量。
+e2@198:54	clickEvent	点击静音按钮时停止事件冒泡并切换 muted 状态的鼠标事件。
+e2@213:6	clickEvent	音量轨道点击事件，阻止冒泡并按点击纵坐标更新音量。
+e2@220:6	mouseEvent	音量拖动开始时的鼠标按下事件，用于阻止默认行为并开始监听拖动。
+ev@224:23	mouseEvent	文档 mousemove 监听器收到的鼠标事件，按 clientY 更新音量。
+e2@256:25	mouseEvent	双击音量按钮时用于阻止事件冒泡的鼠标事件。
+lut@524:3	lookupTable	提供 LUT 列表、导入、加载和删除操作的查找表服务对象。
+t2@526:14	t	为色彩调整界面提供本地化文案的 i18n 函数。
+res@619:14	lutEntries	lookupTable.listLuts 返回的可用 LUT 条目列表。
+p3@707:24	progress	导出回调上报的进度比例，传入进度状态 setter。
+e2@999:57	clickEvent	删除 LUT 按钮的点击事件，阻止 SelectItem 选择并触发删除。
+e2@1006:63	pointerEvent	删除 LUT 按钮的指针按下事件，阻止父级 SelectItem 处理指针交互。
+s2@1068:41	slider	当前分组内用于渲染 ColorAdjustSlider 的滑块配置。
+url2@56:9	url	从 HTMLVideoElement 的 currentSrc 或 src 取得的视频输入 URL。
+format2@74:9	format	导出选项指定的容器格式，用于选择输出格式和 MIME 类型。
+frame2@124:17	frame	从转换样本创建的视频帧，渲染后在 finally 中关闭。
+close2@170:9	scheduleClose	延迟设置 isOpen 为 false 的悬浮弹层关闭回调。
+close2@191:32	scheduleClose	useDelayedHover 返回的延迟关闭回调，绑定到音量弹层的 onMouseLeave。
+handleClick2@212:9	handleClick	处理音量轨道点击并根据 clientY 更新音量的回调。
+node2@531:50	node	setVideoNode 收到的视频 DOM 节点，写入 videoRef 并更新 videoEl。
+rafId2@598:11	rafId	requestAnimationFrame 返回的设置更新回调 ID，用于 effect 清理时取消。
+text2@641:20	text	lookupTable.loadLutContent 返回并加载到色彩处理器的 LUT 文本。
+rafId2@662:11	rafId	requestAnimationFrame 返回的 LUT 强度更新回调 ID，用于清理时取消。
+key2@669:6	key	待更新的色彩设置键，用于构造仅修改该键的 settings 对象。
+name2@735:23	lutName	导入文件后由 LUT 服务返回的名称，用于选中新导入条目。
+name2@762:12	lutName	待删除的 LUT 条目名称，用于确认、删除并清理选择状态。
+map3@808:11	map	LUT 名称到显示标签的映射对象，供选择控件查找条目文案。
