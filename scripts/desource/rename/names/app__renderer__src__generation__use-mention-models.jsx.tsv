@@ -17,5 +17,5 @@ raw2@292:30	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw�
 children2@338:53	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
 url2@364:23	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
 url2@368:8	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
-name2@432:31	name2	displayName	原名去后缀后发生作用域冲突；该绑定实际表示 displayName。
+name2@432:31	name2	skillName	该参数是技能的原始名称，函数据此生成人类可读的展示名称。
 update2@452:40	update2	update	去掉打包器防重名追加的后缀，恢复原名 update，即该绑定持有的值。

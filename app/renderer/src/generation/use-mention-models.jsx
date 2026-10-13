@@ -429,8 +429,8 @@ export const UPDATE_INDICATOR_STYLES = {
     "hover:border-warning/70 hover:bg-warning/[.22] hover:text-warning-foreground",
 };
 const UPPERCASE_WORDS = new Set(["mv", "ai", "api", "id", "3d"]);
-export function toDisplayName(displayName) {
-  return displayName
+export function toDisplayName(skillName) {
+  return skillName
     .split("-")
     .map((word) =>
       UPPERCASE_WORDS.has(word)
