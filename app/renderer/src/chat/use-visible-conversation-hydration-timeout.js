@@ -8,16 +8,16 @@ export function useSessionSwitchTimeout(switching, onTimeout, timeoutMs = 1e4) {
   onTimeoutRef.current = onTimeout;
   reactExports.useEffect(() => {
     if (!switching) return;
-    const timer2 = setTimeout(() => onTimeoutRef.current(), timeoutMs);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => onTimeoutRef.current(), timeoutMs);
+    return () => clearTimeout(timer);
   }, [switching, timeoutMs]);
 }
 
 export function useSessionSwitchErrorFeedback(switchError, setSwitchError) {
   reactExports.useEffect(() => {
     if (!switchError) return;
-    const timer2 = setTimeout(() => setSwitchError(null), 5e3);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => setSwitchError(null), 5e3);
+    return () => clearTimeout(timer);
   }, [switchError, setSwitchError]);
   reactExports.useEffect(() => {
     if (!switchError) return;
@@ -78,7 +78,7 @@ export function useVisibleConversationHydrationRequest(
   pendingRequestsRef,
   retainVisibleTranscriptUntilHydrationRef,
   prepareSessionSwitch,
-  send2,
+  send,
   setConversationLoading,
 ) {
   return reactExports.useCallback(
@@ -89,7 +89,7 @@ export function useVisibleConversationHydrationRequest(
         pendingRequestsRef.current.set(request.request_id, sessionId);
         setConversationLoading(true);
       }
-      if (send2(request)) return true;
+      if (send(request)) return true;
       if (request.activate) {
         pendingRequestsRef.current.delete(request.request_id);
         setConversationLoading(false);
@@ -100,14 +100,14 @@ export function useVisibleConversationHydrationRequest(
       pendingRequestsRef,
       prepareSessionSwitch,
       retainVisibleTranscriptUntilHydrationRef,
-      send2,
+      send,
       setConversationLoading,
     ],
   );
 }
 
 export function useVisibleConversationHydrationTimeout({
-  active: active2,
+  active,
   pendingRequestsRef,
   sessionStore,
   rejectSessionFocusIntent,
@@ -117,7 +117,7 @@ export function useVisibleConversationHydrationTimeout({
   timeoutMessage,
 }) {
   const failHydration = reactExports.useCallback(
-    (requestId, errorMessage2 = timeoutMessage) => {
+    (requestId, errorMessage = timeoutMessage) => {
       const pendingRequests = [...pendingRequestsRef.current];
       if (pendingRequests.length === 0) return false;
       const latestRequestId = pendingRequests.at(-1)?.[0];
@@ -139,7 +139,7 @@ export function useVisibleConversationHydrationTimeout({
         sessionStore.setHistoryLoadFailed(targetSessionId, true);
         setHistoryLoadFailed(true);
       }
-      setSwitchError(errorMessage2);
+      setSwitchError(errorMessage);
       return true;
     },
     [
@@ -152,6 +152,6 @@ export function useVisibleConversationHydrationTimeout({
       timeoutMessage,
     ],
   );
-  useSessionSwitchTimeout(active2, failHydration);
+  useSessionSwitchTimeout(active, failHydration);
   return failHydration;
 }
