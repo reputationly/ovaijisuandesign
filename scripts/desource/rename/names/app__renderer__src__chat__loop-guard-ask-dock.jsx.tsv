@@ -3,3 +3,6 @@ Kbd@20:10	KeyboardShortcut	`KeyboardShortcut` 是渲染包裹 Enter 快捷键标
 t2@29:14	translate	`translate` 为循环保护确认面板获取本地化文案。
 e2@58:25	keyboardEvent	`keyboardEvent` 是用于判断快捷键并触发相应操作的键盘事件。
 e2@87:22	keyboardEvent	`keyboardEvent` 是文档 keydown 监听器收到的键盘事件。
+message2@23:12	message	`message` 是聊天消息记录；末尾数字是打包器为避免重名添加的后缀。
+data2@30:9	data	`data` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+dispatch2@33:9	dispatch	`dispatch` 是标识值；末尾数字是打包器为避免重名添加的后缀。

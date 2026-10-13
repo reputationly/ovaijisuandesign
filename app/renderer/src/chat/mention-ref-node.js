@@ -91,10 +91,10 @@ export const MentionRefNode = Node.create({
   addKeyboardShortcuts() {
     return {
       Backspace: () =>
-        this.editor.commands.command(({ tr: transaction, state: state2 }) => {
-          const { selection: selection2 } = state2;
-          const { $from } = selection2;
-          if (!selection2.empty) return false;
+        this.editor.commands.command(({ tr: transaction, state }) => {
+          const { selection } = state;
+          const { $from } = selection;
+          if (!selection.empty) return false;
           const before = $from.nodeBefore;
           if (!before) return false;
           if (before.type.name === this.name) {

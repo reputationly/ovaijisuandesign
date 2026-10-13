@@ -54,9 +54,9 @@ import { collectFallbackTurnArtifacts } from "./collect-fallback-turn-artifacts.
 import { ActivityGroup } from "../team/activity-group.jsx";
 import { TurnArtifactStrip } from "../media-editing/turn-artifact-strip.jsx";
 const ATTACHMENT_COLLAPSE_THRESHOLD = 6;
-function attachToolConfirmsToSubAgents(messages2) {
+function attachToolConfirmsToSubAgents(messages) {
   const result = [];
-  for (const message of messages2) {
+  for (const message of messages) {
     if (
       message.type === "tool_confirm_ask" &&
       (!message.resolved || message.toolConfirmDecision === "reject")
@@ -77,21 +77,21 @@ function attachToolConfirmsToSubAgents(messages2) {
   }
   return result;
 }
-function attachQuestionsToSubAgents(messages2) {
+function attachQuestionsToSubAgents(messages) {
   const result = [];
-  for (const message of messages2) {
+  for (const message of messages) {
     if (message.type !== "question" || !message.childSessionId) {
       result.push(message);
       continue;
     }
     let subAgentIndex = -1;
-    for (let index2 = result.length - 1; index2 >= 0; index2 -= 1) {
-      const candidate = result[index2];
+    for (let index = result.length - 1; index >= 0; index -= 1) {
+      const candidate = result[index];
       if (
         candidate?.type === "sub_agent" &&
         candidate.childSessionId === message.childSessionId
       ) {
-        subAgentIndex = index2;
+        subAgentIndex = index;
         break;
       }
     }
@@ -107,122 +107,122 @@ function attachQuestionsToSubAgents(messages2) {
   }
   return result;
 }
-function prepareMainAgentActivityMessages(messages2, showHiddenTools) {
-  if (showHiddenTools) return [...messages2];
-  const getMessageToolName = (message2) => {
-    if (message2.type !== "tool") return void 0;
-    return message2.toolName?.trim() || parseToolResult(message2.content).name;
+function prepareMainAgentActivityMessages(messages, showHiddenTools) {
+  if (showHiddenTools) return [...messages];
+  const getMessageToolName = (message) => {
+    if (message.type !== "tool") return void 0;
+    return message.toolName?.trim() || parseToolResult(message.content).name;
   };
-  const retained = messages2.filter((message2) => {
+  const retained = messages.filter((message) => {
     if (
-      message2.type === "text" &&
-      !message2.content.trim() &&
-      !message2.attachments?.length
+      message.type === "text" &&
+      !message.content.trim() &&
+      !message.attachments?.length
     ) {
       return false;
     }
-    if (message2.type !== "tool") return true;
-    const toolName2 = getMessageToolName(message2);
+    if (message.type !== "tool") return true;
+    const toolName = getMessageToolName(message);
     return (
-      isMainAgentThinkingTool(toolName2) ||
-      getToolLabelId(toolName2) !== "silent"
+      isMainAgentThinkingTool(toolName) ||
+      getToolLabelId(toolName) !== "silent"
     );
   });
-  const normalized = retained.map((message2) => {
-    const toolName2 = getMessageToolName(message2);
-    return message2.type === "tool" &&
-      (toolName2 === "hub_read" || isMainAgentThinkingTool(toolName2))
+  const normalized = retained.map((message) => {
+    const toolName = getMessageToolName(message);
+    return message.type === "tool" &&
+      (toolName === "hub_read" || isMainAgentThinkingTool(toolName))
       ? {
-          ...message2,
+          ...message,
           type: "thinking",
           content: "",
         }
-      : message2;
+      : message;
   });
   const visible = filterSupersededTransientTools(
     normalized,
     getMessageToolName,
   );
-  const latest2 = visible[visible.length - 1];
-  const latestToolName = latest2 ? getMessageToolName(latest2) : void 0;
+  const latest = visible[visible.length - 1];
+  const latestToolName = latest ? getMessageToolName(latest) : void 0;
   if (
-    latest2?.type === "tool" &&
+    latest?.type === "tool" &&
     latestToolName &&
     categorizeToolAction(latestToolName) === "search" &&
-    latest2.toolStatus === "ok"
+    latest.toolStatus === "ok"
   ) {
     visible[visible.length - 1] = {
-      ...latest2,
+      ...latest,
       content: latestToolName,
       toolStatus: "running",
     };
   }
   return visible;
 }
-function subMessagesHaveCanvasContinuation(messages2) {
-  return messages2.some(
-    (message2) =>
-      message2.interruption === "canvas_continuation" ||
-      (message2.subMessages
-        ? subMessagesHaveCanvasContinuation(message2.subMessages)
+function subMessagesHaveCanvasContinuation(messages) {
+  return messages.some(
+    (message) =>
+      message.interruption === "canvas_continuation" ||
+      (message.subMessages
+        ? subMessagesHaveCanvasContinuation(message.subMessages)
         : false),
   );
 }
-function messageHasCanvasContinuation(message2) {
-  if (message2.type === "tool")
-    return message2.interruption === "canvas_continuation";
-  if (message2.type === "sub_agent") {
-    return subMessagesHaveCanvasContinuation(message2.subMessages ?? []);
+function messageHasCanvasContinuation(message) {
+  if (message.type === "tool")
+    return message.interruption === "canvas_continuation";
+  if (message.type === "sub_agent") {
+    return subMessagesHaveCanvasContinuation(message.subMessages ?? []);
   }
   return (
-    message2.type === "cancelled" &&
-    message2.generationContinuesOnCanvas === true
+    message.type === "cancelled" &&
+    message.generationContinuesOnCanvas === true
   );
 }
-function collectCanvasContinuationTargets(messages2) {
+function collectCanvasContinuationTargets(messages) {
   const targets = new Map();
-  const collect = (message2) => {
+  const collect = (message) => {
     if (
-      message2.type === "tool" &&
-      message2.interruption === "canvas_continuation"
+      message.type === "tool" &&
+      message.interruption === "canvas_continuation"
     ) {
-      for (const target of message2.generationHandoffTargets ?? []) {
-        const key2 = `${target.node_id}:${target.generation_attempt_id ?? ""}`;
-        targets.set(key2, target);
+      for (const target of message.generationHandoffTargets ?? []) {
+        const key = `${target.node_id}:${target.generation_attempt_id ?? ""}`;
+        targets.set(key, target);
       }
     }
-    if (message2.type === "cancelled" && message2.generationContinuesOnCanvas) {
-      for (const target of message2.generationHandoffTargets ?? []) {
-        const key2 = `${target.node_id}:${target.generation_attempt_id ?? ""}`;
-        targets.set(key2, target);
+    if (message.type === "cancelled" && message.generationContinuesOnCanvas) {
+      for (const target of message.generationHandoffTargets ?? []) {
+        const key = `${target.node_id}:${target.generation_attempt_id ?? ""}`;
+        targets.set(key, target);
       }
     }
-    if (message2.type === "sub_agent") {
-      for (const subMessage of message2.subMessages ?? []) collect(subMessage);
+    if (message.type === "sub_agent") {
+      for (const subMessage of message.subMessages ?? []) collect(subMessage);
     }
   };
-  for (const message2 of messages2) collect(message2);
+  for (const message of messages) collect(message);
   return [...targets.values()];
 }
-function isMainAgentProgressMessage(message2) {
-  if (!message2) return false;
-  if (message2.type === "thinking") return true;
-  if (message2.type !== "tool") return false;
-  if (message2.toolStatus === "error") return false;
-  const toolName2 =
-    message2.toolName?.trim() || parseToolResult(message2.content).name;
+function isMainAgentProgressMessage(message) {
+  if (!message) return false;
+  if (message.type === "thinking") return true;
+  if (message.type !== "tool") return false;
+  if (message.toolStatus === "error") return false;
+  const toolName =
+    message.toolName?.trim() || parseToolResult(message.content).name;
   return (
-    isTransientTool(toolName2) || categorizeToolAction(toolName2) === "search"
+    isTransientTool(toolName) || categorizeToolAction(toolName) === "search"
   );
 }
-function isCompletedRetryOutput(message2) {
-  switch (message2.type) {
+function isCompletedRetryOutput(message) {
+  switch (message.type) {
     case "text":
-      return message2.role === "agent" && message2.content.trim().length > 0;
+      return message.role === "agent" && message.content.trim().length > 0;
     case "tool":
-      return message2.toolStatus === "ok";
+      return message.toolStatus === "ok";
     case "sub_agent":
-      return message2.resolved === true && message2.cancelled !== true;
+      return message.resolved === true && message.cancelled !== true;
     case "image":
     case "video":
     case "audio":
@@ -234,7 +234,7 @@ function isCompletedRetryOutput(message2) {
     case "loop_guard_ask":
     case "tool_confirm_ask":
     case "credit_threshold":
-      return message2.resolved !== true;
+      return message.resolved !== true;
     case "thinking":
     case "error":
     case "withdrawn":
@@ -243,20 +243,20 @@ function isCompletedRetryOutput(message2) {
       return false;
   }
 }
-function filterResolvedRetryErrors(messages2) {
+function filterResolvedRetryErrors(messages) {
   const retained = [];
   let hasLaterError = false;
   let hasLaterCompletedOutput = false;
-  for (let index2 = messages2.length - 1; index2 >= 0; index2 -= 1) {
-    const message2 = messages2[index2];
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
     const isResolvedRetryError =
-      message2.type === "error" &&
-      message2.error?.retryable === true &&
+      message.type === "error" &&
+      message.error?.retryable === true &&
       (hasLaterError || hasLaterCompletedOutput);
-    if (!isResolvedRetryError) retained.push(message2);
-    if (message2.type === "error") {
+    if (!isResolvedRetryError) retained.push(message);
+    if (message.type === "error") {
       hasLaterError = true;
-    } else if (isCompletedRetryOutput(message2)) {
+    } else if (isCompletedRetryOutput(message)) {
       hasLaterCompletedOutput = true;
     }
   }
@@ -273,9 +273,9 @@ function isPendingSubAgentDispatch(message, showHiddenTools = false) {
     ).length === 0
   );
 }
-function findPendingTaskDispatch(messages2, showHiddenTools = false) {
-  for (let index2 = messages2.length - 1; index2 >= 0; index2 -= 1) {
-    const task = messages2[index2];
+function findPendingTaskDispatch(messages, showHiddenTools = false) {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const task = messages[index];
     if (
       task?.type !== "tool" ||
       task.content !== "task" ||
@@ -283,13 +283,13 @@ function findPendingTaskDispatch(messages2, showHiddenTools = false) {
     ) {
       continue;
     }
-    const child = messages2
-      .slice(index2 + 1)
+    const child = messages
+      .slice(index + 1)
       .find(
-        (message2) =>
-          message2.type === "sub_agent" &&
+        (message) =>
+          message.type === "sub_agent" &&
           (!task.childSessionId ||
-            message2.childSessionId === task.childSessionId),
+            message.childSessionId === task.childSessionId),
       );
     return !child || isPendingSubAgentDispatch(child, showHiddenTools)
       ? task
@@ -313,10 +313,10 @@ function TaskDispatchIndicator() {
   );
 }
 function AttachmentChip({ att: attachment }) {
-  const resolveMediaUrl2 = useResolveMediaUrl();
+  const resolveMediaUrl = useResolveMediaUrl();
   const workspacePath = useCurrentWorkspace();
   const filename = attachment.path.split("/").pop() ?? attachment.path;
-  const resolvedUrl = resolveMediaUrl2(attachment.url) ?? void 0;
+  const resolvedUrl = resolveMediaUrl(attachment.url) ?? void 0;
   const isHeic = attachment.type === "image" && isHeicFilename(filename);
   const [convertedImageUrl, setConvertedImageUrl] = reactExports.useState(null);
   reactExports.useEffect(() => {
@@ -423,20 +423,20 @@ function UserPluginNodeAttachmentStrip({ pluginNodes }) {
   return (
     <div className="mt-2 flex gap-2 flex-wrap">
       {pluginNodes.map((pluginNode) => {
-        const name2 = pluginNode.name?.trim() || pluginNode.pluginId;
+        const pluginDisplayName = pluginNode.name?.trim() || pluginNode.pluginId;
         return (
           <div
             key={pluginNode.nodeId}
             data-testid="plugin-node-chip-sent"
             className="flex items-center gap-2.5 w-[200px] h-16 px-2.5 rounded-sm bg-muted-foreground/10"
-            title={name2}
+            title={pluginDisplayName}
           >
             <div className="shrink-0 flex items-center justify-center w-9 h-9 bg-background/60">
               <Puzzle size={20} className="text-foreground opacity-50" />
             </div>
             <div className="min-w-0 flex-1 flex flex-col gap-0.5">
               <span className="text-xs font-medium text-foreground truncate">
-                {name2}
+                {pluginDisplayName}
               </span>
               <span className="text-caption-10 text-muted-foreground truncate">
                 {translate("chat.pluginNodeChipMeta", {
@@ -450,14 +450,14 @@ function UserPluginNodeAttachmentStrip({ pluginNodes }) {
     </div>
   );
 }
-const UserPromptBubble = reactExports.memo(function UserPromptBubble2({
+const UserPromptBubble = reactExports.memo(function UserPromptBubble({
   user,
   busy,
   turnIndex,
   onFork,
 }) {
   const { t: translate } = useTranslation();
-  const { copied, copy: copy2 } = useCopy();
+  const { copied, copy } = useCopy();
   const [forkOpen, setForkOpen] = reactExports.useState(false);
   const runtimeMessageId = user.runtimeMessageId;
   const showFork = !!onFork && !busy && turnIndex > 0 && !!runtimeMessageId;
@@ -549,7 +549,7 @@ const UserPromptBubble = reactExports.memo(function UserPromptBubble2({
                     <button
                       type="button"
                       data-action-ui-id="chat-user-copy"
-                      onClick={() => copy2(user.content)}
+                      onClick={() => copy(user.content)}
                       aria-label={translate(copied ? "chat.copied" : "chat.copy")}
                       className="inline-flex items-center justify-center size-6 rounded-md text-muted-foreground hover:bg-foreground/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 transition-colors cursor-pointer"
                     >
@@ -586,29 +586,29 @@ function turnMessagesRefEqual(leftTurn, rightTurn) {
   }
   return true;
 }
-function messageTurnPropsEqual(prev, next2) {
+function messageTurnPropsEqual(prev, next) {
   return (
-    prev.turnIndex === next2.turnIndex &&
-    prev.turnCount === next2.turnCount &&
+    prev.turnIndex === next.turnIndex &&
+    prev.turnCount === next.turnCount &&
     prev.latestAssistantActionTurnIndex ===
-      next2.latestAssistantActionTurnIndex &&
-    prev.feedbackSessionId === next2.feedbackSessionId &&
-    prev.feedbackWorkspaceDir === next2.feedbackWorkspaceDir &&
-    prev.feedbackWorkspaceId === next2.feedbackWorkspaceId &&
-    prev.busy === next2.busy &&
-    prev.showBusyTip === next2.showBusyTip &&
-    prev.busyLabel === next2.busyLabel &&
-    prev.showHiddenTools === next2.showHiddenTools &&
-    prev.showTurnArtifacts === next2.showTurnArtifacts &&
-    prev.turnTail === next2.turnTail &&
-    prev.lastMessageId === next2.lastMessageId &&
-    prev.onSend === next2.onSend &&
-    prev.onRetry === next2.onRetry &&
-    prev.onFork === next2.onFork &&
-    turnMessagesRefEqual(prev.turn, next2.turn)
+      next.latestAssistantActionTurnIndex &&
+    prev.feedbackSessionId === next.feedbackSessionId &&
+    prev.feedbackWorkspaceDir === next.feedbackWorkspaceDir &&
+    prev.feedbackWorkspaceId === next.feedbackWorkspaceId &&
+    prev.busy === next.busy &&
+    prev.showBusyTip === next.showBusyTip &&
+    prev.busyLabel === next.busyLabel &&
+    prev.showHiddenTools === next.showHiddenTools &&
+    prev.showTurnArtifacts === next.showTurnArtifacts &&
+    prev.turnTail === next.turnTail &&
+    prev.lastMessageId === next.lastMessageId &&
+    prev.onSend === next.onSend &&
+    prev.onRetry === next.onRetry &&
+    prev.onFork === next.onFork &&
+    turnMessagesRefEqual(prev.turn, next.turn)
   );
 }
-export const MessageTurn = reactExports.memo(function MessageTurn2({
+export const MessageTurn = reactExports.memo(function MessageTurn({
   turn,
   turnIndex,
   turnCount,
@@ -644,17 +644,17 @@ export const MessageTurn = reactExports.memo(function MessageTurn2({
     : [];
   const showHandoffSummary = handoffTargets.length > 0;
   const preparedResponses = unfilteredResponses.filter(
-    (message2) => !(message2.type === "cancelled" && showHandoffSummary),
+    (message) => !(message.type === "cancelled" && showHandoffSummary),
   );
   const visible = attachQuestionsToSubAgents(
     attachToolConfirmsToSubAgents(preparedResponses),
   );
   const grouped = groupIntoActivityGroups(visible, showHiddenTools);
   const handoffSummaryIndex = showHandoffSummary
-    ? grouped.findIndex((node2) =>
-        node2.kind === "activity-group"
-          ? node2.items.some(messageHasCanvasContinuation)
-          : messageHasCanvasContinuation(node2.msg),
+    ? grouped.findIndex((node) =>
+        node.kind === "activity-group"
+          ? node.items.some(messageHasCanvasContinuation)
+          : messageHasCanvasContinuation(node.msg),
       )
     : -1;
   const handoffSummaryAtEnd = showHandoffSummary && handoffSummaryIndex === -1;
@@ -672,15 +672,15 @@ export const MessageTurn = reactExports.memo(function MessageTurn2({
   const canShowTaskDispatch =
     busy &&
     isLastTurn &&
-    !allResponses.some((message2) => message2.type === "cancelled");
+    !allResponses.some((message) => message.type === "cancelled");
   const pendingTaskDispatch = canShowTaskDispatch
     ? findPendingTaskDispatch(allResponses, showHiddenTools)
     : void 0;
   const hasInlineTaskDispatch = visible.some(
-    (message2) =>
-      isPendingSubAgentDispatch(message2, showHiddenTools) &&
+    (message) =>
+      isPendingSubAgentDispatch(message, showHiddenTools) &&
       (!pendingTaskDispatch?.childSessionId ||
-        message2.childSessionId === pendingTaskDispatch.childSessionId),
+        message.childSessionId === pendingTaskDispatch.childSessionId),
   );
   const hasAssistantContent =
     grouped.length > 0 ||
@@ -714,18 +714,18 @@ export const MessageTurn = reactExports.memo(function MessageTurn2({
             data-testid="chat-message-assistant-content"
             className="flex min-w-0 flex-col gap-3 overflow-hidden"
           >
-            {grouped.map((node2, nodeIndex) => {
+            {grouped.map((node, nodeIndex) => {
               const isLast = isLastTurn && nodeIndex === grouped.length - 1;
-              if (node2.kind === "activity-group") {
-                const groupKey = node2.items[0]?.id ?? `activity-${nodeIndex}`;
-                const lastItem = node2.items[node2.items.length - 1];
+              if (node.kind === "activity-group") {
+                const groupKey = node.items[0]?.id ?? `activity-${nodeIndex}`;
+                const lastItem = node.items[node.items.length - 1];
                 const isGroupStreaming =
                   busy &&
                   isLastTurn &&
                   ((isLast &&
                     lastItem != null &&
                     lastItem.id === lastMessageId) ||
-                    node2.items.some(
+                    node.items.some(
                       (item) =>
                         item.type === "tool" &&
                         (item.toolStatus === "running" ||
@@ -744,7 +744,7 @@ export const MessageTurn = reactExports.memo(function MessageTurn2({
                       ),
                       <div data-message-id={groupKey} className="empty:hidden">
                         <ActivityGroup
-                          data={node2}
+                          data={node}
                           isStreaming={isGroupStreaming || showProgress}
                           onSend={onSend}
                           focusedSessionId={focusedSessionId}
@@ -761,7 +761,7 @@ export const MessageTurn = reactExports.memo(function MessageTurn2({
                   groupKey,
                 );
               }
-              const { msg: message } = node2;
+              const { msg: message } = node;
               if (isPendingSubAgentDispatch(message, showHiddenTools)) {
                 if (!canShowTaskDispatch) return null;
                 return (

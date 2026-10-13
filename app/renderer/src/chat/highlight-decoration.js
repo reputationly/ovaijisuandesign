@@ -7,13 +7,13 @@ import {
   Plugin,
 } from "../vendor.js";
 import { highlightPluginKey } from "./use-composer-placeholder-actions.jsx";
-function textOffsetToPmPos(doc2, textOffset) {
+function textOffsetToPmPos(doc, textOffset) {
   if (textOffset <= 0) return 1;
   let lowerBound = 1;
-  let upperBound = doc2.content.size;
+  let upperBound = doc.content.size;
   while (lowerBound < upperBound) {
     const middlePosition = Math.floor((lowerBound + upperBound) / 2);
-    const textLength = doc2.textBetween(0, middlePosition, "\n", mentionRefLeafText).length;
+    const textLength = doc.textBetween(0, middlePosition, "\n", mentionRefLeafText).length;
     if (textLength < textOffset) {
       lowerBound = middlePosition + 1;
     } else {
@@ -25,16 +25,16 @@ function textOffsetToPmPos(doc2, textOffset) {
 const HIGHLIGHT_CLASS = {
   skill: "hl-skill",
 };
-function buildDecorations(doc2, ranges) {
+function buildDecorations(doc, ranges) {
   if (ranges.length === 0) return DecorationSet.empty;
-  const decorations2 = [];
-  for (const { start: start2, end: end2, kind, attrs } of ranges) {
-    const from2 = textOffsetToPmPos(doc2, start2);
-    const endPosition = textOffsetToPmPos(doc2, end2);
-    if (from2 >= endPosition || endPosition > doc2.content.size + 1) continue;
-    decorations2.push(
+  const decorations = [];
+  for (const { start, end, kind, attrs } of ranges) {
+    const from = textOffsetToPmPos(doc, start);
+    const endPosition = textOffsetToPmPos(doc, end);
+    if (from >= endPosition || endPosition > doc.content.size + 1) continue;
+    decorations.push(
       Decoration.inline(
-        from2,
+        from,
         endPosition,
         {
           ...attrs,
@@ -48,7 +48,7 @@ function buildDecorations(doc2, ranges) {
       ),
     );
   }
-  return DecorationSet.create(doc2, decorations2);
+  return DecorationSet.create(doc, decorations);
 }
 export const HighlightDecoration = Extension.create({
   name: "chatHighlight",
@@ -64,11 +64,11 @@ export const HighlightDecoration = Extension.create({
             };
           },
           apply(transaction, prev) {
-            const meta2 = transaction.getMeta(highlightPluginKey);
-            if (meta2) {
+            const meta = transaction.getMeta(highlightPluginKey);
+            if (meta) {
               return {
-                decorations: buildDecorations(transaction.doc, meta2),
-                ranges: meta2,
+                decorations: buildDecorations(transaction.doc, meta),
+                ranges: meta,
               };
             }
             if (transaction.docChanged) {
@@ -81,9 +81,9 @@ export const HighlightDecoration = Extension.create({
           },
         },
         props: {
-          decorations(state2) {
+          decorations(state) {
             return (
-              highlightPluginKey.getState(state2)?.decorations ??
+              highlightPluginKey.getState(state)?.decorations ??
               DecorationSet.empty
             );
           },

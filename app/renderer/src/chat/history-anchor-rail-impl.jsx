@@ -14,9 +14,9 @@ const PREVIEW_CARD_ESTIMATED_HEIGHT_PX = 140;
 
 const PIANO_RADIUS = 2;
 
-const RailTick = reactExports.memo(function RailTick2({
-  index: index2,
-  top: top2,
+const RailTick = reactExports.memo(function RailTick({
+  index,
+  top: railTop,
   isPrimaryActive,
   isVisibleActive,
   hasHoveredMarker,
@@ -25,12 +25,12 @@ const RailTick = reactExports.memo(function RailTick2({
   onJumpToTurn,
 }) {
   const { t: translate } = useTranslation();
-  const handleClick2 = reactExports.useCallback(
-    () => onJumpToTurn(index2),
-    [index2, onJumpToTurn],
+  const handleClick = reactExports.useCallback(
+    () => onJumpToTurn(index),
+    [index, onJumpToTurn],
   );
   const ariaLabel = translate("chat.historyRail.turn", "对话 {{n}}", {
-    n: index2 + 1,
+    n: index + 1,
   });
   let widthClass;
   if (compact) {
@@ -63,14 +63,14 @@ const RailTick = reactExports.memo(function RailTick2({
   return (
     <button
       type="button"
-      onClick={handleClick2}
+      onClick={handleClick}
       aria-label={ariaLabel}
       aria-current={isPrimaryActive ? "true" : void 0}
-      data-turn-index={index2}
+      data-turn-index={index}
       data-visible-active={isVisibleActive ? "true" : void 0}
       className="group absolute right-0 flex h-2.5 w-full shrink-0 items-center justify-end cursor-pointer"
       style={{
-        top: `${top2}px`,
+        top: `${railTop}px`,
       }}
     >
       <span
@@ -156,7 +156,7 @@ function AgentSignalRow({ signal, t: translate }) {
   );
 }
 
-const PreviewCard = reactExports.memo(function PreviewCard2({
+const PreviewCard = reactExports.memo(function PreviewCard({
   userSignal,
   agentSignal,
   topStyle,
@@ -204,7 +204,7 @@ const HistoryAnchorRailImpl = ({
     [turns],
   );
   const turnPositionByIndex = reactExports.useMemo(
-    () => new Map(turns.map((turn, position2) => [turn.index, position2])),
+    () => new Map(turns.map((turn, position) => [turn.index, position])),
     [turns],
   );
   const totalRailHeight = turns.length * RAIL_TICK_HEIGHT_PX;
@@ -213,17 +213,17 @@ const HistoryAnchorRailImpl = ({
     const firstVisiblePosition = Math.floor(
       railScrollTop / RAIL_TICK_HEIGHT_PX,
     );
-    const start2 = Math.max(
+    const start = Math.max(
       0,
       firstVisiblePosition - RAIL_WINDOW_OVERSCAN_TURNS,
     );
-    const end2 = Math.min(
+    const end = Math.min(
       turns.length,
       Math.ceil((railScrollTop + railViewportHeight) / RAIL_TICK_HEIGHT_PX) +
         RAIL_WINDOW_OVERSCAN_TURNS,
     );
-    return turns.slice(start2, end2).map((turn, offset2) => ({
-      position: start2 + offset2,
+    return turns.slice(start, end).map((turn, offset) => ({
+      position: start + offset,
       turn,
     }));
   }, [railScrollTop, railViewportHeight, turns]);
@@ -236,35 +236,35 @@ const HistoryAnchorRailImpl = ({
   const previewAgentSignal = compact
     ? null
     : (hoveredTurn?.agentSignal ?? null);
-  const handleMouseMove2 = reactExports.useCallback((mouseEvent) => {
+  const handleMouseMove = reactExports.useCallback((mouseEvent) => {
     if (rafIdRef.current != null) return;
     const clientY = mouseEvent.clientY;
     rafIdRef.current = requestAnimationFrame(() => {
       rafIdRef.current = null;
-      const nav2 = navRef.current;
-      const list2 = listRef.current;
-      if (!nav2 || !list2) return;
-      const navRect = nav2.getBoundingClientRect();
+      const nav = navRef.current;
+      const list = listRef.current;
+      if (!nav || !list) return;
+      const navRect = nav.getBoundingClientRect();
       const yInNav = clientY - navRect.top;
       setHoverYInNav((prev) => (Math.abs(prev - yInNav) < 1 ? prev : yInNav));
       const currentTurns = turnsRef.current;
       if (currentTurns.length === 0) return;
-      const listRect = list2.getBoundingClientRect();
-      const position2 = Math.max(
+      const listRect = list.getBoundingClientRect();
+      const position = Math.max(
         0,
         Math.min(
           currentTurns.length - 1,
           Math.floor(
-            (list2.scrollTop + clientY - listRect.top) / RAIL_TICK_HEIGHT_PX,
+            (list.scrollTop + clientY - listRect.top) / RAIL_TICK_HEIGHT_PX,
           ),
         ),
       );
-      const nextIndex = currentTurns[position2]?.index;
+      const nextIndex = currentTurns[position]?.index;
       if (nextIndex == null) return;
       setHoveredIndex((prev) => (prev === nextIndex ? prev : nextIndex));
     });
   }, []);
-  const handleMouseLeave2 = reactExports.useCallback(() => {
+  const handleMouseLeave = reactExports.useCallback(() => {
     if (rafIdRef.current != null) {
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;
@@ -283,19 +283,19 @@ const HistoryAnchorRailImpl = ({
     setRailScrollTop((prev) => (prev === nextScrollTop ? prev : nextScrollTop));
   }, []);
   reactExports.useEffect(() => {
-    const list2 = listRef.current;
+    const list = listRef.current;
     const activePosition = turnPositionByIndex.get(activeIndex);
-    if (!list2 || activePosition == null) return;
+    if (!list || activePosition == null) return;
     const targetTop = activePosition * RAIL_TICK_HEIGHT_PX;
     const targetBottom = targetTop + RAIL_TICK_HEIGHT_PX;
-    const viewportHeight = list2.clientHeight || railViewportHeight;
-    let nextScrollTop = list2.scrollTop;
+    const viewportHeight = list.clientHeight || railViewportHeight;
+    let nextScrollTop = list.scrollTop;
     if (targetTop < nextScrollTop) {
       nextScrollTop = targetTop;
     } else if (targetBottom > nextScrollTop + viewportHeight) {
       nextScrollTop = targetBottom - viewportHeight;
     }
-    if (list2.scrollTop !== nextScrollTop) list2.scrollTop = nextScrollTop;
+    if (list.scrollTop !== nextScrollTop) list.scrollTop = nextScrollTop;
     setRailScrollTop((prev) => (prev === nextScrollTop ? prev : nextScrollTop));
   }, [activeIndex, railViewportHeight, turnPositionByIndex]);
   const previewTopStyle = reactExports.useMemo(() => {
@@ -304,8 +304,8 @@ const HistoryAnchorRailImpl = ({
       return {
         top: `${hoverYInNav}px`,
       };
-    const nav2 = navRef.current;
-    const navH = nav2?.clientHeight ?? 0;
+    const nav = navRef.current;
+    const navH = nav?.clientHeight ?? 0;
     if (navH <= 0)
       return {
         top: 0,
@@ -326,8 +326,8 @@ const HistoryAnchorRailImpl = ({
       data-action-ui-id="chat-history-rail"
       data-overflowing={turns.length > MAX_VISIBLE_RAIL_TURNS ? "true" : void 0}
       data-compact={compact ? "true" : void 0}
-      onMouseMove={handleMouseMove2}
-      onMouseLeave={handleMouseLeave2}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       className={`absolute right-2 top-12 z-10 py-2 ${compact ? "w-[18px]" : "w-8"}`}
     >
       <div
@@ -343,7 +343,7 @@ const HistoryAnchorRailImpl = ({
             height: `${totalRailHeight}px`,
           }}
         >
-          {visibleTurns.map(({ position: position2, turn }) => {
+          {visibleTurns.map(({ position, turn }) => {
             const rawDistance =
               hoveredIndex != null
                 ? Math.abs(turn.index - hoveredIndex)
@@ -356,7 +356,7 @@ const HistoryAnchorRailImpl = ({
               <RailTick
                 key={turn.index}
                 index={turn.index}
-                top={position2 * RAIL_TICK_HEIGHT_PX}
+                top={position * RAIL_TICK_HEIGHT_PX}
                 isPrimaryActive={turn.index === activeIndex}
                 isVisibleActive={activeIndexSet.has(turn.index)}
                 hasHoveredMarker={hoveredIndex != null}
