@@ -8,19 +8,19 @@ function createWorkspaceSessionTabsSnapshot(
   excludedSessionIds = new Set(),
 ) {
   const openedTabIds = state2.openedTabOrder
-    .filter((id2) => {
-      const session = state2.sessions.get(id2);
+    .filter((sessionId) => {
+      const session = state2.sessions.get(sessionId);
       return (
         session !== void 0 &&
-        !excludedSessionIds.has(id2) &&
+        !excludedSessionIds.has(sessionId) &&
         !(session.runtimeSessionId
           ? excludedSessionIds.has(session.runtimeSessionId)
           : false)
       );
     })
-    .map((id2) => {
-      const session = state2.sessions.get(id2);
-      return session?.runtimeSessionId ?? id2;
+    .map((sessionId) => {
+      const session = state2.sessions.get(sessionId);
+      return session?.runtimeSessionId ?? sessionId;
     });
   const rawFocused = state2.focusedSessionId;
   const focusedSession = rawFocused ? state2.sessions.get(rawFocused) : void 0;
@@ -52,9 +52,9 @@ function resolveRestoreDecision(saved, sessions) {
     return {
       kind: "no-saved-state",
     };
-  const availableIds = new Set(sessions.map((s2) => s2.id));
-  const openedTabIds = saved.openedTabIds.filter((id2) =>
-    availableIds.has(id2),
+  const availableIds = new Set(sessions.map((session) => session.id));
+  const openedTabIds = saved.openedTabIds.filter((sessionId) =>
+    availableIds.has(sessionId),
   );
   if (openedTabIds.length === 0) {
     return saved.openedTabIds.length > 0
@@ -186,7 +186,7 @@ export function useSessionTabPersistence(
   }, [sessionStore, persistIfReady]);
   const openDefaultSession = reactExports.useCallback(
     (sessions) => {
-      const active2 = sessions.find((s2) => s2.active) ?? sessions[0];
+      const active2 = sessions.find((session) => session.active) ?? sessions[0];
       if (active2) {
         sessionStore.openTab(active2.id);
         requestSessionSwitch(active2.id);

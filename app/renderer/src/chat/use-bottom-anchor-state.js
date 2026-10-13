@@ -35,11 +35,11 @@ export function useBottomAnchorState(options) {
   }, []);
   const recomputeState = reactExports.useCallback(() => {
     if (!enabled) return;
-    const el = scrollRef.current;
-    if (!el) return;
-    const distance2 = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) return;
+    const distance2 = scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight;
     const isNearBottom = distance2 < NEAR_BOTTOM_PX;
-    const isShortContent = el.scrollHeight <= el.clientHeight + NEAR_BOTTOM_PX;
+    const isShortContent = scrollElement.scrollHeight <= scrollElement.clientHeight + NEAR_BOTTOM_PX;
     isNearBottomRef.current = isNearBottom;
     isShortContentRef.current = isShortContent;
     setState((prev) => {
@@ -63,21 +63,21 @@ export function useBottomAnchorState(options) {
   }, [scrollRef, isStreaming, unreadCount, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const el = scrollRef.current;
-    if (!el) return;
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) return;
     recomputeState();
     const handler = () => recomputeState();
-    el.addEventListener("scroll", handler, {
+    scrollElement.addEventListener("scroll", handler, {
       passive: true,
     });
-    return () => el.removeEventListener("scroll", handler);
+    return () => scrollElement.removeEventListener("scroll", handler);
   }, [scrollRef, recomputeState, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const el = scrollRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
+    const scrollElement = scrollRef.current;
+    if (!scrollElement || typeof ResizeObserver === "undefined") return;
     const observer2 = new ResizeObserver(() => recomputeState());
-    observer2.observe(el);
+    observer2.observe(scrollElement);
     return () => observer2.disconnect();
   }, [scrollRef, recomputeState, enabled]);
   reactExports.useEffect(() => {
@@ -87,7 +87,7 @@ export function useBottomAnchorState(options) {
     prevTokenRef.current = lastMessageToken;
     if (prev == null) return;
     if (isNearBottomRef.current) return;
-    setUnreadCount((c3) => c3 + 1);
+    setUnreadCount((currentUnreadCount) => currentUnreadCount + 1);
     queueMicrotask(recomputeState);
   }, [lastMessageToken, recomputeState, enabled]);
   reactExports.useEffect(() => {

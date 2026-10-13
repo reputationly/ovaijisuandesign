@@ -1,0 +1,7 @@
+key	新名	依据
+lo@12:7	lowerBound	`lowerBound` 是文本偏移二分查找区间的起始 ProseMirror 位置。
+hi@13:7	upperBound	`upperBound` 是文本偏移二分查找区间的结束 ProseMirror 位置。
+mid@15:11	middlePosition	`middlePosition` 是当前二分查找区间的中点位置。
+len@16:11	textLength	`textLength` 是从文档开头到中点位置转换后的文本长度。
+to@33:11	endPosition	`endPosition` 是高亮范围结束文本偏移对应的文档位置。
+tr2@66:17	transaction	`transaction` 是用于读取高亮元数据并更新装饰集的 ProseMirror 事务。

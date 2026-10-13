@@ -1,0 +1,7 @@
+key	新名	依据
+ext@63:9	extension	`extension` 是从资源路径末尾提取并用于分类的文件扩展名。
+out@84:36	artifacts	`artifacts` 是按去重键收集到的媒体产物数组。
+out@96:53	artifacts	`artifacts` 是递归收集成功任务输出时追加产物的数组。
+out@119:72	artifacts	`artifacts` 是收集任务结果文本中媒体路径的输出数组。
+out@130:59	artifacts	`artifacts` 是收集恢复文本中资源路径的输出数组。
+m3@142:11	recoveredItemMatch	`recoveredItemMatch` 是匹配恢复内容中编号媒体产物行的正则结果。

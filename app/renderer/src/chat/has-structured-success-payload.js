@@ -77,7 +77,7 @@ function hasStructuredSuccessPayload(candidate) {
       return true;
     if (
       Array.isArray(record2.paths) &&
-      record2.paths.some((p3) => typeof p3 === "string")
+      record2.paths.some((path) => typeof path === "string")
     ) {
       return true;
     }
@@ -90,7 +90,7 @@ function hasStructuredSuccessPayload(candidate) {
           return true;
         return (
           Array.isArray(result.paths) &&
-          result.paths.some((p3) => typeof p3 === "string")
+          result.paths.some((path) => typeof path === "string")
         );
       });
     }
@@ -127,13 +127,13 @@ export function extractMediaCount(toolResult) {
     const parsed = JSON.parse(displayResult);
     if (typeof parsed?.succeeded === "number") return parsed.succeeded;
     if (Array.isArray(parsed?.results) && parsed.results.length > 0) {
-      const okCount = parsed.results.filter((r2) => r2.ok === true).length;
+      const okCount = parsed.results.filter((result) => result.ok === true).length;
       if (okCount > 0) return okCount;
-      return parsed.results.filter((r2) => r2.paths != null).length;
+      return parsed.results.filter((result) => result.paths != null).length;
     }
     if (Array.isArray(parsed?.paths) && parsed.paths.length > 0) {
       return parsed.paths.filter(
-        (p3) => typeof p3 === "string" && !p3.startsWith("["),
+        (path) => typeof path === "string" && !path.startsWith("["),
       ).length;
     }
     if (typeof parsed?.path === "string" && parsed.path.length > 0) return 1;

@@ -58,7 +58,7 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
   creditReminderConfig,
   onCreditReminderConfigChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const actionsCompact = useComposerActionsCompact();
   const [open, setOpen] = reactExports.useState(false);
   const [view2, setView] = reactExports.useState("modes");
@@ -90,8 +90,8 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
   }, [creditReminderReady, view2]);
   reactExports.useEffect(() => {
     if (!open) return;
-    const handler = (e2) => {
-      if (containerRef.current && !containerRef.current.contains(e2.target)) {
+    const handler = (mouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(mouseEvent.target)) {
         setOpen(false);
       }
     };
@@ -100,14 +100,14 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
   }, [open]);
   reactExports.useEffect(() => {
     if (!open) return;
-    const handler = (e2) => {
-      if (e2.key === "Escape") setOpen(false);
+    const handler = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") setOpen(false);
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [open]);
   const currentOption =
-    MODE_OPTIONS.find((o2) => o2.value === mode2) ?? MODE_OPTIONS[0];
+    MODE_OPTIONS.find((modeOption) => modeOption.value === mode2) ?? MODE_OPTIONS[0];
   const handleCreditReminderSave = async (config2) => {
     if (!creditReminderAdapter) return;
     await creditReminderAdapter.save(config2);
@@ -118,7 +118,7 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
   const modeMenuContent = (
     <>
       <div className="px-2.5 pt-1 pb-0.5 text-[10px] font-normal text-muted-foreground uppercase tracking-wider">
-        {t2("chat.mode.label", "Agent Mode")}
+        {translate("chat.mode.label", "Agent Mode")}
       </div>
       {MODE_OPTIONS.map((option2) => {
         const OptionIcon = option2.icon;
@@ -138,10 +138,10 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
             </span>
             <div className="flex-1 min-w-0 flex flex-col gap-0.5">
               <span className="min-w-0 truncate whitespace-nowrap text-[13px] font-heading font-normal text-foreground">
-                {t2(option2.labelKey, option2.value)}
+                {translate(option2.labelKey, option2.value)}
               </span>
               <span className="line-clamp-2 text-[12px] text-muted-foreground leading-snug @max-[220px]/mode-menu:hidden">
-                {t2(option2.descKey)}
+                {translate(option2.descKey)}
               </span>
             </div>
             {isActive2 && (
@@ -166,12 +166,12 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
           >
             <StrokeIcon icon={BellRing} size={16} />
             <span className="min-w-0 flex-1 truncate whitespace-nowrap text-[13px]">
-              {t2("chat.creditReminder.settingsTitle", "Credit usage reminder")}
+              {translate("chat.creditReminder.settingsTitle", "Credit usage reminder")}
             </span>
             <span className="shrink-0 text-[11px] text-muted-foreground @max-[260px]/mode-menu:hidden">
               {creditReminderAdapter.config.enabled
                 ? creditReminderAdapter.config.threshold.toLocaleString()
-                : t2("chat.creditReminder.disabled", "Off")}
+                : translate("chat.creditReminder.disabled", "Off")}
             </span>
             <StrokeIcon
               icon={ChevronRight}
@@ -198,9 +198,9 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
         disabled={disabled2}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={t2(currentOption.labelKey, currentOption.value)}
+        aria-label={translate(currentOption.labelKey, currentOption.value)}
       >
-        <span>{t2(currentOption.labelKey, currentOption.value)}</span>
+        <span>{translate(currentOption.labelKey, currentOption.value)}</span>
         <StrokeIcon
           icon={ChevronDown}
           size={16}
@@ -229,7 +229,7 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
               {...motionProps}
               className={popoverClassName}
               role="menu"
-              aria-label={t2("chat.mode.label", "Agent Mode")}
+              aria-label={translate("chat.mode.label", "Agent Mode")}
             >
               {modeMenuContent}
             </div>

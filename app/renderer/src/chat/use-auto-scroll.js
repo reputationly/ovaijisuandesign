@@ -24,22 +24,22 @@ export function useAutoScroll(trigger, resetKey, options = {}) {
       customScrollToBottom();
       return;
     }
-    const el = containerRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    const scrollElement = containerRef.current;
+    if (!scrollElement) return;
+    scrollElement.scrollTop = scrollElement.scrollHeight;
   }, [containerRef, enabled]);
   const checkNearBottom = reactExports.useCallback(() => {
     if (!enabled) return;
-    const el = containerRef.current;
-    if (!el) return;
+    const scrollElement = containerRef.current;
+    if (!scrollElement) return;
     const previousScrollTop = lastScrollTop.current;
-    lastScrollTop.current = el.scrollTop;
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    lastScrollTop.current = scrollElement.scrollTop;
+    const distanceFromBottom = scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight;
     if (distanceFromBottom <= BOTTOM_REENGAGE_THRESHOLD_PX) {
       isNearBottom.current = true;
       return;
     }
-    if (el.scrollTop < previousScrollTop) {
+    if (scrollElement.scrollTop < previousScrollTop) {
       isNearBottom.current = false;
       return;
     }
@@ -50,13 +50,13 @@ export function useAutoScroll(trigger, resetKey, options = {}) {
   }, [containerRef, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const el = containerRef.current;
-    if (!el) return;
-    lastScrollTop.current = el.scrollTop;
-    el.addEventListener("scroll", checkNearBottom, {
+    const scrollElement = containerRef.current;
+    if (!scrollElement) return;
+    lastScrollTop.current = scrollElement.scrollTop;
+    scrollElement.addEventListener("scroll", checkNearBottom, {
       passive: true,
     });
-    return () => el.removeEventListener("scroll", checkNearBottom);
+    return () => scrollElement.removeEventListener("scroll", checkNearBottom);
   }, [checkNearBottom, containerRef, enabled]);
   reactExports.useEffect(() => {
     if (!Object.is(previousResetKeyRef.current, resetKey)) {
@@ -66,10 +66,10 @@ export function useAutoScroll(trigger, resetKey, options = {}) {
     if (!enabled) return;
     if (!pendingResetRef.current) return;
     pendingResetRef.current = false;
-    const el = containerRef.current;
-    if (!el) return;
+    const scrollElement = containerRef.current;
+    if (!scrollElement) return;
     isNearBottom.current = true;
-    lastScrollTop.current = el.scrollTop;
+    lastScrollTop.current = scrollElement.scrollTop;
     scrollToBottom();
   }, [resetKey, enabled, containerRef, scrollToBottom]);
   reactExports.useEffect(() => {
@@ -80,8 +80,8 @@ export function useAutoScroll(trigger, resetKey, options = {}) {
     if (!enabled) return;
     if (!pendingTriggerRef.current) return;
     pendingTriggerRef.current = false;
-    const el = containerRef.current;
-    if (!el || !isNearBottom.current) return;
+    const scrollElement = containerRef.current;
+    if (!scrollElement || !isNearBottom.current) return;
     scrollToBottom();
   }, [trigger, enabled, containerRef, scrollToBottom]);
   return containerRef;

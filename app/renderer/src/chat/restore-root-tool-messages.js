@@ -179,32 +179,32 @@ export function restoreHistorySubAgents(
   onlyMissing = false,
 ) {
   const childSeeds = new Map();
-  for (const m3 of messages2) {
+  for (const historySubAgentMessage of messages2) {
     if (
-      m3.type !== "sub_agent" ||
-      !m3.childSessionId ||
-      !m3.subMessages?.length
+      historySubAgentMessage.type !== "sub_agent" ||
+      !historySubAgentMessage.childSessionId ||
+      !historySubAgentMessage.subMessages?.length
     )
       continue;
-    const taskPartId = m3.partId?.endsWith("__sub_agent")
-      ? m3.partId.slice(0, -"__sub_agent".length)
+    const taskPartId = historySubAgentMessage.partId?.endsWith("__sub_agent")
+      ? historySubAgentMessage.partId.slice(0, -"__sub_agent".length)
       : void 0;
     if (
       onlyMissing &&
       (taskPartId
         ? getPartStore().getPart(taskPartId)
-        : getPartStore().hasChildSubMessageSeed(m3.childSessionId, m3.agent))
+        : getPartStore().hasChildSubMessageSeed(historySubAgentMessage.childSessionId, historySubAgentMessage.agent))
     )
       continue;
     const key2 =
-      taskPartId ?? historySubAgentSeedKey(m3.childSessionId, m3.agent);
+      taskPartId ?? historySubAgentSeedKey(historySubAgentMessage.childSessionId, historySubAgentMessage.agent);
     const entry = childSeeds.get(key2) ?? {
-      childSessionId: m3.childSessionId,
-      agent: m3.agent,
+      childSessionId: historySubAgentMessage.childSessionId,
+      agent: historySubAgentMessage.agent,
       taskPartId,
       seed: [],
     };
-    entry.seed.push(...m3.subMessages);
+    entry.seed.push(...historySubAgentMessage.subMessages);
     childSeeds.set(key2, entry);
   }
   if (childSeeds.size === 0) return;
@@ -303,20 +303,20 @@ function transcriptContains(candidate, transcript) {
 
 export function dropSupersededHistorySubAgents(messages2) {
   const partDerivedByChild = new Map();
-  for (const m3 of messages2) {
-    if (m3.type === "sub_agent" && m3.partId && m3.childSessionId) {
-      const transcripts = partDerivedByChild.get(m3.childSessionId) ?? [];
-      transcripts.push(m3.subMessages ?? []);
-      partDerivedByChild.set(m3.childSessionId, transcripts);
+  for (const historySubAgentMessage of messages2) {
+    if (historySubAgentMessage.type === "sub_agent" && historySubAgentMessage.partId && historySubAgentMessage.childSessionId) {
+      const transcripts = partDerivedByChild.get(historySubAgentMessage.childSessionId) ?? [];
+      transcripts.push(historySubAgentMessage.subMessages ?? []);
+      partDerivedByChild.set(historySubAgentMessage.childSessionId, transcripts);
     }
   }
   if (partDerivedByChild.size === 0) return messages2;
-  return messages2.filter((m3) => {
-    if (m3.type !== "sub_agent" || m3.partId || !m3.childSessionId) return true;
-    const derivedTranscripts = partDerivedByChild.get(m3.childSessionId);
+  return messages2.filter((historySubAgentMessage) => {
+    if (historySubAgentMessage.type !== "sub_agent" || historySubAgentMessage.partId || !historySubAgentMessage.childSessionId) return true;
+    const derivedTranscripts = partDerivedByChild.get(historySubAgentMessage.childSessionId);
     if (!derivedTranscripts) return true;
     return !derivedTranscripts.some((candidate) =>
-      transcriptContains(candidate, m3.subMessages ?? []),
+      transcriptContains(candidate, historySubAgentMessage.subMessages ?? []),
     );
   });
 }
@@ -333,8 +333,8 @@ export class SessionReducer {
    * Delegates to the shared reduceServerMessage function
    * with session-scoped StreamingBuffers.
    */
-  reduce(prev, msg) {
-    return reduceServerMessage(prev, msg, this.buffers, this.sessionId);
+  reduce(prev, serverMessage) {
+    return reduceServerMessage(prev, serverMessage, this.buffers, this.sessionId);
   }
   /** Reset buffers (e.g. on turn end to ensure clean state for next turn). */
   resetBuffers() {

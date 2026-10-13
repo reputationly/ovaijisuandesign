@@ -14,59 +14,59 @@ export function useChatCancel({
 }) {
   const previousBusyBySessionRef = reactExports.useRef(new Map());
   reactExports.useEffect(() => {
-    const sid = sessionStore.getState().focusedSessionId;
-    if (!sid) return;
-    const previousBusy = previousBusyBySessionRef.current.get(sid);
+    const sessionId = sessionStore.getState().focusedSessionId;
+    if (!sessionId) return;
+    const previousBusy = previousBusyBySessionRef.current.get(sessionId);
     if (busy && previousBusy === false) {
-      cancelInFlightSessionIdsRef.current.delete(sid);
+      cancelInFlightSessionIdsRef.current.delete(sessionId);
     }
-    previousBusyBySessionRef.current.set(sid, busy);
+    previousBusyBySessionRef.current.set(sessionId, busy);
   }, [busy, cancelInFlightSessionIdsRef, sessionStore]);
   const performCancel = reactExports.useCallback(
     (source) => {
-      const sid = sessionStore.getState().focusedSessionId;
-      if (!sid) return;
+      const sessionId = sessionStore.getState().focusedSessionId;
+      if (!sessionId) return;
       if (!busy && pendingReasons.length === 0) return;
-      if (cancelInFlightSessionIdsRef.current.has(sid)) return;
-      cancelInFlightSessionIdsRef.current.add(sid);
+      if (cancelInFlightSessionIdsRef.current.has(sessionId)) return;
+      cancelInFlightSessionIdsRef.current.add(sessionId);
       recordAction("chat:cancel", {
         source,
-        sessionId: sid,
+        sessionId,
         busy,
-        pendingReasons: pendingReasons.map((r2) => `${r2.kind}:${r2.id}`),
+        pendingReasons: pendingReasons.map((pendingReason) => `${pendingReason.kind}:${pendingReason.id}`),
       });
       const sent = send2({
         type: "cancel",
-        session_id: sid,
+        session_id: sessionId,
         source,
         reason: busy ? "agent_running" : "pending_reasons",
       });
       if (!sent) {
-        cancelInFlightSessionIdsRef.current.delete(sid);
+        cancelInFlightSessionIdsRef.current.delete(sessionId);
         return;
       }
-      clearMessageDeliveryTimersForSession(sid);
-      sessionStore.finalizePendingTasks(sid);
-      sessionStore.resolvePendingToolConfirms(sid);
+      clearMessageDeliveryTimersForSession(sessionId);
+      sessionStore.finalizePendingTasks(sessionId);
+      sessionStore.resolvePendingToolConfirms(sessionId);
       sessionStore.updateMessages(
-        sid,
+        sessionId,
         (prev) =>
-          prev.map((m3) =>
-            (m3.type === "question" ||
-              m3.type === "interact" ||
-              m3.type === "confirm") &&
-            !m3.resolved
+          prev.map((message) =>
+            (message.type === "question" ||
+              message.type === "interact" ||
+              message.type === "confirm") &&
+            !message.resolved
               ? {
-                  ...m3,
+                  ...message,
                   resolved: true,
                 }
-              : m3,
+              : message,
           ),
         {
           affectsUserAttention: true,
         },
       );
-      controller.markSessionCancelled(sid);
+      controller.markSessionCancelled(sessionId);
       if (busy || pendingReasons.length > 0) {
         sessionStore.pushMessage(
           {
@@ -75,12 +75,12 @@ export function useChatCancel({
             type: "cancelled",
             content: "",
           },
-          sid,
+          sessionId,
         );
       }
-      sessionStore.setBusy(false, sid);
-      sessionStore.setPendingReasons([], sid);
-      controller.resetSession(sid);
+      sessionStore.setBusy(false, sessionId);
+      sessionStore.setPendingReasons([], sessionId);
+      controller.resetSession(sessionId);
     },
     [
       busy,

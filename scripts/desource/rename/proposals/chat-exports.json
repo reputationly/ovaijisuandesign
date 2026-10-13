@@ -1,0 +1,12 @@
+{
+  "app/renderer/src/chat/yt.js": {
+    "Yt": "languageFileExtensions"
+  },
+  "app/renderer/src/chat/xn.js": {
+    "vn": "defaultCodeThemes",
+    "xn": "defaultLinkSafety"
+  },
+  "app/renderer/src/chat/nn.jsx": {
+    "po": "MermaidRenderer"
+  }
+}

@@ -1,0 +1,5 @@
+key	新名	依据
+Kbd@20:10	KeyboardShortcut	`KeyboardShortcut` 是渲染包裹 Enter 快捷键标签的键盘提示组件。
+t2@29:14	translate	`translate` 为循环保护确认面板获取本地化文案。
+e2@58:25	keyboardEvent	`keyboardEvent` 是用于判断快捷键并触发相应操作的键盘事件。
+e2@87:22	keyboardEvent	`keyboardEvent` 是文档 keydown 监听器收到的键盘事件。

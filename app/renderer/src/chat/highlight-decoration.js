@@ -9,18 +9,18 @@ import {
 import { highlightPluginKey } from "./use-composer-placeholder-actions.jsx";
 function textOffsetToPmPos(doc2, textOffset) {
   if (textOffset <= 0) return 1;
-  let lo = 1;
-  let hi = doc2.content.size;
-  while (lo < hi) {
-    const mid = Math.floor((lo + hi) / 2);
-    const len = doc2.textBetween(0, mid, "\n", mentionRefLeafText).length;
-    if (len < textOffset) {
-      lo = mid + 1;
+  let lowerBound = 1;
+  let upperBound = doc2.content.size;
+  while (lowerBound < upperBound) {
+    const middlePosition = Math.floor((lowerBound + upperBound) / 2);
+    const textLength = doc2.textBetween(0, middlePosition, "\n", mentionRefLeafText).length;
+    if (textLength < textOffset) {
+      lowerBound = middlePosition + 1;
     } else {
-      hi = mid;
+      upperBound = middlePosition;
     }
   }
-  return lo;
+  return lowerBound;
 }
 const HIGHLIGHT_CLASS = {
   skill: "hl-skill",
@@ -30,12 +30,12 @@ function buildDecorations(doc2, ranges) {
   const decorations2 = [];
   for (const { start: start2, end: end2, kind, attrs } of ranges) {
     const from2 = textOffsetToPmPos(doc2, start2);
-    const to = textOffsetToPmPos(doc2, end2);
-    if (from2 >= to || to > doc2.content.size + 1) continue;
+    const endPosition = textOffsetToPmPos(doc2, end2);
+    if (from2 >= endPosition || endPosition > doc2.content.size + 1) continue;
     decorations2.push(
       Decoration.inline(
         from2,
-        to,
+        endPosition,
         {
           ...attrs,
           class: [HIGHLIGHT_CLASS[kind], attrs?.class]
@@ -63,17 +63,17 @@ export const HighlightDecoration = Extension.create({
               ranges: [],
             };
           },
-          apply(tr2, prev) {
-            const meta2 = tr2.getMeta(highlightPluginKey);
+          apply(transaction, prev) {
+            const meta2 = transaction.getMeta(highlightPluginKey);
             if (meta2) {
               return {
-                decorations: buildDecorations(tr2.doc, meta2),
+                decorations: buildDecorations(transaction.doc, meta2),
                 ranges: meta2,
               };
             }
-            if (tr2.docChanged) {
+            if (transaction.docChanged) {
               return {
-                decorations: buildDecorations(tr2.doc, prev.ranges),
+                decorations: buildDecorations(transaction.doc, prev.ranges),
                 ranges: prev.ranges,
               };
             }

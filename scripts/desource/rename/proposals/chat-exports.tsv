@@ -1,0 +1,5 @@
+文件	旧名	新名	依据
+app/renderer/src/chat/yt.js	Yt	languageFileExtensions	`languageFileExtensions` 是按语言标识查询文件扩展名的映射表。
+app/renderer/src/chat/xn.js	vn	defaultCodeThemes	`defaultCodeThemes` 列出代码渲染使用的 GitHub 浅色和深色主题。
+app/renderer/src/chat/xn.js	xn	defaultLinkSafety	`defaultLinkSafety` 是默认启用的链接安全配置对象。
+app/renderer/src/chat/nn.jsx	po	MermaidRenderer	`MermaidRenderer` 负责懒加载并渲染 Mermaid 图表及其状态界面。

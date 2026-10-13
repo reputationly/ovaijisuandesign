@@ -1,0 +1,5 @@
+key	新名	依据
+m3@182:14	historySubAgentMessage	`historySubAgentMessage` 是用于恢复根工具消息的子代理历史记录。
+m3@306:14	historySubAgentMessage	`historySubAgentMessage` 是待补全状态的子代理历史消息。
+m3@314:28	historySubAgentMessage	`historySubAgentMessage` 是按类型和标识检查的子代理消息。
+msg@336:16	serverMessage	`serverMessage` 是传入消息 reducer 并用于恢复工具状态的服务端消息。

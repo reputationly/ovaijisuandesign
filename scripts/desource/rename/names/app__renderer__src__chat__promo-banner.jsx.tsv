@@ -1,0 +1,7 @@
+key	新名	依据
+X@2:60	CloseIcon	`CloseIcon` 是促销横幅关闭按钮显示的 X 形图标组件。
+n2@20:11	dismissedUntil	`dismissedUntil` 是从本地存储读取的横幅静默截止时间戳。
+n2@41:21	dismissTick	`dismissTick` 是关闭促销横幅后递增以触发状态更新的计数。
+t2@86:14	translate	`translate` 为促销横幅及其关闭按钮生成本地化文案。
+e2@106:19	keyboardEvent	`keyboardEvent` 是用于处理横幅 Enter/空格操作的键盘事件。
+e2@131:19	clickEvent	`clickEvent` 是关闭按钮点击后用于阻止事件冒泡的鼠标事件。

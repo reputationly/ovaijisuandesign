@@ -60,11 +60,11 @@ export function inferArtifactTypeFromPath(path2) {
   const clean = path2.split("?")[0]?.split("#")[0] ?? "";
   const dot2 = clean.lastIndexOf(".");
   if (dot2 < 0) return void 0;
-  const ext = clean.slice(dot2 + 1).toLowerCase();
-  if (IMAGE_EXTENSIONS.has(ext)) return "image";
-  if (VIDEO_EXTENSIONS.has(ext)) return "video";
-  if (AUDIO_EXTENSIONS.has(ext)) return "audio";
-  if (ext === "md" || ext === "txt") return "file";
+  const extension = clean.slice(dot2 + 1).toLowerCase();
+  if (IMAGE_EXTENSIONS.has(extension)) return "image";
+  if (VIDEO_EXTENSIONS.has(extension)) return "video";
+  if (AUDIO_EXTENSIONS.has(extension)) return "audio";
+  if (extension === "md" || extension === "txt") return "file";
   return void 0;
 }
 
@@ -81,11 +81,11 @@ export function isTaskTool(toolName2) {
 
 const RECOVERED_ITEM_RE = /^\d+\.\s*(image|video|audio)\s*·\s*(.+)$/;
 
-export function addArtifact(seen2, out, type2, url2, metadata = {}) {
+export function addArtifact(seen2, artifacts, type2, url2, metadata = {}) {
   const key2 = normalizeKey(url2);
   if (seen2.has(key2)) return;
   seen2.add(key2);
-  out.push({
+  artifacts.push({
     type: type2,
     path: key2,
     url: url2,
@@ -93,7 +93,7 @@ export function addArtifact(seen2, out, type2, url2, metadata = {}) {
   });
 }
 
-export function collectAssetOutputs(payload, seen2, out) {
+export function collectAssetOutputs(payload, seen2, artifacts) {
   const parsed = asRecord(payload);
   if (!parsed) return;
   const assetOutputs = parsed.asset_outputs;
@@ -106,28 +106,28 @@ export function collectAssetOutputs(payload, seen2, out) {
       if (typeof source !== "string" || source.length === 0) continue;
       const type2 = inferArtifactTypeFromPath(source);
       if (!type2) continue;
-      addArtifact(seen2, out, type2, source);
+      addArtifact(seen2, artifacts, type2, source);
     }
   }
   if (Array.isArray(parsed.runs)) {
     for (const run2 of parsed.runs) {
-      collectAssetOutputs(run2, seen2, out);
+      collectAssetOutputs(run2, seen2, artifacts);
     }
   }
 }
 
-export function collectFromTaskResultText(toolName2, rawResult, seen2, out) {
+export function collectFromTaskResultText(toolName2, rawResult, seen2, artifacts) {
   if (!isTaskTool(toolName2) || !rawResult) return;
   TASK_RESULT_PATH_FIELD_RE.lastIndex = 0;
   for (const match2 of rawResult.matchAll(TASK_RESULT_PATH_FIELD_RE)) {
     const path2 = match2[1]?.trim();
     if (!path2) continue;
     const type2 = inferArtifactTypeFromPath(path2);
-    if (type2) addArtifact(seen2, out, type2, path2);
+    if (type2) addArtifact(seen2, artifacts, type2, path2);
   }
 }
 
-export function collectFromRecoveredText(content2, seen2, out) {
+export function collectFromRecoveredText(content2, seen2, artifacts) {
   const normalized = stripContextPrefix(content2).trimStart();
   if (!isRecoveredMessage(normalized)) return;
   for (const line of normalized.split("\n")) {
@@ -136,13 +136,13 @@ export function collectFromRecoveredText(content2, seen2, out) {
       const path2 = trimmed.slice(RECOVERED_ASSET_LINE_PREFIX.length).trim();
       if (!path2) continue;
       const type2 = inferArtifactTypeFromPath(path2);
-      if (type2) addArtifact(seen2, out, type2, path2);
+      if (type2) addArtifact(seen2, artifacts, type2, path2);
       continue;
     }
-    const m3 = RECOVERED_ITEM_RE.exec(trimmed);
-    if (m3) {
-      const path2 = m3[2].trim();
-      if (path2) addArtifact(seen2, out, m3[1], path2);
+    const recoveredItemMatch = RECOVERED_ITEM_RE.exec(trimmed);
+    if (recoveredItemMatch) {
+      const path2 = recoveredItemMatch[2].trim();
+      if (path2) addArtifact(seen2, artifacts, recoveredItemMatch[1], path2);
     }
   }
 }

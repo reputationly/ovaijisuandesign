@@ -1,0 +1,6 @@
+key	新名	依据
+el@27:11	scrollElement	`scrollElement` 是自动滚动逻辑读取尺寸和滚动位置的容器。
+el@33:11	scrollElement	`scrollElement` 是注册滚动监听器并执行自动滚动的容器。
+el@53:11	scrollElement	`scrollElement` 是 ResizeObserver 监听的聊天滚动容器。
+el@69:11	scrollElement	`scrollElement` 是用于比较滚动位置与底部锚点的容器。
+el@83:11	scrollElement	`scrollElement` 是用于定位自动滚动锚点的容器。
