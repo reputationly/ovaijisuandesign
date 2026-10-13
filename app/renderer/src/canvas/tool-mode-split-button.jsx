@@ -99,8 +99,8 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
     return () => document.removeEventListener("keydown", handleKeyDown2);
   }, [open]);
   const choose = reactExports.useCallback(
-    (id2, event) => {
-      commandRegistry.execute(id2);
+    (commandId, event) => {
+      commandRegistry.execute(commandId);
       setOpen(false);
       if (event.detail === 0)
         triggerRef.current?.focus({
@@ -186,7 +186,7 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
         </button>
       </Tooltip>
       <QuickZoomPresence value={open ? true : null} elementRef={menuRef}>
-        {(_2, motionProps) => (
+        {(value, motionProps) => (
           <div
             {...motionProps}
             id={menuId}

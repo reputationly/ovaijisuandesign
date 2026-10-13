@@ -209,13 +209,13 @@ export class PersistSaveQueue {
           this.lastFailedSnapshot = null;
         }
       })
-      .catch((err) => {
+      .catch((error) => {
         this.lastFailure = {
           seq: next2.seq,
-          error: err,
+          error,
         };
         if (
-          isRetryableCanvasSaveError(err) &&
+          isRetryableCanvasSaveError(error) &&
           next2.seq >= this.latestDispatchedSeq
         ) {
           this.lastFailedSnapshot = next2;
@@ -224,7 +224,7 @@ export class PersistSaveQueue {
           ...this.metrics,
           failedSaves: this.metrics.failedSaves + 1,
         };
-        this.onError?.(err);
+        this.onError?.(error);
       });
     this.updateDepth();
     return next2.file;
@@ -310,12 +310,12 @@ export class PersistSaveQueue {
           maxDepth: this.metrics.maxDepth,
         });
       })
-      .catch((err) => {
+      .catch((error) => {
         failed = true;
-        retryableFailure = isRetryableCanvasSaveError(err);
+        retryableFailure = isRetryableCanvasSaveError(error);
         this.lastFailure = {
           seq: snapshot2.seq,
-          error: err,
+          error,
         };
         if (retryableFailure && snapshot2.seq >= this.latestDispatchedSeq) {
           this.lastFailedSnapshot = snapshot2;
@@ -336,9 +336,9 @@ export class PersistSaveQueue {
           superseded: this.metrics.superseded,
           skippedNoop: this.metrics.skippedNoop,
           maxDepth: this.metrics.maxDepth,
-          error: err instanceof Error ? err.message : String(err),
+          error: error instanceof Error ? error.message : String(error),
         });
-        this.onError?.(err);
+        this.onError?.(error);
       })
       .finally(() => {
         if (this.inFlight?.seq === snapshot2.seq) {

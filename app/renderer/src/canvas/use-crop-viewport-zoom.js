@@ -88,8 +88,8 @@ export function useCropViewportZoom(
   maxZoom = CANVAS_MAX_ZOOM,
 ) {
   const { setViewport, getViewport } = useReactFlow();
-  const canvasWidth = useStore((s2) => s2.width);
-  const canvasHeight = useStore((s2) => s2.height);
+  const canvasWidth = useStore((canvasState) => canvasState.width);
+  const canvasHeight = useStore((canvasState) => canvasState.height);
   const lastLayoutInput = reactExports.useRef(null);
   if (!target) {
     lastLayoutInput.current = null;

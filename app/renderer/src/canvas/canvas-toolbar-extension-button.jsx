@@ -2,11 +2,11 @@
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
-import { cn } from "../infra/dialog-content.jsx";
+import { cn as mergeClassNames } from "../infra/dialog-content.jsx";
 export function ToolbarSeparator({ large = false, className }) {
   return (
     <div
-      className={cn(
+      className={mergeClassNames(
         `w-px shrink-0 bg-[var(--canvas-controls-border)] ${large ? "mx-[2px] h-5" : "mx-px h-4"}`,
         className,
       )}

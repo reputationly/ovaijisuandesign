@@ -71,7 +71,7 @@ export function buildCanvasFileSnapshot(graph, mode2) {
   return {
     version: 1,
     mode: mode2,
-    nodes: graph.nodes.map((n2) => runtimeNodeToFileNode(n2, mode2)),
+    nodes: graph.nodes.map((node) => runtimeNodeToFileNode(node, mode2)),
     // Pure functions that only mutate node geometry (group / ungroup) ignore
     // edges entirely. `relayoutGroupChildren`, however, reads the inner edges
     // of a group in every mode (grid packs edge-connected components as
@@ -80,14 +80,14 @@ export function buildCanvasFileSnapshot(graph, mode2) {
     // protocol `CanvasFileEdge` share the same shape modulo a defaulted
     // `type` -- hand-rolling the conversion keeps the protocol package
     // edge-agnostic.
-    edges: graph.edges.map((e2) => ({
-      id: e2.id,
-      source: e2.source,
-      sourceHandle: e2.sourceHandle,
-      target: e2.target,
-      targetHandle: e2.targetHandle,
-      type: e2.type ?? "derivation",
-      data: e2.data,
+    edges: graph.edges.map((edge) => ({
+      id: edge.id,
+      source: edge.source,
+      sourceHandle: edge.sourceHandle,
+      target: edge.target,
+      targetHandle: edge.targetHandle,
+      type: edge.type ?? "derivation",
+      data: edge.data,
     })),
   };
 }

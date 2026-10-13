@@ -1,6 +1,6 @@
 // diagnostic-history-tools.js
-import { MEDIA_EXTENSIONS, Ungroup$1, withIconCompositing } from "../vendor.js";
-export const Ungroup = withIconCompositing(Ungroup$1);
+import { MEDIA_EXTENSIONS, Ungroup$1 as ungroupIcon, withIconCompositing } from "../vendor.js";
+export const Ungroup = withIconCompositing(ungroupIcon);
 export const TOOL_ABORTED_BY_USER_TEXT = "Tool execution aborted";
 export function chatDiagnosticHash(value) {
   let first2 = 2166136261;
@@ -58,6 +58,6 @@ export function formatConnectorMention(serverName, displayName2) {
 export function detectFileType(filename) {
   const dot2 = filename.lastIndexOf(".");
   if (dot2 < 0) return "file";
-  const ext = filename.slice(dot2).toLowerCase();
-  return MEDIA_EXTENSIONS[ext] ?? "file";
+  const extension = filename.slice(dot2).toLowerCase();
+  return MEDIA_EXTENSIONS[extension] ?? "file";
 }

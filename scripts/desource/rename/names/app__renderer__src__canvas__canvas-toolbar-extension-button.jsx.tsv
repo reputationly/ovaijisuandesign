@@ -1,0 +1,2 @@
+key	old	new	依据
+cn@5:10	cn	mergeClassNames	来源函数合并 clsx 结果并执行 Tailwind 类名冲突合并，用于工具栏分隔线样式。

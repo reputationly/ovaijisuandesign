@@ -1,0 +1,3 @@
+key	old	new	依据
+id2@102:6	id2	commandId	commandRegistry.execute 接收该命令标识以切换画布工具模式。
+_2@189:11	_2	value	QuickZoomPresence 将保留的 value 作为第一个 children 参数传入，此处无需使用。

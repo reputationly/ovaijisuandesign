@@ -1,0 +1,3 @@
+key	old	new	依据
+s2@91:33	s2	canvasState	useStore 选择器接收画布 store 状态并读取画布宽度。
+s2@92:34	s2	canvasState	useStore 选择器接收画布 store 状态并读取画布高度。

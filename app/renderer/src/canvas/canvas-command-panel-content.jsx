@@ -27,12 +27,12 @@ export function CanvasCommandPanelContent({
   onStickerAssetChange,
   onStickerEmojiChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (!activeCommand) return null;
   if (activeCommand === CANVAS_COMMAND_IDS.comments) {
     return (
       <p className="text-[11px] leading-5 text-[var(--canvas-controls-text-muted)]">
-        {t2("canvas.toolbar.commentsHint")}
+        {translate("canvas.toolbar.commentsHint")}
       </p>
     );
   }
@@ -42,7 +42,7 @@ export function CanvasCommandPanelContent({
     const stickerSummaryRow = (
       <div className="flex items-center gap-1 text-[10px] text-[var(--canvas-controls-text-muted)]">
         <span className="shrink-0 px-1">
-          {t2("canvas.toolbar.stickerCount", {
+          {translate("canvas.toolbar.stickerCount", {
             count: stickerCount,
           })}
         </span>
@@ -54,8 +54,8 @@ export function CanvasCommandPanelContent({
             disabled={stickerCount === 0}
             aria-label={
               allStickersHidden
-                ? t2("canvas.toolbar.showStickers")
-                : t2("canvas.toolbar.hideStickers")
+                ? translate("canvas.toolbar.showStickers")
+                : translate("canvas.toolbar.hideStickers")
             }
           >
             {allStickersHidden ? (
@@ -64,18 +64,18 @@ export function CanvasCommandPanelContent({
               <Eye size={12} strokeWidth={1.5} aria-hidden="true" />
             )}
             {allStickersHidden
-              ? t2("canvas.toolbar.showStickers")
-              : t2("canvas.toolbar.hideStickers")}
+              ? translate("canvas.toolbar.showStickers")
+              : translate("canvas.toolbar.hideStickers")}
           </button>
           <button
             type="button"
             className="flex h-7 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-md border border-[var(--canvas-controls-border)] px-2 text-[10px] text-[var(--canvas-controls-text-muted)] transition-colors [border-width:var(--divider-width)] hover:border-destructive hover:bg-destructive/10 hover:text-destructive disabled:cursor-default disabled:opacity-40"
             onClick={onClearStickers}
             disabled={stickerCount === 0}
-            aria-label={t2("canvas.toolbar.clearStickers", "Clear")}
+            aria-label={translate("canvas.toolbar.clearStickers", "Clear")}
           >
             <Trash2 size={12} strokeWidth={1.5} aria-hidden="true" />
-            {t2("canvas.toolbar.clearStickers", "Clear")}
+            {translate("canvas.toolbar.clearStickers", "Clear")}
           </button>
         </div>
       </div>
@@ -89,9 +89,9 @@ export function CanvasCommandPanelContent({
               type="button"
               data-action-ui-id={`canvas.sticker-picker-${asset.id}`}
               className={`${stickerOptionClass(stickerAssetId === asset.id)} flex-1`}
-              aria-label={t2(asset.labelKey)}
+              aria-label={translate(asset.labelKey)}
               aria-pressed={stickerAssetId === asset.id}
-              title={t2(asset.labelKey)}
+              title={translate(asset.labelKey)}
               onClick={() => {
                 onStickerAssetChange(asset.id);
               }}
@@ -111,13 +111,13 @@ export function CanvasCommandPanelContent({
             aria-expanded={emojiPickerOpen}
             aria-label={
               emojiPickerOpen
-                ? t2("canvas.sticker.collapse", "收起贴纸")
-                : t2("canvas.sticker.expand", "展开更多贴纸")
+                ? translate("canvas.sticker.collapse", "收起贴纸")
+                : translate("canvas.sticker.expand", "展开更多贴纸")
             }
             title={
               emojiPickerOpen
-                ? t2("canvas.sticker.collapse", "收起贴纸")
-                : t2("canvas.sticker.expand", "展开更多贴纸")
+                ? translate("canvas.sticker.collapse", "收起贴纸")
+                : translate("canvas.sticker.expand", "展开更多贴纸")
             }
             onClick={() => onEmojiPickerOpenChange(!emojiPickerOpen)}
           >
@@ -160,7 +160,7 @@ export function CanvasCommandPanelContent({
   if (activeCommand === CANVAS_COMMAND_IDS.assets) {
     return (
       <p className="text-[11px] leading-5 text-[var(--canvas-controls-text-muted)]">
-        {t2("canvas.toolbar.assetsHint")}
+        {translate("canvas.toolbar.assetsHint")}
       </p>
     );
   }
