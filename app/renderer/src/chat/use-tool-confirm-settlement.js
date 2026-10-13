@@ -128,8 +128,8 @@ export function resolveDispatcherSeriesLabel(toolName2, vendor, mediaModels) {
         : void 0;
   if (!vendorMap) return void 0;
   for (const candidateId of vendorMap[vendor] ?? []) {
-    const hit = mediaModels.find((m3) => m3.id === candidateId);
-    if (hit?.display_name) return hit.display_name;
+    const matchedModel = mediaModels.find((mediaModel) => mediaModel.id === candidateId);
+    if (matchedModel?.display_name) return matchedModel.display_name;
   }
   return void 0;
 }
@@ -146,17 +146,17 @@ export function isHiddenVideoGenerationMode(value) {
   return HIDDEN_VIDEO_GENERATION_MODES.has(value);
 }
 
-export function getToolStatusLabel(status, t2, toolResult, interruption) {
-  if (!status || status === "pending") return t2("chat.statusPending");
-  if (status === "ok") return t2("chat.statusDone");
+export function getToolStatusLabel(status, translate, toolResult, interruption) {
+  if (!status || status === "pending") return translate("chat.statusPending");
+  if (status === "ok") return translate("chat.statusDone");
   if (status === "error") {
     if (
       isToolCancelInterrupted(toolResult) ||
       resolveToolInterruption(toolResult, interruption)
     ) {
-      return t2("chat.statusInterrupted");
+      return translate("chat.statusInterrupted");
     }
-    return t2("chat.statusError");
+    return translate("chat.statusError");
   }
   return status;
 }
@@ -172,7 +172,7 @@ export function formatArgs(args) {
     const parsed = JSON.parse(args);
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       const filtered = Object.fromEntries(
-        Object.entries(parsed).filter(([k2]) => !INTERNAL_ARG_KEYS.has(k2)),
+        Object.entries(parsed).filter(([key]) => !INTERNAL_ARG_KEYS.has(key)),
       );
       return JSON.stringify(filtered, null, 2);
     }
@@ -189,39 +189,39 @@ const ASYNC_APPROVAL_TOOLS = new Set([
 
 const COMFYUI_AGENT = "comfyui-agent";
 
-function subToolMatchesConfirm(sub, ask) {
-  if (sub.type !== "tool") return false;
-  const targetTool = ask.toolConfirmData?.tool;
+function subToolMatchesConfirm(subMessage, confirmationAsk) {
+  if (subMessage.type !== "tool") return false;
+  const targetTool = confirmationAsk.toolConfirmData?.tool;
   if (!targetTool) return false;
-  return parseToolResult(sub.content ?? "").name === targetTool;
+  return parseToolResult(subMessage.content ?? "").name === targetTool;
 }
 
-function subAgentMatchesConfirm(message2, ask) {
+function subAgentMatchesConfirm(message2, confirmationAsk) {
   if (message2.type !== "sub_agent") return false;
-  return (message2.subMessages ?? []).some((sub) =>
-    subToolMatchesConfirm(sub, ask),
+  return (message2.subMessages ?? []).some((subMessage) =>
+    subToolMatchesConfirm(subMessage, confirmationAsk),
   );
 }
 
-function topLevelToolMatchesConfirm(message2, ask) {
+function topLevelToolMatchesConfirm(message2, confirmationAsk) {
   if (message2.type !== "tool") return false;
-  const targetTool = ask.toolConfirmData?.tool;
+  const targetTool = confirmationAsk.toolConfirmData?.tool;
   if (!targetTool) return false;
   return (
     (message2.toolName ?? parseToolResult(message2.content).name) === targetTool
   );
 }
 
-export function findToolConfirmOwningSubAgent(messages2, ask) {
-  let askIndex = messages2.indexOf(ask);
+export function findToolConfirmOwningSubAgent(messages2, confirmationAsk) {
+  let askIndex = messages2.indexOf(confirmationAsk);
   if (askIndex < 0)
-    askIndex = messages2.findIndex((message2) => message2.id === ask.id);
+    askIndex = messages2.findIndex((message2) => message2.id === confirmationAsk.id);
   if (askIndex < 0) askIndex = messages2.length;
   for (let index2 = askIndex - 1; index2 >= 0; index2 -= 1) {
     const candidate = messages2[index2];
     if (!candidate) continue;
-    if (topLevelToolMatchesConfirm(candidate, ask)) return void 0;
-    if (subAgentMatchesConfirm(candidate, ask)) return candidate;
+    if (topLevelToolMatchesConfirm(candidate, confirmationAsk)) return void 0;
+    if (subAgentMatchesConfirm(candidate, confirmationAsk)) return candidate;
   }
   return void 0;
 }

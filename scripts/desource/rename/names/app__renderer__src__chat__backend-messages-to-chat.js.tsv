@@ -1,0 +1,17 @@
+key	新名	依据
+m3@101:14	backendMessage	`backendMessage` 是后端消息流中的任意消息，循环按类型转换。
+r2@110:48	message	`message` 是查找最近工具消息时谓词收到的任意聊天消息。
+i2@129:20	index	`index` 是从结果消息列表末尾向前扫描的位置。
+r2@130:19	message	`message` 是当前扫描到的任意结果消息，随后按类型处理。
+idx@276:13	subAgentIndex	`subAgentIndex` 是当前后端事件所属历史子代理消息的位置。
+sa@293:15	subAgentMessage	`subAgentMessage` 是按索引定位的子代理消息，供追加文本子消息。
+r2@329:18	message	`message` 是查找子代理前最近任务工具时谓词收到的任意聊天消息。
+idx@374:13	subAgentIndex	`subAgentIndex` 是当前子代理事件所属历史消息的位置。
+sa@391:15	subAgentMessage	`subAgentMessage` 是按索引定位并追加工具调用结果的子代理消息。
+idx@412:13	subAgentIndex	`subAgentIndex` 是当前思考事件所属历史子代理消息的位置。
+sa@429:15	subAgentMessage	`subAgentMessage` 是按索引定位并更新思考内容的子代理消息。
+idx@452:15	subAgentIndex	`subAgentIndex` 是当前工具结果事件所属历史子代理消息的位置。
+sa@458:17	subAgentMessage	`subAgentMessage` 是按索引定位并更新工具结果的子代理消息。
+s2@464:14	subMessage	`subMessage` 是查找工具结果时谓词收到的任意子消息。
+s2@472:44	subMessage	`subMessage` 是回退查找工具结果时谓词收到的任意子消息。
+sub@474:19	toolSubMessage	`toolSubMessage` 是已由工具类型索引定位的子代理工具消息。

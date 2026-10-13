@@ -17,20 +17,20 @@ import {
 import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
 import { API_PATHS, measurePerf } from "../vendor.js";
 import { PERF_DERIVE_MESSAGES } from "../generation/to-workspace-browser-url.js";
-function extractErrorString(err) {
-  if (typeof err === "string") return err;
-  if (err && typeof err === "object") {
-    const e2 = err;
-    if (typeof e2.message === "string") return e2.message;
+function extractErrorString(error) {
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object") {
+    const errorObject = error;
+    if (typeof errorObject.message === "string") return errorObject.message;
     if (
-      typeof e2.data === "object" &&
-      e2.data &&
-      typeof e2.data.message === "string"
+      typeof errorObject.data === "object" &&
+      errorObject.data &&
+      typeof errorObject.data.message === "string"
     ) {
-      return e2.data.message;
+      return errorObject.data.message;
     }
   }
-  return String(err ?? "Unknown error");
+  return String(error ?? "Unknown error");
 }
 function normalizeFileUrl(rawUrl, filename) {
   if (rawUrl.startsWith("/files/") || rawUrl.startsWith("http")) return rawUrl;
@@ -627,10 +627,10 @@ export class PartStore {
   pruneHistoryToolSeeds(sessionId, retainedPartIds) {
     const ids2 = this.sessionParts.get(sessionId);
     if (!ids2) return;
-    const retained = ids2.filter((id2) => {
-      if (!this.historySeedPartIds.has(id2) || retainedPartIds.has(id2))
+    const retained = ids2.filter((partId) => {
+      if (!this.historySeedPartIds.has(partId) || retainedPartIds.has(partId))
         return true;
-      this.removePart(id2);
+      this.removePart(partId);
       return false;
     });
     if (retained.length === ids2.length) return;
@@ -666,7 +666,7 @@ export class PartStore {
   getSessionParts(sessionID) {
     const ids2 = this.sessionParts.get(sessionID);
     if (!ids2) return [];
-    return ids2.map((id2) => this.parts.get(id2)).filter((p3) => p3 !== void 0);
+    return ids2.map((partId) => this.parts.get(partId)).filter((part) => part !== void 0);
   }
   getSessionPartCount(sessionID) {
     return this.sessionParts.get(sessionID)?.length ?? 0;
@@ -792,8 +792,8 @@ export class PartStore {
   releaseSession(sessionId) {
     const ids2 = this.sessionParts.get(sessionId);
     if (!ids2) return;
-    for (const id2 of ids2) {
-      this.removePart(id2);
+    for (const partId of ids2) {
+      this.removePart(partId);
     }
     this.sessionParts.delete(sessionId);
     this.activeTaskPartByChildSession.delete(sessionId);
@@ -813,10 +813,10 @@ export class PartStore {
     if (!ids2 || ids2.length <= keepCount) return [];
     const toRemoveIds = ids2.slice(0, ids2.length - keepCount);
     const removed = [];
-    for (const id2 of toRemoveIds) {
-      const part = this.parts.get(id2);
+    for (const partId of toRemoveIds) {
+      const part = this.parts.get(partId);
       if (part) removed.push(part);
-      this.removePart(id2);
+      this.removePart(partId);
     }
     this.sessionParts.set(sessionId, ids2.slice(ids2.length - keepCount));
     this.bumpSessionRevision(sessionId);
@@ -837,10 +837,10 @@ export class PartStore {
     }
     return part?.messageID ?? messageId;
   }
-  removePart(id2) {
-    this.taskSubMessageSeeds.delete(id2);
-    const part = this.parts.get(id2);
-    this.forgetPartOwnership(id2, part);
+  removePart(partId) {
+    this.taskSubMessageSeeds.delete(partId);
+    const part = this.parts.get(partId);
+    this.forgetPartOwnership(partId, part);
     if (part?.type === "tool" && part.tool === "question") {
       this.resolvedQuestionResults.delete(part.callID);
     }
@@ -848,9 +848,9 @@ export class PartStore {
       const pending2 = this.pendingCancelledToolPartIdsBySession.get(
         part.sessionID,
       );
-      if (pending2?.has(id2)) {
+      if (pending2?.has(partId)) {
         const retained = new Set(pending2);
-        retained.delete(id2);
+        retained.delete(partId);
         if (retained.size > 0)
           this.pendingCancelledToolPartIdsBySession.set(
             part.sessionID,
@@ -859,15 +859,15 @@ export class PartStore {
         else this.pendingCancelledToolPartIdsBySession.delete(part.sessionID);
       }
     }
-    this.parts.delete(id2);
-    this.historyToolInterruptions.delete(id2);
-    this.historySeedPartIds.delete(id2);
-    this.cancelledToolPartIds.delete(id2);
-    this.handedOffToolPartIds.delete(id2);
-    this.handoffTargetsByToolPartId.delete(id2);
-    this.partSequences.delete(id2);
-    this.partRevisions.delete(id2);
-    this.derivedMessageCache.delete(id2);
+    this.parts.delete(partId);
+    this.historyToolInterruptions.delete(partId);
+    this.historySeedPartIds.delete(partId);
+    this.cancelledToolPartIds.delete(partId);
+    this.handedOffToolPartIds.delete(partId);
+    this.handoffTargetsByToolPartId.delete(partId);
+    this.partSequences.delete(partId);
+    this.partRevisions.delete(partId);
+    this.derivedMessageCache.delete(partId);
   }
   getPartSessionId(partId) {
     return this.parts.get(partId)?.sessionID;
@@ -890,7 +890,7 @@ export class PartStore {
     return void 0;
   }
   derivePartMessages(partId, childSessions, options = {}) {
-    const t0 = performance.now();
+    const startTime = performance.now();
     const messages2 = this.derivePartMessagesCached(
       partId,
       childSessions,
@@ -900,7 +900,7 @@ export class PartStore {
     );
     measurePerf(
       PERF_DERIVE_MESSAGES,
-      t0,
+      startTime,
       {
         parts: 1,
         messages: messages2.length,
@@ -913,12 +913,12 @@ export class PartStore {
     return messages2;
   }
   deriveMessages(rootSessionId, childSessions, perfMetadata) {
-    const t0 = performance.now();
+    const startTime = performance.now();
     const messages2 = [];
     const partIds = this.sessionParts.get(rootSessionId);
     if (!partIds) return messages2;
-    const cancelMarkers = partIds.reduce((markers, pid, index2) => {
-      const part = this.parts.get(pid);
+    const cancelMarkers = partIds.reduce((markers, partId, index2) => {
+      const part = this.parts.get(partId);
       if (part && isCancelMarkerPart(part)) {
         markers.push({
           index: index2,
@@ -962,7 +962,7 @@ export class PartStore {
     }
     measurePerf(
       PERF_DERIVE_MESSAGES,
-      t0,
+      startTime,
       {
         parts: partIds.length,
         messages: messages2.length,
@@ -1276,7 +1276,7 @@ export class PartStore {
   forgetPartOwnership(partId, part) {
     this.childPartOwners.delete(partId);
     for (const [sessionId, pendingPartIds] of this.pendingChildPartIds) {
-      const remaining = pendingPartIds.filter((id2) => id2 !== partId);
+      const remaining = pendingPartIds.filter((pendingPartId) => pendingPartId !== partId);
       if (remaining.length === 0) this.pendingChildPartIds.delete(sessionId);
       else if (remaining.length !== pendingPartIds.length) {
         this.pendingChildPartIds.set(sessionId, remaining);

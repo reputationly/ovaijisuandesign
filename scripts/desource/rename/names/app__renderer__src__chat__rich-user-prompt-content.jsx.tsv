@@ -1,0 +1,12 @@
+key	新名	依据
+ext@39:9	extension	`extension` 是从路径中提取并规范化的文件扩展名。
+a2@110:12	leftCandidate	`leftCandidate` 是按令牌长度比较的左侧模型候选项。
+b3@110:16	rightCandidate	`rightCandidate` 是按令牌长度比较的右侧模型候选项。
+idx@230:16	index	`index` 是用于判断提及标记位置是否有效的候选文本位置。
+a2@231:14	leftIndex	`leftIndex` 是按先后顺序比较的左侧文本位置。
+b3@231:18	rightIndex	`rightIndex` 是按先后顺序比较的右侧文本位置。
+t2@417:16	translate	`translate` 是富文本提示组件查询本地化按钮文案的函数。
+el@429:13	contentElement	`contentElement` 是用于检查提示内容高度并观察变化的 DOM 元素。
+ro@436:13	resizeObserver	`resizeObserver` 是监听提示内容尺寸变化的观察器。
+mo@438:13	mutationObserver	`mutationObserver` 是监听提示内容节点变化的观察器。
+v2@479:41	isExpanded	`isExpanded` 是展开状态更新器收到的当前布尔值。

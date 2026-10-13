@@ -1,0 +1,13 @@
+key	新名	依据
+err@20:29	error	`error` 是转换为可展示字符串的原始错误值。
+e2@23:11	errorObject	`errorObject` 是从错误值读取 message 或嵌套 data.message 的对象。
+id2@630:35	partId	`partId` 是待保留或从历史种子集合移除的部件标识。
+id2@669:22	partId	`partId` 是通过部件索引取得会话部件的标识。
+p3@669:59	part	`part` 是部件查找结果，过滤掉未找到的值。
+id2@795:16	partId	`partId` 是释放会话时逐个移除的部件标识。
+id2@816:16	partId	`partId` 是裁剪会话时待移除部件的标识。
+id2@840:14	partId	`partId` 是从部件存储及关联索引中删除的部件标识。
+t0@893:11	startTime	`startTime` 是开始派生单个部件消息的性能计时值。
+t0@916:11	startTime	`startTime` 是开始派生整个会话消息的性能计时值。
+pid@920:52	partId	`partId` 是取消标记扫描中当前部件列表的标识。
+id2@1279:48	pendingPartId	`pendingPartId` 是待与当前部件标识比较并筛除的待处理部件标识。

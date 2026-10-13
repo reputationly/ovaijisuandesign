@@ -16,32 +16,32 @@ function parseArgs(args) {
   }
 }
 
-function sameArgs(a2, b3) {
-  if (!a2) return false;
-  return JSON.stringify(a2) === JSON.stringify(b3);
+function sameArgs(actualArgs, expectedArgs) {
+  if (!actualArgs) return false;
+  return JSON.stringify(actualArgs) === JSON.stringify(expectedArgs);
 }
 
 function toolNameMatches(name2, target) {
   return name2 === target;
 }
 
-function toolMessageMatches(message2, ask) {
+function toolMessageMatches(message2, confirmationAsk) {
   if (message2.type !== "tool") return false;
-  const target = ask.toolConfirmData?.tool;
-  const originalArgs = ask.toolConfirmData?.args;
+  const target = confirmationAsk.toolConfirmData?.tool;
+  const originalArgs = confirmationAsk.toolConfirmData?.args;
   if (!target || !originalArgs) return false;
   const tool2 = message2;
   if (!toolNameMatches(tool2.toolName ?? tool2.content, target)) return false;
   return sameArgs(parseArgs(tool2.toolArgs), originalArgs);
 }
 
-function subToolMatches(sub, ask) {
-  if (sub.type !== "tool") return false;
-  const target = ask.toolConfirmData?.tool;
-  const originalArgs = ask.toolConfirmData?.args;
+function subToolMatches(subMessage, confirmationAsk) {
+  if (subMessage.type !== "tool") return false;
+  const target = confirmationAsk.toolConfirmData?.tool;
+  const originalArgs = confirmationAsk.toolConfirmData?.args;
   if (!target || !originalArgs) return false;
-  if (!toolNameMatches(sub.content, target)) return false;
-  return sameArgs(parseArgs(sub.args), originalArgs);
+  if (!toolNameMatches(subMessage.content, target)) return false;
+  return sameArgs(parseArgs(subMessage.args), originalArgs);
 }
 
 function applyToolArgsToMessage(message2, modifiedArgs) {
@@ -55,14 +55,14 @@ function applyToolArgsToMessage(message2, modifiedArgs) {
   };
 }
 
-function applyToolArgsToSubAgent(message2, ask, modifiedArgs) {
+function applyToolArgsToSubAgent(message2, confirmationAsk, modifiedArgs) {
   const subs = message2.subMessages ?? [];
-  for (let i2 = subs.length - 1; i2 >= 0; i2--) {
-    const sub = subs[i2];
-    if (!subToolMatches(sub, ask)) continue;
+  for (let index = subs.length - 1; index >= 0; index--) {
+    const subMessage = subs[index];
+    if (!subToolMatches(subMessage, confirmationAsk)) continue;
     const nextSubs = [...subs];
-    nextSubs[i2] = {
-      ...sub,
+    nextSubs[index] = {
+      ...subMessage,
       args: encodeArgs(modifiedArgs),
     };
     return {
@@ -79,34 +79,34 @@ export function applyToolConfirmReplyOptimisticUpdate(messages2, reply) {
       message2.type === "tool_confirm_ask" && message2.requestId === reply.id,
   );
   if (askIndex < 0) return [...messages2];
-  const ask = messages2[askIndex];
+  const confirmationAsk = messages2[askIndex];
   const next2 = [...messages2];
   const modifiedArgs =
     reply.decision === "confirm" ? reply.modified_args : void 0;
   next2[askIndex] = {
-    ...ask,
+    ...confirmationAsk,
     resolved: true,
     toolConfirmDecision: reply.decision,
-    ...(modifiedArgs && ask.toolConfirmData
+    ...(modifiedArgs && confirmationAsk.toolConfirmData
       ? {
           toolConfirmData: {
-            ...ask.toolConfirmData,
+            ...confirmationAsk.toolConfirmData,
             args: modifiedArgs,
           },
         }
       : {}),
   };
   if (!modifiedArgs) return next2;
-  for (let i2 = askIndex - 1; i2 >= 0; i2--) {
-    const message2 = next2[i2];
-    if (toolMessageMatches(message2, ask)) {
-      next2[i2] = applyToolArgsToMessage(message2, modifiedArgs);
+  for (let index = askIndex - 1; index >= 0; index--) {
+    const message2 = next2[index];
+    if (toolMessageMatches(message2, confirmationAsk)) {
+      next2[index] = applyToolArgsToMessage(message2, modifiedArgs);
       break;
     }
     if (message2.type === "sub_agent") {
-      const updated = applyToolArgsToSubAgent(message2, ask, modifiedArgs);
+      const updated = applyToolArgsToSubAgent(message2, confirmationAsk, modifiedArgs);
       if (updated) {
-        next2[i2] = updated;
+        next2[index] = updated;
         break;
       }
     }

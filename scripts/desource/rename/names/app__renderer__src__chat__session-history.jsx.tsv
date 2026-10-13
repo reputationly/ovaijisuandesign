@@ -1,0 +1,14 @@
+key	新名	依据
+cn@13:18	mergeClassNames	`mergeClassNames` 合并并消解冲突的 CSS 类名，用于会话历史入口及图标。
+t2@61:14	translate	`translate` 是会话历史界面查询本地化文案的函数。
+q2@142:13	normalizedQuery	`normalizedQuery` 是去除首尾空格并转小写的会话搜索词。
+id2@130:31	sessionPreferenceId	`sessionPreferenceId` 是固定会话顺序映射中的首选会话标识。
+a2@132:45	leftSession	`leftSession` 是排序比较中左侧的会话记录。
+b3@132:49	rightSession	`rightSession` 是排序比较中右侧的会话记录。
+id2@157:28	sessionPreferenceId	`sessionPreferenceId` 是待切换固定状态的会话首选标识。
+id2@164:23	sessionPreferenceId	`sessionPreferenceId` 是从固定及隐藏列表移除或加入隐藏列表的会话首选标识。
+id2@172:26	sessionPreferenceId	`sessionPreferenceId` 是从隐藏会话列表恢复时使用的首选标识。
+id2@177:23	sessionId	`sessionId` 是传给打开回调并对应会话记录的界面会话 ID。
+res@192:15	response	`response` 是会话导出接口返回、用于读取文件内容及响应头的响应。
+a2@212:17	downloadLink	`downloadLink` 是浏览器下载导出文件时创建并触发的链接元素。
+e2@263:28	changeEvent	`changeEvent` 是搜索输入框内容变化时收到的表单事件。

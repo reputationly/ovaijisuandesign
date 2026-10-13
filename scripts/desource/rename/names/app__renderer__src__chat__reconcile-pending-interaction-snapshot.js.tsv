@@ -1,0 +1,12 @@
+key	新名	依据
+msg@3:34	message	`message` 是从中读取 `session_id` 的运行时消息。
+a2@52:34	leftMessage	`leftMessage` 是浅比较中待比较的左侧聊天消息。
+b3@52:38	rightMessage	`rightMessage` 是浅比较中待比较的右侧聊天消息。
+idx@182:9	separatorIndex	`separatorIndex` 是工具结果前缀分隔符在文本中的位置。
+obj@200:9	record	`record` 是稳定序列化的普通对象记录。
+k2@202:25	key	`key` 是按排序顺序稳定序列化的对象字段名。
+k2@209:14	key	`key` 是待排除或复制到规范参数对象的字段名。
+i2@222:12	index	`index` 是从消息末尾向前搜索工具确认请求的当前位置。
+m3@223:11	message	`message` 是待由循环按类型检查的任意聊天消息。
+s2@235:10	subMessage	`subMessage` 是谓词收到并检查类型及参数的任意子消息。
+ask@263:14	confirmationAsk	`confirmationAsk` 是从待处理交互中筛出的未解决确认请求。

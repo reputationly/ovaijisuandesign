@@ -124,24 +124,24 @@ export function errorCodeForMessageDeliveryStage(stage) {
       return ErrorCodes.RUNTIME_CONNECTION_LOST;
   }
 }
-export function messageDeliveryRuntimeProgressSessionId(msg) {
-  if (!MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(msg.type)) return null;
-  return "session_id" in msg && typeof msg.session_id === "string"
-    ? msg.session_id
+export function messageDeliveryRuntimeProgressSessionId(message) {
+  if (!MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(message.type)) return null;
+  return "session_id" in message && typeof message.session_id === "string"
+    ? message.session_id
     : null;
 }
-export function rootRuntimeTerminalSessionId(msg) {
-  if (!MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(msg.type)) return null;
-  if (!("session_id" in msg) || typeof msg.session_id !== "string") return null;
-  if (msg.type === "session_idle" && msg.childSessionId) {
+export function rootRuntimeTerminalSessionId(message) {
+  if (!MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(message.type)) return null;
+  if (!("session_id" in message) || typeof message.session_id !== "string") return null;
+  if (message.type === "session_idle" && message.childSessionId) {
     return null;
   }
-  return msg.session_id;
+  return message.session_id;
 }
-export function isRuntimeBusyProgress(msg) {
+export function isRuntimeBusyProgress(message) {
   return (
-    MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(msg.type) &&
-    !MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(msg.type)
+    MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(message.type) &&
+    !MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(message.type)
   );
 }
 export function clearBridgeTimeoutPresentation(
@@ -261,14 +261,14 @@ export function handleSessionCreatedResponse({
   }
 }
 export const TEXT_AGENT_INTRO_MESSAGE_ID_PREFIX = "text-agent-intro:";
-export function nodeEditSessionName(kind, t2, agentName) {
+export function nodeEditSessionName(kind, translate, agentName) {
   if (kind === "plugin") {
     return (
       agentName?.trim() ||
-      t2("chat.pluginEditAgent.sessionName", "Editor Agent")
+      translate("chat.pluginEditAgent.sessionName", "Editor Agent")
     );
   }
-  return t2("chat.textEditAgent.sessionName", "Text Assistant");
+  return translate("chat.textEditAgent.sessionName", "Text Assistant");
 }
 function addTextAgentIntro(messages2, sessionId, content2) {
   if (messages2.length > 0) return messages2;
@@ -281,10 +281,10 @@ function addTextAgentIntro(messages2, sessionId, content2) {
     },
   ];
 }
-export function createTextAgentIntroEnsurer(sessionStore, kindRef, t2) {
+export function createTextAgentIntroEnsurer(sessionStore, kindRef, translate) {
   return (sessionId) => {
     if (kindRef.current !== "text") return;
-    const intro = t2(
+    const intro = translate(
       "chat.textEditAgent.intro",
       "Hi, I’m your Text Assistant. I’m here to help you shape this draft. Tell me how you want the whole piece changed, or select a passage and add an annotation for a focused edit.\n\nI can help you:\n- Rewrite a scene to improve pacing, conflict, or dialogue\n- Rework a piece of copy to sharpen its message and selling points\n- Polish, expand, shorten, or reorganize content\n- Translate text and keep its tone and style consistent\n- Refine selected passages one annotation at a time\n\nA quick tip:\n- **For a focused edit**, select the text and state clearly in the annotation what you want changed, such as “add suspense,” “make the tone more restrained,” or “shorten to 100 words”\n- **For a full-document edit**, leave everything unselected and tell me the overall goal, such as “make it more conversational” or “use a professional brand voice throughout”",
     );
@@ -320,28 +320,28 @@ function normalizeEntry(value) {
     updatedAt,
   };
 }
-export function sameTextEditSessionEntry(a2, b3) {
-  if (a2.runtimeSessionId && b3.runtimeSessionId)
-    return a2.runtimeSessionId === b3.runtimeSessionId;
-  if (a2.uiSessionId && b3.uiSessionId && a2.uiSessionId === b3.uiSessionId)
+export function sameTextEditSessionEntry(leftEntry, rightEntry) {
+  if (leftEntry.runtimeSessionId && rightEntry.runtimeSessionId)
+    return leftEntry.runtimeSessionId === rightEntry.runtimeSessionId;
+  if (leftEntry.uiSessionId && rightEntry.uiSessionId && leftEntry.uiSessionId === rightEntry.uiSessionId)
     return true;
   if (
-    a2.uiSessionId &&
-    b3.runtimeSessionId &&
-    a2.uiSessionId === b3.runtimeSessionId
+    leftEntry.uiSessionId &&
+    rightEntry.runtimeSessionId &&
+    leftEntry.uiSessionId === rightEntry.runtimeSessionId
   )
     return true;
   if (
-    a2.runtimeSessionId &&
-    b3.uiSessionId &&
-    a2.runtimeSessionId === b3.uiSessionId
+    leftEntry.runtimeSessionId &&
+    rightEntry.uiSessionId &&
+    leftEntry.runtimeSessionId === rightEntry.uiSessionId
   )
     return true;
   return false;
 }
-export function mergeEntry(a2, b3) {
-  const newer = a2.updatedAt >= b3.updatedAt ? a2 : b3;
-  const older = newer === a2 ? b3 : a2;
+export function mergeEntry(existingEntry, incomingEntry) {
+  const newer = existingEntry.updatedAt >= incomingEntry.updatedAt ? existingEntry : incomingEntry;
+  const older = newer === existingEntry ? incomingEntry : existingEntry;
   return {
     ...(older.uiSessionId
       ? {
@@ -377,7 +377,7 @@ export function normalizeEntryList(values3) {
     if (existingIndex === -1) entries2.push(entry);
     else entries2[existingIndex] = mergeEntry(entries2[existingIndex], entry);
   }
-  return entries2.sort((a2, b3) => b3.updatedAt - a2.updatedAt);
+  return entries2.sort((leftEntry, rightEntry) => rightEntry.updatedAt - leftEntry.updatedAt);
 }
 function normalizeBinding(value) {
   if (!isRecord(value)) return null;

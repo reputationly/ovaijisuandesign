@@ -1,7 +1,7 @@
 // reconcile-pending-interaction-snapshot.js
 
-export function extractSessionId(msg) {
-  return msg.session_id;
+export function extractSessionId(message) {
+  return message.session_id;
 }
 
 export function applyComfyUiProgress(messages2, callID, progress) {
@@ -49,10 +49,10 @@ export function subAgentPartId(partId) {
   return `${partId}__sub_agent`;
 }
 
-function chatMessageShallowEqual(a2, b3) {
-  if (a2 === b3) return true;
-  const aRecord = a2;
-  const bRecord = b3;
+function chatMessageShallowEqual(leftMessage, rightMessage) {
+  if (leftMessage === rightMessage) return true;
+  const aRecord = leftMessage;
+  const bRecord = rightMessage;
   const aKeys = Object.keys(aRecord);
   const bKeys = Object.keys(bRecord);
   if (aKeys.length !== bKeys.length) return false;
@@ -179,8 +179,8 @@ export function applyLoopGuardSettlements(messages2, settlements) {
 }
 
 function stripToolResultPrefix(content2) {
-  const idx = content2.indexOf(": ");
-  return idx >= 0 ? content2.slice(0, idx) : content2;
+  const separatorIndex = content2.indexOf(": ");
+  return separatorIndex >= 0 ? content2.slice(0, separatorIndex) : content2;
 }
 
 function safeParseToolArgs(serialized) {
@@ -197,18 +197,18 @@ function stableStringify(value) {
   if (Array.isArray(value)) {
     return `[${value.map(stableStringify).join(",")}]`;
   }
-  const obj = value;
-  const keys2 = Object.keys(obj).sort();
-  return `{${keys2.map((k2) => `${JSON.stringify(k2)}:${stableStringify(obj[k2])}`).join(",")}}`;
+  const record = value;
+  const keys2 = Object.keys(record).sort();
+  return `{${keys2.map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`).join(",")}}`;
 }
 
 function canonicalArgsKey(args) {
   if (args === void 0) return "__undefined__";
   if (args === null || typeof args !== "object") return JSON.stringify(args);
   const filtered = {};
-  for (const k2 of Object.keys(args)) {
-    if (k2 === "_session_id" || k2 === "_tool_use_id") continue;
-    filtered[k2] = args[k2];
+  for (const key of Object.keys(args)) {
+    if (key === "_session_id" || key === "_tool_use_id") continue;
+    filtered[key] = args[key];
   }
   return stableStringify(filtered);
 }
@@ -219,26 +219,26 @@ export function insertToolConfirmAsk(prev, chatMsg) {
   }
   const targetTool = chatMsg.toolConfirmData.tool;
   const targetArgsKey = canonicalArgsKey(chatMsg.toolConfirmData.args);
-  for (let i2 = prev.length - 1; i2 >= 0; i2--) {
-    const m3 = prev[i2];
-    if (m3.type === "tool") {
-      if (m3.content === targetTool) {
+  for (let index = prev.length - 1; index >= 0; index--) {
+    const message = prev[index];
+    if (message.type === "tool") {
+      if (message.content === targetTool) {
         if (
-          canonicalArgsKey(safeParseToolArgs(m3.toolArgs)) === targetArgsKey
+          canonicalArgsKey(safeParseToolArgs(message.toolArgs)) === targetArgsKey
         ) {
-          return [...prev.slice(0, i2 + 1), chatMsg, ...prev.slice(i2 + 1)];
+          return [...prev.slice(0, index + 1), chatMsg, ...prev.slice(index + 1)];
         }
       }
-    } else if (m3.type === "sub_agent") {
-      const subs = m3.subMessages ?? [];
+    } else if (message.type === "sub_agent") {
+      const subs = message.subMessages ?? [];
       const matchesSub = subs.some(
-        (s2) =>
-          s2.type === "tool" &&
-          stripToolResultPrefix(s2.content ?? "") === targetTool &&
-          canonicalArgsKey(safeParseToolArgs(s2.args)) === targetArgsKey,
+        (subMessage) =>
+          subMessage.type === "tool" &&
+          stripToolResultPrefix(subMessage.content ?? "") === targetTool &&
+          canonicalArgsKey(safeParseToolArgs(subMessage.args)) === targetArgsKey,
       );
       if (matchesSub) {
-        return [...prev.slice(0, i2 + 1), chatMsg, ...prev.slice(i2 + 1)];
+        return [...prev.slice(0, index + 1), chatMsg, ...prev.slice(index + 1)];
       }
     }
   }
@@ -260,8 +260,8 @@ export function resplicePendingToolConfirms(messages2) {
     }
   }
   let result = base2;
-  for (const ask of lifted) {
-    result = insertToolConfirmAsk(result, ask);
+  for (const confirmationAsk of lifted) {
+    result = insertToolConfirmAsk(result, confirmationAsk);
   }
   return result;
 }

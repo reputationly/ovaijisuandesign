@@ -1,0 +1,12 @@
+key	新名	依据
+msg@127:57	message	`message` 是用于判断消息分发阶段并读取会话 ID 的运行时消息。
+msg@133:46	message	`message` 是用于识别终态类型并提取会话 ID 的运行时消息。
+msg@141:39	message	`message` 是用于判断是否属于非终态进度的运行时消息。
+t2@264:43	translate	`translate` 是生成文本编辑代理会话名称时查询本地化文本的函数。
+t2@284:68	translate	`translate` 是为文本编辑会话生成介绍内容的本地化函数。
+a2@323:42	leftEntry	`leftEntry` 是参与文本编辑会话条目身份比较的左侧记录。
+b3@323:46	rightEntry	`rightEntry` 是参与文本编辑会话条目身份比较的右侧记录。
+a2@342:28	existingEntry	`existingEntry` 是列表中已存在、与新条目合并的会话记录。
+b3@342:32	incomingEntry	`incomingEntry` 是加入列表并与既有会话记录合并的新条目。
+a2@380:25	leftEntry	`leftEntry` 是按更新时间排序比较的左侧会话记录。
+b3@380:29	rightEntry	`rightEntry` 是按更新时间排序比较的右侧会话记录。

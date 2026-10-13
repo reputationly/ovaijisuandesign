@@ -36,7 +36,7 @@ const TOKEN_ICON_CLASS =
   "absolute left-1 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center border border-border bg-background bg-center bg-cover text-muted-foreground";
 
 function mentionKindFromPath(path2) {
-  const ext =
+  const extension =
     path2.split("?")[0]?.split("#")[0]?.split(".").pop()?.toLowerCase() ?? "";
   if (
     [
@@ -50,12 +50,12 @@ function mentionKindFromPath(path2) {
       "avif",
       "heic",
       "heif",
-    ].includes(ext)
+    ].includes(extension)
   )
     return "image";
-  if (["mp4", "webm", "mov", "m4v", "avi", "mkv"].includes(ext)) return "video";
-  if (["mp3", "wav", "m4a", "ogg", "flac", "aac"].includes(ext)) return "audio";
-  if (["txt", "md", "json"].includes(ext)) return "text";
+  if (["mp4", "webm", "mov", "m4v", "avi", "mkv"].includes(extension)) return "video";
+  if (["mp3", "wav", "m4a", "ogg", "flac", "aac"].includes(extension)) return "audio";
+  if (["txt", "md", "json"].includes(extension)) return "text";
   return "other";
 }
 
@@ -107,7 +107,7 @@ function modelCandidates(models) {
       },
     ])
     .filter((entry) => entry.token.length > 0)
-    .sort((a2, b3) => b3.token.length - a2.token.length);
+    .sort((leftCandidate, rightCandidate) => rightCandidate.token.length - leftCandidate.token.length);
 }
 
 function findModelAt(text2, atIndex, models) {
@@ -227,8 +227,8 @@ function parseRichUserPrompt(content2, models) {
     const atIndex = content2.indexOf("@", cursor);
     const slashIndex = content2.indexOf("/", cursor);
     const tokenIndex = [atIndex, slashIndex]
-      .filter((idx) => idx >= 0)
-      .sort((a2, b3) => a2 - b3)[0];
+      .filter((index) => index >= 0)
+      .sort((leftIndex, rightIndex) => leftIndex - rightIndex)[0];
     if (tokenIndex === void 0) break;
     pushText(segments, content2, cursor, tokenIndex);
     if (tokenIndex === slashIndex) {
@@ -414,7 +414,7 @@ export const RichUserPromptContent = reactExports.memo(
     collapsible = false,
     className,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t: translate } = useTranslation();
     const isPresented = useChatPresentation();
     const { data: mentionModels = [] } = useMentionModels();
     const segments = reactExports.useMemo(
@@ -426,24 +426,24 @@ export const RichUserPromptContent = reactExports.memo(
     const [overflows, setOverflows] = reactExports.useState(false);
     reactExports.useLayoutEffect(() => {
       if (!collapsible || expanded || !isPresented) return;
-      const el = contentRef.current;
-      if (!el) return;
+      const contentElement = contentRef.current;
+      if (!contentElement) return;
       const check = () => {
-        if (el.scrollHeight <= 0 || el.clientHeight <= 0) return;
-        setOverflows(el.scrollHeight > el.clientHeight + 1);
+        if (contentElement.scrollHeight <= 0 || contentElement.clientHeight <= 0) return;
+        setOverflows(contentElement.scrollHeight > contentElement.clientHeight + 1);
       };
       check();
-      const ro = new ResizeObserver(check);
-      ro.observe(el);
-      const mo = new MutationObserver(check);
-      mo.observe(el, {
+      const resizeObserver = new ResizeObserver(check);
+      resizeObserver.observe(contentElement);
+      const mutationObserver = new MutationObserver(check);
+      mutationObserver.observe(contentElement, {
         childList: true,
         characterData: true,
         subtree: true,
       });
       return () => {
-        ro.disconnect();
-        mo.disconnect();
+        resizeObserver.disconnect();
+        mutationObserver.disconnect();
       };
     }, [collapsible, expanded, isPresented]);
     const baseClass =
@@ -476,9 +476,9 @@ export const RichUserPromptContent = reactExports.memo(
           <button
             type="button"
             className="mt-1.5 text-xs text-muted-foreground hover:text-foreground"
-            onClick={() => setExpanded((v2) => !v2)}
+            onClick={() => setExpanded((isExpanded) => !isExpanded)}
           >
-            {expanded ? t2("chat.collapse") : t2("chat.expand")}
+            {expanded ? translate("chat.collapse") : translate("chat.expand")}
           </button>
         )}
       </>

@@ -46,52 +46,52 @@ async function defaultFetcher(gatewayFetch2, path2, signal) {
 
 function modelScore(target, query) {
   if (!query) return 1;
-  const t2 = target.toLowerCase();
-  const q2 = query.toLowerCase();
-  let ti = 0;
-  let qi = 0;
+  const normalizedTarget = target.toLowerCase();
+  const normalizedQuery = query.toLowerCase();
+  let targetIndex = 0;
+  let queryIndex = 0;
   let score = 0;
-  while (ti < t2.length && qi < q2.length) {
-    if (t2[ti] === q2[qi]) {
+  while (targetIndex < normalizedTarget.length && queryIndex < normalizedQuery.length) {
+    if (normalizedTarget[targetIndex] === normalizedQuery[queryIndex]) {
       score += 10;
-      qi++;
+      queryIndex++;
     }
-    ti++;
+    targetIndex++;
   }
-  return qi === q2.length ? score : 0;
+  return queryIndex === normalizedQuery.length ? score : 0;
 }
 
 function matchModels(models, query) {
   const scored = [];
-  for (const m3 of models) {
-    if (m3.visibility === "hidden") continue;
-    const mentionName = m3.mention_name ?? m3.model_name;
-    const nameScore = modelScore(m3.display_name, query);
+  for (const mediaModel of models) {
+    if (mediaModel.visibility === "hidden") continue;
+    const mentionName = mediaModel.mention_name ?? mediaModel.model_name;
+    const nameScore = modelScore(mediaModel.display_name, query);
     const mentionNameScore = modelScore(mentionName, query);
-    const modelNameScore = modelScore(m3.model_name, query);
-    const idScore = modelScore(m3.id, query);
+    const modelNameScore = modelScore(mediaModel.model_name, query);
+    const idScore = modelScore(mediaModel.id, query);
     const best = Math.max(nameScore, mentionNameScore, modelNameScore, idScore);
     if (best > 0) {
       scored.push({
         item: {
           category: "model",
           model: {
-            id: m3.id,
-            displayName: m3.display_name,
-            modelName: m3.model_name,
+            id: mediaModel.id,
+            displayName: mediaModel.display_name,
+            modelName: mediaModel.model_name,
             mentionName,
-            mediaType: m3.type,
-            iconUrl: m3.icon_url,
-            description: m3.description,
-            seriesId: m3.series_id,
+            mediaType: mediaModel.type,
+            iconUrl: mediaModel.icon_url,
+            description: mediaModel.description,
+            seriesId: mediaModel.series_id,
           },
         },
         score: best,
       });
     }
   }
-  scored.sort((a2, b3) => b3.score - a2.score);
-  return scored.map((s2) => s2.item);
+  scored.sort((leftCandidate, rightCandidate) => rightCandidate.score - leftCandidate.score);
+  return scored.map((scoredResult) => scoredResult.item);
 }
 
 function matchWorkflows(
@@ -243,17 +243,17 @@ export function useMention(
     };
   }, [cancelInFlight]);
   const scheduleFetch = reactExports.useCallback(
-    (q2) => {
+    (query) => {
       cancelInFlight();
-      const ws2 = workspace;
-      if (!ws2) {
+      const workspacePath = workspace;
+      if (!workspacePath) {
         setFileItems([]);
         setProjectAssetItems([]);
         setTruncated(false);
         setLoading(false);
         return;
       }
-      const cacheKey = `${ws2}::${q2}`;
+      const cacheKey = `${workspacePath}::${query}`;
       const cached = touchCacheEntry(cacheRef.current, cacheKey);
       const cachedFiles =
         cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS ? cached : null;
@@ -263,12 +263,12 @@ export function useMention(
       const seq2 = ++fetchSeqRef.current;
       const run2 = () => {
         const params = new URLSearchParams({
-          workspace: ws2,
-          q: q2,
+          workspace: workspacePath,
+          q: query,
           limit: String(SEARCH_LIMIT),
         });
         const projectAssetParams = new URLSearchParams({
-          q: q2,
+          q: query,
           limit: String(SEARCH_LIMIT),
         });
         const fileUrl = `${API_PATHS.filesMentionSearch}?${params.toString()}`;
@@ -383,22 +383,22 @@ export function useMention(
         category: "connector",
         connector,
       }));
-    const referencePathSet = new Set(referenceFiles.map((f2) => f2.path));
+    const referencePathSet = new Set(referenceFiles.map((referenceFile) => referenceFile.path));
     const referenceItems = isBrowsing
-      ? referenceFiles.map((f2) => ({
+      ? referenceFiles.map((referenceFile) => ({
           category: "reference",
-          file: f2,
+          file: referenceFile,
         }))
       : [];
     const fileItemsMapped = fileItems
-      .filter((f2) => {
+      .filter((referenceFile) => {
         if (!isBrowsing) return true;
-        if (referencePathSet.has(f2.path)) return false;
-        return fileKindFilter === "all" || f2.kind === fileKindFilter;
+        if (referencePathSet.has(referenceFile.path)) return false;
+        return fileKindFilter === "all" || referenceFile.kind === fileKindFilter;
       })
-      .map((f2) => ({
+      .map((referenceFile) => ({
         category: "file",
-        file: f2,
+        file: referenceFile,
       }));
     const projectItemsMapped = projectAssetItems.map((file) => ({
       category: "project-asset",
@@ -492,18 +492,18 @@ export function useMention(
     ],
   );
   const onKeyDown = reactExports.useCallback(
-    (e2) => {
+    (keyboardEvent) => {
       if (!open) return false;
-      switch (e2.key) {
+      switch (keyboardEvent.key) {
         case "ArrowDown": {
           if (items.length === 0) return false;
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           setActiveIndex((prev) => (prev >= items.length - 1 ? 0 : prev + 1));
           return true;
         }
         case "ArrowUp": {
           if (items.length === 0) return false;
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           setActiveIndex((prev) => (prev <= 0 ? items.length - 1 : prev - 1));
           return true;
         }
@@ -512,12 +512,12 @@ export function useMention(
           if (items.length === 0) return false;
           const selected2 = items[activeIndex];
           if (!selected2) return false;
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           onSelect(selected2);
           return true;
         }
         case "Escape": {
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           close2();
           return true;
         }
