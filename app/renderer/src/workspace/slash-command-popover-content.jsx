@@ -35,7 +35,7 @@ import { beginSkillApplyingToast } from "../generation/settle-operation.js";
 import { homeService } from "./home-service.jsx";
 import { SkillIcon } from "./use-prompt-icon.jsx";
 import { Button } from "../infra/dialog-content.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { showSkillInstallSuccessToast } from "./use-new-workspace-dialog.jsx";
 import { useMarketSkills } from "./use-market-skills.js";
 import { MESSAGE_INPUT_POPOVER_Z_INDEX } from "../assets/classify-upload-error.js";
@@ -47,14 +47,14 @@ async function waitForSkillRestart(
 ) {
   const attempt = restart().then(() => "applied");
   attempt.catch(() => {});
-  let timer2;
+  let timer;
   const queued = new Promise((resolve) => {
-    timer2 = setTimeout(() => resolve("queued"), timeoutMs);
+    timer = setTimeout(() => resolve("queued"), timeoutMs);
   });
   try {
     return await Promise.race([attempt, queued]);
   } finally {
-    if (timer2) clearTimeout(timer2);
+    if (timer) clearTimeout(timer);
   }
 }
 const COVER_PREVIEW_GAP = 8;
@@ -81,16 +81,16 @@ function stringList(value) {
 function tokens(value) {
   return normalize(value).split(TOKEN_SEPARATOR_PATTERN).filter(Boolean);
 }
-function bestPrimaryScore(values3, query, broadMatch) {
+function bestPrimaryScore(values, query, broadMatch) {
   let score = null;
-  for (const value of values3) {
+  for (const value of values) {
     const normalizedValue = normalize(value);
     if (!normalizedValue) continue;
     if (normalizedValue === query) score = Math.min(score ?? 0, 0);
-    else if (tokens(normalizedValue).some((token2) => token2 === query)) {
+    else if (tokens(normalizedValue).some((token) => token === query)) {
       score = Math.min(score ?? 1, 1);
     } else if (
-      tokens(normalizedValue).some((token2) => token2.startsWith(query))
+      tokens(normalizedValue).some((token) => token.startsWith(query))
     ) {
       score = Math.min(score ?? 2, 2);
     } else if (broadMatch && normalizedValue.includes(query)) {
@@ -99,8 +99,8 @@ function bestPrimaryScore(values3, query, broadMatch) {
   }
   return score;
 }
-function includesQuery(values3, query) {
-  return values3.some((value) => normalize(value).includes(query));
+function includesQuery(values, query) {
+  return values.some((value) => normalize(value).includes(query));
 }
 function getSearchScore(skill, query) {
   const broadMatch =
@@ -150,8 +150,8 @@ function rankSkillsBySearchRelevance(skills, rawQuery, options = {}) {
   if (!query) return skills;
   const keepUnscored = options.keepUnscored ?? false;
   return skills
-    .map((skill, index2) => ({
-      index: index2,
+    .map((skill, index) => ({
+      index,
       score: getSearchScore(skill, query),
       skill,
     }))
@@ -171,8 +171,8 @@ const INLINE_SKILL_POPOVER_MAX_HEIGHT = 288;
 const SKILL_TAG_SCROLL_STEP_PX = 120;
 const SKILL_POPOVER_SKELETON_ROWS = 5;
 const SKILL_SEARCH_DEBOUNCE_MS = 300;
-function getAgentSkillCategories(mode2) {
-  if (mode2 === "clip-editor") {
+function getAgentSkillCategories(mode) {
+  if (mode === "clip-editor") {
     return [
       {
         value: "clip-editing",
@@ -196,13 +196,13 @@ function getAgentSkillCategories(mode2) {
       },
     ];
   }
-  return mode2 === "director-stage"
+  return mode === "director-stage"
     ? DIRECTOR_STAGE_SKILL_CATEGORIES
     : TEXT_EDITOR_SKILL_CATEGORIES;
 }
-function getAgentSkillTitle(mode2) {
-  if (mode2 === "clip-editor") return "剪辑";
-  return mode2 === "director-stage" ? "导演台" : "文本";
+function getAgentSkillTitle(mode) {
+  if (mode === "clip-editor") return "剪辑";
+  return mode === "director-stage" ? "导演台" : "文本";
 }
 function isLocalSkill(skill) {
   return "enabled" in skill;
@@ -212,13 +212,13 @@ async function restartOpenCode() {
   if (!restart) throw new Error("OpenCode restart IPC is unavailable");
   await restart();
 }
-function toDisplayName(name2) {
-  return name2
+function toDisplayName(skillName) {
+  return skillName
     .split("-")
-    .map((w3) =>
-      UPPERCASE_WORDS.has(w3)
-        ? w3.toUpperCase()
-        : w3.charAt(0).toUpperCase() + w3.slice(1),
+    .map((word) =>
+      UPPERCASE_WORDS.has(word)
+        ? word.toUpperCase()
+        : word.charAt(0).toUpperCase() + word.slice(1),
     )
     .join(" ");
 }
@@ -240,7 +240,7 @@ function getSkillDisplay(skill, lang) {
 }
 function SkillItem({
   skill,
-  index: index2,
+  index,
   activeIndex,
   activeRef,
   onSelect,
@@ -248,26 +248,26 @@ function SkillItem({
   lang,
   onCoverPreviewEnter,
   onCoverPreviewLeave,
-  disabled: disabled2,
+  disabled,
 }) {
   const display = getSkillDisplay(skill, lang);
-  const isActive2 = index2 === activeIndex;
+  const isActive = index === activeIndex;
   const descText = display.summary || skill.description?.split("\n")[0];
   return (
     <button
       key={skill.name}
       id={`slash-opt-${skill.name}`}
-      ref={isActive2 ? activeRef : void 0}
+      ref={isActive ? activeRef : void 0}
       type="button"
       role="option"
-      aria-selected={isActive2}
-      aria-busy={disabled2}
+      aria-selected={isActive}
+      aria-busy={disabled}
       data-action-ui-id={`slash-cmd-${skill.name}`}
-      className={`list-row-hit-area [--list-row-gap:2px] first:before:top-0 last:before:bottom-0 w-full flex flex-col gap-0.5 px-2.5 py-2 text-left cursor-pointer rounded-md transition-colors disabled:cursor-wait disabled:opacity-60 ${isActive2 ? "bg-popup-item-active" : "hover:bg-popup-item-active"}`}
-      disabled={disabled2}
+      className={`list-row-hit-area [--list-row-gap:2px] first:before:top-0 last:before:bottom-0 w-full flex flex-col gap-0.5 px-2.5 py-2 text-left cursor-pointer rounded-md transition-colors disabled:cursor-wait disabled:opacity-60 ${isActive ? "bg-popup-item-active" : "hover:bg-popup-item-active"}`}
+      disabled={disabled}
       onClick={() => onSelect(skill)}
       onMouseEnter={(event) => {
-        onHover(index2);
+        onHover(index);
         onCoverPreviewEnter(skill, event.currentTarget);
       }}
       onMouseLeave={onCoverPreviewLeave}
@@ -282,7 +282,7 @@ function SkillItem({
       </div>
       {descText && (
         <span
-          className={`text-[12px] leading-tight truncate transition-colors ${isActive2 ? "text-foreground" : "text-muted-foreground"}`}
+          className={`text-[12px] leading-tight truncate transition-colors ${isActive ? "text-foreground" : "text-muted-foreground"}`}
         >
           {descText}
         </span>
@@ -301,9 +301,9 @@ function SkillPopoverSkeleton() {
         {
           length: SKILL_POPOVER_SKELETON_ROWS,
         },
-        (_2, index2) => (
+        (_unusedValue, index) => (
           <div
-            key={index2}
+            key={index}
             className="flex h-12 shrink-0 flex-col justify-center gap-1 rounded-md px-2.5 py-2"
           >
             <div className="flex items-baseline gap-2">
@@ -319,13 +319,13 @@ function SkillPopoverSkeleton() {
 }
 export function SlashCommandPopoverContent({
   motionProps,
-  id: id2,
+  id,
   skills,
   allSkills = skills,
   activeIndex,
   onSelect,
   onHover,
-  position: position2 = "up",
+  position = "up",
   displayMode = "full",
   anchorRef,
   triggerRef,
@@ -338,7 +338,7 @@ export function SlashCommandPopoverContent({
   skillPopoverMode = "default",
 }) {
   const ending = motionProps["data-ending-style"] !== void 0;
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const isZh = i18n.language.startsWith("zh");
   const { categories: configuredCategories } = useSkillCategories(
     skillPopoverMode === "default",
@@ -388,10 +388,10 @@ export function SlashCommandPopoverContent({
       setPreviewSide("right");
     }, 120);
   };
-  const handleCoverPreviewEnter = (skill, element2) => {
+  const handleCoverPreviewEnter = (skill, element) => {
     cancelPreviewHide();
     setHoveredPreviewSkill(skill);
-    setHoveredSkillTop(element2.offsetTop + element2.offsetHeight / 2);
+    setHoveredSkillTop(element.offsetTop + element.offsetHeight / 2);
   };
   const market = useMarketSkills(void 0, void 0, GLOBAL_SKILL_SEARCH_PAGE_SIZE);
   const [marketRequestStarted, setMarketRequestStarted] =
@@ -421,34 +421,34 @@ export function SlashCommandPopoverContent({
       mountedRef.current = false;
     };
   }, [ending]);
-  const beginSkillSelection = reactExports.useCallback((name2) => {
-    if (pendingSkillNamesRef.current.has(name2)) return false;
-    pendingSkillNamesRef.current.add(name2);
+  const beginSkillSelection = reactExports.useCallback((skillName) => {
+    if (pendingSkillNamesRef.current.has(skillName)) return false;
+    pendingSkillNamesRef.current.add(skillName);
     setPendingSkillNames(new Set(pendingSkillNamesRef.current));
     return true;
   }, []);
-  const finishSkillSelection = reactExports.useCallback((name2) => {
-    pendingSkillNamesRef.current.delete(name2);
+  const finishSkillSelection = reactExports.useCallback((skillName) => {
+    pendingSkillNamesRef.current.delete(skillName);
     if (mountedRef.current)
       setPendingSkillNames(new Set(pendingSkillNamesRef.current));
   }, []);
   const marketQueryRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (ending || displayMode !== "full") return;
-    const run2 = () => {
+    const run = () => {
       if (marketQueryRef.current === searchTerm) return;
       marketQueryRef.current = searchTerm;
       if (searchTerm) void market.search(searchTerm);
       else void market.fetchList();
     };
     if (!searchTerm) {
-      run2();
+      run();
       setMarketRequestStarted(true);
       return;
     }
     setMarketRequestStarted(true);
-    const timer2 = setTimeout(run2, SKILL_SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(run, SKILL_SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
   }, [displayMode, ending, searchTerm, market.search, market.fetchList]);
   const handleLocalSkillSelect = reactExports.useCallback(
     async (skill) => {
@@ -457,34 +457,34 @@ export function SlashCommandPopoverContent({
         return;
       }
       if (!beginSkillSelection(skill.name)) return;
-      const applyingToast = beginSkillApplyingToast(t2("skills.applying"));
+      const applyingToast = beginSkillApplyingToast(translate("skills.applying"));
       try {
         await homeService.hiloApp.toggleSkill(skill.name, true);
       } catch {
-        applyingToast.error(t2("skills.toggleError"));
+        applyingToast.error(translate("skills.toggleError"));
         finishSkillSelection(skill.name);
         return;
       }
-      applyingToast.pending(t2("skills.restartPending"));
+      applyingToast.pending(translate("skills.restartPending"));
       try {
         const outcome = await waitForSkillRestart(restartOpenCode);
         if (outcome === "queued") {
-          applyingToast.info(t2("skills.restartQueued"));
+          applyingToast.info(translate("skills.restartQueued"));
           return;
         }
-        applyingToast.success(t2("skills.restartSuccess"));
+        applyingToast.success(translate("skills.restartSuccess"));
         if (mountedRef.current)
           onSelect({
             ...skill,
             enabled: true,
           });
       } catch {
-        applyingToast.error(t2("skills.restartFailed"));
+        applyingToast.error(translate("skills.restartFailed"));
       } finally {
         finishSkillSelection(skill.name);
       }
     },
-    [beginSkillSelection, finishSkillSelection, onSelect, t2],
+    [beginSkillSelection, finishSkillSelection, onSelect, translate],
   );
   const handleMarketSkillSelect = reactExports.useCallback(
     async (skill) => {
@@ -495,35 +495,35 @@ export function SlashCommandPopoverContent({
         )
           return;
         const applyingToast = beginSkillApplyingToast(
-          t2("skills.market.installing"),
+          translate("skills.market.installing"),
         );
         try {
           const installed = await market.install(skill.name, "market_card");
           if (!installed) {
             applyingToast.error(
-              t2("skills.market.installError", {
+              translate("skills.market.installError", {
                 name: skill.name,
               }),
             );
             return;
           }
-          applyingToast.pending(t2("skills.restartPending"));
+          applyingToast.pending(translate("skills.restartPending"));
           let outcome;
           try {
             outcome = await waitForSkillRestart(restartOpenCode);
           } catch {
             market.clearInstalling(skill.name);
-            applyingToast.error(t2("skills.restartFailed"));
+            applyingToast.error(translate("skills.restartFailed"));
             return;
           }
           if (mountedRef.current) market.markInstalled(skill.name);
           if (outcome === "queued") {
-            applyingToast.info(t2("skills.restartQueued"));
+            applyingToast.info(translate("skills.restartQueued"));
             return;
           }
-          applyingToast.successWith((id22) =>
+          applyingToast.successWith((id) =>
             showSkillInstallSuccessToast(skill.name, {
-              id: id22,
+              id,
             }),
           );
         } finally {
@@ -547,7 +547,7 @@ export function SlashCommandPopoverContent({
       market.installingSet,
       market.markInstalled,
       onSelect,
-      t2,
+      translate,
     ],
   );
   const handleSkillSelect = reactExports.useCallback(
@@ -587,11 +587,11 @@ export function SlashCommandPopoverContent({
         keepUnscored: true,
       },
     );
-    const seen2 = new Set();
+    const seen = new Set();
     return rankSkillsBySearchRelevance(
       [...localSkills, ...marketSkills].filter((skill) => {
-        if (seen2.has(skill.name)) return false;
-        seen2.add(skill.name);
+        if (seen.has(skill.name)) return false;
+        seen.add(skill.name);
         return true;
       }),
       searchTerm,
@@ -622,9 +622,9 @@ export function SlashCommandPopoverContent({
           (category) => category.value === activeAgentCategory,
         )?.[i18n.language.startsWith("zh") ? "label" : "labelEn"] ?? null)
       : activeTag === MY_SKILLS_TAG
-        ? t2("skills.tag.mine", "My Skills")
+        ? translate("skills.tag.mine", "My Skills")
         : activeTag === FEATURED_TAG
-          ? t2("skills.tag.featured", "精选")
+          ? translate("skills.tag.featured", "精选")
           : activeCategory
             ? isZh
               ? activeCategory.cn_name
@@ -635,49 +635,49 @@ export function SlashCommandPopoverContent({
   const resolvedActiveIndex = isFullMode ? fullActiveIndex : activeIndex;
   const handleHover = isFullMode ? setFullActiveIndex : onHover;
   const syncTagOverflow = reactExports.useCallback(() => {
-    const element2 = tagScrollRef.current;
-    if (!element2) return;
-    setCanScrollTagsLeft(element2.scrollLeft > 0);
+    const element = tagScrollRef.current;
+    if (!element) return;
+    setCanScrollTagsLeft(element.scrollLeft > 0);
     setCanScrollTagsRight(
-      element2.scrollLeft + element2.clientWidth < element2.scrollWidth - 1,
+      element.scrollLeft + element.clientWidth < element.scrollWidth - 1,
     );
   }, []);
   const handleTagWheel = reactExports.useCallback(
     (event) => {
-      const element2 = tagScrollRef.current;
-      if (!element2 || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+      const element = tagScrollRef.current;
+      if (!element || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
       const maxScrollLeft = Math.max(
         0,
-        element2.scrollWidth - element2.clientWidth,
+        element.scrollWidth - element.clientWidth,
       );
       const nextScrollLeft = Math.min(
         maxScrollLeft,
-        Math.max(0, element2.scrollLeft + event.deltaY),
+        Math.max(0, element.scrollLeft + event.deltaY),
       );
-      if (nextScrollLeft === element2.scrollLeft) return;
+      if (nextScrollLeft === element.scrollLeft) return;
       event.preventDefault();
-      element2.scrollLeft = nextScrollLeft;
+      element.scrollLeft = nextScrollLeft;
       syncTagOverflow();
     },
     [syncTagOverflow],
   );
   reactExports.useEffect(() => {
     if (!isFullMode) return;
-    const element2 = tagScrollRef.current;
-    if (!element2) return;
+    const element = tagScrollRef.current;
+    if (!element) return;
     syncTagOverflow();
-    element2.addEventListener("scroll", syncTagOverflow, {
+    element.addEventListener("scroll", syncTagOverflow, {
       passive: true,
     });
-    element2.addEventListener("wheel", handleTagWheel, {
+    element.addEventListener("wheel", handleTagWheel, {
       passive: false,
     });
-    const observer2 = new ResizeObserver(syncTagOverflow);
-    observer2.observe(element2);
+    const observer = new ResizeObserver(syncTagOverflow);
+    observer.observe(element);
     return () => {
-      element2.removeEventListener("scroll", syncTagOverflow);
-      element2.removeEventListener("wheel", handleTagWheel);
-      observer2.disconnect();
+      element.removeEventListener("scroll", syncTagOverflow);
+      element.removeEventListener("wheel", handleTagWheel);
+      observer.disconnect();
     };
   }, [handleTagWheel, isFullMode, syncTagOverflow]);
   const handleTagScroll = reactExports.useCallback((direction) => {
@@ -713,9 +713,9 @@ export function SlashCommandPopoverContent({
   fullActiveIndexRef.current = fullActiveIndex;
   reactExports.useEffect(() => {
     if (ending || !isFullMode) return;
-    const handleKeyDown2 = (event) => {
+    const handleKeyDown = (event) => {
       if (event.defaultPrevented) return;
-      const skills2 = displayedSkillsRef.current;
+      const skills = displayedSkillsRef.current;
       if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
@@ -730,21 +730,21 @@ export function SlashCommandPopoverContent({
       ) {
         return;
       }
-      if (skills2.length === 0) return;
+      if (skills.length === 0) return;
       switch (event.key) {
         case "ArrowUp":
           setFullActiveIndex((prev) =>
-            prev <= 0 ? skills2.length - 1 : prev - 1,
+            prev <= 0 ? skills.length - 1 : prev - 1,
           );
           break;
         case "ArrowDown":
           setFullActiveIndex((prev) =>
-            prev >= skills2.length - 1 ? 0 : prev + 1,
+            prev >= skills.length - 1 ? 0 : prev + 1,
           );
           break;
         case "Enter":
         case "Tab": {
-          const skill = skills2[fullActiveIndexRef.current];
+          const skill = skills[fullActiveIndexRef.current];
           if (skill) handleSkillSelect(skill);
           break;
         }
@@ -754,8 +754,8 @@ export function SlashCommandPopoverContent({
       event.preventDefault();
       event.stopPropagation();
     };
-    document.addEventListener("keydown", handleKeyDown2, true);
-    return () => document.removeEventListener("keydown", handleKeyDown2, true);
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
   }, [ending, isFullMode, onClose, handleSkillSelect]);
   reactExports.useLayoutEffect(() => {
     if (hoveredSkillTop === null || !previewRef.current || !listRef.current)
@@ -805,7 +805,7 @@ export function SlashCommandPopoverContent({
     const anchor = anchorRef.current;
     const popover = listRef.current;
     if (!anchor || !popover) return;
-    const update2 = () => {
+    const update = () => {
       const anchorRect = anchor.getBoundingClientRect();
       const inputRoot = anchor.closest("[data-message-input-root]");
       const inputRect = inputRoot?.getBoundingClientRect() ?? anchorRect;
@@ -818,18 +818,18 @@ export function SlashCommandPopoverContent({
         inputRect.width,
         window.innerWidth - 16,
       );
-      const VIEWPORT_GAP2 = 8;
+      const VIEWPORT_GAP = 8;
       let left = displayMode === "inline" ? anchorRect.left : inputRect.left;
-      const maxLeft = window.innerWidth - width - VIEWPORT_GAP2;
+      const maxLeft = window.innerWidth - width - VIEWPORT_GAP;
       if (left > maxLeft) left = maxLeft;
-      left = Math.max(VIEWPORT_GAP2, left);
+      left = Math.max(VIEWPORT_GAP, left);
       popover.style.position = "fixed";
       popover.style.width = `${width}px`;
       popover.style.zIndex = String(MESSAGE_INPUT_POPOVER_Z_INDEX);
       popover.style.left = `${left}px`;
       popover.style.setProperty(
         "--dp-quick-zoom-origin",
-        displayMode !== "inline" && position2 === "down"
+        displayMode !== "inline" && position === "down"
           ? "top left"
           : "bottom left",
       );
@@ -840,7 +840,7 @@ export function SlashCommandPopoverContent({
         popover.style.bottom = `${window.innerHeight - anchorRect.top + 4}px`;
         popover.style.top = "";
         popover.style.maxHeight = `${Math.min(INLINE_SKILL_POPOVER_MAX_HEIGHT, availableInlineHeight)}px`;
-      } else if (position2 === "down") {
+      } else if (position === "down") {
         const topY = inputRect.bottom + HOME_POPOVER_GAP;
         popover.style.top = `${topY}px`;
         popover.style.bottom = "";
@@ -853,18 +853,18 @@ export function SlashCommandPopoverContent({
       popover.style.visibility = "visible";
       popover.style.pointerEvents = "auto";
     };
-    update2();
-    window.addEventListener("scroll", update2, true);
-    window.addEventListener("resize", update2);
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
     return () => {
-      window.removeEventListener("scroll", update2, true);
-      window.removeEventListener("resize", update2);
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
     };
-  }, [anchorRef, position2, displayMode]);
+  }, [anchorRef, position, displayMode]);
   const handlePanelRef = reactExports.useCallback(
-    (element2) => {
-      listRef.current = element2;
-      motionProps.ref.current = element2;
+    (element) => {
+      listRef.current = element;
+      motionProps.ref.current = element;
     },
     [motionProps.ref],
   );
@@ -875,7 +875,7 @@ export function SlashCommandPopoverContent({
         ref={handlePanelRef}
         inert={ending}
         aria-hidden={ending || void 0}
-        id={id2}
+        id={id}
         role="listbox"
         data-action-ui-id="slash-inline-skill-popover"
         style={{
@@ -886,7 +886,7 @@ export function SlashCommandPopoverContent({
         onMouseDown={(event) => event.preventDefault()}
       >
         <div className="shrink-0 px-3 pb-1 pt-2 text-xs font-medium text-muted-foreground">
-          {t2("skills.popover.inlineHeading", "My Skills")}
+          {translate("skills.popover.inlineHeading", "My Skills")}
         </div>
         <div className="mr-0.5 min-h-0 overflow-y-auto overscroll-contain py-1 pr-1 [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-1! [&::-webkit-scrollbar-track]:bg-transparent! [&::-webkit-scrollbar-thumb]:rounded-full! [&::-webkit-scrollbar-thumb]:bg-foreground/20! [&::-webkit-scrollbar-thumb:hover]:bg-foreground/35!">
           {skills.length === 0 ? (
@@ -918,25 +918,25 @@ export function SlashCommandPopoverContent({
                     }}
                   />
                 ) : (
-                  t2("skills.popover.inlineNoMatch", "无匹配项")
+                  translate("skills.popover.inlineNoMatch", "无匹配项")
                 )}
               </p>
             </div>
           ) : (
-            skills.map((skill, index2) => {
-              const isActive2 = index2 === activeIndex;
+            skills.map((skill, index) => {
+              const isActive = index === activeIndex;
               return (
                 <button
                   key={skill.name}
                   id={`slash-opt-${skill.name}`}
-                  ref={isActive2 ? activeRef : void 0}
+                  ref={isActive ? activeRef : void 0}
                   type="button"
                   role="option"
-                  aria-selected={isActive2}
+                  aria-selected={isActive}
                   data-action-ui-id={`slash-inline-skill-${skill.name}`}
-                  className={`flex w-full cursor-pointer rounded-sm px-3 py-1 text-left transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 ${isActive2 ? "bg-popup-item-active text-foreground" : "text-foreground/70 hover:bg-popup-item-hover hover:text-foreground"}`}
+                  className={`flex w-full cursor-pointer rounded-sm px-3 py-1 text-left transition-colors focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 ${isActive ? "bg-popup-item-active text-foreground" : "text-foreground/70 hover:bg-popup-item-hover hover:text-foreground"}`}
                   onClick={() => onSelect(skill)}
-                  onMouseEnter={() => onHover(index2)}
+                  onMouseEnter={() => onHover(index)}
                 >
                   <span className="min-w-0">
                     <span className="block truncate font-sans text-[13px] font-normal leading-5 text-foreground">
@@ -961,7 +961,7 @@ export function SlashCommandPopoverContent({
       ref={handlePanelRef}
       inert={ending}
       aria-hidden={ending || void 0}
-      id={id2}
+      id={id}
       role="listbox"
       tabIndex={-1}
       aria-activedescendant={
@@ -975,7 +975,7 @@ export function SlashCommandPopoverContent({
         pointerEvents: "none",
       }}
       className="dp-motion-quick-zoom elevated-surface-border bg-popover rounded-xl shadow-lg p-1.5 flex flex-col overflow-visible [&>div:first-child]:shrink-0"
-      onMouseDown={(e2) => e2.preventDefault()}
+      onMouseDown={(mouseEvent) => mouseEvent.preventDefault()}
     >
       <CapabilityPopoverHeader
         title={
@@ -983,9 +983,9 @@ export function SlashCommandPopoverContent({
             ? i18n.language.startsWith("zh")
               ? getAgentSkillTitle(skillPopoverMode)
               : `${getAgentSkillTitle(skillPopoverMode)} Skills`
-            : t2("skills.popover.heading", "Skill")
+            : translate("skills.popover.heading", "Skill")
         }
-        description={t2("skills.popover.selectionDescription")}
+        description={translate("skills.popover.selectionDescription")}
         trailing={
           searchable && onSearchChange ? (
             <div className="relative w-40 shrink-0">
@@ -994,13 +994,13 @@ export function SlashCommandPopoverContent({
                 strokeWidth={1.5}
                 className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
               />
-              <Input3
+              <Input
                 value={searchQuery}
                 onChange={(event) => onSearchChange(event.target.value)}
-                placeholder={t2("skills.popover.search", "搜索 Skill")}
+                placeholder={translate("skills.popover.search", "搜索 Skill")}
                 data-action-ui-id="skill-popover-search"
                 className="h-7 pl-7 text-xs"
-                onMouseDown={(e2) => e2.stopPropagation()}
+                onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
               />
             </div>
           ) : (
@@ -1012,7 +1012,7 @@ export function SlashCommandPopoverContent({
         {canScrollTagsLeft && (
           <button
             type="button"
-            aria-label={t2("a11y.scrollTabsLeft", "Scroll tabs left")}
+            aria-label={translate("a11y.scrollTabsLeft", "Scroll tabs left")}
             data-action-ui-id="skill-popover-scroll-tags-left"
             onClick={() => handleTagScroll("left")}
             onKeyDown={(event) => handleTagScrollKeyDown(event, "left")}
@@ -1027,7 +1027,7 @@ export function SlashCommandPopoverContent({
           className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-2 pt-2 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <legend className="sr-only">
-            {t2("skills.popover.tabsLabel", "Skill categories")}
+            {translate("skills.popover.tabsLabel", "Skill categories")}
           </legend>
           {skillPopoverMode !== "default" ? (
             <>
@@ -1065,7 +1065,7 @@ export function SlashCommandPopoverContent({
                 onClick={() => setActiveTag(null)}
                 onKeyDown={(event) => handleTagSelectKeyDown(event, null)}
               >
-                {t2("skills.tag.all", "All")}
+                {translate("skills.tag.all", "All")}
               </button>
               <button
                 type="button"
@@ -1077,7 +1077,7 @@ export function SlashCommandPopoverContent({
                   handleTagSelectKeyDown(event, MY_SKILLS_TAG)
                 }
               >
-                {t2("skills.tag.mine", "My Skills")}
+                {translate("skills.tag.mine", "My Skills")}
               </button>
               <button
                 type="button"
@@ -1089,7 +1089,7 @@ export function SlashCommandPopoverContent({
                   handleTagSelectKeyDown(event, FEATURED_TAG)
                 }
               >
-                {t2("skills.tag.featured", "精选")}
+                {translate("skills.tag.featured", "精选")}
               </button>
               {configuredCategories.map((category) => (
                 <button
@@ -1112,7 +1112,7 @@ export function SlashCommandPopoverContent({
         {canScrollTagsRight && (
           <button
             type="button"
-            aria-label={t2("a11y.scrollTabsRight", "Scroll tabs right")}
+            aria-label={translate("a11y.scrollTabsRight", "Scroll tabs right")}
             data-action-ui-id="skill-popover-scroll-tags-right"
             onClick={() => handleTagScroll("right")}
             onKeyDown={(event) => handleTagScrollKeyDown(event, "right")}
@@ -1129,11 +1129,11 @@ export function SlashCommandPopoverContent({
         >
           <span className="truncate">
             {activeTagLabel
-              ? t2("skills.popover.search.tagResults", {
+              ? translate("skills.popover.search.tagResults", {
                   tag: activeTagLabel,
                   count: searchResults.length,
                 })
-              : t2("skills.popover.search.allResults", {
+              : translate("skills.popover.search.allResults", {
                   count: searchResults.length,
                 })}
           </span>
@@ -1148,7 +1148,7 @@ export function SlashCommandPopoverContent({
         {showSkillsSkeleton && (
           <>
             <span className="sr-only" role="status">
-              {t2("skills.popover.loadingRecommended", "加载推荐Skill中...")}
+              {translate("skills.popover.loadingRecommended", "加载推荐Skill中...")}
             </span>
             <SkillPopoverSkeleton />
           </>
@@ -1174,23 +1174,23 @@ export function SlashCommandPopoverContent({
                   }}
                 />
               ) : searchTerm ? (
-                t2("skills.popover.empty.notFound")
+                translate("skills.popover.empty.notFound")
               ) : market.error ? (
-                t2("skills.market.error")
+                translate("skills.market.error")
               ) : (
-                t2("skills.market.empty")
+                translate("skills.market.empty")
               )}
             </p>
           </div>
         )}
-        {displayedSkills.map((skill, index2) => {
-          const isActive2 = index2 === resolvedActiveIndex;
+        {displayedSkills.map((skill, index) => {
+          const isActive = index === resolvedActiveIndex;
           if (isLocalSkill(skill)) {
             return (
               <SkillItem
                 key={skill.name}
                 skill={skill}
-                index={index2}
+                index={index}
                 activeIndex={resolvedActiveIndex}
                 activeRef={activeRef}
                 onSelect={handleSkillSelect}
@@ -1207,23 +1207,23 @@ export function SlashCommandPopoverContent({
             <button
               key={skill.name}
               id={`slash-opt-${skill.name}`}
-              ref={isActive2 ? activeRef : void 0}
+              ref={isActive ? activeRef : void 0}
               type="button"
               role="option"
-              aria-selected={isActive2}
+              aria-selected={isActive}
               aria-busy={
                 market.installingSet.has(skill.name) ||
                 pendingSkillNames.has(skill.name)
               }
               data-action-ui-id={`slash-cmd-${skill.name}`}
-              className={`list-row-hit-area [--list-row-gap:2px] first:before:top-0 last:before:bottom-0 w-full flex flex-col gap-0.5 px-2.5 py-2 text-left cursor-pointer rounded-md transition-colors ${isActive2 ? "bg-popup-item-active" : "hover:bg-popup-item-active"}`}
+              className={`list-row-hit-area [--list-row-gap:2px] first:before:top-0 last:before:bottom-0 w-full flex flex-col gap-0.5 px-2.5 py-2 text-left cursor-pointer rounded-md transition-colors ${isActive ? "bg-popup-item-active" : "hover:bg-popup-item-active"}`}
               onClick={() => handleSkillSelect(skill)}
               disabled={
                 market.installingSet.has(skill.name) ||
                 pendingSkillNames.has(skill.name)
               }
               onMouseEnter={(event) => {
-                handleHover(index2);
+                handleHover(index);
                 handleCoverPreviewEnter(skill, event.currentTarget);
               }}
               onMouseLeave={schedulePreviewHide}
@@ -1242,7 +1242,7 @@ export function SlashCommandPopoverContent({
               {market.installingSet.has(skill.name) && (
                 <span
                   role="progressbar"
-                  aria-label={t2("skills.market.installing", "安装中…")}
+                  aria-label={translate("skills.market.installing", "安装中…")}
                   className="mt-1 block h-0.5 w-full overflow-hidden rounded-full bg-foreground/10"
                 >
                   <span className="skill-install-progress block h-full w-1/3 rounded-full bg-brand-accent" />
@@ -1260,15 +1260,15 @@ export function SlashCommandPopoverContent({
               variant="outline"
               data-action-ui-id="skill-explore-trigger"
               className="flex-1 rounded-md border-transparent bg-foreground/[0.06] hover:bg-foreground/[0.06]"
-              onMouseDown={(e2) => e2.preventDefault()}
-              onClick={(e2) => {
-                e2.stopPropagation();
+              onMouseDown={(mouseEvent) => mouseEvent.preventDefault()}
+              onClick={(clickEvent) => {
+                clickEvent.stopPropagation();
                 onClose?.();
                 onExplore();
               }}
             >
               <Search size={13} strokeWidth={1.5} />
-              {t2("skills.popover.exploreMore", "探索更多")}
+              {translate("skills.popover.exploreMore", "探索更多")}
             </Button>
           )}
           {onCreate && (
@@ -1276,13 +1276,13 @@ export function SlashCommandPopoverContent({
               type="button"
               data-action-ui-id="skill-create-btn"
               className="flex-1 rounded-md border-transparent"
-              onMouseDown={(e2) => {
-                e2.preventDefault();
+              onMouseDown={(mouseEvent) => {
+                mouseEvent.preventDefault();
                 onCreate();
               }}
             >
               <Plus size={13} strokeWidth={1.8} />
-              {t2("skills.popover.create")}
+              {translate("skills.popover.create")}
             </Button>
           )}
         </div>

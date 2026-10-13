@@ -97,24 +97,24 @@ import {
   ErrorBoundary,
   getVisiblePreviewTabIds,
 } from "../infra/error-boundary.jsx";
-import { Toaster2 } from "../settings/attach-native-toast-surface.jsx";
-function recordNavigation(path2, data2) {
-  actionTrailLog.info(`navigate: ${path2}`, data2);
+import { Toaster2 as Toaster } from "../settings/attach-native-toast-surface.jsx";
+function recordNavigation(path, data) {
+  actionTrailLog.info(`navigate: ${path}`, data);
 }
-function reportRendererReady(hiloApp2) {
+function reportRendererReady(hiloApp) {
   return Promise.resolve(
-    hiloApp2.updateRendererDiagnosticsSnapshot({
+    hiloApp.updateRendererDiagnosticsSnapshot({
       ...buildRendererDiagnosticsSnapshot(),
       rendererReady: true,
     }),
   );
 }
 const IDLE_MS = 600;
-function installScrollbarVisibility(doc2 = document) {
+function installScrollbarVisibility(doc = document) {
   const timers = new Map();
-  doc2.documentElement.setAttribute("data-auto-hide-scrollbars", "");
+  doc.documentElement.setAttribute("data-auto-hide-scrollbars", "");
   const onScroll = (event) => {
-    const target = event.target === doc2 ? doc2.scrollingElement : event.target;
+    const target = event.target === doc ? doc.scrollingElement : event.target;
     if (!(target instanceof Element)) return;
     clearTimeout(timers.get(target));
     target.setAttribute("data-scroll-active", "");
@@ -126,16 +126,16 @@ function installScrollbarVisibility(doc2 = document) {
       }, IDLE_MS),
     );
   };
-  doc2.addEventListener("scroll", onScroll, {
+  doc.addEventListener("scroll", onScroll, {
     capture: true,
     passive: true,
   });
   return () => {
-    doc2.removeEventListener("scroll", onScroll, true);
-    doc2.documentElement.removeAttribute("data-auto-hide-scrollbars");
-    for (const [element2, timer2] of timers) {
-      clearTimeout(timer2);
-      element2.removeAttribute("data-scroll-active");
+    doc.removeEventListener("scroll", onScroll, true);
+    doc.documentElement.removeAttribute("data-auto-hide-scrollbars");
+    for (const [element, timer] of timers) {
+      clearTimeout(timer);
+      element.removeAttribute("data-scroll-active");
     }
     timers.clear();
   };
@@ -157,215 +157,215 @@ const $$splitComponentImporter$a = () => (() => import("../home/index.jsx"))();
 const Route$b = createFileRoute("/_home/")({
   component: lazyRouteComponent($$splitComponentImporter$a, "component"),
 });
-const $$splitComponentImporter$9 = () =>
+const loadHomeWorkflowsRoute = () =>
   (() => import("../workflows/index.jsx"))();
 const Route$a = createFileRoute("/_home/workflows/")({
   beforeLoad: () => {
     throw redirect({ to: "/" });
   },
-  component: lazyRouteComponent($$splitComponentImporter$9, "component"),
-  validateSearch: (search2) => ({
+  component: lazyRouteComponent(loadHomeWorkflowsRoute, "component"),
+  validateSearch: (search) => ({
     tab:
-      search2.tab === "mine"
+      search.tab === "mine"
         ? "mine"
-        : search2.tab === "official"
+        : search.tab === "official"
           ? "official"
           : void 0,
   }),
 });
 const Route = createFileRoute("/_home/skill-community/")({
-  validateSearch: (search2) => ({
-    ...(search2.capability === "skills" || search2.capability === "connectors"
+  validateSearch: (search) => ({
+    ...(search.capability === "skills" || search.capability === "connectors"
       ? {
-          capability: search2.capability,
+          capability: search.capability,
         }
       : {}),
-    ...(search2.tab === "community" ||
-    search2.tab === "plugins" ||
-    search2.tab === "mine"
+    ...(search.tab === "community" ||
+    search.tab === "plugins" ||
+    search.tab === "mine"
       ? {
-          tab: search2.tab,
+          tab: search.tab,
         }
       : {}),
-    ...(search2.subTab === "skills" || search2.subTab === "plugins"
+    ...(search.subTab === "skills" || search.subTab === "plugins"
       ? {
-          subTab: search2.subTab,
+          subTab: search.subTab,
         }
       : {}),
-    ...(typeof search2.pluginId === "string"
+    ...(typeof search.pluginId === "string"
       ? {
-          pluginId: search2.pluginId,
+          pluginId: search.pluginId,
         }
       : {}),
   }),
-  beforeLoad: ({ search: search2 }) => {
+  beforeLoad: ({ search }) => {
     throw redirect({
       to: "/skills",
-      search: search2,
+      search,
     });
   },
 });
-function parseProjectListSearch(search2) {
+function parseProjectListSearch(search) {
   return {
-    kind: search2.kind === "team" ? "team" : "local",
+    kind: search.kind === "team" ? "team" : "local",
   };
 }
-const $$splitComponentImporter$8 = () =>
+const loadHomeProjectsRoute = () =>
   (() => import("../projects/index.jsx"))();
-const Route$8 = createFileRoute("/_home/projects/")({
+const homeProjectsRoute = createFileRoute("/_home/projects/")({
   validateSearch: parseProjectListSearch,
-  component: lazyRouteComponent($$splitComponentImporter$8, "component"),
+  component: lazyRouteComponent(loadHomeProjectsRoute, "component"),
 });
-const $$splitComponentImporter$7 = () =>
+const loadHomeCreationsRoute = () =>
   (() => import("../creations/index.jsx"))();
-const Route$7 = createFileRoute("/_home/creations/")({
-  component: lazyRouteComponent($$splitComponentImporter$7, "component"),
+const homeCreationsRoute = createFileRoute("/_home/creations/")({
+  component: lazyRouteComponent(loadHomeCreationsRoute, "component"),
 });
-const $$splitComponentImporter$6 = () =>
+const loadHomeChangelogRoute = () =>
   (() => import("../changelog/index.jsx"))();
-const Route$6 = createFileRoute("/_home/changelog/")({
-  component: lazyRouteComponent($$splitComponentImporter$6, "component"),
-  validateSearch: (search2) => ({
-    targetId: typeof search2.targetId === "string" ? search2.targetId : void 0,
+const homeChangelogRoute = createFileRoute("/_home/changelog/")({
+  component: lazyRouteComponent(loadHomeChangelogRoute, "component"),
+  validateSearch: (search) => ({
+    targetId: typeof search.targetId === "string" ? search.targetId : void 0,
     source:
-      search2.source === "home_top_whats_new" ? "home_top_whats_new" : void 0,
+      search.source === "home_top_whats_new" ? "home_top_whats_new" : void 0,
   }),
 });
-const $$splitComponentImporter$5 = () =>
+const loadHomeAssetCenterRoute = () =>
   (() => import("../routes/asset-center.js"))();
-function validateAssetCenterSearch(search2) {
+function validateAssetCenterSearch(search) {
   const result = {};
-  if (search2.action === "create") result.action = "create";
-  const returnWorkspaceId = normalizeWorkspaceId(search2.returnWorkspaceId);
+  if (search.action === "create") result.action = "create";
+  const returnWorkspaceId = normalizeWorkspaceId(search.returnWorkspaceId);
   if (returnWorkspaceId) result.returnWorkspaceId = returnWorkspaceId;
   return result;
 }
-const Route$5 = createFileRoute("/_home/asset-center/")({
-  component: lazyRouteComponent($$splitComponentImporter$5, "component"),
+const homeAssetCenterRoute = createFileRoute("/_home/asset-center/")({
+  component: lazyRouteComponent(loadHomeAssetCenterRoute, "component"),
   validateSearch: validateAssetCenterSearch,
 });
-const $$splitComponentImporter$4 = () =>
+const loadWorkspaceRoute = () =>
   (() => import("../routes/workspace.js"))();
 function parseInitialAttachments(value) {
-  if (Array.isArray(value) && value.every((v2) => typeof v2 === "string")) {
+  if (Array.isArray(value) && value.every((stringValue) => typeof stringValue === "string")) {
     return value;
   }
   if (typeof value !== "string") return void 0;
   try {
     const parsed = JSON.parse(value);
-    if (Array.isArray(parsed) && parsed.every((v2) => typeof v2 === "string"))
+    if (Array.isArray(parsed) && parsed.every((stringValue) => typeof stringValue === "string"))
       return parsed;
   } catch {}
   return void 0;
 }
 function parseInitialSelectedMediaModels(value) {
-  let raw2 = value;
+  let raw = value;
   if (typeof value === "string") {
     try {
-      raw2 = JSON.parse(value);
+      raw = JSON.parse(value);
     } catch {
       return void 0;
     }
   }
-  if (!raw2 || typeof raw2 !== "object" || Array.isArray(raw2)) return void 0;
-  const obj = raw2;
-  const pick = (key2) => {
-    const list2 = obj[key2];
-    if (list2 === void 0) return void 0;
-    if (Array.isArray(list2) && list2.every((id2) => typeof id2 === "string"))
-      return list2;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return void 0;
+  const parsedObject = raw;
+  const pick = (key) => {
+    const list = parsedObject[key];
+    if (list === void 0) return void 0;
+    if (Array.isArray(list) && list.every((modelId) => typeof modelId === "string"))
+      return list;
     return void 0;
   };
   const result = {};
-  const image2 = pick("image");
+  const image = pick("image");
   const video = pick("video");
   const audio = pick("audio");
-  if (image2 !== void 0) result.image = image2;
+  if (image !== void 0) result.image = image;
   if (video !== void 0) result.video = video;
   if (audio !== void 0) result.audio = audio;
   return result;
 }
-const Route$4 = createFileRoute("/_app/workspace/")({
-  validateSearch: (search2) => ({
-    workspaceId: normalizeWorkspaceId(search2.workspaceId),
+const workspaceRoute = createFileRoute("/_app/workspace/")({
+  validateSearch: (search) => ({
+    workspaceId: normalizeWorkspaceId(search.workspaceId),
     initialPayloadId:
-      typeof search2.initialPayloadId === "string"
-        ? search2.initialPayloadId
+      typeof search.initialPayloadId === "string"
+        ? search.initialPayloadId
         : void 0,
     initialMessage:
-      search2.initialMessage != null ? String(search2.initialMessage) : void 0,
-    initialAttachments: parseInitialAttachments(search2.initialAttachments),
-    initialEntityRefs: parseInitialAttachments(search2.initialEntityRefs),
+      search.initialMessage != null ? String(search.initialMessage) : void 0,
+    initialAttachments: parseInitialAttachments(search.initialAttachments),
+    initialEntityRefs: parseInitialAttachments(search.initialEntityRefs),
     initialModelId:
-      typeof search2.initialModelId === "string"
-        ? search2.initialModelId
+      typeof search.initialModelId === "string"
+        ? search.initialModelId
         : void 0,
     initialSelectedMediaModels: parseInitialSelectedMediaModels(
-      search2.initialSelectedMediaModels,
+      search.initialSelectedMediaModels,
     ),
     skillPrompt:
-      typeof search2.skillPrompt === "string" ? search2.skillPrompt : void 0,
+      typeof search.skillPrompt === "string" ? search.skillPrompt : void 0,
     skillName:
-      typeof search2.skillName === "string" ? search2.skillName : void 0,
-    pluginId: typeof search2.pluginId === "string" ? search2.pluginId : void 0,
+      typeof search.skillName === "string" ? search.skillName : void 0,
+    pluginId: typeof search.pluginId === "string" ? search.pluginId : void 0,
     initialComfyUiWorkflowId:
-      typeof search2.initialComfyUiWorkflowId === "string" &&
-      search2.initialComfyUiWorkflowId.trim()
-        ? search2.initialComfyUiWorkflowId
+      typeof search.initialComfyUiWorkflowId === "string" &&
+      search.initialComfyUiWorkflowId.trim()
+        ? search.initialComfyUiWorkflowId
         : void 0,
     initialComfyUiWorkflowTarget:
-      search2.initialComfyUiWorkflowTarget === "current" ||
-      search2.initialComfyUiWorkflowTarget === "new"
-        ? search2.initialComfyUiWorkflowTarget
+      search.initialComfyUiWorkflowTarget === "current" ||
+      search.initialComfyUiWorkflowTarget === "new"
+        ? search.initialComfyUiWorkflowTarget
         : void 0,
     menuAction:
-      search2.menuAction === "new-chat" ||
-      search2.menuAction === "open-settings"
-        ? search2.menuAction
+      search.menuAction === "new-chat" ||
+      search.menuAction === "open-settings"
+        ? search.menuAction
         : void 0,
     assetCenterRelocation:
-      search2.assetCenterRelocation === true ||
-      search2.assetCenterRelocation === "true"
+      search.assetCenterRelocation === true ||
+      search.assetCenterRelocation === "true"
         ? true
         : void 0,
   }),
-  beforeLoad: ({ search: search2 }) => {
-    if (!search2.workspaceId)
+  beforeLoad: ({ search }) => {
+    if (!search.workspaceId)
       throw redirect({
         to: "/",
       });
   },
-  component: lazyRouteComponent($$splitComponentImporter$4, "component"),
+  component: lazyRouteComponent(loadWorkspaceRoute, "component"),
 });
-const $$splitComponentImporter$3 = () =>
+const loadSkillsRoute = () =>
   (() => import("../skills/index.jsx"))();
-function validateSkillsSearch(search2) {
-  const out = {};
-  const capability = search2.capability;
+function validateSkillsSearch(search) {
+  const validatedSearch = {};
+  const capability = search.capability;
   if (capability === "skills" || capability === "connectors") {
-    out.capability = capability;
+    validatedSearch.capability = capability;
   }
-  const tab2 = search2.tab;
-  if (tab2 === "community" || tab2 === "plugins" || tab2 === "mine") {
-    out.tab = tab2;
+  const tab = search.tab;
+  if (tab === "community" || tab === "plugins" || tab === "mine") {
+    validatedSearch.tab = tab;
   }
-  const subTab = search2.subTab;
+  const subTab = search.subTab;
   if (subTab === "skills" || subTab === "plugins") {
-    out.subTab = subTab;
+    validatedSearch.subTab = subTab;
   }
   const pluginId =
-    typeof search2.pluginId === "string" ? search2.pluginId.trim() : "";
-  if (pluginId) out.pluginId = pluginId;
+    typeof search.pluginId === "string" ? search.pluginId.trim() : "";
+  if (pluginId) validatedSearch.pluginId = pluginId;
   const skillName =
-    typeof search2.skillName === "string" ? search2.skillName.trim() : "";
-  if (skillName) out.skillName = skillName;
+    typeof search.skillName === "string" ? search.skillName.trim() : "";
+  if (skillName) validatedSearch.skillName = skillName;
   const connectorId =
-    typeof search2.connectorId === "string" ? search2.connectorId.trim() : "";
-  if (connectorId) out.connectorId = connectorId;
-  return out;
+    typeof search.connectorId === "string" ? search.connectorId.trim() : "";
+  if (connectorId) validatedSearch.connectorId = connectorId;
+  return validatedSearch;
 }
-const Route$3 = createFileRoute("/_app/skills/")({
-  component: lazyRouteComponent($$splitComponentImporter$3, "component"),
+const skillsRoute = createFileRoute("/_app/skills/")({
+  component: lazyRouteComponent(loadSkillsRoute, "component"),
   // Accept capability and detail identifiers so external entries can deep-link
   // to a specific Skill, plugin, or Connector without duplicating their flows.
   // Unknown values are silently dropped so the page falls back to its default.
@@ -373,23 +373,23 @@ const Route$3 = createFileRoute("/_app/skills/")({
   // we still validate it independently so the schema stays self-describing.
   validateSearch: validateSkillsSearch,
 });
-const $$splitComponentImporter$2 = () =>
+const loadProjectDetailRoute = () =>
   (() => import("../project-detail/index.jsx"))();
-const Route$2 = createFileRoute("/_home/projects/$projectId")({
-  validateSearch: (search2) => ({
-    tab: typeof search2.tab === "string" ? search2.tab : void 0,
+const projectDetailRoute = createFileRoute("/_home/projects/$projectId")({
+  validateSearch: (search) => ({
+    tab: typeof search.tab === "string" ? search.tab : void 0,
   }),
-  component: lazyRouteComponent($$splitComponentImporter$2, "component"),
+  component: lazyRouteComponent(loadProjectDetailRoute, "component"),
 });
-const $$splitComponentImporter$1 = () =>
+const loadRemoteToolDebugRoute = () =>
   (() => import("../routes/remote-tool.jsx"))();
-const Route$1 = createFileRoute("/_app/debug/remote-tool")({
-  validateSearch: (search2) => ({
-    url: typeof search2.url === "string" ? search2.url : void 0,
-    manifest: typeof search2.manifest === "string" ? search2.manifest : void 0,
-    tool: typeof search2.tool === "string" ? search2.tool : void 0,
+const remoteToolDebugRoute = createFileRoute("/_app/debug/remote-tool")({
+  validateSearch: (search) => ({
+    url: typeof search.url === "string" ? search.url : void 0,
+    manifest: typeof search.manifest === "string" ? search.manifest : void 0,
+    tool: typeof search.tool === "string" ? search.tool : void 0,
   }),
-  component: lazyRouteComponent($$splitComponentImporter$1, "component"),
+  component: lazyRouteComponent(loadRemoteToolDebugRoute, "component"),
 });
 function requireChatCaseDebugAccess(canUseDebug = canUseDebugTooling) {
   if (!canUseDebug()) {
@@ -400,15 +400,15 @@ function requireChatCaseDebugAccess(canUseDebug = canUseDebugTooling) {
 }
 const $$splitComponentImporter = () =>
   (() => import("../routes/chat-case.jsx"))();
-const Route2 = createFileRoute("/_app/debug/chat-case")({
+const chatCaseRoute = createFileRoute("/_app/debug/chat-case")({
   beforeLoad: () => requireChatCaseDebugAccess(),
-  validateSearch: (search2) => ({
+  validateSearch: (search) => ({
     case:
-      search2.case === "image-reconnect-duplicate" ||
-      search2.case === "production-confirm-overlap" ||
-      search2.case === "question-overflow" ||
-      search2.case === "generation-errors"
-        ? search2.case
+      search.case === "image-reconnect-duplicate" ||
+      search.case === "production-confirm-overlap" ||
+      search.case === "question-overflow" ||
+      search.case === "generation-errors"
+        ? search.case
         : void 0,
   }),
   component: lazyRouteComponent($$splitComponentImporter, "component"),
@@ -462,14 +462,14 @@ const FALLBACK_LABELS = {
   },
 };
 function HomeMenuButton() {
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const { isWindowsTitlebarOverlay } = useWindowChrome();
   const [openGroup, setOpenGroup] = reactExports.useState(null);
   if (!isWindowsTitlebarOverlay) return null;
   const lang = i18n.language?.startsWith("zh") ? "zh" : "en";
-  const label = (key2, fallbackKey) =>
-    t2(key2, FALLBACK_LABELS[lang][fallbackKey]);
-  const dispatch2 = (action) => {
+  const label = (key, fallbackKey) =>
+    translate(key, FALLBACK_LABELS[lang][fallbackKey]);
+  const dispatch = (action) => {
     setOpenGroup(null);
     void window.hilo.menu.trigger(action);
   };
@@ -497,17 +497,17 @@ function HomeMenuButton() {
             sideOffset={2}
             className="min-w-[220px]"
           >
-            {group.items.map((item, idx) =>
+            {group.items.map((item, itemIndex) =>
               item.kind === "separator" ? (
                 // biome-ignore lint/suspicious/noArrayIndexKey: items are static, order stable
                 <DropdownMenuSeparator
-                  key={`sep-${group.id}-${idx}`}
+                  key={`sep-${group.id}-${itemIndex}`}
                   className="my-0.5"
                 />
               ) : (
                 <DropdownMenuItem
                   key={item.action}
-                  onClick={() => dispatch2(item.action)}
+                  onClick={() => dispatch(item.action)}
                   data-action-ui-id={`topbar.home-menu.${item.action}`}
                 >
                   <span className="flex-1">
@@ -532,13 +532,13 @@ function HomeMenuButton() {
 }
 const WINDOW_APP_CONTROLS_MIN_INSET = 0;
 const LazyGlobalSearchDialog = reactExports.lazy(() =>
-  (() => import("../global-search/index.jsx"))().then((m3) => ({
-    default: m3.GlobalSearchDialog,
+  (() => import("../global-search/index.jsx"))().then((module) => ({
+    default: module.GlobalSearchDialog,
   })),
 );
 function TopbarSearchDialogLazy({ open, onOpenChange }) {
   const navigate = useNavigate();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { searchWorkspaces, currentWorkspaceId } = useTopbarState();
   const { activateWorkspace, createWorkspace, openWorkspaceFromDialog } =
     useTopbarActions();
@@ -599,7 +599,7 @@ function TopbarSearchDialogLazy({ open, onOpenChange }) {
         }
         return restoreProjectVisibility(action.projectId).then((restored) => {
           if (!restored) {
-            dedupedToast.error(t2("project.restore.failed"));
+            dedupedToast.error(translate("project.restore.failed"));
             return false;
           }
           void navigate({
@@ -705,7 +705,7 @@ function TopbarSearchDialogLazy({ open, onOpenChange }) {
   );
 }
 function TopbarContent({ onFullScreenChange, onAppControlsInsetChange }) {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const {
     hasReservedTitlebar,
     isCustomChrome,
@@ -725,40 +725,40 @@ function TopbarContent({ onFullScreenChange, onAppControlsInsetChange }) {
   }, []);
   reactExports.useEffect(() => {
     if (!isCustomChrome) return;
-    let timer2 = null;
+    let timer = null;
     let disposed = false;
     let eventRevision = 0;
     let queryRevision = 0;
-    const applyFullScreen = (next2) => {
+    const applyFullScreen = (next) => {
       if (disposed) return;
-      setIsFullscreen(next2);
-      onFullScreenChange?.(next2);
+      setIsFullscreen(next);
+      onFullScreenChange?.(next);
     };
     const check = () => {
       const requestRevision = ++queryRevision;
       const eventRevisionAtRequest = eventRevision;
-      platform2.window
+      platform.window
         .isFullScreen()
-        .then((next2) => {
+        .then((next) => {
           if (
             requestRevision !== queryRevision ||
             eventRevisionAtRequest !== eventRevision
           ) {
             return;
           }
-          applyFullScreen(next2);
+          applyFullScreen(next);
         })
         .catch(() => {});
     };
     check();
-    const unsubscribe = platform2.window.onFullScreenChange?.((next2) => {
+    const unsubscribe = platform.window.onFullScreenChange?.((next) => {
       eventRevision += 1;
       queryRevision += 1;
-      applyFullScreen(next2);
+      applyFullScreen(next);
     });
     const onResize = () => {
-      if (timer2) clearTimeout(timer2);
-      timer2 = setTimeout(check, 300);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(check, 300);
     };
     window.addEventListener("resize", onResize);
     return () => {
@@ -766,14 +766,14 @@ function TopbarContent({ onFullScreenChange, onAppControlsInsetChange }) {
       queryRevision += 1;
       unsubscribe?.();
       window.removeEventListener("resize", onResize);
-      if (timer2) clearTimeout(timer2);
+      if (timer) clearTimeout(timer);
     };
-  }, [isCustomChrome, onFullScreenChange, platform2.window]);
+  }, [isCustomChrome, onFullScreenChange, platform.window]);
   reactExports.useEffect(() => {
-    const handler = (e2) => {
-      const mod = e2.metaKey || e2.ctrlKey;
-      if (!mod || e2.key !== "k") return;
-      e2.preventDefault();
+    const handler = (keyboardEvent) => {
+      const modifierPressed = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
+      if (!modifierPressed || keyboardEvent.key !== "k") return;
+      keyboardEvent.preventDefault();
       openSearch("keyboard");
     };
     window.addEventListener("keydown", handler);
@@ -838,7 +838,7 @@ function Topbar({ onFullScreenChange, onAppControlsInsetChange } = {}) {
   );
 }
 function DataDirectoryStatusBanner() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const settingsDialog = useOptionalSettingsDialog();
   const [status, setStatus] = reactExports.useState(null);
   const refresh = reactExports.useCallback(() => {
@@ -870,23 +870,23 @@ function DataDirectoryStatusBanner() {
       <AlertTriangle size={14} strokeWidth={1.5} className="shrink-0" />
       <span>
         {status.state === "configured_location_unavailable"
-          ? t2("settings.storage.globalFallback")
+          ? translate("settings.storage.globalFallback")
           : status.state === "pending_restart"
-            ? t2("settings.storage.globalPendingRestart")
-            : t2("settings.storage.globalRewriteRepairPending")}
+            ? translate("settings.storage.globalPendingRestart")
+            : translate("settings.storage.globalRewriteRepairPending")}
       </span>
       <button
         type="button"
         className="font-medium underline underline-offset-2 hover:opacity-80"
         onClick={() => settingsDialog?.openSettings("storage")}
       >
-        {t2("settings.storage.openSettings")}
+        {translate("settings.storage.openSettings")}
       </button>
     </div>
   );
 }
 function GatewayReadinessBanner() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const readiness = useGatewayReadiness();
   if (!readiness || readiness.state === "ready") return null;
   const failed = readiness.state === "failed";
@@ -904,7 +904,7 @@ function GatewayReadinessBanner() {
       className={`flex shrink-0 items-center justify-center gap-2 px-3 py-1.5 text-center text-xs ${failed ? "bg-destructive/15 text-destructive" : "bg-muted text-muted-foreground"}`}
     >
       <span>
-        {failed ? t2("home.gatewayFailed") : t2("home.gatewayStarting")}
+        {failed ? translate("home.gatewayFailed") : translate("home.gatewayStarting")}
       </span>
       {failed && (
         <button
@@ -912,114 +912,114 @@ function GatewayReadinessBanner() {
           onClick={handleRetry}
           className="font-medium underline underline-offset-2 hover:opacity-80"
         >
-          {t2("home.gatewayRetry")}
+          {translate("home.gatewayRetry")}
         </button>
       )}
     </div>
   );
 }
-function parseInitialAttachments$1(value) {
-  if (Array.isArray(value) && value.every((v2) => typeof v2 === "string")) {
+function parseWorkspaceInitialAttachments(value) {
+  if (Array.isArray(value) && value.every((stringValue) => typeof stringValue === "string")) {
     return value;
   }
   if (typeof value !== "string") return void 0;
   try {
     const parsed = JSON.parse(value);
-    if (Array.isArray(parsed) && parsed.every((v2) => typeof v2 === "string"))
+    if (Array.isArray(parsed) && parsed.every((stringValue) => typeof stringValue === "string"))
       return parsed;
   } catch {}
   return void 0;
 }
-function parseInitialSelectedMediaModels$1(value) {
-  let raw2 = value;
+function parseWorkspaceInitialSelectedMediaModels(value) {
+  let raw = value;
   if (typeof value === "string") {
     try {
-      raw2 = JSON.parse(value);
+      raw = JSON.parse(value);
     } catch {
       return void 0;
     }
   }
-  if (!raw2 || typeof raw2 !== "object" || Array.isArray(raw2)) return void 0;
-  const obj = raw2;
-  const pick = (key2) => {
-    const list2 = obj[key2];
-    if (list2 === void 0) return void 0;
-    if (Array.isArray(list2) && list2.every((id2) => typeof id2 === "string"))
-      return list2;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return void 0;
+  const parsedObject = raw;
+  const pick = (key) => {
+    const list = parsedObject[key];
+    if (list === void 0) return void 0;
+    if (Array.isArray(list) && list.every((modelId) => typeof modelId === "string"))
+      return list;
     return void 0;
   };
   const result = {};
-  const image2 = pick("image");
+  const image = pick("image");
   const video = pick("video");
   const audio = pick("audio");
-  if (image2 !== void 0) result.image = image2;
+  if (image !== void 0) result.image = image;
   if (video !== void 0) result.video = video;
   if (audio !== void 0) result.audio = audio;
   return result;
 }
 function useWorkspaceRouteState() {
   return useRouterState({
-    select: (state2) => {
-      const pathname = state2.location.pathname;
+    select: (state) => {
+      const pathname = state.location.pathname;
       if (!pathname.startsWith("/workspace"))
         return {
           active: false,
         };
-      const search2 = state2.location.search;
+      const search = state.location.search;
       return {
         active: true,
-        workspaceId: normalizeWorkspaceId(search2.workspaceId),
+        workspaceId: normalizeWorkspaceId(search.workspaceId),
         initialPayloadId:
-          typeof search2.initialPayloadId === "string"
-            ? search2.initialPayloadId
+          typeof search.initialPayloadId === "string"
+            ? search.initialPayloadId
             : void 0,
         initialMessage:
-          search2.initialMessage != null
-            ? String(search2.initialMessage)
+          search.initialMessage != null
+            ? String(search.initialMessage)
             : void 0,
-        initialAttachments: parseInitialAttachments$1(
-          search2.initialAttachments,
+        initialAttachments: parseWorkspaceInitialAttachments(
+          search.initialAttachments,
         ),
-        initialEntityRefs: parseInitialAttachments$1(search2.initialEntityRefs),
+        initialEntityRefs: parseWorkspaceInitialAttachments(search.initialEntityRefs),
         initialModelId:
-          typeof search2.initialModelId === "string"
-            ? search2.initialModelId
+          typeof search.initialModelId === "string"
+            ? search.initialModelId
             : void 0,
-        initialSelectedMediaModels: parseInitialSelectedMediaModels$1(
-          search2.initialSelectedMediaModels,
+        initialSelectedMediaModels: parseWorkspaceInitialSelectedMediaModels(
+          search.initialSelectedMediaModels,
         ),
         initialComfyUiWorkflowId:
-          typeof search2.initialComfyUiWorkflowId === "string" &&
-          search2.initialComfyUiWorkflowId.trim()
-            ? search2.initialComfyUiWorkflowId
+          typeof search.initialComfyUiWorkflowId === "string" &&
+          search.initialComfyUiWorkflowId.trim()
+            ? search.initialComfyUiWorkflowId
             : void 0,
         initialComfyUiWorkflowTarget:
-          search2.initialComfyUiWorkflowTarget === "current" ||
-          search2.initialComfyUiWorkflowTarget === "new"
-            ? search2.initialComfyUiWorkflowTarget
+          search.initialComfyUiWorkflowTarget === "current" ||
+          search.initialComfyUiWorkflowTarget === "new"
+            ? search.initialComfyUiWorkflowTarget
             : void 0,
         skillPrompt:
-          typeof search2.skillPrompt === "string"
-            ? search2.skillPrompt
+          typeof search.skillPrompt === "string"
+            ? search.skillPrompt
             : void 0,
         skillName:
-          typeof search2.skillName === "string" ? search2.skillName : void 0,
+          typeof search.skillName === "string" ? search.skillName : void 0,
         pluginId:
-          typeof search2.pluginId === "string" ? search2.pluginId : void 0,
+          typeof search.pluginId === "string" ? search.pluginId : void 0,
         menuAction:
-          search2.menuAction === "new-chat" ||
-          search2.menuAction === "open-settings"
-            ? search2.menuAction
+          search.menuAction === "new-chat" ||
+          search.menuAction === "open-settings"
+            ? search.menuAction
             : void 0,
-        assetCenterRelocation: search2.assetCenterRelocation === true,
+        assetCenterRelocation: search.assetCenterRelocation === true,
       };
     },
   });
 }
 function RetainedWorkspaceRuntimeLayer() {
   const {
-    active: active2,
-    workspaceId: workspaceId2,
+    active,
+    workspaceId: activeWorkspaceId,
     initialPayloadId,
     initialMessage,
     initialAttachments,
@@ -1034,7 +1034,7 @@ function RetainedWorkspaceRuntimeLayer() {
     menuAction,
     assetCenterRelocation,
   } = useWorkspaceRouteState();
-  const { entries: entries2 } = useTopbarState();
+  const { entries } = useTopbarState();
   const navigate = useNavigate();
   const initialPayloadCacheRef = reactExports.useRef(
     new WorkspaceInitialPayloadCache(),
@@ -1042,13 +1042,13 @@ function RetainedWorkspaceRuntimeLayer() {
   const seenEntryIdsRef = reactExports.useRef(new Set());
   const seenLiveWorkspaceIdsRef = reactExports.useRef(new Set());
   const retainedWorkspaceIds = reactExports.useMemo(() => {
-    const ids2 = entries2
+    const ids = entries
       .filter((entry) => entry.gatewayUrl)
       .map((entry) => entry.workspaceId);
-    if (workspaceId2 && !ids2.includes(workspaceId2)) ids2.push(workspaceId2);
-    return ids2;
-  }, [entries2, workspaceId2]);
-  initialPayloadCacheRef.current.capture(workspaceId2, {
+    if (activeWorkspaceId && !ids.includes(activeWorkspaceId)) ids.push(activeWorkspaceId);
+    return ids;
+  }, [entries, activeWorkspaceId]);
+  initialPayloadCacheRef.current.capture(activeWorkspaceId, {
     initialPayloadId,
     initialMessage,
     initialAttachments,
@@ -1057,14 +1057,14 @@ function RetainedWorkspaceRuntimeLayer() {
     initialSelectedMediaModels,
   });
   reactExports.useEffect(() => {
-    const entryIds = new Set(entries2.map((entry) => entry.workspaceId));
+    const entryIds = new Set(entries.map((entry) => entry.workspaceId));
     initialPayloadCacheRef.current.cleanupClosed(
       entryIds,
       seenEntryIdsRef.current,
-      workspaceId2,
+      activeWorkspaceId,
     );
     const liveIds = new Set(
-      entries2
+      entries
         .filter((entry) => entry.gatewayUrl)
         .map((entry) => entry.workspaceId),
     );
@@ -1074,57 +1074,57 @@ function RetainedWorkspaceRuntimeLayer() {
       workspaceEvents.clearSubscribersReady(seenId);
       seenLiveWorkspaceIdsRef.current.delete(seenId);
     }
-  }, [entries2, workspaceId2]);
+  }, [entries, activeWorkspaceId]);
   return (
     // WorkbenchShell provides the positioned right-content slot. Keep this
     // layer scoped to that slot so it never covers the full-height global sidebar.
     <div
       className={
-        active2
+        active
           ? "transparent-window-workspace-shell absolute inset-0 z-10 flex bg-background"
           : "hidden"
       }
     >
-      {retainedWorkspaceIds.map((id2) => (
+      {retainedWorkspaceIds.map((workspaceId) => (
         <RetainedWorkspaceRuntimeHost
-          key={id2}
-          workspaceId={id2}
-          isActive={active2 && id2 === workspaceId2}
+          key={workspaceId}
+          workspaceId={workspaceId}
+          isActive={active && workspaceId === activeWorkspaceId}
           initialPayloadId={
-            initialPayloadCacheRef.current.get(id2)?.initialPayloadId
+            initialPayloadCacheRef.current.get(workspaceId)?.initialPayloadId
           }
           initialMessage={
-            initialPayloadCacheRef.current.get(id2)?.initialMessage
+            initialPayloadCacheRef.current.get(workspaceId)?.initialMessage
           }
           initialAttachments={
-            initialPayloadCacheRef.current.get(id2)?.initialAttachments
+            initialPayloadCacheRef.current.get(workspaceId)?.initialAttachments
           }
           initialEntityRefs={
-            initialPayloadCacheRef.current.get(id2)?.initialEntityRefs
+            initialPayloadCacheRef.current.get(workspaceId)?.initialEntityRefs
           }
           initialModelId={
-            initialPayloadCacheRef.current.get(id2)?.initialModelId
+            initialPayloadCacheRef.current.get(workspaceId)?.initialModelId
           }
           initialSelectedMediaModels={
-            initialPayloadCacheRef.current.get(id2)?.initialSelectedMediaModels
+            initialPayloadCacheRef.current.get(workspaceId)?.initialSelectedMediaModels
           }
           initialComfyUiWorkflowId={
-            active2 && id2 === workspaceId2 ? initialComfyUiWorkflowId : void 0
+            active && workspaceId === activeWorkspaceId ? initialComfyUiWorkflowId : void 0
           }
           initialComfyUiWorkflowTarget={
-            active2 && id2 === workspaceId2
+            active && workspaceId === activeWorkspaceId
               ? initialComfyUiWorkflowTarget
               : void 0
           }
           onInitialMessageSent={() => {
-            const payload = initialPayloadCacheRef.current.get(id2);
-            initialPayloadCacheRef.current.consume(id2);
+            const payload = initialPayloadCacheRef.current.get(workspaceId);
+            initialPayloadCacheRef.current.consume(workspaceId);
             if (payload?.initialPayloadId) {
               acknowledgeHomeDraftHandoff(payload.initialPayloadId);
             }
             if (
-              active2 &&
-              workspaceId2 === id2 &&
+              active &&
+              activeWorkspaceId === workspaceId &&
               payload &&
               (!payload.initialPayloadId ||
                 payload.initialPayloadId === initialPayloadId)
@@ -1132,7 +1132,7 @@ function RetainedWorkspaceRuntimeLayer() {
               void navigate({
                 to: "/workspace",
                 replace: true,
-                search: buildWorkspaceSearch(id2, {
+                search: buildWorkspaceSearch(workspaceId, {
                   skillPrompt,
                   skillName,
                   pluginId,
@@ -1147,7 +1147,7 @@ function RetainedWorkspaceRuntimeLayer() {
           pluginId={pluginId}
           menuAction={menuAction}
           assetCenterRelocation={
-            active2 && id2 === workspaceId2 ? assetCenterRelocation : void 0
+            active && workspaceId === activeWorkspaceId ? assetCenterRelocation : void 0
           }
         />
       ))}
@@ -1159,8 +1159,8 @@ const MemoizedRetainedWorkspaceRuntimeLayer = reactExports.memo(
 );
 function ModelCatalogLoginWarmup() {
   const auth = reactExports.useContext(AuthContext);
-  const gatewayFetch2 = useGatewayFetch();
-  const queryClient2 = useQueryClient();
+  const gatewayFetch = useGatewayFetch();
+  const queryClient = useQueryClient();
   const { gatewayReady, scopeKey, gatewayBinding } = useGatewayScope();
   const catalogScopeKey = useModelCatalogScopeKey();
   const warmedRuntimeRef = reactExports.useRef(null);
@@ -1180,12 +1180,12 @@ function ModelCatalogLoginWarmup() {
         (query.queryKey[0] === "models" ||
           query.queryKey[0] === "mention-models") &&
         query.queryKey[1] === previousCatalogScope;
-      void queryClient2
+      void queryClient
         .cancelQueries({
           predicate: belongsToPreviousScope,
         })
         .then(() =>
-          queryClient2.removeQueries({
+          queryClient.removeQueries({
             predicate: belongsToPreviousScope,
           }),
         );
@@ -1200,13 +1200,13 @@ function ModelCatalogLoginWarmup() {
       return;
     }
     warmedRuntimeRef.current = warmKey;
-    void queryClient2.invalidateQueries({
+    void queryClient.invalidateQueries({
       queryKey: ["models", catalogScopeKey],
     });
-    void queryClient2.invalidateQueries({
+    void queryClient.invalidateQueries({
       queryKey: ["mention-models", catalogScopeKey],
     });
-    void gatewayFetch2(API_PATHS.modelsConfig)
+    void gatewayFetch(API_PATHS.modelsConfig)
       .then((response) => {
         if (!response.ok) {
           warmedRuntimeRef.current = null;
@@ -1221,16 +1221,16 @@ function ModelCatalogLoginWarmup() {
       });
   }, [
     catalogScopeKey,
-    gatewayFetch2,
+    gatewayFetch,
     gatewayReady,
     isLoading,
     isLoggedIn,
-    queryClient2,
+    queryClient,
     runtimeKey,
   ]);
   return null;
 }
-function GlobalSidebarStateRoot({ children: children2, ...props }) {
+function GlobalSidebarStateRoot({ children, ...props }) {
   const { collapsed, previewOpen } = useGlobalSidebar();
   const previewInteractionActive = collapsed && previewOpen;
   return (
@@ -1241,11 +1241,11 @@ function GlobalSidebarStateRoot({ children: children2, ...props }) {
         previewInteractionActive ? "true" : "false"
       }
     >
-      {children2}
+      {children}
     </div>
   );
 }
-function WorkbenchShellContent({ children: children2 }) {
+function WorkbenchShellContent({ children }) {
   const hasAuthContext = reactExports.useContext(AuthContext) !== null;
   const settings = useSettings();
   const appGatewayReady = useGatewayReady();
@@ -1263,7 +1263,7 @@ function WorkbenchShellContent({ children: children2 }) {
   const showWorkbenchDragHotZones =
     isMacIntegratedChrome && !isWindowFullScreen;
   const isWorkspaceRoute = useRouterState({
-    select: (state2) => state2.location.pathname.startsWith("/workspace"),
+    select: (state) => state.location.pathname.startsWith("/workspace"),
   });
   const topBottomDragHotZoneClassName = isWorkspaceRoute ? "h-3" : "h-1";
   const sideDragHotZoneInsetClassName = isWorkspaceRoute
@@ -1364,11 +1364,11 @@ function WorkbenchShellContent({ children: children2 }) {
               <div className="relative flex min-h-0 flex-1 overflow-hidden">
                 {isWorkspaceRoute ? (
                   <div className="absolute inset-0 min-h-0 min-w-0 overflow-hidden">
-                    {children2}
+                    {children}
                   </div>
                 ) : (
                   <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-                    {children2}
+                    {children}
                   </main>
                 )}
                 <MemoizedRetainedWorkspaceRuntimeLayer />
@@ -1381,10 +1381,10 @@ function WorkbenchShellContent({ children: children2 }) {
     </GatewayScopeProvider>
   );
 }
-function WorkbenchShell({ children: children2 }) {
+function WorkbenchShell({ children }) {
   return (
     <GlobalSidebarProvider>
-      <WorkbenchShellContent>{children2}</WorkbenchShellContent>
+      <WorkbenchShellContent>{children}</WorkbenchShellContent>
     </GlobalSidebarProvider>
   );
 }
@@ -1430,47 +1430,47 @@ const HomeSkillCommunityIndexRoute = Route.update({
   path: "/skill-community/",
   getParentRoute: () => HomeRoute,
 });
-const HomeProjectsIndexRoute = Route$8.update({
+const HomeProjectsIndexRoute = homeProjectsRoute.update({
   id: "/projects/",
   path: "/projects/",
   getParentRoute: () => HomeRoute,
 });
-const HomeCreationsIndexRoute = Route$7.update({
+const HomeCreationsIndexRoute = homeCreationsRoute.update({
   id: "/creations/",
   path: "/creations/",
   getParentRoute: () => HomeRoute,
 });
-const HomeChangelogIndexRoute = Route$6.update({
+const HomeChangelogIndexRoute = homeChangelogRoute.update({
   id: "/changelog/",
   path: "/changelog/",
   getParentRoute: () => HomeRoute,
 });
-const HomeAssetCenterIndexRoute = Route$5.update({
+const HomeAssetCenterIndexRoute = homeAssetCenterRoute.update({
   id: "/asset-center/",
   path: "/asset-center/",
   getParentRoute: () => HomeRoute,
 });
-const AppWorkspaceIndexRoute = Route$4.update({
+const AppWorkspaceIndexRoute = workspaceRoute.update({
   id: "/workspace/",
   path: "/workspace/",
   getParentRoute: () => AppRoute,
 });
-const AppSkillsIndexRoute = Route$3.update({
+const AppSkillsIndexRoute = skillsRoute.update({
   id: "/skills/",
   path: "/skills/",
   getParentRoute: () => AppRoute,
 });
-const HomeProjectsProjectIdRoute = Route$2.update({
+const HomeProjectsProjectIdRoute = projectDetailRoute.update({
   id: "/projects/$projectId",
   path: "/projects/$projectId",
   getParentRoute: () => HomeRoute,
 });
-const AppDebugRemoteToolRoute = Route$1.update({
+const AppDebugRemoteToolRoute = remoteToolDebugRoute.update({
   id: "/debug/remote-tool",
   path: "/debug/remote-tool",
   getParentRoute: () => AppRoute,
 });
-const AppDebugChatCaseRoute = Route2.update({
+const AppDebugChatCaseRoute = chatCaseRoute.update({
   id: "/debug/chat-case",
   path: "/debug/chat-case",
   getParentRoute: () => AppRoute,
@@ -1511,7 +1511,7 @@ const router = createRouter({
 });
 const TrackingRecorder = null;
 function AppRoot() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   useDebugFlag(DEBUG_FLAGS.trackingRecorder);
   const { pendingInstall, dismiss: dismissInstall } = useDeepLinkRouter();
   const installInFlightRef = reactExports.useRef(false);
@@ -1521,7 +1521,7 @@ function AppRoot() {
     const doInstall = async () => {
       const startedAt = Date.now();
       try {
-        const res = await gatewayFetch(API_PATHS.marketInstall, {
+        const response = await gatewayFetch(API_PATHS.marketInstall, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1530,8 +1530,8 @@ function AppRoot() {
             name: pendingInstall.name,
           }),
         });
-        const data2 = await res.json();
-        if (data2.ok) {
+        const data = await response.json();
+        if (data.ok) {
           trackSkillInstallEvent({
             name: pendingInstall.name,
             source: "market",
@@ -1550,26 +1550,26 @@ function AppRoot() {
             name: pendingInstall.name,
             source: "market",
             via: "share_link",
-            error: data2.error || "install rejected",
+            error: data.error || "install rejected",
             durationMs: Date.now() - startedAt,
           });
           dedupedToast.error(
-            data2.error ||
-              t2("skills.market.installError", {
+            data.error ||
+              translate("skills.market.installError", {
                 name: pendingInstall.name,
               }),
           );
         }
-      } catch (err) {
+      } catch (error) {
         trackSkillInstallFailed({
           name: pendingInstall.name,
           source: "market",
           via: "share_link",
-          error: err,
+          error,
           durationMs: Date.now() - startedAt,
         });
         dedupedToast.error(
-          t2("skills.market.installError", {
+          translate("skills.market.installError", {
             name: pendingInstall.name,
           }),
         );
@@ -1579,7 +1579,7 @@ function AppRoot() {
       }
     };
     doInstall();
-  }, [pendingInstall, dismissInstall, t2]);
+  }, [pendingInstall, dismissInstall, translate]);
   reactExports.useEffect(() => {
     if (!window.hilo?.ipcRenderer) return;
     const offNewChat = window.hilo.ipcRenderer.on(
@@ -1594,11 +1594,11 @@ function AppRoot() {
         const request = args[1];
         if (isStartupSessionRestorePayload(request)) {
           if (router.state.location.pathname !== "/") return;
-          const workspaceId22 = getStartupVisiblePreviewWorkspace(
+          const workspaceId = getStartupVisiblePreviewWorkspace(
             request.restoredWorkspaceIds,
             request.preferredWorkspaceId,
           );
-          if (!workspaceId22) {
+          if (!workspaceId) {
             void homeService.hiloApp.activateHome();
             void router.navigate({
               to: "/",
@@ -1607,16 +1607,16 @@ function AppRoot() {
           }
           void router.navigate({
             to: "/workspace",
-            search: buildWorkspaceSearch(workspaceId22),
+            search: buildWorkspaceSearch(workspaceId),
           });
           return;
         }
-        const workspaceId2 = typeof request === "string" ? request : void 0;
-        if (!workspaceId2) return;
-        showVisiblePreviewTab(workspaceId2);
+        const workspaceId = typeof request === "string" ? request : void 0;
+        if (!workspaceId) return;
+        showVisiblePreviewTab(workspaceId);
         void router.navigate({
           to: "/workspace",
-          search: buildWorkspaceSearch(workspaceId2),
+          search: buildWorkspaceSearch(workspaceId),
         });
       },
     );
@@ -1628,16 +1628,16 @@ function AppRoot() {
         });
         window.dispatchEvent(event);
         if (event.defaultPrevented) return;
-        const search2 = router.state.location.search;
-        const workspaceId2 = search2?.workspaceId;
-        if (!workspaceId2) return;
+        const search = router.state.location.search;
+        const workspaceId = search?.workspaceId;
+        if (!workspaceId) return;
         const source = "menu-close-tab";
         const nextWorkspaceId = getNextPreviewTabIdAfterHide(
           getVisiblePreviewTabIds(),
-          workspaceId2,
+          workspaceId,
         );
         recordAction("workspace:preview-hidden", {
-          workspaceId: workspaceId2,
+          workspaceId,
           source,
           wasActive: true,
           ...(nextWorkspaceId
@@ -1646,7 +1646,7 @@ function AppRoot() {
               }
             : {}),
         });
-        hideVisiblePreviewTabs(workspaceId2);
+        hideVisiblePreviewTabs(workspaceId);
         if (!nextWorkspaceId) {
           void homeService.hiloApp.activateHome();
           void router.navigate({
@@ -1660,7 +1660,7 @@ function AppRoot() {
         }
         void requestWorkspaceRuntimeClose(
           homeService.hiloApp,
-          workspaceId2,
+          workspaceId,
           source,
         );
       },
@@ -1675,7 +1675,7 @@ function AppRoot() {
     <TooltipProvider delay={150}>
       <ComfyUiDownloadProgressHost>
         <RouterProvider router={router} />
-        <Toaster2 />
+        <Toaster />
         {TrackingRecorder}
       </ComfyUiDownloadProgressHost>
     </TooltipProvider>

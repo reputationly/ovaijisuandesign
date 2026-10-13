@@ -1,0 +1,13 @@
+key	old	new	依据
+id2@15:9	id2	stageId	从结构化数据中提取的阶段标识符。
+id2@7:38	id2	targetId	待匹配的目标标识符。
+index2@137:12	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+message2@105:44	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+message2@138:11	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+message2@90:35	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+message2@95:42	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+messages2@136:48	messages2	messages	去掉打包器防重名追加的后缀，恢复原名 messages，即该绑定持有的值。
+name2@114:9	name2	toolName	从工具消息中归一化得到的工具名称。
+raw2@91:9	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+record2@14:9	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+record2@81:11	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
