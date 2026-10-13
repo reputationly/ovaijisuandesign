@@ -29,7 +29,7 @@ export class InstantiationService {
     this._enableTracing = _enableTracing;
     this._services.set(IInstantiationService, this);
     this._globalGraph = _enableTracing
-      ? (_parent?._globalGraph ?? new Graph((node) => node))
+      ? (_parent?._globalGraph ?? new Graph((serviceId) => serviceId))
       : void 0;
   }
   _globalGraph;
