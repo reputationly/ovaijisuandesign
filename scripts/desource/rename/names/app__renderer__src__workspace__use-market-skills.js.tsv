@@ -1,0 +1,25 @@
+key	old	new	依据
+data2@168:15	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+data2@220:15	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+isStale2@72:13	isStale2	isStale	去掉打包器防重名追加的后缀，恢复原名 isStale，即该绑定持有的值。
+name2@145:12	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+name2@16:21	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+name2@201:12	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+name2@252:51	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+name2@272:53	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+next2@109:17	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@191:17	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@244:17	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@267:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@275:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+path2@89:13	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+raw2@98:15	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+res@152:15	res	response	媒体扫描请求返回的 HTTP 响应对象。
+res@204:15	res	response	媒体扫描请求返回的 HTTP 响应对象。
+res@96:15	res	response	媒体扫描请求返回的 HTTP 响应对象。
+reset2@68:25	reset2	reset	去掉打包器防重名追加的后缀，恢复原名 reset，即该绑定持有的值。
+s2@148:51	s2	skill	市场技能列表中的技能记录对象。
+s2@223:21	s2	skill	市场技能列表中的技能记录对象。
+s2@254:17	s2	skill	市场技能列表中的技能记录对象。
+search2@129:9	search2	search	去掉打包器防重名追加的后缀，恢复原名 search，即该绑定持有的值。
+seq2@71:13	seq2	seq	去掉打包器防重名追加的后缀，恢复原名 seq，即该绑定持有的值。

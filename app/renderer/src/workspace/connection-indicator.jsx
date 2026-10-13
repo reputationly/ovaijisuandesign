@@ -11,15 +11,15 @@ const STATE_COLORS = {
   checking: "#a3a3a3",
 };
 function useConnectionState() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [status, setStatus] = reactExports.useState(null);
   reactExports.useEffect(() => {
     let alive = true;
     const poll = () => {
       platformService
         .status()
-        .then((s) => {
-          if (alive) setStatus(s);
+        .then((connectionStatus) => {
+          if (alive) setStatus(connectionStatus);
         })
         .catch(() => {});
     };
@@ -31,7 +31,7 @@ function useConnectionState() {
     };
   }, []);
   const state = status?.state === "connected" || status?.state === "disconnected" ? status.state : "checking";
-  const label = t2(`ov.connection.${state}`);
+  const label = translate(`ov.connection.${state}`);
   return { color: STATE_COLORS[state], label, reason: status?.reason || label };
 }
 export function ConnectionPill() {

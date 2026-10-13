@@ -106,26 +106,26 @@ const OTHER_MODIFIERS = {
   },
 };
 
-export function resolveShortcutDisplay(accelerator, os2) {
-  const isMac2 = os2 === "darwin";
-  const modifiers2 = isMac2 ? MAC_MODIFIERS : OTHER_MODIFIERS;
-  const tokens2 = accelerator
+export function resolveShortcutDisplay(accelerator, os) {
+  const isMac = os === "darwin";
+  const modifiers = isMac ? MAC_MODIFIERS : OTHER_MODIFIERS;
+  const tokens = accelerator
     .split("+")
     .map((part) => part.trim())
     .filter(Boolean)
-    .map((raw2) => {
-      const modifier = modifiers2[raw2.toLowerCase()];
+    .map((raw) => {
+      const modifier = modifiers[raw.toLowerCase()];
       if (modifier) return modifier;
       return {
         kind: "key",
-        label: raw2,
-        spokenLabel: raw2,
+        label: raw,
+        spokenLabel: raw,
       };
     });
   return {
-    ariaLabel: tokens2.map((token2) => token2.spokenLabel).join(" "),
-    isMac: isMac2,
-    text: tokens2.map((token2) => token2.label).join(isMac2 ? "" : "+"),
-    tokens: tokens2,
+    ariaLabel: tokens.map((token) => token.spokenLabel).join(" "),
+    isMac,
+    text: tokens.map((token) => token.label).join(isMac ? "" : "+"),
+    tokens,
   };
 }

@@ -70,14 +70,14 @@ function trackComfyUiWorkflowOpenFailed(workflowSource, target, startedAt) {
 function parseOpenWorkflowResult(value) {
   if (!value || typeof value !== "object")
     throw new Error("Invalid ComfyUI response");
-  const record2 = value;
-  if (typeof record2.status !== "string")
+  const record = value;
+  if (typeof record.status !== "string")
     throw new Error("Invalid ComfyUI response");
   return {
-    status: record2.status,
-    ...(typeof record2.error === "string"
+    status: record.status,
+    ...(typeof record.error === "string"
       ? {
-          error: record2.error,
+          error: record.error,
         }
       : {}),
   };
@@ -85,12 +85,12 @@ function parseOpenWorkflowResult(value) {
 function PendingComfyUiWorkflowOpener({
   workflowId,
   target = "new",
-  workspaceId: workspaceId2,
-  isActive: isActive2,
+  workspaceId,
+  isActive,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const navigate = useNavigate();
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const connected = useWorkspaceChatSelector((chat) => chat.connected);
   const sessionId = useWorkspaceChatSelector((chat) => chat.focusedSessionId);
   const openingRef = reactExports.useRef(null);
@@ -99,8 +99,8 @@ function PendingComfyUiWorkflowOpener({
       openingRef.current = null;
       return;
     }
-    if (!isActive2 || !connected) return;
-    const requestKey = `${workspaceId2}:${workflowId}:${target}`;
+    if (!isActive || !connected) return;
+    const requestKey = `${workspaceId}:${workflowId}:${target}`;
     if (openingRef.current === requestKey) return;
     openingRef.current = requestKey;
     const startedAt = Date.now();
@@ -109,9 +109,9 @@ function PendingComfyUiWorkflowOpener({
       navigate({
         to: "/workspace",
         replace: true,
-        search: buildWorkspaceSearch(workspaceId2),
+        search: buildWorkspaceSearch(workspaceId),
       });
-    void gatewayFetch2(API_PATHS.comfyUiWorkflowOpen(workflowId), {
+    void gatewayFetch(API_PATHS.comfyUiWorkflowOpen(workflowId), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -132,12 +132,12 @@ function PendingComfyUiWorkflowOpener({
         if (result.status !== "opened")
           throw new Error(result.error || result.status);
         trackComfyUiWorkflowOpen(workflowSource, target, startedAt);
-        dedupedToast.success(t2("workflows.addedToCanvas"));
+        dedupedToast.success(translate("workflows.addedToCanvas"));
       })
       .catch((error) => {
         trackComfyUiWorkflowOpenFailed(workflowSource, target, startedAt);
         dedupedToast.error(
-          t2("workflows.addFailed", {
+          translate("workflows.addFailed", {
             message: error instanceof Error ? error.message : String(error),
           }),
         );
@@ -145,26 +145,26 @@ function PendingComfyUiWorkflowOpener({
       .finally(clearPendingIntent);
   }, [
     connected,
-    gatewayFetch2,
-    isActive2,
+    gatewayFetch,
+    isActive,
     navigate,
     sessionId,
-    t2,
+    translate,
     workflowId,
-    workspaceId2,
+    workspaceId,
     target,
   ]);
   return null;
 }
 function PluginInstantiator({
   pluginId,
-  workspaceId: workspaceId2,
+  workspaceId,
   folderPath,
 }) {
   const navigate = useNavigate();
   const scopedFetch = useGatewayFetch();
   const gatewayReady = useGatewayReady();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const applied = reactExports.useRef(false);
   reactExports.useEffect(() => {
     if (applied.current || !pluginId || !gatewayReady) return;
@@ -172,7 +172,7 @@ function PluginInstantiator({
     const clearSearch = () =>
       navigate({
         to: "/workspace",
-        search: buildWorkspaceSearch(workspaceId2 ?? "", {
+        search: buildWorkspaceSearch(workspaceId ?? "", {
           pluginId: void 0,
         }),
         replace: true,
@@ -184,7 +184,7 @@ function PluginInstantiator({
       {
         currentWorkspace: folderPath,
         gatewayFetch: scopedFetch,
-        t: t2,
+        t: translate,
       },
     ).finally(clearSearch);
   }, [
@@ -193,29 +193,29 @@ function PluginInstantiator({
     navigate,
     pluginId,
     scopedFetch,
-    t2,
-    workspaceId2,
+    translate,
+    workspaceId,
   ]);
   return null;
 }
-function RetainedHeavyContent({ isActive: isActive2, children: children2 }) {
-  return <div className={isActive2 ? "contents" : "hidden"}>{children2}</div>;
+function RetainedHeavyContent({ isActive, children }) {
+  return <div className={isActive ? "contents" : "hidden"}>{children}</div>;
 }
 function shouldAutoRevealCanvas({
-  isActive: isActive2,
+  isActive,
   hasRenderableContent,
   autoReveal,
   projectRunning,
 }) {
   return (
-    isActive2 &&
+    isActive &&
     hasRenderableContent &&
     autoReveal === "eligible" &&
     !projectRunning
   );
 }
 function WorkspaceCanvasAutoRevealBridge({
-  isActive: isActive2,
+  isActive,
   hasRenderableContent,
   autoReveal,
   onAutoReveal,
@@ -241,7 +241,7 @@ function WorkspaceCanvasAutoRevealBridge({
   reactExports.useEffect(() => {
     if (
       shouldAutoRevealCanvas({
-        isActive: isActive2,
+        isActive,
         hasRenderableContent,
         autoReveal,
         projectRunning: focusedSessionRunning || projectRunning,
@@ -253,7 +253,7 @@ function WorkspaceCanvasAutoRevealBridge({
     autoReveal,
     focusedSessionRunning,
     hasRenderableContent,
-    isActive2,
+    isActive,
     onAutoReveal,
     projectRunning,
   ]);
@@ -265,7 +265,7 @@ function isInitialAttachmentAdoptionReady(status, runtimeUnavailable) {
 function SkillPromptInjector({
   skillPrompt,
   skillName,
-  workspaceId: workspaceId2,
+  workspaceId,
 }) {
   const setInput = useWorkspaceChatSelector((chat) => chat.setInput);
   const trackInputChange = useWorkspaceChatSelector(
@@ -281,7 +281,7 @@ function SkillPromptInjector({
     const clearSearch = () =>
       navigate({
         to: "/workspace",
-        search: buildWorkspaceSearch(workspaceId2 ?? "", {
+        search: buildWorkspaceSearch(workspaceId ?? "", {
           skillPrompt: void 0,
           skillName: void 0,
         }),
@@ -289,19 +289,19 @@ function SkillPromptInjector({
       });
     if (skillName) {
       scopedFetch(API_PATHS.skills)
-        .then((r2) => (r2.ok ? r2.json() : []))
-        .then((data2) => {
-          if (!Array.isArray(data2)) return;
-          const skill = data2.find(
-            (s2) =>
-              s2 != null &&
-              typeof s2 === "object" &&
-              "name" in s2 &&
-              s2.name === skillName,
+        .then((response) => (response.ok ? response.json() : []))
+        .then((data) => {
+          if (!Array.isArray(data)) return;
+          const skill = data.find(
+            (candidateSession) =>
+              candidateSession != null &&
+              typeof candidateSession === "object" &&
+              "name" in candidateSession &&
+              candidateSession.name === skillName,
           );
           if (skill) {
             requestAnimationFrame(() => {
-              workspaceEvents.queueAddSkillToChat(workspaceId2 ?? "", skill);
+              workspaceEvents.queueAddSkillToChat(workspaceId ?? "", skill);
             });
           }
         })
@@ -320,7 +320,7 @@ function SkillPromptInjector({
     setInput,
     trackInputChange,
     navigate,
-    workspaceId2,
+    workspaceId,
     scopedFetch,
   ]);
   return null;
@@ -328,7 +328,7 @@ function SkillPromptInjector({
 function MenuActionInjector({
   skillPrompt,
   menuAction,
-  workspaceId: workspaceId2,
+  workspaceId,
 }) {
   const navigate = useNavigate();
   const connected = useWorkspaceChatSelector((chat) => chat.connected);
@@ -346,7 +346,7 @@ function MenuActionInjector({
       openSettings();
       void navigate({
         to: "/workspace",
-        search: buildWorkspaceSearch(workspaceId2 ?? "", {
+        search: buildWorkspaceSearch(workspaceId ?? "", {
           skillPrompt,
         }),
         replace: true,
@@ -360,7 +360,7 @@ function MenuActionInjector({
     });
     void navigate({
       to: "/workspace",
-      search: buildWorkspaceSearch(workspaceId2 ?? "", {
+      search: buildWorkspaceSearch(workspaceId ?? "", {
         skillPrompt,
       }),
       replace: true,
@@ -372,46 +372,46 @@ function MenuActionInjector({
     openSettings,
     sendWsMessage,
     skillPrompt,
-    workspaceId2,
+    workspaceId,
   ]);
   return null;
 }
 const TASK_PROMPT_PREVIEW_MAX_LENGTH = 36;
-function normalizeTaskPromptPreview(content2) {
-  const normalized = content2.replace(/\s+/g, " ").trim();
+function normalizeTaskPromptPreview(content) {
+  const normalized = content.replace(/\s+/g, " ").trim();
   if (!normalized) return void 0;
   return normalized.length > TASK_PROMPT_PREVIEW_MAX_LENGTH
     ? `${normalized.slice(0, TASK_PROMPT_PREVIEW_MAX_LENGTH)}...`
     : normalized;
 }
-function getLatestUserPromptPreview(messages2) {
-  if (!messages2) return void 0;
-  for (let index2 = messages2.length - 1; index2 >= 0; index2 -= 1) {
-    const message2 = messages2[index2];
-    if (message2.role !== "user" || message2.type !== "text") continue;
-    const preview = normalizeTaskPromptPreview(message2.content);
+function getLatestUserPromptPreview(messages) {
+  if (!messages) return void 0;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (message.role !== "user" || message.type !== "text") continue;
+    const preview = normalizeTaskPromptPreview(message.content);
     if (preview) return redactForCurrentRegion(preview);
   }
   return void 0;
 }
-function patchCanvasTasks(prev, update2) {
-  const next2 = new Map(prev.map((task) => [task.id, task]));
-  for (const id2 of update2.removedNodeIds ?? []) {
-    next2.delete(id2);
+function patchCanvasTasks(prev, update) {
+  const next = new Map(prev.map((task) => [task.id, task]));
+  for (const nodeId of update.removedNodeIds ?? []) {
+    next.delete(nodeId);
   }
-  for (const node2 of update2.addedNodes ?? []) {
-    const task = getCanvasTaskSnapshot(node2);
-    if (task) next2.set(task.id, task);
+  for (const node of update.addedNodes ?? []) {
+    const task = getCanvasTaskSnapshot(node);
+    if (task) next.set(task.id, task);
   }
-  for (const node2 of update2.updatedNodes ?? []) {
-    const task = getCanvasTaskSnapshot(node2);
+  for (const node of update.updatedNodes ?? []) {
+    const task = getCanvasTaskSnapshot(node);
     if (task) {
-      next2.set(task.id, task);
+      next.set(task.id, task);
       continue;
     }
-    next2.delete(node2.id);
+    next.delete(node.id);
   }
-  return Array.from(next2.values());
+  return Array.from(next.values());
 }
 function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
   const { reportWorkspaceSnapshot, reportTaskCompleted } = useTopbarActions();
@@ -427,9 +427,9 @@ function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
     [],
   );
   const getTopbarStoreKey = reactExports.useCallback(() => {
-    const state2 = sessionStore.getState();
+    const state = sessionStore.getState();
     const activeSessionIds = new Set();
-    const sessionKey = Array.from(state2.sessions.values())
+    const sessionKey = Array.from(state.sessions.values())
       .map((session) => {
         activeSessionIds.add(session.id);
         const taskSnapshot = taskSnapshotCache.get({
@@ -456,8 +456,8 @@ function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
       .join("");
     taskSnapshotCache.retain(activeSessionIds);
     return [
-      state2.focusedSessionId ?? "",
-      state2.openedTabOrder.join(""),
+      state.focusedSessionId ?? "",
+      state.openedTabOrder.join(""),
       sessionKey,
     ].join("");
   }, [sessionStore, taskSnapshotCache]);
@@ -467,7 +467,7 @@ function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
       const nextKey = getTopbarStoreKey();
       if (nextKey === prevKey) return;
       prevKey = nextKey;
-      setStoreVersion((v2) => v2 + 1);
+      setStoreVersion((currentVersion) => currentVersion + 1);
     });
   }, [getTopbarStoreKey, sessionStore]);
   const searchSessions = reactExports.useMemo(
@@ -490,8 +490,8 @@ function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
     [runtime.folderPath, sessions, textEditSessionIds],
   );
   reactExports.useEffect(() => {
-    return sessionStore.onCanvasUpdated((update2) => {
-      setCanvasTasks((prev) => patchCanvasTasks(prev, update2));
+    return sessionStore.onCanvasUpdated((update) => {
+      setCanvasTasks((prev) => patchCanvasTasks(prev, update));
     });
   }, [sessionStore, setCanvasTasks]);
   const tasks = reactExports.useMemo(() => {
@@ -552,7 +552,7 @@ function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
   }, [reportWorkspaceSnapshot, runtime.workspaceId, searchSessions, tasks]);
   reactExports.useEffect(() => {
     return sessionStore.onSessionCompleted((sessionId) => {
-      const session = sessions.find((s2) => s2.id === sessionId);
+      const session = sessions.find((sessionRecord) => sessionRecord.id === sessionId);
       if (!session) return;
       const storeSession = sessionStore.getState().sessions.get(sessionId);
       reportTaskCompleted({
@@ -574,27 +574,27 @@ function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
     sessions,
   ]);
   reactExports.useEffect(() => {
-    const canvasFocus2 = workspaceEvents.onCanvasFocus(
+    const canvasFocus = workspaceEvents.onCanvasFocus(
       ({
-        workspaceId: workspaceId2,
+        workspaceId,
         nodeIds,
-        select: select2,
+        select,
         preferParentGroup,
       }) => {
-        if (workspaceId2 !== runtime.workspaceId) return;
+        if (workspaceId !== runtime.workspaceId) return;
         sessionStore.notifyCanvasFocus({
           type: "canvas_focus",
           nodeIds,
           padding: 0.2,
           duration: 400,
-          select: select2,
+          select,
           preferParentGroup,
         });
       },
     );
     const switchSession = workspaceEvents.onSwitchSession(
-      ({ workspaceId: workspaceId2, sessionId }) => {
-        if (workspaceId2 !== runtime.workspaceId) return;
+      ({ workspaceId, sessionId }) => {
+        if (workspaceId !== runtime.workspaceId) return;
         sendWsMessage({
           type: "switch_session",
           session_id: sessionId,
@@ -604,7 +604,7 @@ function WorkspaceTopbarBridge({ runtime, canvasTasks, setCanvasTasks }) {
     workspaceEvents.fireSubscribersReady(runtime.workspaceId);
     return () => {
       workspaceEvents.clearSubscribersReady(runtime.workspaceId);
-      canvasFocus2.dispose();
+      canvasFocus.dispose();
       switchSession.dispose();
     };
   }, [runtime.workspaceId, sendWsMessage, sessionStore]);
@@ -615,7 +615,7 @@ export function WorkspaceRuntimeContent({
   status,
   stageLayout,
   runtimeUnavailable = false,
-  isActive: isActive2,
+  isActive,
   initialPayloadId,
   initialMessage,
   initialAttachments,
@@ -631,7 +631,7 @@ export function WorkspaceRuntimeContent({
   menuAction,
   assetCenterRelocation,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const initialAttachmentAdoption = useAdoptInitialAttachments(
     initialAttachments,
     runtime.folderPath,
@@ -645,7 +645,7 @@ export function WorkspaceRuntimeContent({
       return;
     }
     dedupedToast.error(
-      t2("workspace.initialAttachments.failed", {
+      translate("workspace.initialAttachments.failed", {
         defaultValue: "图片迁移到工作区失败，首条消息尚未发送。",
       }),
       {
@@ -653,7 +653,7 @@ export function WorkspaceRuntimeContent({
         duration: Number.POSITIVE_INFINITY,
         description: initialAttachmentAdoption.error,
         action: {
-          label: t2("common.retry", "重试"),
+          label: translate("common.retry", "重试"),
           onClick: initialAttachmentAdoption.retry,
         },
       },
@@ -665,7 +665,7 @@ export function WorkspaceRuntimeContent({
     initialAttachmentAdoption.error,
     initialAttachmentAdoption.retry,
     runtime.workspaceId,
-    t2,
+    translate,
   ]);
   const {
     browserOpen,
@@ -706,7 +706,7 @@ export function WorkspaceRuntimeContent({
     [],
   );
   const [canvasTasks, setCanvasTasks] = reactExports.useState([]);
-  const [hasRenderableCanvasContent2, setHasRenderableCanvasContent] =
+  const [hasRenderableCanvasContent, setHasRenderableCanvasContent] =
     reactExports.useState(false);
   const handleCanvasTasksChange = reactExports.useCallback((tasks) => {
     setCanvasTasks(tasks);
@@ -733,11 +733,11 @@ export function WorkspaceRuntimeContent({
                   <RecentlyAddedStoreProvider store={recentlyAddedStore}>
                     <WorkspaceWSConnectionProvider
                       wsUrl={runtime.wsUrl}
-                      syncCanvasAssetMetadata={isActive2}
+                      syncCanvasAssetMetadata={isActive}
                     >
                       <AutoFeedbackToastListener
                         workspaceId={runtime.workspaceId}
-                        isActive={isActive2}
+                        isActive={isActive}
                       />
                       <ChatReadinessProvider
                         value={resolveChatReadiness(status, runtimeUnavailable)}
@@ -759,17 +759,17 @@ export function WorkspaceRuntimeContent({
                             initialSelectedMediaModels
                           }
                           onInitialMessageSent={onInitialMessageSent}
-                          isActive={isActive2}
+                          isActive={isActive}
                         >
                           <PendingComfyUiWorkflowOpener
                             workflowId={initialComfyUiWorkflowId}
                             target={initialComfyUiWorkflowTarget}
                             workspaceId={runtime.workspaceId}
-                            isActive={isActive2}
+                            isActive={isActive}
                           />
                           <WorkspaceCanvasFocusCoordinator
                             workspaceId={runtime.workspaceId}
-                            isActive={isActive2}
+                            isActive={isActive}
                             canvasVisible={
                               effectiveStageState.workspaceMode !== "chatOnly"
                             }
@@ -783,12 +783,12 @@ export function WorkspaceRuntimeContent({
                             setCanvasTasks={setCanvasTasks}
                           />
                           <WorkspaceCanvasAutoRevealBridge
-                            isActive={isActive2 && stageLayoutReady}
-                            hasRenderableContent={hasRenderableCanvasContent2}
+                            isActive={isActive && stageLayoutReady}
+                            hasRenderableContent={hasRenderableCanvasContent}
                             autoReveal={effectiveStageState.autoReveal}
                             onAutoReveal={handleAutoRevealCanvas}
                           />
-                          {isActive2 ? (
+                          {isActive ? (
                             <>
                               <SkillPromptInjector
                                 skillPrompt={skillPrompt}
@@ -807,7 +807,7 @@ export function WorkspaceRuntimeContent({
                               />
                             </>
                           ) : null}
-                          <RetainedHeavyContent isActive={isActive2}>
+                          <RetainedHeavyContent isActive={isActive}>
                             <WorkspaceContent
                               assetPanel={assetPanel}
                               stageState={effectiveStageState}
@@ -823,7 +823,7 @@ export function WorkspaceRuntimeContent({
                               onRenderableContentChange={
                                 handleRenderableCanvasContentChange
                               }
-                              isActive={isActive2}
+                              isActive={isActive}
                               workspaceId={runtime.workspaceId}
                               workspaceName={runtime.projectName}
                               stageLayoutReady={stageLayoutReady}
@@ -831,7 +831,7 @@ export function WorkspaceRuntimeContent({
                           </RetainedHeavyContent>
                           <WorkspaceAssetCenterRelocationCoachMark
                             enabled={
-                              isActive2 &&
+                              isActive &&
                               Boolean(assetCenterRelocation) &&
                               stageLayoutReady
                             }

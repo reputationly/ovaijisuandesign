@@ -1,0 +1,33 @@
+key	old	new	依据
+t2@289:14	t2	translate	该绑定是选择序号徽标读取已选择文案的翻译函数。
+t2@306:58	t2	translate	该参数是行徽标读取已添加文案的翻译函数。
+t2@357:14	t2	translate	该绑定是预览按钮读取无障碍标签的翻译函数。
+t2@388:14	t2	translate	该绑定是网格资产项读取状态和类型筛选文案的翻译函数。
+t2@678:14	t2	translate	该绑定是列表资产项读取状态和类型筛选文案的翻译函数。
+size2@75:38	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+size2@143:9	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+index2@199:44	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@213:3	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+view2@216:3	view2	view	去掉打包器防重名追加的后缀，恢复原名 view，即该绑定持有的值。
+order2@288:39	order2	order	去掉打包器防重名追加的后缀，恢复原名 order，即该绑定持有的值。
+selected2@329:39	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+selected2@380:13	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+disabled2@393:9	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+selected2@495:13	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+index2@514:14	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+element2@527:22	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+index2@528:18	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@536:6	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@580:25	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+selected2@670:13	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+disabled2@683:9	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+selected2@791:13	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+index2@809:20	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@811:18	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@820:6	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@846:25	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+view2@915:9	view2	view	去掉打包器防重名追加的后缀，恢复原名 view，即该绑定持有的值。
+selected2@918:13	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+index2@936:47	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+observer2@1034:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+disabled2@1046:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。

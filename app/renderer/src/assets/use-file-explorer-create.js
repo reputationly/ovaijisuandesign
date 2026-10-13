@@ -10,14 +10,14 @@ import { dedupedToast } from "../infra/agent-http-client.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 
 async function findFreeRenameCandidate(
-  gatewayFetch2,
+  gatewayFetch,
   baseName,
   isDirectory,
   targetDirRel,
 ) {
   let candidate = generateCopyName(baseName, isDirectory);
-  for (let i2 = 0; i2 < 1e3; i2++) {
-    const probe = await postCheckConflicts(gatewayFetch2, {
+  for (let attempt = 0; attempt < 1e3; attempt++) {
+    const probe = await postCheckConflicts(gatewayFetch, {
       items: [
         {
           name: candidate,
@@ -39,7 +39,7 @@ export function useFileExplorerCreate({
   expanded,
   setExpanded,
   rootPath,
-  gatewayFetch: gatewayFetch2,
+  gatewayFetch,
   conflictResolver,
   platformFs,
   refresh,
@@ -47,7 +47,7 @@ export function useFileExplorerCreate({
   setSelectedPaths,
   setLastSelectedPath,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [creatingEntry, setCreatingEntry] = reactExports.useState(null);
   const startCreate = reactExports.useCallback(
     (parentPath, isDirectory) => {
@@ -62,29 +62,29 @@ export function useFileExplorerCreate({
     },
     [expanded, rootPath, setViewMode, setExpanded],
   );
-  const handleCreateConfirm = useStableCallback(async (name2) => {
+  const handleCreateConfirm = useStableCallback(async (newEntryName) => {
     if (!creatingEntry) return;
-    let confirmedName = name2;
+    let confirmedName = newEntryName;
     const targetDirRel =
       rootPath && creatingEntry.parentPath !== rootPath
         ? toRelativeFromRoot(rootPath, creatingEntry.parentPath)
         : "";
     try {
-      const probeJson = await postCheckConflicts(gatewayFetch2, {
+      const probeJson = await postCheckConflicts(gatewayFetch, {
         items: [
           {
-            name: name2,
+            name: newEntryName,
             kind: creatingEntry.isDirectory ? "folder" : "file",
           },
         ],
         targetDir: targetDirRel,
       });
-      const first2 = probeJson.conflicts[0];
-      if (first2) {
+      const first = probeJson.conflicts[0];
+      if (first) {
         const result = await conflictResolver.resolve([
           {
-            name: name2,
-            existingKind: first2.existingKind,
+            name: newEntryName,
+            existingKind: first.existingKind,
           },
         ]);
         if (result.outcome !== "completed" || result.decisions[0] === "skip") {
@@ -93,8 +93,8 @@ export function useFileExplorerCreate({
         }
         if (result.decisions[0] === "rename") {
           confirmedName = await findFreeRenameCandidate(
-            gatewayFetch2,
-            name2,
+            gatewayFetch,
+            newEntryName,
             creatingEntry.isDirectory,
             targetDirRel,
           );
@@ -102,8 +102,8 @@ export function useFileExplorerCreate({
       }
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.createFailed", {
-          name: name2,
+        translate("fileExplorer.createFailed", {
+          name: newEntryName,
         }) + (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
       setCreatingEntry(null);
@@ -124,7 +124,7 @@ export function useFileExplorerCreate({
       createdOk = true;
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.createFailed", {
+        translate("fileExplorer.createFailed", {
           name: confirmedName,
         }) + (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );

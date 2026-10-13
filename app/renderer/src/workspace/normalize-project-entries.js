@@ -13,31 +13,31 @@ export function sortRecentWorkspaces(workspaces, sortMode = "recent") {
       workspace,
       sourceIndex,
     }))
-    .sort((a2, b3) => {
+    .sort((leftWorkspaceEntry, rightWorkspaceEntry) => {
       return (
-        b3.workspace.openedAt - a2.workspace.openedAt ||
-        a2.sourceIndex - b3.sourceIndex
+        rightWorkspaceEntry.workspace.openedAt - leftWorkspaceEntry.workspace.openedAt ||
+        leftWorkspaceEntry.sourceIndex - rightWorkspaceEntry.sourceIndex
       );
     })
     .map(({ workspace }) => workspace);
 }
-export function isWorkspacePathCaseInsensitivePlatform(os2) {
-  return os2 === "win32";
+export function isWorkspacePathCaseInsensitivePlatform(os) {
+  return os === "win32";
 }
-export function workspaceInventoryPathKey(path2, caseInsensitive) {
+export function workspaceInventoryPathKey(path, caseInsensitive) {
   const windowsAbsolute =
-    /^[a-zA-Z]:[\\/]/.test(path2) ||
-    /^\\\\/.test(path2) ||
-    (caseInsensitive && path2.startsWith("//"));
-  const unified2 = windowsAbsolute ? path2.replace(/\\/g, "/") : path2;
-  const driveMatch = /^([a-zA-Z]:)(?:\/|$)/.exec(unified2);
+    /^[a-zA-Z]:[\\/]/.test(path) ||
+    /^\\\\/.test(path) ||
+    (caseInsensitive && path.startsWith("//"));
+  const unified = windowsAbsolute ? path.replace(/\\/g, "/") : path;
+  const driveMatch = /^([a-zA-Z]:)(?:\/|$)/.exec(unified);
   const drive = driveMatch?.[1] ?? "";
-  const doubleSlashRoot = !drive && unified2.startsWith("//");
+  const doubleSlashRoot = !drive && unified.startsWith("//");
   const remainder = drive
-    ? unified2.slice(drive.length)
+    ? unified.slice(drive.length)
     : doubleSlashRoot
-      ? unified2.slice(2)
-      : unified2;
+      ? unified.slice(2)
+      : unified;
   const absolute = remainder.startsWith("/");
   const segments = [];
   for (const segment of remainder.split("/")) {
@@ -56,11 +56,11 @@ export function workspaceInventoryPathKey(path2, caseInsensitive) {
     (doubleSlashRoot ? "//" : absolute ? "/" : ".");
   return caseInsensitive ? normalized.toLocaleLowerCase("en-US") : normalized;
 }
-export function projectWorkspaceKey(path2, caseInsensitive) {
-  return workspaceInventoryPathKey(path2, caseInsensitive);
+export function projectWorkspaceKey(path, caseInsensitive) {
+  return workspaceInventoryPathKey(path, caseInsensitive);
 }
-export function normalizeProjectName(name2) {
-  return name2.trim().replace(/\s+/g, " ");
+export function normalizeProjectName(projectName) {
+  return projectName.trim().replace(/\s+/g, " ");
 }
 function isProjectRecord(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -73,10 +73,10 @@ function stringArray(value) {
     ? value.filter((item) => typeof item === "string")
     : [];
 }
-function normalizeProjectKind(project2) {
-  if (project2.kind === "team" || project2.kind === "local")
-    return project2.kind;
-  return typeof project2.remoteId === "string" && project2.remoteId.trim()
+function normalizeProjectKind(project) {
+  if (project.kind === "team" || project.kind === "local")
+    return project.kind;
+  return typeof project.remoteId === "string" && project.remoteId.trim()
     ? "team"
     : "local";
 }
@@ -85,17 +85,17 @@ export function normalizeProjectEntries(projects) {
   const normalized = [];
   for (const candidate of projects) {
     if (!isProjectRecord(candidate)) continue;
-    const id2 = typeof candidate.id === "string" ? candidate.id.trim() : "";
-    const name2 =
+    const id = typeof candidate.id === "string" ? candidate.id.trim() : "";
+    const projectName =
       typeof candidate.name === "string"
         ? normalizeProjectName(candidate.name)
         : "";
-    if (!id2 || !name2) continue;
+    if (!id || !projectName) continue;
     const createdAt = finiteNumberOr(candidate.createdAt, 0);
     const updatedAt = finiteNumberOr(candidate.updatedAt, createdAt);
     const entry = {
-      id: id2,
-      name: name2,
+      id,
+      name: projectName,
       kind: normalizeProjectKind(candidate),
       createdAt,
       updatedAt,
@@ -141,59 +141,59 @@ export function normalizeHiddenProjectIds(value) {
 function filterVisibleProjects(projects, hiddenProjectIds) {
   const hidden = new Set(normalizeHiddenProjectIds(hiddenProjectIds));
   return normalizeProjectEntries(projects).filter(
-    (project2) => !hidden.has(project2.id),
+    (project) => !hidden.has(project.id),
   );
 }
 export function buildWorkspaceProjectIndex(projects, caseInsensitive) {
-  const index2 = new Map();
-  for (const project2 of normalizeProjectEntries(projects)) {
-    for (const path2 of project2.workspacePaths) {
-      const key2 = projectWorkspaceKey(path2, caseInsensitive);
-      if (!index2.has(key2)) index2.set(key2, project2);
+  const index = new Map();
+  for (const project of normalizeProjectEntries(projects)) {
+    for (const path of project.workspacePaths) {
+      const key = projectWorkspaceKey(path, caseInsensitive);
+      if (!index.has(key)) index.set(key, project);
     }
   }
-  return index2;
+  return index;
 }
 function findProjectForWorkspace(projects, workspacePath, caseInsensitive) {
   return buildWorkspaceProjectIndex(projects, caseInsensitive).get(
     projectWorkspaceKey(workspacePath, caseInsensitive),
   );
 }
-export function sortProjects(projects, mode2) {
+export function sortProjects(projects, mode) {
   const sorted = normalizeProjectEntries(projects);
-  switch (mode2) {
+  switch (mode) {
     case "created":
-      sorted.sort((a2, b3) => b3.createdAt - a2.createdAt);
+      sorted.sort((leftProject, rightProject) => rightProject.createdAt - leftProject.createdAt);
       break;
     case "name":
-      sorted.sort((a2, b3) =>
-        a2.name.localeCompare(b3.name, void 0, {
+      sorted.sort((leftProject, rightProject) =>
+        leftProject.name.localeCompare(rightProject.name, void 0, {
           numeric: true,
         }),
       );
       break;
     default:
-      sorted.sort((a2, b3) => b3.updatedAt - a2.updatedAt);
+      sorted.sort((leftProject, rightProject) => rightProject.updatedAt - leftProject.updatedAt);
       break;
   }
   return sorted;
 }
-export function filterProjectsByKeyword(projects, keyword2) {
-  const needle = keyword2.trim().toLocaleLowerCase();
+export function filterProjectsByKeyword(projects, keyword) {
+  const needle = keyword.trim().toLocaleLowerCase();
   const safeProjects = normalizeProjectEntries(projects);
   if (!needle) return safeProjects;
-  return safeProjects.filter((project2) =>
-    project2.name.toLocaleLowerCase().includes(needle),
+  return safeProjects.filter((project) =>
+    project.name.toLocaleLowerCase().includes(needle),
   );
 }
 function filterProjectsByKind(projects, kind) {
   return normalizeProjectEntries(projects).filter(
-    (project2) => project2.kind === kind,
+    (project) => project.kind === kind,
   );
 }
 export function useProjectStore(options = {}) {
-  const platform2 = usePlatform();
-  const caseInsensitive = isCaseInsensitiveOs(platform2.app?.os ?? "");
+  const platform = usePlatform();
+  const caseInsensitive = isCaseInsensitiveOs(platform.app?.os ?? "");
   const [projects, , setProjectsAsync] = useStorage("global.projects", options);
   const [hiddenProjectIds, , setHiddenProjectIdsAsync] = useStorage(
     "global.hiddenProjectIds",
@@ -223,18 +223,18 @@ export function useProjectStore(options = {}) {
 export function useProjects(options) {
   const { projects } = useProjectStore();
   const sortMode = options?.sortMode ?? "updated";
-  const keyword2 = options?.keyword ?? "";
+  const keyword = options?.keyword ?? "";
   const kind = options?.kind;
   return reactExports.useMemo(
     () =>
       sortProjects(
         filterProjectsByKeyword(
           kind ? filterProjectsByKind(projects, kind) : projects,
-          keyword2,
+          keyword,
         ),
         sortMode,
       ),
-    [keyword2, kind, projects, sortMode],
+    [keyword, kind, projects, sortMode],
   );
 }
 export function useProject(projectId) {
@@ -242,7 +242,7 @@ export function useProject(projectId) {
   return reactExports.useMemo(
     () =>
       projectId
-        ? projects.find((project2) => project2.id === projectId)
+        ? projects.find((project) => project.id === projectId)
         : void 0,
     [projectId, projects],
   );

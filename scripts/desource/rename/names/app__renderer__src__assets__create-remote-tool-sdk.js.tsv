@@ -1,0 +1,16 @@
+key	old	new	依据
+f2@102:31	f2	file	该参数是交给默认远程工具上传器的文件对象。
+o2@102:35	o2	options	该参数是传给默认远程工具上传器的选项。
+e2@148:16	e2	eventType	该值是转发给远程工具事件回调的事件类型。
+d2@148:20	d2	eventData	该值是随远程工具事件转发的数据。
+e2@154:17	e2	eventName	该值是转发给埋点回调的事件名称。
+p3@154:21	p3	trackProperties	该对象是随埋点事件转发的属性。
+f2@155:22	f2	file	该参数是交给自定义或默认上传器的文件对象。
+o2@155:26	o2	options	该参数是交给自定义或默认上传器的上传选项。
+json2@15:9	json2	json	去掉打包器防重名追加的后缀，恢复原名 json，即该绑定持有的值。
+handlers2@62:9	handlers2	handlers	去掉打包器防重名追加的后缀，恢复原名 handlers，即该绑定持有的值。
+pending2@63:9	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+data2@71:23	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+set2@79:11	set2	set	去掉打包器防重名追加的后缀，恢复原名 set，即该绑定持有的值。
+data2@108:31	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+set2@110:11	set2	set	去掉打包器防重名追加的后缀，恢复原名 set，即该绑定持有的值。

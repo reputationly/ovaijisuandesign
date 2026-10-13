@@ -23,7 +23,7 @@ import {
 } from "./shortcut-hint.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { Switch } from "../generation/select-content.jsx";
-function isWorkspaceDisplayModeShortcut(event, os2) {
+function isWorkspaceDisplayModeShortcut(event, operatingSystem) {
   if (
     event.isComposing ||
     event.code !== "Backslash" ||
@@ -32,7 +32,7 @@ function isWorkspaceDisplayModeShortcut(event, os2) {
   ) {
     return false;
   }
-  return os2 === "darwin"
+  return operatingSystem === "darwin"
     ? event.metaKey && !event.ctrlKey
     : event.ctrlKey && !event.metaKey;
 }
@@ -76,14 +76,14 @@ const DISPLAY_MODE_OPTIONS = [
     previewImage: CDN_WORKSPACE_DISPLAY_MODE_CHAT,
   },
 ];
-const DISPLAY_MODE_ORDER = DISPLAY_MODE_OPTIONS.map((option2) => option2.id);
-function getDisplayModeOptionId(mode2, paneOrder) {
-  if (mode2 === "canvasOnly") return "canvasOnly";
-  if (mode2 === "chatOnly") return "chatOnly";
+const DISPLAY_MODE_ORDER = DISPLAY_MODE_OPTIONS.map((option) => option.id);
+function getDisplayModeOptionId(mode, paneOrder) {
+  if (mode === "canvasOnly") return "canvasOnly";
+  if (mode === "chatOnly") return "chatOnly";
   return paneOrder === "chat-canvas" ? "chatCanvas" : "canvasChat";
 }
-function WorkspaceModePreview({ mode: mode2, previewImage: previewImage2 }) {
-  const pane = mode2 === "chatOnly" ? "chat" : "canvas";
+function WorkspaceModePreview({ mode, previewImage }) {
+  const pane = mode === "chatOnly" ? "chat" : "canvas";
   const [status, setStatus] = reactExports.useState("loading");
   return (
     <div
@@ -100,7 +100,7 @@ function WorkspaceModePreview({ mode: mode2, previewImage: previewImage2 }) {
           "workspace-display-preview absolute inset-0 size-full object-cover transition-opacity duration-200",
           status === "ready" ? "opacity-100" : "opacity-0",
         )}
-        src={previewImage2}
+        src={previewImage}
         decoding="async"
         onLoad={() => setStatus("ready")}
         onError={() => setStatus("failed")}
@@ -110,23 +110,23 @@ function WorkspaceModePreview({ mode: mode2, previewImage: previewImage2 }) {
   );
 }
 export function WorkspaceDisplayModeSwitcher({
-  mode: mode2,
+  mode,
   paneOrder,
   open,
   onOpenChange,
   onModeChange,
   onPaneOrderChange,
-  isActive: isActive2,
+  isActive,
   isReady,
   sidebarCollapsed,
   onSidebarCollapsedChange,
   triggerRef,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const hasBlockingModal = useHasBlockingModal();
   const platformOs = getPlatform().app.os;
   const [selectedOptionId, setSelectedOptionId] = reactExports.useState(() =>
-    getDisplayModeOptionId(mode2, paneOrder),
+    getDisplayModeOptionId(mode, paneOrder),
   );
   const [selectedSidebarCollapsed, setSelectedSidebarCollapsed] =
     reactExports.useState(sidebarCollapsed);
@@ -151,19 +151,19 @@ export function WorkspaceDisplayModeSwitcher({
   );
   const closeWithoutApplying = reactExports.useCallback(
     (reason) => {
-      setSelectedOptionId(getDisplayModeOptionId(mode2, paneOrder));
+      setSelectedOptionId(getDisplayModeOptionId(mode, paneOrder));
       setSelectedSidebarCollapsed(sidebarCollapsed);
       onOpenChange(false);
       trackEvent(TRACK_EVENTS.DIALOG_CLOSE, {
         dialog_name: "workspace_display_mode_switcher",
         reason,
-        applied_mode: mode2,
+        applied_mode: mode,
         selected_mode: selectedOptionId,
       });
       restoreFocus("previous");
     },
     [
-      mode2,
+      mode,
       onOpenChange,
       paneOrder,
       restoreFocus,
@@ -172,14 +172,14 @@ export function WorkspaceDisplayModeSwitcher({
     ],
   );
   const applyOption = reactExports.useCallback(
-    (option2, source) => {
-      onModeChange(option2.mode);
+    (option, source) => {
+      onModeChange(option.mode);
       if (
-        option2.mode === "split" &&
-        option2.paneOrder &&
-        option2.paneOrder !== paneOrder
+        option.mode === "split" &&
+        option.paneOrder &&
+        option.paneOrder !== paneOrder
       ) {
-        onPaneOrderChange(option2.paneOrder);
+        onPaneOrderChange(option.paneOrder);
       }
       if (selectedSidebarCollapsed !== sidebarCollapsed) {
         onSidebarCollapsedChange(selectedSidebarCollapsed);
@@ -189,14 +189,14 @@ export function WorkspaceDisplayModeSwitcher({
         dialog_name: "workspace_display_mode_switcher",
         reason: "confirm",
         source,
-        from_mode: mode2,
-        to_mode: option2.mode,
-        to_option: option2.id,
+        from_mode: mode,
+        to_mode: option.mode,
+        to_option: option.id,
       });
       restoreFocus("trigger");
     },
     [
-      mode2,
+      mode,
       onModeChange,
       onOpenChange,
       onPaneOrderChange,
@@ -209,26 +209,26 @@ export function WorkspaceDisplayModeSwitcher({
   );
   reactExports.useEffect(() => {
     if (!open) {
-      setSelectedOptionId(getDisplayModeOptionId(mode2, paneOrder));
+      setSelectedOptionId(getDisplayModeOptionId(mode, paneOrder));
       setSelectedSidebarCollapsed(sidebarCollapsed);
     }
-  }, [mode2, open, paneOrder, sidebarCollapsed]);
+  }, [mode, open, paneOrder, sidebarCollapsed]);
   reactExports.useEffect(() => {
     if (!open) return;
     optionRefs.current[selectedOptionId]?.focus();
   }, [open, selectedOptionId]);
   reactExports.useEffect(() => {
-    if ((!isActive2 || !isReady || hasBlockingModal) && open) {
+    if ((!isActive || !isReady || hasBlockingModal) && open) {
       onOpenChange(false);
-      setSelectedOptionId(getDisplayModeOptionId(mode2, paneOrder));
+      setSelectedOptionId(getDisplayModeOptionId(mode, paneOrder));
       setSelectedSidebarCollapsed(sidebarCollapsed);
       restoreFocus("previous");
     }
   }, [
     hasBlockingModal,
-    isActive2,
+    isActive,
     isReady,
-    mode2,
+    mode,
     onOpenChange,
     open,
     paneOrder,
@@ -249,13 +249,13 @@ export function WorkspaceDisplayModeSwitcher({
         document.activeElement instanceof HTMLElement
           ? document.activeElement
           : null;
-      setSelectedOptionId(getDisplayModeOptionId(mode2, paneOrder));
+      setSelectedOptionId(getDisplayModeOptionId(mode, paneOrder));
       setSelectedSidebarCollapsed(sidebarCollapsed);
       onOpenChange(true);
       trackEvent(TRACK_EVENTS.DIALOG_OPEN, {
         dialog_name: "workspace_display_mode_switcher",
         trigger: "shortcut",
-        applied_mode: mode2,
+        applied_mode: mode,
       });
       return;
     }
@@ -270,7 +270,7 @@ export function WorkspaceDisplayModeSwitcher({
       event.preventDefault();
       event.stopPropagation();
       const selectedOption = DISPLAY_MODE_OPTIONS.find(
-        (option2) => option2.id === selectedOptionId,
+        (option) => option.id === selectedOptionId,
       );
       if (selectedOption) applyOption(selectedOption, "keyboard");
       return;
@@ -296,18 +296,18 @@ export function WorkspaceDisplayModeSwitcher({
     });
   };
   reactExports.useEffect(() => {
-    if (!isActive2) return;
-    const handleKeyDown2 = (event) => handleKeyDownRef.current(event);
-    window.addEventListener("keydown", handleKeyDown2, true);
-    return () => window.removeEventListener("keydown", handleKeyDown2, true);
-  }, [isActive2]);
+    if (!isActive) return;
+    const handleKeyDown = (event) => handleKeyDownRef.current(event);
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [isActive]);
   if (!open) return null;
-  const options = DISPLAY_MODE_OPTIONS.map((option2) => ({
-    ...option2,
-    tag: option2.tagKey
-      ? t2(option2.tagKey, option2.fallbackTag ?? "")
+  const options = DISPLAY_MODE_OPTIONS.map((option) => ({
+    ...option,
+    tag: option.tagKey
+      ? translate(option.tagKey, option.fallbackTag ?? "")
       : void 0,
-    label: t2(option2.labelKey, option2.fallbackLabel),
+    label: translate(option.labelKey, option.fallbackLabel),
   }));
   return (
     <Dialog
@@ -326,10 +326,10 @@ export function WorkspaceDisplayModeSwitcher({
         <div className="workspace-display-mode-panel flex w-full max-w-[1200px] flex-col items-center text-center">
           <DialogHeader className="items-center gap-2 text-center">
             <DialogTitle className="text-lg">
-              {t2("workspace.displayMode.title", "Switch layout mode")}
+              {translate("workspace.displayMode.title", "Switch layout mode")}
             </DialogTitle>
             <DialogDescription className="text-workspace-display-mode-mask-foreground text-sm">
-              {t2(
+              {translate(
                 "workspace.displayMode.description",
                 "Choose the layout for Chat and Canvas in this Project",
               )}
@@ -337,53 +337,53 @@ export function WorkspaceDisplayModeSwitcher({
           </DialogHeader>
           <div
             role="radiogroup"
-            aria-label={t2("workspace.layout.mode", "Layout mode")}
+            aria-label={translate("workspace.layout.mode", "Layout mode")}
             className="mt-11 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
           >
-            {options.map((option2) => {
-              const selected2 = selectedOptionId === option2.id;
-              const current2 =
-                getDisplayModeOptionId(mode2, paneOrder) === option2.id;
+            {options.map((option) => {
+              const selected = selectedOptionId === option.id;
+              const current =
+                getDisplayModeOptionId(mode, paneOrder) === option.id;
               return (
                 <div
-                  key={option2.id}
+                  key={option.id}
                   className={cn(
                     "workspace-display-mode-card flex min-w-0 flex-col rounded-xl border border-border bg-card p-1.5",
-                    selected2 && "workspace-display-mode-card-selected",
+                    selected && "workspace-display-mode-card-selected",
                   )}
-                  data-selected={selected2 ? "true" : "false"}
+                  data-selected={selected ? "true" : "false"}
                 >
                   <button
-                    ref={(element2) => {
-                      optionRefs.current[option2.id] = element2;
+                    ref={(element) => {
+                      optionRefs.current[option.id] = element;
                     }}
                     type="button"
                     role="radio"
                     aria-label={
-                      option2.tag
-                        ? `${option2.tag}: ${option2.label}`
-                        : option2.label
+                      option.tag
+                        ? `${option.tag}: ${option.label}`
+                        : option.label
                     }
-                    aria-checked={selected2}
-                    tabIndex={selected2 ? 0 : -1}
-                    data-action-ui-id={`workspace.display-mode.card.${option2.id}`}
-                    data-selected={selected2 ? "true" : "false"}
+                    aria-checked={selected}
+                    tabIndex={selected ? 0 : -1}
+                    data-action-ui-id={`workspace.display-mode.card.${option.id}`}
+                    data-selected={selected ? "true" : "false"}
                     onFocus={() => {
-                      if (selected2) return;
-                      setSelectedOptionId(option2.id);
+                      if (selected) return;
+                      setSelectedOptionId(option.id);
                     }}
-                    onClick={() => applyOption(option2, "pointer")}
+                    onClick={() => applyOption(option, "pointer")}
                     className="group flex w-full flex-col items-center gap-2 rounded-lg p-0 text-left outline-none"
                   >
                     <span className="flex h-6 w-full shrink-0 items-center justify-between gap-2 pl-2 pr-1.5">
-                      {option2.tag ? (
+                      {option.tag ? (
                         <span className="text-sm font-normal leading-5 text-foreground">
-                          {option2.tag}
+                          {option.tag}
                         </span>
                       ) : (
                         <span aria-hidden="true" />
                       )}
-                      {current2 ? (
+                      {current ? (
                         <span
                           className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-foreground"
                           data-workspace-display-mode-current="true"
@@ -392,21 +392,21 @@ export function WorkspaceDisplayModeSwitcher({
                             aria-hidden="true"
                             className="size-1.5 rounded-full bg-brand-accent/80"
                           />
-                          {t2("workspace.displayMode.currentTag", "Current")}
+                          {translate("workspace.displayMode.currentTag", "Current")}
                         </span>
                       ) : null}
                     </span>
                     <span className="relative h-16 w-full overflow-hidden rounded-md border border-border bg-background p-0">
                       <WorkspaceModePreview
-                        mode={option2.mode}
-                        previewImage={option2.previewImage}
+                        mode={option.mode}
+                        previewImage={option.previewImage}
                       />
                       <span
                         aria-hidden="true"
                         className="absolute inset-0 z-10 bg-workspace-display-mode-current-mask"
                       />
                       <span className="absolute inset-0 z-20 flex items-center justify-center px-3 text-base font-semibold leading-5 text-workspace-display-mode-current-tag-foreground">
-                        {option2.label}
+                        {option.label}
                       </span>
                     </span>
                   </button>
@@ -419,21 +419,21 @@ export function WorkspaceDisplayModeSwitcher({
               <span className="inline-flex items-center gap-1.5">
                 <ShortcutHint accelerator="←" className="h-5 min-w-5 px-1.5" />
                 <ShortcutHint accelerator="→" className="h-5 min-w-5 px-1.5" />
-                {t2("workspace.displayMode.navigateHint", "Select")}
+                {translate("workspace.displayMode.navigateHint", "Select")}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <ShortcutHint
                   accelerator="Enter"
                   className="h-5 min-w-5 px-1.5"
                 />
-                {t2("workspace.displayMode.confirmHint", "Apply")}
+                {translate("workspace.displayMode.confirmHint", "Apply")}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <ShortcutHint
                   accelerator="Esc"
                   className="h-5 min-w-5 px-1.5"
                 />
-                {t2("workspace.displayMode.cancelHint", "Cancel")}
+                {translate("workspace.displayMode.cancelHint", "Cancel")}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <ShortcutHint
@@ -442,24 +442,24 @@ export function WorkspaceDisplayModeSwitcher({
                   os={platformOs}
                   className="h-5 min-w-5 px-1.5"
                 />
-                {t2("workspace.displayMode.toggleHint", "Close")}
+                {translate("workspace.displayMode.toggleHint", "Close")}
               </span>
             </div>
             <div className="inline-flex shrink-0 items-center gap-2 text-xs text-workspace-display-mode-mask-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <span>
-                  {t2(
+                  {translate(
                     "workspace.displayMode.primarySidebar",
                     "Primary sidebar",
                   )}
                 </span>
                 <span className="text-workspace-display-mode-mask-foreground/60">
                   {selectedSidebarCollapsed
-                    ? t2(
+                    ? translate(
                         "workspace.displayMode.primarySidebar.collapsed",
                         "Collapsed",
                       )
-                    : t2(
+                    : translate(
                         "workspace.displayMode.primarySidebar.open",
                         "Expanded",
                       )}
@@ -468,7 +468,7 @@ export function WorkspaceDisplayModeSwitcher({
               <Switch
                 checked={!selectedSidebarCollapsed}
                 id="workspace-display-mode-primary-sidebar-switch"
-                aria-label={`${t2("workspace.displayMode.primarySidebar", "Primary sidebar")}: ${selectedSidebarCollapsed ? t2("workspace.displayMode.primarySidebar.collapsed", "Collapsed") : t2("workspace.displayMode.primarySidebar.open", "Expanded")}`}
+                aria-label={`${translate("workspace.displayMode.primarySidebar", "Primary sidebar")}: ${selectedSidebarCollapsed ? translate("workspace.displayMode.primarySidebar.collapsed", "Collapsed") : translate("workspace.displayMode.primarySidebar.open", "Expanded")}`}
                 data-workspace-display-mode-primary-sidebar="true"
                 onCheckedChange={(checked) =>
                   setSelectedSidebarCollapsed(!checked)

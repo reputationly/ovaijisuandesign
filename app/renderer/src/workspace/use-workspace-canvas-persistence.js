@@ -10,12 +10,12 @@ import {
 } from "../settings/settings-select.jsx";
 
 export function useWorkspaceCanvasPersistence({
-  workspaceId: workspaceId2,
+  workspaceId,
   gatewayInstanceId,
   httpClient,
   sessionStore,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const registrationRef = reactExports.useRef(null);
   const dataSource = reactExports.useMemo(
     () =>
@@ -24,8 +24,8 @@ export function useWorkspaceCanvasPersistence({
             httpClient,
             sessionStore,
             {
-              error: (message2) =>
-                window.hilo?.logger?.error(message2, "http-client"),
+              error: (message) =>
+                window.hilo?.logger?.error(message, "http-client"),
             },
             gatewayInstanceId,
           )
@@ -37,14 +37,14 @@ export function useWorkspaceCanvasPersistence({
     (controller) => {
       registrationRef.current?.();
       registrationRef.current = null;
-      if (!controller || !workspaceId2) return;
+      if (!controller || !workspaceId) return;
       registrationRef.current = registerWorkspaceCanvasPersistence(
-        workspaceId2,
+        workspaceId,
         persistenceInstanceId,
         controller,
         (status) => {
           const promise = homeService.hiloApp.reportWorkspacePersistence({
-            workspaceId: workspaceId2,
+            workspaceId,
             instanceId: persistenceInstanceId,
             state: status,
           });
@@ -58,7 +58,7 @@ export function useWorkspaceCanvasPersistence({
         },
       );
     },
-    [persistenceInstanceId, workspaceId2],
+    [persistenceInstanceId, workspaceId],
   );
   reactExports.useEffect(
     () => () => {
@@ -69,31 +69,31 @@ export function useWorkspaceCanvasPersistence({
   );
   const handlePersistenceStatusChange = reactExports.useCallback(
     (status) => {
-      if (!workspaceId2) return;
+      if (!workspaceId) return;
       reportWorkspaceCanvasPersistence(
-        workspaceId2,
+        workspaceId,
         persistenceInstanceId,
         status,
       );
-      const toastId = `canvas-persistence-${workspaceId2}`;
+      const toastId = `canvas-persistence-${workspaceId}`;
       if (status === "clean") {
         dedupedToast.dismiss(toastId);
         return;
       }
       if (status !== "failed") return;
-      dedupedToast.error(t2("canvas.persistence.failed"), {
+      dedupedToast.error(translate("canvas.persistence.failed"), {
         id: toastId,
         duration: Number.POSITIVE_INFINITY,
-        description: t2("canvas.persistence.failedDetail"),
+        description: translate("canvas.persistence.failedDetail"),
         action: {
-          label: t2("common.retry"),
+          label: translate("common.retry"),
           onClick: () => {
-            void flushWorkspaceCanvasPersistence(workspaceId2).catch(() => {});
+            void flushWorkspaceCanvasPersistence(workspaceId).catch(() => {});
           },
         },
       });
     },
-    [persistenceInstanceId, t2, workspaceId2],
+    [persistenceInstanceId, translate, workspaceId],
   );
   return {
     dataSource,

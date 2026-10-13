@@ -27,8 +27,8 @@ import { SegmentedSwitch } from "./segmented-switch.jsx";
 import { ExpandToggleButton } from "./expand-arrow-icon.jsx";
 export function AttachmentBar({
   items,
-  disabled: disabled2,
-  readOnly: readOnly2,
+  disabled,
+  readOnly,
   videoDurationLimitSec,
   audioDurationLimitSec,
   onClipVideo,
@@ -36,8 +36,8 @@ export function AttachmentBar({
   onReplace,
   onEdit,
   showAddButton,
-  onRemove: onRemove2,
-  onAdd: onAdd2,
+  onRemove,
+  onAdd,
   onItemClick,
   getLocateAction,
 }) {
@@ -56,20 +56,20 @@ export function AttachmentBar({
         <ThumbChip
           key={item.path}
           item={item}
-          disabled={disabled2}
-          readOnly={readOnly2}
+          disabled={disabled}
+          readOnly={readOnly}
           videoDurationExcessSec={videoDurationExcesses.get(item.path)}
           audioDurationExcessSec={audioDurationExcesses.get(item.path)}
           onClipVideo={onClipVideo}
           onClipAudio={onClipAudio}
           onReplace={onReplace}
           onEdit={onEdit}
-          onRemove={onRemove2}
+          onRemove={onRemove}
           onClick={onItemClick}
           onLocate={getLocateAction?.(item)}
         />
       ))}
-      {showAddButton && !disabled2 && (
+      {showAddButton && !disabled && (
         <button
           type="button"
           className="shrink-0 flex items-center justify-center border-[1.5px] border-dashed border-foreground/10 rounded-[8px] text-foreground/50 hover:text-foreground hover:border-foreground/30 transition-colors duration-150"
@@ -77,9 +77,9 @@ export function AttachmentBar({
             width: THUMB_SIZE,
             height: THUMB_SIZE,
           }}
-          onClick={(e2) => {
-            e2.stopPropagation();
-            onAdd2();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
+            onAdd();
           }}
         >
           <Plus size={16} />
@@ -89,7 +89,7 @@ export function AttachmentBar({
   );
 }
 export function TextPopoverReferenceSection({
-  mode: mode2,
+  mode,
   audioMode,
   controlsDisabled,
   onAudioModeChange,
@@ -98,11 +98,11 @@ export function TextPopoverReferenceSection({
   references,
   audioAttachments,
 }) {
-  const { t: t2 } = useTranslation();
-  if (mode2 !== "audio" && !references) return null;
+  const { t: translate } = useTranslation();
+  if (mode !== "audio" && !references) return null;
   return (
     <div className="flex shrink-0 flex-col gap-2">
-      {mode2 === "audio" ? (
+      {mode === "audio" ? (
         <div className="relative flex items-center gap-2">
           <div role="presentation" onClick={(event) => event.stopPropagation()}>
             <SegmentedSwitch
@@ -114,14 +114,14 @@ export function TextPopoverReferenceSection({
                 value,
                 label:
                   value === "tts"
-                    ? t2("canvas.txt.audioMode.tts")
-                    : t2("canvas.txt.audioMode.music"),
+                    ? translate("canvas.txt.audioMode.tts")
+                    : translate("canvas.txt.audioMode.music"),
                 dataActionUiId: `popover.audio-tab-${value}`,
                 disabled: controlsDisabled,
               }))}
-              onValueChange={(next2) => {
-                if (next2 === "tts" || next2 === "music")
-                  onAudioModeChange(next2);
+              onValueChange={(next) => {
+                if (next === "tts" || next === "music")
+                  onAudioModeChange(next);
               }}
             />
           </div>
@@ -135,7 +135,7 @@ export function TextPopoverReferenceSection({
           <AttachmentBar {...references} />
         </div>
       ) : null}
-      {mode2 === "audio" && audioAttachments ? (
+      {mode === "audio" && audioAttachments ? (
         <div className="shrink-0">
           <AttachmentBar {...audioAttachments} />
         </div>
@@ -145,8 +145,8 @@ export function TextPopoverReferenceSection({
 }
 const HEIGHT_COMPACT = 208;
 const HEIGHT_EXPANDED = 500;
-function nextDeselectGate(armed, selected2) {
-  return selected2
+function nextDeselectGate(armed, selected) {
+  return selected
     ? {
         armed: true,
         close: false,
@@ -162,7 +162,7 @@ function blockPopoverContextMenu(event) {
 }
 export function PopoverShell({
   onClose,
-  children: children2,
+  children,
   expanded = false,
   promptLayout = false,
   extraHeight = 0,
@@ -172,21 +172,21 @@ export function PopoverShell({
   onCloseRef.current = onClose;
   const nodeId = useNodeId();
   const selectedSelector = reactExports.useCallback(
-    (s2) =>
+    (canvasState) =>
       // No nodeId = popover not anchored to a node → keep mounted.
-      nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true,
+      nodeId ? !!canvasState.nodeLookup.get(nodeId)?.selected : true,
     [nodeId],
   );
-  const selected2 = useStore(selectedSelector);
+  const selected = useStore(selectedSelector);
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
   const gateArmedRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    const gate = nextDeselectGate(gateArmedRef.current, selected2);
+    const gate = nextDeselectGate(gateArmedRef.current, selected);
     gateArmedRef.current = gate.armed;
     if (gate.close) onCloseRef.current();
-  }, [selected2]);
+  }, [selected]);
   const hidden = isDragging || isMultiSelect || isBoxSelecting;
   return (
     <NodeToolbar
@@ -201,7 +201,7 @@ export function PopoverShell({
       <div
         className={`w-[620px] border-0 rounded-[16px] animate-[i2v-popover-in_0.15s_ease-out] flex flex-col overflow-hidden p-2 transition-[height] duration-[250ms] ease-out${promptLayout ? " gap-2" : ""}`}
         data-action-ui-id="popover.shell"
-        onDoubleClick={(e2) => e2.stopPropagation()}
+        onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
         onContextMenu={blockPopoverContextMenu}
         style={{
           background: "var(--canvas-controls-bg)",
@@ -210,20 +210,20 @@ export function PopoverShell({
           display: hidden ? "none" : void 0,
         }}
       >
-        {children2}
+        {children}
       </div>
     </NodeToolbar>
   );
 }
 export var src_default = StarterKit;
-export function VideoPlayIndicator({ size: size2 = 14 }) {
+export function VideoPlayIndicator({ size = 14 }) {
   return (
     <span
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 flex items-center justify-center"
     >
       <PlaybackPlayIcon
-        size={size2}
+        size={size}
         style={{
           color: "var(--canvas-media-play-icon)",
           filter: "drop-shadow(0 1px 2px rgb(0 0 0 / 0.65))",
@@ -237,59 +237,59 @@ function finitePositive(value) {
     ? value
     : void 0;
 }
-export function getImageConstraintReason(dimensions2, constraints2) {
-  if (!dimensions2 || !constraints2) return void 0;
-  const width = finitePositive(dimensions2.width);
-  const height = finitePositive(dimensions2.height);
+export function getImageConstraintReason(dimensions, constraints) {
+  if (!dimensions || !constraints) return void 0;
+  const width = finitePositive(dimensions.width);
+  const height = finitePositive(dimensions.height);
   if (width === void 0 || height === void 0) return void 0;
   if (
-    constraints2.imageMinWidth !== void 0 &&
-    width < constraints2.imageMinWidth
+    constraints.imageMinWidth !== void 0 &&
+    width < constraints.imageMinWidth
   ) {
     return "image-size";
   }
   if (
-    constraints2.imageMinHeight !== void 0 &&
-    height < constraints2.imageMinHeight
+    constraints.imageMinHeight !== void 0 &&
+    height < constraints.imageMinHeight
   ) {
     return "image-size";
   }
   const ratio = width / height;
   if (
-    constraints2.imageMinAspectRatio !== void 0 &&
-    ratio < constraints2.imageMinAspectRatio
+    constraints.imageMinAspectRatio !== void 0 &&
+    ratio < constraints.imageMinAspectRatio
   ) {
     return "image-aspect";
   }
   if (
-    constraints2.imageMaxAspectRatio !== void 0 &&
-    ratio > constraints2.imageMaxAspectRatio
+    constraints.imageMaxAspectRatio !== void 0 &&
+    ratio > constraints.imageMaxAspectRatio
   ) {
     return "image-aspect";
   }
   return void 0;
 }
-export function mapKind(type2) {
+export function mapKind(type) {
   if (
-    type2 === "image" ||
-    type2 === "video" ||
-    type2 === "audio" ||
-    type2 === "text"
+    type === "image" ||
+    type === "video" ||
+    type === "audio" ||
+    type === "text"
   )
-    return type2;
+    return type;
   return void 0;
 }
-export var ReferenceDisabledReason = ((ReferenceDisabledReason2) => {
-  ReferenceDisabledReason2["Empty"] = "empty";
-  ReferenceDisabledReason2["Unsupported"] = "unsupported";
-  ReferenceDisabledReason2["Full"] = "full";
-  ReferenceDisabledReason2["ImageSize"] = "image-size";
-  ReferenceDisabledReason2["ImageAspect"] = "image-aspect";
-  ReferenceDisabledReason2["AudioRange"] = "audio-range";
-  ReferenceDisabledReason2["AudioBudget"] = "audio-budget";
-  ReferenceDisabledReason2["VideoRange"] = "video-range";
-  ReferenceDisabledReason2["VideoBudget"] = "video-budget";
-  return ReferenceDisabledReason2;
+export var ReferenceDisabledReason = ((ReferenceDisabledReason) => {
+  ReferenceDisabledReason["Empty"] = "empty";
+  ReferenceDisabledReason["Unsupported"] = "unsupported";
+  ReferenceDisabledReason["Full"] = "full";
+  ReferenceDisabledReason["ImageSize"] = "image-size";
+  ReferenceDisabledReason["ImageAspect"] = "image-aspect";
+  ReferenceDisabledReason["AudioRange"] = "audio-range";
+  ReferenceDisabledReason["AudioBudget"] = "audio-budget";
+  ReferenceDisabledReason["VideoRange"] = "video-range";
+  ReferenceDisabledReason["VideoBudget"] = "video-budget";
+  return ReferenceDisabledReason;
 })(ReferenceDisabledReason || {});
 export function passesBudgetGate(kind, isReference, remainingByKind) {
   if (isReference) return true;
@@ -297,15 +297,15 @@ export function passesBudgetGate(kind, isReference, remainingByKind) {
   if (!remainingByKind) return true;
   return (remainingByKind[kind] ?? 0) > 0;
 }
-export function reasonForDisabled(kind, meta2, constraints2) {
-  if (!constraints2) return void 0;
+export function reasonForDisabled(kind, meta, constraints) {
+  if (!constraints) return void 0;
   if (kind === "text") {
-    const remaining = constraints2.remainingByKind.text;
+    const remaining = constraints.remainingByKind.text;
     return remaining !== void 0 && remaining <= 0 ? "full" : void 0;
   }
-  if (constraints2.remainingByKind[kind] <= 0) return "full";
+  if (constraints.remainingByKind[kind] <= 0) return "full";
   if (kind === "image") {
-    const reason = getImageConstraintReason(meta2, constraints2);
+    const reason = getImageConstraintReason(meta, constraints);
     if (reason)
       return {
         "image-size": "image-size",
@@ -314,29 +314,29 @@ export function reasonForDisabled(kind, meta2, constraints2) {
       }[reason];
   }
   if (kind === "audio") {
-    const d2 = typeof meta2.durationSec === "number" ? meta2.durationSec : 0;
+    const durationSeconds = typeof meta.durationSec === "number" ? meta.durationSec : 0;
     if (
-      d2 > 0 &&
-      (d2 < constraints2.audioPerClipMinSec ||
-        d2 > constraints2.audioPerClipMaxSec)
+      durationSeconds > 0 &&
+      (durationSeconds < constraints.audioPerClipMinSec ||
+        durationSeconds > constraints.audioPerClipMaxSec)
     ) {
       return "audio-range";
     }
-    if (d2 > 0 && d2 > constraints2.remainingAudioTotalSec)
+    if (durationSeconds > 0 && durationSeconds > constraints.remainingAudioTotalSec)
       return "audio-budget";
   }
   if (kind === "video") {
-    const d2 = typeof meta2.durationSec === "number" ? meta2.durationSec : 0;
+    const durationSeconds = typeof meta.durationSec === "number" ? meta.durationSec : 0;
     if (
-      d2 > 0 &&
-      ((constraints2.videoPerClipMinSec !== void 0 &&
-        d2 < constraints2.videoPerClipMinSec) ||
-        (constraints2.videoPerClipMaxSec !== void 0 &&
-          d2 > constraints2.videoPerClipMaxSec))
+      durationSeconds > 0 &&
+      ((constraints.videoPerClipMinSec !== void 0 &&
+        durationSeconds < constraints.videoPerClipMinSec) ||
+        (constraints.videoPerClipMaxSec !== void 0 &&
+          durationSeconds > constraints.videoPerClipMaxSec))
     ) {
       return "video-range";
     }
-    if (d2 > 0 && d2 > constraints2.remainingVideoTotalSec)
+    if (durationSeconds > 0 && durationSeconds > constraints.remainingVideoTotalSec)
       return "video-budget";
   }
   return void 0;

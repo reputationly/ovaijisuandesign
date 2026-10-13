@@ -1,0 +1,8 @@
+key	old	new	依据
+t2@17:14	t2	translate	该绑定是文件拖动失败提示读取文案的翻译函数。
+p3@35:48	p3	sourcePath	该值是待转换为相对路径的单个拖动源绝对路径。
+e2@70:61	e2	selectionModifiers	该值提供更新选择所需的 meta、ctrl 与 shift 修饰键状态。
+a2@72:52	a2	asset	该值是用于取得显示路径的单个已排序资产记录。
+name2@24:13	name2	fileName	该值是从资源路径取得的文件名，用于构造拖拽载荷。
+updateSelection2@58:20	updateSelection2	updateSelection	去掉打包器防重名追加的后缀，恢复原名 updateSelection，即该绑定持有的值。
+name2@79:11	name2	fileName	该值是双击打开的资源文件名。

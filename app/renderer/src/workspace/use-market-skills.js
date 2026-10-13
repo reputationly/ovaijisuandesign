@@ -13,9 +13,9 @@ import {
 class SkillEvents {
   _onSkillsChanged = new Emitter();
   onSkillsChanged = this._onSkillsChanged.event;
-  fireSkillsChanged(name2, kind) {
+  fireSkillsChanged(skillName, kind) {
     this._onSkillsChanged.fire({
-      name: name2,
+      name: skillName,
       kind,
     });
   }
@@ -65,12 +65,12 @@ export function useMarketSkills(
     setResultScope(requestScope);
   }, [requestScope]);
   const fetchPage = reactExports.useCallback(
-    async (query, page, reset2) => {
-      if (!reset2 && fetchingRef.current) return;
+    async (query, page, reset) => {
+      if (!reset && fetchingRef.current) return;
       fetchingRef.current = true;
-      const seq2 = ++requestSeqRef.current;
-      const isStale2 = () => seq2 !== requestSeqRef.current;
-      if (reset2) {
+      const seq = ++requestSeqRef.current;
+      const isStale = () => seq !== requestSeqRef.current;
+      if (reset) {
         setError(null);
       }
       setLoading(true);
@@ -86,35 +86,35 @@ export function useMarketSkills(
         if (tag && !query) {
           params.set("tag", tag);
         }
-        let path2;
+        let path;
         if (query) {
           params.set("query", query);
-          path2 = `${API_PATHS.marketSearch}?${params}`;
+          path = `${API_PATHS.marketSearch}?${params}`;
         } else {
-          path2 = `${API_PATHS.marketSkills}?${params}`;
+          path = `${API_PATHS.marketSkills}?${params}`;
         }
-        const res = await gatewayFetch(path2);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const raw2 = await res.json();
-        if (isStale2()) return;
+        const response = await gatewayFetch(path);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const raw = await response.json();
+        if (isStale()) return;
         let newSkills;
         if (skillType === "plugin");
         else {
-          const skillResp = raw2;
+          const skillResp = raw;
           newSkills = skillResp.skills || [];
         }
         pageRef.current = page;
         queryRef.current = query;
         setSkills((prev) => {
-          const next2 = reset2 ? newSkills : [...prev, ...newSkills];
-          setHasMore(next2.length < raw2.total);
-          return next2;
+          const next = reset ? newSkills : [...prev, ...newSkills];
+          setHasMore(next.length < raw.total);
+          return next;
         });
       } catch (err) {
-        if (isStale2()) return;
+        if (isStale()) return;
         setError(err instanceof Error ? err.message : String(err));
       } finally {
-        if (!isStale2()) {
+        if (!isStale()) {
           fetchingRef.current = false;
           setLoading(false);
         }
@@ -126,7 +126,7 @@ export function useMarketSkills(
     queryRef.current = "";
     await fetchPage("", 1, true);
   }, [fetchPage]);
-  const search2 = reactExports.useCallback(
+  const search = reactExports.useCallback(
     async (query) => {
       await fetchPage(query, 1, true);
     },
@@ -142,14 +142,14 @@ export function useMarketSkills(
     await fetchPage(queryRef.current, nextPage, false);
   }, [hasMore, fetchPage]);
   const install = reactExports.useCallback(
-    async (name2, via) => {
-      setInstallingSet((prev) => new Set(prev).add(name2));
+    async (skillName, via) => {
+      setInstallingSet((prev) => new Set(prev).add(skillName));
       const startedAt = Date.now();
-      const targetSkill = skillsRef.current.find((s2) => s2.name === name2);
+      const targetSkill = skillsRef.current.find((skill) => skill.name === skillName);
       const isUpdate = targetSkill?.installed === true;
       const previousVersion = isUpdate ? targetSkill?.installedVersion : void 0;
       try {
-        const res = await gatewayFetch(API_PATHS.marketInstall, {
+        const response = await gatewayFetch(API_PATHS.marketInstall, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -157,29 +157,29 @@ export function useMarketSkills(
           body: JSON.stringify(
             skillType
               ? {
-                  name: name2,
+                  name: skillName,
                   skillType,
                 }
               : {
-                  name: name2,
+                  name: skillName,
                 },
           ),
         });
-        const data2 = await res.json();
-        if (!data2.ok) throw new Error(data2.error || "Install failed");
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error || "Install failed");
         trackSkillInstallEvent({
-          name: name2,
+          name: skillName,
           source: "market",
           version: targetSkill?.version,
           isUpdate,
           previousVersion,
           via,
         });
-        skillEvents.fireSkillsChanged(name2, "installed");
+        skillEvents.fireSkillsChanged(skillName, "installed");
         return true;
       } catch (err) {
         trackSkillInstallFailed({
-          name: name2,
+          name: skillName,
           source: "market",
           version: targetSkill?.version,
           isUpdate,
@@ -188,9 +188,9 @@ export function useMarketSkills(
           via,
         });
         setInstallingSet((prev) => {
-          const next2 = new Set(prev);
-          next2.delete(name2);
-          return next2;
+          const next = new Set(prev);
+          next.delete(skillName);
+          return next;
         });
         return false;
       }
@@ -198,10 +198,10 @@ export function useMarketSkills(
     [skillType],
   );
   const uninstall = reactExports.useCallback(
-    async (name2) => {
-      setUninstallingSet((prev) => new Set(prev).add(name2));
+    async (skillName) => {
+      setUninstallingSet((prev) => new Set(prev).add(skillName));
       try {
-        const res = await gatewayFetch(API_PATHS.marketUninstall, {
+        const response = await gatewayFetch(API_PATHS.marketUninstall, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -209,72 +209,72 @@ export function useMarketSkills(
           body: JSON.stringify(
             skillType
               ? {
-                  name: name2,
+                  name: skillName,
                   skillType,
                 }
               : {
-                  name: name2,
+                  name: skillName,
                 },
           ),
         });
-        const data2 = await res.json();
-        if (!data2.ok) throw new Error(data2.error || "Uninstall failed");
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error || "Uninstall failed");
         setSkills((prev) =>
-          prev.map((s2) =>
-            s2.name === name2
+          prev.map((skill) =>
+            skill.name === skillName
               ? {
-                  ...s2,
+                  ...skill,
                   installed: false,
                 }
-              : s2,
+              : skill,
           ),
         );
-        trackSkillUninstall(name2, "market");
-        skillEvents.fireSkillsChanged(name2, "uninstalled");
+        trackSkillUninstall(skillName, "market");
+        skillEvents.fireSkillsChanged(skillName, "uninstalled");
         return true;
       } catch (err) {
         trackSkillUninstallFailed({
-          name: name2,
+          name: skillName,
           source: "market",
           error: err,
         });
         return false;
       } finally {
         setUninstallingSet((prev) => {
-          const next2 = new Set(prev);
-          next2.delete(name2);
-          return next2;
+          const next = new Set(prev);
+          next.delete(skillName);
+          return next;
         });
       }
     },
     [skillType],
   );
-  const markInstalled = reactExports.useCallback((name2) => {
+  const markInstalled = reactExports.useCallback((skillName) => {
     setSkills((prev) =>
-      prev.map((s2) =>
-        s2.name === name2
+      prev.map((skill) =>
+        skill.name === skillName
           ? {
-              ...s2,
+              ...skill,
               installed: true,
               updateAvailable: false,
-              installedVersion: s2.version,
+              installedVersion: skill.version,
             }
-          : s2,
+          : skill,
       ),
     );
     setInstallingSet((prev) => {
-      if (!prev.has(name2)) return prev;
-      const next2 = new Set(prev);
-      next2.delete(name2);
-      return next2;
+      if (!prev.has(skillName)) return prev;
+      const next = new Set(prev);
+      next.delete(skillName);
+      return next;
     });
   }, []);
-  const clearInstalling = reactExports.useCallback((name2) => {
+  const clearInstalling = reactExports.useCallback((skillName) => {
     setInstallingSet((prev) => {
-      if (!prev.has(name2)) return prev;
-      const next2 = new Set(prev);
-      next2.delete(name2);
-      return next2;
+      if (!prev.has(skillName)) return prev;
+      const next = new Set(prev);
+      next.delete(skillName);
+      return next;
     });
   }, []);
   const ownsCurrentScope = resultScope === requestScope;
@@ -287,7 +287,7 @@ export function useMarketSkills(
     error: ownsCurrentScope ? error : null,
     hasMore: ownsCurrentScope ? hasMore : false,
     fetchList,
-    search: search2,
+    search,
     loadMore,
     install,
     markInstalled,

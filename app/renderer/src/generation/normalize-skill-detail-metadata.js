@@ -13,16 +13,16 @@ const AGENT_DIRECTIVE_OR_API_STATUS_PATTERN =
   /(?:Do NOT use|Stop and ask the user|API error \d{3}|API \d{3}\b|\bHTTP \d{3}\b|Http Exception|\bstatus=\d{3}\b|\binvalid request\b)/i;
 const TECHNICAL_NOISE_PATTERN =
   /(?:TypeError|FetchError|AI_APICallError|OpenCode responded|Cannot read properties|Cannot destructure|stack trace|\bat\s+\S+\(|InvalidParameter)/i;
-export function classifyRawErrorText(raw2) {
-  const text2 = (raw2 ?? "").trim();
-  if (!text2) return null;
-  if (MODEL_CONCURRENCY_PATTERN.test(text2)) return "concurrency";
-  if (AGENT_DIRECTIVE_OR_API_STATUS_PATTERN.test(text2)) return "technical";
-  if (TIMEOUT_PATTERN.test(text2)) return "timeout";
-  if (INTERRUPTED_PATTERN.test(text2)) return "interrupted";
-  if (NETWORK_PATTERN.test(text2)) return "network";
-  if (STORAGE_PATTERN.test(text2)) return "storage";
-  if (TECHNICAL_NOISE_PATTERN.test(text2)) return "technical";
+export function classifyRawErrorText(raw) {
+  const text = (raw ?? "").trim();
+  if (!text) return null;
+  if (MODEL_CONCURRENCY_PATTERN.test(text)) return "concurrency";
+  if (AGENT_DIRECTIVE_OR_API_STATUS_PATTERN.test(text)) return "technical";
+  if (TIMEOUT_PATTERN.test(text)) return "timeout";
+  if (INTERRUPTED_PATTERN.test(text)) return "interrupted";
+  if (NETWORK_PATTERN.test(text)) return "network";
+  if (STORAGE_PATTERN.test(text)) return "storage";
+  if (TECHNICAL_NOISE_PATTERN.test(text)) return "technical";
   return null;
 }
 export const FEEDBACK_CONSTRAINTS = {
@@ -33,41 +33,41 @@ export const FEEDBACK_CONSTRAINTS = {
   /** Max size per attached file (5 MB). */
   ATTACHMENT_MAX_BYTES: 5 * 1024 * 1024,
 };
-export var PopupType = ((PopupType2) => {
-  PopupType2[(PopupType2["POPUP_TYPE_NONE"] = 0)] = "POPUP_TYPE_NONE";
-  PopupType2[(PopupType2["POPUP_TYPE_GENERAL"] = 1)] = "POPUP_TYPE_GENERAL";
-  PopupType2[(PopupType2["POPUP_TYPE_MIGRATION"] = 2)] = "POPUP_TYPE_MIGRATION";
-  PopupType2[(PopupType2["POPUP_TYPE_FEATURE"] = 3)] = "POPUP_TYPE_FEATURE";
-  PopupType2[(PopupType2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
-  return PopupType2;
+export var PopupType = ((PopupType) => {
+  PopupType[(PopupType["POPUP_TYPE_NONE"] = 0)] = "POPUP_TYPE_NONE";
+  PopupType[(PopupType["POPUP_TYPE_GENERAL"] = 1)] = "POPUP_TYPE_GENERAL";
+  PopupType[(PopupType["POPUP_TYPE_MIGRATION"] = 2)] = "POPUP_TYPE_MIGRATION";
+  PopupType[(PopupType["POPUP_TYPE_FEATURE"] = 3)] = "POPUP_TYPE_FEATURE";
+  PopupType[(PopupType["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
+  return PopupType;
 })(PopupType || {});
-export var MemberRole = ((MemberRole2) => {
-  MemberRole2[(MemberRole2["MEMBER_ROLE_UNSPECIFIED"] = 0)] =
+export var MemberRole = ((MemberRole) => {
+  MemberRole[(MemberRole["MEMBER_ROLE_UNSPECIFIED"] = 0)] =
     "MEMBER_ROLE_UNSPECIFIED";
-  MemberRole2[(MemberRole2["MEMBER_ROLE_CREATOR"] = 1)] = "MEMBER_ROLE_CREATOR";
-  MemberRole2[(MemberRole2["MEMBER_ROLE_MEMBER"] = 2)] = "MEMBER_ROLE_MEMBER";
-  MemberRole2[(MemberRole2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
-  return MemberRole2;
+  MemberRole[(MemberRole["MEMBER_ROLE_CREATOR"] = 1)] = "MEMBER_ROLE_CREATOR";
+  MemberRole[(MemberRole["MEMBER_ROLE_MEMBER"] = 2)] = "MEMBER_ROLE_MEMBER";
+  MemberRole[(MemberRole["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
+  return MemberRole;
 })(MemberRole || {});
-export var CloudNodeType = ((CloudNodeType2) => {
-  CloudNodeType2[(CloudNodeType2["CLOUD_NODE_TYPE_UNSPECIFIED"] = 0)] =
+export var CloudNodeType = ((CloudNodeType) => {
+  CloudNodeType[(CloudNodeType["CLOUD_NODE_TYPE_UNSPECIFIED"] = 0)] =
     "CLOUD_NODE_TYPE_UNSPECIFIED";
-  CloudNodeType2[(CloudNodeType2["CLOUD_NODE_TYPE_FOLDER"] = 1)] =
+  CloudNodeType[(CloudNodeType["CLOUD_NODE_TYPE_FOLDER"] = 1)] =
     "CLOUD_NODE_TYPE_FOLDER";
-  CloudNodeType2[(CloudNodeType2["CLOUD_NODE_TYPE_FILE"] = 2)] =
+  CloudNodeType[(CloudNodeType["CLOUD_NODE_TYPE_FILE"] = 2)] =
     "CLOUD_NODE_TYPE_FILE";
-  CloudNodeType2[(CloudNodeType2["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
-  return CloudNodeType2;
+  CloudNodeType[(CloudNodeType["UNRECOGNIZED"] = -1)] = "UNRECOGNIZED";
+  return CloudNodeType;
 })(CloudNodeType || {});
-export function pickLocalized(field, lang, empty2 = "") {
-  if (!field) return empty2;
+export function pickLocalized(field, lang, empty = "") {
+  if (!field) return empty;
   if (Object.hasOwn(field, lang)) return field[lang];
   if (Object.hasOwn(field, "en-US")) return field["en-US"];
   if (Object.hasOwn(field, "zh-CN")) return field["zh-CN"];
-  for (const k2 of Object.keys(field)) {
-    return field[k2];
+  for (const fieldKey of Object.keys(field)) {
+    return field[fieldKey];
   }
-  return empty2;
+  return empty;
 }
 export const ErrorCodes = {
   // Network
@@ -144,8 +144,8 @@ const NON_FAILURE_ERROR_TOKENS = new Set([
   "null",
   "0",
 ]);
-function isInformativeFailureMessage(message2) {
-  return !NON_FAILURE_ERROR_TOKENS.has(message2.trim().toLowerCase());
+function isInformativeFailureMessage(message) {
+  return !NON_FAILURE_ERROR_TOKENS.has(message.trim().toLowerCase());
 }
 export function pickUserMessage(resp, fallback) {
   if (resp.user_message) return resp.user_message;
@@ -168,9 +168,9 @@ export function registrySelectionRowIds(entry) {
 const LEGACY_MODEL_ID_MAP = {
   midjourney: "midjourney-8.2",
 };
-export function normalizeLegacyModelId(id2) {
-  if (!id2) return id2;
-  return LEGACY_MODEL_ID_MAP[id2] ?? id2;
+export function normalizeLegacyModelId(id) {
+  if (!id) return id;
+  return LEGACY_MODEL_ID_MAP[id] ?? id;
 }
 export const LEGACY_HAILUO_MODEL_ALIASES = [
   {
@@ -195,12 +195,12 @@ export const LEGACY_HAILUO_MODEL_ALIASES = [
 export const MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO = "16:9";
 export const HILO_SOURCE_HEADER = "x-hilo-source";
 export const PROJECT_NAME_MAX_CHARS = 50;
-export function truncateProjectName(name2, maxChars = PROJECT_NAME_MAX_CHARS) {
-  const trimmed = name2?.trim() ?? "";
+export function truncateProjectName(projectName, maxChars = PROJECT_NAME_MAX_CHARS) {
+  const trimmed = projectName?.trim() ?? "";
   if (!trimmed) return "";
-  const chars2 = [...trimmed];
-  return chars2.length > maxChars
-    ? chars2.slice(0, maxChars).join("").trim()
+  const chars = [...trimmed];
+  return chars.length > maxChars
+    ? chars.slice(0, maxChars).join("").trim()
     : trimmed;
 }
 export function normalizeSkillContentLocale(value) {
@@ -208,18 +208,18 @@ export function normalizeSkillContentLocale(value) {
     ? "en-US"
     : "zh-CN";
 }
-export function selectSkillStructuredInfo(info2, preferredLocale) {
+export function selectSkillStructuredInfo(info, preferredLocale) {
   const preferred = normalizeSkillContentLocale(preferredLocale);
-  const locale = info2?.[preferred]
+  const locale = info?.[preferred]
     ? preferred
-    : info2?.["zh-CN"]
+    : info?.["zh-CN"]
       ? "zh-CN"
-      : info2?.["en-US"]
+      : info?.["en-US"]
         ? "en-US"
         : preferred;
   return {
     locale,
-    info: info2?.[locale] ?? {
+    info: info?.[locale] ?? {
       summary: "",
       best_for: [],
       how_to_use: "",
@@ -228,8 +228,8 @@ export function selectSkillStructuredInfo(info2, preferredLocale) {
   };
 }
 const SKILL_NAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/;
-export function isValidSkillName(name2) {
-  return SKILL_NAME_RE.test(name2);
+export function isValidSkillName(skillName) {
+  return SKILL_NAME_RE.test(skillName);
 }
 export function skillVerticals(skill) {
   if (skill.completeTagsEn?.length)
@@ -249,20 +249,20 @@ const SKILL_SUBMISSION_SHOWCASE_PATH =
 export function isSkillShowcaseUrl(value) {
   if (typeof value !== "string") return false;
   try {
-    const url2 = new URL(value);
+    const url = new URL(value);
     if (
-      url2.protocol !== "https:" ||
-      url2.username ||
-      url2.password ||
-      url2.port
+      url.protocol !== "https:" ||
+      url.username ||
+      url.password ||
+      url.port
     )
       return false;
     return (
-      (SKILL_MEDIA_HOSTS.has(url2.hostname) &&
-        /\.(mp4|webm|mov|gif|png|jpe?g|webp|jfif)$/i.test(url2.pathname)) ||
-      (SKILL_SUBMISSION_MEDIA_HOST.test(url2.hostname) &&
-        !url2.hostname.includes("-internal.") &&
-        SKILL_SUBMISSION_SHOWCASE_PATH.test(decodeURIComponent(url2.pathname)))
+      (SKILL_MEDIA_HOSTS.has(url.hostname) &&
+        /\.(mp4|webm|mov|gif|png|jpe?g|webp|jfif)$/i.test(url.pathname)) ||
+      (SKILL_SUBMISSION_MEDIA_HOST.test(url.hostname) &&
+        !url.hostname.includes("-internal.") &&
+        SKILL_SUBMISSION_SHOWCASE_PATH.test(decodeURIComponent(url.pathname)))
     );
   } catch {
     return false;
@@ -270,36 +270,36 @@ export function isSkillShowcaseUrl(value) {
 }
 export function normalizePublicSkillShowcaseUrl(value) {
   if (!isSkillShowcaseUrl(value)) return void 0;
-  const url2 = new URL(value);
-  if (!/\.(mp4|webm|mov)$/i.test(url2.pathname)) return void 0;
-  if (SKILL_SUBMISSION_MEDIA_HOST.test(url2.hostname)) {
-    url2.pathname = decodeURIComponent(url2.pathname);
+  const url = new URL(value);
+  if (!/\.(mp4|webm|mov)$/i.test(url.pathname)) return void 0;
+  if (SKILL_SUBMISSION_MEDIA_HOST.test(url.hostname)) {
+    url.pathname = decodeURIComponent(url.pathname);
   }
-  url2.search = "";
-  url2.hash = "";
-  return url2.href;
+  url.search = "";
+  url.hash = "";
+  return url.href;
 }
 export function skillMetadataRecord(value) {
   return value && typeof value === "object" && !Array.isArray(value)
     ? value
     : void 0;
 }
-export function normalizeSkillDetailMetadata(raw2) {
+export function normalizeSkillDetailMetadata(raw) {
   const result = {};
-  if (Array.isArray(raw2.showcase)) {
-    const media = [...new Set(raw2.showcase.filter(isSkillShowcaseUrl))];
+  if (Array.isArray(raw.showcase)) {
+    const media = [...new Set(raw.showcase.filter(isSkillShowcaseUrl))];
     result.showcase = media;
   } else {
-    const media = [raw2.showcase, raw2.showcaseUrl, raw2.showcase_url].find(
+    const media = [raw.showcase, raw.showcaseUrl, raw.showcase_url].find(
       isSkillShowcaseUrl,
     );
     if (media) result.showcase = [media];
   }
   const localized = skillMetadataRecord(
-    raw2.structuredInfo ?? raw2.structured_info ?? raw2["structured-info"],
+    raw.structuredInfo ?? raw.structured_info ?? raw["structured-info"],
   );
-  const legacyBest = raw2.bestFor ?? raw2.best_for ?? raw2["best-for"];
-  const legacyHow = raw2.howToUse ?? raw2.how_to_use ?? raw2["how-to-use"];
+  const legacyBest = raw.bestFor ?? raw.best_for ?? raw["best-for"];
+  const legacyHow = raw.howToUse ?? raw.how_to_use ?? raw["how-to-use"];
   const hasLegacyDetails = [
     "bestFor",
     "best_for",
@@ -308,22 +308,22 @@ export function normalizeSkillDetailMetadata(raw2) {
     "how_to_use",
     "how-to-use",
     "outputs",
-  ].some((key2) => Object.hasOwn(raw2, key2));
+  ].some((key) => Object.hasOwn(raw, key));
   const legacyLocale = normalizeSkillContentLocale(
-    raw2.contentLocale ?? raw2.content_locale ?? raw2["content-locale"],
+    raw.contentLocale ?? raw.content_locale ?? raw["content-locale"],
   );
-  const info2 = {};
+  const info = {};
   for (const locale of ["zh-CN", "en-US"]) {
     const legacySummary = (
       locale === "zh-CN"
         ? [
-            raw2.summaryZh,
-            raw2.summary_zh,
-            raw2.summary_cn,
-            raw2["summary-cn"],
-            raw2.summary,
+            raw.summaryZh,
+            raw.summary_zh,
+            raw.summary_cn,
+            raw["summary-cn"],
+            raw.summary,
           ]
-        : [raw2.summary, raw2.summary_en, raw2["summary-en"]]
+        : [raw.summary, raw.summary_en, raw["summary-en"]]
     ).find((value) => typeof value === "string" && value.trim());
     const entry =
       skillMetadataRecord(localized?.[locale]) ??
@@ -332,7 +332,7 @@ export function normalizeSkillDetailMetadata(raw2) {
             summary: legacySummary,
             best_for: legacyBest,
             how_to_use: legacyHow,
-            outputs: raw2.outputs,
+            outputs: raw.outputs,
           }
         : void 0);
     if (!entry) continue;
@@ -340,17 +340,17 @@ export function normalizeSkillDetailMetadata(raw2) {
       typeof entry.summary === "string" ? entry.summary.trim() : "";
     const how = entry.how_to_use ?? entry["how-to-use"];
     const best = entry.best_for ?? entry["best-for"];
-    info2[locale] = {
+    info[locale] = {
       summary,
       best_for: Array.isArray(best)
         ? best
-            .filter((v2) => typeof v2 === "string" && !!v2.trim())
-            .map((v2) => v2.trim())
+            .filter((value) => typeof value === "string" && !!value.trim())
+            .map((value) => value.trim())
         : [],
       how_to_use: typeof how === "string" ? how.trim() : "",
       outputs: typeof entry.outputs === "string" ? entry.outputs.trim() : "",
     };
   }
-  if (localized || Object.keys(info2).length) result.structuredInfo = info2;
+  if (localized || Object.keys(info).length) result.structuredInfo = info;
   return result;
 }

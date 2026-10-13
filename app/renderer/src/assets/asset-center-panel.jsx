@@ -1,5 +1,5 @@
 // asset-center-panel.jsx
-import { API_PATHS, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Loader2, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, reactDomExports, reactExports, Search, useCurrentWorkspace, useTranslation, X$7 as X } from "../vendor.js";
+import { API_PATHS, ChevronRight$1 as ChevronRight, jsxRuntimeExports, Loader2, PreviewCardPopup, PreviewCardPortal, PreviewCardPositioner, PreviewCardRoot, reactDomExports, reactExports, Search, useCurrentWorkspace, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
@@ -25,17 +25,17 @@ import { EntityDeleteConfirm } from "./entity-delete-confirm.jsx";
 const HOVER_OPEN_DELAY_MS = 300;
 const HOVER_CLOSE_DELAY_MS = 150;
 function useEntityHoverPreview() {
-  const [state2, setState] = reactExports.useState({
+  const [state, setState] = reactExports.useState({
     kind: "idle",
   });
-  const stateRef = reactExports.useRef(state2);
+  const stateRef = reactExports.useRef(state);
   const openTimerRef = reactExports.useRef(null);
   const closeTimerRef = reactExports.useRef(null);
-  const setBoth = reactExports.useCallback((next2) => {
-    stateRef.current = next2;
-    setState(next2);
+  const setBoth = reactExports.useCallback((next) => {
+    stateRef.current = next;
+    setState(next);
   }, []);
-  const cancelOpen2 = reactExports.useCallback(() => {
+  const cancelOpen = reactExports.useCallback(() => {
     if (openTimerRef.current) {
       clearTimeout(openTimerRef.current);
       openTimerRef.current = null;
@@ -51,14 +51,14 @@ function useEntityHoverPreview() {
     (target) => {
       cancelClose();
       if (stateRef.current.kind === "hover") {
-        cancelOpen2();
+        cancelOpen();
         setBoth({
           kind: "hover",
           target,
         });
         return;
       }
-      cancelOpen2();
+      cancelOpen();
       openTimerRef.current = setTimeout(() => {
         openTimerRef.current = null;
         setBoth({
@@ -67,10 +67,10 @@ function useEntityHoverPreview() {
         });
       }, HOVER_OPEN_DELAY_MS);
     },
-    [cancelClose, cancelOpen2, setBoth],
+    [cancelClose, cancelOpen, setBoth],
   );
   const notifyHoverEnd = reactExports.useCallback(() => {
-    cancelOpen2();
+    cancelOpen();
     if (stateRef.current.kind !== "hover") return;
     cancelClose();
     closeTimerRef.current = setTimeout(() => {
@@ -80,13 +80,13 @@ function useEntityHoverPreview() {
           kind: "idle",
         });
     }, HOVER_CLOSE_DELAY_MS);
-  }, [cancelOpen2, cancelClose, setBoth]);
+  }, [cancelOpen, cancelClose, setBoth]);
   const onPopupPointerEnter = reactExports.useCallback(() => {
-    cancelOpen2();
+    cancelOpen();
     cancelClose();
-  }, [cancelOpen2, cancelClose]);
+  }, [cancelOpen, cancelClose]);
   const onPopupPointerLeave = reactExports.useCallback(() => {
-    cancelOpen2();
+    cancelOpen();
     cancelClose();
     closeTimerRef.current = setTimeout(() => {
       closeTimerRef.current = null;
@@ -95,16 +95,16 @@ function useEntityHoverPreview() {
           kind: "idle",
         });
     }, HOVER_CLOSE_DELAY_MS);
-  }, [cancelOpen2, cancelClose, setBoth]);
+  }, [cancelOpen, cancelClose, setBoth]);
   const dismiss = reactExports.useCallback(() => {
-    cancelOpen2();
+    cancelOpen();
     cancelClose();
     if (stateRef.current.kind !== "idle")
       setBoth({
         kind: "idle",
       });
-  }, [cancelOpen2, cancelClose, setBoth]);
-  const activeAnchor = state2.kind === "hover" ? state2.target.anchor : null;
+  }, [cancelOpen, cancelClose, setBoth]);
+  const activeAnchor = state.kind === "hover" ? state.target.anchor : null;
   reactExports.useEffect(() => {
     if (!activeAnchor) return;
     if (!activeAnchor.isConnected) {
@@ -113,9 +113,9 @@ function useEntityHoverPreview() {
       });
       return;
     }
-    const io2 = new IntersectionObserver(
-      (entries2) => {
-        for (const entry of entries2) {
+    const intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
           if (!entry.isIntersecting)
             setBoth({
               kind: "idle",
@@ -126,17 +126,17 @@ function useEntityHoverPreview() {
         threshold: 0,
       },
     );
-    io2.observe(activeAnchor);
-    return () => io2.disconnect();
+    intersectionObserver.observe(activeAnchor);
+    return () => intersectionObserver.disconnect();
   }, [activeAnchor, setBoth]);
   reactExports.useEffect(() => {
     return () => {
-      cancelOpen2();
+      cancelOpen();
       cancelClose();
     };
-  }, [cancelOpen2, cancelClose]);
+  }, [cancelOpen, cancelClose]);
   return {
-    state: state2,
+    state,
     stateRef,
     notifyHoverIntent,
     notifyHoverEnd,
@@ -156,8 +156,8 @@ function EntityHoverPreviewPopup({
 }) {
   const [positioned, setPositioned] = reactExports.useState(false);
   reactExports.useLayoutEffect(() => {
-    const id2 = requestAnimationFrame(() => setPositioned(true));
-    return () => cancelAnimationFrame(id2);
+    const animationFrameId = requestAnimationFrame(() => setPositioned(true));
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
   return (
     <PreviewCardRoot open={true}>
@@ -196,7 +196,7 @@ function EntityHoverPreviewPopup({
   );
 }
 const EntityHoverPreviewHost = reactExports.memo(
-  reactExports.forwardRef(function EntityHoverPreviewHost2(
+  reactExports.forwardRef(function EntityHoverPreviewHost(
     { onPreviewAttachment, onAddToCanvas, onAddToChat },
     ref,
   ) {
@@ -216,20 +216,20 @@ const EntityHoverPreviewHost = reactExports.memo(
       [host],
     );
     const handleBodyPreview = useStableCallback((att) => {
-      const s2 = host.stateRef.current;
-      if (s2.kind !== "hover") return;
-      const { entityId } = s2.target;
+      const hoverState = host.stateRef.current;
+      if (hoverState.kind !== "hover") return;
+      const { entityId } = hoverState.target;
       host.dismiss();
       onPreviewAttachment(entityId, att);
     });
     const handleAddToCanvas = useStableCallback((att) => {
-      const s2 = host.stateRef.current;
-      if (s2.kind !== "hover") return;
+      const hoverState = host.stateRef.current;
+      if (hoverState.kind !== "hover") return;
       onAddToCanvas(att);
     });
     const handleAddToChat = useStableCallback((att) => {
-      const s2 = host.stateRef.current;
-      if (s2.kind !== "hover") return;
+      const hoverState = host.stateRef.current;
+      if (hoverState.kind !== "hover") return;
       onAddToChat(att);
     });
     if (host.state.kind !== "hover") return null;
@@ -259,23 +259,23 @@ function ProjectSidebarCategoryChips({
         className="scrollbar-none flex h-8 flex-nowrap items-center gap-1 overflow-x-auto"
         data-action-ui-id={rowActionId}
       >
-        {options.map((option2) => {
-          const active2 = option2.value === value;
+        {options.map((option) => {
+          const active = option.value === value;
           return (
             <button
-              key={option2.value}
+              key={option.value}
               type="button"
-              onClick={() => onChange(option2.value)}
-              data-action-ui-id={option2.actionId}
-              aria-pressed={active2}
+              onClick={() => onChange(option.value)}
+              data-action-ui-id={option.actionId}
+              aria-pressed={active}
               className={cn(
                 "group inline-flex h-[26px] max-w-[112px] shrink-0 items-center justify-center rounded-full border px-[9px] text-xs font-normal shadow-none transition-colors duration-150 select-none focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:outline-none",
-                active2
+                active
                   ? "border-foreground bg-transparent text-foreground"
                   : "border-border bg-transparent text-foreground/70 hover:border-foreground hover:bg-transparent",
               )}
             >
-              <span className="truncate">{option2.label}</span>
+              <span className="truncate">{option.label}</span>
             </button>
           );
         })}
@@ -286,26 +286,26 @@ function ProjectSidebarCategoryChips({
 const TYPE_CHIPS = ["all", "character", "scene", "style_pack", "custom"];
 function useLightboxEscape(onClose) {
   reactExports.useEffect(() => {
-    const handler = (e2) => {
-      if (e2.key === "Escape") onClose();
+    const handler = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") onClose();
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [onClose]);
 }
 function LightboxCloseButton({ onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <button
       type="button"
-      aria-label={t2("common.close")}
+      aria-label={translate("common.close")}
       className="absolute right-8 top-8 flex size-9 cursor-pointer items-center justify-center bg-white/10 text-white/80 transition-colors hover:text-white"
-      onClick={(e2) => {
-        e2.stopPropagation();
+      onClick={(clickEvent) => {
+        clickEvent.stopPropagation();
         onClose();
       }}
     >
-      <StrokeIcon icon={X} size={16} />
+      <StrokeIcon icon={CloseIcon} size={16} />
     </button>
   );
 }
@@ -317,8 +317,8 @@ function AudioLightbox({ src, alt, onClose }) {
       role="dialog"
       aria-label={alt}
       className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 bg-black/85 p-10 backdrop-blur-sm"
-      onClick={(e2) => {
-        if (e2.target === e2.currentTarget) onClose();
+      onClick={(clickEvent) => {
+        if (clickEvent.target === clickEvent.currentTarget) onClose();
       }}
     >
       <LightboxCloseButton onClose={onClose} />
@@ -336,7 +336,7 @@ function AudioLightbox({ src, alt, onClose }) {
   );
 }
 function TextLightbox({ src, alt, onClose }) {
-  const [content2, setContent2] = reactExports.useState(null);
+  const [content, setContent] = reactExports.useState(null);
   const [error, setError] = reactExports.useState(null);
   reactExports.useEffect(() => {
     const controller = new AbortController();
@@ -347,7 +347,7 @@ function TextLightbox({ src, alt, onClose }) {
         if (!res.ok) throw new Error(`${res.status}`);
         return res.text();
       })
-      .then((text2) => setContent2(text2))
+      .then((text) => setContent(text))
       .catch((err) => {
         if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : String(err));
@@ -361,22 +361,22 @@ function TextLightbox({ src, alt, onClose }) {
       role="dialog"
       aria-label={alt}
       className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 bg-black/85 p-10 backdrop-blur-sm"
-      onClick={(e2) => {
-        if (e2.target === e2.currentTarget) onClose();
+      onClick={(clickEvent) => {
+        if (clickEvent.target === clickEvent.currentTarget) onClose();
       }}
     >
       <LightboxCloseButton onClose={onClose} />
       <span className="text-sm text-white/80 truncate max-w-[60vw]">{alt}</span>
       <div className="max-h-[70vh] w-full max-w-2xl overflow-auto rounded-lg border border-white/10 bg-white/5 p-4">
-        {content2 === null && !error && (
+        {content === null && !error && (
           <div className="flex items-center justify-center py-6">
             <Loader2 size={16} className="animate-spin text-white opacity-50" />
           </div>
         )}
         {error && <p className="text-xs text-destructive">{error}</p>}
-        {content2 !== null && (
+        {content !== null && (
           <pre className="text-xs text-white/80 whitespace-pre-wrap break-words font-mono leading-relaxed">
-            {content2}
+            {content}
           </pre>
         )}
       </div>
@@ -384,21 +384,21 @@ function TextLightbox({ src, alt, onClose }) {
     document.body,
   );
 }
-const SearchInput = reactExports.memo(function SearchInput2({
+const SearchInput = reactExports.memo(function SearchInput({
   onDebouncedChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const inputRef = reactExports.useRef(null);
   const debounceRef = reactExports.useRef(null);
   const [hasValue, setHasValue] = reactExports.useState(false);
-  const scheduleDebounce = useStableCallback((raw2) => {
+  const scheduleDebounce = useStableCallback((raw) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => onDebouncedChange(raw2.trim()), 200);
+    debounceRef.current = setTimeout(() => onDebouncedChange(raw.trim()), 200);
   });
-  const handleInput = (e2) => {
-    const next2 = e2.currentTarget.value;
-    scheduleDebounce(next2);
-    const nextHas = next2.trim().length > 0;
+  const handleInput = (inputEvent) => {
+    const next = inputEvent.currentTarget.value;
+    scheduleDebounce(next);
+    const nextHas = next.trim().length > 0;
     setHasValue((prev) => (prev === nextHas ? prev : nextHas));
   };
   const handleClear = () => {
@@ -424,13 +424,13 @@ const SearchInput = reactExports.memo(function SearchInput2({
           type="text"
           data-action-ui-id="canvas-sidebar-asset-center.search"
           className="min-w-0 flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground"
-          placeholder={t2("assetSidebarPanel.searchPlaceholder")}
+          placeholder={translate("assetSidebarPanel.searchPlaceholder")}
           defaultValue=""
           onInput={handleInput}
         />
         <button
           type="button"
-          aria-label={t2("assetSidebarPanel.clearSearch", {
+          aria-label={translate("assetSidebarPanel.clearSearch", {
             defaultValue: "Clear search",
           })}
           onClick={handleClear}
@@ -441,7 +441,7 @@ const SearchInput = reactExports.memo(function SearchInput2({
           )}
           data-action-ui-id="canvas-sidebar-asset-center.search-clear"
         >
-          <StrokeIcon icon={X} size={12} />
+          <StrokeIcon icon={CloseIcon} size={12} />
         </button>
       </div>
     </div>
@@ -453,9 +453,9 @@ export function AssetCenterPanel({
   externalSearchQuery,
   sortKey = "updated_at",
 } = {}) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const workspacePath = useCurrentWorkspace();
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const [editingEntityId, setEditingEntityId] = reactExports.useState(null);
   const [deleteTarget, setDeleteTarget] = reactExports.useState(null);
   const buildExportUrl = useExportEntityUrl();
@@ -466,27 +466,27 @@ export function AssetCenterPanel({
     () => setEditingEntityId(null),
     [],
   );
-  const handleDelete2 = useStableCallback((entity) => setDeleteTarget(entity));
+  const handleDelete = useStableCallback((entity) => setDeleteTarget(entity));
   const closeDelete = reactExports.useCallback(() => setDeleteTarget(null), []);
   const handleExport = useStableCallback((entity) => {
-    const url2 = buildExportUrl(entity.id);
-    if (!url2) return;
-    const a2 = document.createElement("a");
-    a2.href = url2;
-    a2.rel = "noopener";
-    document.body.appendChild(a2);
-    a2.click();
-    a2.remove();
+    const url = buildExportUrl(entity.id);
+    if (!url) return;
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.rel = "noopener";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
   });
   const [internalDebouncedSearch, setInternalDebouncedSearch] =
     reactExports.useState("");
   const externalControlled = externalSearchQuery !== void 0;
   reactExports.useEffect(() => {
     if (!externalControlled) return;
-    const id2 = setTimeout(() => {
+    const debounceTimerId = setTimeout(() => {
       setInternalDebouncedSearch(externalSearchQuery.trim());
     }, 200);
-    return () => clearTimeout(id2);
+    return () => clearTimeout(debounceTimerId);
   }, [externalControlled, externalSearchQuery]);
   const debouncedSearch = internalDebouncedSearch;
   const setDebouncedSearch = setInternalDebouncedSearch;
@@ -521,11 +521,11 @@ export function AssetCenterPanel({
     hostRef.current?.notifyHoverEnd();
   });
   const handlePreviewAttachment = useStableCallback((entityId, att) => {
-    const path2 =
+    const path =
       att.kind === "video"
         ? API_PATHS.assetCenterAttachmentPlayback(att.id)
         : API_PATHS.assetCenterAttachmentBlob(att.id);
-    const src = gatewayUrl2(path2);
+    const src = gatewayUrl(path);
     if (!src) return;
     if (att.kind === "document") return;
     setLightbox({
@@ -574,8 +574,8 @@ export function AssetCenterPanel({
       const anchored = await ensureEntityAnchored(att.entityId);
       if (!anchored) {
         dedupedToast.error(
-          t2("assetSidebarPanel.addToChatError", {
-            message: t2(
+          translate("assetSidebarPanel.addToChatError", {
+            message: translate(
               "assetSidebarPanel.addToChatErrorNoWorkspace",
               "当前没有可用的工作区",
             ),
@@ -583,13 +583,13 @@ export function AssetCenterPanel({
         );
         return;
       }
-      const match2 = anchored.agentPayload.attachments.find(
-        (a2) => a2.id === att.id,
+      const match = anchored.agentPayload.attachments.find(
+        (candidateAttachment) => candidateAttachment.id === att.id,
       );
-      if (!match2) {
+      if (!match) {
         dedupedToast.error(
-          t2("assetSidebarPanel.addToChatError", {
-            message: t2(
+          translate("assetSidebarPanel.addToChatError", {
+            message: translate(
               "assetSidebarPanel.addToChatErrorAttachmentNotFound",
               "未找到该附件",
             ),
@@ -597,7 +597,7 @@ export function AssetCenterPanel({
         );
         return;
       }
-      workspaceEvents.fireAddToChat(match2.path, match2.filename);
+      workspaceEvents.fireAddToChat(match.path, match.filename);
       trackAssetUse({
         entity_id: att.entityId,
         entity_type: "custom",
@@ -607,10 +607,10 @@ export function AssetCenterPanel({
         was_materialized: false,
       });
     } catch (err) {
-      const message2 = err instanceof Error ? err.message : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       dedupedToast.error(
-        t2("assetSidebarPanel.addToChatError", {
-          message: message2,
+        translate("assetSidebarPanel.addToChatError", {
+          message,
         }),
       );
     }
@@ -639,19 +639,19 @@ export function AssetCenterPanel({
     onRegisterRefresh?.(refresh);
   }, [onRegisterRefresh, refresh]);
   const materializedIds = reactExports.useMemo(() => {
-    const list2 = materializedQuery.data ?? [];
-    return new Set(list2.map((e2) => e2.entityId));
+    const list = materializedQuery.data ?? [];
+    return new Set(list.map((materializedEntry) => materializedEntry.entityId));
   }, [materializedQuery.data]);
   const materializedOrder = reactExports.useMemo(() => {
-    return (materializedQuery.data ?? []).map((e2) => e2.entityId);
+    return (materializedQuery.data ?? []).map((materializedEntry) => materializedEntry.entityId);
   }, [materializedQuery.data]);
   const sortedEntities = reactExports.useMemo(() => {
     if (materializedIds.size === 0) return entities;
     const pinned = [];
     const rest = [];
-    for (const e2 of entities) {
-      if (materializedIds.has(e2.id)) pinned.push(e2);
-      else rest.push(e2);
+    for (const entity of entities) {
+      if (materializedIds.has(entity.id)) pinned.push(entity);
+      else rest.push(entity);
     }
     return [...pinned, ...rest];
   }, [entities, materializedIds]);
@@ -659,15 +659,15 @@ export function AssetCenterPanel({
     () =>
       TYPE_CHIPS.map((chip) => ({
         value: chip,
-        label: t2(`assetCenter.types.${chip}`),
+        label: translate(`assetCenter.types.${chip}`),
         actionId: `canvas-sidebar-asset-center.chip-${chip}`,
       })),
-    [t2],
+    [translate],
   );
   const entityById = reactExports.useMemo(() => {
-    const map3 = new Map();
-    for (const e2 of entities) map3.set(e2.id, e2);
-    return map3;
+    const map = new Map();
+    for (const entity of entities) map.set(entity.id, entity);
+    return map;
   }, [entities]);
   const loadError = entitiesQuery.error ?? null;
   const isLoading = entitiesQuery.isPending;
@@ -699,7 +699,7 @@ export function AssetCenterPanel({
               density="panel"
               className="h-full"
               errorOptions={{
-                description: formatAssetCenterError(loadError, t2),
+                description: formatAssetCenterError(loadError, translate),
                 retry: {
                   icon: <RetryIcon size={14} />,
                   onClick: refresh,
@@ -708,7 +708,7 @@ export function AssetCenterPanel({
             />
           ) : isLoading ? (
             <div className="px-3 py-4 text-xs text-muted-foreground text-center select-none">
-              {t2("common.loading")}
+              {translate("common.loading")}
             </div>
           ) : entities.length === 0 ? (
             <PageStateBoundary
@@ -718,11 +718,11 @@ export function AssetCenterPanel({
               emptyOptions={{
                 title:
                   typeFilter === "all" && debouncedSearch === ""
-                    ? t2("assetCenter.entityEmpty.title")
-                    : t2(`assetSidebarPanel.emptyByType.${typeFilter}`),
+                    ? translate("assetCenter.entityEmpty.title")
+                    : translate(`assetSidebarPanel.emptyByType.${typeFilter}`),
                 description:
                   typeFilter === "all" && debouncedSearch === ""
-                    ? t2("assetSidebarPanel.emptyBody")
+                    ? translate("assetSidebarPanel.emptyBody")
                     : void 0,
               }}
             />
@@ -733,8 +733,8 @@ export function AssetCenterPanel({
                   <li
                     className="px-3 pt-1 pb-1 text-[11px] font-medium text-muted-foreground select-none flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"
                     onClick={() => setPinnedOpen(!pinnedOpen)}
-                    onKeyDown={(e2) => {
-                      if (e2.key === "Enter" || e2.key === " ")
+                    onKeyDown={(keyboardEvent) => {
+                      if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ")
                         setPinnedOpen(!pinnedOpen);
                     }}
                   >
@@ -743,7 +743,7 @@ export function AssetCenterPanel({
                       size={12}
                       className={`transition-transform ${pinnedOpen ? "rotate-90" : ""}`}
                     />
-                    {t2(
+                    {translate(
                       "assetSidebarPanel.materializedSection",
                       "已添加至此项目的资产",
                     )}
@@ -773,7 +773,7 @@ export function AssetCenterPanel({
                                 onHoverIntent={handleRowHoverIntent}
                                 onHoverEnd={handleRowHoverEnd}
                                 onEdit={openEdit}
-                                onDelete={handleDelete2}
+                                onDelete={handleDelete}
                                 onExport={handleExport}
                                 layout={viewMode === "grid" ? "grid" : "row"}
                               />
@@ -784,13 +784,13 @@ export function AssetCenterPanel({
                   )}
                 </>
               )}
-              {sortedEntities.some((e2) => !materializedIds.has(e2.id)) && (
+              {sortedEntities.some((entity) => !materializedIds.has(entity.id)) && (
                 <>
                   <li
                     className="px-3 pt-1 pb-1 text-[11px] font-medium text-muted-foreground select-none flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"
                     onClick={() => setAllOpen(!allOpen)}
-                    onKeyDown={(e2) => {
-                      if (e2.key === "Enter" || e2.key === " ")
+                    onKeyDown={(keyboardEvent) => {
+                      if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ")
                         setAllOpen(!allOpen);
                     }}
                   >
@@ -799,7 +799,7 @@ export function AssetCenterPanel({
                       size={12}
                       className={`transition-transform ${allOpen ? "rotate-90" : ""}`}
                     />
-                    {t2("assetSidebarPanel.allSection", "全部资产")}
+                    {translate("assetSidebarPanel.allSection", "全部资产")}
                   </li>
                   {allOpen && (
                     <li
@@ -811,7 +811,7 @@ export function AssetCenterPanel({
                     >
                       <ul className="contents">
                         {sortedEntities
-                          .filter((e2) => !materializedIds.has(e2.id))
+                          .filter((entity) => !materializedIds.has(entity.id))
                           .map((entity) => (
                             <EntityRow
                               key={entity.id}
@@ -822,7 +822,7 @@ export function AssetCenterPanel({
                               onHoverIntent={handleRowHoverIntent}
                               onHoverEnd={handleRowHoverEnd}
                               onEdit={openEdit}
-                              onDelete={handleDelete2}
+                              onDelete={handleDelete}
                               onExport={handleExport}
                               layout={viewMode === "grid" ? "grid" : "row"}
                             />

@@ -48,12 +48,12 @@ export function AssetContextMenuContent(props) {
     openWithSubOpen,
     onOpenWithSubOpenChange,
   } = props;
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isFile = !target.isDirectory && !target.isMissing;
   const oppositeViewLabel =
     viewMode === "tree"
-      ? t2("fileExplorer.gridView")
-      : t2("fileExplorer.treeView");
+      ? translate("fileExplorer.gridView")
+      : translate("fileExplorer.treeView");
   return (
     <ActionContextMenuContent>
       {!target.isDirectory && (
@@ -63,7 +63,7 @@ export function AssetContextMenuContent(props) {
             data-action-ui-id="asset-panel.menu-add-to-canvas"
           >
             <StrokeIcon icon={Plus} size={14} />
-            {t2("fileExplorer.addToCanvas")}
+            {translate("fileExplorer.addToCanvas")}
             <ContextMenuShortcut>
               <ShortcutHint
                 accelerator="CommandOrControl+Shift+A"
@@ -76,7 +76,7 @@ export function AssetContextMenuContent(props) {
             data-action-ui-id="asset-panel.menu-add-to-chat"
           >
             <StrokeIcon icon={AddToChatIcon} size={14} viewBoxSize={20} />
-            {t2("fileExplorer.addToChat")}
+            {translate("fileExplorer.addToChat")}
           </ActionContextMenuItem>
           {onAddToLibrary && (
             <ActionContextMenuItem
@@ -84,7 +84,7 @@ export function AssetContextMenuContent(props) {
               data-action-ui-id="asset-panel.menu-add-to-library"
             >
               <StrokeIcon icon={Sparkles} size={14} />
-              {t2("fileExplorer.addToLibrary")}
+              {translate("fileExplorer.addToLibrary")}
             </ActionContextMenuItem>
           )}
           {onSaveToProjectAssets && (
@@ -93,7 +93,7 @@ export function AssetContextMenuContent(props) {
               data-action-ui-id="asset-panel.menu-save-to-project-assets"
             >
               <StrokeIcon icon={FolderInput} size={14} />
-              {t2("fileExplorer.saveToProjectAssets")}
+              {translate("fileExplorer.saveToProjectAssets")}
             </ActionContextMenuItem>
           )}
         </>
@@ -104,7 +104,7 @@ export function AssetContextMenuContent(props) {
           data-action-ui-id="asset-panel.menu-locate-on-canvas"
         >
           <StrokeIcon icon={Crosshair} size={14} />
-          {t2("fileExplorer.locateOnCanvas", {
+          {translate("fileExplorer.locateOnCanvas", {
             defaultValue: "在画布中定位",
           })}
         </ActionContextMenuItem>
@@ -117,7 +117,7 @@ export function AssetContextMenuContent(props) {
             data-action-ui-id="asset-panel.menu-open-default"
           >
             <StrokeIcon icon={ExternalLink} size={14} />
-            {t2("fileExplorer.open")}
+            {translate("fileExplorer.open")}
             <ContextMenuShortcut>
               <ShortcutHint accelerator="CommandOrControl+O" variant="plain" />
             </ContextMenuShortcut>
@@ -140,14 +140,14 @@ export function AssetContextMenuContent(props) {
             data-action-ui-id="asset-panel.menu-copy-path"
           >
             <StrokeIcon icon={Copy} size={14} />
-            {t2("fileExplorer.copyPath")}
+            {translate("fileExplorer.copyPath")}
           </ActionContextMenuItem>
           <ActionContextMenuItem
             onClick={onCopyFile}
             data-action-ui-id="asset-panel.menu-copy-file"
           >
             <StrokeIcon icon={Files} size={14} />
-            {t2("fileExplorer.copyFile")}
+            {translate("fileExplorer.copyFile")}
             <ContextMenuShortcut>
               <ShortcutHint accelerator="CommandOrControl+C" variant="plain" />
             </ContextMenuShortcut>
@@ -157,7 +157,7 @@ export function AssetContextMenuContent(props) {
             data-action-ui-id="asset-panel.menu-duplicate"
           >
             <StrokeIcon icon={Files} size={14} />
-            {t2("fileExplorer.duplicate")}
+            {translate("fileExplorer.duplicate")}
             <ContextMenuShortcut>
               <ShortcutHint accelerator="CommandOrControl+D" variant="plain" />
             </ContextMenuShortcut>
@@ -172,7 +172,7 @@ export function AssetContextMenuContent(props) {
               data-action-ui-id="asset-panel.menu-new-folder-inside"
             >
               <StrokeIcon icon={FolderPlus} size={14} />
-              {t2("fileExplorer.newFolder")}
+              {translate("fileExplorer.newFolder")}
             </ActionContextMenuItem>
           )}
           <ActionContextMenuItem
@@ -193,7 +193,7 @@ export function AssetContextMenuContent(props) {
             data-action-ui-id="asset-panel.menu-copy-path"
           >
             <StrokeIcon icon={Copy} size={14} />
-            {t2("fileExplorer.copyPath")}
+            {translate("fileExplorer.copyPath")}
           </ActionContextMenuItem>
         </>
       )}
@@ -207,7 +207,7 @@ export function AssetContextMenuContent(props) {
         ) : (
           <StrokeIcon icon={LayoutList} size={14} />
         )}
-        {t2("fileExplorer.switchViewTo", {
+        {translate("fileExplorer.switchViewTo", {
           view: oppositeViewLabel,
         })}
       </ActionContextMenuItem>
@@ -218,7 +218,7 @@ export function AssetContextMenuContent(props) {
           data-action-ui-id="asset-panel.menu-rename"
         >
           <StrokeIcon icon={PencilIcon} size={14} />
-          {t2("fileExplorer.rename")}
+          {translate("fileExplorer.rename")}
           <ContextMenuShortcut>
             <ShortcutHint accelerator="Enter" variant="plain" />
           </ContextMenuShortcut>
@@ -230,7 +230,7 @@ export function AssetContextMenuContent(props) {
         data-action-ui-id="asset-panel.menu-delete"
       >
         <StrokeIcon icon={Trash2} size={14} />
-        {t2("common.delete")}
+        {translate("common.delete")}
         <ContextMenuShortcut>
           <ShortcutHint accelerator="Backspace" variant="plain" />
         </ContextMenuShortcut>

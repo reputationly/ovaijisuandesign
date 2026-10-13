@@ -80,7 +80,7 @@ export function SidebarUserMenu({
   onOverlayOpenChange,
   trailingAction,
 } = {}) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { user, isLoggedIn, isLoading, login, logout } = useAuth();
   if (isLoading) {
     return (
@@ -101,7 +101,7 @@ export function SidebarUserMenu({
     return (
       <LoggedOutSidebarActionPresentation
         showUsername={showUsername}
-        label={t2("sidebar.loginOrRegister")}
+        label={translate("sidebar.loginOrRegister")}
         onLogin={login}
         companionAction={trailingAction}
       />

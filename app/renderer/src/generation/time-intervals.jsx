@@ -8,8 +8,8 @@ export function PromptTextarea({
   value,
   onChange,
   placeholder,
-  disabled: disabled2,
-  readOnly: readOnly2,
+  disabled,
+  readOnly,
   onClose,
   blockKeyHandlers,
   textareaRef,
@@ -17,10 +17,10 @@ export function PromptTextarea({
   currentLength,
   showUtilityControls,
 }) {
-  const fontSize = usePromptFontSizeStore((state2) => state2.fontSize);
-  const handleKeyDown2 = (e2) => {
-    e2.stopPropagation();
-    if (e2.key === "Escape" && !blockKeyHandlers) onClose();
+  const fontSize = usePromptFontSizeStore((state) => state.fontSize);
+  const handleKeyDown = (keyEvent) => {
+    keyEvent.stopPropagation();
+    if (keyEvent.key === "Escape" && !blockKeyHandlers) onClose();
   };
   return (
     <div
@@ -31,13 +31,13 @@ export function PromptTextarea({
     >
       <textarea
         ref={textareaRef}
-        className={`canvas-prompt-font-size-textarea nowheel nopan w-full min-h-0 flex-1 resize-none border-none bg-transparent text-[var(--canvas-controls-text)] outline-none placeholder:text-muted-foreground/50 ${readOnly2 ? "hover:cursor-not-allowed" : ""}`}
+        className={`canvas-prompt-font-size-textarea nowheel nopan w-full min-h-0 flex-1 resize-none border-none bg-transparent text-[var(--canvas-controls-text)] outline-none placeholder:text-muted-foreground/50 ${readOnly ? "hover:cursor-not-allowed" : ""}`}
         value={value}
-        onChange={(e2) => onChange(e2.target.value)}
-        onKeyDown={handleKeyDown2}
-        onClick={(e2) => e2.stopPropagation()}
-        disabled={disabled2}
-        readOnly={readOnly2}
+        onChange={(changeEvent) => onChange(changeEvent.target.value)}
+        onKeyDown={handleKeyDown}
+        onClick={(clickEvent) => clickEvent.stopPropagation()}
+        disabled={disabled}
+        readOnly={readOnly}
         placeholder={placeholder}
         data-action-ui-id="popover.prompt-input"
       />
@@ -45,7 +45,7 @@ export function PromptTextarea({
         getPromptText={() => value}
         copyDisabled={value.length === 0}
         currentLength={currentLength ?? countPromptCharacters(value)}
-        maxLength={readOnly2 ? void 0 : maxLength}
+        maxLength={readOnly ? void 0 : maxLength}
         showUtilityControls={showUtilityControls}
       />
     </div>

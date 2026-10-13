@@ -12,10 +12,10 @@ import { refreshAssetIndex } from "./gateway-scope-provider.jsx";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 function DeleteUndoToast({
   toastId,
-  count: count2,
-  gatewayFetch: gatewayFetch2,
+  count,
+  gatewayFetch,
   onUndoSuccess,
-  t: t2,
+  t: translate,
 }) {
   const [remaining, setRemaining] = reactExports.useState(
     Math.ceil(DELETE_UNDO_TTL_MS / 1e3),
@@ -23,7 +23,7 @@ function DeleteUndoToast({
   const [busy, setBusy] = reactExports.useState(false);
   reactExports.useEffect(() => {
     const tick = setInterval(() => {
-      setRemaining((s2) => (s2 > 0 ? s2 - 1 : 0));
+      setRemaining((remainingSeconds) => (remainingSeconds > 0 ? remainingSeconds - 1 : 0));
     }, 1e3);
     return () => clearInterval(tick);
   }, []);
@@ -31,34 +31,34 @@ function DeleteUndoToast({
     if (busy) return;
     setBusy(true);
     try {
-      const res = await gatewayFetch2(OPERATIONS_UNDO_PATH, {
+      const res = await gatewayFetch(OPERATIONS_UNDO_PATH, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      const body2 = await res.json().catch(() => null);
-      if (res.ok && body2?.ok) {
+      const body = await res.json().catch(() => null);
+      if (res.ok && body?.ok) {
         onUndoSuccess?.();
         dedupedToast.dismiss(toastId);
         return;
       }
-      if (body2?.errorType === "partial") {
+      if (body?.errorType === "partial") {
         onUndoSuccess?.();
         dedupedToast.dismiss(toastId);
         return;
       }
-      if (body2?.errorType === "expired") {
+      if (body?.errorType === "expired") {
         dedupedToast.dismiss(toastId);
         return;
       }
-      dedupedToast.error(t2("fileExplorer.undoFailed"));
+      dedupedToast.error(translate("fileExplorer.undoFailed"));
       dedupedToast.dismiss(toastId);
     } catch (err) {
       dedupedToast.error(
         err instanceof Error && err.message
-          ? `${t2("fileExplorer.undoFailed")}: ${err.message}`
-          : t2("fileExplorer.undoFailed"),
+          ? `${translate("fileExplorer.undoFailed")}: ${err.message}`
+          : translate("fileExplorer.undoFailed"),
       );
       dedupedToast.dismiss(toastId);
     } finally {
@@ -68,8 +68,8 @@ function DeleteUndoToast({
   return (
     <div className="elevated-surface-border flex items-center gap-3 rounded-lg px-3 py-2 bg-popover text-popover-foreground text-xs">
       <span>
-        {t2("fileExplorer.deleteUndoToast", {
-          count: count2,
+        {translate("fileExplorer.deleteUndoToast", {
+          count,
         })}
       </span>
       <span className="text-muted-foreground">·</span>
@@ -80,22 +80,22 @@ function DeleteUndoToast({
         disabled={busy}
         className="h-6 rounded-sm px-2"
       >
-        {t2("fileExplorer.deleteUndoToastUndo")}
+        {translate("fileExplorer.deleteUndoToastUndo")}
         {" ("}
         {remaining})
       </Button>
     </div>
   );
 }
-function removeFromActiveToasts(id2) {
-  const idx = activeToastIds.indexOf(id2);
+function removeFromActiveToasts(toastId) {
+  const idx = activeToastIds.indexOf(toastId);
   if (idx !== -1) activeToastIds.splice(idx, 1);
 }
 function showDeleteUndoToast(opts) {
-  const id2 = dedupedToast.custom(
-    (id22) => (
+  const toastId = dedupedToast.custom(
+    (id) => (
       <DeleteUndoToast
-        toastId={id22}
+        toastId={id}
         count={opts.count}
         gatewayFetch={opts.gatewayFetch}
         onUndoSuccess={opts.onUndoSuccess}
@@ -109,15 +109,15 @@ function showDeleteUndoToast(opts) {
       // Plain sonner doesn't expose an unmount hook for custom toasts,
       // so onDismiss + onAutoClose cover the two paths sonner uses to
       // retire a toast.
-      onDismiss: (t2) => removeFromActiveToasts(t2.id),
-      onAutoClose: (t2) => removeFromActiveToasts(t2.id),
+      onDismiss: (toast) => removeFromActiveToasts(toast.id),
+      onAutoClose: (toast) => removeFromActiveToasts(toast.id),
     },
   );
-  activeToastIds.push(id2);
-  return id2;
+  activeToastIds.push(toastId);
+  return toastId;
 }
 export function useFileExplorerDelete({
-  remove: remove2,
+  remove,
   toRelativePath,
   invalidateDirs,
   lastSelectedPath,
@@ -125,51 +125,51 @@ export function useFileExplorerDelete({
   selectionAnchorRef,
   selectedPaths,
   setSelectedPaths,
-  gatewayFetch: gatewayFetch2,
-  queryClient: queryClient2,
+  gatewayFetch,
+  queryClient,
   gatewayScopeKey,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [deletingEntries, setDeletingEntries] = reactExports.useState([]);
-  const requestDelete = useStableCallback((entries2) => {
-    if (entries2.length === 0) return;
-    const seen2 = new Set();
-    const unique2 = [];
-    for (const entry of entries2) {
-      if (seen2.has(entry.path)) continue;
-      seen2.add(entry.path);
-      unique2.push(entry);
+  const requestDelete = useStableCallback((entries) => {
+    if (entries.length === 0) return;
+    const seen = new Set();
+    const unique = [];
+    for (const entry of entries) {
+      if (seen.has(entry.path)) continue;
+      seen.add(entry.path);
+      unique.push(entry);
     }
-    setDeletingEntries(unique2);
+    setDeletingEntries(unique);
   });
   const cancelDelete = useStableCallback(() => {
     setDeletingEntries([]);
   });
   const handleDeleteConfirm = useStableCallback(async () => {
     if (deletingEntries.length === 0) return;
-    const entries2 = deletingEntries;
-    const deletedPaths = entries2.map((entry) => entry.path);
-    const fileCount = entries2.filter((entry) => !entry.isDirectory).length;
-    const hasDirectory = entries2.some((entry) => entry.isDirectory);
+    const entries = deletingEntries;
+    const deletedPaths = entries.map((entry) => entry.path);
+    const fileCount = entries.filter((entry) => !entry.isDirectory).length;
+    const hasDirectory = entries.some((entry) => entry.isDirectory);
     try {
       const relativePaths = deletedPaths.map(toRelativePath);
-      await remove2({
+      await remove({
         paths: relativePaths,
       });
-      if (!hasDirectory && fileCount > 0 && gatewayFetch2) {
+      if (!hasDirectory && fileCount > 0 && gatewayFetch) {
         showDeleteUndoToast({
           count: fileCount,
-          gatewayFetch: gatewayFetch2,
+          gatewayFetch,
           onUndoSuccess:
-            queryClient2 && gatewayScopeKey
+            queryClient && gatewayScopeKey
               ? () => {
                   void refreshAssetIndex({
-                    qc: queryClient2,
+                    qc: queryClient,
                     gatewayScopeKey,
                   });
                 }
               : void 0,
-          t: t2,
+          t: translate,
         });
       }
       if (lastSelectedPath && deletedPaths.includes(lastSelectedPath)) {
@@ -178,12 +178,12 @@ export function useFileExplorerDelete({
       }
       const stillSelected = new Set();
       let anyRemoved = false;
-      for (const p3 of selectedPaths) {
-        if (deletedPaths.includes(p3)) {
+      for (const selectedPath of selectedPaths) {
+        if (deletedPaths.includes(selectedPath)) {
           anyRemoved = true;
           continue;
         }
-        stillSelected.add(p3);
+        stillSelected.add(selectedPath);
       }
       if (anyRemoved) setSelectedPaths(stillSelected);
       if (hasDirectory) {
@@ -191,7 +191,7 @@ export function useFileExplorerDelete({
       }
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.deleteFailed") +
+        translate("fileExplorer.deleteFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }

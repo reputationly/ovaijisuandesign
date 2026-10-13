@@ -58,23 +58,23 @@ function useVisiblePreviewTabsSnapshot() {
     visiblePreviewTabsStore.getSnapshot,
   );
 }
-function useWindowTitleSync(entries2, currentWorkspaceId, platform2) {
+function useWindowTitleSync(entries, currentWorkspaceId, platform) {
   reactExports.useEffect(() => {
-    const active2 = entries2.find(
-      (e2) => e2.workspaceId === currentWorkspaceId,
+    const active = entries.find(
+      (entry) => entry.workspaceId === currentWorkspaceId,
     );
-    const title = active2 ? `${active2.projectName} - 蒜狸小助手` : "蒜狸小助手";
-    platform2.window.setTitle(title);
-  }, [currentWorkspaceId, entries2, platform2.window]);
+    const title = active ? `${active.projectName} - 蒜狸小助手` : "蒜狸小助手";
+    platform.window.setTitle(title);
+  }, [currentWorkspaceId, entries, platform.window]);
 }
-function useLastActivePersistence(currentWorkspaceId, platform2) {
+function useLastActivePersistence(currentWorkspaceId, platform) {
   reactExports.useEffect(() => {
     if (currentWorkspaceId) {
-      platform2.storage
+      platform.storage
         ?.globalSet("lastActiveWorkspacePath", currentWorkspaceId)
         .catch(() => {});
     }
-  }, [currentWorkspaceId, platform2.storage]);
+  }, [currentWorkspaceId, platform.storage]);
 }
 const COMPLETED_TASK_LIMIT = 20;
 function getTaskCompletionKey(task) {
@@ -93,48 +93,48 @@ function scheduleEmit() {
     for (const listener of listeners) listener();
   });
 }
-function shallowEqualObject(previous2, next2) {
-  if (Object.is(previous2, next2)) return true;
-  const previousKeys = Object.keys(previous2);
-  const nextKeys = Object.keys(next2);
+function shallowEqualObject(previous, next) {
+  if (Object.is(previous, next)) return true;
+  const previousKeys = Object.keys(previous);
+  const nextKeys = Object.keys(next);
   if (previousKeys.length !== nextKeys.length) return false;
   return previousKeys.every(
-    (key2) =>
-      Object.hasOwn(next2, key2) && Object.is(previous2[key2], next2[key2]),
+    (key) =>
+      Object.hasOwn(next, key) && Object.is(previous[key], next[key]),
   );
 }
-function areShallowEqualArrays(previous2, next2) {
-  if (Object.is(previous2, next2)) return true;
-  if (previous2.length !== next2.length) return false;
-  return previous2.every((item, index2) =>
-    shallowEqualObject(item, next2[index2]),
+function areShallowEqualArrays(previous, next) {
+  if (Object.is(previous, next)) return true;
+  if (previous.length !== next.length) return false;
+  return previous.every((item, index) =>
+    shallowEqualObject(item, next[index]),
   );
 }
-function areTopbarSnapshotsEqual(previous2, next2) {
+function areTopbarSnapshotsEqual(previous, next) {
   return (
-    areShallowEqualArrays(previous2.sessions, next2.sessions) &&
-    areShallowEqualArrays(previous2.tasks, next2.tasks)
+    areShallowEqualArrays(previous.sessions, next.sessions) &&
+    areShallowEqualArrays(previous.tasks, next.tasks)
   );
 }
 let snapshots = new Map();
-function setTopbarSnapshot(workspaceId2, snapshot2) {
-  const previousSnapshot = snapshots.get(workspaceId2);
-  if (previousSnapshot && areTopbarSnapshotsEqual(previousSnapshot, snapshot2))
+function setTopbarSnapshot(workspaceId, snapshot) {
+  const previousSnapshot = snapshots.get(workspaceId);
+  if (previousSnapshot && areTopbarSnapshotsEqual(previousSnapshot, snapshot))
     return;
-  snapshots = new Map(snapshots).set(workspaceId2, snapshot2);
+  snapshots = new Map(snapshots).set(workspaceId, snapshot);
   scheduleEmit();
 }
 function pruneTopbarSnapshots(activeWorkspaceIds) {
   let changed = false;
-  const next2 = new Map(snapshots);
-  for (const id2 of next2.keys()) {
-    if (!activeWorkspaceIds.has(id2)) {
-      next2.delete(id2);
+  const next = new Map(snapshots);
+  for (const workspaceId of next.keys()) {
+    if (!activeWorkspaceIds.has(workspaceId)) {
+      next.delete(workspaceId);
       changed = true;
     }
   }
   if (!changed) return;
-  snapshots = next2;
+  snapshots = next;
   scheduleEmit();
 }
 function getTopbarSnapshots() {
@@ -144,24 +144,24 @@ function subscribeTopbarSnapshots(listener) {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
-function getNextWorkspaceIdAfterClose(entries2, closingWorkspaceId) {
+function getNextWorkspaceIdAfterClose(entries, closingWorkspaceId) {
   return getNextPreviewTabIdAfterHide(
-    entries2.map((entry) => entry.workspaceId),
+    entries.map((entry) => entry.workspaceId),
     closingWorkspaceId,
   );
 }
 function performWorkspacePreviewHide(
-  entries2,
-  workspaceId2,
+  entries,
+  workspaceId,
   currentWorkspaceId,
   activeTaskCount,
   source,
   effects,
 ) {
-  const nextWorkspaceId = getNextWorkspaceIdAfterClose(entries2, workspaceId2);
-  const wasActive = workspaceId2 === currentWorkspaceId;
+  const nextWorkspaceId = getNextWorkspaceIdAfterClose(entries, workspaceId);
+  const wasActive = workspaceId === currentWorkspaceId;
   effects.record({
-    workspaceId: workspaceId2,
+    workspaceId,
     source,
     wasActive,
     activeTaskCount,
@@ -171,7 +171,7 @@ function performWorkspacePreviewHide(
         }
       : {}),
   });
-  effects.hidePreview(workspaceId2);
+  effects.hidePreview(workspaceId);
   if (wasActive) {
     if (nextWorkspaceId) {
       effects.activateWorkspace(nextWorkspaceId);
@@ -179,10 +179,10 @@ function performWorkspacePreviewHide(
       effects.activateHome();
     }
   }
-  effects.requestRuntimeClose(workspaceId2, source);
+  effects.requestRuntimeClose(workspaceId, source);
 }
 function performWorkspacePreviewsBatchHide(
-  workspaceId2,
+  workspaceId,
   currentWorkspaceId,
   hiddenWorkspaceIds,
   source,
@@ -195,61 +195,61 @@ function performWorkspacePreviewsBatchHide(
   effects.hidePreviews(hiddenWorkspaceIds);
   effects.record({
     source,
-    keptWorkspaceId: workspaceId2,
+    keptWorkspaceId: workspaceId,
     hiddenWorkspaceIds,
   });
-  if (currentWasHidden) effects.activateWorkspace(workspaceId2);
+  if (currentWasHidden) effects.activateWorkspace(workspaceId);
   for (const hiddenWorkspaceId of hiddenWorkspaceIds) {
     effects.requestRuntimeClose(hiddenWorkspaceId, source);
   }
 }
 function performOtherWorkspacePreviewsHide(
-  entries2,
-  workspaceId2,
+  entries,
+  workspaceId,
   currentWorkspaceId,
   effects,
 ) {
-  if (!entries2.some((entry) => entry.workspaceId === workspaceId2)) return;
+  if (!entries.some((entry) => entry.workspaceId === workspaceId)) return;
   performWorkspacePreviewsBatchHide(
-    workspaceId2,
+    workspaceId,
     currentWorkspaceId,
-    entries2
-      .filter((entry) => entry.workspaceId !== workspaceId2)
+    entries
+      .filter((entry) => entry.workspaceId !== workspaceId)
       .map((entry) => entry.workspaceId),
     "topbar-context-close-others",
     effects,
   );
 }
 function performWorkspacePreviewsToRightHide(
-  entries2,
-  workspaceId2,
+  entries,
+  workspaceId,
   currentWorkspaceId,
   effects,
 ) {
-  const index2 = entries2.findIndex(
-    (entry) => entry.workspaceId === workspaceId2,
+  const index = entries.findIndex(
+    (entry) => entry.workspaceId === workspaceId,
   );
-  if (index2 === -1) return;
+  if (index === -1) return;
   performWorkspacePreviewsBatchHide(
-    workspaceId2,
+    workspaceId,
     currentWorkspaceId,
-    entries2.slice(index2 + 1).map((entry) => entry.workspaceId),
+    entries.slice(index + 1).map((entry) => entry.workspaceId),
     "topbar-context-close-right",
     effects,
   );
 }
 async function activateWorkspaceIfAvailable(
-  hiloApp2,
-  workspaceId2,
+  hiloApp,
+  workspaceId,
   navigateToWorkspaceId,
 ) {
-  const runtime = await hiloApp2.activateWorkspace(workspaceId2);
+  const runtime = await hiloApp.activateWorkspace(workspaceId);
   if (!runtime) return;
   await navigateToWorkspaceId(runtime.workspaceId);
 }
-function shouldActivateWorkspaceThroughRoute(entries2, workspaceId2) {
-  const entry = entries2.find(
-    (candidate) => candidate.workspaceId === workspaceId2,
+function shouldActivateWorkspaceThroughRoute(entries, workspaceId) {
+  const entry = entries.find(
+    (candidate) => candidate.workspaceId === workspaceId,
   );
   return Boolean(entry && !entry.gatewayUrl);
 }
@@ -262,27 +262,27 @@ function getNotificationMainService() {
 }
 function notifyTaskNeedsUserAction(
   task,
-  t2,
+  translate,
   onNotificationShown,
   onNotificationSettled,
 ) {
   const needsAnswer = task.status === "needs-answer";
   const title = needsAnswer
-    ? t2("topbar.notification.taskNeedsAnswerTitle", "Waiting for your answer")
-    : t2(
+    ? translate("topbar.notification.taskNeedsAnswerTitle", "Waiting for your answer")
+    : translate(
         "topbar.notification.taskNeedsConfirmationTitle",
         "Waiting for your confirmation",
       );
-  const body2 = task.promptPreview
+  const body = task.promptPreview
     ? needsAnswer
-      ? t2(
+      ? translate(
           "topbar.notification.taskNeedsAnswerBody",
           '"{{prompt}}" is waiting for your answer. Click to continue.',
           {
             prompt: task.promptPreview,
           },
         )
-      : t2(
+      : translate(
           "topbar.notification.taskNeedsConfirmationBody",
           '"{{prompt}}" is waiting for your confirmation. Click to continue.',
           {
@@ -290,18 +290,18 @@ function notifyTaskNeedsUserAction(
           },
         )
     : needsAnswer
-      ? t2(
+      ? translate(
           "topbar.notification.taskNeedsAnswerFallbackBody",
           "The Agent is waiting for your answer. Click to continue.",
         )
-      : t2(
+      : translate(
           "topbar.notification.taskNeedsConfirmationFallbackBody",
           "The Agent is waiting for your confirmation. Click to continue.",
         );
   void getNotificationMainService()
     .show({
       title,
-      body: body2,
+      body,
     })
     .then((result) => {
       if (result.success && result.id) onNotificationShown?.(result.id);
@@ -311,59 +311,59 @@ function notifyTaskNeedsUserAction(
     })
     .finally(() => onNotificationSettled?.());
 }
-function getTaskCompletionBody(count2, promptPreview, t2) {
-  if (count2 === 1) {
+function getTaskCompletionBody(count, promptPreview, translate) {
+  if (count === 1) {
     return promptPreview
-      ? t2(
+      ? translate(
           "topbar.notification.taskCompletedBody",
           "“{{prompt}}” has finished generating. Click to view the result.",
           {
             prompt: promptPreview,
           },
         )
-      : t2(
+      : translate(
           "topbar.notification.taskCompletedFallbackBody",
           "Your generation is complete. Click to view the result.",
         );
   }
   return promptPreview
-    ? t2(
+    ? translate(
         "topbar.notification.multipleTasksCompletedBody",
         "{{count}} generation tasks including “{{prompt}}” are complete. Click to view results.",
         {
           prompt: promptPreview,
-          count: count2,
+          count,
         },
       )
-    : t2(
+    : translate(
         "topbar.notification.multipleTasksCompletedFallbackBody",
         "{{count}} generation tasks are complete. Click to view results.",
         {
-          count: count2,
+          count,
         },
       );
 }
 function notifyTaskCompletion(
   tasks,
-  t2,
+  translate,
   onNotificationShown,
   onNotificationSettled,
 ) {
   if (tasks.length === 0) return;
-  const first2 = tasks[0];
-  const promptPreview = first2.promptPreview;
+  const first = tasks[0];
+  const promptPreview = first.promptPreview;
   const title =
     tasks.length === 1
-      ? t2("topbar.notification.taskCompletedTitle", "Generation complete")
-      : t2(
+      ? translate("topbar.notification.taskCompletedTitle", "Generation complete")
+      : translate(
           "topbar.notification.multipleTasksCompletedTitle",
           "Multiple generations complete",
         );
-  const body2 = getTaskCompletionBody(tasks.length, promptPreview, t2);
+  const body = getTaskCompletionBody(tasks.length, promptPreview, translate);
   void getNotificationMainService()
     .show({
       title,
-      body: body2,
+      body,
     })
     .then((result) => {
       if (result.success && result.id) onNotificationShown?.(result.id);
@@ -373,8 +373,8 @@ function notifyTaskCompletion(
     })
     .finally(() => onNotificationSettled?.());
 }
-function useCompletedTasks(entries2, options = {}) {
-  const { t: t2 } = useTranslation();
+function useCompletedTasks(entries, options = {}) {
+  const { t: translate } = useTranslation();
   const [completedTasks, setCompletedTasks] = reactExports.useState([]);
   const [unreadCompletedTaskIds, setUnreadCompletedTaskIds] =
     reactExports.useState(() => new Set());
@@ -405,23 +405,23 @@ function useCompletedTasks(entries2, options = {}) {
     [markCompletedTasksRead],
   );
   const markWorkspaceCompletedTasksRead = reactExports.useCallback(
-    (workspaceId2) => {
+    (workspaceId) => {
       setUnreadCompletedTaskIds((prev) => {
         if (prev.size === 0) return prev;
         const completedTaskById = new Map(
           completedTasks.map((task) => [task.id, task]),
         );
-        const workspaceTaskIdPrefix = `${workspaceId2}:`;
-        const next2 = new Set(
+        const workspaceTaskIdPrefix = `${workspaceId}:`;
+        const next = new Set(
           [...prev].filter((taskId) => {
             const task = completedTaskById.get(taskId);
             return (
-              task?.workspaceId !== workspaceId2 &&
+              task?.workspaceId !== workspaceId &&
               !taskId.startsWith(workspaceTaskIdPrefix)
             );
           }),
         );
-        return next2.size === prev.size ? prev : next2;
+        return next.size === prev.size ? prev : next;
       });
     },
     [completedTasks],
@@ -460,9 +460,9 @@ function useCompletedTasks(entries2, options = {}) {
         task.status !== "needs-confirmation"
       )
         continue;
-      const key2 = `${task.id}:${task.status}:${task.userActionId ?? "current"}`;
-      currentKeys.add(key2);
-      if (activeUserActionKeysRef.current.has(key2)) continue;
+      const key = `${task.id}:${task.status}:${task.userActionId ?? "current"}`;
+      currentKeys.add(key);
+      if (activeUserActionKeysRef.current.has(key)) continue;
       if (task.workspaceId === activeWorkspaceIdRef.current) continue;
       newlyActionable.push(task);
     }
@@ -475,7 +475,7 @@ function useCompletedTasks(entries2, options = {}) {
       pendingNotificationsRef.current += 1;
       notifyTaskNeedsUserAction(
         task,
-        t2,
+        translate,
         (notificationId) => {
           if (earlyClickedNotificationIdsRef.current.delete(notificationId)) {
             handleNotificationTargetClick(target);
@@ -491,13 +491,13 @@ function useCompletedTasks(entries2, options = {}) {
         },
       );
     }
-  }, [handleNotificationTargetClick, options.activeTasks, t2]);
+  }, [handleNotificationTargetClick, options.activeTasks, translate]);
   const reportTaskCompleted = reactExports.useCallback(
     (task) => {
       if (task.source === "canvas") return;
-      const key2 = getTaskCompletionKey(task);
-      if (recentCompletionKeysRef.current.has(key2)) return;
-      recentCompletionKeysRef.current.add(key2);
+      const key = getTaskCompletionKey(task);
+      if (recentCompletionKeysRef.current.has(key)) return;
+      recentCompletionKeysRef.current.add(key);
       const notificationTarget = {
         task,
         kind: "completion",
@@ -505,7 +505,7 @@ function useCompletedTasks(entries2, options = {}) {
       pendingNotificationsRef.current += 1;
       notifyTaskCompletion(
         [task],
-        t2,
+        translate,
         (notificationId) => {
           if (earlyClickedNotificationIdsRef.current.delete(notificationId)) {
             handleNotificationTargetClick(notificationTarget);
@@ -525,54 +525,54 @@ function useCompletedTasks(entries2, options = {}) {
       );
       setUnreadCompletedTaskIds((existing) => {
         if (task.workspaceId === activeWorkspaceIdRef.current) return existing;
-        const next2 = new Set(existing);
-        next2.add(task.id);
-        return next2;
+        const next = new Set(existing);
+        next.add(task.id);
+        return next;
       });
       setCompletedTasks((existing) => {
-        const seen2 = new Set();
+        const seen = new Set();
         const merged = [];
-        for (const t22 of [task, ...existing]) {
-          if (seen2.has(t22.id)) continue;
-          seen2.add(t22.id);
-          merged.push(t22);
+        for (const completedTask of [task, ...existing]) {
+          if (seen.has(completedTask.id)) continue;
+          seen.add(completedTask.id);
+          merged.push(completedTask);
           if (merged.length >= COMPLETED_TASK_LIMIT) break;
         }
         return merged;
       });
     },
-    [handleNotificationTargetClick, t2],
+    [handleNotificationTargetClick, translate],
   );
   reactExports.useEffect(() => {
-    const openIds = new Set(entries2.map((entry) => entry.workspaceId));
+    const openIds = new Set(entries.map((entry) => entry.workspaceId));
     setCompletedTasks((prev) => {
       const filtered = prev.filter((task) => openIds.has(task.workspaceId));
       return filtered.length === prev.length ? prev : filtered;
     });
-    for (const key2 of recentCompletionKeysRef.current) {
-      const wsId = key2.split(":")[0];
-      if (!openIds.has(wsId)) recentCompletionKeysRef.current.delete(key2);
+    for (const key of recentCompletionKeysRef.current) {
+      const wsId = key.split(":")[0];
+      if (!openIds.has(wsId)) recentCompletionKeysRef.current.delete(key);
     }
-  }, [entries2]);
+  }, [entries]);
   reactExports.useEffect(() => {
     const completedIds = new Set(completedTasks.map((task) => task.id));
     setUnreadCompletedTaskIds((prev) => {
-      const next2 = new Set(
+      const next = new Set(
         [...prev].filter((taskId) => completedIds.has(taskId)),
       );
-      return next2.size === prev.size ? prev : next2;
+      return next.size === prev.size ? prev : next;
     });
   }, [completedTasks]);
   const dismissCompletedTask = reactExports.useCallback((taskId) => {
     setUnreadCompletedTaskIds((prev) => {
       if (!prev.has(taskId)) return prev;
-      const next2 = new Set(prev);
-      next2.delete(taskId);
-      return next2;
+      const next = new Set(prev);
+      next.delete(taskId);
+      return next;
     });
     setCompletedTasks((prev) => {
-      const next2 = prev.filter((t22) => t22.id !== taskId);
-      return next2.length === prev.length ? prev : next2;
+      const next = prev.filter((task) => task.id !== taskId);
+      return next.length === prev.length ? prev : next;
     });
   }, []);
   const unreadCompletedTasks = reactExports.useMemo(
@@ -590,18 +590,18 @@ function useCompletedTasks(entries2, options = {}) {
   };
 }
 function useTopbarEntries() {
-  const [entries2, setEntries] = reactExports.useState([]);
+  const [entries, setEntries] = reactExports.useState([]);
   const [workspaceSnapshots, setWorkspaceSnapshots] = reactExports.useState(
     () => getTopbarSnapshots(),
   );
   const visiblePreviewTabs = useVisiblePreviewTabsSnapshot();
-  const hiloApp2 = reactExports.useMemo(
+  const hiloApp = reactExports.useMemo(
     () =>
       instantiationService.invokeFunction((accessor) => accessor.get(IHiloApp)),
     [],
   );
   const applyEntries = reactExports.useCallback((rawList) => {
-    const liveIds = new Set(rawList.map((e2) => e2.workspaceId));
+    const liveIds = new Set(rawList.map((entry) => entry.workspaceId));
     visiblePreviewTabsStore.initialize(rawList);
     setEntries(rawList);
     pruneTopbarSnapshots(liveIds);
@@ -609,17 +609,17 @@ function useTopbarEntries() {
   }, []);
   reactExports.useEffect(() => {
     let disposed = false;
-    const disposable = hiloApp2.onWorkspaceEntriesChanged((list2) =>
-      applyEntries(list2),
+    const disposable = hiloApp.onWorkspaceEntriesChanged((list) =>
+      applyEntries(list),
     );
-    hiloApp2.listWorkspaceEntries().then((list2) => {
-      if (!disposed) applyEntries(list2);
+    hiloApp.listWorkspaceEntries().then((list) => {
+      if (!disposed) applyEntries(list);
     });
     return () => {
       disposed = true;
       disposable.dispose();
     };
-  }, [hiloApp2, applyEntries]);
+  }, [hiloApp, applyEntries]);
   reactExports.useEffect(
     () =>
       subscribeTopbarSnapshots(() =>
@@ -628,36 +628,36 @@ function useTopbarEntries() {
     [],
   );
   const previewEntries = reactExports.useMemo(
-    () => resolveVisiblePreviewEntries(entries2, visiblePreviewTabs.tabs),
-    [entries2, visiblePreviewTabs.tabs],
+    () => resolveVisiblePreviewEntries(entries, visiblePreviewTabs.tabs),
+    [entries, visiblePreviewTabs.tabs],
   );
   const reorderTabs = reactExports.useCallback((activeId, overId) => {
     visiblePreviewTabsStore.reorder(activeId, overId);
   }, []);
   const reportWorkspaceSnapshot = reactExports.useCallback(
-    (workspaceId2, snapshot2) => {
-      setTopbarSnapshot(workspaceId2, snapshot2);
+    (workspaceId, snapshot) => {
+      setTopbarSnapshot(workspaceId, snapshot);
     },
     [],
   );
   return {
-    entries: entries2,
+    entries,
     previewEntries,
     workspaceSnapshots,
-    hiloApp: hiloApp2,
+    hiloApp,
     reorderTabs,
     reportWorkspaceSnapshot,
   };
 }
 function useTopbarNavigation(
-  hiloApp2,
+  hiloApp,
   allEntries,
   previewEntries,
   currentWorkspaceId,
   workspaceSnapshots,
 ) {
-  const platform2 = usePlatform();
-  const { t: t2 } = useTranslation();
+  const platform = usePlatform();
+  const { t: translate } = useTranslation();
   const navigate = useNavigate();
   const navigateToWorkspace = useNavigateToWorkspace();
   const persistPickedWorkspaceName = usePersistPickedWorkspaceName();
@@ -672,26 +672,26 @@ function useTopbarNavigation(
   const workspaceSnapshotsRef = reactExports.useRef(workspaceSnapshots);
   workspaceSnapshotsRef.current = workspaceSnapshots;
   const activateHome = reactExports.useCallback(() => {
-    void hiloApp2.activateHome();
+    void hiloApp.activateHome();
     void navigate({
       to: "/",
     });
-  }, [hiloApp2, navigate]);
+  }, [hiloApp, navigate]);
   const activateWorkspace = reactExports.useCallback(
-    (workspaceId2) => {
-      showVisiblePreviewTab(workspaceId2);
+    (workspaceId) => {
+      showVisiblePreviewTab(workspaceId);
       if (
-        shouldActivateWorkspaceThroughRoute(allEntriesRef.current, workspaceId2)
+        shouldActivateWorkspaceThroughRoute(allEntriesRef.current, workspaceId)
       ) {
         void navigate({
           to: "/workspace",
-          search: buildWorkspaceSearch(workspaceId2),
+          search: buildWorkspaceSearch(workspaceId),
         });
         return;
       }
       void activateWorkspaceIfAvailable(
-        hiloApp2,
-        workspaceId2,
+        hiloApp,
+        workspaceId,
         (activatedWorkspaceId) => {
           showVisiblePreviewTab(activatedWorkspaceId);
           return navigate({
@@ -703,72 +703,72 @@ function useTopbarNavigation(
         console.error("[Topbar] activateWorkspace failed:", err);
       });
     },
-    [hiloApp2, navigate],
+    [hiloApp, navigate],
   );
   const requestRuntimeClose = reactExports.useCallback(
-    (workspaceId2, source) => {
-      void requestWorkspaceRuntimeClose(hiloApp2, workspaceId2, source);
+    (workspaceId, source) => {
+      void requestWorkspaceRuntimeClose(hiloApp, workspaceId, source);
     },
-    [hiloApp2],
+    [hiloApp],
   );
   const closeWorkspace = reactExports.useCallback(
-    (workspaceId2, source = "topbar") => {
+    (targetWorkspaceId, source = "topbar") => {
       const activeTaskCount =
-        workspaceSnapshotsRef.current.get(workspaceId2)?.tasks.length ?? 0;
+        workspaceSnapshotsRef.current.get(targetWorkspaceId)?.tasks.length ?? 0;
       performWorkspacePreviewHide(
         entriesRef.current,
-        workspaceId2,
+        targetWorkspaceId,
         currentWorkspaceIdRef.current,
         activeTaskCount,
         source,
         {
-          hidePreview: (id2) => hideVisiblePreviewTabs(id2),
+          hidePreview: (workspaceId) => hideVisiblePreviewTabs(workspaceId),
           activateWorkspace,
           activateHome,
           requestRuntimeClose,
-          record: (properties2) =>
-            recordAction("workspace:preview-hidden", properties2),
+          record: (properties) =>
+            recordAction("workspace:preview-hidden", properties),
         },
       );
     },
     [activateHome, activateWorkspace, requestRuntimeClose],
   );
   const closeOtherWorkspacePreviews = reactExports.useCallback(
-    (workspaceId2) => {
+    (workspaceId) => {
       performOtherWorkspacePreviewsHide(
         entriesRef.current,
-        workspaceId2,
+        workspaceId,
         currentWorkspaceIdRef.current,
         {
-          hidePreviews: (ids2) => hideVisiblePreviewTabs(ids2),
+          hidePreviews: (ids) => hideVisiblePreviewTabs(ids),
           activateWorkspace,
           requestRuntimeClose,
-          record: (properties2) =>
-            recordAction("workspace:preview-hidden-batch", properties2),
+          record: (properties) =>
+            recordAction("workspace:preview-hidden-batch", properties),
         },
       );
     },
     [activateWorkspace, requestRuntimeClose],
   );
   const closeWorkspacePreviewsToRight = reactExports.useCallback(
-    (workspaceId2) => {
+    (workspaceId) => {
       performWorkspacePreviewsToRightHide(
         entriesRef.current,
-        workspaceId2,
+        workspaceId,
         currentWorkspaceIdRef.current,
         {
-          hidePreviews: (ids2) => hideVisiblePreviewTabs(ids2),
+          hidePreviews: (ids) => hideVisiblePreviewTabs(ids),
           activateWorkspace,
           requestRuntimeClose,
-          record: (properties2) =>
-            recordAction("workspace:preview-hidden-batch", properties2),
+          record: (properties) =>
+            recordAction("workspace:preview-hidden-batch", properties),
         },
       );
     },
     [activateWorkspace, requestRuntimeClose],
   );
   const createWorkspace = reactExports.useCallback(
-    async (name2, options, navigateOptions) => {
+    async (workspaceName, options, navigateOptions) => {
       const pickedFolder = options?.folderPath;
       const targetProjectId = options?.projectId;
       if (pickedFolder) {
@@ -787,9 +787,9 @@ function useTopbarNavigation(
             "workspace-create",
           );
         const staged = await stageWorkspacePreview({
-          hiloApp: hiloApp2,
+          hiloApp,
           folderPath: pickedFolder,
-          t: t2,
+          t: translate,
           onStaged: (entry) =>
             navigate({
               to: "/workspace",
@@ -798,8 +798,8 @@ function useTopbarNavigation(
         });
         return Boolean(staged);
       }
-      const result = await hiloApp2.createWorkspaceWithResult({
-        name: name2,
+      const result = await hiloApp.createWorkspaceWithResult({
+        name: workspaceName,
         folderPath: pickedFolder,
         projectId: targetProjectId,
         parentFolderPath: options?.parentFolderPath,
@@ -810,8 +810,8 @@ function useTopbarNavigation(
         workspaceLog.info("topbar: open-workspace-result", {
           kind: result.kind,
         });
-        if ((result.kind === "opened" || result.kind === "reused") && name2) {
-          await persistPickedWorkspaceName(result.runtime.folderPath, name2);
+        if ((result.kind === "opened" || result.kind === "reused") && workspaceName) {
+          await persistPickedWorkspaceName(result.runtime.folderPath, workspaceName);
         }
       }
       if (
@@ -827,7 +827,7 @@ function useTopbarNavigation(
       return Boolean(
         handleNewWorkspaceOpenResult(
           result,
-          t2,
+          translate,
           (runtime) => navigateToWorkspace(runtime, navigateOptions),
           alreadyKnown,
         ),
@@ -835,25 +835,25 @@ function useTopbarNavigation(
     },
     [
       addWorkspaceToProject,
-      hiloApp2,
+      hiloApp,
       isKnownWorkspacePath,
       navigate,
       navigateToWorkspace,
       persistPickedWorkspaceName,
-      t2,
+      translate,
     ],
   );
   const openWorkspaceFromDialog = reactExports.useCallback(() => {
     void (async () => {
-      const paths = await platform2.fs.showOpenDialog?.({
+      const paths = await platform.fs.showOpenDialog?.({
         directory: true,
       });
       const folderPath = paths?.[0];
       if (!folderPath) return;
       await stageWorkspacePreview({
-        hiloApp: hiloApp2,
+        hiloApp,
         folderPath,
-        t: t2,
+        t: translate,
         onStaged: (entry) =>
           navigate({
             to: "/workspace",
@@ -861,7 +861,7 @@ function useTopbarNavigation(
           }),
       });
     })();
-  }, [hiloApp2, navigate, platform2.fs, t2]);
+  }, [hiloApp, navigate, platform.fs, translate]);
   return {
     activateHome,
     activateWorkspace,
@@ -872,12 +872,12 @@ function useTopbarNavigation(
     openWorkspaceFromDialog,
   };
 }
-export function TopbarProvider({ children: children2 }) {
-  const platform2 = usePlatform();
+export function TopbarProvider({ children }) {
+  const platform = usePlatform();
   const routerLocation = useRouterState({
-    select: (state2) => ({
-      pathname: state2.location.pathname,
-      search: state2.location.search,
+    select: (state) => ({
+      pathname: state.location.pathname,
+      search: state.location.search,
     }),
   });
   const routerSearch = routerLocation.search;
@@ -889,16 +889,16 @@ export function TopbarProvider({ children: children2 }) {
     entries: rawEntries,
     previewEntries: rawPreviewEntries,
     workspaceSnapshots,
-    hiloApp: hiloApp2,
+    hiloApp,
     reorderTabs,
     reportWorkspaceSnapshot,
   } = useTopbarEntries();
   const [recentWorkspaces] = useStorage("global.recentWorkspaces");
-  const entries2 = reactExports.useMemo(() => {
+  const entries = reactExports.useMemo(() => {
     if (rawEntries.length === 0) return rawEntries;
     return rawEntries.map((entry) => {
       const recent = recentWorkspaces.find(
-        (w3) => w3.path === entry.folderPath,
+        (recentWorkspace) => recentWorkspace.path === entry.folderPath,
       );
       if (!recent) return entry;
       const resolved = workspaceDisplayName(recent);
@@ -912,27 +912,27 @@ export function TopbarProvider({ children: children2 }) {
   }, [rawEntries, recentWorkspaces]);
   const previewEntries = reactExports.useMemo(() => {
     const entriesById = new Map(
-      entries2.map((entry) => [entry.workspaceId, entry]),
+      entries.map((entry) => [entry.workspaceId, entry]),
     );
     return rawPreviewEntries.map(
       (entry) => entriesById.get(entry.workspaceId) ?? entry,
     );
-  }, [entries2, rawPreviewEntries]);
+  }, [entries, rawPreviewEntries]);
   reactExports.useEffect(() => {
     if (currentWorkspaceId) showVisiblePreviewTab(currentWorkspaceId);
   }, [currentWorkspaceId]);
   reactExports.useEffect(() => {
     if (isWorkspaceRoute) return;
-    void hiloApp2.activateHome().catch((error) => {
+    void hiloApp.activateHome().catch((error) => {
       console.error(
         "[Topbar] activateHome failed after global navigation:",
         error,
       );
     });
-  }, [hiloApp2, isWorkspaceRoute]);
-  useWindowTitleSync(entries2, currentWorkspaceId, platform2);
-  useLastActivePersistence(currentWorkspaceId, platform2);
-  const activeRuntime = useActiveRuntime(currentWorkspaceId, hiloApp2);
+  }, [hiloApp, isWorkspaceRoute]);
+  useWindowTitleSync(entries, currentWorkspaceId, platform);
+  useLastActivePersistence(currentWorkspaceId, platform);
+  const activeRuntime = useActiveRuntime(currentWorkspaceId, hiloApp);
   reactExports.useEffect(() => {
     setTopbarActiveWorkspaceSnapshot({
       currentWorkspaceId,
@@ -947,9 +947,9 @@ export function TopbarProvider({ children: children2 }) {
       });
     };
   }, []);
-  const nav2 = useTopbarNavigation(
-    hiloApp2,
-    entries2,
+  const nav = useTopbarNavigation(
+    hiloApp,
+    entries,
     previewEntries,
     currentWorkspaceId,
     workspaceSnapshots,
@@ -958,12 +958,12 @@ export function TopbarProvider({ children: children2 }) {
     ? workspaceSnapshots.get(currentWorkspaceId)
     : void 0;
   const activeTasks = reactExports.useMemo(
-    () => Array.from(workspaceSnapshots.values()).flatMap((s2) => s2.tasks),
+    () => Array.from(workspaceSnapshots.values()).flatMap((workspaceSnapshot) => workspaceSnapshot.tasks),
     [workspaceSnapshots],
   );
   const { navigateAndFocus } = useWorkspaceFocusNavigation(
     currentWorkspaceId,
-    nav2.activateWorkspace,
+    nav.activateWorkspace,
   );
   const {
     completedTasks,
@@ -973,7 +973,7 @@ export function TopbarProvider({ children: children2 }) {
     dismissCompletedTask,
     markCompletedTasksRead,
     markWorkspaceCompletedTasksRead,
-  } = useCompletedTasks(entries2, {
+  } = useCompletedTasks(entries, {
     activeWorkspaceId: currentWorkspaceId,
     activeTasks,
     onCompletionNotificationClick: navigateAndFocus,
@@ -987,9 +987,9 @@ export function TopbarProvider({ children: children2 }) {
     markWorkspaceCompletedTasksRead,
   ]);
   const workspaceStatusById = reactExports.useMemo(() => {
-    const map3 = new Map();
+    const map = new Map();
     for (const task of activeTasks) {
-      const prev = map3.get(task.workspaceId);
+      const prev = map.get(task.workspaceId);
       const taskAction =
         task.status === "needs-answer"
           ? "answer"
@@ -1000,7 +1000,7 @@ export function TopbarProvider({ children: children2 }) {
         prev?.needsUserAction === "answer" || taskAction === "answer"
           ? "answer"
           : (taskAction ?? prev?.needsUserAction);
-      map3.set(task.workspaceId, {
+      map.set(task.workspaceId, {
         running: true,
         unread: prev?.unread ?? false,
         ...(needsUserAction
@@ -1012,8 +1012,8 @@ export function TopbarProvider({ children: children2 }) {
     }
     for (const task of unreadCompletedTasks) {
       if (task.workspaceId === currentWorkspaceId) continue;
-      const prev = map3.get(task.workspaceId);
-      map3.set(task.workspaceId, {
+      const prev = map.get(task.workspaceId);
+      map.set(task.workspaceId, {
         running: prev?.running ?? false,
         unread: true,
         ...(prev?.needsUserAction
@@ -1023,11 +1023,11 @@ export function TopbarProvider({ children: children2 }) {
           : {}),
       });
     }
-    return map3;
+    return map;
   }, [activeTasks, unreadCompletedTasks, currentWorkspaceId]);
   const searchWorkspaces = reactExports.useMemo(
     () =>
-      entries2.map((entry) => ({
+      entries.map((entry) => ({
         workspaceId: entry.workspaceId,
         workspaceName: entry.projectName,
         folderPath: entry.folderPath,
@@ -1048,11 +1048,11 @@ export function TopbarProvider({ children: children2 }) {
             : void 0),
         sessions: workspaceSnapshots.get(entry.workspaceId)?.sessions ?? [],
       })),
-    [activeRuntime, entries2, workspaceSnapshots],
+    [activeRuntime, entries, workspaceSnapshots],
   );
   const stateValue = reactExports.useMemo(
     () => ({
-      entries: entries2,
+      entries,
       previewEntries,
       currentWorkspaceId,
       isHomeActive,
@@ -1071,7 +1071,7 @@ export function TopbarProvider({ children: children2 }) {
       completedTasks,
       unreadCompletedTaskCount,
       workspaceStatusById,
-      entries2,
+      entries,
       previewEntries,
       currentWorkspaceId,
       isHomeActive,
@@ -1080,7 +1080,7 @@ export function TopbarProvider({ children: children2 }) {
   );
   const actionsValue = reactExports.useMemo(
     () => ({
-      ...nav2,
+      ...nav,
       reorderTabs,
       reportWorkspaceSnapshot,
       reportTaskCompleted,
@@ -1089,7 +1089,7 @@ export function TopbarProvider({ children: children2 }) {
       markWorkspaceCompletedTasksRead,
     }),
     [
-      nav2,
+      nav,
       reorderTabs,
       reportWorkspaceSnapshot,
       reportTaskCompleted,
@@ -1101,7 +1101,7 @@ export function TopbarProvider({ children: children2 }) {
   return (
     <TopbarStateContext value={stateValue}>
       <TopbarActionsContext value={actionsValue}>
-        {children2}
+        {children}
       </TopbarActionsContext>
     </TopbarStateContext>
   );

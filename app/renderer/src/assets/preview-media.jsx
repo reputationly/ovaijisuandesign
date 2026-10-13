@@ -12,11 +12,11 @@ import { isSubtitleFileName } from "../canvas/is-reexecutable-generation-node.js
 const PREVIEW_IMAGE_DISPLAY_PX = 256;
 export const STRICT_THUMBNAIL_MAX_RETRIES = 2;
 export const STRICT_THUMBNAIL_RETRY_DELAY_MS = 2e3;
-export function withStrictThumbnail(url2, width) {
-  if (!url2) return void 0;
+export function withStrictThumbnail(url, width) {
+  if (!url) return void 0;
   try {
-    new URL(url2);
-    return withThumbnail(url2, width, {
+    new URL(url);
+    return withThumbnail(url, width, {
       format: "webp",
       fallback: "error",
     });
@@ -36,11 +36,11 @@ export function DurationBadge({ resource }) {
 function PreviewMedia({ resource }) {
   const [failedUrl, setFailedUrl] = reactExports.useState(null);
   const failed = failedUrl === resource.url;
-  const wrap2 =
+  const wrap =
     "relative flex aspect-video w-full items-center justify-center overflow-hidden bg-muted";
   if (resource.type === "image" && !failed) {
     return (
-      <div className={wrap2}>
+      <div className={wrap}>
         <DeferredThumbnailImage
           src={withStrictThumbnail(resource.url, PREVIEW_IMAGE_DISPLAY_PX)}
           onFailure={() => setFailedUrl(resource.url)}
@@ -55,7 +55,7 @@ function PreviewMedia({ resource }) {
   }
   if (resource.type === "video" && !failed) {
     return (
-      <div className={wrap2}>
+      <div className={wrap}>
         <video
           src={resource.url}
           onError={() => setFailedUrl(resource.url)}
@@ -69,7 +69,7 @@ function PreviewMedia({ resource }) {
     );
   }
   return (
-    <div className={wrap2}>
+    <div className={wrap}>
       <FileTypeIcon
         {...classifyFileType({
           filename: resource.name,
@@ -81,17 +81,17 @@ function PreviewMedia({ resource }) {
     </div>
   );
 }
-function formatBytes(n2) {
-  if (n2 < 1024) return `${n2} B`;
-  if (n2 < 1024 * 1024) return `${(n2 / 1024).toFixed(0)} KB`;
-  return `${(n2 / (1024 * 1024)).toFixed(1)} MB`;
+function formatBytes(byteCount) {
+  if (byteCount < 1024) return `${byteCount} B`;
+  if (byteCount < 1024 * 1024) return `${(byteCount / 1024).toFixed(0)} KB`;
+  return `${(byteCount / (1024 * 1024)).toFixed(1)} MB`;
 }
-export function describeMeta(r2) {
+export function describeMeta(resource) {
   const bits = [];
-  if (r2.width && r2.height) bits.push(`${r2.width}×${r2.height}`);
-  if (r2.durationSec !== void 0) bits.push(`${r2.durationSec.toFixed(1)}s`);
-  if (r2.fileSize !== void 0) bits.push(formatBytes(r2.fileSize));
-  return bits.join(" · ") || r2.type.toUpperCase();
+  if (resource.width && resource.height) bits.push(`${resource.width}×${resource.height}`);
+  if (resource.durationSec !== void 0) bits.push(`${resource.durationSec.toFixed(1)}s`);
+  if (resource.fileSize !== void 0) bits.push(formatBytes(resource.fileSize));
+  return bits.join(" · ") || resource.type.toUpperCase();
 }
 export function AssetPreviewPopup({ resource, side = "right" }) {
   return (
@@ -136,9 +136,9 @@ export function finitePositive(value) {
     ? value
     : void 0;
 }
-export function formatImageMinDimensionLimit(constraints2) {
-  const minWidth = finitePositive(constraints2?.imageMinWidth);
-  const minHeight = finitePositive(constraints2?.imageMinHeight);
+export function formatImageMinDimensionLimit(constraints) {
+  const minWidth = finitePositive(constraints?.imageMinWidth);
+  const minHeight = finitePositive(constraints?.imageMinHeight);
   if (minWidth !== void 0 && minHeight !== void 0)
     return `${minWidth}×${minHeight}`;
   if (minWidth !== void 0) return `${minWidth}px wide`;
@@ -153,20 +153,20 @@ export function formatExceededDuration(value) {
   const rounded = Math.round(value * 10) / 10;
   return `${rounded}s`;
 }
-export function tagLabel(tag, t2) {
+export function tagLabel(tag, translate) {
   if (tag.name) return tag.name;
   return (
-    t2(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") || tag.id
+    translate(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") || tag.id
   );
 }
-export function normaliseAssetType(raw2, fileName) {
+export function normaliseAssetType(raw, fileName) {
   if (fileName && isSubtitleFileName(fileName)) return "subtitle";
-  switch (raw2) {
+  switch (raw) {
     case "image":
     case "video":
     case "audio":
     case "text":
-      return raw2;
+      return raw;
     default:
       return "file";
   }
@@ -176,12 +176,12 @@ function groupId(kind) {
   if (!decision.allowed) return null;
   return decision.mode === "CANONICAL" ? decision.scope.groupId : void 0;
 }
-function send(kind, sender, message2) {
+function send(kind, sender, message) {
   const requestGroupId = groupId(kind);
   return requestGroupId === null
     ? false
     : sender({
-        ...message2,
+        ...message,
         group_id: requestGroupId,
       });
 }

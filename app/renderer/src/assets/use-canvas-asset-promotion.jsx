@@ -30,18 +30,18 @@ const ESTIMATED_MENU_SIZE = {
 };
 
 function AssetSaveMenuContent({
-  state: state2,
+  state,
   onSaveToProjectAssets,
   onAddToLibrary,
   onClose,
   motionProps,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const ref = motionProps.ref;
-  const closing2 = motionProps["data-ending-style"] !== void 0;
+  const closing = motionProps["data-ending-style"] !== void 0;
   const [menuPosition, setMenuPosition] = reactExports.useState(() =>
     resolveNodeContextMenuPosition({
-      anchor: state2,
+      anchor: state,
       menuSize: ESTIMATED_MENU_SIZE,
       viewportSize:
         typeof window === "undefined"
@@ -57,16 +57,16 @@ function AssetSaveMenuContent({
   );
   const updateMenuPosition = reactExports.useCallback(() => {
     if (typeof window === "undefined") return;
-    const menu2 = ref.current;
-    const next2 = resolveNodeContextMenuPosition({
+    const menu = ref.current;
+    const next = resolveNodeContextMenuPosition({
       anchor: {
-        x: state2.x,
-        y: state2.y,
+        x: state.x,
+        y: state.y,
       },
-      menuSize: menu2
+      menuSize: menu
         ? {
-            width: menu2.offsetWidth,
-            height: menu2.offsetHeight,
+            width: menu.offsetWidth,
+            height: menu.offsetHeight,
           }
         : ESTIMATED_MENU_SIZE,
       viewportSize: {
@@ -74,40 +74,40 @@ function AssetSaveMenuContent({
         height: window.innerHeight,
       },
     });
-    setMenuPosition((current2) =>
-      current2.x === next2.x && current2.y === next2.y ? current2 : next2,
+    setMenuPosition((current) =>
+      current.x === next.x && current.y === next.y ? current : next,
     );
-  }, [state2.x, state2.y, ref]);
+  }, [state.x, state.y, ref]);
   reactExports.useLayoutEffect(updateMenuPosition, [updateMenuPosition]);
   reactExports.useEffect(() => {
     window.addEventListener("resize", updateMenuPosition);
     return () => window.removeEventListener("resize", updateMenuPosition);
   }, [updateMenuPosition]);
   reactExports.useEffect(() => {
-    if (closing2) return;
-    const handleClick2 = (e2) => {
-      if (ref.current?.contains(e2.target)) return;
+    if (closing) return;
+    const handleClick = (mouseEvent) => {
+      if (ref.current?.contains(mouseEvent.target)) return;
       onClose();
     };
-    const handleKey = (e2) => {
-      if (e2.key === "Escape") onClose();
+    const handleKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") onClose();
     };
-    document.addEventListener("mousedown", handleClick2);
+    document.addEventListener("mousedown", handleClick);
     document.addEventListener("keydown", handleKey);
     return () => {
-      document.removeEventListener("mousedown", handleClick2);
+      document.removeEventListener("mousedown", handleClick);
       document.removeEventListener("keydown", handleKey);
     };
-  }, [onClose, closing2, ref]);
+  }, [onClose, closing, ref]);
   const handleSaveToProject = () => {
     onClose();
-    onSaveToProjectAssets(state2.nodeIds);
+    onSaveToProjectAssets(state.nodeIds);
   };
   const handleAddToLibrary = () => {
     onClose();
-    onAddToLibrary(state2.nodeIds, {
-      x: state2.x,
-      y: state2.y,
+    onAddToLibrary(state.nodeIds, {
+      x: state.x,
+      y: state.y,
     });
   };
   const menu = (
@@ -127,14 +127,14 @@ function AssetSaveMenuContent({
         onClick={handleSaveToProject}
       >
         <StrokeIcon icon={FolderInput} size={16} />
-        {t2("canvas.saveToProjectAssets")}
+        {translate("canvas.saveToProjectAssets")}
       </ActionListItem>
       <ActionListItem
         data-action-ui-id="canvas-asset-save-menu.add-to-library"
         onClick={handleAddToLibrary}
       >
         <StrokeIcon icon={Library} size={16} />
-        {t2("canvas.addToLibrary")}
+        {translate("canvas.addToLibrary")}
       </ActionListItem>
     </ActionListPanel>
   );
@@ -144,13 +144,13 @@ function AssetSaveMenuContent({
 }
 
 function AssetSaveMenu({
-  state: state2,
+  state,
   onSaveToProjectAssets,
   onAddToLibrary,
   onClose,
 }) {
   return (
-    <QuickZoomPresence value={state2}>
+    <QuickZoomPresence value={state}>
       {(retainedState, motionProps) => (
         <AssetSaveMenuContent
           state={retainedState}
@@ -165,25 +165,25 @@ function AssetSaveMenu({
 }
 
 function PromoteToAssetPopover({
-  state: state2,
+  state,
   workspaceRoot,
   onClose,
   onGroupNodes,
 }) {
   const [isSubmitting, setIsSubmitting] = reactExports.useState(false);
-  const open = state2 !== null && state2.files.length > 0;
+  const open = state !== null && state.files.length > 0;
   useSuspendCanvasInteractions(open);
-  const anchor = state2
+  const anchor = state
     ? {
         getBoundingClientRect: () => ({
           width: 0,
           height: 0,
-          x: state2.x,
-          y: state2.y,
-          top: state2.y,
-          left: state2.x,
-          right: state2.x,
-          bottom: state2.y,
+          x: state.x,
+          y: state.y,
+          top: state.y,
+          left: state.x,
+          right: state.x,
+          bottom: state.y,
         }),
       }
     : void 0;
@@ -191,21 +191,21 @@ function PromoteToAssetPopover({
     (result) => {
       if (
         result?.entityName &&
-        state2 &&
-        state2.nodeIds.length >= 2 &&
+        state &&
+        state.nodeIds.length >= 2 &&
         onGroupNodes
       ) {
-        onGroupNodes(state2.nodeIds, result.entityName);
+        onGroupNodes(state.nodeIds, result.entityName);
       }
       onClose();
     },
-    [state2, onGroupNodes, onClose],
+    [state, onGroupNodes, onClose],
   );
   return (
     <Popover
       open={open}
-      onOpenChange={(o2) => {
-        if (!o2 && !isSubmitting) onClose();
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !isSubmitting) onClose();
       }}
     >
       <PopoverContent
@@ -216,9 +216,9 @@ function PromoteToAssetPopover({
         className="w-96 max-h-[80vh] overflow-y-auto rounded-lg"
         data-action-ui-id="canvas.promote-to-asset-popover"
       >
-        {state2 && (
+        {state && (
           <PromoteToAssetForm
-            files={state2.files}
+            files={state.files}
             workspaceRoot={workspaceRoot}
             onCancel={onClose}
             onSuccess={handleSuccess}
@@ -238,7 +238,7 @@ export function useCanvasAssetPromotion({
   closeNodeContextMenu,
   openSaveToProjectAssets,
 }) {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const [promotePopover, setPromotePopover] = reactExports.useState(null);
   const workspaceProject = useWorkspaceProject(workspaceRoot ?? void 0);
   const isInProject = !!workspaceProject;
@@ -251,22 +251,22 @@ export function useCanvasAssetPromotion({
   const collectFiles = reactExports.useCallback(
     (nodeIds) => {
       const refs = canvasViewRef.current?.collectFileNodeRefs(nodeIds) ?? [];
-      const seen2 = new Set();
+      const seen = new Set();
       const files = [];
       for (const ref of refs) {
-        if (seen2.has(ref.filePath)) continue;
-        seen2.add(ref.filePath);
+        if (seen.has(ref.filePath)) continue;
+        seen.add(ref.filePath);
         const absolutePath = workspaceRoot
           ? joinFilePath(workspaceRoot, ref.filePath)
           : ref.filePath;
-        const displayName2 = ref.filePath.split("/").pop() ?? ref.filePath;
+        const displayName = ref.filePath.split("/").pop() ?? ref.filePath;
         const vaultPrompt = workspaceAssets.find(
-          (a2) => a2.path === ref.filePath,
+          (workspaceAsset) => workspaceAsset.path === ref.filePath,
         )?.prompt;
         files.push({
           workspaceRelPath: ref.filePath,
           absolutePath,
-          displayName: displayName2,
+          displayName,
           ...(vaultPrompt && vaultPrompt.trim().length > 0
             ? {
                 vaultPrompt,
@@ -325,11 +325,11 @@ export function useCanvasAssetPromotion({
     ],
   );
   const promoteMenuActions = reactExports.useCallback(
-    (point2) => ({
+    (point) => ({
       ...(isTeamProject
         ? {}
         : {
-            promoteToAsset: (ids2) => handlePromoteToAsset(ids2, point2),
+            promoteToAsset: (ids) => handlePromoteToAsset(ids, point),
           }),
       ...(isInProject
         ? {
@@ -346,7 +346,7 @@ export function useCanvasAssetPromotion({
   );
   const handleGroupNodesAfterPromote = reactExports.useCallback(
     (nodeIds, label) => {
-      gatewayFetch2("/api/canvas/group", {
+      gatewayFetch("/api/canvas/group", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -362,7 +362,7 @@ export function useCanvasAssetPromotion({
         );
       });
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const promotePopoverElement = (
     <>

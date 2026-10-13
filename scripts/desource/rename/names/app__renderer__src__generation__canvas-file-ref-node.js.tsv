@@ -1,0 +1,24 @@
+key	old	new	依据
+tr2@183:16	tr2	transaction	该值是 ProseMirror transaction，用于更新文件引用节点标记。
+tr2@197:16	tr2	transaction	该值是 ProseMirror transaction，用于删除文件引用节点。
+i2@207:20	i2	index	该值是从后向前遍历待删除节点位置数组的下标。
+tr2@218:45	tr2	transaction	该值是键盘命令中的 ProseMirror transaction，用于删除当前引用节点。
+path2@10:35	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+meta2@13:14	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+node2@54:20	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+path2@56:17	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+node2@84:22	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@98:22	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+path2@99:11	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+state2@122:26	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+match2@152:17	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+start2@156:19	start2	start	去掉打包器防重名追加的后缀，恢复原名 start，即该绑定持有的值。
+path2@182:10	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+state2@183:36	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+node2@185:35	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+path2@196:10	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+state2@197:36	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+node2@199:35	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+size2@208:32	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+state2@218:65	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+selection2@219:30	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。

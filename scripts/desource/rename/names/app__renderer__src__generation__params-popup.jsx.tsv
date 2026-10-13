@@ -1,0 +1,8 @@
+key	old	new	依据
+e2@33:31	e2	mouseEvent	去掉打包器防重名追加的后缀，恢复原名 mouseEvent，即该绑定持有的值。
+e2@40:29	e2	keyEvent	去掉打包器防重名追加的后缀，恢复原名 keyEvent，即该绑定持有的值。
+e2@89:17	e2	clickEvent	去掉打包器防重名追加的后缀，恢复原名 clickEvent，即该绑定持有的值。
+children2@20:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+scale2@22:10	scale2	scale	去掉打包器防重名追加的后缀，恢复原名 scale，即该绑定持有的值。
+handleMouseDown2@33:11	handleMouseDown2	handleMouseDown	去掉打包器防重名追加的后缀，恢复原名 handleMouseDown，即该绑定持有的值。
+handleKeyDown2@40:11	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。

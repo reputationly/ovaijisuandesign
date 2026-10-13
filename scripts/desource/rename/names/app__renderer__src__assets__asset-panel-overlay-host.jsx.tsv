@@ -1,0 +1,89 @@
+key	old	new	依据
+E@11:10	E	WaveSurfer	该导入是 WaveSurfer 播放器类，用于创建和控制资产预览的音频波形。
+STALE_TIME_MS$1@591:7	STALE_TIME_MS$1	TEXT_PREVIEW_STALE_TIME_MS	该常量为文本资产预览查询设置五分钟缓存时长。
+d2@51:7	d2	date	该值是格式化修改时间时构造的 Date 对象。
+n2@59:16	n2	value	该值是补零格式化的数字部分。
+v2@74:9	v2	stringValue	该值是从元数据中读取并验证过的字符串。
+v2@78:9	v2	numberValue	该值是从元数据中读取并验证过的有限数字。
+t2@199:14	t2	translate	该绑定是谱系区块读取界面文案的翻译函数。
+v2@206:38	v2	isCollapsed	该参数表示折叠状态更新前的布尔值。
+t2@230:14	t2	translate	该绑定是角色标签读取界面文案的翻译函数。
+t2@275:14	t2	translate	该绑定是谱系行读取界面文案的翻译函数。
+t2@284:14	t2	translate	该绑定是独立来源提示读取界面文案的翻译函数。
+t2@318:14	t2	translate	该绑定是上游层级读取界面文案的翻译函数。
+t2@353:14	t2	translate	该绑定是下游层级读取界面文案的翻译函数。
+v2@360:38	v2	isCollapsed	该参数表示折叠状态更新前的布尔值。
+t2@384:14	t2	translate	该绑定是单独谱系提示读取界面文案的翻译函数。
+t2@409:14	t2	translate	该绑定是谱系路径面板读取界面文案的翻译函数。
+t2@429:14	t2	translate	该绑定是谱系树读取界面文案的翻译函数。
+t2@442:14	t2	translate	该绑定是上游视图读取界面文案的翻译函数。
+a2@451:43	a2	leftDepth	该值是排序比较中的左侧上游深度键。
+b3@451:49	b3	rightDepth	该值是排序比较中的右侧上游深度键。
+n2@457:40	n2	node	该节点的深度用于判断上游遍历是否触及层级上限。
+t2@479:14	t2	translate	该绑定是下游视图读取界面文案的翻译函数。
+n2@483:34	n2	node	该后代节点的深度用于判断遍历是否触及层级上限。
+t2@517:14	t2	translate	该绑定是谱系树读取界面文案的翻译函数。
+t2@610:23	t2	translate	该参数是元数据行标签的翻译函数。
+t2@624:27	t2	translate	该参数用于翻译音频元数据中的声道文案。
+t2@676:27	t2	translate	该参数传给音频元数据行生成器以翻译声道文案。
+t2@701:14	t2	translate	该绑定是元数据表读取界面文案的翻译函数。
+r2@702:45	r2	row	该回调项是待保留的非空资产元数据行。
+t2@726:14	t2	translate	该绑定是音频预览读取界面文案的翻译函数。
+ws2@742:9	ws2	waveSurfer	该实例是当前音频预览创建的 WaveSurfer 播放器。
+ws2@826:11	ws2	waveSurfer	该值是音频预览引用中保存的 WaveSurfer 播放器。
+m3@831:63	m3	wasMuted	该布尔值表示静音状态更新前的值。
+t2@890:14	t2	translate	该绑定是图片预览读取界面文案的翻译函数。
+t2@951:14	t2	translate	该绑定是文本预览读取界面文案的翻译函数。
+t2@1010:14	t2	translate	该绑定是视频预览读取界面文案的翻译函数。
+e2@1091:18	e2	playEvent	该事件提供正在播放的视频元素作为当前目标。
+t2@1142:14	t2	translate	该绑定是悬停预览读取界面文案的翻译函数。
+id2@1145:11	id2	positionFrameId	该值是用于完成弹层定位更新的动画帧编号。
+t2@1349:16	t2	translate	该绑定是缺失素材定位对话框读取界面文案的翻译函数。
+s2@1435:13	s2	overlayState	该值是当前悬停或定位缺失素材的弹层状态。
+s2@1449:13	s2	overlayState	该值是当前悬停或定位缺失素材的弹层状态。
+io2@1476:13	io2	intersectionObserver	该对象观察锚点是否离开可见区域。
+_t2@122:27	_t2	_unusedArg	该参数未被使用，且唯一调用点只传入 asset。
+Volume2@25:3	Volume2	Volume	去掉打包器防重名追加的后缀，恢复原名 Volume，即该绑定持有的值。
+url2@66:11	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+meta2@73:21	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+key2@73:28	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+meta2@77:21	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+key2@77:28	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+base2@82:9	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
+dot2@83:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+children2@198:53	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+path2@241:9	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+name2@242:9	name2	assetName	该值是资产行展示的资产名称。
+type2@274:33	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+node2@283:32	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@317:30	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+depth2@352:33	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+node2@373:23	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@383:27	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@420:19	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+text2@430:9	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+data2@441:31	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+buckets2@445:11	buckets2	buckets	去掉打包器防重名追加的后缀，恢复原名 buckets，即该绑定持有的值。
+node2@446:16	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@487:21	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+depth2@513:10	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+gatewayFetch2@576:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+chars2@594:21	chars2	chars	去掉打包器防重名追加的后缀，恢复原名 chars，即该绑定持有的值。
+gatewayFetch2@596:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+gatewayUrl2@727:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+gatewayFetch2@728:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+url2@732:9	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+start2@745:11	start2	start	去掉打包器防重名追加的后缀，恢复原名 start，即该绑定持有的值。
+data2@792:17	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+gatewayUrl2@891:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+gatewayUrl2@1011:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+next2@1057:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+data2@1206:15	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+errorMessage2@1209:15	errorMessage2	errorMessage	去掉打包器防重名追加的后缀，恢复原名 errorMessage，即该绑定持有的值。
+AssetPanelOverlayHost2@1345:12	AssetPanelOverlayHost2	AssetPanelOverlayHost	去掉打包器防重名追加的后缀，恢复原名 AssetPanelOverlayHost，即该绑定持有的值。
+state2@1350:12	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+cancelOpen2@1360:11	cancelOpen2	cancelOpen	去掉打包器防重名追加的后缀，恢复原名 cancelOpen，即该绑定持有的值。
+next2@1356:47	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@1440:8	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+path2@1451:13	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+entries2@1477:10	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。

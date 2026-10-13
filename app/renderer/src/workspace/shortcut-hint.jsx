@@ -11,7 +11,7 @@ import {
   MenuPositioner,
   MenuSubmenuTrigger,
   TabsIndicator,
-  TabsList$1,
+  TabsList$1 as TabsListPrimitive,
   TabsPanel,
   TabsRoot,
   TabsTab,
@@ -67,15 +67,15 @@ export function getMediaUsageGuidelinesUrl(region, channel) {
   ).href;
 }
 const TEAM_INVOICE_PATH = "/media-plan/console/invoice";
-export function getTeamInvoiceUrl(region, channel, groupId2) {
+export function getTeamInvoiceUrl(region, channel, groupId) {
   const environment = channel === "prod" ? "prod" : "test";
-  const url2 = new URL(
+  const url = new URL(
     TEAM_INVOICE_PATH,
     HUB_WEB_INVITE_DOMAINS[environment][region],
   );
-  url2.searchParams.set("group_id", groupId2);
-  url2.searchParams.set("tab", "team");
-  return url2.href;
+  url.searchParams.set("group_id", groupId);
+  url.searchParams.set("tab", "team");
+  return url.href;
 }
 const USER_PROTOCOL_PATHS = {
   userAgreement: "/media-plan/protocol/user-agreement",
@@ -94,10 +94,10 @@ export const USER_PROTOCOL_KEYS_BY_REGION = {
   ],
   overseas: ["pointsRules"],
 };
-export function getUserProtocolUrl(region, channel, key2) {
+export function getUserProtocolUrl(region, channel, key) {
   const environment = channel === "prod" ? "prod" : "test";
   return new URL(
-    USER_PROTOCOL_PATHS[key2],
+    USER_PROTOCOL_PATHS[key],
     HUB_WEB_INVITE_DOMAINS[environment][region],
   ).href;
 }
@@ -114,44 +114,44 @@ export function getTutorialUrl(region) {
   return TUTORIAL_URL[region];
 }
 export function appendOpenPlatformTrackingParams(
-  url2,
+  url,
   walletSource,
   subscriptionContext = {
     accountType: "PERSONAL",
   },
 ) {
-  if (!url2) return url2;
-  if (walletSource !== WalletSource.WALLET_SOURCE_OP) return url2;
+  if (!url) return url;
+  if (walletSource !== WalletSource.WALLET_SOURCE_OP) return url;
   try {
-    const u4 = new URL(url2);
-    if (u4.pathname.startsWith("/media-plan/subscribe")) {
-      const groupId2 =
-        subscriptionContext.groupId ?? u4.searchParams.get("group_id");
-      for (const key2 of [
+    const urlObject = new URL(url);
+    if (urlObject.pathname.startsWith("/media-plan/subscribe")) {
+      const groupId =
+        subscriptionContext.groupId ?? urlObject.searchParams.get("group_id");
+      for (const key of [
         "tab",
         "group_id",
         "business",
         "device_platform",
         "auth",
       ]) {
-        u4.searchParams.delete(key2);
+        urlObject.searchParams.delete(key);
       }
       if (subscriptionContext.accountType === "TEAM") {
-        u4.searchParams.set("tab", "team");
+        urlObject.searchParams.set("tab", "team");
       }
-      if (groupId2) {
-        u4.searchParams.set("group_id", groupId2);
+      if (groupId) {
+        urlObject.searchParams.set("group_id", groupId);
       }
-      u4.searchParams.set("business", "HailuoVideo");
-      u4.searchParams.set("device_platform", "desktop");
-      u4.searchParams.set("auth", "1");
+      urlObject.searchParams.set("business", "HailuoVideo");
+      urlObject.searchParams.set("device_platform", "desktop");
+      urlObject.searchParams.set("auth", "1");
     } else {
-      u4.searchParams.set("business", "HailuoVideo");
-      u4.searchParams.set("device_platform", "desktop");
+      urlObject.searchParams.set("business", "HailuoVideo");
+      urlObject.searchParams.set("device_platform", "desktop");
     }
-    return u4.toString();
+    return urlObject.toString();
   } catch {
-    return url2;
+    return url;
   }
 }
 export const BROWSER_ERROR_ILLUSTRATION_URL =
@@ -167,7 +167,7 @@ export function DropdownMenuSeparator({ className, ...props }) {
 }
 export function DropdownMenuSubTrigger({
   className,
-  children: children2,
+  children,
   ...props
 }) {
   return (
@@ -181,7 +181,7 @@ export function DropdownMenuSubTrigger({
       {...props}
     >
       <span className="flex min-w-0 flex-1 items-center gap-2">
-        {children2}
+        {children}
       </span>
       <ChevronRight className="text-current opacity-70" />
     </MenuSubmenuTrigger>
@@ -252,12 +252,12 @@ export function Tabs({ className, ...props }) {
 }
 export function TabsList({
   className,
-  children: children2,
+  children,
   variant = "default",
   ...props
 }) {
   return (
-    <TabsList$1
+    <TabsListPrimitive
       data-slot="tabs-list"
       data-variant={variant}
       className={cn(
@@ -277,8 +277,8 @@ export function TabsList({
           className="tabs-underline-indicator bottom-0"
         />
       )}
-      {children2}
-    </TabsList$1>
+      {children}
+    </TabsListPrimitive>
   );
 }
 export function TabsTrigger({ className, variant = "default", ...props }) {
@@ -316,8 +316,8 @@ export function isMacPlatform() {
   }
   return _cachedIsMac;
 }
-export function ShortcutKeycap({ token: token2, className, ...props }) {
-  const kind = getShortcutTokenKind(token2);
+export function ShortcutKeycap({ token, className, ...props }) {
+  const kind = getShortcutTokenKind(token);
   return (
     <Kbd
       className={cn(
@@ -330,7 +330,7 @@ export function ShortcutKeycap({ token: token2, className, ...props }) {
       )}
       {...props}
     >
-      {token2}
+      {token}
     </Kbd>
   );
 }
@@ -345,23 +345,23 @@ export function ShortcutHint({
   accelerator,
   otherAccelerator,
   variant = "keycap",
-  os: os2,
+  os: operatingSystem,
   className,
   ...props
 }) {
-  const resolvedOs = os2 ?? getPlatform().app.os;
+  const resolvedOs = operatingSystem ?? getPlatform().app.os;
   const display = resolveShortcutDisplay(
     resolvedOs === "darwin" ? accelerator : (otherAccelerator ?? accelerator),
     resolvedOs,
   );
   const tokenCounts = new Map();
-  const tokenItems = display.tokens.map((token2) => {
-    const tokenKey = `${token2.kind}-${token2.label}`;
+  const tokenItems = display.tokens.map((token) => {
+    const tokenKey = `${token.kind}-${token.label}`;
     const occurrence = tokenCounts.get(tokenKey) ?? 0;
     tokenCounts.set(tokenKey, occurrence + 1);
     return {
       id: `${tokenKey}-${occurrence}`,
-      token: token2,
+      token,
     };
   });
   return (
@@ -376,11 +376,11 @@ export function ShortcutHint({
       )}
       {...props}
     >
-      {tokenItems.map(({ id: id2, token: token2 }, tokenIndex) => (
+      {tokenItems.map(({ id: tokenId, token }, tokenIndex) => (
         <span
-          key={id2}
+          key={tokenId}
           className="inline-flex items-center"
-          data-shortcut-token-kind={token2.kind}
+          data-shortcut-token-kind={token.kind}
         >
           {!display.isMac && tokenIndex > 0 && (
             <span
@@ -390,7 +390,7 @@ export function ShortcutHint({
               +
             </span>
           )}
-          <span className={tokenClassName(token2.kind)}>{token2.label}</span>
+          <span className={tokenClassName(token.kind)}>{token.label}</span>
         </span>
       ))}
     </Kbd>

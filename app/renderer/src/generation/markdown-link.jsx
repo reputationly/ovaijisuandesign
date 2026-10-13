@@ -1,5 +1,5 @@
 // markdown-link.jsx
-import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, defaultSchema, ExternalLink, G$1 as G, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
+import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, defaultSchema, ExternalLink, G$1 as codeHighlighterPlugin, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   cleanRaw,
@@ -40,11 +40,11 @@ import {
 } from "../workspace/context-menu-content.jsx";
 import { InlineColorValue } from "./use-mention-models.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
-import { Ae, ot, rt } from "../chat/ae.jsx";
-import { st } from "../chat/st.jsx";
+import { Ae as CodeBlockCopyButton, ot as CodeBlockContainer, rt as CodeBlockHeader } from "../chat/ae.jsx";
+import { st as HighlightedCodeBlock } from "../chat/st.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import { resolveChatFileReference } from "./resolve-chat-file-reference.js";
-import { cleanPath, tt } from "../media-editing/wt.js";
+import { cleanPath, tt as useIsIncompleteCode } from "../media-editing/wt.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   useResolveMediaUrl,
@@ -80,13 +80,13 @@ function joinMetadata(parts) {
   return parts.filter(Boolean).join(" · ");
 }
 function basename(src) {
-  const path2 = cleanPath(src);
-  return path2.split(/[\\/]/).pop() || "";
+  const path = cleanPath(src);
+  return path.split(/[\\/]/).pop() || "";
 }
 function getMediaExtension(src) {
-  const name2 = basename(src);
-  const dot2 = name2.lastIndexOf(".");
-  return dot2 > 0 ? name2.slice(dot2 + 1).toUpperCase() : "";
+  const fileName = basename(src);
+  const dot = fileName.lastIndexOf(".");
+  return dot > 0 ? fileName.slice(dot + 1).toUpperCase() : "";
 }
 function getDisplayName(originalSrc, resolvedSrc, alt, asset) {
   if (asset?.name) return asset.name;
@@ -112,15 +112,15 @@ function rewriteImgSrc(src, workspaceDir, resolveUrl = resolveMediaUrl) {
   if (filePath.startsWith("/files/")) return resolveUrl(filePath);
   if (filePath.startsWith("/")) {
     if (workspaceDir) {
-      const base2 = workspaceDir.endsWith("/")
+      const base = workspaceDir.endsWith("/")
         ? workspaceDir
         : `${workspaceDir}/`;
-      if (filePath.startsWith(base2)) {
-        return resolveUrl(`/files/${filePath.slice(base2.length)}`);
+      if (filePath.startsWith(base)) {
+        return resolveUrl(`/files/${filePath.slice(base.length)}`);
       }
     }
-    const name2 = filePath.split("/").pop();
-    return name2 ? resolveUrl(`/files/${name2}`) : src;
+    const fileName = filePath.split("/").pop();
+    return fileName ? resolveUrl(`/files/${fileName}`) : src;
   }
   const cleaned = filePath.replace(/^\.\//, "");
   return resolveUrl(`/files/${cleaned}`);
@@ -134,7 +134,7 @@ const FILE_REFERENCE_CODE_BLOCK_LANGUAGES = new Set([
 const CODE_BLOCK_LANGUAGE_PATTERN = /language-([^\s]+)/;
 function MarkdownSpan(props) {
   const {
-    children: children2,
+    children,
     node: _node,
     dataInlineVisual,
     dataColorValue,
@@ -145,9 +145,9 @@ function MarkdownSpan(props) {
   const visualType = dataInlineVisual ?? dataInlineVisualAttribute;
   const colorValue = dataColorValue ?? dataColorValueAttribute;
   if (visualType === "color" && colorValue) {
-    return <InlineColorValue value={colorValue}>{children2}</InlineColorValue>;
+    return <InlineColorValue value={colorValue}>{children}</InlineColorValue>;
   }
-  return <span {...domProps}>{children2}</span>;
+  return <span {...domProps}>{children}</span>;
 }
 function codeBlockLanguage(className) {
   return (
@@ -159,14 +159,14 @@ function hasStringChildren(value) {
   const props = value.props;
   return typeof props.children === "string";
 }
-function codeBlockContent(children2) {
-  if (typeof children2 === "string") return children2;
-  if (typeof children2 === "number") return String(children2);
-  if (hasStringChildren(children2)) return children2.props.children;
+function codeBlockContent(children) {
+  if (typeof children === "string") return children;
+  if (typeof children === "number") return String(children);
+  if (hasStringChildren(children)) return children.props.children;
   return "";
 }
 const stablePlugins = {
-  code: G,
+  code: codeHighlighterPlugin,
 };
 const CANVAS_NODE_ID_PATTERN = "[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 const CANVAS_NODE_REFERENCE_PATTERN =
@@ -219,9 +219,9 @@ function openingFence(line) {
   };
 }
 function closesFence(line, fence) {
-  const content2 = withoutLineEnding(line);
-  const indentLength = content2.match(/^[\t ]{0,3}/)?.[0].length ?? 0;
-  const marker = content2.slice(indentLength).trimEnd();
+  const content = withoutLineEnding(line);
+  const indentLength = content.match(/^[\t ]{0,3}/)?.[0].length ?? 0;
+  const marker = content.slice(indentLength).trimEnd();
   return (
     marker.length >= fence.length &&
     [...marker].every((character) => character === fence.character)
@@ -234,9 +234,9 @@ function isBlankLine(line) {
   return withoutLineEnding(line).trim().length === 0;
 }
 function canvasNodeDisplayName(candidate) {
-  const displayName2 = candidate?.trim();
-  if (!displayName2) return void 0;
-  const plainDisplayName = displayName2.replace(/^\*\*|\*\*$/g, "").trim();
+  const displayName = candidate?.trim();
+  if (!displayName) return void 0;
+  const plainDisplayName = displayName.replace(/^\*\*|\*\*$/g, "").trim();
   const normalized = plainDisplayName
     .replace(/[\s_：:-]+/g, "")
     .toLocaleLowerCase();
@@ -247,27 +247,27 @@ function canvasNodeDisplayName(candidate) {
     return void 0;
   return plainDisplayName;
 }
-function isStandaloneMatch(source, offset2, matchLength) {
-  const lineStart = source.lastIndexOf("\n", offset2 - 1) + 1;
-  const nextLineBreak = source.indexOf("\n", offset2 + matchLength);
-  const lineEnd2 = nextLineBreak === -1 ? source.length : nextLineBreak;
+function isStandaloneMatch(source, offset, matchLength) {
+  const lineStart = source.lastIndexOf("\n", offset - 1) + 1;
+  const nextLineBreak = source.indexOf("\n", offset + matchLength);
+  const lineEnd = nextLineBreak === -1 ? source.length : nextLineBreak;
   return (
-    source.slice(lineStart, offset2).trim().length === 0 &&
-    source.slice(offset2 + matchLength, lineEnd2).trim().length === 0
+    source.slice(lineStart, offset).trim().length === 0 &&
+    source.slice(offset + matchLength, lineEnd).trim().length === 0
   );
 }
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function internalTokenPrefix(content2) {
+function internalTokenPrefix(content) {
   let prefix = INTERNAL_TOKEN_PREFIX;
-  while (content2.includes(prefix)) prefix += ":";
+  while (content.includes(prefix)) prefix += ":";
   return prefix;
 }
 function registerCanvasNodeReference(references, nodeId, candidateDisplayName) {
   const fallbackDisplayName = canvasNodeDisplayName(candidateDisplayName);
-  const current2 = references.get(nodeId);
-  if (current2?.fallbackDisplayName || (current2 && !fallbackDisplayName))
+  const current = references.get(nodeId);
+  if (current?.fallbackDisplayName || (current && !fallbackDisplayName))
     return;
   references.set(
     nodeId,
@@ -278,8 +278,8 @@ function registerCanvasNodeReference(references, nodeId, candidateDisplayName) {
       : {},
   );
 }
-function transformOutsideCodeBlocks(content2, transform2) {
-  const lines = content2.match(MARKDOWN_LINE_PATTERN) ?? [];
+function transformOutsideCodeBlocks(content, transform) {
+  const lines = content.match(MARKDOWN_LINE_PATTERN) ?? [];
   if (lines.at(-1) === "") lines.pop();
   let output = "";
   let textSegment = "";
@@ -299,7 +299,7 @@ function transformOutsideCodeBlocks(content2, transform2) {
       inIndentedCode = false;
     }
     if (isIndentedCodeLine(line)) {
-      output += transform2(textSegment);
+      output += transform(textSegment);
       textSegment = "";
       output += line;
       inIndentedCode = true;
@@ -307,7 +307,7 @@ function transformOutsideCodeBlocks(content2, transform2) {
     }
     const nextFence = openingFence(line);
     if (nextFence) {
-      output += transform2(textSegment);
+      output += transform(textSegment);
       textSegment = "";
       output += line;
       fence = nextFence;
@@ -315,13 +315,13 @@ function transformOutsideCodeBlocks(content2, transform2) {
     }
     textSegment += line;
   }
-  return output + transform2(textSegment);
+  return output + transform(textSegment);
 }
-function prepareCanvasNodeReferences(content2) {
+function prepareCanvasNodeReferences(content) {
   const references = new Map();
-  const tokens2 = [];
+  const tokens = [];
   const renderedStandaloneNodeIds = new Set();
-  const tokenPrefix = internalTokenPrefix(content2);
+  const tokenPrefix = internalTokenPrefix(content);
   const tokenPattern = new RegExp(
     `${escapeRegExp(tokenPrefix)}(\\d+)${escapeRegExp(INTERNAL_TOKEN_SUFFIX)}`,
     "gu",
@@ -333,7 +333,7 @@ function prepareCanvasNodeReferences(content2) {
     deduplicateStandalone = false,
   ) => {
     const tokenIndex =
-      tokens2.push({
+      tokens.push({
         nodeId,
         replacement,
         fallbackDisplayName,
@@ -341,7 +341,7 @@ function prepareCanvasNodeReferences(content2) {
       }) - 1;
     return `${tokenPrefix}${tokenIndex}${INTERNAL_TOKEN_SUFFIX}`;
   };
-  const preparedContent = transformOutsideCodeBlocks(content2, (segment) => {
+  const preparedContent = transformOutsideCodeBlocks(content, (segment) => {
     const titledSegment = segment.replace(
       TITLED_CANVAS_NODE_REFERENCE_PATTERN,
       (_match, documentName, nodeId) => {
@@ -350,9 +350,9 @@ function prepareCanvasNodeReferences(content2) {
     );
     const listSegment = titledSegment.replace(
       LIST_CANVAS_NODE_REFERENCE_PATTERN,
-      (match2, listMarker, nodeName, nodeId) => {
+      (match, listMarker, nodeName, nodeId) => {
         const fallbackDisplayName = canvasNodeDisplayName(nodeName);
-        if (!fallbackDisplayName) return match2;
+        if (!fallbackDisplayName) return match;
         return createToken(
           nodeId,
           `${listMarker}\`${nodeId}\``,
@@ -363,11 +363,11 @@ function prepareCanvasNodeReferences(content2) {
     );
     const inlineSegment = listSegment.replace(
       NAMED_INLINE_CANVAS_NODE_REFERENCE_PATTERN,
-      (match2, nodeName, nodeId, offset2, source) => {
-        const standalone = isStandaloneMatch(source, offset2, match2.length);
+      (match, nodeName, nodeId, offset, source) => {
+        const standalone = isStandaloneMatch(source, offset, match.length);
         return createToken(
           nodeId,
-          standalone ? `\`${nodeId}\`` : match2,
+          standalone ? `\`${nodeId}\`` : match,
           nodeName,
           standalone,
         );
@@ -386,26 +386,26 @@ function prepareCanvasNodeReferences(content2) {
     );
     const tokenizedSegment = transformedSegment.replace(
       CANVAS_NODE_REFERENCE_PATTERN,
-      (match2, nodeId, offset2, source) =>
+      (match, nodeId, offset, source) =>
         createToken(
           nodeId,
           `\`${nodeId}\``,
           void 0,
-          isStandaloneMatch(source, offset2, match2.length),
+          isStandaloneMatch(source, offset, match.length),
         ),
     );
     return tokenizedSegment.replace(tokenPattern, (_match, rawIndex) => {
-      const token2 = tokens2[Number(rawIndex)];
-      if (!token2) return "";
+      const token = tokens[Number(rawIndex)];
+      if (!token) return "";
       registerCanvasNodeReference(
         references,
-        token2.nodeId,
-        token2.fallbackDisplayName,
+        token.nodeId,
+        token.fallbackDisplayName,
       );
-      if (!token2.deduplicateStandalone) return token2.replacement;
-      if (renderedStandaloneNodeIds.has(token2.nodeId)) return "";
-      renderedStandaloneNodeIds.add(token2.nodeId);
-      return token2.replacement;
+      if (!token.deduplicateStandalone) return token.replacement;
+      if (renderedStandaloneNodeIds.has(token.nodeId)) return "";
+      renderedStandaloneNodeIds.add(token.nodeId);
+      return token.replacement;
     });
   });
   return {
@@ -416,8 +416,8 @@ function prepareCanvasNodeReferences(content2) {
 const CODE_FRAGMENT_PATTERN = /[`"={}<>;|]/;
 const CODE_KEYWORD_PATTERN =
   /^(?:const|let|var|import|export|return|if|for|while|function|class|type|interface|enum|await|async)\b/;
-function isStandaloneChatFileReferenceText(raw2) {
-  const value = cleanRaw(raw2);
+function isStandaloneChatFileReferenceText(raw) {
+  const value = cleanRaw(raw);
   if (!looksLikeFileReference(value)) return false;
   if (isHttpUrl(value) || isFileUrl(value) || isAbsoluteLocalPath(value))
     return true;
@@ -433,12 +433,12 @@ function MarkdownMediaCard({
   resolvedSrc,
   alt,
   metadata,
-  children: children2,
+  children,
   onPreview,
   unavailable = false,
 }) {
-  const { t: t2 } = useTranslation();
-  const workspaceId2 = useCurrentWorkspace();
+  const { t: translate } = useTranslation();
+  const workspaceId = useCurrentWorkspace();
   const relativePath = reactExports.useMemo(
     () => toWorkspaceRelativePath(originalSrc, resolvedSrc),
     [originalSrc, resolvedSrc],
@@ -450,40 +450,40 @@ function MarkdownMediaCard({
     () => findAssetForPath(assets, relativePath),
     [assets, relativePath],
   );
-  const hasCanvasNode = useHasAssetOnCanvas(asset?.id, workspaceId2);
+  const hasCanvasNode = useHasAssetOnCanvas(asset?.id, workspaceId);
   const fileName = getDisplayName(originalSrc, resolvedSrc, alt, asset);
   const dragSource = reactExports.useMemo(
     () => ({
       relativePath,
-      workspacePath: workspaceId2,
+      workspacePath: workspaceId,
       name: fileName,
       assetId: asset?.id,
     }),
-    [asset?.id, fileName, relativePath, workspaceId2],
+    [asset?.id, fileName, relativePath, workspaceId],
   );
   const canDrag = canWriteResourceDragData(dragSource);
-  const locateTitle = t2("assetPreview.locateOnCanvas", {
+  const locateTitle = translate("assetPreview.locateOnCanvas", {
     defaultValue: "Locate on canvas",
   });
-  const previewTitle = t2("common.expand");
-  const copyTitle = t2("common.copy");
+  const previewTitle = translate("common.expand");
+  const copyTitle = translate("common.copy");
   const { copyFile, copyImage, copyPath, isLocalPath } = useMediaActions();
   const copySource = reactExports.useMemo(() => {
     const src = resolvedSrc ?? originalSrc;
-    if (kind === "video" && relativePath && workspaceId2) {
-      return joinFilePath(workspaceId2, relativePath);
+    if (kind === "video" && relativePath && workspaceId) {
+      return joinFilePath(workspaceId, relativePath);
     }
     return src;
-  }, [kind, originalSrc, relativePath, resolvedSrc, workspaceId2]);
+  }, [kind, originalSrc, relativePath, resolvedSrc, workspaceId]);
   const handleLocate = reactExports.useCallback(
     (event) => {
       event.stopPropagation();
       if (!asset?.id) return;
-      const nodeIds = getNodeIdsForAsset(asset.id, workspaceId2);
+      const nodeIds = getNodeIdsForAsset(asset.id, workspaceId);
       if (nodeIds.length === 0) return;
-      workspaceEvents.fireCanvasFocus(workspaceId2, nodeIds);
+      workspaceEvents.fireCanvasFocus(workspaceId, nodeIds);
     },
-    [asset?.id, workspaceId2],
+    [asset?.id, workspaceId],
   );
   const handlePreview = reactExports.useCallback(
     (event) => {
@@ -534,7 +534,7 @@ function MarkdownMediaCard({
         aria-label={previewTitle}
         disabled={unavailable}
       >
-        {children2}
+        {children}
         {kind === "video" && !unavailable && (
           <span className="absolute inset-0 grid place-items-center bg-[var(--media-overlay-surface)] text-[var(--media-overlay-foreground)]">
             <span className="grid size-7 place-items-center">
@@ -584,13 +584,13 @@ function MarkdownMediaCard({
   );
 }
 function MediaUnavailable({ kind }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const label =
     kind === "image"
-      ? t2("chat.failedToLoadImage", {
+      ? translate("chat.failedToLoadImage", {
           defaultValue: "Failed to load image",
         })
-      : t2("chat.failedToLoadVideo", {
+      : translate("chat.failedToLoadVideo", {
           defaultValue: "Failed to load video",
         });
   const FailIcon = kind === "image" ? ImageOffOutlineIcon : VideoOff;
@@ -604,12 +604,12 @@ function MediaUnavailable({ kind }) {
 function formatDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds == null || seconds < 0) return "";
   const total = Math.floor(seconds);
-  const h2 = Math.floor(total / 3600);
-  const m3 = Math.floor((total % 3600) / 60);
-  const s2 = total % 60;
-  if (h2 > 0)
-    return `${h2}:${m3.toString().padStart(2, "0")}:${s2.toString().padStart(2, "0")}`;
-  return `${m3}:${s2.toString().padStart(2, "0")}`;
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const remainingSeconds = total % 60;
+  if (hours > 0)
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 function videoThumbnailUrl(relativePath, resolveUrl) {
   if (!relativePath) return void 0;
@@ -636,27 +636,27 @@ const sanitizeSchema = {
     ],
   },
 };
-function urlTransform(url2) {
-  if (/^javascript:/i.test(url2.trim())) return "";
-  return url2;
+function urlTransform(url) {
+  if (/^javascript:/i.test(url.trim())) return "";
+  return url;
 }
-function encodeMarkdownUrlSpaces(markdown2) {
-  return markdown2.replace(
+function encodeMarkdownUrlSpaces(markdown) {
+  return markdown.replace(
     /(!?\[[^\]]*\]\()([^)]*\s[^)]*)\)/g,
-    (_match, prefix, url2) => `${prefix}${url2.replace(/ /g, "%20")})`,
+    (_match, prefix, url) => `${prefix}${url.replace(/ /g, "%20")})`,
   );
 }
 function MarkdownImage({ src, alt, ...rest }) {
   const workspace = useCurrentWorkspace();
-  const resolveMediaUrl2 = useResolveMediaUrl();
+  const resolveMediaUrl = useResolveMediaUrl();
   const [fullSize, setFullSize] = reactExports.useState(false);
   const [error, setError] = reactExports.useState(false);
-  const [dimensions2, setDimensions] = reactExports.useState("");
-  const resolvedSrc = rewriteImgSrc(src, workspace, resolveMediaUrl2);
+  const [dimensions, setDimensions] = reactExports.useState("");
+  const resolvedSrc = rewriteImgSrc(src, workspace, resolveMediaUrl);
   const thumbSrc = withThumbnail(resolvedSrc, 260);
-  const extension2 = getMediaExtension(src ?? resolvedSrc);
-  const metadata = joinMetadata([extension2, dimensions2]);
-  const handleClick2 = reactExports.useCallback(() => {
+  const extension = getMediaExtension(src ?? resolvedSrc);
+  const metadata = joinMetadata([extension, dimensions]);
+  const handleClick = reactExports.useCallback(() => {
     if (resolvedSrc && !error) setFullSize(true);
   }, [resolvedSrc, error]);
   const handleLoad = reactExports.useCallback((event) => {
@@ -675,8 +675,8 @@ function MarkdownImage({ src, alt, ...rest }) {
         originalSrc={src}
         resolvedSrc={resolvedSrc}
         alt={alt}
-        metadata={metadata || extension2 || "IMAGE"}
-        onPreview={handleClick2}
+        metadata={metadata || extension || "IMAGE"}
+        onPreview={handleClick}
         unavailable={error || !resolvedSrc}
       >
         {error || !resolvedSrc ? (
@@ -703,8 +703,8 @@ function MarkdownImage({ src, alt, ...rest }) {
   );
 }
 function FileReferenceVisual({ filename, workspacePath }) {
-  const resolveMediaUrl2 = useResolveMediaUrl();
-  const type2 = detectFileType(filename);
+  const resolveMediaUrl = useResolveMediaUrl();
+  const type = detectFileType(filename);
   const safePath =
     workspacePath &&
     !/^(?:[\\/]|[a-z][a-z0-9+.-]*:)/i.test(workspacePath) &&
@@ -712,10 +712,10 @@ function FileReferenceVisual({ filename, workspacePath }) {
       ? workspacePath
       : void 0;
   const previewUrl =
-    safePath && (type2 === "image" || type2 === "video")
+    safePath && (type === "image" || type === "video")
       ? withThumbnail(
-          resolveMediaUrl2(
-            type2 === "video"
+          resolveMediaUrl(
+            type === "video"
               ? API_PATHS.thumbnail(safePath)
               : API_PATHS.serveFile(safePath),
           ),
@@ -728,7 +728,7 @@ function FileReferenceVisual({ filename, workspacePath }) {
       : void 0;
   const [failedUrl, setFailedUrl] = reactExports.useState();
   const [loadedUrl, setLoadedUrl] = reactExports.useState();
-  if (type2 !== "image" && type2 !== "video" && type2 !== "audio") {
+  if (type !== "image" && type !== "video" && type !== "audio") {
     return (
       <FileTypeIcon
         {...classifyFileType({
@@ -740,16 +740,16 @@ function FileReferenceVisual({ filename, workspacePath }) {
     );
   }
   const MediaIcon =
-    type2 === "image"
+    type === "image"
       ? ImageOutlineIcon
-      : type2 === "video"
+      : type === "video"
         ? Video
         : FileAudio;
   const showThumbnail = previewUrl && failedUrl !== previewUrl;
   return (
     <span
       className="relative inline-flex size-3.5 shrink-0 items-center justify-center text-muted-foreground"
-      data-media-kind={type2}
+      data-media-kind={type}
       aria-hidden="true"
     >
       {(!showThumbnail || loadedUrl !== previewUrl) && (
@@ -769,34 +769,34 @@ function FileReferenceVisual({ filename, workspacePath }) {
     </span>
   );
 }
-function tryParseSkillCard(raw2) {
+function tryParseSkillCard(raw) {
   try {
-    const data2 = JSON.parse(raw2);
-    if (typeof data2.name !== "string") return null;
+    const data = JSON.parse(raw);
+    if (typeof data.name !== "string") return null;
     return {
-      name: data2.name,
+      name: data.name,
       guidePrompt:
-        typeof data2.guidePrompt === "string" ? data2.guidePrompt : void 0,
+        typeof data.guidePrompt === "string" ? data.guidePrompt : void 0,
     };
   } catch {
     return null;
   }
 }
-function InlineSkillCard({ content: content2 }) {
-  const { t: t2 } = useTranslation();
-  const data2 = reactExports.useMemo(
-    () => tryParseSkillCard(content2),
-    [content2],
+function InlineSkillCard({ content }) {
+  const { t: translate } = useTranslation();
+  const data = reactExports.useMemo(
+    () => tryParseSkillCard(content),
+    [content],
   );
   const handleTry = reactExports.useCallback(() => {
-    if (!data2) return;
+    if (!data) return;
     const skill = {
-      name: data2.name,
-      guidePrompt: data2.guidePrompt ?? "",
+      name: data.name,
+      guidePrompt: data.guidePrompt ?? "",
     };
     workspaceEvents.fireAddSkillToChat(skill);
-  }, [data2]);
-  if (!data2) return null;
+  }, [data]);
+  if (!data) return null;
   return (
     <div className="not-prose my-2 flex items-center gap-3 rounded-lg border border-border bg-muted px-3 py-2">
       <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -805,9 +805,9 @@ function InlineSkillCard({ content: content2 }) {
           strokeWidth={1.5}
           className="text-muted-foreground shrink-0"
         />
-        <span className="text-sm font-medium truncate">{data2.name}</span>
+        <span className="text-sm font-medium truncate">{data.name}</span>
         <span className="text-xs text-muted-foreground">
-          {t2("skills.skillLabel", "Skill")}
+          {translate("skills.skillLabel", "Skill")}
         </span>
       </div>
       <Button
@@ -816,7 +816,7 @@ function InlineSkillCard({ content: content2 }) {
         className="shrink-0 text-xs h-7"
         onClick={handleTry}
       >
-        {t2("skills.trySkill", "开始使用")}
+        {translate("skills.trySkill", "开始使用")}
       </Button>
     </div>
   );
@@ -857,19 +857,19 @@ function neutralLabel(value, labels) {
     ? labels.workflow
     : labels.material;
 }
-function redactInternalKnowledgeReferences(content2, labels) {
+function redactInternalKnowledgeReferences(content, labels) {
   const internalDefinitions = new Map();
-  const withoutDefinitions = content2.replace(
+  const withoutDefinitions = content.replace(
     REFERENCE_DEFINITION_RE,
-    (match2, id2, target) => {
-      if (!isInternalKnowledgeReference(target)) return match2;
-      internalDefinitions.set(id2.trim().toLowerCase(), target);
+    (match, internalReferenceId, target) => {
+      if (!isInternalKnowledgeReference(target)) return match;
+      internalDefinitions.set(internalReferenceId.trim().toLowerCase(), target);
       return "";
     },
   );
   let withoutInternalLinks = withoutDefinitions;
-  for (const [id2, target] of internalDefinitions) {
-    const escapedId = id2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  for (const [referenceId, target] of internalDefinitions) {
+    const escapedId = referenceId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     withoutInternalLinks = withoutInternalLinks.replace(
       new RegExp(`\\[([^\\]\\n]*)\\]\\[${escapedId}\\]`, "gi"),
       neutralLabel(target, labels),
@@ -877,54 +877,54 @@ function redactInternalKnowledgeReferences(content2, labels) {
   }
   withoutInternalLinks = withoutInternalLinks.replace(
     MARKDOWN_LINK_RE,
-    (match2, _label, target) =>
+    (match, _label, target) =>
       isInternalKnowledgeReference(target)
         ? neutralLabel(target, labels)
-        : match2,
+        : match,
   );
   withoutInternalLinks = withoutInternalLinks.replace(
     AUTOLINK_RE,
-    (match2, target) =>
+    (match, target) =>
       isInternalKnowledgeReference(target)
         ? neutralLabel(target, labels)
-        : match2,
+        : match,
   );
   withoutInternalLinks = withoutInternalLinks.replace(
     INLINE_CODE_RE,
-    (match2, target) =>
+    (match, target) =>
       isInternalKnowledgeReference(target)
         ? neutralLabel(target, labels)
-        : match2,
+        : match,
   );
-  return withoutInternalLinks.replace(PATH_TOKEN_RE, (token2) =>
-    isInternalKnowledgeReference(token2)
-      ? neutralLabel(token2, labels)
-      : token2,
+  return withoutInternalLinks.replace(PATH_TOKEN_RE, (token) =>
+    isInternalKnowledgeReference(token)
+      ? neutralLabel(token, labels)
+      : token,
   );
 }
 function isWebLink(href) {
   if (!href) return false;
   try {
-    const url2 = new URL(href);
-    return url2.protocol === "http:" || url2.protocol === "https:";
+    const url = new URL(href);
+    return url.protocol === "http:" || url.protocol === "https:";
   } catch {
     return false;
   }
 }
-function trackChatLinkAction(properties2) {
+function trackChatLinkAction(properties) {
   trackEvent(TRACK_EVENTS.CHAT_LINK_ACTION, {
-    ...properties2,
+    ...properties,
   });
 }
 function MarkdownLink({
   href,
-  children: children2,
+  children,
   className,
   node: _node,
   ...rest
 }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const fileReferenceAction = useChatFileReferenceAction(href ?? "");
   const isNonClickableFileReference =
     (fileReferenceAction.ref.kind !== "none" ||
@@ -936,12 +936,12 @@ function MarkdownLink({
       fileReferenceAction.ref.kind === "workspace-internal");
   const isBrowserLink = isWebLink(href);
   const targetDomain = resolveTrackingDomain(href ?? "") ?? "unknown";
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (event) => {
       if (!href) return;
       if (isBrowserLink) {
         event.preventDefault();
-        void openUrlInBuiltinBrowser(platform2, href, {
+        void openUrlInBuiltinBrowser(platform, href, {
           source: "chat.markdown-link",
         })
           .then((opened) => {
@@ -967,7 +967,7 @@ function MarkdownLink({
         return;
       }
       event.preventDefault();
-      void openUrlInBuiltinBrowser(platform2, href, {
+      void openUrlInBuiltinBrowser(platform, href, {
         source: "chat.markdown-link",
       });
     },
@@ -976,13 +976,13 @@ function MarkdownLink({
       fileReferenceAction.handleClick,
       href,
       isBrowserLink,
-      platform2,
+      platform,
       targetDomain,
     ],
   );
   const handleOpenBuiltin = reactExports.useCallback(() => {
     if (!href) return;
-    void openUrlInBuiltinBrowser(platform2, href, {
+    void openUrlInBuiltinBrowser(platform, href, {
       source: "chat.markdown-link.context-menu.builtin",
     })
       .then((opened) => {
@@ -1001,10 +1001,10 @@ function MarkdownLink({
           result: "failed",
         });
       });
-  }, [href, platform2, targetDomain]);
+  }, [href, platform, targetDomain]);
   const handleOpenExternal = reactExports.useCallback(async () => {
     if (!href) return;
-    const opened = await openExternalUrl(platform2, href, {
+    const opened = await openExternalUrl(platform, href, {
       source: "chat.markdown-link.context-menu.external",
     });
     trackChatLinkAction({
@@ -1013,19 +1013,19 @@ function MarkdownLink({
       target_domain: targetDomain,
       result: opened ? "accepted" : "failed",
     });
-    if (!opened) dedupedToast.error(t2("workspace.browser.openExternalError"));
-  }, [href, platform2, t2, targetDomain]);
+    if (!opened) dedupedToast.error(translate("workspace.browser.openExternalError"));
+  }, [href, platform, translate, targetDomain]);
   const handleCopyLink = reactExports.useCallback(async () => {
     if (!href) return;
     try {
-      await platform2.clipboard.writeText(href);
+      await platform.clipboard.writeText(href);
       trackChatLinkAction({
         action: "copy",
         trigger: "context_menu",
         target_domain: targetDomain,
         result: "accepted",
       });
-      dedupedToast.success(t2("chat.copied"));
+      dedupedToast.success(translate("chat.copied"));
     } catch {
       trackChatLinkAction({
         action: "copy",
@@ -1033,13 +1033,13 @@ function MarkdownLink({
         target_domain: targetDomain,
         result: "failed",
       });
-      dedupedToast.error(t2("common.copyFailed"));
+      dedupedToast.error(translate("common.copyFailed"));
     }
-  }, [href, platform2.clipboard, t2, targetDomain]);
+  }, [href, platform.clipboard, translate, targetDomain]);
   if (isNonClickableFileReference) {
-    return <span>{children2}</span>;
+    return <span>{children}</span>;
   }
-  const link2 = (
+  const link = (
     <a
       {...rest}
       href={href}
@@ -1058,7 +1058,7 @@ function MarkdownLink({
             ? "chat-file-reference-link"
             : void 0
       }
-      onClick={handleClick2}
+      onClick={handleClick}
     >
       {isLocalFile ? (
         <code className="chat-inline-code chat-inline-code-file-ref inline-flex items-center gap-1 align-baseline">
@@ -1075,7 +1075,7 @@ function MarkdownLink({
           />
         </code>
       ) : (
-        children2
+        children
       )}
     </a>
   );
@@ -1083,21 +1083,21 @@ function MarkdownLink({
     <>
       {isBrowserLink ? (
         <ContextMenu>
-          <ContextMenuTrigger render={link2} className="select-text" />
+          <ContextMenuTrigger render={link} className="select-text" />
           <ContextMenuContent data-action-ui-id="chat-markdown-link-context-menu">
             <ContextMenuItem
               data-action-ui-id="chat-markdown-link-open-builtin"
               onClick={handleOpenBuiltin}
             >
               <Globe />
-              {t2("chat.link.openBuiltin")}
+              {translate("chat.link.openBuiltin")}
             </ContextMenuItem>
             <ContextMenuItem
               data-action-ui-id="chat-markdown-link-open-external"
               onClick={() => void handleOpenExternal()}
             >
               <ExternalLink />
-              {t2("workspace.browser.openExternal")}
+              {translate("workspace.browser.openExternal")}
             </ContextMenuItem>
             <ContextMenuSeparator />
             <ContextMenuItem
@@ -1105,19 +1105,19 @@ function MarkdownLink({
               onClick={() => void handleCopyLink()}
             >
               <Copy />
-              {t2("chat.copyUrl")}
+              {translate("chat.copyUrl")}
             </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
       ) : (
-        link2
+        link
       )}
       {fileReferenceAction.permissionDialog}
     </>
   );
 }
 function MarkdownVideo({ src, originalSrc, alt }) {
-  const resolveMediaUrl2 = useResolveMediaUrl();
+  const resolveMediaUrl = useResolveMediaUrl();
   const [error, setError] = reactExports.useState(false);
   const [previewOpen, setPreviewOpen] = reactExports.useState(false);
   const [thumbError, setThumbError] = reactExports.useState(false);
@@ -1128,15 +1128,15 @@ function MarkdownVideo({ src, originalSrc, alt }) {
   );
   const thumbSrc = reactExports.useMemo(
     () =>
-      thumbError ? void 0 : videoThumbnailUrl(relativePath, resolveMediaUrl2),
-    [relativePath, resolveMediaUrl2, thumbError],
+      thumbError ? void 0 : videoThumbnailUrl(relativePath, resolveMediaUrl),
+    [relativePath, resolveMediaUrl, thumbError],
   );
-  const extension2 = getMediaExtension(originalSrc ?? src);
-  const metadata = joinMetadata([extension2, formatDuration(duration)]);
+  const extension = getMediaExtension(originalSrc ?? src);
+  const metadata = joinMetadata([extension, formatDuration(duration)]);
   const handleError = reactExports.useCallback(() => setError(true), []);
   const handleLoadedMetadata = reactExports.useCallback((event) => {
-    const next2 = event.currentTarget.duration;
-    if (Number.isFinite(next2)) setDuration(next2);
+    const next = event.currentTarget.duration;
+    if (Number.isFinite(next)) setDuration(next);
   }, []);
   if (error) {
     return (
@@ -1145,7 +1145,7 @@ function MarkdownVideo({ src, originalSrc, alt }) {
         originalSrc={originalSrc}
         resolvedSrc={src}
         alt={alt}
-        metadata={metadata || extension2 || "VIDEO"}
+        metadata={metadata || extension || "VIDEO"}
         onPreview={() => setPreviewOpen(true)}
         unavailable={true}
       >
@@ -1160,7 +1160,7 @@ function MarkdownVideo({ src, originalSrc, alt }) {
         originalSrc={originalSrc}
         resolvedSrc={src}
         alt={alt}
-        metadata={metadata || extension2 || "VIDEO"}
+        metadata={metadata || extension || "VIDEO"}
         onPreview={() => setPreviewOpen(true)}
         unavailable={!src}
       >
@@ -1197,8 +1197,8 @@ function MarkdownVideo({ src, originalSrc, alt }) {
 }
 function MarkdownMedia(props) {
   const workspace = useCurrentWorkspace();
-  const resolveMediaUrl2 = useResolveMediaUrl();
-  const resolvedSrc = rewriteImgSrc(props.src, workspace, resolveMediaUrl2);
+  const resolveMediaUrl = useResolveMediaUrl();
+  const resolvedSrc = rewriteImgSrc(props.src, workspace, resolveMediaUrl);
   const fileType = props.src ? detectFileType(props.src) : void 0;
   if (fileType === "video") {
     return (
@@ -1229,7 +1229,7 @@ const EXCLUDED_TAGS = new Set([
   "script",
   "style",
 ]);
-function colorTokenNode(value, raw2) {
+function colorTokenNode(value, raw) {
   return {
     type: "element",
     tagName: "span",
@@ -1240,47 +1240,47 @@ function colorTokenNode(value, raw2) {
     children: [
       {
         type: "text",
-        value: raw2,
+        value: raw,
       },
     ],
   };
 }
-function splitTextNode(text2, allowEnd) {
-  const tokens2 = findInlineVisualTokens(text2, {
+function splitTextNode(text, allowEnd) {
+  const tokens = findInlineVisualTokens(text, {
     allowEnd,
   });
-  if (tokens2.length === 0)
+  if (tokens.length === 0)
     return [
       {
         type: "text",
-        value: text2,
+        value: text,
       },
     ];
   const nodes = [];
   let cursor = 0;
-  for (const token2 of tokens2) {
-    if (token2.start > cursor) {
+  for (const token of tokens) {
+    if (token.start > cursor) {
       nodes.push({
         type: "text",
-        value: text2.slice(cursor, token2.start),
+        value: text.slice(cursor, token.start),
       });
     }
-    nodes.push(colorTokenNode(token2.value, token2.raw));
-    cursor = token2.end;
+    nodes.push(colorTokenNode(token.value, token.raw));
+    cursor = token.end;
   }
-  if (cursor < text2.length)
+  if (cursor < text.length)
     nodes.push({
       type: "text",
-      value: text2.slice(cursor),
+      value: text.slice(cursor),
     });
   return nodes;
 }
-function transformNode(node2, allowEnd, excluded = false) {
-  if (!node2.children) return;
+function transformNode(node, allowEnd, excluded = false) {
+  if (!node.children) return;
   const childExcluded =
-    excluded || (node2.tagName ? EXCLUDED_TAGS.has(node2.tagName) : false);
+    excluded || (node.tagName ? EXCLUDED_TAGS.has(node.tagName) : false);
   const nextChildren = [];
-  for (const child of node2.children) {
+  for (const child of node.children) {
     if (
       !childExcluded &&
       child.type === "text" &&
@@ -1292,7 +1292,7 @@ function transformNode(node2, allowEnd, excluded = false) {
     transformNode(child, allowEnd, childExcluded);
     nextChildren.push(child);
   }
-  node2.children = nextChildren;
+  node.children = nextChildren;
 }
 function rehypeInlineVisuals({ allowEnd = true } = {}) {
   return (tree) => transformNode(tree, allowEnd);
@@ -1306,31 +1306,31 @@ function fileExtension(nameOrPath) {
   if (!nameOrPath) return void 0;
   const clean = nameOrPath.split(/[?#]/)[0]?.replace(/\\/g, "/") ?? nameOrPath;
   const filename = clean.split("/").pop() ?? clean;
-  const dot2 = filename.lastIndexOf(".");
-  if (dot2 <= 0 || dot2 === filename.length - 1) return void 0;
-  const extension2 = filename.slice(dot2 + 1);
-  return /^[a-z0-9]{1,10}$/i.test(extension2)
-    ? extension2.toLowerCase()
+  const dot = filename.lastIndexOf(".");
+  if (dot <= 0 || dot === filename.length - 1) return void 0;
+  const extension = filename.slice(dot + 1);
+  return /^[a-z0-9]{1,10}$/i.test(extension)
+    ? extension.toLowerCase()
     : void 0;
 }
 function CanvasNodeReference({
   nodeId,
-  displayName: displayName2,
+  displayName,
   variantClass,
   className,
   ...props
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const currentWorkspace = useCurrentWorkspace();
   const assetMeta = useAssetMeta(nodeId);
   const assetPath = assetMeta?.path || assetMeta?.name;
   const resolvedDisplayName =
-    assetMeta?.name || displayName2 || t2("chat.canvasArtifact");
-  const extension2 =
+    assetMeta?.name || displayName || translate("chat.canvasArtifact");
+  const extension =
     fileExtension(assetPath) ?? fileExtension(resolvedDisplayName);
   const label =
-    extension2 && !fileExtension(resolvedDisplayName)
-      ? `${resolvedDisplayName}.${extension2}`
+    extension && !fileExtension(resolvedDisplayName)
+      ? `${resolvedDisplayName}.${extension}`
       : resolvedDisplayName;
   return (
     <button
@@ -1359,26 +1359,26 @@ function CanvasNodeReference({
   );
 }
 function MarkdownInlineCode({
-  children: children2,
+  children,
   className,
   node: _node,
   ...props
 }) {
-  const text2 =
-    typeof children2 === "string" ? children2 : String(children2 ?? "");
-  const isLong = text2.length > INLINE_CODE_CHIP_MAX;
+  const text =
+    typeof children === "string" ? children : String(children ?? "");
+  const isLong = text.length > INLINE_CODE_CHIP_MAX;
   const variantClass = isLong ? "chat-inline-code-plain" : "chat-inline-code";
   const canvasNodeReferences = reactExports.useContext(
     CanvasNodeReferencesContext,
   );
-  const canvasNodeReference = canvasNodeReferences.get(text2);
-  const fileType = detectFileType(text2);
+  const canvasNodeReference = canvasNodeReferences.get(text);
+  const fileType = detectFileType(text);
   const {
     ref,
     clickable,
-    handleClick: handleClick2,
+    handleClick,
     permissionDialog,
-  } = useChatFileReferenceAction(text2);
+  } = useChatFileReferenceAction(text);
   const isLocalFile =
     clickable &&
     (ref.kind === "external-local" || ref.kind === "workspace-internal");
@@ -1386,7 +1386,7 @@ function MarkdownInlineCode({
     return (
       <CanvasNodeReference
         {...props}
-        nodeId={text2}
+        nodeId={text}
         displayName={canvasNodeReference.fallbackDisplayName}
         variantClass={variantClass}
         className={className}
@@ -1404,14 +1404,14 @@ function MarkdownInlineCode({
             className,
           )}
         >
-          <FileReferenceVisual filename={text2} />
-          <span>{children2}</span>
+          <FileReferenceVisual filename={text} />
+          <span>{children}</span>
         </code>
       );
     }
     return (
       <code {...props} className={cn(variantClass, className)}>
-        {children2}
+        {children}
       </code>
     );
   }
@@ -1419,13 +1419,13 @@ function MarkdownInlineCode({
     <>
       <button
         type="button"
-        aria-label={text2}
+        aria-label={text}
         data-action-ui-id="chat-file-reference-inline-code"
         className={cn(
           "chat-inline-code-button",
           isLocalFile && "chat-local-file-reference",
         )}
-        onClick={handleClick2}
+        onClick={handleClick}
       >
         <code
           {...props}
@@ -1441,7 +1441,7 @@ function MarkdownInlineCode({
               ref.kind === "workspace-file" ? ref.workspaceRelativePath : void 0
             }
           />
-          <span>{isLocalFile ? ref.displayName : children2}</span>
+          <span>{isLocalFile ? ref.displayName : children}</span>
           {isLocalFile && (
             <ArrowUpRight
               className="size-3.5 shrink-0 text-muted-foreground"
@@ -1455,11 +1455,11 @@ function MarkdownInlineCode({
     </>
   );
 }
-function trimTrailingCodeBlockNewlines(codeText2) {
-  return codeText2.replace(/\r?\n+$/, "");
+function trimTrailingCodeBlockNewlines(codeText) {
+  return codeText.replace(/\r?\n+$/, "");
 }
-function fileReferenceCodeBlockLines(codeText2) {
-  const lines = trimTrailingCodeBlockNewlines(codeText2)
+function fileReferenceCodeBlockLines(codeText) {
+  const lines = trimTrailingCodeBlockNewlines(codeText)
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
@@ -1467,34 +1467,34 @@ function fileReferenceCodeBlockLines(codeText2) {
     return null;
   const seenLineCounts = new Map();
   return lines.map((line) => {
-    const count2 = seenLineCounts.get(line) ?? 0;
-    seenLineCounts.set(line, count2 + 1);
+    const count = seenLineCounts.get(line) ?? 0;
+    seenLineCounts.set(line, count + 1);
     return {
-      key: count2 === 0 ? line : `${line}\0${count2}`,
+      key: count === 0 ? line : `${line}\0${count}`,
       line,
     };
   });
 }
 function DefaultCodeBlock({
   className,
-  code: codeText2,
+  code: codeText,
   isIncomplete,
-  language: language2,
+  language,
 }) {
-  return jsxRuntimeExports.jsx(st, {
+  return jsxRuntimeExports.jsx(HighlightedCodeBlock, {
     className,
-    code: codeText2,
+    code: codeText,
     isIncomplete,
-    language: language2,
+    language,
     lineNumbers: false,
-    children: <Ae />,
+    children: <CodeBlockCopyButton />,
   });
 }
 function FileReferenceCodeBlockLine({ line }) {
   const {
     ref,
     clickable,
-    handleClick: handleClick2,
+    handleClick,
     permissionDialog,
   } = useChatFileReferenceAction(line);
   const isLocalFile =
@@ -1510,7 +1510,7 @@ function FileReferenceCodeBlockLine({ line }) {
         data-action-ui-id="chat-file-reference-code-block-line"
         aria-label={isLocalFile ? line : void 0}
         className="chat-code-block-file-reference"
-        onClick={handleClick2}
+        onClick={handleClick}
       >
         <span className="chat-code-block-file-reference-label">
           {isLocalFile ? ref.displayName : line}
@@ -1529,16 +1529,16 @@ function FileReferenceCodeBlockLine({ line }) {
 }
 function FileReferenceCodeBlock({
   className,
-  code: codeText2,
+  code: codeText,
   isIncomplete,
-  language: language2,
+  language,
 }) {
   const currentWorkspace = useCurrentWorkspace();
   const { assets } = useAssets({
     enabled: true,
   });
   const pathLines = reactExports.useMemo(() => {
-    const lines = fileReferenceCodeBlockLines(codeText2);
+    const lines = fileReferenceCodeBlockLines(codeText);
     if (!lines) return null;
     const allLinesAreReferences = lines.every((item) => {
       if (!isStandaloneChatFileReferenceText(item.line)) return false;
@@ -1550,36 +1550,36 @@ function FileReferenceCodeBlock({
       );
     });
     return allLinesAreReferences ? lines : null;
-  }, [assets, codeText2, currentWorkspace]);
+  }, [assets, codeText, currentWorkspace]);
   if (!pathLines) {
     return (
       <DefaultCodeBlock
         className={className}
-        code={codeText2}
+        code={codeText}
         isIncomplete={isIncomplete}
-        language={language2}
+        language={language}
       />
     );
   }
-  return jsxRuntimeExports.jsxs(ot, {
+  return jsxRuntimeExports.jsxs(CodeBlockContainer, {
     className,
     isIncomplete,
-    language: language2,
+    language,
     children: [
-      jsxRuntimeExports.jsx(rt, {
-        language: language2,
+      jsxRuntimeExports.jsx(CodeBlockHeader, {
+        language,
       }),
       <div className="pointer-events-none sticky top-2 z-10 -mt-10 flex h-8 items-center justify-end">
         <div
           className="pointer-events-auto flex shrink-0 items-center gap-2 rounded-md border border-sidebar bg-sidebar/80 px-1.5 py-1 supports-[backdrop-filter]:bg-sidebar/70 supports-[backdrop-filter]:backdrop-blur"
           data-streamdown="code-block-actions"
         >
-          <Ae code={codeText2} />
+          <CodeBlockCopyButton code={codeText} />
         </div>
       </div>,
       <div
         className="chat-file-reference-code-block-body"
-        data-language={language2}
+        data-language={language}
         data-streamdown="code-block-body"
       >
         <pre>
@@ -1594,40 +1594,40 @@ function FileReferenceCodeBlock({
   });
 }
 function MarkdownCodeBlock({
-  children: children2,
+  children,
   className,
   node: _node,
   ...props
 }) {
-  const language2 = codeBlockLanguage(className);
-  const codeText2 = codeBlockContent(children2);
-  const isIncomplete = tt();
+  const language = codeBlockLanguage(className);
+  const codeText = codeBlockContent(children);
+  const isIncomplete = useIsIncompleteCode();
   if (!("data-block" in props)) {
     return (
       <code className={className} {...props}>
-        {children2}
+        {children}
       </code>
     );
   }
-  if (language2 === "skill-card") {
-    return <InlineSkillCard content={codeText2} />;
+  if (language === "skill-card") {
+    return <InlineSkillCard content={codeText} />;
   }
-  if (FILE_REFERENCE_CODE_BLOCK_LANGUAGES.has(language2)) {
+  if (FILE_REFERENCE_CODE_BLOCK_LANGUAGES.has(language)) {
     return (
       <FileReferenceCodeBlock
         className={className}
-        code={codeText2}
+        code={codeText}
         isIncomplete={isIncomplete}
-        language={language2}
+        language={language}
       />
     );
   }
   return (
     <DefaultCodeBlock
       className={className}
-      code={codeText2}
+      code={codeText}
       isIncomplete={isIncomplete}
-      language={language2}
+      language={language}
     />
   );
 }
@@ -1653,20 +1653,20 @@ const streamingRehypePlugins = [
 ];
 const STREAMING_PLAINTEXT_THRESHOLD = 6e3;
 export function MarkdownContent({
-  content: content2,
+  content,
   className,
   isStreaming = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const displayContent = reactExports.useMemo(
     () =>
       encodeMarkdownUrlSpaces(
-        redactInternalKnowledgeReferences(redactForCurrentRegion(content2), {
-          workflow: t2("chat.internalReference.workflow", "Project workflow"),
-          material: t2("chat.internalReference.material", "Internal material"),
+        redactInternalKnowledgeReferences(redactForCurrentRegion(content), {
+          workflow: translate("chat.internalReference.workflow", "Project workflow"),
+          material: translate("chat.internalReference.material", "Internal material"),
         }),
       ),
-    [content2, t2],
+    [content, translate],
   );
   const preparedCanvasNodeReferences = reactExports.useMemo(
     () => prepareCanvasNodeReferences(displayContent),

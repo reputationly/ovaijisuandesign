@@ -1,0 +1,23 @@
+key	old	new	依据
+e2@80:21	e2	clickEvent	该事件来自添加附件按钮点击并用于阻止冒泡。
+t2@101:14	t2	translate	该绑定来自 useTranslation 并用于音频模式标签。
+s2@175:6	s2	canvasState	该值是画布 store 状态，其 nodeLookup 用于读取节点选中状态。
+e2@204:25	e2	doubleClickEvent	该事件来自弹出框双击并用于阻止冒泡。
+d2@317:11	d2	durationSeconds	该值是元数据中的音频时长秒数，用于逐片段范围判断。
+d2@329:11	d2	durationSeconds	该值是元数据中的视频时长秒数，用于逐片段范围判断。
+disabled2@30:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+readOnly2@31:13	readOnly2	readOnly	去掉打包器防重名追加的后缀，恢复原名 readOnly，即该绑定持有的值。
+onRemove2@39:13	onRemove2	onRemove	去掉打包器防重名追加的后缀，恢复原名 onRemove，即该绑定持有的值。
+onAdd2@40:10	onAdd2	onAdd	去掉打包器防重名追加的后缀，恢复原名 onAdd，即该绑定持有的值。
+mode2@92:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+next2@122:31	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+selected2@148:34	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+children2@165:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+selected2@180:9	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+size2@219:44	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+dimensions2@240:42	dimensions2	dimensions	去掉打包器防重名追加的后缀，恢复原名 dimensions，即该绑定持有的值。
+constraints2@240:55	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+type2@272:25	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+ReferenceDisabledReason2@282:40	ReferenceDisabledReason2	ReferenceDisabledReason	去掉打包器防重名追加的后缀，恢复原名 ReferenceDisabledReason，即该绑定持有的值。
+meta2@300:41	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+constraints2@300:48	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。

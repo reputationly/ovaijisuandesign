@@ -7,9 +7,9 @@ import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { getFileName } from "../canvas/uploading-assets.jsx";
 import { OPERATIONS_UNDO_PATH } from "../generation/to-workspace-browser-url.js";
 function dismissNewestDeleteUndoToast() {
-  const id2 = activeToastIds.pop();
-  if (id2 === void 0) return;
-  dedupedToast.dismiss(id2);
+  const toastId = activeToastIds.pop();
+  if (toastId === void 0) return;
+  dedupedToast.dismiss(toastId);
 }
 export function useFileExplorerShortcuts({
   setSelectedPaths,
@@ -25,11 +25,11 @@ export function useFileExplorerShortcuts({
   toRelativePath,
   handleCopyFile,
   duplicate,
-  gatewayFetch: gatewayFetch2,
-  queryClient: queryClient2,
+  gatewayFetch,
+  queryClient,
   gatewayScopeKey,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const handleSelectAll = useStableCallback(() => {
     setSelectedPaths(new Set(visiblePaths));
   });
@@ -57,19 +57,19 @@ export function useFileExplorerShortcuts({
           ? [primaryPath]
           : [];
     if (targets.length === 0) return;
-    const first2 = targets[0];
+    const first = targets[0];
     if (targets.length > 1) {
       dedupedToast.info(
-        t2("fileExplorer.copyMultiSelectFirst", {
-          name: getFileName(first2),
+        translate("fileExplorer.copyMultiSelectFirst", {
+          name: getFileName(first),
         }),
       );
     }
     try {
-      await handleCopyFile(first2);
+      await handleCopyFile(first);
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.copyFailed") +
+        translate("fileExplorer.copyFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -89,7 +89,7 @@ export function useFileExplorerShortcuts({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.duplicateFailed") +
+        translate("fileExplorer.duplicateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -97,7 +97,7 @@ export function useFileExplorerShortcuts({
   const handleUndoShortcut = useStableCallback(async () => {
     let res;
     try {
-      res = await gatewayFetch2(OPERATIONS_UNDO_PATH, {
+      res = await gatewayFetch(OPERATIONS_UNDO_PATH, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -106,31 +106,31 @@ export function useFileExplorerShortcuts({
     } catch (err) {
       dedupedToast.error(
         err instanceof Error && err.message
-          ? `${t2("fileExplorer.undoFailed")}: ${err.message}`
-          : t2("fileExplorer.undoFailed"),
+          ? `${translate("fileExplorer.undoFailed")}: ${err.message}`
+          : translate("fileExplorer.undoFailed"),
       );
       return;
     }
     if (!res.ok) {
       dedupedToast.error(
-        `${t2("fileExplorer.undoFailed")}: ${res.status} ${res.statusText}`,
+        `${translate("fileExplorer.undoFailed")}: ${res.status} ${res.statusText}`,
       );
       return;
     }
-    const body2 = await res.json().catch(() => null);
-    if (!body2) {
-      dedupedToast.error(t2("fileExplorer.undoFailed"));
+    const body = await res.json().catch(() => null);
+    if (!body) {
+      dedupedToast.error(translate("fileExplorer.undoFailed"));
       return;
     }
-    if (body2.ok) {
+    if (body.ok) {
       dismissNewestDeleteUndoToast();
       await refreshAssetIndex({
-        qc: queryClient2,
+        qc: queryClient,
         gatewayScopeKey,
       });
       return;
     }
-    switch (body2.errorType) {
+    switch (body.errorType) {
       case "empty-stack":
         return;
       case "expired":
@@ -138,15 +138,15 @@ export function useFileExplorerShortcuts({
       case "path-conflict":
         dismissNewestDeleteUndoToast();
         dedupedToast.error(
-          body2.errorMessage
-            ? `${t2("fileExplorer.undoPathConflict")}: ${body2.errorMessage}`
-            : t2("fileExplorer.undoPathConflict"),
+          body.errorMessage
+            ? `${translate("fileExplorer.undoPathConflict")}: ${body.errorMessage}`
+            : translate("fileExplorer.undoPathConflict"),
         );
         return;
       case "partial": {
         dismissNewestDeleteUndoToast();
         await refreshAssetIndex({
-          qc: queryClient2,
+          qc: queryClient,
           gatewayScopeKey,
         });
         return;
@@ -154,9 +154,9 @@ export function useFileExplorerShortcuts({
       default:
         dismissNewestDeleteUndoToast();
         dedupedToast.error(
-          body2.errorMessage
-            ? `${t2("fileExplorer.undoFailed")}: ${body2.errorMessage}`
-            : t2("fileExplorer.undoFailed"),
+          body.errorMessage
+            ? `${translate("fileExplorer.undoFailed")}: ${body.errorMessage}`
+            : translate("fileExplorer.undoFailed"),
         );
     }
   });

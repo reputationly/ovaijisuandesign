@@ -1,0 +1,42 @@
+key	old	new	依据
+active2@427:45	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+active2@435:47	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+command2@476:48	command2	command	去掉打包器防重名追加的后缀，恢复原名 command，即该绑定持有的值。
+id2@468:50	id2	annotationId	草稿批注的标识符，用于定位或删除批注。
+message2@286:38	message2	message	消息历史中当前遍历到的消息记录。
+message2@296:11	message2	message	消息历史中当前遍历到的消息记录。
+name2@325:33	name2	entityName	插入聊天输入框并展示在实体引用中的资产名称。
+path2@381:38	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@412:41	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+pending2@252:11	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+selection2@452:48	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+type2@325:40	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+workspaceId2@149:23	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@161:27	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@179:30	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@191:42	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@204:22	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@232:28	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@246:20	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@251:32	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@266:24	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@271:33	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@276:25	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@306:23	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@373:19	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@381:24	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@389:25	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@397:27	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@404:22	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@412:27	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@420:21	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@427:22	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@435:24	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@445:23	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@452:25	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@460:26	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@468:27	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@476:25	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@484:24	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@491:22	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@495:25	workspaceId2	workspaceId	工作区的唯一标识。

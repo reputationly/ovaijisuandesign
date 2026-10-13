@@ -1,0 +1,83 @@
+key	old	new	依据
+active2@63:11	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+body2@276:9	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。
+body2@362:9	body2	body	去掉打包器防重名追加的后缀，恢复原名 body，即该绑定持有的值。
+children2@875:44	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+count2@314:32	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+e2@604:42	e2	entry	顶栏工作区条目。
+e2@64:8	e2	entry	顶栏工作区条目。
+entries2@147:39	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+entries2@154:3	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+entries2@207:3	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+entries2@224:3	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+entries2@250:46	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+entries2@376:28	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+entries2@593:10	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+entries2@61:29	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+entries2@897:9	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+first2@353:9	first2	first	去掉打包器防重名追加的后缀，恢复原名 first，即该绑定持有的值。
+hiloApp2@242:3	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+hiloApp2@598:9	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+hiloApp2@653:3	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+hiloApp2@892:14	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+id2@130:14	id2	workspaceId	工作区的唯一标识。
+id2@725:25	id2	workspaceId	工作区的唯一标识。
+ids2@743:26	ids2	ids	去掉打包器防重名追加的后缀，恢复原名 ids，即该绑定持有的值。
+ids2@760:26	ids2	ids	去掉打包器防重名追加的后缀，恢复原名 ids，即该绑定持有的值。
+index2@109:33	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@229:9	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@102:6	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@463:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@498:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@552:16	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+list2@612:60	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+list2@615:43	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+map3@990:11	map3	map	去掉打包器防重名追加的后缀，恢复原名 map，即该绑定持有的值。
+name2@771:12	name2	workspaceName	需要持久化或新建的工作区展示名称。
+nav2@950:9	nav2	nav	去掉打包器防重名追加的后缀，恢复原名 nav，即该绑定持有的值。
+next2@106:43	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@113:45	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@129:9	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@415:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@528:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@560:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@569:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@574:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@96:40	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+platform2@61:59	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+platform2@659:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+platform2@70:55	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+platform2@876:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+previous2@106:32	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@113:34	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@96:29	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+properties2@729:20	properties2	properties	去掉打包器防重名追加的后缀，恢复原名 properties，即该绑定持有的值。
+properties2@746:20	properties2	properties	去掉打包器防重名追加的后缀，恢复原名 properties，即该绑定持有的值。
+properties2@763:20	properties2	properties	去掉打包器防重名追加的后缀，恢复原名 properties，即该绑定持有的值。
+s2@961:60	s2	workspaceSnapshot	工作区当前任务与状态的快照。
+seen2@533:15	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+snapshot2@120:42	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+snapshot2@638:20	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+state2@878:14	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+t2@265:3	t2	translate	useTranslation 返回的翻译函数。
+t2@314:55	t2	translate	useTranslation 返回的翻译函数。
+t2@348:3	t2	translate	useTranslation 返回的翻译函数。
+t2@377:14	t2	translate	useTranslation 返回的翻译函数。
+t2@660:14	t2	translate	useTranslation 返回的翻译函数。
+t22@535:20	t22	completedTask	遍历新完成任务与已有完成任务，去重合并。
+t22@574:34	t22	task	当前待处理或待移除的已完成任务。
+w3@901:10	w3	recentWorkspace	与顶栏工作区路径匹配的最近工作区记录。
+workspaceId2@120:28	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@155:3	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@185:3	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@208:3	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@225:3	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@243:3	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@250:56	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@408:6	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@638:6	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@681:6	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@709:6	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@715:6	workspaceId2	targetWorkspaceId	当前关闭预览操作的目标工作区 ID。
+workspaceId2@737:6	workspaceId2	workspaceId	工作区的唯一标识。
+workspaceId2@754:6	workspaceId2	workspaceId	工作区的唯一标识。

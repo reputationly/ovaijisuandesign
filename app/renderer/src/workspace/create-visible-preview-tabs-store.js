@@ -9,32 +9,32 @@ function nonEmptyOpaqueText(value) {
 }
 function normalizeReference(value) {
   if (typeof value === "string") {
-    const workspaceId22 = nonEmptyOpaqueText(value);
-    return workspaceId22
+    const workspaceId = nonEmptyOpaqueText(value);
+    return workspaceId
       ? {
-          workspaceId: workspaceId22,
+          workspaceId,
         }
       : null;
   }
   if (!value || typeof value !== "object") return null;
   const candidate = value;
-  const workspaceId2 = nonEmptyOpaqueText(candidate.workspaceId);
-  if (!workspaceId2) return null;
+  const workspaceId = nonEmptyOpaqueText(candidate.workspaceId);
+  if (!workspaceId) return null;
   const folderPath = nonEmptyOpaqueText(candidate.folderPath);
   return folderPath
     ? {
-        workspaceId: workspaceId2,
+        workspaceId,
         folderPath,
       }
     : {
-        workspaceId: workspaceId2,
+        workspaceId,
       };
 }
-function dedupeReferences(values3) {
+function dedupeReferences(values) {
   const seenWorkspaceIds = new Set();
   const seenFolderPaths = new Set();
   const result = [];
-  for (const value of values3) {
+  for (const value of values) {
     const reference = normalizeReference(value);
     if (!reference || seenWorkspaceIds.has(reference.workspaceId)) continue;
     if (reference.folderPath && seenFolderPaths.has(reference.folderPath))
@@ -49,9 +49,9 @@ function referencesEqual(left, right) {
   return (
     left.length === right.length &&
     left.every(
-      (reference, index2) =>
-        reference.workspaceId === right[index2]?.workspaceId &&
-        reference.folderPath === right[index2]?.folderPath,
+      (reference, index) =>
+        reference.workspaceId === right[index]?.workspaceId &&
+        reference.folderPath === right[index]?.folderPath,
     )
   );
 }
@@ -62,14 +62,14 @@ function readSnapshot(storage) {
       tabs: [],
     };
   try {
-    const raw2 = storage.getItem(VISIBLE_PREVIEW_TABS_STORAGE_KEY);
-    if (raw2 === null)
+    const raw = storage.getItem(VISIBLE_PREVIEW_TABS_STORAGE_KEY);
+    if (raw === null)
       return {
         initialized: false,
         tabs: [],
       };
-    const parsed = JSON.parse(raw2);
-    const values3 = Array.isArray(parsed)
+    const parsed = JSON.parse(raw);
+    const values = Array.isArray(parsed)
       ? parsed
       : parsed &&
           typeof parsed === "object" &&
@@ -77,14 +77,14 @@ function readSnapshot(storage) {
           Array.isArray(parsed.tabs)
         ? parsed.tabs
         : null;
-    if (!values3)
+    if (!values)
       return {
         initialized: false,
         tabs: [],
       };
     return {
       initialized: true,
-      tabs: dedupeReferences(values3),
+      tabs: dedupeReferences(values),
     };
   } catch {
     return {
@@ -123,11 +123,11 @@ function createVisiblePreviewTabsStore(
   storage = browserStorage(),
   durableMirror = mainReadablePreviewTabsMirror(),
 ) {
-  let snapshot2 = readSnapshot(storage);
+  let snapshot = readSnapshot(storage);
   let liveEntries = [];
-  const listeners2 = new Set();
+  const listeners = new Set();
   const hiddenBeforeInitialization = new Set();
-  const persist2 = (value) => {
+  const persist = (value) => {
     if (storage && value.initialized) {
       const localValue = {
         version: VISIBLE_PREVIEW_TABS_VERSION,
@@ -146,51 +146,51 @@ function createVisiblePreviewTabsStore(
       tabs: [...value.tabs],
     });
   };
-  const publish = (tabs, initialized2 = true) => {
+  const publish = (tabs, initialized = true) => {
     const normalized = dedupeReferences(tabs);
     if (
-      snapshot2.initialized === initialized2 &&
-      referencesEqual(snapshot2.tabs, normalized)
+      snapshot.initialized === initialized &&
+      referencesEqual(snapshot.tabs, normalized)
     ) {
-      persist2(snapshot2);
+      persist(snapshot);
       return;
     }
-    snapshot2 = {
-      initialized: initialized2,
+    snapshot = {
+      initialized,
       tabs: normalized,
     };
-    persist2(snapshot2);
-    for (const listener of listeners2) listener();
+    persist(snapshot);
+    for (const listener of listeners) listener();
   };
   return {
-    getSnapshot: () => snapshot2,
+    getSnapshot: () => snapshot,
     getVisibleWorkspaceIds: () =>
-      snapshot2.initialized
-        ? resolveVisiblePreviewEntries(liveEntries, snapshot2.tabs).map(
+      snapshot.initialized
+        ? resolveVisiblePreviewEntries(liveEntries, snapshot.tabs).map(
             (entry) => entry.workspaceId,
           )
-        : snapshot2.tabs.map((tab2) => tab2.workspaceId),
+        : snapshot.tabs.map((tab) => tab.workspaceId),
     subscribe: (listener) => {
-      listeners2.add(listener);
-      return () => listeners2.delete(listener);
+      listeners.add(listener);
+      return () => listeners.delete(listener);
     },
-    initialize: (entries2) => {
-      liveEntries = entries2;
-      if (!snapshot2.initialized) {
-        const seeded = entries2
+    initialize: (entries) => {
+      liveEntries = entries;
+      if (!snapshot.initialized) {
+        const seeded = entries
           .filter((entry) => !hiddenBeforeInitialization.has(entry.workspaceId))
           .map(entryReference);
-        publish([...seeded, ...snapshot2.tabs], true);
+        publish([...seeded, ...snapshot.tabs], true);
         hiddenBeforeInitialization.clear();
         return;
       }
       const byWorkspaceId = new Map(
-        entries2.map((entry) => [entry.workspaceId, entry]),
+        entries.map((entry) => [entry.workspaceId, entry]),
       );
       const byFolderPath = new Map(
-        entries2.map((entry) => [entry.folderPath, entry]),
+        entries.map((entry) => [entry.folderPath, entry]),
       );
-      const reconciled = snapshot2.tabs.map((reference) => {
+      const reconciled = snapshot.tabs.map((reference) => {
         const entry =
           byWorkspaceId.get(reference.workspaceId) ??
           (reference.folderPath
@@ -204,20 +204,20 @@ function createVisiblePreviewTabsStore(
       const reference = normalizeReference(entry);
       if (!reference) return;
       hiddenBeforeInitialization.delete(reference.workspaceId);
-      const existingIndex = snapshot2.tabs.findIndex(
-        (tab2) =>
-          tab2.workspaceId === reference.workspaceId ||
+      const existingIndex = snapshot.tabs.findIndex(
+        (tab) =>
+          tab.workspaceId === reference.workspaceId ||
           Boolean(
-            tab2.folderPath &&
+            tab.folderPath &&
             reference.folderPath &&
-            tab2.folderPath === reference.folderPath,
+            tab.folderPath === reference.folderPath,
           ),
       );
       if (existingIndex === -1) {
-        publish([...snapshot2.tabs, reference], snapshot2.initialized);
+        publish([...snapshot.tabs, reference], snapshot.initialized);
         return;
       }
-      const existing = snapshot2.tabs[existingIndex];
+      const existing = snapshot.tabs[existingIndex];
       const updatedReference = {
         workspaceId: reference.workspaceId,
         folderPath: reference.folderPath ?? existing.folderPath,
@@ -228,54 +228,54 @@ function createVisiblePreviewTabsStore(
       ) {
         return;
       }
-      const updated = [...snapshot2.tabs];
+      const updated = [...snapshot.tabs];
       updated[existingIndex] = updatedReference;
-      publish(updated, snapshot2.initialized);
+      publish(updated, snapshot.initialized);
     },
-    replace: (workspaceId2, entry) => {
+    replace: (workspaceId, entry) => {
       const canonical = normalizeReference(entry);
-      const previousId = nonEmptyOpaqueText(workspaceId2);
+      const previousId = nonEmptyOpaqueText(workspaceId);
       if (!canonical || !previousId) return;
       hiddenBeforeInitialization.delete(canonical.workspaceId);
       let replaced = false;
-      const updated = snapshot2.tabs.map((tab2) => {
-        if (tab2.workspaceId !== previousId) return tab2;
+      const updated = snapshot.tabs.map((tab) => {
+        if (tab.workspaceId !== previousId) return tab;
         replaced = true;
         return canonical;
       });
       publish(
         replaced ? updated : [...updated, canonical],
-        snapshot2.initialized,
+        snapshot.initialized,
       );
     },
     hide: (workspaceIds) => {
-      const ids2 = new Set(
+      const ids = new Set(
         (typeof workspaceIds === "string" ? [workspaceIds] : workspaceIds)
           .map(nonEmptyOpaqueText)
-          .filter((id2) => Boolean(id2)),
+          .filter((id) => Boolean(id)),
       );
-      if (ids2.size === 0) return;
-      if (!snapshot2.initialized) {
-        for (const id2 of ids2) hiddenBeforeInitialization.add(id2);
+      if (ids.size === 0) return;
+      if (!snapshot.initialized) {
+        for (const id of ids) hiddenBeforeInitialization.add(id);
       }
       publish(
-        snapshot2.tabs.filter((tab2) => !ids2.has(tab2.workspaceId)),
-        snapshot2.initialized,
+        snapshot.tabs.filter((tab) => !ids.has(tab.workspaceId)),
+        snapshot.initialized,
       );
     },
     reorder: (activeWorkspaceId, overWorkspaceId) => {
-      const fromIndex = snapshot2.tabs.findIndex(
-        (tab2) => tab2.workspaceId === activeWorkspaceId,
+      const fromIndex = snapshot.tabs.findIndex(
+        (tab) => tab.workspaceId === activeWorkspaceId,
       );
-      const toIndex = snapshot2.tabs.findIndex(
-        (tab2) => tab2.workspaceId === overWorkspaceId,
+      const toIndex = snapshot.tabs.findIndex(
+        (tab) => tab.workspaceId === overWorkspaceId,
       );
       if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
-      const reordered = [...snapshot2.tabs];
+      const reordered = [...snapshot.tabs];
       const [moved] = reordered.splice(fromIndex, 1);
       if (!moved) return;
       reordered.splice(toIndex, 0, moved);
-      publish(reordered, snapshot2.initialized);
+      publish(reordered, snapshot.initialized);
     },
   };
 }

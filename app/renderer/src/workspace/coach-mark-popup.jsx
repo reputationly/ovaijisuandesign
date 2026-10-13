@@ -9,48 +9,48 @@ import {
   reactDomExports,
   reactExports,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn$2 as cn } from "../infra/dialog-content.jsx";
 function extractDominantColor(img) {
   try {
-    const w3 = img.naturalWidth || img.width;
-    const h2 = img.naturalHeight || img.height;
-    if (!w3 || !h2) return null;
+    const imageWidth = img.naturalWidth || img.width;
+    const imageHeight = img.naturalHeight || img.height;
+    if (!imageWidth || !imageHeight) return null;
     const canvas = document.createElement("canvas");
-    canvas.width = w3;
-    canvas.height = h2;
+    canvas.width = imageWidth;
+    canvas.height = imageHeight;
     const ctx = canvas.getContext("2d", {
       willReadFrequently: false,
     });
     if (!ctx) return null;
     ctx.drawImage(img, 0, 0);
-    const { data: data2 } = ctx.getImageData(0, 0, w3, h2);
-    const buckets2 = new Map();
-    for (let i2 = 0; i2 < data2.length; i2 += 4) {
-      if ((data2[i2 + 3] ?? 0) < 200) continue;
-      const r2 = data2[i2] ?? 0;
-      const g2 = data2[i2 + 1] ?? 0;
-      const b3 = data2[i2 + 2] ?? 0;
-      const key2 = `${r2 >> 4}-${g2 >> 4}-${b3 >> 4}`;
-      const cur = buckets2.get(key2);
-      if (cur) {
-        cur.r += r2;
-        cur.g += g2;
-        cur.b += b3;
-        cur.count += 1;
+    const { data } = ctx.getImageData(0, 0, imageWidth, imageHeight);
+    const buckets = new Map();
+    for (let pixelOffset = 0; pixelOffset < data.length; pixelOffset += 4) {
+      if ((data[pixelOffset + 3] ?? 0) < 200) continue;
+      const red = data[pixelOffset] ?? 0;
+      const green = data[pixelOffset + 1] ?? 0;
+      const blue = data[pixelOffset + 2] ?? 0;
+      const bucketKey = `${red >> 4}-${green >> 4}-${blue >> 4}`;
+      const colorBucket = buckets.get(bucketKey);
+      if (colorBucket) {
+        colorBucket.r += red;
+        colorBucket.g += green;
+        colorBucket.b += blue;
+        colorBucket.count += 1;
       } else {
-        buckets2.set(key2, {
-          r: r2,
-          g: g2,
-          b: b3,
+        buckets.set(bucketKey, {
+          r: red,
+          g: green,
+          b: blue,
           count: 1,
         });
       }
     }
     let winner = null;
-    for (const bucket of buckets2.values()) {
+    for (const bucket of buckets.values()) {
       if (!winner || bucket.count > winner.count) winner = bucket;
     }
     if (!winner) return null;
@@ -76,7 +76,7 @@ function getArrowStyle(side, anchorRect, popupRect) {
     Math.max(anchorCenterX - popupRect.left - ARROW_SIZE / 2, ARROW_INSET),
     maxLeft,
   );
-  const top2 = Math.min(
+  const arrowTop = Math.min(
     Math.max(anchorCenterY - popupRect.top - ARROW_SIZE / 2, ARROW_INSET),
     maxTop,
   );
@@ -85,7 +85,7 @@ function getArrowStyle(side, anchorRect, popupRect) {
       left,
     };
   return {
-    top: top2,
+    top: arrowTop,
   };
 }
 const ARROW_CLASS = {
@@ -100,26 +100,26 @@ function SpotlightMask({ anchorRef, padding, onClickOutside }) {
   const measure = reactExports.useCallback(() => {
     const el = anchorRef.current;
     if (!el) return;
-    const r2 = el.getBoundingClientRect();
+    const anchorRect = el.getBoundingClientRect();
     setRect({
-      top: r2.top,
-      left: r2.left,
-      width: r2.width,
-      height: r2.height,
+      top: anchorRect.top,
+      left: anchorRect.left,
+      width: anchorRect.width,
+      height: anchorRect.height,
     });
   }, [anchorRef]);
   reactExports.useEffect(() => {
     const el = anchorRef.current;
     measure();
-    let ro;
+    let resizeObserver;
     if (el) {
-      ro = new ResizeObserver(measure);
-      ro.observe(el);
+      resizeObserver = new ResizeObserver(measure);
+      resizeObserver.observe(el);
     }
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
     return () => {
-      ro?.disconnect();
+      resizeObserver?.disconnect();
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
@@ -172,9 +172,9 @@ export function CoachMarkPopup({
   actionUiId,
   onPointerEnter,
   onPointerLeave,
-  children: children2,
+  children,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const popupRef = reactExports.useRef(null);
   const [arrowStyle, setArrowStyle] = reactExports.useState(null);
   const [renderedSide, setRenderedSide] = reactExports.useState(side);
@@ -188,10 +188,10 @@ export function CoachMarkPopup({
   }
   reactExports.useEffect(() => {
     if (!open || !preloadUrls?.length) return;
-    for (const url2 of preloadUrls) {
-      if (!url2) continue;
-      const img = new Image();
-      img.src = url2;
+    for (const url of preloadUrls) {
+      if (!url) continue;
+      const image = new Image();
+      image.src = url;
     }
   }, [open, preloadUrls]);
   const updateArrowStyle = reactExports.useCallback(() => {
@@ -210,17 +210,17 @@ export function CoachMarkPopup({
   }, [anchorRef, anchorEl, side]);
   reactExports.useEffect(() => {
     if (!open) return;
-    const frame2 = requestAnimationFrame(updateArrowStyle);
+    const frame = requestAnimationFrame(updateArrowStyle);
     const anchor = anchorEl ?? anchorRef.current;
     const popup = popupRef.current;
-    const observer2 = new ResizeObserver(updateArrowStyle);
-    if (anchor) observer2.observe(anchor);
-    if (popup) observer2.observe(popup);
+    const observer = new ResizeObserver(updateArrowStyle);
+    if (anchor) observer.observe(anchor);
+    if (popup) observer.observe(popup);
     window.addEventListener("resize", updateArrowStyle);
     window.addEventListener("scroll", updateArrowStyle, true);
     return () => {
-      cancelAnimationFrame(frame2);
-      observer2.disconnect();
+      cancelAnimationFrame(frame);
+      observer.disconnect();
       window.removeEventListener("resize", updateArrowStyle);
       window.removeEventListener("scroll", updateArrowStyle, true);
     };
@@ -304,16 +304,16 @@ export function CoachMarkPopup({
                         alt=""
                         crossOrigin="anonymous"
                         onError={() => setMediaError(true)}
-                        onLoad={(e2) => {
+                        onLoad={(loadEvent) => {
                           if (mediaBgColor) return;
-                          const color2 = extractDominantColor(e2.currentTarget);
-                          if (color2) setMediaBgColor(color2);
+                          const color = extractDominantColor(loadEvent.currentTarget);
+                          if (color) setMediaBgColor(color);
                         }}
                       />
                     )
                   ) : (
                     <span>
-                      {t2("coachMark.mediaPlaceholder", "媒体占位（待补图）")}
+                      {translate("coachMark.mediaPlaceholder", "媒体占位（待补图）")}
                     </span>
                   )}
                   {(!media?.url || mediaError) && (
@@ -325,16 +325,16 @@ export function CoachMarkPopup({
                 <button
                   type="button"
                   className="cm-close"
-                  aria-label={t2("common.close")}
+                  aria-label={translate("common.close")}
                   onClick={() => onDismiss("close")}
                 >
-                  <X size={14} strokeWidth={1.75} />
+                  <CloseIcon size={14} strokeWidth={1.75} />
                 </button>
               )}
               <div className="cm-content">
                 <p className="cm-title">{title}</p>
                 <p className="cm-desc">{description}</p>
-                {children2}
+                {children}
                 <div
                   className={cn(
                     "cm-footer",
@@ -347,12 +347,12 @@ export function CoachMarkPopup({
                         {
                           length: stepTotal,
                         },
-                        (_2, i2) => (
+                        (_unusedArg, stepIndex) => (
                           <span
-                            key={i2}
+                            key={stepIndex}
                             className={cn(
                               "cm-step",
-                              i2 < stepCurrent && "is-active",
+                              stepIndex < stepCurrent && "is-active",
                             )}
                           />
                         ),
@@ -364,14 +364,14 @@ export function CoachMarkPopup({
                       <button
                         type="button"
                         className="cm-left-close"
-                        aria-label={t2("common.close")}
+                        aria-label={translate("common.close")}
                         data-action-ui-id={
                           actionUiId ? `${actionUiId}-left-close` : void 0
                         }
                         disabled={ctaLoading}
                         onClick={() => onDismiss("close")}
                       >
-                        <X size={16} strokeWidth={2} />
+                        <CloseIcon size={16} strokeWidth={2} />
                       </button>
                     )}
                     <button
@@ -390,7 +390,7 @@ export function CoachMarkPopup({
                           className="cm-cta-spinner"
                         />
                       )}
-                      {ctaLabel ?? t2("coachMark.gotIt", "Got it")}
+                      {ctaLabel ?? translate("coachMark.gotIt", "Got it")}
                     </button>
                   </div>
                 </div>

@@ -10,62 +10,62 @@ import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
 import { getFileName } from "../canvas/uploading-assets.jsx";
 export function compareByTimeOrName(timeA, timeB, keyA, keyB, sortOrder) {
-  const ta2 = timeA ?? "";
-  const tb = timeB ?? "";
-  if (ta2 === "" && tb === "") return keyA.localeCompare(keyB);
-  if (ta2 === "") return 1;
-  if (tb === "") return -1;
-  const cmp2 = ta2 < tb ? -1 : ta2 > tb ? 1 : 0;
-  if (cmp2 !== 0) return sortOrder === "desc" ? -cmp2 : cmp2;
+  const normalizedTimeA = timeA ?? "";
+  const normalizedTimeB = timeB ?? "";
+  if (normalizedTimeA === "" && normalizedTimeB === "") return keyA.localeCompare(keyB);
+  if (normalizedTimeA === "") return 1;
+  if (normalizedTimeB === "") return -1;
+  const cmp = normalizedTimeA < normalizedTimeB ? -1 : normalizedTimeA > normalizedTimeB ? 1 : 0;
+  if (cmp !== 0) return sortOrder === "desc" ? -cmp : cmp;
   return keyA.localeCompare(keyB);
 }
 export function matchesTagFilter(tagIds, tagFilters) {
   if (!tagFilters || tagFilters.length === 0) return true;
   if (!tagIds || tagIds.length === 0) return false;
-  return tagFilters.some((id2) => tagIds.includes(id2));
+  return tagFilters.some((tagId) => tagIds.includes(tagId));
 }
 export const DEFAULTS = WORKSPACE_STORAGE_DEFAULTS.assetPanel;
 const VALID_CATEGORIES = ["image", "video", "audio", "text", "other"];
 const VALID_DATE_KINDS = ["all", "today", "last7days", "last30days", "custom"];
 const VALID_SORT = ["desc", "asc"];
-export function normalizeAssetPanelPreferences(raw2) {
-  if (!raw2 || typeof raw2 !== "object") return DEFAULTS;
-  const r2 = raw2;
+export function normalizeAssetPanelPreferences(raw) {
+  if (!raw || typeof raw !== "object") return DEFAULTS;
+  const rawPreferences = raw;
   let typeFilters = [...DEFAULTS.typeFilters];
-  if (Array.isArray(r2.typeFilters)) {
-    typeFilters = r2.typeFilters.filter(
-      (x2) => typeof x2 === "string" && VALID_CATEGORIES.includes(x2),
+  if (Array.isArray(rawPreferences.typeFilters)) {
+    typeFilters = rawPreferences.typeFilters.filter(
+      (category) => typeof category === "string" && VALID_CATEGORIES.includes(category),
     );
-    if (typeFilters.length !== r2.typeFilters.length) {
-      const dropped = r2.typeFilters.filter(
-        (x2) => !(typeof x2 === "string" && VALID_CATEGORIES.includes(x2)),
+    if (typeFilters.length !== rawPreferences.typeFilters.length) {
+      const dropped = rawPreferences.typeFilters.filter(
+        (category) => !(typeof category === "string" && VALID_CATEGORIES.includes(category)),
       );
       console.warn(
         "[assetPanelPreferences] dropped invalid typeFilters entries:",
         {
-          raw: r2.typeFilters,
+          raw: rawPreferences.typeFilters,
           kept: typeFilters,
           dropped,
         },
       );
     }
-  } else if (r2.typeFilters !== void 0) {
+  } else if (rawPreferences.typeFilters !== void 0) {
     console.warn(
       "[assetPanelPreferences] typeFilters is not an array, fallback to default:",
-      r2.typeFilters,
+      rawPreferences.typeFilters,
     );
   }
   let dateFilter = DEFAULTS.dateFilter;
-  if (r2.dateFilter && typeof r2.dateFilter === "object") {
-    const df = r2.dateFilter;
-    const kind = df.kind;
+  if (rawPreferences.dateFilter && typeof rawPreferences.dateFilter === "object") {
+    const rawDateFilter = rawPreferences.dateFilter;
+    const kind = rawDateFilter.kind;
     if (typeof kind === "string" && VALID_DATE_KINDS.includes(kind)) {
       if (kind === "custom") {
-        const from2 = typeof df.from === "string" ? df.from : "";
-        const to = typeof df.to === "string" ? df.to : "";
+        const from = typeof rawDateFilter.from === "string" ? rawDateFilter.from : "";
+        const to = typeof rawDateFilter.to === "string" ? rawDateFilter.to : "";
         dateFilter = {
           kind: "custom",
-          from: from2,
+          from,
           to,
         };
       } else {
@@ -81,12 +81,12 @@ export function normalizeAssetPanelPreferences(raw2) {
     }
   }
   let sortOrder = DEFAULTS.sortOrder;
-  if (typeof r2.sortOrder === "string" && VALID_SORT.includes(r2.sortOrder)) {
-    sortOrder = r2.sortOrder;
-  } else if (r2.sortOrder !== void 0) {
+  if (typeof rawPreferences.sortOrder === "string" && VALID_SORT.includes(rawPreferences.sortOrder)) {
+    sortOrder = rawPreferences.sortOrder;
+  } else if (rawPreferences.sortOrder !== void 0) {
     console.warn(
       "[assetPanelPreferences] invalid sortOrder, fallback to default:",
-      r2.sortOrder,
+      rawPreferences.sortOrder,
     );
   }
   return {
@@ -95,8 +95,8 @@ export function normalizeAssetPanelPreferences(raw2) {
     sortOrder,
   };
 }
-function preferredSeparator(path2) {
-  return path2.includes("\\") && !path2.includes("/") ? "\\" : "/";
+function preferredSeparator(path) {
+  return path.includes("\\") && !path.includes("/") ? "\\" : "/";
 }
 export function joinFilePath(parent, child) {
   if (!parent) return child;
@@ -106,11 +106,11 @@ export function joinFilePath(parent, child) {
     return `${parent}${normalizedChild}`;
   return `${parent}${sep}${normalizedChild}`;
 }
-export function getParentDir(path2) {
-  const slash2 = path2.lastIndexOf("/");
-  const backslash2 = path2.lastIndexOf("\\");
-  const idx = Math.max(slash2, backslash2);
-  return idx >= 0 ? path2.slice(0, idx) : "";
+export function getParentDir(path) {
+  const slash = path.lastIndexOf("/");
+  const backslash = path.lastIndexOf("\\");
+  const idx = Math.max(slash, backslash);
+  return idx >= 0 ? path.slice(0, idx) : "";
 }
 export function toRelativeFromRoot(rootPath, absPath) {
   if (!rootPath) return absPath;
@@ -122,25 +122,25 @@ export function toRelativeFromRoot(rootPath, absPath) {
   if (!absPath.startsWith(prefix)) return absPath;
   return absPath.slice(prefix.length).replace(/\\/g, "/");
 }
-export function generateCopyName(name2, isDirectory) {
+export function generateCopyName(fileName, isDirectory) {
   if (isDirectory) {
-    const match22 = name2.match(/^(.+)\((\d+)\)$/);
-    if (match22) {
-      const base2 = match22[1];
-      const num = Number(match22[2]) + 1;
-      return `${base2}(${num})`;
+    const match = fileName.match(/^(.+)\((\d+)\)$/);
+    if (match) {
+      const base = match[1];
+      const num = Number(match[2]) + 1;
+      return `${base}(${num})`;
     }
-    return `${name2}(1)`;
+    return `${fileName}(1)`;
   }
-  const dotIndex = name2.lastIndexOf(".");
+  const dotIndex = fileName.lastIndexOf(".");
   const hasExt = dotIndex > 0;
-  const baseName = hasExt ? name2.slice(0, dotIndex) : name2;
-  const ext = hasExt ? name2.slice(dotIndex) : "";
-  const match2 = baseName.match(/^(.+)\((\d+)\)$/);
-  if (match2) {
-    const base2 = match2[1];
-    const num = Number(match2[2]) + 1;
-    return `${base2}(${num})${ext}`;
+  const baseName = hasExt ? fileName.slice(0, dotIndex) : fileName;
+  const ext = hasExt ? fileName.slice(dotIndex) : "";
+  const match = baseName.match(/^(.+)\((\d+)\)$/);
+  if (match) {
+    const base = match[1];
+    const num = Number(match[2]) + 1;
+    return `${base}(${num})${ext}`;
   }
   return `${baseName}(1)${ext}`;
 }
@@ -150,7 +150,7 @@ export function extractDropSourcePaths(dataTransfer) {
     dataTransfer,
   });
   if (parsed && parsed.length > 0) {
-    return parsed.map((item) => item.absolutePath).filter((p3) => Boolean(p3));
+    return parsed.map((item) => item.absolutePath).filter((absolutePath) => Boolean(absolutePath));
   }
   const legacySingle = dataTransfer.getData(LEGACY_DRAG_MIME);
   return legacySingle ? [legacySingle] : [];
@@ -168,7 +168,7 @@ export function useFileExplorerCanvasIntegration({
   assetMap,
   duplicate,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const handleAddToCanvas = useStableCallback((target) => {
     const anchorAbsPath = target.path;
     const pathsToAdd = selectedPaths.has(anchorAbsPath)
@@ -176,11 +176,11 @@ export function useFileExplorerCanvasIntegration({
       : [anchorAbsPath];
     const items = pathsToAdd.map((absPath) => {
       const relPath = toRelativePath(absPath);
-      const name2 = getFileName(absPath);
+      const fileName = getFileName(absPath);
       const treeEntry = findEntryByPath(filteredTree, absPath);
       const isDir = treeEntry?.isDirectory ?? false;
       const asset = assetMap.get(relPath);
-      return buildResourceDragItem(absPath, relPath, name2, isDir, asset?.id);
+      return buildResourceDragItem(absPath, relPath, fileName, isDir, asset?.id);
     });
     workspaceEvents.fireAddToCanvas(items);
   });
@@ -195,7 +195,7 @@ export function useFileExplorerCanvasIntegration({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.duplicateFailed") +
+        translate("fileExplorer.duplicateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -208,7 +208,7 @@ export function useFileExplorerCanvasIntegration({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.duplicateFailed") +
+        translate("fileExplorer.duplicateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }

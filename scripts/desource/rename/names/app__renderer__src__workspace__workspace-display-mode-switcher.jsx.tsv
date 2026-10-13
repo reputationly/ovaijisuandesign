@@ -1,0 +1,17 @@
+key	old	new	依据
+current2@345:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+element2@357:27	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+handleKeyDown2@300:11	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。
+isActive2@119:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+mode2@113:9	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@80:33	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@85:39	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+option2@175:6	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@273:10	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@305:45	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@343:27	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@79:54	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+os2@26:48	os2	operatingSystem	用于解析快捷键显示格式的操作系统标识。
+previewImage2@85:60	previewImage2	previewImage	去掉打包器防重名追加的后缀，恢复原名 previewImage，即该绑定持有的值。
+selected2@344:21	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+t2@125:14	t2	translate	useTranslation 返回的翻译函数。

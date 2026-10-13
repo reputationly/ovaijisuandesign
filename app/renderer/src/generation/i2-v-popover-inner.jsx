@@ -199,14 +199,14 @@ export function I2VPopoverInner({
   popoverGapOffset = 0,
   navigationSnapshot,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const assetMetadataStore = useAssetMetadataApi();
   const paramsAnchorRef = reactExports.useRef(null);
   const popoverHostId = nodeId ?? replaceNodeId ?? "unknown";
   const [promptText, setPromptText] = reactExports.useState(
     defaultPrompt ?? "",
   );
-  const [count2, setCount] = reactExports.useState(
+  const [count, setCount] = reactExports.useState(
     navigationSnapshot?.count ?? 1,
   );
   const buildPromptContent = reactExports.useCallback(
@@ -217,16 +217,16 @@ export function I2VPopoverInner({
         } catch {}
       }
       if (!prompt) return "";
-      const assets2 = assetMetadataStore.getState().assets;
-      return parsePromptToTiptap(prompt, (path2) => {
+      const assets = assetMetadataStore.getState().assets;
+      return parsePromptToTiptap(prompt, (path) => {
         let hit;
-        assets2.forEach((meta2) => {
+        assets.forEach((meta) => {
           if (hit) return;
-          if (meta2.path === path2) {
+          if (meta.path === path) {
             hit = {
-              path: meta2.path,
-              name: meta2.name,
-              type: meta2.type,
+              path: meta.path,
+              name: meta.name,
+              type: meta.type,
             };
           }
         });
@@ -266,7 +266,7 @@ export function I2VPopoverInner({
     beforeAccountSubmission = () => true,
     pricingConfig,
     hailuo03VideoTrial,
-    claimHailuo03VideoTrial: claimHailuo03VideoTrial2,
+    claimHailuo03VideoTrial,
     refreshHailuo03VideoTrial,
     loadTextContent,
     saveLastUsedModelParams,
@@ -288,9 +288,9 @@ export function I2VPopoverInner({
   const [modelsLoading, setModelsLoading] = reactExports.useState(false);
   const [selectedModelId, setSelectedModelId] = reactExports.useState("");
   const [modelParams, setModelParams] = reactExports.useState({});
-  const registryVideoModels = useModelRegistryStore((s2) => s2.video);
+  const registryVideoModels = useModelRegistryStore((modelRegistryState) => modelRegistryState.video);
   const userPickedModelRef = reactExports.useRef(false);
-  const selectedModel = videoModels.find((m3) => m3.id === selectedModelId);
+  const selectedModel = videoModels.find((videoModel) => videoModel.id === selectedModelId);
   const isMiniMaxH3MaxReferenceModel = [
     selectedModel?.id,
     selectedModel?.model_name,
@@ -411,10 +411,10 @@ export function I2VPopoverInner({
       hasSeedance25VideoInput,
     );
     if (availableImageMode === imageMode) return;
-    setModelParams((current2) =>
+    setModelParams((current) =>
       resolveSeedance25ImageModeChangeParams(
         selectedModel,
-        current2,
+        current,
         availableImageMode,
       ),
     );
@@ -470,7 +470,7 @@ export function I2VPopoverInner({
     isHailuo03VideoTrialClaimAvailableForCurrentContext &&
     hailuo03VideoTrial?.claimed !== true &&
     hailuo03VideoTrial?.claimable === true &&
-    !!claimHailuo03VideoTrial2;
+    !!claimHailuo03VideoTrial;
   const hailuo03VideoTrialClaimHint = reactExports.useMemo(() => {
     const remoteHint = hailuo03VideoTrial?.claimHint?.trim();
     if (remoteHint) return remoteHint;
@@ -495,41 +495,41 @@ export function I2VPopoverInner({
     ? "https://vrfi1sk8a0.feishu.cn/wiki/FIWjwgL33ipnkekzk30crmKUnIh"
     : "https://app.notion.com/p/MiniMax-H3-Next-Generation-Open-Weights-General-Purpose-Multimodal-Video-Model-3acbb3a8c3ae81618844cb0a3904e247";
   const handleH3GuideClick = reactExports.useCallback(() => {
-    const platform2 = window.__HILO_PLATFORM__;
-    if (platform2?.shell?.openExternal) {
-      void platform2.shell.openExternal(h3GuideUrl);
+    const platform = window.__HILO_PLATFORM__;
+    if (platform?.shell?.openExternal) {
+      void platform.shell.openExternal(h3GuideUrl);
     } else {
       window.open(h3GuideUrl, "_blank", "noopener,noreferrer");
     }
   }, [h3GuideUrl]);
-  const promptPlaceholder = t2("canvas.promptDescribe", {
+  const promptPlaceholder = translate("canvas.promptDescribe", {
     defaultValue: "Describe anything you want to generate",
   });
   const promptEmptyState = ({ openAtPicker }) => (
     <PromptPlaceholder
       description={
         showH3GuideLink
-          ? t2("canvas.promptDescribeH3", {
+          ? translate("canvas.promptDescribeH3", {
               defaultValue: "描述你要生成的内容",
             })
           : promptPlaceholder
       }
-      atPrefix={t2("canvas.promptAtPrefix", {
+      atPrefix={translate("canvas.promptAtPrefix", {
         defaultValue: "，点击 ",
       })}
-      atSuffix={t2("canvas.promptAtSuffix", {
+      atSuffix={translate("canvas.promptAtSuffix", {
         defaultValue: " 添加参考内容。",
       })}
       onAtClick={openAtPicker}
       guide={
         showH3GuideLink
           ? {
-              prefix: `${t2("canvas.promptDescribeH3Connector", {
+              prefix: `${translate("canvas.promptDescribeH3Connector", {
                 defaultValue: "，或",
-              })}${t2("canvas.promptDescribeH3GuidePrefix", {
+              })}${translate("canvas.promptDescribeH3GuidePrefix", {
                 defaultValue: "探索",
               })}`,
-              label: t2("canvas.promptDescribeH3Guide", {
+              label: translate("canvas.promptDescribeH3Guide", {
                 defaultValue: "H3创作指南",
               }),
               onClick: handleH3GuideClick,
@@ -552,20 +552,20 @@ export function I2VPopoverInner({
   }, [defaultPrompt, defaultPromptJson, editorHasText, promptText]);
   const formDisabled = isDraftSubmitFormDisabled(modelsLoading, isPreparing);
   const paramsSummary = reactExports.useMemo(
-    () => summarizeParams(t2, selectedModel, effectiveModelParams),
-    [t2, selectedModel, effectiveModelParams],
+    () => summarizeParams(translate, selectedModel, effectiveModelParams),
+    [translate, selectedModel, effectiveModelParams],
   );
   const effectiveCount = showCountChip
-    ? Math.max(1, Math.min(MAX_VIDEOS_PER_SUBMIT, Math.floor(count2)))
+    ? Math.max(1, Math.min(MAX_VIDEOS_PER_SUBMIT, Math.floor(count)))
     : 1;
   const assets = attachmentState.metadataAssets;
   const sourceVideoPath = attachmentState.videoPaths.find(Boolean);
   const sourceVideoMeta = reactExports.useMemo(() => {
     if ((!isVideoExtension && !isSeedance25InheritedVideo) || !sourceVideoPath)
       return void 0;
-    for (const meta2 of assets.values()) {
-      if (meta2.path === sourceVideoPath && meta2.type === "video")
-        return meta2;
+    for (const meta of assets.values()) {
+      if (meta.path === sourceVideoPath && meta.type === "video")
+        return meta;
     }
     return void 0;
   }, [isVideoExtension, isSeedance25InheritedVideo, sourceVideoPath, assets]);
@@ -628,17 +628,17 @@ export function I2VPopoverInner({
     )
       return 0;
     const pathToDurationSec = new Map();
-    assets.forEach((meta2) => {
+    assets.forEach((meta) => {
       if (
-        meta2.path &&
-        typeof meta2.durationSec === "number" &&
-        meta2.durationSec > 0
+        meta.path &&
+        typeof meta.durationSec === "number" &&
+        meta.durationSec > 0
       ) {
-        pathToDurationSec.set(meta2.path, meta2.durationSec);
+        pathToDurationSec.set(meta.path, meta.durationSec);
       }
     });
     return attachmentState.videoPaths.reduce(
-      (total, path2) => total + (pathToDurationSec.get(path2) ?? 0),
+      (total, path) => total + (pathToDurationSec.get(path) ?? 0),
       0,
     );
   }, [imageMode, attachmentState.videoPaths, assets]);
@@ -665,43 +665,43 @@ export function I2VPopoverInner({
     const shouldApplySeedance25VideoExtendDefault =
       !seedance25VideoExtendDurationUserControlledRef.current &&
       seedance25VideoExtendDefaultDuration;
-    setModelParams((current2) => {
+    setModelParams((current) => {
       const enabledDurations = effectiveDurationOptions.filter(
-        (option2) =>
-          !disabledExtensionDurationOptions.has(option2) &&
-          !referenceVideoBudgetDisabledDurations.has(option2),
+        (option) =>
+          !disabledExtensionDurationOptions.has(option) &&
+          !referenceVideoBudgetDisabledDurations.has(option),
       );
       const firstEnabledDuration = enabledDurations[0];
-      if (!firstEnabledDuration) return current2;
+      if (!firstEnabledDuration) return current;
       if (shouldApplySeedance25VideoExtendDefault) {
-        return current2.duration === seedance25VideoExtendDefaultDuration
-          ? current2
+        return current.duration === seedance25VideoExtendDefaultDuration
+          ? current
           : {
-              ...current2,
+              ...current,
               duration: seedance25VideoExtendDefaultDuration,
             };
       }
       if (isVideoExtension) {
-        return current2.duration === firstEnabledDuration
-          ? current2
+        return current.duration === firstEnabledDuration
+          ? current
           : {
-              ...current2,
+              ...current,
               duration: firstEnabledDuration,
             };
       }
       if (
-        effectiveDurationOptions.includes(current2.duration) &&
-        !referenceVideoBudgetDisabledDurations.has(current2.duration)
+        effectiveDurationOptions.includes(current.duration) &&
+        !referenceVideoBudgetDisabledDurations.has(current.duration)
       ) {
-        return current2;
+        return current;
       }
       const fallback =
-        nearestDuration(Number(current2.duration), enabledDurations) ??
+        nearestDuration(Number(current.duration), enabledDurations) ??
         firstEnabledDuration;
-      return current2.duration === fallback
-        ? current2
+      return current.duration === fallback
+        ? current
         : {
-            ...current2,
+            ...current,
             duration: fallback,
           };
     });
@@ -747,21 +747,21 @@ export function I2VPopoverInner({
   const specialCostDurationSec = reactExports.useMemo(() => {
     const durationKind = getSpecialI2VCostDurationAttachmentKind(selectedModel);
     if (!durationKind) return void 0;
-    const path2 =
+    const path =
       durationKind === "audio"
         ? attachmentState.audioPaths.find(Boolean)
         : attachmentState.videoPaths.find(Boolean);
-    if (!path2) return void 0;
+    if (!path) return void 0;
     let durationSec;
-    assets.forEach((meta2) => {
+    assets.forEach((meta) => {
       if (durationSec != null) return;
       if (
-        meta2.type === durationKind &&
-        meta2.path === path2 &&
-        typeof meta2.durationSec === "number" &&
-        meta2.durationSec > 0
+        meta.type === durationKind &&
+        meta.path === path &&
+        typeof meta.durationSec === "number" &&
+        meta.durationSec > 0
       ) {
-        durationSec = meta2.durationSec;
+        durationSec = meta.durationSec;
       }
     });
     return durationSec;
@@ -774,10 +774,10 @@ export function I2VPopoverInner({
   const videoPricingInput = reactExports.useMemo(() => {
     if (!selectedModel) return void 0;
     const resolutionKey = ["resolution", "mode"].find(
-      (k2) => selectedModel.params[k2],
+      (parameterKey) => selectedModel.params[parameterKey],
     );
     const soundKey = ["generate_audio", "sound", "enable_sound"].find(
-      (k2) => selectedModel.params[k2],
+      (parameterKey) => selectedModel.params[parameterKey],
     );
     const resolution = resolutionKey ? modelParams[resolutionKey] : void 0;
     const soundValue = soundKey ? modelParams[soundKey] : void 0;
@@ -897,35 +897,35 @@ export function I2VPopoverInner({
       return void 0;
     return buildVideoCostFormula(videoCostBreakdown, effectiveCount, {
       generatedVideo: (seconds, rate) =>
-        t2("canvas.billing.formula.generatedVideo", {
+        translate("canvas.billing.formula.generatedVideo", {
           seconds,
           rate,
           defaultValue: "生成视频 {{seconds}} 秒 × {{rate}} 积分/秒",
         }),
       inputVideo: (seconds, rate) =>
-        t2("canvas.billing.formula.inputVideo", {
+        translate("canvas.billing.formula.inputVideo", {
           seconds,
           rate,
           defaultValue: "输入视频 {{seconds}} 秒 × {{rate}} 积分/秒",
         }),
-      inputImages: (count22, rate) =>
-        t2("canvas.billing.formula.inputImages", {
-          count: count22,
+      inputImages: (count, rate) =>
+        translate("canvas.billing.formula.inputImages", {
+          count,
           rate,
           defaultValue: "超额图片 {{count}} 张 × {{rate}} 积分/张",
         }),
-      inputMediaFree: t2("canvas.billing.formula.inputMediaFree", {
+      inputMediaFree: translate("canvas.billing.formula.inputMediaFree", {
         defaultValue: "输入素材 0 积分",
       }),
       fixedCost: (cost) =>
-        t2("canvas.billing.formula.fixedCost", {
+        translate("canvas.billing.formula.fixedCost", {
           cost,
           defaultValue: "基础费用 {{cost}} 积分",
         }),
-      multipleOutputs: (formula, count22) =>
-        t2("canvas.billing.formula.multipleOutputs", {
+      multipleOutputs: (formula, count) =>
+        translate("canvas.billing.formula.multipleOutputs", {
           formula,
-          count: count22,
+          count,
           defaultValue: "({{formula}}) × {{count}}",
         }),
     });
@@ -933,7 +933,7 @@ export function I2VPopoverInner({
     calculatedCreditCost,
     creditCost,
     effectiveCount,
-    t2,
+    translate,
     videoCostBreakdown,
   ]);
   const computedBillingDetails = reactExports.useMemo(() => {
@@ -944,34 +944,34 @@ export function I2VPopoverInner({
       return void 0;
     }
     return buildHailuo03BillingDetails(videoCostBreakdown, {
-      heading: t2("canvas.billing.panel.heading", {
+      heading: translate("canvas.billing.panel.heading", {
         defaultValue: "价格说明",
       }),
-      generatedVideo: t2("canvas.billing.panel.generatedVideo", {
+      generatedVideo: translate("canvas.billing.panel.generatedVideo", {
         defaultValue: "生成视频",
       }),
-      inputMedia: t2("canvas.billing.panel.inputMedia", {
+      inputMedia: translate("canvas.billing.panel.inputMedia", {
         defaultValue: "输入素材",
       }),
-      video: t2("canvas.billing.panel.video", {
+      video: translate("canvas.billing.panel.video", {
         defaultValue: "视频",
       }),
-      audio: t2("canvas.billing.panel.audio", {
+      audio: translate("canvas.billing.panel.audio", {
         defaultValue: "音频",
       }),
-      images: t2("canvas.billing.panel.images", {
+      images: translate("canvas.billing.panel.images", {
         defaultValue: "图片",
       }),
-      free: t2("canvas.billing.panel.free", {
+      free: translate("canvas.billing.panel.free", {
         defaultValue: "免费",
       }),
       creditsPerSecond: (rate) =>
-        t2("canvas.billing.panel.ratePerSecond", {
+        translate("canvas.billing.panel.ratePerSecond", {
           rate,
           defaultValue: "{{rate}} 积分/秒",
         }),
       imagePricing: (freeCount, firstPaidIndex, rate) =>
-        t2("canvas.billing.panel.imagePricing", {
+        translate("canvas.billing.panel.imagePricing", {
           freeCount,
           firstPaidIndex,
           rate,
@@ -979,7 +979,7 @@ export function I2VPopoverInner({
             "前 {{freeCount}} 张免费，第 {{firstPaidIndex}} 张起 {{rate}} 积分/张",
         }),
     });
-  }, [t2, videoCostBreakdown, videoPricingInput?.pricingModelId]);
+  }, [translate, videoCostBreakdown, videoPricingInput?.pricingModelId]);
   const computedBillingTooltip = reactExports.useMemo(() => {
     if (computedBillingDetails) return void 0;
     if (!pricingConfig || !videoPricingInput) return void 0;
@@ -998,7 +998,7 @@ export function I2VPopoverInner({
       data-action-ui-id="popover.hailuo03-free-badge"
     >
       <span>
-        {t2("canvas.hailuo03Trial.freeLabel", {
+        {translate("canvas.hailuo03Trial.freeLabel", {
           defaultValue: "免费",
         })}
       </span>
@@ -1006,7 +1006,7 @@ export function I2VPopoverInner({
         ·
       </span>
       <span className="font-medium tabular-nums">
-        {t2("canvas.hailuo03Trial.remaining", {
+        {translate("canvas.hailuo03Trial.remaining", {
           count: hailuo03TrialRemainingCount,
           defaultValue: "剩余 {{count}} 次",
         })}
@@ -1018,7 +1018,7 @@ export function I2VPopoverInner({
   const aspectRatioKey = reactExports.useMemo(() => {
     if (!selectedModel || isVideoExtension || isSeedance25InheritedVideo)
       return void 0;
-    return ["aspect_ratio", "ratio"].find((k2) => selectedModel.params[k2]);
+    return ["aspect_ratio", "ratio"].find((parameterKey) => selectedModel.params[parameterKey]);
   }, [isSeedance25InheritedVideo, isVideoExtension, selectedModel]);
   const sourceAspectRatio =
     (isVideoExtension || isSeedance25InheritedVideo) &&
@@ -1045,12 +1045,12 @@ export function I2VPopoverInner({
     const applyModels = (models, source) => {
       if (cancelled) return;
       const i2vModels = models
-        .filter((m3) => m3.max_refs >= 1 && !m3.hideInModelPicker)
+        .filter((candidateModel) => candidateModel.max_refs >= 1 && !candidateModel.hideInModelPicker)
         .map(ensureSeedance25DirectImageModes);
       setVideoModels(i2vModels);
       devLogI2V("model-list-loaded", {
         count: i2vModels.length,
-        modelIds: i2vModels.map((m3) => m3.id),
+        modelIds: i2vModels.map((videoModel) => videoModel.id),
         userPicked: userPickedModelRef.current,
       });
       if (userPickedModelRef.current) {
@@ -1192,7 +1192,7 @@ export function I2VPopoverInner({
     (modelId) => {
       userPickedModelRef.current = true;
       setSelectedModelId(modelId);
-      const model = videoModels.find((m3) => m3.id === modelId);
+      const model = videoModels.find((videoModel) => videoModel.id === modelId);
       if (model) {
         setModelParams(
           migrateLegacySeedance25GenerationModeParams(
@@ -1205,15 +1205,15 @@ export function I2VPopoverInner({
     [videoModels, selectedModel, modelParams, popoverHostId],
   );
   const handleParamChange = reactExports.useCallback(
-    (key2, value) => {
-      if (key2 === IMAGE_MODE_KEY) {
+    (key, value) => {
+      if (key === IMAGE_MODE_KEY) {
         seedance25VideoExtendDurationUserControlledRef.current = false;
-      } else if (key2 === "duration" && isSeedance25VideoExtend) {
+      } else if (key === "duration" && isSeedance25VideoExtend) {
         seedance25VideoExtendDurationUserControlledRef.current = true;
       }
       setModelParams((prev) => {
-        const next2 =
-          key2 === IMAGE_MODE_KEY
+        const next =
+          key === IMAGE_MODE_KEY
             ? resolveSeedance25ImageModeChangeParams(
                 selectedModel,
                 prev,
@@ -1222,9 +1222,9 @@ export function I2VPopoverInner({
               )
             : {
                 ...prev,
-                [key2]: value,
+                [key]: value,
               };
-        return selectedModel ? enforceConstraints(next2, selectedModel) : next2;
+        return selectedModel ? enforceConstraints(next, selectedModel) : next;
       });
     },
     [
@@ -1234,12 +1234,12 @@ export function I2VPopoverInner({
     ],
   );
   const handleClaimHailuo03VideoTrial = reactExports.useCallback(
-    async (e2) => {
-      e2.stopPropagation();
-      if (!claimHailuo03VideoTrial2 || isClaimingHailuo03Trial) return;
+    async (clickEvent) => {
+      clickEvent.stopPropagation();
+      if (!claimHailuo03VideoTrial || isClaimingHailuo03Trial) return;
       setIsClaimingHailuo03Trial(true);
       try {
-        const status = await claimHailuo03VideoTrial2();
+        const status = await claimHailuo03VideoTrial();
         if (status?.claimed) {
           setModelParams((prev) => {
             if (
@@ -1259,16 +1259,16 @@ export function I2VPopoverInner({
               eligibility: status.eligibility,
             });
             if (!resolution) return prev;
-            const next2 = {
+            const next = {
               ...prev,
               resolution,
             };
             return selectedModel
-              ? enforceConstraints(next2, selectedModel)
-              : next2;
+              ? enforceConstraints(next, selectedModel)
+              : next;
           });
           dedupedToast.success(
-            t2("canvas.hailuo03Trial.claimSuccess", {
+            translate("canvas.hailuo03Trial.claimSuccess", {
               count: status.remainingCount || status.freeCount,
               defaultValue: "已领取 {{count}} 次免费机会",
             }),
@@ -1277,13 +1277,13 @@ export function I2VPopoverInner({
           return;
         }
         dedupedToast.error(
-          t2("canvas.hailuo03Trial.claimFailed", {
+          translate("canvas.hailuo03Trial.claimFailed", {
             defaultValue: "暂时无法领取免费机会，请稍后重试",
           }),
         );
       } catch {
         dedupedToast.error(
-          t2("canvas.hailuo03Trial.claimFailed", {
+          translate("canvas.hailuo03Trial.claimFailed", {
             defaultValue: "暂时无法领取免费机会，请稍后重试",
           }),
         );
@@ -1292,12 +1292,12 @@ export function I2VPopoverInner({
       }
     },
     [
-      claimHailuo03VideoTrial2,
+      claimHailuo03VideoTrial,
       isClaimingHailuo03Trial,
       refreshHailuo03VideoTrial,
       selectedModel,
       selectedModelId,
-      t2,
+      translate,
     ],
   );
   const modelRequiredAttachment = getMissingRequiredAttachmentForI2V(
@@ -1317,7 +1317,7 @@ export function I2VPopoverInner({
     attachmentState.imagePaths,
   );
   const sourceVideoCount = attachmentState.videoPaths.filter(
-    (path2) => path2.trim().length > 0,
+    (path) => path.trim().length > 0,
   ).length;
   const missingRequiredAttachment =
     (isVideoExtension || isSeedance25InheritedVideo) && sourceVideoCount === 0
@@ -1332,21 +1332,21 @@ export function I2VPopoverInner({
           : modelRequiredAttachment;
   const requiredAttachmentActionLabel =
     missingRequiredAttachment === "video"
-      ? t2("canvas.imageSlot.entryVideo")
+      ? translate("canvas.imageSlot.entryVideo")
       : missingRequiredAttachment === "audio"
-        ? t2("canvas.imageSlot.entryAudio", {
+        ? translate("canvas.imageSlot.entryAudio", {
             defaultValue: "选择参考音频",
           })
         : hasUnsupportedTailOnlyFrame
-          ? t2("canvas.imageSlot.firstFrame")
-          : t2("canvas.imageSlot.entry");
+          ? translate("canvas.imageSlot.firstFrame")
+          : translate("canvas.imageSlot.entry");
   const missingRequiredAttachmentMessage = selectedModel?.name
     ? `${selectedModel.name}: ${requiredAttachmentActionLabel}`
     : requiredAttachmentActionLabel;
   let videoExtensionValidationMessage;
   if (isVideoExtension && !missingRequiredAttachment) {
     if (extensionSourceDurationSec === void 0) {
-      videoExtensionValidationMessage = t2(
+      videoExtensionValidationMessage = translate(
         "canvas.videoExtension.durationUnavailable",
         {
           defaultValue: "无法读取原视频时长，请更换视频",
@@ -1358,7 +1358,7 @@ export function I2VPopoverInner({
         videoExtensionCapability,
       )
     ) {
-      videoExtensionValidationMessage = t2(
+      videoExtensionValidationMessage = translate(
         "canvas.videoExtension.inputDurationRange",
         {
           defaultValue: "上传视频时长需在 2-15 秒之间",
@@ -1371,7 +1371,7 @@ export function I2VPopoverInner({
         videoExtensionCapability,
       )
     ) {
-      videoExtensionValidationMessage = t2(
+      videoExtensionValidationMessage = translate(
         "canvas.videoExtension.outputDurationRange",
         {
           defaultValue: "续写后的总时长必须大于原视频，且最长 20 秒",
@@ -1382,7 +1382,7 @@ export function I2VPopoverInner({
   let seedance25InheritedVideoValidationMessage;
   if (isSeedance25InheritedVideo && !missingRequiredAttachment) {
     if (seedance25VideoInputTotalDurationSec === void 0) {
-      seedance25InheritedVideoValidationMessage = t2(
+      seedance25InheritedVideoValidationMessage = translate(
         "canvas.seedance25.omniMode.durationUnavailable",
         {
           defaultValue: "无法读取输入视频时长，请更换视频",
@@ -1402,28 +1402,28 @@ export function I2VPopoverInner({
     videoExtensionValidationMessage ??
     seedance25InheritedVideoValidationMessage ??
     (referenceVideoDurationExceeded
-      ? t2("canvas.videoSlot.totalTooLong", {
+      ? translate("canvas.videoSlot.totalTooLong", {
           defaultValue:
             "参考视频总时长超过 {{max}} 秒，请减少视频数量或更换更短的视频",
           max: referenceVideoTotalMaxSec,
         })
       : referenceAudioDurationExceeded
-        ? t2("canvas.audioSlot.totalTooLong", {
+        ? translate("canvas.audioSlot.totalTooLong", {
             defaultValue:
               "参考音频总时长超过 {{max}} 秒，请减少音频数量或更换更短的音频",
             max: referenceAudioTotalMaxSec,
           })
         : referenceClipDurationInvalid
-          ? t2("canvas.mediaSlot.durationOutOfRange", {
+          ? translate("canvas.mediaSlot.durationOutOfRange", {
               defaultValue: "参考媒体时长不符合当前模型要求",
             })
           : missingRequiredAttachment
             ? missingRequiredAttachmentMessage
             : isMissingRequiredPrompt
-              ? t2("canvas.promptRequired", {
+              ? translate("canvas.promptRequired", {
                   defaultValue: "输入 prompt",
                 })
-              : t2("canvas.generate"));
+              : translate("canvas.generate"));
   const canSubmit =
     accountSubmissionAllowed &&
     !!selectedModelId &&
@@ -1465,7 +1465,7 @@ export function I2VPopoverInner({
       nodeId: nodeId ?? replaceNodeId,
       editorRef,
       expanded,
-      count: count2,
+      count,
       snapshot: navigationSnapshot,
       defaultImagePaths,
       defaultVideoPaths,
@@ -1515,44 +1515,44 @@ export function I2VPopoverInner({
       });
       if (navigationSavedRef.current || !shouldPersist) return;
       const editor = editorRef.current;
-      const snapshot2 = draftSnapshotRef.current;
+      const snapshot = draftSnapshotRef.current;
       const editorAlive = editor && !editor.isDestroyed;
       const livePrompt = editorAlive
         ? extractCanvasEditorText(editor)
-        : snapshot2.promptText;
+        : snapshot.promptText;
       const baseline = draftBaselineRef.current;
       if (baseline) {
         const isDirty = popoverDraftIsDirty(baseline, {
           prompt: livePrompt,
-          modelId: snapshot2.selectedModelId,
-          params: snapshot2.modelParams,
-          imagePaths: snapshot2.imagePaths,
-          videoPaths: snapshot2.videoPaths,
-          audioPaths: snapshot2.audioPaths,
-          textPaths: snapshot2.textPaths,
+          modelId: snapshot.selectedModelId,
+          params: snapshot.modelParams,
+          imagePaths: snapshot.imagePaths,
+          videoPaths: snapshot.videoPaths,
+          audioPaths: snapshot.audioPaths,
+          textPaths: snapshot.textPaths,
         });
         devLogI2V("unmount-dirty-check", {
           baselineModelId: baseline.modelId,
-          liveModelId: snapshot2.selectedModelId,
+          liveModelId: snapshot.selectedModelId,
         });
         if (!isDirty) return;
       }
       onSaveDraftRef.current?.({
         prompt: livePrompt,
         promptJson: editorAlive ? JSON.stringify(editor.getJSON()) : void 0,
-        modelId: snapshot2.selectedModelId,
-        params: stripDerivedReferenceParams(snapshot2.modelParams),
-        imagePaths: snapshot2.imagePaths,
-        videoPaths: snapshot2.videoPaths,
-        audioPaths: snapshot2.audioPaths,
-        textPaths: snapshot2.textPaths,
+        modelId: snapshot.selectedModelId,
+        params: stripDerivedReferenceParams(snapshot.modelParams),
+        imagePaths: snapshot.imagePaths,
+        videoPaths: snapshot.videoPaths,
+        audioPaths: snapshot.audioPaths,
+        textPaths: snapshot.textPaths,
       });
     },
     [popoverHostId, navigationSavedRef],
   );
   const handleRestoreOriginalDraft = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       if (!originalGenerationDraft) return;
       const override = resolveI2VPrefillOverride({
         models: videoModels,
@@ -1577,9 +1577,9 @@ export function I2VPopoverInner({
       setPromptLength(countPromptCharacters(nextPrompt));
       setEditorContentOverride(buildPromptContent(nextPrompt, nextPromptJson));
       setEditorContentRevision((revision) => revision + 1);
-      const snapshot2 = draftSnapshotRef.current;
+      const snapshot = draftSnapshotRef.current;
       draftSnapshotRef.current = {
-        ...snapshot2,
+        ...snapshot,
         promptText: nextPrompt,
         selectedModelId: nextModelId,
         modelParams: nextParams,
@@ -1590,10 +1590,10 @@ export function I2VPopoverInner({
         params: {
           ...nextParams,
         },
-        imagePaths: [...snapshot2.imagePaths],
-        videoPaths: [...snapshot2.videoPaths],
-        audioPaths: [...snapshot2.audioPaths],
-        textPaths: [...snapshot2.textPaths],
+        imagePaths: [...snapshot.imagePaths],
+        videoPaths: [...snapshot.videoPaths],
+        audioPaths: [...snapshot.audioPaths],
+        textPaths: [...snapshot.textPaths],
       };
       onSaveDraftRef.current?.({
         prompt: nextPrompt,
@@ -1608,10 +1608,10 @@ export function I2VPopoverInner({
             }
           : {}),
         params: nextParams,
-        imagePaths: snapshot2.imagePaths,
-        videoPaths: snapshot2.videoPaths,
-        audioPaths: snapshot2.audioPaths,
-        textPaths: snapshot2.textPaths,
+        imagePaths: snapshot.imagePaths,
+        videoPaths: snapshot.videoPaths,
+        audioPaths: snapshot.audioPaths,
+        textPaths: snapshot.textPaths,
       });
     },
     [originalGenerationDraft, videoModels, selectedModelId, buildPromptContent],
@@ -1626,8 +1626,8 @@ export function I2VPopoverInner({
   });
   const submitFilePath = attachmentState.filePaths[0];
   const doSubmit = reactExports.useCallback(
-    async (e2, replaceId) => {
-      e2.stopPropagation();
+    async (clickEvent, replaceId) => {
+      clickEvent.stopPropagation();
       if (missingRequiredAttachment) {
         dedupedToast.error(missingRequiredAttachmentMessage);
         return;
@@ -1681,7 +1681,7 @@ export function I2VPopoverInner({
         const badAudio = trimmedAudios.find(hasUnsupportedReferenceAudioFormat);
         if (badAudio) {
           dedupedToast.error(
-            t2("canvas.audioSlot.formatUnsupported", {
+            translate("canvas.audioSlot.formatUnsupported", {
               defaultValue: "参考音频仅支持 mp3 / wav 格式，请更换音频文件",
             }),
           );
@@ -1690,26 +1690,26 @@ export function I2VPopoverInner({
       }
       if (trimmedAudios.length > 0 || trimmedVideos.length > 0) {
         const pathToDuration = new Map();
-        assets.forEach((meta2) => {
+        assets.forEach((meta) => {
           if (
-            meta2.path &&
-            !pathToDuration.has(`${meta2.type}:${meta2.path}`) &&
-            typeof meta2.durationSec === "number" &&
-            meta2.durationSec > 0
+            meta.path &&
+            !pathToDuration.has(`${meta.type}:${meta.path}`) &&
+            typeof meta.durationSec === "number" &&
+            meta.durationSec > 0
           ) {
             pathToDuration.set(
-              `${meta2.type}:${meta2.path}`,
-              meta2.durationSec,
+              `${meta.type}:${meta.path}`,
+              meta.durationSec,
             );
           }
         });
         if (trimmedAudios.length > 0) {
           let totalAudioSec = 0;
-          for (const p3 of trimmedAudios)
-            totalAudioSec += pathToDuration.get(`audio:${p3}`) ?? 0;
+          for (const audioPath of trimmedAudios)
+            totalAudioSec += pathToDuration.get(`audio:${audioPath}`) ?? 0;
           if (totalAudioSec > referenceAudioTotalMaxSec) {
             dedupedToast.error(
-              t2("canvas.audioSlot.totalTooLong", {
+              translate("canvas.audioSlot.totalTooLong", {
                 defaultValue:
                   "参考音频总时长超过 {{max}} 秒，请减少音频数量或更换更短的音频",
                 max: referenceAudioTotalMaxSec,
@@ -1720,11 +1720,11 @@ export function I2VPopoverInner({
         }
         if (trimmedVideos.length > 0) {
           let totalVideoSec = 0;
-          for (const p3 of trimmedVideos)
-            totalVideoSec += pathToDuration.get(`video:${p3}`) ?? 0;
+          for (const videoPath of trimmedVideos)
+            totalVideoSec += pathToDuration.get(`video:${videoPath}`) ?? 0;
           if (totalVideoSec > referenceVideoTotalMaxSec) {
             dedupedToast.error(
-              t2("canvas.videoSlot.totalTooLong", {
+              translate("canvas.videoSlot.totalTooLong", {
                 defaultValue:
                   "参考视频总时长超过 {{max}} 秒，请减少视频数量或更换更短的视频",
                 max: referenceVideoTotalMaxSec,
@@ -1759,7 +1759,7 @@ export function I2VPopoverInner({
         );
       } catch {
         dedupedToast.error(
-          t2(
+          translate(
             "canvas.reference.unavailable",
             "Reference unavailable. Please select again.",
           ),
@@ -1774,7 +1774,7 @@ export function I2VPopoverInner({
         !authoredPrompt.trim()
       ) {
         dedupedToast.error(
-          t2("canvas.promptRequired", {
+          translate("canvas.promptRequired", {
             defaultValue: "输入 prompt",
           }),
         );
@@ -1818,7 +1818,7 @@ export function I2VPopoverInner({
       ) {
         setPromptLength(finalPromptLength);
         dedupedToast.error(
-          t2("canvas.prompt.tooLong", {
+          translate("canvas.prompt.tooLong", {
             current: finalPromptLength,
             max: selectedModel.promptMaxLength,
           }),
@@ -1827,7 +1827,7 @@ export function I2VPopoverInner({
       }
       if (compiled.unresolved.length > 0) {
         dedupedToast.warning(
-          `以下引用未在附件中找到，已保留原文: ${compiled.unresolved.map((u4) => `@${u4.path}`).join(", ")}`,
+          `以下引用未在附件中找到，已保留原文: ${compiled.unresolved.map((unresolvedReference) => `@${unresolvedReference.path}`).join(", ")}`,
         );
       }
       const submittedDraft = {
@@ -1898,7 +1898,7 @@ export function I2VPopoverInner({
       submitFilePath,
       currentReferenceTextContent,
       assets,
-      t2,
+      translate,
       canSubmit,
       beforeAccountSubmission,
       checkReferencesBeforeSubmit,
@@ -1923,31 +1923,31 @@ export function I2VPopoverInner({
   const inGeneratingState = isGenerating || isPreparing;
   const pendingSubmitRef = reactExports.useRef(null);
   const handleConfirm = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = {
           kind: "confirm",
         };
         return;
       }
-      void doSubmit(e2, replaceNodeId);
+      void doSubmit(clickEvent, replaceNodeId);
     },
     [doSubmit, modelsLoading, replaceNodeId, selectedModelId],
   );
   const handleNewNode = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = {
           kind: "new",
         };
         return;
       }
-      void doSubmit(e2, void 0);
+      void doSubmit(clickEvent, void 0);
     },
     [doSubmit, modelsLoading, selectedModelId],
   );
   const handleReplace = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = nodeId
           ? {
@@ -1959,22 +1959,22 @@ export function I2VPopoverInner({
             };
         return;
       }
-      void doSubmit(e2, nodeId);
+      void doSubmit(clickEvent, nodeId);
     },
     [doSubmit, modelsLoading, nodeId, selectedModelId],
   );
   reactExports.useEffect(() => {
     if (modelsLoading || !selectedModelId) return;
-    const pending2 = pendingSubmitRef.current;
-    if (!pending2) return;
+    const pending = pendingSubmitRef.current;
+    if (!pending) return;
     pendingSubmitRef.current = null;
     const syntheticEvent = {
       stopPropagation: () => void 0,
     };
-    if (pending2.kind === "confirm")
+    if (pending.kind === "confirm")
       void doSubmit(syntheticEvent, replaceNodeId);
-    else if (pending2.kind === "new") void doSubmit(syntheticEvent, void 0);
-    else void doSubmit(syntheticEvent, pending2.targetNodeId);
+    else if (pending.kind === "new") void doSubmit(syntheticEvent, void 0);
+    else void doSubmit(syntheticEvent, pending.targetNodeId);
   }, [doSubmit, modelsLoading, replaceNodeId, selectedModelId]);
   const handleAttachmentClick = reactExports.useCallback((item) => {
     if (item.kind === "file") return;
@@ -1985,11 +1985,11 @@ export function I2VPopoverInner({
     });
   }, []);
   const handleRemoveAttachment = reactExports.useCallback(
-    (path2) => {
-      attachmentState.removePath(path2, {
+    (path) => {
+      attachmentState.removePath(path, {
         tearEdge: true,
       });
-      editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
+      editorRef.current?.commands.removeCanvasFileRefsByPath(path);
     },
     [attachmentState],
   );
@@ -1997,9 +1997,9 @@ export function I2VPopoverInner({
   const handleFrameImagePathsUpdate = reactExports.useCallback(
     (nextPaths) => {
       const retainedPaths = new Set(nextPaths.filter(Boolean));
-      for (const path2 of attachmentState.imagePaths) {
-        if (path2 && !retainedPaths.has(path2)) {
-          editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
+      for (const path of attachmentState.imagePaths) {
+        if (path && !retainedPaths.has(path)) {
+          editorRef.current?.commands.removeCanvasFileRefsByPath(path);
         }
       }
       attachmentState.replaceImagePaths(nextPaths);
@@ -2026,7 +2026,7 @@ export function I2VPopoverInner({
       const sourceNodeId = getNodeIdByPath(referenceVideoForClip.path);
       if (!sourceNodeId) {
         dedupedToast.error(
-          t2("canvas.videoSlot.clipSourceMissing", {
+          translate("canvas.videoSlot.clipSourceMissing", {
             defaultValue: "找不到原视频，无法裁剪",
           }),
         );
@@ -2047,7 +2047,7 @@ export function I2VPopoverInner({
       getNodeIdByPath,
       reactFlow,
       referenceVideoForClip,
-      t2,
+      translate,
     ],
   );
   const handleReferenceAudioClipExport = reactExports.useCallback(
@@ -2056,7 +2056,7 @@ export function I2VPopoverInner({
       const sourceNodeId = getNodeIdByPath(referenceAudioForClip.path);
       if (!sourceNodeId) {
         dedupedToast.error(
-          t2("canvas.audioSlot.clipSourceMissing", {
+          translate("canvas.audioSlot.clipSourceMissing", {
             defaultValue: "找不到原音频，无法裁剪",
           }),
         );
@@ -2077,16 +2077,16 @@ export function I2VPopoverInner({
       getNodeIdByPath,
       reactFlow,
       referenceAudioForClip,
-      t2,
+      translate,
     ],
   );
   const handleAtTrigger = reactExports.useCallback(
-    (query, rect, getRect2, triggerRange) => {
-      setAtPickerState((state2) =>
-        nextAtPickerState(state2, {
+    (query, rect, getRect, triggerRange) => {
+      setAtPickerState((state) =>
+        nextAtPickerState(state, {
           query,
           rect,
-          getRect: getRect2,
+          getRect,
           triggerRange,
         }),
       );
@@ -2095,60 +2095,60 @@ export function I2VPopoverInner({
   );
   const handleFileRefSwitchSelect = useMediaFileRefSwitch(attachmentState);
   const handleAtSelect = reactExports.useCallback(
-    (meta2, assetId, sourceNodeId) => {
-      const rawKind = meta2.type;
+    (meta, assetId, sourceNodeId) => {
+      const rawKind = meta.type;
       if (rawKind === "text") {
         const admitted = attachmentState.addPaths(
           [
             {
-              path: meta2.path,
+              path: meta.path,
               sourceNodeId: sourceNodeId ?? assetId,
             },
           ],
           "text",
         );
-        if (!admitted.includes(meta2.path)) {
-          setAtPickerState((state2) => ({
-            ...state2,
+        if (!admitted.includes(meta.path)) {
+          setAtPickerState((state) => ({
+            ...state,
             open: false,
           }));
           return;
         }
         editorRef.current?.commands.replaceAtTriggerWithFileRef(
           {
-            path: meta2.path,
-            filename: meta2.name,
+            path: meta.path,
+            filename: meta.name,
             kind: "text",
           },
           atPickerState.triggerRange ?? void 0,
         );
-        setAtPickerState((s2) => ({
-          ...s2,
+        setAtPickerState((pickerState) => ({
+          ...pickerState,
           open: false,
         }));
         return;
       }
       const kind = rawKind;
       if (kind !== "image" && kind !== "video" && kind !== "audio") return;
-      handleFileRefSwitchSelect(meta2, assetId, sourceNodeId);
+      handleFileRefSwitchSelect(meta, assetId, sourceNodeId);
       editorRef.current?.commands.replaceAtTriggerWithFileRef(
         {
-          path: meta2.path,
-          filename: meta2.name,
+          path: meta.path,
+          filename: meta.name,
           kind,
         },
         atPickerState.triggerRange ?? void 0,
       );
-      setAtPickerState((s2) => ({
-        ...s2,
+      setAtPickerState((pickerState) => ({
+        ...pickerState,
         open: false,
       }));
     },
     [attachmentState, atPickerState.triggerRange, handleFileRefSwitchSelect],
   );
   const handleEditorUpdate = reactExports.useCallback(
-    (hasContent2, textLen) => {
-      setEditorHasText(hasContent2);
+    (hasContent, textLen) => {
+      setEditorHasText(hasContent);
       setPromptLength(textLen);
     },
     [],
@@ -2205,9 +2205,9 @@ export function I2VPopoverInner({
         attachmentState.addPaths(audioAdds, "audio");
       if (textAdds.length > 0) {
         const admitted = new Set(attachmentState.addPaths(textAdds, "text"));
-        for (const path2 of textAdds) {
-          if (!admitted.has(path2))
-            editorRef.current?.commands.removeCanvasFileRefsByPath(path2);
+        for (const path of textAdds) {
+          if (!admitted.has(path))
+            editorRef.current?.commands.removeCanvasFileRefsByPath(path);
         }
       }
     },
@@ -2239,9 +2239,9 @@ export function I2VPopoverInner({
       selectedModel.hiddenParamsByImageMode?.[imageMode] ?? [],
     );
     for (const std of STANDARD_PARAMS) {
-      const matchedKey = std.aliases.find((a2) => selectedModel.params[a2]);
+      const matchedKey = std.aliases.find((parameterAlias) => selectedModel.params[parameterAlias]);
       const def = matchedKey ? selectedModel.params[matchedKey] : void 0;
-      const stdLabel = t2(std.i18nKey, {
+      const stdLabel = translate(std.i18nKey, {
         defaultValue: std.fallbackLabel,
       });
       if (matchedKey) consumedKeys.add(matchedKey);
@@ -2249,7 +2249,7 @@ export function I2VPopoverInner({
       if (isSeedance25VideoEdit && std.id === "duration") continue;
       if (std.id === "image_mode") {
         if (def && matchedKey) {
-          const disabled2 = getDisabledOptions(
+          const disabled = getDisabledOptions(
             matchedKey,
             modelParams,
             selectedModel.paramConstraints,
@@ -2265,10 +2265,10 @@ export function I2VPopoverInner({
               label={stdLabel}
               options={imageModeOptions}
               value={modelParams[matchedKey] ?? def.default}
-              onChange={(v2) => handleParamChange(matchedKey, v2)}
+              onChange={(nextValue) => handleParamChange(matchedKey, nextValue)}
               disabled={formDisabled}
-              disabledOptions={disabled2}
-              getOptionLabel={(opt) => imageModeOptionLabel(t2, opt)}
+              disabledOptions={disabled}
+              getOptionLabel={(opt) => imageModeOptionLabel(translate, opt)}
               variant="track"
               trackColumns={isSeedance25Model(selectedModel) ? 2 : void 0}
             />,
@@ -2278,7 +2278,7 @@ export function I2VPopoverInner({
       }
       if (isVideoExtension && std.id === "aspect_ratio") continue;
       if (def && matchedKey) {
-        const disabled2 = getDisabledOptions(
+        const disabled = getDisabledOptions(
           matchedKey,
           modelParams,
           selectedModel.paramConstraints,
@@ -2286,11 +2286,11 @@ export function I2VPopoverInner({
         const disabledFieldOptions =
           std.id === "duration"
             ? new Set([
-                ...disabled2,
+                ...disabled,
                 ...disabledExtensionDurationOptions,
                 ...referenceVideoBudgetDisabledDurations,
               ])
-            : disabled2;
+            : disabled;
         const fieldValue =
           std.id === "aspect_ratio"
             ? (effectiveModelParams[matchedKey] ?? def.default)
@@ -2299,7 +2299,7 @@ export function I2VPopoverInner({
           isVideoExtension && std.id === "duration"
             ? effectiveDurationOptions
             : (def.options ?? []);
-        const fieldOnChange = (v2) => handleParamChange(matchedKey, v2);
+        const fieldOnChange = (nextValue) => handleParamChange(matchedKey, nextValue);
         if (std.id === "aspect_ratio") {
           elements.push(
             <I2VAspectRatioField
@@ -2313,21 +2313,21 @@ export function I2VPopoverInner({
               value={fieldValue}
               onChange={fieldOnChange}
               disabled={formDisabled}
-              disabledOptions={disabled2}
+              disabledOptions={disabled}
               label={stdLabel}
             />,
           );
         } else if (std.id === "resolution") {
           const getResolutionTooltip = (opt) => {
-            if (!isMiniMaxH3VideoModel || disabled2.has(opt)) return void 0;
+            if (!isMiniMaxH3VideoModel || disabled.has(opt)) return void 0;
             if (opt === "768P") {
-              return t2("canvas.param.resolutionTooltip.h3.768P", {
+              return translate("canvas.param.resolutionTooltip.h3.768P", {
                 defaultValue:
                   "成本低，适合多次抽卡；结果满意后可超分至 2K，提高画质和细节",
               });
             }
             if (opt === "2K") {
-              return t2("canvas.param.resolutionTooltip.h3.2K", {
+              return translate("canvas.param.resolutionTooltip.h3.2K", {
                 defaultValue: "直接生成 2K 视频，画质与细节更好",
               });
             }
@@ -2341,7 +2341,7 @@ export function I2VPopoverInner({
                 value={fieldValue}
                 onChange={fieldOnChange}
                 disabled={formDisabled}
-                disabledOptions={disabled2}
+                disabledOptions={disabled}
                 getOptionTooltip={getResolutionTooltip}
               />
             </div>,
@@ -2375,7 +2375,7 @@ export function I2VPopoverInner({
               getDisabledOptionTooltip={
                 isVideoExtension && std.id === "duration"
                   ? () =>
-                      t2("canvas.videoExtension.durationOptionDisabled", {
+                      translate("canvas.videoExtension.durationOptionDisabled", {
                         defaultValue:
                           "The final duration must start from the whole second after rounding up the source video duration.",
                       })
@@ -2392,37 +2392,37 @@ export function I2VPopoverInner({
         }
       }
     }
-    for (const [key2, def] of Object.entries(selectedModel.params)) {
-      if (consumedKeys.has(key2)) continue;
-      if (hiddenParams.has(key2)) continue;
-      if (isVideoExtension && shouldHideVideoExtensionParam(key2)) continue;
+    for (const [key, def] of Object.entries(selectedModel.params)) {
+      if (consumedKeys.has(key)) continue;
+      if (hiddenParams.has(key)) continue;
+      if (isVideoExtension && shouldHideVideoExtensionParam(key)) continue;
       if (def.type === "select" && (!def.options || def.options.length <= 1))
         continue;
       if (def.type === "textarea") {
-        const labelKey = paramI18nKey(key2, def.label);
-        const placeholderKey = paramPlaceholderI18nKey(key2);
+        const labelKey = paramI18nKey(key, def.label);
+        const placeholderKey = paramPlaceholderI18nKey(key);
         elements.push(
           <ParamTextarea
-            key={key2}
+            key={key}
             label={
               labelKey
-                ? t2(labelKey, {
-                    defaultValue: paramLabelFallback(key2, def.label),
+                ? translate(labelKey, {
+                    defaultValue: paramLabelFallback(key, def.label),
                   })
-                : paramLabelFallback(key2, def.label)
+                : paramLabelFallback(key, def.label)
             }
-            value={modelParams[key2] ?? def.default ?? ""}
-            onChange={(v2) => handleParamChange(key2, v2)}
+            value={modelParams[key] ?? def.default ?? ""}
+            onChange={(nextValue) => handleParamChange(key, nextValue)}
             disabled={formDisabled}
             placeholder={
               placeholderKey
-                ? t2(placeholderKey, {
+                ? translate(placeholderKey, {
                     defaultValue: paramPlaceholderFallback(
-                      key2,
+                      key,
                       def.placeholder,
                     ),
                   })
-                : paramPlaceholderFallback(key2, def.placeholder)
+                : paramPlaceholderFallback(key, def.placeholder)
             }
           />,
         );
@@ -2430,14 +2430,14 @@ export function I2VPopoverInner({
       }
       elements.push(
         <ModelParamSelect
-          key={key2}
-          paramKey={key2}
+          key={key}
+          paramKey={key}
           definition={def}
-          value={modelParams[key2] ?? def.default}
-          onChange={(v2) => handleParamChange(key2, v2)}
+          value={modelParams[key] ?? def.default}
+          onChange={(nextValue) => handleParamChange(key, nextValue)}
           disabled={formDisabled}
           disabledOptions={getDisabledOptions(
-            key2,
+            key,
             modelParams,
             selectedModel.paramConstraints,
           )}
@@ -2451,7 +2451,7 @@ export function I2VPopoverInner({
     effectiveModelParams,
     formDisabled,
     handleParamChange,
-    t2,
+    translate,
     isVideoExtension,
     effectiveDurationOptions,
     disabledExtensionDurationOptions,
@@ -2471,7 +2471,7 @@ export function I2VPopoverInner({
       ? 2
       : attachmentState.items.length + (attachmentState.showAddButton ? 1 : 0);
   const extraHeight = attachmentExtraHeight(attachmentChipCount);
-  const body2 = (
+  const body = (
     <>
       <VideoPopoverReferenceSection
         isTextToVideo={isTextToVideo}
@@ -2496,7 +2496,7 @@ export function I2VPopoverInner({
           getLocateAction: referenceNavigation.getLocateAction,
         }}
         expanded={expanded}
-        onToggle={() => setExpanded((v2) => !v2)}
+        onToggle={() => setExpanded((isExpanded) => !isExpanded)}
         videoClipItem={referenceVideoForClip}
         audioClipItem={referenceAudioForClip}
         onCloseVideoClip={() => setReferenceVideoForClip(null)}
@@ -2519,8 +2519,8 @@ export function I2VPopoverInner({
           blockKeyHandlers={inGeneratingState || atPickerState.open}
           onAtTrigger={handleAtTrigger}
           onAtDismiss={() =>
-            setAtPickerState((s2) => ({
-              ...s2,
+            setAtPickerState((pickerState) => ({
+              ...pickerState,
               open: false,
             }))
           }
@@ -2540,7 +2540,7 @@ export function I2VPopoverInner({
           }
           onFileRefsAdded={handleFileRefsAdded}
           onDirectReferencesRemoved={(paths) => {
-            for (const path2 of paths) attachmentState.removePath(path2);
+            for (const path of paths) attachmentState.removePath(path);
           }}
           maxLength={selectedModel?.promptMaxLength}
           emptyStateAction={promptEmptyState}
@@ -2565,8 +2565,8 @@ export function I2VPopoverInner({
             resolveFileUrl={resolveFileUrl}
             onSelect={handleAtSelect}
             onClose={() =>
-              setAtPickerState((s2) => ({
-                ...s2,
+              setAtPickerState((pickerState) => ({
+                ...pickerState,
                 open: false,
               }))
             }
@@ -2593,7 +2593,7 @@ export function I2VPopoverInner({
                 anchorRef={paramsAnchorRef}
                 summary={paramsSummary}
                 open={paramsOpen}
-                onToggle={() => setParamsOpen((v2) => !v2)}
+                onToggle={() => setParamsOpen((isOpen) => !isOpen)}
                 disabled={formDisabled || !selectedModel}
               />
             </>
@@ -2620,13 +2620,13 @@ export function I2VPopoverInner({
                 className="w-px h-3 bg-foreground/15 shrink-0"
               />
               <Tooltip
-                content={t2("canvas.popover.restoreOriginalDraft")}
+                content={translate("canvas.popover.restoreOriginalDraft")}
                 side="top"
               >
                 <button
                   type="button"
                   data-action-ui-id="popover.restore-original-draft"
-                  aria-label={t2("canvas.popover.restoreOriginalDraft")}
+                  aria-label={translate("canvas.popover.restoreOriginalDraft")}
                   onClick={handleRestoreOriginalDraft}
                   disabled={formDisabled}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] disabled:cursor-default disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-border)]"
@@ -2648,17 +2648,17 @@ export function I2VPopoverInner({
                 data-action-ui-id="popover.hailuo03-claim-trial"
               >
                 {isClaimingHailuo03Trial
-                  ? t2("canvas.hailuo03Trial.claiming", {
+                  ? translate("canvas.hailuo03Trial.claiming", {
                       defaultValue: "领取中...",
                     })
-                  : t2("canvas.hailuo03Trial.claim", {
+                  : translate("canvas.hailuo03Trial.claim", {
                       defaultValue: "领取免费机会",
                     })}
               </button>
             </Tooltip>
           )}
           {inGeneratingState ? (
-            <GeneratingButton label={t2("canvas.generating")} />
+            <GeneratingButton label={translate("canvas.generating")} />
           ) : showDualButtons ? (
             <DualSubmitButtons
               submitting={false}
@@ -2706,7 +2706,7 @@ export function I2VPopoverInner({
         {renderShell({
           onClose,
           expanded,
-          children: body2,
+          children: body,
         })}
       </>
     );
@@ -2718,7 +2718,7 @@ export function I2VPopoverInner({
       extraHeight={extraHeight + (isMiniMaxH3VideoModel ? 56 : 40)}
       gapOffset={popoverGapOffset}
     >
-      {body2}
+      {body}
     </PopoverShell>
   );
 }

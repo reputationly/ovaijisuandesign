@@ -5,45 +5,47 @@ import {
 } from "../media-editing/get-reference-navigation-defaults.jsx";
 import { translateOptionValue } from "./param-label-fallbacks.js";
 import { formatSecondsOption } from "./expand-arrow-icon.jsx";
-function formatMusicLengthSummary(t2, value) {
+function formatMusicLengthSummary(translate, value) {
   if (!value || value === "auto") {
-    return t2("canvas.param.option.auto", {
+    return translate("canvas.param.option.auto", {
       defaultValue: "Auto",
     });
   }
-  const preset2 = MUSIC_LENGTH_PRESETS.find((p3) => p3.value === value);
-  if (preset2) return musicLengthPresetLabel(t2, preset2);
+  const preset = MUSIC_LENGTH_PRESETS.find(
+    (lengthPreset) => lengthPreset.value === value,
+  );
+  if (preset) return musicLengthPresetLabel(translate, preset);
   return value;
 }
-export function summarizeParams(t2, model, modelParams) {
+export function summarizeParams(translate, model, modelParams) {
   if (!model) return "";
   const parts = [];
   let hasAuto = false;
-  for (const [key2, def] of Object.entries(model.params)) {
-    if (key2 === "voice_id") continue;
-    if (key2 === "is_instrumental") continue;
+  for (const [key, def] of Object.entries(model.params)) {
+    if (key === "voice_id") continue;
+    if (key === "is_instrumental") continue;
     if (def.type === "textarea") continue;
-    const value = modelParams[key2] ?? def.default;
-    if (key2 === "music_length_ms") {
+    const value = modelParams[key] ?? def.default;
+    if (key === "music_length_ms") {
       if (!value || value === "auto") {
         hasAuto = true;
         continue;
       }
-      parts.push(formatMusicLengthSummary(t2, value));
+      parts.push(formatMusicLengthSummary(translate, value));
       continue;
     }
     if (!value || value === "auto") {
       if (value === "auto") hasAuto = true;
       continue;
     }
-    if (key2 === "duration") {
+    if (key === "duration") {
       parts.push(formatSecondsOption(value));
       continue;
     }
-    parts.push(translateOptionValue(t2, value));
+    parts.push(translateOptionValue(translate, value));
   }
   if (parts.length === 0 && hasAuto)
-    return t2("canvas.param.option.auto", {
+    return translate("canvas.param.option.auto", {
       defaultValue: "Auto",
     });
   return parts.join(" · ");

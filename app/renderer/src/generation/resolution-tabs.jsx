@@ -53,17 +53,21 @@ export function calcMusicCostDisplay(pricing, model, params) {
 export function getModelBaseCost(pricing, modelId, mediaType) {
   if (!pricing) return void 0;
   {
-    const model2 = pricing.video?.find((m3) => m3.modelID === modelId);
-    if (!model2) return void 0;
-    if (model2.defaultCost > 0) return model2.defaultCost;
-    const first2 = model2.videoCosts?.[0];
-    if (first2?.realCost && first2.realCost > 0) return first2.realCost;
+    const videoModel = pricing.video?.find(
+      (pricingModel) => pricingModel.modelID === modelId,
+    );
+    if (!videoModel) return void 0;
+    if (videoModel.defaultCost > 0) return videoModel.defaultCost;
+    const first = videoModel.videoCosts?.[0];
+    if (first?.realCost && first.realCost > 0) return first.realCost;
     return void 0;
   }
 }
 export function calcToolCost(pricing, modelId, resolution, sourceDurationSec) {
   if (!pricing?.tool) return void 0;
-  const model = pricing.tool.find((m3) => m3.modelID === modelId);
+  const model = pricing.tool.find(
+    (pricingModel) => pricingModel.modelID === modelId,
+  );
   if (!model) return void 0;
   const cost = model.costs?.find((entry) =>
     entry.resolutions?.includes(resolution),
@@ -88,7 +92,7 @@ export function calcTextCost(pricing, modelId) {
   const bare = modelId.includes("/")
     ? modelId.slice(modelId.indexOf("/") + 1)
     : modelId;
-  const entry = pricing.text.find((t2) => t2.modelID === bare);
+  const entry = pricing.text.find((pricingModel) => pricingModel.modelID === bare);
   return entry?.defaultCost;
 }
 function isFinitePositive(value) {
@@ -103,7 +107,7 @@ export function mediaExtensionDurationOptions(capability) {
     {
       length: lastDuration - firstDuration + 1,
     },
-    (_2, index2) => String(firstDuration + index2),
+    (_unusedArg, index) => String(firstDuration + index),
   );
 }
 export function mediaExtensionDisabledDurationOptions(
@@ -117,7 +121,7 @@ export function mediaExtensionDisabledDurationOptions(
   );
   return new Set(
     mediaExtensionDurationOptions(capability).filter(
-      (option2) => Number(option2) < minimumOutputDuration,
+      (option) => Number(option) < minimumOutputDuration,
     ),
   );
 }
@@ -161,7 +165,7 @@ const BUTTON_CLASS = [
   "disabled:opacity-40 disabled:cursor-default cursor-pointer",
 ].join(" ");
 export function ParamStepper({
-  children: children2,
+  children,
   onDecrease,
   onIncrease,
   decreaseDisabled,
@@ -169,7 +173,7 @@ export function ParamStepper({
   actionPrefix = "canvas.params.slider",
   className,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
       <button
@@ -179,7 +183,7 @@ export function ParamStepper({
           event.stopPropagation();
           onDecrease();
         }}
-        aria-label={t2("canvas.param.slider.decrease", {
+        aria-label={translate("canvas.param.slider.decrease", {
           defaultValue: "Decrease",
         })}
         data-action-ui-id={`${actionPrefix}-decrease`}
@@ -187,7 +191,7 @@ export function ParamStepper({
       >
         <span className="-translate-y-px">−</span>
       </button>
-      {children2}
+      {children}
       <button
         type="button"
         disabled={increaseDisabled}
@@ -195,7 +199,7 @@ export function ParamStepper({
           event.stopPropagation();
           onIncrease();
         }}
-        aria-label={t2("canvas.param.slider.increase", {
+        aria-label={translate("canvas.param.slider.increase", {
           defaultValue: "Increase",
         })}
         data-action-ui-id={`${actionPrefix}-increase`}
@@ -206,20 +210,20 @@ export function ParamStepper({
     </div>
   );
 }
-export function ParamSectionLabel({ children: children2 }) {
+export function ParamSectionLabel({ children }) {
   return (
     <div className="text-xs font-medium text-muted-foreground mb-2.5">
-      {children2}
+      {children}
     </div>
   );
 }
 export function parseRatio(value) {
-  const m3 = value.match(/^(\d+)\s*[:x]\s*(\d+)$/i);
-  if (!m3) return null;
-  const w3 = Number(m3[1]);
-  const h2 = Number(m3[2]);
-  if (!w3 || !h2) return null;
-  return [w3, h2];
+  const sizeMatch = value.match(/^(\d+)\s*[:x]\s*(\d+)$/i);
+  if (!sizeMatch) return null;
+  const width = Number(sizeMatch[1]);
+  const height = Number(sizeMatch[2]);
+  if (!width || !height) return null;
+  return [width, height];
 }
 export function AspectRatioIcon({ ratio }) {
   const parsed = parseRatio(ratio);
@@ -227,17 +231,17 @@ export function AspectRatioIcon({ ratio }) {
   let rectW = maxSize;
   let rectH = maxSize;
   if (parsed) {
-    const [w3, h2] = parsed;
-    if (w3 >= h2) {
+    const [width, height] = parsed;
+    if (width >= height) {
       rectW = maxSize;
-      rectH = (maxSize * h2) / w3;
+      rectH = (maxSize * height) / width;
     } else {
       rectH = maxSize;
-      rectW = (maxSize * w3) / h2;
+      rectW = (maxSize * width) / height;
     }
   }
-  const x2 = (18 - rectW) / 2;
-  const y4 = (18 - rectH) / 2;
+  const x = (18 - rectW) / 2;
+  const y = (18 - rectH) / 2;
   const radius = Math.min(2, rectW / 4, rectH / 4);
   return (
     <CompositedSvg
@@ -249,7 +253,7 @@ export function AspectRatioIcon({ ratio }) {
       strokeWidth="1.5"
       aria-hidden="true"
     >
-      <rect x={x2} y={y4} width={rectW} height={rectH} rx={radius} />
+      <rect x={x} y={y} width={rectW} height={rectH} rx={radius} />
     </CompositedSvg>
   );
 }
@@ -260,11 +264,11 @@ const OPT_DEFAULT =
 export const PARAM_OPTION_SELECTED_CLASS =
   "border-[var(--canvas-param-selected-border)] bg-[var(--canvas-param-selected-bg)] text-foreground";
 const OPT_DISABLED = "opacity-40";
-export function optClass(selected2, optDisabled) {
+export function optClass(selected, optDisabled) {
   return [
     OPT_BASE,
-    selected2 ? PARAM_OPTION_SELECTED_CLASS : OPT_DEFAULT,
-    optDisabled && !selected2 ? OPT_DISABLED : "",
+    selected ? PARAM_OPTION_SELECTED_CLASS : OPT_DEFAULT,
+    optDisabled && !selected ? OPT_DISABLED : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -273,20 +277,20 @@ export function ResolutionTabs({
   options,
   value,
   onChange,
-  disabled: disabled2,
+  disabled,
   disabledOptions,
   getOptionLabel,
   getOptionTooltip,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className="flex gap-1.5">
       {options.map((opt) => {
-        const optDisabled = disabled2 || (disabledOptions?.has(opt) ?? false);
-        const selected2 = opt === value;
+        const optDisabled = disabled || (disabledOptions?.has(opt) ?? false);
+        const selected = opt === value;
         const label =
           getOptionLabel?.(opt) ??
-          t2(`canvas.param.option.${opt}`, {
+          translate(`canvas.param.option.${opt}`, {
             defaultValue: opt,
           });
         const tooltip = getOptionTooltip?.(opt);
@@ -295,12 +299,12 @@ export function ResolutionTabs({
           <button
             key={opt}
             type="button"
-            onClick={(e2) => {
-              e2.stopPropagation();
+            onClick={(clickEvent) => {
+              clickEvent.stopPropagation();
               if (!optDisabled) onChange?.(opt);
             }}
             disabled={optDisabled}
-            className={`${optClass(selected2, optDisabled)} ${tooltip ? "w-full" : widthClass} h-7 px-4 text-[13px] text-center`}
+            className={`${optClass(selected, optDisabled)} ${tooltip ? "w-full" : widthClass} h-7 px-4 text-[13px] text-center`}
           >
             {label}
           </button>

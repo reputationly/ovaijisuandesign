@@ -7,11 +7,11 @@ import {
 import { MentionChipNodeView } from "./mention-chip-node-view.jsx";
 import { parseCanvasReference } from "../text-editor/table-document-to-llm-content.js";
 import { serializeMentionToken } from "../assets/parse-prompt-to-tiptap.js";
-function isPathInCurrentWorkspace(path2, assetMetadataStore) {
+function isPathInCurrentWorkspace(path, assetMetadataStore) {
   if (!assetMetadataStore) return false;
   const assets = assetMetadataStore.getState().assets;
-  for (const meta2 of assets.values()) {
-    if (meta2.path === path2) return true;
+  for (const meta of assets.values()) {
+    if (meta.path === path) return true;
   }
   return false;
 }
@@ -51,29 +51,29 @@ export const CanvasFileRefNode = Node.create({
     return [
       {
         tag: "canvas-file-ref",
-        getAttrs: (node2) => {
-          if (!(node2 instanceof HTMLElement)) return false;
-          const path2 =
-            node2.getAttribute("data-path") ?? node2.getAttribute("path") ?? "";
-          if (!path2) return false;
+        getAttrs: (node) => {
+          if (!(node instanceof HTMLElement)) return false;
+          const path =
+            node.getAttribute("data-path") ?? node.getAttribute("path") ?? "";
+          if (!path) return false;
           if (
-            !parseCanvasReference(path2) &&
-            !isPathInCurrentWorkspace(path2, assetMetadataStore)
+            !parseCanvasReference(path) &&
+            !isPathInCurrentWorkspace(path, assetMetadataStore)
           )
             return false;
           const kindAttr =
-            node2.getAttribute("data-kind") ??
-            node2.getAttribute("kind") ??
+            node.getAttribute("data-kind") ??
+            node.getAttribute("kind") ??
             "image";
           const kind =
             kindAttr === "video" || kindAttr === "audio" || kindAttr === "text"
               ? kindAttr
               : "image";
           return {
-            path: path2,
+            path,
             filename:
-              node2.getAttribute("data-filename") ??
-              node2.getAttribute("filename") ??
+              node.getAttribute("data-filename") ??
+              node.getAttribute("filename") ??
               "",
             kind,
           };
@@ -81,13 +81,13 @@ export const CanvasFileRefNode = Node.create({
       },
     ];
   },
-  renderHTML({ node: node2, HTMLAttributes }) {
+  renderHTML({ node, HTMLAttributes }) {
     return [
       "canvas-file-ref",
       mergeAttributes(HTMLAttributes, {
-        "data-path": node2.attrs.path,
-        "data-filename": node2.attrs.filename,
-        "data-kind": node2.attrs.kind,
+        "data-path": node.attrs.path,
+        "data-filename": node.attrs.filename,
+        "data-kind": node.attrs.kind,
       }),
     ];
   },
@@ -95,9 +95,9 @@ export const CanvasFileRefNode = Node.create({
   // any caller of `editor.getText()`) — emits the canonical `@[<path>]` form
   // so a chip copied to plaintext (and into chat / external editor) is
   // self-describing and can be parsed back by `parsePromptToTiptap`.
-  renderText({ node: node2 }) {
-    const path2 = String(node2.attrs.path ?? "");
-    return serializeMentionToken(path2);
+  renderText({ node }) {
+    const path = String(node.attrs.path ?? "");
+    return serializeMentionToken(path);
   },
   addNodeView() {
     return ReactNodeViewRenderer(MentionChipNodeView);
@@ -119,16 +119,16 @@ export const CanvasFileRefNode = Node.create({
         },
       replaceAtTriggerWithFileRef:
         (attrs, triggerRange) =>
-        ({ chain, state: state2 }) => {
+        ({ chain, state }) => {
           if (
             triggerRange &&
             Number.isInteger(triggerRange.from) &&
             Number.isInteger(triggerRange.to) &&
             triggerRange.from >= 0 &&
             triggerRange.to > triggerRange.from &&
-            triggerRange.to <= state2.doc.content.size
+            triggerRange.to <= state.doc.content.size
           ) {
-            const triggerText = state2.doc.textBetween(
+            const triggerText = state.doc.textBetween(
               triggerRange.from,
               triggerRange.to,
               void 0,
@@ -147,16 +147,16 @@ export const CanvasFileRefNode = Node.create({
                 .run();
             }
           }
-          const { $from } = state2.selection;
+          const { $from } = state.selection;
           const before = $from.nodeBefore;
-          const match2 = before?.isText
+          const match = before?.isText
             ? before.text?.match(/@([^\s@]*)$/)
             : null;
-          if (match2) {
-            const start2 = $from.pos - match2[0].length;
+          if (match) {
+            const start = $from.pos - match[0].length;
             return chain()
               .deleteRange({
-                from: start2,
+                from: start,
                 to: $from.pos,
               })
               .insertContent({
@@ -179,34 +179,34 @@ export const CanvasFileRefNode = Node.create({
             .run();
         },
       replaceCanvasFileRefsByPath:
-        (path2, attrs) =>
-        ({ tr: tr2, state: state2 }) => {
+        (path, attrs) =>
+        ({ tr: transaction, state }) => {
           const positions = [];
-          state2.doc.descendants((node2, pos) => {
-            if (node2.type.name === this.name && node2.attrs.path === path2) {
+          state.doc.descendants((node, pos) => {
+            if (node.type.name === this.name && node.attrs.path === path) {
               positions.push(pos);
             }
           });
           for (const pos of positions) {
-            tr2.setNodeMarkup(pos, void 0, attrs);
+            transaction.setNodeMarkup(pos, void 0, attrs);
           }
           return positions.length > 0;
         },
       removeCanvasFileRefsByPath:
-        (path2) =>
-        ({ tr: tr2, state: state2 }) => {
+        (path) =>
+        ({ tr: transaction, state }) => {
           const nodesToRemove = [];
-          state2.doc.descendants((node2, pos) => {
-            if (node2.type.name === this.name && node2.attrs.path === path2) {
+          state.doc.descendants((node, pos) => {
+            if (node.type.name === this.name && node.attrs.path === path) {
               nodesToRemove.push({
                 pos,
-                size: node2.nodeSize,
+                size: node.nodeSize,
               });
             }
           });
-          for (let i2 = nodesToRemove.length - 1; i2 >= 0; i2--) {
-            const { pos, size: size2 } = nodesToRemove[i2];
-            tr2.delete(pos, pos + size2);
+          for (let index = nodesToRemove.length - 1; index >= 0; index--) {
+            const { pos, size } = nodesToRemove[index];
+            transaction.delete(pos, pos + size);
           }
           return nodesToRemove.length > 0;
         },
@@ -215,13 +215,13 @@ export const CanvasFileRefNode = Node.create({
   addKeyboardShortcuts() {
     return {
       Backspace: () =>
-        this.editor.commands.command(({ tr: tr2, state: state2 }) => {
-          const { selection: selection2 } = state2;
-          const { $from } = selection2;
-          if (!selection2.empty) return false;
+        this.editor.commands.command(({ tr: transaction, state }) => {
+          const { selection } = state;
+          const { $from } = selection;
+          if (!selection.empty) return false;
           const before = $from.nodeBefore;
           if (before?.type.name === this.name) {
-            tr2.delete($from.pos - before.nodeSize, $from.pos);
+            transaction.delete($from.pos - before.nodeSize, $from.pos);
             return true;
           }
           return false;

@@ -1,0 +1,13 @@
+key	old	new	依据
+id2@354:6	id2	toastId	用于撤销低内存提示消息的 Toast 标识符。
+message2@294:9	message2	message	消息历史中当前遍历到的消息记录。
+name2@180:37	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+name2@195:34	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+next2@72:19	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+ok2@70:15	ok2	persistSucceeded	最近工作区重命名结果的持久化是否成功。
+platform2@37:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+service2@102:17	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。
+t2@323:14	t2	translate	useTranslation 返回的翻译函数。
+t2@38:14	t2	translate	useTranslation 返回的翻译函数。
+t2@94:14	t2	translate	useTranslation 返回的翻译函数。
+X@8:111	X	CloseIcon	来自 vendor 的关闭图标组件。

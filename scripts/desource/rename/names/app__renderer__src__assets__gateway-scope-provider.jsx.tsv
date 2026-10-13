@@ -1,0 +1,9 @@
+key	old	new	依据
+PopoverTrigger$1@7:117	PopoverTrigger$1	PopoverTriggerPrimitive	该绑定是本地 PopoverTrigger 包装组件所委托的供应商触发器原语。
+qc@10:43	qc	queryClient	该参数是用于失效当前网关作用域资产索引缓存的查询客户端。
+keyword2@30:20	keyword2	keyword	去掉打包器防重名追加的后缀，恢复原名 keyword，即该绑定持有的值。
+keyword2@37:23	keyword2	keyword	去掉打包器防重名追加的后缀，恢复原名 keyword，即该绑定持有的值。
+keyword2@57:28	keyword2	keyword	去掉打包器防重名追加的后缀，恢复原名 keyword，即该绑定持有的值。
+size2@76:32	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+children2@131:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+gatewayUrl2@132:15	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。

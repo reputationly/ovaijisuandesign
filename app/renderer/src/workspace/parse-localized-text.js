@@ -14,37 +14,37 @@ export function nonEmptyString(value) {
 }
 const CONFIG_IDENTIFIER_PATTERN = /^[a-z0-9][a-z0-9._-]{0,127}$/;
 export function configIdentifier(value) {
-  const text2 = nonEmptyString(value);
-  return text2 && CONFIG_IDENTIFIER_PATTERN.test(text2) ? text2 : void 0;
+  const text = nonEmptyString(value);
+  return text && CONFIG_IDENTIFIER_PATTERN.test(text) ? text : void 0;
 }
 export function parseLocalizedText(value) {
   if (typeof value === "string") {
-    const text2 = nonEmptyString(value);
-    return text2
+    const text = nonEmptyString(value);
+    return text
       ? {
-          zh: text2,
-          en: text2,
+          zh: text,
+          en: text,
         }
       : null;
   }
   if (!isRecord(value)) return null;
-  const zh2 = nonEmptyString(value.zh);
-  const en2 = nonEmptyString(value.en);
-  if (!zh2 && !en2) return null;
+  const zh = nonEmptyString(value.zh);
+  const en = nonEmptyString(value.en);
+  if (!zh && !en) return null;
   return {
-    zh: zh2 ?? en2 ?? "",
-    en: en2 ?? zh2 ?? "",
+    zh: zh ?? en ?? "",
+    en: en ?? zh ?? "",
   };
 }
 export function parseOptionalLocalizedText(value) {
   return parseLocalizedText(value) ?? void 0;
 }
 export function uniqueBy(items, getKey) {
-  const seen2 = new Set();
+  const seen = new Set();
   return items.filter((item) => {
-    const key2 = getKey(item);
-    if (!key2 || seen2.has(key2)) return false;
-    seen2.add(key2);
+    const key = getKey(item);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 }

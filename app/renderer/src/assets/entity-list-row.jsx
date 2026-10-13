@@ -30,10 +30,10 @@ import {
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 
-function formatRelativeTime(ts2, locale) {
-  const diff = Date.now() - ts2;
+function formatRelativeTime(timestamp, locale) {
+  const diff = Date.now() - timestamp;
   if (Number.isNaN(diff) || diff < 0) {
-    return new Date(ts2).toLocaleDateString(locale, {
+    return new Date(timestamp).toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
     });
@@ -48,7 +48,7 @@ function formatRelativeTime(ts2, locale) {
   if (hours < 24) return rtf.format(-hours, "hour");
   const days = Math.floor(hours / 24);
   if (days < 7) return rtf.format(-days, "day");
-  return new Date(ts2).toLocaleDateString(locale, {
+  return new Date(timestamp).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
   });
@@ -62,10 +62,10 @@ export function EntityListRow({
   onDelete,
   draggable,
   isLast,
-  selected: selected2,
+  selected,
   onToggleSelect,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const previewUrl = entity.coverUrl ?? entity.thumbnailUrl;
   const thumbnailSrc = previewUrl
     ? withThumbnail(gatewayUrl(previewUrl), 32)
@@ -84,8 +84,8 @@ export function EntityListRow({
     });
   }, [entity.id, entity.coverUrl, entity.thumbnailUrl, thumbnailSrc]);
   const handleDragStart = reactExports.useCallback(
-    (e2) => {
-      writeEntityDragData(e2, {
+    (dragEvent) => {
+      writeEntityDragData(dragEvent, {
         entityId: entity.id,
         name: entity.name,
         type: entity.type,
@@ -117,18 +117,18 @@ export function EntityListRow({
       onDragStart={draggable ? handleDragStart : void 0}
       data-action-ui-id="asset-center-entity-list-row"
       data-entity-id={entity.id}
-      className={`group flex w-full items-center gap-3 px-3 py-2 text-left transition-colors focus-visible:outline-none ${selected2 ? "bg-muted/50" : "hover:bg-muted/30 focus-visible:bg-muted/30"} ${isLast ? "" : "border-b border-border"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
+      className={`group flex w-full items-center gap-3 px-3 py-2 text-left transition-colors focus-visible:outline-none ${selected ? "bg-muted/50" : "hover:bg-muted/30 focus-visible:bg-muted/30"} ${isLast ? "" : "border-b border-border"} ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
     >
       {onToggleSelect && (
         // biome-ignore lint/a11y/noStaticElementInteractions: event boundary only; the child Checkbox owns all interaction semantics.
         <span
-          className={`shrink-0 transition-opacity ${selected2 ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
+          className={`shrink-0 transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
           <Checkbox
-            checked={selected2}
-            aria-label={`${t2("projectAssets.selectRow")}: ${entity.name}`}
+            checked={selected}
+            aria-label={`${translate("projectAssets.selectRow")}: ${entity.name}`}
             data-action-ui-id="asset-center-entity-list-row.select"
             onCheckedChange={() => onToggleSelect()}
           />
@@ -154,7 +154,7 @@ export function EntityListRow({
             variant="secondary"
             className="shrink-0 text-[10px] h-5 px-1.5 rounded-[4px]"
           >
-            {t2(`assetCenter.types.${entity.type}`)}
+            {translate(`assetCenter.types.${entity.type}`)}
           </Badge>
         </div>
         {entity.description && (
@@ -165,13 +165,13 @@ export function EntityListRow({
       </div>
       <div className="shrink-0 flex items-center gap-3 text-[11px] text-muted-foreground">
         <span title={new Date(entity.updatedAt).toLocaleString()}>
-          {t2("assetCenter.entityList.updatedAt", {
+          {translate("assetCenter.entityList.updatedAt", {
             when: relative,
           })}
         </span>
         {entity.useCount > 0 && (
-          <span title={t2("assetCenter.useCountTooltip")}>
-            {t2("assetCenter.useCount", {
+          <span title={translate("assetCenter.useCountTooltip")}>
+            {translate("assetCenter.useCount", {
               count: entity.useCount,
             })}
           </span>
@@ -180,11 +180,11 @@ export function EntityListRow({
           <TooltipProvider delay={300}>
             <div
               className="flex items-center gap-0.5"
-              onClick={(e2) => e2.stopPropagation()}
-              onMouseDown={(e2) => e2.stopPropagation()}
-              onKeyDown={(e2) => e2.stopPropagation()}
+              onClick={(clickEvent) => clickEvent.stopPropagation()}
+              onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+              onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
               role="toolbar"
-              aria-label={t2("assetCenter.entityList.rowActions", {
+              aria-label={translate("assetCenter.entityList.rowActions", {
                 defaultValue: "Row actions",
               })}
             >
@@ -194,8 +194,8 @@ export function EntityListRow({
                     render={
                       <button
                         type="button"
-                        onClick={(e2) => {
-                          e2.stopPropagation();
+                        onClick={(clickEvent) => {
+                          clickEvent.stopPropagation();
                           onExport();
                         }}
                         data-action-ui-id="asset-center-entity-list-row-export"
@@ -206,7 +206,7 @@ export function EntityListRow({
                     <Download size={14} />
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    {t2("assetCenter.detail.export")}
+                    {translate("assetCenter.detail.export")}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -216,8 +216,8 @@ export function EntityListRow({
                     render={
                       <button
                         type="button"
-                        onClick={(e2) => {
-                          e2.stopPropagation();
+                        onClick={(clickEvent) => {
+                          clickEvent.stopPropagation();
                           onMaterialize();
                         }}
                         data-action-ui-id="asset-center-entity-list-row-materialize-btn"
@@ -228,7 +228,7 @@ export function EntityListRow({
                     <FolderInput size={14} />
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    {t2("assetCenter.card.materializeTooltip")}
+                    {translate("assetCenter.card.materializeTooltip")}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -246,8 +246,8 @@ export function EntityListRow({
                   }}
                 >
                   <DropdownMenuTrigger
-                    onClick={(e2) => e2.stopPropagation()}
-                    onMouseDown={(e2) => e2.stopPropagation()}
+                    onClick={(clickEvent) => clickEvent.stopPropagation()}
+                    onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
                     data-action-ui-id="asset-center-entity-list-row-more"
                     className="inline-flex items-center justify-center size-7 rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
@@ -255,15 +255,15 @@ export function EntityListRow({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" side="bottom" sideOffset={2}>
                     <DropdownMenuItem
-                      onClick={(e2) => {
-                        e2.stopPropagation();
+                      onClick={(clickEvent) => {
+                        clickEvent.stopPropagation();
                         onDelete();
                       }}
                       data-action-ui-id="asset-center-entity-list-row-delete"
                       className="text-destructive focus:text-destructive"
                     >
                       <Trash2 size={14} className="mr-1.5" />
-                      {t2("assetCenter.card.deleteAction")}
+                      {translate("assetCenter.card.deleteAction")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

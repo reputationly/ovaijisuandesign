@@ -38,18 +38,18 @@ const ILLUSTRATION_URLS = {
   },
 };
 function PageStateIllustration({
-  type: type2,
+  type,
   emptyReason,
   errorReason,
   className,
 }) {
   const { resolved } = useTheme();
   const illustration =
-    type2 === "empty" && emptyReason === "project"
+    type === "empty" && emptyReason === "project"
       ? "empty_project_icon"
-      : type2 === "error" && errorReason === "network"
+      : type === "error" && errorReason === "network"
         ? "network"
-        : type2;
+        : type;
   return (
     <img
       src={ILLUSTRATION_URLS[illustration][resolved]}
@@ -63,31 +63,31 @@ function PageStateIllustration({
   );
 }
 export function PageStateView({
-  state: state2,
-  children: children2,
+  state,
+  children,
   className,
   density = "page",
 }) {
-  const { t: t2 } = useTranslation();
-  if (state2.type === "normal") return <>{children2}</>;
-  const isError = state2.type === "error";
-  const errorReason = isError ? (state2.reason ?? "generic") : void 0;
+  const { t: translate } = useTranslation();
+  if (state.type === "normal") return <>{children}</>;
+  const isError = state.type === "error";
+  const errorReason = isError ? (state.reason ?? "generic") : void 0;
   const emptyReason =
-    state2.type === "empty" ? (state2.reason ?? "generic") : void 0;
+    state.type === "empty" ? (state.reason ?? "generic") : void 0;
   const defaultText = isError
     ? errorReason === "network"
-      ? t2(
+      ? translate(
           "pageState.networkErrorText",
           "No network connection. Check your connection and try again.",
         )
-      : t2("pageState.errorText", "Something went wrong. Please try again.")
-    : t2("pageState.emptyText", "No content yet");
+      : translate("pageState.errorText", "Something went wrong. Please try again.")
+    : translate("pageState.emptyText", "No content yet");
   const hasStructuredContent =
-    state2.title != null || state2.description != null;
-  const inlineActions = state2.actions.filter(
+    state.title != null || state.description != null;
+  const inlineActions = state.actions.filter(
     (action) => action.placement !== "separate",
   );
-  const separateActions = state2.actions.filter(
+  const separateActions = state.actions.filter(
     (action) => action.placement === "separate",
   );
   const useEqualWidthActions = inlineActions.length === 2;
@@ -96,7 +96,7 @@ export function PageStateView({
   const isSmall = isPanel || isCompact;
   const illustrationClassName = isCompact
     ? "size-16"
-    : state2.type === "empty"
+    : state.type === "empty"
       ? isPanel
         ? "size-[88px]"
         : "size-[148px]"
@@ -120,7 +120,7 @@ export function PageStateView({
             ? "underline underline-offset-4 hover:text-foreground"
             : void 0,
         )}
-        data-action-ui-id={`page-state-${state2.type}-${action.key}`}
+        data-action-ui-id={`page-state-${state.type}-${action.key}`}
       >
         {!isSeparate && action.icon != null && !action.loading ? (
           <span
@@ -145,7 +145,7 @@ export function PageStateView({
       )}
       role={isError ? "alert" : "status"}
       aria-live={isError ? "assertive" : "polite"}
-      data-state={state2.type}
+      data-state={state.type}
       data-density={density}
       data-empty-reason={emptyReason}
       data-error-reason={errorReason}
@@ -155,9 +155,9 @@ export function PageStateView({
         aria-hidden="true"
         data-slot="page-state-visual"
       >
-        {state2.icon ?? (
+        {state.icon ?? (
           <PageStateIllustration
-            type={state2.type}
+            type={state.type}
             emptyReason={emptyReason}
             errorReason={errorReason}
             className={illustrationClassName}
@@ -173,7 +173,7 @@ export function PageStateView({
       >
         {hasStructuredContent ? (
           <>
-            {state2.title != null ? (
+            {state.title != null ? (
               <div
                 className={cn(
                   isCompact
@@ -182,17 +182,17 @@ export function PageStateView({
                   !isCompact && (isPanel ? "text-sm" : "text-base"),
                 )}
               >
-                {state2.title}
+                {state.title}
               </div>
             ) : null}
-            {state2.description != null ? (
+            {state.description != null ? (
               <div
                 className={cn(
                   "text-muted-foreground",
                   isSmall ? "text-xs" : "text-sm",
                 )}
               >
-                {state2.description}
+                {state.description}
               </div>
             ) : null}
           </>
@@ -203,7 +203,7 @@ export function PageStateView({
               isCompact ? "text-xs font-normal" : "text-sm",
             )}
           >
-            {state2.text ?? defaultText}
+            {state.text ?? defaultText}
           </div>
         )}
       </div>
@@ -230,7 +230,7 @@ export function PageStateView({
           {separateActions.map(renderAction)}
         </div>
       ) : null}
-      {state2.type === "empty" && !isCompact ? (
+      {state.type === "empty" && !isCompact ? (
         <div
           className="h-6 w-full shrink-0"
           aria-hidden="true"

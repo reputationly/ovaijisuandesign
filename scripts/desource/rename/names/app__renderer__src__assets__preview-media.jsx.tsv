@@ -1,0 +1,9 @@
+key	old	new	依据
+n2@84:22	n2	byteCount	该参数是待格式化为 B、KB 或 MB 的字节数。
+r2@89:30	r2	resource	该参数是提供尺寸、时长、文件大小与类型的预览资源。
+t2@156:31	t2	translate	该参数用于翻译标签的旧版名称键。
+url2@15:37	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+wrap2@39:9	wrap2	wrap	去掉打包器防重名追加的后缀，恢复原名 wrap，即该绑定持有的值。
+constraints2@139:46	constraints2	constraints	去掉打包器防重名追加的后缀，恢复原名 constraints，即该绑定持有的值。
+raw2@162:36	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+message2@179:29	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。

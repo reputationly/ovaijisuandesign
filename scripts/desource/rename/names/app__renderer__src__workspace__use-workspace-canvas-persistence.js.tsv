@@ -1,0 +1,4 @@
+key	old	new	依据
+message2@27:23	message2	message	消息历史中当前遍历到的消息记录。
+t2@18:14	t2	translate	useTranslation 返回的翻译函数。
+workspaceId2@13:16	workspaceId2	workspaceId	工作区的唯一标识。

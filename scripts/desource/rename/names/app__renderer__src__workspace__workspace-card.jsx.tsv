@@ -1,0 +1,2 @@
+key	old	new	依据
+t@60:11	t	translate	useTranslation 返回的翻译函数。

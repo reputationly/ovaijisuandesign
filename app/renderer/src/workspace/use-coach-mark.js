@@ -59,7 +59,7 @@ export function useCoachMark(markId, enabled = true, options = {}) {
     persistOnOpen,
     persistSeen,
   ]);
-  const clearTimer2 = reactExports.useCallback(() => {
+  const clearTimer = reactExports.useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -69,7 +69,7 @@ export function useCoachMark(markId, enabled = true, options = {}) {
     (method) => {
       if (dismissedRef.current) return;
       dismissedRef.current = true;
-      clearTimer2();
+      clearTimer();
       setIsOpen(false);
       trackEvent(TRACK_EVENTS.COACH_MARK_DISMISS, {
         mark_id: markId,
@@ -77,26 +77,26 @@ export function useCoachMark(markId, enabled = true, options = {}) {
       });
       persistSeen();
     },
-    [markId, clearTimer2, persistSeen],
+    [markId, clearTimer, persistSeen],
   );
   const startTimer = reactExports.useCallback(() => {
-    clearTimer2();
+    clearTimer();
     if (!autoClose) return;
     timerRef.current = setTimeout(() => {
       if (!hoveredRef.current) {
         dismiss("timeout");
       }
     }, autoCloseMs);
-  }, [clearTimer2, dismiss, autoCloseMs, autoClose]);
+  }, [clearTimer, dismiss, autoCloseMs, autoClose]);
   reactExports.useEffect(() => {
     if (isOpen) startTimer();
-    return clearTimer2;
-  }, [isOpen, startTimer, clearTimer2]);
+    return clearTimer;
+  }, [isOpen, startTimer, clearTimer]);
   reactExports.useEffect(() => {
     if (!isOpen) return;
-    const handler = (e2) => {
-      if (e2.key === "Escape") {
-        e2.stopPropagation();
+    const handler = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        keyboardEvent.stopPropagation();
         dismiss("close");
       }
     };
@@ -106,8 +106,8 @@ export function useCoachMark(markId, enabled = true, options = {}) {
   const onPointerEnter = reactExports.useCallback(() => {
     if (!pauseOnHover) return;
     hoveredRef.current = true;
-    clearTimer2();
-  }, [clearTimer2, pauseOnHover]);
+    clearTimer();
+  }, [clearTimer, pauseOnHover]);
   const onPointerLeave = reactExports.useCallback(() => {
     if (!pauseOnHover) return;
     hoveredRef.current = false;
@@ -115,8 +115,8 @@ export function useCoachMark(markId, enabled = true, options = {}) {
   }, [isOpen, startTimer, pauseOnHover]);
   const holdOpen = reactExports.useCallback(() => {
     hoveredRef.current = true;
-    clearTimer2();
-  }, [clearTimer2]);
+    clearTimer();
+  }, [clearTimer]);
   return {
     isOpen,
     dismiss,

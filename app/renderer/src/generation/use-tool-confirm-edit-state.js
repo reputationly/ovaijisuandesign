@@ -4,7 +4,7 @@ import { IMAGE_MODELS } from "./image-models.js";
 import { VIDEO_MODELS } from "./video-models.js";
 import { AUDIO_MODELS } from "./audio-models.js";
 import { getToolLabelId } from "../chat/has-structured-success-payload.js";
-import { TOOL_LABEL_DEFINITIONS as TOOL_LABEL_DEFINITIONS$1 } from "../workspace/tool-label-definitions.js";
+import { TOOL_LABEL_DEFINITIONS as importedToolLabelDefinitions } from "../workspace/tool-label-definitions.js";
 import { getBuiltInToolLabelId } from "../media-editing/tool-name-to-label-id.js";
 import { getConfiguredToolDisplayLabel } from "../settings/request-prompt-prefill.jsx";
 import { RECONNECTING_STUCK_THRESHOLD_MS } from "../chat/use-browser-chat-media.jsx";
@@ -17,42 +17,42 @@ export function dispatchBrowserImageEditToChat(request) {
   window.dispatchEvent(event);
   return event.defaultPrevented;
 }
-export function useChatConnectionPhase(workspaceId2, connected) {
-  const [history2, setHistory] = reactExports.useState(() => ({
-    workspaceId: workspaceId2,
+export function useChatConnectionPhase(workspaceId, connected) {
+  const [connectionHistory, setConnectionHistory] = reactExports.useState(() => ({
+    workspaceId,
     hasConnected: connected,
   }));
   reactExports.useEffect(() => {
-    setHistory((current2) => {
-      if (current2.workspaceId !== workspaceId2) {
+    setConnectionHistory((current) => {
+      if (current.workspaceId !== workspaceId) {
         return {
-          workspaceId: workspaceId2,
+          workspaceId,
           hasConnected: connected,
         };
       }
-      if (connected && !current2.hasConnected) {
+      if (connected && !current.hasConnected) {
         return {
-          ...current2,
+          ...current,
           hasConnected: true,
         };
       }
-      return current2;
+      return current;
     });
-  }, [workspaceId2, connected]);
+  }, [workspaceId, connected]);
   if (connected) return "connected";
   const hasConnected =
-    history2.workspaceId === workspaceId2 && history2.hasConnected;
+    connectionHistory.workspaceId === workspaceId && connectionHistory.hasConnected;
   return hasConnected ? "reconnecting" : "connecting";
 }
-function buildRegistryIndex(entries2) {
-  const map3 = new Map();
-  for (const entry of entries2) {
-    for (const key2 of registrySelectionRowIds(entry)) {
-      if (!map3.has(key2)) map3.set(key2, entry);
+function buildRegistryIndex(entries) {
+  const map = new Map();
+  for (const entry of entries) {
+    for (const key of registrySelectionRowIds(entry)) {
+      if (!map.has(key)) map.set(key, entry);
     }
-    if (entry.name && !map3.has(entry.name)) map3.set(entry.name, entry);
+    if (entry.name && !map.has(entry.name)) map.set(entry.name, entry);
   }
-  return map3;
+  return map;
 }
 export const REGISTRY_BY_TYPE = {
   image: buildRegistryIndex(IMAGE_MODELS),
@@ -66,7 +66,7 @@ const RECLAIM_TTL_MS = RECONNECTING_STUCK_THRESHOLD_MS + 6e4;
 export function useRuntimeMemoryReclaim() {
   const [reclaimed, setReclaimed] = reactExports.useState(false);
   const timerRef = reactExports.useRef(null);
-  const clearTimer2 = reactExports.useCallback(() => {
+  const clearTimer = reactExports.useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -76,38 +76,38 @@ export function useRuntimeMemoryReclaim() {
     if (typeof hilo === "undefined") return;
     const unsubscribe = hilo.diagnostics.onRuntimeMemoryReclaim(() => {
       setReclaimed(true);
-      clearTimer2();
+      clearTimer();
       timerRef.current = setTimeout(() => setReclaimed(false), RECLAIM_TTL_MS);
     });
     return () => {
       unsubscribe();
-      clearTimer2();
+      clearTimer();
     };
-  }, [clearTimer2]);
+  }, [clearTimer]);
   return reclaimed;
 }
-function retainActiveEntries(previous2, activeIds2) {
+function retainActiveEntries(previous, activeIds) {
   let changed = false;
-  const next2 = {};
-  for (const [requestId, value] of Object.entries(previous2)) {
-    if (activeIds2.has(requestId)) next2[requestId] = value;
+  const next = {};
+  for (const [requestId, value] of Object.entries(previous)) {
+    if (activeIds.has(requestId)) next[requestId] = value;
     else changed = true;
   }
-  return changed ? next2 : previous2;
+  return changed ? next : previous;
 }
 export function useToolConfirmEditState(pendingMessages, submittingIds) {
   const [edits, setEdits] = reactExports.useState({});
   const [approvalState, setApprovalState] = reactExports.useState({});
   const setEdit = reactExports.useCallback((requestId, args) => {
-    setEdits((previous2) => ({
-      ...previous2,
+    setEdits((previous) => ({
+      ...previous,
       [requestId]: args,
     }));
   }, []);
-  const setApproval = reactExports.useCallback((requestId, state2) => {
-    setApprovalState((previous2) => ({
-      ...previous2,
-      [requestId]: state2,
+  const setApproval = reactExports.useCallback((requestId, state) => {
+    setApprovalState((previous) => ({
+      ...previous,
+      [requestId]: state,
     }));
   }, []);
   const contextValue = reactExports.useMemo(
@@ -121,13 +121,13 @@ export function useToolConfirmEditState(pendingMessages, submittingIds) {
     [approvalState, edits, setApproval, setEdit, submittingIds],
   );
   reactExports.useEffect(() => {
-    const activeIds2 = new Set(
+    const activeIds = new Set(
       pendingMessages
-        .map((message2) => message2.requestId)
+        .map((message) => message.requestId)
         .filter((requestId) => Boolean(requestId)),
     );
-    setEdits((previous2) => retainActiveEntries(previous2, activeIds2));
-    setApprovalState((previous2) => retainActiveEntries(previous2, activeIds2));
+    setEdits((previous) => retainActiveEntries(previous, activeIds));
+    setApprovalState((previous) => retainActiveEntries(previous, activeIds));
   }, [pendingMessages]);
   return {
     approvalState,
@@ -136,7 +136,7 @@ export function useToolConfirmEditState(pendingMessages, submittingIds) {
   };
 }
 const TOOL_LABEL_DEFINITIONS = {
-  ...TOOL_LABEL_DEFINITIONS$1,
+  ...importedToolLabelDefinitions,
   browser: {
     i18nKey: "chat.toolLabel.browser",
   },
@@ -167,45 +167,45 @@ const TRANSIENT_TOOL_LABEL_KEYS = {
   hub_run_comfyui_workflow: "chat.toolLabel.runComfyUiWorkflow",
   hub_get_comfyui_run_status: "chat.toolLabel.getComfyUiRunStatus",
 };
-export function isMainAgentThinkingTool(toolName2) {
-  return !!toolName2 && MAIN_AGENT_THINKING_TOOL_NAMES.has(toolName2);
+export function isMainAgentThinkingTool(toolName) {
+  return !!toolName && MAIN_AGENT_THINKING_TOOL_NAMES.has(toolName);
 }
-export function isTransientTool(toolName2) {
-  return getToolLabelId(toolName2) === "transient";
+export function isTransientTool(toolName) {
+  return getToolLabelId(toolName) === "transient";
 }
-export function getToolDisplayLabel(toolName2, t2) {
-  const labelId = getToolLabelId(toolName2);
+export function getToolDisplayLabel(toolName, translate) {
+  const labelId = getToolLabelId(toolName);
   if (labelId === "silent") return "";
-  if (toolName2 && !getBuiltInToolLabelId(toolName2)) {
-    const configured = getConfiguredToolDisplayLabel(toolName2);
+  if (toolName && !getBuiltInToolLabelId(toolName)) {
+    const configured = getConfiguredToolDisplayLabel(toolName);
     if (configured) return configured;
   }
-  if (labelId === "connectorOp" && toolName2) {
-    if (toolName2 === "hub_connector_authorize")
-      return t2("connectors.oauth.connect");
-    if (/^apify_/iu.test(toolName2))
-      return t2("chat.toolLabel.connector.apify");
-    if (/^fastmoss(?:-mcp)?_/iu.test(toolName2))
-      return t2("chat.toolLabel.connector.fastmoss");
-    if (/^shopify(?:-mcp)?_/iu.test(toolName2))
-      return t2("chat.toolLabel.connector.shopify");
-    return toolName2;
+  if (labelId === "connectorOp" && toolName) {
+    if (toolName === "hub_connector_authorize")
+      return translate("connectors.oauth.connect");
+    if (/^apify_/iu.test(toolName))
+      return translate("chat.toolLabel.connector.apify");
+    if (/^fastmoss(?:-mcp)?_/iu.test(toolName))
+      return translate("chat.toolLabel.connector.fastmoss");
+    if (/^shopify(?:-mcp)?_/iu.test(toolName))
+      return translate("chat.toolLabel.connector.shopify");
+    return toolName;
   }
-  if (labelId === "transient" && toolName2) {
-    return t2(
-      TRANSIENT_TOOL_LABEL_KEYS[toolName2] ??
+  if (labelId === "transient" && toolName) {
+    return translate(
+      TRANSIENT_TOOL_LABEL_KEYS[toolName] ??
         TOOL_LABEL_DEFINITIONS.transient.i18nKey,
     );
   }
-  if (labelId === "askUser" && toolName2?.startsWith("hub_preview_")) {
-    return t2("chat.toolLabel.askUser.preview");
+  if (labelId === "askUser" && toolName?.startsWith("hub_preview_")) {
+    return translate("chat.toolLabel.askUser.preview");
   }
-  return t2(TOOL_LABEL_DEFINITIONS[labelId].i18nKey);
+  return translate(TOOL_LABEL_DEFINITIONS[labelId].i18nKey);
 }
-export function filterSilentTools(messages2, getToolName) {
-  return messages2.filter((msg) => {
-    if (msg.type !== "tool") return true;
-    const name2 = getToolName(msg);
-    return getToolLabelId(name2) !== "silent";
+export function filterSilentTools(messages, getToolName) {
+  return messages.filter((message) => {
+    if (message.type !== "tool") return true;
+    const toolName = getToolName(message);
+    return getToolLabelId(toolName) !== "silent";
   });
 }

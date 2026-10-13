@@ -1,0 +1,11 @@
+key	old	new	依据
+s2@50:11	s2	segment	去掉打包器防重名追加的后缀，恢复原名 segment，即该绑定持有的值。
+t2@78:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+e2@87:19	e2	clickEvent	去掉打包器防重名追加的后缀，恢复原名 clickEvent，即该绑定持有的值。
+i2@105:35	i2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+tok@52:23	tok	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+seg@105:30	seg	segment	去掉打包器防重名追加的后缀，恢复原名 segment，即该绑定持有的值。
+Settings2@10:10	Settings2	Settings	去掉打包器防重名追加的后缀，恢复原名 Settings，即该绑定持有的值。
+size2@12:28	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
+tokens2@48:9	tokens2	tokens	去掉打包器防重名追加的后缀，恢复原名 tokens，即该绑定持有的值。
+disabled2@74:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。

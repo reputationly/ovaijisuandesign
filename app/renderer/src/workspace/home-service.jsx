@@ -3,12 +3,12 @@ import "./browser-inspiration-urls-effects.js";
 import {
   CompositedSvg,
   desktopMediaIcon,
-  PlaybackCirclePauseIcon$1,
-  PlaybackCirclePlayIcon$1,
-  PlaybackNextIcon$1,
-  PlaybackPlayIcon$1,
-  PlaybackPreviousIcon$1,
-  PlaybackStopIcon$1,
+  PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIconBase,
+  PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIconBase,
+  PlaybackNextIcon$1 as PlaybackNextIconBase,
+  PlaybackPlayIcon$1 as PlaybackPlayIconBase,
+  PlaybackPreviousIcon$1 as PlaybackPreviousIconBase,
+  PlaybackStopIcon$1 as PlaybackStopIconBase,
   reactExports,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -175,9 +175,9 @@ export const instantiationService = new InstantiationService(services);
 disposables.add(instantiationService);
 const logService = services.get(ILogService);
 disposables.add({
-  dispose: errorHandler((e2) => {
-    const msg = e2 instanceof Error ? (e2.stack ?? e2.message) : String(e2);
-    logService.error(`[UnexpectedError] ${msg}`);
+  dispose: errorHandler((error) => {
+    const errorMessage = error instanceof Error ? (error.stack ?? error.message) : String(error);
+    logService.error(`[UnexpectedError] ${errorMessage}`);
   }),
 });
 export const instantiation = Object.freeze(
@@ -197,19 +197,19 @@ export const instantiation = Object.freeze(
   ),
 );
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __decorateClass = (decorators, target, key2, kind) => {
+var __decorateClass = (decorators, target, key, kind) => {
   var result =
-    kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key2) : target;
-  for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
-    if ((decorator = decorators[i2])) result = decorator(result) || result;
+    kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var decoratorIndex = decorators.length - 1, decorator; decoratorIndex >= 0; decoratorIndex--)
+    if ((decorator = decorators[decoratorIndex])) result = decorator(result) || result;
   return result;
 };
-var __decorateParam = (index2, decorator) => (target, key2) =>
-  decorator(target, key2, index2);
+var __decorateParam = (index, decorator) => (target, key) =>
+  decorator(target, key, index);
 let HomeService = class extends Disposable {
   constructor(
-    hiloApp2,
-    logService2,
+    hiloApp,
+    logService,
     projectArchive,
     comfyUiModelDownload,
     skillExport,
@@ -219,8 +219,8 @@ let HomeService = class extends Disposable {
     quarkDriveAuth,
   ) {
     super();
-    this.hiloApp = hiloApp2;
-    this.logService = logService2;
+    this.hiloApp = hiloApp;
+    this.logService = logService;
     this.projectArchive = projectArchive;
     this.comfyUiModelDownload = comfyUiModelDownload;
     this.skillExport = skillExport;
@@ -247,12 +247,12 @@ HomeService = __decorateClass(
 export const homeService = instantiationService.createInstance(HomeService);
 disposables.add(homeService);
 homeService.logService.info("HomeService initialized");
-export function EnterIcon({ size: size2 = 24, ...props }) {
+export function EnterIcon({ size = 24, ...props }) {
   return (
     <CompositedSvg
       xmlns="http://www.w3.org/2000/svg"
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"
@@ -266,8 +266,8 @@ export function EnterIcon({ size: size2 = 24, ...props }) {
     </CompositedSvg>
   );
 }
-export const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon22(
-  { size: size2 = 24, ...props },
+export const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon(
+  { size = 24, ...props },
   ref,
 ) {
   const ariaHidden =
@@ -276,8 +276,8 @@ export const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon22(
     <CompositedSvg
       ref={ref}
       {...props}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 1024 1024"
       fill="currentColor"
       aria-hidden={ariaHidden}
@@ -290,18 +290,18 @@ export const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon22(
 });
 FeedbackIcon.displayName = "FeedbackIcon";
 export function FilledSkillIcon({
-  size: size2 = 24,
+  size = 24,
   strokeWidth = 2,
-  color: color2 = "currentColor",
+  color = "currentColor",
   className,
   ...rest
 }) {
   return (
     <CompositedSvg
-      color={color2}
+      color={color}
       xmlns="http://www.w3.org/2000/svg"
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 14 14"
       fill="none"
       strokeWidth={strokeWidth}
@@ -322,7 +322,7 @@ export function FilledSkillIcon({
 FilledSkillIcon.displayName = "FilledSkillIcon";
 export function LocalFolderIcon({
   className,
-  os: os2,
+  os,
   alt = "",
   draggable,
   "aria-hidden": ariaHidden,
@@ -330,7 +330,7 @@ export function LocalFolderIcon({
 }) {
   return (
     <img
-      src={getLocalFolderIconSrc(os2)}
+      src={getLocalFolderIconSrc(os)}
       alt={alt}
       aria-hidden={ariaHidden ?? (alt === "" ? true : void 0)}
       draggable={draggable ?? false}
@@ -342,12 +342,12 @@ export function LocalFolderIcon({
     />
   );
 }
-export function MoreHorizontalIcon({ size: size2 = 24, className, ...rest }) {
+export function MoreHorizontalIcon({ size = 24, className, ...rest }) {
   return (
     <CompositedSvg
       xmlns="http://www.w3.org/2000/svg"
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="currentColor"
       stroke="none"
@@ -362,7 +362,7 @@ export function MoreHorizontalIcon({ size: size2 = 24, className, ...rest }) {
   );
 }
 export function PanelVisibilityIcon({
-  active: active2,
+  active,
   side = "left",
   ...props
 }) {
@@ -374,7 +374,7 @@ export function PanelVisibilityIcon({
       aria-hidden="true"
       data-panel-visibility-icon="true"
       data-panel-side={side}
-      data-panel-active={active2 ? "true" : "false"}
+      data-panel-active={active ? "true" : "false"}
       {...props}
     >
       <rect
@@ -394,7 +394,7 @@ export function PanelVisibilityIcon({
         height="10.5"
         rx="1.5"
         className={
-          active2 ? "fill-current opacity-60" : "fill-current opacity-[0.12]"
+          active ? "fill-current opacity-60" : "fill-current opacity-[0.12]"
         }
       />
     </svg>
@@ -402,20 +402,20 @@ export function PanelVisibilityIcon({
 }
 PanelVisibilityIcon.displayName = "PanelVisibilityIcon";
 export function PencilIcon({
-  size: size2 = 24,
+  size = 24,
   strokeWidth = 2,
-  color: color2 = "currentColor",
+  color = "currentColor",
   className,
   ...rest
 }) {
   return (
     <CompositedSvg
       xmlns="http://www.w3.org/2000/svg"
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
-      color={color2}
+      color={color}
       stroke="currentColor"
       strokeWidth={strokeWidth}
       strokeLinecap="round"
@@ -430,26 +430,26 @@ export function PencilIcon({
   );
 }
 PencilIcon.displayName = "PencilIcon";
-export const PlaybackPlayIcon = desktopMediaIcon(PlaybackPlayIcon$1);
-export const PlaybackStopIcon = desktopMediaIcon(PlaybackStopIcon$1);
-export const PlaybackNextIcon = desktopMediaIcon(PlaybackNextIcon$1);
-export const PlaybackPreviousIcon = desktopMediaIcon(PlaybackPreviousIcon$1);
+export const PlaybackPlayIcon = desktopMediaIcon(PlaybackPlayIconBase);
+export const PlaybackStopIcon = desktopMediaIcon(PlaybackStopIconBase);
+export const PlaybackNextIcon = desktopMediaIcon(PlaybackNextIconBase);
+export const PlaybackPreviousIcon = desktopMediaIcon(PlaybackPreviousIconBase);
 export const PlaybackCirclePlayIcon = desktopMediaIcon(
-  PlaybackCirclePlayIcon$1,
+  PlaybackCirclePlayIconBase,
 );
 export const PlaybackCirclePauseIcon = desktopMediaIcon(
-  PlaybackCirclePauseIcon$1,
+  PlaybackCirclePauseIconBase,
 );
-export const PluginIcon = reactExports.forwardRef(function PluginIcon2(
-  { size: size2 = 24, strokeWidth = 2, ...props },
+export const PluginIcon = reactExports.forwardRef(function PluginIcon(
+  { size = 24, strokeWidth = 2, ...props },
   ref,
 ) {
   return (
     <CompositedSvg
       ref={ref}
       {...props}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -466,12 +466,12 @@ export const PluginIcon = reactExports.forwardRef(function PluginIcon2(
   );
 });
 PluginIcon.displayName = "PluginIcon";
-export function ProjectImportIcon({ size: size2 = 24, className, ...rest }) {
+export function ProjectImportIcon({ size = 24, className, ...rest }) {
   return (
     <CompositedSvg
       xmlns="http://www.w3.org/2000/svg"
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 42 40"
       fill="none"
       aria-hidden="true"

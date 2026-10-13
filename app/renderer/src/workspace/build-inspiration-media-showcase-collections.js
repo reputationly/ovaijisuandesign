@@ -1,5 +1,5 @@
 // build-inspiration-media-showcase-collections.js
-import { b2, d, H, M, N, R$1 as R, raw, w2, y$1 as y } from "../vendor.js";
+import { b2 as unorderedListMarkerPattern, d as markdownDelimiterOrWhitespacePattern, H as wordCharacterPattern, M as doubleAsteriskMatchPattern, N as doubleUnderscoreMatchPattern, R$1 as singleAsteriskMatchPattern, raw, w2 as excessiveAsteriskRunPattern, y$1 as tripleAsteriskMatchPattern } from "../vendor.js";
 import {
   buildFeaturedItems,
   FEATURED_SHOWCASE_COLLECTION_ID,
@@ -85,9 +85,9 @@ export function buildInspirationMediaShowcaseCollections({
       : [];
   });
 }
-export function resolveHomeFeaturedSkillPrompt(skill, preset2, isZh) {
-  if (isZh) return preset2?.prompt || skill.guidePrompt || skill.guidePromptEn;
-  return preset2?.promptEn || skill.guidePromptEn || skill.guidePrompt;
+export function resolveHomeFeaturedSkillPrompt(skill, preset, isZh) {
+  if (isZh) return preset?.prompt || skill.guidePrompt || skill.guidePromptEn;
+  return preset?.promptEn || skill.guidePromptEn || skill.guidePrompt;
 }
 export function rehypeRaw(options) {
   return function (tree, file) {
@@ -100,367 +100,367 @@ export function rehypeRaw(options) {
     return result;
   };
 }
-export var c2 = (n2, r2) => {
-  let e2 = false,
-    i2 = false;
-  for (let s2 = 0; s2 < r2; s2 += 1) {
-    if (n2[s2] === "\\" && s2 + 1 < n2.length && n2[s2 + 1] === "`") {
-      s2 += 1;
+export var c2 = (text, position) => {
+  let insideInlineCode = false,
+    insideFencedCode = false;
+  for (let scanIndex = 0; scanIndex < position; scanIndex += 1) {
+    if (text[scanIndex] === "\\" && scanIndex + 1 < text.length && text[scanIndex + 1] === "`") {
+      scanIndex += 1;
       continue;
     }
-    if (n2.substring(s2, s2 + 3) === "```") {
-      ((i2 = !i2), (s2 += 2));
+    if (text.substring(scanIndex, scanIndex + 3) === "```") {
+      ((insideFencedCode = !insideFencedCode), (scanIndex += 2));
       continue;
     }
-    !i2 && n2[s2] === "`" && (e2 = !e2);
+    !insideFencedCode && text[scanIndex] === "`" && (insideInlineCode = !insideInlineCode);
   }
-  return e2 || i2;
+  return insideInlineCode || insideFencedCode;
 };
-var hn = (n2, r2) => {
-  let e2 = n2.substring(r2, r2 + 3) === "```",
-    i2 = r2 > 0 && n2.substring(r2 - 1, r2 + 2) === "```",
-    s2 = r2 > 1 && n2.substring(r2 - 2, r2 + 1) === "```";
-  return e2 || i2 || s2;
+var isFenceMarkerAtPosition = (text, position) => {
+  let hasFenceStartingAtPosition = text.substring(position, position + 3) === "```",
+    hasFenceBeforePosition = position > 0 && text.substring(position - 1, position + 2) === "```",
+    hasFenceEndingAtPosition = position > 1 && text.substring(position - 2, position + 1) === "```";
+  return hasFenceStartingAtPosition || hasFenceBeforePosition || hasFenceEndingAtPosition;
 };
-export var L = (n2) => {
-  let r2 = 0;
-  for (let e2 = 0; e2 < n2.length; e2 += 1) {
-    if (n2[e2] === "\\" && e2 + 1 < n2.length && n2[e2 + 1] === "`") {
-      e2 += 1;
+export var L = (text) => {
+  let backtickCount = 0;
+  for (let scanIndex = 0; scanIndex < text.length; scanIndex += 1) {
+    if (text[scanIndex] === "\\" && scanIndex + 1 < text.length && text[scanIndex + 1] === "`") {
+      scanIndex += 1;
       continue;
     }
-    n2[e2] === "`" && !hn(n2, e2) && (r2 += 1);
+    text[scanIndex] === "`" && !isFenceMarkerAtPosition(text, scanIndex) && (backtickCount += 1);
   }
-  return r2;
+  return backtickCount;
 };
-export var f = (n2, r2) => {
-  let e2 = false,
-    i2 = false,
-    s2 = -1;
-  for (let o2 = 0; o2 < n2.length; o2 += 1) {
-    if (n2[o2] === "\\" && o2 + 1 < n2.length && n2[o2 + 1] === "`") {
-      o2 += 1;
+export var f = (text, position) => {
+  let insideInlineCode = false,
+    insideFencedCode = false,
+    inlineCodeStart = -1;
+  for (let scanIndex = 0; scanIndex < text.length; scanIndex += 1) {
+    if (text[scanIndex] === "\\" && scanIndex + 1 < text.length && text[scanIndex + 1] === "`") {
+      scanIndex += 1;
       continue;
     }
-    if (n2.substring(o2, o2 + 3) === "```") {
-      ((i2 = !i2), (o2 += 2));
+    if (text.substring(scanIndex, scanIndex + 3) === "```") {
+      ((insideFencedCode = !insideFencedCode), (scanIndex += 2));
       continue;
     }
-    if (!i2 && n2[o2] === "`")
-      if (e2) {
-        if (s2 < r2 && r2 < o2) return true;
-        ((e2 = false), (s2 = -1));
-      } else ((e2 = true), (s2 = o2));
+    if (!insideFencedCode && text[scanIndex] === "`")
+      if (insideInlineCode) {
+        if (inlineCodeStart < position && position < scanIndex) return true;
+        ((insideInlineCode = false), (inlineCodeStart = -1));
+      } else ((insideInlineCode = true), (inlineCodeStart = scanIndex));
   }
   return false;
 };
-var mn = /^(\s*(?:[-*+]|\d+[.)]) +)>(=?\s*[$]?\d)/gm;
-export var E = (n2) =>
-  !n2 || typeof n2 != "string" || !n2.includes(">")
-    ? n2
-    : n2.replace(mn, (r2, e2, i2, s2) => (c2(n2, s2) ? r2 : `${e2}\\>${i2}`));
-var G = /(__)([^_]+)_$/;
+var listItemGreaterThanNumberPattern = /^(\s*(?:[-*+]|\d+[.)]) +)>(=?\s*[$]?\d)/gm;
+export var E = (text) =>
+  !text || typeof text != "string" || !text.includes(">")
+    ? text
+    : text.replace(listItemGreaterThanNumberPattern, (matchText, listPrefix, comparisonOperand, matchOffset) => (c2(text, matchOffset) ? matchText : `${listPrefix}\\>${comparisonOperand}`));
+var closingUnderscorePattern = /(__)([^_]+)_$/;
 export var F = /(~~)([^~]+)~$/;
 export var T = /~~/g;
-export var g = (n2) => {
-  if (!n2) return false;
-  let r2 = n2.charCodeAt(0);
-  return (r2 >= 48 && r2 <= 57) ||
-    (r2 >= 65 && r2 <= 90) ||
-    (r2 >= 97 && r2 <= 122) ||
-    r2 === 95
+export var g = (character) => {
+  if (!character) return false;
+  let characterCode = character.charCodeAt(0);
+  return (characterCode >= 48 && characterCode <= 57) ||
+    (characterCode >= 65 && characterCode <= 90) ||
+    (characterCode >= 97 && characterCode <= 122) ||
+    characterCode === 95
     ? true
-    : H.test(n2);
+    : wordCharacterPattern.test(character);
 };
-export var X = (n2, r2) => {
-  let e2 = 1;
-  for (let i2 = r2 - 1; i2 >= 0; i2 -= 1)
-    if (n2[i2] === "]") e2 += 1;
-    else if (n2[i2] === "[" && ((e2 -= 1), e2 === 0)) return i2;
+export var X = (text, closingBracketIndex) => {
+  let bracketDepth = 1;
+  for (let scanIndex = closingBracketIndex - 1; scanIndex >= 0; scanIndex -= 1)
+    if (text[scanIndex] === "]") bracketDepth += 1;
+    else if (text[scanIndex] === "[" && ((bracketDepth -= 1), bracketDepth === 0)) return scanIndex;
   return -1;
 };
-export var C2 = (n2, r2) => {
-  let e2 = 1;
-  for (let i2 = r2 + 1; i2 < n2.length; i2 += 1)
-    if (n2[i2] === "[") e2 += 1;
-    else if (n2[i2] === "]" && ((e2 -= 1), e2 === 0)) return i2;
+export var C2 = (text, openingBracketIndex) => {
+  let bracketDepth = 1;
+  for (let scanIndex = openingBracketIndex + 1; scanIndex < text.length; scanIndex += 1)
+    if (text[scanIndex] === "[") bracketDepth += 1;
+    else if (text[scanIndex] === "]" && ((bracketDepth -= 1), bracketDepth === 0)) return scanIndex;
   return -1;
 };
-export var h = (n2, r2) => {
-  let e2 = false,
-    i2 = false;
-  for (let s2 = 0; s2 < n2.length && s2 < r2; s2 += 1) {
-    if (n2[s2] === "\\" && n2[s2 + 1] === "$") {
-      s2 += 1;
+export var h = (text, position) => {
+  let insideInlineMath = false,
+    insideDisplayMath = false;
+  for (let scanIndex = 0; scanIndex < text.length && scanIndex < position; scanIndex += 1) {
+    if (text[scanIndex] === "\\" && text[scanIndex + 1] === "$") {
+      scanIndex += 1;
       continue;
     }
-    n2[s2] === "$" &&
-      (n2[s2 + 1] === "$"
-        ? ((i2 = !i2), (s2 += 1), (e2 = false))
-        : i2 || (e2 = !e2));
+    text[scanIndex] === "$" &&
+      (text[scanIndex + 1] === "$"
+        ? ((insideDisplayMath = !insideDisplayMath), (scanIndex += 1), (insideInlineMath = false))
+        : insideDisplayMath || (insideInlineMath = !insideInlineMath));
   }
-  return e2 || i2;
+  return insideInlineMath || insideDisplayMath;
 };
-var p2 = (n2, r2, e2) => {
-  let i2 = 0;
-  for (let l2 = r2 - 1; l2 >= 0; l2 -= 1)
+var isThematicBreakLine = (text, position, markerCharacter) => {
+  let lineStartIndex = 0;
+  for (let lineIndex = position - 1; lineIndex >= 0; lineIndex -= 1)
     if (
-      n2[l2] ===
+      text[lineIndex] ===
       `
 `
     ) {
-      i2 = l2 + 1;
+      lineStartIndex = lineIndex + 1;
       break;
     }
-  let s2 = n2.length;
-  for (let l2 = r2; l2 < n2.length; l2 += 1)
+  let lineEndIndex = text.length;
+  for (let lineIndex = position; lineIndex < text.length; lineIndex += 1)
     if (
-      n2[l2] ===
+      text[lineIndex] ===
       `
 `
     ) {
-      s2 = l2;
+      lineEndIndex = lineIndex;
       break;
     }
-  let o2 = n2.substring(i2, s2),
-    t2 = 0,
-    a2 = false;
-  for (let l2 of o2)
-    if (l2 === e2) t2 += 1;
-    else if (l2 !== " " && l2 !== "	") {
-      a2 = true;
+  let lineText = text.substring(lineStartIndex, lineEndIndex),
+    markerCount = 0,
+    hasOtherContent = false;
+  for (let character of lineText)
+    if (character === markerCharacter) markerCount += 1;
+    else if (character !== " " && character !== "	") {
+      hasOtherContent = true;
       break;
     }
-  return t2 >= 3 && !a2;
+  return markerCount >= 3 && !hasOtherContent;
 };
-var kn = (n2, r2, e2, i2) =>
-  e2 === "\\" || (n2.includes("$") && h(n2, r2))
+var isValidEmphasisDelimiter = (text, position, previousCharacter, nextCharacter) =>
+  previousCharacter === "\\" || (text.includes("$") && h(text, position))
     ? true
-    : e2 !== "*" && i2 === "*"
-      ? (r2 < n2.length - 2 ? n2[r2 + 2] : "") !== "*"
+    : previousCharacter !== "*" && nextCharacter === "*"
+      ? (position < text.length - 2 ? text[position + 2] : "") !== "*"
       : !!(
-          e2 === "*" ||
-          (e2 && i2 && g(e2) && g(i2)) ||
-          ((!e2 ||
-            e2 === " " ||
-            e2 === "	" ||
-            e2 ===
+          previousCharacter === "*" ||
+          (previousCharacter && nextCharacter && g(previousCharacter) && g(nextCharacter)) ||
+          ((!previousCharacter ||
+            previousCharacter === " " ||
+            previousCharacter === "	" ||
+            previousCharacter ===
               `
 `) &&
-            (!i2 ||
-              i2 === " " ||
-              i2 === "	" ||
-              i2 ===
+            (!nextCharacter ||
+              nextCharacter === " " ||
+              nextCharacter === "	" ||
+              nextCharacter ===
                 `
 `))
         );
-var Y = (n2) => {
-  let r2 = 0,
-    e2 = false,
-    i2 = n2.length;
-  for (let s2 = 0; s2 < i2; s2 += 1) {
+var countValidAsteriskDelimiters = (text) => {
+  let validMarkerCount = 0,
+    insideFencedCode = false,
+    textLength = text.length;
+  for (let scanIndex = 0; scanIndex < textLength; scanIndex += 1) {
     if (
-      n2[s2] === "`" &&
-      s2 + 2 < i2 &&
-      n2[s2 + 1] === "`" &&
-      n2[s2 + 2] === "`"
+      text[scanIndex] === "`" &&
+      scanIndex + 2 < textLength &&
+      text[scanIndex + 1] === "`" &&
+      text[scanIndex + 2] === "`"
     ) {
-      ((e2 = !e2), (s2 += 2));
+      ((insideFencedCode = !insideFencedCode), (scanIndex += 2));
       continue;
     }
-    if (e2 || n2[s2] !== "*") continue;
-    let o2 = s2 > 0 ? n2[s2 - 1] : "",
-      t2 = s2 < i2 - 1 ? n2[s2 + 1] : "";
-    kn(n2, s2, o2, t2) || (r2 += 1);
+    if (insideFencedCode || text[scanIndex] !== "*") continue;
+    let previousCharacter = scanIndex > 0 ? text[scanIndex - 1] : "",
+      nextCharacter = scanIndex < textLength - 1 ? text[scanIndex + 1] : "";
+    isValidEmphasisDelimiter(text, scanIndex, previousCharacter, nextCharacter) || (validMarkerCount += 1);
   }
-  return r2;
+  return validMarkerCount;
 };
-var Cn = (n2) => {
-  let r2 = 0,
-    e2 = 0,
-    i2 = false;
-  for (let s2 = 0; s2 < n2.length; s2 += 1) {
+var countTripleAsteriskRuns = (text) => {
+  let tripleMarkerCount = 0,
+    asteriskRunLength = 0,
+    insideFencedCode = false;
+  for (let scanIndex = 0; scanIndex < text.length; scanIndex += 1) {
     if (
-      n2[s2] === "`" &&
-      s2 + 2 < n2.length &&
-      n2[s2 + 1] === "`" &&
-      n2[s2 + 2] === "`"
+      text[scanIndex] === "`" &&
+      scanIndex + 2 < text.length &&
+      text[scanIndex + 1] === "`" &&
+      text[scanIndex + 2] === "`"
     ) {
-      (e2 >= 3 && (r2 += Math.floor(e2 / 3)), (e2 = 0), (i2 = !i2), (s2 += 2));
+      (asteriskRunLength >= 3 && (tripleMarkerCount += Math.floor(asteriskRunLength / 3)), (asteriskRunLength = 0), (insideFencedCode = !insideFencedCode), (scanIndex += 2));
       continue;
     }
-    i2 ||
-      (n2[s2] === "*"
-        ? (e2 += 1)
-        : (e2 >= 3 && (r2 += Math.floor(e2 / 3)), (e2 = 0)));
+    insideFencedCode ||
+      (text[scanIndex] === "*"
+        ? (asteriskRunLength += 1)
+        : (asteriskRunLength >= 3 && (tripleMarkerCount += Math.floor(asteriskRunLength / 3)), (asteriskRunLength = 0)));
   }
-  return (e2 >= 3 && (r2 += Math.floor(e2 / 3)), r2);
+  return (asteriskRunLength >= 3 && (tripleMarkerCount += Math.floor(asteriskRunLength / 3)), tripleMarkerCount);
 };
-export var A = (n2) => {
-  let r2 = 0,
-    e2 = false;
-  for (let i2 = 0; i2 < n2.length; i2 += 1) {
+export var A = (text) => {
+  let doubleAsteriskCount = 0,
+    insideFencedCode = false;
+  for (let scanIndex = 0; scanIndex < text.length; scanIndex += 1) {
     if (
-      n2[i2] === "`" &&
-      i2 + 2 < n2.length &&
-      n2[i2 + 1] === "`" &&
-      n2[i2 + 2] === "`"
+      text[scanIndex] === "`" &&
+      scanIndex + 2 < text.length &&
+      text[scanIndex + 1] === "`" &&
+      text[scanIndex + 2] === "`"
     ) {
-      ((e2 = !e2), (i2 += 2));
+      ((insideFencedCode = !insideFencedCode), (scanIndex += 2));
       continue;
     }
-    e2 ||
-      (n2[i2] === "*" &&
-        i2 + 1 < n2.length &&
-        n2[i2 + 1] === "*" &&
-        ((r2 += 1), (i2 += 1)));
+    insideFencedCode ||
+      (text[scanIndex] === "*" &&
+        scanIndex + 1 < text.length &&
+        text[scanIndex + 1] === "*" &&
+        ((doubleAsteriskCount += 1), (scanIndex += 1)));
   }
-  return r2;
+  return doubleAsteriskCount;
 };
-var v = (n2) => {
-  let r2 = 0,
-    e2 = false;
-  for (let i2 = 0; i2 < n2.length; i2 += 1) {
+var countDoubleUnderscoreMarkers = (text) => {
+  let doubleUnderscoreCount = 0,
+    insideFencedCode = false;
+  for (let scanIndex = 0; scanIndex < text.length; scanIndex += 1) {
     if (
-      n2[i2] === "`" &&
-      i2 + 2 < n2.length &&
-      n2[i2 + 1] === "`" &&
-      n2[i2 + 2] === "`"
+      text[scanIndex] === "`" &&
+      scanIndex + 2 < text.length &&
+      text[scanIndex + 1] === "`" &&
+      text[scanIndex + 2] === "`"
     ) {
-      ((e2 = !e2), (i2 += 2));
+      ((insideFencedCode = !insideFencedCode), (scanIndex += 2));
       continue;
     }
-    e2 ||
-      (n2[i2] === "_" &&
-        i2 + 1 < n2.length &&
-        n2[i2 + 1] === "_" &&
-        ((r2 += 1), (i2 += 1)));
+    insideFencedCode ||
+      (text[scanIndex] === "_" &&
+        scanIndex + 1 < text.length &&
+        text[scanIndex + 1] === "_" &&
+        ((doubleUnderscoreCount += 1), (scanIndex += 1)));
   }
-  return r2;
+  return doubleUnderscoreCount;
 };
-var An = (n2, r2, e2) => {
-  if (!r2 || d.test(r2)) return true;
-  let s2 = n2.substring(0, e2).lastIndexOf(`
+var isAsteriskEmphasisInListContext = (text, delimiterContent, delimiterIndex) => {
+  if (!delimiterContent || markdownDelimiterOrWhitespacePattern.test(delimiterContent)) return true;
+  let lineBreakIndex = text.substring(0, delimiterIndex).lastIndexOf(`
 `),
-    o2 = s2 === -1 ? 0 : s2 + 1,
-    t2 = n2.substring(o2, e2);
-  return b2.test(t2) &&
-    r2.includes(`
+    lineStartIndex = lineBreakIndex === -1 ? 0 : lineBreakIndex + 1,
+    linePrefix = text.substring(lineStartIndex, delimiterIndex);
+  return unorderedListMarkerPattern.test(linePrefix) &&
+    delimiterContent.includes(`
 `)
     ? true
-    : p2(n2, e2, "*");
+    : isThematicBreakLine(text, delimiterIndex, "*");
 };
-export var j = (n2) => {
-  let r2 = n2.match(M);
-  if (!r2) return n2;
-  let e2 = r2[2],
-    i2 = n2.lastIndexOf(r2[1]);
-  return c2(n2, i2) || f(n2, i2) || An(n2, e2, i2)
-    ? n2
-    : A(n2) % 2 === 1
-      ? e2.endsWith("*")
-        ? `${n2}*`
-        : `${n2}**`
-      : n2;
+export var j = (text) => {
+  let match = text.match(doubleAsteriskMatchPattern);
+  if (!match) return text;
+  let delimiterContent = match[2],
+    delimiterIndex = text.lastIndexOf(match[1]);
+  return c2(text, delimiterIndex) || f(text, delimiterIndex) || isAsteriskEmphasisInListContext(text, delimiterContent, delimiterIndex)
+    ? text
+    : A(text) % 2 === 1
+      ? delimiterContent.endsWith("*")
+        ? `${text}*`
+        : `${text}**`
+      : text;
 };
-var Bn = (n2, r2, e2) => {
-  if (!r2 || d.test(r2)) return true;
-  let s2 = n2.substring(0, e2).lastIndexOf(`
+var isUnderscoreEmphasisInListContext = (text, delimiterContent, delimiterIndex) => {
+  if (!delimiterContent || markdownDelimiterOrWhitespacePattern.test(delimiterContent)) return true;
+  let lineBreakIndex = text.substring(0, delimiterIndex).lastIndexOf(`
 `),
-    o2 = s2 === -1 ? 0 : s2 + 1,
-    t2 = n2.substring(o2, e2);
-  return b2.test(t2) &&
-    r2.includes(`
+    lineStartIndex = lineBreakIndex === -1 ? 0 : lineBreakIndex + 1,
+    linePrefix = text.substring(lineStartIndex, delimiterIndex);
+  return unorderedListMarkerPattern.test(linePrefix) &&
+    delimiterContent.includes(`
 `)
     ? true
-    : p2(n2, e2, "_");
+    : isThematicBreakLine(text, delimiterIndex, "_");
 };
-export var Q = (n2) => {
-  let r2 = n2.match(N);
-  if (!r2) {
-    let o2 = n2.match(G);
-    if (o2) {
-      let t2 = n2.lastIndexOf(o2[1]);
-      if (!(c2(n2, t2) || f(n2, t2)) && v(n2) % 2 === 1) return `${n2}_`;
+export var Q = (text) => {
+  let match = text.match(doubleUnderscoreMatchPattern);
+  if (!match) {
+    let strongUnderscoreMatch = text.match(closingUnderscorePattern);
+    if (strongUnderscoreMatch) {
+      let delimiterIndex = text.lastIndexOf(strongUnderscoreMatch[1]);
+      if (!(c2(text, delimiterIndex) || f(text, delimiterIndex)) && countDoubleUnderscoreMarkers(text) % 2 === 1) return `${text}_`;
     }
-    return n2;
+    return text;
   }
-  let e2 = r2[2],
-    i2 = n2.lastIndexOf(r2[1]);
-  return c2(n2, i2) || f(n2, i2) || Bn(n2, e2, i2)
-    ? n2
-    : v(n2) % 2 === 1
-      ? `${n2}__`
-      : n2;
+  let delimiterContent = match[2],
+    delimiterIndex = text.lastIndexOf(match[1]);
+  return c2(text, delimiterIndex) || f(text, delimiterIndex) || isUnderscoreEmphasisInListContext(text, delimiterContent, delimiterIndex)
+    ? text
+    : countDoubleUnderscoreMarkers(text) % 2 === 1
+      ? `${text}__`
+      : text;
 };
-var Sn = (n2) => {
-  let r2 = false;
-  for (let e2 = 0; e2 < n2.length; e2 += 1) {
+var findSingleAsteriskDelimiter = (text) => {
+  let insideFencedCode = false;
+  for (let scanIndex = 0; scanIndex < text.length; scanIndex += 1) {
     if (
-      n2[e2] === "`" &&
-      e2 + 2 < n2.length &&
-      n2[e2 + 1] === "`" &&
-      n2[e2 + 2] === "`"
+      text[scanIndex] === "`" &&
+      scanIndex + 2 < text.length &&
+      text[scanIndex + 1] === "`" &&
+      text[scanIndex + 2] === "`"
     ) {
-      ((r2 = !r2), (e2 += 2));
+      ((insideFencedCode = !insideFencedCode), (scanIndex += 2));
       continue;
     }
     if (
-      !r2 &&
-      n2[e2] === "*" &&
-      n2[e2 - 1] !== "*" &&
-      n2[e2 + 1] !== "*" &&
-      n2[e2 - 1] !== "\\" &&
-      !h(n2, e2)
+      !insideFencedCode &&
+      text[scanIndex] === "*" &&
+      text[scanIndex - 1] !== "*" &&
+      text[scanIndex + 1] !== "*" &&
+      text[scanIndex - 1] !== "\\" &&
+      !h(text, scanIndex)
     ) {
-      let i2 = e2 > 0 ? n2[e2 - 1] : "",
-        s2 = e2 < n2.length - 1 ? n2[e2 + 1] : "";
+      let previousCharacter = scanIndex > 0 ? text[scanIndex - 1] : "",
+        nextCharacter = scanIndex < text.length - 1 ? text[scanIndex + 1] : "";
       if (
-        ((!i2 ||
-          i2 === " " ||
-          i2 === "	" ||
-          i2 ===
+        ((!previousCharacter ||
+          previousCharacter === " " ||
+          previousCharacter === "	" ||
+          previousCharacter ===
             `
 `) &&
-          (!s2 ||
-            s2 === " " ||
-            s2 === "	" ||
-            s2 ===
+          (!nextCharacter ||
+            nextCharacter === " " ||
+            nextCharacter === "	" ||
+            nextCharacter ===
               `
 `)) ||
-        (i2 && s2 && g(i2) && g(s2))
+        (previousCharacter && nextCharacter && g(previousCharacter) && g(nextCharacter))
       )
         continue;
-      return e2;
+      return scanIndex;
     }
   }
   return -1;
 };
-export var Z = (n2) => {
-  if (!n2.match(R)) return n2;
-  let e2 = Sn(n2);
-  if (e2 === -1 || c2(n2, e2) || f(n2, e2)) return n2;
-  let i2 = n2.substring(e2 + 1);
-  return !i2 || d.test(i2) ? n2 : Y(n2) % 2 === 1 ? `${n2}*` : n2;
+export var Z = (text) => {
+  if (!text.match(singleAsteriskMatchPattern)) return text;
+  let delimiterIndex = findSingleAsteriskDelimiter(text);
+  if (delimiterIndex === -1 || c2(text, delimiterIndex) || f(text, delimiterIndex)) return text;
+  let trailingText = text.substring(delimiterIndex + 1);
+  return !trailingText || markdownDelimiterOrWhitespacePattern.test(trailingText) ? text : countValidAsteriskDelimiters(text) % 2 === 1 ? `${text}*` : text;
 };
-var $n = (n2) => {
-  let r2 = A(n2),
-    e2 = Y(n2);
-  return r2 % 2 === 0 && e2 % 2 === 0;
+var hasBalancedAsteriskDelimiters = (text) => {
+  let doubleAsteriskCount = A(text),
+    singleAsteriskCount = countValidAsteriskDelimiters(text);
+  return doubleAsteriskCount % 2 === 0 && singleAsteriskCount % 2 === 0;
 };
-var On = (n2, r2, e2) =>
-  !r2 || d.test(r2) || c2(n2, e2) || f(n2, e2) ? true : p2(n2, e2, "*");
-export var V2 = (n2) => {
-  if (w2.test(n2)) return n2;
-  let r2 = n2.match(y);
-  if (!r2) return n2;
-  let e2 = r2[2],
-    i2 = n2.lastIndexOf(r2[1]);
-  return On(n2, e2, i2)
-    ? n2
-    : Cn(n2) % 2 === 1
-      ? $n(n2)
-        ? n2
-        : `${n2}***`
-      : n2;
+var isAsteriskDelimiterInListContext = (text, delimiterContent, delimiterIndex) =>
+  !delimiterContent || markdownDelimiterOrWhitespacePattern.test(delimiterContent) || c2(text, delimiterIndex) || f(text, delimiterIndex) ? true : isThematicBreakLine(text, delimiterIndex, "*");
+export var V2 = (text) => {
+  if (excessiveAsteriskRunPattern.test(text)) return text;
+  let match = text.match(tripleAsteriskMatchPattern);
+  if (!match) return text;
+  let tripleAsteriskContent = match[2],
+    delimiterIndex = text.lastIndexOf(match[1]);
+  return isAsteriskDelimiterInListContext(text, tripleAsteriskContent, delimiterIndex)
+    ? text
+    : countTripleAsteriskRuns(text) % 2 === 1
+      ? hasBalancedAsteriskDelimiters(text)
+        ? text
+        : `${text}***`
+      : text;
 };

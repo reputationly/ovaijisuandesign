@@ -39,10 +39,10 @@ export function useFileExplorerRename({
   toRelativePath,
   invalidateDirs,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [renamingPath, setRenamingPath] = reactExports.useState(null);
-  const startRename = useStableCallback((path2) => {
-    setRenamingPath(path2);
+  const startRename = useStableCallback((path) => {
+    setRenamingPath(path);
   });
   const handleRename = useStableCallback(async (oldPath, newName) => {
     try {
@@ -54,7 +54,7 @@ export function useFileExplorerRename({
       invalidateDirs();
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.renameFailed") +
+        translate("fileExplorer.renameFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -80,23 +80,23 @@ export function useFileExplorerRootDrop({
   handleExternalDrop,
 }) {
   const isInternalDrag = reactExports.useCallback(
-    (e2) => e2.dataTransfer.types.includes(RESOURCE_DRAG_MIME),
+    (dragEvent) => dragEvent.dataTransfer.types.includes(RESOURCE_DRAG_MIME),
     [],
   );
   const handleInternalRootDragOver = reactExports.useCallback(
-    (e2) => {
-      if (!isInternalDrag(e2)) return;
+    (dragEvent) => {
+      if (!isInternalDrag(dragEvent)) return;
       if (!rootPath) return;
-      e2.preventDefault();
-      e2.dataTransfer.dropEffect = "move";
+      dragEvent.preventDefault();
+      dragEvent.dataTransfer.dropEffect = "move";
     },
     [isInternalDrag, rootPath],
   );
-  const handleInternalRootDrop = useStableCallback((e2) => {
-    if (!isInternalDrag(e2)) return;
+  const handleInternalRootDrop = useStableCallback((dragEvent) => {
+    if (!isInternalDrag(dragEvent)) return;
     if (!rootPath) return;
-    e2.preventDefault();
-    const sourcePaths = extractDropSourcePaths(e2.dataTransfer);
+    dragEvent.preventDefault();
+    const sourcePaths = extractDropSourcePaths(dragEvent.dataTransfer);
     if (sourcePaths.length === 0) return;
     if (isInvalidDropTarget(sourcePaths, rootPath)) return;
     const needsMove = filterSourcesNeedingMove(sourcePaths, rootPath);
@@ -104,39 +104,39 @@ export function useFileExplorerRootDrop({
     handleMove(needsMove, rootPath);
   });
   const handleRootDragEnter = reactExports.useCallback(
-    (e2) => {
-      if (isInternalDrag(e2)) {
-        handleInternalRootDragOver(e2);
+    (dragEvent) => {
+      if (isInternalDrag(dragEvent)) {
+        handleInternalRootDragOver(dragEvent);
         return;
       }
-      handleExternalDragEnter(e2);
+      handleExternalDragEnter(dragEvent);
     },
     [isInternalDrag, handleInternalRootDragOver, handleExternalDragEnter],
   );
   const handleRootDragOver = reactExports.useCallback(
-    (e2) => {
-      if (isInternalDrag(e2)) {
-        handleInternalRootDragOver(e2);
+    (dragEvent) => {
+      if (isInternalDrag(dragEvent)) {
+        handleInternalRootDragOver(dragEvent);
         return;
       }
-      handleExternalDragOver(e2);
+      handleExternalDragOver(dragEvent);
     },
     [isInternalDrag, handleInternalRootDragOver, handleExternalDragOver],
   );
   const handleRootDragLeave = reactExports.useCallback(
-    (e2) => {
-      if (isInternalDrag(e2)) return;
-      handleExternalDragLeave(e2);
+    (dragEvent) => {
+      if (isInternalDrag(dragEvent)) return;
+      handleExternalDragLeave(dragEvent);
     },
     [isInternalDrag, handleExternalDragLeave],
   );
   const handleRootDrop = reactExports.useCallback(
-    (e2) => {
-      if (isInternalDrag(e2)) {
-        handleInternalRootDrop(e2);
+    (dragEvent) => {
+      if (isInternalDrag(dragEvent)) {
+        handleInternalRootDrop(dragEvent);
         return;
       }
-      handleExternalDrop(e2);
+      handleExternalDrop(dragEvent);
     },
     [isInternalDrag, handleInternalRootDrop, handleExternalDrop],
   );
@@ -152,19 +152,19 @@ export function useFileExplorerScrollContainer() {
   const [scrollEl, setScrollEl] = reactExports.useState(null);
   const [containerWidth, setContainerWidth] = reactExports.useState(0);
   const observerRef = reactExports.useRef(null);
-  const scrollCallbackRef = reactExports.useCallback((node2) => {
+  const scrollCallbackRef = reactExports.useCallback((node) => {
     if (observerRef.current) {
       observerRef.current.disconnect();
       observerRef.current = null;
     }
-    setScrollEl(node2);
-    if (node2) {
-      setContainerWidth(node2.getBoundingClientRect().width);
-      const observer2 = new ResizeObserver(([entry]) => {
+    setScrollEl(node);
+    if (node) {
+      setContainerWidth(node.getBoundingClientRect().width);
+      const observer = new ResizeObserver(([entry]) => {
         setContainerWidth(entry.contentRect.width);
       });
-      observer2.observe(node2);
-      observerRef.current = observer2;
+      observer.observe(node);
+      observerRef.current = observer;
     } else {
       setContainerWidth(0);
     }
@@ -183,42 +183,42 @@ export function useFileExplorerSelection({
   setLastSelectedPath,
   selectionAnchorRef,
 }) {
-  const updateSelection2 = useStableCallback((path2, e2, visiblePaths) => {
-    if (e2.metaKey || e2.ctrlKey) {
+  const updateSelection = useStableCallback((path, selectionModifiers, visiblePaths) => {
+    if (selectionModifiers.metaKey || selectionModifiers.ctrlKey) {
       setSelectedPaths((prev) => {
-        const next2 = new Set(prev);
-        if (next2.has(path2)) next2.delete(path2);
-        else next2.add(path2);
-        return next2;
+        const next = new Set(prev);
+        if (next.has(path)) next.delete(path);
+        else next.add(path);
+        return next;
       });
-      setLastSelectedPath(path2);
+      setLastSelectedPath(path);
       selectionAnchorRef.current = null;
-    } else if (e2.shiftKey && lastSelectedPath) {
+    } else if (selectionModifiers.shiftKey && lastSelectedPath) {
       const lastIdx = visiblePaths.indexOf(lastSelectedPath);
-      const currentIdx = visiblePaths.indexOf(path2);
+      const currentIdx = visiblePaths.indexOf(path);
       if (lastIdx >= 0 && currentIdx >= 0) {
-        const [start2, end2] =
+        const [start, end] =
           lastIdx < currentIdx ? [lastIdx, currentIdx] : [currentIdx, lastIdx];
-        setSelectedPaths(new Set(visiblePaths.slice(start2, end2 + 1)));
+        setSelectedPaths(new Set(visiblePaths.slice(start, end + 1)));
       } else {
-        setSelectedPaths(new Set([path2]));
-        setLastSelectedPath(path2);
+        setSelectedPaths(new Set([path]));
+        setLastSelectedPath(path);
       }
       selectionAnchorRef.current = null;
     } else {
-      setSelectedPaths(new Set([path2]));
-      setLastSelectedPath(path2);
+      setSelectedPaths(new Set([path]));
+      setLastSelectedPath(path);
       selectionAnchorRef.current = null;
     }
   });
-  const handleFileSelect = useStableCallback((path2, e2) => {
+  const handleFileSelect = useStableCallback((path, selectionModifiers) => {
     const visiblePaths = flatRows
-      .filter((r2) => !r2.entry.path.endsWith("/__creating__"))
-      .map((r2) => r2.entry.path);
-    updateSelection2(path2, e2, visiblePaths);
+      .filter((row) => !row.entry.path.endsWith("/__creating__"))
+      .map((row) => row.entry.path);
+    updateSelection(path, selectionModifiers, visiblePaths);
   });
   return {
-    updateSelection: updateSelection2,
+    updateSelection,
     handleFileSelect,
   };
 }

@@ -1,0 +1,19 @@
+key	old	new	依据
+t2@18:14	t2	translate	该绑定是文件导入操作读取提示与对话框标题的翻译函数。
+p3@43:36	p3	sourcePath	该值是用户选择的单个待导入绝对路径。
+c3@54:44	c3	conflict	该值是冲突检查返回的单个目标冲突记录。
+c3@76:26	c3	conflict	该值是逐个处理跳过或覆盖决定的冲突记录。
+i2@76:30	i2	conflictIndex	该值用于按冲突顺序读取对应处理决定。
+p3@83:44	p3	sourcePath	该值是待按跳过集合筛选的导入源路径。
+it2@129:55	it2	importedItem	该值是导入接口返回的单个已导入文件记录。
+e2@154:56	e2	dragEvent	该事件用于读取文件拖拽载荷的 dataTransfer 类型。
+e2@161:6	e2	dragEvent	该事件来自外部文件 dragenter 处理。
+e2@172:6	e2	dragEvent	该事件来自外部文件 dragover 处理并设置复制效果。
+e2@180:6	e2	dragEvent	该事件来自外部文件 dragleave 处理。
+e2@190:55	e2	dragEvent	该事件提供放下的文件列表和 dataTransfer 数据。
+f2@197:13	f2	file	该值是待从桌面应用取得本地路径的 File 对象。
+p3@198:16	p3	filePath	该值是从 File 对象解析出的本地文件路径。
+gatewayFetch2@10:17	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+platform2@11:13	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+data2@121:11	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+data2@211:13	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。

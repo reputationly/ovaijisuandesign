@@ -1,0 +1,8 @@
+key	old	new	依据
+d2@11:9	d2	date	用于计算日期边界的 Date 对象。
+d2@16:9	d2	date	用于计算日期边界的 Date 对象。
+end2@20:37	end2	end	parseCustomEndpoint 用来区分起始端点和结束端点的参数。
+filter2@26:35	filter2	filter	去掉打包器防重名追加的后缀，恢复原名 filter，即该绑定持有的值。
+from2@47:13	from2	from	自定义日期范围解析出的起始时间戳。
+now2@26:44	now2	_unusedArg	该参数在函数体中未使用，按约定标记为未使用参数。
+to@48:13	to	endTimestamp	自定义日期范围的结束时间戳。

@@ -42,7 +42,7 @@ export function MoveWorkspaceDialog({
   onCancel,
   onConfirm,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <Dialog
       open={move !== null}
@@ -58,7 +58,7 @@ export function MoveWorkspaceDialog({
         <DialogHeader className="min-w-0 pr-8">
           <DialogTitle className="flex min-w-0 whitespace-nowrap text-sm font-medium leading-5">
             <Trans
-              t={t2}
+              t={translate}
               i18nKey="project.move.title"
               components={{
                 name: (
@@ -79,7 +79,7 @@ export function MoveWorkspaceDialog({
             className="flex min-w-0 items-start gap-2 text-sm font-normal leading-5"
             data-action-ui-id="sidebar.move-target"
           >
-            <span className="shrink-0">{t2("project.move.description")} </span>
+            <span className="shrink-0">{translate("project.move.description")} </span>
             <span className="flex min-w-0 items-start gap-1">
               <Folder
                 className="mt-0.5 size-4 shrink-0"
@@ -93,7 +93,7 @@ export function MoveWorkspaceDialog({
           </DialogDescription>
           {move?.switchToManual && (
             <p className="text-xs" data-action-ui-id="sidebar.move-sort-notice">
-              {t2("project.move.manualNotice")}
+              {translate("project.move.manualNotice")}
             </p>
           )}
           {error && (
@@ -110,7 +110,7 @@ export function MoveWorkspaceDialog({
             className="creation-dialog-action-button min-w-20 font-normal"
             data-action-ui-id="sidebar.move-cancel"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             disabled={submitting}
@@ -118,7 +118,7 @@ export function MoveWorkspaceDialog({
             className="creation-dialog-action-button min-w-20 font-normal"
             data-action-ui-id="sidebar.move-confirm"
           >
-            {t2(
+            {translate(
               submitting ? "project.move.submitting" : "project.move.continue",
             )}
           </Button>
@@ -129,15 +129,15 @@ export function MoveWorkspaceDialog({
 }
 export function pinnedWorkspaceKeySet(pinnedPaths, caseInsensitive) {
   return new Set(
-    pinnedPaths.map((path2) =>
-      workspaceInventoryPathKey(path2, caseInsensitive),
+    pinnedPaths.map((path) =>
+      workspaceInventoryPathKey(path, caseInsensitive),
     ),
   );
 }
 export function isInventoryItemPinned(item, pinnedKeys, caseInsensitive) {
   if (pinnedKeys.size === 0) return false;
-  return pinnedWorkspaceAliases(item).some((path2) =>
-    pinnedKeys.has(workspaceInventoryPathKey(path2, caseInsensitive)),
+  return pinnedWorkspaceAliases(item).some((path) =>
+    pinnedKeys.has(workspaceInventoryPathKey(path, caseInsensitive)),
   );
 }
 export function togglePinnedWorkspacePath(pinnedPaths, item, caseInsensitive) {
@@ -153,7 +153,7 @@ export function isProjectPinned(projectId, pinnedProjectIds) {
   return pinnedProjectIds.includes(projectId);
 }
 export function togglePinnedProjectId(pinnedProjectIds, projectId) {
-  const without = pinnedProjectIds.filter((id2) => id2 !== projectId);
+  const without = pinnedProjectIds.filter((id) => id !== projectId);
   if (without.length !== pinnedProjectIds.length) return without;
   return [projectId, ...without];
 }
@@ -164,13 +164,13 @@ export function splitPinnedProjects(projects, pinnedProjectIds) {
       unpinned: [...projects],
     };
   const pinnedSet = new Set(pinnedProjectIds);
-  const projectById = new Map(projects.map((p3) => [p3.id, p3]));
+  const projectById = new Map(projects.map((project) => [project.id, project]));
   const pinned = [];
-  for (const id2 of pinnedProjectIds) {
-    const project2 = projectById.get(id2);
-    if (project2) pinned.push(project2);
+  for (const id of pinnedProjectIds) {
+    const project = projectById.get(id);
+    if (project) pinned.push(project);
   }
-  const unpinned = projects.filter((p3) => !pinnedSet.has(p3.id));
+  const unpinned = projects.filter((project) => !pinnedSet.has(project.id));
   return {
     pinned,
     unpinned,
@@ -186,7 +186,7 @@ export function reorderPinnedProjectIds(
   const fromIndex = pinnedProjectIds.indexOf(sourceId);
   if (fromIndex === -1 || !pinnedProjectIds.includes(targetId))
     return [...pinnedProjectIds];
-  const without = pinnedProjectIds.filter((id2) => id2 !== sourceId);
+  const without = pinnedProjectIds.filter((id) => id !== sourceId);
   const targetIndex = without.indexOf(targetId);
   without.splice(targetIndex + (dropPosition === "after" ? 1 : 0), 0, sourceId);
   return without;
@@ -199,29 +199,29 @@ export function reorderPinnedWorkspacePaths(
   dropPosition,
   caseInsensitive,
 ) {
-  const key2 = (path2) => workspaceInventoryPathKey(path2, caseInsensitive);
+  const key = (path) => workspaceInventoryPathKey(path, caseInsensitive);
   const ordered = [...visiblePinned];
   const fromIndex = ordered.findIndex(
-    (item) => key2(item.workspace.path) === key2(sourcePath),
+    (item) => key(item.workspace.path) === key(sourcePath),
   );
   const toIndex = ordered.findIndex(
-    (item) => key2(item.workspace.path) === key2(targetPath),
+    (item) => key(item.workspace.path) === key(targetPath),
   );
   if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex)
     return [...pinnedPaths];
   const [moved] = ordered.splice(fromIndex, 1);
   if (!moved) return [...pinnedPaths];
   const targetIndex = ordered.findIndex(
-    (item) => key2(item.workspace.path) === key2(targetPath),
+    (item) => key(item.workspace.path) === key(targetPath),
   );
   ordered.splice(targetIndex + (dropPosition === "after" ? 1 : 0), 0, moved);
   const visibleAliasKeys = new Set(
     ordered.flatMap((item) =>
-      pinnedWorkspaceAliases(item).map((alias) => key2(alias)),
+      pinnedWorkspaceAliases(item).map((alias) => key(alias)),
     ),
   );
   const tail = pinnedPaths.filter(
-    (path2) => !visibleAliasKeys.has(key2(path2)),
+    (path) => !visibleAliasKeys.has(key(path)),
   );
   return [...ordered.map((item) => item.workspace.path), ...tail];
 }
@@ -238,12 +238,12 @@ const FALLBACK_STATE = {
 };
 export function readSidebarCollapseState() {
   try {
-    const raw2 = window.localStorage.getItem(SIDEBAR_COLLAPSE_STORAGE_KEY);
-    if (!raw2)
+    const raw = window.localStorage.getItem(SIDEBAR_COLLAPSE_STORAGE_KEY);
+    if (!raw)
       return {
         ...FALLBACK_STATE,
       };
-    const parsed = JSON.parse(raw2);
+    const parsed = JSON.parse(raw);
     if (parsed.version !== SIDEBAR_COLLAPSE_VERSION)
       return {
         ...FALLBACK_STATE,
@@ -251,7 +251,7 @@ export function readSidebarCollapseState() {
     return {
       collapsedGroupKeys: Array.isArray(parsed.collapsedGroupKeys)
         ? parsed.collapsedGroupKeys
-            .filter((key2) => typeof key2 === "string" && key2.length > 0)
+            .filter((key) => typeof key === "string" && key.length > 0)
             .slice(-MAX_COLLAPSED_GROUP_KEYS)
         : [],
       projectsSectionCollapsed: parsed.projectsSectionCollapsed === true,
@@ -262,13 +262,13 @@ export function readSidebarCollapseState() {
     };
   }
 }
-export function persistSidebarCollapseState(state2) {
+export function persistSidebarCollapseState(state) {
   const value = {
     version: SIDEBAR_COLLAPSE_VERSION,
-    collapsedGroupKeys: state2.collapsedGroupKeys.slice(
+    collapsedGroupKeys: state.collapsedGroupKeys.slice(
       -MAX_COLLAPSED_GROUP_KEYS,
     ),
-    projectsSectionCollapsed: state2.projectsSectionCollapsed,
+    projectsSectionCollapsed: state.projectsSectionCollapsed,
   };
   try {
     window.localStorage.setItem(
@@ -278,14 +278,14 @@ export function persistSidebarCollapseState(state2) {
   } catch {}
 }
 export function GlobalSidebarToggle() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { collapsed, togglePinned } = useGlobalSidebar();
   const handlePointerDown = (event) => {
     if (event.button !== 0) return;
     event.preventDefault();
     togglePinned();
   };
-  const handleClick2 = (event) => {
+  const handleClick = (event) => {
     if (event.detail !== 0) return;
     togglePinned();
   };
@@ -295,12 +295,12 @@ export function GlobalSidebarToggle() {
         render={
           <button
             type="button"
-            aria-label={t2("topbar.toggleGlobalSidebar", {
+            aria-label={translate("topbar.toggleGlobalSidebar", {
               defaultValue: "一级侧栏",
             })}
             aria-pressed={!collapsed}
             onPointerDown={handlePointerDown}
-            onClick={handleClick2}
+            onClick={handleClick}
             className="icon-sidebar-action-control no-drag relative z-50 flex size-8 shrink-0 items-center justify-center rounded-[10px] text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
             data-action-ui-id="topbar.toggle-global-sidebar"
           />
@@ -315,7 +315,7 @@ export function GlobalSidebarToggle() {
         </MonochromeIcon>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        {t2("topbar.toggleGlobalSidebar", {
+        {translate("topbar.toggleGlobalSidebar", {
           defaultValue: "一级侧栏",
         })}
       </TooltipContent>
@@ -324,26 +324,26 @@ export function GlobalSidebarToggle() {
 }
 export function DeleteConfirmDialog({
   open,
-  name: name2,
+  name: projectName,
   onConfirm,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
-    <AlertDialog open={open} onOpenChange={(v2) => !v2 && onCancel()}>
+    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
       <AlertDialogContent size="sm">
         <AlertDialogHeader>
-          <AlertDialogTitle>{t2("home.deleteProject")}</AlertDialogTitle>
+          <AlertDialogTitle>{translate("home.deleteProject")}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("home.deleteProjectConfirm", {
-              workspace_name: name2,
+            {translate("home.deleteProjectConfirm", {
+              workspace_name: projectName,
             })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t2("common.cancel")}</AlertDialogCancel>
+          <AlertDialogCancel>{translate("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            {t2("common.delete")}
+            {translate("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

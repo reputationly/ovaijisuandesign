@@ -15,7 +15,7 @@ export function useImBridgeDialog() {
 }
 
 export function OfflineBanner() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const online = useOnline();
   const forceOfflineBanner = useDebugFlag(DEBUG_FLAGS.forceOfflineBanner);
   if (online && !forceOfflineBanner) return null;
@@ -28,7 +28,7 @@ export function OfflineBanner() {
         role="status"
         className="pointer-events-none flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/15 px-4 py-1.5 text-xs text-destructive shadow-sm backdrop-blur"
       >
-        {t2(
+        {translate(
           "common.offline",
           "No internet connection. Some features may be unavailable until you reconnect.",
         )}
@@ -39,10 +39,10 @@ export function OfflineBanner() {
 
 const WINDOWS_TITLEBAR_HEIGHT = 32;
 
-function deriveWindowChrome(os2) {
-  const isMac2 = os2 === "darwin";
-  const isWin = os2 === "win32";
-  const chromeMode = isMac2
+function deriveWindowChrome(os) {
+  const isMac = os === "darwin";
+  const isWin = os === "win32";
+  const chromeMode = isMac
     ? "mac-integrated"
     : isWin
       ? "windows-wco"
@@ -50,15 +50,15 @@ function deriveWindowChrome(os2) {
   const titlebarHeight = isWin ? WINDOWS_TITLEBAR_HEIGHT : 0;
   return {
     chromeMode,
-    isMacIntegratedChrome: isMac2,
+    isMacIntegratedChrome: isMac,
     isWindowsTitlebarOverlay: isWin,
-    isNativeFrame: !isMac2 && !isWin,
+    isNativeFrame: !isMac && !isWin,
     hasReservedTitlebar: isWin,
     titlebarHeight,
     titlebarHeightCss: `${titlebarHeight}px`,
-    isCustomChrome: isMac2 || isWin,
-    needsDragRegion: isMac2 || isWin,
-    needsTrafficLightSpacer: isMac2,
+    isCustomChrome: isMac || isWin,
+    needsDragRegion: isMac || isWin,
+    needsTrafficLightSpacer: isMac,
     needsWindowControls: false,
   };
 }

@@ -1,5 +1,5 @@
 // workspace-browser.jsx
-import { ArrowLeft, ArrowRight, ArrowUpRight, Globe, jsxRuntimeExports, MoreHorizontal, Plus, reactExports, RotateCw, usePlatform, useTranslation, X$7 as X } from "../vendor.js";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Globe, jsxRuntimeExports, MoreHorizontal, Plus, reactExports, RotateCw, usePlatform, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   Icon,
@@ -68,10 +68,10 @@ export function WorkspaceBrowser({
   reserveViewSwitch = false,
   surfaceSource = "view_switch",
 }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
-  const { config: config2 } = useSettings();
-  const browser2 = window.hilo?.browser;
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
+  const { config } = useSettings();
+  const browser = window.hilo?.browser;
   const [browserState, setBrowserState] = reactExports.useState({
     tabs: [],
     activeTabId: null,
@@ -130,7 +130,7 @@ export function WorkspaceBrowser({
     bookmarksRef.current = bookmarks;
   }, [bookmarks]);
   const activeTabId = browserState.activeTabId;
-  const activeTab = browserState.tabs.find((tab2) => tab2.id === activeTabId);
+  const activeTab = browserState.tabs.find((tab) => tab.id === activeTabId);
   const activeTabUrl = activeTab?.url;
   const canUsePageTools = Boolean(activeTab && activeTabUrl?.trim());
   const hasBlockingModal = useHasBlockingModal();
@@ -173,8 +173,8 @@ export function WorkspaceBrowser({
     : null;
   const viewportLayoutKey = `${annotationSession ? "annotation" : "browser"}:${previewMode}:${viewportSize?.width ?? 0}:${viewportSize?.height ?? 0}`;
   useBrowserHoverSnapshot({
-    browser: browser2,
-    bridge: platform2.window,
+    browser,
+    bridge: platform.window,
     viewportRef,
     tabId:
       !annotationSession &&
@@ -186,7 +186,7 @@ export function WorkspaceBrowser({
     // rather than collapsing/reopening a sidebar held by an account menu.
     viewportKey: `${annotationSession ? "annotation" : "browser"}:${deviceCanvas ? "device" : "responsive"}`,
   });
-  useBrowserChatContext(activeTab, config2.browserConnectorEnabled !== false);
+  useBrowserChatContext(activeTab, config.browserConnectorEnabled !== false);
   const getMenuBounds = reactExports.useCallback(() => {
     const trigger = moreButtonRef.current;
     const stage = stageRef.current;
@@ -220,7 +220,7 @@ export function WorkspaceBrowser({
       hostLeft + BROWSER_MENU_MARGIN,
       hostRight - width - BROWSER_MENU_MARGIN,
     );
-    const x2 = Math.min(
+    const menuX = Math.min(
       maxX,
       Math.max(
         hostLeft + BROWSER_MENU_MARGIN,
@@ -229,13 +229,13 @@ export function WorkspaceBrowser({
     );
     const belowY = Math.round(triggerRect.bottom + BROWSER_MENU_OFFSET);
     const aboveY = Math.round(triggerRect.top - height - BROWSER_MENU_OFFSET);
-    const y4 =
+    const menuY =
       belowY + height <= hostBottom - BROWSER_MENU_MARGIN
         ? belowY
         : Math.max(hostTop + BROWSER_MENU_MARGIN, aboveY);
     return {
-      x: x2,
-      y: y4,
+      x: menuX,
+      y: menuY,
       width,
       height,
     };
@@ -247,47 +247,47 @@ export function WorkspaceBrowser({
     annotationSessionRef.current = annotationSession;
   }, [annotationSession]);
   reactExports.useEffect(() => {
-    if (!browser2) return;
-    return browser2.onMenuStateChanged((open) => {
+    if (!browser) return;
+    return browser.onMenuStateChanged((open) => {
       if (!open) moreMenuClosedAtRef.current = performance.now();
       setMoreOpen(open);
     });
-  }, [browser2]);
+  }, [browser]);
   reactExports.useEffect(() => {
-    if (!browser2) return;
-    return browser2.onBookmarkDeleteRequested((bookmarkId) => {
-      setBookmarks((current2) => {
-        const next2 = current2.filter((bookmark) => bookmark.id !== bookmarkId);
-        if (next2.length === current2.length) return current2;
+    if (!browser) return;
+    return browser.onBookmarkDeleteRequested((bookmarkId) => {
+      setBookmarks((current) => {
+        const next = current.filter((bookmark) => bookmark.id !== bookmarkId);
+        if (next.length === current.length) return current;
         try {
           window.localStorage.setItem(
             BOOKMARKS_STORAGE_KEY,
-            JSON.stringify(next2),
+            JSON.stringify(next),
           );
         } catch {}
-        return next2;
+        return next;
       });
     });
-  }, [browser2]);
+  }, [browser]);
   const copyPickedImage = reactExports.useCallback(
     async (file) => {
-      const png = await blobToPng(file);
-      if (!png) throw new Error("Image could not be decoded");
-      if (!platform2.clipboard.writeImageData)
+      const pngBlob = await blobToPng(file);
+      if (!pngBlob) throw new Error("Image could not be decoded");
+      if (!platform.clipboard.writeImageData)
         throw new Error("Clipboard bridge unavailable");
-      await platform2.clipboard.writeImageData(await png.arrayBuffer());
+      await platform.clipboard.writeImageData(await pngBlob.arrayBuffer());
     },
-    [platform2],
+    [platform],
   );
   reactExports.useEffect(() => {
-    if (!browser2?.onPluginEvent) return;
+    if (!browser?.onPluginEvent) return;
     const addToCanvas = (file, source) => {
       workspaceEvents.fireAddFilesToCanvas([file], source);
     };
-    return browser2.onPluginEvent((event) => {
+    return browser.onPluginEvent((event) => {
       if (event.type === "image-pick-failed") {
         dedupedToast.error(
-          t2("workspace.browser.pluginImageError", {
+          translate("workspace.browser.pluginImageError", {
             defaultValue: "图片添加失败：{{reason}}",
             reason: event.error,
           }),
@@ -296,7 +296,7 @@ export function WorkspaceBrowser({
       }
       if (event.type === "video-pick-failed") {
         dedupedToast.error(
-          t2("workspace.browser.pluginVideoError", {
+          translate("workspace.browser.pluginVideoError", {
             defaultValue: "视频添加失败：{{reason}}",
             reason: event.error,
           }),
@@ -305,25 +305,25 @@ export function WorkspaceBrowser({
       }
       if (event.type === "video-picked") {
         const { video } = event;
-        const file2 = new File([video.bytes], video.filename, {
+        const file = new File([video.bytes], video.filename, {
           type: video.mime,
         });
         if (event.action === "canvas") {
-          addToCanvas(file2, {
+          addToCanvas(file, {
             pageUrl: video.pageUrl,
             pageTitle: video.pageTitle,
           });
         } else
           dispatchBrowserPickedFileToChat({
-            file: file2,
+            file,
             sourceUrl: video.sourceUrl,
           });
         return;
       }
       if (event.type !== "image-picked") return;
-      const { image: image2 } = event;
-      const file = new File([image2.bytes], image2.filename, {
-        type: image2.mime,
+      const { image } = event;
+      const file = new File([image.bytes], image.filename, {
+        type: image.mime,
       });
       switch (event.action) {
         case "edit":
@@ -332,12 +332,12 @@ export function WorkspaceBrowser({
             !dispatchBrowserImageEditToChat({
               file,
               action: event.editAction,
-              pageUrl: image2.pageUrl,
-              pageTitle: image2.pageTitle,
+              pageUrl: image.pageUrl,
+              pageTitle: image.pageTitle,
             })
           ) {
             dedupedToast.warning(
-              t2(
+              translate(
                 "workspace.browser.imageEdit.openProject",
                 "请先打开项目，再使用图像编辑",
               ),
@@ -347,25 +347,25 @@ export function WorkspaceBrowser({
         case "chat":
           dispatchBrowserPickedFileToChat({
             file,
-            sourceUrl: image2.sourceUrl,
+            sourceUrl: image.sourceUrl,
           });
           return;
         case "canvas":
           addToCanvas(file, {
-            pageUrl: image2.pageUrl,
-            pageTitle: image2.pageTitle,
+            pageUrl: image.pageUrl,
+            pageTitle: image.pageTitle,
           });
           return;
         case "clipboard":
           void copyPickedImage(file).catch(() =>
-            dedupedToast.error(t2("common.copyFailed")),
+            dedupedToast.error(translate("common.copyFailed")),
           );
           return;
         default:
           return;
       }
     });
-  }, [browser2, copyPickedImage, t2]);
+  }, [browser, copyPickedImage, translate]);
   reactExports.useEffect(() => {
     if (!activeTabId || activeTabUrl === void 0) return;
     setInputValue(activeTabUrl);
@@ -373,10 +373,10 @@ export function WorkspaceBrowser({
   reactExports.useEffect(() => {
     const faviconUrl = activeTab?.faviconUrl;
     if (!activeTabUrl || !isSafeBookmarkFaviconUrl(faviconUrl)) return;
-    setBookmarks((current2) => {
-      const bookmark = current2.find((item) => item.url === activeTabUrl);
-      if (!bookmark || bookmark.faviconDataUrl === faviconUrl) return current2;
-      const next2 = current2.map((item) =>
+    setBookmarks((current) => {
+      const bookmark = current.find((item) => item.url === activeTabUrl);
+      if (!bookmark || bookmark.faviconDataUrl === faviconUrl) return current;
+      const next = current.map((item) =>
         item.url === activeTabUrl
           ? {
               ...item,
@@ -387,24 +387,24 @@ export function WorkspaceBrowser({
       try {
         window.localStorage.setItem(
           BOOKMARKS_STORAGE_KEY,
-          JSON.stringify(next2),
+          JSON.stringify(next),
         );
       } catch {}
-      return next2;
+      return next;
     });
   }, [activeTab?.faviconUrl, activeTabUrl]);
   const updateTabOverflow = reactExports.useCallback(() => {
     const tabs = browserTabsRef.current;
     if (!tabs) return;
     const maxScrollLeft = Math.max(0, tabs.scrollWidth - tabs.clientWidth);
-    const next2 = {
+    const next = {
       left: tabs.scrollLeft > 1,
       right: tabs.scrollLeft < maxScrollLeft - 1,
     };
-    setTabOverflow((current2) =>
-      current2.left === next2.left && current2.right === next2.right
-        ? current2
-        : next2,
+    setTabOverflow((current) =>
+      current.left === next.left && current.right === next.right
+        ? current
+        : next,
     );
   }, []);
   reactExports.useEffect(() => {
@@ -426,7 +426,7 @@ export function WorkspaceBrowser({
         ? null
         : new ResizeObserver(updateTabOverflow);
     resizeObserver?.observe(tabs);
-    for (const tab2 of tabs.children) resizeObserver?.observe(tab2);
+    for (const tab of tabs.children) resizeObserver?.observe(tab);
     return () => {
       window.cancelAnimationFrame(frameId);
       tabs.removeEventListener("scroll", updateTabOverflow);
@@ -468,9 +468,9 @@ export function WorkspaceBrowser({
     };
   }, [browserState.tabs.length]);
   reactExports.useEffect(() => {
-    if (!browser2) return;
+    if (!browser) return;
     const startedAt = performance.now();
-    void browser2
+    void browser
       .setSurfaceOpen(true)
       .then(() => {
         trackEvent(TRACK_EVENTS.BROWSER_SURFACE_ACTION, {
@@ -493,7 +493,7 @@ export function WorkspaceBrowser({
       });
     return () => {
       const closeStartedAt = performance.now();
-      void browser2
+      void browser
         .setSurfaceOpen(false)
         .then(() => {
           trackEvent(TRACK_EVENTS.BROWSER_SURFACE_ACTION, {
@@ -514,43 +514,43 @@ export function WorkspaceBrowser({
           });
         });
     };
-  }, [browser2, surfaceSource]);
+  }, [browser, surfaceSource]);
   reactExports.useEffect(() => {
-    if (!browser2) return;
+    if (!browser) return;
     let disposed = false;
-    const stopListening = browser2.onStateChanged((nextState) => {
+    const stopListening = browser.onStateChanged((nextState) => {
       if (!disposed) setBrowserState(nextState);
     });
-    void browser2
+    void browser
       .getState()
       .then(async (currentState) => {
         if (disposed) return;
         if (currentState.tabs.length > 0 && currentState.activeTabId) {
           setBrowserState(currentState);
-          const pendingUrl22 = takePendingBuiltinBrowserUrl();
-          if (pendingUrl22) {
+          const pendingUrl = takePendingBuiltinBrowserUrl();
+          if (pendingUrl) {
             const before = currentState.tabs.length;
-            const nextState2 = await browser2.createTab(pendingUrl22);
+            const nextState = await browser.createTab(pendingUrl);
             trackEvent(TRACK_EVENTS.BROWSER_TAB_ACTION, {
               action: "create",
               source: "chat_link",
               tab_count_before: before,
-              tab_count_after: nextState2.tabs.length,
+              tab_count_after: nextState.tabs.length,
               result: "success",
             });
-            if (disposed && nextState2.activeTabId) {
-              void browser2.hideTab(nextState2.activeTabId).catch(() => {});
+            if (disposed && nextState.activeTabId) {
+              void browser.hideTab(nextState.activeTabId).catch(() => {});
             } else if (!disposed) {
-              setBrowserState(nextState2);
+              setBrowserState(nextState);
             }
             return;
           }
-          await browser2.showTab(currentState.activeTabId);
+          await browser.showTab(currentState.activeTabId);
           return;
         }
-        const pendingUrl2 = takePendingBuiltinBrowserUrl();
-        const nextState = await browser2.createTab(pendingUrl2 ?? DEFAULT_URL);
-        if (pendingUrl2) {
+        const pendingUrl = takePendingBuiltinBrowserUrl();
+        const nextState = await browser.createTab(pendingUrl ?? DEFAULT_URL);
+        if (pendingUrl) {
           trackEvent(TRACK_EVENTS.BROWSER_TAB_ACTION, {
             action: "create",
             source: "chat_link",
@@ -560,7 +560,7 @@ export function WorkspaceBrowser({
           });
         }
         if (disposed && nextState.activeTabId) {
-          void browser2.hideTab(nextState.activeTabId).catch(() => {});
+          void browser.hideTab(nextState.activeTabId).catch(() => {});
         } else if (!disposed) {
           setBrowserState(nextState);
         }
@@ -568,7 +568,7 @@ export function WorkspaceBrowser({
       .catch(() => {
         if (!disposed)
           dedupedToast.error(
-            t2("workspace.browser.loadError", {
+            translate("workspace.browser.loadError", {
               defaultValue: "浏览器启动失败",
             }),
           );
@@ -578,26 +578,26 @@ export function WorkspaceBrowser({
       stopListening();
       const tabId = activeTabIdRef.current;
       const annotation = annotationSessionRef.current;
-      void browser2.closeMenu().catch(() => {});
+      void browser.closeMenu().catch(() => {});
       if (annotation) {
-        void browser2
+        void browser
           .setAnnotation(annotation.tabId, false)
           .catch(() => void 0)
-          .then(() => browser2.showTab(annotation.tabId).catch(() => void 0));
+          .then(() => browser.showTab(annotation.tabId).catch(() => void 0));
       } else if (tabId) {
-        void browser2.hideTab(tabId).catch(() => {});
+        void browser.hideTab(tabId).catch(() => {});
       }
     };
-  }, [browser2, t2]);
+  }, [browser, translate]);
   reactExports.useEffect(() => {
-    if (!browser2) return;
+    if (!browser) return;
     const handleOpenBrowser = (event) => {
-      const url2 = event.detail?.url;
+      const url = event.detail?.url;
       takePendingBuiltinBrowserUrl();
-      if (!url2) return;
+      if (!url) return;
       const before = browserStateRef.current.tabs.length;
-      void browser2
-        .createTab(url2)
+      void browser
+        .createTab(url)
         .then((nextState) => {
           setBrowserState(nextState);
           trackEvent(TRACK_EVENTS.BROWSER_TAB_ACTION, {
@@ -617,7 +617,7 @@ export function WorkspaceBrowser({
             result: "failed",
           });
           dedupedToast.error(
-            t2("workspace.browser.loadError", {
+            translate("workspace.browser.loadError", {
               defaultValue: "浏览器启动失败",
             }),
           );
@@ -626,7 +626,7 @@ export function WorkspaceBrowser({
     window.addEventListener(OPEN_BROWSER_EVENT, handleOpenBrowser);
     return () =>
       window.removeEventListener(OPEN_BROWSER_EVENT, handleOpenBrowser);
-  }, [browser2, t2]);
+  }, [browser, translate]);
   reactExports.useEffect(() => {
     const profileImport = window.hilo?.browser?.browserProfileImport;
     if (!profileImport || !activeTabId) return;
@@ -703,7 +703,7 @@ export function WorkspaceBrowser({
         .then((result) => {
           if (!result?.success || !result.profiles?.length) {
             dedupedToast.error(
-              t2("workspace.browser.noChromeBookmarks", {
+              translate("workspace.browser.noChromeBookmarks", {
                 defaultValue: "未找到可导入的 Chrome 书签",
               }),
             );
@@ -726,49 +726,49 @@ export function WorkspaceBrowser({
         })
         .catch(() =>
           dedupedToast.error(
-            t2("workspace.browser.chromeBookmarkSyncError", {
+            translate("workspace.browser.chromeBookmarkSyncError", {
               defaultValue: "无法读取 Chrome 书签",
             }),
           ),
         );
     });
-  }, [activeTabId, t2]);
+  }, [activeTabId, translate]);
   reactExports.useEffect(() => {
     const stage = stageRef.current;
     if (!stage || typeof ResizeObserver === "undefined") return;
-    const update2 = () => {
+    const update = () => {
       const rect = stage.getBoundingClientRect();
       setStageSize({
         width: rect.width,
         height: rect.height,
       });
     };
-    update2();
-    const observer2 = new ResizeObserver(update2);
-    observer2.observe(stage);
-    return () => observer2.disconnect();
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(stage);
+    return () => observer.disconnect();
   }, []);
   reactExports.useEffect(() => {
-    if (!browser2 || !moreOpen) return;
+    if (!browser || !moreOpen) return;
     const updateMenu = () => {
       const bounds = getMenuBounds();
-      if (bounds) void browser2.updateMenu(bounds).catch(() => {});
+      if (bounds) void browser.updateMenu(bounds).catch(() => {});
     };
     updateMenu();
     window.addEventListener("resize", updateMenu);
     const stage = stageRef.current;
-    const observer2 =
+    const observer =
       stage && typeof ResizeObserver !== "undefined"
         ? new ResizeObserver(updateMenu)
         : null;
-    if (observer2 && stage) observer2.observe(stage);
+    if (observer && stage) observer.observe(stage);
     return () => {
       window.removeEventListener("resize", updateMenu);
-      observer2?.disconnect();
+      observer?.disconnect();
     };
-  }, [browser2, getMenuBounds, moreOpen]);
+  }, [browser, getMenuBounds, moreOpen]);
   reactExports.useEffect(() => {
-    if (!browser2 || !browserState.activeTabId || !viewportLayoutKey) return;
+    if (!browser || !browserState.activeTabId || !viewportLayoutKey) return;
     const viewport = viewportRef.current;
     if (!viewport) return;
     let frameId = null;
@@ -795,30 +795,30 @@ export function WorkspaceBrowser({
           return;
         }
         lastBounds = nextBounds;
-        void browser2
+        void browser
           .setBounds(browserState.activeTabId, nextBounds)
           .catch(() => {});
       });
     };
     updateBounds();
-    const observer2 = new ResizeObserver(updateBounds);
-    observer2.observe(viewport);
+    const observer = new ResizeObserver(updateBounds);
+    observer.observe(viewport);
     window.addEventListener("resize", updateBounds);
     return () => {
-      observer2.disconnect();
+      observer.disconnect();
       window.removeEventListener("resize", updateBounds);
       if (frameId !== null) window.cancelAnimationFrame(frameId);
     };
-  }, [browser2, browserState.activeTabId, viewportLayoutKey]);
+  }, [browser, browserState.activeTabId, viewportLayoutKey]);
   const applyState = reactExports.useCallback(
     (nextState) => setBrowserState(nextState),
     [],
   );
   const selectTab = (tabId, source = "tab_strip") => {
-    if (!browser2) return;
+    if (!browser) return;
     const before = browserState.tabs.length;
     const wasActive = browserState.activeTabId === tabId;
-    void browser2
+    void browser
       .showTab(tabId)
       .then((nextState) => {
         applyState(nextState);
@@ -843,10 +843,10 @@ export function WorkspaceBrowser({
       });
   };
   const closeTab = (tabId, source = "tab_strip") => {
-    if (!browser2) return;
+    if (!browser) return;
     const before = browserState.tabs.length;
     const wasActive = browserState.activeTabId === tabId;
-    void browser2
+    void browser
       .destroyTab(tabId)
       .then((nextState) => {
         applyState(nextState);
@@ -872,9 +872,9 @@ export function WorkspaceBrowser({
       });
   };
   const createTab = () => {
-    if (!browser2) return;
+    if (!browser) return;
     const before = browserState.tabs.length;
-    void browser2
+    void browser
       .createTab("")
       .then((nextState) => {
         applyState(nextState);
@@ -897,9 +897,9 @@ export function WorkspaceBrowser({
       });
   };
   const navigateToInput = (value, trackAddressSubmit = false, source) => {
-    if (!browser2 || !activeTabId || !value.trim()) return;
-    const { destination, search: search2 } = destinationForInput(value);
-    if (search2) {
+    if (!browser || !activeTabId || !value.trim()) return;
+    const { destination, search } = destinationForInput(value);
+    if (search) {
       const nextHistory = [
         value.trim(),
         ...searchHistory.filter((item) => item !== value.trim()),
@@ -912,19 +912,19 @@ export function WorkspaceBrowser({
     setSearchFocused(false);
     const addressProps = trackAddressSubmit
       ? {
-          input_type: search2 ? "search" : "url",
+          input_type: search ? "search" : "url",
           target_domain: resolveTrackingDomain(destination) ?? "unknown",
         }
       : null;
     const navigationSource =
       source ??
-      (trackAddressSubmit ? (search2 ? "search" : "address") : "unknown");
-    void browser2
+      (trackAddressSubmit ? (search ? "search" : "address") : "unknown");
+    void browser
       .navigate(activeTabId, destination, navigationSource)
       .then((nextState) => {
         applyState(nextState);
         const nextTab = nextState.tabs.find(
-          (tab2) => tab2.id === nextState.activeTabId,
+          (tab) => tab.id === nextState.activeTabId,
         );
         if (nextTab) setInputValue(nextTab.url);
         if (addressProps) {
@@ -956,7 +956,7 @@ export function WorkspaceBrowser({
     navigateToInput(inputValue, true);
   };
   const runStateAction = (actionName, action) => {
-    if (!browser2 || !activeTabId) return;
+    if (!browser || !activeTabId) return;
     void action(activeTabId)
       .then((nextState) => {
         applyState(nextState);
@@ -975,24 +975,24 @@ export function WorkspaceBrowser({
       });
   };
   const toggleMoreMenu = () => {
-    if (!browser2 || !activeTabId) return;
+    if (!browser || !activeTabId) return;
     if (moreOpen) {
       setMoreOpen(false);
-      void browser2.closeMenu().catch(() => {});
+      void browser.closeMenu().catch(() => {});
       return;
     }
     if (performance.now() - moreMenuClosedAtRef.current < 200) return;
     const bounds = getMenuBounds();
     if (!bounds) return;
-    void browser2
+    void browser
       .openMenu(
         activeTabId,
         bounds,
         bookmarks.map(
-          ({ id: id2, title, url: url2, folders, faviconDataUrl }) => ({
-            id: id2,
+          ({ id: bookmarkId, title, url, folders, faviconDataUrl }) => ({
+            id: bookmarkId,
             title,
-            url: url2,
+            url,
             folders,
             faviconDataUrl,
           }),
@@ -1016,26 +1016,26 @@ export function WorkspaceBrowser({
   };
   const closeAnnotation = reactExports.useCallback(async () => {
     const session = annotationSessionRef.current;
-    if (!browser2 || !session) return;
+    if (!browser || !session) return;
     try {
-      await browser2.setAnnotation(session.tabId, false);
-      const nextState = await browser2.showTab(session.tabId);
+      await browser.setAnnotation(session.tabId, false);
+      const nextState = await browser.showTab(session.tabId);
       applyState(nextState);
     } catch {
     } finally {
       annotationSessionRef.current = null;
       setAnnotationSession(null);
       window.requestAnimationFrame(() => {
-        void browser2
+        void browser
           .showTab(session.tabId)
           .then(applyState)
           .catch(() => {});
       });
     }
-  }, [applyState, browser2]);
+  }, [applyState, browser]);
   const startAnnotation = async () => {
     if (
-      !browser2 ||
+      !browser ||
       !activeTabId ||
       !canUsePageTools ||
       annotationSessionRef.current
@@ -1044,7 +1044,7 @@ export function WorkspaceBrowser({
     const tabId = activeTabId;
     const startedAt = performance.now();
     try {
-      const result = await browser2.captureFrame(tabId);
+      const result = await browser.captureFrame(tabId);
       if (!result.success || !result.dataUrl) {
         trackEvent(TRACK_EVENTS.BROWSER_CAPTURE_RESULT, {
           capture_type: "annotation",
@@ -1054,13 +1054,13 @@ export function WorkspaceBrowser({
         });
         dedupedToast.error(
           result.error ??
-            t2("workspace.browser.annotationCaptureError", {
+            translate("workspace.browser.annotationCaptureError", {
               defaultValue: "无法截取当前网页",
             }),
         );
         return;
       }
-      const currentTab = browserState.tabs.find((tab2) => tab2.id === tabId);
+      const currentTab = browserState.tabs.find((tab) => tab.id === tabId);
       const session = {
         tabId,
         dataUrl: result.dataUrl,
@@ -1076,9 +1076,9 @@ export function WorkspaceBrowser({
       };
       annotationSessionRef.current = session;
       setAnnotationSession(session);
-      const hiddenState = await browser2.hideTab(tabId);
+      const hiddenState = await browser.hideTab(tabId);
       applyState(hiddenState);
-      const annotatedState = await browser2.setAnnotation(tabId, true);
+      const annotatedState = await browser.setAnnotation(tabId, true);
       applyState(annotatedState);
       trackEvent(TRACK_EVENTS.BROWSER_CAPTURE_RESULT, {
         capture_type: "annotation",
@@ -1093,7 +1093,7 @@ export function WorkspaceBrowser({
         error_type: "ipc_error",
       });
       dedupedToast.error(
-        t2("workspace.browser.annotationCaptureError", {
+        translate("workspace.browser.annotationCaptureError", {
           defaultValue: "无法截取当前网页",
         }),
       );
@@ -1116,11 +1116,11 @@ export function WorkspaceBrowser({
   const toggleBookmark = () => {
     if (!activeTab || !activeTabUrl || !canBookmarkPage) return;
     const removing = Boolean(activeBookmark);
-    setBookmarks((current2) => {
-      const next2 = removing
-        ? current2.filter((bookmark) => bookmark.url !== activeTabUrl)
+    setBookmarks((current) => {
+      const next = removing
+        ? current.filter((bookmark) => bookmark.url !== activeTabUrl)
         : [
-            ...current2,
+            ...current,
             {
               id: `manual-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
               title:
@@ -1138,17 +1138,17 @@ export function WorkspaceBrowser({
       try {
         window.localStorage.setItem(
           BOOKMARKS_STORAGE_KEY,
-          JSON.stringify(next2),
+          JSON.stringify(next),
         );
       } catch {}
-      return next2;
+      return next;
     });
     dedupedToast.success(
       removing
-        ? t2("workspace.browser.bookmarkRemoved", {
+        ? translate("workspace.browser.bookmarkRemoved", {
             defaultValue: "已取消收藏",
           })
-        : t2("workspace.browser.bookmarkAdded", {
+        : translate("workspace.browser.bookmarkAdded", {
             defaultValue: "已添加到书签",
           }),
     );
@@ -1159,26 +1159,26 @@ export function WorkspaceBrowser({
     });
   };
   const removeBookmark = (bookmarkId) => {
-    setBookmarks((current2) => {
-      const next2 = current2.filter((bookmark) => bookmark.id !== bookmarkId);
+    setBookmarks((current) => {
+      const next = current.filter((bookmark) => bookmark.id !== bookmarkId);
       try {
         window.localStorage.setItem(
           BOOKMARKS_STORAGE_KEY,
-          JSON.stringify(next2),
+          JSON.stringify(next),
         );
       } catch {}
-      return next2;
+      return next;
     });
     dedupedToast.success(
-      t2("workspace.browser.bookmarkRemoved", {
+      translate("workspace.browser.bookmarkRemoved", {
         defaultValue: "已删除书签",
       }),
     );
   };
   const takeScreenshot = () => {
-    if (!browser2 || !activeTabId || !canUsePageTools) return;
+    if (!browser || !activeTabId || !canUsePageTools) return;
     const startedAt = performance.now();
-    void browser2
+    void browser
       .screenshot(activeTabId)
       .then((result) => {
         if (result.success) {
@@ -1208,7 +1208,7 @@ export function WorkspaceBrowser({
           });
           dedupedToast.error(
             result.error ??
-              t2("workspace.browser.screenshotError", {
+              translate("workspace.browser.screenshotError", {
                 defaultValue: "截图失败",
               }),
           );
@@ -1222,15 +1222,15 @@ export function WorkspaceBrowser({
           error_type: "ipc_error",
         });
         dedupedToast.error(
-          t2("workspace.browser.screenshotError", {
+          translate("workspace.browser.screenshotError", {
             defaultValue: "截图失败",
           }),
         );
       });
   };
   const openExternal = () => {
-    if (!browser2 || !activeTabId) return;
-    void browser2
+    if (!browser || !activeTabId) return;
+    void browser
       .openExternal(activeTabId)
       .then((result) => {
         trackEvent(TRACK_EVENTS.BROWSER_TOOLBAR_ACTION, {
@@ -1241,7 +1241,7 @@ export function WorkspaceBrowser({
         if (!result.success)
           dedupedToast.error(
             result.error ??
-              t2("workspace.browser.openExternalError", {
+              translate("workspace.browser.openExternalError", {
                 defaultValue: "打开外部浏览器失败",
               }),
           );
@@ -1253,7 +1253,7 @@ export function WorkspaceBrowser({
           result: "failed",
         });
         dedupedToast.error(
-          t2("workspace.browser.openExternalError", {
+          translate("workspace.browser.openExternalError", {
             defaultValue: "打开外部浏览器失败",
           }),
         );
@@ -1328,25 +1328,25 @@ export function WorkspaceBrowser({
     setChromeImportError("");
     try {
       if (chromeImportKind === "bookmarks") {
-        const result2 = await profileImport.importBookmarks({
+        const result = await profileImport.importBookmarks({
           requestId,
           profileId: selectedChromeProfile,
         });
-        if (!result2.success) {
+        if (!result.success) {
           trackEvent(TRACK_EVENTS.BROWSER_PROFILE_IMPORT_ACTION, {
             action: "import",
             ...trackingBase,
             result: "failed",
-            error_code: result2.errorCode ?? "unknown",
+            error_code: result.errorCode ?? "unknown",
           });
           setChromeImportError(
-            browserProfileImportErrorMessage(t2, result2.errorCode),
+            browserProfileImportErrorMessage(translate, result.errorCode),
           );
           return;
         }
         const merged = mergeBrowserBookmarks(
           bookmarksRef.current,
-          result2.bookmarks,
+          result.bookmarks,
         );
         window.localStorage.setItem(
           BOOKMARKS_STORAGE_KEY,
@@ -1361,8 +1361,8 @@ export function WorkspaceBrowser({
           imported_count: merged.addedCount,
         });
         const notice = browserBookmarkImportNotice(
-          t2,
-          result2,
+          translate,
+          result,
           merged.addedCount,
         );
         if (notice.warning) dedupedToast.warning(notice.message);
@@ -1387,7 +1387,7 @@ export function WorkspaceBrowser({
           imported_count: result.importedCount,
         });
         dedupedToast.success(
-          t2("workspace.browser.importSuccess", {
+          translate("workspace.browser.importSuccess", {
             count: result.importedCount,
           }),
         );
@@ -1408,7 +1408,7 @@ export function WorkspaceBrowser({
         result: "failed",
         error_code: "ipc_error",
       });
-      setChromeImportError(browserProfileImportErrorMessage(t2));
+      setChromeImportError(browserProfileImportErrorMessage(translate));
     } finally {
       setChromeImporting(false);
     }
@@ -1417,18 +1417,18 @@ export function WorkspaceBrowser({
     <section
       className="flex size-full min-h-0 flex-col bg-background"
       data-browser-annotating={Boolean(annotationSession)}
-      aria-label={t2("workspace.browser", {
+      aria-label={translate("workspace.browser", {
         defaultValue: "浏览器",
       })}
     >
       <CoachMarkPopup
         open={showAnnotationGuide}
         anchorRef={annotationGuideAnchor}
-        title={t2(
+        title={translate(
           "workspace.browser.guide.annotationTitle",
           "批注网页，让 Agent 帮你操作",
         )}
-        description={t2(
+        description={translate(
           "workspace.browser.guide.annotationDescription",
           "点击「批注」，圈选网页内容并写下操作要求，发送到对话，让 Agent 帮你操作网页。",
         )}
@@ -1475,26 +1475,26 @@ export function WorkspaceBrowser({
           data-overflow-right={tabOverflow.right}
         >
           {visibleTabs.map(
-            ({ tab: tab2, active: active2, entering, exiting }) => (
+            ({ tab, active, entering, exiting }) => (
               <BrowserTabMotion
-                key={tab2.id}
-                id={tab2.id}
+                key={tab.id}
+                id={tab.id}
                 entering={entering}
                 exiting={exiting}
                 onExit={finishExit}
-                className={`workspace-browser-tab group relative mr-1 flex h-8 w-[220px] min-w-[72px] max-w-[220px] shrink basis-[220px] items-center gap-1.5 rounded-md border-y-2 border-transparent bg-clip-padding pl-1 pr-2 text-[13px] font-normal leading-normal transition-colors duration-150 motion-reduce:transition-none ${active2 ? "bg-foreground/[0.08] text-foreground" : hasClosingTab ? "text-foreground/55" : "text-foreground/55 hover:bg-foreground/[0.05] hover:text-foreground"}`}
+                className={`workspace-browser-tab group relative mr-1 flex h-8 w-[220px] min-w-[72px] max-w-[220px] shrink basis-[220px] items-center gap-1.5 rounded-md border-y-2 border-transparent bg-clip-padding pl-1 pr-2 text-[13px] font-normal leading-normal transition-colors duration-150 motion-reduce:transition-none ${active ? "bg-foreground/[0.08] text-foreground" : hasClosingTab ? "text-foreground/55" : "text-foreground/55 hover:bg-foreground/[0.05] hover:text-foreground"}`}
               >
                 <button
                   type="button"
                   className="flex h-full min-w-0 flex-1 items-center gap-1.5 text-left"
-                  onClick={() => selectTab(tab2.id)}
+                  onClick={() => selectTab(tab.id)}
                   disabled={Boolean(annotationSession)}
-                  aria-label={tab2.title}
+                  aria-label={tab.title}
                 >
-                  <BrowserTabIcon tab={tab2} />
+                  <BrowserTabIcon tab={tab} />
                   <span className="workspace-browser-tab-title min-w-0 flex-1 overflow-hidden whitespace-nowrap">
-                    {tab2.title ||
-                      t2("workspace.browser.newTab", {
+                    {tab.title ||
+                      translate("workspace.browser.newTab", {
                         defaultValue: "新标签页",
                       })}
                   </span>
@@ -1503,13 +1503,13 @@ export function WorkspaceBrowser({
                   type="button"
                   data-browser-tab-close={true}
                   className="pointer-events-none absolute right-1.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center text-muted-foreground opacity-0 transition-opacity before:pointer-events-none before:absolute before:-inset-y-1 before:-right-1.5 before:w-10 before:rounded-r-md before:bg-gradient-to-l before:from-secondary before:via-secondary/95 before:to-transparent before:content-[''] group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100 hover:text-foreground"
-                  onClick={() => closeTab(tab2.id)}
+                  onClick={() => closeTab(tab.id)}
                   disabled={Boolean(annotationSession)}
-                  aria-label={t2("workspace.browser.closeTab", {
+                  aria-label={translate("workspace.browser.closeTab", {
                     defaultValue: "关闭标签页",
                   })}
                 >
-                  <Icon icon={X} size="sm" className="relative" />
+                  <Icon icon={CloseIcon} size="sm" className="relative" />
                 </button>
               </BrowserTabMotion>
             ),
@@ -1521,7 +1521,7 @@ export function WorkspaceBrowser({
           className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground"
           onClick={createTab}
           disabled={Boolean(annotationSession)}
-          aria-label={t2("workspace.browser.newTab", {
+          aria-label={translate("workspace.browser.newTab", {
             defaultValue: "新建标签页",
           })}
         >
@@ -1539,42 +1539,42 @@ export function WorkspaceBrowser({
         <>
           <div className="relative flex h-12 shrink-0 items-center gap-1 border-b border-border bg-card px-2">
             <IconButton
-              label={t2("workspace.browser.back", {
+              label={translate("workspace.browser.back", {
                 defaultValue: "后退",
               })}
               disabled={!activeTab?.canGoBack}
               onClick={() =>
                 runStateAction(
                   "back",
-                  (id2) => browser2?.back(id2) ?? Promise.reject(),
+                  (tabId) => browser?.back(tabId) ?? Promise.reject(),
                 )
               }
             >
               <Icon icon={ArrowLeft} size="md" />
             </IconButton>
             <IconButton
-              label={t2("workspace.browser.forward", {
+              label={translate("workspace.browser.forward", {
                 defaultValue: "前进",
               })}
               disabled={!activeTab?.canGoForward}
               onClick={() =>
                 runStateAction(
                   "forward",
-                  (id2) => browser2?.forward(id2) ?? Promise.reject(),
+                  (tabId) => browser?.forward(tabId) ?? Promise.reject(),
                 )
               }
             >
               <Icon icon={ArrowRight} size="md" />
             </IconButton>
             <IconButton
-              label={t2("workspace.browser.reload", {
+              label={translate("workspace.browser.reload", {
                 defaultValue: "刷新",
               })}
               disabled={!activeTab}
               onClick={() =>
                 runStateAction(
                   "reload",
-                  (id2) => browser2?.reload(id2) ?? Promise.reject(),
+                  (tabId) => browser?.reload(tabId) ?? Promise.reject(),
                 )
               }
             >
@@ -1603,10 +1603,10 @@ export function WorkspaceBrowser({
                 onFocus={() => setSearchFocused(true)}
                 onClick={() => setSearchFocused(true)}
                 className={`min-w-0 flex-1 bg-transparent py-1.5 text-xs text-foreground outline-none ${searchFocused ? "text-left" : "text-center"}`}
-                aria-label={t2("workspace.browser.address", {
+                aria-label={translate("workspace.browser.address", {
                   defaultValue: "地址",
                 })}
-                placeholder={t2("workspace.browser.urlPlaceholder", {
+                placeholder={translate("workspace.browser.urlPlaceholder", {
                   defaultValue: "搜索或输入网址",
                 })}
                 spellCheck={false}
@@ -1633,7 +1633,7 @@ export function WorkspaceBrowser({
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={openExternal}
                         className="shrink-0 text-muted-foreground hover:text-foreground"
-                        aria-label={t2("workspace.browser.openExternal", {
+                        aria-label={translate("workspace.browser.openExternal", {
                           defaultValue: "在外部浏览器打开",
                         })}
                       />
@@ -1642,7 +1642,7 @@ export function WorkspaceBrowser({
                     <Icon icon={ArrowUpRight} size="sm" />
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    {t2("workspace.browser.openExternal", {
+                    {translate("workspace.browser.openExternal", {
                       defaultValue: "在外部浏览器打开",
                     })}
                   </TooltipContent>
@@ -1653,10 +1653,10 @@ export function WorkspaceBrowser({
               actionId="browser.bookmark-toggle"
               label={
                 activeBookmark
-                  ? t2("workspace.browser.removeBookmark", {
+                  ? translate("workspace.browser.removeBookmark", {
                       defaultValue: "取消收藏",
                     })
-                  : t2("workspace.browser.addBookmark", {
+                  : translate("workspace.browser.addBookmark", {
                       defaultValue: "添加到书签",
                     })
               }
@@ -1673,7 +1673,7 @@ export function WorkspaceBrowser({
             </IconButton>
             <IconButton
               actionId="browser.screenshot"
-              label={t2("workspace.browser.screenshot", {
+              label={translate("workspace.browser.screenshot", {
                 defaultValue: "截图",
               })}
               disabled={!canUsePageTools}
@@ -1684,7 +1684,7 @@ export function WorkspaceBrowser({
             <IconButton
               buttonRef={annotationGuideAnchor}
               actionId="browser.annotation-toggle"
-              label={t2("workspace.browser.annotation", {
+              label={translate("workspace.browser.annotation", {
                 defaultValue: "批注",
               })}
               active={Boolean(annotationSession)}
@@ -1703,7 +1703,7 @@ export function WorkspaceBrowser({
                     data-action-ui-id="browser.more-menu"
                     className={`flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground ${moreOpen ? "bg-secondary text-foreground" : ""}`}
                     onClick={toggleMoreMenu}
-                    aria-label={t2("workspace.browser.more", {
+                    aria-label={translate("workspace.browser.more", {
                       defaultValue: "更多",
                     })}
                     aria-haspopup="menu"
@@ -1714,7 +1714,7 @@ export function WorkspaceBrowser({
                 }
               />
               <TooltipContent side="top">
-                {t2("workspace.browser.more", {
+                {translate("workspace.browser.more", {
                   defaultValue: "更多",
                 })}
               </TooltipContent>
@@ -1729,12 +1729,12 @@ export function WorkspaceBrowser({
               />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium text-foreground">
-                  {t2("workspace.browser.chromeBannerTitle", {
+                  {translate("workspace.browser.chromeBannerTitle", {
                     defaultValue: "从 Chrome 导入登录状态",
                   })}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {t2("workspace.browser.chromeBannerDescription", {
+                  {translate("workspace.browser.chromeBannerDescription", {
                     defaultValue:
                       "检测到可导入的 Chrome Profile，可将 Cookie 复制到 Browser。",
                   })}
@@ -1745,7 +1745,7 @@ export function WorkspaceBrowser({
                 onClick={openChromeDialog}
                 className="h-9 shrink-0 rounded-lg bg-muted px-4 text-sm text-foreground hover:bg-secondary"
               >
-                {t2("workspace.browser.import", {
+                {translate("workspace.browser.import", {
                   defaultValue: "导入",
                 })}
               </button>
@@ -1753,7 +1753,7 @@ export function WorkspaceBrowser({
                 type="button"
                 onClick={dismissChromeBanner}
                 className="shrink-0 px-2 text-xl text-muted-foreground hover:text-foreground"
-                aria-label={t2("workspace.browser.dismissChromeBanner", {
+                aria-label={translate("workspace.browser.dismissChromeBanner", {
                   defaultValue: "关闭 Chrome 导入提示",
                 })}
               >
@@ -1766,10 +1766,10 @@ export function WorkspaceBrowser({
               <div className="w-full max-w-md rounded-xl bg-popover p-5 text-popover-foreground shadow-lg">
                 <div className="text-sm font-medium">
                   {chromeImportKind === "bookmarks"
-                    ? t2("workspace.browser.chromeBookmarkDialogTitle", {
+                    ? translate("workspace.browser.chromeBookmarkDialogTitle", {
                         defaultValue: "从 Chrome 导入书签",
                       })
-                    : t2("workspace.browser.chromeDialogTitle", {
+                    : translate("workspace.browser.chromeDialogTitle", {
                         defaultValue: "从 Chrome 导入",
                       })}
                 </div>
@@ -1800,7 +1800,7 @@ export function WorkspaceBrowser({
                         checked={chromeImportScope === "all"}
                         onChange={() => setChromeImportScope("all")}
                       />
-                      {t2("workspace.browser.allSites", {
+                      {translate("workspace.browser.allSites", {
                         defaultValue: "全部网站",
                       })}
                     </label>
@@ -1811,7 +1811,7 @@ export function WorkspaceBrowser({
                           checked={chromeImportScope === "current-site"}
                           onChange={() => setChromeImportScope("current-site")}
                         />
-                        {t2("workspace.browser.currentSite", {
+                        {translate("workspace.browser.currentSite", {
                           defaultValue: "当前网站",
                         })}
                       </label>
@@ -1821,12 +1821,12 @@ export function WorkspaceBrowser({
                 {chromeImportResult && chromeImportKind === "cookies" && (
                   <div className="mt-4 rounded-lg bg-muted p-3 text-xs">
                     {chromeImportResult.success
-                      ? t2("workspace.browser.importSuccess", {
+                      ? translate("workspace.browser.importSuccess", {
                           defaultValue: "已导入 {{count}} 个 Cookie",
                           count: chromeImportResult.importedCount,
                         })
                       : browserProfileImportErrorMessage(
-                          t2,
+                          translate,
                           chromeImportResult.errorCode,
                         )}
                   </div>
@@ -1843,7 +1843,7 @@ export function WorkspaceBrowser({
                     onClick={closeChromeDialog}
                     className="h-8 rounded-lg px-3 text-xs text-muted-foreground hover:bg-muted"
                   >
-                    {t2("common.cancel", {
+                    {translate("common.cancel", {
                       defaultValue: "取消",
                     })}
                   </button>
@@ -1854,10 +1854,10 @@ export function WorkspaceBrowser({
                     className="h-8 rounded-lg bg-foreground px-3 text-xs text-background disabled:opacity-50"
                   >
                     {chromeImporting
-                      ? t2("workspace.browser.importing", {
+                      ? translate("workspace.browser.importing", {
                           defaultValue: "导入中…",
                         })
-                      : t2("workspace.browser.import", {
+                      : translate("workspace.browser.import", {
                           defaultValue: "导入",
                         })}
                   </button>
@@ -1917,7 +1917,7 @@ export function WorkspaceBrowser({
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground">
                     <Icon icon={Globe} size="lg" />
                     <span className="text-sm">
-                      {t2("workspace.browser.noTabs", {
+                      {translate("workspace.browser.noTabs", {
                         defaultValue: "浏览器暂无标签页",
                       })}
                     </span>

@@ -1,0 +1,19 @@
+key	old	new	依据
+t2@157:14	t2	translate	该绑定是侧边栏实体行读取界面文案的翻译函数。
+e2@160:30	e2	clickEvent	该事件用于阻止实例化操作点击冒泡并触发实例化。
+e2@237:22	e2	pointerEvent	该事件提供侧边栏行悬停目标元素。
+e2@240:19	e2	dragEvent	该事件用于写入实体拖拽数据。
+e2@258:21	e2	clickEvent	该事件用于阻止添加到画布操作冒泡。
+e2@272:21	e2	clickEvent	该事件用于阻止添加到聊天操作冒泡。
+e2@289:19	e2	clickEvent	该事件用于阻止更多菜单触发器点击冒泡。
+e2@293:23	e2	mouseEvent	该事件用于阻止更多菜单触发器鼠标按下冒泡。
+e2@302:21	e2	clickEvent	该事件用于阻止菜单内编辑操作点击冒泡。
+e2@313:23	e2	clickEvent	该事件用于阻止菜单内实例化操作点击冒泡。
+e2@325:21	e2	clickEvent	该事件用于阻止菜单内导出操作点击冒泡。
+e2@336:21	e2	clickEvent	该事件用于阻止菜单内删除操作点击冒泡。
+type2@44:33	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+gatewayUrl2@52:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+wrapperStyle2@56:9	wrapperStyle2	wrapperStyle	去掉打包器防重名追加的后缀，恢复原名 wrapperStyle，即该绑定持有的值。
+gatewayUrl2@103:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+EntityRow2@145:53	EntityRow2	EntityRow	去掉打包器防重名追加的后缀，恢复原名 EntityRow，即该绑定持有的值。
+message2@183:15	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。

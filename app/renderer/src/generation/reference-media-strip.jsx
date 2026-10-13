@@ -16,15 +16,15 @@ import {
   mediaValues,
 } from "./domestic-param-labels.jsx";
 import { Textarea } from "../infra/badge-variants.jsx";
-function resolveMediaPath(path2, resolveUrl) {
-  if (/^(https?:|blob:|data:)/.test(path2)) return path2;
-  if (path2.startsWith("asset://")) return void 0;
-  return resolveUrl(API_PATHS.serveFile(path2));
+function resolveMediaPath(path, resolveUrl) {
+  if (/^(https?:|blob:|data:)/.test(path)) return path;
+  if (path.startsWith("asset://")) return void 0;
+  return resolveUrl(API_PATHS.serveFile(path));
 }
 export function parseParamValueLikeOriginal(originalValue, value) {
   if (typeof originalValue === "number") {
-    const n2 = Number(value);
-    return Number.isFinite(n2) ? n2 : originalValue;
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : originalValue;
   }
   if (typeof originalValue === "boolean") return value === "true";
   if (Array.isArray(originalValue)) {
@@ -37,14 +37,14 @@ export function parseParamValueLikeOriginal(originalValue, value) {
   return value;
 }
 export function BatchPager({ pageIndex, pageCount, onChange }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (pageCount <= 1) return null;
   return (
     <div className="ml-auto flex shrink-0 items-center gap-1 text-caption-10 text-muted-foreground">
       <button
         type="button"
         data-action-ui-id="tool-confirm-batch-prev"
-        aria-label={t2(
+        aria-label={translate(
           "chat.toolConfirm.batch.previous",
           "Previous batch item",
         )}
@@ -63,7 +63,7 @@ export function BatchPager({ pageIndex, pageCount, onChange }) {
       <button
         type="button"
         data-action-ui-id="tool-confirm-batch-next"
-        aria-label={t2("chat.toolConfirm.batch.next", "Next batch item")}
+        aria-label={translate("chat.toolConfirm.batch.next", "Next batch item")}
         disabled={pageIndex === pageCount - 1}
         className="rounded-sm p-0.5 transition-colors hover:bg-muted disabled:opacity-30"
         style={{
@@ -92,14 +92,14 @@ export function EditablePromptBlock({ paramKey, value, pageIndex, onChange }) {
           item,
           absoluteIndex,
         }));
-  const updateItem = (index2, next2) => {
+  const updateItem = (index, next) => {
     if (Array.isArray(value)) {
       onChange(
-        JSON.stringify(items.map((item, i2) => (i2 === index2 ? next2 : item))),
+        JSON.stringify(items.map((item, itemIndex) => (itemIndex === index ? next : item))),
       );
       return;
     }
-    onChange(next2);
+    onChange(next);
   };
   return (
     <div
@@ -111,7 +111,7 @@ export function EditablePromptBlock({ paramKey, value, pageIndex, onChange }) {
           key={`${paramKey}-${absoluteIndex}`}
           value={item}
           rows={3}
-          onChange={(e2) => updateItem(absoluteIndex, e2.target.value)}
+          onChange={(changeEvent) => updateItem(absoluteIndex, changeEvent.target.value)}
           className="resize-none !rounded-sm border-border bg-transparent px-3 py-2 !text-body-14 text-muted-foreground shadow-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-transparent placeholder:text-tertiary"
           style={{
             fieldSizing: "content",
@@ -129,8 +129,8 @@ export function ReferenceMediaStrip({
   resolveUrl,
 }) {
   const kind = mediaKindForKey(paramKey);
-  const values3 = mediaValues(value);
-  if (!kind || values3.length === 0) return null;
+  const values = mediaValues(value);
+  if (!kind || values.length === 0) return null;
   return (
     <div
       data-action-ui-id={`tool-confirm-param-${paramKey}`}
@@ -140,29 +140,29 @@ export function ReferenceMediaStrip({
         {getParamLabel(paramKey)}
       </div>
       <div className="flex items-center gap-1.5 overflow-x-auto min-w-0">
-        {values3.map((path2, index2) => {
-          const src = resolveMediaPath(path2, resolveUrl);
-          const id2 = mediaItemId(paramKey, index2);
-          const uploading = uploadingId === id2;
-          const name2 = path2.split("/").pop() ?? path2;
+        {values.map((path, index) => {
+          const src = resolveMediaPath(path, resolveUrl);
+          const id = mediaItemId(paramKey, index);
+          const uploading = uploadingId === id;
+          const fileName = path.split("/").pop() ?? path;
           return (
             <button
-              key={`${paramKey}-${path2}`}
+              key={`${paramKey}-${path}`}
               type="button"
-              data-action-ui-id={`tool-confirm-media-${paramKey}-${index2}`}
+              data-action-ui-id={`tool-confirm-media-${paramKey}-${index}`}
               title={getParamLabel(paramKey)}
               disabled={uploading}
               className="group/media relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-border/40 bg-card text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground disabled:opacity-60 disabled:cursor-wait"
-              onClick={() => onPick(paramKey, index2, kind)}
+              onClick={() => onPick(paramKey, index, kind)}
             >
               {kind === "image" && src ? (
                 <img
                   src={src}
-                  alt={name2}
+                  alt={fileName}
                   className="h-full w-full object-contain"
                   loading="lazy"
-                  onError={(e2) => {
-                    e2.currentTarget.style.display = "none";
+                  onError={(errorEvent) => {
+                    errorEvent.currentTarget.style.display = "none";
                   }}
                 />
               ) : kind === "video" && src ? (
@@ -179,12 +179,12 @@ export function ReferenceMediaStrip({
                 <div className="flex max-w-full flex-col items-center gap-0.5 px-1">
                   <Icon icon={AudioLines} size="md" className="shrink-0" />
                   <span className="max-w-full truncate text-caption-10">
-                    {name2}
+                    {fileName}
                   </span>
                 </div>
               )}
               <span className="absolute inset-x-0 bottom-0 hidden bg-black/65 px-1 py-0.5 text-caption-10 leading-none text-white group-hover/media:block">
-                {name2}
+                {fileName}
               </span>
               {uploading && (
                 <span className="absolute inset-0 flex items-center justify-center bg-background/70">

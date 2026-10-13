@@ -1,0 +1,9 @@
+w3@34:9	w3	sourceWidth	该绑定持有 sourceWidth 所表示的值，按其实际用途命名。
+h2@35:9	h2	sourceHeight	该绑定持有 sourceHeight 所表示的值，按其实际用途命名。
+scale2@38:7	scale2	scale	去掉打包器防重名追加的后缀，恢复原名 scale，即该绑定持有的值。
+WalletSource2@53:29	WalletSource2	WalletSource	去掉打包器防重名追加的后缀，恢复原名 WalletSource，即该绑定持有的值。
+CreditType2@60:27	CreditType2	CreditType	去掉打包器防重名追加的后缀，恢复原名 CreditType，即该绑定持有的值。
+token2@106:9	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+key2@267:44	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+version2@316:32	version2	version	去掉打包器防重名追加的后缀，恢复原名 version，即该绑定持有的值。
+index2@316:42	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。

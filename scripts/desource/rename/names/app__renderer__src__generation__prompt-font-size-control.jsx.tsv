@@ -1,0 +1,11 @@
+key	old	new	依据
+t2@11:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@55:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@116:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+text2@43:3	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+clipboard2@44:3	clipboard2	clipboard	去掉打包器防重名追加的后缀，恢复原名 clipboard，即该绑定持有的值。
+disabled2@54:55	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+state2@117:44	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+state2@118:47	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+state2@120:6	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+next2@169:23	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。

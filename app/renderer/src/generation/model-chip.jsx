@@ -89,9 +89,9 @@ const TEXT_MODEL_ICONS = {
   },
 };
 function pickTextModelIcon(model) {
-  const id2 = (model.id ?? "").toLowerCase();
-  for (const [token2, icons] of Object.entries(TEXT_MODEL_ICONS)) {
-    if (!id2.includes(token2)) continue;
+  const modelId = (model.id ?? "").toLowerCase();
+  for (const [token, icons] of Object.entries(TEXT_MODEL_ICONS)) {
+    if (!modelId.includes(token)) continue;
     return model.region === "overseas" && icons.overseas
       ? icons.overseas
       : icons.domestic;
@@ -99,10 +99,10 @@ function pickTextModelIcon(model) {
   return void 0;
 }
 function isMiniMaxH3Model(model) {
-  const values3 = [model.id, model.name, model.model_name, model.backend].map(
+  const values = [model.id, model.name, model.model_name, model.backend].map(
     (value) => (typeof value === "string" ? value.toLowerCase() : ""),
   );
-  return values3.some(
+  return values.some(
     (value) =>
       value.includes("minimax-h3") ||
       value.includes("minimax h3") ||
@@ -111,52 +111,52 @@ function isMiniMaxH3Model(model) {
   );
 }
 function pickModelIcon(model, mediaType, region = "overseas") {
-  const id2 = (model.id ?? "").toLowerCase();
+  const modelId = (model.id ?? "").toLowerCase();
   const backend = (model.backend ?? "").toLowerCase();
-  if (id2.startsWith("g-image") || id2.startsWith("gpt-image")) {
+  if (modelId.startsWith("g-image") || modelId.startsWith("gpt-image")) {
     if (region === "domestic") return GeneralImageIcon;
-    return id2.startsWith("g-image")
+    return modelId.startsWith("g-image")
       ? GptImageDomesticIcon
       : GptImageOverseasIcon;
   }
-  if (id2.startsWith("beta")) return VeoDomesticIcon;
-  if (id2.startsWith("veo")) return VeoOverseasIcon;
+  if (modelId.startsWith("beta")) return VeoDomesticIcon;
+  if (modelId.startsWith("veo")) return VeoOverseasIcon;
   if (
-    id2.startsWith("banana") ||
-    id2.startsWith("nano_banana") ||
+    modelId.startsWith("banana") ||
+    modelId.startsWith("nano_banana") ||
     backend === "nano_banana"
   )
     return region === "domestic" ? GeneralImageIcon : NanoBananaIcon;
   if (backend === "midjourney") return MidjourneyIcon;
-  if (backend === "seedream" || id2.startsWith("doubao-seedream"))
+  if (backend === "seedream" || modelId.startsWith("doubao-seedream"))
     return SeedreamIcon;
   if (
     backend === "seedance" ||
     backend === "seedaudio" ||
-    id2.includes("seedance")
+    modelId.includes("seedance")
   )
     return VeoDomesticIcon;
   if (
     backend === "kling" ||
     backend === "kling_avatar" ||
-    id2.startsWith("kling")
+    modelId.startsWith("kling")
   )
     return KlingIcon;
   if (
     backend === "minimax_v3" ||
-    id2.startsWith("minimax-h3") ||
-    id2.startsWith("minimax h3") ||
-    id2.includes("hailuo03")
+    modelId.startsWith("minimax-h3") ||
+    modelId.startsWith("minimax h3") ||
+    modelId.includes("hailuo03")
   )
     return MinimaxIcon;
-  if (id2.startsWith("hilo") || id2.startsWith("hailuo")) return HailuoIcon;
-  if (backend === "wan_i2v" || id2.startsWith("wan")) return WanIcon;
+  if (modelId.startsWith("hilo") || modelId.startsWith("hailuo")) return HailuoIcon;
+  if (backend === "wan_i2v" || modelId.startsWith("wan")) return WanIcon;
   if (
     backend === "minimax_tts" ||
     backend === "minimax_music" ||
     backend === "minimax_music_cover" ||
-    id2.startsWith("speech") ||
-    id2.startsWith("music")
+    modelId.startsWith("speech") ||
+    modelId.startsWith("music")
   )
     return MinimaxIcon;
   if (mediaType === "text-llm") {
@@ -196,18 +196,18 @@ export function ModelChip({
   selectedModelId,
   onChange,
   loading,
-  disabled: disabled2,
+  disabled,
   showEmptyHint,
   disabledModelIds,
   disabledReason,
   onPromotionClick,
 }) {
   const releaseRegion = useCanvasReleaseRegion();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const triggerRef = reactExports.useRef(null);
   const panelRef = reactExports.useRef(null);
-  const selected2 = models.find((m3) => m3.id === selectedModelId);
+  const selected = models.find((candidateModel) => candidateModel.id === selectedModelId);
   const mediaType = reactExports.useMemo(
     () => inferMediaType(models[0]),
     [models],
@@ -224,25 +224,25 @@ export function ModelChip({
   }, [models, mediaType]);
   const TriggerIcon = reactExports.useMemo(() => {
     if (loading) return null;
-    if (selected2) return pickModelIcon(selected2, mediaType, releaseRegion);
+    if (selected) return pickModelIcon(selected, mediaType, releaseRegion);
     if (mediaType === "image") return ImageOutlineIcon;
     if (mediaType === "video") return Video;
     if (mediaType === "audio-tts") return Mic;
     if (mediaType === "audio-music") return Music;
     if (mediaType === "text-llm") return ScrollText;
     return null;
-  }, [loading, selected2, mediaType, releaseRegion]);
+  }, [loading, selected, mediaType, releaseRegion]);
   reactExports.useEffect(() => {
     if (!open) return;
-    const handle2 = (e2) => {
-      const target = e2.target;
+    const handle = (clickEvent) => {
+      const target = clickEvent.target;
       if (!target) return;
       if (triggerRef.current?.contains(target)) return;
       if (panelRef.current?.contains(target)) return;
       setOpen(false);
     };
-    document.addEventListener("mousedown", handle2, true);
-    return () => document.removeEventListener("mousedown", handle2, true);
+    document.addEventListener("mousedown", handle, true);
+    return () => document.removeEventListener("mousedown", handle, true);
   }, [open]);
   const placement = usePortalAnchorPlacement(triggerRef, {
     open,
@@ -252,7 +252,7 @@ export function ModelChip({
   const handleSelect = reactExports.useCallback(
     (modelId) => {
       onChange(modelId);
-      const picked = models.find((m3) => m3.id === modelId);
+      const picked = models.find((selectedModelRecord) => selectedModelRecord.id === modelId);
       if (
         picked &&
         isPromotionActive(picked.promotion) &&

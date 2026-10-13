@@ -8,7 +8,7 @@ import { Slider } from "./slider.jsx";
 import { TooltipProvider } from "../infra/create-recently-added-store.js";
 const PROMPT_FONT_SIZE_STEP = 1;
 function PromptLengthHint({ currentLength, maxLength, className }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (!maxLength || maxLength <= 0) return null;
   const overLimit = currentLength > maxLength;
   const approaching =
@@ -32,7 +32,7 @@ function PromptLengthHint({ currentLength, maxLength, className }) {
       {overLimit ? (
         <span className="ml-1">
           {"· "}
-          {t2("canvas.promptLengthExceeded", "Exceeded")}
+          {translate("canvas.promptLengthExceeded", "Exceeded")}
         </span>
       ) : null}
     </div>
@@ -40,25 +40,25 @@ function PromptLengthHint({ currentLength, maxLength, className }) {
 }
 const COPY_FEEDBACK_DURATION_MS = 1500;
 async function copyPromptText(
-  text2,
-  clipboard2 = typeof navigator === "undefined" ? void 0 : navigator.clipboard,
+  text,
+  clipboard = typeof navigator === "undefined" ? void 0 : navigator.clipboard,
 ) {
-  if (text2.length === 0 || !clipboard2?.writeText) return false;
+  if (text.length === 0 || !clipboard?.writeText) return false;
   try {
-    await clipboard2.writeText(text2);
+    await clipboard.writeText(text);
     return true;
   } catch {
     return false;
   }
 }
-function PromptCopyControl({ getPromptText, disabled: disabled2 = false }) {
-  const { t: t2 } = useTranslation();
+function PromptCopyControl({ getPromptText, disabled = false }) {
+  const { t: translate } = useTranslation();
   const [copied, setCopied] = reactExports.useState(false);
   const feedbackTimerRef = reactExports.useRef(null);
-  const copyLabel = t2("canvas.prompt.copy", {
+  const copyLabel = translate("canvas.prompt.copy", {
     defaultValue: "Copy prompt",
   });
-  const copiedLabel = t2("common.copiedShort", {
+  const copiedLabel = translate("common.copiedShort", {
     defaultValue: "Copied",
   });
   const feedbackLabel = copied ? copiedLabel : copyLabel;
@@ -77,7 +77,7 @@ function PromptCopyControl({ getPromptText, disabled: disabled2 = false }) {
         feedbackTimerRef.current = null;
         setCopied(false);
         dedupedToast.error(
-          t2("common.copyFailed", {
+          translate("common.copyFailed", {
             defaultValue: "Failed to copy",
           }),
         );
@@ -90,14 +90,14 @@ function PromptCopyControl({ getPromptText, disabled: disabled2 = false }) {
         setCopied(false);
       }, COPY_FEEDBACK_DURATION_MS);
     },
-    [getPromptText, t2],
+    [getPromptText, translate],
   );
   return (
     <Tooltip content={feedbackLabel} side="top" closeOnClick={false}>
       <button
         type="button"
         aria-label={feedbackLabel}
-        disabled={disabled2}
+        disabled={disabled}
         data-action-ui-id="popover.prompt-copy"
         className="nowheel nopan nodrag flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--canvas-node-border-selected)] disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent"
         onClick={(event) => void handleCopy(event)}
@@ -113,16 +113,16 @@ function PromptCopyControl({ getPromptText, disabled: disabled2 = false }) {
   );
 }
 function PromptFontSizeControl() {
-  const { t: t2 } = useTranslation();
-  const fontSize = usePromptFontSizeStore((state2) => state2.fontSize);
-  const setFontSize = usePromptFontSizeStore((state2) => state2.setFontSize);
+  const { t: translate } = useTranslation();
+  const fontSize = usePromptFontSizeStore((state) => state.fontSize);
+  const setFontSize = usePromptFontSizeStore((state) => state.setFontSize);
   const resetFontSize = usePromptFontSizeStore(
-    (state2) => state2.resetFontSize,
+    (state) => state.resetFontSize,
   );
-  const label = t2("canvas.prompt.fontSize", {
+  const label = translate("canvas.prompt.fontSize", {
     defaultValue: "Adjust prompt font size",
   });
-  const resetLabel = t2("canvas.prompt.fontSizeReset", {
+  const resetLabel = translate("canvas.prompt.fontSizeReset", {
     defaultValue: "Reset prompt font size",
   });
   return (
@@ -166,8 +166,8 @@ function PromptFontSizeControl() {
               max={PROMPT_FONT_SIZE_MAX}
               step={PROMPT_FONT_SIZE_STEP}
               onValueChange={(value) => {
-                const next2 = Array.isArray(value) ? value[0] : value;
-                if (typeof next2 === "number") setFontSize(next2);
+                const next = Array.isArray(value) ? value[0] : value;
+                if (typeof next === "number") setFontSize(next);
               }}
               className="w-28 shrink-0"
               thumbProps={{

@@ -1,0 +1,9 @@
+key	old	new	依据
+ts2@23:29	ts2	timestamp	该参数是用于计算相对时间并格式化日期的时间戳。
+t2@97:14	t2	translate	该绑定是附件行读取界面文案的翻译函数。
+e2@122:14	e2	keyboardEvent	该事件用于键盘激活附件预览。
+e2@154:29	e2	clickEvent	该事件用于阻止添加到画布操作冒泡。
+e2@170:29	e2	clickEvent	该事件用于阻止添加到聊天操作冒泡。
+t2@194:14	t2	translate	该绑定是实体附件列表读取界面文案的翻译函数。
+bytes2@51:22	bytes2	bytes	去掉打包器防重名追加的后缀，恢复原名 bytes，即该绑定持有的值。
+gatewayUrl2@57:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。

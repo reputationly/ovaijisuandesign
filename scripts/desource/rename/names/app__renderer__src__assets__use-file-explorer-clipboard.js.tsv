@@ -1,0 +1,10 @@
+key	old	new	依据
+t2@27:14	t2	translate	该绑定是文件浏览器剪贴板操作读取状态提示的翻译函数。
+it2@101:22	it2	importedItem	该值是导入接口返回的单个文件记录。
+ts2@127:15	ts2	timestamp	该值是用于生成粘贴文件名的时间戳字符串。
+r2@184:24	r2	resolve	该函数用于完成等待下一帧 requestAnimationFrame 的 Promise。
+gatewayFetch2@19:17	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+platform2@20:13	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+data2@92:13	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+dot2@135:17	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+ab@143:19	ab	arrayBuffer	从文件读取到、准备写入目标路径的 ArrayBuffer 数据。

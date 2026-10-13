@@ -7,58 +7,58 @@ import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js"
 import { joinFilePath } from "./use-file-explorer-canvas-integration.js";
 import { postCheckConflicts } from "./post-check-conflicts.js";
 export function useFileExplorerImport({
-  gatewayFetch: gatewayFetch2,
-  platform: platform2,
+  gatewayFetch,
+  platform,
   rootPath,
   conflictResolver,
   refresh,
   setSelectedPaths,
   setLastSelectedPath,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [externalDragOver, setExternalDragOver] = reactExports.useState(false);
   const dragCounterRef = reactExports.useRef(0);
   const handleImportFilesFromMenu = useStableCallback(async () => {
     if (!rootPath) return;
-    const showOpenDialog = platform2.fs.showOpenDialog;
+    const showOpenDialog = platform.fs.showOpenDialog;
     if (!showOpenDialog) {
-      dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+      dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       return;
     }
     let picked;
     try {
       picked = await showOpenDialog({
-        title: t2("fileExplorer.importFilesDialogTitle"),
+        title: translate("fileExplorer.importFilesDialogTitle"),
         multiple: true,
         directory: false,
       });
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.importFailed") +
+        translate("fileExplorer.importFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
       return;
     }
     if (!picked || picked.length === 0) return;
-    const probeItems = picked.map((p3) => ({
-      name: getFileName(p3),
-      sourcePath: p3,
+    const probeItems = picked.map((sourcePath) => ({
+      name: getFileName(sourcePath),
+      sourcePath,
       kind: "file",
     }));
     let conflicts;
     try {
-      const probeJson = await postCheckConflicts(gatewayFetch2, {
+      const probeJson = await postCheckConflicts(gatewayFetch, {
         items: probeItems,
         targetDir: "",
       });
-      conflicts = probeJson.conflicts.map((c3) => ({
-        name: c3.name,
-        sourcePath: c3.sourcePath,
-        existingKind: c3.existingKind,
+      conflicts = probeJson.conflicts.map((conflict) => ({
+        name: conflict.name,
+        sourcePath: conflict.sourcePath,
+        existingKind: conflict.existingKind,
       }));
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.importFailed") +
+        translate("fileExplorer.importFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
       return;
@@ -73,20 +73,20 @@ export function useFileExplorerImport({
         return;
       }
       const { decisions } = result;
-      conflicts.forEach((c3, i2) => {
-        const decision = decisions[i2];
-        if (!c3.sourcePath) return;
-        if (decision === "skip") skipSources.add(c3.sourcePath);
-        else if (decision === "overwrite") overwriteTargets.push(c3.name);
+      conflicts.forEach((conflict, conflictIndex) => {
+        const decision = decisions[conflictIndex];
+        if (!conflict.sourcePath) return;
+        if (decision === "skip") skipSources.add(conflict.sourcePath);
+        else if (decision === "overwrite") overwriteTargets.push(conflict.name);
       });
     }
-    const sourcesToImport = picked.filter((p3) => !skipSources.has(p3));
+    const sourcesToImport = picked.filter((sourcePath) => !skipSources.has(sourcePath));
     if (sourcesToImport.length === 0) {
       return;
     }
     if (overwriteTargets.length > 0) {
       try {
-        const deleteRes = await gatewayFetch2(API_PATHS.deleteFiles, {
+        const deleteRes = await gatewayFetch(API_PATHS.deleteFiles, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -102,11 +102,11 @@ export function useFileExplorerImport({
         }
       } catch (err) {
         console.warn("[fileExplorer] overwrite delete failed", err);
-        dedupedToast.warning(t2("fileExplorer.overwriteFailedRenamed"));
+        dedupedToast.warning(translate("fileExplorer.overwriteFailedRenamed"));
       }
     }
     try {
-      const res = await gatewayFetch2(API_PATHS.importExternal, {
+      const res = await gatewayFetch(API_PATHS.importExternal, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,26 +118,26 @@ export function useFileExplorerImport({
       if (!res.ok) {
         throw new Error(`Import failed: ${res.status} ${res.statusText}`);
       }
-      let data2;
+      let data;
       try {
-        data2 = await res.json();
+        data = await res.json();
       } catch (err) {
         throw new Error(
           `Import response is not JSON: ${err instanceof Error ? err.message : String(err)}`,
         );
       }
-      const newAbsPaths = (data2.imported ?? []).map((it2) =>
-        joinFilePath(rootPath, it2.path),
+      const newAbsPaths = (data.imported ?? []).map((importedItem) =>
+        joinFilePath(rootPath, importedItem.path),
       );
-      if (data2.errors?.length) {
-        console.warn("[fileExplorer] import partial failures:", data2.errors);
+      if (data.errors?.length) {
+        console.warn("[fileExplorer] import partial failures:", data.errors);
         dedupedToast.warning(
-          t2("fileExplorer.importFailedCount", {
-            count: data2.errors.length,
+          translate("fileExplorer.importFailedCount", {
+            count: data.errors.length,
           }),
         );
       } else {
-        dedupedToast.success(t2("fileExplorer.importComplete"));
+        dedupedToast.success(translate("fileExplorer.importComplete"));
       }
       await refresh();
       if (newAbsPaths.length > 0) {
@@ -146,21 +146,21 @@ export function useFileExplorerImport({
       }
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.importFailed") +
+        translate("fileExplorer.importFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
   });
-  const isExternalFileDrag = reactExports.useCallback((e2) => {
+  const isExternalFileDrag = reactExports.useCallback((dragEvent) => {
     return (
-      e2.dataTransfer.types.includes("Files") &&
-      !e2.dataTransfer.types.includes(RESOURCE_DRAG_MIME)
+      dragEvent.dataTransfer.types.includes("Files") &&
+      !dragEvent.dataTransfer.types.includes(RESOURCE_DRAG_MIME)
     );
   }, []);
   const handleExternalDragEnter = reactExports.useCallback(
-    (e2) => {
-      if (!isExternalFileDrag(e2)) return;
-      e2.preventDefault();
+    (dragEvent) => {
+      if (!isExternalFileDrag(dragEvent)) return;
+      dragEvent.preventDefault();
       dragCounterRef.current += 1;
       if (dragCounterRef.current === 1) {
         setExternalDragOver(true);
@@ -169,16 +169,16 @@ export function useFileExplorerImport({
     [isExternalFileDrag],
   );
   const handleExternalDragOver = reactExports.useCallback(
-    (e2) => {
-      if (!isExternalFileDrag(e2)) return;
-      e2.preventDefault();
-      e2.dataTransfer.dropEffect = "copy";
+    (dragEvent) => {
+      if (!isExternalFileDrag(dragEvent)) return;
+      dragEvent.preventDefault();
+      dragEvent.dataTransfer.dropEffect = "copy";
     },
     [isExternalFileDrag],
   );
   const handleExternalDragLeave = reactExports.useCallback(
-    (e2) => {
-      if (!isExternalFileDrag(e2)) return;
+    (dragEvent) => {
+      if (!isExternalFileDrag(dragEvent)) return;
       dragCounterRef.current -= 1;
       if (dragCounterRef.current <= 0) {
         dragCounterRef.current = 0;
@@ -187,18 +187,18 @@ export function useFileExplorerImport({
     },
     [isExternalFileDrag],
   );
-  const handleExternalDrop = useStableCallback(async (e2) => {
-    if (!isExternalFileDrag(e2)) return;
-    e2.preventDefault();
+  const handleExternalDrop = useStableCallback(async (dragEvent) => {
+    if (!isExternalFileDrag(dragEvent)) return;
+    dragEvent.preventDefault();
     dragCounterRef.current = 0;
     setExternalDragOver(false);
-    const files = Array.from(e2.dataTransfer.files);
+    const files = Array.from(dragEvent.dataTransfer.files);
     const paths = files
-      .map((f2) => window.hilo?.webUtils?.getPathForFile(f2))
-      .filter((p3) => !!p3);
+      .map((file) => window.hilo?.webUtils?.getPathForFile(file))
+      .filter((filePath) => !!filePath);
     if (paths.length === 0) return;
     try {
-      const res = await gatewayFetch2(API_PATHS.importExternal, {
+      const res = await gatewayFetch(API_PATHS.importExternal, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -208,18 +208,18 @@ export function useFileExplorerImport({
         }),
       });
       if (!res.ok) throw new Error(`Import failed: ${res.status}`);
-      const data2 = await res.json();
-      if (data2.errors?.length) {
+      const data = await res.json();
+      if (data.errors?.length) {
         dedupedToast.error(
-          t2("fileExplorer.importFailedCount", {
-            count: data2.errors.length,
+          translate("fileExplorer.importFailedCount", {
+            count: data.errors.length,
           }),
         );
       }
       await refresh();
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.importFailed") +
+        translate("fileExplorer.importFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }

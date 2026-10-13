@@ -1,0 +1,6 @@
+key	old	new	依据
+next2@70:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+preload2@38:48	preload2	preload	去掉打包器防重名追加的后缀，恢复原名 preload，即该绑定持有的值。
+raw2@10:31	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+raw2@22:27	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+t2@39:14	t2	translate	useTranslation 返回的翻译函数。

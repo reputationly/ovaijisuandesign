@@ -1,0 +1,15 @@
+key	old	new	依据
+i2@113:9	i2	unitIndex	该值是字节大小格式化中用于选择单位与换算指数的下标。
+fn2@198:35	fn2	callback	该参数是由稳定回调包装器保存并转发的函数。
+data2@16:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+all2@40:15	all2	all	去掉打包器防重名追加的后缀，恢复原名 all，即该绑定持有的值。
+data2@43:17	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+node2@59:25	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+ids2@93:11	ids2	ids	去掉打包器防重名追加的后缀，恢复原名 ids，即该绑定持有的值。
+bytes2@110:29	bytes2	bytes	去掉打包器防重名追加的后缀，恢复原名 bytes，即该绑定持有的值。
+node2@119:44	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@127:34	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+snapshot2@130:9	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+option2@136:26	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+index2@140:17	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+active2@156:48	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。

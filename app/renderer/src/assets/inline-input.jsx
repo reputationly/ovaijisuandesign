@@ -30,31 +30,31 @@ const CANVAS_TAG_THEME_COLOR_BY_PRESET = {
   "#30D158": "var(--canvas-node-tag-green-surface, #6EDF8A)",
   "#FFD60A": "var(--canvas-node-tag-yellow-surface, #FFE254)",
 };
-export function getCanvasTagPresentationColor(color2) {
-  if (!color2) return void 0;
+export function getCanvasTagPresentationColor(color) {
+  if (!color) return void 0;
   return (
-    CANVAS_TAG_THEME_COLOR_BY_PRESET[color2.toUpperCase()] ??
-    `color-mix(in srgb, ${color2} var(--canvas-tag-presentation-strength, 70%), var(--canvas-tag-presentation-base, #ffffff))`
+    CANVAS_TAG_THEME_COLOR_BY_PRESET[color.toUpperCase()] ??
+    `color-mix(in srgb, ${color} var(--canvas-tag-presentation-strength, 70%), var(--canvas-tag-presentation-base, #ffffff))`
   );
 }
-export function getCanvasTagSelectedForegroundColor(color2) {
-  if (color2.toUpperCase() === "#FFD60A") {
+export function getCanvasTagSelectedForegroundColor(color) {
+  if (color.toUpperCase() === "#FFD60A") {
     return "var(--canvas-node-tag-yellow-selected-foreground, #A87E00)";
   }
-  return getCanvasTagPresentationColor(color2) ?? color2;
+  return getCanvasTagPresentationColor(color) ?? color;
 }
-export function TagDots({ tagIds, size: size2 = 9, className, ringColor }) {
-  const registry2 = useTagRegistry();
-  const { t: t2 } = useTranslation();
-  const tags2 = resolveTagIds(tagIds, registry2).filter(isCanvasColorTag);
-  if (tags2.length === 0) return null;
-  const name2 = (id2, custom) =>
+export function TagDots({ tagIds, size = 9, className, ringColor }) {
+  const registry = useTagRegistry();
+  const { t: translate } = useTranslation();
+  const tags = resolveTagIds(tagIds, registry).filter(isCanvasColorTag);
+  if (tags.length === 0) return null;
+  const getColorName = (colorId, custom) =>
     custom && custom.length > 0
       ? custom
-      : t2(PRESET_COLOR_NAME_KEYS[id2] ?? "") || id2;
-  const visibleTags = tags2.slice(0, MAX_VISIBLE_CANVAS_TAG_COLORS);
-  const title = visibleTags.map((tag) => name2(tag.id, tag.name)).join("、");
-  const overlap = Math.round(size2 * 0.4);
+      : translate(PRESET_COLOR_NAME_KEYS[colorId] ?? "") || colorId;
+  const visibleTags = tags.slice(0, MAX_VISIBLE_CANVAS_TAG_COLORS);
+  const title = visibleTags.map((tag) => getColorName(tag.id, tag.name)).join("、");
+  const overlap = Math.round(size * 0.4);
   const ring = ringColor ?? "var(--background, #fff)";
   return (
     <TooltipProvider delay={200}>
@@ -63,21 +63,21 @@ export function TagDots({ tagIds, size: size2 = 9, className, ringColor }) {
           render={
             <span
               className={cn("inline-flex shrink-0 items-center", className)}
-              onPointerEnter={(e2) => e2.stopPropagation()}
-              onPointerMove={(e2) => e2.stopPropagation()}
-              onPointerLeave={(e2) => e2.stopPropagation()}
+              onPointerEnter={(pointerEvent) => pointerEvent.stopPropagation()}
+              onPointerMove={(pointerEvent) => pointerEvent.stopPropagation()}
+              onPointerLeave={(pointerEvent) => pointerEvent.stopPropagation()}
             >
-              {visibleTags.map((tag, index2) => (
+              {visibleTags.map((tag, index) => (
                 <span
                   key={tag.id}
                   className="rounded-full"
                   style={{
-                    width: size2,
-                    height: size2,
+                    width: size,
+                    height: size,
                     backgroundColor: getCanvasTagPresentationColor(tag.color),
-                    marginLeft: index2 === 0 ? 0 : -overlap,
+                    marginLeft: index === 0 ? 0 : -overlap,
                     boxShadow: `0 0 0 0.7px ${ring}`,
-                    zIndex: visibleTags.length - index2,
+                    zIndex: visibleTags.length - index,
                     position: "relative",
                   }}
                 />
@@ -90,11 +90,11 @@ export function TagDots({ tagIds, size: size2 = 9, className, ringColor }) {
     </TooltipProvider>
   );
 }
-export function arePropsRefEqualExcept(prev, next2, except) {
-  for (const key2 in prev) {
-    if (!Object.hasOwn(prev, key2)) continue;
-    if (except.includes(key2)) continue;
-    if (prev[key2] !== next2[key2]) return false;
+export function arePropsRefEqualExcept(prev, next, except) {
+  for (const key in prev) {
+    if (!Object.hasOwn(prev, key)) continue;
+    if (except.includes(key)) continue;
+    if (prev[key] !== next[key]) return false;
   }
   return true;
 }
@@ -120,7 +120,7 @@ export function InlineInput({
   onCancel,
   className,
 }) {
-  const { head: stem, tail: extension2 } = splitFilename(
+  const { head: stem, tail: extension } = splitFilename(
     initialName,
     isDirectory ? "folder" : "file",
   );
@@ -150,7 +150,7 @@ export function InlineInput({
   return (
     <AssetRenameInput
       ref={inputRef}
-      extension={extension2}
+      extension={extension}
       className={cn(
         "h-auto flex-1 rounded-lg border-primary bg-background px-1 py-0 text-sm text-foreground outline-none focus-within:border-primary",
         className,
@@ -158,16 +158,16 @@ export function InlineInput({
       inputClassName="h-auto px-0 py-0"
       data-action-ui-id="file-explorer.inline-name-input"
       value={value}
-      onChange={(e2) => setValue(e2.target.value)}
-      onKeyDown={(e2) => {
-        e2.stopPropagation();
-        if (e2.nativeEvent.isComposing) return;
-        if (e2.key === "Enter") {
-          e2.preventDefault();
+      onChange={(changeEvent) => setValue(changeEvent.target.value)}
+      onKeyDown={(keyboardEvent) => {
+        keyboardEvent.stopPropagation();
+        if (keyboardEvent.nativeEvent.isComposing) return;
+        if (keyboardEvent.key === "Enter") {
+          keyboardEvent.preventDefault();
           handleConfirm();
         }
-        if (e2.key === "Escape") {
-          e2.preventDefault();
+        if (keyboardEvent.key === "Escape") {
+          keyboardEvent.preventDefault();
           if (!settledRef.current) {
             settledRef.current = true;
             onCancel();
@@ -175,26 +175,26 @@ export function InlineInput({
         }
       }}
       onBlur={handleConfirm}
-      onClick={(e2) => e2.stopPropagation()}
+      onClick={(clickEvent) => clickEvent.stopPropagation()}
     />
   );
 }
 const SPECIAL_PROPS = ["renamingPath", "asset"];
-export function arePropsEqual(prev, next2) {
+export function arePropsEqual(prev, next) {
   const prevIsRenaming = prev.renamingPath === prev.absolutePath;
-  const nextIsRenaming = next2.renamingPath === next2.absolutePath;
+  const nextIsRenaming = next.renamingPath === next.absolutePath;
   if (prevIsRenaming !== nextIsRenaming) return false;
-  if (prev.asset !== next2.asset) {
-    if (prev.asset.id !== next2.asset.id) return false;
-    if (prev.asset.path !== next2.asset.path) return false;
-    if (prev.asset.name !== next2.asset.name) return false;
-    if (prev.asset.type !== next2.asset.type) return false;
-    if (prev.asset.status !== next2.asset.status) return false;
-    if (prev.asset.duration !== next2.asset.duration) return false;
-    if (prev.asset.candidate?.asset_id !== next2.asset.candidate?.asset_id)
+  if (prev.asset !== next.asset) {
+    if (prev.asset.id !== next.asset.id) return false;
+    if (prev.asset.path !== next.asset.path) return false;
+    if (prev.asset.name !== next.asset.name) return false;
+    if (prev.asset.type !== next.asset.type) return false;
+    if (prev.asset.status !== next.asset.status) return false;
+    if (prev.asset.duration !== next.asset.duration) return false;
+    if (prev.asset.candidate?.asset_id !== next.asset.candidate?.asset_id)
       return false;
-    if (prev.asset.candidate?.path !== next2.asset.candidate?.path)
+    if (prev.asset.candidate?.path !== next.asset.candidate?.path)
       return false;
   }
-  return arePropsRefEqualExcept(prev, next2, SPECIAL_PROPS);
+  return arePropsRefEqualExcept(prev, next, SPECIAL_PROPS);
 }

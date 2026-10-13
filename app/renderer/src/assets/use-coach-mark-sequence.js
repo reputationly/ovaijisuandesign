@@ -15,7 +15,7 @@ function appendSeenEntries(prev, markId, maxRevision) {
   const additions = [
     markId,
     ...(maxRevision > 1 ? [`${markId}@${maxRevision}`] : []),
-  ].filter((id2) => !arr.includes(id2));
+  ].filter((seenEntryId) => !arr.includes(seenEntryId));
   return additions.length ? [...arr, ...additions] : arr;
 }
 
@@ -30,18 +30,18 @@ export function useCoachMarkSequence(
   const [dismissedMarks, setDismissedMarks, setDismissedMarksAsync] =
     useStorage("global.dismissedCoachMarks");
   const [isOpen, setIsOpen] = reactExports.useState(false);
-  const [index2, setIndex] = reactExports.useState(0);
+  const [index, setIndex] = reactExports.useState(0);
   const indexRef = reactExports.useRef(0);
   const dismissedRef = reactExports.useRef(false);
   const openedRef = reactExports.useRef(false);
   const lockedSeenRef = reactExports.useRef(null);
   const maxRevision = steps.reduce(
-    (max2, s2) => Math.max(max2, stepRevision(s2)),
+    (max, step) => Math.max(max, stepRevision(step)),
     1,
   );
   const seenRevision =
     lockedSeenRef.current ?? resolveSeenRevision(dismissedMarks, markId);
-  const visibleSteps = steps.filter((s2) => stepRevision(s2) > seenRevision);
+  const visibleSteps = steps.filter((step) => stepRevision(step) > seenRevision);
   const stepTotal = visibleSteps.length;
   const stepsRef = reactExports.useRef(visibleSteps);
   stepsRef.current = visibleSteps;
@@ -61,7 +61,7 @@ export function useCoachMarkSequence(
       dismissedRef.current = true;
       return;
     }
-    const timer2 = setTimeout(() => {
+    const timer = setTimeout(() => {
       if (dismissedRef.current) return;
       openedRef.current = true;
       lockedSeenRef.current = seenNow;
@@ -74,7 +74,7 @@ export function useCoachMarkSequence(
         step: 1,
       });
     }, openDelayMs);
-    return () => clearTimeout(timer2);
+    return () => clearTimeout(timer);
   }, [enabled, stepTotal, dismissedMarks, markId, openDelayMs, maxRevision]);
   const finish = reactExports.useCallback(
     (method) => {
@@ -89,7 +89,7 @@ export function useCoachMarkSequence(
     },
     [markId, persistDismissed],
   );
-  const next2 = reactExports.useCallback(() => {
+  const next = reactExports.useCallback(() => {
     const nextIdx = indexRef.current + 1;
     if (nextIdx >= stepTotal) {
       finish("button");
@@ -129,9 +129,9 @@ export function useCoachMarkSequence(
   );
   reactExports.useEffect(() => {
     if (!isOpen) return;
-    const handler = (e2) => {
-      if (e2.key === "Escape") {
-        e2.stopPropagation();
+    const handler = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        keyboardEvent.stopPropagation();
         if (persistOnEscape) {
           dismiss("close");
         } else {
@@ -151,12 +151,12 @@ export function useCoachMarkSequence(
   ]);
   return {
     isOpen,
-    index: index2,
-    stepCurrent: index2 + 1,
+    index,
+    stepCurrent: index + 1,
     stepTotal,
-    isLast: index2 >= stepTotal - 1,
+    isLast: index >= stepTotal - 1,
     visibleSteps,
-    next: next2,
+    next,
     dismiss,
     closeWithoutPersisting,
     persistSeen,

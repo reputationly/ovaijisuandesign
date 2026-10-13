@@ -15,20 +15,20 @@ import { PopoverTrigger } from "./gateway-scope-provider.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 function findBySegments(options, segments) {
   if (segments.length === 0)
-    return options.find((option2) => option2.key === ROOT_KEY);
+    return options.find((option) => option.key === ROOT_KEY);
   return options.find(
-    (option2) =>
-      option2.key !== ROOT_KEY &&
-      option2.segments.length === segments.length &&
-      option2.segments.every((segment, index2) => segment === segments[index2]),
+    (option) =>
+      option.key !== ROOT_KEY &&
+      option.segments.length === segments.length &&
+      option.segments.every((segment, index) => segment === segments[index]),
   );
 }
-function childrenOf(options, path2) {
+function childrenOf(options, path) {
   return options.filter(
-    (option2) =>
-      option2.key !== ROOT_KEY &&
-      option2.segments.length === path2.length + 1 &&
-      path2.every((segment, index2) => option2.segments[index2] === segment),
+    (option) =>
+      option.key !== ROOT_KEY &&
+      option.segments.length === path.length + 1 &&
+      path.every((segment, index) => option.segments[index] === segment),
   );
 }
 function FolderRow({
@@ -85,49 +85,49 @@ export function FolderDrillDownPicker({
   className,
   actionUiId,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const [browsePath, setBrowsePath] = reactExports.useState([]);
-  const selected2 = reactExports.useMemo(
-    () => options.find((option2) => option2.key === value),
+  const selected = reactExports.useMemo(
+    () => options.find((option) => option.key === value),
     [options, value],
   );
   const browseOption = reactExports.useMemo(
     () => findBySegments(options, browsePath),
     [options, browsePath],
   );
-  const children2 = reactExports.useMemo(
+  const children = reactExports.useMemo(
     () => childrenOf(options, browsePath),
     [options, browsePath],
   );
-  const hasChildren2 = reactExports.useCallback(
-    (option2) => childrenOf(options, option2.segments).length > 0,
+  const hasChildren = reactExports.useCallback(
+    (option) => childrenOf(options, option.segments).length > 0,
     [options],
   );
   const handleOpenChange = reactExports.useCallback(
-    (next2) => {
-      setOpen(next2);
-      if (next2)
-        setBrowsePath(selected2 ? selected2.segments.slice(0, -1) : []);
+    (next) => {
+      setOpen(next);
+      if (next)
+        setBrowsePath(selected ? selected.segments.slice(0, -1) : []);
     },
-    [selected2],
+    [selected],
   );
   const pick = reactExports.useCallback(
-    (key2) => {
-      if (!key2) return;
-      onChange(key2);
+    (key) => {
+      if (!key) return;
+      onChange(key);
       setOpen(false);
     },
     [onChange],
   );
-  const leafName = selected2?.segments[selected2.segments.length - 1];
+  const leafName = selected?.segments[selected.segments.length - 1];
   const parentPrefix =
-    selected2 && selected2.segments.length > 1
-      ? selected2.segments.slice(0, -1).join(" / ")
+    selected && selected.segments.length > 1
+      ? selected.segments.slice(0, -1).join(" / ")
       : void 0;
   const currentLevelLabel =
     browsePath.length === 0
-      ? t2("localAssets.saveRootFolder")
+      ? translate("localAssets.saveRootFolder")
       : (browsePath[browsePath.length - 1] ?? "");
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
@@ -138,7 +138,7 @@ export function FolderDrillDownPicker({
         )}
         data-action-ui-id={actionUiId}
       >
-        {selected2 ? (
+        {selected ? (
           <span className="flex min-w-0 items-center gap-1.5">
             <Folder
               size={13}
@@ -152,16 +152,16 @@ export function FolderDrillDownPicker({
                   {" / "}
                 </span>
               ) : null}
-              {selected2.segments.length === 0
-                ? t2("localAssets.saveRootFolder")
+              {selected.segments.length === 0
+                ? translate("localAssets.saveRootFolder")
                 : leafName}
             </span>
           </span>
         ) : (
           <span className="truncate text-muted-foreground">
             {loading
-              ? t2("common.loading")
-              : t2("localAssets.saveLocationPlaceholder")}
+              ? translate("common.loading")
+              : translate("localAssets.saveLocationPlaceholder")}
           </span>
         )}
         <ChevronDown
@@ -187,11 +187,11 @@ export function FolderDrillDownPicker({
                 : "text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground",
             )}
           >
-            {t2("localAssets.saveRootFolder")}
+            {translate("localAssets.saveRootFolder")}
           </button>
-          {browsePath.map((segment, index2) => {
-            const prefixPath = browsePath.slice(0, index2 + 1).join("/");
-            const isLast = index2 === browsePath.length - 1;
+          {browsePath.map((segment, index) => {
+            const prefixPath = browsePath.slice(0, index + 1).join("/");
+            const isLast = index === browsePath.length - 1;
             return (
               <span
                 key={prefixPath}
@@ -204,7 +204,7 @@ export function FolderDrillDownPicker({
                 />
                 <button
                   type="button"
-                  onClick={() => setBrowsePath(browsePath.slice(0, index2 + 1))}
+                  onClick={() => setBrowsePath(browsePath.slice(0, index + 1))}
                   className={cn(
                     "min-w-6 max-w-28 truncate rounded-md px-1 py-0.5 transition-colors",
                     isLast
@@ -224,15 +224,15 @@ export function FolderDrillDownPicker({
           isSelected={browseOption !== void 0 && browseOption.key === value}
           onPick={() => pick(browseOption?.key)}
         />
-        {children2.length > 0 ? (
+        {children.length > 0 ? (
           <div className="flex max-h-56 flex-col overflow-y-auto">
-            {children2.map((child) => (
+            {children.map((child) => (
               <FolderRow
                 key={child.key}
                 label={child.segments[child.segments.length - 1] ?? ""}
                 isSelected={child.key === value}
-                canDrill={hasChildren2(child)}
-                drillLabel={t2("localAssets.folderPickerEnter")}
+                canDrill={hasChildren(child)}
+                drillLabel={translate("localAssets.folderPickerEnter")}
                 onPick={() => pick(child.key)}
                 onDrill={() => setBrowsePath(child.segments)}
               />
@@ -240,7 +240,7 @@ export function FolderDrillDownPicker({
           </div>
         ) : (
           <p className="px-2 py-1.5 text-xs text-muted-foreground">
-            {t2("localAssets.folderPickerEmpty")}
+            {translate("localAssets.folderPickerEmpty")}
           </p>
         )}
       </PopoverContent>

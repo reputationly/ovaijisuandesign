@@ -35,17 +35,17 @@ function formatDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return "";
   return formatTime(seconds, true);
 }
-function VideoIcon({ size: size2 = 17 }) {
-  const { t: t2 } = useTranslation();
-  const height = Math.round((size2 * 19) / 17);
+function VideoIcon({ size = 17 }) {
+  const { t: translate } = useTranslation();
+  const height = Math.round((size * 19) / 17);
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={size2}
+      width={size}
       height={height}
       viewBox="0 0 17 19"
       fill="none"
-      aria-label={t2("canvas.video")}
+      aria-label={translate("canvas.video")}
       role="img"
     >
       <path
@@ -68,19 +68,19 @@ function VideoIcon({ size: size2 = 17 }) {
     </svg>
   );
 }
-function AudioWaveIcon({ size: size2 = 16 }) {
-  const { t: t2 } = useTranslation();
+function AudioWaveIcon({ size = 16 }) {
+  const { t: translate } = useTranslation();
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      aria-label={t2("canvas.audio")}
+      aria-label={translate("canvas.audio")}
       role="img"
     >
       <path d="M8 2v12" />
@@ -116,11 +116,11 @@ const MEDIA_GRADIENTS = [
   "linear-gradient(145deg, #7A6BB0 0%, #B888C8 45%, #E8ABD0 100%)",
 ];
 function getGradientIndex(filename) {
-  let hash2 = 0;
-  for (let i2 = 0; i2 < filename.length; i2++) {
-    hash2 = (hash2 * 31 + filename.charCodeAt(i2)) | 0;
+  let hash = 0;
+  for (let characterIndex = 0; characterIndex < filename.length; characterIndex++) {
+    hash = (hash * 31 + filename.charCodeAt(characterIndex)) | 0;
   }
-  return Math.abs(hash2) % MEDIA_GRADIENTS.length;
+  return Math.abs(hash) % MEDIA_GRADIENTS.length;
 }
 function FileMetadataHoverPreview({
   filename,
@@ -135,17 +135,17 @@ function FileMetadataHoverPreview({
   );
   const contentRef = reactExports.useRef(null);
   reactExports.useLayoutEffect(() => {
-    const content2 = contentRef.current;
-    if (!content2) return;
+    const content = contentRef.current;
+    if (!content) return;
     const measure = () =>
-      setPreviewHeight(Math.ceil(content2.getBoundingClientRect().height) + 2);
+      setPreviewHeight(Math.ceil(content.getBoundingClientRect().height) + 2);
     measure();
-    const observer2 =
+    const observer =
       typeof ResizeObserver === "undefined"
         ? null
         : new ResizeObserver(measure);
-    observer2?.observe(content2);
-    return () => observer2?.disconnect();
+    observer?.observe(content);
+    return () => observer?.disconnect();
   }, []);
   const { layout, previewRef, handlePreviewMouseLeave } = useHoverPreview({
     anchorElement,
@@ -210,7 +210,7 @@ function FileHoverPreview({
   loadTextContent,
   onReadFull,
   kind,
-  url: url2,
+  url,
   posterUrl,
   anchorElement,
   anchorRect,
@@ -231,7 +231,7 @@ function FileHoverPreview({
       <MediaHoverPreview
         kind={kind}
         showFileName={showMediaHoverFileName}
-        url={url2 ?? ""}
+        url={url ?? ""}
         name={filename}
         durationSec={durationSec}
         posterUrl={posterUrl}
@@ -277,15 +277,15 @@ function FileHoverPreview({
   );
 }
 function fileTypeLabel(filename) {
-  const dot2 = filename.lastIndexOf(".");
-  if (dot2 < 0 || dot2 === filename.length - 1) return "FILE";
-  return filename.slice(dot2 + 1).toUpperCase();
+  const dot = filename.lastIndexOf(".");
+  if (dot < 0 || dot === filename.length - 1) return "FILE";
+  return filename.slice(dot + 1).toUpperCase();
 }
 export function FileChip({
   filename,
   textPath,
   loadTextContent,
-  active: active2 = true,
+  active = true,
   imageUrl,
   mediaUrl,
   fileSize,
@@ -303,7 +303,7 @@ export function FileChip({
   layout = "auto",
   className,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [durationSec, setDurationSec] = reactExports.useState(() =>
     mediaUrl ? mediaDurationCache.get(mediaUrl) : void 0,
   );
@@ -324,7 +324,7 @@ export function FileChip({
   reactExports.useEffect(() => {
     setHoverPreviewOpen(false);
     setTextReaderOpen(false);
-  }, [active2, textPath, mediaUrl]);
+  }, [active, textPath, mediaUrl]);
   const handleReadFull = () => {
     setHoverPreviewOpen(false);
     setTextReaderOpen(true);
@@ -337,7 +337,7 @@ export function FileChip({
         path={textPath}
         name={filename}
         loadTextContent={loadTextContent}
-        active={active2}
+        active={active}
       />
     ) : null;
   const previewCloseTimerRef = reactExports.useRef(null);
@@ -373,9 +373,9 @@ export function FileChip({
         ? mediaDimensionsCache.get(previewUrl)
         : void 0;
   const rememberMediaDimensions = reactExports.useCallback(
-    (url2, width, height) => {
+    (url, width, height) => {
       if (
-        !url2 ||
+        !url ||
         !Number.isFinite(width) ||
         !Number.isFinite(height) ||
         width <= 0 ||
@@ -383,14 +383,14 @@ export function FileChip({
       ) {
         return;
       }
-      const dimensions2 = {
+      const dimensions = {
         width,
         height,
       };
-      mediaDimensionsCache.set(url2, dimensions2);
+      mediaDimensionsCache.set(url, dimensions);
       setLoadedMediaDimensions({
-        url: url2,
-        ...dimensions2,
+        url,
+        ...dimensions,
       });
     },
     [],
@@ -479,7 +479,7 @@ export function FileChip({
         ? "audio"
         : "file";
   const showHoverPreview =
-    active2 &&
+    active &&
     hoverPreviewOpen &&
     chipEl &&
     !lightboxOpen &&
@@ -487,7 +487,7 @@ export function FileChip({
     !suppressHoverPreview;
   reactExports.useEffect(() => {
     if (!hoverPreviewOpen || !chipEl) return;
-    const close2 = (event) => {
+    const dismissPreview = (event) => {
       if (
         event?.target instanceof Element &&
         event.target.closest(
@@ -497,21 +497,21 @@ export function FileChip({
         return;
       setHoverPreviewOpen(false);
     };
-    document.addEventListener("scroll", close2, {
+    document.addEventListener("scroll", dismissPreview, {
       capture: true,
       passive: true,
     });
     const handleEscape = (event) => {
-      if (event.key === "Escape") close2();
+      if (event.key === "Escape") dismissPreview();
     };
     document.addEventListener("keydown", handleEscape);
-    window.addEventListener("blur", close2);
+    window.addEventListener("blur", dismissPreview);
     return () => {
-      document.removeEventListener("scroll", close2, {
+      document.removeEventListener("scroll", dismissPreview, {
         capture: true,
       });
       document.removeEventListener("keydown", handleEscape);
-      window.removeEventListener("blur", close2);
+      window.removeEventListener("blur", dismissPreview);
     };
   }, [hoverPreviewOpen, chipEl]);
   const imageLoadFailed = imageUrl === failedImageUrl;
@@ -542,7 +542,7 @@ export function FileChip({
     setHoverPreviewOpen(false);
     setLightboxOpen(true);
   }, [canOpenLightbox]);
-  const handleKeyDown2 = reactExports.useCallback(
+  const handleKeyDown = reactExports.useCallback(
     (event) => {
       if (!canOpenLightbox) return;
       if (event.key === "Enter" || event.key === " ") {
@@ -568,11 +568,11 @@ export function FileChip({
     onAnchorClick ? (
       <button
         type="button"
-        aria-label={t2("chat.fileChip.locateOnCanvas", "在画布上定位")}
-        title={t2("chat.fileChip.locateOnCanvas", "在画布上定位")}
+        aria-label={translate("chat.fileChip.locateOnCanvas", "在画布上定位")}
+        title={translate("chat.fileChip.locateOnCanvas", "在画布上定位")}
         data-action-ui-id="chat.fileChip.locateOnCanvas"
-        onClick={(e2) => {
-          e2.stopPropagation();
+        onClick={(clickEvent) => {
+          clickEvent.stopPropagation();
           onAnchorClick();
         }}
         className={cn(
@@ -594,7 +594,7 @@ export function FileChip({
     role: previewOnClick && canOpenLightbox ? "button" : void 0,
     tabIndex: previewOnClick && canOpenLightbox ? 0 : void 0,
     onClick: previewOnClick && canOpenLightbox ? openLightbox : void 0,
-    onKeyDown: previewOnClick && canOpenLightbox ? handleKeyDown2 : void 0,
+    onKeyDown: previewOnClick && canOpenLightbox ? handleKeyDown : void 0,
     onDragStart: handleDragStart,
     onMouseEnter: openHoverPreview,
     onFocus: openHoverPreview,
@@ -652,7 +652,7 @@ export function FileChip({
             previewAction={
               previewFromHover && canOpenLightbox
                 ? {
-                    label: t2("canvas.fullscreenPreview"),
+                    label: translate("canvas.fullscreenPreview"),
                     onClick: openLightbox,
                   }
                 : void 0
@@ -660,7 +660,7 @@ export function FileChip({
             locateAction={
               onHoverLocate
                 ? {
-                    label: t2("chat.fileChip.locateOnCanvas"),
+                    label: translate("chat.fileChip.locateOnCanvas"),
                     onClick: () => {
                       closeHoverPreview();
                       onHoverLocate();
@@ -775,7 +775,7 @@ export function FileChip({
             previewAction={
               previewFromHover && canOpenLightbox
                 ? {
-                    label: t2("canvas.fullscreenPreview"),
+                    label: translate("canvas.fullscreenPreview"),
                     onClick: openLightbox,
                   }
                 : void 0
@@ -783,7 +783,7 @@ export function FileChip({
             locateAction={
               onHoverLocate
                 ? {
-                    label: t2("chat.fileChip.locateOnCanvas"),
+                    label: translate("chat.fileChip.locateOnCanvas"),
                     onClick: () => {
                       closeHoverPreview();
                       onHoverLocate();
@@ -808,8 +808,8 @@ export function FileChip({
           <audio
             src={mediaUrl}
             preload="metadata"
-            onLoadedMetadata={(e2) =>
-              rememberDuration(e2.currentTarget.duration)
+            onLoadedMetadata={(metadataEvent) =>
+              rememberDuration(metadataEvent.currentTarget.duration)
             }
           />
         )}
@@ -833,7 +833,7 @@ export function FileChip({
             previewAction={
               previewFromHover && canOpenLightbox
                 ? {
-                    label: t2("canvas.fullscreenPreview"),
+                    label: translate("canvas.fullscreenPreview"),
                     onClick: openLightbox,
                   }
                 : void 0
@@ -841,7 +841,7 @@ export function FileChip({
             locateAction={
               onHoverLocate
                 ? {
-                    label: t2("chat.fileChip.locateOnCanvas"),
+                    label: translate("chat.fileChip.locateOnCanvas"),
                     onClick: () => {
                       closeHoverPreview();
                       onHoverLocate();
@@ -893,7 +893,7 @@ export function FileChip({
     );
   }
   const sizeLabel = formatFileSizeCompact(fileSize);
-  const meta2 = sizeLabel
+  const meta = sizeLabel
     ? `${fileTypeLabel(filename)} · ${sizeLabel}`
     : fileTypeLabel(filename);
   return (
@@ -932,7 +932,7 @@ export function FileChip({
           tooltip={false}
           className="text-xs text-foreground/70"
         />
-        <span className="truncate text-[11px] text-foreground/30">{meta2}</span>
+        <span className="truncate text-[11px] text-foreground/30">{meta}</span>
       </div>
       {textReader}
       {renderAnchorButton("shrink-0 mr-1 hover:bg-muted/60")}

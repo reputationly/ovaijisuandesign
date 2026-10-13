@@ -71,15 +71,15 @@ export function EntityEditDialog({
   onDelete,
   onMaterialize,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const canvasQuery = useEntityCanvas(entityId ?? void 0);
   const updateMutation = useUpdateEntity();
   const uploadMutation = useUploadBlob();
   const exportUrl = useExportEntityUrl();
-  const [name2, setName] = reactExports.useState("");
-  const [type2, setType] = reactExports.useState("character");
+  const [entityName, setEntityName] = reactExports.useState("");
+  const [type, setType] = reactExports.useState("character");
   const [description, setDescription] = reactExports.useState("");
-  const [tags2, setTags] = reactExports.useState([]);
+  const [tags, setTags] = reactExports.useState([]);
   const [staged, setStaged] = reactExports.useState([]);
   const [coverBlobPath, setCoverBlobPath] = reactExports.useState(null);
   const [error, setError] = reactExports.useState(null);
@@ -115,7 +115,7 @@ export function EntityEditDialog({
           : {}),
       });
     }
-    setName(ent.name);
+    setEntityName(ent.name);
     setType(ent.type);
     setDescription(ent.description ?? "");
     setTags(ent.metadata?.tags ?? []);
@@ -146,62 +146,62 @@ export function EntityEditDialog({
   }, [entityId, canvasQuery.data, viewMode]);
   const loadError =
     entityId !== null && canvasQuery.isError ? canvasQuery.error : null;
-  const trimmedName = name2.trim();
+  const trimmedName = entityName.trim();
   const trimmedDescription = description.trim();
-  const descriptionRequired = !!canvasQuery.data && type2 === "style_pack";
+  const descriptionRequired = !!canvasQuery.data && type === "style_pack";
   const descriptionMissing =
     descriptionRequired && trimmedDescription.length === 0;
   const isSubmitting = updateMutation.isPending;
-  const hasUploadInFlight = staged.some((s2) => s2.status === "uploading");
-  const stagedHasError = staged.some((s2) => s2.status === "error");
+  const hasUploadInFlight = staged.some((stagedAttachment) => stagedAttachment.status === "uploading");
+  const stagedHasError = staged.some((stagedAttachment) => stagedAttachment.status === "error");
   const metadata = reactExports.useMemo(() => {
-    const m3 = {
+    const nextMetadata = {
       ...canvasQuery.data?.metadata,
     };
-    if (tags2.length > 0) m3.tags = tags2;
-    else delete m3.tags;
-    if (coverBlobPath) m3.coverBlobPath = coverBlobPath;
-    else delete m3.coverBlobPath;
-    return m3;
-  }, [canvasQuery.data?.metadata, coverBlobPath, tags2]);
+    if (tags.length > 0) nextMetadata.tags = tags;
+    else delete nextMetadata.tags;
+    if (coverBlobPath) nextMetadata.coverBlobPath = coverBlobPath;
+    else delete nextMetadata.coverBlobPath;
+    return nextMetadata;
+  }, [canvasQuery.data?.metadata, coverBlobPath, tags]);
   const isDirty = reactExports.useMemo(() => {
     if (!canvasQuery.data) return false;
     const ent = canvasQuery.data;
     if (trimmedName !== ent.name) return true;
-    if (type2 !== ent.type) return true;
+    if (type !== ent.type) return true;
     if (trimmedDescription !== (ent.description ?? "")) return true;
     const origTags = ent.metadata?.tags ?? [];
     if (
-      tags2.length !== origTags.length ||
-      tags2.some((t22, i2) => t22 !== origTags[i2])
+      tags.length !== origTags.length ||
+      tags.some((tag, tagIndex) => tag !== origTags[tagIndex])
     )
       return true;
     if (coverBlobPath !== (ent.metadata.coverBlobPath ?? null)) return true;
-    const origAttIds = new Set(ent.attachments.map((a2) => a2.id));
+    const origAttIds = new Set(ent.attachments.map((attachment) => attachment.id));
     const stagedExistingIds = new Set(
       staged
-        .filter((s2) => s2.status === "existing")
-        .map((s2) => s2.attachmentId),
+        .filter((stagedAttachment) => stagedAttachment.status === "existing")
+        .map((stagedAttachment) => stagedAttachment.attachmentId),
     );
     if (origAttIds.size !== stagedExistingIds.size) return true;
-    for (const id2 of origAttIds) {
-      if (!stagedExistingIds.has(id2)) return true;
+    for (const attachmentId of origAttIds) {
+      if (!stagedExistingIds.has(attachmentId)) return true;
     }
-    if (staged.some((s2) => s2.status === "uploaded")) return true;
-    for (const s2 of staged) {
-      if (s2.status !== "existing") continue;
-      const orig = ent.attachments.find((a2) => a2.id === s2.attachmentId);
+    if (staged.some((stagedAttachment) => stagedAttachment.status === "uploaded")) return true;
+    for (const stagedAttachment of staged) {
+      if (stagedAttachment.status !== "existing") continue;
+      const orig = ent.attachments.find((attachment) => attachment.id === stagedAttachment.attachmentId);
       if (!orig) continue;
-      if ((s2.caption ?? "") !== (orig.meta?.user_desc ?? "")) return true;
+      if ((stagedAttachment.caption ?? "") !== (orig.meta?.user_desc ?? "")) return true;
     }
     return false;
   }, [
     canvasQuery.data,
     coverBlobPath,
     trimmedName,
-    type2,
+    type,
     trimmedDescription,
-    tags2,
+    tags,
     staged,
   ]);
   const canSave =
@@ -216,14 +216,14 @@ export function EntityEditDialog({
     !!canvasQuery.data && canvasQuery.data.attachments.length > 0;
   const handleExport = reactExports.useCallback(() => {
     if (!canvasQuery.data) return;
-    const url2 = exportUrl(canvasQuery.data.id);
-    if (!url2) return;
-    const a2 = document.createElement("a");
-    a2.href = url2;
-    a2.rel = "noopener";
-    document.body.appendChild(a2);
-    a2.click();
-    a2.remove();
+    const url = exportUrl(canvasQuery.data.id);
+    if (!url) return;
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.rel = "noopener";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
     trackAssetCenterAction({
       action: "entity_export",
       surface: "edit_dialog",
@@ -244,10 +244,10 @@ export function EntityEditDialog({
           action: "edit_dialog_close",
           surface: "edit_dialog",
           entity_id: canvasQuery.data.id,
-          entity_type: type2,
+          entity_type: type,
           had_edits: isDirty,
           attachment_count: staged.length,
-          tag_count: tags2.length,
+          tag_count: tags.length,
           value: reason,
         });
       }
@@ -257,10 +257,10 @@ export function EntityEditDialog({
       isSubmitting,
       hasUploadInFlight,
       canvasQuery.data,
-      type2,
+      type,
       isDirty,
       staged.length,
-      tags2.length,
+      tags.length,
       onClose,
     ],
   );
@@ -268,31 +268,31 @@ export function EntityEditDialog({
     if (!entityId || !canSave) return;
     setError(null);
     const attachments = staged
-      .filter((s2) => s2.status === "existing" || s2.status === "uploaded")
-      .map((s2) => {
-        const userDesc = s2.caption?.trim();
-        const meta2 = {};
-        if (userDesc) meta2.user_desc = userDesc;
+      .filter((stagedAttachment) => stagedAttachment.status === "existing" || stagedAttachment.status === "uploaded")
+      .map((stagedAttachment) => {
+        const userDesc = stagedAttachment.caption?.trim();
+        const meta = {};
+        if (userDesc) meta.user_desc = userDesc;
         const metaSlice =
-          Object.keys(meta2).length > 0
+          Object.keys(meta).length > 0
             ? {
-                meta: meta2,
+                meta,
               }
             : {};
-        if (s2.status === "existing") {
+        if (stagedAttachment.status === "existing") {
           return {
-            blobPath: s2.blobPath,
-            kind: s2.kind,
-            originalFilename: s2.originalFilename,
-            byteSize: s2.byteSize,
+            blobPath: stagedAttachment.blobPath,
+            kind: stagedAttachment.kind,
+            originalFilename: stagedAttachment.originalFilename,
+            byteSize: stagedAttachment.byteSize,
             ...metaSlice,
           };
         }
         return {
-          blobPath: s2.uploaded.blobPath,
-          kind: s2.uploaded.kind,
-          originalFilename: s2.uploaded.originalFilename,
-          byteSize: s2.uploaded.byteSize,
+          blobPath: stagedAttachment.uploaded.blobPath,
+          kind: stagedAttachment.uploaded.kind,
+          originalFilename: stagedAttachment.uploaded.originalFilename,
+          byteSize: stagedAttachment.uploaded.byteSize,
           ...metaSlice,
         };
       });
@@ -307,7 +307,7 @@ export function EntityEditDialog({
       await updateMutation.mutateAsync({
         entityId,
         input: {
-          type: type2,
+          type,
           name: trimmedName,
           description: trimmedDescription,
           metadata,
@@ -328,21 +328,21 @@ export function EntityEditDialog({
         coverBlobPath: metadata.coverBlobPath ?? null,
         error: err instanceof Error ? err.message : String(err),
       });
-      setError(formatAssetCenterError(err, t2));
+      setError(formatAssetCenterError(err, translate));
     }
   }, [
     entityId,
     canSave,
     staged,
     updateMutation,
-    type2,
+    type,
     trimmedName,
     trimmedDescription,
     metadata,
     canvasQuery.data?.metadata.coverBlobPath,
     isDirty,
     onClose,
-    t2,
+    translate,
   ]);
   return (
     <Dialog
@@ -357,10 +357,10 @@ export function EntityEditDialog({
       >
         <DialogHeader className="sr-only">
           <DialogTitle>
-            {canvasQuery.data?.name ?? t2("assetCenter.detail.loading")}
+            {canvasQuery.data?.name ?? translate("assetCenter.detail.loading")}
           </DialogTitle>
           <DialogDescription>
-            {t2("assetCenter.edit.description")}
+            {translate("assetCenter.edit.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -369,7 +369,7 @@ export function EntityEditDialog({
               className="text-xs text-destructive py-6 text-center"
               data-action-ui-id="asset-center-entity-edit-load-error"
             >
-              {t2("assetCenter.edit.loadError", {
+              {translate("assetCenter.edit.loadError", {
                 message: loadError.message,
               })}
             </p>
@@ -378,16 +378,16 @@ export function EntityEditDialog({
               className="text-xs text-muted-foreground py-6 text-center"
               data-action-ui-id="asset-center-entity-edit-loading"
             >
-              {t2("assetCenter.detail.loading")}
+              {translate("assetCenter.detail.loading")}
             </p>
           ) : (
             <>
               <div className="flex items-center gap-2">
                 <AtSign size={12} className="shrink-0 text-muted-foreground" />
                 <input
-                  value={name2}
-                  onChange={(e2) => setName(e2.target.value)}
-                  placeholder={t2("assetCenter.edit.namePlaceholder")}
+                  value={entityName}
+                  onChange={(changeEvent) => setEntityName(changeEvent.target.value)}
+                  placeholder={translate("assetCenter.edit.namePlaceholder")}
                   className="flex-1 min-w-0 bg-transparent font-heading text-sm font-medium outline-none placeholder:text-muted-foreground/50"
                   data-action-ui-id="asset-center-entity-edit-name"
                 />
@@ -402,7 +402,7 @@ export function EntityEditDialog({
                       variant="secondary"
                       className="text-xs h-6 px-1.5 font-medium gap-0.5 rounded-[4px] text-secondary-foreground"
                     >
-                      {t2(`assetCenter.types.${type2}`)}
+                      {translate(`assetCenter.types.${type}`)}
                       <ChevronDown
                         size={12}
                         className="text-muted-foreground"
@@ -416,7 +416,7 @@ export function EntityEditDialog({
                         onClick={() => setType(opt)}
                         data-action-ui-id={`asset-center-entity-edit-type-${opt}`}
                       >
-                        {t2(`assetCenter.types.${opt}`)}
+                        {translate(`assetCenter.types.${opt}`)}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -424,8 +424,8 @@ export function EntityEditDialog({
                 <div className="w-0.5 h-3 shrink-0 bg-muted-foreground/20 mr-3" />
                 <textarea
                   value={description}
-                  onChange={(e2) => setDescription(e2.target.value)}
-                  placeholder={t2("assetCenter.edit.descriptionPlaceholder")}
+                  onChange={(changeEvent) => setDescription(changeEvent.target.value)}
+                  placeholder={translate("assetCenter.edit.descriptionPlaceholder")}
                   rows={1}
                   className="flex-1 min-w-0 bg-transparent text-xs text-muted-foreground outline-none placeholder:text-muted-foreground/40 resize-none field-sizing-content break-words"
                   data-action-ui-id="asset-center-entity-edit-description"
@@ -448,11 +448,11 @@ export function EntityEditDialog({
                 compactDropZone={true}
                 trackingSurface="edit_dialog"
                 trackingEntityId={entityId ?? void 0}
-                trackingEntityType={type2}
+                trackingEntityType={type}
               />
               <div className="border-t border-border -mx-4" />
               <CollapsibleTags
-                tags={tags2}
+                tags={tags}
                 onChange={setTags}
                 trackingSurface="edit_dialog"
               />
@@ -490,7 +490,7 @@ export function EntityEditDialog({
                   data-action-ui-id="asset-center-entity-delete"
                 >
                   <Trash2 size={14} />
-                  {t2("common.delete")}
+                  {translate("common.delete")}
                 </Button>
               )}
               <Button
@@ -500,10 +500,10 @@ export function EntityEditDialog({
                 onClick={handleExport}
                 disabled={!canExport}
                 data-action-ui-id="asset-center-entity-edit-export"
-                title={t2("assetCenter.card.exportTooltip")}
+                title={translate("assetCenter.card.exportTooltip")}
               >
                 <Download size={14} />
-                {t2("assetCenter.detail.export")}
+                {translate("assetCenter.detail.export")}
               </Button>
               {onMaterialize && (
                 <Button
@@ -519,10 +519,10 @@ export function EntityEditDialog({
                     });
                   }}
                   data-action-ui-id="asset-center-entity-materialize"
-                  title={t2("assetCenter.materialize.actionTooltip")}
+                  title={translate("assetCenter.materialize.actionTooltip")}
                 >
                   <FolderInput size={14} />
-                  {t2("assetCenter.materialize.action")}
+                  {translate("assetCenter.materialize.action")}
                 </Button>
               )}
             </>
@@ -535,7 +535,7 @@ export function EntityEditDialog({
             data-action-ui-id="asset-center-entity-edit-save"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
-            {t2("common.save")}
+            {translate("common.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

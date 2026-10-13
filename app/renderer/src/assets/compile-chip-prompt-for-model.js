@@ -9,27 +9,27 @@ const KIND_LABEL = {
   video: "视频",
   audio: "音频",
 };
-function basename$b(p3) {
-  const idx = p3.lastIndexOf("/");
-  return idx < 0 ? p3 : p3.slice(idx + 1);
+function basename$b(path) {
+  const idx = path.lastIndexOf("/");
+  return idx < 0 ? path : path.slice(idx + 1);
 }
 function findIndex(paths, ref) {
   if (paths.length === 0) return -1;
   const exact = paths.indexOf(ref);
   if (exact >= 0) return exact;
   const refBase = basename$b(ref);
-  for (let i2 = 0; i2 < paths.length; i2++) {
-    if (basename$b(paths[i2]) === refBase) return i2;
+  for (let pathIndex = 0; pathIndex < paths.length; pathIndex++) {
+    if (basename$b(paths[pathIndex]) === refBase) return pathIndex;
   }
   return -1;
 }
 function resolveAcrossArrays(ref, inputs) {
-  const order2 = [
+  const order = [
     ["image", inputs.imagePaths],
     ["video", inputs.videoPaths],
     ["audio", inputs.audioPaths],
   ];
-  for (const [kind, arr] of order2) {
+  for (const [kind, arr] of order) {
     const idx = findIndex(arr, ref);
     if (idx >= 0)
       return {
@@ -78,12 +78,12 @@ export function compileChipPromptForModel(rawText, inputs, options = {}) {
   let cursor = 0;
   let replacedCount = 0;
   const unresolved = [];
-  for (const m3 of mentions) {
-    out += rawText.slice(cursor, m3.start);
+  for (const mention of mentions) {
+    out += rawText.slice(cursor, mention.start);
     const reference = options.forCharacterCount
-      ? parseCanvasReference(m3.path)
+      ? parseCanvasReference(mention.path)
       : void 0;
-    const resolved = resolveAcrossArrays(m3.path, inputs);
+    const resolved = resolveAcrossArrays(mention.path, inputs);
     if (reference?.target === "entity") {
       out += reference.name;
       replacedCount++;
@@ -94,12 +94,12 @@ export function compileChipPromptForModel(rawText, inputs, options = {}) {
       out += reference.name;
       replacedCount++;
     } else {
-      out += rawText.slice(m3.start, m3.end);
+      out += rawText.slice(mention.start, mention.end);
       unresolved.push({
-        path: m3.path,
+        path: mention.path,
       });
     }
-    cursor = m3.end;
+    cursor = mention.end;
   }
   out += rawText.slice(cursor);
   return {

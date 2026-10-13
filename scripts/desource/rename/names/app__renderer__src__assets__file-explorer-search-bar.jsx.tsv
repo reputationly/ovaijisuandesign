@@ -1,0 +1,4 @@
+key	old	new	依据
+X@2:55	X	CloseIcon	该导入组件用于搜索栏的清除按钮图标。
+t2@20:14	t2	translate	该绑定是搜索栏读取占位符、按钮和提示文案的翻译函数。
+e2@89:22	e2	changeEvent	该事件提供文件搜索输入框的新文本。

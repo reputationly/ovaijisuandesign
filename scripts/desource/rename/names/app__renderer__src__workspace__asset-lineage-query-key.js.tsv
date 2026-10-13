@@ -1,0 +1,21 @@
+a2@291:12	a2	leftItem	该绑定持有 leftItem 所表示的值，按其实际用途命名。
+b3@291:16	b3	rightItem	该绑定持有 rightItem 所表示的值，按其实际用途命名。
+depth2@21:23	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+depth2@28:25	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+content2@72:39	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+raw2@104:24	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+raw2@111:33	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+path2@143:35	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+init2@143:42	init2	init	去掉打包器防重名追加的后缀，恢复原名 init，即该绑定持有的值。
+data2@156:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+project2@158:48	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
+raw2@160:27	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+data2@171:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+data2@186:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+token2@192:9	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+meta2@208:65	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+meta2@219:3	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+meta2@233:3	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+code2@245:9	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+meta2@266:3	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+entries2@276:48	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。

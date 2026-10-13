@@ -1,5 +1,5 @@
 // canvas-sidebar-overlay.jsx
-import { reactExports, useCurrentWorkspace, usePlatform, useStorage, useTranslation, X$7 as X } from "../vendor.js";
+import { reactExports, useCurrentWorkspace, usePlatform, useStorage, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { useWorkspaceProject } from "./normalize-project-entries.js";
 import { useProjectAssetsService } from "../infra/new-folder-dialog.jsx";
@@ -39,36 +39,36 @@ import {
 } from "./workspace-asset-center-relocation-coach-mark.jsx";
 import { ResizeColHandle } from "../assets/resize-col-handle.jsx";
 function useProjectAssetsDir() {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const workspacePath = useCurrentWorkspace();
-  const project2 = useWorkspaceProject(workspacePath || void 0);
+  const project = useWorkspaceProject(workspacePath || void 0);
   const { ensureProjectFolderName } = useProjectActions();
-  const service2 = useProjectAssetsService();
-  const [dir, setDir] = reactExports.useState(void 0);
-  const projectId = project2?.id;
+  const service = useProjectAssetsService();
+  const [directoryPath, setDirectoryPath] = reactExports.useState(void 0);
+  const projectId = project?.id;
   reactExports.useEffect(() => {
     if (!projectId) {
-      setDir(void 0);
+      setDirectoryPath(void 0);
       return;
     }
     let disposed = false;
     void (async () => {
       const folderName = await ensureProjectFolderName(projectId);
       if (!folderName || disposed) return;
-      const resolved = await service2.getAssetsDir(folderName);
+      const resolved = await service.getAssetsDir(folderName);
       if (disposed) return;
       try {
-        await platform2.fs.mkdir(resolved);
+        await platform.fs.mkdir(resolved);
       } catch {}
-      if (!disposed) setDir(resolved);
+      if (!disposed) setDirectoryPath(resolved);
     })().catch(() => {
-      if (!disposed) setDir(void 0);
+      if (!disposed) setDirectoryPath(void 0);
     });
     return () => {
       disposed = true;
     };
-  }, [ensureProjectFolderName, platform2.fs, projectId, service2]);
-  return dir;
+  }, [ensureProjectFolderName, platform.fs, projectId, service]);
+  return directoryPath;
 }
 const BUTTON_CLASS =
   "inline-flex items-center justify-center overflow-hidden rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-default disabled:opacity-50";
@@ -77,29 +77,29 @@ function CanvasAssetsFinderMenu({
   outputFolderPath,
   compact = false,
 }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const primaryPath = outputFolderPath || projectFolderPath;
   const openDirectory = reactExports.useCallback(
-    async (path2) => {
-      if (!path2) return;
+    async (path) => {
+      if (!path) return;
       try {
-        if (platform2.shell.openPath) {
-          await platform2.shell.openPath(path2);
+        if (platform.shell.openPath) {
+          await platform.shell.openPath(path);
           return;
         }
-        if (platform2.shell.showItemInFolder) {
-          await platform2.shell.showItemInFolder(path2);
+        if (platform.shell.showItemInFolder) {
+          await platform.shell.showItemInFolder(path);
           return;
         }
-        dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+        dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       } catch {
-        dedupedToast.error(t2("fileExplorer.openFailed"));
+        dedupedToast.error(translate("fileExplorer.openFailed"));
       }
     },
-    [platform2.shell, t2],
+    [platform.shell, translate],
   );
-  const openLabel = t2(getFileManagerLabelKey(platform2.app.os));
+  const openLabel = translate(getFileManagerLabelKey(platform.app.os));
   return (
     <TooltipProvider>
       <Tooltip>
@@ -117,7 +117,7 @@ function CanvasAssetsFinderMenu({
           }
         >
           <LocalFolderIcon
-            os={platform2.app.os}
+            os={platform.app.os}
             className={cn("shrink-0", compact ? "size-4" : "size-5")}
             aria-hidden="true"
           />
@@ -129,12 +129,12 @@ function CanvasAssetsFinderMenu({
 }
 const PRESENTATION_BUTTON_CLASS =
   "inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50";
-function CanvasSidebarPresentationButton({ mode: mode2, onToggleDock }) {
-  const { t: t2 } = useTranslation();
+function CanvasSidebarPresentationButton({ mode, onToggleDock }) {
+  const { t: translate } = useTranslation();
   const label =
-    mode2 === "docked"
-      ? t2("fileExplorer.compactFileExplorer", "Show compact file list")
-      : t2("fileExplorer.expandFileExplorer", "Expand file list");
+    mode === "docked"
+      ? translate("fileExplorer.compactFileExplorer", "Show compact file list")
+      : translate("fileExplorer.expandFileExplorer", "Expand file list");
   return (
     <Tooltip>
       <TooltipTrigger
@@ -149,7 +149,7 @@ function CanvasSidebarPresentationButton({ mode: mode2, onToggleDock }) {
         }
       >
         <Icon
-          icon={mode2 === "docked" ? Minimize2 : Maximize2}
+          icon={mode === "docked" ? Minimize2 : Maximize2}
           size="sm"
           aria-hidden={true}
         />
@@ -164,38 +164,38 @@ function CanvasSidebarHeader({
   activeTab,
   onActiveTabChange,
   onClose,
-  mode: mode2,
+  mode,
   onToggleDock,
 }) {
-  const { t: t2 } = useTranslation();
-  const closeLabel = t2("common.close", "关闭");
+  const { t: translate } = useTranslation();
+  const closeLabel = translate("common.close", "关闭");
   const workspacePath = useCurrentWorkspace();
   const [recentWorkspaces] = useStorage("global.recentWorkspaces");
-  const displayName2 = reactExports.useMemo(() => {
-    const recent = recentWorkspaces.find((w3) => w3.path === workspacePath);
+  const displayName = reactExports.useMemo(() => {
+    const recent = recentWorkspaces.find((recentWorkspace) => recentWorkspace.path === workspacePath);
     return recent
       ? workspaceDisplayName(recent)
       : folderNameFromPath(workspacePath);
   }, [recentWorkspaces, workspacePath]);
-  const project2 = useWorkspaceProject(workspacePath);
-  const projectName = project2?.name;
+  const project = useWorkspaceProject(workspacePath);
+  const projectName = project?.name;
   const projectAssetsDir = useProjectAssetsDir();
   const options = reactExports.useMemo(() => {
     return [
       {
         value: "canvas",
-        label: t2("canvasAssets.canvasTab", "Canvas"),
-        ariaLabel: t2("canvasAssets.canvasTab", "Canvas"),
+        label: translate("canvasAssets.canvasTab", "Canvas"),
+        ariaLabel: translate("canvasAssets.canvasTab", "Canvas"),
         dataActionUiId: "canvas-sidebar.tab-canvas",
       },
       {
         value: "assets",
-        label: t2("canvasAssets.assetsTab", "Assets"),
-        ariaLabel: t2("canvasAssets.assetsTab", "Assets"),
+        label: translate("canvasAssets.assetsTab", "Assets"),
+        ariaLabel: translate("canvasAssets.assetsTab", "Assets"),
         dataActionUiId: "canvas-sidebar.tab-assets",
       },
     ];
-  }, [t2]);
+  }, [translate]);
   return (
     <div
       className="flex shrink-0 flex-col"
@@ -209,9 +209,9 @@ function CanvasSidebarHeader({
         >
           <span
             className="min-w-0 truncate text-sm font-medium leading-none text-foreground"
-            title={displayName2}
+            title={displayName}
           >
-            {displayName2}
+            {displayName}
           </span>
           {projectName && (
             <span
@@ -232,7 +232,7 @@ function CanvasSidebarHeader({
               compact={true}
             />
             <CanvasSidebarPresentationButton
-              mode={mode2}
+              mode={mode}
               onToggleDock={onToggleDock}
             />
             <Tooltip>
@@ -247,7 +247,7 @@ function CanvasSidebarHeader({
                   />
                 }
               >
-                <Icon icon={X} size="sm" aria-hidden={true} />
+                <Icon icon={CloseIcon} size="sm" aria-hidden={true} />
               </TooltipTrigger>
               <TooltipContent side="bottom">{closeLabel}</TooltipContent>
             </Tooltip>
@@ -259,7 +259,7 @@ function CanvasSidebarHeader({
           value={activeTab}
           options={options}
           onValueChange={onActiveTabChange}
-          ariaLabel={t2("canvasAssets.tabSwitcherAria", "Project content")}
+          ariaLabel={translate("canvasAssets.tabSwitcherAria", "Project content")}
           dataActionUiId="canvas-sidebar.tab-switcher"
           thumbDataSlot="canvas-sidebar-tab-thumb"
           variant="label"
@@ -273,12 +273,12 @@ function CanvasSidebarHeader({
 }
 const MARK_ID = "file-panel-intro";
 const STEP_MEDIA_URLS = [CDN_COACHMARK_FILE_LOCATE, CDN_COACHMARK_FILE_VIEW];
-function queryAnchor(root2, actionUiId) {
-  return root2?.querySelector(`[data-action-ui-id="${actionUiId}"]`) ?? null;
+function queryAnchor(root, actionUiId) {
+  return root?.querySelector(`[data-action-ui-id="${actionUiId}"]`) ?? null;
 }
-function FilePanelCoachMarks({ containerRef, isActive: isActive2 }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+function FilePanelCoachMarks({ containerRef, isActive }) {
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const { pathname } = useLocation();
   const [armed, setArmed] = reactExports.useState(false);
   const triggeredRef = reactExports.useRef(false);
@@ -288,9 +288,9 @@ function FilePanelCoachMarks({ containerRef, isActive: isActive2 }) {
   const firstHoveredRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     const container = containerRef.current;
-    if (!container || armed || !isActive2) return;
-    const onOver = (e2) => {
-      const target = e2.target;
+    if (!container || armed || !isActive) return;
+    const onOver = (pointerEvent) => {
+      const target = pointerEvent.target;
       const item = target?.closest('[data-coach-anchor="file-item"]');
       if (item) {
         firstHoveredRef.current = item;
@@ -300,58 +300,58 @@ function FilePanelCoachMarks({ containerRef, isActive: isActive2 }) {
     };
     container.addEventListener("pointerover", onOver);
     return () => container.removeEventListener("pointerover", onOver);
-  }, [containerRef, armed, isActive2]);
+  }, [containerRef, armed, isActive]);
   const resolvers = [
     () =>
       firstHoveredRef.current ??
       queryAnchor(containerRef.current, "file-view-mode-toggle"),
     () => queryAnchor(containerRef.current, "file-view-mode-toggle"),
   ];
-  const seq2 = useCoachMarkSequence(
+  const seq = useCoachMarkSequence(
     MARK_ID,
     // The sequence only needs the step count; anchor resolution is driven by the
     // effect below (so it also re-resolves on route changes).
     resolvers.map(() => ({})),
-    armed && isActive2,
+    armed && isActive,
   );
   reactExports.useEffect(() => {
-    if (isActive2 || !triggeredRef.current || seq2.isDismissed) return;
-    seq2.dismiss("close");
-  }, [isActive2, seq2.dismiss, seq2.isDismissed]);
+    if (isActive || !triggeredRef.current || seq.isDismissed) return;
+    seq.dismiss("close");
+  }, [isActive, seq.dismiss, seq.isDismissed]);
   reactExports.useEffect(() => {
-    if (!seq2.isOpen || !isActive2) {
+    if (!seq.isOpen || !isActive) {
       setAnchorEl(null);
       return;
     }
     setAnchorEl(null);
-    const resolver2 = resolvers[seq2.index];
-    if (!resolver2) return;
+    const resolver = resolvers[seq.index];
+    if (!resolver) return;
     let tries = 0;
-    let raf = 0;
+    let animationFrameId = 0;
     const tick = () => {
-      const el = resolver2();
+      const el = resolver();
       if (el?.isConnected && el.offsetParent !== null) {
         setAnchorEl(el);
         return;
       }
-      if (tries++ < 60) raf = requestAnimationFrame(tick);
+      if (tries++ < 60) animationFrameId = requestAnimationFrame(tick);
     };
     tick();
-    return () => cancelAnimationFrame(raf);
-  }, [seq2.isOpen, seq2.index, pathname]);
-  if (!isActive2 || !seq2.isOpen || !anchorEl) return null;
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [seq.isOpen, seq.index, pathname]);
+  if (!isActive || !seq.isOpen || !anchorEl) return null;
   const treeViewShortcut = resolveShortcutDisplay(
     "CommandOrControl+1",
-    platform2.app.os,
+    platform.app.os,
   ).text;
   const gridViewShortcut = resolveShortcutDisplay(
     "CommandOrControl+2",
-    platform2.app.os,
+    platform.app.os,
   ).text;
   const STEP_COPY = [
     {
-      title: t2("coachMark.file.locate.title", "在画布定位"),
-      desc: t2(
+      title: translate("coachMark.file.locate.title", "在画布定位"),
+      desc: translate(
         "coachMark.file.locate.desc",
         "在资源面板右键「在画布定位」，快速在画布中找到对应素材",
       ),
@@ -359,8 +359,8 @@ function FilePanelCoachMarks({ containerRef, isActive: isActive2 }) {
       mediaUrl: CDN_COACHMARK_FILE_LOCATE,
     },
     {
-      title: t2("coachMark.file.view.title", "两种视图可切换"),
-      desc: t2(
+      title: translate("coachMark.file.view.title", "两种视图可切换"),
+      desc: translate(
         "coachMark.file.view.desc",
         "点击此处或资源面板按 {{treeShortcut}} / {{gridShortcut}} 切换排序 / 视图模式",
         {
@@ -372,32 +372,32 @@ function FilePanelCoachMarks({ containerRef, isActive: isActive2 }) {
       mediaUrl: CDN_COACHMARK_FILE_VIEW,
     },
   ];
-  const copy2 = STEP_COPY[seq2.index];
-  if (!copy2) return null;
+  const copy = STEP_COPY[seq.index];
+  if (!copy) return null;
   return (
     <CoachMarkPopup
-      open={isActive2 && seq2.isOpen}
+      open={isActive && seq.isOpen}
       onDismiss={(method) =>
-        method === "button" ? seq2.next() : seq2.dismiss(method)
+        method === "button" ? seq.next() : seq.dismiss(method)
       }
       anchorRef={anchorRef}
       anchorEl={anchorEl}
-      side={copy2.side}
+      side={copy.side}
       align="start"
-      title={copy2.title}
-      description={copy2.desc}
+      title={copy.title}
+      description={copy.desc}
       media={{
-        url: copy2.mediaUrl,
+        url: copy.mediaUrl,
         type: "image",
       }}
       preloadUrls={STEP_MEDIA_URLS}
       ctaLabel={
-        seq2.isLast
-          ? t2("coachMark.gotIt", "我知道了")
-          : t2("coachMark.next", "下一步")
+        seq.isLast
+          ? translate("coachMark.gotIt", "我知道了")
+          : translate("coachMark.next", "下一步")
       }
-      stepCurrent={seq2.stepCurrent}
-      stepTotal={seq2.stepTotal}
+      stepCurrent={seq.stepCurrent}
+      stepTotal={seq.stepTotal}
       showClose={true}
       actionUiId={`coach-mark-${MARK_ID}`}
     />
@@ -405,50 +405,50 @@ function FilePanelCoachMarks({ containerRef, isActive: isActive2 }) {
 }
 function LeftSidebar({
   initialFolderPath,
-  isActive: isActive2 = true,
+  isActive = true,
   onClose,
-  mode: mode2,
+  mode,
 }) {
   const containerRef = reactExports.useRef(null);
-  const platform2 = usePlatform();
-  const { t: t2 } = useTranslation();
+  const platform = usePlatform();
+  const { t: translate } = useTranslation();
   const [, setRootPath] = reactExports.useState(null);
   const openWithSystem = reactExports.useCallback(
-    async (path2) => {
-      if (!platform2.shell.openPath) return;
+    async (path) => {
+      if (!platform.shell.openPath) return;
       try {
-        await platform2.shell.openPath(path2);
+        await platform.shell.openPath(path);
       } catch {
-        dedupedToast.error(t2("fileExplorer.openFailed"));
+        dedupedToast.error(translate("fileExplorer.openFailed"));
       }
     },
-    [platform2, t2],
+    [platform, translate],
   );
   const handleFileOpen = reactExports.useCallback(
-    (path2, _name) => {
-      openWithSystem(path2);
+    (path, _name) => {
+      openWithSystem(path);
     },
     [openWithSystem],
   );
   return (
     <div ref={containerRef} className="flex flex-col h-full overflow-hidden">
-      <FilePanelCoachMarks containerRef={containerRef} isActive={isActive2} />
+      <FilePanelCoachMarks containerRef={containerRef} isActive={isActive} />
       <div className="flex flex-col overflow-hidden flex-1 min-h-0">
         <FileExplorer
           onFileOpen={handleFileOpen}
           onRootPathChange={setRootPath}
           initialRootPath={initialFolderPath || void 0}
-          isActive={isActive2}
+          isActive={isActive}
           onClose={onClose}
-          mode={mode2}
+          mode={mode}
         />
       </div>
     </div>
   );
 }
 function UploadFilesFooter() {
-  const { t: t2 } = useTranslation();
-  const gatewayFetch2 = useGatewayFetch();
+  const { t: translate } = useTranslation();
+  const gatewayFetch = useGatewayFetch();
   const inputRef = reactExports.useRef(null);
   const [uploading, setUploading] = reactExports.useState(false);
   const onPick = reactExports.useCallback(() => {
@@ -456,9 +456,9 @@ function UploadFilesFooter() {
     inputRef.current?.click();
   }, [uploading]);
   const onChange = reactExports.useCallback(
-    async (e2) => {
-      const files = Array.from(e2.target.files ?? []);
-      e2.target.value = "";
+    async (changeEvent) => {
+      const files = Array.from(changeEvent.target.files ?? []);
+      changeEvent.target.value = "";
       if (files.length === 0) return;
       setUploading(true);
       let okCount = 0;
@@ -467,11 +467,11 @@ function UploadFilesFooter() {
         const form = new FormData();
         form.append("file", file);
         try {
-          const res = await gatewayFetch2("/api/upload", {
+          const response = await gatewayFetch("/api/upload", {
             method: "POST",
             body: form,
           });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
           okCount += 1;
         } catch {
           failed.push(file.name);
@@ -480,21 +480,21 @@ function UploadFilesFooter() {
       setUploading(false);
       if (failed.length === 0) {
         dedupedToast.success(
-          t2("fileExplorer.uploadSuccess", {
+          translate("fileExplorer.uploadSuccess", {
             count: okCount,
             defaultValue: "已上传 {{count}} 个文件",
           }),
         );
       } else if (okCount === 0) {
         dedupedToast.error(
-          t2("fileExplorer.uploadFailedAll", {
+          translate("fileExplorer.uploadFailedAll", {
             count: failed.length,
             defaultValue: "上传失败：{{count}} 个文件",
           }),
         );
       } else {
         dedupedToast.warning(
-          t2("fileExplorer.uploadPartial", {
+          translate("fileExplorer.uploadPartial", {
             ok: okCount,
             failed: failed.length,
             defaultValue: "已上传 {{ok}} 个，失败 {{failed}} 个",
@@ -502,7 +502,7 @@ function UploadFilesFooter() {
         );
       }
     },
-    [gatewayFetch2, t2],
+    [gatewayFetch, translate],
   );
   return (
     <div className="shrink-0 border-t border-border p-2">
@@ -515,10 +515,10 @@ function UploadFilesFooter() {
       >
         <Upload size={14} strokeWidth={1.5} />
         {uploading
-          ? t2("fileExplorer.uploading", {
+          ? translate("fileExplorer.uploading", {
               defaultValue: "上传中…",
             })
-          : t2("fileExplorer.uploadFile", {
+          : translate("fileExplorer.uploadFile", {
               defaultValue: "上传文件",
             })}
       </button>
@@ -534,30 +534,30 @@ function UploadFilesFooter() {
 }
 function FilePanel({
   initialFolderPath,
-  isActive: isActive2 = true,
+  isActive = true,
   onClose,
-  mode: mode2,
+  mode,
 }) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-1 min-h-0 overflow-hidden">
         <LeftSidebar
           initialFolderPath={initialFolderPath}
-          isActive={isActive2}
+          isActive={isActive}
           onClose={onClose}
-          mode={mode2}
+          mode={mode}
         />
       </div>
-      {mode2 === "docked" ? <UploadFilesFooter /> : null}
+      {mode === "docked" ? <UploadFilesFooter /> : null}
     </div>
   );
 }
 function ContentPanel({
   activeTab,
   initialFolderPath,
-  isActive: isActive2 = true,
+  isActive = true,
   onClose,
-  mode: mode2,
+  mode,
   onManageActiveChange,
 }) {
   const canvasActive = activeTab === "canvas";
@@ -579,9 +579,9 @@ function ContentPanel({
         >
           <FilePanel
             initialFolderPath={initialFolderPath}
-            isActive={isActive2 && canvasActive}
+            isActive={isActive && canvasActive}
             onClose={onClose}
-            mode={mode2}
+            mode={mode}
           />
         </div>
         {activeTab === "assets" ? (
@@ -598,23 +598,23 @@ function ContentPanel({
 }
 const MIN_CANVAS_WIDTH_BESIDE_DOCKED_FILES = 220;
 export const CanvasSidebarOverlay = reactExports.memo(
-  function CanvasSidebarOverlay2({
-    id: id2,
+  function CanvasSidebarOverlay({
+    id: workspaceId,
     controller,
     initialFolderPath,
-    mode: mode2,
+    mode,
     seamSide,
     layoutOrder,
     onToggleDock,
     onPresentationChange,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t: translate } = useTranslation();
     const overlayRef = reactExports.useRef(null);
     const [hostWidth, setHostWidth] = reactExports.useState(0);
     const [activeTab, setActiveTab] = reactExports.useState("canvas");
     const [manageActive, setManageActive] = reactExports.useState(false);
     const {
-      active: active2,
+      active,
       contentMounted,
       expanded,
       handleTogglePanel,
@@ -641,9 +641,9 @@ export const CanvasSidebarOverlay = reactExports.memo(
     }, [expanded, handleTogglePanel]);
     reactExports.useEffect(() => {
       const handleNavigation = (event) => {
-        const tab2 = event.detail?.tab;
-        if (!active2 || (tab2 !== "canvas" && tab2 !== "assets")) return;
-        setActiveTab(tab2);
+        const tab = event.detail?.tab;
+        if (!active || (tab !== "canvas" && tab !== "assets")) return;
+        setActiveTab(tab);
         if (!expanded) handleTogglePanel();
       };
       canvasSidebarNavigation.addEventListener(
@@ -655,25 +655,25 @@ export const CanvasSidebarOverlay = reactExports.memo(
           CANVAS_SIDEBAR_NAVIGATION_EVENT,
           handleNavigation,
         );
-    }, [active2, expanded, handleTogglePanel]);
+    }, [active, expanded, handleTogglePanel]);
     reactExports.useEffect(() => {
-      if (!active2 || !contentMounted) return;
+      if (!active || !contentMounted) return;
       const host = overlayRef.current?.parentElement;
       if (!host) return;
       const syncWidth = () => {
-        const next2 = host.getBoundingClientRect().width || host.clientWidth;
-        setHostWidth((previous2) => (previous2 === next2 ? previous2 : next2));
+        const next = host.getBoundingClientRect().width || host.clientWidth;
+        setHostWidth((previous) => (previous === next ? previous : next));
       };
       syncWidth();
       if (typeof ResizeObserver === "undefined") {
         window.addEventListener("resize", syncWidth);
         return () => window.removeEventListener("resize", syncWidth);
       }
-      const observer2 = new ResizeObserver(syncWidth);
-      observer2.observe(host);
-      return () => observer2.disconnect();
-    }, [active2, contentMounted]);
-    const isDocked = mode2 === "docked";
+      const observer = new ResizeObserver(syncWidth);
+      observer.observe(host);
+      return () => observer.disconnect();
+    }, [active, contentMounted]);
+    const isDocked = mode === "docked";
     const MANAGE_VIEW_WIDTH = 720;
     const effectiveWidth = manageActive ? MANAGE_VIEW_WIDTH : width;
     const isStructurallyDocked =
@@ -682,7 +682,7 @@ export const CanvasSidebarOverlay = reactExports.memo(
       hostWidth >= effectiveWidth + MIN_CANVAS_WIDTH_BESIDE_DOCKED_FILES;
     const isDockedOverlay = isDocked && expanded && !isStructurallyDocked;
     const presentation =
-      !active2 || !contentMounted || !expanded
+      !active || !contentMounted || !expanded
         ? "closed"
         : isStructurallyDocked
           ? "drawer"
@@ -698,10 +698,10 @@ export const CanvasSidebarOverlay = reactExports.memo(
       },
       [onPresentationChange],
     );
-    if (!active2 || !contentMounted) return null;
+    if (!active || !contentMounted) return null;
     const closedTransform =
       seamSide === "left" ? "-translate-x-2" : "translate-x-2";
-    const content2 = (
+    const content = (
       <div
         className="flex min-w-0 flex-1 flex-col overflow-hidden"
         data-density="compact"
@@ -710,16 +710,16 @@ export const CanvasSidebarOverlay = reactExports.memo(
           activeTab={activeTab}
           onActiveTabChange={setActiveTab}
           onClose={handleClosePanel}
-          mode={mode2}
+          mode={mode}
           onToggleDock={onToggleDock}
         />
         <div className="min-h-0 flex-1 overflow-hidden">
           <ContentPanel
             activeTab={activeTab}
             initialFolderPath={initialFolderPath}
-            isActive={active2 && expanded}
+            isActive={active && expanded}
             onClose={handleClosePanel}
-            mode={mode2}
+            mode={mode}
             onManageActiveChange={setManageActive}
           />
         </div>
@@ -728,7 +728,7 @@ export const CanvasSidebarOverlay = reactExports.memo(
     const resizeHandle = isStructurallyDocked ? (
       <ResizeColHandle
         tabIndex={0}
-        aria-label={t2("a11y.resizeProjectAssetsPanel")}
+        aria-label={translate("a11y.resizeProjectAssetsPanel")}
         aria-orientation="vertical"
         aria-valuemin={CONTENT_PANEL_MIN_WIDTH}
         aria-valuemax={CONTENT_PANEL_MAX_WIDTH}
@@ -743,12 +743,12 @@ export const CanvasSidebarOverlay = reactExports.memo(
     ) : null;
     return (
       <aside
-        id={id2}
+        id={workspaceId}
         ref={overlayRef}
-        aria-label={t2("canvasAssets.panelAria")}
+        aria-label={translate("canvasAssets.panelAria")}
         aria-hidden={!expanded}
         inert={!expanded}
-        data-workspace-files-panel={mode2}
+        data-workspace-files-panel={mode}
         data-workspace-files-presentation={presentation}
         data-sidebar-expanded={expanded ? "true" : "false"}
         data-seam-side={seamSide}
@@ -766,7 +766,7 @@ export const CanvasSidebarOverlay = reactExports.memo(
         onTransitionEnd={handleContentTransitionEnd}
       >
         {seamSide === "right" ? resizeHandle : null}
-        {content2}
+        {content}
         {seamSide === "left" ? resizeHandle : null}
       </aside>
     );

@@ -10,11 +10,11 @@ import { DialogPortal$2 as DialogPortal, instance, PopoverRoot, reactExports, Se
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { showVisiblePreviewTab } from "../workspace/show-visible-preview-tab.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-function resolveCanvasRenderPolicy(platform2, override = {}) {
+function resolveCanvasRenderPolicy(platform, override = {}) {
   const isMacX64Canary =
-    platform2?.os === "darwin" &&
-    platform2.arch === "x64" &&
-    platform2.runningUnderARM64Translation === false;
+    platform?.os === "darwin" &&
+    platform.arch === "x64" &&
+    platform.runningUnderARM64Translation === false;
   const contentVisibility =
     override.contentVisibility ?? (isMacX64Canary ? "visible" : "auto");
   const recoverAfterResume = override.recoverAfterResume ?? isMacX64Canary;
@@ -55,8 +55,8 @@ function getCanvasRenderDiagnosticsSnapshot() {
 export function hideVisiblePreviewTabs(workspaceIds) {
   visiblePreviewTabsStore.hide(workspaceIds);
 }
-export function resolveDesktopCanvasRenderPolicy(platform2, runtimeConfig) {
-  return resolveCanvasRenderPolicy(platform2, {
+export function resolveDesktopCanvasRenderPolicy(platform, runtimeConfig) {
+  return resolveCanvasRenderPolicy(platform, {
     contentVisibility: runtimeConfig.canvasContentVisibilityOverride,
     recoverAfterResume: runtimeConfig.canvasResumeRecoveryEnabled,
   });
@@ -67,15 +67,15 @@ function whenReactScanReady() {
   if (window.reactScan) return Promise.resolve(window.reactScan);
   return new Promise((resolve) => {
     let waited = 0;
-    const timer2 = setInterval(() => {
+    const timer = setInterval(() => {
       if (window.reactScan) {
-        clearInterval(timer2);
+        clearInterval(timer);
         resolve(window.reactScan);
         return;
       }
       waited += READY_POLL_MS;
       if (waited >= READY_TIMEOUT_MS) {
-        clearInterval(timer2);
+        clearInterval(timer);
         resolve(null);
       }
     }, READY_POLL_MS);
@@ -119,19 +119,19 @@ export function getAssetEventStateSnapshot() {
 export function scopedAssetsQueryKey(gatewayScopeKey) {
   return [...ASSETS_QUERY_KEY, gatewayScopeKey];
 }
-function scopedFileContentQueryKey(gatewayScopeKey, path2) {
-  return [...FILE_CONTENT_QUERY_KEY, gatewayScopeKey, path2];
+function scopedFileContentQueryKey(gatewayScopeKey, path) {
+  return [...FILE_CONTENT_QUERY_KEY, gatewayScopeKey, path];
 }
-export async function refreshFileContent({ qc, gatewayScopeKey, path: path2 }) {
-  await qc.invalidateQueries({
-    queryKey: scopedFileContentQueryKey(gatewayScopeKey, path2),
+export async function refreshFileContent({ qc: queryClient, gatewayScopeKey, path }) {
+  await queryClient.invalidateQueries({
+    queryKey: scopedFileContentQueryKey(gatewayScopeKey, path),
   });
 }
 export const MAX_RECENT_TRACES = 50;
 export const tracesByClientId = new Map();
 function getMessageDeliveryTracesSnapshot() {
   const recent = [...tracesByClientId.values()].sort(
-    (a2, b3) => a2.updatedAt - b3.updatedAt,
+    (leftTrace, rightTrace) => leftTrace.updatedAt - rightTrace.updatedAt,
   );
   const failed = recent
     .filter((trace) => trace.status === "failed" || trace.status === "timeout")
@@ -146,8 +146,8 @@ function getWorkspaceRetentionDiagnosticsSnapshot() {
   const rows = [...entries.values()];
   const statusCounts = {};
   for (const row of rows) {
-    const state2 = row.statusState ?? "unknown";
-    statusCounts[state2] = (statusCounts[state2] ?? 0) + 1;
+    const state = row.statusState ?? "unknown";
+    statusCounts[state] = (statusCounts[state] ?? 0) + 1;
   }
   return {
     hostCount: rows.length,
@@ -197,8 +197,8 @@ function blockedStorageFallback() {
     ? "项目保存保护未完成，已取消关闭并恢复标签页。请检查磁盘空间和权限，或上传日志联系支持。"
     : "Project protection is incomplete. Closing was cancelled and the tab restored. Check disk space and permissions, or upload logs and contact support.";
 }
-export function toastWorkspaceCloseBlocked(workspaceId2, result) {
-  const key2 =
+export function toastWorkspaceCloseBlocked(workspaceId, result) {
+  const key =
     result.reason === "storage"
       ? "workspace.close.blockedStorage"
       : result.reason === "unsaved"
@@ -215,37 +215,37 @@ export function toastWorkspaceCloseBlocked(workspaceId2, result) {
           ? blockedActiveFallback()
           : blockedGenericFallback();
   dedupedToast.warning(
-    instance.t(key2, {
+    instance.t(key, {
       defaultValue: fallback,
     }),
     {
-      id: `workspace-close-blocked-${workspaceId2}`,
+      id: `workspace-close-blocked-${workspaceId}`,
     },
   );
 }
 export async function requestWorkspaceRuntimeClose(
-  hiloApp2,
-  workspaceId2,
+  hiloApp,
+  workspaceId,
   source,
 ) {
   try {
-    const result = await hiloApp2.closeWorkspace(workspaceId2, {
+    const result = await hiloApp.closeWorkspace(workspaceId, {
       source,
     });
     if (!result.closed) {
       workspaceLog.warn(
-        `[workspace-close] Close rejected, restoring preview tab: ${workspaceId2}, source=${source}, reason=${result.reason ?? "unknown"}${result.blockingReasons?.length ? `, blocking=${result.blockingReasons.join("|")}` : ""}`,
+        `[workspace-close] Close rejected, restoring preview tab: ${workspaceId}, source=${source}, reason=${result.reason ?? "unknown"}${result.blockingReasons?.length ? `, blocking=${result.blockingReasons.join("|")}` : ""}`,
       );
-      showVisiblePreviewTab(workspaceId2);
-      toastWorkspaceCloseBlocked(workspaceId2, result);
+      showVisiblePreviewTab(workspaceId);
+      toastWorkspaceCloseBlocked(workspaceId, result);
     }
     return result;
   } catch (err) {
     workspaceLog.error(
-      `[workspace-close] Close request failed, restoring preview tab: ${workspaceId2}, source=${source}, error=${err instanceof Error ? err.message : String(err)}`,
+      `[workspace-close] Close request failed, restoring preview tab: ${workspaceId}, source=${source}, error=${err instanceof Error ? err.message : String(err)}`,
     );
-    showVisiblePreviewTab(workspaceId2);
-    toastWorkspaceCloseBlocked(workspaceId2, {});
+    showVisiblePreviewTab(workspaceId);
+    toastWorkspaceCloseBlocked(workspaceId, {});
     return void 0;
   }
 }
@@ -424,13 +424,13 @@ export function accountScopeKey(scope) {
 }
 function resolveCreditAccountState(teamAccount, legacyIdentityKey) {
   if (!teamAccount?.integrationEnabled) {
-    const queryScope2 = legacyIdentityKey
+    const queryScope = legacyIdentityKey
       ? legacyPersonalCreditScope(legacyIdentityKey)
       : null;
     return {
-      queryScope: queryScope2,
-      canReadPersonalCredit: queryScope2 !== null,
-      canMutatePersonalCredit: queryScope2 !== null,
+      queryScope,
+      canReadPersonalCredit: queryScope !== null,
+      canMutatePersonalCredit: queryScope !== null,
     };
   }
   const queryScope = teamAccount.activeScope

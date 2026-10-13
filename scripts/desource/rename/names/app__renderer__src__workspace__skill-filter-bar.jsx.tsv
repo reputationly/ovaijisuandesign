@@ -1,0 +1,7 @@
+key	old	new	依据
+active2@21:37	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+active2@29:48	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+autoUpdate2@109:15	autoUpdate2	autoUpdate	去掉打包器防重名追加的后缀，恢复原名 autoUpdate，即该绑定持有的值。
+match2@158:31	match2	match	正则匹配结果。
+option2@81:25	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+t2@116:14	t2	translate	useTranslation 返回的翻译函数。

@@ -16,14 +16,14 @@ import { buildResourceDragItem } from "../text-editor/build-asr-gateway-request.
 import { dispatchBrowserPickedFileToChat } from "./resolve-retry-message-payload.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 function useBrowserDownloadPanel({
-  browser: browser2,
+  browser,
   activeTabId,
   triggerRef,
   onError,
   onOpenResult,
 }) {
   const [open, setOpen] = reactExports.useState(false);
-  const [pending2, setPending] = reactExports.useState(false);
+  const [pending, setPending] = reactExports.useState(false);
   const pendingRef = reactExports.useRef(false);
   const generation = reactExports.useRef(0);
   const nativeClosedAt = reactExports.useRef(-Infinity);
@@ -31,95 +31,95 @@ function useBrowserDownloadPanel({
     const rect = triggerRef.current?.getBoundingClientRect();
     if (!rect) return null;
     const width = Math.min(360, Math.max(0, window.innerWidth - 16));
-    const y4 = Math.min(rect.bottom + 6, Math.max(8, window.innerHeight - 120));
+    const popoverTop = Math.min(rect.bottom + 6, Math.max(8, window.innerHeight - 120));
     return {
       x: Math.max(
         8,
         Math.min(rect.right - width, window.innerWidth - width - 8),
       ),
-      y: y4,
+      y: popoverTop,
       width,
-      height: Math.max(0, Math.min(520, window.innerHeight - y4 - 8)),
+      height: Math.max(0, Math.min(520, window.innerHeight - popoverTop - 8)),
     };
   }, [triggerRef]);
-  const close2 = reactExports.useCallback(() => {
+  const closePanel = reactExports.useCallback(() => {
     generation.current += 1;
     pendingRef.current = false;
     setPending(false);
     setOpen(false);
-    void browser2?.closeDownloadsPanel().catch(() => {});
-  }, [browser2]);
+    void browser?.closeDownloadsPanel().catch(() => {});
+  }, [browser]);
   reactExports.useEffect(() => {
     setOpen(false);
     setPending(false);
     pendingRef.current = false;
-    const stop = browser2?.onDownloadsPanelStateChanged((next2) => {
-      if (!next2) nativeClosedAt.current = performance.now();
-      setOpen(next2);
+    const stop = browser?.onDownloadsPanelStateChanged((next) => {
+      if (!next) nativeClosedAt.current = performance.now();
+      setOpen(next);
     });
     return () => {
       generation.current += 1;
       pendingRef.current = false;
       stop?.();
-      void browser2?.closeDownloadsPanel().catch(() => {});
+      void browser?.closeDownloadsPanel().catch(() => {});
     };
-  }, [browser2, activeTabId]);
+  }, [browser, activeTabId]);
   reactExports.useEffect(() => {
-    if (!open && !pending2) return;
-    const update2 = () => {
+    if (!open && !pending) return;
+    const update = () => {
       if (pendingRef.current) {
-        close2();
+        closePanel();
         return;
       }
-      const next2 = bounds();
-      if (next2) void browser2?.updateDownloadsPanel(next2).catch(close2);
+      const next = bounds();
+      if (next) void browser?.updateDownloadsPanel(next).catch(closePanel);
     };
     const keydown = (event) => {
-      if (event.key === "Escape") close2();
+      if (event.key === "Escape") closePanel();
     };
     const pointerdown = (event) => {
       if (
         event.target instanceof Node &&
         !triggerRef.current?.contains(event.target)
       )
-        close2();
+        closePanel();
     };
-    window.addEventListener("resize", update2);
-    document.addEventListener("scroll", update2, true);
+    window.addEventListener("resize", update);
+    document.addEventListener("scroll", update, true);
     document.addEventListener("keydown", keydown);
     document.addEventListener("pointerdown", pointerdown);
     const parent = triggerRef.current?.parentElement;
     const initial = parent?.getBoundingClientRect();
-    const observer2 = new ResizeObserver(() => {
-      const current2 = parent?.getBoundingClientRect();
+    const observer = new ResizeObserver(() => {
+      const current = parent?.getBoundingClientRect();
       if (
-        current2?.width !== initial?.width ||
-        current2?.height !== initial?.height
+        current?.width !== initial?.width ||
+        current?.height !== initial?.height
       )
-        update2();
+        update();
     });
-    if (parent) observer2.observe(parent);
+    if (parent) observer.observe(parent);
     return () => {
-      observer2.disconnect();
-      window.removeEventListener("resize", update2);
-      document.removeEventListener("scroll", update2, true);
+      observer.disconnect();
+      window.removeEventListener("resize", update);
+      document.removeEventListener("scroll", update, true);
       document.removeEventListener("keydown", keydown);
       document.removeEventListener("pointerdown", pointerdown);
     };
-  }, [open, pending2, bounds, browser2, close2, triggerRef]);
+  }, [open, pending, bounds, browser, closePanel, triggerRef]);
   const toggle = async (labels) => {
     if (open || pendingRef.current) {
-      close2();
+      closePanel();
       return;
     }
     if (performance.now() - nativeClosedAt.current < 200) return;
-    const next2 = bounds();
-    if (!browser2 || !next2) return;
+    const next = bounds();
+    if (!browser || !next) return;
     const request = ++generation.current;
     pendingRef.current = true;
     setPending(true);
     try {
-      await browser2.openDownloadsPanel(activeTabId, next2, labels);
+      await browser.openDownloadsPanel(activeTabId, next, labels);
       onOpenResult?.("success");
     } catch {
       onOpenResult?.("failed");
@@ -133,20 +133,20 @@ function useBrowserDownloadPanel({
   };
   return {
     open,
-    pending: pending2,
+    pending,
     toggle,
-    close: close2,
+    close: closePanel,
   };
 }
 export function BrowserDownloads({ activeTabId }) {
-  const { t: t2, i18n } = useTranslation();
-  const platform2 = usePlatform();
-  const browser2 = window.hilo?.browser;
+  const { t: translate, i18n } = useTranslation();
+  const platform = usePlatform();
+  const browser = window.hilo?.browser;
   const triggerRef = reactExports.useRef(null);
-  const [snapshot2, setSnapshot] = reactExports.useState(null);
+  const [snapshot, setSnapshot] = reactExports.useState(null);
   const onError = reactExports.useCallback(
-    () => dedupedToast.error(t2("workspace.browser.downloads.loadFailed")),
-    [t2],
+    () => dedupedToast.error(translate("workspace.browser.downloads.loadFailed")),
+    [translate],
   );
   const onOpenResult = reactExports.useCallback((result) => {
     trackEvent(TRACK_EVENTS.BROWSER_DOWNLOAD_ACTION, {
@@ -157,38 +157,38 @@ export function BrowserDownloads({ activeTabId }) {
   }, []);
   const {
     open,
-    pending: pending2,
+    pending,
     toggle,
   } = useBrowserDownloadPanel({
-    browser: browser2,
+    browser,
     activeTabId,
     triggerRef,
     onError,
     onOpenResult,
   });
   reactExports.useEffect(() => {
-    if (!browser2) return;
+    if (!browser) return;
     let alive = true;
-    const apply2 = (next2) => {
+    const apply = (next) => {
       if (alive)
-        setSnapshot((current2) =>
-          !current2 || next2.revision > current2.revision ? next2 : current2,
+        setSnapshot((current) =>
+          !current || next.revision > current.revision ? next : current,
         );
     };
-    const stop = browser2.onDownloadsChanged(apply2);
-    void browser2
+    const stop = browser.onDownloadsChanged(apply);
+    void browser
       .getDownloads()
-      .then(apply2)
+      .then(apply)
       .catch(() => {});
     return () => {
       alive = false;
       stop();
     };
-  }, [browser2]);
+  }, [browser]);
   reactExports.useEffect(() => {
-    if (!browser2?.onDownloadTransfer) return;
+    if (!browser?.onDownloadTransfer) return;
     let alive = true;
-    const stop = browser2.onDownloadTransfer((transfer) => {
+    const stop = browser.onDownloadTransfer((transfer) => {
       if (transfer.action === "add-to-canvas") {
         workspaceEvents.fireAddToCanvas(
           [
@@ -203,7 +203,7 @@ export function BrowserDownloads({ activeTabId }) {
             },
           ],
           () =>
-            dedupedToast.success(t2("workspace.browser.pluginAddedToCanvas")),
+            dedupedToast.success(translate("workspace.browser.pluginAddedToCanvas")),
           "incremental",
         );
         return;
@@ -223,23 +223,23 @@ export function BrowserDownloads({ activeTabId }) {
         });
       })().catch(() => {
         if (alive)
-          dedupedToast.error(t2("workspace.browser.downloads.actionFailed"));
+          dedupedToast.error(translate("workspace.browser.downloads.actionFailed"));
       });
     });
     return () => {
       alive = false;
       stop();
     };
-  }, [browser2, t2]);
-  const count2 =
-    snapshot2?.items.filter((item) => item.status === "progressing").length ??
+  }, [browser, translate]);
+  const count =
+    snapshot?.items.filter((item) => item.status === "progressing").length ??
     0;
-  const triggerLabel = t2("workspace.browser.downloads.entry", {
-    count: count2,
+  const triggerLabel = translate("workspace.browser.downloads.entry", {
+    count,
   });
   const labels = () => {
     const result = {};
-    for (const key2 of [
+    for (const key of [
       "title",
       "more",
       "openFolder",
@@ -261,19 +261,19 @@ export function BrowserDownloads({ activeTabId }) {
       "interrupted",
       "paused",
     ]) {
-      result[key2] = t2(`workspace.browser.downloads.${key2}`);
+      result[key] = translate(`workspace.browser.downloads.${key}`);
     }
-    result.addToCanvas = t2("fileExplorer.addToCanvas");
-    result.sendToChat = t2("workspace.browser.downloads.sendToChat");
-    result.showInFolder = t2(
-      platform2.app.os === "darwin"
+    result.addToCanvas = translate("fileExplorer.addToCanvas");
+    result.sendToChat = translate("workspace.browser.downloads.sendToChat");
+    result.showInFolder = translate(
+      platform.app.os === "darwin"
         ? "workspace.browser.downloads.showInFinder"
         : "workspace.browser.downloads.showInFolder",
     );
-    result.speed = t2("workspace.browser.downloads.speed", {
+    result.speed = translate("workspace.browser.downloads.speed", {
       speed: "{{speed}}",
     });
-    result.close = t2("common.close");
+    result.close = translate("common.close");
     result.locale = i18n.resolvedLanguage ?? i18n.language ?? "en";
     return result;
   };
@@ -288,20 +288,20 @@ export function BrowserDownloads({ activeTabId }) {
           aria-label={triggerLabel}
           aria-expanded={open}
           aria-haspopup="dialog"
-          aria-busy={pending2 || void 0}
-          disabled={!browser2}
+          aria-busy={pending || void 0}
+          disabled={!browser}
           data-action-ui-id="workspace.browser.downloads.toggle"
           onClick={() => {
             void toggle(labels());
           }}
         >
           <Icon icon={Download} size="md" />
-          {count2 > 0 && (
+          {count > 0 && (
             <span
               aria-hidden="true"
               className="absolute -right-1 -top-1 min-w-4 rounded-full bg-foreground px-1 text-[10px] leading-4 text-background tabular-nums"
             >
-              {count2}
+              {count}
             </span>
           )}
         </Button>

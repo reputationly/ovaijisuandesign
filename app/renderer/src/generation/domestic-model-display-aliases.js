@@ -96,11 +96,11 @@ const DOMESTIC_MODEL_DISPLAY_ALIASES = [
 ];
 const SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES =
   DOMESTIC_MODEL_DISPLAY_ALIASES.slice().sort(
-    ([a2], [b3]) => b3.length - a2.length,
+    ([leftAlias], [rightAlias]) => rightAlias.length - leftAlias.length,
   );
 const DOMESTIC_MODEL_DISPLAY_ALIAS_BY_LOWERCASE = new Map(
-  SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES.map(([internal2, display]) => [
-    internal2.toLowerCase(),
+  SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES.map(([internal, display]) => [
+    internal.toLowerCase(),
     display,
   ]),
 );
@@ -123,14 +123,14 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 const DOMESTIC_MODEL_DISPLAY_ALIAS_PATTERN = new RegExp(
-  SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES.map(([internal2]) =>
-    escapeRegExp(internal2),
+  SORTED_DOMESTIC_MODEL_DISPLAY_ALIASES.map(([internal]) =>
+    escapeRegExp(internal),
   ).join("|"),
   "gi",
 );
-export function redactModelAliasesForDisplay(text2, region) {
-  if (!text2 || !shouldRedactModelAliases(region)) return text2;
-  let redacted = text2.replace(
+export function redactModelAliasesForDisplay(text, region) {
+  if (!text || !shouldRedactModelAliases(region)) return text;
+  let redacted = text.replace(
     DOMESTIC_MODEL_DISPLAY_ALIAS_PATTERN,
     (matched) =>
       DOMESTIC_MODEL_DISPLAY_ALIAS_BY_LOWERCASE.get(matched.toLowerCase()) ??

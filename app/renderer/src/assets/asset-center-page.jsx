@@ -1,5 +1,5 @@
 // asset-center-page.jsx
-import { ArrowLeft, Check, CheckCircle2, ChevronDown, ChevronUp, LayoutGrid, Loader2, Plus, reactExports, Search, ShieldAlert, useMutation, useNavigate, useQuery, useQueryClient, useSearch, useTranslation, X$7 as X } from "../vendor.js";
+import { ArrowLeft, Check, CheckCircle2 as CheckCircle, ChevronDown, ChevronUp, LayoutGrid, Loader2, Plus, reactExports, Search, ShieldAlert, useMutation, useNavigate, useQuery, useQueryClient, useSearch, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
@@ -55,7 +55,7 @@ import {
   Icon,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { CatalogPageHeading } from "./catalog-page-heading.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { MaterializeWorkspaceDialog } from "./materialize-workspace-dialog.jsx";
 import { AddEntityDialog } from "./add-entity-dialog.jsx";
 import { EntityDeleteConfirm } from "./entity-delete-confirm.jsx";
@@ -64,12 +64,12 @@ import { ImportEntityConflictError } from "./import-entity-conflict-error.js";
 import { useDeleteEntity } from "./use-materialize-entity.js";
 function exportEntitiesBatchUrl(buildUrl, entityIds) {
   if (entityIds.length === 0) return void 0;
-  const ids2 = entityIds.map((id2) => encodeURIComponent(id2)).join(",");
-  return buildUrl(`${BASE}/entities-export?ids=${ids2}`);
+  const ids = entityIds.map((entityId) => encodeURIComponent(entityId)).join(",");
+  return buildUrl(`${BASE}/entities-export?ids=${ids}`);
 }
 async function listPendingSuggestions(fetcher, limit) {
-  const qs = `?limit=${encodeURIComponent(String(limit))}`;
-  const res = await fetcher(`${BASE}/suggestions${qs}`);
+  const queryString = `?limit=${encodeURIComponent(String(limit))}`;
+  const res = await fetcher(`${BASE}/suggestions${queryString}`);
   return readEnvelope(res, "suggestions", "suggestions", "array");
 }
 async function approveSuggestion(fetcher, suggestionId, request = {}) {
@@ -100,25 +100,25 @@ function useExportEntitiesBatchUrl() {
   return (entityIds) => exportEntitiesBatchUrl(buildUrl, entityIds);
 }
 function useApproveSuggestion() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ suggestionId, request }) =>
       approveSuggestion(fetcher, suggestionId, request),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
     },
   });
 }
 function useRejectSuggestion() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ suggestionId }) => rejectSuggestion(fetcher, suggestionId),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
     },
@@ -128,7 +128,7 @@ const TYPE_CHIPS = ["all", ...ENTITY_TYPES];
 const SORT_MODES = ["updated_at", "use_count"];
 function AssetCenterToolbar({
   onBack,
-  search: search2,
+  search,
   onSearchChange,
   typeFilter,
   onTypeFilterChange,
@@ -140,7 +140,7 @@ function AssetCenterToolbar({
   onImportFile,
   isImporting,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const importInputRef = reactExports.useRef(null);
   return (
     <div
@@ -156,16 +156,16 @@ function AssetCenterToolbar({
               size="icon"
               className="mt-0.5 size-8 rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
               onClick={onBack}
-              aria-label={t2("assetCenter.backToWorkspace")}
-              title={t2("assetCenter.backToWorkspace")}
+              aria-label={translate("assetCenter.backToWorkspace")}
+              title={translate("assetCenter.backToWorkspace")}
               data-action-ui-id="asset-center-back-to-workspace"
             >
               <Icon icon={ArrowLeft} size="md" aria-hidden={true} />
             </Button>
           ) : null}
           <CatalogPageHeading
-            title={t2("assetCenter.title")}
-            description={t2("assetCenter.subtitle")}
+            title={translate("assetCenter.title")}
+            description={translate("assetCenter.subtitle")}
           />
         </div>
         <div className="mt-8 flex flex-wrap items-center gap-2">
@@ -176,7 +176,7 @@ function AssetCenterToolbar({
             data-action-ui-id="asset-center-add-entity"
           >
             <Plus size={16} strokeWidth={1.5} />
-            {t2("assetCenter.add")}
+            {translate("assetCenter.add")}
           </Button>
           <Button
             type="button"
@@ -188,7 +188,7 @@ function AssetCenterToolbar({
             data-action-ui-id="asset-center-toolbar-import"
           >
             <Upload size={16} strokeWidth={1.5} />
-            {t2("assetCenter.import.action")}
+            {translate("assetCenter.import.action")}
           </Button>
           <input
             ref={importInputRef}
@@ -197,9 +197,9 @@ function AssetCenterToolbar({
             multiple={true}
             className="hidden"
             data-action-ui-id="asset-center-toolbar-import-input"
-            onChange={(e2) => {
-              const files = Array.from(e2.target.files ?? []);
-              e2.target.value = "";
+            onChange={(changeEvent) => {
+              const files = Array.from(changeEvent.target.files ?? []);
+              changeEvent.target.value = "";
               if (files.length > 0) onImportFile(files);
             }}
           />
@@ -208,11 +208,11 @@ function AssetCenterToolbar({
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 pt-4 pb-3">
         <ToggleGroup
           value={[typeFilter]}
-          onValueChange={(values3) => {
-            onTypeFilterChange(values3[0] ?? "all");
+          onValueChange={(values) => {
+            onTypeFilterChange(values[0] ?? "all");
           }}
           className="gap-1"
-          aria-label={t2("assetCenter.typeFilter.label")}
+          aria-label={translate("assetCenter.typeFilter.label")}
         >
           {TYPE_CHIPS.map((chip) => (
             <ToggleGroupItem
@@ -221,7 +221,7 @@ function AssetCenterToolbar({
               data-action-ui-id={`asset-center-filter-${chip}`}
               className="h-7 px-3 text-xs !rounded-[4px] text-muted-foreground hover:text-foreground hover:bg-muted/60 aria-pressed:bg-foreground/10 aria-pressed:text-foreground aria-pressed:font-medium"
             >
-              {t2(`assetCenter.types.${chip}`)}
+              {translate(`assetCenter.types.${chip}`)}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
@@ -233,33 +233,33 @@ function AssetCenterToolbar({
               aria-hidden="true"
               className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
             />
-            <Input3
-              value={search2}
-              onChange={(e2) => onSearchChange(e2.target.value)}
-              placeholder={t2("assetCenter.searchPlaceholder")}
-              aria-label={t2("assetCenter.searchPlaceholder")}
+            <Input
+              value={search}
+              onChange={(changeEvent) => onSearchChange(changeEvent.target.value)}
+              placeholder={translate("assetCenter.searchPlaceholder")}
+              aria-label={translate("assetCenter.searchPlaceholder")}
               className="h-8 pl-8 pr-8"
               data-action-ui-id="asset-center-search"
             />
-            {search2 ? (
+            {search ? (
               <button
                 type="button"
                 onClick={() => onSearchChange("")}
-                aria-label={t2("common.clear")}
+                aria-label={translate("common.clear")}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                 data-action-ui-id="asset-center-search-clear"
               >
-                <X size={13} strokeWidth={1.5} />
+                <CloseIcon size={13} strokeWidth={1.5} />
               </button>
             ) : null}
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger
-              aria-label={t2("assetCenter.sort.label", "排序")}
+              aria-label={translate("assetCenter.sort.label", "排序")}
               data-action-ui-id="asset-center-sort"
               className="flex h-8 shrink-0 items-center gap-1.5 rounded-lg bg-foreground/[0.05] px-3 text-xs text-muted-foreground transition-colors hover:bg-foreground/[0.08] hover:text-foreground"
             >
-              {t2(`assetCenter.sort.${sort}`)}
+              {translate(`assetCenter.sort.${sort}`)}
               <ChevronDown size={14} strokeWidth={1.5} aria-hidden="true" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -270,16 +270,16 @@ function AssetCenterToolbar({
             >
               <DropdownMenuGroup>
                 <DropdownMenuLabel>
-                  {t2("assetCenter.sort.label", "排序")}
+                  {translate("assetCenter.sort.label", "排序")}
                 </DropdownMenuLabel>
                 <DropdownMenuRadioGroup
                   value={sort}
-                  aria-label={t2("assetCenter.sort.label", "排序")}
-                  onValueChange={(v2) => onSortChange(v2)}
+                  aria-label={translate("assetCenter.sort.label", "排序")}
+                  onValueChange={(sortMode) => onSortChange(sortMode)}
                 >
-                  {SORT_MODES.map((mode2) => (
-                    <DropdownMenuRadioItem key={mode2} value={mode2}>
-                      {t2(`assetCenter.sort.${mode2}`)}
+                  {SORT_MODES.map((mode) => (
+                    <DropdownMenuRadioItem key={mode} value={mode}>
+                      {translate(`assetCenter.sort.${mode}`)}
                     </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>
@@ -293,7 +293,7 @@ function AssetCenterToolbar({
               size="icon-sm"
               onClick={() => onViewModeChange("grid")}
               aria-pressed={viewMode === "grid"}
-              title={t2("assetCenter.viewMode.grid")}
+              title={translate("assetCenter.viewMode.grid")}
               data-action-ui-id="asset-center-toolbar-view-grid"
               className={cn(
                 viewMode === "grid"
@@ -309,7 +309,7 @@ function AssetCenterToolbar({
               size="icon-sm"
               onClick={() => onViewModeChange("list")}
               aria-pressed={viewMode === "list"}
-              title={t2("assetCenter.viewMode.list")}
+              title={translate("assetCenter.viewMode.list")}
               data-action-ui-id="asset-center-toolbar-view-list"
               className={cn(
                 viewMode === "list"
@@ -342,14 +342,14 @@ function buildAssetCenterWorkspaceReturn(returnWorkspaceId) {
 const VIEW_MODE_STORAGE_KEY = "assetCenter.viewMode";
 function readInitialViewMode() {
   try {
-    const raw2 = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
-    if (raw2 === "grid" || raw2 === "list") return raw2;
+    const raw = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+    if (raw === "grid" || raw === "list") return raw;
   } catch {}
   return "grid";
 }
 function useAssetCenterPage() {
   const [typeFilter, setTypeFilter] = reactExports.useState("all");
-  const [search2, setSearch] = reactExports.useState("");
+  const [search, setSearch] = reactExports.useState("");
   const [sort, setSort] = reactExports.useState("updated_at");
   const [viewMode, setViewMode] = reactExports.useState(readInitialViewMode);
   reactExports.useEffect(() => {
@@ -360,36 +360,36 @@ function useAssetCenterPage() {
   const listOpts = reactExports.useMemo(() => {
     const opts = {};
     if (typeFilter !== "all") opts.type = typeFilter;
-    if (search2.trim()) opts.q = search2.trim();
+    if (search.trim()) opts.q = search.trim();
     return opts;
-  }, [typeFilter, search2]);
+  }, [typeFilter, search]);
   const entitiesQuery = useEntities(listOpts);
   const entities = reactExports.useMemo(() => {
-    const data2 = entitiesQuery.data ?? [];
+    const data = entitiesQuery.data ?? [];
     if (sort === "use_count") {
-      return [...data2].sort(
-        (a2, b3) => b3.useCount - a2.useCount || b3.updatedAt - a2.updatedAt,
+      return [...data].sort(
+        (leftEntity, rightEntity) => rightEntity.useCount - leftEntity.useCount || rightEntity.updatedAt - leftEntity.updatedAt,
       );
     }
-    return data2;
+    return data;
   }, [entitiesQuery.data, sort]);
   const isLoading = entitiesQuery.isPending;
-  const isEmpty2 =
+  const isEmpty =
     !entitiesQuery.isPending &&
     !entitiesQuery.isError &&
     entities.length === 0 &&
-    !search2.trim() &&
+    !search.trim() &&
     typeFilter === "all";
   const loadError = entitiesQuery.error ?? null;
   return {
     isLoading,
     loadError,
     typeFilter,
-    search: search2,
+    search,
     sort,
     viewMode,
     entities,
-    isEmpty: isEmpty2,
+    isEmpty,
     setTypeFilter,
     setSearch,
     setSort,
@@ -397,23 +397,23 @@ function useAssetCenterPage() {
   };
 }
 function EntityEmptyState({ onCreate, filteredTitle, density = "page" } = {}) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <PageStateBoundary
       empty={true}
       density={density}
       className="h-full"
       emptyOptions={{
-        title: filteredTitle ?? t2("assetCenter.entityEmpty.title"),
+        title: filteredTitle ?? translate("assetCenter.entityEmpty.title"),
         description: filteredTitle
           ? void 0
-          : t2("assetCenter.entityEmpty.body"),
+          : translate("assetCenter.entityEmpty.body"),
         actions: onCreate
           ? [
               {
                 key: "create",
                 icon: <Plus size={14} strokeWidth={2} />,
-                label: t2("assetSidebarPanel.createCta"),
+                label: translate("assetSidebarPanel.createCta"),
                 variant: "default",
                 onClick: onCreate,
               },
@@ -475,14 +475,14 @@ function EntityList({
   const exportUrl = useExportEntityUrl();
   const triggerExport = reactExports.useCallback(
     (entity) => {
-      const url2 = exportUrl(entity.id);
-      if (!url2) return;
-      const a2 = document.createElement("a");
-      a2.href = url2;
-      a2.rel = "noopener";
-      document.body.appendChild(a2);
-      a2.click();
-      a2.remove();
+      const url = exportUrl(entity.id);
+      if (!url) return;
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.rel = "noopener";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
       trackAssetCenterAction({
         action: "entity_export",
         surface: "asset_center_page",
@@ -532,12 +532,12 @@ function ImportConflictDialog({
   onChoose,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [pendingMode, setPendingMode] = reactExports.useState(null);
-  const handleChoose = async (mode2) => {
-    setPendingMode(mode2);
+  const handleChoose = async (mode) => {
+    setPendingMode(mode);
     try {
-      await onChoose(mode2);
+      await onChoose(mode);
     } finally {
       setPendingMode(null);
     }
@@ -545,8 +545,8 @@ function ImportConflictDialog({
   return (
     <AlertDialog
       open={open}
-      onOpenChange={(next2) => {
-        if (!next2 && pendingMode === null) onCancel();
+      onOpenChange={(next) => {
+        if (!next && pendingMode === null) onCancel();
       }}
     >
       <AlertDialogContent
@@ -556,14 +556,14 @@ function ImportConflictDialog({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <ShieldAlert size={16} className="text-destructive" />
-            {t2("assetCenter.import.conflictTitle")}
+            {translate("assetCenter.import.conflictTitle")}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-xs space-y-2 text-left">
             <span className="block">
-              {t2("assetCenter.import.conflictDescription", {
+              {translate("assetCenter.import.conflictDescription", {
                 name: existingEntity?.name ?? "",
                 type: existingEntity
-                  ? t2(`assetCenter.types.${existingEntity.type}`)
+                  ? translate(`assetCenter.types.${existingEntity.type}`)
                   : "",
               })}
             </span>
@@ -571,7 +571,7 @@ function ImportConflictDialog({
               importingName &&
               importingName !== existingEntity.name && (
                 <span className="block text-muted-foreground/80">
-                  {t2("assetCenter.import.conflictRenameHint", {
+                  {translate("assetCenter.import.conflictRenameHint", {
                     oldName: existingEntity.name,
                     newName: importingName,
                   })}
@@ -584,7 +584,7 @@ function ImportConflictDialog({
             disabled={pendingMode !== null}
             data-action-ui-id="asset-center-import-conflict-cancel"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </AlertDialogCancel>
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <AlertDialogAction
@@ -596,7 +596,7 @@ function ImportConflictDialog({
               {pendingMode === "copy" && (
                 <Loader2 size={14} className="animate-spin mr-1.5" />
               )}
-              {t2("assetCenter.import.actionCopy")}
+              {translate("assetCenter.import.actionCopy")}
             </AlertDialogAction>
             <AlertDialogAction
               onClick={() => void handleChoose("overwrite")}
@@ -607,7 +607,7 @@ function ImportConflictDialog({
               {pendingMode === "overwrite" && (
                 <Loader2 size={14} className="animate-spin mr-1.5" />
               )}
-              {t2("assetCenter.import.actionOverwrite")}
+              {translate("assetCenter.import.actionOverwrite")}
             </AlertDialogAction>
           </div>
         </AlertDialogFooter>
@@ -616,7 +616,7 @@ function ImportConflictDialog({
   );
 }
 function SuggestionCard({ suggestion }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const approve = useApproveSuggestion();
   const reject = useRejectSuggestion();
   const [error, setError] = reactExports.useState(null);
@@ -635,7 +635,7 @@ function SuggestionCard({ suggestion }) {
         has_description: !!suggestion.suggested.description,
       });
     } catch (err) {
-      setError(formatAssetCenterError(err, t2));
+      setError(formatAssetCenterError(err, translate));
       trackAssetCreate({
         source: "asset_center_page",
         method: "agent_suggestion",
@@ -654,7 +654,7 @@ function SuggestionCard({ suggestion }) {
         suggestionId: suggestion.id,
       });
     } catch (err) {
-      setError(formatAssetCenterError(err, t2));
+      setError(formatAssetCenterError(err, translate));
     }
   };
   const isBusy = approve.isPending || reject.isPending;
@@ -675,11 +675,11 @@ function SuggestionCard({ suggestion }) {
               variant="secondary"
               className="text-[10px] h-4 px-1.5 font-normal"
             >
-              {t2(`assetCenter.types.${suggestion.suggested.type}`)}
+              {translate(`assetCenter.types.${suggestion.suggested.type}`)}
             </Badge>
             {attachmentCount > 0 && (
               <span className="text-[10px] text-muted-foreground">
-                {t2("assetCenter.suggestions.attachmentCount", {
+                {translate("assetCenter.suggestions.attachmentCount", {
                   count: attachmentCount,
                 })}
               </span>
@@ -706,7 +706,7 @@ function SuggestionCard({ suggestion }) {
           ) : (
             <Check size={12} />
           )}
-          {t2("assetCenter.suggestions.approve")}
+          {translate("assetCenter.suggestions.approve")}
         </Button>
         <Button
           variant="ghost"
@@ -719,44 +719,44 @@ function SuggestionCard({ suggestion }) {
           {reject.isPending ? (
             <Loader2 size={12} className="animate-spin" />
           ) : (
-            <X size={12} />
+            <CloseIcon size={12} />
           )}
-          {t2("assetCenter.suggestions.reject")}
+          {translate("assetCenter.suggestions.reject")}
         </Button>
       </div>
     </article>
   );
 }
 function SuggestionPanel() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
   const suggestions = usePendingSuggestions(20);
-  const list2 = suggestions.data ?? [];
+  const list = suggestions.data ?? [];
   if (suggestions.isError) {
     return (
       <section
         className="border-b border-border bg-destructive/5 px-16 py-2 text-xs text-destructive"
         data-action-ui-id="asset-center-suggestion-error"
       >
-        {t2("assetCenter.suggestions.loadError", {
+        {translate("assetCenter.suggestions.loadError", {
           message: suggestions.error.message,
         })}
       </section>
     );
   }
-  if (list2.length === 0) return null;
+  if (list.length === 0) return null;
   return (
     <section
       className="border-b border-border bg-[var(--home-content-surface)] px-16 py-3"
       data-action-ui-id="asset-center-suggestion-panel"
-      data-suggestion-count={list2.length}
+      data-suggestion-count={list.length}
     >
       <div className="flex items-center justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-foreground/60" />
           <h2 className="text-xs font-medium">
-            {t2("assetCenter.suggestions.title", {
-              count: list2.length,
+            {translate("assetCenter.suggestions.title", {
+              count: list.length,
             })}
           </h2>
         </div>
@@ -764,13 +764,13 @@ function SuggestionPanel() {
           variant="ghost"
           size="sm"
           className="h-7 gap-1.5 text-xs text-muted-foreground"
-          onClick={() => setCollapsed((c3) => !c3)}
+          onClick={() => setCollapsed((isCollapsed) => !isCollapsed)}
           data-action-ui-id="asset-center-suggestion-panel-toggle"
         >
           {collapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           {collapsed
-            ? t2("assetCenter.suggestions.expand")
-            : t2("assetCenter.suggestions.collapse")}
+            ? translate("assetCenter.suggestions.expand")
+            : translate("assetCenter.suggestions.collapse")}
         </Button>
       </div>
       {!collapsed && (
@@ -780,7 +780,7 @@ function SuggestionPanel() {
             gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
           }}
         >
-          {list2.map((sug) => (
+          {list.map((sug) => (
             <SuggestionCard key={sug.id} suggestion={sug} />
           ))}
         </div>
@@ -789,20 +789,20 @@ function SuggestionPanel() {
   );
 }
 export function AssetCenterPage({ surface = "route", initialAction } = {}) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const page = useAssetCenterPage();
   const importMutation = useImportEntity();
   const [editId, setEditId] = reactExports.useState(null);
   const [deleteTarget, setDeleteTarget] = reactExports.useState(null);
   const [addOpen, setAddOpen] = reactExports.useState(false);
-  const search2 = useSearch({
+  const search = useSearch({
     from: "/_home/asset-center/",
     shouldThrow: false,
   });
   const returnWorkspaceId =
-    surface === "route" ? search2?.returnWorkspaceId : void 0;
+    surface === "route" ? search?.returnWorkspaceId : void 0;
   const navigate = useNavigate();
-  const routeAction = surface === "route" ? search2?.action : void 0;
+  const routeAction = surface === "route" ? search?.action : void 0;
   reactExports.useEffect(() => {
     if (surface !== "route") return;
     if (routeAction === "create") {
@@ -828,13 +828,13 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
   );
   const toggleSelectEntity = reactExports.useCallback((entityId) => {
     setSelectedEntityIds((prev) => {
-      const next2 = new Set(prev);
-      if (next2.has(entityId)) {
-        next2.delete(entityId);
+      const next = new Set(prev);
+      if (next.has(entityId)) {
+        next.delete(entityId);
       } else {
-        next2.add(entityId);
+        next.add(entityId);
       }
-      return next2;
+      return next;
     });
   }, []);
   const clearSelection = reactExports.useCallback(
@@ -850,31 +850,31 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
     setBatchDeleting(true);
     const remaining = new Set(selectedEntityIds);
     try {
-      for (const id2 of selectedEntityIds) {
+      for (const entityId of selectedEntityIds) {
         await deleteMutation.mutateAsync({
-          entityId: id2,
+          entityId,
         });
-        remaining.delete(id2);
+        remaining.delete(entityId);
       }
       clearSelection();
     } catch (err) {
       setSelectedEntityIds(remaining);
-      setBatchDeleteError(formatAssetCenterError(err, t2));
+      setBatchDeleteError(formatAssetCenterError(err, translate));
     } finally {
       setBatchDeleting(false);
     }
-  }, [selectedEntityIds, deleteMutation, clearSelection, t2]);
+  }, [selectedEntityIds, deleteMutation, clearSelection, translate]);
   const buildBatchExportUrl = useExportEntitiesBatchUrl();
   const runBatchExport = reactExports.useCallback(() => {
     if (selectedEntityIds.size === 0) return;
-    const url2 = buildBatchExportUrl([...selectedEntityIds]);
-    if (!url2) return;
-    const a2 = document.createElement("a");
-    a2.href = url2;
-    a2.rel = "noopener";
-    document.body.appendChild(a2);
-    a2.click();
-    a2.remove();
+    const url = buildBatchExportUrl([...selectedEntityIds]);
+    if (!url) return;
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.rel = "noopener";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
   }, [selectedEntityIds, buildBatchExportUrl]);
   const [importSuccess, setImportSuccess] = reactExports.useState(null);
   const [importError, setImportError] = reactExports.useState(null);
@@ -899,20 +899,20 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
     [],
   );
   const runImport = reactExports.useCallback(
-    async (file, mode2) => {
+    async (file, mode) => {
       setImportSuccess(null);
       setImportError(null);
       try {
         const result = await importMutation.mutateAsync({
           file,
-          mode: mode2,
+          mode,
         });
         setImportSuccess({
           name: result.entity.name,
           warnings: result.warnings,
         });
         dedupedToast.success(
-          t2("assetCenter.import.toastSuccess", {
+          translate("assetCenter.import.toastSuccess", {
             name: result.entity.name,
           }),
         );
@@ -923,7 +923,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           entity_type: result.entity.type,
           success: true,
           has_description: !!result.entity.description,
-          import_mode: mode2,
+          import_mode: mode,
         });
       } catch (err) {
         if (err instanceof ImportEntityConflictError) {
@@ -934,18 +934,18 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           });
           return;
         }
-        setImportError(formatAssetCenterError(err, t2));
+        setImportError(formatAssetCenterError(err, translate));
         trackAssetCreate({
           source: "asset_center_page",
           method: "import",
           success: false,
           has_description: false,
-          import_mode: mode2,
+          import_mode: mode,
           error_type: classifyAssetError(err),
         });
       }
     },
-    [importMutation, t2],
+    [importMutation, translate],
   );
   const handleImportFile = reactExports.useCallback(
     (file) => void runImport(file, "create-new"),
@@ -967,11 +967,11 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
       setBatchImportSummary(null);
       const succeeded = [];
       const failed = [];
-      for (let i2 = 0; i2 < files.length; i2++) {
-        const file = files[i2];
+      for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
+        const file = files[fileIndex];
         if (!file) continue;
         setBatchImportProgress({
-          current: i2 + 1,
+          current: fileIndex + 1,
           total: files.length,
         });
         try {
@@ -992,14 +992,14 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           if (err instanceof ImportEntityConflictError) {
             failed.push({
               name: file.name,
-              message: t2("assetCenter.import.conflictBatchSkipped", {
+              message: translate("assetCenter.import.conflictBatchSkipped", {
                 existingName: err.conflict.existingEntity.name,
               }),
             });
           } else {
             failed.push({
               name: file.name,
-              message: formatAssetCenterError(err, t2),
+              message: formatAssetCenterError(err, translate),
             });
           }
           trackAssetCreate({
@@ -1021,12 +1021,12 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
         failed,
       });
     },
-    [importMutation, handleImportFile, t2],
+    [importMutation, handleImportFile, translate],
   );
   const handleConflictChoice = reactExports.useCallback(
-    async (mode2) => {
+    async (mode) => {
       if (!conflictState) return;
-      await runImport(conflictState.file, mode2);
+      await runImport(conflictState.file, mode);
     },
     [conflictState, runImport],
   );
@@ -1057,7 +1057,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           data-action-ui-id="asset-center-batch-action-bar"
         >
           <span className="text-xs">
-            {t2("assetCenter.batch.selected", {
+            {translate("assetCenter.batch.selected", {
               count: selectedEntityIds.size,
             })}
           </span>
@@ -1070,7 +1070,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             disabled={batchDeleting}
             data-action-ui-id="asset-center-batch-clear"
           >
-            {t2("assetCenter.batch.clear")}
+            {translate("assetCenter.batch.clear")}
           </Button>
           <Button
             variant="secondary"
@@ -1081,7 +1081,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             data-action-ui-id="asset-center-batch-export"
           >
             <Download size={12} />
-            {t2("assetCenter.batch.export", {
+            {translate("assetCenter.batch.export", {
               count: selectedEntityIds.size,
             })}
           </Button>
@@ -1094,7 +1094,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             data-action-ui-id="asset-center-batch-delete"
           >
             {batchDeleting && <Loader2 size={12} className="animate-spin" />}
-            {t2("assetCenter.batch.delete", {
+            {translate("assetCenter.batch.delete", {
               count: selectedEntityIds.size,
             })}
           </Button>
@@ -1116,7 +1116,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
         >
           <Loader2 size={14} className="shrink-0 animate-spin" />
           <p className="text-xs">
-            {t2("assetCenter.batch.importing", {
+            {translate("assetCenter.batch.importing", {
               current: batchImportProgress.current,
               total: batchImportProgress.total,
             })}
@@ -1129,7 +1129,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           data-action-ui-id="asset-center-batch-import-summary"
         >
           {batchImportSummary.failed.length === 0 ? (
-            <CheckCircle2
+            <CheckCircle
               size={14}
               className="mt-0.5 shrink-0 text-foreground"
             />
@@ -1141,17 +1141,17 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           )}
           <div className="text-xs min-w-0 flex-1 space-y-1">
             <p>
-              {t2("assetCenter.batch.imported", {
+              {translate("assetCenter.batch.imported", {
                 count: batchImportSummary.succeeded.length,
               })}
             </p>
             {batchImportSummary.failed.length > 0 && (
               <ul className="text-[11px] text-destructive/90 space-y-0.5 pl-4 list-disc">
-                {batchImportSummary.failed.map((f2) => (
-                  <li key={f2.name} className="break-words">
-                    <span className="font-medium">{f2.name}</span>
+                {batchImportSummary.failed.map((failedImport) => (
+                  <li key={failedImport.name} className="break-words">
+                    <span className="font-medium">{failedImport.name}</span>
                     {": "}
-                    {f2.message}
+                    {failedImport.message}
                   </li>
                 ))}
               </ul>
@@ -1162,10 +1162,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             size="icon-xs"
             className="shrink-0 -mt-0.5 -mr-1 text-muted-foreground hover:text-foreground"
             onClick={() => setBatchImportSummary(null)}
-            aria-label={t2("common.close")}
+            aria-label={translate("common.close")}
             data-action-ui-id="asset-center-batch-import-summary-close"
           >
-            <X size={12} />
+            <CloseIcon size={12} />
           </Button>
         </div>
       )}
@@ -1175,18 +1175,18 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             className="flex items-start gap-2 rounded-lg border border-foreground/20 bg-muted/30 px-3 py-2"
             data-action-ui-id="asset-center-import-success"
           >
-            <CheckCircle2
+            <CheckCircle
               size={14}
               className="mt-0.5 shrink-0 text-foreground"
             />
             <div className="text-xs min-w-0 flex-1 space-y-1">
               <p>
                 {importSuccess.warnings.length > 0
-                  ? t2("assetCenter.import.successWithWarnings", {
+                  ? translate("assetCenter.import.successWithWarnings", {
                       name: importSuccess.name,
                       count: importSuccess.warnings.length,
                     })
-                  : t2("assetCenter.import.success", {
+                  : translate("assetCenter.import.success", {
                       name: importSuccess.name,
                     })}
               </p>
@@ -1195,13 +1195,13 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
                   className="text-[11px] text-muted-foreground/90 space-y-0.5 pl-4 list-disc"
                   data-action-ui-id="asset-center-import-warning-list"
                 >
-                  {importSuccess.warnings.map((w3) => (
+                  {importSuccess.warnings.map((warning) => (
                     <li
-                      key={`${w3.code}:${Object.values(w3.params ?? {}).join(",")}`}
+                      key={`${warning.code}:${Object.values(warning.params ?? {}).join(",")}`}
                       className="whitespace-pre-wrap break-words"
                     >
-                      {t2(`assetCenter.warnings.${w3.code}`, {
-                        ...w3.params,
+                      {translate(`assetCenter.warnings.${warning.code}`, {
+                        ...warning.params,
                       })}
                     </li>
                   ))}
@@ -1213,10 +1213,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
               size="icon-xs"
               className="shrink-0 -mt-0.5 -mr-1 text-muted-foreground hover:text-foreground"
               onClick={() => setImportSuccess(null)}
-              aria-label={t2("common.close")}
+              aria-label={translate("common.close")}
               data-action-ui-id="asset-center-import-success-close"
             >
-              <X size={12} />
+              <CloseIcon size={12} />
             </Button>
           </div>
         )}
@@ -1227,7 +1227,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           >
             <ShieldAlert size={14} className="shrink-0 text-destructive" />
             <p className="text-xs text-destructive flex-1 min-w-0">
-              {t2("assetCenter.import.error", {
+              {translate("assetCenter.import.error", {
                 message: importError,
               })}
             </p>
@@ -1236,10 +1236,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
               size="icon-xs"
               className="shrink-0 -mr-1 text-destructive/70 hover:text-destructive"
               onClick={() => setImportError(null)}
-              aria-label={t2("common.close")}
+              aria-label={translate("common.close")}
               data-action-ui-id="asset-center-import-error-close"
             >
-              <X size={12} />
+              <CloseIcon size={12} />
             </Button>
           </div>
         )}
@@ -1254,7 +1254,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             />
             <div className="space-y-1 min-w-0">
               <p className="text-xs font-medium text-destructive">
-                {t2("assetCenter.loadError.title")}
+                {translate("assetCenter.loadError.title")}
               </p>
               <p className="text-xs text-destructive/80">
                 {page.loadError.message}
@@ -1263,7 +1263,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           </div>
         ) : page.isLoading ? (
           <div className="text-xs text-muted-foreground py-12 text-center">
-            {t2("assetCenter.loading")}
+            {translate("assetCenter.loading")}
           </div>
         ) : page.entities.length === 0 ? (
           <EntityEmptyState
@@ -1272,8 +1272,8 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
               page.isEmpty
                 ? void 0
                 : page.search.trim()
-                  ? t2("assetCenter.searchEmpty")
-                  : t2(`assetSidebarPanel.emptyByType.${page.typeFilter}`)
+                  ? translate("assetCenter.searchEmpty")
+                  : translate(`assetSidebarPanel.emptyByType.${page.typeFilter}`)
             }
           />
         ) : page.viewMode === "list" ? (

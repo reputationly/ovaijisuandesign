@@ -17,41 +17,41 @@ import { useGatewayUrl } from "../generation/use-model-catalog-scope-key.js";
 import { useMaterializedEntities } from "./use-materialized-entities.jsx";
 import { useEntities } from "./wrap-as-asset-center-error.js";
 import { Badge } from "../infra/badge-variants.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
 const DEFAULT_MAX_HEIGHT = 280;
 const SEARCH_LIMIT = 50;
 const THUMB_PX = 32;
-function TypeIcon({ type: type2 }) {
-  if (type2 === "character")
+function TypeIcon({ type }) {
+  if (type === "character")
     return <ImageOutlineIcon size={16} strokeWidth={1.67} />;
-  if (type2 === "scene") return <Video size={16} />;
-  if (type2 === "style_pack") return <Music size={16} />;
-  if (type2 === "prop") return <Package size={16} />;
+  if (type === "scene") return <Video size={16} />;
+  if (type === "style_pack") return <Music size={16} />;
+  if (type === "prop") return <Package size={16} />;
   return <File size={16} />;
 }
 function AssetThumb({ entity }) {
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
   const wrapperCls =
     "flex-shrink-0 flex items-center justify-center bg-muted overflow-hidden text-muted-foreground";
-  const wrapperStyle2 = {
+  const wrapperStyle = {
     width: THUMB_PX,
     height: THUMB_PX,
   };
   const previewUrl = entity.thumbnailUrl ?? entity.coverUrl;
   const resolvedUrl = previewUrl
-    ? withThumbnail(gatewayUrl2(previewUrl), THUMB_PX)
+    ? withThumbnail(gatewayUrl(previewUrl), THUMB_PX)
     : void 0;
   if (!resolvedUrl || errored) {
     return (
-      <span className={wrapperCls} style={wrapperStyle2}>
+      <span className={wrapperCls} style={wrapperStyle}>
         <TypeIcon type={entity.type} />
       </span>
     );
   }
   return (
-    <span className={wrapperCls} style={wrapperStyle2}>
+    <span className={wrapperCls} style={wrapperStyle}>
       <img
         src={resolvedUrl}
         alt=""
@@ -79,7 +79,7 @@ export function AssetMentionList(props) {
     bordered,
     typeFilter,
   } = props;
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [internalQuery, setInternalQuery] = reactExports.useState("");
   const effectiveQuery = externalQuery ?? internalQuery;
   const entitiesQuery = useEntities({
@@ -94,13 +94,13 @@ export function AssetMentionList(props) {
   const materializedQuery = useMaterializedEntities();
   const materializedIds = reactExports.useMemo(() => {
     if (!materializedOnly) return null;
-    const list2 = materializedQuery.data ?? [];
-    return new Set(list2.map((e2) => e2.entityId));
+    const list = materializedQuery.data ?? [];
+    return new Set(list.map((materializedEntry) => materializedEntry.entityId));
   }, [materializedOnly, materializedQuery.data]);
   const entities = reactExports.useMemo(() => {
-    const raw2 = entitiesQuery.data ?? [];
-    if (!materializedIds) return raw2;
-    return raw2.filter((e2) => materializedIds.has(e2.id));
+    const raw = entitiesQuery.data ?? [];
+    if (!materializedIds) return raw;
+    return raw.filter((entity) => materializedIds.has(entity.id));
   }, [entitiesQuery.data, materializedIds]);
   const [activeIndex, setActiveIndex] = reactExports.useState(0);
   const listRef = reactExports.useRef(null);
@@ -114,13 +114,13 @@ export function AssetMentionList(props) {
   }, [effectiveQuery]);
   reactExports.useEffect(() => {
     if (!onTopEntityChange) return;
-    const top2 = entities[0];
-    if (top2) {
+    const topEntity = entities[0];
+    if (topEntity) {
       onTopEntityChange({
         kind: "entity",
-        entityId: top2.id,
-        entityName: top2.name,
-        entityType: top2.type,
+        entityId: topEntity.id,
+        entityName: topEntity.name,
+        entityType: topEntity.type,
       });
     } else {
       onTopEntityChange(null);
@@ -137,27 +137,27 @@ export function AssetMentionList(props) {
     },
     [onSelect],
   );
-  const handleKeyDown2 = reactExports.useCallback(
-    (e2) => {
+  const handleKeyDown = reactExports.useCallback(
+    (keyboardEvent) => {
       if (entities.length === 0) {
-        if (e2.key === "Escape" && onClose) {
-          e2.preventDefault();
+        if (keyboardEvent.key === "Escape" && onClose) {
+          keyboardEvent.preventDefault();
           onClose();
         }
         return;
       }
-      if (e2.key === "ArrowDown") {
-        e2.preventDefault();
+      if (keyboardEvent.key === "ArrowDown") {
+        keyboardEvent.preventDefault();
         setActiveIndex((prev) => (prev >= entities.length - 1 ? 0 : prev + 1));
-      } else if (e2.key === "ArrowUp") {
-        e2.preventDefault();
+      } else if (keyboardEvent.key === "ArrowUp") {
+        keyboardEvent.preventDefault();
         setActiveIndex((prev) => (prev <= 0 ? entities.length - 1 : prev - 1));
-      } else if (e2.key === "Enter") {
-        e2.preventDefault();
-        const selected2 = entities[activeIndex];
-        if (selected2) handleSelect(selected2);
-      } else if (e2.key === "Escape" && onClose) {
-        e2.preventDefault();
+      } else if (keyboardEvent.key === "Enter") {
+        keyboardEvent.preventDefault();
+        const selected = entities[activeIndex];
+        if (selected) handleSelect(selected);
+      } else if (keyboardEvent.key === "Escape" && onClose) {
+        keyboardEvent.preventDefault();
         onClose();
       }
     },
@@ -187,20 +187,20 @@ export function AssetMentionList(props) {
     <div
       role="listbox"
       aria-multiselectable={selectedEntityIds !== void 0 ? true : void 0}
-      aria-label={t2("assetMentionList.tabLabel")}
+      aria-label={translate("assetMentionList.tabLabel")}
       className={`flex flex-col bg-popover text-popover-foreground rounded-md outline-none ${showSharedEmpty ? "flex-1 min-h-0" : ""} ${bordered ? "elevated-surface-border" : ""}`}
       tabIndex={0}
-      onKeyDown={handleKeyDown2}
+      onKeyDown={handleKeyDown}
       data-action-ui-id="asset-mention-list"
     >
       {externalQuery === void 0 && (
         <div className="p-2 border-b border-border">
-          <Input3
+          <Input
             type="search"
             value={internalQuery}
-            placeholder={t2("assetMentionList.placeholder")}
+            placeholder={translate("assetMentionList.placeholder")}
             startIcon={<Search />}
-            onChange={(e2) => setInternalQuery(e2.target.value)}
+            onChange={(changeEvent) => setInternalQuery(changeEvent.target.value)}
             className="[&_input]:rounded-md"
             data-action-ui-id="asset-mention-list.search"
           />
@@ -219,25 +219,25 @@ export function AssetMentionList(props) {
       >
         {error ? (
           <div className="px-3 py-4 text-xs text-destructive select-none">
-            {t2("assetMentionList.loadError", {
+            {translate("assetMentionList.loadError", {
               message: error.message,
             })}
           </div>
         ) : isLoading ? (
           <div className="px-3 py-4 text-xs text-muted-foreground text-center select-none">
-            {t2("assetMentionList.loading")}
+            {translate("assetMentionList.loading")}
           </div>
         ) : showSharedEmpty ? (
           <PageStateBoundary
             empty={true}
             density={emptyStateDensity}
             emptyOptions={{
-              text: t2("assetMentionList.empty"),
+              text: translate("assetMentionList.empty"),
             }}
           />
         ) : entities.length === 0 ? (
           <div className="px-3 py-4 text-xs text-muted-foreground text-center select-none">
-            {t2("assetMentionList.empty")}
+            {translate("assetMentionList.empty")}
           </div>
         ) : (
           entities.map((entity, idx) => {
@@ -274,7 +274,7 @@ export function AssetMentionList(props) {
                   {entity.name}
                 </span>
                 <Badge variant="secondary" className="shrink-0">
-                  {t2(`assetCenter.types.${entity.type}`)}
+                  {translate(`assetCenter.types.${entity.type}`)}
                 </Badge>
                 {entity.description ? (
                   <span className="text-xs text-muted-foreground truncate min-w-0 flex-1">

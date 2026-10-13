@@ -1,0 +1,24 @@
+key	old	new	依据
+a2@200:16	a2	leftSkill	技能排序比较中的左侧技能记录。
+a2@85:8	a2	leftSkill	技能排序比较中的左侧技能记录。
+b3@200:20	b3	rightSkill	技能排序比较中的右侧技能记录。
+b3@85:12	b3	rightSkill	技能排序比较中的右侧技能记录。
+close2@174:9	close2	closeSlashCommand	关闭斜杠命令弹层并重置查询与选中状态的回调。
+command2@314:17	command2	command	去掉打包器防重名追加的后缀，恢复原名 command，即该绑定持有的值。
+count2@23:22	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+current2@59:9	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+data2@110:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+e2@345:6	e2	keyboardEvent	新建工作区名称输入框收到的键盘事件。
+gatewayFetch2@105:28	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+gatewayFetch2@121:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+index2@80:18	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+match2@240:13	match2	match	正则匹配结果。
+name2@23:15	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+name2@57:27	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+next2@60:9	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+q2@193:13	q2	queryText	用于匹配技能名称和展示名称的小写搜索文本。
+raw2@41:7	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+s2@196:12	s2	skill	市场技能列表中的技能记录对象。
+seq2@151:11	seq2	seq	去掉打包器防重名追加的后缀，恢复原名 seq，即该绑定持有的值。
+text2@303:15	text2	text	当前处理的文本内容。
+v2@92:22	v2	value	正在校验是否为技能信息对象的输入值。

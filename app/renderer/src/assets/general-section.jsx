@@ -1,5 +1,5 @@
 // general-section.jsx
-import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, Brain$2 as Brain, ChevronLeftIcon, CircleArrowUp, CurrentWorkspaceContext, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2, DialogPopup, DialogTitle$2, getRuntimeConfig, Globe, jsxRuntimeExports, Library, Loader2, Monitor, Pencil, Plus, reactExports, ServerIcon, ShieldAlert, Smartphone, Sun, useNavigate, usePlatform, useQueries, useQuery, useTranslation, XIcon } from "../vendor.js";
+import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, Brain$2 as Brain, ChevronLeftIcon, CircleArrowUp, CurrentWorkspaceContext, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2 as DialogDescriptionPrimitive, DialogPopup, DialogTitle$2 as DialogTitlePrimitive, getRuntimeConfig, Globe, jsxRuntimeExports, Library, Loader2, Monitor, Pencil, Plus, reactExports, ServerIcon, ShieldAlert, Smartphone, Sun, useNavigate, usePlatform, useQueries, useQuery, useTranslation, XIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { PlatformSection } from "../settings/platform-section.jsx";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
@@ -10,7 +10,7 @@ import {
   Folder,
   HardDrive,
   Moon,
-  Settings2,
+  Settings2 as Settings,
   SlidersHorizontal,
   Sparkles,
 } from "../media-editing/package.jsx";
@@ -56,7 +56,7 @@ import {
   listeners,
   normalizeWorkspaceId,
   SettingsPanelHeaderContext,
-  snapshot as snapshot$2,
+  snapshot as activeRuntimeSnapshot,
   useActiveRuntime,
   useOptionalUpdaterContext,
 } from "../settings/use-active-runtime.js";
@@ -85,7 +85,7 @@ import {
   useHubCancelCheck,
   useUpdateAccountProfile,
 } from "../team/map-hub-cancel-check.js";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { DeleteAccountConfirmDialog } from "../team/delete-account-confirm-dialog.jsx";
 import {
   useAuth,
@@ -109,7 +109,7 @@ function useSettingsPanelHeader() {
   return reactExports.useContext(SettingsPanelHeaderContext);
 }
 function getTopbarActiveWorkspaceSnapshot() {
-  return snapshot$2;
+  return activeRuntimeSnapshot;
 }
 function subscribeTopbarActiveWorkspaceSnapshot(listener) {
   listeners.add(listener);
@@ -122,13 +122,13 @@ function useTopbarActiveWorkspaceSnapshot() {
     getTopbarActiveWorkspaceSnapshot,
   );
 }
-function SummaryBlock({ title, children: children2 }) {
+function SummaryBlock({ title, children }) {
   return (
     <div className="rounded-lg bg-secondary p-1.5">
       <div className="px-2.5 pt-1.5 pb-0.5 text-xs text-muted-foreground">
         {title}
       </div>
-      {children2}
+      {children}
     </div>
   );
 }
@@ -138,7 +138,7 @@ function DeleteAccountDialog({
   createdTeams,
   joinedTeams,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { user } = useAuth();
   const [confirmOpen, setConfirmOpen] = reactExports.useState(false);
   const summaryQuery = useHailuoWebSummary(open);
@@ -155,10 +155,10 @@ function DeleteAccountDialog({
   const hubCancelBlocked = hubCancelSettled && !hubCancelAllowed;
   const hubBlockItems = [
     ...(hubCancelCheck?.hasIapSubscription
-      ? [t2("account.delete.blockIapSubscription")]
+      ? [translate("account.delete.blockIapSubscription")]
       : []),
     ...(hubCancelCheck?.blockingTeams ?? []).map((team) =>
-      t2(
+      translate(
         team.role === "OWNER"
           ? "account.delete.blockTeamOwner"
           : "account.delete.blockTeamMember",
@@ -183,9 +183,9 @@ function DeleteAccountDialog({
     })),
   });
   const ownerCreditByGroupId = new Map(
-    createdTeams.map((team, index2) => [
+    createdTeams.map((team, index) => [
       team.groupId,
-      ownerCreditQueries[index2]?.data ?? null,
+      ownerCreditQueries[index]?.data ?? null,
     ]),
   );
   const allTeams = [...createdTeams, ...joinedTeams];
@@ -208,42 +208,42 @@ function DeleteAccountDialog({
         data-action-ui-id="account-delete-dialog"
       >
         <DialogHeader>
-          <DialogTitle>{t2("account.delete.title")}</DialogTitle>
-          <DialogDescription>{t2("account.delete.subtitle")}</DialogDescription>
+          <DialogTitle>{translate("account.delete.title")}</DialogTitle>
+          <DialogDescription>{translate("account.delete.subtitle")}</DialogDescription>
         </DialogHeader>
         <div className="scrollbar-fade min-h-0 space-y-2 overflow-y-auto pr-1.5 [scrollbar-gutter:stable]">
-          <SummaryBlock title={t2("account.delete.hubPersonalTitle")}>
+          <SummaryBlock title={translate("account.delete.hubPersonalTitle")}>
             <SummaryRow
-              label={t2("account.delete.accountName")}
+              label={translate("account.delete.accountName")}
               value={user?.username || "--"}
             />
             <SummaryRow
-              label={t2("account.delete.subscriptionPlan")}
+              label={translate("account.delete.subscriptionPlan")}
               value={hubPlan}
             />
             {showHubCredits && hubCredits !== null && (
               <SummaryRow
-                label={t2("account.delete.remainingCredits")}
+                label={translate("account.delete.remainingCredits")}
                 value={hubCredits}
               />
             )}
           </SummaryBlock>
           {allTeams.length > 0 && (
-            <SummaryBlock title={t2("account.delete.hubTeamsTitle")}>
+            <SummaryBlock title={translate("account.delete.hubTeamsTitle")}>
               {allTeams.map((team) => {
                 const ownerCredit =
                   team.role === "OWNER"
                     ? (ownerCreditByGroupId.get(team.groupId)?.teamRemaining ??
                       null)
                     : null;
-                const roleLabel = t2(roleLabelKey(team.role));
+                const roleLabel = translate(roleLabelKey(team.role));
                 return (
                   <SummaryRow
                     key={team.groupId}
                     label={team.displayName}
                     value={
                       ownerCredit !== null
-                        ? `${roleLabel} · ${t2("account.delete.teamRemainingCredits")} ${ownerCredit}`
+                        ? `${roleLabel} · ${translate("account.delete.teamRemainingCredits")} ${ownerCredit}`
                         : roleLabel
                     }
                   />
@@ -251,37 +251,37 @@ function DeleteAccountDialog({
               })}
             </SummaryBlock>
           )}
-          <SummaryBlock title={t2("account.delete.hailuoTitle")}>
+          <SummaryBlock title={translate("account.delete.hailuoTitle")}>
             <SummaryRow
-              label={t2("account.delete.subscriptionPlan")}
+              label={translate("account.delete.subscriptionPlan")}
               value={hailuoPlan}
             />
             {showHailuoCredits && hailuoCredits !== null && (
               <SummaryRow
-                label={t2("account.delete.remainingCredits")}
+                label={translate("account.delete.remainingCredits")}
                 value={hailuoCredits}
               />
             )}
           </SummaryBlock>
           {hailuoBlocked && (
             <BlockGroup
-              title={t2("account.delete.blockGroupHailuo")}
+              title={translate("account.delete.blockGroupHailuo")}
               items={[
                 hailuoBlockedReason
-                  ? t2("account.delete.blockHailuoReason", {
+                  ? translate("account.delete.blockHailuoReason", {
                       reason: hailuoBlockedReason,
                     })
-                  : t2("account.delete.blockHailuoFallback"),
+                  : translate("account.delete.blockHailuoFallback"),
               ]}
             />
           )}
           {hubCancelBlocked && (
             <BlockGroup
-              title={t2("account.delete.blockGroupDesign")}
+              title={translate("account.delete.blockGroupDesign")}
               items={
                 hubBlockItems.length > 0
                   ? hubBlockItems
-                  : [t2("account.delete.blockCheckUnavailable")]
+                  : [translate("account.delete.blockCheckUnavailable")]
               }
             />
           )}
@@ -292,7 +292,7 @@ function DeleteAccountDialog({
             onClick={() => onOpenChange(false)}
             data-action-ui-id="account-delete-dialog.cancel"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -300,7 +300,7 @@ function DeleteAccountDialog({
             onClick={() => setConfirmOpen(true)}
             data-action-ui-id="account-delete-dialog.confirm"
           >
-            {t2("account.delete.confirmButton")}
+            {translate("account.delete.confirmButton")}
           </Button>
         </DialogFooter>
         <DeleteAccountConfirmDialog
@@ -316,7 +316,7 @@ function DeleteAccountDialog({
   );
 }
 function InfoRow({ label, value, copyActionId }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className="flex h-9 items-center justify-between gap-4 rounded-md px-2.5">
       <span className="shrink-0 text-sm text-muted-foreground">{label}</span>
@@ -327,7 +327,7 @@ function InfoRow({ label, value, copyActionId }) {
         {value ? (
           <CopyIconButton
             value={value}
-            label={t2("common.copy")}
+            label={translate("common.copy")}
             actionId={copyActionId}
           />
         ) : null}
@@ -338,35 +338,35 @@ function InfoRow({ label, value, copyActionId }) {
 const ACCOUNT_NAME_MIN_LENGTH = 2;
 const ACCOUNT_NAME_MAX_LENGTH = 20;
 function AccountNameRow({ savedName }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [draft, setDraft] = reactExports.useState(null);
   const updateMutation = useUpdateAccountProfile();
   const handleBlur = () => {
     if (draft === null) return;
-    const next2 = draft.trim();
+    const next = draft.trim();
     setDraft(null);
-    if (next2 === savedName) return;
-    if (next2 === "") {
-      dedupedToast.error(t2("settings.account.nameEmptyError"));
+    if (next === savedName) return;
+    if (next === "") {
+      dedupedToast.error(translate("settings.account.nameEmptyError"));
       return;
     }
-    const length2 = countChars(next2);
+    const characterCount = countChars(next);
     if (
-      length2 < ACCOUNT_NAME_MIN_LENGTH ||
-      length2 > ACCOUNT_NAME_MAX_LENGTH
+      characterCount < ACCOUNT_NAME_MIN_LENGTH ||
+      characterCount > ACCOUNT_NAME_MAX_LENGTH
     ) {
-      dedupedToast.error(t2("settings.account.nameLengthError"));
+      dedupedToast.error(translate("settings.account.nameLengthError"));
       return;
     }
-    updateMutation.mutate(next2, {
+    updateMutation.mutate(next, {
       onError: () =>
-        dedupedToast.error(t2("settings.account.nameUpdateFailed")),
+        dedupedToast.error(translate("settings.account.nameUpdateFailed")),
     });
   };
   return (
     <div className="flex h-9 items-center justify-between gap-4 rounded-md px-2.5">
       <span className="shrink-0 text-sm text-muted-foreground">
-        {t2("settings.account.nameLabel")}
+        {translate("settings.account.nameLabel")}
       </span>
       <div
         className="flex w-52 min-w-0 items-center gap-1"
@@ -382,7 +382,7 @@ function AccountNameRow({ savedName }) {
               variant="ghost"
               size="icon-xs"
               disabled={updateMutation.isPending}
-              aria-label={`${t2("common.edit")} ${t2("settings.account.nameLabel")}`}
+              aria-label={`${translate("common.edit")} ${translate("settings.account.nameLabel")}`}
               data-action-ui-id="settings-account.edit-name"
               onClick={() => setDraft(savedName)}
               className="text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
@@ -392,10 +392,10 @@ function AccountNameRow({ savedName }) {
           </>
         ) : (
           <>
-            <Input3
+            <Input
               autoFocus={true}
               value={draft}
-              placeholder={t2("settings.account.namePlaceholder")}
+              placeholder={translate("settings.account.namePlaceholder")}
               disabled={updateMutation.isPending}
               data-action-ui-id="settings-account.name-input"
               className="h-7 min-w-0 flex-1 text-right text-sm md:text-sm"
@@ -417,20 +417,20 @@ function AccountNameRow({ savedName }) {
   );
 }
 function TeamRow({ team }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className="flex h-9 items-center justify-between gap-4 rounded-md px-2.5">
       <span className="min-w-0 flex-1 truncate text-sm text-foreground">
         {team.displayName}
       </span>
       <span className="shrink-0 text-xs text-muted-foreground">
-        {t2("team.management.groupId")} {team.groupId}
+        {translate("team.management.groupId")} {team.groupId}
       </span>
     </div>
   );
 }
 function AccountSection() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { user } = useAuth();
   const profileQuery = useAccountProfile();
   const teamAccount = useOptionalTeamAccount();
@@ -444,32 +444,32 @@ function AccountSection() {
   );
   const hasTeams = teams.created.length > 0 || teams.joined.length > 0;
   const account = profileQuery.data?.account || null;
-  const uid2 = profileQuery.data?.uid || user?.userID || null;
+  const uid = profileQuery.data?.uid || user?.userID || null;
   const userName = profileQuery.data?.user_name || user?.username || "";
   return (
     <div className="space-y-3">
-      <SettingGroup title={t2("settings.account.infoTitle")}>
+      <SettingGroup title={translate("settings.account.infoTitle")}>
         <div className="space-y-0.5 rounded-lg bg-secondary p-1.5">
           <AccountNameRow savedName={userName} />
           <InfoRow
-            label={t2("settings.account.accountLabel")}
+            label={translate("settings.account.accountLabel")}
             value={account}
             copyActionId="settings-account.copy-account"
           />
           <InfoRow
-            label={t2("settings.account.uidLabel")}
-            value={uid2}
+            label={translate("settings.account.uidLabel")}
+            value={uid}
             copyActionId="settings-account.copy-uid"
           />
         </div>
       </SettingGroup>
-      <SettingGroup title={t2("settings.account.teamsTitle")}>
+      <SettingGroup title={translate("settings.account.teamsTitle")}>
         {hasTeams ? (
           <div className="space-y-2">
             {teams.created.length > 0 && (
               <div className="space-y-0.5 rounded-lg bg-secondary p-1.5">
                 <div className="px-2.5 pt-1.5 pb-0.5 text-xs text-muted-foreground">
-                  {t2("settings.account.createdTeams")}
+                  {translate("settings.account.createdTeams")}
                 </div>
                 {teams.created.map((team) => (
                   <TeamRow key={team.groupId} team={team} />
@@ -479,7 +479,7 @@ function AccountSection() {
             {teams.joined.length > 0 && (
               <div className="space-y-0.5 rounded-lg bg-secondary p-1.5">
                 <div className="px-2.5 pt-1.5 pb-0.5 text-xs text-muted-foreground">
-                  {t2("settings.account.joinedTeams")}
+                  {translate("settings.account.joinedTeams")}
                 </div>
                 {teams.joined.map((team) => (
                   <TeamRow key={team.groupId} team={team} />
@@ -490,15 +490,15 @@ function AccountSection() {
         ) : (
           <div className="rounded-lg bg-secondary p-1.5">
             <p className="px-2.5 py-2 text-sm text-muted-foreground">
-              {t2("settings.account.noTeams")}
+              {translate("settings.account.noTeams")}
             </p>
           </div>
         )}
       </SettingGroup>
-      <SettingGroup title={t2("settings.account.deleteTitle")}>
+      <SettingGroup title={translate("settings.account.deleteTitle")}>
         <SettingRow
-          label={t2("settings.account.deleteLabel")}
-          description={t2("settings.account.deleteDescription")}
+          label={translate("settings.account.deleteLabel")}
+          description={translate("settings.account.deleteDescription")}
         >
           <Button
             variant="destructive"
@@ -506,7 +506,7 @@ function AccountSection() {
             data-action-ui-id="settings-account.delete-account"
             onClick={() => setDeleteDialogOpen(true)}
           >
-            {t2("settings.account.deleteButton")}
+            {translate("settings.account.deleteButton")}
           </Button>
         </SettingRow>
       </SettingGroup>
@@ -521,16 +521,16 @@ function AccountSection() {
 }
 const PROXY_MODES = ["auto", "direct", "system"];
 function NetworkSection() {
-  const { t: t2 } = useTranslation();
-  const [mode2, setMode] = reactExports.useState("auto");
+  const { t: translate } = useTranslation();
+  const [proxyModeSelection, setProxyModeSelection] = reactExports.useState("auto");
   const requestRevisionRef = reactExports.useRef(0);
   reactExports.useEffect(() => {
     let mounted = true;
     const revision = requestRevisionRef.current;
     getNetworkDiagnosticsMainService()
       .getProxyMode()
-      .then((m3) => {
-        if (mounted && requestRevisionRef.current === revision) setMode(m3);
+      .then((proxyMode) => {
+        if (mounted && requestRevisionRef.current === revision) setProxyModeSelection(proxyMode);
       })
       .catch(() => {});
     return () => {
@@ -540,39 +540,39 @@ function NetworkSection() {
   if (!isElectron()) return null;
   const handleChange = async (value) => {
     const revision = ++requestRevisionRef.current;
-    const next2 = value;
-    const prev = mode2;
-    setMode(next2);
+    const next = value;
+    const prev = proxyModeSelection;
+    setProxyModeSelection(next);
     try {
       const result =
-        await getNetworkDiagnosticsMainService().setProxyMode(next2);
+        await getNetworkDiagnosticsMainService().setProxyMode(next);
       if (requestRevisionRef.current !== revision) return;
       if (result.success) {
-        setMode(result.mode);
-        dedupedToast.success(t2("settings.network.proxyModeSaved"));
+        setProxyModeSelection(result.mode);
+        dedupedToast.success(translate("settings.network.proxyModeSaved"));
       } else {
-        setMode(prev);
-        dedupedToast.error(t2("settings.network.proxyModeFailed"));
+        setProxyModeSelection(prev);
+        dedupedToast.error(translate("settings.network.proxyModeFailed"));
       }
     } catch {
       if (requestRevisionRef.current !== revision) return;
-      setMode(prev);
-      dedupedToast.error(t2("settings.network.proxyModeFailed"));
+      setProxyModeSelection(prev);
+      dedupedToast.error(translate("settings.network.proxyModeFailed"));
     }
   };
   return (
     <div className="space-y-4">
-      <SettingGroup title={t2("settings.network.proxyGroup")}>
+      <SettingGroup title={translate("settings.network.proxyGroup")}>
         <SettingRow
-          label={t2("settings.network.proxyMode")}
-          description={t2("settings.network.proxyModeDesc")}
+          label={translate("settings.network.proxyMode")}
+          description={translate("settings.network.proxyModeDesc")}
         >
           <SettingsSelect
-            value={mode2}
-            onValueChange={(v2) => void handleChange(v2)}
-            options={PROXY_MODES.map((m3) => ({
-              value: m3,
-              label: t2(`settings.network.proxyMode.${m3}`),
+            value={proxyModeSelection}
+            onValueChange={(selectedMode) => void handleChange(selectedMode)}
+            options={PROXY_MODES.map((mode) => ({
+              value: mode,
+              label: translate(`settings.network.proxyMode.${mode}`),
             }))}
           />
         </SettingRow>
@@ -581,7 +581,7 @@ function NetworkSection() {
   );
 }
 function SettingsPanelHeaderProvider({
-  children: children2,
+  children,
   setHeaderOverride,
 }) {
   return (
@@ -590,7 +590,7 @@ function SettingsPanelHeaderProvider({
         setHeaderOverride,
       }}
     >
-      {children2}
+      {children}
     </SettingsPanelHeaderContext.Provider>
   );
 }
@@ -615,31 +615,31 @@ function ImBridgeSection() {
     </div>
   );
 }
-function getUpdateSettingsBadgeLabel(phase, t2) {
+function getUpdateSettingsBadgeLabel(phase, translate) {
   switch (phase) {
     case "available":
     case "downloaded":
-      return t2("settings.softwareUpdate.badgeNew");
+      return translate("settings.softwareUpdate.badgeNew");
     case "downloading":
-      return t2("settings.softwareUpdate.badgeDownloading");
+      return translate("settings.softwareUpdate.badgeDownloading");
     default:
       return null;
   }
 }
 const bootSettingValues = new Map();
-function useBootSettingValue(key2, currentValue) {
+function useBootSettingValue(key, currentValue) {
   const [bootValue] = reactExports.useState(() => {
-    if (!bootSettingValues.has(key2)) {
-      bootSettingValues.set(key2, currentValue);
+    if (!bootSettingValues.has(key)) {
+      bootSettingValues.set(key, currentValue);
     }
-    return bootSettingValues.get(key2);
+    return bootSettingValues.get(key);
   });
   return bootValue;
 }
 function AdvancedSection() {
-  const { t: t2 } = useTranslation();
-  const { config: config2, setMany } = useSettings();
-  const disableGpu = config2.disableGpu ?? false;
+  const { t: translate } = useTranslation();
+  const { config, setMany } = useSettings();
+  const disableGpu = config.disableGpu ?? false;
   const bootDisableGpu = useBootSettingValue("disableGpu", disableGpu);
   if (!isElectron()) return null;
   const gpuNeedsRestart = disableGpu !== bootDisableGpu;
@@ -653,8 +653,8 @@ function AdvancedSection() {
     <div className="space-y-4">
       <SettingGroup>
         <SettingRow
-          label={t2("settings.disableGpu")}
-          description={t2("settings.disableGpuDesc")}
+          label={translate("settings.disableGpu")}
+          description={translate("settings.disableGpuDesc")}
         >
           <Switch
             checked={disableGpu}
@@ -670,7 +670,7 @@ function AdvancedSection() {
 }
 function MemorySection() {
   const routerSearch = useRouterState({
-    select: (s2) => s2.location.search,
+    select: (routerState) => routerState.location.search,
   });
   const { setHeaderOverride } = useSettingsPanelHeader();
   const routeWorkspaceId =
@@ -678,12 +678,12 @@ function MemorySection() {
   const activeWorkspaceSnapshot = useTopbarActiveWorkspaceSnapshot();
   const currentWorkspaceId =
     routeWorkspaceId ?? activeWorkspaceSnapshot.currentWorkspaceId;
-  const hiloApp2 = reactExports.useMemo(
+  const hiloApp = reactExports.useMemo(
     () =>
       instantiationService.invokeFunction((accessor) => accessor.get(IHiloApp)),
     [],
   );
-  const runtimeFromLookup = useActiveRuntime(currentWorkspaceId, hiloApp2);
+  const runtimeFromLookup = useActiveRuntime(currentWorkspaceId, hiloApp);
   const runtimeFromTopbar =
     activeWorkspaceSnapshot.activeRuntime?.workspaceId === currentWorkspaceId
       ? activeWorkspaceSnapshot.activeRuntime
@@ -697,14 +697,14 @@ function MemorySection() {
       : activeRuntime;
   const recoverWorkspaceBinding = reactExports.useCallback(async () => {
     if (!currentWorkspaceId) return void 0;
-    const next2 = await hiloApp2.getWorkspaceRuntime(currentWorkspaceId);
-    if (!next2?.gatewayBinding) return void 0;
+    const next = await hiloApp.getWorkspaceRuntime(currentWorkspaceId);
+    if (!next?.gatewayBinding) return void 0;
     setRecovered({
       sourceRuntime: activeRuntime,
-      runtime: next2,
+      runtime: next,
     });
-    return next2.gatewayBinding;
-  }, [activeRuntime, currentWorkspaceId, hiloApp2]);
+    return next.gatewayBinding;
+  }, [activeRuntime, currentWorkspaceId, hiloApp]);
   return (
     <GatewayScopeProvider
       gatewayUrl={effectiveRuntime?.gatewayUrl}
@@ -722,7 +722,7 @@ function MemorySection() {
   );
 }
 function SoftwareUpdateUnavailableSection() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const runtimeConfig = useRuntimeConfig();
   return (
     <div className="space-y-4">
@@ -739,15 +739,15 @@ function SoftwareUpdateUnavailableSection() {
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-normal text-foreground">
-              {t2("settings.softwareUpdate.unavailableTitle")}
+              {translate("settings.softwareUpdate.unavailableTitle")}
             </p>
             <p className="mt-1 truncate text-xs leading-relaxed text-muted-foreground">
-              {t2("settings.softwareUpdate.unavailableDesc")}
+              {translate("settings.softwareUpdate.unavailableDesc")}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2 self-center">
             <span className="whitespace-nowrap text-[11px] text-muted-foreground">
-              {t2("settings.softwareUpdate.currentVersion", {
+              {translate("settings.softwareUpdate.currentVersion", {
                 version: `v${runtimeConfig.appVersion}`,
               })}
             </span>
@@ -760,7 +760,7 @@ function SoftwareUpdateUnavailableSection() {
               data-action-ui-id="settings.software-update.unavailable"
             >
               <RetryIcon size={14} />
-              {t2("update.version.checkCta")}
+              {translate("update.version.checkCta")}
             </Button>
           </div>
         </div>
@@ -776,7 +776,7 @@ function SoftwareUpdateSection() {
 const SECTIONS = [
   {
     id: "general",
-    icon: Settings2,
+    icon: Settings,
     labelKey: "settings.general",
   },
   {
@@ -821,7 +821,7 @@ const SECTIONS = [
   },
 ];
 function AssetCenterSection() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const {
     status,
     busy,
@@ -839,7 +839,7 @@ function AssetCenterSection() {
     return (
       <div className="flex items-center gap-2 py-6 text-xs text-muted-foreground">
         <Loader2 size={14} className="animate-spin" />
-        {t2("settings.assetCenter.loading")}
+        {translate("settings.assetCenter.loading")}
       </div>
     );
   }
@@ -847,11 +847,11 @@ function AssetCenterSection() {
     <div className="space-y-2">
       <SettingGroup>
         <SettingRow
-          label={t2("settings.assetCenter.directory")}
+          label={translate("settings.assetCenter.directory")}
           description={
             status.isCustomDirectory
-              ? t2("settings.assetCenter.directoryDescCustom")
-              : t2("settings.assetCenter.directoryDescDefault")
+              ? translate("settings.assetCenter.directoryDescCustom")
+              : translate("settings.assetCenter.directoryDescDefault")
           }
         >
           <div className="flex items-center gap-2">
@@ -870,7 +870,7 @@ function AssetCenterSection() {
               ) : (
                 <LocalFolderIcon />
               )}
-              {t2("settings.assetCenter.browse")}
+              {translate("settings.assetCenter.browse")}
             </Button>
             {status.isCustomDirectory && (
               <Button
@@ -883,7 +883,7 @@ function AssetCenterSection() {
                 }
                 data-action-ui-id="settings-asset-center-reset"
               >
-                {t2("settings.assetCenter.reset")}
+                {translate("settings.assetCenter.reset")}
               </Button>
             )}
           </div>
@@ -912,7 +912,7 @@ function AssetCenterSection() {
         <div className="flex items-start gap-2 rounded-lg border border-warning/50 bg-warning/10 px-3 py-2">
           <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" />
           <p className="text-xs text-warning">
-            {t2("settings.assetCenter.dataDirectoryChangePending")}
+            {translate("settings.assetCenter.dataDirectoryChangePending")}
           </p>
         </div>
       )}
@@ -920,12 +920,12 @@ function AssetCenterSection() {
         <div className="flex items-start gap-2 rounded-lg border border-warning/50 bg-warning/10 px-3 py-2">
           <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" />
           <p className="text-xs text-warning">
-            {t2("settings.assetCenter.currentLocationUnavailable")}
+            {translate("settings.assetCenter.currentLocationUnavailable")}
           </p>
         </div>
       )}
       {needsRestart && (
-        <RestartBanner message={t2("settings.assetCenter.restartRequired")} />
+        <RestartBanner message={translate("settings.assetCenter.restartRequired")} />
       )}
       <AssetCenterMigrateDialog
         open={pendingSwitch !== null}
@@ -943,15 +943,15 @@ function AssetCenterSection() {
   );
 }
 const LAUNCH_ARGS_PATH = "/api/comfyui/launch-args";
-function parseArgs(text2) {
-  return text2
+function parseArgs(text) {
+  return text
     .split(/\s+/)
-    .map((token2) => token2.trim())
+    .map((token) => token.trim())
     .filter(Boolean);
 }
 function ComfyUiSection() {
-  const { t: t2 } = useTranslation();
-  const [text2, setText] = reactExports.useState("");
+  const { t: translate } = useTranslation();
+  const [text, setText] = reactExports.useState("");
   const [savedText, setSavedText] = reactExports.useState("");
   const [loading, setLoading] = reactExports.useState(true);
   const [saving, setSaving] = reactExports.useState(false);
@@ -961,9 +961,9 @@ function ComfyUiSection() {
       try {
         const res = await gatewayFetch(LAUNCH_ARGS_PATH);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data2 = await res.json();
+        const data = await res.json();
         if (cancelled) return;
-        const joined = (data2.args ?? []).join("\n");
+        const joined = (data.args ?? []).join("\n");
         setText(joined);
         setSavedText(joined);
       } catch (error) {
@@ -981,7 +981,7 @@ function ComfyUiSection() {
   const handleSave = reactExports.useCallback(async () => {
     setSaving(true);
     try {
-      const args = parseArgs(text2);
+      const args = parseArgs(text);
       const res = await gatewayFetch(LAUNCH_ARGS_PATH, {
         method: "PUT",
         headers: {
@@ -995,37 +995,37 @@ function ComfyUiSection() {
         const detail = await res.text().catch(() => "");
         throw new Error(detail || `HTTP ${res.status}`);
       }
-      const data2 = await res.json();
-      const joined = (data2.args ?? []).join("\n");
+      const data = await res.json();
+      const joined = (data.args ?? []).join("\n");
       setText(joined);
       setSavedText(joined);
-      dedupedToast.success(t2("settings.comfyui.saved"));
+      dedupedToast.success(translate("settings.comfyui.saved"));
     } catch (error) {
       comfyuiLog.error("launch-args save failed", {
         error: error instanceof Error ? error.message : String(error),
       });
-      dedupedToast.error(t2("settings.comfyui.saveFailed"));
+      dedupedToast.error(translate("settings.comfyui.saveFailed"));
     } finally {
       setSaving(false);
     }
-  }, [text2, t2]);
+  }, [text, translate]);
   if (!isElectron()) return null;
-  const dirty = text2 !== savedText;
+  const dirty = text !== savedText;
   return (
     <div className="space-y-4">
       <SettingGroup>
         <div className="py-2.5">
           <p className="text-sm font-normal text-foreground">
-            {t2("settings.comfyui.launchArgs")}
+            {translate("settings.comfyui.launchArgs")}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {t2("settings.comfyui.launchArgsDesc")}
+            {translate("settings.comfyui.launchArgsDesc")}
           </p>
         </div>
         <Textarea
-          value={text2}
+          value={text}
           onChange={(event) => setText(event.target.value)}
-          placeholder={t2("settings.comfyui.launchArgsPlaceholder")}
+          placeholder={translate("settings.comfyui.launchArgsPlaceholder")}
           disabled={loading || saving}
           spellCheck={false}
           rows={5}
@@ -1033,7 +1033,7 @@ function ComfyUiSection() {
         />
         <div className="flex items-center justify-between gap-3 pt-1">
           <p className="text-xs text-muted-foreground">
-            {t2("settings.comfyui.restartHint")}
+            {translate("settings.comfyui.restartHint")}
           </p>
           <Button
             variant="outline"
@@ -1042,33 +1042,33 @@ function ComfyUiSection() {
             disabled={loading || saving || !dirty}
             onClick={() => void handleSave()}
           >
-            {t2("settings.comfyui.save")}
+            {translate("settings.comfyui.save")}
           </Button>
         </div>
       </SettingGroup>
     </div>
   );
 }
-function ShortcutList({ children: children2 }) {
+function ShortcutList({ children }) {
   return (
-    <div className="space-y-0.5 rounded-lg bg-secondary p-1.5">{children2}</div>
+    <div className="space-y-0.5 rounded-lg bg-secondary p-1.5">{children}</div>
   );
 }
-function ShortcutRow({ label, keys: keys2 }) {
-  const keyParts = splitShortcutKeys(keys2);
+function ShortcutRow({ label, keys }) {
+  const keyParts = splitShortcutKeys(keys);
   const keyCounts = new Map();
-  const keyCaps = keyParts.map((key2) => {
-    const count2 = keyCounts.get(key2) ?? 0;
-    keyCounts.set(key2, count2 + 1);
+  const keyCaps = keyParts.map((key) => {
+    const count = keyCounts.get(key) ?? 0;
+    keyCounts.set(key, count + 1);
     return {
-      id: count2 === 0 ? key2 : `${key2}-${count2}`,
-      label: key2,
+      id: count === 0 ? key : `${key}-${count}`,
+      label: key,
     };
   });
   return (
     <div className="flex min-h-9 items-center justify-between gap-4 rounded-md px-3 py-1.5">
       <span className="min-w-0 truncate text-xs text-foreground">{label}</span>
-      <KbdGroup className="shrink-0 gap-1.5" aria-label={keys2}>
+      <KbdGroup className="shrink-0 gap-1.5" aria-label={keys}>
         {keyCaps.map((keyCap) => (
           <ShortcutKeycap
             key={keyCap.id}
@@ -1081,27 +1081,27 @@ function ShortcutRow({ label, keys: keys2 }) {
   );
 }
 function GeneralSection() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const {
-    config: config2,
-    set: set2,
+    config,
+    set,
     openNotificationSettings,
   } = useSettings();
   const runtimeConfig = getRuntimeConfig();
   const electron = isElectron();
-  const isMac2 = isMacPlatform();
+  const isMac = isMacPlatform();
   const { app: platformApp } = usePlatform();
   return (
     <div className="space-y-2">
       <SettingGroup>
         <SettingRow
-          label={t2("settings.language")}
-          description={t2("settings.languageDesc")}
+          label={translate("settings.language")}
+          description={translate("settings.languageDesc")}
         >
           <SettingsSelect
-            value={config2.language}
-            onValueChange={async (v2) => {
-              await set2("language", v2);
+            value={config.language}
+            onValueChange={async (language) => {
+              await set("language", language);
             }}
             options={[
               {
@@ -1117,50 +1117,50 @@ function GeneralSection() {
           />
         </SettingRow>
         <SettingRow
-          label={t2("settings.theme")}
-          description={t2("settings.themeDesc")}
+          label={translate("settings.theme")}
+          description={translate("settings.themeDesc")}
         >
           <SettingsSelect
-            value={config2.theme}
-            onValueChange={(value) => void set2("theme", value)}
+            value={config.theme}
+            onValueChange={(value) => void set("theme", value)}
             className="w-32"
             options={[
               {
                 value: "light",
-                label: t2("settings.themeLight"),
+                label: translate("settings.themeLight"),
                 icon: Sun,
               },
               {
                 value: "dark",
-                label: t2("settings.themeDark"),
+                label: translate("settings.themeDark"),
                 icon: Moon,
               },
               {
                 value: "system",
-                label: t2("settings.themeSystem"),
+                label: translate("settings.themeSystem"),
                 icon: Monitor,
               },
             ]}
           />
         </SettingRow>
         <SettingRow
-          label={t2("settings.islandLayout")}
-          description={t2("settings.islandLayoutDesc")}
+          label={translate("settings.islandLayout")}
+          description={translate("settings.islandLayoutDesc")}
         >
           <Switch
-            checked={config2.islandLayout}
-            onCheckedChange={(checked) => void set2("islandLayout", checked)}
+            checked={config.islandLayout}
+            onCheckedChange={(checked) => void set("islandLayout", checked)}
           />
         </SettingRow>
         {electron && runtimeConfig.transparentWindowSupported && (
           <SettingRow
-            label={t2("settings.transparentWindowExperiment")}
-            description={t2("settings.transparentWindowExperimentDesc")}
+            label={translate("settings.transparentWindowExperiment")}
+            description={translate("settings.transparentWindowExperimentDesc")}
           >
             <Switch
-              checked={config2.transparentWindowExperiment ?? false}
+              checked={config.transparentWindowExperiment ?? false}
               onCheckedChange={(checked) =>
-                void set2("transparentWindowExperiment", checked)
+                void set("transparentWindowExperiment", checked)
               }
               data-action-ui-id="settings.transparent-window-experiment-toggle"
             />
@@ -1168,76 +1168,76 @@ function GeneralSection() {
         )}
       </SettingGroup>
       {electron && (
-        <SettingGroup title={t2("settings.groupSystem")}>
+        <SettingGroup title={translate("settings.groupSystem")}>
           {platformApp.os === "win32" && (
             <SettingRow
-              label={t2("settings.windowCloseBehavior")}
-              description={t2("settings.windowCloseBehaviorDesc")}
+              label={translate("settings.windowCloseBehavior")}
+              description={translate("settings.windowCloseBehaviorDesc")}
             >
               <SettingsSelect
                 value={
-                  config2.windowCloseBehavior === "tray" ||
-                  config2.windowCloseBehavior === "quit"
-                    ? config2.windowCloseBehavior
+                  config.windowCloseBehavior === "tray" ||
+                  config.windowCloseBehavior === "quit"
+                    ? config.windowCloseBehavior
                     : "ask"
                 }
                 onValueChange={(value) => {
                   if (value === "ask" || value === "tray" || value === "quit") {
-                    void set2("windowCloseBehavior", value);
+                    void set("windowCloseBehavior", value);
                   }
                 }}
                 options={[
                   {
                     value: "ask",
-                    label: t2("settings.windowCloseAsk"),
+                    label: translate("settings.windowCloseAsk"),
                   },
                   {
                     value: "tray",
-                    label: t2("settings.windowCloseTray"),
+                    label: translate("settings.windowCloseTray"),
                   },
                   {
                     value: "quit",
-                    label: t2("settings.windowCloseQuit"),
+                    label: translate("settings.windowCloseQuit"),
                   },
                 ]}
                 className="w-40"
-                aria-label={t2("settings.windowCloseBehavior")}
+                aria-label={translate("settings.windowCloseBehavior")}
                 data-action-ui-id="settings.window-close-behavior"
               />
             </SettingRow>
           )}
           <SettingRow
-            label={t2("settings.autoStart")}
-            description={t2("settings.autoStartDesc")}
+            label={translate("settings.autoStart")}
+            description={translate("settings.autoStartDesc")}
           >
             <Switch
-              checked={config2.runOnStartup}
-              onCheckedChange={(checked) => void set2("runOnStartup", checked)}
+              checked={config.runOnStartup}
+              onCheckedChange={(checked) => void set("runOnStartup", checked)}
             />
           </SettingRow>
           <SettingRow
-            label={t2("settings.tray")}
-            description={t2("settings.trayDesc")}
+            label={translate("settings.tray")}
+            description={translate("settings.trayDesc")}
           >
             <Switch
-              checked={config2.menuBarVisible}
+              checked={config.menuBarVisible}
               onCheckedChange={(checked) =>
-                void set2("menuBarVisible", checked)
+                void set("menuBarVisible", checked)
               }
             />
           </SettingRow>
           <SettingRow
-            label={t2("settings.preventSleep")}
-            description={t2("settings.preventSleepDesc")}
+            label={translate("settings.preventSleep")}
+            description={translate("settings.preventSleepDesc")}
           >
             <Switch
-              checked={config2.preventSleep ?? false}
-              onCheckedChange={(checked) => void set2("preventSleep", checked)}
+              checked={config.preventSleep ?? false}
+              onCheckedChange={(checked) => void set("preventSleep", checked)}
             />
           </SettingRow>
           <SettingRow
-            label={t2("settings.notifications")}
-            description={t2("settings.notificationsDesc")}
+            label={translate("settings.notifications")}
+            description={translate("settings.notificationsDesc")}
           >
             <Button
               variant="outline"
@@ -1246,18 +1246,18 @@ function GeneralSection() {
               onClick={() => void openNotificationSettings()}
             >
               <Bell size={14} strokeWidth={1.5} />
-              {t2("settings.openSystemPrefs")}
+              {translate("settings.openSystemPrefs")}
             </Button>
           </SettingRow>
         </SettingGroup>
       )}
-      <SettingGroup title={t2("settings.shortcuts")}>
+      <SettingGroup title={translate("settings.shortcuts")}>
         <ShortcutList>
           {Object.values(SHORTCUT_DEFS).map((def) => (
             <ShortcutRow
               key={def.labelKey}
-              label={t2(def.labelKey)}
-              keys={isMac2 ? def.macDisplay : def.otherDisplay}
+              label={translate(def.labelKey)}
+              keys={isMac ? def.macDisplay : def.otherDisplay}
             />
           ))}
         </ShortcutList>
@@ -1266,30 +1266,30 @@ function GeneralSection() {
   );
 }
 function InstallLocationSettings() {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t: translate } = useTranslation();
+  const platform = usePlatform();
   const { region } = useRuntimeConfig();
   const [dialogOpen, setDialogOpen] = reactExports.useState(false);
-  const { data: info2 } = useQuery({
+  const { data: info } = useQuery({
     queryKey: ["settings", "install-location"],
     queryFn: () => getDesktopSettingsMainService().getInstallLocationInfo(),
     staleTime: Number.POSITIVE_INFINITY,
   });
-  if (!info2?.supported) return null;
+  if (!info?.supported) return null;
   const handleDownload = () => {
     setDialogOpen(false);
-    void openExternalUrl(platform2, getDesignDownloadUrl(region), {
+    void openExternalUrl(platform, getDesignDownloadUrl(region), {
       source: "settings-install-location",
     });
   };
   return (
     <>
       <SettingRow
-        label={t2("settings.storage.installLocation")}
+        label={translate("settings.storage.installLocation")}
         description={
-          info2.isDefaultLocation
-            ? t2("settings.storage.installLocationDefault")
-            : info2.installDir
+          info.isDefaultLocation
+            ? translate("settings.storage.installLocationDefault")
+            : info.installDir
         }
       >
         <Button
@@ -1300,7 +1300,7 @@ function InstallLocationSettings() {
           data-action-ui-id="settings-storage-change-install-location"
         >
           <HardDrive size={14} strokeWidth={1.5} />
-          {t2("settings.storage.changeInstallLocation")}
+          {translate("settings.storage.changeInstallLocation")}
         </Button>
       </SettingRow>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -1310,14 +1310,14 @@ function InstallLocationSettings() {
         >
           <DialogHeader>
             <DialogTitle>
-              {t2("settings.storage.changeInstallLocation")}
+              {translate("settings.storage.changeInstallLocation")}
             </DialogTitle>
             <DialogDescription className="space-y-2">
               <span className="block">
-                {t2("settings.storage.changeInstallLocationSteps")}
+                {translate("settings.storage.changeInstallLocationSteps")}
               </span>
               <span className="block text-xs text-muted-foreground">
-                {t2("settings.storage.changeInstallLocationSafety")}
+                {translate("settings.storage.changeInstallLocationSafety")}
               </span>
             </DialogDescription>
           </DialogHeader>
@@ -1327,14 +1327,14 @@ function InstallLocationSettings() {
               size="sm"
               onClick={() => setDialogOpen(false)}
             >
-              {t2("common.cancel")}
+              {translate("common.cancel")}
             </Button>
             <Button
               size="sm"
               onClick={handleDownload}
               data-action-ui-id="settings-install-location-download"
             >
-              {t2("settings.storage.goToDownload")}
+              {translate("settings.storage.goToDownload")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1351,21 +1351,21 @@ function StorageSection() {
     </>
   );
 }
-function getCustomModelProviders(config2) {
-  const providers = config2.customModels ?? {};
-  if (Object.keys(providers).some((id2) => !isCustomModelProvider(id2)))
+function getCustomModelProviders(config) {
+  const providers = config.customModels ?? {};
+  if (Object.keys(providers).some((providerId) => !isCustomModelProvider(providerId)))
     throw new Error("Invalid custom provider identity");
   return providers;
 }
 const DREAMINA_SKILL_NAME = "dreamina-cli";
 const LIBTV_CONNECTOR_ID = "libtv";
 function CustomModelSection() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const navigate = useNavigate();
   const { closeSettings } = useSettingsDialog();
-  const { config: config2, saveCustomModel } = useSettings();
+  const { config, saveCustomModel } = useSettings();
   const isOverseas = getRuntimeConfig().region === "overseas";
-  const providers = getCustomModelProviders(config2);
+  const providers = getCustomModelProviders(config);
   const [editing, setEditing] = reactExports.useState(null);
   const [communityOpen, setCommunityOpen] = reactExports.useState(false);
   if (editing !== null) {
@@ -1406,7 +1406,7 @@ function CustomModelSection() {
   return (
     <div className="space-y-4">
       <p className="text-xs leading-5 text-muted-foreground">
-        {t2(
+        {translate(
           isOverseas
             ? "settings.models.description.overseas"
             : "settings.models.description.domestic",
@@ -1418,7 +1418,7 @@ function CustomModelSection() {
             onClick={() => setCommunityOpen(true)}
             data-action-ui-id="settings-models.open-community-generation"
           >
-            {t2("settings.models.community.entry")}
+            {translate("settings.models.community.entry")}
           </Button>
         ) : null}
       </p>
@@ -1428,23 +1428,23 @@ function CustomModelSection() {
         data-action-ui-id="settings-models.add-provider"
       >
         <Plus className="size-4" strokeWidth={1.5} />
-        {t2("settings.models.addProvider")}
+        {translate("settings.models.addProvider")}
       </Button>
       <div className="space-y-2">
-        {Object.entries(providers).map(([id2, provider]) => (
+        {Object.entries(providers).map(([providerId, provider]) => (
           <div
-            key={id2}
+            key={providerId}
             className="flex items-center justify-between gap-3 rounded-lg border p-3"
           >
             <div className="min-w-0 space-y-1">
               <p className="truncate text-sm font-medium">
-                {provider.providerName || t2("settings.models.customProvider")}
+                {provider.providerName || translate("settings.models.customProvider")}
               </p>
               <p className="truncate text-xs text-muted-foreground">
                 {provider.baseUrl}
               </p>
               <p className="text-xs text-muted-foreground">
-                {t2("settings.models.modelCount", {
+                {translate("settings.models.modelCount", {
                   count: provider.models.length,
                 })}
               </p>
@@ -1452,15 +1452,15 @@ function CustomModelSection() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setEditing(id2)}
-              aria-label={t2("settings.models.editProviderNamed", {
+              onClick={() => setEditing(providerId)}
+              aria-label={translate("settings.models.editProviderNamed", {
                 name:
-                  provider.providerName || t2("settings.models.customProvider"),
+                  provider.providerName || translate("settings.models.customProvider"),
               })}
               data-action-ui-id="settings-models.edit-provider"
-              data-provider-id={id2}
+              data-provider-id={providerId}
             >
-              {t2("settings.models.editProvider")}
+              {translate("settings.models.editProvider")}
             </Button>
           </div>
         ))}
@@ -1469,9 +1469,9 @@ function CustomModelSection() {
         <Dialog open={communityOpen} onOpenChange={setCommunityOpen}>
           <DialogContent size="md" layer="nested">
             <DialogHeader>
-              <DialogTitle>{t2("settings.models.community.title")}</DialogTitle>
+              <DialogTitle>{translate("settings.models.community.title")}</DialogTitle>
               <DialogDescription>
-                {t2("settings.models.community.description")}
+                {translate("settings.models.community.description")}
               </DialogDescription>
             </DialogHeader>
             <div className="divide-y divide-border rounded-lg border border-border px-3">
@@ -1481,13 +1481,13 @@ function CustomModelSection() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground">
-                    {t2("settings.models.community.dreamina.title")}
+                    {translate("settings.models.community.dreamina.title")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {t2("settings.models.community.dreamina.meta")}
+                    {translate("settings.models.community.dreamina.meta")}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    {t2("settings.models.community.dreamina.description")}
+                    {translate("settings.models.community.dreamina.description")}
                   </p>
                 </div>
                 <Button
@@ -1496,7 +1496,7 @@ function CustomModelSection() {
                   onClick={handleOpenDreaminaSkill}
                   data-action-ui-id="settings-models.open-dreamina-skill"
                 >
-                  {t2("settings.models.community.dreamina.action")}
+                  {translate("settings.models.community.dreamina.action")}
                   <ArrowUpRight className="size-3.5" strokeWidth={1.5} />
                 </Button>
               </div>
@@ -1506,13 +1506,13 @@ function CustomModelSection() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground">
-                    {t2("settings.models.community.libtv.title")}
+                    {translate("settings.models.community.libtv.title")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {t2("settings.models.community.libtv.meta")}
+                    {translate("settings.models.community.libtv.meta")}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    {t2("settings.models.community.libtv.description")}
+                    {translate("settings.models.community.libtv.description")}
                   </p>
                 </div>
                 <Button
@@ -1521,7 +1521,7 @@ function CustomModelSection() {
                   onClick={handleOpenLibtvConnector}
                   data-action-ui-id="settings-models.open-libtv-connector"
                 >
-                  {t2("settings.models.community.libtv.action")}
+                  {translate("settings.models.community.libtv.action")}
                   <ArrowUpRight className="size-3.5" strokeWidth={1.5} />
                 </Button>
               </div>
@@ -1556,7 +1556,7 @@ export function SettingsDialog({
   onOpenChange,
   initialSection = "general",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const updater = useOptionalUpdaterContext();
   const isOverseas = getRuntimeConfig().region === "overseas";
   const regionSuffix = isOverseas ? "overseas" : "domestic";
@@ -1566,7 +1566,7 @@ export function SettingsDialog({
     reactExports.useState(initialActiveSection);
   const updateBadgeLabel = getUpdateSettingsBadgeLabel(
     updater?.state.phase,
-    t2,
+    translate,
   );
   const activeSectionMeta =
     SECTIONS.find((section) => section.id === activeSection) ?? SECTIONS[0];
@@ -1588,14 +1588,14 @@ export function SettingsDialog({
     if (previousSecondaryPageRef.current === isSecondaryPage) return;
     setContentMotion(isSecondaryPage ? "forward" : "back");
     previousSecondaryPageRef.current = isSecondaryPage;
-    const timer2 = window.setTimeout(() => setContentMotion("none"), 180);
-    return () => window.clearTimeout(timer2);
+    const timer = window.setTimeout(() => setContentMotion("none"), 180);
+    return () => window.clearTimeout(timer);
   }, [isSecondaryPage]);
   const SectionComponent = reactExports.useMemo(
     () => SECTION_COMPONENTS[activeSection],
     [activeSection],
   );
-  const activeSectionLabel = t2(
+  const activeSectionLabel = translate(
     resolveSectionLabelKey(activeSectionMeta, regionSuffix),
   );
   return (
@@ -1609,19 +1609,19 @@ export function SettingsDialog({
           data-action-ui-id="settings-dialog"
           className="elevated-surface-border fixed top-1/2 left-1/2 z-50 flex h-[min(620px,80vh)] w-full max-w-[860px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl bg-modal-shell p-1 text-popover-foreground shadow-lg outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 [&_[data-slot=button]]:rounded-md [&_[data-slot=input]]:rounded-md [&_[data-slot=select-trigger]]:rounded-md"
         >
-          <DialogDescription$2 className="sr-only">
-            {t2("settings.title")}
-          </DialogDescription$2>
+          <DialogDescriptionPrimitive className="sr-only">
+            {translate("settings.title")}
+          </DialogDescriptionPrimitive>
           <aside className="flex w-52 shrink-0 flex-col rounded-md p-2">
             <div className="px-2 pb-4">
-              <DialogTitle$2 className="pt-4 font-heading text-sm font-normal text-muted-foreground">
-                {t2("settings.title")}
-              </DialogTitle$2>
+              <DialogTitlePrimitive className="pt-4 font-heading text-sm font-normal text-muted-foreground">
+                {translate("settings.title")}
+              </DialogTitlePrimitive>
             </div>
             <nav className="flex flex-col gap-1">
               {SECTIONS.map((section) => {
-                const Icon2 = section.icon;
-                const isActive2 = activeSection === section.id;
+                const Icon = section.icon;
+                const isActive = activeSection === section.id;
                 const isImBridgeDisabled =
                   isOverseas && section.id === "imBridge";
                 return (
@@ -1631,7 +1631,7 @@ export function SettingsDialog({
                     data-action-ui-id={`settings-${section.id}`}
                     disabled={isImBridgeDisabled}
                     title={
-                      isImBridgeDisabled ? t2("common.comingSoon") : void 0
+                      isImBridgeDisabled ? translate("common.comingSoon") : void 0
                     }
                     onClick={() => {
                       if (isImBridgeDisabled) return;
@@ -1640,7 +1640,7 @@ export function SettingsDialog({
                     }}
                     className={cn(
                       "list-row-hit-area [--list-row-gap:4px] first:before:top-0 last:before:bottom-0 flex h-9 w-full items-center gap-2 rounded-md px-2 text-left text-sm font-normal transition-colors",
-                      isActive2
+                      isActive
                         ? "bg-foreground/[0.06] text-foreground"
                         : "text-foreground/70 hover:bg-foreground/[0.04] hover:text-foreground",
                       "disabled:cursor-not-allowed disabled:text-muted-foreground disabled:opacity-60",
@@ -1648,13 +1648,13 @@ export function SettingsDialog({
                         "hover:bg-transparent hover:text-muted-foreground",
                     )}
                   >
-                    <Icon2
+                    <Icon
                       size={16}
                       strokeWidth={1.5}
                       className="shrink-0 text-current"
                     />
                     <span className="min-w-0 flex-1 truncate">
-                      {t2(resolveSectionLabelKey(section, regionSuffix))}
+                      {translate(resolveSectionLabelKey(section, regionSuffix))}
                     </span>
                     {section.id === "softwareUpdate" && updateBadgeLabel && (
                       <span className="inline-flex h-4 shrink-0 items-center rounded-full bg-brand-accent px-1.5 text-[10px] font-medium leading-none text-brand-accent-foreground">
@@ -1680,7 +1680,7 @@ export function SettingsDialog({
                 >
                   <StrokeIcon icon={ChevronLeftIcon} size={24} />
                   <span className="sr-only">
-                    {headerOverride.backLabel ?? t2("common.back")}
+                    {headerOverride.backLabel ?? translate("common.back")}
                   </span>
                 </Button>
               )}
@@ -1703,7 +1703,7 @@ export function SettingsDialog({
                 }
               >
                 <StrokeIcon icon={XIcon} size={24} />
-                <span className="sr-only">{t2("common.close")}</span>
+                <span className="sr-only">{translate("common.close")}</span>
               </DialogClose>
             </div>
             <div

@@ -63,26 +63,26 @@ const PLACEHOLDER_MODEL_I18N_KEYS = {
     fallback: "字幕生成",
   },
 };
-export function translateModelName(model, t2) {
+export function translateModelName(model, translate) {
   if (!model) return model;
   const entry = PLACEHOLDER_MODEL_I18N_KEYS[model];
   if (!entry) return model;
-  return t2(entry.key, {
+  return translate(entry.key, {
     defaultValue: entry.fallback ?? model,
   });
 }
-export function ModelRegistryStoreProvider({ store, children: children2 }) {
+export function ModelRegistryStoreProvider({ store, children }) {
   return reactExports.createElement(
     ModelRegistryStoreContext.Provider,
     {
       value: store,
     },
-    children2,
+    children,
   );
 }
 export function Tooltip({
-  content: content2,
-  children: children2,
+  content,
+  children,
   side = "top",
   sideOffset = 6,
   className,
@@ -90,8 +90,8 @@ export function Tooltip({
   open,
 }) {
   const generatedId = reactExports.useId();
-  const triggerId = children2.props.id ?? generatedId;
-  if (!content2) return children2;
+  const triggerId = children.props.id ?? generatedId;
+  if (!content) return children;
   return (
     <TooltipRoot
       open={open}
@@ -101,7 +101,7 @@ export function Tooltip({
       <TooltipTrigger
         id={open === void 0 ? void 0 : triggerId}
         closeOnClick={closeOnClick}
-        render={children2}
+        render={children}
       />
       <TooltipPortal>
         <TooltipPositioner
@@ -117,18 +117,18 @@ export function Tooltip({
               "pointer-events-none select-none",
             )}
           >
-            {content2}
+            {content}
           </TooltipPopup>
         </TooltipPositioner>
       </TooltipPortal>
     </TooltipRoot>
   );
 }
-export function TokenIcon({ size: size2 = 14 }) {
+export function TokenIcon({ size = 14 }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="currentColor"
       aria-hidden="true"
@@ -159,7 +159,7 @@ export function CreditCostBadge({ cost, className, compact = false }) {
   );
 }
 export function RefundHint({ refundStatus, refundedCredits, compact = false }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (!isGenerationRefundStatus(refundStatus)) return null;
   return (
     <span
@@ -174,18 +174,18 @@ export function RefundHint({ refundStatus, refundedCredits, compact = false }) {
       <span className="truncate">
         {refundStatus === "refunded"
           ? refundedCredits && refundedCredits > 0
-            ? t2("canvas.refundHint.refundedWithAmount", {
+            ? translate("canvas.refundHint.refundedWithAmount", {
                 count: refundedCredits,
                 defaultValue: "已退还 {{count}} 积分",
               })
-            : t2("canvas.refundHint.refundedNoAmount", {
+            : translate("canvas.refundHint.refundedNoAmount", {
                 defaultValue: "积分已退还",
               })
           : refundStatus === "pending"
-            ? t2("canvas.refundHint.pending", {
+            ? translate("canvas.refundHint.pending", {
                 defaultValue: "积分退还处理中",
               })
-            : t2("canvas.refundHint.notCharged", {
+            : translate("canvas.refundHint.notCharged", {
                 defaultValue: "未扣款",
               })}
       </span>
@@ -197,40 +197,40 @@ export const MEDIA_FALLBACK_NODE_SIZE = {
   height: 250,
 };
 export function MediaUnpreviewableFallback({
-  extension: extension2,
-  displayName: displayName2,
+  extension,
+  displayName,
   sizeLabel,
   reason = "unsupported",
 }) {
-  const { t: t2 } = useTranslation();
-  const extLabel = extension2 ?? t2("canvas.file.unknownExt", "该");
+  const { t: translate } = useTranslation();
+  const extLabel = extension ?? translate("canvas.file.unknownExt", "该");
   const headline =
     reason === "tooLarge"
-      ? t2("canvas.file.unpreviewableTooLarge", "文件过大，暂不支持预览")
+      ? translate("canvas.file.unpreviewableTooLarge", "文件过大，暂不支持预览")
       : reason === "resourceLimit"
-        ? t2(
+        ? translate(
             "canvas.file.unpreviewableResourceLimit",
             "预览数量过多，已暂停内嵌预览",
           )
         : reason === "missing"
-          ? t2("canvas.file.missing", "文件不存在或已被移动")
-          : t2("canvas.file.unpreviewable", "{{ext}} 文件类型无法预览", {
+          ? translate("canvas.file.missing", "文件不存在或已被移动")
+          : translate("canvas.file.unpreviewable", "{{ext}} 文件类型无法预览", {
               ext: extLabel,
             });
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[var(--canvas-node-bg)] px-6 text-center">
       <FileTypeIcon
         {...classifyFileType({
-          filename: extension2
-            ? `file${extension2.startsWith(".") ? "" : "."}${extension2}`
-            : displayName2,
+          filename: extension
+            ? `file${extension.startsWith(".") ? "" : "."}${extension}`
+            : displayName,
         })}
         size={48}
         decorative={true}
       />
       <div className="text-sm font-medium text-foreground">{headline}</div>
       <div className="max-w-full truncate text-[13px] text-[var(--canvas-controls-text-muted)]">
-        {displayName2}
+        {displayName}
         {sizeLabel ? ` · ${sizeLabel}` : ""}
       </div>
     </div>
@@ -238,12 +238,12 @@ export function MediaUnpreviewableFallback({
 }
 const ACTION_BUTTON_CLASS =
   "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-foreground/10 bg-foreground/[0.04] px-2.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50";
-export function MissingAssetCard({ nodeId, name: name2 }) {
-  const { t: t2 } = useTranslation();
+export function MissingAssetCard({ nodeId, name: assetName }) {
+  const { t: translate } = useTranslation();
   const { deleteElements } = useReactFlow();
-  const handleDelete2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+  const handleDelete = reactExports.useCallback(
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       void deleteElements({
         nodes: [
           {
@@ -267,21 +267,21 @@ export function MissingAssetCard({ nodeId, name: name2 }) {
           strokeWidth={1.75}
           className="text-muted-foreground"
           role="img"
-          aria-label={t2("canvas.missingAsset.title")}
+          aria-label={translate("canvas.missingAsset.title")}
         />
         <div className="flex max-w-full flex-col items-center gap-1.5">
           <span className="text-[16px] leading-6 font-medium text-foreground">
-            {t2("canvas.missingAsset.title")}
+            {translate("canvas.missingAsset.title")}
           </span>
           <span className="max-w-full line-clamp-2 whitespace-pre-wrap break-words text-center text-xs leading-5 text-muted-foreground">
-            {t2("canvas.missingAsset.description")}
+            {translate("canvas.missingAsset.description")}
           </span>
-          {name2 ? (
+          {assetName ? (
             <span
               className="max-w-full truncate text-[10px] leading-4 text-muted-foreground/70"
-              title={name2}
+              title={assetName}
             >
-              {name2}
+              {assetName}
             </span>
           ) : null}
         </div>
@@ -289,18 +289,18 @@ export function MissingAssetCard({ nodeId, name: name2 }) {
           <button
             type="button"
             className={ACTION_BUTTON_CLASS}
-            onClick={handleDelete2}
+            onClick={handleDelete}
             data-action-ui-id="canvas.missing-asset.delete"
           >
             <Trash2 size={14} strokeWidth={1.5} className="size-3.5 shrink-0" />
-            {t2("common.delete")}
+            {translate("common.delete")}
           </button>
         </div>
       </div>
     </div>
   );
 }
-export function isMissingAssetNodeData(data2) {
-  return data2?.assetMissing === true;
+export function isMissingAssetNodeData(data) {
+  return data?.assetMissing === true;
 }
 export const trackers = new WeakMap();

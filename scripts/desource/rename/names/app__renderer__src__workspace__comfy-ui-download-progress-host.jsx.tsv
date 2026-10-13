@@ -1,0 +1,6 @@
+key	old	new	依据
+children2@20:57	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+current2@33:19	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@76:15	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@81:15	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+t2@21:14	t2	translate	useTranslation 返回的翻译函数。

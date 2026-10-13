@@ -1,0 +1,97 @@
+key	old	new	依据
+G@2:106	G	codeHighlighterPlugin	该导入由 vendor 的 Shiki 高亮工厂创建，作为代码高亮插件传给 Markdown。
+Ae@43:10	Ae	CodeBlockCopyButton	该导入组件负责复制代码块内容并显示复制按钮。
+t2@440:14	t2	translate	该绑定来自 useTranslation 并用于媒体预览操作提示。
+t2@587:14	t2	translate	该绑定来自 useTranslation 并用于媒体加载失败提示。
+h2@607:9	h2	hours	该值是时长格式化结果中的小时数。
+m3@608:9	m3	minutes	该值是时长格式化结果中的分钟数。
+s2@609:9	s2	remainingSeconds	该值是时长取模后用于显示的剩余秒数。
+t2@786:14	t2	translate	该绑定来自 useTranslation 并用于技能卡片操作文案。
+id2@864:14	id2	internalReferenceId	该值是正则替换捕获的内部知识引用标识。
+id2@871:15	id2	referenceId	该值是内部定义映射中的引用标识。
+t2@926:14	t2	translate	该绑定来自 useTranslation 并用于 Markdown 链接操作提示。
+t2@1323:14	t2	translate	该绑定来自 useTranslation 并用于画布节点引用提示。
+t2@1660:14	t2	translate	该绑定来自 useTranslation 并用于 Markdown 内容提示。
+path2@83:9	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+name2@87:9	name2	fileName	该值是用于识别媒体扩展名的文件名。
+dot2@88:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+name2@122:11	name2	fileName	该值是从文件路径末尾取得的文件名。
+base2@115:13	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
+children2@137:15	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+children2@162:27	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+content2@222:9	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+displayName2@237:9	displayName2	displayName	去掉打包器防重名追加的后缀，恢复原名 displayName，即该绑定持有的值。
+offset2@250:36	offset2	offset	去掉打包器防重名追加的后缀，恢复原名 offset，即该绑定持有的值。
+lineEnd2@253:9	lineEnd2	lineEnd	去掉打包器防重名追加的后缀，恢复原名 lineEnd，即该绑定持有的值。
+content2@262:30	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+current2@269:9	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+content2@281:37	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+transform2@281:47	transform2	transform	去掉打包器防重名追加的后缀，恢复原名 transform，即该绑定持有的值。
+content2@320:38	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+tokens2@322:9	tokens2	tokens	去掉打包器防重名追加的后缀，恢复原名 tokens，即该绑定持有的值。
+match2@353:8	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+match2@366:8	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+offset2@366:34	offset2	offset	去掉打包器防重名追加的后缀，恢复原名 offset，即该绑定持有的值。
+match2@389:8	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+offset2@389:24	offset2	offset	去掉打包器防重名追加的后缀，恢复原名 offset，即该绑定持有的值。
+token2@398:13	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+raw2@419:44	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+children2@436:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+workspaceId2@441:9	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
+url2@639:23	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+markdown2@643:34	markdown2	markdown	去掉打包器防重名追加的后缀，恢复原名 markdown，即该绑定持有的值。
+url2@646:22	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+resolveMediaUrl2@651:9	resolveMediaUrl2	resolveMediaUrl	去掉打包器防重名追加的后缀，恢复原名 resolveMediaUrl，即该绑定持有的值。
+dimensions2@654:10	dimensions2	dimensions	去掉打包器防重名追加的后缀，恢复原名 dimensions，即该绑定持有的值。
+extension2@657:9	extension2	extension	去掉打包器防重名追加的后缀，恢复原名 extension，即该绑定持有的值。
+handleClick2@659:9	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。
+resolveMediaUrl2@706:9	resolveMediaUrl2	resolveMediaUrl	去掉打包器防重名追加的后缀，恢复原名 resolveMediaUrl，即该绑定持有的值。
+type2@707:9	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+raw2@772:28	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+data2@774:11	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+content2@785:37	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+data2@787:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+content2@860:44	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+match2@864:6	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+match2@880:6	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+match2@887:6	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+match2@894:6	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+token2@899:55	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+url2@908:11	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+properties2@914:30	properties2	properties	去掉打包器防重名追加的后缀，恢复原名 properties，即该绑定持有的值。
+children2@921:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+platform2@927:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+handleClick2@939:9	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。
+link2@1042:9	link2	link	去掉打包器防重名追加的后缀，恢复原名 link，即该绑定持有的值。
+resolveMediaUrl2@1120:9	resolveMediaUrl2	resolveMediaUrl	去掉打包器防重名追加的后缀，恢复原名 resolveMediaUrl，即该绑定持有的值。
+extension2@1134:9	extension2	extension	去掉打包器防重名追加的后缀，恢复原名 extension，即该绑定持有的值。
+next2@1138:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+resolveMediaUrl2@1200:9	resolveMediaUrl2	resolveMediaUrl	去掉打包器防重名追加的后缀，恢复原名 resolveMediaUrl，即该绑定持有的值。
+raw2@1232:32	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+text2@1248:24	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+tokens2@1249:9	tokens2	tokens	去掉打包器防重名追加的后缀，恢复原名 tokens，即该绑定持有的值。
+token2@1261:14	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+node2@1278:24	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+dot2@1309:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+extension2@1311:9	extension2	extension	去掉打包器防重名追加的后缀，恢复原名 extension，即该绑定持有的值。
+displayName2@1318:16	displayName2	displayName	去掉打包器防重名追加的后缀，恢复原名 displayName，即该绑定持有的值。
+extension2@1329:9	extension2	extension	去掉打包器防重名追加的后缀，恢复原名 extension，即该绑定持有的值。
+children2@1362:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+text2@1367:9	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+handleClick2@1379:18	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。
+codeText2@1458:40	codeText2	codeText	去掉打包器防重名追加的后缀，恢复原名 codeText，即该绑定持有的值。
+codeText2@1461:38	codeText2	codeText	去掉打包器防重名追加的后缀，恢复原名 codeText，即该绑定持有的值。
+count2@1470:11	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+codeText2@1480:9	codeText2	codeText	去掉打包器防重名追加的后缀，恢复原名 codeText，即该绑定持有的值。
+language2@1482:13	language2	language	去掉打包器防重名追加的后缀，恢复原名 language，即该绑定持有的值。
+handleClick2@1497:18	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。
+codeText2@1532:9	codeText2	codeText	去掉打包器防重名追加的后缀，恢复原名 codeText，即该绑定持有的值。
+language2@1534:13	language2	language	去掉打包器防重名追加的后缀，恢复原名 language，即该绑定持有的值。
+children2@1597:13	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+language2@1602:9	language2	language	去掉打包器防重名追加的后缀，恢复原名 language，即该绑定持有的值。
+codeText2@1603:9	codeText2	codeText	去掉打包器防重名追加的后缀，恢复原名 codeText，即该绑定持有的值。
+content2@1656:12	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+ot@43:37	ot	CodeBlockContainer	代码块容器组件，负责显示边框、语言属性和不完整状态。
+rt@43:41	rt	CodeBlockHeader	显示代码块语言标签的头部组件。
+st@44:10	st	HighlightedCodeBlock	带语法高亮、行号和复制操作的代码块组件。
+tt@47:21	tt	useIsIncompleteCode	读取当前 Markdown 代码块是否仍处于未完成状态的 hook。

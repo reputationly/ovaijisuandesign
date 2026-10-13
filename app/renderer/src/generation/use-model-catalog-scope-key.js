@@ -23,9 +23,9 @@ export function useGatewayUrl() {
   const { baseUrl, gatewayBinding, workspaceClaim, workspaceClient } =
     useGatewayScope();
   return reactExports.useCallback(
-    (path2) =>
-      workspaceClient?.url(path2) ??
-      gatewayUrlFromBase(baseUrl, path2, gatewayBinding ?? workspaceClaim),
+    (path) =>
+      workspaceClient?.url(path) ??
+      gatewayUrlFromBase(baseUrl, path, gatewayBinding ?? workspaceClaim),
     [baseUrl, gatewayBinding, workspaceClaim, workspaceClient],
   );
 }
@@ -38,8 +38,8 @@ export function useGatewayFetch() {
     recoverWorkspace,
   } = useGatewayScope();
   return reactExports.useCallback(
-    (path2, options) =>
-      gatewayFetchFromBase(baseUrl, path2, {
+    (path, options) =>
+      gatewayFetchFromBase(baseUrl, path, {
         ...options,
         workspaceBinding: options?.workspaceBinding ?? gatewayBinding,
         workspaceClaim: options?.workspaceClaim ?? workspaceClaim,
@@ -105,13 +105,13 @@ export function workspaceDisplayName(workspace) {
   const custom = workspace.displayName?.trim();
   return custom ? custom : folderNameFromPath(workspace.path);
 }
-export function formatTimestampDot(ts2) {
-  const d2 = new Date(ts2);
-  return `${d2.getFullYear()}.${d2.getMonth() + 1}.${d2.getDate()}`;
+export function formatTimestampDot(ts) {
+  const date = new Date(ts);
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
 }
 export const ACTIVE_CUSTOM_MODEL_QUERY_KEY = ["active-custom-model"];
-export function resolveActiveModelId(selected2, _active) {
-  return selected2 ?? null;
+export function resolveActiveModelId(selected, _active) {
+  return selected ?? null;
 }
 export function useRuntimeConfig() {
   const ctx = reactExports.useContext(RuntimeConfigContext);
@@ -125,8 +125,8 @@ export function getSystemTheme() {
     ? "dark"
     : "light";
 }
-export function resolveTheme(theme2) {
-  return theme2 === "system" ? getSystemTheme() : theme2;
+export function resolveTheme(theme) {
+  return theme === "system" ? getSystemTheme() : theme;
 }
 export function applyClass(resolved) {
   document.documentElement.classList.toggle("dark", resolved === "dark");
@@ -141,17 +141,17 @@ export const STORAGE_KEY = "hilo-updater-preview";
 export function canUseUpdaterDevPreview() {
   return canUseDebugTooling();
 }
-export function setUpdaterDevPreviewMode(mode2) {
+export function setUpdaterDevPreviewMode(mode) {
   if (!canUseUpdaterDevPreview()) return;
-  if (mode2 === "off") {
+  if (mode === "off") {
     globalThis.sessionStorage?.removeItem(STORAGE_KEY);
   } else {
-    globalThis.sessionStorage?.setItem(STORAGE_KEY, mode2);
+    globalThis.sessionStorage?.setItem(STORAGE_KEY, mode);
   }
   globalThis.window?.dispatchEvent(
     new CustomEvent(UPDATER_DEV_PREVIEW_EVENT, {
       detail: {
-        mode: mode2,
+        mode,
       },
     }),
   );

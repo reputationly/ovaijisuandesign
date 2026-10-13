@@ -4,28 +4,28 @@ import {
   Plus,
   reactExports,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { trackAssetCenterAction } from "../infra/use-online.jsx";
 const PRESET_TAGS = ["写实", "二次元", "赛博朋克", "水墨", "像素风"];
 function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [customDraft, setCustomDraft] = reactExports.useState("");
   const [showCustomInput, setShowCustomInput] = reactExports.useState(false);
   const [customAddedTags, setCustomAddedTags] = reactExports.useState(
     () => new Set(value.filter((tag) => !PRESET_TAGS.includes(tag))),
   );
   const toggle = (tag) => {
-    const selected2 = !value.includes(tag);
+    const selected = !value.includes(tag);
     trackAssetCenterAction({
       action: "tag_toggle",
       surface: trackingSurface,
       tag_kind: PRESET_TAGS.includes(tag) ? "preset" : "custom",
-      selected: selected2,
-      tag_count: selected2 ? value.length + 1 : value.length - 1,
+      selected,
+      tag_count: selected ? value.length + 1 : value.length - 1,
     });
-    onChange(selected2 ? [...value, tag] : value.filter((t22) => t22 !== tag));
+    onChange(selected ? [...value, tag] : value.filter((existingTag) => existingTag !== tag));
   };
   const commitCustom = () => {
     const trimmed = customDraft.trim();
@@ -33,9 +33,9 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
       const isNew = !customAddedTags.has(trimmed);
       setCustomAddedTags((prev) => {
         if (prev.has(trimmed)) return prev;
-        const next2 = new Set(prev);
-        next2.add(trimmed);
-        return next2;
+        const next = new Set(prev);
+        next.add(trimmed);
+        return next;
       });
       if (!value.includes(trimmed)) {
         onChange([...value, trimmed]);
@@ -54,12 +54,12 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
   const removeCustomTag = (tag) => {
     setCustomAddedTags((prev) => {
       if (!prev.has(tag)) return prev;
-      const next2 = new Set(prev);
-      next2.delete(tag);
-      return next2;
+      const next = new Set(prev);
+      next.delete(tag);
+      return next;
     });
     if (value.includes(tag)) {
-      onChange(value.filter((t22) => t22 !== tag));
+      onChange(value.filter((existingTag) => existingTag !== tag));
     }
   };
   return (
@@ -78,7 +78,7 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
         </button>
       ))}
       {Array.from(customAddedTags).map((tag) => {
-        const selected2 = value.includes(tag);
+        const selected = value.includes(tag);
         return (
           // biome-ignore lint/a11y/useSemanticElements: nested click targets (chip + X) — a <button>-in-<button> is invalid; div+role keeps both clickable while staying valid.
           <div
@@ -86,30 +86,30 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
             role="button"
             tabIndex={0}
             onClick={() => toggle(tag)}
-            onKeyDown={(e2) => {
-              if (e2.key === "Enter" || e2.key === " ") {
-                e2.preventDefault();
+            onKeyDown={(keyboardEvent) => {
+              if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+                keyboardEvent.preventDefault();
                 toggle(tag);
               }
             }}
             data-action-ui-id="asset-center-add-entity-tags-custom-chip"
-            data-tag-selected={selected2}
-            className={`group inline-flex items-center h-[21px] pl-1.5 pr-0.5 text-xs rounded-[4px] cursor-pointer transition-colors ${selected2 ? "bg-foreground text-background" : "bg-muted-foreground/15 text-secondary-foreground hover:bg-muted-foreground/25"}`}
+            data-tag-selected={selected}
+            className={`group inline-flex items-center h-[21px] pl-1.5 pr-0.5 text-xs rounded-[4px] cursor-pointer transition-colors ${selected ? "bg-foreground text-background" : "bg-muted-foreground/15 text-secondary-foreground hover:bg-muted-foreground/25"}`}
           >
             <span>{tag}</span>
             <button
               type="button"
-              onClick={(e2) => {
-                e2.stopPropagation();
+              onClick={(clickEvent) => {
+                clickEvent.stopPropagation();
                 removeCustomTag(tag);
               }}
-              aria-label={t2("common.remove", {
+              aria-label={translate("common.remove", {
                 defaultValue: "Remove",
               })}
               tabIndex={-1}
-              className={`ml-0.5 inline-flex items-center justify-center size-3.5 rounded-[2px] transition-colors ${selected2 ? "text-background/70 hover:text-background hover:bg-background/15" : "text-muted-foreground hover:text-foreground hover:bg-foreground/10"}`}
+              className={`ml-0.5 inline-flex items-center justify-center size-3.5 rounded-[2px] transition-colors ${selected ? "text-background/70 hover:text-background hover:bg-background/15" : "text-muted-foreground hover:text-foreground hover:bg-foreground/10"}`}
             >
-              <X size={10} />
+              <CloseIcon size={10} />
             </button>
           </div>
         );
@@ -117,19 +117,19 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
       {showCustomInput ? (
         <input
           value={customDraft}
-          onChange={(e2) => setCustomDraft(e2.target.value)}
+          onChange={(changeEvent) => setCustomDraft(changeEvent.target.value)}
           onBlur={commitCustom}
-          onKeyDown={(e2) => {
-            if (e2.key === "Enter") {
-              e2.preventDefault();
+          onKeyDown={(keyboardEvent) => {
+            if (keyboardEvent.key === "Enter") {
+              keyboardEvent.preventDefault();
               commitCustom();
             }
-            if (e2.key === "Escape") {
+            if (keyboardEvent.key === "Escape") {
               setCustomDraft("");
               setShowCustomInput(false);
             }
           }}
-          placeholder={t2(
+          placeholder={translate(
             "assetCenter.create.customTagPlaceholder",
             "输入标签",
           )}
@@ -144,18 +144,18 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
           data-action-ui-id="asset-center-add-entity-tags-custom"
         >
           <Plus size={10} />
-          {t2("assetCenter.create.customTag", "自定义")}
+          {translate("assetCenter.create.customTag", "自定义")}
         </button>
       )}
     </div>
   );
 }
 export function CollapsibleTags({
-  tags: tags2,
+  tags,
   onChange,
   trackingSurface = "create_dialog",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   return (
     <div>
@@ -167,7 +167,7 @@ export function CollapsibleTags({
             action: "tags_toggle",
             surface: trackingSurface,
             expanded,
-            tag_count: tags2.length,
+            tag_count: tags.length,
           });
           setOpen(expanded);
         }}
@@ -178,17 +178,17 @@ export function CollapsibleTags({
           size={12}
           className={`transition-transform ${open ? "rotate-90" : ""}`}
         />
-        {t2("assetCenter.create.addTagsOptional", "添加标签（可选）")}
-        {tags2.length > 0 && (
+        {translate("assetCenter.create.addTagsOptional", "添加标签（可选）")}
+        {tags.length > 0 && (
           <span className="text-[11px] text-muted-foreground/60">
-            ({tags2.length})
+            ({tags.length})
           </span>
         )}
       </button>
       {open && (
         <div className="mt-1.5">
           <PresetTags
-            value={tags2}
+            value={tags}
             onChange={onChange}
             trackingSurface={trackingSurface}
           />

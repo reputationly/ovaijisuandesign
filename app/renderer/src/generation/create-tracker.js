@@ -4,45 +4,45 @@ const ENTER_RADIUS = 32;
 const EXIT_RADIUS = 40;
 const CENTER_OFFSET = 14;
 const MENU_SELECTOR = '[data-action-ui-id="canvas.add-node-menu"]';
-export function createTracker(root2) {
-  const doc2 = root2.ownerDocument;
-  const view2 = doc2.defaultView;
-  if (!view2) throw new Error("Handle proximity requires a document window");
-  const win2 = view2;
-  const entries2 = new Map();
-  let active2 = null;
+export function createTracker(root) {
+  const doc = root.ownerDocument;
+  const view = doc.defaultView;
+  if (!view) throw new Error("Handle proximity requires a document window");
+  const win = view;
+  const entries = new Map();
+  let active = null;
   let gesture = null;
   let spaceHeld = false;
   let menuObserver = null;
-  let frame2 = 0;
-  function activate(next2) {
-    if (next2 === active2) return;
-    active2?.element.removeAttribute("data-near");
-    active2 = next2;
-    active2?.element.setAttribute("data-near", "true");
+  let frame = 0;
+  function activate(next) {
+    if (next === active) return;
+    active?.element.removeAttribute("data-near");
+    active = next;
+    active?.element.setAttribute("data-near", "true");
   }
-  function reset2() {
-    win2.cancelAnimationFrame(frame2);
-    frame2 = 0;
+  function reset() {
+    win.cancelAnimationFrame(frame);
+    frame = 0;
     menuObserver?.disconnect();
     menuObserver = null;
     gesture = null;
     activate(null);
   }
   function retainForMenu() {
-    win2.cancelAnimationFrame(frame2);
-    frame2 = win2.requestAnimationFrame(() => {
-      frame2 = 0;
-      const menu = doc2.querySelector(MENU_SELECTOR);
+    win.cancelAnimationFrame(frame);
+    frame = win.requestAnimationFrame(() => {
+      frame = 0;
+      const menu = doc.querySelector(MENU_SELECTOR);
       if (!menu) {
-        reset2();
+        reset();
         return;
       }
       menuObserver?.disconnect();
-      menuObserver = new win2.MutationObserver(() => {
-        if (!menu.isConnected) reset2();
+      menuObserver = new win.MutationObserver(() => {
+        if (!menu.isConnected) reset();
       });
-      menuObserver.observe(doc2.body, {
+      menuObserver.observe(doc.body, {
         childList: true,
         subtree: true,
       });
@@ -58,11 +58,11 @@ export function createTracker(root2) {
       }
       return;
     }
-    if (menuObserver || frame2) return;
+    if (menuObserver || frame) return;
     const target = event.target;
     if (
-      !(target instanceof win2.Element) ||
-      !root2.contains(target) ||
+      !(target instanceof win.Element) ||
+      !root.contains(target) ||
       event.buttons ||
       spaceHeld
     ) {
@@ -78,31 +78,31 @@ export function createTracker(root2) {
       return;
     }
     const nearby = new Set();
-    const collect = (element2) => {
-      const node2 = element2?.closest(".react-flow__node");
-      if (node2 && root2.contains(node2)) nearby.add(node2);
+    const collect = (element) => {
+      const node = element?.closest(".react-flow__node");
+      if (node && root.contains(node)) nearby.add(node);
     };
     collect(target);
     for (const dx of [-46, CENTER_OFFSET + ENTER_RADIUS]) {
-      collect(doc2.elementFromPoint(event.clientX + dx, event.clientY));
+      collect(doc.elementFromPoint(event.clientX + dx, event.clientY));
     }
-    if (active2) nearby.add(active2.node);
+    if (active) nearby.add(active.node);
     let nearest = null;
-    let distance2 = Number.POSITIVE_INFINITY;
+    let distance = Number.POSITIVE_INFINITY;
     const pointerNode = target.closest(".node-handle-plus")
       ? null
       : target.closest(".react-flow__node");
-    for (const node2 of nearby) {
-      for (const entry of entries2.get(node2) ?? []) {
-        if (pointerNode && pointerNode !== node2) continue;
+    for (const node of nearby) {
+      for (const entry of entries.get(node) ?? []) {
+        if (pointerNode && pointerNode !== node) continue;
         const rect = entry.element.getBoundingClientRect();
         if (!rect.width || !rect.height) continue;
-        const x2 = rect.left + rect.width / 2;
-        const y4 = rect.top + rect.height / 2;
-        const d2 = Math.hypot(event.clientX - x2, event.clientY - y4);
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const distanceFromCenter = Math.hypot(event.clientX - centerX, event.clientY - centerY);
         if (
-          d2 > (entry === active2 ? EXIT_RADIUS : ENTER_RADIUS) ||
-          d2 >= distance2
+          distanceFromCenter > (entry === active ? EXIT_RADIUS : ENTER_RADIUS) ||
+          distanceFromCenter >= distance
         )
           continue;
         const visible = [
@@ -112,8 +112,8 @@ export function createTracker(root2) {
           [-9, 9],
           [9, 9],
         ].every(([dx, dy]) => {
-          const hit = doc2.elementFromPoint(x2 + dx, y4 + dy);
-          if (!hit || !root2.contains(hit)) return false;
+          const hit = doc.elementFromPoint(centerX + dx, centerY + dy);
+          if (!hit || !root.contains(hit)) return false;
           if (
             hit.closest(
               '[role="menu"],button,input,textarea,[contenteditable="true"]',
@@ -125,13 +125,13 @@ export function createTracker(root2) {
             : hit.closest(".react-flow__node");
           return (
             !coveringNode ||
-            coveringNode === node2 ||
+            coveringNode === node ||
             coveringNode.classList.contains("react-flow__node-group")
           );
         });
         if (visible) {
           nearest = entry;
-          distance2 = d2;
+          distance = distanceFromCenter;
         }
       }
     }
@@ -150,50 +150,50 @@ export function createTracker(root2) {
   }
   function handleKey(event) {
     if (event.code === "Space") spaceHeld = event.type === "keydown";
-    if (event.key === "Escape" || spaceHeld) reset2();
+    if (event.key === "Escape" || spaceHeld) reset();
   }
   function handleBlur() {
     spaceHeld = false;
-    reset2();
+    reset();
   }
   function handleLeave(event) {
-    if (!event.relatedTarget && !gesture && !menuObserver) reset2();
+    if (!event.relatedTarget && !gesture && !menuObserver) reset();
   }
-  doc2.addEventListener("pointermove", handleMove, {
+  doc.addEventListener("pointermove", handleMove, {
     passive: true,
   });
-  doc2.addEventListener("mouseup", handleUp);
-  doc2.addEventListener("keydown", handleKey);
-  doc2.addEventListener("keyup", handleKey);
-  doc2.addEventListener("mouseout", handleLeave);
-  root2.addEventListener("wheel", reset2, {
+  doc.addEventListener("mouseup", handleUp);
+  doc.addEventListener("keydown", handleKey);
+  doc.addEventListener("keyup", handleKey);
+  doc.addEventListener("mouseout", handleLeave);
+  root.addEventListener("wheel", reset, {
     passive: true,
   });
-  win2.addEventListener("blur", handleBlur);
-  doc2.addEventListener("pointercancel", reset2);
-  const viewportObserver = new win2.MutationObserver(() => {
-    if (!gesture && !menuObserver && !frame2) activate(null);
+  win.addEventListener("blur", handleBlur);
+  doc.addEventListener("pointercancel", reset);
+  const viewportObserver = new win.MutationObserver(() => {
+    if (!gesture && !menuObserver && !frame) activate(null);
   });
-  const viewport = root2.querySelector(".react-flow__viewport");
+  const viewport = root.querySelector(".react-flow__viewport");
   if (viewport)
     viewportObserver.observe(viewport, {
       attributes: true,
       attributeFilter: ["style"],
     });
   return {
-    register(element2, node2) {
+    register(element, node) {
       const entry = {
-        element: element2,
-        node: node2,
+        element,
+        node,
         dragged: false,
       };
-      const siblings2 = entries2.get(node2) ?? new Set();
-      siblings2.add(entry);
-      entries2.set(node2, siblings2);
+      const siblings = entries.get(node) ?? new Set();
+      siblings.add(entry);
+      entries.set(node, siblings);
       return {
         beginGesture(event, dragThreshold = 5) {
           if (event.button !== 0) return;
-          reset2();
+          reset();
           entry.dragged = false;
           gesture = {
             entry,
@@ -206,21 +206,21 @@ export function createTracker(root2) {
         didDrag: () => entry.dragged,
         retainForMenu,
         dispose() {
-          if (active2 === entry || gesture?.entry === entry) reset2();
-          siblings2.delete(entry);
-          if (!siblings2.size) entries2.delete(node2);
-          if (entries2.size) return;
-          reset2();
-          doc2.removeEventListener("pointermove", handleMove);
-          doc2.removeEventListener("mouseup", handleUp);
-          doc2.removeEventListener("keydown", handleKey);
-          doc2.removeEventListener("keyup", handleKey);
-          doc2.removeEventListener("mouseout", handleLeave);
-          root2.removeEventListener("wheel", reset2);
-          win2.removeEventListener("blur", handleBlur);
-          doc2.removeEventListener("pointercancel", reset2);
+          if (active === entry || gesture?.entry === entry) reset();
+          siblings.delete(entry);
+          if (!siblings.size) entries.delete(node);
+          if (entries.size) return;
+          reset();
+          doc.removeEventListener("pointermove", handleMove);
+          doc.removeEventListener("mouseup", handleUp);
+          doc.removeEventListener("keydown", handleKey);
+          doc.removeEventListener("keyup", handleKey);
+          doc.removeEventListener("mouseout", handleLeave);
+          root.removeEventListener("wheel", reset);
+          win.removeEventListener("blur", handleBlur);
+          doc.removeEventListener("pointercancel", reset);
           viewportObserver.disconnect();
-          trackers.delete(root2);
+          trackers.delete(root);
         },
       };
     },

@@ -1,0 +1,6 @@
+key	old	new	依据
+e2@10:36	e2	dragEvent	该事件通过 dataTransfer 携带并读取实体拖拽数据。
+raw2@11:9	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+name2@40:62	name2	folderName	该参数是要创建的云端文件夹名称。
+data2@41:9	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+node2@52:9	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
