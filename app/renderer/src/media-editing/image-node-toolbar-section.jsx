@@ -102,7 +102,7 @@ function CustomGridPicker({ onPick }) {
         {rowsIdx.map((rowCount) => (
           <div key={rowCount} className="flex gap-1">
             {colsIdx.map((columnCount) => {
-              const selected2 = rowCount <= hover.rows && columnCount <= hover.cols;
+              const selected = rowCount <= hover.rows && columnCount <= hover.cols;
               return (
                 <button
                   key={columnCount}
@@ -115,7 +115,7 @@ function CustomGridPicker({ onPick }) {
                     })
                   }
                   onClick={() => onPick(rowCount, columnCount)}
-                  className={`h-8 w-8 rounded-md border transition-colors ${selected2 ? "border-brand-accent/80 bg-brand-accent/80 hover:bg-brand-accent/90 dark:hover:bg-brand-accent/90" : "border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-hover)]"}`}
+                  className={`h-8 w-8 rounded-md border transition-colors ${selected ? "border-brand-accent/80 bg-brand-accent/80 hover:bg-brand-accent/90 dark:hover:bg-brand-accent/90" : "border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-hover)]"}`}
                 />
               );
             })}
@@ -248,7 +248,7 @@ function SplitGridDisclosureIcon({ open }) {
   );
 }
 function PinnedSplitGridToolbarItem({
-  disabled: disabled2,
+  disabled,
   onPick,
   sourceGrid,
 }) {
@@ -258,7 +258,7 @@ function PinnedSplitGridToolbarItem({
     <>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger
-          disabled={disabled2}
+          disabled={disabled}
           className="canvas-toolbar-action"
           data-action-ui-id="canvas.node-split-grid"
         >
@@ -343,21 +343,21 @@ export const ImageNodeToolbarSection = reactExports.memo(
       readSeenImageToolbarFeatures,
     );
     const markNewFeatureSeen = reactExports.useCallback((featureId) => {
-      setSeenNewFeatures((current2) => {
-        if (current2.has(featureId)) return current2;
-        const next2 = new Set(current2);
-        next2.add(featureId);
+      setSeenNewFeatures((current) => {
+        if (current.has(featureId)) return current;
+        const next = new Set(current);
+        next.add(featureId);
         try {
           window.localStorage.setItem(
             IMAGE_TOOLBAR_NEW_FEATURE_STORAGE_KEY,
-            JSON.stringify([...next2]),
+            JSON.stringify([...next]),
           );
         } catch {}
-        return next2;
+        return next;
       });
     }, []);
     const toolbarItems = reactExports.useMemo(() => {
-      const wrap2 = (action, orig, source) => {
+      const wrap = (action, orig, source) => {
         return () => {
           if (isImageToolbarNewFeatureId(action)) markNewFeatureSeen(action);
           if (onToolClick) {
@@ -372,7 +372,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
           orig();
         };
       };
-      const handlers2 = {
+      const handlers = {
         erase: handleErase,
         redraw: handleRedraw,
         crop: handleCrop,
@@ -389,8 +389,8 @@ export const ImageNodeToolbarSection = reactExports.memo(
         watermark: handleWatermark ?? (() => {}),
         relight: handleRelight,
       };
-      function trailingFor(meta2) {
-        if (meta2.costToolId === "remove-bg") {
+      function trailingFor(meta) {
+        if (meta.costToolId === "remove-bg") {
           return (
             <CreditCostBadge
               cost={removeBgCost}
@@ -430,19 +430,19 @@ export const ImageNodeToolbarSection = reactExports.memo(
             ]
           : [];
       const pinnedItems = pinned.map((toolId) => {
-        const meta2 = IMAGE_TOOL_META[toolId];
+        const meta = IMAGE_TOOL_META[toolId];
         return {
           id: toolId,
-          label: t(meta2.labelKey, meta2.defaultLabel),
-          icon: meta2.icon,
+          label: t(meta.labelKey, meta.defaultLabel),
+          icon: meta.icon,
           forceLabel: toolId === "panorama-reference" ? true : showLabels,
           disabled:
-            (meta2.requiresDimensions && !hasDimensions) ||
+            (meta.requiresDimensions && !hasDimensions) ||
             (toolId === "panorama-reference" && !handlePanoramaReference) ||
             (toolId === "watermark" && !handleWatermark),
-          dataActionUiId: meta2.dataActionUiId,
-          onClick: wrap2(toolId, handlers2[toolId], "primary_bar"),
-          trailing: trailingFor(meta2),
+          dataActionUiId: meta.dataActionUiId,
+          onClick: wrap(toolId, handlers[toolId], "primary_bar"),
+          trailing: trailingFor(meta),
           showNewFeatureDot:
             isImageToolbarNewFeatureId(toolId) && !seenNewFeatures.has(toolId),
         };
@@ -456,17 +456,17 @@ export const ImageNodeToolbarSection = reactExports.memo(
           !pinned.includes(toolId),
       );
       const overflowDropdown = overflowToolIds.map((toolId) => {
-        const meta2 = IMAGE_TOOL_META[toolId];
+        const meta = IMAGE_TOOL_META[toolId];
         return {
           id: toolId,
-          label: t(meta2.labelKey, meta2.defaultLabel),
-          icon: toolId === "rotate" ? <RotateIcon size={16} /> : meta2.icon,
+          label: t(meta.labelKey, meta.defaultLabel),
+          icon: toolId === "rotate" ? <RotateIcon size={16} /> : meta.icon,
           disabled:
-            (meta2.requiresDimensions && !hasDimensions) ||
+            (meta.requiresDimensions && !hasDimensions) ||
             (toolId === "panorama-reference" && !handlePanoramaReference) ||
             (toolId === "watermark" && !handleWatermark),
-          trailing: trailingFor(meta2),
-          onSelect: wrap2(toolId, handlers2[toolId], "more_menu"),
+          trailing: trailingFor(meta),
+          onSelect: wrap(toolId, handlers[toolId], "more_menu"),
           showNewFeatureDot:
             isImageToolbarNewFeatureId(toolId) && !seenNewFeatures.has(toolId),
         };
@@ -502,7 +502,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
         id: "customize-toolbar",
         label: t("canvas.customizeToolbar.menu", "编辑工具栏"),
         icon: <CustomizeIcon />,
-        onSelect: wrap2(
+        onSelect: wrap(
           "customize-toolbar",
           handleCustomizeToolbar,
           "more_menu",
@@ -564,20 +564,20 @@ export const ImageNodeToolbarSection = reactExports.memo(
           ),
           icon: <AnnotationIcon size={20} />,
           separator: !handlePromoteToAsset,
-          onClick: wrap2("image-inplace-edit", handleImageEdit, "primary_bar"),
+          onClick: wrap("image-inplace-edit", handleImageEdit, "primary_bar"),
         },
         {
           id: "add-to-chat",
           label: t("canvas.addToChat"),
           icon: <AddToChatIcon />,
           separator: false,
-          onClick: wrap2("add-to-chat", handleAddToChat, "primary_bar"),
+          onClick: wrap("add-to-chat", handleAddToChat, "primary_bar"),
         },
         {
           id: "fullscreen",
           label: t("canvas.fullscreen"),
           icon: <FullscreenIcon />,
-          onClick: wrap2("fullscreen", handleFullscreen, "primary_bar"),
+          onClick: wrap("fullscreen", handleFullscreen, "primary_bar"),
         },
       ];
     }, [

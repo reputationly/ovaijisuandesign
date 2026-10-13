@@ -71,9 +71,9 @@ const COMFYUI_PLUGIN_STORAGE_MAX_TOTAL_BYTES =
   COMFYUI_WORKFLOW_DRAFT_MAX_BYTES + PLUGIN_STORAGE_MAX_TOTAL_BYTES;
 function pluginStorageByteSize(value) {
   try {
-    const json2 = JSON.stringify(value ?? null);
-    if (typeof json2 !== "string") return Number.POSITIVE_INFINITY;
-    return new TextEncoder().encode(json2).byteLength;
+    const json = JSON.stringify(value ?? null);
+    if (typeof json !== "string") return Number.POSITIVE_INFINITY;
+    return new TextEncoder().encode(json).byteLength;
   } catch {
     return Number.POSITIVE_INFINITY;
   }
@@ -89,19 +89,19 @@ const HUB_BILLING_NODE_TYPES = [
   "MinimaxHailuo03ReferenceNode",
 ];
 const PLUGIN_AGENT_EDITOR_STATE_MAX_CHARS = 6e3;
-function setPluginAgentEditorState(nodeId, state2) {
+function setPluginAgentEditorState(nodeId, state) {
   const bounded =
-    typeof state2 === "string"
-      ? state2.slice(0, PLUGIN_AGENT_EDITOR_STATE_MAX_CHARS)
+    typeof state === "string"
+      ? state.slice(0, PLUGIN_AGENT_EDITOR_STATE_MAX_CHARS)
       : null;
   upsert(nodeId, {
     editorState: bounded,
   });
 }
 function emitPluginConfigChange(pluginId) {
-  const set2 = configChangeListeners.get(pluginId);
-  if (!set2) return;
-  for (const listener of set2) {
+  const set = configChangeListeners.get(pluginId);
+  if (!set) return;
+  for (const listener of set) {
     try {
       listener();
     } catch (err) {
@@ -114,9 +114,9 @@ const IMMUTABLE_PLUGIN_NODE_DATA_KEYS = new Set([
   ...HIDDEN_NODE_DATA_KEYS,
   "pluginId",
 ]);
-function sanitiseNodeData(data2) {
+function sanitiseNodeData(data) {
   const sanitizedData = {};
-  for (const [dataKey, dataValue] of Object.entries(data2)) {
+  for (const [dataKey, dataValue] of Object.entries(data)) {
     if (HIDDEN_NODE_DATA_KEYS.has(dataKey)) continue;
     sanitizedData[dataKey] = dataValue;
   }
@@ -143,12 +143,12 @@ function readStorage(actions, nodeId) {
   const bucket = snap.data[PLUGIN_STORAGE_KEY];
   return bucket && typeof bucket === "object" ? bucket : {};
 }
-function writeStoragePatch(actions, nodeId, next2) {
+function writeStoragePatch(actions, nodeId, next) {
   const snap = actions.getNodeById(nodeId);
-  const base2 = snap?.data ?? {};
+  const base = snap?.data ?? {};
   return {
-    ...base2,
-    [PLUGIN_STORAGE_KEY]: next2,
+    ...base,
+    [PLUGIN_STORAGE_KEY]: next,
   };
 }
 async function writeThroughPluginData(pluginHost, args) {
@@ -159,54 +159,54 @@ async function writeThroughPluginData(pluginHost, args) {
     console.warn("[plugin-host] pluginStorage write-through failed:", err);
   }
 }
-function buildResource(nodeId, assetId, meta2, type2) {
+function buildResource(nodeId, assetId, meta, type) {
   const resource = {
     nodeId,
     assetId,
-    type: type2,
-    name: meta2.name,
-    url: meta2.url,
-    path: meta2.path,
+    type,
+    name: meta.name,
+    url: meta.url,
+    path: meta.path,
   };
-  if (meta2.width !== void 0) resource.width = meta2.width;
-  if (meta2.height !== void 0) resource.height = meta2.height;
-  if (meta2.durationSec !== void 0) resource.durationSec = meta2.durationSec;
-  if (meta2.fileSize !== void 0) resource.fileSize = meta2.fileSize;
+  if (meta.width !== void 0) resource.width = meta.width;
+  if (meta.height !== void 0) resource.height = meta.height;
+  if (meta.durationSec !== void 0) resource.durationSec = meta.durationSec;
+  if (meta.fileSize !== void 0) resource.fileSize = meta.fileSize;
   return resource;
 }
-function normaliseAssetType(raw2, fileName) {
+function normaliseAssetType(raw, fileName) {
   if (fileName && isSubtitleFileName(fileName)) return "subtitle";
-  switch (raw2) {
+  switch (raw) {
     case "image":
     case "video":
     case "audio":
     case "text":
-      return raw2;
+      return raw;
     default:
       return "file";
   }
 }
-function nodeTypeToAssetType(raw2) {
-  switch (raw2) {
+function nodeTypeToAssetType(raw) {
+  switch (raw) {
     case "image":
     case "video":
     case "audio":
     case "text":
     case "file":
-      return raw2;
+      return raw;
     case "placeholder":
       return "placeholder";
     default:
       return "file";
   }
 }
-function matchesFilter(type2, filter2) {
-  if (!filter2?.type) return true;
-  const allowed = Array.isArray(filter2.type) ? filter2.type : [filter2.type];
-  return allowed.includes(type2);
+function matchesFilter(type, filter) {
+  if (!filter?.type) return true;
+  const allowed = Array.isArray(filter.type) ? filter.type : [filter.type];
+  return allowed.includes(type);
 }
-function withCode(err, code2) {
-  err.code = code2;
+function withCode(err, code) {
+  err.code = code;
   return err;
 }
 export function buildDispatch(deps) {
@@ -262,7 +262,7 @@ export function buildDispatch(deps) {
   };
   return {
     [HUB_METHODS.CanvasGetIncomingResources]: async (args) => {
-      const filter2 = args[0] ?? null;
+      const filter = args[0] ?? null;
       const sourceIds = actions.getIncomingSourceIds(nodeId);
       const store = assetMetadataApi.getState();
       const resources = [];
@@ -274,23 +274,23 @@ export function buildDispatch(deps) {
           (typeof dataAssetId === "string" && dataAssetId.length > 0
             ? dataAssetId
             : parseNodeId(sourceNodeId).assetId);
-        const meta2 = store.assets.get(assetId) ?? store.assets.get(sourceNodeId);
-        if (!meta2) continue;
-        const type2 = normaliseAssetType(meta2.type, meta2.path || meta2.name);
-        if (!matchesFilter(type2, filter2)) continue;
-        resources.push(buildResource(sourceNodeId, assetId, meta2, type2));
+        const meta = store.assets.get(assetId) ?? store.assets.get(sourceNodeId);
+        if (!meta) continue;
+        const type = normaliseAssetType(meta.type, meta.path || meta.name);
+        if (!matchesFilter(type, filter)) continue;
+        resources.push(buildResource(sourceNodeId, assetId, meta, type));
       }
       return resources;
     },
     [HUB_METHODS.CanvasGetWorkspaceResources]: async (args) => {
-      const filter2 = args[0] ?? null;
+      const filter = args[0] ?? null;
       const store = assetMetadataApi.getState();
       const byPath = new Map();
-      for (const [assetId, meta2] of store.assets) {
-        if (!meta2.path || byPath.has(meta2.path)) continue;
-        const type2 = normaliseAssetType(meta2.type, meta2.path || meta2.name);
-        if (!matchesFilter(type2, filter2)) continue;
-        byPath.set(meta2.path, buildResource(assetId, assetId, meta2, type2));
+      for (const [assetId, meta] of store.assets) {
+        if (!meta.path || byPath.has(meta.path)) continue;
+        const type = normaliseAssetType(meta.type, meta.path || meta.name);
+        if (!matchesFilter(type, filter)) continue;
+        byPath.set(meta.path, buildResource(assetId, assetId, meta, type));
       }
       return [...byPath.values()];
     },
@@ -298,7 +298,7 @@ export function buildDispatch(deps) {
       const targetId = String(args[0] ?? "");
       const snap = actions.getNodeById(targetId);
       if (!snap) return null;
-      const info2 = {
+      const info = {
         id: snap.id,
         type: nodeTypeToAssetType(snap.type),
         position: snap.position,
@@ -308,7 +308,7 @@ export function buildDispatch(deps) {
         // calling getNode(otherNodeId). See HIDDEN_NODE_DATA_KEYS.
         data: sanitiseNodeData(snap.data),
       };
-      return info2;
+      return info;
     },
     [HUB_METHODS.CanvasRemoveCurrentNode]: async () => {
       actions.removeNode(nodeId);
@@ -444,18 +444,18 @@ export function buildDispatch(deps) {
           "invalid_args",
         );
       }
-      const patch2 = rawPatch;
-      for (const key2 of Object.keys(patch2)) {
-        if (IMMUTABLE_PLUGIN_NODE_DATA_KEYS.has(key2)) {
+      const patch = rawPatch;
+      for (const key of Object.keys(patch)) {
+        if (IMMUTABLE_PLUGIN_NODE_DATA_KEYS.has(key)) {
           throw withCode(
             new Error(
-              `updateNodeData: reserved data key "${key2}" cannot be changed`,
+              `updateNodeData: reserved data key "${key}" cannot be changed`,
             ),
             "invalid_args",
           );
         }
       }
-      actions.mergeNodeData(targetId, patch2);
+      actions.mergeNodeData(targetId, patch);
       return void 0;
     },
     [HUB_METHODS.CanvasInsertImagesAsGroup]: async (args) => {
@@ -545,34 +545,34 @@ export function buildDispatch(deps) {
     // paths. Plain user HTML nodes have no plugin namespace on the gateway and
     // retain the legacy node.data.pluginStorage behaviour for compatibility.
     [HUB_METHODS.StorageGet]: async (args) => {
-      const key2 = String(args[0] ?? "");
+      const key = String(args[0] ?? "");
       if (installedPluginId(actions, nodeId)) {
         const result = await runInstalledPluginStorageRequest(actions, () =>
           requirePluginHost().readPluginData({
             nodeId,
-            key: key2,
+            key,
           }),
         );
         return result.value;
       }
       const bucket = readStorage(actions, nodeId);
-      return bucket[key2];
+      return bucket[key];
     },
     [HUB_METHODS.StorageSet]: async (args) => {
-      const key2 = String(args[0] ?? "");
-      if (!key2)
+      const key = String(args[0] ?? "");
+      if (!key)
         throw withCode(new Error("storage.set: empty key"), "invalid_args");
       const value = args[1];
       const valueSize = pluginStorageByteSize(value);
       const pluginId = installedPluginId(actions, nodeId);
       const maxValueBytes =
-        pluginId === "comfyui" && key2 === COMFYUI_WORKFLOW_DRAFT_STORAGE_KEY
+        pluginId === "comfyui" && key === COMFYUI_WORKFLOW_DRAFT_STORAGE_KEY
           ? COMFYUI_WORKFLOW_DRAFT_MAX_BYTES
           : PLUGIN_STORAGE_MAX_VALUE_BYTES;
       if (valueSize > maxValueBytes) {
         throw withCode(
           new Error(
-            `storage.set: value for "${key2}" is ${valueSize} bytes (limit ${maxValueBytes})`,
+            `storage.set: value for "${key}" is ${valueSize} bytes (limit ${maxValueBytes})`,
           ),
           "invalid_args",
         );
@@ -581,14 +581,14 @@ export function buildDispatch(deps) {
         await runInstalledPluginStorageRequest(actions, () =>
           requirePluginHost().writePluginData({
             nodeId,
-            key: key2,
+            key,
             value,
           }),
         );
         return void 0;
       }
       const currentStorage = readStorage(actions, nodeId);
-      const isNewKey = !(key2 in currentStorage);
+      const isNewKey = !(key in currentStorage);
       if (isNewKey && Object.keys(currentStorage).length >= PLUGIN_STORAGE_MAX_KEYS) {
         throw withCode(
           new Error(
@@ -597,13 +597,13 @@ export function buildDispatch(deps) {
           "invalid_args",
         );
       }
-      const next2 = {
+      const next = {
         ...currentStorage,
-        [key2]: value,
+        [key]: value,
       };
-      const totalSize = pluginStorageByteSize(next2);
+      const totalSize = pluginStorageByteSize(next);
       const maxTotalBytes =
-        pluginId === "comfyui" && COMFYUI_WORKFLOW_DRAFT_STORAGE_KEY in next2
+        pluginId === "comfyui" && COMFYUI_WORKFLOW_DRAFT_STORAGE_KEY in next
           ? COMFYUI_PLUGIN_STORAGE_MAX_TOTAL_BYTES
           : PLUGIN_STORAGE_MAX_TOTAL_BYTES;
       if (totalSize > maxTotalBytes) {
@@ -614,36 +614,36 @@ export function buildDispatch(deps) {
           "invalid_args",
         );
       }
-      actions.updateNodeData(nodeId, writeStoragePatch(actions, nodeId, next2));
+      actions.updateNodeData(nodeId, writeStoragePatch(actions, nodeId, next));
       await writeThroughPluginData(bridge.pluginHost, {
         nodeId,
-        key: key2,
+        key,
         value,
       });
       return void 0;
     },
     [HUB_METHODS.StorageDelete]: async (args) => {
-      const key2 = String(args[0] ?? "");
+      const key = String(args[0] ?? "");
       if (installedPluginId(actions, nodeId)) {
         await runInstalledPluginStorageRequest(actions, () =>
           requirePluginHost().writePluginData({
             nodeId,
-            key: key2,
+            key,
             deleteKey: true,
           }),
         );
         return void 0;
       }
       const currentStorage = readStorage(actions, nodeId);
-      if (!(key2 in currentStorage)) return void 0;
-      const next2 = {
+      if (!(key in currentStorage)) return void 0;
+      const next = {
         ...currentStorage,
       };
-      delete next2[key2];
-      actions.updateNodeData(nodeId, writeStoragePatch(actions, nodeId, next2));
+      delete next[key];
+      actions.updateNodeData(nodeId, writeStoragePatch(actions, nodeId, next));
       await writeThroughPluginData(bridge.pluginHost, {
         nodeId,
-        key: key2,
+        key,
         deleteKey: true,
       });
       return void 0;
@@ -661,13 +661,13 @@ export function buildDispatch(deps) {
       return Object.keys(readStorage(actions, nodeId));
     },
     [HUB_METHODS.UiNotify]: async (args) => {
-      const message2 = String(args[0] ?? "");
+      const message = String(args[0] ?? "");
       const level = args[1] ?? "info";
       const options = args[2] ?? void 0;
       if (!["info", "success", "warning", "error"].includes(level)) {
         throw withCode(new Error("ui.notify: invalid level"), "invalid_args");
       }
-      if (message2.length === 0 || message2.length > 500) {
+      if (message.length === 0 || message.length > 500) {
         throw withCode(new Error("ui.notify: invalid message"), "invalid_args");
       }
       if (
@@ -689,7 +689,7 @@ export function buildDispatch(deps) {
       ) {
         throw withCode(new Error("ui.notify: invalid options"), "invalid_args");
       }
-      requirePluginHost().notify(message2, level, options);
+      requirePluginHost().notify(message, level, options);
       return void 0;
     },
     [HUB_METHODS.UiSaveFile]: async (args) => {
@@ -846,16 +846,16 @@ export function buildDispatch(deps) {
     // and hand the rest to the host, which owns the absolute-path and
     // route-existence guards and resolves `false` on a miss.
     [HUB_METHODS.AppNavigate]: async (args) => {
-      const raw2 = args[0];
-      if (!raw2 || typeof raw2 !== "object" || typeof raw2.to !== "string") {
+      const raw = args[0];
+      if (!raw || typeof raw !== "object" || typeof raw.to !== "string") {
         throw withCode(
           new Error("app.navigate: missing route path"),
           "invalid_args",
         );
       }
       if (
-        raw2.params != null &&
-        (typeof raw2.params !== "object" || Array.isArray(raw2.params))
+        raw.params != null &&
+        (typeof raw.params !== "object" || Array.isArray(raw.params))
       ) {
         throw withCode(
           new Error("app.navigate: params must be an object"),
@@ -863,8 +863,8 @@ export function buildDispatch(deps) {
         );
       }
       if (
-        raw2.search != null &&
-        (typeof raw2.search !== "object" || Array.isArray(raw2.search))
+        raw.search != null &&
+        (typeof raw.search !== "object" || Array.isArray(raw.search))
       ) {
         throw withCode(
           new Error("app.navigate: search must be an object"),
@@ -872,9 +872,9 @@ export function buildDispatch(deps) {
         );
       }
       return requirePluginHost().navigate({
-        to: raw2.to,
-        params: raw2.params,
-        search: raw2.search,
+        to: raw.to,
+        params: raw.params,
+        search: raw.search,
       });
     },
     // ── Fullscreen: drive the canvas-internal html-fullscreen-store
@@ -886,10 +886,10 @@ export function buildDispatch(deps) {
     // change is broadcast back via the `fullscreen:changed` effect, so the
     // shim's cached `isFullscreen` / `onFullscreenChange` stay in sync.
     [HUB_METHODS.UiEnterFullscreen]: async () => {
-      const state2 = fullscreenApi.getState();
-      if (state2.nodeId === nodeId)
-        state2.setPresentation(nodeId, "fullscreen");
-      else state2.enter(nodeId);
+      const state = fullscreenApi.getState();
+      if (state.nodeId === nodeId)
+        state.setPresentation(nodeId, "fullscreen");
+      else state.enter(nodeId);
       return void 0;
     },
     [HUB_METHODS.UiExitFullscreen]: async () => {
@@ -954,57 +954,57 @@ export function buildDispatch(deps) {
       return void 0;
     },
     [HUB_METHODS.AgentSetEditorState]: async (args) => {
-      const state2 = args[0];
-      if (state2 !== null && typeof state2 !== "string") {
+      const state = args[0];
+      if (state !== null && typeof state !== "string") {
         throw withCode(
           new Error("agent.setEditorState: state must be string|null"),
           "invalid_args",
         );
       }
-      setPluginAgentEditorState(nodeId, state2);
+      setPluginAgentEditorState(nodeId, state);
       return void 0;
     },
     // ── Skill: list / get pass through; run wraps chat.send with
     // `/<name>` prefix + skill existence check.
     [HUB_METHODS.SkillList]: async () => requirePluginHost().listSkills(),
     [HUB_METHODS.SkillGet]: async (args) => {
-      const name2 = String(args[0] ?? "");
-      if (!name2)
+      const skillName = String(args[0] ?? "");
+      if (!skillName)
         throw withCode(new Error("skill.get: missing name"), "invalid_args");
-      return requirePluginHost().getSkill(name2);
+      return requirePluginHost().getSkill(skillName);
     },
     [HUB_METHODS.SkillRun]: async (args) => {
-      const name2 = String(args[0] ?? "");
-      if (!name2)
+      const skillName = String(args[0] ?? "");
+      if (!skillName)
         throw withCode(new Error("skill.run: missing name"), "invalid_args");
       const runArgs = args[1] ?? {};
       const host = requirePluginHost();
-      const info2 = await host.getSkill(name2);
-      if (!info2) {
+      const info = await host.getSkill(skillName);
+      if (!info) {
         throw withCode(
-          new Error(`skill.run: unknown skill "${name2}"`),
+          new Error(`skill.run: unknown skill "${skillName}"`),
           "not_available",
         );
       }
-      if (!info2.enabled) {
+      if (!info.enabled) {
         throw withCode(
           new Error(
-            `skill.run: skill "${name2}" is disabled — enable it in Settings first`,
+            `skill.run: skill "${skillName}" is disabled — enable it in Settings first`,
           ),
           "not_available",
         );
       }
-      const body2 =
+      const body =
         typeof runArgs.content === "string" && runArgs.content.length > 0
-          ? `/${name2}
+          ? `/${skillName}
 
 ${runArgs.content}`
-          : `/${name2}`;
+          : `/${skillName}`;
       const sendArgs = {
-        content: body2,
+        content: body,
         sessionId: runArgs.sessionId,
         useCurrentSession: runArgs.useCurrentSession,
-        sessionName: runArgs.sessionName || info2.displayNameZh || name2,
+        sessionName: runArgs.sessionName || info.displayNameZh || skillName,
         attachments: runArgs.attachments,
         canvasNodeAttachments: runArgs.canvasNodeAttachments,
         sourceNodeId: runArgs.sourceNodeId,
@@ -1179,19 +1179,19 @@ ${runArgs.content}`
     // gateway (fast-fail) so the host bridge stays a thin pass-through.
     [HUB_METHODS.ConfigGet]: async (args) => {
       const pluginId = requirePluginId();
-      const key2 = String(args[0] ?? "");
-      if (!key2)
+      const key = String(args[0] ?? "");
+      if (!key)
         throw withCode(new Error("config.get: empty key"), "invalid_args");
-      return requirePluginHost().configGet(pluginId, key2);
+      return requirePluginHost().configGet(pluginId, key);
     },
     [HUB_METHODS.ConfigSet]: async (args) => {
       const pluginId = requirePluginId();
-      const key2 = String(args[0] ?? "");
-      if (!key2)
+      const key = String(args[0] ?? "");
+      if (!key)
         throw withCode(new Error("config.set: empty key"), "invalid_args");
       const result = await requirePluginHost().configSet(
         pluginId,
-        key2,
+        key,
         args[1],
       );
       emitPluginConfigChange(pluginId);
@@ -1199,10 +1199,10 @@ ${runArgs.content}`
     },
     [HUB_METHODS.ConfigDelete]: async (args) => {
       const pluginId = requirePluginId();
-      const key2 = String(args[0] ?? "");
-      if (!key2)
+      const key = String(args[0] ?? "");
+      if (!key)
         throw withCode(new Error("config.delete: empty key"), "invalid_args");
-      const result = await requirePluginHost().configDelete(pluginId, key2);
+      const result = await requirePluginHost().configDelete(pluginId, key);
       emitPluginConfigChange(pluginId);
       return result;
     },

@@ -13,7 +13,7 @@ function computeGridCells(
   const cellW = width / columnCount;
   const cellH = height / rowCount;
   const gutter = Math.max(0, Math.round(Math.min(cellW, cellH) * gutterRatio));
-  const cells2 = [];
+  const cells = [];
   for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
     for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
       const rawX = columnIndex * cellW;
@@ -22,7 +22,7 @@ function computeGridCells(
       const sourceY = Math.round(rawY + gutter);
       const sourceWidth = Math.max(1, Math.round(cellW - gutter * 2));
       const sourceHeight = Math.max(1, Math.round(cellH - gutter * 2));
-      cells2.push({
+      cells.push({
         sx: sourceX,
         sy: sourceY,
         sw: sourceWidth,
@@ -32,7 +32,7 @@ function computeGridCells(
       });
     }
   }
-  return cells2;
+  return cells;
 }
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -76,20 +76,20 @@ export async function splitSelectedCellsToBlobs(
   src,
   rows,
   cols,
-  selected2,
+  selected,
   originalWidth,
   originalHeight,
   gutterRatio = 0,
 ) {
-  if (selected2.size === 0) return [];
+  if (selected.size === 0) return [];
   const imageElement = await loadImage(src);
   const sourceWidth = originalWidth || imageElement.naturalWidth;
   const sourceHeight = originalHeight || imageElement.naturalHeight;
-  const cells2 = computeGridCells(sourceWidth, sourceHeight, rows, cols, gutterRatio);
+  const cells = computeGridCells(sourceWidth, sourceHeight, rows, cols, gutterRatio);
   const selectedCells = [];
-  for (let cellIndex = 0; cellIndex < cells2.length; cellIndex++) {
-    if (!selected2.has(cellIndex)) continue;
-    const cell = cells2[cellIndex];
+  for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+    if (!selected.has(cellIndex)) continue;
+    const cell = cells[cellIndex];
     const blob = await cellToBlob(imageElement, cell);
     selectedCells.push({
       blob,

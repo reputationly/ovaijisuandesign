@@ -109,7 +109,7 @@ import {
   ROUND_DOTS_POPOVER_GAP_OFFSET,
   RoundDots,
 } from "./round-dots-inner.jsx";
-function useVideoNodeView(nodeId, data2) {
+function useVideoNodeView(nodeId, data) {
   const assetsMap = useAssetMetadataStore((assetMetadataState) => assetMetadataState.assets);
   const subImages = useSubImages(nodeId);
   const isUserEmpty = useNodeIsEmpty(nodeId);
@@ -133,18 +133,18 @@ function useVideoNodeView(nodeId, data2) {
     getNodeAssetId,
     getNodeAssetId,
   );
-  const view2 = reactExports.useMemo(
+  const view = reactExports.useMemo(
     () =>
       buildImageNodeView(
         nodeId,
-        data2,
+        data,
         subImages,
         (assetId) => assetsMap.get(assetId),
         isUserEmpty,
         mainRound,
         nodeAssetId,
       ),
-    [nodeId, data2, subImages, assetsMap, isUserEmpty, mainRound, nodeAssetId],
+    [nodeId, data, subImages, assetsMap, isUserEmpty, mainRound, nodeAssetId],
   );
   const resolveSlotNodeId = reactExports.useCallback(
     (slot) => {
@@ -158,16 +158,16 @@ function useVideoNodeView(nodeId, data2) {
   );
   const selectRound = reactExports.useCallback(
     (roundIdx) => {
-      if (roundIdx === view2.activeRoundIndex) return;
-      const target = view2.rounds[roundIdx]?.[0];
+      if (roundIdx === view.activeRoundIndex) return;
+      const target = view.rounds[roundIdx]?.[0];
       if (!target) return;
       const targetNodeId = resolveSlotNodeId(target);
       if (!targetNodeId) return;
       promoteSubImageToMain(targetNodeId);
     },
     [
-      view2.activeRoundIndex,
-      view2.rounds,
+      view.activeRoundIndex,
+      view.rounds,
       resolveSlotNodeId,
       promoteSubImageToMain,
     ],
@@ -175,7 +175,7 @@ function useVideoNodeView(nodeId, data2) {
   const selectSlot = reactExports.useCallback(
     (slotIdx) => {
       if (slotIdx <= 0) return;
-      const target = view2.slots[slotIdx];
+      const target = view.slots[slotIdx];
       if (!target || target.status !== "ready") return;
       const targetNodeId = resolveSlotNodeId(target);
       if (!targetNodeId) return;
@@ -183,18 +183,18 @@ function useVideoNodeView(nodeId, data2) {
         persistMode: "request",
       });
     },
-    [view2.slots, resolveSlotNodeId, promoteSubImageToMain],
+    [view.slots, resolveSlotNodeId, promoteSubImageToMain],
   );
   return reactExports.useMemo(
     () => ({
-      view: view2,
-      slots: view2.slots,
-      roundCount: view2.rounds.length,
-      activeRoundIndex: view2.activeRoundIndex,
+      view,
+      slots: view.slots,
+      roundCount: view.rounds.length,
+      activeRoundIndex: view.activeRoundIndex,
       selectRound,
       selectSlot,
     }),
-    [view2, selectRound, selectSlot],
+    [view, selectRound, selectSlot],
   );
 }
 function VideoStarterIcon({ presetId }) {
@@ -249,38 +249,38 @@ function VideoEmptyStarter({ nodeId, modelId, modelName }) {
     removeNode,
   } = useCanvasActions();
   const markPresetApplied = useVideoStarterPresetStore(
-    (state2) => state2.markApplied,
+    (state) => state.markApplied,
   );
   const rememberPresetRefNodes = useVideoStarterPresetStore(
-    (state2) => state2.rememberRefNodes,
+    (state) => state.rememberRefNodes,
   );
   const takePresetRefNodes = useVideoStarterPresetStore(
-    (state2) => state2.takeRefNodes,
+    (state) => state.takeRefNodes,
   );
   const [applying, setApplying] = reactExports.useState(false);
-  const matchingPresets = videoStarterPresets?.filter((preset2) => {
-    if (preset2.modelId && modelId && preset2.modelId !== modelId) return false;
+  const matchingPresets = videoStarterPresets?.filter((preset) => {
+    if (preset.modelId && modelId && preset.modelId !== modelId) return false;
     if (H3_MAX_MODEL_IDS.has(modelId ?? "")) {
-      return H3_MAX_STARTER_MODES.has(preset2.params.image_mode ?? "");
+      return H3_MAX_STARTER_MODES.has(preset.params.image_mode ?? "");
     }
     return true;
   });
-  const presets2 =
+  const presets =
     matchingPresets && matchingPresets.length > 0 ? matchingPresets : void 0;
   const handlePresetClick = reactExports.useCallback(
-    (preset2) => {
+    (preset) => {
       if (applying) return;
       savePopoverDraft(nodeId, "i2v", {
         dirty: true,
         source: "user",
-        prompt: preset2.prompt,
-        ...(preset2.modelId
+        prompt: preset.prompt,
+        ...(preset.modelId
           ? {
-              modelId: preset2.modelId,
+              modelId: preset.modelId,
             }
           : {}),
         params: {
-          ...preset2.params,
+          ...preset.params,
         },
       });
       selectNodeExclusive(nodeId);
@@ -291,15 +291,15 @@ function VideoEmptyStarter({ nodeId, modelId, modelName }) {
       for (const sourceId of getIncomingSourceIds(nodeId)) {
         removeDerivationEdge(sourceId, nodeId);
       }
-      if (preset2.refs.length === 0 || !applyVideoStarterPreset) return;
-      const node2 = getNodeById(nodeId);
-      if (!node2) return;
+      if (preset.refs.length === 0 || !applyVideoStarterPreset) return;
+      const node = getNodeById(nodeId);
+      if (!node) return;
       setApplying(true);
       void applyVideoStarterPreset({
         videoNodeId: nodeId,
-        preset: preset2,
-        videoNodePosition: node2.position,
-        videoNodeSize: node2.size,
+        preset,
+        videoNodePosition: node.position,
+        videoNodeSize: node.size,
       })
         .then((result) => {
           if (result?.createdNodeIds?.length) {
@@ -332,11 +332,11 @@ function VideoEmptyStarter({ nodeId, modelId, modelName }) {
         model: modelName ?? "MiniMax H3 Max",
         defaultValue: "Try {{model}}",
       })}
-      suggestions={presets2?.map((preset2) => ({
-        id: `canvas.video-empty-starter.${preset2.id}`,
-        icon: <VideoStarterIcon presetId={preset2.id} />,
-        label: preset2.title,
-        onSelect: () => handlePresetClick(preset2),
+      suggestions={presets?.map((preset) => ({
+        id: `canvas.video-empty-starter.${preset.id}`,
+        icon: <VideoStarterIcon presetId={preset.id} />,
+        label: preset.title,
+        onSelect: () => handlePresetClick(preset),
         disabled: applying,
       }))}
     />
@@ -374,12 +374,12 @@ function resolveVideoLightboxIndexForSlot(items, slot, fallbackIndex) {
 function initialVideoThumbnailState(hasThumbnailBase) {
   return hasThumbnailBase ? "cached" : "fallback";
 }
-function advanceVideoThumbnailState(state2) {
-  return state2 === "cached" ? "forced" : "fallback";
+function advanceVideoThumbnailState(state) {
+  return state === "cached" ? "forced" : "fallback";
 }
-function resolveVideoThumbnailUrl(thumbnailBase, state2) {
-  if (!thumbnailBase || state2 === "fallback") return void 0;
-  if (state2 === "cached") return thumbnailBase;
+function resolveVideoThumbnailUrl(thumbnailBase, state) {
+  if (!thumbnailBase || state === "fallback") return void 0;
+  if (state === "cached") return thumbnailBase;
   return `${thumbnailBase}${thumbnailBase.includes("?") ? "&" : "?"}force=1`;
 }
 function shouldShowVideoThumbnailFallback(options) {
@@ -388,7 +388,7 @@ function shouldShowVideoThumbnailFallback(options) {
 }
 function pickVideoMimeType() {
   if (typeof MediaRecorder === "undefined") return null;
-  const candidates2 = [
+  const candidates = [
     "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
     "video/mp4;codecs=avc1,mp4a",
     "video/mp4",
@@ -396,7 +396,7 @@ function pickVideoMimeType() {
     "video/webm;codecs=vp8,opus",
     "video/webm",
   ];
-  for (const mimeType of candidates2) {
+  for (const mimeType of candidates) {
     try {
       if (MediaRecorder.isTypeSupported(mimeType)) {
         return {
@@ -562,8 +562,8 @@ const MEDIA_OVERLAY_EXIT_ANIMATION_MS = 160;
 const VIDEO_ACTION_SURFACE_ACTIVATION_DELAY_MS = 80;
 export function VideoNodeInner({
   id: videoNodeId,
-  data: data2,
-  selected: selected2,
+  data,
+  selected,
   width,
   height,
 }) {
@@ -589,7 +589,7 @@ export function VideoNodeInner({
     [],
   );
   reactExports.useEffect(() => {
-    if (!selected2 || !isInteractiveSelect) {
+    if (!selected || !isInteractiveSelect) {
       setSelectionActionSurfaceReady(false);
       return;
     }
@@ -598,29 +598,29 @@ export function VideoNodeInner({
       VIDEO_ACTION_SURFACE_ACTIVATION_DELAY_MS,
     );
     return () => window.clearTimeout(timeoutId);
-  }, [selected2, isInteractiveSelect]);
+  }, [selected, isInteractiveSelect]);
   const generatingStateStore = useGeneratingStateApi();
   const {
     view: videoView,
     roundCount,
     activeRoundIndex,
-  } = useVideoNodeView(videoNodeId, data2);
+  } = useVideoNodeView(videoNodeId, data);
   const subVideos = useSubImages(videoNodeId);
   const primaryAssetKey = videoView.primary?.id ?? videoNodeId;
-  const meta2 = useAssetMeta(primaryAssetKey);
-  const fileVersion = useFileVersion(meta2?.path);
-  const versionedUrl = meta2?.url
-    ? appendCanvasFileVersion(meta2.url, fileVersion)
+  const meta = useAssetMeta(primaryAssetKey);
+  const fileVersion = useFileVersion(meta?.path);
+  const versionedUrl = meta?.url
+    ? appendCanvasFileVersion(meta.url, fileVersion)
     : void 0;
   const displayMeta = reactExports.useMemo(
     () =>
-      meta2 && versionedUrl
+      meta && versionedUrl
         ? {
-            ...meta2,
+            ...meta,
             url: versionedUrl,
           }
-        : meta2,
-    [meta2, versionedUrl],
+        : meta,
+    [meta, versionedUrl],
   );
   const assetMetadataStore = useAssetMetadataApi();
   const {
@@ -640,7 +640,7 @@ export function VideoNodeInner({
     onCancelGenerationQueue,
     isCancelGenerationQueuePending,
   } = useCanvasBridge();
-  const onRename = useNodeRename(videoNodeId, isCloneData(data2));
+  const onRename = useNodeRename(videoNodeId, isCloneData(data));
   const reactFlow = useReactFlow();
   const nodeWidth = width || VIDEO_CARD_MAX_WIDTH;
   const [showWatermarkPopover, setShowWatermarkPopover] =
@@ -662,22 +662,22 @@ export function VideoNodeInner({
   );
   const emitWatermarkedVideo = useEmitDerivedFromBlob({
     id: videoNodeId,
-    meta: meta2,
+    meta,
     nodeWidth,
     reactFlow,
     cropImage,
   });
   const hasEmptyId = useNodeIsEmpty(videoNodeId);
-  const isUserEmpty = hasEmptyId && !meta2;
+  const isUserEmpty = hasEmptyId && !meta;
   const { emptyAspectRatio, setEmptyAspectRatio } = useEmptyAspectRatio({
     id: videoNodeId,
-    data: data2,
-    isEmptyForWrite: isUserEmpty || !meta2?.url,
+    data,
+    isEmptyForWrite: isUserEmpty || !meta?.url,
     draftKeys: ["i2v"],
   });
   const liveGenerating = useGenerating(videoNodeId);
   const persistedGenerating = reactExports.useMemo(() => {
-    const persisted = data2;
+    const persisted = data;
     if (persisted?.status !== "pending" && persisted?.status !== "generating")
       return void 0;
     const prompt = typeof persisted.prompt === "string" ? persisted.prompt : "";
@@ -697,27 +697,27 @@ export function VideoNodeInner({
       modelId:
         typeof persisted.model_id === "string" ? persisted.model_id : void 0,
       phase: persisted.status,
-      prevUrl: meta2?.url,
+      prevUrl: meta?.url,
       estimatedRemainingWaitSeconds,
       generationStartedAt: readGenerationStartedAt(persisted),
     };
-  }, [data2, meta2?.url, t]);
+  }, [data, meta?.url, t]);
   const persistedErrorMessage =
-    isGenerationErrorStatus(data2.status) &&
-    typeof data2.errorMessage === "string"
-      ? data2.errorMessage
+    isGenerationErrorStatus(data.status) &&
+    typeof data.errorMessage === "string"
+      ? data.errorMessage
       : void 0;
   const persistedErrorReason =
-    isGenerationErrorStatus(data2.status) &&
-    typeof data2.errorReason === "string"
-      ? data2.errorReason
+    isGenerationErrorStatus(data.status) &&
+    typeof data.errorReason === "string"
+      ? data.errorReason
       : void 0;
-  const persistedQueuePaused = data2.status === "queue_paused";
+  const persistedQueuePaused = data.status === "queue_paused";
   const persistedRetryPayload =
-    (isGenerationErrorStatus(data2.status) || persistedQueuePaused) &&
-    data2.retryPayload &&
-    typeof data2.retryPayload === "object"
-      ? data2.retryPayload
+    (isGenerationErrorStatus(data.status) || persistedQueuePaused) &&
+    data.retryPayload &&
+    typeof data.retryPayload === "object"
+      ? data.retryPayload
       : void 0;
   reactExports.useEffect(() => {
     if (persistedErrorMessage !== void 0 || persistedQueuePaused) {
@@ -755,7 +755,7 @@ export function VideoNodeInner({
     (value) => isMiniMaxH3MaxModelValue(value),
   );
   const generationProgressStartedAt =
-    (isH3MaxGenerating ? readGenerationSubmittedAt(data2) : void 0) ??
+    (isH3MaxGenerating ? readGenerationSubmittedAt(data) : void 0) ??
     persistedGenerating?.generationStartedAt ??
     generating?.generationStartedAt;
   const handleResumeQueue = reactExports.useCallback(() => {
@@ -772,15 +772,15 @@ export function VideoNodeInner({
     // that survives workspace close / app restart.
     generationProgressStartedAt,
     isH3MaxGenerating ? "h3-max-video" : void 0,
-    readGenerationAttemptId(data2),
+    readGenerationAttemptId(data),
   );
   reactExports.useEffect(() => {
-    if (isGenerating && meta2?.url && meta2.url !== generating?.prevUrl) {
+    if (isGenerating && meta?.url && meta.url !== generating?.prevUrl) {
       generatingStateStore.getState().clear(videoNodeId);
     }
   }, [
     isGenerating,
-    meta2?.url,
+    meta?.url,
     generating?.prevUrl,
     videoNodeId,
     generatingStateStore,
@@ -792,20 +792,20 @@ export function VideoNodeInner({
   const generationErrorStatus = generationErrorMessage
     ? isGenerating
       ? (generating?.errorStatus ?? "error")
-      : isGenerationErrorStatus(data2.status)
-        ? data2.status
+      : isGenerationErrorStatus(data.status)
+        ? data.status
         : "error"
     : void 0;
   const isStarterEmpty =
     isIdleEmptyVideoNode({
       type: "video",
       isEmpty: isUserEmpty,
-      data: data2,
+      data,
     }) &&
     !isGenerating &&
     !persistedQueuePaused &&
     !isErrorGenerating;
-  const isEmptyForSync = (isUserEmpty || !meta2?.url) && !isErrorGenerating;
+  const isEmptyForSync = (isUserEmpty || !meta?.url) && !isErrorGenerating;
   const targetEmptySize =
     isEmptyForSync && isStarterEmpty
       ? VIDEO_EMPTY_STARTER_SIZE
@@ -875,7 +875,7 @@ export function VideoNodeInner({
   );
   const colorAdjust = useVideoColorAdjust({
     id: videoNodeId,
-    meta: meta2,
+    meta,
     nodeWidth,
     reactFlow,
     cropImage,
@@ -884,9 +884,9 @@ export function VideoNodeInner({
   const mediaActions = useMediaNodeActions({
     nodeId: videoNodeId,
     toolbarActive: selectionActionSurfaceReady,
-    meta: meta2,
+    meta,
     fallbackPath:
-      typeof data2.path === "string" ? data2.path || void 0 : void 0,
+      typeof data.path === "string" ? data.path || void 0 : void 0,
     fallbackWidth: nodeWidth,
     onAddToChat,
     cropImage,
@@ -898,10 +898,10 @@ export function VideoNodeInner({
   const stop = useMediaPlayback((playbackState) => playbackState.stop);
   const [hovered, setHovered] = reactExports.useState(false);
   const thumbnailBase = reactExports.useMemo(() => {
-    if (!meta2?.url || !meta2.path) return void 0;
-    const base2 = buildVideoThumbBase(meta2.url, meta2.path);
-    return base2 ? appendCanvasFileVersion(base2, fileVersion) : void 0;
-  }, [fileVersion, meta2?.url, meta2?.path]);
+    if (!meta?.url || !meta.path) return void 0;
+    const base = buildVideoThumbBase(meta.url, meta.path);
+    return base ? appendCanvasFileVersion(base, fileVersion) : void 0;
+  }, [fileVersion, meta?.url, meta?.path]);
   const [thumbnailState, setThumbnailState] = reactExports.useState(() =>
     initialVideoThumbnailState(Boolean(thumbnailBase)),
   );
@@ -919,21 +919,21 @@ export function VideoNodeInner({
     setThumbnailState(advanceVideoThumbnailState);
   }, []);
   const videoHeight = reactExports.useMemo(() => {
-    const videoWidth = meta2?.width ?? meta2?.previewWidth;
-    const videoHeight = meta2?.height ?? meta2?.previewHeight;
+    const videoWidth = meta?.width ?? meta?.previewWidth;
+    const videoHeight = meta?.height ?? meta?.previewHeight;
     if (videoWidth && videoHeight && videoWidth > 0 && videoHeight > 0) {
       return Math.round(nodeWidth * (videoHeight / videoWidth));
     }
     return Math.round(nodeWidth * (9 / 16));
   }, [
     nodeWidth,
-    meta2?.width,
-    meta2?.height,
-    meta2?.previewWidth,
-    meta2?.previewHeight,
+    meta?.width,
+    meta?.height,
+    meta?.previewWidth,
+    meta?.previewHeight,
   ]);
   const handleWatermarkOpen = reactExports.useCallback(() => {
-    if (!cropImage || !meta2?.url) return;
+    if (!cropImage || !meta?.url) return;
     const rect = getNodeFlowRect(reactFlow, videoNodeId, nodeWidth, videoHeight);
     if (!rect) return;
     setWatermarkSettings({
@@ -947,7 +947,7 @@ export function VideoNodeInner({
       nodeHeight: rect.height,
     });
     setShowWatermarkPopover(true);
-  }, [cropImage, videoNodeId, meta2?.url, nodeWidth, reactFlow, t, videoHeight]);
+  }, [cropImage, videoNodeId, meta?.url, nodeWidth, reactFlow, t, videoHeight]);
   const handleWatermarkClose = reactExports.useCallback(() => {
     setShowWatermarkPopover(false);
     setWatermarkFocusTarget(null);
@@ -969,7 +969,7 @@ export function VideoNodeInner({
       setHovered(true);
     }, 150);
   }, [canvasActive, isDragging]);
-  const handleMouseLeave2 = reactExports.useCallback(() => {
+  const handleMouseLeave = reactExports.useCallback(() => {
     if (hoverTimerRef.current) {
       clearTimeout(hoverTimerRef.current);
       hoverTimerRef.current = null;
@@ -978,15 +978,15 @@ export function VideoNodeInner({
     stop();
   }, [stop]);
   reactExports.useEffect(() => {
-    if (!canvasActive || isDragging) handleMouseLeave2();
-  }, [canvasActive, isDragging, handleMouseLeave2]);
+    if (!canvasActive || isDragging) handleMouseLeave();
+  }, [canvasActive, isDragging, handleMouseLeave]);
   const handleDownload = reactExports.useCallback(
     (clickEvent) => {
       clickEvent.stopPropagation();
-      if (!onSaveAs || !meta2?.path) return;
-      onSaveAs(meta2.path, meta2.name);
+      if (!onSaveAs || !meta?.path) return;
+      onSaveAs(meta.path, meta.name);
     },
-    [onSaveAs, meta2?.path, meta2?.name],
+    [onSaveAs, meta?.path, meta?.name],
   );
   const totalVideoCount = videoView.slots.length;
   const showVideoCountBadge = videoView.isMulti;
@@ -1072,13 +1072,13 @@ export function VideoNodeInner({
   useWarnMissingAssetMeta({
     nodeId: videoNodeId,
     nodeType: "video",
-    data: data2,
-    meta: meta2,
+    data,
+    meta,
     isUserEmpty,
   });
-  const isEmpty2 = isUserEmpty || !meta2?.url;
+  const isEmpty = isUserEmpty || !meta?.url;
   const isFallback = shouldShowVideoThumbnailFallback({
-    isEmpty: isEmpty2,
+    isEmpty,
     thumbnailState,
   });
   useMediaFallbackSize(
@@ -1087,7 +1087,7 @@ export function VideoNodeInner({
       !isErrorGenerating &&
       !isGenerating &&
       !persistedQueuePaused &&
-      !isMissingAssetNodeData(data2),
+      !isMissingAssetNodeData(data),
   );
   const shellWidth = isStarterEmpty
     ? VIDEO_EMPTY_STARTER_SIZE.width
@@ -1095,13 +1095,13 @@ export function VideoNodeInner({
       ? MEDIA_FALLBACK_NODE_SIZE.width
       : nodeWidth;
   const expandedMediaOverlay =
-    videoView.isMulti && isOverlayOpen && !isEmpty2 && !isFallback;
+    videoView.isMulti && isOverlayOpen && !isEmpty && !isFallback;
   const isPlaying = useMediaPlayback((playbackState) => playbackState.playingId === videoNodeId);
   const videoDurationLabel =
-    typeof meta2?.durationSec === "number" &&
-    Number.isFinite(meta2.durationSec) &&
-    meta2.durationSec > 0
-      ? formatTime(meta2.durationSec, true)
+    typeof meta?.durationSec === "number" &&
+    Number.isFinite(meta.durationSec) &&
+    meta.durationSec > 0
+      ? formatTime(meta.durationSec, true)
       : void 0;
   const [keepExpandedMediaOverlayMounted, setKeepExpandedMediaOverlayMounted] =
     reactExports.useState(false);
@@ -1120,29 +1120,29 @@ export function VideoNodeInner({
     expandedMediaOverlay || keepExpandedMediaOverlayMounted;
   const isExpandedMediaOverlayClosing =
     keepExpandedMediaOverlayMounted && !expandedMediaOverlay;
-  if (isMissingAssetNodeData(data2)) {
+  if (isMissingAssetNodeData(data)) {
     return (
       <MissingAssetCard
         nodeId={videoNodeId}
-        name={typeof data2?.name === "string" ? data2.name : void 0}
+        name={typeof data?.name === "string" ? data.name : void 0}
       />
     );
   }
-  if (!meta2 && !isUserEmpty) return null;
+  if (!meta && !isUserEmpty) return null;
   const videoCollapseLabel = t("canvas.multiMedia.collapseView", "收起视图");
   const showVideoSplitAll =
     videoView.isMulti &&
     !videoView.hasLoading &&
-    !isEmpty2 &&
+    !isEmpty &&
     !isFallback &&
     videoView.slots.some(
-      (slot, index2) =>
-        index2 !== videoView.primaryIndex && slot.status === "ready",
+      (slot, index) =>
+        index !== videoView.primaryIndex && slot.status === "ready",
     );
   const showVideoSplitMain =
     videoView.rounds.length > 1 &&
     !videoView.hasLoading &&
-    !isEmpty2 &&
+    !isEmpty &&
     !isFallback;
   const showCollapsedVideoSplitRow =
     !isExpandedMediaOverlayVisible && (showVideoSplitAll || showVideoSplitMain);
@@ -1152,7 +1152,7 @@ export function VideoNodeInner({
   return (
     <NodeShell
       id={videoNodeId}
-      tagIds={meta2?.tagIds}
+      tagIds={meta?.tagIds}
       width={shellWidth}
       dataActionUiId="canvas.video-node"
       dataState={
@@ -1162,7 +1162,7 @@ export function VideoNodeInner({
             ? "empty"
             : isGenerating
               ? "generating"
-              : meta2?.url
+              : meta?.url
                 ? "generated"
                 : "empty"
       }
@@ -1174,7 +1174,7 @@ export function VideoNodeInner({
       <div
         ref={hoverZoneRef}
         onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave2}
+        onMouseLeave={handleMouseLeave}
         style={{
           position: "relative",
         }}
@@ -1182,16 +1182,16 @@ export function VideoNodeInner({
         {!isExpandedMediaOverlayVisible && (
           <NodeHeader
             nodeType="video"
-            tagIds={meta2?.tagIds}
-            name={meta2?.name || t("canvas.video")}
-            selected={selected2}
+            tagIds={meta?.tagIds}
+            name={meta?.name || t("canvas.video")}
+            selected={selected}
             maxWidth={shellWidth}
             onRename={onRename}
           />
         )}
         <NodeBody
           width={shellWidth}
-          tagIds={meta2?.tagIds}
+          tagIds={meta?.tagIds}
           borderRadius={MEDIA_NODE_RADIUS}
           height={
             // Error: undefined so MediaErrorCard auto-sizes (centered
@@ -1203,18 +1203,18 @@ export function VideoNodeInner({
                 ? VIDEO_EMPTY_STARTER_SIZE.height
                 : isFallback
                   ? MEDIA_FALLBACK_NODE_SIZE.height
-                  : isEmpty2 || isGenerating || persistedQueuePaused
+                  : isEmpty || isGenerating || persistedQueuePaused
                     ? emptyAspectRatio
                       ? emptySizeFromRatio(emptyAspectRatio).height
                       : (height ?? VIDEO_CARD_MAX_WIDTH)
                     : void 0
           }
-          selected={selected2}
+          selected={selected}
           panelPadding={isStarterEmpty ? 12 : void 0}
           variant={
             isErrorGenerating || isGenerating || persistedQueuePaused
               ? "media"
-              : isEmpty2
+              : isEmpty
                 ? "panel"
                 : "media"
           }
@@ -1279,7 +1279,7 @@ export function VideoNodeInner({
                 )
               }
             />
-          ) : isStarterEmpty || isEmpty2 ? (
+          ) : isStarterEmpty || isEmpty ? (
             <PlaceholderUploadButton
               icon={<VideoPlaceholderIcon />}
               label={t("canvas.uploadVideo")}
@@ -1297,11 +1297,11 @@ export function VideoNodeInner({
             </PlaceholderUploadButton>
           ) : isFallback ? (
             <MediaUnpreviewableFallback
-              displayName={meta2?.name ?? t("canvas.video")}
+              displayName={meta?.name ?? t("canvas.video")}
               extension={
-                getFileExtension(meta2?.path) ?? getFileExtension(meta2?.name)
+                getFileExtension(meta?.path) ?? getFileExtension(meta?.name)
               }
-              sizeLabel={formatFileSize(meta2?.fileSize)}
+              sizeLabel={formatFileSize(meta?.fileSize)}
             />
           ) : (
             <div
@@ -1317,7 +1317,7 @@ export function VideoNodeInner({
                   nodeId={videoNodeId}
                   width={nodeWidth}
                   height={videoHeight}
-                  alt={meta2?.name}
+                  alt={meta?.name}
                   onError={handleThumbnailError}
                 />
               )}
@@ -1392,7 +1392,7 @@ export function VideoNodeInner({
                   )}
                 </div>
               )}
-              {canvasActive && !isDragging && hovered && meta2?.url && (
+              {canvasActive && !isDragging && hovered && meta?.url && (
                 <div
                   style={{
                     position: "absolute",
@@ -1400,7 +1400,7 @@ export function VideoNodeInner({
                   }}
                 >
                   <VideoPlayer
-                    src={resolveVideoPlaybackUrl(versionedUrl ?? meta2.url)}
+                    src={resolveVideoPlaybackUrl(versionedUrl ?? meta.url)}
                     nodeId={videoNodeId}
                     width={nodeWidth}
                     height={videoHeight}
@@ -1412,7 +1412,7 @@ export function VideoNodeInner({
                 <ImageWatermarkPreview
                   displayWidth={nodeWidth}
                   displayHeight={videoHeight}
-                  sourceWidth={meta2?.width ?? meta2?.previewWidth ?? nodeWidth}
+                  sourceWidth={meta?.width ?? meta?.previewWidth ?? nodeWidth}
                   settings={watermarkSettings}
                 />
               )}
@@ -1427,7 +1427,7 @@ export function VideoNodeInner({
           />
         )}
         {onSaveAs &&
-          meta2?.path &&
+          meta?.path &&
           !isUserEmpty &&
           !isGenerating &&
           !isErrorGenerating &&
@@ -1464,8 +1464,8 @@ export function VideoNodeInner({
       }) && (
         <VideoActionSurface
           nodeId={videoNodeId}
-          meta={meta2}
-          data={data2}
+          meta={meta}
+          data={data}
           nodeWidth={nodeWidth}
           selected={
             selectionActionSurfaceReady && !isExpandedMediaOverlayVisible
@@ -1490,24 +1490,24 @@ export function VideoNodeInner({
           popoverGapOffset={roundCount > 1 ? ROUND_DOTS_POPOVER_GAP_OFFSET : 0}
         />
       )}
-      {showWatermarkPopover && meta2?.url && (
+      {showWatermarkPopover && meta?.url && (
         <WatermarkPopover
-          sourceUrl={versionedUrl ?? meta2.url}
+          sourceUrl={versionedUrl ?? meta.url}
           settings={watermarkSettings}
           renderOutput={renderWatermarkedVideoBlob}
           onSettingsChange={setWatermarkSettings}
           onClose={handleWatermarkClose}
           onConfirm={async (blob) => {
-            const extension2 = blob.type.includes("mp4") ? "mp4" : "webm";
+            const extension = blob.type.includes("mp4") ? "mp4" : "webm";
             await emitWatermarkedVideo(blob, {
               suffix: "watermark",
-              ext: extension2,
+              ext: extension,
               baseFallback: "video",
             });
           }}
         />
       )}
-      <NodeHandles nodeId={videoNodeId} selected={!!selected2} />
+      <NodeHandles nodeId={videoNodeId} selected={!!selected} />
     </NodeShell>
   );
 }

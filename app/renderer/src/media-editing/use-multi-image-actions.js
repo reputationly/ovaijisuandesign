@@ -24,7 +24,7 @@ function executeSubMediaDownload(target, actions) {
 
 export function useMultiImageActions({
   id: nodeId,
-  view: view2,
+  view,
   subImages,
   reactFlow,
   nodeWidth,
@@ -45,8 +45,8 @@ export function useMultiImageActions({
   const handleToggleOverlay = reactExports.useCallback(
     (clickEvent) => {
       clickEvent.stopPropagation();
-      const { open, close: close2 } = overlayStore.getState();
-      if (isOverlayOpen) close2(nodeId);
+      const { open, close: closeOverlay } = overlayStore.getState();
+      if (isOverlayOpen) closeOverlay(nodeId);
       else open(nodeId);
     },
     [overlayStore, isOverlayOpen, nodeId],
@@ -71,9 +71,9 @@ export function useMultiImageActions({
   const findSubNodeBySlotIndex = reactExports.useCallback(
     (originalIndex) => {
       if (originalIndex < 0) return void 0;
-      return findSubNodeBySlot(view2.slots[originalIndex]);
+      return findSubNodeBySlot(view.slots[originalIndex]);
     },
-    [findSubNodeBySlot, view2.slots],
+    [findSubNodeBySlot, view.slots],
   );
   const handleSubContextMenu = reactExports.useCallback(
     (originalIndex, contextMenuEvent) => {
@@ -87,7 +87,7 @@ export function useMultiImageActions({
   const handleDownloadSub = reactExports.useCallback(
     (originalIndex) => {
       if (originalIndex <= 0) return;
-      const slot = view2.slots[originalIndex];
+      const slot = view.slots[originalIndex];
       if (!slot) return;
       const subNode = findSubNodeBySlotIndex(originalIndex);
       if (!subNode) return;
@@ -99,14 +99,14 @@ export function useMultiImageActions({
           : typeof topLevelAssetId === "string" && topLevelAssetId.length > 0
             ? topLevelAssetId
             : void 0;
-      const meta2 =
+      const meta =
         (assetId ? assetMetadataStore.getState().get(assetId) : void 0) ??
         assetMetadataStore.getState().get(subNode.id);
       executeSubMediaDownload(
         {
-          path: meta2?.path,
+          path: meta?.path,
           url: slot.url,
-          fileName: meta2?.name ?? slot.name,
+          fileName: meta?.name ?? slot.name,
         },
         {
           onSaveAs,
@@ -115,7 +115,7 @@ export function useMultiImageActions({
       );
     },
     [
-      view2.slots,
+      view.slots,
       findSubNodeBySlotIndex,
       onSaveAs,
       onSaveUrlAs,
@@ -124,14 +124,14 @@ export function useMultiImageActions({
   );
   const handleSetPrimarySlot = reactExports.useCallback(
     (slot) => {
-      if (slot.id === view2.primary?.id) return;
+      if (slot.id === view.primary?.id) return;
       const subNode = findSubNodeBySlot(slot);
       if (!subNode) return;
       promoteSubImageToMain(subNode.id);
       overlayStore.getState().close(nodeId);
     },
     [
-      view2.primary?.id,
+      view.primary?.id,
       findSubNodeBySlot,
       promoteSubImageToMain,
       nodeId,
@@ -141,16 +141,16 @@ export function useMultiImageActions({
   const handleSetPrimary = reactExports.useCallback(
     (originalIndex) => {
       if (originalIndex <= 0) return;
-      const slot = view2.slots[originalIndex];
+      const slot = view.slots[originalIndex];
       if (!slot) return;
       handleSetPrimarySlot(slot);
     },
-    [view2.slots, handleSetPrimarySlot],
+    [view.slots, handleSetPrimarySlot],
   );
   const handleSelectRound = reactExports.useCallback(
     (roundIdx) => {
-      if (roundIdx === view2.activeRoundIndex) return;
-      const targetSlot = view2.rounds[roundIdx]?.[0];
+      if (roundIdx === view.activeRoundIndex) return;
+      const targetSlot = view.rounds[roundIdx]?.[0];
       if (!targetSlot) return;
       const targetSub = subImages.find((subNode) => {
         const subAssetId = subNode.assetId ?? subNode.data?.assetId;
@@ -159,13 +159,13 @@ export function useMultiImageActions({
       if (!targetSub) return;
       clearSelection();
       promoteSubImageToMain(targetSub.id);
-      if ((view2.rounds[roundIdx]?.length ?? 0) > 1) {
+      if ((view.rounds[roundIdx]?.length ?? 0) > 1) {
         overlayStore.getState().open(targetSub.id);
       }
     },
     [
-      view2.activeRoundIndex,
-      view2.rounds,
+      view.activeRoundIndex,
+      view.rounds,
       subImages,
       clearSelection,
       promoteSubImageToMain,
@@ -216,7 +216,7 @@ export function useMultiImageActions({
   const handleSplitSlot = reactExports.useCallback(
     (slot) => {
       const targetNodeId =
-        slot.id === view2.primary?.id ? nodeId : findSubNodeBySlot(slot)?.id;
+        slot.id === view.primary?.id ? nodeId : findSubNodeBySlot(slot)?.id;
       if (!targetNodeId) return;
       const { x: positionX, y: positionY } = placeSub([]);
       detachSubImage(targetNodeId, {
@@ -227,7 +227,7 @@ export function useMultiImageActions({
       overlayStore.getState().close(nodeId);
     },
     [
-      view2.primary?.id,
+      view.primary?.id,
       nodeId,
       findSubNodeBySlot,
       placeSub,
@@ -239,24 +239,24 @@ export function useMultiImageActions({
   const handleSplitSub = reactExports.useCallback(
     (originalIndex) => {
       if (originalIndex <= 0) return;
-      const slot = view2.slots[originalIndex];
+      const slot = view.slots[originalIndex];
       if (!slot) return;
       handleSplitSlot(slot);
     },
-    [view2.slots, handleSplitSlot],
+    [view.slots, handleSplitSlot],
   );
   const handleSplitAll = reactExports.useCallback(() => {
-    const ids2 = [nodeId];
-    for (let slotIndex = 1; slotIndex < view2.slots.length; slotIndex += 1) {
+    const ids = [nodeId];
+    for (let slotIndex = 1; slotIndex < view.slots.length; slotIndex += 1) {
       const subNode = findSubNodeBySlotIndex(slotIndex);
-      if (subNode) ids2.push(subNode.id);
+      if (subNode) ids.push(subNode.id);
     }
     const occupied = [];
-    const entries2 = [];
-    for (const detachedNodeId of ids2) {
+    const entries = [];
+    for (const detachedNodeId of ids) {
       const rect = placeSub(occupied);
       occupied.push(rect);
-      entries2.push({
+      entries.push({
         subId: detachedNodeId,
         position: {
           x: rect.x,
@@ -264,12 +264,12 @@ export function useMultiImageActions({
         },
       });
     }
-    detachSubImages(entries2);
+    detachSubImages(entries);
     clearSelection();
     overlayStore.getState().close(nodeId);
   }, [
     nodeId,
-    view2.slots,
+    view.slots,
     findSubNodeBySlotIndex,
     detachSubImages,
     placeSub,

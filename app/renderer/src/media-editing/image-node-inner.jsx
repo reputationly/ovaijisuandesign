@@ -157,40 +157,40 @@ import { ImageSplitEditToolbar } from "./image-split-edit-toolbar-inner.jsx";
 import { useImageSplitMode } from "./use-image-split-mode.js";
 export function ImageNodeInner({
   id: imageNodeId,
-  data: data2,
-  selected: selected2,
+  data,
+  selected,
   width,
   height,
 }) {
   const trackedActionStartRef = reactExports.useRef(new Map());
   const { t } = useTranslation();
   const assetMetadataStore = useAssetMetadataApi();
-  const nodeData = data2;
-  const view2 = useImageNodeView(imageNodeId, data2);
+  const nodeData = data;
+  const view = useImageNodeView(imageNodeId, data);
   const subImages = useSubImages(imageNodeId);
-  const meta2 = useAssetMeta(
-    view2.primary?.id ?? (view2.isUserEmpty ? "" : imageNodeId),
+  const meta = useAssetMeta(
+    view.primary?.id ?? (view.isUserEmpty ? "" : imageNodeId),
   );
   const isStoryboardProduct =
     nodeData.backend === BACKEND_VIBE_STORYBOARD ||
-    meta2?.backend === BACKEND_VIBE_STORYBOARD;
+    meta?.backend === BACKEND_VIBE_STORYBOARD;
   const storyboardSplitGrid = reactExports.useMemo(() => {
     if (!isStoryboardProduct) return void 0;
-    const { rows, cols } = resolveStoryboardGridSelection(meta2?.params);
+    const { rows, cols } = resolveStoryboardGridSelection(meta?.params);
     return {
       rows,
       cols,
     };
-  }, [isStoryboardProduct, meta2?.params]);
+  }, [isStoryboardProduct, meta?.params]);
   const persistedReferenceImageIds = reactExports.useMemo(
     () =>
       mergeReferenceImageIds(
         nodeData.referenceImageIds,
-        meta2?.referenceImageIds,
+        meta?.referenceImageIds,
       ),
-    [nodeData.referenceImageIds, meta2?.referenceImageIds],
+    [nodeData.referenceImageIds, meta?.referenceImageIds],
   );
-  const primaryPrompt = view2.primary?.prompt ?? meta2?.prompt;
+  const primaryPrompt = view.primary?.prompt ?? meta?.prompt;
   const {
     onAddToChat,
     submitImg2Video,
@@ -223,7 +223,7 @@ export function ImageNodeInner({
   const reactFlow = useReactFlow();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
-  const onRename = useNodeRename(imageNodeId, isCloneData(data2));
+  const onRename = useNodeRename(imageNodeId, isCloneData(data));
   const { croppingNodeId } = useCropState();
   const { outpaintingNodeId } = useOutpaintState();
   const { erasingNodeId } = useEraseState();
@@ -231,7 +231,7 @@ export function ImageNodeInner({
   const { movingObjectNodeId } = useMoveObjectState();
   const nodeWidth = width || IMAGE_CARD_MAX_WIDTH;
   const nodeHeight = height;
-  const imageData = data2;
+  const imageData = data;
   const displaySize =
     imageData?.displaySize &&
     imageData.displaySize.width > 0 &&
@@ -305,7 +305,7 @@ export function ImageNodeInner({
     setShowMultiAnglePopover(true);
   }, []);
   const handleWatermark = reactExports.useCallback(() => {
-    if (!cropImage || (!view2.primary?.url && !meta2?.url)) return;
+    if (!cropImage || (!view.primary?.url && !meta?.url)) return;
     setShowI2IPopover(false);
     setShowI2VPopover(false);
     setShowEnhancePopover(false);
@@ -328,12 +328,12 @@ export function ImageNodeInner({
   }, [
     cropImage,
     imageNodeId,
-    meta2?.url,
+    meta?.url,
     nodeHeight,
     nodeWidth,
     reactFlow,
     t,
-    view2.primary?.url,
+    view.primary?.url,
   ]);
   const handleStoryboardGrid = reactExports.useCallback(() => {
     setShowI2IPopover(false);
@@ -377,7 +377,7 @@ export function ImageNodeInner({
   );
   const [referenceTextPaths, setReferenceTextPaths] = reactExports.useState([]);
   const { upstreamTextContent, refreshUpstreamText } = useUpstreamTextContent();
-  const modelInfo = useModelForAsset(meta2?.backend, meta2?.model_id, "image");
+  const modelInfo = useModelForAsset(meta?.backend, meta?.model_id, "image");
   const {
     mergeNodeDataSilent,
     savePopoverDraft,
@@ -391,7 +391,7 @@ export function ImageNodeInner({
     flushPersist,
   } = useCanvasActions();
   const handlePanoramaReference = reactExports.useCallback(async () => {
-    if (!onInstantiatePlugin || !view2.primary?.url) return;
+    if (!onInstantiatePlugin || !view.primary?.url) return;
     const panoramaNodeId = await onInstantiatePlugin({
       pluginId: PANORAMA_VIEWER_PLUGIN_ID,
       sourceNodeIds: [imageNodeId],
@@ -402,7 +402,7 @@ export function ImageNodeInner({
     if (!panoramaNodeId) return;
     let finished = false;
     let unsubscribe = () => {};
-    let timeout2 = 0;
+    let timeout = 0;
     const openGeneratorWhenReady = () => {
       if (
         finished ||
@@ -412,7 +412,7 @@ export function ImageNodeInner({
         return false;
       finished = true;
       unsubscribe();
-      window.clearTimeout(timeout2);
+      window.clearTimeout(timeout);
       resizeNode(
         panoramaNodeId,
         PANORAMA_EMPTY_NODE_SIZE.width,
@@ -423,7 +423,7 @@ export function ImageNodeInner({
     };
     unsubscribe = subscribeGraphChange(openGeneratorWhenReady);
     if (!openGeneratorWhenReady()) {
-      timeout2 = window.setTimeout(() => {
+      timeout = window.setTimeout(() => {
         finished = true;
         unsubscribe();
       }, 5e3);
@@ -436,7 +436,7 @@ export function ImageNodeInner({
     onInstantiatePlugin,
     resizeNode,
     subscribeGraphChange,
-    view2.primary?.url,
+    view.primary?.url,
   ]);
   const handleImageResizeCommit = reactExports.useCallback(
     (nodeId, positionX, positionY, nextWidth, nextHeight) => {
@@ -470,8 +470,8 @@ export function ImageNodeInner({
       moveAndResizeNode,
     ],
   );
-  const i2iDraft = resolveActivePopoverDraft(data2, "i2i");
-  const i2vDraft = resolveActivePopoverDraft(data2, "i2v");
+  const i2iDraft = resolveActivePopoverDraft(data, "i2i");
+  const i2vDraft = resolveActivePopoverDraft(data, "i2v");
   const i2iDraftPrompt =
     typeof i2iDraft?.prompt === "string" && i2iDraft.prompt.trim().length > 0
       ? i2iDraft.prompt
@@ -487,8 +487,8 @@ export function ImageNodeInner({
   const lastUsedI2V = getLastUsedModelParams?.("i2v");
   const zoomTier = useStableZoomTier();
   const isOutpaintingThis = outpaintingNodeId === imageNodeId;
-  const fileVersion = usePathFileVersion(meta2?.path);
-  const primaryUrl = view2.primary?.url ?? meta2?.url;
+  const fileVersion = usePathFileVersion(meta?.path);
+  const primaryUrl = view.primary?.url ?? meta?.url;
   const decodeSrc =
     primaryUrl !== void 0 && fileVersion > 0
       ? appendCanvasFileVersion(primaryUrl, fileVersion)
@@ -498,20 +498,20 @@ export function ImageNodeInner({
     setNaturalSize(null);
   }, [decodeSrc]);
   const isUnfilled =
-    view2.isUserEmpty && view2.status === "empty" && view2.slots.length === 0;
+    view.isUserEmpty && view.status === "empty" && view.slots.length === 0;
   const isUserEmpty = isUnfilled;
   const i2iDefaultModelId = isUserEmpty
     ? (i2iDraft?.modelId ?? upstreamImageMeta?.modelId)
-    : (i2iDraft?.modelId ?? modelInfo?.id ?? meta2?.model_id ?? meta2?.model);
+    : (i2iDraft?.modelId ?? modelInfo?.id ?? meta?.model_id ?? meta?.model);
   const i2iDefaultParams = isUserEmpty
     ? (i2iDraft?.params ?? upstreamImageMeta?.params)
-    : (i2iDraft?.params ?? meta2?.params);
+    : (i2iDraft?.params ?? meta?.params);
   const i2vDefaultModelId = isUserEmpty
     ? i2vDraft?.modelId
     : (i2vDraft?.modelId ?? modelInfo?.id);
   const i2vDefaultParams = isUserEmpty
     ? i2vDraft?.params
-    : (i2vDraft?.params ?? meta2?.params);
+    : (i2vDraft?.params ?? meta?.params);
   const i2iLastUsedModelId = isUserEmpty ? lastUsedI2I?.modelId : void 0;
   const i2iLastUsedParams = isUserEmpty ? lastUsedI2I?.params : void 0;
   const i2vLastUsedModelId = isUserEmpty ? lastUsedI2V?.modelId : void 0;
@@ -520,16 +520,16 @@ export function ImageNodeInner({
     () =>
       buildOriginalGenerationDraft(
         primaryPrompt,
-        modelInfo?.id ?? meta2?.model_id ?? meta2?.model,
-        meta2?.params,
+        modelInfo?.id ?? meta?.model_id ?? meta?.model,
+        meta?.params,
         referenceImagePaths,
       ),
     [
       primaryPrompt,
       modelInfo?.id,
-      meta2?.model_id,
-      meta2?.model,
-      meta2?.params,
+      meta?.model_id,
+      meta?.model,
+      meta?.params,
       referenceImagePaths,
     ],
   );
@@ -540,11 +540,11 @@ export function ImageNodeInner({
       : void 0;
   const { emptyAspectRatio, setEmptyAspectRatio } = useEmptyAspectRatio({
     id: imageNodeId,
-    data: data2,
-    isEmptyForWrite: isUnfilled || !meta2,
+    data,
+    isEmptyForWrite: isUnfilled || !meta,
     draftKeys: ["i2i", "i2v"],
   });
-  const isEmptyForSync = (isUnfilled || !meta2) && !view2.primary;
+  const isEmptyForSync = (isUnfilled || !meta) && !view.primary;
   const targetEmptySize =
     isEmptyForSync && emptyAspectRatio
       ? emptySizeFromRatio(emptyAspectRatio)
@@ -582,12 +582,12 @@ export function ImageNodeInner({
       lastSyncActionRef.current = "none";
     }
   }, [isEmptyForSync, targetEmptyWidth, targetEmptyHeight, imageNodeId, reactFlow]);
-  const persistedPathValue = data2.path;
+  const persistedPathValue = data.path;
   const persistedPath =
     typeof persistedPathValue === "string" && persistedPathValue.trim()
       ? persistedPathValue
       : void 0;
-  const handleAddToChat = useAddToChat(imageNodeId, meta2, onAddToChat, persistedPath);
+  const handleAddToChat = useAddToChat(imageNodeId, meta, onAddToChat, persistedPath);
   const handlePromoteToAsset = reactExports.useMemo(() => {
     if (!onPromoteToAsset) return void 0;
     return (clickEvent) => {
@@ -599,7 +599,7 @@ export function ImageNodeInner({
   }, [imageNodeId, onPromoteToAsset]);
   const { handleCrop } = useStartCropFromNode({
     id: imageNodeId,
-    meta: meta2,
+    meta,
     nodeWidth,
     nodeHeight,
     reactFlow,
@@ -607,7 +607,7 @@ export function ImageNodeInner({
   });
   const { handleOutpaint } = useStartOutpaintFromNode({
     id: imageNodeId,
-    meta: meta2,
+    meta,
     nodeWidth,
     nodeHeight,
     reactFlow,
@@ -615,7 +615,7 @@ export function ImageNodeInner({
   });
   const { handleErase } = useStartEraseFromNode({
     id: imageNodeId,
-    meta: meta2,
+    meta,
     nodeWidth,
     nodeHeight,
     reactFlow,
@@ -623,7 +623,7 @@ export function ImageNodeInner({
   });
   const { handleRedraw } = useStartRedrawFromNode({
     id: imageNodeId,
-    meta: meta2,
+    meta,
     nodeWidth,
     nodeHeight,
     reactFlow,
@@ -631,16 +631,16 @@ export function ImageNodeInner({
   });
   const { handleRemoveBg } = useDirectImageActions({
     id: imageNodeId,
-    meta: meta2,
+    meta,
     submitSuperResolution,
     submitRemoveBg,
   });
   const handleLayerDecompose = reactExports.useCallback(() => {
-    if (!submitLayerDecompose || !meta2?.path || layerDecomposeSubmitting)
+    if (!submitLayerDecompose || !meta?.path || layerDecomposeSubmitting)
       return;
     setLayerDecomposePrompt("");
     setShowLayerDecomposePrompt(true);
-  }, [layerDecomposeSubmitting, meta2?.path, submitLayerDecompose]);
+  }, [layerDecomposeSubmitting, meta?.path, submitLayerDecompose]);
   const dismissLayerDecomposePrompt = usePopoverCloseWithDeselect(
     imageNodeId,
     setShowLayerDecomposePrompt,
@@ -668,7 +668,7 @@ export function ImageNodeInner({
     onNodeAction,
   ]);
   const submitLayerDecomposePrompt = reactExports.useCallback(async () => {
-    if (!submitLayerDecompose || !meta2?.path || layerDecomposeSubmitting)
+    if (!submitLayerDecompose || !meta?.path || layerDecomposeSubmitting)
       return;
     const enteredAt = trackedActionStartRef.current.get("layer-decompose");
     trackedActionStartRef.current.delete("layer-decompose");
@@ -684,7 +684,7 @@ export function ImageNodeInner({
     dismissLayerDecomposePrompt();
     setLayerDecomposePrompt("");
     try {
-      await submitLayerDecompose(imageNodeId, meta2.path, layerDecomposePrompt);
+      await submitLayerDecompose(imageNodeId, meta.path, layerDecomposePrompt);
     } finally {
       setLayerDecomposeSubmitting(false);
     }
@@ -693,19 +693,19 @@ export function ImageNodeInner({
     dismissLayerDecomposePrompt,
     layerDecomposePrompt,
     layerDecomposeSubmitting,
-    meta2?.path,
+    meta?.path,
     onNodeAction,
     submitLayerDecompose,
   ]);
   reactExports.useEffect(() => {
-    if (!selected2 && showLayerDecomposePrompt) {
+    if (!selected && showLayerDecomposePrompt) {
       closeLayerDecomposePrompt();
     }
-  }, [closeLayerDecomposePrompt, selected2, showLayerDecomposePrompt]);
+  }, [closeLayerDecomposePrompt, selected, showLayerDecomposePrompt]);
   const handleSuperResolution = reactExports.useCallback(() => {
-    if (!submitSuperResolution || !meta2?.path) return;
-    const imageWidth = view2.primary?.width ?? meta2?.width ?? naturalSize?.width;
-    const imageHeight = view2.primary?.height ?? meta2?.height ?? naturalSize?.height;
+    if (!submitSuperResolution || !meta?.path) return;
+    const imageWidth = view.primary?.width ?? meta?.width ?? naturalSize?.width;
+    const imageHeight = view.primary?.height ?? meta?.height ?? naturalSize?.height;
     if (!isEnhanceImageInputEligible(imageWidth, imageHeight)) {
       dedupedToast.error(
         t(
@@ -721,34 +721,34 @@ export function ImageNodeInner({
     setShowEnhancePopover(true);
   }, [
     submitSuperResolution,
-    meta2?.path,
-    meta2?.width,
-    meta2?.height,
-    view2.primary,
+    meta?.path,
+    meta?.width,
+    meta?.height,
+    view.primary,
     naturalSize,
     t,
   ]);
   const allImageSlots = reactExports.useMemo(
-    () => view2.rounds.flat(),
-    [view2.rounds],
+    () => view.rounds.flat(),
+    [view.rounds],
   );
   const lightboxItems = reactExports.useMemo(() => {
     if (allImageSlots.length === 0) {
-      const item = lightboxItemFromAssetMeta("image", meta2);
+      const item = lightboxItemFromAssetMeta("image", meta);
       return item ? [item] : [];
     }
     const metadata = assetMetadataStore.getState();
     return lightboxItemsFromSlots("image", allImageSlots, {
       getMetaById: (assetId) => metadata.get(assetId),
       nodes: subImages,
-      primarySlotId: view2.primary?.id,
-      primaryMeta: meta2,
+      primarySlotId: view.primary?.id,
+      primaryMeta: meta,
     });
-  }, [allImageSlots, view2.primary?.id, meta2, assetMetadataStore, subImages]);
+  }, [allImageSlots, view.primary?.id, meta, assetMetadataStore, subImages]);
   const lightboxInitialIndex = reactExports.useMemo(() => {
     if (lightboxItems.length === 0) return 0;
-    return resolveLightboxIndexForSlot(lightboxItems, view2.primary, 0);
-  }, [lightboxItems, view2.primary]);
+    return resolveLightboxIndexForSlot(lightboxItems, view.primary, 0);
+  }, [lightboxItems, view.primary]);
   const lightbox = useImageLightbox({
     items: lightboxItems,
     initialIndex: lightboxInitialIndex,
@@ -766,7 +766,7 @@ export function ImageNodeInner({
   );
   const handleOpenSubLightbox = reactExports.useCallback(
     (originalIndex) => {
-      const targetSlot = view2.slots[originalIndex];
+      const targetSlot = view.slots[originalIndex];
       const targetIndex = resolveLightboxIndexForSlot(
         lightboxItems,
         targetSlot,
@@ -774,7 +774,7 @@ export function ImageNodeInner({
       );
       lightbox.openLightbox(targetIndex);
     },
-    [view2.slots, lightboxItems, lightboxInitialIndex, lightbox.openLightbox],
+    [view.slots, lightboxItems, lightboxInitialIndex, lightbox.openLightbox],
   );
   const colorAdjustLutBundle = useLutBundle(
     listLuts,
@@ -786,7 +786,7 @@ export function ImageNodeInner({
   );
   const colorAdjust = useImageColorAdjust({
     id: imageNodeId,
-    meta: meta2,
+    meta,
     nodeWidth,
     reactFlow,
     cropImage,
@@ -794,15 +794,15 @@ export function ImageNodeInner({
   });
   const emitWatermarkedImage = useEmitDerivedFromBlob({
     id: imageNodeId,
-    meta: meta2,
+    meta,
     nodeWidth,
     reactFlow,
     cropImage,
   });
   const inplaceEdit = useImageInplaceEdit({
     id: imageNodeId,
-    meta: meta2,
-    selected: selected2,
+    meta,
+    selected,
     nodeWidth,
     nodeHeight,
     reactFlow,
@@ -839,9 +839,9 @@ export function ImageNodeInner({
   });
   const imageEditing = inplaceEdit.editing;
   const primaryWidth =
-    view2.primary?.width ?? meta2?.width ?? naturalSize?.width;
+    view.primary?.width ?? meta?.width ?? naturalSize?.width;
   const primaryHeight =
-    view2.primary?.height ?? meta2?.height ?? naturalSize?.height;
+    view.primary?.height ?? meta?.height ?? naturalSize?.height;
   const bodyHeight = reactExports.useMemo(() => {
     if ((displayImageOnly || isStoryboardProduct) && nodeHeight)
       return nodeHeight;
@@ -894,10 +894,10 @@ export function ImageNodeInner({
     };
     const fromNaturalOnly =
       !dataDisplaySize &&
-      !view2.primary?.width &&
-      !view2.primary?.height &&
-      !meta2?.width &&
-      !meta2?.height;
+      !view.primary?.width &&
+      !view.primary?.height &&
+      !meta?.width &&
+      !meta?.height;
     if (fromNaturalOnly) {
       const target = reconcileNodeSize(
         "image",
@@ -913,18 +913,18 @@ export function ImageNodeInner({
     primaryHeight,
     imageNodeId,
     reactFlow,
-    view2.primary?.width,
-    view2.primary?.height,
-    meta2?.width,
-    meta2?.height,
+    view.primary?.width,
+    view.primary?.height,
+    meta?.width,
+    meta?.height,
     displaySize,
     getNodeById,
     resizeNode,
   ]);
-  const rotate2 = useImageRotateEdit({
+  const rotate = useImageRotateEdit({
     nodeId: imageNodeId,
-    selected: !!selected2,
-    meta: meta2,
+    selected: !!selected,
+    meta,
     nodeWidth,
     sourceBodyHeight,
     cropImage,
@@ -940,9 +940,9 @@ export function ImageNodeInner({
         interaction: "opens_mode",
         durationMs: enteredAt == null ? void 0 : Date.now() - enteredAt,
         toolSpecific: {
-          rotation_angle: rotate2.state.angle,
-          flip_horizontal: rotate2.state.flipH,
-          flip_vertical: rotate2.state.flipV,
+          rotation_angle: rotate.state.angle,
+          flip_horizontal: rotate.state.flipH,
+          flip_vertical: rotate.state.flipV,
         },
       });
     },
@@ -963,11 +963,11 @@ export function ImageNodeInner({
   });
   const splitMode = useImageSplitMode({
     id: imageNodeId,
-    selected: !!selected2,
-    meta: meta2,
+    selected: !!selected,
+    meta,
     batchCropAndUpscale,
     cropSplit,
-    url: view2.primary?.url,
+    url: view.primary?.url,
     onApply: (detail) => {
       const enteredAt = trackedActionStartRef.current.get("split-grid");
       trackedActionStartRef.current.delete("split-grid");
@@ -983,16 +983,16 @@ export function ImageNodeInner({
     },
   });
   const splitPerCellCost = useImageEditCost("super-resolution");
-  const updateNodeInternals2 = useUpdateNodeInternals();
+  const updateNodeInternals = useUpdateNodeInternals();
   const lastRotateAabbRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    const key2 = `${rotate2.displayWidth}x${rotate2.displayHeight}`;
-    if (lastRotateAabbRef.current === key2) return;
+    const key = `${rotate.displayWidth}x${rotate.displayHeight}`;
+    if (lastRotateAabbRef.current === key) return;
     const isMount = lastRotateAabbRef.current === null;
-    lastRotateAabbRef.current = key2;
+    lastRotateAabbRef.current = key;
     if (isMount) return;
-    updateNodeInternals2(imageNodeId);
-  }, [imageNodeId, updateNodeInternals2, rotate2.displayWidth, rotate2.displayHeight]);
+    updateNodeInternals(imageNodeId);
+  }, [imageNodeId, updateNodeInternals, rotate.displayWidth, rotate.displayHeight]);
   const handleI2VClose = usePopoverCloseWithDeselect(imageNodeId, setShowI2VPopover);
   const handleI2IClose = usePopoverCloseWithDeselect(imageNodeId, setShowI2IPopover);
   const closeEnhancePopover = usePopoverCloseWithDeselect(
@@ -1059,8 +1059,8 @@ export function ImageNodeInner({
           },
         });
       }
-      if (submitSuperResolution && meta2?.path) {
-        void submitSuperResolution(imageNodeId, meta2.path, {
+      if (submitSuperResolution && meta?.path) {
+        void submitSuperResolution(imageNodeId, meta.path, {
           resolution: params.resolution,
           targetWidth: params.targetWidth,
           targetHeight: params.targetHeight,
@@ -1070,7 +1070,7 @@ export function ImageNodeInner({
     },
     [
       submitSuperResolution,
-      meta2?.path,
+      meta?.path,
       imageNodeId,
       closeEnhancePopover,
       onNodeAction,
@@ -1086,11 +1086,11 @@ export function ImageNodeInner({
       audioPaths,
       replaceNodeId,
       displayPrompt,
-      count2,
+      count,
       textPaths,
     ) => {
       const ratio = params.aspect_ratio ?? params.ratio;
-      if (ratio && !replaceNodeId && view2.status === "empty") {
+      if (ratio && !replaceNodeId && view.status === "empty") {
         mergeNodeDataSilent(imageNodeId, {
           aspectRatio: ratio,
         });
@@ -1106,7 +1106,7 @@ export function ImageNodeInner({
           audioPaths,
           replaceNodeId,
           displayPrompt,
-          count2,
+          count,
           void 0,
           void 0,
           textPaths,
@@ -1121,7 +1121,7 @@ export function ImageNodeInner({
         },
       });
     },
-    [imageNodeId, submitImg2Video, view2.status, mergeNodeDataSilent, flushPersist, t],
+    [imageNodeId, submitImg2Video, view.status, mergeNodeDataSilent, flushPersist, t],
   );
   const handleI2ISubmit = reactExports.useCallback(
     (
@@ -1130,12 +1130,12 @@ export function ImageNodeInner({
       params,
       imagePaths,
       replaceNodeId,
-      count2,
+      count,
       displayPrompt,
       textPaths,
     ) => {
       const ratio = params.aspect_ratio ?? params.ratio;
-      if (ratio && view2.status === "empty") {
+      if (ratio && view.status === "empty") {
         mergeNodeDataSilent(imageNodeId, {
           aspectRatio: ratio,
         });
@@ -1148,7 +1148,7 @@ export function ImageNodeInner({
           params,
           imagePaths,
           replaceNodeId,
-          count2,
+          count,
           displayPrompt,
           void 0,
           void 0,
@@ -1163,7 +1163,7 @@ export function ImageNodeInner({
           dedupedToast.error(t("canvas.promptDraftSaveFailed")),
       });
     },
-    [imageNodeId, submitImg2Image, view2.status, mergeNodeDataSilent, flushPersist, t],
+    [imageNodeId, submitImg2Image, view.status, mergeNodeDataSilent, flushPersist, t],
   );
   const {
     isOverlayOpen,
@@ -1180,7 +1180,7 @@ export function ImageNodeInner({
     handleDownloadSub,
   } = useMultiImageActions({
     id: imageNodeId,
-    view: view2,
+    view,
     subImages,
     reactFlow,
     nodeWidth,
@@ -1188,7 +1188,7 @@ export function ImageNodeInner({
   });
   const handleSelectRound = reactExports.useCallback(
     (roundIdx) => {
-      if (roundIdx === view2.activeRoundIndex) return;
+      if (roundIdx === view.activeRoundIndex) return;
       setShowI2VPopover(false);
       setShowI2IPopover(false);
       setShowEnhancePopover(false);
@@ -1198,12 +1198,12 @@ export function ImageNodeInner({
       setShowWatermarkPopover(false);
       selectRound(roundIdx);
     },
-    [selectRound, view2.activeRoundIndex],
+    [selectRound, view.activeRoundIndex],
   );
   const canSetLightboxPrimary =
     allImageSlots.length > 1 &&
     !!currentLightboxSlot &&
-    currentLightboxSlot.id !== view2.primary?.id;
+    currentLightboxSlot.id !== view.primary?.id;
   const canSplitLightboxImage =
     allImageSlots.length > 1 && !!currentLightboxSlot;
   const handleSetLightboxPrimary = reactExports.useCallback(() => {
@@ -1218,33 +1218,33 @@ export function ImageNodeInner({
     nodeData.forceShowPromptPopover === true ||
     canOpenAssetGenerationPopover({
       isUserEmpty,
-      model: meta2?.model ?? nodeData.model,
-      modelId: meta2?.model_id ?? nodeData.model_id,
-      backend: meta2?.backend ?? nodeData.backend,
-      sourceTool: meta2?.source_tool ?? nodeData.source_tool,
+      model: meta?.model ?? nodeData.model,
+      modelId: meta?.model_id ?? nodeData.model_id,
+      backend: meta?.backend ?? nodeData.backend,
+      sourceTool: meta?.source_tool ?? nodeData.source_tool,
     });
   const handleDownloadMain = reactExports.useCallback(
     (clickEvent) => {
       clickEvent.stopPropagation();
-      if (!onSaveAs || !meta2?.path) return;
-      onSaveAs(meta2.path, meta2.name);
+      if (!onSaveAs || !meta?.path) return;
+      onSaveAs(meta.path, meta.name);
     },
-    [onSaveAs, meta2?.path, meta2?.name],
+    [onSaveAs, meta?.path, meta?.name],
   );
   const selfAssetIds = reactExports.useMemo(() => {
-    const ids2 = new Set();
-    for (const slot of view2.slots) {
-      if (slot.status === "ready" && slot.id) ids2.add(slot.id);
+    const ids = new Set();
+    for (const slot of view.slots) {
+      if (slot.status === "ready" && slot.id) ids.add(slot.id);
     }
-    if (meta2 && imageNodeId) ids2.add(imageNodeId);
-    return ids2;
-  }, [view2.slots, meta2, imageNodeId]);
+    if (meta && imageNodeId) ids.add(imageNodeId);
+    return ids;
+  }, [view.slots, meta, imageNodeId]);
   const showOverlay = isOverlayOpen;
   const expandedMediaOverlay =
-    view2.isMulti &&
+    view.isMulti &&
     showOverlay &&
     !imageEditing &&
-    !rotate2.editing &&
+    !rotate.editing &&
     !splitMode.editing;
   const [keepExpandedMediaOverlayMounted, setKeepExpandedMediaOverlayMounted] =
     reactExports.useState(false);
@@ -1264,7 +1264,7 @@ export function ImageNodeInner({
   const isExpandedMediaOverlayClosing =
     keepExpandedMediaOverlayMounted && !expandedMediaOverlay;
   reactExports.useEffect(() => {
-    if (!selected2) return;
+    if (!selected) return;
     if (!canOpenPopover) return;
     if (isMultiSelect || isBoxSelecting) return;
     if (isExpandedMediaOverlayVisible) return;
@@ -1289,23 +1289,23 @@ export function ImageNodeInner({
     setReferenceVideoPaths(
       resolveReferenceVideos(
         sources,
-        meta2?.referenceVideoIds,
+        meta?.referenceVideoIds,
         assetMetadataStore,
       ),
     );
     setReferenceAudioPaths(
       resolveReferenceAudios(
         sources,
-        meta2?.referenceAudioIds,
+        meta?.referenceAudioIds,
         assetMetadataStore,
       ),
     );
     setReferenceTextPaths(
       resolveReferenceTexts(
         sources,
-        Array.isArray(data2.referenceTextIds)
-          ? data2.referenceTextIds
-          : meta2?.referenceTextIds,
+        Array.isArray(data.referenceTextIds)
+          ? data.referenceTextIds
+          : meta?.referenceTextIds,
         assetMetadataStore,
         getNodeById,
       ),
@@ -1317,7 +1317,7 @@ export function ImageNodeInner({
       setShowI2IPopover(true);
     }
   }, [
-    selected2,
+    selected,
     canOpenPopover,
     isMultiSelect,
     isBoxSelecting,
@@ -1363,8 +1363,8 @@ export function ImageNodeInner({
       previousKey === currentKey ? previousKey : currentKey,
     );
     const unsubscribe = subscribeGraphChange(() => {
-      const key2 = buildIncomingReferenceKey();
-      setIncomingSourceKey((prev) => (prev === key2 ? prev : key2));
+      const key = buildIncomingReferenceKey();
+      setIncomingSourceKey((prev) => (prev === key ? prev : key));
     });
     return unsubscribe;
   }, [buildIncomingReferenceKey, subscribeGraphChange]);
@@ -1441,47 +1441,47 @@ export function ImageNodeInner({
     liveReferenceTextPaths,
     i2vDraft?.textPaths,
   );
-  const dimensions2 = reactExports.useMemo(() => {
-    const imageWidth = meta2?.width;
-    const imageHeight = meta2?.height;
+  const dimensions = reactExports.useMemo(() => {
+    const imageWidth = meta?.width;
+    const imageHeight = meta?.height;
     if (imageWidth && imageHeight) return `${imageWidth} x ${imageHeight}`;
     return void 0;
-  }, [meta2?.width, meta2?.height]);
-  const hasDimensions = !!(meta2?.width && meta2?.height);
+  }, [meta?.width, meta?.height]);
+  const hasDimensions = !!(meta?.width && meta?.height);
   const thumbnailUrl = reactExports.useMemo(
-    () => (meta2?.url ? buildThumbnailUrl(meta2.url, nodeWidth) : void 0),
-    [meta2?.url, nodeWidth],
+    () => (meta?.url ? buildThumbnailUrl(meta.url, nodeWidth) : void 0),
+    [meta?.url, nodeWidth],
   );
   const thumbnailSrcSet = reactExports.useMemo(
-    () => (meta2?.url ? buildThumbnailSrcSet(meta2.url, nodeWidth) : void 0),
-    [meta2?.url, nodeWidth],
+    () => (meta?.url ? buildThumbnailSrcSet(meta.url, nodeWidth) : void 0),
+    [meta?.url, nodeWidth],
   );
   const thumbnailSizes = `${Math.round(nodeWidth * zoomTier)}px`;
-  const deferredSelected = reactExports.useDeferredValue(selected2);
+  const deferredSelected = reactExports.useDeferredValue(selected);
   useWarnMissingAssetMeta({
     nodeId: imageNodeId,
     nodeType: "image",
-    data: data2,
-    meta: meta2,
+    data,
+    meta,
     isUserEmpty,
   });
-  const isEmpty2 = view2.status === "empty" && !view2.primary;
+  const isEmpty = view.status === "empty" && !view.primary;
   useMediaFallbackSize(
     imageNodeId,
     imgError &&
-      !isEmpty2 &&
-      !!(meta2 || view2.primary) &&
-      !isMissingAssetNodeData(data2),
+      !isEmpty &&
+      !!(meta || view.primary) &&
+      !isMissingAssetNodeData(data),
   );
-  if (isMissingAssetNodeData(data2)) {
+  if (isMissingAssetNodeData(data)) {
     return (
       <MissingAssetCard
         nodeId={imageNodeId}
-        name={typeof data2?.name === "string" ? data2.name : void 0}
+        name={typeof data?.name === "string" ? data.name : void 0}
       />
     );
   }
-  if (!meta2 && !isUserEmpty && !view2.primary) return null;
+  if (!meta && !isUserEmpty && !view.primary) return null;
   const isCropping = croppingNodeId !== null;
   const isOutpainting = outpaintingNodeId !== null;
   const isErasing = erasingNodeId !== null;
@@ -1492,13 +1492,13 @@ export function ImageNodeInner({
   const isInteractiveSelect = !isMultiSelect && !isBoxSelecting;
   const showStandardToolbar =
     !displayImageOnly &&
-    !isEmpty2 &&
-    !!selected2 &&
+    !isEmpty &&
+    !!selected &&
     !!deferredSelected &&
     isInteractiveSelect &&
     !isExpandedMediaOverlayVisible &&
     !isModalActive &&
-    !rotate2.editing &&
+    !rotate.editing &&
     !splitMode.editing &&
     !imageEditing &&
     !showEnhancePopover &&
@@ -1507,12 +1507,12 @@ export function ImageNodeInner({
     !showRelightPopover &&
     !showWatermarkPopover;
   const showPopover = shouldShowImageBottomPopover({
-    selected: !!selected2,
+    selected: !!selected,
     deferredSelected: !!deferredSelected,
     isInteractiveSelect,
     isExpandedMediaOverlayVisible,
     isModalActive,
-    rotateEditing: rotate2.editing,
+    rotateEditing: rotate.editing,
     splitEditing: splitMode.editing,
     imageEditing,
     colorAdjustOpen: colorAdjust.open,
@@ -1525,17 +1525,17 @@ export function ImageNodeInner({
   });
   const shellWidth = imgError
     ? MEDIA_FALLBACK_NODE_SIZE.width
-    : rotate2.displayWidth;
+    : rotate.displayWidth;
   return (
     <NodeShell
       id={imageNodeId}
-      tagIds={meta2?.tagIds}
+      tagIds={meta?.tagIds}
       width={shellWidth}
       dataActionUiId="canvas.image-node"
       dataState={
-        view2.isUserEmpty && view2.status === "empty"
+        view.isUserEmpty && view.status === "empty"
           ? "empty"
-          : view2.status === "ready" && view2.primary?.url
+          : view.status === "ready" && view.primary?.url
             ? "generated"
             : "empty"
       }
@@ -1547,17 +1547,17 @@ export function ImageNodeInner({
         !isExpandedMediaOverlayVisible && (
           <NodeHeader
             nodeType="image"
-            tagIds={meta2?.tagIds}
+            tagIds={meta?.tagIds}
             name={resolveImageNodeDisplayName(
               {
-                dataName: data2?.name,
-                primaryName: view2.primary?.name,
-                metaName: meta2?.name,
+                dataName: data?.name,
+                primaryName: view.primary?.name,
+                metaName: meta?.name,
               },
               t("canvas.image"),
             )}
-            selected={selected2}
-            dimensions={dimensions2}
+            selected={selected}
+            dimensions={dimensions}
             maxWidth={shellWidth}
             onRename={onRename}
           />
@@ -1577,7 +1577,7 @@ export function ImageNodeInner({
           handleImageEdit={inplaceEdit.enter}
           handleMultiAngle={handleMultiAngle}
           handlePanoramaReference={
-            onInstantiatePlugin && view2.primary?.url
+            onInstantiatePlugin && view.primary?.url
               ? handlePanoramaReference
               : void 0
           }
@@ -1586,7 +1586,7 @@ export function ImageNodeInner({
             isStoryboardProduct ? void 0 : handleStoryboardGrid
           }
           handleRelight={handleRelight}
-          handleRotate={rotate2.enter}
+          handleRotate={rotate.enter}
           handleSplitEnter={splitMode.enter}
           pinSplitGrid={isStoryboardProduct}
           splitGrid={storyboardSplitGrid}
@@ -1595,21 +1595,21 @@ export function ImageNodeInner({
           handleCustomizeToolbar={handleCustomizeToolbar}
           onToolClick={
             onNodeAction
-              ? (info2) => {
+              ? (info) => {
                   if (
-                    info2.interaction === "opens_mode" ||
-                    info2.interaction === "opens_dialog" ||
-                    info2.action === "watermark"
+                    info.interaction === "opens_mode" ||
+                    info.interaction === "opens_dialog" ||
+                    info.action === "watermark"
                   ) {
-                    trackedActionStartRef.current.set(info2.action, Date.now());
+                    trackedActionStartRef.current.set(info.action, Date.now());
                   }
                   onNodeAction({
                     nodeId: imageNodeId,
                     nodeType: "image",
-                    action: info2.action,
+                    action: info.action,
                     phase: "click",
-                    interaction: info2.interaction,
-                    source: info2.source,
+                    interaction: info.interaction,
+                    source: info.source,
                   });
                 }
               : void 0
@@ -1622,25 +1622,25 @@ export function ImageNodeInner({
           onOpenChange={setShowCustomizeToolbar}
         />
       )}
-      {rotate2.editing && (
+      {rotate.editing && (
         <ImageRotateEditToolbar
-          visible={!!selected2}
-          angle={rotate2.state.angle}
-          onAngleChange={rotate2.setAngle}
-          onRotate90={rotate2.step90}
-          flipH={rotate2.state.flipH}
-          flipV={rotate2.state.flipV}
-          onFlipHorizontal={rotate2.toggleFlipH}
-          onFlipVertical={rotate2.toggleFlipV}
-          onCancel={rotate2.cancel}
-          onSave={rotate2.save}
-          saving={rotate2.saving}
-          canSave={rotate2.hasChanges}
+          visible={!!selected}
+          angle={rotate.state.angle}
+          onAngleChange={rotate.setAngle}
+          onRotate90={rotate.step90}
+          flipH={rotate.state.flipH}
+          flipV={rotate.state.flipV}
+          onFlipHorizontal={rotate.toggleFlipH}
+          onFlipVertical={rotate.toggleFlipV}
+          onCancel={rotate.cancel}
+          onSave={rotate.save}
+          saving={rotate.saving}
+          canSave={rotate.hasChanges}
         />
       )}
       {splitMode.editing && splitMode.grid && (
         <ImageSplitEditToolbar
-          visible={!!selected2}
+          visible={!!selected}
           selectedCount={splitMode.selectedCells.size}
           magnification={splitMode.magnification}
           onSetMagnification={splitMode.setMagnification}
@@ -1653,29 +1653,29 @@ export function ImageNodeInner({
       )}
       <NodeBody
         width={shellWidth}
-        tagIds={meta2?.tagIds}
+        tagIds={meta?.tagIds}
         borderRadius={MEDIA_NODE_RADIUS}
         height={
           imgError
             ? MEDIA_FALLBACK_NODE_SIZE.height
-            : isEmpty2 || isUserEmpty
+            : isEmpty || isUserEmpty
               ? emptyAspectRatio
                 ? emptySizeFromRatio(emptyAspectRatio).height
                 : (nodeHeight ?? IMAGE_CARD_MAX_WIDTH)
-              : rotate2.displayHeight
+              : rotate.displayHeight
         }
-        selected={selected2}
-        variant={isEmpty2 ? "panel" : "media"}
+        selected={selected}
+        variant={isEmpty ? "panel" : "media"}
         className={
-          view2.isMulti &&
+          view.isMulti &&
           !isExpandedMediaOverlayVisible &&
           !imageEditing &&
-          !rotate2.editing
+          !rotate.editing
             ? "canvas-media-stack"
             : void 0
         }
         onDoubleClick={
-          isEmpty2 ||
+          isEmpty ||
           imageEditing ||
           showWatermarkPopover ||
           imgError ||
@@ -1685,7 +1685,7 @@ export function ImageNodeInner({
         }
         dataActionUiId="canvas.image-node-body"
       >
-        {isEmpty2 ? (
+        {isEmpty ? (
           <PlaceholderUploadButton
             icon={<ImagePlaceholderIcon />}
             label={t("canvas.uploadImage")}
@@ -1693,34 +1693,34 @@ export function ImageNodeInner({
           />
         ) : imgErrorReason ? (
           <MediaUnpreviewableFallback
-            displayName={meta2?.name ?? t("canvas.image")}
-            extension={getFileExtension(meta2?.name)}
-            sizeLabel={formatFileSize(meta2?.fileSize)}
+            displayName={meta?.name ?? t("canvas.image")}
+            extension={getFileExtension(meta?.name)}
+            sizeLabel={formatFileSize(meta?.fileSize)}
             reason={imgErrorReason}
           />
-        ) : imageEditing && meta2?.url ? (
+        ) : imageEditing && meta?.url ? (
           <ImageInplaceEditor
-            src={meta2.url}
+            src={meta.url}
             srcSet={thumbnailSrcSet}
             sizes={thumbnailSizes}
             width={nodeWidth}
             height={sourceBodyHeight}
-            visible={!!selected2}
+            visible={!!selected}
             onCancel={inplaceEdit.cancel}
             onConfirm={inplaceEdit.confirm}
             onProgressChange={inplaceEdit.setHadProgress}
           />
-        ) : rotate2.editing && meta2?.url ? (
+        ) : rotate.editing && meta?.url ? (
           <ImageRotatePreview
-            src={thumbnailUrl ?? meta2.url}
+            src={thumbnailUrl ?? meta.url}
             srcSet={thumbnailSrcSet}
             sizes={thumbnailSizes}
-            alt={meta2.name}
+            alt={meta.name}
             width={nodeWidth}
             height={sourceBodyHeight}
-            transform={rotate2.imageTransform}
+            transform={rotate.imageTransform}
           />
-        ) : view2.primary?.url || meta2?.url ? (
+        ) : view.primary?.url || meta?.url ? (
           // Single-image ready render. Loading / error primaries never reach
           // ImageNode (they stay `type=placeholder` → PlaceholderNode; the
           // early `return null` above guards the invariant), and a single
@@ -1734,26 +1734,26 @@ export function ImageNodeInner({
             src={decodeSrc}
             animationSrc={resolveGifAnimationSrc(
               decodeSrc,
-              meta2?.path,
-              view2.primary?.name ?? meta2?.name,
+              meta?.path,
+              view.primary?.name ?? meta?.name,
             )}
             nodeId={imageNodeId}
-            width={rotate2.displayWidth}
-            height={rotate2.displayHeight}
-            alt={view2.primary?.name ?? meta2?.name}
+            width={rotate.displayWidth}
+            height={rotate.displayHeight}
+            alt={view.primary?.name ?? meta?.name}
             onError={setImgErrorReason}
             onNaturalSize={handleNaturalSize}
           />
         ) : null}
-        {showWatermarkPopover && !isEmpty2 && !imgError && (
+        {showWatermarkPopover && !isEmpty && !imgError && (
           <ImageWatermarkPreview
-            displayWidth={rotate2.displayWidth}
-            displayHeight={rotate2.displayHeight}
-            sourceWidth={primaryWidth ?? rotate2.displayWidth}
+            displayWidth={rotate.displayWidth}
+            displayHeight={rotate.displayHeight}
+            sourceWidth={primaryWidth ?? rotate.displayWidth}
             settings={watermarkSettings}
           />
         )}
-        {splitMode.editing && splitMode.grid && !isEmpty2 && !imgError && (
+        {splitMode.editing && splitMode.grid && !isEmpty && !imgError && (
           <ImageSplitOverlay
             rows={splitMode.grid.rows}
             cols={splitMode.grid.cols}
@@ -1762,15 +1762,15 @@ export function ImageNodeInner({
             onSelectCells={splitMode.selectCells}
           />
         )}
-        {!isEmpty2 &&
+        {!isEmpty &&
           !imgError &&
           !imageEditing &&
-          !rotate2.editing &&
+          !rotate.editing &&
           !splitMode.editing &&
           !showWatermarkPopover &&
           !!onSaveAs &&
-          !!meta2?.path &&
-          (view2.primary?.url || meta2?.url) && (
+          !!meta?.path &&
+          (view.primary?.url || meta?.url) && (
             <MediaDownloadButton
               dataActionUiId="canvas.image-node.download"
               onClick={handleDownloadMain}
@@ -1785,20 +1785,20 @@ export function ImageNodeInner({
           )}
         {!isExpandedMediaOverlayClosing && !showWatermarkPopover && (
           <MultiImageChrome
-            view={view2}
+            view={view}
             showOverlay={showOverlay}
             hasLifecyclePrimary={false}
-            isEmpty={isEmpty2}
+            isEmpty={isEmpty}
             imgError={imgError}
             imageEditing={imageEditing}
-            rotateEditing={rotate2.editing}
+            rotateEditing={rotate.editing}
             onToggleOverlay={handleToggleOverlay}
             onSplitAll={handleSplitAll}
             onSplitMain={handleSplitMain}
           />
         )}
       </NodeBody>
-      {showLayerDecomposePrompt && selected2 && (
+      {showLayerDecomposePrompt && selected && (
         <LayerDecomposePrompt
           prompt={layerDecomposePrompt}
           submitting={layerDecomposeSubmitting}
@@ -1808,22 +1808,22 @@ export function ImageNodeInner({
           onClose={closeLayerDecomposePrompt}
         />
       )}
-      {view2.rounds.length > 1 &&
+      {view.rounds.length > 1 &&
         !imageEditing &&
-        !rotate2.editing &&
+        !rotate.editing &&
         !showWatermarkPopover && (
           <RoundDots
-            count={view2.rounds.length}
-            activeIdx={view2.activeRoundIndex}
+            count={view.rounds.length}
+            activeIdx={view.activeRoundIndex}
             onSelect={handleSelectRound}
           />
         )}
       {isExpandedMediaOverlayVisible && (
         <MultiImageOverlay
           nodeId={imageNodeId}
-          view={view2}
-          cardWidth={rotate2.displayWidth}
-          cardHeight={rotate2.displayHeight}
+          view={view}
+          cardWidth={rotate.displayWidth}
+          cardHeight={rotate.displayHeight}
           closing={isExpandedMediaOverlayClosing}
           onSetPrimary={handleSetPrimary}
           onDeleteSub={handleDeleteSub}
@@ -1840,7 +1840,7 @@ export function ImageNodeInner({
           onClose={handleI2VClose}
           listVideoModels={fetchVideoModels}
           defaultImagePath={
-            typeof meta2?.path === "string" ? meta2.path : void 0
+            typeof meta?.path === "string" ? meta.path : void 0
           }
           selfAssetIds={selfAssetIds}
           defaultImagePaths={referenceImagePaths}
@@ -1870,7 +1870,7 @@ export function ImageNodeInner({
           hasUpstreamText={!!upstreamTextContent}
           referenceTextContent={upstreamTextContent}
           popoverGapOffset={
-            view2.rounds.length > 1 ? ROUND_DOTS_POPOVER_GAP_OFFSET : 0
+            view.rounds.length > 1 ? ROUND_DOTS_POPOVER_GAP_OFFSET : 0
           }
         />
       )}
@@ -1897,13 +1897,13 @@ export function ImageNodeInner({
           onAspectRatioChange={setEmptyAspectRatio}
           onSaveDraft={(draft) => savePopoverDraft(imageNodeId, "i2i", draft)}
           originalGenerationDraft={i2iRestoreOriginalDraft}
-          currentImageCount={view2.slots.length}
+          currentImageCount={view.slots.length}
           hasLoadingSlots={false}
           defaultTextPaths={defaultI2ITextPaths}
           hasUpstreamText={!!upstreamTextContent}
           referenceTextContent={upstreamTextContent}
           popoverGapOffset={
-            view2.rounds.length > 1 ? ROUND_DOTS_POPOVER_GAP_OFFSET : 0
+            view.rounds.length > 1 ? ROUND_DOTS_POPOVER_GAP_OFFSET : 0
           }
         />
       )}
@@ -1920,7 +1920,7 @@ export function ImageNodeInner({
         <MultiAnglePopover
           onClose={closeMultiAnglePopover}
           imageUrl={primaryUrl}
-          imagePath={meta2?.path}
+          imagePath={meta?.path}
         />
       )}
       {showStoryboardGridPopover && (
@@ -1928,9 +1928,9 @@ export function ImageNodeInner({
           onClose={closeStoryboardGridPopover}
           replaceNodeId={isStoryboardProduct ? imageNodeId : void 0}
           imageUrl={primaryUrl}
-          imagePath={meta2?.path}
+          imagePath={meta?.path}
           defaultPrompt={isStoryboardProduct ? primaryPrompt : void 0}
-          defaultParams={isStoryboardProduct ? meta2?.params : void 0}
+          defaultParams={isStoryboardProduct ? meta?.params : void 0}
           defaultReferencePaths={storyboardReferencePaths}
           resolveFileUrl={resolveFileUrl}
         />
@@ -1939,7 +1939,7 @@ export function ImageNodeInner({
         <RelightPopover
           onClose={closeRelightPopover}
           imageUrl={primaryUrl}
-          imagePath={meta2?.path}
+          imagePath={meta?.path}
           imageWidth={primaryWidth}
           imageHeight={primaryHeight}
         />
@@ -1972,12 +1972,12 @@ export function ImageNodeInner({
           }}
         />
       )}
-      {selected2 &&
+      {selected &&
         (displayImageOnly || isStoryboardProduct) &&
         isInteractiveSelect &&
         !isExpandedMediaOverlayVisible &&
         !isModalActive &&
-        !rotate2.editing &&
+        !rotate.editing &&
         !splitMode.editing &&
         !imageEditing &&
         !showWatermarkPopover && (
@@ -1995,11 +1995,11 @@ export function ImageNodeInner({
             onCommit={handleImageResizeCommit}
           />
         )}
-      <NodeHandles nodeId={imageNodeId} selected={!!selected2} />
+      <NodeHandles nodeId={imageNodeId} selected={!!selected} />
       {lightbox.lightboxProps && (
         <ImageLightbox
           {...lightbox.lightboxProps}
-          alt={meta2?.name ?? ""}
+          alt={meta?.name ?? ""}
           onSetAsPrimary={
             canSetLightboxPrimary ? handleSetLightboxPrimary : void 0
           }
@@ -2008,7 +2008,7 @@ export function ImageNodeInner({
           }
         />
       )}
-      {colorAdjust.open && meta2?.url && (
+      {colorAdjust.open && meta?.url && (
         <ColorAdjustDialog
           {...colorAdjust.dialogProps}
           onOpenChange={(nextOpen) => {
@@ -2047,8 +2047,8 @@ export function ImageNodeInner({
             }
             await colorAdjust.dialogProps.onConfirm(blob);
           }}
-          imageSrc={meta2.url}
-          fileName={meta2.name}
+          imageSrc={meta.url}
+          fileName={meta.name}
         />
       )}
     </NodeShell>
