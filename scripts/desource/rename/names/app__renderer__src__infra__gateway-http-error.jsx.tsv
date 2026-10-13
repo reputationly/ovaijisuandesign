@@ -1,2 +1,6 @@
 key	new	reason
 fn2@58:16	fn	原名 fn，去掉打包器加的数字去重后缀
+path2@98:11	path	去掉打包器加的数字后缀，恢复原名 path
+code2@100:11	code	去掉打包器加的数字后缀，恢复原名 code
+base2@123:9	base	去掉打包器加的数字后缀，恢复原名 base
+base2@132:9	base	去掉打包器加的数字后缀，恢复原名 base

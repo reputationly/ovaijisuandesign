@@ -6,3 +6,4 @@ wc@1036:11	waitCountStep	步骤中的 wait-count 配置
 ws@1044:11	waitStageStep	步骤中的 wait-stage 配置
 wc@1332:11	waitCountStep	步骤中的 wait-count 配置
 ws@1342:11	waitStageStep	步骤中的 wait-stage 配置
+value2@45:11	value	去掉打包器加的数字后缀，恢复原名 value

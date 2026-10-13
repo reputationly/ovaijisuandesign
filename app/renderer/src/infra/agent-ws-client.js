@@ -116,9 +116,9 @@ export class AgentWSClient {
     return false;
   }
   /** Send raw data */
-  sendRaw(data2) {
+  sendRaw(data) {
     if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(data2);
+      this.ws.send(data);
       return true;
     }
     return false;
@@ -139,21 +139,21 @@ export class AgentWSClient {
   }
   doConnect() {
     if (!this.active) return;
-    const url2 = new URL(this.url);
+    const url = new URL(this.url);
     if (this.workspaceClaim) {
-      url2.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, this.workspaceClaim);
+      url.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, this.workspaceClaim);
     }
     if (this.workspaceBinding) {
-      url2.searchParams.set(
+      url.searchParams.set(
         HILO_WORKSPACE_INSTANCE_QUERY,
         this.workspaceBinding.instanceId,
       );
-      url2.searchParams.set(
+      url.searchParams.set(
         HILO_WORKSPACE_GENERATION_QUERY,
         String(this.workspaceBinding.generation),
       );
     }
-    const ws = new WebSocket(url2.toString());
+    const ws = new WebSocket(url.toString());
     this.ws = ws;
     ws.onopen = () => {
       if (!this.active) {

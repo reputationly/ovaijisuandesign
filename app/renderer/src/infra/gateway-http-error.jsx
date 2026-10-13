@@ -95,20 +95,20 @@ export class GatewayHttpError extends Error {
   constructor({
     status,
     method,
-    path: path2,
+    path,
     detail,
-    code: code2,
+    code,
     details,
     userMessage,
   }) {
     super(
-      `Gateway ${method} ${path2} failed: ${status}${detail ? ` - ${detail}` : ""}`,
+      `Gateway ${method} ${path} failed: ${status}${detail ? ` - ${detail}` : ""}`,
     );
     this.name = "GatewayHttpError";
     this.status = status;
     this.method = method;
-    this.path = path2;
-    this.code = code2;
+    this.path = path;
+    this.code = code;
     this.details = details;
     this.userMessage = userMessage;
   }
@@ -120,16 +120,16 @@ export function gatewayUrlFromBase(baseUrl, path2, workspaceIdentity) {
   if (typeof workspaceIdentity === "object") {
     return workspaceGatewayUrl(workspaceIdentity, path2);
   }
-  const base2 = normalizeGatewayBaseUrl(baseUrl);
-  if (!base2) return void 0;
-  const result = new URL(`${base2}${path2}`);
+  const base = normalizeGatewayBaseUrl(baseUrl);
+  if (!base) return void 0;
+  const result = new URL(`${base}${path2}`);
   if (workspaceIdentity) {
     result.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, workspaceIdentity);
   }
   return result.toString();
 }
 export function gatewayUrl(path2) {
-  const base2 = getBaseUrl();
-  return gatewayUrlFromBase(base2, path2);
+  const base = getBaseUrl();
+  return gatewayUrlFromBase(base, path2);
 }
 export const FeedbackContext = reactExports.createContext(null);

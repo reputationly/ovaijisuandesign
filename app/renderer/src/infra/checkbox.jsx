@@ -22,13 +22,13 @@ export function Checkbox({
   const id = providedId ?? `checkbox-${generatedId}`;
   const gradientId = `checkbox-gradient-${generatedId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const handleInputRef = reactExports.useCallback(
-    (node2) => {
-      if (node2) {
-        if (form) node2.setAttribute("form", form);
-        else node2.removeAttribute("form");
+    (node) => {
+      if (node) {
+        if (form) node.setAttribute("form", form);
+        else node.removeAttribute("form");
       }
-      if (typeof inputRef === "function") return inputRef(node2);
-      if (inputRef) inputRef.current = node2;
+      if (typeof inputRef === "function") return inputRef(node);
+      if (inputRef) inputRef.current = node;
     },
     [inputRef, form],
   );
@@ -61,10 +61,10 @@ export function Checkbox({
       data-appearance={appearance}
       aria-invalid={error ? true : props["aria-invalid"]}
       aria-describedby={describedBy}
-      className={(state2) =>
+      className={(state) =>
         cn(
           "peer hilo-checkbox",
-          typeof className === "function" ? className(state2) : className,
+          typeof className === "function" ? className(state) : className,
         )
       }
     >

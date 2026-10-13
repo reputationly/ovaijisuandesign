@@ -16,11 +16,11 @@ function getModalPresenceSnapshot() {
   return activeIds.size;
 }
 export function useHasBlockingModal() {
-  const count2 = reactExports.useSyncExternalStore(
+  const count = reactExports.useSyncExternalStore(
     subscribeModalPresence,
     getModalPresenceSnapshot,
   );
-  return count2 > 0;
+  return count > 0;
 }
 export const BLOCKING_MODAL_IDS = {
   watermarkOnboarding: "watermark-onboarding",
@@ -71,8 +71,8 @@ let lastReleaseAt = 0;
 let firstEnqueueAt = null;
 let timer = null;
 function priorityOf(id) {
-  const index2 = config.order.indexOf(id);
-  return index2 === -1 ? config.order.length : index2;
+  const index = config.order.indexOf(id);
+  return index === -1 ? config.order.length : index;
 }
 function clearTimer() {
   if (timer === null) return;
@@ -88,13 +88,13 @@ function schedule() {
     (id) => !config.disabled.includes(id),
   );
   if (eligible.length === 0) return;
-  const now2 = Date.now();
+  const now = Date.now();
   const readyAt =
     grantCount === 0
-      ? (firstEnqueueAt ?? now2) + config.firstGrantDelayMs
+      ? (firstEnqueueAt ?? now) + config.firstGrantDelayMs
       : lastReleaseAt + config.minGapMs;
-  if (now2 < readyAt) {
-    timer = setTimeout(schedule, readyAt - now2);
+  if (now < readyAt) {
+    timer = setTimeout(schedule, readyAt - now);
     return;
   }
   eligible.sort(
@@ -106,14 +106,14 @@ function schedule() {
     .filter(
       ([id, reservation]) =>
         reservation.active &&
-        reservation.deadline > now2 &&
+        reservation.deadline > now &&
         !config.disabled.includes(id) &&
         !candidates.has(id) &&
         priorityOf(id) < priorityOf(eligible[0]),
     )
     .map(([, reservation]) => reservation.deadline);
   if (blockingDeadlines.length > 0) {
-    timer = setTimeout(schedule, Math.min(...blockingDeadlines) - now2);
+    timer = setTimeout(schedule, Math.min(...blockingDeadlines) - now);
     return;
   }
   holderId = eligible[0];
@@ -189,11 +189,11 @@ export function useModalSlot(id, options) {
     enqueueModalCandidate(id);
     return () => withdrawModalCandidate(id);
   }, [id, candidate]);
-  const holderId2 = reactExports.useSyncExternalStore(
+  const holderId = reactExports.useSyncExternalStore(
     subscribeModalScheduler,
     getModalSlotHolderSnapshot,
   );
-  return candidate && holderId2 === id;
+  return candidate && holderId === id;
 }
 export function useModalSlotWithLoading(id, options) {
   const {
@@ -214,11 +214,11 @@ export function useModalSlotWithLoading(id, options) {
     else withdrawModalCandidate(id);
     if (!loading) endModalLoadingWait(id);
   }, [id, candidate, loading, loadingTimeoutMs]);
-  const holderId2 = reactExports.useSyncExternalStore(
+  const holderId = reactExports.useSyncExternalStore(
     subscribeModalScheduler,
     getModalSlotHolderSnapshot,
   );
-  return candidate && holderId2 === id;
+  return candidate && holderId === id;
 }
 export function useModalSchedulerSuspension(id, active2) {
   reactExports.useEffect(() => {
@@ -282,10 +282,10 @@ function buildProjectInviteQuery(input) {
 }
 export function buildProjectInviteWebLink(input) {
   const environment = input.channel === "prod" ? "prod" : "test";
-  const url2 = new URL(
+  const url = new URL(
     "/project-invite",
     HUB_WEB_INVITE_DOMAINS[environment][input.region],
   );
-  url2.search = buildProjectInviteQuery(input);
-  return url2.toString();
+  url.search = buildProjectInviteQuery(input);
+  return url.toString();
 }

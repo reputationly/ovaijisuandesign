@@ -50,46 +50,46 @@ export function useProjectAssetsService() {
   );
 }
 export function useTransfers() {
-  const service2 = useProjectAssetsService();
+  const service = useProjectAssetsService();
   const [transfers, setTransfers] = reactExports.useState([]);
   reactExports.useEffect(() => {
     let disposed = false;
-    void service2.listTransfers().then((items) => {
+    void service.listTransfers().then((items) => {
       if (!disposed) setTransfers(items);
     });
-    void service2.refreshReviewingTransfers();
-    const subscription = service2.onDidChangeTransfer((item) => {
-      setTransfers((previous2) => {
-        const index2 = previous2.findIndex((entry) => entry.id === item.id);
-        if (index2 === -1) return [item, ...previous2];
-        const next2 = [...previous2];
-        next2[index2] = item;
-        return next2;
+    void service.refreshReviewingTransfers();
+    const subscription = service.onDidChangeTransfer((item) => {
+      setTransfers((previous) => {
+        const index = previous.findIndex((entry) => entry.id === item.id);
+        if (index === -1) return [item, ...previous];
+        const next = [...previous];
+        next[index] = item;
+        return next;
       });
     });
     return () => {
       disposed = true;
       subscription.dispose();
     };
-  }, [service2]);
+  }, [service]);
   const cancelTransfer = reactExports.useCallback(
     (id) => {
-      void service2.cancelTransfer(id);
+      void service.cancelTransfer(id);
     },
-    [service2],
+    [service],
   );
   const clearFinished = reactExports.useCallback(() => {
-    setTransfers((previous2) => previous2.filter(isLive));
-    void service2.clearFinishedTransfers();
-  }, [service2]);
+    setTransfers((previous) => previous.filter(isLive));
+    void service.clearFinishedTransfers();
+  }, [service]);
   const removeTransfer = reactExports.useCallback(
     (id) => {
-      setTransfers((previous2) =>
-        previous2.filter((item) => item.id !== id || isLive(item)),
+      setTransfers((previous) =>
+        previous.filter((item) => item.id !== id || isLive(item)),
       );
-      void service2.removeTransfer(id);
+      void service.removeTransfer(id);
     },
-    [service2],
+    [service],
   );
   const activeCount = reactExports.useMemo(
     () => transfers.filter(isLive).length,
@@ -104,29 +104,29 @@ export function useTransfers() {
   };
 }
 export function rejectionToastText(t, rejected) {
-  const name2 = rejected.fileName;
+  const rejectedFileName = rejected.fileName;
   switch (rejected.rejection) {
     case "unsupported-type":
       return t("cloudAssets.rejectUnsupported", {
-        name: name2,
+        name: rejectedFileName,
       });
     case "file-too-large":
       return t("cloudAssets.rejectTooLarge", {
-        name: name2,
+        name: rejectedFileName,
       });
     case "duration-exceeded":
       return t("cloudAssets.rejectTooLong", {
-        name: name2,
+        name: rejectedFileName,
       });
     case "no-local-path":
       return t("cloudAssets.rejectNoPath", {
-        name: name2,
+        name: rejectedFileName,
       });
     case "name-safety-blocked":
       return t("rename.safetyBlocked");
     default:
       return t("cloudAssets.rejectUnsupported", {
-        name: name2,
+        name: rejectedFileName,
       });
   }
 }
@@ -194,16 +194,16 @@ export function NewFolderDialog({
   onCreated,
 }) {
   const { t } = useTranslation();
-  const [name2, setName] = reactExports.useState("");
-  const [pending2, setPending] = reactExports.useState(false);
-  const trimmed = name2.trim();
+  const [folderName, setFolderName] = reactExports.useState("");
+  const [pending, setPending] = reactExports.useState(false);
+  const trimmed = folderName.trim();
   reactExports.useEffect(() => {
     if (open) return;
-    setName("");
+    setFolderName("");
     setPending(false);
   }, [open]);
   const handleConfirm = reactExports.useCallback(async () => {
-    if (!trimmed || pending2) return;
+    if (!trimmed || pending) return;
     setPending(true);
     try {
       const safety = await checkTextSafety(trimmed);
@@ -221,7 +221,7 @@ export function NewFolderDialog({
     } finally {
       setPending(false);
     }
-  }, [onCreated, onOpenChange, parentId, pending2, projectId, t, trimmed]);
+  }, [onCreated, onOpenChange, parentId, pending, projectId, t, trimmed]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -238,8 +238,8 @@ export function NewFolderDialog({
         </DialogHeader>
         <Input3
           autoFocus={true}
-          value={name2}
-          onChange={(event) => setName(event.target.value)}
+          value={folderName}
+          onChange={(event) => setFolderName(event.target.value)}
           onKeyDown={(event) => {
             if (event.key !== "Enter") return;
             event.preventDefault();
@@ -259,7 +259,7 @@ export function NewFolderDialog({
           </Button>
           <Button
             size="sm"
-            disabled={!trimmed || pending2}
+            disabled={!trimmed || pending}
             onClick={() => void handleConfirm()}
           >
             {t("common.confirm")}

@@ -66,15 +66,15 @@ async function tryFetchOpenCodeSessionExport(
       if (false);
       return void 0;
     }
-    const body2 = await res.json();
+    const body = await res.json();
     if (
-      typeof body2 !== "object" ||
-      body2 === null ||
-      !("payload" in body2) ||
-      body2.payload == null
+      typeof body !== "object" ||
+      body === null ||
+      !("payload" in body) ||
+      body.payload == null
     )
       return void 0;
-    return JSON.stringify(body2.payload);
+    return JSON.stringify(body.payload);
   } catch (err) {
     return void 0;
   }
@@ -102,9 +102,9 @@ export async function submitFeedback(input, options = {}) {
       throw new Error("Feedback account changed");
     }
   };
-  const withIdentity = (fetch2) => async (path2, init2) => {
+  const withIdentity = (baseFetch) => async (path, init) => {
     await assertIdentity();
-    return fetch2(path2, init2);
+    return baseFetch(path, init);
   };
   const fetchFeedback = withIdentity(options.fetch ?? gatewayFetch);
   const fetchSession = options.exportFetch
@@ -114,12 +114,12 @@ export async function submitFeedback(input, options = {}) {
   recordAction("feedback:submit", {
     source: input.source,
   });
-  const platform2 = getPlatform();
-  const config2 = getRuntimeConfig();
+  const platform = getPlatform();
+  const config = getRuntimeConfig();
   const reason = input.logUploadReason ?? `user_feedback:${input.source}`;
   const isFeatureRequest = input.category === "feature_request";
   await readUserId();
-  const workspaceId2 = input.workspaceId ?? readWorkspaceId();
+  const workspaceId = input.workspaceId ?? readWorkspaceId();
   const attachmentUrls = input.files?.length
     ? await Promise.all(
         input.files
@@ -181,11 +181,11 @@ export async function submitFeedback(input, options = {}) {
     attachmentUrls: attachmentUrls.length > 0 ? attachmentUrls : void 0,
     idempotencyKey: input.idempotencyKey ?? crypto.randomUUID(),
     metadata: {
-      app_version: config2?.appVersion ?? "unknown",
-      build_channel: config2?.channel ?? "unknown",
-      os: platform2?.app?.os ?? "unknown",
-      workspace_id: isFeatureRequest ? "" : workspaceId2,
-      region: config2?.region ?? "domestic",
+      app_version: config?.appVersion ?? "unknown",
+      build_channel: config?.channel ?? "unknown",
+      os: platform?.app?.os ?? "unknown",
+      workspace_id: isFeatureRequest ? "" : workspaceId,
+      region: config?.region ?? "domestic",
       locale: input.locale ?? (instance.language || "en"),
       current_route: isFeatureRequest ? void 0 : input.currentRoute,
       trace_id: resolvedTraceId,

@@ -16,7 +16,7 @@ import { getNetworkDiagnosticsMainService } from "../team/copy-icon-button.jsx";
 import { reportRumAction, reportRumError } from "../i18n/init-rum.js";
 function buildWorkspaceStartupRumContext(status) {
   const evidence = status.diagnosis?.evidence;
-  const meta2 = status.diagnosis?.code
+  const meta = status.diagnosis?.code
     ? WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY[status.diagnosis.code]
     : void 0;
   return {
@@ -25,9 +25,9 @@ function buildWorkspaceStartupRumContext(status) {
     runtime_component: "renderer",
     failure_id: status.diagnosis?.failureId,
     diagnosis_code: status.diagnosis?.code,
-    diagnosis_category: meta2?.category,
-    diagnosis_severity: meta2?.severity,
-    support_runbook: meta2?.runbook,
+    diagnosis_category: meta?.category,
+    diagnosis_severity: meta?.severity,
+    support_runbook: meta?.runbook,
     bundle_state: status.state,
     revision: status.revision,
     error: status.error,
@@ -232,15 +232,15 @@ function setUploadPromise(failureId, promise) {
   }
 }
 function isUserFacingStatusError(error) {
-  const message2 = error?.trim();
-  if (!message2) return false;
-  const normalized = message2.toLowerCase();
+  const message = error?.trim();
+  if (!message) return false;
+  const normalized = message.toLowerCase();
   return !INTERNAL_ERROR_MARKERS.some((marker) =>
     normalized.includes(marker.toLowerCase()),
   );
 }
-function normalizeDisplayMessage(message2) {
-  return message2.replace(/[。.!！\s]/g, "").toLowerCase();
+function normalizeDisplayMessage(message) {
+  return message.replace(/[。.!！\s]/g, "").toLowerCase();
 }
 export function BundleErrorScreen({
   status,
@@ -274,7 +274,7 @@ export function BundleErrorScreen({
   const retryHintActive = useRetryHintActive(status.retryAfter?.blockedUntilMs);
   const errorTitle = diagnosis?.title ?? t("bundleError.title");
   const rawStatusError = status.error?.trim() || void 0;
-  const errorMessage2 =
+  const errorMessage =
     diagnosis?.message ??
     (isUserFacingStatusError(rawStatusError)
       ? rawStatusError
@@ -316,7 +316,7 @@ export function BundleErrorScreen({
   });
   const mainTitle = diagnosis?.title ?? errorTitle;
   const shouldShowErrorMessage =
-    normalizeDisplayMessage(errorMessage2) !==
+    normalizeDisplayMessage(errorMessage) !==
     normalizeDisplayMessage(mainTitle);
   const supportStatusText =
     autoUploadState === "uploading"
@@ -408,15 +408,15 @@ export function BundleErrorScreen({
     if (!autoUploadDiagnostics || status.state !== "failed") return;
     const existing = AUTO_UPLOAD_PROMISES.get(uploadDedupKey);
     if (existing) {
-      let cancelled2 = false;
+      let cancelled = false;
       setAutoUploadState("uploading");
       void existing.then((ctx) => {
-        if (cancelled2) return;
+        if (cancelled) return;
         setAutoUploadState(ctx.success ? "done" : "error");
         setFeedbackUpload(ctx);
       });
       return () => {
-        cancelled2 = true;
+        cancelled = true;
       };
     }
     let cancelled = false;
@@ -525,7 +525,7 @@ export function BundleErrorScreen({
               "日志已上传，可按用户 ID + 反馈码或日志定位路径查找。",
           })}`
         : void 0;
-      const text2 = [
+      const text = [
         `${userIdLabel}: ${userIdDisplayValue}`,
         `${feedbackCodeLabel}: ${failureId ?? "N/A"}`,
         `${diagnosisCodeLabel}: ${status.diagnosis?.code ?? "unknown"}`,
@@ -534,7 +534,7 @@ export function BundleErrorScreen({
       ]
         .filter(Boolean)
         .join("\n");
-      await navigator.clipboard.writeText(text2);
+      await navigator.clipboard.writeText(text);
       dedupedToast.success(t("common.copied"));
     } catch {
       dedupedToast.error(t("common.copyFailed"));
@@ -563,18 +563,18 @@ export function BundleErrorScreen({
       setNetworkRecoveryState("idle");
     }
   };
-  const handleProxyModeRetry = async (mode2) => {
+  const handleProxyModeRetry = async (mode) => {
     if (!diagnosticsActionsEnabled || networkRecoveryState !== "idle") return;
-    setNetworkRecoveryState(mode2);
+    setNetworkRecoveryState(mode);
     try {
       const result =
-        await getNetworkDiagnosticsMainService().setProxyMode(mode2);
+        await getNetworkDiagnosticsMainService().setProxyMode(mode);
       if (!result.success) {
         throw new Error(`set proxy mode failed: ${result.mode}`);
       }
       reportRumAction("Workspace 启动失败-切换网络模式并重试", {
         ...diagnosticContext,
-        network_proxy_mode: mode2,
+        network_proxy_mode: mode,
       });
       try {
         await runFullNetworkDiagnostics();
@@ -607,7 +607,7 @@ export function BundleErrorScreen({
               </h2>
               {shouldShowErrorMessage ? (
                 <p className="mt-1 text-sm leading-5 text-muted-foreground break-words">
-                  {errorMessage2}
+                  {errorMessage}
                 </p>
               ) : null}
               <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-xs leading-5 text-muted-foreground">
@@ -630,13 +630,13 @@ export function BundleErrorScreen({
           </p>
           {diagnosis?.suggestions.length ? (
             <ol className="mt-3 space-y-2">
-              {diagnosis.suggestions.map((suggestion, index2) => (
+              {diagnosis.suggestions.map((suggestion, index) => (
                 <li
                   key={suggestion}
                   className="flex gap-2.5 text-sm text-muted-foreground"
                 >
                   <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-[11px] font-medium text-foreground">
-                    {index2 + 1}
+                    {index + 1}
                   </span>
                   <span className="min-w-0 leading-5">{suggestion}</span>
                 </li>

@@ -26,20 +26,20 @@ function safeStringifyDetail(detail) {
   }
 }
 
-function handleEntries(list2) {
-  for (const entry of list2.getEntries()) {
+function handleEntries(list) {
+  for (const entry of list.getEntries()) {
     if (!entry.name.startsWith(PERF_PREFIX)) continue;
     const threshold = PERF_SLOW_THRESHOLDS[entry.name] ?? PERF_SLOW_DEFAULT_MS;
     const dur = Math.round(entry.duration * 100) / 100;
     if (dur < threshold) continue;
     const detail = entry.detail;
-    const record2 = {
+    const record = {
       name: entry.name,
       durationMs: dur,
       detail: detail ?? void 0,
       ts: Date.now(),
     };
-    recentSlowMeasures.push(record2);
+    recentSlowMeasures.push(record);
     if (recentSlowMeasures.length > MAX_BUFFER) {
       recentSlowMeasures.shift();
     }
@@ -58,8 +58,8 @@ function normalizeEntryTimestamp(entry) {
   return Date.now();
 }
 
-function handleLongTaskEntries(list2) {
-  for (const entry of list2.getEntries()) {
+function handleLongTaskEntries(list) {
+  for (const entry of list.getEntries()) {
     const ts = normalizeEntryTimestamp(entry);
     const attribution = entry.attribution;
     recentLongTasks.push({

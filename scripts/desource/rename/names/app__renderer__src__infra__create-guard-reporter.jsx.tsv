@@ -1,2 +1,5 @@
 key	new	reason
 d2@38:13	keyDelta	本次 delta 中该键的增量，累加到 totals 与窗口统计
+window2@17:7	windowCounters	当前统计窗口的计数器；window 是全局名
+timer2@18:7	timer	去掉打包器加的数字后缀，恢复原名 timer
+key2@37:16	key	去掉打包器加的数字后缀，恢复原名 key

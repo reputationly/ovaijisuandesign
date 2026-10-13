@@ -7,3 +7,23 @@ t2@163:14	t	useTranslation() 返回的翻译函数 t
 e2@182:19	clickEvent	onClick 回调收到的事件对象
 e2@186:23	mouseEvent	onMouseDown 回调收到的事件对象
 k2@40:15	entryId	active 映射中条目的 ID，记为最早的候选
+holderId2@19:30	holderId	去掉打包器加的数字后缀，恢复原名 holderId
+next2@21:9	next	去掉打包器加的数字后缀，恢复原名 next
+active2@25:28	active	去掉打包器加的数字后缀，恢复原名 active
+oldestId2@26:7	oldestId	去掉打包器加的数字后缀，恢复原名 oldestId
+active2@37:19	active	去掉打包器加的数字后缀，恢复原名 active
+set2@50:23	set	去掉打包器加的数字后缀，恢复原名 set
+get3@50:29	get	去掉打包器加的数字后缀，恢复原名 get
+holderId2@53:27	holderId	去掉打包器加的数字后缀，恢复原名 holderId
+next2@84:13	next	去掉打包器加的数字后缀，恢复原名 next
+next22@57:15	next	去掉打包器加的数字后缀，恢复原名 next
+next22@69:15	next	去掉打包器加的数字后缀，恢复原名 next
+holderId2@96:30	holderId	去掉打包器加的数字后缀，恢复原名 holderId
+next2@111:13	next	去掉打包器加的数字后缀，恢复原名 next
+next22@100:15	next	去掉打包器加的数字后缀，恢复原名 next
+holderId2@125:23	holderId	去掉打包器加的数字后缀，恢复原名 holderId
+next2@129:13	next	去掉打包器加的数字后缀，恢复原名 next
+selector2@154:33	selector	去掉打包器加的数字后缀，恢复原名 selector
+displayName2@162:47	displayName	去掉打包器加的数字后缀，恢复原名 displayName
+holderId2@207:10	holderId	去掉打包器加的数字后缀，恢复原名 holderId
+key2@228:19	key	去掉打包器加的数字后缀，恢复原名 key

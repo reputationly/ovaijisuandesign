@@ -39,19 +39,19 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 export function splitMentionFilename(filename) {
-  const dot2 = filename.lastIndexOf(".");
-  if (dot2 <= 0 || dot2 >= filename.length - 1)
+  const dot = filename.lastIndexOf(".");
+  if (dot <= 0 || dot >= filename.length - 1)
     return {
       stem: filename,
       ext: "",
     };
   return {
-    stem: filename.slice(0, dot2),
-    ext: filename.slice(dot2),
+    stem: filename.slice(0, dot),
+    ext: filename.slice(dot),
   };
 }
 export const Input = reactExports.forwardRef(
-  function Input2(props, forwardedRef) {
+  function Input(props, forwardedRef) {
     return <FieldControl ref={forwardedRef} {...props} />;
   },
 );
@@ -337,13 +337,13 @@ export function useBrowserOverlayDialogProps(
     ...props,
     defaultOpen: void 0,
     open,
-    onOpenChange(next2, details) {
-      props.onOpenChange?.(next2, details);
-      if (!details.isCanceled) setUncontrolledOpen(next2);
+    onOpenChange(next, details) {
+      props.onOpenChange?.(next, details);
+      if (!details.isCanceled) setUncontrolledOpen(next);
     },
-    onOpenChangeComplete(next2) {
-      if (!next2) setVisible(false);
-      props.onOpenChangeComplete?.(next2);
+    onOpenChangeComplete(next) {
+      if (!next) setVisible(false);
+      props.onOpenChangeComplete?.(next);
     },
   };
 }

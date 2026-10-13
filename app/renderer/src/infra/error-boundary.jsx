@@ -26,8 +26,8 @@ export class ErrorBoundary extends reactExports.Component {
       error,
     };
   }
-  componentDidCatch(error, info2) {
-    const diagnostic = logErrorBoundary(error, info2.componentStack);
+  componentDidCatch(error, info) {
+    const diagnostic = logErrorBoundary(error, info.componentStack);
     this.setState({
       diagnostic,
     });
@@ -74,14 +74,14 @@ export async function optimisticallyRemoveAssets({
   await qc.cancelQueries({
     queryKey,
   });
-  const snapshot2 = qc.getQueryData(queryKey);
+  const snapshot = qc.getQueryData(queryKey);
   const removed = new Set(paths);
   qc.setQueryData(queryKey, (prev) =>
     prev ? prev.filter((asset) => !removed.has(asset.path)) : prev,
   );
   return {
     queryKey,
-    assets: snapshot2,
+    assets: snapshot,
   };
 }
 
@@ -122,10 +122,10 @@ function observeFirstProgress(trace) {
     return;
   }
   if (trace.status === "received" || trace.status === "accepted") return;
-  const start2 = firstProgressStartByClientId.get(trace.clientMessageId);
+  const start = firstProgressStartByClientId.get(trace.clientMessageId);
   firstProgressStartByClientId.delete(trace.clientMessageId);
-  if (start2 === void 0 || trace.status !== "started") return;
-  measurePerf(PERF_CHAT_FIRST_PROGRESS, start2, {
+  if (start === void 0 || trace.status !== "started") return;
+  measurePerf(PERF_CHAT_FIRST_PROGRESS, start, {
     sessionId: trace.sessionId,
     delivery: trace.delivery,
   });

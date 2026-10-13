@@ -45,12 +45,12 @@ function buildWarnings(input) {
   }
   return warnings;
 }
-function snapshotFromState(state2) {
+function snapshotFromState(state) {
   const byKind = {};
   const uniquePaths = new Set();
   let heavyMountedCount = 0;
   let deniedHeavyCount = 0;
-  for (const viewer of state2.fileViewers.values()) {
+  for (const viewer of state.fileViewers.values()) {
     if (!viewer.admitted) {
       if (HEAVY_FILE_VIEWER_KINDS.has(viewer.kind)) deniedHeavyCount += 1;
       continue;
@@ -59,21 +59,21 @@ function snapshotFromState(state2) {
     uniquePaths.add(viewer.filePath);
     if (HEAVY_FILE_VIEWER_KINDS.has(viewer.kind)) heavyMountedCount += 1;
   }
-  const mountedCount = [...state2.fileViewers.values()].filter(
+  const mountedCount = [...state.fileViewers.values()].filter(
     (viewer) => viewer.admitted,
   ).length;
   const warnings = buildWarnings({
-    canvasNodeCount: state2.canvasNodeCount,
-    canvasFileNodeCount: state2.canvasFileNodeCount,
+    canvasNodeCount: state.canvasNodeCount,
+    canvasFileNodeCount: state.canvasFileNodeCount,
     mountedFileViewerCount: mountedCount,
     heavyFileViewerCount: heavyMountedCount,
     deniedHeavyViewerCount: deniedHeavyCount,
   });
   return {
     canvas: {
-      nodeCount: state2.canvasNodeCount,
-      edgeCount: state2.canvasEdgeCount,
-      fileNodeCount: state2.canvasFileNodeCount,
+      nodeCount: state.canvasNodeCount,
+      edgeCount: state.canvasEdgeCount,
+      fileNodeCount: state.canvasFileNodeCount,
     },
     fileViewers: {
       mountedCount,
@@ -84,14 +84,14 @@ function snapshotFromState(state2) {
     },
     warnings,
     overBudget: warnings.length > 0,
-    updatedAtMs: state2.updatedAtMs,
+    updatedAtMs: state.updatedAtMs,
   };
 }
 function emptySnapshot() {
   return snapshotFromState(createState());
 }
-function aggregateSnapshots(snapshots2) {
-  if (snapshots2.length === 0) {
+function aggregateSnapshots(snapshots) {
+  if (snapshots.length === 0) {
     return {
       ...emptySnapshot(),
       workspaces: {
@@ -110,20 +110,20 @@ function aggregateSnapshots(snapshots2) {
   let uniquePathCount = 0;
   let updatedAtMs = 0;
   let overBudgetCount = 0;
-  for (const snapshot2 of snapshots2) {
-    nodeCount += snapshot2.canvas.nodeCount;
-    edgeCount += snapshot2.canvas.edgeCount;
-    fileNodeCount += snapshot2.canvas.fileNodeCount;
-    mountedCount += snapshot2.fileViewers.mountedCount;
-    heavyMountedCount += snapshot2.fileViewers.heavyMountedCount;
-    deniedHeavyCount += snapshot2.fileViewers.deniedHeavyCount;
-    uniquePathCount += snapshot2.fileViewers.uniquePathCount;
-    updatedAtMs = Math.max(updatedAtMs, snapshot2.updatedAtMs);
-    if (snapshot2.overBudget) overBudgetCount += 1;
-    for (const [kind, count2] of Object.entries(snapshot2.fileViewers.byKind)) {
-      if (!count2) continue;
+  for (const snapshot of snapshots) {
+    nodeCount += snapshot.canvas.nodeCount;
+    edgeCount += snapshot.canvas.edgeCount;
+    fileNodeCount += snapshot.canvas.fileNodeCount;
+    mountedCount += snapshot.fileViewers.mountedCount;
+    heavyMountedCount += snapshot.fileViewers.heavyMountedCount;
+    deniedHeavyCount += snapshot.fileViewers.deniedHeavyCount;
+    uniquePathCount += snapshot.fileViewers.uniquePathCount;
+    updatedAtMs = Math.max(updatedAtMs, snapshot.updatedAtMs);
+    if (snapshot.overBudget) overBudgetCount += 1;
+    for (const [kind, count] of Object.entries(snapshot.fileViewers.byKind)) {
+      if (!count) continue;
       const viewerKind = kind;
-      byKind[viewerKind] = (byKind[viewerKind] ?? 0) + count2;
+      byKind[viewerKind] = (byKind[viewerKind] ?? 0) + count;
     }
   }
   const warnings = buildWarnings({
@@ -149,7 +149,7 @@ function aggregateSnapshots(snapshots2) {
     overBudget: warnings.length > 0 || overBudgetCount > 0,
     updatedAtMs,
     workspaces: {
-      count: snapshots2.length,
+      count: snapshots.length,
       overBudgetCount,
     },
   };

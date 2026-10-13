@@ -13,7 +13,7 @@ function isSamePluginOpenRequest(left, right) {
   );
 }
 export function createHtmlFullscreenStore() {
-  return createStore((set2) => ({
+  return createStore((set) => ({
     nodeId: null,
     containerEl: null,
     containerElByNode: new Map(),
@@ -21,16 +21,16 @@ export function createHtmlFullscreenStore() {
     presentation: null,
     returnPresentation: null,
     enter: (nodeId, request, presentation = "fullscreen") =>
-      set2((state2) => {
+      set((state) => {
         const nextRequest = request ?? null;
         if (
-          state2.nodeId === nodeId &&
-          isSamePluginOpenRequest(state2.pluginOpenRequest, nextRequest) &&
-          state2.presentation === presentation
+          state.nodeId === nodeId &&
+          isSamePluginOpenRequest(state.pluginOpenRequest, nextRequest) &&
+          state.presentation === presentation
         ) {
-          return state2;
+          return state;
         }
-        const containerEl = state2.containerElByNode.get(nodeId) ?? null;
+        const containerEl = state.containerElByNode.get(nodeId) ?? null;
         return {
           nodeId,
           containerEl,
@@ -40,21 +40,21 @@ export function createHtmlFullscreenStore() {
         };
       }),
     setPresentation: (nodeId, presentation) =>
-      set2((state2) => {
-        if (state2.nodeId !== nodeId) return state2;
+      set((state) => {
+        if (state.nodeId !== nodeId) return state;
         return {
           presentation,
           returnPresentation:
-            presentation === "fullscreen" && state2.presentation === "canvas"
+            presentation === "fullscreen" && state.presentation === "canvas"
               ? "canvas"
               : null,
         };
       }),
     leaveFullscreen: (nodeId) =>
-      set2((state2) => {
-        if (state2.nodeId !== nodeId || state2.presentation !== "fullscreen")
-          return state2;
-        if (state2.returnPresentation === "canvas") {
+      set((state) => {
+        if (state.nodeId !== nodeId || state.presentation !== "fullscreen")
+          return state;
+        if (state.returnPresentation === "canvas") {
           return {
             presentation: "canvas",
             returnPresentation: null,
@@ -69,8 +69,8 @@ export function createHtmlFullscreenStore() {
         };
       }),
     exit: (nodeId) =>
-      set2((state2) => {
-        if (state2.nodeId !== nodeId) return state2;
+      set((state) => {
+        if (state.nodeId !== nodeId) return state;
         return {
           nodeId: null,
           containerEl: null,
@@ -80,28 +80,28 @@ export function createHtmlFullscreenStore() {
         };
       }),
     setContainerEl: (nodeId, el) =>
-      set2((state2) => {
-        const existing = state2.containerElByNode.get(nodeId);
-        const isCurrent = state2.nodeId === nodeId;
+      set((state) => {
+        const existing = state.containerElByNode.get(nodeId);
+        const isCurrent = state.nodeId === nodeId;
         if (existing === el) {
-          if (isCurrent && state2.containerEl !== el) {
+          if (isCurrent && state.containerEl !== el) {
             return {
               containerEl: el,
             };
           }
-          return state2;
+          return state;
         }
-        const nextRegistry = new Map(state2.containerElByNode);
+        const nextRegistry = new Map(state.containerElByNode);
         if (el) {
           nextRegistry.set(nodeId, el);
         } else {
           nextRegistry.delete(nodeId);
         }
-        const patch2 = {
+        const patch = {
           containerElByNode: nextRegistry,
         };
-        if (isCurrent) patch2.containerEl = el;
-        return patch2;
+        if (isCurrent) patch.containerEl = el;
+        return patch;
       }),
   }));
 }

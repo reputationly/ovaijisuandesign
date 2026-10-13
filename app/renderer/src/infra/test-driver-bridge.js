@@ -42,13 +42,13 @@ function readAttr(selector, attr, index) {
         error: `Element not found: ${selector}`,
       };
     }
-    const value2 = el.getAttribute(attr);
+    const value = el.getAttribute(attr);
     return {
       index: 0,
       action,
       status: "ok",
       duration: performance.now() - start,
-      detail: { value: value2, present: value2 !== null, matched: 1 },
+      detail: { value, present: value !== null, matched: 1 },
     };
   }
   const all = document.querySelectorAll(selector);

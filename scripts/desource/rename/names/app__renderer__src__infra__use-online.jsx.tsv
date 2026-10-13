@@ -1,2 +1,11 @@
 key	new	reason
 e2@223:37	dragEvent	写入 dataTransfer 的拖拽事件
+body2@23:33	body	去掉打包器加的数字后缀，恢复原名 body
+mode2@38:45	mode	去掉打包器加的数字后缀，恢复原名 mode
+path2@44:9	path	去掉打包器加的数字后缀，恢复原名 path
+url2@45:9	url	去掉打包器加的数字后缀，恢复原名 url
+timer2@50:9	timer	去掉打包器加的数字后缀，恢复原名 timer
+body2@62:9	body	去掉打包器加的数字后缀，恢复原名 body
+lower2@142:9	lower	去掉打包器加的数字后缀，恢复原名 lower
+queryClient2@207:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+mode2@210:32	mode	去掉打包器加的数字后缀，恢复原名 mode

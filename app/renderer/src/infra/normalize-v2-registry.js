@@ -7,8 +7,8 @@ import {
   seedTagRegistry,
 } from "./parse-connector-selection.js";
 
-function isCanvasTagColor(color2) {
-  return CANVAS_TAG_COLOR_PALETTE.includes(color2);
+function isCanvasTagColor(color) {
+  return CANVAS_TAG_COLOR_PALETTE.includes(color);
 }
 
 const PRESET_COLOR_TAG_ID_SET = new Set(Object.values(PRESET_COLOR_TAG_IDS));
@@ -17,14 +17,14 @@ function isPresetCanvasColorTagId(id) {
   return PRESET_COLOR_TAG_ID_SET.has(id);
 }
 
-function orderCanvasTagsByDefaultColor(tags2) {
+function orderCanvasTagsByDefaultColor(tags) {
   const priority = new Map(
-    CANVAS_TAG_COLOR_PALETTE.map((color2, index2) => [color2, index2]),
+    CANVAS_TAG_COLOR_PALETTE.map((color, index) => [color, index]),
   );
-  return tags2
-    .map((tag, index2) => ({
+  return tags
+    .map((tag, index) => ({
       tag,
-      index: index2,
+      index,
     }))
     .sort(
       (left, right) =>
@@ -35,46 +35,46 @@ function orderCanvasTagsByDefaultColor(tags2) {
     .map(({ tag }) => tag);
 }
 
-function normalizeV2Registry(raw2) {
-  if (raw2.version !== CANVAS_TAG_REGISTRY_VERSION || !Array.isArray(raw2.tags))
+function normalizeV2Registry(raw) {
+  if (raw.version !== CANVAS_TAG_REGISTRY_VERSION || !Array.isArray(raw.tags))
     return null;
-  const tags2 = [];
+  const tags = [];
   const seenIds = new Set();
-  for (const candidate of raw2.tags) {
+  for (const candidate of raw.tags) {
     if (!candidate || typeof candidate !== "object") continue;
     const tag = candidate;
     const id = typeof tag.id === "string" ? tag.id.trim() : "";
-    const name2 = typeof tag.name === "string" ? tag.name.trim() : "";
+    const tagName = typeof tag.name === "string" ? tag.name.trim() : "";
     const legacyNameKey =
       typeof tag.legacyNameKey === "string" ? tag.legacyNameKey : void 0;
-    const color2 =
+    const color =
       typeof tag.color === "string" && isCanvasTagColor(tag.color)
         ? tag.color
         : void 0;
     const kind = isPresetCanvasColorTagId(id) ? "color" : "keyword";
-    if (!id || seenIds.has(id) || (kind === "color" && !color2)) continue;
-    if (!name2 && !legacyNameKey) continue;
+    if (!id || seenIds.has(id) || (kind === "color" && !color)) continue;
+    if (!tagName && !legacyNameKey) continue;
     seenIds.add(id);
-    tags2.push({
+    tags.push({
       id,
       kind,
-      ...(kind === "color" && color2
+      ...(kind === "color" && color
         ? {
-            color: color2,
+            color,
           }
         : {}),
-      name: name2 || void 0,
+      name: tagName || void 0,
       legacyNameKey,
     });
   }
   const revision =
-    typeof raw2.revision === "number" &&
-    Number.isSafeInteger(raw2.revision) &&
-    raw2.revision >= 0
-      ? raw2.revision
+    typeof raw.revision === "number" &&
+    Number.isSafeInteger(raw.revision) &&
+    raw.revision >= 0
+      ? raw.revision
       : 0;
-  const orderMode = raw2.orderMode === "custom" ? "custom" : "default";
-  const existingIds = new Set(tags2.map((tag) => tag.id));
+  const orderMode = raw.orderMode === "custom" ? "custom" : "default";
+  const existingIds = new Set(tags.map((tag) => tag.id));
   const missingPresetTags = PRESET_COLOR_TAGS.filter(
     (tag) => !existingIds.has(tag.id),
   ).map((tag) => ({
@@ -83,11 +83,11 @@ function normalizeV2Registry(raw2) {
   const completeTags =
     orderMode === "custom"
       ? [
-          ...tags2.filter((tag) => tag.kind === "color"),
+          ...tags.filter((tag) => tag.kind === "color"),
           ...missingPresetTags,
-          ...tags2.filter((tag) => tag.kind === "keyword"),
+          ...tags.filter((tag) => tag.kind === "keyword"),
         ]
-      : orderCanvasTagsByDefaultColor([...tags2, ...missingPresetTags]);
+      : orderCanvasTagsByDefaultColor([...tags, ...missingPresetTags]);
   return {
     version: CANVAS_TAG_REGISTRY_VERSION,
     revision,
@@ -108,39 +108,39 @@ export function normalizeTagRegistry(input) {
   ) {
     return seedTagRegistry();
   }
-  const tags2 = PRESET_COLOR_TAGS.map((preset2) => ({
-    ...preset2,
+  const tags = PRESET_COLOR_TAGS.map((preset) => ({
+    ...preset,
   }));
-  const byId = new Map(tags2.map((tag) => [tag.id, tag]));
+  const byId = new Map(tags.map((tag) => [tag.id, tag]));
   for (const candidate of Array.isArray(legacy.colors) ? legacy.colors : []) {
     if (!candidate || typeof candidate !== "object") continue;
     const old = candidate;
     if (typeof old.id !== "string") continue;
-    const current2 = byId.get(old.id);
-    if (!current2) continue;
-    const name2 = typeof old.name === "string" ? old.name.trim() : "";
-    if (name2) current2.name = name2;
+    const current = byId.get(old.id);
+    if (!current) continue;
+    const trimmedName = typeof old.name === "string" ? old.name.trim() : "";
+    if (trimmedName) current.name = trimmedName;
   }
-  const seenIds = new Set(tags2.map((tag) => tag.id));
+  const seenIds = new Set(tags.map((tag) => tag.id));
   for (const candidate of Array.isArray(legacy.transparents)
     ? legacy.transparents
     : []) {
     if (!candidate || typeof candidate !== "object") continue;
     const old = candidate;
     const id = typeof old.id === "string" ? old.id.trim() : "";
-    const name2 = typeof old.name === "string" ? old.name.trim() : "";
-    if (!id || seenIds.has(id) || !name2) continue;
+    const trimmedName = typeof old.name === "string" ? old.name.trim() : "";
+    if (!id || seenIds.has(id) || !trimmedName) continue;
     seenIds.add(id);
-    tags2.push({
+    tags.push({
       id,
       kind: "keyword",
-      name: name2,
+      name: trimmedName,
     });
   }
   return {
     version: CANVAS_TAG_REGISTRY_VERSION,
     revision: 0,
     orderMode: "default",
-    tags: orderCanvasTagsByDefaultColor(tags2),
+    tags: orderCanvasTagsByDefaultColor(tags),
   };
 }

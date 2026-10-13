@@ -134,11 +134,11 @@ export function DissolveProjectDialog({
   );
 }
 const AvatarRoot = reactExports.forwardRef(
-  function AvatarRoot2(componentProps, forwardedRef) {
-    const { className, render: render2, ...elementProps } = componentProps;
+  function AvatarRoot(componentProps, forwardedRef) {
+    const { className, render, ...elementProps } = componentProps;
     const [imageLoadingStatus, setImageLoadingStatus] =
       reactExports.useState("idle");
-    const state2 = {
+    const state = {
       imageLoadingStatus,
     };
     const contextValue = reactExports.useMemo(
@@ -148,24 +148,24 @@ const AvatarRoot = reactExports.forwardRef(
       }),
       [imageLoadingStatus, setImageLoadingStatus],
     );
-    const element2 = useRenderElement("span", componentProps, {
-      state: state2,
+    const element = useRenderElement("span", componentProps, {
+      state,
       ref: forwardedRef,
       props: elementProps,
       stateAttributesMapping: avatarStateAttributesMapping,
     });
     return (
       <AvatarRootContext.Provider value={contextValue}>
-        {element2}
+        {element}
       </AvatarRootContext.Provider>
     );
   },
 );
 const AvatarFallbackPrimitive = reactExports.forwardRef(
-  function AvatarFallback2(componentProps, forwardedRef) {
+  function AvatarFallback(componentProps, forwardedRef) {
     const {
       className,
-      render: render2,
+      render,
       delay,
       ...elementProps
     } = componentProps;
@@ -173,24 +173,24 @@ const AvatarFallbackPrimitive = reactExports.forwardRef(
     const [delayPassed, setDelayPassed] = reactExports.useState(
       delay === void 0,
     );
-    const timeout2 = useTimeout();
+    const timeout = useTimeout();
     reactExports.useEffect(() => {
       if (delay !== void 0) {
-        timeout2.start(delay, () => setDelayPassed(true));
+        timeout.start(delay, () => setDelayPassed(true));
       }
-      return timeout2.clear;
-    }, [timeout2, delay]);
-    const state2 = {
+      return timeout.clear;
+    }, [timeout, delay]);
+    const state = {
       imageLoadingStatus,
     };
-    const element2 = useRenderElement("span", componentProps, {
-      state: state2,
+    const element = useRenderElement("span", componentProps, {
+      state,
       ref: forwardedRef,
       props: elementProps,
       stateAttributesMapping: avatarStateAttributesMapping,
       enabled: imageLoadingStatus !== "loaded" && delayPassed,
     });
-    return element2;
+    return element;
   },
 );
 export function Avatar({ className, size: size2 = "default", ...props }) {
@@ -243,7 +243,7 @@ export function AvatarGroup({ className, ...props }) {
   );
 }
 export const ClickableArea = reactExports.forwardRef(
-  ({ onClick, onKeyDown, children: children2, ...props }, ref) => {
+  ({ onClick, onKeyDown, children, ...props }, ref) => {
     return (
       // biome-ignore lint/a11y/useSemanticElements: intentional div[role=button] for cases where nested interactive elements prevent using <button>
       <div
@@ -260,7 +260,7 @@ export const ClickableArea = reactExports.forwardRef(
         }}
         {...props}
       >
-        {children2}
+        {children}
       </div>
     );
   },
@@ -329,11 +329,11 @@ export function InlineRenameInput({
   );
 }
 export function useGatewayReadiness() {
-  const [snapshot2, setSnapshot] = reactExports.useState(void 0);
+  const [snapshot, setSnapshot] = reactExports.useState(void 0);
   reactExports.useEffect(() => {
-    let service2;
+    let service;
     try {
-      service2 = services.get(IGatewayReadiness);
+      service = services.get(IGatewayReadiness);
     } catch {
       setSnapshot({
         state: "ready",
@@ -352,12 +352,12 @@ export function useGatewayReadiness() {
             },
         );
     }, GATEWAY_READINESS_FALLBACK_MS);
-    Promise.resolve(service2.getSnapshot())
+    Promise.resolve(service.getSnapshot())
       .then((initialSnapshot) => {
         if (!disposed) setSnapshot((prev) => prev ?? initialSnapshot);
       })
       .catch(() => {});
-    const sub = service2.onDidChange((nextSnapshot) => {
+    const sub = service.onDidChange((nextSnapshot) => {
       if (!disposed) setSnapshot(nextSnapshot);
     });
     return () => {
@@ -366,7 +366,7 @@ export function useGatewayReadiness() {
       sub.dispose();
     };
   }, []);
-  return snapshot2;
+  return snapshot;
 }
 export function useGatewayReady() {
   return useGatewayReadiness()?.state === "ready";

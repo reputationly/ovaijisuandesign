@@ -1,0 +1,13 @@
+key	new	reason
+path2@22:21	path	去掉打包器加的数字后缀，恢复原名 path
+path2@27:6	path	去掉打包器加的数字后缀，恢复原名 path
+seen2@45:9	seen	去掉打包器加的数字后缀，恢复原名 seen
+key2@41:13	key	去掉打包器加的数字后缀，恢复原名 key
+path2@47:14	path	去掉打包器加的数字后缀，恢复原名 path
+path2@74:18	path	去掉打包器加的数字后缀，恢复原名 path
+path2@74:50	path	去掉打包器加的数字后缀，恢复原名 path
+path2@88:29	path	去掉打包器加的数字后缀，恢复原名 path
+raw2@100:11	raw	去掉打包器加的数字后缀，恢复原名 raw
+path2@148:35	path	去掉打包器加的数字后缀，恢复原名 path
+path2@164:26	path	去掉打包器加的数字后缀，恢复原名 path
+badges2@197:19	badges	去掉打包器加的数字后缀，恢复原名 badges

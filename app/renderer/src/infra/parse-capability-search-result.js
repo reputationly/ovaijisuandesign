@@ -4,17 +4,17 @@ import { parseConnectorCatalog } from "./parse-connector-catalog.js";
 export function parseCapabilitySearchResult(value) {
   if (!value || typeof value !== "object")
     throw new Error("Invalid capability search result");
-  const data2 = value;
+  const data = value;
   if (
-    !Array.isArray(data2.matches) ||
-    typeof data2.partial !== "boolean" ||
-    typeof data2.nextStep !== "string" ||
-    !data2.sources ||
-    typeof data2.sources !== "object"
+    !Array.isArray(data.matches) ||
+    typeof data.partial !== "boolean" ||
+    typeof data.nextStep !== "string" ||
+    !data.sources ||
+    typeof data.sources !== "object"
   )
     throw new Error("Invalid capability search result");
   const sources = {};
-  for (const [key2, item] of Object.entries(data2.sources)) {
+  for (const [key, item] of Object.entries(data.sources)) {
     if (
       !item ||
       typeof item !== "object" ||
@@ -23,7 +23,7 @@ export function parseCapabilitySearchResult(value) {
       (item.reason !== void 0 && typeof item.reason !== "string")
     )
       throw new Error("Invalid capability source");
-    sources[key2] = {
+    sources[key] = {
       available: item.available,
       stale: item.stale,
       ...(item.reason
@@ -33,38 +33,38 @@ export function parseCapabilitySearchResult(value) {
         : {}),
     };
   }
-  const matches2 = data2.matches.map((item) => {
+  const matches = data.matches.map((item) => {
     if (!item || typeof item !== "object")
       throw new Error("Invalid capability match");
-    const match2 = item;
+    const match = item;
     if (
-      typeof match2.score !== "number" ||
-      !Number.isFinite(match2.score) ||
-      !Array.isArray(match2.matchedTerms) ||
-      !match2.matchedTerms.every((term) => typeof term === "string") ||
-      !match2.capability ||
-      typeof match2.capability !== "object" ||
-      !("kind" in match2.capability) ||
-      match2.capability.kind !== "connector"
+      typeof match.score !== "number" ||
+      !Number.isFinite(match.score) ||
+      !Array.isArray(match.matchedTerms) ||
+      !match.matchedTerms.every((term) => typeof term === "string") ||
+      !match.capability ||
+      typeof match.capability !== "object" ||
+      !("kind" in match.capability) ||
+      match.capability.kind !== "connector"
     )
       throw new Error("Invalid capability match");
     const capability = parseConnectorCatalog({
       version: "search",
-      connectors: [match2.capability],
+      connectors: [match.capability],
     }).connectors[0];
     return {
       capability: {
         ...capability,
         kind: "connector",
       },
-      score: match2.score,
-      matchedTerms: match2.matchedTerms,
+      score: match.score,
+      matchedTerms: match.matchedTerms,
     };
   });
   return {
-    matches: matches2,
+    matches,
     sources,
-    partial: data2.partial,
-    nextStep: data2.nextStep,
+    partial: data.partial,
+    nextStep: data.nextStep,
   };
 }

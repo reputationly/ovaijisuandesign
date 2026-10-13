@@ -1,0 +1,8 @@
+key	new	reason
+body2@69:11	body	去掉打包器加的数字后缀，恢复原名 body
+platform2@117:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+config2@118:9	config	去掉打包器加的数字后缀，恢复原名 config
+workspaceId2@122:9	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+fetch2@105:25	baseFetch	被包装的 fetch；fetch 是全局名
+path2@105:43	path	去掉打包器加的数字后缀，恢复原名 path
+init2@105:50	init	去掉打包器加的数字后缀，恢复原名 init

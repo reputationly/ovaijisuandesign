@@ -1,2 +1,10 @@
 key	new	reason
 t2@254:20	t	useTranslation() 返回的翻译函数 t
+meta2@19:9	meta	去掉打包器加的数字后缀，恢复原名 meta
+message2@235:9	message	去掉打包器加的数字后缀，恢复原名 message
+message2@242:34	message	去掉打包器加的数字后缀，恢复原名 message
+errorMessage2@277:9	errorMessage	去掉打包器加的数字后缀，恢复原名 errorMessage
+cancelled2@411:11	cancelled	去掉打包器加的数字后缀，恢复原名 cancelled
+text2@528:13	text	去掉打包器加的数字后缀，恢复原名 text
+mode2@566:39	mode	去掉打包器加的数字后缀，恢复原名 mode
+index2@633:55	index	去掉打包器加的数字后缀，恢复原名 index

@@ -6,32 +6,32 @@ function nonEmptyOpaqueText(value) {
 }
 function normalizeReference(value) {
   if (typeof value === "string") {
-    const workspaceId22 = nonEmptyOpaqueText(value);
-    return workspaceId22
+    const workspaceId = nonEmptyOpaqueText(value);
+    return workspaceId
       ? {
-          workspaceId: workspaceId22,
+          workspaceId,
         }
       : null;
   }
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const candidate = value;
-  const workspaceId2 = nonEmptyOpaqueText(candidate.workspaceId);
-  if (!workspaceId2) return null;
+  const workspaceId = nonEmptyOpaqueText(candidate.workspaceId);
+  if (!workspaceId) return null;
   const folderPath = nonEmptyOpaqueText(candidate.folderPath);
   return folderPath
     ? {
-        workspaceId: workspaceId2,
+        workspaceId,
         folderPath,
       }
     : {
-        workspaceId: workspaceId2,
+        workspaceId,
       };
 }
-function normalizeVisiblePreviewTabReferences(values3) {
+function normalizeVisiblePreviewTabReferences(values) {
   const seenWorkspaceIds = new Set();
   const seenFolderPaths = new Set();
   const result = [];
-  for (const value of values3) {
+  for (const value of values) {
     const reference = normalizeReference(value);
     if (!reference || seenWorkspaceIds.has(reference.workspaceId)) continue;
     if (reference.folderPath && seenFolderPaths.has(reference.folderPath))
@@ -43,7 +43,7 @@ function normalizeVisiblePreviewTabReferences(values3) {
   return result;
 }
 function resolveStartupVisiblePreviewWorkspace(
-  snapshot2,
+  snapshot,
   restoredWorkspaceIds,
   preferredWorkspaceId,
 ) {
@@ -52,21 +52,21 @@ function resolveStartupVisiblePreviewWorkspace(
   ).map((entry) => entry.workspaceId);
   if (restored.length === 0) return null;
   const restoredSet = new Set(restored);
-  if (!snapshot2.initialized) {
+  if (!snapshot.initialized) {
     return preferredWorkspaceId && restoredSet.has(preferredWorkspaceId)
       ? preferredWorkspaceId
       : (restored[0] ?? null);
   }
   const visibleRestored = [];
-  const seen2 = new Set();
-  for (const reference of snapshot2.tabs) {
+  const seen = new Set();
+  for (const reference of snapshot.tabs) {
     const restoredId = restoredSet.has(reference.workspaceId)
       ? reference.workspaceId
       : reference.folderPath && restoredSet.has(reference.folderPath)
         ? reference.folderPath
         : void 0;
-    if (!restoredId || seen2.has(restoredId)) continue;
-    seen2.add(restoredId);
+    if (!restoredId || seen.has(restoredId)) continue;
+    seen.add(restoredId);
     visibleRestored.push(restoredId);
   }
   if (preferredWorkspaceId && visibleRestored.includes(preferredWorkspaceId)) {
@@ -75,12 +75,12 @@ function resolveStartupVisiblePreviewWorkspace(
   return visibleRestored[0] ?? null;
 }
 function selectStartupVisiblePreviewWorkspace(
-  snapshot2,
+  snapshot,
   restoredWorkspaceIds,
   preferredWorkspaceId,
 ) {
   return resolveStartupVisiblePreviewWorkspace(
-    snapshot2,
+    snapshot,
     restoredWorkspaceIds,
     preferredWorkspaceId,
   );

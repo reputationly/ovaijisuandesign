@@ -34,11 +34,11 @@ export function useRetryHintActive(blockedUntilMs) {
       setExpiredUntilMs(blockedUntilMs);
       return;
     }
-    const timer2 = setTimeout(
+    const timer = setTimeout(
       () => setExpiredUntilMs(blockedUntilMs),
       remainingMs + 50,
     );
-    return () => clearTimeout(timer2);
+    return () => clearTimeout(timer);
   }, [blockedUntilMs]);
   return (
     blockedUntilMs !== void 0 &&
@@ -48,12 +48,12 @@ export function useRetryHintActive(blockedUntilMs) {
 }
 
 Object.fromEntries(
-  Object.entries(WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY).map(([code2, meta2]) => [
-    code2,
+  Object.entries(WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY).map(([code, meta]) => [
+    code,
     {
-      messageKey: meta2.message.key,
-      messageDefault: meta2.message.zh,
-      suggestions: meta2.suggestions.map((suggestion) => ({
+      messageKey: meta.message.key,
+      messageDefault: meta.message.zh,
+      suggestions: meta.suggestions.map((suggestion) => ({
         key: suggestion.key,
         defaultValue: suggestion.zh,
       })),

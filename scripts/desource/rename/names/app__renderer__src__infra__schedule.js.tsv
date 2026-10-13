@@ -14,3 +14,9 @@ id2@198:41	id	原名 id，去掉打包器加的数字去重后缀
 id2@223:45	id	原名 id，去掉打包器加的数字去重后缀
 a2@101:6	a	sort 比较函数的前一个候选
 b3@101:10	b	sort 比较函数的后一个候选
+count2@19:9	count	去掉打包器加的数字后缀，恢复原名 count
+index2@74:9	index	去掉打包器加的数字后缀，恢复原名 index
+now2@91:9	now	去掉打包器加的数字后缀，恢复原名 now
+holderId2@192:9	holderId	去掉打包器加的数字后缀，恢复原名 holderId
+holderId2@217:9	holderId	去掉打包器加的数字后缀，恢复原名 holderId
+url2@285:9	url	去掉打包器加的数字后缀，恢复原名 url

@@ -1,2 +1,8 @@
 key	new	reason
 selectStartupVisiblePreviewWorkspace$1@45:10	resolveStartupVisiblePreviewWorkspace	按快照规整已恢复标签并挑出启动时可见的预览工作区；同名包装函数占用了原名
+workspaceId2@18:9	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+workspaceId22@9:11	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+values3@30:47	values	去掉打包器加的数字后缀，恢复原名 values
+snapshot2@46:3	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+seen2@61:9	seen	去掉打包器加的数字后缀，恢复原名 seen
+snapshot2@78:3	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot

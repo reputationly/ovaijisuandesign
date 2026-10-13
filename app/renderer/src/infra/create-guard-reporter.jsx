@@ -14,34 +14,34 @@ function zeroCounters() {
 
 function createGuardReporter(scope, intervalMs = GUARD_SUMMARY_INTERVAL_MS) {
   const totals = zeroCounters();
-  let window2 = zeroCounters();
-  let timer2 = null;
+  let windowCounters = zeroCounters();
+  let timer = null;
   function flushNow() {
-    if (timer2) {
-      clearTimeout(timer2);
-      timer2 = null;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
     }
     if (
-      window2.truncated_strings === 0 &&
-      window2.dropped_props === 0 &&
-      window2.dropped_events === 0
+      windowCounters.truncated_strings === 0 &&
+      windowCounters.dropped_props === 0 &&
+      windowCounters.dropped_events === 0
     ) {
       return;
     }
     console.warn(
-      `[${scope}] guard summary: dropped_events=${window2.dropped_events} dropped_props=${window2.dropped_props} truncated_strings=${window2.truncated_strings} (totals: ${totals.dropped_events}/${totals.dropped_props}/${totals.truncated_strings})`,
+      `[${scope}] guard summary: dropped_events=${windowCounters.dropped_events} dropped_props=${windowCounters.dropped_props} truncated_strings=${windowCounters.truncated_strings} (totals: ${totals.dropped_events}/${totals.dropped_props}/${totals.truncated_strings})`,
     );
-    window2 = zeroCounters();
+    windowCounters = zeroCounters();
   }
   function note(delta) {
-    for (const key2 of Object.keys(totals)) {
-      const keyDelta = delta[key2] ?? 0;
-      totals[key2] += keyDelta;
-      window2[key2] += keyDelta;
+    for (const key of Object.keys(totals)) {
+      const keyDelta = delta[key] ?? 0;
+      totals[key] += keyDelta;
+      windowCounters[key] += keyDelta;
     }
-    if (!timer2) {
-      timer2 = setTimeout(flushNow, intervalMs);
-      timer2.unref?.();
+    if (!timer) {
+      timer = setTimeout(flushNow, intervalMs);
+      timer.unref?.();
     }
   }
   return {

@@ -1,0 +1,4 @@
+key	new	reason
+size2@20:46	size	去掉打包器加的数字后缀，恢复原名 size
+name2@98:9	assetName	项目资产名；name 是全局名
+FallbackIcon2@123:11	FallbackIcon	去掉打包器加的数字后缀，恢复原名 FallbackIcon

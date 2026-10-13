@@ -17,10 +17,10 @@ function buildSupportPayload(input) {
     `time: ${input.timestamp}`,
   ].join("\n");
 }
-function formatSupportTime(timestamp2) {
-  const date2 = new Date(timestamp2);
-  if (Number.isNaN(date2.getTime())) return timestamp2;
-  return date2.toLocaleString();
+function formatSupportTime(timestamp) {
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return timestamp;
+  return date.toLocaleString();
 }
 function SupportInfoRow({ label, value }) {
   return (

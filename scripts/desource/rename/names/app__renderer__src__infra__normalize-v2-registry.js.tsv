@@ -2,3 +2,17 @@ key	new	reason
 id2@16:35	id	原名 id，去掉打包器加的数字去重后缀
 id2@46:11	id	原名 id，去掉打包器加的数字去重后缀
 id2@130:11	id	原名 id，去掉打包器加的数字去重后缀
+color2@10:27	color	去掉打包器加的数字后缀，恢复原名 color
+tags2@20:40	tags	去掉打包器加的数字后缀，恢复原名 tags
+color2@22:35	color	去掉打包器加的数字后缀，恢复原名 color
+index2@22:43	index	去掉打包器加的数字后缀，恢复原名 index
+index2@25:16	index	去掉打包器加的数字后缀，恢复原名 index
+raw2@38:30	raw	去掉打包器加的数字后缀，恢复原名 raw
+tags2@41:9	tags	去掉打包器加的数字后缀，恢复原名 tags
+name2@47:11	tagName	标签名；name 是全局名
+color2@50:11	color	去掉打包器加的数字后缀，恢复原名 color
+tags2@111:9	tags	去掉打包器加的数字后缀，恢复原名 tags
+preset2@111:40	preset	去掉打包器加的数字后缀，恢复原名 preset
+current2@119:11	current	去掉打包器加的数字后缀，恢复原名 current
+name2@121:11	trimmedName	去掉首尾空白的旧名字；name 是全局名
+name2@131:11	trimmedName	去掉首尾空白的旧名字；name 是全局名

@@ -19,11 +19,11 @@ export function DeleteNodeDialog({
   onCompleted,
 }) {
   const { t } = useTranslation();
-  const [pending2, setPending] = reactExports.useState(false);
+  const [pending, setPending] = reactExports.useState(false);
   const targets = batchNodes?.length ? batchNodes : node2 ? [node2] : [];
   const isBatch = targets.length > 1;
-  const run2 = reactExports.useCallback(async () => {
-    if (targets.length === 0 || pending2) return;
+  const run = reactExports.useCallback(async () => {
+    if (targets.length === 0 || pending) return;
     setPending(true);
     let failed = 0;
     try {
@@ -44,7 +44,7 @@ export function DeleteNodeDialog({
     } finally {
       setPending(false);
     }
-  }, [onCompleted, onConfirm, onOpenChange, pending2, t, targets]);
+  }, [onCompleted, onConfirm, onOpenChange, pending, t, targets]);
   const isFolder = targets.length === 1 && targets[0]?.kind === "folder";
   return (
     <Dialog open={targets.length > 0} onOpenChange={onOpenChange}>
@@ -77,7 +77,7 @@ export function DeleteNodeDialog({
           <Button
             variant="outline"
             size="sm"
-            disabled={pending2}
+            disabled={pending}
             onClick={() => onOpenChange(false)}
             data-action-ui-id="cloud-assets.delete-cancel"
           >
@@ -86,8 +86,8 @@ export function DeleteNodeDialog({
           <Button
             variant="destructive"
             size="sm"
-            disabled={pending2}
-            onClick={() => void run2()}
+            disabled={pending}
+            onClick={() => void run()}
             data-action-ui-id="cloud-assets.delete-confirm"
           >
             {t("cloudAssets.delete")}

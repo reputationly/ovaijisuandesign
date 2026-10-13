@@ -17,9 +17,9 @@ function looksLikeLocalPath(value) {
   return !value.includes("://") && MEDIA_EXT_RE.test(value);
 }
 async function normalizeInitialParams(params) {
-  const entries2 = await Promise.all(
-    Object.entries(params).map(async ([key2, value]) => {
-      if (!looksLikeLocalPath(value)) return [key2, value];
+  const entries = await Promise.all(
+    Object.entries(params).map(async ([key, value]) => {
+      if (!looksLikeLocalPath(value)) return [key, value];
       try {
         const res = await gatewayFetch("/api/files/upload-cdn", {
           method: "POST",
@@ -31,31 +31,31 @@ async function normalizeInitialParams(params) {
           }),
           timeoutMs: 12e4,
         });
-        const json2 = await res.json();
-        if (json2.ok && json2.url) {
+        const json = await res.json();
+        if (json.ok && json.url) {
           remoteToolLog.info("initial_params normalized", {
-            key: key2,
+            key,
             from: value,
-            to: json2.url,
+            to: json.url,
           });
-          return [key2, json2.url];
+          return [key, json.url];
         }
         remoteToolLog.warn("initial_params upload-cdn returned not ok", {
-          key: key2,
+          key,
           path: value,
-          error: json2.error ?? "unknown",
+          error: json.error ?? "unknown",
         });
       } catch (err) {
         remoteToolLog.warn("initial_params upload-cdn exception", {
-          key: key2,
+          key,
           path: value,
           error: err instanceof Error ? err.message : String(err),
         });
       }
-      return [key2, value];
+      return [key, value];
     }),
   );
-  return Object.fromEntries(entries2);
+  return Object.fromEntries(entries);
 }
 export function RemoteToolDialog({
   open,

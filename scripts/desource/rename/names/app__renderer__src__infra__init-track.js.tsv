@@ -1,0 +1,6 @@
+key	new	reason
+events2@76:9	events	去掉打包器加的数字后缀，恢复原名 events
+version2@83:29	version	去掉打包器加的数字后缀，恢复原名 version
+version2@92:39	version	去掉打包器加的数字后缀，恢复原名 version
+version2@104:35	version	去掉打包器加的数字后缀，恢复原名 version
+version2@140:9	version	去掉打包器加的数字后缀，恢复原名 version

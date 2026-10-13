@@ -22,29 +22,29 @@ export function MoveNodeDialog({
 }) {
   const { t } = useTranslation();
   const [selectedKey, setSelectedKey] = reactExports.useState(void 0);
-  const [pending2, setPending] = reactExports.useState(false);
+  const [pending, setPending] = reactExports.useState(false);
   reactExports.useEffect(() => {
     if (open) {
       setSelectedKey(void 0);
       setPending(false);
     }
   }, [open]);
-  const selected2 = options.find((option2) => option2.key === selectedKey);
+  const selected = options.find((option) => option.key === selectedKey);
   const handleConfirm = reactExports.useCallback(async () => {
     if (
-      !selected2 ||
-      (noopKey !== void 0 && selected2.key === noopKey) ||
-      pending2
+      !selected ||
+      (noopKey !== void 0 && selected.key === noopKey) ||
+      pending
     )
       return;
     setPending(true);
     try {
-      await onConfirm(selected2);
+      await onConfirm(selected);
       onOpenChange(false);
     } finally {
       setPending(false);
     }
-  }, [noopKey, onConfirm, onOpenChange, pending2, selected2]);
+  }, [noopKey, onConfirm, onOpenChange, pending, selected]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -107,9 +107,9 @@ export function MoveNodeDialog({
           <Button
             size="sm"
             disabled={
-              !selected2 ||
-              (noopKey !== void 0 && selected2.key === noopKey) ||
-              pending2 ||
+              !selected ||
+              (noopKey !== void 0 && selected.key === noopKey) ||
+              pending ||
               loading
             }
             onClick={() => void handleConfirm()}

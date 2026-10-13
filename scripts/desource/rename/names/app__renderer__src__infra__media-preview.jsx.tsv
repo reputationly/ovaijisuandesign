@@ -4,3 +4,22 @@ t2@193:14	t	useTranslation() 返回的翻译函数 t
 t2@325:14	t	useTranslation() 返回的翻译函数 t
 t2@505:14	t	useTranslation() 返回的翻译函数 t
 t2@609:14	t	useTranslation() 返回的翻译函数 t
+size2@113:32	size	去掉打包器加的数字后缀，恢复原名 size
+matches2@116:9	matches	去掉打包器加的数字后缀，恢复原名 matches
+name2@142:20	iconName	图标规格的名字；name 是全局名
+path2@142:47	path	去掉打包器加的数字后缀，恢复原名 path
+disabled2@192:41	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+size2@246:43	size	去掉打包器加的数字后缀，恢复原名 size
+size2@247:20	size	去掉打包器加的数字后缀，恢复原名 size
+key2@260:35	key	去掉打包器加的数字后缀，恢复原名 key
+size2@311:37	size	去掉打包器加的数字后缀，恢复原名 size
+size2@324:31	size	去掉打包器加的数字后缀，恢复原名 size
+disabled2@324:48	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+key2@341:55	key	去掉打包器加的数字后缀，恢复原名 key
+key2@519:69	key	去掉打包器加的数字后缀，恢复原名 key
+size2@527:44	size	去掉打包器加的数字后缀，恢复原名 size
+key2@555:47	key	去掉打包器加的数字后缀，恢复原名 key
+theme2@610:18	theme	去掉打包器加的数字后缀，恢复原名 theme
+size2@612:10	size	去掉打包器加的数字后缀，恢复原名 size
+disabled2@613:10	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+key2@707:56	key	去掉打包器加的数字后缀，恢复原名 key

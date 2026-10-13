@@ -53,18 +53,18 @@ const webClipboard = {
   async readText() {
     return navigator.clipboard.readText();
   },
-  async writeText(text2) {
-    await navigator.clipboard.writeText(text2);
+  async writeText(text) {
+    await navigator.clipboard.writeText(text);
   },
 };
 
 const webNotification = {
-  show(title, body2, options) {
+  show(title, body, options) {
     if (!("Notification" in window)) return;
     const doShow = () => {
       if (Notification.permission !== "granted") return;
       const notification = new Notification(title, {
-        body: body2,
+        body,
       });
       if (options?.onClick) {
         notification.onclick = options.onClick;
@@ -79,14 +79,14 @@ const webNotification = {
 };
 
 const webShell = {
-  async openExternal(url2) {
-    window.open(url2, "_blank");
+  async openExternal(url) {
+    window.open(url, "_blank");
   },
-  async openExternalWithFallback(url2) {
-    window.open(url2, "_blank");
+  async openExternalWithFallback(url) {
+    window.open(url, "_blank");
   },
-  async openInApp(url2) {
-    window.open(url2, "_blank");
+  async openInApp(url) {
+    window.open(url, "_blank");
   },
 };
 
