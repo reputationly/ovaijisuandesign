@@ -4,79 +4,79 @@ import { ReferenceNavigationContext } from "./get-reference-navigation-defaults.
 import { CanvasActionsContext } from "./use-canvas-actions.js";
 import { extractCanvasEditorText } from "../assets/parse-prompt-to-tiptap.js";
 
-function resolveReferenceTarget(actions, nodeId, path2) {
-  let target = actions.getIncomingSourceNodeIdByPath(nodeId, path2);
+function resolveReferenceTarget(actions, nodeId, path) {
+  let target = actions.getIncomingSourceNodeIdByPath(nodeId, path);
   const visited = new Set();
   while (target && !visited.has(target)) {
     visited.add(target);
-    const node2 = actions.getNodeById(target);
-    if (!node2 || target === nodeId) return null;
-    if (node2.meta?.hidden !== true) return target;
-    target = node2.groupId ?? null;
+    const node = actions.getNodeById(target);
+    if (!node || target === nodeId) return null;
+    if (node.meta?.hidden !== true) return target;
+    target = node.groupId ?? null;
   }
   return null;
 }
 
-function restoreReferenceEditor(editor, snapshot2) {
-  if (!snapshot2 || editor.isDestroyed) return;
-  if (snapshot2.selection) {
-    const max2 = editor.state.doc.content.size;
+function restoreReferenceEditor(editor, snapshot) {
+  if (!snapshot || editor.isDestroyed) return;
+  if (snapshot.selection) {
+    const max = editor.state.doc.content.size;
     editor.commands.setTextSelection({
-      from: Math.min(snapshot2.selection.from, max2),
-      to: Math.min(snapshot2.selection.to, max2),
+      from: Math.min(snapshot.selection.from, max),
+      to: Math.min(snapshot.selection.to, max),
     });
   }
-  if (snapshot2.focused)
+  if (snapshot.focused)
     editor.commands.focus(void 0, {
       scrollIntoView: false,
     });
   const viewport = editor.view.dom.closest(
     '[data-action-ui-id="popover.prompt-input"]',
   );
-  if (snapshot2.scrollTop !== void 0 && viewport)
-    viewport.scrollTop = snapshot2.scrollTop;
+  if (snapshot.scrollTop !== void 0 && viewport)
+    viewport.scrollTop = snapshot.scrollTop;
 }
 
 export function useReferenceAttachmentNavigation({
   nodeId,
-  mode: mode2,
+  mode,
   editorRef,
   expanded,
-  count: count2,
+  count,
   getDraft,
   onSaveDraft,
-  snapshot: snapshot2,
-  defaults: defaults2,
+  snapshot,
+  defaults,
 }) {
   const actions = reactExports.useContext(CanvasActionsContext);
-  const navigation2 = reactExports.useContext(ReferenceNavigationContext);
+  const referenceNavigation = reactExports.useContext(ReferenceNavigationContext);
   const navigationSavedRef = reactExports.useRef(false);
   const restoredRef = reactExports.useRef(false);
   const onEditorReady = reactExports.useCallback(
     (editor) => {
       if (restoredRef.current) return;
       restoredRef.current = true;
-      restoreReferenceEditor(editor, snapshot2 ?? null);
+      restoreReferenceEditor(editor, snapshot ?? null);
     },
-    [snapshot2],
+    [snapshot],
   );
   reactExports.useEffect(() => {
     if (
-      navigation2?.record?.returning &&
-      navigation2.record.nodeId === nodeId
+      referenceNavigation?.record?.returning &&
+      referenceNavigation.record.nodeId === nodeId
     ) {
       navigationSavedRef.current = false;
       const editor = editorRef.current;
       if (editor) onEditorReady(editor);
-      navigation2.acknowledgeReturn(nodeId);
+      referenceNavigation.acknowledgeReturn(nodeId);
     }
-    if (!navigation2?.record) navigationSavedRef.current = false;
-  }, [navigation2, nodeId, editorRef, onEditorReady]);
+    if (!referenceNavigation?.record) navigationSavedRef.current = false;
+  }, [referenceNavigation, nodeId, editorRef, onEditorReady]);
   const getLocateAction = (item) => {
     if (
       !nodeId ||
       !actions ||
-      !navigation2 ||
+      !referenceNavigation ||
       (item.kind !== "image" && item.kind !== "video")
     )
       return void 0;
@@ -94,11 +94,11 @@ export function useReferenceAttachmentNavigation({
         onSaveDraft?.(draft);
         navigationSavedRef.current = true;
       }
-      navigation2.locate(nodeId, target, {
-        mode: mode2,
+      referenceNavigation.locate(nodeId, target, {
+        mode,
         draft,
         expanded,
-        count: count2,
+        count,
         selection:
           editor && !editor.isDestroyed
             ? {
@@ -113,7 +113,7 @@ export function useReferenceAttachmentNavigation({
               )?.scrollTop
             : void 0,
         focused: editor?.isFocused,
-        defaults: defaults2,
+        defaults,
       });
     };
   };

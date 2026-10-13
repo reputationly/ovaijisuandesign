@@ -24,7 +24,7 @@ export function planeQuad(center, width, height, basis) {
       y: center.y + height / 2,
       z: center.z,
     },
-  ].map((point2) => project(point2, basis));
+  ].map((point) => project(point, basis));
 }
 export const ToolResetIcon = ({ className = "" }) => (
   <CompositedSvg

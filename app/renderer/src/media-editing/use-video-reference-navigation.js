@@ -10,10 +10,10 @@ export function useVideoReferenceNavigation({
   modelId,
   params,
   paths,
-  ...navigation2
+  ...referenceNavigation
 }) {
   return useReferenceAttachmentNavigation({
-    ...navigation2,
+    ...referenceNavigation,
     mode: "i2v",
     defaults: {
       imagePaths: [...(defaultImagePaths ?? [])],

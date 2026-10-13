@@ -1,0 +1,5 @@
+key	new	依据
+min2@7:8	min	从属性中解构的滑块最小值，原样传给底层 Slider。
+max2@8:8	max	从属性中解构的滑块最大值，原样传给底层 Slider。
+disabled2@9:13	disabled	控制底层 Slider 是否禁用的属性值。
+next2@33:25	next	底层 Slider 变更回调提供的新数值或数值数组，取首值后传给 onChange。

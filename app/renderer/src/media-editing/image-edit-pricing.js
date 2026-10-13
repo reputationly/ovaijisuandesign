@@ -54,12 +54,12 @@ const IMAGE_EDIT_PRICING = {
 
 function resolveImageEditCost(
   pricing,
-  tool2,
+  tool,
   selectedResolution,
   pricingModelIdOverride,
   refCount,
 ) {
-  const spec = IMAGE_EDIT_PRICING[tool2];
+  const spec = IMAGE_EDIT_PRICING[tool];
   if (!spec) return void 0;
   const resolution =
     spec.resolution.kind === "dynamic"
@@ -77,7 +77,7 @@ function resolveImageEditCost(
 }
 
 export function useImageEditCost(
-  tool2,
+  tool,
   selectedResolution,
   pricingModelIdOverride,
   refCount,
@@ -85,20 +85,20 @@ export function useImageEditCost(
   const { pricingConfig } = useCanvasBridge();
   return resolveImageEditCost(
     pricingConfig,
-    tool2,
+    tool,
     selectedResolution,
     pricingModelIdOverride,
     refCount,
   );
 }
 
-export function CanvasOverlayStoreProvider({ store, children: children2 }) {
+export function CanvasOverlayStoreProvider({ store, children }) {
   return reactExports.createElement(
     CanvasOverlayStoreContext.Provider,
     {
       value: store,
     },
-    children2,
+    children,
   );
 }
 

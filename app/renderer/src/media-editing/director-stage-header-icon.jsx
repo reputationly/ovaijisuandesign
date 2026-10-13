@@ -2,11 +2,11 @@
 import { CompositedSvg, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
-export function DirectorStageHeaderIcon({ size: size2 = 14, className } = {}) {
+export function DirectorStageHeaderIcon({ size = 14, className } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       className={className}
@@ -25,11 +25,11 @@ export function DirectorStageHeaderIcon({ size: size2 = 14, className } = {}) {
   );
 }
 
-export function VideoEditorHeaderIcon({ size: size2 = 14, className } = {}) {
+export function VideoEditorHeaderIcon({ size = 14, className } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       className={className}
