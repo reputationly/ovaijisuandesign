@@ -100,8 +100,8 @@ function exchangeEdges(tree, graph, leavingEdge, enteringEdge) {
     initCutValues(tree, graph),
     updateRanks(tree, graph));
 }
-function isDescendant(treeGraph, ancestor, descendant) {
-  return descendant.low <= ancestor.lim && ancestor.lim <= descendant.lim;
+function isDescendant(treeGraph, nodeLabel, rootLabel) {
+  return rootLabel.low <= nodeLabel.lim && nodeLabel.lim <= rootLabel.lim;
 }
 function enterEdge(tree, graph, leavingEdge) {
   let sourceId = leavingEdge.v,
@@ -110,14 +110,14 @@ function enterEdge(tree, graph, leavingEdge) {
   let sourceNode = tree.node(sourceId),
     targetNode = tree.node(targetId),
     subtreeRoot = sourceNode,
-    sourceIsRoot = false;
+    targetIsRoot = false;
   return (
-    sourceNode.lim > targetNode.lim && ((subtreeRoot = targetNode), (sourceIsRoot = true)),
+    sourceNode.lim > targetNode.lim && ((subtreeRoot = targetNode), (targetIsRoot = true)),
     graph
       .edges()
       .filter(
         (edge) =>
-          sourceIsRoot === isDescendant(tree, tree.node(edge.v), subtreeRoot) && sourceIsRoot !== isDescendant(tree, tree.node(edge.w), subtreeRoot),
+          targetIsRoot === isDescendant(tree, tree.node(edge.v), subtreeRoot) && targetIsRoot !== isDescendant(tree, tree.node(edge.w), subtreeRoot),
       )
       .reduce((currentBestEdge, candidateEdge) => (v$4(graph, candidateEdge) < v$4(graph, currentBestEdge) ? candidateEdge : currentBestEdge))
   );

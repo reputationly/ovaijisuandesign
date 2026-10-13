@@ -610,10 +610,10 @@ export function SelectionToolbarInner({
     [groupAnalysis.ungroupTarget, mergeNodeData],
   );
   const handlePromoteToAsset = reactExports.useCallback(
-    (pointerEvent) => {
+    (clickEvent) => {
       onPromoteToAsset?.(selectedIds, {
-        x: pointerEvent.clientX,
-        y: pointerEvent.clientY,
+        x: clickEvent.clientX,
+        y: clickEvent.clientY,
       });
     },
     [selectedIds, onPromoteToAsset],

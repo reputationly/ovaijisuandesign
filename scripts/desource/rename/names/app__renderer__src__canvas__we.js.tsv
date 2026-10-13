@@ -60,8 +60,8 @@ r2@94:25	r2	enteringEdge	加入 spanning tree 以替换 leavingEdge 的边描述
 o2@95:7	o2	leavingSource	leavingEdge.v，移除时作为树边起点。
 i2@96:5	i2	leavingTarget	leavingEdge.w，移除时作为树边终点。
 e2@103:13	e2	treeGraph	保存 DFS low/lim 区间的树图。
-n2@103:17	n2	ancestor	用于区间包含判断的祖先节点标签。
-t2@103:21	t2	descendant	用于区间包含判断的后代节点标签。
+n2@103:17	n2	nodeLabel	被判断是否落在子树内的节点 low/lim 标签：检查其 lim 是否位于 rootLabel 的 [low, lim] 区间；对应 dagre isDescendant 的 vLabel。
+t2@103:21	t2	rootLabel	提供 low/lim 区间的子树根节点标签；对应 dagre isDescendant 的 rootLabel。
 e2@106:13	e2	tree	用于确定 leavingEdge 切分出的两个子树的 spanning tree。
 n2@106:17	n2	graph	包含候选替换边及其 slack 的原始图。
 t2@106:21	t2	leavingEdge	当前被替换、用于定义 cut 两侧的树边。
@@ -70,7 +70,7 @@ o2@108:5	o2	targetId	离开边方向归一化后候选边的终点 ID。
 i2@110:7	i2	sourceNode	tree.node(sourceId) 返回的端点节点 low/lim 标签。
 s2@111:5	s2	targetNode	tree.node(targetId) 返回的另一端点 low/lim 标签。
 a2@112:5	a2	subtreeRoot	由两端 low/lim 次序确定、用于切分候选边的子树根标签。
-d2@113:5	d2	sourceIsRoot	候选边起点侧是否被选为 subtreeRoot 的标志。
+d2@113:5	d2	targetIsRoot	sourceNode.lim 大于 targetNode.lim、subtreeRoot 改取 targetNode 时置为 true；对应 dagre enterEdge 的 flip。
 u4@119:10	u4	edge	过滤跨越 leavingEdge 切分边界的原图候选边。
 u4@122:16	u4	currentBestEdge	reduce 中当前 slack 最小的进入边候选。
 c3@122:20	c3	candidateEdge	正在与 currentBestEdge 比较 slack 的候选进入边。

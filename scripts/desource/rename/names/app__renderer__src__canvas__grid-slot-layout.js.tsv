@@ -10,7 +10,7 @@ o2@25:15	o2	nodeId	assignLowLim 当前访问并记录 low/lim 的节点 ID。
 i2@26:9	i2	low	assignLowLim 进入该节点时的 nextLim，作为其 low 边界。
 e2@35:20	e2	graph	addRankBorderNode 操作并挂载边界节点的 Graphlib 图。
 n2@35:24	n2	borderType	边界节点的类别键（如 borderLeft/borderRight）。
-t2@35:28	t2	nodeOrder	传给 w$3 生成边界节点 ID 的顺序参数。
+t2@35:28	t2	idPrefix	传给 w$3 的边界节点 ID 前缀（如 "_bl"/"_br"）；对应 dagre addBorderNode 的 prefix。
 r2@35:32	r2	parentId	新边界节点应挂到的 compound 父节点 ID。
 o2@35:36	o2	borderNodesByType	按边界类别和 rank 保存节点 ID 的表。
 i2@35:40	i2	rank	当前新建边界节点所在的 rank。
@@ -52,7 +52,7 @@ g2@102:17	g2	predecessorNode	graph.node(predecessorId) 返回、带 dummy/order 
 i2@108:15	i2	upperLayer	当前层的上游层，用于取得 upperLayer.length 上界。
 s2@108:19	s2	layerNodes	当前按 order 扫描并划分边界区间的节点序列。
 a2@109:9	a2	previousBoundaryOrder	上一个 border 节点前驱的 order 边界。
-d2@110:7	d2	previousBorderOrder	最近一个 border predecessor 的 order。
+d2@110:7	d2	nextBorderOrder	当前 border 节点首个前驱的 order，作为本段扫描右边界，随后转存为 previousBoundaryOrder；对应 dagre findType2Conflicts 的 nextNorthPos。
 l2@111:7	l2	rangeStart	当前未处理冲突区间在 layerNodes 中的起点。
 u4@113:19	u4	nodeId	layerNodes.forEach 当前处理的节点 ID。
 c3@113:23	c3	nodeIndex	nodeId 在 layerNodes 中的下标。

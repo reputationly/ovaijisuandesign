@@ -91,9 +91,9 @@ J@268:10	J	assignBucket	assignBucket 将 entry 按 in/out 权重状态移动到 
 e2@268:12	e2	buckets	保存按权重差值索引的双端队列数组。
 n2@268:16	n2	zeroIndex	把可能为负的 out-in 值平移到 buckets 非负下标的偏移量。
 t2@268:20	t2	entry	要根据当前 in/out 权重重新入桶的 Graphlib 节点状态。
-r2@269:7	r2	middleBucket	既非 source 也非 sink 时取出的中心 bucket。
-o2@269:11	o2	sinkBucket	out 为零时存放 sink entry 的最后一个 bucket。
-i2@269:15	i2	sourceBucket	in/out 均非零时按 out-in+zeroIndex 选出的 bucket。
+r2@269:7	r2	sinkBucket	entry.out 为零（sink）时入队的 buckets[0]；与 doGreedyFAS 中 sinkBucket = buckets[0] 一致。
+o2@269:11	o2	sourceBucket	entry.out 非零且 entry.in 为零（source）时入队的最后一个 bucket；与 doGreedyFAS 中 sourceBucket = buckets[buckets.length - 1] 一致。
+i2@269:15	i2	middleBucket	入出度均非零时按 out - in + zeroIndex 选中的中间 bucket。
 $$5@276:10	$$5	removeNode	从工作图移除 entry，并更新相邻节点权重、桶位置及可选前驱清单。
 e2@276:14	e2	graph	正在删除节点并更新剩余度数的有向状态图。
 n2@276:18	n2	buckets	相邻节点权重变化后 assignBucket 要更新的桶数组。

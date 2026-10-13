@@ -84,7 +84,7 @@ import {
   getParentDir,
   joinFilePath,
 } from "../assets/use-file-explorer-canvas-integration.js";
-import { getFileName as uploadedFileName } from "./uploading-assets.jsx";
+import { getFileName as getFileNameFromPath } from "./uploading-assets.jsx";
 import { requestNodeRename } from "./use-inline-rename.jsx";
 import { hiloMediaPlugin } from "./hilo-media-plugin.js";
 import {
@@ -1108,7 +1108,7 @@ export function CanvasArea({
   const handleDuplicateTextAsset = reactExports.useCallback(
     async (filePath) => {
       const content = await httpClient.readContent(filePath);
-      const fileName = uploadedFileName(filePath);
+      const fileName = getFileNameFromPath(filePath);
       const parentDir = getParentDir(filePath);
       const desiredName = generateCopyName(fileName, false);
       const desiredPath = parentDir
@@ -1122,7 +1122,7 @@ export function CanvasArea({
           `Failed to create duplicated text asset for ${filePath}`,
         );
       }
-      const finalName = uploadedFileName(res.path);
+      const finalName = getFileNameFromPath(res.path);
       return {
         assetId: res.assetId,
         url: httpClient.fileUrlById(res.assetId),
@@ -1135,7 +1135,7 @@ export function CanvasArea({
   );
   const handleDuplicateFileAsset = reactExports.useCallback(
     async (filePath) => {
-      const fileName = uploadedFileName(filePath);
+      const fileName = getFileNameFromPath(filePath);
       const desiredName = generateCopyName(fileName, false);
       const res = await assetMutator.fork(
         {
@@ -1189,7 +1189,7 @@ export function CanvasArea({
       return {
         assetId: imported.id,
         url: httpClient.fileUrlById(imported.id),
-        name: uploadedFileName(imported.path),
+        name: getFileNameFromPath(imported.path),
         path: imported.path,
         type: imported.type ?? params.expectedKind ?? "file",
         ...(typeof imported.width === "number"

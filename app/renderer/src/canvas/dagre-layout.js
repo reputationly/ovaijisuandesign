@@ -467,19 +467,19 @@ function order(graph, options = {}) {
   let maxRank = X(graph),
     incomingLayerGraphs = buildLayerGraphs(graph, k(1, maxRank + 1), "inEdges"),
     outgoingLayerGraphs = buildLayerGraphs(graph, k(maxRank - 1, -1, -1), "outEdges"),
-    bestLayers = buildInitialOrder(graph);
-  if ((assignOrder(graph, bestLayers), options.disableOptimalOrderHeuristic)) return;
+    currentLayering = buildInitialOrder(graph);
+  if ((assignOrder(graph, currentLayering), options.disableOptimalOrderHeuristic)) return;
   let bestCrossings = Number.POSITIVE_INFINITY,
-    bestLayerCandidate,
+    bestLayering,
     constraints = options.constraints || [];
   for (let sweepIndex = 0, sweepCount = 0; sweepCount < 4; ++sweepIndex, ++sweepCount) {
-    (sortLayerGraphs(sweepIndex % 2 ? incomingLayerGraphs : outgoingLayerGraphs, sweepIndex % 4 >= 2, constraints), (bestLayers = N(graph)));
-    let crossings = crossCount(graph, bestLayers);
+    (sortLayerGraphs(sweepIndex % 2 ? incomingLayerGraphs : outgoingLayerGraphs, sweepIndex % 4 >= 2, constraints), (currentLayering = N(graph)));
+    let crossings = crossCount(graph, currentLayering);
     crossings < bestCrossings
-      ? ((sweepCount = 0), (bestLayerCandidate = Object.assign({}, bestLayers)), (bestCrossings = crossings))
-      : crossings === bestCrossings && (bestLayerCandidate = structuredClone(bestLayers));
+      ? ((sweepCount = 0), (bestLayering = Object.assign({}, currentLayering)), (bestCrossings = crossings))
+      : crossings === bestCrossings && (bestLayering = structuredClone(currentLayering));
   }
-  assignOrder(graph, bestLayerCandidate);
+  assignOrder(graph, bestLayering);
 }
 function positionX(graph) {
   let layers = N(graph),

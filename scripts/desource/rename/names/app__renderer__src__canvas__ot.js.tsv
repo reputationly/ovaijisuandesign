@@ -77,7 +77,7 @@ i2@121:19	i2	currentLayer	当前扫描的下一层节点序列。
 s2@122:9	s2	previousOrder	上一个 inner segment 左边界的 order。
 a2@123:7	a2	layerStart	当前尚未处理区间在 currentLayer 中的起始下标。
 d2@124:7	d2	previousLayerEnd	上一层长度，作为没有 inner segment 时的右边界 order。
-l2@125:7	l2	previousInnerSegment	currentLayer 中最后一个 inner segment 节点 ID。
+l2@125:7	l2	lastNode	currentLayer 的最后一个节点 ID；扫描到它时收尾最后一段冲突检测，对应 dagre findType1Conflicts 的 lastNode。
 u4@127:19	u4	nodeId	currentLayer.forEach 当前处理的节点 ID。
 c3@127:23	c3	order	nodeId 在 currentLayer 中的数组下标。
 h2@128:13	h2	innerSegmentNode	xt 返回的、连接当前 dummy 链的前驱 dummy 节点 ID。

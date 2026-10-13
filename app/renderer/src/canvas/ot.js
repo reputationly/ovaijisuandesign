@@ -122,12 +122,12 @@ export function vt(graph, layers) {
     let previousOrder = 0,
       layerStart = 0,
       previousLayerEnd = upperLayer.length,
-      previousInnerSegment = currentLayer[currentLayer.length - 1];
+      lastNode = currentLayer[currentLayer.length - 1];
     return (
       currentLayer.forEach((nodeId, order) => {
         let innerSegmentNode = xt(graph, nodeId),
           boundaryOrder = innerSegmentNode ? graph.node(innerSegmentNode).order : previousLayerEnd;
-        (innerSegmentNode || nodeId === previousInnerSegment) &&
+        (innerSegmentNode || nodeId === lastNode) &&
           (currentLayer.slice(layerStart, order + 1).forEach((currentNodeId) => {
             let predecessorIds = graph.predecessors(currentNodeId);
             predecessorIds &&

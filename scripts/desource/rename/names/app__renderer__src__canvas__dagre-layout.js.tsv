@@ -230,9 +230,9 @@ n2@462:16	n2	options	order 的参数：自定义排序、约束及禁用优化�
 t2@467:7	t2	maxRank	order 的局部：图中最大 rank，用于生成正反 sweep 的 rank 序列。
 r2@468:5	r2	incomingLayerGraphs	order 的局部：按正向 rank 顺序以 inEdges 构建的 layer graphs。
 o2@469:5	o2	outgoingLayerGraphs	order 的局部：按反向 rank 顺序以 outEdges 构建的 layer graphs。
-i2@470:5	i2	bestLayers	order 的局部：初始化并在 sweep 期间保留交叉数最少的层顺序。
+i2@470:5	i2	currentLayering	初始层序，之后每轮 sweep 都被 N(graph) 覆盖为当前层序并参与 crossCount；对应 dagre order 的 layering。
 s2@472:7	s2	bestCrossings	order 的局部：当前已找到的最小 crossing 数。
-a2@473:5	a2	bestLayerCandidate	order 的局部：当前待比较并可能保留的层顺序快照。
+a2@473:5	a2	bestLayering	交叉数不大于历史最小值时保存的层序副本，循环结束后写回 assignOrder；对应 dagre order 的 best。
 d2@474:5	d2	constraints	order 的局部：调用者提供的左右顺序约束列表。
 l2@475:12	l2	sweepIndex	order 的 for 循环变量：决定本轮 sweep 的奇偶方向。
 u4@475:20	u4	sweepCount	order 的 for 循环变量：控制 sweep 轮数并在改进时重置。

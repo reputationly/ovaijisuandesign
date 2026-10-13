@@ -266,12 +266,12 @@ var LinkedListClass = class List {
 };
 var LinkedList = LinkedListClass;
 function assignBucket(buckets, zeroIndex, entry) {
-  var middleBucket, sinkBucket, sourceBucket;
+  var sinkBucket, sourceBucket, middleBucket;
   entry.out
     ? entry.in
-      ? (sourceBucket = buckets[entry.out - entry.in + zeroIndex]) == null || sourceBucket.enqueue(entry)
-      : (sinkBucket = buckets[buckets.length - 1]) == null || sinkBucket.enqueue(entry)
-    : (middleBucket = buckets[0]) == null || middleBucket.enqueue(entry);
+      ? (middleBucket = buckets[entry.out - entry.in + zeroIndex]) == null || middleBucket.enqueue(entry)
+      : (sourceBucket = buckets[buckets.length - 1]) == null || sourceBucket.enqueue(entry)
+    : (sinkBucket = buckets[0]) == null || sinkBucket.enqueue(entry);
 }
 function removeNode(graph, buckets, zeroIndex, entry, collectPredecessors) {
   let predecessors = [],

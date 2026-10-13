@@ -18,7 +18,7 @@ id2@494:18	id2	id	去掉打包器去重后缀，恢复原名；作用域内无�
 a2@525:6	a2	leftAnalysis	该对象是同组子集比较的左侧结果。
 b3@525:10	b3	rightAnalysis	该对象是同组子集比较的右侧结果。
 s2@527:42	s2	storeState	该参数提供目标分组节点的查找表。
-e2@613:6	e2	pointerEvent	该值是用于更新分组背景色的指针事件。
+e2@613:6	e2	clickEvent	handlePromoteToAsset 作为按钮 onClick 处理器，参数是点击事件，读取 clientX/clientY 作为提升素材的屏幕位置。
 s2@621:38	s2	storeState	该参数提供判断表格节点选择状态的节点查找表。
 size2@82:30	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 selected2@98:13	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

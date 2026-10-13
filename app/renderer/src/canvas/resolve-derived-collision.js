@@ -97,7 +97,7 @@ function rightmostPeerColumn(peers) {
       });
     }
   }
-  return columns.reduce((firstRect, secondRect) => (secondRect.x > firstRect.x ? secondRect : firstRect)).peers;
+  return columns.reduce((firstColumn, secondColumn) => (secondColumn.x > firstColumn.x ? secondColumn : firstColumn)).peers;
 }
 function localityRectsAreConnected(firstRect, secondRect, maxGap) {
   const horizontalGap = Math.max(
@@ -112,16 +112,16 @@ function localityRectsAreConnected(firstRect, secondRect, maxGap) {
   );
   return horizontalGap <= maxGap && verticalGap <= maxGap;
 }
-function localityRectGapSquared(currentPeer, candidatePeer) {
+function localityRectGapSquared(anchorRect, candidateRect) {
   const horizontalGap = Math.max(
     0,
-    currentPeer.x - (candidatePeer.x + candidatePeer.width),
-    candidatePeer.x - (currentPeer.x + currentPeer.width),
+    anchorRect.x - (candidateRect.x + candidateRect.width),
+    candidateRect.x - (anchorRect.x + anchorRect.width),
   );
   const verticalGap = Math.max(
     0,
-    currentPeer.y - (candidatePeer.y + candidatePeer.height),
-    candidatePeer.y - (currentPeer.y + currentPeer.height),
+    anchorRect.y - (candidateRect.y + candidateRect.height),
+    candidateRect.y - (anchorRect.y + anchorRect.height),
   );
   return horizontalGap * horizontalGap + verticalGap * verticalGap;
 }

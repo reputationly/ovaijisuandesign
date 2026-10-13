@@ -32,7 +32,7 @@ export function lt2(graph) {
   }
   return (graph.children(_).forEach(assignLowLim), lowLimByNode);
 }
-export function Qe(graph, borderType, nodeOrder, parentId, borderNodesByType, rank) {
+export function Qe(graph, borderType, idPrefix, parentId, borderNodesByType, rank) {
   let borderNodeLabel = {
       width: 0,
       height: 0,
@@ -40,7 +40,7 @@ export function Qe(graph, borderType, nodeOrder, parentId, borderNodesByType, ra
       borderType,
     },
     previousBorderNode = borderNodesByType[borderType][rank - 1],
-    borderNode = w$3(graph, "border", borderNodeLabel, nodeOrder);
+    borderNode = w$3(graph, "border", borderNodeLabel, idPrefix);
   ((borderNodesByType[borderType][rank] = borderNode),
     graph.setParent(borderNode, parentId),
     previousBorderNode &&
@@ -107,7 +107,7 @@ export function _t(graph, layering) {
   }
   function findType2ConflictsInLayer(upperLayer, layerNodes) {
     let previousBoundaryOrder = -1,
-      previousBorderOrder = -1,
+      nextBorderOrder = -1,
       rangeStart = 0;
     return (
       layerNodes.forEach((nodeId, nodeIndex) => {
@@ -116,13 +116,13 @@ export function _t(graph, layering) {
           if (predecessors && predecessors.length) {
             let firstPredecessor = predecessors[0];
             if (firstPredecessor === void 0) return;
-            ((previousBorderOrder = graph.node(firstPredecessor).order),
-              findConflictsInRange(layerNodes, rangeStart, nodeIndex, previousBoundaryOrder, previousBorderOrder),
+            ((nextBorderOrder = graph.node(firstPredecessor).order),
+              findConflictsInRange(layerNodes, rangeStart, nodeIndex, previousBoundaryOrder, nextBorderOrder),
               (rangeStart = nodeIndex),
-              (previousBoundaryOrder = previousBorderOrder));
+              (previousBoundaryOrder = nextBorderOrder));
           }
         }
-        findConflictsInRange(layerNodes, rangeStart, layerNodes.length, previousBorderOrder, upperLayer.length);
+        findConflictsInRange(layerNodes, rangeStart, layerNodes.length, nextBorderOrder, upperLayer.length);
       }),
       layerNodes
     );

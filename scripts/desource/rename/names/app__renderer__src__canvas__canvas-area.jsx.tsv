@@ -1,5 +1,5 @@
 key	old	new	依据
-getFileName$1@87:25	getFileName$1	uploadedFileName	该导入函数从资源路径提取文件名；与同文件 useMediaActions 提供的 getFileName 绑定冲突，因此保留为明确的 uploadedFileName 局部名。
+getFileName$1@87:25	getFileName$1	getFileNameFromPath	从 uploading-assets.jsx 导入的 getFileName：按最后一个 / 或 \ 截取路径中的文件名；与 useMediaActions 解构出的 getFileName 冲突，故使用 getFileNameFromPath。
 isActive2@189:13	isActive2	isActive	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 workspaceId2@191:16	workspaceId2	workspaceId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 t2@198:14	t2	translate	该函数是 react-i18next 提供的翻译函数。
