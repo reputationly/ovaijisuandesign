@@ -1,4 +1,4 @@
-// qs.jsx
+// streamdown.jsx
 import {
   at as iconContextProvider,
   clsx,
@@ -25,12 +25,12 @@ import {
   D3 as useMarkdownTranslations,
   de as useMermaidOptions,
   De as defaultMarkdownTranslations,
-  et as codeAnimationContext,
+  et as incompleteCodeContext,
   He as useCodeMetadata,
   ks as createMarkdownProcessor,
   on as identityUrlTransform,
   Ts as shouldSkipElement,
-  tt as useCodeAnimationState,
+  tt as useIsIncompleteCode,
   Ve as markdownRenderContext,
   vs as replaceNodeWithText,
   wt as MarkdownRenderCache,
@@ -45,10 +45,10 @@ import { Yt as fileExtensionByMimeType } from "./yt.js";
 import { st as HighlightedCodeBlock } from "./st.jsx";
 import { co as MermaidDownloadButton } from "./co.jsx";
 import { fo as MarkdownImage } from "./fo.jsx";
-import { Te as MarkdownTable } from "./te.jsx";
+import { Te as TableCopyButton } from "./te.jsx";
 import { Pe as TableDownloadMenu } from "./pe.jsx";
 import { twMerge } from "../infra/dialog-content.jsx";
-import { $e$1 as remendMarkdown, be as createAnimationStyles } from "../vendor-inline/minified/s2.js";
+import { $e$1 as remendMarkdown, be as createAnimatePlugin } from "../vendor-inline/minified/s2.js";
 import { vn as defaultCodeTheme, xn as defaultLinkSafety } from "./xn.js";
 var rtlCharacterPattern = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
 var unicodeLetterPattern = new RegExp("\\p{L}", "u");
@@ -72,8 +72,8 @@ var hasUnclosedCodeFence = (markdownText) => {
 `),
     fenceMarker = null,
     fenceLength = 0;
-  for (let rowText of sourceLines) {
-    let fenceMatch = fencedCodeStartPattern.exec(rowText);
+  for (let line of sourceLines) {
+    let fenceMatch = fencedCodeStartPattern.exec(line);
     if (fenceMarker === null) {
       if (fenceMatch) {
         let fenceLineMatch = fenceMatch[1];
@@ -89,11 +89,11 @@ var hasUnclosedCodeFence = (markdownText) => {
   return fenceMarker !== null;
 };
 var hasTableSeparator = (markdownText) => {
-  let htmlLines = markdownText.split(`
+  let lines = markdownText.split(`
 `);
-  for (let htmlLine of htmlLines) {
-    let trimmedHtmlLine = htmlLine.trim();
-    if (trimmedHtmlLine.length > 0 && trimmedHtmlLine.includes("|") && tableDelimiterPattern.test(trimmedHtmlLine)) return true;
+  for (let line of lines) {
+    let trimmedLine = line.trim();
+    if (trimmedLine.length > 0 && trimmedLine.includes("|") && tableDelimiterPattern.test(trimmedLine)) return true;
   }
   return false;
 };
@@ -155,7 +155,7 @@ var prefixClassNames = (prefix, classNames) => {
     .map((className) => (className.startsWith(classNamePrefix) ? className : `${prefix}:${className}`))
     .join(" ");
 };
-var createClassNameMerger = (classNameInput) => (classNameInput ? (...additionalProps) => prefixClassNames(classNameInput, twMerge(clsx(additionalProps))) : mergeClassNames);
+var createClassNameMerger = (prefix) => (prefix ? (...classValues) => prefixClassNames(prefix, twMerge(clsx(classValues))) : mergeClassNames);
 var FileDownloadButton = ({
   onDownload,
   onError,
@@ -166,11 +166,11 @@ var FileDownloadButton = ({
   ...additionalProps
 }) => {
   let mergeClasses = useClassNameMerger(),
-    { code: codeText } = useCodeMetadata(),
+    { code: contextCode } = useCodeMetadata(),
     { isAnimating } = reactExports.useContext(markdownRenderOptionsContext),
     translationStrings = useMarkdownTranslations(),
     markdownIcons = useMarkdownIcons(),
-    codeContent = code != null ? code : codeText,
+    codeContent = code != null ? code : contextCode,
     downloadFilename = `file.${language && language in fileExtensionByMimeType ? fileExtensionByMimeType[language] : "txt"}`,
     mimeType = "text/plain",
     handleDownload = () => {
@@ -311,27 +311,27 @@ var MarkdownImageRenderer = ({
     </div>
   ) : null;
 };
-var ExternalLinkConfirmation = ({ url, isOpen: confirmHandler, onClose: closeHandler, onConfirm: confirmLinkAction }) => {
+var ExternalLinkConfirmation = ({ url, isOpen, onClose, onConfirm }) => {
   let { CheckIcon: checkIcon, CopyIcon: copyIcon, ExternalLinkIcon: externalLinkIcon, XIcon: xIcon } = useMarkdownIcons(),
     mergeClasses = useClassNameMerger(),
     [hasCopiedLink, setHasCopiedLink] = reactExports.useState(false),
     translations = useMarkdownTranslations(),
-    copyTableAsImage = reactExports.useCallback(async () => {
+    copyLinkToClipboard = reactExports.useCallback(async () => {
       try {
         (await navigator.clipboard.writeText(url),
           setHasCopiedLink(true),
           setTimeout(() => setHasCopiedLink(false), 2e3));
       } catch (caughtError) {}
     }, [url]),
-    downloadTableAsImage = reactExports.useCallback(() => {
-      (confirmLinkAction(), closeHandler());
-    }, [confirmLinkAction, closeHandler]);
+    confirmAndClose = reactExports.useCallback(() => {
+      (onConfirm(), onClose());
+    }, [onConfirm, onClose]);
   return (
     reactExports.useEffect(() => {
-      if (confirmHandler) {
+      if (isOpen) {
         lockBodyScroll();
         let handleKeyDown = (keyboardEvent) => {
-          keyboardEvent.key === "Escape" && closeHandler();
+          keyboardEvent.key === "Escape" && onClose();
         };
         return (
           document.addEventListener("keydown", handleKeyDown),
@@ -340,16 +340,16 @@ var ExternalLinkConfirmation = ({ url, isOpen: confirmHandler, onClose: closeHan
           }
         );
       }
-    }, [confirmHandler, closeHandler]),
-    confirmHandler ? (
+    }, [isOpen, onClose]),
+    isOpen ? (
       <div
         className={mergeClasses(
           "fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm",
         )}
         data-streamdown="link-safety-modal"
-        onClick={closeHandler}
-        onKeyDown={(keyboardHandler) => {
-          keyboardHandler.key === "Escape" && closeHandler();
+        onClick={onClose}
+        onKeyDown={(keyboardEvent) => {
+          keyboardEvent.key === "Escape" && onClose();
         }}
         role="button"
         tabIndex={0}
@@ -358,15 +358,15 @@ var ExternalLinkConfirmation = ({ url, isOpen: confirmHandler, onClose: closeHan
           className={mergeClasses(
             "relative mx-4 flex w-full max-w-md flex-col gap-4 rounded-xl border bg-background p-6 shadow-lg",
           )}
-          onClick={(clickHandler) => clickHandler.stopPropagation()}
-          onKeyDown={(keyboardHandler) => keyboardHandler.stopPropagation()}
+          onClick={(clickEvent) => clickEvent.stopPropagation()}
+          onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
           role="presentation"
         >
           <button
             className={mergeClasses(
               "absolute top-4 right-4 rounded-md p-1 text-muted-foreground transition-all hover:bg-muted hover:text-foreground",
             )}
-            onClick={closeHandler}
+            onClick={onClose}
             title={translations.close}
             type="button"
           >
@@ -400,7 +400,7 @@ var ExternalLinkConfirmation = ({ url, isOpen: confirmHandler, onClose: closeHan
               className={mergeClasses(
                 "flex flex-1 items-center justify-center gap-2 rounded-md border bg-background px-4 py-2 font-medium text-sm transition-all hover:bg-muted",
               )}
-              onClick={copyTableAsImage}
+              onClick={copyLinkToClipboard}
               type="button"
             >
               {hasCopiedLink ? (
@@ -423,7 +423,7 @@ var ExternalLinkConfirmation = ({ url, isOpen: confirmHandler, onClose: closeHan
               className={mergeClasses(
                 "flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-all hover:bg-primary/90",
               )}
-              onClick={downloadTableAsImage}
+              onClick={confirmAndClose}
               type="button"
             >
               {jsxRuntimeExports.jsx(externalLinkIcon, {
@@ -437,7 +437,7 @@ var ExternalLinkConfirmation = ({ url, isOpen: confirmHandler, onClose: closeHan
     ) : null
   );
 };
-var MediaLightbox = ({
+var TableFullscreenButton = ({
   children,
   className,
   showCopy = true,
@@ -493,21 +493,21 @@ var MediaLightbox = ({
                 className={mergeClasses("fixed inset-0 z-50 flex flex-col bg-background")}
                 data-streamdown="table-fullscreen"
                 onClick={closeFullscreen}
-                onKeyDown={(keyboardHandler) => {
-                  keyboardHandler.key === "Escape" && closeFullscreen();
+                onKeyDown={(keyboardEvent) => {
+                  keyboardEvent.key === "Escape" && closeFullscreen();
                 }}
                 role="dialog"
               >
                 <div
                   className={mergeClasses("flex h-full flex-col")}
-                  onClick={(clickHandler) => clickHandler.stopPropagation()}
-                  onKeyDown={(keyboardHandler) => keyboardHandler.stopPropagation()}
+                  onClick={(clickEvent) => clickEvent.stopPropagation()}
+                  onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
                   role="presentation"
                 >
                   <div
                     className={mergeClasses("flex items-center justify-end gap-1 p-4")}
                   >
-                    {showCopy ? <MarkdownTable /> : null}
+                    {showCopy ? <TableCopyButton /> : null}
                     {showDownload ? <TableDownloadMenu /> : null}
                     <button
                       className={mergeClasses(
@@ -545,7 +545,7 @@ var MediaLightbox = ({
     )
   );
 };
-var MarkdownTableCell = ({
+var MarkdownTableWrapper = ({
   children,
   className,
   showControls,
@@ -557,8 +557,8 @@ var MarkdownTableCell = ({
   let mergeClasses = useClassNameMerger(),
     canCopyTable = showControls && showCopy,
     canDownloadTable = showControls && showDownload,
-    canCopyTableAsImage = showControls && showFullscreen,
-    hasTableActions = canCopyTable || canDownloadTable || canCopyTableAsImage;
+    canShowFullscreen = showControls && showFullscreen,
+    hasTableActions = canCopyTable || canDownloadTable || canShowFullscreen;
   return (
     <div
       className={mergeClasses(
@@ -568,12 +568,12 @@ var MarkdownTableCell = ({
     >
       {hasTableActions ? (
         <div className={mergeClasses("flex items-center justify-end gap-1")}>
-          {canCopyTable ? <MarkdownTable /> : null}
+          {canCopyTable ? <TableCopyButton /> : null}
           {canDownloadTable ? <TableDownloadMenu /> : null}
-          {canCopyTableAsImage ? (
-            <MediaLightbox showCopy={canCopyTable} showDownload={canDownloadTable}>
+          {canShowFullscreen ? (
+            <TableFullscreenButton showCopy={canCopyTable} showDownload={canDownloadTable}>
               {children}
-            </MediaLightbox>
+            </TableFullscreenButton>
           ) : null}
         </div>
       ) : null}
@@ -700,7 +700,7 @@ var MarkdownLink = ({ children, className, href, node: markdownNode, ...addition
     { linkSafety } = reactExports.useContext(markdownRenderOptionsContext),
     [isLinkSafetyOpen, setIsLinkSafetyOpen] = reactExports.useState(false),
     isIncompleteLink = href === "streamdown:incomplete-link",
-    handleOpenLink = reactExports.useCallback(
+    handleLinkClick = reactExports.useCallback(
       async (linkEvent) => {
         if (!(!(linkSafety != null && linkSafety.enabled && href) || isIncompleteLink)) {
           if (
@@ -714,17 +714,17 @@ var MarkdownLink = ({ children, className, href, node: markdownNode, ...addition
       },
       [linkSafety, href, isIncompleteLink],
     ),
-    copyLink = reactExports.useCallback(() => {
+    confirmOpenLink = reactExports.useCallback(() => {
       href && window.open(href, "_blank", "noreferrer");
     }, [href]),
-    openExternalLink = reactExports.useCallback(() => {
+    closeLinkSafety = reactExports.useCallback(() => {
       setIsLinkSafetyOpen(false);
     }, []),
-    linkAttributes = {
+    linkSafetyModalProps = {
       url: href != null ? href : "",
       isOpen: isLinkSafetyOpen,
-      onClose: openExternalLink,
-      onConfirm: copyLink,
+      onClose: closeLinkSafety,
+      onConfirm: confirmOpenLink,
     };
   return linkSafety != null && linkSafety.enabled && href ? (
     <>
@@ -735,15 +735,15 @@ var MarkdownLink = ({ children, className, href, node: markdownNode, ...addition
         )}
         data-incomplete={isIncompleteLink}
         data-streamdown="link"
-        onClick={handleOpenLink}
+        onClick={handleLinkClick}
         type="button"
       >
         {children}
       </button>
       {linkSafety.renderModal
-        ? linkSafety.renderModal(linkAttributes)
+        ? linkSafety.renderModal(linkSafetyModalProps)
         : jsxRuntimeExports.jsx(ExternalLinkConfirmation, {
-            ...linkAttributes,
+            ...linkSafetyModalProps,
           })}
     </>
   ) : (
@@ -860,17 +860,17 @@ var MarkdownHeadingSix = reactExports.memo(
 MarkdownHeadingSix.displayName = "MarkdownH6";
 var MarkdownTableRenderer = reactExports.memo(
   ({ children, className, node: markdownNode, ...additionalProps }) => {
-    let { controls: showTableControls } = reactExports.useContext(markdownRenderOptionsContext),
-      canCopyTable = isOptionEnabled(showTableControls, "table"),
-      canCopyTableData = isTableActionEnabled(showTableControls, "copy"),
-      canDownloadTable = isTableActionEnabled(showTableControls, "download"),
-      canFullscreenTable = isTableActionEnabled(showTableControls, "fullscreen");
-    return jsxRuntimeExports.jsx(MarkdownTableCell, {
+    let { controls } = reactExports.useContext(markdownRenderOptionsContext),
+      areTableControlsEnabled = isOptionEnabled(controls, "table"),
+      canCopyTable = isTableActionEnabled(controls, "copy"),
+      canDownloadTable = isTableActionEnabled(controls, "download"),
+      canShowFullscreen = isTableActionEnabled(controls, "fullscreen");
+    return jsxRuntimeExports.jsx(MarkdownTableWrapper, {
       className,
-      showControls: canCopyTable,
-      showCopy: canCopyTableData,
+      showControls: areTableControlsEnabled,
+      showCopy: canCopyTable,
       showDownload: canDownloadTable,
-      showFullscreen: canFullscreenTable,
+      showFullscreen: canShowFullscreen,
       ...additionalProps,
       children,
     });
@@ -1007,67 +1007,67 @@ MarkdownSubscript.displayName = "MarkdownSub";
 var MarkdownSection = reactExports.memo(
   ({ children, className, node: markdownNode, ...additionalProps }) => {
     if ("data-footnotes" in additionalProps) {
-      let getVisibleText = (renderedElement) => {
-          var firstChild, lastChild;
+      let isBackrefOnlyItem = (renderedElement) => {
+          var childProps, nestedChildProps;
           if (!reactExports.isValidElement(renderedElement)) return false;
-          let hasChildArray = Array.isArray(renderedElement.props.children)
+          let childList = Array.isArray(renderedElement.props.children)
               ? renderedElement.props.children
               : [renderedElement.props.children],
-            hasStringChild = false,
-            hasElementChild = false;
-          for (let childElement of hasChildArray)
+            hasTextContent = false,
+            hasBackref = false;
+          for (let childElement of childList)
             if (childElement) {
-              if (typeof childElement == "string") childElement.trim() !== "" && (hasStringChild = true);
+              if (typeof childElement == "string") childElement.trim() !== "" && (hasTextContent = true);
               else if (reactExports.isValidElement(childElement))
                 if (
-                  ((firstChild = childElement.props) == null
+                  ((childProps = childElement.props) == null
                     ? void 0
-                    : firstChild["data-footnote-backref"]) !== void 0
+                    : childProps["data-footnote-backref"]) !== void 0
                 )
-                  hasElementChild = true;
+                  hasBackref = true;
                 else {
                   let childElements = Array.isArray(childElement.props.children)
                     ? childElement.props.children
                     : [childElement.props.children];
                   for (let nestedChild of childElements) {
                     if (typeof nestedChild == "string" && nestedChild.trim() !== "") {
-                      hasStringChild = true;
+                      hasTextContent = true;
                       break;
                     }
                     if (
                       reactExports.isValidElement(nestedChild) &&
-                      ((lastChild = nestedChild.props) == null
+                      ((nestedChildProps = nestedChild.props) == null
                         ? void 0
-                        : lastChild["data-footnote-backref"]) === void 0
+                        : nestedChildProps["data-footnote-backref"]) === void 0
                     ) {
-                      hasStringChild = true;
+                      hasTextContent = true;
                       break;
                     }
                   }
                 }
             }
-          return hasElementChild && !hasStringChild;
+          return hasBackref && !hasTextContent;
         },
         renderedChildren = Array.isArray(children)
-          ? children.map((tableCell) => {
-              if (!reactExports.isValidElement(tableCell)) return tableCell;
-              if (tableCell.type === MarkdownOrderedList) {
-                let renderedTable = (
-                  Array.isArray(tableCell.props.children)
-                    ? tableCell.props.children
-                    : [tableCell.props.children]
-                ).filter((childNode) => !getVisibleText(childNode));
-                return renderedTable.length === 0
+          ? children.map((sectionChild) => {
+              if (!reactExports.isValidElement(sectionChild)) return sectionChild;
+              if (sectionChild.type === MarkdownOrderedList) {
+                let visibleListItems = (
+                  Array.isArray(sectionChild.props.children)
+                    ? sectionChild.props.children
+                    : [sectionChild.props.children]
+                ).filter((listItem) => !isBackrefOnlyItem(listItem));
+                return visibleListItems.length === 0
                   ? null
                   : {
-                      ...tableCell,
+                      ...sectionChild,
                       props: {
-                        ...tableCell.props,
-                        children: renderedTable,
+                        ...sectionChild.props,
+                        children: visibleListItems,
                       },
                     };
               }
-              return tableCell;
+              return sectionChild;
             })
           : children;
       return (
@@ -1088,19 +1088,19 @@ var MarkdownSection = reactExports.memo(
 );
 MarkdownSection.displayName = "MarkdownSection";
 var MarkdownCodeBlock = ({ node: markdownNode, className, children, ...additionalProps }) => {
-  var previousComponent, nextComponent;
-  let classNames = useClassNameMerger(),
+  var matchedLanguage, nodeProperties;
+  let mergeClasses = useClassNameMerger(),
     isInlineCode = !("data-block" in additionalProps),
     { mermaid: mermaidOptions, controls: showCodeControls, lineNumbers: showLineNumbers } = reactExports.useContext(markdownRenderOptionsContext),
     mermaidContext = useMermaidOptions(),
-    isAnimating = useCodeAnimationState(),
+    isIncompleteCode = useIsIncompleteCode(),
     languageMatch = className == null ? void 0 : className.match(languageClassPattern),
-    languageName = (previousComponent = languageMatch == null ? void 0 : languageMatch.at(1)) != null ? previousComponent : "",
+    languageName = (matchedLanguage = languageMatch == null ? void 0 : languageMatch.at(1)) != null ? matchedLanguage : "",
     languageRenderer = findRendererForLanguage(languageName);
   if (isInlineCode)
     return (
       <code
-        className={classNames("rounded bg-muted px-1.5 py-0.5 font-mono text-sm", className)}
+        className={mergeClasses("rounded bg-muted px-1.5 py-0.5 font-mono text-sm", className)}
         data-streamdown="inline-code"
         {...additionalProps}
       >
@@ -1108,9 +1108,9 @@ var MarkdownCodeBlock = ({ node: markdownNode, className, children, ...additiona
       </code>
     );
   let codeMetadata =
-      (nextComponent = markdownNode == null ? void 0 : markdownNode.properties) == null
+      (nodeProperties = markdownNode == null ? void 0 : markdownNode.properties) == null
         ? void 0
-        : nextComponent.metastring,
+        : nodeProperties.metastring,
     lineStartMatch = codeMetadata == null ? void 0 : codeMetadata.match(startingLinePattern),
     startingLine = lineStartMatch ? Number.parseInt(lineStartMatch[1], 10) : void 0,
     validStartingLine = startingLine !== void 0 && startingLine >= 1 ? startingLine : void 0,
@@ -1131,7 +1131,7 @@ var MarkdownCodeBlock = ({ node: markdownNode, className, children, ...additiona
       <reactExports.Suspense fallback={<CodeBlockLoadingPlaceholder />}>
         {jsxRuntimeExports.jsx(mermaidComponent, {
           code: highlightedCode,
-          isIncomplete: isAnimating,
+          isIncomplete: isIncompleteCode,
           language: languageName,
           meta: codeMetadata,
         })}
@@ -1148,27 +1148,27 @@ var MarkdownCodeBlock = ({ node: markdownNode, className, children, ...additiona
     return (
       <reactExports.Suspense fallback={<CodeBlockLoadingPlaceholder />}>
         <div
-          className={classNames(
+          className={mergeClasses(
             "group relative my-4 flex w-full flex-col gap-2 rounded-xl border border-border bg-sidebar p-2",
             className,
           )}
           data-streamdown="mermaid-block"
         >
           <div
-            className={classNames(
+            className={mergeClasses(
               "flex h-8 items-center text-muted-foreground text-xs",
             )}
           >
-            <span className={classNames("ml-1 font-mono lowercase")}>mermaid</span>
+            <span className={mergeClasses("ml-1 font-mono lowercase")}>mermaid</span>
           </div>
           {hasDiagramControls ? (
             <div
-              className={classNames(
+              className={mergeClasses(
                 "pointer-events-none sticky top-2 z-10 -mt-10 flex h-8 items-center justify-end",
               )}
             >
               <div
-                className={classNames(
+                className={mergeClasses(
                   "pointer-events-auto flex shrink-0 items-center gap-2 rounded-md border border-sidebar bg-sidebar/80 px-1.5 py-1 supports-[backdrop-filter]:bg-sidebar/70 supports-[backdrop-filter]:backdrop-blur",
                 )}
                 data-streamdown="mermaid-block-actions"
@@ -1189,7 +1189,7 @@ var MarkdownCodeBlock = ({ node: markdownNode, className, children, ...additiona
               </div>
             </div>
           ) : null}
-          <div className={classNames("rounded-md border border-border bg-background")}>
+          <div className={mergeClasses("rounded-md border border-border bg-background")}>
             {jsxRuntimeExports.jsx(MermaidRenderer, {
               chart: highlightedCode,
               config: mermaidOptions == null ? void 0 : mermaidOptions.config,
@@ -1206,7 +1206,7 @@ var MarkdownCodeBlock = ({ node: markdownNode, className, children, ...additiona
   return jsxRuntimeExports.jsx(HighlightedCodeBlock, {
     className,
     code: highlightedCode,
-    isIncomplete: isAnimating,
+    isIncomplete: isIncompleteCode,
     language: languageName,
     lineNumbers: shouldRenderLineNumbers,
     startLine: validStartingLine,
@@ -1341,7 +1341,7 @@ var defaultBlockRenderer = reactExports.memo(
     let normalizedContent = typeof content == "string" && shouldNormalizeHtmlIndentation ? normalizeIndentedHtml(content) : content,
       renderedContent = <MarkdownBlockRenderer {...additionalProps}>{normalizedContent}</MarkdownBlockRenderer>;
     return (
-      <codeAnimationContext.Provider value={isIncomplete}>
+      <incompleteCodeContext.Provider value={isIncomplete}>
         {dir ? (
           <div
             dir={dir}
@@ -1354,7 +1354,7 @@ var defaultBlockRenderer = reactExports.memo(
         ) : (
           renderedContent
         )}
-      </codeAnimationContext.Provider>
+      </incompleteCodeContext.Provider>
     );
   },
   (previousProps, nextProps) => {
@@ -1423,22 +1423,22 @@ export var Streamdown = reactExports.memo(
     let componentId = reactExports.useId(),
       [isTransitionPending, startTransition] = reactExports.useTransition(),
       mergeClasses = reactExports.useMemo(() => createClassNameMerger(prefix), [prefix]),
-      previousAnimationState = reactExports.useRef(null),
+      wasAnimatingRef = reactExports.useRef(null),
       animationStartCallbackRef = reactExports.useRef(onAnimationStart),
       animationEndCallbackRef = reactExports.useRef(onAnimationEnd);
     ((animationStartCallbackRef.current = onAnimationStart),
       (animationEndCallbackRef.current = onAnimationEnd),
       reactExports.useEffect(() => {
-        var onAnimationStart, onAnimationEnd, onAnimationComplete;
+        var startCallback, resumeStartCallback, endCallback;
         if (mode === "static") return;
-        let wasAnimating = previousAnimationState.current;
-        if (((previousAnimationState.current = isAnimating), wasAnimating === null)) {
-          isAnimating && ((onAnimationStart = animationStartCallbackRef.current) == null || onAnimationStart.call(animationStartCallbackRef));
+        let wasAnimating = wasAnimatingRef.current;
+        if (((wasAnimatingRef.current = isAnimating), wasAnimating === null)) {
+          isAnimating && ((startCallback = animationStartCallbackRef.current) == null || startCallback.call(animationStartCallbackRef));
           return;
         }
         isAnimating && !wasAnimating
-          ? (onAnimationEnd = animationStartCallbackRef.current) == null || onAnimationEnd.call(animationStartCallbackRef)
-          : !isAnimating && wasAnimating && ((onAnimationComplete = animationEndCallbackRef.current) == null || onAnimationComplete.call(animationEndCallbackRef));
+          ? (resumeStartCallback = animationStartCallbackRef.current) == null || resumeStartCallback.call(animationStartCallbackRef)
+          : !isAnimating && wasAnimating && ((endCallback = animationEndCallbackRef.current) == null || endCallback.call(animationEndCallbackRef));
       }, [isAnimating, mode]));
     let allowedTagNames = reactExports.useMemo(() => (allowedTags ? Object.keys(allowedTags) : []), [allowedTags]),
       markdownContent = reactExports.useMemo(() => {
@@ -1451,30 +1451,30 @@ export var Streamdown = reactExports.memo(
         );
       }, [children, mode, parseIncompleteMarkdown, remend, allowedTagNames, literalTagContent]),
       markdownBlocks = reactExports.useMemo(() => parseMarkdownIntoBlocksFn(markdownContent), [markdownContent, parseMarkdownIntoBlocksFn]),
-      [previousMarkdownBlocks, setMarkdownBlocks] = reactExports.useState(markdownBlocks);
+      [deferredBlocks, setDeferredBlocks] = reactExports.useState(markdownBlocks);
     reactExports.useEffect(() => {
-      mode === "streaming" && !renderPlugins
+      mode === "streaming" && !animatePlugin
         ? startTransition(() => {
-            setMarkdownBlocks(markdownBlocks);
+            setDeferredBlocks(markdownBlocks);
           })
-        : setMarkdownBlocks(markdownBlocks);
+        : setDeferredBlocks(markdownBlocks);
     }, [markdownBlocks, mode]);
-    let displayedBlocks = mode === "streaming" ? previousMarkdownBlocks : markdownBlocks,
-      componentOverrides = reactExports.useMemo(
+    let displayedBlocks = mode === "streaming" ? deferredBlocks : markdownBlocks,
+      blockDirections = reactExports.useMemo(
         () => (dir === "auto" ? displayedBlocks.map(getTextDirection) : void 0),
         [displayedBlocks, dir],
       ),
-      componentMetadata = reactExports.useMemo(
-        () => displayedBlocks.map((blockId, blockIndex) => `${componentId}-${blockIndex}`),
+      blockKeys = reactExports.useMemo(
+        () => displayedBlocks.map((block, blockIndex) => `${componentId}-${blockIndex}`),
         [displayedBlocks.length, componentId],
       ),
-      animatedCode = reactExports.useMemo(
+      animatedConfigKey = reactExports.useMemo(
         () => (animated === true ? "true" : animated ? JSON.stringify(animated) : ""),
         [animated],
       ),
-      renderPlugins = reactExports.useMemo(
-        () => (animatedCode ? (animatedCode === "true" ? createAnimationStyles() : createAnimationStyles(animated)) : null),
-        [animatedCode],
+      animatePlugin = reactExports.useMemo(
+        () => (animatedConfigKey ? (animatedConfigKey === "true" ? createAnimatePlugin() : createAnimatePlugin(animated)) : null),
+        [animatedConfigKey],
       ),
       markdownRenderOptions = reactExports.useMemo(() => {
         var codeTheme, selectedCodeTheme;
@@ -1495,7 +1495,7 @@ export var Streamdown = reactExports.memo(
         };
       }, [shikiTheme, controls, isAnimating, lineNumbers, mode, mermaid, linkSafety, plugins == null ? void 0 : plugins.code]),
       translationsKey = reactExports.useMemo(() => (translations ? JSON.stringify(translations) : ""), [translations]),
-      codeRenderOptions = reactExports.useMemo(
+      mergedTranslations = reactExports.useMemo(
         () => ({
           ...defaultMarkdownTranslations,
           ...translations,
@@ -1549,26 +1549,26 @@ export var Streamdown = reactExports.memo(
         return (
           literalTagContent && literalTagContent.length > 0 && (baseRehypePlugins = [...baseRehypePlugins, [preserveRawTagContent, literalTagContent]]),
           plugins != null && plugins.math && (baseRehypePlugins = [...baseRehypePlugins, plugins.math.rehypePlugin]),
-          renderPlugins && isAnimating && (baseRehypePlugins = [...baseRehypePlugins, renderPlugins.rehypePlugin]),
+          animatePlugin && isAnimating && (baseRehypePlugins = [...baseRehypePlugins, animatePlugin.rehypePlugin]),
           baseRehypePlugins
         );
-      }, [rehypePlugins, plugins == null ? void 0 : plugins.math, renderPlugins, isAnimating, allowedTags, literalTagContent]),
-      caretStyle = reactExports.useMemo(() => {
+      }, [rehypePlugins, plugins == null ? void 0 : plugins.math, animatePlugin, isAnimating, allowedTags, literalTagContent]),
+      shouldHideCaret = reactExports.useMemo(() => {
         if (!isAnimating || displayedBlocks.length === 0) return false;
         let lastMarkdownBlock = displayedBlocks.at(-1);
         return hasUnclosedCodeFence(lastMarkdownBlock) || hasTableSeparator(lastMarkdownBlock);
       }, [isAnimating, displayedBlocks]),
       containerStyle = reactExports.useMemo(
         () =>
-          caret && isAnimating && !caretStyle
+          caret && isAnimating && !shouldHideCaret
             ? {
                 "--streamdown-caret": `"${caretMarkers[caret]}"`,
               }
             : void 0,
-        [caret, isAnimating, caretStyle],
+        [caret, isAnimating, shouldHideCaret],
       );
     return mode === "static" ? (
-      <markdownTranslationContext.Provider value={codeRenderOptions}>
+      <markdownTranslationContext.Provider value={mergedTranslations}>
         <markdownRenderContext.Provider value={plugins != null ? plugins : null}>
           <markdownRenderOptionsContext.Provider value={markdownRenderOptions}>
             {jsxRuntimeExports.jsx(iconContextProvider, {
@@ -1598,7 +1598,7 @@ export var Streamdown = reactExports.memo(
         </markdownRenderContext.Provider>
       </markdownTranslationContext.Provider>
     ) : (
-      <markdownTranslationContext.Provider value={codeRenderOptions}>
+      <markdownTranslationContext.Provider value={mergedTranslations}>
         <markdownRenderContext.Provider value={plugins != null ? plugins : null}>
           <markdownRenderOptionsContext.Provider value={markdownRenderOptions}>
             {jsxRuntimeExports.jsx(iconContextProvider, {
@@ -1608,7 +1608,7 @@ export var Streamdown = reactExports.memo(
                   <div
                     className={mergeClasses(
                       "space-y-4 whitespace-normal [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
-                      caret && !caretStyle
+                      caret && !shouldHideCaret
                         ? "[&>*:last-child]:after:inline [&>*:last-child]:after:align-baseline [&>*:last-child]:after:content-[var(--streamdown-caret)]"
                         : null,
                       className,
@@ -1617,18 +1617,18 @@ export var Streamdown = reactExports.memo(
                   >
                     {displayedBlocks.length === 0 && caret && isAnimating && <span />}
                     {displayedBlocks.map((markdownBlock, blockIndex) => {
-                      var renderedBlockComponent;
+                      var blockDirection;
                       let isLastBlock = blockIndex === displayedBlocks.length - 1,
                         isIncompleteBlock = isAnimating && isLastBlock && hasUnclosedCodeFence(markdownBlock);
                       return jsxRuntimeExports.jsx(
                         blockComponent,
                         {
-                          animatePlugin: renderPlugins,
+                          animatePlugin,
                           components: mergedComponents,
                           content: markdownBlock,
                           dir:
-                            (renderedBlockComponent = componentOverrides == null ? void 0 : componentOverrides[blockIndex]) != null
-                              ? renderedBlockComponent
+                            (blockDirection = blockDirections == null ? void 0 : blockDirections[blockIndex]) != null
+                              ? blockDirection
                               : dir !== "auto"
                                 ? dir
                                 : void 0,
@@ -1640,7 +1640,7 @@ export var Streamdown = reactExports.memo(
                           shouldParseIncompleteMarkdown: parseIncompleteMarkdown,
                           ...additionalProps,
                         },
-                        componentMetadata[blockIndex],
+                        blockKeys[blockIndex],
                       );
                     })}
                   </div>
