@@ -1,0 +1,4 @@
+{
+  "app/renderer/src/canvas/it.js": "app/renderer/src/canvas/horizontal-compaction.js",
+  "app/renderer/src/canvas/w.js": "app/renderer/src/canvas/sort-subgraph.js"
+}

@@ -4,5 +4,11 @@
   },
   "app/renderer/src/canvas/fullscreen-icon.jsx": {
     "AnnotationIcon$1": "AnnotationIcon"
+  },
+  "app/renderer/src/canvas/it.js": {
+    "It": "horizontalCompaction"
+  },
+  "app/renderer/src/canvas/w.js": {
+    "W": "sortSubgraph"
   }
 }

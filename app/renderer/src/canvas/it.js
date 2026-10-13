@@ -1,122 +1,122 @@
 // it.js
-import { p$4 as p } from "../vendor.js";
-function jt(e2, n2, t2) {
-  return (r2, o2, i2) => {
-    let s2 = r2.node(o2),
-      a2 = r2.node(i2),
-      d2 = 0,
-      l2;
-    if (((d2 += s2.width / 2), Object.hasOwn(s2, "labelpos")))
-      switch (s2.labelpos.toLowerCase()) {
+import { p$4 as Graph } from "../vendor.js";
+function sep(nodeSep, edgeSep, reverseSep) {
+  return (graph, v, w) => {
+    let vLabel = graph.node(v),
+      wLabel = graph.node(w),
+      sum = 0,
+      delta;
+    if (((sum += vLabel.width / 2), Object.hasOwn(vLabel, "labelpos")))
+      switch (vLabel.labelpos.toLowerCase()) {
         case "l":
-          l2 = -s2.width / 2;
+          delta = -vLabel.width / 2;
           break;
         case "r":
-          l2 = s2.width / 2;
+          delta = vLabel.width / 2;
           break;
       }
     if (
-      (l2 && (d2 += t2 ? l2 : -l2),
-      (l2 = void 0),
-      (d2 += (s2.dummy ? n2 : e2) / 2),
-      (d2 += (a2.dummy ? n2 : e2) / 2),
-      (d2 += a2.width / 2),
-      Object.hasOwn(a2, "labelpos"))
+      (delta && (sum += reverseSep ? delta : -delta),
+      (delta = void 0),
+      (sum += (vLabel.dummy ? edgeSep : nodeSep) / 2),
+      (sum += (wLabel.dummy ? edgeSep : nodeSep) / 2),
+      (sum += wLabel.width / 2),
+      Object.hasOwn(wLabel, "labelpos"))
     )
-      switch (a2.labelpos.toLowerCase()) {
+      switch (wLabel.labelpos.toLowerCase()) {
         case "l":
-          l2 = a2.width / 2;
+          delta = wLabel.width / 2;
           break;
         case "r":
-          l2 = -a2.width / 2;
+          delta = -wLabel.width / 2;
           break;
       }
-    return (l2 && (d2 += t2 ? l2 : -l2), d2);
+    return (delta && (sum += reverseSep ? delta : -delta), sum);
   };
 }
-function Ct(e2, n2, t2, r2) {
-  let o2 = new p(),
-    i2 = e2.graph(),
-    s2 = jt(i2.nodesep, i2.edgesep, r2);
+function buildBlockGraph(graph, layering, root, reverseSep) {
+  let blockGraph = new Graph(),
+    graphLabel = graph.graph(),
+    separation = sep(graphLabel.nodesep, graphLabel.edgesep, reverseSep);
   return (
-    n2.forEach((a2) => {
-      let d2;
-      a2.forEach((l2) => {
-        let u4 = t2[l2];
-        if (u4 !== void 0) {
-          if ((o2.setNode(u4), d2 !== void 0)) {
-            let c3 = t2[d2];
-            if (c3 !== void 0) {
-              let h2 = o2.edge(c3, u4);
-              o2.setEdge(c3, u4, Math.max(s2(e2, l2, d2), h2 || 0));
+    layering.forEach((layer) => {
+      let previousNode;
+      layer.forEach((node) => {
+        let blockNode = root[node];
+        if (blockNode !== void 0) {
+          if ((blockGraph.setNode(blockNode), previousNode !== void 0)) {
+            let previousBlockNode = root[previousNode];
+            if (previousBlockNode !== void 0) {
+              let previousEdgeWeight = blockGraph.edge(previousBlockNode, blockNode);
+              blockGraph.setEdge(previousBlockNode, blockNode, Math.max(separation(graph, node, previousNode), previousEdgeWeight || 0));
             }
           }
-          d2 = l2;
+          previousNode = node;
         }
       });
     }),
-    o2
+    blockGraph
   );
 }
-export function It(e2, n2, t2, r2, o2 = false) {
-  let i2 = {},
-    s2 = Ct(e2, n2, t2, o2),
-    a2 = o2 ? "borderLeft" : "borderRight";
-  function d2(f2, g2) {
-    let b3 = s2.nodes().slice(),
-      m3 = {},
-      E3 = b3.pop();
-    for (; E3;) {
-      if (m3[E3]) f2(E3);
+export function It(graph, layering, root, align, reverseSep = false) {
+  let xs = {},
+    blockGraph = buildBlockGraph(graph, layering, root, reverseSep),
+    borderType = reverseSep ? "borderLeft" : "borderRight";
+  function iterateBlocks(setCoordinate, getNextBlocks) {
+    let blockStack = blockGraph.nodes().slice(),
+      visitedBlocks = {},
+      currentBlock = blockStack.pop();
+    for (; currentBlock;) {
+      if (visitedBlocks[currentBlock]) setCoordinate(currentBlock);
       else {
-        ((m3[E3] = true), b3.push(E3));
-        for (let y4 of g2(E3)) b3.push(y4);
+        ((visitedBlocks[currentBlock] = true), blockStack.push(currentBlock));
+        for (let nextBlock of getNextBlocks(currentBlock)) blockStack.push(nextBlock);
       }
-      E3 = b3.pop();
+      currentBlock = blockStack.pop();
     }
   }
-  function l2(f2) {
-    let g2 = s2.inEdges(f2);
-    g2
-      ? (i2[f2] = g2.reduce((b3, m3) => {
-          var I2;
-          let E3 = (I2 = i2[m3.v]) != null ? I2 : 0,
-            y4 = s2.edge(m3);
-          return Math.max(b3, E3 + (y4 !== void 0 ? y4 : 0));
+  function assignMinimumX(block) {
+    let incomingEdges = blockGraph.inEdges(block);
+    incomingEdges
+      ? (xs[block] = incomingEdges.reduce((minimumX, edge) => {
+          var sourceXValue;
+          let sourceX = (sourceXValue = xs[edge.v]) != null ? sourceXValue : 0,
+            edgeWeight = blockGraph.edge(edge);
+          return Math.max(minimumX, sourceX + (edgeWeight !== void 0 ? edgeWeight : 0));
         }, 0))
-      : (i2[f2] = 0);
+      : (xs[block] = 0);
   }
-  function u4(f2) {
-    let g2 = s2.outEdges(f2),
-      b3 = Number.POSITIVE_INFINITY;
-    g2 &&
-      (b3 = g2.reduce((E3, y4) => {
-        let I2 = i2[y4.w],
-          be2 = s2.edge(y4);
+  function u4(block) {
+    let outgoingEdges = blockGraph.outEdges(block),
+      minimumSuccessorX = Number.POSITIVE_INFINITY;
+    outgoingEdges &&
+      (minimumSuccessorX = outgoingEdges.reduce((minimumX, successorEdge) => {
+        let successorX = xs[successorEdge.w],
+          edgeWeight = blockGraph.edge(successorEdge);
         return Math.min(
-          E3,
-          (I2 !== void 0 ? I2 : 0) - (be2 !== void 0 ? be2 : 0),
+          minimumX,
+          (successorX !== void 0 ? successorX : 0) - (edgeWeight !== void 0 ? edgeWeight : 0),
         );
       }, Number.POSITIVE_INFINITY));
-    let m3 = e2.node(f2);
-    b3 !== Number.POSITIVE_INFINITY &&
-      m3.borderType !== a2 &&
-      (i2[f2] = Math.max(i2[f2] !== void 0 ? i2[f2] : 0, b3));
+    let node = graph.node(block);
+    minimumSuccessorX !== Number.POSITIVE_INFINITY &&
+      node.borderType !== borderType &&
+      (xs[block] = Math.max(xs[block] !== void 0 ? xs[block] : 0, minimumSuccessorX));
   }
-  function c3(f2) {
-    return s2.predecessors(f2) || [];
+  function c3(block) {
+    return blockGraph.predecessors(block) || [];
   }
-  function h2(f2) {
-    return s2.successors(f2) || [];
+  function h2(block) {
+    return blockGraph.successors(block) || [];
   }
   return (
-    d2(l2, c3),
-    d2(u4, h2),
-    Object.keys(r2).forEach((f2) => {
-      var b3;
-      let g2 = t2[f2];
-      g2 !== void 0 && (i2[f2] = (b3 = i2[g2]) != null ? b3 : 0);
+    iterateBlocks(assignMinimumX, c3),
+    iterateBlocks(u4, h2),
+    Object.keys(align).forEach((nodeId) => {
+      var rootX;
+      let rootId = root[nodeId];
+      rootId !== void 0 && (xs[nodeId] = (rootX = xs[rootId]) != null ? rootX : 0);
     }),
-    i2
+    xs
   );
 }
