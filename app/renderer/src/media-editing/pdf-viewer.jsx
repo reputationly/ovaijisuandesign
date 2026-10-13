@@ -3,83 +3,83 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { MediaUnpreviewableFallback } from "../generation/missing-asset-card.jsx";
 import {
   __webpack_exports__getDocument,
-  _$5 as _,
-  _t$2 as _t,
-  $$8,
-  $t$2 as $t,
-  at$3 as at,
-  At$3 as At,
-  B$7 as B,
-  Bt$1 as Bt,
-  bt$3 as bt,
+  _$5 as cssGrammarModule,
+  _t$2 as uriGrammarModule,
+  $$8 as bashGrammarModule,
+  $t$2 as initializeSqlGrammarModule,
+  at$3 as httpGrammarModule,
+  At$3 as makeGrammarModule,
+  B$7 as initializeBrainfuckGrammarModule,
+  Bt$1 as initializeTomlGrammarModule,
+  bt$3 as leanpubMarkdownGrammarModule,
   classifyFileType,
   CompositedSvg,
-  ct$3 as ct,
-  Ct$3 as Ct,
-  D$7 as D,
-  Dt$2 as Dt,
-  dt$4 as dt,
-  Et$2 as Et,
-  et$4 as et,
-  f$4 as f,
-  F$6 as F,
-  Ft$2 as Ft,
-  ft$3 as ft,
-  G$5 as G,
+  ct$3 as javaGrammarModule,
+  Ct$3 as pythonGrammarModule,
+  D$7 as initializeMarkdownGrammarModule,
+  Dt$2 as initializePythonGrammarModule,
+  dt$4 as markdownGrammarModule,
+  Et$2 as jsdocGrammarModule,
+  et$4 as initializeHtmlGrammarModule,
+  f$4 as initializeBashGrammarModule,
+  F$6 as initializeAssemblyGrammarModule,
+  Ft$2 as initializeRustGrammarModule,
+  ft$3 as initializeLogGrammarModule,
+  G$5 as cGrammarModule,
   getDefaultExportFromCjs$1 as getDefaultExportFromCjs,
-  Gt$1 as Gt,
-  gt$2 as gt,
-  H$5 as H,
-  Ht$1 as Ht,
-  ht$2 as ht,
-  It$1 as It,
-  it$3 as it,
-  j$5 as j,
-  J$6 as J,
+  Gt$1 as typescriptGrammarModule,
+  gt$2 as initializeJsonGrammarModule,
+  H$5 as initializeCGrammarModule,
+  Ht$1 as initializeTypeScriptGrammarModule,
+  ht$2 as initializeJsdocGrammarModule,
+  It$1 as luaGrammarModule,
+  it$3 as jsonGrammarModule,
+  j$5 as gitGrammarModule,
+  J$6 as xmlGrammarModule,
   jsxRuntimeExports,
-  k$6 as k,
-  K$6 as K,
-  kt$2 as kt,
-  L$7 as L,
-  Lt$1 as Lt,
-  lt$3 as lt,
-  Mt$1 as Mt,
-  mt$2 as mt,
-  N$4 as N,
-  Nt$1 as Nt,
-  nt$4 as nt,
-  Ot$2 as Ot,
-  ot$3 as ot,
-  P$7 as P,
-  pt$2 as pt,
-  Pt$2 as Pt,
-  q$5 as q,
-  R$6 as R,
+  k$6 as initializeCssGrammarModule,
+  K$6 as initializeGitGrammarModule,
+  kt$2 as initializeUriGrammarModule,
+  L$7 as initializeJavaScriptGrammarModule,
+  Lt$1 as initializePerlGrammarModule,
+  lt$3 as todoGrammarModule,
+  Mt$1 as sqlGrammarModule,
+  mt$2 as initializeJavaGrammarModule,
+  N$4 as initializeDiffGrammarModule,
+  Nt$1 as initializeLuaGrammarModule,
+  nt$4 as initializeIniGrammarModule,
+  Ot$2 as perlGrammarModule,
+  ot$3 as javascriptTemplateLiteralsGrammarModule,
+  P$7 as assemblyGrammarModule,
+  pt$2 as iniGrammarModule,
+  Pt$2 as rustGrammarModule,
+  q$5 as initializeGoGrammarModule,
+  R$6 as initializeXmlGrammarModule,
   reactExports,
   requireJszip_min,
-  Rt$2 as Rt,
-  rt$3 as rt,
-  S$7 as S,
-  St$2 as St,
-  st$3 as st,
-  Tt$2 as Tt,
-  tt$4 as tt,
+  Rt$2 as initializeMakeGrammarModule,
+  rt$3 as javascriptGrammarModule,
+  S$7 as initializeTodoGrammarModule,
+  St$2 as initializePlainTextGrammarModule,
+  st$3 as initializeHttpGrammarModule,
+  Tt$2 as logGrammarModule,
+  tt$4 as htmlGrammarModule,
   useTranslation,
-  ut$2 as ut,
-  Ut$2 as Ut,
-  V$6 as V,
-  v$7 as v,
-  vt$2 as vt,
-  W$7 as W,
-  wt$3 as wt,
-  X$6 as X,
-  xt$2 as xt,
-  Y$4 as Y,
-  yt$2 as yt,
-  Yt$2 as Yt,
-  Z$4 as Z,
-  z$7 as z,
-  zt$2 as zt,
+  ut$2 as initializeJavaScriptTemplateLiteralsGrammarModule,
+  Ut$2 as initializeRegexGrammarModule,
+  V$6 as goGrammarModule,
+  v$7 as brainfuckGrammarModule,
+  vt$2 as tomlGrammarModule,
+  W$7 as initializeDockerGrammarModule,
+  wt$3 as regexGrammarModule,
+  X$6 as dockerGrammarModule,
+  xt$2 as plainTextGrammarModule,
+  Y$4 as initializeCsvGrammarModule,
+  yt$2 as initializeLeanpubMarkdownGrammarModule,
+  Yt$2 as initializeYamlGrammarModule,
+  Z$4 as diffGrammarModule,
+  z$7 as csvGrammarModule,
+  zt$2 as yamlGrammarModule,
 } from "../vendor.js";
 import { ViewerLoading, ViewerStateShell } from "./input.jsx";
 import {
@@ -109,9 +109,9 @@ function isWorkspaceFileViewerAdmissionAvailable(kind, state2) {
 function registerWorkspaceFileViewerWithAdmission(input) {
   const state2 = getOrCreateState(input.workspaceId);
   const admitted = isWorkspaceFileViewerAdmissionAvailable(input.kind, state2);
-  const id2 = state2.nextViewerRegistrationId++;
+  const registrationId = state2.nextViewerRegistrationId++;
   if (!admitted) {
-    state2.fileViewers.set(id2, {
+    state2.fileViewers.set(registrationId, {
       kind: input.kind,
       filePath: input.filePath,
       admitted: false,
@@ -120,12 +120,12 @@ function registerWorkspaceFileViewerWithAdmission(input) {
     return {
       admitted: false,
       unregister: () => {
-        if (!state2.fileViewers.delete(id2)) return;
+        if (!state2.fileViewers.delete(registrationId)) return;
         touch(state2);
       },
     };
   }
-  state2.fileViewers.set(id2, {
+  state2.fileViewers.set(registrationId, {
     kind: input.kind,
     filePath: input.filePath,
     admitted: true,
@@ -134,7 +134,7 @@ function registerWorkspaceFileViewerWithAdmission(input) {
   return {
     admitted: true,
     unregister: () => {
-      if (!state2.fileViewers.delete(id2)) return;
+      if (!state2.fileViewers.delete(registrationId)) return;
       touch(state2);
     },
   };
@@ -194,64 +194,64 @@ function useWorkspaceFileViewerAdmission(input) {
     overLimit: admission.overLimit,
   };
 }
-var w = (t2) => (e2) => {
-  var p3 = t2[e2];
-  if (p3) return p3();
-  throw new Error("Module not found in bundle: " + e2);
+var createLanguageModuleLoader = (moduleFactories) => (modulePath) => {
+  var moduleFactory = moduleFactories[modulePath];
+  if (moduleFactory) return moduleFactory();
+  throw new Error("Module not found in bundle: " + modulePath);
 };
-var Se = w({
-  "./languages/asm.js": () => Promise.resolve().then(() => (F(), P)),
-  "./languages/bash.js": () => Promise.resolve().then(() => (f(), $$8)),
-  "./languages/bf.js": () => Promise.resolve().then(() => (B(), v)),
-  "./languages/c.js": () => Promise.resolve().then(() => (H(), G)),
-  "./languages/css.js": () => Promise.resolve().then(() => (k(), _)),
-  "./languages/csv.js": () => Promise.resolve().then(() => (Y(), z)),
-  "./languages/diff.js": () => Promise.resolve().then(() => (N(), Z)),
-  "./languages/docker.js": () => Promise.resolve().then(() => (W(), X)),
-  "./languages/git.js": () => Promise.resolve().then(() => (K(), j)),
-  "./languages/go.js": () => Promise.resolve().then(() => (q(), V)),
-  "./languages/html.js": () => Promise.resolve().then(() => (et(), tt)),
-  "./languages/http.js": () => Promise.resolve().then(() => (st(), at)),
-  "./languages/ini.js": () => Promise.resolve().then(() => (nt(), pt)),
-  "./languages/java.js": () => Promise.resolve().then(() => (mt(), ct)),
-  "./languages/js.js": () => Promise.resolve().then(() => (L(), rt)),
+var loadCodeLanguageModule = createLanguageModuleLoader({
+  "./languages/asm.js": () => Promise.resolve().then(() => (initializeAssemblyGrammarModule(), assemblyGrammarModule)),
+  "./languages/bash.js": () => Promise.resolve().then(() => (initializeBashGrammarModule(), bashGrammarModule)),
+  "./languages/bf.js": () => Promise.resolve().then(() => (initializeBrainfuckGrammarModule(), brainfuckGrammarModule)),
+  "./languages/c.js": () => Promise.resolve().then(() => (initializeCGrammarModule(), cGrammarModule)),
+  "./languages/css.js": () => Promise.resolve().then(() => (initializeCssGrammarModule(), cssGrammarModule)),
+  "./languages/csv.js": () => Promise.resolve().then(() => (initializeCsvGrammarModule(), csvGrammarModule)),
+  "./languages/diff.js": () => Promise.resolve().then(() => (initializeDiffGrammarModule(), diffGrammarModule)),
+  "./languages/docker.js": () => Promise.resolve().then(() => (initializeDockerGrammarModule(), dockerGrammarModule)),
+  "./languages/git.js": () => Promise.resolve().then(() => (initializeGitGrammarModule(), gitGrammarModule)),
+  "./languages/go.js": () => Promise.resolve().then(() => (initializeGoGrammarModule(), goGrammarModule)),
+  "./languages/html.js": () => Promise.resolve().then(() => (initializeHtmlGrammarModule(), htmlGrammarModule)),
+  "./languages/http.js": () => Promise.resolve().then(() => (initializeHttpGrammarModule(), httpGrammarModule)),
+  "./languages/ini.js": () => Promise.resolve().then(() => (initializeIniGrammarModule(), iniGrammarModule)),
+  "./languages/java.js": () => Promise.resolve().then(() => (initializeJavaGrammarModule(), javaGrammarModule)),
+  "./languages/js.js": () => Promise.resolve().then(() => (initializeJavaScriptGrammarModule(), javascriptGrammarModule)),
   "./languages/js_template_literals.js": () =>
-    Promise.resolve().then(() => (ut(), ot)),
-  "./languages/jsdoc.js": () => Promise.resolve().then(() => (ht(), Et)),
-  "./languages/json.js": () => Promise.resolve().then(() => (gt(), it)),
-  "./languages/leanpub-md.js": () => Promise.resolve().then(() => (yt(), bt)),
-  "./languages/log.js": () => Promise.resolve().then(() => (ft(), Tt)),
-  "./languages/lua.js": () => Promise.resolve().then(() => (Nt(), It)),
-  "./languages/make.js": () => Promise.resolve().then(() => (Rt(), At)),
-  "./languages/md.js": () => Promise.resolve().then(() => (D(), dt)),
-  "./languages/pl.js": () => Promise.resolve().then(() => (Lt(), Ot)),
-  "./languages/plain.js": () => Promise.resolve().then(() => (St(), xt)),
-  "./languages/py.js": () => Promise.resolve().then(() => (Dt(), Ct)),
-  "./languages/regex.js": () => Promise.resolve().then(() => (Ut(), wt)),
-  "./languages/rs.js": () => Promise.resolve().then(() => (Ft(), Pt)),
-  "./languages/sql.js": () => Promise.resolve().then(() => ($t(), Mt)),
-  "./languages/todo.js": () => Promise.resolve().then(() => (S(), lt)),
-  "./languages/toml.js": () => Promise.resolve().then(() => (Bt(), vt)),
-  "./languages/ts.js": () => Promise.resolve().then(() => (Ht(), Gt)),
-  "./languages/uri.js": () => Promise.resolve().then(() => (kt(), _t)),
-  "./languages/xml.js": () => Promise.resolve().then(() => (R(), J)),
-  "./languages/yaml.js": () => Promise.resolve().then(() => (Yt(), zt)),
+    Promise.resolve().then(() => (initializeJavaScriptTemplateLiteralsGrammarModule(), javascriptTemplateLiteralsGrammarModule)),
+  "./languages/jsdoc.js": () => Promise.resolve().then(() => (initializeJsdocGrammarModule(), jsdocGrammarModule)),
+  "./languages/json.js": () => Promise.resolve().then(() => (initializeJsonGrammarModule(), jsonGrammarModule)),
+  "./languages/leanpub-md.js": () => Promise.resolve().then(() => (initializeLeanpubMarkdownGrammarModule(), leanpubMarkdownGrammarModule)),
+  "./languages/log.js": () => Promise.resolve().then(() => (initializeLogGrammarModule(), logGrammarModule)),
+  "./languages/lua.js": () => Promise.resolve().then(() => (initializeLuaGrammarModule(), luaGrammarModule)),
+  "./languages/make.js": () => Promise.resolve().then(() => (initializeMakeGrammarModule(), makeGrammarModule)),
+  "./languages/md.js": () => Promise.resolve().then(() => (initializeMarkdownGrammarModule(), markdownGrammarModule)),
+  "./languages/pl.js": () => Promise.resolve().then(() => (initializePerlGrammarModule(), perlGrammarModule)),
+  "./languages/plain.js": () => Promise.resolve().then(() => (initializePlainTextGrammarModule(), plainTextGrammarModule)),
+  "./languages/py.js": () => Promise.resolve().then(() => (initializePythonGrammarModule(), pythonGrammarModule)),
+  "./languages/regex.js": () => Promise.resolve().then(() => (initializeRegexGrammarModule(), regexGrammarModule)),
+  "./languages/rs.js": () => Promise.resolve().then(() => (initializeRustGrammarModule(), rustGrammarModule)),
+  "./languages/sql.js": () => Promise.resolve().then(() => (initializeSqlGrammarModule(), sqlGrammarModule)),
+  "./languages/todo.js": () => Promise.resolve().then(() => (initializeTodoGrammarModule(), todoGrammarModule)),
+  "./languages/toml.js": () => Promise.resolve().then(() => (initializeTomlGrammarModule(), tomlGrammarModule)),
+  "./languages/ts.js": () => Promise.resolve().then(() => (initializeTypeScriptGrammarModule(), typescriptGrammarModule)),
+  "./languages/uri.js": () => Promise.resolve().then(() => (initializeUriGrammarModule(), uriGrammarModule)),
+  "./languages/xml.js": () => Promise.resolve().then(() => (initializeXmlGrammarModule(), xmlGrammarModule)),
+  "./languages/yaml.js": () => Promise.resolve().then(() => (initializeYamlGrammarModule(), yamlGrammarModule)),
 });
 const INITIAL = {
   status: "loading",
 };
 async function equalBytes(left, right, signal) {
   if (left.byteLength !== right.byteLength) return false;
-  const a2 = new Uint8Array(left);
-  const b3 = new Uint8Array(right);
+  const leftBytes = new Uint8Array(left);
+  const rightBytes = new Uint8Array(right);
   const chunkSize = 1024 * 1024;
-  for (let start2 = 0; start2 < a2.length; start2 += chunkSize) {
+  for (let start2 = 0; start2 < leftBytes.length; start2 += chunkSize) {
     if (signal.aborted) return false;
-    const end2 = Math.min(start2 + chunkSize, a2.length);
+    const end2 = Math.min(start2 + chunkSize, leftBytes.length);
     for (let i2 = start2; i2 < end2; i2++) {
-      if (a2[i2] !== b3[i2]) return false;
+      if (leftBytes[i2] !== rightBytes[i2]) return false;
     }
-    if (end2 < a2.length)
+    if (end2 < leftBytes.length)
       await new Promise((resolve) => setTimeout(resolve, 0));
   }
   return true;
@@ -312,23 +312,23 @@ function useFileBytes(filePath, maxBytes, options) {
         if (Number.isFinite(declared) && declared > maxBytes) {
           throw new Error("TOO_LARGE");
         }
-        const buf = await resp.arrayBuffer();
-        if (buf.byteLength > maxBytes) {
+        const fileBytes = await resp.arrayBuffer();
+        if (fileBytes.byteLength > maxBytes) {
           throw new Error("TOO_LARGE");
         }
         if (cancelled) return;
-        if (cached && (await equalBytes(cached.bytes, buf, controller.signal)))
+        if (cached && (await equalBytes(cached.bytes, fileBytes, controller.signal)))
           return;
         if (cancelled) return;
         previous2.current = revalidate
           ? {
               url: requestUrl,
-              bytes: buf,
+              bytes: fileBytes,
             }
           : null;
         setState({
           status: "success",
-          bytes: buf,
+          bytes: fileBytes,
         });
       })
       .catch((err) => {
@@ -428,14 +428,14 @@ const ZIP_EXTS = new Set([
 ]);
 function pickViewerKind(extension2) {
   if (!extension2) return "none";
-  const ext = extension2.toLowerCase();
-  if (IMAGE_EXTS.has(ext)) return "image";
-  if (ext === ".pdf") return "pdf";
-  if (ext === ".docx") return "docx";
-  if (ext === ".srt" || ext === ".ass") return "srt";
-  if (ext === ".html" || ext === ".htm") return "html";
-  if (ZIP_EXTS.has(ext)) return "zip";
-  if (CODE_EXTS.has(ext)) return "code";
+  const normalizedExtension = extension2.toLowerCase();
+  if (IMAGE_EXTS.has(normalizedExtension)) return "image";
+  if (normalizedExtension === ".pdf") return "pdf";
+  if (normalizedExtension === ".docx") return "docx";
+  if (normalizedExtension === ".srt" || normalizedExtension === ".ass") return "srt";
+  if (normalizedExtension === ".html" || normalizedExtension === ".htm") return "html";
+  if (ZIP_EXTS.has(normalizedExtension)) return "zip";
+  if (CODE_EXTS.has(normalizedExtension)) return "code";
   return "none";
 }
 const HTML_VIEWER_UNLOAD_AFTER_MS = 6e3;
@@ -448,16 +448,16 @@ const ACTIVE_GATED_VIEWER_KINDS = new Set([
   "html",
 ]);
 function ViewerError({ messageKey }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <ViewerStateShell>
       <div className="text-sm font-medium text-foreground">
-        {t2(messageKey ?? "canvas.file.viewer.loadFailed", "预览加载失败")}
+        {t(messageKey ?? "canvas.file.viewer.loadFailed", "预览加载失败")}
       </div>
     </ViewerStateShell>
   );
 }
-var U = {
+var expandedGrammarTokens = {
   num: {
     type: "num",
     match: /(\.e?|\b)\d(e-|[\d.oxa-fA-F_])*(\.|\b)/g,
@@ -471,83 +471,83 @@ var U = {
     match: /"((?!")[^\r\n\\]|\\[^])*"?/g,
   },
 };
-var b = {};
-var Ce = (t2 = "") =>
-  t2
+var languageGrammarCache = {};
+var escapeHighlightText = (text = "") =>
+  text
     .replaceAll("&", "&#38;")
     .replaceAll?.("<", "&lt;")
     .replaceAll?.(">", "&gt;");
-var De = (t2, e2) => (e2 ? `<span class="shj-syn-${e2}">${t2}</span>` : t2);
-async function Zt(t2, e2, p3) {
+var renderSyntaxHighlightSpan = (highlightedText, tokenType) => (tokenType ? `<span class="shj-syn-${tokenType}">${highlightedText}</span>` : highlightedText);
+async function highlightCodeTokens(codeText, languageGrammar, renderSegment) {
   try {
-    let n2,
-      m3,
-      c3 = {},
-      i2,
-      r2 = [],
-      h2 = 0,
-      y4 =
-        typeof e2 == "string"
-          ? await (b[e2] ?? (b[e2] = Se(`./languages/${e2}.js`)))
-          : e2,
-      g2 = [...(typeof e2 == "string" ? y4.default : e2.sub)];
-    for (; h2 < t2.length;) {
-      for (c3.index = null, n2 = g2.length; n2-- > 0;) {
+    let ruleIndex,
+      grammarRule,
+      nextMatch = {},
+      matchResult,
+      cachedMatches = [],
+      textOffset = 0,
+      languageGrammarModule =
+        typeof languageGrammar == "string"
+          ? await (languageGrammarCache[languageGrammar] ?? (languageGrammarCache[languageGrammar] = loadCodeLanguageModule(`./languages/${languageGrammar}.js`)))
+          : languageGrammar,
+      grammarRules = [...(typeof languageGrammar == "string" ? languageGrammarModule.default : languageGrammar.sub)];
+    for (; textOffset < codeText.length;) {
+      for (nextMatch.index = null, ruleIndex = grammarRules.length; ruleIndex-- > 0;) {
         if (
-          ((m3 = g2[n2].expand ? U[g2[n2].expand] : g2[n2]),
-          r2[n2] === void 0 || r2[n2].match.index < h2)
+          ((grammarRule = grammarRules[ruleIndex].expand ? expandedGrammarTokens[grammarRules[ruleIndex].expand] : grammarRules[ruleIndex]),
+          cachedMatches[ruleIndex] === void 0 || cachedMatches[ruleIndex].match.index < textOffset)
         ) {
           if (
-            ((m3.match.lastIndex = h2), (i2 = m3.match.exec(t2)), i2 === null)
+            ((grammarRule.match.lastIndex = textOffset), (matchResult = grammarRule.match.exec(codeText)), matchResult === null)
           ) {
-            (g2.splice(n2, 1), r2.splice(n2, 1));
+            (grammarRules.splice(ruleIndex, 1), cachedMatches.splice(ruleIndex, 1));
             continue;
           }
-          r2[n2] = {
-            match: i2,
-            lastIndex: m3.match.lastIndex,
+          cachedMatches[ruleIndex] = {
+            match: matchResult,
+            lastIndex: grammarRule.match.lastIndex,
           };
         }
-        r2[n2].match[0] &&
-          (r2[n2].match.index <= c3.index || c3.index === null) &&
-          (c3 = {
-            part: m3,
-            index: r2[n2].match.index,
-            match: r2[n2].match[0],
-            end: r2[n2].lastIndex,
+        cachedMatches[ruleIndex].match[0] &&
+          (cachedMatches[ruleIndex].match.index <= nextMatch.index || nextMatch.index === null) &&
+          (nextMatch = {
+            part: grammarRule,
+            index: cachedMatches[ruleIndex].match.index,
+            match: cachedMatches[ruleIndex].match[0],
+            end: cachedMatches[ruleIndex].lastIndex,
           });
       }
-      if (c3.index === null) break;
-      (p3(t2.slice(h2, c3.index), y4.type),
-        (h2 = c3.end),
-        c3.part.sub
-          ? await Zt(
-              c3.match,
-              typeof c3.part.sub == "string"
-                ? c3.part.sub
-                : typeof c3.part.sub == "function"
-                  ? c3.part.sub(c3.match)
-                  : c3.part,
-              p3,
+      if (nextMatch.index === null) break;
+      (renderSegment(codeText.slice(textOffset, nextMatch.index), languageGrammarModule.type),
+        (textOffset = nextMatch.end),
+        nextMatch.part.sub
+          ? await highlightCodeTokens(
+              nextMatch.match,
+              typeof nextMatch.part.sub == "string"
+                ? nextMatch.part.sub
+                : typeof nextMatch.part.sub == "function"
+                  ? nextMatch.part.sub(nextMatch.match)
+                  : nextMatch.part,
+              renderSegment,
             )
-          : p3(c3.match, c3.part.type));
+          : renderSegment(nextMatch.match, nextMatch.part.type));
     }
-    p3(t2.slice(h2, t2.length), y4.type);
+    renderSegment(codeText.slice(textOffset, codeText.length), languageGrammarModule.type);
   } catch {
-    p3(t2);
+    renderSegment(codeText);
   }
 }
-async function we(t2, e2, p3 = true, n2 = {}) {
-  let m3 = "";
+async function renderHighlightedCodeHtml(codeText, languageGrammar, showLineNumbers = true, renderOptions = {}) {
+  let highlightedHtml = "";
   return (
-    await Zt(t2, e2, (c3, i2) => (m3 += De(Ce(c3), i2))),
-    p3
+    await highlightCodeTokens(codeText, languageGrammar, (textSegment, tokenType) => (highlightedHtml += renderSyntaxHighlightSpan(escapeHighlightText(textSegment), tokenType))),
+    showLineNumbers
       ? `<div><div class="shj-numbers">${"<div></div>".repeat(
-          !n2.hideLineNumbers &&
-            t2.split(`
+          !renderOptions.hideLineNumbers &&
+            codeText.split(`
 `).length,
-        )}</div><div>${m3}</div></div>`
-      : m3
+        )}</div><div>${highlightedHtml}</div></div>`
+      : highlightedHtml
   );
 }
 function UnpreviewableViewer({
@@ -575,8 +575,8 @@ const VIEWER_SIZE_LIMITS = {
   // 20 MB — docx-preview unzips fully into memory
   zip: 256 * 1024 * 1024,
 };
-function pickLanguage(ext) {
-  switch (ext) {
+function pickLanguage(extension) {
+  switch (extension) {
     case ".ts":
     case ".tsx":
       return "ts";
@@ -650,8 +650,8 @@ function pickLanguage(ext) {
   }
 }
 const MAX_HIGHLIGHTED_HTML_CHARS = 4 * 1024 * 1024;
-function escapeHtml(s2) {
-  return s2.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 function plainTextHtml(text2) {
   const lineCount = text2.split("\n").length;
@@ -696,7 +696,7 @@ function CodeViewer({
       if (cancelled) return;
       let rendered;
       try {
-        rendered = await we(text2, chosen /* multiline */, true);
+        rendered = await renderHighlightedCodeHtml(text2, chosen /* multiline */, true);
       } catch {
         rendered = plainTextHtml(text2);
       }
@@ -846,7 +846,7 @@ function PdfViewer({
   displayName: displayName2,
   sizeLabel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.pdf, {
     revalidate: true,
   });
@@ -905,14 +905,14 @@ function PdfViewer({
         const padding = 16;
         const targetWidth = Math.max(paneWidth - padding * 2, 100);
         const scale2 = targetWidth / viewport.width;
-        const dpr = window.devicePixelRatio || 1;
+        const pixelRatio = window.devicePixelRatio || 1;
         const scaled = page.getViewport({
-          scale: scale2 * dpr,
+          scale: scale2 * pixelRatio,
         });
         canvas.width = scaled.width;
         canvas.height = scaled.height;
-        canvas.style.width = `${scaled.width / dpr}px`;
-        canvas.style.height = `${scaled.height / dpr}px`;
+        canvas.style.width = `${scaled.width / pixelRatio}px`;
+        canvas.style.height = `${scaled.height / pixelRatio}px`;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         renderTask = page.render({
@@ -951,8 +951,8 @@ function PdfViewer({
     return <ViewerError messageKey={bytes2.errorKey} />;
   }
   if (renderError) return <ViewerError messageKey={renderError} />;
-  const goPrev = () => setPageIndex((i2) => Math.max(0, i2 - 1));
-  const goNext = () => setPageIndex((i2) => Math.min(pageCount - 1, i2 + 1));
+  const goPrev = () => setPageIndex((currentIndex) => Math.max(0, currentIndex - 1));
+  const goNext = () => setPageIndex((currentIndex) => Math.min(pageCount - 1, currentIndex + 1));
   return (
     <div className="flex h-full w-full flex-col bg-muted">
       <div className={`${interactive ? "nowheel " : ""}flex-1 overflow-auto`}>
@@ -965,13 +965,13 @@ function PdfViewer({
           <button
             type="button"
             onClick={goPrev}
-            onMouseDown={(e2) => e2.stopPropagation()}
+            onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
             disabled={pageIndex === 0}
             className="px-2 py-0.5 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-            aria-label={t2("canvas.file.viewer.prevPage", "上一页")}
+            aria-label={t("canvas.file.viewer.prevPage", "上一页")}
             data-action-ui-id="canvas.file-node.pdf-prev-page"
           >
-            {t2("canvas.file.viewer.prevPage", "上一页")}
+            {t("canvas.file.viewer.prevPage", "上一页")}
           </button>
           <span>
             {pageIndex + 1}
@@ -981,13 +981,13 @@ function PdfViewer({
           <button
             type="button"
             onClick={goNext}
-            onMouseDown={(e2) => e2.stopPropagation()}
+            onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
             disabled={pageIndex >= pageCount - 1}
             className="px-2 py-0.5 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-            aria-label={t2("canvas.file.viewer.nextPage", "下一页")}
+            aria-label={t("canvas.file.viewer.nextPage", "下一页")}
             data-action-ui-id="canvas.file-node.pdf-next-page"
           >
-            {t2("canvas.file.viewer.nextPage", "下一页")}
+            {t("canvas.file.viewer.nextPage", "下一页")}
           </button>
         </div>
       ) : null}
@@ -1001,7 +1001,7 @@ function SrtEditor({
   displayName: displayName2,
   sizeLabel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { saveTextContent } = useCanvasBridge();
   const bytesState = useFileBytes(filePath, VIEWER_SIZE_LIMITS.code, {
     revalidate: true,
@@ -1045,8 +1045,8 @@ function SrtEditor({
     };
   }, []);
   const handleChange = reactExports.useCallback(
-    (e2) => {
-      const next2 = e2.target.value;
+    (changeEvent) => {
+      const next2 = changeEvent.target.value;
       setContent2(next2);
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => {
@@ -1064,10 +1064,10 @@ function SrtEditor({
   }
   if (bytesState.status === "error") {
     if (bytesState.errorKey === "canvas.file.viewer.tooLarge") {
-      const ext = filePath.toLowerCase().endsWith(".ass") ? ".ass" : ".srt";
+      const extension = filePath.toLowerCase().endsWith(".ass") ? ".ass" : ".srt";
       return (
         <UnpreviewableViewer
-          extension={ext}
+          extension={extension}
           displayName={displayName2 ?? filePath}
           sizeLabel={sizeLabel}
         />
@@ -1096,10 +1096,10 @@ function SrtEditor({
       }}
       value={content2 ?? ""}
       onChange={handleChange}
-      onPointerDown={(e2) => e2.stopPropagation()}
-      onKeyDown={(e2) => e2.stopPropagation()}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+      onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
       spellCheck={false}
-      placeholder={t2(
+      placeholder={t(
         "canvas.file.viewer.srt.placeholder",
         "字幕内容（SRT / ASS 格式）",
       )}
@@ -1109,11 +1109,11 @@ function SrtEditor({
 function formatSize(bytes2) {
   if (!Number.isFinite(bytes2) || bytes2 < 0) return "";
   if (bytes2 < 1024) return `${bytes2} B`;
-  const kb = bytes2 / 1024;
-  if (kb < 1024) return `${kb.toFixed(2)} KB`;
-  const mb = kb / 1024;
-  if (mb < 1024) return `${mb.toFixed(2)} MB`;
-  return `${(mb / 1024).toFixed(2)} GB`;
+  const kilobytes = bytes2 / 1024;
+  if (kilobytes < 1024) return `${kilobytes.toFixed(2)} KB`;
+  const megabytes = kilobytes / 1024;
+  if (megabytes < 1024) return `${megabytes.toFixed(2)} MB`;
+  return `${(megabytes / 1024).toFixed(2)} GB`;
 }
 function buildTree(entries2) {
   const root2 = {
@@ -1131,7 +1131,7 @@ function buildTree(entries2) {
       const isLast = i2 === parts.length - 1;
       const isLeafFolder = isLast && entry.isFolder;
       const isLeafFile = isLast && !entry.isFolder;
-      let next2 = cursor.children.find((n2) => n2.name === part);
+      let next2 = cursor.children.find((childNode) => childNode.name === part);
       if (!next2) {
         next2 = {
           name: part,
@@ -1151,13 +1151,13 @@ function buildTree(entries2) {
     }
   }
   const sortNodes = (nodes) => {
-    nodes.sort((a2, b3) => {
-      if (a2.isFolder !== b3.isFolder) return a2.isFolder ? -1 : 1;
-      return a2.name.localeCompare(b3.name, void 0, {
+    nodes.sort((leftNode, rightNode) => {
+      if (leftNode.isFolder !== rightNode.isFolder) return leftNode.isFolder ? -1 : 1;
+      return leftNode.name.localeCompare(rightNode.name, void 0, {
         sensitivity: "base",
       });
     });
-    for (const n2 of nodes) if (n2.isFolder) sortNodes(n2.children);
+    for (const node of nodes) if (node.isFolder) sortNodes(node.children);
   };
   sortNodes(root2.children);
   return root2.children;
@@ -1208,7 +1208,7 @@ function EntryRow({ node: node2, depth: depth2, isOpen, onToggle }) {
     ? {
         type: "button",
         onClick: handleClick2,
-        onMouseDown: (e2) => e2.stopPropagation(),
+        onMouseDown: (mouseEvent) => mouseEvent.stopPropagation(),
         "data-action-ui-id": "canvas.file-node.zip-folder-toggle",
       }
     : {};
@@ -1274,12 +1274,12 @@ function TreeBranch({ nodes, depth: depth2, openSet, onToggle }) {
   );
 }
 function countLeaves(nodes) {
-  let n2 = 0;
+  let leafCount = 0;
   for (const node2 of nodes) {
-    if (node2.isFolder) n2 += countLeaves(node2.children);
-    else n2 += 1;
+    if (node2.isFolder) leafCount += countLeaves(node2.children);
+    else leafCount += 1;
   }
-  return n2;
+  return leafCount;
 }
 function ZipViewer({
   filePath,
@@ -1287,7 +1287,7 @@ function ZipViewer({
   displayName: displayName2,
   sizeLabel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const bytes2 = useFileBytes(filePath, VIEWER_SIZE_LIMITS.zip, {
     revalidate: true,
   });
@@ -1300,10 +1300,10 @@ function ZipViewer({
     setParseError(false);
     setTree(null);
     JSZip.loadAsync(bytes2.bytes)
-      .then((zip) => {
+      .then((zipArchive) => {
         if (cancelled) return;
         const raw2 = [];
-        zip.forEach((relPath, file) => {
+        zipArchive.forEach((relPath, file) => {
           const internal2 = file;
           const size2 = internal2._data?.uncompressedSize ?? 0;
           raw2.push({
@@ -1355,17 +1355,17 @@ function ZipViewer({
     <div className="flex h-full w-full flex-col bg-background">
       <div className="flex h-8 shrink-0 items-center gap-2 border-border border-b bg-muted px-3 text-[11px] font-medium text-muted-foreground">
         <span className="flex-1">
-          {t2("canvas.file.viewer.zipName", "名称")}
+          {t("canvas.file.viewer.zipName", "名称")}
           <span className="ml-2 text-muted-foreground/70">
             (
-            {t2("canvas.file.viewer.zipEntryCount", "{{count}} 项", {
+            {t("canvas.file.viewer.zipEntryCount", "{{count}} 项", {
               count: totalEntries,
             })}
             )
           </span>
         </span>
         <span className="shrink-0">
-          {t2("canvas.file.viewer.zipSize", "大小")}
+          {t("canvas.file.viewer.zipSize", "大小")}
         </span>
       </div>
       <div className={`${interactive ? "nowheel " : ""}flex-1 overflow-auto`}>
