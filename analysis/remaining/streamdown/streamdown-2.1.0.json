@@ -1,0 +1,2594 @@
+{
+ "pkg": "streamdown@2.1.0",
+ "counts": {
+  "diff": 17,
+  "ext-same": 34,
+  "exact": 36,
+  "src-inline/npm-ext": 10
+ },
+ "perFile": {
+  "chat/streamdown.jsx": {
+   "unpaired": 49,
+   "exact": 10,
+   "diff": 8
+  },
+  "media-editing/wt.js": {
+   "unpaired": 20,
+   "exact": 9,
+   "diff": 3
+  },
+  "shared/jsx-runtime.js": {
+   "unpaired": 1
+  },
+  "settings/request-prompt-prefill.jsx": {
+   "unpaired": 41,
+   "src-inline/npm-ext": 1,
+   "exact": 1
+  },
+  "workspace/build-inspiration-media-showcase-collections.js": {
+   "unpaired": 30,
+   "src-inline/npm-ext": 1
+  },
+  "chat/ae.jsx": {
+   "unpaired": 10,
+   "exact": 6,
+   "diff": 1
+  },
+  "chat/mermaid-ghxkkrxx.js": {
+   "unpaired": 1
+  },
+  "chat/yt.js": {
+   "exact": 1
+  },
+  "chat/st.jsx": {
+   "unpaired": 3
+  },
+  "chat/co.jsx": {
+   "exact": 1,
+   "unpaired": 1
+  },
+  "chat/fo.jsx": {
+   "unpaired": 1
+  },
+  "chat/te.jsx": {
+   "unpaired": 1
+  },
+  "chat/pe.jsx": {
+   "unpaired": 1
+  },
+  "infra/dialog-content.jsx": {
+   "unpaired": 30,
+   "src-inline/npm-ext": 1
+  },
+  "vendor-inline/minified/s2.js": {
+   "unpaired": 40,
+   "src-inline/npm-ext": 1
+  },
+  "chat/xn.js": {
+   "exact": 1,
+   "unpaired": 1
+  },
+  "chat/highlighted-code-block-body.js": {
+   "unpaired": 1
+  },
+  "chat/nn.jsx": {
+   "exact": 4,
+   "unpaired": 2
+  }
+ },
+ "conflicts": [
+  {
+   "s": "chat/streamdown.jsx#hasUnclosedCodeFence",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react/jsx-runtime#jsx"
+  },
+  {
+   "s": "chat/streamdown.jsx#normalizeIndentedHtml",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#defaultBlockRenderer",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react/jsx-runtime#jsx"
+  },
+  {
+   "s": "ext:react/jsx-runtime#jsx",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ie",
+   "via": "chat/streamdown.jsx#defaultBlockRenderer",
+   "srcAlreadyPairedWith": "ext:react/jsx-runtime#jsx",
+   "npmAlreadyPairedWith": "chat/streamdown.jsx#MarkdownBlockRenderer"
+  },
+  {
+   "s": "vendor.js#Hs",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ee",
+   "via": "vendor.js#kt",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "vendor.js#an"
+  },
+  {
+   "s": "chat/ae.jsx#y3",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#MarkdownOrderedList",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react/jsx-runtime#jsx"
+  },
+  {
+   "s": "media-editing/wt.js#Ve",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ie",
+   "via": "media-editing/wt.js#ct2",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#Be"
+  },
+  {
+   "s": "media-editing/wt.js#D3",
+   "n": "ext:react#useCallback",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#useCallback"
+  },
+  {
+   "s": "media-editing/wt.js#He",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#se",
+   "via": "fallback-FN",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#tt"
+  },
+  {
+   "s": "media-editing/wt.js#D3",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#se",
+   "via": "fallback-FN",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#tt"
+  },
+  {
+   "s": "settings/request-prompt-prefill.jsx#nextRandomInspirationId",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#te",
+   "via": "fallback-FN",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "chat/ae.jsx#y3",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#se",
+   "via": "fallback-FN",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#tt"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Jn",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#te",
+   "via": "fallback-FN",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "media-editing/wt.js#et",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ao",
+   "via": "media-editing/wt.js#tt",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#nt"
+  }
+ ],
+ "fallback": [
+  {
+   "s": "chat/streamdown.jsx#fileExtensionPattern",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#fo",
+   "field": "F"
+  },
+  {
+   "s": "chat/streamdown.jsx#languageClassPattern",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#qo",
+   "field": "F"
+  },
+  {
+   "s": "chat/streamdown.jsx#isOptionEnabled",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ne",
+   "field": "F"
+  },
+  {
+   "s": "chat/streamdown.jsx#MemoizedMarkdownLink",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#wt",
+   "field": "F"
+  },
+  {
+   "s": "chat/streamdown.jsx#MarkdownSection",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Vt",
+   "field": "F"
+  },
+  {
+   "s": "chat/streamdown.jsx#caretMarkers",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#kn",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#nt",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ao",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#Li",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#cr",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#de",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#U",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#he",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#b",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#Fe",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ue",
+   "field": "F"
+  },
+  {
+   "s": "chat/yt.js#Yt",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#$e",
+   "field": "F"
+  },
+  {
+   "s": "chat/co.jsx#convertSvgToPngBlob",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ke",
+   "field": "F"
+  },
+  {
+   "s": "chat/nn.jsx#DEFAULT_DEBOUNCE_DELAY_MS",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Yt",
+   "field": "F"
+  },
+  {
+   "s": "chat/nn.jsx#DEFAULT_INTERSECTION_ROOT_MARGIN",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Qt",
+   "field": "F"
+  },
+  {
+   "s": "chat/nn.jsx#DEFAULT_IDLE_TIMEOUT_MS",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#eo",
+   "field": "F"
+  },
+  {
+   "s": "chat/nn.jsx#useLazyIntersectionRendering",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ve",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#tt",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#se",
+   "field": "FN"
+  },
+  {
+   "s": "media-editing/wt.js#He",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#se",
+   "field": "FN"
+  },
+  {
+   "s": "media-editing/wt.js#D3",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#se",
+   "field": "FN"
+  },
+  {
+   "s": "settings/request-prompt-prefill.jsx#nextId",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#te",
+   "field": "FN"
+  },
+  {
+   "s": "settings/request-prompt-prefill.jsx#nextRandomInspirationId",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#te",
+   "field": "FN"
+  },
+  {
+   "s": "chat/ae.jsx#y3",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#se",
+   "field": "FN"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Jn",
+   "n": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#te",
+   "field": "FN"
+  }
+ ],
+ "pairs": [
+  {
+   "src": "chat/streamdown.jsx#Streamdown",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#xn",
+   "verdict": "diff",
+   "via": "seed",
+   "bytes": 13458,
+   "srcLine": 1391,
+   "npmLine": 10,
+   "changedTokens": 1392,
+   "totalTokens": 2022,
+   "srcF": "var $D=«ext:react#memo»(({children:_L0,mode:_L1=\"streaming\",dir:_L2,parseIncompleteMarkdown:_L3=true,normalizeHtmlIndentation:_L4=false,components:_L5,rehypePlugins:_L6=«chat/streamdown.jsx#defaultRehypePlugins»,remarkPlugins:_L7=«chat/streamdown.jsx#defaultRemarkPlugins»,className:_L8,shikiTheme:_L9=«chat/xn.js#vn»,mermaid:_L10,controls:_L11=true,isAnimating:_L12=false,animated:_L13,BlockComponent:_L14=«chat/streamdown.jsx#defaultBlockRenderer»,parseMarkdownIntoBlocksFn:_L15=«vendor.js#kt»,caret:_L16,plugins:_L17,remend:_L18,linkSafety:_L19=«chat/xn.js#xn»,lineNumbers:_L20=true,allowedTags:_L21,literalTagContent:_L22,translations:_L23,icons:_L24,prefix:_L25,onAnimationStart:_L26,onAnimationEnd:_L27,..._L28})=>{let _L29=«ext:react#useId»(),[_L30,_L31]=«ext:react#useTransition»(),_L32=«ext:react#useMemo»(()=>«chat/streamdown.jsx#createClassNameMerger»(_L25),[_L25]),_L33=«ext:react#useRef»(null),_L34=«ext:react#useRef»(_L26),_L35=«ext:react#useRef»(_L27);_L34.current=_L26,_L35.current=_L27,«ext:react#useEffect»(()=>{var _L36,_L37,_L38;if(_L1===\"static\")return;let _L39=_L33.current;if(_L33.current=_L12,_L39===null){_L12&&((_L36=_L34.current)==null||_L36.call(_L34));return;}_L12&&!_L39?(_L37=_L34.current)==null||_L37.call(_L34):!_L12&&_L39&&((_L38=_L35.current)==null||_L38.call(_L35));},[_L12,_L1]);let _L40=«ext:react#useMemo»(()=>_L21?«global:Object».keys(_L21):[],[_L21]),_L41=«ext:react#useMemo»(()=>{if(typeof _L0!=\"string\")return\"\";let _L42=_L1===\"streaming\"&&_L3?«vendor-inline/minified/s2.js#$e$1»(_L0,_L18):_L0;return _L22&&_L22.length>0&&(_L42=«vendor.js#cn»(_L42,_L22)),_L40.length>0&&(_L42=«vendor.js#ln»(_L42,_L40)),_L42;},[_L0,_L1,_L3,_L18,_L40,_L22]),_L43=«ext:react#useMemo»(()=>_L15(_L41),[_L41,_L15]),[_L44,_L45]=«ext:react#useState»(_L43);«ext:react#useEffect»(()=>{_L1===\"streaming\"&&!_L46?_L31(()=>{_L45(_L43);}):_L45(_L43);},[_L43,_L1]);let _L47=_L1===\"streaming\"?_L44:_L43,_L48=«ext:react#useMemo»(()=>_L2===\"auto\"?_L47.map(«chat/streamdown.jsx#getTextDirection»):void 0,[_L47,_L2]),_L49=«ext:react#useMemo»(()=>_L47.map((_L50,_L51)=>`${_L29}-${_L51}`),[_L47.length,_L29]),_L52=«ext:react#useMemo»(()=>_L13===true?\"true\":_L13?«global:JSON».stringify(_L13):\"\",[_L13]),_L46=«ext:react#useMemo»(()=>_L52?_L52===\"true\"?«vendor-inline/minified/s2.js#be»():«vendor-inline/minified/s2.js#be»(_L13):null,[_L52]),_L53=«ext:react#useMemo»(()=>{var _L54,_L55;return{shikiTheme:(_L55=(_L54=_L17==null?void 0:_L17.code)==null?void 0:_L54.getThemes())!=null?_L55:_L9,controls:_L11,isAnimating:_L12,lineNumbers:_L20,mode:_L1,mermaid:_L10,linkSafety:_L19};},[_L9,_L11,_L12,_L20,_L1,_L10,_L19,_L17==null?void 0:_L17.code]),_L56=«ext:react#useMemo»(()=>_L23?«global:JSON».stringify(_L23):\"\",[_L23]),_L57=«ext:react#useMemo»(()=>({...«media-editing/wt.js#De»,..._L23}),[_L56]),_L58=«ext:react#useMemo»(()=>{let{inlineCode:_L59,..._L60}=_L5!=null?_L5:{},_L61={...«chat/streamdown.jsx#markdownComponents»,..._L60};if(_L59){let _L62=_L61.code;_L61.code=_L63=>\"data-block\"in _L63?_L62?«ext:react#createElement»(_L62,_L63):null:«ext:react#createElement»(_L59,_L63);}return _L61;},[_L5]),_L64=«ext:react#useMemo»(()=>{let _L65=[];return _L17!=null&&_L17.cjk&&(_L65=[..._L65,..._L17.cjk.remarkPluginsBefore]),_L65=[..._L65,..._L7],_L17!=null&&_L17.cjk&&(_L65=[..._L65,..._L17.cjk.remarkPluginsAfter]),_L17!=null&&_L17.math&&(_L65=[..._L65,_L17.math.remarkPlugin]),_L65;},[_L7,_L17==null?void 0:_L17.math,_L17==null?void 0:_L17.cjk]),_L66=«ext:react#useMemo»(()=>{var _L67;let _L68=_L6;if(_L21&&«global:Object».keys(_L21).length>0&&_L6===«chat/streamdown.jsx#defaultRehypePlugins»){let _L69={...«chat/streamdown.jsx#markdownSanitizationSchema»,tagNames:[...((_L67=«chat/streamdown.jsx#markdownSanitizationSchema».tagNames)!=null?_L67:[]),...«global:Object».keys(_L21)],attributes:{...«chat/streamdown.jsx#markdownSanitizationSchema».attributes,..._L21}};_L68=[«chat/streamdown.jsx#rehypePluginRegistry».raw,[«settings/request-prompt-prefill.jsx#rehypeSanitize»,_L69],«chat/streamdown.jsx#rehypePluginRegistry».harden];}return _L22&&_L22.length>0&&(_L68=[..._L68,[«vendor.js#mn»,_L22]]),_L17!=null&&_L17.math&&(_L68=[..._L68,_L17.math.rehypePlugin]),_L46&&_L12&&(_L68=[..._L68,_L46.rehypePlugin]),_L68;},[_L6,_L17==null?void 0:_L17.math,_L46,_L12,_L21,_L22]),_L70=«ext:react#useMemo»(()=>{if(!_L12||_L47.length===0)return false;let _L71=_L47.at(-1);return «chat/streamdown.jsx#hasUnclosedCodeFence»(_L71)||«chat/streamdown.jsx#hasTableSeparator»(_L71);},[_L12,_L47]),_L72=«ext:react#useMemo»(()=>_L16&&_L12&&!_L70?{\"--streamdown-caret\":`\"${«chat/streamdown.jsx#caretMarkers»[_L16]}\"`}:void 0,[_L16,_L12,_L70]);return _L1===\"static\"?«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Be».Provider,{value:_L57,children:«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Ve».Provider,{value:_L17!=null?_L17:null,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#R».Provider,{value:_L53,children:«ext:react/jsx-runtime#jsx»(«vendor.js#at»,{icons:_L24,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#Ee».Provider,{value:_L32,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:_L32(\"space-y-4 whitespace-normal [&>*:first-child]:mt-0 [&>*:last-child]:mb-0\",_L8),dir:_L2===\"auto\"?«chat/streamdown.jsx#getTextDirection»(_L41):_L2,children:«ext:react/jsx-runtime#jsx»(«chat/streamdown.jsx#MarkdownBlockRenderer»,{components:_L58,rehypePlugins:_L66,remarkPlugins:_L64,..._L28,children:_L41})})})})})})}):«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Be».Provider,{value:_L57,children:«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Ve».Provider,{value:_L17!=null?_L17:null,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#R».Provider,{value:_L53,children:«ext:react/jsx-runtime#jsx»(«vendor.js#at»,{icons:_L24,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#Ee».Provider,{value:_L32,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:_L32(\"space-y-4 whitespace-normal [&>*:first-child]:mt-0 [&>*:last-child]:mb-0\",_L16&&!_L70?\"[&>*:last-child]:after:inline [&>*:last-child]:after:align-baseline [&>*:last-child]:after:content-[var(--streamdown-caret)]\":null,_L8),style:_L72,children:[_L47.length===0&&_L16&&_L12&&«ext:react/jsx-runtime#jsx»(\"span\",{}),_L47.map((_L73,_L74)=>{var _L75;let _L76=_L74===_L47.length-1,_L77=_L12&&_L76&&«chat/streamdown.jsx#hasUnclosedCodeFence»(_L73);return «ext:react/jsx-runtime#jsx»(_L14,{animatePlugin:_L46,components:_L58,content:_L73,dir:(_L75=_L48==null?void 0:_L48[_L74])!=null?_L75:_L2!==\"auto\"?_L2:void 0,index:_L74,isIncomplete:_L77,rehypePlugins:_L66,remarkPlugins:_L64,shouldNormalizeHtmlIndentation:_L4,shouldParseIncompleteMarkdown:_L3,..._L28},_L49[_L74]);})]})})})})})});},(_L78,_L79)=>_L78.children===_L79.children&&_L78.shikiTheme===_L79.shikiTheme&&_L78.isAnimating===_L79.isAnimating&&_L78.animated===_L79.animated&&_L78.mode===_L79.mode&&_L78.plugins===_L79.plugins&&_L78.className===_L79.className&&_L78.linkSafety===_L79.linkSafety&&_L78.lineNumbers===_L79.lineNumbers&&_L78.normalizeHtmlIndentation===_L79.normalizeHtmlIndentation&&_L78.literalTagContent===_L79.literalTagContent&&«global:JSON».stringify(_L78.translations)===«global:JSON».stringify(_L79.translations)&&_L78.prefix===_L79.prefix&&_L78.dir===_L79.dir);",
+   "npmF": "var $D=«ext:react#memo»(({children:_L0,mode:_L1=\"streaming\",parseIncompleteMarkdown:_L2=true,components:_L3,rehypePlugins:_L4=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#yn»,remarkPlugins:_L5=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#wn»,className:_L6,shikiTheme:_L7=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Cn»,mermaid:_L8,controls:_L9=true,isAnimating:_L10=false,BlockComponent:_L11=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Wt»,parseMarkdownIntoBlocksFn:_L12=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#De»,caret:_L13,plugins:_L14,remend:_L15,linkSafety:_L16={enabled:true},..._L17})=>{let _L18=«ext:react#useId»(),[_L19,_L20]=«ext:react#useTransition»(),_L21=«ext:react#useMemo»(()=>typeof _L0!=\"string\"?\"\":_L1===\"streaming\"&&_L2?«ext:remend#default»(_L0,_L15):_L0,[_L0,_L1,_L2,_L15]),_L22=«ext:react#useMemo»(()=>_L12(_L21),[_L21,_L12]),[_L23,_L24]=«ext:react#useState»(_L22);«ext:react#useEffect»(()=>{_L1===\"streaming\"?_L20(()=>{_L24(_L22);}):_L24(_L22);},[_L22,_L1]);let _L25=_L1===\"streaming\"?_L23:_L22,_L26=«ext:react#useMemo»(()=>_L25.map((_L27,_L28)=>`${_L18}-${_L28}`),[_L25.length,_L18]),_L29=«ext:react#useMemo»(()=>{var _L30,_L31;return{shikiTheme:(_L31=(_L30=_L14==null?void 0:_L14.code)==null?void 0:_L30.getThemes())!=null?_L31:_L7,controls:_L9,isAnimating:_L10,mode:_L1,mermaid:_L8,linkSafety:_L16};},[_L7,_L9,_L10,_L1,_L8,_L16,_L14==null?void 0:_L14.code]),_L32=«ext:react#useMemo»(()=>({...«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#At»,..._L3}),[_L3]),_L33=«ext:react#useMemo»(()=>{let _L34=[];return _L14!=null&&_L14.cjk&&(_L34=[..._L34,..._L14.cjk.remarkPluginsBefore]),_L34=[..._L34,..._L5],_L14!=null&&_L14.cjk&&(_L34=[..._L34,..._L14.cjk.remarkPluginsAfter]),_L14!=null&&_L14.math&&(_L34=[..._L34,_L14.math.remarkPlugin]),_L34;},[_L5,_L14==null?void 0:_L14.math,_L14==null?void 0:_L14.cjk]),_L35=«ext:react#useMemo»(()=>_L14!=null&&_L14.math?[..._L4,_L14.math.rehypePlugin]:_L4,[_L4,_L14==null?void 0:_L14.math]),_L36=«ext:react#useMemo»(()=>_L13&&_L10?{\"--streamdown-caret\":`\"${«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#kn»[_L13]}\"`}:void 0,[_L13,_L10]);return _L1===\"static\"?«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ie».Provider,{value:_L14!=null?_L14:null,children:«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#N».Provider,{value:_L29,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#b»(\"space-y-4 whitespace-normal *:first:mt-0 *:last:mb-0\",_L6),children:«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ie»,{components:_L32,rehypePlugins:_L35,remarkPlugins:_L33,..._L17,children:_L0})})})}):«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ie».Provider,{value:_L14!=null?_L14:null,children:«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#N».Provider,{value:_L29,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#b»(\"space-y-4 whitespace-normal *:first:mt-0 *:last:mb-0\",_L13?\"*:last:after:inline *:last:after:align-baseline *:last:after:content-(--streamdown-caret)\":null,_L6),style:_L36,children:[_L25.length===0&&_L13&&_L10&&«ext:react/jsx-runtime#jsx»(\"span\",{}),_L25.map((_L37,_L38)=>«ext:react/jsx-runtime#jsx»(_L11,{components:_L32,content:_L37,index:_L38,rehypePlugins:_L35,remarkPlugins:_L33,shouldParseIncompleteMarkdown:_L2,..._L17},_L26[_L38]))]})})});},(_L39,_L40)=>_L39.children===_L40.children&&_L39.shikiTheme===_L40.shikiTheme&&_L39.isAnimating===_L40.isAnimating&&_L39.mode===_L40.mode&&_L39.plugins===_L40.plugins&&_L39.className===_L40.className&&_L39.linkSafety===_L40.linkSafety);"
+  },
+  {
+   "src": "ext:react#memo",
+   "npm": "ext:react#memo",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultRehypePlugins",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#yn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 58,
+   "srcLine": 1320,
+   "npmLine": 10
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultRemarkPlugins",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#wn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 58,
+   "srcLine": 1321,
+   "npmLine": 10
+  },
+  {
+   "src": "chat/xn.js#vn",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Cn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 36,
+   "srcLine": 3,
+   "npmLine": 10
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultBlockRenderer",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Wt",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 2217,
+   "srcLine": 1326,
+   "npmLine": 10,
+   "changedTokens": 204,
+   "totalTokens": 365,
+   "srcF": "var $D=«ext:react#memo»(({content:_L0,shouldParseIncompleteMarkdown:_L1,shouldNormalizeHtmlIndentation:_L2,index:_L3,isIncomplete:_L4,dir:_L5,animatePlugin:_L6,..._L7})=>{if(_L6){let _L8=_L6.getLastRenderCharCount();_L6.setPrevContentLength(_L8);}let _L9=typeof _L0==\"string\"&&_L2?«chat/streamdown.jsx#normalizeIndentedHtml»(_L0):_L0,_L10=«ext:react/jsx-runtime#jsx»(«chat/streamdown.jsx#MarkdownBlockRenderer»,{..._L7,children:_L9});return «ext:react/jsx-runtime#jsx»(«media-editing/wt.js#et».Provider,{value:_L4,children:_L5?«ext:react/jsx-runtime#jsx»(\"div\",{dir:_L5,style:{display:\"contents\"},children:_L10}):_L10});},(_L11,_L12)=>{if(_L11.content!==_L12.content||_L11.shouldNormalizeHtmlIndentation!==_L12.shouldNormalizeHtmlIndentation||_L11.index!==_L12.index||_L11.isIncomplete!==_L12.isIncomplete||_L11.dir!==_L12.dir)return false;if(_L11.components!==_L12.components){let _L13=«global:Object».keys(_L11.components||{}),_L14=«global:Object».keys(_L12.components||{});if(_L13.length!==_L14.length||_L13.some(_L15=>{var _L16,_L17;return((_L16=_L11.components)==null?void 0:_L16[_L15])!==((_L17=_L12.components)==null?void 0:_L17[_L15]);}))return false;}return!(_L11.rehypePlugins!==_L12.rehypePlugins||_L11.remarkPlugins!==_L12.remarkPlugins);});",
+   "npmF": "var $D=«ext:react#memo»(({content:_L0,shouldParseIncompleteMarkdown:_L1,index:_L2,..._L3})=>«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ie»,{..._L3,children:_L0}),(_L4,_L5)=>{if(_L4.content!==_L5.content||_L4.index!==_L5.index)return false;if(_L4.components!==_L5.components){let _L6=«global:Object».keys(_L4.components||{}),_L7=«global:Object».keys(_L5.components||{});if(_L6.length!==_L7.length||_L6.some(_L8=>{var _L9,_L10;return((_L9=_L4.components)==null?void 0:_L9[_L8])!==((_L10=_L5.components)==null?void 0:_L10[_L8]);}))return false;}return!(_L4.rehypePlugins!==_L5.rehypePlugins||_L4.remarkPlugins!==_L5.remarkPlugins);});"
+  },
+  {
+   "src": "vendor.js#kt",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#De",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 1056,
+   "srcLine": 39699,
+   "npmLine": 10,
+   "changedTokens": 281,
+   "totalTokens": 389,
+   "srcF": "var $D=_L0=>{let _L1=«vendor.js#Is».test(_L0),_L2=«vendor.js#Ns».test(_L0);if(_L1||_L2)return[_L0];let _L3=«vendor.js#x$6».lex(_L0,{gfm:true}),_L4=[],_L5=[],_L6=false;for(let _L7 of _L3){let _L8=_L7.raw,_L9=_L4.length;if(_L5.length>0){_L4[_L9-1]+=_L8;let _L10=_L5.at(-1),_L11=«vendor.js#sn»(_L8,_L10),_L12=«vendor.js#an»(_L8,_L10);for(let _L13=0;_L13<_L11;_L13+=1)_L5.push(_L10);for(let _L14=0;_L14<_L12;_L14+=1)_L5.length>0&&_L5.at(-1)===_L10&&_L5.pop();continue;}if(_L7.type===\"html\"&&_L7.block){let _L15=_L8.match(«vendor.js#Ls»);if(_L15){let _L16=_L15[1],_L17=«vendor.js#sn»(_L8,_L16),_L18=«vendor.js#an»(_L8,_L16);_L17>_L18&&_L5.push(_L16);}}if(_L9>0&&!_L6){let _L19=_L4[_L9-1];if(«vendor.js#Hs»(_L19)%2===1){_L4[_L9-1]=_L19+_L8;continue;}}_L4.push(_L8),_L7.type!==\"space\"&&(_L6=_L7.type===\"code\");}return _L4;};",
+   "npmF": "var $D=_L0=>{let _L1=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#en».test(_L0),_L2=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#tn».test(_L0);if(_L1||_L2)return[_L0];let _L3=«ext:marked#Lexer».lex(_L0,{gfm:true}),_L4=[],_L5=[];for(let _L6 of _L3){let _L7=_L6.raw,_L8=_L4.length;if(_L5.length>0){if(_L4[_L8-1]+=_L7,_L6.type===\"html\"){let _L9=_L7.match(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#on»);if(_L9){let _L10=_L9[1];_L5.at(-1)===_L10&&_L5.pop();}}continue;}if(_L6.type===\"html\"&&_L6.block){let _L11=_L7.match(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#nn»);if(_L11){let _L12=_L11[1];_L7.includes(`</${_L12}>`)||_L5.push(_L12);}}if(_L7.trim()===\"$$\"&&_L8>0){let _L13=_L4[_L8-1],_L14=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#He»(_L13),_L15=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ee»(_L13);if(_L14&&_L15%2===1){_L4[_L8-1]=_L13+_L7;continue;}}if(_L8>0&&«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#rn»(_L7)){let _L16=_L4[_L8-1],_L17=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#He»(_L16),_L18=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ee»(_L16),_L19=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ee»(_L7);if(_L17&&_L18%2===1&&!«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#He»(_L7)&&_L19===1){_L4[_L8-1]=_L16+_L7;continue;}}_L4.push(_L7);}return _L4;};"
+  },
+  {
+   "src": "ext:react#useId",
+   "npm": "ext:react#useId",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useTransition",
+   "npm": "ext:react#useTransition",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useMemo",
+   "npm": "ext:react#useMemo",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$e$1",
+   "npm": "ext:remend#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcLine": 373
+  },
+  {
+   "src": "ext:react#useState",
+   "npm": "ext:react#useState",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useEffect",
+   "npm": "ext:react#useEffect",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "media-editing/wt.js#De",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#At",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 1070,
+   "srcLine": 21,
+   "npmLine": 8,
+   "changedTokens": 123,
+   "totalTokens": 121,
+   "srcF": "var $D={copyCode:\"Copy Code\",downloadFile:\"Download file\",downloadDiagram:\"Download diagram\",downloadDiagramAsSvg:\"Download diagram as SVG\",downloadDiagramAsPng:\"Download diagram as PNG\",downloadDiagramAsMmd:\"Download diagram as MMD\",viewFullscreen:\"View fullscreen\",exitFullscreen:\"Exit fullscreen\",mermaidFormatSvg:\"SVG\",mermaidFormatPng:\"PNG\",mermaidFormatMmd:\"MMD\",copyTable:\"Copy table\",copyTableAsMarkdown:\"Copy table as Markdown\",copyTableAsCsv:\"Copy table as CSV\",copyTableAsTsv:\"Copy table as TSV\",downloadTable:\"Download table\",downloadTableAsCsv:\"Download table as CSV\",downloadTableAsMarkdown:\"Download table as Markdown\",tableFormatMarkdown:\"Markdown\",tableFormatCsv:\"CSV\",tableFormatTsv:\"TSV\",imageNotAvailable:\"Image not available\",downloadImage:\"Download image\",openExternalLink:\"Open external link?\",externalLinkWarning:\"You're about to visit an external website.\",close:\"Close\",copyLink:\"Copy link\",copied:\"Copied\",openLink:\"Open link\"};",
+   "npmF": "var $D={ol:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Se»,li:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#bt»,ul:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#gt»,hr:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ht»,strong:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#yt»,a:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#wt»,h1:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#kt»,h2:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#vt»,h3:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ct»,h4:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#xt»,h5:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Pt»,h6:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Mt»,table:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Tt»,thead:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Nt»,tbody:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Lt»,tr:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#St»,th:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Rt»,td:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#It»,blockquote:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ht»,code:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Bt»,img:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#jt»,pre:({children:_L0})=>_L0,sup:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Et»,sub:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Dt»,p:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ot»,section:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Vt»};"
+  },
+  {
+   "src": "ext:react/jsx-runtime#jsx",
+   "npm": "ext:react/jsx-runtime#jsx",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "media-editing/wt.js#Be",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ie",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 35,
+   "srcLine": 52,
+   "npmLine": 2,
+   "changedTokens": 2,
+   "totalTokens": 8,
+   "srcF": "var $D=«ext:react#createContext»(«media-editing/wt.js#De»);",
+   "npmF": "var $D=«ext:react#createContext»(null);"
+  },
+  {
+   "src": "chat/ae.jsx#R",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#N",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 60,
+   "srcLine": 148,
+   "npmLine": 10
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownBlockRenderer",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ie",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 294,
+   "srcLine": 143,
+   "npmLine": 8,
+   "changedTokens": 12,
+   "totalTokens": 50,
+   "srcF": "var $D=_L0=>{let _L1=«chat/streamdown.jsx#getMarkdownProcessor»(_L0),_L2=_L0.children||\"\",_L3=_L1.runSync(_L1.parse(_L2),_L2);return «chat/streamdown.jsx#renderHastToJsx»(_L3,_L0);};",
+   "npmF": "var $D=_L0=>{let _L1=«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ko»(_L0),_L2=_L0.children||\"\";return «streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Yo»(_L1.runSync(_L1.parse(_L2),_L2),_L0);};"
+  },
+  {
+   "src": "global:Object",
+   "npm": "global:Object",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#defaultRehypePlugins"
+  },
+  {
+   "src": "chat/streamdown.jsx#rehypePluginRegistry",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#gn",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#defaultRehypePlugins",
+   "bytes": 302,
+   "srcLine": 1302,
+   "npmLine": 10,
+   "changedTokens": 3,
+   "totalTokens": 53,
+   "srcF": "var $D={raw:«workspace/build-inspiration-media-showcase-collections.js#rehypeRaw»,sanitize:[«settings/request-prompt-prefill.jsx#rehypeSanitize»,«chat/streamdown.jsx#markdownSanitizationSchema»],harden:[«ext:rehype-harden#harden»,{allowedImagePrefixes:[\"*\"],allowedLinkPrefixes:[\"*\"],allowedProtocols:[\"*\"],defaultOrigin:void 0,allowDataImages:true}]};",
+   "npmF": "var $D={raw:«ext:rehype-raw#default»,sanitize:[«ext:rehype-sanitize#default»,{}],harden:[«ext:rehype-harden#harden»,{allowedImagePrefixes:[\"*\"],allowedLinkPrefixes:[\"*\"],allowedProtocols:[\"*\"],defaultOrigin:void 0,allowDataImages:true}]};"
+  },
+  {
+   "src": "chat/streamdown.jsx#remarkPluginRegistry",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#hn",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#defaultRemarkPlugins",
+   "bytes": 82,
+   "srcLine": 1316,
+   "npmLine": 10,
+   "changedTokens": 4,
+   "totalTokens": 18,
+   "srcF": "var $D={gfm:[«vendor.js#remarkGfm»,{}],codeMeta:«vendor.js#un»};",
+   "npmF": "var $D={gfm:[«ext:remark-gfm#default»,{}]};"
+  },
+  {
+   "src": "vendor.js#Is",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#en",
+   "verdict": "diff",
+   "via": "vendor.js#kt",
+   "bytes": 30,
+   "srcLine": 39662,
+   "npmLine": 8,
+   "changedTokens": 2,
+   "totalTokens": 5,
+   "srcF": "var $D=/\\[\\^[\\w-]{1,200}\\](?!:)/;",
+   "npmF": "var $D=/\\[\\^[^\\]\\s]{1,200}\\](?!:)/;"
+  },
+  {
+   "src": "vendor.js#Ns",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#tn",
+   "verdict": "diff",
+   "via": "vendor.js#kt",
+   "bytes": 26,
+   "srcLine": 39663,
+   "npmLine": 8,
+   "changedTokens": 2,
+   "totalTokens": 5,
+   "srcF": "var $D=/\\[\\^[\\w-]{1,200}\\]:/;",
+   "npmF": "var $D=/\\[\\^[^\\]\\s]{1,200}\\]:/;"
+  },
+  {
+   "src": "vendor.js#x$6",
+   "npm": "ext:marked#Lexer",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor.js#kt",
+   "srcLine": 27076
+  },
+  {
+   "src": "vendor.js#Ls",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#nn",
+   "verdict": "exact",
+   "via": "vendor.js#kt",
+   "bytes": 18,
+   "srcLine": 39664,
+   "npmLine": 8
+  },
+  {
+   "src": "vendor.js#sn",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#He",
+   "verdict": "diff",
+   "via": "vendor.js#kt",
+   "bytes": 216,
+   "srcLine": 39682,
+   "npmLine": 8,
+   "changedTokens": 134,
+   "totalTokens": 102,
+   "srcF": "var $D=(_L0,_L1)=>{if(«vendor.js#Rs».has(_L1.toLowerCase()))return 0;let _L2=_L0.match(«vendor.js#Ss»(_L1));if(!_L2)return 0;let _L3=0;for(let _L4 of _L2)_L4.trimEnd().endsWith(\"/>\")||(_L3+=1);return _L3;};",
+   "npmF": "var $D=_L0=>{let _L1=0;for(;_L1<_L0.length&&(_L0[_L1]===\" \"||_L0[_L1]===\"\\t\"||_L0[_L1]===`\\u000a`||_L0[_L1]===\"\\r\");)_L1+=1;return _L1+1<_L0.length&&_L0[_L1]===\"$\"&&_L0[_L1+1]===\"$\";};"
+  },
+  {
+   "src": "vendor.js#an",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ee",
+   "verdict": "diff",
+   "via": "vendor.js#kt",
+   "bytes": 84,
+   "srcLine": 39690,
+   "npmLine": 10,
+   "changedTokens": 66,
+   "totalTokens": 71,
+   "srcF": "var $D=(_L0,_L1)=>{let _L2=_L0.match(«vendor.js#Es»(_L1));return _L2?_L2.length:0;};",
+   "npmF": "var $D=_L0=>{let _L1=0;for(let _L2=0;_L2<_L0.length-1;_L2+=1)_L0[_L2]===\"$\"&&_L0[_L2+1]===\"$\"&&(_L1+=1,_L2+=1);return _L1;};"
+  },
+  {
+   "src": "ext:react#createContext",
+   "npm": "ext:react#createContext",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#Be"
+  },
+  {
+   "src": "chat/ae.jsx#defaultMarkdownRenderOptions",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#vn",
+   "verdict": "diff",
+   "via": "chat/ae.jsx#R",
+   "bytes": 201,
+   "srcLine": 138,
+   "npmLine": 10,
+   "changedTokens": 16,
+   "totalTokens": 38,
+   "srcF": "var $D={shikiTheme:«chat/xn.js#vn»,controls:true,isAnimating:false,lineNumbers:true,mode:\"streaming\",mermaid:void 0,linkSafety:«chat/xn.js#xn»};",
+   "npmF": "var $D={shikiTheme:[\"github-light\",\"github-dark\"],controls:true,isAnimating:false,mode:\"streaming\",mermaid:void 0,linkSafety:{enabled:true}};"
+  },
+  {
+   "src": "chat/streamdown.jsx#getMarkdownProcessor",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ko",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownBlockRenderer",
+   "bytes": 329,
+   "srcLine": 101,
+   "npmLine": 8
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#rehypeRaw",
+   "npm": "ext:rehype-raw#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#rehypePluginRegistry",
+   "srcLine": 92
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#rehypeSanitize",
+   "npm": "ext:rehype-sanitize#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#rehypePluginRegistry",
+   "srcLine": 160
+  },
+  {
+   "src": "ext:rehype-harden#harden",
+   "npm": "ext:rehype-harden#harden",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#rehypePluginRegistry"
+  },
+  {
+   "src": "vendor.js#remarkGfm",
+   "npm": "ext:remark-gfm#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#remarkPluginRegistry",
+   "srcLine": 25763
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownProcessorCache",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#$t",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#getMarkdownProcessor",
+   "bytes": 50,
+   "srcLine": 100,
+   "npmLine": 8
+  },
+  {
+   "src": "media-editing/wt.js#ks",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Go",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#getMarkdownProcessor",
+   "bytes": 313,
+   "srcLine": 141,
+   "npmLine": 8,
+   "changedTokens": 22,
+   "totalTokens": 95,
+   "srcF": "var $D=_L0=>{let _L1=_L0.rehypePlugins||«media-editing/wt.js#Qo»,_L2=_L0.remarkPlugins||«media-editing/wt.js#Qo»,_L3=«media-editing/wt.js#Cs»(_L1)?_L2:[..._L2,«media-editing/wt.js#Go»],_L4=_L0.remarkRehypeOptions?{...«media-editing/wt.js#en»,..._L0.remarkRehypeOptions}:«media-editing/wt.js#en»;return «vendor.js#unified»().use(«vendor.js#remarkParse»).use(_L3).use(«vendor.js#remarkRehype»,_L4).use(_L1);};",
+   "npmF": "var $D=_L0=>{let _L1=_L0.rehypePlugins||«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#qt»,_L2=_L0.remarkPlugins||«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#qt»,_L3=_L0.remarkRehypeOptions?{...«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#zt»,..._L0.remarkRehypeOptions}:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#zt»;return «ext:unified#unified»().use(«ext:remark-parse#default»).use(_L2).use(«ext:remark-rehype#default»,_L3).use(_L1);};"
+  },
+  {
+   "src": "media-editing/wt.js#wt",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Re",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownProcessorCache",
+   "bytes": 1707,
+   "srcLine": 81,
+   "npmLine": 8
+  },
+  {
+   "src": "media-editing/wt.js#Qo",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#qt",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#ks",
+   "bytes": 7,
+   "srcLine": 76,
+   "npmLine": 8
+  },
+  {
+   "src": "media-editing/wt.js#en",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#zt",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#ks",
+   "bytes": 36,
+   "srcLine": 77,
+   "npmLine": 8
+  },
+  {
+   "src": "vendor.js#unified",
+   "npm": "ext:unified#unified",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#ks",
+   "srcLine": 23093
+  },
+  {
+   "src": "vendor.js#remarkParse",
+   "npm": "ext:remark-parse#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#ks",
+   "srcLine": 20292
+  },
+  {
+   "src": "vendor.js#remarkRehype",
+   "npm": "ext:remark-rehype#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#ks",
+   "srcLine": 21595
+  },
+  {
+   "src": "global:Map",
+   "npm": "global:Map",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "global:WeakMap",
+   "npm": "global:WeakMap",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "global:Array",
+   "npm": "global:Array",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "media-editing/wt.js#We",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#he",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#wt",
+   "bytes": 18,
+   "srcLine": 80,
+   "npmLine": 8
+  },
+  {
+   "src": "global:String",
+   "npm": "global:String",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "global:JSON",
+   "npm": "global:JSON",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "chat/streamdown.jsx#fileExtensionPattern",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#fo",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 34,
+   "srcLine": 200,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/streamdown.jsx#languageClassPattern",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#qo",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 42,
+   "srcLine": 603,
+   "npmLine": 8
+  },
+  {
+   "src": "chat/streamdown.jsx#isOptionEnabled",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ne",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 120,
+   "srcLine": 604,
+   "npmLine": 8
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownLink",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#wt",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 174,
+   "srcLine": 763,
+   "npmLine": 8
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSection",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Vt",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 3414,
+   "srcLine": 1007,
+   "npmLine": 8
+  },
+  {
+   "src": "chat/streamdown.jsx#caretMarkers",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#kn",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 49,
+   "srcLine": 1322,
+   "npmLine": 10
+  },
+  {
+   "src": "media-editing/wt.js#nt",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ao",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 48,
+   "srcLine": 17,
+   "npmLine": 2
+  },
+  {
+   "src": "media-editing/wt.js#Li",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#cr",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 109,
+   "srcLine": 56,
+   "npmLine": 2
+  },
+  {
+   "src": "media-editing/wt.js#de",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#U",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 112,
+   "srcLine": 61,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/ae.jsx#he",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#b",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 49,
+   "srcLine": 10,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/ae.jsx#Fe",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ue",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 308,
+   "srcLine": 128,
+   "npmLine": 8
+  },
+  {
+   "src": "chat/yt.js#Yt",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#$e",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 5131,
+   "srcLine": 3,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/co.jsx#convertSvgToPngBlob",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ke",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 1206,
+   "srcLine": 7,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_DEBOUNCE_DELAY_MS",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Yt",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 31,
+   "srcLine": 7,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_INTERSECTION_ROOT_MARGIN",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Qt",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 42,
+   "srcLine": 9,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_IDLE_TIMEOUT_MS",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#eo",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 29,
+   "srcLine": 11,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/nn.jsx#useLazyIntersectionRendering",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ve",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 4574,
+   "srcLine": 13,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownLink",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#zo",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#MemoizedMarkdownLink",
+   "bytes": 2164,
+   "srcLine": 698,
+   "npmLine": 8,
+   "changedTokens": 72,
+   "totalTokens": 364,
+   "srcF": "var $D=({children:_L0,className:_L1,href:_L2,node:_L3,..._L4})=>{let _L5=«chat/ae.jsx#y3»(),{linkSafety:_L6}=«ext:react#useContext»(«chat/ae.jsx#R»),[_L7,_L8]=«ext:react#useState»(false),_L9=_L2===\"streamdown:incomplete-link\",_L10=«ext:react#useCallback»(async _L11=>{if(!(!(_L6!=null&&_L6.enabled&&_L2)||_L9)){if(_L11.preventDefault(),_L6.onLinkCheck&&(await _L6.onLinkCheck(_L2))){«global:window».open(_L2,\"_blank\",\"noreferrer\");return;}_L8(true);}},[_L6,_L2,_L9]),_L12=«ext:react#useCallback»(()=>{_L2&&«global:window».open(_L2,\"_blank\",\"noreferrer\");},[_L2]),_L13=«ext:react#useCallback»(()=>{_L8(false);},[]),_L14={url:_L2!=null?_L2:\"\",isOpen:_L7,onClose:_L13,onConfirm:_L12};return _L6!=null&&_L6.enabled&&_L2?«ext:react/jsx-runtime#jsx»(«ext:react#Fragment»,{children:[«ext:react/jsx-runtime#jsx»(\"button\",{className:_L5(\"wrap-anywhere appearance-none text-left font-medium text-primary underline\",_L1),\"data-incomplete\":_L9,\"data-streamdown\":\"link\",onClick:_L10,type:\"button\",children:_L0}),_L6.renderModal?_L6.renderModal(_L14):«ext:react/jsx-runtime#jsx»(«chat/streamdown.jsx#ExternalLinkConfirmation»,{..._L14})]}):«ext:react/jsx-runtime#jsx»(\"a\",{className:_L5(\"wrap-anywhere font-medium text-primary underline\",_L1),\"data-incomplete\":_L9,\"data-streamdown\":\"link\",href:_L2,rel:\"noreferrer\",target:\"_blank\",..._L4,children:_L0});};",
+   "npmF": "var $D=({children:_L0,className:_L1,href:_L2,node:_L3,..._L4})=>{let{linkSafety:_L5}=«ext:react#useContext»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#N»),[_L6,_L7]=«ext:react#useState»(false),_L8=_L2===\"streamdown:incomplete-link\",_L9=«ext:react#useCallback»(async _L10=>{if(!(!(_L5!=null&&_L5.enabled&&_L2)||_L8)){if(_L10.preventDefault(),_L5.onLinkCheck&&(await _L5.onLinkCheck(_L2))){«global:window».open(_L2,\"_blank\",\"noreferrer\");return;}_L7(true);}},[_L5,_L2,_L8]),_L11=«ext:react#useCallback»(()=>{_L2&&«global:window».open(_L2,\"_blank\",\"noreferrer\");},[_L2]),_L12=«ext:react#useCallback»(()=>{_L7(false);},[]),_L13={url:_L2!=null?_L2:\"\",isOpen:_L6,onClose:_L12,onConfirm:_L11};return _L5!=null&&_L5.enabled&&_L2?«ext:react/jsx-runtime#jsx»(«ext:react#Fragment»,{children:[«ext:react/jsx-runtime#jsx»(\"button\",{className:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#b»(\"wrap-anywhere appearance-none text-left font-medium text-primary underline\",_L1),\"data-incomplete\":_L8,\"data-streamdown\":\"link\",onClick:_L9,type:\"button\",children:_L0}),_L5.renderModal?_L5.renderModal(_L13):«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Fe»,{..._L13})]}):«ext:react/jsx-runtime#jsx»(\"a\",{className:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#b»(\"wrap-anywhere font-medium text-primary underline\",_L1),\"data-incomplete\":_L8,\"data-streamdown\":\"link\",href:_L2,rel:\"noreferrer\",target:\"_blank\",..._L4,children:_L0});};"
+  },
+  {
+   "src": "vendor.js#E2",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#T",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MemoizedMarkdownLink",
+   "bytes": 87,
+   "srcLine": 39637,
+   "npmLine": 8
+  },
+  {
+   "src": "ext:react#isValidElement",
+   "npm": "ext:react#isValidElement",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownSection"
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownOrderedList",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Se",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#MarkdownSection",
+   "bytes": 516,
+   "srcLine": 614,
+   "npmLine": 8,
+   "changedTokens": 21,
+   "totalTokens": 82,
+   "srcF": "var $D=«ext:react#memo»(({children:_L0,className:_L1,node:_L2,..._L3})=>{let _L4=«chat/ae.jsx#y3»();return «ext:react/jsx-runtime#jsx»(\"ol\",{className:_L4(\"list-inside list-decimal whitespace-normal [li_&]:pl-6\",_L1),\"data-streamdown\":\"ordered-list\",..._L3,children:_L0});},(_L5,_L6)=>«vendor.js#E2»(_L5,_L6));",
+   "npmF": "var $D=«ext:react#memo»(({children:_L0,className:_L1,node:_L2,..._L3})=>«ext:react/jsx-runtime#jsx»(\"ol\",{className:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#b»(\"list-inside list-decimal whitespace-normal [li_&]:pl-6\",_L1),\"data-streamdown\":\"ordered-list\",..._L3,children:_L0}),(_L4,_L5)=>«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#T»(_L4,_L5));"
+  },
+  {
+   "src": "media-editing/wt.js#ct2",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ue",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#Li",
+   "bytes": 39,
+   "srcLine": 55,
+   "npmLine": 2
+  },
+  {
+   "src": "infra/dialog-content.jsx#twMerge",
+   "npm": "ext:tailwind-merge#twMerge",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/ae.jsx#he",
+   "srcLine": 37
+  },
+  {
+   "src": "vendor.js#clsx",
+   "npm": "ext:clsx#clsx",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/ae.jsx#he",
+   "srcLine": 11713
+  },
+  {
+   "src": "global:Promise",
+   "npm": "global:Promise",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:btoa",
+   "npm": "global:btoa",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:unescape",
+   "npm": "global:unescape",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:encodeURIComponent",
+   "npm": "global:encodeURIComponent",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:Image",
+   "npm": "global:Image",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:document",
+   "npm": "global:document",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:Error",
+   "npm": "global:Error",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "ext:react#useRef",
+   "npm": "ext:react#useRef",
+   "verdict": "ext-same",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering"
+  },
+  {
+   "src": "global:Date",
+   "npm": "global:Date",
+   "verdict": "ext-same",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering"
+  },
+  {
+   "src": "global:window",
+   "npm": "global:window",
+   "verdict": "ext-same",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering"
+  },
+  {
+   "src": "global:Math",
+   "npm": "global:Math",
+   "verdict": "ext-same",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering"
+  },
+  {
+   "src": "global:clearTimeout",
+   "npm": "global:clearTimeout",
+   "verdict": "ext-same",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering"
+  },
+  {
+   "src": "global:IntersectionObserver",
+   "npm": "global:IntersectionObserver",
+   "verdict": "ext-same",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering"
+  },
+  {
+   "src": "ext:react#useContext",
+   "npm": "ext:react#useContext",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownLink"
+  },
+  {
+   "src": "ext:react#useCallback",
+   "npm": "ext:react#useCallback",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownLink"
+  },
+  {
+   "src": "ext:react#Fragment",
+   "npm": "ext:react#Fragment",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownLink"
+  },
+  {
+   "src": "chat/streamdown.jsx#ExternalLinkConfirmation",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Fe",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#MarkdownLink",
+   "bytes": 4542,
+   "srcLine": 314,
+   "npmLine": 2,
+   "changedTokens": 137,
+   "totalTokens": 646,
+   "srcF": "var $D=({url:_L0,isOpen:_L1,onClose:_L2,onConfirm:_L3})=>{let{CheckIcon:_L4,CopyIcon:_L5,ExternalLinkIcon:_L6,XIcon:_L7}=«vendor.js#L»(),_L8=«chat/ae.jsx#y3»(),[_L9,_L10]=«ext:react#useState»(false),_L11=«media-editing/wt.js#D3»(),_L12=«ext:react#useCallback»(async()=>{try{await «global:navigator».clipboard.writeText(_L0),_L10(true),«global:setTimeout»(()=>_L10(false),2000);}catch(_L13){}},[_L0]),_L14=«ext:react#useCallback»(()=>{_L3(),_L2();},[_L3,_L2]);return «ext:react#useEffect»(()=>{if(_L1){«chat/ae.jsx#le»();let _L15=_L16=>{_L16.key===\"Escape\"&&_L2();};return «global:document».addEventListener(\"keydown\",_L15),()=>{«global:document».removeEventListener(\"keydown\",_L15),«chat/ae.jsx#ce»();};}},[_L1,_L2]),_L1?«ext:react/jsx-runtime#jsx»(\"div\",{className:_L8(\"fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm\"),\"data-streamdown\":\"link-safety-modal\",onClick:_L2,onKeyDown:_L17=>{_L17.key===\"Escape\"&&_L2();},role:\"button\",tabIndex:0,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:_L8(\"relative mx-4 flex w-full max-w-md flex-col gap-4 rounded-xl border bg-background p-6 shadow-lg\"),onClick:_L18=>_L18.stopPropagation(),onKeyDown:_L19=>_L19.stopPropagation(),role:\"presentation\",children:[«ext:react/jsx-runtime#jsx»(\"button\",{className:_L8(\"absolute top-4 right-4 rounded-md p-1 text-muted-foreground transition-all hover:bg-muted hover:text-foreground\"),onClick:_L2,title:_L11.close,type:\"button\",children:«ext:react/jsx-runtime#jsx»(_L7,{size:16})}),«ext:react/jsx-runtime#jsx»(\"div\",{className:_L8(\"flex flex-col gap-2\"),children:[«ext:react/jsx-runtime#jsx»(\"div\",{className:_L8(\"flex items-center gap-2 font-semibold text-lg\"),children:[«ext:react/jsx-runtime#jsx»(_L6,{size:20}),«ext:react/jsx-runtime#jsx»(\"span\",{children:_L11.openExternalLink})]}),«ext:react/jsx-runtime#jsx»(\"p\",{className:_L8(\"text-muted-foreground text-sm\"),children:_L11.externalLinkWarning})]}),«ext:react/jsx-runtime#jsx»(\"div\",{className:_L8(\"break-all rounded-md bg-muted p-3 font-mono text-sm\",_L0.length>100&&\"max-h-32 overflow-y-auto\"),children:_L0}),«ext:react/jsx-runtime#jsx»(\"div\",{className:_L8(\"flex gap-2\"),children:[«ext:react/jsx-runtime#jsx»(\"button\",{className:_L8(\"flex flex-1 items-center justify-center gap-2 rounded-md border bg-background px-4 py-2 font-medium text-sm transition-all hover:bg-muted\"),onClick:_L12,type:\"button\",children:_L9?«ext:react/jsx-runtime#jsx»(«ext:react#Fragment»,{children:[«ext:react/jsx-runtime#jsx»(_L4,{size:14}),«ext:react/jsx-runtime#jsx»(\"span\",{children:_L11.copied})]}):«ext:react/jsx-runtime#jsx»(«ext:react#Fragment»,{children:[«ext:react/jsx-runtime#jsx»(_L5,{size:14}),«ext:react/jsx-runtime#jsx»(\"span\",{children:_L11.copyLink})]})}),«ext:react/jsx-runtime#jsx»(\"button\",{className:_L8(\"flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-all hover:bg-primary/90\"),onClick:_L14,type:\"button\",children:[«ext:react/jsx-runtime#jsx»(_L6,{size:14}),«ext:react/jsx-runtime#jsx»(\"span\",{children:_L11.openLink})]})]})]})}):null;};",
+   "npmF": "var $D=({url:_L0,isOpen:_L1,onClose:_L2,onConfirm:_L3})=>{let[_L4,_L5]=«ext:react#useState»(false),_L6=«ext:react#useCallback»(async()=>{try{await «global:navigator».clipboard.writeText(_L0),_L5(true),«global:setTimeout»(()=>_L5(false),2000);}catch(_L7){}},[_L0]),_L8=«ext:react#useCallback»(()=>{_L3(),_L2();},[_L3,_L2]);return «ext:react#useEffect»(()=>{if(_L1){«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#yo»();let _L9=_L10=>{_L10.key===\"Escape\"&&_L2();};return «global:document».addEventListener(\"keydown\",_L9),()=>{«global:document».removeEventListener(\"keydown\",_L9),«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#wo»();};}},[_L1,_L2]),_L1?«ext:react/jsx-runtime#jsx»(\"div\",{className:\"fixed inset-0 z-50 flex items-center justify-center bg-background/50 backdrop-blur-sm\",\"data-streamdown\":\"link-safety-modal\",onClick:_L2,onKeyDown:_L11=>{_L11.key===\"Escape\"&&_L2();},role:\"button\",tabIndex:0,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:\"relative mx-4 flex w-full max-w-md flex-col gap-4 rounded-xl border bg-background p-6 shadow-lg\",onClick:_L12=>_L12.stopPropagation(),onKeyDown:_L13=>_L13.stopPropagation(),role:\"presentation\",children:[«ext:react/jsx-runtime#jsx»(\"button\",{className:\"absolute top-4 right-4 rounded-md p-1 text-muted-foreground transition-all hover:bg-muted hover:text-foreground\",onClick:_L2,title:\"Close\",type:\"button\",children:«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#re»,{size:16})}),«ext:react/jsx-runtime#jsx»(\"div\",{className:\"flex flex-col gap-2\",children:[«ext:react/jsx-runtime#jsx»(\"div\",{className:\"flex items-center gap-2 font-semibold text-lg\",children:[«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ve»,{size:20}),«ext:react/jsx-runtime#jsx»(\"span\",{children:\"Open external link?\"})]}),«ext:react/jsx-runtime#jsx»(\"p\",{className:\"text-muted-foreground text-sm\",children:\"You're about to visit an external website.\"})]}),«ext:react/jsx-runtime#jsx»(\"div\",{className:«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#b»(\"break-all rounded-md bg-muted p-3 font-mono text-sm\",_L0.length>100&&\"max-h-32 overflow-y-auto\"),children:_L0}),«ext:react/jsx-runtime#jsx»(\"div\",{className:\"flex gap-2\",children:[«ext:react/jsx-runtime#jsx»(\"button\",{className:\"flex flex-1 items-center justify-center gap-2 rounded-md border bg-background px-4 py-2 font-medium text-sm transition-all hover:bg-muted\",onClick:_L6,type:\"button\",children:_L4?«ext:react/jsx-runtime#jsx»(«ext:react#Fragment»,{children:[«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#J»,{size:14}),«ext:react/jsx-runtime#jsx»(\"span\",{children:\"Copied\"})]}):«ext:react/jsx-runtime#jsx»(«ext:react#Fragment»,{children:[«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#F»,{size:14}),«ext:react/jsx-runtime#jsx»(\"span\",{children:\"Copy link\"})]})}),«ext:react/jsx-runtime#jsx»(\"button\",{className:\"flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground text-sm transition-all hover:bg-primary/90\",onClick:_L8,type:\"button\",children:[«ext:react/jsx-runtime#jsx»(«streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ve»,{size:14}),«ext:react/jsx-runtime#jsx»(\"span\",{children:\"Open link\"})]})]})]})}):null;};"
+  },
+  {
+   "src": "vendor.js#qe",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ge",
+   "verdict": "exact",
+   "via": "vendor.js#E2",
+   "bytes": 589,
+   "srcLine": 39628,
+   "npmLine": 8
+  },
+  {
+   "src": "global:navigator",
+   "npm": "global:navigator",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation"
+  },
+  {
+   "src": "global:setTimeout",
+   "npm": "global:setTimeout",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation"
+  },
+  {
+   "src": "chat/ae.jsx#le",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#yo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation",
+   "bytes": 110,
+   "srcLine": 95,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/ae.jsx#ce",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#wo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation",
+   "bytes": 134,
+   "srcLine": 99,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/ae.jsx#scrollLockCount",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Q",
+   "verdict": "exact",
+   "via": "chat/ae.jsx#le",
+   "bytes": 19,
+   "srcLine": 93,
+   "npmLine": 2
+  },
+  {
+   "src": "media-editing/wt.js#tt",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#se",
+   "verdict": "exact",
+   "via": "fallback-FN",
+   "bytes": 38,
+   "srcLine": 16,
+   "npmLine": 2
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#nextId",
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#te",
+   "verdict": "exact",
+   "via": "fallback-FN",
+   "bytes": 10,
+   "srcLine": 170,
+   "npmLine": 2
+  }
+ ],
+ "srcUnpaired": [
+  {
+   "src": "chat/streamdown.jsx#rtlCharacterPattern",
+   "line": 53,
+   "bytes": 65
+  },
+  {
+   "src": "chat/streamdown.jsx#unicodeLetterPattern",
+   "line": 54,
+   "bytes": 48
+  },
+  {
+   "src": "chat/streamdown.jsx#getTextDirection",
+   "line": 55,
+   "bytes": 465
+  },
+  {
+   "src": "chat/streamdown.jsx#fencedCodeStartPattern",
+   "line": 68,
+   "bytes": 51
+  },
+  {
+   "src": "chat/streamdown.jsx#tableDelimiterPattern",
+   "line": 69,
+   "bytes": 81
+  },
+  {
+   "src": "chat/streamdown.jsx#hasUnclosedCodeFence",
+   "line": 70,
+   "bytes": 736
+  },
+  {
+   "src": "chat/streamdown.jsx#hasTableSeparator",
+   "line": 91,
+   "bytes": 280
+  },
+  {
+   "src": "chat/streamdown.jsx#renderHastToJsx",
+   "line": 107,
+   "bytes": 1372
+  },
+  {
+   "src": "chat/streamdown.jsx#prefixClassNames",
+   "line": 149,
+   "bytes": 312
+  },
+  {
+   "src": "chat/streamdown.jsx#createClassNameMerger",
+   "line": 158,
+   "bytes": 137
+  },
+  {
+   "src": "chat/streamdown.jsx#FileDownloadButton",
+   "line": 159,
+   "bytes": 1358
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownImageRenderer",
+   "line": 201,
+   "bytes": 4184
+  },
+  {
+   "src": "chat/streamdown.jsx#TableFullscreenButton",
+   "line": 440,
+   "bytes": 3846
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableWrapper",
+   "line": 548,
+   "bytes": 1488
+  },
+  {
+   "src": "chat/streamdown.jsx#startingLinePattern",
+   "line": 596,
+   "bytes": 39
+  },
+  {
+   "src": "chat/streamdown.jsx#noLineNumbersPattern",
+   "line": 597,
+   "bytes": 42
+  },
+  {
+   "src": "chat/streamdown.jsx#MermaidRenderer",
+   "line": 598,
+   "bytes": 183
+  },
+  {
+   "src": "chat/streamdown.jsx#isTableActionEnabled",
+   "line": 605,
+   "bytes": 283
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownListItem",
+   "line": 633,
+   "bytes": 502
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownUnorderedList",
+   "line": 649,
+   "bytes": 517
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHorizontalRule",
+   "line": 668,
+   "bytes": 415
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownStrong",
+   "line": 682,
+   "bytes": 437
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingOne",
+   "line": 765,
+   "bytes": 459
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingTwo",
+   "line": 781,
+   "bytes": 459
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingThree",
+   "line": 797,
+   "bytes": 460
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingFour",
+   "line": 813,
+   "bytes": 459
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingFive",
+   "line": 829,
+   "bytes": 461
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingSix",
+   "line": 845,
+   "bytes": 458
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableRenderer",
+   "line": 861,
+   "bytes": 829
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableHead",
+   "line": 881,
+   "bytes": 446
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableBody",
+   "line": 897,
+   "bytes": 455
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableRowRenderer",
+   "line": 913,
+   "bytes": 446
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableHeaderCell",
+   "line": 929,
+   "bytes": 530
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownDataCell",
+   "line": 948,
+   "bytes": 443
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownBlockquote",
+   "line": 964,
+   "bytes": 551
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSuperscript",
+   "line": 983,
+   "bytes": 408
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSubscript",
+   "line": 995,
+   "bytes": 404
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "line": 1090,
+   "bytes": 5923
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownCode",
+   "line": 1226,
+   "bytes": 205
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownImage",
+   "line": 1231,
+   "bytes": 210
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownComponents",
+   "line": 1236,
+   "bytes": 896
+  },
+  {
+   "src": "chat/streamdown.jsx#htmlStartPattern",
+   "line": 1269,
+   "bytes": 37
+  },
+  {
+   "src": "chat/streamdown.jsx#indentedHtmlPattern",
+   "line": 1270,
+   "bytes": 53
+  },
+  {
+   "src": "chat/streamdown.jsx#normalizeIndentedHtml",
+   "line": 1271,
+   "bytes": 211
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultHrefProtocols",
+   "line": 1275,
+   "bytes": 20
+  },
+  {
+   "src": "chat/streamdown.jsx#hrefProtocols",
+   "line": 1276,
+   "bytes": 13
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultCodeAttributes",
+   "line": 1277,
+   "bytes": 21
+  },
+  {
+   "src": "chat/streamdown.jsx#codeAttributes",
+   "line": 1278,
+   "bytes": 14
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "line": 1279,
+   "bytes": 584
+  },
+  {
+   "src": "media-editing/wt.js#et",
+   "line": 15,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#He",
+   "line": 20,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#D3",
+   "line": 53,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#Ve",
+   "line": 54,
+   "bytes": 37
+  },
+  {
+   "src": "media-editing/wt.js#Go",
+   "line": 66,
+   "bytes": 192
+  },
+  {
+   "src": "media-editing/wt.js#Cs",
+   "line": 139,
+   "bytes": 92
+  },
+  {
+   "src": "media-editing/wt.js#on",
+   "line": 153,
+   "bytes": 15
+  },
+  {
+   "src": "media-editing/wt.js#vs",
+   "line": 154,
+   "bytes": 143
+  },
+  {
+   "src": "media-editing/wt.js#xs",
+   "line": 162,
+   "bytes": 363
+  },
+  {
+   "src": "media-editing/wt.js#Ts",
+   "line": 173,
+   "bytes": 224
+  },
+  {
+   "src": "media-editing/wt.js#safeDecodeURIComponent",
+   "line": 181,
+   "bytes": 122
+  },
+  {
+   "src": "media-editing/wt.js#cleanPath",
+   "line": 188,
+   "bytes": 226
+  },
+  {
+   "src": "media-editing/wt.js#MEDIA_CATEGORIES",
+   "line": 197,
+   "bytes": 46
+  },
+  {
+   "src": "media-editing/wt.js#buildSelectionAliasIndex",
+   "line": 198,
+   "bytes": 555
+  },
+  {
+   "src": "media-editing/wt.js#SELECTION_ALIASES_BY_CATEGORY",
+   "line": 218,
+   "bytes": 182
+  },
+  {
+   "src": "media-editing/wt.js#isMediaCategory",
+   "line": 223,
+   "bytes": 78
+  },
+  {
+   "src": "media-editing/wt.js#selectionIdMatchesVisibleModel",
+   "line": 226,
+   "bytes": 298
+  },
+  {
+   "src": "media-editing/wt.js#isVisibleMediaModelSelected",
+   "line": 232,
+   "bytes": 330
+  },
+  {
+   "src": "media-editing/wt.js#countVisibleSelectedMediaModels",
+   "line": 241,
+   "bytes": 250
+  },
+  {
+   "src": "media-editing/wt.js#isAllVisibleMediaModelsSelected",
+   "line": 249,
+   "bytes": 393
+  },
+  {
+   "src": "shared/jsx-runtime.js#__jsx",
+   "line": 4,
+   "bytes": 327
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#EMPTY_TOOL_CALL_DISPLAY_CONFIG",
+   "line": 17,
+   "bytes": 73
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#parseToolDisplayPatterns",
+   "line": 21,
+   "bytes": 593
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#parseToolCallDisplayConfig",
+   "line": 39,
+   "bytes": 543
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#compileToolDisplayPatterns",
+   "line": 56,
+   "bytes": 187
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#configuredDisplayLabels",
+   "line": 62,
+   "bytes": 103
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#toolCallDisplayConfigKey",
+   "line": 65,
+   "bytes": 73
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#configuredLabelIds",
+   "line": 66,
+   "bytes": 93
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#setToolCallDisplayConfig",
+   "line": 69,
+   "bytes": 361
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getConfiguredToolDisplayLabel",
+   "line": 77,
+   "bytes": 183
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#TOAST_ID",
+   "line": 82,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#TOAST_DURATION_MS",
+   "line": 83,
+   "bytes": 24
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#PROXY_RECHECK_INTERVAL_MS",
+   "line": 84,
+   "bytes": 31
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#WARNING_CONFIRMATION_COUNT",
+   "line": 85,
+   "bytes": 30
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#ConnectorDialogScrollableBody",
+   "line": 86,
+   "bytes": 492
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#OFFICIAL_CONNECTORS",
+   "line": 102,
+   "bytes": 418
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#findOfficialConnectorForServer",
+   "line": 117,
+   "bytes": 152
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#findOfficialConnectorByServerName",
+   "line": 122,
+   "bytes": 178
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#DEBUG_PANEL_OPEN_EVENT",
+   "line": 127,
+   "bytes": 47
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#InterestSelectionContext",
+   "line": 128,
+   "bytes": 59
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#useInterestSelection",
+   "line": 129,
+   "bytes": 245
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getFileManagerLabelKey",
+   "line": 138,
+   "bytes": 214
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#PlatformFileManagerLabel",
+   "line": 143,
+   "bytes": 157
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#KEY_PREFIX",
+   "line": 147,
+   "bytes": 34
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#clearClaimsForUser",
+   "line": 148,
+   "bytes": 404
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#listeners",
+   "line": 166,
+   "bytes": 21
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#emitPromptPrefillChange",
+   "line": 167,
+   "bytes": 83
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#pendingPromptPrefill",
+   "line": 171,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#completePromptPrefill",
+   "line": 172,
+   "bytes": 257
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#requestPromptPrefill",
+   "line": 180,
+   "bytes": 879
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#subscribePromptPrefill",
+   "line": 214,
+   "bytes": 133
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getPromptPrefillRequest",
+   "line": 220,
+   "bytes": 93
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#claimPromptPrefill",
+   "line": 223,
+   "bytes": 217
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#randomInspirationListeners",
+   "line": 229,
+   "bytes": 38
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#emit",
+   "line": 230,
+   "bytes": 81
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#nextRandomInspirationId",
+   "line": 233,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#pending",
+   "line": 234,
+   "bytes": 14
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#completeRandomInspiration",
+   "line": 235,
+   "bytes": 195
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#requestRandomInspiration",
+   "line": 243,
+   "bytes": 635
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#subscribeRandomInspiration",
+   "line": 264,
+   "bytes": 171
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getRandomInspirationRequest",
+   "line": 270,
+   "bytes": 79
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getRandomInspirationQueryIds",
+   "line": 273,
+   "bytes": 109
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#buildInspirationMediaShowcaseCollections",
+   "line": 13,
+   "bytes": 2225
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#resolveHomeFeaturedSkillPrompt",
+   "line": 88,
+   "bytes": 221
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#c2",
+   "line": 103,
+   "bytes": 591
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isFenceMarkerAtPosition",
+   "line": 119,
+   "bytes": 425
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#L",
+   "line": 125,
+   "bytes": 379
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#f",
+   "line": 136,
+   "bytes": 792
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#listItemGreaterThanNumberPattern",
+   "line": 157,
+   "bytes": 78
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#E",
+   "line": 158,
+   "bytes": 272
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#closingUnderscorePattern",
+   "line": 162,
+   "bytes": 42
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#F",
+   "line": 163,
+   "bytes": 19
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#T",
+   "line": 164,
+   "bytes": 9
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#g",
+   "line": 165,
+   "bytes": 343
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#X",
+   "line": 175,
+   "bytes": 308
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#C2",
+   "line": 182,
+   "bytes": 318
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#h",
+   "line": 189,
+   "bytes": 583
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isThematicBreakLine",
+   "line": 204,
+   "bytes": 834
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isValidEmphasisDelimiter",
+   "line": 236,
+   "bytes": 783
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countValidAsteriskDelimiters",
+   "line": 257,
+   "bytes": 794
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countTripleAsteriskRuns",
+   "line": 278,
+   "bytes": 879
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#A",
+   "line": 299,
+   "bytes": 620
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countDoubleUnderscoreMarkers",
+   "line": 320,
+   "bytes": 653
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isAsteriskEmphasisInListContext",
+   "line": 341,
+   "bytes": 547
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#j",
+   "line": 353,
+   "bytes": 449
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isUnderscoreEmphasisInListContext",
+   "line": 366,
+   "bytes": 549
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#Q",
+   "line": 378,
+   "bytes": 741
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#findSingleAsteriskDelimiter",
+   "line": 396,
+   "bytes": 1248
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#Z",
+   "line": 439,
+   "bytes": 446
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#hasBalancedAsteriskDelimiters",
+   "line": 446,
+   "bytes": 217
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isAsteriskDelimiterInListContext",
+   "line": 451,
+   "bytes": 272
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#V2",
+   "line": 453,
+   "bytes": 487
+  },
+  {
+   "src": "chat/ae.jsx#CHAT_CONTENT_MAX_WIDTH_PX",
+   "line": 8,
+   "bytes": 31
+  },
+  {
+   "src": "chat/ae.jsx#W2",
+   "line": 12,
+   "bytes": 666
+  },
+  {
+   "src": "chat/ae.jsx#Ee",
+   "line": 30,
+   "bytes": 35
+  },
+  {
+   "src": "chat/ae.jsx#y3",
+   "line": 32,
+   "bytes": 38
+  },
+  {
+   "src": "chat/ae.jsx#ot",
+   "line": 34,
+   "bytes": 551
+  },
+  {
+   "src": "chat/ae.jsx#rt",
+   "line": 61,
+   "bytes": 346
+  },
+  {
+   "src": "chat/ae.jsx#Oe",
+   "line": 74,
+   "bytes": 566
+  },
+  {
+   "src": "chat/ae.jsx#ao",
+   "line": 103,
+   "bytes": 458
+  },
+  {
+   "src": "chat/ae.jsx#To",
+   "line": 118,
+   "bytes": 290
+  },
+  {
+   "src": "chat/ae.jsx#Ae",
+   "line": 150,
+   "bytes": 1959
+  },
+  {
+   "src": "chat/mermaid-ghxkkrxx.js#mermaidGHXKKRXX",
+   "line": 4,
+   "bytes": 192
+  },
+  {
+   "src": "chat/st.jsx#trimTrailingNewlines",
+   "line": 8,
+   "bytes": 202
+  },
+  {
+   "src": "chat/st.jsx#LazyHighlightedCodeBlockBody",
+   "line": 21,
+   "bytes": 184
+  },
+  {
+   "src": "chat/st.jsx#st",
+   "line": 27,
+   "bytes": 2452
+  },
+  {
+   "src": "chat/co.jsx#co",
+   "line": 39,
+   "bytes": 4484
+  },
+  {
+   "src": "chat/fo.jsx#fo",
+   "line": 13,
+   "bytes": 3807
+  },
+  {
+   "src": "chat/te.jsx#Te",
+   "line": 15,
+   "bytes": 4728
+  },
+  {
+   "src": "chat/pe.jsx#Pe",
+   "line": 7,
+   "bytes": 3424
+  },
+  {
+   "src": "infra/dialog-content.jsx#subscribe",
+   "line": 33,
+   "bytes": 103
+  },
+  {
+   "src": "infra/dialog-content.jsx#cn",
+   "line": 38,
+   "bytes": 65
+  },
+  {
+   "src": "infra/dialog-content.jsx#splitMentionFilename",
+   "line": 41,
+   "bytes": 274
+  },
+  {
+   "src": "infra/dialog-content.jsx#Input",
+   "line": 53,
+   "bytes": 138
+  },
+  {
+   "src": "infra/dialog-content.jsx#cn$2",
+   "line": 58,
+   "bytes": 67
+  },
+  {
+   "src": "infra/dialog-content.jsx#MENU_ITEM_LAYOUT",
+   "line": 61,
+   "bytes": 103
+  },
+  {
+   "src": "infra/dialog-content.jsx#MENU_LABEL_LAYOUT",
+   "line": 63,
+   "bytes": 93
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuTrigger",
+   "line": 65,
+   "bytes": 223
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuContent",
+   "line": 74,
+   "bytes": 857
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuItem",
+   "line": 105,
+   "bytes": 886
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuLabel",
+   "line": 119,
+   "bytes": 213
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuRadioItem",
+   "line": 128,
+   "bytes": 946
+  },
+  {
+   "src": "infra/dialog-content.jsx#TooltipContent",
+   "line": 154,
+   "bytes": 1078
+  },
+  {
+   "src": "infra/dialog-content.jsx#buttonVariants",
+   "line": 191,
+   "bytes": 2508
+  },
+  {
+   "src": "infra/dialog-content.jsx#Button",
+   "line": 232,
+   "bytes": 474
+  },
+  {
+   "src": "infra/dialog-content.jsx#notify",
+   "line": 259,
+   "bytes": 68
+  },
+  {
+   "src": "infra/dialog-content.jsx#preparePreview",
+   "line": 262,
+   "bytes": 21
+  },
+  {
+   "src": "infra/dialog-content.jsx#registerBrowserHoverPreview",
+   "line": 263,
+   "bytes": 372
+  },
+  {
+   "src": "infra/dialog-content.jsx#getPreview",
+   "line": 276,
+   "bytes": 33
+  },
+  {
+   "src": "infra/dialog-content.jsx#useBrowserHoverPreview",
+   "line": 277,
+   "bytes": 1163
+  },
+  {
+   "src": "infra/dialog-content.jsx#useBrowserOverlayDialogProps",
+   "line": 320,
+   "bytes": 861
+  },
+  {
+   "src": "infra/dialog-content.jsx#dialogChromeButtonClassName",
+   "line": 350,
+   "bytes": 216
+  },
+  {
+   "src": "infra/dialog-content.jsx#DIALOG_CONTENT_SIZE_CLASSES",
+   "line": 352,
+   "bytes": 132
+  },
+  {
+   "src": "infra/dialog-content.jsx#DIALOG_CONTENT_LAYER_CLASSES",
+   "line": 358,
+   "bytes": 73
+  },
+  {
+   "src": "infra/dialog-content.jsx#Dialog",
+   "line": 362,
+   "bytes": 227
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogOverlay",
+   "line": 369,
+   "bytes": 353
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogContent",
+   "line": 381,
+   "bytes": 1561
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogHeader",
+   "line": 427,
+   "bytes": 205
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogFooter",
+   "line": 436,
+   "bytes": 509
+  },
+  {
+   "src": "infra/dialog-content.jsx#AlertDialog",
+   "line": 461,
+   "bytes": 167
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Ln",
+   "line": 5,
+   "bytes": 23
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#x",
+   "line": 6,
+   "bytes": 140
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#En",
+   "line": 10,
+   "bytes": 138
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Mn",
+   "line": 18,
+   "bytes": 54
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#nn$1",
+   "line": 19,
+   "bytes": 236
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#en$1",
+   "line": 30,
+   "bytes": 194
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Nn$1",
+   "line": 34,
+   "bytes": 239
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#yn$1",
+   "line": 42,
+   "bytes": 353
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Rn",
+   "line": 58,
+   "bytes": 239
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#rn$1",
+   "line": 73,
+   "bytes": 49
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#sn$1",
+   "line": 74,
+   "bytes": 51
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Un",
+   "line": 75,
+   "bytes": 390
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#on$1",
+   "line": 86,
+   "bytes": 361
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Wn$1",
+   "line": 99,
+   "bytes": 645
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#B",
+   "line": 122,
+   "bytes": 340
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Kn",
+   "line": 135,
+   "bytes": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Hn",
+   "line": 136,
+   "bytes": 25
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Dn",
+   "line": 137,
+   "bytes": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#wn$1",
+   "line": 138,
+   "bytes": 27
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#ln$1",
+   "line": 139,
+   "bytes": 545
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Gn$1",
+   "line": 167,
+   "bytes": 72
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#tn$1",
+   "line": 168,
+   "bytes": 137
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#an$1",
+   "line": 172,
+   "bytes": 552
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#S2",
+   "line": 191,
+   "bytes": 25
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn$1",
+   "line": 192,
+   "bytes": 26
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#u3",
+   "line": 193,
+   "bytes": 321
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Xn$1",
+   "line": 210,
+   "bytes": 2048
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn$1",
+   "line": 325,
+   "bytes": 710
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#vn$1",
+   "line": 348,
+   "bytes": 773
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#St",
+   "line": 374,
+   "bytes": 9
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn",
+   "line": 375,
+   "bytes": 12
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn",
+   "line": 376,
+   "bytes": 58
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#_n",
+   "line": 377,
+   "bytes": 90
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#qn",
+   "line": 378,
+   "bytes": 58
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$n",
+   "line": 379,
+   "bytes": 221
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Wn",
+   "line": 389,
+   "bytes": 173
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Zn",
+   "line": 395,
+   "bytes": 412
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Xn",
+   "line": 415,
+   "bytes": 753
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Jn",
+   "line": 442,
+   "bytes": 6
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#be",
+   "line": 443,
+   "bytes": 1185
+  },
+  {
+   "src": "chat/xn.js#xn",
+   "line": 5,
+   "bytes": 25
+  },
+  {
+   "src": "chat/highlighted-code-block-body.js#R",
+   "line": 5,
+   "bytes": 846
+  },
+  {
+   "src": "chat/nn.jsx#ZoomableDiagram",
+   "line": 125,
+   "bytes": 7301
+  },
+  {
+   "src": "chat/nn.jsx#po",
+   "line": 326,
+   "bytes": 4593
+  }
+ ],
+ "npmUnpaired": [
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#J",
+   "line": 2,
+   "bytes": 494
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#F",
+   "line": 2,
+   "bytes": 750
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#z",
+   "line": 2,
+   "bytes": 533
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Be",
+   "line": 2,
+   "bytes": 1096
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#je",
+   "line": 2,
+   "bytes": 525
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Oe",
+   "line": 2,
+   "bytes": 605
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#re",
+   "line": 2,
+   "bytes": 509
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ve",
+   "line": 2,
+   "bytes": 631
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ae",
+   "line": 2,
+   "bytes": 695
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#qe",
+   "line": 2,
+   "bytes": 495
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#B",
+   "line": 2,
+   "bytes": 231
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ce",
+   "line": 2,
+   "bytes": 857
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#We",
+   "line": 2,
+   "bytes": 560
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Pe",
+   "line": 2,
+   "bytes": 294
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Xe",
+   "line": 2,
+   "bytes": 1195
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ye",
+   "line": 2,
+   "bytes": 2014
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Lo",
+   "line": 2,
+   "bytes": 63
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#So",
+   "line": 2,
+   "bytes": 71
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ot",
+   "line": 2,
+   "bytes": 1478
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#le",
+   "line": 2,
+   "bytes": 326
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ce",
+   "line": 2,
+   "bytes": 344
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#nt",
+   "line": 4,
+   "bytes": 401
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Me",
+   "line": 7,
+   "bytes": 182
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#rt",
+   "line": 7,
+   "bytes": 472
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#lt",
+   "line": 8,
+   "bytes": 1892
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#dt",
+   "line": 8,
+   "bytes": 1532
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#pt",
+   "line": 8,
+   "bytes": 420
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Oo",
+   "line": 8,
+   "bytes": 80
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ao",
+   "line": 8,
+   "bytes": 75
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#bt",
+   "line": 8,
+   "bytes": 193
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#gt",
+   "line": 8,
+   "bytes": 194
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#ht",
+   "line": 8,
+   "bytes": 140
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#yt",
+   "line": 8,
+   "bytes": 150
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#kt",
+   "line": 8,
+   "bytes": 170
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#vt",
+   "line": 8,
+   "bytes": 170
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ct",
+   "line": 8,
+   "bytes": 169
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#xt",
+   "line": 8,
+   "bytes": 169
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Pt",
+   "line": 8,
+   "bytes": 171
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Mt",
+   "line": 8,
+   "bytes": 169
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Tt",
+   "line": 8,
+   "bytes": 170
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Nt",
+   "line": 8,
+   "bytes": 155
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Lt",
+   "line": 8,
+   "bytes": 176
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#St",
+   "line": 8,
+   "bytes": 160
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Rt",
+   "line": 8,
+   "bytes": 205
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#It",
+   "line": 8,
+   "bytes": 156
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ht",
+   "line": 8,
+   "bytes": 223
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Et",
+   "line": 8,
+   "bytes": 148
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Dt",
+   "line": 8,
+   "bytes": 146
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#$o",
+   "line": 8,
+   "bytes": 1418
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Bt",
+   "line": 8,
+   "bytes": 63
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#jt",
+   "line": 8,
+   "bytes": 63
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ot",
+   "line": 8,
+   "bytes": 476
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Yo",
+   "line": 8,
+   "bytes": 139
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#on",
+   "line": 8,
+   "bytes": 14
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#rn",
+   "line": 9,
+   "bytes": 129
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#Ft",
+   "line": 10,
+   "bytes": 2976
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/chunk-5FQGJX7Z.js#tt",
+   "line": 10,
+   "bytes": 2127
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/code-block-37QAKDTI.js#H",
+   "line": 2,
+   "bytes": 243
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/code-block-37QAKDTI.js#k",
+   "line": 2,
+   "bytes": 697
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/code-block-37QAKDTI.js#C",
+   "line": 2,
+   "bytes": 262
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/code-block-37QAKDTI.js#h",
+   "line": 2,
+   "bytes": 323
+  },
+  {
+   "npm": "streamdown@2.1.0/package/dist/code-block-37QAKDTI.js#W",
+   "line": 2,
+   "bytes": 556
+  }
+ ]
+}

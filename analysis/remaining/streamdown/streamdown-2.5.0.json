@@ -1,0 +1,2841 @@
+{
+ "pkg": "streamdown@2.5.0",
+ "counts": {
+  "exact": 176,
+  "ext-same": 48,
+  "src-inline/npm-ext": 16,
+  "diff": 3
+ },
+ "perFile": {
+  "chat/streamdown.jsx": {
+   "exact": 65,
+   "diff": 2
+  },
+  "media-editing/wt.js": {
+   "exact": 22,
+   "unpaired": 10
+  },
+  "shared/jsx-runtime.js": {
+   "unpaired": 1
+  },
+  "settings/request-prompt-prefill.jsx": {
+   "unpaired": 42,
+   "src-inline/npm-ext": 1
+  },
+  "workspace/build-inspiration-media-showcase-collections.js": {
+   "unpaired": 30,
+   "src-inline/npm-ext": 1
+  },
+  "chat/ae.jsx": {
+   "unpaired": 1,
+   "exact": 16
+  },
+  "chat/mermaid-ghxkkrxx.js": {
+   "unpaired": 1
+  },
+  "chat/yt.js": {
+   "exact": 1
+  },
+  "chat/st.jsx": {
+   "exact": 2,
+   "diff": 1
+  },
+  "chat/co.jsx": {
+   "exact": 2
+  },
+  "chat/fo.jsx": {
+   "exact": 1
+  },
+  "chat/te.jsx": {
+   "exact": 1
+  },
+  "chat/pe.jsx": {
+   "exact": 1
+  },
+  "infra/dialog-content.jsx": {
+   "unpaired": 30,
+   "src-inline/npm-ext": 1
+  },
+  "vendor-inline/minified/s2.js": {
+   "unpaired": 29,
+   "src-inline/npm-ext": 1,
+   "exact": 11
+  },
+  "chat/xn.js": {
+   "exact": 2
+  },
+  "chat/highlighted-code-block-body.js": {
+   "exact": 1
+  },
+  "chat/nn.jsx": {
+   "exact": 6
+  }
+ },
+ "conflicts": [],
+ "fallback": [
+  {
+   "s": "media-editing/wt.js#Li",
+   "n": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Li",
+   "field": "F"
+  },
+  {
+   "s": "chat/highlighted-code-block-body.js#R",
+   "n": "streamdown@2.5.0/package/dist/highlighted-body-OFNGDK62.js#R",
+   "field": "F"
+  }
+ ],
+ "pairs": [
+  {
+   "src": "chat/streamdown.jsx#Streamdown",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Qs",
+   "verdict": "exact",
+   "via": "seed",
+   "bytes": 13458,
+   "srcLine": 1391,
+   "npmLine": 23
+  },
+  {
+   "src": "ext:react#memo",
+   "npm": "ext:react#memo",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultRehypePlugins",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#gn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 58,
+   "srcLine": 1320,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultRemarkPlugins",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Us",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 58,
+   "srcLine": 1321,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/xn.js#vn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#vn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 36,
+   "srcLine": 3,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultBlockRenderer",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Tn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 2217,
+   "srcLine": 1326,
+   "npmLine": 23
+  },
+  {
+   "src": "vendor.js#kt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#kt",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 1056,
+   "srcLine": 39699,
+   "npmLine": 13
+  },
+  {
+   "src": "chat/xn.js#xn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#xn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 25,
+   "srcLine": 5,
+   "npmLine": 23
+  },
+  {
+   "src": "ext:react#useId",
+   "npm": "ext:react#useId",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useTransition",
+   "npm": "ext:react#useTransition",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useMemo",
+   "npm": "ext:react#useMemo",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "chat/streamdown.jsx#createClassNameMerger",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Dt",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 137,
+   "srcLine": 158,
+   "npmLine": 2
+  },
+  {
+   "src": "ext:react#useRef",
+   "npm": "ext:react#useRef",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useEffect",
+   "npm": "ext:react#useEffect",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "global:Object",
+   "npm": "global:Object",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$e$1",
+   "npm": "ext:remend#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcLine": 373
+  },
+  {
+   "src": "vendor.js#cn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#cn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 347,
+   "srcLine": 39767,
+   "npmLine": 23
+  },
+  {
+   "src": "vendor.js#ln",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ln",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 461,
+   "srcLine": 39741,
+   "npmLine": 13
+  },
+  {
+   "src": "ext:react#useState",
+   "npm": "ext:react#useState",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "chat/streamdown.jsx#getTextDirection",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#$e",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 465,
+   "srcLine": 55,
+   "npmLine": 11
+  },
+  {
+   "src": "global:JSON",
+   "npm": "global:JSON",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#be",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#be",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 1185,
+   "srcLine": 443,
+   "npmLine": 2
+  },
+  {
+   "src": "media-editing/wt.js#De",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#De",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 1070,
+   "srcLine": 21,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownComponents",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ko",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 896,
+   "srcLine": 1236,
+   "npmLine": 11
+  },
+  {
+   "src": "ext:react#createElement",
+   "npm": "ext:react#createElement",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ze",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 584,
+   "srcLine": 1279,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#rehypePluginRegistry",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#xt",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 302,
+   "srcLine": 1302,
+   "npmLine": 23
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#rehypeSanitize",
+   "npm": "ext:rehype-sanitize#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcLine": 160
+  },
+  {
+   "src": "vendor.js#mn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#mn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 327,
+   "srcLine": 39780,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#hasUnclosedCodeFence",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ht",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 736,
+   "srcLine": 70,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#hasTableSeparator",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Uo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 280,
+   "srcLine": 91,
+   "npmLine": 12
+  },
+  {
+   "src": "chat/streamdown.jsx#caretMarkers",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Gs",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 49,
+   "srcLine": 1322,
+   "npmLine": 23
+  },
+  {
+   "src": "ext:react/jsx-runtime#jsx",
+   "npm": "ext:react/jsx-runtime#jsx",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "media-editing/wt.js#Be",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Be",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 35,
+   "srcLine": 52,
+   "npmLine": 5
+  },
+  {
+   "src": "media-editing/wt.js#Ve",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ve",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 37,
+   "srcLine": 54,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/ae.jsx#R",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#R",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 60,
+   "srcLine": 148,
+   "npmLine": 23
+  },
+  {
+   "src": "vendor.js#at",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#at",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 392,
+   "srcLine": 39503,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/ae.jsx#Ee",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ee",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 35,
+   "srcLine": 30,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownBlockRenderer",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ct",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 294,
+   "srcLine": 143,
+   "npmLine": 13
+  },
+  {
+   "src": "chat/streamdown.jsx#remarkPluginRegistry",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ks",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#defaultRemarkPlugins",
+   "bytes": 82,
+   "srcLine": 1316,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#normalizeIndentedHtml",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Js",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#defaultBlockRenderer",
+   "bytes": 211,
+   "srcLine": 1271,
+   "npmLine": 23
+  },
+  {
+   "src": "media-editing/wt.js#et",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#et",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#defaultBlockRenderer",
+   "bytes": 38,
+   "srcLine": 15,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor.js#Is",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Is",
+   "verdict": "exact",
+   "via": "vendor.js#kt",
+   "bytes": 30,
+   "srcLine": 39662,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#Ns",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ns",
+   "verdict": "exact",
+   "via": "vendor.js#kt",
+   "bytes": 26,
+   "srcLine": 39663,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#x$6",
+   "npm": "ext:marked#Lexer",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor.js#kt",
+   "srcLine": 27076
+  },
+  {
+   "src": "vendor.js#sn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#sn",
+   "verdict": "exact",
+   "via": "vendor.js#kt",
+   "bytes": 216,
+   "srcLine": 39682,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#an",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#an",
+   "verdict": "exact",
+   "via": "vendor.js#kt",
+   "bytes": 84,
+   "srcLine": 39690,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#Ls",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ls",
+   "verdict": "exact",
+   "via": "vendor.js#kt",
+   "bytes": 18,
+   "srcLine": 39664,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#Hs",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Hs",
+   "verdict": "exact",
+   "via": "vendor.js#kt",
+   "bytes": 157,
+   "srcLine": 39694,
+   "npmLine": 13
+  },
+  {
+   "src": "chat/streamdown.jsx#prefixClassNames",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Gn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#createClassNameMerger",
+   "bytes": 312,
+   "srcLine": 149,
+   "npmLine": 2
+  },
+  {
+   "src": "infra/dialog-content.jsx#twMerge",
+   "npm": "ext:tailwind-merge#twMerge",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#createClassNameMerger",
+   "srcLine": 37
+  },
+  {
+   "src": "vendor.js#clsx",
+   "npm": "ext:clsx#clsx",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#createClassNameMerger",
+   "srcLine": 11713
+  },
+  {
+   "src": "chat/ae.jsx#he",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#he",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#createClassNameMerger",
+   "bytes": 49,
+   "srcLine": 10,
+   "npmLine": 2
+  },
+  {
+   "src": "global:RegExp",
+   "npm": "global:RegExp",
+   "verdict": "ext-same",
+   "via": "vendor.js#cn"
+  },
+  {
+   "src": "vendor.js#Bs",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Bs",
+   "verdict": "exact",
+   "via": "vendor.js#cn",
+   "bytes": 33,
+   "srcLine": 39766,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#rtlCharacterPattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#as",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#getTextDirection",
+   "bytes": 65,
+   "srcLine": 53,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#unicodeLetterPattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#is",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#getTextDirection",
+   "bytes": 48,
+   "srcLine": 54,
+   "npmLine": 11,
+   "changedTokens": 8,
+   "totalTokens": 11,
+   "srcF": "var $D=new «global:RegExp»(\"\\\\p{L}\",\"u\");",
+   "npmF": "var $D=/\\p{L}/u;"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Jn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Jn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#be",
+   "bytes": 6,
+   "srcLine": 442,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor.js#visitParents",
+   "npm": "ext:unist-util-visit-parents#visitParents",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor-inline/minified/s2.js#be",
+   "srcLine": 21328
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Xn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Xn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#be",
+   "bytes": 753,
+   "srcLine": 415,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownOrderedList",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#bt",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 516,
+   "srcLine": 614,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownListItem",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Po",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 502,
+   "srcLine": 633,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownUnorderedList",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Mo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 517,
+   "srcLine": 649,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHorizontalRule",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Io",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 415,
+   "srcLine": 668,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownStrong",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#No",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 437,
+   "srcLine": 682,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownLink",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Lo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 174,
+   "srcLine": 763,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingOne",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ro",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 459,
+   "srcLine": 765,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingTwo",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#So",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 459,
+   "srcLine": 781,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingThree",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Eo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 460,
+   "srcLine": 797,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingFour",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ho",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 459,
+   "srcLine": 813,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingFive",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Do",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 461,
+   "srcLine": 829,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingSix",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Bo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 458,
+   "srcLine": 845,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableRenderer",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ao",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 829,
+   "srcLine": 861,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableHead",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Oo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 446,
+   "srcLine": 881,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableBody",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Vo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 455,
+   "srcLine": 897,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableRowRenderer",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#jo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 446,
+   "srcLine": 913,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableHeaderCell",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Fo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 530,
+   "srcLine": 929,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownDataCell",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#zo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 443,
+   "srcLine": 948,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownBlockquote",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#_o",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 551,
+   "srcLine": 964,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownCode",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Zo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 205,
+   "srcLine": 1226,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownImage",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Xo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 210,
+   "srcLine": 1231,
+   "npmLine": 11
+  },
+  {
+   "src": "ext:react#isValidElement",
+   "npm": "ext:react#isValidElement",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#markdownComponents"
+  },
+  {
+   "src": "ext:react#cloneElement",
+   "npm": "ext:react#cloneElement",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#markdownComponents"
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSuperscript",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#qo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 408,
+   "srcLine": 983,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSubscript",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#$o",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 404,
+   "srcLine": 995,
+   "npmLine": 11
+  },
+  {
+   "src": "vendor.js#Jo",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Jo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 641,
+   "srcLine": 39640,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSection",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Wo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownComponents",
+   "bytes": 3414,
+   "srcLine": 1007,
+   "npmLine": 11
+  },
+  {
+   "src": "vendor.js#defaultSchema",
+   "npm": "ext:rehype-sanitize#defaultSchema",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcLine": 35682
+  },
+  {
+   "src": "chat/streamdown.jsx#hrefProtocols",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#hn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "bytes": 13,
+   "srcLine": 1276,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultHrefProtocols",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#bn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "bytes": 20,
+   "srcLine": 1275,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#codeAttributes",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#wn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "bytes": 14,
+   "srcLine": 1278,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultCodeAttributes",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#yn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "bytes": 21,
+   "srcLine": 1277,
+   "npmLine": 23
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#rehypeRaw",
+   "npm": "ext:rehype-raw#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#rehypePluginRegistry",
+   "srcLine": 92
+  },
+  {
+   "src": "ext:rehype-harden#harden",
+   "npm": "ext:rehype-harden#harden",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#rehypePluginRegistry"
+  },
+  {
+   "src": "global:Set",
+   "npm": "global:Set",
+   "verdict": "ext-same",
+   "via": "vendor.js#mn"
+  },
+  {
+   "src": "vendor.js#visit",
+   "npm": "ext:unist-util-visit#visit",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor.js#mn",
+   "srcLine": 21393
+  },
+  {
+   "src": "vendor.js#dn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#dn",
+   "verdict": "exact",
+   "via": "vendor.js#mn",
+   "bytes": 125,
+   "srcLine": 39779,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#fencedCodeStartPattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ls",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#hasUnclosedCodeFence",
+   "bytes": 51,
+   "srcLine": 68,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#tableDelimiterPattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#cs",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#hasTableSeparator",
+   "bytes": 81,
+   "srcLine": 69,
+   "npmLine": 11
+  },
+  {
+   "src": "ext:react#createContext",
+   "npm": "ext:react#createContext",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#Be"
+  },
+  {
+   "src": "chat/ae.jsx#defaultMarkdownRenderOptions",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ys",
+   "verdict": "exact",
+   "via": "chat/ae.jsx#R",
+   "bytes": 201,
+   "srcLine": 138,
+   "npmLine": 23
+  },
+  {
+   "src": "vendor.js#we",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#we",
+   "verdict": "exact",
+   "via": "vendor.js#at",
+   "bytes": 217,
+   "srcLine": 39483,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#fr",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#fr",
+   "verdict": "exact",
+   "via": "vendor.js#at",
+   "bytes": 231,
+   "srcLine": 39496,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#Ut",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ut",
+   "verdict": "exact",
+   "via": "vendor.js#at",
+   "bytes": 35,
+   "srcLine": 39495,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/streamdown.jsx#getMarkdownProcessor",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ws",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownBlockRenderer",
+   "bytes": 329,
+   "srcLine": 101,
+   "npmLine": 13
+  },
+  {
+   "src": "chat/streamdown.jsx#renderHastToJsx",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ps",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownBlockRenderer",
+   "bytes": 1372,
+   "srcLine": 107,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#remarkGfm",
+   "npm": "ext:remark-gfm#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#remarkPluginRegistry",
+   "srcLine": 25763
+  },
+  {
+   "src": "vendor.js#un",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#un",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#remarkPluginRegistry",
+   "bytes": 245,
+   "srcLine": 39793,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#htmlStartPattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Zs",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#normalizeIndentedHtml",
+   "bytes": 37,
+   "srcLine": 1269,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/streamdown.jsx#indentedHtmlPattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Xs",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#normalizeIndentedHtml",
+   "bytes": 53,
+   "srcLine": 1270,
+   "npmLine": 23
+  },
+  {
+   "src": "vendor.js#Rs",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Rs",
+   "verdict": "exact",
+   "via": "vendor.js#sn",
+   "bytes": 140,
+   "srcLine": 39665,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#Ss",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ss",
+   "verdict": "exact",
+   "via": "vendor.js#sn",
+   "bytes": 182,
+   "srcLine": 39668,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#Es",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Es",
+   "verdict": "exact",
+   "via": "vendor.js#an",
+   "bytes": 182,
+   "srcLine": 39675,
+   "npmLine": 13
+  },
+  {
+   "src": "global:Boolean",
+   "npm": "global:Boolean",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#prefixClassNames"
+  },
+  {
+   "src": "vendor.js#Ds",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ds",
+   "verdict": "exact",
+   "via": "vendor.js#Bs",
+   "bytes": 22,
+   "srcLine": 39765,
+   "npmLine": 23
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#qn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#qn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 58,
+   "srcLine": 378,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor.js#SKIP",
+   "npm": "ext:unist-util-visit-parents#SKIP",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "srcLine": 21327
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Wn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Wn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 173,
+   "srcLine": 389,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$n",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#$n",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 221,
+   "srcLine": 379,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Fn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 12,
+   "srcLine": 375,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Zn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Zn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 412,
+   "srcLine": 395,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/ae.jsx#y3",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#y",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownOrderedList",
+   "bytes": 38,
+   "srcLine": 32,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor.js#E2",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#E",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownOrderedList",
+   "bytes": 87,
+   "srcLine": 39637,
+   "npmLine": 11
+  },
+  {
+   "src": "vendor.js#qe",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#qe",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownListItem",
+   "bytes": 589,
+   "srcLine": 39628,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownLink",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#rs",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MemoizedMarkdownLink",
+   "bytes": 2164,
+   "srcLine": 698,
+   "npmLine": 11
+  },
+  {
+   "src": "ext:react#useContext",
+   "npm": "ext:react#useContext",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownTableRenderer"
+  },
+  {
+   "src": "chat/streamdown.jsx#isOptionEnabled",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ft",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownTableRenderer",
+   "bytes": 120,
+   "srcLine": 604,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#isTableActionEnabled",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#pt",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownTableRenderer",
+   "bytes": 283,
+   "srcLine": 605,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableWrapper",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#vo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownTableRenderer",
+   "bytes": 1488,
+   "srcLine": 548,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ss",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MemoizedMarkdownCode",
+   "bytes": 5923,
+   "srcLine": 1090,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownImageRenderer",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#oo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MemoizedMarkdownImage",
+   "bytes": 4184,
+   "srcLine": 201,
+   "npmLine": 5
+  },
+  {
+   "src": "global:Array",
+   "npm": "global:Array",
+   "verdict": "ext-same",
+   "via": "vendor.js#Jo"
+  },
+  {
+   "src": "ext:react#Fragment",
+   "npm": "ext:react#Fragment",
+   "verdict": "ext-same",
+   "via": "vendor.js#Jo"
+  },
+  {
+   "src": "vendor.js#jt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#jt",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 620,
+   "srcLine": 39299,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#Ft",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ft",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 876,
+   "srcLine": 39313,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#zt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#zt",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 659,
+   "srcLine": 39327,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#Zt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Zt",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 756,
+   "srcLine": 39441,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#_t",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#_t",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 1726,
+   "srcLine": 39341,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#qt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#qt",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 650,
+   "srcLine": 39399,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#$t",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#$t",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 730,
+   "srcLine": 39413,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#Wt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Wt",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 634,
+   "srcLine": 39427,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#Xt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Xt",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 820,
+   "srcLine": 39455,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#Jt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Jt",
+   "verdict": "exact",
+   "via": "vendor.js#we",
+   "bytes": 752,
+   "srcLine": 39469,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownProcessorCache",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#tn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#getMarkdownProcessor",
+   "bytes": 50,
+   "srcLine": 100,
+   "npmLine": 13
+  },
+  {
+   "src": "media-editing/wt.js#ks",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ks",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#getMarkdownProcessor",
+   "bytes": 313,
+   "srcLine": 141,
+   "npmLine": 13
+  },
+  {
+   "src": "media-editing/wt.js#on",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#on",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#renderHastToJsx",
+   "bytes": 15,
+   "srcLine": 153,
+   "npmLine": 13
+  },
+  {
+   "src": "media-editing/wt.js#vs",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#vs",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#renderHastToJsx",
+   "bytes": 143,
+   "srcLine": 154,
+   "npmLine": 13
+  },
+  {
+   "src": "media-editing/wt.js#xs",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#xs",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#renderHastToJsx",
+   "bytes": 363,
+   "srcLine": 162,
+   "npmLine": 13
+  },
+  {
+   "src": "media-editing/wt.js#Ts",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ts",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#renderHastToJsx",
+   "bytes": 224,
+   "srcLine": 173,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#toJsxRuntime",
+   "npm": "ext:hast-util-to-jsx-runtime#toJsxRuntime",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#renderHastToJsx",
+   "srcLine": 19118
+  },
+  {
+   "src": "vendor.js#nn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#nn",
+   "verdict": "exact",
+   "via": "vendor.js#Ss",
+   "bytes": 29,
+   "srcLine": 39666,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#rn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#rn",
+   "verdict": "exact",
+   "via": "vendor.js#Es",
+   "bytes": 29,
+   "srcLine": 39667,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#_n",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#_n",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#qn",
+   "bytes": 90,
+   "srcLine": 377,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#zn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#qn",
+   "bytes": 58,
+   "srcLine": 376,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#St",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#St",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Wn",
+   "bytes": 9,
+   "srcLine": 374,
+   "npmLine": 2
+  },
+  {
+   "src": "ext:react#useCallback",
+   "npm": "ext:react#useCallback",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownLink"
+  },
+  {
+   "src": "global:window",
+   "npm": "global:window",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownLink"
+  },
+  {
+   "src": "chat/streamdown.jsx#ExternalLinkConfirmation",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#so",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownLink",
+   "bytes": 4542,
+   "srcLine": 314,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/te.jsx#Te",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Te",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownTableWrapper",
+   "bytes": 4728,
+   "srcLine": 15,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/pe.jsx#Pe",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Pe",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownTableWrapper",
+   "bytes": 3424,
+   "srcLine": 7,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/streamdown.jsx#TableFullscreenButton",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Co",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownTableWrapper",
+   "bytes": 3846,
+   "srcLine": 440,
+   "npmLine": 11
+  },
+  {
+   "src": "media-editing/wt.js#de",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#de",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 112,
+   "srcLine": 61,
+   "npmLine": 5
+  },
+  {
+   "src": "media-editing/wt.js#tt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#tt",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 38,
+   "srcLine": 16,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/streamdown.jsx#languageClassPattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ns",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 42,
+   "srcLine": 603,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/ae.jsx#ao",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ao",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 458,
+   "srcLine": 103,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/streamdown.jsx#startingLinePattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#es",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 39,
+   "srcLine": 596,
+   "npmLine": 11
+  },
+  {
+   "src": "global:Number",
+   "npm": "global:Number",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock"
+  },
+  {
+   "src": "chat/streamdown.jsx#noLineNumbersPattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ts",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 42,
+   "srcLine": 597,
+   "npmLine": 11
+  },
+  {
+   "src": "ext:react#Suspense",
+   "npm": "ext:react#Suspense",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock"
+  },
+  {
+   "src": "chat/ae.jsx#Oe",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Oe",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 566,
+   "srcLine": 74,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/ae.jsx#Fe",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Fe",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 308,
+   "srcLine": 128,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/co.jsx#co",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#co",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 4484,
+   "srcLine": 39,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/ae.jsx#Ae",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Ae",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 1959,
+   "srcLine": 150,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/fo.jsx#fo",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#fo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 3807,
+   "srcLine": 13,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/streamdown.jsx#MermaidRenderer",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#os",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 183,
+   "srcLine": 598,
+   "npmLine": 11,
+   "changedTokens": 22,
+   "totalTokens": 49,
+   "srcF": "var $D=«ext:react#lazy»(()=>(()=>«global:Promise».resolve().then(()=>«chat/mermaid-ghxkkrxx.js#mermaidGHXKKRXX»))().then(_L0=>({default:_L0.Mermaid})));",
+   "npmF": "var $D=«ext:react#lazy»(()=>import(\"./mermaid-GHXKKRXX.js\").then(_L0=>({default:_L0.Mermaid})));"
+  },
+  {
+   "src": "chat/ae.jsx#To",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#To",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 290,
+   "srcLine": 118,
+   "npmLine": 11
+  },
+  {
+   "src": "chat/st.jsx#st",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#st",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 2452,
+   "srcLine": 27,
+   "npmLine": 4
+  },
+  {
+   "src": "chat/streamdown.jsx#FileDownloadButton",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#it",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "bytes": 1358,
+   "srcLine": 159,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#L",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#L",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownImageRenderer",
+   "bytes": 37,
+   "srcLine": 39522,
+   "npmLine": 5
+  },
+  {
+   "src": "media-editing/wt.js#D3",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#D",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownImageRenderer",
+   "bytes": 38,
+   "srcLine": 53,
+   "npmLine": 5
+  },
+  {
+   "src": "global:fetch",
+   "npm": "global:fetch",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownImageRenderer"
+  },
+  {
+   "src": "global:URL",
+   "npm": "global:URL",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownImageRenderer"
+  },
+  {
+   "src": "chat/streamdown.jsx#fileExtensionPattern",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Mr",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownImageRenderer",
+   "bytes": 34,
+   "srcLine": 200,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/ae.jsx#W2",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#W",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownImageRenderer",
+   "bytes": 666,
+   "srcLine": 12,
+   "npmLine": 2
+  },
+  {
+   "src": "media-editing/wt.js#wt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#wt",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownProcessorCache",
+   "bytes": 1707,
+   "srcLine": 81,
+   "npmLine": 13
+  },
+  {
+   "src": "media-editing/wt.js#Qo",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Qo",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#ks",
+   "bytes": 7,
+   "srcLine": 76,
+   "npmLine": 13
+  },
+  {
+   "src": "media-editing/wt.js#Cs",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Cs",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#ks",
+   "bytes": 92,
+   "srcLine": 139,
+   "npmLine": 13
+  },
+  {
+   "src": "media-editing/wt.js#Go",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Go",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#ks",
+   "bytes": 192,
+   "srcLine": 66,
+   "npmLine": 13
+  },
+  {
+   "src": "media-editing/wt.js#en",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#en",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#ks",
+   "bytes": 36,
+   "srcLine": 77,
+   "npmLine": 13
+  },
+  {
+   "src": "vendor.js#unified",
+   "npm": "ext:unified#unified",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#ks",
+   "srcLine": 23093
+  },
+  {
+   "src": "vendor.js#remarkParse",
+   "npm": "ext:remark-parse#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#ks",
+   "srcLine": 20292
+  },
+  {
+   "src": "vendor.js#remarkRehype",
+   "npm": "ext:remark-rehype#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#ks",
+   "srcLine": 21595
+  },
+  {
+   "src": "vendor.js#urlAttributes",
+   "npm": "ext:html-url-attributes#urlAttributes",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#xs",
+   "srcLine": 19472
+  },
+  {
+   "src": "global:String",
+   "npm": "global:String",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#xs"
+  },
+  {
+   "src": "global:Map",
+   "npm": "global:Map",
+   "verdict": "ext-same",
+   "via": "vendor.js#nn"
+  },
+  {
+   "src": "global:navigator",
+   "npm": "global:navigator",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation"
+  },
+  {
+   "src": "global:setTimeout",
+   "npm": "global:setTimeout",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation"
+  },
+  {
+   "src": "chat/ae.jsx#le",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#le",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation",
+   "bytes": 110,
+   "srcLine": 95,
+   "npmLine": 5
+  },
+  {
+   "src": "global:document",
+   "npm": "global:document",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation"
+  },
+  {
+   "src": "chat/ae.jsx#ce",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ce",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#ExternalLinkConfirmation",
+   "bytes": 134,
+   "srcLine": 99,
+   "npmLine": 5
+  },
+  {
+   "src": "global:Error",
+   "npm": "global:Error",
+   "verdict": "ext-same",
+   "via": "chat/te.jsx#Te"
+  },
+  {
+   "src": "vendor.js#ue",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ue",
+   "verdict": "exact",
+   "via": "chat/te.jsx#Te",
+   "bytes": 503,
+   "srcLine": 39523,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#ne",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ne",
+   "verdict": "exact",
+   "via": "chat/te.jsx#Te",
+   "bytes": 655,
+   "srcLine": 39541,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#dt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#dt",
+   "verdict": "exact",
+   "via": "chat/te.jsx#Te",
+   "bytes": 705,
+   "srcLine": 39567,
+   "npmLine": 7
+  },
+  {
+   "src": "vendor.js#re",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#re",
+   "verdict": "exact",
+   "via": "chat/te.jsx#Te",
+   "bytes": 744,
+   "srcLine": 39604,
+   "npmLine": 10
+  },
+  {
+   "src": "global:ClipboardItem",
+   "npm": "global:ClipboardItem",
+   "verdict": "ext-same",
+   "via": "chat/te.jsx#Te"
+  },
+  {
+   "src": "global:Blob",
+   "npm": "global:Blob",
+   "verdict": "ext-same",
+   "via": "chat/te.jsx#Te"
+  },
+  {
+   "src": "ext:react-dom#createPortal",
+   "npm": "ext:react-dom#createPortal",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#TableFullscreenButton"
+  },
+  {
+   "src": "media-editing/wt.js#ct2",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ct",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#de",
+   "bytes": 39,
+   "srcLine": 55,
+   "npmLine": 5
+  },
+  {
+   "src": "global:Math",
+   "npm": "global:Math",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#co"
+  },
+  {
+   "src": "global:Date",
+   "npm": "global:Date",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#co"
+  },
+  {
+   "src": "chat/co.jsx#convertSvgToPngBlob",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#io",
+   "verdict": "exact",
+   "via": "chat/co.jsx#co",
+   "bytes": 1206,
+   "srcLine": 7,
+   "npmLine": 5
+  },
+  {
+   "src": "media-editing/wt.js#He",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#He",
+   "verdict": "exact",
+   "via": "chat/ae.jsx#Ae",
+   "bytes": 38,
+   "srcLine": 20,
+   "npmLine": 3
+  },
+  {
+   "src": "chat/nn.jsx#po",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#po",
+   "verdict": "exact",
+   "via": "chat/fo.jsx#fo",
+   "bytes": 4593,
+   "srcLine": 326,
+   "npmLine": 23
+  },
+  {
+   "src": "ext:react#lazy",
+   "npm": "ext:react#lazy",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MermaidRenderer"
+  },
+  {
+   "src": "chat/st.jsx#trimTrailingNewlines",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#lr",
+   "verdict": "exact",
+   "via": "chat/st.jsx#st",
+   "bytes": 202,
+   "srcLine": 8,
+   "npmLine": 3
+  },
+  {
+   "src": "media-editing/wt.js#nt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#nt",
+   "verdict": "exact",
+   "via": "chat/st.jsx#st",
+   "bytes": 48,
+   "srcLine": 17,
+   "npmLine": 3
+  },
+  {
+   "src": "chat/ae.jsx#ot",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ot",
+   "verdict": "exact",
+   "via": "chat/st.jsx#st",
+   "bytes": 551,
+   "srcLine": 34,
+   "npmLine": 3
+  },
+  {
+   "src": "chat/ae.jsx#rt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#rt",
+   "verdict": "exact",
+   "via": "chat/st.jsx#st",
+   "bytes": 346,
+   "srcLine": 61,
+   "npmLine": 3
+  },
+  {
+   "src": "chat/at.jsx#At",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#At",
+   "verdict": "exact",
+   "via": "chat/st.jsx#st",
+   "bytes": 3980,
+   "srcLine": 33,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/st.jsx#LazyHighlightedCodeBlockBody",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#cr",
+   "verdict": "diff",
+   "via": "chat/st.jsx#st",
+   "bytes": 184,
+   "srcLine": 21,
+   "npmLine": 4,
+   "changedTokens": 10,
+   "totalTokens": 39,
+   "srcF": "var $D=«ext:react#lazy»(()=>(()=>import(\"./highlighted-code-block-body.js\"))().then(_L0=>({default:_L0.HighlightedCodeBlockBody})));",
+   "npmF": "var $D=«ext:react#lazy»(()=>import(\"./highlighted-body-OFNGDK62.js\").then(_L0=>({default:_L0.HighlightedCodeBlockBody})));"
+  },
+  {
+   "src": "chat/yt.js#Yt",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Yt",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#FileDownloadButton",
+   "bytes": 5131,
+   "srcLine": 3,
+   "npmLine": 5
+  },
+  {
+   "src": "global:WeakMap",
+   "npm": "global:WeakMap",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "media-editing/wt.js#We",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#We",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#wt",
+   "bytes": 18,
+   "srcLine": 80,
+   "npmLine": 13
+  },
+  {
+   "src": "chat/ae.jsx#scrollLockCount",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#ke",
+   "verdict": "exact",
+   "via": "chat/ae.jsx#le",
+   "bytes": 19,
+   "srcLine": 93,
+   "npmLine": 5
+  },
+  {
+   "src": "vendor.js#je",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#je",
+   "verdict": "exact",
+   "via": "vendor.js#re",
+   "bytes": 291,
+   "srcLine": 39593,
+   "npmLine": 10
+  },
+  {
+   "src": "global:Promise",
+   "npm": "global:Promise",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:btoa",
+   "npm": "global:btoa",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:unescape",
+   "npm": "global:unescape",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:encodeURIComponent",
+   "npm": "global:encodeURIComponent",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:Image",
+   "npm": "global:Image",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "chat/nn.jsx#useLazyIntersectionRendering",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Rt",
+   "verdict": "exact",
+   "via": "chat/nn.jsx#po",
+   "bytes": 4574,
+   "srcLine": 13,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/nn.jsx#ZoomableDiagram",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Nn",
+   "verdict": "exact",
+   "via": "chat/nn.jsx#po",
+   "bytes": 7301,
+   "srcLine": 125,
+   "npmLine": 23
+  },
+  {
+   "src": "chat/at.jsx#lineNumberClassName",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#tr",
+   "verdict": "exact",
+   "via": "chat/at.jsx#At",
+   "bytes": 312,
+   "srcLine": 6,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/at.jsx#parseInlineStyle",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#or",
+   "verdict": "exact",
+   "via": "chat/at.jsx#At",
+   "bytes": 458,
+   "srcLine": 20,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_DEBOUNCE_DELAY_MS",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Bn",
+   "verdict": "exact",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering",
+   "bytes": 31,
+   "srcLine": 7,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_INTERSECTION_ROOT_MARGIN",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#An",
+   "verdict": "exact",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering",
+   "bytes": 42,
+   "srcLine": 9,
+   "npmLine": 2
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_IDLE_TIMEOUT_MS",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#On",
+   "verdict": "exact",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering",
+   "bytes": 29,
+   "srcLine": 11,
+   "npmLine": 2
+  },
+  {
+   "src": "global:clearTimeout",
+   "npm": "global:clearTimeout",
+   "verdict": "ext-same",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering"
+  },
+  {
+   "src": "global:IntersectionObserver",
+   "npm": "global:IntersectionObserver",
+   "verdict": "ext-same",
+   "via": "chat/nn.jsx#useLazyIntersectionRendering"
+  },
+  {
+   "src": "global:HTMLElement",
+   "npm": "global:HTMLElement",
+   "verdict": "ext-same",
+   "via": "chat/nn.jsx#ZoomableDiagram"
+  },
+  {
+   "src": "media-editing/wt.js#Li",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Li",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 109,
+   "srcLine": 56,
+   "npmLine": 5
+  },
+  {
+   "src": "chat/highlighted-code-block-body.js#R",
+   "npm": "streamdown@2.5.0/package/dist/highlighted-body-OFNGDK62.js#R",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 846,
+   "srcLine": 5,
+   "npmLine": 2
+  }
+ ],
+ "srcUnpaired": [
+  {
+   "src": "media-editing/wt.js#safeDecodeURIComponent",
+   "line": 181,
+   "bytes": 122
+  },
+  {
+   "src": "media-editing/wt.js#cleanPath",
+   "line": 188,
+   "bytes": 226
+  },
+  {
+   "src": "media-editing/wt.js#MEDIA_CATEGORIES",
+   "line": 197,
+   "bytes": 46
+  },
+  {
+   "src": "media-editing/wt.js#buildSelectionAliasIndex",
+   "line": 198,
+   "bytes": 555
+  },
+  {
+   "src": "media-editing/wt.js#SELECTION_ALIASES_BY_CATEGORY",
+   "line": 218,
+   "bytes": 182
+  },
+  {
+   "src": "media-editing/wt.js#isMediaCategory",
+   "line": 223,
+   "bytes": 78
+  },
+  {
+   "src": "media-editing/wt.js#selectionIdMatchesVisibleModel",
+   "line": 226,
+   "bytes": 298
+  },
+  {
+   "src": "media-editing/wt.js#isVisibleMediaModelSelected",
+   "line": 232,
+   "bytes": 330
+  },
+  {
+   "src": "media-editing/wt.js#countVisibleSelectedMediaModels",
+   "line": 241,
+   "bytes": 250
+  },
+  {
+   "src": "media-editing/wt.js#isAllVisibleMediaModelsSelected",
+   "line": 249,
+   "bytes": 393
+  },
+  {
+   "src": "shared/jsx-runtime.js#__jsx",
+   "line": 4,
+   "bytes": 327
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#EMPTY_TOOL_CALL_DISPLAY_CONFIG",
+   "line": 17,
+   "bytes": 73
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#parseToolDisplayPatterns",
+   "line": 21,
+   "bytes": 593
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#parseToolCallDisplayConfig",
+   "line": 39,
+   "bytes": 543
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#compileToolDisplayPatterns",
+   "line": 56,
+   "bytes": 187
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#configuredDisplayLabels",
+   "line": 62,
+   "bytes": 103
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#toolCallDisplayConfigKey",
+   "line": 65,
+   "bytes": 73
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#configuredLabelIds",
+   "line": 66,
+   "bytes": 93
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#setToolCallDisplayConfig",
+   "line": 69,
+   "bytes": 361
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getConfiguredToolDisplayLabel",
+   "line": 77,
+   "bytes": 183
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#TOAST_ID",
+   "line": 82,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#TOAST_DURATION_MS",
+   "line": 83,
+   "bytes": 24
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#PROXY_RECHECK_INTERVAL_MS",
+   "line": 84,
+   "bytes": 31
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#WARNING_CONFIRMATION_COUNT",
+   "line": 85,
+   "bytes": 30
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#ConnectorDialogScrollableBody",
+   "line": 86,
+   "bytes": 492
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#OFFICIAL_CONNECTORS",
+   "line": 102,
+   "bytes": 418
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#findOfficialConnectorForServer",
+   "line": 117,
+   "bytes": 152
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#findOfficialConnectorByServerName",
+   "line": 122,
+   "bytes": 178
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#DEBUG_PANEL_OPEN_EVENT",
+   "line": 127,
+   "bytes": 47
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#InterestSelectionContext",
+   "line": 128,
+   "bytes": 59
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#useInterestSelection",
+   "line": 129,
+   "bytes": 245
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getFileManagerLabelKey",
+   "line": 138,
+   "bytes": 214
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#PlatformFileManagerLabel",
+   "line": 143,
+   "bytes": 157
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#KEY_PREFIX",
+   "line": 147,
+   "bytes": 34
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#clearClaimsForUser",
+   "line": 148,
+   "bytes": 404
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#listeners",
+   "line": 166,
+   "bytes": 21
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#emitPromptPrefillChange",
+   "line": 167,
+   "bytes": 83
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#nextId",
+   "line": 170,
+   "bytes": 10
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#pendingPromptPrefill",
+   "line": 171,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#completePromptPrefill",
+   "line": 172,
+   "bytes": 257
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#requestPromptPrefill",
+   "line": 180,
+   "bytes": 879
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#subscribePromptPrefill",
+   "line": 214,
+   "bytes": 133
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getPromptPrefillRequest",
+   "line": 220,
+   "bytes": 93
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#claimPromptPrefill",
+   "line": 223,
+   "bytes": 217
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#randomInspirationListeners",
+   "line": 229,
+   "bytes": 38
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#emit",
+   "line": 230,
+   "bytes": 81
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#nextRandomInspirationId",
+   "line": 233,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#pending",
+   "line": 234,
+   "bytes": 14
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#completeRandomInspiration",
+   "line": 235,
+   "bytes": 195
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#requestRandomInspiration",
+   "line": 243,
+   "bytes": 635
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#subscribeRandomInspiration",
+   "line": 264,
+   "bytes": 171
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getRandomInspirationRequest",
+   "line": 270,
+   "bytes": 79
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getRandomInspirationQueryIds",
+   "line": 273,
+   "bytes": 109
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#buildInspirationMediaShowcaseCollections",
+   "line": 13,
+   "bytes": 2225
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#resolveHomeFeaturedSkillPrompt",
+   "line": 88,
+   "bytes": 221
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#c2",
+   "line": 103,
+   "bytes": 591
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isFenceMarkerAtPosition",
+   "line": 119,
+   "bytes": 425
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#L",
+   "line": 125,
+   "bytes": 379
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#f",
+   "line": 136,
+   "bytes": 792
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#listItemGreaterThanNumberPattern",
+   "line": 157,
+   "bytes": 78
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#E",
+   "line": 158,
+   "bytes": 272
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#closingUnderscorePattern",
+   "line": 162,
+   "bytes": 42
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#F",
+   "line": 163,
+   "bytes": 19
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#T",
+   "line": 164,
+   "bytes": 9
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#g",
+   "line": 165,
+   "bytes": 343
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#X",
+   "line": 175,
+   "bytes": 308
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#C2",
+   "line": 182,
+   "bytes": 318
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#h",
+   "line": 189,
+   "bytes": 583
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isThematicBreakLine",
+   "line": 204,
+   "bytes": 834
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isValidEmphasisDelimiter",
+   "line": 236,
+   "bytes": 783
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countValidAsteriskDelimiters",
+   "line": 257,
+   "bytes": 794
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countTripleAsteriskRuns",
+   "line": 278,
+   "bytes": 879
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#A",
+   "line": 299,
+   "bytes": 620
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countDoubleUnderscoreMarkers",
+   "line": 320,
+   "bytes": 653
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isAsteriskEmphasisInListContext",
+   "line": 341,
+   "bytes": 547
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#j",
+   "line": 353,
+   "bytes": 449
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isUnderscoreEmphasisInListContext",
+   "line": 366,
+   "bytes": 549
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#Q",
+   "line": 378,
+   "bytes": 741
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#findSingleAsteriskDelimiter",
+   "line": 396,
+   "bytes": 1248
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#Z",
+   "line": 439,
+   "bytes": 446
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#hasBalancedAsteriskDelimiters",
+   "line": 446,
+   "bytes": 217
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isAsteriskDelimiterInListContext",
+   "line": 451,
+   "bytes": 272
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#V2",
+   "line": 453,
+   "bytes": 487
+  },
+  {
+   "src": "chat/ae.jsx#CHAT_CONTENT_MAX_WIDTH_PX",
+   "line": 8,
+   "bytes": 31
+  },
+  {
+   "src": "chat/mermaid-ghxkkrxx.js#mermaidGHXKKRXX",
+   "line": 4,
+   "bytes": 192
+  },
+  {
+   "src": "infra/dialog-content.jsx#subscribe",
+   "line": 33,
+   "bytes": 103
+  },
+  {
+   "src": "infra/dialog-content.jsx#cn",
+   "line": 38,
+   "bytes": 65
+  },
+  {
+   "src": "infra/dialog-content.jsx#splitMentionFilename",
+   "line": 41,
+   "bytes": 274
+  },
+  {
+   "src": "infra/dialog-content.jsx#Input",
+   "line": 53,
+   "bytes": 138
+  },
+  {
+   "src": "infra/dialog-content.jsx#cn$2",
+   "line": 58,
+   "bytes": 67
+  },
+  {
+   "src": "infra/dialog-content.jsx#MENU_ITEM_LAYOUT",
+   "line": 61,
+   "bytes": 103
+  },
+  {
+   "src": "infra/dialog-content.jsx#MENU_LABEL_LAYOUT",
+   "line": 63,
+   "bytes": 93
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuTrigger",
+   "line": 65,
+   "bytes": 223
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuContent",
+   "line": 74,
+   "bytes": 857
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuItem",
+   "line": 105,
+   "bytes": 886
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuLabel",
+   "line": 119,
+   "bytes": 213
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuRadioItem",
+   "line": 128,
+   "bytes": 946
+  },
+  {
+   "src": "infra/dialog-content.jsx#TooltipContent",
+   "line": 154,
+   "bytes": 1078
+  },
+  {
+   "src": "infra/dialog-content.jsx#buttonVariants",
+   "line": 191,
+   "bytes": 2508
+  },
+  {
+   "src": "infra/dialog-content.jsx#Button",
+   "line": 232,
+   "bytes": 474
+  },
+  {
+   "src": "infra/dialog-content.jsx#notify",
+   "line": 259,
+   "bytes": 68
+  },
+  {
+   "src": "infra/dialog-content.jsx#preparePreview",
+   "line": 262,
+   "bytes": 21
+  },
+  {
+   "src": "infra/dialog-content.jsx#registerBrowserHoverPreview",
+   "line": 263,
+   "bytes": 372
+  },
+  {
+   "src": "infra/dialog-content.jsx#getPreview",
+   "line": 276,
+   "bytes": 33
+  },
+  {
+   "src": "infra/dialog-content.jsx#useBrowserHoverPreview",
+   "line": 277,
+   "bytes": 1163
+  },
+  {
+   "src": "infra/dialog-content.jsx#useBrowserOverlayDialogProps",
+   "line": 320,
+   "bytes": 861
+  },
+  {
+   "src": "infra/dialog-content.jsx#dialogChromeButtonClassName",
+   "line": 350,
+   "bytes": 216
+  },
+  {
+   "src": "infra/dialog-content.jsx#DIALOG_CONTENT_SIZE_CLASSES",
+   "line": 352,
+   "bytes": 132
+  },
+  {
+   "src": "infra/dialog-content.jsx#DIALOG_CONTENT_LAYER_CLASSES",
+   "line": 358,
+   "bytes": 73
+  },
+  {
+   "src": "infra/dialog-content.jsx#Dialog",
+   "line": 362,
+   "bytes": 227
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogOverlay",
+   "line": 369,
+   "bytes": 353
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogContent",
+   "line": 381,
+   "bytes": 1561
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogHeader",
+   "line": 427,
+   "bytes": 205
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogFooter",
+   "line": 436,
+   "bytes": 509
+  },
+  {
+   "src": "infra/dialog-content.jsx#AlertDialog",
+   "line": 461,
+   "bytes": 167
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Ln",
+   "line": 5,
+   "bytes": 23
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#x",
+   "line": 6,
+   "bytes": 140
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#En",
+   "line": 10,
+   "bytes": 138
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Mn",
+   "line": 18,
+   "bytes": 54
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#nn$1",
+   "line": 19,
+   "bytes": 236
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#en$1",
+   "line": 30,
+   "bytes": 194
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Nn$1",
+   "line": 34,
+   "bytes": 239
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#yn$1",
+   "line": 42,
+   "bytes": 353
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Rn",
+   "line": 58,
+   "bytes": 239
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#rn$1",
+   "line": 73,
+   "bytes": 49
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#sn$1",
+   "line": 74,
+   "bytes": 51
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Un",
+   "line": 75,
+   "bytes": 390
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#on$1",
+   "line": 86,
+   "bytes": 361
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Wn$1",
+   "line": 99,
+   "bytes": 645
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#B",
+   "line": 122,
+   "bytes": 340
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Kn",
+   "line": 135,
+   "bytes": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Hn",
+   "line": 136,
+   "bytes": 25
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Dn",
+   "line": 137,
+   "bytes": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#wn$1",
+   "line": 138,
+   "bytes": 27
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#ln$1",
+   "line": 139,
+   "bytes": 545
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Gn$1",
+   "line": 167,
+   "bytes": 72
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#tn$1",
+   "line": 168,
+   "bytes": 137
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#an$1",
+   "line": 172,
+   "bytes": 552
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#S2",
+   "line": 191,
+   "bytes": 25
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn$1",
+   "line": 192,
+   "bytes": 26
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#u3",
+   "line": 193,
+   "bytes": 321
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Xn$1",
+   "line": 210,
+   "bytes": 2048
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn$1",
+   "line": 325,
+   "bytes": 710
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#vn$1",
+   "line": 348,
+   "bytes": 773
+  }
+ ],
+ "npmUnpaired": [
+  {
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Wr",
+   "line": 11,
+   "bytes": 864
+  }
+ ]
+}

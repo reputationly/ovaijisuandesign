@@ -1,0 +1,3341 @@
+{
+ "pkg": "streamdown@1.6.2",
+ "counts": {
+  "diff": 43,
+  "ext-same": 26,
+  "exact": 38,
+  "ext-diff": 3,
+  "src-inline/npm-ext": 9
+ },
+ "perFile": {
+  "chat/streamdown.jsx": {
+   "unpaired": 50,
+   "exact": 8,
+   "diff": 9
+  },
+  "media-editing/wt.js": {
+   "unpaired": 23,
+   "exact": 7,
+   "diff": 2
+  },
+  "shared/jsx-runtime.js": {
+   "unpaired": 1
+  },
+  "settings/request-prompt-prefill.jsx": {
+   "unpaired": 42,
+   "exact": 1
+  },
+  "workspace/build-inspiration-media-showcase-collections.js": {
+   "unpaired": 26,
+   "exact": 5
+  },
+  "chat/ae.jsx": {
+   "unpaired": 13,
+   "exact": 4
+  },
+  "chat/mermaid-ghxkkrxx.js": {
+   "unpaired": 1
+  },
+  "chat/yt.js": {
+   "exact": 1
+  },
+  "chat/st.jsx": {
+   "unpaired": 3
+  },
+  "chat/co.jsx": {
+   "exact": 1,
+   "unpaired": 1
+  },
+  "chat/fo.jsx": {
+   "unpaired": 1
+  },
+  "chat/te.jsx": {
+   "unpaired": 1
+  },
+  "chat/pe.jsx": {
+   "unpaired": 1
+  },
+  "infra/dialog-content.jsx": {
+   "unpaired": 30,
+   "src-inline/npm-ext": 1
+  },
+  "vendor-inline/minified/s2.js": {
+   "unpaired": 41
+  },
+  "chat/xn.js": {
+   "exact": 1,
+   "unpaired": 1
+  },
+  "chat/highlighted-code-block-body.js": {
+   "unpaired": 1
+  },
+  "chat/nn.jsx": {
+   "unpaired": 6
+  }
+ },
+ "conflicts": [
+  {
+   "s": "ext:react#useMemo",
+   "n": "ext:react#useMemo",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": "ext:react#useState",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "ext:react#useMemo",
+   "n": "ext:react#useMemo",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": "ext:react#useState",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "ext:react#useMemo",
+   "n": "ext:react#useMemo",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": "ext:react#useState",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "ext:react#useMemo",
+   "n": "ext:react#useMemo",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": "ext:react#useState",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "ext:react#useMemo",
+   "n": "ext:react#useEffect",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": "ext:react#useState",
+   "npmAlreadyPairedWith": "ext:react#useEffect"
+  },
+  {
+   "s": "ext:react#useMemo",
+   "n": "ext:rehype-katex#default",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": "ext:react#useState",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Array",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "n": "global:Array",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "chat/streamdown.jsx#rehypePluginRegistry",
+   "n": "ext:remark-math#default",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:Object"
+  },
+  {
+   "s": "chat/streamdown.jsx#hasUnclosedCodeFence",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react/jsx-runtime#jsx"
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Object",
+   "via": "chat/streamdown.jsx#defaultRehypePlugins",
+   "srcAlreadyPairedWith": "ext:remark-math#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Object",
+   "via": "chat/streamdown.jsx#defaultRemarkPlugins",
+   "srcAlreadyPairedWith": "ext:remark-math#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "media-editing/wt.js#et",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Oe",
+   "via": "chat/streamdown.jsx#defaultBlockRenderer",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "chat/streamdown.jsx#MarkdownBlockRenderer"
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Object",
+   "via": "chat/streamdown.jsx#defaultBlockRenderer",
+   "srcAlreadyPairedWith": "ext:remark-math#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Object",
+   "via": "chat/streamdown.jsx#defaultBlockRenderer",
+   "srcAlreadyPairedWith": "ext:remark-math#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "vendor.js#Hs",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ze",
+   "via": "vendor.js#kt",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "vendor.js#an"
+  },
+  {
+   "s": "media-editing/wt.js#De",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#xr",
+   "via": "media-editing/wt.js#Be",
+   "srcAlreadyPairedWith": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#_t",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "vendor.js#un",
+   "n": "ext:remark-math#default",
+   "via": "chat/streamdown.jsx#remarkPluginRegistry",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:Object"
+  },
+  {
+   "s": "global:Array",
+   "n": "global:Array",
+   "via": "media-editing/wt.js#wt",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "global:Array",
+   "n": "global:Array",
+   "via": "vendor.js#Processor",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "global:Array",
+   "n": "global:Array",
+   "via": "vendor.js#Processor",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "global:Array",
+   "n": "global:Array",
+   "via": "vendor.js#Processor",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Object",
+   "via": "vendor.js#CallableInstance",
+   "srcAlreadyPairedWith": "ext:remark-math#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Object",
+   "via": "vendor.js#isPlainObject$3",
+   "srcAlreadyPairedWith": "ext:remark-math#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Object",
+   "via": "vendor.js#isPlainObject$3",
+   "srcAlreadyPairedWith": "ext:remark-math#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Object",
+   "via": "vendor.js#isPlainObject$3",
+   "srcAlreadyPairedWith": "ext:remark-math#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "global:Object",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#vn",
+   "via": "vendor.js#getDefaultExportFromCjs$1",
+   "srcAlreadyPairedWith": "ext:remark-math#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "media-editing/wt.js#He",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#tt"
+  },
+  {
+   "s": "media-editing/wt.js#D3",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#tt"
+  },
+  {
+   "s": "media-editing/wt.js#ct2",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#tt"
+  },
+  {
+   "s": "settings/request-prompt-prefill.jsx#nextRandomInspirationId",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "chat/ae.jsx#y3",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#tt"
+  },
+  {
+   "s": "chat/ae.jsx#scrollLockCount",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Jn",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "global:Array",
+   "n": "global:Array",
+   "via": "chat/streamdown.jsx#MarkdownSection",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "global:Array",
+   "n": "global:Array",
+   "via": "chat/streamdown.jsx#MarkdownSection",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "global:Array",
+   "n": "global:Array",
+   "via": "chat/streamdown.jsx#MarkdownSection",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "global:Array",
+   "n": "global:Array",
+   "via": "chat/streamdown.jsx#MarkdownSection",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "global:Array",
+   "n": "global:Array",
+   "via": "chat/streamdown.jsx#MarkdownSection",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react#createElement"
+  },
+  {
+   "s": "media-editing/wt.js#et",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ln",
+   "via": "media-editing/wt.js#tt",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#nt"
+  },
+  {
+   "s": "chat/ae.jsx#scrollLockCount",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "via": "chat/ae.jsx#le",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "chat/ae.jsx#scrollLockCount",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "via": "chat/ae.jsx#le",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "chat/ae.jsx#scrollLockCount",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "via": "chat/ae.jsx#ce",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "chat/ae.jsx#scrollLockCount",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "via": "chat/ae.jsx#ce",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "chat/ae.jsx#scrollLockCount",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "via": "chat/ae.jsx#ce",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "settings/request-prompt-prefill.jsx#nextId"
+  },
+  {
+   "s": "chat/ae.jsx#y3",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#MarkdownOrderedList",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "ext:react/jsx-runtime#jsx"
+  }
+ ],
+ "fallback": [
+  {
+   "s": "chat/streamdown.jsx#fileExtensionPattern",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Wn",
+   "field": "F"
+  },
+  {
+   "s": "chat/streamdown.jsx#languageClassPattern",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#bo",
+   "field": "F"
+  },
+  {
+   "s": "chat/streamdown.jsx#isOptionEnabled",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Me",
+   "field": "F"
+  },
+  {
+   "s": "chat/streamdown.jsx#MarkdownSection",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ot",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#tt",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#nt",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ln",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#He",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#D3",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#ct2",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "field": "F"
+  },
+  {
+   "s": "settings/request-prompt-prefill.jsx#nextId",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "field": "F"
+  },
+  {
+   "s": "settings/request-prompt-prefill.jsx#nextRandomInspirationId",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "field": "F"
+  },
+  {
+   "s": "workspace/build-inspiration-media-showcase-collections.js#isFenceMarkerAtPosition",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#rr",
+   "field": "F"
+  },
+  {
+   "s": "workspace/build-inspiration-media-showcase-collections.js#g",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#j",
+   "field": "F"
+  },
+  {
+   "s": "workspace/build-inspiration-media-showcase-collections.js#X",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ko",
+   "field": "F"
+  },
+  {
+   "s": "workspace/build-inspiration-media-showcase-collections.js#C2",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Zo",
+   "field": "F"
+  },
+  {
+   "s": "workspace/build-inspiration-media-showcase-collections.js#h",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#un",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#he",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#f",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#y3",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#scrollLockCount",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#le",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#no",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#ce",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#oo",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#Fe",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ve",
+   "field": "F"
+  },
+  {
+   "s": "chat/yt.js#Yt",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Je",
+   "field": "F"
+  },
+  {
+   "s": "chat/co.jsx#convertSvgToPngBlob",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ye",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Jn",
+   "n": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "field": "F"
+  }
+ ],
+ "pairs": [
+  {
+   "src": "chat/streamdown.jsx#Streamdown",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Tr",
+   "verdict": "diff",
+   "via": "seed",
+   "bytes": 13458,
+   "srcLine": 1391,
+   "npmLine": 21,
+   "changedTokens": 1679,
+   "totalTokens": 2022,
+   "srcF": "var $D=«ext:react#memo»(({children:_L0,mode:_L1=\"streaming\",dir:_L2,parseIncompleteMarkdown:_L3=true,normalizeHtmlIndentation:_L4=false,components:_L5,rehypePlugins:_L6=«chat/streamdown.jsx#defaultRehypePlugins»,remarkPlugins:_L7=«chat/streamdown.jsx#defaultRemarkPlugins»,className:_L8,shikiTheme:_L9=«chat/xn.js#vn»,mermaid:_L10,controls:_L11=true,isAnimating:_L12=false,animated:_L13,BlockComponent:_L14=«chat/streamdown.jsx#defaultBlockRenderer»,parseMarkdownIntoBlocksFn:_L15=«vendor.js#kt»,caret:_L16,plugins:_L17,remend:_L18,linkSafety:_L19=«chat/xn.js#xn»,lineNumbers:_L20=true,allowedTags:_L21,literalTagContent:_L22,translations:_L23,icons:_L24,prefix:_L25,onAnimationStart:_L26,onAnimationEnd:_L27,..._L28})=>{let _L29=«ext:react#useId»(),[_L30,_L31]=«ext:react#useTransition»(),_L32=«ext:react#useMemo»(()=>«chat/streamdown.jsx#createClassNameMerger»(_L25),[_L25]),_L33=«ext:react#useRef»(null),_L34=«ext:react#useRef»(_L26),_L35=«ext:react#useRef»(_L27);_L34.current=_L26,_L35.current=_L27,«ext:react#useEffect»(()=>{var _L36,_L37,_L38;if(_L1===\"static\")return;let _L39=_L33.current;if(_L33.current=_L12,_L39===null){_L12&&((_L36=_L34.current)==null||_L36.call(_L34));return;}_L12&&!_L39?(_L37=_L34.current)==null||_L37.call(_L34):!_L12&&_L39&&((_L38=_L35.current)==null||_L38.call(_L35));},[_L12,_L1]);let _L40=«ext:react#useMemo»(()=>_L21?«global:Object».keys(_L21):[],[_L21]),_L41=«ext:react#useMemo»(()=>{if(typeof _L0!=\"string\")return\"\";let _L42=_L1===\"streaming\"&&_L3?«vendor-inline/minified/s2.js#$e$1»(_L0,_L18):_L0;return _L22&&_L22.length>0&&(_L42=«vendor.js#cn»(_L42,_L22)),_L40.length>0&&(_L42=«vendor.js#ln»(_L42,_L40)),_L42;},[_L0,_L1,_L3,_L18,_L40,_L22]),_L43=«ext:react#useMemo»(()=>_L15(_L41),[_L41,_L15]),[_L44,_L45]=«ext:react#useState»(_L43);«ext:react#useEffect»(()=>{_L1===\"streaming\"&&!_L46?_L31(()=>{_L45(_L43);}):_L45(_L43);},[_L43,_L1]);let _L47=_L1===\"streaming\"?_L44:_L43,_L48=«ext:react#useMemo»(()=>_L2===\"auto\"?_L47.map(«chat/streamdown.jsx#getTextDirection»):void 0,[_L47,_L2]),_L49=«ext:react#useMemo»(()=>_L47.map((_L50,_L51)=>`${_L29}-${_L51}`),[_L47.length,_L29]),_L52=«ext:react#useMemo»(()=>_L13===true?\"true\":_L13?«global:JSON».stringify(_L13):\"\",[_L13]),_L46=«ext:react#useMemo»(()=>_L52?_L52===\"true\"?«vendor-inline/minified/s2.js#be»():«vendor-inline/minified/s2.js#be»(_L13):null,[_L52]),_L53=«ext:react#useMemo»(()=>{var _L54,_L55;return{shikiTheme:(_L55=(_L54=_L17==null?void 0:_L17.code)==null?void 0:_L54.getThemes())!=null?_L55:_L9,controls:_L11,isAnimating:_L12,lineNumbers:_L20,mode:_L1,mermaid:_L10,linkSafety:_L19};},[_L9,_L11,_L12,_L20,_L1,_L10,_L19,_L17==null?void 0:_L17.code]),_L56=«ext:react#useMemo»(()=>_L23?«global:JSON».stringify(_L23):\"\",[_L23]),_L57=«ext:react#useMemo»(()=>({...«media-editing/wt.js#De»,..._L23}),[_L56]),_L58=«ext:react#useMemo»(()=>{let{inlineCode:_L59,..._L60}=_L5!=null?_L5:{},_L61={...«chat/streamdown.jsx#markdownComponents»,..._L60};if(_L59){let _L62=_L61.code;_L61.code=_L63=>\"data-block\"in _L63?_L62?«ext:react#createElement»(_L62,_L63):null:«ext:react#createElement»(_L59,_L63);}return _L61;},[_L5]),_L64=«ext:react#useMemo»(()=>{let _L65=[];return _L17!=null&&_L17.cjk&&(_L65=[..._L65,..._L17.cjk.remarkPluginsBefore]),_L65=[..._L65,..._L7],_L17!=null&&_L17.cjk&&(_L65=[..._L65,..._L17.cjk.remarkPluginsAfter]),_L17!=null&&_L17.math&&(_L65=[..._L65,_L17.math.remarkPlugin]),_L65;},[_L7,_L17==null?void 0:_L17.math,_L17==null?void 0:_L17.cjk]),_L66=«ext:react#useMemo»(()=>{var _L67;let _L68=_L6;if(_L21&&«global:Object».keys(_L21).length>0&&_L6===«chat/streamdown.jsx#defaultRehypePlugins»){let _L69={...«chat/streamdown.jsx#markdownSanitizationSchema»,tagNames:[...((_L67=«chat/streamdown.jsx#markdownSanitizationSchema».tagNames)!=null?_L67:[]),...«global:Object».keys(_L21)],attributes:{...«chat/streamdown.jsx#markdownSanitizationSchema».attributes,..._L21}};_L68=[«chat/streamdown.jsx#rehypePluginRegistry».raw,[«settings/request-prompt-prefill.jsx#rehypeSanitize»,_L69],«chat/streamdown.jsx#rehypePluginRegistry».harden];}return _L22&&_L22.length>0&&(_L68=[..._L68,[«vendor.js#mn»,_L22]]),_L17!=null&&_L17.math&&(_L68=[..._L68,_L17.math.rehypePlugin]),_L46&&_L12&&(_L68=[..._L68,_L46.rehypePlugin]),_L68;},[_L6,_L17==null?void 0:_L17.math,_L46,_L12,_L21,_L22]),_L70=«ext:react#useMemo»(()=>{if(!_L12||_L47.length===0)return false;let _L71=_L47.at(-1);return «chat/streamdown.jsx#hasUnclosedCodeFence»(_L71)||«chat/streamdown.jsx#hasTableSeparator»(_L71);},[_L12,_L47]),_L72=«ext:react#useMemo»(()=>_L16&&_L12&&!_L70?{\"--streamdown-caret\":`\"${«chat/streamdown.jsx#caretMarkers»[_L16]}\"`}:void 0,[_L16,_L12,_L70]);return _L1===\"static\"?«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Be».Provider,{value:_L57,children:«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Ve».Provider,{value:_L17!=null?_L17:null,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#R».Provider,{value:_L53,children:«ext:react/jsx-runtime#jsx»(«vendor.js#at»,{icons:_L24,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#Ee».Provider,{value:_L32,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:_L32(\"space-y-4 whitespace-normal [&>*:first-child]:mt-0 [&>*:last-child]:mb-0\",_L8),dir:_L2===\"auto\"?«chat/streamdown.jsx#getTextDirection»(_L41):_L2,children:«ext:react/jsx-runtime#jsx»(«chat/streamdown.jsx#MarkdownBlockRenderer»,{components:_L58,rehypePlugins:_L66,remarkPlugins:_L64,..._L28,children:_L41})})})})})})}):«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Be».Provider,{value:_L57,children:«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Ve».Provider,{value:_L17!=null?_L17:null,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#R».Provider,{value:_L53,children:«ext:react/jsx-runtime#jsx»(«vendor.js#at»,{icons:_L24,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#Ee».Provider,{value:_L32,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:_L32(\"space-y-4 whitespace-normal [&>*:first-child]:mt-0 [&>*:last-child]:mb-0\",_L16&&!_L70?\"[&>*:last-child]:after:inline [&>*:last-child]:after:align-baseline [&>*:last-child]:after:content-[var(--streamdown-caret)]\":null,_L8),style:_L72,children:[_L47.length===0&&_L16&&_L12&&«ext:react/jsx-runtime#jsx»(\"span\",{}),_L47.map((_L73,_L74)=>{var _L75;let _L76=_L74===_L47.length-1,_L77=_L12&&_L76&&«chat/streamdown.jsx#hasUnclosedCodeFence»(_L73);return «ext:react/jsx-runtime#jsx»(_L14,{animatePlugin:_L46,components:_L58,content:_L73,dir:(_L75=_L48==null?void 0:_L48[_L74])!=null?_L75:_L2!==\"auto\"?_L2:void 0,index:_L74,isIncomplete:_L77,rehypePlugins:_L66,remarkPlugins:_L64,shouldNormalizeHtmlIndentation:_L4,shouldParseIncompleteMarkdown:_L3,..._L28},_L49[_L74]);})]})})})})})});},(_L78,_L79)=>_L78.children===_L79.children&&_L78.shikiTheme===_L79.shikiTheme&&_L78.isAnimating===_L79.isAnimating&&_L78.animated===_L79.animated&&_L78.mode===_L79.mode&&_L78.plugins===_L79.plugins&&_L78.className===_L79.className&&_L78.linkSafety===_L79.linkSafety&&_L78.lineNumbers===_L79.lineNumbers&&_L78.normalizeHtmlIndentation===_L79.normalizeHtmlIndentation&&_L78.literalTagContent===_L79.literalTagContent&&«global:JSON».stringify(_L78.translations)===«global:JSON».stringify(_L79.translations)&&_L78.prefix===_L79.prefix&&_L78.dir===_L79.dir);",
+   "npmF": "var $D=«ext:react#memo»(({children:_L0,mode:_L1=\"streaming\",parseIncompleteMarkdown:_L2=true,components:_L3,rehypePlugins:_L4=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Cr»,remarkPlugins:_L5=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Mr»,className:_L6,shikiTheme:_L7=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Pr»,mermaid:_L8,controls:_L9=true,isAnimating:_L10=false,BlockComponent:_L11=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#gn»,parseMarkdownIntoBlocksFn:_L12=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#qe»,..._L13})=>{let _L14=«ext:react#useId»(),[_L15,_L16]=«ext:react#useTransition»(),[_L17,_L18]=«ext:react#useState»([]),_L19=«ext:react#useMemo»(()=>_L12(typeof _L0==\"string\"?_L0:\"\"),[_L0,_L12]);«ext:react#useEffect»(()=>{_L1===\"streaming\"?_L16(()=>{_L18(_L19);}):_L18(_L19);},[_L19,_L1]);let _L20=_L1===\"streaming\"?_L17:_L19,_L21=«ext:react#useMemo»(()=>_L20.map((_L22,_L23)=>`${_L14}-${_L23}`),[_L20.length,_L14]),_L24=«ext:react#useMemo»(()=>({shikiTheme:_L7,controls:_L9,isAnimating:_L10,mode:_L1,mermaid:_L8}),[_L7,_L9,_L10,_L1,_L8]),_L25=«ext:react#useMemo»(()=>({...«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#_t»,..._L3}),[_L3]);return «ext:react#useEffect»(()=>{if(!(«global:Array».isArray(_L4)&&_L4.some(_L26=>«global:Array».isArray(_L26)?_L26[0]===«ext:rehype-katex#default»:_L26===«ext:rehype-katex#default»)))return;let _L27=false;if(«global:Array».isArray(_L5)){let _L28=_L5.find(_L29=>«global:Array».isArray(_L29)?_L29[0]===«ext:remark-math#default»:_L29===«ext:remark-math#default»);_L28&&«global:Array».isArray(_L28)&&_L28[1]&&(_L27=_L28[1].singleDollarTextMath===true);}let _L30=typeof _L0==\"string\"?_L0:\"\",_L31=_L30.includes(\"$$\"),_L32=_L27&&(/[^$]\\$[^$]/.test(_L30)||/^\\$[^$]/.test(_L30)||/[^$]\\$$/.test(_L30));(_L31||_L32)&&import(\"katex/dist/katex.min.css\");},[_L4,_L5,_L0]),_L1===\"static\"?«ext:react/jsx-runtime#jsx»(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#M».Provider,{value:_L24,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#f»(\"space-y-4\",_L6),children:«ext:react/jsx-runtime#jsx»(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Oe»,{components:_L25,rehypePlugins:_L4,remarkPlugins:_L5,..._L13,children:_L0})})}):«ext:react/jsx-runtime#jsx»(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#M».Provider,{value:_L24,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#f»(\"space-y-4\",_L6),children:_L20.map((_L33,_L34)=>«ext:react/jsx-runtime#jsx»(_L11,{components:_L25,content:_L33,index:_L34,rehypePlugins:_L4,remarkPlugins:_L5,shouldParseIncompleteMarkdown:_L2,..._L13},_L21[_L34]))})});},(_L35,_L36)=>_L35.children===_L36.children&&_L35.shikiTheme===_L36.shikiTheme&&_L35.isAnimating===_L36.isAnimating&&_L35.mode===_L36.mode);"
+  },
+  {
+   "src": "ext:react#memo",
+   "npm": "ext:react#memo",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultRehypePlugins",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Cr",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 58,
+   "srcLine": 1320,
+   "npmLine": 21
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultRemarkPlugins",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Mr",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 58,
+   "srcLine": 1321,
+   "npmLine": 21
+  },
+  {
+   "src": "chat/xn.js#vn",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Pr",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 36,
+   "srcLine": 3,
+   "npmLine": 21
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultBlockRenderer",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#gn",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 2217,
+   "srcLine": 1326,
+   "npmLine": 21,
+   "changedTokens": 195,
+   "totalTokens": 365,
+   "srcF": "var $D=«ext:react#memo»(({content:_L0,shouldParseIncompleteMarkdown:_L1,shouldNormalizeHtmlIndentation:_L2,index:_L3,isIncomplete:_L4,dir:_L5,animatePlugin:_L6,..._L7})=>{if(_L6){let _L8=_L6.getLastRenderCharCount();_L6.setPrevContentLength(_L8);}let _L9=typeof _L0==\"string\"&&_L2?«chat/streamdown.jsx#normalizeIndentedHtml»(_L0):_L0,_L10=«ext:react/jsx-runtime#jsx»(«chat/streamdown.jsx#MarkdownBlockRenderer»,{..._L7,children:_L9});return «ext:react/jsx-runtime#jsx»(«media-editing/wt.js#et».Provider,{value:_L4,children:_L5?«ext:react/jsx-runtime#jsx»(\"div\",{dir:_L5,style:{display:\"contents\"},children:_L10}):_L10});},(_L11,_L12)=>{if(_L11.content!==_L12.content||_L11.shouldNormalizeHtmlIndentation!==_L12.shouldNormalizeHtmlIndentation||_L11.index!==_L12.index||_L11.isIncomplete!==_L12.isIncomplete||_L11.dir!==_L12.dir)return false;if(_L11.components!==_L12.components){let _L13=«global:Object».keys(_L11.components||{}),_L14=«global:Object».keys(_L12.components||{});if(_L13.length!==_L14.length||_L13.some(_L15=>{var _L16,_L17;return((_L16=_L11.components)==null?void 0:_L16[_L15])!==((_L17=_L12.components)==null?void 0:_L17[_L15]);}))return false;}return!(_L11.rehypePlugins!==_L12.rehypePlugins||_L11.remarkPlugins!==_L12.remarkPlugins);});",
+   "npmF": "var $D=«ext:react#memo»(({content:_L0,shouldParseIncompleteMarkdown:_L1,..._L2})=>{let _L3=«ext:react#useMemo»(()=>typeof _L0==\"string\"&&_L1?«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Fe»(_L0.trim()):_L0,[_L0,_L1]);return «ext:react/jsx-runtime#jsx»(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Oe»,{..._L2,children:_L3});},(_L4,_L5)=>{if(_L4.content!==_L5.content||_L4.shouldParseIncompleteMarkdown!==_L5.shouldParseIncompleteMarkdown||_L4.index!==_L5.index)return false;if(_L4.components!==_L5.components){let _L6=«global:Object».keys(_L4.components||{}),_L7=«global:Object».keys(_L5.components||{});if(_L6.length!==_L7.length||_L6.some(_L8=>{var _L9,_L10;return((_L9=_L4.components)==null?void 0:_L9[_L8])!==((_L10=_L5.components)==null?void 0:_L10[_L8]);}))return false;}return!(_L4.rehypePlugins!==_L5.rehypePlugins||_L4.remarkPlugins!==_L5.remarkPlugins);});"
+  },
+  {
+   "src": "vendor.js#kt",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#qe",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 1056,
+   "srcLine": 39699,
+   "npmLine": 9,
+   "changedTokens": 281,
+   "totalTokens": 389,
+   "srcF": "var $D=_L0=>{let _L1=«vendor.js#Is».test(_L0),_L2=«vendor.js#Ns».test(_L0);if(_L1||_L2)return[_L0];let _L3=«vendor.js#x$6».lex(_L0,{gfm:true}),_L4=[],_L5=[],_L6=false;for(let _L7 of _L3){let _L8=_L7.raw,_L9=_L4.length;if(_L5.length>0){_L4[_L9-1]+=_L8;let _L10=_L5.at(-1),_L11=«vendor.js#sn»(_L8,_L10),_L12=«vendor.js#an»(_L8,_L10);for(let _L13=0;_L13<_L11;_L13+=1)_L5.push(_L10);for(let _L14=0;_L14<_L12;_L14+=1)_L5.length>0&&_L5.at(-1)===_L10&&_L5.pop();continue;}if(_L7.type===\"html\"&&_L7.block){let _L15=_L8.match(«vendor.js#Ls»);if(_L15){let _L16=_L15[1],_L17=«vendor.js#sn»(_L8,_L16),_L18=«vendor.js#an»(_L8,_L16);_L17>_L18&&_L5.push(_L16);}}if(_L9>0&&!_L6){let _L19=_L4[_L9-1];if(«vendor.js#Hs»(_L19)%2===1){_L4[_L9-1]=_L19+_L8;continue;}}_L4.push(_L8),_L7.type!==\"space\"&&(_L6=_L7.type===\"code\");}return _L4;};",
+   "npmF": "var $D=_L0=>{let _L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ro».test(_L0),_L2=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#jo».test(_L0);if(_L1||_L2)return[_L0];let _L3=«ext:marked#Lexer».lex(_L0,{gfm:true}),_L4=[],_L5=[];for(let _L6 of _L3){let _L7=_L6.raw,_L8=_L4.length;if(_L5.length>0){if(_L4[_L8-1]+=_L7,_L6.type===\"html\"){let _L9=_L7.match(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Do»);if(_L9){let _L10=_L9[1];_L5.at(-1)===_L10&&_L5.pop();}}continue;}if(_L6.type===\"html\"&&_L6.block){let _L11=_L7.match(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#$o»);if(_L11){let _L12=_L11[1];_L7.includes(`</${_L12}>`)||_L5.push(_L12);}}if(_L7.trim()===\"$$\"&&_L8>0){let _L13=_L4[_L8-1],_L14=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#He»(_L13),_L15=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ze»(_L13);if(_L14&&_L15%2===1){_L4[_L8-1]=_L13+_L7;continue;}}if(_L8>0&&«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Oo»(_L7)){let _L16=_L4[_L8-1],_L17=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#He»(_L16),_L18=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ze»(_L16),_L19=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ze»(_L7);if(_L17&&_L18%2===1&&!«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#He»(_L7)&&_L19===1){_L4[_L8-1]=_L16+_L7;continue;}}_L4.push(_L7);}return _L4;};"
+  },
+  {
+   "src": "ext:react#useId",
+   "npm": "ext:react#useId",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useTransition",
+   "npm": "ext:react#useTransition",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useMemo",
+   "npm": "ext:react#useState",
+   "verdict": "ext-diff",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useEffect",
+   "npm": "ext:react#useEffect",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "media-editing/wt.js#De",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#_t",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 1070,
+   "srcLine": 21,
+   "npmLine": 7,
+   "changedTokens": 123,
+   "totalTokens": 121,
+   "srcF": "var $D={copyCode:\"Copy Code\",downloadFile:\"Download file\",downloadDiagram:\"Download diagram\",downloadDiagramAsSvg:\"Download diagram as SVG\",downloadDiagramAsPng:\"Download diagram as PNG\",downloadDiagramAsMmd:\"Download diagram as MMD\",viewFullscreen:\"View fullscreen\",exitFullscreen:\"Exit fullscreen\",mermaidFormatSvg:\"SVG\",mermaidFormatPng:\"PNG\",mermaidFormatMmd:\"MMD\",copyTable:\"Copy table\",copyTableAsMarkdown:\"Copy table as Markdown\",copyTableAsCsv:\"Copy table as CSV\",copyTableAsTsv:\"Copy table as TSV\",downloadTable:\"Download table\",downloadTableAsCsv:\"Download table as CSV\",downloadTableAsMarkdown:\"Download table as Markdown\",tableFormatMarkdown:\"Markdown\",tableFormatCsv:\"CSV\",tableFormatTsv:\"TSV\",imageNotAvailable:\"Image not available\",downloadImage:\"Download image\",openExternalLink:\"Open external link?\",externalLinkWarning:\"You're about to visit an external website.\",close:\"Close\",copyLink:\"Copy link\",copied:\"Copied\",openLink:\"Open link\"};",
+   "npmF": "var $D={ol:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#xe»,li:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#yt»,ul:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#wt»,hr:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#kt»,strong:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#vt»,a:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ct»,h1:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Mt»,h2:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#xt»,h3:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Pt»,h4:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Tt»,h5:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Nt»,h6:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#It»,table:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#St»,thead:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Et»,tbody:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#At»,tr:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Bt»,th:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Lt»,td:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Rt»,blockquote:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#jt»,code:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ht»,img:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#zt»,pre:({children:_L0})=>_L0,sup:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Dt»,sub:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#$t»,p:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#qt»,section:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ot»};"
+  },
+  {
+   "src": "ext:react#createElement",
+   "npm": "global:Array",
+   "verdict": "ext-diff",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "global:Object",
+   "npm": "ext:remark-math#default",
+   "verdict": "ext-diff",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react/jsx-runtime#jsx",
+   "npm": "ext:react/jsx-runtime#jsx",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "media-editing/wt.js#Be",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#M",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 35,
+   "srcLine": 52,
+   "npmLine": 21
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownBlockRenderer",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Oe",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 294,
+   "srcLine": 143,
+   "npmLine": 7,
+   "changedTokens": 12,
+   "totalTokens": 50,
+   "srcF": "var $D=_L0=>{let _L1=«chat/streamdown.jsx#getMarkdownProcessor»(_L0),_L2=_L0.children||\"\",_L3=_L1.runSync(_L1.parse(_L2),_L2);return «chat/streamdown.jsx#renderHastToJsx»(_L3,_L0);};",
+   "npmF": "var $D=_L0=>{let _L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Eo»(_L0),_L2=_L0.children||\"\";return «streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Bo»(_L1.runSync(_L1.parse(_L2),_L2),_L0);};"
+  },
+  {
+   "src": "chat/streamdown.jsx#rehypePluginRegistry",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#kr",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#defaultRehypePlugins",
+   "bytes": 302,
+   "srcLine": 1302,
+   "npmLine": 21,
+   "changedTokens": 34,
+   "totalTokens": 52,
+   "srcF": "var $D={raw:«workspace/build-inspiration-media-showcase-collections.js#rehypeRaw»,sanitize:[«settings/request-prompt-prefill.jsx#rehypeSanitize»,«chat/streamdown.jsx#markdownSanitizationSchema»],harden:[«ext:rehype-harden#harden»,{allowedImagePrefixes:[\"*\"],allowedLinkPrefixes:[\"*\"],allowedProtocols:[\"*\"],defaultOrigin:void 0,allowDataImages:true}]};",
+   "npmF": "var $D={harden:[«ext:rehype-harden#harden»,{allowedImagePrefixes:[\"*\"],allowedLinkPrefixes:[\"*\"],defaultOrigin:void 0,allowDataImages:true}],raw:«ext:rehype-raw#default»,katex:[«ext:rehype-katex#default»,{errorColor:\"var(--color-muted-foreground)\"}]};"
+  },
+  {
+   "src": "chat/streamdown.jsx#remarkPluginRegistry",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#vr",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#defaultRemarkPlugins",
+   "bytes": 82,
+   "srcLine": 1316,
+   "npmLine": 21,
+   "changedTokens": 28,
+   "totalTokens": 44,
+   "srcF": "var $D={gfm:[«vendor.js#remarkGfm»,{}],codeMeta:«vendor.js#un»};",
+   "npmF": "var $D={gfm:[«ext:remark-gfm#default»,{}],math:[«ext:remark-math#default»,{singleDollarTextMath:false}],cjkFriendly:[«ext:remark-cjk-friendly#default»,{}],cjkFriendlyGfmStrikethrough:[«ext:remark-cjk-friendly-gfm-strikethrough#default»,{}]};"
+  },
+  {
+   "src": "chat/streamdown.jsx#normalizeIndentedHtml",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Fe",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#defaultBlockRenderer",
+   "bytes": 211,
+   "srcLine": 1271,
+   "npmLine": 21,
+   "changedTokens": 101,
+   "totalTokens": 110,
+   "srcF": "var $D=_L0=>typeof _L0!=\"string\"||_L0.length===0||!«chat/streamdown.jsx#htmlStartPattern».test(_L0)?_L0:_L0.replace(«chat/streamdown.jsx#indentedHtmlPattern»,\"$1\");",
+   "npmF": "var $D=_L0=>{if(!_L0||typeof _L0!=\"string\")return _L0;let _L1=_L0,_L2=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Go»(_L1);return _L2.endsWith(\"](streamdown:incomplete-link)\")?_L2:(_L1=_L2,_L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#dr»(_L1),_L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Yo»(_L1),_L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Qo»(_L1),_L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#tr»(_L1),_L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#or»(_L1),_L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ir»(_L1),_L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ar»(_L1),_L1=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#lr»(_L1),_L1);};"
+  },
+  {
+   "src": "vendor.js#Is",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ro",
+   "verdict": "diff",
+   "via": "vendor.js#kt",
+   "bytes": 30,
+   "srcLine": 39662,
+   "npmLine": 7,
+   "changedTokens": 2,
+   "totalTokens": 5,
+   "srcF": "var $D=/\\[\\^[\\w-]{1,200}\\](?!:)/;",
+   "npmF": "var $D=/\\[\\^[^\\]\\s]{1,200}\\](?!:)/;"
+  },
+  {
+   "src": "vendor.js#Ns",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#jo",
+   "verdict": "diff",
+   "via": "vendor.js#kt",
+   "bytes": 26,
+   "srcLine": 39663,
+   "npmLine": 7,
+   "changedTokens": 2,
+   "totalTokens": 5,
+   "srcF": "var $D=/\\[\\^[\\w-]{1,200}\\]:/;",
+   "npmF": "var $D=/\\[\\^[^\\]\\s]{1,200}\\]:/;"
+  },
+  {
+   "src": "vendor.js#x$6",
+   "npm": "ext:marked#Lexer",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor.js#kt",
+   "srcLine": 27076
+  },
+  {
+   "src": "vendor.js#Ls",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#$o",
+   "verdict": "exact",
+   "via": "vendor.js#kt",
+   "bytes": 18,
+   "srcLine": 39664,
+   "npmLine": 7
+  },
+  {
+   "src": "vendor.js#sn",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#He",
+   "verdict": "diff",
+   "via": "vendor.js#kt",
+   "bytes": 216,
+   "srcLine": 39682,
+   "npmLine": 7,
+   "changedTokens": 134,
+   "totalTokens": 102,
+   "srcF": "var $D=(_L0,_L1)=>{if(«vendor.js#Rs».has(_L1.toLowerCase()))return 0;let _L2=_L0.match(«vendor.js#Ss»(_L1));if(!_L2)return 0;let _L3=0;for(let _L4 of _L2)_L4.trimEnd().endsWith(\"/>\")||(_L3+=1);return _L3;};",
+   "npmF": "var $D=_L0=>{let _L1=0;for(;_L1<_L0.length&&(_L0[_L1]===\" \"||_L0[_L1]===\"\\t\"||_L0[_L1]===`\\u000a`||_L0[_L1]===\"\\r\");)_L1+=1;return _L1+1<_L0.length&&_L0[_L1]===\"$\"&&_L0[_L1+1]===\"$\";};"
+  },
+  {
+   "src": "vendor.js#an",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ze",
+   "verdict": "diff",
+   "via": "vendor.js#kt",
+   "bytes": 84,
+   "srcLine": 39690,
+   "npmLine": 9,
+   "changedTokens": 66,
+   "totalTokens": 71,
+   "srcF": "var $D=(_L0,_L1)=>{let _L2=_L0.match(«vendor.js#Es»(_L1));return _L2?_L2.length:0;};",
+   "npmF": "var $D=_L0=>{let _L1=0;for(let _L2=0;_L2<_L0.length-1;_L2+=1)_L0[_L2]===\"$\"&&_L0[_L2+1]===\"$\"&&(_L1+=1,_L2+=1);return _L1;};"
+  },
+  {
+   "src": "ext:react#createContext",
+   "npm": "ext:react#createContext",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#Be"
+  },
+  {
+   "src": "chat/streamdown.jsx#getMarkdownProcessor",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Eo",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownBlockRenderer",
+   "bytes": 329,
+   "srcLine": 101,
+   "npmLine": 7
+  },
+  {
+   "src": "ext:rehype-harden#harden",
+   "npm": "ext:rehype-harden#harden",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#rehypePluginRegistry"
+  },
+  {
+   "src": "vendor.js#remarkGfm",
+   "npm": "ext:remark-gfm#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/streamdown.jsx#remarkPluginRegistry",
+   "srcLine": 25763
+  },
+  {
+   "src": "chat/streamdown.jsx#htmlStartPattern",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Go",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#normalizeIndentedHtml",
+   "bytes": 37,
+   "srcLine": 1269,
+   "npmLine": 10,
+   "changedTokens": 288,
+   "totalTokens": 293,
+   "srcF": "var $D=/^[ \\t]*<[\\w!/?-]/;",
+   "npmF": "var $D=_L0=>{let _L1=_L0.lastIndexOf(\"](\");if(_L1!==-1&&!«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#_e»(_L0,_L1)&&!_L0.substring(_L1+2).includes(\")\")){let _L2=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ko»(_L0,_L1);if(_L2!==-1&&!«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#_e»(_L0,_L2)){let _L3=_L2>0&&_L0[_L2-1]===\"!\",_L4=_L3?_L2-1:_L2,_L5=_L0.substring(0,_L4),_L6=_L0.substring(_L2+1,_L1);return _L3?_L5:`${_L5}[${_L6}](streamdown:incomplete-link)`;}}for(let _L7=_L0.length-1;_L7>=0;_L7-=1)if(_L0[_L7]===\"[\"&&!«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#_e»(_L0,_L7)){let _L8=_L7>0&&_L0[_L7-1]===\"!\",_L9=_L8?_L7-1:_L7;if(!_L0.substring(_L7+1).includes(\"]\")){let _L10=_L0.substring(0,_L9);return _L8?_L10:`${_L0}](streamdown:incomplete-link)`;}if(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Zo»(_L0,_L7)===-1){let _L11=_L0.substring(0,_L9);return _L8?_L11:`${_L0}](streamdown:incomplete-link)`;}}return _L0;};"
+  },
+  {
+   "src": "chat/streamdown.jsx#indentedHtmlPattern",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#dr",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#normalizeIndentedHtml",
+   "bytes": 53,
+   "srcLine": 1270,
+   "npmLine": 21,
+   "changedTokens": 85,
+   "totalTokens": 86,
+   "srcF": "var $D=/(^|\\n)[ \\t]{4,}(?=<[\\w!/?-])/g;",
+   "npmF": "var $D=_L0=>{if(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#he»(_L0)||«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Jo».test(_L0))return _L0;let _L1=_L0.match(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#qo»);if(_L1){let _L2=_L1[2];if(!_L2||«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#q».test(_L2))return _L0;if(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#cr»(_L0)%2===1)return`${_L0}***`;}return _L0;};"
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownProcessorCache",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#mn",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#getMarkdownProcessor",
+   "bytes": 50,
+   "srcLine": 100,
+   "npmLine": 7
+  },
+  {
+   "src": "media-editing/wt.js#ks",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ao",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#getMarkdownProcessor",
+   "bytes": 313,
+   "srcLine": 141,
+   "npmLine": 7,
+   "changedTokens": 22,
+   "totalTokens": 95,
+   "srcF": "var $D=_L0=>{let _L1=_L0.rehypePlugins||«media-editing/wt.js#Qo»,_L2=_L0.remarkPlugins||«media-editing/wt.js#Qo»,_L3=«media-editing/wt.js#Cs»(_L1)?_L2:[..._L2,«media-editing/wt.js#Go»],_L4=_L0.remarkRehypeOptions?{...«media-editing/wt.js#en»,..._L0.remarkRehypeOptions}:«media-editing/wt.js#en»;return «vendor.js#unified»().use(«vendor.js#remarkParse»).use(_L3).use(«vendor.js#remarkRehype»,_L4).use(_L1);};",
+   "npmF": "var $D=_L0=>{let _L1=_L0.rehypePlugins||«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#cn»,_L2=_L0.remarkPlugins||«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#cn»,_L3=_L0.remarkRehypeOptions?{...«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#dn»,..._L0.remarkRehypeOptions}:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#dn»;return «streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#De»().use(«ext:remark-parse#default»).use(_L2).use(«ext:remark-rehype#default»,_L3).use(_L1);};"
+  },
+  {
+   "src": "media-editing/wt.js#wt",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#$e",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#markdownProcessorCache",
+   "bytes": 1707,
+   "srcLine": 81,
+   "npmLine": 7
+  },
+  {
+   "src": "media-editing/wt.js#Qo",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#cn",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#ks",
+   "bytes": 7,
+   "srcLine": 76,
+   "npmLine": 7
+  },
+  {
+   "src": "media-editing/wt.js#en",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#dn",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#ks",
+   "bytes": 36,
+   "srcLine": 77,
+   "npmLine": 7
+  },
+  {
+   "src": "vendor.js#unified",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#De",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#ks",
+   "bytes": 34,
+   "srcLine": 23093,
+   "npmLine": 7
+  },
+  {
+   "src": "vendor.js#remarkParse",
+   "npm": "ext:remark-parse#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#ks",
+   "srcLine": 20292
+  },
+  {
+   "src": "vendor.js#remarkRehype",
+   "npm": "ext:remark-rehype#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#ks",
+   "srcLine": 21595
+  },
+  {
+   "src": "global:Map",
+   "npm": "global:Map",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "global:WeakMap",
+   "npm": "global:WeakMap",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "media-editing/wt.js#We",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#fe",
+   "verdict": "exact",
+   "via": "media-editing/wt.js#wt",
+   "bytes": 18,
+   "srcLine": 80,
+   "npmLine": 7
+  },
+  {
+   "src": "global:String",
+   "npm": "global:String",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "global:JSON",
+   "npm": "global:JSON",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#wt"
+  },
+  {
+   "src": "vendor.js#Processor",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#je",
+   "verdict": "diff",
+   "via": "vendor.js#unified",
+   "bytes": 19234,
+   "srcLine": 22533,
+   "npmLine": 7,
+   "changedTokens": 905,
+   "totalTokens": 1551,
+   "srcF": "class $D extends «vendor.js#CallableInstance»{constructor(){super(\"copy\");this.Compiler=void 0;this.Parser=void 0;this.attachers=[];this.compiler=void 0;this.freezeIndex=-1;this.frozen=void 0;this.namespace={};this.parser=void 0;this.transformers=«vendor.js#trough»();}copy(){const _L0=new «vendor.js#Processor»();let _L1=-1;while(++_L1<this.attachers.length){const _L2=this.attachers[_L1];_L0.use(..._L2);}_L0.data(«vendor.js#extend»(true,{},this.namespace));return _L0;}data(_L3,_L4){if(typeof _L3===\"string\"){if(«global:arguments».length===2){«vendor.js#assertUnfrozen»(\"data\",this.frozen);this.namespace[_L3]=_L4;return this;}return «vendor.js#own$6».call(this.namespace,_L3)&&this.namespace[_L3]||void 0;}if(_L3){«vendor.js#assertUnfrozen»(\"data\",this.frozen);this.namespace=_L3;return this;}return this.namespace;}freeze(){if(this.frozen){return this;}const _L5=this;while(++this.freezeIndex<this.attachers.length){const[_L6,..._L7]=this.attachers[this.freezeIndex];if(_L7[0]===false){continue;}if(_L7[0]===true){_L7[0]=void 0;}const _L8=_L6.call(_L5,..._L7);if(typeof _L8===\"function\"){this.transformers.use(_L8);}}this.frozen=true;this.freezeIndex=«global:Number».POSITIVE_INFINITY;return this;}parse(_L9){this.freeze();const _L10=«vendor.js#vfile»(_L9);const _L11=this.parser||this.Parser;«vendor.js#assertParser»(\"parse\",_L11);return _L11(«global:String»(_L10),_L10);}process(_L12,_L13){const _L14=this;this.freeze();«vendor.js#assertParser»(\"process\",this.parser||this.Parser);«vendor.js#assertCompiler»(\"process\",this.compiler||this.Compiler);return _L13?_L15(void 0,_L13):new «global:Promise»(_L15);function _L15(_L16,_L17){const _L18=«vendor.js#vfile»(_L12);const _L19=_L14.parse(_L18);_L14.run(_L19,_L18,function(_L20,_L21,_L22){if(_L20||!_L21||!_L22){return _L23(_L20);}const _L24=_L21;const _L25=_L14.stringify(_L24,_L22);if(«vendor.js#looksLikeAValue»(_L25)){_L22.value=_L25;}else{_L22.result=_L25;}_L23(_L20,_L22);});function _L23(_L26,_L27){if(_L26||!_L27){_L17(_L26);}else if(_L16){_L16(_L27);}else{_L13(void 0,_L27);}}}}processSync(_L28){let _L29=false;let _L30;this.freeze();«vendor.js#assertParser»(\"processSync\",this.parser||this.Parser);«vendor.js#assertCompiler»(\"processSync\",this.compiler||this.Compiler);this.process(_L28,_L31);«vendor.js#assertDone»(\"processSync\",\"process\",_L29);return _L30;function _L31(_L32,_L33){_L29=true;«vendor.js#bail»(_L32);_L30=_L33;}}run(_L34,_L35,_L36){«vendor.js#assertNode»(_L34);this.freeze();const _L37=this.transformers;if(!_L36&&typeof _L35===\"function\"){_L36=_L35;_L35=void 0;}return _L36?_L38(void 0,_L36):new «global:Promise»(_L38);function _L38(_L39,_L40){const _L41=«vendor.js#vfile»(_L35);_L37.run(_L34,_L41,_L42);function _L42(_L43,_L44,_L45){const _L46=_L44||_L34;if(_L43){_L40(_L43);}else if(_L39){_L39(_L46);}else{_L36(void 0,_L46,_L45);}}}}runSync(_L47,_L48){let _L49=false;let _L50;this.run(_L47,_L48,_L51);«vendor.js#assertDone»(\"runSync\",\"run\",_L49);return _L50;function _L51(_L52,_L53){«vendor.js#bail»(_L52);_L50=_L53;_L49=true;}}stringify(_L54,_L55){this.freeze();const _L56=«vendor.js#vfile»(_L55);const _L57=this.compiler||this.Compiler;«vendor.js#assertCompiler»(\"stringify\",_L57);«vendor.js#assertNode»(_L54);return _L57(_L54,_L56);}use(_L58,..._L59){const _L60=this.attachers;const _L61=this.namespace;«vendor.js#assertUnfrozen»(\"use\",this.frozen);if(_L58===null||_L58===void 0);else if(typeof _L58===\"function\"){_L62(_L58,_L59);}else if(typeof _L58===\"object\"){if(«global:Array».isArray(_L58)){_L63(_L58);}else{_L64(_L58);}}else{throw new «global:TypeError»(\"Expected usable value, not `\"+_L58+\"`\");}return this;function _L65(_L66){if(typeof _L66===\"function\"){_L62(_L66,[]);}else if(typeof _L66===\"object\"){if(«global:Array».isArray(_L66)){const[_L67,..._L68]=_L66;_L62(_L67,_L68);}else{_L64(_L66);}}else{throw new «global:TypeError»(\"Expected usable value, not `\"+_L66+\"`\");}}function _L64(_L69){if(!(\"plugins\"in _L69)&&!(\"settings\"in _L69)){throw new «global:Error»(\"Expected usable value but received an empty preset, which is probably a mistake: presets typically come with `plugins` and sometimes with `settings`, but this has neither\");}_L63(_L69.plugins);if(_L69.settings){_L61.settings=«vendor.js#extend»(true,_L61.settings,_L69.settings);}}function _L63(_L70){let _L71=-1;if(_L70===null||_L70===void 0);else if(«global:Array».isArray(_L70)){while(++_L71<_L70.length){const _L72=_L70[_L71];_L65(_L72);}}else{throw new «global:TypeError»(\"Expected a list of plugins, not `\"+_L70+\"`\");}}function _L62(_L73,_L74){let _L75=-1;let _L76=-1;while(++_L75<_L60.length){if(_L60[_L75][0]===_L73){_L76=_L75;break;}}if(_L76===-1){_L60.push([_L73,..._L74]);}else if(_L74.length>0){let[_L77,..._L78]=_L74;const _L79=_L60[_L76][1];if(«vendor.js#isPlainObject$3»(_L79)&&«vendor.js#isPlainObject$3»(_L77)){_L77=«vendor.js#extend»(true,_L79,_L77);}_L60[_L76]=[_L73,_L77,..._L78];}}}}",
+   "npmF": "var $D=class _L0 extends «streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#sn»{constructor(){super(\"copy\"),this.Compiler=void 0,this.Parser=void 0,this.attachers=[],this.compiler=void 0,this.freezeIndex=-1,this.frozen=void 0,this.namespace={},this.parser=void 0,this.transformers=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Te»();}copy(){let _L1=new _L0(),_L2=-1;for(;++_L2<this.attachers.length;){let _L3=this.attachers[_L2];_L1.use(..._L3);}return _L1.data((0,«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ue».default)(true,{},this.namespace)),_L1;}data(_L4,_L5){return typeof _L4==\"string\"?«global:arguments».length===2?(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Re»(\"data\",this.frozen),this.namespace[_L4]=_L5,this):«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ko».call(this.namespace,_L4)&&this.namespace[_L4]||void 0:_L4?(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Re»(\"data\",this.frozen),this.namespace=_L4,this):this.namespace;}freeze(){if(this.frozen)return this;let _L6=this;for(;++this.freezeIndex<this.attachers.length;){let[_L7,..._L8]=this.attachers[this.freezeIndex];if(_L8[0]===false)continue;_L8[0]===true&&(_L8[0]=void 0);let _L9=_L7.call(_L6,..._L8);typeof _L9==\"function\"&&this.transformers.use(_L9);}return this.frozen=true,this.freezeIndex=«global:Number».POSITIVE_INFINITY,this;}parse(_L10){this.freeze();let _L11=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#pe»(_L10),_L12=this.parser||this.Parser;return «streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Be»(\"parse\",_L12),_L12(«global:String»(_L11),_L11);}process(_L13,_L14){let _L15=this;return this.freeze(),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Be»(\"process\",this.parser||this.Parser),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Le»(\"process\",this.compiler||this.Compiler),_L14?_L16(void 0,_L14):new «global:Promise»(_L16);function _L16(_L17,_L18){let _L19=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#pe»(_L13),_L20=_L15.parse(_L19);_L15.run(_L20,_L19,function(_L21,_L22,_L23){if(_L21||!_L22||!_L23)return _L24(_L21);let _L25=_L22,_L26=_L15.stringify(_L25,_L23);«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Co»(_L26)?_L23.value=_L26:_L23.result=_L26,_L24(_L21,_L23);});function _L24(_L27,_L28){_L27||!_L28?_L18(_L27):_L17?_L17(_L28):_L14(void 0,_L28);}}}processSync(_L29){let _L30=false,_L31;return this.freeze(),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Be»(\"processSync\",this.parser||this.Parser),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Le»(\"processSync\",this.compiler||this.Compiler),this.process(_L29,_L32),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ln»(\"processSync\",\"process\",_L30),_L31;function _L32(_L33,_L34){_L30=true,«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Pe»(_L33),_L31=_L34;}}run(_L35,_L36,_L37){«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#an»(_L35),this.freeze();let _L38=this.transformers;return!_L37&&typeof _L36==\"function\"&&(_L37=_L36,_L36=void 0),_L37?_L39(void 0,_L37):new «global:Promise»(_L39);function _L39(_L40,_L41){let _L42=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#pe»(_L36);_L38.run(_L35,_L42,_L43);function _L43(_L44,_L45,_L46){let _L47=_L45||_L35;_L44?_L41(_L44):_L40?_L40(_L47):_L37(void 0,_L47,_L46);}}}runSync(_L48,_L49){let _L50=false,_L51;return this.run(_L48,_L49,_L52),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ln»(\"runSync\",\"run\",_L50),_L51;function _L52(_L53,_L54){«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Pe»(_L53),_L51=_L54,_L50=true;}}stringify(_L55,_L56){this.freeze();let _L57=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#pe»(_L56),_L58=this.compiler||this.Compiler;return «streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Le»(\"stringify\",_L58),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#an»(_L55),_L58(_L55,_L57);}use(_L59,..._L60){let _L61=this.attachers,_L62=this.namespace;if(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Re»(\"use\",this.frozen),_L59!=null)if(typeof _L59==\"function\")_L63(_L59,_L60);else if(typeof _L59==\"object\")«global:Array».isArray(_L59)?_L64(_L59):_L65(_L59);else throw new «global:TypeError»(\"Expected usable value, not `\"+_L59+\"`\");return this;function _L66(_L67){if(typeof _L67==\"function\")_L63(_L67,[]);else if(typeof _L67==\"object\"){if(«global:Array».isArray(_L67)){let[_L68,..._L69]=_L67;_L63(_L68,_L69);}else _L65(_L67);}else throw new «global:TypeError»(\"Expected usable value, not `\"+_L67+\"`\");}function _L65(_L70){if(!(\"plugins\"in _L70)&&!(\"settings\"in _L70))throw new «global:Error»(\"Expected usable value but received an empty preset, which is probably a mistake: presets typically come with `plugins` and sometimes with `settings`, but this has neither\");_L64(_L70.plugins),_L70.settings&&(_L62.settings=(0,«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ue».default)(true,_L62.settings,_L70.settings));}function _L64(_L71){let _L72=-1;if(_L71!=null)if(«global:Array».isArray(_L71))for(;++_L72<_L71.length;){let _L73=_L71[_L72];_L66(_L73);}else throw new «global:TypeError»(\"Expected a list of plugins, not `\"+_L71+\"`\");}function _L63(_L74,_L75){let _L76=-1,_L77=-1;for(;++_L76<_L61.length;)if(_L61[_L76][0]===_L74){_L77=_L76;break;}if(_L77===-1)_L61.push([_L74,..._L75]);else if(_L75.length>0){let[_L78,..._L79]=_L75,_L80=_L61[_L77][1];«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#K»(_L80)&&«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#K»(_L78)&&(_L78=(0,«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ue».default)(true,_L80,_L78)),_L61[_L77]=[_L74,_L78,..._L79];}}}};"
+  },
+  {
+   "src": "vendor.js#CallableInstance",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#sn",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 699,
+   "srcLine": 22508,
+   "npmLine": 7,
+   "changedTokens": 38,
+   "totalTokens": 68,
+   "srcF": "var $D=function(_L0){const _L1=this;const _L2=_L1.constructor;const _L3=_L2.prototype;const _L4=_L3[_L0];const _L5=function(){return _L4.apply(_L5,«global:arguments»);};«global:Object».setPrototypeOf(_L5,_L3);return _L5;};",
+   "npmF": "var $D=function(_L0){let _L1=this.constructor.prototype,_L2=_L1[_L0],_L3=function(){return _L2.apply(_L3,«global:arguments»);};return «global:Object».setPrototypeOf(_L3,_L1),_L3;};"
+  },
+  {
+   "src": "vendor.js#trough",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Te",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 1070,
+   "srcLine": 21723,
+   "npmLine": 7,
+   "changedTokens": 49,
+   "totalTokens": 243,
+   "srcF": "function $D(){const _L0=[];const _L1={run:_L2,use:_L3};return _L1;function _L2(..._L4){let _L5=-1;const _L6=_L4.pop();if(typeof _L6!==\"function\"){throw new «global:TypeError»(\"Expected function as last argument, not \"+_L6);}_L7(null,..._L4);function _L7(_L8,..._L9){const _L10=_L0[++_L5];let _L11=-1;if(_L8){_L6(_L8);return;}while(++_L11<_L4.length){if(_L9[_L11]===null||_L9[_L11]===void 0){_L9[_L11]=_L4[_L11];}}_L4=_L9;if(_L10){«vendor.js#wrap»(_L10,_L7)(..._L9);}else{_L6(null,..._L9);}}}function _L3(_L12){if(typeof _L12!==\"function\"){throw new «global:TypeError»(\"Expected `middelware` to be a function, not \"+_L12);}_L0.push(_L12);return _L1;}}",
+   "npmF": "function $D(){let _L0=[],_L1={run:_L2,use:_L3};return _L1;function _L2(..._L4){let _L5=-1,_L6=_L4.pop();if(typeof _L6!=\"function\")throw new «global:TypeError»(\"Expected function as last argument, not \"+_L6);_L7(null,..._L4);function _L7(_L8,..._L9){let _L10=_L0[++_L5],_L11=-1;if(_L8){_L6(_L8);return;}for(;++_L11<_L4.length;)(_L9[_L11]===null||_L9[_L11]===void 0)&&(_L9[_L11]=_L4[_L11]);_L4=_L9,_L10?«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Qt»(_L10,_L7)(..._L9):_L6(null,..._L9);}}function _L3(_L12){if(typeof _L12!=\"function\")throw new «global:TypeError»(\"Expected `middelware` to be a function, not \"+_L12);return _L0.push(_L12),_L1;}}"
+  },
+  {
+   "src": "vendor.js#extend",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ue",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 64,
+   "srcLine": 21715,
+   "npmLine": 7,
+   "changedTokens": 2,
+   "totalTokens": 10,
+   "srcF": "var $D=«vendor.js#getDefaultExportFromCjs$1»(«vendor.js#extendExports»);",
+   "npmF": "var $D=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#In»(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Yt»());"
+  },
+  {
+   "src": "global:arguments",
+   "npm": "global:arguments",
+   "verdict": "ext-same",
+   "via": "vendor.js#Processor"
+  },
+  {
+   "src": "vendor.js#assertUnfrozen",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Re",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 225,
+   "srcLine": 23104,
+   "npmLine": 7,
+   "changedTokens": 2,
+   "totalTokens": 26,
+   "srcF": "function $D(_L0,_L1){if(_L1){throw new «global:Error»(\"Cannot call `\"+_L0+\"` on a frozen processor.\\nCreate a new processor first, by calling it: use `processor()` instead of `processor`.\");}}",
+   "npmF": "function $D(_L0,_L1){if(_L1)throw new «global:Error»(\"Cannot call `\"+_L0+\"` on a frozen processor.\\nCreate a new processor first, by calling it: use `processor()` instead of `processor`.\");}"
+  },
+  {
+   "src": "vendor.js#own$6",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ko",
+   "verdict": "exact",
+   "via": "vendor.js#Processor",
+   "bytes": 25,
+   "srcLine": 22532,
+   "npmLine": 7
+  },
+  {
+   "src": "global:Number",
+   "npm": "global:Number",
+   "verdict": "ext-same",
+   "via": "vendor.js#Processor"
+  },
+  {
+   "src": "vendor.js#vfile",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#pe",
+   "verdict": "exact",
+   "via": "vendor.js#Processor",
+   "bytes": 85,
+   "srcLine": 23119,
+   "npmLine": 7
+  },
+  {
+   "src": "vendor.js#assertParser",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Be",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 148,
+   "srcLine": 23094,
+   "npmLine": 7,
+   "changedTokens": 3,
+   "totalTokens": 31,
+   "srcF": "function $D(_L0,_L1){if(typeof _L1!==\"function\"){throw new «global:TypeError»(\"Cannot `\"+_L0+\"` without `parser`\");}}",
+   "npmF": "function $D(_L0,_L1){if(typeof _L1!=\"function\")throw new «global:TypeError»(\"Cannot `\"+_L0+\"` without `parser`\");}"
+  },
+  {
+   "src": "vendor.js#assertCompiler",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Le",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 152,
+   "srcLine": 23099,
+   "npmLine": 7,
+   "changedTokens": 3,
+   "totalTokens": 31,
+   "srcF": "function $D(_L0,_L1){if(typeof _L1!==\"function\"){throw new «global:TypeError»(\"Cannot `\"+_L0+\"` without `compiler`\");}}",
+   "npmF": "function $D(_L0,_L1){if(typeof _L1!=\"function\")throw new «global:TypeError»(\"Cannot `\"+_L0+\"` without `compiler`\");}"
+  },
+  {
+   "src": "global:Promise",
+   "npm": "global:Promise",
+   "verdict": "ext-same",
+   "via": "vendor.js#Processor"
+  },
+  {
+   "src": "vendor.js#looksLikeAValue",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Co",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 94,
+   "srcLine": 23125,
+   "npmLine": 7,
+   "changedTokens": 1,
+   "totalTokens": 21,
+   "srcF": "function $D(_L0){return typeof _L0===\"string\"||«vendor.js#isUint8Array»(_L0);}",
+   "npmF": "function $D(_L0){return typeof _L0==\"string\"||«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Mo»(_L0);}"
+  },
+  {
+   "src": "vendor.js#assertDone",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ln",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 162,
+   "srcLine": 23114,
+   "npmLine": 7,
+   "changedTokens": 2,
+   "totalTokens": 33,
+   "srcF": "function $D(_L0,_L1,_L2){if(!_L2){throw new «global:Error»(\"`\"+_L0+\"` finished async. Use `\"+_L1+\"` instead\");}}",
+   "npmF": "function $D(_L0,_L1,_L2){if(!_L2)throw new «global:Error»(\"`\"+_L0+\"` finished async. Use `\"+_L1+\"` instead\");}"
+  },
+  {
+   "src": "vendor.js#bail",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Pe",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 60,
+   "srcLine": 21613,
+   "npmLine": 7,
+   "changedTokens": 2,
+   "totalTokens": 16,
+   "srcF": "function $D(_L0){if(_L0){throw _L0;}}",
+   "npmF": "function $D(_L0){if(_L0)throw _L0;}"
+  },
+  {
+   "src": "vendor.js#assertNode",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#an",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 164,
+   "srcLine": 23109,
+   "npmLine": 7,
+   "changedTokens": 3,
+   "totalTokens": 38,
+   "srcF": "function $D(_L0){if(!«vendor.js#isPlainObject$3»(_L0)||typeof _L0.type!==\"string\"){throw new «global:TypeError»(\"Expected node, got `\"+_L0+\"`\");}}",
+   "npmF": "function $D(_L0){if(!«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#K»(_L0)||typeof _L0.type!=\"string\")throw new «global:TypeError»(\"Expected node, got `\"+_L0+\"`\");}"
+  },
+  {
+   "src": "global:TypeError",
+   "npm": "global:TypeError",
+   "verdict": "ext-same",
+   "via": "vendor.js#Processor"
+  },
+  {
+   "src": "global:Error",
+   "npm": "global:Error",
+   "verdict": "ext-same",
+   "via": "vendor.js#Processor"
+  },
+  {
+   "src": "vendor.js#isPlainObject$3",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#K",
+   "verdict": "diff",
+   "via": "vendor.js#Processor",
+   "bytes": 335,
+   "srcLine": 21716,
+   "npmLine": 7,
+   "changedTokens": 5,
+   "totalTokens": 88,
+   "srcF": "function $D(_L0){if(typeof _L0!==\"object\"||_L0===null){return false;}const _L1=«global:Object».getPrototypeOf(_L0);return(_L1===null||_L1===«global:Object».prototype||«global:Object».getPrototypeOf(_L1)===null)&&!(«global:Symbol».toStringTag in _L0)&&!(«global:Symbol».iterator in _L0);}",
+   "npmF": "function $D(_L0){if(typeof _L0!=\"object\"||_L0===null)return false;let _L1=«global:Object».getPrototypeOf(_L0);return(_L1===null||_L1===«global:Object».prototype||«global:Object».getPrototypeOf(_L1)===null)&&!(«global:Symbol».toStringTag in _L0)&&!(«global:Symbol».iterator in _L0);}"
+  },
+  {
+   "src": "vendor.js#wrap",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Qt",
+   "verdict": "diff",
+   "via": "vendor.js#trough",
+   "bytes": 938,
+   "srcLine": 21765,
+   "npmLine": 7,
+   "changedTokens": 57,
+   "totalTokens": 201,
+   "srcF": "function $D(_L0,_L1){let _L2;return _L3;function _L3(..._L4){const _L5=_L0.length>_L4.length;let _L6;if(_L5){_L4.push(_L7);}try{_L6=_L0.apply(this,_L4);}catch(_L8){const _L9=_L8;if(_L5&&_L2){throw _L9;}return _L7(_L9);}if(!_L5){if(_L6&&_L6.then&&typeof _L6.then===\"function\"){_L6.then(_L10,_L7);}else if(_L6 instanceof «global:Error»){_L7(_L6);}else{_L10(_L6);}}}function _L7(_L11,..._L12){if(!_L2){_L2=true;_L1(_L11,..._L12);}}function _L10(_L13){_L7(null,_L13);}}",
+   "npmF": "function $D(_L0,_L1){let _L2;return _L3;function _L3(..._L4){let _L5=_L0.length>_L4.length,_L6;_L5&&_L4.push(_L7);try{_L6=_L0.apply(this,_L4);}catch(_L8){let _L9=_L8;if(_L5&&_L2)throw _L9;return _L7(_L9);}_L5||(_L6&&_L6.then&&typeof _L6.then==\"function\"?_L6.then(_L10,_L7):_L6 instanceof «global:Error»?_L7(_L6):_L10(_L6));}function _L7(_L11,..._L12){_L2||(_L2=true,_L1(_L11,..._L12));}function _L10(_L13){_L7(null,_L13);}}"
+  },
+  {
+   "src": "vendor.js#getDefaultExportFromCjs$1",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#In",
+   "verdict": "diff",
+   "via": "vendor.js#extend",
+   "bytes": 148,
+   "srcLine": 355,
+   "npmLine": 1,
+   "changedTokens": 62,
+   "totalTokens": 54,
+   "srcF": "function $D(_L0){return _L0&&_L0.__esModule&&«global:Object».prototype.hasOwnProperty.call(_L0,\"default\")?_L0[\"default\"]:_L0;}",
+   "npmF": "var $D=(_L0,_L1,_L2)=>(_L2=_L0!=null?«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#vn»(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#xn»(_L0)):{},«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Nn»(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ve»(_L2,\"default\",{value:_L0,enumerable:true}),_L0));"
+  },
+  {
+   "src": "vendor.js#extendExports",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Yt",
+   "verdict": "diff",
+   "via": "vendor.js#extend",
+   "bytes": 31,
+   "srcLine": 21714,
+   "npmLine": 1,
+   "changedTokens": 572,
+   "totalTokens": 579,
+   "srcF": "var $D=«vendor.js#requireExtend»();",
+   "npmF": "var $D=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Tn»((_L0,_L1)=>{var _L2=«global:Object».prototype.hasOwnProperty,_L3=«global:Object».prototype.toString,_L4=«global:Object».defineProperty,_L5=«global:Object».getOwnPropertyDescriptor,_L6=function(_L7){return typeof «global:Array».isArray==\"function\"?«global:Array».isArray(_L7):_L3.call(_L7)===\"[object Array]\";},_L8=function(_L9){if(!_L9||_L3.call(_L9)!==\"[object Object]\")return false;var _L10=_L2.call(_L9,\"constructor\"),_L11=_L9.constructor&&_L9.constructor.prototype&&_L2.call(_L9.constructor.prototype,\"isPrototypeOf\");if(_L9.constructor&&!_L10&&!_L11)return false;var _L12;for(_L12 in _L9);return typeof _L12==\"undefined\"||_L2.call(_L9,_L12);},_L13=function(_L14,_L15){_L4&&_L15.name===\"__proto__\"?_L4(_L14,_L15.name,{enumerable:true,configurable:true,value:_L15.newValue,writable:true}):_L14[_L15.name]=_L15.newValue;},_L16=function(_L17,_L18){if(_L18===\"__proto__\")if(_L2.call(_L17,_L18)){if(_L5)return _L5(_L17,_L18).value;}else return;return _L17[_L18];};_L1.exports=function _L19(){var _L20,_L21,_L22,_L23,_L24,_L25,_L26=«global:arguments»[0],_L27=1,_L28=«global:arguments».length,_L29=false;for(typeof _L26==\"boolean\"&&(_L29=_L26,_L26=«global:arguments»[1]||{},_L27=2),(_L26==null||typeof _L26!=\"object\"&&typeof _L26!=\"function\")&&(_L26={});_L27<_L28;++_L27)if(_L20=«global:arguments»[_L27],_L20!=null)for(_L21 in _L20)_L22=_L16(_L26,_L21),_L23=_L16(_L20,_L21),_L26!==_L23&&(_L29&&_L23&&(_L8(_L23)||(_L24=_L6(_L23)))?(_L24?(_L24=false,_L25=_L22&&_L6(_L22)?_L22:[]):_L25=_L22&&_L8(_L22)?_L22:{},_L13(_L26,{name:_L21,newValue:_L19(_L29,_L25,_L23)})):typeof _L23!=\"undefined\"&&_L13(_L26,{name:_L21,newValue:_L23}));return _L26;};});"
+  },
+  {
+   "src": "vendor.js#looksLikeAVFile",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#vo",
+   "verdict": "diff",
+   "via": "vendor.js#vfile",
+   "bytes": 134,
+   "srcLine": 23122,
+   "npmLine": 7,
+   "changedTokens": 4,
+   "totalTokens": 31,
+   "srcF": "function $D(_L0){return «global:Boolean»(_L0&&typeof _L0===\"object\"&&\"message\"in _L0&&\"messages\"in _L0);}",
+   "npmF": "function $D(_L0){return!!(_L0&&typeof _L0==\"object\"&&\"message\"in _L0&&\"messages\"in _L0);}"
+  },
+  {
+   "src": "vendor.js#VFile",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Z",
+   "verdict": "diff",
+   "via": "vendor.js#vfile",
+   "bytes": 12729,
+   "srcLine": 22068,
+   "npmLine": 7,
+   "changedTokens": 190,
+   "totalTokens": 847,
+   "srcF": "class $D{constructor(_L0){let _L1;if(!_L0){_L1={};}else if(«vendor.js#isUrl$1»(_L0)){_L1={path:_L0};}else if(typeof _L0===\"string\"||«vendor.js#isUint8Array$1»(_L0)){_L1={value:_L0};}else{_L1=_L0;}this.cwd=\"cwd\"in _L1?\"\":«vendor.js#minproc».cwd();this.data={};this.history=[];this.messages=[];this.value;this.map;this.result;this.stored;let _L2=-1;while(++_L2<«vendor.js#order».length){const _L3=«vendor.js#order»[_L2];if(_L3 in _L1&&_L1[_L3]!==void 0&&_L1[_L3]!==null){this[_L3]=_L3===\"history\"?[..._L1[_L3]]:_L1[_L3];}}let _L4;for(_L4 in _L1){if(!«vendor.js#order».includes(_L4)){this[_L4]=_L1[_L4];}}}get basename(){return typeof this.path===\"string\"?«vendor.js#minpath».basename(this.path):void 0;}set basename(_L5){«vendor.js#assertNonEmpty»(_L5,\"basename\");«vendor.js#assertPart»(_L5,\"basename\");this.path=«vendor.js#minpath».join(this.dirname||\"\",_L5);}get dirname(){return typeof this.path===\"string\"?«vendor.js#minpath».dirname(this.path):void 0;}set dirname(_L6){«vendor.js#assertPath»(this.basename,\"dirname\");this.path=«vendor.js#minpath».join(_L6||\"\",this.basename);}get extname(){return typeof this.path===\"string\"?«vendor.js#minpath».extname(this.path):void 0;}set extname(_L7){«vendor.js#assertPart»(_L7,\"extname\");«vendor.js#assertPath»(this.dirname,\"extname\");if(_L7){if(_L7.codePointAt(0)!==46){throw new «global:Error»(\"`extname` must start with `.`\");}if(_L7.includes(\".\",1)){throw new «global:Error»(\"`extname` cannot contain multiple dots\");}}this.path=«vendor.js#minpath».join(this.dirname,this.stem+(_L7||\"\"));}get path(){return this.history[this.history.length-1];}set path(_L8){if(«vendor.js#isUrl$1»(_L8)){_L8=«vendor.js#urlToPath»(_L8);}«vendor.js#assertNonEmpty»(_L8,\"path\");if(this.path!==_L8){this.history.push(_L8);}}get stem(){return typeof this.path===\"string\"?«vendor.js#minpath».basename(this.path,this.extname):void 0;}set stem(_L9){«vendor.js#assertNonEmpty»(_L9,\"stem\");«vendor.js#assertPart»(_L9,\"stem\");this.path=«vendor.js#minpath».join(this.dirname||\"\",_L9+(this.extname||\"\"));}fail(_L10,_L11,_L12){const _L13=this.message(_L10,_L11,_L12);_L13.fatal=true;throw _L13;}info(_L14,_L15,_L16){const _L17=this.message(_L14,_L15,_L16);_L17.fatal=void 0;return _L17;}message(_L18,_L19,_L20){const _L21=new «vendor.js#VFileMessage»(_L18,_L19,_L20);if(this.path){_L21.name=this.path+\":\"+_L21.name;_L21.file=this.path;}_L21.fatal=false;this.messages.push(_L21);return _L21;}toString(_L22){if(this.value===void 0){return\"\";}if(typeof this.value===\"string\"){return this.value;}const _L23=new «global:TextDecoder»(_L22||void 0);return _L23.decode(this.value);}}",
+   "npmF": "var $D=class{constructor(_L0){let _L1;_L0?«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#me»(_L0)?_L1={path:_L0}:typeof _L0==\"string\"||«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#wo»(_L0)?_L1={value:_L0}:_L1=_L0:_L1={},this.cwd=\"cwd\"in _L1?\"\":«ext:process#default».cwd(),this.data={},this.history=[],this.messages=[],this.value,this.map,this.result,this.stored;let _L2=-1;for(;++_L2<«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Se».length;){let _L3=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Se»[_L2];_L3 in _L1&&_L1[_L3]!==void 0&&_L1[_L3]!==null&&(this[_L3]=_L3===\"history\"?[..._L1[_L3]]:_L1[_L3]);}let _L4;for(_L4 in _L1)«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Se».includes(_L4)||(this[_L4]=_L1[_L4]);}get basename(){return typeof this.path==\"string\"?«ext:path#default».basename(this.path):void 0;}set basename(_L5){«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ae»(_L5,\"basename\"),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ee»(_L5,\"basename\"),this.path=«ext:path#default».join(this.dirname||\"\",_L5);}get dirname(){return typeof this.path==\"string\"?«ext:path#default».dirname(this.path):void 0;}set dirname(_L6){«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#rn»(this.basename,\"dirname\"),this.path=«ext:path#default».join(_L6||\"\",this.basename);}get extname(){return typeof this.path==\"string\"?«ext:path#default».extname(this.path):void 0;}set extname(_L7){if(«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ee»(_L7,\"extname\"),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#rn»(this.dirname,\"extname\"),_L7){if(_L7.codePointAt(0)!==46)throw new «global:Error»(\"`extname` must start with `.`\");if(_L7.includes(\".\",1))throw new «global:Error»(\"`extname` cannot contain multiple dots\");}this.path=«ext:path#default».join(this.dirname,this.stem+(_L7||\"\"));}get path(){return this.history[this.history.length-1];}set path(_L8){«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#me»(_L8)&&(_L8=«ext:url#fileURLToPath»(_L8)),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ae»(_L8,\"path\"),this.path!==_L8&&this.history.push(_L8);}get stem(){return typeof this.path==\"string\"?«ext:path#default».basename(this.path,this.extname):void 0;}set stem(_L9){«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ae»(_L9,\"stem\"),«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ee»(_L9,\"stem\"),this.path=«ext:path#default».join(this.dirname||\"\",_L9+(this.extname||\"\"));}fail(_L10,_L11,_L12){let _L13=this.message(_L10,_L11,_L12);throw _L13.fatal=true,_L13;}info(_L14,_L15,_L16){let _L17=this.message(_L14,_L15,_L16);return _L17.fatal=void 0,_L17;}message(_L18,_L19,_L20){let _L21=new «streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#x»(_L18,_L19,_L20);return this.path&&(_L21.name=this.path+\":\"+_L21.name,_L21.file=this.path),_L21.fatal=false,this.messages.push(_L21),_L21;}toString(_L22){return this.value===void 0?\"\":typeof this.value==\"string\"?this.value:new «global:TextDecoder»(_L22||void 0).decode(this.value);}};"
+  },
+  {
+   "src": "vendor.js#isUint8Array",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Mo",
+   "verdict": "diff",
+   "via": "vendor.js#looksLikeAValue",
+   "bytes": 136,
+   "srcLine": 23128,
+   "npmLine": 7,
+   "changedTokens": 4,
+   "totalTokens": 31,
+   "srcF": "function $D(_L0){return «global:Boolean»(_L0&&typeof _L0===\"object\"&&\"byteLength\"in _L0&&\"byteOffset\"in _L0);}",
+   "npmF": "function $D(_L0){return!!(_L0&&typeof _L0==\"object\"&&\"byteLength\"in _L0&&\"byteOffset\"in _L0);}"
+  },
+  {
+   "src": "global:Symbol",
+   "npm": "global:Symbol",
+   "verdict": "ext-same",
+   "via": "vendor.js#isPlainObject$3"
+  },
+  {
+   "src": "vendor.js#requireExtend",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Tn",
+   "verdict": "diff",
+   "via": "vendor.js#extendExports",
+   "bytes": 3009,
+   "srcLine": 21620,
+   "npmLine": 1,
+   "changedTokens": 627,
+   "totalTokens": 646,
+   "srcF": "function $D(){if(«vendor.js#hasRequiredExtend»)return «vendor.js#extend$1»;«vendor.js#hasRequiredExtend»=1;var _L0=«global:Object».prototype.hasOwnProperty;var _L1=«global:Object».prototype.toString;var _L2=«global:Object».defineProperty;var _L3=«global:Object».getOwnPropertyDescriptor;var _L4=function _L5(_L6){if(typeof «global:Array».isArray===\"function\"){return «global:Array».isArray(_L6);}return _L1.call(_L6)===\"[object Array]\";};var _L7=function _L8(_L9){if(!_L9||_L1.call(_L9)!==\"[object Object]\"){return false;}var _L10=_L0.call(_L9,\"constructor\");var _L11=_L9.constructor&&_L9.constructor.prototype&&_L0.call(_L9.constructor.prototype,\"isPrototypeOf\");if(_L9.constructor&&!_L10&&!_L11){return false;}var _L12;for(_L12 in _L9){}return typeof _L12===\"undefined\"||_L0.call(_L9,_L12);};var _L13=function _L14(_L15,_L16){if(_L2&&_L16.name===\"__proto__\"){_L2(_L15,_L16.name,{enumerable:true,configurable:true,value:_L16.newValue,writable:true});}else{_L15[_L16.name]=_L16.newValue;}};var _L17=function _L18(_L19,_L20){if(_L20===\"__proto__\"){if(!_L0.call(_L19,_L20)){return void 0;}else if(_L3){return _L3(_L19,_L20).value;}}return _L19[_L20];};«vendor.js#extend$1»=function _L21(){var _L22,_L23,_L24,_L25,_L26,_L27;var _L28=«global:arguments»[0];var _L29=1;var _L30=«global:arguments».length;var _L31=false;if(typeof _L28===\"boolean\"){_L31=_L28;_L28=«global:arguments»[1]||{};_L29=2;}if(_L28==null||typeof _L28!==\"object\"&&typeof _L28!==\"function\"){_L28={};}for(;_L29<_L30;++_L29){_L22=«global:arguments»[_L29];if(_L22!=null){for(_L23 in _L22){_L24=_L17(_L28,_L23);_L25=_L17(_L22,_L23);if(_L28!==_L25){if(_L31&&_L25&&(_L7(_L25)||(_L26=_L4(_L25)))){if(_L26){_L26=false;_L27=_L24&&_L4(_L24)?_L24:[];}else{_L27=_L24&&_L7(_L24)?_L24:{};}_L13(_L28,{name:_L23,newValue:_L21(_L31,_L27,_L25)});}else if(typeof _L25!==\"undefined\"){_L13(_L28,{name:_L23,newValue:_L25});}}}}}return _L28;};return «vendor.js#extend$1»;}",
+   "npmF": "var $D=(_L0,_L1)=>()=>(_L1||_L0((_L1={exports:{}}).exports,_L1),_L1.exports);"
+  },
+  {
+   "src": "vendor.js#isUrl$1",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#me",
+   "verdict": "diff",
+   "via": "vendor.js#VFile",
+   "bytes": 296,
+   "srcLine": 22026,
+   "npmLine": 7,
+   "changedTokens": 4,
+   "totalTokens": 55,
+   "srcF": "function $D(_L0){return «global:Boolean»(_L0!==null&&typeof _L0===\"object\"&&\"href\"in _L0&&_L0.href&&\"protocol\"in _L0&&_L0.protocol&&_L0.auth===void 0);}",
+   "npmF": "function $D(_L0){return!!(_L0!==null&&typeof _L0==\"object\"&&\"href\"in _L0&&_L0.href&&\"protocol\"in _L0&&_L0.protocol&&_L0.auth===void 0);}"
+  },
+  {
+   "src": "vendor.js#isUint8Array$1",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#wo",
+   "verdict": "diff",
+   "via": "vendor.js#VFile",
+   "bytes": 138,
+   "srcLine": 22505,
+   "npmLine": 7,
+   "changedTokens": 4,
+   "totalTokens": 31,
+   "srcF": "function $D(_L0){return «global:Boolean»(_L0&&typeof _L0===\"object\"&&\"byteLength\"in _L0&&\"byteOffset\"in _L0);}",
+   "npmF": "function $D(_L0){return!!(_L0&&typeof _L0==\"object\"&&\"byteLength\"in _L0&&\"byteOffset\"in _L0);}"
+  },
+  {
+   "src": "vendor.js#minproc",
+   "npm": "ext:process#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor.js#VFile",
+   "srcLine": 22020
+  },
+  {
+   "src": "vendor.js#order",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Se",
+   "verdict": "exact",
+   "via": "vendor.js#VFile",
+   "bytes": 90,
+   "srcLine": 22066,
+   "npmLine": 7
+  },
+  {
+   "src": "vendor.js#minpath",
+   "npm": "ext:path#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor.js#VFile",
+   "srcLine": 21804
+  },
+  {
+   "src": "vendor.js#assertNonEmpty",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ae",
+   "verdict": "diff",
+   "via": "vendor.js#VFile",
+   "bytes": 115,
+   "srcLine": 22495,
+   "npmLine": 7,
+   "changedTokens": 2,
+   "totalTokens": 27,
+   "srcF": "function $D(_L0,_L1){if(!_L0){throw new «global:Error»(\"`\"+_L1+\"` cannot be empty\");}}",
+   "npmF": "function $D(_L0,_L1){if(!_L0)throw new «global:Error»(\"`\"+_L1+\"` cannot be empty\");}"
+  },
+  {
+   "src": "vendor.js#assertPart",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ee",
+   "verdict": "diff",
+   "via": "vendor.js#VFile",
+   "bytes": 179,
+   "srcLine": 22490,
+   "npmLine": 7,
+   "changedTokens": 2,
+   "totalTokens": 42,
+   "srcF": "function $D(_L0,_L1){if(_L0&&_L0.includes(«vendor.js#minpath».sep)){throw new «global:Error»(\"`\"+_L1+\"` cannot be a path: did not expect `\"+«vendor.js#minpath».sep+\"`\");}}",
+   "npmF": "function $D(_L0,_L1){if(_L0&&_L0.includes(«ext:path#default».sep))throw new «global:Error»(\"`\"+_L1+\"` cannot be a path: did not expect `\"+«ext:path#default».sep+\"`\");}"
+  },
+  {
+   "src": "vendor.js#assertPath",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#rn",
+   "verdict": "diff",
+   "via": "vendor.js#VFile",
+   "bytes": 135,
+   "srcLine": 22500,
+   "npmLine": 7,
+   "changedTokens": 2,
+   "totalTokens": 27,
+   "srcF": "function $D(_L0,_L1){if(!_L0){throw new «global:Error»(\"Setting `\"+_L1+\"` requires `path` to be set too\");}}",
+   "npmF": "function $D(_L0,_L1){if(!_L0)throw new «global:Error»(\"Setting `\"+_L1+\"` requires `path` to be set too\");}"
+  },
+  {
+   "src": "vendor.js#urlToPath",
+   "npm": "ext:url#fileURLToPath",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor.js#VFile",
+   "srcLine": 22031
+  },
+  {
+   "src": "vendor.js#VFileMessage",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#x",
+   "verdict": "diff",
+   "via": "vendor.js#VFile",
+   "bytes": 4152,
+   "srcLine": 18973,
+   "npmLine": 7,
+   "changedTokens": 152,
+   "totalTokens": 524,
+   "srcF": "class $D extends «global:Error»{constructor(_L0,_L1,_L2){super();if(typeof _L1===\"string\"){_L2=_L1;_L1=void 0;}let _L3=\"\";let _L4={};let _L5=false;if(_L1){if(\"line\"in _L1&&\"column\"in _L1){_L4={place:_L1};}else if(\"start\"in _L1&&\"end\"in _L1){_L4={place:_L1};}else if(\"type\"in _L1){_L4={ancestors:[_L1],place:_L1.position};}else{_L4={..._L1};}}if(typeof _L0===\"string\"){_L3=_L0;}else if(!_L4.cause&&_L0){_L5=true;_L3=_L0.message;_L4.cause=_L0;}if(!_L4.ruleId&&!_L4.source&&typeof _L2===\"string\"){const _L6=_L2.indexOf(\":\");if(_L6===-1){_L4.ruleId=_L2;}else{_L4.source=_L2.slice(0,_L6);_L4.ruleId=_L2.slice(_L6+1);}}if(!_L4.place&&_L4.ancestors&&_L4.ancestors){const _L7=_L4.ancestors[_L4.ancestors.length-1];if(_L7){_L4.place=_L7.position;}}const _L8=_L4.place&&\"start\"in _L4.place?_L4.place.start:_L4.place;this.ancestors=_L4.ancestors||void 0;this.cause=_L4.cause||void 0;this.column=_L8?_L8.column:void 0;this.fatal=void 0;this.file=\"\";this.message=_L3;this.line=_L8?_L8.line:void 0;this.name=«vendor.js#stringifyPosition»(_L4.place)||\"1:1\";this.place=_L4.place||void 0;this.reason=this.message;this.ruleId=_L4.ruleId||void 0;this.source=_L4.source||void 0;this.stack=_L5&&_L4.cause&&typeof _L4.cause.stack===\"string\"?_L4.cause.stack:\"\";this.actual=void 0;this.expected=void 0;this.note=void 0;this.url=void 0;}}",
+   "npmF": "var $D=class extends «global:Error»{constructor(_L0,_L1,_L2){super(),typeof _L1==\"string\"&&(_L2=_L1,_L1=void 0);let _L3=\"\",_L4={},_L5=false;if(_L1&&(\"line\"in _L1&&\"column\"in _L1?_L4={place:_L1}:\"start\"in _L1&&\"end\"in _L1?_L4={place:_L1}:\"type\"in _L1?_L4={ancestors:[_L1],place:_L1.position}:_L4={..._L1}),typeof _L0==\"string\"?_L3=_L0:!_L4.cause&&_L0&&(_L5=true,_L3=_L0.message,_L4.cause=_L0),!_L4.ruleId&&!_L4.source&&typeof _L2==\"string\"){let _L6=_L2.indexOf(\":\");_L6===-1?_L4.ruleId=_L2:(_L4.source=_L2.slice(0,_L6),_L4.ruleId=_L2.slice(_L6+1));}if(!_L4.place&&_L4.ancestors&&_L4.ancestors){let _L7=_L4.ancestors[_L4.ancestors.length-1];_L7&&(_L4.place=_L7.position);}let _L8=_L4.place&&\"start\"in _L4.place?_L4.place.start:_L4.place;this.ancestors=_L4.ancestors||void 0,this.cause=_L4.cause||void 0,this.column=_L8?_L8.column:void 0,this.fatal=void 0,this.file=\"\",this.message=_L3,this.line=_L8?_L8.line:void 0,this.name=«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ie»(_L4.place)||\"1:1\",this.place=_L4.place||void 0,this.reason=this.message,this.ruleId=_L4.ruleId||void 0,this.source=_L4.source||void 0,this.stack=_L5&&_L4.cause&&typeof _L4.cause.stack==\"string\"?_L4.cause.stack:\"\",this.actual=void 0,this.expected=void 0,this.note=void 0,this.url=void 0;}};"
+  },
+  {
+   "src": "global:TextDecoder",
+   "npm": "global:TextDecoder",
+   "verdict": "ext-same",
+   "via": "vendor.js#VFile"
+  },
+  {
+   "src": "vendor.js#stringifyPosition",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ie",
+   "verdict": "diff",
+   "via": "vendor.js#VFileMessage",
+   "bytes": 360,
+   "srcLine": 18949,
+   "npmLine": 7,
+   "changedTokens": 39,
+   "totalTokens": 87,
+   "srcF": "function $D(_L0){if(!_L0||typeof _L0!==\"object\"){return\"\";}if(\"position\"in _L0||\"type\"in _L0){return «vendor.js#position$1»(_L0.position);}if(\"start\"in _L0||\"end\"in _L0){return «vendor.js#position$1»(_L0);}if(\"line\"in _L0||\"column\"in _L0){return «vendor.js#point$2»(_L0);}return\"\";}",
+   "npmF": "function $D(_L0){return!_L0||typeof _L0!=\"object\"?\"\":\"position\"in _L0||\"type\"in _L0?«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#en»(_L0.position):\"start\"in _L0||\"end\"in _L0?«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#en»(_L0):\"line\"in _L0||\"column\"in _L0?«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ne»(_L0):\"\";}"
+  },
+  {
+   "src": "vendor.js#position$1",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#en",
+   "verdict": "exact",
+   "via": "vendor.js#stringifyPosition",
+   "bytes": 96,
+   "srcLine": 18967,
+   "npmLine": 7
+  },
+  {
+   "src": "vendor.js#point$2",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ne",
+   "verdict": "exact",
+   "via": "vendor.js#stringifyPosition",
+   "bytes": 106,
+   "srcLine": 18964,
+   "npmLine": 7
+  },
+  {
+   "src": "vendor.js#index",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#tn",
+   "verdict": "diff",
+   "via": "vendor.js#point$2",
+   "bytes": 82,
+   "srcLine": 18970,
+   "npmLine": 7,
+   "changedTokens": 1,
+   "totalTokens": 22,
+   "srcF": "function $D(_L0){return _L0&&typeof _L0===\"number\"?_L0:1;}",
+   "npmF": "function $D(_L0){return _L0&&typeof _L0==\"number\"?_L0:1;}"
+  },
+  {
+   "src": "chat/streamdown.jsx#fileExtensionPattern",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Wn",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 34,
+   "srcLine": 200,
+   "npmLine": 1
+  },
+  {
+   "src": "chat/streamdown.jsx#languageClassPattern",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#bo",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 42,
+   "srcLine": 603,
+   "npmLine": 7
+  },
+  {
+   "src": "chat/streamdown.jsx#isOptionEnabled",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Me",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 120,
+   "srcLine": 604,
+   "npmLine": 7
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSection",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ot",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 3414,
+   "srcLine": 1007,
+   "npmLine": 7
+  },
+  {
+   "src": "media-editing/wt.js#tt",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#te",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 38,
+   "srcLine": 16,
+   "npmLine": 1
+  },
+  {
+   "src": "media-editing/wt.js#nt",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ln",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 48,
+   "srcLine": 17,
+   "npmLine": 1
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#nextId",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#J",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 10,
+   "srcLine": 170,
+   "npmLine": 1
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isFenceMarkerAtPosition",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#rr",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 425,
+   "srcLine": 119,
+   "npmLine": 16
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#g",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#j",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 343,
+   "srcLine": 165,
+   "npmLine": 9
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#X",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ko",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 308,
+   "srcLine": 175,
+   "npmLine": 10
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#C2",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Zo",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 318,
+   "srcLine": 182,
+   "npmLine": 10
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#h",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#un",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 583,
+   "srcLine": 189,
+   "npmLine": 15
+  },
+  {
+   "src": "chat/ae.jsx#he",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#f",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 49,
+   "srcLine": 10,
+   "npmLine": 1
+  },
+  {
+   "src": "chat/ae.jsx#le",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#no",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 110,
+   "srcLine": 95,
+   "npmLine": 1
+  },
+  {
+   "src": "chat/ae.jsx#ce",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#oo",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 134,
+   "srcLine": 99,
+   "npmLine": 1
+  },
+  {
+   "src": "chat/ae.jsx#Fe",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ve",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 308,
+   "srcLine": 128,
+   "npmLine": 7
+  },
+  {
+   "src": "chat/yt.js#Yt",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Je",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 5131,
+   "srcLine": 3,
+   "npmLine": 1
+  },
+  {
+   "src": "chat/co.jsx#convertSvgToPngBlob",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ye",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 1206,
+   "srcLine": 7,
+   "npmLine": 1
+  },
+  {
+   "src": "ext:react#isValidElement",
+   "npm": "ext:react#isValidElement",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#MarkdownSection"
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownOrderedList",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#xe",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#MarkdownSection",
+   "bytes": 516,
+   "srcLine": 614,
+   "npmLine": 7,
+   "changedTokens": 23,
+   "totalTokens": 82,
+   "srcF": "var $D=«ext:react#memo»(({children:_L0,className:_L1,node:_L2,..._L3})=>{let _L4=«chat/ae.jsx#y3»();return «ext:react/jsx-runtime#jsx»(\"ol\",{className:_L4(\"list-inside list-decimal whitespace-normal [li_&]:pl-6\",_L1),\"data-streamdown\":\"ordered-list\",..._L3,children:_L0});},(_L5,_L6)=>«vendor.js#E2»(_L5,_L6));",
+   "npmF": "var $D=«ext:react#memo»(({children:_L0,className:_L1,node:_L2,..._L3})=>«ext:react/jsx-runtime#jsx»(\"ol\",{className:«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#f»(\"list-inside list-decimal whitespace-normal\",_L1),\"data-streamdown\":\"ordered-list\",..._L3,children:_L0}),(_L4,_L5)=>«streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#C»(_L4,_L5));"
+  },
+  {
+   "src": "vendor.js#E2",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#C",
+   "verdict": "exact",
+   "via": "chat/streamdown.jsx#MarkdownSection",
+   "bytes": 87,
+   "srcLine": 39637,
+   "npmLine": 7
+  },
+  {
+   "src": "ext:react#useContext",
+   "npm": "ext:react#useContext",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#tt"
+  },
+  {
+   "src": "vendor.js#H",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Vo",
+   "verdict": "exact",
+   "via": "workspace/build-inspiration-media-showcase-collections.js#g",
+   "bytes": 20,
+   "srcLine": 39296,
+   "npmLine": 9
+  },
+  {
+   "src": "infra/dialog-content.jsx#twMerge",
+   "npm": "ext:tailwind-merge#twMerge",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/ae.jsx#he",
+   "srcLine": 37
+  },
+  {
+   "src": "vendor.js#clsx",
+   "npm": "ext:clsx#clsx",
+   "verdict": "src-inline/npm-ext",
+   "via": "chat/ae.jsx#he",
+   "srcLine": 11713
+  },
+  {
+   "src": "global:document",
+   "npm": "global:document",
+   "verdict": "ext-same",
+   "via": "chat/ae.jsx#le"
+  },
+  {
+   "src": "global:Math",
+   "npm": "global:Math",
+   "verdict": "ext-same",
+   "via": "chat/ae.jsx#ce"
+  },
+  {
+   "src": "global:btoa",
+   "npm": "global:btoa",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:unescape",
+   "npm": "global:unescape",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:encodeURIComponent",
+   "npm": "global:encodeURIComponent",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "global:Image",
+   "npm": "global:Image",
+   "verdict": "ext-same",
+   "via": "chat/co.jsx#convertSvgToPngBlob"
+  },
+  {
+   "src": "vendor.js#qe",
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ce",
+   "verdict": "exact",
+   "via": "vendor.js#E2",
+   "bytes": 589,
+   "srcLine": 39628,
+   "npmLine": 7
+  }
+ ],
+ "srcUnpaired": [
+  {
+   "src": "chat/streamdown.jsx#rtlCharacterPattern",
+   "line": 53,
+   "bytes": 65
+  },
+  {
+   "src": "chat/streamdown.jsx#unicodeLetterPattern",
+   "line": 54,
+   "bytes": 48
+  },
+  {
+   "src": "chat/streamdown.jsx#getTextDirection",
+   "line": 55,
+   "bytes": 465
+  },
+  {
+   "src": "chat/streamdown.jsx#fencedCodeStartPattern",
+   "line": 68,
+   "bytes": 51
+  },
+  {
+   "src": "chat/streamdown.jsx#tableDelimiterPattern",
+   "line": 69,
+   "bytes": 81
+  },
+  {
+   "src": "chat/streamdown.jsx#hasUnclosedCodeFence",
+   "line": 70,
+   "bytes": 736
+  },
+  {
+   "src": "chat/streamdown.jsx#hasTableSeparator",
+   "line": 91,
+   "bytes": 280
+  },
+  {
+   "src": "chat/streamdown.jsx#renderHastToJsx",
+   "line": 107,
+   "bytes": 1372
+  },
+  {
+   "src": "chat/streamdown.jsx#prefixClassNames",
+   "line": 149,
+   "bytes": 312
+  },
+  {
+   "src": "chat/streamdown.jsx#createClassNameMerger",
+   "line": 158,
+   "bytes": 137
+  },
+  {
+   "src": "chat/streamdown.jsx#FileDownloadButton",
+   "line": 159,
+   "bytes": 1358
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownImageRenderer",
+   "line": 201,
+   "bytes": 4184
+  },
+  {
+   "src": "chat/streamdown.jsx#ExternalLinkConfirmation",
+   "line": 314,
+   "bytes": 4542
+  },
+  {
+   "src": "chat/streamdown.jsx#TableFullscreenButton",
+   "line": 440,
+   "bytes": 3846
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableWrapper",
+   "line": 548,
+   "bytes": 1488
+  },
+  {
+   "src": "chat/streamdown.jsx#startingLinePattern",
+   "line": 596,
+   "bytes": 39
+  },
+  {
+   "src": "chat/streamdown.jsx#noLineNumbersPattern",
+   "line": 597,
+   "bytes": 42
+  },
+  {
+   "src": "chat/streamdown.jsx#MermaidRenderer",
+   "line": 598,
+   "bytes": 183
+  },
+  {
+   "src": "chat/streamdown.jsx#isTableActionEnabled",
+   "line": 605,
+   "bytes": 283
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownListItem",
+   "line": 633,
+   "bytes": 502
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownUnorderedList",
+   "line": 649,
+   "bytes": 517
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHorizontalRule",
+   "line": 668,
+   "bytes": 415
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownStrong",
+   "line": 682,
+   "bytes": 437
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownLink",
+   "line": 698,
+   "bytes": 2164
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownLink",
+   "line": 763,
+   "bytes": 174
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingOne",
+   "line": 765,
+   "bytes": 459
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingTwo",
+   "line": 781,
+   "bytes": 459
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingThree",
+   "line": 797,
+   "bytes": 460
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingFour",
+   "line": 813,
+   "bytes": 459
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingFive",
+   "line": 829,
+   "bytes": 461
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingSix",
+   "line": 845,
+   "bytes": 458
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableRenderer",
+   "line": 861,
+   "bytes": 829
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableHead",
+   "line": 881,
+   "bytes": 446
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableBody",
+   "line": 897,
+   "bytes": 455
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableRowRenderer",
+   "line": 913,
+   "bytes": 446
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableHeaderCell",
+   "line": 929,
+   "bytes": 530
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownDataCell",
+   "line": 948,
+   "bytes": 443
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownBlockquote",
+   "line": 964,
+   "bytes": 551
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSuperscript",
+   "line": 983,
+   "bytes": 408
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSubscript",
+   "line": 995,
+   "bytes": 404
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "line": 1090,
+   "bytes": 5923
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownCode",
+   "line": 1226,
+   "bytes": 205
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownImage",
+   "line": 1231,
+   "bytes": 210
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownComponents",
+   "line": 1236,
+   "bytes": 896
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultHrefProtocols",
+   "line": 1275,
+   "bytes": 20
+  },
+  {
+   "src": "chat/streamdown.jsx#hrefProtocols",
+   "line": 1276,
+   "bytes": 13
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultCodeAttributes",
+   "line": 1277,
+   "bytes": 21
+  },
+  {
+   "src": "chat/streamdown.jsx#codeAttributes",
+   "line": 1278,
+   "bytes": 14
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "line": 1279,
+   "bytes": 584
+  },
+  {
+   "src": "chat/streamdown.jsx#caretMarkers",
+   "line": 1322,
+   "bytes": 49
+  },
+  {
+   "src": "media-editing/wt.js#et",
+   "line": 15,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#He",
+   "line": 20,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#D3",
+   "line": 53,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#Ve",
+   "line": 54,
+   "bytes": 37
+  },
+  {
+   "src": "media-editing/wt.js#ct2",
+   "line": 55,
+   "bytes": 39
+  },
+  {
+   "src": "media-editing/wt.js#Li",
+   "line": 56,
+   "bytes": 109
+  },
+  {
+   "src": "media-editing/wt.js#de",
+   "line": 61,
+   "bytes": 112
+  },
+  {
+   "src": "media-editing/wt.js#Go",
+   "line": 66,
+   "bytes": 192
+  },
+  {
+   "src": "media-editing/wt.js#Cs",
+   "line": 139,
+   "bytes": 92
+  },
+  {
+   "src": "media-editing/wt.js#on",
+   "line": 153,
+   "bytes": 15
+  },
+  {
+   "src": "media-editing/wt.js#vs",
+   "line": 154,
+   "bytes": 143
+  },
+  {
+   "src": "media-editing/wt.js#xs",
+   "line": 162,
+   "bytes": 363
+  },
+  {
+   "src": "media-editing/wt.js#Ts",
+   "line": 173,
+   "bytes": 224
+  },
+  {
+   "src": "media-editing/wt.js#safeDecodeURIComponent",
+   "line": 181,
+   "bytes": 122
+  },
+  {
+   "src": "media-editing/wt.js#cleanPath",
+   "line": 188,
+   "bytes": 226
+  },
+  {
+   "src": "media-editing/wt.js#MEDIA_CATEGORIES",
+   "line": 197,
+   "bytes": 46
+  },
+  {
+   "src": "media-editing/wt.js#buildSelectionAliasIndex",
+   "line": 198,
+   "bytes": 555
+  },
+  {
+   "src": "media-editing/wt.js#SELECTION_ALIASES_BY_CATEGORY",
+   "line": 218,
+   "bytes": 182
+  },
+  {
+   "src": "media-editing/wt.js#isMediaCategory",
+   "line": 223,
+   "bytes": 78
+  },
+  {
+   "src": "media-editing/wt.js#selectionIdMatchesVisibleModel",
+   "line": 226,
+   "bytes": 298
+  },
+  {
+   "src": "media-editing/wt.js#isVisibleMediaModelSelected",
+   "line": 232,
+   "bytes": 330
+  },
+  {
+   "src": "media-editing/wt.js#countVisibleSelectedMediaModels",
+   "line": 241,
+   "bytes": 250
+  },
+  {
+   "src": "media-editing/wt.js#isAllVisibleMediaModelsSelected",
+   "line": 249,
+   "bytes": 393
+  },
+  {
+   "src": "shared/jsx-runtime.js#__jsx",
+   "line": 4,
+   "bytes": 327
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#EMPTY_TOOL_CALL_DISPLAY_CONFIG",
+   "line": 17,
+   "bytes": 73
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#parseToolDisplayPatterns",
+   "line": 21,
+   "bytes": 593
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#parseToolCallDisplayConfig",
+   "line": 39,
+   "bytes": 543
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#compileToolDisplayPatterns",
+   "line": 56,
+   "bytes": 187
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#configuredDisplayLabels",
+   "line": 62,
+   "bytes": 103
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#toolCallDisplayConfigKey",
+   "line": 65,
+   "bytes": 73
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#configuredLabelIds",
+   "line": 66,
+   "bytes": 93
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#setToolCallDisplayConfig",
+   "line": 69,
+   "bytes": 361
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getConfiguredToolDisplayLabel",
+   "line": 77,
+   "bytes": 183
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#TOAST_ID",
+   "line": 82,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#TOAST_DURATION_MS",
+   "line": 83,
+   "bytes": 24
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#PROXY_RECHECK_INTERVAL_MS",
+   "line": 84,
+   "bytes": 31
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#WARNING_CONFIRMATION_COUNT",
+   "line": 85,
+   "bytes": 30
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#ConnectorDialogScrollableBody",
+   "line": 86,
+   "bytes": 492
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#OFFICIAL_CONNECTORS",
+   "line": 102,
+   "bytes": 418
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#findOfficialConnectorForServer",
+   "line": 117,
+   "bytes": 152
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#findOfficialConnectorByServerName",
+   "line": 122,
+   "bytes": 178
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#DEBUG_PANEL_OPEN_EVENT",
+   "line": 127,
+   "bytes": 47
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#InterestSelectionContext",
+   "line": 128,
+   "bytes": 59
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#useInterestSelection",
+   "line": 129,
+   "bytes": 245
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getFileManagerLabelKey",
+   "line": 138,
+   "bytes": 214
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#PlatformFileManagerLabel",
+   "line": 143,
+   "bytes": 157
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#KEY_PREFIX",
+   "line": 147,
+   "bytes": 34
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#clearClaimsForUser",
+   "line": 148,
+   "bytes": 404
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#rehypeSanitize",
+   "line": 160,
+   "bytes": 158
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#listeners",
+   "line": 166,
+   "bytes": 21
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#emitPromptPrefillChange",
+   "line": 167,
+   "bytes": 83
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#pendingPromptPrefill",
+   "line": 171,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#completePromptPrefill",
+   "line": 172,
+   "bytes": 257
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#requestPromptPrefill",
+   "line": 180,
+   "bytes": 879
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#subscribePromptPrefill",
+   "line": 214,
+   "bytes": 133
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getPromptPrefillRequest",
+   "line": 220,
+   "bytes": 93
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#claimPromptPrefill",
+   "line": 223,
+   "bytes": 217
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#randomInspirationListeners",
+   "line": 229,
+   "bytes": 38
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#emit",
+   "line": 230,
+   "bytes": 81
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#nextRandomInspirationId",
+   "line": 233,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#pending",
+   "line": 234,
+   "bytes": 14
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#completeRandomInspiration",
+   "line": 235,
+   "bytes": 195
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#requestRandomInspiration",
+   "line": 243,
+   "bytes": 635
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#subscribeRandomInspiration",
+   "line": 264,
+   "bytes": 171
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getRandomInspirationRequest",
+   "line": 270,
+   "bytes": 79
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getRandomInspirationQueryIds",
+   "line": 273,
+   "bytes": 109
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#buildInspirationMediaShowcaseCollections",
+   "line": 13,
+   "bytes": 2225
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#resolveHomeFeaturedSkillPrompt",
+   "line": 88,
+   "bytes": 221
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#rehypeRaw",
+   "line": 92,
+   "bytes": 202
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#c2",
+   "line": 103,
+   "bytes": 591
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#L",
+   "line": 125,
+   "bytes": 379
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#f",
+   "line": 136,
+   "bytes": 792
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#listItemGreaterThanNumberPattern",
+   "line": 157,
+   "bytes": 78
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#E",
+   "line": 158,
+   "bytes": 272
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#closingUnderscorePattern",
+   "line": 162,
+   "bytes": 42
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#F",
+   "line": 163,
+   "bytes": 19
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#T",
+   "line": 164,
+   "bytes": 9
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isThematicBreakLine",
+   "line": 204,
+   "bytes": 834
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isValidEmphasisDelimiter",
+   "line": 236,
+   "bytes": 783
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countValidAsteriskDelimiters",
+   "line": 257,
+   "bytes": 794
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countTripleAsteriskRuns",
+   "line": 278,
+   "bytes": 879
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#A",
+   "line": 299,
+   "bytes": 620
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countDoubleUnderscoreMarkers",
+   "line": 320,
+   "bytes": 653
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isAsteriskEmphasisInListContext",
+   "line": 341,
+   "bytes": 547
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#j",
+   "line": 353,
+   "bytes": 449
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isUnderscoreEmphasisInListContext",
+   "line": 366,
+   "bytes": 549
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#Q",
+   "line": 378,
+   "bytes": 741
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#findSingleAsteriskDelimiter",
+   "line": 396,
+   "bytes": 1248
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#Z",
+   "line": 439,
+   "bytes": 446
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#hasBalancedAsteriskDelimiters",
+   "line": 446,
+   "bytes": 217
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isAsteriskDelimiterInListContext",
+   "line": 451,
+   "bytes": 272
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#V2",
+   "line": 453,
+   "bytes": 487
+  },
+  {
+   "src": "chat/ae.jsx#CHAT_CONTENT_MAX_WIDTH_PX",
+   "line": 8,
+   "bytes": 31
+  },
+  {
+   "src": "chat/ae.jsx#W2",
+   "line": 12,
+   "bytes": 666
+  },
+  {
+   "src": "chat/ae.jsx#Ee",
+   "line": 30,
+   "bytes": 35
+  },
+  {
+   "src": "chat/ae.jsx#y3",
+   "line": 32,
+   "bytes": 38
+  },
+  {
+   "src": "chat/ae.jsx#ot",
+   "line": 34,
+   "bytes": 551
+  },
+  {
+   "src": "chat/ae.jsx#rt",
+   "line": 61,
+   "bytes": 346
+  },
+  {
+   "src": "chat/ae.jsx#Oe",
+   "line": 74,
+   "bytes": 566
+  },
+  {
+   "src": "chat/ae.jsx#scrollLockCount",
+   "line": 93,
+   "bytes": 19
+  },
+  {
+   "src": "chat/ae.jsx#ao",
+   "line": 103,
+   "bytes": 458
+  },
+  {
+   "src": "chat/ae.jsx#To",
+   "line": 118,
+   "bytes": 290
+  },
+  {
+   "src": "chat/ae.jsx#defaultMarkdownRenderOptions",
+   "line": 138,
+   "bytes": 201
+  },
+  {
+   "src": "chat/ae.jsx#R",
+   "line": 148,
+   "bytes": 60
+  },
+  {
+   "src": "chat/ae.jsx#Ae",
+   "line": 150,
+   "bytes": 1959
+  },
+  {
+   "src": "chat/mermaid-ghxkkrxx.js#mermaidGHXKKRXX",
+   "line": 4,
+   "bytes": 192
+  },
+  {
+   "src": "chat/st.jsx#trimTrailingNewlines",
+   "line": 8,
+   "bytes": 202
+  },
+  {
+   "src": "chat/st.jsx#LazyHighlightedCodeBlockBody",
+   "line": 21,
+   "bytes": 184
+  },
+  {
+   "src": "chat/st.jsx#st",
+   "line": 27,
+   "bytes": 2452
+  },
+  {
+   "src": "chat/co.jsx#co",
+   "line": 39,
+   "bytes": 4484
+  },
+  {
+   "src": "chat/fo.jsx#fo",
+   "line": 13,
+   "bytes": 3807
+  },
+  {
+   "src": "chat/te.jsx#Te",
+   "line": 15,
+   "bytes": 4728
+  },
+  {
+   "src": "chat/pe.jsx#Pe",
+   "line": 7,
+   "bytes": 3424
+  },
+  {
+   "src": "infra/dialog-content.jsx#subscribe",
+   "line": 33,
+   "bytes": 103
+  },
+  {
+   "src": "infra/dialog-content.jsx#cn",
+   "line": 38,
+   "bytes": 65
+  },
+  {
+   "src": "infra/dialog-content.jsx#splitMentionFilename",
+   "line": 41,
+   "bytes": 274
+  },
+  {
+   "src": "infra/dialog-content.jsx#Input",
+   "line": 53,
+   "bytes": 138
+  },
+  {
+   "src": "infra/dialog-content.jsx#cn$2",
+   "line": 58,
+   "bytes": 67
+  },
+  {
+   "src": "infra/dialog-content.jsx#MENU_ITEM_LAYOUT",
+   "line": 61,
+   "bytes": 103
+  },
+  {
+   "src": "infra/dialog-content.jsx#MENU_LABEL_LAYOUT",
+   "line": 63,
+   "bytes": 93
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuTrigger",
+   "line": 65,
+   "bytes": 223
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuContent",
+   "line": 74,
+   "bytes": 857
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuItem",
+   "line": 105,
+   "bytes": 886
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuLabel",
+   "line": 119,
+   "bytes": 213
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuRadioItem",
+   "line": 128,
+   "bytes": 946
+  },
+  {
+   "src": "infra/dialog-content.jsx#TooltipContent",
+   "line": 154,
+   "bytes": 1078
+  },
+  {
+   "src": "infra/dialog-content.jsx#buttonVariants",
+   "line": 191,
+   "bytes": 2508
+  },
+  {
+   "src": "infra/dialog-content.jsx#Button",
+   "line": 232,
+   "bytes": 474
+  },
+  {
+   "src": "infra/dialog-content.jsx#notify",
+   "line": 259,
+   "bytes": 68
+  },
+  {
+   "src": "infra/dialog-content.jsx#preparePreview",
+   "line": 262,
+   "bytes": 21
+  },
+  {
+   "src": "infra/dialog-content.jsx#registerBrowserHoverPreview",
+   "line": 263,
+   "bytes": 372
+  },
+  {
+   "src": "infra/dialog-content.jsx#getPreview",
+   "line": 276,
+   "bytes": 33
+  },
+  {
+   "src": "infra/dialog-content.jsx#useBrowserHoverPreview",
+   "line": 277,
+   "bytes": 1163
+  },
+  {
+   "src": "infra/dialog-content.jsx#useBrowserOverlayDialogProps",
+   "line": 320,
+   "bytes": 861
+  },
+  {
+   "src": "infra/dialog-content.jsx#dialogChromeButtonClassName",
+   "line": 350,
+   "bytes": 216
+  },
+  {
+   "src": "infra/dialog-content.jsx#DIALOG_CONTENT_SIZE_CLASSES",
+   "line": 352,
+   "bytes": 132
+  },
+  {
+   "src": "infra/dialog-content.jsx#DIALOG_CONTENT_LAYER_CLASSES",
+   "line": 358,
+   "bytes": 73
+  },
+  {
+   "src": "infra/dialog-content.jsx#Dialog",
+   "line": 362,
+   "bytes": 227
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogOverlay",
+   "line": 369,
+   "bytes": 353
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogContent",
+   "line": 381,
+   "bytes": 1561
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogHeader",
+   "line": 427,
+   "bytes": 205
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogFooter",
+   "line": 436,
+   "bytes": 509
+  },
+  {
+   "src": "infra/dialog-content.jsx#AlertDialog",
+   "line": 461,
+   "bytes": 167
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Ln",
+   "line": 5,
+   "bytes": 23
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#x",
+   "line": 6,
+   "bytes": 140
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#En",
+   "line": 10,
+   "bytes": 138
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Mn",
+   "line": 18,
+   "bytes": 54
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#nn$1",
+   "line": 19,
+   "bytes": 236
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#en$1",
+   "line": 30,
+   "bytes": 194
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Nn$1",
+   "line": 34,
+   "bytes": 239
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#yn$1",
+   "line": 42,
+   "bytes": 353
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Rn",
+   "line": 58,
+   "bytes": 239
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#rn$1",
+   "line": 73,
+   "bytes": 49
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#sn$1",
+   "line": 74,
+   "bytes": 51
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Un",
+   "line": 75,
+   "bytes": 390
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#on$1",
+   "line": 86,
+   "bytes": 361
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Wn$1",
+   "line": 99,
+   "bytes": 645
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#B",
+   "line": 122,
+   "bytes": 340
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Kn",
+   "line": 135,
+   "bytes": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Hn",
+   "line": 136,
+   "bytes": 25
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Dn",
+   "line": 137,
+   "bytes": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#wn$1",
+   "line": 138,
+   "bytes": 27
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#ln$1",
+   "line": 139,
+   "bytes": 545
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Gn$1",
+   "line": 167,
+   "bytes": 72
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#tn$1",
+   "line": 168,
+   "bytes": 137
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#an$1",
+   "line": 172,
+   "bytes": 552
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#S2",
+   "line": 191,
+   "bytes": 25
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn$1",
+   "line": 192,
+   "bytes": 26
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#u3",
+   "line": 193,
+   "bytes": 321
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Xn$1",
+   "line": 210,
+   "bytes": 2048
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn$1",
+   "line": 325,
+   "bytes": 710
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#vn$1",
+   "line": 348,
+   "bytes": 773
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$e$1",
+   "line": 373,
+   "bytes": 11
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#St",
+   "line": 374,
+   "bytes": 9
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn",
+   "line": 375,
+   "bytes": 12
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn",
+   "line": 376,
+   "bytes": 58
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#_n",
+   "line": 377,
+   "bytes": 90
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#qn",
+   "line": 378,
+   "bytes": 58
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$n",
+   "line": 379,
+   "bytes": 221
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Wn",
+   "line": 389,
+   "bytes": 173
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Zn",
+   "line": 395,
+   "bytes": 412
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Xn",
+   "line": 415,
+   "bytes": 753
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Jn",
+   "line": 442,
+   "bytes": 6
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#be",
+   "line": 443,
+   "bytes": 1185
+  },
+  {
+   "src": "chat/xn.js#xn",
+   "line": 5,
+   "bytes": 25
+  },
+  {
+   "src": "chat/highlighted-code-block-body.js#R",
+   "line": 5,
+   "bytes": 846
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_DEBOUNCE_DELAY_MS",
+   "line": 7,
+   "bytes": 31
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_INTERSECTION_ROOT_MARGIN",
+   "line": 9,
+   "bytes": 42
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_IDLE_TIMEOUT_MS",
+   "line": 11,
+   "bytes": 29
+  },
+  {
+   "src": "chat/nn.jsx#useLazyIntersectionRendering",
+   "line": 13,
+   "bytes": 4574
+  },
+  {
+   "src": "chat/nn.jsx#ZoomableDiagram",
+   "line": 125,
+   "bytes": 7301
+  },
+  {
+   "src": "chat/nn.jsx#po",
+   "line": 326,
+   "bytes": 4593
+  }
+ ],
+ "npmUnpaired": [
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#vn",
+   "line": 1,
+   "bytes": 16
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ve",
+   "line": 1,
+   "bytes": 24
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Cn",
+   "line": 1,
+   "bytes": 34
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Mn",
+   "line": 1,
+   "bytes": 29
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#xn",
+   "line": 1,
+   "bytes": 24
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Pn",
+   "line": 1,
+   "bytes": 34
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Nn",
+   "line": 1,
+   "bytes": 173
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#A",
+   "line": 1,
+   "bytes": 231
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#be",
+   "line": 1,
+   "bytes": 798
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ze",
+   "line": 1,
+   "bytes": 514
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#we",
+   "line": 1,
+   "bytes": 294
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ge",
+   "line": 1,
+   "bytes": 1217
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#oe",
+   "line": 1,
+   "bytes": 200
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#et",
+   "line": 1,
+   "bytes": 1821
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#rt",
+   "line": 1,
+   "bytes": 1368
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#re",
+   "line": 1,
+   "bytes": 326
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#se",
+   "line": 1,
+   "bytes": 368
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#st",
+   "line": 3,
+   "bytes": 453
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ke",
+   "line": 6,
+   "bytes": 234
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#it",
+   "line": 6,
+   "bytes": 472
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#dt",
+   "line": 7,
+   "bytes": 1822
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#pt",
+   "line": 7,
+   "bytes": 1448
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ft",
+   "line": 7,
+   "bytes": 416
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ho",
+   "line": 7,
+   "bytes": 80
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#go",
+   "line": 7,
+   "bytes": 75
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#yt",
+   "line": 7,
+   "bytes": 180
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#wt",
+   "line": 7,
+   "bytes": 182
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#kt",
+   "line": 7,
+   "bytes": 140
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#vt",
+   "line": 7,
+   "bytes": 150
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ct",
+   "line": 7,
+   "bytes": 312
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Mt",
+   "line": 7,
+   "bytes": 170
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#xt",
+   "line": 7,
+   "bytes": 170
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Pt",
+   "line": 7,
+   "bytes": 169
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Tt",
+   "line": 7,
+   "bytes": 169
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Nt",
+   "line": 7,
+   "bytes": 171
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#It",
+   "line": 7,
+   "bytes": 169
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#St",
+   "line": 7,
+   "bytes": 204
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Et",
+   "line": 7,
+   "bytes": 155
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#At",
+   "line": 7,
+   "bytes": 176
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Bt",
+   "line": 7,
+   "bytes": 160
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Lt",
+   "line": 7,
+   "bytes": 205
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Rt",
+   "line": 7,
+   "bytes": 156
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#jt",
+   "line": 7,
+   "bytes": 223
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Dt",
+   "line": 7,
+   "bytes": 148
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#$t",
+   "line": 7,
+   "bytes": 146
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#yo",
+   "line": 7,
+   "bytes": 1466
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ht",
+   "line": 7,
+   "bytes": 63
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#zt",
+   "line": 7,
+   "bytes": 63
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#qt",
+   "line": 7,
+   "bytes": 290
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Bo",
+   "line": 7,
+   "bytes": 139
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Do",
+   "line": 7,
+   "bytes": 14
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Oo",
+   "line": 8,
+   "bytes": 129
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Ho",
+   "line": 9,
+   "bytes": 20
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#zo",
+   "line": 9,
+   "bytes": 18
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#qo",
+   "line": 9,
+   "bytes": 22
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#_o",
+   "line": 9,
+   "bytes": 18
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Fo",
+   "line": 9,
+   "bytes": 17
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Uo",
+   "line": 9,
+   "bytes": 17
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Wo",
+   "line": 9,
+   "bytes": 18
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#q",
+   "line": 9,
+   "bytes": 15
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#pn",
+   "line": 9,
+   "bytes": 22
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Xo",
+   "line": 9,
+   "bytes": 21
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Jo",
+   "line": 9,
+   "bytes": 13
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#he",
+   "line": 9,
+   "bytes": 79
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#_e",
+   "line": 10,
+   "bytes": 139
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Yo",
+   "line": 10,
+   "bytes": 286
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#Qo",
+   "line": 12,
+   "bytes": 266
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#er",
+   "line": 14,
+   "bytes": 338
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#tr",
+   "line": 15,
+   "bytes": 327
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#nr",
+   "line": 15,
+   "bytes": 204
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#or",
+   "line": 15,
+   "bytes": 449
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#sr",
+   "line": 16,
+   "bytes": 81
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ir",
+   "line": 16,
+   "bytes": 338
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ar",
+   "line": 18,
+   "bytes": 130
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#lr",
+   "line": 18,
+   "bytes": 151
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#cr",
+   "line": 21,
+   "bytes": 132
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#xr",
+   "line": 21,
+   "bytes": 110
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#kn",
+   "line": 21,
+   "bytes": 2901
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/chunk-2LSFTLAB.js#ot",
+   "line": 21,
+   "bytes": 1729
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#H",
+   "line": 1,
+   "bytes": 243
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#y",
+   "line": 1,
+   "bytes": 588
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#b",
+   "line": 1,
+   "bytes": 260
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#x",
+   "line": 1,
+   "bytes": 315
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#M",
+   "line": 1,
+   "bytes": 47
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#p",
+   "line": 1,
+   "bytes": 9
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#h",
+   "line": 1,
+   "bytes": 9
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#d",
+   "line": 1,
+   "bytes": 9
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#$",
+   "line": 1,
+   "bytes": 31
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#E",
+   "line": 1,
+   "bytes": 117
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#A",
+   "line": 1,
+   "bytes": 126
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#f",
+   "line": 1,
+   "bytes": 326
+  },
+  {
+   "npm": "streamdown@1.6.2/package/dist/code-block-O5G73IWQ.js#le",
+   "line": 1,
+   "bytes": 516
+  }
+ ]
+}

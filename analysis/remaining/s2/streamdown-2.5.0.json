@@ -1,0 +1,173 @@
+{
+ "pkg": "streamdown@2.5.0",
+ "seed": [
+  "vendor-inline/minified/s2.js#be",
+  "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#be"
+ ],
+ "counts": {
+  "exact": 11,
+  "src-inline/npm-ext": 2,
+  "ext-same": 2
+ },
+ "conflicts": [],
+ "s2unpaired": [
+  "vendor-inline/minified/s2.js#Ln",
+  "vendor-inline/minified/s2.js#x",
+  "vendor-inline/minified/s2.js#En",
+  "vendor-inline/minified/s2.js#Mn",
+  "vendor-inline/minified/s2.js#nn$1",
+  "vendor-inline/minified/s2.js#en$1",
+  "vendor-inline/minified/s2.js#Nn$1",
+  "vendor-inline/minified/s2.js#yn$1",
+  "vendor-inline/minified/s2.js#Rn",
+  "vendor-inline/minified/s2.js#rn$1",
+  "vendor-inline/minified/s2.js#sn$1",
+  "vendor-inline/minified/s2.js#Un",
+  "vendor-inline/minified/s2.js#on$1",
+  "vendor-inline/minified/s2.js#Wn$1",
+  "vendor-inline/minified/s2.js#B",
+  "vendor-inline/minified/s2.js#Kn",
+  "vendor-inline/minified/s2.js#Hn",
+  "vendor-inline/minified/s2.js#Dn",
+  "vendor-inline/minified/s2.js#wn$1",
+  "vendor-inline/minified/s2.js#ln$1",
+  "vendor-inline/minified/s2.js#Gn$1",
+  "vendor-inline/minified/s2.js#tn$1",
+  "vendor-inline/minified/s2.js#an$1",
+  "vendor-inline/minified/s2.js#S2",
+  "vendor-inline/minified/s2.js#Fn$1",
+  "vendor-inline/minified/s2.js#u3",
+  "vendor-inline/minified/s2.js#Xn$1",
+  "vendor-inline/minified/s2.js#zn$1",
+  "vendor-inline/minified/s2.js#vn$1",
+  "vendor-inline/minified/s2.js#$e$1"
+ ],
+ "fallback": [],
+ "pairs": [
+  {
+   "src": "vendor-inline/minified/s2.js#be",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#be",
+   "verdict": "exact",
+   "via": "seed",
+   "bytes": 1185,
+   "srcLine": 443,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Jn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Jn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#be",
+   "bytes": 6,
+   "srcLine": 442,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor.js#visitParents",
+   "npm": "ext:unist-util-visit-parents#visitParents",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor-inline/minified/s2.js#be",
+   "srcLine": 21328
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Xn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Xn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#be",
+   "bytes": 753,
+   "srcLine": 415,
+   "npmLine": 2
+  },
+  {
+   "src": "global:Object",
+   "npm": "global:Object",
+   "verdict": "ext-same",
+   "via": "vendor-inline/minified/s2.js#be"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#qn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#qn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 58,
+   "srcLine": 378,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor.js#SKIP",
+   "npm": "ext:unist-util-visit-parents#SKIP",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "srcLine": 21327
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Wn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Wn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 173,
+   "srcLine": 389,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$n",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#$n",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 221,
+   "srcLine": 379,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Fn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 12,
+   "srcLine": 375,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Zn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#Zn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Xn",
+   "bytes": 412,
+   "srcLine": 395,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#_n",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#_n",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#qn",
+   "bytes": 90,
+   "srcLine": 377,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#zn",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#qn",
+   "bytes": 58,
+   "srcLine": 376,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#St",
+   "npm": "streamdown@2.5.0/package/dist/chunk-BO2N2NFS.js#St",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#Wn",
+   "bytes": 9,
+   "srcLine": 374,
+   "npmLine": 2
+  },
+  {
+   "src": "global:Set",
+   "npm": "global:Set",
+   "verdict": "ext-same",
+   "via": "vendor-inline/minified/s2.js#zn"
+  }
+ ]
+}

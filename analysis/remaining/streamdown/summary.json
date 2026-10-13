@@ -1,0 +1,3421 @@
+[
+ {
+  "pv": "streamdown@1.0.5",
+  "counts": {
+   "diff": 5,
+   "ext-same": 3,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 6,
+   "exact": 3
+  },
+  "conflicts": 4,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "diff": 2,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 30,
+    "exact": 1,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 16,
+    "exact": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 38,
+    "src-inline/npm-ext": 1,
+    "diff": 2
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.0.6",
+  "counts": {
+   "diff": 6,
+   "ext-same": 3,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 6,
+   "exact": 4
+  },
+  "conflicts": 5,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "diff": 2,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 30,
+    "exact": 1,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 16,
+    "exact": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 36,
+    "exact": 1,
+    "src-inline/npm-ext": 1,
+    "diff": 3
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.0.7",
+  "counts": {
+   "diff": 6,
+   "ext-same": 3,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 6,
+   "exact": 4
+  },
+  "conflicts": 5,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "diff": 2,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 30,
+    "exact": 1,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 16,
+    "exact": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 36,
+    "exact": 1,
+    "src-inline/npm-ext": 1,
+    "diff": 3
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.0.8",
+  "counts": {
+   "diff": 6,
+   "ext-same": 3,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 6,
+   "exact": 4
+  },
+  "conflicts": 5,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "diff": 2,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 30,
+    "exact": 1,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 16,
+    "exact": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 36,
+    "exact": 1,
+    "src-inline/npm-ext": 1,
+    "diff": 3
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.0.9",
+  "counts": {
+   "diff": 6,
+   "ext-same": 3,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 6,
+   "exact": 4
+  },
+  "conflicts": 5,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "diff": 2,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 30,
+    "exact": 1,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 16,
+    "exact": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 36,
+    "exact": 1,
+    "src-inline/npm-ext": 1,
+    "diff": 3
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.0.10",
+  "counts": {
+   "diff": 6,
+   "ext-same": 3,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 6,
+   "exact": 4
+  },
+  "conflicts": 5,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "diff": 2,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 30,
+    "exact": 1,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 16,
+    "exact": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 36,
+    "exact": 1,
+    "src-inline/npm-ext": 1,
+    "diff": 3
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.0.11",
+  "counts": {
+   "diff": 6,
+   "ext-same": 3,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 6,
+   "exact": 4
+  },
+  "conflicts": 5,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "diff": 2,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 30,
+    "exact": 1,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 16,
+    "exact": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 36,
+    "exact": 1,
+    "src-inline/npm-ext": 1,
+    "diff": 3
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.0.12",
+  "counts": {
+   "diff": 3,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 5,
+   "exact": 4
+  },
+  "conflicts": 22,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "src-inline/npm-ext": 1,
+    "diff": 2
+   },
+   "media-editing/wt.js": {
+    "unpaired": 29,
+    "exact": 2,
+    "src-inline/npm-ext": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 38,
+    "exact": 1,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.0",
+  "counts": {
+   "diff": 3,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 4,
+   "exact": 5
+  },
+  "conflicts": 23,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "exact": 1,
+    "diff": 2
+   },
+   "media-editing/wt.js": {
+    "unpaired": 29,
+    "exact": 2,
+    "src-inline/npm-ext": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 38,
+    "exact": 1,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.1",
+  "counts": {
+   "diff": 3,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 4,
+   "exact": 5
+  },
+  "conflicts": 23,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "exact": 1,
+    "diff": 2
+   },
+   "media-editing/wt.js": {
+    "unpaired": 29,
+    "exact": 2,
+    "src-inline/npm-ext": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 38,
+    "exact": 1,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.3",
+  "counts": {
+   "diff": 3,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 4,
+   "exact": 4
+  },
+  "conflicts": 22,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 64,
+    "exact": 1,
+    "diff": 2
+   },
+   "media-editing/wt.js": {
+    "unpaired": 29,
+    "exact": 2,
+    "src-inline/npm-ext": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 39,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.4",
+  "counts": {
+   "diff": 4,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 3,
+   "exact": 4
+  },
+  "conflicts": 20,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 63,
+    "diff": 3,
+    "exact": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 29,
+    "exact": 2,
+    "src-inline/npm-ext": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 39,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.5",
+  "counts": {
+   "diff": 4,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 3,
+   "exact": 4
+  },
+  "conflicts": 20,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 63,
+    "diff": 3,
+    "exact": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 29,
+    "exact": 2,
+    "src-inline/npm-ext": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 39,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.6",
+  "counts": {
+   "diff": 4,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 3,
+   "exact": 4
+  },
+  "conflicts": 20,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 63,
+    "diff": 3,
+    "exact": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 29,
+    "exact": 2,
+    "src-inline/npm-ext": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 39,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.7",
+  "counts": {
+   "diff": 4,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 3,
+   "exact": 4
+  },
+  "conflicts": 20,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 63,
+    "diff": 3,
+    "exact": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 29,
+    "exact": 2,
+    "src-inline/npm-ext": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 39,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.8",
+  "counts": {
+   "diff": 5,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 5,
+   "src-inline/npm-ext": 3,
+   "exact": 5
+  },
+  "conflicts": 25,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 62,
+    "diff": 3,
+    "exact": 2
+   },
+   "media-editing/wt.js": {
+    "unpaired": 28,
+    "exact": 2,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 39,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.9",
+  "counts": {
+   "diff": 5,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 5,
+   "src-inline/npm-ext": 4,
+   "exact": 5
+  },
+  "conflicts": 24,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 62,
+    "diff": 3,
+    "exact": 2
+   },
+   "media-editing/wt.js": {
+    "unpaired": 27,
+    "exact": 2,
+    "src-inline/npm-ext": 2,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 39,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.1.10",
+  "counts": {
+   "diff": 5,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 5,
+   "src-inline/npm-ext": 4,
+   "exact": 5
+  },
+  "conflicts": 24,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 62,
+    "diff": 3,
+    "exact": 2
+   },
+   "media-editing/wt.js": {
+    "unpaired": 27,
+    "exact": 2,
+    "src-inline/npm-ext": 2,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 39,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.2.0",
+  "counts": {
+   "diff": 9,
+   "ext-same": 4,
+   "src-ext/npm-inline": 1,
+   "ext-diff": 4,
+   "src-inline/npm-ext": 7,
+   "exact": 6
+  },
+  "conflicts": 35,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 58,
+    "diff": 6,
+    "exact": 2,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 27,
+    "exact": 2,
+    "src-inline/npm-ext": 2,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 39,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.3.0",
+  "counts": {
+   "diff": 15,
+   "ext-same": 3,
+   "ext-diff": 7,
+   "src-ext/npm-inline": 3,
+   "src-inline/npm-ext": 2,
+   "exact": 7
+  },
+  "conflicts": 28,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 54,
+    "diff": 10,
+    "exact": 3
+   },
+   "media-editing/wt.js": {
+    "unpaired": 28,
+    "exact": 2,
+    "src-inline/npm-ext": 1,
+    "diff": 1
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "diff": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 29,
+    "diff": 1,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 17
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.4.0",
+  "counts": {
+   "diff": 7,
+   "ext-same": 3,
+   "src-inline/npm-ext": 6,
+   "src-ext/npm-inline": 3,
+   "exact": 10,
+   "ext-diff": 2
+  },
+  "conflicts": 19,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 56,
+    "src-inline/npm-ext": 4,
+    "diff": 3,
+    "exact": 4
+   },
+   "media-editing/wt.js": {
+    "unpaired": 29,
+    "exact": 1,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 43
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "exact": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 15,
+    "exact": 1,
+    "diff": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "unpaired": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.5.0",
+  "counts": {
+   "diff": 14,
+   "ext-same": 7,
+   "src-inline/npm-ext": 6,
+   "exact": 18,
+   "ext-diff": 5
+  },
+  "conflicts": 22,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 55,
+    "exact": 5,
+    "diff": 6,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "src-inline/npm-ext": 2,
+    "unpaired": 26,
+    "exact": 1,
+    "diff": 3
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 29,
+    "exact": 2
+   },
+   "chat/ae.jsx": {
+    "unpaired": 12,
+    "exact": 4,
+    "diff": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.5.1",
+  "counts": {
+   "diff": 14,
+   "ext-same": 7,
+   "src-inline/npm-ext": 6,
+   "exact": 18,
+   "ext-diff": 5
+  },
+  "conflicts": 22,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 55,
+    "exact": 5,
+    "diff": 6,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "src-inline/npm-ext": 2,
+    "unpaired": 26,
+    "exact": 1,
+    "diff": 3
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 29,
+    "exact": 2
+   },
+   "chat/ae.jsx": {
+    "unpaired": 12,
+    "exact": 4,
+    "diff": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.0",
+  "counts": {
+   "diff": 43,
+   "ext-same": 23,
+   "exact": 37,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 10
+  },
+  "conflicts": 33,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 26,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.1",
+  "counts": {
+   "diff": 43,
+   "ext-same": 23,
+   "exact": 37,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 10
+  },
+  "conflicts": 33,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 26,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.2",
+  "counts": {
+   "diff": 43,
+   "ext-same": 26,
+   "exact": 38,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 9
+  },
+  "conflicts": 46,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 26,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.3",
+  "counts": {
+   "diff": 52,
+   "ext-same": 28,
+   "exact": 41,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 6
+  },
+  "conflicts": 46,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 26,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.4",
+  "counts": {
+   "diff": 52,
+   "ext-same": 28,
+   "exact": 41,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 6
+  },
+  "conflicts": 46,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 26,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.5",
+  "counts": {
+   "diff": 52,
+   "ext-same": 28,
+   "exact": 41,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 6
+  },
+  "conflicts": 46,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 26,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.6",
+  "counts": {
+   "diff": 52,
+   "ext-same": 28,
+   "exact": 41,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 6
+  },
+  "conflicts": 46,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 26,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.7",
+  "counts": {
+   "diff": 52,
+   "ext-same": 28,
+   "exact": 41,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 6
+  },
+  "conflicts": 46,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 26,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.8",
+  "counts": {
+   "diff": 52,
+   "ext-same": 28,
+   "exact": 41,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 8
+  },
+  "conflicts": 46,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 25,
+    "src-inline/npm-ext": 1,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.9",
+  "counts": {
+   "diff": 16,
+   "ext-same": 21,
+   "exact": 32,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 9
+  },
+  "conflicts": 38,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "exact": 8,
+    "diff": 9
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 25,
+    "src-inline/npm-ext": 1,
+    "exact": 5
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.10",
+  "counts": {
+   "diff": 13,
+   "ext-same": 21,
+   "exact": 26,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 10
+  },
+  "conflicts": 38,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 52,
+    "exact": 8,
+    "diff": 6,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "unpaired": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@1.6.11",
+  "counts": {
+   "diff": 13,
+   "ext-same": 11,
+   "exact": 16,
+   "ext-diff": 3,
+   "src-inline/npm-ext": 8
+  },
+  "conflicts": 21,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 56,
+    "exact": 5,
+    "diff": 5,
+    "src-inline/npm-ext": 1
+   },
+   "media-editing/wt.js": {
+    "unpaired": 25,
+    "diff": 2,
+    "exact": 5
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 15,
+    "diff": 1,
+    "exact": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "unpaired": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "unpaired": 2
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 31
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 41
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 3,
+    "unpaired": 3
+   }
+  }
+ },
+ {
+  "pv": "streamdown@2.0.0",
+  "counts": {
+   "diff": 17,
+   "ext-same": 26,
+   "exact": 31,
+   "ext-diff": 1,
+   "src-inline/npm-ext": 13,
+   "src-ext/npm-inline": 3
+  },
+  "conflicts": 38,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "src-inline/npm-ext": 2,
+    "exact": 9,
+    "diff": 6
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 40,
+    "src-inline/npm-ext": 1
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "diff": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 4,
+    "unpaired": 2
+   }
+  }
+ },
+ {
+  "pv": "streamdown@2.0.1",
+  "counts": {
+   "diff": 17,
+   "ext-same": 26,
+   "exact": 31,
+   "ext-diff": 1,
+   "src-inline/npm-ext": 13,
+   "src-ext/npm-inline": 3
+  },
+  "conflicts": 38,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 50,
+    "src-inline/npm-ext": 2,
+    "exact": 9,
+    "diff": 6
+   },
+   "media-editing/wt.js": {
+    "unpaired": 23,
+    "exact": 7,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 13,
+    "exact": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 40,
+    "src-inline/npm-ext": 1
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "diff": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 4,
+    "unpaired": 2
+   }
+  }
+ },
+ {
+  "pv": "streamdown@2.1.0",
+  "counts": {
+   "diff": 17,
+   "ext-same": 34,
+   "exact": 36,
+   "src-inline/npm-ext": 10
+  },
+  "conflicts": 13,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 49,
+    "exact": 10,
+    "diff": 8
+   },
+   "media-editing/wt.js": {
+    "unpaired": 20,
+    "exact": 9,
+    "diff": 3
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 10,
+    "exact": 6,
+    "diff": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 40,
+    "src-inline/npm-ext": 1
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 4,
+    "unpaired": 2
+   }
+  }
+ },
+ {
+  "pv": "streamdown@2.2.0",
+  "counts": {
+   "diff": 14,
+   "ext-same": 34,
+   "exact": 57,
+   "src-inline/npm-ext": 14,
+   "src-ext/npm-inline": 1
+  },
+  "conflicts": 15,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 45,
+    "exact": 14,
+    "diff": 8
+   },
+   "media-editing/wt.js": {
+    "unpaired": 14,
+    "exact": 16,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 10,
+    "exact": 6,
+    "diff": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 33,
+    "src-inline/npm-ext": 1,
+    "exact": 7
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 4,
+    "unpaired": 2
+   }
+  }
+ },
+ {
+  "pv": "streamdown@2.3.0",
+  "counts": {
+   "diff": 12,
+   "ext-same": 35,
+   "exact": 72,
+   "src-inline/npm-ext": 14,
+   "src-ext/npm-inline": 1
+  },
+  "conflicts": 9,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "unpaired": 38,
+    "exact": 21,
+    "diff": 8
+   },
+   "media-editing/wt.js": {
+    "exact": 16,
+    "unpaired": 14,
+    "diff": 2
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 10,
+    "exact": 6,
+    "diff": 1
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "unpaired": 3
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/fo.jsx": {
+    "unpaired": 1
+   },
+   "chat/te.jsx": {
+    "unpaired": 1
+   },
+   "chat/pe.jsx": {
+    "unpaired": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 33,
+    "src-inline/npm-ext": 1,
+    "exact": 7
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 4,
+    "unpaired": 2
+   }
+  }
+ },
+ {
+  "pv": "streamdown@2.4.0",
+  "counts": {
+   "diff": 17,
+   "ext-same": 48,
+   "exact": 159,
+   "src-inline/npm-ext": 16
+  },
+  "conflicts": 0,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "exact": 62,
+    "diff": 4,
+    "unpaired": 1
+   },
+   "media-editing/wt.js": {
+    "exact": 22,
+    "unpaired": 10
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 1,
+    "exact": 14,
+    "diff": 2
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "diff": 3
+   },
+   "chat/co.jsx": {
+    "exact": 2
+   },
+   "chat/fo.jsx": {
+    "exact": 1
+   },
+   "chat/te.jsx": {
+    "diff": 1
+   },
+   "chat/pe.jsx": {
+    "diff": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 29,
+    "src-inline/npm-ext": 1,
+    "exact": 8,
+    "diff": 3
+   },
+   "chat/xn.js": {
+    "exact": 1,
+    "unpaired": 1
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@2.5.0",
+  "counts": {
+   "exact": 176,
+   "ext-same": 48,
+   "src-inline/npm-ext": 16,
+   "diff": 3
+  },
+  "conflicts": 0,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "exact": 65,
+    "diff": 2
+   },
+   "media-editing/wt.js": {
+    "exact": 22,
+    "unpaired": 10
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 42,
+    "src-inline/npm-ext": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 1,
+    "exact": 16
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "exact": 2,
+    "diff": 1
+   },
+   "chat/co.jsx": {
+    "exact": 2
+   },
+   "chat/fo.jsx": {
+    "exact": 1
+   },
+   "chat/te.jsx": {
+    "exact": 1
+   },
+   "chat/pe.jsx": {
+    "exact": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 29,
+    "src-inline/npm-ext": 1,
+    "exact": 11
+   },
+   "chat/xn.js": {
+    "exact": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "exact": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 6
+   }
+  }
+ },
+ {
+  "pv": "streamdown@2.6.0",
+  "counts": {
+   "diff": 49,
+   "ext-same": 43,
+   "exact": 125,
+   "ext-diff": 1,
+   "src-inline/npm-ext": 15
+  },
+  "conflicts": 28,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "exact": 50,
+    "diff": 17
+   },
+   "media-editing/wt.js": {
+    "exact": 21,
+    "diff": 1,
+    "unpaired": 10
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 1,
+    "exact": 13,
+    "diff": 3
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "exact": 1,
+    "diff": 2
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "diff": 1
+   },
+   "chat/fo.jsx": {
+    "diff": 1
+   },
+   "chat/te.jsx": {
+    "diff": 1
+   },
+   "chat/pe.jsx": {
+    "diff": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 34,
+    "src-inline/npm-ext": 1,
+    "exact": 4,
+    "diff": 2
+   },
+   "chat/xn.js": {
+    "exact": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 5,
+    "diff": 1
+   }
+  }
+ },
+ {
+  "pv": "streamdown@2.7.0",
+  "counts": {
+   "diff": 54,
+   "ext-same": 43,
+   "exact": 114,
+   "ext-diff": 2,
+   "src-inline/npm-ext": 14
+  },
+  "conflicts": 51,
+  "perFile": {
+   "chat/streamdown.jsx": {
+    "exact": 50,
+    "diff": 17
+   },
+   "media-editing/wt.js": {
+    "exact": 21,
+    "diff": 1,
+    "unpaired": 10
+   },
+   "shared/jsx-runtime.js": {
+    "unpaired": 1
+   },
+   "settings/request-prompt-prefill.jsx": {
+    "unpaired": 41,
+    "src-inline/npm-ext": 1,
+    "exact": 1
+   },
+   "workspace/build-inspiration-media-showcase-collections.js": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "chat/ae.jsx": {
+    "unpaired": 1,
+    "exact": 12,
+    "diff": 4
+   },
+   "chat/mermaid-ghxkkrxx.js": {
+    "unpaired": 1
+   },
+   "chat/yt.js": {
+    "exact": 1
+   },
+   "chat/st.jsx": {
+    "exact": 1,
+    "diff": 2
+   },
+   "chat/co.jsx": {
+    "exact": 1,
+    "diff": 1
+   },
+   "chat/fo.jsx": {
+    "diff": 1
+   },
+   "chat/te.jsx": {
+    "diff": 1
+   },
+   "chat/pe.jsx": {
+    "diff": 1
+   },
+   "infra/dialog-content.jsx": {
+    "unpaired": 30,
+    "src-inline/npm-ext": 1
+   },
+   "vendor-inline/minified/s2.js": {
+    "unpaired": 34,
+    "src-inline/npm-ext": 1,
+    "exact": 4,
+    "diff": 2
+   },
+   "chat/xn.js": {
+    "exact": 2
+   },
+   "chat/highlighted-code-block-body.js": {
+    "unpaired": 1
+   },
+   "chat/nn.jsx": {
+    "exact": 4,
+    "diff": 2
+   }
+  }
+ }
+]

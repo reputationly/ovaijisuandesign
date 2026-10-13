@@ -1,0 +1,381 @@
+{
+ "pkg": "remend@1.0.2",
+ "seed": [
+  "vendor-inline/minified/s2.js#$e$1",
+  "remend@1.0.2/package/dist/index.js#Fn"
+ ],
+ "counts": {
+  "exact": 15,
+  "diff": 9,
+  "src-ext/npm-inline": 1
+ },
+ "conflicts": [
+  {
+   "s": "vendor.js#k",
+   "n": "remend@1.0.2/package/dist/index.js#u",
+   "via": "vendor-inline/minified/s2.js#vn$1",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "vendor-inline/minified/s2.js#zn$1"
+  },
+  {
+   "s": "global:Object",
+   "n": "global:Math",
+   "via": "vendor.js#gn$1",
+   "srcAlreadyPairedWith": "remend@1.0.2/package/dist/index.js#c",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "vendor.js#d",
+   "n": "remend@1.0.2/package/dist/index.js#c",
+   "via": "vendor-inline/minified/s2.js#nn$1",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:Object"
+  }
+ ],
+ "s2unpaired": [
+  "vendor-inline/minified/s2.js#Ln",
+  "vendor-inline/minified/s2.js#x",
+  "vendor-inline/minified/s2.js#yn$1",
+  "vendor-inline/minified/s2.js#sn$1",
+  "vendor-inline/minified/s2.js#Un",
+  "vendor-inline/minified/s2.js#on$1",
+  "vendor-inline/minified/s2.js#Wn$1",
+  "vendor-inline/minified/s2.js#B",
+  "vendor-inline/minified/s2.js#Gn$1",
+  "vendor-inline/minified/s2.js#tn$1",
+  "vendor-inline/minified/s2.js#an$1",
+  "vendor-inline/minified/s2.js#S2",
+  "vendor-inline/minified/s2.js#Fn$1",
+  "vendor-inline/minified/s2.js#u3",
+  "vendor-inline/minified/s2.js#Xn$1",
+  "vendor-inline/minified/s2.js#St",
+  "vendor-inline/minified/s2.js#Fn",
+  "vendor-inline/minified/s2.js#zn",
+  "vendor-inline/minified/s2.js#_n",
+  "vendor-inline/minified/s2.js#qn",
+  "vendor-inline/minified/s2.js#$n",
+  "vendor-inline/minified/s2.js#Wn",
+  "vendor-inline/minified/s2.js#Zn",
+  "vendor-inline/minified/s2.js#Xn",
+  "vendor-inline/minified/s2.js#Jn",
+  "vendor-inline/minified/s2.js#be"
+ ],
+ "fallback": [
+  {
+   "s": "vendor-inline/minified/s2.js#En",
+   "n": "remend@1.0.2/package/dist/index.js#sn",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Mn",
+   "n": "remend@1.0.2/package/dist/index.js#tn",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#nn$1",
+   "n": "remend@1.0.2/package/dist/index.js#D",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#en$1",
+   "n": "remend@1.0.2/package/dist/index.js#ln",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Nn$1",
+   "n": "remend@1.0.2/package/dist/index.js#on",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#rn$1",
+   "n": "remend@1.0.2/package/dist/index.js#F",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Kn",
+   "n": "remend@1.0.2/package/dist/index.js#fn",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Hn",
+   "n": "remend@1.0.2/package/dist/index.js#gn",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Dn",
+   "n": "remend@1.0.2/package/dist/index.js#dn",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#wn$1",
+   "n": "remend@1.0.2/package/dist/index.js#hn",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#ln$1",
+   "n": "remend@1.0.2/package/dist/index.js#K",
+   "field": "F"
+  }
+ ],
+ "pairs": [
+  {
+   "src": "vendor-inline/minified/s2.js#$e$1",
+   "npm": "remend@1.0.2/package/dist/index.js#Fn",
+   "verdict": "exact",
+   "via": "seed",
+   "bytes": 11,
+   "srcLine": 373,
+   "npmLine": 18
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#vn$1",
+   "npm": "remend@1.0.2/package/dist/index.js#mn",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#$e$1",
+   "bytes": 773,
+   "srcLine": 348,
+   "npmLine": 18,
+   "changedTokens": 299,
+   "totalTokens": 310,
+   "srcF": "var $D=(_L0,_L1)=>{var _L2;if(!_L0||typeof _L0!=\"string\")return _L0;let _L3=_L0.endsWith(\" \")&&!_L0.endsWith(\"  \")?_L0.slice(0,-1):_L0,_L4=«vendor-inline/minified/s2.js#zn$1»(_L1),_L5=((_L2=_L1==null?void 0:_L1.handlers)!=null?_L2:[]).map(_L6=>{var _L7;return{handler:«vendor.js#k»(«vendor.js#I»({},_L6),{priority:(_L7=_L6.priority)!=null?_L7:«vendor-inline/minified/s2.js#u3».DEFAULT}),earlyReturn:void 0};}),_L8=[..._L4,..._L5].sort((_L9,_L10)=>{var _L11,_L12;return((_L11=_L9.handler.priority)!=null?_L11:0)-((_L12=_L10.handler.priority)!=null?_L12:0);});for(let{handler:_L13,earlyReturn:_L14}of _L8)if(_L3=_L13.handle(_L3),_L14!=null&&_L14(_L3))return _L3;return _L3;};",
+   "npmF": "var $D=(_L0,_L1)=>{if(!_L0||typeof _L0!=\"string\")return _L0;let _L2=_L0.endsWith(\" \")&&!_L0.endsWith(\"  \")?_L0.slice(0,-1):_L0;if(«remend@1.0.2/package/dist/index.js#u»(_L1==null?void 0:_L1.setextHeadings)&&(_L2=«remend@1.0.2/package/dist/index.js#K»(_L2)),«remend@1.0.2/package/dist/index.js#u»(_L1==null?void 0:_L1.links)||«remend@1.0.2/package/dist/index.js#u»(_L1==null?void 0:_L1.images)){let _L3=«remend@1.0.2/package/dist/index.js#v»(_L2);if(_L3.endsWith(\"](streamdown:incomplete-link)\"))return _L3;_L2=_L3;}return «remend@1.0.2/package/dist/index.js#u»(_L1==null?void 0:_L1.boldItalic)&&(_L2=«remend@1.0.2/package/dist/index.js#E»(_L2)),«remend@1.0.2/package/dist/index.js#u»(_L1==null?void 0:_L1.bold)&&(_L2=«remend@1.0.2/package/dist/index.js#N»(_L2)),«remend@1.0.2/package/dist/index.js#u»(_L1==null?void 0:_L1.italic)&&(_L2=«remend@1.0.2/package/dist/index.js#w»(_L2),_L2=«remend@1.0.2/package/dist/index.js#L»(_L2),_L2=«remend@1.0.2/package/dist/index.js#R»(_L2)),«remend@1.0.2/package/dist/index.js#u»(_L1==null?void 0:_L1.inlineCode)&&(_L2=«remend@1.0.2/package/dist/index.js#D»(_L2)),«remend@1.0.2/package/dist/index.js#u»(_L1==null?void 0:_L1.strikethrough)&&(_L2=«remend@1.0.2/package/dist/index.js#y»(_L2)),«remend@1.0.2/package/dist/index.js#u»(_L1==null?void 0:_L1.katex)&&(_L2=«remend@1.0.2/package/dist/index.js#F»(_L2)),_L2;};"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn$1",
+   "npm": "remend@1.0.2/package/dist/index.js#u",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#vn$1",
+   "bytes": 710,
+   "srcLine": 325,
+   "npmLine": 18,
+   "changedTokens": 201,
+   "totalTokens": 211,
+   "srcF": "var $D=_L0=>{var _L1;let _L2=(_L1=_L0==null?void 0:_L0.linkMode)!=null?_L1:\"protocol\";return «vendor-inline/minified/s2.js#Xn$1».filter(({handler:_L3,optionKey:_L4})=>_L3.name===\"links\"?«vendor-inline/minified/s2.js#S2»(_L0==null?void 0:_L0.links)||«vendor-inline/minified/s2.js#S2»(_L0==null?void 0:_L0.images):_L3.name===\"inlineKatex\"?«vendor-inline/minified/s2.js#Fn$1»(_L0==null?void 0:_L0.inlineKatex):«vendor-inline/minified/s2.js#S2»(_L0==null?void 0:_L0[_L4])).map(({handler:_L5,earlyReturn:_L6})=>_L5.name===\"links\"?{handler:«vendor.js#k»(«vendor.js#I»({},_L5),{handle:_L7=>«vendor-inline/minified/s2.js#B»(_L7,_L2)}),earlyReturn:_L2===\"protocol\"?_L6:void 0}:{handler:_L5,earlyReturn:_L6});};",
+   "npmF": "var $D=_L0=>_L0!==false;"
+  },
+  {
+   "src": "vendor.js#I",
+   "npm": "remend@1.0.2/package/dist/index.js#E",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#vn$1",
+   "bytes": 187,
+   "srcLine": 39281,
+   "npmLine": 11,
+   "changedTokens": 106,
+   "totalTokens": 93,
+   "srcF": "var $D=(_L0,_L1)=>{for(var _L2 in _L1||(_L1={}))«vendor.js#dn$1».call(_L1,_L2)&&«vendor.js#O»(_L0,_L2,_L1[_L2]);if(«infra/from-vendor.js#$2»)for(var _L2 of «infra/from-vendor.js#$2»(_L1))«vendor.js#gn$1».call(_L1,_L2)&&«vendor.js#O»(_L0,_L2,_L1[_L2]);return _L0;};",
+   "npmF": "var $D=_L0=>{if(«remend@1.0.2/package/dist/index.js#_».test(_L0))return _L0;let _L1=_L0.match(«remend@1.0.2/package/dist/index.js#P»);if(!_L1)return _L0;let _L2=_L1[2],_L3=_L0.lastIndexOf(_L1[1]);return «remend@1.0.2/package/dist/index.js#rn»(_L0,_L2,_L3)?_L0:«remend@1.0.2/package/dist/index.js#G»(_L0)%2===1?«remend@1.0.2/package/dist/index.js#nn»(_L0)?_L0:`${_L0}***`:_L0;};"
+  },
+  {
+   "src": "infra/from-vendor.js#$2",
+   "npm": "remend@1.0.2/package/dist/index.js#rn",
+   "verdict": "diff",
+   "via": "vendor.js#I",
+   "bytes": 33,
+   "srcLine": 2574,
+   "npmLine": 11,
+   "changedTokens": 37,
+   "totalTokens": 42,
+   "srcF": "var $D=«global:Object».getOwnPropertySymbols;",
+   "npmF": "var $D=(_L0,_L1,_L2)=>!_L1||«remend@1.0.2/package/dist/index.js#c».test(_L1)||«remend@1.0.2/package/dist/index.js#g»(_L0,_L2)?true:«remend@1.0.2/package/dist/index.js#h»(_L0,_L2,\"*\");"
+  },
+  {
+   "src": "vendor.js#gn$1",
+   "npm": "remend@1.0.2/package/dist/index.js#G",
+   "verdict": "diff",
+   "via": "vendor.js#I",
+   "bytes": 44,
+   "srcLine": 39274,
+   "npmLine": 6,
+   "changedTokens": 70,
+   "totalTokens": 73,
+   "srcF": "var $D=«global:Object».prototype.propertyIsEnumerable;",
+   "npmF": "var $D=_L0=>{let _L1=0,_L2=0;for(let _L3=0;_L3<_L0.length;_L3+=1)_L0[_L3]===\"*\"?_L2+=1:(_L2>=3&&(_L1+=«global:Math».floor(_L2/3)),_L2=0);return _L2>=3&&(_L1+=«global:Math».floor(_L2/3)),_L1;};"
+  },
+  {
+   "src": "vendor.js#O",
+   "npm": "remend@1.0.2/package/dist/index.js#nn",
+   "verdict": "diff",
+   "via": "vendor.js#I",
+   "bytes": 144,
+   "srcLine": 39275,
+   "npmLine": 11,
+   "changedTokens": 68,
+   "totalTokens": 52,
+   "srcF": "var $D=(_L0,_L1,_L2)=>_L1 in _L0?«vendor.js#cn$1»(_L0,_L1,{enumerable:true,configurable:true,writable:true,value:_L2}):_L0[_L1]=_L2;",
+   "npmF": "var $D=_L0=>{let _L1=(_L0.match(/\\*\\*/g)||[]).length,_L2=«remend@1.0.2/package/dist/index.js#U»(_L0);return _L1%2===0&&_L2%2===0;};"
+  },
+  {
+   "src": "global:Object",
+   "npm": "remend@1.0.2/package/dist/index.js#c",
+   "verdict": "src-ext/npm-inline",
+   "via": "infra/from-vendor.js#$2",
+   "npmLine": 1
+  },
+  {
+   "src": "vendor.js#cn$1",
+   "npm": "remend@1.0.2/package/dist/index.js#U",
+   "verdict": "diff",
+   "via": "vendor.js#O",
+   "bytes": 28,
+   "srcLine": 39270,
+   "npmLine": 6,
+   "changedTokens": 103,
+   "totalTokens": 106,
+   "srcF": "var $D=«global:Object».defineProperty;",
+   "npmF": "var $D=_L0=>{let _L1=0,_L2=_L0.length;for(let _L3=0;_L3<_L2;_L3+=1){if(_L0[_L3]!==\"*\")continue;let _L4=_L3>0?_L0[_L3-1]:\"\",_L5=_L3<_L2-1?_L0[_L3+1]:\"\";«remend@1.0.2/package/dist/index.js#Y»(_L0,_L3,_L4,_L5)||(_L1+=1);}return _L1;};"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#En",
+   "npm": "remend@1.0.2/package/dist/index.js#sn",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 138,
+   "srcLine": 10,
+   "npmLine": 11
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Mn",
+   "npm": "remend@1.0.2/package/dist/index.js#tn",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 54,
+   "srcLine": 18,
+   "npmLine": 12
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#nn$1",
+   "npm": "remend@1.0.2/package/dist/index.js#D",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 236,
+   "srcLine": 19,
+   "npmLine": 12
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#en$1",
+   "npm": "remend@1.0.2/package/dist/index.js#ln",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 194,
+   "srcLine": 30,
+   "npmLine": 12
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Nn$1",
+   "npm": "remend@1.0.2/package/dist/index.js#on",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 239,
+   "srcLine": 34,
+   "npmLine": 12
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#rn$1",
+   "npm": "remend@1.0.2/package/dist/index.js#F",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 49,
+   "srcLine": 73,
+   "npmLine": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Kn",
+   "npm": "remend@1.0.2/package/dist/index.js#fn",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 15,
+   "srcLine": 135,
+   "npmLine": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Hn",
+   "npm": "remend@1.0.2/package/dist/index.js#gn",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 25,
+   "srcLine": 136,
+   "npmLine": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Dn",
+   "npm": "remend@1.0.2/package/dist/index.js#dn",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 15,
+   "srcLine": 137,
+   "npmLine": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#wn$1",
+   "npm": "remend@1.0.2/package/dist/index.js#hn",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 27,
+   "srcLine": 138,
+   "npmLine": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#ln$1",
+   "npm": "remend@1.0.2/package/dist/index.js#K",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 545,
+   "srcLine": 139,
+   "npmLine": 15
+  },
+  {
+   "src": "vendor.js#D$1",
+   "npm": "remend@1.0.2/package/dist/index.js#S",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#En",
+   "bytes": 24,
+   "srcLine": 39297,
+   "npmLine": 1
+  },
+  {
+   "src": "vendor.js#W$1",
+   "npm": "remend@1.0.2/package/dist/index.js#M",
+   "verdict": "exact",
+   "via": "vendor-inline/minified/s2.js#nn$1",
+   "bytes": 20,
+   "srcLine": 39292,
+   "npmLine": 1
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#L",
+   "npm": "remend@1.0.2/package/dist/index.js#H",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#nn$1",
+   "bytes": 379,
+   "srcLine": 125,
+   "npmLine": 11,
+   "changedTokens": 43,
+   "totalTokens": 104,
+   "srcF": "var $D=_L0=>{let _L1=0;for(let _L2=0;_L2<_L0.length;_L2+=1){if(_L0[_L2]===\"\\\\\"&&_L2+1<_L0.length&&_L0[_L2+1]===\"`\"){_L2+=1;continue;}_L0[_L2]===\"`\"&&!«workspace/build-inspiration-media-showcase-collections.js#isFenceMarkerAtPosition»(_L0,_L2)&&(_L1+=1);}return _L1;};",
+   "npmF": "var $D=_L0=>{let _L1=0;for(let _L2=0;_L2<_L0.length;_L2+=1)_L0[_L2]===\"`\"&&!«remend@1.0.2/package/dist/index.js#en»(_L0,_L2)&&(_L1+=1);return _L1;};"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Rn",
+   "npm": "remend@1.0.2/package/dist/index.js#cn",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#rn$1",
+   "bytes": 239,
+   "srcLine": 58,
+   "npmLine": 12,
+   "changedTokens": 21,
+   "totalTokens": 76,
+   "srcF": "var $D=_L0=>{if(_L0.endsWith(\"$\")&&!_L0.endsWith(\"$$\"))return`${_L0}$`;let _L1=_L0.indexOf(\"$$\");return _L1!==-1&&_L0.indexOf(`\\u000a`,_L1)!==-1&&!_L0.endsWith(`\\u000a`)?`${_L0}\\u000a$$`:`${_L0}$$`;};",
+   "npmF": "var $D=_L0=>{let _L1=_L0.indexOf(\"$$\");return _L1!==-1&&_L0.indexOf(`\\u000a`,_L1)!==-1&&!_L0.endsWith(`\\u000a`)?`${_L0}\\u000a$$`:`${_L0}$$`;};"
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isFenceMarkerAtPosition",
+   "npm": "remend@1.0.2/package/dist/index.js#en",
+   "verdict": "exact",
+   "via": "workspace/build-inspiration-media-showcase-collections.js#L",
+   "bytes": 425,
+   "srcLine": 119,
+   "npmLine": 11
+  }
+ ]
+}

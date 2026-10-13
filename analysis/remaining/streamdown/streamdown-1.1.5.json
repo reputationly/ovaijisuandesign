@@ -1,0 +1,1962 @@
+{
+ "pkg": "streamdown@1.1.5",
+ "counts": {
+  "diff": 4,
+  "ext-same": 4,
+  "src-ext/npm-inline": 1,
+  "ext-diff": 3,
+  "src-inline/npm-ext": 3,
+  "exact": 4
+ },
+ "perFile": {
+  "chat/streamdown.jsx": {
+   "unpaired": 63,
+   "diff": 3,
+   "exact": 1
+  },
+  "media-editing/wt.js": {
+   "unpaired": 29,
+   "exact": 2,
+   "src-inline/npm-ext": 1
+  },
+  "shared/jsx-runtime.js": {
+   "unpaired": 1
+  },
+  "settings/request-prompt-prefill.jsx": {
+   "unpaired": 43
+  },
+  "workspace/build-inspiration-media-showcase-collections.js": {
+   "unpaired": 30,
+   "exact": 1
+  },
+  "chat/ae.jsx": {
+   "unpaired": 17
+  },
+  "chat/mermaid-ghxkkrxx.js": {
+   "unpaired": 1
+  },
+  "chat/yt.js": {
+   "unpaired": 1
+  },
+  "chat/st.jsx": {
+   "unpaired": 3
+  },
+  "chat/co.jsx": {
+   "unpaired": 2
+  },
+  "chat/fo.jsx": {
+   "unpaired": 1
+  },
+  "chat/te.jsx": {
+   "unpaired": 1
+  },
+  "chat/pe.jsx": {
+   "unpaired": 1
+  },
+  "infra/dialog-content.jsx": {
+   "unpaired": 31
+  },
+  "vendor-inline/minified/s2.js": {
+   "unpaired": 39,
+   "src-inline/npm-ext": 1,
+   "diff": 1
+  },
+  "chat/xn.js": {
+   "unpaired": 2
+  },
+  "chat/highlighted-code-block-body.js": {
+   "unpaired": 1
+  },
+  "chat/nn.jsx": {
+   "unpaired": 6
+  }
+ },
+ "conflicts": [
+  {
+   "s": "ext:react#useMemo",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": "ext:react#useMemo",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "ext:react#useMemo",
+   "n": "streamdown@1.1.5/package/dist/index.js#U",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": "ext:react#useMemo",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "ext:react/jsx-runtime#jsx",
+   "n": "ext:remark-math#default",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "srcAlreadyPairedWith": "ext:remark-gfm#default",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "vendor.js#defaultSchema",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:JSON"
+  },
+  {
+   "s": "vendor.js#defaultSchema",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:JSON"
+  },
+  {
+   "s": "chat/streamdown.jsx#hrefProtocols",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:JSON"
+  },
+  {
+   "s": "chat/streamdown.jsx#defaultHrefProtocols",
+   "n": "streamdown@1.1.5/package/dist/index.js#s",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "vendor-inline/minified/s2.js#be"
+  },
+  {
+   "s": "vendor.js#defaultSchema",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:JSON"
+  },
+  {
+   "s": "chat/streamdown.jsx#defaultHrefProtocols",
+   "n": "streamdown@1.1.5/package/dist/index.js#s",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "vendor-inline/minified/s2.js#be"
+  },
+  {
+   "s": "chat/streamdown.jsx#hrefProtocols",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:JSON"
+  },
+  {
+   "s": "vendor.js#defaultSchema",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:JSON"
+  },
+  {
+   "s": "chat/streamdown.jsx#codeAttributes",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:JSON"
+  },
+  {
+   "s": "chat/streamdown.jsx#defaultCodeAttributes",
+   "n": "streamdown@1.1.5/package/dist/index.js#s",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "vendor-inline/minified/s2.js#be"
+  },
+  {
+   "s": "vendor.js#defaultSchema",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:JSON"
+  },
+  {
+   "s": "chat/streamdown.jsx#defaultCodeAttributes",
+   "n": "streamdown@1.1.5/package/dist/index.js#s",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "vendor-inline/minified/s2.js#be"
+  },
+  {
+   "s": "chat/streamdown.jsx#codeAttributes",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "global:JSON"
+  },
+  {
+   "s": "chat/ae.jsx#Ee",
+   "n": "streamdown@1.1.5/package/dist/index.js#Ee",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#Be"
+  },
+  {
+   "s": "chat/ae.jsx#R",
+   "n": "streamdown@1.1.5/package/dist/index.js#Ee",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#Be"
+  },
+  {
+   "s": "infra/dialog-content.jsx#twMerge",
+   "n": "streamdown@1.1.5/package/dist/index.js#Ee",
+   "via": "fallback-F",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "media-editing/wt.js#Be"
+  },
+  {
+   "s": "ext:react#createContext",
+   "n": "streamdown@1.1.5/package/dist/index.js#Ke",
+   "via": "media-editing/wt.js#Be",
+   "srcAlreadyPairedWith": "ext:react#createContext",
+   "npmAlreadyPairedWith": null
+  }
+ ],
+ "fallback": [
+  {
+   "s": "chat/streamdown.jsx#languageClassPattern",
+   "n": "streamdown@1.1.5/package/dist/index.js#ee",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#nt",
+   "n": "streamdown@1.1.5/package/dist/index.js#H",
+   "field": "F"
+  },
+  {
+   "s": "media-editing/wt.js#Be",
+   "n": "streamdown@1.1.5/package/dist/index.js#Ee",
+   "field": "F"
+  },
+  {
+   "s": "workspace/build-inspiration-media-showcase-collections.js#isFenceMarkerAtPosition",
+   "n": "streamdown@1.1.5/package/dist/index.js#we",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#Ee",
+   "n": "streamdown@1.1.5/package/dist/index.js#Ee",
+   "field": "F"
+  },
+  {
+   "s": "chat/ae.jsx#R",
+   "n": "streamdown@1.1.5/package/dist/index.js#Ee",
+   "field": "F"
+  },
+  {
+   "s": "infra/dialog-content.jsx#twMerge",
+   "n": "streamdown@1.1.5/package/dist/index.js#Ee",
+   "field": "F"
+  }
+ ],
+ "pairs": [
+  {
+   "src": "chat/streamdown.jsx#Streamdown",
+   "npm": "streamdown@1.1.5/package/dist/index.js#Oe",
+   "verdict": "diff",
+   "via": "seed",
+   "bytes": 13458,
+   "srcLine": 1391,
+   "npmLine": 5,
+   "changedTokens": 1853,
+   "totalTokens": 2022,
+   "srcF": "var $D=«ext:react#memo»(({children:_L0,mode:_L1=\"streaming\",dir:_L2,parseIncompleteMarkdown:_L3=true,normalizeHtmlIndentation:_L4=false,components:_L5,rehypePlugins:_L6=«chat/streamdown.jsx#defaultRehypePlugins»,remarkPlugins:_L7=«chat/streamdown.jsx#defaultRemarkPlugins»,className:_L8,shikiTheme:_L9=«chat/xn.js#vn»,mermaid:_L10,controls:_L11=true,isAnimating:_L12=false,animated:_L13,BlockComponent:_L14=«chat/streamdown.jsx#defaultBlockRenderer»,parseMarkdownIntoBlocksFn:_L15=«vendor.js#kt»,caret:_L16,plugins:_L17,remend:_L18,linkSafety:_L19=«chat/xn.js#xn»,lineNumbers:_L20=true,allowedTags:_L21,literalTagContent:_L22,translations:_L23,icons:_L24,prefix:_L25,onAnimationStart:_L26,onAnimationEnd:_L27,..._L28})=>{let _L29=«ext:react#useId»(),[_L30,_L31]=«ext:react#useTransition»(),_L32=«ext:react#useMemo»(()=>«chat/streamdown.jsx#createClassNameMerger»(_L25),[_L25]),_L33=«ext:react#useRef»(null),_L34=«ext:react#useRef»(_L26),_L35=«ext:react#useRef»(_L27);_L34.current=_L26,_L35.current=_L27,«ext:react#useEffect»(()=>{var _L36,_L37,_L38;if(_L1===\"static\")return;let _L39=_L33.current;if(_L33.current=_L12,_L39===null){_L12&&((_L36=_L34.current)==null||_L36.call(_L34));return;}_L12&&!_L39?(_L37=_L34.current)==null||_L37.call(_L34):!_L12&&_L39&&((_L38=_L35.current)==null||_L38.call(_L35));},[_L12,_L1]);let _L40=«ext:react#useMemo»(()=>_L21?«global:Object».keys(_L21):[],[_L21]),_L41=«ext:react#useMemo»(()=>{if(typeof _L0!=\"string\")return\"\";let _L42=_L1===\"streaming\"&&_L3?«vendor-inline/minified/s2.js#$e$1»(_L0,_L18):_L0;return _L22&&_L22.length>0&&(_L42=«vendor.js#cn»(_L42,_L22)),_L40.length>0&&(_L42=«vendor.js#ln»(_L42,_L40)),_L42;},[_L0,_L1,_L3,_L18,_L40,_L22]),_L43=«ext:react#useMemo»(()=>_L15(_L41),[_L41,_L15]),[_L44,_L45]=«ext:react#useState»(_L43);«ext:react#useEffect»(()=>{_L1===\"streaming\"&&!_L46?_L31(()=>{_L45(_L43);}):_L45(_L43);},[_L43,_L1]);let _L47=_L1===\"streaming\"?_L44:_L43,_L48=«ext:react#useMemo»(()=>_L2===\"auto\"?_L47.map(«chat/streamdown.jsx#getTextDirection»):void 0,[_L47,_L2]),_L49=«ext:react#useMemo»(()=>_L47.map((_L50,_L51)=>`${_L29}-${_L51}`),[_L47.length,_L29]),_L52=«ext:react#useMemo»(()=>_L13===true?\"true\":_L13?«global:JSON».stringify(_L13):\"\",[_L13]),_L46=«ext:react#useMemo»(()=>_L52?_L52===\"true\"?«vendor-inline/minified/s2.js#be»():«vendor-inline/minified/s2.js#be»(_L13):null,[_L52]),_L53=«ext:react#useMemo»(()=>{var _L54,_L55;return{shikiTheme:(_L55=(_L54=_L17==null?void 0:_L17.code)==null?void 0:_L54.getThemes())!=null?_L55:_L9,controls:_L11,isAnimating:_L12,lineNumbers:_L20,mode:_L1,mermaid:_L10,linkSafety:_L19};},[_L9,_L11,_L12,_L20,_L1,_L10,_L19,_L17==null?void 0:_L17.code]),_L56=«ext:react#useMemo»(()=>_L23?«global:JSON».stringify(_L23):\"\",[_L23]),_L57=«ext:react#useMemo»(()=>({...«media-editing/wt.js#De»,..._L23}),[_L56]),_L58=«ext:react#useMemo»(()=>{let{inlineCode:_L59,..._L60}=_L5!=null?_L5:{},_L61={...«chat/streamdown.jsx#markdownComponents»,..._L60};if(_L59){let _L62=_L61.code;_L61.code=_L63=>\"data-block\"in _L63?_L62?«ext:react#createElement»(_L62,_L63):null:«ext:react#createElement»(_L59,_L63);}return _L61;},[_L5]),_L64=«ext:react#useMemo»(()=>{let _L65=[];return _L17!=null&&_L17.cjk&&(_L65=[..._L65,..._L17.cjk.remarkPluginsBefore]),_L65=[..._L65,..._L7],_L17!=null&&_L17.cjk&&(_L65=[..._L65,..._L17.cjk.remarkPluginsAfter]),_L17!=null&&_L17.math&&(_L65=[..._L65,_L17.math.remarkPlugin]),_L65;},[_L7,_L17==null?void 0:_L17.math,_L17==null?void 0:_L17.cjk]),_L66=«ext:react#useMemo»(()=>{var _L67;let _L68=_L6;if(_L21&&«global:Object».keys(_L21).length>0&&_L6===«chat/streamdown.jsx#defaultRehypePlugins»){let _L69={...«chat/streamdown.jsx#markdownSanitizationSchema»,tagNames:[...((_L67=«chat/streamdown.jsx#markdownSanitizationSchema».tagNames)!=null?_L67:[]),...«global:Object».keys(_L21)],attributes:{...«chat/streamdown.jsx#markdownSanitizationSchema».attributes,..._L21}};_L68=[«chat/streamdown.jsx#rehypePluginRegistry».raw,[«settings/request-prompt-prefill.jsx#rehypeSanitize»,_L69],«chat/streamdown.jsx#rehypePluginRegistry».harden];}return _L22&&_L22.length>0&&(_L68=[..._L68,[«vendor.js#mn»,_L22]]),_L17!=null&&_L17.math&&(_L68=[..._L68,_L17.math.rehypePlugin]),_L46&&_L12&&(_L68=[..._L68,_L46.rehypePlugin]),_L68;},[_L6,_L17==null?void 0:_L17.math,_L46,_L12,_L21,_L22]),_L70=«ext:react#useMemo»(()=>{if(!_L12||_L47.length===0)return false;let _L71=_L47.at(-1);return «chat/streamdown.jsx#hasUnclosedCodeFence»(_L71)||«chat/streamdown.jsx#hasTableSeparator»(_L71);},[_L12,_L47]),_L72=«ext:react#useMemo»(()=>_L16&&_L12&&!_L70?{\"--streamdown-caret\":`\"${«chat/streamdown.jsx#caretMarkers»[_L16]}\"`}:void 0,[_L16,_L12,_L70]);return _L1===\"static\"?«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Be».Provider,{value:_L57,children:«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Ve».Provider,{value:_L17!=null?_L17:null,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#R».Provider,{value:_L53,children:«ext:react/jsx-runtime#jsx»(«vendor.js#at»,{icons:_L24,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#Ee».Provider,{value:_L32,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:_L32(\"space-y-4 whitespace-normal [&>*:first-child]:mt-0 [&>*:last-child]:mb-0\",_L8),dir:_L2===\"auto\"?«chat/streamdown.jsx#getTextDirection»(_L41):_L2,children:«ext:react/jsx-runtime#jsx»(«chat/streamdown.jsx#MarkdownBlockRenderer»,{components:_L58,rehypePlugins:_L66,remarkPlugins:_L64,..._L28,children:_L41})})})})})})}):«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Be».Provider,{value:_L57,children:«ext:react/jsx-runtime#jsx»(«media-editing/wt.js#Ve».Provider,{value:_L17!=null?_L17:null,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#R».Provider,{value:_L53,children:«ext:react/jsx-runtime#jsx»(«vendor.js#at»,{icons:_L24,children:«ext:react/jsx-runtime#jsx»(«chat/ae.jsx#Ee».Provider,{value:_L32,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:_L32(\"space-y-4 whitespace-normal [&>*:first-child]:mt-0 [&>*:last-child]:mb-0\",_L16&&!_L70?\"[&>*:last-child]:after:inline [&>*:last-child]:after:align-baseline [&>*:last-child]:after:content-[var(--streamdown-caret)]\":null,_L8),style:_L72,children:[_L47.length===0&&_L16&&_L12&&«ext:react/jsx-runtime#jsx»(\"span\",{}),_L47.map((_L73,_L74)=>{var _L75;let _L76=_L74===_L47.length-1,_L77=_L12&&_L76&&«chat/streamdown.jsx#hasUnclosedCodeFence»(_L73);return «ext:react/jsx-runtime#jsx»(_L14,{animatePlugin:_L46,components:_L58,content:_L73,dir:(_L75=_L48==null?void 0:_L48[_L74])!=null?_L75:_L2!==\"auto\"?_L2:void 0,index:_L74,isIncomplete:_L77,rehypePlugins:_L66,remarkPlugins:_L64,shouldNormalizeHtmlIndentation:_L4,shouldParseIncompleteMarkdown:_L3,..._L28},_L49[_L74]);})]})})})})})});},(_L78,_L79)=>_L78.children===_L79.children&&_L78.shikiTheme===_L79.shikiTheme&&_L78.isAnimating===_L79.isAnimating&&_L78.animated===_L79.animated&&_L78.mode===_L79.mode&&_L78.plugins===_L79.plugins&&_L78.className===_L79.className&&_L78.linkSafety===_L79.linkSafety&&_L78.lineNumbers===_L79.lineNumbers&&_L78.normalizeHtmlIndentation===_L79.normalizeHtmlIndentation&&_L78.literalTagContent===_L79.literalTagContent&&«global:JSON».stringify(_L78.translations)===«global:JSON».stringify(_L79.translations)&&_L78.prefix===_L79.prefix&&_L78.dir===_L79.dir);",
+   "npmF": "var $D=«ext:react#memo»(({children:_L0,allowedImagePrefixes:_L1,allowedLinkPrefixes:_L2,defaultOrigin:_L3,parseIncompleteMarkdown:_L4=true,components:_L5,rehypePlugins:_L6,remarkPlugins:_L7,className:_L8,shikiTheme:_L9=[\"github-light\",\"github-dark\"],..._L10})=>{let _L11=«ext:react#useId»(),_L12=«ext:react#useMemo»(()=>«streamdown@1.1.5/package/dist/index.js#D»(typeof _L0==\"string\"?_L0:\"\"),[_L0]),_L13=«ext:react#useMemo»(()=>()=>«ext:rehype-katex#default»({errorColor:\"var(--color-muted-foreground)\"}),[]);return «ext:react/jsx-runtime#jsx»(«streamdown@1.1.5/package/dist/index.js#T».Provider,{value:_L9,children:«ext:react/jsx-runtime#jsx»(\"div\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"space-y-4\",_L8),..._L10,children:_L12.map((_L14,_L15)=>«ext:react/jsx-runtime#jsx»(«streamdown@1.1.5/package/dist/index.js#U»,{allowedImagePrefixes:_L1!=null?_L1:[\"*\"],allowedLinkPrefixes:_L2!=null?_L2:[\"*\"],components:{...«streamdown@1.1.5/package/dist/index.js#R»,..._L5},content:_L14,defaultOrigin:_L3,rehypePlugins:[_L13,...(_L6!=null?_L6:[])],remarkPlugins:[«ext:remark-gfm#default»,«ext:remark-math#default»,...(_L7!=null?_L7:[])],shouldParseIncompleteMarkdown:_L4},`${_L11}-block_${_L15}`))})});},(_L16,_L17)=>_L16.children===_L17.children&&_L16.shikiTheme===_L17.shikiTheme);"
+  },
+  {
+   "src": "ext:react#memo",
+   "npm": "ext:react#memo",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useId",
+   "npm": "ext:react#useId",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "ext:react#useMemo",
+   "npm": "ext:react#useMemo",
+   "verdict": "ext-same",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "global:Object",
+   "npm": "streamdown@1.1.5/package/dist/index.js#D",
+   "verdict": "src-ext/npm-inline",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "npmLine": 1
+  },
+  {
+   "src": "ext:react#useState",
+   "npm": "ext:rehype-katex#default",
+   "verdict": "ext-diff",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "chat/streamdown.jsx#getTextDirection",
+   "npm": "streamdown@1.1.5/package/dist/index.js#T",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 465,
+   "srcLine": 55,
+   "npmLine": 5,
+   "changedTokens": 83,
+   "totalTokens": 83,
+   "srcF": "function $D(_L0){let _L1=_L0.replace(/^#{1,6}\\s+/gm,\"\").replace(/(\\*{1,3}|_{1,3})/g,\"\").replace(/`[^`]*`/g,\"\").replace(/\\[([^\\]]*)\\]\\([^)]*\\)/g,\"$1\").replace(/^[\\s>*\\-+\\d.]+/gm,\"\");for(let _L2 of _L1){if(«chat/streamdown.jsx#rtlCharacterPattern».test(_L2))return\"rtl\";if(«chat/streamdown.jsx#unicodeLetterPattern».test(_L2))return\"ltr\";}return\"ltr\";}",
+   "npmF": "var $D=«ext:react#createContext»([\"github-light\",\"github-dark\"]);"
+  },
+  {
+   "src": "global:JSON",
+   "npm": "ext:react/jsx-runtime#jsx",
+   "verdict": "ext-diff",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#be",
+   "npm": "streamdown@1.1.5/package/dist/index.js#s",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 1185,
+   "srcLine": 443,
+   "npmLine": 1,
+   "changedTokens": 282,
+   "totalTokens": 297,
+   "srcF": "function $D(_L0){var _L1,_L2,_L3,_L4,_L5;let _L6={animation:(_L1=_L0==null?void 0:_L0.animation)!=null?_L1:\"fadeIn\",duration:(_L2=_L0==null?void 0:_L0.duration)!=null?_L2:150,easing:(_L3=_L0==null?void 0:_L0.easing)!=null?_L3:\"ease\",sep:(_L4=_L0==null?void 0:_L0.sep)!=null?_L4:\"word\",stagger:(_L5=_L0==null?void 0:_L0.stagger)!=null?_L5:40},_L7={prevContentLength:0,lastRenderCharCount:0},_L8=«vendor-inline/minified/s2.js#Jn»++,_L9=()=>_L10=>{let _L11={count:0,newIndex:0};«vendor.js#visitParents»(_L10,\"text\",(_L12,_L13)=>«vendor-inline/minified/s2.js#Xn»(_L12,_L13,_L6,_L7,_L11)),_L7.lastRenderCharCount=_L11.count,_L7.prevContentLength=0;};return «global:Object».defineProperty(_L9,\"name\",{value:`rehypeAnimate$${_L8}`}),{name:\"animate\",type:\"animate\",rehypePlugin:_L9,setPrevContentLength(_L14){_L7.prevContentLength=_L14;},getLastRenderCharCount(){let _L15=_L7.lastRenderCharCount;return _L7.lastRenderCharCount=0,_L15;}};}",
+   "npmF": "var $D=(..._L0)=>«ext:tailwind-merge#twMerge»(«ext:clsx#clsx»(_L0));"
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownSanitizationSchema",
+   "npm": "streamdown@1.1.5/package/dist/index.js#R",
+   "verdict": "diff",
+   "via": "chat/streamdown.jsx#Streamdown",
+   "bytes": 584,
+   "srcLine": 1279,
+   "npmLine": 1,
+   "changedTokens": 1110,
+   "totalTokens": 1160,
+   "srcF": "var $D={...«vendor.js#defaultSchema»,protocols:{...«vendor.js#defaultSchema».protocols,href:[...((«chat/streamdown.jsx#hrefProtocols»=(«chat/streamdown.jsx#defaultHrefProtocols»=«vendor.js#defaultSchema».protocols)==null?void 0:«chat/streamdown.jsx#defaultHrefProtocols».href)!=null?«chat/streamdown.jsx#hrefProtocols»:[]),\"tel\"]},attributes:{...«vendor.js#defaultSchema».attributes,code:[...((«chat/streamdown.jsx#codeAttributes»=(«chat/streamdown.jsx#defaultCodeAttributes»=«vendor.js#defaultSchema».attributes)==null?void 0:«chat/streamdown.jsx#defaultCodeAttributes».code)!=null?«chat/streamdown.jsx#codeAttributes»:[]),\"metastring\"]}};",
+   "npmF": "var $D={ol:({node:_L0,children:_L1,className:_L2,..._L3})=>«ext:react/jsx-runtime#jsx»(\"ol\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"ml-4 list-outside list-decimal\",_L2),\"data-streamdown\":\"ordered-list\",..._L3,children:_L1}),li:({node:_L4,children:_L5,className:_L6,..._L7})=>«ext:react/jsx-runtime#jsx»(\"li\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"py-1\",_L6),\"data-streamdown\":\"list-item\",..._L7,children:_L5}),ul:({node:_L8,children:_L9,className:_L10,..._L11})=>«ext:react/jsx-runtime#jsx»(\"ul\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"ml-4 list-outside list-disc\",_L10),\"data-streamdown\":\"unordered-list\",..._L11,children:_L9}),hr:({node:_L12,className:_L13,..._L14})=>«ext:react/jsx-runtime#jsx»(\"hr\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"my-6 border-border\",_L13),\"data-streamdown\":\"horizontal-rule\",..._L14}),strong:({node:_L15,children:_L16,className:_L17,..._L18})=>«ext:react/jsx-runtime#jsx»(\"span\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"font-semibold\",_L17),\"data-streamdown\":\"strong\",..._L18,children:_L16}),a:({node:_L19,children:_L20,className:_L21,href:_L22,..._L23})=>«ext:react/jsx-runtime#jsx»(\"a\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"font-medium text-primary underline\",_L21),\"data-streamdown\":\"link\",href:_L22,rel:\"noreferrer\",target:\"_blank\",..._L23,children:_L20}),h1:({node:_L24,children:_L25,className:_L26,..._L27})=>«ext:react/jsx-runtime#jsx»(\"h1\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"mt-6 mb-2 font-semibold text-3xl\",_L26),\"data-streamdown\":\"heading-1\",..._L27,children:_L25}),h2:({node:_L28,children:_L29,className:_L30,..._L31})=>«ext:react/jsx-runtime#jsx»(\"h2\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"mt-6 mb-2 font-semibold text-2xl\",_L30),\"data-streamdown\":\"heading-2\",..._L31,children:_L29}),h3:({node:_L32,children:_L33,className:_L34,..._L35})=>«ext:react/jsx-runtime#jsx»(\"h3\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"mt-6 mb-2 font-semibold text-xl\",_L34),\"data-streamdown\":\"heading-3\",..._L35,children:_L33}),h4:({node:_L36,children:_L37,className:_L38,..._L39})=>«ext:react/jsx-runtime#jsx»(\"h4\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"mt-6 mb-2 font-semibold text-lg\",_L38),\"data-streamdown\":\"heading-4\",..._L39,children:_L37}),h5:({node:_L40,children:_L41,className:_L42,..._L43})=>«ext:react/jsx-runtime#jsx»(\"h5\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"mt-6 mb-2 font-semibold text-base\",_L42),\"data-streamdown\":\"heading-5\",..._L43,children:_L41}),h6:({node:_L44,children:_L45,className:_L46,..._L47})=>«ext:react/jsx-runtime#jsx»(\"h6\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"mt-6 mb-2 font-semibold text-sm\",_L46),\"data-streamdown\":\"heading-6\",..._L47,children:_L45}),table:({node:_L48,children:_L49,className:_L50,..._L51})=>«ext:react/jsx-runtime#jsx»(\"div\",{className:\"my-4 overflow-x-auto\",\"data-streamdown\":\"table-wrapper\",children:«ext:react/jsx-runtime#jsx»(\"table\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"w-full border-collapse border border-border\",_L50),\"data-streamdown\":\"table\",..._L51,children:_L49})}),thead:({node:_L52,children:_L53,className:_L54,..._L55})=>«ext:react/jsx-runtime#jsx»(\"thead\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"bg-muted/50\",_L54),\"data-streamdown\":\"table-header\",..._L55,children:_L53}),tbody:({node:_L56,children:_L57,className:_L58,..._L59})=>«ext:react/jsx-runtime#jsx»(\"tbody\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"divide-y divide-border\",_L58),\"data-streamdown\":\"table-body\",..._L59,children:_L57}),tr:({node:_L60,children:_L61,className:_L62,..._L63})=>«ext:react/jsx-runtime#jsx»(\"tr\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"border-border border-b\",_L62),\"data-streamdown\":\"table-row\",..._L63,children:_L61}),th:({node:_L64,children:_L65,className:_L66,..._L67})=>«ext:react/jsx-runtime#jsx»(\"th\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"px-4 py-2 text-left font-semibold text-sm\",_L66),\"data-streamdown\":\"table-header-cell\",..._L67,children:_L65}),td:({node:_L68,children:_L69,className:_L70,..._L71})=>«ext:react/jsx-runtime#jsx»(\"td\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"px-4 py-2 text-sm\",_L70),\"data-streamdown\":\"table-cell\",..._L71,children:_L69}),blockquote:({node:_L72,children:_L73,className:_L74,..._L75})=>«ext:react/jsx-runtime#jsx»(\"blockquote\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"my-4 border-muted-foreground/30 border-l-4 pl-4 text-muted-foreground italic\",_L74),\"data-streamdown\":\"blockquote\",..._L75,children:_L73}),code:«streamdown@1.1.5/package/dist/index.js#te»,pre:({children:_L76})=>_L76,sup:({node:_L77,children:_L78,className:_L79,..._L80})=>«ext:react/jsx-runtime#jsx»(\"sup\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"text-sm\",_L79),\"data-streamdown\":\"superscript\",..._L80,children:_L78}),sub:({node:_L81,children:_L82,className:_L83,..._L84})=>«ext:react/jsx-runtime#jsx»(\"sub\",{className:«streamdown@1.1.5/package/dist/index.js#s»(\"text-sm\",_L83),\"data-streamdown\":\"subscript\",..._L84,children:_L82})};"
+  },
+  {
+   "src": "ext:react/jsx-runtime#jsx",
+   "npm": "ext:remark-gfm#default",
+   "verdict": "ext-diff",
+   "via": "chat/streamdown.jsx#Streamdown"
+  },
+  {
+   "src": "vendor.js#visitParents",
+   "npm": "ext:tailwind-merge#twMerge",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor-inline/minified/s2.js#be",
+   "srcLine": 21328
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Xn",
+   "npm": "ext:clsx#clsx",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor-inline/minified/s2.js#be",
+   "srcLine": 415
+  },
+  {
+   "src": "chat/streamdown.jsx#languageClassPattern",
+   "npm": "streamdown@1.1.5/package/dist/index.js#ee",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 42,
+   "srcLine": 603,
+   "npmLine": 1
+  },
+  {
+   "src": "media-editing/wt.js#nt",
+   "npm": "streamdown@1.1.5/package/dist/index.js#H",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 48,
+   "srcLine": 17,
+   "npmLine": 1
+  },
+  {
+   "src": "media-editing/wt.js#Be",
+   "npm": "streamdown@1.1.5/package/dist/index.js#Ee",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 35,
+   "srcLine": 52,
+   "npmLine": 5
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isFenceMarkerAtPosition",
+   "npm": "streamdown@1.1.5/package/dist/index.js#we",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 425,
+   "srcLine": 119,
+   "npmLine": 3
+  },
+  {
+   "src": "ext:react#createContext",
+   "npm": "ext:react#createContext",
+   "verdict": "ext-same",
+   "via": "media-editing/wt.js#nt"
+  },
+  {
+   "src": "media-editing/wt.js#De",
+   "npm": "ext:react-markdown#default",
+   "verdict": "src-inline/npm-ext",
+   "via": "media-editing/wt.js#Be",
+   "srcLine": 21
+  }
+ ],
+ "srcUnpaired": [
+  {
+   "src": "chat/streamdown.jsx#rtlCharacterPattern",
+   "line": 53,
+   "bytes": 65
+  },
+  {
+   "src": "chat/streamdown.jsx#unicodeLetterPattern",
+   "line": 54,
+   "bytes": 48
+  },
+  {
+   "src": "chat/streamdown.jsx#fencedCodeStartPattern",
+   "line": 68,
+   "bytes": 51
+  },
+  {
+   "src": "chat/streamdown.jsx#tableDelimiterPattern",
+   "line": 69,
+   "bytes": 81
+  },
+  {
+   "src": "chat/streamdown.jsx#hasUnclosedCodeFence",
+   "line": 70,
+   "bytes": 736
+  },
+  {
+   "src": "chat/streamdown.jsx#hasTableSeparator",
+   "line": 91,
+   "bytes": 280
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownProcessorCache",
+   "line": 100,
+   "bytes": 50
+  },
+  {
+   "src": "chat/streamdown.jsx#getMarkdownProcessor",
+   "line": 101,
+   "bytes": 329
+  },
+  {
+   "src": "chat/streamdown.jsx#renderHastToJsx",
+   "line": 107,
+   "bytes": 1372
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownBlockRenderer",
+   "line": 143,
+   "bytes": 294
+  },
+  {
+   "src": "chat/streamdown.jsx#prefixClassNames",
+   "line": 149,
+   "bytes": 312
+  },
+  {
+   "src": "chat/streamdown.jsx#createClassNameMerger",
+   "line": 158,
+   "bytes": 137
+  },
+  {
+   "src": "chat/streamdown.jsx#FileDownloadButton",
+   "line": 159,
+   "bytes": 1358
+  },
+  {
+   "src": "chat/streamdown.jsx#fileExtensionPattern",
+   "line": 200,
+   "bytes": 34
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownImageRenderer",
+   "line": 201,
+   "bytes": 4184
+  },
+  {
+   "src": "chat/streamdown.jsx#ExternalLinkConfirmation",
+   "line": 314,
+   "bytes": 4542
+  },
+  {
+   "src": "chat/streamdown.jsx#TableFullscreenButton",
+   "line": 440,
+   "bytes": 3846
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableWrapper",
+   "line": 548,
+   "bytes": 1488
+  },
+  {
+   "src": "chat/streamdown.jsx#startingLinePattern",
+   "line": 596,
+   "bytes": 39
+  },
+  {
+   "src": "chat/streamdown.jsx#noLineNumbersPattern",
+   "line": 597,
+   "bytes": 42
+  },
+  {
+   "src": "chat/streamdown.jsx#MermaidRenderer",
+   "line": 598,
+   "bytes": 183
+  },
+  {
+   "src": "chat/streamdown.jsx#isOptionEnabled",
+   "line": 604,
+   "bytes": 120
+  },
+  {
+   "src": "chat/streamdown.jsx#isTableActionEnabled",
+   "line": 605,
+   "bytes": 283
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownOrderedList",
+   "line": 614,
+   "bytes": 516
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownListItem",
+   "line": 633,
+   "bytes": 502
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownUnorderedList",
+   "line": 649,
+   "bytes": 517
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHorizontalRule",
+   "line": 668,
+   "bytes": 415
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownStrong",
+   "line": 682,
+   "bytes": 437
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownLink",
+   "line": 698,
+   "bytes": 2164
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownLink",
+   "line": 763,
+   "bytes": 174
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingOne",
+   "line": 765,
+   "bytes": 459
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingTwo",
+   "line": 781,
+   "bytes": 459
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingThree",
+   "line": 797,
+   "bytes": 460
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingFour",
+   "line": 813,
+   "bytes": 459
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingFive",
+   "line": 829,
+   "bytes": 461
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownHeadingSix",
+   "line": 845,
+   "bytes": 458
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableRenderer",
+   "line": 861,
+   "bytes": 829
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableHead",
+   "line": 881,
+   "bytes": 446
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableBody",
+   "line": 897,
+   "bytes": 455
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableRowRenderer",
+   "line": 913,
+   "bytes": 446
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownTableHeaderCell",
+   "line": 929,
+   "bytes": 530
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownDataCell",
+   "line": 948,
+   "bytes": 443
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownBlockquote",
+   "line": 964,
+   "bytes": 551
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSuperscript",
+   "line": 983,
+   "bytes": 408
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSubscript",
+   "line": 995,
+   "bytes": 404
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownSection",
+   "line": 1007,
+   "bytes": 3414
+  },
+  {
+   "src": "chat/streamdown.jsx#MarkdownCodeBlock",
+   "line": 1090,
+   "bytes": 5923
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownCode",
+   "line": 1226,
+   "bytes": 205
+  },
+  {
+   "src": "chat/streamdown.jsx#MemoizedMarkdownImage",
+   "line": 1231,
+   "bytes": 210
+  },
+  {
+   "src": "chat/streamdown.jsx#markdownComponents",
+   "line": 1236,
+   "bytes": 896
+  },
+  {
+   "src": "chat/streamdown.jsx#htmlStartPattern",
+   "line": 1269,
+   "bytes": 37
+  },
+  {
+   "src": "chat/streamdown.jsx#indentedHtmlPattern",
+   "line": 1270,
+   "bytes": 53
+  },
+  {
+   "src": "chat/streamdown.jsx#normalizeIndentedHtml",
+   "line": 1271,
+   "bytes": 211
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultHrefProtocols",
+   "line": 1275,
+   "bytes": 20
+  },
+  {
+   "src": "chat/streamdown.jsx#hrefProtocols",
+   "line": 1276,
+   "bytes": 13
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultCodeAttributes",
+   "line": 1277,
+   "bytes": 21
+  },
+  {
+   "src": "chat/streamdown.jsx#codeAttributes",
+   "line": 1278,
+   "bytes": 14
+  },
+  {
+   "src": "chat/streamdown.jsx#rehypePluginRegistry",
+   "line": 1302,
+   "bytes": 302
+  },
+  {
+   "src": "chat/streamdown.jsx#remarkPluginRegistry",
+   "line": 1316,
+   "bytes": 82
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultRehypePlugins",
+   "line": 1320,
+   "bytes": 58
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultRemarkPlugins",
+   "line": 1321,
+   "bytes": 58
+  },
+  {
+   "src": "chat/streamdown.jsx#caretMarkers",
+   "line": 1322,
+   "bytes": 49
+  },
+  {
+   "src": "chat/streamdown.jsx#defaultBlockRenderer",
+   "line": 1326,
+   "bytes": 2217
+  },
+  {
+   "src": "media-editing/wt.js#et",
+   "line": 15,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#tt",
+   "line": 16,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#He",
+   "line": 20,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#D3",
+   "line": 53,
+   "bytes": 38
+  },
+  {
+   "src": "media-editing/wt.js#Ve",
+   "line": 54,
+   "bytes": 37
+  },
+  {
+   "src": "media-editing/wt.js#ct2",
+   "line": 55,
+   "bytes": 39
+  },
+  {
+   "src": "media-editing/wt.js#Li",
+   "line": 56,
+   "bytes": 109
+  },
+  {
+   "src": "media-editing/wt.js#de",
+   "line": 61,
+   "bytes": 112
+  },
+  {
+   "src": "media-editing/wt.js#Go",
+   "line": 66,
+   "bytes": 192
+  },
+  {
+   "src": "media-editing/wt.js#Qo",
+   "line": 76,
+   "bytes": 7
+  },
+  {
+   "src": "media-editing/wt.js#en",
+   "line": 77,
+   "bytes": 36
+  },
+  {
+   "src": "media-editing/wt.js#We",
+   "line": 80,
+   "bytes": 18
+  },
+  {
+   "src": "media-editing/wt.js#wt",
+   "line": 81,
+   "bytes": 1707
+  },
+  {
+   "src": "media-editing/wt.js#Cs",
+   "line": 139,
+   "bytes": 92
+  },
+  {
+   "src": "media-editing/wt.js#ks",
+   "line": 141,
+   "bytes": 313
+  },
+  {
+   "src": "media-editing/wt.js#on",
+   "line": 153,
+   "bytes": 15
+  },
+  {
+   "src": "media-editing/wt.js#vs",
+   "line": 154,
+   "bytes": 143
+  },
+  {
+   "src": "media-editing/wt.js#xs",
+   "line": 162,
+   "bytes": 363
+  },
+  {
+   "src": "media-editing/wt.js#Ts",
+   "line": 173,
+   "bytes": 224
+  },
+  {
+   "src": "media-editing/wt.js#safeDecodeURIComponent",
+   "line": 181,
+   "bytes": 122
+  },
+  {
+   "src": "media-editing/wt.js#cleanPath",
+   "line": 188,
+   "bytes": 226
+  },
+  {
+   "src": "media-editing/wt.js#MEDIA_CATEGORIES",
+   "line": 197,
+   "bytes": 46
+  },
+  {
+   "src": "media-editing/wt.js#buildSelectionAliasIndex",
+   "line": 198,
+   "bytes": 555
+  },
+  {
+   "src": "media-editing/wt.js#SELECTION_ALIASES_BY_CATEGORY",
+   "line": 218,
+   "bytes": 182
+  },
+  {
+   "src": "media-editing/wt.js#isMediaCategory",
+   "line": 223,
+   "bytes": 78
+  },
+  {
+   "src": "media-editing/wt.js#selectionIdMatchesVisibleModel",
+   "line": 226,
+   "bytes": 298
+  },
+  {
+   "src": "media-editing/wt.js#isVisibleMediaModelSelected",
+   "line": 232,
+   "bytes": 330
+  },
+  {
+   "src": "media-editing/wt.js#countVisibleSelectedMediaModels",
+   "line": 241,
+   "bytes": 250
+  },
+  {
+   "src": "media-editing/wt.js#isAllVisibleMediaModelsSelected",
+   "line": 249,
+   "bytes": 393
+  },
+  {
+   "src": "shared/jsx-runtime.js#__jsx",
+   "line": 4,
+   "bytes": 327
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#EMPTY_TOOL_CALL_DISPLAY_CONFIG",
+   "line": 17,
+   "bytes": 73
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#parseToolDisplayPatterns",
+   "line": 21,
+   "bytes": 593
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#parseToolCallDisplayConfig",
+   "line": 39,
+   "bytes": 543
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#compileToolDisplayPatterns",
+   "line": 56,
+   "bytes": 187
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#configuredDisplayLabels",
+   "line": 62,
+   "bytes": 103
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#toolCallDisplayConfigKey",
+   "line": 65,
+   "bytes": 73
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#configuredLabelIds",
+   "line": 66,
+   "bytes": 93
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#setToolCallDisplayConfig",
+   "line": 69,
+   "bytes": 361
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getConfiguredToolDisplayLabel",
+   "line": 77,
+   "bytes": 183
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#TOAST_ID",
+   "line": 82,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#TOAST_DURATION_MS",
+   "line": 83,
+   "bytes": 24
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#PROXY_RECHECK_INTERVAL_MS",
+   "line": 84,
+   "bytes": 31
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#WARNING_CONFIRMATION_COUNT",
+   "line": 85,
+   "bytes": 30
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#ConnectorDialogScrollableBody",
+   "line": 86,
+   "bytes": 492
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#OFFICIAL_CONNECTORS",
+   "line": 102,
+   "bytes": 418
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#findOfficialConnectorForServer",
+   "line": 117,
+   "bytes": 152
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#findOfficialConnectorByServerName",
+   "line": 122,
+   "bytes": 178
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#DEBUG_PANEL_OPEN_EVENT",
+   "line": 127,
+   "bytes": 47
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#InterestSelectionContext",
+   "line": 128,
+   "bytes": 59
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#useInterestSelection",
+   "line": 129,
+   "bytes": 245
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getFileManagerLabelKey",
+   "line": 138,
+   "bytes": 214
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#PlatformFileManagerLabel",
+   "line": 143,
+   "bytes": 157
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#KEY_PREFIX",
+   "line": 147,
+   "bytes": 34
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#clearClaimsForUser",
+   "line": 148,
+   "bytes": 404
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#rehypeSanitize",
+   "line": 160,
+   "bytes": 158
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#listeners",
+   "line": 166,
+   "bytes": 21
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#emitPromptPrefillChange",
+   "line": 167,
+   "bytes": 83
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#nextId",
+   "line": 170,
+   "bytes": 10
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#pendingPromptPrefill",
+   "line": 171,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#completePromptPrefill",
+   "line": 172,
+   "bytes": 257
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#requestPromptPrefill",
+   "line": 180,
+   "bytes": 879
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#subscribePromptPrefill",
+   "line": 214,
+   "bytes": 133
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getPromptPrefillRequest",
+   "line": 220,
+   "bytes": 93
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#claimPromptPrefill",
+   "line": 223,
+   "bytes": 217
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#randomInspirationListeners",
+   "line": 229,
+   "bytes": 38
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#emit",
+   "line": 230,
+   "bytes": 81
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#nextRandomInspirationId",
+   "line": 233,
+   "bytes": 27
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#pending",
+   "line": 234,
+   "bytes": 14
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#completeRandomInspiration",
+   "line": 235,
+   "bytes": 195
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#requestRandomInspiration",
+   "line": 243,
+   "bytes": 635
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#subscribeRandomInspiration",
+   "line": 264,
+   "bytes": 171
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getRandomInspirationRequest",
+   "line": 270,
+   "bytes": 79
+  },
+  {
+   "src": "settings/request-prompt-prefill.jsx#getRandomInspirationQueryIds",
+   "line": 273,
+   "bytes": 109
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#buildInspirationMediaShowcaseCollections",
+   "line": 13,
+   "bytes": 2225
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#resolveHomeFeaturedSkillPrompt",
+   "line": 88,
+   "bytes": 221
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#rehypeRaw",
+   "line": 92,
+   "bytes": 202
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#c2",
+   "line": 103,
+   "bytes": 591
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#L",
+   "line": 125,
+   "bytes": 379
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#f",
+   "line": 136,
+   "bytes": 792
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#listItemGreaterThanNumberPattern",
+   "line": 157,
+   "bytes": 78
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#E",
+   "line": 158,
+   "bytes": 272
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#closingUnderscorePattern",
+   "line": 162,
+   "bytes": 42
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#F",
+   "line": 163,
+   "bytes": 19
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#T",
+   "line": 164,
+   "bytes": 9
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#g",
+   "line": 165,
+   "bytes": 343
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#X",
+   "line": 175,
+   "bytes": 308
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#C2",
+   "line": 182,
+   "bytes": 318
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#h",
+   "line": 189,
+   "bytes": 583
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isThematicBreakLine",
+   "line": 204,
+   "bytes": 834
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isValidEmphasisDelimiter",
+   "line": 236,
+   "bytes": 783
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countValidAsteriskDelimiters",
+   "line": 257,
+   "bytes": 794
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countTripleAsteriskRuns",
+   "line": 278,
+   "bytes": 879
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#A",
+   "line": 299,
+   "bytes": 620
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#countDoubleUnderscoreMarkers",
+   "line": 320,
+   "bytes": 653
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isAsteriskEmphasisInListContext",
+   "line": 341,
+   "bytes": 547
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#j",
+   "line": 353,
+   "bytes": 449
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isUnderscoreEmphasisInListContext",
+   "line": 366,
+   "bytes": 549
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#Q",
+   "line": 378,
+   "bytes": 741
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#findSingleAsteriskDelimiter",
+   "line": 396,
+   "bytes": 1248
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#Z",
+   "line": 439,
+   "bytes": 446
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#hasBalancedAsteriskDelimiters",
+   "line": 446,
+   "bytes": 217
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#isAsteriskDelimiterInListContext",
+   "line": 451,
+   "bytes": 272
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#V2",
+   "line": 453,
+   "bytes": 487
+  },
+  {
+   "src": "chat/ae.jsx#CHAT_CONTENT_MAX_WIDTH_PX",
+   "line": 8,
+   "bytes": 31
+  },
+  {
+   "src": "chat/ae.jsx#he",
+   "line": 10,
+   "bytes": 49
+  },
+  {
+   "src": "chat/ae.jsx#W2",
+   "line": 12,
+   "bytes": 666
+  },
+  {
+   "src": "chat/ae.jsx#Ee",
+   "line": 30,
+   "bytes": 35
+  },
+  {
+   "src": "chat/ae.jsx#y3",
+   "line": 32,
+   "bytes": 38
+  },
+  {
+   "src": "chat/ae.jsx#ot",
+   "line": 34,
+   "bytes": 551
+  },
+  {
+   "src": "chat/ae.jsx#rt",
+   "line": 61,
+   "bytes": 346
+  },
+  {
+   "src": "chat/ae.jsx#Oe",
+   "line": 74,
+   "bytes": 566
+  },
+  {
+   "src": "chat/ae.jsx#scrollLockCount",
+   "line": 93,
+   "bytes": 19
+  },
+  {
+   "src": "chat/ae.jsx#le",
+   "line": 95,
+   "bytes": 110
+  },
+  {
+   "src": "chat/ae.jsx#ce",
+   "line": 99,
+   "bytes": 134
+  },
+  {
+   "src": "chat/ae.jsx#ao",
+   "line": 103,
+   "bytes": 458
+  },
+  {
+   "src": "chat/ae.jsx#To",
+   "line": 118,
+   "bytes": 290
+  },
+  {
+   "src": "chat/ae.jsx#Fe",
+   "line": 128,
+   "bytes": 308
+  },
+  {
+   "src": "chat/ae.jsx#defaultMarkdownRenderOptions",
+   "line": 138,
+   "bytes": 201
+  },
+  {
+   "src": "chat/ae.jsx#R",
+   "line": 148,
+   "bytes": 60
+  },
+  {
+   "src": "chat/ae.jsx#Ae",
+   "line": 150,
+   "bytes": 1959
+  },
+  {
+   "src": "chat/mermaid-ghxkkrxx.js#mermaidGHXKKRXX",
+   "line": 4,
+   "bytes": 192
+  },
+  {
+   "src": "chat/yt.js#Yt",
+   "line": 3,
+   "bytes": 5131
+  },
+  {
+   "src": "chat/st.jsx#trimTrailingNewlines",
+   "line": 8,
+   "bytes": 202
+  },
+  {
+   "src": "chat/st.jsx#LazyHighlightedCodeBlockBody",
+   "line": 21,
+   "bytes": 184
+  },
+  {
+   "src": "chat/st.jsx#st",
+   "line": 27,
+   "bytes": 2452
+  },
+  {
+   "src": "chat/co.jsx#convertSvgToPngBlob",
+   "line": 7,
+   "bytes": 1206
+  },
+  {
+   "src": "chat/co.jsx#co",
+   "line": 39,
+   "bytes": 4484
+  },
+  {
+   "src": "chat/fo.jsx#fo",
+   "line": 13,
+   "bytes": 3807
+  },
+  {
+   "src": "chat/te.jsx#Te",
+   "line": 15,
+   "bytes": 4728
+  },
+  {
+   "src": "chat/pe.jsx#Pe",
+   "line": 7,
+   "bytes": 3424
+  },
+  {
+   "src": "infra/dialog-content.jsx#subscribe",
+   "line": 33,
+   "bytes": 103
+  },
+  {
+   "src": "infra/dialog-content.jsx#twMerge",
+   "line": 37,
+   "bytes": 47
+  },
+  {
+   "src": "infra/dialog-content.jsx#cn",
+   "line": 38,
+   "bytes": 65
+  },
+  {
+   "src": "infra/dialog-content.jsx#splitMentionFilename",
+   "line": 41,
+   "bytes": 274
+  },
+  {
+   "src": "infra/dialog-content.jsx#Input",
+   "line": 53,
+   "bytes": 138
+  },
+  {
+   "src": "infra/dialog-content.jsx#cn$2",
+   "line": 58,
+   "bytes": 67
+  },
+  {
+   "src": "infra/dialog-content.jsx#MENU_ITEM_LAYOUT",
+   "line": 61,
+   "bytes": 103
+  },
+  {
+   "src": "infra/dialog-content.jsx#MENU_LABEL_LAYOUT",
+   "line": 63,
+   "bytes": 93
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuTrigger",
+   "line": 65,
+   "bytes": 223
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuContent",
+   "line": 74,
+   "bytes": 857
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuItem",
+   "line": 105,
+   "bytes": 886
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuLabel",
+   "line": 119,
+   "bytes": 213
+  },
+  {
+   "src": "infra/dialog-content.jsx#DropdownMenuRadioItem",
+   "line": 128,
+   "bytes": 946
+  },
+  {
+   "src": "infra/dialog-content.jsx#TooltipContent",
+   "line": 154,
+   "bytes": 1078
+  },
+  {
+   "src": "infra/dialog-content.jsx#buttonVariants",
+   "line": 191,
+   "bytes": 2508
+  },
+  {
+   "src": "infra/dialog-content.jsx#Button",
+   "line": 232,
+   "bytes": 474
+  },
+  {
+   "src": "infra/dialog-content.jsx#notify",
+   "line": 259,
+   "bytes": 68
+  },
+  {
+   "src": "infra/dialog-content.jsx#preparePreview",
+   "line": 262,
+   "bytes": 21
+  },
+  {
+   "src": "infra/dialog-content.jsx#registerBrowserHoverPreview",
+   "line": 263,
+   "bytes": 372
+  },
+  {
+   "src": "infra/dialog-content.jsx#getPreview",
+   "line": 276,
+   "bytes": 33
+  },
+  {
+   "src": "infra/dialog-content.jsx#useBrowserHoverPreview",
+   "line": 277,
+   "bytes": 1163
+  },
+  {
+   "src": "infra/dialog-content.jsx#useBrowserOverlayDialogProps",
+   "line": 320,
+   "bytes": 861
+  },
+  {
+   "src": "infra/dialog-content.jsx#dialogChromeButtonClassName",
+   "line": 350,
+   "bytes": 216
+  },
+  {
+   "src": "infra/dialog-content.jsx#DIALOG_CONTENT_SIZE_CLASSES",
+   "line": 352,
+   "bytes": 132
+  },
+  {
+   "src": "infra/dialog-content.jsx#DIALOG_CONTENT_LAYER_CLASSES",
+   "line": 358,
+   "bytes": 73
+  },
+  {
+   "src": "infra/dialog-content.jsx#Dialog",
+   "line": 362,
+   "bytes": 227
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogOverlay",
+   "line": 369,
+   "bytes": 353
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogContent",
+   "line": 381,
+   "bytes": 1561
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogHeader",
+   "line": 427,
+   "bytes": 205
+  },
+  {
+   "src": "infra/dialog-content.jsx#DialogFooter",
+   "line": 436,
+   "bytes": 509
+  },
+  {
+   "src": "infra/dialog-content.jsx#AlertDialog",
+   "line": 461,
+   "bytes": 167
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Ln",
+   "line": 5,
+   "bytes": 23
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#x",
+   "line": 6,
+   "bytes": 140
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#En",
+   "line": 10,
+   "bytes": 138
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Mn",
+   "line": 18,
+   "bytes": 54
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#nn$1",
+   "line": 19,
+   "bytes": 236
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#en$1",
+   "line": 30,
+   "bytes": 194
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Nn$1",
+   "line": 34,
+   "bytes": 239
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#yn$1",
+   "line": 42,
+   "bytes": 353
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Rn",
+   "line": 58,
+   "bytes": 239
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#rn$1",
+   "line": 73,
+   "bytes": 49
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#sn$1",
+   "line": 74,
+   "bytes": 51
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Un",
+   "line": 75,
+   "bytes": 390
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#on$1",
+   "line": 86,
+   "bytes": 361
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Wn$1",
+   "line": 99,
+   "bytes": 645
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#B",
+   "line": 122,
+   "bytes": 340
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Kn",
+   "line": 135,
+   "bytes": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Hn",
+   "line": 136,
+   "bytes": 25
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Dn",
+   "line": 137,
+   "bytes": 15
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#wn$1",
+   "line": 138,
+   "bytes": 27
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#ln$1",
+   "line": 139,
+   "bytes": 545
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Gn$1",
+   "line": 167,
+   "bytes": 72
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#tn$1",
+   "line": 168,
+   "bytes": 137
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#an$1",
+   "line": 172,
+   "bytes": 552
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#S2",
+   "line": 191,
+   "bytes": 25
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn$1",
+   "line": 192,
+   "bytes": 26
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#u3",
+   "line": 193,
+   "bytes": 321
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Xn$1",
+   "line": 210,
+   "bytes": 2048
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn$1",
+   "line": 325,
+   "bytes": 710
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#vn$1",
+   "line": 348,
+   "bytes": 773
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$e$1",
+   "line": 373,
+   "bytes": 11
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#St",
+   "line": 374,
+   "bytes": 9
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn",
+   "line": 375,
+   "bytes": 12
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn",
+   "line": 376,
+   "bytes": 58
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#_n",
+   "line": 377,
+   "bytes": 90
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#qn",
+   "line": 378,
+   "bytes": 58
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$n",
+   "line": 379,
+   "bytes": 221
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Wn",
+   "line": 389,
+   "bytes": 173
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Zn",
+   "line": 395,
+   "bytes": 412
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Jn",
+   "line": 442,
+   "bytes": 6
+  },
+  {
+   "src": "chat/xn.js#vn",
+   "line": 3,
+   "bytes": 36
+  },
+  {
+   "src": "chat/xn.js#xn",
+   "line": 5,
+   "bytes": 25
+  },
+  {
+   "src": "chat/highlighted-code-block-body.js#R",
+   "line": 5,
+   "bytes": 846
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_DEBOUNCE_DELAY_MS",
+   "line": 7,
+   "bytes": 31
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_INTERSECTION_ROOT_MARGIN",
+   "line": 9,
+   "bytes": 42
+  },
+  {
+   "src": "chat/nn.jsx#DEFAULT_IDLE_TIMEOUT_MS",
+   "line": 11,
+   "bytes": 29
+  },
+  {
+   "src": "chat/nn.jsx#useLazyIntersectionRendering",
+   "line": 13,
+   "bytes": 4574
+  },
+  {
+   "src": "chat/nn.jsx#ZoomableDiagram",
+   "line": 125,
+   "bytes": 7301
+  },
+  {
+   "src": "chat/nn.jsx#po",
+   "line": 326,
+   "bytes": 4593
+  }
+ ],
+ "npmUnpaired": [
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#X",
+   "line": 1,
+   "bytes": 108
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#L",
+   "line": 1,
+   "bytes": 548
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#I",
+   "line": 1,
+   "bytes": 633
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#A",
+   "line": 1,
+   "bytes": 4
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#j",
+   "line": 1,
+   "bytes": 232
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#_",
+   "line": 1,
+   "bytes": 1311
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#te",
+   "line": 1,
+   "bytes": 850
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#oe",
+   "line": 1,
+   "bytes": 21
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#se",
+   "line": 1,
+   "bytes": 20
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#ae",
+   "line": 1,
+   "bytes": 18
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#ie",
+   "line": 1,
+   "bytes": 22
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#de",
+   "line": 1,
+   "bytes": 18
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#le",
+   "line": 1,
+   "bytes": 17
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#ce",
+   "line": 1,
+   "bytes": 17
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#me",
+   "line": 1,
+   "bytes": 18
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#ue",
+   "line": 1,
+   "bytes": 18
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#pe",
+   "line": 1,
+   "bytes": 20
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#y",
+   "line": 1,
+   "bytes": 78
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#ge",
+   "line": 2,
+   "bytes": 90
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#he",
+   "line": 2,
+   "bytes": 72
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#fe",
+   "line": 2,
+   "bytes": 63
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#be",
+   "line": 2,
+   "bytes": 274
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#ke",
+   "line": 3,
+   "bytes": 47
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#ye",
+   "line": 3,
+   "bytes": 166
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#Me",
+   "line": 3,
+   "bytes": 142
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#Ce",
+   "line": 3,
+   "bytes": 47
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#Be",
+   "line": 3,
+   "bytes": 77
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#ve",
+   "line": 3,
+   "bytes": 286
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#Ie",
+   "line": 5,
+   "bytes": 63
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#Te",
+   "line": 5,
+   "bytes": 133
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#$e",
+   "line": 5,
+   "bytes": 65
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#Pe",
+   "line": 5,
+   "bytes": 47
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#Ne",
+   "line": 5,
+   "bytes": 104
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#Se",
+   "line": 5,
+   "bytes": 69
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#K",
+   "line": 5,
+   "bytes": 138
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#Ke",
+   "line": 5,
+   "bytes": 15
+  },
+  {
+   "npm": "streamdown@1.1.5/package/dist/index.js#U",
+   "line": 5,
+   "bytes": 173
+  }
+ ]
+}

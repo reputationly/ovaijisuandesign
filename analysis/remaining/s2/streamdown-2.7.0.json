@@ -1,0 +1,293 @@
+{
+ "pkg": "streamdown@2.7.0",
+ "seed": [
+  "vendor-inline/minified/s2.js#be",
+  "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#ko"
+ ],
+ "counts": {
+  "diff": 9,
+  "src-ext/npm-inline": 1,
+  "exact": 5,
+  "ext-same": 1,
+  "src-inline/npm-ext": 2
+ },
+ "conflicts": [
+  {
+   "s": "vendor-inline/minified/s2.js#S2",
+   "n": "ext:react/jsx-runtime#jsx",
+   "via": "vendor-inline/minified/s2.js#zn$1",
+   "srcAlreadyPairedWith": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#x",
+   "npmAlreadyPairedWith": null
+  },
+  {
+   "s": "vendor.js#un$1",
+   "n": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#O",
+   "via": "vendor.js#k",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "vendor-inline/minified/s2.js#B"
+  },
+  {
+   "s": "vendor.js#dn$1",
+   "n": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#x",
+   "via": "vendor.js#I",
+   "srcAlreadyPairedWith": null,
+   "npmAlreadyPairedWith": "vendor-inline/minified/s2.js#S2"
+  },
+  {
+   "s": "vendor.js#O",
+   "n": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#O",
+   "via": "vendor.js#I",
+   "srcAlreadyPairedWith": "ext:react/jsx-runtime#jsx",
+   "npmAlreadyPairedWith": "vendor-inline/minified/s2.js#B"
+  }
+ ],
+ "s2unpaired": [
+  "vendor-inline/minified/s2.js#Ln",
+  "vendor-inline/minified/s2.js#x",
+  "vendor-inline/minified/s2.js#En",
+  "vendor-inline/minified/s2.js#Mn",
+  "vendor-inline/minified/s2.js#nn$1",
+  "vendor-inline/minified/s2.js#en$1",
+  "vendor-inline/minified/s2.js#Nn$1",
+  "vendor-inline/minified/s2.js#yn$1",
+  "vendor-inline/minified/s2.js#Rn",
+  "vendor-inline/minified/s2.js#rn$1",
+  "vendor-inline/minified/s2.js#sn$1",
+  "vendor-inline/minified/s2.js#Un",
+  "vendor-inline/minified/s2.js#on$1",
+  "vendor-inline/minified/s2.js#Wn$1",
+  "vendor-inline/minified/s2.js#Kn",
+  "vendor-inline/minified/s2.js#Hn",
+  "vendor-inline/minified/s2.js#Dn",
+  "vendor-inline/minified/s2.js#wn$1",
+  "vendor-inline/minified/s2.js#ln$1",
+  "vendor-inline/minified/s2.js#Gn$1",
+  "vendor-inline/minified/s2.js#tn$1",
+  "vendor-inline/minified/s2.js#an$1",
+  "vendor-inline/minified/s2.js#Fn$1",
+  "vendor-inline/minified/s2.js#Xn$1",
+  "vendor-inline/minified/s2.js#$n",
+  "vendor-inline/minified/s2.js#Wn",
+  "vendor-inline/minified/s2.js#Zn",
+  "vendor-inline/minified/s2.js#Xn",
+  "vendor-inline/minified/s2.js#Jn"
+ ],
+ "fallback": [
+  {
+   "s": "vendor-inline/minified/s2.js#$e$1",
+   "n": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#gu",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#St",
+   "n": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#yo",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#Fn",
+   "n": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Et",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#_n",
+   "n": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Ve",
+   "field": "F"
+  },
+  {
+   "s": "vendor-inline/minified/s2.js#qn",
+   "n": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Mt",
+   "field": "F"
+  }
+ ],
+ "pairs": [
+  {
+   "src": "vendor-inline/minified/s2.js#be",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#ko",
+   "verdict": "diff",
+   "via": "seed",
+   "bytes": 1185,
+   "srcLine": 443,
+   "npmLine": 2,
+   "changedTokens": 286,
+   "totalTokens": 297,
+   "srcF": "function $D(_L0){var _L1,_L2,_L3,_L4,_L5;let _L6={animation:(_L1=_L0==null?void 0:_L0.animation)!=null?_L1:\"fadeIn\",duration:(_L2=_L0==null?void 0:_L0.duration)!=null?_L2:150,easing:(_L3=_L0==null?void 0:_L0.easing)!=null?_L3:\"ease\",sep:(_L4=_L0==null?void 0:_L0.sep)!=null?_L4:\"word\",stagger:(_L5=_L0==null?void 0:_L0.stagger)!=null?_L5:40},_L7={prevContentLength:0,lastRenderCharCount:0},_L8=«vendor-inline/minified/s2.js#Jn»++,_L9=()=>_L10=>{let _L11={count:0,newIndex:0};«vendor.js#visitParents»(_L10,\"text\",(_L12,_L13)=>«vendor-inline/minified/s2.js#Xn»(_L12,_L13,_L6,_L7,_L11)),_L7.lastRenderCharCount=_L11.count,_L7.prevContentLength=0;};return «global:Object».defineProperty(_L9,\"name\",{value:`rehypeAnimate$${_L8}`}),{name:\"animate\",type:\"animate\",rehypePlugin:_L9,setPrevContentLength(_L14){_L7.prevContentLength=_L14;},getLastRenderCharCount(){let _L15=_L7.lastRenderCharCount;return _L7.lastRenderCharCount=0,_L15;}};}",
+   "npmF": "function $D(_L0){return «streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Po»(_L0,false);}"
+  },
+  {
+   "src": "global:Object",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Po",
+   "verdict": "src-ext/npm-inline",
+   "via": "vendor-inline/minified/s2.js#be",
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#$e$1",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#gu",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 11,
+   "srcLine": 373,
+   "npmLine": 40
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#St",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#yo",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 9,
+   "srcLine": 374,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#Fn",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Et",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 12,
+   "srcLine": 375,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#_n",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Ve",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 90,
+   "srcLine": 377,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#qn",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Mt",
+   "verdict": "exact",
+   "via": "fallback-F",
+   "bytes": 58,
+   "srcLine": 378,
+   "npmLine": 2
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#vn$1",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Kt",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#$e$1",
+   "bytes": 773,
+   "srcLine": 348,
+   "npmLine": 15,
+   "changedTokens": 319,
+   "totalTokens": 265,
+   "srcF": "var $D=(_L0,_L1)=>{var _L2;if(!_L0||typeof _L0!=\"string\")return _L0;let _L3=_L0.endsWith(\" \")&&!_L0.endsWith(\"  \")?_L0.slice(0,-1):_L0,_L4=«vendor-inline/minified/s2.js#zn$1»(_L1),_L5=((_L2=_L1==null?void 0:_L1.handlers)!=null?_L2:[]).map(_L6=>{var _L7;return{handler:«vendor.js#k»(«vendor.js#I»({},_L6),{priority:(_L7=_L6.priority)!=null?_L7:«vendor-inline/minified/s2.js#u3».DEFAULT}),earlyReturn:void 0};}),_L8=[..._L4,..._L5].sort((_L9,_L10)=>{var _L11,_L12;return((_L11=_L9.handler.priority)!=null?_L11:0)-((_L12=_L10.handler.priority)!=null?_L12:0);});for(let{handler:_L13,earlyReturn:_L14}of _L8)if(_L3=_L13.handle(_L3),_L14!=null&&_L14(_L3))return _L3;return _L3;};",
+   "npmF": "var $D={ol:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Zt»,li:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#wn»,ul:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#xn»,hr:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#vn»,strong:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#kn»,a:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Tn»,h1:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Pn»,h2:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#En»,h3:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Mn»,h4:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Nn»,h5:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Sn»,h6:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#In»,table:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Rn»,thead:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Ln»,tbody:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Dn»,tr:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Hn»,th:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#An»,td:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Bn»,blockquote:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#On»,code:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#jn»,img:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#zn»,pre:({children:_L0})=>«ext:react#isValidElement»(_L0)?«ext:react#cloneElement»(_L0,{\"data-block\":\"true\"}):_L0,sup:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Vn»,sub:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Fn»,p:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Gt»,section:«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#_n»};"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#qr",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#qn",
+   "bytes": 58,
+   "srcLine": 376,
+   "npmLine": 2,
+   "changedTokens": 2,
+   "totalTokens": 19,
+   "srcF": "var $D=new «global:Set»([\"code\",\"pre\",\"svg\",\"math\",\"annotation\"]);",
+   "npmF": "var $D=new «global:Set»([\"pre\",\"svg\",\"math\",\"annotation\"]);"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#zn$1",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#xn",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#vn$1",
+   "bytes": 710,
+   "srcLine": 325,
+   "npmLine": 15,
+   "changedTokens": 207,
+   "totalTokens": 211,
+   "srcF": "var $D=_L0=>{var _L1;let _L2=(_L1=_L0==null?void 0:_L0.linkMode)!=null?_L1:\"protocol\";return «vendor-inline/minified/s2.js#Xn$1».filter(({handler:_L3,optionKey:_L4})=>_L3.name===\"links\"?«vendor-inline/minified/s2.js#S2»(_L0==null?void 0:_L0.links)||«vendor-inline/minified/s2.js#S2»(_L0==null?void 0:_L0.images):_L3.name===\"inlineKatex\"?«vendor-inline/minified/s2.js#Fn$1»(_L0==null?void 0:_L0.inlineKatex):«vendor-inline/minified/s2.js#S2»(_L0==null?void 0:_L0[_L4])).map(({handler:_L5,earlyReturn:_L6})=>_L5.name===\"links\"?{handler:«vendor.js#k»(«vendor.js#I»({},_L5),{handle:_L7=>«vendor-inline/minified/s2.js#B»(_L7,_L2)}),earlyReturn:_L2===\"protocol\"?_L6:void 0}:{handler:_L5,earlyReturn:_L6});};",
+   "npmF": "var $D=«ext:react#memo»(({children:_L0,className:_L1,node:_L2,..._L3})=>{let _L4=«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#x»();return «ext:react/jsx-runtime#jsx»(\"ul\",{className:_L4(\"list-inside list-disc whitespace-normal [li_&]:pl-6\",_L1),\"data-streamdown\":\"unordered-list\",..._L3,children:_L0});},(_L5,_L6)=>«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#O»(_L5,_L6));"
+  },
+  {
+   "src": "vendor.js#k",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Tn",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#vn$1",
+   "bytes": 32,
+   "srcLine": 39286,
+   "npmLine": 15,
+   "changedTokens": 6,
+   "totalTokens": 22,
+   "srcF": "var $D=(_L0,_L1)=>«vendor.js#un$1»(_L0,«vendor.js#fn»(_L1));",
+   "npmF": "var $D=«ext:react#memo»(«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#La»,(_L0,_L1)=>«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#O»(_L0,_L1));"
+  },
+  {
+   "src": "vendor.js#I",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Pn",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#vn$1",
+   "bytes": 187,
+   "srcLine": 39281,
+   "npmLine": 15,
+   "changedTokens": 111,
+   "totalTokens": 89,
+   "srcF": "var $D=(_L0,_L1)=>{for(var _L2 in _L1||(_L1={}))«vendor.js#dn$1».call(_L1,_L2)&&«vendor.js#O»(_L0,_L2,_L1[_L2]);if(«infra/from-vendor.js#$2»)for(var _L2 of «infra/from-vendor.js#$2»(_L1))«vendor.js#gn$1».call(_L1,_L2)&&«vendor.js#O»(_L0,_L2,_L1[_L2]);return _L0;};",
+   "npmF": "var $D=«ext:react#memo»(({children:_L0,className:_L1,node:_L2,..._L3})=>{let _L4=«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#x»();return «ext:react/jsx-runtime#jsx»(\"h1\",{className:_L4(\"mt-6 mb-2 font-semibold text-3xl\",_L1),\"data-streamdown\":\"heading-1\",..._L3,children:_L0});},(_L5,_L6)=>«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#O»(_L5,_L6));"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#u3",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Nn",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#vn$1",
+   "bytes": 321,
+   "srcLine": 193,
+   "npmLine": 15,
+   "changedTokens": 103,
+   "totalTokens": 82,
+   "srcF": "var $D={SINGLE_TILDE:0,COMPARISON_OPERATORS:5,HTML_TAGS:10,SETEXT_HEADINGS:15,LINKS:20,BOLD_ITALIC:30,BOLD:35,ITALIC_DOUBLE_UNDERSCORE:40,ITALIC_SINGLE_ASTERISK:41,ITALIC_SINGLE_UNDERSCORE:42,INLINE_CODE:50,STRIKETHROUGH:60,KATEX:70,INLINE_KATEX:75,DEFAULT:100};",
+   "npmF": "var $D=«ext:react#memo»(({children:_L0,className:_L1,node:_L2,..._L3})=>{let _L4=«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#x»();return «ext:react/jsx-runtime#jsx»(\"h4\",{className:_L4(\"mt-6 mb-2 font-semibold text-lg\",_L1),\"data-streamdown\":\"heading-4\",..._L3,children:_L0});},(_L5,_L6)=>«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#O»(_L5,_L6));"
+  },
+  {
+   "src": "global:Set",
+   "npm": "global:Set",
+   "verdict": "ext-same",
+   "via": "vendor-inline/minified/s2.js#zn"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#S2",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#x",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#zn$1",
+   "bytes": 25,
+   "srcLine": 191,
+   "npmLine": 2,
+   "changedTokens": 12,
+   "totalTokens": 12,
+   "srcF": "var $D=_L0=>_L0!==false;",
+   "npmF": "var $D=()=>«ext:react#useContext»(«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Qe»);"
+  },
+  {
+   "src": "vendor-inline/minified/s2.js#B",
+   "npm": "streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#O",
+   "verdict": "diff",
+   "via": "vendor-inline/minified/s2.js#zn$1",
+   "bytes": 340,
+   "srcLine": 122,
+   "npmLine": 14,
+   "changedTokens": 115,
+   "totalTokens": 137,
+   "srcF": "var $D=(_L0,_L1=\"protocol\")=>{let _L2=_L0.lastIndexOf(\"](\");if(_L2!==-1&&!«workspace/build-inspiration-media-showcase-collections.js#c2»(_L0,_L2)){let _L3=«vendor-inline/minified/s2.js#Un»(_L0,_L2,_L1);if(_L3!==null)return _L3;}for(let _L4=_L0.length-1;_L4>=0;_L4-=1)if(_L0[_L4]===\"[\"&&!«workspace/build-inspiration-media-showcase-collections.js#c2»(_L0,_L4)){let _L5=«vendor-inline/minified/s2.js#Wn$1»(_L0,_L4,_L1);if(_L5!==null)return _L5;}return _L0;};",
+   "npmF": "function $D(_L0,_L1){let _L2=«global:Object».keys(_L0);if(_L2.length!==«global:Object».keys(_L1).length)return false;let _L3=_L0,_L4=_L1;for(let _L5 of _L2)if(_L5!==«streamdown@2.7.0/package/dist/chunk-D32TOXHM.js#Sa»&&!«global:Object».is(_L3[_L5],_L4[_L5]))return false;return true;}"
+  },
+  {
+   "src": "vendor.js#O",
+   "npm": "ext:react/jsx-runtime#jsx",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor.js#I",
+   "srcLine": 39275
+  },
+  {
+   "src": "workspace/build-inspiration-media-showcase-collections.js#c2",
+   "npm": "global:Object",
+   "verdict": "src-inline/npm-ext",
+   "via": "vendor-inline/minified/s2.js#B",
+   "srcLine": 103
+  }
+ ]
+}

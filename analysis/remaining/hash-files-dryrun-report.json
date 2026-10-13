@@ -1,0 +1,309 @@
+{
+  "tool": "rename-files",
+  "renames": [
+    {
+      "old": "app/renderer/src/BG-DBIf81Iw.png",
+      "new": "app/renderer/src/update-bg.png"
+    },
+    {
+      "old": "app/renderer/src/ecommerce-B8DC3jB9.png",
+      "new": "app/renderer/src/ecommerce.png"
+    },
+    {
+      "old": "app/renderer/src/empty-dark-BE6TzTYo.svg",
+      "new": "app/renderer/src/empty-dark.svg"
+    },
+    {
+      "old": "app/renderer/src/empty-light-BIA_9y_3.svg",
+      "new": "app/renderer/src/empty-light.svg"
+    },
+    {
+      "old": "app/renderer/src/empty-project-dark-DfthmI8z.svg",
+      "new": "app/renderer/src/empty-project-dark.svg"
+    },
+    {
+      "old": "app/renderer/src/empty-project-light-VIJs1g6w.svg",
+      "new": "app/renderer/src/empty-project-light.svg"
+    },
+    {
+      "old": "app/renderer/src/error-dark-DDp36kGq.svg",
+      "new": "app/renderer/src/error-dark.svg"
+    },
+    {
+      "old": "app/renderer/src/error-light-WSZvGPdq.svg",
+      "new": "app/renderer/src/error-light.svg"
+    },
+    {
+      "old": "app/renderer/src/featured-skill-C1bqOHc_.png",
+      "new": "app/renderer/src/featured-skill.png"
+    },
+    {
+      "old": "app/renderer/src/graphic-design-vBqZO3xO.png",
+      "new": "app/renderer/src/graphic-design.png"
+    },
+    {
+      "old": "app/renderer/src/mac-CHMBn6kt.png",
+      "new": "app/renderer/src/mac-local-folder-icon.png"
+    },
+    {
+      "old": "app/renderer/src/network-error-dark-DyHxJMnZ.svg",
+      "new": "app/renderer/src/network-error-dark.svg"
+    },
+    {
+      "old": "app/renderer/src/network-error-light-brwv6dty.svg",
+      "new": "app/renderer/src/network-error-light.svg"
+    },
+    {
+      "old": "app/renderer/src/short-drama-BlgbvS1F.png",
+      "new": "app/renderer/src/short-drama.png"
+    },
+    {
+      "old": "app/renderer/src/sticker-approved-Cvm_nH-W.png",
+      "new": "app/renderer/src/sticker-approved.png"
+    },
+    {
+      "old": "app/renderer/src/sticker-cursor-bowD96zH.svg",
+      "new": "app/renderer/src/sticker-cursor.svg"
+    },
+    {
+      "old": "app/renderer/src/sticker-dot-CxhF5shh.png",
+      "new": "app/renderer/src/sticker-dot.png"
+    },
+    {
+      "old": "app/renderer/src/sticker-rejected-Z3JcNklb.png",
+      "new": "app/renderer/src/sticker-rejected.png"
+    },
+    {
+      "old": "app/renderer/src/sticker-thumbs-down-CO0P0mLl.png",
+      "new": "app/renderer/src/sticker-thumbs-down.png"
+    },
+    {
+      "old": "app/renderer/src/sticker-thumbs-up-DL9-hU6T.png",
+      "new": "app/renderer/src/sticker-thumbs-up.png"
+    },
+    {
+      "old": "app/renderer/src/decode-worker-DBC09hCG.js",
+      "new": "app/renderer/src/decode-worker.js"
+    },
+    {
+      "old": "app/renderer/src/error-card-fixtures-GXqelGnw.js",
+      "new": "app/renderer/src/error-card-fixtures.js"
+    },
+    {
+      "old": "app/renderer/src/pdf.worker.min-yatZIOMy.mjs",
+      "new": "app/renderer/src/pdf.worker.min.mjs"
+    },
+    {
+      "old": "app/renderer/src/chat/mermaid-ghxkkrxx.js",
+      "new": "app/renderer/src/chat/mermaid-module.js"
+    }
+  ],
+  "rewritten": [
+    {
+      "file": "app/renderer/src/assets/page-state-view.jsx",
+      "line": 7,
+      "column": 16,
+      "old": "../empty-dark-BE6TzTYo.svg",
+      "new": "../empty-dark.svg",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/assets/page-state-view.jsx",
+      "line": 9,
+      "column": 16,
+      "old": "../empty-light-BIA_9y_3.svg",
+      "new": "../empty-light.svg",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/assets/page-state-view.jsx",
+      "line": 11,
+      "column": 16,
+      "old": "../empty-project-dark-DfthmI8z.svg",
+      "new": "../empty-project-dark.svg",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/assets/page-state-view.jsx",
+      "line": 13,
+      "column": 16,
+      "old": "../empty-project-light-VIJs1g6w.svg",
+      "new": "../empty-project-light.svg",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/assets/page-state-view.jsx",
+      "line": 15,
+      "column": 16,
+      "old": "../error-dark-DDp36kGq.svg",
+      "new": "../error-dark.svg",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/assets/page-state-view.jsx",
+      "line": 17,
+      "column": 16,
+      "old": "../error-light-WSZvGPdq.svg",
+      "new": "../error-light.svg",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/assets/page-state-view.jsx",
+      "line": 19,
+      "column": 16,
+      "old": "../network-error-dark-DyHxJMnZ.svg",
+      "new": "../network-error-dark.svg",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/assets/page-state-view.jsx",
+      "line": 21,
+      "column": 16,
+      "old": "../network-error-light-brwv6dty.svg",
+      "new": "../network-error-light.svg",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/changelog/version-assets.js",
+      "line": 22,
+      "column": 38,
+      "old": "../BG-DBIf81Iw.png",
+      "new": "../update-bg.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/chat/streamdown.jsx",
+      "line": 43,
+      "column": 33,
+      "old": "./mermaid-ghxkkrxx.js",
+      "new": "./mermaid-module.js",
+      "kind": "import"
+    },
+    {
+      "file": "app/renderer/src/debug-panel/debug-panel-dialog.jsx",
+      "line": 58,
+      "column": 50,
+      "old": "../error-card-fixtures-GXqelGnw.js",
+      "new": "../error-card-fixtures.js",
+      "kind": "import"
+    },
+    {
+      "file": "app/renderer/src/generation/use-mention-models.jsx",
+      "line": 458,
+      "column": 16,
+      "old": "../ecommerce-B8DC3jB9.png",
+      "new": "../ecommerce.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/generation/use-skill-categories.js",
+      "line": 106,
+      "column": 16,
+      "old": "../graphic-design-vBqZO3xO.png",
+      "new": "../graphic-design.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/generation/use-skill-categories.js",
+      "line": 109,
+      "column": 16,
+      "old": "../short-drama-BlgbvS1F.png",
+      "new": "../short-drama.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/media-editing/canvas-image.jsx",
+      "line": 211,
+      "column": 20,
+      "old": "../decode-worker-DBC09hCG.js",
+      "new": "../decode-worker.js",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/media-editing/canvas-sticker-assets.jsx",
+      "line": 120,
+      "column": 16,
+      "old": "../sticker-approved-Cvm_nH-W.png",
+      "new": "../sticker-approved.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/media-editing/canvas-sticker-assets.jsx",
+      "line": 122,
+      "column": 16,
+      "old": "../sticker-cursor-bowD96zH.svg",
+      "new": "../sticker-cursor.svg",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/media-editing/canvas-sticker-assets.jsx",
+      "line": 124,
+      "column": 16,
+      "old": "../sticker-dot-CxhF5shh.png",
+      "new": "../sticker-dot.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/media-editing/canvas-sticker-assets.jsx",
+      "line": 130,
+      "column": 16,
+      "old": "../sticker-rejected-Z3JcNklb.png",
+      "new": "../sticker-rejected.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/media-editing/canvas-sticker-assets.jsx",
+      "line": 134,
+      "column": 16,
+      "old": "../sticker-thumbs-down-CO0P0mLl.png",
+      "new": "../sticker-thumbs-down.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/media-editing/canvas-sticker-assets.jsx",
+      "line": 136,
+      "column": 16,
+      "old": "../sticker-thumbs-up-DL9-hU6T.png",
+      "new": "../sticker-thumbs-up.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/media-editing/group-color-presets.jsx",
+      "line": 12,
+      "column": 16,
+      "old": "../pdf.worker.min-yatZIOMy.mjs",
+      "new": "../pdf.worker.min.mjs",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/routes/chat-case.jsx",
+      "line": 14,
+      "column": 50,
+      "old": "../error-card-fixtures-GXqelGnw.js",
+      "new": "../error-card-fixtures.js",
+      "kind": "import"
+    },
+    {
+      "file": "app/renderer/src/vendor-inline/vscode-base/graph.jsx",
+      "line": 259,
+      "column": 41,
+      "old": "../../mac-CHMBn6kt.png",
+      "new": "../../mac-local-folder-icon.png",
+      "kind": "url"
+    },
+    {
+      "file": "app/renderer/src/workspace/scene-categories.js",
+      "line": 13,
+      "column": 16,
+      "old": "../featured-skill-C1bqOHc_.png",
+      "new": "../featured-skill.png",
+      "kind": "url"
+    }
+  ],
+  "warnings": [],
+  "stats": {
+    "renamedFiles": 24,
+    "rewrittenReferences": 25,
+    "affectedFiles": 12
+  }
+}
