@@ -396,6 +396,28 @@ A 要求的 `~/ov-golden`（HEAD `441a06b`）全量自比较报告：`/home/ubun
 
 两轮 40 页的 non-AA pixel、net、DOM、state、新增错误阻断通道均为 0；TanStack 重点页 `ws-table-node`、`ws-text-editor`、`ws-table-edit` 两轮全通过。第一轮 `ws-a` 有 5 个 raw-only 像素（non-AA 为 0），第二轮 raw/non-AA 均为 0。第一轮跑了 build、`check-undef`；第二轮跳过未变更源码对应的 build/check 步骤，但仍完整比较 40 页。两轮结束均确认 compare/Electron/Xvfb 退出、端口 9360–9362 空闲。旧的定向报告 `22-20-18-076Z`、`22-22-44-608Z` 对应过期 golden，不计入验收。
 
+## Mutative / Travels 闭包
+
+`.probe/desource/mutative-travels-esm-version-scores.json` 按 Vite production 的 ESM 入口扫描了 Mutative **33** 个已发布版本（包含 0.x 与 1.x）及 Travels **24** 个版本；另扫描 `use-travel` 41 个版本作相似库比较。最佳候选是 `mutative@1.3.0` **40/45** 个唯一归一化函数体、`travels@2.2.0` **39/51**；`use-travel@2.2.0` 为 37/51。
+
+`.probe/desource/mutative-travels-semantic.json` 将差异归类为 **N 117 / B 2**。B 项为：
+
+| 声明 | 具体差异 |
+|---|---|
+| `makeCreator` | 1.3.0 dist 在调用时立即检查 options 是对象，否则抛 `Invalid options`；inline 实现不做此校验。 |
+| `checkReadable` | inline 条件为 `true`，1.3.0 dist 条件为 `!readable`。 |
+
+按以上两个 B 行为添加的依赖补丁为 `patches/mutative@1.3.0.patch`。应用代码从混合的 `infra/shallow-copy.js` 移至 `canvas/placeholder-card-size.js` 和 `shared/use-device-pixel-ratio.js`，并更新调用点；Mutative/Travels inline 实现文件已删除，`ct.js` 保留 `Travels as Ct$2` 兼容导出。
+
+两轮完整 40 页报告中，`ws-canvas-ops`、`ws-text-editor` 的 net/DOM/state 均为 0：
+
+- `.probe/ui-compare/2026-10-12T23-44-21-768Z/report.json`
+- `.probe/ui-compare/2026-10-13T00-02-39-949Z/report.json`
+
+非目标页异常不相同：第一轮 `skill-community` 有 41 项 DOM 差异；第二轮 `creations` 有 25 个 non-AA 像素差异（`pixelmatchNonAA` 36）。目标页两轮通过，但这两份全量报告并非所有页面都完全无差异。
+
+旧诊断 `.probe/desource/mutative-travels-map.json` 使用不同扫描口径且仍写着 `deferred-no-clean-dist-match`，与已完成的语义分类、patch 和闭包替换冲突，已标记为过时；后续应以 version-scores 与 semantic 报告为准。
+
 ## 规矩（摘自 `remaining-work.md` 与用户要求）
 
 - 中文沟通、中文提交信息、中文注释（只写「为什么」）。
@@ -403,3 +425,89 @@ A 要求的 `~/ov-golden`（HEAD `441a06b`）全量自比较报告：`/home/ubun
 - `reference/` 只作对照，不进运行时。
 - **不要再跑 `scripts/decompile/gen-renderer.mjs`**：它会覆盖整个手工维护的 `app/renderer/src`。
 - 仓库保持私有，不提交凭据。
+
+## Mediabunny 联合闭包
+
+`mediabunny`、`@mediabunny/aac-encoder`、`@mediabunny/mp3-encoder` 均固定为 `1.44.2`。从 `vendor.js` 删除 629 个映射声明（core 621、AAC 4、MP3 4），65 个公开名称改为从 `mediabunny` re-export。`vendor.js` 从 3,068,053 bytes 减至 **2,013,670 bytes**。最终审计 `.probe/desource/mediabunny-final-audit.json` 为 629/629 映射声明、39 个语义项均 0 mismatch；75 个私有名检查结果为剩余 private exports 0、应用 importer 0，移除集合外未解析引用 0。
+
+仅保留确认的行为 patch：
+
+| Patch | 大小 | 文件变更 | 行为 |
+|---|---:|---|---|
+| `patches/mediabunny@1.44.2.patch` | 2,829 bytes | `codec-data.js` +1/−1；`isobmff-boxes.js` +0/−3；`ogg-muxer.js` +1/−1；`source.js` +0/−1 | 移除 `skipHevcHrdParameters` 的 `commonInfPresentFlag` 守卫；移除 `variableUnsignedInt` 的 `byteLength--`；`setInt64` 删除第四个 `true` 参数；`PREFETCH_PROFILES` 删除可达的 `none` 项。 |
+| `patches/@mediabunny__mp3-encoder@1.44.2.patch` | 1,037 bytes | `mediabunny-mp3-encoder.mjs` +0/−4 | `readMp3FrameHeader` 移除 `remainingBytes` 早退及返回对象的 `lowSamplingFrequency` 字段。 |
+| **合计** | **3,866 bytes** | **+2/−10** | AAC 无 patch。 |
+
+### AST 中和规则及逐声明触发清单
+
+规则在 alpha-normalization 前应用；两侧 AST 均先 rewrite、generate、reparse，再重建 Babel binding IDs。`declarationValidation.neutralRuleFirings` 在 `.probe/desource/mediabunny-final-audit.json` 记录全部 612 条事件，含声明、侧别和规则。下表列出每个声明/规则组合及事件数（`inline/dist`）；总计 40 个组合：
+
+| 规则 | 触发声明及次数 |
+|---|---|
+| `normalizeSingleStatementBody`（554） | `FlacDemuxer` 18/18；`Id3V2Writer` 14/14；`IsobmffBoxWriter` 3/1；`MatroskaDemuxer` 81/81；`MatroskaMuxer` 47/47；`MpegTsDemuxer` 51/51；`WaveMuxer` 19/19；`__addDisposableResource` 2/2；`__disposeResources` 2/2；`addQuickTimeMetadataTagBoxes` 5/5；`createVorbisComments` 8/8；`extractAv1CodecInfoFromPacket` 17/17；`fromAlaw` 2/2；`generateMetadataPairs` 9/9。 |
+| `removeEmptyOrCommentOnlyBlock`（17） | `Id3V2Writer` dist 2；`MatroskaDemuxer` dist 6；`MatroskaMuxer` dist 2；`WaveMuxer` dist 2；`addQuickTimeMetadataTagBoxes` dist 2；`createVorbisComments` dist 1；`generateMetadataPairs` dist 2。 |
+| `removeEmptyOrBreakOnlyDefault`（3） | `FlacDemuxer` dist 1；`MatroskaDemuxer` dist 2。 |
+| `normalizeEmptyIfBranch`（19） | `Conversion` dist 2；`HlsDemuxer` dist 1；`IsobmffDemuxer` dist 5；`IsobmffMuxer` inline 1/dist 3；`MatroskaDemuxer` dist 4；`PacketReadingContext` dist 1；`ReadOrchestrator` dist 1；`Target` dist 1。 |
+| `removeUnusedPureConst`（8） | `MpegTsDemuxer` dist 8。 |
+| `unusedConstCallToExpression`（2） | `MpegTsDemuxer` dist 1；`extractAv1CodecInfoFromPacket` dist 1。 |
+| `foldConstantNumericExpression`（2） | `fromAlaw` dist 1；`fromUlaw` dist 1。 |
+| `removeModuleTopLevelThisFallback`（4） | `__addDisposableResource` dist 2；`__disposeResources` dist 2。 |
+| `normalizeViteWorkerLoader`（2） | 两个 inline loader，见下方逐 firing 证据。 |
+| `normalizeOmittedMp3RemainingBytes`（1） | `Mp3Encoder` dist 1，见下方调用点证据。 |
+
+### `normalizeViteWorkerLoader`：两次 inline firing
+
+包清单的 `exports.import` 均指向各自 `dist/bundles/*.mjs`，`browser.worker_threads` 为 `false`。两条 inline 调用链分别是：
+
+| Inline firing | Dist 对应项 | Worker payload |
+|---|---|---|
+| `inline-worker.js:inlineWorker$1` → `worker2.js:Worker2$1` → `AacEncoder` | `mediabunny-aac-encoder.mjs:inlineWorker` | inline/dist 提取 payload 均 818,566 bytes，SHA-256 `59f673a4d526671ec606ae0bd8addc3100db81713a64e152be15565614723efb`，逐字节相同。 |
+| `aac-encoder.js:inlineWorker` → `Mp3Encoder:Worker2` | `mediabunny-mp3-encoder.mjs:inlineWorker` | inline/dist 提取 payload 均 305,719 bytes，SHA-256 `b293c7b698703278b1bdb8c3056334fa5767e850927500535840ebb8ddb20b07`，逐字节相同。 |
+
+两次 firing 中需要归一化的 inline/dist 表达式对分别是：
+
+```js
+// inline（两个文件均为此 Vite shim 包装）
+Worker3 = (
+  await (async () => {
+    const { Worker: Worker4 } = await import("../../__vite-browser-external-2Ng8QIWW.js");
+    return { Worker: Worker4 };
+  })()
+).Worker;
+
+// 对应的 dist loader（AAC 与 MP3 包均如此）
+Worker3 = (await import("worker_threads")).Worker;
+```
+
+被归一化的是 Node fallback 分支中的模块导入表达式；两侧浏览器分支保持相同，均用 `new Blob([scriptText], { type: "text/javascript" })`、`URL.createObjectURL`，再以 `new Worker(url, { type: typeof Deno !== "undefined" ? "module" : void 0 })` 加载同一份 payload。Node 分支的构造选项也相同：`new Worker3(scriptText, { eval: true })`。目标 Electron/Chromium renderer 走浏览器分支（全局 `Worker` 存在且 `Bun` 未定义），所以 shim 导入归一化不改变当前 renderer 路径。Vite shim 文件本身只导出空 default 对象；此规则不声称在没有浏览器 `Worker` 的 Node 环境中两种 fallback 可互换。
+
+### `normalizeOmittedMp3RemainingBytes`：单次 firing
+
+```js
+// inline: app/renderer/src/vendor-inline/mediabunny/aac-encoder.js，Mp3Encoder
+const header = readMp3FrameHeader(word).header;
+
+// dist: @mediabunny/mp3-encoder/dist/bundles/mediabunny-mp3-encoder.mjs，Mp3Encoder
+const header = readMp3FrameHeader(word, null).header;
+```
+
+这是 `Mp3Encoder` 的唯一 inline 调用点：省略参数，因此 `remainingBytes === undefined`。对照 `dist` 的调用点清单：应用选中的 `dist/bundles/mediabunny-mp3-encoder.mjs` 传 `null`；同目录未选中的 `.js` bundle 与未选中的 `dist/modules/src/index.js` 也各有一处调用，均传 `null`。包的 `exports.import`、`main` 均解析到已 patch 的 `.mjs` bundle。patch 后该 helper 中 `remainingBytes` 仅保留在形参表，没有任何读取或分支；因此选中路径上的 `undefined` 与 `null` 不影响 header 结果。
+
+### 安装、构建、单例与 UI gate
+
+删除后的 clean frozen install、`check-undef`（1,112 renderer 文件）及 workspace build（11/11）通过。built-output 审计见 `.probe/desource/mediabunny-final-audit.json`：从当前 `index.html` 入口追踪了 331 个可达 JavaScript 资产；入口为 `assets/index-BgDrJ6QD.js`，其中只有一个 `Output` 实现（第 190050 行）和一个共享 `registerEncoder` binding（第 177918 行）。AAC/MP3 各有一个注册函数、一次通过该 binding 的注册调用和一次顶层注册调用（分别在第 286114/286544 行和 286552/286553 行）。未引用的旧资产 `index-CHwm6v03.js` 曾使全目录扫描误报重复 binding；确认它不在当前入口的 import 图后，最终审计仅覆盖可达资产。
+
+最终新 golden 的两次自比较分别为 `/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-13T13-36-23-526Z/report.json`、`/home/ubuntu/ov-golden/.probe/ui-compare/2026-10-13T13-54-41-687Z/report.json`；两次均无 non-AA、网络、DOM、状态或错误差异，仅有容许的 AA-only 像素（第一轮 `ws-b` 5 个，第二轮 `ws-a` 5 个）。重录是因为 live changelog 已从 3.0.21 更新为 4.0.0，且 branch 与 baseline 都呈现相同 4.0.0 内容；并非重新发现文字渲染环境漂移。保留的 golden 备份：
+
+- `/home/ubuntu/ov-golden/.probe/ui-golden.bak-before-env-rerecord-1791881988`
+- `/home/ubuntu/ov-golden/.probe/ui-golden.bak-first-rerecord-1791884326`
+- `/home/ubuntu/ov-golden/.probe/ui-golden.bak-before-changelog-rerecord-1791897471`
+
+更早的 tofu 中文行 AA 漂移仍未解释：两边都显示 tofu 方框，但旧比较出现了彩色次像素 AA 与灰度 AA 差异；`fc-list :lang=zh` 为 0，检查 fontconfig、Xvfb、Electron/dist 与 Chromium 参数后未找到可恢复的具体变化。重录后的自比较稳定通过。分支 gate 使用仓库脚本 `scripts/ui-compare/gate.sh`，不使用旧 `~/ov-gate.sh`：
+
+| Gate 调用 | 报告 | 结果 |
+|---|---|---|
+| 第一次 | `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T14-13-07-080Z/report.json` | 40 页通过。 |
+| 第二次 | `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T14-32-43-893Z/report.json`、`/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T14-50-55-851Z/report.json` | 40 页；首次比较的 `project-assets` 有一次瞬态 41 项 DOM diff（页面显示“正在重连运行时”），复比较干净，repo gate 将其归类为一次性不稳定并通过。 |
+
+两次 gate 的 `creations`、`global-search`、`ws-video`、`ws-audio` 均为 0 net/DOM/state/non-AA；其余目标页也无新增错误。第二次 gate 的首次 `project-assets` DOM 波动未在复比较重现，不是 text-AA 环境漂移。

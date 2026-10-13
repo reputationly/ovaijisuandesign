@@ -1,19 +1,13 @@
 // media-clip-engine.js
-import { BlobSource, CanvasSink } from "../vendor.js";
-import {
-  ALL_FORMATS,
-  Input$3 as Input,
-} from "../vendor-inline/mediabunny/hls-segmented-input.js";
+import { ALL_FORMATS, BlobSource, CanvasSink, Input } from "mediabunny";
 import {
   DEFAULT_CROP_CONFIG,
   TIMELINE_CONFIG,
 } from "../generation/time-intervals.jsx";
-import {
-  exportCroppedVideo,
-  MediaRegistry,
-  ThumbnailService,
-  ThumbnailStore,
-} from "../vendor-inline/mediabunny/aac-encoder.js";
+import { exportCroppedVideo } from "./aac-trim-export.js";
+import { MediaRegistry } from "./media-registry.js";
+import { ThumbnailService } from "./thumbnail-service.js";
+import { ThumbnailStore } from "./thumbnail-store.js";
 import { TimelineEventHandler } from "./timeline-event-handler.js";
 import { getDurationTier } from "./duration-tiers.js";
 import { TimelineRenderer } from "./timeline-renderer.js";
