@@ -72,18 +72,18 @@ export function useMaterializedEntities() {
           API_PATHS.assetCenterWorkspaceRefs(workspacePath),
         );
         const data2 = await res.json();
-        return data2.refs.map((r2) => ({
-          entityId: r2.entityId,
-          materializedAt: r2.materializedAt,
+        return data2.refs.map((workspaceRef) => ({
+          entityId: workspaceRef.entityId,
+          materializedAt: workspaceRef.materializedAt,
         }));
       } catch {}
       try {
         const matDir = `${workspacePath}/.hilo/materialized-entities`;
         const entries2 = await platform2.fs.readDir(matDir);
         return entries2
-          .filter((e2) => e2.isDirectory || e2.isSymbolicLink)
-          .map((e2) => ({
-            entityId: e2.name,
+          .filter((entry) => entry.isDirectory || entry.isSymbolicLink)
+          .map((entry) => ({
+            entityId: entry.name,
           }));
       } catch {
         return [];

@@ -177,7 +177,7 @@ async function stableUploadCommitOperationId(paths) {
 const UPLOAD_OWNERSHIP_REQUEST_TIMEOUT_MS = 5e3;
 
 export function useUpload(options) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const maxAttachments = options?.maxAttachments ?? MAX_ATTACHMENTS;
   const attachmentAccept = options?.attachmentAccept;
   const replacementAccept = options?.replacementAccept;
@@ -365,7 +365,7 @@ export function useUpload(options) {
   handleBlockedOwnershipReplacementRef.current = (blocked) => {
     void requestCommittedFileAbort(blocked);
     dedupedToast.warning(
-      t2("chat.uploadCommitPending", {
+      translate("chat.uploadCommitPending", {
         defaultValue:
           "Some attachments are pending delivery. Retry sending to release them.",
       }),
@@ -533,19 +533,19 @@ export function useUpload(options) {
   const applyConvertedPreviewUrl = reactExports.useCallback(
     (attachmentId, previewUrl) => {
       objectUrlsRef.current.add(previewUrl);
-      if (!attachmentsRef.current.some((a2) => a2.id === attachmentId)) {
+      if (!attachmentsRef.current.some((attachment) => attachment.id === attachmentId)) {
         URL.revokeObjectURL(previewUrl);
         objectUrlsRef.current.delete(previewUrl);
         return;
       }
       updateAttachments((prev) =>
-        prev.map((a2) =>
-          a2.id === attachmentId
+        prev.map((attachment) =>
+          attachment.id === attachmentId
             ? {
-                ...a2,
+                ...attachment,
                 previewUrl,
               }
-            : a2,
+            : attachment,
         ),
       );
     },
@@ -607,7 +607,7 @@ export function useUpload(options) {
         }
         const data2 = await resp.json();
         const stillAttached = attachmentsRef.current.some(
-          (a2) => a2.id === attachmentId,
+          (attachment) => attachment.id === attachmentId,
         );
         if (!stillAttached) {
           if (data2.staged && data2.relative)
@@ -615,10 +615,10 @@ export function useUpload(options) {
           return;
         }
         updateAttachments((prev) =>
-          prev.map((a2) =>
-            a2.id === attachmentId
+          prev.map((attachment) =>
+            attachment.id === attachmentId
               ? {
-                  ...a2,
+                  ...attachment,
                   relativePath: data2.relative,
                   ...(data2.id
                     ? {
@@ -628,12 +628,12 @@ export function useUpload(options) {
                   status: "done",
                   staged: data2.staged ?? false,
                 }
-              : a2,
+              : attachment,
           ),
         );
         if (data2.enrollError) {
           dedupedToast.warning(
-            t2("assets.uploadEnrollFailed", {
+            translate("assets.uploadEnrollFailed", {
               error: data2.enrollError,
             }),
           );
@@ -652,22 +652,22 @@ export function useUpload(options) {
           err instanceof UploadRequestError ? err.status : void 0,
           err instanceof UploadRequestError ? err.code : void 0,
         );
-        const displayError = uploadErrorMessage(t2, errorKind);
-        if (!attachmentsRef.current.some((a2) => a2.id === attachmentId))
+        const displayError = uploadErrorMessage(translate, errorKind);
+        if (!attachmentsRef.current.some((attachment) => attachment.id === attachmentId))
           return;
         updateAttachments((prev) =>
-          prev.map((a2) =>
-            a2.id === attachmentId
+          prev.map((attachment) =>
+            attachment.id === attachmentId
               ? {
-                  ...a2,
+                  ...attachment,
                   status: "error",
                   error: displayError,
                 }
-              : a2,
+              : attachment,
           ),
         );
         dedupedToast.error(
-          t2("chat.uploadFailed", {
+          translate("chat.uploadFailed", {
             name: file.name,
             reason: displayError,
           }),
@@ -687,7 +687,7 @@ export function useUpload(options) {
       deleteStagedFiles,
       gatewayFetch2,
       options?.useDefaultDir,
-      t2,
+      translate,
       updateAttachments,
     ],
   );
@@ -1018,12 +1018,12 @@ export function useUpload(options) {
       const prev = attachmentsRef.current;
       const existingKeys = new Set(
         prev.map(
-          (a2) =>
-            `${a2.filename}:${a2.fileSize ?? ""}:${a2.lastModified ?? ""}`,
+          (attachment) =>
+            `${attachment.filename}:${attachment.fileSize ?? ""}:${attachment.lastModified ?? ""}`,
         ),
       );
       const uniqueFiles = acceptedFiles.filter(
-        (f2) => !existingKeys.has(`${f2.name}:${f2.size}:${f2.lastModified}`),
+        (file) => !existingKeys.has(`${file.name}:${file.size}:${file.lastModified}`),
       );
       const hasDuplicates = uniqueFiles.length < acceptedFiles.length;
       const remaining = maxAttachments - prev.length;
@@ -1032,25 +1032,25 @@ export function useUpload(options) {
         const accepted = uniqueFiles.slice(0, remaining);
         const filesToUpload = [];
         const newAttachments = accepted.map((file) => {
-          const ft2 = detectFileType(file.name);
+          const fileType = detectFileType(file.name);
           const shouldConvertHeic =
-            ft2 === "image" && isHeicFilename(file.name);
+            fileType === "image" && isHeicFilename(file.name);
           const previewUrl =
-            isPreviewableFileType(ft2) && !shouldConvertHeic
+            isPreviewableFileType(fileType) && !shouldConvertHeic
               ? URL.createObjectURL(file)
               : "";
           if (previewUrl) objectUrlsRef.current.add(previewUrl);
-          const id2 = genId();
+          const localAttachmentId = genId();
           filesToUpload.push({
             file,
-            id: id2,
+            id: localAttachmentId,
           });
           return {
-            id: id2,
+            id: localAttachmentId,
             filename: file.name,
             relativePath: null,
             previewUrl,
-            fileType: ft2,
+            fileType,
             fileSize: file.size,
             lastModified: file.lastModified,
             status: "uploading",
@@ -1067,22 +1067,22 @@ export function useUpload(options) {
           };
         });
         syncAttachments([...prev, ...newAttachments]);
-        for (const { file, id: id2 } of filesToUpload) {
+        for (const { file, id: localAttachmentId } of filesToUpload) {
           if (isHeicFilename(file.name)) {
-            prepareHeicPreviewFromFile(file, id2);
+            prepareHeicPreviewFromFile(file, localAttachmentId);
           }
-          uploadFile(file, id2);
+          uploadFile(file, localAttachmentId);
         }
       }
       if (hasDuplicates) {
-        dedupedToast.warning(t2("chat.duplicateSkipped"));
+        dedupedToast.warning(translate("chat.duplicateSkipped"));
       }
       if (hasUnsupportedFiles) {
-        dedupedToast.warning(uploadErrorMessage(t2, "unsupportedType"));
+        dedupedToast.warning(uploadErrorMessage(translate, "unsupportedType"));
       }
       if (hitLimit) {
         dedupedToast.warning(
-          t2("chat.maxAttachments", {
+          translate("chat.maxAttachments", {
             max: maxAttachments,
           }),
         );
@@ -1093,7 +1093,7 @@ export function useUpload(options) {
       maxAttachments,
       uploadFile,
       prepareHeicPreviewFromFile,
-      t2,
+      translate,
       syncAttachments,
     ],
   );
@@ -1130,7 +1130,7 @@ export function useUpload(options) {
           replacementAccept,
         )
       ) {
-        dedupedToast.warning(uploadErrorMessage(t2, "unsupportedType"));
+        dedupedToast.warning(uploadErrorMessage(translate, "unsupportedType"));
         return false;
       }
       const duplicate = () =>
@@ -1144,7 +1144,7 @@ export function useUpload(options) {
               : item.relativePath === input.relativePath),
         );
       if (duplicate()) {
-        dedupedToast.warning(t2("chat.duplicateSkipped"));
+        dedupedToast.warning(translate("chat.duplicateSkipped"));
         return false;
       }
       if (
@@ -1210,7 +1210,7 @@ export function useUpload(options) {
         }
         return true;
       } catch {
-        dedupedToast.error(t2("chat.attachmentReplaceFailed"));
+        dedupedToast.error(translate("chat.attachmentReplaceFailed"));
         return false;
       } finally {
         if (!published && prepared) {
@@ -1234,15 +1234,15 @@ export function useUpload(options) {
       requestStagedFileDeletion,
       prepareHeicPreviewFromFile,
       prepareHeicPreviewFromUrl,
-      t2,
+      translate,
     ],
   );
   const replaceFromLocal = reactExports.useCallback(
-    (id2, file, options2) => replaceAttachment(id2, file, options2),
+    (localAttachmentId, file, options2) => replaceAttachment(localAttachmentId, file, options2),
     [replaceAttachment],
   );
   const replaceFromAsset = reactExports.useCallback(
-    (id2, asset, options2) => replaceAttachment(id2, asset, options2),
+    (localAttachmentId, asset, options2) => replaceAttachment(localAttachmentId, asset, options2),
     [replaceAttachment],
   );
   const addFromAssetPath = reactExports.useCallback(
@@ -1260,12 +1260,12 @@ export function useUpload(options) {
               unsupported: false,
               scheduled: false,
             };
-            if (duplicate) dedupedToast.warning(t2("chat.duplicateSkipped"));
+            if (duplicate) dedupedToast.warning(translate("chat.duplicateSkipped"));
             if (unsupported)
-              dedupedToast.warning(uploadErrorMessage(t2, "unsupportedType"));
+              dedupedToast.warning(uploadErrorMessage(translate, "unsupportedType"));
             if (limit)
               dedupedToast.warning(
-                t2("chat.maxAttachments", {
+                translate("chat.maxAttachments", {
                   max: maxAttachments,
                 }),
               );
@@ -1285,7 +1285,7 @@ export function useUpload(options) {
         return false;
       }
       const existingIdx = prev.findIndex(
-        (a2) => a2.relativePath === relativePath,
+        (attachment) => attachment.relativePath === relativePath,
       );
       if (existingIdx !== -1) {
         const existing = prev[existingIdx];
@@ -1318,20 +1318,20 @@ export function useUpload(options) {
         markToast("limit");
         return false;
       }
-      const ft2 = detectFileType(filename);
-      const previewUrl = isPreviewableFileType(ft2)
+      const fileType = detectFileType(filename);
+      const previewUrl = isPreviewableFileType(fileType)
         ? (gatewayUrl2(API_PATHS.serveFile(relativePath)) ?? "")
         : "";
-      const id2 = genId();
+      const localAttachmentId = genId();
       const updated = [
         ...prev,
         {
-          id: id2,
+          id: localAttachmentId,
           filename,
           relativePath,
           previewUrl:
-            ft2 === "image" && isHeicFilename(filename) ? "" : previewUrl,
-          fileType: ft2,
+            fileType === "image" && isHeicFilename(filename) ? "" : previewUrl,
+          fileType,
           status: "done",
           nodeId,
           attachmentId,
@@ -1339,8 +1339,8 @@ export function useUpload(options) {
         },
       ];
       syncAttachments(updated);
-      if (ft2 === "image" && isHeicFilename(filename) && previewUrl) {
-        prepareHeicPreviewFromUrl(filename, previewUrl, id2);
+      if (fileType === "image" && isHeicFilename(filename) && previewUrl) {
+        prepareHeicPreviewFromUrl(filename, previewUrl, localAttachmentId);
       }
       return true;
     },
@@ -1349,7 +1349,7 @@ export function useUpload(options) {
       gatewayUrl2,
       maxAttachments,
       prepareHeicPreviewFromUrl,
-      t2,
+      translate,
       syncAttachments,
     ],
   );
@@ -1357,25 +1357,25 @@ export function useUpload(options) {
     (oldPath, newPath, newFilename) => {
       const prev = attachmentsRef.current;
       const hasMatch = prev.some(
-        (a2) =>
-          isFileAttachment(a2) && !a2.staged && a2.relativePath === oldPath,
+        (attachment) =>
+          isFileAttachment(attachment) && !attachment.staged && attachment.relativePath === oldPath,
       );
       if (!hasMatch) return;
-      const ft2 = detectFileType(newFilename);
-      const nextPreview = isPreviewableFileType(ft2)
+      const fileType = detectFileType(newFilename);
+      const nextPreview = isPreviewableFileType(fileType)
         ? (gatewayUrl2(API_PATHS.serveFile(newPath)) ?? "")
         : "";
       updateAttachments((list2) =>
-        list2.map((a2) => {
-          if (!isFileAttachment(a2) || a2.staged || a2.relativePath !== oldPath)
-            return a2;
+        list2.map((attachment) => {
+          if (!isFileAttachment(attachment) || attachment.staged || attachment.relativePath !== oldPath)
+            return attachment;
           return {
-            ...a2,
+            ...attachment,
             relativePath: newPath,
             filename: newFilename,
-            fileType: ft2,
+            fileType,
             previewUrl:
-              ft2 === "image" && isHeicFilename(newFilename) ? "" : nextPreview,
+              fileType === "image" && isHeicFilename(newFilename) ? "" : nextPreview,
           };
         }),
       );
@@ -1386,16 +1386,16 @@ export function useUpload(options) {
     (nodeId, pluginId, name2) => {
       const prev = attachmentsRef.current;
       if (attachmentAccept) {
-        dedupedToast.warning(uploadErrorMessage(t2, "unsupportedType"));
+        dedupedToast.warning(uploadErrorMessage(translate, "unsupportedType"));
         return;
       }
       const alreadyAttached = prev.some(
-        (a2) => a2.kind === "plugin-node" && a2.pluginNodeId === nodeId,
+        (attachment) => attachment.kind === "plugin-node" && attachment.pluginNodeId === nodeId,
       );
       if (alreadyAttached) return;
       if (prev.length >= maxAttachments) {
         dedupedToast.warning(
-          t2("chat.maxAttachments", {
+          translate("chat.maxAttachments", {
             max: maxAttachments,
           }),
         );
@@ -1418,11 +1418,11 @@ export function useUpload(options) {
         },
       ]);
     },
-    [attachmentAccept, maxAttachments, syncAttachments, t2],
+    [attachmentAccept, maxAttachments, syncAttachments, translate],
   );
   const remove2 = reactExports.useCallback(
-    (id2, options2) => {
-      const target = attachmentsRef.current.find((a2) => a2.id === id2);
+    (localAttachmentId, options2) => {
+      const target = attachmentsRef.current.find((attachment) => attachment.id === localAttachmentId);
       if (target?.commitOperationId) {
         void finalizeCommit([target.commitOperationId]);
       }
@@ -1433,7 +1433,7 @@ export function useUpload(options) {
       if (target?.staged && target.relativePath && !options2?.preserveFile) {
         deleteStagedFiles([target.relativePath]);
       }
-      updateAttachments((prev) => prev.filter((a2) => a2.id !== id2));
+      updateAttachments((prev) => prev.filter((attachment) => attachment.id !== localAttachmentId));
     },
     [updateAttachments, deleteStagedFiles, finalizeCommit],
   );
@@ -1441,19 +1441,19 @@ export function useUpload(options) {
     (opts) => {
       const filter2 = opts?.source;
       const prev = attachmentsRef.current;
-      const matches2 = (a2) => filter2 === void 0 || a2.source === filter2;
+      const matches2 = (attachment) => filter2 === void 0 || attachment.source === filter2;
       const dropping = prev.filter(matches2);
       const operationIds = dropping.flatMap(
         (attachment) => attachment.commitOperationId ?? [],
       );
       if (operationIds.length > 0) void finalizeCommit(operationIds);
       const stagedPaths = dropping
-        .filter((a2) => !a2.commitOperationId && a2.staged && a2.relativePath)
-        .map((a2) => a2.relativePath);
-      for (const a2 of dropping) {
-        if (a2.previewUrl.startsWith("blob:")) {
-          URL.revokeObjectURL(a2.previewUrl);
-          objectUrlsRef.current.delete(a2.previewUrl);
+        .filter((attachment) => !attachment.commitOperationId && attachment.staged && attachment.relativePath)
+        .map((attachment) => attachment.relativePath);
+      for (const attachment of dropping) {
+        if (attachment.previewUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(attachment.previewUrl);
+          objectUrlsRef.current.delete(attachment.previewUrl);
         }
       }
       if (stagedPaths.length > 0) {
@@ -1469,16 +1469,16 @@ export function useUpload(options) {
     const attachmentRevision = attachmentRevisionRef.current;
     const attachmentSnapshot = attachmentsRef.current;
     const pluginNodeItems = attachmentSnapshot.filter(
-      (a2) => a2.kind === "plugin-node" && a2.pluginNodeId && a2.pluginId,
+      (pluginNodeAttachment) => pluginNodeAttachment.kind === "plugin-node" && pluginNodeAttachment.pluginNodeId && pluginNodeAttachment.pluginId,
     );
     const pluginNodeAttachments =
       pluginNodeItems.length > 0
-        ? pluginNodeItems.map((a2) => ({
-            nodeId: a2.pluginNodeId,
-            pluginId: a2.pluginId,
-            ...(a2.filename
+        ? pluginNodeItems.map((pluginNodeAttachment) => ({
+            nodeId: pluginNodeAttachment.pluginNodeId,
+            pluginId: pluginNodeAttachment.pluginId,
+            ...(pluginNodeAttachment.filename
               ? {
-                  name: a2.filename,
+                  name: pluginNodeAttachment.filename,
                 }
               : {}),
           }))
@@ -1491,7 +1491,7 @@ export function useUpload(options) {
         : {}),
     };
     const ready = attachmentSnapshot.filter(
-      (a2) => isFileAttachment(a2) && a2.status === "done" && a2.relativePath,
+      (attachment) => isFileAttachment(attachment) && attachment.status === "done" && attachment.relativePath,
     );
     if (ready.length === 0) {
       return {
@@ -1500,7 +1500,7 @@ export function useUpload(options) {
       };
     }
     const payloadFrom = (items) => {
-      const filePaths = items.map((a2) => a2.relativePath);
+      const filePaths = items.map((attachment) => attachment.relativePath);
       const attachmentRefs = items.flatMap((attachment) =>
         attachment.relativePath && attachment.attachmentId
           ? [
@@ -1513,10 +1513,10 @@ export function useUpload(options) {
           : [],
       );
       const canvasNodeAttachments = items
-        .filter((a2) => a2.relativePath && a2.nodeId)
-        .map((a2) => ({
-          path: a2.relativePath,
-          nodeId: a2.nodeId,
+        .filter((attachment) => attachment.relativePath && attachment.nodeId)
+        .map((attachment) => ({
+          path: attachment.relativePath,
+          nodeId: attachment.nodeId,
         }));
       return {
         filePaths,
@@ -1530,7 +1530,7 @@ export function useUpload(options) {
         ...refOnlyPayload,
       };
     };
-    const needsCommit = ready.some((a2) => a2.staged);
+    const needsCommit = ready.some((attachment) => attachment.staged);
     if (!needsCommit) {
       const commitOperationIds = [
         ...new Set(
@@ -1546,7 +1546,7 @@ export function useUpload(options) {
           : {}),
       };
     }
-    const allPaths = ready.map((a2) => a2.relativePath);
+    const allPaths = ready.map((attachment) => attachment.relativePath);
     const contextPaths = ready
       .filter(
         (attachment) =>
@@ -1604,7 +1604,7 @@ export function useUpload(options) {
     }
     const data2 = uploadCommitResponse(await resp.json(), allPaths);
     if (!data2) throw new Error("invalid upload commit response");
-    const pathMap = new Map(data2.committed.map((c3) => [c3.from, c3.to]));
+    const pathMap = new Map(data2.committed.map((committedPathMapping) => [committedPathMapping.from, committedPathMapping.to]));
     const attachmentIdByPath = new Map(
       (data2.attachment_refs ?? []).map((ref) => [ref.path, ref.attachment_id]),
     );
@@ -1650,13 +1650,13 @@ export function useUpload(options) {
       throw new Error("attachments changed while committing");
     }
     updateAttachments((prev) =>
-      prev.map((a2) => {
-        const committedPath = a2.relativePath
-          ? pathMap.get(a2.relativePath)
+      prev.map((attachment) => {
+        const committedPath = attachment.relativePath
+          ? pathMap.get(attachment.relativePath)
           : void 0;
-        return committedPath && a2.staged
+        return committedPath && attachment.staged
           ? {
-              ...a2,
+              ...attachment,
               relativePath: committedPath,
               ...(attachmentIdByPath.get(committedPath)
                 ? {
@@ -1665,9 +1665,9 @@ export function useUpload(options) {
                 : {}),
               staged: false,
               commitOperationId: operationId,
-              commitSourcePath: a2.relativePath,
+              commitSourcePath: attachment.relativePath,
             }
-          : a2;
+          : attachment;
       }),
     );
     return {
@@ -1684,7 +1684,7 @@ export function useUpload(options) {
   }, [gatewayFetch2, requestUploadCommitAbort, updateAttachments]);
   const uploading =
     replacingIds.size > 0 ||
-    attachments.some((a2) => a2.status === "uploading");
+    attachments.some((attachment) => attachment.status === "uploading");
   return {
     attachments,
     uploading,

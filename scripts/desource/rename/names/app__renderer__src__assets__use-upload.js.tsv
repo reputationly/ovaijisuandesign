@@ -1,0 +1,40 @@
+key	old	new	依据
+t2@180:14	t2	translate	该绑定是上传 hook 读取错误、状态和操作提示的翻译函数。
+a2@536:41	a2	attachment	该值是当前上传附件列表中的记录，用于检查本地标识是否仍存在。
+a2@542:19	a2	attachment	该值是不可变更新时遍历的上传附件记录。
+a2@610:12	a2	attachment	该值是用于确认上传目标仍在附件列表中的记录。
+a2@618:21	a2	attachment	该值是更新上传状态时遍历的附件记录。
+a2@656:43	a2	attachment	该值是用于确认失败上传目标仍存在的附件记录。
+a2@659:21	a2	attachment	该值是写入错误状态时遍历的附件记录。
+a2@1021:12	a2	attachment	该值是用于构造文件去重键的已有附件记录。
+f2@1026:10	f2	file	该值是待与已有附件去重的浏览器 File 对象。
+ft2@1035:17	ft2	fileType	该值是由文件名推断出的类型，用于预览和 HEIC 判断。
+id2@1043:17	id2	localAttachmentId	该值是新建附件记录的本地 ID，供上传和预览任务关联。
+id2@1070:32	id2	localAttachmentId	该值是 filesToUpload 中记录的本地附件 ID。
+id2@1241:6	id2	localAttachmentId	该值是转发给替换逻辑的本地附件记录 ID。
+id2@1245:6	id2	localAttachmentId	该值是资产替换逻辑使用的本地附件记录 ID。
+ft2@1321:13	ft2	fileType	该值是由资产文件名推断出的类型，用于预览判断。
+id2@1325:13	id2	localAttachmentId	该值是新建资产附件记录的本地 ID。
+a2@1288:10	a2	attachment	该值是用于查找重复相对路径的已有附件记录。
+ft2@1364:13	ft2	fileType	该值是重命名后文件名对应的类型，用于更新预览信息。
+a2@1360:10	a2	attachment	该值是待按旧路径定位的非暂存文件附件记录。
+a2@1369:20	a2	attachment	该值是重命名时遍历并更新的附件记录。
+a2@1393:10	a2	attachment	该值是用于检查该画布节点是否已添加的附件记录。
+id2@1424:6	id2	localAttachmentId	该值是移除本地附件记录时匹配的记录 ID。
+a2@1425:51	a2	attachment	该值是按本地 ID 查找的目标附件记录。
+a2@1436:48	a2	attachment	该值是从列表中筛选移除目标时遍历的附件记录。
+a2@1444:25	a2	attachment	该值是按来源筛选时检查的附件记录。
+a2@1451:18	a2	attachment	该值是待清理暂存路径的附件记录。
+a2@1452:15	a2	attachment	该值提供待清理附件的相对路径。
+a2@1453:18	a2	attachment	该值是待清理预览 URL 和暂存文件的附件记录。
+a2@1472:8	a2	pluginNodeAttachment	该值是用于筛选有效插件节点引用的附件记录。
+a2@1476:32	a2	pluginNodeAttachment	该值是转换为提交载荷的插件节点附件记录。
+a2@1494:8	a2	attachment	该值是待筛选为已完成文件附件的记录。
+a2@1503:36	a2	attachment	该值提供提交载荷中的文件相对路径。
+a2@1516:18	a2	attachment	该值是待筛选为画布节点引用的文件附件记录。
+a2@1517:15	a2	attachment	该值提供画布节点引用载荷中的路径和节点标识。
+a2@1533:37	a2	attachment	该值用于判断已就绪附件是否仍需提交暂存文件。
+a2@1549:33	a2	attachment	该值提供待提交文件的相对路径。
+c3@1607:50	c3	committedPathMapping	该值记录上传提交前后路径的 from/to 映射。
+a2@1653:17	a2	attachment	该值是更新提交后相对路径与暂存状态的附件记录。
+a2@1687:23	a2	attachment	该值用于判断当前是否仍有上传中的附件。

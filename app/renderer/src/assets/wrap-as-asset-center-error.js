@@ -182,8 +182,8 @@ async function listEntities(fetcher, opts = {}) {
   if (opts.q) params.set("q", opts.q);
   if (opts.limit !== void 0) params.set("limit", String(opts.limit));
   if (opts.sort) params.set("sort", opts.sort);
-  const qs = params.toString();
-  const res = await fetcher(`${BASE}/entities${qs ? `?${qs}` : ""}`);
+  const queryString = params.toString();
+  const res = await fetcher(`${BASE}/entities${queryString ? `?${queryString}` : ""}`);
   return readEnvelope(res, "entities", "entities", "array");
 }
 async function getAssetCenterLibraryStatus(fetcher) {
@@ -213,7 +213,7 @@ export const assetCenterKeys = {
   entity: (entityId) => [...ROOT_KEY, "entity", entityId],
   entityCanvas: (entityId) => [...ROOT_KEY, "entity", entityId, "canvas"],
   attachment: (attachmentId) => [...ROOT_KEY, "attachment", attachmentId],
-  search: (q2, opts) => [...ROOT_KEY, "search", q2, opts ?? {}],
+  search: (searchQuery, opts) => [...ROOT_KEY, "search", searchQuery, opts ?? {}],
   autoInjected: () => [...ROOT_KEY, "auto-injected"],
   suggestions: (limit) => [...ROOT_KEY, "suggestions", limit ?? null],
 };

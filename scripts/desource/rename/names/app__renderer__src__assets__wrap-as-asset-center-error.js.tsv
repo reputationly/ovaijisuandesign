@@ -1,0 +1,3 @@
+key	old	new	依据
+qs@185:9	qs	queryString	该值是序列化后的 URL 查询参数字符串。
+q2@216:12	q2	searchQuery	该值是资产中心搜索查询键中的搜索字符串。
