@@ -69,31 +69,31 @@ export class ChatController {
     this.store = store;
   }
   diagnostics = new ChatStateDiagnostics(logChat);
-  handleServerMessage(msg, options) {
-    if (this.shouldIgnoreServerMessage(msg)) return;
+  handleServerMessage(serverMessage, options) {
+    if (this.shouldIgnoreServerMessage(serverMessage)) return;
     const previous2 =
-      msg.type === "session_switched"
-        ? this.resolveMessages(msg.session_id)
+      serverMessage.type === "session_switched"
+        ? this.resolveMessages(serverMessage.session_id)
         : void 0;
     const relationshipsBefore =
-      msg.type === "session_switched"
+      serverMessage.type === "session_switched"
         ? this.partStores
-            .get(msg.session_id)
+            .get(serverMessage.session_id)
             ?.getRecoveryDiagnostics(
-              msg.runtime_session_id ??
-                this.runtimeSessionIds.get(msg.session_id) ??
-                msg.session_id,
+              serverMessage.runtime_session_id ??
+                this.runtimeSessionIds.get(serverMessage.session_id) ??
+                serverMessage.session_id,
             )
         : void 0;
-    this.applyServerMessage(msg, options);
-    if (msg.type === "session_switched") {
+    this.applyServerMessage(serverMessage, options);
+    if (serverMessage.type === "session_switched") {
       this.diagnostics.restored(
-        msg,
+        serverMessage,
         options?.replaceSessionSnapshot === true,
         previous2 ?? [],
-        this.resolveMessages(msg.session_id),
-        this.partStores.get(msg.session_id),
-        this.runtimeSessionIds.get(msg.session_id),
+        this.resolveMessages(serverMessage.session_id),
+        this.partStores.get(serverMessage.session_id),
+        this.runtimeSessionIds.get(serverMessage.session_id),
         relationshipsBefore,
       );
     }
@@ -124,30 +124,30 @@ export class ChatController {
   // --------------------------------------------------------
   // Public API
   // --------------------------------------------------------
-  applyServerMessage(msg, options) {
-    const sid = extractSessionId(msg);
-    if (sid && msg.type === "error") {
-      if (this.handleQuestionInteractionError(sid, msg)) return;
-      this.handleRootErrorMessage(sid, msg);
+  applyServerMessage(serverMessage, options) {
+    const sessionId = extractSessionId(serverMessage);
+    if (sessionId && serverMessage.type === "error") {
+      if (this.handleQuestionInteractionError(sessionId, serverMessage)) return;
+      this.handleRootErrorMessage(sessionId, serverMessage);
       return;
     }
-    if (sid && msg.type === "credit_threshold_settled") {
+    if (sessionId && serverMessage.type === "credit_threshold_settled") {
       this.store.updateMessages(
-        sid,
+        sessionId,
         (prev2) =>
           prev2.map((message2) =>
             // first-settlement-wins：终态只收敛一次。gateway 对未知 id 的 reply
             // 会广播 expired，若它迟到于真正的 continued，无条件覆盖会把「已继续」
             // 翻成「已过期」且不会自愈。终态是权威结论，不接受二次改写。
             message2.type === "credit_threshold" &&
-            message2.requestId === msg.id &&
+            message2.requestId === serverMessage.id &&
             !message2.resolved
               ? {
                   ...message2,
                   resolved: true,
-                  decision: msg.decision,
-                  settlementStatus: msg.status,
-                  selectedItemIds: msg.selected_item_ids,
+                  decision: serverMessage.decision,
+                  settlementStatus: serverMessage.status,
+                  selectedItemIds: serverMessage.selected_item_ids,
                 }
               : message2,
           ),
@@ -157,42 +157,42 @@ export class ChatController {
       );
       return;
     }
-    if (sid && msg.type === "comfyui_run_progress") {
-      let progressByCall = this.comfyUiProgressBySession.get(sid);
+    if (sessionId && serverMessage.type === "comfyui_run_progress") {
+      let progressByCall = this.comfyUiProgressBySession.get(sessionId);
       if (!progressByCall) {
         progressByCall = new Map();
-        this.comfyUiProgressBySession.set(sid, progressByCall);
+        this.comfyUiProgressBySession.set(sessionId, progressByCall);
       }
-      progressByCall.set(msg.progress.tool_use_id, msg.progress);
+      progressByCall.set(serverMessage.progress.tool_use_id, serverMessage.progress);
       if (progressByCall.size > 100) {
         const oldestCallID = progressByCall.keys().next().value;
         if (oldestCallID) progressByCall.delete(oldestCallID);
       }
-      this.store.updateMessages(sid, (prev2) =>
-        applyComfyUiProgress(prev2, msg.progress.tool_use_id, msg.progress),
+      this.store.updateMessages(sessionId, (prev2) =>
+        applyComfyUiProgress(prev2, serverMessage.progress.tool_use_id, serverMessage.progress),
       );
       return;
     }
     if (
-      msg.type === "part_updated" ||
-      msg.type === "part_delta" ||
-      msg.type === "session_idle" ||
-      msg.type === "session_compaction" ||
-      msg.type === "session_error"
+      serverMessage.type === "part_updated" ||
+      serverMessage.type === "part_delta" ||
+      serverMessage.type === "session_idle" ||
+      serverMessage.type === "session_compaction" ||
+      serverMessage.type === "session_error"
     ) {
-      if (!sid) return;
-      this.handlePartBasedMessage(sid, msg);
+      if (!sessionId) return;
+      this.handlePartBasedMessage(sessionId, serverMessage);
       return;
     }
-    if (sid && PART_SUPERSEDED_TYPES.has(msg.type)) {
+    if (sessionId && PART_SUPERSEDED_TYPES.has(serverMessage.type)) {
       return;
     }
-    if (sid && INTERACTION_MESSAGE_TYPES.has(msg.type)) {
-      this.markSessionActive(sid);
-      const chatMsg = this.interactionToChatMessage(msg);
+    if (sessionId && INTERACTION_MESSAGE_TYPES.has(serverMessage.type)) {
+      this.markSessionActive(sessionId);
+      const chatMsg = this.interactionToChatMessage(serverMessage);
       if (chatMsg) {
         this.store.updateMessages(
-          sid,
+          sessionId,
           (prev2) => upsertPendingInteraction(prev2, chatMsg),
           {
             affectsUserAttention: true,
@@ -201,21 +201,21 @@ export class ChatController {
       }
       return;
     }
-    if (sid && msg.type === "tool_confirm_expired") {
-      const expiredId = msg.id;
+    if (sessionId && serverMessage.type === "tool_confirm_expired") {
+      const expiredId = serverMessage.id;
       this.store.updateMessages(
-        sid,
+        sessionId,
         (prev2) =>
-          prev2.map((m3) =>
-            m3.type === "tool_confirm_ask" && m3.requestId === expiredId
+          prev2.map((message) =>
+            message.type === "tool_confirm_ask" && message.requestId === expiredId
               ? {
-                  ...m3,
+                  ...message,
                   resolved: true,
                   expired: true,
                   toolConfirmDecision: "reject",
                   toolConfirmSettlementCause: "timeout",
                 }
-              : m3,
+              : message,
           ),
         {
           affectsUserAttention: true,
@@ -223,29 +223,29 @@ export class ChatController {
       );
       return;
     }
-    if (sid && msg.type === "tool_confirm_settled") {
+    if (sessionId && serverMessage.type === "tool_confirm_settled") {
       this.store.updateMessages(
-        sid,
-        (prev2) => applyToolConfirmSettlements(prev2, [msg]),
+        sessionId,
+        (prev2) => applyToolConfirmSettlements(prev2, [serverMessage]),
         {
           affectsUserAttention: true,
         },
       );
       return;
     }
-    if (sid && msg.type === "loop_guard_settled") {
+    if (sessionId && serverMessage.type === "loop_guard_settled") {
       this.store.updateMessages(
-        sid,
-        (prev2) => applyLoopGuardSettlements(prev2, [msg]),
+        sessionId,
+        (prev2) => applyLoopGuardSettlements(prev2, [serverMessage]),
         {
           affectsUserAttention: true,
         },
       );
       return;
     }
-    if (sid && msg.type === "question_resolved") {
-      const resolved = msg;
-      const acknowledgedQuestion = this.resolveMessages(sid).find(
+    if (sessionId && serverMessage.type === "question_resolved") {
+      const resolved = serverMessage;
+      const acknowledgedQuestion = this.resolveMessages(sessionId).find(
         (message2) =>
           message2.type === "question" &&
           message2.requestId === resolved.request_id,
@@ -256,18 +256,18 @@ export class ChatController {
           questionAttachmentCount(resolved.answers) >
             questionAttachmentCount(acknowledgedQuestion.questionAnswers));
       this.store.updateMessages(
-        sid,
+        sessionId,
         (prev2) =>
-          prev2.map((m3) => {
+          prev2.map((message) => {
             if (
-              m3.type !== "question" ||
-              m3.requestId !== resolved.request_id ||
+              message.type !== "question" ||
+              message.requestId !== resolved.request_id ||
               !shouldApplyAcknowledgement
             ) {
-              return m3;
+              return message;
             }
             return {
-              ...m3,
+              ...message,
               resolved: true,
               questionAnswers: resolved.answers,
             };
@@ -282,7 +282,7 @@ export class ChatController {
         callID &&
         (resolved.answers || resolved.rejected)
       ) {
-        const partStore = this.getOrCreatePartStore(sid);
+        const partStore = this.getOrCreatePartStore(sessionId);
         const rejected = resolved.rejected === true;
         const result = rejected
           ? "rejected"
@@ -297,62 +297,62 @@ export class ChatController {
             rejected ? "Question rejected" : "Question answered",
           )
         ) {
-          this.rederiveAndUpdate(sid, partStore);
+          this.rederiveAndUpdate(sessionId, partStore);
         }
       }
       return;
     }
-    const prev = this.resolveMessages(sid);
-    if (sid) {
-      const reducer2 = this.getOrCreateReducer(sid);
-      const result = reducer2.reduce(prev, msg);
+    const prev = this.resolveMessages(sessionId);
+    if (sessionId) {
+      const reducer2 = this.getOrCreateReducer(sessionId);
+      const result = reducer2.reduce(prev, serverMessage);
       if (result.messages !== prev) {
-        this.store.updateMessages(sid, () => [...result.messages]);
+        this.store.updateMessages(sessionId, () => [...result.messages]);
       }
       for (const effect2 of result.effects) {
         this.applyEffect(effect2, options);
       }
     } else {
-      const result = reduceServerMessage(prev, msg, this.effectOnlyBuffers);
+      const result = reduceServerMessage(prev, serverMessage, this.effectOnlyBuffers);
       for (const effect2 of result.effects) {
         this.applyEffect(effect2, options);
       }
     }
   }
   /** Shared by renderer delivery tracking and controller ingestion. */
-  shouldIgnoreServerMessage(msg) {
-    const sid = extractSessionId(msg);
-    if (!sid) return false;
+  shouldIgnoreServerMessage(serverMessage) {
+    const sessionId = extractSessionId(serverMessage);
+    if (!sessionId) return false;
     if (
-      msg.type === "session_error" &&
-      !msg.childSessionId &&
-      msg.error?.error_code === ErrorCodes.CONTENT_POLICY_VIOLATION &&
-      msg.runtime_message_id
+      serverMessage.type === "session_error" &&
+      !serverMessage.childSessionId &&
+      serverMessage.error?.error_code === ErrorCodes.CONTENT_POLICY_VIOLATION &&
+      serverMessage.runtime_message_id
     ) {
-      return this.store.isMessageWithdrawn(sid, msg.runtime_message_id);
+      return this.store.isMessageWithdrawn(sessionId, serverMessage.runtime_message_id);
     }
     if (
-      msg.type === "part_delta" &&
-      this.store.isPartWithdrawn(sid, msg.partId)
+      serverMessage.type === "part_delta" &&
+      this.store.isPartWithdrawn(sessionId, serverMessage.partId)
     )
       return true;
     if (
-      msg.type === "part_updated" &&
-      this.store.isMessageWithdrawn(sid, msg.part.messageID)
+      serverMessage.type === "part_updated" &&
+      this.store.isMessageWithdrawn(sessionId, serverMessage.part.messageID)
     ) {
-      this.store.rememberWithdrawnPart(sid, msg.part.id, msg.part.messageID);
+      this.store.rememberWithdrawnPart(sessionId, serverMessage.part.id, serverMessage.part.messageID);
       return true;
     }
     const messageId =
-      msg.type === "part_updated"
-        ? msg.part.messageID
-        : msg.type === "part_delta"
-          ? this.partStores.get(sid)?.getPart(msg.partId)?.messageID
-          : msg.type === "question_request" && msg.tool
-            ? (this.partStores.get(sid)?.getRootMessageId(msg.tool.messageID) ??
-              msg.tool.messageID)
+      serverMessage.type === "part_updated"
+        ? serverMessage.part.messageID
+        : serverMessage.type === "part_delta"
+          ? this.partStores.get(sessionId)?.getPart(serverMessage.partId)?.messageID
+          : serverMessage.type === "question_request" && serverMessage.tool
+            ? (this.partStores.get(sessionId)?.getRootMessageId(serverMessage.tool.messageID) ??
+              serverMessage.tool.messageID)
             : void 0;
-    return Boolean(messageId && this.store.isMessageWithdrawn(sid, messageId));
+    return Boolean(messageId && this.store.isMessageWithdrawn(sessionId, messageId));
   }
   withdrawMessage(request) {
     if (
@@ -423,8 +423,8 @@ export class ChatController {
     return true;
   }
   resetBuffers() {
-    for (const [sid, parts] of this.partStores) {
-      this.diagnostics.reset(sid, this.resolveMessages(sid), parts);
+    for (const [sessionId, parts] of this.partStores) {
+      this.diagnostics.reset(sessionId, this.resolveMessages(sessionId), parts);
     }
     this.diagnostics.clear();
     if (this.runtimeSessionIds.size > 0) {
@@ -663,22 +663,22 @@ export class ChatController {
   // --------------------------------------------------------
   // Part-based message handling
   // --------------------------------------------------------
-  handleQuestionInteractionError(sid, msg) {
-    const requestId = msg.request_id;
+  handleQuestionInteractionError(sessionId, message) {
+    const requestId = message.request_id;
     if (!requestId) return false;
-    const pendingQuestion = this.resolveMessages(sid).some(
+    const pendingQuestion = this.resolveMessages(sessionId).some(
       (message2) =>
         message2.type === "question" &&
         message2.requestId === requestId &&
         message2.resolved !== true,
     );
     if (!pendingQuestion) return false;
-    const { content: content2, error } = msg;
+    const { content: content2, error } = message;
     logChat(
-      `[question-error] session=${sid} request=${requestId} code=${error?.error_code ?? "none"} retryable=${error?.retryable ?? "?"} msg=${(content2 ?? error?.user_message ?? "").slice(0, 200)}`,
+      `[question-error] session=${sessionId} request=${requestId} code=${error?.error_code ?? "none"} retryable=${error?.retryable ?? "?"} msg=${(content2 ?? error?.user_message ?? "").slice(0, 200)}`,
       "error",
     );
-    this.store.updateMessages(sid, (prev) => [
+    this.store.updateMessages(sessionId, (prev) => [
       ...prev,
       {
         id: nextMessageId(),
@@ -701,10 +701,10 @@ export class ChatController {
     }
     return true;
   }
-  handleRootErrorMessage(sid, msg) {
-    const { content: content2, error } = msg;
+  handleRootErrorMessage(sessionId, message) {
+    const { content: content2, error } = message;
     logChat(
-      `[error] session=${sid} code=${error?.error_code ?? "none"} retryable=${error?.retryable ?? "?"} msg=${(content2 ?? error?.user_message ?? "").slice(0, 200)}`,
+      `[error] session=${sessionId} code=${error?.error_code ?? "none"} retryable=${error?.retryable ?? "?"} msg=${(content2 ?? error?.user_message ?? "").slice(0, 200)}`,
       "error",
     );
     const isBusyRejection =
@@ -712,9 +712,9 @@ export class ChatController {
         String(ErrorCodes.GATEWAY_BAD_REQUEST) &&
       /busy|pending operations/i.test(error?.user_message ?? content2 ?? "");
     if (!isBusyRejection) {
-      this.store.setBusy(false, sid);
+      this.store.setBusy(false, sessionId);
     }
-    this.store.updateMessages(sid, (prev) => [
+    this.store.updateMessages(sessionId, (prev) => [
       ...prev,
       {
         id: nextMessageId(),
@@ -729,7 +729,7 @@ export class ChatController {
       },
     ]);
     if (!isBusyRejection) {
-      this.store.notifySessionCompleted(sid);
+      this.store.notifySessionCompleted(sessionId);
     }
     if (
       error?.error_code &&
@@ -738,31 +738,31 @@ export class ChatController {
       authExpiredBus.emit();
     }
   }
-  handlePartBasedMessage(sid, msg) {
-    const partStore = this.getOrCreatePartStore(sid);
-    this.markSessionActive(sid);
-    switch (msg.type) {
+  handlePartBasedMessage(sessionId, message) {
+    const partStore = this.getOrCreatePartStore(sessionId);
+    this.markSessionActive(sessionId);
+    switch (message.type) {
       case "part_updated": {
-        const part = msg.part;
+        const part = message.part;
         const diagnosticRuntimeId =
-          this.runtimeSessionIds.get(sid) ??
-          this.store.getState().sessions.get(sid)?.runtimeSessionId;
+          this.runtimeSessionIds.get(sessionId) ??
+          this.store.getState().sessions.get(sessionId)?.runtimeSessionId;
         const logDiagnostic = this.shouldLogPartUpdatedDiagnostic(
           part,
           diagnosticRuntimeId,
         );
         if (logDiagnostic)
-          logPartUpdatedReceived(sid, part, diagnosticRuntimeId);
-        if (!this.runtimeSessionIds.has(sid)) {
+          logPartUpdatedReceived(sessionId, part, diagnosticRuntimeId);
+        if (!this.runtimeSessionIds.has(sessionId)) {
           const boundRuntimeId = this.store
             .getState()
-            .sessions.get(sid)?.runtimeSessionId;
+            .sessions.get(sessionId)?.runtimeSessionId;
           const chosen = boundRuntimeId ?? part.sessionID;
-          this.runtimeSessionIds.set(sid, chosen);
+          this.runtimeSessionIds.set(sessionId, chosen);
           const mislockRisk =
             !boundRuntimeId && this.childSessionMap.has(part.sessionID);
           logRuntimeBinding(
-            `seed sid=${sid} runtime=${chosen} src=${boundRuntimeId ? "store-bound" : "first-part"}${mislockRisk ? " MISLOCK-RISK(child-part-first)" : ""}`,
+            `seed sid=${sessionId} runtime=${chosen} src=${boundRuntimeId ? "store-bound" : "first-part"}${mislockRisk ? " MISLOCK-RISK(child-part-first)" : ""}`,
             mislockRisk ? "warn" : "info",
           );
         }
@@ -772,10 +772,10 @@ export class ChatController {
           if (childId) {
             const agentName = this.extractAgentName(part);
             this.childSessionMap.set(childId, agentName);
-            if (this.clearPendingChildReconciliation(sid, childId)) {
-              this.flushRederiveAndUpdate(sid, partStore);
+            if (this.clearPendingChildReconciliation(sessionId, childId)) {
+              this.flushRederiveAndUpdate(sessionId, partStore);
               this.logPartApply(
-                sid,
+                sessionId,
                 partStore,
                 part.id,
                 part.id,
@@ -787,72 +787,72 @@ export class ChatController {
             }
           }
         }
-        this.patchPartUpdateOrFallback(sid, partStore, part, logDiagnostic);
+        this.patchPartUpdateOrFallback(sessionId, partStore, part, logDiagnostic);
         break;
       }
       case "part_delta": {
-        const { partId, delta } = msg;
+        const { partId, delta } = message;
         partStore.handlePartDelta(partId, delta);
         this.diagnostics.delta(
-          sid,
-          this.patchDeltaContent(sid, partStore, partId),
+          sessionId,
+          this.patchDeltaContent(sessionId, partStore, partId),
         );
         break;
       }
       case "session_idle": {
-        const childSessionId = msg.childSessionId;
+        const childSessionId = message.childSessionId;
         if (childSessionId) {
-          this.reconcileTerminalChildSession(sid, partStore, childSessionId);
+          this.reconcileTerminalChildSession(sessionId, partStore, childSessionId);
         } else {
-          this.flushQueuedRederive(sid);
-          this.diagnostics.finish(sid, "session-idle");
-          this.store.updateMessages(sid, completeLatestCompactionStatus);
-          this.store.setBusy(false, sid);
+          this.flushQueuedRederive(sessionId);
+          this.diagnostics.finish(sessionId, "session-idle");
+          this.store.updateMessages(sessionId, completeLatestCompactionStatus);
+          this.store.setBusy(false, sessionId);
           this.store.notifyFileChanged();
-          this.store.notifySessionCompleted(sid);
+          this.store.notifySessionCompleted(sessionId);
         }
         break;
       }
       case "session_compaction": {
-        const status = msg.status;
+        const status = message.status;
         if (status === "started") {
-          this.store.updateMessages(sid, upsertRunningCompactionStatus);
+          this.store.updateMessages(sessionId, upsertRunningCompactionStatus);
         } else {
-          this.store.updateMessages(sid, completeLatestCompactionStatus);
+          this.store.updateMessages(sessionId, completeLatestCompactionStatus);
         }
         break;
       }
       case "session_error": {
         if (
-          !msg.childSessionId &&
-          msg.error?.error_code === ErrorCodes.CONTENT_POLICY_VIOLATION
+          !message.childSessionId &&
+          message.error?.error_code === ErrorCodes.CONTENT_POLICY_VIOLATION
         ) {
-          if (msg.runtime_message_id) {
+          if (message.runtime_message_id) {
             this.withdrawMessage({
-              sessionId: sid,
-              runtimeMessageId: msg.runtime_message_id,
+              sessionId,
+              runtimeMessageId: message.runtime_message_id,
               reason: "content_policy_violation",
             });
             break;
           }
           logChat(
-            `[withdrawal] missing runtime_message_id session=${sid}`,
+            `[withdrawal] missing runtime_message_id session=${sessionId}`,
             "error",
           );
         }
-        const { childSessionId, error, content: content2 } = msg;
+        const { childSessionId, error, content: content2 } = message;
         if (childSessionId) {
-          this.reconcileTerminalChildSession(sid, partStore, childSessionId);
+          this.reconcileTerminalChildSession(sessionId, partStore, childSessionId);
         } else {
           logChat(
-            `[session_error] session=${sid} code=${error?.error_code ?? "none"} msg=${(content2 ?? "").slice(0, 200)}`,
+            `[session_error] session=${sessionId} code=${error?.error_code ?? "none"} msg=${(content2 ?? "").slice(0, 200)}`,
             "error",
           );
-          this.flushQueuedRederive(sid);
-          this.diagnostics.finish(sid, "session-error");
-          this.store.updateMessages(sid, clearRunningCompactionStatus);
-          this.store.setBusy(false, sid);
-          this.store.updateMessages(sid, (prev) => [
+          this.flushQueuedRederive(sessionId);
+          this.diagnostics.finish(sessionId, "session-error");
+          this.store.updateMessages(sessionId, clearRunningCompactionStatus);
+          this.store.setBusy(false, sessionId);
+          this.store.updateMessages(sessionId, (prev) => [
             ...prev,
             {
               id: nextMessageId(),
@@ -866,7 +866,7 @@ export class ChatController {
                 : {}),
             },
           ]);
-          this.store.notifySessionCompleted(sid);
+          this.store.notifySessionCompleted(sessionId);
           if (
             error?.error_code &&
             String(error.error_code) === String(ErrorCodes.AUTH_EXPIRED)
@@ -878,21 +878,21 @@ export class ChatController {
       }
     }
   }
-  rederiveOrScheduleUpdate(sid, partStore) {
+  rederiveOrScheduleUpdate(sessionId, partStore) {
     if (!isChatRederiveCoalescingEnabled()) {
-      this.rederiveAndUpdate(sid, partStore);
+      this.rederiveAndUpdate(sessionId, partStore);
       return "applied";
     }
     if (
-      !this.queuedRederiveSessionIds.has(sid) &&
-      !this.hasPartMessageIndex(sid)
+      !this.queuedRederiveSessionIds.has(sessionId) &&
+      !this.hasPartMessageIndex(sessionId)
     ) {
-      this.rederiveAndUpdate(sid, partStore);
-      this.scheduleRederiveMicrotask(sid);
+      this.rederiveAndUpdate(sessionId, partStore);
+      this.scheduleRederiveMicrotask(sessionId);
       return "applied";
     }
-    this.queuedRederivePartStores.set(sid, partStore);
-    this.scheduleRederiveMicrotask(sid);
+    this.queuedRederivePartStores.set(sessionId, partStore);
+    this.scheduleRederiveMicrotask(sessionId);
     return "queued";
   }
   shouldLogPartUpdatedDiagnostic(part, runtimeId) {
@@ -900,11 +900,11 @@ export class ChatController {
     if (this.childSessionMap.has(part.sessionID)) return true;
     return !runtimeId || part.sessionID !== runtimeId;
   }
-  patchPartUpdateOrFallback(sid, partStore, part, logDiagnostic) {
+  patchPartUpdateOrFallback(sessionId, partStore, part, logDiagnostic) {
     if (!isChatIncrementalDeriveEnabled()) {
-      const result = this.rederiveOrScheduleUpdate(sid, partStore);
+      const result = this.rederiveOrScheduleUpdate(sessionId, partStore);
       if (logDiagnostic) {
-        logPartUpdated("route", sid, [
+        logPartUpdated("route", sessionId, [
           ["part", part.id],
           ["target", part.id],
           [
@@ -916,10 +916,10 @@ export class ChatController {
       }
       return;
     }
-    const runtimeId = this.runtimeSessionIds.get(sid);
+    const runtimeId = this.runtimeSessionIds.get(sessionId);
     if (!runtimeId) {
-      this.rederiveOrScheduleUpdate(sid, partStore);
-      logPartUpdated("route", sid, [
+      this.rederiveOrScheduleUpdate(sessionId, partStore);
+      logPartUpdated("route", sessionId, [
         ["part", part.id],
         ["target", void 0],
         ["result", "blocked-no-runtime"],
@@ -930,9 +930,9 @@ export class ChatController {
       part.type === "text" &&
       isCancelMarkerText(stripContextPrefix(part.text).trim())
     ) {
-      const result = this.rederiveOrScheduleUpdate(sid, partStore);
+      const result = this.rederiveOrScheduleUpdate(sessionId, partStore);
       if (logDiagnostic) {
-        logPartUpdated("route", sid, [
+        logPartUpdated("route", sessionId, [
           ["part", part.id],
           ["target", part.id],
           [
@@ -949,8 +949,8 @@ export class ChatController {
       : partStore.findTaskPartIdByChildSessionId(runtimeId, part.sessionID);
     if (!targetPartId) {
       if (part.sessionID !== runtimeId) {
-        this.markPendingChildReconciliation(sid, part.sessionID);
-        logPartUpdated("route", sid, [
+        this.markPendingChildReconciliation(sessionId, part.sessionID);
+        logPartUpdated("route", sessionId, [
           ["part", part.id],
           ["target", void 0],
           ["result", "pending-parent"],
@@ -958,8 +958,8 @@ export class ChatController {
         ]);
         return;
       }
-      const result = this.rederiveOrScheduleUpdate(sid, partStore);
-      logPartUpdated("route", sid, [
+      const result = this.rederiveOrScheduleUpdate(sessionId, partStore);
+      logPartUpdated("route", sessionId, [
         ["part", part.id],
         ["target", void 0],
         ["result", result === "applied" ? "full-derive" : "queued-full-derive"],
@@ -968,16 +968,16 @@ export class ChatController {
       return;
     }
     if (part.sessionID !== runtimeId) {
-      this.clearPendingChildReconciliation(sid, part.sessionID);
+      this.clearPendingChildReconciliation(sessionId, part.sessionID);
     }
     if (
       targetPartId === part.id &&
-      !this.hasDerivedPartMessage(sid, targetPartId) &&
+      !this.hasDerivedPartMessage(sessionId, targetPartId) &&
       !partStore.isLastSessionPart(runtimeId, targetPartId)
     ) {
-      const result = this.rederiveOrScheduleUpdate(sid, partStore);
+      const result = this.rederiveOrScheduleUpdate(sessionId, partStore);
       this.logPartApply(
-        sid,
+        sessionId,
         partStore,
         part.id,
         targetPartId,
@@ -990,22 +990,22 @@ export class ChatController {
       return;
     }
     if (
-      this.hasDerivedPartMessage(sid, targetPartId) &&
+      this.hasDerivedPartMessage(sessionId, targetPartId) &&
       isChatRederiveCoalescingEnabled()
     ) {
       if (logDiagnostic) {
-        logPartUpdated("route", sid, [
+        logPartUpdated("route", sessionId, [
           ["part", part.id],
           ["target", targetPartId],
           ["result", "queued-patch"],
         ]);
       }
-      this.schedulePartPatchMicrotask(sid, partStore, targetPartId);
+      this.schedulePartPatchMicrotask(sessionId, partStore, targetPartId);
       return;
     }
-    const patched = this.applyDerivedPartPatch(sid, partStore, targetPartId);
+    const patched = this.applyDerivedPartPatch(sessionId, partStore, targetPartId);
     this.logPartApply(
-      sid,
+      sessionId,
       partStore,
       part.id,
       targetPartId,
@@ -1016,9 +1016,9 @@ export class ChatController {
         : part.sessionID,
     );
     if (!patched) {
-      const fallbackResult = this.rederiveOrScheduleUpdate(sid, partStore);
+      const fallbackResult = this.rederiveOrScheduleUpdate(sessionId, partStore);
       this.logPartApply(
-        sid,
+        sessionId,
         partStore,
         part.id,
         targetPartId,
@@ -1030,31 +1030,31 @@ export class ChatController {
       );
     }
   }
-  schedulePartPatchMicrotask(sid, partStore, partId) {
-    let partIds = this.queuedPartPatchIds.get(sid);
+  schedulePartPatchMicrotask(sessionId, partStore, partId) {
+    let partIds = this.queuedPartPatchIds.get(sessionId);
     if (!partIds) {
       partIds = new Set();
-      this.queuedPartPatchIds.set(sid, partIds);
+      this.queuedPartPatchIds.set(sessionId, partIds);
     }
     partIds.add(partId);
-    this.queuedPartPatchStores.set(sid, partStore);
-    if (this.queuedPartPatchSessionIds.has(sid)) return;
-    this.queuedPartPatchSessionIds.add(sid);
+    this.queuedPartPatchStores.set(sessionId, partStore);
+    if (this.queuedPartPatchSessionIds.has(sessionId)) return;
+    this.queuedPartPatchSessionIds.add(sessionId);
     queueMicrotask(() => {
-      this.queuedPartPatchSessionIds.delete(sid);
-      const queuedPartStore = this.queuedPartPatchStores.get(sid);
-      const queuedPartIds = [...(this.queuedPartPatchIds.get(sid) ?? [])];
-      this.queuedPartPatchStores.delete(sid);
-      this.queuedPartPatchIds.delete(sid);
+      this.queuedPartPatchSessionIds.delete(sessionId);
+      const queuedPartStore = this.queuedPartPatchStores.get(sessionId);
+      const queuedPartIds = [...(this.queuedPartPatchIds.get(sessionId) ?? [])];
+      this.queuedPartPatchStores.delete(sessionId);
+      this.queuedPartPatchIds.delete(sessionId);
       if (!queuedPartStore) return;
       for (const queuedPartId of queuedPartIds) {
         const patched = this.applyDerivedPartPatch(
-          sid,
+          sessionId,
           queuedPartStore,
           queuedPartId,
         );
         this.logPartApply(
-          sid,
+          sessionId,
           queuedPartStore,
           queuedPartId,
           queuedPartId,
@@ -1063,9 +1063,9 @@ export class ChatController {
           this.findTaskChildSessionId(queuedPartStore, queuedPartId),
         );
         if (!patched) {
-          this.rederiveAndUpdate(sid, queuedPartStore);
+          this.rederiveAndUpdate(sessionId, queuedPartStore);
           this.logPartApply(
-            sid,
+            sessionId,
             queuedPartStore,
             queuedPartId,
             queuedPartId,
@@ -1078,45 +1078,45 @@ export class ChatController {
       }
     });
   }
-  scheduleRederiveMicrotask(sid) {
-    if (this.queuedRederiveSessionIds.has(sid)) return;
-    this.queuedRederiveSessionIds.add(sid);
+  scheduleRederiveMicrotask(sessionId) {
+    if (this.queuedRederiveSessionIds.has(sessionId)) return;
+    this.queuedRederiveSessionIds.add(sessionId);
     queueMicrotask(() => {
-      this.queuedRederiveSessionIds.delete(sid);
-      const queuedPartStore = this.queuedRederivePartStores.get(sid);
-      this.queuedRederivePartStores.delete(sid);
+      this.queuedRederiveSessionIds.delete(sessionId);
+      const queuedPartStore = this.queuedRederivePartStores.get(sessionId);
+      this.queuedRederivePartStores.delete(sessionId);
       if (!queuedPartStore) return;
-      this.rederiveAndUpdate(sid, queuedPartStore);
+      this.rederiveAndUpdate(sessionId, queuedPartStore);
     });
   }
-  flushQueuedRederive(sid) {
-    this.flushQueuedPartPatches(sid);
-    const queuedPartStore = this.queuedRederivePartStores.get(sid);
-    this.queuedRederiveSessionIds.delete(sid);
-    this.queuedRederivePartStores.delete(sid);
+  flushQueuedRederive(sessionId) {
+    this.flushQueuedPartPatches(sessionId);
+    const queuedPartStore = this.queuedRederivePartStores.get(sessionId);
+    this.queuedRederiveSessionIds.delete(sessionId);
+    this.queuedRederivePartStores.delete(sessionId);
     if (queuedPartStore) {
-      this.rederiveAndUpdate(sid, queuedPartStore);
+      this.rederiveAndUpdate(sessionId, queuedPartStore);
     }
   }
-  flushRederiveAndUpdate(sid, partStore, trigger = "full-derive") {
-    this.queuedPartPatchIds.delete(sid);
-    this.queuedPartPatchStores.delete(sid);
-    this.queuedPartPatchSessionIds.delete(sid);
-    this.queuedRederiveSessionIds.delete(sid);
-    this.queuedRederivePartStores.delete(sid);
-    this.rederiveAndUpdate(sid, partStore, trigger);
+  flushRederiveAndUpdate(sessionId, partStore, trigger = "full-derive") {
+    this.queuedPartPatchIds.delete(sessionId);
+    this.queuedPartPatchStores.delete(sessionId);
+    this.queuedPartPatchSessionIds.delete(sessionId);
+    this.queuedRederiveSessionIds.delete(sessionId);
+    this.queuedRederivePartStores.delete(sessionId);
+    this.rederiveAndUpdate(sessionId, partStore, trigger);
   }
-  flushQueuedPartPatches(sid) {
-    const queuedPartStore = this.queuedPartPatchStores.get(sid);
-    const queuedPartIds = [...(this.queuedPartPatchIds.get(sid) ?? [])];
-    this.queuedPartPatchIds.delete(sid);
-    this.queuedPartPatchStores.delete(sid);
-    this.queuedPartPatchSessionIds.delete(sid);
+  flushQueuedPartPatches(sessionId) {
+    const queuedPartStore = this.queuedPartPatchStores.get(sessionId);
+    const queuedPartIds = [...(this.queuedPartPatchIds.get(sessionId) ?? [])];
+    this.queuedPartPatchIds.delete(sessionId);
+    this.queuedPartPatchStores.delete(sessionId);
+    this.queuedPartPatchSessionIds.delete(sessionId);
     if (!queuedPartStore) return;
     for (const partId of queuedPartIds) {
-      const patched = this.applyDerivedPartPatch(sid, queuedPartStore, partId);
+      const patched = this.applyDerivedPartPatch(sessionId, queuedPartStore, partId);
       this.logPartApply(
-        sid,
+        sessionId,
         queuedPartStore,
         partId,
         partId,
@@ -1125,9 +1125,9 @@ export class ChatController {
         this.findTaskChildSessionId(queuedPartStore, partId),
       );
       if (!patched) {
-        this.rederiveAndUpdate(sid, queuedPartStore);
+        this.rederiveAndUpdate(sessionId, queuedPartStore);
         this.logPartApply(
-          sid,
+          sessionId,
           queuedPartStore,
           partId,
           partId,
@@ -1139,64 +1139,64 @@ export class ChatController {
       }
     }
   }
-  reconcileTerminalChildSession(sid, partStore, childSessionId) {
-    this.flushQueuedRederive(sid);
-    const runtimeId = this.runtimeSessionIds.get(sid);
+  reconcileTerminalChildSession(sessionId, partStore, childSessionId) {
+    this.flushQueuedRederive(sessionId);
+    const runtimeId = this.runtimeSessionIds.get(sessionId);
     const taskPartId = runtimeId
       ? partStore.findTaskPartIdByChildSessionId(runtimeId, childSessionId)
       : void 0;
     if (!taskPartId) {
-      this.markPendingChildReconciliation(sid, childSessionId);
+      this.markPendingChildReconciliation(sessionId, childSessionId);
       return;
     }
-    this.clearPendingChildReconciliation(sid, childSessionId);
-    if (!this.applyDerivedPartPatch(sid, partStore, taskPartId)) {
-      this.flushRederiveAndUpdate(sid, partStore);
+    this.clearPendingChildReconciliation(sessionId, childSessionId);
+    if (!this.applyDerivedPartPatch(sessionId, partStore, taskPartId)) {
+      this.flushRederiveAndUpdate(sessionId, partStore);
     }
   }
-  markPendingChildReconciliation(sid, childSessionId) {
-    const pending2 = this.pendingChildReconciliations.get(sid) ?? new Set();
+  markPendingChildReconciliation(sessionId, childSessionId) {
+    const pending2 = this.pendingChildReconciliations.get(sessionId) ?? new Set();
     pending2.add(childSessionId);
-    this.pendingChildReconciliations.set(sid, pending2);
-    this.diagnostics.pendingChildren(sid, pending2.size);
+    this.pendingChildReconciliations.set(sessionId, pending2);
+    this.diagnostics.pendingChildren(sessionId, pending2.size);
   }
-  clearPendingChildReconciliation(sid, childSessionId) {
-    const pending2 = this.pendingChildReconciliations.get(sid);
+  clearPendingChildReconciliation(sessionId, childSessionId) {
+    const pending2 = this.pendingChildReconciliations.get(sessionId);
     if (!pending2?.delete(childSessionId)) return false;
     if (pending2.size === 0) {
-      this.pendingChildReconciliations.delete(sid);
-      this.diagnostics.pendingChildren(sid, 0);
+      this.pendingChildReconciliations.delete(sessionId);
+      this.diagnostics.pendingChildren(sessionId, 0);
     }
     return true;
   }
-  clearVisiblePendingChildReconciliations(sid) {
-    const pending2 = this.pendingChildReconciliations.get(sid);
+  clearVisiblePendingChildReconciliations(sessionId) {
+    const pending2 = this.pendingChildReconciliations.get(sessionId);
     if (!pending2) return;
     for (const childSessionId of pending2) {
-      if (this.isChildSessionVisible(sid, childSessionId))
+      if (this.isChildSessionVisible(sessionId, childSessionId))
         pending2.delete(childSessionId);
     }
     if (pending2.size === 0) {
-      this.pendingChildReconciliations.delete(sid);
-      this.diagnostics.pendingChildren(sid, 0);
+      this.pendingChildReconciliations.delete(sessionId);
+      this.diagnostics.pendingChildren(sessionId, 0);
     }
   }
-  hasPartMessageIndex(sid) {
-    const index2 = this.messageIndexByPartId.get(sid);
+  hasPartMessageIndex(sessionId) {
+    const index2 = this.messageIndexByPartId.get(sessionId);
     return Boolean(index2 && index2.size > 0);
   }
-  hasDerivedPartMessage(sid, partId) {
-    const index2 = this.messageIndexByPartId.get(sid);
+  hasDerivedPartMessage(sessionId, partId) {
+    const index2 = this.messageIndexByPartId.get(sessionId);
     return Boolean(index2?.has(partId) || index2?.has(subAgentPartId(partId)));
   }
   findTaskChildSessionId(partStore, partId) {
     return extractTaskChildSessionId(partStore.getPart(partId));
   }
-  isChildSessionVisible(sid, childSessionId) {
+  isChildSessionVisible(sessionId, childSessionId) {
     return Boolean(
       this.store
         .getState()
-        .sessions.get(sid)
+        .sessions.get(sessionId)
         ?.messages.some(
           (message2) =>
             message2.type === "sub_agent" &&
@@ -1205,7 +1205,7 @@ export class ChatController {
     );
   }
   logPartApply(
-    sid,
+    sessionId,
     partStore,
     sourcePartId,
     targetPartId,
@@ -1233,23 +1233,23 @@ export class ChatController {
     if (child) {
       fields.push(
         ["child", child],
-        ["visibleChild", this.isChildSessionVisible(sid, child)],
+        ["visibleChild", this.isChildSessionVisible(sessionId, child)],
       );
     }
-    logPartUpdated("apply", sid, fields);
+    logPartUpdated("apply", sessionId, fields);
   }
-  applyDerivedPartPatch(sid, partStore, partId) {
-    const t0 = performance.now();
+  applyDerivedPartPatch(sessionId, partStore, partId) {
+    const startTime = performance.now();
     const state2 = this.store.getState();
     const perfMetadata = {
-      sessionId: sid,
-      workspaceId: state2.sessions.get(sid)?.folder,
+      sessionId,
+      workspaceId: state2.sessions.get(sessionId)?.folder,
       sessionCount: state2.sessions.size,
     };
     let derived = partStore.derivePartMessages(partId, this.childSessionMap, {
       perfMetadata,
     });
-    const comfyUiProgress = this.comfyUiProgressBySession.get(sid);
+    const comfyUiProgress = this.comfyUiProgressBySession.get(sessionId);
     if (comfyUiProgress) {
       for (const [callID, progress] of comfyUiProgress) {
         derived = applyComfyUiProgress(derived, callID, progress);
@@ -1257,7 +1257,7 @@ export class ChatController {
     }
     const affectedPartIds = new Set([partId, subAgentPartId(partId)]);
     let applied = false;
-    this.store.updateMessages(sid, (prev) => {
+    this.store.updateMessages(sessionId, (prev) => {
       const firstIndex = prev.findIndex((message2) =>
         message2.partId ? affectedPartIds.has(message2.partId) : false,
       );
@@ -1269,7 +1269,7 @@ export class ChatController {
         const merged2 = dropSupersededHistorySubAgents(
           resplicePendingToolConfirms([...prev, ...derived]),
         );
-        this.rebuildMessageIndex(sid, merged2);
+        this.rebuildMessageIndex(sessionId, merged2);
         applied = true;
         return merged2;
       }
@@ -1302,13 +1302,13 @@ export class ChatController {
         applied = true;
         return prev;
       }
-      this.rebuildMessageIndex(sid, merged);
+      this.rebuildMessageIndex(sessionId, merged);
       applied = true;
       return merged;
     });
     measurePerf(
       PERF_REDERIVE,
-      t0,
+      startTime,
       {
         parts: 1,
         messages: derived.length,
@@ -1321,14 +1321,14 @@ export class ChatController {
     );
     return applied;
   }
-  rederiveAndUpdate(sid, partStore, trigger = "part-update") {
-    const t0 = performance.now();
-    const runtimeId = this.runtimeSessionIds.get(sid);
+  rederiveAndUpdate(sessionId, partStore, trigger = "part-update") {
+    const startTime = performance.now();
+    const runtimeId = this.runtimeSessionIds.get(sessionId);
     if (!runtimeId) return;
     const state2 = this.store.getState();
     const perfMetadata = {
-      sessionId: sid,
-      workspaceId: state2.sessions.get(sid)?.folder,
+      sessionId,
+      workspaceId: state2.sessions.get(sessionId)?.folder,
       sessionCount: state2.sessions.size,
     };
     let derived = partStore.deriveMessages(
@@ -1336,78 +1336,78 @@ export class ChatController {
       this.childSessionMap,
       perfMetadata,
     );
-    const comfyUiProgress = this.comfyUiProgressBySession.get(sid);
+    const comfyUiProgress = this.comfyUiProgressBySession.get(sessionId);
     if (comfyUiProgress) {
       for (const [callID, progress] of comfyUiProgress) {
         derived = applyComfyUiProgress(derived, callID, progress);
       }
     }
-    const hasDerivedCancelled = derived.some((m3) => m3.type === "cancelled");
+    const hasDerivedCancelled = derived.some((derivedMessage) => derivedMessage.type === "cancelled");
     const derivedByPartId = new Map();
-    for (const m3 of derived) {
-      if (m3.partId) derivedByPartId.set(m3.partId, m3);
+    for (const derivedMessage of derived) {
+      if (derivedMessage.partId) derivedByPartId.set(derivedMessage.partId, derivedMessage);
     }
     const derivedUserRuntimeIds = new Set();
-    for (const m3 of derived) {
-      if (m3.role === "user" && m3.runtimeMessageId) {
-        derivedUserRuntimeIds.add(m3.runtimeMessageId);
+    for (const derivedMessage of derived) {
+      if (derivedMessage.role === "user" && derivedMessage.runtimeMessageId) {
+        derivedUserRuntimeIds.add(derivedMessage.runtimeMessageId);
       }
     }
-    this.store.updateMessages(sid, (prev) => {
+    this.store.updateMessages(sessionId, (prev) => {
       const consumedPartIds = new Set();
       const result = [];
       const liftedConfirmAsks = [];
       const removed = [];
-      for (const m3 of prev) {
-        if (m3.partId) {
-          const fresh = derivedByPartId.get(m3.partId);
+      for (const previousMessage of prev) {
+        if (previousMessage.partId) {
+          const fresh = derivedByPartId.get(previousMessage.partId);
           if (fresh) {
             result.push(fresh);
-            consumedPartIds.add(m3.partId);
-          } else if (m3.type === "tool" || m3.type === "sub_agent") {
-            removed.push(m3);
+            consumedPartIds.add(previousMessage.partId);
+          } else if (previousMessage.type === "tool" || previousMessage.type === "sub_agent") {
+            removed.push(previousMessage);
           }
-        } else if (m3.type === "cancelled" && hasDerivedCancelled);
+        } else if (previousMessage.type === "cancelled" && hasDerivedCancelled);
         else if (
-          m3.role === "user" &&
-          !m3.partId &&
-          m3.runtimeMessageId &&
-          derivedUserRuntimeIds.has(m3.runtimeMessageId)
+          previousMessage.role === "user" &&
+          !previousMessage.partId &&
+          previousMessage.runtimeMessageId &&
+          derivedUserRuntimeIds.has(previousMessage.runtimeMessageId)
         );
         else if (
-          m3.type === "tool_confirm_ask" &&
-          !m3.resolved &&
-          !m3.expired
+          previousMessage.type === "tool_confirm_ask" &&
+          !previousMessage.resolved &&
+          !previousMessage.expired
         ) {
-          liftedConfirmAsks.push(m3);
+          liftedConfirmAsks.push(previousMessage);
         } else {
-          result.push(m3);
+          result.push(previousMessage);
         }
       }
-      for (const d2 of derived) {
-        if (d2.partId && !consumedPartIds.has(d2.partId)) {
-          result.push(d2);
+      for (const derivedMessage of derived) {
+        if (derivedMessage.partId && !consumedPartIds.has(derivedMessage.partId)) {
+          result.push(derivedMessage);
         }
       }
       let merged = result;
-      for (const ask of liftedConfirmAsks) {
-        merged = insertToolConfirmAsk(merged, ask);
+      for (const toolConfirmAsk of liftedConfirmAsks) {
+        merged = insertToolConfirmAsk(merged, toolConfirmAsk);
       }
       merged = dropSupersededHistorySubAgents(merged);
       this.diagnostics.rederived(
-        sid,
+        sessionId,
         trigger,
         prev,
         merged,
         removed,
         partStore,
       );
-      this.rebuildMessageIndex(sid, merged);
+      this.rebuildMessageIndex(sessionId, merged);
       return merged;
     });
     measurePerf(
       PERF_REDERIVE,
-      t0,
+      startTime,
       {
         parts: derived.length,
       },
@@ -1416,18 +1416,18 @@ export class ChatController {
       },
     );
   }
-  patchDeltaContent(sid, partStore, partId) {
-    const t0 = performance.now();
+  patchDeltaContent(sessionId, partStore, partId) {
+    const startTime = performance.now();
     const part = partStore.getPart(partId);
     if (!part) return "missingPart";
-    const runtimeId = this.runtimeSessionIds.get(sid);
+    const runtimeId = this.runtimeSessionIds.get(sessionId);
     if (runtimeId && part.sessionID !== runtimeId) {
       const taskPartId = partStore.findTaskPartIdByChildSessionId(
         runtimeId,
         part.sessionID,
       );
       if (!taskPartId) {
-        this.markPendingChildReconciliation(sid, part.sessionID);
+        this.markPendingChildReconciliation(sessionId, part.sessionID);
         return "waitingParent";
       }
     }
@@ -1439,32 +1439,32 @@ export class ChatController {
           : void 0;
     if (newContent === void 0) return "ignored";
     let patched = false;
-    this.store.updateMessages(sid, (prev) => {
-      const idx = this.findMessageIndexByPartId(sid, prev, partId);
-      if (idx < 0) return prev;
+    this.store.updateMessages(sessionId, (prev) => {
+      const messageIndex = this.findMessageIndexByPartId(sessionId, prev, partId);
+      if (messageIndex < 0) return prev;
       patched = true;
       const updated = [...prev];
-      updated[idx] = {
-        ...prev[idx],
+      updated[messageIndex] = {
+        ...prev[messageIndex],
         content: newContent,
       };
-      this.rebuildMessageIndex(sid, updated);
+      this.rebuildMessageIndex(sessionId, updated);
       return updated;
     });
     if (!patched && newContent) {
-      this.rederiveAndUpdate(sid, partStore);
+      this.rederiveAndUpdate(sessionId, partStore);
     }
     const state2 = this.store.getState();
     measurePerf(
       PERF_PATCH_DELTA,
-      t0,
+      startTime,
       {
         msgCount: patched ? 1 : 0,
       },
       {
         metadata: {
-          sessionId: sid,
-          workspaceId: state2.sessions.get(sid)?.folder,
+          sessionId,
+          workspaceId: state2.sessions.get(sessionId)?.folder,
           sessionCount: state2.sessions.size,
         },
         samplingRate: PERF_PATCH_DELTA_SAMPLE_RATE,
@@ -1472,107 +1472,107 @@ export class ChatController {
     );
     return patched ? "patched" : newContent ? "rederiveAttempted" : "ignored";
   }
-  interactionToChatMessage(msg) {
-    switch (msg.type) {
+  interactionToChatMessage(interaction) {
+    switch (interaction.type) {
       case "question_request": {
-        const m3 = msg;
+        const questionRequest = interaction;
         return {
           id: nextMessageId(),
           role: "agent",
           type: "question",
           content: "",
-          requestId: m3.id,
+          requestId: questionRequest.id,
           resolved: false,
-          childSessionId: m3.childSessionId,
+          childSessionId: questionRequest.childSessionId,
           questionData: {
-            questions: m3.questions,
-            tool: m3.tool,
+            questions: questionRequest.questions,
+            tool: questionRequest.tool,
           },
         };
       }
       case "loop_guard_ask": {
-        const m3 = msg;
+        const loopGuardAsk = interaction;
         return {
           id: nextMessageId(),
           role: "agent",
           type: "loop_guard_ask",
-          content: m3.message,
-          requestId: m3.id,
-          loopGuardSessionId: m3.session_id,
+          content: loopGuardAsk.message,
+          requestId: loopGuardAsk.id,
+          loopGuardSessionId: loopGuardAsk.session_id,
           resolved: false,
           loopGuardData: {
-            tool: m3.tool,
-            hits: m3.hits,
-            window: m3.window,
-            recent_tools: m3.recent_tools,
-            message: m3.message,
+            tool: loopGuardAsk.tool,
+            hits: loopGuardAsk.hits,
+            window: loopGuardAsk.window,
+            recent_tools: loopGuardAsk.recent_tools,
+            message: loopGuardAsk.message,
           },
         };
       }
       case "interact_request": {
-        const m3 = msg;
+        const interactRequest = interaction;
         return {
           id: nextMessageId(),
           role: "agent",
           type: "interact",
-          content: m3.message,
-          requestId: m3.id,
+          content: interactRequest.message,
+          requestId: interactRequest.id,
           resolved: false,
         };
       }
       case "confirm_request": {
-        const m3 = msg;
+        const confirmRequest = interaction;
         return {
           id: nextMessageId(),
           role: "agent",
           type: "confirm",
-          content: m3.description,
-          requestId: m3.id,
+          content: confirmRequest.description,
+          requestId: confirmRequest.id,
           resolved: false,
         };
       }
       case "tool_confirm_ask": {
-        const m3 = msg;
+        const toolConfirmAsk = interaction;
         return {
           id: nextMessageId(),
           role: "agent",
           type: "tool_confirm_ask",
-          content: `Confirm ${m3.tool}`,
-          requestId: m3.id,
+          content: `Confirm ${toolConfirmAsk.tool}`,
+          requestId: toolConfirmAsk.id,
           resolved: false,
           toolConfirmData: {
-            tool: m3.tool,
-            args: m3.args,
-            paramHints: m3.paramHints,
-            vendorParamHints: m3.vendorParamHints,
+            tool: toolConfirmAsk.tool,
+            args: toolConfirmAsk.args,
+            paramHints: toolConfirmAsk.paramHints,
+            vendorParamHints: toolConfirmAsk.vendorParamHints,
           },
         };
       }
       case "credit_threshold_request": {
-        const m3 = msg;
+        const creditThresholdRequest = interaction;
         return {
           id: nextMessageId(),
           role: "agent",
           type: "credit_threshold",
           content: "",
-          requestId: m3.id,
-          sessionId: m3.session_id,
-          kind: m3.kind,
-          expiresAt: m3.expires_at,
-          shortfallCredits: m3.shortfall_credits,
-          estimatedCredits: m3.estimated_credits,
-          thresholdCredits: m3.threshold_credits,
-          currentCredits: m3.current_credits,
-          remainingCredits: m3.remaining_credits,
-          batchId: m3.batch_id,
-          batchItems: m3.items?.map((item) => ({
+          requestId: creditThresholdRequest.id,
+          sessionId: creditThresholdRequest.session_id,
+          kind: creditThresholdRequest.kind,
+          expiresAt: creditThresholdRequest.expires_at,
+          shortfallCredits: creditThresholdRequest.shortfall_credits,
+          estimatedCredits: creditThresholdRequest.estimated_credits,
+          thresholdCredits: creditThresholdRequest.threshold_credits,
+          currentCredits: creditThresholdRequest.current_credits,
+          remainingCredits: creditThresholdRequest.remaining_credits,
+          batchId: creditThresholdRequest.batch_id,
+          batchItems: creditThresholdRequest.items?.map((item) => ({
             itemId: item.item_id,
             mediaType: item.media_type,
             model: item.model,
             estimatedCredits: item.estimated_credits,
             prompt: item.prompt,
           })),
-          maxSelectableCredits: m3.max_selectable_credits,
+          maxSelectableCredits: creditThresholdRequest.max_selectable_credits,
           resolved: false,
         };
       }
@@ -1675,13 +1675,13 @@ export class ChatController {
         const pendingReasons = effect2.pendingReasons ?? [];
         const stillBusy = deriveBusy(effect2.agentRunning, pendingReasons);
         const historyMessages = !stillBusy
-          ? rawMsgs.map((msg) =>
-              msg.type === "tool" && msg.toolStatus === "running"
+          ? rawMsgs.map((rawMessage) =>
+              rawMessage.type === "tool" && rawMessage.toolStatus === "running"
                 ? {
-                    ...msg,
+                    ...rawMessage,
                     toolStatus: "error",
                   }
-                : msg,
+                : rawMessage,
             )
           : rawMsgs;
         const pendingInteractionMessages = (effect2.pendingInteractions ?? [])
@@ -1926,22 +1926,22 @@ export class ChatController {
     if (cached !== void 0 && messages2[cached]?.partId === partId) {
       return cached;
     }
-    const idx = messages2.findIndex((m3) => m3.partId === partId);
-    if (idx >= 0) {
+    const messageIndex = messages2.findIndex((message) => message.partId === partId);
+    if (messageIndex >= 0) {
       let index2 = this.messageIndexByPartId.get(sessionId);
       if (!index2) {
         index2 = new Map();
         this.messageIndexByPartId.set(sessionId, index2);
       }
-      index2.set(partId, idx);
+      index2.set(partId, messageIndex);
     }
-    return idx;
+    return messageIndex;
   }
   rebuildMessageIndex(sessionId, messages2) {
     const index2 = new Map();
-    messages2.forEach((message2, idx) => {
+    messages2.forEach((message2, messageIndex) => {
       if (message2.partId) {
-        index2.set(message2.partId, idx);
+        index2.set(message2.partId, messageIndex);
       }
     });
     if (index2.size > 0) {
@@ -2015,9 +2015,9 @@ export class ChatController {
       }
     }
   }
-  resolveMessages(sid) {
-    if (sid) {
-      const session = this.store.getState().sessions.get(sid);
+  resolveMessages(sessionId) {
+    if (sessionId) {
+      const session = this.store.getState().sessions.get(sessionId);
       if (session) return session.messages;
     }
     return [];
