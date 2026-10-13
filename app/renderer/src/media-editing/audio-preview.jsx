@@ -4,7 +4,7 @@ import { getExtFromMime } from "../canvas/separator.jsx";
 import { reactExports } from "../vendor.js";
 import { MediaClipPanel } from "./media-clip-panel.js";
 const getAudioExt = (mime) => getExtFromMime(mime, "mp3");
-function AudioPreview({ loading, state: state2 }) {
+function AudioPreview({ loading, state }) {
   return (
     <div className="flex items-center justify-center h-[400px]">
       {loading ? (
@@ -20,7 +20,7 @@ function AudioPreview({ loading, state: state2 }) {
                 "linear-gradient(160deg, #8fb8a8 0%, #6a9b8a 40%, #5a8a7a 100%)",
             }}
           >
-            {state2.isPlaying ? (
+            {state.isPlaying ? (
               <div
                 className="flex items-end gap-[3px]"
                 style={{
@@ -102,7 +102,7 @@ function AudioPreview({ loading, state: state2 }) {
   );
 }
 function AudioClipPanelInner({ audioUrl, audioName, onClose, onExport }) {
-  const renderPreview2 = reactExports.useCallback(
+  const renderPreview = reactExports.useCallback(
     (ctx) => <AudioPreview {...ctx} />,
     [],
   );
@@ -113,7 +113,7 @@ function AudioClipPanelInner({ audioUrl, audioName, onClose, onExport }) {
       defaultMime="audio/mpeg"
       onClose={onClose}
       onExport={onExport}
-      renderPreview={renderPreview2}
+      renderPreview={renderPreview}
       getExtFromMime={getAudioExt}
     />
   );

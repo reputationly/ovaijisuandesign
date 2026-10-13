@@ -31,26 +31,26 @@ export function RelightPopover({
   const nodeId = useNodeId() ?? "";
   const onCloseRef = reactExports.useRef(onClose);
   onCloseRef.current = onClose;
-  const selected2 = useStore(
+  const isSelected = useStore(
     reactExports.useCallback(
-      (state2) => (nodeId ? !!state2.nodeLookup.get(nodeId)?.selected : true),
+      (state) => (nodeId ? !!state.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     ),
   );
-  const sourceScreenBottom = useStore((state2) => {
-    const sourceNode = nodeId ? state2.nodeLookup.get(nodeId) : void 0;
+  const sourceScreenBottom = useStore((state) => {
+    const sourceNode = nodeId ? state.nodeLookup.get(nodeId) : void 0;
     const sourcePosition = sourceNode?.internals.positionAbsolute;
     const sourceHeight = sourceNode?.measured.height ?? sourceNode?.height ?? 0;
     if (!sourcePosition) return 0;
-    const [, viewportY, zoom2] = state2.transform;
-    return viewportY + (sourcePosition.y + sourceHeight) * zoom2;
+    const [, viewportY, zoom] = state.transform;
+    return viewportY + (sourcePosition.y + sourceHeight) * zoom;
   });
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
   reactExports.useEffect(() => {
-    if (!selected2) onCloseRef.current();
-  }, [selected2]);
+    if (!isSelected) onCloseRef.current();
+  }, [isSelected]);
   const hidden = isDragging || isMultiSelect || isBoxSelecting;
   const availableHeight =
     window.innerHeight -

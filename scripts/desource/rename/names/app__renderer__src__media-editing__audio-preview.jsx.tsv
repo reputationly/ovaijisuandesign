@@ -1,0 +1,3 @@
+key	new	依据
+state2@7:41	state	音频剪辑预览状态对象，读取其中的 isPlaying 决定显示波形动画或静态图标。
+renderPreview2@105:9	renderPreview	传给 MediaClipPanel 的稳定预览渲染回调，用 AudioPreview 绘制面板内容。

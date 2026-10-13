@@ -1,13 +1,13 @@
 // segmented-control.jsx
 import { __jsx } from "../shared/jsx-runtime.js";
 const SCROLL_EDGE_EPSILON = 1;
-function shouldConsumePanelWheel(element2, deltaY) {
+function shouldConsumePanelWheel(element, deltaY) {
   if (deltaY === 0) return false;
-  const maxScrollTop = element2.scrollHeight - element2.clientHeight;
+  const maxScrollTop = element.scrollHeight - element.clientHeight;
   if (maxScrollTop <= SCROLL_EDGE_EPSILON) return false;
   return deltaY < 0
-    ? element2.scrollTop > SCROLL_EDGE_EPSILON
-    : element2.scrollTop < maxScrollTop - SCROLL_EDGE_EPSILON;
+    ? element.scrollTop > SCROLL_EDGE_EPSILON
+    : element.scrollTop < maxScrollTop - SCROLL_EDGE_EPSILON;
 }
 function handleScrollablePanelWheel(event) {
   if (shouldConsumePanelWheel(event.currentTarget, event.deltaY)) {
@@ -57,7 +57,7 @@ export function SegmentedControl({
       className={`bg-hl_bg_01 flex items-center gap-[2px] rounded-[100px] p-[2px] ${className}`}
     >
       {options.map((opt) => {
-        const isActive2 = opt.value === value;
+        const isActive = opt.value === value;
         return (
           <button
             key={opt.value}
@@ -69,7 +69,7 @@ export function SegmentedControl({
             }
             className={[
               "flex flex-1 items-center justify-center rounded-[100px] py-[7px] transition-colors",
-              isActive2
+              isActive
                 ? "bg-hl_bg_08 text-hl_text_00"
                 : "text-hl_text_02 hover:text-hl_text_00",
             ].join(" ")}
@@ -85,10 +85,10 @@ export function SegmentedControl({
   );
 }
 export function readableGenerationError(error) {
-  const raw2 = error instanceof Error ? error.message : String(error);
-  if (/<!doctype\s+html|<html[\s>]/i.test(raw2)) {
-    const status = raw2.match(/failed:\s*(\d{3})\b/i)?.[1];
+  const raw = error instanceof Error ? error.message : String(error);
+  if (/<!doctype\s+html|<html[\s>]/i.test(raw)) {
+    const status = raw.match(/failed:\s*(\d{3})\b/i)?.[1];
     return status ? `服务请求失败（HTTP ${status}）` : "服务请求失败";
   }
-  return raw2.length > 240 ? `${raw2.slice(0, 240)}…` : raw2;
+  return raw.length > 240 ? `${raw.slice(0, 240)}…` : raw;
 }

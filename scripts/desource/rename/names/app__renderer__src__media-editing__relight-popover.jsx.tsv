@@ -1,0 +1,5 @@
+key	new	依据
+selected2@34:9	isSelected	当前画布节点是否被选中；未选中时通过 effect 关闭补光弹窗。
+state2@36:8	state	useStore 的当前画布状态，用于从 nodeLookup 查询节点选中情况。
+state2@40:40	state	useStore 返回的画布状态，读取节点位置、尺寸和视口变换计算屏幕底边。
+zoom2@45:25	zoom	画布视口变换中的缩放倍率，用于计算节点底边的屏幕坐标。
