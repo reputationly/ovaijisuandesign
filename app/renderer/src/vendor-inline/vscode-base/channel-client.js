@@ -12,8 +12,8 @@ import {
   CancellationToken,
   ChannelServer,
   Emitter,
-  Event$1,
-  __decorateClass$1,
+  Event$1 as eventApi,
+  __decorateClass$1 as applyMemberDecorators,
   createCancelablePromise,
   deserialize,
   isUndefinedOrNull,
@@ -25,7 +25,7 @@ import {
 class ChannelClient {
   constructor(protocol, _logger = null) {
     this.protocol = protocol;
-    this.protocolListener = this.protocol.onMessage((msg) => this.onBuffer(msg));
+    this.protocolListener = this.protocol.onMessage((message) => this.onBuffer(message));
   }
   isDisposed = false;
   state = 0;
@@ -38,75 +38,75 @@ class ChannelClient {
   getChannel(channelName) {
     const that = this;
     return {
-      call(command2, arg, cancellationToken) {
+      call(command, argument, cancellationToken) {
         if (that.isDisposed) {
           return Promise.reject(new CancellationError());
         }
-        return that.requestPromise(channelName, command2, arg, cancellationToken);
+        return that.requestPromise(channelName, command, argument, cancellationToken);
       },
-      listen(event, arg) {
+      listen(event, argument) {
         if (that.isDisposed) {
-          return Event$1.None;
+          return eventApi.None;
         }
-        return that.requestEvent(channelName, event, arg);
+        return that.requestEvent(channelName, event, argument);
       },
     };
   }
-  requestPromise(channelName, name2, arg, cancellationToken = CancellationToken.None) {
-    const id2 = this.lastRequestId++;
-    const type2 = 100;
+  requestPromise(channelName, commandName, argument, cancellationToken = CancellationToken.None) {
+    const id = this.lastRequestId++;
+    const type = 100;
     const request = {
-      id: id2,
-      type: type2,
+      id,
+      type,
       channelName,
-      name: name2,
-      arg,
+      name: commandName,
+      arg: argument,
     };
     if (cancellationToken.isCancellationRequested) {
       return Promise.reject(new CancellationError());
     }
     let disposable;
     let disposableWithRequestCancel;
-    const result = new Promise((c3, e2) => {
+    const result = new Promise((c, e) => {
       if (cancellationToken.isCancellationRequested) {
-        return e2(new CancellationError());
+        return e(new CancellationError());
       }
       const doRequest = () => {
         const handler = (response) => {
           switch (response.type) {
             case 201:
-              this.handlers.delete(id2);
-              c3(response.data);
+              this.handlers.delete(id);
+              c(response.data);
               break;
             case 202: {
-              this.handlers.delete(id2);
+              this.handlers.delete(id);
               const error = new Error(response.data.message);
               error.stack = Array.isArray(response.data.stack)
                 ? response.data.stack.join("\n")
                 : response.data.stack;
               error.name = response.data.name;
-              e2(error);
+              e(error);
               break;
             }
             case 203:
-              this.handlers.delete(id2);
-              e2(response.data);
+              this.handlers.delete(id);
+              e(response.data);
               break;
           }
         };
-        this.handlers.set(id2, handler);
+        this.handlers.set(id, handler);
         try {
           this.sendRequest(request);
-        } catch (err) {
-          this.handlers.delete(id2);
-          e2(err);
+        } catch (error) {
+          this.handlers.delete(id);
+          e(error);
         }
       };
       let uninitializedPromise = null;
       if (this.state === 1) {
         doRequest();
       } else {
-        uninitializedPromise = createCancelablePromise((_2) => this.whenInitialized());
+        uninitializedPromise = createCancelablePromise((_token) => this.whenInitialized());
         uninitializedPromise.then(() => {
           uninitializedPromise = null;
           doRequest();
@@ -118,12 +118,12 @@ class ChannelClient {
           uninitializedPromise = null;
         } else {
           this.sendRequest({
-            id: id2,
+            id,
             type: 101,
             /* PromiseCancel */
           });
         }
-        e2(new CancellationError());
+        e(new CancellationError());
       };
       disposable = cancellationToken.onCancellationRequested(cancel);
       disposableWithRequestCancel = {
@@ -139,15 +139,15 @@ class ChannelClient {
       this.activeRequests.delete(disposableWithRequestCancel);
     });
   }
-  requestEvent(channelName, name2, arg) {
-    const id2 = this.lastRequestId++;
-    const type2 = 102;
+  requestEvent(channelName, eventName, argument) {
+    const id = this.lastRequestId++;
+    const type = 102;
     const request = {
-      id: id2,
-      type: type2,
+      id,
+      type,
       channelName,
-      name: name2,
-      arg,
+      name: eventName,
+      arg: argument,
     };
     let uninitializedPromise = null;
     const emitter = new Emitter({
@@ -156,15 +156,15 @@ class ChannelClient {
           this.activeRequests.add(emitter);
           try {
             this.sendRequest(request);
-          } catch (err) {
+          } catch (error) {
             this.activeRequests.delete(emitter);
-            onUnexpectedError(err);
+            onUnexpectedError(error);
           }
         };
         if (this.state === 1) {
           doRequest();
         } else {
-          uninitializedPromise = createCancelablePromise((_2) => this.whenInitialized());
+          uninitializedPromise = createCancelablePromise((_token) => this.whenInitialized());
           uninitializedPromise.then(() => {
             uninitializedPromise = null;
             doRequest();
@@ -178,16 +178,16 @@ class ChannelClient {
         } else {
           this.activeRequests.delete(emitter);
           this.sendRequest({
-            id: id2,
+            id,
             type: 103,
             /* EventDispose */
           });
         }
-        this.handlers.delete(id2);
+        this.handlers.delete(id);
       },
     });
-    const handler = (res) => emitter.fire(res.data);
-    this.handlers.set(id2, handler);
+    const handler = (response) => emitter.fire(response.data);
+    this.handlers.set(id, handler);
     return emitter.event;
   }
   sendRequest(request) {
@@ -204,48 +204,48 @@ class ChannelClient {
       }
     }
   }
-  send(header, body2 = void 0) {
+  send(header, body = void 0) {
     const writer = new BufferWriter();
     serialize(writer, header);
-    serialize(writer, body2);
+    serialize(writer, body);
     return this.sendBuffer(writer.buffer);
   }
-  sendBuffer(message2) {
+  sendBuffer(message) {
     try {
-      this.protocol.send(message2);
-      return message2.byteLength;
+      this.protocol.send(message);
+      return message.byteLength;
     } catch {
       return 0;
     }
   }
-  onBuffer(message2) {
-    const reader = new BufferReader(message2);
+  onBuffer(message) {
+    const reader = new BufferReader(message);
     let header;
     try {
       header = deserialize(reader);
-    } catch (err) {
+    } catch (error) {
       onUnexpectedError(
         new Error(
-          `IPC response header could not be decoded (${message2.byteLength} bytes): ${err instanceof Error ? err.message : String(err)}`,
+          `IPC response header could not be decoded (${message.byteLength} bytes): ${error instanceof Error ? error.message : String(error)}`,
         ),
       );
       return;
     }
     if (!Array.isArray(header)) {
       onUnexpectedError(
-        new Error(`IPC response header has an unexpected shape (${message2.byteLength} bytes)`),
+        new Error(`IPC response header has an unexpected shape (${message.byteLength} bytes)`),
       );
       return;
     }
-    const type2 = header[0];
-    let body2;
+    const type = header[0];
+    let body;
     try {
-      body2 = deserialize(reader);
-    } catch (err) {
-      this.onUndecodableResponse(type2, header, message2.byteLength, err);
+      body = deserialize(reader);
+    } catch (error) {
+      this.onUndecodableResponse(type, header, message.byteLength, error);
       return;
     }
-    switch (type2) {
+    switch (type) {
       case 200:
         return this.onResponse({
           type: header[0],
@@ -257,7 +257,7 @@ class ChannelClient {
         return this.onResponse({
           type: header[0],
           id: header[1],
-          data: body2,
+          data: body,
         });
     }
   }
@@ -269,20 +269,20 @@ class ChannelClient {
    * emitters, whose handler forwards `data` straight to subscribers, so
    * injecting an error there would surface as a bogus event payload.
    */
-  onUndecodableResponse(type2, header, byteLength, cause) {
+  onUndecodableResponse(type, header, byteLength, cause) {
     const detail = cause instanceof Error ? cause.message : String(cause);
     const error = new Error(`IPC response could not be decoded (${byteLength} bytes): ${detail}`);
     onUnexpectedError(error);
-    if (type2 !== 201 && type2 !== 202 && type2 !== 203) {
+    if (type !== 201 && type !== 202 && type !== 203) {
       return;
     }
-    const id2 = header[1];
-    if (typeof id2 !== "number") return;
-    const handler = this.handlers.get(id2);
+    const id = header[1];
+    if (typeof id !== "number") return;
+    const handler = this.handlers.get(id);
     if (!handler) return;
     handler({
       type: 203,
-      id: id2,
+      id,
       data: error,
     });
   }
@@ -296,7 +296,7 @@ class ChannelClient {
     handler?.(response);
   }
   get onDidInitializePromise() {
-    return Event$1.toPromise(this.onDidInitialize);
+    return eventApi.toPromise(this.onDidInitialize);
   }
   whenInitialized() {
     if (this.state === 1) {
@@ -316,16 +316,16 @@ class ChannelClient {
     this._onDidInitialize.dispose();
   }
 }
-__decorateClass$1([memoize], ChannelClient.prototype, "onDidInitializePromise");
+applyMemberDecorators([memoize], ChannelClient.prototype, "onDidInitializePromise");
 export class IPCClient {
   channelClient;
   channelServer;
-  constructor(protocol, ctx, ipcLogger = null) {
+  constructor(protocol, context, ipcLogger = null) {
     const writer = new BufferWriter();
-    serialize(writer, ctx);
+    serialize(writer, context);
     protocol.send(writer.buffer);
     this.channelClient = new ChannelClient(protocol, ipcLogger);
-    this.channelServer = new ChannelServer(protocol, ctx, ipcLogger);
+    this.channelServer = new ChannelServer(protocol, context, ipcLogger);
   }
   getChannel(channelName) {
     return this.channelClient.getChannel(channelName);
@@ -342,18 +342,18 @@ export class IPCClient {
   }
 }
 export var ProxyChannel;
-((ProxyChannel2) => {
-  function fromService(service2, disposables2, options) {
-    const handler = service2;
+((ProxyChannel) => {
+  function fromService(service, disposables, options) {
+    const handler = service;
     const disableMarshalling = options?.disableMarshalling;
     const mapEventNameToEvent = new Map();
-    for (const key2 in handler) {
-      if (propertyIsEvent(key2)) {
-        mapEventNameToEvent.set(key2, Event$1.buffer(handler[key2], false, void 0, disposables2));
+    for (const key in handler) {
+      if (propertyIsEvent(key)) {
+        mapEventNameToEvent.set(key, eventApi.buffer(handler[key], false, void 0, disposables));
       }
     }
     return new (class {
-      listen(_2, event, arg) {
+      listen(_context, event, argument) {
         const eventImpl = mapEventNameToEvent.get(event);
         if (eventImpl) {
           return eventImpl;
@@ -361,37 +361,37 @@ export var ProxyChannel;
         const target = handler[event];
         if (typeof target === "function") {
           if (propertyIsDynamicEvent(event)) {
-            return target.call(handler, arg);
+            return target.call(handler, argument);
           }
           if (propertyIsEvent(event)) {
             mapEventNameToEvent.set(
               event,
-              Event$1.buffer(handler[event], false, void 0, disposables2),
+              eventApi.buffer(handler[event], false, void 0, disposables),
             );
             return mapEventNameToEvent.get(event);
           }
         }
         throw new ErrorNoTelemetry(`Event not found: ${event}`);
       }
-      call(_2, command2, args) {
-        const target = handler[command2];
+      call(_context, command, args) {
+        const target = handler[command];
         if (typeof target === "function") {
           if (!disableMarshalling && Array.isArray(args)) {
-            for (let i2 = 0; i2 < args.length; i2++) {
-              args[i2] = revive(args[i2]);
+            for (let i = 0; i < args.length; i++) {
+              args[i] = revive(args[i]);
             }
           }
-          let res = target.apply(handler, args);
-          if (!(res instanceof Promise)) {
-            res = Promise.resolve(res);
+          let result = target.apply(handler, args);
+          if (!(result instanceof Promise)) {
+            result = Promise.resolve(result);
           }
-          return res;
+          return result;
         }
-        throw new ErrorNoTelemetry(`Method not found: ${command2}`);
+        throw new ErrorNoTelemetry(`Method not found: ${command}`);
       }
     })();
   }
-  ProxyChannel2.fromService = fromService;
+  ProxyChannel.fromService = fromService;
   function toService(channel, options) {
     const disableMarshalling = options?.disableMarshalling;
     return new Proxy(
@@ -406,7 +406,7 @@ export var ProxyChannel;
               return options.properties.get(propKey);
             }
             if (propertyIsDynamicEvent(propKey)) {
-              return (arg) => channel.listen(propKey, arg);
+              return (argument) => channel.listen(propKey, argument);
             }
             if (propertyIsEvent(propKey)) {
               return channel.listen(propKey);
@@ -430,11 +430,11 @@ export var ProxyChannel;
       },
     );
   }
-  ProxyChannel2.toService = toService;
-  function propertyIsEvent(name2) {
-    return name2[0] === "o" && name2[1] === "n" && isUpperAsciiLetter(name2.charCodeAt(2));
+  ProxyChannel.toService = toService;
+  function propertyIsEvent(propertyName) {
+    return propertyName[0] === "o" && propertyName[1] === "n" && isUpperAsciiLetter(propertyName.charCodeAt(2));
   }
-  function propertyIsDynamicEvent(name2) {
-    return /^onDynamic/.test(name2) && isUpperAsciiLetter(name2.charCodeAt(9));
+  function propertyIsDynamicEvent(propertyName) {
+    return /^onDynamic/.test(propertyName) && isUpperAsciiLetter(propertyName.charCodeAt(9));
   }
 })(ProxyChannel || (ProxyChannel = {}));
