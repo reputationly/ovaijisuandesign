@@ -1,5 +1,5 @@
 // message-input-base.jsx
-import { ArrowUp, DOMParser$1 as DOMParser, EditorContent, jsxRuntimeExports, reactExports, Slice, src_default$1, useCurrentWorkspace, useEditor, useTranslation } from "../vendor.js";
+import { ArrowUp, DOMParser$1 as DOMParser, EditorContent, jsxRuntimeExports, reactExports, Slice, src_default$1 as PlaceholderExtension, useCurrentWorkspace, useEditor, useTranslation } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   chatLog,
@@ -84,7 +84,7 @@ import {
 import { SlashCommandPopover } from "../workspace/slash-command-popover.jsx";
 import { MediaHoverPreview } from "../media-editing/media-hover-preview.jsx";
 import { TooltipContent } from "../infra/dialog-content.jsx";
-export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
+export const MessageInputBase = reactExports.forwardRef(function MessageInput(
   {
     onSend,
     onSendPreparingChange,
@@ -142,9 +142,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     onFolderChipClick,
     fileDropScope = "input",
   },
-  ref,
+  forwardedRef,
 ) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const loadPreviewText = usePreviewTextLoader();
   const mountedRef = reactExports.useRef(false);
   reactExports.useLayoutEffect(() => {
@@ -167,7 +167,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   const baseInteractionLocked = busy || sendPreparing;
   const interactionLocked = baseInteractionLocked || annotationOpen;
   const agentRunning = running2 ?? busy;
-  const dropFoldersUnsupportedText = t2("chat.dropFoldersUnsupported");
+  const dropFoldersUnsupportedText = translate("chat.dropFoldersUnsupported");
   const [input, setInput] = reactExports.useState("");
   const [directSelectedSkill, setDirectSelectedSkill] =
     reactExports.useState(null);
@@ -194,12 +194,12 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     inlineAssetTopRef.current = target;
   }, []);
   reactExports.useLayoutEffect(() => {
-    const row = actionRowRef.current;
+    const actionRow = actionRowRef.current;
     const left = leftActionsRef.current;
-    if (!row || !left) return;
+    if (!actionRow || !left) return;
     let frame2 = 0;
     let disposed = false;
-    const expandedActionsMeasurer = createExpandedComposerActionsMeasurer(row);
+    const expandedActionsMeasurer = createExpandedComposerActionsMeasurer(actionRow);
     const applyCompact = (next2) => {
       if (actionsCompactRef.current === next2) return;
       actionsCompactRef.current = next2;
@@ -209,13 +209,13 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     const measure = () => {
       if (disposed) return;
       const hasOptionalActions = Boolean(
-        row.querySelector("[data-composer-optional]"),
+        actionRow.querySelector("[data-composer-optional]"),
       );
       if (!hasOptionalActions) {
         applyCompact(false);
         return;
       }
-      const availableWidth = row.clientWidth;
+      const availableWidth = actionRow.clientWidth;
       if (availableWidth <= 0) return;
       const expandedRequiredWidth = expandedActionsMeasurer.measure();
       const next2 = resolveComposerActionsCompact({
@@ -241,7 +241,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       typeof ResizeObserver === "undefined"
         ? null
         : new ResizeObserver(scheduleMeasure);
-    resizeObserver?.observe(row);
+    resizeObserver?.observe(actionRow);
     resizeObserver?.observe(left);
     resizeObserver?.observe(expandedActionsMeasurer.element);
     const mutationObserver =
@@ -251,7 +251,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
             expandedActionsMeasurer.refresh();
             scheduleMeasure();
           });
-    mutationObserver?.observe(row, {
+    mutationObserver?.observe(actionRow, {
       attributes: true,
       childList: true,
       characterData: true,
@@ -398,16 +398,16 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   const mentionReferenceFiles = reactExports.useMemo(
     () =>
       attachments
-        .filter((a2) => a2.status === "done" && Boolean(a2.relativePath))
-        .map((a2) => {
-          const path2 = a2.relativePath;
+        .filter((attachment) => attachment.status === "done" && Boolean(attachment.relativePath))
+        .map((attachment) => {
+          const path2 = attachment.relativePath;
           return {
-            name: a2.filename,
+            name: attachment.filename,
             path: path2,
-            kind: mentionKindFromFileType(a2.fileType, path2),
-            ...(a2.attachmentId
+            kind: mentionKindFromFileType(attachment.fileType, path2),
+            ...(attachment.attachmentId
               ? {
-                  attachment_id: a2.attachmentId,
+                  attachment_id: attachment.attachmentId,
                 }
               : {}),
           };
@@ -437,9 +437,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   }, []);
   const resolvedPlaceholder = agentRunning
     ? showBusyPlaceholder
-      ? (placeholderBusy ?? t2("chat.placeholderBusy"))
+      ? (placeholderBusy ?? translate("chat.placeholderBusy"))
       : ""
-    : (placeholder ?? t2("chat.placeholder"));
+    : (placeholder ?? translate("chat.placeholder"));
   const placeholderDecorationKey = placeholderNode ? "" : resolvedPlaceholder;
   placeholderTextRef.current = ghostTextRef.current
     ? ""
@@ -465,7 +465,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           listItem: false,
           horizontalRule: false,
         }),
-        src_default$1.configure({
+        PlaceholderExtension.configure({
           placeholder: () => placeholderTextRef.current,
           showOnlyWhenEditable: false,
         }),
@@ -476,13 +476,13 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       ],
       content: "",
       editable: !busy,
-      onUpdate({ editor: e2, transaction }) {
-        if (isUnmountingRef.current || e2.isDestroyed) return;
+      onUpdate({ editor, transaction }) {
+        if (isUnmountingRef.current || editor.isDestroyed) return;
         if (!transaction.docChanged) return;
-        const text2 = getDocText(e2.state.doc);
+        const text2 = getDocText(editor.state.doc);
         suppressSyncRef.current = true;
         setInput(text2);
-        onInputChangeRef.current?.(text2, e2.getJSON());
+        onInputChangeRef.current?.(text2, editor.getJSON());
         queueMicrotask(() => {
           suppressSyncRef.current = false;
         });
@@ -525,21 +525,21 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           if (inlineJSON.length === 0) return false;
           try {
             const nodes = inlineJSON
-              .map((j2) => view2.state.schema.nodeFromJSON(j2))
-              .filter((n2) => !!n2);
+              .map((nodeJson) => view2.state.schema.nodeFromJSON(nodeJson))
+              .filter((node) => !!node);
             if (nodes.length === 0) return false;
             event.preventDefault();
-            const tr2 = view2.state.tr.replaceSelectionWith(nodes[0], false);
-            for (let i2 = 1; i2 < nodes.length; i2++) {
-              tr2.insert(tr2.selection.to, nodes[i2]);
+            const transaction = view2.state.tr.replaceSelectionWith(nodes[0], false);
+            for (let nodeIndex = 1; nodeIndex < nodes.length; nodeIndex++) {
+              transaction.insert(transaction.selection.to, nodes[nodeIndex]);
             }
-            view2.dispatch(tr2);
+            view2.dispatch(transaction);
             queueMicrotask(() => {
               const add2 = addFromAssetPathRef.current;
               const seen2 = new Set();
-              for (const j2 of inlineJSON) {
-                if (j2.type !== "mentionRef") continue;
-                const attrs = j2.attrs;
+              for (const nodeJson of inlineJSON) {
+                if (nodeJson.type !== "mentionRef") continue;
+                const attrs = nodeJson.attrs;
                 if (
                   !attrs ||
                   ["model", "connector", "asset"].includes(attrs.kind) ||
@@ -591,16 +591,16 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     editor.view.dispatch(editor.state.tr);
   }, [editor, placeholderDecorationKey]);
   const handleRemoveAttachment = reactExports.useCallback(
-    (id2) => {
+    (attachmentId) => {
       if (sendInFlightRef.current) return;
-      const target = attachments.find((attachment) => attachment.id === id2);
+      const target = attachments.find((attachment) => attachment.id === attachmentId);
       if (target?.source && readOnlyAttachmentSources?.includes(target.source))
         return;
       if (busyRef.current || !target || target.commitOperationId) return;
       if (target.relativePath && editor) {
-        const tr2 = editor.state.tr;
+        const transaction = editor.state.tr;
         const ranges = [];
-        editor.state.doc.descendants((node2, pos) => {
+        editor.state.doc.descendants((node2, nodePosition) => {
           if (
             node2.type.name === "mentionRef" &&
             node2.attrs.path === target.relativePath &&
@@ -609,16 +609,16 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
             )
           )
             ranges.push({
-              from: pos,
-              to: pos + node2.nodeSize,
+              from: nodePosition,
+              to: nodePosition + node2.nodeSize,
             });
         });
         for (const range2 of ranges.reverse())
-          tr2.delete(range2.from, range2.to);
-        if (tr2.docChanged) editor.view.dispatch(tr2);
+          transaction.delete(range2.from, range2.to);
+        if (transaction.docChanged) editor.view.dispatch(transaction);
         mentionFileRef.current.delete(target.relativePath);
       }
-      remove2(id2);
+      remove2(attachmentId);
     },
     [attachments, editor, readOnlyAttachmentSources, remove2],
   );
@@ -638,9 +638,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     }
   }, [input, editor]);
   const hasReadyAttachments = attachments.some(
-    (a2) =>
-      (a2.status === "done" && !!a2.relativePath) ||
-      (a2.kind === "plugin-node" && !!a2.pluginNodeId),
+    (attachment) =>
+      (attachment.status === "done" && !!attachment.relativePath) ||
+      (attachment.kind === "plugin-node" && !!attachment.pluginNodeId),
   );
   const canSend =
     (!!input.trim() || hasReadyAttachments || allowEmptySend) &&
@@ -654,7 +654,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   });
   const nodeSkillGuidePrompt =
     skillPopoverMode === "director-stage" || skillPopoverMode === "clip-editor"
-      ? t2("chat.nodeSkillGuidePrompt")
+      ? translate("chat.nodeSkillGuidePrompt")
       : void 0;
   const {
     open: slashOpen,
@@ -739,8 +739,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           kind: mentionKindFromFileType(next2.fileType, next2.relativePath),
         };
         const attrs = buildFileMentionAttrs(file, scopedGatewayUrl);
-        const tr2 = editor.state.tr;
-        editor.state.doc.descendants((node2, pos) => {
+        const transaction = editor.state.tr;
+        editor.state.doc.descendants((node2, nodePosition) => {
           if (
             node2.type.name === "mentionRef" &&
             node2.attrs.path === previous2.relativePath &&
@@ -748,14 +748,14 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
               node2.attrs.kind,
             )
           )
-            tr2.setNodeMarkup(pos, void 0, {
+            transaction.setNodeMarkup(nodePosition, void 0, {
               ...node2.attrs,
               ...attrs,
             });
         });
         mentionFileRef.current.delete(previous2.relativePath);
         mentionFileRef.current.set(next2.relativePath, file);
-        if (tr2.docChanged) editor.view.dispatch(tr2);
+        if (transaction.docChanged) editor.view.dispatch(transaction);
       },
     }),
     [
@@ -767,10 +767,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     ],
   );
   const handleReplaceLocal = reactExports.useCallback(
-    (id2, file) => {
-      const target = attachments.find((item) => item.id === id2);
+    (attachmentId, file) => {
+      const target = attachments.find((item) => item.id === attachmentId);
       return target
-        ? replaceFromLocal(id2, file, replacementOptions(target))
+        ? replaceFromLocal(attachmentId, file, replacementOptions(target))
         : Promise.resolve(false);
     },
     [attachments, replaceFromLocal, replacementOptions],
@@ -784,21 +784,21 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     [replacementOptions],
   );
   const visibleModels = reactExports.useMemo(
-    () => (mentionModels ?? []).filter((m3) => m3.visibility !== "hidden"),
+    () => (mentionModels ?? []).filter((modelCandidate) => modelCandidate.visibility !== "hidden"),
     [mentionModels],
   );
   const handleSelectModel = reactExports.useCallback(
     (model) => {
       if (sendInFlightRef.current) return;
       if (!selectedMediaModels || !onSelectedMediaModelsChange) return;
-      const cat = model.mediaType;
-      const list2 = selectedMediaModels[cat];
+      const mediaType = model.mediaType;
+      const list2 = selectedMediaModels[mediaType];
       if (list2 === void 0) return;
       const targetId = model.modelName || model.id;
       if (list2.includes(targetId)) return;
       onSelectedMediaModelsChange({
         ...selectedMediaModels,
-        [cat]: [...list2, targetId],
+        [mediaType]: [...list2, targetId],
       });
     },
     [selectedMediaModels, onSelectedMediaModelsChange],
@@ -834,15 +834,15 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           mediaUrl: null,
         };
       } else if (item.category === "model") {
-        const m3 = item.model;
+        const mediaModel = item.model;
         attrs = {
-          path: m3.id,
-          name: m3.displayName,
-          modelName: m3.modelName,
-          mentionName: m3.mentionName ?? m3.modelName,
+          path: mediaModel.id,
+          name: mediaModel.displayName,
+          modelName: mediaModel.modelName,
+          mentionName: mediaModel.mentionName ?? mediaModel.modelName,
           kind: "model",
-          mediaType: m3.mediaType,
-          thumbUrl: m3.iconUrl || null,
+          mediaType: mediaModel.mediaType,
+          thumbUrl: mediaModel.iconUrl || null,
           previewUrl: null,
           mediaUrl: null,
         };
@@ -869,9 +869,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           mediaUrl: null,
         };
       } else {
-        const f2 = item.file;
-        mentionFileRef.current.set(f2.path, f2);
-        attrs = buildFileMentionAttrs(f2, scopedGatewayUrl);
+        const attachmentFile = item.file;
+        mentionFileRef.current.set(attachmentFile.path, attachmentFile);
+        attrs = buildFileMentionAttrs(attachmentFile, scopedGatewayUrl);
       }
       return editor
         .chain()
@@ -902,10 +902,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           });
         })
         .catch(() => {
-          dedupedToast.error(t2("mention.popover.workflowAttachFailed"));
+          dedupedToast.error(translate("mention.popover.workflowAttachFailed"));
         });
     },
-    [addFromLocal, addFromPluginNode, loadLocalComfyUiWorkflowGraph, t2],
+    [addFromLocal, addFromPluginNode, loadLocalComfyUiWorkflowGraph, translate],
   );
   const handleInsertAssetMention = reactExports.useCallback(
     (target) => {
@@ -1075,25 +1075,25 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     if (!mentionVisible) inlineAssetTopRef.current = null;
   }, [mentionVisible]);
   reactExports.useEffect(() => {
-    let el = null;
+    let editorElement = null;
     try {
-      el = editor?.view.dom ?? null;
+      editorElement = editor?.view.dom ?? null;
     } catch {
       return;
     }
-    if (!el) return;
+    if (!editorElement) return;
     const slashVisible = enableSlashCommands && slashOpen;
     const expanded = slashVisible || mentionVisible;
-    el.setAttribute("aria-expanded", String(expanded));
+    editorElement.setAttribute("aria-expanded", String(expanded));
     const controls = mentionVisible
       ? MENTION_POPOVER_ID
       : slashVisible
         ? POPOVER_ID
         : void 0;
     if (controls) {
-      el.setAttribute("aria-controls", controls);
+      editorElement.setAttribute("aria-controls", controls);
     } else {
-      el.removeAttribute("aria-controls");
+      editorElement.removeAttribute("aria-controls");
     }
     const descendant2 =
       mentionVisible && mentionState.items[mentionState.activeIndex]
@@ -1104,9 +1104,9 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
           ? `slash-opt-${slashTabFiltered[slashActiveIndex].name}`
           : void 0;
     if (descendant2) {
-      el.setAttribute("aria-activedescendant", descendant2);
+      editorElement.setAttribute("aria-activedescendant", descendant2);
     } else {
-      el.removeAttribute("aria-activedescendant");
+      editorElement.removeAttribute("aria-activedescendant");
     }
   }, [
     editor,
@@ -1120,12 +1120,12 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   ]);
   reactExports.useEffect(() => {
     if (!editor) return;
-    const handler = ({ transaction: tr2 }) => {
-      if (tr2.docChanged) {
+    const handler = ({ transaction }) => {
+      if (transaction.docChanged) {
         setMentionPreview(null);
       }
       if (suppressSyncRef.current) return;
-      if (!tr2.docChanged && !tr2.selectionSet) return;
+      if (!transaction.docChanged && !transaction.selectionSet) return;
       const caret = pmPosToTextOffset(
         editor.state.doc,
         editor.state.selection.$anchor.pos,
@@ -1155,25 +1155,25 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     const ranges = [];
     for (const skill of skillsToScan) {
       const cmd2 = `/${skill.name}`;
-      let pos = 0;
-      while (pos <= input.length - cmd2.length) {
-        const idx = input.indexOf(cmd2, pos);
-        if (idx === -1) break;
-        const endPos = idx + cmd2.length;
+      let searchPosition = 0;
+      while (searchPosition <= input.length - cmd2.length) {
+        const matchIndex = input.indexOf(cmd2, searchPosition);
+        if (matchIndex === -1) break;
+        const endPos = matchIndex + cmd2.length;
         if (
           endPos === input.length ||
           input[endPos] === " " ||
           input[endPos] === "/"
         ) {
           ranges.push({
-            start: idx,
+            start: matchIndex,
             end: endPos,
           });
         }
-        pos = idx + 1;
+        searchPosition = matchIndex + 1;
       }
     }
-    return ranges.sort((a2, b3) => a2.start - b3.start);
+    return ranges.sort((leftRange, rightRange) => leftRange.start - rightRange.start);
   }, [
     enableSlashCommands,
     input,
@@ -1196,11 +1196,11 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   const allHighlights = reactExports.useMemo(
     () =>
       skillHighlights
-        .map((r2) => ({
-          ...r2,
+        .map((range) => ({
+          ...range,
           kind: "skill",
         }))
-        .sort((a2, b3) => a2.start - b3.start),
+        .sort((leftRange, rightRange) => leftRange.start - rightRange.start),
     [skillHighlights],
   );
   reactExports.useEffect(() => {
@@ -1417,7 +1417,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   }, [autoFocus, editor]);
   const selectSkillByName = reactExports.useCallback(
     (name2) => {
-      const skill = slashAllSkills.find((s2) => s2.name === name2);
+      const skill = slashAllSkills.find((skill) => skill.name === name2);
       if (skill) {
         selectSkill(skill);
         editor?.commands.focus();
@@ -1450,17 +1450,17 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       if (!editor) return;
       suppressSyncRef.current = true;
       const content2 = [];
-      for (const seg of segments) {
-        if (seg.type === "text") {
-          if (seg.text)
+      for (const segment of segments) {
+        if (segment.type === "text") {
+          if (segment.text)
             content2.push({
               type: "text",
-              text: seg.text,
+              text: segment.text,
             });
         } else {
           content2.push({
             type: "mentionRef",
-            attrs: seg.attrs,
+            attrs: segment.attrs,
           });
         }
       }
@@ -1546,23 +1546,23 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     (folderId, absPath) => {
       if (!editor) return;
       const base2 = folderBaseName(absPath);
-      let tr2 = editor.state.tr;
-      let hit = false;
-      editor.state.doc.descendants((node2, pos) => {
+      let transaction = editor.state.tr;
+      let hasMatchingFolder = false;
+      editor.state.doc.descendants((node2, nodePosition) => {
         if (node2.type.name !== "mentionRef") return;
         const attrs = node2.attrs;
         if (!attrs.isFolder || attrs.folderId !== folderId) return;
-        tr2 = tr2.setNodeMarkup(pos, void 0, {
+        transaction = transaction.setNodeMarkup(nodePosition, void 0, {
           ...attrs,
           name: base2,
           path: absPath,
           folderResolvedPath: absPath,
         });
-        hit = true;
+        hasMatchingFolder = true;
       });
-      if (!hit || !tr2.docChanged) return;
+      if (!hasMatchingFolder || !transaction.docChanged) return;
       suppressSyncRef.current = true;
-      editor.view.dispatch(tr2);
+      editor.view.dispatch(transaction);
       const text2 = getDocText(editor.state.doc);
       setInput(text2);
       onInputChangeRef.current?.(text2, editor.getJSON());
@@ -1580,7 +1580,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     selectedAssetEntityIdsRef.current = [];
   }, [resetInput, clear]);
   reactExports.useImperativeHandle(
-    ref,
+    forwardedRef,
     () => ({
       submit: () => submitRef.current(),
       addFromAssetPath: (...args) => {
@@ -1799,8 +1799,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       if (accepted) return true;
       dedupedToast.error(
         error instanceof UploadCommitUnsupportedFilesystemError
-          ? t2("chat.uploadCommitUnsupportedFilesystem")
-          : t2("chat.sendFailed"),
+          ? translate("chat.uploadCommitUnsupportedFilesystem")
+          : translate("chat.sendFailed"),
       );
       return false;
     } finally {
@@ -1836,34 +1836,34 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     clearOnSend,
     reset2,
     resetInput,
-    t2,
+    translate,
   ]);
   submitRef.current = handleSend;
   const loadHistoryMessage = reactExports.useCallback(
-    (msg, cursorTo) => {
+    (message, cursorTo) => {
       clear();
       const historyAttachments = attachmentsFromHistory(
-        msg.type === "text" ? msg.attachments : void 0,
+        message.type === "text" ? message.attachments : void 0,
       );
-      for (const att of historyAttachments) {
-        mentionFileRef.current.set(att.path, {
-          name: att.filename,
-          path: att.path,
-          kind: mentionKindFromPath(att.path),
+      for (const attachment of historyAttachments) {
+        mentionFileRef.current.set(attachment.path, {
+          name: attachment.filename,
+          path: attachment.path,
+          kind: mentionKindFromPath(attachment.path),
         });
       }
-      editor?.commands.setContent(parseInputRef.current(msg.content), {
+      editor?.commands.setContent(parseInputRef.current(message.content), {
         parseOptions: {
           preserveWhitespace: "full",
         },
       });
       suppressSyncRef.current = true;
-      setInput(msg.content);
+      setInput(message.content);
       queueMicrotask(() => {
         suppressSyncRef.current = false;
       });
-      for (const att of historyAttachments) {
-        addFromAssetPath(att.path, att.filename, void 0, att.attachmentId);
+      for (const attachment of historyAttachments) {
+        addFromAssetPath(attachment.path, attachment.filename, void 0, attachment.attachmentId);
       }
       scheduleEditorFocus(editor, cursorTo === "start" ? "start" : "end");
     },
@@ -1871,34 +1871,34 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
   );
   reactExports.useEffect(() => {
     pmKeyHandlerRef.current = (event) => {
-      const e2 = event;
+      const keyboardEvent = event;
       if (
         mentionVisible &&
         inlineAssetTopRef.current &&
-        (e2.key === "Enter" || e2.key === "Tab") &&
-        !e2.shiftKey
+        (keyboardEvent.key === "Enter" || keyboardEvent.key === "Tab") &&
+        !keyboardEvent.shiftKey
       ) {
-        e2.preventDefault();
+        keyboardEvent.preventDefault();
         handleSelectAssetMention(inlineAssetTopRef.current);
         return true;
       }
-      if (mentionOnKeyDown(e2)) return true;
-      if (enableSlashCommands && slashOnKeyDown(e2)) return true;
+      if (mentionOnKeyDown(keyboardEvent)) return true;
+      if (enableSlashCommands && slashOnKeyDown(keyboardEvent)) return true;
       if (
         event.key === "ArrowUp" &&
         !event.shiftKey &&
         !event.ctrlKey &&
         !event.metaKey
       ) {
-        const pos = editor ? editor.state.selection.$anchor.pos - 1 : 0;
-        if (pos === 0) {
+        const cursorPosition = editor ? editor.state.selection.$anchor.pos - 1 : 0;
+        if (cursorPosition === 0) {
           const currentPaths = attachments
-            .filter((a2) => a2.status === "done" && a2.relativePath)
-            .map((a2) => a2.relativePath);
-          const msg = history2.navigateUp(input, currentPaths);
-          if (msg) {
+            .filter((attachment) => attachment.status === "done" && attachment.relativePath)
+            .map((attachment) => attachment.relativePath);
+          const historyMessage = history2.navigateUp(input, currentPaths);
+          if (historyMessage) {
             event.preventDefault();
-            loadHistoryMessage(msg, "start");
+            loadHistoryMessage(historyMessage, "start");
             return true;
           }
         }
@@ -1911,13 +1911,13 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         !event.metaKey &&
         history2.isActive
       ) {
-        const pos = editor
+        const cursorPosition = editor
           ? pmPosToTextOffset(
               editor.state.doc,
               editor.state.selection.$anchor.pos,
             )
           : 0;
-        if (pos >= input.length) {
+        if (cursorPosition >= input.length) {
           event.preventDefault();
           const nav2 = history2.navigateDown();
           if (nav2) {
@@ -1926,8 +1926,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
             } else {
               clear();
               setInput(nav2.text);
-              for (const p3 of nav2.attachmentPaths) {
-                addFromAssetPath(p3, filenameFromPath(p3));
+              for (const attachmentPath of nav2.attachmentPaths) {
+                addFromAssetPath(attachmentPath, filenameFromPath(attachmentPath));
               }
             }
           }
@@ -1978,8 +1978,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     submitOnEnter,
   ]);
   const handlePaste2 = reactExports.useCallback(
-    (e2) => {
-      attachPastedFiles(e2);
+    (keyboardEvent) => {
+      attachPastedFiles(keyboardEvent);
     },
     [attachPastedFiles],
   );
@@ -1992,10 +1992,10 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     [interactionLocked, guard, addFromLocal],
   );
   const guardedAddFromAssetPath = reactExports.useCallback(
-    (rel, name2, nodeId, attachmentId) => {
+    (relativePath, name2, nodeId, attachmentId) => {
       if (sendInFlightRef.current || interactionLocked) return;
       if (guard && !guard()) return;
-      addFromAssetPath(rel, name2, nodeId, attachmentId);
+      addFromAssetPath(relativePath, name2, nodeId, attachmentId);
     },
     [interactionLocked, guard, addFromAssetPath],
   );
@@ -2026,7 +2026,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
     (anchor, onLocal) => {
       if (remainingAttachments <= 0) {
         dedupedToast.warning(
-          t2("assetPicker.limitReached", "最多只能选 {{max}} 项", {
+          translate("assetPicker.limitReached", "最多只能选 {{max}} 项", {
             max: attachmentMaxCount ?? MAX_ATTACHMENTS,
           }),
         );
@@ -2072,7 +2072,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
         })
         .catch((error) => {
           if (error?.code !== "picker_busy")
-            dedupedToast.error(t2("assetPicker.source.error"));
+            dedupedToast.error(translate("assetPicker.source.error"));
         });
     },
     [
@@ -2081,7 +2081,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       attachmentSourcePicker,
       guardedAddFromAssetPath,
       remainingAttachments,
-      t2,
+      translate,
       attachmentMaxCount,
     ],
   );
@@ -2150,7 +2150,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
       {...(fileDropScope === "input" ? dragHandlers : {})}
     >
       {fileDropScope === "input" && isDragging && (
-        <FileDropFeedback label={t2("chat.dropFilesHere")} />
+        <FileDropFeedback label={translate("chat.dropFilesHere")} />
       )}
       <AttachmentPreview
         active={previewActive}
@@ -2258,7 +2258,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
               data-message-input-placeholder="true"
               className="absolute top-1 left-2 right-2 z-2 text-[length:var(--message-input-editor-font-size)] font-normal text-muted-foreground/50 pointer-events-none"
             >
-              {placeholderBusy ?? t2("chat.placeholderBusy")}
+              {placeholderBusy ?? translate("chat.placeholderBusy")}
             </div>
           )}
           <EditorContent
@@ -2312,7 +2312,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
                 <button
                   type="button"
                   data-action-ui-id="message-stop-btn"
-                  aria-label={t2("chat.stop")}
+                  aria-label={translate("chat.stop")}
                   className={MESSAGE_ACTION_BUTTON_CLASS}
                   onClick={onCancel}
                 >
@@ -2326,7 +2326,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput2(
                       <button
                         type="button"
                         data-action-ui-id="message-send-btn"
-                        aria-label={sendLabel ?? t2("common.send")}
+                        aria-label={sendLabel ?? translate("common.send")}
                         className={`${sendLabel ? MESSAGE_ACTION_LABEL_BUTTON_CLASS : MESSAGE_ACTION_BUTTON_CLASS} disabled:cursor-not-allowed disabled:opacity-50`}
                         onClick={handleSend}
                         disabled={!canSend}
