@@ -1,0 +1,4 @@
+key	new	reason
+id2@14:34	id	原名 id，去掉打包器加的数字去重后缀
+v2@66:34	alias	aliases 中的单个别名
+v2@69:37	inputType	inputTypes 中的单个输入类型

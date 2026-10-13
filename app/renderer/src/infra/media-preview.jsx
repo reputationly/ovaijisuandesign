@@ -111,14 +111,14 @@ const ENTRIES = [
   },
 ];
 function FilledCatalog({ size: size2 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [query, setQuery] = reactExports.useState("");
   const matches2 = ENTRIES.filter((entry) =>
     [
       entry.name,
       entry.path,
       entry.locations,
-      t2(`uiSpec.icons.usage.${entry.usage}`),
+      t(`uiSpec.icons.usage.${entry.usage}`),
     ]
       .join(" ")
       .toLowerCase()
@@ -126,15 +126,15 @@ function FilledCatalog({ size: size2 }) {
   );
   return (
     <section className="space-y-3">
-      <h3 className="text-sm font-medium">{t2("uiSpec.icons.filledTitle")}</h3>
+      <h3 className="text-sm font-medium">{t("uiSpec.icons.filledTitle")}</h3>
       <p className="text-xs text-muted-foreground">
-        {t2("uiSpec.icons.filledScope")}
+        {t("uiSpec.icons.filledScope")}
       </p>
       <Input3
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        aria-label={t2("uiSpec.icons.search")}
-        placeholder={t2("uiSpec.icons.search")}
+        aria-label={t("uiSpec.icons.search")}
+        placeholder={t("uiSpec.icons.search")}
         data-action-ui-id="ui-spec-icons-search"
       />
       <div className="grid gap-2 sm:grid-cols-2">
@@ -151,7 +151,7 @@ function FilledCatalog({ size: size2 }) {
               <div className="min-w-0 space-y-1">
                 <p className="break-all text-xs font-medium">{name2}</p>
                 <p className="text-xs text-muted-foreground">
-                  {t2(`uiSpec.icons.usage.${usage}`)}
+                  {t(`uiSpec.icons.usage.${usage}`)}
                 </p>
                 <code className="block break-all text-[10px] text-muted-foreground">
                   {path2}
@@ -166,7 +166,7 @@ function FilledCatalog({ size: size2 }) {
       </div>
       {matches2.length === 0 && (
         <p role="status" className="text-xs text-muted-foreground">
-          {t2("uiSpec.icons.noResults")}
+          {t("uiSpec.icons.noResults")}
         </p>
       )}
     </section>
@@ -190,7 +190,7 @@ const ROWS = [
   },
 ];
 function ListPairingPreview({ disabled: disabled2 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [textSize, setTextSize] = reactExports.useState(14);
   const [weight, setWeight] = reactExports.useState(400);
   const [lastAction, setLastAction] = reactExports.useState("");
@@ -204,14 +204,14 @@ function ListPairingPreview({ disabled: disabled2 }) {
       data-action-ui-id="ui-spec-icons-list-pairing"
     >
       <h3 className="text-sm font-medium">
-        {t2("uiSpec.icons.listPairing.title")}
+        {t("uiSpec.icons.listPairing.title")}
       </h3>
       <p className="text-xs text-muted-foreground">
-        {t2("uiSpec.icons.listPairing.note")}
+        {t("uiSpec.icons.listPairing.note")}
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs">
-          {t2("uiSpec.icons.listPairing.textSize")}
+          {t("uiSpec.icons.listPairing.textSize")}
         </span>
         {[12, 14, 16].map((value) => (
           <Button
@@ -234,7 +234,7 @@ function ListPairingPreview({ disabled: disabled2 }) {
             onClick={() => setWeight(value)}
             data-action-ui-id={`ui-spec-icons-list-weight-${value}`}
           >
-            {t2(
+            {t(
               value === 400
                 ? "uiSpec.icons.listPairing.regular"
                 : "uiSpec.icons.listPairing.medium",
@@ -251,7 +251,7 @@ function ListPairingPreview({ disabled: disabled2 }) {
               data-action-ui-id={`ui-spec-icons-list-${size2}`}
             >
               <p className="text-xs font-medium">
-                {t2("uiSpec.icons.listPairing.tier", {
+                {t("uiSpec.icons.listPairing.tier", {
                   size: size2,
                   stroke,
                 })}
@@ -261,29 +261,29 @@ function ListPairingPreview({ disabled: disabled2 }) {
                   <ActionListItem
                     key={key2}
                     disabled={disabled2}
-                    onClick={() => setLastAction(t2(label))}
+                    onClick={() => setLastAction(t(label))}
                     data-action-ui-id={`ui-spec-icons-list-${size2}-${key2}`}
                   >
                     <StrokeIcon icon={icon} size={size2} />
-                    <span className="min-w-0 truncate">{t2(label)}</span>
+                    <span className="min-w-0 truncate">{t(label)}</span>
                   </ActionListItem>
                 ))}
                 <ActionListItem disabled={true}>
                   <StrokeIcon icon={Copy} size={size2} />
                   <span className="min-w-0 truncate">
-                    {t2("uiSpec.icons.listPairing.disabledRow")}
+                    {t("uiSpec.icons.listPairing.disabledRow")}
                   </span>
                 </ActionListItem>
                 <ActionListSeparator />
                 <ActionListItem
                   variant="destructive"
                   disabled={disabled2}
-                  onClick={() => setLastAction(t2("common.delete"))}
+                  onClick={() => setLastAction(t("common.delete"))}
                   data-action-ui-id={`ui-spec-icons-list-${size2}-delete`}
                 >
                   <StrokeIcon icon={Trash2} size={size2} />
                   <span className="min-w-0 truncate">
-                    {t2("common.delete")}
+                    {t("common.delete")}
                   </span>
                 </ActionListItem>
               </ActionListPanel>
@@ -293,10 +293,10 @@ function ListPairingPreview({ disabled: disabled2 }) {
       </div>
       <p role="status" className="min-h-4 text-xs text-muted-foreground">
         {lastAction
-          ? t2("uiSpec.icons.listPairing.feedback", {
+          ? t("uiSpec.icons.listPairing.feedback", {
               action: lastAction,
             })
-          : t2("uiSpec.icons.listPairing.hint")}
+          : t("uiSpec.icons.listPairing.hint")}
       </p>
     </section>
   );
@@ -322,7 +322,7 @@ function MediaGlyph({ action, size: size2 }) {
 }
 const ACTIONS = ["previous", "play", "pause", "stop", "next"];
 function MediaPreview({ size: size2, disabled: disabled2 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [playing, setPlaying] = reactExports.useState(false);
   const [muted, setMuted] = reactExports.useState(false);
   const [episode, setEpisode] = reactExports.useState(2);
@@ -330,9 +330,9 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
   const Volume = muted ? VolumeX : Volume2;
   return (
     <section className="space-y-3">
-      <h3 className="text-sm font-medium">{t2("uiSpec.icons.mediaTitle")}</h3>
+      <h3 className="text-sm font-medium">{t("uiSpec.icons.mediaTitle")}</h3>
       <p className="text-xs text-muted-foreground">
-        {t2("uiSpec.icons.mediaHint")}
+        {t("uiSpec.icons.mediaHint")}
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
@@ -340,7 +340,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             <tr className="border-b border-border">
               {["meaning", "filled", "decision"].map((key2) => (
                 <th key={key2} className="whitespace-nowrap p-2 font-medium">
-                  {t2(`uiSpec.icons.${key2}`)}
+                  {t(`uiSpec.icons.${key2}`)}
                 </th>
               ))}
             </tr>
@@ -353,7 +353,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
                 data-action-ui-id={`ui-spec-icons-row-${item}`}
               >
                 <th className="whitespace-nowrap p-2 font-normal">
-                  {t2(`uiSpec.icons.action.${item}`)}
+                  {t(`uiSpec.icons.action.${item}`)}
                 </th>
                 <td className="p-2">
                   <Button
@@ -361,14 +361,14 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
                     size="icon"
                     className="rounded-full"
                     disabled={disabled2}
-                    aria-label={t2(`uiSpec.icons.action.${item}`)}
+                    aria-label={t(`uiSpec.icons.action.${item}`)}
                     data-action-ui-id={`ui-spec-icons-sample-${item}-filled`}
                   >
                     <MediaGlyph action={item} size={size2} />
                   </Button>
                 </td>
                 <td className="max-w-64 p-2 text-muted-foreground">
-                  {t2("uiSpec.icons.existingMedia")}
+                  {t("uiSpec.icons.existingMedia")}
                 </td>
               </tr>
             ))}
@@ -377,7 +377,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
       </div>
       <div className="rounded-lg border border-border bg-card p-4">
         <p className="mb-3 text-xs text-muted-foreground">
-          {t2("uiSpec.icons.sceneHint")}
+          {t("uiSpec.icons.sceneHint")}
         </p>
         <div
           className="flex flex-wrap items-center gap-2"
@@ -387,7 +387,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             variant="ghost"
             size="icon"
             disabled={disabled2 || episode === 1}
-            aria-label={t2("uiSpec.icons.action.previous")}
+            aria-label={t("uiSpec.icons.action.previous")}
             onClick={() => {
               setEpisode(episode - 1);
               setPlaying(false);
@@ -400,7 +400,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             variant="ghost"
             size="icon"
             disabled={disabled2}
-            aria-label={t2(`uiSpec.icons.action.${action}`)}
+            aria-label={t(`uiSpec.icons.action.${action}`)}
             onClick={() => setPlaying(!playing)}
             className="rounded-full border-0 bg-transparent p-0 hover:bg-transparent hover:opacity-90"
             data-action-ui-id="ui-spec-icons-play-toggle"
@@ -411,7 +411,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             variant="ghost"
             size="icon"
             disabled={disabled2 || episode === 3}
-            aria-label={t2("uiSpec.icons.action.next")}
+            aria-label={t("uiSpec.icons.action.next")}
             onClick={() => {
               setEpisode(episode + 1);
               setPlaying(false);
@@ -421,7 +421,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             <MediaGlyph action="next" size={size2} />
           </Button>
           <span className="mr-auto text-xs tabular-nums" role="status">
-            {t2("uiSpec.icons.episode", {
+            {t("uiSpec.icons.episode", {
               episode,
             })}
           </span>
@@ -429,7 +429,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
             variant="ghost"
             size="icon"
             disabled={disabled2}
-            aria-label={t2("uiSpec.icons.mute")}
+            aria-label={t("uiSpec.icons.mute")}
             aria-pressed={muted}
             onClick={() => setMuted(!muted)}
             data-action-ui-id="ui-spec-icons-mute"
@@ -438,7 +438,7 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
           </Button>
           <span
             className="flex size-8 items-center justify-center"
-            title={t2("uiSpec.icons.auxiliary")}
+            title={t("uiSpec.icons.auxiliary")}
           >
             <Maximize size={size2} strokeWidth={1.5} aria-hidden={true} />
           </span>
@@ -447,13 +447,13 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-2 rounded-lg border border-border p-3">
           <p className="text-xs text-muted-foreground">
-            {t2("uiSpec.icons.thumbnailScene")}
+            {t("uiSpec.icons.thumbnailScene")}
           </p>
           <div className="flex h-24 items-center justify-center rounded-md bg-[var(--modal-mask-bg)]">
             <Button
               size="icon-lg"
               disabled={disabled2}
-              aria-label={t2(`uiSpec.icons.action.${action}`)}
+              aria-label={t(`uiSpec.icons.action.${action}`)}
               onClick={() => setPlaying(!playing)}
               className="rounded-full border-0 bg-transparent p-0 hover:bg-transparent hover:opacity-90"
               data-action-ui-id="ui-spec-icons-thumbnail-toggle"
@@ -466,13 +466,13 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
         </div>
         <div className="space-y-2 rounded-lg border border-border p-3">
           <p className="text-xs text-muted-foreground">
-            {t2("uiSpec.icons.audioScene")}
+            {t("uiSpec.icons.audioScene")}
           </p>
           <div className="flex h-24 items-center gap-3 rounded-md bg-muted px-3">
             <Button
               size="icon-sm"
               disabled={disabled2}
-              aria-label={t2(`uiSpec.icons.action.${action}`)}
+              aria-label={t(`uiSpec.icons.action.${action}`)}
               onClick={() => setPlaying(!playing)}
               className="rounded-full border-0 bg-transparent p-0 hover:bg-transparent hover:opacity-90"
               data-action-ui-id="ui-spec-icons-audio-toggle"
@@ -496,21 +496,21 @@ function MediaPreview({ size: size2, disabled: disabled2 }) {
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        {t2("uiSpec.icons.sceneBoundary")}
+        {t("uiSpec.icons.sceneBoundary")}
       </p>
     </section>
   );
 }
 function StrokeSpec() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <section
       className="space-y-3"
       data-action-ui-id="ui-spec-icons-stroke-spec"
     >
-      <h3 className="text-sm font-medium">{t2("uiSpec.icons.stroke.title")}</h3>
+      <h3 className="text-sm font-medium">{t("uiSpec.icons.stroke.title")}</h3>
       <p className="text-xs text-muted-foreground">
-        {t2("uiSpec.icons.stroke.note")}
+        {t("uiSpec.icons.stroke.note")}
       </p>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs tabular-nums">
@@ -518,7 +518,7 @@ function StrokeSpec() {
             <tr className="border-b border-border">
               {["size", "target", "source", "sample", "scene"].map((key2) => (
                 <th key={key2} scope="col" className="p-2 font-medium">
-                  {t2(`uiSpec.icons.stroke.${key2}`)}
+                  {t(`uiSpec.icons.stroke.${key2}`)}
                 </th>
               ))}
             </tr>
@@ -537,7 +537,7 @@ function StrokeSpec() {
                   <StrokeIcon icon={Search} size={size2} />
                 </td>
                 <td className="p-2">
-                  {t2(`uiSpec.icons.stroke.scene${size2}`)}
+                  {t(`uiSpec.icons.stroke.scene${size2}`)}
                 </td>
               </tr>
             ))}
@@ -546,10 +546,10 @@ function StrokeSpec() {
       </div>
       <div className="space-y-3" data-action-ui-id="ui-spec-icons-text-pairing">
         <h4 className="text-sm font-medium">
-          {t2("uiSpec.icons.pairing.title")}
+          {t("uiSpec.icons.pairing.title")}
         </h4>
         <p className="text-xs text-muted-foreground">
-          {t2("uiSpec.icons.pairing.note")}
+          {t("uiSpec.icons.pairing.note")}
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
           {["compact", "menu", "button"].map((key2) => (
@@ -558,7 +558,7 @@ function StrokeSpec() {
               className="space-y-2 rounded-lg border border-border p-3"
             >
               <p className="text-xs text-muted-foreground">
-                {t2(`uiSpec.icons.pairing.${key2}`)}
+                {t(`uiSpec.icons.pairing.${key2}`)}
               </p>
               <div
                 className={`flex items-center gap-2 ${ICON_TEXT_SPEC[key2].textClassName}`}
@@ -568,7 +568,7 @@ function StrokeSpec() {
                   size={ICON_TEXT_SPEC[key2].iconSize}
                 />
                 <span>
-                  {t2(
+                  {t(
                     key2 === "compact"
                       ? "assetCenter.sort.updated_at"
                       : "common.copy",
@@ -580,7 +580,7 @@ function StrokeSpec() {
         </div>
       </div>
       <p className="text-xs leading-relaxed text-muted-foreground">
-        {t2("uiSpec.icons.stroke.formula")}
+        {t("uiSpec.icons.stroke.formula")}
       </p>
     </section>
   );
@@ -606,7 +606,7 @@ const RULES = [
 ];
 const DECISIONS = ["transport", "auxiliary", "state", "special"];
 export function IconPreview() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { theme: theme2, resolved, setTheme } = useTheme();
   const initialTheme = reactExports.useRef(theme2);
   const [size2, setSize] = reactExports.useState(16);
@@ -625,14 +625,14 @@ export function IconPreview() {
     >
       <header className="space-y-2">
         <h2 className="font-heading text-title-16 font-medium">
-          {t2("uiSpec.icons.title")}
+          {t("uiSpec.icons.title")}
         </h2>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {t2("uiSpec.icons.intro")}
+          {t("uiSpec.icons.intro")}
         </p>
       </header>
       <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-3">
-        <span className="text-xs">{t2("uiSpec.icons.size")}</span>
+        <span className="text-xs">{t("uiSpec.icons.size")}</span>
         {[12, 14, 16, 20].map((value) => (
           <Button
             key={value}
@@ -645,7 +645,7 @@ export function IconPreview() {
             {value}px
           </Button>
         ))}
-        <span className="ml-2 text-xs">{t2("uiSpec.icons.theme")}</span>
+        <span className="ml-2 text-xs">{t("uiSpec.icons.theme")}</span>
         {["light", "dark"].map((value) => (
           <Button
             key={value}
@@ -655,7 +655,7 @@ export function IconPreview() {
             onClick={() => setTheme(value)}
             data-action-ui-id={`ui-spec-icons-theme-${value}`}
           >
-            {t2(`uiSpec.icons.${value}`)}
+            {t(`uiSpec.icons.${value}`)}
           </Button>
         ))}
         <Button
@@ -665,32 +665,32 @@ export function IconPreview() {
           onClick={() => setDisabled(!disabled2)}
           data-action-ui-id="ui-spec-icons-disabled"
         >
-          {t2("uiSpec.icons.disabled")}
+          {t("uiSpec.icons.disabled")}
         </Button>
       </div>
       <ListPairingPreview disabled={disabled2} />
       <section className="space-y-3">
         <h3 className="text-sm font-medium">
-          {t2("uiSpec.icons.currentRules")}
+          {t("uiSpec.icons.currentRules")}
         </h3>
         <ul className="list-disc space-y-2 pl-4 text-xs leading-relaxed text-muted-foreground">
           {RULES.map((rule) => (
-            <li key={rule}>{t2(`uiSpec.icons.rule.${rule}`)}</li>
+            <li key={rule}>{t(`uiSpec.icons.rule.${rule}`)}</li>
           ))}
         </ul>
       </section>
       <section className="space-y-3">
         <h3 className="text-sm font-medium">
-          {t2("uiSpec.icons.proposedRules")}
+          {t("uiSpec.icons.proposedRules")}
         </h3>
         <div className="grid gap-2 sm:grid-cols-2">
           {DECISIONS.map((rule) => (
             <div key={rule} className="rounded-lg border border-border p-3">
               <h4 className="mb-1 text-xs font-medium">
-                {t2(`uiSpec.icons.decision.${rule}.title`)}
+                {t(`uiSpec.icons.decision.${rule}.title`)}
               </h4>
               <p className="text-xs leading-relaxed text-muted-foreground">
-                {t2(`uiSpec.icons.decision.${rule}.body`)}
+                {t(`uiSpec.icons.decision.${rule}.body`)}
               </p>
             </div>
           ))}
@@ -701,11 +701,11 @@ export function IconPreview() {
       <FilledCatalog size={size2} />
       <section className="space-y-3 rounded-lg border border-border p-3">
         <h3 className="text-sm font-medium">
-          {t2("uiSpec.icons.pendingTitle")}
+          {t("uiSpec.icons.pendingTitle")}
         </h3>
         <ul className="list-disc space-y-2 pl-4 text-xs leading-relaxed text-muted-foreground">
           {["geometry", "semantics", "migration"].map((key2) => (
-            <li key={key2}>{t2(`uiSpec.icons.pending.${key2}`)}</li>
+            <li key={key2}>{t(`uiSpec.icons.pending.${key2}`)}</li>
           ))}
         </ul>
       </section>
@@ -714,12 +714,12 @@ export function IconPreview() {
           className="cursor-pointer text-sm font-medium"
           data-action-ui-id="ui-spec-icons-library"
         >
-          {t2("uiSpec.icons.library")}
+          {t("uiSpec.icons.library")}
         </summary>
         <div className="pt-3">
           {showLibrary && (
             <reactExports.Suspense
-              fallback={<p>{t2("uiSpec.icons.loading")}</p>}
+              fallback={<p>{t("uiSpec.icons.loading")}</p>}
             >
               <LibraryCatalog
                 disabled={disabled2}
@@ -737,12 +737,12 @@ export function IconPreview() {
           className="cursor-pointer text-sm font-medium"
           data-action-ui-id="ui-spec-icons-diagnostics"
         >
-          {t2("uiSpec.icons.diagnostics")}
+          {t("uiSpec.icons.diagnostics")}
         </summary>
         <div className="pt-3">
           {showDiagnostics && (
             <reactExports.Suspense
-              fallback={<p>{t2("uiSpec.icons.loading")}</p>}
+              fallback={<p>{t("uiSpec.icons.loading")}</p>}
             >
               <OpacityPreview />
             </reactExports.Suspense>

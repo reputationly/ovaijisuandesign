@@ -35,9 +35,9 @@ function createGuardReporter(scope, intervalMs = GUARD_SUMMARY_INTERVAL_MS) {
   }
   function note(delta) {
     for (const key2 of Object.keys(totals)) {
-      const d2 = delta[key2] ?? 0;
-      totals[key2] += d2;
-      window2[key2] += d2;
+      const keyDelta = delta[key2] ?? 0;
+      totals[key2] += keyDelta;
+      window2[key2] += keyDelta;
     }
     if (!timer2) {
       timer2 = setTimeout(flushNow, intervalMs);

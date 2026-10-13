@@ -63,11 +63,11 @@ const webNotification = {
     if (!("Notification" in window)) return;
     const doShow = () => {
       if (Notification.permission !== "granted") return;
-      const n2 = new Notification(title, {
+      const notification = new Notification(title, {
         body: body2,
       });
       if (options?.onClick) {
-        n2.onclick = options.onClick;
+        notification.onclick = options.onClick;
       }
     };
     if (Notification.permission === "default") {

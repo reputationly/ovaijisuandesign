@@ -41,16 +41,16 @@ function lookupForAsset(state2, backend, modelId, type2) {
   if (type2 !== "image" && type2 !== "video" && type2 !== "audio")
     return void 0;
   const pool = state2[type2];
-  const id2 = normalizeLegacyModelId(modelId);
+  const id = normalizeLegacyModelId(modelId);
   return pool.find(
-    (m3) =>
-      m3.backend === backend &&
-      (m3.id === id2 || m3.model_name === id2 || m3.pricingId === id2),
+    (registryModel) =>
+      registryModel.backend === backend &&
+      (registryModel.id === id || registryModel.model_name === id || registryModel.pricingId === id),
   );
 }
 export function useModelForAsset(backend, modelId, type2) {
-  return useModelRegistryStore((s2) =>
-    lookupForAsset(s2, backend, modelId, type2),
+  return useModelRegistryStore((state) =>
+    lookupForAsset(state, backend, modelId, type2),
   );
 }
 function register(hook) {
@@ -65,8 +65,8 @@ register({
       instance2.didChangeStore = true;
       instance2.getSnapshot = () => {
         let didChange2 = false;
-        for (let i2 = 0; i2 < instance2.syncHooks.length; i2 += 1) {
-          const hook = instance2.syncHooks[i2];
+        for (let i = 0; i < instance2.syncHooks.length; i += 1) {
+          const hook = instance2.syncHooks[i];
           const value = hook.selector(
             hook.store.state,
             hook.a1,
@@ -118,8 +118,8 @@ export const TooltipProvider = TooltipProvider$2;
 const HTML_TAG_RE = /<\/?(?:a|strong|em|code|br|p|span)(?:\s[^>]*)?\/?>/i;
 const HTML_TAG_RE_GLOBAL =
   /<\/?(?:a|strong|em|code|br|p|span)(?:\s[^>]*)?\/?>/gi;
-export function looksLikeHtml(s2) {
-  return HTML_TAG_RE.test(s2);
+export function looksLikeHtml(text) {
+  return HTML_TAG_RE.test(text);
 }
 function stripWhitelistedTags(html2) {
   return html2.replace(HTML_TAG_RE_GLOBAL, "");
@@ -170,18 +170,18 @@ export const renameRequestStore = createStore((set2) => ({
       pendingNodeId: nodeId,
     }),
   consume: (nodeId) =>
-    set2((s2) =>
-      s2.pendingNodeId === nodeId
+    set2((prevState) =>
+      prevState.pendingNodeId === nodeId
         ? {
             pendingNodeId: null,
           }
-        : s2,
+        : prevState,
     ),
 }));
 export function useRenameRequest(nodeId, beginEdit, enabled = true) {
   const pending2 = useStore(
     renameRequestStore,
-    (s2) => nodeId != null && s2.pendingNodeId === nodeId,
+    (state) => nodeId != null && state.pendingNodeId === nodeId,
   );
   reactExports.useEffect(() => {
     if (!pending2 || !nodeId || !enabled) return;
@@ -258,53 +258,53 @@ const DEFAULT_TTL_MS = 3e4;
 export function createRecentlyAddedStore() {
   const timers = new Map();
   const store = createStore((set2, get3) => {
-    const dropImmediate = (id2) => {
-      const t2 = timers.get(id2);
-      if (t2) {
-        clearTimeout(t2);
-        timers.delete(id2);
+    const dropImmediate = (id) => {
+      const timer = timers.get(id);
+      if (timer) {
+        clearTimeout(timer);
+        timers.delete(id);
       }
       const current2 = get3().ids;
-      if (!current2.has(id2)) return;
+      if (!current2.has(id)) return;
       const next2 = new Set(current2);
-      next2.delete(id2);
+      next2.delete(id);
       set2({
         ids: next2,
       });
     };
     return {
       ids: new Set(),
-      add: (id2, ttlMs = DEFAULT_TTL_MS) => {
-        const prev = timers.get(id2);
+      add: (id, ttlMs = DEFAULT_TTL_MS) => {
+        const prev = timers.get(id);
         if (prev) clearTimeout(prev);
         timers.set(
-          id2,
-          setTimeout(() => dropImmediate(id2), ttlMs),
+          id,
+          setTimeout(() => dropImmediate(id), ttlMs),
         );
         const current2 = get3().ids;
-        if (current2.has(id2)) return;
+        if (current2.has(id)) return;
         const next2 = new Set(current2);
-        next2.add(id2);
+        next2.add(id);
         set2({
           ids: next2,
         });
       },
       addMany: (ids2, ttlMs = DEFAULT_TTL_MS) => {
         if (ids2.length === 0) return;
-        for (const id2 of ids2) {
-          const prev = timers.get(id2);
+        for (const id of ids2) {
+          const prev = timers.get(id);
           if (prev) clearTimeout(prev);
           timers.set(
-            id2,
-            setTimeout(() => dropImmediate(id2), ttlMs),
+            id,
+            setTimeout(() => dropImmediate(id), ttlMs),
           );
         }
         const current2 = get3().ids;
         let changed = false;
         const next2 = new Set(current2);
-        for (const id2 of ids2) {
-          if (!next2.has(id2)) {
-            next2.add(id2);
+        for (const id of ids2) {
+          if (!next2.has(id)) {
+            next2.add(id);
             changed = true;
           }
         }
@@ -315,7 +315,7 @@ export function createRecentlyAddedStore() {
       },
       remove: dropImmediate,
       clear: () => {
-        for (const t2 of timers.values()) clearTimeout(t2);
+        for (const timer of timers.values()) clearTimeout(timer);
         timers.clear();
         if (get3().ids.size === 0) return;
         set2({
@@ -363,13 +363,13 @@ export function getDerivedNodePosition(
     const node2 = internal2 ?? reactFlow.getNode(edge.target);
     if (!node2) continue;
     const abs = internal2?.internals.positionAbsolute ?? node2.position;
-    const h2 = node2.measured?.height ?? fallbackSize;
-    const w3 = node2.measured?.width ?? fallbackSize;
+    const height = node2.measured?.height ?? fallbackSize;
+    const width = node2.measured?.width ?? fallbackSize;
     peers.push({
       x: abs.x,
       y: abs.y,
-      height: h2,
-      width: w3,
+      height,
+      width,
     });
   }
   let collision;
@@ -379,13 +379,13 @@ export function getDerivedNodePosition(
       if (node2.id === sourceNodeId) continue;
       const internal2 = reactFlow.getInternalNode(node2.id);
       const abs = internal2?.internals.positionAbsolute ?? node2.position;
-      const w3 = node2.measured?.width ?? fallbackSize;
-      const h2 = node2.measured?.height ?? fallbackSize;
+      const width = node2.measured?.width ?? fallbackSize;
+      const height = node2.measured?.height ?? fallbackSize;
       occupied.push({
         x: abs.x,
         y: abs.y,
-        w: w3,
-        h: h2,
+        w: width,
+        h: height,
       });
     }
     if (occupied.length > 0) {

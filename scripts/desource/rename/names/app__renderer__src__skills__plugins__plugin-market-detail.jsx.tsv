@@ -1,0 +1,4 @@
+key	new	reason
+Download$1@3:30	Download	导入别名（来源导出 Download），去掉打包器加的 $ 去重后缀
+resolvePluginIcon$1@13:10	resolvePluginIcon	原名 resolvePluginIcon，去掉打包器加的 $ 去重后缀
+e@341:67	clickEvent	onClick 回调收到的事件对象

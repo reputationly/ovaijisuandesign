@@ -1,0 +1,13 @@
+key	new	reason
+AvatarFallback$1@164:7	AvatarFallbackPrimitive	未带样式的头像占位基础组件，由导出的 AvatarFallback 包装
+t2@72:14	t	useTranslation() 返回的翻译函数 t
+t2@111:14	t	useTranslation() 返回的翻译函数 t
+e2@254:21	keyboardEvent	onKeyDown 回调收到的事件对象
+e2@306:18	changeEvent	onChange 回调收到的事件对象
+e2@313:19	keyboardEvent	onKeyDown 回调收到的事件对象
+e2@320:17	clickEvent	onClick 回调收到的事件对象
+e2@321:23	clickEvent	onDoubleClick 回调收到的事件对象
+e2@322:21	mouseEvent	onMouseDown 回调收到的事件对象
+e2@323:23	pointerEvent	onPointerDown 回调收到的事件对象
+s2@356:14	initialSnapshot	首次读取到的网关就绪快照
+s2@360:39	nextSnapshot	onDidChange 推送的新就绪快照

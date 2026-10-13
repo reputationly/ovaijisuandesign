@@ -41,7 +41,7 @@ export function parseCapabilitySearchResult(value) {
       typeof match2.score !== "number" ||
       !Number.isFinite(match2.score) ||
       !Array.isArray(match2.matchedTerms) ||
-      !match2.matchedTerms.every((t2) => typeof t2 === "string") ||
+      !match2.matchedTerms.every((term) => typeof term === "string") ||
       !match2.capability ||
       typeof match2.capability !== "object" ||
       !("kind" in match2.capability) ||

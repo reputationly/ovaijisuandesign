@@ -1,0 +1,18 @@
+key	new	reason
+id2@44:9	id	原名 id，去掉打包器加的数字去重后缀
+s2@52:33	state	useModelRegistryStore 选择器收到的 store 状态
+i2@68:18	i	原名 i，去掉打包器加的数字去重后缀
+s2@173:11	prevState	set2 更新函数收到的当前状态
+id2@261:28	id	原名 id，去掉打包器加的数字去重后缀
+id2@277:13	id	原名 id，去掉打包器加的数字去重后缀
+id2@294:20	id	原名 id，去掉打包器加的数字去重后缀
+id2@305:20	id	原名 id，去掉打包器加的数字去重后缀
+m3@46:6	registryModel	模型注册表中的单个模型，按 backend 与 ID 匹配
+s2@121:31	text	待检测是否像 HTML 的字符串
+s2@184:6	state	useStore 选择器收到的重命名请求 store 状态
+t2@262:13	timer	该 ID 对应的过期定时器
+t2@318:20	timer	逐个清除的过期定时器
+h2@366:11	height	节点实测高度，缺省为 fallbackSize
+w3@367:11	width	节点实测宽度，缺省为 fallbackSize
+w3@382:13	width	节点实测宽度，缺省为 fallbackSize
+h2@383:13	height	节点实测高度，缺省为 fallbackSize

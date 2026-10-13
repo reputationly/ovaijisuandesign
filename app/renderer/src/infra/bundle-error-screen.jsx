@@ -251,7 +251,7 @@ export function BundleErrorScreen({
   maxRetries: maxRetriesProp = Number.POSITIVE_INFINITY,
   onRetry,
 }) {
-  const { i18n, t: t2 } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { user } = useAuth();
   const [feedbackState, setFeedbackState] = reactExports.useState("idle");
   const [networkRecoveryState, setNetworkRecoveryState] =
@@ -262,7 +262,7 @@ export function BundleErrorScreen({
     reactExports.useState(false);
   const diagnosis = resolveWorkspaceFailureDiagnosis(
     status.diagnosis?.code,
-    t2,
+    t,
     i18n.language,
   );
   const failureId = status.diagnosis?.failureId;
@@ -272,13 +272,13 @@ export function BundleErrorScreen({
   ).slice(0, 500);
   const evidence = status.diagnosis?.evidence;
   const retryHintActive = useRetryHintActive(status.retryAfter?.blockedUntilMs);
-  const errorTitle = diagnosis?.title ?? t2("bundleError.title");
+  const errorTitle = diagnosis?.title ?? t("bundleError.title");
   const rawStatusError = status.error?.trim() || void 0;
   const errorMessage2 =
     diagnosis?.message ??
     (isUserFacingStatusError(rawStatusError)
       ? rawStatusError
-      : t2("bundleError.fallbackMessage"));
+      : t("bundleError.fallbackMessage"));
   const retryCannotFix =
     diagnosis?.severity === "needs_reinstall" ||
     (diagnosis ? SYSTEM_UPGRADE_REQUIRED_CODES.has(diagnosis.code) : false) ||
@@ -289,29 +289,29 @@ export function BundleErrorScreen({
     () => buildEvidenceItems(evidence),
     [evidence],
   );
-  const userIdLabel = t2("bundleError.userId", {
+  const userIdLabel = t("bundleError.userId", {
     defaultValue: "用户 ID",
   });
-  const userIdUnavailableLabel = t2("bundleError.userIdUnavailable", {
+  const userIdUnavailableLabel = t("bundleError.userIdUnavailable", {
     defaultValue: "未获取",
   });
   const userId = user?.userID?.trim() || void 0;
   const userIdDisplayValue = userId ?? userIdUnavailableLabel;
-  const feedbackCodeLabel = t2("bundleError.feedbackCode", {
+  const feedbackCodeLabel = t("bundleError.feedbackCode", {
     defaultValue: "反馈码",
   });
-  const diagnosisCodeLabel = t2("bundleError.copy.diagnosisCode", {
+  const diagnosisCodeLabel = t("bundleError.copy.diagnosisCode", {
     defaultValue: "诊断类型",
   });
-  const feedbackUploadLabel = t2("bundleError.feedbackUpload.label", {
+  const feedbackUploadLabel = t("bundleError.feedbackUpload.label", {
     defaultValue: "上传日志并复制反馈信息",
   });
   const feedbackButtonLabel = feedbackUpload?.success
-    ? t2("bundleError.feedbackCopy.label", {
+    ? t("bundleError.feedbackCopy.label", {
         defaultValue: "复制反馈信息",
       })
     : feedbackUploadLabel;
-  const sceneTitle = t2("bundleError.title", {
+  const sceneTitle = t("bundleError.title", {
     defaultValue: "Workspace 启动失败",
   });
   const mainTitle = diagnosis?.title ?? errorTitle;
@@ -320,20 +320,20 @@ export function BundleErrorScreen({
     normalizeDisplayMessage(mainTitle);
   const supportStatusText =
     autoUploadState === "uploading"
-      ? t2("bundleError.supportHint.uploading", {
+      ? t("bundleError.supportHint.uploading", {
           defaultValue: "正在自动上传诊断日志；截图里请保留用户 ID 和反馈码。",
         })
       : feedbackUpload?.success
-        ? t2("bundleError.supportHint.uploaded", {
+        ? t("bundleError.supportHint.uploaded", {
             defaultValue:
               "日志已自动上传，支持可通过用户 ID + 反馈码或日志定位路径定位本次失败。",
           })
         : autoUploadState === "error"
-          ? t2("bundleError.supportHint.uploadFailed", {
+          ? t("bundleError.supportHint.uploadFailed", {
               defaultValue:
                 "自动上传失败，可点击上传日志并复制反馈信息重试；截图请保留用户 ID + 反馈码。",
             })
-          : t2("bundleError.supportHint.beforeUpload", {
+          : t("bundleError.supportHint.beforeUpload", {
               defaultValue:
                 "正在准备诊断信息；截图里请保留用户 ID 和反馈码，便于支持定位。",
             });
@@ -342,24 +342,24 @@ export function BundleErrorScreen({
       ? diagnosis && SYSTEM_UPGRADE_REQUIRED_CODES.has(diagnosis.code)
         ? diagnosis.primaryAction
         : diagnosis?.severity === "needs_reinstall"
-          ? t2("bundleError.retryExhausted.reinstall", {
+          ? t("bundleError.retryExhausted.reinstall", {
               defaultValue: "请重新安装后再试",
             })
-          : t2("bundleError.retryExhausted.restart", {
+          : t("bundleError.retryExhausted.restart", {
               defaultValue: "请完全退出应用后重新打开",
             })
       : diagnosis?.code === "opencode_port_conflict"
         ? diagnosis.primaryAction
-        : t2("bundleError.retryWorkspace", {
+        : t("bundleError.retryWorkspace", {
             defaultValue: "重新启动 workspace",
           });
   const solutionSummary =
     diagnosis?.code === "opencode_port_conflict" && onRetry
-      ? t2("bundleError.solution.opencodePortConflict", {
+      ? t("bundleError.solution.opencodePortConflict", {
           defaultValue: "点击下方按钮，系统会自动尝试换端口重新启动。",
         })
       : (diagnosis?.primaryAction ??
-        t2("bundleError.solutionFallback", {
+        t("bundleError.solutionFallback", {
           defaultValue: "请先重试一次。",
         }));
   const diagnosticContext = reactExports.useMemo(
@@ -513,14 +513,14 @@ export function BundleErrorScreen({
         }
       }
       const locatorLine = upload.locator
-        ? `${t2("bundleError.supportHint.locator", {
+        ? `${t("bundleError.supportHint.locator", {
             defaultValue: "日志定位",
           })}: ${upload.locator}`
         : void 0;
       const guideLine = upload.success
-        ? `${t2("bundleError.feedbackCopy.guide", {
+        ? `${t("bundleError.feedbackCopy.guide", {
             defaultValue: "定位说明",
-          })}: ${t2("bundleError.feedbackCopy.guideText", {
+          })}: ${t("bundleError.feedbackCopy.guideText", {
             defaultValue:
               "日志已上传，可按用户 ID + 反馈码或日志定位路径查找。",
           })}`
@@ -535,9 +535,9 @@ export function BundleErrorScreen({
         .filter(Boolean)
         .join("\n");
       await navigator.clipboard.writeText(text2);
-      dedupedToast.success(t2("common.copied"));
+      dedupedToast.success(t("common.copied"));
     } catch {
-      dedupedToast.error(t2("common.copyFailed"));
+      dedupedToast.error(t("common.copyFailed"));
     } finally {
       setFeedbackState("idle");
     }
@@ -549,13 +549,13 @@ export function BundleErrorScreen({
       await runFullNetworkDiagnostics();
       reportRumAction("Workspace 启动失败-网络重新检测完成", diagnosticContext);
       dedupedToast.success(
-        t2("bundleError.networkRecovery.checkSuccess", {
+        t("bundleError.networkRecovery.checkSuccess", {
           defaultValue: "网络检测已刷新",
         }),
       );
     } catch {
       dedupedToast.error(
-        t2("bundleError.networkRecovery.checkFailed", {
+        t("bundleError.networkRecovery.checkFailed", {
           defaultValue: "网络检测失败，请导出日志联系支持。",
         }),
       );
@@ -582,7 +582,7 @@ export function BundleErrorScreen({
       await onRetry?.();
     } catch {
       dedupedToast.error(
-        t2("bundleError.networkRecovery.proxySwitchFailed", {
+        t("bundleError.networkRecovery.proxySwitchFailed", {
           defaultValue: "网络模式切换失败，请重新检测或导出日志联系支持。",
         }),
       );
@@ -611,7 +611,7 @@ export function BundleErrorScreen({
                 </p>
               ) : null}
               <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-xs leading-5 text-muted-foreground">
-                {t2("bundleError.impactMessage", {
+                {t("bundleError.impactMessage", {
                   defaultValue:
                     "当前 workspace 内容已保留，只是本地 AI 服务暂时不可用。",
                 })}
@@ -621,7 +621,7 @@ export function BundleErrorScreen({
         </div>
         <div className="mx-6 rounded-lg bg-muted/30 px-4 py-4">
           <p className="text-sm font-medium text-foreground">
-            {t2("bundleError.solutionTitle", {
+            {t("bundleError.solutionTitle", {
               defaultValue: "怎么解决",
             })}
           </p>
@@ -644,7 +644,7 @@ export function BundleErrorScreen({
             </ol>
           ) : (
             <p className="mt-3 text-sm leading-5 text-muted-foreground">
-              {t2("bundleError.solutionGenericSuggestion", {
+              {t("bundleError.solutionGenericSuggestion", {
                 defaultValue:
                   "如果重试后仍失败，请上传日志并把反馈信息发给支持团队。",
               })}
@@ -684,7 +684,7 @@ export function BundleErrorScreen({
             />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-medium text-foreground">
-                {t2("bundleError.supportCardTitle", {
+                {t("bundleError.supportCardTitle", {
                   defaultValue: "反馈与日志",
                 })}
               </p>
@@ -727,12 +727,12 @@ export function BundleErrorScreen({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-foreground">
-                  {t2("bundleError.networkRecovery.title", {
+                  {t("bundleError.networkRecovery.title", {
                     defaultValue: "网络恢复操作",
                   })}
                 </p>
                 <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  {t2("bundleError.networkRecovery.description", {
+                  {t("bundleError.networkRecovery.description", {
                     defaultValue:
                       "如果你正在使用 VPN、企业代理或本机代理，可以切换连接模式后重试；当前 Workspace 状态会保留。",
                   })}
@@ -749,7 +749,7 @@ export function BundleErrorScreen({
                     onClick={() => void handleProxyModeRetry("system")}
                     data-action-ui-id="bundle-error.network.system-proxy-retry"
                   >
-                    {t2("bundleError.networkRecovery.systemRetry", {
+                    {t("bundleError.networkRecovery.systemRetry", {
                       defaultValue: "切到系统代理并重试",
                     })}
                   </Button>
@@ -764,7 +764,7 @@ export function BundleErrorScreen({
                     onClick={() => void handleProxyModeRetry("direct")}
                     data-action-ui-id="bundle-error.network.direct-retry"
                   >
-                    {t2("bundleError.networkRecovery.directRetry", {
+                    {t("bundleError.networkRecovery.directRetry", {
                       defaultValue: "切到直连并重试",
                     })}
                   </Button>
@@ -779,7 +779,7 @@ export function BundleErrorScreen({
                     onClick={() => void handleNetworkDiagnosticsCheck()}
                     data-action-ui-id="bundle-error.network.recheck"
                   >
-                    {t2("bundleError.networkRecovery.recheck", {
+                    {t("bundleError.networkRecovery.recheck", {
                       defaultValue: "重新检测网络",
                     })}
                   </Button>
@@ -790,7 +790,7 @@ export function BundleErrorScreen({
         ) : null}
         {retryHintActive ? (
           <p className="mx-6 mt-3 rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-            {t2("bundleError.retryHint", {
+            {t("bundleError.retryHint", {
               defaultValue:
                 "本地 runtime 正在恢复保护期内，重试若仍失败会保持当前 workspace 状态。",
             })}
@@ -804,10 +804,10 @@ export function BundleErrorScreen({
             data-action-ui-id="bundle-error.toggle-technical-details"
           >
             {showTechnicalDetails
-              ? t2("bundleError.technicalDetails.hide", {
+              ? t("bundleError.technicalDetails.hide", {
                   defaultValue: "收起诊断信息",
                 })
-              : t2("bundleError.technicalDetails.show", {
+              : t("bundleError.technicalDetails.show", {
                   defaultValue: "给支持团队的诊断信息",
                 })}
             <ChevronDown
@@ -818,7 +818,7 @@ export function BundleErrorScreen({
           {showTechnicalDetails ? (
             <section
               className="mx-2 mt-2 max-h-48 overflow-y-auto rounded-lg border border-border bg-muted/30 px-4 py-3 text-left"
-              aria-label={t2("bundleError.technicalDetails.region", {
+              aria-label={t("bundleError.technicalDetails.region", {
                 defaultValue: "支持团队诊断信息",
               })}
             >
@@ -830,7 +830,7 @@ export function BundleErrorScreen({
                 {rawStatusError ? (
                   <>
                     <dt className="text-muted-foreground">
-                      {t2("bundleError.copy.error", {
+                      {t("bundleError.copy.error", {
                         defaultValue: "错误信息",
                       })}
                     </dt>
@@ -840,7 +840,7 @@ export function BundleErrorScreen({
                   </>
                 ) : null}
                 <dt className="text-muted-foreground">
-                  {t2("bundleError.copy.state")}
+                  {t("bundleError.copy.state")}
                 </dt>
                 <dd className="min-w-0 break-all font-mono text-foreground">
                   {status.state}
@@ -856,7 +856,7 @@ export function BundleErrorScreen({
                 {feedbackUpload?.locator ? (
                   <>
                     <dt className="text-muted-foreground">
-                      {t2("bundleError.supportHint.locator", {
+                      {t("bundleError.supportHint.locator", {
                         defaultValue: "日志定位",
                       })}
                     </dt>
@@ -868,7 +868,7 @@ export function BundleErrorScreen({
                 {evidenceItems.map((item) => (
                   <div key={item.key} className="contents">
                     <dt className="text-muted-foreground">
-                      {t2(item.labelKey, {
+                      {t(item.labelKey, {
                         defaultValue: item.labelDefault,
                       })}
                     </dt>
@@ -876,13 +876,13 @@ export function BundleErrorScreen({
                       {item.valueSegments
                         ? item.valueSegments
                             .map((seg) =>
-                              t2(seg.key, {
+                              t(seg.key, {
                                 defaultValue: seg.defaultValue,
                               }),
                             )
                             .join(", ")
                         : item.valueKey
-                          ? t2(item.valueKey, {
+                          ? t(item.valueKey, {
                               defaultValue: item.valueDefault,
                             })
                           : item.valueDefault}

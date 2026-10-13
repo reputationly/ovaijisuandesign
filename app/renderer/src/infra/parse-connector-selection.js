@@ -154,12 +154,12 @@ const PRESET_COLOR_TAG_ID_BY_COLOR = {
 };
 
 export const PRESET_COLOR_TAGS = CANVAS_TAG_COLOR_PALETTE.map((color2) => {
-  const id2 = PRESET_COLOR_TAG_ID_BY_COLOR[color2];
+  const id = PRESET_COLOR_TAG_ID_BY_COLOR[color2];
   return {
-    id: id2,
+    id,
     kind: "color",
     color: color2,
-    legacyNameKey: PRESET_COLOR_NAME_KEYS[id2],
+    legacyNameKey: PRESET_COLOR_NAME_KEYS[id],
   };
 });
 
@@ -235,8 +235,8 @@ function buildTagIndex(registry2) {
 export function resolveTagIds(tagIds, registry2) {
   const index2 = buildTagIndex(registry2);
   const resolved = [];
-  for (const id2 of tagIds ?? []) {
-    const tag = index2.get(id2);
+  for (const id of tagIds ?? []) {
+    const tag = index2.get(id);
     if (tag) resolved.push(tag);
   }
   return resolved;
@@ -245,8 +245,8 @@ export function resolveTagIds(tagIds, registry2) {
 export function isTagNameTaken(name2, resolvedNames, excludeId) {
   const needle = name2.trim();
   if (!needle) return false;
-  for (const [id2, display] of resolvedNames) {
-    if (id2 !== excludeId && display.trim() === needle) return true;
+  for (const [id, display] of resolvedNames) {
+    if (id !== excludeId && display.trim() === needle) return true;
   }
   return false;
 }

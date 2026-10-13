@@ -1,15 +1,15 @@
 // schedule.js
 import {
   activeIds,
-  listeners as listeners$5,
+  listeners as modalPresenceListeners,
 } from "../workspace/topbar-state-context.jsx";
 import { reactExports } from "../vendor.js";
 import { useAuth } from "../assets/credit-query-keys.jsx";
 import { HUB_WEB_INVITE_DOMAINS } from "../vendor-inline/vscode-base/graph.jsx";
 function subscribeModalPresence(listener) {
-  listeners$5.add(listener);
+  modalPresenceListeners.add(listener);
   return () => {
-    listeners$5.delete(listener);
+    modalPresenceListeners.delete(listener);
   };
 }
 function getModalPresenceSnapshot() {
@@ -70,8 +70,8 @@ let grantCount = 0;
 let lastReleaseAt = 0;
 let firstEnqueueAt = null;
 let timer = null;
-function priorityOf(id2) {
-  const index2 = config.order.indexOf(id2);
+function priorityOf(id) {
+  const index2 = config.order.indexOf(id);
   return index2 === -1 ? config.order.length : index2;
 }
 function clearTimer() {
@@ -85,7 +85,7 @@ function schedule() {
   if (holderId !== null) return;
   if (grantCount >= config.maxPerLaunch) return;
   const eligible = [...candidates.keys()].filter(
-    (id2) => !config.disabled.includes(id2),
+    (id) => !config.disabled.includes(id),
   );
   if (eligible.length === 0) return;
   const now2 = Date.now();
@@ -98,18 +98,18 @@ function schedule() {
     return;
   }
   eligible.sort(
-    (a2, b3) =>
-      priorityOf(a2) - priorityOf(b3) ||
-      (candidates.get(a2) ?? 0) - (candidates.get(b3) ?? 0),
+    (a, b) =>
+      priorityOf(a) - priorityOf(b) ||
+      (candidates.get(a) ?? 0) - (candidates.get(b) ?? 0),
   );
   const blockingDeadlines = [...loadingReservations.entries()]
     .filter(
-      ([id2, reservation]) =>
+      ([id, reservation]) =>
         reservation.active &&
         reservation.deadline > now2 &&
-        !config.disabled.includes(id2) &&
-        !candidates.has(id2) &&
-        priorityOf(id2) < priorityOf(eligible[0]),
+        !config.disabled.includes(id) &&
+        !candidates.has(id) &&
+        priorityOf(id) < priorityOf(eligible[0]),
     )
     .map(([, reservation]) => reservation.deadline);
   if (blockingDeadlines.length > 0) {
@@ -120,15 +120,15 @@ function schedule() {
   grantCount++;
   emit();
 }
-function enqueueModalCandidate(id2) {
-  if (candidates.has(id2)) return;
-  candidates.set(id2, Date.now());
+function enqueueModalCandidate(id) {
+  if (candidates.has(id)) return;
+  candidates.set(id, Date.now());
   if (firstEnqueueAt === null) firstEnqueueAt = Date.now();
   schedule();
 }
-function withdrawModalCandidate(id2) {
-  const existed = candidates.delete(id2);
-  if (holderId === id2) {
+function withdrawModalCandidate(id) {
+  const existed = candidates.delete(id);
+  if (holderId === id) {
     holderId = null;
     lastReleaseAt = Date.now();
     emit();
@@ -142,35 +142,35 @@ export function setModalScheduleConfig(next2) {
   schedule();
 }
 function beginModalLoadingWait(
-  id2,
+  id,
   timeoutMs = DEFAULT_MODAL_LOADING_TIMEOUT_MS,
 ) {
-  const existing = loadingReservations.get(id2);
+  const existing = loadingReservations.get(id);
   if (existing) {
     existing.active = true;
   } else {
     const duration = Number.isFinite(timeoutMs)
       ? Math.min(MAX_MODAL_LOADING_TIMEOUT_MS, Math.max(0, timeoutMs))
       : DEFAULT_MODAL_LOADING_TIMEOUT_MS;
-    loadingReservations.set(id2, {
+    loadingReservations.set(id, {
       deadline: Date.now() + duration,
       active: true,
     });
   }
   schedule();
 }
-function endModalLoadingWait(id2) {
-  const reservation = loadingReservations.get(id2);
+function endModalLoadingWait(id) {
+  const reservation = loadingReservations.get(id);
   if (!reservation?.active) return;
   reservation.active = false;
   schedule();
 }
-function suspendModalScheduler(id2) {
-  suspenders.add(id2);
+function suspendModalScheduler(id) {
+  suspenders.add(id);
   clearTimer();
 }
-function resumeModalScheduler(id2) {
-  if (!suspenders.delete(id2)) return;
+function resumeModalScheduler(id) {
+  if (!suspenders.delete(id)) return;
   if (suspenders.size === 0) schedule();
 }
 function subscribeModalScheduler(listener) {
@@ -182,20 +182,20 @@ function subscribeModalScheduler(listener) {
 function getModalSlotHolderSnapshot() {
   return holderId;
 }
-export function useModalSlot(id2, options) {
+export function useModalSlot(id, options) {
   const { candidate } = options;
   reactExports.useEffect(() => {
     if (!candidate) return;
-    enqueueModalCandidate(id2);
-    return () => withdrawModalCandidate(id2);
-  }, [id2, candidate]);
+    enqueueModalCandidate(id);
+    return () => withdrawModalCandidate(id);
+  }, [id, candidate]);
   const holderId2 = reactExports.useSyncExternalStore(
     subscribeModalScheduler,
     getModalSlotHolderSnapshot,
   );
-  return candidate && holderId2 === id2;
+  return candidate && holderId2 === id;
 }
-export function useModalSlotWithLoading(id2, options) {
+export function useModalSlotWithLoading(id, options) {
   const {
     candidate,
     loading,
@@ -203,29 +203,29 @@ export function useModalSlotWithLoading(id2, options) {
   } = options;
   reactExports.useLayoutEffect(
     () => () => {
-      withdrawModalCandidate(id2);
-      endModalLoadingWait(id2);
+      withdrawModalCandidate(id);
+      endModalLoadingWait(id);
     },
-    [id2],
+    [id],
   );
   reactExports.useLayoutEffect(() => {
-    if (loading) beginModalLoadingWait(id2, loadingTimeoutMs);
-    if (candidate) enqueueModalCandidate(id2);
-    else withdrawModalCandidate(id2);
-    if (!loading) endModalLoadingWait(id2);
-  }, [id2, candidate, loading, loadingTimeoutMs]);
+    if (loading) beginModalLoadingWait(id, loadingTimeoutMs);
+    if (candidate) enqueueModalCandidate(id);
+    else withdrawModalCandidate(id);
+    if (!loading) endModalLoadingWait(id);
+  }, [id, candidate, loading, loadingTimeoutMs]);
   const holderId2 = reactExports.useSyncExternalStore(
     subscribeModalScheduler,
     getModalSlotHolderSnapshot,
   );
-  return candidate && holderId2 === id2;
+  return candidate && holderId2 === id;
 }
-export function useModalSchedulerSuspension(id2, active2) {
+export function useModalSchedulerSuspension(id, active2) {
   reactExports.useEffect(() => {
     if (!active2) return;
-    suspendModalScheduler(id2);
-    return () => resumeModalScheduler(id2);
-  }, [id2, active2]);
+    suspendModalScheduler(id);
+    return () => resumeModalScheduler(id);
+  }, [id, active2]);
 }
 export const SESSION_DISMISS_KEY = "__hilo_login_gate_dismissed";
 export const LoginGateContext = reactExports.createContext(null);

@@ -1,0 +1,4 @@
+key	new	reason
+ws2@156:11	ws	原名 ws，去掉打包器加的数字去重后缀
+ev@173:13	closeEvent	WebSocket close 事件，读取 code/reason/wasClean
+n2@259:21	count	计数值，判断是否为 2 的幂以决定是否打日志

@@ -92,7 +92,7 @@ export function createAssetMetadataStore() {
         const existing = next2.get(assetId);
         if (!existing) {
           const missing = ["url", "name", "path", "type"].filter(
-            (k2) => partial[k2] === void 0,
+            (key) => partial[key] === void 0,
           );
           if (missing.length > 0) {
             console.warn(
@@ -132,8 +132,8 @@ export function createAssetMetadataStore() {
     setMany: (entries2) =>
       set2((state2) => {
         const next2 = new Map(state2.assets);
-        for (const [id2, meta2] of entries2) {
-          next2.set(id2, meta2);
+        for (const [id, meta2] of entries2) {
+          next2.set(id, meta2);
         }
         return {
           assets: next2,
@@ -295,7 +295,7 @@ export class AgentHttpClient {
   urlWithParams(path2, params) {
     const base2 = path2.includes("://") ? path2 : `${this.baseUrl}${path2}`;
     if (!params) return this.appendCommonParams(base2);
-    const filtered = Object.entries(params).filter(([, v2]) => v2 !== void 0);
+    const filtered = Object.entries(params).filter(([, value]) => value !== void 0);
     if (filtered.length === 0) return this.appendCommonParams(base2);
     const qs = new URLSearchParams(filtered).toString();
     return this.appendCommonParams(`${base2}?${qs}`);
@@ -364,9 +364,9 @@ export class AgentHttpClient {
     return this.handleResponse(resp, url2, "POST");
   }
   /** Persist a shallow metadata patch on an enrolled workspace asset. */
-  async updateAssetMetadata(id2, patch2, opts) {
+  async updateAssetMetadata(id, patch2, opts) {
     return this.patch(
-      `/api/assets/${encodeURIComponent(id2)}/metadata`,
+      `/api/assets/${encodeURIComponent(id)}/metadata`,
       {
         patch: patch2,
       },
@@ -451,29 +451,29 @@ export class AgentHttpClient {
   async saveTextVersion(req, opts) {
     return this.post(API_PATHS.textVersions, req, opts);
   }
-  async readTextVersionContent(id2, range2, opts) {
+  async readTextVersionContent(id, range2, opts) {
     return this.get(
-      API_PATHS.textVersionContent(id2, range2?.offset ?? 0, range2?.limit),
+      API_PATHS.textVersionContent(id, range2?.offset ?? 0, range2?.limit),
       opts,
     );
   }
   async diffTextVersion(params, opts) {
     return this.get(API_PATHS.textVersionDiff(params), opts);
   }
-  async restoreTextVersion(id2, body2 = {}, opts) {
-    return this.post(API_PATHS.textVersionRestore(id2), body2, opts);
+  async restoreTextVersion(id, body2 = {}, opts) {
+    return this.post(API_PATHS.textVersionRestore(id), body2, opts);
   }
-  async materializeTextVersion(id2, opts) {
-    return this.post(API_PATHS.textVersionMaterialize(id2), {}, opts);
+  async materializeTextVersion(id, opts) {
+    return this.post(API_PATHS.textVersionMaterialize(id), {}, opts);
   }
   async summarizeTextVersionNote(req, opts) {
     return this.post(API_PATHS.textVersionSummarize, req, opts);
   }
-  async updateTextVersion(id2, patch2, opts) {
-    return this.patch(API_PATHS.textVersion(id2), patch2, opts);
+  async updateTextVersion(id, patch2, opts) {
+    return this.patch(API_PATHS.textVersion(id), patch2, opts);
   }
-  async deleteTextVersion(id2, opts) {
-    return this.del(API_PATHS.textVersion(id2), opts);
+  async deleteTextVersion(id, opts) {
+    return this.del(API_PATHS.textVersion(id), opts);
   }
   thumbnailUrl(relativePath) {
     return this.appendWorkspaceClaim(
@@ -1501,7 +1501,7 @@ export function useScopedHttpClient() {
 }
 
 export function useBrowserImageEdit(options) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const client2 = useScopedHttpClient();
   const assetMetadataStore = useAssetMetadataApi();
   const mutator = reactExports.useMemo(
@@ -1518,13 +1518,13 @@ export function useBrowserImageEdit(options) {
     ...options,
     client: client2,
     mutator,
-    t: t2,
+    t,
   });
   latest2.current = {
     ...options,
     client: client2,
     mutator,
-    t: t2,
+    t,
   };
   const inFlight = reactExports.useRef(false);
   reactExports.useEffect(() => {

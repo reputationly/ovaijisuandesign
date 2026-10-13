@@ -13,8 +13,8 @@ function isCanvasTagColor(color2) {
 
 const PRESET_COLOR_TAG_ID_SET = new Set(Object.values(PRESET_COLOR_TAG_IDS));
 
-function isPresetCanvasColorTagId(id2) {
-  return PRESET_COLOR_TAG_ID_SET.has(id2);
+function isPresetCanvasColorTagId(id) {
+  return PRESET_COLOR_TAG_ID_SET.has(id);
 }
 
 function orderCanvasTagsByDefaultColor(tags2) {
@@ -43,7 +43,7 @@ function normalizeV2Registry(raw2) {
   for (const candidate of raw2.tags) {
     if (!candidate || typeof candidate !== "object") continue;
     const tag = candidate;
-    const id2 = typeof tag.id === "string" ? tag.id.trim() : "";
+    const id = typeof tag.id === "string" ? tag.id.trim() : "";
     const name2 = typeof tag.name === "string" ? tag.name.trim() : "";
     const legacyNameKey =
       typeof tag.legacyNameKey === "string" ? tag.legacyNameKey : void 0;
@@ -51,12 +51,12 @@ function normalizeV2Registry(raw2) {
       typeof tag.color === "string" && isCanvasTagColor(tag.color)
         ? tag.color
         : void 0;
-    const kind = isPresetCanvasColorTagId(id2) ? "color" : "keyword";
-    if (!id2 || seenIds.has(id2) || (kind === "color" && !color2)) continue;
+    const kind = isPresetCanvasColorTagId(id) ? "color" : "keyword";
+    if (!id || seenIds.has(id) || (kind === "color" && !color2)) continue;
     if (!name2 && !legacyNameKey) continue;
-    seenIds.add(id2);
+    seenIds.add(id);
     tags2.push({
-      id: id2,
+      id,
       kind,
       ...(kind === "color" && color2
         ? {
@@ -127,12 +127,12 @@ export function normalizeTagRegistry(input) {
     : []) {
     if (!candidate || typeof candidate !== "object") continue;
     const old = candidate;
-    const id2 = typeof old.id === "string" ? old.id.trim() : "";
+    const id = typeof old.id === "string" ? old.id.trim() : "";
     const name2 = typeof old.name === "string" ? old.name.trim() : "";
-    if (!id2 || seenIds.has(id2) || !name2) continue;
-    seenIds.add(id2);
+    if (!id || seenIds.has(id) || !name2) continue;
+    seenIds.add(id);
     tags2.push({
-      id: id2,
+      id,
       kind: "keyword",
       name: name2,
     });

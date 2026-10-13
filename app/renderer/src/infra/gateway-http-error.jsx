@@ -55,9 +55,9 @@ export const authExpiredBus = {
     };
   },
   emit() {
-    for (const fn2 of listeners) {
+    for (const fn of listeners) {
       try {
-        fn2();
+        fn();
       } catch (err) {
         console.error("[auth-expired-bus] listener threw:", err);
       }

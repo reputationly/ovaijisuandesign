@@ -43,7 +43,7 @@ export function ErrorFallbackUI({
   showFeedbackAction = true,
   containerClassName = "h-screen w-screen",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [copied, setCopied] = reactExports.useState(false);
   const [diagnosticsContext, setDiagnosticsContext] =
     reactExports.useState(null);
@@ -106,16 +106,16 @@ message: ${message2}`
           <AlertTriangle className="size-5" />
         </div>
         <h1 className="mb-2 text-[15px] font-medium text-destructive">
-          {t2("errorBoundary.title", {
+          {t("errorBoundary.title", {
             defaultValue: "Something went wrong",
           })}
         </h1>
         <p className="mb-6 text-center text-[13px] leading-relaxed text-muted-foreground">
-          {t2("errorBoundary.descriptionLine1", {
+          {t("errorBoundary.descriptionLine1", {
             defaultValue: "The application encountered an unexpected error.",
           })}
           <br />
-          {t2("errorBoundary.descriptionLine2", {
+          {t("errorBoundary.descriptionLine2", {
             defaultValue:
               "You can try again. If the issue persists, please report it.",
           })}
@@ -124,7 +124,7 @@ message: ${message2}`
           <div className="mb-6 w-full rounded-lg border border-border bg-muted/50 px-3 py-2.5 text-[12px]">
             <div className="mb-2 flex items-center justify-between gap-3">
               <span className="font-medium text-foreground">
-                {t2("errorBoundary.diagnosticsTitle", {
+                {t("errorBoundary.diagnosticsTitle", {
                   defaultValue: "Diagnostics info",
                 })}
               </span>
@@ -137,34 +137,34 @@ message: ${message2}`
                 data-action-ui-id="error-boundary.copy-diagnostics"
               >
                 {copied
-                  ? t2("errorBoundary.copied", {
+                  ? t("errorBoundary.copied", {
                       defaultValue: "Copied",
                     })
-                  : t2("errorBoundary.copyDiagnostics", {
+                  : t("errorBoundary.copyDiagnostics", {
                       defaultValue: "Copy info",
                     })}
               </Button>
             </div>
             <div className="grid gap-1.5">
               <SupportInfoRow
-                label={t2("errorBoundary.diagnosticsUid", {
+                label={t("errorBoundary.diagnosticsUid", {
                   defaultValue: "UID",
                 })}
                 value={
                   diagnosticsContext?.userId ??
-                  t2("errorBoundary.diagnosticsUnknownUid", {
+                  t("errorBoundary.diagnosticsUnknownUid", {
                     defaultValue: "Unknown",
                   })
                 }
               />
               <SupportInfoRow
-                label={t2("errorBoundary.diagnosticsCode", {
+                label={t("errorBoundary.diagnosticsCode", {
                   defaultValue: "Code",
                 })}
                 value={failureId}
               />
               <SupportInfoRow
-                label={t2("errorBoundary.diagnosticsTime", {
+                label={t("errorBoundary.diagnosticsTime", {
                   defaultValue: "Time",
                 })}
                 value={formatSupportTime(supportTimestamp)}
@@ -188,7 +188,7 @@ message: ${message2}`
                   : void 0
               }
               reason={ERROR_BOUNDARY_FEEDBACK_REASON}
-              label={t2("errorBoundary.reportIssue", {
+              label={t("errorBoundary.reportIssue", {
                 defaultValue: "Report Issue",
               })}
             />
@@ -199,7 +199,7 @@ message: ${message2}`
             className="h-auto rounded-lg px-4 py-2 text-[13px]"
             data-action-ui-id="error-boundary.retry"
           >
-            {t2("errorBoundary.tryAgain", {
+            {t("errorBoundary.tryAgain", {
               defaultValue: "Try Again",
             })}
           </Button>
@@ -231,7 +231,7 @@ message: ${message2}`
                   strokeLinejoin="round"
                 />
               </CompositedSvg>
-              {t2("errorBoundary.errorDetails", {
+              {t("errorBoundary.errorDetails", {
                 defaultValue: "Error details",
               })}
             </Button>
@@ -247,14 +247,14 @@ ${stack}`}
           </div>
         )}
         <p className="mt-10 text-[11px] text-muted-foreground">
-          {t2("errorBoundary.press", {
+          {t("errorBoundary.press", {
             defaultValue: "Press",
           })}{" "}
           <ShortcutHint
             accelerator="CommandOrControl+R"
             className="inline-flex h-auto min-w-0 items-center justify-center rounded border border-border bg-muted px-1.5 py-0.5 text-[11px] leading-none text-muted-foreground"
           />{" "}
-          {t2("errorBoundary.toRetry", {
+          {t("errorBoundary.toRetry", {
             defaultValue: "to try again",
           })}
         </p>

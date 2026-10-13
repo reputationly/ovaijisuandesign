@@ -1,0 +1,9 @@
+key	new	reason
+id2@28:15	id	原名 id，去掉打包器加的数字去重后缀
+id2@38:7	id	原名 id，去掉打包器加的数字去重后缀
+ts2@39:7	ts	原名 ts，去掉打包器加的数字去重后缀
+s2@160:34	state	useHtmlIframePoolStore 选择器收到的 store 状态
+t2@163:14	t	useTranslation() 返回的翻译函数 t
+e2@182:19	clickEvent	onClick 回调收到的事件对象
+e2@186:23	mouseEvent	onMouseDown 回调收到的事件对象
+k2@40:15	entryId	active 映射中条目的 ID，记为最早的候选

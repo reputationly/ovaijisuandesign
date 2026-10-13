@@ -5,8 +5,8 @@ import { WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY } from "../workspace/workspace-fai
 
 const TERMINAL_STATES = new Set(["failed", "stopped"]);
 
-function isTerminalState(s2) {
-  return TERMINAL_STATES.has(s2);
+function isTerminalState(state) {
+  return TERMINAL_STATES.has(state);
 }
 
 export function shouldRefreshStatusOnResume(isActive2, lastState) {

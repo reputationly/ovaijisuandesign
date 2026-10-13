@@ -1,0 +1,2 @@
+key	new	reason
+d2@38:13	keyDelta	本次 delta 中该键的增量，累加到 totals 与窗口统计

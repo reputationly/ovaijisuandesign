@@ -60,13 +60,13 @@ function normalizeEntryTimestamp(entry) {
 
 function handleLongTaskEntries(list2) {
   for (const entry of list2.getEntries()) {
-    const ts2 = normalizeEntryTimestamp(entry);
+    const ts = normalizeEntryTimestamp(entry);
     const attribution = entry.attribution;
     recentLongTasks.push({
       name: entry.name || "longtask",
       durationMs: Math.round(entry.duration * 100) / 100,
-      ts: ts2,
-      tsIso: new Date(ts2).toISOString(),
+      ts,
+      tsIso: new Date(ts).toISOString(),
       ...(Array.isArray(attribution)
         ? {
             attributionCount: attribution.length,

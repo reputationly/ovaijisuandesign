@@ -1,0 +1,8 @@
+key	new	reason
+e@145:52	dragEvent	函数体读取 dataTransfer 的拖放事件
+e@167:6	dragEvent	函数体读取 dataTransfer 的拖放事件
+e@715:30	changeEvent	onChange 回调收到的事件对象
+e@139:6	changeEvent	文件输入框 change 事件，读取 target.files
+e@160:53	dragEvent	拖拽离开事件，阻止默认行为
+v@552:6	isOpen	Dialog onOpenChange 传入的打开状态
+f@583:51	missingField	errorInfo.missingFields 中的单个缺失字段名

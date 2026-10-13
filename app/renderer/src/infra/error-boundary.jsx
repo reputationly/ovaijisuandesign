@@ -45,8 +45,8 @@ export class ErrorBoundary extends reactExports.Component {
           failureTimestamp={this.state.diagnostic?.timestamp}
           showDetails={this.state.showDetails}
           onToggleDetails={() =>
-            this.setState((s2) => ({
-              showDetails: !s2.showDetails,
+            this.setState((prevState) => ({
+              showDetails: !prevState.showDetails,
             }))
           }
           onRetry={this.handleReload}
@@ -135,11 +135,11 @@ function trimTraceMap() {
   if (tracesByClientId.size <= MAX_RECENT_TRACES) return;
   const overflow = tracesByClientId.size - MAX_RECENT_TRACES;
   const oldestIds = [...tracesByClientId.values()]
-    .sort((a2, b3) => a2.updatedAt - b3.updatedAt)
+    .sort((a, b) => a.updatedAt - b.updatedAt)
     .slice(0, overflow)
     .map((trace) => trace.clientMessageId);
-  for (const id2 of oldestIds) {
-    tracesByClientId.delete(id2);
+  for (const id of oldestIds) {
+    tracesByClientId.delete(id);
   }
 }
 

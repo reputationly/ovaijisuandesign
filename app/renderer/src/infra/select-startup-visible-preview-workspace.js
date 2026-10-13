@@ -42,7 +42,7 @@ function normalizeVisiblePreviewTabReferences(values3) {
   }
   return result;
 }
-function selectStartupVisiblePreviewWorkspace$1(
+function resolveStartupVisiblePreviewWorkspace(
   snapshot2,
   restoredWorkspaceIds,
   preferredWorkspaceId,
@@ -79,7 +79,7 @@ function selectStartupVisiblePreviewWorkspace(
   restoredWorkspaceIds,
   preferredWorkspaceId,
 ) {
-  return selectStartupVisiblePreviewWorkspace$1(
+  return resolveStartupVisiblePreviewWorkspace(
     snapshot2,
     restoredWorkspaceIds,
     preferredWorkspaceId,

@@ -69,7 +69,7 @@ export function CreateProjectMenuContent({
   sideOffset = 4,
   sidebarHoverRegion = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { guard: loginGuard } = useLoginGuard();
   return (
     <ActionDropdownMenuContent
@@ -87,7 +87,7 @@ export function CreateProjectMenuContent({
         data-action-ui-id={`${actionUiIdPrefix}.create-local`}
       >
         <LocalFolderIcon className="size-4" aria-hidden="true" />
-        {t2("project.create.localTitle")}
+        {t("project.create.localTitle")}
       </ActionDropdownMenuItem>
       <ActionDropdownMenuSeparator />
       <ActionDropdownMenuItem
@@ -98,7 +98,7 @@ export function CreateProjectMenuContent({
         data-action-ui-id={`${actionUiIdPrefix}.create-team`}
       >
         <Users className="size-4" strokeWidth={1.5} />
-        {t2("project.create.teamTitle")}
+        {t("project.create.teamTitle")}
       </ActionDropdownMenuItem>
     </ActionDropdownMenuContent>
   );
@@ -108,7 +108,7 @@ export function DissolveProjectDialog({
   onConfirm,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <AlertDialog
       open={Boolean(project2)}
@@ -116,17 +116,17 @@ export function DissolveProjectDialog({
     >
       <AlertDialogContent size="sm" data-action-ui-id="project.dissolve-dialog">
         <AlertDialogHeader>
-          <AlertDialogTitle>{t2("project.dissolve.title")}</AlertDialogTitle>
+          <AlertDialogTitle>{t("project.dissolve.title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("project.dissolve.description", {
+            {t("project.dissolve.description", {
               name: project2?.name ?? "",
             })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t2("common.cancel")}</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            {t2("project.dissolve.confirm")}
+            {t("project.dissolve.confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -161,7 +161,7 @@ const AvatarRoot = reactExports.forwardRef(
     );
   },
 );
-const AvatarFallback$1 = reactExports.forwardRef(
+const AvatarFallbackPrimitive = reactExports.forwardRef(
   function AvatarFallback2(componentProps, forwardedRef) {
     const {
       className,
@@ -220,7 +220,7 @@ export function AvatarImage({ className, ...props }) {
 }
 export function AvatarFallback({ className, ...props }) {
   return (
-    <AvatarFallback$1
+    <AvatarFallbackPrimitive
       data-slot="avatar-fallback"
       className={cn(
         "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
@@ -251,12 +251,12 @@ export const ClickableArea = reactExports.forwardRef(
         role="button"
         tabIndex={0}
         onClick={onClick}
-        onKeyDown={(e2) => {
-          if (e2.key === "Enter" || e2.key === " ") {
-            e2.preventDefault();
+        onKeyDown={(keyboardEvent) => {
+          if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
             onClick?.();
           }
-          onKeyDown?.(e2);
+          onKeyDown?.(keyboardEvent);
         }}
         {...props}
       >
@@ -303,24 +303,24 @@ export function InlineRenameInput({
       value={value}
       placeholder={placeholder}
       maxLength={effectiveMaxLength}
-      onChange={(e2) => setValue(e2.target.value)}
+      onChange={(changeEvent) => setValue(changeEvent.target.value)}
       onCompositionStart={() => {
         composingRef.current = true;
       }}
       onCompositionEnd={() => {
         composingRef.current = false;
       }}
-      onKeyDown={(e2) => {
-        e2.stopPropagation();
-        if (composingRef.current || e2.nativeEvent.isComposing) return;
-        if (e2.key === "Enter") submit();
-        if (e2.key === "Escape") onCancel();
+      onKeyDown={(keyboardEvent) => {
+        keyboardEvent.stopPropagation();
+        if (composingRef.current || keyboardEvent.nativeEvent.isComposing) return;
+        if (keyboardEvent.key === "Enter") submit();
+        if (keyboardEvent.key === "Escape") onCancel();
       }}
       onBlur={submit}
-      onClick={(e2) => e2.stopPropagation()}
-      onDoubleClick={(e2) => e2.stopPropagation()}
-      onMouseDown={(e2) => e2.stopPropagation()}
-      onPointerDown={(e2) => e2.stopPropagation()}
+      onClick={(clickEvent) => clickEvent.stopPropagation()}
+      onDoubleClick={(clickEvent) => clickEvent.stopPropagation()}
+      onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
       className={cn(
         "w-full min-w-[100px] rounded-sm border border-primary bg-transparent px-1 text-[14px] font-medium text-foreground outline-none placeholder:text-muted-foreground",
         className,
@@ -353,12 +353,12 @@ export function useGatewayReadiness() {
         );
     }, GATEWAY_READINESS_FALLBACK_MS);
     Promise.resolve(service2.getSnapshot())
-      .then((s2) => {
-        if (!disposed) setSnapshot((prev) => prev ?? s2);
+      .then((initialSnapshot) => {
+        if (!disposed) setSnapshot((prev) => prev ?? initialSnapshot);
       })
       .catch(() => {});
-    const sub = service2.onDidChange((s2) => {
-      if (!disposed) setSnapshot(s2);
+    const sub = service2.onDidChange((nextSnapshot) => {
+      if (!disposed) setSnapshot(nextSnapshot);
     });
     return () => {
       disposed = true;

@@ -17,11 +17,11 @@ function buildByAssetFromRefs(refs) {
 }
 function buildByAsset(nodeIds) {
   const next2 = new Map();
-  for (const id2 of nodeIds) {
-    const { assetId } = parseNodeId(id2);
+  for (const id of nodeIds) {
+    const { assetId } = parseNodeId(id);
     const list2 = next2.get(assetId);
-    if (list2) list2.push(id2);
-    else next2.set(assetId, [id2]);
+    if (list2) list2.push(id);
+    else next2.set(assetId, [id]);
   }
   return next2;
 }

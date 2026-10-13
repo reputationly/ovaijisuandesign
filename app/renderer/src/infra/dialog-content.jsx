@@ -388,7 +388,7 @@ export function DialogContent({
   overlayClassName,
   ...props
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <DialogPortal container={portalContainer ?? void 0}>
       <DialogOverlay
@@ -417,7 +417,7 @@ export function DialogContent({
             }
           >
             <XIcon className="size-6" strokeWidth={1.75} />
-            <span className="sr-only">{t2("common.close")}</span>
+            <span className="sr-only">{t("common.close")}</span>
           </DialogClose>
         )}
       </DialogPopup>
@@ -439,7 +439,7 @@ export function DialogFooter({
   children: children2,
   ...props
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       data-slot="dialog-footer"
@@ -452,7 +452,7 @@ export function DialogFooter({
       {children2}
       {showCloseButton && (
         <DialogClose render={<Button variant="outline" />}>
-          {t2("common.close")}
+          {t("common.close")}
         </DialogClose>
       )}
     </div>

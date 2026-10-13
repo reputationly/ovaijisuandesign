@@ -1,7 +1,7 @@
 // from-vendor.js
 // 从打包文件里搬出的第一方语句。它们不引用仍留在那里的库代码。
 import reactExports from "react";
-import { max as max$2, min as min$2 } from "@floating-ui/utils";
+import { max, min } from "@floating-ui/utils";
 
 export const CanvasNodeType = {
   Image: "image",
@@ -88,9 +88,9 @@ export function parseSemver(version2) {
   };
 }
 
-export function compareSemver(a2, b3) {
-  const pa = parseSemver(a2);
-  const pb = parseSemver(b3);
+export function compareSemver(a, b) {
+  const pa = parseSemver(a);
+  const pb = parseSemver(b);
   if (!pa || !pb) return 0;
   if (pa.major !== pb.major) return pa.major - pb.major;
   if (pa.minor !== pb.minor) return pa.minor - pb.minor;
@@ -288,8 +288,8 @@ export function isWorkspaceIdentityErrorCode(value) {
   return value === WORKSPACE_IDENTITY_MISMATCH_CODE || value === WORKSPACE_IDENTITY_REQUIRED_CODE;
 }
 
-export function encodePath(p3) {
-  return p3.split("/").map(encodeURIComponent).join("/");
+export function encodePath(filePath) {
+  return filePath.split("/").map(encodeURIComponent).join("/");
 }
 
 export const DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT = 1080;
@@ -397,7 +397,7 @@ export const API_PATHS = {
   thumbnail: path2 => `/api/thumbnail/${encodePath(path2)}`,
   serveFile: path2 => `/files/${encodePath(path2)}`,
   adoptFiles: "/api/files/adopt",
-  serveFileById: id2 => `/files/id/${encodeURIComponent(id2)}`,
+  serveFileById: id => `/files/id/${encodeURIComponent(id)}`,
   scanMedia: (dir, limit = 3) => `/api/files/scan-media?dir=${encodeURIComponent(dir)}&limit=${limit}`,
   workspaceSummary: dir => `/api/files/workspace-summary?dir=${encodeURIComponent(dir)}`,
   serveLocal: absolutePath => `/api/local-file?path=${encodeURIComponent(absolutePath)}`,
@@ -408,13 +408,13 @@ export const API_PATHS = {
   // carries { assetId, title, note } and the gateway snapshots off disk.
   textVersions: "/api/files/versions",
   textVersionsList: assetId => `/api/files/versions?assetId=${encodeURIComponent(assetId)}`,
-  textVersion: id2 => `/api/files/versions/${encodeURIComponent(id2)}`,
-  textVersionContent: (id2, offset2 = 0, limit) => {
+  textVersion: id => `/api/files/versions/${encodeURIComponent(id)}`,
+  textVersionContent: (id, offset2 = 0, limit) => {
     const query = new URLSearchParams({
       offset: String(offset2)
     });
     if (limit !== void 0) query.set("limit", String(limit));
-    return `/api/files/versions/${encodeURIComponent(id2)}/content?${query.toString()}`;
+    return `/api/files/versions/${encodeURIComponent(id)}/content?${query.toString()}`;
   },
   /**
    * Diff between two snapshots of one document. `to` may be omitted to diff
@@ -431,8 +431,8 @@ export const API_PATHS = {
     if (params.limit !== void 0) query.set("limit", String(params.limit));
     return `/api/files/versions/diff?${query.toString()}`;
   },
-  textVersionRestore: id2 => `/api/files/versions/${encodeURIComponent(id2)}/restore`,
-  textVersionMaterialize: id2 => `/api/files/versions/${encodeURIComponent(id2)}/materialize`,
+  textVersionRestore: id => `/api/files/versions/${encodeURIComponent(id)}/restore`,
+  textVersionMaterialize: id => `/api/files/versions/${encodeURIComponent(id)}/materialize`,
   textVersionSummarize: "/api/files/versions/summarize",
   // Media preview
   heicPreview: "/api/media/heic-preview",
@@ -453,17 +453,17 @@ export const API_PATHS = {
   allAssetsWithMetadata: "/api/assets?include=metadata",
   assetChanges: "/api/assets/changes",
   // W4-T1: missing-asset reconciliation actions (ADR-004 Phase 4)
-  mergeMissingCandidate: id2 => `/api/assets/${encodeURIComponent(id2)}/merge-candidate`,
-  removeMissing: id2 => `/api/assets/${encodeURIComponent(id2)}/remove-missing`,
-  locateMissing: id2 => `/api/assets/${encodeURIComponent(id2)}/locate`,
+  mergeMissingCandidate: id => `/api/assets/${encodeURIComponent(id)}/merge-candidate`,
+  removeMissing: id => `/api/assets/${encodeURIComponent(id)}/remove-missing`,
+  locateMissing: id => `/api/assets/${encodeURIComponent(id)}/locate`,
   // Canvas asset tags (PRD: canvas 内标签体系)
-  assetTags: id2 => `/api/assets/${encodeURIComponent(id2)}/tags`,
+  assetTags: id => `/api/assets/${encodeURIComponent(id)}/tags`,
   assetTagsBatch: "/api/assets/tags/batch",
   assetTagMutationsBatch: "/api/assets/tags/mutations/batch",
   tagRegistry: "/api/canvas/tag-registry",
   canvasTags: "/api/canvas/tags",
-  canvasTag: id2 => `/api/canvas/tags/${encodeURIComponent(id2)}`,
-  canvasTagImpact: id2 => `/api/canvas/tags/${encodeURIComponent(id2)}/impact`,
+  canvasTag: id => `/api/canvas/tags/${encodeURIComponent(id)}`,
+  canvasTagImpact: id => `/api/canvas/tags/${encodeURIComponent(id)}/impact`,
   canvasTagOrder: "/api/canvas/tags/order",
   // Dependencies (ADR-005 Layer 3 / W5-T1)
   // Lineage queries follow role='source' edges only; inputs returns
@@ -472,11 +472,11 @@ export const API_PATHS = {
   dependenciesDownstream: assetId => `/api/dependencies/${encodeURIComponent(assetId)}/downstream`,
   dependenciesInputs: assetId => `/api/dependencies/${encodeURIComponent(assetId)}/inputs`,
   addDependency: "/api/dependencies",
-  deleteDependency: id2 => `/api/dependencies/${id2}`,
+  deleteDependency: id => `/api/dependencies/${id}`,
   // Asset hover-card preview (text excerpt + read-only metadata enrichment)
   assetTextPreview: (path2, chars2 = 200) => `/api/asset/text-preview?path=${encodeURIComponent(path2)}&chars=${chars2}`,
   documentRead: (path2, offset2 = 1, limit = 2e3, imagePage) => `/api/internal/document/read?path=${encodeURIComponent(path2)}&offset=${offset2}&limit=${limit}${imagePage === void 0 ? "" : `&image_page=${imagePage}`}`,
-  assetMetadata: id2 => `/api/asset/${encodeURIComponent(id2)}/metadata`,
+  assetMetadata: id => `/api/asset/${encodeURIComponent(id)}/metadata`,
   /**
    * Hover-only height-capped MP4 stream. Compatible H.264 MP4 sources pass
    * through; other containers/codecs are remuxed or transcoded for Chromium.
@@ -599,7 +599,7 @@ export const API_PATHS = {
   feedbackUploadAttachment: "/api/feedback/upload-attachment",
   feedbackDetail: ticketId => `/api/feedback/${encodeURIComponent(ticketId)}`,
   // Export
-  exportSession: id2 => `/api/sessions/${id2}/export`,
+  exportSession: id => `/api/sessions/${id}/export`,
   customMcpApply: "/api/connectors/mcp",
   customMcpAuthorize: "/api/connectors/mcp/authorize",
   customMcpAuthenticate: "/api/connectors/mcp/authenticate",
@@ -762,14 +762,14 @@ export function hasDraggedAncestor(node2, draggedIds, nodeLookup) {
 export function getDragSnapReferenceBounds(nodeLookup, dragItems) {
   const draggedIds = new Set(dragItems.keys());
   const references = [];
-  for (const [id2, node2] of nodeLookup) {
+  for (const [id, node2] of nodeLookup) {
     const width = node2.measured.width;
     const height = node2.measured.height;
-    if (draggedIds.has(id2) || hasDraggedAncestor(node2, draggedIds, nodeLookup) || node2.hidden || !width || !height) {
+    if (draggedIds.has(id) || hasDraggedAncestor(node2, draggedIds, nodeLookup) || node2.hidden || !width || !height) {
       continue;
     }
     references.push({
-      id: id2,
+      id,
       x: node2.internals.positionAbsolute.x,
       y: node2.internals.positionAbsolute.y,
       width,
@@ -785,36 +785,36 @@ export function getDragSnapReferenceBounds(nodeLookup, dragItems) {
 export function getDragSnapAffectedIds(nodeLookup, dragItems) {
   const dragRootIds = new Set(dragItems.keys());
   const affectedIds = [];
-  for (const [id2, node2] of nodeLookup) {
-    if (dragRootIds.has(id2) || hasDraggedAncestor(node2, dragRootIds, nodeLookup)) {
-      affectedIds.push(id2);
+  for (const [id, node2] of nodeLookup) {
+    if (dragRootIds.has(id) || hasDraggedAncestor(node2, dragRootIds, nodeLookup)) {
+      affectedIds.push(id);
     }
   }
   return affectedIds;
 }
 
 export function getDragBounds(previews) {
-  let x1 = Infinity;
-  let y1 = Infinity;
-  let x2 = -Infinity;
-  let y22 = -Infinity;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
   for (const preview of previews) {
-    x1 = Math.min(x1, preview.positionAbsolute.x);
-    y1 = Math.min(y1, preview.positionAbsolute.y);
-    x2 = Math.max(x2, preview.positionAbsolute.x + preview.width);
-    y22 = Math.max(y22, preview.positionAbsolute.y + preview.height);
+    minX = Math.min(minX, preview.positionAbsolute.x);
+    minY = Math.min(minY, preview.positionAbsolute.y);
+    maxX = Math.max(maxX, preview.positionAbsolute.x + preview.width);
+    maxY = Math.max(maxY, preview.positionAbsolute.y + preview.height);
   }
   return {
-    x: x1,
-    y: y1,
-    width: Math.max(0, x2 - x1),
-    height: Math.max(0, y22 - y1)
+    x: minX,
+    y: minY,
+    width: Math.max(0, maxX - minX),
+    height: Math.max(0, maxY - minY)
   };
 }
 
-export function interpolateNumber(a2, b3) {
-  return a2 = +a2, b3 = +b3, function (t2) {
-    return a2 * (1 - t2) + b3 * t2;
+export function interpolateNumber(start, end) {
+  return start = +start, end = +end, function (progress) {
+    return start * (1 - progress) + end * progress;
   };
 }
 
@@ -824,11 +824,11 @@ export function getNodesSelectionActiveOnPointerUp(selectionInProgress, selected
   return selectionInProgress ? selectedNodeCount >= 2 : void 0;
 }
 
-export const edgeZones = (x2, y4, bounds) => ({
-  left: x2 < AUTO_PAN_DISTANCE,
-  right: x2 > bounds.width - AUTO_PAN_DISTANCE,
-  top: y4 < AUTO_PAN_DISTANCE,
-  bottom: y4 > bounds.height - AUTO_PAN_DISTANCE
+export const edgeZones = (x, y, bounds) => ({
+  left: x < AUTO_PAN_DISTANCE,
+  right: x > bounds.width - AUTO_PAN_DISTANCE,
+  top: y < AUTO_PAN_DISTANCE,
+  bottom: y > bounds.height - AUTO_PAN_DISTANCE
 });
 
 export const DEFAULT_LARGE_MOVE_FACTOR = 4;
@@ -868,7 +868,7 @@ export function cascadeAbsolutePosition(parentId, dx, dy, nodeLookup, parentLook
 export const AssetMetadataStoreContext = reactExports.createContext(null);
 
 export function clamp$b(start2, value, end2) {
-  return max$2(start2, min$2(value, end2));
+  return max(start2, min(value, end2));
 }
 
 export const AUTO_DEDUPE_ID_PREFIX = "hilo-toast-dedupe";
@@ -954,25 +954,25 @@ export var Bitstream2 = class _Bitstream {
     this.pos++;
     return bit;
   }
-  readBits(n2) {
-    if (n2 === 1) {
+  readBits(bitCount) {
+    if (bitCount === 1) {
       return this.readBit();
     }
     let result = 0;
-    for (let i2 = 0; i2 < n2; i2++) {
+    for (let i = 0; i < bitCount; i++) {
       result <<= 1;
       result |= this.readBit();
     }
     return result;
   }
-  writeBits(n2, value) {
-    const end2 = this.pos + n2;
-    for (let i2 = this.pos; i2 < end2; i2++) {
-      const byteIndex = Math.floor(i2 / 8);
+  writeBits(bitCount, value) {
+    const end2 = this.pos + bitCount;
+    for (let i = this.pos; i < end2; i++) {
+      const byteIndex = Math.floor(i / 8);
       let byte = this.bytes[byteIndex];
-      const bitIndex = 7 - (i2 & 7);
+      const bitIndex = 7 - (i & 7);
       byte &= ~(1 << bitIndex);
-      byte |= (value & 1 << end2 - i2 - 1) >> end2 - i2 - 1 << bitIndex;
+      byte |= (value & 1 << end2 - i - 1) >> end2 - i - 1 << bitIndex;
       this.bytes[byteIndex] = byte;
     }
     this.pos = end2;
@@ -986,8 +986,8 @@ export var Bitstream2 = class _Bitstream {
     this.pos += 8;
     return byte;
   }
-  skipBits(n2) {
-    this.pos += n2;
+  skipBits(bitCount) {
+    this.pos += bitCount;
   }
   getBitsLeft() {
     return this.bytes.length * 8 - this.pos;
@@ -1077,13 +1077,13 @@ export function updateColumns(node2, colgroup2, table2, cellMinWidth, overrideCo
   let fixedWidth = true;
   let nextDOM = colgroup2.firstChild;
   const row = node2.firstChild;
-  if (row !== null) for (let i2 = 0, col = 0; i2 < row.childCount; i2 += 1) {
+  if (row !== null) for (let i = 0, col = 0; i < row.childCount; i += 1) {
     const {
       colspan,
       colwidth
-    } = row.child(i2).attrs;
-    for (let j2 = 0; j2 < colspan; j2 += 1, col += 1) {
-      const hasWidth = overrideCol === col ? overrideValue : colwidth && colwidth[j2];
+    } = row.child(i).attrs;
+    for (let j = 0; j < colspan; j += 1, col += 1) {
+      const hasWidth = overrideCol === col ? overrideValue : colwidth && colwidth[j];
       const cssWidth = hasWidth ? `${hasWidth}px` : "";
       totalWidth += hasWidth || cellMinWidth;
       if (!hasWidth) fixedWidth = false;
@@ -1155,13 +1155,13 @@ export function createColGroup(node2, cellMinWidth, overrideCol, overrideValue) 
   const cols = [];
   const row = node2.firstChild;
   if (!row) return {};
-  for (let i2 = 0, col = 0; i2 < row.childCount; i2 += 1) {
+  for (let i = 0, col = 0; i < row.childCount; i += 1) {
     const {
       colspan,
       colwidth
-    } = row.child(i2).attrs;
-    for (let j2 = 0; j2 < colspan; j2 += 1, col += 1) {
-      const hasWidth = overrideCol === col ? overrideValue : colwidth && colwidth[j2];
+    } = row.child(i).attrs;
+    for (let j = 0; j < colspan; j += 1, col += 1) {
+      const hasWidth = overrideCol === col ? overrideValue : colwidth && colwidth[j];
       totalWidth += hasWidth || cellMinWidth;
       if (!hasWidth) fixedWidth = false;
       const [property, value] = getColStyleDeclaration(cellMinWidth, hasWidth);
@@ -1192,40 +1192,40 @@ export function getTableNodeTypes(schema2) {
 
 export function escapeTableCellPipes(line) {
   let result = "";
-  let i2 = 0;
-  while (i2 < line.length) {
-    if (line[i2] === "\\" && i2 + 1 < line.length) {
-      result += line[i2] + line[i2 + 1];
-      i2 += 2;
+  let i = 0;
+  while (i < line.length) {
+    if (line[i] === "\\" && i + 1 < line.length) {
+      result += line[i] + line[i + 1];
+      i += 2;
       continue;
     }
-    if (line[i2] !== "`") {
-      result += line[i2++];
+    if (line[i] !== "`") {
+      result += line[i++];
       continue;
     }
     let runLen = 0;
-    while (i2 + runLen < line.length && line[i2 + runLen] === "`") runLen += 1;
-    let j2 = i2 + runLen;
+    while (i + runLen < line.length && line[i + runLen] === "`") runLen += 1;
+    let j = i + runLen;
     let found2 = false;
-    while (j2 < line.length) {
-      if (line[j2] !== "`") {
-        j2 += 1;
+    while (j < line.length) {
+      if (line[j] !== "`") {
+        j += 1;
         continue;
       }
       let closeLen = 0;
-      while (j2 + closeLen < line.length && line[j2 + closeLen] === "`") closeLen += 1;
+      while (j + closeLen < line.length && line[j + closeLen] === "`") closeLen += 1;
       if (closeLen === runLen) {
-        const spanContent = line.slice(i2 + runLen, j2);
-        result += line.slice(i2, i2 + runLen) + spanContent.replace(/\\\||\|/g, match2 => match2 === "|" ? "\\|" : match2) + line.slice(j2, j2 + runLen);
-        i2 = j2 + runLen;
+        const spanContent = line.slice(i + runLen, j);
+        result += line.slice(i, i + runLen) + spanContent.replace(/\\\||\|/g, match2 => match2 === "|" ? "\\|" : match2) + line.slice(j, j + runLen);
+        i = j + runLen;
         found2 = true;
         break;
       }
-      j2 += closeLen;
+      j += closeLen;
     }
     if (!found2) {
-      result += line.slice(i2, i2 + runLen);
-      i2 += runLen;
+      result += line.slice(i, i + runLen);
+      i += runLen;
     }
   }
   return result;
@@ -1238,11 +1238,11 @@ export function preprocessTablePipes(src) {
   }).join("\n");
 }
 
-export function collapseWhitespace(s2) {
-  return (s2 || "").replace(/\s+/g, " ").trim();
+export function collapseWhitespace(text) {
+  return (text || "").replace(/\s+/g, " ").trim();
 }
 
-export function renderTableToMarkdown(node2, h2, options = {}) {
+export function renderTableToMarkdown(node2, helpers, options = {}) {
   var _options$cellLineSepa;
   const cellSep = (_options$cellLineSepa = options.cellLineSeparator) !== null && _options$cellLineSepa !== void 0 ? _options$cellLineSepa : "";
   if (!node2 || !node2.content || node2.content.length === 0) return "";
@@ -1251,7 +1251,7 @@ export function renderTableToMarkdown(node2, h2, options = {}) {
     const cells2 = [];
     if (rowNode.content) rowNode.content.forEach(cellNode => {
       let raw2 = "";
-      if (cellNode.content && Array.isArray(cellNode.content) && cellNode.content.length > 1) raw2 = cellNode.content.map(child => h2.renderChildren(child)).join(cellSep);else raw2 = cellNode.content ? h2.renderChildren(cellNode.content) : "";
+      if (cellNode.content && Array.isArray(cellNode.content) && cellNode.content.length > 1) raw2 = cellNode.content.map(child => helpers.renderChildren(child)).join(cellSep);else raw2 = cellNode.content ? helpers.renderChildren(cellNode.content) : "";
       const text2 = collapseWhitespace(raw2.split(cellSep).join("\n").replace(/[ \t]*\r?\n[ \t]*/g, "<br>"));
       const isHeader = cellNode.type === "tableHeader";
       const align = normalizeTableCellAlignFromAttributes(cellNode.attrs);
@@ -1263,39 +1263,39 @@ export function renderTableToMarkdown(node2, h2, options = {}) {
     });
     rows.push(cells2);
   });
-  const columnCount = rows.reduce((max2, r2) => Math.max(max2, r2.length), 0);
+  const columnCount = rows.reduce((max2, row) => Math.max(max2, row.length), 0);
   if (columnCount === 0) return "";
   const colWidths = Array.from({
     length: columnCount
   }).fill(0);
-  rows.forEach(r2 => {
-    for (let i2 = 0; i2 < columnCount; i2 += 1) {
+  rows.forEach(row => {
+    for (let i = 0; i < columnCount; i += 1) {
       var _r$i;
-      const len = (((_r$i = r2[i2]) === null || _r$i === void 0 ? void 0 : _r$i.text) || "").length;
-      if (len > colWidths[i2]) colWidths[i2] = len;
-      if (colWidths[i2] < 3) colWidths[i2] = 3;
+      const len = (((_r$i = row[i]) === null || _r$i === void 0 ? void 0 : _r$i.text) || "").length;
+      if (len > colWidths[i]) colWidths[i] = len;
+      if (colWidths[i] < 3) colWidths[i] = 3;
     }
   });
-  const pad = (s2, width) => s2 + " ".repeat(Math.max(0, width - s2.length));
+  const pad = (text, width) => text + " ".repeat(Math.max(0, width - text.length));
   const headerRow = rows[0];
-  const hasHeader = headerRow.some(c3 => c3.isHeader);
+  const hasHeader = headerRow.some(cell => cell.isHeader);
   const colAlignments = Array.from({
     length: columnCount
   }).fill(null);
-  rows.forEach(r2 => {
-    for (let i2 = 0; i2 < columnCount; i2 += 1) {
+  rows.forEach(row => {
+    for (let i = 0; i < columnCount; i += 1) {
       var _r$i2;
-      if (!colAlignments[i2] && ((_r$i2 = r2[i2]) === null || _r$i2 === void 0 ? void 0 : _r$i2.align)) colAlignments[i2] = r2[i2].align;
+      if (!colAlignments[i] && ((_r$i2 = row[i]) === null || _r$i2 === void 0 ? void 0 : _r$i2.align)) colAlignments[i] = row[i].align;
     }
   });
   let out = "\n";
   const headerTexts = Array.from({
     length: columnCount
-  }).map((_2, i2) => hasHeader ? headerRow[i2] && headerRow[i2].text || "" : "");
-  out += `| ${headerTexts.map((t2, i2) => pad(t2, colWidths[i2])).join(" | ")} |
+  }).map((_, i) => hasHeader ? headerRow[i] && headerRow[i].text || "" : "");
+  out += `| ${headerTexts.map((headerText, i) => pad(headerText, colWidths[i])).join(" | ")} |
 `;
-  out += `| ${colWidths.map((w3, index2) => {
-    const dashCount = Math.max(3, w3);
+  out += `| ${colWidths.map((colWidth, index2) => {
+    const dashCount = Math.max(3, colWidth);
     const alignment = colAlignments[index2];
     if (alignment === "left") return `:${"-".repeat(dashCount)}`;
     if (alignment === "right") return `${"-".repeat(dashCount)}:`;
@@ -1303,10 +1303,10 @@ export function renderTableToMarkdown(node2, h2, options = {}) {
     return "-".repeat(dashCount);
   }).join(" | ")} |
 `;
-  (hasHeader ? rows.slice(1) : rows).forEach(r2 => {
+  (hasHeader ? rows.slice(1) : rows).forEach(row => {
     out += `| ${Array.from({
       length: columnCount
-    }).fill(0).map((_2, i2) => pad(r2[i2] && r2[i2].text || "", colWidths[i2])).join(" | ")} |
+    }).fill(0).map((_, i) => pad(row[i] && row[i].text || "", colWidths[i])).join(" | ")} |
 `;
   });
   return out;
@@ -1431,24 +1431,24 @@ export function flowPointToMiniMap(point2, layout) {
 export function findHitTarget(nodeLookup, dropFlow, sourceId, excludedTargets) {
   let bestId = null;
   let bestZ = Number.NEGATIVE_INFINITY;
-  for (const [id2, node2] of nodeLookup) {
-    if (id2 === sourceId) continue;
+  for (const [id, node2] of nodeLookup) {
+    if (id === sourceId) continue;
     if (node2.type === CanvasNodeType.Group) continue;
-    if (excludedTargets?.has(id2)) continue;
+    if (excludedTargets?.has(id)) continue;
     if (node2.hidden) continue;
-    const w3 = node2.measured?.width ?? node2.width ?? 0;
-    const h2 = node2.measured?.height ?? node2.height ?? 0;
-    if (w3 <= 0 || h2 <= 0) continue;
+    const width = node2.measured?.width ?? node2.width ?? 0;
+    const height = node2.measured?.height ?? node2.height ?? 0;
+    if (width <= 0 || height <= 0) continue;
     const {
-      x: x2,
-      y: y4
+      x,
+      y
     } = node2.internals.positionAbsolute;
-    if (dropFlow.x < x2 || dropFlow.x > x2 + w3) continue;
-    if (dropFlow.y < y4 || dropFlow.y > y4 + h2) continue;
-    const z3 = node2.internals.z ?? 0;
-    if (z3 >= bestZ) {
-      bestZ = z3;
-      bestId = id2;
+    if (dropFlow.x < x || dropFlow.x > x + width) continue;
+    if (dropFlow.y < y || dropFlow.y > y + height) continue;
+    const zIndex = node2.internals.z ?? 0;
+    if (zIndex >= bestZ) {
+      bestZ = zIndex;
+      bestId = id;
     }
   }
   return bestId;
@@ -1460,15 +1460,15 @@ export const STORAGE_KEY$6 = "hilo:canvas:image-edit:last-used";
 
 export const DEFAULT_TOOL = "redraw";
 
-export function isMergedImageEditTool(v2) {
-  return IMAGE_EDIT_TOOLS.includes(v2);
+export function isMergedImageEditTool(tool) {
+  return IMAGE_EDIT_TOOLS.includes(tool);
 }
 
 export function readPersisted() {
   if (typeof window === "undefined") return DEFAULT_TOOL;
   try {
-    const v2 = window.localStorage.getItem(STORAGE_KEY$6);
-    if (isMergedImageEditTool(v2)) return v2;
+    const storedTool = window.localStorage.getItem(STORAGE_KEY$6);
+    if (isMergedImageEditTool(storedTool)) return storedTool;
   } catch {}
   return DEFAULT_TOOL;
 }
@@ -1490,8 +1490,8 @@ export async function probeMediaDurationSec(file) {
       resolve(value);
     };
     const onLoaded = () => {
-      const d2 = el.duration;
-      cleanup(Number.isFinite(d2) && d2 > 0 ? d2 : 0);
+      const duration = el.duration;
+      cleanup(Number.isFinite(duration) && duration > 0 ? duration : 0);
     };
     const onError = () => cleanup(0);
     el.addEventListener("loadedmetadata", onLoaded);
@@ -1532,7 +1532,7 @@ export function getRuntimeConfig() {
     }
   }
   if (raw2) {
-    const cleaned = Object.fromEntries(Object.entries(raw2).filter(([, v2]) => v2 != null));
+    const cleaned = Object.fromEntries(Object.entries(raw2).filter(([, value]) => value != null));
     _cachedConfig = {
       ...DEFAULT_RUNTIME_CONFIG,
       ...cleaned
@@ -1605,8 +1605,8 @@ export var intersectionObserverOptions = {
   rootMargin: "100px"
 };
 
-export function isCtrlEvent(e2) {
-  return !!(e2.metaKey || e2.altKey || e2.ctrlKey || e2.shiftKey);
+export function isCtrlEvent(uiEvent) {
+  return !!(uiEvent.metaKey || uiEvent.altKey || uiEvent.ctrlKey || uiEvent.shiftKey);
 }
 
 export var define_process_env_default = {};
@@ -1635,7 +1635,7 @@ export class EventEmitter3 {
     if (this.observers[event]) {
       const cloned = Array.from(this.observers[event].entries());
       cloned.forEach(([observer2, numTimesAdded]) => {
-        for (let i2 = 0; i2 < numTimesAdded; i2++) {
+        for (let i = 0; i < numTimesAdded; i++) {
           observer2(...args);
         }
       });
@@ -1643,7 +1643,7 @@ export class EventEmitter3 {
     if (this.observers["*"]) {
       const cloned = Array.from(this.observers["*"].entries());
       cloned.forEach(([observer2, numTimesAdded]) => {
-        for (let i2 = 0; i2 < numTimesAdded; i2++) {
+        for (let i = 0; i < numTimesAdded; i++) {
           observer2.apply(observer2, [event, ...args]);
         }
       });
@@ -1665,19 +1665,19 @@ export function usePlatform() {
 
 export const MAX_VALUE_LEN = 256;
 
-export function fmtValue(v2) {
-  if (v2 === null || v2 === void 0) return String(v2);
-  if (typeof v2 === "string") {
-    return v2.length > MAX_VALUE_LEN ? `${v2.slice(0, MAX_VALUE_LEN)}…` : v2;
+export function fmtValue(value) {
+  if (value === null || value === void 0) return String(value);
+  if (typeof value === "string") {
+    return value.length > MAX_VALUE_LEN ? `${value.slice(0, MAX_VALUE_LEN)}…` : value;
   }
-  if (v2 instanceof Error) {
-    return v2.message.length > MAX_VALUE_LEN ? `${v2.message.slice(0, MAX_VALUE_LEN)}…` : v2.message;
+  if (value instanceof Error) {
+    return value.message.length > MAX_VALUE_LEN ? `${value.message.slice(0, MAX_VALUE_LEN)}…` : value.message;
   }
   try {
-    const s2 = JSON.stringify(v2);
-    return s2.length > MAX_VALUE_LEN ? `${s2.slice(0, MAX_VALUE_LEN)}…` : s2;
+    const json = JSON.stringify(value);
+    return json.length > MAX_VALUE_LEN ? `${json.slice(0, MAX_VALUE_LEN)}…` : json;
   } catch {
-    return String(v2);
+    return String(value);
   }
 }
 
@@ -1857,7 +1857,7 @@ export class ApiError extends Error {
    */
   parsedError;
   constructor(status, body2, url2, method, type2, preParsedError) {
-    const t2 = type2 ?? "http";
+    const errorType = type2 ?? "http";
     let computedParsed;
     if (preParsedError) {
       computedParsed = preParsedError;
@@ -1879,13 +1879,13 @@ export class ApiError extends Error {
       } catch {}
     }
     const displayText = computedParsed?.user_message ?? computedParsed?.message ?? body2;
-    super(`API ${t2} error ${status}: ${displayText}`);
+    super(`API ${errorType} error ${status}: ${displayText}`);
     this.status = status;
     this.body = body2;
     this.url = url2;
     this.method = method;
     this.name = "ApiError";
-    this.type = t2;
+    this.type = errorType;
     this.parsedError = computedParsed;
   }
   /**
@@ -2125,9 +2125,9 @@ export function unavailableDisplay({
   };
 }
 
-export function minCreditAmount(a2, b3) {
-  const left = BigInt(a2);
-  const right = BigInt(b3);
+export function minCreditAmount(a, b) {
+  const left = BigInt(a);
+  const right = BigInt(b);
   return (left < right ? left : right).toString();
 }
 
@@ -2522,7 +2522,7 @@ export async function mediaFingerprintFile(file) {
         return {
           ...observed,
           hashStatus: "full",
-          sha256: Array.from(new Uint8Array(digest), v2 => v2.toString(16).padStart(2, "0")).join("")
+          sha256: Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("")
         };
       } finally {
         activeFingerprints -= 1;

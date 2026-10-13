@@ -70,7 +70,7 @@ export function RemoteToolDialog({
   onCheckLogin,
   interactionDisabled = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const initialParamsRef = reactExports.useRef(initialParams);
   const { sdk, dispatchHostEvent } = useRemoteToolSdk({
     toolId,
@@ -125,8 +125,8 @@ export function RemoteToolDialog({
     }
     let cancelled = false;
     gatewayFetch(manifestPath)
-      .then((r2) =>
-        r2.ok ? r2.json() : Promise.reject(new Error(`HTTP ${r2.status}`)),
+      .then((response) =>
+        response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)),
       )
       .then((manifest) => {
         if (cancelled) return;
@@ -164,7 +164,7 @@ export function RemoteToolDialog({
     >
       <button
         type="button"
-        aria-label={t2("a11y.closeDialog", "Close dialog")}
+        aria-label={t("a11y.closeDialog", "Close dialog")}
         className="modal-mask absolute inset-0"
         onClick={onClose}
       />
@@ -176,7 +176,7 @@ export function RemoteToolDialog({
             size="icon-sm"
             className="absolute top-2 right-2 z-20"
             onClick={onClose}
-            aria-label={t2("common.close")}
+            aria-label={t("common.close")}
             data-action-ui-id="remote-tool-dialog.close"
           >
             <X size={16} strokeWidth={1.5} />
@@ -203,7 +203,7 @@ export function RemoteToolDialog({
               className="absolute inset-x-4 bottom-4 z-20 rounded-md border border-border bg-background px-3 py-2 text-center text-xs text-muted-foreground shadow-sm"
               data-action-ui-id="remote-tool-dialog.account-blocked"
             >
-              {t2("team.submission.blocked", {
+              {t("team.submission.blocked", {
                 defaultValue: "账号正在切换或恢复，暂时无法提交。",
               })}
             </div>

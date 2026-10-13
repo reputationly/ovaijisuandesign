@@ -153,11 +153,11 @@ export class AgentWSClient {
         String(this.workspaceBinding.generation),
       );
     }
-    const ws2 = new WebSocket(url2.toString());
-    this.ws = ws2;
-    ws2.onopen = () => {
+    const ws = new WebSocket(url2.toString());
+    this.ws = ws;
+    ws.onopen = () => {
       if (!this.active) {
-        ws2.close();
+        ws.close();
         return;
       }
       this._connected = true;
@@ -169,13 +169,13 @@ export class AgentWSClient {
       this.onConnectionChange(true);
       this.scheduleStableOpenReset();
     };
-    ws2.onclose = (event) => {
-      const ev = event;
+    ws.onclose = (event) => {
+      const closeEvent = event;
       this._connected = false;
       this.ws = null;
       this.clearStableOpenTimer();
       this.onConnectionChange(false);
-      if (ev?.code === WORKSPACE_IDENTITY_WS_CLOSE_CODE) {
+      if (closeEvent?.code === WORKSPACE_IDENTITY_WS_CLOSE_CODE) {
         this.onWorkspaceIdentityMismatch?.();
       }
       if (this.active && this.reconnectAttempts < this.maxReconnectAttempts) {
@@ -188,7 +188,7 @@ export class AgentWSClient {
           this.onPersistentDisconnect(this.reconnectAttempts);
         }
         let delay;
-        if (ev?.code === WORKSPACE_IDENTITY_WS_CLOSE_CODE) {
+        if (closeEvent?.code === WORKSPACE_IDENTITY_WS_CLOSE_CODE) {
           delay = this.maxReconnectDelay;
           this.nextReconnectDelay = this.maxReconnectDelay;
         } else {
@@ -200,20 +200,20 @@ export class AgentWSClient {
         }
         if (AgentWSClient.isLogPoint(this.reconnectAttempts)) {
           this.logger.warn(
-            `${WS_LOG_TAG} closed (code=${ev?.code ?? "?"} reason=${ev?.reason || "none"} clean=${ev?.wasClean ?? "?"}); reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`,
+            `${WS_LOG_TAG} closed (code=${closeEvent?.code ?? "?"} reason=${closeEvent?.reason || "none"} clean=${closeEvent?.wasClean ?? "?"}); reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`,
           );
         }
         this.reconnectTimer = setTimeout(() => this.doConnect(), delay);
       } else if (this.active) {
         this.logger.error(
-          `${WS_LOG_TAG} closed (code=${ev?.code ?? "?"} reason=${ev?.reason || "none"}); max reconnect attempts (${this.maxReconnectAttempts}) reached, giving up`,
+          `${WS_LOG_TAG} closed (code=${closeEvent?.code ?? "?"} reason=${closeEvent?.reason || "none"}); max reconnect attempts (${this.maxReconnectAttempts}) reached, giving up`,
         );
       }
     };
-    ws2.onerror = () => {
-      ws2.close();
+    ws.onerror = () => {
+      ws.close();
     };
-    ws2.onmessage = (event) => {
+    ws.onmessage = (event) => {
       let msg;
       try {
         msg = JSON.parse(event.data);
@@ -256,7 +256,7 @@ export class AgentWSClient {
    * count in the message. Mirrors the renderer ws-connection failedAttempts
    * throttle.
    */
-  static isLogPoint(n2) {
-    return (n2 & (n2 - 1)) === 0;
+  static isLogPoint(count) {
+    return (count & (count - 1)) === 0;
   }
 }

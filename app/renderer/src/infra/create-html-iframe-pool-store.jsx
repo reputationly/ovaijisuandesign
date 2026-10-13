@@ -25,25 +25,25 @@ function withHolder(holders, holderId2) {
 function oldestNonStickyId(active2) {
   let oldestId2 = null;
   let oldestTs = Number.POSITIVE_INFINITY;
-  for (const [id2, entry] of active2) {
+  for (const [id, entry] of active2) {
     if (entry.sticky) continue;
     if (entry.activatedAt < oldestTs) {
       oldestTs = entry.activatedAt;
-      oldestId2 = id2;
+      oldestId2 = id;
     }
   }
   return oldestId2;
 }
 function oldestId(active2) {
-  let id2 = null;
-  let ts2 = Number.POSITIVE_INFINITY;
-  for (const [k2, entry] of active2) {
-    if (entry.activatedAt < ts2) {
-      ts2 = entry.activatedAt;
-      id2 = k2;
+  let id = null;
+  let ts = Number.POSITIVE_INFINITY;
+  for (const [entryId, entry] of active2) {
+    if (entry.activatedAt < ts) {
+      ts = entry.activatedAt;
+      id = entryId;
     }
   }
-  return id2;
+  return id;
 }
 function createHtmlIframePoolStore(opts = {}) {
   const maxActive = opts.maxActive ?? DEFAULT_MAX_ACTIVE;
@@ -157,11 +157,11 @@ useHtmlIframePoolStore.getState = defaultHtmlIframePoolStore.getState;
 useHtmlIframePoolStore.setState = defaultHtmlIframePoolStore.setState;
 useHtmlIframePoolStore.subscribe = defaultHtmlIframePoolStore.subscribe;
 function useIsHtmlIframeActive(nodeId) {
-  return useHtmlIframePoolStore((s2) => s2.active.has(nodeId));
+  return useHtmlIframePoolStore((state) => state.active.has(nodeId));
 }
 function HtmlViewerPlaceholder({ displayName: displayName2, onActivate }) {
-  const { t: t2 } = useTranslation();
-  const label = displayName2?.trim() || t2("canvas.file.untitled");
+  const { t } = useTranslation();
+  const label = displayName2?.trim() || t("canvas.file.untitled");
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-muted px-6 text-center">
       <FileTypeIcon
@@ -179,15 +179,15 @@ function HtmlViewerPlaceholder({ displayName: displayName2, onActivate }) {
       </div>
       <Button
         size="sm"
-        onClick={(e2) => {
-          e2.stopPropagation();
+        onClick={(clickEvent) => {
+          clickEvent.stopPropagation();
           onActivate();
         }}
-        onMouseDown={(e2) => e2.stopPropagation()}
+        onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
         data-action-ui-id="canvas.file-node.html-activate"
       >
         <PlaybackPlayIcon />
-        {t2("canvas.file.html.activatePreview")}
+        {t("canvas.file.html.activatePreview")}
       </Button>
     </div>
   );

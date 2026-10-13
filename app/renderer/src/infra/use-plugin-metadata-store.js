@@ -88,16 +88,16 @@ useHtmlFullscreenStore.setState = defaultHtmlFullscreenStore.setState;
 useHtmlFullscreenStore.subscribe = defaultHtmlFullscreenStore.subscribe;
 export function useIsHtmlFullscreen(nodeId) {
   return useHtmlFullscreenStore(
-    (s2) => s2.nodeId === nodeId && s2.presentation === "fullscreen",
+    (state) => state.nodeId === nodeId && state.presentation === "fullscreen",
   );
 }
 export function useHtmlViewerPresentation(nodeId) {
-  return useHtmlFullscreenStore((s2) =>
-    s2.nodeId === nodeId ? s2.presentation : null,
+  return useHtmlFullscreenStore((state) =>
+    state.nodeId === nodeId ? state.presentation : null,
   );
 }
 export function useFullscreenContainerEl() {
-  return useHtmlFullscreenStore((s2) => s2.containerEl);
+  return useHtmlFullscreenStore((state) => state.containerEl);
 }
 function createHtmlViewerHandleStore() {
   return createStore((set2) => ({
@@ -135,7 +135,7 @@ useHtmlViewerHandleStore.getState = defaultHtmlViewerHandleStore.getState;
 useHtmlViewerHandleStore.setState = defaultHtmlViewerHandleStore.setState;
 useHtmlViewerHandleStore.subscribe = defaultHtmlViewerHandleStore.subscribe;
 export function useHtmlViewerHandle(nodeId) {
-  return useHtmlViewerHandleStore((s2) => s2.byNode.get(nodeId));
+  return useHtmlViewerHandleStore((state) => state.byNode.get(nodeId));
 }
 export const usePluginMetadataStore = create((set2, get3) => ({
   plugins: new Map(),
@@ -174,22 +174,22 @@ export const usePluginMetadataStore = create((set2, get3) => ({
       plugins: next2,
     });
   },
-  get: (id2) => get3().plugins.get(id2),
+  get: (id) => get3().plugins.get(id),
   clear: () =>
     set2({
       plugins: new Map(),
     }),
 }));
 export function usePluginMeta(pluginId) {
-  return usePluginMetadataStore((s2) =>
-    pluginId ? s2.plugins.get(pluginId) : void 0,
+  return usePluginMetadataStore((state) =>
+    pluginId ? state.plugins.get(pluginId) : void 0,
   );
 }
 export function setPluginMetas(entries2) {
   usePluginMetadataStore.getState().setPluginMetas(entries2);
 }
-export function getPluginMeta(id2) {
-  return usePluginMetadataStore.getState().get(id2);
+export function getPluginMeta(id) {
+  return usePluginMetadataStore.getState().get(id);
 }
 function createPluginRunStateStore() {
   return createStore((set2) => ({
@@ -227,7 +227,7 @@ usePluginRunStateStore.getState = defaultPluginRunStateStore.getState;
 usePluginRunStateStore.setState = defaultPluginRunStateStore.setState;
 usePluginRunStateStore.subscribe = defaultPluginRunStateStore.subscribe;
 export function usePluginRunInfo(nodeId) {
-  return usePluginRunStateStore((s2) => s2.byNode.get(nodeId));
+  return usePluginRunStateStore((state) => state.byNode.get(nodeId));
 }
 const MAX_PATH_VERSION_ENTRIES = 1e3;
 const fileVersionStore = createStore((set2) => ({
@@ -265,14 +265,14 @@ const fileVersionStore = createStore((set2) => ({
 export function useFileVersion(path2, scope = "all") {
   return useStore(
     fileVersionStore,
-    (s2) =>
-      (scope === "all" ? s2.globalVersion : 0) +
-      (path2 ? (s2.pathVersions.get(path2) ?? 0) : 0),
+    (state) =>
+      (scope === "all" ? state.globalVersion : 0) +
+      (path2 ? (state.pathVersions.get(path2) ?? 0) : 0),
   );
 }
 export function usePathFileVersion(path2) {
-  return useStore(fileVersionStore, (s2) =>
-    path2 ? (s2.pathVersions.get(path2) ?? 0) : 0,
+  return useStore(fileVersionStore, (state) =>
+    path2 ? (state.pathVersions.get(path2) ?? 0) : 0,
   );
 }
 export function bumpFileVersion(paths) {

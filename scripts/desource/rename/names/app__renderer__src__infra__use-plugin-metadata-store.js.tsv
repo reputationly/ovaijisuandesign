@@ -1,0 +1,11 @@
+key	new	reason
+s2@91:6	state	useHtmlFullscreenStore 选择器收到的 store 状态
+s2@95:34	state	useHtmlFullscreenStore 选择器收到的 store 状态
+s2@100:34	state	useHtmlFullscreenStore 选择器收到的 store 状态
+s2@138:36	state	useHtmlViewerHandleStore 选择器收到的 store 状态
+id2@177:9	id	原名 id，去掉打包器加的数字去重后缀
+s2@184:34	state	usePluginMetadataStore 选择器收到的 store 状态
+id2@191:31	id	原名 id，去掉打包器加的数字去重后缀
+s2@230:34	state	usePluginRunStateStore 选择器收到的 store 状态
+s2@268:6	state	useStore 选择器收到的文件版本 store 状态
+s2@274:38	state	useStore 选择器收到的文件版本 store 状态

@@ -19,7 +19,7 @@ export function Checkbox({
   ...props
 }) {
   const generatedId = reactExports.useId();
-  const id2 = providedId ?? `checkbox-${generatedId}`;
+  const id = providedId ?? `checkbox-${generatedId}`;
   const gradientId = `checkbox-gradient-${generatedId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const handleInputRef = reactExports.useCallback(
     (node2) => {
@@ -35,15 +35,15 @@ export function Checkbox({
   const describedBy =
     [
       props["aria-describedby"],
-      description && `${id2}-description`,
-      error && `${id2}-error`,
+      description && `${id}-description`,
+      error && `${id}-error`,
     ]
       .filter(Boolean)
       .join(" ") || void 0;
   const control = (
     <CheckboxRoot
       {...props}
-      id={id2}
+      id={id}
       inputRef={handleInputRef}
       indeterminate={indeterminate}
       onCheckedChange={(checked, details) =>
@@ -115,17 +115,17 @@ export function Checkbox({
     >
       {control}
       <span className="hilo-checkbox-field__copy">
-        {label && <label htmlFor={id2}>{label}</label>}
+        {label && <label htmlFor={id}>{label}</label>}
         {description && (
           <span
             className="hilo-checkbox-field__description"
-            id={`${id2}-description`}
+            id={`${id}-description`}
           >
             {description}
           </span>
         )}
         {error && (
-          <span className="hilo-checkbox-field__error" id={`${id2}-error`}>
+          <span className="hilo-checkbox-field__error" id={`${id}-error`}>
             {error}
           </span>
         )}
