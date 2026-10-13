@@ -10,5 +10,21 @@
   },
   "app/renderer/src/canvas/w.js": {
     "W": "sortSubgraph"
+  },
+  "app/renderer/src/canvas/we.js": {
+    "qe": "networkSimplex"
+  },
+  "app/renderer/src/canvas/ot.js": {
+    "L": "applyWithChunking",
+    "dt": "findPath",
+    "en": "swapWidthHeight",
+    "ne": "invertY",
+    "te": "swapXY",
+    "mt": "twoLayerCrossCount",
+    "le": "addSubgraphConstraints",
+    "dn": "addConflict",
+    "vt": "findType1Conflicts",
+    "Ot": "verticalAlignment",
+    "Rt": "findSmallestWidthAlignment"
   }
 }

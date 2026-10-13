@@ -1,0 +1,143 @@
+key	old	new	依据
+Dn@4:10	Dn	chunkArguments	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 Dn 值。
+Re@18:10	Re	zipObject	对应 dagre lib/util.js 的 zipObject；此绑定保存该计算中的 Re 值。
+e2@4:13	e2	values	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 e2 值。
+n2@4:17	n2	chunkSize	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 n2 值。
+t2@5:7	t2	chunks	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 t2 值。
+r2@6:12	r2	offset	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 r2 值。
+o2@7:9	o2	chunk	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 o2 值。
+e2@12:19	e2	fn	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 e2 值。
+n2@12:23	n2	values	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 n2 值。
+t2@14:9	t2	chunks	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 t2 值。
+r2@15:26	r2	chunk	对应 dagre lib/util.js 的 applyWithChunking；此绑定保存该计算中的 r2 值。
+e2@18:13	e2	keys	对应 dagre lib/util.js 的 zipObject；此绑定保存该计算中的 e2 值。
+n2@18:17	n2	values	对应 dagre lib/util.js 的 zipObject；此绑定保存该计算中的 n2 值。
+t2@19:21	t2	result	对应 dagre lib/util.js 的 zipObject；此绑定保存该计算中的 t2 值。
+r2@19:25	r2	key	对应 dagre lib/util.js 的 zipObject；此绑定保存该计算中的 r2 值。
+o2@19:29	o2	index	对应 dagre lib/util.js 的 zipObject；此绑定保存该计算中的 o2 值。
+e2@21:20	e2	tree	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 e2 值。
+n2@21:24	n2	nodeLowLim	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 n2 值。
+t2@21:28	t2	sourceId	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 t2 值。
+r2@21:32	r2	targetId	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 r2 值。
+o2@22:7	o2	pathToRoot	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 o2 值。
+i2@23:5	i2	pathFromRoot	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 i2 值。
+s2@24:5	s2	lowerLim	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 s2 值。
+a2@25:5	a2	upperLim	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 a2 值。
+d2@26:5	d2	currentNode	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 d2 值。
+l2@30:7	l2	lowestCommonAncestor	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 l2 值。
+u4@31:5	u4	nodeId	对应 根据 low/lim 标记构造节点路径与最近公共祖先；此绑定保存该计算中的 u4 值。
+e2@38:20	e2	dimensions	对应 dagre lib/util.js 的坐标变换函数；此绑定保存该计算中的 e2 值。
+n2@39:7	n2	width	对应 dagre lib/util.js 的坐标变换函数；此绑定保存该计算中的 n2 值。
+e2@42:20	e2	point	对应 dagre lib/util.js 的坐标变换函数；此绑定保存该计算中的 e2 值。
+e2@45:20	e2	point	对应 dagre lib/util.js 的坐标变换函数；此绑定保存该计算中的 e2 值。
+n2@46:7	n2	x	对应 dagre lib/util.js 的坐标变换函数；此绑定保存该计算中的 n2 值。
+e2@49:20	e2	graph	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 e2 值。
+n2@49:24	n2	upperLayer	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 n2 值。
+t2@49:28	t2	lowerLayer	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 t2 值。
+r2@50:7	r2	orderByNodeId	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 r2 值。
+o2@54:5	o2	edgeCandidates	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 o2 值。
+i2@65:5	i2	leafOffset	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 i2 值。
+s2@67:7	s2	segmentTreeSize	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 s2 值。
+a2@69:7	a2	crossingWeights	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 a2 值。
+d2@70:5	d2	crossingCount	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 d2 值。
+l2@52:15	l2	nodeId	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 l2 值。
+u4@52:19	u4	index	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 u4 值。
+l2@54:22	l2	nodeId	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 l2 值。
+u4@55:11	u4	outgoingEdges	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 u4 值。
+c3@58:19	c3	edge	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 c3 值。
+c3@62:20	c3	left	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 c3 值。
+h2@62:24	h2	right	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 h2 值。
+l2@72:17	l2	edgeCandidate	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 l2 值。
+u4@73:11	u4	leafIndex	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 u4 值。
+c3@75:11	c3	crossingsBefore	对应 dagre lib/order/cross-count.js 的 twoLayerCrossCount；此绑定保存该计算中的 c3 值。
+e2@85:20	e2	graph	对应 dagre lib/order/add-subgraph-constraints.js 的 addSubgraphConstraints；此绑定保存该计算中的 e2 值。
+n2@85:24	n2	constraintGraph	对应 dagre lib/order/add-subgraph-constraints.js 的 addSubgraphConstraints；此绑定保存该计算中的 n2 值。
+t2@85:28	t2	nodeIds	对应 dagre lib/order/add-subgraph-constraints.js 的 addSubgraphConstraints；此绑定保存该计算中的 t2 值。
+r2@86:7	r2	nodeByAncestor	对应 dagre lib/order/add-subgraph-constraints.js 的 addSubgraphConstraints；此绑定保存该计算中的 r2 值。
+o2@87:5	o2	previousTopLevelNode	对应 dagre lib/order/add-subgraph-constraints.js 的 addSubgraphConstraints；此绑定保存该计算中的 o2 值。
+i2@88:15	i2	nodeId	对应 dagre lib/order/add-subgraph-constraints.js 的 addSubgraphConstraints；此绑定保存该计算中的 i2 值。
+s2@89:9	s2	parentId	对应 dagre lib/order/add-subgraph-constraints.js 的 addSubgraphConstraints；此绑定保存该计算中的 s2 值。
+a2@90:7	a2	grandparentId	对应 dagre lib/order/add-subgraph-constraints.js 的 addSubgraphConstraints；此绑定保存该计算中的 a2 值。
+d2@91:7	d2	previousNode	对应 dagre lib/order/add-subgraph-constraints.js 的 addSubgraphConstraints；此绑定保存该计算中的 d2 值。
+e2@105:13	e2	graph	对应 dagre lib/position/bk.js 的 addConflict 与 findOtherInnerSegmentNode；此绑定保存该计算中的 e2 值。
+n2@105:17	n2	nodeId	对应 dagre lib/position/bk.js 的 addConflict 与 findOtherInnerSegmentNode；此绑定保存该计算中的 n2 值。
+t2@107:9	t2	predecessorIds	对应 dagre lib/position/bk.js 的 addConflict 与 findOtherInnerSegmentNode；此绑定保存该计算中的 t2 值。
+r2@108:29	r2	predecessorId	对应 dagre lib/position/bk.js 的 addConflict 与 findOtherInnerSegmentNode；此绑定保存该计算中的 r2 值。
+e2@111:20	e2	conflictMap	对应 dagre lib/position/bk.js 的 addConflict 与 findOtherInnerSegmentNode；此绑定保存该计算中的 e2 值。
+n2@111:24	n2	firstNode	对应 dagre lib/position/bk.js 的 addConflict 与 findOtherInnerSegmentNode；此绑定保存该计算中的 n2 值。
+t2@111:28	t2	secondNode	对应 dagre lib/position/bk.js 的 addConflict 与 findOtherInnerSegmentNode；此绑定保存该计算中的 t2 值。
+r2@116:7	r2	conflictsByFirstNode	对应 dagre lib/position/bk.js 的 addConflict 与 findOtherInnerSegmentNode；此绑定保存该计算中的 r2 值。
+o2@113:9	o2	originalFirstNode	对应 dagre lib/position/bk.js 的 addConflict 与 findOtherInnerSegmentNode；此绑定保存该计算中的 o2 值。
+e2@119:20	e2	graph	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 e2 值。
+n2@119:24	n2	layers	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 n2 值。
+t2@120:7	t2	conflictMap	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 t2 值。
+r2@121:12	r2	findLayerConflicts	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 r2 值。
+o2@121:15	o2	upperLayer	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 o2 值。
+i2@121:19	i2	currentLayer	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 i2 值。
+s2@122:9	s2	previousOrder	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 s2 值。
+a2@123:7	a2	layerStart	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 a2 值。
+d2@124:7	d2	previousLayerEnd	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 d2 值。
+l2@125:7	l2	previousInnerSegment	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 l2 值。
+u4@127:19	u4	nodeId	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 u4 值。
+c3@127:23	c3	order	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 c3 值。
+h2@128:13	h2	innerSegmentNode	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 h2 值。
+f2@129:11	f2	boundaryOrder	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 f2 值。
+g2@131:42	g2	currentNodeId	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 g2 值。
+b3@132:17	b3	predecessorIds	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 b3 值。
+m3@134:27	m3	predecessorId	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 m3 值。
+E3@135:21	E3	predecessorNode	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 E3 值。
+y4@136:19	y4	predecessorOrder	对应 dagre lib/position/bk.js 的 findType1Conflicts；此绑定保存该计算中的 y4 值。
+e2@150:13	e2	conflictMap	对应 dagre lib/position/bk.js 的 hasConflict；此绑定保存该计算中的 e2 值。
+n2@150:17	n2	firstNode	对应 dagre lib/position/bk.js 的 hasConflict；此绑定保存该计算中的 n2 值。
+t2@150:21	t2	secondNode	对应 dagre lib/position/bk.js 的 hasConflict；此绑定保存该计算中的 t2 值。
+r2@155:7	r2	conflictsByFirstNode	对应 dagre lib/position/bk.js 的 hasConflict；此绑定保存该计算中的 r2 值。
+o2@152:9	o2	originalFirstNode	对应 dagre lib/position/bk.js 的 hasConflict；此绑定保存该计算中的 o2 值。
+e2@158:20	e2	graph	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 e2 值。
+n2@158:24	n2	layers	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 n2 值。
+t2@158:28	t2	constraintGraph	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 t2 值。
+r2@158:32	r2	predecessorIds	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 r2 值。
+o2@159:7	o2	rootByNode	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 o2 值。
+i2@160:5	i2	alignmentByNode	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 i2 值。
+s2@161:5	s2	positionByNode	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 s2 值。
+a2@163:17	a2	layer	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 a2 值。
+d2@164:19	d2	nodeId	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 d2 值。
+l2@164:23	l2	order	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 l2 值。
+a2@168:17	a2	layer	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 a2 值。
+d2@169:11	d2	previousAlignedOrder	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 d2 值。
+l2@170:19	l2	nodeId	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 l2 值。
+u4@171:13	u4	predecessorCandidates	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 u4 值。
+c3@173:15	c3	sortedPredecessors	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 c3 值。
+h2@178:13	h2	medianIndex	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 h2 值。
+f2@173:29	f2	left	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 f2 值。
+g2@173:33	g2	right	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 g2 值。
+b3@174:19	b3	leftOrder	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 b3 值。
+m3@175:17	m3	rightOrder	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 m3 值。
+f2@179:20	f2	index	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 f2 值。
+g2@179:41	g2	upperMedianIndex	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 g2 值。
+b3@180:17	b3	predecessorId	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 b3 值。
+m3@182:17	m3	predecessorOrder	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 m3 值。
+E3@184:19	E3	rootId	对应 dagre lib/position/bk.js 的 verticalAlignment；此绑定保存该计算中的 E3 值。
+e2@198:13	e2	graph	对应 dagre lib/position/bk.js 的 width；此绑定保存该计算中的 e2 值。
+n2@198:17	n2	nodeId	对应 dagre lib/position/bk.js 的 width；此绑定保存该计算中的 n2 值。
+e2@201:20	e2	graph	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 e2 值。
+n2@201:24	n2	alignments	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 n2 值。
+t2@203:6	t2	bestWidthAndAlignment	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 t2 值。
+r2@203:10	r2	alignment	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 r2 值。
+o2@204:11	o2	rightmost	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 o2 值。
+i2@205:9	i2	leftmost	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 i2 值。
+s2@210:11	s2	width	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 s2 值。
+a2@206:36	a2	nodeId	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 a2 值。
+d2@206:40	d2	position	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 d2 值。
+l2@207:13	l2	halfNodeWidth	对应 dagre lib/position/bk.js 的 findSmallestWidthAlignment；此绑定保存该计算中的 l2 值。
+export:L	L	applyWithChunking	对应 dagre 内联布局库的 applyWithChunking API；暂不改导出名。
+export:dt	dt	findPath	对应 dagre 内联布局库的 findPath API；暂不改导出名。
+export:en	en	swapWidthHeight	对应 dagre 内联布局库的 swapWidthHeight API；暂不改导出名。
+export:ne	ne	invertY	对应 dagre 内联布局库的 invertY API；暂不改导出名。
+export:te	te	swapXY	对应 dagre 内联布局库的 swapXY API；暂不改导出名。
+export:mt	mt	twoLayerCrossCount	对应 dagre 内联布局库的 twoLayerCrossCount API；暂不改导出名。
+export:le	le	addSubgraphConstraints	对应 dagre 内联布局库的 addSubgraphConstraints API；暂不改导出名。
+export:dn	dn	addConflict	对应 dagre 内联布局库的 addConflict API；暂不改导出名。
+export:vt	vt	findType1Conflicts	对应 dagre 内联布局库的 findType1Conflicts API；暂不改导出名。
+export:Ot	Ot	verticalAlignment	对应 dagre 内联布局库的 verticalAlignment API；暂不改导出名。
+export:Rt	Rt	findSmallestWidthAlignment	对应 dagre 内联布局库的 findSmallestWidthAlignment API；暂不改导出名。
+file:ot.js	ot.js	dagre-layout-utils.js	文件内容来自 dagre 的布局算法模块，提议使用描述性文件名。

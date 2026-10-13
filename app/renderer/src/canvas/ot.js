@@ -1,214 +1,214 @@
 // ot.js
 
 var Ie = 65535;
-function Dn(e2, n2 = Ie) {
-  let t2 = [];
-  for (let r2 = 0; r2 < e2.length; r2 += n2) {
-    let o2 = e2.slice(r2, r2 + n2);
-    t2.push(o2);
+function chunkArguments(values, chunkSize = Ie) {
+  let chunks = [];
+  for (let offset = 0; offset < values.length; offset += chunkSize) {
+    let chunk = values.slice(offset, offset + chunkSize);
+    chunks.push(chunk);
   }
-  return t2;
+  return chunks;
 }
-export function L(e2, n2) {
-  if (n2.length > Ie) {
-    let t2 = Dn(n2);
-    return e2(...t2.map((r2) => e2(...r2)));
-  } else return e2(...n2);
+export function L(fn, values) {
+  if (values.length > Ie) {
+    let chunks = chunkArguments(values);
+    return fn(...chunks.map((chunk) => fn(...chunk)));
+  } else return fn(...values);
 }
-function Re(e2, n2) {
-  return e2.reduce((t2, r2, o2) => ((t2[r2] = n2[o2]), t2), {});
+function zipObject(keys, values) {
+  return keys.reduce((result, key, index) => ((result[key] = values[index]), result), {});
 }
-export function dt(e2, n2, t2, r2) {
-  let o2 = [],
-    i2 = [],
-    s2 = Math.min(n2[t2].low, n2[r2].low),
-    a2 = Math.max(n2[t2].lim, n2[r2].lim),
-    d2;
-  d2 = t2;
-  do ((d2 = e2.parent(d2)), o2.push(d2));
-  while (d2 && (n2[d2].low > s2 || a2 > n2[d2].lim));
-  let l2 = d2,
-    u4 = r2;
-  for (; (u4 = e2.parent(u4)) !== l2;) i2.push(u4);
+export function dt(tree, nodeLowLim, sourceId, targetId) {
+  let pathToRoot = [],
+    pathFromRoot = [],
+    lowerLim = Math.min(nodeLowLim[sourceId].low, nodeLowLim[targetId].low),
+    upperLim = Math.max(nodeLowLim[sourceId].lim, nodeLowLim[targetId].lim),
+    currentNode;
+  currentNode = sourceId;
+  do ((currentNode = tree.parent(currentNode)), pathToRoot.push(currentNode));
+  while (currentNode && (nodeLowLim[currentNode].low > lowerLim || upperLim > nodeLowLim[currentNode].lim));
+  let lowestCommonAncestor = currentNode,
+    nodeId = targetId;
+  for (; (nodeId = tree.parent(nodeId)) !== lowestCommonAncestor;) pathFromRoot.push(nodeId);
   return {
-    path: o2.concat(i2.reverse()),
-    lca: l2,
+    path: pathToRoot.concat(pathFromRoot.reverse()),
+    lca: lowestCommonAncestor,
   };
 }
-export function en(e2) {
-  let n2 = e2.width;
-  ((e2.width = e2.height), (e2.height = n2));
+export function en(dimensions) {
+  let width = dimensions.width;
+  ((dimensions.width = dimensions.height), (dimensions.height = width));
 }
-export function ne(e2) {
-  e2.y = -e2.y;
+export function ne(point) {
+  point.y = -point.y;
 }
-export function te(e2) {
-  let n2 = e2.x;
-  ((e2.x = e2.y), (e2.y = n2));
+export function te(point) {
+  let x = point.x;
+  ((point.x = point.y), (point.y = x));
 }
-export function mt(e2, n2, t2) {
-  let r2 = Re(
-      t2,
-      t2.map((l2, u4) => u4),
+export function mt(graph, upperLayer, lowerLayer) {
+  let orderByNodeId = zipObject(
+      lowerLayer,
+      lowerLayer.map((nodeId, index) => index),
     ),
-    o2 = n2.flatMap((l2) => {
-      let u4 = e2.outEdges(l2);
-      return u4
-        ? u4
-            .map((c3) => ({
-              pos: r2[c3.w],
-              weight: e2.edge(c3).weight,
+    edgeCandidates = upperLayer.flatMap((nodeId) => {
+      let outgoingEdges = graph.outEdges(nodeId);
+      return outgoingEdges
+        ? outgoingEdges
+            .map((edge) => ({
+              pos: orderByNodeId[edge.w],
+              weight: graph.edge(edge).weight,
             }))
-            .sort((c3, h2) => c3.pos - h2.pos)
+            .sort((left, right) => left.pos - right.pos)
         : [];
     }),
-    i2 = 1;
-  for (; i2 < t2.length;) i2 <<= 1;
-  let s2 = 2 * i2 - 1;
-  i2 -= 1;
-  let a2 = new Array(s2).fill(0),
-    d2 = 0;
+    leafOffset = 1;
+  for (; leafOffset < lowerLayer.length;) leafOffset <<= 1;
+  let segmentTreeSize = 2 * leafOffset - 1;
+  leafOffset -= 1;
+  let crossingWeights = new Array(segmentTreeSize).fill(0),
+    crossingCount = 0;
   return (
-    o2.forEach((l2) => {
-      let u4 = l2.pos + i2;
-      a2[u4] += l2.weight;
-      let c3 = 0;
-      for (; u4 > 0;)
-        (u4 % 2 && (c3 += a2[u4 + 1]),
-          (u4 = (u4 - 1) >> 1),
-          (a2[u4] += l2.weight));
-      d2 += l2.weight * c3;
+    edgeCandidates.forEach((edgeCandidate) => {
+      let leafIndex = edgeCandidate.pos + leafOffset;
+      crossingWeights[leafIndex] += edgeCandidate.weight;
+      let crossingsBefore = 0;
+      for (; leafIndex > 0;)
+        (leafIndex % 2 && (crossingsBefore += crossingWeights[leafIndex + 1]),
+          (leafIndex = (leafIndex - 1) >> 1),
+          (crossingWeights[leafIndex] += edgeCandidate.weight));
+      crossingCount += edgeCandidate.weight * crossingsBefore;
     }),
-    d2
+    crossingCount
   );
 }
-export function le(e2, n2, t2) {
-  let r2 = {},
-    o2;
-  t2.forEach((i2) => {
-    let s2 = e2.parent(i2),
-      a2,
-      d2;
-    for (; s2;) {
+export function le(graph, constraintGraph, nodeIds) {
+  let nodeByAncestor = {},
+    previousTopLevelNode;
+  nodeIds.forEach((nodeId) => {
+    let parentId = graph.parent(nodeId),
+      grandparentId,
+      previousNode;
+    for (; parentId;) {
       if (
-        ((a2 = e2.parent(s2)),
-        a2 ? ((d2 = r2[a2]), (r2[a2] = s2)) : ((d2 = o2), (o2 = s2)),
-        d2 && d2 !== s2)
+        ((grandparentId = graph.parent(parentId)),
+        grandparentId ? ((previousNode = nodeByAncestor[grandparentId]), (nodeByAncestor[grandparentId] = parentId)) : ((previousNode = previousTopLevelNode), (previousTopLevelNode = parentId)),
+        previousNode && previousNode !== parentId)
       ) {
-        n2.setEdge(d2, s2);
+        constraintGraph.setEdge(previousNode, parentId);
         return;
       }
-      s2 = a2;
+      parentId = grandparentId;
     }
   });
 }
-function xt(e2, n2) {
-  if (e2.node(n2).dummy) {
-    let t2 = e2.predecessors(n2);
-    if (t2) return t2.find((r2) => e2.node(r2).dummy);
+function xt(graph, nodeId) {
+  if (graph.node(nodeId).dummy) {
+    let predecessorIds = graph.predecessors(nodeId);
+    if (predecessorIds) return predecessorIds.find((predecessorId) => graph.node(predecessorId).dummy);
   }
 }
-export function dn(e2, n2, t2) {
-  if (n2 > t2) {
-    let o2 = n2;
-    ((n2 = t2), (t2 = o2));
+export function dn(conflictMap, firstNode, secondNode) {
+  if (firstNode > secondNode) {
+    let originalFirstNode = firstNode;
+    ((firstNode = secondNode), (secondNode = originalFirstNode));
   }
-  let r2 = e2[n2];
-  (r2 || (e2[n2] = r2 = {}), (r2[t2] = true));
+  let conflictsByFirstNode = conflictMap[firstNode];
+  (conflictsByFirstNode || (conflictMap[firstNode] = conflictsByFirstNode = {}), (conflictsByFirstNode[secondNode] = true));
 }
-export function vt(e2, n2) {
-  let t2 = {};
-  function r2(o2, i2) {
-    let s2 = 0,
-      a2 = 0,
-      d2 = o2.length,
-      l2 = i2[i2.length - 1];
+export function vt(graph, layers) {
+  let conflictMap = {};
+  function findLayerConflicts(upperLayer, currentLayer) {
+    let previousOrder = 0,
+      layerStart = 0,
+      previousLayerEnd = upperLayer.length,
+      previousInnerSegment = currentLayer[currentLayer.length - 1];
     return (
-      i2.forEach((u4, c3) => {
-        let h2 = xt(e2, u4),
-          f2 = h2 ? e2.node(h2).order : d2;
-        (h2 || u4 === l2) &&
-          (i2.slice(a2, c3 + 1).forEach((g2) => {
-            let b3 = e2.predecessors(g2);
-            b3 &&
-              b3.forEach((m3) => {
-                let E3 = e2.node(m3),
-                  y4 = E3.order;
-                (y4 < s2 || f2 < y4) &&
-                  !(E3.dummy && e2.node(g2).dummy) &&
-                  dn(t2, m3, g2);
+      currentLayer.forEach((nodeId, order) => {
+        let innerSegmentNode = xt(graph, nodeId),
+          boundaryOrder = innerSegmentNode ? graph.node(innerSegmentNode).order : previousLayerEnd;
+        (innerSegmentNode || nodeId === previousInnerSegment) &&
+          (currentLayer.slice(layerStart, order + 1).forEach((currentNodeId) => {
+            let predecessorIds = graph.predecessors(currentNodeId);
+            predecessorIds &&
+              predecessorIds.forEach((predecessorId) => {
+                let predecessorNode = graph.node(predecessorId),
+                  predecessorOrder = predecessorNode.order;
+                (predecessorOrder < previousOrder || boundaryOrder < predecessorOrder) &&
+                  !(predecessorNode.dummy && graph.node(currentNodeId).dummy) &&
+                  dn(conflictMap, predecessorId, currentNodeId);
               });
           }),
-          (a2 = c3 + 1),
-          (s2 = f2));
+          (layerStart = order + 1),
+          (previousOrder = boundaryOrder));
       }),
-      i2
+      currentLayer
     );
   }
-  return (n2.length && n2.reduce(r2), t2);
+  return (layers.length && layers.reduce(findLayerConflicts), conflictMap);
 }
-function Tt(e2, n2, t2) {
-  if (n2 > t2) {
-    let o2 = n2;
-    ((n2 = t2), (t2 = o2));
+function Tt(conflictMap, firstNode, secondNode) {
+  if (firstNode > secondNode) {
+    let originalFirstNode = firstNode;
+    ((firstNode = secondNode), (secondNode = originalFirstNode));
   }
-  let r2 = e2[n2];
-  return r2 !== void 0 && Object.hasOwn(r2, t2);
+  let conflictsByFirstNode = conflictMap[firstNode];
+  return conflictsByFirstNode !== void 0 && Object.hasOwn(conflictsByFirstNode, secondNode);
 }
-export function Ot(e2, n2, t2, r2) {
-  let o2 = {},
-    i2 = {},
-    s2 = {};
+export function Ot(graph, layers, constraintGraph, predecessorIds) {
+  let rootByNode = {},
+    alignmentByNode = {},
+    positionByNode = {};
   return (
-    n2.forEach((a2) => {
-      a2.forEach((d2, l2) => {
-        ((o2[d2] = d2), (i2[d2] = d2), (s2[d2] = l2));
+    layers.forEach((layer) => {
+      layer.forEach((nodeId, order) => {
+        ((rootByNode[nodeId] = nodeId), (alignmentByNode[nodeId] = nodeId), (positionByNode[nodeId] = order));
       });
     }),
-    n2.forEach((a2) => {
-      let d2 = -1;
-      a2.forEach((l2) => {
-        let u4 = r2(l2);
-        if (u4 && u4.length) {
-          let c3 = u4.sort((f2, g2) => {
-              let b3 = s2[f2],
-                m3 = s2[g2];
-              return (b3 !== void 0 ? b3 : 0) - (m3 !== void 0 ? m3 : 0);
+    layers.forEach((layer) => {
+      let previousAlignedOrder = -1;
+      layer.forEach((nodeId) => {
+        let predecessorCandidates = predecessorIds(nodeId);
+        if (predecessorCandidates && predecessorCandidates.length) {
+          let sortedPredecessors = predecessorCandidates.sort((left, right) => {
+              let leftOrder = positionByNode[left],
+                rightOrder = positionByNode[right];
+              return (leftOrder !== void 0 ? leftOrder : 0) - (rightOrder !== void 0 ? rightOrder : 0);
             }),
-            h2 = (c3.length - 1) / 2;
-          for (let f2 = Math.floor(h2), g2 = Math.ceil(h2); f2 <= g2; ++f2) {
-            let b3 = c3[f2];
-            if (b3 === void 0) continue;
-            let m3 = s2[b3];
-            if (m3 !== void 0 && i2[l2] === l2 && d2 < m3 && !Tt(t2, l2, b3)) {
-              let E3 = o2[b3];
-              E3 !== void 0 &&
-                ((i2[b3] = l2), (i2[l2] = o2[l2] = E3), (d2 = m3));
+            medianIndex = (sortedPredecessors.length - 1) / 2;
+          for (let index = Math.floor(medianIndex), upperMedianIndex = Math.ceil(medianIndex); index <= upperMedianIndex; ++index) {
+            let predecessorId = sortedPredecessors[index];
+            if (predecessorId === void 0) continue;
+            let predecessorOrder = positionByNode[predecessorId];
+            if (predecessorOrder !== void 0 && alignmentByNode[nodeId] === nodeId && previousAlignedOrder < predecessorOrder && !Tt(constraintGraph, nodeId, predecessorId)) {
+              let rootId = rootByNode[predecessorId];
+              rootId !== void 0 &&
+                ((alignmentByNode[predecessorId] = nodeId), (alignmentByNode[nodeId] = rootByNode[nodeId] = rootId), (previousAlignedOrder = predecessorOrder));
             }
           }
         }
       });
     }),
     {
-      root: o2,
-      align: i2,
+      root: rootByNode,
+      align: alignmentByNode,
     }
   );
 }
-function St(e2, n2) {
-  return e2.node(n2).width;
+function St(graph, nodeId) {
+  return graph.node(nodeId).width;
 }
-export function Rt(e2, n2) {
-  return Object.values(n2).reduce(
-    (t2, r2) => {
-      let o2 = Number.NEGATIVE_INFINITY,
-        i2 = Number.POSITIVE_INFINITY;
-      Object.entries(r2).forEach(([a2, d2]) => {
-        let l2 = St(e2, a2) / 2;
-        ((o2 = Math.max(d2 + l2, o2)), (i2 = Math.min(d2 - l2, i2)));
+export function Rt(graph, alignments) {
+  return Object.values(alignments).reduce(
+    (bestWidthAndAlignment, alignment) => {
+      let rightmost = Number.NEGATIVE_INFINITY,
+        leftmost = Number.POSITIVE_INFINITY;
+      Object.entries(alignment).forEach(([nodeId, position]) => {
+        let halfNodeWidth = St(graph, nodeId) / 2;
+        ((rightmost = Math.max(position + halfNodeWidth, rightmost)), (leftmost = Math.min(position - halfNodeWidth, leftmost)));
       });
-      let s2 = o2 - i2;
-      return (s2 < t2[0] && (t2 = [s2, r2]), t2);
+      let width = rightmost - leftmost;
+      return (width < bestWidthAndAlignment[0] && (bestWidthAndAlignment = [width, alignment]), bestWidthAndAlignment);
     },
     [Number.POSITIVE_INFINITY, null],
   )[1];
