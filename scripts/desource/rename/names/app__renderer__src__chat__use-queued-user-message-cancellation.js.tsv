@@ -1,0 +1,11 @@
+key	新名	依据
+send2@8:9	send	`send`发送取消排队用户消息请求的函数。
+ids2@12:17	ids	`ids`包含待结算队列 ID 与客户端消息 ID 的筛选条件。
+key2@15:19	key	`key`是待处理取消请求在 Map 中使用的键。
+pending2@15:25	pending	`pending`保存取消 Promise、定时器和结算函数的待处理记录。
+message2@27:6	message	`message`是用于结算或发起取消的排队用户消息对象。
+pending2@71:16	pending	`pending`保存取消 Promise、定时器和结算函数的待处理记录。
+message2@78:6	message	`message`是用于结算或发起取消的排队用户消息对象。
+timeout2@87:13	timeout	`timeout`是等待取消结果时设置的定时器 ID。
+pending2@88:15	pending	`pending`保存取消 Promise、定时器和结算函数的待处理记录。
+pending2@108:15	pending	`pending`保存取消 Promise、定时器和结算函数的待处理记录。

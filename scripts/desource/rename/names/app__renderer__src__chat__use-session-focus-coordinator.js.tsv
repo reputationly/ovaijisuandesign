@@ -1,0 +1,4 @@
+key	新名	依据
+message2@4:33	message	`message`是需要依据最新焦点意图校验的会话响应消息。
+send2@22:44	send	`send`发送会话切换或聚焦请求的函数。
+message2@92:6	message	`message`是需要依据最新焦点意图校验的会话响应消息。

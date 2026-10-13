@@ -9,12 +9,12 @@ const SESSION_LIST_RETRY_MAX_DELAY_MS = 3e4;
 const SESSION_LIST_STALL_LOG_THRESHOLD = 5;
 
 function computeSessionListRetryDelayMs(streak, baseDelayMs) {
-  const base2 = Math.max(
+  const base = Math.max(
     baseDelayMs || SESSION_LIST_RETRY_AFTER_FALLBACK_MS,
     SESSION_LIST_RETRY_AFTER_FALLBACK_MS,
   );
   return Math.min(
-    base2 * 2 ** Math.max(0, streak - 1),
+    base * 2 ** Math.max(0, streak - 1),
     SESSION_LIST_RETRY_MAX_DELAY_MS,
   );
 }

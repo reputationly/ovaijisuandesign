@@ -1,0 +1,18 @@
+key	新名	依据
+window2@34:11	deltaWindow	`deltaWindow`持有当前会话的诊断计数、等待状态和恢复状态。
+window2@53:9	deltaWindow	`deltaWindow`持有当前会话的诊断计数、等待状态和恢复状态。
+window2@65:11	deltaWindow	`deltaWindow`持有当前会话的诊断计数、等待状态和恢复状态。
+replace2@88:31	replace	`replace`表示此次历史快照是否请求替换现有消息。
+message2@104:5	message	`message`是此次历史恢复事件的服务端消息对象。
+replace2@105:5	replace	`replace`表示此次历史快照是否请求替换现有消息。
+previous2@124:13	previous	`previous`是恢复操作前的诊断工具记录列表。
+current2@125:13	current	`current`是恢复操作后的诊断工具记录列表。
+identity2@127:13	identity	`identity`汇总缺少根 Part ID 或工具身份的计数。
+tool2@131:18	tool	`tool`是本次诊断遍历的工具记录。
+tool2@173:10	tool	`tool`是本次诊断遍历的工具记录。
+tool2@190:23	tool	`tool`是本次诊断遍历的工具记录。
+tool2@192:42	tool	`tool`是本次诊断遍历的工具记录。
+tool2@232:14	tool	`tool`是本次诊断遍历的工具记录。
+tool2@238:17	tool	`tool`是本次诊断遍历的工具记录。
+tool2@257:55	tool	`tool`是本次诊断遍历的工具记录。
+messages2@280:20	messages	`messages`是重置 PartStore 时关联的会话消息列表。
