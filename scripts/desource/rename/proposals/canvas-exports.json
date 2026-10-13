@@ -36,5 +36,23 @@
     "Pt": "alignCoordinates",
     "Mt": "balance",
     "Ft": "positionY"
+  },
+  "app/renderer/src/canvas/layout-category-lanes.js": {
+    "H": "intersectRect",
+    "X": "maxRank",
+    "j": "uniqueId",
+    "w$3": "addDummyNode",
+    "q": "addBorderNode",
+    "k": "range",
+    "N": "buildLayerMatrix",
+    "T": "pick",
+    "O": "mapValues",
+    "_": "GRAPH_NODE",
+    "Bn": "doGreedyFAS",
+    "Yn": "buildState",
+    "S": "longestPath",
+    "v$4": "slack",
+    "V": "feasibleTree",
+    "it": "longestPath"
   }
 }
