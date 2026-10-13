@@ -1,0 +1,32 @@
+key	new	依据
+i2@68:12	characterIndex	遍历输入字符串中的字符以生成稳定哈希。
+s2@74:7	randomState	保存伪随机数生成器的迭代状态。
+rng@88:9	randomValueGenerator	保存基于文件名种子的伪随机数生成函数。
+i2@90:12	barIndex	遍历波形柱以生成其确定性高度。
+x2@98:25	x	接收波形柱圆角路径的水平坐标。
+y4@98:29	y	接收波形柱圆角路径的垂直坐标。
+t2@121:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
+p3@141:27	progress	接收需要设置的播放头进度比例。
+px@143:15	playheadX	保存播放头在波形上的水平像素位置。
+e2@167:6	activationEvent	接收用于激活波形播放位置的鼠标或键盘事件。
+e2@174:6	pointerEvent	接收开始拖动播放头的指针事件。
+e2@184:6	pointerEvent	接收拖动播放头时的指针移动事件。
+e2@191:6	pointerEvent	接收结束播放头拖动的指针事件。
+e2@214:19	keyboardEvent	接收波形上的键盘激活事件。
+e2@257:19	clickEvent	接收用于阻止事件冒泡的点击事件。
+id2@287:38	nodeId	接收音频画布节点标识。
+t2@288:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
+n2@405:22	node	遍历待移除尺寸属性的 React Flow 节点。
+_w@407:28	_width	保留用于从节点副本中剔除的宽度字段。
+_h@407:40	_height	保留用于从节点副本中剔除的高度字段。
+n2@417:20	node	遍历待移除尺寸属性的 React Flow 节点。
+_w@419:26	_width	保留用于从节点副本中剔除的宽度字段。
+_h@419:38	_height	保留用于从节点副本中剔除的高度字段。
+s2@457:39	playbackState	读取音频播放状态中的当前播放节点标识。
+s2@458:34	playbackState	读取音频播放状态中的播放动作。
+s2@459:34	playbackState	读取音频播放状态中的停止动作。
+t22@493:13	currentTime	保存音频当前播放时间。
+d2@494:13	audioDuration	保存音频总时长。
+e2@528:6	clickEvent	接收播放按钮的点击事件并阻止冒泡。
+e2@540:6	clickEvent	接收下载按钮的点击事件并阻止冒泡。
+p3@548:6	progress	接收波形点击换算出的播放进度比例。

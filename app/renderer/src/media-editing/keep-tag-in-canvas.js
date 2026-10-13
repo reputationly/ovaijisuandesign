@@ -1,63 +1,63 @@
 // keep-tag-in-canvas.js
 import { FreePathShape, pointInBounds, Shape } from "./free-path-shape.js";
 export function createOffscreen(width, height) {
-  const c3 = document.createElement("canvas");
-  c3.width = width;
-  c3.height = height;
-  return c3;
+  const canvasElement = document.createElement("canvas");
+  canvasElement.width = width;
+  canvasElement.height = height;
+  return canvasElement;
 }
 function loadImageWith(src, crossOrigin) {
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    if (crossOrigin !== null) img.crossOrigin = crossOrigin;
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
-    img.src = src;
+    const imageElement = new Image();
+    if (crossOrigin !== null) imageElement.crossOrigin = crossOrigin;
+    imageElement.onload = () => resolve(imageElement);
+    imageElement.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+    imageElement.src = src;
   });
 }
 export function loadImage(src) {
   return loadImageWith(src, "anonymous").catch(() => loadImageWith(src, null));
 }
 export class RectangleShape extends Shape {
-  draw(ctx) {
-    const { x: x2, y: y4, width, height, style: style2 } = this.data;
+  draw(context) {
+    const { x, y, width, height, style: style2 } = this.data;
     if (width === 0 || height === 0) return;
-    ctx.save();
-    ctx.lineWidth = style2.strokeWidth;
-    ctx.strokeStyle = style2.stroke;
+    context.save();
+    context.lineWidth = style2.strokeWidth;
+    context.strokeStyle = style2.stroke;
     if (style2.fill) {
-      ctx.fillStyle = style2.fill;
-      ctx.fillRect(x2, y4, width, height);
+      context.fillStyle = style2.fill;
+      context.fillRect(x, y, width, height);
     }
-    ctx.strokeRect(x2, y4, width, height);
-    ctx.restore();
+    context.strokeRect(x, y, width, height);
+    context.restore();
   }
-  hitTest(p3) {
+  hitTest(point) {
     const padding = Math.max(8, this.data.style.strokeWidth);
-    const b3 = this.getBounds();
-    if (this.data.style.fill) return pointInBounds(p3, b3, padding);
-    const outer = pointInBounds(p3, b3, padding);
-    const inner = pointInBounds(p3, b3, -padding);
+    const bounds = this.getBounds();
+    if (this.data.style.fill) return pointInBounds(point, bounds, padding);
+    const outer = pointInBounds(point, bounds, padding);
+    const inner = pointInBounds(point, bounds, -padding);
     return outer && !inner;
   }
   getBounds() {
-    const { x: x2, y: y4, width, height } = this.data;
+    const { x, y, width, height } = this.data;
     return {
-      x: width >= 0 ? x2 : x2 + width,
-      y: height >= 0 ? y4 : y4 + height,
+      x: width >= 0 ? x : x + width,
+      y: height >= 0 ? y : y + height,
       width: Math.abs(width),
       height: Math.abs(height),
     };
   }
-  move(dx, dy) {
-    this.data.x += dx;
-    this.data.y += dy;
+  move(deltaX, deltaY) {
+    this.data.x += deltaX;
+    this.data.y += deltaY;
   }
-  resize(b3) {
-    this.data.x = b3.x;
-    this.data.y = b3.y;
-    this.data.width = b3.width;
-    this.data.height = b3.height;
+  resize(bounds) {
+    this.data.x = bounds.x;
+    this.data.y = bounds.y;
+    this.data.width = bounds.width;
+    this.data.height = bounds.height;
   }
 }
 export const ANCHOR_RADIUS = 2.5;
@@ -94,15 +94,15 @@ export function placeCardForAnchor(anchor, side, cardW, cardH) {
     y: anchor.y + TAG_ANCHOR_OFFSET,
   };
 }
-export function inferSide(card, ax, ay) {
-  const cx2 = card.x + card.w / 2;
-  const cy = card.y + card.h / 2;
-  const dx = ax - cx2;
-  const dy = ay - cy;
-  if (Math.abs(dx) >= Math.abs(dy)) {
-    return dx < 0 ? "left" : "right";
+export function inferSide(card, anchorX, anchorY) {
+  const centerX = card.x + card.w / 2;
+  const centerY = card.y + card.h / 2;
+  const deltaX = anchorX - centerX;
+  const deltaY = anchorY - centerY;
+  if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+    return deltaX < 0 ? "left" : "right";
   }
-  return dy < 0 ? "top" : "bottom";
+  return deltaY < 0 ? "top" : "bottom";
 }
 export function keepTagInCanvas(data2, canvasWidth, canvasHeight) {
   if (canvasWidth <= 0 || canvasHeight <= 0) return false;
@@ -137,11 +137,11 @@ export function keepTagInCanvas(data2, canvasWidth, canvasHeight) {
       cardW,
       cardH,
     );
-  const inCanvas = (p3) =>
-    p3.x >= margin &&
-    p3.y >= margin &&
-    p3.x + cardW <= canvasWidth - margin &&
-    p3.y + cardH <= canvasHeight - margin;
+  const inCanvas = (cardPosition) =>
+    cardPosition.x >= margin &&
+    cardPosition.y >= margin &&
+    cardPosition.x + cardW <= canvasWidth - margin &&
+    cardPosition.y + cardH <= canvasHeight - margin;
   let next2 = fits(preferredCardSide);
   if (!inCanvas(next2)) {
     const alternate = fits(anchorSide);
@@ -160,21 +160,21 @@ export function keepTagInCanvas(data2, canvasWidth, canvasHeight) {
 }
 function parseHex(hex2) {
   if (!hex2) return null;
-  let h2 = hex2.trim();
-  if (h2.startsWith("#")) h2 = h2.slice(1);
-  if (h2.length === 3) h2 = h2.replace(/(.)/g, "$1$1");
-  if (h2.length !== 6) return null;
-  const r2 = Number.parseInt(h2.slice(0, 2), 16);
-  const g2 = Number.parseInt(h2.slice(2, 4), 16);
-  const b3 = Number.parseInt(h2.slice(4, 6), 16);
-  if (Number.isNaN(r2) || Number.isNaN(g2) || Number.isNaN(b3)) return null;
-  return [r2, g2, b3];
+  let colorHex = hex2.trim();
+  if (colorHex.startsWith("#")) colorHex = colorHex.slice(1);
+  if (colorHex.length === 3) colorHex = colorHex.replace(/(.)/g, "$1$1");
+  if (colorHex.length !== 6) return null;
+  const redChannel = Number.parseInt(colorHex.slice(0, 2), 16);
+  const green = Number.parseInt(colorHex.slice(2, 4), 16);
+  const blue = Number.parseInt(colorHex.slice(4, 6), 16);
+  if (Number.isNaN(redChannel) || Number.isNaN(green) || Number.isNaN(blue)) return null;
+  return [redChannel, green, blue];
 }
 function isLightColor(hex2) {
   const rgb2 = parseHex(hex2);
   if (!rgb2) return false;
-  const [r2, g2, b3] = rgb2;
-  return (r2 * 299 + g2 * 587 + b3 * 114) / 1e3 > 165;
+  const [redChannel, green, blue] = rgb2;
+  return (redChannel * 299 + green * 587 + blue * 114) / 1e3 > 165;
 }
 export function pickContrastColor(hex2) {
   return isLightColor(hex2) ? "#1C1C1E" : "#FFFFFF";
@@ -191,23 +191,23 @@ export class Tool {
   constructor(editor) {
     this.editor = editor;
   }
-  onPointerDown(_e2) {}
-  onPointerMove(_e2) {}
-  onPointerUp(_e2) {}
-  onDoubleClick(_e2) {}
-  onKeyDown(_e2) {}
+  onPointerDown(unusedPointerEvent) {}
+  onPointerMove(unusedPointerEvent) {}
+  onPointerUp(unusedPointerEvent) {}
+  onDoubleClick(unusedMouseEvent) {}
+  onKeyDown(unusedKeyboardEvent) {}
   onActivate() {}
   onDeactivate() {}
 }
 export class BrushTool extends Tool {
   cursor = "crosshair";
   working = null;
-  onPointerDown(e2) {
-    if (e2.button !== 0) return;
+  onPointerDown(pointerEvent) {
+    if (pointerEvent.button !== 0) return;
     const data2 = {
       id: uid("brush"),
       type: "brush",
-      points: [e2.point],
+      points: [pointerEvent.point],
       style: {
         ...this.editor.getStyle(),
       },
@@ -215,12 +215,12 @@ export class BrushTool extends Tool {
     this.working = new FreePathShape(data2);
     this.editor.setPreviewShape(this.working);
   }
-  onPointerMove(e2) {
+  onPointerMove(pointerEvent) {
     if (!this.working) return;
-    this.working.addPoint(e2.point);
+    this.working.addPoint(pointerEvent.point);
     this.editor.requestPreviewRender();
   }
-  onPointerUp(_e2) {
+  onPointerUp(unusedPointerEvent) {
     if (!this.working) return;
     this.editor.setPreviewShape(null);
     if (this.working.data.points.length > 1) {

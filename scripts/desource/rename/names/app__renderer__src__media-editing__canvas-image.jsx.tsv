@@ -1,0 +1,25 @@
+key	new	依据
+makeAbortError$1@228:10	makeWorkerAbortError	为解码工作线程中止的任务创建 AbortError。
+cb@12:20	callback	接收注册到位图缓存变更集合的回调函数。
+a2@161:20	leftEntry	比较较早与较晚使用的位图缓存条目。
+b3@161:24	rightEntry	比较较晚与较早使用的位图缓存条目。
+hwc@221:9	hardwareConcurrency	读取浏览器报告的逻辑处理器数量。
+i2@245:14	workerIndex	遍历并创建解码工作线程实例。
+n2@267:9	busyWorkerCount	统计当前正在处理任务的工作线程数量。
+a2@337:22	firstTask	比较队列中两项任务的优先级。
+b3@337:26	secondTask	比较队列中两项任务的优先级。
+msg@355:29	workerMessage	处理解码工作线程返回的消息。
+idx@400:13	queuedTaskIndex	保存待取消任务在队列中的位置。
+dpr@409:20	displayPixelRatio	按显示设备的像素比对缓存分桶。
+dpr@412:33	displayPixelRatio	接收计算缓存尺寸档位使用的设备像素比。
+t2@416:14	sizeTier	遍历可选的位图尺寸档位。
+dpr@486:11	displayPixelRatio	读取用于缓存键与尺寸档位的设备像素比。
+ok2@533:15	decodedDimensions	保存解码响应中的位图宽高。
+h2@614:9	handle	保存当前引用持有的位图句柄。
+sig@622:29	drawSignature	将绘制结果尺寸与位图标识组合成缓存签名。
+dpr@640:3	displayPixelRatio	接收计算画布后备尺寸使用的设备像素比。
+dpr@657:3	displayPixelRatio	接收绘制位图使用的设备像素比。
+sig@670:9	drawSignature	保存当前 canvas 的位图绘制签名。
+ctx@674:9	context	获取用于清除和绘制位图的二维上下文。
+dpr@697:9	displayPixelRatio	保存当前显示环境的设备像素比。
+h2@800:16	bitmapHandle	接收异步获取到的位图句柄。

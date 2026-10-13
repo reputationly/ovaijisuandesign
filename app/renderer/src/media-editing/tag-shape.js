@@ -15,14 +15,14 @@ const CORNER_RADIUS = 6;
 
 const POINTER_BASE = 8;
 
-function wrapTagLines(text2, ctx, maxWidth) {
+function wrapTagLines(text2, context, maxWidth) {
   if (!Number.isFinite(maxWidth)) return text2.split("\n");
   const result = [];
   for (const sourceLine of text2.split("\n")) {
     let line = "";
     for (const char of sourceLine || " ") {
       const candidate = line + char;
-      if (line && ctx.measureText(candidate).width > maxWidth) {
+      if (line && context.measureText(candidate).width > maxWidth) {
         result.push(line);
         line = char;
       } else {
@@ -35,79 +35,79 @@ function wrapTagLines(text2, ctx, maxWidth) {
 }
 
 function computeAnchorPosition(card, side, anchorOffset = TAG_ANCHOR_OFFSET) {
-  const cx2 = card.x + card.w / 2;
-  const cy = card.y + card.h / 2;
+  const centerX = card.x + card.w / 2;
+  const centerY = card.y + card.h / 2;
   if (side === "left")
     return {
       x: card.x - anchorOffset,
-      y: cy,
+      y: centerY,
     };
   if (side === "right")
     return {
       x: card.x + card.w + anchorOffset,
-      y: cy,
+      y: centerY,
     };
   if (side === "top")
     return {
-      x: cx2,
+      x: centerX,
       y: card.y - anchorOffset,
     };
   return {
-    x: cx2,
+    x: centerX,
     y: card.y + card.h + anchorOffset,
   };
 }
 
-function drawRoundedRect(ctx, x2, y4, w3, h2, r2) {
-  ctx.moveTo(x2 + r2, y4);
-  ctx.lineTo(x2 + w3 - r2, y4);
-  ctx.quadraticCurveTo(x2 + w3, y4, x2 + w3, y4 + r2);
-  ctx.lineTo(x2 + w3, y4 + h2 - r2);
-  ctx.quadraticCurveTo(x2 + w3, y4 + h2, x2 + w3 - r2, y4 + h2);
-  ctx.lineTo(x2 + r2, y4 + h2);
-  ctx.quadraticCurveTo(x2, y4 + h2, x2, y4 + h2 - r2);
-  ctx.lineTo(x2, y4 + r2);
-  ctx.quadraticCurveTo(x2, y4, x2 + r2, y4);
-  ctx.closePath();
+function drawRoundedRect(context, x, y, width, height, radius) {
+  context.moveTo(x + radius, y);
+  context.lineTo(x + width - radius, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + radius);
+  context.lineTo(x + width, y + height - radius);
+  context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  context.lineTo(x + radius, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - radius);
+  context.lineTo(x, y + radius);
+  context.quadraticCurveTo(x, y, x + radius, y);
+  context.closePath();
 }
 
-function appendPointerPath(ctx, card, side) {
+function appendPointerPath(context, card, side) {
   const half = POINTER_BASE / 2;
-  const cx2 = card.x + card.w / 2;
-  const cy = card.y + card.h / 2;
+  const centerX = card.x + card.w / 2;
+  const centerY = card.y + card.h / 2;
   if (side === "left") {
     const baseX = card.x;
     const tipX = baseX - POINTER_HEIGHT;
-    ctx.moveTo(baseX, cy - half);
-    ctx.lineTo(tipX, cy);
-    ctx.lineTo(baseX, cy + half);
-    ctx.closePath();
+    context.moveTo(baseX, centerY - half);
+    context.lineTo(tipX, centerY);
+    context.lineTo(baseX, centerY + half);
+    context.closePath();
   } else if (side === "right") {
     const baseX = card.x + card.w;
     const tipX = baseX + POINTER_HEIGHT;
-    ctx.moveTo(baseX, cy - half);
-    ctx.lineTo(tipX, cy);
-    ctx.lineTo(baseX, cy + half);
-    ctx.closePath();
+    context.moveTo(baseX, centerY - half);
+    context.lineTo(tipX, centerY);
+    context.lineTo(baseX, centerY + half);
+    context.closePath();
   } else if (side === "top") {
     const baseY = card.y;
     const tipY = baseY - POINTER_HEIGHT;
-    ctx.moveTo(cx2 - half, baseY);
-    ctx.lineTo(cx2, tipY);
-    ctx.lineTo(cx2 + half, baseY);
-    ctx.closePath();
+    context.moveTo(centerX - half, baseY);
+    context.lineTo(centerX, tipY);
+    context.lineTo(centerX + half, baseY);
+    context.closePath();
   } else {
     const baseY = card.y + card.h;
     const tipY = baseY + POINTER_HEIGHT;
-    ctx.moveTo(cx2 - half, baseY);
-    ctx.lineTo(cx2, tipY);
-    ctx.lineTo(cx2 + half, baseY);
-    ctx.closePath();
+    context.moveTo(centerX - half, baseY);
+    context.lineTo(centerX, tipY);
+    context.lineTo(centerX + half, baseY);
+    context.closePath();
   }
 }
 
 export class TagShape extends Shape {
-  draw(ctx) {
+  draw(context) {
     const { text: text2, style: style2 } = this.data;
     const fontSize = style2.fontSize ?? DEFAULT_FONT_SIZE;
     const fontFamily =
@@ -115,23 +115,23 @@ export class TagShape extends Shape {
       'system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
     const fontWeight = style2.fontWeight ?? 500;
     const lineHeight = 1.4;
-    const bg = style2.tagBackground ?? "rgba(0, 0, 0, 0.6)";
-    const fg = style2.tagTextColor ?? "#FFFFFF";
+    const backgroundColor = style2.tagBackground ?? "rgba(0, 0, 0, 0.6)";
+    const textColor = style2.tagTextColor ?? "#FFFFFF";
     const anchorColor = style2.stroke ?? "#FF3B30";
     const anchorRadius = Math.max(1, style2.tagAnchorRadius ?? ANCHOR_RADIUS);
     const anchorOffset = Math.max(TAG_ANCHOR_OFFSET, anchorRadius + ANCHOR_GAP);
-    ctx.save();
-    ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
-    ctx.textBaseline = "middle";
-    ctx.textAlign = "center";
+    context.save();
+    context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+    context.textBaseline = "middle";
+    context.textAlign = "center";
     const maxInnerWidth = this.data.maxWidth
       ? Math.max(fontSize, this.data.maxWidth - PADDING_X * 2)
       : Number.POSITIVE_INFINITY;
-    const lines = wrapTagLines(text2 || " ", ctx, maxInnerWidth);
+    const lines = wrapTagLines(text2 || " ", context, maxInnerWidth);
     let maxLineW = 0;
     for (const line of lines) {
-      const w3 = ctx.measureText(line || " ").width;
-      if (w3 > maxLineW) maxLineW = w3;
+      const measuredWidth = context.measureText(line || " ").width;
+      if (measuredWidth > maxLineW) maxLineW = measuredWidth;
     }
     const lineH = fontSize * lineHeight;
     const innerW = Math.max(maxLineW, fontSize);
@@ -140,13 +140,13 @@ export class TagShape extends Shape {
     const cardH = innerH + PADDING_Y * 2;
     this.data.width = cardW;
     this.data.height = cardH;
-    const x2 = this.data.x;
-    const y4 = this.data.y;
-    const cx2 = x2 + cardW / 2;
-    const r2 = Math.min(CORNER_RADIUS, cardH / 2, cardW / 2);
+    const x = this.data.x;
+    const y = this.data.y;
+    const centerX = x + cardW / 2;
+    const cornerRadius = Math.min(CORNER_RADIUS, cardH / 2, cardW / 2);
     const card = {
-      x: x2,
-      y: y4,
+      x,
+      y,
       w: cardW,
       h: cardH,
     };
@@ -154,36 +154,36 @@ export class TagShape extends Shape {
     const corrected = computeAnchorPosition(card, side, anchorOffset);
     this.data.anchorX = corrected.x;
     this.data.anchorY = corrected.y;
-    ctx.beginPath();
-    drawRoundedRect(ctx, x2, y4, cardW, cardH, r2);
-    appendPointerPath(ctx, card, side);
-    ctx.fillStyle = bg;
-    ctx.fill();
-    ctx.fillStyle = fg;
-    lines.forEach((line, i2) => {
-      const ly = y4 + PADDING_Y + lineH * (i2 + 0.5);
-      ctx.fillText(line, cx2, ly);
+    context.beginPath();
+    drawRoundedRect(context, x, y, cardW, cardH, cornerRadius);
+    appendPointerPath(context, card, side);
+    context.fillStyle = backgroundColor;
+    context.fill();
+    context.fillStyle = textColor;
+    lines.forEach((line, lineIndex) => {
+      const lineY = y + PADDING_Y + lineH * (lineIndex + 0.5);
+      context.fillText(line, centerX, lineY);
     });
-    ctx.beginPath();
-    ctx.arc(corrected.x, corrected.y, anchorRadius, 0, Math.PI * 2);
-    ctx.fillStyle = anchorColor;
-    ctx.fill();
-    ctx.restore();
+    context.beginPath();
+    context.arc(corrected.x, corrected.y, anchorRadius, 0, Math.PI * 2);
+    context.fillStyle = anchorColor;
+    context.fill();
+    context.restore();
   }
-  hitTest(p3) {
-    if (pointInBounds(p3, this.getBounds(), 4)) return true;
-    const dx = p3.x - this.data.anchorX;
-    const dy = p3.y - this.data.anchorY;
+  hitTest(point) {
+    if (pointInBounds(point, this.getBounds(), 4)) return true;
+    const deltaX = point.x - this.data.anchorX;
+    const deltaY = point.y - this.data.anchorY;
     const anchorRadius = Math.max(
       1,
       this.data.style.tagAnchorRadius ?? ANCHOR_RADIUS,
     );
-    return Math.hypot(dx, dy) <= anchorRadius + 4;
+    return Math.hypot(deltaX, deltaY) <= anchorRadius + 4;
   }
   getBounds() {
     const {
-      x: x2,
-      y: y4,
+      x,
+      y,
       width,
       height,
       anchorX,
@@ -191,10 +191,10 @@ export class TagShape extends Shape {
       style: style2,
     } = this.data;
     const anchorRadius = Math.max(1, style2.tagAnchorRadius ?? ANCHOR_RADIUS);
-    const minX = Math.min(x2, anchorX - anchorRadius);
-    const minY = Math.min(y4, anchorY - anchorRadius);
-    const maxX = Math.max(x2 + width, anchorX + anchorRadius);
-    const maxY = Math.max(y4 + height, anchorY + anchorRadius);
+    const minX = Math.min(x, anchorX - anchorRadius);
+    const minY = Math.min(y, anchorY - anchorRadius);
+    const maxX = Math.max(x + width, anchorX + anchorRadius);
+    const maxY = Math.max(y + height, anchorY + anchorRadius);
     return {
       x: minX,
       y: minY,
@@ -202,16 +202,16 @@ export class TagShape extends Shape {
       height: maxY - minY,
     };
   }
-  move(dx, dy) {
-    this.data.x += dx;
-    this.data.y += dy;
-    this.data.anchorX += dx;
-    this.data.anchorY += dy;
+  move(deltaX, deltaY) {
+    this.data.x += deltaX;
+    this.data.y += deltaY;
+    this.data.anchorX += deltaX;
+    this.data.anchorY += deltaY;
   }
-  resize(b3) {
-    const cur = this.getBounds();
-    const dx = b3.x - cur.x;
-    const dy = b3.y - cur.y;
-    this.move(dx, dy);
+  resize(bounds) {
+    const currentBounds = this.getBounds();
+    const deltaX = bounds.x - currentBounds.x;
+    const deltaY = bounds.y - currentBounds.y;
+    this.move(deltaX, deltaY);
   }
 }
