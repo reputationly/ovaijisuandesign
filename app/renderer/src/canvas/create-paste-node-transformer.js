@@ -103,9 +103,9 @@ function createPromiseDedupe() {
     run(key2, factory) {
       const existing = inFlight.get(key2);
       if (existing) return existing;
-      const promise = factory().catch((error) => {
+      const promise = factory().catch((err) => {
         inFlight.delete(key2);
-        throw error;
+        throw err;
       });
       inFlight.set(key2, promise);
       return promise;
@@ -203,10 +203,10 @@ function createPasteNodeTransformer({
               ? metaWithoutClone
               : void 0,
         };
-      } catch (error) {
+      } catch (err) {
         console.warn(
           "[paste-transformer] cross-workspace media duplicate failed:",
-          error,
+          err,
         );
         return node2;
       }
@@ -230,10 +230,10 @@ function createPasteNodeTransformer({
           );
           assetMetadataStore.getState().merge(duplicated.assetId, duplicated);
           return promoteToPrimary(node2, duplicated, assetMetadataStore);
-        } catch (error) {
+        } catch (err) {
           console.warn(
             "[paste-transformer] cross-workspace file duplicate failed:",
-            error,
+            err,
           );
           return node2;
         }
@@ -243,8 +243,8 @@ function createPasteNodeTransformer({
         const duplicated = await duplicateFileAsset(sourcePath);
         assetMetadataStore.getState().merge(duplicated.assetId, duplicated);
         return promoteToPrimary(node2, duplicated, assetMetadataStore);
-      } catch (error) {
-        console.warn("[paste-transformer] file duplicate failed:", error);
+      } catch (err) {
+        console.warn("[paste-transformer] file duplicate failed:", err);
         return node2;
       }
     }
@@ -268,10 +268,10 @@ function createPasteNodeTransformer({
           );
           assetMetadataStore.getState().merge(duplicated2.assetId, duplicated2);
           return promoteToPrimary(node2, duplicated2, assetMetadataStore);
-        } catch (error) {
+        } catch (err) {
           console.warn(
             "[paste-transformer] cross-workspace text duplicate failed:",
-            error,
+            err,
           );
           return node2;
         }
@@ -280,8 +280,8 @@ function createPasteNodeTransformer({
       let duplicated;
       try {
         duplicated = await duplicateTextAsset(sourcePath);
-      } catch (error) {
-        console.warn("[paste-transformer] text duplicate failed:", error);
+      } catch (err) {
+        console.warn("[paste-transformer] text duplicate failed:", err);
         return node2;
       }
       assetMetadataStore.getState().merge(duplicated.assetId, duplicated);

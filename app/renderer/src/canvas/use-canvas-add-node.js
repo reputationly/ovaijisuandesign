@@ -81,8 +81,8 @@ export function useCanvasAddNode({
               size: TABLE_CARD_DEFAULT_SIZE,
             });
             return tableNodeId;
-          } catch (error) {
-            console.error("[canvas] Failed to create table node:", error);
+          } catch (err) {
+            console.error("[canvas] Failed to create table node:", err);
             return null;
           }
         }

@@ -1,10 +1,4 @@
 key	old	new	依据
-ctx@46:9	ctx	context	该值是 CanvasActiveDeferredContext 的上下文内容。
 a2@49:30	a2	leftActions	该参数是浅比较中的第一组动作。
 b3@49:34	b3	rightActions	该参数是浅比较中的第二组动作。
-pos@90:9	pos	position	该值是节点在画布状态中的绝对位置。
-kb@169:9	kb	kilobytes	该值是字节数换算得到的 KB 数值。
-mb@171:9	mb	megabytes	该值是 KB 换算得到的 MB 数值。
-gb@173:9	gb	gigabytes	该值是 MB 换算得到的 GB 数值。
-idx@178:9	idx	dotIndex	该值是文件名中最后一个点号的位置。
 d2@204:31	d2	pathData	该字符串是 SVG path 的绘制数据。

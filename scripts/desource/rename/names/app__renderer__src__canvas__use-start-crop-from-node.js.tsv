@@ -5,8 +5,6 @@ s2@27:40	s2	state	选择器从 overlay store 读取当前裁剪元数据。
 s2@30:44	s2	state	选择器从 overlay store 读取启动裁剪操作。
 s2@31:45	s2	state	选择器从 overlay store 读取取消裁剪操作。
 id2@40:7	id2	nodeId	派生节点的位置根据原始节点标识和画布边、宽度计算。
-ext@47:28	ext	extension	扩展名与新名称共同组成裁剪派生图片的文件名。
 id2@63:44	id2	nodeId	getNodeFlowRect 按节点标识读取 React Flow 内部节点。
 id2@88:7	id2	nodeId	裁剪操作按原始节点标识读取矩形并启动 overlay。
-ext@105:13	ext	extension	素材元数据文件名中的扩展名用于构造裁剪结果名称。
 n2@119:18	n2	node	setNodes 遍历节点并清除每个已选节点的 selected 状态。

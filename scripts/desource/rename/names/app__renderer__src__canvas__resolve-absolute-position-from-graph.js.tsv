@@ -1,3 +1,2 @@
 key	old	new	依据
-pos@4:9	pos	position	该值是节点在当前布局模式下保存的位置，后续用于累加父节点坐标。
 n2@11:37	n2	node	graphNodes.find 回调接收候选父节点并按 id 匹配当前父节点。

@@ -1,3 +1,1 @@
 key	old	new	依据
-err@212:15	err	error	该拒绝值用于记录保存错误、判断是否可重试并通知 onError。
-err@313:15	err	error	该拒绝值用于判定重试、保存失败详情和通知 onError。

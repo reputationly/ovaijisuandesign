@@ -7,10 +7,10 @@ import {
   LoaderCircle,
   reactExports,
   useTranslation,
-  X$7 as CloseIcon,
+  X$7 as XIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
+import { cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Trash2 } from "../media-editing/package.jsx";
 import { formatBytes } from "../assets/use-cloud-review-nodes.js";
 import { Popover } from "../assets/credit-query-keys.jsx";
@@ -35,7 +35,7 @@ function TabButton({ active: active2, label, icon, onClick, actionId }) {
       type="button"
       onClick={onClick}
       data-action-ui-id={actionId}
-      className={mergeClassNames(
+      className={cn(
         "flex h-6 flex-1 items-center justify-center gap-1 rounded-md text-[12px] transition-colors",
         active2
           ? "bg-background font-medium text-foreground shadow-sm"
@@ -82,7 +82,7 @@ function UploadTransferRow({ item, onRemove: onRemove2 }) {
       <ArrowUpFromLine
         size={14}
         strokeWidth={1.5}
-        className={mergeClassNames(
+        className={cn(
           "shrink-0",
           failed ? "text-destructive" : "text-muted-foreground",
         )}
@@ -93,7 +93,7 @@ function UploadTransferRow({ item, onRemove: onRemove2 }) {
           {item.name}
         </span>
         <span
-          className={mergeClassNames(
+          className={cn(
             "truncate text-[11px]",
             failed ? "text-destructive" : "text-muted-foreground",
           )}
@@ -116,7 +116,7 @@ function UploadTransferRow({ item, onRemove: onRemove2 }) {
           data-action-ui-id="cloud-assets.remove-transfer"
           className="shrink-0 rounded-sm p-0.5 text-foreground/60 transition-colors hover:text-foreground"
         >
-          <CloseIcon size={14} strokeWidth={1.5} />
+          <XIcon size={14} strokeWidth={1.5} />
         </button>
       ) : (
         <LoaderCircle
@@ -139,7 +139,7 @@ function ReviewNodeRow({ node: node2, onDelete }) {
       <ArrowUpFromLine
         size={14}
         strokeWidth={1.5}
-        className={mergeClassNames(
+        className={cn(
           "mt-0.5 shrink-0",
           blocked ? "text-destructive" : "text-muted-foreground",
         )}
@@ -150,7 +150,7 @@ function ReviewNodeRow({ node: node2, onDelete }) {
           {node2.name}
         </span>
         <span
-          className={mergeClassNames(
+          className={cn(
             "truncate text-[11px]",
             blocked ? "text-destructive" : "text-muted-foreground",
           )}
@@ -209,7 +209,7 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
       <ArrowDownToLine
         size={14}
         strokeWidth={1.5}
-        className={mergeClassNames(
+        className={cn(
           "shrink-0",
           failed ? "text-destructive" : "text-muted-foreground",
         )}
@@ -220,7 +220,7 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
           {item.name}
         </span>
         <span
-          className={mergeClassNames(
+          className={cn(
             "truncate text-[11px]",
             failed ? "text-destructive" : "text-muted-foreground",
           )}
@@ -244,7 +244,7 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
           data-action-ui-id="cloud-assets.remove-transfer"
           className="shrink-0 rounded-sm p-0.5 text-foreground/60 transition-colors hover:text-foreground"
         >
-          <CloseIcon size={14} strokeWidth={1.5} />
+          <XIcon size={14} strokeWidth={1.5} />
         </button>
       ) : (
         <>
@@ -260,7 +260,7 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
             data-action-ui-id="cloud-assets.cancel-download"
             className="hidden shrink-0 rounded-sm p-0.5 text-foreground/60 transition-colors hover:text-foreground group-hover:block"
           >
-            <CloseIcon size={14} strokeWidth={1.5} />
+            <XIcon size={14} strokeWidth={1.5} />
           </button>
         </>
       )}
@@ -352,7 +352,7 @@ export function TransfersButton({
         }
         title={showFailureWarning ? failureHint : void 0}
         data-action-ui-id="cloud-assets.transfers"
-        className={mergeClassNames(
+        className={cn(
           "relative flex size-7 items-center justify-center rounded-lg transition-colors hover:bg-muted",
           showFailureWarning
             ? "text-destructive hover:text-destructive"

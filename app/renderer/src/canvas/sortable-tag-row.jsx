@@ -1,5 +1,5 @@
 // sortable-tag-row.jsx
-import { reactExports, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import { reactExports, useTranslation, X$7 as XIcon } from "../vendor.js";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { dedupedToast } from "../infra/agent-http-client.js";
@@ -19,7 +19,7 @@ import {
 } from "../infra/parse-connector-selection.js";
 import {
   Button,
-  cn$2 as mergeClassNames,
+  cn$2 as cn,
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import { getCanvasTagPresentationColor } from "../assets/inline-input.jsx";
@@ -85,7 +85,7 @@ export function SortableTagRow({
         transition: transition2,
         opacity: isDragging ? 0.92 : 1,
       }}
-      className={mergeClassNames(
+      className={cn(
         "group/row w-full rounded-md px-1 py-0.5 transition-[background-color,box-shadow,opacity]",
         isDragging &&
           "relative z-10 bg-popup-item-hover shadow-sm ring-1 ring-border",
@@ -100,7 +100,7 @@ export function SortableTagRow({
           data-action-ui-id="canvas.tag-manager-delete-zone"
         >
           <div
-            className={mergeClassNames(
+            className={cn(
               "-m-2.5 flex size-9 items-center justify-center rounded-md",
               !keywordTag &&
                 "cursor-grab touch-none select-none active:cursor-grabbing",
@@ -126,7 +126,7 @@ export function SortableTagRow({
                       type="button"
                       aria-label={translate("canvasTags.delete")}
                       data-action-ui-id="canvas.tag-manager-keyword-indicator"
-                      className={mergeClassNames(
+                      className={cn(
                         "group/keyword-delete flex size-4 shrink-0 items-center justify-center rounded-full border-[1px] border-solid border-[rgba(0,0,0,0.3)] outline-hidden transition-[background-color,border-color,opacity] focus-visible:ring-2 focus-visible:ring-ring/50 dark:border-[rgba(255,255,255,0.4)]",
                         !editing &&
                           "group-hover/delete-zone:border-foreground group-hover/delete-zone:bg-foreground group-hover/delete-zone:opacity-100 focus-visible:border-foreground focus-visible:bg-foreground focus-visible:opacity-100",
@@ -134,10 +134,10 @@ export function SortableTagRow({
                       onClick={() => onDelete(tag)}
                     >
                       <Icon
-                        icon={CloseIcon}
+                        icon={XIcon}
                         size="xs"
                         strokeWidth={3}
-                        className={mergeClassNames(
+                        className={cn(
                           "text-background opacity-0 transition-opacity",
                           !editing &&
                             "group-hover/delete-zone:opacity-100 group-focus-visible/keyword-delete:opacity-100",
@@ -157,7 +157,7 @@ export function SortableTagRow({
             <Input3
               value={draft}
               disabled={saving}
-              className={mergeClassNames(
+              className={cn(
                 "h-8 min-w-0 w-full rounded-md border-transparent bg-transparent! py-0 pr-1.5 pl-2 text-[13px] font-normal shadow-none focus-visible:border-border! focus-visible:bg-transparent! dark:bg-transparent! dark:focus-visible:bg-transparent!",
                 !editing
                   ? "text-transparent caret-transparent group-hover/name:border-black/[0.12]! dark:group-hover/name:border-white/[0.12]!"

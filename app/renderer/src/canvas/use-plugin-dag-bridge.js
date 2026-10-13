@@ -8,9 +8,9 @@ const MAX_CONSECUTIVE_FAILURES = 5;
 const MAX_CONCURRENCY = 5;
 const MAX_ACTIVE_DAG_RUNS_TOTAL = 50;
 const MAX_ACTIVE_DAG_RUNS_PER_NODE = 10;
-function withCode(error, code2) {
-  error.code = code2;
-  return error;
+function withCode(err, code2) {
+  err.code = code2;
+  return err;
 }
 function assertPluginDagSubmissionAllowed() {
   const decision = guardAccountSubmission("plugin_dag");
@@ -73,11 +73,11 @@ export function usePluginDagBridge(gatewayFetch2) {
         usage: only.usage,
         error_message: only.error_message,
       };
-      for (const listener of listeners2) {
+      for (const cb of listeners2) {
         try {
-          listener(envelope2);
-        } catch (error) {
-          console.error("[plugin-dag-bridge] subscriber threw", error);
+          cb(envelope2);
+        } catch (err) {
+          console.error("[plugin-dag-bridge] subscriber threw", err);
         }
       }
       return;
@@ -89,11 +89,11 @@ export function usePluginDagBridge(gatewayFetch2) {
       requested: group.requested,
       submitted: group.runIds.length,
     };
-    for (const listener of listeners2) {
+    for (const cb of listeners2) {
       try {
-        listener(envelope);
-      } catch (error) {
-        console.error("[plugin-dag-bridge] subscriber threw", error);
+        cb(envelope);
+      } catch (err) {
+        console.error("[plugin-dag-bridge] subscriber threw", err);
       }
     }
   }, []);
@@ -145,14 +145,14 @@ export function usePluginDagBridge(gatewayFetch2) {
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         body2 = await resp.json();
         entry.consecutiveFailures = 0;
-      } catch (error) {
+      } catch (err) {
         entry.consecutiveFailures += 1;
         if (entry.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
+          const msg = err instanceof Error ? err.message : String(err);
           recordRunFinished(runId, {
             run_id: runId,
             status: "failed",
-            error_message: `Upstream query failed ${entry.consecutiveFailures} times: ${errorMessage}`,
+            error_message: `Upstream query failed ${entry.consecutiveFailures} times: ${msg}`,
           });
         }
         return;
@@ -186,7 +186,7 @@ export function usePluginDagBridge(gatewayFetch2) {
     [tick],
   );
   const submitDag = reactExports.useCallback(
-    async (args, context) => {
+    async (args, ctx) => {
       const requested = args.concurrency ?? 1;
       if (
         !Number.isInteger(requested) ||
@@ -201,7 +201,7 @@ export function usePluginDagBridge(gatewayFetch2) {
         );
       }
       assertPluginDagSubmissionAllowed();
-      const activeForNode = countActiveRunsForNode(context.callerNodeId);
+      const activeForNode = countActiveRunsForNode(ctx.callerNodeId);
       const activeTotal = runsRef.current.size;
       if (activeForNode + requested > MAX_ACTIVE_DAG_RUNS_PER_NODE) {
         throw withCode(
@@ -237,7 +237,7 @@ export function usePluginDagBridge(gatewayFetch2) {
             // a different on-canvas node) and opt into in-place replacement by
             // pre-creating a loading card via `hub.canvas.addPlaceholder` and
             // passing its `placeholderId`.
-            source_node_id: args.sourceNodeId ?? context.callerNodeId,
+            source_node_id: args.sourceNodeId ?? ctx.callerNodeId,
             ...(args.placeholderId
               ? {
                   placeholder_id: args.placeholderId,
@@ -290,19 +290,19 @@ export function usePluginDagBridge(gatewayFetch2) {
         runIds: [...accepted],
         pending: new Set(accepted),
         results: new Map(),
-        callerNodeId: context.callerNodeId,
+        callerNodeId: ctx.callerNodeId,
         requested,
         startedAt,
       };
       groupsRef.current.set(groupId2, group);
-      let nodeGroups = nodeGroupsRef.current.get(context.callerNodeId);
+      let nodeGroups = nodeGroupsRef.current.get(ctx.callerNodeId);
       if (!nodeGroups) {
         nodeGroups = new Set();
-        nodeGroupsRef.current.set(context.callerNodeId, nodeGroups);
+        nodeGroupsRef.current.set(ctx.callerNodeId, nodeGroups);
       }
       nodeGroups.add(groupId2);
       for (const runId of accepted)
-        startWatch(runId, groupId2, context.callerNodeId);
+        startWatch(runId, groupId2, ctx.callerNodeId);
       return {
         run_id: accepted[0],
         run_ids: accepted,
@@ -334,17 +334,17 @@ export function usePluginDagBridge(gatewayFetch2) {
       error_message: body2.error_message,
     };
   }, []);
-  const subscribeDagDone = reactExports.useCallback((callerNodeId, callback) => {
+  const subscribeDagDone = reactExports.useCallback((callerNodeId, cb) => {
     let set2 = subscribersRef.current.get(callerNodeId);
     if (!set2) {
       set2 = new Set();
       subscribersRef.current.set(callerNodeId, set2);
     }
-    set2.add(callback);
+    set2.add(cb);
     return () => {
       const current2 = subscribersRef.current.get(callerNodeId);
       if (!current2) return;
-      current2.delete(callback);
+      current2.delete(cb);
       if (current2.size === 0) subscribersRef.current.delete(callerNodeId);
     };
   }, []);

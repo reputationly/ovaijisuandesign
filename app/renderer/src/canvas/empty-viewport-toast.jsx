@@ -5,7 +5,7 @@ import {
   useReactFlow,
   useStoreApi,
   useTranslation,
-  X$7 as CloseIcon,
+  X$7 as XIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button } from "./node-shell-inner.jsx";
@@ -154,7 +154,7 @@ function CanvasBottomToast(props) {
             data-action-ui-id={dismiss.dataActionUiId}
             onClick={dismiss.onClick}
           >
-            <CloseIcon size={16} strokeWidth={1.5} />
+            <XIcon size={16} strokeWidth={1.5} />
           </Button>
         )}
       </div>

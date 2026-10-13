@@ -30,17 +30,17 @@ function analyzePromptJson(promptJson) {
   let hasRichContent = false;
   const blocks = [];
   const walkInline = (nodes) => {
-    let text = "";
+    let out = "";
     for (const node2 of nodes) {
       if (!node2 || typeof node2 !== "object") continue;
       const inlineNode = node2;
       if (inlineNode.type === "text") {
-        if (typeof inlineNode.text === "string") text += inlineNode.text;
+        if (typeof inlineNode.text === "string") out += inlineNode.text;
       } else {
         hasRichContent = true;
       }
     }
-    return text;
+    return out;
   };
   const walkBlocks = (node2) => {
     if (!node2 || typeof node2 !== "object") return;
@@ -109,7 +109,7 @@ function prunePopoverDraftEntry(draftVal, nodePrompt) {
   };
 }
 
-export function prunePersistedNodeData(data2, context) {
+export function prunePersistedNodeData(data2, ctx) {
   if (!data2 || typeof data2 !== "object") return void 0;
   const source = data2;
   let copy2;
@@ -128,7 +128,7 @@ export function prunePersistedNodeData(data2, context) {
   for (const key2 of ["assetId", "cloneOf"]) {
     if (Object.hasOwn(source, key2)) delete ensureCopy()[key2];
   }
-  if (context.hasAssetId) {
+  if (ctx.hasAssetId) {
     const isErrorState = isGenerationErrorStatus(source.status);
     for (const key2 of ASSET_PROJECTED_DATA_KEYS) {
       if (
@@ -147,7 +147,7 @@ export function prunePersistedNodeData(data2, context) {
     const protectGenerationDraft = DRAFT_PROTECTED_GENERATION_STATUSES.has(
       typeof source.status === "string" ? source.status : "",
     );
-    if (context.hidden && !protectGenerationDraft) {
+    if (ctx.hidden && !protectGenerationDraft) {
       delete ensureCopy()[POPOVER_DRAFT_KEY];
     } else {
       const nodePrompt =

@@ -33,13 +33,13 @@ function positionsEqual(leftPositions, rightPositions) {
   const bKeys = Object.keys(rightPositions);
   if (aKeys.length !== bKeys.length) return false;
   for (const key of aKeys) {
-    const leftPosition = leftPositions[key];
-    const rightPosition = rightPositions[key];
-    if (!leftPosition || !rightPosition) {
-      if (leftPosition !== rightPosition) return false;
+    const ap = leftPositions[key];
+    const bp = rightPositions[key];
+    if (!ap || !bp) {
+      if (ap !== bp) return false;
       continue;
     }
-    if (leftPosition.x !== rightPosition.x || leftPosition.y !== rightPosition.y) return false;
+    if (ap.x !== bp.x || ap.y !== bp.y) return false;
   }
   return true;
 }
@@ -107,13 +107,13 @@ function partitionByPosition(nodes, allSavedNodes, mode2) {
 
 function applyPositions(nodes, positions, mode2) {
   return nodes.map((node) => {
-    const position = positions.get(node.id);
-    return position
+    const pos = positions.get(node.id);
+    return pos
       ? {
           ...node,
           positions: {
             ...node.positions,
-            [mode2]: position,
+            [mode2]: pos,
           },
         }
       : node;

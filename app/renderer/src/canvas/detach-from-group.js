@@ -113,10 +113,10 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
   const updatedIds = [nodeId];
   if (collapseId) updatedIds.push(collapseId);
   if (successorId) updatedIds.push(successorId);
-  const ungroup = (node, position, opts) => {
-    const { groupId: _groupId, round: _round, ...withoutGroup } = node;
+  const ungroup = (node, pos, opts) => {
+    const { groupId: _g, round: _r, ...withoutGroup } = node;
     const rest = opts?.dropParent
-      ? (({ parentId: _parentId, ...nodeWithoutParent }) => nodeWithoutParent)(withoutGroup)
+      ? (({ parentId: _p, ...nodeWithoutParent }) => nodeWithoutParent)(withoutGroup)
       : withoutGroup;
     const sharedGenerationData = resolveGroupGenerationData(orderedBefore, node);
     return mirrorAssetIdIntoData(
@@ -127,11 +127,11 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
             ...(rest.meta ?? {}),
             hidden: false,
           },
-          ...(position
+          ...(pos
             ? {
                 positions: {
                   ...(rest.positions ?? {}),
-                  [mode2]: position,
+                  [mode2]: pos,
                 },
               }
             : {}),
@@ -140,7 +140,7 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
       ),
     );
   };
-  const updatedNodes = nodes.map((node) => {
+  const out = nodes.map((node) => {
     if (node.id === nodeId)
       return ungroup(
         node,
@@ -201,15 +201,15 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
     }
     return node;
   });
-  const result = {
-    nodes: updatedNodes,
+  const mut = {
+    nodes: out,
     removedIds: [],
     updatedIds,
   };
   if (successorId)
-    result.repointFollow = {
+    mut.repointFollow = {
       from: nodeId,
       to: successorId,
     };
-  return result;
+  return mut;
 }

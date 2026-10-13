@@ -45,11 +45,11 @@ export function ungroupInCanvas(canvas, groupId2) {
         ...(node2.positions ?? {}),
       };
       for (const [mode, groupAbs] of groupAbsByMode) {
-        const relativePosition = node2.positions?.[mode];
-        if (!relativePosition) continue;
+        const rel = node2.positions?.[mode];
+        if (!rel) continue;
         newPositions[mode] = {
-          x: relativePosition.x + groupAbs.x,
-          y: relativePosition.y + groupAbs.y,
+          x: rel.x + groupAbs.x,
+          y: rel.y + groupAbs.y,
         };
       }
       const next2 = withParentId(
@@ -89,13 +89,13 @@ export function collectGroupMembers(nodes, groupId2) {
       });
   }
   members.sort((leftMember, rightMember) => {
-    const leftRound = Number.isInteger(leftMember.node.round)
+    const ra = Number.isInteger(leftMember.node.round)
       ? leftMember.node.round
       : Number.MAX_SAFE_INTEGER;
-    const rightRound = Number.isInteger(rightMember.node.round)
+    const rb = Number.isInteger(rightMember.node.round)
       ? rightMember.node.round
       : Number.MAX_SAFE_INTEGER;
-    if (leftRound !== rightRound) return leftRound - rightRound;
+    if (ra !== rb) return ra - rb;
     return leftMember.i - rightMember.i;
   });
   return members.map((groupMember) => groupMember.node);
@@ -118,18 +118,18 @@ export function pickSuccessorMain(remaining, removedSortedIndex) {
       i: index,
     }))
     .sort((leftMember, rightMember) => {
-      const leftRound = Number.isInteger(leftMember.node.round)
+      const ra = Number.isInteger(leftMember.node.round)
         ? leftMember.node.round
         : Number.MAX_SAFE_INTEGER;
-      const rightRound = Number.isInteger(rightMember.node.round)
+      const rb = Number.isInteger(rightMember.node.round)
         ? rightMember.node.round
         : Number.MAX_SAFE_INTEGER;
-      if (leftRound !== rightRound) return leftRound - rightRound;
+      if (ra !== rb) return ra - rb;
       return leftMember.i - rightMember.i;
     })
     .map((groupMember) => groupMember.node);
-  const successorIndex = Math.max(0, removedSortedIndex);
-  return (sorted[successorIndex] ?? sorted[sorted.length - 1])?.id;
+  const idx = Math.max(0, removedSortedIndex);
+  return (sorted[idx] ?? sorted[sorted.length - 1])?.id;
 }
 export function removeGroup(nodes, groupId2) {
   const removed = new Set();
@@ -150,8 +150,8 @@ export function removeGroup(nodes, groupId2) {
 export function imageNodeAssetId(node2) {
   if (typeof node2.assetId === "string" && node2.assetId.length > 0)
     return node2.assetId;
-  const nestedAssetId = node2.data?.assetId;
-  if (typeof nestedAssetId === "string" && nestedAssetId.length > 0) return nestedAssetId;
+  const da = node2.data?.assetId;
+  if (typeof da === "string" && da.length > 0) return da;
   return node2.id;
 }
 export function mirrorAssetIdIntoData(node2) {
@@ -186,7 +186,7 @@ export function promoteToMain(nodes, nodeId) {
     };
   }
   const updatedIds = [];
-  const updatedNodes = nodes.map((node) => {
+  const out = nodes.map((node) => {
     if (node.id === nodeId) {
       updatedIds.push(node.id);
       const next2 = {
@@ -213,7 +213,7 @@ export function promoteToMain(nodes, nodeId) {
     }
     if (node.id === oldMain.id) {
       updatedIds.push(node.id);
-      const { parentId: _parentId, ...rest } = node;
+      const { parentId: _p, ...rest } = node;
       return {
         ...rest,
         meta: {
@@ -226,7 +226,7 @@ export function promoteToMain(nodes, nodeId) {
     return node;
   });
   return {
-    nodes: updatedNodes,
+    nodes: out,
     removedIds: [],
     updatedIds,
     repointFollow: {

@@ -29,9 +29,9 @@ export function DeleteLocalNodeDialog({
       for (const target of targets) {
         try {
           await onConfirm(target);
-        } catch (error) {
+        } catch (err) {
           failed += 1;
-          dedupedToast.error(error instanceof Error ? error.message : String(error));
+          dedupedToast.error(err instanceof Error ? err.message : String(err));
         }
       }
       if (failed === 0) {

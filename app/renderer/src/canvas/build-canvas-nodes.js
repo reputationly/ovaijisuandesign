@@ -63,32 +63,32 @@ function resolveNodeSize(type2, savedSize, item, data2) {
   );
 }
 function metaToData(meta2) {
-  const nodeData = {};
-  if (meta2.name !== void 0) nodeData.name = meta2.name;
-  if (meta2.path !== void 0) nodeData.path = meta2.path;
-  if (meta2.prompt !== void 0) nodeData.prompt = meta2.prompt;
-  if (meta2.description !== void 0) nodeData.description = meta2.description;
-  if (meta2.model !== void 0) nodeData.model = meta2.model;
-  if (meta2.model_id !== void 0) nodeData.model_id = meta2.model_id;
-  if (meta2.backend !== void 0) nodeData.backend = meta2.backend;
-  if (meta2.source_tool !== void 0) nodeData.source_tool = meta2.source_tool;
-  if (meta2.params !== void 0) nodeData.params = meta2.params;
-  if (meta2.voiceId !== void 0) nodeData.voiceId = meta2.voiceId;
-  if (meta2.lyrics !== void 0) nodeData.lyrics = meta2.lyrics;
+  const out = {};
+  if (meta2.name !== void 0) out.name = meta2.name;
+  if (meta2.path !== void 0) out.path = meta2.path;
+  if (meta2.prompt !== void 0) out.prompt = meta2.prompt;
+  if (meta2.description !== void 0) out.description = meta2.description;
+  if (meta2.model !== void 0) out.model = meta2.model;
+  if (meta2.model_id !== void 0) out.model_id = meta2.model_id;
+  if (meta2.backend !== void 0) out.backend = meta2.backend;
+  if (meta2.source_tool !== void 0) out.source_tool = meta2.source_tool;
+  if (meta2.params !== void 0) out.params = meta2.params;
+  if (meta2.voiceId !== void 0) out.voiceId = meta2.voiceId;
+  if (meta2.lyrics !== void 0) out.lyrics = meta2.lyrics;
   if (meta2.compositionPlan !== void 0)
-    nodeData.composition_plan = meta2.compositionPlan;
-  if (meta2.width !== void 0) nodeData.width = meta2.width;
-  if (meta2.height !== void 0) nodeData.height = meta2.height;
-  if (meta2.durationSec !== void 0) nodeData.duration = meta2.durationSec;
+    out.composition_plan = meta2.compositionPlan;
+  if (meta2.width !== void 0) out.width = meta2.width;
+  if (meta2.height !== void 0) out.height = meta2.height;
+  if (meta2.durationSec !== void 0) out.duration = meta2.durationSec;
   if (meta2.referenceImageIds !== void 0)
-    nodeData.referenceImageIds = meta2.referenceImageIds;
+    out.referenceImageIds = meta2.referenceImageIds;
   if (meta2.referenceVideoIds !== void 0)
-    nodeData.referenceVideoIds = meta2.referenceVideoIds;
+    out.referenceVideoIds = meta2.referenceVideoIds;
   if (meta2.referenceAudioIds !== void 0)
-    nodeData.referenceAudioIds = meta2.referenceAudioIds;
+    out.referenceAudioIds = meta2.referenceAudioIds;
   if (meta2.referenceTextIds !== void 0)
-    nodeData.referenceTextIds = meta2.referenceTextIds;
-  return nodeData;
+    out.referenceTextIds = meta2.referenceTextIds;
+  return out;
 }
 const warnedRecoveredNodeIds = new Set();
 function anchorOrder(nodes, existingOrder) {
@@ -123,10 +123,10 @@ function anchorOrder(nodes, existingOrder) {
 }
 function carryGroupFields(saved) {
   if (!saved) return {};
-  const groupFields = {};
-  if (saved.groupId) groupFields.groupId = saved.groupId;
-  if (Number.isInteger(saved.round)) groupFields.round = saved.round;
-  return groupFields;
+  const out = {};
+  if (saved.groupId) out.groupId = saved.groupId;
+  if (Number.isInteger(saved.round)) out.round = saved.round;
+  return out;
 }
 function carryAssetIdField(saved) {
   return typeof saved?.assetId === "string" && saved.assetId.length > 0

@@ -55,12 +55,12 @@ export class SelectionManager {
     if (!additive) this.selected.clear();
     for (const node2 of nodes) {
       const size2 = getNodeSize(node2, mode2) ?? DEFAULT_NODE_SIZE;
-      const position = getNodePosition(node2, mode2);
+      const pos = getNodePosition(node2, mode2);
       if (
-        position.x + size2.width > rect.x &&
-        position.x < rect.x + rect.w &&
-        position.y + size2.height > rect.y &&
-        position.y < rect.y + rect.h
+        pos.x + size2.width > rect.x &&
+        pos.x < rect.x + rect.w &&
+        pos.y + size2.height > rect.y &&
+        pos.y < rect.y + rect.h
       ) {
         this.selected.add(node2.id);
       }

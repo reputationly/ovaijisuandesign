@@ -49,8 +49,8 @@ function inputHandleOffset(sourcePos, size2) {
   }
 }
 
-function offsetAlongHandle(point2, handlePosition, distance2) {
-  switch (handlePosition) {
+function offsetAlongHandle(point2, pos, distance2) {
+  switch (pos) {
     case Position.Right:
       return {
         x: point2.x + distance2,
@@ -72,7 +72,7 @@ function offsetAlongHandle(point2, handlePosition, distance2) {
         y: point2.y - distance2,
       };
     default: {
-      const _exhaustive = handlePosition;
+      const _exhaustive = pos;
       throw new Error(`Unhandled handle position: ${String(_exhaustive)}`);
     }
   }
@@ -145,9 +145,9 @@ export function useConnectToAddNode({
           ? event.clientY
           : (event.changedTouches?.[0]?.clientY ?? 0);
       const sourceScreen = flowToScreenPosition(connectionState.from);
-      const deltaX = clientX - sourceScreen.x;
-      const deltaY = clientY - sourceScreen.y;
-      if (deltaX * deltaX + deltaY * deltaY < CLICK_VS_DRAG_THRESHOLD_SQ_PX) return;
+      const dx = clientX - sourceScreen.x;
+      const dy = clientY - sourceScreen.y;
+      if (dx * dx + dy * dy < CLICK_VS_DRAG_THRESHOLD_SQ_PX) return;
       const sourceId = connectionState.fromNode.id;
       const dropFlow = screenToFlowPosition({
         x: clientX,

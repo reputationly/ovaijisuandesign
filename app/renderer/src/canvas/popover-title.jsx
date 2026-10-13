@@ -4,7 +4,7 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn$2 as mergeClassNames, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
 import { SegmentedSwitch as BaseSegmentedSwitch } from "../generation/segmented-switch.jsx";
 import {
   reactExports,
@@ -63,7 +63,7 @@ export function PopoverTitle({ className, ...props }) {
   return (
     <BasePopoverTitle
       data-slot="popover-title"
-      className={mergeClassNames("text-sm font-medium", className)}
+      className={cn("text-sm font-medium", className)}
       {...props}
     />
   );
@@ -72,7 +72,7 @@ export function PopoverDescription({ className, ...props }) {
   return (
     <BasePopoverDescription
       data-slot="popover-description"
-      className={mergeClassNames("text-xs/relaxed text-muted-foreground", className)}
+      className={cn("text-xs/relaxed text-muted-foreground", className)}
       {...props}
     />
   );

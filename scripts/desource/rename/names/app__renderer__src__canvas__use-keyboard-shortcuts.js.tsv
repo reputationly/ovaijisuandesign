@@ -1,16 +1,8 @@
 key	old	new	依据
-sel@22:11	sel	selection	该值是从浏览器获取的当前文本选区。
-el@25:13	el	element	该值是选区中用于检查的 DOM 元素。
-ext@53:13	ext	extension	该值是生成粘贴文件名所用的文件扩展名。
 f2@79:40	f2	file	该值是被检查名称的剪贴板文件。
-tag@133:9	tag	tagName	该值是编辑目标元素的大写标签名。
-err@197:55	err	error	该值是内部粘贴失败时捕获的错误。
-err@208:17	err	error	该值是写入内部剪贴板标记时捕获的错误。
-err@219:16	err	error	该值是写入系统剪贴板失败时捕获的错误。
 e2@223:25	e2	copyEvent	该值是画布复制事件对象。
 e2@235:24	e2	cutEvent	该值是画布剪切事件对象。
 e2@247:27	e2	pasteEvent	该值是画布粘贴事件对象。
 e2@279:22	e2	keyboardEvent	该值是全局快捷键处理器收到的键盘事件。
-mod@302:13	mod	hasModifier	该值表示按下了 Meta 或 Control 修饰键。
 id2@344:14	id2	nodeId	该值是当前选中节点的标识。
 n2@345:33	n2	node	该值是用于查找目标类型的画布节点。

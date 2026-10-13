@@ -87,11 +87,11 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
             has_description: !!result.entity.description,
             import_mode: "create-new",
           });
-        } catch (error) {
-          if (error instanceof ImportEntityConflictError) {
+        } catch (err) {
+          if (err instanceof ImportEntityConflictError) {
             dedupedToast.error(
               translate("assetCenter.import.conflictBatchSkipped", {
-                existingName: error.conflict.existingEntity.name,
+                existingName: err.conflict.existingEntity.name,
               }),
             );
             trackAssetCreate({
@@ -103,14 +103,14 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
               error_type: "conflict",
             });
           } else {
-            dedupedToast.error(formatAssetCenterError(error, translate));
+            dedupedToast.error(formatAssetCenterError(err, translate));
             trackAssetCreate({
               source: "canvas_sidebar",
               method: "import",
               success: false,
               has_description: false,
               import_mode: "create-new",
-              error_type: classifyAssetError(error),
+              error_type: classifyAssetError(err),
             });
           }
         }

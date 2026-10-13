@@ -18,13 +18,13 @@ export function isSamePersistedData(leftData, rightData) {
     if (leftData.length !== rightData.length) return false;
     return leftData.every((item, index) => isSamePersistedData(item, rightData[index]));
   }
-  const leftRecord = leftData;
-  const rightRecord = rightData;
-  const keysA = Object.keys(leftRecord).filter((key) => leftRecord[key] !== void 0);
-  const keysB = Object.keys(rightRecord).filter((key) => rightRecord[key] !== void 0);
+  const ra = leftData;
+  const rb = rightData;
+  const keysA = Object.keys(ra).filter((key) => ra[key] !== void 0);
+  const keysB = Object.keys(rb).filter((key) => rb[key] !== void 0);
   if (keysA.length !== keysB.length) return false;
   return keysA.every(
-    (key) => Object.hasOwn(rightRecord, key) && isSamePersistedData(leftRecord[key], rightRecord[key]),
+    (key) => Object.hasOwn(rb, key) && isSamePersistedData(ra[key], rb[key]),
   );
 }
 
@@ -169,10 +169,10 @@ export class CanvasEventBus {
       for (const handler of handlers2) {
         try {
           handler(event);
-        } catch (error) {
+        } catch (err) {
           console.error(
             `[canvas] Event handler error for "${event.type}":`,
-            error,
+            err,
           );
         }
       }

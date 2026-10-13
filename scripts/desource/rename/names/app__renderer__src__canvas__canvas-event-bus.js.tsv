@@ -1,8 +1,6 @@
 key	old	new	依据
 a2@12:37	a2	leftData	该参数是持久化数据深比较的左侧值。
 b3@12:41	b3	rightData	该参数是持久化数据深比较的右侧值。
-ra@21:9	ra	leftRecord	该对象是左侧持久化记录。
-rb@22:9	rb	rightRecord	该对象是右侧持久化记录。
 i2@19:28	i2	index	该值是数组深比较中的元素下标。
 k2@23:41	k2	key	该值是遍历对象属性时的键名。
 k2@24:41	k2	key	该值是遍历对象属性时的键名。
@@ -11,5 +9,4 @@ k2@44:15	k2	key	该值是遍历数据条目时的键名。
 v2@44:19	v2	value	该值是遍历数据条目对应的属性值。
 n2@59:46	n2	node	该值是历史状态中的当前节点。
 h2@142:11	h2	registeredHandler	该值是事件订阅中的回调函数。
-err@172:18	err	error	该值是事件处理回调抛出的错误。
 i2@187:11	i2	registeredInterceptor	该值是事件总线注册的拦截器回调。

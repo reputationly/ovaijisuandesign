@@ -63,14 +63,14 @@ export function deriveEdgeId(sourceId, targetId) {
   return `${sourceId}->${targetId}`;
 }
 export function parseNodeId(nodeId) {
-  const separatorIndex = nodeId.lastIndexOf("~");
-  if (separatorIndex === -1)
+  const sep = nodeId.lastIndexOf("~");
+  if (sep === -1)
     return {
       assetId: nodeId,
     };
   return {
-    assetId: nodeId.slice(0, separatorIndex),
-    cloneId: nodeId.slice(separatorIndex + 1),
+    assetId: nodeId.slice(0, sep),
+    cloneId: nodeId.slice(sep + 1),
   };
 }
 export function isEmptyNode(node2) {

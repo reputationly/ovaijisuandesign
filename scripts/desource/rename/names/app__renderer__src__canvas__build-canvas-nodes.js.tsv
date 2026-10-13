@@ -1,11 +1,9 @@
 key	old	new	依据
-out@66:9	out	nodeData	metaToData 将节点元数据字段收集到该对象。
 n2@96:14	n2	node	该值是按现有顺序索引的画布节点。
 id2@99:14	id2	nodeId	该值是 existingOrder 中的节点标识。
 n2@100:11	n2	node	该值是按标识查到的节点对象。
 n2@106:14	n2	node	该值是需要补入结果顺序的画布节点。
 i2@114:14	i2	nodeIndex	该值是比较节点数组位置的循环下标。
-out@126:9	out	groupFields	该对象收集需要从已保存节点继承的分组字段。
 sn2@271:16	sn2	standaloneNode	该值是待构建的独立已保存节点。
 n2@292:43	n2	node	该值是当前已构建节点数组中的节点。
 id2@346:10	id2	nodeId	该值是待过滤的恢复节点标识。

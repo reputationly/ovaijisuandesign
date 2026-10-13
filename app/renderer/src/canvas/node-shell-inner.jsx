@@ -9,10 +9,10 @@ import {
   reactExports,
   useStore$2 as useStore,
   useTranslation,
-  X$7 as CloseIcon,
+  X$7 as XIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn as mergeClassNames } from "../infra/dialog-content.jsx";
+import { cn } from "../infra/dialog-content.jsx";
 import {
   defaultRecentlyAddedStore,
   getDerivedNodePosition,
@@ -172,7 +172,7 @@ export function Button({
     <BaseButton
       data-slot="button"
       disabled={disabled2 || loading}
-      className={mergeClassNames(
+      className={cn(
         buttonVariants({
           variant,
           size: size2,
@@ -376,7 +376,7 @@ export function QueueGenerationControl({
           data-action-ui-id={`${actionUiId}.${isQueued ? "cancel" : "resume"}`}
         >
           {isQueued ? (
-            <CloseIcon
+            <XIcon
               size={14}
               strokeWidth={1.5}
               className={QUEUE_ACTION_ICON_CLASS}

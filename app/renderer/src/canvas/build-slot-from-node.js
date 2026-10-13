@@ -314,8 +314,8 @@ export function buildImageNodeView(
   }
   const fallbackRound =
     mainRound ??
-    subImages.reduce((max2, subImage) => {
-      const round = subImage.round;
+    subImages.reduce((max2, sub) => {
+      const round = sub.round;
       return typeof round === "number" && round > max2 ? round : max2;
     }, 0);
   const mainNode = {

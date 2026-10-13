@@ -1,15 +1,12 @@
 key	old	new	依据
-v2@28:9	v2	stringValue	该值是数据对象中通过类型检查的字符串字段。
-v2@34:9	v2	recordValue	该值是数据对象中待筛选的记录字段。
-out@36:9	out	stringRecord	该对象只保留记录字段中的字符串值。
+v2@28:9	v2	fieldValue	该值是在类型检查前从数据对象按 key 读取的原始字段值。
+v2@34:9	v2	fieldValue	该值是在类型检查前从数据对象按 key 读取的原始字段值。
 k2@37:15	k2	key	该值是记录字段的属性键。
-val@37:19	val	value	该值是记录字段对应的属性值。
-v2@45:9	v2	stringValues	该值是数据对象中待筛选的数组字段。
+v2@45:9	v2	fieldValue	该值是在类型检查前从数据对象按 key 读取的原始字段值。
 t2@274:14	t2	translate	该函数翻译分组执行提示文案。
 n2@308:48	n2	node	该值是当前分组中的子节点。
 n2@313:50	n2	node	该值是当前分组中的子节点。
 e2@315:12	e2	edge	该值是用于筛选组内连线的图边。
-arr@320:17	arr	incomingSourceIds	该数组收集指向目标节点的源节点标识。
 n2@330:49	n2	node	该值是构建分组节点查找表的子节点。
 n2@331:55	n2	node	该值是构建全图节点查找表的节点。
 n2@333:17	n2	sourceNode	该值是按来源标识查询到的节点。

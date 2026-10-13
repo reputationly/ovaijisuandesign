@@ -13,7 +13,7 @@ import {
   useStore$3 as useStore,
   useTranslation,
   Workflow,
-  X$7 as CloseIcon,
+  X$7 as XIcon,
 } from "../vendor.js";
 import {
   DropdownMenuContent,
@@ -516,7 +516,7 @@ export function CanvasViewControls({
                     }}
                   >
                     <MonochromeIcon tone="control">
-                      <CloseIcon size={14} strokeWidth={1.5} aria-hidden="true" />
+                      <XIcon size={14} strokeWidth={1.5} aria-hidden="true" />
                     </MonochromeIcon>
                   </button>
                 </div>

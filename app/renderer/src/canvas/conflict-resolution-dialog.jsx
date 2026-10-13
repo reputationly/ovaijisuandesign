@@ -24,8 +24,8 @@ import {
 } from "../infra/badge-variants.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
 export async function fetchTagRegistry(gatewayFetch2) {
-  const response = await gatewayFetch2(API_PATHS.tagRegistry);
-  const data2 = await response.json();
+  const res = await gatewayFetch2(API_PATHS.tagRegistry);
+  const data2 = await res.json();
   return normalizeTagRegistry(data2.registry);
 }
 export function useTagRegistry() {

@@ -19,14 +19,14 @@ export function sourceHandleSide(entry, source, target) {
 }
 export function readNodeBox(entry) {
   if (!entry) return null;
-  const position = entry.internals?.positionAbsolute ?? entry.position;
-  if (!position) return null;
+  const pos = entry.internals?.positionAbsolute ?? entry.position;
+  if (!pos) return null;
   const width = entry.measured?.width ?? entry.width ?? 0;
   const height = entry.measured?.height ?? entry.height ?? 0;
   if (width <= 0 || height <= 0) return null;
   return {
-    x: position.x,
-    y: position.y,
+    x: pos.x,
+    y: pos.y,
     width,
     height,
   };
@@ -89,7 +89,7 @@ export function isEdgeVisible(edge, nodeLookup, onlySelectedNodes) {
 }
 export const subscribers = new Set();
 function notify() {
-  for (const callback of subscribers) callback();
+  for (const cb of subscribers) cb();
 }
 export let hoveredId = null;
 export function setHoveredEdgeId(edgeId) {

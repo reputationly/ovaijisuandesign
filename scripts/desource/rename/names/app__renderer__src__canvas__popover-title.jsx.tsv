@@ -1,5 +1,4 @@
 key	old	new	依据
-cn@7:18	cn	mergeClassNames	来源 cn$2 将 clsx 与 tailwind-merge 组合，用于合并组件 className。
 SegmentedSwitch$1@8:29	SegmentedSwitch$1	BaseSegmentedSwitch	导入的基础 SegmentedSwitch 被包装以注入 Tooltip 行为，使用 Base 前缀区分本地导出包装器。
 PopoverTitle$1@16:7	PopoverTitle$1	BasePopoverTitle	forwardRef 基础标题元素记录 titleElementId，外层导出组件再添加样式。
 PopoverDescription$1@39:7	PopoverDescription$1	BasePopoverDescription	forwardRef 基础描述元素记录 descriptionElementId，外层导出组件再添加样式。

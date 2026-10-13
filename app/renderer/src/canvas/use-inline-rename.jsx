@@ -148,8 +148,8 @@ export function useInlineRename({
     const trimmed = editValue.trim();
     if (!trimmed || !onCommit) return;
     const dotIdx = preserveExtension2 ? currentValue.lastIndexOf(".") : -1;
-    const extension = dotIdx > 0 ? currentValue.slice(dotIdx) : "";
-    const newValue = trimmed + extension;
+    const ext = dotIdx > 0 ? currentValue.slice(dotIdx) : "";
+    const newValue = trimmed + ext;
     if (newValue === currentValue) return;
     setOptimisticValue(newValue);
     onCommit(newValue);
@@ -193,7 +193,7 @@ export function useInlineRename({
 export function CanvasModalGuardProvider({ children: children2 }) {
   const [count2, setCount] = reactExports.useState(0);
   const push2 = reactExports.useCallback(() => setCount((count) => count + 1), []);
-  const decrementCount = reactExports.useCallback(
+  const pop = reactExports.useCallback(
     () => setCount((count) => Math.max(0, count - 1)),
     [],
   );
@@ -201,9 +201,9 @@ export function CanvasModalGuardProvider({ children: children2 }) {
     () => ({
       count: count2,
       push: push2,
-      pop: decrementCount,
+      pop,
     }),
-    [count2, push2, decrementCount],
+    [count2, push2, pop],
   );
   return (
     <CanvasModalGuardContext.Provider value={value}>
@@ -212,14 +212,14 @@ export function CanvasModalGuardProvider({ children: children2 }) {
   );
 }
 export function useSuspendCanvasInteractions(active2) {
-  const context = reactExports.useContext(CanvasModalGuardContext);
-  const push2 = context?.push;
-  const releaseGuard = context?.pop;
+  const ctx = reactExports.useContext(CanvasModalGuardContext);
+  const push2 = ctx?.push;
+  const pop = ctx?.pop;
   reactExports.useEffect(() => {
-    if (!active2 || !push2 || !releaseGuard) return;
+    if (!active2 || !push2 || !pop) return;
     push2();
-    return () => releaseGuard();
-  }, [active2, push2, releaseGuard]);
+    return () => pop();
+  }, [active2, push2, pop]);
 }
 export function RecentlyAddedStoreProvider({ store, children: children2 }) {
   return reactExports.createElement(

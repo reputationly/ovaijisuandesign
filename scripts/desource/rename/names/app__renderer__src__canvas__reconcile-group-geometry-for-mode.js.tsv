@@ -4,14 +4,10 @@ c3@38:16	c3	child	该值是用于验证布局模式位置的子节点。
 c3@47:48	c3	child	该值是生成分组边界输入的子节点。
 p3@48:15	p3	childPosition	该值是子节点在当前布局模式下的位置。
 c3@68:18	c3	child	该值是需要改写相对坐标的子节点。
-abs@69:15	abs	absolutePosition	该值是分组位置缺失时保存的子节点位置。
 c3@91:16	c3	child	该值是用于计算分组相对边界的子节点。
 p3@92:13	p3	childPosition	该值是子节点在当前布局模式下的位置。
-sz@93:13	sz	childSize	该值是子节点显式尺寸或类型默认尺寸。
 c3@106:48	c3	child	该值是重新计算分组边界时使用的子节点。
 p3@107:15	p3	childPosition	该值是子节点在当前布局模式下的位置。
 c3@136:18	c3	child	该值是需要按新分组坐标重算的子节点。
-abs@137:15	abs	absolutePosition	该值是用于重算子节点相对坐标的位置。
 c3@202:18	c3	child	该值是需要应用分组位移的子节点。
-rel@203:15	rel	relativePosition	该值是当前模式中的子节点相对位置。
 n2@226:39	n2	node	该值是待替换或保留的画布节点。

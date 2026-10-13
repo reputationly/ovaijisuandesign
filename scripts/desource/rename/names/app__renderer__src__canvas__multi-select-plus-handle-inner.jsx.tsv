@@ -15,10 +15,4 @@ e2@241:6	e2	pointerEvent	该值是触发拖动连接的指针事件。
 id2@249:18	id2	nodeId	该值是需要读取位置的来源节点标识。
 w3@252:15	w3	width	该值是来源节点测量或布局宽度。
 h2@253:15	h2	height	该值是来源节点测量或布局高度。
-ev@271:23	ev	pointerMoveEvent	该值是更新拖动预览位置的指针移动事件。
-dx@274:17	dx	deltaX	该值是鼠标相对起始点的水平位移。
-dy@275:17	dy	deltaY	该值是鼠标相对起始点的垂直位移。
-ev@286:21	ev	pointerUpEvent	该值是结束拖动连接的指针抬起事件。
-dx@289:15	dx	deltaX	该值是鼠标相对起始点的水平位移。
-dy@290:15	dy	deltaY	该值是鼠标相对起始点的垂直位移。
 e2@375:21	e2	clickEvent	该值是需要阻止冒泡的按钮点击事件。

@@ -66,11 +66,11 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
         },
       });
       for (const child of children2) {
-        const absolutePosition = child.positions?.[mode2];
-        if (!absolutePosition) continue;
+        const abs = child.positions?.[mode2];
+        if (!abs) continue;
         const newRel = {
-          x: absolutePosition.x - newGroupPos2.x,
-          y: absolutePosition.y - newGroupPos2.y,
+          x: abs.x - newGroupPos2.x,
+          y: abs.y - newGroupPos2.y,
         };
         updatedById.set(child.id, {
           ...child,
@@ -90,11 +90,11 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
     let relMaxY = Number.NEGATIVE_INFINITY;
     for (const child of visibleChildren) {
       const childPosition = child.positions?.[mode2];
-      const childSize = child.size ?? defaultNodeSizeForType(child.type);
+      const sz = child.size ?? defaultNodeSizeForType(child.type);
       relMinX = Math.min(relMinX, childPosition.x);
       relMinY = Math.min(relMinY, childPosition.y);
-      relMaxX = Math.max(relMaxX, childPosition.x + childSize.width);
-      relMaxY = Math.max(relMaxY, childPosition.y + childSize.height);
+      relMaxX = Math.max(relMaxX, childPosition.x + sz.width);
+      relMaxY = Math.max(relMaxY, childPosition.y + sz.height);
     }
     const disjoint =
       relMaxX <= 0 ||
@@ -134,11 +134,11 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
         },
       });
       for (const child of children2) {
-        const absolutePosition = child.positions?.[mode2];
-        if (!absolutePosition) continue;
+        const abs = child.positions?.[mode2];
+        if (!abs) continue;
         const newRel = {
-          x: absolutePosition.x - newGroupPos2.x,
-          y: absolutePosition.y - newGroupPos2.y,
+          x: abs.x - newGroupPos2.x,
+          y: abs.y - newGroupPos2.y,
         };
         updatedById.set(child.id, {
           ...child,
@@ -200,11 +200,11 @@ export function reconcileGroupGeometryForMode(canvas, mode2) {
     });
     if (shiftX !== 0 || shiftY !== 0) {
       for (const child of children2) {
-        const relativePosition = child.positions?.[mode2];
-        if (!relativePosition) continue;
+        const rel = child.positions?.[mode2];
+        if (!rel) continue;
         const newRel = {
-          x: relativePosition.x - shiftX,
-          y: relativePosition.y - shiftY,
+          x: rel.x - shiftX,
+          y: rel.y - shiftY,
         };
         updatedById.set(child.id, {
           ...child,

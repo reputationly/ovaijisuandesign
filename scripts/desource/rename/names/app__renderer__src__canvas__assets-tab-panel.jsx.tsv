@@ -1,6 +1,5 @@
 key	old	new	依据
 t2@62:14	t2	translate	该函数翻译素材导入反馈和素材面板中的本地化文案。
-err@90:18	err	error	catch 捕获的导入失败对象用于冲突判断、错误展示和追踪。
 fn2@125:60	fn2	refreshLibrary	注册的函数被保存为素材库刷新回调。
 e2@381:24	e2	changeEvent	文件输入 change 事件用于读取所选文件并清空 input 值。
 e2@416:26	e2	keyEvent	键盘处理器检查 Enter 或空格并触发素材库视图切换。

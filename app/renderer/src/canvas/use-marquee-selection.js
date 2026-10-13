@@ -11,20 +11,20 @@ function intersects(firstRect, secondRect) {
 }
 
 function reconcileMarquee(snapshot2, previous2, entryOrder, hits, canAdd) {
-  const candidates2 = new Map(hits.map((hit) => [hit.rowKey, hit]));
+  const candidates2 = new Map(hits.map((row) => [row.rowKey, row]));
   const order2 = entryOrder.filter((rowKey) => candidates2.has(rowKey));
   const queued = new Set(order2);
-  for (const hit of hits) {
-    if (!queued.has(hit.rowKey)) {
-      order2.push(hit.rowKey);
-      queued.add(hit.rowKey);
+  for (const row of hits) {
+    if (!queued.has(row.rowKey)) {
+      order2.push(row.rowKey);
+      queued.add(row.rowKey);
     }
   }
   const selection2 = new Map(snapshot2);
   const add2 = (rowKey) => {
-    const hit = candidates2.get(rowKey);
-    if (hit && !selection2.has(rowKey) && canAdd(hit, selection2))
-      selection2.set(rowKey, hit);
+    const row = candidates2.get(rowKey);
+    if (row && !selection2.has(rowKey) && canAdd(row, selection2))
+      selection2.set(rowKey, row);
   };
   for (const rowKey of previous2.keys()) add2(rowKey);
   for (const rowKey of order2) add2(rowKey);
@@ -124,8 +124,8 @@ export function useMarqueeSelection(options) {
           bottom: box2.bottom - top2 + scrollEl.scrollTop,
         });
       }
-      const hits = latest2.current.rows.filter((hit) => {
-        const box2 = gesture?.measured.get(hit.rowKey);
+      const hits = latest2.current.rows.filter((row) => {
+        const box2 = gesture?.measured.get(row.rowKey);
         return box2 && intersects(rect, box2);
       });
       const next2 = reconcileMarquee(

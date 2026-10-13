@@ -268,27 +268,27 @@ function MultiSelectPlusHandleInner({
         isDragging: false,
         sourceAnchors,
       });
-      const onMove = (pointerMoveEvent) => {
+      const onMove = (ev) => {
         setDrag((prev) => {
           if (!prev) return null;
-          const deltaX = pointerMoveEvent.clientX - prev.startScreenX;
-          const deltaY = pointerMoveEvent.clientY - prev.startScreenY;
+          const dx = ev.clientX - prev.startScreenX;
+          const dy = ev.clientY - prev.startScreenY;
           const beyondThreshold =
-            deltaX * deltaX + deltaY * deltaY >= CLICK_VS_DRAG_THRESHOLD_SQ_PX;
+            dx * dx + dy * dy >= CLICK_VS_DRAG_THRESHOLD_SQ_PX;
           return {
             ...prev,
-            cursorScreenX: pointerMoveEvent.clientX,
-            cursorScreenY: pointerMoveEvent.clientY,
+            cursorScreenX: ev.clientX,
+            cursorScreenY: ev.clientY,
             isDragging: prev.isDragging || beyondThreshold,
           };
         });
       };
-      const onUp = (pointerUpEvent) => {
+      const onUp = (ev) => {
         cleanup();
         const sources = sourceNodeIdsRef.current;
-        const deltaX = pointerUpEvent.clientX - startScreenX;
-        const deltaY = pointerUpEvent.clientY - startScreenY;
-        const wasDrag = deltaX * deltaX + deltaY * deltaY >= CLICK_VS_DRAG_THRESHOLD_SQ_PX;
+        const dx = ev.clientX - startScreenX;
+        const dy = ev.clientY - startScreenY;
+        const wasDrag = dx * dx + dy * dy >= CLICK_VS_DRAG_THRESHOLD_SQ_PX;
         setDrag(null);
         if (sources.length === 0) return;
         if (!wasDrag) {
@@ -300,8 +300,8 @@ function MultiSelectPlusHandleInner({
           return;
         }
         const dropFlow = screenToFlowPosition({
-          x: pointerUpEvent.clientX,
-          y: pointerUpEvent.clientY,
+          x: ev.clientX,
+          y: ev.clientY,
         });
         const sourceSet = new Set(sources);
         const fullyConnected = targetsFullyConnectedFromAll(
@@ -322,8 +322,8 @@ function MultiSelectPlusHandleInner({
         }
         onOpenAddNodeMenu({
           sourceNodeIds: sources,
-          screenX: pointerUpEvent.clientX,
-          screenY: pointerUpEvent.clientY,
+          screenX: ev.clientX,
+          screenY: ev.clientY,
           dropFlow,
         });
       };

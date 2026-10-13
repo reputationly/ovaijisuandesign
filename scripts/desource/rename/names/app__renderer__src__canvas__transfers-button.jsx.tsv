@@ -1,6 +1,5 @@
 key	old	new	依据
-X@10:10	X	CloseIcon	vendor 中 X$7 是 X Lucide 图标的合成组件，用于移除或取消传输记录。
-cn@13:18	cn	mergeClassNames	来源 cn$2 将 clsx 与 tailwind-merge 组合，用于合并组件 className。
+X@10:10	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
 t2@19:30	t2	translate	失败说明辅助函数用该翻译器选择并返回对应的失败文案。
 t2@51:14	t2	translate	该组件翻译空传输列表的提示。
 t2@70:14	t2	translate	该组件翻译上传状态和审核状态。

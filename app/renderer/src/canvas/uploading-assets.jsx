@@ -9,7 +9,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   Button,
-  cn$2 as mergeClassNames,
+  cn$2 as cn,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -44,16 +44,16 @@ async function renameCloudNode(nodeId, newName) {
 function formatCloudUpdatedAt(timestamp, language2) {
   if (!Number.isFinite(timestamp) || timestamp <= 0) return "";
   const date2 = new Date(timestamp);
-  const time = `${String(date2.getHours()).padStart(2, "0")}:${String(date2.getMinutes()).padStart(2, "0")}`;
+  const hm = `${String(date2.getHours()).padStart(2, "0")}:${String(date2.getMinutes()).padStart(2, "0")}`;
   if (language2.startsWith("zh")) {
-    return `${date2.getFullYear()}.${date2.getMonth() + 1}.${date2.getDate()} ${time}`;
+    return `${date2.getFullYear()}.${date2.getMonth() + 1}.${date2.getDate()} ${hm}`;
   }
-  const dateLabel = date2.toLocaleDateString("en-US", {
+  const day = date2.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
-  return `${dateLabel} ${time}`;
+  return `${day} ${hm}`;
 }
 export function SyncBadge({ state: state2, className }) {
   const { t: translate } = useTranslation();
@@ -71,7 +71,7 @@ export function SyncBadge({ state: state2, className }) {
       aria-label={label}
       data-action-ui-id="cloud-assets.sync-badge"
       data-sync-state={state2}
-      className={mergeClassNames(
+      className={cn(
         "flex size-6 shrink-0 cursor-default items-center justify-center rounded-full text-[11px] font-medium",
         // Every state is icon-only; hover reveals text via Tooltip while the
         // accessible name remains available without adding a no-op tab stop.
@@ -117,7 +117,7 @@ export function NodeUpdatedMeta({ node: node2, memberNames, className }) {
     <span
       title={title}
       data-action-ui-id="cloud-assets.updated-meta"
-      className={mergeClassNames(
+      className={cn(
         "shrink-0 truncate text-[12px] text-muted-foreground",
         className,
       )}
@@ -127,8 +127,8 @@ export function NodeUpdatedMeta({ node: node2, memberNames, className }) {
   );
 }
 export function getFileName(path2) {
-  const separatorIndex = Math.max(path2.lastIndexOf("/"), path2.lastIndexOf("\\"));
-  return separatorIndex >= 0 ? path2.slice(separatorIndex + 1) : path2;
+  const idx = Math.max(path2.lastIndexOf("/"), path2.lastIndexOf("\\"));
+  return idx >= 0 ? path2.slice(idx + 1) : path2;
 }
 export function splitFilename(name2, kind = "file") {
   const dot2 = name2.lastIndexOf(".");
@@ -155,7 +155,7 @@ export function AssetRenameInput({
   const extensionId = reactExports.useId();
   return (
     <div
-      className={mergeClassNames(
+      className={cn(
         "flex h-8 min-w-0 items-center overflow-hidden rounded-lg border border-input text-xs focus-within:border-foreground",
         className,
       )}
@@ -167,7 +167,7 @@ export function AssetRenameInput({
             .filter(Boolean)
             .join(" ") || void 0
         }
-        className={mergeClassNames(
+        className={cn(
           "h-full flex-1 rounded-none border-0 text-[length:inherit] md:text-[length:inherit]",
           inputClassName,
         )}
@@ -201,9 +201,9 @@ export function RenameNodeDialog({ node: node2, onOpenChange, onRenamed }) {
       await renameCloudNode(node2.id, fullName);
       onOpenChange(false);
       onRenamed(node2, fullName);
-    } catch (error) {
+    } catch (err) {
       dedupedToast.error(
-        cloudErrorDisplayMessage(error) ?? translate("cloudAssets.failServer"),
+        cloudErrorDisplayMessage(err) ?? translate("cloudAssets.failServer"),
       );
     } finally {
       setPending(false);
@@ -298,7 +298,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
     return (
       <div
         key={item.id}
-        className={mergeClassNames(
+        className={cn(
           "min-w-0",
           isGrid
             ? "overflow-hidden rounded-lg border border-border bg-card"
@@ -308,7 +308,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
         )}
         data-action-ui-id="cloud-assets.upload-item"
       >
-        <div className={mergeClassNames("relative", !isGrid && "shrink-0")}>
+        <div className={cn("relative", !isGrid && "shrink-0")}>
           {compact && !isGrid ? (
             <FileTypeThumbnail filename={item.name} />
           ) : (
@@ -329,7 +329,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
           ) : null}
         </div>
         <div
-          className={mergeClassNames(
+          className={cn(
             "flex min-w-0 flex-1",
             isGrid ? "flex-col gap-1 p-3" : "items-center gap-2",
           )}
@@ -404,8 +404,8 @@ export async function importPickedFiles({
         );
       }
     }
-  } catch (error) {
-    dedupedToast.error(error instanceof Error ? error.message : String(error));
+  } catch (err) {
+    dedupedToast.error(err instanceof Error ? err.message : String(err));
   }
   return true;
 }

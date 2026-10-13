@@ -6,6 +6,3 @@ n2@72:16	n2	node	新节点按拓扑层级放入对应层级的布局队列。
 a2@79:55	a2	leftLevel	比较排序中左侧的拓扑层级值。
 b3@79:59	b3	rightLevel	比较排序中右侧的拓扑层级值。
 i2@82:16	i2	nodeIndex	该索引选取层级中的节点并决定其初始纵坐标。
-sz@84:15	sz	size	sizeOf 返回的尺寸用于生成候选矩形。
-pos@85:15	pos	position	该位置按拓扑层级和层内节点序号计算。
-occ@96:42	occ	occupiedRect	候选节点与该已有占位矩形检测是否重叠。

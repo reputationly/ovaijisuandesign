@@ -5,7 +5,7 @@ import {
   Plus,
   reactExports,
   useTranslation,
-  X$7 as CloseIcon,
+  X$7 as XIcon,
 } from "../vendor.js";
 import { CANVAS_COMMAND_IDS } from "./use-active-mode.js";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -256,7 +256,7 @@ export function CanvasToolbar({
                   onClick={closeCommandPanel}
                 >
                   <MonochromeIcon tone="control">
-                    <CloseIcon size={14} strokeWidth={1.5} aria-hidden="true" />
+                    <XIcon size={14} strokeWidth={1.5} aria-hidden="true" />
                   </MonochromeIcon>
                 </button>
               </div>

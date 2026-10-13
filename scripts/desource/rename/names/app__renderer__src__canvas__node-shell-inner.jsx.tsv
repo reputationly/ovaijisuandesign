@@ -1,7 +1,6 @@
 key	old	new	依据
 Button$3@3:3	Button$3	BaseButton	该导入是文件内 Button 组件包装的基础按钮组件。
-X@12:10	X	CloseIcon	该导入是关闭按钮中的关闭图标组件。
-cn@15:10	cn	mergeClassNames	该导入组合类名并合并 Tailwind 冲突。
+X@12:10	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
 s2@31:33	s2	storeState	该参数是最近添加节点 store 的状态。
 id2@60:7	id2	nodeId	该值是当前画布节点的标识。
 e2@81:6	e2	doubleClickEvent	该值是节点双击处理器收到的事件对象。

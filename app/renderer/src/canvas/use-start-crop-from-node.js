@@ -44,7 +44,7 @@ export function useEmitDerivedFromBlob({
   cropImage,
 }) {
   return reactExports.useCallback(
-    async (blob, { suffix, ext: extension, baseFallback = "image" }) => {
+    async (blob, { suffix, ext, baseFallback = "image" }) => {
       if (!cropImage) return;
       const baseName = meta2?.name?.replace(/\.[^.]+$/, "") ?? baseFallback;
       const position2 = getDerivedNodePosition(
@@ -55,7 +55,7 @@ export function useEmitDerivedFromBlob({
       );
       const uuid = crypto.randomUUID().slice(0, 4);
       const tail = suffix ? `${suffix}-${uuid}` : uuid;
-      return cropImage(nodeId, blob, `${baseName}-${tail}.${extension}`, position2);
+      return cropImage(nodeId, blob, `${baseName}-${tail}.${ext}`, position2);
     },
     [nodeId, meta2?.name, cropImage, reactFlow, nodeWidth],
   );
@@ -102,10 +102,10 @@ export function useStartCropFromNode({
   });
   const handleCropConfirm = reactExports.useCallback(
     async (blob) => {
-      const extension = meta2?.name?.split(".").pop() ?? "png";
+      const ext = meta2?.name?.split(".").pop() ?? "png";
       await emitDerived(blob, {
         suffix: "",
-        ext: extension,
+        ext,
         baseFallback: "cropped",
       });
     },

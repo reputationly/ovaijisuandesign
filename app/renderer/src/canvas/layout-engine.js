@@ -81,19 +81,19 @@ export class LayoutEngine {
       const nodesAtLevel = newByLevel.get(level) ?? [];
       for (let nodeIndex = 0; nodeIndex < nodesAtLevel.length; nodeIndex++) {
         const node2 = nodesAtLevel[nodeIndex];
-        const size = sizeOf(node2, mode2);
-        const position = {
+        const sz = sizeOf(node2, mode2);
+        const pos = {
           x: anchor.x + level * levelGap,
-          y: anchor.y + nodeIndex * (size.height + COLLISION_MARGIN),
+          y: anchor.y + nodeIndex * (sz.height + COLLISION_MARGIN),
         };
         const candidate = {
-          x: position.x,
-          y: position.y,
-          w: size.width,
-          h: size.height,
+          x: pos.x,
+          y: pos.y,
+          w: sz.width,
+          h: sz.height,
         };
         for (let attempt = 0; attempt < MAX_COLLISION_ATTEMPTS; attempt++) {
-          const blocker = occupied.find((occupiedRect) => rectsOverlap(candidate, occupiedRect));
+          const blocker = occupied.find((occ) => rectsOverlap(candidate, occ));
           if (!blocker) break;
           candidate.x = blocker.x + blocker.w + COLLISION_MARGIN;
         }
@@ -105,8 +105,8 @@ export class LayoutEngine {
         occupied.push({
           x: finalPos.x,
           y: finalPos.y,
-          w: size.width,
-          h: size.height,
+          w: sz.width,
+          h: sz.height,
         });
       }
     }

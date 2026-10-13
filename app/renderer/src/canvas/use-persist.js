@@ -297,7 +297,7 @@ export function usePersist(options) {
     const queue = new PersistSaveQueue({
       saveCanvas: (canvas, saveOptions) =>
         dataSource.saveCanvas(canvas, saveOptions),
-      onError: (error) => console.error("[canvas] Failed to save canvas:", error),
+      onError: (err) => console.error("[canvas] Failed to save canvas:", err),
     });
     saveQueuesRef.current.set(dataSource, queue);
     return queue;
@@ -485,8 +485,8 @@ export function usePersist(options) {
   const buildAndEnqueue = reactExports.useCallback(
     (mode2, request) => {
       void trackPersistence(request, buildAndWait(mode2, request)).catch(
-        (error) => {
-          console.error("[canvas] Failed to save canvas:", error);
+        (err) => {
+          console.error("[canvas] Failed to save canvas:", err);
         },
       );
     },
@@ -510,10 +510,10 @@ export function usePersist(options) {
     }
     const request = beginPersistenceRequest();
     trackPersistence(request, buildAndWait(instance2.getMode(), request)).catch(
-      (error) => {
+      (err) => {
         console.error(
           "[canvas] Failed to save canvas after dataSource change:",
-          error,
+          err,
         );
       },
     );

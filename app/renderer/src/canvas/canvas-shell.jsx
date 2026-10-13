@@ -75,8 +75,8 @@ function isPaneClick(target) {
 
 function isEditableElement(target) {
   if (!(target instanceof HTMLElement)) return false;
-  const tagName = target.tagName;
-  return tagName === "INPUT" || tagName === "TEXTAREA" || target.isContentEditable;
+  const tag = target.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable;
 }
 
 function isCanvasChromeElement(target) {

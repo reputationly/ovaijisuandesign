@@ -96,8 +96,8 @@ export function findFreePositionForRects(occupied, newSize, options) {
     h: newSize.height,
   };
   for (let attempt = 0; attempt < maxShiftAttempts; attempt++) {
-    const blocker = occupied.find((occupiedRect) =>
-      rectsOverlap(rect, occupiedRect, collisionMargin),
+    const blocker = occupied.find((occ) =>
+      rectsOverlap(rect, occ, collisionMargin),
     );
     if (blocker) {
       const nextX = blocker.x + blocker.w + gap;
@@ -111,10 +111,10 @@ export function findFreePositionForRects(occupied, newSize, options) {
       continue;
     }
     let cramper;
-    for (const occupiedRect of occupied) {
-      if (!verticalClearanceViolation(rect, occupiedRect, gap, collisionMargin))
+    for (const occ of occupied) {
+      if (!verticalClearanceViolation(rect, occ, gap, collisionMargin))
         continue;
-      if (!cramper || occupiedRect.y + occupiedRect.h > cramper.y + cramper.h) cramper = occupiedRect;
+      if (!cramper || occ.y + occ.h > cramper.y + cramper.h) cramper = occ;
     }
     if (!cramper) break;
     rect.y = cramper.y + cramper.h + gap;

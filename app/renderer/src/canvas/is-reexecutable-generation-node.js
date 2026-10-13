@@ -134,10 +134,10 @@ export function prunePersistedEdgeData(data2) {
   const source = data2;
   let next2;
   for (const key2 of EDGE_DATA_KEEP_KEYS) {
-    const value = source[key2];
-    if (value !== void 0) {
+    const val = source[key2];
+    if (val !== void 0) {
       next2 ??= {};
-      next2[key2] = value;
+      next2[key2] = val;
     }
   }
   return next2;
@@ -150,16 +150,16 @@ const PARAM_BLACKLIST = new Set([
   // TTS text content (when surfaced as a regular param)
 ]);
 export function pickPersistableModelParams(params, model) {
-  const result = {};
+  const out = {};
   for (const [key2, value] of Object.entries(params)) {
     if (value === void 0 || value === null || value === "") continue;
     if (PARAM_BLACKLIST.has(key2)) continue;
-    const definition = model.params[key2];
-    if (!definition) continue;
-    if (definition.type === "textarea") continue;
-    result[key2] = value;
+    const def = model.params[key2];
+    if (!def) continue;
+    if (def.type === "textarea") continue;
+    out[key2] = value;
   }
-  return result;
+  return out;
 }
 export const REFERENCE_PROMPT_PREAMBLE =
   "The content in <reference_text> is reference material only. Treat <user_prompt> as the primary instruction.";
@@ -206,7 +206,7 @@ export function stableCanvasHash(canvas) {
 const SUBTITLE_FILE_EXTENSIONS = [".srt", ".vtt", ".ass", ".ssa"];
 export function isSubtitleFileName(name2) {
   const lower2 = name2.toLowerCase();
-  return SUBTITLE_FILE_EXTENSIONS.some((extension) => lower2.endsWith(extension));
+  return SUBTITLE_FILE_EXTENSIONS.some((ext) => lower2.endsWith(ext));
 }
 export const DEFAULT_ROW_HEIGHT = "low";
 export const ROW_HEIGHT_ORDER = ["low", "medium", "tall", "extraTall"];
@@ -257,7 +257,7 @@ export function createEmptyDocument(defaultColumnTitle = "Text") {
   };
 }
 export function addColumn(doc2, init2) {
-  const column = {
+  const col = {
     id: newColumnId(),
     title: init2.title.trim() || "Untitled",
     type: init2.type,
@@ -266,7 +266,7 @@ export function addColumn(doc2, init2) {
   };
   return {
     ...doc2,
-    columns: [...doc2.columns, column],
+    columns: [...doc2.columns, col],
   };
 }
 export function addRow(doc2) {

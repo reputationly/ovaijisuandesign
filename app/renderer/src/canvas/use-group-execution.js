@@ -25,26 +25,26 @@ import {
 
 function getString(data2, key2) {
   if (!data2 || typeof data2 !== "object") return "";
-  const stringValue = data2[key2];
-  return typeof stringValue === "string" ? stringValue : "";
+  const fieldValue = data2[key2];
+  return typeof fieldValue === "string" ? fieldValue : "";
 }
 
 function getStringRecord(data2, key2) {
   if (!data2 || typeof data2 !== "object") return {};
-  const recordValue = data2[key2];
-  if (!recordValue || typeof recordValue !== "object") return {};
-  const stringRecord = {};
-  for (const [key, value] of Object.entries(recordValue)) {
-    if (typeof value === "string") stringRecord[key] = value;
+  const fieldValue = data2[key2];
+  if (!fieldValue || typeof fieldValue !== "object") return {};
+  const out = {};
+  for (const [key, val] of Object.entries(fieldValue)) {
+    if (typeof val === "string") out[key] = val;
   }
-  return stringRecord;
+  return out;
 }
 
 function getStringArray(data2, key2) {
   if (!data2 || typeof data2 !== "object") return void 0;
-  const stringValues = data2[key2];
-  if (!Array.isArray(stringValues)) return void 0;
-  return stringValues.filter((item) => typeof item === "string" && item.length > 0);
+  const fieldValue = data2[key2];
+  if (!Array.isArray(fieldValue)) return void 0;
+  return fieldValue.filter((item) => typeof item === "string" && item.length > 0);
 }
 
 async function dispatchToBridge(
@@ -317,8 +317,8 @@ export function useGroupExecution(instance2) {
         const incomingByTarget = new Map();
         for (const edge of graph.edges) {
           if (!childIds.has(edge.target)) continue;
-          const incomingSourceIds = incomingByTarget.get(edge.target);
-          if (incomingSourceIds) incomingSourceIds.push(edge.source);
+          const arr = incomingByTarget.get(edge.target);
+          if (arr) arr.push(edge.source);
           else incomingByTarget.set(edge.target, [edge.source]);
         }
         const { children: children2, parents } = buildAdjacency(

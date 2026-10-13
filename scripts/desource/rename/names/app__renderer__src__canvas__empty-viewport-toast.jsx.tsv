@@ -1,5 +1,5 @@
 key	old	new	依据
-X@8:10	X	CloseIcon	vendor 中 X$7 是 X Lucide 图标的合成组件，用作关闭 toast 的按钮图标。
+X@8:10	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
 w3@24:9	w3	width	节点测量或声明的宽度用于判断节点尺寸是否可用。
 h2@25:9	h2	height	节点测量或声明的高度用于判断节点尺寸是否可用。
 w3@30:9	w3	width	节点宽度用于计算其包围框的右边界。

@@ -4,7 +4,7 @@ import {
   reactExports,
   useNodeId,
   useTranslation,
-  X$7 as CloseIcon,
+  X$7 as XIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { MAX_VISIBLE_CANVAS_TAG_COLORS } from "../infra/parse-connector-selection.js";
@@ -108,7 +108,7 @@ function NodeTagLabels({ tags: tags2, onTagClick, onTagRemove }) {
                   onTagRemove?.(tag);
                 }}
               >
-                <CloseIcon className="size-3" strokeWidth={3} aria-hidden="true" />
+                <XIcon className="size-3" strokeWidth={3} aria-hidden="true" />
               </button>
             ) : null}
           </span>

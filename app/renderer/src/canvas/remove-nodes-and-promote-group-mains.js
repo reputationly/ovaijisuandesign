@@ -142,13 +142,13 @@ export function isChildFullyInsideParent(
   parentSize,
 ) {
   if (!parentSize) return false;
-  const childWidth = childSize?.width ?? 0;
-  const childHeight = childSize?.height ?? 0;
+  const cw = childSize?.width ?? 0;
+  const ch = childSize?.height ?? 0;
   return (
     childAbsPos.x >= parentAbsPos.x &&
     childAbsPos.y >= parentAbsPos.y &&
-    childAbsPos.x + childWidth <= parentAbsPos.x + parentSize.width &&
-    childAbsPos.y + childHeight <= parentAbsPos.y + parentSize.height
+    childAbsPos.x + cw <= parentAbsPos.x + parentSize.width &&
+    childAbsPos.y + ch <= parentAbsPos.y + parentSize.height
   );
 }
 export function isChildFullyOutsideParent(
@@ -158,11 +158,11 @@ export function isChildFullyOutsideParent(
   parentSize,
 ) {
   if (!parentSize) return false;
-  const childWidth = childSize?.width ?? 0;
-  const childHeight = childSize?.height ?? 0;
+  const cw = childSize?.width ?? 0;
+  const ch = childSize?.height ?? 0;
   return (
-    childAbsPos.x + childWidth <= parentAbsPos.x ||
-    childAbsPos.y + childHeight <= parentAbsPos.y ||
+    childAbsPos.x + cw <= parentAbsPos.x ||
+    childAbsPos.y + ch <= parentAbsPos.y ||
     childAbsPos.x >= parentAbsPos.x + parentSize.width ||
     childAbsPos.y >= parentAbsPos.y + parentSize.height
   );
@@ -300,11 +300,11 @@ export function computeNodeGroupBounds(nodes, mode2) {
   let maxY = Number.NEGATIVE_INFINITY;
   for (const node2 of nodes) {
     const size2 = sizeOf(node2, mode2);
-    const position = getNodePosition(node2, mode2);
-    minX = Math.min(minX, position.x);
-    minY = Math.min(minY, position.y);
-    maxX = Math.max(maxX, position.x + size2.width);
-    maxY = Math.max(maxY, position.y + size2.height);
+    const pos = getNodePosition(node2, mode2);
+    minX = Math.min(minX, pos.x);
+    minY = Math.min(minY, pos.y);
+    maxX = Math.max(maxX, pos.x + size2.width);
+    maxY = Math.max(maxY, pos.y + size2.height);
   }
   return {
     minX,
@@ -323,14 +323,14 @@ export function centerNodeGroupAt(nodes, target, mode2) {
   );
   if (topLevel.length === 0) return;
   const { center } = computeNodeGroupBounds(topLevel, mode2);
-  const { x: centerX, y: centerY } = center;
-  const deltaX = target.x - centerX;
-  const deltaY = target.y - centerY;
+  const { x: centerX, y: cy } = center;
+  const dx = target.x - centerX;
+  const dy = target.y - cy;
   for (const node2 of topLevel) {
-    const currentPosition = getNodePosition(node2, mode2);
+    const cur = getNodePosition(node2, mode2);
     setNodePosition(node2, mode2, {
-      x: currentPosition.x + deltaX,
-      y: currentPosition.y + deltaY,
+      x: cur.x + dx,
+      y: cur.y + dy,
     });
   }
 }
@@ -375,7 +375,7 @@ export function normalizeOrphanChildForClipboard(
       const mainPos = main2
         ? getNodePosition(main2, mode2)
         : getNodePosition(node2, mode2);
-      const { groupId: _groupId, round: _round, ...rest } = node2;
+      const { groupId: _g, round: _r, ...rest } = node2;
       return {
         ...rest,
         meta: {

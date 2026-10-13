@@ -8,8 +8,8 @@ function isRecord(value) {
 function mapAssetFpsResponse(value) {
   if (!isRecord(value) || value.ok !== true || !isRecord(value.metadata))
     return 0;
-  const framesPerSecond = value.metadata.fps;
-  return typeof framesPerSecond === "number" && Number.isFinite(framesPerSecond) && framesPerSecond > 0 ? framesPerSecond : 0;
+  const fps = value.metadata.fps;
+  return typeof fps === "number" && Number.isFinite(fps) && fps > 0 ? fps : 0;
 }
 function raceWithAbort(promise, signal) {
   if (signal.aborted) return Promise.reject(signal.reason);
@@ -66,12 +66,12 @@ export async function loadAssetFpsBatch(assetIds, gatewayFetch2, signal) {
       nextIndex += 1;
       const assetId = uniqueIds[index2];
       if (!assetId) continue;
-      const framesPerSecond = await loadAssetFps(
+      const fps = await loadAssetFps(
         assetId,
         gatewayFetch2,
         batchController.signal,
       );
-      if (!batchController.signal.aborted) results.set(assetId, framesPerSecond);
+      if (!batchController.signal.aborted) results.set(assetId, fps);
     }
   };
   const workerCount = Math.min(FPS_BATCH_CONCURRENCY, uniqueIds.length);

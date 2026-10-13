@@ -84,18 +84,18 @@ export function usePluginNavigate() {
   const router2 = useRouter();
   return reactExports.useCallback(
     async (args) => {
-      const targetPath = PLUGIN_NAVIGATE_LEGACY_REDIRECTS[args.to] ?? args.to;
-      if (!targetPath.startsWith("/")) return false;
+      const to = PLUGIN_NAVIGATE_LEGACY_REDIRECTS[args.to] ?? args.to;
+      if (!to.startsWith("/")) return false;
       try {
         const location2 = router2.buildLocation({
-          to: targetPath,
+          to,
           params: args.params,
           search: args.search,
         });
         if (!router2.getMatchedRoutes(location2.pathname).foundRoute)
           return false;
         await router2.navigate({
-          to: targetPath,
+          to,
           params: args.params,
           search: args.search,
         });
@@ -168,11 +168,11 @@ export function resolveNodeSize(file, intrinsic) {
 function measureImageFile(file) {
   return new Promise((resolve) => {
     const url2 = URL.createObjectURL(file);
-    const image = new Image();
-    image.onload = () => {
+    const img = new Image();
+    img.onload = () => {
       URL.revokeObjectURL(url2);
-      const mediaWidth = image.naturalWidth;
-      const mediaHeight = image.naturalHeight;
+      const mediaWidth = img.naturalWidth;
+      const mediaHeight = img.naturalHeight;
       resolve(
         mediaWidth > 0 && mediaHeight > 0
           ? {
@@ -182,11 +182,11 @@ function measureImageFile(file) {
           : void 0,
       );
     };
-    image.onerror = () => {
+    img.onerror = () => {
       URL.revokeObjectURL(url2);
       resolve(void 0);
     };
-    image.src = url2;
+    img.src = url2;
   });
 }
 
@@ -237,14 +237,14 @@ export async function resizeImageBlob(blob, targetWidth, targetHeight) {
     const canvas = document.createElement("canvas");
     canvas.width = targetWidth;
     canvas.height = targetHeight;
-    const context = canvas.getContext("2d");
-    if (!context) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
       bitmap.close();
       return null;
     }
-    context.imageSmoothingEnabled = true;
-    context.imageSmoothingQuality = "high";
-    context.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
     bitmap.close();
     return await new Promise((resolve) =>
       canvas.toBlob((blob) => resolve(blob), "image/png"),
@@ -285,16 +285,16 @@ export async function buildImageCopyPayload(node2, assetMetadataStore) {
   const meta2 = getAssetMetaByNodeIdFromStore(assetMetadataStore, node2.id);
   if (!meta2?.url) return null;
   try {
-    const response = await fetch(meta2.url);
-    if (!response.ok) return null;
-    const pngBlob = await blobToPng(await response.blob());
-    return pngBlob
+    const res = await fetch(meta2.url);
+    if (!res.ok) return null;
+    const png = await blobToPng(await res.blob());
+    return png
       ? {
-          "image/png": pngBlob,
+          "image/png": png,
         }
       : null;
-  } catch (error) {
-    console.warn("[canvas] image copy payload failed:", error);
+  } catch (err) {
+    console.warn("[canvas] image copy payload failed:", err);
     return null;
   }
 }

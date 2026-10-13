@@ -1,9 +1,5 @@
 key	old	new	依据
 t2@63:14	t2	translate	该函数翻译节点快速标签入口的提示和无障碍标签。
-ext@151:11	ext	extension	该字符串保存文件名最后一个点号起的扩展名并附加到新名称。
 e2@162:6	e2	keyboardEvent	onKeyDown 按 Enter 提交、按 Escape 取消重命名。
-pop@196:9	pop	decrementCount	该回调递减 CanvasModalGuardProvider 维护的交互挂起计数。
 c3@195:58	c3	count	React 状态更新器接收当前挂起计数并加一。
 c3@197:21	c3	count	React 状态更新器接收当前挂起计数并递减且不低于零。
-ctx@215:9	ctx	context	该值是 CanvasModalGuardContext，用于读取 push 和 pop 操作。
-pop@217:9	pop	releaseGuard	该上下文回调在 effect 清理时释放画布交互挂起状态。

@@ -7,7 +7,6 @@ t2@65:14	t2	translate	该函数翻译附件辅助标签。
 s2@67:6	s2	storeState	该参数是附件资产元数据 store 的状态。
 t2@116:16	t2	translate	该函数翻译重绘面板和提交状态文案。
 a2@163:46	a2	attachment	该值是已附加到重绘请求的资产。
-err@176:16	err	error	该值是资源选择器拒绝时捕获的错误。
 e2@194:27	e2	pointerEvent	该值是需要阻止冒泡的指针事件。
 e2@195:21	e2	wheelEvent	该值是需要阻止冒泡的滚轮事件。
 e2@196:27	e2	contextMenuEvent	该值是需要阻止冒泡的上下文菜单事件。

@@ -1,9 +1,7 @@
 key	old	new	依据
 t2@36:14	t2	translate	该函数翻译选择工具栏按钮标签。
 t2@130:14	t2	translate	该函数翻译分组颜色菜单文案。
-el@136:11	el	triggerElement	该值是用于测量颜色菜单锚点的触发元素。
 e2@160:29	e2	pointerEvent	该值是用于关闭菜单的指针事件。
-tgt@161:13	tgt	target	该值是指针事件触发目标。
 e2@173:20	e2	keyboardEvent	该值是用于处理 Escape 的键盘事件。
 e2@219:29	e2	contextMenuEvent	该值是被阻止默认操作的上下文菜单事件。
 a2@284:43	a2	leftAttachments	该数组是附件相等性比较的左侧输入。
@@ -11,7 +9,6 @@ b3@284:47	b3	rightAttachments	该数组是附件相等性比较的右侧输入�
 i2@287:12	i2	index	该值是遍历附件数组的下标。
 t2@386:14	t2	translate	该函数翻译选择工具栏操作文案。
 s2@393:6	s2	storeState	该参数提供解析连接来源所需的节点查找表。
-out@414:11	out	sourceNodeIds	该数组收集可发送至剪辑节点的来源节点标识。
 s2@439:6	s2	storeState	该参数提供分组状态分析所需的节点查找表。
 id2@462:18	id2	nodeId	该值是当前待分析的选中节点标识。
 a2@481:6	a2	leftAnalysis	该对象是分组能力比较的左侧结果。

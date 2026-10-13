@@ -96,12 +96,12 @@ export function reorderParentsBeforeChildren(nodes) {
   const parentOf = (node) => node.parentId;
   const childrenByParent = new Map();
   for (const node of nodes) {
-    const parentId = parentOf(node);
-    if (!parentId) continue;
-    let bucket = childrenByParent.get(parentId);
+    const pid = parentOf(node);
+    if (!pid) continue;
+    let bucket = childrenByParent.get(pid);
     if (!bucket) {
       bucket = [];
-      childrenByParent.set(parentId, bucket);
+      childrenByParent.set(pid, bucket);
     }
     bucket.push(node);
   }

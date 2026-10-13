@@ -20,10 +20,10 @@ function tracePath(target, points, side = "right") {
   target.moveTo(controlPoints.sx, controlPoints.sy);
   target.bezierCurveTo(controlPoints.cp1x, controlPoints.cp1y, controlPoints.cp2x, controlPoints.cp2y, controlPoints.tx, controlPoints.ty);
 }
-function subscribeHoveredEdgeId(callback) {
-  subscribers.add(callback);
+function subscribeHoveredEdgeId(cb) {
+  subscribers.add(cb);
   return () => {
-    subscribers.delete(callback);
+    subscribers.delete(cb);
   };
 }
 function getSnapshot() {
@@ -134,10 +134,10 @@ export function EdgesCanvas({
     if (!active2) {
       scheduleRef.current = null;
       const canvas2 = canvasRef.current;
-      const context2D = canvas2?.getContext("2d");
-      if (canvas2 && context2D) {
-        context2D.setTransform(1, 0, 0, 1, 0, 0);
-        context2D.clearRect(0, 0, canvas2.width, canvas2.height);
+      const ctx = canvas2?.getContext("2d");
+      if (canvas2 && ctx) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas2.width, canvas2.height);
       }
       return;
     }
@@ -153,32 +153,32 @@ export function EdgesCanvas({
     const paint = () => {
       rafId2 = 0;
       if (cancelled) return;
-      const context2D = canvas.getContext("2d");
-      if (!context2D) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
       const rect = flow2.getBoundingClientRect();
-      const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
       const cssW = Math.max(1, Math.round(rect.width));
       const cssH = Math.max(1, Math.round(rect.height));
-      if (cssW !== lastWidth || cssH !== lastHeight || pixelRatio !== lastDpr) {
-        canvas.width = cssW * pixelRatio;
-        canvas.height = cssH * pixelRatio;
+      if (cssW !== lastWidth || cssH !== lastHeight || dpr !== lastDpr) {
+        canvas.width = cssW * dpr;
+        canvas.height = cssH * dpr;
         canvas.style.width = `${cssW}px`;
         canvas.style.height = `${cssH}px`;
         lastWidth = cssW;
         lastHeight = cssH;
-        lastDpr = pixelRatio;
+        lastDpr = dpr;
       }
-      context2D.setTransform(1, 0, 0, 1, 0, 0);
-      context2D.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (!initLatchRef.current) return;
       const state2 = storeApi.getState();
       const [tx, ty, zoom2] = state2.transform;
       if (!zoom2 || zoom2 <= 0) return;
       const colors = resolveColors(flow2);
       const hovered = hoveredIdRef.current;
-      context2D.setTransform(pixelRatio * zoom2, 0, 0, pixelRatio * zoom2, pixelRatio * tx, pixelRatio * ty);
-      context2D.lineCap = "round";
-      context2D.lineJoin = "round";
+      ctx.setTransform(dpr * zoom2, 0, 0, dpr * zoom2, dpr * tx, dpr * ty);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
       const defaultPath = new Path2D();
       const hoveredPath = new Path2D();
       const selectedPath = new Path2D();
@@ -189,11 +189,11 @@ export function EdgesCanvas({
         if (!isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes))
           continue;
         const srcEntry = state2.nodeLookup.get(edge.source);
-        const sourceBox = readNodeBox(srcEntry);
-        const targetBox = readNodeBox(state2.nodeLookup.get(edge.target));
-        if (!sourceBox || !targetBox) continue;
-        const side = sourceHandleSide(srcEntry, sourceBox, targetBox);
-        const points = pointsForSide(sourceBox, targetBox, side);
+        const src = readNodeBox(srcEntry);
+        const tgt = readNodeBox(state2.nodeLookup.get(edge.target));
+        if (!src || !tgt) continue;
+        const side = sourceHandleSide(srcEntry, src, tgt);
+        const points = pointsForSide(src, tgt, side);
         const isSelected = edge.selected === true;
         const isHovered = !isSelected && edge.id === hovered;
         const target = isSelected
@@ -207,20 +207,20 @@ export function EdgesCanvas({
         else hasDefault = true;
       }
       if (hasDefault) {
-        context2D.lineWidth = 1.5;
-        context2D.strokeStyle = colors.defaultColor;
-        context2D.stroke(defaultPath);
-        context2D.globalAlpha = 1;
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = colors.defaultColor;
+        ctx.stroke(defaultPath);
+        ctx.globalAlpha = 1;
       }
       if (hasHovered) {
-        context2D.lineWidth = 1.5;
-        context2D.strokeStyle = colors.hoverColor;
-        context2D.stroke(hoveredPath);
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = colors.hoverColor;
+        ctx.stroke(hoveredPath);
       }
       if (hasSelected) {
-        context2D.lineWidth = 2;
-        context2D.strokeStyle = colors.selectedColor;
-        context2D.stroke(selectedPath);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = colors.selectedColor;
+        ctx.stroke(selectedPath);
       }
     };
     const schedule2 = () => {
@@ -253,10 +253,10 @@ export function EdgesCanvas({
     if (!active2) {
       flowScheduleRef.current = null;
       const canvas2 = flowCanvasRef.current;
-      const context2D = canvas2?.getContext("2d");
-      if (canvas2 && context2D) {
-        context2D.setTransform(1, 0, 0, 1, 0, 0);
-        context2D.clearRect(0, 0, canvas2.width, canvas2.height);
+      const ctx = canvas2?.getContext("2d");
+      if (canvas2 && ctx) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas2.width, canvas2.height);
       }
       return;
     }
@@ -276,15 +276,15 @@ export function EdgesCanvas({
     let needsPalette = true;
     let cssWidth = 1;
     let cssHeight = 1;
-    let pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+    let dpr = Math.max(1, window.devicePixelRatio || 1);
     let colors = resolveColors(flow2);
     const syncCanvasSize = () => {
       const rect = flow2.getBoundingClientRect();
       cssWidth = Math.max(1, Math.round(rect.width));
       cssHeight = Math.max(1, Math.round(rect.height));
-      pixelRatio = Math.max(1, window.devicePixelRatio || 1);
-      const backingWidth = cssWidth * pixelRatio;
-      const backingHeight = cssHeight * pixelRatio;
+      dpr = Math.max(1, window.devicePixelRatio || 1);
+      const backingWidth = cssWidth * dpr;
+      const backingHeight = cssHeight * dpr;
       if (canvas.width !== backingWidth || canvas.height !== backingHeight) {
         canvas.width = backingWidth;
         canvas.height = backingHeight;
@@ -301,15 +301,15 @@ export function EdgesCanvas({
         return;
       }
       lastFramePaintMs = timestampMs;
-      const context2D = canvas.getContext("2d");
-      if (!context2D) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
       if (needsResize) syncCanvasSize();
       if (needsPalette) {
         colors = resolveColors(flow2);
         needsPalette = false;
       }
-      context2D.setTransform(1, 0, 0, 1, 0, 0);
-      context2D.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (!initLatchRef.current) return;
       const state2 = storeApi.getState();
       const [tx, ty, zoom2] = state2.transform;
@@ -323,44 +323,44 @@ export function EdgesCanvas({
         )
           continue;
         const srcEntry = state2.nodeLookup.get(edge.source);
-        const sourceBox = readNodeBox(srcEntry);
-        const targetBox = readNodeBox(state2.nodeLookup.get(edge.target));
-        if (!sourceBox || !targetBox) continue;
-        const side = sourceHandleSide(srcEntry, sourceBox, targetBox);
-        tracePath(selectedPath, pointsForSide(sourceBox, targetBox, side), side);
+        const src = readNodeBox(srcEntry);
+        const tgt = readNodeBox(state2.nodeLookup.get(edge.target));
+        if (!src || !tgt) continue;
+        const side = sourceHandleSide(srcEntry, src, tgt);
+        tracePath(selectedPath, pointsForSide(src, tgt, side), side);
         hasSelected = true;
       }
       if (!hasSelected) return;
-      context2D.setTransform(pixelRatio * zoom2, 0, 0, pixelRatio * zoom2, pixelRatio * tx, pixelRatio * ty);
-      context2D.lineCap = "round";
-      context2D.lineJoin = "round";
+      ctx.setTransform(dpr * zoom2, 0, 0, dpr * zoom2, dpr * tx, dpr * ty);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
       if (reducedMotionQuery.matches) {
-        context2D.setLineDash([]);
-        context2D.globalAlpha = 0.42;
-        context2D.lineWidth = 2 / zoom2;
-        context2D.strokeStyle = colors.flowColor;
-        context2D.stroke(selectedPath);
-        context2D.globalAlpha = 1;
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 0.42;
+        ctx.lineWidth = 2 / zoom2;
+        ctx.strokeStyle = colors.flowColor;
+        ctx.stroke(selectedPath);
+        ctx.globalAlpha = 1;
         return;
       }
       const frame2 = getEdgeFlowFrame(timestampMs, zoom2);
-      context2D.strokeStyle = colors.flowGlowColor;
+      ctx.strokeStyle = colors.flowGlowColor;
       for (const segment of frame2.segments) {
-        context2D.setLineDash(segment.dashPattern);
-        context2D.lineDashOffset = segment.dashOffset;
-        context2D.globalAlpha = segment.opacity;
-        context2D.lineWidth = segment.haloWidth;
-        context2D.stroke(selectedPath);
+        ctx.setLineDash(segment.dashPattern);
+        ctx.lineDashOffset = segment.dashOffset;
+        ctx.globalAlpha = segment.opacity;
+        ctx.lineWidth = segment.haloWidth;
+        ctx.stroke(selectedPath);
       }
-      context2D.strokeStyle = colors.flowColor;
+      ctx.strokeStyle = colors.flowColor;
       for (const segment of frame2.segments) {
-        context2D.setLineDash(segment.dashPattern);
-        context2D.lineDashOffset = segment.dashOffset;
-        context2D.globalAlpha = segment.opacity;
-        context2D.lineWidth = segment.coreWidth;
-        context2D.stroke(selectedPath);
+        ctx.setLineDash(segment.dashPattern);
+        ctx.lineDashOffset = segment.dashOffset;
+        ctx.globalAlpha = segment.opacity;
+        ctx.lineWidth = segment.coreWidth;
+        ctx.stroke(selectedPath);
       }
-      context2D.globalAlpha = 1;
+      ctx.globalAlpha = 1;
       if (!document.hidden && windowFocused)
         rafId2 = requestAnimationFrame(paint);
     };

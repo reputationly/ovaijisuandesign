@@ -3,7 +3,7 @@ import {
   selectDownloadableCanvasAssets,
   useCanvasTagName,
 } from "../assets/use-canvas-model-registry-hydration.js";
-import { API_PATHS, ChevronLeft, ChevronRight$1 as ChevronRight, CircleX, Ellipsis, Loader2, Music2, reactExports, useTranslation, Video, X$7 as CloseIcon } from "../vendor.js";
+import { API_PATHS, ChevronLeft, ChevronRight$1 as ChevronRight, CircleX, Ellipsis, Loader2, Music2, reactExports, useTranslation, Video, X$7 as XIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -663,7 +663,7 @@ export function CanvasGlobalTagManager({
                   dataActionUiId="canvas.tag-filter-clear"
                   className="canvas-global-tag-manager__palette-action"
                 >
-                  <Icon icon={CloseIcon} size="md" aria-hidden={true} />
+                  <Icon icon={XIcon} size="md" aria-hidden={true} />
                 </CanvasToolbarExtensionButton>
               ) : (
                 <CanvasToolbarExtensionButton

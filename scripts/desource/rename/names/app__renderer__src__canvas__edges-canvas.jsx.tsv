@@ -2,15 +2,4 @@ key	old	new	依据
 subscribe$2@23:10	subscribe$2	subscribeHoveredEdgeId	该函数订阅悬停边标识变化并返回取消订阅回调。
 p3@18:28	p3	points	该参数是绘制边线时使用的起终点坐标。
 cp2@19:9	cp2	controlPoints	该值是用于绘制贝塞尔曲线的控制点集合。
-cb@23:22	cb	callback	该参数是悬停边状态变化的订阅回调。
 _2@77:8	_2	unusedValue	该参数是生成脉冲线段时未使用的数组值。
-ctx@137:13	ctx	context2D	该值是用于清空停用画布的二维绘图上下文。
-ctx@156:13	ctx	context2D	该值是绘制流动边线的二维绘图上下文。
-dpr@159:13	dpr	pixelRatio	该值是设备像素与 CSS 像素的比例。
-src@192:15	src	sourceBox	该值是边源节点的测量矩形。
-tgt@193:15	tgt	targetBox	该值是边目标节点的测量矩形。
-dpr@279:9	dpr	pixelRatio	该值是设备像素与 CSS 像素的比例。
-ctx@256:13	ctx	context2D	该值是清空停用画布的二维绘图上下文。
-ctx@304:13	ctx	context2D	该值是绘制选中边线的二维绘图上下文。
-src@326:15	src	sourceBox	该值是边源节点的测量矩形。
-tgt@327:15	tgt	targetBox	该值是边目标节点的测量矩形。

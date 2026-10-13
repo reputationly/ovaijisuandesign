@@ -133,9 +133,9 @@ function GroupColorPicker({ value, onChange, title }) {
   const panelRef = reactExports.useRef(null);
   const [anchor, setAnchor] = reactExports.useState(null);
   const recomputeAnchor = reactExports.useCallback(() => {
-    const triggerElement = triggerRef.current;
-    if (!triggerElement) return;
-    const rect = triggerElement.getBoundingClientRect();
+    const el = triggerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
     setAnchor({
       top: rect.bottom + 8,
       left: rect.left + rect.width / 2,
@@ -158,10 +158,10 @@ function GroupColorPicker({ value, onChange, title }) {
   reactExports.useEffect(() => {
     if (!open) return;
     const onPointerDown2 = (pointerEvent) => {
-      const target = pointerEvent.target;
-      if (!target) return;
-      if (triggerRef.current?.contains(target)) return;
-      if (panelRef.current?.contains(target)) return;
+      const tgt = pointerEvent.target;
+      if (!tgt) return;
+      if (triggerRef.current?.contains(tgt)) return;
+      if (panelRef.current?.contains(tgt)) return;
       setOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown2, true);
@@ -411,7 +411,7 @@ export function SelectionToolbarInner({
     }
   }, [groupAddToChatTargets, onAddToChat]);
   const clipSourceNodeIds = reactExports.useMemo(() => {
-    const sourceNodeIds = [];
+    const out = [];
     for (const nodeId of selectedIds) {
       const { assetId } = parseNodeId(nodeId);
       const path2 = assets.get(assetId)?.path;
@@ -422,10 +422,10 @@ export function SelectionToolbarInner({
         /\.(mp4|mov|m4v|webm|mkv|avi)$/.test(lower2) ||
         /\.(mp3|wav|ogg|m4a|aac|flac)$/.test(lower2)
       ) {
-        sourceNodeIds.push(nodeId);
+        out.push(nodeId);
       }
     }
-    return sourceNodeIds;
+    return out;
   }, [assets, selectedIds]);
   const handleAddToClipNode = reactExports.useCallback(async () => {
     if (!onInstantiatePlugin || clipSourceNodeIds.length === 0) return;

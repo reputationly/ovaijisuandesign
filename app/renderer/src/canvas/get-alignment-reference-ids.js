@@ -5,21 +5,21 @@ export const MIN_EDGES_TO_CULL = 32;
 export function applyEdgeCullingVisibility(edges, hiddenIds) {
   if (hiddenIds.size === 0) return edges;
   let dirty = false;
-  const updatedEdges = new Array(edges.length);
+  const out = new Array(edges.length);
   for (let edgeIndex = 0; edgeIndex < edges.length; edgeIndex++) {
     const edge = edges[edgeIndex];
     const wantHidden = Boolean(edge.hidden) || hiddenIds.has(edge.id);
     if (Boolean(edge.hidden) === wantHidden) {
-      updatedEdges[edgeIndex] = edge;
+      out[edgeIndex] = edge;
       continue;
     }
-    updatedEdges[edgeIndex] = {
+    out[edgeIndex] = {
       ...edge,
       hidden: wantHidden,
     };
     dirty = true;
   }
-  return dirty ? updatedEdges : edges;
+  return dirty ? out : edges;
 }
 export function computeHiddenEdgeIds(state2, edges, bufferRatio) {
   const hidden = new Set();
@@ -38,16 +38,16 @@ export function computeHiddenEdgeIds(state2, edges, bufferRatio) {
   const bRight = vRight + bufW;
   const bBottom = vBottom + bufH;
   for (const edge of edges) {
-    const sourceNode = state2.nodeLookup.get(edge.source);
-    const targetNode = state2.nodeLookup.get(edge.target);
-    if (!sourceNode || !targetNode) continue;
-    const srcPos = sourceNode.internals?.positionAbsolute ?? sourceNode.position;
-    const tgtPos = targetNode.internals?.positionAbsolute ?? targetNode.position;
+    const src = state2.nodeLookup.get(edge.source);
+    const tgt = state2.nodeLookup.get(edge.target);
+    if (!src || !tgt) continue;
+    const srcPos = src.internals?.positionAbsolute ?? src.position;
+    const tgtPos = tgt.internals?.positionAbsolute ?? tgt.position;
     if (!srcPos || !tgtPos) continue;
-    const srcW = sourceNode.measured?.width ?? sourceNode.width ?? 0;
-    const srcH = sourceNode.measured?.height ?? sourceNode.height ?? 0;
-    const tgtW = targetNode.measured?.width ?? targetNode.width ?? 0;
-    const tgtH = targetNode.measured?.height ?? targetNode.height ?? 0;
+    const srcW = src.measured?.width ?? src.width ?? 0;
+    const srcH = src.measured?.height ?? src.height ?? 0;
+    const tgtW = tgt.measured?.width ?? tgt.width ?? 0;
+    const tgtH = tgt.measured?.height ?? tgt.height ?? 0;
     const eLeft = Math.min(srcPos.x, tgtPos.x);
     const eTop = Math.min(srcPos.y, tgtPos.y);
     const eRight = Math.max(srcPos.x + srcW, tgtPos.x + tgtW);

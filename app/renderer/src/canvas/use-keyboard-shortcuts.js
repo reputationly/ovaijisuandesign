@@ -19,16 +19,16 @@ function isCanvasInteractive(rootEl, enabled = true) {
 }
 function isInsideCanvas(target) {
   if (typeof window !== "undefined") {
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
-      const anchor = selection.anchorNode;
-      const element =
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+      const anchor = sel.anchorNode;
+      const el =
         anchor?.nodeType === Node.ELEMENT_NODE
           ? anchor
           : (anchor?.parentElement ?? null);
       if (
-        element &&
-        element.closest('.react-flow, [data-hilo-canvas-root="true"]') === null
+        el &&
+        el.closest('.react-flow, [data-hilo-canvas-root="true"]') === null
       ) {
         return false;
       }
@@ -50,12 +50,12 @@ function collectClipboardFiles(data2) {
     if (seen2.has(key2)) return;
     seen2.add(key2);
     if (!file.name || file.name === "image.png" || file.name === "image") {
-      const extension = getExtFromMime(
+      const ext = getExtFromMime(
         file.type || fallbackMime || "image/png",
         "png",
       );
       collected.push(
-        new File([file], `pasted-${Date.now()}.${extension}`, {
+        new File([file], `pasted-${Date.now()}.${ext}`, {
           type: file.type || fallbackMime,
         }),
       );
@@ -130,8 +130,8 @@ function makeAssetPathResolver(assetMetadataStore) {
 }
 function isEditableTarget(target) {
   if (!target || !(target instanceof HTMLElement)) return false;
-  const tagName = target.tagName;
-  return tagName === "INPUT" || tagName === "TEXTAREA" || target.isContentEditable;
+  const tag = target.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable;
 }
 function decidePasteIntent(input) {
   const {
@@ -194,8 +194,8 @@ export function useKeyboardShortcuts(instance2, options = {}) {
     const runInternalPaste = () => {
       const anchor = getInternalPasteAnchor?.() ?? null;
       if (anchor) {
-        void instance2.pasteAtPosition(anchor).catch((error) => {
-          console.error("[canvas] internal paste at cursor failed:", error);
+        void instance2.pasteAtPosition(anchor).catch((err) => {
+          console.error("[canvas] internal paste at cursor failed:", err);
         });
         return;
       }
@@ -205,8 +205,8 @@ export function useKeyboardShortcuts(instance2, options = {}) {
           viewportRect: getViewportRect2?.() ?? void 0,
           viewportCenter: getViewportCenter?.(),
         })
-        .catch((error) => {
-          console.error("[canvas] internal paste failed:", error);
+        .catch((err) => {
+          console.error("[canvas] internal paste failed:", err);
         });
     };
     const writeMarkerOnly = async () => {
@@ -216,8 +216,8 @@ export function useKeyboardShortcuts(instance2, options = {}) {
         await navigator.clipboard.write([
           new ClipboardItem(buildInternalClipboardItemData()),
         ]);
-      } catch (error) {
-        console.warn("[canvas] write marker failed:", error);
+      } catch (err) {
+        console.warn("[canvas] write marker failed:", err);
       }
     };
     const handleCopy = (copyEvent) => {
@@ -299,14 +299,14 @@ export function useKeyboardShortcuts(instance2, options = {}) {
         commandRegistry.execute(commandId, "keyboard");
         return;
       }
-      const hasModifier = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
-      if (keyboardEvent.shiftKey && !hasModifier && keyboardEvent.code === "Digit1") {
+      const mod = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
+      if (keyboardEvent.shiftKey && !mod && keyboardEvent.code === "Digit1") {
         if (!isInsideCanvas(keyboardEvent.target)) return;
         keyboardEvent.preventDefault();
         onFitView?.();
         return;
       }
-      if (!hasModifier) return;
+      if (!mod) return;
       const key2 = keyboardEvent.key.toLowerCase();
       if (keyboardEvent.altKey && keyboardEvent.code === "KeyC") {
         if (!isInsideCanvas(keyboardEvent.target)) return;

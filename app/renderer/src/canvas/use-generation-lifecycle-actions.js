@@ -47,10 +47,10 @@ export function useGenerationLifecycleActions({
         }
         dedupedToast.success(translate("canvas.generationCancelled"));
         return true;
-      } catch (error) {
+      } catch (err) {
         canvasLog.error("cancel generation failed", {
           nodeId,
-          error: error instanceof Error ? error.message : String(error),
+          error: err instanceof Error ? err.message : String(err),
         });
         dedupedToast.error(translate("canvas.cancelGenerationFailed"));
         return false;
@@ -80,10 +80,10 @@ export function useGenerationLifecycleActions({
           return false;
         }
         return true;
-      } catch (error) {
+      } catch (err) {
         canvasLog.error("dismiss unknown generation failed", {
           nodeId,
-          error: error instanceof Error ? error.message : String(error),
+          error: err instanceof Error ? err.message : String(err),
         });
         dedupedToast.error(translate("canvas.dismissGenerationStatusFailed"));
         return false;

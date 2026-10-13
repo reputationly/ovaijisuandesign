@@ -1,5 +1,4 @@
 key	old	new	依据
-tag@78:9	tag	tagName	target.tagName 用于判断元素是否为 INPUT 或 TEXTAREA。
 e2@109:6	e2	mouseEvent	画布 pane 双击事件被筛选后传给 onPaneDoubleClick。
 e2@120:6	e2	contextMenuEvent	画布 pane 右键事件被筛选后传给 onPaneContextMenu。
 e2@129:60	e2	mouseEvent	mousedown 捕获处理器读取事件目标并聚焦画布根元素。

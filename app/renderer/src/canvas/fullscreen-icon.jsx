@@ -43,8 +43,8 @@ export function useInactiveNodeVirtualization(
   return useDelayedFalse(isPresented, graceMs);
 }
 export function useCanvasActiveDeferred() {
-  const context = reactExports.useContext(CanvasActiveDeferredContext);
-  return context ?? true;
+  const ctx = reactExports.useContext(CanvasActiveDeferredContext);
+  return ctx ?? true;
 }
 function shallowEqualActions(leftActions, rightActions) {
   if (leftActions === rightActions) return true;
@@ -87,8 +87,8 @@ const DEFAULT_VIEWPORT_BUFFER_RATIO = 1.5;
 function classify(state2, nodeId, nodeWidth, nodeHeight, bufferRatio) {
   const lookup = state2.nodeLookup?.get(nodeId);
   if (!lookup) return "far";
-  const position = lookup.internals?.positionAbsolute ?? lookup.position;
-  if (!position) return "far";
+  const pos = lookup.internals?.positionAbsolute ?? lookup.position;
+  if (!pos) return "far";
   const [tx, ty, zoom2] = state2.transform;
   if (!zoom2 || zoom2 <= 0) return "far";
   const vLeft = -tx / zoom2;
@@ -98,10 +98,10 @@ function classify(state2, nodeId, nodeWidth, nodeHeight, bufferRatio) {
   const renderBounds = lookup.renderBounds;
   const hostWidth = lookup.measured?.width ?? lookup.width ?? nodeWidth;
   const hostHeight = lookup.measured?.height ?? lookup.height ?? nodeHeight;
-  const nLeft = position.x - (renderBounds?.left ?? 0);
-  const nTop = position.y - (renderBounds?.top ?? 0);
-  const nRight = position.x + hostWidth + (renderBounds?.right ?? 0);
-  const nBottom = position.y + hostHeight + (renderBounds?.bottom ?? 0);
+  const nLeft = pos.x - (renderBounds?.left ?? 0);
+  const nTop = pos.y - (renderBounds?.top ?? 0);
+  const nRight = pos.x + hostWidth + (renderBounds?.right ?? 0);
+  const nBottom = pos.y + hostHeight + (renderBounds?.bottom ?? 0);
   const visible = !(
     nRight < vLeft ||
     nLeft > vRight ||
@@ -166,18 +166,18 @@ export function formatFileSize(bytes2) {
   if (typeof bytes2 !== "number" || !Number.isFinite(bytes2) || bytes2 < 0)
     return void 0;
   if (bytes2 < 1024) return `${bytes2} B`;
-  const kilobytes = bytes2 / 1024;
-  if (kilobytes < 1024) return `${kilobytes.toFixed(2)} KB`;
-  const megabytes = kilobytes / 1024;
-  if (megabytes < 1024) return `${megabytes.toFixed(2)} MB`;
-  const gigabytes = megabytes / 1024;
-  return `${gigabytes.toFixed(2)} GB`;
+  const kb = bytes2 / 1024;
+  if (kb < 1024) return `${kb.toFixed(2)} KB`;
+  const mb = kb / 1024;
+  if (mb < 1024) return `${mb.toFixed(2)} MB`;
+  const gb = mb / 1024;
+  return `${gb.toFixed(2)} GB`;
 }
 export function getFileExtension(name2) {
   if (!name2) return void 0;
-  const dotIndex = name2.lastIndexOf(".");
-  if (dotIndex <= 0 || dotIndex === name2.length - 1) return void 0;
-  return name2.slice(dotIndex).toLowerCase();
+  const idx = name2.lastIndexOf(".");
+  if (idx <= 0 || idx === name2.length - 1) return void 0;
+  return name2.slice(idx).toLowerCase();
 }
 const ADD_TO_CHAT_VIEW_BOX = "0 0 20 20";
 const ADD_TO_CHAT_PATHS = [

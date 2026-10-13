@@ -173,9 +173,9 @@ export const CanvasRedrawBottomBar = reactExports.memo(
             name: picked.name,
           },
         ]);
-      } catch (error) {
-        if (error?.code === "picker_busy") return;
-        console.warn("[redraw-bottom-bar] pickAsset rejected", error);
+      } catch (err) {
+        if (err?.code === "picker_busy") return;
+        console.warn("[redraw-bottom-bar] pickAsset rejected", err);
       }
     }, [pickAsset, attachments]);
     const removeAttachment2 = reactExports.useCallback(() => {

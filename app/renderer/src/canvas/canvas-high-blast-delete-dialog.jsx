@@ -136,13 +136,13 @@ export function useDismissMenu(
 export function QuickZoomPresence({ value, elementRef, children: children2 }) {
   const [retained, setRetained] = reactExports.useState(value);
   const internalRef = reactExports.useRef(null);
-  const presenceRef = elementRef ?? internalRef;
+  const ref = elementRef ?? internalRef;
   const open = value !== null;
   if (open && retained !== value) setRetained(value);
   reactExports.useLayoutEffect(() => {
     if (open || retained === null) return;
     let cancelled = false;
-    const animations = presenceRef.current?.getAnimations?.() ?? [];
+    const animations = ref.current?.getAnimations?.() ?? [];
     if (animations.length === 0) {
       setRetained(null);
       return;
@@ -155,12 +155,12 @@ export function QuickZoomPresence({ value, elementRef, children: children2 }) {
     return () => {
       cancelled = true;
     };
-  }, [open, retained, presenceRef]);
+  }, [open, retained, ref]);
   const content2 = value ?? retained;
   return content2 === null
     ? null
     : children2(content2, {
-        ref: presenceRef,
+        ref,
         "data-ending-style": open ? void 0 : "",
         inert: !open,
       });
