@@ -48,15 +48,15 @@ function isPreviewableKind(kind) {
     kind === "image" || kind === "video" || kind === "audio" || kind === "text"
   );
 }
-function formatBytes(bytes2) {
-  if (bytes2 < 1024) return `${bytes2} B`;
-  if (bytes2 < 1024 * 1024) return `${(bytes2 / 1024).toFixed(1)} KB`;
-  return `${(bytes2 / (1024 * 1024)).toFixed(1)} MB`;
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 function AttachmentPreviewThumb({ attachment }) {
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const [errored, setErrored] = reactExports.useState(false);
-  const blobSrc = gatewayUrl2(
+  const blobSrc = gatewayUrl(
     API_PATHS.assetCenterAttachmentBlob(
       attachment.id,
       attachment.kind === "video" ? 512 : void 0,

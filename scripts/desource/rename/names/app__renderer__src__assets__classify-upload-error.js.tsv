@@ -1,3 +1,16 @@
 key	old	new	依据
 a2@54:34	a2	attachment	该参数是用于判断是否为文件类型的附件对象。
 t2@133:36	t2	translate	该参数是根据上传错误类型生成文案的翻译函数。
+data2@19:60	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+path2@22:11	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+url2@39:3	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+code2@66:28	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+code2@87:57	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+message2@92:9	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+token2@162:11	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+token2@164:12	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+now2@191:54	now2	now	去掉打包器防重名追加的后缀，恢复原名 now，即该绑定持有的值。
+record2@194:14	record2	record	去掉打包器防重名追加的后缀，恢复原名 record，即该绑定持有的值。
+key2@197:11	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+previous2@198:11	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+sum2@226:6	sum2	sum	去掉打包器防重名追加的后缀，恢复原名 sum，即该绑定持有的值。

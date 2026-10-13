@@ -24,12 +24,12 @@ function findIndex(paths, ref) {
   return -1;
 }
 function resolveAcrossArrays(ref, inputs) {
-  const order2 = [
+  const order = [
     ["image", inputs.imagePaths],
     ["video", inputs.videoPaths],
     ["audio", inputs.audioPaths],
   ];
-  for (const [kind, arr] of order2) {
+  for (const [kind, arr] of order) {
     const idx = findIndex(arr, ref);
     if (idx >= 0)
       return {

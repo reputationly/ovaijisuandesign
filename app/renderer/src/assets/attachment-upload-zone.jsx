@@ -95,8 +95,8 @@ const DEFAULT_CROP_RECT = {
 const MIN_CROP_RATIO = 0.05;
 const MIN_CROP_SIZE = 48;
 const MAX_CROP_OUTPUT_DIMENSION = 2048;
-function clamp(value, min2, max2) {
-  return Math.min(Math.max(value, min2), max2);
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 function minCropFraction(containerSize) {
   return containerSize && containerSize > 0
@@ -134,12 +134,12 @@ function calculateCropRect({
   initialRect,
   deltaX,
   deltaY,
-  handle: handle2,
+  handle,
   aspectRatio,
   containerWidth,
   containerHeight,
 }) {
-  if (handle2 === null) {
+  if (handle === null) {
     return clampCropRect(
       {
         ...initialRect,
@@ -153,44 +153,44 @@ function calculateCropRect({
   const right = initialRect.x + initialRect.width;
   const bottom = initialRect.y + initialRect.height;
   let left = initialRect.x;
-  let top2 = initialRect.y;
+  let cropTop = initialRect.y;
   let nextRight = right;
   let nextBottom = bottom;
-  if (handle2.includes("l")) left += deltaX;
-  if (handle2.includes("r")) nextRight += deltaX;
-  if (handle2.includes("t")) top2 += deltaY;
-  if (handle2.includes("b")) nextBottom += deltaY;
+  if (handle.includes("l")) left += deltaX;
+  if (handle.includes("r")) nextRight += deltaX;
+  if (handle.includes("t")) cropTop += deltaY;
+  if (handle.includes("b")) nextBottom += deltaY;
   const minWidth = minCropFraction(containerWidth);
   const minHeight = minCropFraction(containerHeight);
   left = clamp(left, 0, nextRight - minWidth);
   nextRight = clamp(nextRight, left + minWidth, 1);
-  top2 = clamp(top2, 0, nextBottom - minHeight);
-  nextBottom = clamp(nextBottom, top2 + minHeight, 1);
+  cropTop = clamp(cropTop, 0, nextBottom - minHeight);
+  nextBottom = clamp(nextBottom, cropTop + minHeight, 1);
   let width = nextRight - left;
-  let height = nextBottom - top2;
+  let height = nextBottom - cropTop;
   if (aspectRatio !== null) {
     const normalizedRatio = aspectRatio / (containerWidth / containerHeight);
-    const anchorRight = handle2.includes("l") ? nextRight : left;
-    const anchorBottom = handle2.includes("t") ? nextBottom : top2;
-    if (handle2 === "t" || handle2 === "b") width = height * normalizedRatio;
+    const anchorRight = handle.includes("l") ? nextRight : left;
+    const anchorBottom = handle.includes("t") ? nextBottom : cropTop;
+    if (handle === "t" || handle === "b") width = height * normalizedRatio;
     else height = width / normalizedRatio;
-    if (handle2.includes("l")) left = anchorRight - width;
-    if (handle2.includes("t")) top2 = anchorBottom - height;
-    if (left < 0 || left + width > 1 || top2 < 0 || top2 + height > 1) {
+    if (handle.includes("l")) left = anchorRight - width;
+    if (handle.includes("t")) cropTop = anchorBottom - height;
+    if (left < 0 || left + width > 1 || cropTop < 0 || cropTop + height > 1) {
       const maxWidth = Math.min(
         1 - Math.max(left, 0),
-        (1 - Math.max(top2, 0)) * normalizedRatio,
+        (1 - Math.max(cropTop, 0)) * normalizedRatio,
       );
       width = Math.max(Math.min(width, maxWidth), minWidth);
       height = width / normalizedRatio;
-      if (handle2.includes("l")) left = anchorRight - width;
-      if (handle2.includes("t")) top2 = anchorBottom - height;
+      if (handle.includes("l")) left = anchorRight - width;
+      if (handle.includes("t")) cropTop = anchorBottom - height;
     }
   }
   return clampCropRect(
     {
       x: left,
-      y: top2,
+      y: cropTop,
       width,
       height,
     },
@@ -199,21 +199,21 @@ function calculateCropRect({
   );
 }
 function fitCropOutputSize(sourceWidth, sourceHeight) {
-  const scale2 = Math.min(
+  const scale = Math.min(
     1,
     MAX_CROP_OUTPUT_DIMENSION / sourceWidth,
     MAX_CROP_OUTPUT_DIMENSION / sourceHeight,
   );
   return {
-    width: Math.max(1, Math.round(sourceWidth * scale2)),
-    height: Math.max(1, Math.round(sourceHeight * scale2)),
+    width: Math.max(1, Math.round(sourceWidth * scale)),
+    height: Math.max(1, Math.round(sourceHeight * scale)),
   };
 }
 function cropImageToBlob(imageSource, cropRect, originalWidth, originalHeight) {
   return new Promise((resolve, reject) => {
-    const image2 = new Image();
-    image2.crossOrigin = "anonymous";
-    image2.onload = () => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
       const sourceX = Math.round(cropRect.x * originalWidth);
       const sourceY = Math.round(cropRect.y * originalHeight);
       const sourceWidth = Math.max(
@@ -234,7 +234,7 @@ function cropImageToBlob(imageSource, cropRect, originalWidth, originalHeight) {
         return;
       }
       context.drawImage(
-        image2,
+        image,
         sourceX,
         sourceY,
         sourceWidth,
@@ -252,8 +252,8 @@ function cropImageToBlob(imageSource, cropRect, originalWidth, originalHeight) {
         "image/png",
       );
     };
-    image2.onerror = () => reject(new Error("Failed to load crop source"));
-    image2.src = imageSource;
+    image.onerror = () => reject(new Error("Failed to load crop source"));
+    image.src = imageSource;
   });
 }
 const DEFAULT_ASPECT_RATIO = "4:3";
@@ -292,39 +292,39 @@ function useImageCrop(containerWidth, containerHeight) {
     );
   }, [aspectRatio, containerHeight, containerWidth]);
   const handleMove = reactExports.useCallback((event) => {
-    const drag2 = dragRef.current;
-    const latest2 = latestRef.current;
-    if (!drag2 || latest2.containerWidth <= 0 || latest2.containerHeight <= 0)
+    const drag = dragRef.current;
+    const latest = latestRef.current;
+    if (!drag || latest.containerWidth <= 0 || latest.containerHeight <= 0)
       return;
     setCropRect(
       calculateCropRect({
-        initialRect: drag2.initialRect,
-        deltaX: (event.clientX - drag2.startX) / latest2.containerWidth,
-        deltaY: (event.clientY - drag2.startY) / latest2.containerHeight,
-        handle: drag2.handle,
-        aspectRatio: CROP_ASPECT_RATIOS[latest2.aspectRatio],
-        containerWidth: latest2.containerWidth,
-        containerHeight: latest2.containerHeight,
+        initialRect: drag.initialRect,
+        deltaX: (event.clientX - drag.startX) / latest.containerWidth,
+        deltaY: (event.clientY - drag.startY) / latest.containerHeight,
+        handle: drag.handle,
+        aspectRatio: CROP_ASPECT_RATIOS[latest.aspectRatio],
+        containerWidth: latest.containerWidth,
+        containerHeight: latest.containerHeight,
       }),
     );
   }, []);
   reactExports.useEffect(() => {
     if (!isDragging) return;
-    let frame2 = null;
-    let pending2 = null;
+    let frame = null;
+    let pending = null;
     const handlePointerMove = (event) => {
       event.preventDefault();
-      pending2 = event;
-      if (frame2 !== null) return;
-      frame2 = requestAnimationFrame(() => {
-        frame2 = null;
-        if (pending2) handleMove(pending2);
-        pending2 = null;
+      pending = event;
+      if (frame !== null) return;
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        if (pending) handleMove(pending);
+        pending = null;
       });
     };
     const handlePointerUp = () => {
-      if (frame2 !== null) cancelAnimationFrame(frame2);
-      if (pending2) handleMove(pending2);
+      if (frame !== null) cancelAnimationFrame(frame);
+      if (pending) handleMove(pending);
       setIsDragging(false);
       dragRef.current = null;
     };
@@ -334,14 +334,14 @@ function useImageCrop(containerWidth, containerHeight) {
     window.addEventListener("pointerup", handlePointerUp);
     window.addEventListener("pointercancel", handlePointerUp);
     return () => {
-      if (frame2 !== null) cancelAnimationFrame(frame2);
+      if (frame !== null) cancelAnimationFrame(frame);
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
       window.removeEventListener("pointercancel", handlePointerUp);
     };
   }, [handleMove, isDragging]);
   const handlePointerDown = reactExports.useCallback(
-    (event, handle2 = null) => {
+    (event, handle = null) => {
       if (!event.isPrimary) return;
       event.preventDefault();
       event.stopPropagation();
@@ -351,20 +351,20 @@ function useImageCrop(containerWidth, containerHeight) {
         initialRect: {
           ...cropRect,
         },
-        handle: handle2,
+        handle,
       };
       setIsDragging(true);
     },
     [cropRect],
   );
-  const setAspectRatio = reactExports.useCallback((next2) => {
-    setAspectRatioState(next2);
-    const latest2 = latestRef.current;
+  const setAspectRatio = reactExports.useCallback((next) => {
+    setAspectRatioState(next);
+    const latest = latestRef.current;
     setCropRect(
       cropRectForAspectRatio(
-        CROP_ASPECT_RATIOS[next2],
-        latest2.containerWidth,
-        latest2.containerHeight,
+        CROP_ASPECT_RATIOS[next],
+        latest.containerWidth,
+        latest.containerHeight,
       ),
     );
   }, []);
@@ -389,23 +389,23 @@ const HANDLE_CONTAINER_CLASSES = {
   r: "absolute -right-1.5 inset-y-6 w-3 cursor-e-resize z-10 flex items-center justify-end",
 };
 function CropHandleView({
-  position: position2,
-  onPointerDown: onPointerDown2,
+  position,
+  onPointerDown,
 }) {
-  const isCorner = position2.length === 2;
+  const isCorner = position.length === 2;
   return (
     <div
-      className={HANDLE_CONTAINER_CLASSES[position2]}
-      onPointerDown={(event) => onPointerDown2(event, position2)}
+      className={HANDLE_CONTAINER_CLASSES[position]}
+      onPointerDown={(event) => onPointerDown(event, position)}
     >
       {isCorner ? (
         <span
-          className={`absolute size-full border-background ${position2.includes("t") ? "border-t-[3px]" : "border-b-[3px]"} ${position2.includes("l") ? "border-l-[3px]" : "border-r-[3px]"}`}
+          className={`absolute size-full border-background ${position.includes("t") ? "border-t-[3px]" : "border-b-[3px]"} ${position.includes("l") ? "border-l-[3px]" : "border-r-[3px]"}`}
         />
       ) : (
         <span
           className={
-            position2 === "t" || position2 === "b"
+            position === "t" || position === "b"
               ? "h-[3px] w-8 rounded-full bg-background"
               : "h-8 w-[3px] rounded-full bg-background"
           }
@@ -437,25 +437,25 @@ function ImageCropper({
   reactExports.useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    const observer2 = new ResizeObserver(([entry]) => {
+    const observer = new ResizeObserver(([entry]) => {
       if (!entry) return;
       setHostSize({
         width: entry.contentRect.width,
         height: entry.contentRect.height,
       });
     });
-    observer2.observe(host);
-    return () => observer2.disconnect();
+    observer.observe(host);
+    return () => observer.disconnect();
   }, []);
   const imageSize = reactExports.useMemo(() => {
     if (naturalSize.width <= 0 || naturalSize.height <= 0) return hostSize;
-    const scale2 = Math.min(
+    const scale = Math.min(
       hostSize.width / naturalSize.width,
       hostSize.height / naturalSize.height,
     );
     return {
-      width: naturalSize.width * scale2,
-      height: naturalSize.height * scale2,
+      width: naturalSize.width * scale,
+      height: naturalSize.height * scale,
     };
   }, [hostSize, naturalSize]);
   const cropContainerSize =
@@ -572,27 +572,27 @@ function ImageCropper({
                 <div className="absolute inset-y-0 left-1/3 w-px bg-background/40" />
                 <div className="absolute inset-y-0 left-2/3 w-px bg-background/40" />
               </div>
-              {["tl", "tr", "bl", "br"].map((position2) => (
+              {["tl", "tr", "bl", "br"].map((position) => (
                 <CropHandleView
-                  key={position2}
-                  position={position2}
+                  key={position}
+                  position={position}
                   onPointerDown={handlePointerDown}
                 />
               ))}
               {cropPixels.width > EDGE_HANDLE_THRESHOLD
-                ? ["t", "b"].map((position2) => (
+                ? ["t", "b"].map((position) => (
                     <CropHandleView
-                      key={position2}
-                      position={position2}
+                      key={position}
+                      position={position}
                       onPointerDown={handlePointerDown}
                     />
                   ))
                 : null}
               {cropPixels.height > EDGE_HANDLE_THRESHOLD
-                ? ["l", "r"].map((position2) => (
+                ? ["l", "r"].map((position) => (
                     <CropHandleView
-                      key={position2}
-                      position={position2}
+                      key={position}
+                      position={position}
                       onPointerDown={handlePointerDown}
                     />
                   ))
@@ -621,11 +621,11 @@ function ImageCropper({
             </SelectValue>
           </SelectTrigger>
           <SelectContent align="start">
-            {ASPECT_OPTIONS.map((option2) => (
-              <SelectItem key={option2} value={option2}>
-                {option2 === "free"
+            {ASPECT_OPTIONS.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option === "free"
                   ? translate("assetCenter.cover.freeAspect")
-                  : option2}
+                  : option}
               </SelectItem>
             ))}
           </SelectContent>
@@ -646,23 +646,23 @@ function ImageCropper({
     </div>
   );
 }
-function moveStagedEntryToFront(entries2, entryId) {
-  const index2 = entries2.findIndex((entry2) => entry2.id === entryId);
-  if (index2 <= 0) return entries2;
-  const entry = entries2[index2];
-  if (!entry) return entries2;
-  return [entry, ...entries2.slice(0, index2), ...entries2.slice(index2 + 1)];
+function moveStagedEntryToFront(entries, entryId) {
+  const index = entries.findIndex((entry) => entry.id === entryId);
+  if (index <= 0) return entries;
+  const entry = entries[index];
+  if (!entry) return entries;
+  return [entry, ...entries.slice(0, index), ...entries.slice(index + 1)];
 }
 function ExistingRow({
   entry,
-  onRemove: onRemove2,
+  onRemove,
   onCaptionChange,
   onSetCover,
   isCover,
   coverPreviewSrc,
 }) {
   const { t: translate } = useTranslation();
-  const isImage2 = entry.kind === "image";
+  const isImage = entry.kind === "image";
   const isVideo = entry.kind === "video";
   const isAudio = entry.kind === "audio";
   const blobSrc = gatewayUrl(
@@ -686,7 +686,7 @@ function ExistingRow({
       data-status="existing"
     >
       <div className="relative aspect-[4/3] bg-muted overflow-hidden flex items-center justify-center">
-        {isImage2 && imageSrc ? (
+        {isImage && imageSrc ? (
           <button
             type="button"
             className="absolute inset-0 cursor-zoom-in focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
@@ -750,7 +750,7 @@ function ExistingRow({
             decorative={true}
           />
         )}
-        {isImage2 && imageSrc && onSetCover ? (
+        {isImage && imageSrc && onSetCover ? (
           <Button
             variant="secondary"
             size="xs"
@@ -770,7 +770,7 @@ function ExistingRow({
           variant="ghost"
           size="icon-xs"
           className="absolute top-1 right-1 h-5 w-5 bg-background/60 text-muted-foreground hover:text-destructive hover:bg-background/80"
-          onClick={onRemove2}
+          onClick={onRemove}
           data-action-ui-id="asset-center-add-entity-staged-remove"
           aria-label={translate("common.remove")}
         >
@@ -848,30 +848,30 @@ function CoverCropDialog({
   );
 }
 function buildAcceptListFromExtensions(exts) {
-  const all2 = [];
-  for (const list2 of Object.values(exts)) {
-    for (const ext of list2) all2.push(`.${ext}`);
+  const all = [];
+  for (const list of Object.values(exts)) {
+    for (const ext of list) all.push(`.${ext}`);
   }
-  return all2.join(",");
+  return all.join(",");
 }
 function collectAllowedExtensions(exts) {
-  const set2 = new Set();
-  for (const list2 of Object.values(exts)) {
-    for (const ext of list2) set2.add(ext.toLowerCase());
+  const set = new Set();
+  for (const list of Object.values(exts)) {
+    for (const ext of list) set.add(ext.toLowerCase());
   }
-  return set2;
+  return set;
 }
 function isFilenameAllowed(filename, allowed) {
-  const dot2 = filename.lastIndexOf(".");
-  if (dot2 < 0 || dot2 === filename.length - 1) return false;
-  const ext = filename.slice(dot2 + 1).toLowerCase();
+  const dot = filename.lastIndexOf(".");
+  if (dot < 0 || dot === filename.length - 1) return false;
+  const ext = filename.slice(dot + 1).toLowerCase();
   return allowed.has(ext);
 }
 export function AttachmentUploadZone({
   staged,
   onStagedChange,
-  max: max2,
-  mode: mode2 = "upload",
+  max,
+  mode = "upload",
   compactDropZone = false,
   uploadMutation,
   onCoverChange,
@@ -891,16 +891,16 @@ export function AttachmentUploadZone({
   const latestStagedRef = reactExports.useRef(staged);
   latestStagedRef.current = staged;
   const commitStagedChange = reactExports.useCallback(
-    (next2) => {
-      latestStagedRef.current = next2;
-      onStagedChange(next2);
+    (next) => {
+      latestStagedRef.current = next;
+      onStagedChange(next);
     },
     [onStagedChange],
   );
   reactExports.useEffect(() => {
     return () => {
-      for (const url2 of Object.values(coverPreviewUrlsRef.current)) {
-        URL.revokeObjectURL(url2);
+      for (const url of Object.values(coverPreviewUrlsRef.current)) {
+        URL.revokeObjectURL(url);
       }
     };
   }, []);
@@ -923,7 +923,7 @@ export function AttachmentUploadZone({
     async (files) => {
       if (files.length === 0) return;
       const currentStaged = latestStagedRef.current;
-      const remaining = Math.max(0, max2 - currentStaged.length);
+      const remaining = Math.max(0, max - currentStaged.length);
       const toAdd = files.slice(0, remaining);
       if (toAdd.length === 0) return;
       const allowedExts = collectAllowedExtensions(ATTACHMENT_EXTENSIONS);
@@ -956,10 +956,10 @@ export function AttachmentUploadZone({
         file,
         status: "pending",
       }));
-      let next2 = [...currentStaged, ...initial, ...rejectedEntries];
-      commitStagedChange(next2);
-      if (mode2 === "stage") {
-        next2 = next2.map((stagedEntry) => {
+      let next = [...currentStaged, ...initial, ...rejectedEntries];
+      commitStagedChange(next);
+      if (mode === "stage") {
+        next = next.map((stagedEntry) => {
           const entry = initial.find((initialEntry) => initialEntry.id === stagedEntry.id);
           return entry
             ? {
@@ -969,7 +969,7 @@ export function AttachmentUploadZone({
               }
             : stagedEntry;
         });
-        commitStagedChange(next2);
+        commitStagedChange(next);
         return;
       }
       if (!uploadMutation) {
@@ -978,7 +978,7 @@ export function AttachmentUploadZone({
         );
       }
       for (const entry of initial) {
-        next2 = next2.map((stagedEntry) =>
+        next = next.map((stagedEntry) =>
           stagedEntry.id === entry.id
             ? {
                 id: stagedEntry.id,
@@ -987,12 +987,12 @@ export function AttachmentUploadZone({
               }
             : stagedEntry,
         );
-        commitStagedChange(next2);
+        commitStagedChange(next);
         try {
           const result = await uploadMutation.mutateAsync({
             file: entry.file,
           });
-          next2 = next2.map((stagedEntry) =>
+          next = next.map((stagedEntry) =>
             stagedEntry.id === entry.id
               ? {
                   id: stagedEntry.id,
@@ -1003,7 +1003,7 @@ export function AttachmentUploadZone({
               : stagedEntry,
           );
         } catch (err) {
-          next2 = next2.map((stagedEntry) =>
+          next = next.map((stagedEntry) =>
             stagedEntry.id === entry.id
               ? {
                   id: stagedEntry.id,
@@ -1014,10 +1014,10 @@ export function AttachmentUploadZone({
               : stagedEntry,
           );
         }
-        commitStagedChange(next2);
+        commitStagedChange(next);
       }
     },
-    [commitStagedChange, max2, uploadMutation, mode2, resolveErrorMessage, translate],
+    [commitStagedChange, max, uploadMutation, mode, resolveErrorMessage, translate],
   );
   const handlePick = reactExports.useCallback(() => {
     if (trackingSurface) {
@@ -1039,7 +1039,7 @@ export function AttachmentUploadZone({
     },
     [enqueue],
   );
-  const handleDrop2 = reactExports.useCallback(
+  const handleDrop = reactExports.useCallback(
     (dragEvent) => {
       dragEvent.preventDefault();
       void enqueue(Array.from(dragEvent.dataTransfer.files));
@@ -1056,17 +1056,17 @@ export function AttachmentUploadZone({
         coverPreviewUrlsRef.current = nextPreviewByEntryId;
         setCoverPreviewByEntryId(nextPreviewByEntryId);
       }
-      const next2 = latestStagedRef.current.filter((stagedEntry) => stagedEntry.id !== entryId);
+      const next = latestStagedRef.current.filter((stagedEntry) => stagedEntry.id !== entryId);
       if (trackingSurface) {
         trackAssetCenterAction({
           action: "attachment_remove",
           surface: trackingSurface,
           entity_id: trackingEntityId,
           entity_type: trackingEntityType,
-          attachment_count: next2.length,
+          attachment_count: next.length,
         });
       }
-      commitStagedChange(next2);
+      commitStagedChange(next);
     },
     [commitStagedChange, trackingSurface, trackingEntityId, trackingEntityType],
   );
@@ -1115,12 +1115,12 @@ export function AttachmentUploadZone({
         setCoverPreviewByEntryId((prev) => {
           const previousUrl = prev[coverTarget.entryId];
           if (previousUrl) URL.revokeObjectURL(previousUrl);
-          const next2 = {
+          const next = {
             ...prev,
             [coverTarget.entryId]: previewUrl,
           };
-          coverPreviewUrlsRef.current = next2;
-          return next2;
+          coverPreviewUrlsRef.current = next;
+          return next;
         });
         onCoverChange?.(uploaded);
         const reordered = moveStagedEntryToFront(
@@ -1149,16 +1149,16 @@ export function AttachmentUploadZone({
       uploadMutation,
     ],
   );
-  const atMax = staged.length >= max2;
+  const atMax = staged.length >= max;
   const totalItems = staged.length + (atMax ? 0 : 1);
   reactExports.useEffect(() => {
     if (compactDropZone && totalItems > 6 && gridRef.current) {
       gridRef.current.scrollTop = gridRef.current.scrollHeight;
     }
   }, [compactDropZone, totalItems]);
-  const renderAttachmentRow = (entry, index2) => {
+  const renderAttachmentRow = (entry, index) => {
     const onSetCover =
-      mode2 === "upload" && uploadMutation
+      mode === "upload" && uploadMutation
         ? (src, filename) => {
             assetCenterLog.info("cover.crop_dialog_open", {
               filename,
@@ -1177,8 +1177,8 @@ export function AttachmentUploadZone({
       onRemove: () => handleRemove(entry.id),
       onCaptionChange: (caption) => handleCaptionChange(entry.id, caption),
       onSetCover,
-      isCover: index2 === 0,
-      coverPreviewSrc: index2 === 0 ? coverPreviewByEntryId[entry.id] : void 0,
+      isCover: index === 0,
+      coverPreviewSrc: index === 0 ? coverPreviewByEntryId[entry.id] : void 0,
     };
     return entry.status === "existing" ? (
       <ExistingRow key={entry.id} {...rowProps} entry={entry} />
@@ -1194,7 +1194,7 @@ export function AttachmentUploadZone({
             type="button"
             onClick={handlePick}
             onDragOver={(dragEvent) => dragEvent.preventDefault()}
-            onDrop={handleDrop2}
+            onDrop={handleDrop}
             data-action-ui-id="asset-center-add-entity-upload-zone"
             className="w-full flex flex-col items-center justify-center gap-1 border border-dashed rounded-lg transition-colors border-muted-foreground/40 bg-muted/30 text-muted-foreground hover:border-foreground/30 hover:bg-muted/50 cursor-pointer"
             style={{
@@ -1238,7 +1238,7 @@ export function AttachmentUploadZone({
                   if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") handlePick();
                 }}
                 onDragOver={(dragEvent) => dragEvent.preventDefault()}
-                onDrop={handleDrop2}
+                onDrop={handleDrop}
                 data-action-ui-id="asset-center-add-entity-upload-zone"
               >
                 <div className="aspect-[4/3] bg-muted/30" />
@@ -1275,7 +1275,7 @@ export function AttachmentUploadZone({
             type="button"
             onClick={handlePick}
             onDragOver={(dragEvent) => dragEvent.preventDefault()}
-            onDrop={handleDrop2}
+            onDrop={handleDrop}
             disabled={atMax}
             data-action-ui-id="asset-center-add-entity-upload-zone"
             className={cn(

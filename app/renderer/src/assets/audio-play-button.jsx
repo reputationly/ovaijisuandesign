@@ -27,13 +27,13 @@ export const ENTITY_TYPES = [
   "custom",
 ];
 export function FileNameLabel({
-  name: name2,
+  name: fileName,
   className,
   tooltip = true,
   actionUiId,
   tooltipPositionerClassName,
 }) {
-  const { stem, ext } = splitMentionFilename(name2);
+  const { stem, ext } = splitMentionFilename(fileName);
   const label = (
     // biome-ignore lint/a11y/useSemanticElements: Inline filename parts form a labelled group, not a form fieldset.
     <span
@@ -42,7 +42,7 @@ export function FileNameLabel({
         className,
       )}
       role="group"
-      aria-label={name2}
+      aria-label={fileName}
       data-action-ui-id={actionUiId}
       data-slot="file-name-label"
       tabIndex={tooltip ? 0 : void 0}
@@ -69,7 +69,7 @@ export function FileNameLabel({
           className="max-w-80 whitespace-normal [overflow-wrap:anywhere]"
           positionerClassName={tooltipPositionerClassName}
         >
-          {name2}
+          {fileName}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

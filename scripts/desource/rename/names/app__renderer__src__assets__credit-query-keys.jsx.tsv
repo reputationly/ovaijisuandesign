@@ -2,3 +2,14 @@ key	old	new	依据
 qc@125:44	qc	queryClient	该参数是用于失效文件内容缓存的查询客户端。
 a2@134:6	a2	leftTrace	该值是按更新时间排序比较中的左侧投递追踪记录。
 b3@134:10	b3	rightTrace	该值是按更新时间排序比较中的右侧投递追踪记录。
+platform2@13:36	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+platform2@58:50	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+timer2@70:11	timer2	timer	去掉打包器防重名追加的后缀，恢复原名 timer，即该绑定持有的值。
+path2@122:53	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@125:84	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+state2@149:11	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+workspaceId2@200:44	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
+key2@201:9	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+hiloApp2@227:3	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+workspaceId2@228:3	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
+queryScope2@427:11	queryScope2	queryScope	去掉打包器防重名追加的后缀，恢复原名 queryScope，即该绑定持有的值。

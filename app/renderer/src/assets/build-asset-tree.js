@@ -17,18 +17,18 @@ function ensureDirNode(currentPath, currentChildren, dirMap, segment) {
   return dirEntry;
 }
 
-function sortTree(entries2) {
-  entries2.sort((leftEntry, rightEntry) => {
+function sortTree(entries) {
+  entries.sort((leftEntry, rightEntry) => {
     if (leftEntry.isDirectory !== rightEntry.isDirectory) return leftEntry.isDirectory ? -1 : 1;
     return leftEntry.name.localeCompare(rightEntry.name);
   });
-  for (const entry of entries2) {
+  for (const entry of entries) {
     if (entry.children) sortTree(entry.children);
   }
 }
 
 function buildAssetTree(assets, dirs) {
-  const root2 = [];
+  const root = [];
   const dirMap = new Map();
   const seenPaths = new Set();
   if (dirs && dirs.length > 0) {
@@ -38,18 +38,18 @@ function buildAssetTree(assets, dirs) {
     for (const dirPath of sortedDirs) {
       if (!dirPath) continue;
       const segments = dirPath.split("/");
-      let currentChildren = root2;
+      let currentChildren = root;
       let currentPath = "";
       for (const segment of segments) {
         if (!segment) continue;
         currentPath = currentPath ? `${currentPath}/${segment}` : segment;
-        const node2 = ensureDirNode(
+        const node = ensureDirNode(
           currentPath,
           currentChildren,
           dirMap,
           segment,
         );
-        currentChildren = node2.children ?? [];
+        currentChildren = node.children ?? [];
       }
     }
   }
@@ -57,18 +57,18 @@ function buildAssetTree(assets, dirs) {
     if (seenPaths.has(asset.path)) continue;
     seenPaths.add(asset.path);
     const segments = asset.path.split("/");
-    let currentChildren = root2;
+    let currentChildren = root;
     let currentPath = "";
     for (let segmentIndex = 0; segmentIndex < segments.length - 1; segmentIndex++) {
       const segment = segments[segmentIndex];
       currentPath = currentPath ? `${currentPath}/${segment}` : segment;
-      const node2 = ensureDirNode(
+      const node = ensureDirNode(
         currentPath,
         currentChildren,
         dirMap,
         segment,
       );
-      currentChildren = node2.children ?? [];
+      currentChildren = node.children ?? [];
     }
     const fileName = asset.name || segments[segments.length - 1];
     currentChildren.push({
@@ -80,8 +80,8 @@ function buildAssetTree(assets, dirs) {
       candidate: asset.candidate,
     });
   }
-  sortTree(root2);
-  return root2;
+  sortTree(root);
+  return root;
 }
 
 function useAssetTree(assets, dirs) {
@@ -94,14 +94,14 @@ function useAssetTree(assets, dirs) {
 export function useFileExplorerWorkspaceDirs({
   rootPath,
   assets,
-  gatewayFetch: gatewayFetch2,
-  queryClient: queryClient2,
+  gatewayFetch,
+  queryClient,
 }) {
   const { subscribe: subscribeToWS } = useWorkspaceWSConnection();
   const { data: dirsData } = useQuery({
     queryKey: ["workspace-dirs", rootPath],
     queryFn: async () => {
-      const res = await gatewayFetch2(API_PATHS.listDirs);
+      const res = await gatewayFetch(API_PATHS.listDirs);
       if (!res.ok) {
         throw new Error(`listDirs failed: ${res.status} ${res.statusText}`);
       }
@@ -114,19 +114,19 @@ export function useFileExplorerWorkspaceDirs({
   const assetTree = useAssetTree(assets, dirs);
   const invalidateDirs = reactExports.useCallback(() => {
     if (!rootPath) return;
-    queryClient2.invalidateQueries({
+    queryClient.invalidateQueries({
       queryKey: ["workspace-dirs", rootPath],
     });
-  }, [queryClient2, rootPath]);
+  }, [queryClient, rootPath]);
   reactExports.useEffect(() => {
     if (!rootPath) return;
     return subscribeToWS((msg) => {
       if (msg.type !== "dirs_changed") return;
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["workspace-dirs", rootPath],
       });
     });
-  }, [subscribeToWS, queryClient2, rootPath]);
+  }, [subscribeToWS, queryClient, rootPath]);
   return {
     assetTree,
     invalidateDirs,
