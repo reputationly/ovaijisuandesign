@@ -1,0 +1,266 @@
+[
+ {
+  "file": "assets/attachment-upload-zone.jsx",
+  "line": 98,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.733
+ },
+ {
+  "file": "canvas/resolve-canvas-focus-targets.js",
+  "line": 310,
+  "names": [
+   "isFiniteNumber"
+  ],
+  "bestSim": 0.769
+ },
+ {
+  "file": "canvas/use-start-crop-from-node.js",
+  "line": 7,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.733
+ },
+ {
+  "file": "generation/use-resizable-width.js",
+  "line": 3,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.733
+ },
+ {
+  "file": "infra/from-vendor.js",
+  "line": 747,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.719
+ },
+ {
+  "file": "infra/from-vendor.js",
+  "line": 870,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.75
+ },
+ {
+  "file": "infra/from-vendor.js",
+  "line": 935,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.794
+ },
+ {
+  "file": "infra/gateway-http-error.jsx",
+  "line": 116,
+  "names": [
+   "getBaseUrl"
+  ],
+  "bestSim": 0.32
+ },
+ {
+  "file": "media-editing/erase-subtitle-editor.jsx",
+  "line": 113,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.531
+ },
+ {
+  "file": "media-editing/light-ball.jsx",
+  "line": 114,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.767
+ },
+ {
+  "file": "media-editing/package.jsx",
+  "line": 323,
+  "names": [
+   "Settings"
+  ],
+  "bestSim": 0.027
+ },
+ {
+  "file": "media-editing/plugin-launcher.jsx",
+  "line": 40,
+  "names": [
+   "isFiniteNumber"
+  ],
+  "bestSim": 0.769
+ },
+ {
+  "file": "media-editing/use-editor-state.js",
+  "line": 85,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.833
+ },
+ {
+  "file": "media-editing/use-hover-preview.js",
+  "line": 44,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.733
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "readUint16"
+  ],
+  "bestSim": 0.762
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "readUint32"
+  ],
+  "bestSim": 0.826
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "Ea",
+   "ua",
+   "da",
+   "fa",
+   "pa",
+   "ma",
+   "ya",
+   "wa",
+   "Da",
+   "ba",
+   "Fa",
+   "Sa",
+   "ka",
+   "Ra",
+   "Na",
+   "Ga",
+   "Ma",
+   "Ua",
+   "xa",
+   "La",
+   "Ha",
+   "Ja",
+   "Ya",
+   "va",
+   "Ka",
+   "Ta",
+   "qa",
+   "Oa",
+   "Pa",
+   "Wa",
+   "ja",
+   "Xa",
+   "Za",
+   "Va",
+   "za",
+   "_a",
+   "",
+   "As",
+   "es",
+   "ts",
+   "is"
+  ],
+  "bestSim": 0
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "Level"
+  ],
+  "bestSim": 0.043
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "Part"
+  ],
+  "bestSim": 0.115
+ },
+ {
+  "file": "text-editor/configuration2.js",
+  "line": 82,
+  "names": [
+   "types"
+  ],
+  "bestSim": 0.036
+ },
+ {
+  "file": "vendor.js",
+  "line": 10656,
+  "names": [
+   "Settings"
+  ],
+  "bestSim": 0.154
+ },
+ {
+  "file": "vendor.js",
+  "line": 11622,
+  "names": [
+   "noop"
+  ],
+  "bestSim": 0.8
+ },
+ {
+  "file": "vendor.js",
+  "line": 27893,
+  "names": [
+   "EventEmitter"
+  ],
+  "bestSim": 0.04
+ },
+ {
+  "file": "vendor.js",
+  "line": 43638,
+  "names": [
+   "MP4"
+  ],
+  "bestSim": 0.002
+ },
+ {
+  "file": "vendor.js",
+  "line": 49361,
+  "names": [
+   "view"
+  ],
+  "bestSim": 0.082
+ },
+ {
+  "file": "vendor.js",
+  "line": 73847,
+  "names": [
+   "Logger"
+  ],
+  "bestSim": 0.47
+ },
+ {
+  "file": "vendor.js",
+  "line": 75296,
+  "names": [
+   "noop"
+  ],
+  "bestSim": 0.8
+ },
+ {
+  "file": "workspace/workspace-stage.jsx",
+  "line": 31,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.733
+ }
+]

@@ -1,0 +1,14 @@
+--- canvas/edges-canvas.jsx:29 getSnapshot vs undefined:undefined  lenV=41 lenD=undefined
+  V: function getSnapshot(){return hoveredId;}
+--- canvas/separator.jsx:123 getSnapshot vs undefined:undefined  lenV=43 lenD=undefined
+  V: function getSnapshot(){return currentTier;}
+--- chat/attach-handoff-targets-to-sub-messages.js:4 active vs undefined:undefined  lenV=16 lenD=undefined
+  V: let active=null;
+--- home/motion-utils.js:10 copyRect vs undefined:undefined  lenV=92 lenD=undefined
+  V: function copyRect(_L0){return{left:_L0.left,top:_L0.top,width:_L0.width,height:_L0.height};}
+--- media-editing/canvas-image.jsx:18 getSnapshot vs undefined:undefined  lenV=45 lenD=undefined
+  V: function getSnapshot(){return currentBucket;}
+--- vendor.js:23890 isMouseWithinBounds vs undefined:undefined  lenV=209 lenD=undefined
+  V: function isMouseWithinBounds(_L0){const _L1=_L0.currentTarget.getBoundingClientRect();const _L2=_L1.top+1<=_L0.clientY&&_L0.clientY<=_L1.bottom-1&&_L1.left+1<=_L0.clientX&&_L0.clientX<=_L1.right-1;ret
+--- vendor.js:65503 empty vs undefined:undefined  lenV=15 lenD=undefined
+  V: const empty=[];

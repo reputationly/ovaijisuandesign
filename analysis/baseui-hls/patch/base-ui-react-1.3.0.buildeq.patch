@@ -1,0 +1,116 @@
+--- a/package/esm/utils/createBaseUIEventDetails.js	2026-10-13 15:35:50.489827175 +0000
++++ b/package/esm/utils/createBaseUIEventDetails.js	2026-10-13 15:35:50.489827175 +0000
+@@ -42,7 +42,7 @@
+   return details;
+ }
+ export function createGenericEventDetails(reason, event, customProperties) {
+-  const custom = customProperties ?? EMPTY_OBJECT;
++  const custom = EMPTY_OBJECT;
+   const details = {
+     reason,
+     event: event ?? new Event('base-ui'),
+--- a/package/esm/toolbar/root/ToolbarRootContext.js	2026-10-13 15:35:50.491827162 +0000
++++ b/package/esm/toolbar/root/ToolbarRootContext.js	2026-10-13 15:35:50.491827162 +0000
+@@ -6,8 +6,5 @@
+ if (process.env.NODE_ENV !== "production") ToolbarRootContext.displayName = "ToolbarRootContext";
+ export function useToolbarRootContext(optional) {
+   const context = React.useContext(ToolbarRootContext);
+-  if (context === undefined && !optional) {
+-    throw new Error(process.env.NODE_ENV !== "production" ? 'Base UI: ToolbarRootContext is missing. Toolbar parts must be placed within <Toolbar.Root>.' : _formatErrorMessage(69));
+-  }
+   return context;
+ }
+\ No newline at end of file
+--- a/package/esm/menubar/MenubarContext.js	2026-10-13 15:35:50.492827155 +0000
++++ b/package/esm/menubar/MenubarContext.js	2026-10-13 15:35:50.493827149 +0000
+@@ -6,8 +6,5 @@
+ if (process.env.NODE_ENV !== "production") MenubarContext.displayName = "MenubarContext";
+ export function useMenubarContext(optional) {
+   const context = React.useContext(MenubarContext);
+-  if (context === null && !optional) {
+-    throw new Error(process.env.NODE_ENV !== "production" ? 'Base UI: MenubarContext is missing. Menubar parts must be placed within <Menubar>.' : _formatErrorMessage(5));
+-  }
+   return context;
+ }
+\ No newline at end of file
+--- a/package/esm/menu/popup/MenuPopup.js	2026-10-13 15:35:50.494827143 +0000
++++ b/package/esm/menu/popup/MenuPopup.js	2026-10-13 15:35:50.494827143 +0000
+@@ -39,7 +39,7 @@
+     side,
+     align
+   } = useMenuPositionerContext();
+-  const insideToolbar = useToolbarRootContext(true) != null;
++  const insideToolbar = useToolbarRootContext() != null;
+   const open = store.useState('open');
+   const transitionStatus = store.useState('transitionStatus');
+   const popupProps = store.useState('popupProps');
+--- a/package/esm/select/popup/SelectPopup.js	2026-10-13 15:35:50.495827136 +0000
++++ b/package/esm/select/popup/SelectPopup.js	2026-10-13 15:35:50.495827136 +0000
+@@ -69,7 +69,7 @@
+     scrollDownArrowRef,
+     scrollUpArrowRef
+   } = useSelectPositionerContext();
+-  const insideToolbar = useToolbarRootContext(true) != null;
++  const insideToolbar = useToolbarRootContext() != null;
+   const floatingRootContext = useSelectFloatingContext();
+   const {
+     nonce,
+--- a/package/esm/popover/popup/PopoverPopup.js	2026-10-13 15:35:50.497827123 +0000
++++ b/package/esm/popover/popup/PopoverPopup.js	2026-10-13 15:35:50.497827123 +0000
+@@ -38,7 +38,7 @@
+     store
+   } = usePopoverRootContext();
+   const positioner = usePopoverPositionerContext();
+-  const insideToolbar = useToolbarRootContext(true) != null;
++  const insideToolbar = useToolbarRootContext() != null;
+   const {
+     context: closePartContext,
+     hasClosePart
+--- a/package/esm/toggle-group/ToggleGroup.js	2026-10-13 15:35:50.498827117 +0000
++++ b/package/esm/toggle-group/ToggleGroup.js	2026-10-13 15:35:50.498827117 +0000
+@@ -38,7 +38,7 @@
+     render,
+     ...elementProps
+   } = componentProps;
+-  const toolbarContext = useToolbarRootContext(true);
++  const toolbarContext = useToolbarRootContext();
+   const defaultValue = React.useMemo(() => {
+     if (valueProp === undefined) {
+       return defaultValueProp ?? [];
+--- a/package/esm/menu/trigger/MenuTrigger.js	2026-10-13 15:35:50.499827111 +0000
++++ b/package/esm/menu/trigger/MenuTrigger.js	2026-10-13 15:35:50.499827111 +0000
+@@ -284,7 +284,7 @@
+ function useMenuParent() {
+   const contextMenuContext = useContextMenuRootContext(true);
+   const parentContext = useMenuRootContext(true);
+-  const menubarContext = useMenubarContext(true);
++  const menubarContext = useMenubarContext();
+   const parent = React.useMemo(() => {
+     if (menubarContext) {
+       return {
+--- a/package/esm/dialog/root/DialogRoot.js	2026-10-13 15:35:50.500827104 +0000
++++ b/package/esm/dialog/root/DialogRoot.js	2026-10-13 15:35:50.501827098 +0000
+@@ -63,9 +63,7 @@
+   useDialogRoot({
+     store,
+     actionsRef,
+-    parentContext: parentDialogRootContext?.store.context,
+-    onOpenChange,
+-    triggerIdProp
++    parentContext: parentDialogRootContext?.store.context
+   });
+   const contextValue = React.useMemo(() => ({
+     store
+--- a/package/esm/alert-dialog/root/AlertDialogRoot.js	2026-10-13 15:35:50.502827092 +0000
++++ b/package/esm/alert-dialog/root/AlertDialogRoot.js	2026-10-13 15:35:50.502827092 +0000
+@@ -47,9 +47,7 @@
+   useDialogRoot({
+     store,
+     actionsRef,
+-    parentContext: parentDialogRootContext?.store.context,
+-    onOpenChange,
+-    triggerIdProp
++    parentContext: parentDialogRootContext?.store.context
+   });
+   const contextValue = React.useMemo(() => ({
+     store

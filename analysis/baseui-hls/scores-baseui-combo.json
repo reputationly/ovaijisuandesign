@@ -1,0 +1,2522 @@
+[
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 720,
+  "norm": 39,
+  "diff": 4,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 719,
+  "norm": 39,
+  "diff": 5,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 718,
+  "norm": 39,
+  "diff": 6,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 718,
+  "norm": 39,
+  "diff": 6,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 717,
+  "norm": 39,
+  "diff": 6,
+  "missing": 1
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 715,
+  "norm": 39,
+  "diff": 9,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 714,
+  "norm": 35,
+  "diff": 14,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 713,
+  "norm": 35,
+  "diff": 15,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 712,
+  "norm": 35,
+  "diff": 16,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 712,
+  "norm": 35,
+  "diff": 16,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 711,
+  "norm": 35,
+  "diff": 16,
+  "missing": 1
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 709,
+  "norm": 35,
+  "diff": 19,
+  "missing": 0
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 703,
+  "norm": 39,
+  "diff": 11,
+  "missing": 10
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 699,
+  "norm": 39,
+  "diff": 12,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 698,
+  "norm": 39,
+  "diff": 13,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 698,
+  "norm": 39,
+  "diff": 13,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 697,
+  "norm": 35,
+  "diff": 21,
+  "missing": 10
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 694,
+  "norm": 38,
+  "diff": 18,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 692,
+  "norm": 38,
+  "diff": 20,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 693,
+  "norm": 35,
+  "diff": 22,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0-buildeq",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 690,
+  "norm": 38,
+  "diff": 22,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 692,
+  "norm": 35,
+  "diff": 23,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 692,
+  "norm": 35,
+  "diff": 23,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 688,
+  "norm": 34,
+  "diff": 28,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 686,
+  "norm": 34,
+  "diff": 30,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.3.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 684,
+  "norm": 34,
+  "diff": 32,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 628,
+  "norm": 21,
+  "diff": 78,
+  "missing": 36
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 627,
+  "norm": 21,
+  "diff": 79,
+  "missing": 36
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 626,
+  "norm": 21,
+  "diff": 80,
+  "missing": 36
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 626,
+  "norm": 21,
+  "diff": 80,
+  "missing": 36
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 625,
+  "norm": 21,
+  "diff": 80,
+  "missing": 37
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 623,
+  "norm": 21,
+  "diff": 83,
+  "missing": 36
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 611,
+  "norm": 21,
+  "diff": 85,
+  "missing": 46
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 607,
+  "norm": 21,
+  "diff": 86,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 606,
+  "norm": 21,
+  "diff": 87,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 606,
+  "norm": 21,
+  "diff": 87,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 602,
+  "norm": 20,
+  "diff": 92,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 600,
+  "norm": 20,
+  "diff": 94,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.2.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 598,
+  "norm": 20,
+  "diff": 96,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 584,
+  "norm": 6,
+  "diff": 164,
+  "missing": 9
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 583,
+  "norm": 6,
+  "diff": 165,
+  "missing": 9
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 582,
+  "norm": 6,
+  "diff": 166,
+  "missing": 9
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 582,
+  "norm": 6,
+  "diff": 166,
+  "missing": 9
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 581,
+  "norm": 6,
+  "diff": 166,
+  "missing": 10
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 581,
+  "norm": 6,
+  "diff": 164,
+  "missing": 12
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 580,
+  "norm": 6,
+  "diff": 165,
+  "missing": 12
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 579,
+  "norm": 6,
+  "diff": 169,
+  "missing": 9
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 579,
+  "norm": 6,
+  "diff": 166,
+  "missing": 12
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 579,
+  "norm": 6,
+  "diff": 166,
+  "missing": 12
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 578,
+  "norm": 6,
+  "diff": 166,
+  "missing": 13
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 576,
+  "norm": 6,
+  "diff": 169,
+  "missing": 12
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 568,
+  "norm": 10,
+  "diff": 136,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 567,
+  "norm": 10,
+  "diff": 137,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 566,
+  "norm": 10,
+  "diff": 138,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 566,
+  "norm": 10,
+  "diff": 138,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 565,
+  "norm": 10,
+  "diff": 138,
+  "missing": 50
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 567,
+  "norm": 6,
+  "diff": 171,
+  "missing": 19
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 563,
+  "norm": 10,
+  "diff": 141,
+  "missing": 49
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 564,
+  "norm": 6,
+  "diff": 171,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 563,
+  "norm": 6,
+  "diff": 172,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 562,
+  "norm": 6,
+  "diff": 173,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 562,
+  "norm": 6,
+  "diff": 173,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 560,
+  "norm": 6,
+  "diff": 172,
+  "missing": 25
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 559,
+  "norm": 6,
+  "diff": 173,
+  "missing": 25
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 559,
+  "norm": 6,
+  "diff": 173,
+  "missing": 25
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 558,
+  "norm": 5,
+  "diff": 178,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 557,
+  "norm": 5,
+  "diff": 182,
+  "missing": 19
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 556,
+  "norm": 5,
+  "diff": 180,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 556,
+  "norm": 5,
+  "diff": 183,
+  "missing": 19
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 551,
+  "norm": 10,
+  "diff": 143,
+  "missing": 59
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 555,
+  "norm": 5,
+  "diff": 178,
+  "missing": 25
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 555,
+  "norm": 5,
+  "diff": 184,
+  "missing": 19
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 555,
+  "norm": 5,
+  "diff": 184,
+  "missing": 19
+ },
+ {
+  "react": "@base-ui/react@1.4.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 554,
+  "norm": 5,
+  "diff": 182,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 554,
+  "norm": 5,
+  "diff": 184,
+  "missing": 20
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 553,
+  "norm": 5,
+  "diff": 180,
+  "missing": 25
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 552,
+  "norm": 5,
+  "diff": 187,
+  "missing": 19
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 547,
+  "norm": 10,
+  "diff": 144,
+  "missing": 62
+ },
+ {
+  "react": "@base-ui/react@1.4.1",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 551,
+  "norm": 5,
+  "diff": 182,
+  "missing": 25
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 546,
+  "norm": 10,
+  "diff": 145,
+  "missing": 62
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 546,
+  "norm": 10,
+  "diff": 145,
+  "missing": 62
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 542,
+  "norm": 9,
+  "diff": 150,
+  "missing": 62
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 540,
+  "norm": 9,
+  "diff": 152,
+  "missing": 62
+ },
+ {
+  "react": "@base-ui/react@1.1.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 538,
+  "norm": 9,
+  "diff": 154,
+  "missing": 62
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 539,
+  "norm": 7,
+  "diff": 156,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 539,
+  "norm": 7,
+  "diff": 156,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 539,
+  "norm": 7,
+  "diff": 156,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 540,
+  "norm": 5,
+  "diff": 189,
+  "missing": 29
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 538,
+  "norm": 7,
+  "diff": 157,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 538,
+  "norm": 7,
+  "diff": 157,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 538,
+  "norm": 7,
+  "diff": 157,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 537,
+  "norm": 7,
+  "diff": 158,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 537,
+  "norm": 7,
+  "diff": 158,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 537,
+  "norm": 7,
+  "diff": 158,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 537,
+  "norm": 7,
+  "diff": 158,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 537,
+  "norm": 7,
+  "diff": 158,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 537,
+  "norm": 7,
+  "diff": 158,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 536,
+  "norm": 7,
+  "diff": 158,
+  "missing": 62
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 536,
+  "norm": 7,
+  "diff": 158,
+  "missing": 62
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 536,
+  "norm": 7,
+  "diff": 158,
+  "missing": 62
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 536,
+  "norm": 5,
+  "diff": 190,
+  "missing": 32
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 534,
+  "norm": 7,
+  "diff": 161,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 534,
+  "norm": 7,
+  "diff": 161,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 534,
+  "norm": 7,
+  "diff": 161,
+  "missing": 61
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 535,
+  "norm": 5,
+  "diff": 191,
+  "missing": 32
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 535,
+  "norm": 5,
+  "diff": 191,
+  "missing": 32
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 535,
+  "norm": 5,
+  "diff": 202,
+  "missing": 21
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 534,
+  "norm": 5,
+  "diff": 203,
+  "missing": 21
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 533,
+  "norm": 5,
+  "diff": 204,
+  "missing": 21
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 533,
+  "norm": 5,
+  "diff": 204,
+  "missing": 21
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 532,
+  "norm": 5,
+  "diff": 204,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 531,
+  "norm": 4,
+  "diff": 196,
+  "missing": 32
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 530,
+  "norm": 5,
+  "diff": 207,
+  "missing": 21
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 529,
+  "norm": 4,
+  "diff": 198,
+  "missing": 32
+ },
+ {
+  "react": "@base-ui/react@1.5.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 527,
+  "norm": 4,
+  "diff": 200,
+  "missing": 32
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 522,
+  "norm": 7,
+  "diff": 163,
+  "missing": 71
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 522,
+  "norm": 7,
+  "diff": 163,
+  "missing": 71
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 522,
+  "norm": 7,
+  "diff": 163,
+  "missing": 71
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 518,
+  "norm": 7,
+  "diff": 164,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 518,
+  "norm": 7,
+  "diff": 164,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 518,
+  "norm": 7,
+  "diff": 164,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 517,
+  "norm": 7,
+  "diff": 165,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 517,
+  "norm": 7,
+  "diff": 165,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 517,
+  "norm": 7,
+  "diff": 165,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 517,
+  "norm": 7,
+  "diff": 165,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 517,
+  "norm": 7,
+  "diff": 165,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 517,
+  "norm": 7,
+  "diff": 165,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 518,
+  "norm": 5,
+  "diff": 209,
+  "missing": 31
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-rc.0",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 513,
+  "norm": 7,
+  "diff": 169,
+  "missing": 3
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 514,
+  "norm": 5,
+  "diff": 210,
+  "missing": 34
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 513,
+  "norm": 6,
+  "diff": 170,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 513,
+  "norm": 6,
+  "diff": 170,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 513,
+  "norm": 6,
+  "diff": 170,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 513,
+  "norm": 5,
+  "diff": 211,
+  "missing": 34
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 513,
+  "norm": 5,
+  "diff": 211,
+  "missing": 34
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 511,
+  "norm": 6,
+  "diff": 172,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 511,
+  "norm": 6,
+  "diff": 172,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 511,
+  "norm": 6,
+  "diff": 172,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.7",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 510,
+  "norm": 6,
+  "diff": 171,
+  "missing": 5
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-rc.0",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 509,
+  "norm": 7,
+  "diff": 169,
+  "missing": 7
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.1",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 509,
+  "norm": 6,
+  "diff": 174,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0-rc.2",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 509,
+  "norm": 6,
+  "diff": 174,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.0.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 509,
+  "norm": 6,
+  "diff": 174,
+  "missing": 74
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 509,
+  "norm": 4,
+  "diff": 216,
+  "missing": 34
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.7",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 506,
+  "norm": 6,
+  "diff": 171,
+  "missing": 9
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 507,
+  "norm": 4,
+  "diff": 218,
+  "missing": 34
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-rc.0",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 504,
+  "norm": 7,
+  "diff": 174,
+  "missing": 7
+ },
+ {
+  "react": "@base-ui/react@1.6.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 505,
+  "norm": 4,
+  "diff": 220,
+  "missing": 34
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.7",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 501,
+  "norm": 6,
+  "diff": 176,
+  "missing": 9
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-rc.0",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 496,
+  "norm": 7,
+  "diff": 170,
+  "missing": 19
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.5",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 494,
+  "norm": 6,
+  "diff": 171,
+  "missing": 21
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.6",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 494,
+  "norm": 6,
+  "diff": 172,
+  "missing": 20
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-rc.0",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 493,
+  "norm": 7,
+  "diff": 170,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-rc.0",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 493,
+  "norm": 7,
+  "diff": 170,
+  "missing": 22
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.7",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 493,
+  "norm": 6,
+  "diff": 172,
+  "missing": 21
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.5",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 490,
+  "norm": 6,
+  "diff": 171,
+  "missing": 25
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.6",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 490,
+  "norm": 6,
+  "diff": 172,
+  "missing": 24
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.7",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 490,
+  "norm": 6,
+  "diff": 172,
+  "missing": 24
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.7",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 490,
+  "norm": 6,
+  "diff": 172,
+  "missing": 24
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-rc.0",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 485,
+  "norm": 7,
+  "diff": 173,
+  "missing": 27
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.5",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 485,
+  "norm": 6,
+  "diff": 176,
+  "missing": 25
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.6",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 485,
+  "norm": 6,
+  "diff": 177,
+  "missing": 24
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.7",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 482,
+  "norm": 6,
+  "diff": 175,
+  "missing": 29
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.5",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 477,
+  "norm": 6,
+  "diff": 172,
+  "missing": 37
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.6",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 477,
+  "norm": 6,
+  "diff": 173,
+  "missing": 36
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.5",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 474,
+  "norm": 6,
+  "diff": 172,
+  "missing": 40
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.5",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 474,
+  "norm": 6,
+  "diff": 172,
+  "missing": 40
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.6",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 474,
+  "norm": 6,
+  "diff": 173,
+  "missing": 39
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.6",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 474,
+  "norm": 6,
+  "diff": 173,
+  "missing": 39
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.5",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 466,
+  "norm": 6,
+  "diff": 175,
+  "missing": 45
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.6",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 466,
+  "norm": 6,
+  "diff": 176,
+  "missing": 44
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 441,
+  "norm": 3,
+  "diff": 256,
+  "missing": 63
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 440,
+  "norm": 3,
+  "diff": 257,
+  "missing": 63
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 439,
+  "norm": 3,
+  "diff": 258,
+  "missing": 63
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 439,
+  "norm": 3,
+  "diff": 258,
+  "missing": 63
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 438,
+  "norm": 3,
+  "diff": 258,
+  "missing": 64
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 436,
+  "norm": 3,
+  "diff": 261,
+  "missing": 63
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 424,
+  "norm": 3,
+  "diff": 263,
+  "missing": 73
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 420,
+  "norm": 3,
+  "diff": 264,
+  "missing": 76
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 419,
+  "norm": 3,
+  "diff": 265,
+  "missing": 76
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 419,
+  "norm": 3,
+  "diff": 265,
+  "missing": 76
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 414,
+  "norm": 2,
+  "diff": 271,
+  "missing": 76
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 412,
+  "norm": 2,
+  "diff": 273,
+  "missing": 76
+ },
+ {
+  "react": "@base-ui/react@1.7.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 410,
+  "norm": 2,
+  "diff": 275,
+  "missing": 76
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 409,
+  "norm": 3,
+  "diff": 272,
+  "missing": 79
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 408,
+  "norm": 3,
+  "diff": 273,
+  "missing": 79
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 408,
+  "norm": 3,
+  "diff": 274,
+  "missing": 78
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 408,
+  "norm": 3,
+  "diff": 274,
+  "missing": 78
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 406,
+  "norm": 3,
+  "diff": 274,
+  "missing": 80
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 405,
+  "norm": 3,
+  "diff": 277,
+  "missing": 78
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.2.6-buildeq",
+  "total": 763,
+  "exact": 397,
+  "norm": 3,
+  "diff": 275,
+  "missing": 88
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.2.6",
+  "total": 763,
+  "exact": 396,
+  "norm": 3,
+  "diff": 276,
+  "missing": 88
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.2.7",
+  "total": 763,
+  "exact": 396,
+  "norm": 3,
+  "diff": 277,
+  "missing": 87
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.2.8",
+  "total": 763,
+  "exact": 396,
+  "norm": 3,
+  "diff": 277,
+  "missing": 87
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.2.5",
+  "total": 763,
+  "exact": 394,
+  "norm": 3,
+  "diff": 277,
+  "missing": 89
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.4",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 393,
+  "norm": 4,
+  "diff": 220,
+  "missing": 75
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.2.9",
+  "total": 763,
+  "exact": 393,
+  "norm": 3,
+  "diff": 280,
+  "missing": 87
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 392,
+  "norm": 3,
+  "diff": 279,
+  "missing": 89
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.4",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 389,
+  "norm": 4,
+  "diff": 220,
+  "missing": 79
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 388,
+  "norm": 3,
+  "diff": 280,
+  "missing": 92
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 388,
+  "norm": 3,
+  "diff": 281,
+  "missing": 91
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 388,
+  "norm": 3,
+  "diff": 281,
+  "missing": 91
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 386,
+  "norm": 2,
+  "diff": 293,
+  "missing": 82
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.4",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 384,
+  "norm": 4,
+  "diff": 225,
+  "missing": 79
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 384,
+  "norm": 2,
+  "diff": 295,
+  "missing": 82
+ },
+ {
+  "react": "@base-ui/react@1.8.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 383,
+  "norm": 2,
+  "diff": 287,
+  "missing": 91
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.4",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 381,
+  "norm": 4,
+  "diff": 223,
+  "missing": 84
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.2.4",
+  "total": 763,
+  "exact": 380,
+  "norm": 3,
+  "diff": 282,
+  "missing": 98
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.4",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 378,
+  "norm": 4,
+  "diff": 223,
+  "missing": 87
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.4",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 378,
+  "norm": 4,
+  "diff": 223,
+  "missing": 87
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.2.3",
+  "total": 763,
+  "exact": 376,
+  "norm": 3,
+  "diff": 283,
+  "missing": 101
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.3.0",
+  "total": 763,
+  "exact": 376,
+  "norm": 3,
+  "diff": 284,
+  "missing": 100
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.3.1",
+  "total": 763,
+  "exact": 376,
+  "norm": 3,
+  "diff": 284,
+  "missing": 100
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.4.0",
+  "total": 763,
+  "exact": 374,
+  "norm": 2,
+  "diff": 296,
+  "missing": 91
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.5.0",
+  "total": 763,
+  "exact": 372,
+  "norm": 2,
+  "diff": 298,
+  "missing": 91
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.4",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 370,
+  "norm": 4,
+  "diff": 226,
+  "missing": 92
+ },
+ {
+  "react": "@base-ui/react@1.9.0",
+  "utils": "@base-ui/utils@0.3.2",
+  "total": 763,
+  "exact": 371,
+  "norm": 2,
+  "diff": 290,
+  "missing": 100
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.3",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 344,
+  "norm": 3,
+  "diff": 223,
+  "missing": 122
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.3",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 340,
+  "norm": 3,
+  "diff": 223,
+  "missing": 126
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.2",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 339,
+  "norm": 3,
+  "diff": 224,
+  "missing": 126
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.2",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 335,
+  "norm": 3,
+  "diff": 224,
+  "missing": 130
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.3",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 335,
+  "norm": 3,
+  "diff": 228,
+  "missing": 126
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.3",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 332,
+  "norm": 3,
+  "diff": 226,
+  "missing": 131
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.2",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 330,
+  "norm": 3,
+  "diff": 229,
+  "missing": 130
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.3",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 329,
+  "norm": 3,
+  "diff": 228,
+  "missing": 132
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.3",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 329,
+  "norm": 3,
+  "diff": 228,
+  "missing": 132
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.2",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 327,
+  "norm": 3,
+  "diff": 227,
+  "missing": 135
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.1",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 326,
+  "norm": 3,
+  "diff": 231,
+  "missing": 132
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.2",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 324,
+  "norm": 3,
+  "diff": 229,
+  "missing": 136
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.2",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 324,
+  "norm": 3,
+  "diff": 229,
+  "missing": 136
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.1",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 322,
+  "norm": 3,
+  "diff": 231,
+  "missing": 136
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.3",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 321,
+  "norm": 3,
+  "diff": 231,
+  "missing": 137
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.1",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 317,
+  "norm": 3,
+  "diff": 236,
+  "missing": 136
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.2",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 316,
+  "norm": 3,
+  "diff": 232,
+  "missing": 141
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.1",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 314,
+  "norm": 3,
+  "diff": 234,
+  "missing": 141
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.1",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 311,
+  "norm": 3,
+  "diff": 236,
+  "missing": 142
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.1",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 311,
+  "norm": 3,
+  "diff": 236,
+  "missing": 142
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.1",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 303,
+  "norm": 3,
+  "diff": 239,
+  "missing": 147
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.0",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 246,
+  "norm": 1,
+  "diff": 193,
+  "missing": 252
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.0",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 242,
+  "norm": 1,
+  "diff": 193,
+  "missing": 256
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.0",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 237,
+  "norm": 1,
+  "diff": 198,
+  "missing": 256
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.0",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 234,
+  "norm": 1,
+  "diff": 196,
+  "missing": 261
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.0",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 231,
+  "norm": 1,
+  "diff": 198,
+  "missing": 262
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.0",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 231,
+  "norm": 1,
+  "diff": 198,
+  "missing": 262
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-beta.0",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 223,
+  "norm": 1,
+  "diff": 201,
+  "missing": 267
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.8",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 212,
+  "norm": 1,
+  "diff": 201,
+  "missing": 278
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.8",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 208,
+  "norm": 1,
+  "diff": 201,
+  "missing": 282
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.8",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 203,
+  "norm": 1,
+  "diff": 206,
+  "missing": 282
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.8",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 199,
+  "norm": 1,
+  "diff": 203,
+  "missing": 289
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.8",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 196,
+  "norm": 1,
+  "diff": 204,
+  "missing": 291
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.8",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 196,
+  "norm": 1,
+  "diff": 204,
+  "missing": 291
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.8",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 188,
+  "norm": 1,
+  "diff": 207,
+  "missing": 296
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.7",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 185,
+  "norm": 1,
+  "diff": 206,
+  "missing": 300
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.7",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 181,
+  "norm": 1,
+  "diff": 206,
+  "missing": 304
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.7",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 176,
+  "norm": 1,
+  "diff": 211,
+  "missing": 304
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.6",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 174,
+  "norm": 1,
+  "diff": 197,
+  "missing": 320
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.7",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 172,
+  "norm": 1,
+  "diff": 208,
+  "missing": 311
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.6",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 170,
+  "norm": 1,
+  "diff": 197,
+  "missing": 324
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.5",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 169,
+  "norm": 1,
+  "diff": 193,
+  "missing": 329
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.7",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 169,
+  "norm": 1,
+  "diff": 209,
+  "missing": 313
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.7",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 169,
+  "norm": 1,
+  "diff": 209,
+  "missing": 313
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.5",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 165,
+  "norm": 1,
+  "diff": 193,
+  "missing": 333
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.6",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 165,
+  "norm": 1,
+  "diff": 202,
+  "missing": 324
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.6",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 161,
+  "norm": 1,
+  "diff": 199,
+  "missing": 331
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.7",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 161,
+  "norm": 1,
+  "diff": 212,
+  "missing": 318
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.5",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 160,
+  "norm": 1,
+  "diff": 198,
+  "missing": 333
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.4",
+  "utils": "@base-ui-components/utils@0.2.2",
+  "total": 692,
+  "exact": 159,
+  "norm": 1,
+  "diff": 184,
+  "missing": 348
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.6",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 158,
+  "norm": 1,
+  "diff": 200,
+  "missing": 333
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.6",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 158,
+  "norm": 1,
+  "diff": 200,
+  "missing": 333
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.4",
+  "utils": "@base-ui-components/utils@0.2.1",
+  "total": 692,
+  "exact": 155,
+  "norm": 1,
+  "diff": 184,
+  "missing": 352
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.5",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 155,
+  "norm": 1,
+  "diff": 195,
+  "missing": 341
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.5",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 152,
+  "norm": 1,
+  "diff": 196,
+  "missing": 343
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.5",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 152,
+  "norm": 1,
+  "diff": 196,
+  "missing": 343
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.4",
+  "utils": "@base-ui-components/utils@0.2.0",
+  "total": 692,
+  "exact": 150,
+  "norm": 1,
+  "diff": 189,
+  "missing": 352
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.6",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 150,
+  "norm": 1,
+  "diff": 203,
+  "missing": 338
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.4",
+  "utils": "@base-ui-components/utils@0.1.2",
+  "total": 692,
+  "exact": 144,
+  "norm": 1,
+  "diff": 186,
+  "missing": 361
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.5",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 144,
+  "norm": 1,
+  "diff": 199,
+  "missing": 348
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.4",
+  "utils": "@base-ui-components/utils@0.1.0",
+  "total": 692,
+  "exact": 141,
+  "norm": 1,
+  "diff": 188,
+  "missing": 362
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.4",
+  "utils": "@base-ui-components/utils@0.1.1",
+  "total": 692,
+  "exact": 141,
+  "norm": 1,
+  "diff": 188,
+  "missing": 362
+ },
+ {
+  "react": "@base-ui-components/react@1.0.0-alpha.4",
+  "utils": "@base-ui-components/utils@0.0.1-dev.0",
+  "total": 692,
+  "exact": 133,
+  "norm": 1,
+  "diff": 191,
+  "missing": 367
+ }
+]

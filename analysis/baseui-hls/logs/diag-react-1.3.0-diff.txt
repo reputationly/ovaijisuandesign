@@ -1,0 +1,231 @@
+--- assets/attachment-upload-zone.jsx:98 clamp vs esm/utils/clamp.js:1  lenV=68 lenD=116
+  V: function clamp(_L0,_L1,_L2){return Math.min(Math.max(_L0,_L1),_L2);}
+  D: function clamp(_L0,_L1=Number.MIN_SAFE_INTEGER,_L2=Number.MAX_SAFE_INTEGER){return Math.max(_L1,Math.min(_L0,_L2));}
+--- canvas/node-shell-inner.jsx:285 stopEvent vs esm/floating-ui-react/utils/event.js:2  lenV=47 lenD=68
+  V: function stopEvent(_L0){_L0.stopPropagation();}
+  D: function stopEvent(_L0){_L0.preventDefault();_L0.stopPropagation();}
+--- canvas/use-start-crop-from-node.js:7 clamp vs esm/utils/clamp.js:1  lenV=68 lenD=116
+  V: function clamp(_L0,_L1,_L2){return Math.min(Math.max(_L0,_L1),_L2);}
+  D: function clamp(_L0,_L1=Number.MIN_SAFE_INTEGER,_L2=Number.MAX_SAFE_INTEGER){return Math.max(_L1,Math.min(_L0,_L2));}
+--- generation/domestic-model-display-aliases.js:122 escapeRegExp vs esm/number-field/utils/parse.js:45  lenV=77 lenD=66
+  V: function escapeRegExp(_L0){return _L0.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
+  D: const escapeRegExp=_L0=>_L0.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+--- generation/markdown-link.jsx:259 escapeRegExp vs esm/number-field/utils/parse.js:45  lenV=77 lenD=66
+  V: function escapeRegExp(_L0){return _L0.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
+  D: const escapeRegExp=_L0=>_L0.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+--- generation/replace-configured-model-names-for-current-region.js:30 escapeRegExp vs esm/number-field/utils/parse.js:45  lenV=77 lenD=66
+  V: function escapeRegExp(_L0){return _L0.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
+  D: const escapeRegExp=_L0=>_L0.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+--- generation/use-resizable-width.js:3 clamp vs esm/utils/clamp.js:1  lenV=68 lenD=116
+  V: function clamp(_L0,_L1,_L2){return Math.min(_L2,Math.max(_L1,_L0));}
+  D: function clamp(_L0,_L1=Number.MIN_SAFE_INTEGER,_L2=Number.MAX_SAFE_INTEGER){return Math.max(_L1,Math.min(_L0,_L2));}
+--- infra/dialog-content.jsx:53 Input vs esm/input/Input.js:13  lenV=90 lenD=91
+  V: const Input=forwardRef(function _L0(_L1,_L2){return jsx(FieldControl,{ref:_L2,..._L1});});
+  D: const Input=forwardRef(function _L0(_L1,_L2){return jsx(Field.Control,{ref:_L2,..._L1});});
+--- media-editing/media-gen-detail.jsx:87 escapeRegExp vs esm/number-field/utils/parse.js:45  lenV=77 lenD=66
+  V: function escapeRegExp(_L0){return _L0.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
+  D: const escapeRegExp=_L0=>_L0.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+--- media-editing/use-editor-state.js:85 clamp vs esm/utils/clamp.js:1  lenV=68 lenD=116
+  V: function clamp(_L0,_L1,_L2){return Math.max(_L1,Math.min(_L2,_L0));}
+  D: function clamp(_L0,_L1=Number.MIN_SAFE_INTEGER,_L2=Number.MAX_SAFE_INTEGER){return Math.max(_L1,Math.min(_L0,_L2));}
+--- media-editing/use-hover-preview.js:44 clamp vs esm/utils/clamp.js:1  lenV=68 lenD=116
+  V: function clamp(_L0,_L1,_L2){return Math.min(Math.max(_L0,_L1),_L2);}
+  D: function clamp(_L0,_L1=Number.MIN_SAFE_INTEGER,_L2=Number.MAX_SAFE_INTEGER){return Math.max(_L1,Math.min(_L0,_L2));}
+--- text-editor/collect-video-rows.js:27 formatNumber vs esm/utils/formatNumber.js:15  lenV=104 lenD=101
+  V: function formatNumber(_L0,_L1){return new Intl.NumberFormat(_L1,{maximumFractionDigits:4}).format(_L0);}
+  D: function formatNumber(_L0,_L1,_L2){if(_L0==null){return"";}return getFormatter(_L1,_L2).format(_L0);}
+--- vendor.js:11645 EMPTY vs esm/checkbox-group/useCheckboxGroupParent.js:6  lenV=14 lenD=15
+  V: const EMPTY=0;
+  D: const EMPTY=[];
+--- vendor.js:11736 TYPEABLE_SELECTOR vs esm/floating-ui-react/utils/constants.js:4  lenV=143 lenD=146
+  V: const TYPEABLE_SELECTOR="input:not([type='hidden']):not([disabled]),[contenteditable]:not([contenteditable='false']),textarea:not([disabled])";
+  D: const TYPEABLE_SELECTOR="input:not([type='hidden']):not([disabled]),"+"[contenteditable]:not([contenteditable='false']),textarea:not([disabled])";
+--- vendor.js:12126 createGridCellMap vs esm/floating-ui-react/utils/composite.js:262  lenV=390 lenD=403
+  V: (_L0,_L1,_L2){const _L3=[];let _L4=0;_L0.forEach(({width:_L5,height:_L6},_L7)=>{let _L8=false;if(_L2){_L4=0;}while(!_L8){const _L9=[];for(let _L10=0;_L10<_L5;_L10+=1){for(let _L11=0;_L11<_L6;_L11+=1){
+  D: (_L0,_L1,_L2){const _L3=[];let _L4=0;_L0.forEach(({width:_L5,height:_L6},_L7)=>{if(_L5>_L1){}let _L8=false;if(_L2){_L4=0;}while(!_L8){const _L9=[];for(let _L10=0;_L10<_L5;_L10+=1){for(let _L11=0;_L11<
+--- vendor.js:12301 EMPTY_ARRAY vs esm/composite/root/useCompositeRoot.js:9  lenV=36 lenD=21
+  V: const EMPTY_ARRAY=Object.freeze([]);
+  D: const EMPTY_ARRAY=[];
+--- vendor.js:12366 createGenericEventDetails vs esm/utils/createBaseUIEventDetails.js:44  lenV=145 lenD=150
+  V: function createGenericEventDetails(_L0,_L1,_L2){const _L3=EMPTY_OBJECT;const _L4={reason:_L0,event:_L1??new Event("base-ui"),..._L3};return _L4;}
+  D: function createGenericEventDetails(_L0,_L1,_L2){const _L3=_L2??EMPTY_OBJECT;const _L4={reason:_L0,event:_L1??new Event("base-ui"),..._L3};return _L4;}
+--- vendor.js:12416 useDelayGroup vs esm/floating-ui-react/components/FloatingDelayGroup.js:68  lenV=1401 lenD=1409
+  V: _L17?.setIsInstantPhase(true);_L17?.onOpenChange(false,createChangeEventDetails(none));}else{_L14(false);_L17?.setIsInstantPhase(false);}},[_L4,_L3,_L2,_L6,_L7,_L8,_L9,_L10,_L12]);useIsoLayoutEffect((
+  D: _L17?.setIsInstantPhase(true);_L17?.onOpenChange(false,createChangeEventDetails(REASONS.none));}else{_L14(false);_L17?.setIsInstantPhase(false);}},[_L4,_L3,_L2,_L6,_L7,_L8,_L9,_L10,_L12]);useIsoLayout
+--- vendor.js:12629 EMPTY vs esm/checkbox-group/useCheckboxGroupParent.js:6  lenV=17 lenD=15
+  V: const EMPTY=null;
+  D: const EMPTY=[];
+--- vendor.js:13275 FloatingPortal vs esm/floating-ui-react/components/FloatingPortal.js:98  lenV=1908 lenD=1914
+  V: afterInsideRef:_L14,portalNode:_L9,setFocusManagerState:_L16}),[_L9]);return jsxs(Fragment,{children:[_L10,jsxs(PortalContext.Provider,{value:_L24,children:[_L19&&_L9&&jsx(FocusGuard,{"data-type":"out
+  D: afterInsideRef:_L14,portalNode:_L9,setFocusManagerState:_L16}),[_L9]);return jsx(Fragment,{children:[_L10,jsx(PortalContext.Provider,{value:_L24,children:[_L19&&_L9&&jsx(FocusGuard,{"data-type":"outsi
+--- vendor.js:13537 FloatingFocusManager vs esm/floating-ui-react/components/FloatingFocusManager.js:112  lenV=10226 lenD=10249
+  V: ocusedElement())){_L30.current=true;_L15.setOpen(false,createChangeEventDetails(focusOut,_L72));}});}function _L88(){if(_L32.current){return;}_L20.current.insideReactTree=true;_L40.start(0,()=>{_L20.c
+  D: ocusedElement())){_L30.current=true;_L15.setOpen(false,createChangeEventDetails(REASONS.focusOut,_L72));}});}function _L88(){if(_L32.current){return;}_L20.current.insideReactTree=true;_L40.start(0,()=
+--- vendor.js:13954 useClick vs esm/floating-ui-react/hooks/useClick.js:14  lenV=1953 lenD=1961
+  V: rue,ignoreMouse:_L7=false,stickIfOpen:_L8=true,touchOpenDelay:_L9=0,reason:_L10=triggerPress}=_L1;const _L11=useRef(void 0);const _L12=useAnimationFrame();const _L13=useTimeout();const _L14=useMemo(()
+  D: rue,ignoreMouse:_L7=false,stickIfOpen:_L8=true,touchOpenDelay:_L9=0,reason:_L10=REASONS.triggerPress}=_L1;const _L11=useRef(void 0);const _L12=useAnimationFrame();const _L13=useTimeout();const _L14=us
+--- vendor.js:14201 useDismiss vs esm/floating-ui-react/hooks/useDismiss.js:34  lenV=9811 lenD=9843
+  V: 37=isReactEvent(_L32)?_L32.nativeEvent:_L32;const _L38=createChangeEventDetails(escapeKey,_L37);_L2.setOpen(false,_L38);if(!_L22&&!_L38.isPropagationAllowed){_L32.stopPropagation();}});const _L39=useS
+  D: 37=isReactEvent(_L32)?_L32.nativeEvent:_L32;const _L38=createChangeEventDetails(REASONS.escapeKey,_L37);_L2.setOpen(false,_L38);if(!_L22&&!_L38.isPropagationAllowed){_L32.stopPropagation();}});const _
+--- vendor.js:15088 useAnimationsFinished vs esm/utils/useAnimationsFinished.js:17  lenV=1017 lenD=1011
+  V: getAnimations!=="function"||globalThis.BASE_UI_ANIMATIONS_DISABLED){_L4();}else{let _L9=function(){const _L10=TransitionStatusDataAttributes.startingStyle;if(!_L8.hasAttribute(_L10)){_L3.request(_L11)
+  D: getAnimations!=="function"||globalThis.BASE_UI_ANIMATIONS_DISABLED){_L4();}else{function _L9(){const _L10=TransitionStatusDataAttributes.startingStyle;if(!_L8.hasAttribute(_L10)){_L3.request(_L11);ret
+--- vendor.js:15593 useFocus vs esm/floating-ui-react/hooks/useFocus.js:18  lenV=2783 lenD=2823
+  V: 5]);useEffect(()=>{if(!_L5){return void 0;}function _L17(_L18){if(_L18.reason===triggerPress||_L18.reason===escapeKey){const _L19=_L2.select("domReferenceElement");if(isElement(_L19)){_L8.current=_L19
+  D: 5]);useEffect(()=>{if(!_L5){return void 0;}function _L17(_L18){if(_L18.reason===REASONS.triggerPress||_L18.reason===REASONS.escapeKey){const _L19=_L2.select("domReferenceElement");if(isElement(_L19)){
+--- vendor.js:15791 useHoverFloatingInteraction vs esm/floating-ui-react/hooks/useHoverFloatingInteraction.js:18  lenV=3256 lenD=3272
+  V: se",_L9.pointerType);const _L20=()=>{_L2.setOpen(false,createChangeEventDetails(triggerHover,_L18));_L10?.events.emit("floating.closed",_L18);};if(_L19){_L9.openChangeTimeout.start(_L19,_L20);}else{_L
+  D: se",_L9.pointerType);const _L20=()=>{_L2.setOpen(false,createChangeEventDetails(REASONS.triggerHover,_L18));_L10?.events.emit("floating.closed",_L18);};if(_L19){_L9.openChangeTimeout.start(_L19,_L20);
+--- vendor.js:15932 useHoverReferenceInteraction vs esm/floating-ui-react/hooks/useHoverReferenceInteraction.js:23  lenV=5205 lenD=5253
+  V: 16.openChangeTimeout.start(_L34,()=>{_L2.setOpen(false,createChangeEventDetails(triggerHover,_L32));_L15?.events.emit("floating.closed",_L32);});}else if(_L33){_L16.openChangeTimeout.clear();_L2.setOp
+  D: 16.openChangeTimeout.start(_L34,()=>{_L2.setOpen(false,createChangeEventDetails(REASONS.triggerHover,_L32));_L15?.events.emit("floating.closed",_L32);});}else if(_L33){_L16.openChangeTimeout.clear();_
+--- vendor.js:16276 useListNavigation vs esm/floating-ui-react/hooks/useListNavigation.js:54  lenV=9281 lenD=9313
+  V: y(_L81.key,_L78())){stopEvent(_L81);}_L2.setOpen(false,createChangeEventDetails(listNavigation,_L81.nativeEvent));if(isHTMLElement(_L5)){if(_L16){_L30?.events.emit("virtualfocus",_L5);}else{_L5.focus(
+  D: y(_L81.key,_L78())){stopEvent(_L81);}_L2.setOpen(false,createChangeEventDetails(REASONS.listNavigation,_L81.nativeEvent));if(isHTMLElement(_L5)){if(_L16){_L30?.events.emit("virtualfocus",_L5);}else{_L
+--- vendor.js:16756 useRole vs esm/floating-ui-react/hooks/useRole.js:13  lenV=1671 lenD=1679
+  V: )};switch(_L7){case"select":case"combobox":return{..._L22,"aria-selected":_L21};}return{};},[_L10,_L7]);return useMemo(()=>({reference:_L15,floating:_L17,item:_L19,trigger:_L14}),[_L15,_L17,_L14,_L19]
+  D: )};switch(_L7){case"select":case"combobox":return{..._L22,"aria-selected":_L21};default:}return{};},[_L10,_L7]);return useMemo(()=>({reference:_L15,floating:_L17,item:_L19,trigger:_L14}),[_L15,_L17,_L
+--- vendor.js:17025 safePolygon vs esm/floating-ui-react/safePolygon.js:45  lenV=4361 lenD=4377
+  V: L48=isInsideAxisAlignedRect(_L30,_L31,_L38.right-1,_L47,_L39.left+1,_L46);break;}if(_L48){return void 0;}if(_L12&&!isInsideRect(_L30,_L31,_L38)){_L37();return void 0;}if(!_L33&&_L16(_L30,_L31)){_L37()
+  D: L48=isInsideAxisAlignedRect(_L30,_L31,_L38.right-1,_L47,_L39.left+1,_L46);break;default:}if(_L48){return void 0;}if(_L12&&!isInsideRect(_L30,_L31,_L38)){_L37();return void 0;}if(!_L33&&_L16(_L30,_L31)
+--- vendor.js:17220 TooltipStore vs esm/tooltip/store/TooltipStore.js:20  lenV=1120 lenD=1160
+  V: ggerMap()},selectors);}setOpen=(_L1,_L2)=>{const _L3=_L2.reason;const _L4=_L3===triggerHover;const _L5=_L1&&_L3===triggerFocus;const _L6=!_L1&&(_L3===triggerPress||_L3===escapeKey);_L2.preventUnmountO
+  D: ggerMap()},selectors);}setOpen=(_L1,_L2)=>{const _L3=_L2.reason;const _L4=_L3===REASONS.triggerHover;const _L5=_L1&&_L3===REASONS.triggerFocus;const _L6=!_L1&&(_L3===REASONS.triggerPress||_L3===REASON
+--- vendor.js:17296 TooltipRoot vs esm/tooltip/root/TooltipRoot.js:21  lenV=2523 lenD=2547
+  V: eIsoLayoutEffect(()=>{if(_L15&&_L2){_L14.setOpen(false,createChangeEventDetails(disabled));}},[_L15,_L2,_L14]);_L14.useSyncedValue("disabled",_L2);useImplicitActiveTrigger(_L14);const{forceUnmount:_L1
+  D: eIsoLayoutEffect(()=>{if(_L15&&_L2){_L14.setOpen(false,createChangeEventDetails(REASONS.disabled));}},[_L15,_L2,_L14]);_L14.useSyncedValue("disabled",_L2);useImplicitActiveTrigger(_L14);const{forceUnm
+--- vendor.js:19091 SWIPE_THRESHOLD vs esm/toast/root/ToastRoot.js:26  lenV=25 lenD=25
+  V: const SWIPE_THRESHOLD=45;
+  D: const SWIPE_THRESHOLD=40;
+--- vendor.js:19843 useMenuItemCommonProps vs esm/menu/item/useMenuItemCommonProps.js:12  lenV=1024 lenD=1032
+  V: .currentTarget});},onClick(_L14){if(_L1){_L9.emit("close",{domEvent:_L14,reason:itemPress});}},onMouseUp(_L15){if(_L10){const _L16=_L10.initialCursorPointRef.current;_L10.initialCursorPointRef.current
+  D: .currentTarget});},onClick(_L14){if(_L1){_L9.emit("close",{domEvent:_L14,reason:REASONS.itemPress});}},onMouseUp(_L15){if(_L10){const _L16=_L10.initialCursorPointRef.current;_L10.initialCursorPointRef
+--- vendor.js:20269 MenuPopup vs esm/menu/popup/MenuPopup.js:28  lenV=2305 lenD=2292
+  V: side:_L8,align:_L9}=useMenuPositionerContext();const _L10=useToolbarRootContext()!=null;const _L11=_L7.useState("open");const _L12=_L7.useState("transitionStatus");const _L13=_L7.useState("popupProps"
+  D: side:_L8,align:_L9}=useMenuPositionerContext();const _L10=useToolbarRootContext(true)!=null;const _L11=_L7.useState("open");const _L12=_L7.useState("transitionStatus");const _L13=_L7.useState("popupPr
+--- vendor.js:20394 CompositeList vs esm/composite/list/CompositeList.js:14  lenV=2025 lenD=2051
+  V: {_L8.delete(_L16);_L11.current+=1;_L10(_L11.current);});const _L17=useMemo(()=>{const _L18=new Map();const _L19=Array.from(_L8.keys()).filter(_L20=>_L20.isConnected).sort(sortByDocumentPosition);_L19.
+  D: {_L8.delete(_L16);_L11.current+=1;_L10(_L11.current);});const _L17=useMemo(()=>{disableEslintWarning(_L9);const _L18=new Map();const _L19=Array.from(_L8.keys()).filter(_L20=>_L20.isConnected).sort(sor
+--- vendor.js:20554 MenuPositioner vs esm/menu/positioner/MenuPositioner.js:31  lenV=5389 lenD=5428
+  V: L18.select("floatingParentNodeId")){_L18.setOpen(false,createChangeEventDetails(siblingOpen));}}}_L23.events.on("menuopenchange",_L49);return()=>{_L23.events.off("menuopenchange",_L49);};},[_L18,_L23.
+  D: L18.select("floatingParentNodeId")){_L18.setOpen(false,createChangeEventDetails(REASONS.siblingOpen));}}}_L23.events.on("menuopenchange",_L49);return()=>{_L23.events.off("menuopenchange",_L49);};},[_L
+--- vendor.js:20849 MenuRadioItem vs esm/menu/radio-item/MenuRadioItem.js:24  lenV=1234 lenD=1242
+  V: 2]);const _L26=useStableCallback(_L27=>{const _L28={...createChangeEventDetails(itemPress,_L27.nativeEvent),preventUnmountOnClose:()=>{}};_L19(_L10,_L28);});const _L29=useRenderElement("div",_L1,{stat
+  D: 2]);const _L26=useStableCallback(_L27=>{const _L28={...createChangeEventDetails(REASONS.itemPress,_L27.nativeEvent),preventUnmountOnClose:()=>{}};_L19(_L10,_L28);});const _L29=useRenderElement("div",_
+--- vendor.js:21358 MenuRoot vs esm/menu/root/MenuRoot.js:33  lenV=7334 lenD=7422
+  V: {_L43.current=true;});},[_L44,_L26,_L33.type]);useScrollLock(_L26&&_L30&&_L32!==triggerHover&&_L40!=="touch",_L28);useIsoLayoutEffect(()=>{if(!_L26&&!_L29){_L22.set("hoverEnabled",true);}},[_L26,_L29,
+  D: {_L43.current=true;});},[_L44,_L26,_L33.type]);useScrollLock(_L26&&_L30&&_L32!==REASONS.triggerHover&&_L40!=="touch",_L28);useIsoLayoutEffect(()=>{if(!_L26&&!_L29){_L22.set("hoverEnabled",true);}},[_L
+--- vendor.js:21858 MenuTrigger vs esm/menu/trigger/MenuTrigger.js:41  lenV=4823 lenD=4854
+  V: .bottom+BOUNDARY_OFFSET){return;}_L24.events.emit("close",{domEvent:_L37,reason:cancelOpen});});useEffect(()=>{if(_L19&&_L15.select("lastOpenChangeReason")===triggerHover){const _L40=ownerDocument(_L3
+  D: .bottom+BOUNDARY_OFFSET){return;}_L24.events.emit("close",{domEvent:_L37,reason:REASONS.cancelOpen});});useEffect(()=>{if(_L19&&_L15.select("lastOpenChangeReason")===REASONS.triggerHover){const _L40=o
+--- vendor.js:22085 useMenuParent vs esm/menu/trigger/MenuTrigger.js:284  lenV=303 lenD=307
+  V: ootContext(true);const _L1=useMenuRootContext(true);const _L2=useMenubarContext();const _L3=useMemo(()=>{if(_L2){return{type:"menubar",context:_L2};}if(_L0&&!_L1){return{type:"context-menu",context:_L
+  D: ootContext(true);const _L1=useMenuRootContext(true);const _L2=useMenubarContext(true);const _L3=useMemo(()=>{if(_L2){return{type:"menubar",context:_L2};}if(_L0&&!_L1){return{type:"context-menu",contex
+--- vendor.js:22587 SwitchRoot vs esm/switch/root/SwitchRoot.js:33  lenV=3000 lenD=2982
+  V: ted){return;}const _L51=_L50.target.checked;const _L52=createChangeEventDetails(none,_L50.nativeEvent);_L34?.(_L51,_L52);if(_L52.isCanceled){return;}_L42(_L51);},onFocus(){_L37.current?.focus();}},_L3
+  D: ted){return;}const _L51=_L50.target.checked;const _L52=createChangeEventDetails(REASONS.none,_L50.nativeEvent);_L34?.(_L51,_L52);if(_L52.isCanceled){return;}_L42(_L51);},onFocus(){_L37.current?.focus(
+--- vendor.js:22999 SelectRoot vs esm/select/root/SelectRoot.js:38  lenV=7861 lenD=7884
+  V: L7?.(_L76,_L77);if(_L77.isCanceled){return;}_L41(_L76);if(!_L76&&(_L77.reason===focusOut||_L77.reason===outsidePress)){_L26(true);_L27(false);if(_L34==="onBlur"){_L33.commit(_L38);}}if(!_L76&&_L59.sta
+  D: L7?.(_L76,_L77);if(_L77.isCanceled){return;}_L41(_L76);if(!_L76&&(_L77.reason===REASONS.focusOut||_L77.reason===REASONS.outsidePress)){_L26(true);_L27(false);if(_L34==="onBlur"){_L33.commit(_L38);}}if
+--- vendor.js:23430 SelectTrigger vs esm/select/trigger/SelectTrigger.js:40  lenV=3479 lenD=3470
+  V: cus(_L52){_L10(true);if(_L25&&_L21.current){_L16(false,createChangeEventDetails(none,_L52.nativeEvent));}_L44.start(0,()=>{_L15.set("forceMount",true);});},onBlur(_L53){if(contains(_L28,_L53.relatedTa
+  D: cus(_L52){_L10(true);if(_L25&&_L21.current){_L16(false,createChangeEventDetails(REASONS.none,_L52.nativeEvent));}_L44.start(0,()=>{_L15.set("forceMount",true);});},onBlur(_L53){if(contains(_L28,_L53.r
+--- vendor.js:23712 SelectPositioner vs esm/select/positioner/SelectPositioner.js:34  lenV=3898 lenD=3905
+  V: rent=_L54.size;if(_L54.size===_L55){return;}const _L56=createChangeEventDetails(none);if(_L55!==0&&!_L19.state.multiple&&_L32!==null){const _L57=findItemIndex(_L24.current,_L32,_L36);if(_L57===-1){con
+  D: rent=_L54.size;if(_L54.size===_L55){return;}const _L56=createChangeEventDetails(REASONS.none);if(_L55!==0&&!_L19.state.multiple&&_L32!==null){const _L57=findItemIndex(_L24.current,_L32,_L36);if(_L57==
+--- vendor.js:23919 SelectPopup vs esm/select/popup/SelectPopup.js:44  lenV=7855 lenD=7841
+  V: lUpArrowRef:_L23}=useSelectPositionerContext();const _L24=useToolbarRootContext()!=null;const _L25=useSelectFloatingContext();const{nonce:_L26,disableStyleElements:_L27}=useCSPContext();const _L28=use
+  D: lUpArrowRef:_L23}=useSelectPositionerContext();const _L24=useToolbarRootContext(true)!=null;const _L25=useSelectFloatingContext();const{nonce:_L26,disableStyleElements:_L27}=useCSPContext();const _L28
+--- vendor.js:24363 SelectItem vs esm/select/item/SelectItem.js:26  lenV=3520 lenD=3544
+  V: _L24?removeItem(_L44,_L5,_L26):[..._L44,_L5];_L15(_L45,createChangeEventDetails(itemPress,_L42));}else{_L15(_L5,createChangeEventDetails(itemPress,_L42));_L14(false,createChangeEventDetails(itemPress,
+  D: _L24?removeItem(_L44,_L5,_L26):[..._L44,_L5];_L15(_L45,createChangeEventDetails(REASONS.itemPress,_L42));}else{_L15(_L5,createChangeEventDetails(REASONS.itemPress,_L42));_L14(false,createChangeEventDe
+--- vendor.js:24862 getSliderChangeEventReason vs esm/slider/root/SliderRoot.js:30  lenV=81 lenD=97
+  V: function getSliderChangeEventReason(_L0){return"key"in _L0?keyboard:inputChange;}
+  D: function getSliderChangeEventReason(_L0){return"key"in _L0?REASONS.keyboard:REASONS.inputChange;}
+--- vendor.js:24874 SliderRoot vs esm/slider/root/SliderRoot.js:49  lenV=4603 lenD=4609
+  V: });const _L71=Array.isArray(_L43);const _L72=useMemo(()=>{if(!_L71){return[clamp$a(_L43,_L13,_L12)];}return _L43.slice().sort(asc);},[_L12,_L13,_L71,_L43]);const _L73=useStableCallback((_L74,_L75)=>{i
+  D: });const _L71=Array.isArray(_L43);const _L72=useMemo(()=>{if(!_L71){return[clamp(_L43,_L13,_L12)];}return _L43.slice().sort(asc);},[_L12,_L13,_L71,_L43]);const _L73=useStableCallback((_L74,_L75)=>{if(
+--- vendor.js:25363 SliderControl vs esm/slider/control/SliderControl.js:69  lenV=6379 lenD=6399
+  V: L49-_L57-_L52.end:(_L30==="rtl"?_L51-_L56:_L56-_L50)-_L52.start;const _L59=clamp$a((_L58-_L53)/_L54,0,1);let _L60=(_L11-_L12)*_L59+_L12;_L60=roundValueToStep(_L60,_L26,_L12);_L60=clamp$a(_L60,_L12,_L1
+  D: L49-_L57-_L52.end:(_L30==="rtl"?_L51-_L56:_L56-_L50)-_L52.start;const _L59=clamp((_L58-_L53)/_L54,0,1);let _L60=(_L11-_L12)*_L59+_L12;_L60=roundValueToStep(_L60,_L26,_L12);_L60=clamp(_L60,_L12,_L11);i
+--- vendor.js:25741 SliderThumb vs esm/slider/thumb/SliderThumb.js:53  lenV=5402 lenD=5415
+  V: ;if(_L49){_L92=Number.isFinite(_L46[_L63-1])?_L46[_L63-1]+_L45*_L35:_L34;}break;}if(_L92!==null){_L28(_L92,_L63,_L91);_L91.preventDefault();}},step:_L45,style:{...visuallyHidden,width:"100%",height:"1
+  D: ;if(_L49){_L92=Number.isFinite(_L46[_L63-1])?_L46[_L63-1]+_L45*_L35:_L34;}break;default:break;}if(_L92!==null){_L28(_L92,_L63,_L91);_L91.preventDefault();}},step:_L45,style:{...visuallyHidden,width:"1
+--- vendor.js:26112 PreviewCardStore vs esm/preview-card/store/PreviewCardStore.js:14  lenV=1143 lenD=1183
+  V: SE_DELAY}},selectors);}setOpen=(_L1,_L2)=>{const _L3=_L2.reason;const _L4=_L3===triggerHover;const _L5=_L1&&_L3===triggerFocus;const _L6=!_L1&&(_L3===triggerPress||_L3===escapeKey);_L2.preventUnmountO
+  D: SE_DELAY}},selectors);}setOpen=(_L1,_L2)=>{const _L3=_L2.reason;const _L4=_L3===REASONS.triggerHover;const _L5=_L1&&_L3===REASONS.triggerFocus;const _L6=!_L1&&(_L3===REASONS.triggerPress||_L3===REASON
+--- vendor.js:26183 PreviewCardRootComponent vs esm/preview-card/root/PreviewCardRoot.js:13  lenV=1590 lenD=1598
+  V: nst _L15=useCallback(()=>{_L10.setOpen(false,createPreviewCardEventDetails(_L10,imperativeAction));},[_L10]);useImperativeHandle(_L5,()=>({unmount:_L14,close:_L15}),[_L14,_L15]);const _L16=_L10.useSta
+  D: nst _L15=useCallback(()=>{_L10.setOpen(false,createPreviewCardEventDetails(_L10,REASONS.imperativeAction));},[_L10]);useImperativeHandle(_L5,()=>({unmount:_L14,close:_L15}),[_L14,_L15]);const _L16=_L1
+--- vendor.js:26547 PopoverStore vs esm/popover/store/PopoverStore.js:42  lenV=1727 lenD=1759
+  V: s:new PopupTriggerMap()},selectors);}setOpen=(_L2,_L3)=>{const _L4=_L3.reason===triggerHover;const _L5=_L3.reason===triggerPress&&_L3.event.detail===0;const _L6=!_L2&&(_L3.reason===escapeKey||_L3.reas
+  D: s:new PopupTriggerMap()},selectors);}setOpen=(_L2,_L3)=>{const _L4=_L3.reason===REASONS.triggerHover;const _L5=_L3.reason===REASONS.triggerPress&&_L3.event.detail===0;const _L6=!_L2&&(_L3.reason===REA
+--- vendor.js:26629 PopoverRootComponent vs esm/popover/root/PopoverRoot.js:14  lenV=2325 lenD=2341
+  V: ckIfOpen:true,openChangeReason:null});});useScrollLock(_L11&&_L6===true&&_L14!==triggerHover&&_L15!=="touch",_L12);useEffect(()=>{if(!_L11){_L10.context.stickIfOpenTimeout.clear();}},[_L10,_L11]);cons
+  D: ckIfOpen:true,openChangeReason:null});});useScrollLock(_L11&&_L6===true&&_L14!==REASONS.triggerHover&&_L15!=="touch",_L12);useEffect(()=>{if(!_L11){_L10.context.stickIfOpenTimeout.clear();}},[_L10,_L1
+--- vendor.js:26758 PopoverTrigger vs esm/popover/trigger/PopoverTrigger.js:28  lenV=2684 lenD=2715
+  V: overReferenceInteraction(_L18,{enabled:_L18!=null&&_L9&&(_L25!=="touch"||_L23!==triggerPress),mouseOnly:true,move:false,handleClose:safePolygon(),restMs:_L10,delay:{close:_L11},triggerElementRef:_L20,
+  D: overReferenceInteraction(_L18,{enabled:_L18!=null&&_L9&&(_L25!=="touch"||_L23!==REASONS.triggerPress),mouseOnly:true,move:false,handleClose:safePolygon(),restMs:_L10,delay:{close:_L11},triggerElementR
+--- vendor.js:26921 PopoverPositioner vs esm/popover/positioner/PopoverPositioner.js:27  lenV=2566 lenD=2573
+  V: _L29),_L17],ref:[_L2,_L42],stateAttributesMapping:popupStateMapping});return jsxs(PopoverPositionerContext.Provider,{value:_L36,children:[_L22&&_L26===true&&_L24!==triggerHover&&jsx(InternalBackdrop,{
+  D: _L29),_L17],ref:[_L2,_L42],stateAttributesMapping:popupStateMapping});return jsx(PopoverPositionerContext.Provider,{value:_L36,children:[_L22&&_L26===true&&_L24!==REASONS.triggerHover&&jsx(InternalBac
+--- vendor.js:27071 PopoverPopup vs esm/popover/popup/PopoverPopup.js:29  lenV=2149 lenD=2138
+  V: text();const _L9=usePopoverPositionerContext();const _L10=useToolbarRootContext()!=null;const{context:_L11,hasClosePart:_L12}=useClosePartCount();const _L13=_L8.useState("open");const _L14=_L8.useStat
+  D: text();const _L9=usePopoverPositionerContext();const _L10=useToolbarRootContext(true)!=null;const{context:_L11,hasClosePart:_L12}=useClosePartCount();const _L13=_L8.useState("open");const _L14=_L8.use
+--- vendor.js:27521 clamp vs esm/utils/clamp.js:1  lenV=69 lenD=116
+  V: const clamp=(_L0,_L1,_L2)=>{return Math.max(_L1,Math.min(_L2,_L0));};
+  D: function clamp(_L0,_L1=Number.MIN_SAFE_INTEGER,_L2=Number.MAX_SAFE_INTEGER){return Math.max(_L1,Math.min(_L0,_L2));}
+--- vendor.js:56865 DialogClose vs esm/dialog/close/DialogClose.js:16  lenV=515 lenD=523
+  V: ("open");function _L10(_L11){if(_L9){_L8.setOpen(false,createChangeEventDetails(closePress,_L11.nativeEvent));}}const{getButtonProps:_L12,buttonRef:_L13}=useButton({disabled:_L5,native:_L6});const _L1
+  D: ("open");function _L10(_L11){if(_L9){_L8.setOpen(false,createChangeEventDetails(REASONS.closePress,_L11.nativeEvent));}}const{getButtonProps:_L12,buttonRef:_L13}=useButton({disabled:_L5,native:_L6});c
+--- vendor.js:57056 useDialogRoot vs esm/dialog/root/useDialogRoot.js:12  lenV=2453 lenD=2461
+  V: lose",true);};return _L13;});const _L14=useCallback(()=>{_L1.setOpen(false,_L11(imperativeAction));},[_L1,_L11]);useImperativeHandle(_L3,()=>({unmount:_L10,close:_L14}),[_L10,_L14]);const _L15=useSync
+  D: lose",true);};return _L13;});const _L14=useCallback(()=>{_L1.setOpen(false,_L11(REASONS.imperativeAction));},[_L1,_L11]);useImperativeHandle(_L3,()=>({unmount:_L10,close:_L14}),[_L10,_L14]);const _L15
+--- vendor.js:57237 DialogRoot vs esm/dialog/root/DialogRoot.js:16  lenV=1143 lenD=1179
+  V: oad");useDialogRoot({store:_L14,actionsRef:_L8,parentContext:_L12?.store.context});const _L16=useMemo(()=>({store:_L14}),[_L14]);return jsx(DialogRootContext.Provider,{value:_L16,children:typeof _L1==
+  D: oad");useDialogRoot({store:_L14,actionsRef:_L8,parentContext:_L12?.store.context,onOpenChange:_L4,triggerIdProp:_L10});const _L16=useMemo(()=>({store:_L14}),[_L14]);return jsx(DialogRootContext.Provid
+--- vendor.js:57778 FieldControl vs esm/field/control/FieldControl.js:27  lenV=1830 lenD=1838
+  V: e(_L34){const _L35=_L34.currentTarget.value;_L9?.(_L35,createChangeEventDetails(none,_L34.nativeEvent));_L17(_L35!==_L18.initialValue);_L20(_L35!=="");},onFocus(){_L19(true);},onBlur(_L36){_L16(true);
+  D: e(_L34){const _L35=_L34.currentTarget.value;_L9?.(_L35,createChangeEventDetails(REASONS.none,_L34.nativeEvent));_L17(_L35!==_L18.initialValue);_L20(_L35!=="");},onFocus(){_L19(true);},onBlur(_L36){_L1
+--- vendor.js:62465 CheckboxRoot vs esm/checkbox/root/CheckboxRoot.js:37  lenV=4635 lenD=4642
+  V: ted){return;}const _L70=_L69.target.checked;const _L71=createChangeEventDetails(none,_L69.nativeEvent);_L51?.(_L70,_L71);_L48(_L70,_L71);if(_L71.isCanceled){return;}_L63(_L70);if(_L43&&_L53&&_L54&&!_L
+  D: ted){return;}const _L70=_L69.target.checked;const _L71=createChangeEventDetails(REASONS.none,_L69.nativeEvent);_L51?.(_L70,_L71);_L48(_L70,_L71);if(_L71.isCanceled){return;}_L63(_L70);if(_L43&&_L53&&_
+--- vendor.js:65141 EMPTY vs esm/checkbox-group/useCheckboxGroupParent.js:6  lenV=15 lenD=15
+  V: const EMPTY="";
+  D: const EMPTY=[];
+--- vendor.js:76081 TabsTab vs esm/tabs/tab/TabsTab.js:23  lenV=2219 lenD=2235
+  V: se);function _L35(_L36){if(_L24||_L4){return;}_L15(_L6,createChangeEventDetails(none,_L36.nativeEvent,void 0,{activationDirection:"none"}));}function _L37(_L38){if(_L24){return;}if(_L23>-1&&!_L4){_L17
+  D: se);function _L35(_L36){if(_L24||_L4){return;}_L15(_L6,createChangeEventDetails(REASONS.none,_L36.nativeEvent,void 0,{activationDirection:"none"}));}function _L37(_L38){if(_L24){return;}if(_L23>-1&&!_
+--- vendor.js:76997 AlertDialogRoot vs esm/alert-dialog/root/AlertDialogRoot.js:15  lenV=946 lenD=981
+  V: oad");useDialogRoot({store:_L12,actionsRef:_L6,parentContext:_L10?.store.context});const _L14=useMemo(()=>({store:_L12}),[_L12]);return jsx(DialogRootContext.Provider,{value:_L14,children:typeof _L1==
+  D: oad");useDialogRoot({store:_L12,actionsRef:_L6,parentContext:_L10?.store.context,onOpenChange:_L4,triggerIdProp:_L8});const _L14=useMemo(()=>({store:_L12}),[_L12]);return jsx(DialogRootContext.Provide
+--- vendor.js:80821 ContextMenuRoot vs esm/context-menu/root/ContextMenuRoot.js:15  lenV=635 lenD=636
+  V: value:_L10,children:jsx(MenuRootContext.Provider,{value:void 0,children:jsx(MenuRoot,{..._L0})})});}
+  D: value:_L10,children:jsx(MenuRootContext.Provider,{value:void 0,children:jsx(Menu.Root,{..._L0})})});}
+--- vendor.js:80861 ContextMenuTrigger vs esm/context-menu/trigger/ContextMenuTrigger.js:22  lenV=2622 lenD=2638
+  V: L24});}});_L21.current=false;_L7.current?.setOpen(true,createChangeEventDetails(triggerPress,_L25));_L20.start(LONG_PRESS_DELAY,()=>{_L21.current=true;});}function _L27(_L28){if(_L16){return;}_L11.cur
+  D: L24});}});_L21.current=false;_L7.current?.setOpen(true,createChangeEventDetails(REASONS.triggerPress,_L25));_L20.start(LONG_PRESS_DELAY,()=>{_L21.current=true;});}function _L27(_L28){if(_L16){return;}
+--- vendor.js:81648 Toggle vs esm/toggle/Toggle.js:23  lenV=1177 lenD=1185
+  V: ressed":_L19,onClick(_L29){const _L30=!_L19;const _L31=createChangeEventDetails(none,_L29.nativeEvent);_L21(_L30,_L31);if(_L31.isCanceled){return;}_L20(_L30);}},_L13,_L24];const _L32=useRenderElement(
+  D: ressed":_L19,onClick(_L29){const _L30=!_L19;const _L31=createChangeEventDetails(REASONS.none,_L29.nativeEvent);_L21(_L30,_L31);if(_L31.isCanceled){return;}_L20(_L30);}},_L13,_L24];const _L32=useRender
+--- vendor.js:81739 ToggleGroup vs esm/toggle-group/ToggleGroup.js:28  lenV=1418 lenD=1399
+  V: ue:_L9,className:_L10,render:_L11,..._L12}=_L1;const _L13=useToolbarRootContext();const _L14=useMemo(()=>{if(_L9===void 0){return _L3??[];}return void 0;},[_L9,_L3]);const _L15=useMemo(()=>_L9!==void 
+  D: ue:_L9,className:_L10,render:_L11,..._L12}=_L1;const _L13=useToolbarRootContext(true);const _L14=useMemo(()=>{if(_L9===void 0){return _L3??[];}return void 0;},[_L9,_L3]);const _L15=useMemo(()=>_L9!==v
+--- vendor.js:85705 AccordionRoot vs esm/accordion/root/AccordionRoot.js:25  lenV=1535 lenD=1543
+  V: ;const _L21=useStableCallback((_L22,_L23)=>{const _L24=createChangeEventDetails(none);if(!_L10){const _L25=_L19[0]===_L22?[]:[_L22];_L17(_L25,_L24);if(_L24.isCanceled){return;}_L20(_L25);}else if(_L23
+  D: ;const _L21=useStableCallback((_L22,_L23)=>{const _L24=createChangeEventDetails(REASONS.none);if(!_L10){const _L25=_L19[0]===_L22?[]:[_L22];_L17(_L25,_L24);if(_L24.isCanceled){return;}_L20(_L25);}else
+--- vendor.js:85795 useCollapsibleRoot vs esm/collapsible/root/useCollapsibleRoot.js:12  lenV=1821 lenD=1829
+  V: 29=useStableCallback(_L30=>{const _L31=!_L6;const _L32=createChangeEventDetails(triggerPress,_L30.nativeEvent);_L3(_L31,_L32);if(_L32.isCanceled){return;}const _L33=_L27.current;if(_L25.current==="css
+  D: 29=useStableCallback(_L30=>{const _L31=!_L6;const _L32=createChangeEventDetails(REASONS.triggerPress,_L30.nativeEvent);_L3(_L31,_L32);if(_L32.isCanceled){return;}const _L33=_L27.current;if(_L25.curren
+--- vendor.js:86077 AccordionTrigger vs esm/accordion/trigger/AccordionTrigger.js:38  lenV=1661 lenD=1675
+  V: ){_L32();}else{_L33();}}break;case"Home":_L30=0;break;case"End":_L30=_L29;break;}if(_L30>-1){_L27[_L30].focus();}}}),[_L16,_L11,_L24,_L21,_L20,_L18,_L10,_L9]);const _L34=useRenderElement("button",_L1,
+  D: ){_L32();}else{_L33();}}break;case"Home":_L30=0;break;case"End":_L30=_L29;break;default:break;}if(_L30>-1){_L27[_L30].focus();}}}),[_L16,_L11,_L24,_L21,_L20,_L18,_L10,_L9]);const _L34=useRenderElement
+--- vendor.js:86207 useCollapsiblePanel vs esm/collapsible/panel/useCollapsiblePanel.js:14  lenV=5195 lenD=5204
+  V: _L30=_L28.transitionDuration!=="0s"&&_L28.transitionDuration!=="";if(_L29&&_L30);else if(_L28.animationName==="none"&&_L28.transitionDuration!=="0s"){_L2.current="css-transition";}else if(_L28.animati
+  D: _L30=_L28.transitionDuration!=="0s"&&_L28.transitionDuration!=="";if(_L29&&_L30){}else if(_L28.animationName==="none"&&_L28.transitionDuration!=="0s"){_L2.current="css-transition";}else if(_L28.animat
+--- vendor.js:86637 RadioRoot vs esm/radio/root/RadioRoot.js:34  lenV=3276 lenD=3306
+  V: eturn;}if(_L35||_L36||_L9===void 0){return;}const _L57=createChangeEventDetails(none,_L56.nativeEvent);if(_L57.isCanceled){return;}_L28(true);_L26(_L9!==_L27.initialValue);_L29(true);_L22(_L9,_L57);},
+  D: eturn;}if(_L35||_L36||_L9===void 0){return;}const _L57=createChangeEventDetails(REASONS.none,_L56.nativeEvent);if(_L57.isCanceled){return;}_L28(true);_L26(_L9!==_L27.initialValue);_L29(true);_L22(_L9,
+--- workspace/workspace-stage.jsx:31 clamp vs esm/utils/clamp.js:1  lenV=68 lenD=116
+  V: function clamp(_L0,_L1,_L2){return Math.min(_L2,Math.max(_L1,_L0));}
+  D: function clamp(_L0,_L1=Number.MIN_SAFE_INTEGER,_L2=Number.MAX_SAFE_INTEGER){return Math.max(_L1,Math.min(_L0,_L2));}

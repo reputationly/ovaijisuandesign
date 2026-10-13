@@ -1,0 +1,42 @@
+== utils 不同分类
+  vendor.js:11782 getTarget 0.2.6 missing 0.2.7 exact 0.2.8 exact 0.2.9 exact
+  vendor.js:12605 useInsertionEffect 0.2.6 exact 0.2.7 exact 0.2.8 exact 0.2.9 diff
+  vendor.js:12606 useSafeInsertionEffect 0.2.6 exact 0.2.7 exact 0.2.8 exact 0.2.9 diff
+  vendor.js:14800 ReactStore 0.2.6 exact 0.2.7 exact 0.2.8 exact 0.2.9 diff
+  vendor.js:21006 preventScrollInsetScrollbars 0.2.6 exact 0.2.7 diff 0.2.8 diff 0.2.9 diff
+== utils 0.2.7 非 exact
+  infra/from-vendor.js:870 clamp missing react1.3.0: diff
+  infra/from-vendor.js:935 clamp missing react1.3.0: exact
+  text-editor/collect-video-rows.js:27 formatNumber missing react1.3.0: diff
+  vendor.js:11741 activeElement missing react1.3.0: exact
+  vendor.js:11748 contains missing react1.3.0: exact
+  vendor.js:12527 update norm react1.3.0: undefined
+  vendor.js:14645 createSelector diff react1.3.0: undefined
+  vendor.js:14705 Store diff react1.3.0: undefined
+  vendor.js:21006 preventScrollInsetScrollbars diff react1.3.0: undefined
+  vendor.js:24811 areArraysEqual missing react1.3.0: exact
+  vendor.js:25103 cache missing react1.3.0: exact
+  vendor.js:25104 getFormatter missing react1.3.0: exact
+  vendor.js:25117 formatNumber missing react1.3.0: exact
+  vendor.js:76461 EMPTY_ARRAY diff react1.3.0: exact
+== 只在 @floating-ui/react 命中、任何 base-ui 版本都不命中: 0
+== tabbable@6.4.0 vendor.js:13508 isFocusable diff
+== reselect@5.1.1 vendor.js:14645 createSelector diff
+== react 1.3.0 非 exact/norm，及其在其它版本中命中
+  diff canvas/node-shell-inner.jsx:285 stopEvent | 其它版本命中: - 
+  diff infra/from-vendor.js:870 clamp | 其它版本命中: - | utils0.2.7:missing
+  diff text-editor/collect-video-rows.js:27 formatNumber | 其它版本命中: - | utils0.2.7:missing
+  diff vendor.js:11645 EMPTY | 其它版本命中: 1.0.0-beta.0 1.0.0-beta.1 | utils0.2.7:exact
+  diff vendor.js:12301 EMPTY_ARRAY | 其它版本命中: - | utils0.2.7:exact
+  diff vendor.js:12366 createGenericEventDetails | 其它版本命中: 1.3.0-buildeq 
+  diff vendor.js:12629 EMPTY | 其它版本命中: 1.0.0-beta.0 1.0.0-beta.1 | utils0.2.7:exact
+  diff vendor.js:20163 useToolbarRootContext | 其它版本命中: 1.3.0-buildeq 
+  diff vendor.js:20269 MenuPopup | 其它版本命中: 1.3.0-buildeq 
+  diff vendor.js:21154 useMenubarContext | 其它版本命中: 1.3.0-buildeq 
+  diff vendor.js:22085 useMenuParent | 其它版本命中: 1.3.0-buildeq 
+  missing vendor.js:23890 isMouseWithinBounds | 其它版本命中: 1.0.0-alpha.8 1.0.0-beta.0 1.0.0-beta.1 | utils0.2.7:exact
+  diff vendor.js:23919 SelectPopup | 其它版本命中: 1.3.0-buildeq 
+  diff vendor.js:27071 PopoverPopup | 其它版本命中: 1.3.0-buildeq 
+  diff vendor.js:57237 DialogRoot | 其它版本命中: 1.3.0-buildeq 
+  diff vendor.js:76997 AlertDialogRoot | 其它版本命中: 1.3.0-buildeq 
+  diff vendor.js:81739 ToggleGroup | 其它版本命中: 1.3.0-buildeq 

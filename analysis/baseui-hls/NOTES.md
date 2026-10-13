@@ -1,0 +1,51 @@
+# 工作笔记（防上下文丢失）
+- worktree: ~/ov-desource = origin/devin/1791701596-renderer-desource @478cc70（只读）
+- vendor.js 顶层语句表: vendor-top.json；base-ui 声明大致在 vendor 行 11566–27200（与 lucide/sonner/cva/文件类型等应用代码交错）
+- floating-ui core/dom/utils/react-dom、tabbable 在 vendor 里已是 npm import；内联的是 base-ui 自带的 floating-ui-react fork（@base-ui/react/esm/floating-ui-react）
+- hls.js：参照 bundle（git 3fac8ea^ 的 reference/3.0.16 index-C4qF1HE0.js，已存 ref-index-3.0.16.js）里只有 mediabunny 的 Hls* 类，未见 hls.js 特征串（maxMaxBufferLength/hlsDefaultConfig/abrEwmaFastLive/fragLoadPolicy 0 命中）。npm-packages.json 的 hls.js@1.7.3 疑为误判，需用声明打分证实
+- 参照 package.json: "@base-ui/react": "^1.3.0"；参照 3.0.16 进库 2026-09-25
+- tools/canon.mjs: A=构建等价（NODE_ENV 折叠、import 规范名、$N 去后缀、局部 alpha 重命名）；B=再抹全部变量名
+- tools/index.mjs 建每版本索引到 index/
+- 2026-10-13 canon 改进：JSX→jsx() 脱糖；literal 去 raw（引号）；reactExports 等命名导入按 ns；import * as X from 相对路径 → 按目标模块 export{a as b} 还原本名；局部名按 AST 首次出现顺序重命名；jsxs→jsx
+- 闭包：同名且(A/B 等或 token 相似≥0.6) 或 B 形状同且≥60 字符；低相似的同名（shadcn 包装 Button 等）记 excluded-<fam>.json
+- base-ui 库代码已散落到其他还原文件（canvas/popover-title.jsx、generation/select-content.jsx 等），必须扫全 src
+- 初版（canon 改进前）打分 @base-ui/react 1.3.0 第一(exact 325)、1.4.x 296、1.2.0 293，待新 canon 重跑
+- N 形状（归一化）= A + R2 字符串拼接折叠/R3 空 default/R4 空 if(纯)/R5 块内函数声明→let 函数表达式/R6 删空函数调用(disableEslintWarning)
+- 已证：vendor 中 useToolbarRootContext 抛错被删、调用不传 true；dist 1.3.0 中 Menu/Select/Popover/ToggleGroup 传 true、Toolbar 部件不传 → rollup 已知参数值优化（只打包了传 true 的调用方）。createGenericEventDetails 第三参在全部调用点缺省 → `??EMPTY_OBJECT` 折叠
+- SWIPE_THRESHOLD=45（vendor:19091）所有版本都是 40（1.6+ 无此常量）→ 疑似真实改动
+- EMPTY=0 来自 @base-ui/utils useTimeout（不是 react 的 EMPTY=[]）
+- 【第3版打分 2026-10-13】closure 755（A693/N5/B38/shape3/sim+ref16），excluded 133。@base-ui/react 1.3.0 exact607 norm4 diff53 missing3 /667；第二 1.2.0 exact524（差83）；1.4.0 481。utils 0.2.7=0.2.8 exact89，0.2.6 88 /103。@floating-ui/react 0.27.19/20 exact50/124（多为与 fork 同名）。reselect 0；tabbable 1 diff（重名）
+- cmp-baseui.txt：utils 0.2.7/0.2.8 命中 getTarget（0.2.6 缺），0.2.9 起 useInsertionEffect/ReactStore 变 → utils 定 0.2.7~0.2.8（两者闭包内无差）。@floating-ui/react 独有命中 0 → 没有内联 @floating-ui/react，内联的是 base-ui 自带 fork。react 1.3.0 剩 ~50 diff，其它版本都不命中（除 EMPTY/isMouseWithinBounds 属 utils）
+- sem-baseui.txt（N 形状逐 token 差异）观察到的构建等价模式：jsxs↔jsx；`$a/$b` 字母后缀（clamp$a、stateAttributesMapping$e，还原树用字母后缀）；对象简写 key:key；ownerWindow = utils/owner.js `export { getWindow as ownerWindow } from '@floating-ui/utils/dom'`；末尾 `default: break;`；`if(x){}else` ↔ `if(x);else`；let 合并多 declarator；`let Store = class _ {}` ↔ `class Store {}`
+- 待核实（可能已知参数值优化或真实差异）：DialogRoot/AlertDialogRoot 调 useDialogRoot 少传 onOpenChange,triggerIdProp；useToolbarRootContext(true)/useMenubarContext(true) 少 true；createGenericEventDetails ?? 折叠
+- utils useScrollLock：0.2.5/0.2.6 直接 win.addEventListener（vendor 同），0.2.7+ 用 addEventListener 辅助；但 getTarget 只在 0.2.7+ → utils 是 0.2.6 与 0.2.7 之间的构建
+- stopEvent(canvas/node-shell-inner.jsx)、formatNumber(text-editor/collect-video-rows.js) 为 sim+ref 误收的应用同名函数，报告里归重名
+- 已证：1.3.0 useDialogRoot(params) 只解构用到的字段，不读 onOpenChange/triggerIdProp → DialogRoot/AlertDialogRoot 传参对象里这两个属性是死属性，rollup 删除（无行为影响，需 vendor useDialogRoot 体对照确认）
+- useMenubarContext(true)：dist 调用方 MenuRoot/MenuTrigger 传 true，Menubar 不传（未打包）→ 同 useToolbarRootContext 的已知参数值优化
+- canon 第4版：后缀 $字母 也去；R7 jsxs→jsx；R8 简写；R10 if(x);；R11 拆 declarator；R12 ownerWindow→getWindow；R3 含 default:break
+- 【第4版打分】closure 760，@base-ui/react 1.3.0 exact623 norm33 diff15 missing1 /672；1.2.0 537/19；1.4.0 493/4。utils 0.2.7=0.2.8 89/1/5/9，0.2.6 88
+- 【第4版剩余】react1.3.0 diff 15：stopEvent/clamp(from-vendor:870)/formatNumber 为应用同名（重名）；EMPTY×2、EMPTY_ARRAY×2、isMouseWithinBounds 属 utils（组合打分时应命中）；createGenericEventDetails(KP)、MenuPopup/SelectPopup/PopoverPopup/ToggleGroup 少 true(KP)、useMenuParent 少 true(KP)、DialogRoot/AlertDialogRoot 死属性、CompositeList disableEslintWarning（index.mjs emptyFnsOf 正则 sed 没生效，仍是 export function，需改成 (?:export )?function）
+- utils 0.2.7 剩 5 diff：Store（let Store=class 形态）、hasInsetScrollbars/preventScrollInsetScrollbars/ScrollLocker（ownerWindow 别名在 utils 包内是相对导入 ./owner.js，REEXPORT_ALIAS 只覆盖了 bare，需加相对路径；preventScroll 用直接 win.addEventListener=0.2.6 写法）、EMPTY_ARRAY 配对
+- 待查：SWIPE_THRESHOLD 不在第4版 diff 列表里，确认其分类
+- 下一步：组合打分(react1.3.0+utils0.2.6/0.2.7)、hls 打分结果、KP 调用点证据、补丁、共享对象分析、报告
+- 【hls 打分】全部 62 个 1.5–1.7 版本：闭包只剩 5 条通用名（getDefaultExportFromCjs、identity×2、clamp、AC3_SAMPLES_PER_FRAME[mediabunny 同名常量]），无任何 hls.js 特有声明（Hls 类、BufferController、hlsDefaultConfig 等均 0 命中）→ 结论：vendor.js / 还原树里没有内联 hls.js；npm-packages.json 的 hls.js@1.7.3 是误判（AC3 常量等通用名撞名），HLS 能力来自 mediabunny。excluded-hls.json 28 条重名
+- canon/index 第5版：emptyFns 含非导出空函数；相对路径 ./owner.js 的 ownerWindow→getWindow。待重建索引+重跑 score/cmp/sem
+- 第5版重跑已后台启动，完成标记：index-all.log 末行 RUN5DONE
+- 【第5版打分】closure 760；react 1.3.0 exact623 norm34 diff14 missing1 /672；1.2.0 537/20；1.4.0 493/5。utils 0.2.6 exact91 norm1 diff2 missing10；0.2.7/0.2.8 exact91 norm1 diff3 missing9 /104
+- SWIPE_THRESHOLD=45 + velocity>0.11 是 sonner 的 toast，不属 base-ui（已在 excluded 中），不是 base-ui 改动
+- 【组合打分 combo.mjs → scores-baseui-combo.json】第一 react1.3.0+utils0.2.6（=1.3.0 package.json 声明依赖）total760 exact713 norm35 diff12 missing0；第二 +utils0.2.7/0.2.8 diff13（差1：preventScrollInsetScrollbars 0.2.6 一致）；getTarget 来自 react1.3.0 floating-ui-react/utils/element.js，不是 utils。剩 12：3 应用重名 + 8 KP/死属性 + Store（vendor `let Store$1 = class Store`，rollup 撞名改名，等价）
+- 结论方向：base-ui 无行为改动；计划做 build-equivalence.patch（对 dist 施加 rollup 等价变换），打上后验证全一致
+- 闭包漏收 3 条（sim<0.6 但被 vendor 闭包声明按名引用，同模块绑定必属闭包）：createSelector(14645,sim .143)、useToolbarRootContext(20163,.45)、useMenubarContext(21154,.462)。vendor 中两个 useXContext 删了 throw；调用点：useToolbarRootContext 4 处全不传参（dist 全传 true，Toolbar 部件未打包），useMenubarContext MenuRoot 仍传 true、useMenuParent 不传（dist 均传 true，Menubar 未打包）→ KP；createGenericEventDetails vendor 只 2 个调用点（Slider）都 2 参
+- score.mjs 加 ref-dep 规则（vendor.js 内被闭包声明引用的同名候选并入）
+- 依赖：react1.3.0 deps @floating-ui/react-dom ^2.1.8, @floating-ui/utils ^0.2.11, tabbable ^6.4.0, use-sync-external-store ^1.6.0, @base-ui/utils 0.2.6(精确)；utils0.2.6 deps @floating-ui/utils, reselect ^5.1.1, use-sync-external-store。vendor 对这些全部 npm import（未内联）；vendor:15449 useFloating 为 base-ui fork 包 @floating-ui/react-dom
+- shared-imports.txt：104 个闭包名被 854 个导入 vendor 的文件中的应用文件引用，含内部 usePopoverRootContext、SelectGroupContext/useSelectGroupContext、ProgressRootContext、AvatarRootContext/useAvatarRootContext、useRenderElement、formatErrorMessage、useTimeout、mergeProps、hooks 等
+- 调用点计数（Babel）：createSelector 98 处全 1 参 → vendor createSelector 只剩 `if(a)` 分支 = KP；useToolbarRootContext 4×0 参；useMenubarContext 1×(true)+1×0 参；createGenericEventDetails 2×2 参
+- 应用重名：canvas/node-shell-inner.jsx stopEvent、infra/from-vendor.js:870 clamp、text-editor/collect-video-rows.js formatNumber 都是应用自有；vendor 里库版 stopEvent$2(11842)、clamp(from-vendor:935)、formatNumber$4(25117) 均 exact → 从闭包剔除
+- hls：全树 0 处 import hls.js，MANIFEST_PARSED/hlsDefaultConfig 等 0 命中；hls 字样只在 mediabunny（hls-segmented-input.js 等）
+- 下一步：build-equivalence.patch → pkgs/*-buildeq 打补丁后重新打分
+- 补丁已生成 patch/base-ui-react-1.3.0.buildeq.patch(10 文件)、patch/base-ui-utils-0.2.6.buildeq.patch(1 文件)，patch -p1 已应用到 pkgs/@base-ui__react@1.3.0-buildeq、pkgs/@base-ui__utils@0.2.6-buildeq；vendor 中 HLS 字样全属 mediabunny(41370 HLS_MIME_TYPE 等)/shiki hlsl
+- R13 已验证：vendor Store(14705-14799) 把 'let Store$1 = class Store' 还原为 'class Store' 后与 utils0.2.6 Store A 形状完全一致（storecheck.mjs）。补丁 v1 bug：createBaseUIEventDetails 替换落到了 createChangeEventDetails，需改为定位 createGenericEventDetails
+- canon R14 去多余括号；mkpatch 修正 createGenericEventDetails 定位；第6版全量重建已后台启动，完成标记 run6.log 末行 RUN6DONE
+- 共享分析（tools/shared.cjs → shared-vendor.txt，按标识符名启发式，size/round/floor 等通用名会误报）：base-ui 闭包内用 npm 外部 @floating-ui/react-dom(useFloating 等)、@floating-ui/dom(platform/autoUpdate/inline)、@floating-ui/utils(+/dom)、tabbable、use-sync-external-store/shim(+with-selector)、reselect；React context 全在 @base-ui/react 包内（82 个文件 createContext，含 floating-ui-react fork 的 PortalContext/FloatingNodeContext/FloatingTreeContext/FloatingDelayGroupContext）；utils 0.2.6 无 createContext
+- 【第6版最终】打补丁后 react1.3.0-buildeq+utils0.2.6-buildeq：763 条 exact720 norm39 diff4（=3 应用重名+Store，Store 经 R13 验证一致）missing0 → 全部一致。原版 react1.3.0：exact623 norm34 diff16 missing1/674
+- 报告 REPORT.md / SCORES.md 已写；补丁拷到根目录

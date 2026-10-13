@@ -1,0 +1,46 @@
+--- a/package/esm/store/createSelector.js	2026-10-13 15:35:50.693825871 +0000
++++ b/package/esm/store/createSelector.js	2026-10-13 15:35:50.693825871 +0000
+@@ -35,42 +35,7 @@
+     throw new Error(process.env.NODE_ENV !== "production" ? 'Unsupported number of selectors' : _formatErrorMessage(1));
+   }
+   let selector;
+-  if (a && b && c && d && e && f) {
+-    selector = (state, a1, a2, a3) => {
+-      const va = a(state, a1, a2, a3);
+-      const vb = b(state, a1, a2, a3);
+-      const vc = c(state, a1, a2, a3);
+-      const vd = d(state, a1, a2, a3);
+-      const ve = e(state, a1, a2, a3);
+-      return f(va, vb, vc, vd, ve, a1, a2, a3);
+-    };
+-  } else if (a && b && c && d && e) {
+-    selector = (state, a1, a2, a3) => {
+-      const va = a(state, a1, a2, a3);
+-      const vb = b(state, a1, a2, a3);
+-      const vc = c(state, a1, a2, a3);
+-      const vd = d(state, a1, a2, a3);
+-      return e(va, vb, vc, vd, a1, a2, a3);
+-    };
+-  } else if (a && b && c && d) {
+-    selector = (state, a1, a2, a3) => {
+-      const va = a(state, a1, a2, a3);
+-      const vb = b(state, a1, a2, a3);
+-      const vc = c(state, a1, a2, a3);
+-      return d(va, vb, vc, a1, a2, a3);
+-    };
+-  } else if (a && b && c) {
+-    selector = (state, a1, a2, a3) => {
+-      const va = a(state, a1, a2, a3);
+-      const vb = b(state, a1, a2, a3);
+-      return c(va, vb, a1, a2, a3);
+-    };
+-  } else if (a && b) {
+-    selector = (state, a1, a2, a3) => {
+-      const va = a(state, a1, a2, a3);
+-      return b(va, a1, a2, a3);
+-    };
+-  } else if (a) {
++  if (a) {
+     selector = a;
+   } else {
+     throw /* minify-error-disabled */new Error('Missing arguments');

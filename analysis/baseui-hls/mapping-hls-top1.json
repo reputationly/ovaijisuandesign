@@ -1,0 +1,162 @@
+[
+ {
+  "i": 0,
+  "srcFile": "vendor.js",
+  "srcLine": 231,
+  "names": [
+   "getDefaultExportFromCjs"
+  ],
+  "rawNames": [
+   "getDefaultExportFromCjs$1"
+  ],
+  "type": "FunctionDeclaration",
+  "how": "A",
+  "bestSim": 1,
+  "owners": [
+   "hls.js"
+  ],
+  "verdict": "exact",
+  "npmPkg": "hls.js",
+  "npmVersion": "1.7.0",
+  "npmFile": "dist/hls.light.mjs",
+  "npmLine": 283,
+  "perPackage": [
+   {
+    "pkg": "hls.js",
+    "version": "1.7.0",
+    "verdict": "exact",
+    "npmFile": "dist/hls.light.mjs",
+    "npmLine": 283,
+    "otherCandidates": 1
+   }
+  ]
+ },
+ {
+  "i": 1,
+  "srcFile": "vendor.js",
+  "srcLine": 3031,
+  "names": [
+   "identity"
+  ],
+  "rawNames": [
+   "identity$1"
+  ],
+  "type": "VariableDeclaration",
+  "how": "A",
+  "bestSim": 1,
+  "owners": [
+   "hls.js"
+  ],
+  "verdict": "exact",
+  "npmPkg": "hls.js",
+  "npmVersion": "1.7.0",
+  "npmFile": "dist/hls.mjs",
+  "npmLine": 23842,
+  "perPackage": [
+   {
+    "pkg": "hls.js",
+    "version": "1.7.0",
+    "verdict": "exact",
+    "npmFile": "dist/hls.mjs",
+    "npmLine": 23842,
+    "otherCandidates": 0
+   }
+  ]
+ },
+ {
+  "i": 2,
+  "srcFile": "vendor.js",
+  "srcLine": 7708,
+  "names": [
+   "identity"
+  ],
+  "rawNames": [
+   "identity"
+  ],
+  "type": "VariableDeclaration",
+  "how": "A",
+  "bestSim": 1,
+  "owners": [
+   "hls.js"
+  ],
+  "verdict": "exact",
+  "npmPkg": "hls.js",
+  "npmVersion": "1.7.0",
+  "npmFile": "dist/hls.mjs",
+  "npmLine": 23842,
+  "perPackage": [
+   {
+    "pkg": "hls.js",
+    "version": "1.7.0",
+    "verdict": "exact",
+    "npmFile": "dist/hls.mjs",
+    "npmLine": 23842,
+    "otherCandidates": 0
+   }
+  ]
+ },
+ {
+  "i": 3,
+  "srcFile": "vendor.js",
+  "srcLine": 27521,
+  "names": [
+   "clamp"
+  ],
+  "rawNames": [
+   "clamp$9"
+  ],
+  "type": "VariableDeclaration",
+  "how": "B",
+  "bestSim": 1,
+  "owners": [
+   "hls.js"
+  ],
+  "verdict": "diff",
+  "npmPkg": "hls.js",
+  "npmVersion": "1.7.0",
+  "npmFile": "dist/hls.light.mjs",
+  "npmLine": 22656,
+  "perPackage": [
+   {
+    "pkg": "hls.js",
+    "version": "1.7.0",
+    "verdict": "diff",
+    "npmFile": "dist/hls.light.mjs",
+    "npmLine": 22656,
+    "otherCandidates": 1
+   }
+  ]
+ },
+ {
+  "i": 4,
+  "srcFile": "vendor.js",
+  "srcLine": 31532,
+  "names": [
+   "AC3_SAMPLES_PER_FRAME"
+  ],
+  "rawNames": [
+   "AC3_SAMPLES_PER_FRAME"
+  ],
+  "type": "VariableDeclaration",
+  "how": "A",
+  "bestSim": 1,
+  "owners": [
+   "hls.js"
+  ],
+  "verdict": "exact",
+  "npmPkg": "hls.js",
+  "npmVersion": "1.7.0",
+  "npmFile": "dist/hls.light.mjs",
+  "npmLine": 19035,
+  "perPackage": [
+   {
+    "pkg": "hls.js",
+    "version": "1.7.0",
+    "verdict": "exact",
+    "npmFile": "dist/hls.light.mjs",
+    "npmLine": 19035,
+    "otherCandidates": 1
+   }
+  ]
+ }
+]

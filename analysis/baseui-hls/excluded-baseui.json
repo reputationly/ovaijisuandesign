@@ -1,0 +1,1098 @@
+[
+ {
+  "file": "assets/attachment-upload-zone.jsx",
+  "line": 98,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.719
+ },
+ {
+  "file": "assets/credit-query-keys.jsx",
+  "line": 286,
+  "names": [
+   "AlertDialogPortal"
+  ],
+  "bestSim": 0.337
+ },
+ {
+  "file": "assets/gateway-scope-provider.jsx",
+  "line": 95,
+  "names": [
+   "PopoverTrigger"
+  ],
+  "bestSim": 0.152
+ },
+ {
+  "file": "assets/rename-local-node-dialog.jsx",
+  "line": 241,
+  "names": [
+   "Toggle"
+  ],
+  "bestSim": 0.254
+ },
+ {
+  "file": "assets/use-cloud-review-nodes.js",
+  "line": 198,
+  "names": [
+   "useStableCallback"
+  ],
+  "bestSim": 0.527
+ },
+ {
+  "file": "assets/use-upload.js",
+  "line": 46,
+  "names": [
+   "nextId"
+  ],
+  "bestSim": 0.8
+ },
+ {
+  "file": "assets/use-upload.js",
+  "line": 48,
+  "names": [
+   "genId"
+  ],
+  "bestSim": 0.481
+ },
+ {
+  "file": "canvas/canvas-context-menu.jsx",
+  "line": 207,
+  "names": [
+   "MenuItem"
+  ],
+  "bestSim": 0.594
+ },
+ {
+  "file": "canvas/canvas-toolbar-extension-button.jsx",
+  "line": 6,
+  "names": [
+   "ToolbarSeparator"
+  ],
+  "bestSim": 0.304
+ },
+ {
+  "file": "canvas/canvas-view-controls.jsx",
+  "line": 251,
+  "names": [
+   "ToolbarButton"
+  ],
+  "bestSim": 0.352
+ },
+ {
+  "file": "canvas/edges-canvas.jsx",
+  "line": 23,
+  "names": [
+   "subscribe"
+  ],
+  "bestSim": 0.31
+ },
+ {
+  "file": "canvas/edges-canvas.jsx",
+  "line": 29,
+  "names": [
+   "getSnapshot"
+  ],
+  "bestSim": 0.889
+ },
+ {
+  "file": "canvas/file-missing-icon.jsx",
+  "line": 499,
+  "names": [
+   "CloseIcon"
+  ],
+  "bestSim": 0.48
+ },
+ {
+  "file": "canvas/node-shell-inner.jsx",
+  "line": 162,
+  "names": [
+   "Button"
+  ],
+  "bestSim": 0.407
+ },
+ {
+  "file": "canvas/popover-title.jsx",
+  "line": 62,
+  "names": [
+   "PopoverTitle"
+  ],
+  "bestSim": 0.442
+ },
+ {
+  "file": "canvas/popover-title.jsx",
+  "line": 71,
+  "names": [
+   "PopoverDescription"
+  ],
+  "bestSim": 0.442
+ },
+ {
+  "file": "canvas/separator.jsx",
+  "line": 117,
+  "names": [
+   "subscribe"
+  ],
+  "bestSim": 0.31
+ },
+ {
+  "file": "canvas/separator.jsx",
+  "line": 123,
+  "names": [
+   "getSnapshot"
+  ],
+  "bestSim": 0.889
+ },
+ {
+  "file": "canvas/use-start-crop-from-node.js",
+  "line": 7,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.719
+ },
+ {
+  "file": "canvas/zoom-menu.jsx",
+  "line": 15,
+  "names": [
+   "isMac"
+  ],
+  "bestSim": 0.392
+ },
+ {
+  "file": "chat/attach-handoff-targets-to-sub-messages.js",
+  "line": 4,
+  "names": [
+   "active"
+  ],
+  "bestSim": 0.6
+ },
+ {
+  "file": "chat/chat-compliance-notice.jsx",
+  "line": 32,
+  "names": [
+   "EMPTY"
+  ],
+  "bestSim": 0.429
+ },
+ {
+  "file": "chat/qs.jsx",
+  "line": 54,
+  "names": [
+   "is"
+  ],
+  "bestSim": 0.333
+ },
+ {
+  "file": "debug-panel/icon-opacity-preview-section.jsx",
+  "line": 142,
+  "names": [
+   "Button"
+  ],
+  "bestSim": 0.407
+ },
+ {
+  "file": "generation/domestic-model-display-aliases.js",
+  "line": 122,
+  "names": [
+   "escapeRegExp"
+  ],
+  "bestSim": 0.861
+ },
+ {
+  "file": "generation/markdown-link.jsx",
+  "line": 259,
+  "names": [
+   "escapeRegExp"
+  ],
+  "bestSim": 0.861
+ },
+ {
+  "file": "generation/param-label-fallbacks.js",
+  "line": 123,
+  "names": [
+   "HAN_RE"
+  ],
+  "bestSim": 0.55
+ },
+ {
+  "file": "generation/param-slider.jsx",
+  "line": 18,
+  "names": [
+   "formatNumber"
+  ],
+  "bestSim": 0.458
+ },
+ {
+  "file": "generation/replace-configured-model-names-for-current-region.js",
+  "line": 30,
+  "names": [
+   "escapeRegExp"
+  ],
+  "bestSim": 0.861
+ },
+ {
+  "file": "generation/select-content.jsx",
+  "line": 262,
+  "names": [
+   "SelectGroup"
+  ],
+  "bestSim": 0.341
+ },
+ {
+  "file": "generation/select-content.jsx",
+  "line": 271,
+  "names": [
+   "SelectValue"
+  ],
+  "bestSim": 0.347
+ },
+ {
+  "file": "generation/select-content.jsx",
+  "line": 280,
+  "names": [
+   "SelectTrigger"
+  ],
+  "bestSim": 0.453
+ },
+ {
+  "file": "generation/select-content.jsx",
+  "line": 305,
+  "names": [
+   "SelectLabel"
+  ],
+  "bestSim": 0.256
+ },
+ {
+  "file": "generation/select-content.jsx",
+  "line": 314,
+  "names": [
+   "SelectItem"
+  ],
+  "bestSim": 0.375
+ },
+ {
+  "file": "generation/select-content.jsx",
+  "line": 347,
+  "names": [
+   "SelectSeparator"
+  ],
+  "bestSim": 0.119
+ },
+ {
+  "file": "generation/use-resizable-width.js",
+  "line": 3,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.719
+ },
+ {
+  "file": "home/motion-utils.js",
+  "line": 10,
+  "names": [
+   "copyRect"
+  ],
+  "bestSim": 0.85
+ },
+ {
+  "file": "infra/agent-http-client.js",
+  "line": 1144,
+  "names": [
+   "state"
+  ],
+  "bestSim": 0.286
+ },
+ {
+  "file": "infra/badge-variants.jsx",
+  "line": 15,
+  "names": [
+   "DialogTitle"
+  ],
+  "bestSim": 0.457
+ },
+ {
+  "file": "infra/badge-variants.jsx",
+  "line": 24,
+  "names": [
+   "DialogDescription"
+  ],
+  "bestSim": 0.457
+ },
+ {
+  "file": "infra/badge-variants.jsx",
+  "line": 110,
+  "names": [
+   "AlertDialogTitle"
+  ],
+  "bestSim": 0.457
+ },
+ {
+  "file": "infra/badge-variants.jsx",
+  "line": 122,
+  "names": [
+   "AlertDialogDescription"
+  ],
+  "bestSim": 0.457
+ },
+ {
+  "file": "infra/create-recently-added-store.js",
+  "line": 117,
+  "names": [
+   "TooltipProvider"
+  ],
+  "bestSim": 0.083
+ },
+ {
+  "file": "infra/dialog-content.jsx",
+  "line": 33,
+  "names": [
+   "subscribe"
+  ],
+  "bestSim": 0.321
+ },
+ {
+  "file": "infra/dialog-content.jsx",
+  "line": 232,
+  "names": [
+   "Button"
+  ],
+  "bestSim": 0.407
+ },
+ {
+  "file": "infra/from-vendor.js",
+  "line": 747,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.618
+ },
+ {
+  "file": "infra/from-vendor.js",
+  "line": 1007,
+  "names": [
+   "none",
+   "noSpec"
+  ],
+  "bestSim": 0.455
+ },
+ {
+  "file": "infra/from-vendor.js",
+  "line": 1415,
+  "names": [
+   "descendantOp",
+   "Unit",
+   "identifier",
+   "callee",
+   "VariableName",
+   "queryIdentifier",
+   "queryVariableName",
+   "QueryCallee"
+  ],
+  "bestSim": 0.242
+ },
+ {
+  "file": "infra/gateway-http-error.jsx",
+  "line": 37,
+  "names": [
+   "DialogPortal"
+  ],
+  "bestSim": 0.337
+ },
+ {
+  "file": "infra/gateway-http-error.jsx",
+  "line": 40,
+  "names": [
+   "DialogClose"
+  ],
+  "bestSim": 0.261
+ },
+ {
+  "file": "infra/inline-rename-input.jsx",
+  "line": 209,
+  "names": [
+   "AvatarImage"
+  ],
+  "bestSim": 0.22
+ },
+ {
+  "file": "infra/inline-rename-input.jsx",
+  "line": 221,
+  "names": [
+   "AvatarFallback"
+  ],
+  "bestSim": 0.244
+ },
+ {
+  "file": "infra/parse-page-state-preview-schema.js",
+  "line": 28,
+  "names": [
+   "invalid"
+  ],
+  "bestSim": 0.278
+ },
+ {
+  "file": "infra/select-content.jsx",
+  "line": 66,
+  "names": [
+   "SelectValue"
+  ],
+  "bestSim": 0.347
+ },
+ {
+  "file": "infra/select-content.jsx",
+  "line": 75,
+  "names": [
+   "SelectTrigger"
+  ],
+  "bestSim": 0.453
+ },
+ {
+  "file": "infra/select-content.jsx",
+  "line": 100,
+  "names": [
+   "SelectItem"
+  ],
+  "bestSim": 0.331
+ },
+ {
+  "file": "infra/use-online.jsx",
+  "line": 248,
+  "names": [
+   "ToggleGroupContext"
+  ],
+  "bestSim": 0.375
+ },
+ {
+  "file": "infra/use-online.jsx",
+  "line": 254,
+  "names": [
+   "ToggleGroup"
+  ],
+  "bestSim": 0.394
+ },
+ {
+  "file": "infra/web-storage.js",
+  "line": 133,
+  "names": [
+   "getPlatform"
+  ],
+  "bestSim": 0.378
+ },
+ {
+  "file": "media-editing/action-list-section.jsx",
+  "line": 152,
+  "names": [
+   "DialogTrigger"
+  ],
+  "bestSim": 0.218
+ },
+ {
+  "file": "media-editing/action-list-section.jsx",
+  "line": 155,
+  "names": [
+   "AlertDialogTrigger"
+  ],
+  "bestSim": 0.218
+ },
+ {
+  "file": "media-editing/action-list-section.jsx",
+  "line": 1229,
+  "names": [
+   "Separator"
+  ],
+  "bestSim": 0.591
+ },
+ {
+  "file": "media-editing/canvas-crop-overlay.jsx",
+  "line": 164,
+  "names": [
+   "ToolbarButton"
+  ],
+  "bestSim": 0.223
+ },
+ {
+  "file": "media-editing/canvas-image.jsx",
+  "line": 12,
+  "names": [
+   "subscribe"
+  ],
+  "bestSim": 0.31
+ },
+ {
+  "file": "media-editing/canvas-image.jsx",
+  "line": 18,
+  "names": [
+   "getSnapshot"
+  ],
+  "bestSim": 0.889
+ },
+ {
+  "file": "media-editing/erase-subtitle-editor.jsx",
+  "line": 113,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.529
+ },
+ {
+  "file": "media-editing/field-row.jsx",
+  "line": 14,
+  "names": [
+   "MenuItem"
+  ],
+  "bestSim": 0.549
+ },
+ {
+  "file": "media-editing/input.jsx",
+  "line": 18,
+  "names": [
+   "Input"
+  ],
+  "bestSim": 0.358
+ },
+ {
+  "file": "media-editing/light-ball.jsx",
+  "line": 114,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.594
+ },
+ {
+  "file": "media-editing/light-ball.jsx",
+  "line": 138,
+  "names": [
+   "IDENTITY"
+  ],
+  "bestSim": 0.381
+ },
+ {
+  "file": "media-editing/media-gen-detail.jsx",
+  "line": 87,
+  "names": [
+   "escapeRegExp"
+  ],
+  "bestSim": 0.861
+ },
+ {
+  "file": "media-editing/message-list-props-equal.jsx",
+  "line": 80,
+  "names": [
+   "AccordionItem"
+  ],
+  "bestSim": 0.095
+ },
+ {
+  "file": "media-editing/message-list-props-equal.jsx",
+  "line": 92,
+  "names": [
+   "AccordionTrigger"
+  ],
+  "bestSim": 0.459
+ },
+ {
+  "file": "media-editing/message-list-props-equal.jsx",
+  "line": 160,
+  "names": [
+   "RadioGroup"
+  ],
+  "bestSim": 0.134
+ },
+ {
+  "file": "media-editing/relight-editor.jsx",
+  "line": 634,
+  "names": [
+   "INITIAL_STATE"
+  ],
+  "bestSim": 0.396
+ },
+ {
+  "file": "media-editing/use-editor-state.js",
+  "line": 85,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.813
+ },
+ {
+  "file": "media-editing/use-hover-preview.js",
+  "line": 44,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.719
+ },
+ {
+  "file": "media-editing/use-preview-text.jsx",
+  "line": 123,
+  "names": [
+   "DialogPortal"
+  ],
+  "bestSim": 0.337
+ },
+ {
+  "file": "media-editing/use-preview-text.jsx",
+  "line": 200,
+  "names": [
+   "DialogTitle"
+  ],
+  "bestSim": 0.457
+ },
+ {
+  "file": "media-editing/use-preview-text.jsx",
+  "line": 209,
+  "names": [
+   "DialogDescription"
+  ],
+  "bestSim": 0.457
+ },
+ {
+  "file": "media-editing/watermark-popover.jsx",
+  "line": 258,
+  "names": [
+   "SliderControl"
+  ],
+  "bestSim": 0.569
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "warn"
+  ],
+  "bestSim": 0.37
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "assert"
+  ],
+  "bestSim": 0.531
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "Ref"
+  ],
+  "bestSim": 0.067
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "Ea",
+   "ua",
+   "da",
+   "fa",
+   "pa",
+   "ma",
+   "ya",
+   "wa",
+   "Da",
+   "ba",
+   "Fa",
+   "Sa",
+   "ka",
+   "Ra",
+   "Na",
+   "Ga",
+   "Ma",
+   "Ua",
+   "xa",
+   "La",
+   "Ha",
+   "Ja",
+   "Ya",
+   "va",
+   "Ka",
+   "Ta",
+   "qa",
+   "Oa",
+   "Pa",
+   "Wa",
+   "ja",
+   "Xa",
+   "Za",
+   "Va",
+   "za",
+   "_a",
+   "",
+   "As",
+   "es",
+   "ts",
+   "is"
+  ],
+  "bestSim": 0
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "Button"
+  ],
+  "bestSim": 0.53
+ },
+ {
+  "file": "pdf.worker.min-yatZIOMy.mjs",
+  "line": 21,
+  "names": [
+   "Window"
+  ],
+  "bestSim": 0.094
+ },
+ {
+  "file": "projects/cloud-debug.jsx",
+  "line": 10,
+  "names": [
+   "INITIAL_STATE"
+  ],
+  "bestSim": 0.319
+ },
+ {
+  "file": "routes/remote-tool.jsx",
+  "line": 9,
+  "names": [
+   "nextId"
+  ],
+  "bestSim": 0.6
+ },
+ {
+  "file": "settings/request-prompt-prefill.jsx",
+  "line": 170,
+  "names": [
+   "nextId"
+  ],
+  "bestSim": 0.8
+ },
+ {
+  "file": "settings/request-prompt-prefill.jsx",
+  "line": 233,
+  "names": [
+   "nextId"
+  ],
+  "bestSim": 0.8
+ },
+ {
+  "file": "settings/updater-provider.jsx",
+  "line": 347,
+  "names": [
+   "createInitialState"
+  ],
+  "bestSim": 0.594
+ },
+ {
+  "file": "team/calendar.jsx",
+  "line": 41,
+  "names": [
+   "CalendarDayButton"
+  ],
+  "bestSim": 0.048
+ },
+ {
+  "file": "team/credit-details-dialog.jsx",
+  "line": 365,
+  "names": [
+   "formatNumber"
+  ],
+  "bestSim": 0.472
+ },
+ {
+  "file": "team/credit-details-dialog.jsx",
+  "line": 676,
+  "names": [
+   "formatNumber"
+  ],
+  "bestSim": 0.389
+ },
+ {
+  "file": "team/hailuo-credit-row.jsx",
+  "line": 413,
+  "names": [
+   "PopoverArrow"
+  ],
+  "bestSim": 0.28
+ },
+ {
+  "file": "team/team-management-detail-loading.jsx",
+  "line": 282,
+  "names": [
+   "ProgressTrack"
+  ],
+  "bestSim": 0.553
+ },
+ {
+  "file": "team/team-management-detail-loading.jsx",
+  "line": 294,
+  "names": [
+   "ProgressIndicator"
+  ],
+  "bestSim": 0.341
+ },
+ {
+  "file": "text-editor/editor-history-controls.jsx",
+  "line": 15,
+  "names": [
+   "ToolbarSeparator"
+  ],
+  "bestSim": 0.435
+ },
+ {
+  "file": "text-editor/table-node-inner.jsx",
+  "line": 703,
+  "names": [
+   "ToolbarButton"
+  ],
+  "bestSim": 0.597
+ },
+ {
+  "file": "text-editor/table-ops.jsx",
+  "line": 265,
+  "names": [
+   "MenuItem"
+  ],
+  "bestSim": 0.568
+ },
+ {
+  "file": "text-editor/use-find-controller.js",
+  "line": 21,
+  "names": [
+   "INITIAL_STATE"
+  ],
+  "bestSim": 0.551
+ },
+ {
+  "file": "text-editor/use-placeholder-asset-source.jsx",
+  "line": 22,
+  "names": [
+   "PreviewCardTrigger"
+  ],
+  "bestSim": 0.43
+ },
+ {
+  "file": "vendor-inline/mediabunny/aac-encoder.js",
+  "line": 260,
+  "names": [
+   "assert"
+  ],
+  "bestSim": 0.755
+ },
+ {
+  "file": "vendor-inline/mediabunny/aac-encoder.js",
+  "line": 499,
+  "names": [
+   "assert"
+  ],
+  "bestSim": 0.755
+ },
+ {
+  "file": "vendor-inline/mediabunny/hls-segmented-input.js",
+  "line": 1106,
+  "names": [
+   "Input"
+  ],
+  "bestSim": 0.031
+ },
+ {
+  "file": "vendor-inline/vscode-base/graph.jsx",
+  "line": 376,
+  "names": [
+   "TooltipProvider"
+  ],
+  "bestSim": 0.591
+ },
+ {
+  "file": "vendor-inline/vscode-base/graph.jsx",
+  "line": 384,
+  "names": [
+   "TooltipTrigger"
+  ],
+  "bestSim": 0.254
+ },
+ {
+  "file": "vendor.js",
+  "line": 3047,
+  "names": [
+   "useStore"
+  ],
+  "bestSim": 0.468
+ },
+ {
+  "file": "vendor.js",
+  "line": 3688,
+  "names": [
+   "isEdge"
+  ],
+  "bestSim": 0.444
+ },
+ {
+  "file": "vendor.js",
+  "line": 4059,
+  "names": [
+   "selected"
+  ],
+  "bestSim": 0.5
+ },
+ {
+  "file": "vendor.js",
+  "line": 7709,
+  "names": [
+   "useStore"
+  ],
+  "bestSim": 0.427
+ },
+ {
+  "file": "vendor.js",
+  "line": 18780,
+  "names": [
+   "CloseIcon"
+  ],
+  "bestSim": 0.61
+ },
+ {
+  "file": "vendor.js",
+  "line": 19091,
+  "names": [
+   "SWIPE_THRESHOLD"
+  ],
+  "bestSim": 0.8
+ },
+ {
+  "file": "vendor.js",
+  "line": 27199,
+  "names": [
+   "assert"
+  ],
+  "bestSim": 0.755
+ },
+ {
+  "file": "vendor.js",
+  "line": 27418,
+  "names": [
+   "removeItem"
+  ],
+  "bestSim": 0.438
+ },
+ {
+  "file": "vendor.js",
+  "line": 27521,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.735
+ },
+ {
+  "file": "vendor.js",
+  "line": 27665,
+  "names": [
+   "isWebKit"
+  ],
+  "bestSim": 0.34
+ },
+ {
+  "file": "vendor.js",
+  "line": 27674,
+  "names": [
+   "isFirefox"
+  ],
+  "bestSim": 0.523
+ },
+ {
+  "file": "vendor.js",
+  "line": 63149,
+  "names": [
+   "index"
+  ],
+  "bestSim": 0.409
+ },
+ {
+  "file": "vendor.js",
+  "line": 63696,
+  "names": [
+   "node"
+  ],
+  "bestSim": 0.238
+ },
+ {
+  "file": "vendor.js",
+  "line": 65141,
+  "names": [
+   "EMPTY"
+  ],
+  "bestSim": 0.8
+ },
+ {
+  "file": "vendor.js",
+  "line": 65503,
+  "names": [
+   "empty"
+  ],
+  "bestSim": 0.727
+ },
+ {
+  "file": "vendor.js",
+  "line": 67737,
+  "names": [
+   "previous"
+  ],
+  "bestSim": 0.082
+ },
+ {
+  "file": "vendor.js",
+  "line": 70054,
+  "names": [
+   "createCell"
+  ],
+  "bestSim": 0.722
+ },
+ {
+  "file": "vendor.js",
+  "line": 77769,
+  "names": [
+   "Button"
+  ],
+  "bestSim": 0.185
+ },
+ {
+  "file": "vendor.js",
+  "line": 79219,
+  "names": [
+   "useFocus"
+  ],
+  "bestSim": 0.424
+ },
+ {
+  "file": "workspace/context-menu-content.jsx",
+  "line": 92,
+  "names": [
+   "ContextMenuTrigger"
+  ],
+  "bestSim": 0.056
+ },
+ {
+  "file": "workspace/set-home-widget-dev-preview-mode.js",
+  "line": 55,
+  "names": [
+   "getSnapshot"
+  ],
+  "bestSim": 0.214
+ },
+ {
+  "file": "workspace/shortcut-hint.jsx",
+  "line": 253,
+  "names": [
+   "TabsList"
+  ],
+  "bestSim": 0.355
+ },
+ {
+  "file": "workspace/workspace-stage.jsx",
+  "line": 31,
+  "names": [
+   "clamp"
+  ],
+  "bestSim": 0.719
+ }
+]

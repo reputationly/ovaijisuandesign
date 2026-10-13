@@ -1,0 +1,105 @@
+closure names imported by other files: 104
+DialogPopup 9 assets/general-section.jsx assets/image-lightbox.jsx assets/text-preview.jsx
+DialogBackdrop 7 assets/general-section.jsx debug-panel/debug-panel-dialog.jsx infra/badge-variants.jsx
+DialogClose$1 7 assets/general-section.jsx infra/badge-variants.jsx infra/dialog-content.jsx
+PopoverPopup 6 assets/asset-panel-overlay-host.jsx generation/artifact-asset-card.jsx generation/prompt-font-size-control.jsx
+PopoverPortal 6 assets/asset-panel-overlay-host.jsx generation/artifact-asset-card.jsx generation/prompt-font-size-control.jsx
+PopoverPositioner 6 assets/asset-panel-overlay-host.jsx generation/artifact-asset-card.jsx generation/prompt-font-size-control.jsx
+PopoverRoot 6 assets/asset-panel-overlay-host.jsx assets/credit-query-keys.jsx generation/artifact-asset-card.jsx
+DialogPortal$2 6 assets/credit-query-keys.jsx debug-panel/debug-panel-dialog.jsx infra/gateway-http-error.jsx
+MenuPopup 5 assets/asset-picker-dialog.jsx infra/dialog-content.jsx media-editing/audio-lightbox.jsx
+MenuPortal 5 assets/asset-picker-dialog.jsx infra/dialog-content.jsx media-editing/audio-lightbox.jsx
+MenuPositioner 5 assets/asset-picker-dialog.jsx infra/dialog-content.jsx media-editing/audio-lightbox.jsx
+DialogDescription$2 5 assets/general-section.jsx infra/badge-variants.jsx media-editing/use-preview-text.jsx
+DialogTitle$2 5 assets/general-section.jsx infra/badge-variants.jsx media-editing/use-preview-text.jsx
+useRenderElement 5 canvas/popover-title.jsx canvas/separator.jsx generation/select-content.jsx
+PreviewCardPopup 4 assets/asset-center-panel.jsx assets/asset-panel-overlay-host.jsx generation/render-cost-disclosure.jsx
+PreviewCardPortal 4 assets/asset-center-panel.jsx assets/asset-panel-overlay-host.jsx generation/render-cost-disclosure.jsx
+PreviewCardPositioner 4 assets/asset-center-panel.jsx assets/asset-panel-overlay-host.jsx generation/render-cost-disclosure.jsx
+PreviewCardRoot 4 assets/asset-center-panel.jsx assets/asset-panel-overlay-host.jsx generation/render-cost-disclosure.jsx
+Button$3 3 canvas/node-shell-inner.jsx debug-panel/icon-opacity-preview-section.jsx infra/dialog-content.jsx
+DialogRoot 3 canvas/separator.jsx infra/dialog-content.jsx settings/changelog-table.jsx
+SliderControl$1 3 generation/param-field.jsx generation/param-slider.jsx generation/slider.jsx
+SliderIndicator 3 generation/param-field.jsx generation/param-slider.jsx generation/slider.jsx
+SliderRoot 3 generation/param-field.jsx generation/param-slider.jsx generation/slider.jsx
+SliderThumb 3 generation/param-field.jsx generation/param-slider.jsx generation/slider.jsx
+SliderTrack 3 generation/param-field.jsx generation/param-slider.jsx generation/slider.jsx
+MenuItem$3 3 infra/dialog-content.jsx media-editing/audio-lightbox.jsx workspace/context-menu-content.jsx
+MenuSubmenuTrigger 3 media-editing/audio-lightbox.jsx workspace/context-menu-content.jsx workspace/shortcut-hint.jsx
+MenuSubmenuRoot 3 media-editing/use-warn-missing-asset-meta.jsx vendor-inline/vscode-base/graph.jsx workspace/context-menu-content.jsx
+SelectRoot 2 assets/credit-query-keys.jsx generation/select-content.jsx
+PopoverTrigger$1 2 assets/gateway-scope-provider.jsx generation/prompt-font-size-control.jsx
+Toggle$1 2 assets/rename-local-node-dialog.jsx infra/use-online.jsx
+useBaseUiId 2 canvas/popover-title.jsx generation/select-content.jsx
+useIsoLayoutEffect 2 canvas/popover-title.jsx generation/select-content.jsx
+TooltipPopup 2 generation/missing-asset-card.jsx infra/dialog-content.jsx
+TooltipPortal 2 generation/missing-asset-card.jsx infra/dialog-content.jsx
+TooltipPositioner 2 generation/missing-asset-card.jsx infra/dialog-content.jsx
+TooltipRoot 2 generation/missing-asset-card.jsx vendor-inline/vscode-base/graph.jsx
+TooltipTrigger$1 2 generation/missing-asset-card.jsx vendor-inline/vscode-base/graph.jsx
+PreviewCardTrigger$1 2 generation/render-cost-disclosure.jsx text-editor/use-placeholder-asset-source.jsx
+SelectIcon 2 generation/select-content.jsx infra/select-content.jsx
+SelectItem$2 2 generation/select-content.jsx infra/select-content.jsx
+SelectItemIndicator 2 generation/select-content.jsx infra/select-content.jsx
+SelectItemText 2 generation/select-content.jsx infra/select-content.jsx
+SelectList 2 generation/select-content.jsx infra/select-content.jsx
+SelectPopup 2 generation/select-content.jsx infra/select-content.jsx
+SelectPortal 2 generation/select-content.jsx infra/select-content.jsx
+SelectPositioner 2 generation/select-content.jsx infra/select-content.jsx
+SelectScrollDownArrow 2 generation/select-content.jsx infra/select-content.jsx
+SelectScrollUpArrow 2 generation/select-content.jsx infra/select-content.jsx
+SelectTrigger$2 2 generation/select-content.jsx infra/select-content.jsx
+SelectValue$2 2 generation/select-content.jsx infra/select-content.jsx
+TabsIndicator 2 home/media-showcase.jsx workspace/shortcut-hint.jsx
+TooltipProvider$2 2 infra/create-recently-added-store.js vendor-inline/vscode-base/graph.jsx
+MenuTrigger 2 infra/dialog-content.jsx media-editing/use-warn-missing-asset-meta.jsx
+MenuRoot 2 media-editing/use-warn-missing-asset-meta.jsx vendor-inline/vscode-base/graph.jsx
+usePopoverRootContext 1 canvas/popover-title.jsx
+SelectGroupContext 1 generation/select-content.jsx
+SwitchRoot 1 generation/select-content.jsx
+SwitchThumb 1 generation/select-content.jsx
+useSelectGroupContext 1 generation/select-content.jsx
+formatErrorMessage 1 generation/use-model-catalog-scope-key.js
+ProgressRootContext 1 generation/use-model-catalog-scope-key.js
+mergeProps$1 1 infra/badge-variants.jsx
+useRender 1 infra/badge-variants.jsx
+CheckboxRoot 1 infra/checkbox.jsx
+hooks 1 infra/create-recently-added-store.js
+AlertDialogRoot 1 infra/dialog-content.jsx
+FieldControl 1 infra/dialog-content.jsx
+MenuGroupLabel 1 infra/dialog-content.jsx
+MenuRadioItem 1 infra/dialog-content.jsx
+MenuRadioItemIndicator 1 infra/dialog-content.jsx
+AvatarImage$1 1 infra/inline-rename-input.jsx
+AvatarRootContext 1 infra/inline-rename-input.jsx
+avatarStateAttributesMapping 1 infra/inline-rename-input.jsx
+useAvatarRootContext 1 infra/inline-rename-input.jsx
+useTimeout 1 infra/inline-rename-input.jsx
+ToggleGroup$1 1 infra/use-online.jsx
+DialogTrigger$1 1 media-editing/action-list-section.jsx
+AccordionHeader 1 media-editing/message-list-props-equal.jsx
+AccordionItem$1 1 media-editing/message-list-props-equal.jsx
+AccordionPanel 1 media-editing/message-list-props-equal.jsx
+AccordionRoot 1 media-editing/message-list-props-equal.jsx
+AccordionTrigger$1 1 media-editing/message-list-props-equal.jsx
+RadioGroup$1 1 media-editing/message-list-props-equal.jsx
+RadioIndicator 1 media-editing/message-list-props-equal.jsx
+RadioRoot 1 media-editing/message-list-props-equal.jsx
+ScrollAreaCorner 1 media-editing/scroll-bar.jsx
+ScrollAreaRoot 1 media-editing/scroll-bar.jsx
+ScrollAreaScrollbar 1 media-editing/scroll-bar.jsx
+ScrollAreaThumb 1 media-editing/scroll-bar.jsx
+ScrollAreaViewport 1 media-editing/scroll-bar.jsx
+FieldRoot 1 media-editing/slider-section.jsx
+PopoverArrow$1 1 team/hailuo-credit-row.jsx
+ProgressRoot 1 team/team-management-detail-loading.jsx
+progressStateAttributesMapping 1 team/team-management-detail-loading.jsx
+valueToPercent 1 team/team-management-detail-loading.jsx
+MenuGroup 1 vendor-inline/vscode-base/graph.jsx
+MenuRadioGroup 1 vendor-inline/vscode-base/graph.jsx
+ContextMenuTrigger$1 1 workspace/context-menu-content.jsx
+TabsList$1 1 workspace/shortcut-hint.jsx
+TabsPanel 1 workspace/shortcut-hint.jsx
+TabsRoot 1 workspace/shortcut-hint.jsx
+TabsTab 1 workspace/shortcut-hint.jsx
+ContextMenuRoot 1 workspace/topbar-state-context.jsx

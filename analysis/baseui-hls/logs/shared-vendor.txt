@@ -1,0 +1,21 @@
+== vendor.js 内闭包外声明引用的闭包名: 11
+  disabled 15 lines 4675,5105,5394,62330,64750
+  update 14 lines 1054,2026,2335,2763,4138
+  userAgent 4 lines 27665,27674,27681,27688
+  useRender 3 lines 19736,19756,19781
+  majorVersion 3 lines 48235,48254,48476
+  hooks 3 lines 70417,71255,71919
+  createInstance 3 lines 75327,75831,75832
+  useId 2 lines 490,598
+  getTarget 2 lines 51040,56106
+  activeElement 1 lines 19481
+  noop$1 1 lines 75327
+== npm 外部依赖：闭包内使用 / 闭包外使用
+  @floating-ui/react-dom in-closure: size,useFloating$1,hide$1,offset,flip,shift$1,limitShift | outside: 248:size 651:size 1054:size 3152:size 3407:size 4300:size
+  @floating-ui/utils in-closure: floor,evaluate,getPaddingObject,getAlignmentAxis,getAxisLength,getAlignment,getSide$1,getSideAxis,round,rectToClientRect | outside: 1054:round 2598:floor 27233:floor 27488:floor 27525:round 27533:round
+  use-sync-external-store/shim/with-selector in-closure: withSelectorExports | outside: 2989:withSelectorExports
+  tabbable in-closure: tabbable,isTabbable,focusable | outside: 5394:focusable
+  @floating-ui/dom in-closure: platform,inline,autoUpdate | outside: 58935:platform 70740:inline 71255:inline
+  @floating-ui/utils/dom in-closure: isShadowRoot,isElement,isHTMLElement$1,getComputedStyle$1,getNodeName,isNode$1,getWindow$1,isWebKit$2,isLastTraversableNode,getParentNode,isOverflowElement | outside: 
+  reselect in-closure:  | outside: 14638:createSelectorCreator+lruMemoize
+  use-sync-external-store/shim in-closure: shimExports | outside: 
