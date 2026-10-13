@@ -1,10 +1,10 @@
 // image-editor.jsx
-import { Editor2 } from "./editor2.js";
+import { Editor2 as CanvasEditor } from "./editor2.js";
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 function createEditor(options) {
-  return new Editor2(options);
+  return new CanvasEditor(options);
 }
 
 export const ImageEditor = reactExports.forwardRef(

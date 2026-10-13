@@ -3,3 +3,4 @@ ImageEditor2@11:12	ImageEditor	此 forwardRef 组件初始化图像编辑器、�
 state2@41:46	state	editor 的 change 事件携带此状态对象，随后转发给 onChange 回调。
 type2@86:18	type	toBlob 的此参数指定导出 Blob 的 MIME 类型。
 type2@92:21	type	toDataURL 的此参数指定导出 data URL 的 MIME 类型。
+Editor2@2:10	CanvasEditor	本地导入用于创建画布编辑器实例；改为 CanvasEditor 以说明其职责，同时保留来源模块导出名 Editor2。
