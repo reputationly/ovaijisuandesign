@@ -13,22 +13,22 @@ import { serializeTableDocument } from "../text-editor/table-document-to-llm-con
 
 export function useCanvasAddNode({
   saveTableContent,
-  addNode: addNode2,
+  addNode,
   getPosition,
   getLastUsedModelParams,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return reactExports.useCallback(
-    async (type2, positionOverride, dataOverride) => {
-      const position2 = positionOverride ?? getPosition();
-      switch (type2) {
+    async (type, positionOverride, dataOverride) => {
+      const position = positionOverride ?? getPosition();
+      switch (type) {
         case CanvasNodeType.Text: {
           const nodeId = crypto.randomUUID();
-          addNode2({
+          addNode({
             type: CanvasNodeType.Text,
             id: nodeId,
             data: dataOverride,
-            position: position2,
+            position,
             size: TEXT_CARD_DEFAULT_SIZE,
             isEmpty: true,
           });
@@ -38,23 +38,23 @@ export function useCanvasAddNode({
         case CanvasNodeType.Video:
         case CanvasNodeType.Audio: {
           const nodeId = crypto.randomUUID();
-          const { size: size2, aspectRatio } = emptyMediaNodeInit(
-            type2,
+          const { size, aspectRatio } = emptyMediaNodeInit(
+            type,
             getLastUsedModelParams,
             dataOverride?.aspectRatio,
           );
-          const data2 = aspectRatio
+          const data = aspectRatio
             ? {
                 ...(dataOverride ?? {}),
                 aspectRatio,
               }
             : dataOverride;
-          addNode2({
-            type: type2,
+          addNode({
+            type,
             id: nodeId,
-            position: position2,
-            data: data2,
-            size: size2,
+            position,
+            data,
+            size,
             isEmpty: true,
           });
           return nodeId;
@@ -66,18 +66,18 @@ export function useCanvasAddNode({
           }
           const tablePath = newTablePath();
           const emptyDoc = createEmptyDocument(
-            t2("canvas.table.defaultColumn", "Text"),
+            translate("canvas.table.defaultColumn", "Text"),
           );
           const tableNodeId = crypto.randomUUID();
           try {
             await saveTableContent(tablePath, serializeTableDocument(emptyDoc));
-            addNode2({
+            addNode({
               type: CanvasNodeType.Table,
               id: tableNodeId,
               data: {
                 tablePath,
               },
-              position: position2,
+              position,
               size: TABLE_CARD_DEFAULT_SIZE,
             });
             return tableNodeId;
@@ -90,6 +90,6 @@ export function useCanvasAddNode({
           return null;
       }
     },
-    [saveTableContent, addNode2, getPosition, getLastUsedModelParams, t2],
+    [saveTableContent, addNode, getPosition, getLastUsedModelParams, translate],
   );
 }

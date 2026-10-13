@@ -38,13 +38,13 @@ import { AssetCenterPanel } from "../assets/asset-center-panel.jsx";
 import { FileExplorerSearchBar } from "../assets/file-explorer-search-bar.jsx";
 function ProjectAssetsSidebarPanel({ onToolbarStateChange, searchQuery } = {}) {
   const workspacePath = useCurrentWorkspace();
-  const project2 = useWorkspaceProject(workspacePath || void 0);
-  if (!project2) return null;
-  if (project2.kind === "team" && project2.remoteId) {
+  const project = useWorkspaceProject(workspacePath || void 0);
+  if (!project) return null;
+  if (project.kind === "team" && project.remoteId) {
     return (
       <TeamAssetsSidebarPanel
-        project={project2}
-        cloudProjectId={project2.remoteId}
+        project={project}
+        cloudProjectId={project.remoteId}
         onToolbarStateChange={onToolbarStateChange}
         searchQuery={searchQuery}
       />
@@ -52,15 +52,15 @@ function ProjectAssetsSidebarPanel({ onToolbarStateChange, searchQuery } = {}) {
   }
   return (
     <LocalAssetsSidebarPanel
-      project={project2}
+      project={project}
       onToolbarStateChange={onToolbarStateChange}
       searchQuery={searchQuery}
     />
   );
 }
 export function AssetsTabPanel({ onManageActiveChange } = {}) {
-  const { t: t2 } = useTranslation();
-  const [view2, setView] = reactExports.useState("default");
+  const { t: translate } = useTranslation();
+  const [view, setView] = reactExports.useState("default");
   const [addEntityOpen, setAddEntityOpen] = reactExports.useState(false);
   const [librarySortKey, setLibrarySortKey] =
     reactExports.useState("updated_at");
@@ -75,7 +75,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
             mode: "create-new",
           });
           dedupedToast.success(
-            t2("assetCenter.import.toastSuccess", {
+            translate("assetCenter.import.toastSuccess", {
               name: result.entity.name,
             }),
           );
@@ -90,7 +90,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
         } catch (err) {
           if (err instanceof ImportEntityConflictError) {
             dedupedToast.error(
-              t2("assetCenter.import.conflictBatchSkipped", {
+              translate("assetCenter.import.conflictBatchSkipped", {
                 existingName: err.conflict.existingEntity.name,
               }),
             );
@@ -103,7 +103,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
               error_type: "conflict",
             });
           } else {
-            dedupedToast.error(formatAssetCenterError(err, t2));
+            dedupedToast.error(formatAssetCenterError(err, translate));
             trackAssetCreate({
               source: "canvas_sidebar",
               method: "import",
@@ -116,30 +116,30 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
         }
       }
     },
-    [importMutation, t2],
+    [importMutation, translate],
   );
-  const [searchQuery, setSearchQuery2] = reactExports.useState("");
+  const [searchQuery, setSearchQuery] = reactExports.useState("");
   const [librarySearchQuery, setLibrarySearchQuery] = reactExports.useState("");
   const [libraryViewMode, setLibraryViewMode] = reactExports.useState("grid");
   const libraryRefreshRef = reactExports.useRef(() => {});
-  const registerLibraryRefresh = reactExports.useCallback((fn2) => {
-    libraryRefreshRef.current = fn2;
+  const registerLibraryRefresh = reactExports.useCallback((fn) => {
+    libraryRefreshRef.current = fn;
   }, []);
   const [projectAssetsToolbar, setProjectAssetsToolbar] =
     reactExports.useState(void 0);
   const workspacePath = useCurrentWorkspace();
-  const project2 = useWorkspaceProject(workspacePath || void 0);
-  const isTeamProject = project2?.kind === "team";
+  const project = useWorkspaceProject(workspacePath || void 0);
+  const isTeamProject = project?.kind === "team";
   const libraryEntryDisabled = isTeamProject;
-  const forceLibraryView = !project2 && !libraryEntryDisabled;
+  const forceLibraryView = !project && !libraryEntryDisabled;
   reactExports.useEffect(() => {
-    if (forceLibraryView && view2 === "default") setView("library");
-  }, [forceLibraryView, view2]);
+    if (forceLibraryView && view === "default") setView("library");
+  }, [forceLibraryView, view]);
   reactExports.useEffect(() => {
-    onManageActiveChange?.(view2 === "manage");
+    onManageActiveChange?.(view === "manage");
     return () => onManageActiveChange?.(false);
-  }, [onManageActiveChange, view2]);
-  if (view2 === "manage" && !libraryEntryDisabled) {
+  }, [onManageActiveChange, view]);
+  if (view === "manage" && !libraryEntryDisabled) {
     return (
       <div
         className="flex h-full min-h-0 flex-col"
@@ -148,8 +148,8 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
         <div className="flex shrink-0 items-center gap-1 border-b border-border-soft px-2 pt-3 pb-2">
           <button
             type="button"
-            aria-label={t2("canvasAssets.libraryBack")}
-            title={t2("canvasAssets.libraryBack")}
+            aria-label={translate("canvasAssets.libraryBack")}
+            title={translate("canvasAssets.libraryBack")}
             onClick={() => setView("library")}
             className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
             data-action-ui-id="canvas-sidebar-assets.manage-back"
@@ -157,7 +157,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
             <StrokeIcon icon={ChevronLeft} size={16} />
           </button>
           <span className="min-w-0 flex-1 truncate text-[14px] font-medium text-foreground">
-            {t2("assetCenter.title")}
+            {translate("assetCenter.title")}
           </span>
         </div>
         <div className="min-h-0 flex-1 overflow-hidden">
@@ -166,7 +166,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
       </div>
     );
   }
-  if (view2 === "library" && !libraryEntryDisabled) {
+  if (view === "library" && !libraryEntryDisabled) {
     return (
       <div
         className="flex h-full min-h-0 flex-col"
@@ -176,8 +176,8 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
           {!forceLibraryView && (
             <button
               type="button"
-              aria-label={t2("canvasAssets.libraryBack")}
-              title={t2("canvasAssets.libraryBack")}
+              aria-label={translate("canvasAssets.libraryBack")}
+              title={translate("canvasAssets.libraryBack")}
               onClick={() => setView("default")}
               className="inline-flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
               data-action-ui-id="canvas-sidebar-assets.library-back"
@@ -190,7 +190,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
             data-action-ui-id="canvas-sidebar-assets.library-heading"
           >
             <span className="min-w-0 truncate">
-              {t2("canvasAssets.libraryEntry")}
+              {translate("canvasAssets.libraryEntry")}
             </span>
             <Tooltip>
               <TooltipTrigger
@@ -198,7 +198,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                   <button
                     type="button"
                     className="inline-flex size-4 shrink-0 cursor-help items-center justify-center rounded-sm text-muted-foreground/70 outline-none transition-colors hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50"
-                    aria-label={t2("canvasAssets.libraryEntryTooltip")}
+                    aria-label={translate("canvasAssets.libraryEntryTooltip")}
                     data-action-ui-id="canvas-sidebar-assets.library-info"
                   />
                 }
@@ -206,9 +206,9 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                 <Info size={13} strokeWidth={1.5} aria-hidden="true" />
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-64">
-                {t2("canvasAssets.libraryEntryTooltip")}{" "}
+                {translate("canvasAssets.libraryEntryTooltip")}{" "}
                 <span className="text-muted-foreground">
-                  {t2("canvasAssets.libraryEntryAlias")}
+                  {translate("canvasAssets.libraryEntryAlias")}
                 </span>
               </TooltipContent>
             </Tooltip>
@@ -220,10 +220,10 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                   type="button"
                   className={`inline-flex h-7 shrink-0 items-center gap-1 rounded-md px-2 text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground ${ICON_TEXT_SPEC.compact.textClassName}`}
                   data-action-ui-id="canvas-sidebar-asset-center.sort"
-                  aria-label={t2(`assetCenter.sort.${librarySortKey}`)}
+                  aria-label={translate(`assetCenter.sort.${librarySortKey}`)}
                 >
                   <span className="truncate">
-                    {t2(`assetCenter.sort.${librarySortKey}`)}
+                    {translate(`assetCenter.sort.${librarySortKey}`)}
                   </span>
                   <StrokeIcon
                     icon={ChevronDown}
@@ -256,7 +256,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                     aria-hidden={true}
                   />
                 )}
-                {t2("assetCenter.sort.updated_at")}
+                {translate("assetCenter.sort.updated_at")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setLibrarySortKey("use_count")}
@@ -275,7 +275,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                     aria-hidden={true}
                   />
                 )}
-                {t2("assetCenter.sort.use_count")}
+                {translate("assetCenter.sort.use_count")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -286,7 +286,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
               useStrokeSpec={true}
               value={librarySearchQuery}
               onChange={setLibrarySearchQuery}
-              placeholder={t2("assetSidebarPanel.searchPlaceholder")}
+              placeholder={translate("assetSidebarPanel.searchPlaceholder")}
               rowActionId="canvas-sidebar-assets.library-search-row"
               inputActionId="canvas-sidebar-assets.library-search"
               clearActionId="canvas-sidebar-assets.library-search-clear"
@@ -305,18 +305,18 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
               options={[
                 {
                   value: "tree",
-                  label: t2("fileExplorer.treeView"),
-                  ariaLabel: t2("fileExplorer.treeView"),
+                  label: translate("fileExplorer.treeView"),
+                  ariaLabel: translate("fileExplorer.treeView"),
                   icon: LayoutList,
-                  tooltip: t2("fileExplorer.treeView"),
+                  tooltip: translate("fileExplorer.treeView"),
                   dataActionUiId: "canvas-sidebar-asset-center.view-tree",
                 },
                 {
                   value: "grid",
-                  label: t2("fileExplorer.gridView"),
-                  ariaLabel: t2("fileExplorer.gridView"),
+                  label: translate("fileExplorer.gridView"),
+                  ariaLabel: translate("fileExplorer.gridView"),
                   icon: LayoutGrid,
-                  tooltip: t2("fileExplorer.gridView"),
+                  tooltip: translate("fileExplorer.gridView"),
                   dataActionUiId: "canvas-sidebar-asset-center.view-grid",
                 },
               ]}
@@ -326,7 +326,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                 render={
                   <button
                     type="button"
-                    aria-label={t2("fileExplorer.refreshList")}
+                    aria-label={translate("fileExplorer.refreshList")}
                     className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50"
                     onClick={() => libraryRefreshRef.current()}
                     data-action-ui-id="canvas-sidebar-asset-center.refresh"
@@ -336,7 +336,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                 <RetryIcon size={14} />
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                {t2("fileExplorer.refresh")}
+                {translate("fileExplorer.refresh")}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -358,7 +358,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
             data-action-ui-id="canvas-sidebar-asset-center.add"
           >
             <StrokeIcon icon={Plus} size={14} />
-            {t2("assetCenter.add")}
+            {translate("assetCenter.add")}
           </Button>
           <Button
             type="button"
@@ -370,7 +370,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
             data-action-ui-id="canvas-sidebar-asset-center.import"
           >
             <StrokeIcon icon={Upload} size={14} />
-            {t2("assetCenter.import.action")}
+            {translate("assetCenter.import.action")}
           </Button>
           <input
             ref={importInputRef}
@@ -378,9 +378,9 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
             accept=".zip,application/zip"
             multiple={true}
             className="hidden"
-            onChange={(e2) => {
-              const files = Array.from(e2.target.files ?? []);
-              e2.target.value = "";
+            onChange={(changeEvent) => {
+              const files = Array.from(changeEvent.target.files ?? []);
+              changeEvent.target.value = "";
               if (files.length > 0) void handleImportPicked(files);
             }}
             data-action-ui-id="canvas-sidebar-asset-center.import-input"
@@ -413,9 +413,9 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                   onKeyDown={
                     libraryEntryDisabled
                       ? void 0
-                      : (e2) => {
-                          if (e2.key === "Enter" || e2.key === " ") {
-                            e2.preventDefault();
+                      : (keyEvent) => {
+                          if (keyEvent.key === "Enter" || keyEvent.key === " ") {
+                            keyEvent.preventDefault();
                             setView("library");
                           }
                         }
@@ -445,7 +445,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                           : "min-w-0 truncate text-[13px] font-medium text-foreground transition-colors"
                       }
                     >
-                      {t2("canvasAssets.libraryEntry")}
+                      {translate("canvasAssets.libraryEntry")}
                     </span>
                     <Info
                       size={13}
@@ -466,8 +466,8 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
             />
             <TooltipContent side="bottom" className="max-w-64">
               {libraryEntryDisabled
-                ? t2("canvasAssets.libraryEntryTeamComingSoon")
-                : t2("canvasAssets.libraryEntryTooltip")}
+                ? translate("canvasAssets.libraryEntryTeamComingSoon")
+                : translate("canvasAssets.libraryEntryTooltip")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -475,8 +475,8 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
       <div className="flex shrink-0 items-center gap-1 px-2 pt-2 pb-2">
         <FileExplorerSearchBar
           value={searchQuery}
-          onChange={setSearchQuery2}
-          placeholder={t2("localAssets.searchPlaceholder", {
+          onChange={setSearchQuery}
+          placeholder={translate("localAssets.searchPlaceholder", {
             defaultValue: "搜索资产",
           })}
           rowActionId="canvas-sidebar-assets.search-row"
@@ -497,18 +497,18 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                 options={[
                   {
                     value: "tree",
-                    label: t2("fileExplorer.treeView"),
-                    ariaLabel: t2("fileExplorer.treeView"),
+                    label: translate("fileExplorer.treeView"),
+                    ariaLabel: translate("fileExplorer.treeView"),
                     icon: LayoutList,
-                    tooltip: t2("fileExplorer.treeView"),
+                    tooltip: translate("fileExplorer.treeView"),
                     dataActionUiId: "project-assets-panel.view-tree",
                   },
                   {
                     value: "grid",
-                    label: t2("fileExplorer.gridView"),
-                    ariaLabel: t2("fileExplorer.gridView"),
+                    label: translate("fileExplorer.gridView"),
+                    ariaLabel: translate("fileExplorer.gridView"),
                     icon: LayoutGrid,
-                    tooltip: t2("fileExplorer.gridView"),
+                    tooltip: translate("fileExplorer.gridView"),
                     dataActionUiId: "project-assets-panel.view-grid",
                   },
                 ]}
@@ -518,7 +518,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                   render={
                     <button
                       type="button"
-                      aria-label={t2("fileExplorer.refreshList")}
+                      aria-label={translate("fileExplorer.refreshList")}
                       className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring/50"
                       onClick={() => projectAssetsToolbar.onRefresh()}
                       data-action-ui-id="project-assets-panel.refresh"
@@ -528,7 +528,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
                   <RetryIcon size={14} />
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  {t2("fileExplorer.refresh")}
+                  {translate("fileExplorer.refresh")}
                 </TooltipContent>
               </Tooltip>
               {projectAssetsToolbar.trailingSlot ?? null}

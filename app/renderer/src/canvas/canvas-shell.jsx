@@ -105,31 +105,31 @@ export function CanvasShell(props) {
       ? "hand"
       : "select";
   useRenderableContentChange(rest.nodes, onRenderableContentChange);
-  const handleDoubleClick2 = reactExports.useCallback(
-    (e2) => {
+  const handleDoubleClick = reactExports.useCallback(
+    (mouseEvent) => {
       if (!rest.onPaneDoubleClick) return;
-      if (isPaneClick(e2.target)) {
-        e2.preventDefault();
+      if (isPaneClick(mouseEvent.target)) {
+        mouseEvent.preventDefault();
         window.getSelection()?.removeAllRanges();
-        rest.onPaneDoubleClick(e2);
+        rest.onPaneDoubleClick(mouseEvent);
       }
     },
     [rest.onPaneDoubleClick],
   );
   const handleContextMenu = reactExports.useCallback(
-    (e2) => {
+    (contextMenuEvent) => {
       if (!rest.onPaneContextMenu) return;
-      if (isPaneClick(e2.target)) {
-        e2.preventDefault();
-        rest.onPaneContextMenu(e2);
+      if (isPaneClick(contextMenuEvent.target)) {
+        contextMenuEvent.preventDefault();
+        rest.onPaneContextMenu(contextMenuEvent);
       }
     },
     [rest.onPaneContextMenu],
   );
-  const handleMouseDownCapture = reactExports.useCallback((e2) => {
-    if (isEditableElement(e2.target) || isCanvasChromeElement(e2.target))
+  const handleMouseDownCapture = reactExports.useCallback((mouseEvent) => {
+    if (isEditableElement(mouseEvent.target) || isCanvasChromeElement(mouseEvent.target))
       return;
-    e2.currentTarget.focus();
+    mouseEvent.currentTarget.focus();
   }, []);
   const canvasOverlayStore = useCanvasOverlayApi();
   reactExports.useEffect(
@@ -170,7 +170,7 @@ export function CanvasShell(props) {
         "--canvas-tool-dock-safe-bottom": `${CANVAS_TOOL_DOCK_SAFE_BOTTOM_PX}px`,
       }}
       onMouseDownCapture={handleMouseDownCapture}
-      onDoubleClick={handleDoubleClick2}
+      onDoubleClick={handleDoubleClick}
       onContextMenu={handleContextMenu}
       onDragEnter={rest.onCanvasDragEnter}
       onDragOver={rest.onCanvasDragOver}

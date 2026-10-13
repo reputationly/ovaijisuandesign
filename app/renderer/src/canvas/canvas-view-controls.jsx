@@ -7,13 +7,13 @@ import {
   Grid2X2,
   LayoutTemplate,
   Library,
-  Map$1 as Map,
+  Map$1 as MapIcon,
   MonochromeIcon,
   reactExports,
   useStore$3 as useStore,
   useTranslation,
   Workflow,
-  X$7 as X,
+  X$7 as XIcon,
 } from "../vendor.js";
 import {
   DropdownMenuContent,
@@ -94,8 +94,8 @@ function CanvasTidyControlInner({
   onTidyLayout,
   placement,
 }) {
-  const { t: t2 } = useTranslation();
-  const label = t2("canvas.tidy");
+  const { t: translate } = useTranslation();
+  const label = translate("canvas.tidy");
   const menuSide = placement === "bottom-left" ? "top" : "bottom";
   const menuAlign = "start";
   const [menuOpen, setMenuOpen] = reactExports.useState(false);
@@ -116,11 +116,11 @@ function CanvasTidyControlInner({
   }, [onSortByMediaType]);
   const connectionsHintId = reactExports.useId();
   const mediaTypeHintId = reactExports.useId();
-  const connectionsHint = t2(
+  const connectionsHint = translate(
     "canvas.tidy.sort.connections.hint",
     "有连线依赖的节点按上下游排在上方，离散节点收拢到下方",
   );
-  const mediaTypeHint = t2(
+  const mediaTypeHint = translate(
     "canvas.tidy.sort.mediaType.hint",
     "按图片 / 视频 / 音频 / 文本 等素材类型分成多条泳道，不考虑连线",
   );
@@ -155,7 +155,7 @@ function CanvasTidyControlInner({
                 className="shrink-0 text-[var(--canvas-controls-text-muted)]"
               />
               <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-                {t2("canvas.tidy.sort", "分类整理")}
+                {translate("canvas.tidy.sort", "分类整理")}
               </span>
               <ChevronRight
                 className="ml-auto text-[var(--canvas-controls-text-muted)] opacity-60"
@@ -184,7 +184,7 @@ function CanvasTidyControlInner({
                   className="text-[var(--canvas-controls-text-muted)]"
                 />
                 <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-                  {t2("canvas.tidy.sort.connections", "按连线关系")}
+                  {translate("canvas.tidy.sort.connections", "按连线关系")}
                 </span>
                 <TidyHint hint={connectionsHint} hintId={connectionsHintId} />
               </DropdownMenuItem>
@@ -201,7 +201,7 @@ function CanvasTidyControlInner({
                   className="text-[var(--canvas-controls-text-muted)]"
                 />
                 <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-                  {t2("canvas.tidy.sort.mediaType", "按素材类型")}
+                  {translate("canvas.tidy.sort.mediaType", "按素材类型")}
                 </span>
                 <TidyHint hint={mediaTypeHint} hintId={mediaTypeHintId} />
               </DropdownMenuItem>
@@ -218,7 +218,7 @@ function CanvasTidyControlInner({
                 className="shrink-0 text-[var(--canvas-controls-text-muted)]"
               />
               <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-                {t2("canvas.tidy.layouts", "布局整理")}
+                {translate("canvas.tidy.layouts", "布局整理")}
               </span>
               <ChevronRight
                 className="ml-auto text-[var(--canvas-controls-text-muted)] opacity-60"
@@ -247,12 +247,12 @@ function CanvasTidyControlInner({
   );
 }
 const CanvasTidyControl = reactExports.memo(CanvasTidyControlInner);
-const zoomSelector = (s2) => s2.transform[2];
+const zoomSelector = (state) => state.transform[2];
 function ToolbarButton({
-  children: children2,
+  children,
   onClick,
   tooltip,
-  disabled: disabled2,
+  disabled,
   kind = "action",
   pressed,
   ariaLabel,
@@ -261,20 +261,20 @@ function ToolbarButton({
   iconOnly = false,
   highlightPressed = true,
 }) {
-  const active2 = kind === "toggle" && pressed && highlightPressed;
+  const active = kind === "toggle" && pressed && highlightPressed;
   return (
     <Tooltip content={tooltip} closeOnClick={true}>
       <button
         type="button"
         data-action-ui-id={dataActionUiId}
         onClick={onClick}
-        disabled={disabled2}
+        disabled={disabled}
         aria-pressed={kind === "toggle" ? pressed : void 0}
         aria-label={ariaLabel}
         data-canvas-control-kind={kind}
-        className={`${highlightPressed ? "canvas-monochrome-control" : "canvas-monochrome-control-hover"} flex items-center rounded-md text-xs select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${compact ? "size-6 justify-center p-0" : iconOnly ? "aspect-square h-full shrink-0 justify-center p-0" : "h-full gap-1.5 px-2"} ${disabled2 ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-30" : active2 ? "cursor-pointer bg-[var(--canvas-controls-active)] text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-active)]" : "cursor-pointer text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
+        className={`${highlightPressed ? "canvas-monochrome-control" : "canvas-monochrome-control-hover"} flex items-center rounded-md text-xs select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${compact ? "size-6 justify-center p-0" : iconOnly ? "aspect-square h-full shrink-0 justify-center p-0" : "h-full gap-1.5 px-2"} ${disabled ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-30" : active ? "cursor-pointer bg-[var(--canvas-controls-active)] text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-active)]" : "cursor-pointer text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
       >
-        {children2}
+        {children}
       </button>
     </Tooltip>
   );
@@ -300,10 +300,10 @@ export function CanvasViewControls({
   placement = DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT,
 }) {
   const alignmentSnapEnabled = useAlignmentSnapPreferenceStore(
-    (state2) => state2.enabled,
+    (state) => state.enabled,
   );
   const toggleAlignmentSnap = useAlignmentSnapPreferenceStore(
-    (state2) => state2.toggle,
+    (state) => state.toggle,
   );
   const zoomLevel = useStore(zoomSelector);
   const zoomPercent = `${Math.round(zoomLevel * 100)}%`;
@@ -313,10 +313,10 @@ export function CanvasViewControls({
   const appearanceTriggerRef = reactExports.useRef(null);
   const appearancePanelRef = reactExports.useRef(null);
   const appearancePanelId = reactExports.useId();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   reactExports.useEffect(() => {
     if (!appearanceOpen) return;
-    const onPointerDown2 = (event) => {
+    const onPointerDown = (event) => {
       const target = event.target;
       if (
         !appearanceTriggerRef.current?.contains(target) &&
@@ -325,8 +325,8 @@ export function CanvasViewControls({
         setAppearanceOpen(false);
       }
     };
-    document.addEventListener("pointerdown", onPointerDown2);
-    return () => document.removeEventListener("pointerdown", onPointerDown2);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [appearanceOpen]);
   reactExports.useEffect(() => {
     if (!appearanceOpen) return;
@@ -347,9 +347,9 @@ export function CanvasViewControls({
     });
   }, [appearanceOpen]);
   const toggleAppearancePanel = () => {
-    setAppearanceOpen((current2) => {
-      if (!current2) onAppearanceOpen?.();
-      return !current2;
+    setAppearanceOpen((current) => {
+      if (!current) onAppearanceOpen?.();
+      return !current;
     });
   };
   return (
@@ -406,7 +406,7 @@ export function CanvasViewControls({
             data-canvas-toolbar-group="view"
           >
             <Tooltip
-              content={t2("canvas.toolbar.canvasSettings")}
+              content={translate("canvas.toolbar.canvasSettings")}
               closeOnClick={true}
             >
               <button
@@ -415,7 +415,7 @@ export function CanvasViewControls({
                 data-action-ui-id="canvas.toolbar-appearance"
                 data-canvas-control-kind="panel"
                 onClick={toggleAppearancePanel}
-                aria-label={t2("canvas.toolbar.canvasSettings")}
+                aria-label={translate("canvas.toolbar.canvasSettings")}
                 aria-haspopup="dialog"
                 aria-expanded={appearanceOpen}
                 aria-controls={appearancePanelId}
@@ -433,10 +433,10 @@ export function CanvasViewControls({
               highlightPressed={false}
               onClick={onToggleEdges}
               tooltip={
-                edgesVisible ? t2("canvas.edges.hide") : t2("canvas.edges.show")
+                edgesVisible ? translate("canvas.edges.hide") : translate("canvas.edges.show")
               }
               ariaLabel={
-                edgesVisible ? t2("canvas.edges.hide") : t2("canvas.edges.show")
+                edgesVisible ? translate("canvas.edges.hide") : translate("canvas.edges.show")
               }
               pressed={edgesVisible}
             >
@@ -450,10 +450,10 @@ export function CanvasViewControls({
               onClick={toggleAlignmentSnap}
               tooltip={
                 alignmentSnapEnabled
-                  ? t2("canvas.alignmentSnap.disable")
-                  : t2("canvas.alignmentSnap.enable")
+                  ? translate("canvas.alignmentSnap.disable")
+                  : translate("canvas.alignmentSnap.enable")
               }
-              ariaLabel={t2("canvas.alignmentSnap.label")}
+              ariaLabel={translate("canvas.alignmentSnap.label")}
               pressed={alignmentSnapEnabled}
             >
               <CanvasToggleIcon kind="snap" enabled={alignmentSnapEnabled} />
@@ -464,17 +464,17 @@ export function CanvasViewControls({
               onClick={onToggleMinimap}
               tooltip={
                 minimapVisible
-                  ? t2("canvas.minimap.hide")
-                  : t2("canvas.minimap.show")
+                  ? translate("canvas.minimap.hide")
+                  : translate("canvas.minimap.show")
               }
               pressed={minimapVisible}
-              ariaLabel={t2("canvas.minimap")}
+              ariaLabel={translate("canvas.minimap")}
             >
               <MonochromeIcon tone="control">
-                <Map size={15} strokeWidth={1.5} aria-hidden="true" />
+                <MapIcon size={15} strokeWidth={1.5} aria-hidden="true" />
               </MonochromeIcon>
               <span className="@max-[640px]/canvas-shell:hidden">
-                {t2("canvas.minimap")}
+                {translate("canvas.minimap")}
               </span>
             </ToolbarButton>
           </div>
@@ -482,13 +482,13 @@ export function CanvasViewControls({
             value={appearanceOpen ? true : null}
             elementRef={appearancePanelRef}
           >
-            {(_2, motionProps) => (
+            {(presenceValue, motionProps) => (
               <div
                 {...motionProps}
                 id={appearancePanelId}
                 data-action-ui-id="canvas.appearance-panel"
                 role="dialog"
-                aria-label={t2("canvas.toolbar.canvasSettings")}
+                aria-label={translate("canvas.toolbar.canvasSettings")}
                 className={`dp-motion-quick-zoom absolute z-50 w-[min(288px,calc(100vw-24px))] rounded-lg border p-2.5 shadow-[var(--canvas-shadow-menu)] ${getCanvasAppearancePanelPositionClass(placement)}`}
                 style={{
                   transformOrigin:
@@ -503,20 +503,20 @@ export function CanvasViewControls({
               >
                 <div className="mb-2.5 flex items-center justify-between gap-3">
                   <span className="text-xs font-medium text-[var(--canvas-controls-text)]">
-                    {t2("canvas.toolbar.canvasSettings")}
+                    {translate("canvas.toolbar.canvasSettings")}
                   </span>
                   <button
                     type="button"
                     className="canvas-monochrome-control flex size-6 items-center justify-center rounded-full text-[var(--canvas-controls-text-muted)] transition-colors hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    aria-label={t2("common.close", "Close")}
-                    title={t2("common.close", "Close")}
+                    aria-label={translate("common.close", "Close")}
+                    title={translate("common.close", "Close")}
                     onClick={() => {
                       setAppearanceOpen(false);
                       appearanceTriggerRef.current?.focus();
                     }}
                   >
                     <MonochromeIcon tone="control">
-                      <X size={14} strokeWidth={1.5} aria-hidden="true" />
+                      <XIcon size={14} strokeWidth={1.5} aria-hidden="true" />
                     </MonochromeIcon>
                   </button>
                 </div>

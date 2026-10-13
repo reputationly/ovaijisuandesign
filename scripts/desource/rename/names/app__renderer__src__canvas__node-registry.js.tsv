@@ -1,0 +1,27 @@
+key	old	new	依据
+t2@47:8	t2	definition	该插件节点定义的 supportedModes 用于筛选可用类型。
+id2@85:13	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+p3@93:46	p3	plugin	getToolbarItems 从每个活动插件读取 toolbarItems。
+p3@97:46	p3	plugin	getContextMenuItems 从每个活动插件读取 contextMenuItems。
+p3@100:54	p3	plugin	筛选插件 Map 中 activePlugins 所包含的活动插件。
+n2@216:9	n2	targetNode	查找到的节点交给 fillStillApplies 检查后作为填充目标；与回调参数 node@216:26 冲突，故用 targetNode。
+definition2@12:12	definition2	definition	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@17:16	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@21:14	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@26:18	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@30:17	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@33:20	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@36:20	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@43:13	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+all2@44:11	all2	all	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@129:33	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@138:45	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@139:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@149:9	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+update2@181:49	update2	update	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@188:33	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@206:35	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@210:34	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@216:26	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@220:44	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@221:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

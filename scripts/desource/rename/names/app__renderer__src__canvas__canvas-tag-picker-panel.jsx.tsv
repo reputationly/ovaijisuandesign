@@ -1,0 +1,18 @@
+key	old	new	依据
+t2@38:14	t2	translate	该组件翻译单个标签行的保存失败反馈。
+t2@216:14	t2	translate	标签选择面板使用该函数翻译标签操作和反馈文案。
+Input3@19:10	Input3	Input	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@29:10	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+disabled2@30:13	disabled2	disabled	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@71:11	name2	trimmedName	该值是去除首尾空格后的待更新标签名称；与全局绑定 name 冲突，故使用 trimmedName。
+registry2@220:15	registry2	registry	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@239:11	name2	trimmedName	该值是去除首尾空格后用于查找重复标签的名称；与全局绑定 name 冲突，故使用 trimmedName。
+state2@253:17	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@262:25	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@273:27	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@274:17	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@289:11	name2	trimmedName	该值是去除首尾空格后的待创建标签名称；与全局绑定 name 冲突，故使用 trimmedName。
+state2@353:21	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@364:36	name2	updatedTagName	该参数是提交给 updateTag 的新标签名称；与全局绑定 name 冲突，故使用 updatedTagName。
+state2@421:19	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@432:34	name2	updatedTagName	该参数是提交给 updateTag 的新标签名称；与全局绑定 name 冲突，故使用 updatedTagName。

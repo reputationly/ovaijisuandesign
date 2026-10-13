@@ -1,0 +1,14 @@
+key	old	new	依据
+body2@28:44	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+gatewayFetch2@39:9	gatewayFetch2	gatewayFetch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+queryClient2@41:9	queryClient2	queryClient	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@44:17	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+registry2@49:9	registry2	registry	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@74:17	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@83:27	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@106:12	name2	tagName	该参数是要创建的画布标签名称；与全局绑定 name 冲突，故使用 tagName。
+body2@116:15	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+patch2@136:19	patch2	patch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@145:15	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@171:15	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@202:15	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

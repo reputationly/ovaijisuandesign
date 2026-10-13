@@ -1,12 +1,12 @@
 // load-source-as-png-blob.js
 
-function loadImage(url2) {
+function loadImage(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error(`Failed to load image: ${url2}`));
-    img.src = url2;
+    img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+    img.src = url;
   });
 }
 

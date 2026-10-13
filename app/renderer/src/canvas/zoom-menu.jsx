@@ -21,7 +21,7 @@ function ZoomMenuItem({
   label,
   shortcut,
   onClick,
-  disabled: disabled2,
+  disabled,
 }) {
   return (
     <button
@@ -30,8 +30,8 @@ function ZoomMenuItem({
       role="menuitem"
       tabIndex={-1}
       onClick={onClick}
-      disabled={disabled2}
-      className={`flex w-full items-center justify-between rounded-md px-3 py-1.5 text-xs select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${disabled2 ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-40" : "cursor-pointer text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-hover)]"}`}
+      disabled={disabled}
+      className={`flex w-full items-center justify-between rounded-md px-3 py-1.5 text-xs select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${disabled ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-40" : "cursor-pointer text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-hover)]"}`}
     >
       <span>{label}</span>
       {shortcut && (
@@ -67,7 +67,7 @@ export function ZoomMenu({
   const triggerRef = reactExports.useRef(null);
   const menuRef = reactExports.useRef(null);
   const menuId = reactExports.useId();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const getEnabledMenuItems = reactExports.useCallback(
     () =>
       Array.from(
@@ -78,13 +78,13 @@ export function ZoomMenu({
   );
   reactExports.useEffect(() => {
     if (!open) return;
-    const onPointerDown2 = (e2) => {
-      if (containerRef.current && !containerRef.current.contains(e2.target)) {
+    const onPointerDown = (pointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(pointerEvent.target)) {
         setOpen(false);
       }
     };
-    document.addEventListener("pointerdown", onPointerDown2);
-    return () => document.removeEventListener("pointerdown", onPointerDown2);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
   reactExports.useEffect(() => {
     if (!open) return;
@@ -147,22 +147,22 @@ export function ZoomMenu({
   return (
     <fieldset
       ref={containerRef}
-      aria-label={t2("canvas.zoomControls")}
+      aria-label={translate("canvas.zoomControls")}
       className="relative m-0 flex h-full items-center border-0 p-0"
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
-      <Tooltip content={t2("canvas.zoom.adjust")} closeOnClick={true}>
+      <Tooltip content={translate("canvas.zoom.adjust")} closeOnClick={true}>
         <button
           ref={triggerRef}
           type="button"
           data-action-ui-id="canvas.toolbar-zoom-menu"
-          onClick={() => setOpen((v2) => !v2)}
+          onClick={() => setOpen((isOpen) => !isOpen)}
           aria-haspopup="menu"
           aria-expanded={open}
           aria-controls={menuId}
-          aria-label={`${t2("canvas.zoomControls")}: ${zoomPercent}`}
+          aria-label={`${translate("canvas.zoomControls")}: ${zoomPercent}`}
           data-canvas-control-kind="panel"
           className={`canvas-monochrome-control flex h-6 w-auto shrink-0 cursor-pointer select-none items-center justify-center rounded-md px-2 text-center text-xs tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${open ? "bg-[var(--canvas-controls-active)] text-[var(--canvas-controls-text)]" : "text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
         >
@@ -172,13 +172,13 @@ export function ZoomMenu({
         </button>
       </Tooltip>
       <QuickZoomPresence value={open ? true : null} elementRef={menuRef}>
-        {(_2, motionProps) => (
+        {(presenceValue, motionProps) => (
           <div
             {...motionProps}
             id={menuId}
             role="menu"
             tabIndex={-1}
-            aria-label={t2("canvas.zoomControls")}
+            aria-label={translate("canvas.zoomControls")}
             onKeyDown={handleMenuKeyDown}
             className={`dp-motion-quick-zoom absolute ${getCanvasZoomMenuPositionClass(placement)} min-w-[180px] rounded-lg border p-1 shadow-md focus:outline-none`}
             style={{
@@ -195,7 +195,7 @@ export function ZoomMenu({
             <div className="mx-1 mb-1 flex h-8 items-center gap-1 rounded-md bg-[var(--canvas-controls-hover)] px-2 text-[var(--canvas-controls-text)]">
               <Input
                 data-action-ui-id="canvas.zoom-menu-input"
-                aria-label={t2("canvas.zoomControls")}
+                aria-label={translate("canvas.zoomControls")}
                 type="text"
                 inputMode="decimal"
                 value={inputValue}
@@ -234,21 +234,21 @@ export function ZoomMenu({
             </div>
             <ZoomMenuItem
               dataActionUiId="canvas.zoom-menu-in"
-              label={t2("canvas.zoomIn")}
+              label={translate("canvas.zoomIn")}
               shortcut={`${modKey} +`}
               onClick={(event) => handleAction(onZoomIn, event)}
               disabled={atMaxZoom}
             />
             <ZoomMenuItem
               dataActionUiId="canvas.zoom-menu-out"
-              label={t2("canvas.zoomOut")}
+              label={translate("canvas.zoomOut")}
               shortcut={`${modKey} −`}
               onClick={(event) => handleAction(onZoomOut, event)}
               disabled={atMinZoom}
             />
             <ZoomMenuItem
               dataActionUiId="canvas.toolbar-fit"
-              label={t2("canvas.fitToView")}
+              label={translate("canvas.fitToView")}
               shortcut={`${isMac ? "⇧" : "Shift"} 1`}
               onClick={(event) => handleAction(onFitView, event)}
             />

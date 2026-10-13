@@ -13,13 +13,13 @@ import { MousePointer2 } from "../media-editing/package.jsx";
 import { Tooltip } from "../generation/missing-asset-card.jsx";
 import { QuickZoomPresence } from "./canvas-high-blast-delete-dialog.jsx";
 import { CANVAS_TOOL_DOCK_CONTROL_SIZE_PX } from "./cursor-icon.jsx";
-export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
+export function ToolModeSplitButton({ commandRegistry, mode, labels }) {
   const [open, setOpen] = reactExports.useState(false);
   const containerRef = reactExports.useRef(null);
   const triggerRef = reactExports.useRef(null);
   const menuRef = reactExports.useRef(null);
   const menuId = reactExports.useId();
-  const ActiveIcon = mode2 === "hand" ? Hand : MousePointer2;
+  const ActiveIcon = mode === "hand" ? Hand : MousePointer2;
   const getMenuItems = reactExports.useCallback(
     () =>
       Array.from(
@@ -86,7 +86,7 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
   );
   reactExports.useEffect(() => {
     if (!open) return;
-    const handleKeyDown2 = (event) => {
+    const handleKeyDown = (event) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
       event.stopPropagation();
@@ -95,12 +95,12 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
         preventScroll: true,
       });
     };
-    document.addEventListener("keydown", handleKeyDown2);
-    return () => document.removeEventListener("keydown", handleKeyDown2);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open]);
   const choose = reactExports.useCallback(
-    (id2, event) => {
-      commandRegistry.execute(id2);
+    (id, event) => {
+      commandRegistry.execute(id);
       setOpen(false);
       if (event.detail === 0)
         triggerRef.current?.focus({
@@ -118,7 +118,7 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
       style={{
         height: CANVAS_TOOL_DOCK_CONTROL_SIZE_PX,
       }}
-      data-interaction-mode={mode2}
+      data-interaction-mode={mode}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
@@ -126,18 +126,18 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
       <Tooltip
         content={
           <ToolbarTooltipContent
-            label={mode2 === "hand" ? labels.hand : labels.move}
-            shortcut={mode2 === "hand" ? "H" : "V"}
+            label={mode === "hand" ? labels.hand : labels.move}
+            shortcut={mode === "hand" ? "H" : "V"}
           />
         }
       >
         <button
           type="button"
           data-action-ui-id="canvas.toolbar.move-mode"
-          aria-label={mode2 === "hand" ? labels.hand : labels.move}
+          aria-label={mode === "hand" ? labels.hand : labels.move}
           onClick={() => {
             commandRegistry.execute(
-              mode2 === "hand"
+              mode === "hand"
                 ? CANVAS_COMMAND_IDS.handTool
                 : CANVAS_COMMAND_IDS.select,
             );
@@ -152,7 +152,7 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
           <ActiveIcon
             size={20}
             strokeWidth={1.5}
-            className={mode2 === "hand" ? "scale-90" : void 0}
+            className={mode === "hand" ? "scale-90" : void 0}
             aria-hidden="true"
           />
         </button>
@@ -173,7 +173,7 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
           aria-haspopup="menu"
           aria-expanded={open}
           aria-controls={menuId}
-          onClick={() => setOpen((current2) => !current2)}
+          onClick={() => setOpen((current) => !current)}
           className="canvas-monochrome-control-hover flex items-center justify-center rounded-full text-[var(--canvas-controls-text-muted)] transition-colors hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
           style={{
             height: CANVAS_TOOL_DOCK_CONTROL_SIZE_PX,
@@ -186,7 +186,7 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
         </button>
       </Tooltip>
       <QuickZoomPresence value={open ? true : null} elementRef={menuRef}>
-        {(_2, motionProps) => (
+        {(value, motionProps) => (
           <div
             {...motionProps}
             id={menuId}
@@ -207,12 +207,12 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
               role="menuitemradio"
               data-action-ui-id="canvas.toolbar.move-mode-select"
               tabIndex={-1}
-              aria-checked={mode2 === "move"}
+              aria-checked={mode === "move"}
               onClick={(event) => choose(CANVAS_COMMAND_IDS.select, event)}
-              className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs text-[var(--canvas-controls-text)] transition-colors hover:bg-[var(--canvas-controls-hover)] ${mode2 === "move" ? "bg-[var(--canvas-controls-active)]" : ""}`}
+              className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs text-[var(--canvas-controls-text)] transition-colors hover:bg-[var(--canvas-controls-hover)] ${mode === "move" ? "bg-[var(--canvas-controls-active)]" : ""}`}
             >
               <span className="flex size-4 items-center justify-center">
-                {mode2 === "move" && (
+                {mode === "move" && (
                   <Check size={14} strokeWidth={1.5} aria-hidden="true" />
                 )}
               </span>
@@ -227,12 +227,12 @@ export function ToolModeSplitButton({ commandRegistry, mode: mode2, labels }) {
               role="menuitemradio"
               data-action-ui-id="canvas.toolbar.move-mode-hand"
               tabIndex={-1}
-              aria-checked={mode2 === "hand"}
+              aria-checked={mode === "hand"}
               onClick={(event) => choose(CANVAS_COMMAND_IDS.handTool, event)}
-              className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs text-[var(--canvas-controls-text)] transition-colors hover:bg-[var(--canvas-controls-hover)] ${mode2 === "hand" ? "bg-[var(--canvas-controls-active)]" : ""}`}
+              className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs text-[var(--canvas-controls-text)] transition-colors hover:bg-[var(--canvas-controls-hover)] ${mode === "hand" ? "bg-[var(--canvas-controls-active)]" : ""}`}
             >
               <span className="flex size-4 items-center justify-center">
-                {mode2 === "hand" && (
+                {mode === "hand" && (
                   <Check size={14} strokeWidth={1.5} aria-hidden="true" />
                 )}
               </span>

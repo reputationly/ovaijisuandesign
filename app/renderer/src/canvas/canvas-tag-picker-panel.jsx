@@ -16,7 +16,7 @@ import {
 import { getCanvasTagPresentationColor } from "../assets/inline-input.jsx";
 import { useCanvasTagNameInputLimit } from "./use-canvas-tag-name-input-limit.js";
 import { TooltipContent } from "../infra/dialog-content.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { useCanvasTags } from "./use-canvas-tags.js";
 import { aggregateTagState } from "./conflict-resolution-dialog.jsx";
 import { useCanvasTagName } from "../assets/use-canvas-model-registry-hydration.js";
@@ -26,8 +26,8 @@ const TAG_RENAME_DOUBLE_CLICK_WINDOW_MS = 280;
 function TagRow({
   tag,
   label,
-  state: state2,
-  disabled: disabled2,
+  state,
+  disabled,
   onToggle,
   allowRename,
   resolvedNames,
@@ -35,7 +35,7 @@ function TagRow({
   onEditingChange,
   onBlurSave,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
   const [editing, setEditing] = reactExports.useState(false);
   const [draft, setDraft] = reactExports.useState(label);
@@ -68,12 +68,12 @@ function TagRow({
   };
   const commitRename = async () => {
     if (savingRef.current) return;
-    const name2 = draft.trim();
-    const validation = validateCanvasTagName(name2);
-    const duplicate = isTagNameTaken(name2, resolvedNames, tag.id);
+    const trimmedName = draft.trim();
+    const validation = validateCanvasTagName(trimmedName);
+    const duplicate = isTagNameTaken(trimmedName, resolvedNames, tag.id);
     if (validation || duplicate) {
       dedupedToast.error(
-        t2(
+        translate(
           duplicate
             ? "canvasTags.nameTaken"
             : validation === "required"
@@ -84,19 +84,19 @@ function TagRow({
       cancelRename();
       return;
     }
-    if (name2 === label) {
+    if (trimmedName === label) {
       finishRename();
       return;
     }
     savingRef.current = true;
     setSaving(true);
     try {
-      await onRename(name2);
+      await onRename(trimmedName);
       finishRename();
     } catch {
       setDraft(label);
       finishRename();
-      dedupedToast.error(t2("canvasTags.saveFailed"));
+      dedupedToast.error(translate("canvasTags.saveFailed"));
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -169,14 +169,14 @@ function TagRow({
   return (
     <button
       type="button"
-      aria-pressed={state2 === "mixed" ? "mixed" : state2 === "all"}
-      disabled={disabled2}
+      aria-pressed={state === "mixed" ? "mixed" : state === "all"}
+      disabled={disabled}
       data-action-ui-id="canvas.node-tag-option"
       data-tag-id={tag.id}
       className="flex min-h-8 w-full cursor-pointer items-center gap-2.5 rounded-md py-1.5 pr-2 pl-[9px] text-[13px] outline-hidden select-none hover:bg-popup-item-hover focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
       onClick={handleSelectionIntent}
       onDoubleClick={(event) => {
-        if (!allowRename || disabled2) return;
+        if (!allowRename || disabled) return;
         if (selectionIntentTimerRef.current) {
           clearTimeout(selectionIntentTimerRef.current);
           selectionIntentTimerRef.current = null;
@@ -195,9 +195,9 @@ function TagRow({
         className="flex size-4 shrink-0 items-center justify-center text-muted-foreground"
         aria-hidden={true}
       >
-        {state2 === "all" ? (
+        {state === "all" ? (
           <Icon icon={Check} size="md" strokeWidth={2} />
-        ) : state2 === "mixed" ? (
+        ) : state === "mixed" ? (
           <Icon icon={Minus} size="md" strokeWidth={2} />
         ) : null}
       </span>
@@ -213,11 +213,11 @@ export function CanvasTagPickerPanel({
   onRenameEditingChange,
   onRenameBlurSave,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
   const tagName = useCanvasTagName();
   const {
-    registry: registry2,
+    registry,
     toggleTagForAssets,
     assignTagToAssets,
     createTag,
@@ -232,34 +232,34 @@ export function CanvasTagPickerPanel({
   const creatingSavingRef = reactExports.useRef(false);
   const pendingTagIdsRef = reactExports.useRef(new Set());
   const resolvedNames = reactExports.useMemo(
-    () => new Map(registry2.tags.map((tag) => [tag.id, tagName(tag)])),
-    [registry2.tags, tagName],
+    () => new Map(registry.tags.map((tag) => [tag.id, tagName(tag)])),
+    [registry.tags, tagName],
   );
   const duplicateTag = reactExports.useMemo(() => {
-    const name2 = newName.trim();
-    if (!name2) return void 0;
-    return registry2.tags.find((tag) => tagName(tag).trim() === name2);
-  }, [newName, registry2.tags, tagName]);
+    const trimmedName = newName.trim();
+    if (!trimmedName) return void 0;
+    return registry.tags.find((tag) => tagName(tag).trim() === trimmedName);
+  }, [newName, registry.tags, tagName]);
   const pendingCreateName = creatingSaving ? newName.trim() : "";
   const pendingKeywordCommitted = Boolean(
     pendingCreateName &&
-    registry2.tags.some(
+    registry.tags.some(
       (tag) =>
         isCanvasKeywordTag(tag) && tagName(tag).trim() === pendingCreateName,
     ),
   );
   const nameValidation = validateCanvasTagName(newName);
   const changeSelection = reactExports.useCallback(
-    async (tag, state2) => {
+    async (tag, state) => {
       if (pendingTagIdsRef.current.has(tag.id)) return;
       if (
         selectionMode === "single" &&
         tag.kind === "color" &&
-        state2 === "all"
+        state === "all"
       )
         return;
       pendingTagIdsRef.current.add(tag.id);
-      setPendingTagIds((current2) => new Set(current2).add(tag.id));
+      setPendingTagIds((current) => new Set(current).add(tag.id));
       try {
         if (selectionMode === "single" && tag.kind === "color") {
           await assignTagToAssets(tag.id, assets);
@@ -267,17 +267,17 @@ export function CanvasTagPickerPanel({
           await toggleTagForAssets(tag.id, assets);
         }
       } catch {
-        dedupedToast.error(t2("canvasTags.saveFailed"));
+        dedupedToast.error(translate("canvasTags.saveFailed"));
       } finally {
         pendingTagIdsRef.current.delete(tag.id);
-        setPendingTagIds((current2) => {
-          const next2 = new Set(current2);
-          next2.delete(tag.id);
-          return next2;
+        setPendingTagIds((current) => {
+          const next = new Set(current);
+          next.delete(tag.id);
+          return next;
         });
       }
     },
-    [assets, assignTagToAssets, selectionMode, t2, toggleTagForAssets],
+    [assets, assignTagToAssets, selectionMode, translate, toggleTagForAssets],
   );
   const resetCreate = () => {
     setNewName("");
@@ -286,14 +286,14 @@ export function CanvasTagPickerPanel({
   };
   const handleCreate = async () => {
     if (creatingSavingRef.current) return;
-    const name2 = newName.trim();
-    if (!name2) {
+    const trimmedName = newName.trim();
+    if (!trimmedName) {
       resetCreate();
       return;
     }
     if (nameValidation) {
       dedupedToast.error(
-        t2(
+        translate(
           nameValidation === "required"
             ? "canvasTags.nameRequired"
             : "canvasTags.nameTooLong",
@@ -308,11 +308,11 @@ export function CanvasTagPickerPanel({
       if (duplicateTag) {
         await assignTagToAssets(duplicateTag.id, assets);
       } else {
-        await createTag(name2, assets);
+        await createTag(trimmedName, assets);
       }
       resetCreate();
     } catch {
-      dedupedToast.error(t2("canvasTags.saveFailed"));
+      dedupedToast.error(translate("canvasTags.saveFailed"));
       resetCreate();
     } finally {
       creatingSavingRef.current = false;
@@ -322,8 +322,8 @@ export function CanvasTagPickerPanel({
   const surfaceClass = embedded
     ? "text-popover-foreground"
     : "elevated-surface-border rounded-lg bg-popover p-1.5 text-popover-foreground shadow-lg";
-  const colorTags = registry2.tags.filter(isCanvasColorTag);
-  const keywordTags = registry2.tags.filter(isCanvasKeywordTag);
+  const colorTags = registry.tags.filter(isCanvasColorTag);
+  const keywordTags = registry.tags.filter(isCanvasKeywordTag);
   return (
     <div
       data-action-ui-id="canvas.node-tag-picker"
@@ -340,30 +340,30 @@ export function CanvasTagPickerPanel({
                       type="button"
                       className="cursor-help text-[13px] font-normal text-muted-foreground outline-hidden focus-visible:ring-2 focus-visible:ring-ring/50"
                     >
-                      {t2("canvasTags.colorLabels")}
+                      {translate("canvasTags.colorLabels")}
                     </button>
                   }
                 />
                 <TooltipContent className="max-w-64" side="top" align="start">
-                  {t2("canvasTags.canvasLabelInfo")}
+                  {translate("canvasTags.canvasLabelInfo")}
                 </TooltipContent>
               </Tooltip>
             </div>
             {colorTags.map((tag) => {
-              const state2 = aggregateTagState(tag.id, assets);
+              const state = aggregateTagState(tag.id, assets);
               return (
                 <TagRow
                   key={tag.id}
                   tag={tag}
                   label={tagName(tag)}
-                  state={state2}
+                  state={state}
                   disabled={pendingTagIds.has(tag.id)}
                   allowRename={allowRename}
                   resolvedNames={resolvedNames}
-                  onToggle={() => changeSelection(tag, state2)}
-                  onRename={async (name2) => {
+                  onToggle={() => changeSelection(tag, state)}
+                  onRename={async (updatedTagName) => {
                     await updateTag(tag.id, {
-                      name: name2,
+                      name: updatedTagName,
                     });
                   }}
                   onEditingChange={onRenameEditingChange}
@@ -387,19 +387,19 @@ export function CanvasTagPickerPanel({
                       type="button"
                       className="cursor-help text-[13px] font-normal text-muted-foreground outline-hidden focus-visible:ring-2 focus-visible:ring-ring/50"
                     >
-                      {t2("canvasTags.keywords")}
+                      {translate("canvasTags.keywords")}
                     </button>
                   }
                 />
                 <TooltipContent className="max-w-64" side="top" align="start">
-                  {t2("canvasTags.keywordInfo")}
+                  {translate("canvasTags.keywordInfo")}
                 </TooltipContent>
               </Tooltip>
             </div>
             <button
               type="button"
               disabled={creating}
-              aria-label={t2("canvasTags.newKeyword")}
+              aria-label={translate("canvasTags.newKeyword")}
               data-action-ui-id="canvas.node-tag-create"
               className="-mr-1 flex h-[22px] shrink-0 cursor-default items-center gap-0.5 rounded-full border border-border px-[7px] text-[11px] text-foreground/70 outline-hidden hover:border-foreground/80 hover:bg-popup-item-hover hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
               onClick={() => {
@@ -414,24 +414,24 @@ export function CanvasTagPickerPanel({
                 strokeWidth={1.5}
                 aria-hidden={true}
               />
-              <span>{t2("canvasTags.add")}</span>
+              <span>{translate("canvasTags.add")}</span>
             </button>
           </div>
           {keywordTags.map((tag) => {
-            const state2 = aggregateTagState(tag.id, assets);
+            const state = aggregateTagState(tag.id, assets);
             return (
               <TagRow
                 key={tag.id}
                 tag={tag}
                 label={tagName(tag)}
-                state={state2}
+                state={state}
                 disabled={pendingTagIds.has(tag.id)}
                 allowRename={allowRename}
                 resolvedNames={resolvedNames}
-                onToggle={() => changeSelection(tag, state2)}
-                onRename={async (name2) => {
+                onToggle={() => changeSelection(tag, state)}
+                onRename={async (updatedTagName) => {
                   await updateTag(tag.id, {
-                    name: name2,
+                    name: updatedTagName,
                   });
                 }}
                 onEditingChange={onRenameEditingChange}
@@ -445,12 +445,12 @@ export function CanvasTagPickerPanel({
                 className="size-[13px] shrink-0 rounded-full border-[1px] border-solid border-[rgba(0,0,0,0.4)] dark:border-[rgba(255,255,255,0.6)]"
                 aria-hidden={true}
               />
-              <Input3
+              <Input
                 autoFocus={true}
                 value={newName}
                 disabled={creatingSaving}
-                placeholder={t2("canvasTags.keywordPlaceholder")}
-                aria-label={t2("canvasTags.keywordPlaceholder")}
+                placeholder={translate("canvasTags.keywordPlaceholder")}
+                aria-label={translate("canvasTags.keywordPlaceholder")}
                 data-action-ui-id="canvas.node-tag-create-input"
                 className="h-7 flex-1 rounded-[8px] border-[0.75px] px-2 text-[13px] focus-visible:ring-0"
                 onChange={(event) =>

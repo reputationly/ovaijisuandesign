@@ -48,25 +48,25 @@ const CanvasRedrawRegionNode = Node.create({
     ];
   },
   renderHTML({ HTMLAttributes }) {
-    const { x1, y1, x2, y2: y22 } = HTMLAttributes;
+    const { x1: startX, y1: startY, x2: endX, y2: endY } = HTMLAttributes;
     return [
       "span",
       mergeAttributes(HTMLAttributes, {
         "data-canvas-redraw-region": "",
-        "aria-label": `选区 ${x1},${y1} - ${x2},${y22}`,
+        "aria-label": `选区 ${startX},${startY} - ${endX},${endY}`,
         contenteditable: "false",
         class: "canvas-redraw-region-chip",
       }),
-      `选区 ${x1},${y1} - ${x2},${y22}`,
+      `选区 ${startX},${startY} - ${endX},${endY}`,
     ];
   },
 });
-function AttachmentThumb({ attachment, onRemove: onRemove2 }) {
-  const { t: t2 } = useTranslation();
-  const url2 = useAssetMetadataStore(
-    (s2) => s2.assets.get(attachment.assetId)?.url,
+function AttachmentThumb({ attachment, onRemove }) {
+  const { t: translate } = useTranslation();
+  const url = useAssetMetadataStore(
+    (storeState) => storeState.assets.get(attachment.assetId)?.url,
   );
-  const thumb = url2 ? buildThumbnailUrl(url2, 96) : void 0;
+  const thumb = url ? buildThumbnailUrl(url, 96) : void 0;
   return (
     <div
       className="group relative h-7 w-7 shrink-0 overflow-hidden rounded-md border"
@@ -95,9 +95,9 @@ function AttachmentThumb({ attachment, onRemove: onRemove2 }) {
       )}
       <button
         type="button"
-        onClick={onRemove2}
+        onClick={onRemove}
         className="absolute right-0 top-0 rounded-bl-md bg-black/50 p-0.5 text-white transition-colors hover:bg-red-500/80 [&>svg]:size-3"
-        aria-label={t2("a11y.removeAttachment", "Remove attachment")}
+        aria-label={translate("a11y.removeAttachment", "Remove attachment")}
       >
         <CloseIcon />
       </button>
@@ -105,7 +105,7 @@ function AttachmentThumb({ attachment, onRemove: onRemove2 }) {
   );
 }
 export const CanvasRedrawBottomBar = reactExports.memo(
-  function CanvasRedrawBottomBar2({
+  function CanvasRedrawBottomBar({
     hasRegions,
     submitting,
     onSend,
@@ -113,7 +113,7 @@ export const CanvasRedrawBottomBar = reactExports.memo(
     onResolutionChange,
     onEditorReady,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t: translate } = useTranslation();
     const { pickAsset } = useCanvasBridge();
     const [prompt, setPrompt] = reactExports.useState("");
     const [attachments, setAttachments] = reactExports.useState([]);
@@ -134,15 +134,15 @@ export const CanvasRedrawBottomBar = reactExports.memo(
     const canSend = hasRegions && trimmed.length > 0 && !submitting;
     const disabledReason = reactExports.useMemo(() => {
       if (canSend) return null;
-      if (submitting) return t2("canvas.redraw.disabled.submitting");
+      if (submitting) return translate("canvas.redraw.disabled.submitting");
       if (!hasRegions && trimmed.length === 0) {
-        return t2("canvas.redraw.disabled.noStrokesAndPrompt");
+        return translate("canvas.redraw.disabled.noStrokesAndPrompt");
       }
       if (!hasRegions) {
-        return t2("canvas.redraw.disabled.noStrokes");
+        return translate("canvas.redraw.disabled.noStrokes");
       }
-      return t2("canvas.redraw.disabled.noPrompt");
-    }, [canSend, submitting, hasRegions, trimmed.length, t2]);
+      return translate("canvas.redraw.disabled.noPrompt");
+    }, [canSend, submitting, hasRegions, trimmed.length, translate]);
     const [sendBtnHover, setSendBtnHover] = reactExports.useState(false);
     const showDisabledTooltip = sendBtnHover && disabledReason !== null;
     const handleSend = reactExports.useCallback(() => {
@@ -160,7 +160,7 @@ export const CanvasRedrawBottomBar = reactExports.memo(
       try {
         const resources = await pickAsset({
           type: "image",
-          existingAssetIds: attachments.map((a2) => a2.assetId),
+          existingAssetIds: attachments.map((attachment) => attachment.assetId),
           uploadMode: "attach",
           tabs: ["canvas", "upload"],
         });
@@ -178,7 +178,7 @@ export const CanvasRedrawBottomBar = reactExports.memo(
         console.warn("[redraw-bottom-bar] pickAsset rejected", err);
       }
     }, [pickAsset, attachments]);
-    const removeAttachment2 = reactExports.useCallback(() => {
+    const removeAttachment = reactExports.useCallback(() => {
       setAttachments([]);
     }, []);
     return (
@@ -191,9 +191,9 @@ export const CanvasRedrawBottomBar = reactExports.memo(
             boxShadow: "var(--canvas-shadow-dropdown)",
             color: "var(--canvas-controls-text, #fff)",
           }}
-          onPointerDown={(e2) => e2.stopPropagation()}
-          onWheel={(e2) => e2.stopPropagation()}
-          onContextMenu={(e2) => e2.stopPropagation()}
+          onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+          onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
+          onContextMenu={(contextMenuEvent) => contextMenuEvent.stopPropagation()}
         >
           <div className="min-h-10 max-h-32 w-full text-[13px] leading-[18px]">
             <RichPromptInput
@@ -202,7 +202,7 @@ export const CanvasRedrawBottomBar = reactExports.memo(
               onEditorReady={onEditorReady}
               onUpdate={handlePromptUpdate}
               onClose={() => void 0}
-              placeholder={t2("canvas.redraw.placeholder")}
+              placeholder={translate("canvas.redraw.placeholder")}
             />
           </div>
           <div className="flex items-center justify-between gap-2">
@@ -210,7 +210,7 @@ export const CanvasRedrawBottomBar = reactExports.memo(
               {attachments.length > 0 ? (
                 <AttachmentThumb
                   attachment={attachments[0]}
-                  onRemove={removeAttachment2}
+                  onRemove={removeAttachment}
                 />
               ) : (
                 <button
@@ -218,18 +218,18 @@ export const CanvasRedrawBottomBar = reactExports.memo(
                   onClick={() => {
                     void openPicker();
                   }}
-                  title={t2("canvas.redraw.addAttachment")}
-                  aria-label={t2("canvas.redraw.addAttachment")}
+                  title={translate("canvas.redraw.addAttachment")}
+                  aria-label={translate("canvas.redraw.addAttachment")}
                   className="flex h-7 w-7 items-center justify-center rounded-md transition-colors duration-150"
                   style={{
                     color: "var(--canvas-controls-text, #fff)",
                   }}
-                  onMouseEnter={(e2) => {
-                    e2.currentTarget.style.background =
+                  onMouseEnter={(mouseEvent) => {
+                    mouseEvent.currentTarget.style.background =
                       "var(--canvas-controls-active, #ffffff1a)";
                   }}
-                  onMouseLeave={(e2) => {
-                    e2.currentTarget.style.background = "transparent";
+                  onMouseLeave={(mouseEvent) => {
+                    mouseEvent.currentTarget.style.background = "transparent";
                   }}
                 >
                   <PaperclipIcon />
@@ -259,20 +259,20 @@ export const CanvasRedrawBottomBar = reactExports.memo(
                   type="button"
                   disabled={!canSend}
                   onClick={handleSend}
-                  title={canSend ? t2("canvas.redraw.send") : void 0}
-                  aria-label={t2("canvas.redraw.send")}
+                  title={canSend ? translate("canvas.redraw.send") : void 0}
+                  aria-label={translate("canvas.redraw.send")}
                   className="flex h-7 w-7 items-center justify-center rounded-md transition-opacity duration-150 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{
                     background: "var(--canvas-primary-btn-bg, #000000d9)",
                     color: "var(--canvas-primary-btn-icon, #fff)",
                   }}
-                  onMouseEnter={(e2) => {
+                  onMouseEnter={(mouseEvent) => {
                     if (!canSend) return;
-                    e2.currentTarget.style.opacity = "0.9";
+                    mouseEvent.currentTarget.style.opacity = "0.9";
                   }}
-                  onMouseLeave={(e2) => {
+                  onMouseLeave={(mouseEvent) => {
                     if (!canSend) return;
-                    e2.currentTarget.style.opacity = "1";
+                    mouseEvent.currentTarget.style.opacity = "1";
                   }}
                 >
                   <SendArrowIcon />

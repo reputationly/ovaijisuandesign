@@ -6,19 +6,19 @@ function buildStickerFollowIndex(nodes) {
   const nodeById = new Map();
   const childIdsByParentId = new Map();
   const stickersByTargetId = new Map();
-  for (const node2 of nodes) {
-    nodeById.set(node2.id, node2);
-    if (node2.parentId) {
-      const children2 = childIdsByParentId.get(node2.parentId);
-      if (children2) children2.push(node2.id);
-      else childIdsByParentId.set(node2.parentId, [node2.id]);
+  for (const node of nodes) {
+    nodeById.set(node.id, node);
+    if (node.parentId) {
+      const children = childIdsByParentId.get(node.parentId);
+      if (children) children.push(node.id);
+      else childIdsByParentId.set(node.parentId, [node.id]);
     }
-    if (node2.type !== CanvasNodeType.Sticker) continue;
-    const targetId = node2.data?.targetId;
+    if (node.type !== CanvasNodeType.Sticker) continue;
+    const targetId = node.data?.targetId;
     if (typeof targetId !== "string" || targetId.length === 0) continue;
     const stickers = stickersByTargetId.get(targetId);
-    if (stickers) stickers.push(node2);
-    else stickersByTargetId.set(targetId, [node2]);
+    if (stickers) stickers.push(node);
+    else stickersByTargetId.set(targetId, [node]);
   }
   return {
     nodeById,
@@ -27,17 +27,17 @@ function buildStickerFollowIndex(nodes) {
   };
 }
 
-export function useStickerFollowIndex(instance2) {
+export function useStickerFollowIndex(instance) {
   const indexRef = reactExports.useRef(null);
   if (!indexRef.current)
-    indexRef.current = buildStickerFollowIndex(instance2.getGraph().nodes);
+    indexRef.current = buildStickerFollowIndex(instance.getGraph().nodes);
   reactExports.useEffect(() => {
-    const rebuild = (graph = instance2.getGraph()) => {
+    const rebuild = (graph = instance.getGraph()) => {
       indexRef.current = buildStickerFollowIndex(graph.nodes);
     };
     rebuild();
-    return instance2.onGraphChange(rebuild);
-  }, [instance2]);
+    return instance.onGraphChange(rebuild);
+  }, [instance]);
   return reactExports.useCallback(() => indexRef.current, []);
 }
 
@@ -64,49 +64,49 @@ export function resolveStickerPointerPlacement(
   };
 }
 
-export function historyBlockedMessage(t2, direction, reason) {
+export function historyBlockedMessage(translate, direction, reason) {
   if (reason === "task_retained") {
     return direction === "undo"
-      ? t2(
+      ? translate(
           "canvas.history.undoBlockedByRetainedTask",
           "该内容的生成任务已保留，暂无法撤销。请先处理卡片上的恢复提示",
         )
-      : t2(
+      : translate(
           "canvas.history.redoBlockedByRetainedTask",
           "该内容的生成任务已保留，暂无法重做。请先处理卡片上的恢复提示",
         );
   }
   return direction === "undo"
-    ? t2(
+    ? translate(
         "canvas.history.undoBlockedByGeneration",
         "生成中无法撤销，请等待生成完成后再试",
       )
-    : t2(
+    : translate(
         "canvas.history.redoBlockedByGeneration",
         "生成中无法重做，请等待生成完成后再试",
       );
 }
 
-export function deleteBlockedMessage(t2, reason) {
+export function deleteBlockedMessage(translate, reason) {
   if (reason === "task_retained") {
-    return t2(
+    return translate(
       "canvas.deleteBlockedByRetainedTask",
       "该内容的生成任务已保留，暂无法删除。请先处理卡片上的恢复提示",
     );
   }
   if (reason === "confirmation-stale") {
-    return t2(
+    return translate(
       "canvas.persistence.highBlastDeleteStale",
       "画布内容已发生变化，本次删除已取消，请重新操作",
     );
   }
   if (reason === "confirmation-unavailable") {
-    return t2(
+    return translate(
       "canvas.persistence.highBlastDeleteUnavailable",
       "暂时无法确认本次大量删除，画布内容未被修改，请稍后重试",
     );
   }
-  return t2(
+  return translate(
     "canvas.deleteBlockedByGeneration",
     "生成中的元素无法删除，请等待生成完成后再试",
   );
@@ -115,16 +115,16 @@ export function deleteBlockedMessage(t2, reason) {
 export function createCanvasFocusScheduler({
   isMeasured,
   fit,
-  schedule: schedule2 = setTimeout,
+  schedule = setTimeout,
   cancel = clearTimeout,
   retryInterval = 50,
   maxMeasurementRetries = 10,
 }) {
   let requestToken = 0;
-  let pending2;
+  let pending;
   const clearPending = () => {
-    if (pending2 !== void 0) cancel(pending2);
-    pending2 = void 0;
+    if (pending !== void 0) cancel(pending);
+    pending = void 0;
   };
   const cancelRequest = () => {
     requestToken += 1;
@@ -133,22 +133,22 @@ export function createCanvasFocusScheduler({
   return {
     request(request) {
       requestToken += 1;
-      const token2 = requestToken;
+      const token = requestToken;
       clearPending();
       const runWhenMeasured = (retriesRemaining) => {
-        if (token2 !== requestToken) return;
+        if (token !== requestToken) return;
         if (!isMeasured(request.nodeIds)) {
           if (retriesRemaining <= 0) return;
-          pending2 = schedule2(
+          pending = schedule(
             () => runWhenMeasured(retriesRemaining - 1),
             retryInterval,
           );
           return;
         }
-        pending2 = void 0;
+        pending = void 0;
         fit(request);
       };
-      pending2 = schedule2(
+      pending = schedule(
         () => runWhenMeasured(maxMeasurementRetries),
         request.delay,
       );
@@ -158,30 +158,30 @@ export function createCanvasFocusScheduler({
   };
 }
 
-export function applyCanvasFocusSelection(selection2, nodeIds, shouldSelect) {
+export function applyCanvasFocusSelection(selection, nodeIds, shouldSelect) {
   if (!shouldSelect) return;
-  if (nodeIds.length === 1) selection2.select(nodeIds[0]);
-  else selection2.set(nodeIds);
+  if (nodeIds.length === 1) selection.select(nodeIds[0]);
+  else selection.set(nodeIds);
 }
 
 function collectAncestorGroupIds(nodeById, requestedNodeIds) {
-  const ancestorGroups = (id2) => {
+  const ancestorGroups = (id) => {
     const groups = [];
-    let current2 = nodeById.get(id2);
+    let current = nodeById.get(id);
     const visited = new Set();
-    while (current2 && !visited.has(current2.id)) {
-      visited.add(current2.id);
-      if (current2.type === "group") groups.unshift(current2.id);
-      current2 = current2.parentId ? nodeById.get(current2.parentId) : void 0;
+    while (current && !visited.has(current.id)) {
+      visited.add(current.id);
+      if (current.type === "group") groups.unshift(current.id);
+      current = current.parentId ? nodeById.get(current.parentId) : void 0;
     }
     return groups;
   };
-  return [...new Set(requestedNodeIds.flatMap((id2) => ancestorGroups(id2)))];
+  return [...new Set(requestedNodeIds.flatMap((id) => ancestorGroups(id)))];
 }
 
 function resolveCanvasAncestorGroupIds(nodes, requestedNodeIds) {
   return collectAncestorGroupIds(
-    new Map(nodes.map((node2) => [node2.id, node2])),
+    new Map(nodes.map((node) => [node.id, node])),
     requestedNodeIds,
   );
 }
@@ -191,20 +191,20 @@ function expandCanvasAncestorGroups(target, requestedNodeIds) {
     target.getGraph().nodes,
     requestedNodeIds,
   );
-  for (const groupId2 of groupIds) target.setGroupCollapsed(groupId2, false);
+  for (const groupId of groupIds) target.setGroupCollapsed(groupId, false);
   return groupIds.length > 0;
 }
 
 function resolveCanvasFocusTargets(nodes, requestedNodeIds, preferParentGroup) {
-  const nodeById = new Map(nodes.map((node2) => [node2.id, node2]));
-  const requested = requestedNodeIds.filter((id2) => nodeById.has(id2));
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const requested = requestedNodeIds.filter((id) => nodeById.has(id));
   if (!preferParentGroup || requested.length === 0)
     return {
       nodeIds: requested,
     };
   const groupIdsToExpand = collectAncestorGroupIds(nodeById, requested);
   const explicitGroups = requested.filter(
-    (id2) => nodeById.get(id2)?.type === "group",
+    (id) => nodeById.get(id)?.type === "group",
   );
   if (
     explicitGroups.length === requested.length &&
@@ -221,7 +221,7 @@ function resolveCanvasFocusTargets(nodes, requestedNodeIds, preferParentGroup) {
       nodeIds: requested,
       groupIdsToExpand,
     };
-  const parents = requested.map((id2) => nodeById.get(id2)?.parentId);
+  const parents = requested.map((id) => nodeById.get(id)?.parentId);
   const sharedParentId = parents[0];
   if (
     !sharedParentId ||
@@ -246,32 +246,32 @@ export const canvasFocus = {
   resolve: resolveCanvasFocusTargets,
 };
 
-function getGeneratingTaskSnapshot(nodeId, info2) {
-  const prompt = info2.prompt.trim();
-  const model = info2.model.trim();
+function getGeneratingTaskSnapshot(nodeId, info) {
+  const prompt = info.prompt.trim();
+  const model = info.model.trim();
   return {
     id: nodeId,
     label: prompt || model || "Canvas generation",
     detail: model || void 0,
-    status: info2.error ? "error" : (info2.phase ?? "generating"),
+    status: info.error ? "error" : (info.phase ?? "generating"),
     ...(model
       ? {
           model,
         }
       : {}),
-    ...(info2.modelId
+    ...(info.modelId
       ? {
-          modelId: info2.modelId,
+          modelId: info.modelId,
         }
       : {}),
-    ...(info2.backend
+    ...(info.backend
       ? {
-          backend: info2.backend,
+          backend: info.backend,
         }
       : {}),
-    ...(info2.cloudTaskId
+    ...(info.cloudTaskId
       ? {
-          cloudTaskId: info2.cloudTaskId,
+          cloudTaskId: info.cloudTaskId,
         }
       : {}),
   };
@@ -281,25 +281,25 @@ export function getCanvasTaskSnapshots(nodes, generatingByNode = new Map()) {
   const tasks = [];
   const nodeIds = new Set();
   const taskIds = new Set();
-  for (const node2 of nodes) {
-    nodeIds.add(node2.id);
-    const task = getCanvasTaskSnapshot(node2);
+  for (const node of nodes) {
+    nodeIds.add(node.id);
+    const task = getCanvasTaskSnapshot(node);
     if (task) {
       tasks.push(task);
       taskIds.add(task.id);
     }
   }
-  for (const [nodeId, info2] of generatingByNode) {
+  for (const [nodeId, info] of generatingByNode) {
     if (!nodeIds.has(nodeId) || taskIds.has(nodeId)) continue;
-    tasks.push(getGeneratingTaskSnapshot(nodeId, info2));
+    tasks.push(getGeneratingTaskSnapshot(nodeId, info));
   }
   return tasks;
 }
 
 const DEFAULT_CANVAS_TOAST_SCOPE = "default";
 
-export function getCanvasToastId(event, workspaceId2) {
-  const scope = workspaceId2?.trim() || DEFAULT_CANVAS_TOAST_SCOPE;
+export function getCanvasToastId(event, workspaceId) {
+  const scope = workspaceId?.trim() || DEFAULT_CANVAS_TOAST_SCOPE;
   return `canvas-${event}:${encodeURIComponent(scope)}`;
 }
 
@@ -317,7 +317,7 @@ export function hasValidViewportSize({ width, height }) {
   );
 }
 
-export function createCanvasViewportStorageKey(workspaceId2, mode2) {
-  if (!workspaceId2) return void 0;
-  return `${CANVAS_VIEWPORT_STORAGE_PREFIX}:${encodeURIComponent(workspaceId2)}:${encodeURIComponent(mode2)}`;
+export function createCanvasViewportStorageKey(workspaceId, mode) {
+  if (!workspaceId) return void 0;
+  return `${CANVAS_VIEWPORT_STORAGE_PREFIX}:${encodeURIComponent(workspaceId)}:${encodeURIComponent(mode)}`;
 }

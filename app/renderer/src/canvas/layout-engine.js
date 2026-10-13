@@ -18,8 +18,8 @@ export class LayoutEngine {
   register(strategy) {
     this.strategies.set(strategy.name, strategy);
   }
-  unregister(name2) {
-    this.strategies.delete(name2);
+  unregister(strategyName) {
+    this.strategies.delete(strategyName);
   }
   compute(strategyName, nodes, edges, options) {
     const strategy = this.strategies.get(strategyName);
@@ -59,32 +59,32 @@ export class LayoutEngine {
         options,
       );
     }
-    const mode2 = options?.mode ?? CanvasMode.Workflow;
-    const anchor = options?.anchor ?? computeCentroid(existingNodes, mode2);
-    const occupied = existingNodes.map((n2) => nodeToRect(n2, mode2));
+    const mode = options?.mode ?? CanvasMode.Workflow;
+    const anchor = options?.anchor ?? computeCentroid(existingNodes, mode);
+    const occupied = existingNodes.map((node) => nodeToRect(node, mode));
     const allNodeIds = new Set([
-      ...existingNodes.map((n2) => n2.id),
-      ...newNodes.map((n2) => n2.id),
+      ...existingNodes.map((node) => node.id),
+      ...newNodes.map((node) => node.id),
     ]);
-    const { children: children2, parents } = buildAdjacency(allNodeIds, edges);
-    const levels = topoSortLevels(allNodeIds, children2, parents);
+    const { children, parents } = buildAdjacency(allNodeIds, edges);
+    const levels = topoSortLevels(allNodeIds, children, parents);
     const newByLevel = new Map();
-    for (const n2 of newNodes) {
-      const level = levels.get(n2.id) ?? 0;
+    for (const node of newNodes) {
+      const level = levels.get(node.id) ?? 0;
       if (!newByLevel.has(level)) newByLevel.set(level, []);
-      newByLevel.get(level)?.push(n2);
+      newByLevel.get(level)?.push(node);
     }
     const result = new Map();
     const levelGap = options?.spacing?.x ?? LEVEL_GAP;
-    const sortedLevels = [...newByLevel.keys()].sort((a2, b3) => a2 - b3);
+    const sortedLevels = [...newByLevel.keys()].sort((leftLevel, rightLevel) => leftLevel - rightLevel);
     for (const level of sortedLevels) {
       const nodesAtLevel = newByLevel.get(level) ?? [];
-      for (let i2 = 0; i2 < nodesAtLevel.length; i2++) {
-        const node2 = nodesAtLevel[i2];
-        const sz = sizeOf(node2, mode2);
+      for (let nodeIndex = 0; nodeIndex < nodesAtLevel.length; nodeIndex++) {
+        const node = nodesAtLevel[nodeIndex];
+        const sz = sizeOf(node, mode);
         const pos = {
           x: anchor.x + level * levelGap,
-          y: anchor.y + i2 * (sz.height + COLLISION_MARGIN),
+          y: anchor.y + nodeIndex * (sz.height + COLLISION_MARGIN),
         };
         const candidate = {
           x: pos.x,
@@ -101,7 +101,7 @@ export class LayoutEngine {
           x: candidate.x,
           y: candidate.y,
         };
-        result.set(node2.id, finalPos);
+        result.set(node.id, finalPos);
         occupied.push({
           x: finalPos.x,
           y: finalPos.y,

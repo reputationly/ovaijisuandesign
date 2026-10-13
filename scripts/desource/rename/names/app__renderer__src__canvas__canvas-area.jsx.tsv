@@ -1,0 +1,191 @@
+key	old	new	依据
+getFileName$1@87:25	getFileName$1	getFileNameFromPath	从 uploading-assets.jsx 导入的 getFileName：按最后一个 / 或 \ 截取路径中的文件名；与 useMediaActions 解构出的 getFileName 冲突，故使用 getFileNameFromPath。
+isActive2@189:13	isActive2	isActive	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+workspaceId2@191:16	workspaceId2	workspaceId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+t2@198:14	t2	translate	该函数是 react-i18next 提供的翻译函数。
+platform2@232:9	platform2	platform	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+logService2@240:9	logService2	logService	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+gatewayFetch2@265:9	gatewayFetch2	gatewayFetch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+gatewayUrl2@273:9	gatewayUrl2	gatewayUrl	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+isImageExtension2@311:23	isImageExtension2	isImageExtension	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+getFileName2@312:18	getFileName2	getFileName	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+n2@372:34	n2	node	该参数是 handleNodeContextMenu 当前处理的画布节点，用于构造菜单目标信息。
+point2@388:13	point2	point	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@457:6	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@526:15	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+selection2@565:15	selection2	selection	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@583:15	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+d2@591:13	d2	subscription	该值是 annotation command 事件订阅返回的 disposable，用于取消订阅。
+e2@591:55	e2	commandEvent	该参数是 annotation command 事件对象，携带工作区、节点和编辑会话标识。
+data2@611:15	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+list2@613:15	list2	list	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+p3@615:22	p3	plugin	该参数是插件元数据对象，用于提取 id、名称和描述等字段。
+pending2@695:14	pending2	pending	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@696:13	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@698:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+pending2@713:67	pending2	pending	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+current2@714:11	current2	current	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@716:11	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+content2@900:22	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+content2@908:15	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@930:38	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@931:17	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@932:23	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@932:29	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+m3@968:12	m3	asset	该值是按路径匹配 sourcePath 的工作区资源项。
+data2@1005:15	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@1020:14	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1025:21	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+range2@1025:26	range2	range	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1028:17	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@1028:22	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1029:35	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1052:16	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+patch2@1052:21	patch2	patch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1053:22	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+content2@1060:22	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+content2@1073:13	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+content2@1110:13	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@1183:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@1219:42	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+cells2@1242:26	cells2	cells	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+c3@1251:32	c3	cell	该参数是当前待批量上传的子图单元格。
+i2@1291:35	i2	index	该下标用于从 placeholderIds 中读取与当前单元格对应的占位符标识。
+uploadBlob2@1304:17	uploadBlob2	uploadBlob	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+r2@1353:26	r2	result	该值是 Promise.allSettled 返回的上传任务结果。
+i2@1353:30	i2	index	该下标标识 Promise.allSettled 结果对应的单元格位置。
+cells2@1386:26	cells2	cells	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+r2@1402:20	r2	result	该值是 Promise.allSettled 返回的上传任务结果，筛选已成功完成的任务。
+r2@1403:17	r2	result	该值是已成功完成的上传任务结果，用于读取生成的资源标识。
+language2@1674:37	language2	language	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+fn2@1771:12	fn2	fn	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+preset2@1784:15	preset2	preset	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+i2@1804:42	i2	index	该下标用于从 measureMediaSize 结果数组中读取当前文件尺寸。
+size2@1809:50	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+sum2@1811:23	sum2	sum	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@1811:29	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+x2@1813:13	x2	referenceX	该值是视频节点左侧用于排列参考素材节点的横坐标。
+y4@1814:11	y4	referenceY	该值是第一张参考素材节点的纵坐标，并在循环中逐项向下推进。
+i2@1819:18	i2	index	该下标遍历下载的参考素材文件，并决定节点位置和创建顺序。
+position2@1866:50	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@1881:13	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+content2@1911:12	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@1926:15	name2	fileName	该值是从新建文本资源路径提取的文件名，供返回的资源对象展示；原词干 name 与全局绑定 name 冲突，故命名为 fileName。
+content2@1940:12	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@1954:12	e2	fileInputEvent	该参数是文件输入 change 事件，用于读取选中文件并清空 input 值。
+position2@1957:13	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+i2@1963:43	i2	index	该下标用于从 measureMediaSize 结果数组中读取当前文件尺寸。
+i2@1967:18	i2	index	该下标遍历文件列表，并与测量结果及上传顺序对应。
+position2@1989:22	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+_2@1991:10	_2	_assetId	该参数是 assetIds.map 提供但此回调不使用的资源标识。
+i2@1991:14	i2	index	此处的 index 表示数组或结果列表下标。
+index2@1996:19	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@2010:19	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+nodeTypes2@2014:15	nodeTypes2	nodeTypes	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@2131:23	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@2236:19	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+p3@2243:41	p3	path	该参数是待筛选的文件路径，用于识别 htable 文件。
+p3@2244:40	p3	path	该参数是待筛选的文件路径，用于分离普通媒体文件。
+index2@2255:25	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@2256:21	name2	fileName	该值是当前 htable 文件绝对路径的末段名称，传给导入流程；原词干 name 与全局绑定 name 冲突，故命名为 fileName。
+data2@2307:12	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@2353:19	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+p3@2365:47	p3	plugin	该参数是插件列表中的插件元数据对象。
+message2@2380:17	message2	message	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@2402:12	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@2402:19	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@2426:19	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+message2@2448:15	message2	message	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@2488:11	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@2503:58	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+base2@2504:11	base2	base	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@2537:12	name2	lutName	该参数是请求 LUT 内容时使用的 LUT 名称；原词干 name 与全局绑定 name 冲突，故命名为 lutName。
+data2@2541:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@2547:12	name2	lutName	该参数是删除 LUT 时使用的 LUT 名称；原词干 name 与全局绑定 name 冲突，故命名为 lutName。
+position2@2555:19	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+i2@2564:42	i2	index	该下标用于从 measureMediaSize 结果数组中读取当前文件尺寸。
+i2@2574:34	i2	index	该下标遍历待粘贴的文件，并与上传结果和节点位置对应。
+text2@2634:12	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@2634:19	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@2657:13	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@2666:15	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@2683:15	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+content2@2689:17	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@2706:63	e2	dragEvent	该参数是画布技能拖拽进入区域时收到的 DragEvent。
+types2@2707:11	types2	types	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@2714:6	e2	dragEvent	该参数是画布技能拖放时收到的 DragEvent，传给技能载荷解析和处理逻辑。
+data2@2720:17	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@2721:17	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@2734:15	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@2741:16	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@2786:6	e2	dragEvent	该参数是画布实体拖放时收到的 DragEvent。
+position2@2791:13	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@2817:21	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@2861:6	e2	dragEvent	该参数是画布拖拽进入监听器收到的 DragEvent。
+e2@2872:6	e2	dragEvent	该参数是画布 drop 监听器收到的 DragEvent。
+info2@2883:60	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@2893:59	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@2899:66	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@2925:60	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+now2@2926:11	now2	now	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@2927:11	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+previous2@2928:11	previous2	previous	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@2940:58	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@2941:11	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@2984:59	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+base2@2985:11	base2	base	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@3021:64	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@3031:60	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@3040:64	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+info2@3049:6	info2	info	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@3062:13	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3074:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3079:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@3091:12	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@3094:15	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3106:15	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@3119:13	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3132:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3137:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3155:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3172:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3197:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@3236:13	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3251:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3256:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3291:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3296:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@3338:13	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3387:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3392:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+message2@3401:6	message2	message	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@3416:19	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+now2@3449:13	now2	now	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@3450:13	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@3460:34	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@3486:13	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3500:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3505:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+errorMessage2@3511:27	errorMessage2	errorMessage	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3523:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@3543:15	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@3567:13	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+type2@3614:18	type2	type	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3669:11	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@3689:30	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@3755:17	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@3768:22	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3774:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@3780:22	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+body2@3796:17	body2	body	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@3805:22	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@3824:13	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+runtimeRegion2@3979:9	runtimeRegion2	runtimeRegion	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@3990:36	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@4237:33	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+contextMenu2@4244:13	contextMenu2	contextMenu	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+claimHailuo03VideoTrial2@318:12	claimHailuo03VideoTrial2	claimHailuo03VideoTrial	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+p3@4261:26	p3	path	该参数是待查找工作区资源的文件路径。
+p3@4262:23	p3	path	该参数是待查找工作区资源的文件路径。
+a2@4262:52	a2	asset	该参数是按文件路径查找的工作区资源项。
+a2@4263:26	a2	asset	该参数是用于过滤空值的工作区资源项。

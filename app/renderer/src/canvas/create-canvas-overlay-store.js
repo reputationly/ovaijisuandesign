@@ -1,90 +1,90 @@
 // create-canvas-overlay-store.js
 import { createStore$1 as createStore } from "../vendor.js";
 export function createCanvasOverlayStore() {
-  return createStore((set2) => ({
+  return createStore((set) => ({
     active: null,
-    startCrop: (nodeId, meta2) =>
-      set2({
+    startCrop: (nodeId, meta) =>
+      set({
         active: {
           kind: "crop",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelCrop: () =>
-      set2((s2) =>
-        s2.active?.kind === "crop"
+      set((state) =>
+        state.active?.kind === "crop"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
-    startOutpaint: (nodeId, meta2) =>
-      set2({
+    startOutpaint: (nodeId, meta) =>
+      set({
         active: {
           kind: "outpaint",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelOutpaint: () =>
-      set2((s2) =>
-        s2.active?.kind === "outpaint"
+      set((state) =>
+        state.active?.kind === "outpaint"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
-    startErase: (nodeId, meta2) =>
-      set2({
+    startErase: (nodeId, meta) =>
+      set({
         active: {
           kind: "erase",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelErase: () =>
-      set2((s2) =>
-        s2.active?.kind === "erase"
+      set((state) =>
+        state.active?.kind === "erase"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
-    startRedraw: (nodeId, meta2) =>
-      set2({
+    startRedraw: (nodeId, meta) =>
+      set({
         active: {
           kind: "redraw",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelRedraw: () =>
-      set2((s2) =>
-        s2.active?.kind === "redraw"
+      set((state) =>
+        state.active?.kind === "redraw"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
-    startMoveObject: (nodeId, meta2) =>
-      set2({
+    startMoveObject: (nodeId, meta) =>
+      set({
         active: {
           kind: "move-object",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelMoveObject: () =>
-      set2((s2) =>
-        s2.active?.kind === "move-object"
+      set((state) =>
+        state.active?.kind === "move-object"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
     reset: () =>
-      set2({
+      set({
         active: null,
       }),
   }));

@@ -1,0 +1,4 @@
+key	old	new	依据
+gatewayFetch2@33:38	gatewayFetch2	gatewayFetch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+gatewayFetch2@45:51	gatewayFetch2	gatewayFetch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@64:13	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

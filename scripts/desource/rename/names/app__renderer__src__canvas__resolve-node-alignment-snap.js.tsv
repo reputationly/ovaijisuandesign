@@ -1,0 +1,11 @@
+key	old	new	依据
+a2@66:8	a2	leftCandidate	排序比较器左侧对齐候选的 delta、priority 和 separation 被依次比较。
+b3@66:12	b3	rightCandidate	排序比较器右侧对齐候选的 delta、priority 和 separation 被依次比较。
+candidates2@26:9	candidates2	candidates	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+cross2@27:9	cross2	cross	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+candidates2@53:26	candidates2	candidates	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@53:39	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+cross2@75:9	cross2	cross	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@95:30	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@115:49	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+empty2@116:9	empty2	empty	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

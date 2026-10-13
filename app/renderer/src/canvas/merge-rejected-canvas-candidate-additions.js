@@ -8,9 +8,9 @@ export function mergeRejectedCanvasCandidateAdditions(
   const replayedNodeIds = new Set(deletionReplay?.removedNodeIds ?? []);
   const replayedEdgeIds = new Set(deletionReplay?.removedEdgeIds ?? []);
   const durableNodes = lastGood.nodes.filter(
-    (node2) => !replayedNodeIds.has(node2.id),
+    (node) => !replayedNodeIds.has(node.id),
   );
-  const durableNodeIds = new Set(durableNodes.map((node2) => node2.id));
+  const durableNodeIds = new Set(durableNodes.map((node) => node.id));
   const durableEdges = lastGood.edges.filter(
     (edge) =>
       !replayedEdgeIds.has(edge.id) &&
@@ -18,16 +18,16 @@ export function mergeRejectedCanvasCandidateAdditions(
       durableNodeIds.has(edge.target),
   );
   const candidateNodeById = new Map();
-  for (const node2 of candidate.nodes) {
+  for (const node of candidate.nodes) {
     if (
-      !node2.id ||
-      replayedNodeIds.has(node2.id) ||
-      durableNodeIds.has(node2.id) ||
-      candidateNodeById.has(node2.id)
+      !node.id ||
+      replayedNodeIds.has(node.id) ||
+      durableNodeIds.has(node.id) ||
+      candidateNodeById.has(node.id)
     ) {
       continue;
     }
-    candidateNodeById.set(node2.id, node2);
+    candidateNodeById.set(node.id, node);
   }
   const validCandidateNodeIds = new Set();
   const invalidCandidateNodeIds = new Set();
@@ -37,37 +37,37 @@ export function mergeRejectedCanvasCandidateAdditions(
       invalidCandidateNodeIds.has(startId)
     )
       continue;
-    const path2 = [];
+    const path = [];
     const pathIndexes = new Map();
     let currentId = startId;
-    let valid2 = false;
+    let valid = false;
     while (currentId) {
       if (
         durableNodeIds.has(currentId) ||
         validCandidateNodeIds.has(currentId)
       ) {
-        valid2 = true;
+        valid = true;
         break;
       }
       if (invalidCandidateNodeIds.has(currentId) || pathIndexes.has(currentId))
         break;
-      const current2 = candidateNodeById.get(currentId);
-      if (!current2) break;
-      pathIndexes.set(currentId, path2.length);
-      path2.push(currentId);
-      if (!current2.parentId) {
-        valid2 = true;
+      const current = candidateNodeById.get(currentId);
+      if (!current) break;
+      pathIndexes.set(currentId, path.length);
+      path.push(currentId);
+      if (!current.parentId) {
+        valid = true;
         break;
       }
-      currentId = current2.parentId;
+      currentId = current.parentId;
     }
-    const destination = valid2
+    const destination = valid
       ? validCandidateNodeIds
       : invalidCandidateNodeIds;
-    for (const nodeId of path2) destination.add(nodeId);
+    for (const nodeId of path) destination.add(nodeId);
   }
-  const candidateAdditions = [...candidateNodeById.values()].filter((node2) =>
-    validCandidateNodeIds.has(node2.id),
+  const candidateAdditions = [...candidateNodeById.values()].filter((node) =>
+    validCandidateNodeIds.has(node.id),
   );
   const finalNodeIds = new Set([...durableNodeIds, ...validCandidateNodeIds]);
   const durableEdgeIds = new Set(durableEdges.map((edge) => edge.id));

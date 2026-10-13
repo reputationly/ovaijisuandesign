@@ -1,0 +1,11 @@
+key	old	new	依据
+X@8:10	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
+t2@165:14	t2	translate	该函数翻译画布工具栏贴纸和命令面板标签。
+id2@279:37	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@26:11	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+StickerIcon2@25:54	StickerIcon2	StickerIcon	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+definition2@89:15	definition2	definition	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+Icon2@90:9	Icon2	Icon	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+selected2@103:9	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleKeyDown2@199:11	handleKeyDown2	handleKeyDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+definition2@280:19	definition2	definition	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

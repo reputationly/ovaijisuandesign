@@ -1,0 +1,26 @@
+key	old	new	依据
+e2@27:14	e2	edge	该值是用于汇总来源节点可达性的图边。
+s2@117:6	s2	storeState	该参数提供拖动预览所需的视口变换状态。
+a2@122:6	a2	leftTransform	该参数是视口变换比较中的第一份状态。
+b3@122:10	b3	rightTransform	该参数是视口变换比较中的第二份状态。
+d2@153:21	d2	pathData	该字符串是连线预览的 SVG path 数据。
+i2@153:25	i2	pathIndex	该值是 SVG path 数组中的下标。
+t2@198:14	t2	translate	该函数翻译多选加号手柄的辅助文案。
+s2@202:33	s2	storeState	该参数提供节点是否可连接的状态。
+s2@205:8	s2	storeState	该参数提供解析连接来源所需的节点状态。
+a2@208:6	a2	leftSources	该对象是选择连接来源比较的左侧结果。
+b3@208:10	b3	rightSources	该对象是选择连接来源比较的右侧结果。
+id2@211:31	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@241:6	e2	pointerEvent	该值是触发拖动连接的指针事件。
+id2@249:18	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+w3@252:15	w3	width	该值是来源节点测量或布局宽度。
+h2@253:15	h2	height	该值是来源节点测量或布局高度。
+e2@375:21	e2	clickEvent	该值是需要阻止冒泡的按钮点击事件。
+node2@40:40	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@42:14	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+screen2@126:11	screen2	screenPoint	该值是锚点转换得到的屏幕坐标；与全局绑定 screen 冲突，故使用 screenPoint。
+path2@130:12	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+drag2@214:10	drag2	drag	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+onPointerDown2@240:9	onPointerDown2	onPointerDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@211:36	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@250:15	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

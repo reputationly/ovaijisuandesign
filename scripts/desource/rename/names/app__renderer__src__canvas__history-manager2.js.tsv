@@ -1,0 +1,8 @@
+key	old	new	依据
+Tt@3:10	Tt	createHistoryStore	来源函数用初始状态构造可订阅、可读写并支持历史操作的状态存储器。
+export:HistoryManager2	HistoryManager2	HistoryManager	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+file:history-manager2.js	history-manager2.js	history-manager.js	文件名保留 history-manager 语义主体，末尾 2 是打包器去重后缀；canvas 中不存在 history-manager.js。
+history2@89:11	history2	historyStates	该值是撤销/重做历史中的状态列表；与全局 history 冲突，故使用 historyStates。
+position2@90:11	position2	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@91:35	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@106:16	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

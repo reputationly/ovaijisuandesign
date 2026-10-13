@@ -1,20 +1,20 @@
 // diagnostic-history-tools.js
-import { MEDIA_EXTENSIONS, Ungroup$1, withIconCompositing } from "../vendor.js";
-export const Ungroup = withIconCompositing(Ungroup$1);
+import { MEDIA_EXTENSIONS, Ungroup$1 as UngroupIcon, withIconCompositing } from "../vendor.js";
+export const Ungroup = withIconCompositing(UngroupIcon);
 export const TOOL_ABORTED_BY_USER_TEXT = "Tool execution aborted";
 export function chatDiagnosticHash(value) {
-  let first2 = 2166136261;
+  let first = 2166136261;
   let second = 2654435761;
-  for (let index2 = 0; index2 < value.length; index2 += 1) {
-    const code2 = value.charCodeAt(index2);
-    first2 = Math.imul(first2 ^ code2, 16777619);
-    second = Math.imul(second ^ code2, 2246822507);
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    first = Math.imul(first ^ code, 16777619);
+    second = Math.imul(second ^ code, 2246822507);
   }
-  return `${(first2 >>> 0).toString(16).padStart(8, "0")}${(second >>> 0).toString(16).padStart(8, "0")}`;
+  return `${(first >>> 0).toString(16).padStart(8, "0")}${(second >>> 0).toString(16).padStart(8, "0")}`;
 }
-export function chatToolIdentity(tool2) {
+export function chatToolIdentity(tool) {
   return chatDiagnosticHash(
-    tool2.callID ? `call:${tool2.callID}` : `part:${tool2.partId ?? ""}`,
+    tool.callID ? `call:${tool.callID}` : `part:${tool.partId ?? ""}`,
   );
 }
 export function normalizeToolStatus(status) {
@@ -23,22 +23,22 @@ export function normalizeToolStatus(status) {
     ? (status ?? "unknown")
     : "unknown";
 }
-export function diagnosticHistoryTools(messages2) {
-  return messages2.flatMap((message2) => {
-    if (message2.type === "tool_call")
+export function diagnosticHistoryTools(messages) {
+  return messages.flatMap((message) => {
+    if (message.type === "tool_call")
       return [
         {
-          tool: message2.tool,
-          partId: message2.partId ?? message2.taskPartId,
-          callID: message2.callID,
-          status: message2.status,
+          tool: message.tool,
+          partId: message.partId ?? message.taskPartId,
+          callID: message.callID,
+          status: message.status,
         },
       ];
-    if (message2.type === "sub_agent_tool_call")
+    if (message.type === "sub_agent_tool_call")
       return [
         {
-          tool: message2.tool,
-          callID: message2.callID,
+          tool: message.tool,
+          callID: message.callID,
           scope: "child",
         },
       ];
@@ -46,18 +46,18 @@ export function diagnosticHistoryTools(messages2) {
   });
 }
 const CONNECTOR_LABEL_RE = /^[\p{Script=Han}a-zA-Z0-9_. -]{1,80}$/u;
-export function formatConnectorMention(serverName, displayName2) {
+export function formatConnectorMention(serverName, displayName) {
   const label =
-    displayName2 &&
-    displayName2 !== serverName &&
-    CONNECTOR_LABEL_RE.test(displayName2)
-      ? `[${displayName2}]`
+    displayName &&
+    displayName !== serverName &&
+    CONNECTOR_LABEL_RE.test(displayName)
+      ? `[${displayName}]`
       : "";
   return `@connector:${serverName}${label}`;
 }
 export function detectFileType(filename) {
-  const dot2 = filename.lastIndexOf(".");
-  if (dot2 < 0) return "file";
-  const ext = filename.slice(dot2).toLowerCase();
+  const dot = filename.lastIndexOf(".");
+  if (dot < 0) return "file";
+  const ext = filename.slice(dot).toLowerCase();
   return MEDIA_EXTENSIONS[ext] ?? "file";
 }

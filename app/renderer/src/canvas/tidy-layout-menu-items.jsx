@@ -96,16 +96,16 @@ function getAutoAlignSnapshot() {
 }
 function handleStorageChange(event) {
   if (event.key !== INCLUDE_DEPS_STORAGE_KEY) return;
-  const next2 = event.newValue === "1";
-  if (next2 === getAutoAlignSnapshot()) return;
-  autoAlignSnapshot = next2;
+  const next = event.newValue === "1";
+  if (next === getAutoAlignSnapshot()) return;
+  autoAlignSnapshot = next;
   emitAutoAlignChange();
 }
-function setAutoAlignPreference(next2) {
-  if (next2 === getAutoAlignSnapshot()) return;
-  autoAlignSnapshot = next2;
+function setAutoAlignPreference(next) {
+  if (next === getAutoAlignSnapshot()) return;
+  autoAlignSnapshot = next;
   try {
-    localStorage.setItem(INCLUDE_DEPS_STORAGE_KEY, next2 ? "1" : "0");
+    localStorage.setItem(INCLUDE_DEPS_STORAGE_KEY, next ? "1" : "0");
   } catch {}
   emitAutoAlignChange();
 }
@@ -144,14 +144,14 @@ const LAYOUT_OPTIONS = [
 const MENU_LEADING_CLASS =
   "flex size-4 shrink-0 items-center justify-center pointer-coarse:size-11";
 export function TidyLayoutMenuItems({ onTidy, showIncludeDeps, uiIdPrefix }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { sortBy, setSortBy } = useTidySort();
   const includeDeps = reactExports.useSyncExternalStore(
     subscribeAutoAlign,
     getAutoAlignSnapshot,
     () => false,
   );
-  const includeDepsHint = t2(
+  const includeDepsHint = translate(
     "canvas.tidy.includeDeps.hint",
     "根据节点连线关系自动整理上下游结构",
   );
@@ -162,17 +162,17 @@ export function TidyLayoutMenuItems({ onTidy, showIncludeDeps, uiIdPrefix }) {
       <SegmentedSwitch
         value={sortBy}
         onValueChange={setSortBy}
-        ariaLabel={t2("canvas.tidy.orderBy", "排序依据")}
+        ariaLabel={translate("canvas.tidy.orderBy", "排序依据")}
         dataActionUiId={`${uiIdPrefix}-order-tabs`}
         options={[
           {
             value: "name",
-            label: t2("canvas.tidy.orderName", "按名称"),
+            label: translate("canvas.tidy.orderName", "按名称"),
             dataActionUiId: `${uiIdPrefix}-order-name`,
           },
           {
             value: "addedAt",
-            label: t2("canvas.tidy.orderAddedAt", "按时间"),
+            label: translate("canvas.tidy.orderAddedAt", "按时间"),
             dataActionUiId: `${uiIdPrefix}-order-added-at`,
           },
         ]}
@@ -186,23 +186,23 @@ export function TidyLayoutMenuItems({ onTidy, showIncludeDeps, uiIdPrefix }) {
         }
         className="mb-1 h-[30px] shrink-0 [&_[data-slot=segmented-switch-thumb]]:h-[26px] [&_[data-slot=segmented-switch-thumb]]:bg-card"
       />
-      {LAYOUT_OPTIONS.map((option2) => {
-        const Icon2 = option2.icon;
+      {LAYOUT_OPTIONS.map((option) => {
+        const Icon = option.icon;
         return (
           <DropdownMenuItem
-            key={option2.kind}
-            data-action-ui-id={`${uiIdPrefix}-${option2.kind}`}
-            onClick={() => void onTidy(option2.kind, includeDeps)}
+            key={option.kind}
+            data-action-ui-id={`${uiIdPrefix}-${option.kind}`}
+            onClick={() => void onTidy(option.kind, includeDeps)}
             className="cursor-pointer gap-2 rounded-md px-3 py-2 text-xs tracking-tight"
           >
             <span className={MENU_LEADING_CLASS}>
-              <Icon2
+              <Icon
                 aria-hidden="true"
                 className="text-[var(--canvas-controls-text-muted)]"
               />
             </span>
             <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-              {t2(option2.labelKey, option2.defaultLabel)}
+              {translate(option.labelKey, option.defaultLabel)}
             </span>
           </DropdownMenuItem>
         );
@@ -233,7 +233,7 @@ export function TidyLayoutMenuItems({ onTidy, showIncludeDeps, uiIdPrefix }) {
                 />
               </span>
               <span className="whitespace-nowrap text-[var(--canvas-controls-text)]">
-                {t2("canvas.tidy.includeDeps", "整理相连的上下游")}
+                {translate("canvas.tidy.includeDeps", "整理相连的上下游")}
               </span>
             </label>
             <TidyHint hint={includeDepsHint} hintId={includeDepsHintId} />

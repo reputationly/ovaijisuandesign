@@ -8,8 +8,8 @@ const MAX_CONSECUTIVE_FAILURES = 5;
 const MAX_CONCURRENCY = 5;
 const MAX_ACTIVE_DAG_RUNS_TOTAL = 50;
 const MAX_ACTIVE_DAG_RUNS_PER_NODE = 10;
-function withCode(err, code2) {
-  err.code = code2;
+function withCode(err, code) {
+  err.code = code;
   return err;
 }
 function assertPluginDagSubmissionAllowed() {
@@ -30,9 +30,9 @@ function toAgentStatus(status) {
 function isTerminal(status) {
   return status === "finished" || status === "failed";
 }
-export function usePluginDagBridge(gatewayFetch2) {
-  const gatewayFetchRef = reactExports.useRef(gatewayFetch2);
-  gatewayFetchRef.current = gatewayFetch2;
+export function usePluginDagBridge(gatewayFetch) {
+  const gatewayFetchRef = reactExports.useRef(gatewayFetch);
+  gatewayFetchRef.current = gatewayFetch;
   const runsRef = reactExports.useRef(new Map());
   const groupsRef = reactExports.useRef(new Map());
   const nodeGroupsRef = reactExports.useRef(new Map());
@@ -44,28 +44,28 @@ export function usePluginDagBridge(gatewayFetch2) {
     runsRef.current.delete(runId);
   }, []);
   const dropGroupFromNodeIndex = reactExports.useCallback(
-    (nodeId, groupId2) => {
-      const set2 = nodeGroupsRef.current.get(nodeId);
-      if (!set2) return;
-      set2.delete(groupId2);
-      if (set2.size === 0) nodeGroupsRef.current.delete(nodeId);
+    (nodeId, groupId) => {
+      const set = nodeGroupsRef.current.get(nodeId);
+      if (!set) return;
+      set.delete(groupId);
+      if (set.size === 0) nodeGroupsRef.current.delete(nodeId);
     },
     [],
   );
   const emitGroupEnvelope = reactExports.useCallback((group) => {
     const orderedRuns = group.runIds.map(
-      (id2) =>
-        group.results.get(id2) ?? {
-          run_id: id2,
+      (id) =>
+        group.results.get(id) ?? {
+          run_id: id,
           status: "failed",
           error_message: "Missing run result (internal bookkeeping error)",
         },
     );
-    const listeners2 = subscribersRef.current.get(group.callerNodeId);
-    if (!listeners2 || listeners2.size === 0) return;
+    const listeners = subscribersRef.current.get(group.callerNodeId);
+    if (!listeners || listeners.size === 0) return;
     if (group.runIds.length === 1) {
       const only = orderedRuns[0];
-      const envelope2 = {
+      const envelope = {
         run_id: group.groupId,
         status: only.status,
         outputs: only.outputs,
@@ -73,9 +73,9 @@ export function usePluginDagBridge(gatewayFetch2) {
         usage: only.usage,
         error_message: only.error_message,
       };
-      for (const cb of listeners2) {
+      for (const cb of listeners) {
         try {
-          cb(envelope2);
+          cb(envelope);
         } catch (err) {
           console.error("[plugin-dag-bridge] subscriber threw", err);
         }
@@ -89,7 +89,7 @@ export function usePluginDagBridge(gatewayFetch2) {
       requested: group.requested,
       submitted: group.runIds.length,
     };
-    for (const cb of listeners2) {
+    for (const cb of listeners) {
       try {
         cb(envelope);
       } catch (err) {
@@ -100,11 +100,11 @@ export function usePluginDagBridge(gatewayFetch2) {
   const countActiveRunsForNode = reactExports.useCallback((callerNodeId) => {
     const groupIds = nodeGroupsRef.current.get(callerNodeId);
     if (!groupIds) return 0;
-    let count2 = 0;
-    for (const groupId2 of groupIds) {
-      count2 += groupsRef.current.get(groupId2)?.pending.size ?? 0;
+    let count = 0;
+    for (const groupId of groupIds) {
+      count += groupsRef.current.get(groupId)?.pending.size ?? 0;
     }
-    return count2;
+    return count;
   }, []);
   const recordRunFinished = reactExports.useCallback(
     (runId, outcome) => {
@@ -137,13 +137,13 @@ export function usePluginDagBridge(gatewayFetch2) {
         });
         return;
       }
-      let body2;
+      let body;
       try {
         const resp = await gatewayFetchRef.current(
           `/api/dag/run/${encodeURIComponent(runId)}`,
         );
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        body2 = await resp.json();
+        body = await resp.json();
         entry.consecutiveFailures = 0;
       } catch (err) {
         entry.consecutiveFailures += 1;
@@ -157,29 +157,29 @@ export function usePluginDagBridge(gatewayFetch2) {
         }
         return;
       }
-      if (!isTerminal(body2.status)) return;
+      if (!isTerminal(body.status)) return;
       recordRunFinished(runId, {
         run_id: runId,
-        status: toAgentStatus(body2.status),
-        outputs: body2.outputs,
-        asset_outputs: body2.asset_outputs,
-        usage: body2.usage,
-        error_message: body2.error_message,
+        status: toAgentStatus(body.status),
+        outputs: body.outputs,
+        asset_outputs: body.asset_outputs,
+        usage: body.usage,
+        error_message: body.error_message,
       });
     },
     [recordRunFinished],
   );
   const startWatch = reactExports.useCallback(
-    (runId, groupId2, callerNodeId) => {
+    (runId, groupId, callerNodeId) => {
       if (runsRef.current.has(runId)) return;
-      const timer2 = setInterval(() => {
+      const timer = setInterval(() => {
         void tick(runId);
       }, POLL_INTERVAL_MS);
       runsRef.current.set(runId, {
         runId,
-        groupId: groupId2,
+        groupId,
         callerNodeId,
-        timer: timer2,
+        timer,
         consecutiveFailures: 0,
       });
     },
@@ -250,14 +250,14 @@ export function usePluginDagBridge(gatewayFetch2) {
         if (!resp.ok) {
           let detail = `HTTP ${resp.status}`;
           try {
-            const text2 = await resp.text();
-            if (text2) detail = `${detail}: ${text2}`;
+            const text = await resp.text();
+            if (text) detail = `${detail}: ${text}`;
           } catch {}
           throw new Error(detail);
         }
-        const body2 = await resp.json();
-        if (!body2.run_id) throw new Error("gateway returned no run_id");
-        return body2.run_id;
+        const body = await resp.json();
+        if (!body.run_id) throw new Error("gateway returned no run_id");
+        return body.run_id;
       };
       assertPluginDagSubmissionAllowed();
       const settled = await Promise.allSettled(
@@ -270,23 +270,23 @@ export function usePluginDagBridge(gatewayFetch2) {
       );
       const accepted = [];
       const failures = [];
-      for (const r2 of settled) {
-        if (r2.status === "fulfilled") accepted.push(r2.value);
-        else failures.push(r2.reason);
+      for (const settledResult of settled) {
+        if (settledResult.status === "fulfilled") accepted.push(settledResult.value);
+        else failures.push(settledResult.reason);
       }
       if (accepted.length === 0) {
-        const first2 = failures[0];
+        const first = failures[0];
         throw withCode(
           new Error(
-            `dag.submit: all ${requested} submissions failed: ${first2 instanceof Error ? first2.message : String(first2)}`,
+            `dag.submit: all ${requested} submissions failed: ${first instanceof Error ? first.message : String(first)}`,
           ),
           "gateway_error",
         );
       }
-      const groupId2 = accepted[0];
+      const groupId = accepted[0];
       const startedAt = Date.now();
       const group = {
-        groupId: groupId2,
+        groupId,
         runIds: [...accepted],
         pending: new Set(accepted),
         results: new Map(),
@@ -294,15 +294,15 @@ export function usePluginDagBridge(gatewayFetch2) {
         requested,
         startedAt,
       };
-      groupsRef.current.set(groupId2, group);
+      groupsRef.current.set(groupId, group);
       let nodeGroups = nodeGroupsRef.current.get(ctx.callerNodeId);
       if (!nodeGroups) {
         nodeGroups = new Set();
         nodeGroupsRef.current.set(ctx.callerNodeId, nodeGroups);
       }
-      nodeGroups.add(groupId2);
+      nodeGroups.add(groupId);
       for (const runId of accepted)
-        startWatch(runId, groupId2, ctx.callerNodeId);
+        startWatch(runId, groupId, ctx.callerNodeId);
       return {
         run_id: accepted[0],
         run_ids: accepted,
@@ -320,44 +320,44 @@ export function usePluginDagBridge(gatewayFetch2) {
     if (!resp.ok) {
       let detail = `HTTP ${resp.status}`;
       try {
-        const text2 = await resp.text();
-        if (text2) detail = `${detail}: ${text2}`;
+        const text = await resp.text();
+        if (text) detail = `${detail}: ${text}`;
       } catch {}
       throw withCode(new Error(`dag.query: ${detail}`), "gateway_error");
     }
-    const body2 = await resp.json();
+    const body = await resp.json();
     return {
-      status: body2.status,
-      outputs: body2.outputs ?? {},
-      asset_outputs: body2.asset_outputs ?? [],
-      usage: body2.usage ?? {},
-      error_message: body2.error_message,
+      status: body.status,
+      outputs: body.outputs ?? {},
+      asset_outputs: body.asset_outputs ?? [],
+      usage: body.usage ?? {},
+      error_message: body.error_message,
     };
   }, []);
   const subscribeDagDone = reactExports.useCallback((callerNodeId, cb) => {
-    let set2 = subscribersRef.current.get(callerNodeId);
-    if (!set2) {
-      set2 = new Set();
-      subscribersRef.current.set(callerNodeId, set2);
+    let set = subscribersRef.current.get(callerNodeId);
+    if (!set) {
+      set = new Set();
+      subscribersRef.current.set(callerNodeId, set);
     }
-    set2.add(cb);
+    set.add(cb);
     return () => {
-      const current2 = subscribersRef.current.get(callerNodeId);
-      if (!current2) return;
-      current2.delete(cb);
-      if (current2.size === 0) subscribersRef.current.delete(callerNodeId);
+      const current = subscribersRef.current.get(callerNodeId);
+      if (!current) return;
+      current.delete(cb);
+      if (current.size === 0) subscribersRef.current.delete(callerNodeId);
     };
   }, []);
   const releaseDagRuns = reactExports.useCallback(
     (callerNodeId) => {
       const groupIds = nodeGroupsRef.current.get(callerNodeId);
       if (!groupIds || groupIds.size === 0) return;
-      const list2 = [...groupIds];
-      for (const groupId2 of list2) {
-        const group = groupsRef.current.get(groupId2);
+      const list = [...groupIds];
+      for (const groupId of list) {
+        const group = groupsRef.current.get(groupId);
         if (group) {
           for (const runId of group.runIds) stopRun(runId);
-          groupsRef.current.delete(groupId2);
+          groupsRef.current.delete(groupId);
         }
       }
       nodeGroupsRef.current.delete(callerNodeId);

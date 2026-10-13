@@ -1,0 +1,6 @@
+key	old	new	reason
+active2@10:11	active2@10:11	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+emoji2@12:10	emoji2@12:10	emoji	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@53:13	position2@53:13	position	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@118:11	active2@118:11	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+emoji2@120:10	emoji2@120:10	emoji	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

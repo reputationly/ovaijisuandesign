@@ -1,0 +1,20 @@
+key	old	new	依据
+a2@201:13	a2	leftRound	groupSlotsByRound 按轮次键升序比较排序左侧的轮次值。
+b3@201:19	b3	rightRound	groupSlotsByRound 按轮次键升序比较排序右侧的轮次值。
+s2@215:30	s2	subNode	每个子节点被转换为对应的图片槽位。
+d2@293:9	d2	resolvedData	data 缺失时提供空对象的节点数据；与函数参数 data@283:3 冲突，故使用 resolvedData。
+id2@291:50	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+r2@318:13	r2	round	子图片的数值轮次用于更新当前最大轮次。
+node2@22:25	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@23:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@53:12	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@59:27	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@74:38	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@79:28	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@82:9	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@192:11	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+main2@205:30	main2	main	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@265:21	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+data2@283:3	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+view2@333:9	view2	view	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+max2@317:23	max2	max	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

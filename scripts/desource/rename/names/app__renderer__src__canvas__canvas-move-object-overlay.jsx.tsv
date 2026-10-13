@@ -1,0 +1,77 @@
+key	old	new	依据
+CanvasMoveObjectPanel2@22:12	CanvasMoveObjectPanel2	CanvasMoveObjectPanel	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+running2@25:14	running2	running	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+t2@32:16	t2	translate	该函数是 react-i18next 提供的翻译函数。
+e2@44:25	e2	pointerEvent	该参数是 pointerdown 回调收到的指针事件，用于阻止事件冒泡。
+e2@45:19	e2	wheelEvent	该参数是 wheel 回调收到的滚轮事件，用于阻止事件冒泡。
+e2@46:25	e2	contextMenuEvent	该参数是 contextmenu 回调收到的上下文菜单事件，用于阻止事件冒泡。
+e2@65:30	e2	mouseEvent	该参数是鼠标进入按钮时收到的事件，用于调整按钮透明度。
+e2@69:30	e2	mouseEvent	该参数是鼠标离开按钮时收到的事件，用于调整按钮透明度。
+e2@87:30	e2	mouseEvent	该参数是鼠标进入按钮时收到的事件，用于调整按钮透明度。
+e2@91:30	e2	mouseEvent	该参数是鼠标离开按钮时收到的事件，用于调整按钮透明度。
+e2@174:30	e2	mouseEvent	该参数是鼠标进入按钮时收到的事件，用于调整按钮透明度。
+e2@178:30	e2	mouseEvent	该参数是鼠标离开按钮时收到的事件，用于调整按钮透明度。
+e2@201:32	e2	mouseEvent	该参数是鼠标进入按钮时收到的事件，用于调整按钮透明度。
+e2@205:32	e2	mouseEvent	该参数是鼠标离开按钮时收到的事件，用于调整按钮透明度。
+active2@250:11	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@254:13	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+disabled2@270:13	disabled2	disabled	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@275:13	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+CanvasMoveObjectTopBar2@295:12	CanvasMoveObjectTopBar2	CanvasMoveObjectTopBar	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+tool2@296:11	tool2	tool	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+hasSelection2@298:19	hasSelection2	hasSelection	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+t2@302:16	t2	translate	该函数是 react-i18next 提供的翻译函数。
+e2@307:25	e2	pointerEvent	该参数是 pointerdown 回调收到的指针事件，用于阻止事件冒泡。
+e2@308:19	e2	wheelEvent	该参数是 wheel 回调收到的滚轮事件，用于阻止事件冒泡。
+e2@309:25	e2	contextMenuEvent	该参数是 contextmenu 回调收到的上下文菜单事件，用于阻止事件冒泡。
+url2@357:20	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+x2@379:8	x2	bboxLeft	该值是待裁剪矩形的左边界坐标。
+y4@379:12	y4	bboxTop	该值是待裁剪矩形的上边界坐标。
+w3@379:16	w3	bboxWidth	该值是待裁剪矩形的宽度。
+h2@379:20	h2	bboxHeight	该值是待裁剪矩形的高度。
+path2@386:23	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+x2@392:15	x2	pointX	该值是套索路径当前点的横坐标，用于更新外接框。
+y4@392:19	y4	pointY	该值是套索路径当前点的纵坐标，用于更新外接框。
+path2@416:47	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+i2@426:12	i2	pointIndex	该下标遍历套索路径的点，并用于区分首点和后续点。
+x2@428:11	x2	relativeX	该值是减去外接框偏移后、相对裁剪画布的横坐标。
+y4@429:11	y4	relativeY	该值是减去外接框偏移后、相对裁剪画布的纵坐标。
+dash2@474:9	dash2	dash	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+tool2@521:10	tool2	tool	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@555:15	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@575:12	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+url2@588:15	url2	url	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+x2@609:6	x2	targetX	该参数是移动对象目标选区的横坐标。
+y4@609:10	y4	targetY	该参数是移动对象目标选区的纵坐标。
+w3@612:20	w3	targetWidth	该值是上一次目标矩形的宽度。
+h2@612:24	h2	targetHeight	该值是上一次目标矩形的高度。
+t2@675:14	t2	translate	该函数是 react-i18next 提供的翻译函数。
+path2@688:11	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+x2@691:14	x2	imageX	该值是套索点换算到显示坐标后的横坐标。
+y4@691:18	y4	imageY	该值是套索点换算到显示坐标后的纵坐标。
+CanvasMoveObjectOverlay2@797:12	CanvasMoveObjectOverlay2	CanvasMoveObjectOverlay	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@798:19	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+transform2@800:11	transform2	transform	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+s2@800:34	s2	state	该参数是 Zustand store 的当前状态，用于读取视口变换数组。
+vpX@801:12	vpX	viewportX	该值是 React Flow 视口的水平平移量。
+vpY@801:17	vpY	viewportY	该值是 React Flow 视口的垂直平移量。
+tool2@810:13	tool2	tool	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@852:22	e2	keyboardEvent	该参数是 window keydown 监听器收到的键盘事件。
+e2@874:8	e2	pointerEvent	该参数是图像区域收到的指针按下事件。
+pt2@879:15	pt2	pt	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@924:8	e2	pointerEvent	该参数是图像区域收到的指针移动事件。
+pt22@926:17	pt22	pt	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+pt2@936:15	pt2	imagePoint	该值是当前指针位置换算出的图像坐标点；原词干 pt 与上方同一作用域的 pt@926:17 冲突，因此使用 imagePoint 区分。
+x2@940:17	x2	rectLeft	该值是矩形选区左边界的图像横坐标。
+y4@941:17	y4	rectTop	该值是矩形选区上边界的图像纵坐标。
+w3@942:17	w3	rectWidth	该值是矩形选区的图像宽度。
+h2@943:17	h2	rectHeight	该值是矩形选区的图像高度。
+last2@946:17	last2	last	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@960:8	e2	pointerEvent	该参数是图像区域收到的指针抬起事件。
+pt2@972:17	pt2	pt	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+x2@978:17	x2	rectLeft	该值是矩形选区左边界的图像横坐标。
+y4@979:17	y4	rectTop	该值是矩形选区上边界的图像纵坐标。
+w3@980:17	w3	rectWidth	该值是矩形选区的图像宽度。
+h2@981:17	h2	rectHeight	该值是矩形选区的图像高度。
+hasSelection2@1035:11	hasSelection2	hasSelection	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@1066:21	e2	wheelEvent	该参数是 wheel 回调收到的滚轮事件，用于阻止事件冒泡。

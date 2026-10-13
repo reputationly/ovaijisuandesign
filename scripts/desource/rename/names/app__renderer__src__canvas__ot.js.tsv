@@ -1,0 +1,146 @@
+key	old	new	依据
+Dn@4:10	Dn	chunkArguments	chunkArguments 将最多 chunkSize 个参数值切成一组，返回供 applyWithChunking 分批调用的数组。
+Re@18:10	Re	zipObject	zipObject 以 keys 为属性名、values 同下标值为属性值，折叠生成普通对象。
+e2@4:13	e2	values	chunkArguments 的原始参数值数组，超长调用时按切片分组。
+n2@4:17	n2	chunkSize	每个参数切片的上限，默认使用 MAX_CHUNK_SIZE。
+t2@5:7	t2	chunks	逐片收集 values 的结果数组。
+r2@6:12	r2	offset	当前切片在 values 中的起始下标。
+o2@7:9	o2	chunk	values.slice(offset, offset + chunkSize) 得到的单个参数块。
+e2@12:19	e2	fn	applyWithChunking 实际执行的被调用函数。
+n2@12:23	n2	values	传给 fn 的原始参数列表；超限时先经 chunkArguments 分组。
+t2@14:9	t2	chunks	将 fn 分批调用后得到的各批返回值。
+r2@15:26	r2	chunk	当前传回 fn 的参数块。
+e2@18:13	e2	keys	作为结果对象属性名的键数组。
+n2@18:17	n2	values	与 keys 按下标配对的属性值数组。
+t2@19:21	t2	result	reduce 正在构建的键值对象。
+r2@19:25	r2	key	当前写入 result 的属性名。
+o2@19:29	o2	index	当前 key 在 keys 中的下标，用来取对应 value。
+e2@21:20	e2	tree	由 parent 关系向上查找两节点最近共同祖先的树。
+n2@21:24	n2	nodeLowLim	各树节点 low/lim 区间属性的查找表。
+t2@21:28	t2	sourceId	路径起点节点 ID。
+r2@21:32	r2	targetId	路径终点节点 ID。
+o2@22:7	o2	pathToRoot	从 sourceId 向 parent 逐级收集的节点路径。
+i2@23:5	i2	pathFromRoot	从 targetId 向最近共同祖先收集的反向路径。
+s2@24:5	s2	lowerLim	两端 low 值的较小者，用于确定祖先区间。
+a2@25:5	a2	upperLim	两端 lim 值的较大者，用于确定祖先区间。
+d2@26:5	d2	currentNode	当前沿 parent 链向根移动的节点 ID。
+l2@30:7	l2	lowestCommonAncestor	两条 parent 路径首次相交的节点 ID。
+u4@31:5	u4	nodeId	从 targetId 向上遍历时当前节点 ID。
+e2@38:20	e2	dimensions	被交换宽高属性的尺寸对象。
+n2@39:7	n2	width	交换前 dimensions.width 的数值，交换后作为 height。
+e2@42:20	e2	point	被取反 y 坐标的点对象。
+e2@45:20	e2	point	被交换 x/y 坐标的点对象。
+n2@46:7	n2	x	交换前 point.x 的值，随后写入 point.y。
+e2@49:20	e2	graph	twoLayerCrossCount 查询上下层相邻边及其权重的有向图。
+n2@49:24	n2	upperLayer	作为边起点、当前顺序已确定的上层节点 ID。
+t2@49:28	t2	lowerLayer	作为边终点、用于统计交叉的下层节点 ID 顺序。
+r2@50:7	r2	orderByNodeId	把下层 node ID 映射到其数组位置的对象。
+o2@54:5	o2	edgeCandidates	按下层端点位置排序的边位置及其 weight 列表。
+i2@65:5	i2	leafOffset	线段树叶子基址，扩到不小于 lowerLayer.length 的 2 的幂。
+s2@67:7	s2	segmentTreeSize	存储线段树节点权重的数组长度。
+a2@69:7	a2	crossingWeights	线段树中每个区间累计的边权重。
+d2@70:5	d2	crossingCount	按边权乘此前累计权重求出的交叉总数。
+l2@52:15	l2	nodeId	upperLayer.flatMap 当前遍历的上层节点 ID。
+u4@52:19	u4	index	lowerLayer.map 当前节点在下层顺序中的数组下标。
+l2@54:22	l2	nodeId	构造 edgeCandidates 时当前上层节点 ID。
+u4@55:11	u4	outgoingEdges	graph 中从该上层节点发出的边。
+c3@58:19	c3	edge	由 outgoingEdges 映射出的边位置与 weight 记录。
+c3@62:20	c3	left	排序比较器左侧的边候选，按 pos 比较先后。
+h2@62:24	h2	right	排序比较器右侧的边候选，按 pos 比较先后。
+l2@72:17	l2	edgeCandidate	当前累加到线段树中的边候选记录。
+u4@73:11	u4	leafIndex	该候选边下层位置对应的线段树叶节点下标。
+c3@75:11	c3	crossingsBefore	当前边之前已累计、会与其相交的权重总和。
+e2@85:20	e2	graph	addSubgraphConstraints 查询节点 parent 链的 compound Graph。
+n2@85:24	n2	constraintGraph	addSubgraphConstraints 写入相邻顶层/同祖先子图先后关系的约束图。
+t2@85:28	t2	nodeIds	addSubgraphConstraints 按指定顺序处理的节点 ID 列表。
+r2@86:7	r2	nodeByAncestor	记录每个祖先下最近遇到的 child ID，用于连接相邻子图。
+o2@87:5	o2	previousTopLevelNode	跨顶层子图记录的前一个顶层 child ID。
+i2@88:15	i2	nodeId	当前沿 parent 链向上检查的原始节点 ID。
+s2@89:9	s2	parentId	nodeId 当前父节点 ID，循环逐层向上移动。
+a2@90:7	a2	grandparentId	parentId 的父节点 ID，用作 nodeByAncestor 的索引。
+d2@91:7	d2	previousNode	同一祖先下先前遇到的 sibling/顶层节点 ID。
+e2@105:13	e2	graph	查 dummy 节点 predecessor 与节点属性的 Graph；函数名分别见对应行。
+n2@105:17	n2	nodeId	findOtherInnerSegmentNode 正在检查是否含 dummy predecessor 的节点 ID。
+t2@107:9	t2	predecessorIds	findOtherInnerSegmentNode 返回的前驱节点 ID 列表。
+r2@108:29	r2	predecessorId	列表中首个仍为 dummy 的前驱节点 ID。
+e2@111:20	e2	conflictMap	以 firstNode 为键存放冲突节点集合的对象。
+n2@111:24	n2	firstNode	addConflict/hasConflict 排序后的较小节点 ID。
+t2@111:28	t2	secondNode	addConflict/hasConflict 排序后的较大节点 ID。
+r2@116:7	r2	conflictsByFirstNode	conflictMap[firstNode] 对应的冲突节点集合。
+o2@113:9	o2	originalFirstNode	交换 firstNode 与 secondNode 前保留的原始 firstNode。
+e2@119:20	e2	graph	findType1Conflicts 读取 dummy 节点、边端点和节点 order 的图。
+n2@119:24	n2	layers	按 rank 排列的节点层序列。
+t2@120:7	t2	conflictMap	累积记录 firstNode/secondNode 冲突对的对象。
+r2@121:12	r2	findLayerConflicts	findType1Conflicts 内按相邻两层扫描 Type-1 冲突的回调。
+o2@121:15	o2	upperLayer	当前层的上一层，用于比较 predecessor order。
+i2@121:19	i2	currentLayer	当前扫描的下一层节点序列。
+s2@122:9	s2	previousOrder	上一个 inner segment 左边界的 order。
+a2@123:7	a2	layerStart	当前尚未处理区间在 currentLayer 中的起始下标。
+d2@124:7	d2	previousLayerEnd	上一层长度，作为没有 inner segment 时的右边界 order。
+l2@125:7	l2	lastNode	currentLayer 的最后一个节点 ID；扫描到它时收尾最后一段冲突检测，对应 dagre findType1Conflicts 的 lastNode。
+u4@127:19	u4	nodeId	currentLayer.forEach 当前处理的节点 ID。
+c3@127:23	c3	order	nodeId 在 currentLayer 中的数组下标。
+h2@128:13	h2	innerSegmentNode	xt 返回的、连接当前 dummy 链的前驱 dummy 节点 ID。
+f2@129:11	f2	boundaryOrder	inner segment 前驱的 order，或上一层末尾位置。
+g2@131:42	g2	currentNodeId	当前待检查其 predecessor 冲突的节点 ID。
+b3@132:17	b3	predecessorIds	graph.predecessors(currentNodeId) 返回的前驱 ID 列表。
+m3@134:27	m3	predecessorId	当前检查的前驱节点 ID。
+E3@135:21	E3	predecessorNode	graph.node(predecessorId) 返回的前驱节点标签。
+y4@136:19	y4	predecessorOrder	前驱节点在其层中的 order。
+e2@150:13	e2	conflictMap	hasConflict 查询冲突对的嵌套记录对象。
+n2@150:17	n2	firstNode	规范化顺序后冲突对中较小的节点 ID。
+t2@150:21	t2	secondNode	规范化顺序后冲突对中较大的节点 ID。
+r2@155:7	r2	conflictsByFirstNode	conflictMap[firstNode] 的节点冲突集合。
+o2@152:9	o2	originalFirstNode	交换端点前保存的 firstNode。
+e2@158:20	e2	graph	verticalAlignment 用于查询各节点宽度及图关系的 Graph。
+n2@158:24	n2	layers	需按 predecessor 中位顺序建立对齐关系的节点层。
+t2@158:28	t2	constraintGraph	阻止发生 Type-1 冲突的有向约束图。
+r2@158:32	r2	predecessorIds	返回各节点候选前驱 ID 的方向访问器。
+o2@159:7	o2	rootByNode	将每个节点映射到其垂直对齐 root 的对象。
+i2@160:5	i2	alignmentByNode	记录每个节点对齐到的 predecessor/root 节点。
+s2@161:5	s2	positionByNode	记录每层节点的 order 下标。
+a2@163:17	a2	layer	verticalAlignment 正在初始化位置表的节点层。
+d2@164:19	d2	nodeId	该层中当前初始化 root/alignment/position 的节点 ID。
+l2@164:23	l2	order	nodeId 在 layer 中的顺序下标。
+a2@168:17	a2	layer	verticalAlignment 正在按前驱尝试对齐的节点层。
+d2@169:11	d2	previousAlignedOrder	当前层中最近成功对齐的 predecessor order。
+l2@170:19	l2	nodeId	当前尝试与前驱垂直对齐的节点 ID。
+u4@171:13	u4	predecessorCandidates	predecessorIds(nodeId) 返回的候选前驱 ID。
+c3@173:15	c3	sortedPredecessors	按 positionByNode 顺序排列的候选前驱。
+h2@178:13	h2	medianIndex	候选 predecessor 序列的中位下标。
+f2@173:29	f2	left	排序 comparator 左侧候选前驱的 ID。
+g2@173:33	g2	right	排序 comparator 右侧候选前驱的 ID。
+b3@174:19	b3	leftOrder	positionByNode[left] 的层内顺序位置。
+m3@175:17	m3	rightOrder	positionByNode[right] 的层内顺序位置。
+f2@179:20	f2	index	从 floor(medianIndex) 扫到 ceil(medianIndex) 的候选数组下标。
+g2@179:41	g2	upperMedianIndex	中位数为半整数时的上侧候选下标。
+b3@180:17	b3	predecessorId	当前中位候选前驱节点 ID。
+m3@182:17	m3	predecessorOrder	前驱节点在其所在层中的 order。
+E3@184:19	E3	rootId	rootByNode[predecessorId] 找到的已有对齐根节点 ID。
+e2@198:13	e2	graph	getNodeWidth 从中读取节点 width 的 Graph。
+n2@198:17	n2	nodeId	待读取宽度的节点 ID。
+e2@201:20	e2	graph	findSmallestWidthAlignment 用来查询节点宽度的 Graph。
+n2@201:24	n2	alignments	四种候选方向各自的节点水平位置映射。
+t2@203:6	t2	bestWidthAndAlignment	当前最小总宽度及对应 alignment 的二元组。
+r2@203:10	r2	alignment	当前比较宽度的单一节点位置映射。
+o2@204:11	o2	rightmost	当前 alignment 节点最右侧的半宽边界坐标。
+i2@205:9	i2	leftmost	当前 alignment 节点最左侧的半宽边界坐标。
+s2@210:11	s2	width	本次 alignment 的 rightmost - leftmost 总宽度。
+a2@206:36	a2	nodeId	alignment 中当前节点 ID。
+d2@206:40	d2	position	当前节点中心的水平坐标。
+l2@207:13	l2	halfNodeWidth	getNodeWidth 返回的半节点宽度，用于计算两侧边界。
+export:L	L	applyWithChunking	Dagre util.js 的 applyWithChunking：参数超限时分块调用 fn 并汇总结果；导出名暂不改。
+export:dt	dt	findPath	dt 沿 tree.parent 拼接 sourceId 到 targetId 的路径并返回最近公共祖先；提议 findPath，导出名暂不改。
+export:en	en	swapWidthHeight	en 交换 dimensions.width 与 dimensions.height；提议名直接描述尺寸变换。
+export:ne	ne	invertY	ne 将 point.y 乘以 -1；提议名说明纵坐标反转。
+export:te	te	swapXY	te 交换 point.x 与 point.y；提议名说明坐标轴互换。
+export:mt	mt	twoLayerCrossCount	Dagre order/cross-count.ts 的 twoLayerCrossCount：用权重线段树统计相邻两层边交叉数；导出名暂不改。
+export:le	le	addSubgraphConstraints	Dagre order/add-subgraph-constraints.ts 的 addSubgraphConstraints：把 compound 节点的层级相邻约束写入 constraintGraph；导出名暂不改。
+export:dn	dn	addConflict	Dagre position/bk.ts 的 addConflict：按节点 ID 排序后登记冲突对；导出名暂不改。
+export:vt	vt	findType1Conflicts	Dagre position/bk.ts 的 findType1Conflicts：扫描相邻层 inner segment 与边界顺序并登记 Type-1 冲突；导出名暂不改。
+export:Ot	Ot	verticalAlignment	Dagre position/bk.ts 的 verticalAlignment：按中位前驱建立无冲突的垂直对齐并返回 root/align 表；导出名暂不改。
+export:Rt	Rt	findSmallestWidthAlignment	Dagre position/bk.ts 的 findSmallestWidthAlignment：返回总节点宽度最小的候选对齐；导出名暂不改。
+file:ot.js	ot.js	dagre-layout-utils.js	ot.js 汇集 dagre 参数分块、树路径、两层交叉、子图约束和 bk 对齐工具；建议以用途重命名。
+Ie@3:5	Ie	MAX_CHUNK_SIZE	该常量限制每次调用 fn 时传入的参数分块大小，值为 65535。
+Tt@150:10	Tt	hasConflict	先按节点顺序规范化 firstNode 与 secondNode，再查询两者是否记录为冲突；对应 dagre lib/position/bk.ts 的 hasConflict。
+St@198:10	St	getNodeWidth	返回 graph 中 nodeId 对应节点的 width；对应 dagre lib/position/bk.ts 的 width，但为避免与 en 中的 width@39:7 冲突，改用 getNodeWidth。

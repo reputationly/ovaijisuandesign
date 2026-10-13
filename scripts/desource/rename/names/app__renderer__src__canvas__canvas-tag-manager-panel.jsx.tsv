@@ -1,0 +1,10 @@
+key	old	new	依据
+t2@33:14	t2	translate	CanvasTagManagerPanel 用该翻译器显示标签管理及操作反馈文案。
+Input3@21:10	Input3	Input	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+resolveName2@35:9	resolveName2	resolveName	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+registry2@37:15	registry2	registry	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleDelete2@144:9	handleDelete2	handleDelete	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@80:11	name2	trimmedName	该值是去除首尾空格后的新标签名称；与全局绑定 name 冲突，故使用 trimmedName。
+patch2@115:19	patch2	patch	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@120:42	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@132:11	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

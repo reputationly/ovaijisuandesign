@@ -1,0 +1,11 @@
+key	old	new	依据
+t2@51:14	t2	translate	该函数翻译高数量删除确认对话框的标题、说明和按钮文本。
+e2@110:31	e2	mouseEvent	document mousedown 监听器用该事件 target 判断是否点击菜单外。
+e2@116:29	e2	keyboardEvent	document keydown 监听器检查 Escape 并处理键盘事件。
+instance2@50:57	instance2	instance	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleMouseDown2@110:11	handleMouseDown2	handleMouseDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleKeyDown2@116:11	handleKeyDown2	handleKeyDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+timer2@125:11	timer2	timer	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@136:66	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+content2@159:9	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@174:9	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

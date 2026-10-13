@@ -84,7 +84,7 @@ import {
   getParentDir,
   joinFilePath,
 } from "../assets/use-file-explorer-canvas-integration.js";
-import { getFileName as getFileName$1 } from "./uploading-assets.jsx";
+import { getFileName as getFileNameFromPath } from "./uploading-assets.jsx";
 import { requestNodeRename } from "./use-inline-rename.jsx";
 import { hiloMediaPlugin } from "./hilo-media-plugin.js";
 import {
@@ -186,16 +186,16 @@ export function CanvasArea({
   assetPanelOpen = false,
   assetPanelControlsId,
   onToggleAssetPanel,
-  isActive: isActive2,
+  isActive,
   isPresented,
-  workspaceId: workspaceId2,
+  workspaceId,
   workspaceName,
   getTextEditCloseBlockReason,
   toolbarPlacement = "top-right",
   layoutRelocationKey,
 }) {
   const { openTab } = useCanvasSidebar();
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const canvasSubmissionControls = useAccountSubmissionControls("canvas");
   const { resolved: resolvedTheme } = useTheme();
   const sessionStore = useSessionStore();
@@ -215,21 +215,21 @@ export function CanvasArea({
   );
   const htmlFullscreenApi = htmlFullscreenStore;
   reactExports.useEffect(() => {
-    if (isActive2 !== false) return;
+    if (isActive !== false) return;
     const fullscreenNodeId = htmlFullscreenApi.getState().nodeId;
     if (fullscreenNodeId) htmlFullscreenApi.getState().exit(fullscreenNodeId);
-  }, [htmlFullscreenApi, isActive2]);
+  }, [htmlFullscreenApi, isActive]);
   reactExports.useEffect(() => {
-    if (isActive2 === false) return;
+    if (isActive === false) return;
     return sessionStore.onPluginEditorOpen(({ nodeId, initialMessage }) => {
       if (initialMessage) {
         workspaceEvents.queuePluginDispatchMessage(nodeId, initialMessage);
       }
       htmlFullscreenApi.getState().enter(nodeId);
     });
-  }, [htmlFullscreenApi, isActive2, sessionStore]);
+  }, [htmlFullscreenApi, isActive, sessionStore]);
   const modelRegistryStore = useModelRegistryApi();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const clipboardService = reactExports.useMemo(
     () =>
       instantiationService.invokeFunction((accessor) =>
@@ -237,7 +237,7 @@ export function CanvasArea({
       ),
     [],
   );
-  const logService2 = reactExports.useMemo(
+  const logService = reactExports.useMemo(
     () =>
       instantiationService.invokeFunction((accessor) =>
         accessor.get(ILogService),
@@ -251,7 +251,7 @@ export function CanvasArea({
     () =>
       JSON.stringify([
         accountCatalogScopeKey,
-        workspaceId2,
+        workspaceId,
         gatewayBinding?.instanceId ?? "gateway-unbound",
         gatewayBinding?.generation ?? 0,
       ]),
@@ -259,18 +259,18 @@ export function CanvasArea({
       accountCatalogScopeKey,
       gatewayBinding?.generation,
       gatewayBinding?.instanceId,
-      workspaceId2,
+      workspaceId,
     ],
   );
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const { handleCancelGeneration, handleDismissUnknownGeneration } =
     useGenerationLifecycleActions({
-      gatewayFetch: gatewayFetch2,
-      t: t2,
+      gatewayFetch,
+      t: translate,
     });
   const importExternalToVault = useImportExternalFiles();
   const anchorProjectAssets = useAnchorProjectAssets();
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const dropEntityMutation = useDropEntityToCanvas();
   const materializeEntityMutation = useMaterializeEntity();
   const {
@@ -282,16 +282,16 @@ export function CanvasArea({
     reactExports.useState("loading");
   const [canvasHelpOpen, setCanvasHelpOpen] = reactExports.useState(false);
   const { contextMenu, setContextMenu, closeNodeContextMenu } =
-    useNodeContextMenuState(isActive2);
+    useNodeContextMenuState(isActive);
   const canvasViewRef = reactExports.useRef(null);
   const quickTags = useCanvasQuickTags({
     canvasViewRef,
     closeNodeContextMenu,
-    isActive: isActive2,
+    isActive,
     isPresented,
     toolbarPlacement,
     workspaceAssets,
-    workspaceId: workspaceId2,
+    workspaceId,
     workspaceRoot: currentWorkspace ?? void 0,
   });
   const [saveToProjectAssets, setSaveToProjectAssets] =
@@ -308,14 +308,14 @@ export function CanvasArea({
     saveAs,
     saveManyAs,
     showInFolder,
-    isImageExtension: isImageExtension2,
-    getFileName: getFileName2,
+    isImageExtension,
+    getFileName,
   } = useMediaActions();
   const { data: pricingData } = usePricingConfig();
   const { videoStarterPresets } = useHubClientConfig();
   const {
     status: hailuo03VideoTrialStatus,
-    claim: claimHailuo03VideoTrial2,
+    claim: claimHailuo03VideoTrial,
     refresh: refreshHailuo03VideoTrial,
   } = useHailuo03VideoTrial();
   const nodeErrorFeedback = useCanvasNodeErrorFeedback();
@@ -323,8 +323,8 @@ export function CanvasArea({
   const trialGranted = useTrialGrantedPopup(user?.userID);
   const { currentWorkspaceId } = useTopbarState();
   const { activateWorkspace } = useTopbarActions();
-  const isActiveRef = reactExports.useRef(isActive2 ?? false);
-  isActiveRef.current = isActive2 ?? false;
+  const isActiveRef = reactExports.useRef(isActive ?? false);
+  isActiveRef.current = isActive ?? false;
   const {
     handleToolbarPromoteToAsset,
     promoteMenuActions,
@@ -342,11 +342,11 @@ export function CanvasArea({
   );
   const handleNewNodesNavigate = reactExports.useCallback(
     (nodeIds) => {
-      if (!workspaceId2 || nodeIds.length === 0) return;
+      if (!workspaceId || nodeIds.length === 0) return;
       const firstId = nodeIds[0];
-      navigateAndFocusCanvas(workspaceId2, firstId);
+      navigateAndFocusCanvas(workspaceId, firstId);
     },
-    [workspaceId2, navigateAndFocusCanvas],
+    [workspaceId, navigateAndFocusCanvas],
   );
   const handleCanvasTasksChange = useCanvasGenerationReconcile({
     onCanvasTasksChange,
@@ -369,35 +369,35 @@ export function CanvasArea({
   }, [assetMetadataStore, modelRegistryStore]);
   const handleNodeContextMenu = reactExports.useCallback(
     (event, nodes, actions) => {
-      const targets = nodes.map((n2) => ({
-        nodeId: n2.nodeId,
-        nodeType: n2.nodeType,
-        filePath: n2.filePath,
+      const targets = nodes.map((node) => ({
+        nodeId: node.nodeId,
+        nodeType: node.nodeType,
+        filePath: node.filePath,
         absolutePath:
-          n2.filePath && currentWorkspace
-            ? joinFilePath(currentWorkspace, n2.filePath)
-            : n2.filePath,
-        fileType: n2.fileType,
-        title: n2.title,
-        width: n2.width,
-        height: n2.height,
-        isMultiImage: n2.isMultiImage,
-        isGenerating: n2.isGenerating,
-        generationErrorStatus: n2.generationErrorStatus,
+          node.filePath && currentWorkspace
+            ? joinFilePath(currentWorkspace, node.filePath)
+            : node.filePath,
+        fileType: node.fileType,
+        title: node.title,
+        width: node.width,
+        height: node.height,
+        isMultiImage: node.isMultiImage,
+        isGenerating: node.isGenerating,
+        generationErrorStatus: node.generationErrorStatus,
       }));
-      const point2 = {
+      const point = {
         x: event.clientX,
         y: event.clientY,
       };
       setContextMenu({
-        ...point2,
+        ...point,
         targets,
         // Merge in the desktop-side save actions — canvas doesn't know about
         // the material library / project assets, so the right-click items
         // route through useCanvasAssetPromotion's menu actions.
         actions: {
           ...actions,
-          ...promoteMenuActions(point2),
+          ...promoteMenuActions(point),
         },
       });
     },
@@ -407,21 +407,21 @@ export function CanvasArea({
     (target) => {
       if (!target.absolutePath) return;
       const ext = target.absolutePath.split(".").pop()?.toLowerCase() ?? "";
-      if (isImageExtension2(ext)) {
+      if (isImageExtension(ext)) {
         copyImage(target.absolutePath);
       } else {
         copyFile(target.absolutePath);
       }
     },
-    [copyImage, copyFile, isImageExtension2],
+    [copyImage, copyFile, isImageExtension],
   );
   const handleMenuSaveAs = reactExports.useCallback(
     (target) => {
       if (!target.absolutePath) return;
-      const fileName = getFileName2(target.absolutePath);
+      const fileName = getFileName(target.absolutePath);
       saveAs(target.absolutePath, fileName);
     },
-    [saveAs, getFileName2],
+    [saveAs, getFileName],
   );
   const handleMenuShowInFolder = reactExports.useCallback(
     (target) => {
@@ -449,25 +449,25 @@ export function CanvasArea({
       const absolutePath = currentWorkspace
         ? joinFilePath(currentWorkspace, filePath)
         : filePath;
-      saveAs(absolutePath, fileName ?? getFileName2(absolutePath));
+      saveAs(absolutePath, fileName ?? getFileName(absolutePath));
     },
-    [currentWorkspace, saveAs, getFileName2],
+    [currentWorkspace, saveAs, getFileName],
   );
   const handleNodeSaveUrlAs = reactExports.useCallback(
-    (url2, fileName) => {
-      if (!url2) return;
+    (url, fileName) => {
+      if (!url) return;
       const resolvedUrl =
-        url2.startsWith("/files/") || url2.startsWith("/api/")
-          ? (gatewayUrl2(url2) ?? url2)
-          : url2;
-      saveAs(resolvedUrl, fileName ?? getFileName2(resolvedUrl));
+        url.startsWith("/files/") || url.startsWith("/api/")
+          ? (gatewayUrl(url) ?? url)
+          : url;
+      saveAs(resolvedUrl, fileName ?? getFileName(resolvedUrl));
     },
-    [gatewayUrl2, saveAs, getFileName2],
+    [gatewayUrl, saveAs, getFileName],
   );
   const resolveDownloadSource = reactExports.useCallback(
     (filePath) => {
       if (filePath.startsWith("/files/") || filePath.startsWith("/api/")) {
-        return gatewayUrl2(filePath) ?? filePath;
+        return gatewayUrl(filePath) ?? filePath;
       }
       if (/^[a-z][a-z\d+.-]*:/i.test(filePath) || filePath.startsWith("/")) {
         return filePath;
@@ -476,7 +476,7 @@ export function CanvasArea({
         ? joinFilePath(currentWorkspace, filePath)
         : filePath;
     },
-    [currentWorkspace, gatewayUrl2],
+    [currentWorkspace, gatewayUrl],
   );
   const handleNodeSaveManyAs = reactExports.useCallback(
     (files) => {
@@ -486,12 +486,12 @@ export function CanvasArea({
           const absolutePath = resolveDownloadSource(file.filePath);
           return {
             filePath: absolutePath,
-            fileName: file.fileName ?? getFileName2(absolutePath),
+            fileName: file.fileName ?? getFileName(absolutePath),
           };
         });
       saveManyAs(resolvedFiles);
     },
-    [resolveDownloadSource, saveManyAs, getFileName2],
+    [resolveDownloadSource, saveManyAs, getFileName],
   );
   const handleNodeCopyImage = reactExports.useCallback(
     (source) => {
@@ -506,12 +506,12 @@ export function CanvasArea({
         if (!target.filePath) continue;
         const filename =
           target.fileType === "table"
-            ? `${target.title || t2("canvas.table.untitled", "Untitled table")}.htable`
+            ? `${target.title || translate("canvas.table.untitled", "Untitled table")}.htable`
             : (target.filePath.split("/").pop() ?? target.filePath);
         workspaceEvents.fireAddToChat(target.filePath, filename, target.nodeId);
       }
     },
-    [t2],
+    [translate],
   );
   const handleAddToChatFromNode = reactExports.useCallback(
     (filePath, filename, nodeId) => {
@@ -523,11 +523,11 @@ export function CanvasArea({
     workspaceEvents.fireAddPluginNodeToChat(args);
   }, []);
   const handleTextEditActiveChange = reactExports.useCallback(
-    (session, active2) => {
-      if (!workspaceId2) return;
-      if (active2) closeNodeContextMenu();
-      workspaceEvents.fireTextEditActive(workspaceId2, session, active2);
-      gatewayFetch2("/api/canvas/text-edit-state", {
+    (session, active) => {
+      if (!workspaceId) return;
+      if (active) closeNodeContextMenu();
+      workspaceEvents.fireTextEditActive(workspaceId, session, active);
+      gatewayFetch("/api/canvas/text-edit-state", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -535,16 +535,16 @@ export function CanvasArea({
         body: JSON.stringify({
           nodeId: session.nodeId,
           editSessionId: session.editSessionId,
-          active: active2,
+          active,
         }),
       }).catch((err) => {
         console.warn("[CanvasArea] text-edit-state sync failed:", err);
       });
     },
-    [workspaceId2, gatewayFetch2, closeNodeContextMenu],
+    [workspaceId, gatewayFetch, closeNodeContextMenu],
   );
   const trackPluginEditActiveChange = usePluginEditorActiveChangeTracking(
-    workspaceId2,
+    workspaceId,
     closeNodeContextMenu,
   );
   const {
@@ -556,71 +556,71 @@ export function CanvasArea({
   );
   const handleTextNodeRemoved = reactExports.useCallback(
     (nodeId) => {
-      if (!workspaceId2) return;
-      workspaceEvents.fireTextNodeRemoved(workspaceId2, nodeId);
+      if (!workspaceId) return;
+      workspaceEvents.fireTextNodeRemoved(workspaceId, nodeId);
     },
-    [workspaceId2],
+    [workspaceId],
   );
   const handleTextEditSelectionChange = reactExports.useCallback(
-    (session, selection2) => {
-      if (!workspaceId2) return;
-      workspaceEvents.fireTextEditSelection(workspaceId2, session, selection2);
+    (session, selection) => {
+      if (!workspaceId) return;
+      workspaceEvents.fireTextEditSelection(workspaceId, session, selection);
     },
-    [workspaceId2],
+    [workspaceId],
   );
   const handleAnnotationsChange = reactExports.useCallback(
     (session, annotations) => {
-      if (!workspaceId2) return;
+      if (!workspaceId) return;
       workspaceEvents.fireAnnotationsChanged(
-        workspaceId2,
+        workspaceId,
         session,
         annotations,
       );
     },
-    [workspaceId2],
+    [workspaceId],
   );
   const handleAnnotationActivate = reactExports.useCallback(
-    (session, id2) => {
-      if (!workspaceId2) return;
-      workspaceEvents.fireAnnotationActivated(workspaceId2, session, id2);
+    (session, id) => {
+      if (!workspaceId) return;
+      workspaceEvents.fireAnnotationActivated(workspaceId, session, id);
     },
-    [workspaceId2],
+    [workspaceId],
   );
   const subscribeAnnotationCommand = reactExports.useCallback(
     (session, cb) => {
-      const d2 = workspaceEvents.onAnnotationCommand((e2) => {
+      const subscription = workspaceEvents.onAnnotationCommand((commandEvent) => {
         if (
-          e2.workspaceId !== workspaceId2 ||
-          e2.nodeId !== session.nodeId ||
-          e2.editSessionId !== session.editSessionId
+          commandEvent.workspaceId !== workspaceId ||
+          commandEvent.nodeId !== session.nodeId ||
+          commandEvent.editSessionId !== session.editSessionId
         ) {
           return;
         }
-        cb(e2.command);
+        cb(commandEvent.command);
       });
-      return () => d2.dispose();
+      return () => subscription.dispose();
     },
-    [workspaceId2],
+    [workspaceId],
   );
   reactExports.useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const resp = await gatewayFetch2("/api/plugins");
+        const resp = await gatewayFetch("/api/plugins");
         if (!resp.ok) return;
-        const data2 = await resp.json();
+        const data = await resp.json();
         if (cancelled) return;
-        const list2 = data2.plugins ?? [];
+        const list = data.plugins ?? [];
         setPluginMetas(
-          list2.map((p3) => ({
-            id: p3.id,
-            name: p3.name,
-            description: p3.description,
-            iconUrl: p3.iconUrl,
-            version: p3.version,
-            source: p3.source,
-            displayMode: p3.displayMode,
-            agent: p3.agent,
+          list.map((plugin) => ({
+            id: plugin.id,
+            name: plugin.name,
+            description: plugin.description,
+            iconUrl: plugin.iconUrl,
+            version: plugin.version,
+            source: plugin.source,
+            displayMode: plugin.displayMode,
+            agent: plugin.agent,
           })),
         );
       } catch {}
@@ -628,7 +628,7 @@ export function CanvasArea({
     return () => {
       cancelled = true;
     };
-  }, [gatewayFetch2]);
+  }, [gatewayFetch]);
   const scopedHttpClient = useScopedHttpClient();
   const httpClient = scopedHttpClient ?? GATEWAY_NOT_READY_HTTP_CLIENT;
   const assetMutator = useAssetMutator(httpClient);
@@ -648,7 +648,7 @@ export function CanvasArea({
     handlePersistenceControllerChange,
     handlePersistenceStatusChange,
   } = useWorkspaceCanvasPersistence({
-    workspaceId: workspaceId2,
+    workspaceId,
     gatewayInstanceId: gatewayBinding?.instanceId,
     httpClient: scopedHttpClient,
     sessionStore: sessionStoreBridge,
@@ -659,7 +659,7 @@ export function CanvasArea({
       sessionStore,
       status: hailuo03VideoTrialStatus,
       refresh: refreshHailuo03VideoTrial,
-      t: t2,
+      t: translate,
     });
   const { handleImg2Video, listVideoModels } = useImg2Video({
     httpClient,
@@ -692,17 +692,17 @@ export function CanvasArea({
   );
   const cancelQueueNodeIdsRef = reactExports.useRef(new Set());
   const setRetryGenerationPending = reactExports.useCallback(
-    (nodeId, pending2) => {
-      const current2 = retryGenerationNodeIdsRef.current;
-      if (current2.has(nodeId) === pending2) return;
-      const next2 = new Set(current2);
-      if (pending2) {
-        next2.add(nodeId);
+    (nodeId, pending) => {
+      const current = retryGenerationNodeIdsRef.current;
+      if (current.has(nodeId) === pending) return;
+      const next = new Set(current);
+      if (pending) {
+        next.add(nodeId);
       } else {
-        next2.delete(nodeId);
+        next.delete(nodeId);
       }
-      retryGenerationNodeIdsRef.current = next2;
-      setRetryGenerationNodeIds(next2);
+      retryGenerationNodeIdsRef.current = next;
+      setRetryGenerationNodeIds(next);
     },
     [],
   );
@@ -710,17 +710,17 @@ export function CanvasArea({
     (nodeId) => retryGenerationNodeIds.has(nodeId),
     [retryGenerationNodeIds],
   );
-  const setCancelQueuePending = reactExports.useCallback((nodeId, pending2) => {
-    const current2 = cancelQueueNodeIdsRef.current;
-    if (current2.has(nodeId) === pending2) return;
-    const next2 = new Set(current2);
-    if (pending2) {
-      next2.add(nodeId);
+  const setCancelQueuePending = reactExports.useCallback((nodeId, pending) => {
+    const current = cancelQueueNodeIdsRef.current;
+    if (current.has(nodeId) === pending) return;
+    const next = new Set(current);
+    if (pending) {
+      next.add(nodeId);
     } else {
-      next2.delete(nodeId);
+      next.delete(nodeId);
     }
-    cancelQueueNodeIdsRef.current = next2;
-    setCancelQueueNodeIds(next2);
+    cancelQueueNodeIdsRef.current = next;
+    setCancelQueueNodeIds(next);
   }, []);
   const isCancelGenerationQueuePending = reactExports.useCallback(
     (nodeId) => cancelQueueNodeIds.has(nodeId),
@@ -732,7 +732,7 @@ export function CanvasArea({
       setCancelQueuePending(nodeId, true);
       const startedAt = Date.now();
       try {
-        const resp = await gatewayFetch2(API_PATHS.generationQueueCancel, {
+        const resp = await gatewayFetch(API_PATHS.generationQueueCancel, {
           method: "POST",
           headers: {
             "content-type": "application/json",
@@ -752,7 +752,7 @@ export function CanvasArea({
           status: resp.status,
           paused: result?.paused,
         });
-        dedupedToast.success(t2("canvas.queueCancelSubmitted"));
+        dedupedToast.success(translate("canvas.queueCancelSubmitted"));
       } catch (err) {
         canvasLog.error("cancel-generation-queue failed", {
           nodeId,
@@ -764,12 +764,12 @@ export function CanvasArea({
           errorCause:
             err instanceof Error && err.cause ? String(err.cause) : void 0,
         });
-        dedupedToast.error(t2("canvas.queueCancelFailed"));
+        dedupedToast.error(translate("canvas.queueCancelFailed"));
       } finally {
         setCancelQueuePending(nodeId, false);
       }
     },
-    [gatewayFetch2, setCancelQueuePending, t2],
+    [gatewayFetch, setCancelQueuePending, translate],
   );
   const handleRetryGeneration = reactExports.useCallback(
     async (nodeId, payload) => {
@@ -836,11 +836,11 @@ export function CanvasArea({
           );
         }
         if (result.success) {
-          dedupedToast.success(t2("canvas.retryGeneration.submitted"));
+          dedupedToast.success(translate("canvas.retryGeneration.submitted"));
         }
       } catch (err) {
         console.error("[canvas] retry generation failed:", err);
-        dedupedToast.error(t2("canvas.retryGeneration.failed"));
+        dedupedToast.error(translate("canvas.retryGeneration.failed"));
       } finally {
         setRetryGenerationPending(nodeId, false);
       }
@@ -851,7 +851,7 @@ export function CanvasArea({
       handleTxt2Text,
       handleTxt2Audio,
       setRetryGenerationPending,
-      t2,
+      translate,
     ],
   );
   const { getLastUsedModelParams, saveLastUsedModelParams } =
@@ -871,7 +871,7 @@ export function CanvasArea({
         });
         if (!res.ok) {
           dedupedToast.error(
-            t2("canvas.voiceIsolate.error", {
+            translate("canvas.voiceIsolate.error", {
               defaultValue: "Voice isolation failed",
             }),
           );
@@ -879,13 +879,13 @@ export function CanvasArea({
       } catch (err) {
         console.error("[canvas] voice isolation failed:", err);
         dedupedToast.error(
-          t2("canvas.voiceIsolate.error", {
+          translate("canvas.voiceIsolate.error", {
             defaultValue: "Voice isolation failed",
           }),
         );
       }
     },
-    [httpClient, t2],
+    [httpClient, translate],
   );
   useCanvasModelRegistryHydration({
     enabled: Boolean(scopedHttpClient) && gatewayReady,
@@ -897,18 +897,18 @@ export function CanvasArea({
     fetchAudioModels,
   });
   const handleSaveTextContent = reactExports.useCallback(
-    async (filePath, content2) => {
-      await httpClient.writeContent(filePath, content2);
+    async (filePath, content) => {
+      await httpClient.writeContent(filePath, content);
     },
     [httpClient],
   );
   const handleDeleteTextFileIfEmpty = reactExports.useCallback(
     async (filePath) => {
       try {
-        const content2 = await readAssetContent({
+        const content = await readAssetContent({
           path: filePath,
         });
-        if (content2.trim().length > 0) return;
+        if (content.trim().length > 0) return;
         await removeAsset({
           paths: [filePath],
         });
@@ -927,29 +927,29 @@ export function CanvasArea({
         });
         const newPath = res.new_path;
         const newDisplayName = res.new_name ?? newName;
-        assetMetadataStore.setState((state2) => {
-          const next2 = new Map(state2.assets);
-          for (const [key2, meta2] of next2) {
-            if (meta2.path === currentPath) {
-              next2.set(key2, {
-                ...meta2,
+        assetMetadataStore.setState((state) => {
+          const next = new Map(state.assets);
+          for (const [key, meta] of next) {
+            if (meta.path === currentPath) {
+              next.set(key, {
+                ...meta,
                 path: newPath,
                 name: newDisplayName,
               });
             }
           }
           return {
-            assets: next2,
+            assets: next,
           };
         });
         workspaceEvents.fireAssetRenamed(currentPath, newPath, newDisplayName);
         return res.new_path;
       } catch {
-        dedupedToast.error(t2("canvas.renameFailed"));
+        dedupedToast.error(translate("canvas.renameFailed"));
         return null;
       }
     },
-    [assetMetadataStore, httpClient, t2],
+    [assetMetadataStore, httpClient, translate],
   );
   const handleForkAsset = reactExports.useCallback(
     async (sourcePath, newName) => {
@@ -965,7 +965,7 @@ export function CanvasArea({
         );
         const store = assetMetadataStore.getState();
         const sourceMeta = Array.from(store.assets.values()).find(
-          (m3) => m3.path === sourcePath,
+          (asset) => asset.path === sourcePath,
         );
         if (sourceMeta) {
           store.merge(res.new_id, {
@@ -982,16 +982,16 @@ export function CanvasArea({
           name: res.new_name,
         };
       } catch {
-        dedupedToast.error(t2("canvas.renameFailed"));
+        dedupedToast.error(translate("canvas.renameFailed"));
         return null;
       }
     },
-    [assetMetadataStore, assetMutator, httpClient, t2],
+    [assetMetadataStore, assetMutator, httpClient, translate],
   );
   const handleSplitSubImageToNode = reactExports.useCallback(
     async (nodeId, imageIds) => {
       try {
-        const res = await gatewayFetch2("/api/canvas/split-sub-images", {
+        const res = await gatewayFetch("/api/canvas/split-sub-images", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1002,32 +1002,32 @@ export function CanvasArea({
           }),
         });
         if (!res.ok) return null;
-        const data2 = await res.json();
+        const data = await res.json();
         return {
-          splitNodeIds: data2.splitNodeIds ?? [],
+          splitNodeIds: data.splitNodeIds ?? [],
         };
       } catch {
         return null;
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const directReferences = useCanvasReferenceBridge();
   const { handleLoadTextContent, handleResolveFileUrl, handleResolveThumbUrl } =
     useCanvasResourceResolvers(httpClient);
   const textVersionsBridge = reactExports.useMemo(
     () => ({
-      list: (path2) =>
+      list: (path) =>
         httpClient.listTextVersions({
-          path: path2,
+          path,
         }),
       save: (req) => httpClient.saveTextVersion(req),
-      readContent: (id2, range2) =>
-        httpClient.readTextVersionContent(id2, range2),
+      readContent: (id, range) =>
+        httpClient.readTextVersionContent(id, range),
       diff: (params) => httpClient.diffTextVersion(params),
-      restore: (id2, body2) => httpClient.restoreTextVersion(id2, body2 ?? {}),
-      materializeToCanvas: async (id2, opts) => {
-        const created = await httpClient.materializeTextVersion(id2);
+      restore: (id, body) => httpClient.restoreTextVersion(id, body ?? {}),
+      materializeToCanvas: async (id, opts) => {
+        const created = await httpClient.materializeTextVersion(id);
         try {
           await httpClient.addCanvasNode({
             assetId: created.assetId,
@@ -1049,16 +1049,16 @@ export function CanvasArea({
         return created;
       },
       summarize: (req) => httpClient.summarizeTextVersionNote(req),
-      update: (id2, patch2) => httpClient.updateTextVersion(id2, patch2),
-      remove: async (id2) => {
-        await httpClient.deleteTextVersion(id2);
+      update: (id, patch) => httpClient.updateTextVersion(id, patch),
+      remove: async (id) => {
+        await httpClient.deleteTextVersion(id);
       },
     }),
     [httpClient, sessionStore],
   );
   const handleSaveTableContent = reactExports.useCallback(
-    async (filePath, content2) => {
-      await httpClient.writeContent(filePath, content2);
+    async (filePath, content) => {
+      await httpClient.writeContent(filePath, content);
     },
     [httpClient],
   );
@@ -1070,8 +1070,8 @@ export function CanvasArea({
   );
   const handleDuplicateTableAsset = reactExports.useCallback(
     async (filePath, currentTitle) => {
-      const content2 = await httpClient.readContent(filePath);
-      const res = await httpClient.writeContent(newTablePath(), content2);
+      const content = await httpClient.readContent(filePath);
+      const res = await httpClient.writeContent(newTablePath(), content);
       const title = currentTitle
         ? generateCopyName(currentTitle, true)
         : void 0;
@@ -1107,14 +1107,14 @@ export function CanvasArea({
   );
   const handleDuplicateTextAsset = reactExports.useCallback(
     async (filePath) => {
-      const content2 = await httpClient.readContent(filePath);
-      const fileName = getFileName$1(filePath);
+      const content = await httpClient.readContent(filePath);
+      const fileName = getFileNameFromPath(filePath);
       const parentDir = getParentDir(filePath);
       const desiredName = generateCopyName(fileName, false);
       const desiredPath = parentDir
         ? joinFilePath(parentDir, desiredName)
         : desiredName;
-      const res = await assetMutator.writeText(desiredPath, content2, {
+      const res = await assetMutator.writeText(desiredPath, content, {
         unique: true,
       });
       if (!res.assetId) {
@@ -1122,7 +1122,7 @@ export function CanvasArea({
           `Failed to create duplicated text asset for ${filePath}`,
         );
       }
-      const finalName = getFileName$1(res.path);
+      const finalName = getFileNameFromPath(res.path);
       return {
         assetId: res.assetId,
         url: httpClient.fileUrlById(res.assetId),
@@ -1135,7 +1135,7 @@ export function CanvasArea({
   );
   const handleDuplicateFileAsset = reactExports.useCallback(
     async (filePath) => {
-      const fileName = getFileName$1(filePath);
+      const fileName = getFileNameFromPath(filePath);
       const desiredName = generateCopyName(fileName, false);
       const res = await assetMutator.fork(
         {
@@ -1168,7 +1168,7 @@ export function CanvasArea({
         baseWorkspace,
         params.sourceRelativePath,
       );
-      const resp = await gatewayFetch2(API_PATHS.importExternal, {
+      const resp = await gatewayFetch(API_PATHS.importExternal, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1180,16 +1180,16 @@ export function CanvasArea({
       if (!resp.ok) {
         throw new Error(`importExternal failed: HTTP ${resp.status}`);
       }
-      const data2 = await resp.json();
-      const imported = data2.imported?.[0];
+      const data = await resp.json();
+      const imported = data.imported?.[0];
       if (!imported) {
-        const reason = data2.errors?.[0]?.error ?? "no imported entry";
+        const reason = data.errors?.[0]?.error ?? "no imported entry";
         throw new Error(`importExternal returned no asset (${reason})`);
       }
       return {
         assetId: imported.id,
         url: httpClient.fileUrlById(imported.id),
-        name: getFileName$1(imported.path),
+        name: getFileNameFromPath(imported.path),
         path: imported.path,
         type: imported.type ?? params.expectedKind ?? "file",
         ...(typeof imported.width === "number"
@@ -1209,14 +1209,14 @@ export function CanvasArea({
           : {}),
       };
     },
-    [currentWorkspace, gatewayFetch2, httpClient],
+    [currentWorkspace, gatewayFetch, httpClient],
   );
   const handleGetCurrentWorkspace = reactExports.useCallback(
     () => currentWorkspace ?? void 0,
     [currentWorkspace],
   );
   const handleCropImage = reactExports.useCallback(
-    async (sourceNodeId, blob, filename, position2) => {
+    async (sourceNodeId, blob, filename, position) => {
       const endSession = dataSource?.beginCanvasAddSession?.();
       try {
         const file = new File([blob], filename, {
@@ -1228,7 +1228,7 @@ export function CanvasArea({
         if (!res.id) return void 0;
         const { nodeId } = await httpClient.addCanvasNode({
           assetId: res.id,
-          position: position2,
+          position,
           sourceNodeId,
         });
         return nodeId;
@@ -1239,23 +1239,23 @@ export function CanvasArea({
     [assetMutator, dataSource, httpClient],
   );
   const handleBatchCropAndUpscale = reactExports.useCallback(
-    async (sourceNodeId, cells2, multiplier, groupLabel) => {
+    async (sourceNodeId, cells, multiplier, groupLabel) => {
       try {
-        const groupResp = await gatewayFetch2("/api/canvas/placeholder-group", {
+        const groupResp = await gatewayFetch("/api/canvas/placeholder-group", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             sourceNodeId,
-            cells: cells2.map((c3) => ({
+            cells: cells.map((cell) => ({
               // AddPlaceholderGroupDto marks prompt/model @IsNotEmpty — use the
               // tool name as the visible footer label (loading card shows it).
               prompt: "Super Resolution",
               model: "Super Resolution",
-              ...(c3.aspectRatio
+              ...(cell.aspectRatio
                 ? {
-                    aspectRatio: c3.aspectRatio,
+                    aspectRatio: cell.aspectRatio,
                   }
                 : {}),
             })),
@@ -1270,7 +1270,7 @@ export function CanvasArea({
             groupResp.statusText,
           );
           dedupedToast.error(
-            t2(
+            translate(
               "canvas.splitGrid.placeholderFailed",
               "占位节点创建失败，请重试",
             ),
@@ -1280,7 +1280,7 @@ export function CanvasArea({
         const { placeholderIds } = await groupResp.json();
         if (!placeholderIds || placeholderIds.length === 0) {
           dedupedToast.error(
-            t2("canvas.splitGrid.noPlaceholders", "未能创建占位节点，请重试"),
+            translate("canvas.splitGrid.noPlaceholders", "未能创建占位节点，请重试"),
           );
           return;
         }
@@ -1288,8 +1288,8 @@ export function CanvasArea({
           canvasViewRef.current?.focusNodeIds(placeholderIds);
         }, 150);
         const results = await Promise.allSettled(
-          cells2.map(async (cell, i2) => {
-            const pid = placeholderIds[i2];
+          cells.map(async (cell, index) => {
+            const pid = placeholderIds[index];
             if (!pid) return;
             const plan = computeEnhanceGridTarget(
               cell.srcWidth,
@@ -1301,7 +1301,7 @@ export function CanvasArea({
                 `grid-split cell has invalid dimensions: ${cell.filename}`,
               );
             }
-            let uploadBlob2 = cell.blob;
+            let uploadBlob = cell.blob;
             if (
               plan.prepWidth !== cell.srcWidth ||
               plan.prepHeight !== cell.srcHeight
@@ -1316,10 +1316,10 @@ export function CanvasArea({
                   `grid-split cell pre-upscale failed: ${cell.filename}`,
                 );
               }
-              uploadBlob2 = prepped;
+              uploadBlob = prepped;
             }
-            const file = new File([uploadBlob2], cell.filename, {
-              type: uploadBlob2.type || "image/png",
+            const file = new File([uploadBlob], cell.filename, {
+              type: uploadBlob.type || "image/png",
             });
             const res = await assetMutator.upload(
               file,
@@ -1350,43 +1350,43 @@ export function CanvasArea({
           }),
         );
         let failedCount = 0;
-        results.forEach((r2, i2) => {
-          if (r2.status === "rejected") {
+        results.forEach((result, index) => {
+          if (result.status === "rejected") {
             failedCount++;
             console.error("[canvas] grid-split cell generation failed:", {
-              cellIndex: i2,
-              reason: r2.reason,
+              cellIndex: index,
+              reason: result.reason,
             });
           }
         });
         if (failedCount === 0) {
           return;
         }
-        if (failedCount < cells2.length) {
+        if (failedCount < cells.length) {
           dedupedToast.warning(
-            t2("canvas.splitGrid.partialFail", "{{count}} 个宫格生成失败", {
+            translate("canvas.splitGrid.partialFail", "{{count}} 个宫格生成失败", {
               count: failedCount,
             }),
           );
         } else {
           dedupedToast.error(
-            t2("canvas.splitGrid.batchFailed", "宫格高清组生成失败，请重试"),
+            translate("canvas.splitGrid.batchFailed", "宫格高清组生成失败，请重试"),
           );
         }
       } catch (err) {
         console.error("[canvas] grid-split batch failed:", err);
         dedupedToast.error(
-          t2("canvas.splitGrid.batchFailed", "宫格切分高清生成失败，请重试"),
+          translate("canvas.splitGrid.batchFailed", "宫格切分高清生成失败，请重试"),
         );
       }
     },
-    [assetMutator, gatewayFetch2, httpClient, t2],
+    [assetMutator, gatewayFetch, httpClient, translate],
   );
   const handleCropSplit = reactExports.useCallback(
-    async (sourceNodeId, cells2, groupLabel, options) => {
+    async (sourceNodeId, cells, groupLabel, options) => {
       try {
         const uploads = await Promise.allSettled(
-          cells2.map(async (cell) => {
+          cells.map(async (cell) => {
             const file = new File([cell.blob], cell.filename, {
               type: cell.blob.type || "image/png",
             });
@@ -1399,8 +1399,8 @@ export function CanvasArea({
           }),
         );
         const assetIds = uploads
-          .filter((r2) => r2.status === "fulfilled")
-          .map((r2) => r2.value);
+          .filter((result) => result.status === "fulfilled")
+          .map((result) => result.value);
         const failedUploads = uploads.length - assetIds.length;
         if (failedUploads > 0) {
           console.error(
@@ -1409,11 +1409,11 @@ export function CanvasArea({
         }
         if (assetIds.length === 0) {
           dedupedToast.error(
-            t2("canvas.splitGrid.noPlaceholders", "未能创建占位节点，请重试"),
+            translate("canvas.splitGrid.noPlaceholders", "未能创建占位节点，请重试"),
           );
           return;
         }
-        const resp = await gatewayFetch2("/api/canvas/nodes-group", {
+        const resp = await gatewayFetch("/api/canvas/nodes-group", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1432,7 +1432,7 @@ export function CanvasArea({
             resp.statusText,
           );
           dedupedToast.error(
-            t2("canvas.splitGrid.batchFailed", "宫格高清组生成失败，请重试"),
+            translate("canvas.splitGrid.batchFailed", "宫格高清组生成失败，请重试"),
           );
           return;
         }
@@ -1445,11 +1445,11 @@ export function CanvasArea({
       } catch (err) {
         console.error("[canvas] crop-split failed:", err);
         dedupedToast.error(
-          t2("canvas.splitGrid.batchFailed", "宫格切分高清生成失败，请重试"),
+          translate("canvas.splitGrid.batchFailed", "宫格切分高清生成失败，请重试"),
         );
       }
     },
-    [assetMutator, gatewayFetch2, t2],
+    [assetMutator, gatewayFetch, translate],
   );
   const handleExtractVideoAudio = reactExports.useCallback(
     async (nodeId, videoPath) => {
@@ -1465,18 +1465,18 @@ export function CanvasArea({
           filename: `${baseName}-audio`,
         });
         if (!res.ok) {
-          dedupedToast.error(res.error || t2("canvas.extractAudio.error"));
+          dedupedToast.error(res.error || translate("canvas.extractAudio.error"));
           return;
         }
         if (res.warnings?.includes("silent_video_failed")) {
-          dedupedToast.warning(t2("canvas.extractAudio.silentVideoFailed"));
+          dedupedToast.warning(translate("canvas.extractAudio.silentVideoFailed"));
         }
       } catch (err) {
         console.error("[canvas] extract audio failed:", err);
-        dedupedToast.error(t2("canvas.extractAudio.error"));
+        dedupedToast.error(translate("canvas.extractAudio.error"));
       }
     },
-    [httpClient, t2],
+    [httpClient, translate],
   );
   const handleRedraw = reactExports.useCallback(
     async (nodeId, sourceImagePath, params) => {
@@ -1511,14 +1511,14 @@ export function CanvasArea({
       } catch (err) {
         console.error("[canvas] redraw failed:", err);
         dedupedToast.error(
-          pickEditErrorMessage(err, t2("canvas.redraw.error")),
+          pickEditErrorMessage(err, translate("canvas.redraw.error")),
           {
             id: canvasGenerationErrorToastId,
           },
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, translate],
   );
   const handleOutpaint = reactExports.useCallback(
     async (nodeId, sourceImagePath, params) => {
@@ -1536,14 +1536,14 @@ export function CanvasArea({
       } catch (err) {
         console.error("[canvas] outpaint failed:", err);
         dedupedToast.error(
-          pickEditErrorMessage(err, t2("canvas.outpaint.error")),
+          pickEditErrorMessage(err, translate("canvas.outpaint.error")),
           {
             id: canvasGenerationErrorToastId,
           },
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, translate],
   );
   const handleErase = reactExports.useCallback(
     async (nodeId, sourceImagePath, params) => {
@@ -1563,14 +1563,14 @@ export function CanvasArea({
       } catch (err) {
         console.error("[canvas] erase failed:", err);
         dedupedToast.error(
-          pickEditErrorMessage(err, t2("canvas.erase.error")),
+          pickEditErrorMessage(err, translate("canvas.erase.error")),
           {
             id: canvasGenerationErrorToastId,
           },
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, translate],
   );
   const handleSuperResolution = reactExports.useCallback(
     async (nodeId, sourceImagePath, params) => {
@@ -1597,14 +1597,14 @@ export function CanvasArea({
       } catch (err) {
         console.error("[canvas] enhance-image failed:", err);
         dedupedToast.error(
-          pickEditErrorMessage(err, t2("canvas.superResolution.error")),
+          pickEditErrorMessage(err, translate("canvas.superResolution.error")),
           {
             id: canvasGenerationErrorToastId,
           },
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, translate],
   );
   const handleEnhanceVideo = reactExports.useCallback(
     async (nodeId, sourceVideoPath, params) => {
@@ -1623,7 +1623,7 @@ export function CanvasArea({
             stripErrorHtml(
               pickUserMessage(
                 resp,
-                t2("canvas.enhanceVideo.error", "高清 & 补帧失败，请重试"),
+                translate("canvas.enhanceVideo.error", "高清 & 补帧失败，请重试"),
               ),
             ),
             {
@@ -1636,7 +1636,7 @@ export function CanvasArea({
         dedupedToast.error(
           pickEditErrorMessage(
             err,
-            t2("canvas.enhanceVideo.error", "高清 & 补帧失败，请重试"),
+            translate("canvas.enhanceVideo.error", "高清 & 补帧失败，请重试"),
           ),
           {
             id: canvasGenerationErrorToastId,
@@ -1644,7 +1644,7 @@ export function CanvasArea({
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, translate],
   );
   const handleHailuo03VideoSuperResolution =
     useHailuo03VideoSuperResolutionSubmit({
@@ -1664,22 +1664,22 @@ export function CanvasArea({
       } catch (err) {
         console.error("[canvas] erase-subtitle failed:", err);
         dedupedToast.error(
-          t2("canvas.eraseSubtitle.error", "字幕消除失败，请重试"),
+          translate("canvas.eraseSubtitle.error", "字幕消除失败，请重试"),
         );
       }
     },
-    [httpClient, t2],
+    [httpClient, translate],
   );
   const handleAsr = reactExports.useCallback(
-    async (nodeId, sourceVideoPath, language2) => {
+    async (nodeId, sourceVideoPath, language) => {
       const built = buildAsrGatewayRequest({
         mediaPath: sourceVideoPath,
-        language: language2,
+        language,
         sourceNodeId: nodeId,
         filename: `asr-${nodeId}`,
       });
       if (!built.ok) {
-        dedupedToast.error(t2("canvas.asr.error", "字幕生成失败，请重试"));
+        dedupedToast.error(translate("canvas.asr.error", "字幕生成失败，请重试"));
         return;
       }
       try {
@@ -1690,18 +1690,18 @@ export function CanvasArea({
         }
       } catch (err) {
         const errorKey =
-          language2 === "other"
+          language === "other"
             ? "canvas.asr.error.whisper"
             : "canvas.asr.error";
         const fallback =
-          language2 === "other"
+          language === "other"
             ? "其他语言识别失败，请重试"
             : "字幕生成失败，请重试";
         console.error("[canvas] asr failed:", err);
-        dedupedToast.error(t2(errorKey, fallback));
+        dedupedToast.error(translate(errorKey, fallback));
       }
     },
-    [httpClient, t2],
+    [httpClient, translate],
   );
   const handleRemoveBg = reactExports.useCallback(
     async (nodeId, sourceImagePath) => {
@@ -1714,14 +1714,14 @@ export function CanvasArea({
       } catch (err) {
         console.error("[canvas] remove-background failed:", err);
         dedupedToast.error(
-          pickEditErrorMessage(err, t2("canvas.removeBg.error")),
+          pickEditErrorMessage(err, translate("canvas.removeBg.error")),
           {
             id: canvasGenerationErrorToastId,
           },
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, translate],
   );
   const handleLayerDecompose = reactExports.useCallback(
     async (nodeId, sourceImagePath, prompt) => {
@@ -1735,14 +1735,14 @@ export function CanvasArea({
       } catch (err) {
         console.error("[canvas] layer decomposition failed:", err);
         dedupedToast.error(
-          pickEditErrorMessage(err, t2("canvas.layerDecompose.error")),
+          pickEditErrorMessage(err, translate("canvas.layerDecompose.error")),
           {
             id: canvasGenerationErrorToastId,
           },
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, translate],
   );
   const handleMoveObject = reactExports.useCallback(
     async (nodeId, sourceImagePath, params) => {
@@ -1758,20 +1758,20 @@ export function CanvasArea({
       } catch (err) {
         console.error("[move-object] failed:", err);
         dedupedToast.error(
-          pickEditErrorMessage(err, t2("canvas.moveObject.error")),
+          pickEditErrorMessage(err, translate("canvas.moveObject.error")),
           {
             id: canvasGenerationErrorToastId,
           },
         );
       }
     },
-    [canvasGenerationErrorToastId, httpClient, t2],
+    [canvasGenerationErrorToastId, httpClient, translate],
   );
   const runCanvasAddSession = reactExports.useCallback(
-    async (fn2) => {
+    async (fn) => {
       const endSession = dataSource?.beginCanvasAddSession?.();
       try {
-        return await fn2();
+        return await fn();
       } finally {
         endSession?.();
       }
@@ -1781,15 +1781,15 @@ export function CanvasArea({
   const handleApplyVideoStarterPreset = reactExports.useCallback(
     async ({
       videoNodeId,
-      preset: preset2,
+      preset,
       videoNodePosition,
       videoNodeSize,
     }) => {
       await canvasViewRef.current?.flushPersistence().catch(() => void 0);
-      const { files, failed } = await fetchVideoStarterRefs(preset2.refs);
+      const { files, failed } = await fetchVideoStarterRefs(preset.refs);
       if (failed.length > 0) {
         dedupedToast.error(
-          t2("canvas.videoStarter.refDownloadFailed", {
+          translate("canvas.videoStarter.refDownloadFailed", {
             count: failed.length,
           }),
         );
@@ -1801,23 +1801,23 @@ export function CanvasArea({
       const measured = await Promise.all(
         files.map(({ file }) => measureMediaSize(file)),
       );
-      const sizes = files.map(({ file }, i2) =>
-        resolveNodeSize(file, measured[i2]),
+      const sizes = files.map(({ file }, index) =>
+        resolveNodeSize(file, measured[index]),
       );
       const GAP_X = 80;
       const GAP_Y = 40;
-      const maxRefWidth = Math.max(...sizes.map((size2) => size2.width));
+      const maxRefWidth = Math.max(...sizes.map((size) => size.width));
       const totalRefHeight =
-        sizes.reduce((sum2, size2) => sum2 + size2.height, 0) +
+        sizes.reduce((sum, size) => sum + size.height, 0) +
         GAP_Y * (sizes.length - 1);
-      const x2 = videoNodePosition.x - maxRefWidth - GAP_X;
-      let y4 =
+      const referenceX = videoNodePosition.x - maxRefWidth - GAP_X;
+      let referenceY =
         videoNodePosition.y +
         ((videoNodeSize?.height ?? 0) - totalRefHeight) / 2;
       const createdNodeIds = [];
       await runCanvasAddSession(async () => {
-        for (let i2 = 0; i2 < files.length; i2++) {
-          const { ref, file } = files[i2];
+        for (let index = 0; index < files.length; index++) {
+          const { ref, file } = files[index];
           try {
             const uploadRes = await assetMutator.upload(
               file,
@@ -1830,7 +1830,7 @@ export function CanvasArea({
                 ref.name,
               );
               dedupedToast.error(
-                t2("canvas.videoStarter.refApplyFailed", {
+                translate("canvas.videoStarter.refApplyFailed", {
                   name: ref.name,
                 }),
               );
@@ -1839,17 +1839,17 @@ export function CanvasArea({
             const added = await httpClient.addCanvasNode({
               assetId: uploadRes.id,
               position: {
-                x: x2,
-                y: y4,
+                x: referenceX,
+                y: referenceY,
               },
               targetNodeId: videoNodeId,
             });
             if (added.nodeId) createdNodeIds.push(added.nodeId);
-            y4 += sizes[i2].height + GAP_Y;
+            referenceY += sizes[index].height + GAP_Y;
           } catch (err) {
             console.error("[canvas] starter ref add failed:", ref.name, err);
             dedupedToast.error(
-              t2("canvas.videoStarter.refApplyFailed", {
+              translate("canvas.videoStarter.refApplyFailed", {
                 name: ref.name,
               }),
             );
@@ -1861,10 +1861,10 @@ export function CanvasArea({
         createdNodeIds,
       };
     },
-    [assetMutator, httpClient, runCanvasAddSession, sessionStore, t2],
+    [assetMutator, httpClient, runCanvasAddSession, sessionStore, translate],
   );
-  const handleUpload = reactExports.useCallback((position2, options) => {
-    uploadPositionRef.current = position2;
+  const handleUpload = reactExports.useCallback((position, options) => {
+    uploadPositionRef.current = position;
     const input = fileInputRef.current;
     if (!input) return;
     input.accept = options?.accept ?? ALL_MEDIA_FILE_ACCEPT;
@@ -1878,13 +1878,13 @@ export function CanvasArea({
     (nodeIds) => {
       setSelectedNodeCount(nodeIds.length);
       quickTags.handleQuickTagSelectionChange(nodeIds);
-      const key2 = nodeIds.join(",");
-      if (key2 === lastSelectionSentRef.current) return;
+      const key = nodeIds.join(",");
+      if (key === lastSelectionSentRef.current) return;
       if (selectionTimerRef.current) clearTimeout(selectionTimerRef.current);
       selectionTimerRef.current = setTimeout(() => {
         selectionTimerRef.current = null;
-        lastSelectionSentRef.current = key2;
-        gatewayFetch2("/api/canvas/selection", {
+        lastSelectionSentRef.current = key;
+        gatewayFetch("/api/canvas/selection", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1897,7 +1897,7 @@ export function CanvasArea({
         });
       }, 80);
     },
-    [gatewayFetch2, quickTags.handleQuickTagSelectionChange],
+    [gatewayFetch, quickTags.handleQuickTagSelectionChange],
   );
   reactExports.useEffect(() => {
     return () => {
@@ -1908,11 +1908,11 @@ export function CanvasArea({
     };
   }, []);
   const handleCreateTextFile = reactExports.useCallback(
-    async (content2) => {
+    async (content) => {
       try {
         const res = await assetMutator.writeText(
           "Untitled.md",
-          content2 ?? "",
+          content ?? "",
           {
             unique: true,
           },
@@ -1923,10 +1923,10 @@ export function CanvasArea({
           );
           return void 0;
         }
-        const name2 = res.path.split("/").pop() ?? "Untitled.md";
+        const fileName = res.path.split("/").pop() ?? "Untitled.md";
         return {
           assetId: res.assetId,
-          name: name2,
+          name: fileName,
           path: res.path,
         };
       } catch (err) {
@@ -1937,9 +1937,9 @@ export function CanvasArea({
     [assetMutator],
   );
   const handleCreateTextAsset = reactExports.useCallback(
-    async (content2) => {
+    async (content) => {
       try {
-        return await assetMutator.createTextAsset(content2);
+        return await assetMutator.createTextAsset(content);
       } catch (err) {
         console.error(
           "[canvas] Failed to create text asset from clipboard:",
@@ -1951,21 +1951,21 @@ export function CanvasArea({
     [assetMutator],
   );
   const handleFileInputChange = reactExports.useCallback(
-    async (e2) => {
-      const files = e2.target.files;
+    async (fileInputEvent) => {
+      const files = fileInputEvent.target.files;
       if (!files || files.length === 0) return;
-      const position2 = uploadPositionRef.current;
+      const position = uploadPositionRef.current;
       const fileList = Array.from(files);
       await runCanvasAddSession(async () => {
         const measured = await Promise.all(
           fileList.map((file) => measureMediaSize(file)),
         );
-        const sizes = fileList.map((file, i2) =>
-          resolveNodeSize(file, measured[i2]),
+        const sizes = fileList.map((file, index) =>
+          resolveNodeSize(file, measured[index]),
         );
-        const positions = computeGridDropPositions(position2, sizes);
-        for (let i2 = 0; i2 < fileList.length; i2++) {
-          const file = fileList[i2];
+        const positions = computeGridDropPositions(position, sizes);
+        for (let index = 0; index < fileList.length; index++) {
+          const file = fileList[index];
           try {
             const res = await assetMutator.upload(file, file.name, void 0, {
               source: "file-picker",
@@ -1973,32 +1973,32 @@ export function CanvasArea({
             if (!res.id) continue;
             await httpClient.addCanvasNode({
               assetId: res.id,
-              position: positions[i2],
+              position: positions[index],
             });
           } catch (err) {
             console.error("[canvas] File upload failed:", file.name, err);
           }
         }
       });
-      e2.target.value = "";
+      fileInputEvent.target.value = "";
       sessionStore.notifyFileChanged();
     },
     [assetMutator, httpClient, sessionStore, runCanvasAddSession],
   );
   const addCanvasAssetsAtPosition = reactExports.useCallback(
-    async (assetIds, position2, sizes) => {
+    async (assetIds, position, sizes) => {
       const resolvedSizes = assetIds.map(
-        (_2, i2) => sizes?.[i2] ?? defaultNodeSizeForKind(void 0),
+        (_assetId, index) => sizes?.[index] ?? defaultNodeSizeForKind(void 0),
       );
-      const positions = position2
-        ? computeGridDropPositions(position2, resolvedSizes)
+      const positions = position
+        ? computeGridDropPositions(position, resolvedSizes)
         : void 0;
-      for (const [index2, assetId] of assetIds.entries()) {
+      for (const [index, assetId] of assetIds.entries()) {
         await httpClient.addCanvasNode({
           assetId,
           ...(positions
             ? {
-                position: positions[index2],
+                position: positions[index],
               }
             : {}),
         });
@@ -2007,11 +2007,11 @@ export function CanvasArea({
     [httpClient],
   );
   const handleResourceDropToCanvas = reactExports.useCallback(
-    async (items, position2, source = "resource_drag", onAdded) => {
+    async (items, position, source = "resource_drag", onAdded) => {
       await runCanvasAddSession(async () => {
         const assetIds = [];
         const sizes = [];
-        const nodeTypes2 = [];
+        const nodeTypes = [];
         const externalPaths = [];
         const externalProjectFiles = [];
         const htableFiles = [];
@@ -2041,7 +2041,7 @@ export function CanvasArea({
               const duplicated = await handleDuplicateTextAsset(item.path);
               assetIds.push(duplicated.assetId);
               sizes.push(defaultNodeSizeForKind("text"));
-              nodeTypes2.push("text");
+              nodeTypes.push("text");
             } catch (err) {
               console.error(
                 "[canvas] Text resource drop duplication failed:",
@@ -2054,7 +2054,7 @@ export function CanvasArea({
           if (typeof item.assetId === "string" && item.assetId.length > 0) {
             assetIds.push(item.assetId);
             sizes.push(defaultNodeSizeForKind(item.type));
-            nodeTypes2.push(item.type);
+            nodeTypes.push(item.type);
           }
         }
         if (externalPaths.length > 0) {
@@ -2065,7 +2065,7 @@ export function CanvasArea({
                 computeNodeSize(row.width, row.height) ??
                   defaultNodeSizeForKind(asMediaType(row.type)),
               );
-              nodeTypes2.push(asMediaType(row.type) ?? "file");
+              nodeTypes.push(asMediaType(row.type) ?? "file");
             }
           } catch (err) {
             console.error(
@@ -2094,7 +2094,7 @@ export function CanvasArea({
                     computeNodeSize(row.width, row.height) ??
                       defaultNodeSizeForKind(asMediaType(row.type)),
                   );
-                  nodeTypes2.push(asMediaType(row.type) ?? "file");
+                  nodeTypes.push(asMediaType(row.type) ?? "file");
                 } catch (err) {
                   console.error(
                     "[canvas] Project asset drop import failed:",
@@ -2111,32 +2111,32 @@ export function CanvasArea({
               err,
             );
             dedupedToast.error(
-              t2("localAssets.importFailed", {
+              translate("localAssets.importFailed", {
                 name: file.name,
               }),
             );
           }
         }
         if (assetIds.length > 0) {
-          await addCanvasAssetsAtPosition(assetIds, position2, sizes);
+          await addCanvasAssetsAtPosition(assetIds, position, sizes);
         }
         if (htableFiles.length > 0) {
           const tablePositions =
-            assetIds.length === 0 && position2
+            assetIds.length === 0 && position
               ? computeGridDropPositions(
-                  position2,
+                  position,
                   htableFiles.map(() => TABLE_CARD_DEFAULT_SIZE),
                 )
               : void 0;
-          for (const [index2, file] of htableFiles.entries()) {
+          for (const [index, file] of htableFiles.entries()) {
             const importTable = async () => {
               try {
                 await importHtableToCanvas(
                   file,
-                  gatewayFetch2,
-                  tablePositions?.[index2],
+                  gatewayFetch,
+                  tablePositions?.[index],
                 );
-                nodeTypes2.push("table");
+                nodeTypes.push("table");
               } catch (err) {
                 console.error(
                   "[canvas] .htable import failed:",
@@ -2145,10 +2145,10 @@ export function CanvasArea({
                 );
                 dedupedToast.error(
                   err instanceof HtableParseError
-                    ? t2("canvas.table.importFailed", {
+                    ? translate("canvas.table.importFailed", {
                         name: file.name,
                       })
-                    : t2("localAssets.importFailed", {
+                    : translate("localAssets.importFailed", {
                         name: file.name,
                       }),
                 );
@@ -2172,7 +2172,7 @@ export function CanvasArea({
                   err,
                 );
                 dedupedToast.error(
-                  t2("localAssets.importFailed", {
+                  translate("localAssets.importFailed", {
                     name: file.name,
                   }),
                 );
@@ -2182,12 +2182,12 @@ export function CanvasArea({
             }
           }
         }
-        if (nodeTypes2.length === 0) return;
+        if (nodeTypes.length === 0) return;
         onAdded?.();
         const canvasId = currentWorkspace
           ? folderNameFromPath(currentWorkspace)
           : void 0;
-        for (const nodeType of nodeTypes2) {
+        for (const nodeType of nodeTypes) {
           trackEvent(TRACK_EVENTS.CANVAS_NODE_ADD, {
             node_type: nodeType,
             source,
@@ -2204,15 +2204,15 @@ export function CanvasArea({
       addCanvasAssetsAtPosition,
       anchorProjectAssets,
       currentWorkspace,
-      gatewayFetch2,
+      gatewayFetch,
       handleDuplicateTextAsset,
       importExternalToVault,
       runCanvasAddSession,
-      t2,
+      translate,
     ],
   );
   reactExports.useEffect(() => {
-    if (isActive2 === false) return;
+    if (isActive === false) return;
     const subscription = workspaceEvents.onAddToCanvas(
       ({ items, onAdded, placement }) => {
         const anchor =
@@ -2231,37 +2231,37 @@ export function CanvasArea({
       },
     );
     return () => subscription.dispose();
-  }, [handleResourceDropToCanvas, isActive2]);
+  }, [handleResourceDropToCanvas, isActive]);
   const handleNativeFileDropToCanvas = reactExports.useCallback(
-    async (files, position2) => {
+    async (files, position) => {
       const paths = files
         .map((file) => window.hilo?.webUtils?.getPathForFile(file))
         .filter(
           (filePath) => typeof filePath === "string" && filePath.length > 0,
         );
       if (paths.length === 0) return;
-      const htablePaths = paths.filter((p3) => isHtableFileName(p3));
-      const mediaPaths = paths.filter((p3) => !isHtableFileName(p3));
+      const htablePaths = paths.filter((path) => isHtableFileName(path));
+      const mediaPaths = paths.filter((path) => !isHtableFileName(path));
       await runCanvasAddSession(async () => {
         try {
           if (htablePaths.length > 0) {
             const tablePositions =
               mediaPaths.length === 0
                 ? computeGridDropPositions(
-                    position2,
+                    position,
                     htablePaths.map(() => TABLE_CARD_DEFAULT_SIZE),
                   )
                 : void 0;
-            for (const [index2, absolutePath] of htablePaths.entries()) {
-              const name2 = absolutePath.split(/[\\/]/).pop() ?? absolutePath;
+            for (const [index, absolutePath] of htablePaths.entries()) {
+              const fileName = absolutePath.split(/[\\/]/).pop() ?? absolutePath;
               try {
                 await importHtableToCanvas(
                   {
                     absolutePath,
-                    name: name2,
+                    name: fileName,
                   },
-                  gatewayFetch2,
-                  tablePositions?.[index2],
+                  gatewayFetch,
+                  tablePositions?.[index],
                 );
               } catch (err) {
                 console.error(
@@ -2271,11 +2271,11 @@ export function CanvasArea({
                 );
                 dedupedToast.error(
                   err instanceof HtableParseError
-                    ? t2("canvas.table.importFailed", {
-                        name: name2,
+                    ? translate("canvas.table.importFailed", {
+                        name: fileName,
                       })
-                    : t2("localAssets.importFailed", {
-                        name: name2,
+                    : translate("localAssets.importFailed", {
+                        name: fileName,
                       }),
                 );
               }
@@ -2289,7 +2289,7 @@ export function CanvasArea({
               computeNodeSize(row.width, row.height) ??
               defaultNodeSizeForKind(asMediaType(row.type)),
           );
-          await addCanvasAssetsAtPosition(assetIds, position2, sizes);
+          await addCanvasAssetsAtPosition(assetIds, position, sizes);
         } catch (err) {
           console.error("[canvas] Native file drop import failed:", err);
         }
@@ -2297,23 +2297,23 @@ export function CanvasArea({
     },
     [
       addCanvasAssetsAtPosition,
-      gatewayFetch2,
+      gatewayFetch,
       importExternalToVault,
       runCanvasAddSession,
-      t2,
+      translate,
     ],
   );
   const handleSkillDropToCanvas = reactExports.useCallback(
-    async (data2) => {
+    async (data) => {
       try {
-        await gatewayFetch2("/api/canvas/text-node", {
+        await gatewayFetch("/api/canvas/text-node", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            content: `/${data2.name}`,
-            name: `${data2.name}.md`,
+            content: `/${data.name}`,
+            name: `${data.name}.md`,
           }),
         });
         sessionStore.notifyFileChanged();
@@ -2321,7 +2321,7 @@ export function CanvasArea({
         console.error("[canvas] Skill drop to canvas failed:", err);
       }
     },
-    [gatewayFetch2, sessionStore],
+    [gatewayFetch, sessionStore],
   );
   const handleInstantiatePlugin = reactExports.useCallback(
     async (args) => {
@@ -2332,14 +2332,14 @@ export function CanvasArea({
         const toastId = `plugin-add-${args.pluginId}`;
         try {
           dedupedToast.loading(
-            t2("skills.plugin.installingToCanvas", {
+            translate("skills.plugin.installingToCanvas", {
               name: args.pluginId,
             }),
             {
               id: toastId,
             },
           );
-          const installResp = await gatewayFetch2(API_PATHS.marketInstall, {
+          const installResp = await gatewayFetch(API_PATHS.marketInstall, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -2350,38 +2350,38 @@ export function CanvasArea({
             }),
           });
           if (!installResp.ok) {
-            const body2 = await installResp.text();
-            throw new Error(`install ${installResp.status}: ${body2}`);
+            const body = await installResp.text();
+            throw new Error(`install ${installResp.status}: ${body}`);
           }
           const installData = await installResp.json();
           if (!installData.ok)
             throw new Error(installData.error ?? "install failed");
           dedupedToast.dismiss(toastId);
           try {
-            const listResp = await gatewayFetch2("/api/plugins");
+            const listResp = await gatewayFetch("/api/plugins");
             if (listResp.ok) {
               const listData = await listResp.json();
               setPluginMetas(
-                (listData.plugins ?? []).map((p3) => ({
-                  id: p3.id,
-                  name: p3.name,
-                  description: p3.description,
-                  iconUrl: p3.iconUrl,
-                  version: p3.version,
-                  source: p3.source,
-                  displayMode: p3.displayMode,
-                  agent: p3.agent,
+                (listData.plugins ?? []).map((plugin) => ({
+                  id: plugin.id,
+                  name: plugin.name,
+                  description: plugin.description,
+                  iconUrl: plugin.iconUrl,
+                  version: plugin.version,
+                  source: plugin.source,
+                  displayMode: plugin.displayMode,
+                  agent: plugin.agent,
                 })),
               );
             }
           } catch {}
           pluginEvents.firePluginsChanged(args.pluginId, "installed");
         } catch (err) {
-          const message2 = err instanceof Error ? err.message : String(err);
+          const message = err instanceof Error ? err.message : String(err);
           console.error("[canvas] Plugin install-before-add failed:", err);
           dedupedToast.error(
-            t2("skills.plugin.addFailed", {
-              error: message2,
+            translate("skills.plugin.addFailed", {
+              error: message,
             }),
             {
               id: toastId,
@@ -2392,39 +2392,39 @@ export function CanvasArea({
       }
       return instantiatePluginOnCanvas(args, {
         currentWorkspace,
-        gatewayFetch: gatewayFetch2,
-        t: t2,
+        gatewayFetch,
+        t: translate,
       });
     },
-    [currentWorkspace, gatewayFetch2, t2],
+    [currentWorkspace, gatewayFetch, translate],
   );
   const handlePluginDropToCanvas = reactExports.useCallback(
-    async (data2, position2, sourceNodeIds) => {
-      const needsInstall = data2.installed === false;
-      const toastId = needsInstall ? `plugin-drop-${data2.id}` : void 0;
+    async (data, position, sourceNodeIds) => {
+      const needsInstall = data.installed === false;
+      const toastId = needsInstall ? `plugin-drop-${data.id}` : void 0;
       try {
         if (needsInstall) {
           dedupedToast.loading(
-            t2("skills.plugin.installingToCanvas", {
-              name: data2.name,
+            translate("skills.plugin.installingToCanvas", {
+              name: data.name,
             }),
             {
               id: toastId,
             },
           );
-          const installResp = await gatewayFetch2(API_PATHS.marketInstall, {
+          const installResp = await gatewayFetch(API_PATHS.marketInstall, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              name: data2.id,
+              name: data.id,
               skillType: "plugin",
             }),
           });
           if (!installResp.ok) {
-            const body2 = await installResp.text();
-            throw new Error(`install ${installResp.status}: ${body2}`);
+            const body = await installResp.text();
+            throw new Error(`install ${installResp.status}: ${body}`);
           }
           const installData = await installResp.json();
           if (!installData.ok)
@@ -2432,24 +2432,24 @@ export function CanvasArea({
         }
         const nodeId = await instantiatePluginOnCanvas(
           {
-            pluginId: data2.id,
-            position: position2,
+            pluginId: data.id,
+            position,
             sourceNodeIds,
           },
           {
             currentWorkspace,
-            gatewayFetch: gatewayFetch2,
-            t: t2,
+            gatewayFetch,
+            t: translate,
           },
         );
         if (toastId) dedupedToast.dismiss(toastId);
         return nodeId;
       } catch (err) {
-        const message2 = err instanceof Error ? err.message : String(err);
+        const message = err instanceof Error ? err.message : String(err);
         console.error("[canvas] Plugin drop to canvas failed:", err);
         dedupedToast.error(
-          t2("skills.plugin.addFailed", {
-            error: message2,
+          translate("skills.plugin.addFailed", {
+            error: message,
           }),
           {
             id: toastId,
@@ -2458,15 +2458,15 @@ export function CanvasArea({
         return null;
       }
     },
-    [currentWorkspace, gatewayFetch2, t2],
+    [currentWorkspace, gatewayFetch, translate],
   );
   const handleUploadFile = reactExports.useCallback(
-    (file) => uploadCanvasReferenceFile(file, gatewayFetch2),
-    [gatewayFetch2],
+    (file) => uploadCanvasReferenceFile(file, gatewayFetch),
+    [gatewayFetch],
   );
   const handleUploadFileToCdn = reactExports.useCallback(
-    (file) => uploadCanvasFileToCdn(file, gatewayFetch2),
-    [gatewayFetch2],
+    (file) => uploadCanvasFileToCdn(file, gatewayFetch),
+    [gatewayFetch],
   );
   const handleResolvePluginAssetUrl = reactExports.useCallback(
     (pluginId, entryPath) => {
@@ -2476,54 +2476,54 @@ export function CanvasArea({
         .map((seg) => encodeURIComponent(seg))
         .join("/");
       return (
-        gatewayUrl2(
+        gatewayUrl(
           `/api/plugins/${encodeURIComponent(pluginId)}/static/${safePath}`,
         ) ?? ""
       );
     },
-    [gatewayUrl2],
+    [gatewayUrl],
   );
   const handleListLuts = reactExports.useCallback(async () => {
-    const resp = await gatewayFetch2("/api/luts");
-    const data2 = await resp.json();
-    return data2.luts ?? [];
-  }, [gatewayFetch2]);
+    const resp = await gatewayFetch("/api/luts");
+    const data = await resp.json();
+    return data.luts ?? [];
+  }, [gatewayFetch]);
   const handleImportLut = reactExports.useCallback(
     async (file) => {
       const form = new FormData();
       form.append("file", file, file.name);
-      const resp = await gatewayFetch2("/api/luts/import", {
+      const resp = await gatewayFetch("/api/luts/import", {
         method: "POST",
         body: form,
       });
       return await resp.json();
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
-  const handleLutImportTrack = reactExports.useCallback((info2) => {
-    const base2 = {
-      node_type: info2.nodeType,
+  const handleLutImportTrack = reactExports.useCallback((info) => {
+    const base = {
+      node_type: info.nodeType,
       source: "color_adjust_dialog",
     };
-    if (info2.phase === "click") {
+    if (info.phase === "click") {
       trackEvent(TRACK_EVENTS.CANVAS_LUT_IMPORT_CLICK, {
-        ...base2,
+        ...base,
       });
       return;
     }
-    const fileSize = info2.fileSize ?? 0;
-    const durationMs = info2.durationMs ?? 0;
-    if (info2.phase === "success") {
+    const fileSize = info.fileSize ?? 0;
+    const durationMs = info.durationMs ?? 0;
+    if (info.phase === "success") {
       trackEvent(TRACK_EVENTS.CANVAS_LUT_IMPORT_SUCCESS, {
-        ...base2,
+        ...base,
         file_size: fileSize,
         duration_ms: durationMs,
       });
       return;
     }
-    const isNetworkError = info2.error instanceof TypeError;
+    const isNetworkError = info.error instanceof TypeError;
     trackEvent(TRACK_EVENTS.CANVAS_LUT_IMPORT_FAILED, {
-      ...base2,
+      ...base,
       file_size: fileSize,
       duration_ms: durationMs,
       error_type: isNetworkError ? "network" : "business",
@@ -2534,44 +2534,44 @@ export function CanvasArea({
     });
   }, []);
   const handleLoadLutContent = reactExports.useCallback(
-    async (name2) => {
-      const resp = await gatewayFetch2(
-        `/api/luts/content?name=${encodeURIComponent(name2)}`,
+    async (lutName) => {
+      const resp = await gatewayFetch(
+        `/api/luts/content?name=${encodeURIComponent(lutName)}`,
       );
-      const data2 = await resp.json();
-      return data2.content;
+      const data = await resp.json();
+      return data.content;
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handleDeleteLut = reactExports.useCallback(
-    async (name2) => {
-      await gatewayFetch2(`/api/luts/${encodeURIComponent(name2)}`, {
+    async (lutName) => {
+      await gatewayFetch(`/api/luts/${encodeURIComponent(lutName)}`, {
         method: "DELETE",
       });
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handleSystemPasteToCanvas = reactExports.useCallback(
-    async (files, position2, source) => {
+    async (files, position, source) => {
       if (files.length === 0) return [];
       const addedNodeIds = [];
       await runCanvasAddSession(async () => {
         let positions;
-        if (position2) {
+        if (position) {
           const measured = await Promise.all(
             files.map((file) => measureMediaSize(file)),
           );
-          const sizes = files.map((file, i2) =>
-            resolveNodeSize(file, measured[i2]),
+          const sizes = files.map((file, index) =>
+            resolveNodeSize(file, measured[index]),
           );
           const anchor = {
-            x: position2.x - sizes[0].width / 2,
-            y: position2.y - sizes[0].height / 2,
+            x: position.x - sizes[0].width / 2,
+            y: position.y - sizes[0].height / 2,
           };
           positions = computeGridDropPositions(anchor, sizes);
         }
         await Promise.all(
-          files.map(async (file, i2) => {
+          files.map(async (file, index) => {
             try {
               const uploadRes = await assetMutator.upload(
                 file,
@@ -2599,7 +2599,7 @@ export function CanvasArea({
                 assetId: uploadRes.id,
                 ...(positions
                   ? {
-                      position: positions[i2],
+                      position: positions[index],
                     }
                   : {}),
               });
@@ -2617,7 +2617,7 @@ export function CanvasArea({
   );
   useBrowserCanvasImport(
     currentWorkspace,
-    isActive2,
+    isActive,
     handleSystemPasteToCanvas,
   );
   const handleRequestSystemPaste = reactExports.useCallback(async () => {
@@ -2628,19 +2628,19 @@ export function CanvasArea({
       result.reason === "paste-threw" && result.message
         ? `: ${result.message}`
         : "";
-    dedupedToast.error(t2("canvas.pasteFailed") + detail);
-  }, [clipboardService, t2]);
+    dedupedToast.error(translate("canvas.pasteFailed") + detail);
+  }, [clipboardService, translate]);
   const handleSystemTextPaste = reactExports.useCallback(
-    async (text2, position2) => {
+    async (text, position) => {
       await runCanvasAddSession(async () => {
-        const created = await handleCreateTextAsset(text2);
+        const created = await handleCreateTextAsset(text);
         if (!created) return;
         try {
           await httpClient.addCanvasNode({
             assetId: created.assetId,
             position: {
-              x: position2.x - TEXT_CARD_DEFAULT_SIZE.width / 2,
-              y: position2.y - TEXT_CARD_DEFAULT_SIZE.height / 2,
+              x: position.x - TEXT_CARD_DEFAULT_SIZE.width / 2,
+              y: position.y - TEXT_CARD_DEFAULT_SIZE.height / 2,
             },
           });
           sessionStore.notifyFileChanged();
@@ -2654,23 +2654,23 @@ export function CanvasArea({
   const handleSystemCopy = reactExports.useCallback(
     async (nodes) => {
       if (nodes.length !== 1) return null;
-      const node2 = nodes[0];
-      if (node2.type === CanvasNodeType.Image) {
-        return buildImageCopyPayload(node2, assetMetadataStore);
+      const node = nodes[0];
+      if (node.type === CanvasNodeType.Image) {
+        return buildImageCopyPayload(node, assetMetadataStore);
       }
       if (
-        node2.type === CanvasNodeType.Video ||
-        node2.type === CanvasNodeType.Audio
+        node.type === CanvasNodeType.Video ||
+        node.type === CanvasNodeType.Audio
       ) {
-        if (platform2.app.os !== "darwin") return null;
-        const meta2 = getAssetMetaByNodeIdFromStore(
+        if (platform.app.os !== "darwin") return null;
+        const meta = getAssetMetaByNodeIdFromStore(
           assetMetadataStore,
-          node2.id,
+          node.id,
         );
-        if (!meta2?.path || !currentWorkspace) return null;
-        const absPath = joinFilePath(currentWorkspace, meta2.path);
+        if (!meta?.path || !currentWorkspace) return null;
+        const absPath = joinFilePath(currentWorkspace, meta.path);
         try {
-          await platform2.clipboard.writeFile?.(absPath);
+          await platform.clipboard.writeFile?.(absPath);
         } catch (err) {
           console.warn("[canvas] media copy file ref failed:", err);
           return null;
@@ -2679,17 +2679,17 @@ export function CanvasArea({
           kind: "native",
         };
       }
-      if (node2.type === CanvasNodeType.Text) {
-        const meta2 = getAssetMetaByNodeIdFromStore(
+      if (node.type === CanvasNodeType.Text) {
+        const meta = getAssetMetaByNodeIdFromStore(
           assetMetadataStore,
-          node2.id,
+          node.id,
         );
-        if (!meta2?.path) return null;
+        if (!meta?.path) return null;
         try {
-          const content2 = await httpClient.readContent(meta2.path);
-          if (content2) {
-            await navigator.clipboard.writeText(content2);
-            setCopiedSystemText(content2);
+          const content = await httpClient.readContent(meta.path);
+          if (content) {
+            await navigator.clipboard.writeText(content);
+            setCopiedSystemText(content);
           }
         } catch (err) {
           console.warn("[canvas] text copy content failed:", err);
@@ -2701,44 +2701,44 @@ export function CanvasArea({
       }
       return null;
     },
-    [assetMetadataStore, currentWorkspace, httpClient, platform2],
+    [assetMetadataStore, currentWorkspace, httpClient, platform],
   );
-  const handleCanvasSkillDragOver = reactExports.useCallback((e2) => {
-    const types2 = e2.dataTransfer.types;
-    if (!types2.includes(SKILL_DRAG_MIME) && !types2.includes(PLUGIN_DRAG_MIME))
+  const handleCanvasSkillDragOver = reactExports.useCallback((dragEvent) => {
+    const types = dragEvent.dataTransfer.types;
+    if (!types.includes(SKILL_DRAG_MIME) && !types.includes(PLUGIN_DRAG_MIME))
       return;
-    e2.preventDefault();
-    e2.dataTransfer.dropEffect = "copy";
+    dragEvent.preventDefault();
+    dragEvent.dataTransfer.dropEffect = "copy";
   }, []);
   const handleCanvasSkillDrop = reactExports.useCallback(
-    (e2) => {
-      const pluginRaw = e2.dataTransfer.getData(PLUGIN_DRAG_MIME);
+    (dragEvent) => {
+      const pluginRaw = dragEvent.dataTransfer.getData(PLUGIN_DRAG_MIME);
       if (pluginRaw) {
-        e2.preventDefault();
-        e2.stopPropagation();
+        dragEvent.preventDefault();
+        dragEvent.stopPropagation();
         try {
-          const data2 = JSON.parse(pluginRaw);
-          const position2 = canvasViewRef.current?.clientToFlowPosition(
-            e2.clientX,
-            e2.clientY,
+          const data = JSON.parse(pluginRaw);
+          const position = canvasViewRef.current?.clientToFlowPosition(
+            dragEvent.clientX,
+            dragEvent.clientY,
           );
-          handlePluginDropToCanvas(data2, position2);
+          handlePluginDropToCanvas(data, position);
         } catch {}
         return;
       }
-      const skillRaw = e2.dataTransfer.getData(SKILL_DRAG_MIME);
+      const skillRaw = dragEvent.dataTransfer.getData(SKILL_DRAG_MIME);
       if (!skillRaw) return;
-      e2.preventDefault();
-      e2.stopPropagation();
+      dragEvent.preventDefault();
+      dragEvent.stopPropagation();
       try {
-        const data2 = JSON.parse(skillRaw);
-        handleSkillDropToCanvas(data2);
+        const data = JSON.parse(skillRaw);
+        handleSkillDropToCanvas(data);
       } catch {}
     },
     [handlePluginDropToCanvas, handleSkillDropToCanvas],
   );
   const dropEntityById = reactExports.useCallback(
-    (entityId, position2, attachmentIds) => {
+    (entityId, position, attachmentIds) => {
       void (async () => {
         try {
           if (currentWorkspace) {
@@ -2752,9 +2752,9 @@ export function CanvasArea({
           const result = await dropEntityMutation.mutateAsync({
             entityId,
             input: {
-              ...(position2
+              ...(position
                 ? {
-                    position: position2,
+                    position,
                   }
                 : {}),
               ...(attachmentIds && attachmentIds.length > 0
@@ -2770,7 +2770,7 @@ export function CanvasArea({
           }
         } catch (err) {
           console.error("[canvas] Entity drop to canvas failed:", err);
-          dedupedToast.error(t2("canvas.entityDrop.error"));
+          dedupedToast.error(translate("canvas.entityDrop.error"));
         }
       })();
     },
@@ -2779,20 +2779,20 @@ export function CanvasArea({
       materializeEntityMutation,
       currentWorkspace,
       sessionStore,
-      t2,
+      translate,
     ],
   );
   const handleCanvasEntityDrop = reactExports.useCallback(
-    (e2) => {
-      const payload = readEntityDragData(e2);
+    (dragEvent) => {
+      const payload = readEntityDragData(dragEvent);
       if (!payload) return;
-      e2.preventDefault();
-      e2.stopPropagation();
-      const position2 = canvasViewRef.current?.clientToFlowPosition(
-        e2.clientX,
-        e2.clientY,
+      dragEvent.preventDefault();
+      dragEvent.stopPropagation();
+      const position = canvasViewRef.current?.clientToFlowPosition(
+        dragEvent.clientX,
+        dragEvent.clientY,
       );
-      dropEntityById(payload.entityId, position2);
+      dropEntityById(payload.entityId, position);
       trackAssetUse({
         entity_id: payload.entityId,
         entity_type: payload.type,
@@ -2814,12 +2814,12 @@ export function CanvasArea({
   const attachmentLocator = useAttachmentLocator();
   reactExports.useEffect(() => {
     if (!attachmentLocator) return;
-    const locate = (path2) => {
-      if (!canvasViewRef.current?.findNodeIdsByFilePaths([path2]).length)
+    const locate = (path) => {
+      if (!canvasViewRef.current?.findNodeIdsByFilePaths([path]).length)
         return void 0;
       return () => {
         const nodeIds =
-          canvasViewRef.current?.findNodeIdsByFilePaths([path2]) ?? [];
+          canvasViewRef.current?.findNodeIdsByFilePaths([path]) ?? [];
         if (currentWorkspace && nodeIds.length)
           workspaceEvents.fireCanvasFocus(currentWorkspace, nodeIds, {
             select: true,
@@ -2841,7 +2841,7 @@ export function CanvasArea({
       const nodeIds = [...new Set([...(event.nodeIds ?? []), ...pathNodeIds])];
       if (nodeIds.length === 0) {
         dedupedToast.info(
-          t2("canvas.locate.notOnCanvas", {
+          translate("canvas.locate.notOnCanvas", {
             defaultValue: "该文件尚未在画布上",
           }),
           {
@@ -2856,90 +2856,90 @@ export function CanvasArea({
       });
     });
     return () => subscription.dispose();
-  }, [canvasLocateMissingToastId, currentWorkspace, t2]);
+  }, [canvasLocateMissingToastId, currentWorkspace, translate]);
   const handleCanvasDragOver = reactExports.useCallback(
-    (e2) => {
-      if (e2.dataTransfer.types.includes(ENTITY_DRAG_MIME)) {
-        e2.preventDefault();
-        e2.dataTransfer.dropEffect = "copy";
+    (dragEvent) => {
+      if (dragEvent.dataTransfer.types.includes(ENTITY_DRAG_MIME)) {
+        dragEvent.preventDefault();
+        dragEvent.dataTransfer.dropEffect = "copy";
         return;
       }
-      handleCanvasSkillDragOver(e2);
+      handleCanvasSkillDragOver(dragEvent);
     },
     [handleCanvasSkillDragOver],
   );
   const handleCanvasDrop = reactExports.useCallback(
-    (e2) => {
-      if (e2.dataTransfer.types.includes(ENTITY_DRAG_MIME)) {
-        handleCanvasEntityDrop(e2);
+    (dragEvent) => {
+      if (dragEvent.dataTransfer.types.includes(ENTITY_DRAG_MIME)) {
+        handleCanvasEntityDrop(dragEvent);
         return;
       }
-      handleCanvasSkillDrop(e2);
+      handleCanvasSkillDrop(dragEvent);
     },
     [handleCanvasEntityDrop, handleCanvasSkillDrop],
   );
   const workspaceRef = reactExports.useRef(currentWorkspace);
   workspaceRef.current = currentWorkspace;
-  const handleCanvasEnterTrack = reactExports.useCallback((info2) => {
+  const handleCanvasEnterTrack = reactExports.useCallback((info) => {
     const canvasId = workspaceRef.current
       ? folderNameFromPath(workspaceRef.current)
       : "";
     if (!canvasId) return;
     trackEvent(TRACK_EVENTS.CANVAS_VIEW_ENTER, {
       canvas_id: canvasId,
-      node_count: info2.nodeCount,
+      node_count: info.nodeCount,
     });
   }, []);
-  const handleStickerAddTrack = reactExports.useCallback((info2) => {
+  const handleStickerAddTrack = reactExports.useCallback((info) => {
     trackEvent(TRACK_EVENTS.CANVAS_STICKER_ADD, {
-      sticker_id: info2.stickerId,
-      cloud_task_id: info2.cloudTaskId,
+      sticker_id: info.stickerId,
+      cloud_task_id: info.cloudTaskId,
     });
   }, []);
-  const handleCanvasViewControlTrack = reactExports.useCallback((info2) => {
-    if (info2.action === "minimap_toggle") {
-      if (info2.minimapVisible === void 0) return;
+  const handleCanvasViewControlTrack = reactExports.useCallback((info) => {
+    if (info.action === "minimap_toggle") {
+      if (info.minimapVisible === void 0) return;
       trackEvent(TRACK_EVENTS.CANVAS_MINIMAP_TOGGLE, {
         source: "toolbar",
-        visible: info2.minimapVisible,
+        visible: info.minimapVisible,
       });
       return;
     }
-    if (info2.action === "edges_toggle") {
-      if (info2.edgesVisible === void 0) return;
+    if (info.action === "edges_toggle") {
+      if (info.edgesVisible === void 0) return;
       trackEvent(TRACK_EVENTS.CANVAS_EDGES_TOGGLE, {
         source: "toolbar",
-        visible: info2.edgesVisible,
+        visible: info.edgesVisible,
       });
       return;
     }
-    if (info2.zoomBefore === void 0) return;
+    if (info.zoomBefore === void 0) return;
     trackEvent(TRACK_EVENTS.CANVAS_ZOOM_CHANGE, {
-      direction: info2.action,
+      direction: info.action,
       source: "toolbar",
-      zoom_before: info2.zoomBefore,
-      zoom_after: info2.zoomAfter,
+      zoom_before: info.zoomBefore,
+      zoom_after: info.zoomAfter,
     });
   }, []);
   const lastPopoverOpenRef = reactExports.useRef(null);
-  const handlePopoverOpenTrack = reactExports.useCallback((info2) => {
-    const now2 = Date.now();
-    const key2 = `${info2.popoverType}:${info2.nodeId}`;
-    const previous2 = lastPopoverOpenRef.current;
-    if (previous2?.key === key2 && now2 - previous2.timestamp < 1e3) return;
+  const handlePopoverOpenTrack = reactExports.useCallback((info) => {
+    const now = Date.now();
+    const key = `${info.popoverType}:${info.nodeId}`;
+    const previous = lastPopoverOpenRef.current;
+    if (previous?.key === key && now - previous.timestamp < 1e3) return;
     lastPopoverOpenRef.current = {
-      key: key2,
-      timestamp: now2,
+      key,
+      timestamp: now,
     };
     trackEvent(TRACK_EVENTS.CANVAS_POPOVER_OPEN, {
-      popover_type: info2.popoverType,
-      node_id: info2.nodeId,
-      has_default: info2.hasDefault,
+      popover_type: info.popoverType,
+      node_id: info.nodeId,
+      has_default: info.hasDefault,
     });
   }, []);
-  const handlePromotionToast = reactExports.useCallback((info2) => {
-    const body2 = info2.toast?.trim();
-    if (body2) dedupedToast.info(body2);
+  const handlePromotionToast = reactExports.useCallback((info) => {
+    const body = info.toast?.trim();
+    if (body) dedupedToast.info(body);
   }, []);
   const {
     handleComfyUiDraftActionTrack,
@@ -2949,7 +2949,7 @@ export function CanvasArea({
   } = useComfyUiCanvasTracking(workspaceRef);
   const assetPanelToolbarButton = reactExports.useMemo(() => {
     if (!onToggleAssetPanel) return null;
-    const label = t2("topbar.toggleAssetPanel");
+    const label = translate("topbar.toggleAssetPanel");
     return (
       <CanvasHostToolbarButton
         icon={assetPanelOpen ? FolderOpen : FolderClosed}
@@ -2963,7 +2963,7 @@ export function CanvasArea({
         dataActionUiId="canvas.toolbar-project-assets"
       />
     );
-  }, [assetPanelControlsId, assetPanelOpen, onToggleAssetPanel, t2]);
+  }, [assetPanelControlsId, assetPanelOpen, onToggleAssetPanel, translate]);
   const toolDockTrailing = reactExports.useMemo(
     () => (
       <div className="flex h-9 items-center gap-px">
@@ -2981,77 +2981,77 @@ export function CanvasArea({
     ),
     [assetPanelToolbarButton, canvasHelpOpen],
   );
-  const handleNodeActionTrack = reactExports.useCallback((info2) => {
-    const base2 = {
-      node_id: info2.nodeId,
-      node_type: info2.nodeType,
-      tool: normalizeCanvasNodeTool(info2.action),
-      interaction: info2.interaction,
+  const handleNodeActionTrack = reactExports.useCallback((info) => {
+    const base = {
+      node_id: info.nodeId,
+      node_type: info.nodeType,
+      tool: normalizeCanvasNodeTool(info.action),
+      interaction: info.interaction,
     };
-    if (info2.phase === "click") {
-      if (!info2.source) return;
+    if (info.phase === "click") {
+      if (!info.source) return;
       trackEvent(TRACK_EVENTS.CANVAS_NODE_TOOL_CLICK, {
-        ...base2,
-        source: info2.source,
+        ...base,
+        source: info.source,
       });
-      if (info2.interaction === "instant") {
+      if (info.interaction === "instant") {
         trackEvent(TRACK_EVENTS.CANVAS_NODE_TOOL_APPLY, {
-          ...base2,
+          ...base,
           apply_type: "implicit",
           duration_ms: 0,
         });
       }
       return;
     }
-    if (info2.phase === "apply") {
+    if (info.phase === "apply") {
       trackEvent(TRACK_EVENTS.CANVAS_NODE_TOOL_APPLY, {
-        ...base2,
+        ...base,
         apply_type: "explicit",
-        duration_ms: info2.durationMs,
-        ...pickCanvasNodeToolApplyDetails(info2.toolSpecific),
+        duration_ms: info.durationMs,
+        ...pickCanvasNodeToolApplyDetails(info.toolSpecific),
       });
       return;
     }
     trackEvent(TRACK_EVENTS.CANVAS_NODE_TOOL_ABANDON, {
-      ...base2,
-      duration_ms: info2.durationMs,
-      had_progress: info2.hadProgress ?? false,
+      ...base,
+      duration_ms: info.durationMs,
+      had_progress: info.hadProgress ?? false,
     });
   }, []);
-  const handleNodeContentEditTrack = reactExports.useCallback((info2) => {
+  const handleNodeContentEditTrack = reactExports.useCallback((info) => {
     trackEvent(TRACK_EVENTS.CANVAS_NODE_CONTENT_EDIT, {
-      node_id: info2.nodeId,
-      node_type: info2.nodeType,
-      action: info2.action,
-      char_count: info2.charCount,
-      had_change: info2.hadChange,
-      enter_mode: info2.enterMode,
+      node_id: info.nodeId,
+      node_type: info.nodeType,
+      action: info.action,
+      char_count: info.charCount,
+      had_change: info.hadChange,
+      enter_mode: info.enterMode,
     });
   }, []);
-  const handleParamAdjustTrack = reactExports.useCallback((info2) => {
+  const handleParamAdjustTrack = reactExports.useCallback((info) => {
     trackEvent(TRACK_EVENTS.CANVAS_PARAM_ADJUST, {
-      node_id: info2.nodeId,
-      popover_type: info2.popoverType,
-      param_name: info2.paramName,
-      from: info2.from,
-      to: info2.to,
+      node_id: info.nodeId,
+      popover_type: info.popoverType,
+      param_name: info.paramName,
+      from: info.from,
+      to: info.to,
     });
   }, []);
-  const handlePopoverChipOpenTrack = reactExports.useCallback((info2) => {
+  const handlePopoverChipOpenTrack = reactExports.useCallback((info) => {
     trackEvent(TRACK_EVENTS.CANVAS_POPOVER_CHIP_OPEN, {
-      node_id: info2.nodeId,
-      popover_type: info2.popoverType,
-      chip_type: info2.chipType,
-      current_value: info2.currentValue,
+      node_id: info.nodeId,
+      popover_type: info.popoverType,
+      chip_type: info.chipType,
+      current_value: info.currentValue,
     });
   }, []);
   const handlePopoverCloseWithoutSubmitTrack = reactExports.useCallback(
-    (info2) => {
+    (info) => {
       trackEvent(TRACK_EVENTS.CANVAS_POPOVER_CLOSE_WITHOUT_SUBMIT, {
-        popover_type: info2.popoverType,
-        node_id: info2.nodeId,
-        had_prompt: info2.hadPrompt,
-        close_reason: info2.closeReason,
+        popover_type: info.popoverType,
+        node_id: info.nodeId,
+        had_prompt: info.hadPrompt,
+        close_reason: info.closeReason,
       });
     },
     [],
@@ -3059,92 +3059,92 @@ export function CanvasArea({
   const handlePluginInsertMediaNode = reactExports.useCallback(
     async (args) => {
       const assetPath = resolvePluginSourcePath(args.source);
-      const body2 = {
+      const body = {
         assetPath,
       };
-      if (args.sourceNodeId) body2.sourceNodeIds = [args.sourceNodeId];
-      const resp = await gatewayFetch2("/api/canvas/media-node", {
+      if (args.sourceNodeId) body.sourceNodeIds = [args.sourceNodeId];
+      const resp = await gatewayFetch("/api/canvas/media-node", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body2),
+        body: JSON.stringify(body),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
+        const text = await resp.text().catch(() => "");
         throw new Error(
-          `plugin: insertMediaNode failed (${resp.status}) ${text2}`,
+          `plugin: insertMediaNode failed (${resp.status}) ${text}`,
         );
       }
-      const data2 = await resp.json();
+      const data = await resp.json();
       if (args.selectOnEditorExit) {
-        rememberPluginOutput(args.sourceNodeId, data2.nodeId);
+        rememberPluginOutput(args.sourceNodeId, data.nodeId);
       }
       return {
-        nodeId: data2.nodeId,
-        assetId: data2.assetId,
+        nodeId: data.nodeId,
+        assetId: data.assetId,
       };
     },
-    [gatewayFetch2, rememberPluginOutput],
+    [gatewayFetch, rememberPluginOutput],
   );
   const handleEnsureMediaNodeForPath = reactExports.useCallback(
-    async (path2, sourceNodeId) => {
-      if (!path2) return null;
+    async (path, sourceNodeId) => {
+      if (!path) return null;
       try {
-        const body2 = {
-          assetPath: path2,
+        const body = {
+          assetPath: path,
         };
-        if (sourceNodeId) body2.sourceNodeId = sourceNodeId;
-        const resp = await gatewayFetch2("/api/canvas/media-node", {
+        if (sourceNodeId) body.sourceNodeId = sourceNodeId;
+        const resp = await gatewayFetch("/api/canvas/media-node", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(body2),
+          body: JSON.stringify(body),
         });
         if (!resp.ok) return null;
-        const data2 = await resp.json();
+        const data = await resp.json();
         return {
-          nodeId: data2.nodeId,
-          assetId: data2.assetId,
+          nodeId: data.nodeId,
+          assetId: data.assetId,
         };
       } catch {
         return null;
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginInsertTextNode = reactExports.useCallback(
     async (args) => {
-      const body2 = {
+      const body = {
         content: args.content,
       };
-      if (args.name) body2.name = args.name;
-      if (args.sourceNodeId) body2.sourceNodeId = args.sourceNodeId;
-      const resp = await gatewayFetch2("/api/canvas/text-node", {
+      if (args.name) body.name = args.name;
+      if (args.sourceNodeId) body.sourceNodeId = args.sourceNodeId;
+      const resp = await gatewayFetch("/api/canvas/text-node", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body2),
+        body: JSON.stringify(body),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
+        const text = await resp.text().catch(() => "");
         throw new Error(
-          `plugin: insertTextNode failed (${resp.status}) ${text2}`,
+          `plugin: insertTextNode failed (${resp.status}) ${text}`,
         );
       }
-      const data2 = await resp.json();
+      const data = await resp.json();
       return {
-        nodeId: data2.nodeId,
-        assetId: data2.assetId,
+        nodeId: data.nodeId,
+        assetId: data.assetId,
       };
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginReadPluginData = reactExports.useCallback(
     async (args) => {
-      const resp = await gatewayFetch2("/api/canvas/plugin-data/read", {
+      const resp = await gatewayFetch("/api/canvas/plugin-data/read", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -3152,16 +3152,16 @@ export function CanvasArea({
         body: JSON.stringify(args),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
-        throw pluginStorageHttpError("readPluginData", resp.status, text2);
+        const text = await resp.text().catch(() => "");
+        throw pluginStorageHttpError("readPluginData", resp.status, text);
       }
       return mapPluginDataReadResult(await resp.json());
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginWritePluginData = reactExports.useCallback(
     async (args) => {
-      const resp = await gatewayFetch2("/api/canvas/plugin-data", {
+      const resp = await gatewayFetch("/api/canvas/plugin-data", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -3169,11 +3169,11 @@ export function CanvasArea({
         body: JSON.stringify(args),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
-        throw pluginStorageHttpError("writePluginData", resp.status, text2);
+        const text = await resp.text().catch(() => "");
+        throw pluginStorageHttpError("writePluginData", resp.status, text);
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handleSubscribePluginStorageChanged = reactExports.useCallback(
     (callback) =>
@@ -3186,7 +3186,7 @@ export function CanvasArea({
   );
   const handlePostPluginAgentResult = reactExports.useCallback(
     async (result) => {
-      const resp = await gatewayFetch2("/api/plugins/agent/result", {
+      const resp = await gatewayFetch("/api/plugins/agent/result", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -3194,13 +3194,13 @@ export function CanvasArea({
         body: JSON.stringify(result),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
+        const text = await resp.text().catch(() => "");
         throw new Error(
-          `plugin-agent result push failed: HTTP ${resp.status} ${text2}`,
+          `plugin-agent result push failed: HTTP ${resp.status} ${text}`,
         );
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handleSubscribePluginAgentInvoke = reactExports.useCallback(
     (callback) =>
@@ -3233,37 +3233,37 @@ export function CanvasArea({
   const handlePluginInsertFileNode = reactExports.useCallback(
     async (args) => {
       const assetPath = resolvePluginSourcePath(args.source);
-      const body2 = {
+      const body = {
         assetPath,
       };
-      if (args.sourceNodeId) body2.sourceNodeId = args.sourceNodeId;
-      if (args.viewMode) body2.viewMode = args.viewMode;
-      if (args.width !== void 0) body2.width = args.width;
-      if (args.height !== void 0) body2.height = args.height;
-      const resp = await gatewayFetch2("/api/canvas/file-node", {
+      if (args.sourceNodeId) body.sourceNodeId = args.sourceNodeId;
+      if (args.viewMode) body.viewMode = args.viewMode;
+      if (args.width !== void 0) body.width = args.width;
+      if (args.height !== void 0) body.height = args.height;
+      const resp = await gatewayFetch("/api/canvas/file-node", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body2),
+        body: JSON.stringify(body),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
+        const text = await resp.text().catch(() => "");
         throw new Error(
-          `plugin: insertFileNode failed (${resp.status}) ${text2}`,
+          `plugin: insertFileNode failed (${resp.status}) ${text}`,
         );
       }
-      const data2 = await resp.json();
+      const data = await resp.json();
       return {
-        nodeId: data2.nodeId,
-        assetId: data2.assetId,
+        nodeId: data.nodeId,
+        assetId: data.assetId,
       };
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginInsertImagesAsGroup = reactExports.useCallback(
     async (args) => {
-      const resp = await gatewayFetch2("/api/canvas/nodes-group", {
+      const resp = await gatewayFetch("/api/canvas/nodes-group", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -3288,18 +3288,18 @@ export function CanvasArea({
         }),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
+        const text = await resp.text().catch(() => "");
         throw new Error(
-          `plugin: insertImagesAsGroup failed (${resp.status}) ${text2}`,
+          `plugin: insertImagesAsGroup failed (${resp.status}) ${text}`,
         );
       }
-      const data2 = await resp.json();
+      const data = await resp.json();
       return {
-        groupId: data2.groupId,
-        nodeIds: data2.nodeIds ?? [],
+        groupId: data.groupId,
+        nodeIds: data.nodeIds ?? [],
       };
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginSuperResolution = reactExports.useCallback(
     async (args) => {
@@ -3335,13 +3335,13 @@ export function CanvasArea({
       if (!res?.ok || !res.path) {
         throw new Error("plugin: superResolution returned no result path");
       }
-      const url2 = handleResolveFileUrl(res.path);
-      if (!url2)
+      const url = handleResolveFileUrl(res.path);
+      if (!url)
         throw new Error(
           "plugin: superResolution result URL could not be resolved",
         );
       return {
-        url: url2,
+        url,
         ...(res.asset_id
           ? {
               assetId: res.asset_id,
@@ -3363,7 +3363,7 @@ export function CanvasArea({
   );
   const handlePluginAddPlaceholderGroup = reactExports.useCallback(
     async (args) => {
-      const resp = await gatewayFetch2("/api/canvas/placeholder-group", {
+      const resp = await gatewayFetch("/api/canvas/placeholder-group", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -3384,36 +3384,36 @@ export function CanvasArea({
         }),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
+        const text = await resp.text().catch(() => "");
         throw new Error(
-          `plugin: addPlaceholderGroup failed (${resp.status}) ${text2}`,
+          `plugin: addPlaceholderGroup failed (${resp.status}) ${text}`,
         );
       }
-      const data2 = await resp.json();
+      const data = await resp.json();
       return {
-        groupId: data2.groupId,
-        placeholderIds: data2.placeholderIds ?? [],
+        groupId: data.groupId,
+        placeholderIds: data.placeholderIds ?? [],
       };
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginNotify = reactExports.useCallback(
-    (message2, level, options) =>
-      notifyFromPlugin(platform2.shell, message2, level, options),
-    [platform2.shell],
+    (message, level, options) =>
+      notifyFromPlugin(platform.shell, message, level, options),
+    [platform.shell],
   );
   const handlePluginSaveFile = reactExports.useCallback(
     (args) =>
       savePluginFile(
-        platform2.fs,
+        platform.fs,
         currentWorkspace,
         resolvePluginSourcePath,
         args,
       ),
-    [currentWorkspace, platform2.fs],
+    [currentWorkspace, platform.fs],
   );
   const handlePluginDownloadComfyUiModel = reactExports.useCallback(
-    async ({ url: url2, filename, directory }) => {
+    async ({ url, filename, directory }) => {
       await homeService.comfyUiModelDownload.prepareWorkflow({
         workflowId: `plugin:comfyui:missing-model:${directory}/${filename}`,
         workflowTitle: filename,
@@ -3421,7 +3421,7 @@ export function CanvasArea({
           {
             name: filename,
             directory,
-            url: url2,
+            url,
           },
         ],
       });
@@ -3431,7 +3431,7 @@ export function CanvasArea({
   );
   const handlePluginPickDirectory = reactExports.useCallback(
     async (options) => {
-      const paths = await platform2.fs.showOpenDialog?.({
+      const paths = await platform.fs.showOpenDialog?.({
         directory: true,
         multiple: false,
         ...(options?.title
@@ -3442,23 +3442,23 @@ export function CanvasArea({
       });
       return paths?.[0] ?? null;
     },
-    [platform2.fs],
+    [platform.fs],
   );
   const handlePluginLog = reactExports.useCallback(
     (entry) => {
-      const now2 = Date.now();
-      const key2 = `${entry.pluginId}:${entry.nodeId}`;
-      let rate = pluginLogRateRef.current.get(key2);
-      if (!rate || now2 - rate.windowStartedAt >= 6e4) {
+      const now = Date.now();
+      const key = `${entry.pluginId}:${entry.nodeId}`;
+      let rate = pluginLogRateRef.current.get(key);
+      if (!rate || now - rate.windowStartedAt >= 6e4) {
         rate = {
-          windowStartedAt: now2,
+          windowStartedAt: now,
           count: 0,
           dropWarned: false,
         };
-        pluginLogRateRef.current.set(key2, rate);
+        pluginLogRateRef.current.set(key, rate);
         if (pluginLogRateRef.current.size > 512) {
-          for (const [candidate, state2] of pluginLogRateRef.current) {
-            if (now2 - state2.windowStartedAt >= 12e4)
+          for (const [candidate, state] of pluginLogRateRef.current) {
+            if (now - state.windowStartedAt >= 12e4)
               pluginLogRateRef.current.delete(candidate);
           }
         }
@@ -3466,7 +3466,7 @@ export function CanvasArea({
       if (rate.count >= 120) {
         if (!rate.dropWarned) {
           rate.dropWarned = true;
-          logService2.warn(
+          logService.warn(
             `[plugin:${entry.pluginId} node:${entry.nodeId}] log rate limit reached`,
           );
         }
@@ -3476,61 +3476,61 @@ export function CanvasArea({
       const prefix = `[plugin:${entry.pluginId} node:${entry.nodeId}]`;
       const details =
         entry.details === void 0 ? "" : ` ${JSON.stringify(entry.details)}`;
-      logService2[entry.level](`${prefix} ${entry.message}${details}`);
+      logService[entry.level](`${prefix} ${entry.message}${details}`);
     },
-    [logService2],
+    [logService],
   );
   const handlePluginNavigate = usePluginNavigate();
   const handlePluginAddPlaceholder = reactExports.useCallback(
     async (args) => {
-      const body2 = {
+      const body = {
         sourceNodeId: args.sourceNodeId,
         prompt: args.prompt,
         model: args.model,
       };
-      if (args.mediaType) body2.mediaType = args.mediaType;
-      const resp = await gatewayFetch2("/api/canvas/placeholder", {
+      if (args.mediaType) body.mediaType = args.mediaType;
+      const resp = await gatewayFetch("/api/canvas/placeholder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body2),
+        body: JSON.stringify(body),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
+        const text = await resp.text().catch(() => "");
         throw new Error(
-          `plugin: addPlaceholder failed (${resp.status}) ${text2}`,
+          `plugin: addPlaceholder failed (${resp.status}) ${text}`,
         );
       }
-      const data2 = await resp.json();
-      return data2.placeholderId;
+      const data = await resp.json();
+      return data.placeholderId;
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginFailPlaceholder = reactExports.useCallback(
-    async (placeholderId, errorMessage2) => {
-      const resp = await gatewayFetch2("/api/canvas/placeholder/fail", {
+    async (placeholderId, errorMessage) => {
+      const resp = await gatewayFetch("/api/canvas/placeholder/fail", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           placeholderId,
-          errorMessage: errorMessage2,
+          errorMessage,
         }),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
+        const text = await resp.text().catch(() => "");
         throw new Error(
-          `plugin: failPlaceholder failed (${resp.status}) ${text2}`,
+          `plugin: failPlaceholder failed (${resp.status}) ${text}`,
         );
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginCleanupPlaceholder = reactExports.useCallback(
     async (placeholderId) => {
-      const resp = await gatewayFetch2("/api/canvas/placeholder/cleanup", {
+      const resp = await gatewayFetch("/api/canvas/placeholder/cleanup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -3540,20 +3540,20 @@ export function CanvasArea({
         }),
       });
       if (!resp.ok) {
-        const text2 = await resp.text().catch(() => "");
+        const text = await resp.text().catch(() => "");
         throw new Error(
-          `plugin: cleanupPlaceholder failed (${resp.status}) ${text2}`,
+          `plugin: cleanupPlaceholder failed (${resp.status}) ${text}`,
         );
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const {
     pickerRequest: pluginPickerRequest,
     handlePluginPickAsset,
     handleCanvasPickAsset,
   } = useAssetPickerHost({
-    isActive: isActive2 ?? false,
+    isActive: isActive ?? false,
     isPresented: isPresented ?? false,
   });
   const handleFillPlaceholder = reactExports.useCallback(
@@ -3564,7 +3564,7 @@ export function CanvasArea({
         resource.type !== "audio"
       )
         return;
-      const size2 =
+      const size =
         (resource.type === "image" || resource.type === "video") &&
         resource.width &&
         resource.height
@@ -3580,7 +3580,7 @@ export function CanvasArea({
           path: resource.path,
           intrinsicWidth: resource.width,
           intrinsicHeight: resource.height,
-          size: size2,
+          size,
         },
       );
       if (filled) sessionStore.notifyFileChanged();
@@ -3590,12 +3590,12 @@ export function CanvasArea({
   const handlePlaceholderError = reactExports.useCallback(
     (error) => {
       console.error("[canvas] placeholder source failed:", error);
-      dedupedToast.error(t2("assetPicker.source.error", "资源暂不可用"));
+      dedupedToast.error(translate("assetPicker.source.error", "资源暂不可用"));
     },
-    [t2],
+    [translate],
   );
   const { openImageAnnotation, annotationDialog } =
-    useCanvasImageAnnotationHost(isActive2 ?? false);
+    useCanvasImageAnnotationHost(isActive ?? false);
   const capturePlaceholderTarget = reactExports.useCallback(
     (nodeId) =>
       canvasViewRef.current?.createPlaceholderFillGuard(nodeId) ??
@@ -3603,7 +3603,7 @@ export function CanvasArea({
     [],
   );
   const handlePlaceholderUpload = usePlaceholderAssetSource({
-    active: isActive2 ?? false,
+    active: isActive ?? false,
     scope: currentWorkspace,
     pick: handleCanvasPickAsset,
     fill: handleFillPlaceholder,
@@ -3611,7 +3611,7 @@ export function CanvasArea({
     onError: handlePlaceholderError,
   });
   const handlePluginUploadAndInsert = reactExports.useCallback(
-    async (file, type2) => {
+    async (file, type) => {
       const relPath = await handleUploadFile(file);
       const inserted = await handlePluginInsertMediaNode({
         source: relPath,
@@ -3619,7 +3619,7 @@ export function CanvasArea({
       return {
         nodeId: inserted.nodeId,
         assetId: inserted.assetId,
-        type: type2,
+        type,
         name: file.name,
         url: handleResolveFileUrl(relPath),
         path: relPath,
@@ -3645,11 +3645,11 @@ export function CanvasArea({
     [handleUploadAttachment],
   );
   const pluginChatBridge = usePluginChatBridge(
-    gatewayFetch2,
+    gatewayFetch,
     useWorkspaceWSConnection(),
     sessionStore,
   );
-  const pluginDagBridge = usePluginDagBridge(gatewayFetch2);
+  const pluginDagBridge = usePluginDagBridge(gatewayFetch);
   const handlePluginUploadToCdn = reactExports.useCallback(
     async (args) => {
       if (typeof args.source !== "string") {
@@ -3657,7 +3657,7 @@ export function CanvasArea({
           "uploadToCdn: host accepts only string source (workspace path)",
         );
       }
-      const resp = await gatewayFetch2("/api/files/upload-cdn", {
+      const resp = await gatewayFetch("/api/files/upload-cdn", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -3666,40 +3666,40 @@ export function CanvasArea({
           file_path: args.source,
         }),
       });
-      let data2 = null;
+      let data = null;
       try {
-        data2 = await resp.json();
+        data = await resp.json();
       } catch {}
       if (!resp.ok) {
-        const detail = data2?.error ?? `HTTP ${resp.status}`;
+        const detail = data?.error ?? `HTTP ${resp.status}`;
         throw new Error(`uploadToCdn failed: ${detail}`);
       }
-      if (!data2?.ok || !data2.url) {
+      if (!data?.ok || !data.url) {
         throw new Error(
-          `uploadToCdn failed: ${data2?.error ?? "no url returned"}`,
+          `uploadToCdn failed: ${data?.error ?? "no url returned"}`,
         );
       }
       return {
-        url: data2.url,
+        url: data.url,
       };
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const pythonPost = reactExports.useCallback(
-    async (pluginId, suffix, body2) => {
-      const resp = await gatewayFetch2(
+    async (pluginId, suffix, body) => {
+      const resp = await gatewayFetch(
         `/api/plugins/${encodeURIComponent(pluginId)}/python/${suffix}`,
         {
           method: "POST",
           headers: {
             "content-type": "application/json",
           },
-          body: body2,
+          body,
         },
       );
       return await resp.json();
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginPythonEnsureEnv = reactExports.useCallback(
     (pluginId) => pythonPost(pluginId, "ensure-env", "{}"),
@@ -3717,7 +3717,7 @@ export function CanvasArea({
         .join("/");
       const endpoint = `/api/plugins/${encodeURIComponent(pluginId)}/data/${encodedPath}`;
       try {
-        const resp = await gatewayFetch2(endpoint, {
+        const resp = await gatewayFetch(endpoint, {
           cache: "no-store",
         });
         return {
@@ -3734,7 +3734,7 @@ export function CanvasArea({
         throw error;
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginWriteToPluginDir = reactExports.useCallback(
     async (pluginId, args) => {
@@ -3745,15 +3745,15 @@ export function CanvasArea({
       const endpoint = `/api/plugins/${encodeURIComponent(pluginId)}/data/${encodedPath}`;
       const form = new FormData();
       form.append("file", args.source);
-      const resp = await gatewayFetch2(endpoint, {
+      const resp = await gatewayFetch(endpoint, {
         method: "PUT",
         body: form,
       });
       if (!resp.ok) {
         let detail = `HTTP ${resp.status}`;
         try {
-          const body2 = await resp.json();
-          detail = body2.message ?? body2.error ?? detail;
+          const body = await resp.json();
+          detail = body.message ?? body.error ?? detail;
         } catch {}
         throw new Error(`writeToPluginDir failed: ${detail}`);
       }
@@ -3762,24 +3762,24 @@ export function CanvasArea({
         url: endpoint,
       };
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginConfigGet = reactExports.useCallback(
-    async (pluginId, key2) => {
-      const resp = await gatewayFetch2(
-        `/api/plugins/${encodeURIComponent(pluginId)}/config/${encodeURIComponent(key2)}`,
+    async (pluginId, key) => {
+      const resp = await gatewayFetch(
+        `/api/plugins/${encodeURIComponent(pluginId)}/config/${encodeURIComponent(key)}`,
       );
       if (resp.status === 404) return void 0;
       if (!resp.ok) throw new Error(`config.get failed: HTTP ${resp.status}`);
-      const data2 = await resp.json();
-      return data2.value;
+      const data = await resp.json();
+      return data.value;
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginConfigSet = reactExports.useCallback(
-    async (pluginId, key2, value) => {
-      const resp = await gatewayFetch2(
-        `/api/plugins/${encodeURIComponent(pluginId)}/config/${encodeURIComponent(key2)}`,
+    async (pluginId, key, value) => {
+      const resp = await gatewayFetch(
+        `/api/plugins/${encodeURIComponent(pluginId)}/config/${encodeURIComponent(key)}`,
         {
           method: "PUT",
           headers: {
@@ -3793,18 +3793,18 @@ export function CanvasArea({
       if (!resp.ok) {
         let detail = `HTTP ${resp.status}`;
         try {
-          const body2 = await resp.json();
-          if (body2?.message) detail = body2.message;
+          const body = await resp.json();
+          if (body?.message) detail = body.message;
         } catch {}
         throw new Error(`config.set failed: ${detail}`);
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginConfigDelete = reactExports.useCallback(
-    async (pluginId, key2) => {
-      const resp = await gatewayFetch2(
-        `/api/plugins/${encodeURIComponent(pluginId)}/config/${encodeURIComponent(key2)}`,
+    async (pluginId, key) => {
+      const resp = await gatewayFetch(
+        `/api/plugins/${encodeURIComponent(pluginId)}/config/${encodeURIComponent(key)}`,
         {
           method: "DELETE",
         },
@@ -3813,18 +3813,18 @@ export function CanvasArea({
         throw new Error(`config.delete failed: HTTP ${resp.status}`);
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginConfigKeys = reactExports.useCallback(
     async (pluginId) => {
-      const resp = await gatewayFetch2(
+      const resp = await gatewayFetch(
         `/api/plugins/${encodeURIComponent(pluginId)}/config`,
       );
       if (!resp.ok) throw new Error(`config.keys failed: HTTP ${resp.status}`);
-      const data2 = await resp.json();
-      return Array.isArray(data2.keys) ? data2.keys : [];
+      const data = await resp.json();
+      return Array.isArray(data.keys) ? data.keys : [];
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const handlePluginGetNodePriceDescription = reactExports.useCallback(
     (nodeType) =>
@@ -3832,57 +3832,57 @@ export function CanvasArea({
         pricingData,
         nodeType,
         {
-          heading: t2("canvas.billing.panel.heading", {
+          heading: translate("canvas.billing.panel.heading", {
             defaultValue: "价格说明",
           }),
-          free: t2("canvas.billing.panel.free", {
+          free: translate("canvas.billing.panel.free", {
             defaultValue: "免费",
           }),
-          generatedVideo: t2("canvas.billing.panel.generatedVideo", {
+          generatedVideo: translate("canvas.billing.panel.generatedVideo", {
             defaultValue: "生成视频",
           }),
-          generatedImage: t2("canvas.billing.panel.generatedImage", {
+          generatedImage: translate("canvas.billing.panel.generatedImage", {
             defaultValue: "生成图片",
           }),
-          inputVideo: t2("canvas.billing.panel.inputVideo", {
+          inputVideo: translate("canvas.billing.panel.inputVideo", {
             defaultValue: "输入视频",
           }),
-          inputAudio: t2("canvas.billing.panel.inputAudio", {
+          inputAudio: translate("canvas.billing.panel.inputAudio", {
             defaultValue: "输入音频",
           }),
-          inputImages: t2("canvas.billing.panel.inputImages", {
+          inputImages: translate("canvas.billing.panel.inputImages", {
             defaultValue: "输入图片",
           }),
-          withReferenceVideo: t2("canvas.billing.panel.withReferenceVideo"),
-          withoutReferenceVideo: t2(
+          withReferenceVideo: translate("canvas.billing.panel.withReferenceVideo"),
+          withoutReferenceVideo: translate(
             "canvas.billing.panel.withoutReferenceVideo",
           ),
-          inputTokens: t2("canvas.billing.panel.inputTokens", {
+          inputTokens: translate("canvas.billing.panel.inputTokens", {
             defaultValue: "输入 Token",
           }),
-          outputTokens: t2("canvas.billing.panel.outputTokens", {
+          outputTokens: translate("canvas.billing.panel.outputTokens", {
             defaultValue: "输出 Token",
           }),
-          videoUpscale: t2("canvas.billing.panel.videoUpscale", {
+          videoUpscale: translate("canvas.billing.panel.videoUpscale", {
             defaultValue: "视频超分",
           }),
           creditsPerSecond: (rate) =>
-            t2("canvas.billing.panel.ratePerSecond", {
+            translate("canvas.billing.panel.ratePerSecond", {
               rate,
               defaultValue: "{{rate}} 积分/秒",
             }),
           creditsPerImage: (rate) =>
-            t2("canvas.billing.panel.ratePerImage", {
+            translate("canvas.billing.panel.ratePerImage", {
               rate,
               defaultValue: "{{rate}} 积分/张",
             }),
           creditsPerMillionTokens: (rate) =>
-            t2("canvas.billing.panel.ratePerMillionTokens", {
+            translate("canvas.billing.panel.ratePerMillionTokens", {
               rate,
               defaultValue: "{{rate}} 积分/百万 Token",
             }),
           imagePricing: (freeCount, firstPaidIndex, rate) =>
-            t2("canvas.billing.panel.imagePricing", {
+            translate("canvas.billing.panel.imagePricing", {
               freeCount,
               firstPaidIndex,
               rate,
@@ -3892,7 +3892,7 @@ export function CanvasArea({
         },
         i18n.resolvedLanguage ?? i18n.language,
       ),
-    [i18n.language, i18n.resolvedLanguage, pricingData, t2],
+    [i18n.language, i18n.resolvedLanguage, pricingData, translate],
   );
   const pluginHost = reactExports.useMemo(
     () => ({
@@ -3976,7 +3976,7 @@ export function CanvasArea({
       pluginDagBridge,
     ],
   );
-  const runtimeRegion2 = getRuntimeConfig().region;
+  const runtimeRegion = getRuntimeConfig().region;
   const runtimeVersion = getRuntimeConfig().appVersion;
   const runtimeGpuAccelerationDisabled =
     getRuntimeConfig().gpuAccelerationDisabled ?? false;
@@ -3987,9 +3987,9 @@ export function CanvasArea({
   );
   reactExports.useEffect(() => {
     setFocusedChatSessionId(sessionStore.getState().focusedSessionId);
-    return sessionStore.subscribe((state2) => {
+    return sessionStore.subscribe((state) => {
       setFocusedChatSessionId((prev) =>
-        prev === state2.focusedSessionId ? prev : state2.focusedSessionId,
+        prev === state.focusedSessionId ? prev : state.focusedSessionId,
       );
     });
   }, [sessionStore]);
@@ -3997,7 +3997,7 @@ export function CanvasArea({
     () => ({
       locale: i18n.language.startsWith("zh") ? "zh" : "en",
       theme: resolvedTheme,
-      region: runtimeRegion2,
+      region: runtimeRegion,
       version: runtimeVersion,
       gpuAccelerationDisabled: runtimeGpuAccelerationDisabled,
       gpuAccelerationDisabledReason: runtimeGpuAccelerationDisabledReason,
@@ -4006,7 +4006,7 @@ export function CanvasArea({
     [
       i18n.language,
       resolvedTheme,
-      runtimeRegion2,
+      runtimeRegion,
       runtimeVersion,
       runtimeGpuAccelerationDisabled,
       runtimeGpuAccelerationDisabledReason,
@@ -4021,7 +4021,7 @@ export function CanvasArea({
           "--island-fill": "var(--canvas-bg)",
         }}
       >
-        {t2("common.loading")}
+        {translate("common.loading")}
       </div>
     );
   }
@@ -4038,10 +4038,10 @@ export function CanvasArea({
       >
         <CanvasWorkflowBridge
           {...canvasSubmissionControls}
-          isWorkspaceActive={isActive2 !== false}
+          isWorkspaceActive={isActive !== false}
           pricingConfig={pricingData}
           hailuo03VideoTrial={hailuo03VideoTrialStatus}
-          claimHailuo03VideoTrial={claimHailuo03VideoTrial2}
+          claimHailuo03VideoTrial={claimHailuo03VideoTrial}
           refreshHailuo03VideoTrial={refreshHailuo03VideoTrial}
           submitImg2Video={handleImg2Video}
           fetchVideoModels={listVideoModels}
@@ -4062,7 +4062,7 @@ export function CanvasArea({
           createTextAsset={handleCreateTextAsset}
           loadTextContent={handleLoadTextContent}
           loadPreviewTextContent={loadPreviewTextContent}
-          previewActive={isActive2 !== false && isPresented !== false}
+          previewActive={isActive !== false && isPresented !== false}
           saveTextContent={handleSaveTextContent}
           textVersions={textVersionsBridge}
           onTextEditActiveChange={handleTextEditActiveChange}
@@ -4160,7 +4160,7 @@ export function CanvasArea({
             ref={canvasViewRef}
             dataSource={dataSource}
             plugins={plugins}
-            region={runtimeRegion2}
+            region={runtimeRegion}
             tagColorResolver={quickTags.resolveTagColors}
             tagFilterActive={quickTags.tagFilterActive}
             onHostKeyboardShortcut={quickTags.handleTagFilterKeyboardShortcut}
@@ -4189,7 +4189,7 @@ export function CanvasArea({
             layoutRelocationKey={layoutRelocationKey}
             onOpenAssets={() => openTab("assets")}
             onOpenHelp={() => setCanvasHelpOpen(true)}
-            isActive={isActive2}
+            isActive={isActive}
             isPresented={isPresented}
             workspaceName={workspaceName}
             onNewNodesNavigate={handleNewNodesNavigate}
@@ -4198,7 +4198,7 @@ export function CanvasArea({
             onLoadStateChange={setAssetSourceStatus}
             loadingOverlay={
               <CanvasLoadingState
-                label={t2("a11y.loading")}
+                label={translate("a11y.loading")}
                 className="absolute inset-0"
               />
             }
@@ -4234,33 +4234,33 @@ export function CanvasArea({
           request={pluginPickerRequest}
           onUploadAndInsert={handlePluginUploadAndInsert}
           onUploadAttachment={handleCanvasUploadAttachment}
-          resolveCanvasNodeId={(path2) =>
-            canvasViewRef.current?.findNodeIdByFilePath(path2) ?? null
+          resolveCanvasNodeId={(path) =>
+            canvasViewRef.current?.findNodeIdByFilePath(path) ?? null
           }
           tagColorResolver={quickTags.resolveTagColors}
           tagRegistry={quickTags.tagRegistry}
         />
         <QuickZoomPresence value={contextMenu}>
-          {(contextMenu2, motionProps) => (
+          {(contextMenu, motionProps) => (
             <NodeContextMenu
               motionProps={motionProps}
               position={{
-                x: contextMenu2.x,
-                y: contextMenu2.y,
+                x: contextMenu.x,
+                y: contextMenu.y,
               }}
-              targets={contextMenu2.targets}
-              actions={contextMenu2.actions}
+              targets={contextMenu.targets}
+              actions={contextMenu.actions}
               onCopy={handleMenuCopy}
               onSaveAs={handleMenuSaveAs}
               onShowInFolder={handleMenuShowInFolder}
               onAddToChat={handleMenuAddToChat}
               onRename={handleMenuRename}
               onCancelGeneration={handleCancelGeneration}
-              tagAssets={contextMenu2.targets
+              tagAssets={contextMenu.targets
                 .map((tgt) => tgt.filePath)
-                .filter((p3) => !!p3)
-                .map((p3) => workspaceAssets.find((a2) => a2.path === p3))
-                .filter((a2) => !!a2)}
+                .filter((path) => !!path)
+                .map((path) => workspaceAssets.find((asset) => asset.path === path))
+                .filter((asset) => !!asset)}
               onClose={closeNodeContextMenu}
             />
           )}

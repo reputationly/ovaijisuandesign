@@ -6,24 +6,24 @@ import {
   validIncomingAssetId,
 } from "./node-registry.js";
 
-export function applyChangesetToDraft(draft, changes, mode2) {
+export function applyChangesetToDraft(draft, changes, mode) {
   const removedSet =
     changes.removedNodeIds && changes.removedNodeIds.length > 0
       ? new Set(changes.removedNodeIds)
       : null;
   const updatedById =
     changes.updatedNodes && changes.updatedNodes.length > 0
-      ? new Map(changes.updatedNodes.map((n2) => [n2.id, n2]))
+      ? new Map(changes.updatedNodes.map((fileNode) => [fileNode.id, fileNode]))
       : null;
   const addedRuntime =
     changes.addedNodes && changes.addedNodes.length > 0
-      ? changes.addedNodes.map((n2) => fileNodeToRuntimeNode(n2, mode2))
+      ? changes.addedNodes.map((fileNode) => fileNodeToRuntimeNode(fileNode, mode))
       : null;
   if (!removedSet && !updatedById && !addedRuntime) return;
-  const next2 = [];
-  for (const node2 of draft.nodes) {
-    if (removedSet?.has(node2.id)) continue;
-    const updated = updatedById?.get(node2.id);
+  const next = [];
+  for (const node of draft.nodes) {
+    if (removedSet?.has(node.id)) continue;
+    const updated = updatedById?.get(node.id);
     if (updated) {
       const updatedPositions = updated.positions ?? {};
       const shouldClearPositions =
@@ -34,17 +34,17 @@ export function applyChangesetToDraft(draft, changes, mode2) {
       const mergedPositions = shouldClearPositions
         ? {}
         : {
-            ...(node2.positions ?? {}),
+            ...(node.positions ?? {}),
             ...updatedPositions,
           };
       const merged = {
-        ...node2,
+        ...node,
         type: updated.type,
         positions: mergedPositions,
       };
       if (updated.data) {
         merged.data = {
-          ...node2.data,
+          ...node.data,
           ...updated.data,
         };
       }
@@ -82,28 +82,28 @@ export function applyChangesetToDraft(draft, changes, mode2) {
         }
       }
       if (updated.type === CanvasNodeType.Group) {
-        const resolved = updated.sizes?.[mode2] ?? updated.size;
+        const resolved = updated.sizes?.[mode] ?? updated.size;
         if (resolved) merged.size = resolved;
         if (updated.sizes)
           merged.sizes = {
-            ...(node2.sizes ?? {}),
+            ...(node.sizes ?? {}),
             ...updated.sizes,
           };
       } else if (updated.size) {
         merged.size = updated.size;
       }
-      next2.push(merged);
+      next.push(merged);
       continue;
     }
-    next2.push(node2);
+    next.push(node);
   }
   if (addedRuntime) {
-    const existingIds = new Set(next2.map((n2) => n2.id));
+    const existingIds = new Set(next.map((node) => node.id));
     for (const added of addedRuntime) {
       if (existingIds.has(added.id)) continue;
       existingIds.add(added.id);
-      next2.push(added);
+      next.push(added);
     }
   }
-  draft.nodes = next2;
+  draft.nodes = next;
 }

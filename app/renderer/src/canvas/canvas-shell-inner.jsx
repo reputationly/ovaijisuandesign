@@ -100,7 +100,7 @@ import {
   useRedrawState,
 } from "../media-editing/use-start-cloud-edit-from-node.js";
 import {
-  BAR_GAP as BAR_GAP$2,
+  BAR_GAP as ERASE_BAR_GAP,
   BAR_HEIGHT,
   BAR_MIN_WIDTH,
   CanvasEraseTopBar,
@@ -123,20 +123,20 @@ import {
 } from "../infra/use-plugin-metadata-store.js";
 import { EdgesCanvas } from "./edges-canvas.jsx";
 import { EdgeInteractionLayer } from "./edge-interaction-layer.jsx";
-function CanvasActiveProvider({ active: active2, children: children2 }) {
+function CanvasActiveProvider({ active, children }) {
   const deferredActive = useDelayedFalse(
-    active2,
+    active,
     INACTIVE_NODE_UNMOUNT_GRACE_MS,
   );
   return (
-    <CanvasActiveContext.Provider value={active2}>
+    <CanvasActiveContext.Provider value={active}>
       <CanvasActiveDeferredContext.Provider value={deferredActive}>
-        {children2}
+        {children}
       </CanvasActiveDeferredContext.Provider>
     </CanvasActiveContext.Provider>
   );
 }
-function CanvasInteractionProvider({ children: children2 }) {
+function CanvasInteractionProvider({ children }) {
   const isDragging = useStore(isDraggingSelector);
   const isMultiSelect = useStore(isMultiSelectSelector);
   const isBoxSelecting = useStore(isBoxSelectingSelector);
@@ -144,7 +144,7 @@ function CanvasInteractionProvider({ children: children2 }) {
     <IsDraggingContext.Provider value={isDragging}>
       <IsMultiSelectContext.Provider value={isMultiSelect}>
         <IsBoxSelectingContext.Provider value={isBoxSelecting}>
-          {children2}
+          {children}
         </IsBoxSelectingContext.Provider>
       </IsMultiSelectContext.Provider>
     </IsDraggingContext.Provider>
@@ -164,10 +164,10 @@ function getMinimapViewportColor(viewportAreaRatio) {
 }
 const HEADER_HIDE_ZOOM_THRESHOLD = 0.15;
 const NODE_HEADERS_HIDDEN_CLASS = "canvas-node-headers-hidden";
-function isNodeHeaderHidden(zoom2) {
-  return zoom2 < HEADER_HIDE_ZOOM_THRESHOLD;
+function isNodeHeaderHidden(zoom) {
+  return zoom < HEADER_HIDE_ZOOM_THRESHOLD;
 }
-function NodeTagRingsCanvas({ active: active2 = true }) {
+function NodeTagRingsCanvas({ active = true }) {
   const storeApi = useStoreApi();
   const tagColorStore = useNodeTagColorApi();
   const tagFilterActive = useCanvasTagFilterActive();
@@ -177,25 +177,25 @@ function NodeTagRingsCanvas({ active: active2 = true }) {
   if (nodesInitialized) initLatchRef.current = true;
   const scheduleRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    if (!active2) {
+    if (!active) {
       scheduleRef.current = null;
       return;
     }
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const flow2 = canvas.closest(".react-flow");
-    if (!flow2) return;
-    let rafId2 = 0;
+    const flow = canvas.closest(".react-flow");
+    if (!flow) return;
+    let rafId = 0;
     let cancelled = false;
     let lastWidth = 0;
     let lastHeight = 0;
     let lastDpr = 0;
     const paint = () => {
-      rafId2 = 0;
+      rafId = 0;
       if (cancelled) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      const rect = flow2.getBoundingClientRect();
+      const rect = flow.getBoundingClientRect();
       const dpr = Math.max(1, window.devicePixelRatio || 1);
       const cssW = Math.max(1, Math.round(rect.width));
       const cssH = Math.max(1, Math.round(rect.height));
@@ -215,74 +215,74 @@ function NodeTagRingsCanvas({ active: active2 = true }) {
       const tagColorState = tagColorStore.getState();
       const tagged = tagColorState.colors;
       if (tagged.size === 0) return;
-      const state2 = storeApi.getState();
-      const [tx, ty, zoom2] = state2.transform;
-      if (!zoom2 || zoom2 <= 0) return;
-      const ringWidth = getNodeTagRingWidth(zoom2);
+      const state = storeApi.getState();
+      const [tx, ty, zoom] = state.transform;
+      if (!zoom || zoom <= 0) return;
+      const ringWidth = getNodeTagRingWidth(zoom);
       const halfRing = ringWidth / 2;
       const ringRadius = MEDIA_NODE_RADIUS + halfRing;
-      const themeStyles = getComputedStyle(flow2);
+      const themeStyles = getComputedStyle(flow);
       const batches = new Map();
-      for (const [nodeId, color2] of tagged) {
+      for (const [nodeId, color] of tagged) {
         if (!tagColorState.activeNodeIds.has(nodeId)) continue;
-        const entry = state2.nodeLookup.get(nodeId);
+        const entry = state.nodeLookup.get(nodeId);
         if (!entry) continue;
-        const box2 = readNodeBox(entry);
-        if (!box2) continue;
-        const ringColor = resolveNodeTagRingColor(color2, (token2) =>
-          themeStyles.getPropertyValue(token2),
+        const box = readNodeBox(entry);
+        if (!box) continue;
+        const ringColor = resolveNodeTagRingColor(color, (token) =>
+          themeStyles.getPropertyValue(token),
         );
-        let batch2 = batches.get(ringColor);
-        if (!batch2) {
-          batch2 = {
+        let batch = batches.get(ringColor);
+        if (!batch) {
+          batch = {
             color: ringColor,
             path: new Path2D(),
           };
-          batches.set(ringColor, batch2);
+          batches.set(ringColor, batch);
         }
-        batch2.path.roundRect(
-          box2.x - halfRing,
-          box2.y - halfRing,
-          box2.width + ringWidth,
-          box2.height + ringWidth,
+        batch.path.roundRect(
+          box.x - halfRing,
+          box.y - halfRing,
+          box.width + ringWidth,
+          box.height + ringWidth,
           ringRadius,
         );
       }
       if (batches.size === 0) return;
-      ctx.setTransform(dpr * zoom2, 0, 0, dpr * zoom2, dpr * tx, dpr * ty);
+      ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, dpr * tx, dpr * ty);
       ctx.lineWidth = ringWidth;
-      for (const batch2 of batches.values()) {
+      for (const batch of batches.values()) {
         ctx.save();
         ctx.globalAlpha = 0.38;
-        ctx.shadowColor = batch2.color;
+        ctx.shadowColor = batch.color;
         ctx.shadowBlur = getNodeTagRingGlowBlur(dpr);
-        ctx.strokeStyle = batch2.color;
-        ctx.stroke(batch2.path);
+        ctx.strokeStyle = batch.color;
+        ctx.stroke(batch.path);
         ctx.restore();
-        ctx.strokeStyle = batch2.color;
-        ctx.stroke(batch2.path);
+        ctx.strokeStyle = batch.color;
+        ctx.stroke(batch.path);
       }
     };
-    const schedule2 = () => {
-      if (rafId2 !== 0) return;
-      rafId2 = requestAnimationFrame(paint);
+    const schedule = () => {
+      if (rafId !== 0) return;
+      rafId = requestAnimationFrame(paint);
     };
-    scheduleRef.current = schedule2;
-    schedule2();
-    const unsubStore = storeApi.subscribe(schedule2);
-    const unsubTagColors = tagColorStore.subscribe(schedule2);
-    const resizeObserver = new ResizeObserver(schedule2);
-    resizeObserver.observe(flow2);
-    const themeObserver = new MutationObserver(schedule2);
+    scheduleRef.current = schedule;
+    schedule();
+    const unsubStore = storeApi.subscribe(schedule);
+    const unsubTagColors = tagColorStore.subscribe(schedule);
+    const resizeObserver = new ResizeObserver(schedule);
+    resizeObserver.observe(flow);
+    const themeObserver = new MutationObserver(schedule);
     themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class", "style", "data-theme"],
     });
-    const onWindowResize = () => schedule2();
+    const onWindowResize = () => schedule();
     window.addEventListener("resize", onWindowResize);
     return () => {
       cancelled = true;
-      if (rafId2 !== 0) cancelAnimationFrame(rafId2);
+      if (rafId !== 0) cancelAnimationFrame(rafId);
       unsubStore();
       unsubTagColors();
       resizeObserver.disconnect();
@@ -290,12 +290,12 @@ function NodeTagRingsCanvas({ active: active2 = true }) {
       window.removeEventListener("resize", onWindowResize);
       scheduleRef.current = null;
     };
-  }, [active2, storeApi, tagColorStore, tagFilterActive]);
+  }, [active, storeApi, tagColorStore, tagFilterActive]);
   reactExports.useEffect(() => {
-    if (!active2 || !nodesInitialized) return;
+    if (!active || !nodesInitialized) return;
     scheduleRef.current?.();
-  }, [active2, nodesInitialized]);
-  return active2 ? (
+  }, [active, nodesInitialized]);
+  return active ? (
     <canvas
       ref={canvasRef}
       className="hilo-node-tag-rings-canvas"
@@ -323,44 +323,44 @@ const EMPTY_DELETE_KEY_CODE = [];
 const PAN_OFF_DEBOUNCE_MS = 200;
 const ZOOM_COMMIT_DEBOUNCE_MS = 220;
 function ConnectingDisabledMarker({ edges }) {
-  const fromNodeId = useConnection((c3) => c3.fromNode?.id ?? null);
+  const fromNodeId = useConnection((connection) => connection.fromNode?.id ?? null);
   const disabledTargets = reactExports.useMemo(() => {
     if (!fromNodeId) return null;
-    const set2 = new Set();
+    const set = new Set();
     for (const edge of edges) {
-      if (edge.source === fromNodeId) set2.add(edge.target);
+      if (edge.source === fromNodeId) set.add(edge.target);
     }
-    return set2;
+    return set;
   }, [fromNodeId, edges]);
   reactExports.useEffect(() => {
     if (!disabledTargets || disabledTargets.size === 0) return;
     const cleanups = [];
-    for (const id2 of disabledTargets) {
+    for (const id of disabledTargets) {
       const el = document.querySelector(
-        `.react-flow__node[data-id="${CSS.escape(id2)}"]`,
+        `.react-flow__node[data-id="${CSS.escape(id)}"]`,
       );
       if (!el) continue;
       el.classList.add("node-conn-disabled");
       cleanups.push(() => el.classList.remove("node-conn-disabled"));
     }
     return () => {
-      for (const fn2 of cleanups) fn2();
+      for (const fn of cleanups) fn();
     };
   }, [disabledTargets]);
   return null;
 }
-function useSpacePan(active2 = true) {
+function useSpacePan(active = true) {
   const [isSpacePressed, setIsSpacePressed] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    if (!active2) return;
-    const onKeyDown = (e2) => {
-      if (e2.code !== "Space" || e2.repeat) return;
-      if (isEditableTarget(e2.target)) return;
-      e2.preventDefault();
+    if (!active) return;
+    const onKeyDown = (keyboardEvent) => {
+      if (keyboardEvent.code !== "Space" || keyboardEvent.repeat) return;
+      if (isEditableTarget(keyboardEvent.target)) return;
+      keyboardEvent.preventDefault();
       setIsSpacePressed(true);
     };
-    const onKeyUp = (e2) => {
-      if (e2.code !== "Space") return;
+    const onKeyUp = (keyboardEvent) => {
+      if (keyboardEvent.code !== "Space") return;
       setIsSpacePressed(false);
     };
     const onBlur = () => setIsSpacePressed(false);
@@ -373,17 +373,17 @@ function useSpacePan(active2 = true) {
       window.removeEventListener("blur", onBlur);
       setIsSpacePressed(false);
     };
-  }, [active2]);
+  }, [active]);
   return isSpacePressed;
 }
 function useStableViewportOnContainerShift(
   containerRef,
-  active2 = true,
+  active = true,
   layoutRelocationKey,
 ) {
   const reactFlow = useReactFlow();
   reactExports.useLayoutEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     const el = containerRef.current;
     if (!el) return;
     if (typeof ResizeObserver === "undefined") return;
@@ -393,29 +393,29 @@ function useStableViewportOnContainerShift(
       const dx = rect.left - lastLeft;
       if (dx === 0) return;
       lastLeft = rect.left;
-      const v2 = reactFlow.getViewport();
+      const viewportState = reactFlow.getViewport();
       reactFlow.setViewport({
-        ...v2,
-        x: v2.x - dx,
+        ...viewportState,
+        x: viewportState.x - dx,
       });
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [active2, containerRef, layoutRelocationKey, reactFlow]);
+  }, [active, containerRef, layoutRelocationKey, reactFlow]);
 }
 const CanvasE2EMarkers = reactExports.memo(
   CanvasE2EMarkersInner,
   arePropsEqual,
 );
 function EmptyCanvasHint() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <Panel
       position="top-center"
       className="canvas-onboarding-panel pointer-events-none select-none"
     >
       <section
-        aria-label={t2("canvas.emptyHint.ariaLabel", {
+        aria-label={translate("canvas.emptyHint.ariaLabel", {
           defaultValue: "Canvas onboarding",
         })}
         className="canvas-onboarding-ui-layer"
@@ -424,12 +424,12 @@ function EmptyCanvasHint() {
           <div className="canvas-onboarding-primary-line">
             <CursorIcon />
             <span className="canvas-onboarding-primary-action">
-              {t2("canvas.emptyHint.primaryAction", {
+              {translate("canvas.emptyHint.primaryAction", {
                 defaultValue: "Double-click canvas",
               })}
             </span>
             <span className="canvas-onboarding-primary-result">
-              {t2("canvas.emptyHint.primaryResult", {
+              {translate("canvas.emptyHint.primaryResult", {
                 defaultValue: "to freely create nodes",
               })}
             </span>
@@ -437,32 +437,32 @@ function EmptyCanvasHint() {
           <div className="canvas-onboarding-secondary-line">
             <span className="canvas-onboarding-secondary-group">
               <span>
-                {t2("canvas.emptyHint.spacePrefix", {
+                {translate("canvas.emptyHint.spacePrefix", {
                   defaultValue: "Hold",
                 })}
               </span>
               <span className="canvas-onboarding-space-key">
                 [
-                {t2("canvas.emptyHint.kbd.space", {
+                {translate("canvas.emptyHint.kbd.space", {
                   defaultValue: "Space",
                 })}
                 ]
               </span>
               <span>
-                {t2("canvas.emptyHint.spaceSuffix", {
+                {translate("canvas.emptyHint.spaceSuffix", {
                   defaultValue: "to move the canvas",
                 })}
               </span>
             </span>
             <span className="canvas-onboarding-secondary-group">
               <span>
-                {t2("canvas.emptyHint.scrollPrefix", {
+                {translate("canvas.emptyHint.scrollPrefix", {
                   defaultValue: "Scroll",
                 })}
               </span>
               <MouseIcon />
               <span>
-                {t2("canvas.emptyHint.zoomSuffix", {
+                {translate("canvas.emptyHint.zoomSuffix", {
                   defaultValue: "to zoom the canvas",
                 })}
               </span>
@@ -473,26 +473,26 @@ function EmptyCanvasHint() {
     </Panel>
   );
 }
-const NodeAlignmentGuides = reactExports.memo(function NodeAlignmentGuides2({
+const NodeAlignmentGuides = reactExports.memo(function NodeAlignmentGuides({
   store,
 }) {
   const svgRef = reactExports.useRef(null);
   reactExports.useLayoutEffect(() => {
-    const svg2 = svgRef.current;
-    if (!svg2) return;
+    const svg = svgRef.current;
+    if (!svg) return;
     const slots = Array.from(
       {
         length: INITIAL_GUIDE_SLOTS,
       },
-      () => createGuideSlot(svg2),
+      () => createGuideSlot(svg),
     );
-    const render2 = ({ guides, transform: [tx, ty, zoom2] }) => {
+    const render = ({ guides, transform: [tx, ty, zoom] }) => {
       const display = guides.length > 0 ? "" : "none";
-      if (svg2.style.display !== display) svg2.style.display = display;
-      while (slots.length < guides.length) slots.push(createGuideSlot(svg2));
-      for (let i2 = 0; i2 < slots.length; i2++) {
-        const slot = slots[i2];
-        const guide = guides[i2];
+      if (svg.style.display !== display) svg.style.display = display;
+      while (slots.length < guides.length) slots.push(createGuideSlot(svg));
+      for (let index = 0; index < slots.length; index++) {
+        const slot = slots[index];
+        const guide = guides[index];
         if (!guide) {
           if (slot.group.style.display !== "none") {
             slot.group.style.display = "none";
@@ -502,12 +502,12 @@ const NodeAlignmentGuides = reactExports.memo(function NodeAlignmentGuides2({
         }
         if (slot.group.style.display === "none") slot.group.style.display = "";
         setAttribute(slot.group, "data-guide-kind", guide.kind);
-        const x1 = guide.x1 * zoom2 + tx;
-        const y1 = guide.y1 * zoom2 + ty;
-        const x2 = guide.x2 * zoom2 + tx;
-        const y22 = guide.y2 * zoom2 + ty;
-        const horizontal = y1 === y22;
-        const cap2 = 3;
+        const x1 = guide.x1 * zoom + tx;
+        const y1 = guide.y1 * zoom + ty;
+        const x2 = guide.x2 * zoom + tx;
+        const endY = guide.y2 * zoom + ty;
+        const horizontal = y1 === endY;
+        const cap = 3;
         const alignment = guide.kind === "alignment";
         setAttribute(
           slot.line,
@@ -527,7 +527,7 @@ const NodeAlignmentGuides = reactExports.memo(function NodeAlignmentGuides2({
         setAttribute(
           slot.line,
           "y2",
-          alignment && !horizontal ? "100%" : String(y22),
+          alignment && !horizontal ? "100%" : String(endY),
         );
         setAttribute(
           slot.caps,
@@ -535,8 +535,8 @@ const NodeAlignmentGuides = reactExports.memo(function NodeAlignmentGuides2({
           alignment
             ? ""
             : horizontal
-              ? `M${x1},${y1 - cap2}v${cap2 * 2}M${x2},${y22 - cap2}v${cap2 * 2}`
-              : `M${x1 - cap2},${y1}h${cap2 * 2}M${x2 - cap2},${y22}h${cap2 * 2}`,
+              ? `M${x1},${y1 - cap}v${cap * 2}M${x2},${endY - cap}v${cap * 2}`
+              : `M${x1 - cap},${y1}h${cap * 2}M${x2 - cap},${endY}h${cap * 2}`,
         );
         setAttribute(
           slot.label,
@@ -546,21 +546,21 @@ const NodeAlignmentGuides = reactExports.memo(function NodeAlignmentGuides2({
         setAttribute(
           slot.label,
           "y",
-          String((y1 + y22) / 2 - (horizontal ? 7 : 0)),
+          String((y1 + endY) / 2 - (horizontal ? 7 : 0)),
         );
-        const text2 =
+        const text =
           guide.distance === void 0
             ? ""
             : String(Math.round(guide.distance * 100) / 100);
-        if (slot.text.data !== text2) slot.text.data = text2;
+        if (slot.text.data !== text) slot.text.data = text;
       }
     };
-    const unsubscribe = store.subscribe(render2);
-    render2(store.getState());
+    const unsubscribe = store.subscribe(render);
+    render(store.getState());
     return () => {
       unsubscribe();
-      svg2.replaceChildren();
-      svg2.style.display = "none";
+      svg.replaceChildren();
+      svg.style.display = "none";
     };
   }, [store]);
   return (
@@ -575,8 +575,8 @@ const NodeAlignmentGuides = reactExports.memo(function NodeAlignmentGuides2({
     />
   );
 });
-const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
-  const { meta: meta2, cancelErase, erasingNodeId } = useEraseState();
+const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay() {
+  const { meta, cancelErase, erasingNodeId } = useEraseState();
   const { onNodeAction } = useCanvasBridge();
   const enterTimeRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -586,9 +586,9 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
       enterTimeRef.current = null;
     }
   }, [erasingNodeId]);
-  useCropViewportZoom(meta2);
-  const transform2 = useStore((s2) => s2.transform);
-  const [vpX, vpY, vpZoom] = transform2;
+  useCropViewportZoom(meta);
+  const transform = useStore((state) => state.transform);
+  const [vpX, vpY, vpZoom] = transform;
   const [confirming, setConfirming] = reactExports.useState(false);
   const [resolution, setResolution] = reactExports.useState("2K");
   const eraseApi = useImageErase();
@@ -596,7 +596,7 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
     selections,
     brushSize,
     setBrushSize,
-    tool: tool2,
+    tool,
     setTool,
     undoStroke,
     redoStroke,
@@ -604,14 +604,14 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
     canRedo,
   } = eraseApi;
   const imagePos = reactExports.useMemo(() => {
-    if (!meta2) return null;
+    if (!meta) return null;
     return {
-      x: meta2.nodeFlowX * vpZoom + vpX,
-      y: meta2.nodeFlowY * vpZoom + vpY,
-      w: meta2.nodeWidth * vpZoom,
-      h: meta2.nodeHeight * vpZoom,
+      x: meta.nodeFlowX * vpZoom + vpX,
+      y: meta.nodeFlowY * vpZoom + vpY,
+      w: meta.nodeWidth * vpZoom,
+      h: meta.nodeHeight * vpZoom,
     };
-  }, [meta2, vpX, vpY, vpZoom]);
+  }, [meta, vpX, vpY, vpZoom]);
   const trackedCancelErase = reactExports.useCallback(() => {
     if (onNodeAction && erasingNodeId && !confirming) {
       const durationMs = enterTimeRef.current
@@ -639,13 +639,13 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
     cursorStyle,
     maskOverlayOpacity,
   } = useImageMaskPainter({
-    meta: meta2,
+    meta,
     imagePos,
     onCancel: trackedCancelErase,
     toolApi: eraseApi,
   });
   const handleConfirm = reactExports.useCallback(() => {
-    if (confirming || !meta2 || selections.length === 0) return;
+    if (confirming || !meta || selections.length === 0) return;
     const bboxes = selectionsToNormalizedBBoxes(selections);
     if (bboxes.length === 0) {
       trackedCancelErase();
@@ -671,7 +671,7 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
         });
       } catch {}
     }
-    const { onConfirm, originalWidth, originalHeight } = meta2;
+    const { onConfirm, originalWidth, originalHeight } = meta;
     void onConfirm({
       bboxes,
       aspectRatio:
@@ -683,7 +683,7 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
     cancelErase();
   }, [
     confirming,
-    meta2,
+    meta,
     selections,
     resolution,
     cancelErase,
@@ -691,7 +691,7 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
     onNodeAction,
     erasingNodeId,
   ]);
-  if (!meta2 || !imagePos) return null;
+  if (!meta || !imagePos) return null;
   const barContainerWidth = Math.max(imagePos.w, BAR_MIN_WIDTH);
   const barContainerLeft = imagePos.x + (imagePos.w - barContainerWidth) / 2;
   return (
@@ -725,7 +725,7 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
       <div
         className="absolute pointer-events-auto flex justify-center"
         style={{
-          transform: `translate3d(${barContainerLeft}px, ${imagePos.y - BAR_HEIGHT - BAR_GAP$2}px, 0)`,
+          transform: `translate3d(${barContainerLeft}px, ${imagePos.y - BAR_HEIGHT - ERASE_BAR_GAP}px, 0)`,
           width: barContainerWidth,
           height: BAR_HEIGHT,
           top: 0,
@@ -734,7 +734,7 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
         }}
       >
         <CanvasEraseTopBar
-          tool={tool2}
+          tool={tool}
           onToolChange={setTool}
           brushSize={brushSize}
           onBrushSizeChange={setBrushSize}
@@ -748,7 +748,7 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
       <div
         className="absolute pointer-events-auto flex justify-center"
         style={{
-          transform: `translate3d(${barContainerLeft}px, ${imagePos.y + imagePos.h + BAR_GAP$2}px, 0)`,
+          transform: `translate3d(${barContainerLeft}px, ${imagePos.y + imagePos.h + ERASE_BAR_GAP}px, 0)`,
           width: barContainerWidth,
           height: BAR_HEIGHT,
           top: 0,
@@ -768,31 +768,31 @@ const CanvasEraseOverlay = reactExports.memo(function CanvasEraseOverlay2() {
     </div>
   );
 });
-const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
-  const { meta: meta2, cancelRedraw, redrawingNodeId } = useRedrawState();
+const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay() {
+  const { meta, cancelRedraw, redrawingNodeId } = useRedrawState();
   const { onNodeAction } = useCanvasBridge();
   const enterTimeRef = reactExports.useRef(Date.now());
   const bottomBarRef = reactExports.useRef(null);
   const [bottomBarHeight, setBottomBarHeight] = reactExports.useState(0);
   reactExports.useEffect(() => {
-    const node2 = bottomBarRef.current;
-    if (!node2) return;
-    const ro = new ResizeObserver((entries2) => {
-      for (const entry of entries2) {
-        const h2 = entry.contentRect.height;
-        setBottomBarHeight((prev) => (Math.abs(prev - h2) > 0.5 ? h2 : prev));
+    const node = bottomBarRef.current;
+    if (!node) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const height = entry.contentRect.height;
+        setBottomBarHeight((prev) => (Math.abs(prev - height) > 0.5 ? height : prev));
       }
     });
-    ro.observe(node2);
+    ro.observe(node);
     return () => ro.disconnect();
   }, []);
   const composerMeasured = bottomBarHeight > 0;
   useCropViewportZoom(
-    composerMeasured ? meta2 : null,
+    composerMeasured ? meta : null,
     composerMeasured ? bottomBarHeight + BAR_GAP : 0,
   );
-  const transform2 = useStore((s2) => s2.transform);
-  const [vpX, vpY, vpZoom] = transform2;
+  const transform = useStore((state) => state.transform);
+  const [vpX, vpY, vpZoom] = transform;
   const [resolution, setResolution] = reactExports.useState("2K");
   const sentRef = reactExports.useRef(false);
   const eraseApi = useImageErase();
@@ -800,7 +800,7 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
     selections,
     brushSize,
     setBrushSize,
-    tool: tool2,
+    tool,
     setTool,
     undoStroke,
     redoStroke,
@@ -824,14 +824,14 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
     cancelRedraw();
   }, [onNodeAction, redrawingNodeId, selections.length, cancelRedraw]);
   const imagePos = reactExports.useMemo(() => {
-    if (!meta2) return null;
+    if (!meta) return null;
     return {
-      x: meta2.nodeFlowX * vpZoom + vpX,
-      y: meta2.nodeFlowY * vpZoom + vpY,
-      w: meta2.nodeWidth * vpZoom,
-      h: meta2.nodeHeight * vpZoom,
+      x: meta.nodeFlowX * vpZoom + vpX,
+      y: meta.nodeFlowY * vpZoom + vpY,
+      w: meta.nodeWidth * vpZoom,
+      h: meta.nodeHeight * vpZoom,
     };
-  }, [meta2, vpX, vpY, vpZoom]);
+  }, [meta, vpX, vpY, vpZoom]);
   const {
     paintRectRef,
     maskCanvasRef,
@@ -840,7 +840,7 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
     cursorStyle,
     maskOverlayOpacity,
   } = useImageMaskPainter({
-    meta: meta2,
+    meta,
     imagePos,
     onCancel: trackedCancelRedraw,
     toolApi: eraseApi,
@@ -857,7 +857,7 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
   });
   const handleSend = reactExports.useCallback(
     (prompt, attachments) => {
-      if (sentRef.current || !meta2 || selections.length === 0) return;
+      if (sentRef.current || !meta || selections.length === 0) return;
       sentRef.current = true;
       if (onNodeAction && redrawingNodeId) {
         try {
@@ -876,7 +876,7 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
           });
         } catch {}
       }
-      const { onConfirm, originalWidth, originalHeight } = meta2;
+      const { onConfirm, originalWidth, originalHeight } = meta;
       const aspectRatio =
         originalWidth > 0 && originalHeight > 0
           ? originalWidth / originalHeight
@@ -891,7 +891,7 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
       }).catch(() => {});
     },
     [
-      meta2,
+      meta,
       selections,
       resolution,
       cancelRedraw,
@@ -899,7 +899,7 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
       redrawingNodeId,
     ],
   );
-  if (!meta2 || !imagePos) return null;
+  if (!meta || !imagePos) return null;
   const topBarWidth = Math.max(imagePos.w, TOP_BAR_MIN_WIDTH);
   const topBarLeft = imagePos.x + (imagePos.w - topBarWidth) / 2;
   const bottomBarWidth = Math.max(
@@ -947,7 +947,7 @@ const CanvasRedrawOverlay = reactExports.memo(function CanvasRedrawOverlay2() {
         }}
       >
         <CanvasEraseTopBar
-          tool={tool2}
+          tool={tool}
           onToolChange={setTool}
           brushSize={brushSize}
           onBrushSizeChange={setBrushSize}
@@ -990,33 +990,33 @@ function getVisibleGridStart(visibleMin) {
   return Math.floor(visibleMin / VISIBLE_GRID_GAP) * VISIBLE_GRID_GAP;
 }
 function readDotColor(host) {
-  const raw2 = getComputedStyle(host)
+  const raw = getComputedStyle(host)
     .getPropertyValue("--canvas-bg-dot")
     .trim();
-  return raw2 || COLOR_FALLBACK;
+  return raw || COLOR_FALLBACK;
 }
-function BackgroundCanvas({ active: active2 = true, variant = "dots" }) {
+function BackgroundCanvas({ active = true, variant = "dots" }) {
   const storeApi = useStoreApi();
   const canvasRef = reactExports.useRef(null);
   const variantRef = reactExports.useRef(variant);
   const scheduleRef = reactExports.useRef(null);
   variantRef.current = variant;
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const flow2 = canvas.closest(".react-flow");
-    if (!flow2) return;
-    let rafId2 = 0;
+    const flow = canvas.closest(".react-flow");
+    if (!flow) return;
+    let rafId = 0;
     let lastWidth = 0;
     let lastHeight = 0;
     let lastDpr = 0;
-    let color2 = readDotColor(flow2);
+    let color = readDotColor(flow);
     const paint = () => {
-      rafId2 = 0;
+      rafId = 0;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      const rect = flow2.getBoundingClientRect();
+      const rect = flow.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       const cssW = Math.round(rect.width);
       const cssH = Math.round(rect.height);
@@ -1031,77 +1031,77 @@ function BackgroundCanvas({ active: active2 = true, variant = "dots" }) {
       }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const state2 = storeApi.getState();
-      const [tx, ty, zoom2] = state2.transform;
-      if (zoom2 <= MIN_VISIBLE_GRID_ZOOM) return;
-      ctx.setTransform(dpr * zoom2, 0, 0, dpr * zoom2, dpr * tx, dpr * ty);
-      ctx.fillStyle = color2;
-      const visMinX = -tx / zoom2;
-      const visMinY = -ty / zoom2;
-      const visMaxX = (cssW - tx) / zoom2;
-      const visMaxY = (cssH - ty) / zoom2;
+      const state = storeApi.getState();
+      const [tx, ty, zoom] = state.transform;
+      if (zoom <= MIN_VISIBLE_GRID_ZOOM) return;
+      ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, dpr * tx, dpr * ty);
+      ctx.fillStyle = color;
+      const visMinX = -tx / zoom;
+      const visMinY = -ty / zoom;
+      const visMaxX = (cssW - tx) / zoom;
+      const visMaxY = (cssH - ty) / zoom;
       const startX = getVisibleGridStart(visMinX);
       const startY = getVisibleGridStart(visMinY);
       if (variantRef.current === "grid") {
-        const lineWidth = 0.5 / zoom2;
-        for (let x2 = startX; x2 <= visMaxX; x2 += VISIBLE_GRID_GAP) {
-          ctx.fillRect(x2, visMinY, lineWidth, visMaxY - visMinY);
+        const lineWidth = 0.5 / zoom;
+        for (let gridX = startX; gridX <= visMaxX; gridX += VISIBLE_GRID_GAP) {
+          ctx.fillRect(gridX, visMinY, lineWidth, visMaxY - visMinY);
         }
-        for (let y4 = startY; y4 <= visMaxY; y4 += VISIBLE_GRID_GAP) {
-          ctx.fillRect(visMinX, y4, visMaxX - visMinX, lineWidth);
+        for (let gridY = startY; gridY <= visMaxY; gridY += VISIBLE_GRID_GAP) {
+          ctx.fillRect(visMinX, gridY, visMaxX - visMinX, lineWidth);
         }
         return;
       }
       ctx.beginPath();
-      for (let x2 = startX; x2 <= visMaxX; x2 += VISIBLE_GRID_GAP) {
-        for (let y4 = startY; y4 <= visMaxY; y4 += VISIBLE_GRID_GAP) {
-          ctx.moveTo(x2 + DOT_RADIUS, y4);
-          ctx.arc(x2, y4, DOT_RADIUS, 0, Math.PI * 2);
+      for (let gridX = startX; gridX <= visMaxX; gridX += VISIBLE_GRID_GAP) {
+        for (let gridY = startY; gridY <= visMaxY; gridY += VISIBLE_GRID_GAP) {
+          ctx.moveTo(gridX + DOT_RADIUS, gridY);
+          ctx.arc(gridX, gridY, DOT_RADIUS, 0, Math.PI * 2);
         }
       }
       ctx.fill();
     };
-    const schedule2 = () => {
-      if (rafId2 !== 0) return;
-      rafId2 = requestAnimationFrame(paint);
+    const schedule = () => {
+      if (rafId !== 0) return;
+      rafId = requestAnimationFrame(paint);
     };
-    scheduleRef.current = schedule2;
+    scheduleRef.current = schedule;
     const themeObserver = new MutationObserver(() => {
-      color2 = readDotColor(flow2);
-      schedule2();
+      color = readDotColor(flow);
+      schedule();
     });
     themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class", "style", "data-theme"],
     });
-    schedule2();
+    schedule();
     let prevTransform = storeApi.getState().transform;
     const unsubStore = storeApi.subscribe(() => {
-      const next2 = storeApi.getState().transform;
-      if (next2 === prevTransform) return;
-      prevTransform = next2;
-      schedule2();
+      const next = storeApi.getState().transform;
+      if (next === prevTransform) return;
+      prevTransform = next;
+      schedule();
     });
-    const resizeObserver = new ResizeObserver(schedule2);
-    resizeObserver.observe(flow2);
+    const resizeObserver = new ResizeObserver(schedule);
+    resizeObserver.observe(flow);
     const dprMql = window.matchMedia(
       `(resolution: ${window.devicePixelRatio}dppx)`,
     );
-    const onDprChange = () => schedule2();
+    const onDprChange = () => schedule();
     dprMql.addEventListener("change", onDprChange);
     return () => {
-      if (rafId2 !== 0) cancelAnimationFrame(rafId2);
+      if (rafId !== 0) cancelAnimationFrame(rafId);
       scheduleRef.current = null;
       themeObserver.disconnect();
       unsubStore();
       resizeObserver.disconnect();
       dprMql.removeEventListener("change", onDprChange);
     };
-  }, [active2, storeApi]);
+  }, [active, storeApi]);
   reactExports.useEffect(() => {
     scheduleRef.current?.();
-  }, [active2, variant]);
-  return active2 ? (
+  }, [active, variant]);
+  return active ? (
     <canvas
       ref={canvasRef}
       aria-hidden={true}
@@ -1118,8 +1118,8 @@ function BackgroundCanvas({ active: active2 = true, variant = "dots" }) {
 function useEdgeCulling(edges, options) {
   const bufferRatio = options?.bufferRatio ?? DEFAULT_BUFFER_RATIO;
   const minEdges = options?.minEdges ?? MIN_EDGES_TO_CULL;
-  const disabled2 = options?.disabled ?? false;
-  const active2 = options?.active ?? true;
+  const disabled = options?.disabled ?? false;
+  const active = options?.active ?? true;
   const storeApi = useStoreApi();
   const emptyHiddenRef = reactExports.useRef(new Set());
   const [hiddenIds, setHiddenIds] = reactExports.useState(
@@ -1130,75 +1130,75 @@ function useEdgeCulling(edges, options) {
   const optsRef = reactExports.useRef({
     bufferRatio,
     minEdges,
-    disabled: disabled2,
+    disabled,
   });
   optsRef.current = {
     bufferRatio,
     minEdges,
-    disabled: disabled2,
+    disabled,
   };
   reactExports.useEffect(() => {
-    if (!active2) {
+    if (!active) {
       setHiddenIds(emptyHiddenRef.current);
       return;
     }
-    let rafId2 = 0;
+    let rafId = 0;
     let cancelled = false;
     const recompute = () => {
-      rafId2 = 0;
+      rafId = 0;
       if (cancelled) return;
       const opts = optsRef.current;
-      const list2 = edgesRef.current;
-      let next2;
-      if (opts.disabled || list2.length < opts.minEdges) {
-        next2 = emptyHiddenRef.current;
+      const list = edgesRef.current;
+      let next;
+      if (opts.disabled || list.length < opts.minEdges) {
+        next = emptyHiddenRef.current;
       } else {
-        const state2 = storeApi.getState();
-        next2 = computeHiddenEdgeIds(state2, list2, opts.bufferRatio);
+        const state = storeApi.getState();
+        next = computeHiddenEdgeIds(state, list, opts.bufferRatio);
       }
-      setHiddenIds((prev) => (sameMembership(prev, next2) ? prev : next2));
+      setHiddenIds((prev) => (sameMembership(prev, next) ? prev : next));
     };
     recompute();
     const unsubscribe = storeApi.subscribe(() => {
-      if (rafId2 !== 0) return;
-      rafId2 = requestAnimationFrame(recompute);
+      if (rafId !== 0) return;
+      rafId = requestAnimationFrame(recompute);
     });
     return () => {
       cancelled = true;
-      if (rafId2 !== 0) cancelAnimationFrame(rafId2);
+      if (rafId !== 0) cancelAnimationFrame(rafId);
       unsubscribe();
     };
-  }, [active2, storeApi]);
+  }, [active, storeApi]);
   reactExports.useEffect(() => {
-    if (!active2) {
+    if (!active) {
       setHiddenIds(emptyHiddenRef.current);
       return;
     }
     const opts = optsRef.current;
-    let next2;
+    let next;
     if (opts.disabled || edges.length < opts.minEdges) {
-      next2 = emptyHiddenRef.current;
+      next = emptyHiddenRef.current;
     } else {
-      const state2 = storeApi.getState();
-      next2 = computeHiddenEdgeIds(state2, edges, opts.bufferRatio);
+      const state = storeApi.getState();
+      next = computeHiddenEdgeIds(state, edges, opts.bufferRatio);
     }
-    setHiddenIds((prev) => (sameMembership(prev, next2) ? prev : next2));
-  }, [active2, edges, storeApi]);
+    setHiddenIds((prev) => (sameMembership(prev, next) ? prev : next));
+  }, [active, edges, storeApi]);
   return reactExports.useMemo(
     () => applyEdgeCullingVisibility(edges, hiddenIds),
     [edges, hiddenIds],
   );
 }
-function useMiddleButtonPanCursor(active2 = true) {
+function useMiddleButtonPanCursor(active = true) {
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     let isDragging = false;
     const ensureStyle = () => {
       if (document.getElementById(STYLE_ELEMENT_ID)) return;
-      const style2 = document.createElement("style");
-      style2.id = STYLE_ELEMENT_ID;
-      style2.textContent = `body.${MIDDLE_DRAG_CLASS}, body.${MIDDLE_DRAG_CLASS} .react-flow__pane { cursor: grabbing !important; }`;
-      document.head.appendChild(style2);
+      const style = document.createElement("style");
+      style.id = STYLE_ELEMENT_ID;
+      style.textContent = `body.${MIDDLE_DRAG_CLASS}, body.${MIDDLE_DRAG_CLASS} .react-flow__pane { cursor: grabbing !important; }`;
+      document.head.appendChild(style);
     };
     const handleDown = (event) => {
       if (event.button !== 1) return;
@@ -1224,7 +1224,7 @@ function useMiddleButtonPanCursor(active2 = true) {
       document.body.classList.remove(MIDDLE_DRAG_CLASS);
       document.getElementById(STYLE_ELEMENT_ID)?.remove();
     };
-  }, [active2]);
+  }, [active]);
 }
 function useNodeAlignmentSnap(enabled) {
   const flowStore = useStoreApi();
@@ -1244,33 +1244,33 @@ function useNodeAlignmentSnap(enabled) {
         clear();
         return void 0;
       }
-      const state2 = flowStore.getState();
+      const state = flowStore.getState();
       if (session.current?.source !== input.referenceBounds) {
         session.current = {
           source: input.referenceBounds,
           referenceIds: getAlignmentReferenceIds(
-            Array.from(state2.nodeLookup.values(), (node2) => ({
-              id: node2.id,
-              parentId: node2.parentId,
-              type: node2.type,
-              data: node2.data,
-              hidden: node2.hidden,
-              collapsed: node2.className?.includes("canvas-group-collapsed"),
-              ...node2.internals.positionAbsolute,
-              width: node2.measured.width ?? 0,
-              height: node2.measured.height ?? 0,
+            Array.from(state.nodeLookup.values(), (node) => ({
+              id: node.id,
+              parentId: node.parentId,
+              type: node.type,
+              data: node.data,
+              hidden: node.hidden,
+              collapsed: node.className?.includes("canvas-group-collapsed"),
+              ...node.internals.positionAbsolute,
+              width: node.measured.width ?? 0,
+              height: node.measured.height ?? 0,
             })),
             input.draggedIds,
           ),
           locks: {},
         };
       }
-      const [x2, y4, zoom2] = state2.transform;
+      const [translateX, translateY, zoom] = state.transform;
       const viewport = {
-        x: -x2 / zoom2,
-        y: -y4 / zoom2,
-        width: state2.width / zoom2,
-        height: state2.height / zoom2,
+        x: -translateX / zoom,
+        y: -translateY / zoom,
+        width: state.width / zoom,
+        height: state.height / zoom,
       };
       const references = [];
       const bounds = {
@@ -1279,21 +1279,21 @@ function useNodeAlignmentSnap(enabled) {
         width: 0,
         height: 0,
       };
-      for (const id2 of session.current.referenceIds) {
-        const node2 = state2.nodeLookup.get(id2);
+      for (const id of session.current.referenceIds) {
+        const node = state.nodeLookup.get(id);
         if (
-          !node2 ||
-          node2.hidden ||
-          node2.className?.includes("canvas-group-collapsed")
+          !node ||
+          node.hidden ||
+          node.className?.includes("canvas-group-collapsed")
         )
           continue;
-        bounds.x = node2.internals.positionAbsolute.x;
-        bounds.y = node2.internals.positionAbsolute.y;
-        bounds.width = node2.measured.width ?? 0;
-        bounds.height = node2.measured.height ?? 0;
+        bounds.x = node.internals.positionAbsolute.x;
+        bounds.y = node.internals.positionAbsolute.y;
+        bounds.width = node.measured.width ?? 0;
+        bounds.height = node.measured.height ?? 0;
         if (intersectsViewport(bounds, viewport))
           references.push({
-            id: id2,
+            id,
             ...bounds,
           });
       }
@@ -1302,7 +1302,7 @@ function useNodeAlignmentSnap(enabled) {
           movingBounds: input.movingBounds,
           references,
           viewport,
-          zoom: zoom2,
+          zoom,
           bypass: input.bypass,
         },
         session.current.locks,
@@ -1314,7 +1314,7 @@ function useNodeAlignmentSnap(enabled) {
       ) {
         guidesStore.setState({
           guides: result.guides,
-          transform: state2.transform,
+          transform: state.transform,
         });
       }
       return {
@@ -1326,9 +1326,9 @@ function useNodeAlignmentSnap(enabled) {
   reactExports.useEffect(() => {
     if (!enabled) clear();
     window.addEventListener("blur", clear);
-    const unsubscribe = flowStore.subscribe((state2, previous2) => {
+    const unsubscribe = flowStore.subscribe((state, previous) => {
       if (
-        state2.transform !== previous2.transform &&
+        state.transform !== previous.transform &&
         guidesStore.getState().guides.length > 0
       ) {
         guidesStore.setState({
@@ -1349,21 +1349,21 @@ function useNodeAlignmentSnap(enabled) {
   };
 }
 function CanvasModeLayers() {
-  const mode2 = useActiveMode();
+  const mode = useActiveMode();
   return (
     <>
-      {mode2.isCropping && <CanvasCropOverlay />}
-      {mode2.isOutpainting && <CanvasOutpaintOverlay />}
-      {mode2.isErasing && <CanvasEraseOverlay />}
-      {mode2.isRedrawing && <CanvasRedrawOverlay />}
-      {mode2.isMovingObject && <CanvasMoveObjectOverlay />}
+      {mode.isCropping && <CanvasCropOverlay />}
+      {mode.isOutpainting && <CanvasOutpaintOverlay />}
+      {mode.isErasing && <CanvasEraseOverlay />}
+      {mode.isRedrawing && <CanvasRedrawOverlay />}
+      {mode.isMovingObject && <CanvasMoveObjectOverlay />}
     </>
   );
 }
 export function CanvasShellInner({
   nodes,
   edges,
-  registry: registry2,
+  registry,
   onNodesChange,
   onEdgesChange,
   onConnect,
@@ -1382,50 +1382,50 @@ export function CanvasShellInner({
   toolbarPlacement = DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT,
   stickerMode = false,
   handTool = false,
-  children: children2,
-  active: active2 = true,
+  children,
+  active = true,
   layoutRelocationKey,
   onViewportChangeEnd,
 }) {
-  const registryVersion = registry2.getVersion();
+  const registryVersion = registry.getVersion();
   const [selectedCount, setSelectedCount] = reactExports.useState(0);
   const storeApi = useStoreApi();
   const activeMode = useActiveMode();
   const isModalOpen = useIsCanvasModalOpen();
-  const showBackgroundGrid = useStore((s2) => s2.transform[2] > 0.5);
+  const showBackgroundGrid = useStore((state) => state.transform[2] > 0.5);
   const culledEdges = useEdgeCulling(edges, {
-    active: active2,
+    active,
   });
   const interactionsSuspended = activeMode.hasViewportLock || isModalOpen;
   const nodeInteractionsSuspended =
     interactionsSuspended || activeMode.isOutpainting;
-  const isSpacePanning = useSpacePan(active2);
+  const isSpacePanning = useSpacePan(active);
   const isHandPanning = handTool || isSpacePanning;
   const alignmentSnapEnabled = useAlignmentSnapPreferenceStore(
-    (state2) => state2.enabled,
+    (state) => state.enabled,
   );
   const alignmentSnap = useNodeAlignmentSnap(
     alignmentSnapEnabled &&
-      active2 &&
+      active &&
       !nodeInteractionsSuspended &&
       !isHandPanning &&
       !stickerMode,
   );
-  useMiddleButtonPanCursor(active2);
+  useMiddleButtonPanCursor(active);
   const isAnyOverlayActive = activeMode.isAnyActive;
-  const isConnecting = useConnection((c3) => c3.inProgress);
+  const isConnecting = useConnection((connection) => connection.inProgress);
   const reactFlow = useReactFlow();
   const handleMinimapClick = reactExports.useCallback(
-    (_event, position2) => {
-      const { zoom: zoom2 } = reactFlow.getViewport();
+    (_event, position) => {
+      const { zoom } = reactFlow.getViewport();
       const { width, height } = storeApi.getState();
       const target = computeClickPanViewport(
-        position2,
+        position,
         {
           width,
           height,
         },
-        zoom2,
+        zoom,
       );
       void reactFlow.setViewport(target, {
         duration: 250,
@@ -1435,9 +1435,9 @@ export function CanvasShellInner({
     [reactFlow, storeApi],
   );
   const existingEdgeKeys = reactExports.useMemo(() => {
-    const set2 = new Set();
-    for (const edge of edges) set2.add(`${edge.source}->${edge.target}`);
-    return set2;
+    const set = new Set();
+    for (const edge of edges) set.add(`${edge.source}->${edge.target}`);
+    return set;
   }, [edges]);
   const isValidConnection = reactExports.useCallback(
     (conn) => {
@@ -1450,20 +1450,20 @@ export function CanvasShellInner({
     },
     [existingEdgeKeys, storeApi],
   );
-  const nodeTypes2 = reactExports.useMemo(
-    () => registry2.getNodeComponentMap(),
-    [registry2, registryVersion],
+  const nodeTypes = reactExports.useMemo(
+    () => registry.getNodeComponentMap(),
+    [registry, registryVersion],
   );
   const edgeTypes = reactExports.useMemo(
-    () => registry2.getEdgeComponentMap(),
-    [registry2, registryVersion],
+    () => registry.getEdgeComponentMap(),
+    [registry, registryVersion],
   );
   const handleNodeDragStop = reactExports.useCallback(
     (_event, _node, draggedNodes) => {
       onNodeDragStop?.(
-        draggedNodes.map((n2) => ({
-          id: n2.id,
-          position: n2.position,
+        draggedNodes.map((node) => ({
+          id: node.id,
+          position: node.position,
         })),
       );
     },
@@ -1472,7 +1472,7 @@ export function CanvasShellInner({
   const handleSelectionChange = reactExports.useCallback(
     ({ nodes: selectedNodes }) => {
       setSelectedCount(selectedNodes.length);
-      onSelectionChange?.(selectedNodes.map((n2) => n2.id));
+      onSelectionChange?.(selectedNodes.map((node) => node.id));
     },
     [onSelectionChange],
   );
@@ -1486,19 +1486,19 @@ export function CanvasShellInner({
     [activeMode, multiImageOverlayStore, onPaneClick],
   );
   const containerRef = reactExports.useRef(null);
-  const syncNodeHeaderVisibility = reactExports.useCallback((zoom2) => {
+  const syncNodeHeaderVisibility = reactExports.useCallback((zoom) => {
     const container = containerRef.current;
     if (!container) return;
-    const hidden = isNodeHeaderHidden(zoom2);
+    const hidden = isNodeHeaderHidden(zoom);
     if (container.classList.contains(NODE_HEADERS_HIDDEN_CLASS) === hidden)
       return;
     container.classList.toggle(NODE_HEADERS_HIDDEN_CLASS, hidden);
   }, []);
   const panningOffTimerRef = reactExports.useRef(null);
-  const setPanning = reactExports.useCallback((active22) => {
+  const setPanning = reactExports.useCallback((active) => {
     const el = containerRef.current;
     if (!el) return;
-    if (active22) {
+    if (active) {
       if (panningOffTimerRef.current !== null) {
         clearTimeout(panningOffTimerRef.current);
         panningOffTimerRef.current = null;
@@ -1525,13 +1525,13 @@ export function CanvasShellInner({
     startZoom: null,
   });
   const zoomCommitTimerRef = reactExports.useRef(null);
-  const commitZoomDebounced = reactExports.useCallback((zoom2) => {
+  const commitZoomDebounced = reactExports.useCallback((zoom) => {
     if (zoomCommitTimerRef.current !== null)
       clearTimeout(zoomCommitTimerRef.current);
     zoomCommitTimerRef.current = setTimeout(() => {
       zoomCommitTimerRef.current = null;
-      commitStableZoomTier(zoom2);
-      commitStableZoomBucket(zoom2);
+      commitStableZoomTier(zoom);
+      commitStableZoomBucket(zoom);
     }, ZOOM_COMMIT_DEBOUNCE_MS);
   }, []);
   const handleMoveStart = reactExports.useCallback(
@@ -1547,12 +1547,12 @@ export function CanvasShellInner({
   const handleMove = reactExports.useCallback(
     (_event, viewport) => {
       syncNodeHeaderVisibility(viewport.zoom);
-      const g2 = gestureRef.current;
-      if (g2.kind !== "pan") return;
-      if (g2.startZoom !== null && viewport.zoom !== g2.startZoom) {
+      const gesture = gestureRef.current;
+      if (gesture.kind !== "pan") return;
+      if (gesture.startZoom !== null && viewport.zoom !== gesture.startZoom) {
         gestureRef.current = {
           kind: "zoom",
-          startZoom: g2.startZoom,
+          startZoom: gesture.startZoom,
         };
         clearPanningNow();
       }
@@ -1574,11 +1574,11 @@ export function CanvasShellInner({
     [setPanning, commitZoomDebounced, onViewportChangeEnd],
   );
   const handleInit = reactExports.useCallback(
-    (instance2) => {
-      const zoom2 = instance2.getViewport().zoom;
-      syncNodeHeaderVisibility(zoom2);
-      seedStableZoomTier(zoom2);
-      seedStableZoomBucket(zoom2);
+    (instance) => {
+      const zoom = instance.getViewport().zoom;
+      syncNodeHeaderVisibility(zoom);
+      seedStableZoomTier(zoom);
+      seedStableZoomBucket(zoom);
     },
     [syncNodeHeaderVisibility],
   );
@@ -1592,20 +1592,20 @@ export function CanvasShellInner({
     },
     [clearPanningNow],
   );
-  useStableViewportOnContainerShift(containerRef, active2, layoutRelocationKey);
+  useStableViewportOnContainerShift(containerRef, active, layoutRelocationKey);
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     let prevZoom = storeApi.getState().transform[2];
     broadcastZoom(prevZoom);
     return storeApi.subscribe(() => {
-      const next2 = storeApi.getState().transform[2];
-      if (next2 === prevZoom) return;
-      prevZoom = next2;
-      broadcastZoom(next2);
+      const next = storeApi.getState().transform[2];
+      if (next === prevZoom) return;
+      prevZoom = next;
+      broadcastZoom(next);
     });
-  }, [active2, storeApi]);
+  }, [active, storeApi]);
   return (
-    <CanvasActiveProvider active={active2}>
+    <CanvasActiveProvider active={active}>
       <CanvasInteractionProvider>
         <div
           ref={containerRef}
@@ -1629,7 +1629,7 @@ export function CanvasShellInner({
           <ReactFlow
             nodes={nodes}
             edges={culledEdges}
-            nodeTypes={nodeTypes2}
+            nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
@@ -1670,7 +1670,7 @@ export function CanvasShellInner({
               !nodeInteractionsSuspended && !isHandPanning && !stickerMode
             }
             nodesConnectable={!activeMode.blocksConnection}
-            disableKeyboardA11y={!active2 || nodeInteractionsSuspended}
+            disableKeyboardA11y={!active || nodeInteractionsSuspended}
             zoomOnDoubleClick={false}
             deleteKeyCode={
               // ReactFlow's delete handler listens on `document`, so every
@@ -1679,7 +1679,7 @@ export function CanvasShellInner({
               // same Backspace/Delete keypress and each delete its own
               // selection — wiping nodes across workspaces. Hand inactive
               // canvases an empty key code so only the active one listens.
-              !active2 || nodeInteractionsSuspended
+              !active || nodeInteractionsSuspended
                 ? EMPTY_DELETE_KEY_CODE
                 : DELETE_KEY_CODE
             }
@@ -1692,19 +1692,19 @@ export function CanvasShellInner({
           >
             {(background === "dots" || background === "grid") &&
               showBackgroundGrid && (
-                <BackgroundCanvas active={active2} variant={background} />
+                <BackgroundCanvas active={active} variant={background} />
               )}
             {nodes.length === 0 && !isAnyOverlayActive && <EmptyCanvasHint />}
             {edges.length > 0 ? (
-              <EdgesCanvas active={active2} onlySelectedNodes={!edgesVisible} />
+              <EdgesCanvas active={active} onlySelectedNodes={!edgesVisible} />
             ) : null}
             <EdgeInteractionLayer
-              active={active2}
+              active={active}
               onlySelectedNodes={!edgesVisible}
             />
-            <NodeTagRingsCanvas active={active2} />
+            <NodeTagRingsCanvas active={active} />
             <NodeAlignmentGuides store={alignmentSnap.guidesStore} />
-            {active2 && minimap && !isAnyOverlayActive && (
+            {active && minimap && !isAnyOverlayActive && (
               <CanvasMiniMap
                 viewportColor={getMinimapViewportColor}
                 position={toolbarPlacement}
@@ -1713,14 +1713,14 @@ export function CanvasShellInner({
                 onNodeSelect={onMinimapNodeSelect}
               />
             )}
-            {active2 ? <ConnectingDisabledMarker edges={edges} /> : null}
-            {active2 ? <ConnectionTargetMarker edges={edges} /> : null}
-            {children2}
+            {active ? <ConnectingDisabledMarker edges={edges} /> : null}
+            {active ? <ConnectionTargetMarker edges={edges} /> : null}
+            {children}
           </ReactFlow>
         </div>
       </CanvasInteractionProvider>
-      {active2 ? <CanvasModeLayers /> : null}
-      {active2 ? <CanvasE2EMarkers nodes={nodes} /> : null}
+      {active ? <CanvasModeLayers /> : null}
+      {active ? <CanvasE2EMarkers nodes={nodes} /> : null}
     </CanvasActiveProvider>
   );
 }

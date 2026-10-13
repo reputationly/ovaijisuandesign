@@ -18,21 +18,21 @@ import { useClampedMenuPosition } from "../text-editor/table-ops.jsx";
 function PaneMenuItem({
   label,
   shortcut,
-  disabled: disabled2,
+  disabled,
   testId,
   dataActionUiId,
   onClick,
 }) {
-  const isMac2 = resolveCanvasPlatform() === "mac";
+  const isMac = resolveCanvasPlatform() === "mac";
   return (
     <ActionListItem
       data-testid={testId}
       data-action-ui-id={dataActionUiId}
-      disabled={disabled2}
+      disabled={disabled}
       className="justify-between"
-      data-disabled={disabled2 || void 0}
+      data-disabled={disabled || void 0}
       onClick={() => {
-        if (!disabled2) onClick();
+        if (!disabled) onClick();
       }}
     >
       <span>{label}</span>
@@ -44,9 +44,9 @@ function PaneMenuItem({
             opacity: 0.5,
           }}
         >
-          {shortcut.map((token2, tokenIndex) => (
-            <span key={token2} className="inline-flex items-center">
-              {!isMac2 && tokenIndex > 0 && (
+          {shortcut.map((token, tokenIndex) => (
+            <span key={token} className="inline-flex items-center">
+              {!isMac && tokenIndex > 0 && (
                 <span
                   aria-hidden="true"
                   className="mr-0.5 text-[10px] leading-none"
@@ -56,16 +56,16 @@ function PaneMenuItem({
               )}
               <span
                 className={
-                  token2 === "⌘"
+                  token === "⌘"
                     ? "text-[16px] leading-none font-normal"
-                    : token2 === "⇧" || token2 === "Shift"
+                    : token === "⇧" || token === "Shift"
                       ? "text-[15px] leading-none font-medium"
-                      : token2 === "Ctrl" || token2 === "Alt"
+                      : token === "Ctrl" || token === "Alt"
                         ? "text-[14px] leading-none font-normal"
                         : "text-[11px] leading-none font-medium"
                 }
               >
-                {token2}
+                {token}
               </span>
             </span>
           ))}
@@ -76,7 +76,7 @@ function PaneMenuItem({
 }
 export function CanvasPaneContextMenu({
   motionProps,
-  position: position2,
+  position,
   canUndo,
   canRedo,
   onClose,
@@ -86,10 +86,10 @@ export function CanvasPaneContextMenu({
   onRedo,
   onPaste,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const hasClipboard = getClipboard() !== null;
   const { menuRef, clampedPosition } = useClampedMenuPosition({
-    position: position2,
+    position,
     estimatedWidth: 240,
     estimatedHeight: 300,
   });
@@ -104,9 +104,9 @@ export function CanvasPaneContextMenu({
   const menu = (
     <ActionListPanel
       {...motionProps}
-      ref={(element2) => {
-        menuRef.current = element2;
-        if (motionProps) motionProps.ref.current = element2;
+      ref={(element) => {
+        menuRef.current = element;
+        if (motionProps) motionProps.ref.current = element;
       }}
       data-testid="canvas-pane-context-menu-container"
       className="dp-motion-quick-zoom fixed w-[240px]"
@@ -114,31 +114,31 @@ export function CanvasPaneContextMenu({
         left: clampedPosition.x,
         top: clampedPosition.y,
         zIndex: 50,
-        transformOrigin: `${position2.x - clampedPosition.x}px ${position2.y - clampedPosition.y}px`,
+        transformOrigin: `${position.x - clampedPosition.x}px ${position.y - clampedPosition.y}px`,
       }}
     >
       <PaneMenuItem
-        label={t2("canvas.upload")}
+        label={translate("canvas.upload")}
         testId="canvas-handle-menu-upload-item"
         dataActionUiId="canvas.pane-menu-upload"
         onClick={() => handleAction(onUpload)}
       />
       <PaneMenuItem
-        label={t2("canvas.addNode")}
+        label={translate("canvas.addNode")}
         testId="canvas-pane-context-menu-new-block-item"
         dataActionUiId="canvas.pane-menu-add-block"
         onClick={() => handleAction(onAddNode)}
       />
       <ActionListSeparator />
       <PaneMenuItem
-        label={t2("canvas.undo")}
+        label={translate("canvas.undo")}
         shortcut={resolveCanvasShortcut("undo")}
         disabled={!canUndo}
         dataActionUiId="canvas.pane-menu-undo"
         onClick={() => handleAction(onUndo)}
       />
       <PaneMenuItem
-        label={t2("canvas.redo")}
+        label={translate("canvas.redo")}
         shortcut={resolveCanvasShortcut("redo")}
         disabled={!canRedo}
         dataActionUiId="canvas.pane-menu-redo"
@@ -146,7 +146,7 @@ export function CanvasPaneContextMenu({
       />
       <ActionListSeparator />
       <PaneMenuItem
-        label={t2("canvas.paste")}
+        label={translate("canvas.paste")}
         shortcut={resolveCanvasShortcut("paste")}
         disabled={!hasClipboard}
         testId="canvas-pane-context-menu-paste-item"

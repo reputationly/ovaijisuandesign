@@ -29,9 +29,9 @@ function parseCanvasViewportSnapshot(serialized) {
     zoom: candidate.zoom,
   };
 }
-function serializeCanvasViewport(viewport, size2) {
+function serializeCanvasViewport(viewport, size) {
   if (
-    !hasValidViewportSize(size2) ||
+    !hasValidViewportSize(size) ||
     !isFiniteNumber(viewport.x) ||
     !isFiniteNumber(viewport.y) ||
     !isFiniteNumber(viewport.zoom) ||
@@ -39,16 +39,16 @@ function serializeCanvasViewport(viewport, size2) {
   ) {
     return void 0;
   }
-  const centerX = (size2.width / 2 - viewport.x) / viewport.zoom;
-  const centerY = (size2.height / 2 - viewport.y) / viewport.zoom;
+  const centerX = (size.width / 2 - viewport.x) / viewport.zoom;
+  const centerY = (size.height / 2 - viewport.y) / viewport.zoom;
   if (!Number.isFinite(centerX) || !Number.isFinite(centerY)) return void 0;
-  const snapshot2 = {
+  const snapshot = {
     version: CANVAS_VIEWPORT_STORAGE_VERSION,
     centerX,
     centerY,
     zoom: viewport.zoom,
   };
-  return JSON.stringify(snapshot2);
+  return JSON.stringify(snapshot);
 }
 function resolveStoredCanvasViewport(
   serialized,
@@ -67,38 +67,38 @@ function resolveStoredCanvasViewport(
   ) {
     return void 0;
   }
-  const snapshot2 = parseCanvasViewportSnapshot(serialized);
-  if (!snapshot2) return void 0;
-  const zoom2 = Math.min(maxZoom, Math.max(minZoom, snapshot2.zoom));
-  const x2 = width / 2 - snapshot2.centerX * zoom2;
-  const y4 = height / 2 - snapshot2.centerY * zoom2;
-  if (!Number.isFinite(x2) || !Number.isFinite(y4)) return void 0;
+  const snapshot = parseCanvasViewportSnapshot(serialized);
+  if (!snapshot) return void 0;
+  const zoom = Math.min(maxZoom, Math.max(minZoom, snapshot.zoom));
+  const viewportX = width / 2 - snapshot.centerX * zoom;
+  const viewportY = height / 2 - snapshot.centerY * zoom;
+  if (!Number.isFinite(viewportX) || !Number.isFinite(viewportY)) return void 0;
   return {
-    x: x2,
-    y: y4,
-    zoom: zoom2,
+    x: viewportX,
+    y: viewportY,
+    zoom,
   };
 }
-export function readCanvasViewport(storage, key2, options) {
+export function readCanvasViewport(storage, key, options) {
   try {
-    return resolveStoredCanvasViewport(storage.getItem(key2), options);
+    return resolveStoredCanvasViewport(storage.getItem(key), options);
   } catch {
     return void 0;
   }
 }
-export function writeCanvasViewport(storage, key2, viewport, size2) {
-  const serialized = serializeCanvasViewport(viewport, size2);
+export function writeCanvasViewport(storage, key, viewport, size) {
+  const serialized = serializeCanvasViewport(viewport, size);
   if (!serialized) return;
   try {
-    storage.setItem(key2, serialized);
+    storage.setItem(key, serialized);
   } catch {}
 }
-function intersects(first2, second) {
+function intersects(first, second) {
   return (
-    first2.x < second.x + second.width &&
-    first2.x + first2.width > second.x &&
-    first2.y < second.y + second.height &&
-    first2.y + first2.height > second.y
+    first.x < second.x + second.width &&
+    first.x + first.width > second.x &&
+    first.y < second.y + second.height &&
+    first.y + first.height > second.y
   );
 }
 export function resolveVisibilityPriorityFocus({
@@ -122,9 +122,9 @@ export function resolveVisibilityPriorityFocus({
   for (const rect of nodeRects) {
     const deltaX = rect.x + rect.width / 2 - viewportCenterX;
     const deltaY = rect.y + rect.height / 2 - viewportCenterY;
-    const distance2 = deltaX * deltaX + deltaY * deltaY;
-    if (distance2 >= nearestDistance) continue;
-    nearestDistance = distance2;
+    const distance = deltaX * deltaX + deltaY * deltaY;
+    if (distance >= nearestDistance) continue;
+    nearestDistance = distance;
     nearestNodeId = rect.id;
   }
   return nearestNodeId

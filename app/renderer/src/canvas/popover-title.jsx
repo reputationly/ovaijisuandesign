@@ -5,7 +5,7 @@ import {
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
-import { SegmentedSwitch as SegmentedSwitch$1 } from "../generation/segmented-switch.jsx";
+import { SegmentedSwitch as BaseSegmentedSwitch } from "../generation/segmented-switch.jsx";
 import {
   reactExports,
   useBaseUiId,
@@ -13,55 +13,55 @@ import {
   usePopoverRootContext,
   useRenderElement,
 } from "../vendor.js";
-const PopoverTitle$1 = reactExports.forwardRef(
-  function PopoverTitle2(componentProps, forwardedRef) {
-    const { render: render2, className, ...elementProps } = componentProps;
+const BasePopoverTitle = reactExports.forwardRef(
+  function PopoverTitle(componentProps, forwardedRef) {
+    const { render, className, ...elementProps } = componentProps;
     const { store } = usePopoverRootContext();
-    const id2 = useBaseUiId(elementProps.id);
+    const id = useBaseUiId(elementProps.id);
     useIsoLayoutEffect(() => {
-      store.set("titleElementId", id2);
+      store.set("titleElementId", id);
       return () => {
         store.set("titleElementId", void 0);
       };
-    }, [store, id2]);
-    const element2 = useRenderElement("h2", componentProps, {
+    }, [store, id]);
+    const element = useRenderElement("h2", componentProps, {
       ref: forwardedRef,
       props: [
         {
-          id: id2,
+          id,
         },
         elementProps,
       ],
     });
-    return element2;
+    return element;
   },
 );
-const PopoverDescription$1 = reactExports.forwardRef(
-  function PopoverDescription2(componentProps, forwardedRef) {
-    const { render: render2, className, ...elementProps } = componentProps;
+const BasePopoverDescription = reactExports.forwardRef(
+  function PopoverDescription(componentProps, forwardedRef) {
+    const { render, className, ...elementProps } = componentProps;
     const { store } = usePopoverRootContext();
-    const id2 = useBaseUiId(elementProps.id);
+    const id = useBaseUiId(elementProps.id);
     useIsoLayoutEffect(() => {
-      store.set("descriptionElementId", id2);
+      store.set("descriptionElementId", id);
       return () => {
         store.set("descriptionElementId", void 0);
       };
-    }, [store, id2]);
-    const element2 = useRenderElement("p", componentProps, {
+    }, [store, id]);
+    const element = useRenderElement("p", componentProps, {
       ref: forwardedRef,
       props: [
         {
-          id: id2,
+          id,
         },
         elementProps,
       ],
     });
-    return element2;
+    return element;
   },
 );
 export function PopoverTitle({ className, ...props }) {
   return (
-    <PopoverTitle$1
+    <BasePopoverTitle
       data-slot="popover-title"
       className={cn("text-sm font-medium", className)}
       {...props}
@@ -70,7 +70,7 @@ export function PopoverTitle({ className, ...props }) {
 }
 export function PopoverDescription({ className, ...props }) {
   return (
-    <PopoverDescription$1
+    <BasePopoverDescription
       data-slot="popover-description"
       className={cn("text-xs/relaxed text-muted-foreground", className)}
       {...props}
@@ -79,12 +79,12 @@ export function PopoverDescription({ className, ...props }) {
 }
 export function SegmentedSwitch(props) {
   return (
-    <SegmentedSwitch$1
+    <BaseSegmentedSwitch
       {...props}
-      renderTooltip={(button, content2) => (
+      renderTooltip={(button, content) => (
         <Tooltip key={button.key}>
           <TooltipTrigger render={button} />
-          <TooltipContent side="bottom">{content2}</TooltipContent>
+          <TooltipContent side="bottom">{content}</TooltipContent>
         </Tooltip>
       )}
     />

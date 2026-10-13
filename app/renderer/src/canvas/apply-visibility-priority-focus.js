@@ -13,25 +13,25 @@ export function applyVisibilityPriorityFocus({
   padding,
   setCenter,
   setViewport,
-  state: state2,
+  state,
   syncViewportChange,
 }) {
   const nodeRects = [];
-  for (const id2 of nodeIds) {
-    const node2 = state2.nodeLookup.get(id2);
-    const width = node2?.measured?.width;
-    const height = node2?.measured?.height;
-    if (!node2 || !width || !height) return;
-    const position2 = node2.internals.positionAbsolute;
+  for (const id of nodeIds) {
+    const node = state.nodeLookup.get(id);
+    const width = node?.measured?.width;
+    const height = node?.measured?.height;
+    if (!node || !width || !height) return;
+    const position = node.internals.positionAbsolute;
     nodeRects.push({
-      id: id2,
-      x: position2.x,
-      y: position2.y,
+      id,
+      x: position.x,
+      y: position.y,
       width,
       height,
     });
   }
-  if (nodeRects.length === 0 || state2.width <= 0 || state2.height <= 0) return;
+  if (nodeRects.length === 0 || state.width <= 0 || state.height <= 0) return;
   const minX = Math.min(...nodeRects.map((rect) => rect.x));
   const minY = Math.min(...nodeRects.map((rect) => rect.y));
   const maxX = Math.max(...nodeRects.map((rect) => rect.x + rect.width));
@@ -43,8 +43,8 @@ export function applyVisibilityPriorityFocus({
       width: maxX - minX,
       height: maxY - minY,
     },
-    state2.width,
-    state2.height,
+    state.width,
+    state.height,
     minZoom,
     1,
     padding,
@@ -57,8 +57,8 @@ export function applyVisibilityPriorityFocus({
     viewportRect: {
       x: -currentViewport.x / currentViewport.zoom,
       y: -currentViewport.y / currentViewport.zoom,
-      width: state2.width / currentViewport.zoom,
-      height: state2.height / currentViewport.zoom,
+      width: state.width / currentViewport.zoom,
+      height: state.height / currentViewport.zoom,
     },
   });
   if (decision.type === "keep") return;
@@ -101,7 +101,7 @@ export function shouldAcquireCanvasResources({
   return presented && !loading && initialFitDone;
 }
 export function filterInitialFitFallbackNodes(nodes) {
-  return nodes.filter((node2) => !("hidden" in node2) || node2.hidden !== true);
+  return nodes.filter((node) => !("hidden" in node) || node.hidden !== true);
 }
 export function resolveInitialFitFallbackViewport({
   bounds,
@@ -152,30 +152,30 @@ function stripQueryAndHash(value) {
 function normalizePath(value) {
   return decodePath(stripQueryAndHash(value.trim())).replace(/\\/g, "/");
 }
-function pushUnique(values3, value) {
+function pushUnique(values, value) {
   if (!value) return;
   const normalized = normalizePath(value);
-  if (!normalized || values3.includes(normalized)) return;
-  values3.push(normalized);
+  if (!normalized || values.includes(normalized)) return;
+  values.push(normalized);
 }
 function pathQueries(rawPath) {
-  const values3 = [];
-  pushUnique(values3, rawPath);
+  const values = [];
+  pushUnique(values, rawPath);
   try {
-    const url2 = new URL(rawPath, "http://hilo.local");
-    for (const key2 of URL_PATH_PARAM_KEYS) {
-      pushUnique(values3, url2.searchParams.get(key2) ?? void 0);
+    const url = new URL(rawPath, "http://hilo.local");
+    for (const key of URL_PATH_PARAM_KEYS) {
+      pushUnique(values, url.searchParams.get(key) ?? void 0);
     }
-    const pathname = normalizePath(url2.pathname);
-    pushUnique(values3, pathname);
+    const pathname = normalizePath(url.pathname);
+    pushUnique(values, pathname);
     if (pathname.startsWith(FILES_ROUTE_PREFIX)) {
-      pushUnique(values3, pathname.slice(FILES_ROUTE_PREFIX.length));
+      pushUnique(values, pathname.slice(FILES_ROUTE_PREFIX.length));
     }
     if (pathname.startsWith(THUMBNAIL_ROUTE_PREFIX)) {
-      pushUnique(values3, pathname.slice(THUMBNAIL_ROUTE_PREFIX.length));
+      pushUnique(values, pathname.slice(THUMBNAIL_ROUTE_PREFIX.length));
     }
   } catch {}
-  return values3;
+  return values;
 }
 function basename(value) {
   return value.split("/").pop() ?? value;
@@ -191,12 +191,12 @@ function isExactOrSegmentSuffix(candidate, query) {
     return true;
   return false;
 }
-export function resolveFileNodeIdByPath(rawPath, candidates2) {
+export function resolveFileNodeIdByPath(rawPath, candidates) {
   if (!rawPath) return null;
   const queries = pathQueries(rawPath);
   if (queries.length === 0) return null;
   for (const query of queries) {
-    for (const candidate of candidates2) {
+    for (const candidate of candidates) {
       if (!candidate.path) continue;
       if (isExactOrSegmentSuffix(normalizePath(candidate.path), query)) {
         return candidate.nodeId;
@@ -207,7 +207,7 @@ export function resolveFileNodeIdByPath(rawPath, candidates2) {
     queries.map((query) => basename(query)).filter(Boolean),
   );
   const basenameMatches = new Set();
-  for (const candidate of candidates2) {
+  for (const candidate of candidates) {
     if (!candidate.path) continue;
     if (queryBases.has(basename(normalizePath(candidate.path)))) {
       basenameMatches.add(candidate.nodeId);
@@ -215,18 +215,18 @@ export function resolveFileNodeIdByPath(rawPath, candidates2) {
   }
   return basenameMatches.size === 1 ? ([...basenameMatches][0] ?? null) : null;
 }
-export function resolveFirstFileNodeIdByPartialName(rawName, candidates2) {
+export function resolveFirstFileNodeIdByPartialName(rawName, candidates) {
   const query = decodePath(rawName).trim().toLowerCase();
   if (!query) return null;
-  for (const candidate of candidates2) {
+  for (const candidate of candidates) {
     const names = [
       candidate.name,
       candidate.path ? basename(normalizePath(candidate.path)) : null,
     ];
     if (
       names.some(
-        (name2) =>
-          typeof name2 === "string" && name2.toLowerCase().includes(query),
+        (candidateName) =>
+          typeof candidateName === "string" && candidateName.toLowerCase().includes(query),
       )
     ) {
       return candidate.nodeId;
@@ -235,15 +235,15 @@ export function resolveFirstFileNodeIdByPartialName(rawName, candidates2) {
   return null;
 }
 export function applyReactFlowSelectionWriteback({
-  ids: ids2,
+  ids,
   syncing,
-  active: active2,
+  active,
   writeSelection,
   closeMenus,
 }) {
   if (syncing) return "ignored-syncing";
-  if (!active2) return "ignored-inactive";
-  writeSelection([...ids2]);
+  if (!active) return "ignored-inactive";
+  writeSelection([...ids]);
   closeMenus();
   return "applied";
 }
@@ -256,69 +256,69 @@ export function randomStickerRotation() {
   return Math.round((Math.random() * 2 - 1) * STICKER_MAX_ROTATION_DEG);
 }
 export const DEFAULT_STICKER_EMOJI = "⭐";
-export function getAbsoluteNodePosition(node2, nodesById, mode2) {
-  let position2 = getNodePosition(node2, mode2);
-  let parentId = node2.parentId;
-  const visited = new Set([node2.id]);
+export function getAbsoluteNodePosition(node, nodesById, mode) {
+  let position = getNodePosition(node, mode);
+  let parentId = node.parentId;
+  const visited = new Set([node.id]);
   while (parentId) {
     if (visited.has(parentId)) break;
     visited.add(parentId);
     const parent = nodesById.get(parentId);
     if (!parent) break;
-    const parentPosition = getNodePosition(parent, mode2);
-    position2 = {
-      x: position2.x + parentPosition.x,
-      y: position2.y + parentPosition.y,
+    const parentPosition = getNodePosition(parent, mode);
+    position = {
+      x: position.x + parentPosition.x,
+      y: position.y + parentPosition.y,
     };
     parentId = parent.parentId;
   }
-  return position2;
+  return position;
 }
-export function findStickerTarget(nodes, stickerPosition, mode2) {
+export function findStickerTarget(nodes, stickerPosition, mode) {
   let best;
-  const nodesById = new Map(nodes.map((node2) => [node2.id, node2]));
+  const nodesById = new Map(nodes.map((node) => [node.id, node]));
   const stickerRight = stickerPosition.x + STICKER_NODE_SIZE.width;
   const stickerBottom = stickerPosition.y + STICKER_NODE_SIZE.height;
-  for (const node2 of nodes) {
-    if (node2.type === CanvasNodeType.Sticker || node2.meta?.hidden) continue;
-    const position2 = getAbsoluteNodePosition(node2, nodesById, mode2);
-    const size2 = sizeOf(node2, mode2);
+  for (const node of nodes) {
+    if (node.type === CanvasNodeType.Sticker || node.meta?.hidden) continue;
+    const position = getAbsoluteNodePosition(node, nodesById, mode);
+    const size = sizeOf(node, mode);
     const overlapWidth = Math.max(
       0,
-      Math.min(stickerRight, position2.x + size2.width) -
-        Math.max(stickerPosition.x, position2.x),
+      Math.min(stickerRight, position.x + size.width) -
+        Math.max(stickerPosition.x, position.x),
     );
     const overlapHeight = Math.max(
       0,
-      Math.min(stickerBottom, position2.y + size2.height) -
-        Math.max(stickerPosition.y, position2.y),
+      Math.min(stickerBottom, position.y + size.height) -
+        Math.max(stickerPosition.y, position.y),
     );
     const area = overlapWidth * overlapHeight;
     if (area <= 0 || (best && area <= best.area)) continue;
     best = {
       area,
       target: {
-        id: node2.id,
-        position: position2,
-        size: size2,
+        id: node.id,
+        position,
+        size,
         anchor: {
-          x: (stickerPosition.x - position2.x) / Math.max(size2.width, 1),
-          y: (stickerPosition.y - position2.y) / Math.max(size2.height, 1),
+          x: (stickerPosition.x - position.x) / Math.max(size.width, 1),
+          y: (stickerPosition.y - position.y) / Math.max(size.height, 1),
         },
       },
     };
   }
   return best?.target;
 }
-export function getTextNodeBackingPath(node2, assetMetadataStore) {
-  if (node2.type !== CanvasNodeType.Text) return null;
+export function getTextNodeBackingPath(node, assetMetadataStore) {
+  if (node.type !== CanvasNodeType.Text) return null;
   const metaPath = getAssetMetaByNodeIdFromStore(
     assetMetadataStore,
-    node2.id,
+    node.id,
   )?.path;
   if (metaPath) return metaPath;
-  const data2 = node2.data;
-  const dataPath = data2?.path;
+  const data = node.data;
+  const dataPath = data?.path;
   return typeof dataPath === "string" && dataPath.length > 0 ? dataPath : null;
 }
 export function hasOtherTextNodeWithBackingPath(
@@ -328,8 +328,8 @@ export function hasOtherTextNodeWithBackingPath(
   assetMetadataStore,
 ) {
   return nodes.some(
-    (node2) =>
-      node2.id !== removedNodeId &&
-      getTextNodeBackingPath(node2, assetMetadataStore) === filePath,
+    (node) =>
+      node.id !== removedNodeId &&
+      getTextNodeBackingPath(node, assetMetadataStore) === filePath,
   );
 }

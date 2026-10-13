@@ -5,17 +5,17 @@ function normalizeStartedAt(value) {
   return typeof value === "string" && value.length > 0 ? value : void 0;
 }
 
-export function buildGeneratingInfoFromIncomingData(current2, incomingData) {
+export function buildGeneratingInfoFromIncomingData(current, incomingData) {
   return {
-    ...(current2 ?? {
+    ...(current ?? {
       prompt: incomingData.prompt ?? "",
       model: incomingData.model ?? incomingData.model_id ?? "",
     }),
-    prompt: current2?.prompt ?? incomingData.prompt ?? "",
-    model: current2?.model ?? incomingData.model ?? incomingData.model_id ?? "",
-    modelId: current2?.modelId ?? incomingData.model_id,
-    backend: current2?.backend ?? incomingData.backend,
-    params: current2?.params ?? incomingData.params,
+    prompt: current?.prompt ?? incomingData.prompt ?? "",
+    model: current?.model ?? incomingData.model ?? incomingData.model_id ?? "",
+    modelId: current?.modelId ?? incomingData.model_id,
+    backend: current?.backend ?? incomingData.backend,
+    params: current?.params ?? incomingData.params,
     phase: incomingData.status === "pending" ? "pending" : "generating",
     // The gateway owns the durable origin, so incoming wins over the local
     // guess here (unlike prompt/model above, where the local submit value is
@@ -25,7 +25,7 @@ export function buildGeneratingInfoFromIncomingData(current2, incomingData) {
       incomingData.status === "pending"
         ? void 0
         : (normalizeStartedAt(incomingData.generationStartedAt) ??
-          current2?.generationStartedAt),
+          current?.generationStartedAt),
     error: void 0,
     errorReason: void 0,
     retryPayload: void 0,

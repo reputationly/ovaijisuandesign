@@ -1,0 +1,2 @@
+key	old	new	reason
+element2@18:11	element2@18:11	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

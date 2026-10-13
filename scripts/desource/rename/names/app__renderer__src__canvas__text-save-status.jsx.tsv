@@ -1,0 +1,15 @@
+key	old	new	依据
+a2@6:32	a2	leftAnchor	该锚点与右侧锚点逐项比较 exact、prefix、suffix 和 occurrence。
+b3@6:36	b3	rightAnchor	该锚点与左侧锚点逐项比较 exact、prefix、suffix 和 occurrence。
+a2@17:38	a2	leftState	该编辑选区状态提供 anchors、anchor 和 oversizedLength 用于相等判断。
+b3@17:42	b3	rightState	该编辑选区状态与左侧状态比较锚点及 oversizedLength。
+t2@35:14	t2	translate	该函数翻译版本保存和草稿保存状态提示。
+e2@94:29	e2	keyboardEvent	keydown 监听器检查 Escape 并阻止事件继续传播。
+index2@22:29	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+timer2@40:9	timer2	timer	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@91:9	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleKeyDown2@94:11	handleKeyDown2	handleKeyDown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+find2@105:36	find2	findController	该参数是查找窗口的状态控制对象，提供 isOpen 与 close；与全局 find 冲突，故使用 findController。
+schedule2@129:9	schedule2	schedule	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@134:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@157:45	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

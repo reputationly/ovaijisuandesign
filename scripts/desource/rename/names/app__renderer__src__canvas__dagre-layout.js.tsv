@@ -1,0 +1,508 @@
+key	old	new	依据
+id2@51:14	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@52:14	e2	edge	findConnectedComponents 的局部：当前检查来源、目标是否属于 nodeIds 并加入双向邻接表的边。
+components2@58:9	components2	components	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+start2@59:14	start2	start	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+A@79:10	A	asNonCompoundGraph	Dagre lib/util.ts 的 asNonCompoundGraph：复制无子节点的节点和全部边到新图，去掉复合节点层级。
+e2@79:12	e2	graph	asNonCompoundGraph 的参数：被复制为仅含叶节点和边的新图的输入图。
+n2@80:7	n2	simplified	asNonCompoundGraph 的局部：保留输入图属性并将叶节点和边写入其中的新图。
+t2@84:25	t2	v	asNonCompoundGraph 的节点遍历回调：当前节点标识。
+t2@87:25	t2	e	asNonCompoundGraph 的边遍历回调：当前边描述对象。
+Te@93:10	Te	normalizeRanks	Dagre lib/util.ts 的 normalizeRanks：将所有已定义节点 rank 平移，使最小 rank 归零。
+e2@93:13	e2	graph	normalizeRanks 的参数：需要对节点 rank 统一归一化的图。
+n2@94:7	n2	nodeRanks	normalizeRanks 的局部：各节点 rank 的数组，缺失 rank 用 Number.MAX_VALUE 占位。
+r2@94:28	r2	v	normalizeRanks 的 map 回调：当前节点标识。
+o2@95:11	o2	rank	normalizeRanks 的 map 局部：当前节点已有的 rank；缺失时返回最大数值占位。
+t2@98:5	t2	min	normalizeRanks 的局部：nodeRanks 中用于统一平移的最小 rank。
+r2@99:23	r2	v	normalizeRanks 的 forEach 回调：当前节点标识。
+o2@100:9	o2	node	normalizeRanks 的 forEach 局部：当前节点标签，rank 存在时将其减去 min。
+Oe@104:10	Oe	removeEmptyRanks	Dagre lib/util.ts 的 removeEmptyRanks：按 nodeRankFactor 收缩空 rank，并调整后续节点 rank。
+e2@104:13	e2	graph	removeEmptyRanks 的参数：需要收缩空层的图。
+n2@105:7	n2	nodeRanks	removeEmptyRanks 的局部：图中已定义的节点 rank 列表。
+s2@107:13	s2	rank	removeEmptyRanks 的 map 回调：当前节点 rank。
+s2@108:16	s2	rank	removeEmptyRanks 的 filter 回调：用于排除未分配 rank 的值。
+t2@109:5	t2	offset	removeEmptyRanks 的局部：最小 rank，用于将层索引平移到从零开始。
+r2@110:5	r2	layers	removeEmptyRanks 的局部：按平移后 rank 收集节点标识的稀疏数组。
+s2@111:23	s2	v	removeEmptyRanks 的节点遍历回调：当前节点标识。
+a2@112:9	a2	rank	removeEmptyRanks 的局部：当前节点减去 offset 后的层索引。
+o2@115:7	o2	delta	removeEmptyRanks 的局部：累计移除空层后需要应用到后续 rank 的偏移量。
+i2@116:5	i2	nodeRankFactor	removeEmptyRanks 的局部：保护嵌套图边界层的 rank 间隔因子。
+s2@117:27	s2	vs	removeEmptyRanks 的层遍历回调：当前 rank 上收集的节点标识列表，空层时为 undefined。
+a2@117:31	a2	i	removeEmptyRanks 的层遍历回调：当前层在稀疏 layers 数组中的索引。
+d2@120:44	d2	v	removeEmptyRanks 中的节点回调：当前节点标识，其 rank 会累加 delta。
+Wn@123:5	Wn	defaultEdgeWeight	findGreedyFeedbackEdges 使用的默认权重回调：未提供 weightFn 时每条边权重为 1。
+Q@124:10	Q	findGreedyFeedbackEdges	按边权重调用贪心反馈边算法，并将选中的节点对展开为原图中的对应边。
+e2@124:12	e2	graph	findGreedyFeedbackEdges 的参数：需要选择反馈边集的图。
+n2@124:16	n2	weightFn	findGreedyFeedbackEdges 的参数：返回每条边权重的回调。
+t2@126:7	t2	state	findGreedyFeedbackEdges 的局部：贪心算法使用的图、权重桶和零点索引状态。
+o2@128:6	o2	edge	findGreedyFeedbackEdges 的 flatMap 回调：从原图取得被反馈边状态选中的节点对对应的边。
+Hn@131:10	Hn	findDepthFirstFeedbackEdges	对图做深度优先遍历，并收集指向当前递归栈节点的边作为反馈边。
+e2@131:13	e2	graph	findDepthFirstFeedbackEdges 的参数：执行深度优先反馈边遍历的图。
+n2@132:7	n2	feedbackEdges	findDepthFirstFeedbackEdges 的局部：遍历中发现的回边列表。
+t2@133:5	t2	activeStack	findDepthFirstFeedbackEdges 的局部：记录当前 DFS 递归路径上的节点标识。
+r2@134:5	r2	visited	findDepthFirstFeedbackEdges 的局部：记录已经访问过的节点标识。
+o2@135:12	o2	visitNode	findDepthFirstFeedbackEdges 的递归函数：标记节点并递归访问出边，发现指向 activeStack 的边时加入反馈边。
+i2@135:15	i2	nodeId	visitNode 的参数：当前 DFS 访问的节点标识。
+s2@139:32	s2	edge	visitNode 的出边遍历回调：当前需要检查目标是否在 activeStack 中的边。
+je@146:10	je	makeAcyclic	依据 greedy 或 DFS 反馈边策略反转边，并记录原方向以供后续恢复。
+e2@146:13	e2	graph	makeAcyclic 的参数：需要通过反转反馈边转为无环的图。
+r2@147:73	r2	feedbackEdge	makeAcyclic 的反馈边遍历回调：当前需要反转的边描述对象。
+o2@148:9	o2	edgeLabel	makeAcyclic 的局部：被反转边的标签，保留在反向边上并记录原始边名。
+t2@154:12	t2	makeWeightFunction	makeAcyclic 的局部函数：接收图并返回读取边标签 weight 的权重回调。
+r2@154:15	r2	graph	makeWeightFunction 的参数：权重回调读取边标签的图。
+o2@155:13	o2	edge	makeWeightFunction 返回的回调参数：当前用于取得 weight 的边。
+Se@158:10	Se	restoreAcyclicEdges	Dagre lib/acyclic.ts 的 undo：移除反转边并按 forwardName 恢复原方向。
+e2@158:13	e2	graph	restoreAcyclicEdges 的参数：包含已标记 reversed 边的图。
+n2@159:23	n2	edge	restoreAcyclicEdges 的边遍历回调：当前待检查是否被反转的边。
+t2@160:9	t2	edgeLabel	restoreAcyclicEdges 的局部：当前边标签，reversed 为真时用于重建原方向边。
+r2@163:11	r2	forwardName	restoreAcyclicEdges 的局部：边标签记录的原始边名。
+Xn@170:10	Xn	normalizeEdge	Dagre lib/normalize.ts 的 normalizeEdge：在端点 rank 相差大于一时插入 dummy 链，并在 labelRank 放置边标签 dummy。
+e2@170:13	e2	graph	normalizeEdge 的参数：读取端点 rank、删除原边并写入 dummy 链的图。
+n2@170:17	n2	edge	normalizeEdge 的参数：需要按 rank 间隔拆分的边描述对象。
+t2@171:7	t2	v	normalizeEdge 的局部：当前 dummy 链的起始节点标识，迭代中推进到新建 dummy。
+r2@172:5	r2	vRank	normalizeEdge 的局部：当前链起点节点的 rank，并在循环中逐层递增。
+o2@173:5	o2	w	normalizeEdge 的局部：原边终点节点标识。
+i2@174:5	i2	wRank	normalizeEdge 的局部：原边终点节点的 rank，用于判断是否需要插入 dummy。
+s2@175:5	s2	edgeName	normalizeEdge 的局部：原边名称，写入每一段 dummy 边；恢复 name 会绑定到全局 name，故用 edgeName 区分。
+a2@176:5	a2	edgeLabel	normalizeEdge 的局部：原边标签，提供 weight、labelRank 及标签尺寸。
+d2@177:5	d2	labelRank	normalizeEdge 的局部：需要放置边标签 dummy 的目标 rank。
+l2@180:7	l2	dummy	normalizeEdge 的局部：当前新建 dummy 节点的标识。
+u4@180:11	u4	attrs	normalizeEdge 的局部：写入 dummy 节点的尺寸、原边引用和 rank 的标签对象。
+c3@180:15	c3	i	normalizeEdge 的 for 循环计数：用于标识首个 dummy 并逐步推进 dummy 链。
+Fe@215:10	Fe	normalizeEdges	逐条遍历图的边并调用 normalizeEdge，同时初始化用于记录 dummy 链的数组。
+e2@215:13	e2	graph	normalizeEdges 的参数：需要拆分长边的图。
+n2@216:55	n2	edge	normalizeEdges 的边遍历回调：传给 normalizeEdge 处理的当前边。
+De@218:10	De	restoreNormalizedEdges	Dagre lib/normalize.ts 的 undo：沿 dummyChains 删除临时节点、收集路径点并恢复原边标签坐标。
+e2@218:13	e2	graph	restoreNormalizedEdges 的参数：包含 normalize 阶段生成 dummyChains 的图。
+n2@219:35	n2	dummyNodeId	restoreNormalizedEdges 的 forEach 参数：每条长边 dummy 链的起始节点标识。
+t2@220:9	t2	node	restoreNormalizedEdges 的局部：dummyNodeId 当前指向的节点标签。
+r2@221:7	r2	originalLabel	restoreNormalizedEdges 的局部：从首个 dummy 节点取回的原始边标签。
+o2@222:7	o2	nextNodeId	restoreNormalizedEdges 的局部：沿 successors 取得的下一 dummy 节点或终点标识。
+ot@239:10	ot	runConfiguredRanker	按 graph.ranker 配置调用 network-simplex、tight-tree 或 longest-path 排名器；上游名 rank 会与 normalizeRanks 的局部 rank@95:11 冲突。
+e2@239:13	e2	graph	rank 的参数：读取 ranker 配置并交给相应排名器处理的图。
+n2@240:7	n2	ranker	rank 的局部：graph.ranker 配置值，决定使用哪个 rank 算法。
+Xe@258:5	Xe	rankGraph	指向 runConfiguredRanker 的布局阶段别名，用于在布局流水线中执行分层。
+at@259:10	at	assignDummyChainParents	沿每条 dummy chain 根据原边两端的 lowest common ancestor 与节点 rank 设置父节点。
+e2@259:13	e2	graph	assignDummyChainParents 的参数：包含 dummyChains、compound 节点与 rank 区间的图。
+n2@260:7	n2	postorderNums	assignDummyChainParents 的局部：lt2 根据 compound children 关系计算的 low/lim 序号表，供 dt 查找端点路径与 LCA。
+t2@261:35	t2	dummyNodeId	assignDummyChainParents 的 dummyChains 回调：当前 dummy 链节点标识。
+r2@262:9	r2	dummyNode	assignDummyChainParents 的局部：dummyNodeId 对应的节点标签。
+o2@263:7	o2	originalEdge	assignDummyChainParents 的局部：dummy 节点记录的原始边对象，用于取得端点。
+i2@264:7	i2	pathInfo	assignDummyChainParents 的局部：dt 根据原边端点在 nestingGraph 中找到的路径和 LCA。
+s2@265:7	s2	path	assignDummyChainParents 的局部：从原边端点到最低公共祖先的节点路径。
+a2@266:7	a2	lca	assignDummyChainParents 的局部：原边两端在 nestingGraph 中的最低公共祖先。
+d2@267:7	d2	pathIndex	assignDummyChainParents 的局部：沿 path 前进并选择 dummy 父节点的当前位置。
+l2@268:7	l2	parentCandidate	assignDummyChainParents 的局部：当前 rank 匹配的候选父节点。
+u4@269:7	u4	insideSourceSubgraph	assignDummyChainParents 的局部：标记 dummy 节点是否仍处于原边源端子图的阶段。
+Ue@284:5	Ue	assignDummyParents	指向 assignDummyChainParents 的布局阶段别名。
+$e@285:10	$e	buildNestingGraphForNode	递归创建 compound 节点的上下边界，并将子图与根节点通过带权 nesting edge 连接。
+e2@285:13	e2	graph	buildNestingGraphForNode 的参数：写入 border node、parent 关系和 nesting edge 的图。
+n2@285:17	n2	root	buildNestingGraphForNode 的参数：所有顶层 compound 子图连接到的根节点标识。
+t2@285:21	t2	nodeSep	buildNestingGraphForNode 的参数：嵌套边及根边使用的最小 rank 间隔。
+r2@285:25	r2	weight	buildNestingGraphForNode 的参数：用于维持子图紧凑的基础边权重。
+o2@285:29	o2	height	buildNestingGraphForNode 的参数：nesting 层级高度，用于计算顶层根边长度。
+i2@285:33	i2	depths	buildNestingGraphForNode 的参数：compound 节点对应的子树深度表。
+s2@285:37	s2	nodeId	buildNestingGraphForNode 的参数：当前递归处理的节点标识。
+c3@286:7	c3	nodeDepth	buildNestingGraphForNode 的局部：当前节点在 depths 中的深度或零默认值。
+a2@287:7	a2	children	buildNestingGraphForNode 的局部：当前节点的直接子节点标识列表。
+d2@296:7	d2	borderTop	buildNestingGraphForNode 的局部：当前 compound 节点的上边界 dummy node。
+l2@297:5	l2	borderBottom	buildNestingGraphForNode 的局部：当前 compound 节点的下边界 dummy node。
+u4@298:5	u4	nodeLabel	buildNestingGraphForNode 的局部：当前 compound 节点标签，用于写入 borderTop/borderBottom。
+h2@303:17	h2	childId	buildNestingGraphForNode 的 children 遍历回调：当前递归处理的子节点标识。
+y4@304:11	y4	childDepth	buildNestingGraphForNode 的局部：读取 depths[s2] 的可选链临时值。
+f2@306:11	f2	childLabel	buildNestingGraphForNode 的局部：子节点标签，包含其上下边界 dummy node 引用。
+g2@307:9	g2	childTop	buildNestingGraphForNode 的局部：子节点上边界标识；无 borderTop 时使用 childId。
+b3@308:9	b3	childBottom	buildNestingGraphForNode 的局部：子节点下边界标识；无 borderBottom 时使用 childId。
+m3@309:9	m3	edgeWeight	buildNestingGraphForNode 的局部：连接父子边界时使用的权重，按子节点是否有边界选择 weight 或两倍。
+E3@310:9	E3	minlen	buildNestingGraphForNode 的局部：父子边界 nesting edge 的最小 rank 距离。
+ut@328:10	ut	treeDepths	Dagre lib/nesting-graph.ts 的 treeDepths：递归记录每个 compound 节点到叶层的深度。
+e2@328:13	e2	graph	treeDepths 的参数：用于遍历 children 并生成深度表的图。
+n2@329:7	n2	depths	treeDepths 的局部：以节点标识为键保存其树深度的对象。
+t2@330:12	t2	assignDepth	treeDepths 的递归函数：先递归计算子节点深度，再记录当前节点深度。
+r2@330:15	r2	nodeId	assignDepth 的参数：当前要记录深度的节点标识。
+o2@330:19	o2	depth	assignDepth 的参数：当前节点相对根节点的层级深度。
+i2@331:9	i2	children	assignDepth 的局部：当前节点的直接子节点列表。
+s2@332:37	s2	childId	assignDepth 的 children 遍历回调：递归处理的子节点标识。
+r2@334:35	r2	nodeId	treeDepths 的顶层 children 遍历回调：从 depth 1 开始计算的根子节点标识。
+ct@336:10	ct	sumWeights	Dagre lib/nesting-graph.ts 的 sumWeights：累加图中全部边标签的 weight。
+e2@336:13	e2	graph	sumWeights 的参数：提供全部边及其权重标签的图。
+n2@337:29	n2	totalWeight	sumWeights 的 reduce 累加器：当前已累计的边权重。
+t2@337:33	t2	edge	sumWeights 的 reduce 回调：当前用于读取 weight 的边描述对象。
+Ke@339:10	Ke	runNestingGraph	Dagre lib/nesting-graph.ts 的 run：创建 nesting root、按深度计算 nodeSep，并递归添加子图边界。
+e2@339:13	e2	graph	runNestingGraph 的参数：需要增加 nesting root、边界节点和 nesting edge 的图。
+n2@340:7	n2	root	runNestingGraph 的局部：图中的 nesting root dummy node 标识。
+t2@341:5	t2	depths	runNestingGraph 的局部：各 compound 节点的树深度表。
+r2@342:5	r2	depthValues	runNestingGraph 的局部：由 depths 对象取出的数值，用来求最大层级。
+o2@343:5	o2	height	runNestingGraph 的局部：最大 nesting 深度减一后的图高。
+i2@344:5	i2	nodeSep	runNestingGraph 的局部：根据 height 计算的 rank 分隔因子。
+a2@346:25	a2	edge	runNestingGraph 的边遍历回调：其 minlen 乘以 nodeSep 后的当前边。
+s2@347:7	s2	weight	runNestingGraph 的局部：全部边权重和加一，用于保证子图紧凑。
+a2@348:28	a2	childId	runNestingGraph 的根子节点遍历回调：递归创建该子图的边界和 nesting edge。
+Je@351:10	Je	cleanupNestingGraph	移除 nesting root，并删除标记为 nestingEdge 的临时边。
+e2@351:13	e2	graph	cleanupNestingGraph 的参数：包含 nestingRoot 与临时 nesting edge 的图。
+n2@352:7	n2	graphLabel	cleanupNestingGraph 的局部：保存 nestingRoot 的图标签对象。
+t2@355:25	t2	edge	cleanupNestingGraph 的边遍历回调：检查并移除当前 nestingEdge。
+ft@359:10	ft	addBorderSegments	Dagre lib/add-border-segments.ts 的 addBorderSegments：为有 minRank 的 compound 节点逐层添加左右边界 dummy node。
+e2@359:13	e2	graph	addBorderSegments 的参数：含 compound 节点 rank 区间的图。
+n2@360:12	n2	addBorderSegmentsForNode	addBorderSegments 的递归函数：处理子节点后，为当前节点的每个 rank 添加左右边界。
+t2@360:15	t2	nodeId	addBorderSegmentsForNode 的参数：当前遍历的 compound 节点标识。
+r2@361:9	r2	children	addBorderSegmentsForNode 的局部：当前节点的直接子节点列表。
+o2@362:7	o2	nodeLabel	addBorderSegmentsForNode 的局部：当前节点标签，读取 minRank/maxRank 并写回 borderLeft/right。
+i2@365:16	i2	rank	addBorderSegmentsForNode 的 for 循环：当前创建边界 dummy node 的 rank。
+s2@365:33	s2	endRank	addBorderSegmentsForNode 的 for 循环上界：maxRank 加一，作为排他的终止 rank。
+Ze@372:5	Ze	insertBorderSegments	指向 addBorderSegments 的布局阶段别名。
+rn@373:10	rn	swapWidthHeight	Dagre lib/coordinate-system.ts 的 swapWidthHeight：遍历图节点和边标签并交换宽高。
+e2@373:13	e2	graph	swapWidthHeight 的参数：其节点和边标签需要交换 width/height 的图。
+n2@374:24	n2	nodeId	swapWidthHeight 的 nodes 遍历回调：当前节点标识。
+n2@375:25	n2	edgeId	swapWidthHeight 的 edges 遍历回调：当前边标识。
+nn@377:10	nn	adjustCoordinateSystem	当 rankdir 为 lr 或 rl 时，对图中节点和边标签调用 swapWidthHeight。
+e2@377:13	e2	graph	adjustCoordinateSystem 的参数：提供 rankdir 和待调整节点、边标签的图。
+t2@378:7	t2	rankdirValue	adjustCoordinateSystem 的局部：rankdir 读取结果的可选链临时值。
+n2@379:7	n2	rankdir	adjustCoordinateSystem 的局部：转成小写后的布局方向。
+bt@382:10	bt	reverseYCoordinates	对所有节点和边的 y 坐标取反，并同步处理边路径点。
+e2@382:13	e2	graph	reverseYCoordinates 的参数：其节点、边标签和边路径点需要翻转 y 坐标的图。
+n2@383:24	n2	nodeId	reverseYCoordinates 的 nodes 遍历回调：当前节点标识。
+n2@384:25	n2	edgeId	reverseYCoordinates 的 edges 遍历回调：当前边标识。
+r2@385:11	r2	points	reverseYCoordinates 的局部：边标签的可选 points 数组。
+t2@386:11	t2	edgeLabel	reverseYCoordinates 的局部：当前边标签，包含路径点及可选 y 坐标。
+gt@391:10	gt	swapXYCoordinates	对所有节点和边的 x/y 坐标互换，并同步处理边路径点。
+e2@391:13	e2	graph	swapXYCoordinates 的参数：其节点、边标签和路径点需要交换 x/y 的图。
+n2@392:24	n2	nodeId	swapXYCoordinates 的 nodes 遍历回调：当前节点标识。
+n2@393:25	n2	edgeId	swapXYCoordinates 的 edges 遍历回调：当前边标识。
+r2@394:11	r2	points	swapXYCoordinates 的局部：边标签的可选 points 数组。
+t2@395:11	t2	edgeLabel	swapXYCoordinates 的局部：当前边标签，包含路径点及可选 x 坐标。
+tn@400:10	tn	undoCoordinateSystem	Dagre lib/coordinate-system.ts 的 undo：按 rankdir 撤销 y 翻转、x/y 互换及宽高互换。
+e2@400:13	e2	graph	undoCoordinateSystem 的参数：提供 rankdir 并保存布局结果的图。
+t2@401:7	t2	rankdirValue	undoCoordinateSystem 的局部：rankdir 读取结果的可选链临时值。
+n2@402:7	n2	rankdir	undoCoordinateSystem 的局部：转成小写后的布局方向。
+re@406:10	re	buildInitialOrder	按 rank 排序叶节点并沿 successors 深度优先遍历，构造初始 layer 数组。
+e2@406:13	e2	graph	buildInitialOrder 的参数：提供叶节点、rank 和 successors 的图。
+n2@407:7	n2	visited	buildInitialOrder 的局部：避免 DFS 重复加入节点的访问表。
+t2@408:5	t2	leafNodes	buildInitialOrder 的局部：没有 children 的节点列表。
+d2@408:29	d2	nodeId	buildInitialOrder 的 filter 回调：当前用于判断是否为叶节点的标识。
+r2@409:5	r2	leafRanks	buildInitialOrder 的局部：leafNodes 对应的 rank 列表。
+d2@409:18	d2	nodeId	buildInitialOrder 的 map 回调：当前用于读取 rank 的叶节点标识。
+o2@410:5	o2	maxRank	buildInitialOrder 的局部：叶节点 rank 中的最大值。
+i2@411:5	i2	layers	buildInitialOrder 的局部：按 rank 索引并收集节点标识的二维数组。
+s2@412:12	s2	assignToLayer	buildInitialOrder 的递归函数：将节点加入对应 rank 层并递归遍历 successors。
+d2@412:15	d2	nodeId	assignToLayer 的参数：当前待加入层并继续遍历 successors 的节点标识。
+l2@415:9	l2	nodeLabel	assignToLayer 的局部：读取当前节点 rank 并选择目标 layer。
+u4@417:9	u4	successors	assignToLayer 的局部：当前节点的后继节点列表。
+d2@421:14	d2	leftNode	buildInitialOrder 的 sort 回调：比较 rank 时位于左侧的节点标识。
+l2@421:18	l2	rightNode	buildInitialOrder 的 sort 回调：比较 rank 时位于右侧的节点标识。
+oe@425:10	oe	crossCount	Dagre lib/order/cross-count.ts 的 crossCount：累加相邻层之间的交叉数。
+e2@425:13	e2	graph	crossCount 的参数：用于统计相邻层交叉边的图。
+n2@425:17	n2	layers	crossCount 的参数：按 rank 排列的节点层数组。
+t2@426:7	t2	totalCrossings	crossCount 的局部：累计相邻层的交叉边数。
+r2@427:12	r2	layerIndex	crossCount 的 for 循环：选择前后相邻两层的索引。
+sn@430:10	sn	buildLayerGraphs	从图中按 rank 构造多个用于排序的 layer graph，并包含 compound 节点跨层占位。
+e2@430:13	e2	graph	buildLayerGraphs 的参数：包含 rank/minRank/maxRank 的复合图。
+n2@430:17	n2	ranks	buildLayerGraphs 的参数：要构建 layer graph 的 rank 序列。
+t2@430:21	t2	relationship	buildLayerGraphs 的参数：取得相邻节点的入边或出边关系名。
+r2@431:7	r2	nodesByRank	buildLayerGraphs 的局部：按 rank 收集节点标识的 Map。
+o2@432:5	o2	addNodeToRank	buildLayerGraphs 的局部函数：将节点标识追加到指定 rank 的列表。
+i2@432:11	i2	rank	addNodeToRank 的参数：节点应加入的层索引。
+s2@432:15	s2	nodeId	addNodeToRank 的参数：要加入指定 rank 的节点标识。
+i2@435:12	i2	nodeId	buildLayerGraphs 的 nodes 遍历变量：当前检查是否需要加入多个 rank 的节点。
+s2@436:9	s2	nodeLabel	buildLayerGraphs 的局部：当前节点标签，读取 rank/minRank/maxRank。
+a2@441:16	a2	rank	buildLayerGraphs 的循环变量：遍历 compound 节点 minRank 到 maxRank 的层索引。
+i2@444:27	i2	rank	return 的 map 回调参数：当前 rank，用于构造对应的 layer graph。
+kt@448:10	kt	sortLayerGraphs	逐层运行子图排序并把返回顺序写回节点 order，同时满足左右边界和自定义约束。
+e2@448:13	e2	layerGraphs	 sortLayerGraphs 的参数：按 rank 构建、需要分别排序的图列表。
+n2@448:17	n2	ascending	sortLayerGraphs 的参数：控制当前 sweep 的 rank 遍历方向。
+t2@448:21	t2	constraints	sortLayerGraphs 的参数：需加入 layer graph 的左右顺序约束。
+r2@449:7	r2	constraintGraph	sortLayerGraphs 的局部：存放约束边并传给子图排序器的图。
+o2@450:24	o2	layerGraph	sortLayerGraphs 的 forEach 回调：当前待排序的 rank 图。
+a2@451:17	a2	constraint	sortLayerGraphs 的约束遍历回调：要写入 constraintGraph 的左右节点对。
+i2@452:9	i2	root	layerGraph 的局部：当前图的 compound 根节点标识。
+s2@453:7	s2	sortedSubgraph	sortLayerGraphs 的局部：W 返回的排序结果，包含顶点顺序 vs。
+a2@454:21	a2	nodeId	sortedSubgraph 的 vs 遍历回调：按结果顺序写回 order 的节点标识。
+d2@454:25	d2	orderIndex	sortedSubgraph 的 vs 遍历回调：节点在当前排序中的下标。
+an@457:10	an	assignOrder	Dagre lib/order/index.ts 的 assignOrder：将 layer 中的节点位置写回 node.order。
+e2@457:13	e2	graph	assignOrder 的参数：接收节点 order 写回操作的图。
+n2@457:17	n2	layers	assignOrder 的参数：以 rank 为键、节点顺序为值的层数组对象。
+t2@458:30	t2	layer	Object.values 的遍历回调：当前 rank 上的节点顺序列表。
+r2@459:17	r2	nodeId	assignOrder 的 forEach 回调：当前节点标识，其数组下标写入 node.order。
+o2@459:21	o2	orderIndex	assignOrder 的 forEach 回调：当前节点在 rank 层中的位置。
+B@462:10	B	order	Dagre lib/order/index.ts 的 order：初始化节点顺序后交替执行正反 sweep，保留交叉数最小的布局。
+e2@462:12	e2	graph	order 的参数：需要计算节点层内顺序的图。
+n2@462:16	n2	options	order 的参数：自定义排序、约束及禁用优化的配置。
+t2@467:7	t2	maxRank	order 的局部：图中最大 rank，用于生成正反 sweep 的 rank 序列。
+r2@468:5	r2	incomingLayerGraphs	order 的局部：按正向 rank 顺序以 inEdges 构建的 layer graphs。
+o2@469:5	o2	outgoingLayerGraphs	order 的局部：按反向 rank 顺序以 outEdges 构建的 layer graphs。
+i2@470:5	i2	currentLayering	初始层序，之后每轮 sweep 都被 N(graph) 覆盖为当前层序并参与 crossCount；对应 dagre order 的 layering。
+s2@472:7	s2	bestCrossings	order 的局部：当前已找到的最小 crossing 数。
+a2@473:5	a2	bestLayering	交叉数不大于历史最小值时保存的层序副本，循环结束后写回 assignOrder；对应 dagre order 的 best。
+d2@474:5	d2	constraints	order 的局部：调用者提供的左右顺序约束列表。
+l2@475:12	l2	sweepIndex	order 的 for 循环变量：决定本轮 sweep 的奇偶方向。
+u4@475:20	u4	sweepCount	order 的 for 循环变量：控制 sweep 轮数并在改进时重置。
+c3@477:9	c3	crossings	order 的局部：当前候选层顺序的交叉数。
+ln@484:10	ln	positionX	计算四种水平对齐的候选坐标，选择较窄的对齐并平衡最终 x 位置。
+e2@484:13	e2	graph	positionX 的参数：提供节点、层、尺寸和对齐信息的图。
+n2@485:7	n2	layers	positionX 的局部：按 rank 排列的节点 layer matrix。
+t2@486:5	t2	verticalAlignments	positionX 的局部：合并四种方向的 vertical alignment 映射。
+r2@487:5	r2	coordinates	positionX 的局部：按对齐方向组合得到的候选 x 坐标。
+o2@488:5	o2	order	positionX 的局部：当前处理的垂直方向 layer 顺序。
+s2@489:23	s2	verticalDirection	positionX 的外层 forEach 参数：当前向上或向下扫描方向。
+a2@491:27	a2	horizontalDirection	positionX 的内层 forEach 参数：当前向左或向右扫描方向。
+c3@492:37	c3	layer	positionX 的 map 回调：当前反转节点顺序的 layer。
+l2@493:13	l2	alignment	positionX 的局部：Ot 计算出的 root 与 align 信息。
+c3@497:14	c3	nodeId	positionX 传给 Ot 的回调参数：用于取得前驱或后继节点的标识。
+u4@500:11	u4	xCoordinates	positionX 的局部：It 根据 alignment 计算的一种方向候选坐标。
+c3@501:37	c3	xCoordinate	positionX 的 map 回调：取反得到对侧候选 x 坐标的值。
+i2@504:7	i2	smallestAlignment	positionX 的局部：Rt 从多种候选对齐中选择的最窄布局。
+un@507:10	un	position	Dagre lib/position/index.ts 的 position：将复合图转成非复合图、计算 y 并写回 positionX 返回的节点 x 坐标。
+e2@507:13	e2	graph	position 的参数：接收节点坐标布局的图。
+n2@510:38	n2	nodeId	position 写回坐标时遍历的 Object.entries 键：当前节点标识。
+t2@510:42	t2	xCoordinate	position 写回坐标时遍历的 Object.entries 值：当前节点的 x 坐标。
+Vt@512:5	Vt	GRAPH_ATTRIBUTE_NAMES	Dagre lib/layout.ts 的 buildLayoutGraph 使用的图级属性白名单：nodesep、edgesep、ranksep 和边距。
+Wt@513:5	Wt	DEFAULT_GRAPH_ATTRIBUTES	Dagre lib/layout.ts 的 buildLayoutGraph 使用的图级默认值，包括间距、rankdir 与 rankalign。
+Bt@520:5	Bt	LAYOUT_ATTRIBUTE_NAMES	Dagre lib/layout.ts 的 buildLayoutGraph 图级选项白名单：acyclicer、ranker、rankdir、align、rankalign。
+Yt@521:5	Yt	NODE_ATTRIBUTE_NAMES	Dagre lib/layout.ts 的 buildLayoutGraph 节点属性白名单：width、height、rank。
+Ht@527:5	Ht	DEFAULT_EDGE_ATTRIBUTES	Dagre lib/layout.ts 的 buildLayoutGraph 边标签默认值：minlen、weight、尺寸与 label 位置。
+Ut@536:10	Ut	makeSpaceForEdgeLabels	Dagre lib/layout.ts 的 makeSpaceForEdgeLabels：缩放 ranksep/minlen，并按方向为非居中边标签预留尺寸。
+e2@536:13	e2	graph	makeSpaceForEdgeLabels 的参数：需要为边标签预留 rank 和节点尺寸空间的图。
+n2@537:7	n2	graphLabel	makeSpaceForEdgeLabels 的局部：更新 ranksep 的图标签对象。
+t2@539:25	t2	edgeId	makeSpaceForEdgeLabels 的边遍历回调：当前需要调整 minlen 与标签空间的边标识。
+r2@540:11	r2	edgeLabel	makeSpaceForEdgeLabels 的局部：当前边标签，按 labelpos 和 rankdir 调整尺寸。
+Kt@548:10	Kt	injectEdgeLabelProxies	Dagre lib/layout.ts 的 injectEdgeLabelProxies：为带尺寸的边标签插入位于端点 rank 中间的 proxy node。
+e2@548:13	e2	graph	injectEdgeLabelProxies 的参数：用于读取边端点 rank 并插入 proxy node 的图。
+n2@549:23	n2	edgeId	injectEdgeLabelProxies 的边遍历回调：当前检查是否需插入 label proxy 的边。
+t2@550:9	t2	edgeLabel	injectEdgeLabelProxies 的局部：当前边标签，读取标签尺寸并保存 proxy rank。
+r2@552:11	r2	sourceNode	injectEdgeLabelProxies 的局部：当前边的源节点标签，用于计算 proxy 所在 rank。
+i2@553:9	i2	proxyLabel	injectEdgeLabelProxies 的局部：新 proxy 节点标签，记录中间 rank 和原边描述对象。
+$t@561:10	$t	assignRankMinMax	Dagre lib/layout.ts 的 assignRankMinMax：从 border dummy node 读取 compound 节点 minRank/maxRank 并更新图 maxRank。
+e2@561:13	e2	graph	assignRankMinMax 的参数：含 borderTop/borderBottom dummy node 的图。
+n2@562:7	n2	maxRank	assignRankMinMax 的局部：所有 compound 节点 maxRank 的最大值。
+t2@563:24	t2	nodeId	assignRankMinMax 的 nodes 遍历回调：当前读取边界 rank 的节点标识。
+r2@564:9	r2	nodeLabel	assignRankMinMax 的局部：当前节点标签，含 borderTop 与 borderBottom 引用。
+Jt@572:10	Jt	removeEdgeLabelProxies	Dagre lib/layout.ts 的 removeEdgeLabelProxies：把 proxy rank 写回原边的 labelRank 并删除 proxy node。
+e2@572:13	e2	graph	removeEdgeLabelProxies 的参数：包含 edge-proxy dummy node 的图。
+n2@573:23	n2	nodeId	removeEdgeLabelProxies 的 nodes 遍历回调：当前检查 dummy 类型的节点标识。
+t2@574:9	t2	nodeLabel	removeEdgeLabelProxies 的局部：当前节点标签，读取 dummy 与原边引用。
+r2@576:11	r2	proxyLabel	removeEdgeLabelProxies 的局部：当前 edge-proxy 标签对象，保存原边描述符 e。
+Qt@581:10	Qt	translateGraph	Dagre lib/layout.ts 的 translateGraph：平移节点、边、边路径点到含 margin 的非负坐标范围并更新图尺寸。
+e2@581:13	e2	graph	translateGraph 的参数：需要根据节点和边标签边界平移坐标的图。
+n2@582:7	n2	minX	translateGraph 的局部：布局内容最左边界，遍历期间持续取最小 x。
+t2@583:5	t2	maxX	translateGraph 的局部：布局内容最右边界，遍历期间持续取最大 x。
+r2@584:5	r2	minY	translateGraph 的局部：布局内容最上边界，遍历期间持续取最小 y。
+o2@585:5	o2	maxY	translateGraph 的局部：布局内容最下边界，遍历期间持续取最大 y。
+i2@586:5	i2	graphLabel	translateGraph 的局部：写回 width/height 并读取 margin 的图标签对象。
+s2@587:5	s2	marginX	translateGraph 的局部：图标签 marginx，缺省时使用零。
+a2@588:5	a2	marginY	translateGraph 的局部：图标签 marginy，缺省时使用零。
+d2@589:12	d2	includeInBounds	translateGraph 的局部函数：将带 x/y/width/height 的节点或边标签计入布局边界。
+l2@589:15	l2	labelObject	includeInBounds 的参数：要计入边界的节点或边标签对象。
+u4@590:9	u4	x	includeInBounds 的局部：当前标签对象中心 x 坐标。
+c3@591:7	c3	y	includeInBounds 的局部：当前标签对象中心 y 坐标。
+h2@592:7	h2	width	includeInBounds 的局部：当前标签对象宽度。
+f2@593:7	f2	height	includeInBounds 的局部：当前标签对象高度。
+l2@599:24	l2	nodeId	translateGraph 的 nodes 遍历回调：当前要平移的节点标识。
+l2@600:25	l2	edgeId	translateGraph 的 edges 遍历回调：当前要计入边界的边标识。
+u4@601:11	u4	edgeLabel	translateGraph 的局部：当前边标签，若含 x 则纳入边界。
+l2@606:25	l2	nodeId	translateGraph 的 nodes 遍历回调：当前需要将坐标平移到非负范围的节点标识。
+u4@607:11	u4	nodeLabel	translateGraph 的局部：当前节点标签，x/y 减去内容最小边界。
+l2@610:25	l2	edgeId	translateGraph 的 edges 遍历回调：当前需要平移边路径点和标签坐标的边标识。
+u4@611:11	u4	edgeLabel	translateGraph 的局部：当前边标签，含 points 及可选标签坐标。
+c3@612:27	c3	point	translateGraph 的 points 遍历回调：当前边路径点，其 x/y 同步减去内容边界。
+Zt@621:10	Zt	assignNodeIntersects	Dagre lib/layout.ts 的 assignNodeIntersects：用 H 为每条边的首尾补上与源节点和目标节点边界的交点。
+e2@621:13	e2	graph	assignNodeIntersects 的参数：包含节点尺寸、边端点及路径点的图。
+n2@622:23	n2	edgeId	assignNodeIntersects 的边遍历回调：当前要补齐首尾交点的边标识。
+t2@623:9	t2	edgeLabel	assignNodeIntersects 的局部：当前边标签，读取或创建 points 并写入交点。
+r2@624:7	r2	sourceNode	assignNodeIntersects 的局部：当前边源节点标签。
+o2@625:7	o2	targetNode	assignNodeIntersects 的局部：当前边目标节点标签。
+i2@626:7	i2	firstPoint	assignNodeIntersects 的局部：原路径点首点或无路径时的目标节点，供 H 计算源交点。
+s2@627:7	s2	lastPoint	assignNodeIntersects 的局部：原路径点末点或无路径时的源节点，供 H 计算目标交点。
+er@635:10	er	fixupEdgeLabelCoords	Dagre lib/layout.ts 的 fixupEdgeLabelCoords：按 labelpos 将左右边标签移到边中心之外并回收 labeloffset。
+e2@635:13	e2	graph	fixupEdgeLabelCoords 的参数：需要修正已定位边标签 x 坐标的图。
+n2@636:23	n2	edgeId	fixupEdgeLabelCoords 的边遍历回调：当前检查是否带有 x 坐标的边标识。
+t2@637:9	t2	edgeLabel	fixupEdgeLabelCoords 的局部：当前边标签，按左右 labelpos 调整 x 与 width。
+nr@653:10	nr	reversePointsForReversedEdges	Dagre lib/layout.ts 的 reversePointsForReversedEdges：对 reversed 边反转其 points 顺序。
+e2@653:13	e2	graph	reversePointsForReversedEdges 的参数：保存 reversed 标记和路径点的图。
+n2@654:23	n2	edgeId	reversePointsForReversedEdges 的边遍历回调：当前需要检查 reversed 标记的边标识。
+t2@655:9	t2	edgeLabel	reversePointsForReversedEdges 的局部：当前边标签，reversed 时反转 points。
+rr@659:10	rr	removeSelfEdges	Dagre lib/layout.ts 的 removeSelfEdges：从图中移除自环边并把边描述符和标签暂存到节点 selfEdges。
+e2@659:13	e2	graph	removeSelfEdges 的参数：提供 nodes、edges 和节点标签的图。
+n2@660:23	n2	edge	removeSelfEdges 的边遍历回调：当前判断是否为自环的边描述对象。
+t2@662:11	t2	nodeLabel	removeSelfEdges 的局部：自环源节点标签，记录该边并暂存后删除。
+or@672:10	or	insertSelfEdges	Dagre lib/layout.ts 的 insertSelfEdges：按节点在 layer 中的顺序插入 self-edge dummy node 并更新后续 order。
+e2@672:13	e2	graph	insertSelfEdges 的参数：含 node.selfEdges 且已确定 layer order 的图。
+t2@673:18	t2	layer	insertSelfEdges 的 layer 遍历回调：当前按 rank 排列的节点标识列表。
+r2@674:9	r2	orderOffset	insertSelfEdges 的局部：同一 layer 中已插入 self-edge dummy node 的数量。
+o2@675:17	o2	nodeId	insertSelfEdges 的节点遍历回调：当前写入 order 并检查 selfEdges 的节点标识。
+i2@675:21	i2	layerIndex	insertSelfEdges 的节点遍历回调：当前节点在原 layer 中的顺序下标。
+s2@676:11	s2	nodeLabel	insertSelfEdges 的局部：当前节点标签，selfEdges 中的每项会在其后展开。
+a2@678:39	a2	selfEdge	insertSelfEdges 的 selfEdges 遍历回调：包含原边描述符和边标签的记录。
+ir@697:10	ir	positionSelfEdges	Dagre lib/layout.ts 的 positionSelfEdges：移除 self-edge dummy node，恢复原边并生成绕回节点的折线路径。
+e2@697:13	e2	graph	positionSelfEdges 的参数：含 self-edge dummy node、原边和节点尺寸的图。
+n2@698:23	n2	nodeId	positionSelfEdges 的 nodes 遍历回调：当前检查是否为 selfedge dummy node 的标识。
+t2@699:9	t2	dummyLabel	positionSelfEdges 的局部：当前 selfedge dummy 节点标签，包含原边、标签及布局坐标。
+r2@701:11	r2	selfEdgeLabel	positionSelfEdges 的局部：从 dummyLabel 取出的原边与边标签记录。
+o2@702:9	o2	sourceNode	positionSelfEdges 的局部：原边源节点，用于确定绕行折线起点。
+i2@703:9	i2	sourceRightX	positionSelfEdges 的局部：源节点右侧边界的 x 坐标。
+s2@704:9	s2	sourceCenterY	positionSelfEdges 的局部：源节点中心 y 坐标。
+a2@705:9	a2	loopOffsetX	positionSelfEdges 的局部：dummy node 到源节点右侧边界的水平距离。
+d2@706:9	d2	halfNodeHeight	positionSelfEdges 的局部：源节点高度的一半，定义自环上下路径的偏移。
+Dt@736:10	Dt	runLayoutStages	执行 Dagre 布局阶段流水线，从 makeSpaceForEdgeLabels 一直运行到 acyclic.undo。
+e2@736:13	e2	graph	runLayoutStages 的参数：在各布局阶段间传递并原位修改的图。
+n2@736:17	n2	timeStage	runLayoutStages 的参数：包装并记录单个命名布局阶段执行的计时回调。
+t2@736:21	t2	options	runLayoutStages 的参数：传给 rank/order 阶段的布局选项。
+e2@765:13	e2	attributes	ue 的参数：由输入图标签或节点/边标签取得的属性对象。
+n2@765:17	n2	attributeNames	ue 的参数：当前图、节点或边可复制的布局属性名列表。
+e2@768:13	e2	attributes	ce 的参数：需要统一属性键大小写的图级、节点级或边级属性对象。
+n2@769:7	n2	normalizedAttributes	ce 的局部：把每个属性名转为小写后写入的对象。
+t2@772:36	t2	attributeName	ce 的 Object.entries 回调：当前要转为小写的属性键。
+r2@772:40	r2	attributeValue	ce 的 Object.entries 回调：当前属性键对应的原始值。
+Xt@778:10	Xt	buildLayoutGraph	Dagre lib/layout.ts 的 buildLayoutGraph：从输入图复制规范化后的图级、节点级、边级布局属性。
+e2@778:13	e2	inputGraph	buildLayoutGraph 的参数：包含原始图标签、节点、父子关系和边标签的图。
+n2@779:7	n2	layoutGraph	buildLayoutGraph 的局部：接收筛选后属性及默认值的新复合多重图。
+t2@783:5	t2	graphLabel	buildLayoutGraph 的局部：从输入图标签 canonicalize 后的图级属性。
+r2@786:25	r2	nodeId	buildLayoutGraph 的 nodes 遍历回调：复制节点与父子关系时的当前节点标识。
+o2@787:11	o2	nodeLabel	buildLayoutGraph 的局部：当前输入节点 canonicalize 后的属性对象。
+i2@788:9	i2	nodeAttrs	buildLayoutGraph 的局部：从节点标签筛选出的布局属性，并补齐默认宽高。
+a2@789:33	a2	attributeName	buildLayoutGraph 的 Object.keys(cn) 回调：检查默认节点尺寸属性是否缺失。
+s2@793:11	s2	parentId	buildLayoutGraph 的局部：输入图中当前节点的父节点标识，非空时复制父子关系。
+r2@796:25	r2	edgeId	buildLayoutGraph 的 edges 遍历回调：复制布局边时的当前边描述对象。
+o2@797:11	o2	edgeLabel	buildLayoutGraph 的局部：当前输入边标签 canonicalize 后的属性对象。
+children2@817:21	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+max2@819:7	max2	max	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@825:37	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+p3@827:32	p3	candidateParent	pickPrimaryParent 的 reduce 参数：当前比较的候选父节点。
+mode2@852:62	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@854:11	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@857:13	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+extent2@858:13	extent2	extent	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@867:14	e2	entry	buildLayerEntries 的 filter 回调：当前 layer entry，排除无本地布局位置的节点。
+entries2@869:34	entries2	entries	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+_2@870:32	_2	_entry	clusterByLayerAlignment 的 map 回调：此参数仅占据 entries2 的元素位置，实际用其下标初始化并查集。
+i2@870:36	i2	entryIndex	clusterByLayerAlignment 的 map 回调：当前 entry 在 parent 数组中的索引。
+find2@871:9	find2	findRoot	clusterByLayerAlignment 的局部函数：沿 parent 链查找并压缩当前 entry 的并查集根索引。
+i2@871:18	i2	entryIndex	findRoot 的参数：需要沿 parent 链追到根节点的 entry 索引。
+a2@878:18	a2	leftRoot	clusterByLayerAlignment 的 union 参数：第一个待合并 entry 的根索引。
+b3@878:22	b3	rightRoot	clusterByLayerAlignment 的 union 参数：第二个待合并 entry 的根索引。
+i2@883:12	i2	leftIndex	clusterByLayerAlignment 的外层循环变量：当前比较的第一个 entry 下标。
+j2@884:14	j2	rightIndex	clusterByLayerAlignment 的内层循环变量：当前与 leftIndex 比较的第二个 entry 下标。
+i2@893:28	i2	entryIndex	clusterByLayerAlignment 的 forEach 参数：当前 entry 在分组计算中的索引。
+root2@894:11	root2	root	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@906:3	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+entries2@911:9	entries2	entries	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@915:23	e2	entry	normalizeLayerSpacing 的 extentOf 参数：当前用于读取 size 的 layer entry。
+a2@917:18	a2	previousEntry	normalizeLayerSpacing 的 sort 参数：当前排在前面的 entry，用来比较 stackAxis 坐标。
+b3@917:22	b3	nextEntry	normalizeLayerSpacing 的 sort 参数：当前排在后面的 entry，用来比较 stackAxis 坐标。
+sum2@920:10	sum2	sum	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@920:16	e2	entry	normalizeLayerSpacing 的 reduce 参数：当前用于累加 stackAxis 中心位置的 layer entry。
+sum2@923:40	sum2	sum	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@923:46	e2	entry	normalizeLayerSpacing 的 reduce 参数：当前用于累加 extent 的 layer entry。
+next2@927:13	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+n2@937:40	n2	node	collectLeafFanOutGroups 的 nodes.map 参数：当前用于建立 nodeIdSet 的节点对象。
+id2@946:8	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@965:3	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+entries2@971:9	entries2	entries	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@973:57	e2	entry	rewrapLeafFanOuts 的 minLead 局部函数：当前读取 lead 位置的 layer entry。
+a2@974:18	a2	leftCluster	rewrapLeafFanOuts 的 clusters.sort 参数：当前比较中排在左侧的对齐 cluster。
+b3@974:22	b3	rightCluster	rewrapLeafFanOuts 的 clusters.sort 参数：当前比较中排在右侧的对齐 cluster。
+index2@976:30	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@983:16	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+count2@990:21	count2	count	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1003:16	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1037:15	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+a2@1042:16	a2	previousEntry	rewrapLeafFanOuts 的 ordered.sort 参数：按原位置排序时当前排在前面的叶节点。
+b3@1042:20	b3	nextEntry	rewrapLeafFanOuts 的 ordered.sort 参数：按原位置排序时当前排在后面的叶节点。
+id2@1044:40	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1045:15	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+s2@1048:48	s2	itemSize	rewrapLeafFanOuts 的 sizes.map 参数：当前节点尺寸对象，读取最大 itemWidth。
+s2@1049:49	s2	itemSize	rewrapLeafFanOuts 的 sizes.map 参数：当前节点尺寸对象，读取最大 itemHeight。
+sum2@1055:12	sum2	sum	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+i2@1055:27	i2	itemIndex	rewrapLeafFanOuts 的 reduce 参数：当前 ordered 项索引，用于读取对应尺寸高度。
+top2@1061:17	top2	topY	rewrapLeafFanOuts 的 place 回调参数：当前 tile 网格的顶部 y 坐标；top 会解析为浏览器全局 window.top。
+id2@1062:34	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+top2@1092:17	top2	topY	rewrapLeafFanOuts 的单节点 tile place 参数：当前 tile 顶部 y 坐标；top 会解析为浏览器全局 window.top。
+a2@1100:17	a2	firstTile	rewrapLeafFanOuts 的 tiles.sort 参数：当前排在前面的待放置 tile。
+b3@1100:21	b3	secondTile	rewrapLeafFanOuts 的 tiles.sort 参数：当前排在后面的待放置 tile。
+sum2@1102:21	sum2	sum	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+parentNode2@1109:13	parentNode2	parentNode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+min2@1116:12	min2	min	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1148:3	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@1151:3	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@1155:3	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@1157:9	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+siblings2@1164:9	siblings2	siblings	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+P@1194:10	P	logTiming	调试计时开启时执行 callback，并在 finally 中输出 label 与耗时。
+e2@1194:12	e2	label	logTiming 的参数：打印在计时日志前的布局阶段名称。
+n2@1194:16	n2	callback	logTiming 的参数：需要计时并返回结果的函数。
+t2@1195:7	t2	startTime	logTiming 的局部：Date.now 读取的开始时间，用于计算执行耗时。
+M@1202:10	M	runWithoutTiming	关闭 debugTiming 时直接调用 callback，不输出计时日志。
+e2@1202:12	e2	label	runWithoutTiming 的参数：与计时包装器接口一致但不输出的阶段名称。
+n2@1202:16	n2	callback	runWithoutTiming 的参数：直接执行并返回结果的函数。
+At@1205:10	At	updateInputGraph	把布局图中的节点坐标、rank/order、边路径和图尺寸复制回输入图。
+e2@1205:13	e2	inputGraph	updateInputGraph 的参数：保留原始标签和数据并接收布局结果的输入图。
+n2@1205:17	n2	layoutGraph	updateInputGraph 的参数：已完成 Dagre 布局、提供新坐标和图尺寸的图。
+t2@1206:24	t2	nodeId	updateInputGraph 的 nodes 遍历回调：当前要更新节点属性的标识。
+r2@1207:9	r2	inputNode	updateInputGraph 的局部：输入图中当前节点标签，保留其非布局数据。
+o2@1208:7	o2	layoutNode	updateInputGraph 的局部：布局图中当前节点标签，提供 x/y/order/rank 和尺寸。
+t2@1217:25	t2	edgeId	updateInputGraph 的 edges 遍历回调：当前要更新路径点和标签坐标的边标识。
+r2@1218:11	r2	inputEdge	updateInputGraph 的局部：输入图中当前边标签，保留其业务属性。
+o2@1219:9	o2	layoutEdge	updateInputGraph 的局部：布局图中当前边标签，提供 points 与标签坐标。
+e2@1226:13	e2	inputGraph	he 的参数：保留原始业务标签并接收计算结果的图。
+n2@1226:17	n2	options	he 的参数：布局选项，含 debugTiming 与 rank/order 配置。
+t2@1227:7	t2	timeStage	he 的局部：根据 debugTiming 选择的计时或直接执行包装器。
+r2@1229:9	r2	layoutGraph	he 的局部：buildLayoutGraph 生成并将传给所有布局阶段的图。
+n2@1238:40	n2	node	dagreLayoutWorkflow 的 nodes.map 参数：当前加入 nodeIdSet 的节点对象。
+mode2@1242:9	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+g2@1243:9	g2	graph	dagreLayoutWorkflow 的局部：构造并运行 Dagre 排名和排序阶段的 graphlib 图。
+n2@1260:14	n2	node	dagreLayoutWorkflow 的倒序循环变量：当前写入 graphlib 图的节点。
+i2@1263:12	i2	index	dagreLayoutWorkflow 的倒序循环变量：当前待写入节点在 nodes 数组中的索引。
+n2@1264:11	n2	node	dagreLayoutWorkflow 的局部：从倒序 index 位置取出的节点。
+i2@1271:12	i2	index	dagreLayoutWorkflow 的倒序循环变量：当前检查有效端点边的索引。
+e2@1272:11	e2	edge	dagreLayoutWorkflow 的局部：从 edges 数组取出的当前边。
+id2@1279:14	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1280:11	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@1297:11	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1301:21	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@1301:28	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1304:29	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1305:24	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@1307:23	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+a2@1309:49	a2	leftNode	computeIncremental 的 sort 参数：当前按拓扑层级比较的左侧新增节点。
+b3@1309:53	b3	rightNode	computeIncremental 的 sort 参数：当前按拓扑层级比较的右侧新增节点。
+node2@1314:51	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+n2@1315:41	n2	node	computeIncremental 的 map 参数：用于生成 occupied 矩形的既有节点。
+node2@1317:16	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+position2@1321:13	position2	nodePosition	computeIncremental 的局部：placeIncrementalNode 返回的新节点坐标；position 会遮蔽模块级 position 函数。
+mode2@1347:11	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+n2@1350:42	n2	node	computeAsync 的 nodes.map 参数：当前加入 nodeIdSet 的节点对象。
+e2@1352:8	e2	edge	computeAsync 的 filter 参数：只保留两个端点都属于待布局节点集合的边。
+components2@1354:11	components2	components	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@1356:16	e2	edge	computeAsync 的 relevantEdges 循环变量：当前加入 edgeNodeIds 的边。
+n2@1360:41	n2	node	computeAsync 的 nodes.map 参数：构建以 id 为键的 nodeById 映射。
+id2@1364:34	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1369:28	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@1371:14	e2	edge	computeAsync 的 edges.filter 参数：保留两个端点都属于当前 component 的边。
+id2@1375:20	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1376:17	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+a2@1385:21	a2	leftWorkflow	computeAsync 的 workflows.sort 参数：当前比较中位于左侧的 workflow。
+b3@1385:25	b3	rightWorkflow	computeAsync 的 workflows.sort 参数：当前比较中位于右侧的 workflow。
+id2@1415:19	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1418:15	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+packTilesIntoGrid2@1442:13	packTilesIntoGrid2	packTilesIntoGrid	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+t2@1448:24	t2	tile	packTilesIntoGrid 的 forEach 参数：当前用于更新列宽、行高的 tile。
+i2@1448:28	i2	tileIndex	packTilesIntoGrid 的 forEach 参数：当前 tile 在输入数组中的索引。
+c3@1449:17	c3	columnIndex	packTilesIntoGrid 的局部：当前 tile 所在列索引。
+r2@1450:17	r2	rowIndex	packTilesIntoGrid 的局部：当前 tile 所在行索引。
+c3@1455:18	c3	columnIndex	packTilesIntoGrid 的 for 循环：计算各列在网格中的 x 起点。
+r2@1458:18	r2	rowIndex	packTilesIntoGrid 的 for 循环：计算各行在网格中的 y 起点。
+t2@1460:24	t2	tile	packTilesIntoGrid 的 forEach 参数：当前按预计算行列偏移放置的 tile。
+i2@1460:28	i2	tileIndex	packTilesIntoGrid 的 forEach 参数：当前 tile 在网格输入数组中的索引。
+c3@1461:17	c3	columnIndex	packTilesIntoGrid 的局部：当前 tile 对应的列索引。
+r2@1462:17	r2	rowIndex	packTilesIntoGrid 的局部：当前 tile 对应的行索引。
+id2@1472:25	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1481:48	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1501:23	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1515:23	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1528:22	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1539:22	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1549:23	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@1569:19	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@1579:11	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@1582:15	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@1587:11	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@1602:11	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

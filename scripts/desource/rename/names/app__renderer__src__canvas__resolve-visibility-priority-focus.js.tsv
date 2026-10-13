@@ -1,0 +1,12 @@
+key	old	new	依据
+x2@73:9	x2	viewportX	该值是按保存中心点和缩放计算出的画布视口 x 坐标。
+y4@74:9	y4	viewportY	该值是按保存中心点和缩放计算出的画布视口 y 坐标。
+size2@32:44	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+snapshot2@45:9	snapshot2	snapshot	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+snapshot2@70:9	snapshot2	snapshot	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+zoom2@72:9	zoom2	zoom	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@82:45	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+key2@89:46	key2	key	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@89:62	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+first2@96:21	first2	first	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+distance2@125:11	distance2	distance	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

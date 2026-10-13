@@ -10,14 +10,14 @@ import {
 const TAG_NAME_LIMIT_TOAST_ID = "canvas-tag-name-limit";
 
 export function useCanvasTagNameInputLimit() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const composingRef = reactExports.useRef(false);
   const announcedRef = reactExports.useRef(false);
   const enforceLimit = reactExports.useCallback(
     (value) => {
       const limited = truncateCanvasTagName(value);
       if (limited !== value && !announcedRef.current) {
-        dedupedToast.info(t2("canvasTags.nameLimitReached"), {
+        dedupedToast.info(translate("canvasTags.nameLimitReached"), {
           id: TAG_NAME_LIMIT_TOAST_ID,
           duration: 2e3,
         });
@@ -28,7 +28,7 @@ export function useCanvasTagNameInputLimit() {
       }
       return limited;
     },
-    [t2],
+    [translate],
   );
   return {
     acceptChange(value) {

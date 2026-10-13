@@ -1,0 +1,13 @@
+key	old	new	依据
+SegmentedSwitch$1@8:29	SegmentedSwitch$1	BaseSegmentedSwitch	该导入的基础切换组件被包装以注入 Tooltip；与本地导出组件 SegmentedSwitch@80:17 冲突，故使用 BaseSegmentedSwitch。
+PopoverTitle$1@16:7	PopoverTitle$1	BasePopoverTitle	forwardRef 基础标题元素记录 titleElementId；与本地导出包装器 PopoverTitle@62:17 冲突，故使用 BasePopoverTitle。
+PopoverDescription$1@39:7	PopoverDescription$1	BasePopoverDescription	forwardRef 基础描述元素记录 descriptionElementId；与本地导出包装器 PopoverDescription@71:17 冲突，故使用 BasePopoverDescription。
+id2@20:11	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+id2@43:11	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+PopoverTitle2@17:12	PopoverTitle2	PopoverTitle	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+render2@18:21	render2	render	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@27:11	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+PopoverDescription2@40:12	PopoverDescription2	PopoverDescription	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+render2@41:21	render2	render	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@50:11	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+content2@84:31	content2	content	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

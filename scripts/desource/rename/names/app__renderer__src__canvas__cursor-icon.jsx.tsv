@@ -1,0 +1,10 @@
+key	old	new	依据
+s2@36:41	s2	assetState	useAssetMetadataStore 选择器接收 store 状态并读取 assets 集合。
+n2@38:6	n2	node	过滤器检查候选画布节点是否为受支持的媒体类型。
+n2@43:24	n2	node	遍历媒体节点并读取其 id、type 及关联素材元数据。
+meta2@45:15	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+svg2@144:33	svg2	svg	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+doc2@145:9	doc2	doc	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+text2@150:9	text2	text	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@164:30	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@164:40	name2	attributeName	该参数是被读取或设置的 DOM 属性名；与全局绑定 name 冲突，故使用 attributeName。

@@ -1,5 +1,5 @@
 // sortable-tag-row.jsx
-import { reactExports, useTranslation, X$7 as X } from "../vendor.js";
+import { reactExports, useTranslation, X$7 as XIcon } from "../vendor.js";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { dedupedToast } from "../infra/agent-http-client.js";
@@ -23,7 +23,7 @@ import {
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import { getCanvasTagPresentationColor } from "../assets/inline-input.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 export function SortableTagRow({
   tag,
   label,
@@ -35,7 +35,7 @@ export function SortableTagRow({
   downloading,
   onDownload,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
   const [draft, setDraft] = reactExports.useState(label);
   const [editing, setEditing] = reactExports.useState(false);
@@ -43,36 +43,36 @@ export function SortableTagRow({
   const keywordTag = isCanvasKeywordTag(tag);
   const {
     attributes,
-    listeners: listeners2,
+    listeners,
     setNodeRef,
-    transform: transform2,
-    transition: transition2,
+    transform,
+    transition,
     isDragging,
   } = useSortable({
     id: tag.id,
     disabled: keywordTag,
   });
-  const { onPointerDown: onPointerDown2, ...keyboardListeners } =
-    listeners2 ?? {};
-  const handleDragPointerDown = onPointerDown2;
+  const { onPointerDown, ...keyboardListeners } =
+    listeners ?? {};
+  const handleDragPointerDown = onPointerDown;
   reactExports.useEffect(() => setDraft(label), [label]);
   const validation = validateCanvasTagName(draft);
   const duplicate = isTagNameTaken(draft, resolvedNames, tag.id);
   const inputInvalid = validation === "required" || duplicate;
   const saveName = async () => {
-    const name2 = draft.trim();
-    if (validation || duplicate || name2 === label) {
+    const trimmedName = draft.trim();
+    if (validation || duplicate || trimmedName === label) {
       if (!validation && !duplicate) setDraft(label);
       return;
     }
     setSaving(true);
     try {
       await onUpdate(tag.id, {
-        name: name2,
+        name: trimmedName,
       });
     } catch {
       setDraft(label);
-      dedupedToast.error(t2("canvasTags.saveFailed"));
+      dedupedToast.error(translate("canvasTags.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -81,8 +81,8 @@ export function SortableTagRow({
     <div
       ref={setNodeRef}
       style={{
-        transform: CSS.Transform.toString(transform2),
-        transition: transition2,
+        transform: CSS.Transform.toString(transform),
+        transition,
         opacity: isDragging ? 0.92 : 1,
       }}
       className={cn(
@@ -124,7 +124,7 @@ export function SortableTagRow({
                   render={
                     <button
                       type="button"
-                      aria-label={t2("canvasTags.delete")}
+                      aria-label={translate("canvasTags.delete")}
                       data-action-ui-id="canvas.tag-manager-keyword-indicator"
                       className={cn(
                         "group/keyword-delete flex size-4 shrink-0 items-center justify-center rounded-full border-[1px] border-solid border-[rgba(0,0,0,0.3)] outline-hidden transition-[background-color,border-color,opacity] focus-visible:ring-2 focus-visible:ring-ring/50 dark:border-[rgba(255,255,255,0.4)]",
@@ -134,7 +134,7 @@ export function SortableTagRow({
                       onClick={() => onDelete(tag)}
                     >
                       <Icon
-                        icon={X}
+                        icon={XIcon}
                         size="xs"
                         strokeWidth={3}
                         className={cn(
@@ -148,13 +148,13 @@ export function SortableTagRow({
                   }
                 />
                 <TooltipContent className="max-w-64" side="top" align="start">
-                  {t2("canvasTags.deleteKeywordInfo")}
+                  {translate("canvasTags.deleteKeywordInfo")}
                 </TooltipContent>
               </Tooltip>
             )}
           </div>
           <div className="group/name relative min-w-0">
-            <Input3
+            <Input
               value={draft}
               disabled={saving}
               className={cn(
@@ -231,7 +231,7 @@ export function SortableTagRow({
               <Button
                 variant="ghost"
                 size="icon-xs"
-                aria-label={t2("canvasTags.downloadTag", {
+                aria-label={translate("canvasTags.downloadTag", {
                   name: label,
                   count: assetCount,
                 })}
@@ -256,7 +256,7 @@ export function SortableTagRow({
         {!keywordTag ? (
           <button
             type="button"
-            aria-label={t2("canvasTags.dragToSort")}
+            aria-label={translate("canvasTags.dragToSort")}
             data-action-ui-id="canvas.tag-manager-drag"
             className="sr-only"
             {...attributes}
@@ -266,7 +266,7 @@ export function SortableTagRow({
       </div>
       {duplicate ? (
         <p className="pb-1 pl-[26px] text-xs text-destructive">
-          {t2("canvasTags.nameTaken")}
+          {translate("canvasTags.nameTaken")}
         </p>
       ) : null}
     </div>

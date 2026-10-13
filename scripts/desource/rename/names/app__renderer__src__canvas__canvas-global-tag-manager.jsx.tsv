@@ -1,0 +1,15 @@
+key	old	new	依据
+X@6:146	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
+id2@43:48	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+t2@107:14	t2	translate	该函数翻译标签管理、下载和操作提示。
+tags2@42:62	tags2	tags	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+workspaceId2@91:16	workspaceId2	workspaceId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+resolveName2@109:9	resolveName2	resolveName	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+registry2@111:15	registry2	registry	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+gatewayUrl2@115:9	gatewayUrl2	gatewayUrl	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+label2@135:13	label2	label	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@147:34	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@301:11	name2	trimmedName	该值是去除首尾空格后的标签名称；与全局绑定 name 冲突，故使用 trimmedName。
+name2@406:23	name2	resolvedTagName	该值是按标签解析出的显示名称；与全局绑定 name 冲突，故使用 resolvedTagName。
+count2@408:23	count2	count	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@412:23	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

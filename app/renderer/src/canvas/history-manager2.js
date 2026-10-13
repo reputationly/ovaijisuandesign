@@ -1,6 +1,6 @@
 // history-manager2.js
 import { createEmptyGraph } from "./use-active-mode.js";
-import { Tt } from "../text-editor/is-diff-review-session-ready.js";
+import { Tt as createHistoryStore } from "../text-editor/is-diff-review-session-ready.js";
 export class HistoryManager2 {
   travels;
   unsubscribe;
@@ -32,7 +32,7 @@ export class HistoryManager2 {
   transactionDepth = 0;
   constructor(initialState, maxHistory = 100) {
     this.maxHistorySize = maxHistory;
-    this.travels = Tt(initialState ?? createEmptyGraph(), {
+    this.travels = createHistoryStore(initialState ?? createEmptyGraph(), {
       maxHistory,
       autoArchive: false,
     });
@@ -86,10 +86,10 @@ export class HistoryManager2 {
    * across every reachable state.
    */
   rebase(updater) {
-    const history2 = this.travels.getHistory();
-    const position2 = this.travels.getPosition();
-    const rebased = history2.map((state2) => {
-      const temporary = Tt(state2, {
+    const historyStates = this.travels.getHistory();
+    const position = this.travels.getPosition();
+    const rebased = historyStates.map((state) => {
+      const temporary = createHistoryStore(state, {
         maxHistory: 1,
         autoArchive: false,
       });
@@ -99,19 +99,19 @@ export class HistoryManager2 {
     const initial = rebased[0];
     if (!initial) return;
     this.unsubscribe();
-    this.travels = Tt(initial, {
+    this.travels = createHistoryStore(initial, {
       maxHistory: this.maxHistorySize,
       autoArchive: false,
     });
-    for (const state2 of rebased.slice(1)) {
+    for (const state of rebased.slice(1)) {
       this.travels.setState((draft) => {
-        draft.nodes = state2.nodes;
-        draft.edges = state2.edges;
-        draft.viewport = state2.viewport;
+        draft.nodes = state.nodes;
+        draft.edges = state.edges;
+        draft.viewport = state.viewport;
       });
       this.travels.archive();
     }
-    this.travels.go(Math.min(position2, rebased.length - 1));
+    this.travels.go(Math.min(position, rebased.length - 1));
     this.unsubscribe = this.travels.subscribe(() => {});
     this.pendingServerWrite = false;
     this.mutationVersion++;
@@ -233,7 +233,7 @@ export class HistoryManager2 {
   snapshot() {
     const currentState = this.travels.getState();
     this.unsubscribe();
-    this.travels = Tt(currentState, {
+    this.travels = createHistoryStore(currentState, {
       maxHistory: this.maxHistorySize,
       autoArchive: false,
     });

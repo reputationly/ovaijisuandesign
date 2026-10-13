@@ -21,13 +21,13 @@ import { __jsx } from "../shared/jsx-runtime.js";
 
 const BEZIER_HIT_SAMPLES = 16;
 
-function cubicAt(t2, p0, p1, p22, p3) {
-  const mt2 = 1 - t2;
+function cubicAt(progress, startValue, firstControlValue, secondControlValue, endValue) {
+  const mt = 1 - progress;
   return (
-    mt2 * mt2 * mt2 * p0 +
-    3 * mt2 * mt2 * t2 * p1 +
-    3 * mt2 * t2 * t2 * p22 +
-    t2 * t2 * t2 * p3
+    mt * mt * mt * startValue +
+    3 * mt * mt * progress * firstControlValue +
+    3 * mt * progress * progress * secondControlValue +
+    progress * progress * progress * endValue
   );
 }
 
@@ -36,37 +36,37 @@ function distSqPointToSegment(px, py, ax, ay, bx, by) {
   const dy = by - ay;
   const lenSq = dx * dx + dy * dy;
   if (lenSq === 0) {
-    const ex2 = px - ax;
-    const ey2 = py - ay;
-    return ex2 * ex2 + ey2 * ey2;
+    const ex = px - ax;
+    const ey = py - ay;
+    return ex * ex + ey * ey;
   }
-  let t2 = ((px - ax) * dx + (py - ay) * dy) / lenSq;
-  t2 = t2 < 0 ? 0 : t2 > 1 ? 1 : t2;
-  const cx2 = ax + t2 * dx;
-  const cy = ay + t2 * dy;
-  const ex = px - cx2;
+  let segmentRatio = ((px - ax) * dx + (py - ay) * dy) / lenSq;
+  segmentRatio = segmentRatio < 0 ? 0 : segmentRatio > 1 ? 1 : segmentRatio;
+  const cx = ax + segmentRatio * dx;
+  const cy = ay + segmentRatio * dy;
+  const ex = px - cx;
   const ey = py - cy;
   return ex * ex + ey * ey;
 }
 
-function distSqPointToBezier(px, py, cp2, steps) {
-  let prevX = cp2.sx;
-  let prevY = cp2.sy;
+function distSqPointToBezier(px, py, cp, steps) {
+  let prevX = cp.sx;
+  let prevY = cp.sy;
   let minSq = Number.POSITIVE_INFINITY;
-  for (let i2 = 1; i2 <= steps; i2++) {
-    const t2 = i2 / steps;
-    const x2 = cubicAt(t2, cp2.sx, cp2.cp1x, cp2.cp2x, cp2.tx);
-    const y4 = cubicAt(t2, cp2.sy, cp2.cp1y, cp2.cp2y, cp2.ty);
-    const dSq = distSqPointToSegment(px, py, prevX, prevY, x2, y4);
-    if (dSq < minSq) minSq = dSq;
-    prevX = x2;
-    prevY = y4;
+  for (let index = 1; index <= steps; index++) {
+    const progress = index / steps;
+    const sampleX = cubicAt(progress, cp.sx, cp.cp1x, cp.cp2x, cp.tx);
+    const sampleY = cubicAt(progress, cp.sy, cp.cp1y, cp.cp2y, cp.ty);
+    const distanceSquared = distSqPointToSegment(px, py, prevX, prevY, sampleX, sampleY);
+    if (distanceSquared < minSq) minSq = distanceSquared;
+    prevX = sampleX;
+    prevY = sampleY;
   }
   return minSq;
 }
 
 function hitTestEdges(
-  state2,
+  state,
   flowX,
   flowY,
   radius,
@@ -74,23 +74,23 @@ function hitTestEdges(
 ) {
   let best = null;
   let bestSq = radius * radius;
-  for (const edge of state2.edges) {
+  for (const edge of state.edges) {
     if (
-      !isEdgeVisible(edge, state2.nodeLookup, state2.onlySelectedNodes ?? false)
+      !isEdgeVisible(edge, state.nodeLookup, state.onlySelectedNodes ?? false)
     )
       continue;
-    const srcEntry = state2.nodeLookup.get(edge.source);
+    const srcEntry = state.nodeLookup.get(edge.source);
     const src = readNodeBox(srcEntry);
-    const tgt = readNodeBox(state2.nodeLookup.get(edge.target));
+    const tgt = readNodeBox(state.nodeLookup.get(edge.target));
     if (!src || !tgt) continue;
     const side = sourceHandleSide(srcEntry, src, tgt);
-    const cp2 = controlPointsFor(pointsForSide(src, tgt, side), side);
-    const minX = Math.min(cp2.sx, cp2.cp1x, cp2.cp2x, cp2.tx) - radius;
-    const maxX = Math.max(cp2.sx, cp2.cp1x, cp2.cp2x, cp2.tx) + radius;
-    const minY = Math.min(cp2.sy, cp2.cp1y, cp2.cp2y, cp2.ty) - radius;
-    const maxY = Math.max(cp2.sy, cp2.cp1y, cp2.cp2y, cp2.ty) + radius;
+    const cp = controlPointsFor(pointsForSide(src, tgt, side), side);
+    const minX = Math.min(cp.sx, cp.cp1x, cp.cp2x, cp.tx) - radius;
+    const maxX = Math.max(cp.sx, cp.cp1x, cp.cp2x, cp.tx) + radius;
+    const minY = Math.min(cp.sy, cp.cp1y, cp.cp2y, cp.ty) - radius;
+    const maxY = Math.max(cp.sy, cp.cp1y, cp.cp2y, cp.ty) + radius;
     if (flowX < minX || flowX > maxX || flowY < minY || flowY > maxY) continue;
-    const distSq = distSqPointToBezier(flowX, flowY, cp2, steps);
+    const distSq = distSqPointToBezier(flowX, flowY, cp, steps);
     if (distSq <= bestSq) {
       bestSq = distSq;
       best = edge.id;
@@ -107,8 +107,8 @@ const EDGE_OCCLUDING_SELECTORS = [
 
 const EDGE_OCCLUDING_SELECTOR = EDGE_OCCLUDING_SELECTORS.join(",");
 
-function isEdgeOccludingElement(element2) {
-  return element2?.closest(EDGE_OCCLUDING_SELECTOR) != null;
+function isEdgeOccludingElement(element) {
+  return element?.closest(EDGE_OCCLUDING_SELECTOR) != null;
 }
 
 function isEdgeOccludedAt(source, clientX, clientY) {
@@ -130,10 +130,10 @@ const BTN_BG_HOVER = "var(--canvas-primary-btn-bg-hover)";
 const BTN_ICON = "var(--canvas-primary-btn-icon)";
 
 export function EdgeInteractionLayer({
-  active: active2 = true,
+  active = true,
   onlySelectedNodes = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const storeApi = useStoreApi();
   const { deleteElements, screenToFlowPosition } = useReactFlow();
   const hoveredEdgeRef = reactExports.useRef(null);
@@ -147,11 +147,11 @@ export function EdgeInteractionLayer({
   const applyButtonTransform = reactExports.useCallback(() => {
     const el = buttonWrapperRef.current;
     if (!el) return;
-    const pos2 = cursorFlowRef.current;
-    if (!pos2) return;
-    const zoom22 = storeApi.getState().transform[2] || 1;
-    const invZoom2 = 1 / zoom22;
-    el.style.transform = `translate(-50%, -50%) translate(${pos2.x}px, ${pos2.y}px) scale(${invZoom2})`;
+    const pos = cursorFlowRef.current;
+    if (!pos) return;
+    const zoom = storeApi.getState().transform[2] || 1;
+    const invZoom = 1 / zoom;
+    el.style.transform = `translate(-50%, -50%) translate(${pos.x}px, ${pos.y}px) scale(${invZoom})`;
   }, [storeApi]);
   const scheduleReveal = reactExports.useCallback(() => {
     if (hideTimerRef.current) {
@@ -176,11 +176,11 @@ export function EdgeInteractionLayer({
     }, CUT_BUTTON_HIDE_DELAY_MS);
   }, []);
   reactExports.useEffect(() => {
-    if (!active2) return;
-    const flow2 = storeApi.getState().domNode;
-    if (!flow2) return;
-    let rafId2 = 0;
-    let pending2 = null;
+    if (!active) return;
+    const flow = storeApi.getState().domNode;
+    if (!flow) return;
+    let rafId = 0;
+    let pending = null;
     let pointerDownAt = null;
     const hitAt = (clientX, clientY) => {
       let flowPt;
@@ -193,13 +193,13 @@ export function EdgeInteractionLayer({
         return null;
       }
       cursorFlowRef.current = flowPt;
-      const state2 = storeApi.getState();
-      const zoom22 = state2.transform[2] || 1;
-      const radius = EDGE_HIT_RADIUS_PX / zoom22;
+      const state = storeApi.getState();
+      const zoom = state.transform[2] || 1;
+      const radius = EDGE_HIT_RADIUS_PX / zoom;
       return hitTestEdges(
         {
-          edges: state2.edges,
-          nodeLookup: state2.nodeLookup,
+          edges: state.edges,
+          nodeLookup: state.nodeLookup,
           onlySelectedNodes,
         },
         flowPt.x,
@@ -211,28 +211,28 @@ export function EdgeInteractionLayer({
       return isEdgeOccludedAt(document, clientX, clientY);
     };
     const isInsideSelectionBox = (flowX, flowY) => {
-      const state2 = storeApi.getState();
-      if (!state2.nodesSelectionActive) return false;
+      const state = storeApi.getState();
+      if (!state.nodesSelectionActive) return false;
       const {
-        x: x22,
-        y: y22,
+        x: selectionLeft,
+        y: selectionTop,
         width,
         height,
-      } = getInternalNodesBounds(state2.nodeLookup, {
-        filter: (node2) => !!node2.selected && !node2.hidden,
+      } = getInternalNodesBounds(state.nodeLookup, {
+        filter: (node) => !!node.selected && !node.hidden,
       });
       if (width <= 0 || height <= 0) return false;
       return (
-        flowX >= x22 &&
-        flowX <= x22 + width &&
-        flowY >= y22 &&
-        flowY <= y22 + height
+        flowX >= selectionLeft &&
+        flowX <= selectionLeft + width &&
+        flowY >= selectionTop &&
+        flowY <= selectionTop + height
       );
     };
     const runHitTest = () => {
-      rafId2 = 0;
-      const evt = pending2;
-      pending2 = null;
+      rafId = 0;
+      const evt = pending;
+      pending = null;
       if (!evt) return;
       const boxSelecting = storeApi.getState().userSelectionActive;
       let geomHit = boxSelecting ? null : hitAt(evt.clientX, evt.clientY);
@@ -255,16 +255,16 @@ export function EdgeInteractionLayer({
         scheduleHide();
       }
     };
-    const onPointerMove = (e2) => {
-      pending2 = {
-        clientX: e2.clientX,
-        clientY: e2.clientY,
+    const onPointerMove = (pointerEvent) => {
+      pending = {
+        clientX: pointerEvent.clientX,
+        clientY: pointerEvent.clientY,
       };
-      if (rafId2 !== 0) return;
-      rafId2 = requestAnimationFrame(runHitTest);
+      if (rafId !== 0) return;
+      rafId = requestAnimationFrame(runHitTest);
     };
     const onPointerLeave = () => {
-      pending2 = null;
+      pending = null;
       const prev = hoveredEdgeRef.current;
       if (prev) {
         hoveredEdgeRef.current = null;
@@ -272,58 +272,58 @@ export function EdgeInteractionLayer({
       }
       scheduleHide();
     };
-    const onPointerDown2 = (e2) => {
+    const onPointerDown = (pointerEvent) => {
       pointerDownAt = {
-        x: e2.clientX,
-        y: e2.clientY,
+        x: pointerEvent.clientX,
+        y: pointerEvent.clientY,
       };
     };
-    const onClickCapture = (e2) => {
+    const onClickCapture = (clickEvent) => {
       const wrapper = buttonWrapperRef.current;
-      if (wrapper && e2.target instanceof Node && wrapper.contains(e2.target)) {
+      if (wrapper && clickEvent.target instanceof Node && wrapper.contains(clickEvent.target)) {
         pointerDownAt = null;
         return;
       }
       const down = pointerDownAt;
       pointerDownAt = null;
       if (down) {
-        const dx = e2.clientX - down.x;
-        const dy = e2.clientY - down.y;
+        const dx = clickEvent.clientX - down.x;
+        const dy = clickEvent.clientY - down.y;
         if (dx * dx + dy * dy > CLICK_DISTANCE_PX * CLICK_DISTANCE_PX) return;
       }
-      const hitId = hitAt(e2.clientX, e2.clientY);
+      const hitId = hitAt(clickEvent.clientX, clickEvent.clientY);
       if (!hitId) return;
       const cursor = cursorFlowRef.current;
       if (cursor && isInsideSelectionBox(cursor.x, cursor.y)) return;
-      if (isEdgeOccluded(e2.clientX, e2.clientY)) return;
-      e2.stopPropagation();
+      if (isEdgeOccluded(clickEvent.clientX, clickEvent.clientY)) return;
+      clickEvent.stopPropagation();
       storeApi.getState().addSelectedEdges([hitId]);
     };
-    flow2.addEventListener("pointermove", onPointerMove);
-    flow2.addEventListener("pointerleave", onPointerLeave);
-    flow2.addEventListener("pointerdown", onPointerDown2);
-    flow2.addEventListener("click", onClickCapture, true);
-    const unsubVisibility = storeApi.subscribe((state2) => {
-      const id2 = hoveredEdgeRef.current;
-      if (!id2) return;
-      const edge = state2.edges.find((candidate) => candidate.id === id2);
-      if (edge && isEdgeVisible(edge, state2.nodeLookup, onlySelectedNodes))
+    flow.addEventListener("pointermove", onPointerMove);
+    flow.addEventListener("pointerleave", onPointerLeave);
+    flow.addEventListener("pointerdown", onPointerDown);
+    flow.addEventListener("click", onClickCapture, true);
+    const unsubVisibility = storeApi.subscribe((state) => {
+      const id = hoveredEdgeRef.current;
+      if (!id) return;
+      const edge = state.edges.find((candidate) => candidate.id === id);
+      if (edge && isEdgeVisible(edge, state.nodeLookup, onlySelectedNodes))
         return;
       if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
       revealTimerRef.current = null;
       hideTimerRef.current = null;
       hoveredEdgeRef.current = null;
-      clearHoveredEdgeIdIfMatches(id2);
+      clearHoveredEdgeIdIfMatches(id);
       setButtonVisible(false);
     });
     return () => {
       unsubVisibility();
-      if (rafId2 !== 0) cancelAnimationFrame(rafId2);
-      flow2.removeEventListener("pointermove", onPointerMove);
-      flow2.removeEventListener("pointerleave", onPointerLeave);
-      flow2.removeEventListener("pointerdown", onPointerDown2);
-      flow2.removeEventListener("click", onClickCapture, true);
+      if (rafId !== 0) cancelAnimationFrame(rafId);
+      flow.removeEventListener("pointermove", onPointerMove);
+      flow.removeEventListener("pointerleave", onPointerLeave);
+      flow.removeEventListener("pointerdown", onPointerDown);
+      flow.removeEventListener("click", onClickCapture, true);
       if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
       revealTimerRef.current = null;
@@ -334,7 +334,7 @@ export function EdgeInteractionLayer({
       setButtonVisible(false);
     };
   }, [
-    active2,
+    active,
     onlySelectedNodes,
     storeApi,
     screenToFlowPosition,
@@ -343,26 +343,26 @@ export function EdgeInteractionLayer({
     applyButtonTransform,
   ]);
   reactExports.useEffect(() => {
-    if (!active2 || !buttonVisible) return;
+    if (!active || !buttonVisible) return;
     applyButtonTransform();
     const unsub = storeApi.subscribe(applyButtonTransform);
     return unsub;
-  }, [active2, buttonVisible, storeApi, applyButtonTransform]);
+  }, [active, buttonVisible, storeApi, applyButtonTransform]);
   const handleCut = reactExports.useCallback(
     (event) => {
       event.stopPropagation();
-      const id2 = hoveredEdgeRef.current;
-      if (!id2) return;
+      const id = hoveredEdgeRef.current;
+      if (!id) return;
       deleteElements({
         edges: [
           {
-            id: id2,
+            id,
           },
         ],
       });
       setButtonVisible(false);
       hoveredEdgeRef.current = null;
-      clearHoveredEdgeIdIfMatches(id2);
+      clearHoveredEdgeIdIfMatches(id);
     },
     [deleteElements],
   );
@@ -375,19 +375,19 @@ export function EdgeInteractionLayer({
   const onButtonAreaLeave = reactExports.useCallback(() => {
     scheduleHide();
   }, [scheduleHide]);
-  if (!active2 || !buttonVisible) return null;
+  if (!active || !buttonVisible) return null;
   const pos = cursorFlowRef.current;
-  const zoom2 = storeApi.getState().transform[2] || 1;
-  const invZoom = 1 / zoom2;
-  const x2 = pos?.x ?? 0;
-  const y4 = pos?.y ?? 0;
+  const viewportZoom = storeApi.getState().transform[2] || 1;
+  const invZoom = 1 / viewportZoom;
+  const cursorFlowX = pos?.x ?? 0;
+  const cursorFlowY = pos?.y ?? 0;
   return (
     <EdgeLabelRenderer>
       <div
         ref={buttonWrapperRef}
         className="nodrag nopan absolute"
         style={{
-          transform: `translate(-50%, -50%) translate(${x2}px, ${y4}px) scale(${invZoom})`,
+          transform: `translate(-50%, -50%) translate(${cursorFlowX}px, ${cursorFlowY}px) scale(${invZoom})`,
           pointerEvents: "all",
           zIndex: 1001,
           padding: 4,
@@ -398,16 +398,16 @@ export function EdgeInteractionLayer({
         <button
           type="button"
           onClick={handleCut}
-          onMouseEnter={(e2) => {
-            e2.currentTarget.style.background = BTN_BG_HOVER;
+          onMouseEnter={(mouseEvent) => {
+            mouseEvent.currentTarget.style.background = BTN_BG_HOVER;
           }}
-          onMouseLeave={(e2) => {
-            e2.currentTarget.style.background = BTN_BG_IDLE;
+          onMouseLeave={(mouseEvent) => {
+            mouseEvent.currentTarget.style.background = BTN_BG_IDLE;
           }}
-          aria-label={t2("canvas.edge.cut", {
+          aria-label={translate("canvas.edge.cut", {
             defaultValue: "剪断连线",
           })}
-          title={t2("canvas.edge.cut", {
+          title={translate("canvas.edge.cut", {
             defaultValue: "剪断连线",
           })}
           className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-all duration-200 animate-[toolbar-fade-in_0.12s_ease-out]"

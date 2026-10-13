@@ -45,22 +45,22 @@ export function placeholderNodeSize(status, aspectRatio, mediaType) {
   };
 }
 
-export function resolveNodeFootprint(node2, mode2, fallback) {
-  if (isIdleEmptyVideoNode(node2)) {
+export function resolveNodeFootprint(node, mode, fallback) {
+  if (isIdleEmptyVideoNode(node)) {
     return VIDEO_EMPTY_CARD_SIZE;
   }
-  if (node2.type === "placeholder") {
-    const data2 = node2.data;
+  if (node.type === "placeholder") {
+    const data = node.data;
     return placeholderNodeSize(
-      data2?.status,
-      data2?.aspectRatio,
-      data2?.mediaType,
+      data?.status,
+      data?.aspectRatio,
+      data?.mediaType,
     );
   }
   return (
-    node2.sizes?.[mode2] ??
-    node2.size ??
+    node.sizes?.[mode] ??
+    node.size ??
     fallback ??
-    defaultNodeSizeForType(node2.type)
+    defaultNodeSizeForType(node.type)
   );
 }

@@ -1,0 +1,31 @@
+key	old	new	依据
+Button$3@3:3	Button$3	BaseButton	该导入是本文件导出包装器的基础按钮组件；与本地 Button@162:17 冲突，故使用 BaseButton。
+X@12:10	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
+s2@31:33	s2	storeState	该参数是最近添加节点 store 的状态。
+id2@60:7	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+e2@81:6	e2	doubleClickEvent	该值是节点双击处理器收到的事件对象。
+e2@88:6	e2	clickEvent	该值是节点单击处理器收到的事件对象。
+t2@247:14	t2	translate	该函数翻译节点队列状态文案。
+e2@253:6	e2	clickEvent	该值是占位上传按钮收到的单击事件。
+e2@264:23	e2	pointerEvent	该值是阻止传播的指针事件对象。
+e2@265:23	e2	doubleClickEvent	该值是阻止传播的双击事件对象。
+t2@319:14	t2	translate	该函数翻译队列操作按钮文案。
+t2@349:14	t2	translate	该函数翻译队列状态提示文案。
+selector2@25:32	selector2	selector	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@33:29	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@63:13	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+matchesTagFilter2@76:9	matchesTagFilter2	matchesTagFilter	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleDoubleClick2@80:9	handleDoubleClick2	handleDoubleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleClick2@87:9	handleClick2	handleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+disabled2@167:13	disabled2	disabled	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@168:13	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+size2@165:9	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@243:13	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleClick2@252:9	handleClick2	handleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+element2@249:58	element2	element	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@341:10	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+disabled2@351:9	disabled2	disabled	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleClick2@352:9	handleClick2	handleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+clearTimer2@405:9	clearTimer2	clearTimer	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+reset2@426:9	reset2	reset	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+meta2@449:38	meta2	meta	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

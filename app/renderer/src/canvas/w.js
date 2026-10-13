@@ -1,32 +1,32 @@
 // w.js
 import { T } from "./layout-category-lanes.js";
-function Ce(e2, n2) {
-  let t2 = {
+function partitionEntries(entries, predicate) {
+  let partitions = {
     lhs: [],
     rhs: [],
   };
   return (
-    e2.forEach((r2) => {
-      n2(r2) ? t2.lhs.push(r2) : t2.rhs.push(r2);
+    entries.forEach((entry) => {
+      predicate(entry) ? partitions.lhs.push(entry) : partitions.rhs.push(entry);
     }),
-    t2
+    partitions
   );
 }
-function ie(e2, n2 = []) {
-  return n2.map((t2) => {
-    let r2 = e2.inEdges(t2);
-    if (!r2 || !r2.length)
+function barycenter(graph, movableNodes = []) {
+  return movableNodes.map((nodeId) => {
+    let incomingEdges = graph.inEdges(nodeId);
+    if (!incomingEdges || !incomingEdges.length)
       return {
-        v: t2,
+        v: nodeId,
       };
     {
-      let o2 = r2.reduce(
-        (i2, s2) => {
-          let a2 = e2.edge(s2),
-            d2 = e2.node(s2.v);
+      let weightedPosition = incomingEdges.reduce(
+        (accumulated, edge) => {
+          let edgeLabel = graph.edge(edge),
+            sourceNode = graph.node(edge.v);
           return {
-            sum: i2.sum + a2.weight * d2.order,
-            weight: i2.weight + a2.weight,
+            sum: accumulated.sum + edgeLabel.weight * sourceNode.order,
+            weight: accumulated.weight + edgeLabel.weight,
           };
         },
         {
@@ -35,151 +35,151 @@ function ie(e2, n2 = []) {
         },
       );
       return {
-        v: t2,
-        barycenter: o2.sum / o2.weight,
-        weight: o2.weight,
+        v: nodeId,
+        barycenter: weightedPosition.sum / weightedPosition.weight,
+        weight: weightedPosition.weight,
       };
     }
   });
 }
-function Lt(e2, n2) {
-  let t2 = 0,
-    r2 = 0;
-  (e2.weight && ((t2 += e2.barycenter * e2.weight), (r2 += e2.weight)),
-    n2.weight && ((t2 += n2.barycenter * n2.weight), (r2 += n2.weight)),
-    (e2.vs = n2.vs.concat(e2.vs)),
-    (e2.barycenter = t2 / r2),
-    (e2.weight = r2),
-    (e2.i = Math.min(n2.i, e2.i)),
-    (n2.merged = true));
+function mergeEntries(targetEntry, sourceEntry) {
+  let weightedSum = 0,
+    totalWeight = 0;
+  (targetEntry.weight && ((weightedSum += targetEntry.barycenter * targetEntry.weight), (totalWeight += targetEntry.weight)),
+    sourceEntry.weight && ((weightedSum += sourceEntry.barycenter * sourceEntry.weight), (totalWeight += sourceEntry.weight)),
+    (targetEntry.vs = sourceEntry.vs.concat(targetEntry.vs)),
+    (targetEntry.barycenter = weightedSum / totalWeight),
+    (targetEntry.weight = totalWeight),
+    (targetEntry.i = Math.min(sourceEntry.i, targetEntry.i)),
+    (sourceEntry.merged = true));
 }
-function Et(e2) {
-  let n2 = [];
-  function t2(o2) {
-    return (i2) => {
-      i2.merged ||
-        ((i2.barycenter === void 0 ||
-          o2.barycenter === void 0 ||
-          i2.barycenter >= o2.barycenter) &&
-          Lt(o2, i2));
+function doResolveConflicts(sourceSet) {
+  let orderedEntries = [];
+  function handleIncomingEntry(currentEntry) {
+    return (incomingEntry) => {
+      incomingEntry.merged ||
+        ((incomingEntry.barycenter === void 0 ||
+          currentEntry.barycenter === void 0 ||
+          incomingEntry.barycenter >= currentEntry.barycenter) &&
+          mergeEntries(currentEntry, incomingEntry));
     };
   }
-  function r2(o2) {
-    return (i2) => {
-      (i2.in.push(o2), --i2.indegree === 0 && e2.push(i2));
+  function handleOutgoingEntry(currentEntry) {
+    return (outgoingEntry) => {
+      (outgoingEntry.in.push(currentEntry), --outgoingEntry.indegree === 0 && sourceSet.push(outgoingEntry));
     };
   }
-  for (; e2.length;) {
-    let o2 = e2.pop();
-    (n2.push(o2), o2.in.reverse().forEach(t2(o2)), o2.out.forEach(r2(o2)));
+  for (; sourceSet.length;) {
+    let currentEntry = sourceSet.pop();
+    (orderedEntries.push(currentEntry), currentEntry.in.reverse().forEach(handleIncomingEntry(currentEntry)), currentEntry.out.forEach(handleOutgoingEntry(currentEntry)));
   }
-  return n2
-    .filter((o2) => !o2.merged)
-    .map((o2) => T(o2, ["vs", "i", "barycenter", "weight"]));
+  return orderedEntries
+    .filter((entry) => !entry.merged)
+    .map((entry) => T(entry, ["vs", "i", "barycenter", "weight"]));
 }
-function se(e2, n2) {
-  let t2 = {};
-  (e2.forEach((o2, i2) => {
-    let s2 = {
+function resolveConflicts(entries, constraintGraph) {
+  let mappedEntries = {};
+  (entries.forEach((entry, index) => {
+    let mappedEntry = {
       indegree: 0,
       in: [],
       out: [],
-      vs: [o2.v],
-      i: i2,
+      vs: [entry.v],
+      i: index,
     };
-    (o2.barycenter !== void 0 &&
-      ((s2.barycenter = o2.barycenter), (s2.weight = o2.weight)),
-      (t2[o2.v] = s2));
+    (entry.barycenter !== void 0 &&
+      ((mappedEntry.barycenter = entry.barycenter), (mappedEntry.weight = entry.weight)),
+      (mappedEntries[entry.v] = mappedEntry));
   }),
-    n2.edges().forEach((o2) => {
-      let i2 = t2[o2.v],
-        s2 = t2[o2.w];
-      i2 !== void 0 && s2 !== void 0 && (s2.indegree++, i2.out.push(s2));
+    constraintGraph.edges().forEach((edge) => {
+      let sourceEntry = mappedEntries[edge.v],
+        targetEntry = mappedEntries[edge.w];
+      sourceEntry !== void 0 && targetEntry !== void 0 && (targetEntry.indegree++, sourceEntry.out.push(targetEntry));
     }));
-  let r2 = Object.values(t2).filter((o2) => !o2.indegree);
-  return Et(r2);
+  let sourceEntries = Object.values(mappedEntries).filter((entry) => !entry.indegree);
+  return doResolveConflicts(sourceEntries);
 }
-function on(e2, n2, t2) {
-  let r2;
-  for (; n2.length && (r2 = n2[n2.length - 1]).i <= t2;)
-    (n2.pop(), e2.push(r2.vs), t2++);
-  return t2;
+function consumeUnsortable(orderedGroups, unsortableEntries, nextIndex) {
+  let lastEntry;
+  for (; unsortableEntries.length && (lastEntry = unsortableEntries[unsortableEntries.length - 1]).i <= nextIndex;)
+    (unsortableEntries.pop(), orderedGroups.push(lastEntry.vs), nextIndex++);
+  return nextIndex;
 }
-function yt2(e2) {
-  return (n2, t2) =>
-    n2.barycenter < t2.barycenter
+function compareBarycenter(reverseOrder) {
+  return (entryA, entryB) =>
+    entryA.barycenter < entryB.barycenter
       ? -1
-      : n2.barycenter > t2.barycenter
+      : entryA.barycenter > entryB.barycenter
         ? 1
-        : e2
-          ? t2.i - n2.i
-          : n2.i - t2.i;
+        : reverseOrder
+          ? entryB.i - entryA.i
+          : entryA.i - entryB.i;
 }
-function ae(e2, n2) {
-  let t2 = Ce(e2, (u4) => Object.hasOwn(u4, "barycenter")),
-    r2 = t2.lhs,
-    o2 = t2.rhs.sort((u4, c3) => c3.i - u4.i),
-    i2 = [],
-    s2 = 0,
-    a2 = 0,
-    d2 = 0;
-  (r2.sort(yt2(!!n2)),
-    (d2 = on(i2, o2, d2)),
-    r2.forEach((u4) => {
-      ((d2 += u4.vs.length),
-        i2.push(u4.vs),
-        (s2 += u4.barycenter * u4.weight),
-        (a2 += u4.weight),
-        (d2 = on(i2, o2, d2)));
+function sortEntries(entries, reverseOrder) {
+  let partitions = partitionEntries(entries, (entry) => Object.hasOwn(entry, "barycenter")),
+    sortableEntries = partitions.lhs,
+    unsortableEntries = partitions.rhs.sort((left, right) => right.i - left.i),
+    orderedGroups = [],
+    weightedSum = 0,
+    totalWeight = 0,
+    nextIndex = 0;
+  (sortableEntries.sort(compareBarycenter(!!reverseOrder)),
+    (nextIndex = consumeUnsortable(orderedGroups, unsortableEntries, nextIndex)),
+    sortableEntries.forEach((entry) => {
+      ((nextIndex += entry.vs.length),
+        orderedGroups.push(entry.vs),
+        (weightedSum += entry.barycenter * entry.weight),
+        (totalWeight += entry.weight),
+        (nextIndex = consumeUnsortable(orderedGroups, unsortableEntries, nextIndex)));
     }));
-  let l2 = {
-    vs: i2.flat(1),
+  let result = {
+    vs: orderedGroups.flat(1),
   };
-  return (a2 && ((l2.barycenter = s2 / a2), (l2.weight = a2)), l2);
+  return (totalWeight && ((result.barycenter = weightedSum / totalWeight), (result.weight = totalWeight)), result);
 }
-function wt(e2, n2) {
-  e2.forEach((t2) => {
-    t2.vs = t2.vs.flatMap((r2) => (n2[r2] ? n2[r2].vs : r2));
+function expandSubgraphs(entries, subgraphs) {
+  entries.forEach((entry) => {
+    entry.vs = entry.vs.flatMap((nodeId) => (subgraphs[nodeId] ? subgraphs[nodeId].vs : nodeId));
   });
 }
-function Nt(e2, n2) {
-  e2.barycenter !== void 0
-    ? ((e2.barycenter =
-        (e2.barycenter * e2.weight + n2.barycenter * n2.weight) /
-        (e2.weight + n2.weight)),
-      (e2.weight += n2.weight))
-    : ((e2.barycenter = n2.barycenter), (e2.weight = n2.weight));
+function mergeBarycenters(target, other) {
+  target.barycenter !== void 0
+    ? ((target.barycenter =
+        (target.barycenter * target.weight + other.barycenter * other.weight) /
+        (target.weight + other.weight)),
+      (target.weight += other.weight))
+    : ((target.barycenter = other.barycenter), (target.weight = other.weight));
 }
-export function W(e2, n2, t2, r2) {
-  let o2 = e2.children(n2),
-    i2 = e2.node(n2),
-    s2 = i2 ? i2.borderLeft : void 0,
-    a2 = i2 ? i2.borderRight : void 0,
-    d2 = {};
-  s2 && (o2 = o2.filter((h2) => h2 !== s2 && h2 !== a2));
-  let l2 = ie(e2, o2);
-  l2.forEach((h2) => {
-    if (e2.children(h2.v).length) {
-      let f2 = W(e2, h2.v, t2, r2);
-      ((d2[h2.v] = f2), Object.hasOwn(f2, "barycenter") && Nt(h2, f2));
+export function W(graph, parentId, constraintGraph, reverseOrder) {
+  let children = graph.children(parentId),
+    parentNode = graph.node(parentId),
+    borderLeft = parentNode ? parentNode.borderLeft : void 0,
+    borderRight = parentNode ? parentNode.borderRight : void 0,
+    nestedResults = {};
+  borderLeft && (children = children.filter((childId) => childId !== borderLeft && childId !== borderRight));
+  let childBarycenters = barycenter(graph, children);
+  childBarycenters.forEach((childEntry) => {
+    if (graph.children(childEntry.v).length) {
+      let childResult = W(graph, childEntry.v, constraintGraph, reverseOrder);
+      ((nestedResults[childEntry.v] = childResult), Object.hasOwn(childResult, "barycenter") && mergeBarycenters(childEntry, childResult));
     }
   });
-  let u4 = se(l2, t2);
-  wt(u4, d2);
-  let c3 = ae(u4, r2);
-  if (s2 && a2) {
-    c3.vs = [s2, c3.vs, a2].flat(1);
-    let h2 = e2.predecessors(s2);
-    if (h2 && h2.length) {
-      let f2 = e2.node(h2[0]),
-        g2 = e2.predecessors(a2),
-        b3 = e2.node(g2[0]);
-      (Object.hasOwn(c3, "barycenter") ||
-        ((c3.barycenter = 0), (c3.weight = 0)),
-        (c3.barycenter =
-          (c3.barycenter * c3.weight + f2.order + b3.order) / (c3.weight + 2)),
-        (c3.weight += 2));
+  let resolvedEntries = resolveConflicts(childBarycenters, constraintGraph);
+  expandSubgraphs(resolvedEntries, nestedResults);
+  let sortedResult = sortEntries(resolvedEntries, reverseOrder);
+  if (borderLeft && borderRight) {
+    sortedResult.vs = [borderLeft, sortedResult.vs, borderRight].flat(1);
+    let predecessors = graph.predecessors(borderLeft);
+    if (predecessors && predecessors.length) {
+      let leftBorderPredecessor = graph.node(predecessors[0]),
+        rightBorderPredecessors = graph.predecessors(borderRight),
+        rightBorderPredecessor = graph.node(rightBorderPredecessors[0]);
+      (Object.hasOwn(sortedResult, "barycenter") ||
+        ((sortedResult.barycenter = 0), (sortedResult.weight = 0)),
+        (sortedResult.barycenter =
+          (sortedResult.barycenter * sortedResult.weight + leftBorderPredecessor.order + rightBorderPredecessor.order) / (sortedResult.weight + 2)),
+        (sortedResult.weight += 2));
     }
   }
-  return c3;
+  return sortedResult;
 }

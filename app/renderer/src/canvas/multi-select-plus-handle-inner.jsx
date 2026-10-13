@@ -24,11 +24,11 @@ function targetsFullyConnectedFromAll(sources, edges) {
   if (sources.length === 0) return new Set();
   const sourceSet = new Set(sources);
   const reach = new Map();
-  for (const e2 of edges) {
-    if (!sourceSet.has(e2.source)) continue;
-    const bucket = reach.get(e2.target) ?? new Set();
-    bucket.add(e2.source);
-    reach.set(e2.target, bucket);
+  for (const edge of edges) {
+    if (!sourceSet.has(edge.source)) continue;
+    const bucket = reach.get(edge.target) ?? new Set();
+    bucket.add(edge.source);
+    reach.set(edge.target, bucket);
   }
   const fullyConnected = new Set();
   for (const [target, bucket] of reach) {
@@ -37,13 +37,13 @@ function targetsFullyConnectedFromAll(sources, edges) {
   return fullyConnected;
 }
 function resolveSelectionConnectionSources(nodes, selectedIds) {
-  const nodesById = new Map(nodes.map((node2) => [node2.id, node2]));
+  const nodesById = new Map(nodes.map((node) => [node.id, node]));
   const childIdsByParent = new Map();
-  for (const node2 of nodes) {
-    if (!node2.parentId) continue;
-    const childIds = childIdsByParent.get(node2.parentId) ?? [];
-    childIds.push(node2.id);
-    childIdsByParent.set(node2.parentId, childIds);
+  for (const node of nodes) {
+    if (!node.parentId) continue;
+    const childIds = childIdsByParent.get(node.parentId) ?? [];
+    childIds.push(node.id);
+    childIdsByParent.set(node.parentId, childIds);
   }
   const sourceNodeIds = [];
   const seenSourceIds = new Set();
@@ -114,28 +114,28 @@ function PlusIcon() {
 function DragPreview({ cursorScreenX, cursorScreenY, sourceAnchors }) {
   const { flowToScreenPosition } = useReactFlow();
   useStore(
-    (s2) => ({
-      x: s2.transform[0],
-      y: s2.transform[1],
-      zoom: s2.transform[2],
+    (storeState) => ({
+      x: storeState.transform[0],
+      y: storeState.transform[1],
+      zoom: storeState.transform[2],
     }),
-    (a2, b3) => a2.x === b3.x && a2.y === b3.y && a2.zoom === b3.zoom,
+    (leftTransform, rightTransform) => leftTransform.x === rightTransform.x && leftTransform.y === rightTransform.y && leftTransform.zoom === rightTransform.zoom,
   );
   const paths = [];
   for (const anchor of sourceAnchors) {
-    const screen2 = flowToScreenPosition({
+    const screenPoint = flowToScreenPosition({
       x: anchor.flowX,
       y: anchor.flowY,
     });
-    const [path2] = getBezierPath({
-      sourceX: screen2.x,
-      sourceY: screen2.y,
+    const [path] = getBezierPath({
+      sourceX: screenPoint.x,
+      sourceY: screenPoint.y,
       sourcePosition: Position.Right,
       targetX: cursorScreenX,
       targetY: cursorScreenY,
       targetPosition: Position.Left,
     });
-    paths.push(path2);
+    paths.push(path);
   }
   const preview = (
     <>
@@ -150,11 +150,11 @@ function DragPreview({ cursorScreenX, cursorScreenY, sourceAnchors }) {
           zIndex: 49,
         }}
       >
-        {paths.map((d2, i2) => (
+        {paths.map((pathData, pathIndex) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: paths are positionally tied to sourceAnchors order
           <path
-            key={i2}
-            d={d2}
+            key={pathIndex}
+            d={pathData}
             fill="none"
             stroke="var(--canvas-edge)"
             strokeWidth={1.5}
@@ -195,23 +195,23 @@ function MultiSelectPlusHandleInner({
   onWireEdgesToTarget,
   hideAnchor = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isDragging = useCanvasIsDragging();
   const isBoxSelecting = useCanvasIsBoxSelecting();
-  const connectable = useStore((s2) => s2.nodesConnectable);
+  const connectable = useStore((storeState) => storeState.nodesConnectable);
   const { sourceNodeIds, isSingleGroupSelection } = useStore(
     reactExports.useCallback(
-      (s2) => resolveSelectionConnectionSources(s2.nodes, selectedIds),
+      (storeState) => resolveSelectionConnectionSources(storeState.nodes, selectedIds),
       [selectedIds],
     ),
-    (a2, b3) =>
-      a2.isSingleGroupSelection === b3.isSingleGroupSelection &&
-      a2.sourceNodeIds.length === b3.sourceNodeIds.length &&
-      a2.sourceNodeIds.every((id2, index2) => id2 === b3.sourceNodeIds[index2]),
+    (leftSources, rightSources) =>
+      leftSources.isSingleGroupSelection === rightSources.isSingleGroupSelection &&
+      leftSources.sourceNodeIds.length === rightSources.sourceNodeIds.length &&
+      leftSources.sourceNodeIds.every((id, index) => id === rightSources.sourceNodeIds[index]),
   );
   const buttonRef = reactExports.useRef(null);
-  const [drag2, setDrag] = reactExports.useState(null);
+  const [drag, setDrag] = reactExports.useState(null);
   const sourceNodeIdsRef = reactExports.useRef(sourceNodeIds);
   sourceNodeIdsRef.current = sourceNodeIds;
   const cleanupRef = reactExports.useRef(null);
@@ -237,24 +237,24 @@ function MultiSelectPlusHandleInner({
     },
     [],
   );
-  const onPointerDown2 = reactExports.useCallback(
-    (e2) => {
-      if (e2.button !== 0) return;
-      e2.stopPropagation();
-      e2.preventDefault();
+  const onPointerDown = reactExports.useCallback(
+    (pointerEvent) => {
+      if (pointerEvent.button !== 0) return;
+      pointerEvent.stopPropagation();
+      pointerEvent.preventDefault();
       const button = buttonRef.current;
       if (!button) return;
       const nodeLookup = storeApi.getState().nodeLookup;
       const sourceAnchors = [];
-      for (const id2 of sourceNodeIdsRef.current) {
-        const node2 = nodeLookup.get(id2);
-        if (!node2) continue;
-        const w3 = node2.measured?.width ?? node2.width ?? 0;
-        const h2 = node2.measured?.height ?? node2.height ?? 0;
-        if (!w3 || !h2) continue;
+      for (const id of sourceNodeIdsRef.current) {
+        const node = nodeLookup.get(id);
+        if (!node) continue;
+        const width = node.measured?.width ?? node.width ?? 0;
+        const height = node.measured?.height ?? node.height ?? 0;
+        if (!width || !height) continue;
         sourceAnchors.push({
-          flowX: node2.internals.positionAbsolute.x + w3,
-          flowY: node2.internals.positionAbsolute.y + h2 / 2,
+          flowX: node.internals.positionAbsolute.x + width,
+          flowY: node.internals.positionAbsolute.y + height / 2,
         });
       }
       const rect = button.getBoundingClientRect();
@@ -263,8 +263,8 @@ function MultiSelectPlusHandleInner({
       setDrag({
         startScreenX,
         startScreenY,
-        cursorScreenX: e2.clientX,
-        cursorScreenY: e2.clientY,
+        cursorScreenX: pointerEvent.clientX,
+        cursorScreenY: pointerEvent.clientY,
         isDragging: false,
         sourceAnchors,
       });
@@ -358,7 +358,7 @@ function MultiSelectPlusHandleInner({
           ref={buttonRef}
           type="button"
           data-action-ui-id="canvas.selection-connect-plus"
-          aria-label={t2(
+          aria-label={translate(
             "canvas.connectSelectionToNewNode",
             "Connect selection to a new node",
           )}
@@ -369,19 +369,19 @@ function MultiSelectPlusHandleInner({
             // shows the released-position cap). Keep the element mounted so
             // NodeToolbar's transform stays alive — flipping back to visible
             // when the menu closes is instant.
-            visibility: drag2?.isDragging || hideAnchor ? "hidden" : "visible",
+            visibility: drag?.isDragging || hideAnchor ? "hidden" : "visible",
           }}
-          onPointerDown={onPointerDown2}
-          onClick={(e2) => e2.stopPropagation()}
+          onPointerDown={onPointerDown}
+          onClick={(clickEvent) => clickEvent.stopPropagation()}
         >
           <PlusIcon />
         </button>
       </NodeToolbar>
-      {drag2?.isDragging && (
+      {drag?.isDragging && (
         <DragPreview
-          cursorScreenX={drag2.cursorScreenX}
-          cursorScreenY={drag2.cursorScreenY}
-          sourceAnchors={drag2.sourceAnchors}
+          cursorScreenX={drag.cursorScreenX}
+          cursorScreenY={drag.cursorScreenY}
+          sourceAnchors={drag.sourceAnchors}
         />
       )}
     </>

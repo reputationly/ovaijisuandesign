@@ -1,0 +1,115 @@
+key	old	new	依据
+p@18:17	p	Graph	vendor.js 的 p$4 是 Graphlib Graph 构造器；buildLayerGraph 用它创建单层 compound 图。
+Gt@51:10	Gt	createRootNode	Dagre order/build-layer-graph.ts 的 createRootNode：反复生成 _root ID，直到不与原图节点重名。
+e2@19:20	e2	graph	tightTreeRanker 接收的 Dagre Graph，先做 longest-path rank，再构造 feasible tree。
+e2@22:21	e2	graph	lt2 的参数：含 parent/children 关系、待编号 low/lim 区间的 compound Graph。
+n2@23:7	n2	lowLimByNode	lt2 输出的 node ID 到 low/lim 区间对象的映射。
+t2@24:5	t2	nextLim	为 DFS 节点分配 lim 序号的递增计数器。
+r2@25:12	r2	assignLowLim	递归遍历每个 compound 子节点并写入 low/lim 的深度优先函数。
+o2@25:15	o2	nodeId	assignLowLim 当前访问并记录 low/lim 的节点 ID。
+i2@26:9	i2	low	assignLowLim 进入该节点时的 nextLim，作为其 low 边界。
+e2@35:20	e2	graph	addRankBorderNode 操作并挂载边界节点的 Graphlib 图。
+n2@35:24	n2	borderType	边界节点的类别键（如 borderLeft/borderRight）。
+t2@35:28	t2	idPrefix	传给 w$3 的边界节点 ID 前缀（如 "_bl"/"_br"）；对应 dagre addBorderNode 的 prefix。
+r2@35:32	r2	parentId	新边界节点应挂到的 compound 父节点 ID。
+o2@35:36	o2	borderNodesByType	按边界类别和 rank 保存节点 ID 的表。
+i2@35:40	i2	rank	当前新建边界节点所在的 rank。
+s2@36:7	s2	borderNodeLabel	宽高为零并带 rank/borderType 的新边界节点标签。
+a2@42:5	a2	previousBorderNode	同类别前一 rank 已创建的边界节点 ID。
+d2@43:5	d2	borderNode	w$3 返回的新边界节点 ID。
+e2@51:13	e2	graph	createRootNode 查询已占用 ID 的原图。
+n2@52:7	n2	rootId	当前尝试的 _root 候选 ID；若 graph 已有该节点则重新生成。
+e2@56:20	e2	graph	buildLayerGraph 从原 compound 图筛选当前 rank 的节点，并读取父节点与 incident edge。
+n2@56:24	n2	rank	当前要提取到 layerGraph 的层序号。
+t2@56:28	t2	relationship	选择 graph 上按该关系取得 incident edges 的方法名。
+r2@56:32	r2	nodeIds	候选节点 ID 列表；省略时使用 graph.nodes()。
+o2@58:7	o2	rootId	createRootNode 生成的单层图 synthetic root ID。
+i2@59:5	i2	layerGraph	为指定 rank 建立的 compound Graphlib 子图。
+s2@65:29	s2	nodeId	setDefaultNodeLabel 回调接收的节点 ID，用于从原图取标签。
+s2@67:17	s2	nodeId	当前筛选 rank 并写入 layerGraph 的节点 ID。
+a2@68:11	a2	nodeLabel	graph.node(nodeId) 返回的原始布局节点属性。
+d2@69:9	d2	parentId	节点在原 compound graph 中的父节点 ID。
+l2@72:13	l2	incidentEdges	graph[relationship](nodeId) 返回的当前节点关联边。
+u4@74:23	u4	edge	当前处理并折叠进 layerGraph 的原始边描述。
+c3@75:17	c3	neighborId	incident edge 的另一端节点 ID，作为 layerGraph 边起点。
+h2@76:15	h2	existingEdgeLabel	layerGraph 中 neighborId 到 nodeId 的现有合并边标签。
+f2@77:15	f2	existingWeight	已有合并边的权重；不存在时从 0 开始累计。
+e2@92:20	e2	graph	findType2Conflicts 从图中读取 dummy 类型、前驱和边界节点 order。
+n2@92:24	n2	layering	供 Type-2 冲突扫描使用的按 rank 分组层序列。
+t2@93:7	t2	conflicts	累积 dummy edge crossing 冲突对的映射对象。
+r2@94:12	r2	findConflictsInRange	检查给定层下标区间内 dummy 节点的前驱是否越过 order 边界。
+o2@108:12	o2	findType2ConflictsInLayer	对当前层按 border dummy 切分区间并调用冲突扫描的回调。
+i2@94:15	i2	nodeIdsByOrder	按当前层 order 下标取节点 ID 的数组。
+s2@94:19	s2	startIndex	本次冲突检查区间的首下标。
+a2@94:23	a2	endIndex	本次冲突检查区间的末下标。
+d2@94:27	d2	minOrder	允许的 predecessor 最小 order。
+l2@94:31	l2	maxOrder	允许的 predecessor 最大 order。
+u4@95:24	u4	order	k(startIndex,endIndex) 当前遍历的层内下标。
+c3@96:11	c3	nodeId	nodeIdsByOrder[order] 取得的候选节点 ID。
+h2@98:13	h2	predecessors	graph.predecessors(nodeId) 返回的前驱 ID 列表。
+f2@100:23	f2	predecessorId	当前检验是否越出 minOrder/maxOrder 的前驱 ID。
+g2@102:17	g2	predecessorNode	graph.node(predecessorId) 返回、带 dummy/order 标记的前驱标签。
+i2@108:15	i2	upperLayer	当前层的上游层，用于取得 upperLayer.length 上界。
+s2@108:19	s2	layerNodes	当前按 order 扫描并划分边界区间的节点序列。
+a2@109:9	a2	previousBoundaryOrder	上一个 border 节点前驱的 order 边界。
+d2@110:7	d2	nextBorderOrder	当前 border 节点首个前驱的 order，作为本段扫描右边界，随后转存为 previousBoundaryOrder；对应 dagre findType2Conflicts 的 nextNorthPos。
+l2@111:7	l2	rangeStart	当前未处理冲突区间在 layerNodes 中的起点。
+u4@113:19	u4	nodeId	layerNodes.forEach 当前处理的节点 ID。
+c3@113:23	c3	nodeIndex	nodeId 在 layerNodes 中的下标。
+h2@115:15	h2	predecessors	当前 border dummy 在图中的前驱 ID 列表。
+f2@117:17	f2	firstPredecessor	决定 previousBorderOrder 的首个前驱节点 ID。
+e2@132:20	e2	alignmentCoordinates	alignCoordinates 将要按参考坐标平移的四种节点对齐方案。
+n2@132:24	n2	referenceCoordinates	用于确定四种方案共同边界的基准对齐坐标表。
+t2@133:7	t2	referenceCoordinateValues	从基准坐标表抽取、用于求 min/max 的坐标数组。
+r2@134:5	r2	referenceMinimum	基准方案中最小的节点中心坐标。
+o2@135:5	o2	referenceMaximum	基准方案中最大的节点中心坐标。
+i2@136:23	i2	verticalAlignment	当前方向键 u 或 d，组成 alignmentKey。
+s2@137:25	s2	horizontalAlignment	当前方向键 l 或 r，组成 alignmentKey。
+a2@138:11	a2	alignmentKey	由垂直、水平对齐方向拼成的 ul/ur/dl/dr 键。
+d2@139:9	d2	coordinatesForAlignment	alignmentCoordinates 中当前方向对应的 node ID 坐标映射。
+l2@141:11	l2	coordinateValues	当前方向坐标映射的所有节点坐标值。
+u4@142:9	u4	coordinateShift	为使当前对齐方案贴合基准左右边界而计算的平移量。
+c3@144:32	c3	coordinate	O(coordinatesForAlignment, ...) 当前处理并平移的单个 x 坐标。
+e2@148:20	e2	alignmentCoordinates	balance 读取四种方向的节点坐标并逐节点求中位数。
+n2@148:24	n2	preferredAlignment	可选优先方向名；有该节点坐标时直接优先采用。
+t2@149:7	t2	upperLeftAlignment	ul 方向坐标表；无此表时函数返回空对象。
+r2@151:14	r2	coordinate	遍历 ul 方向坐标表时当前节点的原始中心坐标。
+o2@151:18	o2	nodeId	当前节点 ID，用于查询优先方向及其他对齐坐标。
+s2@152:13	s2	firstMedianCoordinate	四个方向坐标排序后较低的中位值。
+a2@152:17	a2	secondMedianCoordinate	四个方向坐标排序后较高的中位值。
+d2@154:15	d2	preferredAlignmentKey	转成小写的优先方向键，用于查找对应坐标表。
+l2@155:13	l2	preferredCoordinates	优先方向中已计算的 node ID 到 x 坐标映射。
+i2@158:13	i2	sortedCoordinates	当前 nodeId 在各 alignment 中的坐标值升序数组。
+d2@159:17	d2	alignmentCoordinates	map 回调当前遍历的单一方向坐标表。
+l2@160:17	l2	coordinateValue	该方向中 nodeId 的坐标；缺失时以 0 参加中位数。
+d2@163:18	d2	firstCoordinate	排序比较器左侧坐标值。
+l2@163:22	l2	secondCoordinate	排序比较器右侧坐标值。
+e2@171:20	e2	graph	positionY 从中读取 ranksep、rankalign 与节点高度并写入 y 坐标的 Dagre 图。
+n2@172:7	n2	layering	N(graph) 按 rank/order 生成的二维节点层。
+t2@173:5	t2	graphLabel	graph.graph() 返回的全局布局选项标签。
+r2@174:5	r2	rankSeparation	相邻 rank 间追加的 graphLabel.ranksep。
+o2@175:5	o2	rankAlignment	节点 y 在层内取 top、bottom 或 center 的对齐配置。
+i2@176:5	i2	currentY	当前 rank 层顶部的 y 原点；每层后按高度与 ranksep 递增。
+s2@177:15	s2	layer	layering.forEach 当前按顺序定位的一层节点 ID。
+a2@178:9	a2	layerHeight	当前层中节点 height 的最大值，用于对齐及更新下一层原点。
+d2@178:25	d2	previousHeight	reduce 中截至上一节点的最大高度累加值。
+l2@178:29	l2	nodeId	reduce 中 graph.node(nodeId) 取高度的当前层节点 ID。
+c3@179:11	c3	rawHeight	graph.node(nodeId).height 的原始值，可能为 nullish。
+u4@180:11	u4	nodeHeight	将 rawHeight 的缺省值归零后用于求层高的节点高度。
+d2@183:18	d2	nodeId	写入 y 坐标的当前层节点 ID。
+l2@184:11	l2	nodeLabel	graph.node(nodeId) 返回并被 positionY 原地更新 y 的节点标签。
+n2@199:39	n2	node	computeMaxRowWidth 的 map 回调：sizeOf(node, mode) 正在测量宽度的画布节点。
+mode2@196:41	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@206:11	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@215:16	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+mode2@248:11	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+n2@253:41	n2	node	computeIncremental 的 map 回调：待转换为占用矩形的已有画布节点。
+node2@255:16	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+export:st	st	tightTreeRanker	st 依次调用 longest-path rank 与 feasible-tree 阶段；对应 Dagre rank/index.ts 的 tightTreeRanker，导出名暂不改。
+export:lt2	lt2	computeLowLimValues	lt2 从 compound Graph 的 children 关系 DFS 写入 low/lim 区间；导出名暂不改。
+export:Qe	Qe	addRankBorderNode	Qe 为每个 rank/type 创建边界节点并与同 type 的前一节点相连；区别于 layout-category-lanes.js 中的单边界节点 helper。
+export:de	de	buildLayerGraph	Dagre order/build-layer-graph.ts 的 buildLayerGraph：按 rank 筛选节点、复制 compound parent 与关联边；导出名暂不改。
+export:_t	_t	findType2Conflicts	Dagre position/bk.ts 的 findType2Conflicts：检查 border dummy 前驱顺序造成的 Type-2 冲突；导出名暂不改。
+export:Pt	Pt	alignCoordinates	Dagre position/bk.ts 的 alignCoordinates：平移各方向坐标使其边界与参考对齐重合；导出名暂不改。
+export:Mt	Mt	balance	Dagre position/bk.ts 的 balance：按四种对齐坐标的中位数为节点取 x 坐标；导出名暂不改。
+export:Ft	Ft	positionY	Dagre position/index.ts 的 positionY：按 ranksep 与 top/center/bottom 对齐写入节点 y；导出名暂不改。

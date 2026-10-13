@@ -1,0 +1,16 @@
+key	old	new	依据
+X@7:10	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
+t2@45:14	t2	translate	该函数翻译从素材移除标签的无障碍标签。
+e2@254:6	e2	doubleClickEvent	节点标题双击事件在允许重命名时阻止冒泡并开始编辑。
+e2@309:26	e2	changeEvent	输入框 change 事件将 target.value 写入重命名草稿。
+e2@312:29	e2	mouseEvent	输入框 mousedown 事件被阻止冒泡至画布。
+e2@313:25	e2	clickEvent	输入框 click 事件被阻止冒泡至画布。
+e2@314:31	e2	doubleClickEvent	输入框 double-click 事件被阻止冒泡至画布。
+color2@40:42	color2	color	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+token2@41:9	token2	token	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+tags2@44:32	tags2	tags	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+index2@63:30	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@219:9	name2	nodeName	该属性值是节点显示名称；与全局绑定 name 冲突，故使用 nodeName。
+selected2@223:13	selected2	selected	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+preserveExtension2@225:22	preserveExtension2	preserveExtension	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+handleDoubleClick2@253:9	handleDoubleClick2	handleDoubleClick	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

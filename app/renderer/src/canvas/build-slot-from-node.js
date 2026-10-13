@@ -19,10 +19,10 @@ const EMPTY_IMAGE_NODE_VIEW = Object.freeze({
   activeRoundIndex: 0,
 });
 
-function nodeSlotStatus(node2) {
-  const data2 = node2.data;
-  const status = data2?.status;
-  if (node2.type === "placeholder") {
+function nodeSlotStatus(node) {
+  const data = node.data;
+  const status = data?.status;
+  if (node.type === "placeholder") {
     if (
       status === "pending" ||
       status === "generating" ||
@@ -40,8 +40,8 @@ function nodeSlotStatus(node2) {
     return status;
   if (
     status === "error" &&
-    typeof data2?.generationAttemptId === "string" &&
-    data2.generationAttemptId.length > 0
+    typeof data?.generationAttemptId === "string" &&
+    data.generationAttemptId.length > 0
   ) {
     return status;
   }
@@ -50,15 +50,15 @@ function nodeSlotStatus(node2) {
 
 function assignRefundDisplayOwners(slots) {
   const ownerByTaskId = new Map();
-  for (let index2 = 0; index2 < slots.length; index2 += 1) {
-    const slot = slots[index2];
+  for (let index = 0; index < slots.length; index += 1) {
+    const slot = slots[index];
     if (!slot?.refundStatus || !slot.refundTaskId) continue;
     if (!ownerByTaskId.has(slot.refundTaskId))
-      ownerByTaskId.set(slot.refundTaskId, index2);
+      ownerByTaskId.set(slot.refundTaskId, index);
   }
-  return slots.map((slot, index2) => {
+  return slots.map((slot, index) => {
     const refundDisplayOwner = slot.refundTaskId
-      ? ownerByTaskId.get(slot.refundTaskId) === index2
+      ? ownerByTaskId.get(slot.refundTaskId) === index
       : slot.refundStatus
         ? true
         : void 0;
@@ -71,18 +71,18 @@ function assignRefundDisplayOwners(slots) {
   });
 }
 
-function readNodeGenerationStartedAt(node2) {
-  const value = node2.data?.generationStartedAt;
+function readNodeGenerationStartedAt(node) {
+  const value = node.data?.generationStartedAt;
   return typeof value === "string" && value.length > 0 ? value : void 0;
 }
 
-function buildSlotFromNode(node2, resolveMeta) {
-  const assetId = imageNodeAssetId(node2);
-  const status = nodeSlotStatus(node2);
-  const meta2 = resolveMeta(assetId);
+function buildSlotFromNode(node, resolveMeta) {
+  const assetId = imageNodeAssetId(node);
+  const status = nodeSlotStatus(node);
+  const meta = resolveMeta(assetId);
   let slotError = null;
-  if (node2.type === "placeholder") {
-    const placeholderData = node2.data;
+  if (node.type === "placeholder") {
+    const placeholderData = node.data;
     if (isGenerationErrorStatus(placeholderData?.status)) {
       slotError =
         typeof placeholderData.errorMessage === "string" &&
@@ -91,10 +91,10 @@ function buildSlotFromNode(node2, resolveMeta) {
           : "";
     }
   }
-  const dataName = node2.data?.name;
-  const dataW = node2.data?.width;
-  const dataH = node2.data?.height;
-  const waitData = node2.data;
+  const dataName = node.data?.name;
+  const dataW = node.data?.width;
+  const dataH = node.data?.height;
+  const waitData = node.data;
   const rawWaitSeconds = waitData?.estimatedRemainingWaitSeconds;
   const rawLegacyWaitMinutes = waitData?.estimatedRemainingWaitMinutes;
   const estimatedRemainingWaitSeconds =
@@ -109,14 +109,14 @@ function buildSlotFromNode(node2, resolveMeta) {
           rawLegacyWaitMinutes > 0
         ? Math.ceil(rawLegacyWaitMinutes * 60)
         : void 0;
-  const rawRetryPayload = node2.data?.retryPayload;
+  const rawRetryPayload = node.data?.retryPayload;
   const retryPayload =
     status === "queue_paused" &&
     rawRetryPayload &&
     typeof rawRetryPayload === "object"
       ? rawRetryPayload
       : void 0;
-  const refundData = node2.data;
+  const refundData = node.data;
   const refundStatus =
     isGenerationErrorStatus(status) &&
     isGenerationRefundStatus(refundData?.refundStatus)
@@ -141,17 +141,17 @@ function buildSlotFromNode(node2, resolveMeta) {
       : typeof receipt?.taskId === "string" && receipt.taskId.length > 0
         ? receipt.taskId
         : void 0;
-  const pendingMeta = status === "ready" && !meta2?.url && slotError === null;
+  const pendingMeta = status === "ready" && !meta?.url && slotError === null;
   return {
     id: assetId,
     status,
-    url: status === "ready" ? meta2?.url : void 0,
+    url: status === "ready" ? meta?.url : void 0,
     error:
       slotError ??
       (status === "error" ||
       status === "recoverable_error" ||
       status === "status_unknown"
-        ? (node2.data?.errorMessage ?? null)
+        ? (node.data?.errorMessage ?? null)
         : null),
     ...(refundStatus
       ? {
@@ -168,20 +168,20 @@ function buildSlotFromNode(node2, resolveMeta) {
           refundTaskId,
         }
       : {}),
-    name: meta2?.name ?? (typeof dataName === "string" ? dataName : void 0),
-    width: meta2?.width ?? (typeof dataW === "number" ? dataW : void 0),
-    height: meta2?.height ?? (typeof dataH === "number" ? dataH : void 0),
-    fileSize: meta2?.fileSize,
-    prompt: meta2?.prompt ?? node2.data?.prompt,
-    model: meta2?.model ?? node2.data?.model,
-    modelId: meta2?.modelId ?? node2.data?.model_id,
-    backend: meta2?.backend ?? node2.data?.backend,
-    params: meta2?.params ?? node2.data?.params,
+    name: meta?.name ?? (typeof dataName === "string" ? dataName : void 0),
+    width: meta?.width ?? (typeof dataW === "number" ? dataW : void 0),
+    height: meta?.height ?? (typeof dataH === "number" ? dataH : void 0),
+    fileSize: meta?.fileSize,
+    prompt: meta?.prompt ?? node.data?.prompt,
+    model: meta?.model ?? node.data?.model,
+    modelId: meta?.modelId ?? node.data?.model_id,
+    backend: meta?.backend ?? node.data?.backend,
+    params: meta?.params ?? node.data?.params,
     estimatedRemainingWaitSeconds,
     retryPayload,
     pendingMeta: pendingMeta || void 0,
-    round: Number.isInteger(node2.round) ? node2.round : void 0,
-    generationStartedAt: readNodeGenerationStartedAt(node2),
+    round: Number.isInteger(node.round) ? node.round : void 0,
+    generationStartedAt: readNodeGenerationStartedAt(node),
   };
 }
 
@@ -189,21 +189,21 @@ function groupSlotsByRound(slots) {
   if (slots.length === 0) return [];
   const byRound = new Map();
   for (const slot of slots) {
-    const key2 = slot.round ?? 0;
-    let bucket = byRound.get(key2);
+    const key = slot.round ?? 0;
+    let bucket = byRound.get(key);
     if (!bucket) {
       bucket = [];
-      byRound.set(key2, bucket);
+      byRound.set(key, bucket);
     }
     bucket.push(slot);
   }
   return [...byRound.entries()]
-    .sort(([a2], [b3]) => a2 - b3)
+    .sort(([leftRound], [rightRound]) => leftRound - rightRound)
     .map(([, bucket]) => bucket);
 }
 
-function buildImageGroupView(main2, subs, resolveMeta, opts) {
-  if (!main2) {
+function buildImageGroupView(main, subs, resolveMeta, opts) {
+  if (!main) {
     return opts?.isUserEmpty
       ? {
           ...EMPTY_IMAGE_NODE_VIEW,
@@ -211,8 +211,8 @@ function buildImageGroupView(main2, subs, resolveMeta, opts) {
         }
       : EMPTY_IMAGE_NODE_VIEW;
   }
-  const mainSlot = buildSlotFromNode(main2, resolveMeta);
-  const subSlots = subs.map((s2) => buildSlotFromNode(s2, resolveMeta));
+  const mainSlot = buildSlotFromNode(main, resolveMeta);
+  const subSlots = subs.map((subNode) => buildSlotFromNode(subNode, resolveMeta));
   const allSlots = assignRefundDisplayOwners([mainSlot, ...subSlots]);
   const rounds = groupSlotsByRound(allSlots);
   let activeRoundIndex = rounds.findIndex(
@@ -262,25 +262,25 @@ function buildImageGroupView(main2, subs, resolveMeta, opts) {
   };
 }
 
-function toSlotMeta(meta2) {
-  if (!meta2) return void 0;
+function toSlotMeta(meta) {
+  if (!meta) return void 0;
   return {
-    url: meta2.url,
-    name: meta2.name,
-    width: meta2.width,
-    height: meta2.height,
-    fileSize: meta2.fileSize,
-    prompt: meta2.prompt,
-    model: meta2.model,
-    modelId: meta2.model_id,
-    backend: meta2.backend,
-    params: meta2.params,
+    url: meta.url,
+    name: meta.name,
+    width: meta.width,
+    height: meta.height,
+    fileSize: meta.fileSize,
+    prompt: meta.prompt,
+    model: meta.model,
+    modelId: meta.model_id,
+    backend: meta.backend,
+    params: meta.params,
   };
 }
 
 export function buildImageNodeView(
   nodeId,
-  data2,
+  data,
   subImages,
   metaById,
   isUserEmpty,
@@ -288,13 +288,13 @@ export function buildImageNodeView(
   nodeAssetId,
 ) {
   const resolve =
-    typeof metaById === "function" ? metaById : (id2) => metaById.get(id2);
+    typeof metaById === "function" ? metaById : (id) => metaById.get(id);
   const resolveSlotMeta = (assetId) => toSlotMeta(resolve(assetId));
-  const d2 = data2 ?? {};
+  const resolvedData = data ?? {};
   const { assetId: parsedAssetId } = parseNodeId(nodeId);
   const explicitAssetId =
-    typeof d2.assetId === "string" && d2.assetId.length > 0
-      ? d2.assetId
+    typeof resolvedData.assetId === "string" && resolvedData.assetId.length > 0
+      ? resolvedData.assetId
       : typeof nodeAssetId === "string" && nodeAssetId.length > 0
         ? nodeAssetId
         : void 0;
@@ -304,8 +304,8 @@ export function buildImageNodeView(
     isUserEmpty &&
     (!explicitAssetId || !mainMeta?.url) &&
     subImages.length === 0 &&
-    d2.status !== "loading" &&
-    !isGenerationErrorStatus(d2.status)
+    resolvedData.status !== "loading" &&
+    !isGenerationErrorStatus(resolvedData.status)
   ) {
     return {
       ...EMPTY_IMAGE_NODE_VIEW,
@@ -314,15 +314,15 @@ export function buildImageNodeView(
   }
   const fallbackRound =
     mainRound ??
-    subImages.reduce((max2, sub) => {
-      const r2 = sub.round;
-      return typeof r2 === "number" && r2 > max2 ? r2 : max2;
+    subImages.reduce((max, sub) => {
+      const round = sub.round;
+      return typeof round === "number" && round > max ? round : max;
     }, 0);
   const mainNode = {
     id: nodeId,
     type: "image",
     assetId: mainAssetId,
-    data: d2,
+    data: resolvedData,
     ...(fallbackRound > 0
       ? {
           round: fallbackRound,
@@ -330,13 +330,13 @@ export function buildImageNodeView(
       : {}),
   };
   const subFileNodes = subImages;
-  const view2 = buildImageGroupView(mainNode, subFileNodes, resolveSlotMeta, {
+  const view = buildImageGroupView(mainNode, subFileNodes, resolveSlotMeta, {
     isUserEmpty,
   });
   if (
-    !view2.primary?.url &&
-    !view2.primary?.pendingMeta &&
-    view2.status === "ready" &&
+    !view.primary?.url &&
+    !view.primary?.pendingMeta &&
+    view.status === "ready" &&
     subImages.length === 0
   ) {
     const aliasMeta = resolve(nodeId);
@@ -368,5 +368,5 @@ export function buildImageNodeView(
       };
     }
   }
-  return view2;
+  return view;
 }

@@ -11,22 +11,22 @@ function asDataRecord(value) {
     return void 0;
   return value;
 }
-function collectNodeIdentities(node2) {
-  const identities = new Set([node2.id]);
-  if (typeof node2.assetId === "string" && node2.assetId.length > 0)
-    identities.add(node2.assetId);
-  const dataAssetId = asDataRecord(node2.data)?.assetId;
+function collectNodeIdentities(node) {
+  const identities = new Set([node.id]);
+  if (typeof node.assetId === "string" && node.assetId.length > 0)
+    identities.add(node.assetId);
+  const dataAssetId = asDataRecord(node.data)?.assetId;
   if (typeof dataAssetId === "string" && dataAssetId.length > 0)
     identities.add(dataAssetId);
   return identities;
 }
-function collectReferenceIds(node2, options) {
-  if (!node2) return [];
+function collectReferenceIds(node, options) {
+  if (!node) return [];
   const collected = [];
-  const data2 = asDataRecord(node2.data);
-  if (data2) {
-    for (const key2 of GENERATION_REFERENCE_DATA_KEYS) {
-      const references = data2[key2];
+  const data = asDataRecord(node.data);
+  if (data) {
+    for (const key of GENERATION_REFERENCE_DATA_KEYS) {
+      const references = data[key];
       if (!Array.isArray(references)) continue;
       for (const reference of references) {
         if (typeof reference === "string" && reference.length > 0)
@@ -35,12 +35,12 @@ function collectReferenceIds(node2, options) {
     }
   }
   if (collected.length > 0) return collected;
-  return options?.resolveReferenceIds?.(node2) ?? [];
+  return options?.resolveReferenceIds?.(node) ?? [];
 }
 export function isArtifactProvenanceEdge(edge, nodes, options) {
   if (edge.type !== "derivation") return false;
-  const sourceNode = nodes.find((node2) => node2.id === edge.source);
-  const targetNode = nodes.find((node2) => node2.id === edge.target);
+  const sourceNode = nodes.find((node) => node.id === edge.source);
+  const targetNode = nodes.find((node) => node.id === edge.target);
   if (!sourceNode || !targetNode) return false;
   const references = collectReferenceIds(targetNode, options);
   if (references.length === 0) return false;
@@ -58,8 +58,8 @@ const ASSET_BACKED_TYPES = new Set([
   CanvasNodeType.Text,
   CanvasNodeType.File,
 ]);
-export function isAssetBackedNode(type2) {
-  return ASSET_BACKED_TYPES.has(type2);
+export function isAssetBackedNode(type) {
+  return ASSET_BACKED_TYPES.has(type);
 }
 export function isGenerationErrorStatus(status) {
   return (
@@ -110,14 +110,14 @@ export function parseAspectRatio(ratio) {
   if (!ratio) return void 0;
   const trimmed = ratio.trim().toLowerCase();
   if (trimmed === "" || trimmed === "auto") return void 0;
-  const match2 = trimmed.match(/^(\d+(?:\.\d+)?)\s*[:x/]\s*(\d+(?:\.\d+)?)$/);
-  if (!match2) return void 0;
-  const w3 = Number(match2[1]);
-  const h2 = Number(match2[2]);
-  if (!w3 || !h2) return void 0;
+  const match = trimmed.match(/^(\d+(?:\.\d+)?)\s*[:x/]\s*(\d+(?:\.\d+)?)$/);
+  if (!match) return void 0;
+  const width = Number(match[1]);
+  const height = Number(match[2]);
+  if (!width || !height) return void 0;
   return {
-    w: w3,
-    h: h2,
+    w: width,
+    h: height,
   };
 }
 export const GROUP_NODE_PADDING = {
@@ -128,24 +128,24 @@ export const GROUP_NODE_PADDING = {
   /** Bottom inner padding (px). */
   bottom: 24,
 };
-export function computeNodeSize(w3, h2) {
-  if (!w3 || !h2 || w3 <= 0 || h2 <= 0) return void 0;
-  const scale2 = Math.min(NODE_SIZE_MAX / w3, NODE_SIZE_MAX / h2);
+export function computeNodeSize(width, height) {
+  if (!width || !height || width <= 0 || height <= 0) return void 0;
+  const scale = Math.min(NODE_SIZE_MAX / width, NODE_SIZE_MAX / height);
   return {
-    width: Math.max(NODE_SIZE_MIN, Math.round(w3 * scale2)),
-    height: Math.max(NODE_SIZE_MIN, Math.round(h2 * scale2)),
+    width: Math.max(NODE_SIZE_MIN, Math.round(width * scale)),
+    height: Math.max(NODE_SIZE_MIN, Math.round(height * scale)),
   };
 }
-export function isIdleEmptyVideoNode(node2) {
-  if (node2.type !== "video" || node2.isEmpty !== true || !!node2.assetId)
+export function isIdleEmptyVideoNode(node) {
+  if (node.type !== "video" || node.isEmpty !== true || !!node.assetId)
     return false;
-  const status = node2.data?.status;
+  const status = node.data?.status;
   return (
     typeof status !== "string" || !VIDEO_EMPTY_NON_IDLE_STATUSES.has(status)
   );
 }
-export function defaultNodeSizeForType(type2) {
-  switch (type2) {
+export function defaultNodeSizeForType(type) {
+  switch (type) {
     case "audio":
       return AUDIO_CARD_SIZE;
     case "text":
@@ -163,17 +163,17 @@ export function defaultNodeSizeForType(type2) {
       return IMAGE_CARD_DEFAULT_SIZE;
   }
 }
-export function computeGroupBoundsFromChildren(children2) {
+export function computeGroupBoundsFromChildren(children) {
   let minX = Number.POSITIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
   let maxY = Number.NEGATIVE_INFINITY;
-  for (const child of children2) {
-    const size2 = child.size ?? defaultNodeSizeForType(child.type ?? "");
+  for (const child of children) {
+    const size = child.size ?? defaultNodeSizeForType(child.type ?? "");
     minX = Math.min(minX, child.position.x);
     minY = Math.min(minY, child.position.y);
-    maxX = Math.max(maxX, child.position.x + size2.width);
-    maxY = Math.max(maxY, child.position.y + size2.height);
+    maxX = Math.max(maxX, child.position.x + size.width);
+    maxY = Math.max(maxY, child.position.y + size.height);
   }
   return {
     position: {
@@ -186,16 +186,16 @@ export function computeGroupBoundsFromChildren(children2) {
     },
   };
 }
-export function readGroupSize(node2, mode2) {
-  return node2.sizes?.[mode2] ?? node2.size;
+export function readGroupSize(node, mode) {
+  return node.sizes?.[mode] ?? node.size;
 }
-export function withParentId(node2, parentId) {
+export function withParentId(node, parentId) {
   if (parentId === void 0) {
-    const { parentId: _drop, ...rest } = node2;
+    const { parentId: _drop, ...rest } = node;
     return rest;
   }
   return {
-    ...node2,
+    ...node,
     parentId,
   };
 }

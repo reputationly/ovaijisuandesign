@@ -1,0 +1,15 @@
+key	old	new	依据
+t2@63:14	t2	translate	该函数翻译节点快速标签入口的提示和无障碍标签。
+e2@162:6	e2	keyboardEvent	onKeyDown 按 Enter 提交、按 Escape 取消重命名。
+c3@195:58	c3	currentCount	React 状态更新器接收当前挂起计数并加一。
+c3@197:21	c3	currentCount	React 状态更新器接收当前挂起计数并递减且不低于零。
+size2@32:13	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+CanvasLabelIcon2@31:12	CanvasLabelIcon2	CanvasLabelIcon	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+preserveExtension2@119:22	preserveExtension2	preserveExtension	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+timer2@133:11	timer2	timer	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@193:54	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+count2@194:10	count2	count	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+push2@195:9	push2	push	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+active2@214:46	active2	active	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+push2@216:9	push2	push	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+children2@224:63	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

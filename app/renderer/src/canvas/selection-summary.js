@@ -1,95 +1,95 @@
 // selection-summary.js
 
-export function selectionSummary(options, count2, allowedTypes, t2, counts) {
-  const constraints2 = options?.constraints;
-  const types2 = allowedTypes.length
+export function selectionSummary(options, count, allowedTypes, translate, counts) {
+  const constraints = options?.constraints;
+  const types = allowedTypes.length
     ? allowedTypes
     : ["image", "video", "audio", "text", "subtitle", "file"];
-  const limits = types2
-    .map((type2) => {
-      const label = t2(`assetPicker.typeFilter.${type2}`, type2);
+  const limits = types
+    .map((type) => {
+      const label = translate(`assetPicker.typeFilter.${type}`, type);
       if (
-        constraints2 &&
-        (type2 === "image" || type2 === "video" || type2 === "audio")
+        constraints &&
+        (type === "image" || type === "video" || type === "audio")
       ) {
-        return t2("assetPicker.summary.limits", "最多 {{types}}", {
-          types: `${Math.max(0, constraints2.remainingByKind[type2])} ${label}`,
+        return translate("assetPicker.summary.limits", "最多 {{types}}", {
+          types: `${Math.max(0, constraints.remainingByKind[type])} ${label}`,
         });
       }
       return label;
     })
     .join(" · ");
-  let max2 = options?.multiple ? options.maxCount : 1;
-  if (max2 !== void 0 && (!Number.isFinite(max2) || max2 <= 0)) max2 = void 0;
+  let max = options?.multiple ? options.maxCount : 1;
+  if (max !== void 0 && (!Number.isFinite(max) || max <= 0)) max = void 0;
   if (
-    constraints2 &&
-    types2.every(
-      (type2) => type2 === "image" || type2 === "video" || type2 === "audio",
+    constraints &&
+    types.every(
+      (type) => type === "image" || type === "video" || type === "audio",
     )
   ) {
-    const image2 = types2.includes("image")
-      ? Math.max(0, constraints2.remainingByKind.image)
+    const image = types.includes("image")
+      ? Math.max(0, constraints.remainingByKind.image)
       : 0;
-    const video = types2.includes("video")
-      ? Math.max(0, constraints2.remainingByKind.video)
+    const video = types.includes("video")
+      ? Math.max(0, constraints.remainingByKind.video)
       : 0;
-    const audio = types2.includes("audio")
-      ? Math.max(0, constraints2.remainingByKind.audio)
+    const audio = types.includes("audio")
+      ? Math.max(0, constraints.remainingByKind.audio)
       : 0;
     const capacity =
-      image2 +
+      image +
       Math.min(
         video + audio,
-        Math.max(0, constraints2.remainingVideoAudio ?? Infinity),
+        Math.max(0, constraints.remainingVideoAudio ?? Infinity),
       );
-    max2 =
-      typeof max2 === "number" && max2 > 0
-        ? Math.min(max2, capacity)
+    max =
+      typeof max === "number" && max > 0
+        ? Math.min(max, capacity)
         : capacity;
   }
-  const selected2 =
-    typeof max2 === "number" && max2 >= 0
-      ? t2("assetPicker.summary.bounded", "已选：{{count}} / {{max}}", {
-          count: count2,
-          max: max2,
+  const selected =
+    typeof max === "number" && max >= 0
+      ? translate("assetPicker.summary.bounded", "已选：{{count}} / {{max}}", {
+          count,
+          max,
         })
-      : t2("assetPicker.summary.unbounded", "已选 {{count}} 项", {
-          count: count2,
+      : translate("assetPicker.summary.unbounded", "已选 {{count}} 项", {
+          count,
         });
-  const detail = t2("assetPicker.summary.types", "可选：{{types}}", {
+  const detail = translate("assetPicker.summary.types", "可选：{{types}}", {
     types: limits,
   });
   const shared =
-    constraints2?.remainingVideoAudio !== void 0 &&
-    types2.includes("video") &&
-    types2.includes("audio")
-      ? t2("assetPicker.summary.shared", "；视频与音频合计最多 {{max}} 项", {
-          max: Math.max(0, constraints2.remainingVideoAudio),
+    constraints?.remainingVideoAudio !== void 0 &&
+    types.includes("video") &&
+    types.includes("audio")
+      ? translate("assetPicker.summary.shared", "；视频与音频合计最多 {{max}} 项", {
+          max: Math.max(0, constraints.remainingVideoAudio),
         })
       : "";
   const minimum =
     options?.minCount && options.minCount > 0
-      ? t2("assetPicker.summary.minimum", "；至少选择 {{min}} 项", {
+      ? translate("assetPicker.summary.minimum", "；至少选择 {{min}} 项", {
           min: options.minCount,
         })
       : "";
   const fullTypes =
-    constraints2 && counts
-      ? types2
+    constraints && counts
+      ? types
           .filter(
-            (type2) =>
-              (type2 === "image" || type2 === "video" || type2 === "audio") &&
-              counts[type2] > 0 &&
-              counts[type2] >= constraints2.remainingByKind[type2],
+            (type) =>
+              (type === "image" || type === "video" || type === "audio") &&
+              counts[type] > 0 &&
+              counts[type] >= constraints.remainingByKind[type],
           )
-          .map((type2) => t2(`assetPicker.typeFilter.${type2}`, type2))
+          .map((type) => translate(`assetPicker.typeFilter.${type}`, type))
           .join(" · ")
       : "";
   const full =
-    typeof max2 === "number" && count2 >= max2
-      ? ` · ${t2("assetPicker.summary.full", "已达选择上限，请先取消部分已选素材。")}`
+    typeof max === "number" && count >= max
+      ? ` · ${translate("assetPicker.summary.full", "已达选择上限，请先取消部分已选素材。")}`
       : fullTypes
-        ? ` · ${t2(
+        ? ` · ${translate(
             "assetPicker.summary.typeFull",
             "{{types}}已达选择上限，请先取消部分已选素材。",
             {
@@ -98,7 +98,7 @@ export function selectionSummary(options, count2, allowedTypes, t2, counts) {
           )}`
         : "";
   return {
-    selected: selected2,
+    selected,
     detail: `${detail}${shared}${minimum}`,
     full,
   };

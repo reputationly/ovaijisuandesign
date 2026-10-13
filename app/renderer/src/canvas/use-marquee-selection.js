@@ -1,43 +1,43 @@
 // use-marquee-selection.js
 import { reactExports } from "../vendor.js";
 
-function intersects(a2, b3) {
+function intersects(firstRect, secondRect) {
   return (
-    a2.left < b3.right &&
-    a2.right > b3.left &&
-    a2.top < b3.bottom &&
-    a2.bottom > b3.top
+    firstRect.left < secondRect.right &&
+    firstRect.right > secondRect.left &&
+    firstRect.top < secondRect.bottom &&
+    firstRect.bottom > secondRect.top
   );
 }
 
-function reconcileMarquee(snapshot2, previous2, entryOrder, hits, canAdd) {
-  const candidates2 = new Map(hits.map((row) => [row.rowKey, row]));
-  const order2 = entryOrder.filter((id2) => candidates2.has(id2));
-  const queued = new Set(order2);
+function reconcileMarquee(snapshot, previous, entryOrder, hits, canAdd) {
+  const candidates = new Map(hits.map((row) => [row.rowKey, row]));
+  const order = entryOrder.filter((id) => candidates.has(id));
+  const queued = new Set(order);
   for (const row of hits) {
     if (!queued.has(row.rowKey)) {
-      order2.push(row.rowKey);
+      order.push(row.rowKey);
       queued.add(row.rowKey);
     }
   }
-  const selection2 = new Map(snapshot2);
-  const add2 = (id2) => {
-    const row = candidates2.get(id2);
-    if (row && !selection2.has(id2) && canAdd(row, selection2))
-      selection2.set(id2, row);
+  const selection = new Map(snapshot);
+  const add = (id) => {
+    const row = candidates.get(id);
+    if (row && !selection.has(id) && canAdd(row, selection))
+      selection.set(id, row);
   };
-  for (const id2 of previous2.keys()) add2(id2);
-  for (const id2 of order2) add2(id2);
+  for (const id of previous.keys()) add(id);
+  for (const id of order) add(id);
   return {
-    selection: selection2,
-    entryOrder: order2,
+    selection,
+    entryOrder: order,
   };
 }
 
 export function useMarqueeSelection(options) {
-  const { scrollEl, enabled, rows, view: view2 } = options;
-  const latest2 = reactExports.useRef(options);
-  latest2.current = options;
+  const { scrollEl, enabled, rows, view } = options;
+  const latest = reactExports.useRef(options);
+  latest.current = options;
   const [rectangle, setRectangle] = reactExports.useState(null);
   const rowOrder = JSON.stringify(rows.map((row) => [row.rowKey, row.assetId]));
   reactExports.useEffect(() => {
@@ -47,17 +47,17 @@ export function useMarqueeSelection(options) {
     const selectionScope =
       scrollEl.closest("[data-asset-picker-selection-scope]") ?? scrollEl;
     let gesture = null;
-    let frame2 = 0;
+    let frame = 0;
     let suppressClick = false;
     let clickTimer = 0;
     function clearNativeSelection() {
-      const selection2 = ownerWindow?.getSelection();
+      const selection = ownerWindow?.getSelection();
       if (
-        selection2 &&
-        (selectionScope.contains(selection2.anchorNode) ||
-          selectionScope.contains(selection2.focusNode))
+        selection &&
+        (selectionScope.contains(selection.anchorNode) ||
+          selectionScope.contains(selection.focusNode))
       )
-        selection2.removeAllRanges();
+        selection.removeAllRanges();
     }
     function clearClickSuppression() {
       suppressClick = false;
@@ -66,15 +66,15 @@ export function useMarqueeSelection(options) {
     function finish(restore, publish = true) {
       if (!gesture) return;
       const {
-        active: active2,
-        snapshot: snapshot2,
+        active,
+        snapshot,
         pointerId,
         previousUserSelect,
         previousUserSelectPriority,
       } = gesture;
-      if (active2) clearNativeSelection();
+      if (active) clearNativeSelection();
       gesture = null;
-      ownerWindow?.cancelAnimationFrame(frame2);
+      ownerWindow?.cancelAnimationFrame(frame);
       if (scrollEl?.hasPointerCapture?.(pointerId))
         scrollEl.releasePointerCapture(pointerId);
       if (previousUserSelect)
@@ -85,91 +85,91 @@ export function useMarqueeSelection(options) {
         );
       else selectionScope.style.removeProperty("user-select");
       setRectangle(null);
-      if (restore && active2 && publish)
-        latest2.current.onSelectionChange(snapshot2);
-      if (active2) {
+      if (restore && active && publish)
+        latest.current.onSelectionChange(snapshot);
+      if (active) {
         suppressClick = true;
         clickTimer = ownerWindow?.setTimeout(clearClickSuppression, 400) ?? 0;
       }
     }
-    function update2() {
+    function update() {
       if (!gesture?.active || !scrollEl) return;
       const bounds = scrollEl.getBoundingClientRect();
       const left = bounds.left + scrollEl.clientLeft;
-      const top2 = bounds.top + scrollEl.clientTop;
-      const x2 = Math.max(
+      const viewportTop = bounds.top + scrollEl.clientTop;
+      const localX = Math.max(
         0,
         Math.min(scrollEl.clientWidth, gesture.clientX - left),
       );
-      const y4 = Math.max(
+      const localY = Math.max(
         0,
-        Math.min(scrollEl.clientHeight, gesture.clientY - top2),
+        Math.min(scrollEl.clientHeight, gesture.clientY - viewportTop),
       );
-      const endX = x2 + scrollEl.scrollLeft;
-      const endY = y4 + scrollEl.scrollTop;
+      const endX = localX + scrollEl.scrollLeft;
+      const endY = localY + scrollEl.scrollTop;
       const rect = {
         left: Math.min(gesture.originX, endX),
         top: Math.min(gesture.originY, endY),
         right: Math.max(gesture.originX, endX),
         bottom: Math.max(gesture.originY, endY),
       };
-      for (const element2 of scrollEl.querySelectorAll("[data-marquee-hit]")) {
-        const key2 = element2.dataset.marqueeHit;
-        const box2 = element2.getBoundingClientRect();
-        if (!key2 || box2.width <= 0 || box2.height <= 0) continue;
-        gesture.measured.set(key2, {
-          left: box2.left - left + scrollEl.scrollLeft,
-          right: box2.right - left + scrollEl.scrollLeft,
-          top: box2.top - top2 + scrollEl.scrollTop,
-          bottom: box2.bottom - top2 + scrollEl.scrollTop,
+      for (const element of scrollEl.querySelectorAll("[data-marquee-hit]")) {
+        const key = element.dataset.marqueeHit;
+        const box = element.getBoundingClientRect();
+        if (!key || box.width <= 0 || box.height <= 0) continue;
+        gesture.measured.set(key, {
+          left: box.left - left + scrollEl.scrollLeft,
+          right: box.right - left + scrollEl.scrollLeft,
+          top: box.top - viewportTop + scrollEl.scrollTop,
+          bottom: box.bottom - viewportTop + scrollEl.scrollTop,
         });
       }
-      const hits = latest2.current.rows.filter((row) => {
-        const box2 = gesture?.measured.get(row.rowKey);
-        return box2 && intersects(rect, box2);
+      const hits = latest.current.rows.filter((row) => {
+        const box = gesture?.measured.get(row.rowKey);
+        return box && intersects(rect, box);
       });
-      const next2 = reconcileMarquee(
+      const next = reconcileMarquee(
         gesture.snapshot,
         gesture.selection,
         gesture.entryOrder,
         hits,
-        latest2.current.canAddSelection,
+        latest.current.canAddSelection,
       );
-      gesture.entryOrder = next2.entryOrder;
-      gesture.selection = next2.selection;
-      const current2 = latest2.current.selected;
+      gesture.entryOrder = next.entryOrder;
+      gesture.selection = next.selection;
+      const current = latest.current.selected;
       if (
-        current2.size !== next2.selection.size ||
-        [...current2].some(([id2, row]) => next2.selection.get(id2) !== row)
+        current.size !== next.selection.size ||
+        [...current].some(([id, row]) => next.selection.get(id) !== row)
       ) {
-        latest2.current.onSelectionChange(next2.selection);
+        latest.current.onSelectionChange(next.selection);
       }
-      setRectangle((previous2) =>
-        previous2 &&
-        previous2.left === rect.left &&
-        previous2.top === rect.top &&
-        previous2.right === rect.right &&
-        previous2.bottom === rect.bottom
-          ? previous2
+      setRectangle((previous) =>
+        previous &&
+        previous.left === rect.left &&
+        previous.top === rect.top &&
+        previous.right === rect.right &&
+        previous.bottom === rect.bottom
+          ? previous
           : rect,
       );
     }
     function tick() {
       if (!gesture?.active || !scrollEl) return;
       const bounds = scrollEl.getBoundingClientRect();
-      const y4 = gesture.clientY - bounds.top;
+      const pointerY = gesture.clientY - bounds.top;
       if (gesture.clientX >= bounds.left && gesture.clientX <= bounds.right) {
         const edge = Math.min(40, scrollEl.clientHeight / 4);
         const speed =
-          y4 < edge
-            ? -Math.min(16, (edge - y4) / 2)
-            : y4 > scrollEl.clientHeight - edge
-              ? Math.min(16, (y4 - scrollEl.clientHeight + edge) / 2)
+          pointerY < edge
+            ? -Math.min(16, (edge - pointerY) / 2)
+            : pointerY > scrollEl.clientHeight - edge
+              ? Math.min(16, (pointerY - scrollEl.clientHeight + edge) / 2)
               : 0;
         if (speed) scrollEl.scrollTop += speed;
       }
-      update2();
-      frame2 = ownerWindow?.requestAnimationFrame(tick) ?? 0;
+      update();
+      frame = ownerWindow?.requestAnimationFrame(tick) ?? 0;
     }
     function handleDown(event) {
       clearClickSuppression();
@@ -195,17 +195,17 @@ export function useMarqueeSelection(options) {
       )
         return;
       const bounds = scrollEl.getBoundingClientRect();
-      const x2 = event.clientX - bounds.left - scrollEl.clientLeft;
-      const y4 = event.clientY - bounds.top - scrollEl.clientTop;
+      const pointerX = event.clientX - bounds.left - scrollEl.clientLeft;
+      const pointerY = event.clientY - bounds.top - scrollEl.clientTop;
       if (
         inScroller &&
-        (x2 < 0 ||
-          y4 < 0 ||
-          x2 >= scrollEl.clientWidth ||
-          y4 >= scrollEl.clientHeight)
+        (pointerX < 0 ||
+          pointerY < 0 ||
+          pointerX >= scrollEl.clientWidth ||
+          pointerY >= scrollEl.clientHeight)
       )
         return;
-      const snapshot2 = new Map(latest2.current.selected);
+      const snapshot = new Map(latest.current.selected);
       gesture = {
         pointerId: event.pointerId,
         startX: event.clientX,
@@ -213,12 +213,12 @@ export function useMarqueeSelection(options) {
         clientX: event.clientX,
         clientY: event.clientY,
         originX:
-          Math.max(0, Math.min(scrollEl.clientWidth, x2)) + scrollEl.scrollLeft,
+          Math.max(0, Math.min(scrollEl.clientWidth, pointerX)) + scrollEl.scrollLeft,
         originY:
-          Math.max(0, Math.min(scrollEl.clientHeight, y4)) + scrollEl.scrollTop,
+          Math.max(0, Math.min(scrollEl.clientHeight, pointerY)) + scrollEl.scrollTop,
         active: false,
-        snapshot: snapshot2,
-        selection: snapshot2,
+        snapshot,
+        selection: snapshot,
         entryOrder: [],
         measured: new Map(),
         previousUserSelect:
@@ -247,18 +247,18 @@ export function useMarqueeSelection(options) {
         gesture.active = true;
         clearNativeSelection();
         scrollEl?.setPointerCapture?.(event.pointerId);
-        frame2 = ownerWindow?.requestAnimationFrame(tick) ?? 0;
+        frame = ownerWindow?.requestAnimationFrame(tick) ?? 0;
       }
       event.preventDefault();
       event.stopPropagation();
-      update2();
+      update();
     }
     function handleUp(event) {
       if (gesture?.pointerId !== event.pointerId) return;
       if (gesture.active) {
         gesture.clientX = event.clientX;
         gesture.clientY = event.clientY;
-        update2();
+        update();
       }
       finish(false);
     }
@@ -281,7 +281,7 @@ export function useMarqueeSelection(options) {
         if (event.key === "Escape") finish(true);
       }
     }
-    function handleClick2(event) {
+    function handleClick(event) {
       if (!suppressClick || event.detail === 0) return;
       clearClickSuppression();
       event.preventDefault();
@@ -302,7 +302,7 @@ export function useMarqueeSelection(options) {
     ownerWindow.addEventListener("pointercancel", handleCancel, true);
     ownerWindow.addEventListener("blur", handleCancel);
     ownerWindow.addEventListener("keydown", handleKey, true);
-    ownerWindow.addEventListener("click", handleClick2, true);
+    ownerWindow.addEventListener("click", handleClick, true);
     selectionScope.addEventListener("dragstart", handleDragStart);
     selectionScope.addEventListener("selectstart", handleSelectStart, true);
     scrollEl.addEventListener("lostpointercapture", handleCancel);
@@ -316,7 +316,7 @@ export function useMarqueeSelection(options) {
       ownerWindow.removeEventListener("pointercancel", handleCancel, true);
       ownerWindow.removeEventListener("blur", handleCancel);
       ownerWindow.removeEventListener("keydown", handleKey, true);
-      ownerWindow.removeEventListener("click", handleClick2, true);
+      ownerWindow.removeEventListener("click", handleClick, true);
       selectionScope.removeEventListener("dragstart", handleDragStart);
       selectionScope.removeEventListener(
         "selectstart",
@@ -326,6 +326,6 @@ export function useMarqueeSelection(options) {
       scrollEl.removeEventListener("lostpointercapture", handleCancel);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [scrollEl, enabled, rowOrder, view2]);
+  }, [scrollEl, enabled, rowOrder, view]);
   return rectangle;
 }

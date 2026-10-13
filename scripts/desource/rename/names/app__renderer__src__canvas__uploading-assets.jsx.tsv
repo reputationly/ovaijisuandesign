@@ -1,0 +1,26 @@
+key	old	new	依据
+ts2@44:31	ts2	ts	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+t2@59:14	t2	translate	该函数翻译云资产同步状态文案。
+t2@104:14	t2	translate	该函数翻译云资产上传者和更新时间文案。
+t2@188:14	t2	translate	该函数翻译云资产重命名对话框文案。
+t2@277:14	t2	translate	该函数翻译上传中的状态文案。
+t2@374:6	t2	translate	该函数翻译本地文件导入错误文案。
+Input3@19:10	Input3	Input	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+language2@44:36	language2	language	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+date2@46:9	date2	date	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+state2@58:36	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@103:41	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@107:9	name2	uploaderName	该值是根据节点上传者标识查得的上传者名称；与全局绑定 name 冲突，故使用 uploaderName。
+path2@129:29	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@133:31	name2	fileName	该参数是待拆分扩展名的文件名；与全局绑定 name 冲突，故使用 fileName。
+dot2@134:9	dot2	dot	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+extension2@150:14	extension2	extension	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+node2@187:42	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@189:10	name2	baseName	该状态保存重命名输入框中的基础文件名（不含扩展名）；与全局绑定 name 冲突，故使用 baseName。
+setName@189:20	setName	setBaseName	RenameNodeDialog 的 useState setter 与 baseName 状态配对，将 setter 命名为 setBaseName。
+pending2@190:10	pending2	pending	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+extension2@191:17	extension2	extension	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+pending2@280:11	pending2	pending	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+service2@370:12	service2	service	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+path2@378:11	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+name2@398:15	name2	sourceFileName	该值是从导入源路径提取的文件名；与全局绑定 name 冲突，故使用 sourceFileName。

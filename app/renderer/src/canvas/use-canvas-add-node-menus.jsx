@@ -50,7 +50,7 @@ export function useCanvasAddNodeMenus(options) {
     openDefaultMenu,
     onDeactivate,
   ]);
-  const content2 = (
+  const content = (
     <QuickZoomPresence
       value={
         contextMenu
@@ -79,7 +79,7 @@ export function useCanvasAddNodeMenus(options) {
   );
   return {
     ...connection,
-    content: content2,
+    content,
     toolbarProps: {
       addNodeButtonRef,
       addNodeMenuOpen: Boolean(contextMenu?.dockAnchor),

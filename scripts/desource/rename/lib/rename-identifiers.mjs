@@ -179,7 +179,7 @@ function makeBindingEdits(source, ast, info, bindingInfo, newName, { renameExpor
       });
       return;
     }
-    if (shorthandProperty?.node.shorthand) {
+    if (shorthandProperty?.node.shorthand && isPropertyBinding) {
       text = `${original}: ${newName}`;
     } else if (parentPath.isImportSpecifier() && parentPath.node.local === node) {
       if (parentPath.node.imported.type === "Identifier" && parentPath.node.imported.name === newName) {
