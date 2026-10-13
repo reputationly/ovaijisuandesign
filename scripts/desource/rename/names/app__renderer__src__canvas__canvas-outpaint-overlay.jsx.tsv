@@ -1,0 +1,87 @@
+key	old	new	依据
+size2@20:28	size2	size	此处的 size 表示节点尺寸对象；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+position2@58:35	position2	position	此处的 position 表示画布节点、控件或外扩矩形的位置对象；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+onPointerDown2@58:61	onPointerDown2	onPointerDown	此处的 onPointerDown 表示接收按下事件并启动拖拽的处理器；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+e2@66:23	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+position2@85:33	position2	position	此处的 position 表示画布节点、控件或外扩矩形的位置对象；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+onPointerDown2@85:59	onPointerDown2	onPointerDown	此处的 onPointerDown 表示接收按下事件并启动拖拽的处理器；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+e2@89:23	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+scale2@106:44	scale2	scale	此处的 scale 表示外扩矩形或输出尺寸使用的缩放倍率；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+r2@289:28	r2	rect	此处的 rect 表示外扩矩形。
+x2@290:9	x2	left	此处的 left 表示外扩矩形的左边界。
+y4@291:9	y4	rectTop	此处的 rectTop 表示外扩矩形的上边界。
+scale2@301:38	scale2	scale	此处的 scale 表示外扩矩形或输出尺寸使用的缩放倍率；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+cx2@303:9	cx2	cx	此处的 cx 表示外扩矩形或裁剪框的中心横坐标；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+offset2@314:33	offset2	offset	此处的 offset 表示图像在外扩画布中的偏移对象；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+handle2@324:66	handle2	handle	此处的 handle 表示当前拖动的边或角控制柄；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+top2@328:7	top2	rectTop	该绑定保存外扩矩形的上边界；原词干 top 与浏览器全局名冲突，故命名为 rectTop。
+x2@370:9	x2	left	此处的 left 表示外扩矩形的左边界。
+y4@371:9	y4	rectTop	此处的 rectTop 表示外扩矩形的上边界。
+offset2@379:34	offset2	offset	此处的 offset 表示图像在外扩画布中的偏移对象；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+p3@393:29	p3	preset	此处的 preset 表示当前选择的外扩预设。
+selected2@427:13	selected2	selected	该布尔属性表示下拉项是否被选中，决定其背景、边框及勾选图标；尾部数字是打包器去重后缀，已恢复原词干。
+disabled2@428:13	disabled2	disabled	此处的 disabled 表示当前选项是否不可用的布尔值；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+e2@449:22	e2	mouseEvent	此处的 mouseEvent 表示鼠标进入或离开事件对象。
+e2@453:22	e2	mouseEvent	此处的 mouseEvent 表示鼠标进入或离开事件对象。
+onPointerDown2@488:11	onPointerDown2	onPointerDown	此处的 onPointerDown 表示接收按下事件并启动拖拽的处理器；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+e2@488:29	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+e2@499:20	e2	keyboardEvent	此处的 keyboardEvent 表示键盘事件对象。
+v2@514:33	v2	isOpen	此处的 isOpen 表示下拉菜单是否打开的布尔值。
+w3@587:9	w3	iconWidth	此处的 iconWidth 表示比例图标的渲染宽度。
+h2@588:9	h2	iconHeight	此处的 iconHeight 表示比例图标的渲染高度。
+selected2@600:37	selected2	selected	该布尔属性表示比例项是否被选中，用于样式、避免重复点击并显示勾选图标；尾部数字是打包器去重后缀，已恢复原词干。
+t2@601:14	t2	translate	此处的 translate 表示React 翻译函数。
+e2@617:22	e2	mouseEvent	此处的 mouseEvent 表示鼠标进入或离开事件对象。
+e2@622:22	e2	mouseEvent	此处的 mouseEvent 表示鼠标进入或离开事件对象。
+CanvasOutpaintPanel2@652:56	CanvasOutpaintPanel2	CanvasOutpaintPanel	此处的 CanvasOutpaintPanel 表示经 memo 包装的外扩设置面板组件函数；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+preset2@653:11	preset2	preset	此处的 preset 表示当前选择的外扩预设；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+scale2@657:10	scale2	scale	此处的 scale 表示外扩矩形或输出尺寸使用的缩放倍率；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+t2@666:14	t2	translate	此处的 translate 表示React 翻译函数。
+e2@678:23	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+e2@679:17	e2	wheelEvent	此处的 wheelEvent 表示滚轮事件对象。
+e2@680:23	e2	contextMenuEvent	此处的 contextMenuEvent 表示上下文菜单事件对象。
+s2@703:48	s2	scale	此处的 scale 表示外扩矩形或输出尺寸使用的缩放倍率。
+v2@708:22	v2	value	此处的 value 表示下拉选择控件变更后的值。
+r2@723:46	r2	resolution	此处的 resolution 表示输出分辨率选项。
+v2@727:24	v2	value	此处的 value 表示下拉选择控件变更后的值。
+p3@746:50	p3	preset	此处的 preset 表示当前选择的外扩预设。
+v2@753:24	v2	value	此处的 value 表示下拉选择控件变更后的值。
+e2@778:26	e2	mouseEvent	此处的 mouseEvent 表示鼠标进入或离开事件对象。
+e2@782:26	e2	mouseEvent	此处的 mouseEvent 表示鼠标进入或离开事件对象。
+e2@809:28	e2	mouseEvent	此处的 mouseEvent 表示鼠标进入或离开事件对象。
+e2@814:28	e2	mouseEvent	此处的 mouseEvent 表示鼠标进入或离开事件对象。
+it2@827:6	it2	item	此处的 item 表示当前比例预设项。
+scale2@836:10	scale2	scale	此处的 scale 表示外扩矩形或输出尺寸使用的缩放倍率；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+s2@850:12	s2	scale	此处的 scale 表示外扩矩形或输出尺寸使用的缩放倍率。
+e2@860:48	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+drag2@861:11	drag2	drag	此处的 drag 表示当前外扩拖拽状态记录；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+e2@889:21	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+e2@933:6	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+handle2@933:10	handle2	handle	此处的 handle 表示当前拖动的边或角控制柄；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+next2@962:6	next2	next	此处的 next 表示下一项预设或待写入的状态值；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+reset2@968:9	reset2	reset	此处的 reset 表示恢复外扩默认状态的回调函数；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+CanvasOutpaintOverlay2@994:12	CanvasOutpaintOverlay2	CanvasOutpaintOverlay	此处的 CanvasOutpaintOverlay 表示经 memo 包装并导出的外扩遮罩组件函数；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+meta2@996:13	meta2	meta	此处的 meta 表示当前外扩图像的元数据；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+transform2@1003:11	transform2	transform	此处的 transform 表示React Flow 的视口变换数组；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+s2@1003:34	s2	storeState	此处的 storeState 表示Zustand store 当前状态对象。
+s2@1004:35	s2	storeState	此处的 storeState 表示Zustand store 当前状态对象。
+vpX@1006:12	vpX	viewportX	此处的 viewportX 表示React Flow 视口横向平移量。
+vpY@1006:17	vpY	viewportY	此处的 viewportY 表示React Flow 视口纵向平移量。
+preset2@1008:12	preset2	preset	此处的 preset 表示当前选择的外扩预设；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+w3@1023:13	w3	imageWidth	此处的 imageWidth 表示原始图像宽度。
+h2@1024:13	h2	imageHeight	此处的 imageHeight 表示原始图像高度。
+scale2@1032:14	scale2	scale	此处的 scale 表示外扩矩形或输出尺寸使用的缩放倍率；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+e2@1114:26	e2	keyboardEvent	此处的 keyboardEvent 表示键盘事件对象。
+next2@1124:8	next2	next	此处的 next 表示下一项预设或待写入的状态值；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+first2@1127:15	first2	first	此处的 first 表示预设列表中的首项；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+s2@1142:18	s2	scale	此处的 scale 表示外扩矩形或输出尺寸使用的缩放倍率。
+s2@1150:18	s2	scale	此处的 scale 表示外扩矩形或输出尺寸使用的缩放倍率。
+node2@1157:13	node2	node	此处的 node 表示画布节点对象；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+e2@1159:24	e2	wheelEvent	此处的 wheelEvent 表示滚轮事件对象。
+px2@1165:17	px2	px	此处的 px 表示相对画布容器的横向像素坐标；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+e2@1195:8	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+e2@1209:8	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+state2@1210:15	state2	state	此处的 state 表示当前 store 或平移状态对象；尾部数字或 $N 是打包器去重后缀，已恢复原词干。
+e2@1221:58	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
+e2@1228:57	e2	contextMenuEvent	此处的 contextMenuEvent 表示上下文菜单事件对象。
+e2@1321:29	e2	pointerEvent	此处的 pointerEvent 表示指针事件对象。
