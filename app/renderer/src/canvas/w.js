@@ -156,7 +156,7 @@ export function W(graph, parentId, constraintGraph, reverseOrder) {
     borderLeft = parentNode ? parentNode.borderLeft : void 0,
     borderRight = parentNode ? parentNode.borderRight : void 0,
     nestedResults = {};
-  borderLeft && (children = children.filter((h2) => h2 !== borderLeft && h2 !== borderRight));
+  borderLeft && (children = children.filter((childId) => childId !== borderLeft && childId !== borderRight));
   let childBarycenters = barycenter(graph, children);
   childBarycenters.forEach((childEntry) => {
     if (graph.children(childEntry.v).length) {

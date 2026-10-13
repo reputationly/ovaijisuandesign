@@ -95,3 +95,4 @@ g2@175:9	g2	rightBorderPredecessors	对应 dagre lib/order/sort-subgraph.js 的 
 b3@176:9	b3	rightBorderPredecessor	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 b3 值。
 export:W	W	sortSubgraph	对应 dagre lib/order/sort-subgraph.ts 的 sortSubgraph。
 file:w.js	w.js	sort-subgraph.js	该文件主要实现 dagre sortSubgraph 布局阶段。
+h2@159:46	h2	childId	从 compound 节点的 children 中筛出非左右边界节点时，h2 持有当前子节点标识。

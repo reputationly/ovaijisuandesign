@@ -63,3 +63,6 @@ b3@116:11	b3	rootX	对应 dagre lib/position/bk.js 的 horizontalCompaction；�
 g2@117:11	g2	rootId	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 g2 所对应的 horizontalCompaction 中间值。
 export:It	It	horizontalCompaction	对应 dagre lib/position/bk.js 的 horizontalCompaction。
 file:it.js	it.js	horizontal-compaction.js	该文件主要实现 dagre horizontalCompaction 布局阶段。
+u4@89:12	u4	assignMaximumX	计算后继块允许的 x 坐标并据此更新当前块坐标，故命名 assignMaximumX。
+c3@106:12	c3	predecessorsWrapper	返回 blockGraph.predecessors(block) 的节点数组，作为水平压缩第一遍遍历的前驱访问器；对应 dagre lib/position/bk.ts 的 predecessorsWrapper。
+h2@109:12	h2	successorsWrapper	返回 blockGraph.successors(block) 的节点数组，作为水平压缩第二遍遍历的后继访问器；对应 dagre lib/position/bk.ts 的 successorsWrapper。

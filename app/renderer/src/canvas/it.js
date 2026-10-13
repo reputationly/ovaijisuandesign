@@ -86,7 +86,7 @@ export function It(graph, layering, root, align, reverseSep = false) {
         }, 0))
       : (xs[block] = 0);
   }
-  function u4(block) {
+  function assignMaximumX(block) {
     let outgoingEdges = blockGraph.outEdges(block),
       minimumSuccessorX = Number.POSITIVE_INFINITY;
     outgoingEdges &&
@@ -103,15 +103,15 @@ export function It(graph, layering, root, align, reverseSep = false) {
       node.borderType !== borderType &&
       (xs[block] = Math.max(xs[block] !== void 0 ? xs[block] : 0, minimumSuccessorX));
   }
-  function c3(block) {
+  function predecessorsWrapper(block) {
     return blockGraph.predecessors(block) || [];
   }
-  function h2(block) {
+  function successorsWrapper(block) {
     return blockGraph.successors(block) || [];
   }
   return (
-    iterateBlocks(assignMinimumX, c3),
-    iterateBlocks(u4, h2),
+    iterateBlocks(assignMinimumX, predecessorsWrapper),
+    iterateBlocks(assignMaximumX, successorsWrapper),
     Object.keys(align).forEach((nodeId) => {
       var rootX;
       let rootId = root[nodeId];
