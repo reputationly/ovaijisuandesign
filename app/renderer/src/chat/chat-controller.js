@@ -71,7 +71,7 @@ export class ChatController {
   diagnostics = new ChatStateDiagnostics(logChat);
   handleServerMessage(serverMessage, options) {
     if (this.shouldIgnoreServerMessage(serverMessage)) return;
-    const previous2 =
+    const previous =
       serverMessage.type === "session_switched"
         ? this.resolveMessages(serverMessage.session_id)
         : void 0;
@@ -90,7 +90,7 @@ export class ChatController {
       this.diagnostics.restored(
         serverMessage,
         options?.replaceSessionSnapshot === true,
-        previous2 ?? [],
+        previous ?? [],
         this.resolveMessages(serverMessage.session_id),
         this.partStores.get(serverMessage.session_id),
         this.runtimeSessionIds.get(serverMessage.session_id),
@@ -134,22 +134,22 @@ export class ChatController {
     if (sessionId && serverMessage.type === "credit_threshold_settled") {
       this.store.updateMessages(
         sessionId,
-        (prev2) =>
-          prev2.map((message2) =>
+        (prev) =>
+          prev.map((message) =>
             // first-settlement-wins：终态只收敛一次。gateway 对未知 id 的 reply
             // 会广播 expired，若它迟到于真正的 continued，无条件覆盖会把「已继续」
             // 翻成「已过期」且不会自愈。终态是权威结论，不接受二次改写。
-            message2.type === "credit_threshold" &&
-            message2.requestId === serverMessage.id &&
-            !message2.resolved
+            message.type === "credit_threshold" &&
+            message.requestId === serverMessage.id &&
+            !message.resolved
               ? {
-                  ...message2,
+                  ...message,
                   resolved: true,
                   decision: serverMessage.decision,
                   settlementStatus: serverMessage.status,
                   selectedItemIds: serverMessage.selected_item_ids,
                 }
-              : message2,
+              : message,
           ),
         {
           affectsUserAttention: true,
@@ -168,8 +168,8 @@ export class ChatController {
         const oldestCallID = progressByCall.keys().next().value;
         if (oldestCallID) progressByCall.delete(oldestCallID);
       }
-      this.store.updateMessages(sessionId, (prev2) =>
-        applyComfyUiProgress(prev2, serverMessage.progress.tool_use_id, serverMessage.progress),
+      this.store.updateMessages(sessionId, (prev) =>
+        applyComfyUiProgress(prev, serverMessage.progress.tool_use_id, serverMessage.progress),
       );
       return;
     }
@@ -193,7 +193,7 @@ export class ChatController {
       if (chatMsg) {
         this.store.updateMessages(
           sessionId,
-          (prev2) => upsertPendingInteraction(prev2, chatMsg),
+          (prev) => upsertPendingInteraction(prev, chatMsg),
           {
             affectsUserAttention: true,
           },
@@ -205,8 +205,8 @@ export class ChatController {
       const expiredId = serverMessage.id;
       this.store.updateMessages(
         sessionId,
-        (prev2) =>
-          prev2.map((message) =>
+        (prev) =>
+          prev.map((message) =>
             message.type === "tool_confirm_ask" && message.requestId === expiredId
               ? {
                   ...message,
@@ -226,7 +226,7 @@ export class ChatController {
     if (sessionId && serverMessage.type === "tool_confirm_settled") {
       this.store.updateMessages(
         sessionId,
-        (prev2) => applyToolConfirmSettlements(prev2, [serverMessage]),
+        (prev) => applyToolConfirmSettlements(prev, [serverMessage]),
         {
           affectsUserAttention: true,
         },
@@ -236,7 +236,7 @@ export class ChatController {
     if (sessionId && serverMessage.type === "loop_guard_settled") {
       this.store.updateMessages(
         sessionId,
-        (prev2) => applyLoopGuardSettlements(prev2, [serverMessage]),
+        (prev) => applyLoopGuardSettlements(prev, [serverMessage]),
         {
           affectsUserAttention: true,
         },
@@ -246,9 +246,9 @@ export class ChatController {
     if (sessionId && serverMessage.type === "question_resolved") {
       const resolved = serverMessage;
       const acknowledgedQuestion = this.resolveMessages(sessionId).find(
-        (message2) =>
-          message2.type === "question" &&
-          message2.requestId === resolved.request_id,
+        (message) =>
+          message.type === "question" &&
+          message.requestId === resolved.request_id,
       );
       const shouldApplyAcknowledgement =
         acknowledgedQuestion !== void 0 &&
@@ -257,8 +257,8 @@ export class ChatController {
             questionAttachmentCount(acknowledgedQuestion.questionAnswers));
       this.store.updateMessages(
         sessionId,
-        (prev2) =>
-          prev2.map((message) => {
+        (prev) =>
+          prev.map((message) => {
             if (
               message.type !== "question" ||
               message.requestId !== resolved.request_id ||
@@ -304,18 +304,18 @@ export class ChatController {
     }
     const prev = this.resolveMessages(sessionId);
     if (sessionId) {
-      const reducer2 = this.getOrCreateReducer(sessionId);
-      const result = reducer2.reduce(prev, serverMessage);
+      const reducer = this.getOrCreateReducer(sessionId);
+      const result = reducer.reduce(prev, serverMessage);
       if (result.messages !== prev) {
         this.store.updateMessages(sessionId, () => [...result.messages]);
       }
-      for (const effect2 of result.effects) {
-        this.applyEffect(effect2, options);
+      for (const effect of result.effects) {
+        this.applyEffect(effect, options);
       }
     } else {
       const result = reduceServerMessage(prev, serverMessage, this.effectOnlyBuffers);
-      for (const effect2 of result.effects) {
-        this.applyEffect(effect2, options);
+      for (const effect of result.effects) {
+        this.applyEffect(effect, options);
       }
     }
   }
@@ -360,40 +360,40 @@ export class ChatController {
     )
       return false;
     const partStore = this.partStores.get(request.sessionId);
-    this.store.updateMessages(request.sessionId, (messages2) =>
-      messages2.map((message2) => {
-        if (message2.type !== "question" || !message2.questionData?.tool)
-          return message2;
-        const messageId = message2.questionData.tool.messageID;
+    this.store.updateMessages(request.sessionId, (messages) =>
+      messages.map((message) => {
+        if (message.type !== "question" || !message.questionData?.tool)
+          return message;
+        const messageId = message.questionData.tool.messageID;
         const runtimeMessageId =
           partStore?.getRootMessageId(messageId) ?? messageId;
         return runtimeMessageId === request.runtimeMessageId
           ? {
-              ...message2,
+              ...message,
               runtimeMessageId,
             }
-          : message2;
+          : message;
       }),
     );
-    const previous2 =
+    const previous =
       this.store.getState().sessions.get(request.sessionId)?.messages ?? [];
     if (!this.store.withdrawMessage(request)) return false;
     if (partStore) {
       let removedSeed = false;
-      for (const message2 of previous2) {
+      for (const message of previous) {
         if (
-          message2.runtimeMessageId === request.runtimeMessageId &&
-          message2.type === "sub_agent" &&
-          message2.childSessionId &&
+          message.runtimeMessageId === request.runtimeMessageId &&
+          message.type === "sub_agent" &&
+          message.childSessionId &&
           partStore.hasChildSubMessageSeed(
-            message2.childSessionId,
-            message2.agent,
+            message.childSessionId,
+            message.agent,
           )
         ) {
           removedSeed = true;
           partStore.clearChildSubMessageSeed(
-            message2.childSessionId,
-            message2.agent,
+            message.childSessionId,
+            message.agent,
           );
         }
       }
@@ -531,10 +531,10 @@ export class ChatController {
     const minPartCount = normalizeKeepCount(
       options.minPartCount ?? keepCount + 1,
     );
-    const state2 = this.store.getState();
+    const state = this.store.getState();
     const warmed = [];
-    for (const [sessionId, session] of state2.sessions) {
-      if (sessionId === state2.focusedSessionId) continue;
+    for (const [sessionId, session] of state.sessions) {
+      if (sessionId === state.focusedSessionId) continue;
       if (options.protectedSessionIds?.has(sessionId)) continue;
       if (deriveBusy(session.busy, session.pendingReasons)) continue;
       if (this.sessionTemperatures.get(sessionId) === "cold") continue;
@@ -553,10 +553,10 @@ export class ChatController {
     const minPartCount = normalizeKeepCount(
       options.minPartCount ?? DEFAULT_WARM_KEEP_COUNT + 1,
     );
-    const state2 = this.store.getState();
+    const state = this.store.getState();
     const cooled = [];
-    for (const [sessionId, session] of state2.sessions) {
-      if (!options.includeFocused && sessionId === state2.focusedSessionId)
+    for (const [sessionId, session] of state.sessions) {
+      if (!options.includeFocused && sessionId === state.focusedSessionId)
         continue;
       if (options.protectedSessionIds?.has(sessionId)) continue;
       if (deriveBusy(session.busy, session.pendingReasons)) continue;
@@ -667,15 +667,15 @@ export class ChatController {
     const requestId = message.request_id;
     if (!requestId) return false;
     const pendingQuestion = this.resolveMessages(sessionId).some(
-      (message2) =>
-        message2.type === "question" &&
-        message2.requestId === requestId &&
-        message2.resolved !== true,
+      (message) =>
+        message.type === "question" &&
+        message.requestId === requestId &&
+        message.resolved !== true,
     );
     if (!pendingQuestion) return false;
-    const { content: content2, error } = message;
+    const { content, error } = message;
     logChat(
-      `[question-error] session=${sessionId} request=${requestId} code=${error?.error_code ?? "none"} retryable=${error?.retryable ?? "?"} msg=${(content2 ?? error?.user_message ?? "").slice(0, 200)}`,
+      `[question-error] session=${sessionId} request=${requestId} code=${error?.error_code ?? "none"} retryable=${error?.retryable ?? "?"} msg=${(content ?? error?.user_message ?? "").slice(0, 200)}`,
       "error",
     );
     this.store.updateMessages(sessionId, (prev) => [
@@ -685,7 +685,7 @@ export class ChatController {
         role: "agent",
         type: "error",
         requestId,
-        content: content2 ?? error?.user_message ?? "",
+        content: content ?? error?.user_message ?? "",
         ...(error
           ? {
               error,
@@ -702,15 +702,15 @@ export class ChatController {
     return true;
   }
   handleRootErrorMessage(sessionId, message) {
-    const { content: content2, error } = message;
+    const { content, error } = message;
     logChat(
-      `[error] session=${sessionId} code=${error?.error_code ?? "none"} retryable=${error?.retryable ?? "?"} msg=${(content2 ?? error?.user_message ?? "").slice(0, 200)}`,
+      `[error] session=${sessionId} code=${error?.error_code ?? "none"} retryable=${error?.retryable ?? "?"} msg=${(content ?? error?.user_message ?? "").slice(0, 200)}`,
       "error",
     );
     const isBusyRejection =
       String(error?.error_code ?? "") ===
         String(ErrorCodes.GATEWAY_BAD_REQUEST) &&
-      /busy|pending operations/i.test(error?.user_message ?? content2 ?? "");
+      /busy|pending operations/i.test(error?.user_message ?? content ?? "");
     if (!isBusyRejection) {
       this.store.setBusy(false, sessionId);
     }
@@ -720,7 +720,7 @@ export class ChatController {
         id: nextMessageId(),
         role: "agent",
         type: "error",
-        content: content2 ?? error?.user_message ?? "",
+        content: content ?? error?.user_message ?? "",
         ...(error
           ? {
               error,
@@ -840,12 +840,12 @@ export class ChatController {
             "error",
           );
         }
-        const { childSessionId, error, content: content2 } = message;
+        const { childSessionId, error, content } = message;
         if (childSessionId) {
           this.reconcileTerminalChildSession(sessionId, partStore, childSessionId);
         } else {
           logChat(
-            `[session_error] session=${sessionId} code=${error?.error_code ?? "none"} msg=${(content2 ?? "").slice(0, 200)}`,
+            `[session_error] session=${sessionId} code=${error?.error_code ?? "none"} msg=${(content ?? "").slice(0, 200)}`,
             "error",
           );
           this.flushQueuedRederive(sessionId);
@@ -858,7 +858,7 @@ export class ChatController {
               id: nextMessageId(),
               role: "agent",
               type: "error",
-              content: content2 ?? "",
+              content: content ?? "",
               ...(error
                 ? {
                     error,
@@ -1155,39 +1155,39 @@ export class ChatController {
     }
   }
   markPendingChildReconciliation(sessionId, childSessionId) {
-    const pending2 = this.pendingChildReconciliations.get(sessionId) ?? new Set();
-    pending2.add(childSessionId);
-    this.pendingChildReconciliations.set(sessionId, pending2);
-    this.diagnostics.pendingChildren(sessionId, pending2.size);
+    const pending = this.pendingChildReconciliations.get(sessionId) ?? new Set();
+    pending.add(childSessionId);
+    this.pendingChildReconciliations.set(sessionId, pending);
+    this.diagnostics.pendingChildren(sessionId, pending.size);
   }
   clearPendingChildReconciliation(sessionId, childSessionId) {
-    const pending2 = this.pendingChildReconciliations.get(sessionId);
-    if (!pending2?.delete(childSessionId)) return false;
-    if (pending2.size === 0) {
+    const pending = this.pendingChildReconciliations.get(sessionId);
+    if (!pending?.delete(childSessionId)) return false;
+    if (pending.size === 0) {
       this.pendingChildReconciliations.delete(sessionId);
       this.diagnostics.pendingChildren(sessionId, 0);
     }
     return true;
   }
   clearVisiblePendingChildReconciliations(sessionId) {
-    const pending2 = this.pendingChildReconciliations.get(sessionId);
-    if (!pending2) return;
-    for (const childSessionId of pending2) {
+    const pending = this.pendingChildReconciliations.get(sessionId);
+    if (!pending) return;
+    for (const childSessionId of pending) {
       if (this.isChildSessionVisible(sessionId, childSessionId))
-        pending2.delete(childSessionId);
+        pending.delete(childSessionId);
     }
-    if (pending2.size === 0) {
+    if (pending.size === 0) {
       this.pendingChildReconciliations.delete(sessionId);
       this.diagnostics.pendingChildren(sessionId, 0);
     }
   }
   hasPartMessageIndex(sessionId) {
-    const index2 = this.messageIndexByPartId.get(sessionId);
-    return Boolean(index2 && index2.size > 0);
+    const index = this.messageIndexByPartId.get(sessionId);
+    return Boolean(index && index.size > 0);
   }
   hasDerivedPartMessage(sessionId, partId) {
-    const index2 = this.messageIndexByPartId.get(sessionId);
-    return Boolean(index2?.has(partId) || index2?.has(subAgentPartId(partId)));
+    const index = this.messageIndexByPartId.get(sessionId);
+    return Boolean(index?.has(partId) || index?.has(subAgentPartId(partId)));
   }
   findTaskChildSessionId(partStore, partId) {
     return extractTaskChildSessionId(partStore.getPart(partId));
@@ -1198,9 +1198,9 @@ export class ChatController {
         .getState()
         .sessions.get(sessionId)
         ?.messages.some(
-          (message2) =>
-            message2.type === "sub_agent" &&
-            message2.childSessionId === childSessionId,
+          (message) =>
+            message.type === "sub_agent" &&
+            message.childSessionId === childSessionId,
         ),
     );
   }
@@ -1209,7 +1209,7 @@ export class ChatController {
     partStore,
     sourcePartId,
     targetPartId,
-    mode2,
+    mode,
     result,
     childSessionId,
   ) {
@@ -1221,13 +1221,13 @@ export class ChatController {
       (targetPart?.type === "tool" && targetPart.tool === "task");
     const isAnomalous =
       result === "failed" ||
-      mode2 === "full-derive" ||
-      mode2 === "fallback-full-derive";
+      mode === "full-derive" ||
+      mode === "fallback-full-derive";
     if (!isSubAgentRelevant && !isAnomalous) return;
     const fields = [
       ["part", sourcePartId],
       ["target", targetPartId],
-      ["mode", mode2],
+      ["mode", mode],
       ["result", result],
     ];
     if (child) {
@@ -1240,11 +1240,11 @@ export class ChatController {
   }
   applyDerivedPartPatch(sessionId, partStore, partId) {
     const startTime = performance.now();
-    const state2 = this.store.getState();
+    const state = this.store.getState();
     const perfMetadata = {
       sessionId,
-      workspaceId: state2.sessions.get(sessionId)?.folder,
-      sessionCount: state2.sessions.size,
+      workspaceId: state.sessions.get(sessionId)?.folder,
+      sessionCount: state.sessions.size,
     };
     let derived = partStore.derivePartMessages(partId, this.childSessionMap, {
       perfMetadata,
@@ -1258,45 +1258,45 @@ export class ChatController {
     const affectedPartIds = new Set([partId, subAgentPartId(partId)]);
     let applied = false;
     this.store.updateMessages(sessionId, (prev) => {
-      const firstIndex = prev.findIndex((message2) =>
-        message2.partId ? affectedPartIds.has(message2.partId) : false,
+      const firstIndex = prev.findIndex((message) =>
+        message.partId ? affectedPartIds.has(message.partId) : false,
       );
       if (firstIndex < 0 && derived.length === 0) {
         applied = true;
         return prev;
       }
       if (firstIndex < 0) {
-        const merged2 = dropSupersededHistorySubAgents(
+        const merged = dropSupersededHistorySubAgents(
           resplicePendingToolConfirms([...prev, ...derived]),
         );
-        this.rebuildMessageIndex(sessionId, merged2);
+        this.rebuildMessageIndex(sessionId, merged);
         applied = true;
-        return merged2;
+        return merged;
       }
       const existingByPartId = new Map();
-      for (const message2 of prev) {
-        if (message2.partId && affectedPartIds.has(message2.partId)) {
-          existingByPartId.set(message2.partId, message2);
+      for (const message of prev) {
+        if (message.partId && affectedPartIds.has(message.partId)) {
+          existingByPartId.set(message.partId, message);
         }
       }
-      const next2 = prev.filter(
-        (message2) =>
-          !(message2.partId && affectedPartIds.has(message2.partId)),
+      const next = prev.filter(
+        (message) =>
+          !(message.partId && affectedPartIds.has(message.partId)),
       );
-      const withStableIds = derived.map((message2) => {
-        const existing = message2.partId
-          ? existingByPartId.get(message2.partId)
+      const withStableIds = derived.map((message) => {
+        const existing = message.partId
+          ? existingByPartId.get(message.partId)
           : void 0;
         return existing
           ? {
-              ...message2,
+              ...message,
               id: existing.id,
             }
-          : message2;
+          : message;
       });
-      next2.splice(firstIndex, 0, ...withStableIds);
+      next.splice(firstIndex, 0, ...withStableIds);
       const merged = dropSupersededHistorySubAgents(
-        resplicePendingToolConfirms(next2),
+        resplicePendingToolConfirms(next),
       );
       if (messagesShallowEqual(prev, merged)) {
         applied = true;
@@ -1325,11 +1325,11 @@ export class ChatController {
     const startTime = performance.now();
     const runtimeId = this.runtimeSessionIds.get(sessionId);
     if (!runtimeId) return;
-    const state2 = this.store.getState();
+    const state = this.store.getState();
     const perfMetadata = {
       sessionId,
-      workspaceId: state2.sessions.get(sessionId)?.folder,
-      sessionCount: state2.sessions.size,
+      workspaceId: state.sessions.get(sessionId)?.folder,
+      sessionCount: state.sessions.size,
     };
     let derived = partStore.deriveMessages(
       runtimeId,
@@ -1454,7 +1454,7 @@ export class ChatController {
     if (!patched && newContent) {
       this.rederiveAndUpdate(sessionId, partStore);
     }
-    const state2 = this.store.getState();
+    const state = this.store.getState();
     measurePerf(
       PERF_PATCH_DELTA,
       startTime,
@@ -1464,8 +1464,8 @@ export class ChatController {
       {
         metadata: {
           sessionId,
-          workspaceId: state2.sessions.get(sessionId)?.folder,
-          sessionCount: state2.sessions.size,
+          workspaceId: state.sessions.get(sessionId)?.folder,
+          sessionCount: state.sessions.size,
         },
         samplingRate: PERF_PATCH_DELTA_SAMPLE_RATE,
       },
@@ -1602,78 +1602,78 @@ export class ChatController {
     }
     return store;
   }
-  seedHistorySubAgents(sessionId, messages2, onlyMissing = false) {
+  seedHistorySubAgents(sessionId, messages, onlyMissing = false) {
     restoreHistorySubAgents(
       () => this.getOrCreatePartStore(sessionId),
-      messages2,
+      messages,
       onlyMissing,
     );
   }
   restoreRetainedToolParts(sessionId) {
     const runtimeSessionId = this.runtimeSessionIds.get(sessionId);
     if (!runtimeSessionId) return;
-    const messages2 = this.resolveMessages(sessionId);
-    this.seedHistorySubAgents(sessionId, messages2, true);
+    const messages = this.resolveMessages(sessionId);
+    this.seedHistorySubAgents(sessionId, messages, true);
     restoreRootToolParts(
       this.getOrCreatePartStore(sessionId),
       runtimeSessionId,
-      messages2,
+      messages,
       false,
     );
   }
   // --------------------------------------------------------
   // Effect consumer (exhaustive)
   // --------------------------------------------------------
-  applyEffect(effect2, options) {
-    switch (effect2.type) {
+  applyEffect(effect, options) {
+    switch (effect.type) {
       case "session_created": {
-        this.markSessionActive(effect2.sessionId);
-        const initialMessages = effect2.messages
-          ? backendMessagesToChat(effect2.messages)
+        this.markSessionActive(effect.sessionId);
+        const initialMessages = effect.messages
+          ? backendMessagesToChat(effect.messages)
           : void 0;
         if (initialMessages) {
-          this.seedHistorySubAgents(effect2.sessionId, initialMessages);
+          this.seedHistorySubAgents(effect.sessionId, initialMessages);
         }
         this.store.createSession(
-          effect2.sessionId,
-          effect2.name,
-          effect2.folder,
-          effect2.modelId,
-          effect2.createdAt,
-          effect2.displayName,
-          effect2.selectedMediaModels,
+          effect.sessionId,
+          effect.name,
+          effect.folder,
+          effect.modelId,
+          effect.createdAt,
+          effect.displayName,
+          effect.selectedMediaModels,
           initialMessages,
-          effect2.origin,
+          effect.origin,
           {
-            focus: effect2.activated !== false,
+            focus: effect.activated !== false,
             openTab: options?.openCreatedSessionTab !== false,
           },
         );
         break;
       }
       case "session_switched": {
-        this.markSessionActive(effect2.sessionId);
-        if (effect2.runtimeSessionId) {
+        this.markSessionActive(effect.sessionId);
+        if (effect.runtimeSessionId) {
           this.runtimeSessionIds.set(
-            effect2.sessionId,
-            effect2.runtimeSessionId,
+            effect.sessionId,
+            effect.runtimeSessionId,
           );
           this.store.setRuntimeSessionId(
-            effect2.sessionId,
-            effect2.runtimeSessionId,
+            effect.sessionId,
+            effect.runtimeSessionId,
           );
           logRuntimeBinding(
-            `seed sid=${effect2.sessionId} runtime=${effect2.runtimeSessionId} src=session_switched running=${effect2.agentRunning ? 1 : 0}`,
+            `seed sid=${effect.sessionId} runtime=${effect.runtimeSessionId} src=session_switched running=${effect.agentRunning ? 1 : 0}`,
           );
         }
         const rawMsgs = [
           ...this.store.projectMessages(
-            effect2.sessionId,
-            backendMessagesToChat(effect2.messages ?? []),
+            effect.sessionId,
+            backendMessagesToChat(effect.messages ?? []),
           ),
         ];
-        const pendingReasons = effect2.pendingReasons ?? [];
-        const stillBusy = deriveBusy(effect2.agentRunning, pendingReasons);
+        const pendingReasons = effect.pendingReasons ?? [];
+        const stillBusy = deriveBusy(effect.agentRunning, pendingReasons);
         const historyMessages = !stillBusy
           ? rawMsgs.map((rawMessage) =>
               rawMessage.type === "tool" && rawMessage.toolStatus === "running"
@@ -1684,41 +1684,41 @@ export class ChatController {
                 : rawMessage,
             )
           : rawMsgs;
-        const pendingInteractionMessages = (effect2.pendingInteractions ?? [])
+        const pendingInteractionMessages = (effect.pendingInteractions ?? [])
           .map((interaction) => this.interactionToChatMessage(interaction))
-          .filter((message2) => message2 !== null);
+          .filter((message) => message !== null);
         const recentSettlementIds = new Set(
-          (effect2.recentLoopGuardSettlements ?? []).map(
+          (effect.recentLoopGuardSettlements ?? []).map(
             (settlement) => settlement.id,
           ),
         );
         const recentToolConfirmSettlementIds = new Set(
-          (effect2.recentToolConfirmSettlements ?? []).map(
+          (effect.recentToolConfirmSettlements ?? []).map(
             (settlement) => settlement.id,
           ),
         );
         const existingMessages =
-          this.store.getState().sessions.get(effect2.sessionId)?.messages ?? [];
+          this.store.getState().sessions.get(effect.sessionId)?.messages ?? [];
         const retainedLoopGuardMessages = applyLoopGuardSettlements(
           existingMessages.filter(
-            (message2) =>
-              message2.type === "loop_guard_ask" &&
-              message2.requestId !== void 0 &&
-              (!message2.resolved ||
-                recentSettlementIds.has(message2.requestId)),
+            (message) =>
+              message.type === "loop_guard_ask" &&
+              message.requestId !== void 0 &&
+              (!message.resolved ||
+                recentSettlementIds.has(message.requestId)),
           ),
-          effect2.recentLoopGuardSettlements ?? [],
+          effect.recentLoopGuardSettlements ?? [],
         );
         const retainedToolConfirmMessages = applyToolConfirmSettlements(
           existingMessages.filter(
-            (message2) =>
-              message2.type === "tool_confirm_ask" &&
-              message2.requestId !== void 0 &&
-              recentToolConfirmSettlementIds.has(message2.requestId),
+            (message) =>
+              message.type === "tool_confirm_ask" &&
+              message.requestId !== void 0 &&
+              recentToolConfirmSettlementIds.has(message.requestId),
           ),
-          effect2.recentToolConfirmSettlements ?? [],
+          effect.recentToolConfirmSettlements ?? [],
         );
-        const historyLoadFailed = effect2.historyLoadFailed === true;
+        const historyLoadFailed = effect.historyLoadFailed === true;
         const replaceMessages =
           options?.replaceSessionSnapshot === true && !historyLoadFailed;
         let chatMsgs = replaceMessages
@@ -1730,13 +1730,13 @@ export class ChatController {
           : historyLoadFailed
             ? []
             : historyMessages;
-        const runtimeSessionId = this.runtimeSessionIds.get(effect2.sessionId);
+        const runtimeSessionId = this.runtimeSessionIds.get(effect.sessionId);
         const installsHistory =
           !historyLoadFailed &&
           (replaceMessages || existingMessages.length === 0);
         if (installsHistory && runtimeSessionId) {
           chatMsgs = restoreRootToolMessages(
-            this.getOrCreatePartStore(effect2.sessionId),
+            this.getOrCreatePartStore(effect.sessionId),
             runtimeSessionId,
             chatMsgs,
             replaceMessages,
@@ -1752,79 +1752,79 @@ export class ChatController {
         }
         const snapshotOptions = {
           selectedMediaModelsSnapshot:
-            effect2.selectedMediaModelsSnapshot === true,
+            effect.selectedMediaModelsSnapshot === true,
           replaceMessages,
         };
-        if (effect2.activated === false) {
+        if (effect.activated === false) {
           this.store.hydrateSession(
-            effect2.sessionId,
+            effect.sessionId,
             chatMsgs,
-            effect2.folder,
-            effect2.modelId,
-            effect2.selectedMediaModels,
+            effect.folder,
+            effect.modelId,
+            effect.selectedMediaModels,
             snapshotOptions,
           );
         } else {
           this.store.switchSession(
-            effect2.sessionId,
+            effect.sessionId,
             chatMsgs,
-            effect2.folder,
-            effect2.modelId,
-            effect2.selectedMediaModels,
+            effect.folder,
+            effect.modelId,
+            effect.selectedMediaModels,
             snapshotOptions,
           );
         }
         this.diagnostics.snapshotDecision(
-          effect2.sessionId,
+          effect.sessionId,
           replaceMessages,
           historyLoadFailed,
           existingMessages.length,
           chatMsgs.length,
         );
-        if (!installsHistory) this.restoreRetainedToolParts(effect2.sessionId);
+        if (!installsHistory) this.restoreRetainedToolParts(effect.sessionId);
         if (!replaceMessages) {
           for (const interaction of pendingInteractionMessages) {
             this.store.updateMessages(
-              effect2.sessionId,
-              (messages2) => upsertPendingInteraction(messages2, interaction),
+              effect.sessionId,
+              (messages) => upsertPendingInteraction(messages, interaction),
               {
                 affectsUserAttention: true,
               },
             );
           }
         }
-        if (effect2.pendingInteractions !== void 0) {
+        if (effect.pendingInteractions !== void 0) {
           this.store.updateMessages(
-            effect2.sessionId,
-            (messages2) =>
+            effect.sessionId,
+            (messages) =>
               reconcilePendingInteractionSnapshot(
-                messages2,
-                effect2.pendingInteractions ?? [],
+                messages,
+                effect.pendingInteractions ?? [],
               ),
             {
               affectsUserAttention: true,
             },
           );
         }
-        const recentLoopGuardSettlements = effect2.recentLoopGuardSettlements;
+        const recentLoopGuardSettlements = effect.recentLoopGuardSettlements;
         if (recentLoopGuardSettlements !== void 0) {
           this.store.updateMessages(
-            effect2.sessionId,
-            (messages2) =>
-              applyLoopGuardSettlements(messages2, recentLoopGuardSettlements),
+            effect.sessionId,
+            (messages) =>
+              applyLoopGuardSettlements(messages, recentLoopGuardSettlements),
             {
               affectsUserAttention: true,
             },
           );
         }
         const recentToolConfirmSettlements =
-          effect2.recentToolConfirmSettlements;
+          effect.recentToolConfirmSettlements;
         if (recentToolConfirmSettlements !== void 0) {
           this.store.updateMessages(
-            effect2.sessionId,
-            (messages2) =>
+            effect.sessionId,
+            (messages) =>
               applyToolConfirmSettlements(
-                messages2,
+                messages,
                 recentToolConfirmSettlements,
               ),
             {
@@ -1832,80 +1832,80 @@ export class ChatController {
             },
           );
         }
-        this.store.setHistoryLoadFailed(effect2.sessionId, historyLoadFailed);
-        this.store.setPendingReasons(pendingReasons, effect2.sessionId);
-        if (effect2.agentRunning) {
-          this.store.setBusy(true, effect2.sessionId);
+        this.store.setHistoryLoadFailed(effect.sessionId, historyLoadFailed);
+        this.store.setPendingReasons(pendingReasons, effect.sessionId);
+        if (effect.agentRunning) {
+          this.store.setBusy(true, effect.sessionId);
         }
         if (!historyLoadFailed) {
-          this.clearVisiblePendingChildReconciliations(effect2.sessionId);
+          this.clearVisiblePendingChildReconciliations(effect.sessionId);
         }
         break;
       }
       case "selected_media_models_updated":
         this.store.setSelectedMediaModels(
-          effect2.sessionId,
-          effect2.selectedMediaModels,
+          effect.sessionId,
+          effect.selectedMediaModels,
         );
         break;
       case "session_list":
-        this.store.reconcileServerSessions(effect2.sessions);
+        this.store.reconcileServerSessions(effect.sessions);
         break;
       case "session_bound":
         this.runtimeSessionIds.set(
-          effect2.uiSessionId,
-          effect2.runtimeSessionId,
+          effect.uiSessionId,
+          effect.runtimeSessionId,
         );
         this.store.setRuntimeSessionId(
-          effect2.uiSessionId,
-          effect2.runtimeSessionId,
+          effect.uiSessionId,
+          effect.runtimeSessionId,
         );
         logRuntimeBinding(
-          `seed sid=${effect2.uiSessionId} runtime=${effect2.runtimeSessionId} src=session_bound`,
+          `seed sid=${effect.uiSessionId} runtime=${effect.runtimeSessionId} src=session_bound`,
         );
         break;
       case "session_renamed":
         this.store.renameSession(
-          effect2.sessionId,
-          effect2.name,
-          effect2.runtimeSessionId,
+          effect.sessionId,
+          effect.name,
+          effect.runtimeSessionId,
         );
         break;
       case "set_busy":
-        this.store.setBusy(effect2.busy, effect2.sessionId);
+        this.store.setBusy(effect.busy, effect.sessionId);
         break;
       case "set_pending_reasons":
-        this.store.setPendingReasons(effect2.reasons, effect2.sessionId);
+        this.store.setPendingReasons(effect.reasons, effect.sessionId);
         break;
       case "file_changed":
         this.store.notifyFileChanged();
         break;
       case "canvas_updated":
-        this.store.notifyCanvasUpdated(effect2.update);
+        this.store.notifyCanvasUpdated(effect.update);
         break;
       case "canvas_focus":
-        this.store.notifyCanvasFocus(effect2.payload);
+        this.store.notifyCanvasFocus(effect.payload);
         break;
       case "canvas_node_generating":
-        this.store.notifyCanvasNodeGenerating(effect2.payload);
+        this.store.notifyCanvasNodeGenerating(effect.payload);
         break;
       case "plugin_storage_changed":
-        this.store.notifyPluginStorageChanged(effect2.payload);
+        this.store.notifyPluginStorageChanged(effect.payload);
         break;
       case "plugin_agent_invoke":
-        this.store.notifyPluginAgentInvoke(effect2.payload);
+        this.store.notifyPluginAgentInvoke(effect.payload);
         break;
       case "plugin_editor_open":
-        this.store.notifyPluginEditorOpen(effect2.payload);
+        this.store.notifyPluginEditorOpen(effect.payload);
         break;
       case "asset_changed":
-        this.store.notifyAssetChanged(effect2.event);
+        this.store.notifyAssetChanged(effect.event);
         break;
       case "auth_expired":
         authExpiredBus.emit();
         break;
       default: {
-        const _exhaustive = effect2;
+        const _exhaustive = effect;
         logChat(`[unhandled-effect] ${_exhaustive.type}`, "warn");
       }
     }
@@ -1914,38 +1914,38 @@ export class ChatController {
   // Helpers
   // --------------------------------------------------------
   getOrCreateReducer(sessionId) {
-    let reducer2 = this.reducers.get(sessionId);
-    if (!reducer2) {
-      reducer2 = new SessionReducer(sessionId);
-      this.reducers.set(sessionId, reducer2);
+    let reducer = this.reducers.get(sessionId);
+    if (!reducer) {
+      reducer = new SessionReducer(sessionId);
+      this.reducers.set(sessionId, reducer);
     }
-    return reducer2;
+    return reducer;
   }
-  findMessageIndexByPartId(sessionId, messages2, partId) {
+  findMessageIndexByPartId(sessionId, messages, partId) {
     const cached = this.messageIndexByPartId.get(sessionId)?.get(partId);
-    if (cached !== void 0 && messages2[cached]?.partId === partId) {
+    if (cached !== void 0 && messages[cached]?.partId === partId) {
       return cached;
     }
-    const messageIndex = messages2.findIndex((message) => message.partId === partId);
+    const messageIndex = messages.findIndex((message) => message.partId === partId);
     if (messageIndex >= 0) {
-      let index2 = this.messageIndexByPartId.get(sessionId);
-      if (!index2) {
-        index2 = new Map();
-        this.messageIndexByPartId.set(sessionId, index2);
+      let index = this.messageIndexByPartId.get(sessionId);
+      if (!index) {
+        index = new Map();
+        this.messageIndexByPartId.set(sessionId, index);
       }
-      index2.set(partId, messageIndex);
+      index.set(partId, messageIndex);
     }
     return messageIndex;
   }
-  rebuildMessageIndex(sessionId, messages2) {
-    const index2 = new Map();
-    messages2.forEach((message2, messageIndex) => {
-      if (message2.partId) {
-        index2.set(message2.partId, messageIndex);
+  rebuildMessageIndex(sessionId, messages) {
+    const index = new Map();
+    messages.forEach((message, messageIndex) => {
+      if (message.partId) {
+        index.set(message.partId, messageIndex);
       }
     });
-    if (index2.size > 0) {
-      this.messageIndexByPartId.set(sessionId, index2);
+    if (index.size > 0) {
+      this.messageIndexByPartId.set(sessionId, index);
     } else {
       this.messageIndexByPartId.delete(sessionId);
     }

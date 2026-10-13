@@ -128,27 +128,27 @@ export function useChat(
   const {
     connected,
     send: sendRaw,
-    subscribe: subscribe2,
+    subscribe,
   } = useWorkspaceWSConnection();
-  const send2 = useAgentModeAwareSend(sendRaw, options.agentMode);
+  const send = useAgentModeAwareSend(sendRaw, options.agentMode);
   const {
     cancelQueuedUserMessage,
     settleQueuedUserMessageCancellation,
     rejectQueuedUserMessageCancellations,
   } = useQueuedUserMessageCancellation({
     sessionStore,
-    send: send2,
+    send,
   });
   const controller = reactExports.useMemo(
     () => new ChatController(sessionStore),
     [sessionStore],
   );
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const gatewayScopeKey = useGatewayScopeKey();
   const scopedGatewayUrl = useGatewayUrl();
   const { t: translate } = useTranslation();
   const autoSendSubmissionDecision = useAccountSubmissionDecision("auto_send");
-  const [messages2, setMessages] = reactExports.useState([]);
+  const [messages, setMessages] = reactExports.useState([]);
   const [focusedSessionId, setFocusedSessionId] = reactExports.useState(null);
   const [sessions, setSessions] = reactExports.useState([]);
   const textEditBindingPersister = reactExports.useMemo(
@@ -185,12 +185,12 @@ export function useChat(
   const {
     beginCreate: beginCreateFocusIntent,
     beginFork: beginForkFocusIntent,
-    fence: fenceSessionActivation2,
+    fence: fenceSessionActivation,
     prepareSessionSwitch,
     reject: rejectSessionFocusIntent,
     requestSessionFocus,
     supersede: supersedeSessionFocusIntent,
-  } = useSessionFocusCoordinator(send2);
+  } = useSessionFocusCoordinator(send);
   const [openedTabOrder, setOpenedTabOrder] = reactExports.useState(() => []);
   const [openedTabIds, setOpenedTabIds] = reactExports.useState(new Set());
   const [sessionsLoading, setSessionsLoading] = reactExports.useState(true);
@@ -346,7 +346,7 @@ export function useChat(
     syncSelectedModelId,
   } = useChatModelSelection({
     sessionStore,
-    send: send2,
+    send,
     initialModelId: options.initialModelId,
     initialSelectedMediaModels,
     defaultModelId: options.defaultModelId,
@@ -361,7 +361,7 @@ export function useChat(
   if (!draftControllerRef.current) {
     draftControllerRef.current = new DraftController(
       currentWorkspace,
-      (path2) => scopedGatewayUrlRef.current(path2),
+      (path) => scopedGatewayUrlRef.current(path),
     );
   }
   const draftController = draftControllerRef.current;
@@ -377,41 +377,41 @@ export function useChat(
     [],
   );
   const getTextEditPreservedFocusedSessionId = reactExports.useCallback(() => {
-    const active2 = activeTextEditAgentRef.current;
-    return active2 ? active2.previousSessionId : void 0;
+    const active = activeTextEditAgentRef.current;
+    return active ? active.previousSessionId : void 0;
   }, []);
   const publishTextEditSessionIds = reactExports.useCallback(() => {
-    const ids2 = new Set(
+    const ids = new Set(
       collectTextEditSessionIds(textEditBindingsRef.current),
     );
-    const active2 = activeTextEditAgentRef.current;
-    const activeSessionId = active2?.sessionId;
-    if (activeSessionId) ids2.add(activeSessionId);
-    textEditSessionIdsRef.current = ids2;
-    setTextEditSessionIds((current2) =>
-      equalStringSets(current2, ids2) ? current2 : ids2,
+    const active = activeTextEditAgentRef.current;
+    const activeSessionId = active?.sessionId;
+    if (activeSessionId) ids.add(activeSessionId);
+    textEditSessionIdsRef.current = ids;
+    setTextEditSessionIds((current) =>
+      equalStringSets(current, ids) ? current : ids,
     );
-    const nodeIds = active2
+    const nodeIds = active
       ? new Set(
           collectBindingSessionIds(
-            textEditBindingsRef.current[active2.editor.nodeId],
+            textEditBindingsRef.current[active.editor.nodeId],
           ),
         )
       : new Set();
-    if (active2 && activeSessionId) nodeIds.add(activeSessionId);
-    setTextEditNodeSessionIds((current2) =>
-      equalStringSets(current2, nodeIds) ? current2 : nodeIds,
+    if (active && activeSessionId) nodeIds.add(activeSessionId);
+    setTextEditNodeSessionIds((current) =>
+      equalStringSets(current, nodeIds) ? current : nodeIds,
     );
   }, []);
   const syncTextEditBindingsWithSessions = reactExports.useCallback(() => {
-    const state2 = sessionStore.getState();
+    const state = sessionStore.getState();
     let nextBindings = textEditBindingsRef.current;
     for (const [nodeId, binding] of Object.entries(
       textEditBindingsRef.current,
     )) {
-      const resolvedSessionId = resolveTextEditSessionId(binding, state2);
+      const resolvedSessionId = resolveTextEditSessionId(binding, state);
       if (!resolvedSessionId) continue;
-      const session = state2.sessions.get(resolvedSessionId);
+      const session = state.sessions.get(resolvedSessionId);
       const nextBinding = {
         uiSessionId: resolvedSessionId,
         runtimeSessionId: session?.runtimeSessionId ?? binding.runtimeSessionId,
@@ -435,13 +435,13 @@ export function useChat(
           refreshedEntry,
         );
       }
-      const active2 = activeTextEditAgentRef.current;
+      const active = activeTextEditAgentRef.current;
       if (
-        active2?.editor.nodeId === nodeId &&
-        active2.sessionId !== resolvedSessionId
+        active?.editor.nodeId === nodeId &&
+        active.sessionId !== resolvedSessionId
       ) {
         const updated = {
-          ...active2,
+          ...active,
           sessionId: resolvedSessionId,
         };
         activeTextEditAgentRef.current = updated;
@@ -462,15 +462,15 @@ export function useChat(
   ]);
   const bindTextEditSession = reactExports.useCallback(
     (nodeId, uiSessionId, runtimeSessionId) => {
-      const current2 = textEditBindingsRef.current[nodeId];
+      const current = textEditBindingsRef.current[nodeId];
       const entry = {
         uiSessionId,
-        runtimeSessionId: runtimeSessionId ?? current2?.runtimeSessionId,
+        runtimeSessionId: runtimeSessionId ?? current?.runtimeSessionId,
         updatedAt: Date.now(),
       };
       textEditBindingsRef.current = {
         ...textEditBindingsRef.current,
-        [nodeId]: upsertTextEditSessionEntry(current2, entry),
+        [nodeId]: upsertTextEditSessionEntry(current, entry),
       };
       publishTextEditSessionIds();
       void textEditBindingPersister.upsert(currentWorkspace, nodeId, entry);
@@ -492,7 +492,7 @@ export function useChat(
       );
       syncTextEditBindingsWithSessions();
       textEditBindingsReadyRef.current = true;
-      setTextEditBindingsReadyVersion((version2) => version2 + 1);
+      setTextEditBindingsReadyVersion((version) => version + 1);
     });
     return () => {
       cancelled = true;
@@ -527,17 +527,17 @@ export function useChat(
     );
   }, [translate]);
   const trackInputChange = reactExports.useCallback(
-    (text2, editorDoc) => {
-      currentInputTextRef.current = text2;
+    (text, editorDoc) => {
+      currentInputTextRef.current = text;
       currentInputEditorDocRef.current = editorDoc;
       const sessionId = sessionStore.getState().focusedSessionId;
-      const key2 = sessionId ?? DRAFT_NEW_TAB;
+      const key = sessionId ?? DRAFT_NEW_TAB;
       const draft = {
-        text: text2,
+        text,
         editorDoc,
         attachments: currentAttachmentsRef.current,
       };
-      draftController.set(key2, draft);
+      draftController.set(key, draft);
       const activeTextEdit = activeTextEditAgentRef.current;
       if (activeTextEdit) {
         draftController.set(
@@ -552,13 +552,13 @@ export function useChat(
     (attachments) => {
       currentAttachmentsRef.current = attachments;
       const sessionId = sessionStore.getState().focusedSessionId;
-      const key2 = sessionId ?? DRAFT_NEW_TAB;
+      const key = sessionId ?? DRAFT_NEW_TAB;
       const draft = {
         text: currentInputTextRef.current,
         editorDoc: currentInputEditorDocRef.current,
         attachments,
       };
-      draftController.set(key2, draft);
+      draftController.set(key, draft);
       const activeTextEdit = activeTextEditAgentRef.current;
       if (activeTextEdit) {
         draftController.set(
@@ -583,8 +583,8 @@ export function useChat(
   }, []);
   const failPendingCreate = reactExports.useCallback(
     (requestId, userMessage) => {
-      const pending2 = pendingCreatePayloadRef.current;
-      if (!pending2 || pending2.requestId !== requestId) return false;
+      const pending = pendingCreatePayloadRef.current;
+      if (!pending || pending.requestId !== requestId) return false;
       pendingCreatePayloadRef.current = null;
       clearPendingCreateTimeout();
       setCreatingSession(false);
@@ -595,15 +595,15 @@ export function useChat(
       const newTabIsFocused = sessionStore.getState().focusedSessionId === null;
       const preservedDraft = newTabIsFocused
         ? {
-            text: currentInputTextRef.current || pending2.draft.text,
+            text: currentInputTextRef.current || pending.draft.text,
             editorDoc:
-              currentInputEditorDocRef.current ?? pending2.draft.editorDoc,
+              currentInputEditorDocRef.current ?? pending.draft.editorDoc,
             attachments:
               currentAttachmentsRef.current.length > 0
                 ? currentAttachmentsRef.current
-                : pending2.draft.attachments,
+                : pending.draft.attachments,
           }
-        : pending2.draft;
+        : pending.draft;
       draftController.setNow(DRAFT_NEW_TAB, preservedDraft);
       if (newTabIsFocused) {
         currentInputTextRef.current = preservedDraft.text;
@@ -684,8 +684,8 @@ export function useChat(
   );
   const restoreDraft = reactExports.useCallback(() => {
     const sessionId = sessionStore.getState().focusedSessionId;
-    const key2 = sessionId ?? DRAFT_NEW_TAB;
-    const restored = draftController.restore(key2);
+    const key = sessionId ?? DRAFT_NEW_TAB;
+    const restored = draftController.restore(key);
     if (!restored && currentInputTextRef.current) {
       return;
     }
@@ -706,7 +706,7 @@ export function useChat(
   const remoteTool = useRemoteToolSession({
     sessionStore,
     focusedSessionId,
-    send: send2,
+    send,
   });
   const markConfirmedEmptyConversation = reactExports.useCallback(
     (workspaceKey) => {
@@ -721,7 +721,7 @@ export function useChat(
       visibleConversationHydrationRequestsRef,
       retainVisibleTranscriptUntilHydrationRef,
       prepareSessionSwitch,
-      send2,
+      send,
       setConversationLoading,
     );
   const handleSessionTabRestoreSettled = reactExports.useCallback(() => {
@@ -753,26 +753,26 @@ export function useChat(
     if (!sessionId) return false;
     historyReloadSessionByRequestIdRef.current.delete(requestId);
     authoritativeHydrationRequestIdsRef.current.delete(requestId);
-    const timeout2 = historyReloadTimeoutsRef.current.get(requestId);
-    if (timeout2) clearTimeout(timeout2);
+    const timeout = historyReloadTimeoutsRef.current.get(requestId);
+    if (timeout) clearTimeout(timeout);
     historyReloadTimeoutsRef.current.delete(requestId);
     if (
       activeHistoryReloadRequestBySessionRef.current.get(sessionId) ===
       requestId
     ) {
       activeHistoryReloadRequestBySessionRef.current.delete(sessionId);
-      setHistoryReloadingSessionIds((current2) => {
-        if (!current2.has(sessionId)) return current2;
-        const next2 = new Set(current2);
-        next2.delete(sessionId);
-        return next2;
+      setHistoryReloadingSessionIds((current) => {
+        if (!current.has(sessionId)) return current;
+        const next = new Set(current);
+        next.delete(sessionId);
+        return next;
       });
     }
     return true;
   }, []);
   const disposeHistoryReloads = reactExports.useCallback(() => {
-    for (const timeout2 of historyReloadTimeoutsRef.current.values()) {
-      clearTimeout(timeout2);
+    for (const timeout of historyReloadTimeoutsRef.current.values()) {
+      clearTimeout(timeout);
     }
     for (const requestId of historyReloadSessionByRequestIdRef.current.keys()) {
       authoritativeHydrationRequestIdsRef.current.delete(requestId);
@@ -789,8 +789,8 @@ export function useChat(
   const emptyListRetryRef = reactExports.useRef(false);
   const sessionsLoadingRef = reactExports.useRef(sessionsLoading);
   sessionsLoadingRef.current = sessionsLoading;
-  const messagesRef = reactExports.useRef(messages2);
-  messagesRef.current = messages2;
+  const messagesRef = reactExports.useRef(messages);
+  messagesRef.current = messages;
   const busyRef = reactExports.useRef(busy);
   busyRef.current = busy;
   const sentInitialPayloadKeyRef = reactExports.useRef(null);
@@ -805,11 +805,11 @@ export function useChat(
         reason,
         workspace: currentWorkspace,
       };
-      send2({
+      send({
         type: "list_sessions",
       });
     },
-    [currentWorkspace, send2],
+    [currentWorkspace, send],
   );
   const {
     revision: sessionListRevision,
@@ -830,27 +830,27 @@ export function useChat(
   const updateQueuedUserMessages = reactExports.useCallback(
     (sessionId, updater) => {
       const prev = queuedUserMessagesBySessionRef.current;
-      const current2 = prev.get(sessionId) ?? [];
-      const nextMessages = updater(current2);
-      const next2 = new Map(prev);
+      const current = prev.get(sessionId) ?? [];
+      const nextMessages = updater(current);
+      const next = new Map(prev);
       if (nextMessages.length > 0) {
-        next2.set(sessionId, nextMessages);
+        next.set(sessionId, nextMessages);
       } else {
-        next2.delete(sessionId);
+        next.delete(sessionId);
       }
-      queuedUserMessagesBySessionRef.current = next2;
-      setQueuedUserMessagesBySession(next2);
+      queuedUserMessagesBySessionRef.current = next;
+      setQueuedUserMessagesBySession(next);
     },
     [],
   );
   const upsertQueuedUserMessage = reactExports.useCallback(
-    (sessionId, message2) => {
+    (sessionId, message) => {
       updateQueuedUserMessages(sessionId, (prev) => {
-        const index2 = prev.findIndex(
-          (item) => item.clientMessageId === message2.clientMessageId,
+        const index = prev.findIndex(
+          (item) => item.clientMessageId === message.clientMessageId,
         );
-        if (index2 === -1) {
-          return [...prev, message2].sort((leftMessage, rightMessage) => {
+        if (index === -1) {
+          return [...prev, message].sort((leftMessage, rightMessage) => {
             const positionA = leftMessage.position ?? Number.MAX_SAFE_INTEGER;
             const positionB = rightMessage.position ?? Number.MAX_SAFE_INTEGER;
             return positionA === positionB
@@ -858,20 +858,20 @@ export function useChat(
               : positionA - positionB;
           });
         }
-        const next2 = [...prev];
-        next2[index2] = {
-          ...next2[index2],
-          ...message2,
+        const next = [...prev];
+        next[index] = {
+          ...next[index],
+          ...message,
         };
-        return next2;
+        return next;
       });
     },
     [updateQueuedUserMessages],
   );
   const removeQueuedUserMessages = reactExports.useCallback(
-    (sessionId, ids2) => {
-      const queueIds = new Set(ids2.queueIds ?? []);
-      const clientMessageIds = new Set(ids2.clientMessageIds ?? []);
+    (sessionId, ids) => {
+      const queueIds = new Set(ids.queueIds ?? []);
+      const clientMessageIds = new Set(ids.clientMessageIds ?? []);
       updateQueuedUserMessages(sessionId, (prev) => {
         if (queueIds.size === 0 && clientMessageIds.size === 0) return [];
         return prev.filter(
@@ -883,45 +883,45 @@ export function useChat(
     },
     [updateQueuedUserMessages],
   );
-  const upsertMessageDeliveryState = reactExports.useCallback((state2) => {
-    const next2 = new Map(messageDeliveryByClientIdRef.current);
+  const upsertMessageDeliveryState = reactExports.useCallback((state) => {
+    const next = new Map(messageDeliveryByClientIdRef.current);
     const nextState = {
-      ...state2,
+      ...state,
       updatedAt: Date.now(),
     };
-    next2.set(state2.clientMessageId, nextState);
+    next.set(state.clientMessageId, nextState);
     recordMessageDeliveryTrace(nextState);
-    if (next2.size > MESSAGE_DELIVERY_TRACE_LIMIT) {
-      const overflow = next2.size - MESSAGE_DELIVERY_TRACE_LIMIT;
-      const oldestIds = [...next2.values()]
+    if (next.size > MESSAGE_DELIVERY_TRACE_LIMIT) {
+      const overflow = next.size - MESSAGE_DELIVERY_TRACE_LIMIT;
+      const oldestIds = [...next.values()]
         .sort((leftRecord, rightRecord) => leftRecord.updatedAt - rightRecord.updatedAt)
         .slice(0, overflow)
         .map((item) => item.clientMessageId);
       for (const clientMessageId of oldestIds) {
-        const timer2 = messageDeliveryTimersRef.current.get(clientMessageId);
-        if (timer2) {
-          clearTimeout(timer2);
+        const timer = messageDeliveryTimersRef.current.get(clientMessageId);
+        if (timer) {
+          clearTimeout(timer);
           messageDeliveryTimersRef.current.delete(clientMessageId);
         }
-        next2.delete(clientMessageId);
+        next.delete(clientMessageId);
       }
     }
-    messageDeliveryByClientIdRef.current = next2;
-    setMessageDeliveryByClientId(next2);
+    messageDeliveryByClientIdRef.current = next;
+    setMessageDeliveryByClientId(next);
   }, []);
   const clearMessageDeliveryTimer = reactExports.useCallback(
     (clientMessageId) => {
-      const timer2 = messageDeliveryTimersRef.current.get(clientMessageId);
-      if (!timer2) return;
-      clearTimeout(timer2);
+      const timer = messageDeliveryTimersRef.current.get(clientMessageId);
+      if (!timer) return;
+      clearTimeout(timer);
       messageDeliveryTimersRef.current.delete(clientMessageId);
     },
     [],
   );
   const markMessageDeliveryFinal = reactExports.useCallback(
-    (state2) => {
-      clearMessageDeliveryTimer(state2.clientMessageId);
-      upsertMessageDeliveryState(state2);
+    (state) => {
+      clearMessageDeliveryTimer(state.clientMessageId);
+      upsertMessageDeliveryState(state);
     },
     [clearMessageDeliveryTimer, upsertMessageDeliveryState],
   );
@@ -929,14 +929,14 @@ export function useChat(
     (sessionId, clientMessageIds, status) => {
       let settled = false;
       for (const clientMessageId of clientMessageIds) {
-        const current2 = messageDeliveryByClientIdRef.current.get(clientMessageId);
-        if (current2?.sessionId !== sessionId || !isMessagePreflight(current2))
+        const current = messageDeliveryByClientIdRef.current.get(clientMessageId);
+        if (current?.sessionId !== sessionId || !isMessagePreflight(current))
           continue;
         markMessageDeliveryFinal({
           clientMessageId,
           sessionId,
           status,
-          delivery: current2.delivery,
+          delivery: current.delivery,
         });
         settled = true;
       }
@@ -945,7 +945,7 @@ export function useChat(
     [markMessageDeliveryFinal],
   );
   const appendMessageDeliveryError = reactExports.useCallback(
-    (sessionId, content2, errorCode, stage, errorInfo, messageId) => {
+    (sessionId, content, errorCode, stage, errorInfo, messageId) => {
       const details =
         stage && errorInfo?.details
           ? `message_delivery_stage:${stage}
@@ -958,10 +958,10 @@ ${errorInfo.details}`
           id: messageId ?? nextMessageId(),
           role: "agent",
           type: "error",
-          content: errorInfo?.user_message ?? content2,
+          content: errorInfo?.user_message ?? content,
           error: {
             error_code: errorInfo?.error_code ?? errorCode,
-            user_message: errorInfo?.user_message ?? content2,
+            user_message: errorInfo?.user_message ?? content,
             retryable: errorInfo?.retryable ?? true,
             ...(details
               ? {
@@ -978,17 +978,17 @@ ${errorInfo.details}`
   const scheduleMessageDeliveryTimeout = reactExports.useCallback(
     (sessionId, clientMessageId, delivery, expectedStatus, timeoutMs) => {
       clearMessageDeliveryTimer(clientMessageId);
-      const timer2 = setTimeout(() => {
-        const current2 =
+      const timer = setTimeout(() => {
+        const current =
           messageDeliveryByClientIdRef.current.get(clientMessageId);
         messageDeliveryTimersRef.current.delete(clientMessageId);
-        if (!current2 || current2.status !== expectedStatus) return;
+        if (!current || current.status !== expectedStatus) return;
         const timeoutMessage = translate(
           "chat.errors.deliveryTimeoutShort",
           "Message delivery timed out.",
         );
         const timeoutStage =
-          expectedStatus === "sent" && !isMessagePreflight(current2)
+          expectedStatus === "sent" && !isMessagePreflight(current)
             ? "bridge_error"
             : "runtime_timeout";
         if (pendingInitialClientMessageIdRef.current === clientMessageId) {
@@ -1049,7 +1049,7 @@ ${errorInfo.details}`
           },
         );
       }, timeoutMs);
-      messageDeliveryTimersRef.current.set(clientMessageId, timer2);
+      messageDeliveryTimersRef.current.set(clientMessageId, timer);
     },
     [
       appendMessageDeliveryError,
@@ -1080,20 +1080,20 @@ ${errorInfo.details}`
   );
   const markMessageDeliveryReceived = reactExports.useCallback(
     (sessionId, clientMessageId, gatewayTimestamp) => {
-      const current2 =
+      const current =
         messageDeliveryByClientIdRef.current.get(clientMessageId);
       if (
-        current2?.status === "failed" ||
-        current2?.status === "accepted" ||
-        current2?.status === "started" ||
-        (current2?.status === "timeout" && !isBridgeDeliveryTimeout(current2))
+        current?.status === "failed" ||
+        current?.status === "accepted" ||
+        current?.status === "started" ||
+        (current?.status === "timeout" && !isBridgeDeliveryTimeout(current))
       ) {
         return;
       }
-      const recovered = current2
-        ? clearBridgeTimeoutPresentation(sessionStore, current2, true)
+      const recovered = current
+        ? clearBridgeTimeoutPresentation(sessionStore, current, true)
         : false;
-      const delivery = current2?.delivery ?? "normal";
+      const delivery = current?.delivery ?? "normal";
       upsertMessageDeliveryState({
         clientMessageId,
         sessionId,
@@ -1107,9 +1107,9 @@ ${errorInfo.details}`
         "received",
         MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS,
       );
-      if (recovered && current2) {
+      if (recovered && current) {
         recordMessageDeliveryTimeoutRecovered(
-          current2,
+          current,
           "message_received",
           gatewayTimestamp,
         );
@@ -1119,19 +1119,19 @@ ${errorInfo.details}`
   );
   const markMessageDeliveryAccepted = reactExports.useCallback(
     (sessionId, clientMessageId) => {
-      const current2 =
+      const current =
         messageDeliveryByClientIdRef.current.get(clientMessageId);
       if (
-        !current2 ||
-        current2.status === "failed" ||
-        current2.status === "started" ||
-        (current2.status === "timeout" && !isBridgeDeliveryTimeout(current2))
+        !current ||
+        current.status === "failed" ||
+        current.status === "started" ||
+        (current.status === "timeout" && !isBridgeDeliveryTimeout(current))
       ) {
         return;
       }
       const recovered = clearBridgeTimeoutPresentation(
         sessionStore,
-        current2,
+        current,
         true,
       );
       const optimistic = optimisticUserMessagesRef.current.get(sessionId);
@@ -1143,17 +1143,17 @@ ${errorInfo.details}`
         clientMessageId,
         sessionId,
         status: "accepted",
-        delivery: current2.delivery,
+        delivery: current.delivery,
       });
       scheduleMessageDeliveryTimeout(
         sessionId,
         clientMessageId,
-        current2.delivery,
+        current.delivery,
         "accepted",
         MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS,
       );
       if (recovered) {
-        recordMessageDeliveryTimeoutRecovered(current2, "message_accepted");
+        recordMessageDeliveryTimeoutRecovered(current, "message_accepted");
       }
     },
     [
@@ -1165,18 +1165,18 @@ ${errorInfo.details}`
   );
   const markMessageDeliveryStarted = reactExports.useCallback(
     (sessionId, clientMessageId) => {
-      const current2 =
+      const current =
         messageDeliveryByClientIdRef.current.get(clientMessageId);
       if (
-        !current2 ||
-        current2.status === "failed" ||
-        (current2.status === "timeout" && !isBridgeDeliveryTimeout(current2))
+        !current ||
+        current.status === "failed" ||
+        (current.status === "timeout" && !isBridgeDeliveryTimeout(current))
       ) {
         return false;
       }
       const recovered = clearBridgeTimeoutPresentation(
         sessionStore,
-        current2,
+        current,
         true,
       );
       const optimistic = optimisticUserMessagesRef.current.get(sessionId);
@@ -1188,10 +1188,10 @@ ${errorInfo.details}`
         clientMessageId,
         sessionId,
         status: "started",
-        delivery: current2.delivery,
+        delivery: current.delivery,
       });
       if (recovered) {
-        recordMessageDeliveryTimeoutRecovered(current2, "message_started");
+        recordMessageDeliveryTimeoutRecovered(current, "message_started");
       }
       return true;
     },
@@ -1199,16 +1199,16 @@ ${errorInfo.details}`
   );
   const clearMessageDeliveryTimersForSession = reactExports.useCallback(
     (sessionId) => {
-      for (const state2 of messageDeliveryByClientIdRef.current.values()) {
+      for (const state of messageDeliveryByClientIdRef.current.values()) {
         if (
-          state2.sessionId === sessionId &&
-          state2.delivery === "normal" &&
-          !isMessagePreflight(state2) &&
-          (state2.status === "sent" ||
-            state2.status === "received" ||
-            state2.status === "accepted")
+          state.sessionId === sessionId &&
+          state.delivery === "normal" &&
+          !isMessagePreflight(state) &&
+          (state.status === "sent" ||
+            state.status === "received" ||
+            state.status === "accepted")
         ) {
-          clearMessageDeliveryTimer(state2.clientMessageId);
+          clearMessageDeliveryTimer(state.clientMessageId);
         }
       }
     },
@@ -1218,83 +1218,83 @@ ${errorInfo.details}`
     (sessionId) => {
       const queuedIds = new Set(
         (queuedUserMessagesBySessionRef.current.get(sessionId) ?? []).map(
-          (message2) => message2.clientMessageId,
+          (message) => message.clientMessageId,
         ),
       );
-      const active2 = [...messageDeliveryByClientIdRef.current.values()].filter(
-        (state2) =>
-          state2.sessionId === sessionId &&
-          !isMessagePreflight(state2) &&
-          !queuedIds.has(state2.clientMessageId) &&
-          ACTIVE_MESSAGE_DELIVERY_STATUSES.has(state2.status),
+      const active = [...messageDeliveryByClientIdRef.current.values()].filter(
+        (state) =>
+          state.sessionId === sessionId &&
+          !isMessagePreflight(state) &&
+          !queuedIds.has(state.clientMessageId) &&
+          ACTIVE_MESSAGE_DELIVERY_STATUSES.has(state.status),
       );
-      if (active2.length === 0) return;
-      for (const state2 of active2) {
-        clearMessageDeliveryTimer(state2.clientMessageId);
+      if (active.length === 0) return;
+      for (const state of active) {
+        clearMessageDeliveryTimer(state.clientMessageId);
         upsertMessageDeliveryState({
-          clientMessageId: state2.clientMessageId,
-          sessionId: state2.sessionId,
+          clientMessageId: state.clientMessageId,
+          sessionId: state.sessionId,
           status: "completed",
-          delivery: state2.delivery,
+          delivery: state.delivery,
         });
       }
     },
     [clearMessageDeliveryTimer, upsertMessageDeliveryState],
   );
   const clearAllMessageDeliveryTimers = reactExports.useCallback(() => {
-    for (const timer2 of messageDeliveryTimersRef.current.values()) {
-      clearTimeout(timer2);
+    for (const timer of messageDeliveryTimersRef.current.values()) {
+      clearTimeout(timer);
     }
     messageDeliveryTimersRef.current.clear();
   }, []);
   const markUnackedMessageDeliveriesFailedOnDisconnect =
     reactExports.useCallback(() => {
       const states = [...messageDeliveryByClientIdRef.current.values()].filter(
-        (state2) => state2.status === "sent" && !isMessagePreflight(state2),
+        (state) => state.status === "sent" && !isMessagePreflight(state),
       );
       if (states.length === 0) return;
       const disconnectMessage = translate(
         "chat.errors.deliveryDisconnected",
         "Connection lost before the message was acknowledged. Please retry.",
       );
-      for (const state2 of states) {
-        clearMessageDeliveryTimer(state2.clientMessageId);
+      for (const state of states) {
+        clearMessageDeliveryTimer(state.clientMessageId);
         upsertMessageDeliveryState({
-          clientMessageId: state2.clientMessageId,
-          sessionId: state2.sessionId,
+          clientMessageId: state.clientMessageId,
+          sessionId: state.sessionId,
           status: "failed",
-          delivery: state2.delivery,
+          delivery: state.delivery,
           stage: "runtime_send",
           error: disconnectMessage,
         });
-        if (state2.delivery === "normal") {
-          sessionStore.setBusy(false, state2.sessionId);
+        if (state.delivery === "normal") {
+          sessionStore.setBusy(false, state.sessionId);
           appendMessageDeliveryError(
-            state2.sessionId,
+            state.sessionId,
             disconnectMessage,
             ErrorCodes.RUNTIME_CONNECTION_LOST,
           );
           const optimistic = optimisticUserMessagesRef.current.get(
-            state2.sessionId,
+            state.sessionId,
           );
-          if (optimistic?.clientMessageId === state2.clientMessageId) {
-            optimisticUserMessagesRef.current.delete(state2.sessionId);
+          if (optimistic?.clientMessageId === state.clientMessageId) {
+            optimisticUserMessagesRef.current.delete(state.sessionId);
           }
         } else {
-          removeQueuedUserMessages(state2.sessionId, {
-            clientMessageIds: [state2.clientMessageId],
+          removeQueuedUserMessages(state.sessionId, {
+            clientMessageIds: [state.clientMessageId],
           });
         }
         recordMessageDeliveryFailureBreadcrumb(
-          state2.sessionId,
-          state2.clientMessageId,
+          state.sessionId,
+          state.clientMessageId,
           "runtime_send",
           disconnectMessage,
         );
         recordError("chat:message-disconnected-before-ack", {
-          sessionId: state2.sessionId,
-          clientMessageId: state2.clientMessageId,
-          delivery: state2.delivery,
+          sessionId: state.sessionId,
+          clientMessageId: state.clientMessageId,
+          delivery: state.delivery,
         });
       }
     }, [
@@ -1309,26 +1309,26 @@ ${errorInfo.details}`
     (sessionId) => {
       const queuedIds = new Set(
         (queuedUserMessagesBySessionRef.current.get(sessionId) ?? []).map(
-          (message2) => message2.clientMessageId,
+          (message) => message.clientMessageId,
         ),
       );
       const states = [...messageDeliveryByClientIdRef.current.values()];
       let started = false;
-      for (const state2 of states) {
+      for (const state of states) {
         if (
-          state2.sessionId === sessionId &&
-          !queuedIds.has(state2.clientMessageId) &&
-          !isMessagePreflight(state2) &&
-          (state2.status === "sent" ||
-            state2.status === "received" ||
-            state2.status === "accepted")
+          state.sessionId === sessionId &&
+          !queuedIds.has(state.clientMessageId) &&
+          !isMessagePreflight(state) &&
+          (state.status === "sent" ||
+            state.status === "received" ||
+            state.status === "accepted")
         ) {
-          clearMessageDeliveryTimer(state2.clientMessageId);
+          clearMessageDeliveryTimer(state.clientMessageId);
           upsertMessageDeliveryState({
-            clientMessageId: state2.clientMessageId,
+            clientMessageId: state.clientMessageId,
             sessionId,
             status: "started",
-            delivery: state2.delivery,
+            delivery: state.delivery,
           });
           started = true;
         }
@@ -1343,12 +1343,12 @@ ${errorInfo.details}`
       const listedSessionIds = new Set(
         listedSessions.map((session) => session.id),
       );
-      for (const state2 of messageDeliveryByClientIdRef.current.values()) {
-        if (state2.delivery !== "normal") continue;
-        if (!ACTIVE_MESSAGE_DELIVERY_STATUSES.has(state2.status)) continue;
-        if (!busyBeforeSessionList.has(state2.sessionId)) continue;
-        if (!listedSessionIds.has(state2.sessionId)) continue;
-        sessionStore.setBusy(true, state2.sessionId);
+      for (const state of messageDeliveryByClientIdRef.current.values()) {
+        if (state.delivery !== "normal") continue;
+        if (!ACTIVE_MESSAGE_DELIVERY_STATUSES.has(state.status)) continue;
+        if (!busyBeforeSessionList.has(state.sessionId)) continue;
+        if (!listedSessionIds.has(state.sessionId)) continue;
+        sessionStore.setBusy(true, state.sessionId);
       }
     },
     [sessionStore],
@@ -1357,12 +1357,12 @@ ${errorInfo.details}`
     (sessionId, queuedMessages) => {
       if (queuedMessages.length === 0) return;
       sessionStore.updateMessages(sessionId, (prev) => {
-        const existingIds = new Set(prev.map((message2) => message2.id));
-        const next2 = [...prev];
+        const existingIds = new Set(prev.map((message) => message.id));
+        const next = [...prev];
         for (const queued of queuedMessages) {
           const messageId = `queued-user-${queued.client_message_id}`;
           if (existingIds.has(messageId)) continue;
-          next2.push({
+          next.push({
             id: messageId,
             role: "user",
             type: "text",
@@ -1371,7 +1371,7 @@ ${errorInfo.details}`
           });
           existingIds.add(messageId);
         }
-        return next2.length === prev.length ? prev : next2;
+        return next.length === prev.length ? prev : next;
       });
     },
     [sessionStore],
@@ -1379,9 +1379,9 @@ ${errorInfo.details}`
   const registerDocumentEditSubmission = reactExports.useCallback(
     (request, clientMessageId, sessionId) => {
       documentEditRequestByClientIdRef.current.set(clientMessageId, request);
-      setDocumentEditSubmissions((previous2) => {
-        const next2 = new Map(previous2);
-        next2.set(request.requestId, {
+      setDocumentEditSubmissions((previous) => {
+        const next = new Map(previous);
+        next.set(request.requestId, {
           requestId: request.requestId,
           editSessionId: request.editSessionId,
           nodeId: request.document.nodeId,
@@ -1389,14 +1389,14 @@ ${errorInfo.details}`
           sessionId,
           status: "submitting",
         });
-        while (next2.size > DOCUMENT_EDIT_SUBMISSION_LIMIT) {
-          const oldestTerminal = [...next2].find(([, submission]) =>
+        while (next.size > DOCUMENT_EDIT_SUBMISSION_LIMIT) {
+          const oldestTerminal = [...next].find(([, submission]) =>
             ["applied", "conflict", "failed"].includes(submission.status),
           );
           if (!oldestTerminal) break;
-          next2.delete(oldestTerminal[0]);
+          next.delete(oldestTerminal[0]);
         }
-        return next2;
+        return next;
       });
     },
     [],
@@ -1406,12 +1406,12 @@ ${errorInfo.details}`
       const request =
         documentEditRequestByClientIdRef.current.get(clientMessageId);
       if (!request) return;
-      setDocumentEditSubmissions((previous2) => {
-        const current2 = previous2.get(request.requestId);
-        if (!current2) return previous2;
-        const next2 = new Map(previous2);
-        next2.set(request.requestId, {
-          ...current2,
+      setDocumentEditSubmissions((previous) => {
+        const current = previous.get(request.requestId);
+        if (!current) return previous;
+        const next = new Map(previous);
+        next.set(request.requestId, {
+          ...current,
           status,
           ...(error
             ? {
@@ -1419,7 +1419,7 @@ ${errorInfo.details}`
               }
             : {}),
         });
-        return next2;
+        return next;
       });
       if (status === "failed") {
         documentEditRequestByClientIdRef.current.delete(clientMessageId);
@@ -1429,7 +1429,7 @@ ${errorInfo.details}`
   );
   const dispatchQueuedUserMessage = reactExports.useCallback(
     (
-      text2,
+      text,
       attachments,
       canvasNodeAttachments,
       entityRefs,
@@ -1440,8 +1440,8 @@ ${errorInfo.details}`
     ) => {
       const sessionId = sessionStore.getState().focusedSessionId;
       if (!sessionId) return false;
-      const groupId2 = accountScopedMessage.groupId("queue");
-      if (groupId2 === null) return false;
+      const groupId = accountScopedMessage.groupId("queue");
+      if (groupId === null) return false;
       const queuedCount =
         queuedUserMessagesBySessionRef.current.get(sessionId)?.length ?? 0;
       if (queuedCount >= QUEUED_USER_MESSAGE_LIMIT) {
@@ -1459,7 +1459,7 @@ ${errorInfo.details}`
         `queued-${Date.now()}-${Math.random().toString(36)}`;
       const queuedMessage = {
         clientMessageId,
-        text: text2,
+        text,
         status: "sending",
         createdAt: Date.now(),
       };
@@ -1471,30 +1471,30 @@ ${errorInfo.details}`
       }
       upsertQueuedUserMessage(sessionId, queuedMessage);
       requestQueuedMessageScroll(sessionId, clientMessageId);
-      const message2 = {
+      const message = {
         type: "message",
-        content: text2,
+        content: text,
         agent_type: "general",
         delivery: "defer_if_busy",
         client_message_id: clientMessageId,
         session_id: sessionId,
-        group_id: groupId2,
+        group_id: groupId,
         language_detection_text: languageDetectionText,
         browser_context: browserContext,
       };
       if (attachments?.length) {
-        message2.attachments = attachments;
+        message.attachments = attachments;
       }
       if (canvasNodeAttachments?.length) {
-        message2.canvas_node_attachments = canvasNodeAttachments;
+        message.canvas_node_attachments = canvasNodeAttachments;
       }
       if (entityRefs?.length) {
-        message2.entity_refs = entityRefs;
+        message.entity_refs = entityRefs;
       }
       if (queueInsertBefore?.length) {
-        message2.queue_insert_before = [...queueInsertBefore];
+        message.queue_insert_before = [...queueInsertBefore];
       }
-      const sent = send2(message2);
+      const sent = send(message);
       if (!sent) {
         removeQueuedUserMessages(sessionId, {
           clientMessageIds: [clientMessageId],
@@ -1504,7 +1504,7 @@ ${errorInfo.details}`
       markMessageDeliverySent(sessionId, clientMessageId, "defer_if_busy");
       trackEvent(TRACK_EVENTS.CHAT_MESSAGE_SEND, {
         session_id: sessionId,
-        text_length: text2.length,
+        text_length: text.length,
         attachment_count: attachments?.length ?? 0,
         delivery: "defer_if_busy",
       });
@@ -1514,26 +1514,26 @@ ${errorInfo.details}`
       markMessageDeliverySent,
       removeQueuedUserMessages,
       requestQueuedMessageScroll,
-      send2,
+      send,
       sessionStore,
       translate,
       upsertQueuedUserMessage,
     ],
   );
   const sendQueuedUserMessageNow = reactExports.useCallback(
-    (message2) => {
+    (message) => {
       const sessionId = sessionStore.getState().focusedSessionId;
       if (!sessionId) return false;
-      const sent = send2({
+      const sent = send({
         type: "send_queued_user_message_now",
         session_id: sessionId,
-        queue_id: message2.queueId,
-        client_message_id: message2.clientMessageId,
+        queue_id: message.queueId,
+        client_message_id: message.clientMessageId,
       });
       if (!sent) return false;
       updateQueuedUserMessages(sessionId, (prev) =>
         prev.map((item) =>
-          item.clientMessageId === message2.clientMessageId
+          item.clientMessageId === message.clientMessageId
             ? {
                 ...item,
                 status: "sending",
@@ -1543,41 +1543,41 @@ ${errorInfo.details}`
       );
       trackEvent(TRACK_EVENTS.CHAT_MESSAGE_SEND, {
         session_id: sessionId,
-        text_length: message2.text.length,
-        attachment_count: message2.attachments?.length ?? 0,
+        text_length: message.text.length,
+        attachment_count: message.attachments?.length ?? 0,
         delivery: "send_queued_now",
       });
       return true;
     },
-    [send2, sessionStore, updateQueuedUserMessages],
+    [send, sessionStore, updateQueuedUserMessages],
   );
   const reorderQueuedUserMessage = reactExports.useCallback(
     (sourceIndex, targetIndex) => {
       const sessionId = sessionStore.getState().focusedSessionId;
       if (!sessionId) return;
       if (sourceIndex === targetIndex) return;
-      const current2 = queuedUserMessagesBySessionRef.current.get(sessionId) ?? [];
-      if (sourceIndex < 0 || sourceIndex >= current2.length) return;
-      if (targetIndex < 0 || targetIndex >= current2.length) return;
-      const next2 = [...current2];
-      const [moved] = next2.splice(sourceIndex, 1);
+      const current = queuedUserMessagesBySessionRef.current.get(sessionId) ?? [];
+      if (sourceIndex < 0 || sourceIndex >= current.length) return;
+      if (targetIndex < 0 || targetIndex >= current.length) return;
+      const next = [...current];
+      const [moved] = next.splice(sourceIndex, 1);
       if (!moved) return;
       if (moved.status !== "queued") return;
-      next2.splice(targetIndex, 0, moved);
-      const queuedRows = next2.filter((item) => item.status === "queued");
+      next.splice(targetIndex, 0, moved);
+      const queuedRows = next.filter((item) => item.status === "queued");
       if (queuedRows.some((item) => !item.queueId)) return;
-      updateQueuedUserMessages(sessionId, () => next2);
-      send2({
+      updateQueuedUserMessages(sessionId, () => next);
+      send({
         type: "reorder_queued_user_messages",
         session_id: sessionId,
         queue_ids: queuedRows.map((item) => item.queueId),
       });
     },
-    [send2, sessionStore, updateQueuedUserMessages],
+    [send, sessionStore, updateQueuedUserMessages],
   );
   const dispatchUserMessage = reactExports.useCallback(
     (
-      text2,
+      text,
       attachments,
       canvasNodeAttachments,
       entityRefs,
@@ -1600,7 +1600,7 @@ ${errorInfo.details}`
           id: messageId,
           role: "user",
           type: "text",
-          content: text2,
+          content: text,
           attachments: chatAttachments,
           pluginNodeAttachments: pluginNodeAttachments?.length
             ? pluginNodeAttachments
@@ -1621,7 +1621,7 @@ ${errorInfo.details}`
       optimisticUserMessagesRef.current.set(sessionId, {
         messageId,
         clientMessageId,
-        text: text2,
+        text,
         attachments: [...currentAttachmentsRef.current],
       });
       if (documentEditRequest) {
@@ -1631,9 +1631,9 @@ ${errorInfo.details}`
           sessionId,
         );
       }
-      const sent = accountScopedMessage.send("chat", send2, {
+      const sent = accountScopedMessage.send("chat", send, {
         type: "message",
-        content: text2,
+        content: text,
         agent_type: "general",
         attachments,
         attachment_refs: attachmentRefs,
@@ -1663,7 +1663,7 @@ ${errorInfo.details}`
       markMessageDeliverySent(sessionId, clientMessageId, "normal");
       trackEvent(TRACK_EVENTS.CHAT_MESSAGE_SEND, {
         session_id: sessionId,
-        text_length: text2.length,
+        text_length: text.length,
         attachment_count: attachments?.length ?? 0,
       });
       sessionStore.setBusy(true, sessionId);
@@ -1673,7 +1673,7 @@ ${errorInfo.details}`
       markMessageDeliverySent,
       registerDocumentEditSubmission,
       sessionStore,
-      send2,
+      send,
       updateDocumentEditByClientMessage,
     ],
   );
@@ -1690,8 +1690,8 @@ ${errorInfo.details}`
         serverMessage.type === "message_started" ||
         (serverMessage.type === "session_status_changed" && serverMessage.status === "running")
       ) {
-        const timer2 = idleBusyDiagnosticTimersRef.current.get(serverMessage.session_id);
-        if (timer2) clearTimeout(timer2);
+        const timer = idleBusyDiagnosticTimersRef.current.get(serverMessage.session_id);
+        if (timer) clearTimeout(timer);
         idleBusyDiagnosticTimersRef.current.delete(serverMessage.session_id);
       }
       if (serverMessage.type === "session_list" && !textEditBindingsReadyRef.current) {
@@ -1707,7 +1707,7 @@ ${errorInfo.details}`
                 : "chat.errors.mediaReviewBlocked",
             )
           : void 0;
-      const focusSafeMsg = fenceSessionActivation2(
+      const focusSafeMsg = fenceSessionActivation(
         mediaErrorMessage && serverMessage.type === "error" && serverMessage.error
           ? {
               ...serverMessage,
@@ -1779,18 +1779,18 @@ ${errorInfo.details}`
         );
         if (pendingTextCreate) {
           pendingTextEditCreatesRef.current.delete(serverMessage.request_id);
-          const active2 = activeTextEditAgentRef.current;
+          const active = activeTextEditAgentRef.current;
           if (
-            active2 &&
+            active &&
             pendingTextCreate.transactionId ===
-              textEditTransactionId(active2.editor)
+              textEditTransactionId(active.editor)
           ) {
-            const reconnectRetryCount = active2.reconnectFailClosed
-              ? active2.reconnectRetryCount + 1
-              : active2.reconnectRetryCount;
+            const reconnectRetryCount = active.reconnectFailClosed
+              ? active.reconnectRetryCount + 1
+              : active.reconnectRetryCount;
             const failed = {
-              ...active2,
-              status: active2.reconnectFailClosed ? "resolving" : "error",
+              ...active,
+              status: active.reconnectFailClosed ? "resolving" : "error",
               reconnectRetryCount,
             };
             activeTextEditAgentRef.current = failed;
@@ -1801,7 +1801,7 @@ ${errorInfo.details}`
             });
             setSwitching(false);
             setSwitchError(displayError);
-            if (active2.reconnectFailClosed) {
+            if (active.reconnectFailClosed) {
               scheduleSessionListRetry(
                 Math.min(1e3 * 2 ** (reconnectRetryCount - 1), 1e4),
               );
@@ -1809,7 +1809,7 @@ ${errorInfo.details}`
           }
           rejectSessionFocusIntent(
             serverMessage.request_id,
-            active2?.previousSessionId ?? DRAFT_NEW_TAB,
+            active?.previousSessionId ?? DRAFT_NEW_TAB,
           );
           return;
         }
@@ -1830,18 +1830,18 @@ ${errorInfo.details}`
             pendingSwitch.sourceSessionId ?? DRAFT_NEW_TAB,
           );
           setSwitchError(displayError);
-          const active2 = activeTextEditAgentRef.current;
+          const active = activeTextEditAgentRef.current;
           if (
-            active2 &&
+            active &&
             pendingSwitch.textEditTransactionId ===
-              textEditTransactionId(active2.editor)
+              textEditTransactionId(active.editor)
           ) {
-            const reconnectRetryCount = active2.reconnectFailClosed
-              ? active2.reconnectRetryCount + 1
-              : active2.reconnectRetryCount;
+            const reconnectRetryCount = active.reconnectFailClosed
+              ? active.reconnectRetryCount + 1
+              : active.reconnectRetryCount;
             const failed = {
-              ...active2,
-              status: active2.reconnectFailClosed ? "resolving" : "error",
+              ...active,
+              status: active.reconnectFailClosed ? "resolving" : "error",
               reconnectRetryCount,
             };
             activeTextEditAgentRef.current = failed;
@@ -1850,7 +1850,7 @@ ${errorInfo.details}`
               sessionId: failed.sessionId,
               status: failed.status,
             });
-            if (active2.reconnectFailClosed) {
+            if (active.reconnectFailClosed) {
               scheduleSessionListRetry(
                 Math.min(1e3 * 2 ** (reconnectRetryCount - 1), 1e4),
               );
@@ -1890,7 +1890,7 @@ ${errorInfo.details}`
         }
         setSessionsLoading(false);
         void refreshAssetIndex({
-          qc: queryClient2,
+          qc: queryClient,
           gatewayScopeKey,
         });
         if (sessionListReason === "refresh") {
@@ -1971,7 +1971,7 @@ ${errorInfo.details}`
               const request = prepareSessionSwitch(session.id, {
                 activate: false,
               });
-              if (send2(request)) {
+              if (send(request)) {
                 authoritativeHydrationRequestIdsRef.current.add(
                   request.request_id,
                 );
@@ -1979,7 +1979,7 @@ ${errorInfo.details}`
             }
             if (focused) {
               const request = prepareSessionSwitch(focused.id);
-              if (send2(request)) {
+              if (send(request)) {
                 authoritativeHydrationRequestIdsRef.current.add(
                   request.request_id,
                 );
@@ -1998,7 +1998,7 @@ ${errorInfo.details}`
                   sessionStore.openTab(fallback.id);
                 }
                 const request = prepareSessionSwitch(fallback.id);
-                if (send2(request)) {
+                if (send(request)) {
                   authoritativeHydrationRequestIdsRef.current.add(
                     request.request_id,
                   );
@@ -2043,23 +2043,23 @@ ${errorInfo.details}`
           Array.from(documentEditRequestByClientIdRef.current.values()).some(
             (request) => request.requestId === serverMessage.requestId,
           );
-        setDocumentEditSubmissions((previous2) => {
-          const current2 = previous2.get(serverMessage.requestId);
-          if (!current2 || current2.nodeId !== serverMessage.nodeId) return previous2;
-          const next2 = new Map(previous2);
+        setDocumentEditSubmissions((previous) => {
+          const current = previous.get(serverMessage.requestId);
+          if (!current || current.nodeId !== serverMessage.nodeId) return previous;
+          const next = new Map(previous);
           const turnActive =
-            current2.status === "submitting" ||
-            current2.status === "accepted" ||
-            current2.status === "running";
+            current.status === "submitting" ||
+            current.status === "accepted" ||
+            current.status === "running";
           if (serverMessage.status === "conflict" && turnActive) {
-            next2.set(serverMessage.requestId, {
-              ...current2,
+            next.set(serverMessage.requestId, {
+              ...current,
               result: serverMessage,
             });
-            return next2;
+            return next;
           }
-          next2.set(serverMessage.requestId, {
-            ...current2,
+          next.set(serverMessage.requestId, {
+            ...current,
             status: serverMessage.status,
             result: serverMessage,
             ...(serverMessage.error
@@ -2069,9 +2069,9 @@ ${errorInfo.details}`
               : {}),
           });
           documentEditRequestByClientIdRef.current.delete(
-            current2.clientMessageId,
+            current.clientMessageId,
           );
-          return next2;
+          return next;
         });
         if (
           ownsRequest &&
@@ -2095,29 +2095,29 @@ ${errorInfo.details}`
       }
       if (serverMessage.type === "message_received") {
         if (serverMessage.phase) {
-          const current2 = messageDeliveryByClientIdRef.current.get(
+          const current = messageDeliveryByClientIdRef.current.get(
             serverMessage.client_message_id,
           );
           if (
-            current2?.status === "failed" ||
-            current2?.status === "accepted" ||
-            current2?.status === "started" ||
-            current2?.status === "completed"
+            current?.status === "failed" ||
+            current?.status === "accepted" ||
+            current?.status === "started" ||
+            current?.status === "completed"
           )
             return;
-          if (current2)
-            clearBridgeTimeoutPresentation(sessionStore, current2, true);
+          if (current)
+            clearBridgeTimeoutPresentation(sessionStore, current, true);
           upsertMessageDeliveryState({
             clientMessageId: serverMessage.client_message_id,
             sessionId: serverMessage.session_id,
             status: "sent",
             phase: serverMessage.phase,
-            delivery: current2?.delivery ?? "normal",
+            delivery: current?.delivery ?? "normal",
           });
           scheduleMessageDeliveryTimeout(
             serverMessage.session_id,
             serverMessage.client_message_id,
-            current2?.delivery ?? "normal",
+            current?.delivery ?? "normal",
             "sent",
             serverMessage.phase === "media_review"
               ? 11 * 6e4
@@ -2272,19 +2272,19 @@ ${errorInfo.details}`
           return;
         }
         if (isWorkspaceCapacityDeliveryFailure || isMediaReviewFailure) {
-          const optimistic2 = optimisticUserMessagesRef.current.get(
+          const optimistic = optimisticUserMessagesRef.current.get(
             serverMessage.session_id,
           );
-          if (optimistic2?.clientMessageId === serverMessage.client_message_id) {
+          if (optimistic?.clientMessageId === serverMessage.client_message_id) {
             sessionStore.removeMessageById(
               serverMessage.session_id,
-              optimistic2.messageId,
+              optimistic.messageId,
             );
             if (sessionStore.getFocusedSession()?.id === serverMessage.session_id) {
               const restoredAttachments =
                 currentAttachmentsRef.current.length > 0
                   ? currentAttachmentsRef.current
-                  : restoreRejectedAttachments(optimistic2.attachments);
+                  : restoreRejectedAttachments(optimistic.attachments);
               if (
                 currentAttachmentsRef.current.length === 0 &&
                 restoredAttachments.length > 0
@@ -2292,8 +2292,8 @@ ${errorInfo.details}`
                 currentAttachmentsRef.current = restoredAttachments;
                 setPendingAttachments(restoredAttachments);
               }
-              setInput((previous2) => {
-                const restoredText = previous2 || optimistic2.text;
+              setInput((previous) => {
+                const restoredText = previous || optimistic.text;
                 currentInputTextRef.current = restoredText;
                 draftController.setNow(serverMessage.session_id, {
                   text: restoredText,
@@ -2382,8 +2382,8 @@ ${errorInfo.details}`
               .reverse()
               .findIndex((queued) => queued.status === "sending");
             if (lastSendingIndex === -1) return prev;
-            const index2 = prev.length - 1 - lastSendingIndex;
-            return prev.filter((message, index) => index !== index2);
+            const messageIndexToRemove = prev.length - 1 - lastSendingIndex;
+            return prev.filter((message, index) => index !== messageIndexToRemove);
           });
           const optimistic = optimisticUserMessagesRef.current.get(sessionId);
           if (optimistic) {
@@ -2399,7 +2399,7 @@ ${errorInfo.details}`
               );
             }
             if (previousDeliveryState?.status !== "failed") {
-              const errorMessage2 =
+              const errorMessage =
                 serverMessage.error?.user_message ??
                 serverMessage.content ??
                 translate("chat.errors.contentBlocked");
@@ -2409,7 +2409,7 @@ ${errorInfo.details}`
                 status: "failed",
                 delivery: previousDeliveryState?.delivery ?? "normal",
                 stage: "gateway_validation",
-                error: sanitizeMessageDeliveryError(errorMessage2),
+                error: sanitizeMessageDeliveryError(errorMessage),
               });
             }
             sessionStore.removeMessageById(sessionId, optimistic.messageId);
@@ -2506,22 +2506,22 @@ ${errorInfo.details}`
       if (serverMessage.type === "queued_user_messages_started") {
         const startedMessages =
           serverMessage.phase === "preparing"
-            ? serverMessage.messages.filter((message2) => {
-                const current2 = messageDeliveryByClientIdRef.current.get(
-                  message2.client_message_id,
+            ? serverMessage.messages.filter((message) => {
+                const current = messageDeliveryByClientIdRef.current.get(
+                  message.client_message_id,
                 );
                 return (
-                  !current2 ||
-                  (current2.status === "sent" && !current2.phase) ||
-                  current2.status === "received"
+                  !current ||
+                  (current.status === "sent" && !current.phase) ||
+                  current.status === "received"
                 );
               })
             : serverMessage.messages;
         if (startedMessages.length === 0) return;
         if (serverMessage.phase === "preparing") {
-          for (const message2 of startedMessages) {
+          for (const message of startedMessages) {
             markMessageDeliveryFinal({
-              clientMessageId: message2.client_message_id,
+              clientMessageId: message.client_message_id,
               sessionId: serverMessage.session_id,
               status: "sent",
               phase: "preparing",
@@ -2531,14 +2531,14 @@ ${errorInfo.details}`
         } else {
           settlePreflightDeliveries(
             serverMessage.session_id,
-            startedMessages.map((message2) => message2.client_message_id),
+            startedMessages.map((message) => message.client_message_id),
             "started",
           );
         }
         removeQueuedUserMessages(serverMessage.session_id, {
-          queueIds: startedMessages.map((message2) => message2.queue_id),
+          queueIds: startedMessages.map((message) => message.queue_id),
           clientMessageIds: startedMessages.map(
-            (message2) => message2.client_message_id,
+            (message) => message.client_message_id,
           ),
         });
         appendStartedQueuedUserMessages(serverMessage.session_id, startedMessages);
@@ -2565,8 +2565,8 @@ ${errorInfo.details}`
         if (
           settled &&
           ![...messageDeliveryByClientIdRef.current.values()].some(
-            (state2) =>
-              state2.sessionId === serverMessage.session_id && isMessagePreflight(state2),
+            (state) =>
+              state.sessionId === serverMessage.session_id && isMessagePreflight(state),
           )
         ) {
           sessionStore.setBusy(false, serverMessage.session_id);
@@ -2578,26 +2578,26 @@ ${errorInfo.details}`
         return;
       }
       if (serverMessage.type === "queued_user_messages_reordered") {
-        const order2 = new Map(
-          serverMessage.queue_ids.map((queueId, index2) => [queueId, index2]),
+        const order = new Map(
+          serverMessage.queue_ids.map((queueId, index) => [queueId, index]),
         );
         updateQueuedUserMessages(serverMessage.session_id, (prev) => {
           const known = prev.filter(
-            (item) => item.queueId && order2.has(item.queueId),
+            (item) => item.queueId && order.has(item.queueId),
           );
-          const unknown2 = prev.filter(
-            (item) => !item.queueId || !order2.has(item.queueId),
+          const unknown = prev.filter(
+            (item) => !item.queueId || !order.has(item.queueId),
           );
           known.sort(
             (leftQueuedMessage, rightQueuedMessage) =>
-              (order2.get(leftQueuedMessage.queueId) ?? 0) - (order2.get(rightQueuedMessage.queueId) ?? 0),
+              (order.get(leftQueuedMessage.queueId) ?? 0) - (order.get(rightQueuedMessage.queueId) ?? 0),
           );
           return [
-            ...known.map((item, index2) => ({
+            ...known.map((item, index) => ({
               ...item,
-              position: index2 + 1,
+              position: index + 1,
             })),
-            ...unknown2,
+            ...unknown,
           ];
         });
         return;
@@ -2689,13 +2689,13 @@ ${errorInfo.details}`
           idleDiagnostic.rendererBusyBefore ||
           storeBusyAfter
         ) {
-          const timer2 = setTimeout(() => {
+          const timer = setTimeout(() => {
             idleBusyDiagnosticTimersRef.current.delete(
               idleDiagnostic.sessionId,
             );
             if (options.isActive === false) return;
-            const focusedSessionId2 = sessionStore.getState().focusedSessionId;
-            if (focusedSessionId2 !== idleDiagnostic.sessionId) return;
+            const focusedSessionId = sessionStore.getState().focusedSessionId;
+            if (focusedSessionId !== idleDiagnostic.sessionId) return;
             const storeBusy = sessionStore.getSessionBusy(
               idleDiagnostic.sessionId,
             );
@@ -2713,7 +2713,7 @@ ${errorInfo.details}`
           }, RENDERER_IDLE_BUSY_MISMATCH_MS);
           idleBusyDiagnosticTimersRef.current.set(
             idleDiagnostic.sessionId,
-            timer2,
+            timer,
           );
         }
       }
@@ -2752,15 +2752,15 @@ ${errorInfo.details}`
             }
           }
         }
-        const active2 = activeTextEditAgentRef.current;
-        const activeBinding = active2
-          ? textEditBindingsRef.current[active2.editor.nodeId]
+        const active = activeTextEditAgentRef.current;
+        const activeBinding = active
+          ? textEditBindingsRef.current[active.editor.nodeId]
           : void 0;
         const responseBelongsToActiveTextEdit =
-          active2 &&
+          active &&
           (pendingSwitch?.textEditTransactionId ===
-            textEditTransactionId(active2.editor) ||
-            active2.sessionId === focusSafeMsg.session_id ||
+            textEditTransactionId(active.editor) ||
+            active.sessionId === focusSafeMsg.session_id ||
             (Boolean(focusSafeMsg.runtime_session_id) &&
               activeBinding?.runtimeSessionId ===
                 focusSafeMsg.runtime_session_id));
@@ -2769,12 +2769,12 @@ ${errorInfo.details}`
           focusSafeMsg.activated !== false
         ) {
           bindTextEditSession(
-            active2.editor.nodeId,
+            active.editor.nodeId,
             focusSafeMsg.session_id,
             focusSafeMsg.runtime_session_id,
           );
           const ready = {
-            ...active2,
+            ...active,
             sessionId: focusSafeMsg.session_id,
             status: "ready",
             reconnectFailClosed: false,
@@ -2821,10 +2821,10 @@ ${errorInfo.details}`
         trackEvent(TRACK_EVENTS.CHAT_MESSAGE_RECEIVED, {
           session_id: serverMessage.session_id,
         });
-        setDocumentEditSubmissions((previous2) => {
+        setDocumentEditSubmissions((previous) => {
           let changed = false;
-          const next2 = new Map(previous2);
-          for (const [requestId, submission] of previous2) {
+          const next = new Map(previous);
+          for (const [requestId, submission] of previous) {
             if (
               submission.sessionId !== serverMessage.session_id ||
               submission.status === "applied" ||
@@ -2834,7 +2834,7 @@ ${errorInfo.details}`
               continue;
             }
             changed = true;
-            next2.set(
+            next.set(
               requestId,
               submission.result?.status === "conflict"
                 ? {
@@ -2852,7 +2852,7 @@ ${errorInfo.details}`
               submission.clientMessageId,
             );
           }
-          return changed ? next2 : previous2;
+          return changed ? next : previous;
         });
       }
       const terminalSessionId = rootRuntimeTerminalSessionId(serverMessage);
@@ -2861,9 +2861,9 @@ ${errorInfo.details}`
         completeActiveMessageDeliveriesForSession(terminalSessionId);
         if (
           [...messageDeliveryByClientIdRef.current.values()].some(
-            (state2) =>
-              state2.sessionId === terminalSessionId &&
-              isMessagePreflight(state2),
+            (state) =>
+              state.sessionId === terminalSessionId &&
+              isMessagePreflight(state),
           )
         ) {
           sessionStore.setBusy(true, terminalSessionId);
@@ -2890,17 +2890,17 @@ ${errorInfo.details}`
         }
         if (pendingTextEditCreate && focusSafeMsg.request_id) {
           pendingTextEditCreatesRef.current.delete(focusSafeMsg.request_id);
-          const active2 = activeTextEditAgentRef.current;
+          const active = activeTextEditAgentRef.current;
           if (
-            active2 &&
+            active &&
             pendingTextEditCreate.transactionId ===
-              textEditTransactionId(active2.editor) &&
+              textEditTransactionId(active.editor) &&
             focusSafeMsg.activated !== false
           ) {
             const restored =
               draftController.restore(focusSafeMsg.session_id) ??
               draftController.restore(
-                textEditNodeDraftKey(active2.editor.nodeId),
+                textEditNodeDraftKey(active.editor.nodeId),
               );
             if (restored && restored.droppedCount > 0)
               notifyDroppedAttachments();
@@ -2917,7 +2917,7 @@ ${errorInfo.details}`
             else setPendingEditorReset((value) => value + 1);
             setSwitching(false);
             const ready = {
-              ...active2,
+              ...active,
               sessionId: focusSafeMsg.session_id,
               status: "ready",
               reconnectFailClosed: false,
@@ -2940,25 +2940,25 @@ ${errorInfo.details}`
           },
           draftController,
           dispatchUserMessage,
-          handleActivated: (message2) => {
+          handleActivated: (message) => {
             trackEvent(TRACK_EVENTS.CHAT_SESSION_CREATE, {
-              session_id: message2.session_id,
+              session_id: message.session_id,
             });
             setPendingNewTab(false);
-            if (message2.model_id) syncSelectedModelId(message2.model_id);
+            if (message.model_id) syncSelectedModelId(message.model_id);
           },
           handleActivatedForkDraft: (forkDraft) => {
             currentInputTextRef.current = forkDraft;
             setInput(forkDraft);
           },
-          handleCreateDispatched: (message2, payload) => {
+          handleCreateDispatched: (message, payload) => {
             clearPendingCreateTimeout();
             setCreatingSession(false);
             settleCreatedComposerDraft(focusSafeMsg, payload, draftController, {
               active:
-                message2.activated !== false &&
+                message.activated !== false &&
                 sessionStore.getState().focusedSessionId ===
-                  message2.session_id,
+                  message.session_id,
               input: currentInputTextRef,
               editorDoc: currentInputEditorDocRef,
               attachments: currentAttachmentsRef,
@@ -2968,10 +2968,10 @@ ${errorInfo.details}`
               setPendingComposerReset,
             });
           },
-          handleCreateDispatchFailed: (message2, payload) => {
+          handleCreateDispatchFailed: (message, payload) => {
             if (failPendingCreate(payload.requestId)) {
               draftController.clear(DRAFT_NEW_TAB);
-              draftController.setNow(message2.session_id, payload.draft);
+              draftController.setNow(message.session_id, payload.draft);
             }
           },
         });
@@ -2990,7 +2990,7 @@ ${errorInfo.details}`
       ensureTextAgentIntro,
       failPendingCreate,
       failVisibleConversationHydration,
-      fenceSessionActivation2,
+      fenceSessionActivation,
       finishHistoryReload,
       gatewayScopeKey,
       handleSessionStalledMessage,
@@ -3003,13 +3003,13 @@ ${errorInfo.details}`
       notifyDroppedAttachments,
       options.isActive,
       prepareSessionSwitch,
-      queryClient2,
+      queryClient,
       remoteTool.handleRemoteToolWsMessage,
       removeQueuedUserMessages,
       rejectSessionFocusIntent,
       reportInitialPayloadHydrationStalled,
       requestSessionList,
-      send2,
+      send,
       restoreBusySessionsAfterSessionList,
       handleSessionListRecovered,
       handleSessionListUnavailable,
@@ -3031,10 +3031,10 @@ ${errorInfo.details}`
   );
   reactExports.useEffect(() => {
     if (!textEditBindingsReadyRef.current) return;
-    const pending2 = pendingSessionListUntilBindingsRef.current;
-    if (!pending2) return;
+    const pending = pendingSessionListUntilBindingsRef.current;
+    if (!pending) return;
     pendingSessionListUntilBindingsRef.current = void 0;
-    handleMessage(pending2);
+    handleMessage(pending);
   }, [handleMessage, textEditBindingsReadyVersion]);
   reactExports.useEffect(() => {
     let prevFocusedId = sessionStore.getState().focusedSessionId;
@@ -3046,10 +3046,10 @@ ${errorInfo.details}`
     let flushTimer = null;
     const applySnapshot = (includeColdState = true) => {
       flushTimer = null;
-      const state2 = sessionStore.getState();
-      const currentFocusedId = state2.focusedSessionId;
+      const state = sessionStore.getState();
+      const currentFocusedId = state.focusedSessionId;
       const focused = currentFocusedId
-        ? state2.sessions.get(currentFocusedId)
+        ? state.sessions.get(currentFocusedId)
         : void 0;
       const focusedMessages = sessionStore.getFocusedMessages();
       const preserveVisibleConversation =
@@ -3065,12 +3065,12 @@ ${errorInfo.details}`
       }
       if (includeColdState) {
         prevFocusedName = focused?.displayName || focused?.name;
-        prevTabOrder = state2.openedTabOrder;
+        prevTabOrder = state.openedTabOrder;
         setSessions(sessionStore.getSessionList());
-        setOpenedTabOrder(state2.openedTabOrder);
-        setOpenedTabIds(state2.openedTabIds);
-        remoteTool.pruneForLiveSessions(state2.sessions);
-        pruneStalledSessions(state2.sessions);
+        setOpenedTabOrder(state.openedTabOrder);
+        setOpenedTabIds(state.openedTabIds);
+        remoteTool.pruneForLiveSessions(state.sessions);
+        pruneStalledSessions(state.sessions);
         if (focused) {
           syncSelectedMediaModels(focused.selectedMediaModels);
           syncSelectedModelId(focused.modelId || null);
@@ -3085,14 +3085,14 @@ ${errorInfo.details}`
       }
     };
     const scheduleSnapshot = () => {
-      const state2 = sessionStore.getState();
-      const currentFocusedId = state2.focusedSessionId;
+      const state = sessionStore.getState();
+      const currentFocusedId = state.focusedSessionId;
       const focused = currentFocusedId
-        ? state2.sessions.get(currentFocusedId)
+        ? state.sessions.get(currentFocusedId)
         : void 0;
       const focusedName = focused?.displayName || focused?.name;
       const nameChanged = focusedName !== prevFocusedName;
-      const tabsChanged = state2.openedTabOrder !== prevTabOrder;
+      const tabsChanged = state.openedTabOrder !== prevTabOrder;
       const shouldThrottle =
         !nameChanged &&
         !tabsChanged &&
@@ -3135,26 +3135,26 @@ ${errorInfo.details}`
   }, [sessions, connected, sessionStore]);
   reactExports.useEffect(() => {
     if (!isSessionCachePolicyEnabled(SAFE_WARM_SESSION_FLAG)) return void 0;
-    const timer2 = setInterval(() => {
+    const timer = setInterval(() => {
       controller.warmIdleSessions({
         keepCount: SAFE_WARM_SESSION_KEEP_COUNT,
         minPartCount: SAFE_WARM_SESSION_MIN_PART_COUNT,
         trimMessages: false,
       });
     }, SAFE_WARM_SESSION_INTERVAL_MS);
-    return () => clearInterval(timer2);
+    return () => clearInterval(timer);
   }, [controller]);
   reactExports.useEffect(() => {
     if (options.isActive !== false) return void 0;
     if (!isSessionCachePolicyEnabled(SAFE_COLD_SESSION_FLAG)) return void 0;
-    const timer2 = setInterval(() => {
+    const timer = setInterval(() => {
       controller.coldIdleSessions({
         minPartCount: SAFE_COLD_SESSION_MIN_PART_COUNT,
         includeFocused: true,
         clearMessages: false,
       });
     }, SAFE_COLD_SESSION_INTERVAL_MS);
-    return () => clearInterval(timer2);
+    return () => clearInterval(timer);
   }, [controller, options.isActive]);
   reactExports.useEffect(() => {
     const unsubscribe = window.hilo?.diagnostics?.onMemoryPressure?.(() => {
@@ -3172,8 +3172,8 @@ ${errorInfo.details}`
     store.getState().clearSession();
     const cachedSession = diffReviewSessionCacheRef.current;
     if (cachedSession) store.getState().restoreRetainedSession(cachedSession);
-    const unsubscribe = store.subscribe((state2) => {
-      diffReviewSessionCacheRef.current = state2.session;
+    const unsubscribe = store.subscribe((state) => {
+      diffReviewSessionCacheRef.current = state.session;
     });
     return () => {
       diffReviewSessionCacheRef.current = store.getState().session;
@@ -3191,17 +3191,17 @@ ${errorInfo.details}`
   const handleMessageRef = reactExports.useRef(handleMessage);
   handleMessageRef.current = handleMessage;
   reactExports.useEffect(() => {
-    return subscribe2((serverMessage) => handleMessageRef.current(serverMessage));
-  }, [subscribe2]);
+    return subscribe((serverMessage) => handleMessageRef.current(serverMessage));
+  }, [subscribe]);
   reactExports.useEffect(() => {
     if (!currentWorkspace) return;
-    const hiloApp2 = instantiationService.invokeFunction((accessor) =>
+    const hiloApp = instantiationService.invokeFunction((accessor) =>
       accessor.get(IHiloApp),
     );
     const ordinaryFocusedSessionId = textEditAgentState
       ? (activeTextEditAgentRef.current?.previousSessionId ?? null)
       : focusedSessionId;
-    hiloApp2
+    hiloApp
       .updateFocusedSession(currentWorkspace, ordinaryFocusedSessionId)
       .catch((error) => {
         console.warn("[use-chat] updateFocusedSession failed", error);
@@ -3221,12 +3221,12 @@ ${errorInfo.details}`
       }
       markUnackedMessageDeliveriesFailedOnDisconnect();
       clearAllMessageDeliveryTimers();
-      const state2 = sessionStore.getState();
+      const state = sessionStore.getState();
       retainVisibleTranscriptUntilHydrationRef.current =
         sessionStore.getFocusedMessages().length > 0;
-      if (state2.openedTabIds.size > 0) {
-        const previousRefs = state2.openedTabOrder.map((uiSessionId) => {
-          const session = state2.sessions.get(uiSessionId);
+      if (state.openedTabIds.size > 0) {
+        const previousRefs = state.openedTabOrder.map((uiSessionId) => {
+          const session = state.sessions.get(uiSessionId);
           return {
             uiSessionId,
             ...(session?.runtimeSessionId
@@ -3238,9 +3238,9 @@ ${errorInfo.details}`
         });
         previousSessionRefsRef.current =
           previousRefs.length > 0 ? previousRefs : null;
-        previousFocusedRef.current = state2.focusedSessionId
+        previousFocusedRef.current = state.focusedSessionId
           ? (previousRefs.find(
-              (sessionReference) => sessionReference.uiSessionId === state2.focusedSessionId,
+              (sessionReference) => sessionReference.uiSessionId === state.focusedSessionId,
             ) ?? null)
           : null;
       }
@@ -3296,8 +3296,8 @@ ${errorInfo.details}`
   }, [clearAllMessageDeliveryTimers]);
   reactExports.useEffect(() => {
     return () => {
-      for (const timer2 of idleBusyDiagnosticTimersRef.current.values())
-        clearTimeout(timer2);
+      for (const timer of idleBusyDiagnosticTimersRef.current.values())
+        clearTimeout(timer);
       idleBusyDiagnosticTimersRef.current.clear();
     };
   }, []);
@@ -3329,20 +3329,20 @@ ${errorInfo.details}`
     },
   );
   const switchChatSession = reactExports.useCallback(
-    (sessionId, options2) => {
+    (sessionId, options) => {
       clearPendingSessionSwitch();
-      if (options2?.openTab !== false) {
+      if (options?.openTab !== false) {
         sessionStore.openTab(sessionId);
       }
       setPendingNewTab(false);
-      if (options2?.track !== false) {
+      if (options?.track !== false) {
         trackEvent(TRACK_EVENTS.CHAT_SESSION_SWITCH, {
           session_id: sessionId,
         });
       }
       const currentId = sessionStore.getState().focusedSessionId;
       const currentDraftKey = currentId ?? DRAFT_NEW_TAB;
-      if (!options2?.textEditTransactionId) {
+      if (!options?.textEditTransactionId) {
         draftController.setNow(currentDraftKey, {
           text: currentInputTextRef.current,
           editorDoc: currentInputEditorDocRef.current,
@@ -3351,8 +3351,8 @@ ${errorInfo.details}`
       }
       const restored =
         draftController.restore(sessionId) ??
-        (options2?.fallbackDraftKey
-          ? draftController.restore(options2.fallbackDraftKey)
+        (options?.fallbackDraftKey
+          ? draftController.restore(options.fallbackDraftKey)
           : null);
       if (restored && restored.droppedCount > 0) notifyDroppedAttachments();
       const targetDraft = restored?.draft ?? {
@@ -3372,7 +3372,7 @@ ${errorInfo.details}`
       if (
         existingSession &&
         existingSession.messages.length > 0 &&
-        !options2?.textEditTransactionId
+        !options?.textEditTransactionId
       ) {
         requestSessionFocus(sessionId);
         sessionStore.focusSession(sessionId);
@@ -3384,10 +3384,10 @@ ${errorInfo.details}`
       setSwitching(true);
       setSwitchError(null);
       const switchRequest = prepareSessionSwitch(
-        options2?.wsSessionId ?? sessionId,
+        options?.wsSessionId ?? sessionId,
         {
           activate: true,
-          origin: options2?.origin,
+          origin: options?.origin,
         },
       );
       pendingSessionSwitchRef.current = {
@@ -3395,13 +3395,13 @@ ${errorInfo.details}`
         sourceSessionId: currentId,
         targetSessionId: sessionId,
         targetDraft,
-        ...(options2?.textEditTransactionId
+        ...(options?.textEditTransactionId
           ? {
-              textEditTransactionId: options2.textEditTransactionId,
+              textEditTransactionId: options.textEditTransactionId,
             }
           : {}),
       };
-      if (send2(switchRequest)) return true;
+      if (send(switchRequest)) return true;
       cancelPendingSessionSwitch(currentId ?? DRAFT_NEW_TAB);
       setSwitchError(sessionSwitchNotConnectedMessage(translate));
       return false;
@@ -3413,7 +3413,7 @@ ${errorInfo.details}`
       notifyDroppedAttachments,
       prepareSessionSwitch,
       requestSessionFocus,
-      send2,
+      send,
       sessionStore,
       translate,
     ],
@@ -3435,25 +3435,25 @@ ${errorInfo.details}`
           origin: message.origin,
         });
       }
-      return send2(message);
+      return send(message);
     },
-    [activateNewTabDraft, send2, switchChatSession],
+    [activateNewTabDraft, send, switchChatSession],
   );
   const resolveActiveTextEditAgent = reactExports.useCallback(() => {
-    const active2 = activeTextEditAgentRef.current;
+    const active = activeTextEditAgentRef.current;
     if (
-      !active2 ||
-      active2.status !== "resolving" ||
-      !active2.bindingLoaded ||
+      !active ||
+      active.status !== "resolving" ||
+      !active.bindingLoaded ||
       sessionsLoadingRef.current ||
       !connectedRef.current
     ) {
       return;
     }
-    const transactionId = textEditTransactionId(active2.editor);
-    const state2 = sessionStore.getState();
-    const binding = textEditBindingsRef.current[active2.editor.nodeId];
-    let targetSessionId = resolveTextEditSessionId(binding, state2);
+    const transactionId = textEditTransactionId(active.editor);
+    const state = sessionStore.getState();
+    const binding = textEditBindingsRef.current[active.editor.nodeId];
+    let targetSessionId = resolveTextEditSessionId(binding, state);
     if (!targetSessionId && binding?.runtimeSessionId) {
       targetSessionId = binding.runtimeSessionId;
       sessionStore.createSession(
@@ -3479,9 +3479,9 @@ ${errorInfo.details}`
     if (targetSessionId) {
       const runtimeSwitchTarget =
         binding?.runtimeSessionId ??
-        state2.sessions.get(targetSessionId)?.runtimeSessionId;
+        state.sessions.get(targetSessionId)?.runtimeSessionId;
       let updated = {
-        ...active2,
+        ...active,
         sessionId: targetSessionId,
       };
       activeTextEditAgentRef.current = updated;
@@ -3494,7 +3494,7 @@ ${errorInfo.details}`
       const switched = switchChatSession(targetSessionId, {
         openTab: false,
         textEditTransactionId: transactionId,
-        fallbackDraftKey: textEditNodeDraftKey(active2.editor.nodeId),
+        fallbackDraftKey: textEditNodeDraftKey(active.editor.nodeId),
         track: false,
         ...(runtimeSwitchTarget && runtimeSwitchTarget !== targetSessionId
           ? {
@@ -3503,23 +3503,23 @@ ${errorInfo.details}`
           : {}),
       });
       if (!switched) {
-        const failed2 = {
+        const failed = {
           ...updated,
           status: "error",
         };
-        activeTextEditAgentRef.current = failed2;
+        activeTextEditAgentRef.current = failed;
         setTextEditAgentState({
-          editor: failed2.editor,
-          sessionId: failed2.sessionId,
-          status: failed2.status,
+          editor: failed.editor,
+          sessionId: failed.sessionId,
+          status: failed.status,
         });
         return;
       }
-      const pending2 = pendingSessionSwitchRef.current;
-      if (pending2?.textEditTransactionId === transactionId) {
+      const pending = pendingSessionSwitchRef.current;
+      if (pending?.textEditTransactionId === transactionId) {
         updated = {
           ...updated,
-          requestId: pending2.requestId,
+          requestId: pending.requestId,
         };
         activeTextEditAgentRef.current = updated;
         setTextEditAgentState({
@@ -3530,7 +3530,7 @@ ${errorInfo.details}`
       }
       if (
         sessionStore.getState().focusedSessionId === targetSessionId &&
-        pending2?.textEditTransactionId !== transactionId
+        pending?.textEditTransactionId !== transactionId
       ) {
         const ready = {
           ...updated,
@@ -3550,19 +3550,19 @@ ${errorInfo.details}`
     }
     const requestId = beginCreateFocusIntent(transactionId);
     const creating = {
-      ...active2,
+      ...active,
       requestId,
     };
     activeTextEditAgentRef.current = creating;
     pendingTextEditCreatesRef.current.set(requestId, {
       requestId,
       transactionId,
-      nodeId: active2.editor.nodeId,
+      nodeId: active.editor.nodeId,
     });
     sessionStore.clearFocusedSession();
     setSwitching(true);
     setSwitchError(null);
-    const sent = send2({
+    const sent = send({
       type: "create_session",
       request_id: requestId,
       name: nodeEditSessionName(
@@ -3605,27 +3605,27 @@ ${errorInfo.details}`
     getSelectedModelId,
     publishTextEditSessionIds,
     rejectSessionFocusIntent,
-    send2,
+    send,
     sessionStore,
     switchChatSession,
     translate,
   ]);
   const enterTextEditAgent = reactExports.useCallback(
     (editor, kind = "text", agentName) => {
-      const current2 = activeTextEditAgentRef.current;
-      if (current2 && sameTextEditSession(current2.editor, editor)) return;
+      const current = activeTextEditAgentRef.current;
+      if (current && sameTextEditSession(current.editor, editor)) return;
       nodeEditAgentKindRef.current = kind;
       nodeEditAgentNameRef.current = agentName;
-      if (current2) {
+      if (current) {
         supersedeSessionFocusIntent(textEditTransactionId(editor));
         clearPendingSessionSwitch();
       }
-      const state2 = sessionStore.getState();
+      const state = sessionStore.getState();
       const previousSessionId =
-        current2?.previousSessionId ?? state2.focusedSessionId;
+        current?.previousSessionId ?? state.focusedSessionId;
       const previousPendingNewTab =
-        current2?.previousPendingNewTab ?? pendingNewTab;
-      const currentDraftKey = state2.focusedSessionId ?? DRAFT_NEW_TAB;
+        current?.previousPendingNewTab ?? pendingNewTab;
+      const currentDraftKey = state.focusedSessionId ?? DRAFT_NEW_TAB;
       draftController.setNow(currentDraftKey, {
         text: currentInputTextRef.current,
         editorDoc: currentInputEditorDocRef.current,
@@ -3660,8 +3660,8 @@ ${errorInfo.details}`
         textEditBindingPersister,
         currentWorkspace,
       ).then(({ bindings, fallbackReason }) => {
-        const latest2 = activeTextEditAgentRef.current;
-        if (!latest2 || textEditTransactionId(latest2.editor) !== transactionId)
+        const latest = activeTextEditAgentRef.current;
+        if (!latest || textEditTransactionId(latest.editor) !== transactionId)
           return;
         if (fallbackReason) {
           chatLog.warn("text-edit binding load fallback", {
@@ -3673,7 +3673,7 @@ ${errorInfo.details}`
           textEditBindingsRef.current,
         );
         const resolved = {
-          ...latest2,
+          ...latest,
           bindingLoaded: true,
         };
         activeTextEditAgentRef.current = resolved;
@@ -3695,23 +3695,23 @@ ${errorInfo.details}`
   );
   const leaveTextEditAgent = reactExports.useCallback(
     (editor) => {
-      const active2 = activeTextEditAgentRef.current;
-      if (!active2 || !sameTextEditSession(active2.editor, editor)) return;
-      const returnTarget = active2.previousSessionId ?? DRAFT_NEW_TAB;
+      const active = activeTextEditAgentRef.current;
+      if (!active || !sameTextEditSession(active.editor, editor)) return;
+      const returnTarget = active.previousSessionId ?? DRAFT_NEW_TAB;
       supersedeSessionFocusIntent(returnTarget);
       clearPendingSessionSwitch();
       if (
-        active2.sessionId &&
-        sessionStore.getState().focusedSessionId === active2.sessionId
+        active.sessionId &&
+        sessionStore.getState().focusedSessionId === active.sessionId
       ) {
         const textDraft = {
           text: currentInputTextRef.current,
           editorDoc: currentInputEditorDocRef.current,
           attachments: currentAttachmentsRef.current,
         };
-        draftController.setNow(active2.sessionId, textDraft);
+        draftController.setNow(active.sessionId, textDraft);
         draftController.setNow(
-          textEditNodeDraftKey(active2.editor.nodeId),
+          textEditNodeDraftKey(active.editor.nodeId),
           textDraft,
         );
       }
@@ -3722,8 +3722,8 @@ ${errorInfo.details}`
       setSwitching(false);
       setSwitchError(null);
       publishTextEditSessionIds();
-      const previousSession = active2.previousSessionId
-        ? sessionStore.getState().sessions.get(active2.previousSessionId)
+      const previousSession = active.previousSessionId
+        ? sessionStore.getState().sessions.get(active.previousSessionId)
         : void 0;
       const draftKey = previousSession ? previousSession.id : DRAFT_NEW_TAB;
       const restored = draftController.restore(draftKey);
@@ -3746,7 +3746,7 @@ ${errorInfo.details}`
         setPendingNewTab(false);
       } else {
         sessionStore.clearFocusedSession();
-        setPendingNewTab(active2.previousPendingNewTab);
+        setPendingNewTab(active.previousPendingNewTab);
       }
     },
     [
@@ -3760,14 +3760,14 @@ ${errorInfo.details}`
     ],
   );
   const resetTextEditComposer = reactExports.useCallback(
-    (active2) => {
+    (active) => {
       const draft = {
         text: currentInputTextRef.current,
         editorDoc: currentInputEditorDocRef.current,
         attachments: currentAttachmentsRef.current,
       };
-      if (active2.sessionId) draftController.setNow(active2.sessionId, draft);
-      draftController.setNow(textEditNodeDraftKey(active2.editor.nodeId), {
+      if (active.sessionId) draftController.setNow(active.sessionId, draft);
+      draftController.setNow(textEditNodeDraftKey(active.editor.nodeId), {
         text: "",
         editorDoc: void 0,
         attachments: [],
@@ -3782,10 +3782,10 @@ ${errorInfo.details}`
     [draftController],
   );
   const newTextEditSession = reactExports.useCallback(() => {
-    const active2 = activeTextEditAgentRef.current;
-    if (!active2 || active2.status === "resolving") return;
-    const nodeId = active2.editor.nodeId;
-    resetTextEditComposer(active2);
+    const active = activeTextEditAgentRef.current;
+    if (!active || active.status === "resolving") return;
+    const nodeId = active.editor.nodeId;
+    resetTextEditComposer(active);
     textEditBindingsRef.current = {
       ...textEditBindingsRef.current,
       [nodeId]: clearActiveTextEditSession(
@@ -3794,10 +3794,10 @@ ${errorInfo.details}`
       ),
     };
     void textEditBindingPersister.clearActive(currentWorkspace, nodeId);
-    supersedeSessionFocusIntent(textEditTransactionId(active2.editor));
+    supersedeSessionFocusIntent(textEditTransactionId(active.editor));
     clearPendingSessionSwitch();
     const transaction = {
-      ...active2,
+      ...active,
       sessionId: null,
       status: "resolving",
       requestId: void 0,
@@ -3821,10 +3821,10 @@ ${errorInfo.details}`
   ]);
   const switchTextEditSession = reactExports.useCallback(
     (sessionId) => {
-      const active2 = activeTextEditAgentRef.current;
-      if (!active2 || active2.status === "resolving") return;
-      if (active2.sessionId === sessionId) return;
-      const nodeId = active2.editor.nodeId;
+      const active = activeTextEditAgentRef.current;
+      if (!active || active.status === "resolving") return;
+      if (active.sessionId === sessionId) return;
+      const nodeId = active.editor.nodeId;
       const binding = textEditBindingsRef.current[nodeId];
       const ownedIds = collectBindingSessionIds(binding);
       const session = sessionStore.getState().sessions.get(sessionId);
@@ -3834,7 +3834,7 @@ ${errorInfo.details}`
           session?.runtimeSessionId && ownedIds.has(session.runtimeSessionId),
         );
       if (!owned) return;
-      resetTextEditComposer(active2);
+      resetTextEditComposer(active);
       const entry = {
         uiSessionId: sessionId,
         runtimeSessionId: session?.runtimeSessionId,
@@ -3845,10 +3845,10 @@ ${errorInfo.details}`
         [nodeId]: upsertTextEditSessionEntry(binding, entry),
       };
       void textEditBindingPersister.upsert(currentWorkspace, nodeId, entry);
-      supersedeSessionFocusIntent(textEditTransactionId(active2.editor));
+      supersedeSessionFocusIntent(textEditTransactionId(active.editor));
       clearPendingSessionSwitch();
       const transaction = {
-        ...active2,
+        ...active,
         sessionId: null,
         status: "resolving",
         requestId: void 0,
@@ -3886,30 +3886,30 @@ ${errorInfo.details}`
       textEditBindingsRef.current = remaining;
       publishTextEditSessionIds();
       void textEditBindingPersister.remove(currentWorkspace, nodeId);
-      const state2 = sessionStore.getState();
+      const state = sessionStore.getState();
       const purged = new Set();
       for (const entry of listTextEditSessionEntries(binding)) {
         const target =
           entry.runtimeSessionId ??
           (entry.uiSessionId
-            ? (state2.sessions.get(entry.uiSessionId)?.runtimeSessionId ??
+            ? (state.sessions.get(entry.uiSessionId)?.runtimeSessionId ??
               entry.uiSessionId)
             : void 0);
         if (!target || purged.has(target)) continue;
         purged.add(target);
-        send2({
+        send({
           type: "delete_session",
           session_id: target,
         });
       }
       for (const sessionId of collectBindingSessionIds(binding)) {
-        if (state2.sessions.has(sessionId)) sessionStore.removeSession(sessionId);
+        if (state.sessions.has(sessionId)) sessionStore.removeSession(sessionId);
       }
     },
     [
       currentWorkspace,
       publishTextEditSessionIds,
-      send2,
+      send,
       sessionStore,
       textEditBindingPersister,
     ],
@@ -3942,21 +3942,21 @@ ${errorInfo.details}`
           ? pendingSwitchAtStart.requestId
           : void 0;
     if (!requestIdAtStart) return;
-    const timer2 = setTimeout(() => {
-      const active2 = activeTextEditAgentRef.current;
+    const timer = setTimeout(() => {
+      const active = activeTextEditAgentRef.current;
       if (
-        !active2 ||
-        active2.status !== "resolving" ||
-        textEditTransactionId(active2.editor) !== transactionId
+        !active ||
+        active.status !== "resolving" ||
+        textEditTransactionId(active.editor) !== transactionId
       ) {
         return;
       }
-      if (active2.reconnectFailClosed) return;
+      if (active.reconnectFailClosed) return;
       const pendingSwitch = pendingSessionSwitchRef.current;
       const requestId =
-        active2.requestId &&
-        pendingTextEditCreatesRef.current.has(active2.requestId)
-          ? active2.requestId
+        active.requestId &&
+        pendingTextEditCreatesRef.current.has(active.requestId)
+          ? active.requestId
           : pendingSwitch?.textEditTransactionId === transactionId
             ? pendingSwitch.requestId
             : void 0;
@@ -3964,14 +3964,14 @@ ${errorInfo.details}`
       if (requestId) {
         rejectSessionFocusIntent(
           requestId,
-          active2.previousSessionId ?? DRAFT_NEW_TAB,
+          active.previousSessionId ?? DRAFT_NEW_TAB,
         );
       } else {
-        supersedeSessionFocusIntent(active2.previousSessionId ?? DRAFT_NEW_TAB);
+        supersedeSessionFocusIntent(active.previousSessionId ?? DRAFT_NEW_TAB);
       }
       clearPendingSessionSwitch();
       const failed = {
-        ...active2,
+        ...active,
         status: "error",
       };
       activeTextEditAgentRef.current = failed;
@@ -3993,7 +3993,7 @@ ${errorInfo.details}`
             ),
       );
     }, TEXT_EDIT_SESSION_REQUEST_TIMEOUT_MS);
-    return () => clearTimeout(timer2);
+    return () => clearTimeout(timer);
   }, [
     clearPendingSessionSwitch,
     rejectSessionFocusIntent,
@@ -4018,10 +4018,10 @@ ${errorInfo.details}`
       focusedSession.id,
       request.request_id,
     );
-    setHistoryReloadingSessionIds((current2) =>
-      new Set(current2).add(focusedSession.id),
+    setHistoryReloadingSessionIds((current) =>
+      new Set(current).add(focusedSession.id),
     );
-    const timeout2 = setTimeout(() => {
+    const timeout = setTimeout(() => {
       historyReloadTimeoutsRef.current.delete(request.request_id);
       if (
         activeHistoryReloadRequestBySessionRef.current.get(
@@ -4031,38 +4031,38 @@ ${errorInfo.details}`
         return;
       }
       activeHistoryReloadRequestBySessionRef.current.delete(focusedSession.id);
-      setHistoryReloadingSessionIds((current2) => {
-        if (!current2.has(focusedSession.id)) return current2;
-        const next2 = new Set(current2);
-        next2.delete(focusedSession.id);
-        return next2;
+      setHistoryReloadingSessionIds((current) => {
+        if (!current.has(focusedSession.id)) return current;
+        const next = new Set(current);
+        next.delete(focusedSession.id);
+        return next;
       });
     }, HISTORY_RELOAD_TIMEOUT_MS);
-    historyReloadTimeoutsRef.current.set(request.request_id, timeout2);
-    if (!send2(request)) {
+    historyReloadTimeoutsRef.current.set(request.request_id, timeout);
+    if (!send(request)) {
       finishHistoryReload(request.request_id);
     }
-  }, [finishHistoryReload, prepareSessionSwitch, send2, sessionStore]);
+  }, [finishHistoryReload, prepareSessionSwitch, send, sessionStore]);
   const renameSession = reactExports.useCallback(
-    (sessionId, name2) => {
+    (sessionId, newSessionName) => {
       const requestId = crypto.randomUUID();
       latestRenameRequestBySessionRef.current.set(sessionId, requestId);
-      const sent = send2({
+      const sent = send({
         type: "rename_session",
         request_id: requestId,
         session_id: sessionId,
-        name: name2,
+        name: newSessionName,
       });
       if (!sent) {
         latestRenameRequestBySessionRef.current.delete(sessionId);
         dedupedToast.error(translate("session.renameFailed", "Failed to rename chat"));
       }
     },
-    [send2, translate],
+    [send, translate],
   );
   const sendMessage = reactExports.useCallback(
     (
-      text2,
+      text,
       attachments,
       canvasNodeAttachments,
       entityRefs,
@@ -4073,11 +4073,11 @@ ${errorInfo.details}`
       pluginEditContext,
       queueInsertBefore,
       languageDetectionText,
-      options2,
+      options,
     ) => {
       if (
         !hasMessagePayload(
-          text2,
+          text,
           attachments,
           entityRefs,
           canvasNodeAttachments,
@@ -4092,7 +4092,7 @@ ${errorInfo.details}`
       const clientMessageId = requestedClientMessageId ?? crypto.randomUUID();
       recordAction("chat:send", {
         clientMessageId,
-        textLength: text2.length,
+        textLength: text.length,
         hasAttachments: (attachments?.length ?? 0) > 0,
         sessionId: focusedSessionId ?? "new",
       });
@@ -4103,7 +4103,7 @@ ${errorInfo.details}`
         if (focusedSession?.busy || focusedSession?.pendingReasons.length) {
           if (documentEditRequest) return false;
           return dispatchQueuedUserMessage(
-            text2.trim(),
+            text.trim(),
             attachments?.length ? attachments : void 0,
             canvasNodeAttachments?.length ? canvasNodeAttachments : void 0,
             entityRefs?.length ? entityRefs : void 0,
@@ -4114,7 +4114,7 @@ ${errorInfo.details}`
           );
         }
         return dispatchUserMessage(
-          text2,
+          text,
           attachments,
           canvasNodeAttachments,
           entityRefs,
@@ -4135,7 +4135,7 @@ ${errorInfo.details}`
       pendingCreatePayloadRef.current = {
         requestId,
         clientMessageId,
-        text: text2,
+        text,
         attachments: attachments ?? null,
         canvasNodeAttachments: canvasNodeAttachments ?? null,
         entityRefs: entityRefs ?? null,
@@ -4146,16 +4146,16 @@ ${errorInfo.details}`
         languageDetectionText: languageDetectionText ?? null,
         attachmentRefs: null,
         browserContext,
-        preserveComposer: options2?.preserveComposer,
+        preserveComposer: options?.preserveComposer,
         draft: {
-          text: options2?.preserveComposer
+          text: options?.preserveComposer
             ? currentInputTextRef.current
-            : currentInputTextRef.current || text2,
+            : currentInputTextRef.current || text,
           editorDoc: currentInputEditorDocRef.current,
           attachments: currentAttachmentsRef.current,
         },
       };
-      const sent = send2({
+      const sent = send({
         type: "create_session",
         request_id: requestId,
         model_id: getSelectedModelId() ?? void 0,
@@ -4183,14 +4183,14 @@ ${errorInfo.details}`
       clearPendingCreateTimeout,
       failPendingCreate,
       sessionStore,
-      send2,
+      send,
     ],
   );
   const handleSend = reactExports.useCallback(
     (attachments) => {
-      const text2 = input.trim();
-      if (!hasMessagePayload(text2, attachments)) return;
-      if (sendMessage(text2, attachments)) {
+      const text = input.trim();
+      if (!hasMessagePayload(text, attachments)) return;
+      if (sendMessage(text, attachments)) {
         if (!sessionStore.getState().focusedSessionId) return;
         setInput("");
         const draftKey =
@@ -4264,15 +4264,15 @@ ${errorInfo.details}`
     if (options.initialModelId) handleModelChange(options.initialModelId);
     if (initialSelectedMediaModels !== void 0) {
       syncSelectedMediaModels(initialSelectedMediaModels);
-      const focusedSessionId2 = sessionStore.getState().focusedSessionId;
-      if (focusedSessionId2) {
+      const focusedSessionId = sessionStore.getState().focusedSessionId;
+      if (focusedSessionId) {
         sessionStore.setSelectedMediaModels(
-          focusedSessionId2,
+          focusedSessionId,
           initialSelectedMediaModels,
         );
-        send2({
+        send({
           type: "update_selected_media_models",
-          session_id: focusedSessionId2,
+          session_id: focusedSessionId,
           selected_media_models: initialSelectedMediaModels,
         });
       }
@@ -4286,7 +4286,7 @@ ${errorInfo.details}`
       void 0,
       options.initialPayloadId,
     );
-    const dispatchMeta2 = {
+    const dispatchMeta = {
       client_message_id: payloadId ?? pendingInitialClientMessageIdRef.current,
       session_id: sessionStore.getState().focusedSessionId,
       sent,
@@ -4295,9 +4295,9 @@ ${errorInfo.details}`
       entity_ref_count: entityRefs?.length ?? 0,
     };
     if (sent) {
-      chatLog.info("initial-payload dispatch", dispatchMeta2);
+      chatLog.info("initial-payload dispatch", dispatchMeta);
     } else {
-      chatLog.warn("initial-payload dispatch", dispatchMeta2);
+      chatLog.warn("initial-payload dispatch", dispatchMeta);
     }
     if (sent) {
       sentInitialPayloadKeyRef.current = payloadKey;
@@ -4322,7 +4322,7 @@ ${errorInfo.details}`
     handleModelChange,
     options.initialEntityRefs,
     options.initialPayloadId,
-    send2,
+    send,
     sessionStore,
     getSelectedMediaModels,
     syncSelectedMediaModels,
@@ -4338,21 +4338,21 @@ ${errorInfo.details}`
       );
       if (!retryMessage) return false;
       const {
-        text: text2,
+        text,
         attachmentPaths,
         pluginNodeAttachments,
       } = retryMessage;
       const clientMessageId = crypto.randomUUID();
       recordAction("chat:send", {
         clientMessageId,
-        textLength: text2.length,
+        textLength: text.length,
         hasAttachments: (attachmentPaths?.length ?? 0) > 0,
         sessionId,
         retry: true,
       });
-      const sent = accountScopedMessage.send("retry", send2, {
+      const sent = accountScopedMessage.send("retry", send, {
         type: "message",
-        content: text2,
+        content: text,
         agent_type: "general",
         attachments: attachmentPaths,
         plugin_node_attachments: pluginNodeAttachments,
@@ -4366,7 +4366,7 @@ ${errorInfo.details}`
       }
       return sent;
     },
-    [markMessageDeliverySent, sessionStore, send2],
+    [markMessageDeliverySent, sessionStore, send],
   );
   const { performCancel, handleCancel } = useChatCancel({
     busy,
@@ -4374,7 +4374,7 @@ ${errorInfo.details}`
     sessionStore,
     controller,
     cancelInFlightSessionIdsRef,
-    send: send2,
+    send,
     clearMessageDeliveryTimersForSession,
   });
   const stopStalledSession = reactExports.useCallback(() => {
@@ -4399,15 +4399,15 @@ ${errorInfo.details}`
   }, []);
   const closeTab = reactExports.useCallback(
     (sessionId) => {
-      const state2 = sessionStore.getState();
-      if (!state2.openedTabIds.has(sessionId)) return false;
-      if (state2.focusedSessionId !== sessionId) {
+      const state = sessionStore.getState();
+      if (!state.openedTabIds.has(sessionId)) return false;
+      if (state.focusedSessionId !== sessionId) {
         sessionStore.closeTab(sessionId);
         return true;
       }
-      const order2 = state2.openedTabOrder;
-      const tabIndex = order2.indexOf(sessionId);
-      const nextFocusedId = order2[tabIndex + 1] ?? order2[tabIndex - 1] ?? null;
+      const order = state.openedTabOrder;
+      const tabIndex = order.indexOf(sessionId);
+      const nextFocusedId = order[tabIndex + 1] ?? order[tabIndex - 1] ?? null;
       if (nextFocusedId) {
         sendWsMessage({
           type: "switch_session",
@@ -4445,7 +4445,7 @@ ${errorInfo.details}`
       if (!currentId) return;
       const requestId = beginForkFocusIntent(currentId);
       pendingForkDraftsRef.current.set(requestId, forkPointContent);
-      const sent = send2({
+      const sent = send({
         type: "fork_session",
         request_id: requestId,
         session_id: currentId,
@@ -4453,7 +4453,7 @@ ${errorInfo.details}`
       });
       if (!sent) pendingForkDraftsRef.current.delete(requestId);
     },
-    [beginForkFocusIntent, sessionStore, send2],
+    [beginForkFocusIntent, sessionStore, send],
   );
   const markSessionCancelled = reactExports.useCallback(
     (sessionId) => {
@@ -4463,20 +4463,20 @@ ${errorInfo.details}`
   );
   const getTextEditCloseBlockReason = reactExports.useCallback(
     (editor) => {
-      const active2 = activeTextEditAgentRef.current;
-      if (!active2 || !sameTextEditSession(active2.editor, editor)) return null;
-      if (active2.status === "resolving") {
-        const transactionId = textEditTransactionId(active2.editor);
+      const active = activeTextEditAgentRef.current;
+      if (!active || !sameTextEditSession(active.editor, editor)) return null;
+      if (active.status === "resolving") {
+        const transactionId = textEditTransactionId(active.editor);
         const pendingSwitch = pendingSessionSwitchRef.current;
         const hasPendingCreate = Boolean(
-          active2.requestId &&
-          pendingTextEditCreatesRef.current.has(active2.requestId),
+          active.requestId &&
+          pendingTextEditCreatesRef.current.has(active.requestId),
         );
         const hasPendingSwitch =
           pendingSwitch?.textEditTransactionId === transactionId;
         if (
-          !active2.reconnectFailClosed &&
-          !active2.sessionId &&
+          !active.reconnectFailClosed &&
+          !active.sessionId &&
           !hasPendingCreate &&
           !hasPendingSwitch
         ) {
@@ -4484,21 +4484,21 @@ ${errorInfo.details}`
         }
         return "session-resolving";
       }
-      const state2 = sessionStore.getState();
+      const state = sessionStore.getState();
       const resolvedSessionId =
-        active2.sessionId ??
+        active.sessionId ??
         resolveTextEditSessionId(
           textEditBindingsRef.current[editor.nodeId],
-          state2,
+          state,
         );
       if (!resolvedSessionId) {
-        return active2.status === "error" && !active2.sessionId
+        return active.status === "error" && !active.sessionId
           ? null
           : "session-resolving";
       }
-      const session = state2.sessions.get(resolvedSessionId);
+      const session = state.sessions.get(resolvedSessionId);
       if (!session) {
-        return active2.status === "error" && !active2.sessionId
+        return active.status === "error" && !active.sessionId
           ? null
           : "session-resolving";
       }
@@ -4523,19 +4523,19 @@ ${errorInfo.details}`
       );
       const hasPendingRemoteTool =
         remoteTool.hasPendingRemoteToolForSession(resolvedSessionId);
-      const hasPendingInteraction = session.messages.some((message2) => {
+      const hasPendingInteraction = session.messages.some((message) => {
         if (
-          message2.type === "question" ||
-          message2.type === "interact" ||
-          message2.type === "confirm" ||
-          message2.type === "loop_guard_ask"
+          message.type === "question" ||
+          message.type === "interact" ||
+          message.type === "confirm" ||
+          message.type === "loop_guard_ask"
         ) {
-          return !message2.resolved;
+          return !message.resolved;
         }
         return (
-          message2.type === "tool_confirm_ask" &&
-          !message2.resolved &&
-          !message2.expired
+          message.type === "tool_confirm_ask" &&
+          !message.resolved &&
+          !message.expired
         );
       });
       return session.busy ||
@@ -4552,14 +4552,14 @@ ${errorInfo.details}`
   );
   return {
     connected,
-    messages: messages2,
+    messages,
     // Processing includes pre-runtime stages. A preceding turn's idle frame
     // cannot make the currently admitted message look idle in the renderer.
     busy:
       busy ||
       messageDeliveryStates.some(
-        (state2) =>
-          state2.sessionId === focusedSessionId && isMessagePreflight(state2),
+        (state) =>
+          state.sessionId === focusedSessionId && isMessagePreflight(state),
       ),
     pendingReasons,
     historyLoadFailed,
