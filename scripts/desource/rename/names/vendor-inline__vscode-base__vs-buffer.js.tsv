@@ -1,0 +1,92 @@
+binding_key	old_name	new_name	basis
+Event2@13:3	Event2	eventNamespace	the enum-style namespace receives the Event API methods without shadowing the global Event
+disposables2@16:40	disposables2	disposables	第16行的声明与引用表明该绑定表示「disposables」；去除打包器数字后缀并保留绑定结构（return (listener, thisArgs = null, disposables2) => {）
+e2@20:10	e2	e	第20行的声明与引用表明该绑定表示「e」；去除打包器数字后缀并保留绑定结构（(e2) => {）
+map3@40:12	map3	eventMapper	the Event.map implementation is the public event mapper
+map22@40:24	map22	valueMapper	the Event.map callback transforms each event value
+disposables2@41:50	disposables2	disposables	第41行的声明与引用表明该绑定表示「disposables」；去除打包器数字后缀并保留绑定结构（return snapshot2((listener, thisArgs = null, disposables2) => {）
+i2@42:21	i2	i	第42行的声明与引用表明该绑定表示「i」；去除打包器数字后缀并保留绑定结构（return event((i2) => listener.call(thisArgs, map22(i2)), null, disposables2);）
+filter2@46:12	filter2	eventFilter	the Event.filter implementation is the public event filter
+filter22@46:27	filter22	predicate	the Event.filter callback decides whether an event value is delivered
+disposables2@48:35	disposables2	disposables	第48行的声明与引用表明该绑定表示「disposables」；去除打包器数字后缀并保留绑定结构（(listener, thisArgs = null, disposables2) =>）
+e2@49:16	e2	e	第49行的声明与引用表明该绑定表示「e」；去除打包器数字后缀并保留绑定结构（event((e2) => filter22(e2) && listener.call(thisArgs, e2), null, disposables2),）
+events2@58:19	events2	events	第58行的声明与引用表明该绑定表示「events」；去除打包器数字后缀并保留绑定结构（function any(...events2) {）
+disposables2@59:40	disposables2	disposables	第59行的声明与引用表明该绑定表示「disposables」；去除打包器数字后缀并保留绑定结构（return (listener, thisArgs = null, disposables2) => {）
+e2@61:42	e2	e	第61行的声明与引用表明该绑定表示「e」；去除打包器数字后缀并保留绑定结构（...events2.map((event) => event((e2) => listener.call(thisArgs, e2))),）
+snapshot2@67:12	snapshot2	snapshot	第67行的声明与引用表明该绑定表示「snapshot」；去除打包器数字后缀并保留绑定结构（function snapshot2(event, disposable) {）
+buffer2@85:9	buffer2	bufferedEvents	the Event.buffer implementation stores events until flush
+e2@86:27	e2	e	第86行的声明与引用表明该绑定表示「e」；去除打包器数字后缀并保留绑定结构（let listener = event((e2) => {）
+flush2@96:11	flush2	flush	第96行的声明与引用表明该绑定表示「flush」；去除打包器数字后缀并保留绑定结构（const flush2 = () => {）
+e2@98:20	e2	e	第98行的声明与引用表明该绑定表示「e」；去除打包器数字后缀并保留绑定结构（for (const e2 of buffer2) {）
+e2@107:29	e2	e	第107行的声明与引用表明该绑定表示「e」；去除打包器数字后缀并保留绑定结构（listener = event((e2) => emitter.fire(e2));）
+map22@132:53	map22	map	第132行的声明与引用表明该绑定表示「map」；去除打包器数字后缀并保留绑定结构（function fromNodeEventEmitter(emitter, eventName, map22 = (id2) => id2) {）
+id2@132:62	id2	id	第132行的声明与引用表明该绑定表示「id」；去除打包器数字后缀并保留绑定结构（function fromNodeEventEmitter(emitter, eventName, map22 = (id2) => id2) {）
+fn2@133:11	fn2	fn	第133行的声明与引用表明该绑定表示「fn」；去除打包器数字后缀并保留绑定结构（const fn2 = (...args) => result.fire(map22(...args));）
+d2@143:35	d2	d	第143行的声明与引用表明该绑定表示「d」；去除打包器数字后缀并保留绑定结构（function addAndReturnDisposable(d2, store) {）
+disposables2@174:42	disposables2	disposables	monaco 0.57.0 vs/base/common/event.js
+e2@185:24	e2	e	monaco 0.57.0 vs/base/common/event.js
+event2@232:26	event2	eventData	the Emitter delivery queue stores the event payload
+e2@235:18	e2	e	monaco 0.57.0 vs/base/common/event.js
+handle2@261:9	handle2	handle	monaco 0.57.0 vs/base/common/cancellation.js
+CancellationToken2@269:3	CancellationToken2	CancellationToken	第269行的声明与引用表明该绑定表示「CancellationToken」；去除打包器数字后缀并保留绑定结构（((CancellationToken2) => {）
+err@371:8	err	error	the callback receives a rejected cancellation error
+textEncoder$1@396:5	textEncoder$1	textEncoder	第396行的声明与引用表明该绑定表示「textEncoder」；去除打包器数字后缀并保留绑定结构（let textEncoder$1;）
+str2@412:21	str2	str	monaco 0.57.0 vs/base/common/buffer.js
+i2@425:14	i2	i	monaco 0.57.0 vs/base/common/buffer.js
+i2@433:16	i2	i	monaco 0.57.0 vs/base/common/buffer.js
+ret@437:11	ret	result	VSBuffer.concat accumulates its output buffer
+offset2@438:9	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+i2@439:14	i2	i	monaco 0.57.0 vs/base/common/buffer.js
+element2@440:13	element2	element	monaco 0.57.0 vs/base/common/buffer.js
+start2@483:9	start2	start	monaco 0.57.0 vs/base/common/buffer.js
+end2@483:17	end2	end	monaco 0.57.0 vs/base/common/buffer.js
+slice2@484:11	slice2	slice	monaco 0.57.0 vs/base/common/buffer.js
+array2@487:7	array2	array	monaco 0.57.0 vs/base/common/buffer.js
+offset2@487:15	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+offset2@500:16	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+offset2@503:24	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+offset2@506:16	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+offset2@509:24	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+offset2@512:13	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+offset2@515:21	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+offset2@519:31	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+offset2@527:44	offset2	offset	monaco 0.57.0 vs/base/common/buffer.js
+offset2@536:31	offset2	offset	第536行的声明与引用表明该绑定表示「offset」；去除打包器数字后缀并保留绑定结构（function readUInt32LE(source, offset2) {）
+offset2@544:44	offset2	offset	第544行的声明与引用表明该绑定表示「offset」；去除打包器数字后缀并保留绑定结构（function writeUInt32LE(destination, value, offset2) {）
+key2@553:34	key2	key	monaco 0.57.0 vs/base/common/decorators.js
+fn2@555:7	fn2	fn	monaco 0.57.0 vs/base/common/decorators.js
+depth2@584:29	depth2	depth	monaco 0.57.0 vs/base/common/marshalling.js
+i2@590:16	i2	i	monaco 0.57.0 vs/base/common/marshalling.js
+key2@594:18	key2	key	monaco 0.57.0 vs/base/common/marshalling.js
+code2@603:36	code2	code	monaco 0.57.0 vs/base/common/strings.js
+__defProp$1@609:5	__defProp$1	defineProperty	the bundler helper is an alias for Object.defineProperty
+__getOwnPropDesc$1@610:5	__getOwnPropDesc$1	getOwnPropertyDescriptor	the bundler helper is an alias for Object.getOwnPropertyDescriptor
+key2@611:53	key2	key	第611行的声明与引用表明该绑定表示「key」；去除打包器数字后缀并保留绑定结构（export var __decorateClass$1 = (decorators, target, key2, kind) => {）
+i2@613:12	i2	i	第613行的声明与引用表明该绑定表示「i」；去除打包器数字后缀并保留绑定结构（for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)）
+n2@620:12	n2	n	第620行的声明与引用表明该绑定表示「n」；去除打包器数字后缀并保留绑定结构（for (let n2 = 0; ; n2 += 7) {）
+next2@621:11	next2	next	第621行的声明与引用表明该绑定表示「next」；去除打包器数字后缀并保留绑定结构（const next2 = reader.read(1);）
+v2@635:12	v2	v	第635行的声明与引用表明该绑定表示「v」；去除打包器数字后缀并保留绑定结构（for (let v2 = value; v2 !== 0; v2 = v2 >>> 7) {）
+i2@639:12	i2	i	第639行的声明与引用表明该绑定表示「i」；去除打包器数字后缀并保留绑定结构（for (let i2 = 0; value !== 0; i2++) {）
+bytes2@653:8	bytes2	bytes	第653行的声明与引用表明该绑定表示「bytes」；去除打包器数字后缀并保留绑定结构（read(bytes2) {）
+data2@703:35	data2	data	第703行的声明与引用表明该绑定表示「data」；去除打包器数字后缀并保留绑定结构（export function serialize(writer, data2) {）
+json2@730:11	json2	json	第730行的声明与引用表明该绑定表示「json」；去除打包器数字后缀并保留绑定结构（const json2 = JSON.stringify(data2);）
+type2@743:9	type2	type	第743行的声明与引用表明该绑定表示「type」；去除打包器数字后缀并保留绑定结构（const type2 = reader.read(1).readUInt8(0);）
+length2@754:13	length2	itemCount	deserialize reads the array item count
+i2@756:16	i2	i	第756行的声明与引用表明该绑定表示「i」；去除打包器数字后缀并保留绑定结构（for (let i2 = 0; i2 < length2; i2++) {）
+ctx@768:25	ctx	context	ChannelServer stores the serialized channel context
+msg@772:54	msg	message	the channel listener receives an IPC message
+id2@818:32	id2	id	第818行的声明与引用表明该绑定表示「id」；去除打包器数字后缀并保留绑定结构（sendUnencodableResponseError(id2, cause) {）
+body2@830:16	body2	body	第830行的声明与引用表明该绑定表示「body」；去除打包器数字后缀并保留绑定结构（send(header, body2 = void 0) {）
+message2@836:14	message2	message	第836行的声明与引用表明该绑定表示「message」；去除打包器数字后缀并保留绑定结构（sendBuffer(message2) {）
+message2@844:16	message2	message	第844行的声明与引用表明该绑定表示「message」；去除打包器数字后缀并保留绑定结构（onRawMessage(message2) {）
+type2@863:11	type2	type	第863行的声明与引用表明该绑定表示「type」；去除打包器数字后缀并保留绑定结构（const type2 = header[0];）
+body2@864:9	body2	body	第864行的声明与引用表明该绑定表示「body」；去除打包器数字后缀并保留绑定结构（let body2;）
+type2@905:24	type2	type	第905行的声明与引用表明该绑定表示「type」；去除打包器数字后缀并保留绑定结构（onUndecodableRequest(type2, header, byteLength, cause) {）
+name2@908:11	name2	methodName	the IPC request error includes the decoded method name
+id2@914:11	id2	id	第914行的声明与引用表明该绑定表示「id」；去除打包器数字后缀并保留绑定结构（const id2 = header[1];）
+id2@940:11	id2	id	第940行的声明与引用表明该绑定表示「id」；去除打包器数字后缀并保留绑定结构（const id2 = request.id;）
+data2@943:10	data2	data	第943行的声明与引用表明该绑定表示「data」；去除打包器数字后缀并保留绑定结构（(data2) => {）
+id2@989:11	id2	id	第989行的声明与引用表明该绑定表示「id」；去除打包器数字后缀并保留绑定结构（const id2 = request.id;）
+data2@991:29	data2	data	第991行的声明与引用表明该绑定表示「data」；去除打包器数字后缀并保留绑定结构（const listener = event((data2) =>）
+timer2@1018:11	timer2	timer	第1018行的声明与引用表明该绑定表示「timer」；去除打包器数字后缀并保留绑定结构（const timer2 = setTimeout(() => {）
+message2@1038:38	message2	message	第1038行的声明与引用表明该绑定表示「message」；去除打包器数字后缀并保留绑定结构（rejectPendingRequests(channelName, message2) {）
