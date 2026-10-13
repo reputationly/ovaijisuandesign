@@ -1,5 +1,5 @@
 // asset-picker-dialog.jsx
-import { ChevronDown, inferMediaKind, jsxRuntimeExports, LayoutGrid, LayoutList, Loader2, measurePerf, MenuPopup, MenuPortal, MenuPositioner, MonitorUp, reactExports, Search, useTranslation, X$7 as X } from "../vendor.js";
+import { ChevronDown, inferMediaKind, jsxRuntimeExports, LayoutGrid, LayoutList, Loader2, measurePerf, MenuPopup, MenuPortal, MenuPositioner, MonitorUp, reactExports, Search, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast, useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ScrollableAssetView } from "./scrollable-asset-view.jsx";
@@ -122,7 +122,7 @@ function AssetSourceMenu({
   onLocal,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(true);
   const pendingActionRef = reactExports.useRef(null);
   function closeWithAction(action) {
@@ -184,10 +184,10 @@ function AssetSourceMenu({
                   aria-hidden="true"
                 />
                 {availability === "pending"
-                  ? t2("assetPicker.source.loading", "正在检查可选资源…")
+                  ? translate("assetPicker.source.loading", "正在检查可选资源…")
                   : availability === "error"
-                    ? t2("assetPicker.source.error", "资源暂不可用")
-                    : t2("assetPicker.source.task", "当前任务文件中选择")}
+                    ? translate("assetPicker.source.error", "资源暂不可用")
+                    : translate("assetPicker.source.task", "当前任务文件中选择")}
               </ActionDropdownMenuItem>
             )}
             <ActionDropdownMenuItem
@@ -199,7 +199,7 @@ function AssetSourceMenu({
                 strokeWidth={1.5}
                 aria-hidden="true"
               />
-              {t2("assetPicker.source.local", "本地上传")}
+              {translate("assetPicker.source.local", "本地上传")}
             </ActionDropdownMenuItem>
           </ActionMenuPanel>
         </MenuPositioner>
@@ -224,7 +224,7 @@ function AssetList({
   emptyDescription,
   onClearFilters,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const emptyContent =
     rows.length === 0 ? (
       <PageStateBoundary
@@ -239,7 +239,7 @@ function AssetList({
                 actions: [
                   {
                     key: "clear-filter",
-                    label: t2("assetPicker.filter.clear", "清除筛选"),
+                    label: translate("assetPicker.filter.clear", "清除筛选"),
                     variant: "outline",
                     onClick: onClearFilters,
                   },
@@ -299,12 +299,12 @@ function computeSelectionTotals(selection2) {
     if (res.type === "image" || res.type === "video" || res.type === "audio") {
       counts[res.type] += 1;
     }
-    const d2 =
+    const durationSeconds =
       typeof res.durationSec === "number" && res.durationSec > 0
         ? res.durationSec
         : 0;
-    if (res.type === "audio") sec.audio += d2;
-    if (res.type === "video") sec.video += d2;
+    if (res.type === "audio") sec.audio += durationSeconds;
+    if (res.type === "video") sec.video += durationSeconds;
   });
   return {
     counts,
@@ -369,14 +369,14 @@ function mediaLightboxKindForAsset(type2) {
   return type2 === "subtitle" ? "text" : type2;
 }
 function UploadEntry({ view: view2, busy, error, onClick }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={busy}
       data-action-ui-id="asset-picker.upload.pick"
-      aria-label={t2("assetPicker.upload.action", "本地上传")}
+      aria-label={translate("assetPicker.upload.action", "本地上传")}
       aria-busy={busy}
       className={cn(
         "relative flex w-full cursor-pointer items-center justify-center rounded-lg border border-dashed border-foreground/30 bg-muted/30 text-xs text-foreground hover:border-foreground/50 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait",
@@ -405,8 +405,8 @@ function UploadEntry({ view: view2, busy, error, onClick }) {
         )}
         <span>
           {busy
-            ? t2("assetPicker.upload.uploading", "上传中…")
-            : t2("assetPicker.upload.action", "本地上传")}
+            ? translate("assetPicker.upload.uploading", "上传中…")
+            : translate("assetPicker.upload.action", "本地上传")}
         </span>
         {error && (
           <span
@@ -414,18 +414,18 @@ function UploadEntry({ view: view2, busy, error, onClick }) {
             className="max-w-full truncate px-2 text-destructive"
             title={error}
           >
-            {t2("assetPicker.upload.failed", "上传失败")}
+            {translate("assetPicker.upload.failed", "上传失败")}
           </span>
         )}
       </span>
     </button>
   );
 }
-function disabledReasonLabel(reason, t2, constraints2) {
+function disabledReasonLabel(reason, translate, constraints2) {
   if (reason.startsWith(VIDEO_BUDGET_REASON_PREFIX)) {
     const excessSec = Number(reason.slice(VIDEO_BUDGET_REASON_PREFIX.length));
     if (Number.isFinite(excessSec) && excessSec > 0) {
-      return t2(
+      return translate(
         "assetPicker.disabledReason.videoBudgetExceeded",
         "超出 {{duration}}",
         {
@@ -439,7 +439,7 @@ function disabledReasonLabel(reason, t2, constraints2) {
     const min2 = constraints2?.videoMinFps;
     const max2 = constraints2?.videoMaxFps;
     if (max2 !== void 0 && Number.isFinite(fps) && fps > max2) {
-      return t2(
+      return translate(
         "assetPicker.disabledReason.videoFpsOverMax",
         "帧率超 {{max}}fps",
         {
@@ -448,7 +448,7 @@ function disabledReasonLabel(reason, t2, constraints2) {
       );
     }
     if (min2 !== void 0 && Number.isFinite(fps) && fps < min2) {
-      return t2(
+      return translate(
         "assetPicker.disabledReason.videoFpsUnderMin",
         "帧率低于 {{min}}fps",
         {
@@ -456,7 +456,7 @@ function disabledReasonLabel(reason, t2, constraints2) {
         },
       );
     }
-    return t2(
+    return translate(
       "assetPicker.disabledReason.videoFps",
       "帧率需 {{min}}-{{max}}fps",
       {
@@ -466,21 +466,21 @@ function disabledReasonLabel(reason, t2, constraints2) {
     );
   }
   if (reason === VIDEO_FPS_PENDING_REASON) {
-    return t2("assetPicker.disabledReason.videoFpsPending", "正在检测帧率…");
+    return translate("assetPicker.disabledReason.videoFpsPending", "正在检测帧率…");
   }
   switch (reason) {
     case "type-not-allowed":
-      return t2("assetPicker.disabledReason.typeNotAllowed", "当前入口不支持");
+      return translate("assetPicker.disabledReason.typeNotAllowed", "当前入口不支持");
     case "full":
-      return t2("assetPicker.disabledReason.full", "已达上限");
+      return translate("assetPicker.disabledReason.full", "已达上限");
     case "image-size":
-      return t2("assetPicker.disabledReason.imageSize", "Min {{min}}", {
+      return translate("assetPicker.disabledReason.imageSize", "Min {{min}}", {
         min: formatImageMinDimensionLimit(constraints2),
       });
     case "image-aspect":
-      return t2("assetPicker.disabledReason.imageAspect", "Ratio out of range");
+      return translate("assetPicker.disabledReason.imageAspect", "Ratio out of range");
     case "audio-range":
-      return t2(
+      return translate(
         "assetPicker.disabledReason.audioRange",
         "需 {{min}}-{{max}}s",
         {
@@ -489,23 +489,23 @@ function disabledReasonLabel(reason, t2, constraints2) {
         },
       );
     case "audio-too-short":
-      return t2("assetPicker.disabledReason.audioTooShort", "音频过短");
+      return translate("assetPicker.disabledReason.audioTooShort", "音频过短");
     case "audio-too-long":
-      return t2("assetPicker.disabledReason.audioTooLong", "音频过长");
+      return translate("assetPicker.disabledReason.audioTooLong", "音频过长");
     case "audio-budget":
-      return t2("assetPicker.disabledReason.audioBudget", "总音频超 {{max}}s", {
+      return translate("assetPicker.disabledReason.audioBudget", "总音频超 {{max}}s", {
         max: formatSeconds(constraints2?.remainingAudioTotalSec, "—"),
       });
     case "video-budget":
-      return t2("assetPicker.disabledReason.videoBudget", "总视频超 {{max}}s", {
+      return translate("assetPicker.disabledReason.videoBudget", "总视频超 {{max}}s", {
         max: formatSeconds(constraints2?.remainingVideoTotalSec, "—"),
       });
     case "video-too-short":
-      return t2("assetPicker.disabledReason.videoTooShort", "视频过短");
+      return translate("assetPicker.disabledReason.videoTooShort", "视频过短");
     case "video-too-long":
-      return t2("assetPicker.disabledReason.videoTooLong", "视频过长");
+      return translate("assetPicker.disabledReason.videoTooLong", "视频过长");
     case MEDIA_METADATA_PENDING_REASON:
-      return t2("assetPicker.disabledReason.metadataPending", "信息待确认");
+      return translate("assetPicker.disabledReason.metadataPending", "信息待确认");
     default:
       return "";
   }
@@ -516,7 +516,7 @@ function buildRows(
   resolveCanvasNodeId,
   tagColorResolver,
   tagRegistry,
-  t2,
+  translate,
 ) {
   const allowed = new Set(allowedTypes);
   const seenPaths = new Set();
@@ -538,7 +538,7 @@ function buildRows(
     const tagNames = (meta2.tagIds ?? [])
       .map((tagId) => tagRegistry?.tags.find((tag) => tag.id === tagId))
       .filter((tag) => Boolean(tag))
-      .map((tag) => (t2 ? tagLabel(tag, t2) : (tag.name ?? tag.id)));
+      .map((tag) => (translate ? tagLabel(tag, translate) : (tag.name ?? tag.id)));
     out.push({
       rowKey: key2,
       nodeId,
@@ -573,7 +573,7 @@ function buildRows(
       }),
     });
   });
-  out.sort((a2, b3) => a2.name.localeCompare(b3.name));
+  out.sort((leftRow, rightRow) => leftRow.name.localeCompare(rightRow.name));
   return out;
 }
 function arrangeRowsWithSessionUploads(canvasRows, uploadedRows, allowedTypes) {
@@ -612,21 +612,21 @@ function arrangeRowsWithSessionUploads(canvasRows, uploadedRows, allowedTypes) {
   return [...uploadsFirst, ...remainingCanvasRows];
 }
 function applyFilters(rows, query, typeFilter, tagFilter) {
-  const q2 = query.trim().toLowerCase();
+  const normalizedQuery = query.trim().toLowerCase();
   if (
-    q2.length === 0 &&
+    normalizedQuery.length === 0 &&
     typeFilter === TYPE_FILTER_ALL &&
     tagFilter === TAG_FILTER_ALL
   )
     return rows;
-  return rows.filter((r2) => {
-    if (typeFilter !== TYPE_FILTER_ALL && r2.type !== typeFilter) return false;
-    if (tagFilter !== TAG_FILTER_ALL && !r2.tagIds?.includes(tagFilter))
+  return rows.filter((row) => {
+    if (typeFilter !== TYPE_FILTER_ALL && row.type !== typeFilter) return false;
+    if (tagFilter !== TAG_FILTER_ALL && !row.tagIds?.includes(tagFilter))
       return false;
     if (
-      q2.length > 0 &&
-      !r2.name.toLowerCase().includes(q2) &&
-      !r2.tagNames?.some((name2) => name2.toLowerCase().includes(q2))
+      normalizedQuery.length > 0 &&
+      !row.name.toLowerCase().includes(normalizedQuery) &&
+      !row.tagNames?.some((name2) => name2.toLowerCase().includes(normalizedQuery))
     )
       return false;
     return true;
@@ -655,8 +655,8 @@ function resourceToRow(resource, rowKey = resource.assetId) {
 function deriveAccept(types2) {
   if (types2.length === 0) return ALL_MEDIA_FILE_ACCEPT;
   const parts = [];
-  for (const t2 of types2) {
-    const accept = MEDIA_FILE_ACCEPT[t2];
+  for (const mediaType of types2) {
+    const accept = MEDIA_FILE_ACCEPT[mediaType];
     if (!accept) return ALL_MEDIA_FILE_ACCEPT;
     parts.push(accept);
   }
@@ -678,7 +678,7 @@ function useResourceUpload({
   onUploaded,
   onCompleted,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const inputRef = reactExports.useRef(null);
   const [busy, setBusy] = reactExports.useState(false);
   const [lastError, setLastError] = reactExports.useState(null);
@@ -696,9 +696,9 @@ function useResourceUpload({
   function pick() {
     if (!busyRef.current) inputRef.current?.click();
   }
-  async function handleChange(e2) {
-    const files = Array.from(e2.target.files ?? []);
-    e2.target.value = "";
+  async function handleChange(changeEvent) {
+    const files = Array.from(changeEvent.target.files ?? []);
+    changeEvent.target.value = "";
     if (files.length === 0 || busyRef.current) return;
     const epoch = epochRef.current;
     busyRef.current = true;
@@ -711,7 +711,7 @@ function useResourceUpload({
         const type2 = inferType(file);
         if (allowedTypes.length > 0 && !allowedTypes.includes(type2)) {
           dedupedToast.error(
-            t2(
+            translate(
               "assetPicker.upload.typeRejected",
               "{{name}} 类型不在允许范围内",
               {
@@ -735,7 +735,7 @@ function useResourceUpload({
       const msg = err instanceof Error ? err.message : String(err);
       setLastError(msg);
       dedupedToast.error(
-        `${t2("assetPicker.upload.failed", "上传失败")}: ${msg}`,
+        `${translate("assetPicker.upload.failed", "上传失败")}: ${msg}`,
       );
     } finally {
       if (epoch === epochRef.current) {
@@ -756,8 +756,8 @@ function useResourceUpload({
 function readStoredView() {
   if (typeof window === "undefined") return "grid";
   try {
-    const v2 = window.localStorage.getItem(VIEW_STORAGE_KEY);
-    return v2 === "list" ? "list" : "grid";
+    const storedViewMode = window.localStorage.getItem(VIEW_STORAGE_KEY);
+    return storedViewMode === "list" ? "list" : "grid";
   } catch {
     return "grid";
   }
@@ -777,7 +777,7 @@ export function AssetPickerDialog({
   tagRegistry,
   sourceStatus = "ready",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const gatewayFetch2 = useGatewayFetch();
   const open = request !== null;
   const [sourceStep, setSourceStep] = reactExports.useState(() =>
@@ -817,7 +817,7 @@ export function AssetPickerDialog({
   const uploadEnabled = requestedTabs.includes("upload");
   const canvasEnabled =
     requestedTabs.includes("canvas") || requestedTabs.includes("upstream");
-  const assets = useAssetMetadataStore((s2) => s2.assets);
+  const assets = useAssetMetadataStore((storeState) => storeState.assets);
   const fullscreenContainerEl = useFullscreenContainerEl();
   const [selected2, setSelected] = reactExports.useState(new Map());
   const [uploadedList, setUploadedList] = reactExports.useState([]);
@@ -866,7 +866,7 @@ export function AssetPickerDialog({
         canvasEnabled ? resolveCanvasNodeId : void 0,
         tagColorResolver,
         tagRegistry,
-        t2,
+        translate,
       ),
     [
       assets,
@@ -875,7 +875,7 @@ export function AssetPickerDialog({
       resolveCanvasNodeId,
       tagColorResolver,
       tagRegistry,
-      t2,
+      translate,
     ],
   );
   perfInputsRef.current = {
@@ -956,8 +956,8 @@ export function AssetPickerDialog({
     );
     const byTag2 = new Map();
     for (const row of candidates2) {
-      for (const id2 of new Set(row.tagIds))
-        byTag2.set(id2, (byTag2.get(id2) ?? 0) + 1);
+      for (const tagId of new Set(row.tagIds))
+        byTag2.set(tagId, (byTag2.get(tagId) ?? 0) + 1);
     }
     return byTag2;
   }, [canvasMemberRows, query, typeFilter]);
@@ -1023,27 +1023,27 @@ export function AssetPickerDialog({
       ? fpsAssetIdsKey.split("&").map(decodeURIComponent)
       : [];
     const missing = assetIds.filter(
-      (id2) =>
-        !videoFpsMapRef.current.has(id2) && !fpsInFlightIdsRef.current.has(id2),
+      (encodedAssetId) =>
+        !videoFpsMapRef.current.has(encodedAssetId) && !fpsInFlightIdsRef.current.has(encodedAssetId),
     );
     if (missing.length === 0) return;
     const controller = new AbortController();
     fpsBatchControllersRef.current.add(controller);
-    for (const id2 of missing) fpsInFlightIdsRef.current.set(id2, controller);
+    for (const assetId of missing) fpsInFlightIdsRef.current.set(assetId, controller);
     void loadAssetFpsBatch(missing, gatewayFetch2, controller.signal)
       .then((entries2) => {
         if (controller.signal.aborted) return;
         setVideoFpsMap((prev) => {
           const next2 = new Map(prev);
-          for (const [id2, fps] of entries2) next2.set(id2, fps);
+          for (const [assetId, fps] of entries2) next2.set(assetId, fps);
           return next2;
         });
       })
       .finally(() => {
         fpsBatchControllersRef.current.delete(controller);
-        for (const id2 of missing) {
-          if (fpsInFlightIdsRef.current.get(id2) === controller) {
-            fpsInFlightIdsRef.current.delete(id2);
+        for (const assetId of missing) {
+          if (fpsInFlightIdsRef.current.get(assetId) === controller) {
+            fpsInFlightIdsRef.current.delete(assetId);
           }
         }
       });
@@ -1156,15 +1156,15 @@ export function AssetPickerDialog({
     }
     if (validationReason) return validationReason;
     if (kind === "audio") {
-      const d2 = finitePositive(row.durationSec);
-      if (constraints2.remainingAudioTotalSec - totals.sec.audio - d2 < 0) {
+      const durationSeconds = finitePositive(row.durationSec);
+      if (constraints2.remainingAudioTotalSec - totals.sec.audio - durationSeconds < 0) {
         return "audio-budget";
       }
     }
     if (kind === "video") {
-      const d2 = finitePositive(row.durationSec);
-      if (constraints2.remainingVideoTotalSec - totals.sec.video - d2 < 0) {
-        return `${VIDEO_BUDGET_REASON_PREFIX}${totals.sec.video + d2 - constraints2.remainingVideoTotalSec}`;
+      const durationSeconds = finitePositive(row.durationSec);
+      if (constraints2.remainingVideoTotalSec - totals.sec.video - durationSeconds < 0) {
+        return `${VIDEO_BUDGET_REASON_PREFIX}${totals.sec.video + durationSeconds - constraints2.remainingVideoTotalSec}`;
       }
     }
     return void 0;
@@ -1199,7 +1199,7 @@ export function AssetPickerDialog({
     onSelectionChange: (selection2) => {
       setSelected((prev) =>
         prev.size === selection2.size &&
-        Array.from(selection2).every(([id2, row]) => prev.get(id2) === row)
+        Array.from(selection2).every(([rowKey, row]) => prev.get(rowKey) === row)
           ? prev
           : selection2,
       );
@@ -1209,7 +1209,7 @@ export function AssetPickerDialog({
     return (
       existingAssetIds.has(row.assetId) ||
       !!request?.source?.existingPaths?.includes(row.path) ||
-      [...existingAssetIds].some((id2) => assets.get(id2)?.path === row.path)
+      [...existingAssetIds].some((assetId) => assets.get(assetId)?.path === row.path)
     );
   }
   function toggleRow(row) {
@@ -1242,7 +1242,7 @@ export function AssetPickerDialog({
       if (prev.has(row.rowKey)) return prev;
       if (multiple && maxCount !== void 0 && prev.size >= maxCount) {
         dedupedToast.warning(
-          t2("assetPicker.limitReached", "最多只能选 {{max}} 项", {
+          translate("assetPicker.limitReached", "最多只能选 {{max}} 项", {
             max: maxCount,
           }),
         );
@@ -1250,7 +1250,7 @@ export function AssetPickerDialog({
       }
       const reason = reasonForRowWithSelection(row, prev);
       if (reason) {
-        dedupedToast.warning(disabledReasonLabel(reason, t2, constraints2));
+        dedupedToast.warning(disabledReasonLabel(reason, translate, constraints2));
         return prev;
       }
       const next2 = new Map(prev);
@@ -1264,17 +1264,17 @@ export function AssetPickerDialog({
   }
   function selectionIssue(selection2) {
     if (minCount !== void 0 && selection2.size < minCount)
-      return t2("assetPicker.confirmMin", "至少选 {{min}} 项", {
+      return translate("assetPicker.confirmMin", "至少选 {{min}} 项", {
         min: minCount,
       });
-    for (const [id2, resource] of selection2) {
+    for (const [rowKey, resource] of selection2) {
       const reason = reasonForRowWithSelection(
-        resourceToRow(resource, id2),
+        resourceToRow(resource, rowKey),
         selection2,
         true,
-        id2,
+        rowKey,
       );
-      if (reason) return disabledReasonLabel(reason, t2, constraints2);
+      if (reason) return disabledReasonLabel(reason, translate, constraints2);
     }
     return void 0;
   }
@@ -1298,20 +1298,20 @@ export function AssetPickerDialog({
     writeStoredView(next2);
   }
   const selectedRowsValid = Array.from(selected2).every(
-    ([id2, row]) => !reasonForRowWithSelection(row, selected2, true, id2),
+    ([rowKey, row]) => !reasonForRowWithSelection(row, selected2, true, rowKey),
   );
   const meetsMin =
     selected2.size > 0 &&
     (minCount === void 0 || selected2.size >= minCount) &&
     selectedRowsValid;
-  function onKeyDown(e2) {
-    if (e2.key === "Enter" && meetsMin && e2.target === e2.currentTarget) {
-      e2.preventDefault();
+  function onKeyDown(keyboardEvent) {
+    if (keyboardEvent.key === "Enter" && meetsMin && keyboardEvent.target === keyboardEvent.currentTarget) {
+      keyboardEvent.preventDefault();
       confirm();
     }
   }
-  function handleEnterTagView(id2) {
-    setTagFilter(id2);
+  function handleEnterTagView(tagId) {
+    setTagFilter(tagId);
     setPreviewRow(null);
   }
   function handleExitTagView() {
@@ -1344,14 +1344,14 @@ export function AssetPickerDialog({
       const controller = new AbortController();
       fpsBatchControllersRef.current.add(controller);
       const entries2 = await loadAssetFpsBatch(
-        resources.filter((r2) => r2.type === "video").map((r2) => r2.assetId),
+        resources.filter((resource) => resource.type === "video").map((resource) => resource.assetId),
         gatewayFetch2,
         controller.signal,
       );
       fpsBatchControllersRef.current.delete(controller);
       if (controller.signal.aborted || requestRef.current !== activeRequest)
         return;
-      for (const [id2, fps] of entries2) videoFpsMapRef.current.set(id2, fps);
+      for (const [assetId, fps] of entries2) videoFpsMapRef.current.set(assetId, fps);
     }
     if (requestRef.current !== activeRequest) return;
     const accepted = new Map();
@@ -1360,7 +1360,7 @@ export function AssetPickerDialog({
       if (isRowExisting(row) || accepted.has(row.rowKey)) continue;
       const reason = reasonForRowWithSelection(row, accepted);
       if (reason)
-        dedupedToast.warning(disabledReasonLabel(reason, t2, constraints2));
+        dedupedToast.warning(disabledReasonLabel(reason, translate, constraints2));
       else accepted.set(row.rowKey, resource);
     }
     const issue = selectionIssue(accepted);
@@ -1400,7 +1400,7 @@ export function AssetPickerDialog({
     filter2,
     selected2.size,
     allowedTypes,
-    t2,
+    translate,
     selectionTotals.counts,
   );
   const uploadAction =
@@ -1436,12 +1436,12 @@ export function AssetPickerDialog({
         <div className="flex min-h-0 flex-1">
           <aside className="flex w-44 shrink-0 flex-col gap-4 overflow-y-auto border-r bg-muted/20 px-4 pt-4 pb-4">
             <DialogTitle className="sr-only">
-              {t2("assetPicker.title", "选择资源")}
+              {translate("assetPicker.title", "选择资源")}
             </DialogTitle>
             <Input3
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={t2("assetPicker.searchPlaceholder", "搜索资源…")}
+              placeholder={translate("assetPicker.searchPlaceholder", "搜索资源…")}
               startIcon={<Search className="size-3.5" />}
               className="h-8 shrink-0 text-xs"
               data-action-ui-id="asset-picker.search"
@@ -1457,7 +1457,7 @@ export function AssetPickerDialog({
                 count={typeCounts.total}
                 actionId="asset-picker.type.all"
               >
-                {t2("assetPicker.typeFilter.all", "全部")}
+                {translate("assetPicker.typeFilter.all", "全部")}
               </SidebarFilterButton>
               {visibleTypes.map((type2) => (
                 <SidebarFilterButton
@@ -1467,7 +1467,7 @@ export function AssetPickerDialog({
                   count={typeCounts.byType.get(type2) ?? 0}
                   actionId={`asset-picker.type.${type2}`}
                 >
-                  {t2(`assetPicker.typeFilter.${type2}`, type2.toUpperCase())}
+                  {translate(`assetPicker.typeFilter.${type2}`, type2.toUpperCase())}
                 </SidebarFilterButton>
               ))}
             </div>
@@ -1481,7 +1481,7 @@ export function AssetPickerDialog({
                   onClick={() => setTagsExpanded((expanded) => !expanded)}
                   data-action-ui-id="asset-picker.tags.toggle"
                 >
-                  <span>{t2("assetFilter.tagSection", "标签")}</span>
+                  <span>{translate("assetFilter.tagSection", "标签")}</span>
                   <ChevronDown
                     className={cn(
                       "size-3.5 shrink-0 transition-transform",
@@ -1503,7 +1503,7 @@ export function AssetPickerDialog({
                         actionId={`asset-picker.tag.${tag.id}`}
                         icon={<TagFilterMark tag={tag} />}
                       >
-                        {tagLabel(tag, t2)}
+                        {tagLabel(tag, translate)}
                       </SidebarFilterButton>
                     ))}
                   </div>
@@ -1526,18 +1526,18 @@ export function AssetPickerDialog({
                 <SegmentedSwitch
                   value={view2}
                   onValueChange={handleViewChange}
-                  ariaLabel={t2("assetPicker.viewToggle", "视图切换")}
+                  ariaLabel={translate("assetPicker.viewToggle", "视图切换")}
                   iconSize={14}
                   options={[
                     {
                       value: "grid",
-                      label: t2("assetPicker.view.grid", "宫格"),
+                      label: translate("assetPicker.view.grid", "宫格"),
                       icon: LayoutGrid,
                       dataActionUiId: "asset-picker.view.grid",
                     },
                     {
                       value: "list",
-                      label: t2("assetPicker.view.list", "列表"),
+                      label: translate("assetPicker.view.list", "列表"),
                       icon: LayoutList,
                       dataActionUiId: "asset-picker.view.list",
                     },
@@ -1557,7 +1557,7 @@ export function AssetPickerDialog({
                     data-action-ui-id="asset-picker.available-only"
                   />
                   <span>
-                    {t2("assetPicker.filter.availableOnly", "仅显示可用")}
+                    {translate("assetPicker.filter.availableOnly", "仅显示可用")}
                   </span>
                 </label>
                 {tagView && (
@@ -1568,18 +1568,18 @@ export function AssetPickerDialog({
                   >
                     {activeTag && <TagFilterMark tag={activeTag} />}
                     <span className="truncate">
-                      {activeTag ? tagLabel(activeTag, t2) : tagFilter}
+                      {activeTag ? tagLabel(activeTag, translate) : tagFilter}
                     </span>
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       className="size-6 shrink-0"
-                      aria-label={t2("assetFilter.reset", "清除筛选")}
+                      aria-label={translate("assetFilter.reset", "清除筛选")}
                       onClick={handleExitTagView}
                       data-action-ui-id="asset-picker.tag-view.clear"
                     >
-                      <X className="size-3.5" strokeWidth={1.5} />
+                      <CloseIcon className="size-3.5" strokeWidth={1.5} />
                     </Button>
                   </Badge>
                 )}
@@ -1589,10 +1589,10 @@ export function AssetPickerDialog({
                 size="icon"
                 className="size-8 shrink-0"
                 onClick={cancel}
-                aria-label={t2("common.close")}
+                aria-label={translate("common.close")}
                 data-action-ui-id="asset-picker.close"
               >
-                <X className="size-[18px]" strokeWidth={1.5} />
+                <CloseIcon className="size-[18px]" strokeWidth={1.5} />
               </Button>
             </div>
             <div className="flex min-h-0 flex-1 flex-col pl-4 pr-3">
@@ -1614,18 +1614,18 @@ export function AssetPickerDialog({
                   onToggle={toggleRow}
                   reasonForRow={reasonForRow}
                   labelForReason={(reason) =>
-                    disabledReasonLabel(reason, t2, constraints2)
+                    disabledReasonLabel(reason, translate, constraints2)
                   }
                   isRowExisting={isRowExisting}
                   onPreview={setPreviewRow}
                   emptyTitle={
                     filtersActive
-                      ? t2("assetPicker.empty.filtered", "没有符合条件的资源")
-                      : t2("assetPicker.empty.canvas", "画布上没有可选资源")
+                      ? translate("assetPicker.empty.filtered", "没有符合条件的资源")
+                      : translate("assetPicker.empty.canvas", "画布上没有可选资源")
                   }
                   emptyDescription={
                     filtersActive
-                      ? t2(
+                      ? translate(
                           "assetPicker.empty.filteredHint",
                           "请调整搜索或筛选条件",
                         )
@@ -1667,7 +1667,7 @@ export function AssetPickerDialog({
               onClick={cancel}
               data-action-ui-id="asset-picker.cancel"
             >
-              {t2("common.cancel", "取消")}
+              {translate("common.cancel", "取消")}
             </Button>
             <Button
               className="min-w-26 rounded-[calc(var(--radius-sm)+2px)]"
@@ -1675,7 +1675,7 @@ export function AssetPickerDialog({
               disabled={!meetsMin}
               data-action-ui-id="asset-picker.confirm"
             >
-              {t2("common.confirm", "确认")}
+              {translate("common.confirm", "确认")}
             </Button>
           </div>
         </DialogFooter>
@@ -1731,7 +1731,7 @@ export function AssetPickerDialog({
           portalContainer={fullscreenContainerEl}
         >
           <DialogTitle>
-            {t2("assetPicker.upload.uploading", "上传中…")}
+            {translate("assetPicker.upload.uploading", "上传中…")}
           </DialogTitle>
           <DialogFooter>
             <Button
@@ -1739,7 +1739,7 @@ export function AssetPickerDialog({
               onClick={cancel}
               data-action-ui-id="asset-source.upload-cancel"
             >
-              {t2("common.cancel", "取消")}
+              {translate("common.cancel", "取消")}
             </Button>
           </DialogFooter>
         </DialogContent>
