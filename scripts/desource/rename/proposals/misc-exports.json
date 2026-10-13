@@ -1,0 +1,14 @@
+{
+  "app/renderer/src/project-detail/cloud/cloud-node.jsx": {
+    "Breadcrumb$1": "Breadcrumb",
+    "mediaKind$1": "mediaKind",
+    "NodeCard$1": "NodeCard",
+    "NodeRow$1": "NodeRow"
+  },
+  "app/renderer/src/skills/creator-plan/form-parts.jsx": {
+    "Field$1": "Field"
+  },
+  "app/renderer/src/infra/dialog-content.jsx": {
+    "cn$2": "cn"
+  }
+}
