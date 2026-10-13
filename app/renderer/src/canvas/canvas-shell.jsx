@@ -105,7 +105,7 @@ export function CanvasShell(props) {
       ? "hand"
       : "select";
   useRenderableContentChange(rest.nodes, onRenderableContentChange);
-  const handleDoubleClick2 = reactExports.useCallback(
+  const handleDoubleClick = reactExports.useCallback(
     (mouseEvent) => {
       if (!rest.onPaneDoubleClick) return;
       if (isPaneClick(mouseEvent.target)) {
@@ -170,7 +170,7 @@ export function CanvasShell(props) {
         "--canvas-tool-dock-safe-bottom": `${CANVAS_TOOL_DOCK_SAFE_BOTTOM_PX}px`,
       }}
       onMouseDownCapture={handleMouseDownCapture}
-      onDoubleClick={handleDoubleClick2}
+      onDoubleClick={handleDoubleClick}
       onContextMenu={handleContextMenu}
       onDragEnter={rest.onCanvasDragEnter}
       onDragOver={rest.onCanvasDragOver}

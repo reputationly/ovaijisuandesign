@@ -5,3 +5,10 @@ t2@97:14	t2	translate	CanvasTidyControlInner 使用该函数翻译整理菜单�
 s2@250:23	s2	state	useStore selector 从 store state 读取 transform 的缩放分量。
 t2@316:14	t2	translate	CanvasViewControls 使用该函数翻译工具提示和无障碍标签。
 _2@485:15	_2	presenceValue	QuickZoomPresence 将当前或保留的 value 作为第一个 children 参数传入，此处不使用。
+children2@252:13	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
+disabled2@255:13	disabled2	disabled	原名 disabled2 的末尾 2 是打包器去重后缀；恢复词干 disabled，该绑定表示禁用状态。
+active2@264:9	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
+state2@303:6	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+state2@306:6	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+onPointerDown2@319:11	onPointerDown2	onPointerDown	原名 onPointerDown2 的末尾 2 是打包器去重后缀；恢复词干 onPointerDown，该绑定表示指针按下事件回调。
+current2@350:24	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。

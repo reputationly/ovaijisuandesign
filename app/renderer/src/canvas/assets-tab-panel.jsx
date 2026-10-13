@@ -38,13 +38,13 @@ import { AssetCenterPanel } from "../assets/asset-center-panel.jsx";
 import { FileExplorerSearchBar } from "../assets/file-explorer-search-bar.jsx";
 function ProjectAssetsSidebarPanel({ onToolbarStateChange, searchQuery } = {}) {
   const workspacePath = useCurrentWorkspace();
-  const project2 = useWorkspaceProject(workspacePath || void 0);
-  if (!project2) return null;
-  if (project2.kind === "team" && project2.remoteId) {
+  const project = useWorkspaceProject(workspacePath || void 0);
+  if (!project) return null;
+  if (project.kind === "team" && project.remoteId) {
     return (
       <TeamAssetsSidebarPanel
-        project={project2}
-        cloudProjectId={project2.remoteId}
+        project={project}
+        cloudProjectId={project.remoteId}
         onToolbarStateChange={onToolbarStateChange}
         searchQuery={searchQuery}
       />
@@ -52,7 +52,7 @@ function ProjectAssetsSidebarPanel({ onToolbarStateChange, searchQuery } = {}) {
   }
   return (
     <LocalAssetsSidebarPanel
-      project={project2}
+      project={project}
       onToolbarStateChange={onToolbarStateChange}
       searchQuery={searchQuery}
     />
@@ -60,7 +60,7 @@ function ProjectAssetsSidebarPanel({ onToolbarStateChange, searchQuery } = {}) {
 }
 export function AssetsTabPanel({ onManageActiveChange } = {}) {
   const { t: translate } = useTranslation();
-  const [view2, setView] = reactExports.useState("default");
+  const [view, setView] = reactExports.useState("default");
   const [addEntityOpen, setAddEntityOpen] = reactExports.useState(false);
   const [librarySortKey, setLibrarySortKey] =
     reactExports.useState("updated_at");
@@ -118,28 +118,28 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
     },
     [importMutation, translate],
   );
-  const [searchQuery, setSearchQuery2] = reactExports.useState("");
+  const [searchQuery, setSearchQuery] = reactExports.useState("");
   const [librarySearchQuery, setLibrarySearchQuery] = reactExports.useState("");
   const [libraryViewMode, setLibraryViewMode] = reactExports.useState("grid");
   const libraryRefreshRef = reactExports.useRef(() => {});
-  const registerLibraryRefresh = reactExports.useCallback((refreshLibrary) => {
-    libraryRefreshRef.current = refreshLibrary;
+  const registerLibraryRefresh = reactExports.useCallback((fn) => {
+    libraryRefreshRef.current = fn;
   }, []);
   const [projectAssetsToolbar, setProjectAssetsToolbar] =
     reactExports.useState(void 0);
   const workspacePath = useCurrentWorkspace();
-  const project2 = useWorkspaceProject(workspacePath || void 0);
-  const isTeamProject = project2?.kind === "team";
+  const project = useWorkspaceProject(workspacePath || void 0);
+  const isTeamProject = project?.kind === "team";
   const libraryEntryDisabled = isTeamProject;
-  const forceLibraryView = !project2 && !libraryEntryDisabled;
+  const forceLibraryView = !project && !libraryEntryDisabled;
   reactExports.useEffect(() => {
-    if (forceLibraryView && view2 === "default") setView("library");
-  }, [forceLibraryView, view2]);
+    if (forceLibraryView && view === "default") setView("library");
+  }, [forceLibraryView, view]);
   reactExports.useEffect(() => {
-    onManageActiveChange?.(view2 === "manage");
+    onManageActiveChange?.(view === "manage");
     return () => onManageActiveChange?.(false);
-  }, [onManageActiveChange, view2]);
-  if (view2 === "manage" && !libraryEntryDisabled) {
+  }, [onManageActiveChange, view]);
+  if (view === "manage" && !libraryEntryDisabled) {
     return (
       <div
         className="flex h-full min-h-0 flex-col"
@@ -166,7 +166,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
       </div>
     );
   }
-  if (view2 === "library" && !libraryEntryDisabled) {
+  if (view === "library" && !libraryEntryDisabled) {
     return (
       <div
         className="flex h-full min-h-0 flex-col"
@@ -475,7 +475,7 @@ export function AssetsTabPanel({ onManageActiveChange } = {}) {
       <div className="flex shrink-0 items-center gap-1 px-2 pt-2 pb-2">
         <FileExplorerSearchBar
           value={searchQuery}
-          onChange={setSearchQuery2}
+          onChange={setSearchQuery}
           placeholder={translate("localAssets.searchPlaceholder", {
             defaultValue: "搜索资产",
           })}

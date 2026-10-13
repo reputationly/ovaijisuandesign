@@ -3,4 +3,10 @@ t2@17:23	t2	progress	easeOutQuart 按 0 到 1 的动画进度计算四次缓出�
 a2@21:31	a2	startView	起始 viewport 元组用于计算当前视口到目标视口的插值。
 b3@21:35	b3	targetView	目标 viewport 元组提供插值后的平移和缩放值。
 t2@23:11	t2	progress	插值回调按该动画进度计算当前视口平移和缩放。
-id2@69:14	id2	nodeId	循环遍历待定位节点标识并从 nodeLookup 读取节点。
+id2@69:14	id2	id	循环遍历待定位节点标识并从 nodeLookup 读取节点。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+scale2@24:11	scale2	scale	原名 scale2 的末尾 2 是打包器去重后缀；恢复词干 scale，该绑定表示缩放比例。
+zoom2@54:9	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+node2@70:11	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+position2@74:11	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
+instance2@89:40	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+frame2@105:15	frame2	frame	原名 frame2 的末尾 2 是打包器去重后缀；恢复词干 frame，该绑定表示动画帧标识。

@@ -4,35 +4,35 @@ import { Emitter } from "../vendor-inline/vscode-base/vs-buffer.js";
 import { WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY } from "../workspace/workspace-failure-diagnosis-registry.js";
 import { SessionTabsPersister } from "./session-tabs-persister.js";
 
-function translate(copy2, translator, language2) {
-  return translator(copy2.key, {
-    defaultValue: language2.startsWith("zh") ? copy2.zh : copy2.en,
+function translate(copy, translator, language) {
+  return translator(copy.key, {
+    defaultValue: language.startsWith("zh") ? copy.zh : copy.en,
   });
 }
 
-export function resolveWorkspaceFailureDiagnosis(code2, translator, language2) {
-  if (!code2) return void 0;
-  const meta2 = WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY[code2];
+export function resolveWorkspaceFailureDiagnosis(code, translator, language) {
+  if (!code) return void 0;
+  const meta = WORKSPACE_FAILURE_DIAGNOSIS_REGISTRY[code];
   return {
-    code: code2,
-    category: meta2.category,
-    severity: meta2.severity,
-    title: translate(meta2.title, translator, language2),
-    message: translate(meta2.message, translator, language2),
-    primaryAction: translate(meta2.primaryAction, translator, language2),
-    suggestions: meta2.suggestions.map((suggestion) =>
-      translate(suggestion, translator, language2),
+    code,
+    category: meta.category,
+    severity: meta.severity,
+    title: translate(meta.title, translator, language),
+    message: translate(meta.message, translator, language),
+    primaryAction: translate(meta.primaryAction, translator, language),
+    suggestions: meta.suggestions.map((suggestion) =>
+      translate(suggestion, translator, language),
     ),
-    runbook: meta2.runbook,
+    runbook: meta.runbook,
   };
 }
 
 class PluginEvents {
   _onPluginsChanged = new Emitter();
   onPluginsChanged = this._onPluginsChanged.event;
-  firePluginsChanged(pluginId, kind) {
+  firePluginsChanged(id, kind) {
     this._onPluginsChanged.fire({
-      id: pluginId,
+      id,
       kind,
     });
   }

@@ -1,4 +1,9 @@
 key	old	new	依据
 t2@7:27	t2	translator	该函数按 copy.key 和语言回退文本调用本地化翻译器。
 t2@13:57	t2	translator	该翻译器被传给各诊断字段的 translate helper。
-id2@33:22	id2	pluginId	firePluginsChanged 将该标识放入插件变更事件。
+id2@33:22	id2	id	firePluginsChanged 将该标识放入插件变更事件。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+copy2@7:20	copy2	copy	原名 copy2 的末尾 2 是打包器去重后缀；恢复词干 copy，该绑定表示复制操作。
+language2@7:31	language2	language	原名 language2 的末尾 2 是打包器去重后缀；恢复词干 language，该绑定表示语言标识。
+code2@13:50	code2	code	原名 code2 的末尾 2 是打包器去重后缀；恢复词干 code，该绑定表示代码文本。
+language2@13:61	language2	language	原名 language2 的末尾 2 是打包器去重后缀；恢复词干 language，该绑定表示语言标识。
+meta2@15:9	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。

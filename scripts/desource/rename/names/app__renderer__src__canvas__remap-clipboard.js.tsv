@@ -3,3 +3,11 @@ m3@66:17	m3	positionKey	node.positions 中的对象键在重映射时保持不�
 p3@66:21	p3	position	该值是当前键对应的位置坐标，顶层节点位置会加上粘贴偏移。
 e2@146:14	e2	edge	过滤器仅保留两端节点都在本次复制映射中的内部连线。
 e2@159:14	e2	edge	过滤器仅保留目标已复制而来源仍位于原画布的继承连线。
+text2@13:37	text2	text	原名 text2 的末尾 2 是打包器去重后缀；恢复词干 text，该绑定表示文本内容。
+data2@21:30	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+data2@27:32	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+offset2@31:9	offset2	offset	原名 offset2 的末尾 2 是打包器去重后缀；恢复词干 offset，该绑定表示偏移量。
+node2@41:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@45:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@54:34	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+key2@91:18	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。

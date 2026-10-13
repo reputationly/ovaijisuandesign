@@ -2,6 +2,19 @@ key	old	new	依据
 a2@201:13	a2	leftRound	groupSlotsByRound 按轮次键升序比较排序左侧的轮次值。
 b3@201:19	b3	rightRound	groupSlotsByRound 按轮次键升序比较排序右侧的轮次值。
 s2@215:30	s2	subNode	每个子节点被转换为对应的图片槽位。
-d2@293:9	d2	data	data2 缺失时使用空对象并读取其中的 assetId 和生成状态。
-id2@291:50	id2	assetId	metaById 查找器按素材标识获取素材元数据。
+d2@293:9	d2	resolvedData	data 缺失时提供空对象的节点数据；与函数参数 data@283:3 冲突，故使用 resolvedData。
+id2@291:50	id2	id	metaById 查找器按素材标识获取素材元数据。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 r2@318:13	r2	round	子图片的数值轮次用于更新当前最大轮次。
+node2@22:25	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+data2@23:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+index2@53:12	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
+index2@59:27	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
+node2@74:38	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@79:28	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+meta2@82:9	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
+key2@192:11	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+main2@205:30	main2	main	原名 main2 的末尾 2 是打包器去重后缀；恢复词干 main，该绑定表示主节点。
+meta2@265:21	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
+data2@283:3	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+view2@333:9	view2	view	原名 view2 的末尾 2 是打包器去重后缀；恢复词干 view，该绑定表示视图对象。
+max2@317:23	max2	max	原名 max2 的末尾 2 是打包器去重后缀；恢复词干 max，该绑定表示最大值。

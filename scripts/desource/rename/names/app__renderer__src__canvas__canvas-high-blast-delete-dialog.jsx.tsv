@@ -2,3 +2,10 @@ key	old	new	依据
 t2@51:14	t2	translate	该函数翻译高数量删除确认对话框的标题、说明和按钮文本。
 e2@110:31	e2	mouseEvent	document mousedown 监听器用该事件 target 判断是否点击菜单外。
 e2@116:29	e2	keyboardEvent	document keydown 监听器检查 Escape 并处理键盘事件。
+instance2@50:57	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+handleMouseDown2@110:11	handleMouseDown2	handleMouseDown	原名 handleMouseDown2 的末尾 2 是打包器去重后缀；恢复词干 handleMouseDown，该绑定表示handleMouseDown 事件处理函数。
+handleKeyDown2@116:11	handleKeyDown2	handleKeyDown	原名 handleKeyDown2 的末尾 2 是打包器去重后缀；恢复词干 handleKeyDown，该绑定表示handleKeyDown 事件处理函数。
+timer2@125:11	timer2	timer	原名 timer2 的末尾 2 是打包器去重后缀；恢复词干 timer，该绑定表示定时器标识。
+children2@136:66	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
+content2@159:9	content2	content	原名 content2 的末尾 2 是打包器去重后缀；恢复词干 content，该绑定表示内容值。
+key2@174:9	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。

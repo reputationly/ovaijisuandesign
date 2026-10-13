@@ -1,3 +1,20 @@
 key	old	new	依据
-subscribers$1@103:7	subscribers$1	zoomTierSubscribers	该集合保存 useStableZoomTier 的订阅者并在缩放层级变化时通知。
-notify$2@104:10	notify$2	notifyZoomTierSubscribers	该函数遍历缩放层级订阅者并触发更新。
+subscribers$1@103:7	subscribers$1	zoomTierSubscribers	该集合保存缩放层级订阅者；与 subscribers@89:14 冲突，故使用 zoomTierSubscribers。
+notify$2@104:10	notify$2	notifyZoomTierSubscribers	该函数遍历缩放层级订阅者并触发更新；与 notify@90:10 冲突，故使用 notifyZoomTierSubscribers。
+active2@9:40	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
+platform2@12:11	platform2	platform	原名 platform2 的末尾 2 是打包器去重后缀；恢复词干 platform，该绑定表示平台标识。
+token2@15:11	token2	token	原名 token2 的末尾 2 是打包器去重后缀；恢复词干 token，该绑定表示令牌值。
+update2@16:11	update2	update	原名 update2 的末尾 2 是打包器去重后缀；恢复词干 update，该绑定表示更新操作。
+render2@32:15	render2	render	原名 render2 的末尾 2 是打包器去重后缀；恢复词干 render，该绑定表示渲染函数。
+state2@36:11	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+element2@39:11	element2	element	原名 element2 的末尾 2 是打包器去重后缀；恢复词干 element，该绑定表示DOM 元素。
+zoom2@75:22	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+zoom2@83:30	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+zoom2@94:40	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+next2@95:9	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+zoom2@100:38	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+zoom2@108:38	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+next2@109:9	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+zoom2@114:36	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+zoom2@129:39	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+node2@133:30	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。

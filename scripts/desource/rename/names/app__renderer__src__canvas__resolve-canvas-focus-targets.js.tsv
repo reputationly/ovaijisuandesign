@@ -1,8 +1,25 @@
 key	old	new	依据
 t2@67:39	t2	translate	该翻译器生成撤销或重做被阻止时的提示。
 t2@90:38	t2	translate	该翻译器生成删除被阻止时的提示。
-id2@168:27	id2	nodeId	ancestorGroups 从 nodeById 读取节点并逐级收集祖先分组。
-id2@179:48	id2	nodeId	对每个请求节点收集其祖先分组标识。
-id2@200:46	id2	nodeId	过滤出 nodeById 中存在的请求节点标识。
-id2@207:6	id2	nodeId	读取节点类型以筛选显式请求的分组节点。
-id2@224:34	id2	nodeId	读取节点的 parentId 以判断是否共享父分组。
+id2@168:27	id2	id	ancestorGroups 从 nodeById 读取节点并逐级收集祖先分组。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@179:48	id2	id	对每个请求节点收集其祖先分组标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@200:46	id2	id	过滤出 nodeById 中存在的请求节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@207:6	id2	id	读取节点类型以筛选显式请求的分组节点。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@224:34	id2	id	读取节点的 parentId 以判断是否共享父分组。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+node2@9:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+children2@12:13	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
+instance2@30:39	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+schedule2@118:13	schedule2	schedule	原名 schedule2 的末尾 2 是打包器去重后缀；恢复词干 schedule，该绑定表示调度函数。
+pending2@124:7	pending2	pending	原名 pending2 的末尾 2 是打包器去重后缀；恢复词干 pending，该绑定表示待处理状态。
+token2@136:13	token2	token	原名 token2 的末尾 2 是打包器去重后缀；恢复词干 token，该绑定表示令牌值。
+selection2@161:43	selection2	selection	原名 selection2 的末尾 2 是打包器去重后缀；恢复词干 selection，该绑定表示选择状态。
+current2@170:9	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+node2@184:24	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+groupId2@194:14	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
+node2@199:39	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+info2@249:44	info2	info	原名 info2 的末尾 2 是打包器去重后缀；恢复词干 info，该绑定表示信息对象。
+node2@284:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+info2@292:23	info2	info	原名 info2 的末尾 2 是打包器去重后缀；恢复词干 info，该绑定表示信息对象。
+workspaceId2@301:41	workspaceId2	workspaceId	原名 workspaceId2 的末尾 2 是打包器去重后缀；恢复词干 workspaceId，该绑定表示工作区标识符。
+workspaceId2@320:48	workspaceId2	workspaceId	原名 workspaceId2 的末尾 2 是打包器去重后缀；恢复词干 workspaceId，该绑定表示工作区标识符。
+mode2@320:62	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。

@@ -14,49 +14,49 @@ import {
   useRenderElement,
 } from "../vendor.js";
 const BasePopoverTitle = reactExports.forwardRef(
-  function PopoverTitle2(componentProps, forwardedRef) {
-    const { render: render2, className, ...elementProps } = componentProps;
+  function PopoverTitle(componentProps, forwardedRef) {
+    const { render, className, ...elementProps } = componentProps;
     const { store } = usePopoverRootContext();
-    const elementId = useBaseUiId(elementProps.id);
+    const id = useBaseUiId(elementProps.id);
     useIsoLayoutEffect(() => {
-      store.set("titleElementId", elementId);
+      store.set("titleElementId", id);
       return () => {
         store.set("titleElementId", void 0);
       };
-    }, [store, elementId]);
-    const element2 = useRenderElement("h2", componentProps, {
+    }, [store, id]);
+    const element = useRenderElement("h2", componentProps, {
       ref: forwardedRef,
       props: [
         {
-          id: elementId,
+          id,
         },
         elementProps,
       ],
     });
-    return element2;
+    return element;
   },
 );
 const BasePopoverDescription = reactExports.forwardRef(
-  function PopoverDescription2(componentProps, forwardedRef) {
-    const { render: render2, className, ...elementProps } = componentProps;
+  function PopoverDescription(componentProps, forwardedRef) {
+    const { render, className, ...elementProps } = componentProps;
     const { store } = usePopoverRootContext();
-    const elementId = useBaseUiId(elementProps.id);
+    const id = useBaseUiId(elementProps.id);
     useIsoLayoutEffect(() => {
-      store.set("descriptionElementId", elementId);
+      store.set("descriptionElementId", id);
       return () => {
         store.set("descriptionElementId", void 0);
       };
-    }, [store, elementId]);
-    const element2 = useRenderElement("p", componentProps, {
+    }, [store, id]);
+    const element = useRenderElement("p", componentProps, {
       ref: forwardedRef,
       props: [
         {
-          id: elementId,
+          id,
         },
         elementProps,
       ],
     });
-    return element2;
+    return element;
   },
 );
 export function PopoverTitle({ className, ...props }) {
@@ -81,10 +81,10 @@ export function SegmentedSwitch(props) {
   return (
     <BaseSegmentedSwitch
       {...props}
-      renderTooltip={(button, content2) => (
+      renderTooltip={(button, content) => (
         <Tooltip key={button.key}>
           <TooltipTrigger render={button} />
-          <TooltipContent side="bottom">{content2}</TooltipContent>
+          <TooltipContent side="bottom">{content}</TooltipContent>
         </Tooltip>
       )}
     />

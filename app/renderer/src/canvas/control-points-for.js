@@ -55,25 +55,25 @@ function calcOffset(delta) {
 }
 export function controlPointsFor(connectionPoints, side = "right") {
   if (side === "left") {
-    const offset22 = calcOffset(connectionPoints.sx - connectionPoints.tx);
+    const offset = calcOffset(connectionPoints.sx - connectionPoints.tx);
     return {
       sx: connectionPoints.sx,
       sy: connectionPoints.sy,
-      cp1x: connectionPoints.sx - offset22,
+      cp1x: connectionPoints.sx - offset,
       cp1y: connectionPoints.sy,
-      cp2x: connectionPoints.tx + offset22,
+      cp2x: connectionPoints.tx + offset,
       cp2y: connectionPoints.ty,
       tx: connectionPoints.tx,
       ty: connectionPoints.ty,
     };
   }
-  const offset2 = calcOffset(connectionPoints.tx - connectionPoints.sx);
+  const offset = calcOffset(connectionPoints.tx - connectionPoints.sx);
   return {
     sx: connectionPoints.sx,
     sy: connectionPoints.sy,
-    cp1x: connectionPoints.sx + offset2,
+    cp1x: connectionPoints.sx + offset,
     cp1y: connectionPoints.sy,
-    cp2x: connectionPoints.tx - offset2,
+    cp2x: connectionPoints.tx - offset,
     cp2y: connectionPoints.ty,
     tx: connectionPoints.tx,
     ty: connectionPoints.ty,
@@ -92,9 +92,9 @@ function notify() {
   for (const cb of subscribers) cb();
 }
 export let hoveredId = null;
-export function setHoveredEdgeId(edgeId) {
-  if (hoveredId === edgeId) return;
-  hoveredId = edgeId;
+export function setHoveredEdgeId(id) {
+  if (hoveredId === id) return;
+  hoveredId = id;
   notify();
 }
 export function clearHoveredEdgeIdIfMatches(expected) {

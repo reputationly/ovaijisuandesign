@@ -1,6 +1,24 @@
 key	old	new	依据
-id2@50:14	id2	nodeId	该节点标识传给 resolveNode 以判断是否可删除。
-id2@88:65	id2	requestedNodeId	requestedNodeIds 中的标识用于查询对应节点。
-id2@111:14	id2	edgeId	requestedEdgeIds 中的标识用于读取边并更新可删或阻止集合。
+id2@50:14	id2	id	该节点标识传给 resolveNode 以判断是否可删除。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@88:65	id2	id	requestedNodeIds 中的标识用于查询对应节点。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@111:14	id2	id	requestedEdgeIds 中的标识用于读取边并更新可删或阻止集合。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 n2@211:38	n2	node	该节点的 assetId 和 data.assetId 被收集为从属素材标识。
 n2@220:14	n2	node	遍历已保存节点并分类为插件文件、分组子节点、克隆或独立节点。
+node2@10:22	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@16:40	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@30:34	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@36:39	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+ids2@46:39	ids2	ids	原名 ids2 的末尾 2 是打包器去重后缀；恢复词干 ids，该绑定表示标识符集合。
+resolveNode2@46:45	resolveNode2	resolveNode	原名 resolveNode2 的末尾 2 是打包器去重后缀；恢复词干 resolveNode，该绑定表示解析节点的函数。
+node2@51:11	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@87:39	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@90:13	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@94:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@107:16	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+entries2@170:9	entries2	entries	原名 entries2 的末尾 2 是打包器去重后缀；恢复词干 entries，该绑定表示键值条目集合。
+node2@171:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+meta2@177:11	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
+entries2@188:9	entries2	entries	原名 entries2 的末尾 2 是打包器去重后缀；恢复词干 entries，该绑定表示键值条目集合。
+seen2@189:9	seen2	seen	原名 seen2 的末尾 2 是打包器去重后缀；恢复词干 seen，该绑定表示已访问集合。
+node2@190:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+meta2@196:19	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。

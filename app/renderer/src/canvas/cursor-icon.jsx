@@ -42,15 +42,15 @@ export function CanvasE2EMarkersInner({ nodes }) {
     <div data-canvas-e2e-markers="" style={HIDDEN_STYLE} aria-hidden="true">
       {mediaNodes.map((node) => {
         const { assetId } = parseNodeId(node.id);
-        const meta2 = assets.get(assetId);
-        if (!meta2?.url) return null;
+        const meta = assets.get(assetId);
+        if (!meta?.url) return null;
         const artifactType = NODE_TYPE_TO_ARTIFACT[node.type];
         return (
           <span
             key={node.id}
             data-action-ui-id={CHAT_ARTIFACT_UI_ID[artifactType]}
             data-artifact-type={artifactType}
-            data-artifact-path={meta2.url}
+            data-artifact-path={meta.url}
           />
         );
       })}
@@ -141,27 +141,27 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 
 export const INITIAL_GUIDE_SLOTS = 10;
 
-export function createGuideSlot(svg2) {
-  const doc2 = svg2.ownerDocument;
-  const group = doc2.createElementNS(SVG_NS, "g");
-  const line = doc2.createElementNS(SVG_NS, "line");
-  const caps = doc2.createElementNS(SVG_NS, "path");
-  const label = doc2.createElementNS(SVG_NS, "text");
-  const text2 = doc2.createTextNode("");
-  label.append(text2);
+export function createGuideSlot(svg) {
+  const doc = svg.ownerDocument;
+  const group = doc.createElementNS(SVG_NS, "g");
+  const line = doc.createElementNS(SVG_NS, "line");
+  const caps = doc.createElementNS(SVG_NS, "path");
+  const label = doc.createElementNS(SVG_NS, "text");
+  const text = doc.createTextNode("");
+  label.append(text);
   group.append(line, caps, label);
   group.style.display = "none";
-  svg2.append(group);
+  svg.append(group);
   return {
     group,
     line,
     caps,
     label,
-    text: text2,
+    text,
   };
 }
 
-export function setAttribute(element2, name2, value) {
-  if (element2.getAttribute(name2) !== value)
-    element2.setAttribute(name2, value);
+export function setAttribute(element, attributeName, value) {
+  if (element.getAttribute(attributeName) !== value)
+    element.setAttribute(attributeName, value);
 }

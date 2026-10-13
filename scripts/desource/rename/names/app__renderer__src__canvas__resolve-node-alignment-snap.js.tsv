@@ -1,3 +1,11 @@
 key	old	new	依据
 a2@66:8	a2	leftCandidate	排序比较器左侧对齐候选的 delta、priority 和 separation 被依次比较。
 b3@66:12	b3	rightCandidate	排序比较器右侧对齐候选的 delta、priority 和 separation 被依次比较。
+candidates2@26:9	candidates2	candidates	原名 candidates2 的末尾 2 是打包器去重后缀；恢复词干 candidates，该绑定表示candidates 对应的值。
+cross2@27:9	cross2	cross	原名 cross2 的末尾 2 是打包器去重后缀；恢复词干 cross，该绑定表示cross 对应的值。
+candidates2@53:26	candidates2	candidates	原名 candidates2 的末尾 2 是打包器去重后缀；恢复词干 candidates，该绑定表示candidates 对应的值。
+zoom2@53:39	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+cross2@75:9	cross2	cross	原名 cross2 的末尾 2 是打包器去重后缀；恢复词干 cross，该绑定表示cross 对应的值。
+position2@95:30	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
+zoom2@115:49	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+empty2@116:9	empty2	empty	原名 empty2 的末尾 2 是打包器去重后缀；恢复词干 empty，该绑定表示空值状态。

@@ -3,3 +3,12 @@ i2@27:12	i2	index	循环下标逐段读取 padding 字符串并识别括号和�
 e2@71:55	e2	pointerEvent	onPointerDown 回调用事件的 clientX、clientY 记录拖拽起点。
 e2@78:55	e2	pointerEvent	onPointerMove 回调用事件坐标计算拖拽距离。
 e2@89:6	e2	mouseEvent	onDoubleClick 回调在未拖动且没有模态框时转交双击事件。
+selected2@12:34	selected2	selected	原名 selected2 的末尾 2 是打包器去重后缀；恢复词干 selected，该绑定表示选中状态。
+tags2@12:45	tags2	tags	原名 tags2 的末尾 2 是打包器去重后缀；恢复词干 tags，该绑定表示标签集合。
+values3@24:9	values3	values	原名 values3 的末尾 3 是打包器去重后缀；恢复词干 values，该绑定表示值集合。
+depth2@25:7	depth2	depth	原名 depth2 的末尾 2 是打包器去重后缀；恢复词干 depth，该绑定表示层级深度。
+start2@26:7	start2	start	原名 start2 的末尾 2 是打包器去重后缀；恢复词干 start，该绑定表示起始值。
+selected2@43:13	selected2	selected	原名 selected2 的末尾 2 是打包器去重后缀；恢复词干 selected，该绑定表示选中状态。
+children2@45:13	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
+handleDoubleClick2@88:9	handleDoubleClick2	handleDoubleClick	原名 handleDoubleClick2 的末尾 2 是打包器去重后缀；恢复词干 handleDoubleClick，该绑定表示handleDoubleClick 事件处理函数。
+start2@79:11	start2	start	原名 start2 的末尾 2 是打包器去重后缀；恢复词干 start，该绑定表示起始值。

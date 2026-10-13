@@ -1,82 +1,82 @@
 // create-canvas-overlay-store.js
 import { createStore$1 as createStore } from "../vendor.js";
 export function createCanvasOverlayStore() {
-  return createStore((set2) => ({
+  return createStore((set) => ({
     active: null,
-    startCrop: (nodeId, meta2) =>
-      set2({
+    startCrop: (nodeId, meta) =>
+      set({
         active: {
           kind: "crop",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelCrop: () =>
-      set2((state) =>
+      set((state) =>
         state.active?.kind === "crop"
           ? {
               active: null,
             }
           : state,
       ),
-    startOutpaint: (nodeId, meta2) =>
-      set2({
+    startOutpaint: (nodeId, meta) =>
+      set({
         active: {
           kind: "outpaint",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelOutpaint: () =>
-      set2((state) =>
+      set((state) =>
         state.active?.kind === "outpaint"
           ? {
               active: null,
             }
           : state,
       ),
-    startErase: (nodeId, meta2) =>
-      set2({
+    startErase: (nodeId, meta) =>
+      set({
         active: {
           kind: "erase",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelErase: () =>
-      set2((state) =>
+      set((state) =>
         state.active?.kind === "erase"
           ? {
               active: null,
             }
           : state,
       ),
-    startRedraw: (nodeId, meta2) =>
-      set2({
+    startRedraw: (nodeId, meta) =>
+      set({
         active: {
           kind: "redraw",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelRedraw: () =>
-      set2((state) =>
+      set((state) =>
         state.active?.kind === "redraw"
           ? {
               active: null,
             }
           : state,
       ),
-    startMoveObject: (nodeId, meta2) =>
-      set2({
+    startMoveObject: (nodeId, meta) =>
+      set({
         active: {
           kind: "move-object",
           nodeId,
-          meta: meta2,
+          meta,
         },
       }),
     cancelMoveObject: () =>
-      set2((state) =>
+      set((state) =>
         state.active?.kind === "move-object"
           ? {
               active: null,
@@ -84,7 +84,7 @@ export function createCanvasOverlayStore() {
           : state,
       ),
     reset: () =>
-      set2({
+      set({
         active: null,
       }),
   }));

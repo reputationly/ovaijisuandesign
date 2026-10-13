@@ -1,1 +1,13 @@
 key	old	new	依据
+clipboard2@7:37	clipboard2	clipboard	原名 clipboard2 的末尾 2 是打包器去重后缀；恢复词干 clipboard，该绑定表示剪贴板内容。
+data2@12:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+node2@31:27	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+clipboard2@67:55	clipboard2	clipboard	原名 clipboard2 的末尾 2 是打包器去重后缀；恢复词干 clipboard，该绑定表示剪贴板内容。
+matchingNodes2@70:9	matchingNodes2	matchingNodes	原名 matchingNodes2 的末尾 2 是打包器去重后缀；恢复词干 matchingNodes，该绑定表示匹配的节点集合。
+node2@80:37	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+key2@103:9	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+dedupe2@134:9	dedupe2	dedupe	原名 dedupe2 的末尾 2 是打包器去重后缀；恢复词干 dedupe，该绑定表示去重操作。
+node2@137:17	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+clipboard2@138:11	clipboard2	clipboard	原名 clipboard2 的末尾 2 是打包器去重后缀；恢复词干 clipboard，该绑定表示剪贴板内容。
+duplicated2@260:17	duplicated2	duplicated	原名 duplicated2 的末尾 2 是打包器去重后缀；恢复词干 duplicated，该绑定表示重复状态。
+instance2@323:13	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。

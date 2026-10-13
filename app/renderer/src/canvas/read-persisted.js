@@ -25,7 +25,7 @@ function migrateToolbarOrder(pinned) {
     return pinned;
   }
   const rest = pinned.filter(
-    (toolId) => toolId !== "hailuo03-super-resolution" && toolId !== "enhance-video",
+    (id) => id !== "hailuo03-super-resolution" && id !== "enhance-video",
   );
   return ["hailuo03-super-resolution", ...rest];
 }
@@ -37,13 +37,13 @@ function readPersisted() {
     };
   }
   try {
-    const raw2 = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw2)
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw)
       return {
         pinned: DEFAULT_PINNED,
         showLabels: DEFAULT_SHOW_LABELS,
       };
-    const parsed = JSON.parse(raw2);
+    const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") {
       return {
         pinned: DEFAULT_PINNED,
@@ -58,7 +58,7 @@ function readPersisted() {
     const pinned =
       migratedPinned.length === PRE_WATERMARK_DEFAULT_PINNED.length &&
       migratedPinned.every(
-        (toolId, index2) => toolId === PRE_WATERMARK_DEFAULT_PINNED[index2],
+        (id, index) => id === PRE_WATERMARK_DEFAULT_PINNED[index],
       )
         ? DEFAULT_PINNED
         : migratedPinned;
@@ -75,29 +75,29 @@ function readPersisted() {
     };
   }
 }
-function persist(state2) {
+function persist(state) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state2));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {}
 }
-export const useVideoToolbarCustomizationStore = create((set2) => ({
+export const useVideoToolbarCustomizationStore = create((set) => ({
   ...readPersisted(),
-  setCustomization(next2) {
-    const pinned = next2.pinned.filter(isVideoToolbarToolId);
-    const state2 = {
+  setCustomization(next) {
+    const pinned = next.pinned.filter(isVideoToolbarToolId);
+    const state = {
       pinned,
-      showLabels: !!next2.showLabels,
+      showLabels: !!next.showLabels,
     };
-    set2(state2);
-    persist(state2);
+    set(state);
+    persist(state);
   },
   resetToDefaults() {
-    const state2 = {
+    const state = {
       pinned: [...DEFAULT_PINNED],
       showLabels: DEFAULT_SHOW_LABELS,
     };
-    set2(state2);
-    persist(state2);
+    set(state);
+    persist(state);
   },
 }));

@@ -1,9 +1,23 @@
 key	old	new	依据
 n2@132:24	n2	node	提示节点用于判断是否为已折叠分组。
 n2@157:41	n2	node	节点 Map 以每个节点的 id 为键保存图节点。
-id2@159:36	id2	targetNodeId	目标节点标识用于读取节点并构造上下文菜单目标。
-id2@221:51	id2	targetNodeId	目标节点标识用于判断是否存在图级上下文菜单目标。
-id2@240:28	id2	assetId	素材路径解析器按素材标识从 metadata store 查找路径。
-id2@246:47	id2	nodeId	可删除节点筛选器按节点标识从 nodesById 查找节点。
-id2@265:34	id2	assetId	素材路径解析器按素材标识从 metadata store 查找路径。
-id2@274:32	id2	assetId	素材路径解析器按素材标识从 metadata store 查找路径。
+id2@159:36	id2	id	目标节点标识用于读取节点并构造上下文菜单目标。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@221:51	id2	id	目标节点标识用于判断是否存在图级上下文菜单目标。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@240:28	id2	id	素材路径解析器按素材标识从 metadata store 查找路径。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@246:47	id2	id	可删除节点筛选器按节点标识从 nodesById 查找节点。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@265:34	id2	id	素材路径解析器按素材标识从 metadata store 查找路径。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@274:32	id2	id	素材路径解析器按素材标识从 metadata store 查找路径。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+node2@14:33	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+current2@19:3	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+current2@29:44	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+node2@45:40	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+instance2@54:40	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+node2@70:20	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+instance2@76:28	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+position2@76:39	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
+instance2@88:13	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+meta2@208:15	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
+index2@221:56	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
+current2@229:38	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+groupId2@282:24	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
+node2@300:13	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。

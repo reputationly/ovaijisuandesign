@@ -1,4 +1,10 @@
 key	old	new	依据
 i2@15:12	i2	index	循环下标限制查找空闲位置时尝试的最大轮数。
 o2@16:36	o2	occupiedRect	occupied 集合中的矩形与当前候选位置进行重叠检测。
-id2@65:29	id2	nodeId	该节点标识被拆分为 assetId 及可选 cloneId。
+id2@65:29	id2	id	该节点标识被拆分为 assetId 及可选 cloneId。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+size2@4:52	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+node2@76:29	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@79:48	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+mode2@131:15	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+position2@131:22	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
+node2@164:37	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。

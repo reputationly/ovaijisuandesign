@@ -23,7 +23,7 @@ import {
   TooltipContent,
 } from "../infra/dialog-content.jsx";
 import { getCanvasTagPresentationColor } from "../assets/inline-input.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 export function SortableTagRow({
   tag,
   label,
@@ -43,32 +43,32 @@ export function SortableTagRow({
   const keywordTag = isCanvasKeywordTag(tag);
   const {
     attributes,
-    listeners: listeners2,
+    listeners,
     setNodeRef,
-    transform: transform2,
-    transition: transition2,
+    transform,
+    transition,
     isDragging,
   } = useSortable({
     id: tag.id,
     disabled: keywordTag,
   });
-  const { onPointerDown: onPointerDown2, ...keyboardListeners } =
-    listeners2 ?? {};
-  const handleDragPointerDown = onPointerDown2;
+  const { onPointerDown, ...keyboardListeners } =
+    listeners ?? {};
+  const handleDragPointerDown = onPointerDown;
   reactExports.useEffect(() => setDraft(label), [label]);
   const validation = validateCanvasTagName(draft);
   const duplicate = isTagNameTaken(draft, resolvedNames, tag.id);
   const inputInvalid = validation === "required" || duplicate;
   const saveName = async () => {
-    const name2 = draft.trim();
-    if (validation || duplicate || name2 === label) {
+    const trimmedName = draft.trim();
+    if (validation || duplicate || trimmedName === label) {
       if (!validation && !duplicate) setDraft(label);
       return;
     }
     setSaving(true);
     try {
       await onUpdate(tag.id, {
-        name: name2,
+        name: trimmedName,
       });
     } catch {
       setDraft(label);
@@ -81,8 +81,8 @@ export function SortableTagRow({
     <div
       ref={setNodeRef}
       style={{
-        transform: CSS.Transform.toString(transform2),
-        transition: transition2,
+        transform: CSS.Transform.toString(transform),
+        transition,
         opacity: isDragging ? 0.92 : 1,
       }}
       className={cn(
@@ -154,7 +154,7 @@ export function SortableTagRow({
             )}
           </div>
           <div className="group/name relative min-w-0">
-            <Input3
+            <Input
               value={draft}
               disabled={saving}
               className={cn(

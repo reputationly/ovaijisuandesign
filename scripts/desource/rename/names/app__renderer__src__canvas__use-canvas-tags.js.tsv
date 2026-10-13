@@ -1,1 +1,14 @@
 key	old	new	依据
+body2@28:44	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。
+gatewayFetch2@39:9	gatewayFetch2	gatewayFetch	原名 gatewayFetch2 的末尾 2 是打包器去重后缀；恢复词干 gatewayFetch，该绑定表示网关请求函数。
+queryClient2@41:9	queryClient2	queryClient	原名 queryClient2 的末尾 2 是打包器去重后缀；恢复词干 queryClient，该绑定表示查询客户端实例。
+data2@44:17	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+registry2@49:9	registry2	registry	原名 registry2 的末尾 2 是打包器去重后缀；恢复词干 registry，该绑定表示注册表对象。
+body2@74:17	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。
+mode2@83:27	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+name2@106:12	name2	tagName	该参数是要创建的画布标签名称；name 是全局名，故使用 tagName。
+body2@116:15	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。
+patch2@136:19	patch2	patch	原名 patch2 的末尾 2 是打包器去重后缀；恢复词干 patch，该绑定表示局部更新数据。
+body2@145:15	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。
+body2@171:15	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。
+body2@202:15	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。

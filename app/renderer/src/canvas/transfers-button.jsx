@@ -29,7 +29,7 @@ function transferFailureText(translate, item) {
       return translate("cloudAssets.failUnknown");
   }
 }
-function TabButton({ active: active2, label, icon, onClick, actionId }) {
+function TabButton({ active, label, icon, onClick, actionId }) {
   return (
     <button
       type="button"
@@ -37,7 +37,7 @@ function TabButton({ active: active2, label, icon, onClick, actionId }) {
       data-action-ui-id={actionId}
       className={cn(
         "flex h-6 flex-1 items-center justify-center gap-1 rounded-md text-[12px] transition-colors",
-        active2
+        active
           ? "bg-background font-medium text-foreground shadow-sm"
           : "text-muted-foreground hover:text-foreground",
       )}
@@ -66,7 +66,7 @@ function EmptyState({ loading }) {
     </p>
   );
 }
-function UploadTransferRow({ item, onRemove: onRemove2 }) {
+function UploadTransferRow({ item, onRemove }) {
   const { t: translate } = useTranslation();
   const failed = item.status === "failed";
   const statusText = failed
@@ -112,7 +112,7 @@ function UploadTransferRow({ item, onRemove: onRemove2 }) {
           type="button"
           aria-label={translate("cloudAssets.removeRecord")}
           title={translate("cloudAssets.removeRecord")}
-          onClick={() => onRemove2(item.id)}
+          onClick={() => onRemove(item.id)}
           data-action-ui-id="cloud-assets.remove-transfer"
           className="shrink-0 rounded-sm p-0.5 text-foreground/60 transition-colors hover:text-foreground"
         >
@@ -128,9 +128,9 @@ function UploadTransferRow({ item, onRemove: onRemove2 }) {
     </div>
   );
 }
-function ReviewNodeRow({ node: node2, onDelete }) {
+function ReviewNodeRow({ node, onDelete }) {
   const { t: translate } = useTranslation();
-  const blocked = node2.review === "block";
+  const blocked = node.review === "block";
   return (
     <div
       className="flex items-start gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-popup-item-hover"
@@ -147,7 +147,7 @@ function ReviewNodeRow({ node: node2, onDelete }) {
       />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate text-[12px] text-foreground">
-          {node2.name}
+          {node.name}
         </span>
         <span
           className={cn(
@@ -158,7 +158,7 @@ function ReviewNodeRow({ node: node2, onDelete }) {
           {blocked
             ? translate("cloudAssets.statusReviewFailed")
             : translate("cloudAssets.statusReviewing")}
-          {node2.size > 0 ? ` · ${formatBytes(node2.size)}` : null}
+          {node.size > 0 ? ` · ${formatBytes(node.size)}` : null}
         </span>
         {blocked ? (
           <span className="truncate text-[11px] text-muted-foreground">
@@ -169,7 +169,7 @@ function ReviewNodeRow({ node: node2, onDelete }) {
       {blocked ? (
         <button
           type="button"
-          onClick={() => onDelete(node2)}
+          onClick={() => onDelete(node)}
           data-action-ui-id="cloud-assets.delete-blocked"
           className="flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] text-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
         >
@@ -186,10 +186,10 @@ function ReviewNodeRow({ node: node2, onDelete }) {
     </div>
   );
 }
-function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
+function DownloadRow({ item, onCancel, onRemove }) {
   const { t: translate } = useTranslation();
   const failed = item.status === "failed";
-  const percent2 =
+  const percent =
     item.status === "downloading" && item.totalBytes && item.totalBytes > 0
       ? Math.min(
           99,
@@ -226,7 +226,7 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
           )}
         >
           {statusText}
-          {percent2 !== void 0 ? ` · ${percent2}%` : null}
+          {percent !== void 0 ? ` · ${percent}%` : null}
           {item.batchLabel ? ` · ${item.batchLabel}` : null}
         </span>
         {failed ? (
@@ -240,7 +240,7 @@ function DownloadRow({ item, onCancel, onRemove: onRemove2 }) {
           type="button"
           aria-label={translate("cloudAssets.removeRecord")}
           title={translate("cloudAssets.removeRecord")}
-          onClick={() => onRemove2(item.id)}
+          onClick={() => onRemove(item.id)}
           data-action-ui-id="cloud-assets.remove-transfer"
           className="shrink-0 rounded-sm p-0.5 text-foreground/60 transition-colors hover:text-foreground"
         >
@@ -277,7 +277,7 @@ export function TransfersButton({
   onRemoveTransfer,
 }) {
   const { t: translate } = useTranslation();
-  const [tab2, setTab] = reactExports.useState("upload");
+  const [tab, setTab] = reactExports.useState("upload");
   const uploading = reactExports.useMemo(
     () =>
       transfers.filter(
@@ -288,7 +288,7 @@ export function TransfersButton({
     [transfers],
   );
   const localReviewing = reactExports.useMemo(() => {
-    const knownIds = new Set(reviewNodes.map((node2) => node2.id));
+    const knownIds = new Set(reviewNodes.map((node) => node.id));
     return transfers.filter(
       (item) =>
         item.kind === "upload" &&
@@ -325,10 +325,10 @@ export function TransfersButton({
   const badgeCount =
     uploading.filter((item) => item.status === "uploading").length +
     localReviewing.length +
-    reviewNodes.filter((node2) => node2.review === "reviewing").length;
+    reviewNodes.filter((node) => node.review === "reviewing").length;
   const failedCount =
     failedUploads.length +
-    reviewNodes.filter((node2) => node2.review === "block").length;
+    reviewNodes.filter((node) => node.review === "block").length;
   const hasLiveDownloads = downloads.some((item) => item.status !== "failed");
   const showFailureWarning =
     failedCount > 0 && uploadCount === failedCount && !hasLiveDownloads;
@@ -381,21 +381,21 @@ export function TransfersButton({
         </div>
         <div className="mx-1 mb-1 flex gap-0.5 rounded-lg bg-muted p-0.5">
           <TabButton
-            active={tab2 === "upload"}
+            active={tab === "upload"}
             label={translate("cloudAssets.tabUploads")}
             icon={<ArrowUpFromLine size={12} strokeWidth={1.5} />}
             onClick={() => setTab("upload")}
             actionId="cloud-assets.transfers-tab-upload"
           />
           <TabButton
-            active={tab2 === "download"}
+            active={tab === "download"}
             label={translate("cloudAssets.tabDownloads")}
             icon={<ArrowDownToLine size={12} strokeWidth={1.5} />}
             onClick={() => setTab("download")}
             actionId="cloud-assets.transfers-tab-download"
           />
         </div>
-        {tab2 === "upload" ? (
+        {tab === "upload" ? (
           uploadEmpty ? (
             <EmptyState loading={reviewLoading} />
           ) : (
@@ -414,10 +414,10 @@ export function TransfersButton({
                   onRemove={onRemoveTransfer}
                 />
               ))}
-              {reviewNodes.map((node2) => (
+              {reviewNodes.map((node) => (
                 <ReviewNodeRow
-                  key={node2.id}
-                  node={node2}
+                  key={node.id}
+                  node={node}
                   onDelete={onDeleteBlocked}
                 />
               ))}

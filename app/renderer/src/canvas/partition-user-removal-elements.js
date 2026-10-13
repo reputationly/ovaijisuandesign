@@ -7,14 +7,14 @@ import {
 } from "./find-free-position-from-anchor.js";
 import { buildIncrementalNodeData } from "./build-incremental-node-data.js";
 
-function isCloneNode(node2) {
-  return node2.meta?.cloneOf != null;
+function isCloneNode(node) {
+  return node.meta?.cloneOf != null;
 }
 
 export const INTERNAL_COPY_HTML_ATTRIBUTE = "data-hilo-canvas-internal-copy";
 
-export function isTransientPlaceholder(node2) {
-  return node2.type === "placeholder" && isUnmaterialisedGenerationNode(node2);
+export function isTransientPlaceholder(node) {
+  return node.type === "placeholder" && isUnmaterialisedGenerationNode(node);
 }
 
 export function getClipboard() {
@@ -27,31 +27,31 @@ const IN_FLIGHT_PLACEHOLDER_STATUS = new Set([
   "loading",
 ]);
 
-export function isNodeGenerating(node2) {
-  if (!node2) return false;
-  const status = node2.data?.status;
+export function isNodeGenerating(node) {
+  if (!node) return false;
+  const status = node.data?.status;
   return typeof status === "string" && IN_FLIGHT_PLACEHOLDER_STATUS.has(status);
 }
 
-export function isNodeDeleteProtected(node2) {
-  if (!node2) return false;
-  const status = node2.data?.status;
+export function isNodeDeleteProtected(node) {
+  if (!node) return false;
+  const status = node.data?.status;
   if (typeof status !== "string") return false;
   if (IN_FLIGHT_PLACEHOLDER_STATUS.has(status)) return true;
   if (status === "recoverable_error") return true;
-  if (status === "status_unknown" && node2.type !== "placeholder") return true;
+  if (status === "status_unknown" && node.type !== "placeholder") return true;
   return false;
 }
 
-export function partitionDeletableIds(ids2, resolveNode2) {
+export function partitionDeletableIds(ids, resolveNode) {
   const deletableIds = [];
   let blockedGenerating = 0;
   let blockedRetained = 0;
-  for (const nodeId of ids2) {
-    const node2 = resolveNode2(nodeId);
-    if (!isNodeDeleteProtected(node2)) {
-      deletableIds.push(nodeId);
-    } else if (isNodeGenerating(node2)) {
+  for (const id of ids) {
+    const node = resolveNode(id);
+    if (!isNodeDeleteProtected(node)) {
+      deletableIds.push(id);
+    } else if (isNodeGenerating(node)) {
       blockedGenerating += 1;
     } else {
       blockedRetained += 1;
@@ -84,19 +84,19 @@ export function partitionUserRemovalElements({
   requestedEdgeIds,
   enforceProtection,
 }) {
-  const nodeById = new Map(nodes.map((node2) => [node2.id, node2]));
-  const requestedNodes = Array.from(new Set(requestedNodeIds), (requestedNodeId) =>
-    nodeById.get(requestedNodeId),
-  ).filter((node2) => node2 != null);
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const requestedNodes = Array.from(new Set(requestedNodeIds), (id) =>
+    nodeById.get(id),
+  ).filter((node) => node != null);
   const deletableNodeIds = new Set();
   const blockedNodeIds = new Set();
   let blockedGenerating = false;
-  for (const node2 of requestedNodes) {
-    if (enforceProtection && isNodeDeleteProtected(node2)) {
-      blockedNodeIds.add(node2.id);
-      if (isNodeGenerating(node2)) blockedGenerating = true;
+  for (const node of requestedNodes) {
+    if (enforceProtection && isNodeDeleteProtected(node)) {
+      blockedNodeIds.add(node.id);
+      if (isNodeGenerating(node)) blockedGenerating = true;
     } else {
-      deletableNodeIds.add(node2.id);
+      deletableNodeIds.add(node.id);
     }
   }
   const edgeById = new Map(edges.map((edge) => [edge.id, edge]));
@@ -104,12 +104,12 @@ export function partitionUserRemovalElements({
   const deletableEdgeIds = new Set();
   const protectedNodeIds = new Set(blockedNodeIds);
   if (enforceProtection) {
-    for (const node2 of nodes) {
-      if (isNodeDeleteProtected(node2)) protectedNodeIds.add(node2.id);
+    for (const node of nodes) {
+      if (isNodeDeleteProtected(node)) protectedNodeIds.add(node.id);
     }
   }
-  for (const edgeId of requestedEdgeIds) {
-    const edge = edgeById.get(edgeId);
+  for (const id of requestedEdgeIds) {
+    const edge = edgeById.get(id);
     if (!edge) continue;
     const endpointsSurvive =
       !deletableNodeIds.has(edge.source) && !deletableNodeIds.has(edge.target);
@@ -118,7 +118,7 @@ export function partitionUserRemovalElements({
       endpointsSurvive &&
       isEdgeAttachedToProtectedNode(edge, protectedNodeIds)
     ) {
-      blockedEdgeIds.add(edgeId);
+      blockedEdgeIds.add(id);
       if (
         isNodeGenerating(nodeById.get(edge.source)) ||
         isNodeGenerating(nodeById.get(edge.target))
@@ -126,7 +126,7 @@ export function partitionUserRemovalElements({
         blockedGenerating = true;
       }
     } else {
-      deletableEdgeIds.add(edgeId);
+      deletableEdgeIds.add(id);
     }
   }
   for (const edge of edges) {
@@ -167,17 +167,17 @@ export function normaliseHandle(value) {
 }
 
 export function buildNodeIdMetaAliases(savedNodes, metaByAssetId) {
-  const entries2 = [];
-  for (const node2 of savedNodes) {
+  const entries = [];
+  for (const node of savedNodes) {
     const assetId =
-      typeof node2.assetId === "string" && node2.assetId.length > 0
-        ? node2.assetId
+      typeof node.assetId === "string" && node.assetId.length > 0
+        ? node.assetId
         : void 0;
-    if (!assetId || node2.id === assetId) continue;
-    const meta2 = metaByAssetId.get(assetId);
-    if (meta2) entries2.push([node2.id, meta2]);
+    if (!assetId || node.id === assetId) continue;
+    const meta = metaByAssetId.get(assetId);
+    if (meta) entries.push([node.id, meta]);
   }
-  return entries2;
+  return entries;
 }
 
 export function buildPersistedNodeAssetMetaEntries(
@@ -185,20 +185,20 @@ export function buildPersistedNodeAssetMetaEntries(
   metaByAssetId,
   resolveFileUrlById,
 ) {
-  const entries2 = [];
-  const seen2 = new Set(metaByAssetId.keys());
-  for (const node2 of savedNodes) {
+  const entries = [];
+  const seen = new Set(metaByAssetId.keys());
+  for (const node of savedNodes) {
     const assetId =
-      typeof node2.assetId === "string" && node2.assetId.length > 0
-        ? node2.assetId
+      typeof node.assetId === "string" && node.assetId.length > 0
+        ? node.assetId
         : void 0;
-    if (!assetId || seen2.has(assetId)) continue;
-    const { meta: meta2 } = buildIncrementalNodeData(node2, resolveFileUrlById);
-    if (!meta2) continue;
-    seen2.add(assetId);
-    entries2.push([assetId, meta2]);
+    if (!assetId || seen.has(assetId)) continue;
+    const { meta } = buildIncrementalNodeData(node, resolveFileUrlById);
+    if (!meta) continue;
+    seen.add(assetId);
+    entries.push([assetId, meta]);
   }
-  return entries2;
+  return entries;
 }
 
 export function buildSavedNodeIndex(savedNodes, hiddenAssetIds) {

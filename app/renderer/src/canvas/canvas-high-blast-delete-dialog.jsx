@@ -47,22 +47,22 @@ export function CanvasConfirmationDialog({
     </Dialog>
   );
 }
-export function CanvasHighBlastDeleteDialog({ instance: instance2 }) {
+export function CanvasHighBlastDeleteDialog({ instance }) {
   const { t: translate } = useTranslation();
   const [pendingRequest, setPendingRequest] = reactExports.useState(null);
   const pendingRequestRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    instance2.setHighBlastDeleteConfirmer((request) => {
+    instance.setHighBlastDeleteConfirmer((request) => {
       pendingRequestRef.current?.cancel();
       pendingRequestRef.current = request;
       setPendingRequest(request);
     });
     return () => {
-      instance2.setHighBlastDeleteConfirmer(void 0);
+      instance.setHighBlastDeleteConfirmer(void 0);
       pendingRequestRef.current?.cancel();
       pendingRequestRef.current = null;
     };
-  }, [instance2]);
+  }, [instance]);
   const handleCancel = reactExports.useCallback(() => {
     const request = pendingRequestRef.current;
     pendingRequestRef.current = null;
@@ -107,13 +107,13 @@ export function useDismissMenu(
   const captureEscape = !!onEscape;
   reactExports.useEffect(() => {
     if (!enabled) return;
-    const handleMouseDown2 = (mouseEvent) => {
+    const handleMouseDown = (mouseEvent) => {
       if (trigger?.contains(mouseEvent.target)) return;
       if (menuRef.current && !menuRef.current.contains(mouseEvent.target)) {
         onClose();
       }
     };
-    const handleKeyDown2 = (keyboardEvent) => {
+    const handleKeyDown = (keyboardEvent) => {
       if (keyboardEvent.key !== "Escape") return;
       if (escapeHandlerRef.current?.()) {
         keyboardEvent.preventDefault();
@@ -122,18 +122,18 @@ export function useDismissMenu(
       }
       onClose();
     };
-    const timer2 = setTimeout(() => {
-      document.addEventListener("mousedown", handleMouseDown2);
-      document.addEventListener("keydown", handleKeyDown2, captureEscape);
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleMouseDown);
+      document.addEventListener("keydown", handleKeyDown, captureEscape);
     }, 0);
     return () => {
-      clearTimeout(timer2);
-      document.removeEventListener("mousedown", handleMouseDown2);
-      document.removeEventListener("keydown", handleKeyDown2, captureEscape);
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown, captureEscape);
     };
   }, [menuRef, onClose, captureEscape, trigger, enabled]);
 }
-export function QuickZoomPresence({ value, elementRef, children: children2 }) {
+export function QuickZoomPresence({ value, elementRef, children }) {
   const [retained, setRetained] = reactExports.useState(value);
   const internalRef = reactExports.useRef(null);
   const ref = elementRef ?? internalRef;
@@ -156,10 +156,10 @@ export function QuickZoomPresence({ value, elementRef, children: children2 }) {
       cancelled = true;
     };
   }, [open, retained, ref]);
-  const content2 = value ?? retained;
-  return content2 === null
+  const content = value ?? retained;
+  return content === null
     ? null
-    : children2(content2, {
+    : children(content, {
         ref,
         "data-ending-style": open ? void 0 : "",
         inert: !open,
@@ -171,33 +171,33 @@ export const TidySortContext = reactExports.createContext({
   setSortBy: () => {},
 });
 export function useTidySortPreference(scope) {
-  const key2 = `hilo:canvas:tidy:sortBy:${scope}`;
+  const key = `hilo:canvas:tidy:sortBy:${scope}`;
   const [choice, setChoice] = reactExports.useState(() => ({
-    key: key2,
-    value: readCanvasPreference(key2, SORT_OPTIONS, "name"),
+    key,
+    value: readCanvasPreference(key, SORT_OPTIONS, "name"),
   }));
   const sortBy =
-    choice.key === key2
+    choice.key === key
       ? choice.value
-      : readCanvasPreference(key2, SORT_OPTIONS, "name");
+      : readCanvasPreference(key, SORT_OPTIONS, "name");
   const context = reactExports.useMemo(
     () => ({
       sortBy,
       setSortBy: (value) =>
         setChoice({
-          key: key2,
+          key,
           value,
         }),
     }),
-    [key2, sortBy],
+    [key, sortBy],
   );
   const finish = reactExports.useCallback(
     async (action) => {
       const result = await action;
-      if (result.applied) writeCanvasPreference(key2, sortBy);
+      if (result.applied) writeCanvasPreference(key, sortBy);
       return result;
     },
-    [key2, sortBy],
+    [key, sortBy],
   );
   return reactExports.useMemo(
     () => ({

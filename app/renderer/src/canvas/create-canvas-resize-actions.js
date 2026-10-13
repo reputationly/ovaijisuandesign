@@ -11,16 +11,16 @@ export function getCanvasViewportStorage() {
   }
 }
 
-export function collectAffectedStickerNodes(index2, directlyAffectedNodeIds) {
+export function collectAffectedStickerNodes(index, directlyAffectedNodeIds) {
   if (
-    index2.stickersByTargetId.size === 0 ||
+    index.stickersByTargetId.size === 0 ||
     directlyAffectedNodeIds.length === 0
   )
     return [];
   const affectedIds = new Set(directlyAffectedNodeIds);
   const queue = [...affectedIds];
   for (let cursor = 0; cursor < queue.length; cursor++) {
-    for (const childId of index2.childIdsByParentId.get(queue[cursor]) ?? []) {
+    for (const childId of index.childIdsByParentId.get(queue[cursor]) ?? []) {
       if (affectedIds.has(childId)) continue;
       affectedIds.add(childId);
       queue.push(childId);
@@ -29,7 +29,7 @@ export function collectAffectedStickerNodes(index2, directlyAffectedNodeIds) {
   const result = [];
   const seenStickerIds = new Set();
   for (const targetId of affectedIds) {
-    for (const sticker of index2.stickersByTargetId.get(targetId) ?? []) {
+    for (const sticker of index.stickersByTargetId.get(targetId) ?? []) {
       if (seenStickerIds.has(sticker.id)) continue;
       seenStickerIds.add(sticker.id);
       result.push(sticker);
@@ -38,28 +38,28 @@ export function collectAffectedStickerNodes(index2, directlyAffectedNodeIds) {
   return result;
 }
 
-export function createCanvasResizeActions(instance2) {
+export function createCanvasResizeActions(instance) {
   const requestPersist = () =>
-    instance2.eventBus.emit({
+    instance.eventBus.emit({
       type: "persist:request",
     });
   return {
     resizeNode: (nodeId, width, height) => {
-      instance2.resizeNode(nodeId, {
+      instance.resizeNode(nodeId, {
         width,
         height,
       });
       requestPersist();
     },
-    updateNodeDataAndResize: (nodeId, data2, width, height) => {
-      instance2.updateNodeDataAndResize(nodeId, data2, {
+    updateNodeDataAndResize: (nodeId, data, width, height) => {
+      instance.updateNodeDataAndResize(nodeId, data, {
         width,
         height,
       });
       requestPersist();
     },
-    moveAndResizeNode: (nodeId, x, y, width, height, data2) => {
-      instance2.moveAndResizeNode(
+    moveAndResizeNode: (nodeId, x, y, width, height, data) => {
+      instance.moveAndResizeNode(
         nodeId,
         {
           x,
@@ -69,12 +69,12 @@ export function createCanvasResizeActions(instance2) {
           width,
           height,
         },
-        data2,
+        data,
       );
       requestPersist();
     },
-    moveAndResizeImageGroupMembers: (nodeId, x, y, width, height, data2) => {
-      instance2.moveAndResizeImageGroupMembers(
+    moveAndResizeImageGroupMembers: (nodeId, x, y, width, height, data) => {
+      instance.moveAndResizeImageGroupMembers(
         nodeId,
         {
           x,
@@ -84,7 +84,7 @@ export function createCanvasResizeActions(instance2) {
           width,
           height,
         },
-        data2,
+        data,
       );
       requestPersist();
     },

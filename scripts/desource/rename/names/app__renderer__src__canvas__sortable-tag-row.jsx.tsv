@@ -1,3 +1,9 @@
 key	old	new	依据
 X@2:47	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
 t2@38:14	t2	translate	该函数翻译标签保存失败提示和删除相关说明。
+Input3@26:10	Input3	Input	原名 Input3 的末尾 3 是打包器去重后缀；恢复词干 Input，该绑定表示Input 对应的值。
+listeners2@46:16	listeners2	listeners	原名 listeners2 的末尾 2 是打包器去重后缀；恢复词干 listeners，该绑定表示监听器集合。
+transform2@48:16	transform2	transform	原名 transform2 的末尾 2 是打包器去重后缀；恢复词干 transform，该绑定表示变换函数。
+transition2@49:17	transition2	transition	原名 transition2 的末尾 2 是打包器去重后缀；恢复词干 transition，该绑定表示过渡状态。
+onPointerDown2@55:26	onPointerDown2	onPointerDown	原名 onPointerDown2 的末尾 2 是打包器去重后缀；恢复词干 onPointerDown，该绑定表示指针按下事件回调。
+name2@63:11	name2	trimmedName	该值是去除首尾空白后的新标签名称；name 是全局名，故使用 trimmedName。

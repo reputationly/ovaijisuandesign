@@ -21,7 +21,7 @@ function ZoomMenuItem({
   label,
   shortcut,
   onClick,
-  disabled: disabled2,
+  disabled,
 }) {
   return (
     <button
@@ -30,8 +30,8 @@ function ZoomMenuItem({
       role="menuitem"
       tabIndex={-1}
       onClick={onClick}
-      disabled={disabled2}
-      className={`flex w-full items-center justify-between rounded-md px-3 py-1.5 text-xs select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${disabled2 ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-40" : "cursor-pointer text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-hover)]"}`}
+      disabled={disabled}
+      className={`flex w-full items-center justify-between rounded-md px-3 py-1.5 text-xs select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${disabled ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-40" : "cursor-pointer text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-hover)]"}`}
     >
       <span>{label}</span>
       {shortcut && (
@@ -78,13 +78,13 @@ export function ZoomMenu({
   );
   reactExports.useEffect(() => {
     if (!open) return;
-    const onPointerDown2 = (pointerEvent) => {
+    const onPointerDown = (pointerEvent) => {
       if (containerRef.current && !containerRef.current.contains(pointerEvent.target)) {
         setOpen(false);
       }
     };
-    document.addEventListener("pointerdown", onPointerDown2);
-    return () => document.removeEventListener("pointerdown", onPointerDown2);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
   reactExports.useEffect(() => {
     if (!open) return;

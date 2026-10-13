@@ -1,5 +1,9 @@
 key	old	new	依据
 t2@62:14	t2	translate	该函数翻译素材导入反馈和素材面板中的本地化文案。
-fn2@125:60	fn2	refreshLibrary	注册的函数被保存为素材库刷新回调。
+fn2@125:60	fn2	fn	注册的函数被保存为素材库刷新回调。；原名 fn2 的末尾 2 是打包器去重后缀；恢复词干 fn，该绑定表示函数值。
 e2@381:24	e2	changeEvent	文件输入 change 事件用于读取所选文件并清空 input 值。
 e2@416:26	e2	keyEvent	键盘处理器检查 Enter 或空格并触发素材库视图切换。
+project2@41:9	project2	project	原名 project2 的末尾 2 是打包器去重后缀；恢复词干 project，该绑定表示项目对象。
+view2@63:10	view2	view	原名 view2 的末尾 2 是打包器去重后缀；恢复词干 view，该绑定表示视图对象。
+setSearchQuery2@121:23	setSearchQuery2	setSearchQuery	原名 setSearchQuery2 的末尾 2 是打包器去重后缀；恢复词干 setSearchQuery，该绑定表示设置搜索查询的函数。
+project2@131:9	project2	project	原名 project2 的末尾 2 是打包器去重后缀；恢复词干 project，该绑定表示项目对象。

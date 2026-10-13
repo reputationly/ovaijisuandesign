@@ -22,15 +22,15 @@ import { TooltipProvider } from "../infra/create-recently-added-store.js";
 import { QuickZoomPresence } from "./canvas-high-blast-delete-dialog.jsx";
 import { ToolModeSplitButton } from "./tool-mode-split-button.jsx";
 const CANVAS_TOOL_DOCK_ICON_SIZE_PX = 18;
-const StickerIcon = reactExports.forwardRef(function StickerIcon2(
-  { size: size2 = 22, ...props },
+const StickerIcon = reactExports.forwardRef(function StickerIcon(
+  { size = 22, ...props },
   ref,
 ) {
   return (
     <CompositedSvg
       ref={ref}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 22 22"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -86,8 +86,8 @@ const TOOL_COMMANDS = [
   },
 ];
 function ToolDockButton({
-  definition: definition2,
-  icon: Icon2,
+  definition,
+  icon: Icon,
   iconSize = CANVAS_TOOL_DOCK_ICON_SIZE_PX,
   iconClassName,
   primary,
@@ -100,23 +100,23 @@ function ToolDockButton({
   onClick,
   label,
 }) {
-  const selected2 =
+  const selected =
     (kind === "toggle" && pressed) ||
     (kind === "panel" && expanded) ||
     Boolean(expanded);
   return (
     <Tooltip
       content={
-        <ToolbarTooltipContent label={label} shortcut={definition2.shortcut} />
+        <ToolbarTooltipContent label={label} shortcut={definition.shortcut} />
       }
     >
       <button
         ref={buttonRef}
         type="button"
-        data-action-ui-id={definition2.id}
+        data-action-ui-id={definition.id}
         data-canvas-control-kind={kind}
         aria-label={label}
-        aria-keyshortcuts={definition2.ariaKeyshortcuts}
+        aria-keyshortcuts={definition.ariaKeyshortcuts}
         aria-pressed={kind === "toggle" ? pressed : void 0}
         aria-expanded={kind === "action" ? void 0 : expanded}
         aria-controls={kind === "action" ? void 0 : controlsId}
@@ -126,10 +126,10 @@ function ToolDockButton({
           width: CANVAS_TOOL_DOCK_CONTROL_SIZE_PX,
           height: CANVAS_TOOL_DOCK_CONTROL_SIZE_PX,
         }}
-        className={`${primary && !selected2 ? "" : "canvas-monochrome-control"} flex items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring ${selected2 ? "bg-[var(--canvas-controls-active)] text-[var(--canvas-controls-text)]" : primary ? "bg-black text-white hover:opacity-80 dark:bg-white dark:text-black" : "text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
+        className={`${primary && !selected ? "" : "canvas-monochrome-control"} flex items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring ${selected ? "bg-[var(--canvas-controls-active)] text-[var(--canvas-controls-text)]" : primary ? "bg-black text-white hover:opacity-80 dark:bg-white dark:text-black" : "text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
       >
-        {primary && !selected2 ? (
-          <Icon2
+        {primary && !selected ? (
+          <Icon
             size={iconSize}
             strokeWidth={1.5}
             className={iconClassName}
@@ -137,7 +137,7 @@ function ToolDockButton({
           />
         ) : (
           <MonochromeIcon tone="control">
-            <Icon2
+            <Icon
               size={iconSize}
               strokeWidth={1.5}
               className={iconClassName}
@@ -196,7 +196,7 @@ export function CanvasToolbar({
   }, [activeCommand, commandPanelOpen]);
   reactExports.useEffect(() => {
     if (!commandPanelOpen) return;
-    const handleKeyDown2 = (event) => {
+    const handleKeyDown = (event) => {
       handleCanvasCommandPanelEscape(event, {
         isStickerPanel: activeCommand === CANVAS_COMMAND_IDS.sticker,
         stickerMode,
@@ -204,8 +204,8 @@ export function CanvasToolbar({
         closePanel: closeCommandPanel,
       });
     };
-    document.addEventListener("keydown", handleKeyDown2, true);
-    return () => document.removeEventListener("keydown", handleKeyDown2, true);
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
   }, [
     activeCommand,
     closeCommandPanel,
@@ -276,22 +276,22 @@ export function CanvasToolbar({
           role="toolbar"
           aria-label={translate("canvas.toolbar.label")}
         >
-          {TOOL_COMMANDS.map(({ id: commandId, icon, primary }) => {
-            const definition2 = commandRegistry.get(commandId);
-            const label = translate(definition2.labelKey);
+          {TOOL_COMMANDS.map(({ id, icon, primary }) => {
+            const definition = commandRegistry.get(id);
+            const label = translate(definition.labelKey);
             return (
               <ToolDockButton
-                key={commandId}
-                definition={definition2}
+                key={id}
+                definition={definition}
                 icon={icon}
                 primary={primary}
                 buttonRef={addNodeButtonRef}
                 iconClassName={`transition-transform duration-200 ease-out motion-reduce:transition-none ${addNodeMenuOpen ? "rotate-45" : "rotate-0"}`}
                 label={label}
                 onClick={() => {
-                  if (commandId === CANVAS_COMMAND_IDS.addNode && onOpenAddNodeMenu)
+                  if (id === CANVAS_COMMAND_IDS.addNode && onOpenAddNodeMenu)
                     onOpenAddNodeMenu();
-                  else commandRegistry.execute(commandId);
+                  else commandRegistry.execute(id);
                 }}
               />
             );

@@ -3,3 +3,8 @@ x2@61:33	x2	x	moveAndResizeNode 将该横坐标写入节点的新位置。
 y4@61:37	y4	y	moveAndResizeNode 将该纵坐标写入节点的新位置。
 x2@76:46	x2	x	moveAndResizeImageGroupMembers 将该横坐标写入组成员操作的位置参数。
 y4@76:50	y4	y	moveAndResizeImageGroupMembers 将该纵坐标写入组成员操作的位置参数。
+index2@14:45	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
+instance2@41:43	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+data2@54:39	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+data2@61:56	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+data2@76:69	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。

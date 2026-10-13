@@ -1,7 +1,7 @@
 // find-free-position-from-anchor.js
 import { CanvasMode } from "./compute-group-bounds-from-children.js";
 import { DEFAULT_PLACEMENT_GAP, rectsOverlap } from "./ungroup-in-canvas.js";
-export function findFreePositionFromAnchor(anchor, size2, occupied, options) {
+export function findFreePositionFromAnchor(anchor, size, occupied, options) {
   const gap = options?.gap ?? DEFAULT_PLACEMENT_GAP;
   const maxIterations = options?.maxIterations ?? 200;
   const shiftAxis = options?.shiftAxis ?? "x";
@@ -9,8 +9,8 @@ export function findFreePositionFromAnchor(anchor, size2, occupied, options) {
   const candidate = {
     x: anchor.x,
     y: anchor.y,
-    w: size2.width,
-    h: size2.height,
+    w: size.width,
+    h: size.height,
   };
   for (let index = 0; index < maxIterations; index++) {
     const blocker = occupied.find((occupiedRect) => rectsOverlap(candidate, occupiedRect));
@@ -62,22 +62,22 @@ export const DRAFT_PROTECTED_GENERATION_STATUSES = new Set([
 export function deriveEdgeId(sourceId, targetId) {
   return `${sourceId}->${targetId}`;
 }
-export function parseNodeId(nodeId) {
-  const sep = nodeId.lastIndexOf("~");
+export function parseNodeId(id) {
+  const sep = id.lastIndexOf("~");
   if (sep === -1)
     return {
-      assetId: nodeId,
+      assetId: id,
     };
   return {
-    assetId: nodeId.slice(0, sep),
-    cloneId: nodeId.slice(sep + 1),
+    assetId: id.slice(0, sep),
+    cloneId: id.slice(sep + 1),
   };
 }
-export function isEmptyNode(node2) {
-  return node2.isEmpty === true;
+export function isEmptyNode(node) {
+  return node.isEmpty === true;
 }
-export function isUnmaterialisedGenerationNode(node2) {
-  const status = node2.data?.status;
+export function isUnmaterialisedGenerationNode(node) {
+  const status = node.data?.status;
   return (
     typeof status === "string" &&
     DRAFT_PROTECTED_GENERATION_STATUSES.has(status)
@@ -128,14 +128,14 @@ export function sanitizeCanvasPositions(value) {
   const positions = {};
   let changed = false;
   let repairedPositionCount = 0;
-  for (const [mode2, position2] of Object.entries(value)) {
-    if (!VALID_CANVAS_MODES.has(mode2) || !isFiniteCanvasPosition(position2)) {
+  for (const [mode, position] of Object.entries(value)) {
+    if (!VALID_CANVAS_MODES.has(mode) || !isFiniteCanvasPosition(position)) {
       changed = true;
       repairedPositionCount += 1;
       continue;
     }
-    const candidate = position2;
-    positions[mode2] = {
+    const candidate = position;
+    positions[mode] = {
       x: candidate.x,
       y: candidate.y,
     };
@@ -161,14 +161,14 @@ export function sanitizeCanvasFileNodePositions(nodes) {
   let changed = false;
   let repairedNodeCount = 0;
   let repairedPositionCount = 0;
-  const sanitizedNodes = nodes.map((node2) => {
-    const sanitized = sanitizeCanvasPositions(node2.positions);
-    if (!sanitized.changed) return node2;
+  const sanitizedNodes = nodes.map((node) => {
+    const sanitized = sanitizeCanvasPositions(node.positions);
+    if (!sanitized.changed) return node;
     changed = true;
     repairedNodeCount += 1;
     repairedPositionCount += sanitized.repairedPositionCount;
     return {
-      ...node2,
+      ...node,
       positions: sanitized.positions,
     };
   });

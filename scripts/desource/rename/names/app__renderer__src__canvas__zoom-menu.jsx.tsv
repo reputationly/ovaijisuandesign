@@ -3,3 +3,5 @@ t2@70:14	t2	translate	该函数翻译缩放菜单的无障碍标签和操作提�
 e2@81:29	e2	pointerEvent	document pointerdown 监听器用该事件的 target 检查点击是否发生在菜单外。
 v2@161:35	v2	isOpen	setOpen 的函数式更新器接收当前布尔开关状态并取反。
 _2@175:11	_2	presenceValue	QuickZoomPresence 将当前或保留的 value 作为第一个 children 参数传入，此处不使用。
+disabled2@24:13	disabled2	disabled	原名 disabled2 的末尾 2 是打包器去重后缀；恢复词干 disabled，该绑定表示禁用状态。
+onPointerDown2@81:11	onPointerDown2	onPointerDown	原名 onPointerDown2 的末尾 2 是打包器去重后缀；恢复词干 onPointerDown，该绑定表示指针按下事件回调。

@@ -9,42 +9,42 @@ export class NodeRegistry {
   nodeComponents = new Map();
   edgeComponents = new Map();
   version = 0;
-  register(definition2, component) {
-    this.types.set(definition2.type, definition2);
-    this.nodeComponents.set(definition2.type, component);
+  register(definition, component) {
+    this.types.set(definition.type, definition);
+    this.nodeComponents.set(definition.type, component);
     this.version++;
   }
-  registerEdge(type2, component) {
-    this.edgeComponents.set(type2, component);
+  registerEdge(type, component) {
+    this.edgeComponents.set(type, component);
     this.version++;
   }
-  unregister(type2) {
-    this.types.delete(type2);
-    this.nodeComponents.delete(type2);
+  unregister(type) {
+    this.types.delete(type);
+    this.nodeComponents.delete(type);
     this.version++;
   }
-  unregisterEdge(type2) {
-    this.edgeComponents.delete(type2);
+  unregisterEdge(type) {
+    this.edgeComponents.delete(type);
     this.version++;
   }
-  getDefinition(type2) {
-    return this.types.get(type2);
+  getDefinition(type) {
+    return this.types.get(type);
   }
-  getNodeComponent(type2) {
-    return this.nodeComponents.get(type2);
+  getNodeComponent(type) {
+    return this.nodeComponents.get(type);
   }
-  getEdgeComponent(type2) {
-    return this.edgeComponents.get(type2);
+  getEdgeComponent(type) {
+    return this.edgeComponents.get(type);
   }
   /** Monotonically increasing version for React change detection */
   getVersion() {
     return this.version;
   }
-  listTypes(mode2) {
-    const all2 = Array.from(this.types.values());
-    if (!mode2) return all2;
-    return all2.filter(
-      (definition) => !definition.supportedModes || definition.supportedModes.includes(mode2),
+  listTypes(mode) {
+    const all = Array.from(this.types.values());
+    if (!mode) return all;
+    return all.filter(
+      (definition) => !definition.supportedModes || definition.supportedModes.includes(mode),
     );
   }
   /** Get all registered node component types as a Record for @xyflow */
@@ -82,8 +82,8 @@ export class PluginManager {
     }
     this.plugins.delete(pluginId);
   }
-  getPlugin(pluginId) {
-    return this.plugins.get(pluginId);
+  getPlugin(id) {
+    return this.plugins.get(id);
   }
   listPlugins() {
     return Array.from(this.plugins.values());
@@ -126,67 +126,67 @@ export function isHighBlastCanvasElementDeletion(
   );
 }
 
-export function deletionAssetId(node2) {
-  if (typeof node2.assetId === "string" && node2.assetId.length > 0)
-    return node2.assetId;
-  const dataAssetId = node2.data?.assetId;
+export function deletionAssetId(node) {
+  if (typeof node.assetId === "string" && node.assetId.length > 0)
+    return node.assetId;
+  const dataAssetId = node.data?.assetId;
   return typeof dataAssetId === "string" && dataAssetId.length > 0
     ? dataAssetId
     : void 0;
 }
 
-export function fileNodeToRuntimeNode(file, mode2) {
-  const data2 = {
+export function fileNodeToRuntimeNode(file, mode) {
+  const data = {
     ...(file.data ?? {}),
   };
   if (
     typeof file.assetId === "string" &&
     file.assetId.length > 0 &&
-    typeof data2.assetId !== "string"
+    typeof data.assetId !== "string"
   ) {
-    data2.assetId = file.assetId;
+    data.assetId = file.assetId;
   }
-  const node2 = {
+  const node = {
     id: file.id,
     type: file.type,
     positions: {
       ...(file.positions ?? {}),
     },
-    data: data2,
+    data,
   };
   if (file.type === CanvasNodeType.Group) {
-    const resolved = file.sizes?.[mode2] ?? file.size;
-    if (resolved) node2.size = resolved;
+    const resolved = file.sizes?.[mode] ?? file.size;
+    if (resolved) node.size = resolved;
     if (file.sizes)
-      node2.sizes = {
+      node.sizes = {
         ...file.sizes,
       };
   } else if (file.size) {
-    node2.size = file.size;
+    node.size = file.size;
   }
-  if (file.parentId !== void 0) node2.parentId = file.parentId;
-  if (file.groupId !== void 0) node2.groupId = file.groupId;
-  if (Number.isInteger(file.round)) node2.round = file.round;
+  if (file.parentId !== void 0) node.parentId = file.parentId;
+  if (file.groupId !== void 0) node.groupId = file.groupId;
+  if (Number.isInteger(file.round)) node.round = file.round;
   if (typeof file.assetId === "string" && file.assetId.length > 0)
-    node2.assetId = file.assetId;
-  if (file.isEmpty === true) node2.isEmpty = true;
-  if (file.meta) node2.meta = file.meta;
-  return node2;
+    node.assetId = file.assetId;
+  if (file.isEmpty === true) node.isEmpty = true;
+  if (file.meta) node.meta = file.meta;
+  return node;
 }
 
 export function validIncomingAssetId(assetId) {
   return typeof assetId === "string" && assetId.length > 0 ? assetId : void 0;
 }
 
-export function shouldClearAssetIdForServerNode(update2) {
-  if (validIncomingAssetId(update2.assetId)) return false;
-  return update2.type === CanvasNodeType.Placeholder;
+export function shouldClearAssetIdForServerNode(update) {
+  if (validIncomingAssetId(update.assetId)) return false;
+  return update.type === CanvasNodeType.Placeholder;
 }
 
 export const EMPTY_SUB_IMAGES = Object.freeze([]);
 
-export function applyFillToNode(node2, fill) {
-  node2.type = fill.type;
+export function applyFillToNode(node, fill) {
+  node.type = fill.type;
   const filledData = {
     ...fill.data,
   };
@@ -197,52 +197,52 @@ export function applyFillToNode(node2, fill) {
   ) {
     filledData.assetId = fill.assetId;
   }
-  node2.data = filledData;
-  if (fill.size) node2.size = fill.size;
-  if (fill.assetId !== void 0) node2.assetId = fill.assetId;
-  delete node2.isEmpty;
+  node.data = filledData;
+  if (fill.size) node.size = fill.size;
+  if (fill.assetId !== void 0) node.assetId = fill.assetId;
+  delete node.isEmpty;
 }
 
-export function isPendingFillHost(node2) {
-  return node2.type === CanvasNodeType.Placeholder || isInFlightNode(node2);
+export function isPendingFillHost(node) {
+  return node.type === CanvasNodeType.Placeholder || isInFlightNode(node);
 }
 
-export function fillStillApplies(node2, fill) {
-  if (node2.assetId) return false;
-  return !fill.requirePendingHost || isPendingFillHost(node2);
+export function fillStillApplies(node, fill) {
+  if (node.assetId) return false;
+  return !fill.requirePendingHost || isPendingFillHost(node);
 }
 
 export function findFillTarget(nodes, nodeId, fill) {
-  const node = nodes.find((node2) => node2.id === nodeId);
-  return node && fillStillApplies(node, fill) ? node : null;
+  const targetNode = nodes.find((node) => node.id === nodeId);
+  return targetNode && fillStillApplies(targetNode, fill) ? targetNode : null;
 }
 
-export function resolvePlaceholderFlowSize(node2, inheritedSize) {
-  const data2 = node2.data;
-  if (data2?.placeholderDisplaySize) {
+export function resolvePlaceholderFlowSize(node, inheritedSize) {
+  const data = node.data;
+  if (data?.placeholderDisplaySize) {
     return resolvePlaceholderCardSize(
-      data2.status,
-      data2.aspectRatio,
-      data2.mediaType,
-      data2.placeholderDisplaySize,
+      data.status,
+      data.aspectRatio,
+      data.mediaType,
+      data.placeholderDisplaySize,
     );
   }
   const isLoadingPhase =
-    data2?.status === "pending" ||
-    data2?.status === "generating" ||
-    data2?.status === "loading";
+    data?.status === "pending" ||
+    data?.status === "generating" ||
+    data?.status === "loading";
   if (
     isLoadingPhase &&
     inheritedSize &&
-    data2?.mediaType !== "audio" &&
-    !parseAspectRatio(data2?.aspectRatio)
+    data?.mediaType !== "audio" &&
+    !parseAspectRatio(data?.aspectRatio)
   ) {
     return inheritedSize;
   }
   return resolvePlaceholderCardSize(
-    data2?.status,
-    data2?.aspectRatio,
-    data2?.mediaType,
-    data2?.placeholderDisplaySize,
+    data?.status,
+    data?.aspectRatio,
+    data?.mediaType,
+    data?.placeholderDisplaySize,
   );
 }

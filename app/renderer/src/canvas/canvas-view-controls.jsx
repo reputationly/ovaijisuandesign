@@ -249,10 +249,10 @@ function CanvasTidyControlInner({
 const CanvasTidyControl = reactExports.memo(CanvasTidyControlInner);
 const zoomSelector = (state) => state.transform[2];
 function ToolbarButton({
-  children: children2,
+  children,
   onClick,
   tooltip,
-  disabled: disabled2,
+  disabled,
   kind = "action",
   pressed,
   ariaLabel,
@@ -261,20 +261,20 @@ function ToolbarButton({
   iconOnly = false,
   highlightPressed = true,
 }) {
-  const active2 = kind === "toggle" && pressed && highlightPressed;
+  const active = kind === "toggle" && pressed && highlightPressed;
   return (
     <Tooltip content={tooltip} closeOnClick={true}>
       <button
         type="button"
         data-action-ui-id={dataActionUiId}
         onClick={onClick}
-        disabled={disabled2}
+        disabled={disabled}
         aria-pressed={kind === "toggle" ? pressed : void 0}
         aria-label={ariaLabel}
         data-canvas-control-kind={kind}
-        className={`${highlightPressed ? "canvas-monochrome-control" : "canvas-monochrome-control-hover"} flex items-center rounded-md text-xs select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${compact ? "size-6 justify-center p-0" : iconOnly ? "aspect-square h-full shrink-0 justify-center p-0" : "h-full gap-1.5 px-2"} ${disabled2 ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-30" : active2 ? "cursor-pointer bg-[var(--canvas-controls-active)] text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-active)]" : "cursor-pointer text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
+        className={`${highlightPressed ? "canvas-monochrome-control" : "canvas-monochrome-control-hover"} flex items-center rounded-md text-xs select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${compact ? "size-6 justify-center p-0" : iconOnly ? "aspect-square h-full shrink-0 justify-center p-0" : "h-full gap-1.5 px-2"} ${disabled ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-30" : active ? "cursor-pointer bg-[var(--canvas-controls-active)] text-[var(--canvas-controls-text)] hover:bg-[var(--canvas-controls-active)]" : "cursor-pointer text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`}
       >
-        {children2}
+        {children}
       </button>
     </Tooltip>
   );
@@ -300,10 +300,10 @@ export function CanvasViewControls({
   placement = DEFAULT_CANVAS_VIEWPORT_CONTROLS_PLACEMENT,
 }) {
   const alignmentSnapEnabled = useAlignmentSnapPreferenceStore(
-    (state2) => state2.enabled,
+    (state) => state.enabled,
   );
   const toggleAlignmentSnap = useAlignmentSnapPreferenceStore(
-    (state2) => state2.toggle,
+    (state) => state.toggle,
   );
   const zoomLevel = useStore(zoomSelector);
   const zoomPercent = `${Math.round(zoomLevel * 100)}%`;
@@ -316,7 +316,7 @@ export function CanvasViewControls({
   const { t: translate } = useTranslation();
   reactExports.useEffect(() => {
     if (!appearanceOpen) return;
-    const onPointerDown2 = (event) => {
+    const onPointerDown = (event) => {
       const target = event.target;
       if (
         !appearanceTriggerRef.current?.contains(target) &&
@@ -325,8 +325,8 @@ export function CanvasViewControls({
         setAppearanceOpen(false);
       }
     };
-    document.addEventListener("pointerdown", onPointerDown2);
-    return () => document.removeEventListener("pointerdown", onPointerDown2);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [appearanceOpen]);
   reactExports.useEffect(() => {
     if (!appearanceOpen) return;
@@ -347,9 +347,9 @@ export function CanvasViewControls({
     });
   }, [appearanceOpen]);
   const toggleAppearancePanel = () => {
-    setAppearanceOpen((current2) => {
-      if (!current2) onAppearanceOpen?.();
-      return !current2;
+    setAppearanceOpen((current) => {
+      if (!current) onAppearanceOpen?.();
+      return !current;
     });
   };
   return (

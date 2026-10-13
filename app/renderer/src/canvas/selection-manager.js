@@ -13,32 +13,32 @@ export class SelectionManager {
   bindEventBus(eventBus) {
     this.eventBus = eventBus;
   }
-  select(nodeId, additive = false) {
+  select(id, additive = false) {
     if (!additive) this.selected.clear();
-    this.selected.add(nodeId);
+    this.selected.add(id);
     this.notify();
   }
-  deselect(nodeId) {
-    this.selected.delete(nodeId);
+  deselect(id) {
+    this.selected.delete(id);
     this.notify();
   }
-  toggle(nodeId) {
-    if (this.selected.has(nodeId)) {
-      this.selected.delete(nodeId);
+  toggle(id) {
+    if (this.selected.has(id)) {
+      this.selected.delete(id);
     } else {
-      this.selected.add(nodeId);
+      this.selected.add(id);
     }
     this.notify();
   }
-  set(ids2) {
+  set(ids) {
     if (
-      ids2.length === this.selected.size &&
-      ids2.every((nodeId) => this.selected.has(nodeId))
+      ids.length === this.selected.size &&
+      ids.every((id) => this.selected.has(id))
     ) {
       return;
     }
     this.selected.clear();
-    for (const nodeId of ids2) this.selected.add(nodeId);
+    for (const id of ids) this.selected.add(id);
     this.notify();
   }
   clear() {
@@ -48,21 +48,21 @@ export class SelectionManager {
   }
   selectAll(nodeIds) {
     this.selected.clear();
-    for (const nodeId of nodeIds) this.selected.add(nodeId);
+    for (const id of nodeIds) this.selected.add(id);
     this.notify();
   }
-  selectByRect(rect, nodes, mode2, additive = false) {
+  selectByRect(rect, nodes, mode, additive = false) {
     if (!additive) this.selected.clear();
-    for (const node2 of nodes) {
-      const size2 = getNodeSize(node2, mode2) ?? DEFAULT_NODE_SIZE;
-      const pos = getNodePosition(node2, mode2);
+    for (const node of nodes) {
+      const size = getNodeSize(node, mode) ?? DEFAULT_NODE_SIZE;
+      const pos = getNodePosition(node, mode);
       if (
-        pos.x + size2.width > rect.x &&
+        pos.x + size.width > rect.x &&
         pos.x < rect.x + rect.w &&
-        pos.y + size2.height > rect.y &&
+        pos.y + size.height > rect.y &&
         pos.y < rect.y + rect.h
       ) {
-        this.selected.add(node2.id);
+        this.selected.add(node.id);
       }
     }
     this.notify();
@@ -70,8 +70,8 @@ export class SelectionManager {
   getSelected() {
     return Array.from(this.selected);
   }
-  isSelected(nodeId) {
-    return this.selected.has(nodeId);
+  isSelected(id) {
+    return this.selected.has(id);
   }
   count() {
     return this.selected.size;
@@ -81,11 +81,11 @@ export class SelectionManager {
     return () => this.listeners.delete(listener);
   }
   notify() {
-    const ids2 = this.getSelected();
+    const ids = this.getSelected();
     this.eventBus?.emit({
       type: "node:selected",
-      nodeIds: ids2,
+      nodeIds: ids,
     });
-    for (const listener of this.listeners) listener(ids2);
+    for (const listener of this.listeners) listener(ids);
   }
 }

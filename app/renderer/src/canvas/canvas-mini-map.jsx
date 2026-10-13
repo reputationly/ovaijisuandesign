@@ -33,67 +33,67 @@ function computeCanvasMiniMapLayout({
   const viewScale = Math.max(scaledWidth, scaledHeight, Number.EPSILON);
   const viewWidth = viewScale * safeElementWidth;
   const viewHeight = viewScale * safeElementHeight;
-  const offset2 = offsetScale * viewScale;
+  const offset = offsetScale * viewScale;
   const viewBox = {
-    x: boundingRect.x - (viewWidth - boundingRect.width) / 2 - offset2,
-    y: boundingRect.y - (viewHeight - boundingRect.height) / 2 - offset2,
-    width: viewWidth + offset2 * 2,
-    height: viewHeight + offset2 * 2,
+    x: boundingRect.x - (viewWidth - boundingRect.width) / 2 - offset,
+    y: boundingRect.y - (viewHeight - boundingRect.height) / 2 - offset,
+    width: viewWidth + offset * 2,
+    height: viewHeight + offset * 2,
   };
-  const scale2 = Math.min(
+  const scale = Math.min(
     safeElementWidth / viewBox.width,
     safeElementHeight / viewBox.height,
   );
   return {
     viewBox,
     viewBB,
-    scale: scale2,
-    offsetX: (safeElementWidth - viewBox.width * scale2) / 2,
-    offsetY: (safeElementHeight - viewBox.height * scale2) / 2,
+    scale,
+    offsetX: (safeElementWidth - viewBox.width * scale) / 2,
+    offsetY: (safeElementHeight - viewBox.height * scale) / 2,
   };
 }
-function isCanvasMiniMapStaticLayoutEqual(previous2, next2) {
+function isCanvasMiniMapStaticLayoutEqual(previous, next) {
   return (
-    previous2?.viewBox.x === next2.viewBox.x &&
-    previous2.viewBox.y === next2.viewBox.y &&
-    previous2.viewBox.width === next2.viewBox.width &&
-    previous2.viewBox.height === next2.viewBox.height &&
-    previous2.scale === next2.scale &&
-    previous2.offsetX === next2.offsetX &&
-    previous2.offsetY === next2.offsetY
+    previous?.viewBox.x === next.viewBox.x &&
+    previous.viewBox.y === next.viewBox.y &&
+    previous.viewBox.width === next.viewBox.width &&
+    previous.viewBox.height === next.viewBox.height &&
+    previous.scale === next.scale &&
+    previous.offsetX === next.offsetX &&
+    previous.offsetY === next.offsetY
   );
 }
-function miniMapPointToFlow(point2, layout) {
+function miniMapPointToFlow(point, layout) {
   return {
-    x: layout.viewBox.x + (point2.x - layout.offsetX) / layout.scale,
-    y: layout.viewBox.y + (point2.y - layout.offsetY) / layout.scale,
+    x: layout.viewBox.x + (point.x - layout.offsetX) / layout.scale,
+    y: layout.viewBox.y + (point.y - layout.offsetY) / layout.scale,
   };
 }
 function parseMiniMapGenerationSequence(...timestamps) {
-  for (const timestamp2 of timestamps) {
-    if (typeof timestamp2 !== "string" || timestamp2.length === 0) continue;
-    const parsed = Date.parse(timestamp2);
+  for (const timestamp of timestamps) {
+    if (typeof timestamp !== "string" || timestamp.length === 0) continue;
+    const parsed = Date.parse(timestamp);
     if (Number.isFinite(parsed)) return parsed;
   }
   return void 0;
 }
-function selectLatestGeneration(candidates2) {
-  let latest2;
-  for (const candidate of candidates2) {
-    if (!latest2 || candidate.sequence > latest2.sequence) latest2 = candidate;
+function selectLatestGeneration(candidates) {
+  let latest;
+  for (const candidate of candidates) {
+    if (!latest || candidate.sequence > latest.sequence) latest = candidate;
   }
-  return latest2?.value;
+  return latest?.value;
 }
 const RIPPLE_DURATION_MS = 2e3;
 const RIPPLE_REPEAT_COUNT = 3;
 const RIPPLE_DELAYS_MS = [0, 670, 1330];
 const RIPPLE_START_RADIUS = 3;
 const RIPPLE_END_RADIUS = 20;
-function getMiniMapRippleFrames(elapsedMs2, continuous) {
+function getMiniMapRippleFrames(elapsedMs, continuous) {
   const frames = [];
   let animating = false;
   for (const delayMs of RIPPLE_DELAYS_MS) {
-    const localElapsed = elapsedMs2 - delayMs;
+    const localElapsed = elapsedMs - delayMs;
     if (localElapsed < 0) {
       animating = true;
       continue;
@@ -124,11 +124,11 @@ function getClientPoint(event) {
   const source = "nativeEvent" in event ? event.nativeEvent : event;
   if ("touches" in source) {
     const touchEvent = source;
-    const touch2 = touchEvent.touches[0] ?? touchEvent.changedTouches[0];
-    return touch2
+    const touch = touchEvent.touches[0] ?? touchEvent.changedTouches[0];
+    return touch
       ? {
-          x: touch2.clientX,
-          y: touch2.clientY,
+          x: touch.clientX,
+          y: touch.clientY,
         }
       : null;
   }
@@ -138,18 +138,18 @@ function getClientPoint(event) {
     y: mouseEvent.clientY,
   };
 }
-function resolveCssColor(element2, color2) {
-  const computedStyle = getComputedStyle(element2);
-  let resolved = color2;
-  for (let depth2 = 0; depth2 < 8 && resolved.includes("var("); depth2 += 1) {
-    const next2 = resolved.replace(
+function resolveCssColor(element, color) {
+  const computedStyle = getComputedStyle(element);
+  let resolved = color;
+  for (let depth = 0; depth < 8 && resolved.includes("var("); depth += 1) {
+    const next = resolved.replace(
       /var\((--[^),\s]+)(?:,[^)]+)?\)/g,
-      (_match, token2) => {
-        return computedStyle.getPropertyValue(token2).trim() || "transparent";
+      (_match, token) => {
+        return computedStyle.getPropertyValue(token).trim() || "transparent";
       },
     );
-    if (next2 === resolved) break;
-    resolved = next2;
+    if (next === resolved) break;
+    resolved = next;
   }
   return resolved;
 }
@@ -176,8 +176,8 @@ function prepareLayer(existing, elementWidth, elementHeight, pixelRatio) {
   };
 }
 export function CanvasMiniMap({
-  position: position2,
-  style: style2,
+  position,
+  style,
   viewportColor,
   onClick,
   onNodeSelect,
@@ -208,19 +208,19 @@ export function CanvasMiniMap({
   const recentlyAddedStore = useRecentlyAddedApi();
   const generatingStateStore = useGeneratingStateApi();
   const interactionState = useStore(
-    (state2) => ({
-      panZoom: state2.panZoom,
-      translateExtent: state2.translateExtent,
-      flowWidth: state2.width,
-      flowHeight: state2.height,
-      ariaLabel: state2.ariaLabelConfig["minimap.ariaLabel"],
+    (state) => ({
+      panZoom: state.panZoom,
+      translateExtent: state.translateExtent,
+      flowWidth: state.width,
+      flowHeight: state.height,
+      ariaLabel: state.ariaLabelConfig["minimap.ariaLabel"],
     }),
     shallow,
   );
   const requestFrame = reactExports.useCallback(() => {
     if (frameRef.current !== null) return;
-    frameRef.current = requestAnimationFrame((timestamp2) =>
-      renderFrameRef.current(timestamp2),
+    frameRef.current = requestAnimationFrame((timestamp) =>
+      renderFrameRef.current(timestamp),
     );
   }, []);
   const invalidateScene = reactExports.useCallback(() => {
@@ -236,67 +236,67 @@ export function CanvasMiniMap({
     baseDirtyRef.current = true;
     invalidateScene();
   }, [invalidateScene]);
-  const rebuildScene = (timestamp2) => {
+  const rebuildScene = (timestamp) => {
     const canvas = canvasRef.current;
     const panel = panelRef.current;
     if (!canvas || !panel) return null;
     const elementWidth =
-      canvas.clientWidth || Number(style2.width) || DEFAULT_WIDTH;
+      canvas.clientWidth || Number(style.width) || DEFAULT_WIDTH;
     const elementHeight =
-      canvas.clientHeight || Number(style2.height) || DEFAULT_HEIGHT;
+      canvas.clientHeight || Number(style.height) || DEFAULT_HEIGHT;
     if (elementWidth <= 0 || elementHeight <= 0) return null;
     const pixelRatio = window.devicePixelRatio || 1;
     const previousScene = sceneRef.current;
-    const state2 = storeApi.getState();
+    const state = storeApi.getState();
     const viewBB = {
-      x: -state2.transform[0] / state2.transform[2],
-      y: -state2.transform[1] / state2.transform[2],
-      width: state2.width / state2.transform[2],
-      height: state2.height / state2.transform[2],
+      x: -state.transform[0] / state.transform[2],
+      y: -state.transform[1] / state.transform[2],
+      width: state.width / state.transform[2],
+      height: state.height / state.transform[2],
     };
     let graph = graphRef.current;
     if (graphDirtyRef.current || !graph) {
       const nodes = [];
       let bounds;
       let hasDraggingNodes = false;
-      for (const node2 of state2.nodes) {
-        const internalNode = state2.nodeLookup.get(node2.id);
-        if (!internalNode || node2.hidden || !nodeHasDimensions(node2))
+      for (const node of state.nodes) {
+        const internalNode = state.nodeLookup.get(node.id);
+        if (!internalNode || node.hidden || !nodeHasDimensions(node))
           continue;
-        const dimensions2 = getNodeDimensions(node2);
-        const position22 = internalNode.internals.positionAbsolute;
+        const dimensions = getNodeDimensions(node);
+        const position = internalNode.internals.positionAbsolute;
         hasDraggingNodes ||= internalNode.dragging === true;
         const rect = {
-          x: position22.x,
-          y: position22.y,
-          width: dimensions2.width,
-          height: dimensions2.height,
+          x: position.x,
+          y: position.y,
+          width: dimensions.width,
+          height: dimensions.height,
         };
         bounds = bounds ? getBoundsOfRects(bounds, rect) : rect;
-        const data2 = node2.data;
+        const data = node.data;
         nodes.push({
-          id: node2.id,
+          id: node.id,
           ...rect,
-          selected: node2.selected === true,
+          selected: node.selected === true,
           placeholderGenerating:
-            node2.type === CanvasNodeType.Placeholder &&
-            (data2.status === "pending" ||
-              data2.status === "generating" ||
-              data2.status === "loading"),
-          generationStartedAt: data2.generationStartedAt,
-          createdAt: data2.createdAt,
+            node.type === CanvasNodeType.Placeholder &&
+            (data.status === "pending" ||
+              data.status === "generating" ||
+              data.status === "loading"),
+          generationStartedAt: data.generationStartedAt,
+          createdAt: data.createdAt,
         });
       }
       graph = {
         nodes,
         bounds: bounds ?? viewBB,
-        byId: new Map(nodes.map((node2) => [node2.id, node2])),
+        byId: new Map(nodes.map((node) => [node.id, node])),
         placeholderGeneratingIds: nodes
-          .filter((node2) => node2.placeholderGenerating)
-          .map((node2) => node2.id),
+          .filter((node) => node.placeholderGenerating)
+          .map((node) => node.id),
         selectedIds: nodes
-          .filter((node2) => node2.selected)
-          .map((node2) => node2.id),
+          .filter((node) => node.selected)
+          .map((node) => node.id),
         hasDraggingNodes,
       };
       graphRef.current = graph;
@@ -326,10 +326,10 @@ export function CanvasMiniMap({
       "#6D6CFFA6";
     const selectedRects = [];
     for (const nodeId of graph.selectedIds) {
-      const node2 = graph.byId.get(nodeId);
-      if (node2)
+      const node = graph.byId.get(nodeId);
+      if (node)
         selectedRects.push(
-          nodeToMiniMapRect(node2, layout, MIN_SELECTED_NODE_SIZE),
+          nodeToMiniMapRect(node, layout, MIN_SELECTED_NODE_SIZE),
         );
     }
     const redrawBase =
@@ -341,36 +341,36 @@ export function CanvasMiniMap({
       !isCanvasMiniMapStaticLayoutEqual(previousScene.layout, layout);
     let baseLayer = previousScene?.baseLayer;
     if (redrawBase) {
-      const base2 = prepareLayer(
+      const base = prepareLayer(
         baseLayer,
         elementWidth,
         elementHeight,
         pixelRatio,
       );
-      if (!base2) return null;
-      baseLayer = base2.canvas;
-      base2.context.save();
-      base2.context.globalAlpha = 0.5;
-      base2.context.fillStyle = nodeFill;
-      for (const node2 of graph.nodes) {
+      if (!base) return null;
+      baseLayer = base.canvas;
+      base.context.save();
+      base.context.globalAlpha = 0.5;
+      base.context.fillStyle = nodeFill;
+      for (const node of graph.nodes) {
         const topLeft = flowPointToMiniMap(
           {
-            x: node2.x,
-            y: node2.y,
+            x: node.x,
+            y: node.y,
           },
           layout,
         );
         roundedRect(
-          base2.context,
+          base.context,
           topLeft.x,
           topLeft.y,
-          node2.width * layout.scale,
-          node2.height * layout.scale,
+          node.width * layout.scale,
+          node.height * layout.scale,
           5 * layout.scale,
         );
-        base2.context.fill();
+        base.context.fill();
       }
-      base2.context.restore();
+      base.context.restore();
     }
     if (!baseLayer) return null;
     const mask = prepareLayer(
@@ -391,43 +391,43 @@ export function CanvasMiniMap({
     }
     for (const nodeId of recentIds) {
       if (continuousIds.has(nodeId)) continue;
-      const node2 = graph.byId.get(nodeId);
-      if (!node2) continue;
+      const node = graph.byId.get(nodeId);
+      if (!node) continue;
       recentMarkers.push({
-        key: `${node2.id}:recent`,
+        key: `${node.id}:recent`,
         continuous: false,
         center: flowPointToMiniMap(
           {
-            x: node2.x + node2.width / 2,
-            y: node2.y + node2.height / 2,
+            x: node.x + node.width / 2,
+            y: node.y + node.height / 2,
           },
           layout,
         ),
       });
     }
     for (const nodeId of continuousIds) {
-      const node2 = graph.byId.get(nodeId);
-      if (!node2) continue;
+      const node = graph.byId.get(nodeId);
+      if (!node) continue;
       const generating = generatingByNode.get(nodeId);
       const marker = {
-        key: `${node2.id}:generating`,
+        key: `${node.id}:generating`,
         continuous: true,
         center: flowPointToMiniMap(
           {
-            x: node2.x + node2.width / 2,
-            y: node2.y + node2.height / 2,
+            x: node.x + node.width / 2,
+            y: node.y + node.height / 2,
           },
           layout,
         ),
       };
-      activeGenerationIds.add(node2.id);
+      activeGenerationIds.add(node.id);
       let rank = parseMiniMapGenerationSequence(
-        node2.generationStartedAt,
+        node.generationStartedAt,
         generating?.generationStartedAt,
-        node2.createdAt,
+        node.createdAt,
       );
       if (rank === void 0) {
-        rank = generationSequenceRef.current.get(node2.id);
+        rank = generationSequenceRef.current.get(node.id);
         if (rank === void 0) {
           nextGenerationSequenceRef.current = Math.max(
             nextGenerationSequenceRef.current + 1,
@@ -436,7 +436,7 @@ export function CanvasMiniMap({
           rank = nextGenerationSequenceRef.current;
         }
       }
-      generationSequenceRef.current.set(node2.id, rank);
+      generationSequenceRef.current.set(node.id, rank);
       generatingMarkers.push({
         value: marker,
         sequence: rank,
@@ -453,11 +453,11 @@ export function CanvasMiniMap({
     const activeOriginKeys = new Set(markers.map((marker) => marker.key));
     for (const marker of markers) {
       if (!animationOriginsRef.current.has(marker.key)) {
-        animationOriginsRef.current.set(marker.key, timestamp2);
+        animationOriginsRef.current.set(marker.key, timestamp);
       }
     }
-    for (const key2 of animationOriginsRef.current.keys()) {
-      if (!activeOriginKeys.has(key2)) animationOriginsRef.current.delete(key2);
+    for (const key of animationOriginsRef.current.keys()) {
+      if (!activeOriginKeys.has(key)) animationOriginsRef.current.delete(key);
     }
     const viewportTopLeft = flowPointToMiniMap(
       {
@@ -533,7 +533,7 @@ export function CanvasMiniMap({
     if (indicator.targetOpacity !== nextIndicatorTarget) {
       indicator.fromOpacity = indicator.opacity;
       indicator.targetOpacity = nextIndicatorTarget;
-      indicator.startedAt = timestamp2;
+      indicator.startedAt = timestamp;
     }
     if (reducedMotionRef.current) indicator.opacity = indicator.targetOpacity;
     return {
@@ -551,12 +551,12 @@ export function CanvasMiniMap({
       selectedGlow,
     };
   };
-  renderFrameRef.current = (timestamp2) => {
+  renderFrameRef.current = (timestamp) => {
     frameRef.current = null;
     const canvas = canvasRef.current;
     if (!canvas) return;
     if (sceneDirtyRef.current || !sceneRef.current) {
-      const rebuiltScene = rebuildScene(timestamp2);
+      const rebuiltScene = rebuildScene(timestamp);
       if (rebuiltScene) {
         sceneRef.current = rebuiltScene;
         sceneDirtyRef.current = false;
@@ -586,13 +586,13 @@ export function CanvasMiniMap({
     context.setTransform(scene.pixelRatio, 0, 0, scene.pixelRatio, 0, 0);
     let needsAnimationFrame = false;
     for (const marker of scene.markers) {
-      const origin = animationOriginsRef.current.get(marker.key) ?? timestamp2;
+      const origin = animationOriginsRef.current.get(marker.key) ?? timestamp;
       const ripple = reducedMotionRef.current
         ? {
             frames: [],
             animating: false,
           }
-        : getMiniMapRippleFrames(timestamp2 - origin, marker.continuous);
+        : getMiniMapRippleFrames(timestamp - origin, marker.continuous);
       needsAnimationFrame ||= ripple.animating;
       context.save();
       context.fillStyle = scene.markerColor;
@@ -601,13 +601,13 @@ export function CanvasMiniMap({
       context.fill();
       context.strokeStyle = scene.markerColor;
       context.lineWidth = 1.75;
-      for (const frame2 of ripple.frames) {
-        context.globalAlpha = frame2.opacity;
+      for (const frame of ripple.frames) {
+        context.globalAlpha = frame.opacity;
         context.beginPath();
         context.arc(
           marker.center.x,
           marker.center.y,
-          frame2.radius,
+          frame.radius,
           0,
           Math.PI * 2,
         );
@@ -652,7 +652,7 @@ export function CanvasMiniMap({
     ) {
       const progress = Math.min(
         1,
-        (timestamp2 - indicator.startedAt) / VIEWPORT_INDICATOR_TRANSITION_MS,
+        (timestamp - indicator.startedAt) / VIEWPORT_INDICATOR_TRANSITION_MS,
       );
       indicator.opacity =
         indicator.fromOpacity +
@@ -691,16 +691,16 @@ export function CanvasMiniMap({
     };
     handleMotionChange();
     motionQuery.addEventListener("change", handleMotionChange);
-    const unsubscribeCanvas = storeApi.subscribe((state2, previousState) => {
+    const unsubscribeCanvas = storeApi.subscribe((state, previousState) => {
       const viewportChanged =
-        state2.transform[0] !== previousState.transform[0] ||
-        state2.transform[1] !== previousState.transform[1] ||
-        state2.transform[2] !== previousState.transform[2] ||
-        state2.width !== previousState.width ||
-        state2.height !== previousState.height;
+        state.transform[0] !== previousState.transform[0] ||
+        state.transform[1] !== previousState.transform[1] ||
+        state.transform[2] !== previousState.transform[2] ||
+        state.width !== previousState.width ||
+        state.height !== previousState.height;
       const graphReferencesChanged =
-        state2.nodes !== previousState.nodes ||
-        state2.nodeLookup !== previousState.nodeLookup;
+        state.nodes !== previousState.nodes ||
+        state.nodeLookup !== previousState.nodeLookup;
       if (
         viewportChanged &&
         !graphReferencesChanged &&
@@ -803,9 +803,9 @@ export function CanvasMiniMap({
     const mapY = clientY - bounds.top;
     let hitId = null;
     let hitArea = Number.POSITIVE_INFINITY;
-    for (const node2 of graph.nodes) {
+    for (const node of graph.nodes) {
       const rect = nodeToMiniMapRect(
-        node2,
+        node,
         scene.layout,
         MIN_SELECTED_NODE_SIZE,
       );
@@ -820,7 +820,7 @@ export function CanvasMiniMap({
       const area = rect.width * rect.height;
       if (area < hitArea) {
         hitArea = area;
-        hitId = node2.id;
+        hitId = node.id;
       }
     }
     return hitId;
@@ -849,7 +849,7 @@ export function CanvasMiniMap({
     () => setHoveredNode(null),
     [setHoveredNode],
   );
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (event) => {
       const canvas = canvasRef.current;
       const scene = sceneRef.current;
@@ -865,7 +865,7 @@ export function CanvasMiniMap({
         }
       }
       const rect = canvas.getBoundingClientRect();
-      const position22 = miniMapPointToFlow(
+      const position = miniMapPointToFlow(
         {
           x: event.clientX - rect.left,
           y: event.clientY - rect.top,
@@ -874,22 +874,22 @@ export function CanvasMiniMap({
       );
       const viewBB = scene.layout.viewBB;
       if (
-        position22.x >= viewBB.x &&
-        position22.x <= viewBB.x + viewBB.width &&
-        position22.y >= viewBB.y &&
-        position22.y <= viewBB.y + viewBB.height
+        position.x >= viewBB.x &&
+        position.x <= viewBB.x + viewBB.width &&
+        position.y >= viewBB.y &&
+        position.y <= viewBB.y + viewBB.height
       ) {
         return;
       }
-      onClick(event, position22);
+      onClick(event, position);
     },
     [hitTestNode, onClick, onNodeSelect],
   );
   return (
     <Panel
       ref={panelRef}
-      position={position2}
-      style={style2}
+      position={position}
+      style={style}
       className="react-flow__minimap react-flow__minimap-canvas-panel"
       data-testid="rf__minimap"
     >
@@ -898,7 +898,7 @@ export function CanvasMiniMap({
         className="react-flow__minimap-canvas"
         role="img"
         aria-label={interactionState.ariaLabel ?? "Mini map"}
-        onClick={handleClick2}
+        onClick={handleClick}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       />
