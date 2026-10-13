@@ -75,9 +75,9 @@ const DEFAULT_LIGHTS = [
   },
 ];
 const LIGHT_INPUT_IDS = ["light1", "light2", "light3"];
-function normalizeEffectType(raw2) {
-  if (!raw2) return "default";
-  return raw2.trim();
+function normalizeEffectType(raw) {
+  if (!raw) return "default";
+  return raw.trim();
 }
 function parsePresetPrompt(rawPrompt) {
   let inputs;
@@ -101,17 +101,17 @@ function parsePresetPrompt(rawPrompt) {
     const lightInput = inputMap.get(lightInputId);
     if (!lightInput?.data) return;
     try {
-      const raw2 = JSON.parse(lightInput.data);
-      const hasKelvin = !!raw2.kelvin;
+      const raw = JSON.parse(lightInput.data);
+      const hasKelvin = !!raw.kelvin;
       lights.push({
         id: lightInputId,
-        type: raw2.lightType || "spotlight",
-        horizontalAngle: parseFloat(raw2.azimuth || "0") || 0,
-        verticalAngle: parseFloat(raw2.elevation || "0") || 0,
-        intensity: Math.round(parseFloat(raw2.lightness || "1") * 10),
-        color: raw2.color || "#ffffff",
+        type: raw.lightType || "spotlight",
+        horizontalAngle: parseFloat(raw.azimuth || "0") || 0,
+        verticalAngle: parseFloat(raw.elevation || "0") || 0,
+        intensity: Math.round(parseFloat(raw.lightness || "1") * 10),
+        color: raw.color || "#ffffff",
         colorTemp: hasKelvin
-          ? Number.parseInt(raw2.kelvin ?? "", 10) || DEFAULT_COLOR_TEMP
+          ? Number.parseInt(raw.kelvin ?? "", 10) || DEFAULT_COLOR_TEMP
           : DEFAULT_COLOR_TEMP,
         colorMode: hasKelvin ? "kelvin" : "hex",
       });
@@ -123,7 +123,7 @@ function parsePresetPrompt(rawPrompt) {
     effectType,
   };
 }
-const PresetCard = ({ isSelected, label, onClick, children: children2 }) => {
+const PresetCard = ({ isSelected, label, onClick, children }) => {
   return (
     <button
       type="button"
@@ -133,7 +133,7 @@ const PresetCard = ({ isSelected, label, onClick, children: children2 }) => {
       <div
         className={`relative size-[90px] overflow-hidden rounded-md bg-hl_bg_05 transition-all duration-200 ${isSelected ? "ring-[1.5px] ring-hl_text_00" : "ring-0"}`}
       >
-        {children2}
+        {children}
       </div>
       <span
         className={`w-full truncate text-center text-[11px] leading-4 ${isSelected ? "font-medium text-hl_text_00" : "font-normal text-hl_text_02"}`}
@@ -144,10 +144,10 @@ const PresetCard = ({ isSelected, label, onClick, children: children2 }) => {
     </button>
   );
 };
-const PresetMediaCover = ({ coverUrl, videoUrl, alt, isActive: isActive2 }) => {
+const PresetMediaCover = ({ coverUrl, videoUrl, alt, isActive }) => {
   const videoRef = reactExports.useRef(null);
   const [hovered, setHovered] = reactExports.useState(false);
-  const shouldPlay = (isActive2 || hovered) && Boolean(videoUrl);
+  const shouldPlay = (isActive || hovered) && Boolean(videoUrl);
   reactExports.useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement || !shouldPlay) return;
@@ -216,14 +216,14 @@ const NO_EFFECT_PRESET = {
   effectType: "default",
 };
 const PresetsPanel = ({
-  translate: translate2,
+  translate,
   selectedPresetId,
   onSelect,
   onResetToOriginal,
   panelMode,
 }) => {
   const [activeCategory, setActiveCategory] = reactExports.useState("all");
-  const all2 = reactExports.useMemo(() => {
+  const all = reactExports.useMemo(() => {
     return presets.map((preset) => {
       const parsed = parsePresetPrompt(preset.rawPrompt) || {
         lights: [],
@@ -237,61 +237,61 @@ const PresetsPanel = ({
       };
     });
   }, []);
-  const list2 = reactExports.useMemo(() => {
-    if (activeCategory === "all") return [NO_EFFECT_PRESET, ...all2];
-    return all2.filter((preset) => preset.category === activeCategory);
-  }, [all2, activeCategory]);
-  const handleSelect = (preset2) => {
-    if (preset2.id === NO_EFFECT_ID) {
+  const list = reactExports.useMemo(() => {
+    if (activeCategory === "all") return [NO_EFFECT_PRESET, ...all];
+    return all.filter((preset) => preset.category === activeCategory);
+  }, [all, activeCategory]);
+  const handleSelect = (preset) => {
+    if (preset.id === NO_EFFECT_ID) {
       onResetToOriginal();
       return;
     }
-    onSelect(preset2);
+    onSelect(preset);
   };
   return (
     <div className="flex flex-col gap-3 pt-3">
       <div className="flex gap-2 overflow-x-auto px-4">
-        {CATEGORY_TABS.map(({ key: key2, labelKey }) => {
-          const active2 = key2 === activeCategory;
+        {CATEGORY_TABS.map(({ key, labelKey }) => {
+          const active = key === activeCategory;
           return (
             <button
-              key={key2}
+              key={key}
               type="button"
-              onClick={() => setActiveCategory(key2)}
-              className={`shrink-0 whitespace-nowrap rounded-md border px-2 py-1 text-xs font-medium transition-colors ${active2 ? "border-hl_text_00 bg-hl_text_00 text-hl_text_05" : "border-hl_line_01 text-hl_text_02 hover:bg-hl_bg_05 hover:text-hl_text_00"}`}
+              onClick={() => setActiveCategory(key)}
+              className={`shrink-0 whitespace-nowrap rounded-md border px-2 py-1 text-xs font-medium transition-colors ${active ? "border-hl_text_00 bg-hl_text_00 text-hl_text_05" : "border-hl_line_01 text-hl_text_02 hover:bg-hl_bg_05 hover:text-hl_text_00"}`}
             >
-              {translate2(labelKey)}
+              {translate(labelKey)}
             </button>
           );
         })}
       </div>
       <div className="grid grid-cols-[repeat(3,90px)] gap-x-3 gap-y-2 px-4 pb-3">
-        {list2.map((preset2) => {
+        {list.map((preset) => {
           const isSelected =
-            (panelMode === "presets" && selectedPresetId === preset2.id) ||
-            (preset2.id === NO_EFFECT_ID &&
+            (panelMode === "presets" && selectedPresetId === preset.id) ||
+            (preset.id === NO_EFFECT_ID &&
               panelMode === "presets" &&
               !selectedPresetId);
           return (
             <PresetCard
-              key={preset2.id}
+              key={preset.id}
               isSelected={isSelected}
               label={
-                preset2.id === NO_EFFECT_ID
-                  ? translate2("preset_no_effect")
-                  : preset2.title
+                preset.id === NO_EFFECT_ID
+                  ? translate("preset_no_effect")
+                  : preset.title
               }
-              onClick={() => handleSelect(preset2)}
+              onClick={() => handleSelect(preset)}
             >
-              {preset2.id === NO_EFFECT_ID || !preset2.thumbUrl ? (
+              {preset.id === NO_EFFECT_ID || !preset.thumbUrl ? (
                 <div className="flex size-full items-center justify-center bg-hl_bg_05 text-hl_text_03">
                   <Ban size={40} strokeWidth={1.5} />
                 </div>
               ) : (
                 <PresetMediaCover
-                  coverUrl={preset2.thumbUrl}
-                  videoUrl={preset2.videoUrl || void 0}
-                  alt={preset2.title}
+                  coverUrl={preset.thumbUrl}
+                  videoUrl={preset.videoUrl || void 0}
+                  alt={preset.title}
                   isActive={isSelected}
                 />
               )}
@@ -302,15 +302,15 @@ const PresetsPanel = ({
     </div>
   );
 };
-const BackgroundPanel = ({ translate: translate2, studioMode, onChange }) => {
+const BackgroundPanel = ({ translate, studioMode, onChange }) => {
   const options = BACKGROUND_OPTIONS.map(({ value, labelKey }) => ({
     value,
-    label: translate2(labelKey),
+    label: translate(labelKey),
   }));
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-hl_text_02 text-[13px] font-medium leading-5">
-        {translate2("background_label")}
+        {translate("background_label")}
       </span>
       <SegmentedControl
         options={options}
@@ -322,7 +322,7 @@ const BackgroundPanel = ({ translate: translate2, studioMode, onChange }) => {
   );
 };
 const ColorSection = ({
-  translate: translate2,
+  translate,
   colorMode,
   colorTemp,
   onColorModeChange,
@@ -339,7 +339,7 @@ const ColorSection = ({
     <ToolSlider
       className="min-w-0"
       dataActionUiId="canvas.relight.color-temperature"
-      label={translate2("color_temp_label")}
+      label={translate("color_temp_label")}
       value={colorTemp}
       min={COLOR_TEMP_RANGE.min}
       max={COLOR_TEMP_RANGE.max}
@@ -355,7 +355,7 @@ const ColorSection = ({
 const formatDegree = (angle) => `${roundAngle(angle)}°`;
 const formatIntensity = (intensity) => String(intensity);
 const LightingPanel = ({
-  translate: translate2,
+  translate,
   lights,
   activeLightId,
   onUpdateLight,
@@ -368,9 +368,9 @@ const LightingPanel = ({
     () =>
       LIGHT_TYPE_OPTIONS.map((option) => ({
         value: option.value,
-        label: translate2(option.labelKey),
+        label: translate(option.labelKey),
       })),
-    [translate2],
+    [translate],
   );
   const updateActive = reactExports.useCallback(
     (updates) => {
@@ -385,7 +385,7 @@ const LightingPanel = ({
         <ToolSlider
           className="min-w-0"
           dataActionUiId="canvas.relight.azimuth"
-          label={translate2("horizontal_angle_label")}
+          label={translate("horizontal_angle_label")}
           value={activeLight.horizontalAngle}
           min={AZIMUTH_RANGE.min}
           max={AZIMUTH_RANGE.max}
@@ -400,7 +400,7 @@ const LightingPanel = ({
         <ToolSlider
           className="min-w-0"
           dataActionUiId="canvas.relight.elevation"
-          label={translate2("vertical_angle_label")}
+          label={translate("vertical_angle_label")}
           value={activeLight.verticalAngle}
           min={ELEVATION_RANGE.min}
           max={ELEVATION_RANGE.max}
@@ -416,7 +416,7 @@ const LightingPanel = ({
       <ToolSlider
         className="min-w-0"
         dataActionUiId="canvas.relight.intensity"
-        label={translate2("light_intensity_label")}
+        label={translate("light_intensity_label")}
         value={activeLight.intensity}
         min={POWER_RANGE.min}
         max={POWER_RANGE.max}
@@ -429,12 +429,12 @@ const LightingPanel = ({
         }
       />
       <ColorSection
-        translate={translate2}
+        translate={translate}
         colorMode={activeLight.colorMode}
         colorTemp={activeLight.colorTemp}
-        onColorModeChange={(mode2) =>
+        onColorModeChange={(mode) =>
           updateActive({
-            colorMode: mode2,
+            colorMode: mode,
           })
         }
         onColorTempChange={(kelvin) =>
@@ -445,7 +445,7 @@ const LightingPanel = ({
       />
       <div className="flex flex-col gap-1.5">
         <span className="text-hl_text_02 text-[13px] font-medium leading-5">
-          {translate2("light_type_label")}
+          {translate("light_type_label")}
         </span>
         <SegmentedControl
           options={lightTypeOpts}
@@ -462,18 +462,18 @@ const LightingPanel = ({
   );
 };
 const RelightControlsPanel = ({
-  translate: translate2,
-  state: state2,
-  dispatch: dispatch2,
+  translate,
+  state,
+  dispatch,
 }) => {
   return (
     <div className="flex flex-col gap-3">
       <LightingPanel
-        translate={translate2}
-        lights={state2.lights}
-        activeLightId={state2.activeLightId}
+        translate={translate}
+        lights={state.lights}
+        activeLightId={state.activeLightId}
         onUpdateLight={(lightId, updates) =>
-          dispatch2({
+          dispatch({
             type: "UPDATE_LIGHT",
             id: lightId,
             updates,
@@ -481,12 +481,12 @@ const RelightControlsPanel = ({
         }
       />
       <BackgroundPanel
-        translate={translate2}
-        studioMode={state2.studioMode}
-        onChange={(mode2) =>
-          dispatch2({
+        translate={translate}
+        studioMode={state.studioMode}
+        onChange={(mode) =>
+          dispatch({
             type: "SET_STUDIO_MODE",
-            mode: mode2,
+            mode,
           })
         }
       />
@@ -659,39 +659,39 @@ const NEW_LIGHT_PRESET_ANGLES = [
   // 第 3 盏:左上
 ];
 function makeNewLight(lightId, slotIndex) {
-  const preset2 =
+  const preset =
     NEW_LIGHT_PRESET_ANGLES[slotIndex] ?? NEW_LIGHT_PRESET_ANGLES[0];
   return {
     id: lightId,
     type: "spotlight",
     intensity: 60,
-    horizontalAngle: preset2.h,
-    verticalAngle: preset2.v,
+    horizontalAngle: preset.h,
+    verticalAngle: preset.v,
     colorMode: "kelvin",
     color: "#ffffff",
     colorTemp: DEFAULT_COLOR_TEMP,
   };
 }
 let nextLightId = 2;
-function relightReducer(state2, action) {
+function relightReducer(state, action) {
   switch (action.type) {
     case "SET_PANEL_MODE":
       return {
-        ...state2,
+        ...state,
         panelMode: action.mode,
       };
     case "SET_ACTIVE_SUB_TAB":
       return {
-        ...state2,
+        ...state,
         activeSubTab: action.tab,
       };
     case "SET_ACTIVE_LIGHT":
       return {
-        ...state2,
+        ...state,
         activeLightId: action.id,
       };
     case "UPDATE_LIGHT": {
-      const next2 = state2.lights.map((light) =>
+      const next = state.lights.map((light) =>
         light.id === action.id
           ? {
               ...light,
@@ -700,15 +700,15 @@ function relightReducer(state2, action) {
           : light,
       );
       return {
-        ...state2,
-        lights: next2,
+        ...state,
+        lights: next,
         panelMode: "custom",
         selectedPresetId: null,
       };
     }
     case "UPDATE_LIGHTS_BATCH": {
       const updateMap = new Map(action.updates.map((lightUpdate) => [lightUpdate.id, lightUpdate]));
-      const next2 = state2.lights.map((light) => {
+      const next = state.lights.map((light) => {
         const lightUpdate = updateMap.get(light.id);
         if (!lightUpdate) return light;
         return {
@@ -718,48 +718,48 @@ function relightReducer(state2, action) {
         };
       });
       return {
-        ...state2,
-        lights: next2,
+        ...state,
+        lights: next,
         panelMode: "custom",
         selectedPresetId: null,
       };
     }
     case "ADD_LIGHT": {
-      if (state2.lights.length >= MAX_LIGHTS) return state2;
+      if (state.lights.length >= MAX_LIGHTS) return state;
       const lightId = `light${nextLightId++}`;
-      const newLight = makeNewLight(lightId, state2.lights.length);
+      const newLight = makeNewLight(lightId, state.lights.length);
       return {
-        ...state2,
-        lights: [...state2.lights, newLight],
+        ...state,
+        lights: [...state.lights, newLight],
         activeLightId: lightId,
         panelMode: "custom",
         selectedPresetId: null,
       };
     }
     case "DELETE_LIGHT": {
-      if (state2.lights.length <= 1) return state2;
-      const next2 = state2.lights.filter((light) => light.id !== action.id);
-      const activeStillThere = next2.some(
-        (light) => light.id === state2.activeLightId,
+      if (state.lights.length <= 1) return state;
+      const next = state.lights.filter((light) => light.id !== action.id);
+      const activeStillThere = next.some(
+        (light) => light.id === state.activeLightId,
       );
       return {
-        ...state2,
-        lights: next2,
-        activeLightId: activeStillThere ? state2.activeLightId : next2[0].id,
+        ...state,
+        lights: next,
+        activeLightId: activeStillThere ? state.activeLightId : next[0].id,
         panelMode: "custom",
         selectedPresetId: null,
       };
     }
     case "SET_STUDIO_MODE":
       return {
-        ...state2,
+        ...state,
         studioMode: action.mode,
         panelMode: "custom",
         selectedPresetId: null,
       };
     case "SET_EFFECT_TYPE":
       return {
-        ...state2,
+        ...state,
         effectType: action.effect,
         panelMode: "custom",
         selectedPresetId: null,
@@ -767,10 +767,10 @@ function relightReducer(state2, action) {
     case "SELECT_PRESET": {
       const presetLight = action.lights[0];
       return {
-        ...state2,
+        ...state,
         selectedPresetId: action.presetId,
-        lights: presetLight ? [presetLight] : state2.lights.slice(0, 1),
-        activeLightId: presetLight?.id || state2.activeLightId,
+        lights: presetLight ? [presetLight] : state.lights.slice(0, 1),
+        activeLightId: presetLight?.id || state.activeLightId,
         studioMode: action.studioMode,
         effectType: action.effectType,
         panelMode: "presets",
@@ -778,7 +778,7 @@ function relightReducer(state2, action) {
     }
     case "RESET_CUSTOM":
       return {
-        ...state2,
+        ...state,
         lights: DEFAULT_LIGHTS,
         activeLightId: DEFAULT_LIGHTS[0].id,
         studioMode: "default",
@@ -787,40 +787,40 @@ function relightReducer(state2, action) {
         selectedPresetId: null,
       };
     case "ENSURE_CUSTOM_MODE":
-      if (state2.panelMode === "custom") return state2;
+      if (state.panelMode === "custom") return state;
       return {
-        ...state2,
+        ...state,
         panelMode: "custom",
         selectedPresetId: null,
       };
     case "SET_IMAGE":
       return {
-        ...state2,
+        ...state,
         imageInfo: action.info,
       };
     default:
-      return state2;
+      return state;
   }
 }
 const MAX_RELIGHT_LIGHTS = 1;
 function toLightRawJson(light) {
-  const raw2 = {
+  const raw = {
     lightType: light.type,
     lightness: (light.intensity / 10).toFixed(1),
     azimuth: `${roundAngle(light.horizontalAngle)}°`,
     elevation: `${roundAngle(light.verticalAngle)}°`,
   };
   if (light.colorMode === "kelvin") {
-    raw2.kelvin = `${light.colorTemp}K`;
+    raw.kelvin = `${light.colorTemp}K`;
   } else {
-    raw2.color = light.color;
+    raw.color = light.color;
   }
-  return JSON.stringify(raw2);
+  return JSON.stringify(raw);
 }
 function buildRelightControlParams(args) {
   const limited = args.lights.slice(0, MAX_RELIGHT_LIGHTS);
-  const serializeAt = (index2) => {
-    const light = limited[index2];
+  const serializeAt = (index) => {
+    const light = limited[index];
     return light ? toLightRawJson(light) : "";
   };
   return {
@@ -878,10 +878,10 @@ function toSRGB(value) {
         : 1.055 * clamped ** (1 / 2.4) - 0.055),
   );
 }
-function colorRGB(hex2) {
-  const expanded = /^#[0-9a-f]{3}$/i.test(hex2)
-    ? `#${hex2[1]}${hex2[1]}${hex2[2]}${hex2[2]}${hex2[3]}${hex2[3]}`
-    : hex2;
+function colorRGB(hex) {
+  const expanded = /^#[0-9a-f]{3}$/i.test(hex)
+    ? `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`
+    : hex;
   const value = /^#[0-9a-f]{6}$/i.test(expanded)
     ? Number.parseInt(expanded.slice(1), 16)
     : 16777215;
@@ -938,7 +938,7 @@ function renderRelightPixels(params) {
     params.userImageWidth,
     params.userImageHeight,
   );
-  const data2 = new Uint8ClampedArray(width * height * 4);
+  const data = new Uint8ClampedArray(width * height * 4);
   const studio = STUDIOS[params.studioMode] ?? STUDIOS.default;
   const lights = params.lights.length
     ? params.lights.slice(0, 3).map(prepareLight)
@@ -954,8 +954,8 @@ function renderRelightPixels(params) {
           innerCone: 0,
         },
       ];
-  const scale2 = (2 * TAN_HALF_FOV) / height;
-  const radius = 1 / (scale2 * Math.sqrt(CAMERA_Z * CAMERA_Z - 1));
+  const scale = (2 * TAN_HALF_FOV) / height;
+  const radius = 1 / (scale * Math.sqrt(CAMERA_Z * CAMERA_Z - 1));
   const radiusSquared = radius * radius;
   const minX = Math.max(0, Math.floor(width / 2 - radius - 1));
   const maxX = Math.min(width - 1, Math.ceil(width / 2 + radius + 1));
@@ -965,10 +965,10 @@ function renderRelightPixels(params) {
     for (let pixelColumn = minX; pixelColumn <= maxX; pixelColumn++) {
       let pixelOffsetX = pixelColumn + 0.5 - width / 2;
       let pixelOffsetY = height / 2 - pixelRow - 0.5;
-      const distance2 = Math.hypot(pixelOffsetX, pixelOffsetY);
-      if (distance2 > radius + Math.SQRT1_2) continue;
+      const distance = Math.hypot(pixelOffsetX, pixelOffsetY);
+      if (distance > radius + Math.SQRT1_2) continue;
       let coverage = 1;
-      if (distance2 > radius - Math.SQRT1_2) {
+      if (distance > radius - Math.SQRT1_2) {
         let hits = 0;
         for (let sampleYIndex = 0; sampleYIndex < 4; sampleYIndex++) {
           for (let sampleXIndex = 0; sampleXIndex < 4; sampleXIndex++) {
@@ -979,14 +979,14 @@ function renderRelightPixels(params) {
         }
         if (!hits) continue;
         coverage = hits / 16;
-        if (distance2 >= radius) {
-          const shrink = (radius * (1 - 1e-8)) / distance2;
+        if (distance >= radius) {
+          const shrink = (radius * (1 - 1e-8)) / distance;
           pixelOffsetX *= shrink;
           pixelOffsetY *= shrink;
         }
       }
-      const viewPlaneX = pixelOffsetX * scale2;
-      const viewPlaneY = pixelOffsetY * scale2;
+      const viewPlaneX = pixelOffsetX * scale;
+      const viewPlaneY = pixelOffsetY * scale;
       const rayDirectionLengthSquared = 1 + viewPlaneX * viewPlaneX + viewPlaneY * viewPlaneY;
       const rayDistance =
         (CAMERA_Z -
@@ -1064,17 +1064,17 @@ function renderRelightPixels(params) {
         linearGreen += light.color[1] * radiance;
         linearBlue += light.color[2] * radiance;
       }
-      const offset2 = (pixelRow * width + pixelColumn) * 4;
-      data2[offset2] = toSRGB(linearRed);
-      data2[offset2 + 1] = toSRGB(linearGreen);
-      data2[offset2 + 2] = toSRGB(linearBlue);
-      data2[offset2 + 3] = Math.round(coverage * 255);
+      const offset = (pixelRow * width + pixelColumn) * 4;
+      data[offset] = toSRGB(linearRed);
+      data[offset + 1] = toSRGB(linearGreen);
+      data[offset + 2] = toSRGB(linearBlue);
+      data[offset + 3] = Math.round(coverage * 255);
     }
   }
   return {
     width,
     height,
-    data: data2,
+    data,
   };
 }
 function renderInWorker(params) {
@@ -1096,13 +1096,13 @@ function renderInWorker(params) {
     const finish = (error, blob) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timer2);
+      clearTimeout(timer);
       worker.terminate();
       if (error) reject(error);
       else if (blob) resolve(blob);
       else reject(new Error("Missing lighting reference PNG"));
     };
-    const timer2 = setTimeout(
+    const timer = setTimeout(
       () => finish(new Error("Lighting reference worker timed out")),
       15e3,
     );
@@ -1127,16 +1127,16 @@ function renderInWorker(params) {
 }
 async function renderOnMainThread(params) {
   await new Promise((resolve) => setTimeout(resolve, 0));
-  const { width, height, data: data2 } = renderRelightPixels(params);
+  const { width, height, data } = renderRelightPixels(params);
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
   try {
     const context = canvas.getContext("2d");
     if (!context) throw new Error("Canvas 2D is unavailable");
-    const image2 = context.createImageData(width, height);
-    image2.data.set(data2);
-    context.putImageData(image2, 0, 0);
+    const image = context.createImageData(width, height);
+    image.data.set(data);
+    context.putImageData(image, 0, 0);
     return await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
   } finally {
     canvas.width = 0;
@@ -1168,24 +1168,24 @@ async function renderRelightReference(params) {
 const RELIGHT_GENERATE_COUNT = 1;
 const RELIGHT_CREDIT_COST = 60;
 function readableError(error, serviceErrorMessage) {
-  const raw2 = error instanceof Error ? error.message : String(error);
-  if (/<!doctype\s+html|<html[\s>]/i.test(raw2)) return serviceErrorMessage;
-  return raw2.length > 240 ? `${raw2.slice(0, 240)}…` : raw2;
+  const raw = error instanceof Error ? error.message : String(error);
+  if (/<!doctype\s+html|<html[\s>]/i.test(raw)) return serviceErrorMessage;
+  return raw.length > 240 ? `${raw.slice(0, 240)}…` : raw;
 }
-function loadImageDimensions(url2) {
+function loadImageDimensions(url) {
   return new Promise((resolve) => {
-    const image2 = new Image();
-    image2.onload = () =>
+    const image = new Image();
+    image.onload = () =>
       resolve({
-        width: image2.naturalWidth || 1024,
-        height: image2.naturalHeight || 1024,
+        width: image.naturalWidth || 1024,
+        height: image.naturalHeight || 1024,
       });
-    image2.onerror = () =>
+    image.onerror = () =>
       resolve({
         width: 1024,
         height: 1024,
       });
-    image2.src = url2;
+    image.src = url;
   });
 }
 export function RelightEditor({
@@ -1197,15 +1197,15 @@ export function RelightEditor({
   onClose,
 }) {
   const { i18n, t } = useTranslation();
-  const translate2 = reactExports.useMemo(
-    () => (key2) => {
+  const translate = reactExports.useMemo(
+    () => (key) => {
       const locale = i18n.resolvedLanguage?.startsWith("zh") ? "zh" : "en";
-      return messages[locale][key2] ?? key2;
+      return messages[locale][key] ?? key;
     },
     [i18n.resolvedLanguage],
   );
   const { pickAsset, submitImg2Image, uploadFileToCdn } = useCanvasBridge();
-  const [state2, dispatch2] = reactExports.useReducer(relightReducer, {
+  const [state, dispatch] = reactExports.useReducer(relightReducer, {
     ...INITIAL_STATE,
     imageInfo: imageUrl
       ? {
@@ -1222,7 +1222,7 @@ export function RelightEditor({
   const [isSubmitting, setIsSubmitting] = reactExports.useState(false);
   const submitLockRef = reactExports.useRef(false);
   const handleBakeLights = reactExports.useCallback((results) => {
-    dispatch2({
+    dispatch({
       type: "UPDATE_LIGHTS_BATCH",
       updates: results.map((result) => ({
         ...result,
@@ -1234,48 +1234,48 @@ export function RelightEditor({
   const handlePickImage = reactExports.useCallback(async () => {
     if (!pickAsset) return;
     try {
-      const selected2 = (
+      const selected = (
         await pickAsset({
           type: "image",
         })
       )?.[0];
-      if (!selected2?.url || !selected2.path) return;
-      dispatch2({
+      if (!selected?.url || !selected.path) return;
+      dispatch({
         type: "SET_IMAGE",
         info: {
-          url: selected2.url,
+          url: selected.url,
           pendingUpload: false,
         },
       });
-      setSourcePath(selected2.path);
+      setSourcePath(selected.path);
       setSourceSize({
-        width: selected2.width,
-        height: selected2.height,
+        width: selected.width,
+        height: selected.height,
       });
     } catch (error) {
       dedupedToast.error(
-        `${translate2("error_upload_failed")}: ${readableError(error, translate2("error_service_failed"))}`,
+        `${translate("error_upload_failed")}: ${readableError(error, translate("error_service_failed"))}`,
       );
     }
-  }, [pickAsset, translate2]);
+  }, [pickAsset, translate]);
   const handleReset = reactExports.useCallback(
     () =>
-      dispatch2({
+      dispatch({
         type: "RESET_CUSTOM",
       }),
     [],
   );
-  const handleSelectPreset = reactExports.useCallback((preset2) => {
-    dispatch2({
+  const handleSelectPreset = reactExports.useCallback((preset) => {
+    dispatch({
       type: "SELECT_PRESET",
-      presetId: preset2.id,
-      lights: preset2.parsedPrompt.lights?.slice(0, 1) ?? [],
-      studioMode: preset2.parsedPrompt.studioMode ?? "default",
-      effectType: preset2.effectType,
+      presetId: preset.id,
+      lights: preset.parsedPrompt.lights?.slice(0, 1) ?? [],
+      studioMode: preset.parsedPrompt.studioMode ?? "default",
+      effectType: preset.effectType,
     });
   }, []);
   const handleSubmit = reactExports.useCallback(async () => {
-    const sourceUrl = state2.imageInfo?.url;
+    const sourceUrl = state.imageInfo?.url;
     if (
       submitLockRef.current ||
       !sourceUrl ||
@@ -1288,7 +1288,7 @@ export function RelightEditor({
     submitLockRef.current = true;
     setIsSubmitting(true);
     try {
-      const dimensions2 =
+      const dimensions =
         sourceSize.width && sourceSize.height
           ? {
               width: sourceSize.width,
@@ -1296,21 +1296,21 @@ export function RelightEditor({
             }
           : await loadImageDimensions(sourceUrl);
       const reference = await renderRelightReference({
-        lights: state2.lights,
-        studioMode: state2.studioMode,
-        userImageWidth: dimensions2.width,
-        userImageHeight: dimensions2.height,
+        lights: state.lights,
+        studioMode: state.studioMode,
+        userImageWidth: dimensions.width,
+        userImageHeight: dimensions.height,
       });
-      if (!reference) throw new Error(translate2("error_render_failed"));
+      if (!reference) throw new Error(translate("error_render_failed"));
       const referenceUrl = await uploadFileToCdn(
         new File([reference], `relight-reference-${Date.now()}.png`, {
           type: "image/png",
         }),
       );
       const params = buildRelightControlParams({
-        lights: state2.lights,
-        studioMode: state2.studioMode,
-        effectType: state2.effectType,
+        lights: state.lights,
+        studioMode: state.studioMode,
+        effectType: state.effectType,
       });
       const submission = submitImg2Image(
         nodeId,
@@ -1330,10 +1330,10 @@ export function RelightEditor({
       onClose();
       const result = await submission;
       if (!result.success)
-        throw new Error(result.error || translate2("error_generic"));
+        throw new Error(result.error || translate("error_generic"));
     } catch (error) {
       dedupedToast.error(
-        `${translate2("error_generic")}: ${readableError(error, translate2("error_service_failed"))}`,
+        `${translate("error_generic")}: ${readableError(error, translate("error_service_failed"))}`,
       );
     } finally {
       submitLockRef.current = false;
@@ -1344,14 +1344,14 @@ export function RelightEditor({
     onClose,
     sourcePath,
     sourceSize,
-    state2,
+    state,
     submitImg2Image,
-    translate2,
+    translate,
     uploadFileToCdn,
   ]);
-  const disabled2 =
+  const disabled =
     isSubmitting ||
-    !state2.imageInfo?.url ||
+    !state.imageInfo?.url ||
     !sourcePath ||
     !submitImg2Image ||
     !uploadFileToCdn;
@@ -1364,7 +1364,7 @@ export function RelightEditor({
     <div className="multi-angle-theme flex h-full min-h-0 flex-col bg-hl_bg_01">
       <header className="shrink-0 px-4 pb-1 pt-3 pr-10">
         <h2 className="text-hl_text_00 text-sm font-semibold leading-5">
-          {translate2("tool_title")}
+          {translate("tool_title")}
         </h2>
       </header>
       <div className="min-h-0 flex-1">
@@ -1384,19 +1384,19 @@ export function RelightEditor({
                   onClick={handleReset}
                 >
                   <ToolResetIcon />
-                  <span>{translate2("reset")}</span>
+                  <span>{translate("reset")}</span>
                 </button>
                 <div className="h-[212px] shrink-0">
                   <StudioPreview
-                    translate={translate2}
-                    lights={state2.lights}
-                    activeLightId={state2.activeLightId}
-                    imageUrl={state2.imageInfo?.url ?? null}
-                    studioMode={state2.studioMode}
+                    translate={translate}
+                    lights={state.lights}
+                    activeLightId={state.activeLightId}
+                    imageUrl={state.imageInfo?.url ?? null}
+                    studioMode={state.studioMode}
                     isInteractionDisabled={isSubmitting}
                     onBakeLights={handleBakeLights}
                     onSelectActiveLight={(lightId) =>
-                      dispatch2({
+                      dispatch({
                         type: "SET_ACTIVE_LIGHT",
                         id: lightId,
                       })
@@ -1409,9 +1409,9 @@ export function RelightEditor({
                   onWheelCapture={(event) => event.stopPropagation()}
                 >
                   <RelightControlsPanel
-                    translate={translate2}
-                    state={state2}
-                    dispatch={dispatch2}
+                    translate={translate}
+                    state={state}
+                    dispatch={dispatch}
                   />
                 </section>
               </div>
@@ -1425,9 +1425,9 @@ export function RelightEditor({
               onWheelCapture={(event) => event.stopPropagation()}
             >
               <PresetsPanel
-                translate={translate2}
-                selectedPresetId={state2.selectedPresetId}
-                panelMode={state2.panelMode}
+                translate={translate}
+                selectedPresetId={state.selectedPresetId}
+                panelMode={state.panelMode}
                 onSelect={handleSelectPreset}
                 onResetToOriginal={handleReset}
               />
@@ -1448,11 +1448,11 @@ export function RelightEditor({
               <button
                 type="button"
                 onClick={() => void handleSubmit()}
-                disabled={disabled2}
-                aria-label={translate2(
+                disabled={disabled}
+                aria-label={translate(
                   isSubmitting ? "generating_label" : "generate_button",
                 )}
-                title={translate2(
+                title={translate(
                   isSubmitting ? "generating_label" : "generate_button",
                 )}
                 className="flex size-8 items-center justify-center rounded-md bg-hl_text_00 text-[13px] text-hl_text_05 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"

@@ -144,7 +144,7 @@ extension2@429:25	extension	去掉打包器为避免重名添加的数字后缀�
 extension2@554:14	extension	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件扩展名。
 displayName2@555:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
 text2@656:24	text	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存解码后的文件文本。
-scheduler2@662:9	schedulerApi	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存浏览器提供的调度接口对象。
+scheduler2@662:9	schedulerApi	原名 scheduler 与浏览器全局对象名冲突，因此改用描述名 schedulerApi；此处持有浏览器提供的调度接口对象。
 extension2@670:14	extension	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件扩展名。
 displayName2@672:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。
 bytes2@675:9	bytes	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件字节请求状态对象。
@@ -160,7 +160,7 @@ displayName2@846:16	displayName	去掉打包器为避免重名添加的数字后
 bytes2@850:9	bytes	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件字节请求状态对象。
 doc2@854:10	doc	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前 PDF 文档对象。
 data2@870:11	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存复制后的文件字节数据。
-doc22@875:14	loadedDocument	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存PDF.js Promise 解析出的文档对象；原名 doc2 会遮蔽外层 PDF 文档状态 doc2。
+doc22@875:14	loadedDocument	外层已有 doc2 保存 PDF 状态，为避免遮蔽改用描述名 loadedDocument；此处持有 PDF.js Promise 解析出的文档对象。
 index2@881:23	index	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前 PDF 页码索引。
 scale2@907:15	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存PDF 页面渲染缩放比例。
 displayName2@1001:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存展示给用户的文件名。

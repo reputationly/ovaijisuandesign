@@ -49,21 +49,21 @@ function pointOnEllipseStroke(point, bounds, padding) {
 
 class ArrowShape extends Shape {
   draw(canvasContext) {
-    const { x1: startX, y1: startY, x2: endX, y2: endY, style: style2 } = this.data;
+    const { x1: startX, y1: startY, x2: endX, y2: endY, style } = this.data;
     const deltaX = endX - startX;
     const deltaY = endY - startY;
     const segmentLength = Math.hypot(deltaX, deltaY);
     if (segmentLength === 0) return;
-    const headLen = Math.max(12, style2.strokeWidth * 4);
-    const headWidth = Math.max(8, style2.strokeWidth * 3);
+    const headLen = Math.max(12, style.strokeWidth * 4);
+    const headWidth = Math.max(8, style.strokeWidth * 3);
     const directionX = deltaX / segmentLength;
     const directionY = deltaY / segmentLength;
     const bodyEndX = endX - directionX * headLen * 0.5;
     const bodyEndY = endY - directionY * headLen * 0.5;
     canvasContext.save();
-    canvasContext.lineWidth = style2.strokeWidth;
-    canvasContext.strokeStyle = style2.stroke;
-    canvasContext.fillStyle = style2.stroke;
+    canvasContext.lineWidth = style.strokeWidth;
+    canvasContext.strokeStyle = style.stroke;
+    canvasContext.fillStyle = style.stroke;
     canvasContext.lineCap = "round";
     canvasContext.lineJoin = "round";
     canvasContext.beginPath();
@@ -138,19 +138,19 @@ class ArrowShape extends Shape {
 
 class EllipseShape extends Shape {
   draw(canvasContext) {
-    const { x: originX, y: originY, width, height, style: style2 } = this.data;
+    const { x: originX, y: originY, width, height, style } = this.data;
     if (width === 0 || height === 0) return;
     const centerX = originX + width / 2;
     const centerY = originY + height / 2;
     const radiusX = Math.abs(width / 2);
     const radiusY = Math.abs(height / 2);
     canvasContext.save();
-    canvasContext.lineWidth = style2.strokeWidth;
-    canvasContext.strokeStyle = style2.stroke;
+    canvasContext.lineWidth = style.strokeWidth;
+    canvasContext.strokeStyle = style.stroke;
     canvasContext.beginPath();
     canvasContext.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
-    if (style2.fill) {
-      canvasContext.fillStyle = style2.fill;
+    if (style.fill) {
+      canvasContext.fillStyle = style.fill;
       canvasContext.fill();
     }
     canvasContext.stroke();
@@ -185,10 +185,10 @@ class EllipseShape extends Shape {
 
 class LineShape extends Shape {
   draw(canvasContext) {
-    const { x1: startX, y1: startY, x2: endX, y2: endY, style: style2 } = this.data;
+    const { x1: startX, y1: startY, x2: endX, y2: endY, style } = this.data;
     canvasContext.save();
-    canvasContext.lineWidth = style2.strokeWidth;
-    canvasContext.strokeStyle = style2.stroke;
+    canvasContext.lineWidth = style.strokeWidth;
+    canvasContext.strokeStyle = style.stroke;
     canvasContext.lineCap = "round";
     canvasContext.beginPath();
     canvasContext.moveTo(startX, startY);
@@ -244,23 +244,23 @@ class LineShape extends Shape {
   }
 }
 
-export function createShape(data2) {
-  switch (data2.type) {
+export function createShape(data) {
+  switch (data.type) {
     case "rectangle":
-      return new RectangleShape(data2);
+      return new RectangleShape(data);
     case "ellipse":
-      return new EllipseShape(data2);
+      return new EllipseShape(data);
     case "line":
-      return new LineShape(data2);
+      return new LineShape(data);
     case "arrow":
-      return new ArrowShape(data2);
+      return new ArrowShape(data);
     case "brush":
-      return new FreePathShape(data2);
+      return new FreePathShape(data);
     case "text":
-      return new TextShape(data2);
+      return new TextShape(data);
     case "tag":
-      return new TagShape(data2);
+      return new TagShape(data);
     case "mosaic":
-      return new MosaicShape(data2);
+      return new MosaicShape(data);
   }
 }

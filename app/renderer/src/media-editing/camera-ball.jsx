@@ -43,8 +43,8 @@ const UPLOAD_BTN_SIZE = 56;
 const MARKER_SIZE = 32;
 const CAMERA_GRID_FOLLOW = 0.2;
 const RADIANS_PER_DEGREE = Math.PI / 180;
-function getPhotoSize(zoom2) {
-  const clampedZoom = Math.max(0, Math.min(10, zoom2));
+function getPhotoSize(zoom) {
+  const clampedZoom = Math.max(0, Math.min(10, zoom));
   if (clampedZoom <= 5) {
     return (
       PHOTO_SIZE_MIN + (PHOTO_SIZE_MEDIUM - PHOTO_SIZE_MIN) * (clampedZoom / 5)
@@ -55,7 +55,7 @@ function getPhotoSize(zoom2) {
     (PHOTO_SIZE_MAX - PHOTO_SIZE_MEDIUM) * ((clampedZoom - 5) / 5)
   );
 }
-function CenterImage({ imageUrl, size: size2 }) {
+function CenterImage({ imageUrl, size }) {
   const [loadedUrl, setLoadedUrl] = reactExports.useState(null);
   const imgRef = reactExports.useRef(null);
   const isLoaded = loadedUrl === imageUrl;
@@ -67,8 +67,8 @@ function CenterImage({ imageUrl, size: size2 }) {
     <div
       className="border-hl_line_00 bg-hl_bg_05 relative mx-auto overflow-hidden rounded-lg border transition-[width,height] duration-200 ease-out"
       style={{
-        width: size2,
-        height: size2,
+        width: size,
+        height: size,
       }}
     >
       {!isLoaded && (
@@ -105,12 +105,12 @@ function project(pointX, pointY, pointZ, yawRadians, pitch, centerX, centerY, ra
   };
 }
 function strokeWithDepth(canvasContext, points, frontAlpha, backAlpha) {
-  const flush2 = (start2, end2, isFront) => {
-    if (end2 - start2 < 2) return;
+  const flush = (start, end, isFront) => {
+    if (end - start < 2) return;
     canvasContext.globalAlpha = isFront ? frontAlpha : backAlpha;
     canvasContext.beginPath();
-    canvasContext.moveTo(points[start2].x, points[start2].y);
-    for (let j2 = start2 + 1; j2 < end2; j2++) canvasContext.lineTo(points[j2].x, points[j2].y);
+    canvasContext.moveTo(points[start].x, points[start].y);
+    for (let j2 = start + 1; j2 < end; j2++) canvasContext.lineTo(points[j2].x, points[j2].y);
     canvasContext.stroke();
   };
   let runStart = 0;
@@ -118,12 +118,12 @@ function strokeWithDepth(canvasContext, points, frontAlpha, backAlpha) {
   for (let i2 = 1; i2 < points.length; i2++) {
     const isFront = points[i2].z >= 0;
     if (isFront !== runFront) {
-      flush2(runStart, i2, runFront);
+      flush(runStart, i2, runFront);
       runStart = i2 - 1;
       runFront = isFront;
     }
   }
-  flush2(runStart, points.length, runFront);
+  flush(runStart, points.length, runFront);
   canvasContext.globalAlpha = 1;
 }
 function cameraScreenPos(horizontalAngle, verticalAngle, centerX, centerY, radius) {
@@ -138,7 +138,7 @@ function cameraScreenPos(horizontalAngle, verticalAngle, centerX, centerY, radiu
 export function CameraBall({
   camera,
   imageUrl,
-  disabled: disabled2,
+  disabled,
   onRotate,
   onUpload,
   t: translations,
@@ -149,12 +149,12 @@ export function CameraBall({
   const [themeTick, setThemeTick] = reactExports.useState(0);
   const dragRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    const observer2 = new MutationObserver(() => setThemeTick((previousThemeTick) => previousThemeTick + 1));
-    observer2.observe(document.documentElement, {
+    const observer = new MutationObserver(() => setThemeTick((previousThemeTick) => previousThemeTick + 1));
+    observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-    return () => observer2.disconnect();
+    return () => observer.disconnect();
   }, []);
   reactExports.useEffect(() => {
     if (!camera.presetId) return;
@@ -258,24 +258,24 @@ export function CameraBall({
   }, [camera, ballYaw, ballPitch, themeTick, centerX, centerY]);
   const applyDrag = reactExports.useCallback(
     (pointerEvent) => {
-      const drag2 = dragRef.current;
-      if (!drag2 || disabled2) return;
-      const deltaX = pointerEvent.clientX - drag2.x;
-      const deltaY = pointerEvent.clientY - drag2.y;
+      const drag = dragRef.current;
+      if (!drag || disabled) return;
+      const deltaX = pointerEvent.clientX - drag.x;
+      const deltaY = pointerEvent.clientY - drag.y;
       const horizontalAngleDelta = (deltaX / (Math.PI * RADIUS)) * 180;
       const verticalAngleDelta = (-deltaY / (Math.PI * RADIUS)) * 180;
       if (Math.abs(horizontalAngleDelta) < 0.5 && Math.abs(verticalAngleDelta) < 0.5) return;
-      drag2.x = pointerEvent.clientX;
-      drag2.y = pointerEvent.clientY;
-      const gridFollow = drag2.kind === "ball" ? 1 : CAMERA_GRID_FOLLOW;
+      drag.x = pointerEvent.clientX;
+      drag.y = pointerEvent.clientY;
+      const gridFollow = drag.kind === "ball" ? 1 : CAMERA_GRID_FOLLOW;
       setBallYaw((previousYaw) => previousYaw + horizontalAngleDelta * gridFollow);
       setBallPitch((previousPitch) => Math.max(-85, Math.min(85, previousPitch + verticalAngleDelta * gridFollow)));
       onRotate(horizontalAngleDelta, verticalAngleDelta);
     },
-    [disabled2, onRotate],
+    [disabled, onRotate],
   );
   const handleBallPointerDown = (pointerEvent) => {
-    if (disabled2) return;
+    if (disabled) return;
     pointerEvent.currentTarget.setPointerCapture(pointerEvent.pointerId);
     dragRef.current = {
       kind: "ball",
@@ -284,7 +284,7 @@ export function CameraBall({
     };
   };
   const handleMarkerPointerDown = (pointerEvent) => {
-    if (disabled2) return;
+    if (disabled) return;
     pointerEvent.stopPropagation();
     const container = pointerEvent.currentTarget.closest("[data-camera-ball]");
     if (container instanceof HTMLElement)
@@ -313,7 +313,7 @@ export function CameraBall({
       data-camera-ball={true}
       data-action-ui-id="canvas.multi-angle.camera-ball"
       className={
-        disabled2
+        disabled
           ? "relative cursor-not-allowed opacity-60"
           : "relative cursor-grab active:cursor-grabbing"
       }
@@ -371,7 +371,7 @@ export function CameraBall({
               transform: "translate(-50%, -50%)",
               opacity: isBehindOverlap ? 0.46 : 1,
               zIndex: cameraPosition.z >= 0 || isBehindOverlap ? 4 : 1,
-              cursor: disabled2 ? "not-allowed" : "grab",
+              cursor: disabled ? "not-allowed" : "grab",
             }}
           >
             <div className="size-8 scale-[1.331]">

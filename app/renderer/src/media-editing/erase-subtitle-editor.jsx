@@ -19,66 +19,66 @@ import {
 import { Button } from "../canvas/node-shell-inner.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
 import { ProgressBar } from "./progress-bar-inner.jsx";
-function normToPxRect(box2, videoRect) {
+function normToPxRect(box, videoRect) {
   return {
-    x: videoRect.x + box2.tlx * videoRect.w,
-    y: videoRect.y + box2.tly * videoRect.h,
-    w: (box2.brx - box2.tlx) * videoRect.w,
-    h: (box2.bry - box2.tly) * videoRect.h,
+    x: videoRect.x + box.tlx * videoRect.w,
+    y: videoRect.y + box.tly * videoRect.h,
+    w: (box.brx - box.tlx) * videoRect.w,
+    h: (box.bry - box.tly) * videoRect.h,
   };
 }
 const HANDLE_SIZE = 10;
-function handlePositionStyle(handle2) {
-  const offset2 = -HANDLE_SIZE / 2;
-  switch (handle2) {
+function handlePositionStyle(handle) {
+  const offset = -HANDLE_SIZE / 2;
+  switch (handle) {
     case "tl":
       return {
-        left: offset2,
-        top: offset2,
+        left: offset,
+        top: offset,
       };
     case "tr":
       return {
-        right: offset2,
-        top: offset2,
+        right: offset,
+        top: offset,
       };
     case "bl":
       return {
-        left: offset2,
-        bottom: offset2,
+        left: offset,
+        bottom: offset,
       };
     case "br":
       return {
-        right: offset2,
-        bottom: offset2,
+        right: offset,
+        bottom: offset,
       };
     case "t":
       return {
         left: "50%",
-        top: offset2,
+        top: offset,
         transform: "translateX(-50%)",
       };
     case "b":
       return {
         left: "50%",
-        bottom: offset2,
+        bottom: offset,
         transform: "translateX(-50%)",
       };
     case "l":
       return {
-        left: offset2,
+        left: offset,
         top: "50%",
         transform: "translateY(-50%)",
       };
     case "r":
       return {
-        right: offset2,
+        right: offset,
         top: "50%",
         transform: "translateY(-50%)",
       };
   }
 }
-function handleCursor(handle2) {
-  switch (handle2) {
+function handleCursor(handle) {
+  switch (handle) {
     case "tl":
     case "br":
       return "nwse-resize";
@@ -93,17 +93,17 @@ function handleCursor(handle2) {
       return "ew-resize";
   }
 }
-function ResizeHandle({ handle: handle2, onPointerDown: onPointerDown2 }) {
-  const style2 = handlePositionStyle(handle2);
+function ResizeHandle({ handle, onPointerDown }) {
+  const style = handlePositionStyle(handle);
   return (
     <div
-      onPointerDown={(pointerEvent) => onPointerDown2(pointerEvent, handle2)}
+      onPointerDown={(pointerEvent) => onPointerDown(pointerEvent, handle)}
       className="absolute z-10 rounded-full border-2 border-primary bg-background"
       style={{
-        ...style2,
+        ...style,
         width: HANDLE_SIZE,
         height: HANDLE_SIZE,
-        cursor: handleCursor(handle2),
+        cursor: handleCursor(handle),
         touchAction: "none",
       }}
     />
@@ -168,17 +168,17 @@ function pxToNorm(pixelX, pixelY, videoRect) {
     y: clamp((pixelY - videoRect.y) / videoRect.h, 0, 1),
   };
 }
-function createBoxFromDrag(anchor, current2) {
+function createBoxFromDrag(anchor, current) {
   return {
-    tlx: Math.min(anchor.x, current2.x),
-    tly: Math.min(anchor.y, current2.y),
-    brx: Math.max(anchor.x, current2.x),
-    bry: Math.max(anchor.y, current2.y),
+    tlx: Math.min(anchor.x, current.x),
+    tly: Math.min(anchor.y, current.y),
+    brx: Math.max(anchor.x, current.x),
+    bry: Math.max(anchor.y, current.y),
   };
 }
-function isBoxBigEnough(box2) {
+function isBoxBigEnough(box) {
   return (
-    box2.brx - box2.tlx >= MIN_BOX_SIZE && box2.bry - box2.tly >= MIN_BOX_SIZE
+    box.brx - box.tlx >= MIN_BOX_SIZE && box.bry - box.tly >= MIN_BOX_SIZE
   );
 }
 function moveBox(initial, dxNorm, dyNorm) {
@@ -193,12 +193,12 @@ function moveBox(initial, dxNorm, dyNorm) {
     bry: topLeftY + boxHeight,
   };
 }
-function resizeBoxByHandle(initial, handle2, dxNorm, dyNorm) {
+function resizeBoxByHandle(initial, handle, dxNorm, dyNorm) {
   let { tlx: topLeftX, tly: topLeftY, brx: bottomRightX, bry: bottomRightY } = initial;
-  const movesL = handle2 === "tl" || handle2 === "bl" || handle2 === "l";
-  const movesR = handle2 === "tr" || handle2 === "br" || handle2 === "r";
-  const movesT = handle2 === "tl" || handle2 === "tr" || handle2 === "t";
-  const movesB = handle2 === "bl" || handle2 === "br" || handle2 === "b";
+  const movesL = handle === "tl" || handle === "bl" || handle === "l";
+  const movesR = handle === "tr" || handle === "br" || handle === "r";
+  const movesT = handle === "tl" || handle === "tr" || handle === "t";
+  const movesB = handle === "bl" || handle === "br" || handle === "b";
   if (movesL) topLeftX = clamp(initial.tlx + dxNorm, 0, initial.brx - MIN_BOX_SIZE);
   if (movesR) bottomRightX = clamp(initial.brx + dxNorm, initial.tlx + MIN_BOX_SIZE, 1);
   if (movesT) topLeftY = clamp(initial.tly + dyNorm, 0, initial.bry - MIN_BOX_SIZE);
@@ -210,30 +210,30 @@ function resizeBoxByHandle(initial, handle2, dxNorm, dyNorm) {
     bry: bottomRightY,
   };
 }
-function toEraseBox(box2) {
+function toEraseBox(box) {
   return {
-    top_left_x: box2.tlx,
-    top_left_y: box2.tly,
-    bottom_right_x: box2.brx,
-    bottom_right_y: box2.bry,
+    top_left_x: box.tlx,
+    top_left_y: box.tly,
+    bottom_right_x: box.brx,
+    bottom_right_y: box.bry,
   };
 }
-function fromEraseBox(box2) {
+function fromEraseBox(box) {
   return {
-    tlx: box2.top_left_x,
-    tly: box2.top_left_y,
-    brx: box2.bottom_right_x,
-    bry: box2.bottom_right_y,
+    tlx: box.top_left_x,
+    tly: box.top_left_y,
+    brx: box.bottom_right_x,
+    bry: box.bottom_right_y,
   };
 }
-function isValidBox(box2) {
+function isValidBox(box) {
   return (
-    box2.tlx >= 0 &&
-    box2.tly >= 0 &&
-    box2.brx <= 1 &&
-    box2.bry <= 1 &&
-    box2.brx - box2.tlx >= MIN_BOX_SIZE &&
-    box2.bry - box2.tly >= MIN_BOX_SIZE
+    box.tlx >= 0 &&
+    box.tly >= 0 &&
+    box.brx <= 1 &&
+    box.bry <= 1 &&
+    box.brx - box.tlx >= MIN_BOX_SIZE &&
+    box.bry - box.tly >= MIN_BOX_SIZE
   );
 }
 let __idSeq = 0;
@@ -242,25 +242,25 @@ function nextRegionId() {
   return `region-${Date.now().toString(36)}-${__idSeq}`;
 }
 function RegionView({
-  box: box2,
+  box,
   videoRect,
-  selected: selected2,
-  onPointerDown: onPointerDown2,
+  selected,
+  onPointerDown,
   onHandlePointerDown,
 }) {
-  const pixelRect = normToPxRect(box2, videoRect);
+  const pixelRect = normToPxRect(box, videoRect);
   return (
     // biome-ignore lint/a11y/useSemanticElements: native <button> swallows pointer + child handle events; this is a generic interactive surface, not a button-style action
     <div
       role="button"
       tabIndex={0}
-      onPointerDown={onPointerDown2}
+      onPointerDown={onPointerDown}
       onKeyDown={(keyboardEvent) => {
         if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") keyboardEvent.preventDefault();
       }}
       className={classNames(
         "absolute box-border cursor-move border-2 transition-colors",
-        selected2
+        selected
           ? "border-primary bg-primary/15 shadow-[0_0_0_1px_rgba(0,0,0,0.4)]"
           : "border-white/80 bg-white/5 hover:border-white",
       )}
@@ -275,7 +275,7 @@ function RegionView({
         touchAction: "none",
       }}
     >
-      {selected2 && (
+      {selected && (
         <>
           <ResizeHandle handle="tl" onPointerDown={onHandlePointerDown} />
           <ResizeHandle handle="tr" onPointerDown={onHandlePointerDown} />
@@ -298,8 +298,8 @@ function RegionView({
     </div>
   );
 }
-function DraftBoxView({ box: box2, videoRect }) {
-  const pixelRect = normToPxRect(box2, videoRect);
+function DraftBoxView({ box, videoRect }) {
+  const pixelRect = normToPxRect(box, videoRect);
   return (
     <div
       className="pointer-events-none absolute box-border border-2 border-dashed border-primary bg-primary/10"
@@ -332,7 +332,7 @@ export const EraseSubtitleEditor = reactExports.memo(
   }) {
     const { t } = useTranslation();
     useSuspendCanvasInteractions(true);
-    const active2 = useCanvasActive();
+    const active = useCanvasActive();
     const stageRef = reactExports.useRef(null);
     const videoRef = reactExports.useRef(null);
     const [regions, setRegions] = reactExports.useState(() =>
@@ -370,17 +370,17 @@ export const EraseSubtitleEditor = reactExports.memo(
     reactExports.useEffect(() => {
       const el = stageRef.current;
       if (!el) return;
-      const update2 = () => setStageRect(el.getBoundingClientRect());
-      update2();
-      const raf1 = requestAnimationFrame(() => {
-        const raf2 = requestAnimationFrame(update2);
-        cancelAnimationFrame(raf2);
-        update2();
+      const update = () => setStageRect(el.getBoundingClientRect());
+      update();
+      const initialFrameId = requestAnimationFrame(() => {
+        const followUpFrameId = requestAnimationFrame(update);
+        cancelAnimationFrame(followUpFrameId);
+        update();
       });
-      const resizeObserver = new ResizeObserver(update2);
+      const resizeObserver = new ResizeObserver(update);
       resizeObserver.observe(el);
       return () => {
-        cancelAnimationFrame(raf1);
+        cancelAnimationFrame(initialFrameId);
         resizeObserver.disconnect();
       };
     }, []);
@@ -581,38 +581,38 @@ export const EraseSubtitleEditor = reactExports.memo(
         const region = regions.find((region) => region.id === regionId);
         if (!region) return;
         setSelectedId(regionId);
-        const start2 = stageLocal(pointerEvent);
+        const start = stageLocal(pointerEvent);
         setInteraction({
           kind: "moving",
           boxId: regionId,
           initial: region.box,
-          pointerStart: start2,
+          pointerStart: start,
         });
         stageRef.current?.setPointerCapture(pointerEvent.pointerId);
       },
       [regions, stageLocal],
     );
     const handleResizeHandlePointerDown = reactExports.useCallback(
-      (pointerEvent, regionId, handle2) => {
+      (pointerEvent, regionId, handle) => {
         if (pointerEvent.button !== 0) return;
         pointerEvent.stopPropagation();
         const region = regions.find((region) => region.id === regionId);
         if (!region) return;
         setSelectedId(regionId);
-        const start2 = stageLocal(pointerEvent);
+        const start = stageLocal(pointerEvent);
         setInteraction({
           kind: "resizing",
           boxId: regionId,
-          handle: handle2,
+          handle,
           initial: region.box,
-          pointerStart: start2,
+          pointerStart: start,
         });
         stageRef.current?.setPointerCapture(pointerEvent.pointerId);
       },
       [regions, stageLocal],
     );
     reactExports.useEffect(() => {
-      if (!selectedId || !active2) return;
+      if (!selectedId || !active) return;
       const onKey = (keyboardEvent) => {
         if (keyboardEvent.key === "Delete" || keyboardEvent.key === "Backspace") {
           keyboardEvent.preventDefault();
@@ -627,7 +627,7 @@ export const EraseSubtitleEditor = reactExports.memo(
       };
       window.addEventListener("keydown", onKey, true);
       return () => window.removeEventListener("keydown", onKey, true);
-    }, [selectedId, active2]);
+    }, [selectedId, active]);
     const validRegions = reactExports.useMemo(
       () => regions.filter((region) => isValidBox(region.box)),
       [regions],
@@ -704,8 +704,8 @@ export const EraseSubtitleEditor = reactExports.memo(
                     videoRect={videoRect}
                     selected={region.id === selectedId}
                     onPointerDown={(pointerEvent) => handleBoxPointerDown(pointerEvent, region.id)}
-                    onHandlePointerDown={(pointerEvent, handle2) =>
-                      handleResizeHandlePointerDown(pointerEvent, region.id, handle2)
+                    onHandlePointerDown={(pointerEvent, handle) =>
+                      handleResizeHandlePointerDown(pointerEvent, region.id, handle)
                     }
                   />
                 ))}
