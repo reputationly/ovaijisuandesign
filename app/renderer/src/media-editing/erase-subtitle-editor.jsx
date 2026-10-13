@@ -7,7 +7,7 @@ import {
   reactExports,
   useTranslation,
 } from "../vendor.js";
-import { cn } from "../infra/dialog-content.jsx";
+import { cn as classNames } from "../infra/dialog-content.jsx";
 import { Dialog } from "../canvas/separator.jsx";
 import { Trash2, useCanvasActive } from "./package.jsx";
 import {
@@ -19,12 +19,12 @@ import {
 import { Button } from "../canvas/node-shell-inner.jsx";
 import { useSuspendCanvasInteractions } from "../canvas/use-inline-rename.jsx";
 import { ProgressBar } from "./progress-bar-inner.jsx";
-function normToPxRect(box2, vr) {
+function normToPxRect(box2, videoRect) {
   return {
-    x: vr.x + box2.tlx * vr.w,
-    y: vr.y + box2.tly * vr.h,
-    w: (box2.brx - box2.tlx) * vr.w,
-    h: (box2.bry - box2.tly) * vr.h,
+    x: videoRect.x + box2.tlx * videoRect.w,
+    y: videoRect.y + box2.tly * videoRect.h,
+    w: (box2.brx - box2.tlx) * videoRect.w,
+    h: (box2.bry - box2.tly) * videoRect.h,
   };
 }
 const HANDLE_SIZE = 10;
@@ -97,7 +97,7 @@ function ResizeHandle({ handle: handle2, onPointerDown: onPointerDown2 }) {
   const style2 = handlePositionStyle(handle2);
   return (
     <div
-      onPointerDown={(e2) => onPointerDown2(e2, handle2)}
+      onPointerDown={(pointerEvent) => onPointerDown2(pointerEvent, handle2)}
       className="absolute z-10 rounded-full border-2 border-primary bg-background"
       style={{
         ...style2,
@@ -110,10 +110,10 @@ function ResizeHandle({ handle: handle2, onPointerDown: onPointerDown2 }) {
   );
 }
 const MIN_BOX_SIZE = 0.02;
-function clamp(v2, lo, hi) {
-  if (v2 < lo) return lo;
-  if (v2 > hi) return hi;
-  return v2;
+function clamp(value, minimum, maximum) {
+  if (value < minimum) return minimum;
+  if (value > maximum) return maximum;
+  return value;
 }
 function getVideoLetterboxRect(
   videoWidth,
@@ -136,36 +136,36 @@ function getVideoLetterboxRect(
       h: stageHeight,
     };
   }
-  const r2 = videoWidth / videoHeight;
-  const sR = stageWidth / stageHeight;
-  if (r2 >= sR) {
-    const w22 = stageWidth;
-    const h22 = stageWidth / r2;
+  const videoAspectRatio = videoWidth / videoHeight;
+  const stageAspectRatio = stageWidth / stageHeight;
+  if (videoAspectRatio >= stageAspectRatio) {
+    const displayWidth = stageWidth;
+    const displayHeight = stageWidth / videoAspectRatio;
     return {
       x: 0,
-      y: (stageHeight - h22) / 2,
-      w: w22,
-      h: h22,
+      y: (stageHeight - displayHeight) / 2,
+      w: displayWidth,
+      h: displayHeight,
     };
   }
-  const h2 = stageHeight;
-  const w3 = stageHeight * r2;
+  const displayHeight = stageHeight;
+  const displayWidth = stageHeight * videoAspectRatio;
   return {
-    x: (stageWidth - w3) / 2,
+    x: (stageWidth - displayWidth) / 2,
     y: 0,
-    w: w3,
-    h: h2,
+    w: displayWidth,
+    h: displayHeight,
   };
 }
-function pxToNorm(px, py, vr) {
-  if (vr.w <= 0 || vr.h <= 0)
+function pxToNorm(pixelX, pixelY, videoRect) {
+  if (videoRect.w <= 0 || videoRect.h <= 0)
     return {
       x: 0,
       y: 0,
     };
   return {
-    x: clamp((px - vr.x) / vr.w, 0, 1),
-    y: clamp((py - vr.y) / vr.h, 0, 1),
+    x: clamp((pixelX - videoRect.x) / videoRect.w, 0, 1),
+    y: clamp((pixelY - videoRect.y) / videoRect.h, 0, 1),
   };
 }
 function createBoxFromDrag(anchor, current2) {
@@ -182,32 +182,32 @@ function isBoxBigEnough(box2) {
   );
 }
 function moveBox(initial, dxNorm, dyNorm) {
-  const w3 = initial.brx - initial.tlx;
-  const h2 = initial.bry - initial.tly;
-  const tlx = clamp(initial.tlx + dxNorm, 0, 1 - w3);
-  const tly = clamp(initial.tly + dyNorm, 0, 1 - h2);
+  const boxWidth = initial.brx - initial.tlx;
+  const boxHeight = initial.bry - initial.tly;
+  const topLeftX = clamp(initial.tlx + dxNorm, 0, 1 - boxWidth);
+  const topLeftY = clamp(initial.tly + dyNorm, 0, 1 - boxHeight);
   return {
-    tlx,
-    tly,
-    brx: tlx + w3,
-    bry: tly + h2,
+    tlx: topLeftX,
+    tly: topLeftY,
+    brx: topLeftX + boxWidth,
+    bry: topLeftY + boxHeight,
   };
 }
 function resizeBoxByHandle(initial, handle2, dxNorm, dyNorm) {
-  let { tlx, tly, brx, bry } = initial;
+  let { tlx: topLeftX, tly: topLeftY, brx: bottomRightX, bry: bottomRightY } = initial;
   const movesL = handle2 === "tl" || handle2 === "bl" || handle2 === "l";
   const movesR = handle2 === "tr" || handle2 === "br" || handle2 === "r";
   const movesT = handle2 === "tl" || handle2 === "tr" || handle2 === "t";
   const movesB = handle2 === "bl" || handle2 === "br" || handle2 === "b";
-  if (movesL) tlx = clamp(initial.tlx + dxNorm, 0, initial.brx - MIN_BOX_SIZE);
-  if (movesR) brx = clamp(initial.brx + dxNorm, initial.tlx + MIN_BOX_SIZE, 1);
-  if (movesT) tly = clamp(initial.tly + dyNorm, 0, initial.bry - MIN_BOX_SIZE);
-  if (movesB) bry = clamp(initial.bry + dyNorm, initial.tly + MIN_BOX_SIZE, 1);
+  if (movesL) topLeftX = clamp(initial.tlx + dxNorm, 0, initial.brx - MIN_BOX_SIZE);
+  if (movesR) bottomRightX = clamp(initial.brx + dxNorm, initial.tlx + MIN_BOX_SIZE, 1);
+  if (movesT) topLeftY = clamp(initial.tly + dyNorm, 0, initial.bry - MIN_BOX_SIZE);
+  if (movesB) bottomRightY = clamp(initial.bry + dyNorm, initial.tly + MIN_BOX_SIZE, 1);
   return {
-    tlx,
-    tly,
-    brx,
-    bry,
+    tlx: topLeftX,
+    tly: topLeftY,
+    brx: bottomRightX,
+    bry: bottomRightY,
   };
 }
 function toEraseBox(box2) {
@@ -248,27 +248,27 @@ function RegionView({
   onPointerDown: onPointerDown2,
   onHandlePointerDown,
 }) {
-  const px = normToPxRect(box2, videoRect);
+  const pixelRect = normToPxRect(box2, videoRect);
   return (
     // biome-ignore lint/a11y/useSemanticElements: native <button> swallows pointer + child handle events; this is a generic interactive surface, not a button-style action
     <div
       role="button"
       tabIndex={0}
       onPointerDown={onPointerDown2}
-      onKeyDown={(e2) => {
-        if (e2.key === "Enter" || e2.key === " ") e2.preventDefault();
+      onKeyDown={(keyboardEvent) => {
+        if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") keyboardEvent.preventDefault();
       }}
-      className={cn(
+      className={classNames(
         "absolute box-border cursor-move border-2 transition-colors",
         selected2
           ? "border-primary bg-primary/15 shadow-[0_0_0_1px_rgba(0,0,0,0.4)]"
           : "border-white/80 bg-white/5 hover:border-white",
       )}
       style={{
-        left: px.x,
-        top: px.y,
-        width: px.w,
-        height: px.h,
+        left: pixelRect.x,
+        top: pixelRect.y,
+        width: pixelRect.w,
+        height: pixelRect.h,
         // Disable native drag to avoid Chrome's ghost image when starting a
         // pointer drag on the rectangle.
         userSelect: "none",
@@ -281,16 +281,16 @@ function RegionView({
           <ResizeHandle handle="tr" onPointerDown={onHandlePointerDown} />
           <ResizeHandle handle="bl" onPointerDown={onHandlePointerDown} />
           <ResizeHandle handle="br" onPointerDown={onHandlePointerDown} />
-          {px.w > 32 && (
+          {pixelRect.w > 32 && (
             <ResizeHandle handle="t" onPointerDown={onHandlePointerDown} />
           )}
-          {px.w > 32 && (
+          {pixelRect.w > 32 && (
             <ResizeHandle handle="b" onPointerDown={onHandlePointerDown} />
           )}
-          {px.h > 32 && (
+          {pixelRect.h > 32 && (
             <ResizeHandle handle="l" onPointerDown={onHandlePointerDown} />
           )}
-          {px.h > 32 && (
+          {pixelRect.h > 32 && (
             <ResizeHandle handle="r" onPointerDown={onHandlePointerDown} />
           )}
         </>
@@ -299,27 +299,27 @@ function RegionView({
   );
 }
 function DraftBoxView({ box: box2, videoRect }) {
-  const px = normToPxRect(box2, videoRect);
+  const pixelRect = normToPxRect(box2, videoRect);
   return (
     <div
       className="pointer-events-none absolute box-border border-2 border-dashed border-primary bg-primary/10"
       style={{
-        left: px.x,
-        top: px.y,
-        width: px.w,
-        height: px.h,
+        left: pixelRect.x,
+        top: pixelRect.y,
+        width: pixelRect.w,
+        height: pixelRect.h,
       }}
     />
   );
 }
-function isValidBoxFromWire(b3) {
+function isValidBoxFromWire(wireBox) {
   return (
-    b3.top_left_x >= 0 &&
-    b3.top_left_y >= 0 &&
-    b3.bottom_right_x <= 1 &&
-    b3.bottom_right_y <= 1 &&
-    b3.bottom_right_x - b3.top_left_x >= MIN_BOX_SIZE &&
-    b3.bottom_right_y - b3.top_left_y >= MIN_BOX_SIZE
+    wireBox.top_left_x >= 0 &&
+    wireBox.top_left_y >= 0 &&
+    wireBox.bottom_right_x <= 1 &&
+    wireBox.bottom_right_y <= 1 &&
+    wireBox.bottom_right_x - wireBox.top_left_x >= MIN_BOX_SIZE &&
+    wireBox.bottom_right_y - wireBox.top_left_y >= MIN_BOX_SIZE
   );
 }
 export const EraseSubtitleEditor = reactExports.memo(
@@ -330,15 +330,15 @@ export const EraseSubtitleEditor = reactExports.memo(
     onCancel,
     onConfirm,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t } = useTranslation();
     useSuspendCanvasInteractions(true);
     const active2 = useCanvasActive();
     const stageRef = reactExports.useRef(null);
     const videoRef = reactExports.useRef(null);
     const [regions, setRegions] = reactExports.useState(() =>
-      (initialRegions ?? []).filter(isValidBoxFromWire).map((b3) => ({
+      (initialRegions ?? []).filter(isValidBoxFromWire).map((wireBox) => ({
         id: nextRegionId(),
-        box: fromEraseBox(b3),
+        box: fromEraseBox(wireBox),
       })),
     );
     const [selectedId, setSelectedId] = reactExports.useState(null);
@@ -377,73 +377,73 @@ export const EraseSubtitleEditor = reactExports.memo(
         cancelAnimationFrame(raf2);
         update2();
       });
-      const ro = new ResizeObserver(update2);
-      ro.observe(el);
+      const resizeObserver = new ResizeObserver(update2);
+      resizeObserver.observe(el);
       return () => {
         cancelAnimationFrame(raf1);
-        ro.disconnect();
+        resizeObserver.disconnect();
       };
     }, []);
     const handleLoadedMetadata = reactExports.useCallback(() => {
-      const v2 = videoRef.current;
-      if (!v2) return;
+      const videoElement = videoRef.current;
+      if (!videoElement) return;
       setVideoMeta({
-        w: v2.videoWidth,
-        h: v2.videoHeight,
+        w: videoElement.videoWidth,
+        h: videoElement.videoHeight,
       });
     }, []);
     reactExports.useEffect(() => {
-      const v2 = videoRef.current;
-      if (!v2) return;
-      if (v2.readyState >= 1 && v2.videoWidth > 0 && v2.videoHeight > 0) {
+      const videoElement = videoRef.current;
+      if (!videoElement) return;
+      if (videoElement.readyState >= 1 && videoElement.videoWidth > 0 && videoElement.videoHeight > 0) {
         setVideoMeta({
-          w: v2.videoWidth,
-          h: v2.videoHeight,
+          w: videoElement.videoWidth,
+          h: videoElement.videoHeight,
         });
       }
       const onLoadedData = () => {
-        if (v2.videoWidth > 0 && v2.videoHeight > 0) {
+        if (videoElement.videoWidth > 0 && videoElement.videoHeight > 0) {
           setVideoMeta({
-            w: v2.videoWidth,
-            h: v2.videoHeight,
+            w: videoElement.videoWidth,
+            h: videoElement.videoHeight,
           });
         }
       };
-      v2.addEventListener("loadeddata", onLoadedData);
-      return () => v2.removeEventListener("loadeddata", onLoadedData);
+      videoElement.addEventListener("loadeddata", onLoadedData);
+      return () => videoElement.removeEventListener("loadeddata", onLoadedData);
     }, []);
     const togglePlay = reactExports.useCallback(() => {
-      const v2 = videoRef.current;
-      if (!v2) return;
-      if (v2.paused) void v2.play();
-      else v2.pause();
+      const videoElement = videoRef.current;
+      if (!videoElement) return;
+      if (videoElement.paused) void videoElement.play();
+      else videoElement.pause();
     }, []);
     reactExports.useEffect(() => {
-      const v2 = videoRef.current;
-      if (!v2) return;
+      const videoElement = videoRef.current;
+      if (!videoElement) return;
       const onPlay = () => setIsPlaying(true);
       const onPause = () => setIsPlaying(false);
-      v2.addEventListener("play", onPlay);
-      v2.addEventListener("pause", onPause);
+      videoElement.addEventListener("play", onPlay);
+      videoElement.addEventListener("pause", onPause);
       return () => {
-        v2.removeEventListener("play", onPlay);
-        v2.removeEventListener("pause", onPause);
+        videoElement.removeEventListener("play", onPlay);
+        videoElement.removeEventListener("pause", onPause);
       };
     }, []);
-    const stageLocal = reactExports.useCallback((e2) => {
-      const r2 = stageRef.current?.getBoundingClientRect();
-      if (!r2)
+    const stageLocal = reactExports.useCallback((pointerEvent) => {
+      const stageBounds = stageRef.current?.getBoundingClientRect();
+      if (!stageBounds)
         return {
           x: 0,
           y: 0,
         };
       return {
-        x: e2.clientX - r2.left,
-        y: e2.clientY - r2.top,
+        x: pointerEvent.clientX - stageBounds.left,
+        y: pointerEvent.clientY - stageBounds.top,
       };
     }, []);
-    const handleStagePointerDown = reactExports.useCallback((e2) => {
-      if (e2.button !== 0) return;
+    const handleStagePointerDown = reactExports.useCallback((pointerEvent) => {
+      if (pointerEvent.button !== 0) return;
       const stage = stageRef.current;
       const video = videoRef.current;
       if (!stage) return;
@@ -457,8 +457,8 @@ export const EraseSubtitleEditor = reactExports.memo(
       );
       setStageRect(liveStageRect);
       const local = {
-        x: e2.clientX - liveStageRect.left,
-        y: e2.clientY - liveStageRect.top,
+        x: pointerEvent.clientX - liveStageRect.left,
+        y: pointerEvent.clientY - liveStageRect.top,
       };
       if (
         local.x < liveVideoRect.x ||
@@ -481,10 +481,10 @@ export const EraseSubtitleEditor = reactExports.memo(
         brx: norm.x,
         bry: norm.y,
       });
-      stageRef.current?.setPointerCapture(e2.pointerId);
+      stageRef.current?.setPointerCapture(pointerEvent.pointerId);
     }, []);
     const handleStagePointerMove = reactExports.useCallback(
-      (e2) => {
+      (pointerEvent) => {
         if (interaction.kind === "idle") return;
         const stage = stageRef.current;
         const video = videoRef.current;
@@ -498,51 +498,51 @@ export const EraseSubtitleEditor = reactExports.memo(
           liveStageRect.height,
         );
         const local = {
-          x: e2.clientX - liveStageRect.left,
-          y: e2.clientY - liveStageRect.top,
+          x: pointerEvent.clientX - liveStageRect.left,
+          y: pointerEvent.clientY - liveStageRect.top,
         };
         if (interaction.kind === "creating") {
-          const cur = pxToNorm(local.x, local.y, liveVideoRect);
-          setDraftBox(createBoxFromDrag(interaction.anchor, cur));
+          const currentPosition = pxToNorm(local.x, local.y, liveVideoRect);
+          setDraftBox(createBoxFromDrag(interaction.anchor, currentPosition));
           return;
         }
         if (interaction.kind === "moving") {
-          const dx =
+          const normalizedDeltaX =
             (local.x - interaction.pointerStart.x) / (liveVideoRect.w || 1);
-          const dy =
+          const normalizedDeltaY =
             (local.y - interaction.pointerStart.y) / (liveVideoRect.h || 1);
-          const moved = moveBox(interaction.initial, dx, dy);
-          setRegions((rs2) =>
-            rs2.map((r2) =>
-              r2.id === interaction.boxId
+          const moved = moveBox(interaction.initial, normalizedDeltaX, normalizedDeltaY);
+          setRegions((previousRegions) =>
+            previousRegions.map((region) =>
+              region.id === interaction.boxId
                 ? {
-                    id: r2.id,
+                    id: region.id,
                     box: moved,
                   }
-                : r2,
+                : region,
             ),
           );
           return;
         }
         if (interaction.kind === "resizing") {
-          const dx =
+          const normalizedDeltaX =
             (local.x - interaction.pointerStart.x) / (liveVideoRect.w || 1);
-          const dy =
+          const normalizedDeltaY =
             (local.y - interaction.pointerStart.y) / (liveVideoRect.h || 1);
           const resized = resizeBoxByHandle(
             interaction.initial,
             interaction.handle,
-            dx,
-            dy,
+            normalizedDeltaX,
+            normalizedDeltaY,
           );
-          setRegions((rs2) =>
-            rs2.map((r2) =>
-              r2.id === interaction.boxId
+          setRegions((previousRegions) =>
+            previousRegions.map((region) =>
+              region.id === interaction.boxId
                 ? {
-                    id: r2.id,
+                    id: region.id,
                     box: resized,
                   }
-                : r2,
+                : region,
             ),
           );
         }
@@ -550,18 +550,18 @@ export const EraseSubtitleEditor = reactExports.memo(
       [interaction],
     );
     const handleStagePointerUp = reactExports.useCallback(
-      (e2) => {
+      (pointerEvent) => {
         if (interaction.kind === "creating" && draftBox) {
           if (isBoxBigEnough(draftBox)) {
-            const id2 = nextRegionId();
-            setRegions((rs2) => [
-              ...rs2,
+            const regionId = nextRegionId();
+            setRegions((previousRegions) => [
+              ...previousRegions,
               {
-                id: id2,
+                id: regionId,
                 box: draftBox,
               },
             ]);
-            setSelectedId(id2);
+            setSelectedId(regionId);
           }
           setDraftBox(null);
         }
@@ -569,37 +569,37 @@ export const EraseSubtitleEditor = reactExports.memo(
           kind: "idle",
         });
         try {
-          stageRef.current?.releasePointerCapture(e2.pointerId);
+          stageRef.current?.releasePointerCapture(pointerEvent.pointerId);
         } catch {}
       },
       [interaction, draftBox],
     );
     const handleBoxPointerDown = reactExports.useCallback(
-      (e2, regionId) => {
-        if (e2.button !== 0) return;
-        e2.stopPropagation();
-        const region = regions.find((r2) => r2.id === regionId);
+      (pointerEvent, regionId) => {
+        if (pointerEvent.button !== 0) return;
+        pointerEvent.stopPropagation();
+        const region = regions.find((region) => region.id === regionId);
         if (!region) return;
         setSelectedId(regionId);
-        const start2 = stageLocal(e2);
+        const start2 = stageLocal(pointerEvent);
         setInteraction({
           kind: "moving",
           boxId: regionId,
           initial: region.box,
           pointerStart: start2,
         });
-        stageRef.current?.setPointerCapture(e2.pointerId);
+        stageRef.current?.setPointerCapture(pointerEvent.pointerId);
       },
       [regions, stageLocal],
     );
     const handleResizeHandlePointerDown = reactExports.useCallback(
-      (e2, regionId, handle2) => {
-        if (e2.button !== 0) return;
-        e2.stopPropagation();
-        const region = regions.find((r2) => r2.id === regionId);
+      (pointerEvent, regionId, handle2) => {
+        if (pointerEvent.button !== 0) return;
+        pointerEvent.stopPropagation();
+        const region = regions.find((region) => region.id === regionId);
         if (!region) return;
         setSelectedId(regionId);
-        const start2 = stageLocal(e2);
+        const start2 = stageLocal(pointerEvent);
         setInteraction({
           kind: "resizing",
           boxId: regionId,
@@ -607,21 +607,21 @@ export const EraseSubtitleEditor = reactExports.memo(
           initial: region.box,
           pointerStart: start2,
         });
-        stageRef.current?.setPointerCapture(e2.pointerId);
+        stageRef.current?.setPointerCapture(pointerEvent.pointerId);
       },
       [regions, stageLocal],
     );
     reactExports.useEffect(() => {
       if (!selectedId || !active2) return;
-      const onKey = (e2) => {
-        if (e2.key === "Delete" || e2.key === "Backspace") {
-          e2.preventDefault();
-          e2.stopPropagation();
-          setRegions((rs2) => rs2.filter((r2) => r2.id !== selectedId));
+      const onKey = (keyboardEvent) => {
+        if (keyboardEvent.key === "Delete" || keyboardEvent.key === "Backspace") {
+          keyboardEvent.preventDefault();
+          keyboardEvent.stopPropagation();
+          setRegions((previousRegions) => previousRegions.filter((region) => region.id !== selectedId));
           setSelectedId(null);
-        } else if (e2.key === "Escape") {
-          e2.preventDefault();
-          e2.stopPropagation();
+        } else if (keyboardEvent.key === "Escape") {
+          keyboardEvent.preventDefault();
+          keyboardEvent.stopPropagation();
           setSelectedId(null);
         }
       };
@@ -629,13 +629,13 @@ export const EraseSubtitleEditor = reactExports.memo(
       return () => window.removeEventListener("keydown", onKey, true);
     }, [selectedId, active2]);
     const validRegions = reactExports.useMemo(
-      () => regions.filter((r2) => isValidBox(r2.box)),
+      () => regions.filter((region) => isValidBox(region.box)),
       [regions],
     );
     const canSubmit = validRegions.length > 0;
     const handleConfirm = reactExports.useCallback(() => {
       if (!canSubmit) return;
-      onConfirm(validRegions.map((r2) => toEraseBox(r2.box)));
+      onConfirm(validRegions.map((region) => toEraseBox(region.box)));
     }, [canSubmit, validRegions, onConfirm]);
     const handleClearAll = reactExports.useCallback(() => {
       setRegions([]);
@@ -646,12 +646,12 @@ export const EraseSubtitleEditor = reactExports.memo(
     return (
       <Dialog
         open={true}
-        onOpenChange={(o2) => {
-          if (!o2) onCancel();
+        onOpenChange={(isOpen) => {
+          if (!isOpen) onCancel();
         }}
       >
         <DialogContent
-          className={cn(
+          className={classNames(
             "grid h-[80vh] gap-0 overflow-hidden p-0",
             "sm:!max-w-[min(1280px,90vw)]",
             "grid-rows-[auto_minmax(0,1fr)_auto]",
@@ -659,7 +659,7 @@ export const EraseSubtitleEditor = reactExports.memo(
         >
           <DialogHeader className="gap-1 border-b border-border/40 px-5 py-3 pr-12">
             <DialogTitle className="text-sm font-medium">
-              {t2("canvas.eraseSubtitle.editor.title", "框选要消除的文字区域")}
+              {t("canvas.eraseSubtitle.editor.title", "框选要消除的文字区域")}
               {videoName && (
                 <span className="ml-2 truncate text-xs font-normal text-muted-foreground">
                   {"— "}
@@ -668,7 +668,7 @@ export const EraseSubtitleEditor = reactExports.memo(
               )}
             </DialogTitle>
             <span className="text-xs text-muted-foreground">
-              {t2(
+              {t(
                 "canvas.eraseSubtitle.editor.hint",
                 "在视频上拖拽创建框；选中后可拖动 / 缩放，按 Delete 删除",
               )}
@@ -697,15 +697,15 @@ export const EraseSubtitleEditor = reactExports.memo(
                 onLoadedMetadata={handleLoadedMetadata}
               />
               {videoRect.w > 0 &&
-                regions.map((r2) => (
+                regions.map((region) => (
                   <RegionView
-                    key={r2.id}
-                    box={r2.box}
+                    key={region.id}
+                    box={region.box}
                     videoRect={videoRect}
-                    selected={r2.id === selectedId}
-                    onPointerDown={(e2) => handleBoxPointerDown(e2, r2.id)}
-                    onHandlePointerDown={(e2, handle2) =>
-                      handleResizeHandlePointerDown(e2, r2.id, handle2)
+                    selected={region.id === selectedId}
+                    onPointerDown={(pointerEvent) => handleBoxPointerDown(pointerEvent, region.id)}
+                    onHandlePointerDown={(pointerEvent, handle2) =>
+                      handleResizeHandlePointerDown(pointerEvent, region.id, handle2)
                     }
                   />
                 ))}
@@ -718,11 +718,11 @@ export const EraseSubtitleEditor = reactExports.memo(
                 className="pointer-events-auto absolute left-3 top-3 z-20 flex items-center justify-center size-8 rounded-full bg-transparent p-0 text-[var(--canvas-media-control-fg)] opacity-0 transition-opacity duration-200 hover:opacity-100 group-hover:opacity-100"
                 aria-label={
                   isPlaying
-                    ? t2("canvas.video.pause", "Pause")
-                    : t2("canvas.video.play", "Play")
+                    ? t("canvas.video.pause", "Pause")
+                    : t("canvas.video.play", "Play")
                 }
                 data-action-ui-id="canvas.erase-subtitle.editor.play-pause"
-                onPointerDown={(e2) => e2.stopPropagation()}
+                onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
               >
                 {isPlaying ? (
                   <PlaybackPauseIcon size={16} className="drop-shadow-sm" />
@@ -742,7 +742,7 @@ export const EraseSubtitleEditor = reactExports.memo(
           <DialogFooter className="flex-row items-center justify-between gap-3 border-t border-border/40 px-5 py-3">
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span>
-                {t2(
+                {t(
                   "canvas.eraseSubtitle.editor.boxCount",
                   "已选 {{count}} 个框",
                   {
@@ -759,7 +759,7 @@ export const EraseSubtitleEditor = reactExports.memo(
                 >
                   <Trash2 className="size-3.5" />
                   <span className="ml-1">
-                    {t2("canvas.eraseSubtitle.editor.clearAll", "清空")}
+                    {t("canvas.eraseSubtitle.editor.clearAll", "清空")}
                   </span>
                 </Button>
               )}
@@ -771,7 +771,7 @@ export const EraseSubtitleEditor = reactExports.memo(
                 onClick={onCancel}
                 data-action-ui-id="canvas.erase-subtitle.editor.cancel"
               >
-                {t2("canvas.eraseSubtitle.editor.cancel", "取消")}
+                {t("canvas.eraseSubtitle.editor.cancel", "取消")}
               </Button>
               <Button
                 variant="default"
@@ -780,7 +780,7 @@ export const EraseSubtitleEditor = reactExports.memo(
                 onClick={handleConfirm}
                 data-action-ui-id="canvas.erase-subtitle.editor.submit"
               >
-                {t2("canvas.eraseSubtitle.editor.submit", "开始消除")}
+                {t("canvas.eraseSubtitle.editor.submit", "开始消除")}
               </Button>
             </div>
           </DialogFooter>
