@@ -19,16 +19,16 @@ function isCanvasInteractive(rootEl, enabled = true) {
 }
 function isInsideCanvas(target) {
   if (typeof window !== "undefined") {
-    const sel = window.getSelection();
-    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
-      const anchor = sel.anchorNode;
-      const el =
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+      const anchor = selection.anchorNode;
+      const element =
         anchor?.nodeType === Node.ELEMENT_NODE
           ? anchor
           : (anchor?.parentElement ?? null);
       if (
-        el &&
-        el.closest('.react-flow, [data-hilo-canvas-root="true"]') === null
+        element &&
+        element.closest('.react-flow, [data-hilo-canvas-root="true"]') === null
       ) {
         return false;
       }
@@ -50,12 +50,12 @@ function collectClipboardFiles(data2) {
     if (seen2.has(key2)) return;
     seen2.add(key2);
     if (!file.name || file.name === "image.png" || file.name === "image") {
-      const ext = getExtFromMime(
+      const extension = getExtFromMime(
         file.type || fallbackMime || "image/png",
         "png",
       );
       collected.push(
-        new File([file], `pasted-${Date.now()}.${ext}`, {
+        new File([file], `pasted-${Date.now()}.${extension}`, {
           type: file.type || fallbackMime,
         }),
       );
@@ -76,7 +76,7 @@ function collectClipboardFiles(data2) {
 }
 function isFromInternalNativeCopy(files, internalNodes) {
   if (files.length === 0 || files.length !== internalNodes.length) return false;
-  const fileNames = new Set(files.map((f2) => f2.name));
+  const fileNames = new Set(files.map((file) => file.name));
   return internalNodes.every((node2) => {
     const data2 = node2.data;
     const name2 = typeof data2?.name === "string" ? data2.name : void 0;
@@ -130,8 +130,8 @@ function makeAssetPathResolver(assetMetadataStore) {
 }
 function isEditableTarget(target) {
   if (!target || !(target instanceof HTMLElement)) return false;
-  const tag = target.tagName;
-  return tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable;
+  const tagName = target.tagName;
+  return tagName === "INPUT" || tagName === "TEXTAREA" || target.isContentEditable;
 }
 function decidePasteIntent(input) {
   const {
@@ -194,8 +194,8 @@ export function useKeyboardShortcuts(instance2, options = {}) {
     const runInternalPaste = () => {
       const anchor = getInternalPasteAnchor?.() ?? null;
       if (anchor) {
-        void instance2.pasteAtPosition(anchor).catch((err) => {
-          console.error("[canvas] internal paste at cursor failed:", err);
+        void instance2.pasteAtPosition(anchor).catch((error) => {
+          console.error("[canvas] internal paste at cursor failed:", error);
         });
         return;
       }
@@ -205,8 +205,8 @@ export function useKeyboardShortcuts(instance2, options = {}) {
           viewportRect: getViewportRect2?.() ?? void 0,
           viewportCenter: getViewportCenter?.(),
         })
-        .catch((err) => {
-          console.error("[canvas] internal paste failed:", err);
+        .catch((error) => {
+          console.error("[canvas] internal paste failed:", error);
         });
     };
     const writeMarkerOnly = async () => {
@@ -216,42 +216,42 @@ export function useKeyboardShortcuts(instance2, options = {}) {
         await navigator.clipboard.write([
           new ClipboardItem(buildInternalClipboardItemData()),
         ]);
-      } catch (err) {
-        console.warn("[canvas] write marker failed:", err);
+      } catch (error) {
+        console.warn("[canvas] write marker failed:", error);
       }
     };
-    const handleCopy = (e2) => {
+    const handleCopy = (copyEvent) => {
       if (!isCanvasInteractive(instance2.getRootEl(), enabled)) return;
-      if (isEditableTarget(e2.target)) return;
-      if (!isInsideCanvas(e2.target)) return;
+      if (isEditableTarget(copyEvent.target)) return;
+      if (!isInsideCanvas(copyEvent.target)) return;
       if (instance2.selection.getSelected().length === 0) return;
-      e2.preventDefault();
+      copyEvent.preventDefault();
       instance2.copySelected({
         workspace: getCurrentWorkspace?.(),
         resolveAssetPath: makeAssetPathResolver(assetMetadataStore),
       });
       void writeCanvasSystemClipboard(onSystemCopy);
     };
-    const handleCut = (e2) => {
+    const handleCut = (cutEvent) => {
       if (!isCanvasInteractive(instance2.getRootEl(), enabled)) return;
-      if (isEditableTarget(e2.target)) return;
-      if (!isInsideCanvas(e2.target)) return;
+      if (isEditableTarget(cutEvent.target)) return;
+      if (!isInsideCanvas(cutEvent.target)) return;
       if (instance2.selection.getSelected().length === 0) return;
-      e2.preventDefault();
+      cutEvent.preventDefault();
       instance2.cutSelected({
         workspace: getCurrentWorkspace?.(),
         resolveAssetPath: makeAssetPathResolver(assetMetadataStore),
       });
       void writeMarkerOnly();
     };
-    const handlePaste2 = (e2) => {
+    const handlePaste2 = (pasteEvent) => {
       if (!isCanvasInteractive(instance2.getRootEl(), enabled)) return;
-      if (isEditableTarget(e2.target)) return;
-      if (!isInsideCanvas(e2.target)) return;
-      const text2 = e2.clipboardData?.getData("text/plain") ?? "";
-      const html2 = e2.clipboardData?.getData("text/html") ?? "";
+      if (isEditableTarget(pasteEvent.target)) return;
+      if (!isInsideCanvas(pasteEvent.target)) return;
+      const text2 = pasteEvent.clipboardData?.getData("text/plain") ?? "";
+      const html2 = pasteEvent.clipboardData?.getData("text/html") ?? "";
       const files = onSystemPaste
-        ? collectClipboardFiles(e2.clipboardData)
+        ? collectClipboardFiles(pasteEvent.clipboardData)
         : [];
       const intent = decidePasteIntent({
         text: text2,
@@ -261,7 +261,7 @@ export function useKeyboardShortcuts(instance2, options = {}) {
         hasOnSystemPaste: Boolean(onSystemPaste),
         hasOnSystemTextPaste: Boolean(onSystemTextPaste),
       });
-      e2.preventDefault();
+      pasteEvent.preventDefault();
       switch (intent.kind) {
         case "marker":
         case "internal-from-copy":
@@ -276,49 +276,49 @@ export function useKeyboardShortcuts(instance2, options = {}) {
           return;
       }
     };
-    const handler = (e2) => {
+    const handler = (keyboardEvent) => {
       if (!isCanvasInteractive(instance2.getRootEl(), enabled)) return;
-      if (e2.defaultPrevented) return;
-      if (isEditableTarget(e2.target)) return;
-      if (e2.isComposing || e2.key === "Process") return;
+      if (keyboardEvent.defaultPrevented) return;
+      if (isEditableTarget(keyboardEvent.target)) return;
+      if (keyboardEvent.isComposing || keyboardEvent.key === "Process") return;
       if (
-        !e2.defaultPrevented &&
+        !keyboardEvent.defaultPrevented &&
         onHostKeyboardShortcut &&
-        isInsideCanvas(e2.target) &&
-        onHostKeyboardShortcut(e2)
+        isInsideCanvas(keyboardEvent.target) &&
+        onHostKeyboardShortcut(keyboardEvent)
       ) {
-        e2.preventDefault();
-        e2.stopPropagation();
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopPropagation();
         return;
       }
-      const commandId = resolveCanvasShortcut(e2);
+      const commandId = resolveCanvasShortcut(keyboardEvent);
       if (commandId && commandRegistry?.hasHandler(commandId)) {
-        if (!isInsideCanvas(e2.target)) return;
-        e2.preventDefault();
-        e2.stopPropagation();
+        if (!isInsideCanvas(keyboardEvent.target)) return;
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopPropagation();
         commandRegistry.execute(commandId, "keyboard");
         return;
       }
-      const mod = e2.metaKey || e2.ctrlKey;
-      if (e2.shiftKey && !mod && e2.code === "Digit1") {
-        if (!isInsideCanvas(e2.target)) return;
-        e2.preventDefault();
+      const hasModifier = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
+      if (keyboardEvent.shiftKey && !hasModifier && keyboardEvent.code === "Digit1") {
+        if (!isInsideCanvas(keyboardEvent.target)) return;
+        keyboardEvent.preventDefault();
         onFitView?.();
         return;
       }
-      if (!mod) return;
-      const key2 = e2.key.toLowerCase();
-      if (e2.altKey && e2.code === "KeyC") {
-        if (!isInsideCanvas(e2.target)) return;
+      if (!hasModifier) return;
+      const key2 = keyboardEvent.key.toLowerCase();
+      if (keyboardEvent.altKey && keyboardEvent.code === "KeyC") {
+        if (!isInsideCanvas(keyboardEvent.target)) return;
         if (!onCopyDebugInfo) return;
-        e2.preventDefault();
-        e2.stopPropagation();
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopPropagation();
         onCopyDebugInfo();
         return;
       }
       if (key2 === "z") {
-        e2.preventDefault();
-        if (e2.shiftKey) {
+        keyboardEvent.preventDefault();
+        if (keyboardEvent.shiftKey) {
           instance2.redo();
         } else {
           instance2.undo();
@@ -326,33 +326,33 @@ export function useKeyboardShortcuts(instance2, options = {}) {
         return;
       }
       if (key2 === "=" || key2 === "+") {
-        e2.preventDefault();
+        keyboardEvent.preventDefault();
         onZoomIn?.();
         return;
       }
       if (key2 === "-") {
-        e2.preventDefault();
+        keyboardEvent.preventDefault();
         onZoomOut?.();
         return;
       }
       if (key2 === "g") {
-        if (!isInsideCanvas(e2.target)) return;
+        if (!isInsideCanvas(keyboardEvent.target)) return;
         const selected2 = instance2.selection.getSelected();
-        if (e2.shiftKey) {
+        if (keyboardEvent.shiftKey) {
           const graph = instance2.getGraph();
           const target = selected2.find(
-            (id2) =>
-              graph.nodes.find((n2) => n2.id === id2)?.type ===
+            (nodeId) =>
+              graph.nodes.find((node) => node.id === nodeId)?.type ===
               CanvasNodeType.Group,
           );
           if (target) {
-            e2.preventDefault();
+            keyboardEvent.preventDefault();
             instance2.ungroup(target);
           }
           return;
         }
         if (selected2.length >= 2) {
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           instance2.groupNodes(selected2);
         }
         return;

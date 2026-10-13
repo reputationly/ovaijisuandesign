@@ -17,8 +17,8 @@ function resolveDerivedCollision(
 ) {
   const occupied = collision.occupied;
   if (!occupied || occupied.length === 0) return candidate;
-  const w3 = collision.newSize?.width ?? fallbackSize.width;
-  const h2 = collision.newSize?.height ?? fallbackSize.height;
+  const width = collision.newSize?.width ?? fallbackSize.width;
+  const height = collision.newSize?.height ?? fallbackSize.height;
   const margin = collision.collisionMargin ?? 0;
   const maxShift =
     collision.maxCollisionShift ?? DEFAULT_MAX_DERIVED_COLLISION_SHIFT;
@@ -32,11 +32,11 @@ function resolveDerivedCollision(
   const rect = {
     x: originX,
     y: originY,
-    w: w3,
-    h: h2,
+    w: width,
+    h: height,
   };
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const blocker = occupied.find((o2) => rectsOverlap(rect, o2, margin));
+    const blocker = occupied.find((occupiedRect) => rectsOverlap(rect, occupiedRect, margin));
     if (!blocker)
       return {
         x: rect.x,
@@ -86,7 +86,7 @@ function rightmostPeerColumn(peers) {
   const columns = [];
   for (const peer of peers) {
     const match2 = columns.find(
-      (c3) => Math.abs(c3.x - peer.x) <= COLUMN_X_TOLERANCE,
+      (column) => Math.abs(column.x - peer.x) <= COLUMN_X_TOLERANCE,
     );
     if (match2) {
       match2.peers.push(peer);
@@ -97,31 +97,31 @@ function rightmostPeerColumn(peers) {
       });
     }
   }
-  return columns.reduce((a2, b3) => (b3.x > a2.x ? b3 : a2)).peers;
+  return columns.reduce((firstRect, secondRect) => (secondRect.x > firstRect.x ? secondRect : firstRect)).peers;
 }
-function localityRectsAreConnected(a2, b3, maxGap) {
+function localityRectsAreConnected(firstRect, secondRect, maxGap) {
   const horizontalGap = Math.max(
     0,
-    a2.x - (b3.x + b3.width),
-    b3.x - (a2.x + a2.width),
+    firstRect.x - (secondRect.x + secondRect.width),
+    secondRect.x - (firstRect.x + firstRect.width),
   );
   const verticalGap = Math.max(
     0,
-    a2.y - (b3.y + b3.height),
-    b3.y - (a2.y + a2.height),
+    firstRect.y - (secondRect.y + secondRect.height),
+    secondRect.y - (firstRect.y + firstRect.height),
   );
   return horizontalGap <= maxGap && verticalGap <= maxGap;
 }
-function localityRectGapSquared(a2, b3) {
+function localityRectGapSquared(currentPeer, candidatePeer) {
   const horizontalGap = Math.max(
     0,
-    a2.x - (b3.x + b3.width),
-    b3.x - (a2.x + a2.width),
+    currentPeer.x - (candidatePeer.x + candidatePeer.width),
+    candidatePeer.x - (currentPeer.x + currentPeer.width),
   );
   const verticalGap = Math.max(
     0,
-    a2.y - (b3.y + b3.height),
-    b3.y - (a2.y + a2.height),
+    currentPeer.y - (candidatePeer.y + candidatePeer.height),
+    candidatePeer.y - (currentPeer.y + currentPeer.height),
   );
   return horizontalGap * horizontalGap + verticalGap * verticalGap;
 }
@@ -248,8 +248,8 @@ export function computeDerivedNodePosition(
       y: topY,
     };
   } else {
-    const bottomMost = column.reduce((a2, b3) =>
-      b3.y + b3.height > a2.y + a2.height ? b3 : a2,
+    const bottomMost = column.reduce((currentPeer, candidatePeer) =>
+      candidatePeer.y + candidatePeer.height > currentPeer.y + currentPeer.height ? candidatePeer : currentPeer,
     );
     stackCandidate = {
       x: bottomMost.x,

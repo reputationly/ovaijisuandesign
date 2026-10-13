@@ -90,7 +90,7 @@ function inheritGroupGenerationData(node2, shared) {
 }
 
 export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
-  const target = nodes.find((n2) => n2.id === nodeId);
+  const target = nodes.find((node) => node.id === nodeId);
   if (!target || !isGroupedNode(target)) {
     return {
       nodes: nodes.slice(),
@@ -101,9 +101,9 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
   const groupId2 = target.groupId;
   const orderedBefore = collectGroupMembers(nodes, groupId2);
   const detachedWasMain = resolveMainNode(orderedBefore)?.id === nodeId;
-  const removedSortedIndex = orderedBefore.findIndex((n2) => n2.id === nodeId);
+  const removedSortedIndex = orderedBefore.findIndex((node) => node.id === nodeId);
   const leftover = nodes.filter(
-    (n2) => n2.groupId === groupId2 && n2.id !== nodeId,
+    (node) => node.groupId === groupId2 && node.id !== nodeId,
   );
   const collapseId = leftover.length === 1 ? leftover[0].id : void 0;
   const successorId =
@@ -113,12 +113,12 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
   const updatedIds = [nodeId];
   if (collapseId) updatedIds.push(collapseId);
   if (successorId) updatedIds.push(successorId);
-  const ungroup = (n2, pos, opts) => {
-    const { groupId: _g, round: _r, ...withoutGroup } = n2;
+  const ungroup = (node, position, opts) => {
+    const { groupId: _groupId, round: _round, ...withoutGroup } = node;
     const rest = opts?.dropParent
-      ? (({ parentId: _p, ...r2 }) => r2)(withoutGroup)
+      ? (({ parentId: _parentId, ...nodeWithoutParent }) => nodeWithoutParent)(withoutGroup)
       : withoutGroup;
-    const sharedGenerationData = resolveGroupGenerationData(orderedBefore, n2);
+    const sharedGenerationData = resolveGroupGenerationData(orderedBefore, node);
     return mirrorAssetIdIntoData(
       inheritGroupGenerationData(
         {
@@ -127,11 +127,11 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
             ...(rest.meta ?? {}),
             hidden: false,
           },
-          ...(pos
+          ...(position
             ? {
                 positions: {
                   ...(rest.positions ?? {}),
-                  [mode2]: pos,
+                  [mode2]: position,
                 },
               }
             : {}),
@@ -140,10 +140,10 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
       ),
     );
   };
-  const out = nodes.map((n2) => {
-    if (n2.id === nodeId)
+  const updatedNodes = nodes.map((node) => {
+    if (node.id === nodeId)
       return ungroup(
-        n2,
+        node,
         {
           x: absPosition.x,
           y: absPosition.y,
@@ -152,8 +152,8 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
           dropParent: true,
         },
       );
-    if (collapseId && n2.id === collapseId) {
-      const collapsed = ungroup(n2);
+    if (collapseId && node.id === collapseId) {
+      const collapsed = ungroup(node);
       if (!detachedWasMain) return collapsed;
       const next2 = {
         ...collapsed,
@@ -173,19 +173,19 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
       else delete next2.parentId;
       return next2;
     }
-    if (successorId && n2.id === successorId) {
+    if (successorId && node.id === successorId) {
       const next2 = inheritGroupGenerationData(
         {
-          ...n2,
+          ...node,
           meta: {
-            ...(n2.meta ?? {}),
+            ...(node.meta ?? {}),
             hidden: false,
           },
           positions: {
             ...target.positions,
           },
         },
-        resolveGroupGenerationData(orderedBefore, n2),
+        resolveGroupGenerationData(orderedBefore, node),
       );
       if (target.size)
         next2.size = {
@@ -199,17 +199,17 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
       else delete next2.parentId;
       return mirrorAssetIdIntoData(next2);
     }
-    return n2;
+    return node;
   });
-  const mut = {
-    nodes: out,
+  const result = {
+    nodes: updatedNodes,
     removedIds: [],
     updatedIds,
   };
   if (successorId)
-    mut.repointFollow = {
+    result.repointFollow = {
       from: nodeId,
       to: successorId,
     };
-  return mut;
+  return result;
 }

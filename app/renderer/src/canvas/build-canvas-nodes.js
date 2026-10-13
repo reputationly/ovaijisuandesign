@@ -63,56 +63,56 @@ function resolveNodeSize(type2, savedSize, item, data2) {
   );
 }
 function metaToData(meta2) {
-  const out = {};
-  if (meta2.name !== void 0) out.name = meta2.name;
-  if (meta2.path !== void 0) out.path = meta2.path;
-  if (meta2.prompt !== void 0) out.prompt = meta2.prompt;
-  if (meta2.description !== void 0) out.description = meta2.description;
-  if (meta2.model !== void 0) out.model = meta2.model;
-  if (meta2.model_id !== void 0) out.model_id = meta2.model_id;
-  if (meta2.backend !== void 0) out.backend = meta2.backend;
-  if (meta2.source_tool !== void 0) out.source_tool = meta2.source_tool;
-  if (meta2.params !== void 0) out.params = meta2.params;
-  if (meta2.voiceId !== void 0) out.voiceId = meta2.voiceId;
-  if (meta2.lyrics !== void 0) out.lyrics = meta2.lyrics;
+  const nodeData = {};
+  if (meta2.name !== void 0) nodeData.name = meta2.name;
+  if (meta2.path !== void 0) nodeData.path = meta2.path;
+  if (meta2.prompt !== void 0) nodeData.prompt = meta2.prompt;
+  if (meta2.description !== void 0) nodeData.description = meta2.description;
+  if (meta2.model !== void 0) nodeData.model = meta2.model;
+  if (meta2.model_id !== void 0) nodeData.model_id = meta2.model_id;
+  if (meta2.backend !== void 0) nodeData.backend = meta2.backend;
+  if (meta2.source_tool !== void 0) nodeData.source_tool = meta2.source_tool;
+  if (meta2.params !== void 0) nodeData.params = meta2.params;
+  if (meta2.voiceId !== void 0) nodeData.voiceId = meta2.voiceId;
+  if (meta2.lyrics !== void 0) nodeData.lyrics = meta2.lyrics;
   if (meta2.compositionPlan !== void 0)
-    out.composition_plan = meta2.compositionPlan;
-  if (meta2.width !== void 0) out.width = meta2.width;
-  if (meta2.height !== void 0) out.height = meta2.height;
-  if (meta2.durationSec !== void 0) out.duration = meta2.durationSec;
+    nodeData.composition_plan = meta2.compositionPlan;
+  if (meta2.width !== void 0) nodeData.width = meta2.width;
+  if (meta2.height !== void 0) nodeData.height = meta2.height;
+  if (meta2.durationSec !== void 0) nodeData.duration = meta2.durationSec;
   if (meta2.referenceImageIds !== void 0)
-    out.referenceImageIds = meta2.referenceImageIds;
+    nodeData.referenceImageIds = meta2.referenceImageIds;
   if (meta2.referenceVideoIds !== void 0)
-    out.referenceVideoIds = meta2.referenceVideoIds;
+    nodeData.referenceVideoIds = meta2.referenceVideoIds;
   if (meta2.referenceAudioIds !== void 0)
-    out.referenceAudioIds = meta2.referenceAudioIds;
+    nodeData.referenceAudioIds = meta2.referenceAudioIds;
   if (meta2.referenceTextIds !== void 0)
-    out.referenceTextIds = meta2.referenceTextIds;
-  return out;
+    nodeData.referenceTextIds = meta2.referenceTextIds;
+  return nodeData;
 }
 const warnedRecoveredNodeIds = new Set();
 function anchorOrder(nodes, existingOrder) {
   const byId = new Map();
-  for (const n2 of nodes) byId.set(n2.id, n2);
+  for (const node of nodes) byId.set(node.id, node);
   const result = [];
   const consumed = new Set();
-  for (const id2 of existingOrder) {
-    const n2 = byId.get(id2);
-    if (n2 && !consumed.has(id2)) {
-      result.push(n2);
-      consumed.add(id2);
+  for (const nodeId of existingOrder) {
+    const node = byId.get(nodeId);
+    if (node && !consumed.has(nodeId)) {
+      result.push(node);
+      consumed.add(nodeId);
     }
   }
-  for (const n2 of nodes) {
-    if (!consumed.has(n2.id)) {
-      result.push(n2);
-      consumed.add(n2.id);
+  for (const node of nodes) {
+    if (!consumed.has(node.id)) {
+      result.push(node);
+      consumed.add(node.id);
     }
   }
   if (result.length === nodes.length) {
     let same = true;
-    for (let i2 = 0; i2 < nodes.length; i2++) {
-      if (result[i2] !== nodes[i2]) {
+    for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
+      if (result[nodeIndex] !== nodes[nodeIndex]) {
         same = false;
         break;
       }
@@ -123,10 +123,10 @@ function anchorOrder(nodes, existingOrder) {
 }
 function carryGroupFields(saved) {
   if (!saved) return {};
-  const out = {};
-  if (saved.groupId) out.groupId = saved.groupId;
-  if (Number.isInteger(saved.round)) out.round = saved.round;
-  return out;
+  const groupFields = {};
+  if (saved.groupId) groupFields.groupId = saved.groupId;
+  if (Number.isInteger(saved.round)) groupFields.round = saved.round;
+  return groupFields;
 }
 function carryAssetIdField(saved) {
   return typeof saved?.assetId === "string" && saved.assetId.length > 0
@@ -268,28 +268,28 @@ export function buildCanvasNodes(input) {
     }
   }
   if (standaloneNodes?.length) {
-    for (const sn2 of standaloneNodes) {
+    for (const standaloneNode of standaloneNodes) {
       nodes.push({
-        id: sn2.id,
-        type: sn2.type,
-        positions: sanitizeCanvasPositions(sn2.positions ?? {}).positions,
-        size: resolveNodeSize(sn2.type, sn2.size, void 0, sn2.data),
-        data: mirrorImageFieldsIntoData(sn2),
-        ...carryAssetIdField(sn2),
-        ...carryIsEmptyField(sn2),
-        meta: sn2.meta,
-        ...(sn2.parentId
+        id: standaloneNode.id,
+        type: standaloneNode.type,
+        positions: sanitizeCanvasPositions(standaloneNode.positions ?? {}).positions,
+        size: resolveNodeSize(standaloneNode.type, standaloneNode.size, void 0, standaloneNode.data),
+        data: mirrorImageFieldsIntoData(standaloneNode),
+        ...carryAssetIdField(standaloneNode),
+        ...carryIsEmptyField(standaloneNode),
+        meta: standaloneNode.meta,
+        ...(standaloneNode.parentId
           ? {
-              parentId: sn2.parentId,
+              parentId: standaloneNode.parentId,
             }
           : {}),
-        ...carryGroupFields(sn2),
+        ...carryGroupFields(standaloneNode),
       });
     }
   }
   const allSavedNodes = input.allSavedNodes;
   if (allSavedNodes?.size) {
-    const emittedIds = new Set(nodes.map((n2) => n2.id));
+    const emittedIds = new Set(nodes.map((node) => node.id));
     const omittedNodeIds = input.omittedNodeIds;
     const recovered = [];
     for (const [nodeId, saved] of allSavedNodes) {
@@ -343,10 +343,10 @@ export function buildCanvasNodes(input) {
     }
     if (recovered.length > 0) {
       const unreported = recovered.filter(
-        (id2) => !warnedRecoveredNodeIds.has(id2),
+        (nodeId) => !warnedRecoveredNodeIds.has(nodeId),
       );
       if (unreported.length > 0) {
-        for (const id2 of unreported) warnedRecoveredNodeIds.add(id2);
+        for (const nodeId of unreported) warnedRecoveredNodeIds.add(nodeId);
         console.warn(
           "[hilo/canvas] superset guard recovered %d on-disk node(s) no build branch emitted: %o",
           unreported.length,

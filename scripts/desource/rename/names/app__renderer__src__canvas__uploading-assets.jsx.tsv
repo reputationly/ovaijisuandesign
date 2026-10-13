@@ -1,0 +1,13 @@
+key	old	new	依据
+cn@12:11	cn	mergeClassNames	该导入组合类名并合并 Tailwind 冲突。
+ts2@44:31	ts2	timestamp	该参数是云端更新时间的时间戳。
+hm@47:9	hm	time	该字符串保存格式化后的时分。
+day@51:9	day	dateLabel	该字符串保存本地化日期标签。
+t2@59:14	t2	translate	该函数翻译云资产同步状态文案。
+t2@104:14	t2	translate	该函数翻译云资产上传者和更新时间文案。
+idx@130:9	idx	separatorIndex	该值是文件路径中最后一个路径分隔符的位置。
+t2@188:14	t2	translate	该函数翻译云资产重命名对话框文案。
+err@204:14	err	error	该值是重命名云资产失败时捕获的错误。
+t2@277:14	t2	translate	该函数翻译上传中的状态文案。
+t2@374:6	t2	translate	该函数翻译本地文件导入错误文案。
+err@407:12	err	error	该值是本地文件导入失败时捕获的错误。

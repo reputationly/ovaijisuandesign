@@ -1,0 +1,14 @@
+key	old	new	依据
+Button$3@3:3	Button$3	BaseButton	该导入是文件内 Button 组件包装的基础按钮组件。
+X@12:10	X	CloseIcon	该导入是关闭按钮中的关闭图标组件。
+cn@15:10	cn	mergeClassNames	该导入组合类名并合并 Tailwind 冲突。
+s2@31:33	s2	storeState	该参数是最近添加节点 store 的状态。
+id2@60:7	id2	nodeId	该值是当前画布节点的标识。
+e2@81:6	e2	doubleClickEvent	该值是节点双击处理器收到的事件对象。
+e2@88:6	e2	clickEvent	该值是节点单击处理器收到的事件对象。
+t2@247:14	t2	translate	该函数翻译节点队列状态文案。
+e2@253:6	e2	clickEvent	该值是占位上传按钮收到的单击事件。
+e2@264:23	e2	pointerEvent	该值是阻止传播的指针事件对象。
+e2@265:23	e2	doubleClickEvent	该值是阻止传播的双击事件对象。
+t2@319:14	t2	translate	该函数翻译队列操作按钮文案。
+t2@349:14	t2	translate	该函数翻译队列状态提示文案。

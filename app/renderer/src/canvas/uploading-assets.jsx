@@ -9,7 +9,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   Button,
-  cn$2 as cn,
+  cn$2 as mergeClassNames,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -41,37 +41,37 @@ async function renameCloudNode(nodeId, newName) {
     },
   );
 }
-function formatCloudUpdatedAt(ts2, language2) {
-  if (!Number.isFinite(ts2) || ts2 <= 0) return "";
-  const date2 = new Date(ts2);
-  const hm = `${String(date2.getHours()).padStart(2, "0")}:${String(date2.getMinutes()).padStart(2, "0")}`;
+function formatCloudUpdatedAt(timestamp, language2) {
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return "";
+  const date2 = new Date(timestamp);
+  const time = `${String(date2.getHours()).padStart(2, "0")}:${String(date2.getMinutes()).padStart(2, "0")}`;
   if (language2.startsWith("zh")) {
-    return `${date2.getFullYear()}.${date2.getMonth() + 1}.${date2.getDate()} ${hm}`;
+    return `${date2.getFullYear()}.${date2.getMonth() + 1}.${date2.getDate()} ${time}`;
   }
-  const day = date2.toLocaleDateString("en-US", {
+  const dateLabel = date2.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
-  return `${day} ${hm}`;
+  return `${dateLabel} ${time}`;
 }
 export function SyncBadge({ state: state2, className }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (!state2) return null;
   if (state2 === "synced") return null;
   const label =
     state2 === "stale"
-      ? t2("cloudAssets.syncStale")
+      ? translate("cloudAssets.syncStale")
       : state2 === "downloading"
-        ? t2("cloudAssets.syncDownloading")
-        : t2("cloudAssets.syncNotDownloaded");
+        ? translate("cloudAssets.syncDownloading")
+        : translate("cloudAssets.syncNotDownloaded");
   const chip = (
     <span
       role="img"
       aria-label={label}
       data-action-ui-id="cloud-assets.sync-badge"
       data-sync-state={state2}
-      className={cn(
+      className={mergeClassNames(
         "flex size-6 shrink-0 cursor-default items-center justify-center rounded-full text-[11px] font-medium",
         // Every state is icon-only; hover reveals text via Tooltip while the
         // accessible name remains available without adding a no-op tab stop.
@@ -101,23 +101,23 @@ export function SyncBadge({ state: state2, className }) {
   );
 }
 export function NodeUpdatedMeta({ node: node2, memberNames, className }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t: translate, i18n } = useTranslation();
   const time = formatCloudUpdatedAt(node2.updatedAt, i18n.language);
   if (!time) return null;
   const name2 = memberNames.get(node2.uploaderId);
   const title = name2
-    ? t2("cloudAssets.updatedByAt", {
+    ? translate("cloudAssets.updatedByAt", {
         name: name2,
         time,
       })
-    : t2("cloudAssets.updatedAtOnly", {
+    : translate("cloudAssets.updatedAtOnly", {
         time,
       });
   return (
     <span
       title={title}
       data-action-ui-id="cloud-assets.updated-meta"
-      className={cn(
+      className={mergeClassNames(
         "shrink-0 truncate text-[12px] text-muted-foreground",
         className,
       )}
@@ -127,8 +127,8 @@ export function NodeUpdatedMeta({ node: node2, memberNames, className }) {
   );
 }
 export function getFileName(path2) {
-  const idx = Math.max(path2.lastIndexOf("/"), path2.lastIndexOf("\\"));
-  return idx >= 0 ? path2.slice(idx + 1) : path2;
+  const separatorIndex = Math.max(path2.lastIndexOf("/"), path2.lastIndexOf("\\"));
+  return separatorIndex >= 0 ? path2.slice(separatorIndex + 1) : path2;
 }
 export function splitFilename(name2, kind = "file") {
   const dot2 = name2.lastIndexOf(".");
@@ -155,7 +155,7 @@ export function AssetRenameInput({
   const extensionId = reactExports.useId();
   return (
     <div
-      className={cn(
+      className={mergeClassNames(
         "flex h-8 min-w-0 items-center overflow-hidden rounded-lg border border-input text-xs focus-within:border-foreground",
         className,
       )}
@@ -167,7 +167,7 @@ export function AssetRenameInput({
             .filter(Boolean)
             .join(" ") || void 0
         }
-        className={cn(
+        className={mergeClassNames(
           "h-full flex-1 rounded-none border-0 text-[length:inherit] md:text-[length:inherit]",
           inputClassName,
         )}
@@ -185,7 +185,7 @@ export function AssetRenameInput({
   );
 }
 export function RenameNodeDialog({ node: node2, onOpenChange, onRenamed }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [name2, setName] = reactExports.useState("");
   const [pending2, setPending] = reactExports.useState(false);
   const { tail: extension2 } = splitFilename(node2?.name ?? "", node2?.kind);
@@ -201,23 +201,23 @@ export function RenameNodeDialog({ node: node2, onOpenChange, onRenamed }) {
       await renameCloudNode(node2.id, fullName);
       onOpenChange(false);
       onRenamed(node2, fullName);
-    } catch (err) {
+    } catch (error) {
       dedupedToast.error(
-        cloudErrorDisplayMessage(err) ?? t2("cloudAssets.failServer"),
+        cloudErrorDisplayMessage(error) ?? translate("cloudAssets.failServer"),
       );
     } finally {
       setPending(false);
     }
-  }, [fullName, node2, onOpenChange, onRenamed, pending2, t2]);
+  }, [fullName, node2, onOpenChange, onRenamed, pending2, translate]);
   return (
     <Dialog open={node2 !== null} onOpenChange={onOpenChange}>
       <DialogContent size="sm" data-action-ui-id="cloud-assets.rename-dialog">
         <DialogHeader>
           <DialogTitle className="text-body-14 leading-5 font-medium">
-            {t2("cloudAssets.renameTitle")}
+            {translate("cloudAssets.renameTitle")}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            {t2("cloudAssets.renameTitle")}
+            {translate("cloudAssets.renameTitle")}
           </DialogDescription>
         </DialogHeader>
         <AssetRenameInput
@@ -231,8 +231,8 @@ export function RenameNodeDialog({ node: node2, onOpenChange, onRenamed }) {
             event.preventDefault();
             void handleConfirm();
           }}
-          aria-label={t2("cloudAssets.renamePlaceholder")}
-          placeholder={t2("cloudAssets.renamePlaceholder")}
+          aria-label={translate("cloudAssets.renamePlaceholder")}
+          placeholder={translate("cloudAssets.renamePlaceholder")}
           autoComplete="off"
         />
         <DialogFooter>
@@ -241,14 +241,14 @@ export function RenameNodeDialog({ node: node2, onOpenChange, onRenamed }) {
             size="sm"
             onClick={() => onOpenChange(false)}
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             size="sm"
             disabled={!fullName || pending2 || fullName === node2?.name}
             onClick={() => void handleConfirm()}
           >
-            {t2("common.confirm")}
+            {translate("common.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -274,13 +274,13 @@ export function FileTypeThumbnail({ filename, mime }) {
   );
 }
 export function UploadingAssets({ transfers, viewMode, compact = false }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isGrid = viewMode === "grid";
   return transfers.map((item) => {
     const pending2 = item.status === "pending";
     const statusText = pending2
-      ? t2("cloudAssets.statusWaitingUpload")
-      : t2("cloudAssets.statusUploading");
+      ? translate("cloudAssets.statusWaitingUpload")
+      : translate("cloudAssets.statusUploading");
     const status = (
       <span
         className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground"
@@ -298,7 +298,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
     return (
       <div
         key={item.id}
-        className={cn(
+        className={mergeClassNames(
           "min-w-0",
           isGrid
             ? "overflow-hidden rounded-lg border border-border bg-card"
@@ -308,7 +308,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
         )}
         data-action-ui-id="cloud-assets.upload-item"
       >
-        <div className={cn("relative", !isGrid && "shrink-0")}>
+        <div className={mergeClassNames("relative", !isGrid && "shrink-0")}>
           {compact && !isGrid ? (
             <FileTypeThumbnail filename={item.name} />
           ) : (
@@ -329,7 +329,7 @@ export function UploadingAssets({ transfers, viewMode, compact = false }) {
           ) : null}
         </div>
         <div
-          className={cn(
+          className={mergeClassNames(
             "flex min-w-0 flex-1",
             isGrid ? "flex-col gap-1 p-3" : "items-center gap-2",
           )}
@@ -371,14 +371,14 @@ export async function importPickedFiles({
   folderName,
   folderSegments,
   files,
-  t: t2,
+  t: translate,
 }) {
   const sourcePaths = [];
   for (const file of files) {
     const path2 = window.hilo?.webUtils?.getPathForFile(file);
     if (!path2) {
       dedupedToast.error(
-        t2("localAssets.importNoPath", {
+        translate("localAssets.importNoPath", {
           name: file.name,
         }),
       );
@@ -398,14 +398,14 @@ export async function importPickedFiles({
         const name2 =
           result.sourcePath.split(/[/\\]/).pop() ?? result.sourcePath;
         dedupedToast.error(
-          t2("localAssets.importFailed", {
+          translate("localAssets.importFailed", {
             name: name2,
           }),
         );
       }
     }
-  } catch (err) {
-    dedupedToast.error(err instanceof Error ? err.message : String(err));
+  } catch (error) {
+    dedupedToast.error(error instanceof Error ? error.message : String(error));
   }
   return true;
 }

@@ -49,8 +49,8 @@ function inputHandleOffset(sourcePos, size2) {
   }
 }
 
-function offsetAlongHandle(point2, pos, distance2) {
-  switch (pos) {
+function offsetAlongHandle(point2, handlePosition, distance2) {
+  switch (handlePosition) {
     case Position.Right:
       return {
         x: point2.x + distance2,
@@ -72,7 +72,7 @@ function offsetAlongHandle(point2, pos, distance2) {
         y: point2.y - distance2,
       };
     default: {
-      const _exhaustive = pos;
+      const _exhaustive = handlePosition;
       throw new Error(`Unhandled handle position: ${String(_exhaustive)}`);
     }
   }
@@ -80,8 +80,8 @@ function offsetAlongHandle(point2, pos, distance2) {
 
 function newSourcesForTarget(sources, target, edges) {
   const existing = new Set();
-  for (const e2 of edges) {
-    if (e2.target === target) existing.add(e2.source);
+  for (const edge of edges) {
+    if (edge.target === target) existing.add(edge.source);
   }
   const result = [];
   const seen2 = new Set();
@@ -145,9 +145,9 @@ export function useConnectToAddNode({
           ? event.clientY
           : (event.changedTouches?.[0]?.clientY ?? 0);
       const sourceScreen = flowToScreenPosition(connectionState.from);
-      const dx = clientX - sourceScreen.x;
-      const dy = clientY - sourceScreen.y;
-      if (dx * dx + dy * dy < CLICK_VS_DRAG_THRESHOLD_SQ_PX) return;
+      const deltaX = clientX - sourceScreen.x;
+      const deltaY = clientY - sourceScreen.y;
+      if (deltaX * deltaX + deltaY * deltaY < CLICK_VS_DRAG_THRESHOLD_SQ_PX) return;
       const sourceId = connectionState.fromNode.id;
       const dropFlow = screenToFlowPosition({
         x: clientX,
@@ -171,10 +171,10 @@ export function useConnectToAddNode({
         );
         if (target) {
           const nodesById = new Map(
-            instance2.getGraph().nodes.map((n2) => [n2.id, n2]),
+            instance2.getGraph().nodes.map((node) => [node.id, node]),
           );
-          const oriented = orientUserEdge(sourceId, target, (id2) =>
-            nodesById.get(id2),
+          const oriented = orientUserEdge(sourceId, target, (nodeId) =>
+            nodesById.get(nodeId),
           );
           instance2.addEdge({
             id: `${oriented.source}->${oriented.target}`,
@@ -304,15 +304,15 @@ export function useConnectToAddNode({
       if (dropFlow !== void 0) {
         const nodeLookup = storeApi.getState().nodeLookup;
         const points = [];
-        for (const id2 of sourceNodeIds) {
-          const node2 = nodeLookup.get(id2);
+        for (const nodeId of sourceNodeIds) {
+          const node2 = nodeLookup.get(nodeId);
           if (!node2) continue;
-          const w3 = node2.measured?.width ?? node2.width ?? 0;
-          const h2 = node2.measured?.height ?? node2.height ?? 0;
-          if (!w3 || !h2) continue;
+          const width = node2.measured?.width ?? node2.width ?? 0;
+          const height = node2.measured?.height ?? node2.height ?? 0;
+          if (!width || !height) continue;
           points.push({
-            sourceFlowX: node2.internals.positionAbsolute.x + w3,
-            sourceFlowY: node2.internals.positionAbsolute.y + h2 / 2,
+            sourceFlowX: node2.internals.positionAbsolute.x + width,
+            sourceFlowY: node2.internals.positionAbsolute.y + height / 2,
             handlePosition: Position.Right,
           });
         }
@@ -368,11 +368,11 @@ export function useConnectToAddNode({
       );
       if (todo.length === 0) return;
       const nodesById = new Map(
-        instance2.getGraph().nodes.map((n2) => [n2.id, n2]),
+        instance2.getGraph().nodes.map((node) => [node.id, node]),
       );
       for (const source of todo) {
-        const oriented = orientUserEdge(source, targetNodeId, (id2) =>
-          nodesById.get(id2),
+        const oriented = orientUserEdge(source, targetNodeId, (nodeId) =>
+          nodesById.get(nodeId),
         );
         instance2.addEdge({
           id: `${oriented.source}->${oriented.target}`,
@@ -475,11 +475,11 @@ export function useConnectToAddNode({
           instance2.getGraph().edges,
         );
         const nodesById = new Map(
-          instance2.getGraph().nodes.map((n2) => [n2.id, n2]),
+          instance2.getGraph().nodes.map((node) => [node.id, node]),
         );
         for (const sourceId of todo) {
-          const oriented = orientUserEdge(sourceId, targetNodeId, (id2) =>
-            nodesById.get(id2),
+          const oriented = orientUserEdge(sourceId, targetNodeId, (nodeId) =>
+            nodesById.get(nodeId),
           );
           instance2.addEdge({
             id: `${oriented.source}->${oriented.target}`,

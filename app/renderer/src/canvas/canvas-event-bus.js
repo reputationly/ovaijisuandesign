@@ -9,22 +9,22 @@ import {
   isRetainedGenerationNode,
 } from "./remove-nodes-and-promote-group-mains.js";
 
-export function isSamePersistedData(a2, b3) {
-  if (a2 === b3) return true;
-  if (a2 === null || b3 === null) return a2 === b3;
-  if (typeof a2 !== "object" || typeof b3 !== "object") return false;
-  if (Array.isArray(a2) || Array.isArray(b3)) {
-    if (!Array.isArray(a2) || !Array.isArray(b3)) return false;
-    if (a2.length !== b3.length) return false;
-    return a2.every((item, i2) => isSamePersistedData(item, b3[i2]));
+export function isSamePersistedData(leftData, rightData) {
+  if (leftData === rightData) return true;
+  if (leftData === null || rightData === null) return leftData === rightData;
+  if (typeof leftData !== "object" || typeof rightData !== "object") return false;
+  if (Array.isArray(leftData) || Array.isArray(rightData)) {
+    if (!Array.isArray(leftData) || !Array.isArray(rightData)) return false;
+    if (leftData.length !== rightData.length) return false;
+    return leftData.every((item, index) => isSamePersistedData(item, rightData[index]));
   }
-  const ra = a2;
-  const rb = b3;
-  const keysA = Object.keys(ra).filter((k2) => ra[k2] !== void 0);
-  const keysB = Object.keys(rb).filter((k2) => rb[k2] !== void 0);
+  const leftRecord = leftData;
+  const rightRecord = rightData;
+  const keysA = Object.keys(leftRecord).filter((key) => leftRecord[key] !== void 0);
+  const keysB = Object.keys(rightRecord).filter((key) => rightRecord[key] !== void 0);
   if (keysA.length !== keysB.length) return false;
   return keysA.every(
-    (k2) => Object.hasOwn(rb, k2) && isSamePersistedData(ra[k2], rb[k2]),
+    (key) => Object.hasOwn(rightRecord, key) && isSamePersistedData(leftRecord[key], rightRecord[key]),
   );
 }
 
@@ -41,9 +41,9 @@ function stripInvisibleKeys(node2) {
   if (!data2) return node2;
   let hasInvisible = false;
   const cleaned = {};
-  for (const [k2, v2] of Object.entries(data2)) {
-    if (INVISIBLE_DATA_KEYS.has(k2)) hasInvisible = true;
-    else cleaned[k2] = v2;
+  for (const [key, value] of Object.entries(data2)) {
+    if (INVISIBLE_DATA_KEYS.has(key)) hasInvisible = true;
+    else cleaned[key] = value;
   }
   return hasInvisible
     ? {
@@ -56,7 +56,7 @@ function stripInvisibleKeys(node2) {
 export function isInvisibleHistoryTransition(before, after) {
   if (before.nodes.length !== after.nodes.length) return false;
   if (before.edges.length !== after.edges.length) return false;
-  const afterById = new Map(after.nodes.map((n2) => [n2.id, n2]));
+  const afterById = new Map(after.nodes.map((node) => [node.id, node]));
   for (const beforeNode of before.nodes) {
     const afterNode = afterById.get(beforeNode.id);
     if (!afterNode) return false;
@@ -139,10 +139,10 @@ export class CanvasEventBus {
       set2 = new Set();
       this.handlers.set(type2, set2);
     }
-    const h2 = handler;
-    set2.add(h2);
+    const registeredHandler = handler;
+    set2.add(registeredHandler);
     return () => {
-      set2.delete(h2);
+      set2.delete(registeredHandler);
     };
   }
   /**
@@ -169,10 +169,10 @@ export class CanvasEventBus {
       for (const handler of handlers2) {
         try {
           handler(event);
-        } catch (err) {
+        } catch (error) {
           console.error(
             `[canvas] Event handler error for "${event.type}":`,
-            err,
+            error,
           );
         }
       }
@@ -184,10 +184,10 @@ export class CanvasEventBus {
       set2 = new Set();
       this.interceptors.set(type2, set2);
     }
-    const i2 = interceptor;
-    set2.add(i2);
+    const registeredInterceptor = interceptor;
+    set2.add(registeredInterceptor);
     return () => {
-      set2.delete(i2);
+      set2.delete(registeredInterceptor);
     };
   }
   /** Remove all listeners and interceptors */

@@ -1,6 +1,6 @@
 // node-shell-inner.jsx
 import {
-  Button$3,
+  Button$3 as BaseButton,
   CompositedSvg,
   cva,
   jsxRuntimeExports,
@@ -9,10 +9,10 @@ import {
   reactExports,
   useStore$2 as useStore,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn } from "../infra/dialog-content.jsx";
+import { cn as mergeClassNames } from "../infra/dialog-content.jsx";
 import {
   defaultRecentlyAddedStore,
   getDerivedNodePosition,
@@ -28,7 +28,7 @@ useRecentlyAddedStore.getState = defaultRecentlyAddedStore.getState;
 useRecentlyAddedStore.setState = defaultRecentlyAddedStore.setState;
 useRecentlyAddedStore.subscribe = defaultRecentlyAddedStore.subscribe;
 function useIsRecentlyAdded(nodeId) {
-  return useRecentlyAddedStore((s2) => Boolean(nodeId && s2.ids.has(nodeId)));
+  return useRecentlyAddedStore((storeState) => Boolean(nodeId && storeState.ids.has(nodeId)));
 }
 function UploadIcon({ size: size2 = 16 }) {
   return (
@@ -57,7 +57,7 @@ function UploadIcon({ size: size2 = 16 }) {
   );
 }
 function NodeShellInner({
-  id: id2,
+  id: nodeId,
   tagIds,
   width,
   children: children2,
@@ -75,21 +75,21 @@ function NodeShellInner({
   const tagFilterActive = useCanvasTagFilterActive();
   const matchesTagFilter2 = useNodeTagColors(tagIds).some((tag) => tag.active);
   const dimmedByTagFilter = tagFilterActive && !matchesTagFilter2;
-  const isNewlyAdded = useIsRecentlyAdded(id2);
+  const isNewlyAdded = useIsRecentlyAdded(nodeId);
   const recentlyAddedApi = useRecentlyAddedApi();
   const handleDoubleClick2 = reactExports.useCallback(
-    (e2) => {
+    (doubleClickEvent) => {
       if (isModalOpen) return;
-      onDoubleClick?.(e2);
+      onDoubleClick?.(doubleClickEvent);
     },
     [isModalOpen, onDoubleClick],
   );
   const handleClick2 = reactExports.useCallback(
-    (e2) => {
-      if (id2 && isNewlyAdded) recentlyAddedApi.getState().remove(id2);
-      onClick?.(e2);
+    (clickEvent) => {
+      if (nodeId && isNewlyAdded) recentlyAddedApi.getState().remove(nodeId);
+      onClick?.(clickEvent);
     },
-    [id2, isNewlyAdded, recentlyAddedApi, onClick],
+    [nodeId, isNewlyAdded, recentlyAddedApi, onClick],
   );
   const mergedClassName = `canvas-node-shell group cursor-default [contain:layout_style] relative overflow-visible${isNewlyAdded ? " is-newly-added" : ""}${generating ? " is-generating" : ""}${dimmedByTagFilter ? " opacity-25 transition-opacity duration-150" : ""}${className ? ` ${className}` : ""}`;
   return (
@@ -169,10 +169,10 @@ export function Button({
   ...props
 }) {
   return (
-    <Button$3
+    <BaseButton
       data-slot="button"
       disabled={disabled2 || loading}
-      className={cn(
+      className={mergeClassNames(
         buttonVariants({
           variant,
           size: size2,
@@ -183,7 +183,7 @@ export function Button({
     >
       {loading && <Loader2Icon className="animate-spin" />}
       {children2}
-    </Button$3>
+    </BaseButton>
   );
 }
 export function NodeEmptyState({
@@ -244,15 +244,15 @@ export function PlaceholderUploadButton({
   label,
   onUpload,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [nodeShell, setNodeShell] = reactExports.useState(null);
   const handlePlaceholderRef = reactExports.useCallback((element2) => {
     setNodeShell(element2?.closest(".canvas-node-shell") ?? null);
   }, []);
   const handleClick2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      onUpload(e2.currentTarget);
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      onUpload(clickEvent.currentTarget);
     },
     [onUpload],
   );
@@ -261,10 +261,10 @@ export function PlaceholderUploadButton({
       type="button"
       data-action-ui-id="canvas.placeholder-upload"
       onClick={handleClick2}
-      onPointerDown={(e2) => e2.stopPropagation()}
-      onDoubleClick={(e2) => e2.stopPropagation()}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+      onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
       className="nodrag nopan nowheel absolute bottom-[calc(100%+1.5rem)] left-1/2 z-20 inline-flex h-8 -translate-x-1/2 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-[color-mix(in_srgb,var(--canvas-controls-border)_60%,transparent)] bg-[var(--canvas-controls-bg)] px-3 text-[13px] font-normal text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)]"
-      title={t2("canvas.upload")}
+      title={translate("canvas.upload")}
     >
       <UploadIcon size={16} />
       <span>{label}</span>
@@ -316,15 +316,15 @@ function resolveGenerationWaitEstimate(seconds) {
       };
 }
 export function GenerationWaitEstimate({ seconds, actionUiId }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const estimate = resolveGenerationWaitEstimate(seconds);
   if (!estimate) return null;
   const label =
     estimate.unit === "seconds"
-      ? t2("canvas.estimatedRemainingWaitSeconds", {
+      ? translate("canvas.estimatedRemainingWaitSeconds", {
           count: estimate.count,
         })
-      : t2("canvas.estimatedRemainingWaitMinutes", {
+      : translate("canvas.estimatedRemainingWaitMinutes", {
           count: estimate.count,
         });
   return (
@@ -346,7 +346,7 @@ export function QueueGenerationControl({
   canResume = true,
   actionUiId,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isQueued = state2 === "queued";
   const disabled2 = isQueued ? cancelling : resuming || !canResume;
   const handleClick2 = (event) => {
@@ -364,7 +364,7 @@ export function QueueGenerationControl({
       onPointerDown={stopEvent}
     >
       <span className="max-w-full truncate text-xs font-medium leading-5 text-muted-foreground">
-        {isQueued ? t2("canvas.pending") : t2("canvas.queuePaused")}
+        {isQueued ? translate("canvas.pending") : translate("canvas.queuePaused")}
       </span>
       {(isQueued ? onCancel : onResume) ? (
         <button
@@ -376,7 +376,7 @@ export function QueueGenerationControl({
           data-action-ui-id={`${actionUiId}.${isQueued ? "cancel" : "resume"}`}
         >
           {isQueued ? (
-            <X
+            <CloseIcon
               size={14}
               strokeWidth={1.5}
               className={QUEUE_ACTION_ICON_CLASS}
@@ -389,7 +389,7 @@ export function QueueGenerationControl({
             />
           )}
           <span>
-            {isQueued ? t2("canvas.queueCancel") : t2("canvas.queueResume")}
+            {isQueued ? translate("canvas.queueCancel") : translate("canvas.queueResume")}
           </span>
         </button>
       ) : null}
