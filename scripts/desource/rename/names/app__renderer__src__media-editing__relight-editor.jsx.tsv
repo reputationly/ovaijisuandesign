@@ -1,0 +1,58 @@
+key	new	依据
+i2@89:40	input	遍历预设中的光源输入对象并按其标识建立映射。
+id2@100:28	lightInputId	遍历支持的光源输入标识并查找对应输入。
+v2@152:11	videoElement	读取预设封面视频元素并控制其播放。
+p3@227:25	preset	解析预设提示并附加解析后的配置。
+p3@242:25	preset	按当前分类筛选灯光预设。
+v2@355:23	angle	接收需要舍入并格式化为角度的值。
+v2@356:26	intensity	接收需要转换为文本的光照强度。
+opt@369:31	option	遍历灯具类型选项并生成本地化标签。
+v2@394:22	horizontalAngle	接收水平角滑块的新值。
+v2@409:22	verticalAngle	接收垂直角滑块的新值。
+v2@425:20	intensity	接收光照强度滑块的新值。
+v2@454:22	lightType	接收灯具类型选择器的新值。
+id2@475:25	lightId	接收需要更新的灯具标识。
+id2@661:23	lightId	接收新建灯具使用的标识。
+l2@694:40	light	按标识合并单个灯具的更新字段。
+u4@710:53	lightUpdate	遍历批量更新中的灯具更新项。
+l2@711:40	light	查找与当前灯具相匹配的更新项。
+u4@712:15	lightUpdate	保存当前灯具对应的批量更新项。
+id2@729:13	lightId	保存新分配的灯具标识。
+l2@741:43	light	筛除待删除的灯具。
+l2@743:10	light	检查删除后活动灯具是否仍存在。
+az@913:9	azimuthRadians	保存灯具水平角换算后的弧度。
+el@914:9	elevationRadians	保存灯具垂直角换算后的弧度。
+y4@964:12	pixelRow	遍历球面参考图像中的像素行。
+x2@965:14	pixelColumn	遍历球面参考图像中的像素列。
+px@966:11	pixelOffsetX	保存像素中心相对图像中心的水平偏移。
+py@967:11	pixelOffsetY	保存像素中心相对图像中心的垂直偏移。
+u4@988:13	viewPlaneX	保存像素映射到相机视平面的水平坐标。
+v2@989:13	viewPlaneY	保存像素映射到相机视平面的垂直坐标。
+a2@990:13	rayDirectionLengthSquared	保存视线方向向量的平方长度。
+t2@991:13	rayDistance	保存相机视线与球面交点对应的距离参数。
+nx@997:13	surfaceNormalX	保存球面交点法线的 x 分量。
+ny@998:13	surfaceNormalY	保存球面交点法线的 y 分量。
+nz@999:13	surfaceNormalZ	保存球面交点法线的 z 分量。
+vx@1001:13	viewDirectionX	保存朝向相机的视线方向 x 分量。
+vy@1002:13	viewDirectionY	保存朝向相机的视线方向 y 分量。
+vz@1003:13	viewDirectionZ	保存朝向相机的视线方向 z 分量。
+nv@1004:13	normalViewDot	保存表面法线与视线方向的点积。
+sky@1005:13	skyBlend	保存用于混合天光与地面光的垂直权重。
+r2@1006:11	linearRed	累积环境光和半球光的线性红色通道。
+g2@1010:11	linearGreen	累积环境光和半球光的线性绿色通道。
+b3@1014:11	linearBlue	累积环境光和半球光的线性蓝色通道。
+sy@973:18	sampleYIndex	遍历像素边缘抗锯齿采样的垂直下标。
+sx@974:20	sampleXIndex	遍历像素边缘抗锯齿采样的水平下标。
+dx@975:19	sampleXOffset	保存当前子像素采样点的水平偏移。
+dy@976:19	sampleYOffset	保存当前子像素采样点的垂直偏移。
+lx@1019:13	lightDirectionX	保存当前灯光方向向量的 x 分量。
+ly@1020:13	lightDirectionY	保存当前灯光方向向量的 y 分量。
+lz@1021:13	lightDirectionZ	保存当前灯光方向向量的 z 分量。
+nl@1038:15	normalLightDot	保存表面法线与灯光方向的点积。
+hx@1040:15	halfwayVectorX	保存视线方向与灯光方向中间向量的 x 分量。
+hy@1041:15	halfwayVectorY	保存视线方向与灯光方向中间向量的 y 分量。
+hz@1042:15	halfwayVectorZ	保存视线方向与灯光方向中间向量的 z 分量。
+nh@1044:15	normalHalfwayDot	保存表面法线与中间向量的点积。
+vh@1045:15	viewHalfwayDot	保存视线方向与中间向量的点积。
+t2@1199:20	t	绑定 useTranslation 返回的 i18n 翻译函数。
+id2@1398:43	lightId	接收需要设为活动项的灯具标识。

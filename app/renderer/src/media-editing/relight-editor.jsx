@@ -86,7 +86,7 @@ function parsePresetPrompt(rawPrompt) {
   } catch {
     return null;
   }
-  const inputMap = new Map(inputs.map((i2) => [i2.id, i2]));
+  const inputMap = new Map(inputs.map((input) => [input.id, input]));
   const settingInput = inputMap.get("setting");
   let settingData = {};
   if (settingInput?.data) {
@@ -97,14 +97,14 @@ function parsePresetPrompt(rawPrompt) {
   const studioMode = settingData.background || "default";
   const effectType = normalizeEffectType(settingData.effect);
   const lights = [];
-  LIGHT_INPUT_IDS.forEach((id2) => {
-    const lightInput = inputMap.get(id2);
+  LIGHT_INPUT_IDS.forEach((lightInputId) => {
+    const lightInput = inputMap.get(lightInputId);
     if (!lightInput?.data) return;
     try {
       const raw2 = JSON.parse(lightInput.data);
       const hasKelvin = !!raw2.kelvin;
       lights.push({
-        id: id2,
+        id: lightInputId,
         type: raw2.lightType || "spotlight",
         horizontalAngle: parseFloat(raw2.azimuth || "0") || 0,
         verticalAngle: parseFloat(raw2.elevation || "0") || 0,
@@ -149,10 +149,10 @@ const PresetMediaCover = ({ coverUrl, videoUrl, alt, isActive: isActive2 }) => {
   const [hovered, setHovered] = reactExports.useState(false);
   const shouldPlay = (isActive2 || hovered) && Boolean(videoUrl);
   reactExports.useEffect(() => {
-    const v2 = videoRef.current;
-    if (!v2 || !shouldPlay) return;
-    v2.currentTime = 0;
-    v2.play().catch(() => {});
+    const videoElement = videoRef.current;
+    if (!videoElement || !shouldPlay) return;
+    videoElement.currentTime = 0;
+    videoElement.play().catch(() => {});
   }, [shouldPlay]);
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: hover only previews media; the parent button owns activation
@@ -224,14 +224,14 @@ const PresetsPanel = ({
 }) => {
   const [activeCategory, setActiveCategory] = reactExports.useState("all");
   const all2 = reactExports.useMemo(() => {
-    return presets.map((p3) => {
-      const parsed = parsePresetPrompt(p3.rawPrompt) || {
+    return presets.map((preset) => {
+      const parsed = parsePresetPrompt(preset.rawPrompt) || {
         lights: [],
         studioMode: "default",
         effectType: "default",
       };
       return {
-        ...p3,
+        ...preset,
         parsedPrompt: parsed,
         effectType: parsed.effectType ?? "default",
       };
@@ -239,7 +239,7 @@ const PresetsPanel = ({
   }, []);
   const list2 = reactExports.useMemo(() => {
     if (activeCategory === "all") return [NO_EFFECT_PRESET, ...all2];
-    return all2.filter((p3) => p3.category === activeCategory);
+    return all2.filter((preset) => preset.category === activeCategory);
   }, [all2, activeCategory]);
   const handleSelect = (preset2) => {
     if (preset2.id === NO_EFFECT_ID) {
@@ -352,8 +352,8 @@ const ColorSection = ({
     />
   );
 };
-const formatDegree = (v2) => `${roundAngle(v2)}°`;
-const formatIntensity = (v2) => String(v2);
+const formatDegree = (angle) => `${roundAngle(angle)}°`;
+const formatIntensity = (intensity) => String(intensity);
 const LightingPanel = ({
   translate: translate2,
   lights,
@@ -366,9 +366,9 @@ const LightingPanel = ({
   );
   const lightTypeOpts = reactExports.useMemo(
     () =>
-      LIGHT_TYPE_OPTIONS.map((opt) => ({
-        value: opt.value,
-        label: translate2(opt.labelKey),
+      LIGHT_TYPE_OPTIONS.map((option) => ({
+        value: option.value,
+        label: translate2(option.labelKey),
       })),
     [translate2],
   );
@@ -391,9 +391,9 @@ const LightingPanel = ({
           max={AZIMUTH_RANGE.max}
           step={ANGLE_STEP}
           formatValue={formatDegree}
-          onChange={(v2) =>
+          onChange={(horizontalAngle) =>
             updateActive({
-              horizontalAngle: v2,
+              horizontalAngle,
             })
           }
         />
@@ -406,9 +406,9 @@ const LightingPanel = ({
           max={ELEVATION_RANGE.max}
           step={ANGLE_STEP}
           formatValue={formatDegree}
-          onChange={(v2) =>
+          onChange={(verticalAngle) =>
             updateActive({
-              verticalAngle: v2,
+              verticalAngle,
             })
           }
         />
@@ -422,9 +422,9 @@ const LightingPanel = ({
         max={POWER_RANGE.max}
         step={POWER_STEP}
         formatValue={formatIntensity}
-        onChange={(v2) =>
+        onChange={(intensity) =>
           updateActive({
-            intensity: v2,
+            intensity,
           })
         }
       />
@@ -451,9 +451,9 @@ const LightingPanel = ({
           options={lightTypeOpts}
           value={activeLight.type}
           dataActionUiIdPrefix="canvas.relight.light-type"
-          onChange={(v2) =>
+          onChange={(lightType) =>
             updateActive({
-              type: v2,
+              type: lightType,
             })
           }
         />
@@ -472,10 +472,10 @@ const RelightControlsPanel = ({
         translate={translate2}
         lights={state2.lights}
         activeLightId={state2.activeLightId}
-        onUpdateLight={(id2, updates) =>
+        onUpdateLight={(lightId, updates) =>
           dispatch2({
             type: "UPDATE_LIGHT",
-            id: id2,
+            id: lightId,
             updates,
           })
         }
@@ -658,11 +658,11 @@ const NEW_LIGHT_PRESET_ANGLES = [
   },
   // 第 3 盏:左上
 ];
-function makeNewLight(id2, slotIndex) {
+function makeNewLight(lightId, slotIndex) {
   const preset2 =
     NEW_LIGHT_PRESET_ANGLES[slotIndex] ?? NEW_LIGHT_PRESET_ANGLES[0];
   return {
-    id: id2,
+    id: lightId,
     type: "spotlight",
     intensity: 60,
     horizontalAngle: preset2.h,
@@ -691,13 +691,13 @@ function relightReducer(state2, action) {
         activeLightId: action.id,
       };
     case "UPDATE_LIGHT": {
-      const next2 = state2.lights.map((l2) =>
-        l2.id === action.id
+      const next2 = state2.lights.map((light) =>
+        light.id === action.id
           ? {
-              ...l2,
+              ...light,
               ...action.updates,
             }
-          : l2,
+          : light,
       );
       return {
         ...state2,
@@ -707,14 +707,14 @@ function relightReducer(state2, action) {
       };
     }
     case "UPDATE_LIGHTS_BATCH": {
-      const updateMap = new Map(action.updates.map((u4) => [u4.id, u4]));
-      const next2 = state2.lights.map((l2) => {
-        const u4 = updateMap.get(l2.id);
-        if (!u4) return l2;
+      const updateMap = new Map(action.updates.map((lightUpdate) => [lightUpdate.id, lightUpdate]));
+      const next2 = state2.lights.map((light) => {
+        const lightUpdate = updateMap.get(light.id);
+        if (!lightUpdate) return light;
         return {
-          ...l2,
-          horizontalAngle: u4.horizontalAngle,
-          verticalAngle: u4.verticalAngle,
+          ...light,
+          horizontalAngle: lightUpdate.horizontalAngle,
+          verticalAngle: lightUpdate.verticalAngle,
         };
       });
       return {
@@ -726,21 +726,21 @@ function relightReducer(state2, action) {
     }
     case "ADD_LIGHT": {
       if (state2.lights.length >= MAX_LIGHTS) return state2;
-      const id2 = `light${nextLightId++}`;
-      const newLight = makeNewLight(id2, state2.lights.length);
+      const lightId = `light${nextLightId++}`;
+      const newLight = makeNewLight(lightId, state2.lights.length);
       return {
         ...state2,
         lights: [...state2.lights, newLight],
-        activeLightId: id2,
+        activeLightId: lightId,
         panelMode: "custom",
         selectedPresetId: null,
       };
     }
     case "DELETE_LIGHT": {
       if (state2.lights.length <= 1) return state2;
-      const next2 = state2.lights.filter((l2) => l2.id !== action.id);
+      const next2 = state2.lights.filter((light) => light.id !== action.id);
       const activeStillThere = next2.some(
-        (l2) => l2.id === state2.activeLightId,
+        (light) => light.id === state2.activeLightId,
       );
       return {
         ...state2,
@@ -910,15 +910,15 @@ const STUDIOS = {
 };
 const finite = (value, fallback) => (Number.isFinite(value) ? value : fallback);
 function prepareLight(light) {
-  const az = (finite(light.horizontalAngle, 0) * Math.PI) / 180;
-  const el = (finite(light.verticalAngle, 0) * Math.PI) / 180;
+  const azimuthRadians = (finite(light.horizontalAngle, 0) * Math.PI) / 180;
+  const elevationRadians = (finite(light.verticalAngle, 0) * Math.PI) / 180;
   const soft = light.type === "rectAreaLight";
   const directional = light.type === "directionalLight";
   const angle = Math.PI / (soft ? 2.5 : 5.5);
   return {
-    x: Math.cos(el) * Math.sin(az),
-    y: Math.sin(el),
-    z: Math.cos(el) * Math.cos(az),
+    x: Math.cos(elevationRadians) * Math.sin(azimuthRadians),
+    y: Math.sin(elevationRadians),
+    z: Math.cos(elevationRadians) * Math.cos(azimuthRadians),
     directional,
     intensity:
       ((Math.max(0, Math.min(100, finite(light.intensity, 50))) / 100) * 3.2 +
@@ -961,113 +961,113 @@ function renderRelightPixels(params) {
   const maxX = Math.min(width - 1, Math.ceil(width / 2 + radius + 1));
   const minY = Math.max(0, Math.floor(height / 2 - radius - 1));
   const maxY = Math.min(height - 1, Math.ceil(height / 2 + radius + 1));
-  for (let y4 = minY; y4 <= maxY; y4++) {
-    for (let x2 = minX; x2 <= maxX; x2++) {
-      let px = x2 + 0.5 - width / 2;
-      let py = height / 2 - y4 - 0.5;
-      const distance2 = Math.hypot(px, py);
+  for (let pixelRow = minY; pixelRow <= maxY; pixelRow++) {
+    for (let pixelColumn = minX; pixelColumn <= maxX; pixelColumn++) {
+      let pixelOffsetX = pixelColumn + 0.5 - width / 2;
+      let pixelOffsetY = height / 2 - pixelRow - 0.5;
+      const distance2 = Math.hypot(pixelOffsetX, pixelOffsetY);
       if (distance2 > radius + Math.SQRT1_2) continue;
       let coverage = 1;
       if (distance2 > radius - Math.SQRT1_2) {
         let hits = 0;
-        for (let sy = 0; sy < 4; sy++) {
-          for (let sx = 0; sx < 4; sx++) {
-            const dx = px + (sx + 0.5) / 4 - 0.5;
-            const dy = py + (sy + 0.5) / 4 - 0.5;
-            if (dx * dx + dy * dy <= radiusSquared) hits++;
+        for (let sampleYIndex = 0; sampleYIndex < 4; sampleYIndex++) {
+          for (let sampleXIndex = 0; sampleXIndex < 4; sampleXIndex++) {
+            const sampleXOffset = pixelOffsetX + (sampleXIndex + 0.5) / 4 - 0.5;
+            const sampleYOffset = pixelOffsetY + (sampleYIndex + 0.5) / 4 - 0.5;
+            if (sampleXOffset * sampleXOffset + sampleYOffset * sampleYOffset <= radiusSquared) hits++;
           }
         }
         if (!hits) continue;
         coverage = hits / 16;
         if (distance2 >= radius) {
           const shrink = (radius * (1 - 1e-8)) / distance2;
-          px *= shrink;
-          py *= shrink;
+          pixelOffsetX *= shrink;
+          pixelOffsetY *= shrink;
         }
       }
-      const u4 = px * scale2;
-      const v2 = py * scale2;
-      const a2 = 1 + u4 * u4 + v2 * v2;
-      const t2 =
+      const viewPlaneX = pixelOffsetX * scale2;
+      const viewPlaneY = pixelOffsetY * scale2;
+      const rayDirectionLengthSquared = 1 + viewPlaneX * viewPlaneX + viewPlaneY * viewPlaneY;
+      const rayDistance =
         (CAMERA_Z -
           Math.sqrt(
-            Math.max(0, CAMERA_Z * CAMERA_Z - a2 * (CAMERA_Z * CAMERA_Z - 1)),
+            Math.max(0, CAMERA_Z * CAMERA_Z - rayDirectionLengthSquared * (CAMERA_Z * CAMERA_Z - 1)),
           )) /
-        a2;
-      const nx = t2 * u4;
-      const ny = t2 * v2;
-      const nz = CAMERA_Z - t2;
-      const invView = 1 / Math.sqrt(a2);
-      const vx = -u4 * invView;
-      const vy = -v2 * invView;
-      const vz = invView;
-      const nv = Math.max(1e-5, nx * vx + ny * vy + nz * vz);
-      const sky = ny * 0.5 + 0.5;
-      let r2 =
+        rayDirectionLengthSquared;
+      const surfaceNormalX = rayDistance * viewPlaneX;
+      const surfaceNormalY = rayDistance * viewPlaneY;
+      const surfaceNormalZ = CAMERA_Z - rayDistance;
+      const invView = 1 / Math.sqrt(rayDirectionLengthSquared);
+      const viewDirectionX = -viewPlaneX * invView;
+      const viewDirectionY = -viewPlaneY * invView;
+      const viewDirectionZ = invView;
+      const normalViewDot = Math.max(1e-5, surfaceNormalX * viewDirectionX + surfaceNormalY * viewDirectionY + surfaceNormalZ * viewDirectionZ);
+      const skyBlend = surfaceNormalY * 0.5 + 0.5;
+      let linearRed =
         (studio.ambient +
-          studio.hemisphere * (studio.ground[0] * (1 - sky) + sky)) /
+          studio.hemisphere * (studio.ground[0] * (1 - skyBlend) + skyBlend)) /
         Math.PI;
-      let g2 =
+      let linearGreen =
         (studio.ambient +
-          studio.hemisphere * (studio.ground[1] * (1 - sky) + sky)) /
+          studio.hemisphere * (studio.ground[1] * (1 - skyBlend) + skyBlend)) /
         Math.PI;
-      let b3 =
+      let linearBlue =
         (studio.ambient +
-          studio.hemisphere * (studio.ground[2] * (1 - sky) + sky)) /
+          studio.hemisphere * (studio.ground[2] * (1 - skyBlend) + skyBlend)) /
         Math.PI;
       for (const light of lights) {
-        let lx = light.x;
-        let ly = light.y;
-        let lz = light.z;
+        let lightDirectionX = light.x;
+        let lightDirectionY = light.y;
+        let lightDirectionZ = light.z;
         let attenuation = 1;
         if (!light.directional) {
-          lx = lx * LIGHT_DISTANCE - nx;
-          ly = ly * LIGHT_DISTANCE - ny;
-          lz = lz * LIGHT_DISTANCE - nz;
-          const inverseLength = 1 / Math.hypot(lx, ly, lz);
-          lx *= inverseLength;
-          ly *= inverseLength;
-          lz *= inverseLength;
-          const cosine = lx * light.x + ly * light.y + lz * light.z;
+          lightDirectionX = lightDirectionX * LIGHT_DISTANCE - surfaceNormalX;
+          lightDirectionY = lightDirectionY * LIGHT_DISTANCE - surfaceNormalY;
+          lightDirectionZ = lightDirectionZ * LIGHT_DISTANCE - surfaceNormalZ;
+          const inverseLength = 1 / Math.hypot(lightDirectionX, lightDirectionY, lightDirectionZ);
+          lightDirectionX *= inverseLength;
+          lightDirectionY *= inverseLength;
+          lightDirectionZ *= inverseLength;
+          const cosine = lightDirectionX * light.x + lightDirectionY * light.y + lightDirectionZ * light.z;
           const ramp = Math.max(
             0,
             Math.min(1, (cosine - light.cone) / (light.innerCone - light.cone)),
           );
           attenuation = ramp * ramp * (3 - 2 * ramp);
         }
-        const nl = Math.max(0, nx * lx + ny * ly + nz * lz);
-        if (nl <= 0 || attenuation === 0) continue;
-        const hx = lx + vx;
-        const hy = ly + vy;
-        const hz = lz + vz;
-        const invHalf = 1 / Math.hypot(hx, hy, hz);
-        const nh = Math.max(0, (nx * hx + ny * hy + nz * hz) * invHalf);
-        const vh = Math.max(
+        const normalLightDot = Math.max(0, surfaceNormalX * lightDirectionX + surfaceNormalY * lightDirectionY + surfaceNormalZ * lightDirectionZ);
+        if (normalLightDot <= 0 || attenuation === 0) continue;
+        const halfwayVectorX = lightDirectionX + viewDirectionX;
+        const halfwayVectorY = lightDirectionY + viewDirectionY;
+        const halfwayVectorZ = lightDirectionZ + viewDirectionZ;
+        const invHalf = 1 / Math.hypot(halfwayVectorX, halfwayVectorY, halfwayVectorZ);
+        const normalHalfwayDot = Math.max(0, (surfaceNormalX * halfwayVectorX + surfaceNormalY * halfwayVectorY + surfaceNormalZ * halfwayVectorZ) * invHalf);
+        const viewHalfwayDot = Math.max(
           0,
-          Math.min(1, (vx * hx + vy * hy + vz * hz) * invHalf),
+          Math.min(1, (viewDirectionX * halfwayVectorX + viewDirectionY * halfwayVectorY + viewDirectionZ * halfwayVectorZ) * invHalf),
         );
         const alphaSquared = 0.3 ** 4;
-        const denominator = nh * nh * (alphaSquared - 1) + 1;
+        const denominator = normalHalfwayDot * normalHalfwayDot * (alphaSquared - 1) + 1;
         const distribution =
           alphaSquared / (Math.PI * denominator * denominator);
         const visibility =
           0.5 /
-          (nl * Math.sqrt(nv * nv * (1 - alphaSquared) + alphaSquared) +
-            nv * Math.sqrt(nl * nl * (1 - alphaSquared) + alphaSquared));
-        const fresnel = 0.04 + 0.96 * (1 - vh) ** 5;
+          (normalLightDot * Math.sqrt(normalViewDot * normalViewDot * (1 - alphaSquared) + alphaSquared) +
+            normalViewDot * Math.sqrt(normalLightDot * normalLightDot * (1 - alphaSquared) + alphaSquared));
+        const fresnel = 0.04 + 0.96 * (1 - viewHalfwayDot) ** 5;
         const radiance =
           light.intensity *
           attenuation *
-          nl *
+          normalLightDot *
           (1 / Math.PI + distribution * visibility * fresnel);
-        r2 += light.color[0] * radiance;
-        g2 += light.color[1] * radiance;
-        b3 += light.color[2] * radiance;
+        linearRed += light.color[0] * radiance;
+        linearGreen += light.color[1] * radiance;
+        linearBlue += light.color[2] * radiance;
       }
-      const offset2 = (y4 * width + x2) * 4;
-      data2[offset2] = toSRGB(r2);
-      data2[offset2 + 1] = toSRGB(g2);
-      data2[offset2 + 2] = toSRGB(b3);
+      const offset2 = (pixelRow * width + pixelColumn) * 4;
+      data2[offset2] = toSRGB(linearRed);
+      data2[offset2 + 1] = toSRGB(linearGreen);
+      data2[offset2 + 2] = toSRGB(linearBlue);
       data2[offset2 + 3] = Math.round(coverage * 255);
     }
   }
@@ -1196,7 +1196,7 @@ export function RelightEditor({
   imageHeight,
   onClose,
 }) {
-  const { i18n, t: t2 } = useTranslation();
+  const { i18n, t } = useTranslation();
   const translate2 = reactExports.useMemo(
     () => (key2) => {
       const locale = i18n.resolvedLanguage?.startsWith("zh") ? "zh" : "en";
@@ -1356,7 +1356,7 @@ export function RelightEditor({
     !submitImg2Image ||
     !uploadFileToCdn;
   const totalCreditCost = RELIGHT_CREDIT_COST;
-  const estimatedCostLabel = t2("canvas.billing.estimatedCost", {
+  const estimatedCostLabel = t("canvas.billing.estimatedCost", {
     cost: totalCreditCost,
     defaultValue: "预计消耗 {{cost}} 积分",
   });
@@ -1395,10 +1395,10 @@ export function RelightEditor({
                     studioMode={state2.studioMode}
                     isInteractionDisabled={isSubmitting}
                     onBakeLights={handleBakeLights}
-                    onSelectActiveLight={(id2) =>
+                    onSelectActiveLight={(lightId) =>
                       dispatch2({
                         type: "SET_ACTIVE_LIGHT",
-                        id: id2,
+                        id: lightId,
                       })
                     }
                     onUploadClick={() => void handlePickImage()}
