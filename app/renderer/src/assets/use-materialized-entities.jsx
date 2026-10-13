@@ -61,7 +61,7 @@ async function appendAttachmentFromWorkspace(fetcher, entityId, input) {
   return readEnvelope(res, "attachment", "appended attachment");
 }
 export function useMaterializedEntities() {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const workspacePath = useCurrentWorkspace();
   return useQuery({
     queryKey: ["materialized-entities", workspacePath],
@@ -71,16 +71,16 @@ export function useMaterializedEntities() {
         const res = await gatewayFetch(
           API_PATHS.assetCenterWorkspaceRefs(workspacePath),
         );
-        const data2 = await res.json();
-        return data2.refs.map((workspaceRef) => ({
+        const data = await res.json();
+        return data.refs.map((workspaceRef) => ({
           entityId: workspaceRef.entityId,
           materializedAt: workspaceRef.materializedAt,
         }));
       } catch {}
       try {
         const matDir = `${workspacePath}/.hilo/materialized-entities`;
-        const entries2 = await platform2.fs.readDir(matDir);
-        return entries2
+        const entries = await platform.fs.readDir(matDir);
+        return entries
           .filter((entry) => entry.isDirectory || entry.isSymbolicLink)
           .map((entry) => ({
             entityId: entry.name,
@@ -100,29 +100,29 @@ export function trackAssetUse(props) {
   trackEvent(TRACK_EVENTS.ASSET_USE, props);
 }
 export function useDropEntityToCanvas() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ entityId, input }) =>
       dropEntityToCanvas(fetcher, entityId, input),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
     },
   });
 }
 export function useAppendAttachmentFromWorkspace() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ entityId, input }) =>
       appendAttachmentFromWorkspace(fetcher, entityId, input),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["materialized-entities"],
       });
     },

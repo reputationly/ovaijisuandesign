@@ -6,8 +6,8 @@ const HAILUO03_DEFAULT_FREE_IMAGE_COUNT = 5;
 
 const HAILUO03_MAX_DEFAULT_FREE_IMAGE_COUNT = 2;
 
-function normalizePricingKey(key2) {
-  return key2.trim().toLowerCase().replace(/_/g, "-");
+function normalizePricingKey(key) {
+  return key.trim().toLowerCase().replace(/_/g, "-");
 }
 
 function isHailuo03PricingId(modelId) {

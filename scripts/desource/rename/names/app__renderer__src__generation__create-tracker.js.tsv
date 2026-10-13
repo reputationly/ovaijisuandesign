@@ -2,3 +2,19 @@ key	old	new	依据
 x2@100:15	x2	centerX	该值是候选元素矩形的水平中心坐标。
 y4@101:15	y4	centerY	该值是候选元素矩形的垂直中心坐标。
 d2@102:15	d2	distanceFromCenter	该值是指针到候选元素中心的欧氏距离。
+root2@7:31	root2	root	去掉打包器防重名追加的后缀，恢复原名 root，即该绑定持有的值。
+doc2@8:9	doc2	doc	去掉打包器防重名追加的后缀，恢复原名 doc，即该绑定持有的值。
+view2@9:9	view2	view	去掉打包器防重名追加的后缀，恢复原名 view，即该绑定持有的值。
+win2@11:9	win2	win	去掉打包器防重名追加的后缀，恢复原名 win，即该绑定持有的值。
+entries2@12:9	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+active2@13:7	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+frame2@17:7	frame2	frame	去掉打包器防重名追加的后缀，恢复原名 frame，即该绑定持有的值。
+reset2@24:12	reset2	reset	去掉打包器防重名追加的后缀，恢复原名 reset，即该绑定持有的值。
+next2@18:21	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+distance2@91:9	distance2	distance	去掉打包器防重名追加的后缀，恢复原名 distance，即该绑定持有的值。
+element2@81:22	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+node2@82:13	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@95:16	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+element2@184:14	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+node2@184:24	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+siblings2@190:13	siblings2	siblings	去掉打包器防重名追加的后缀，恢复原名 siblings，即该绑定持有的值。

@@ -1,3 +1,4 @@
 key	old	new	依据
 m3@84:37	m3	videoPricingModel	该值是按模型标识从视频定价列表中找到的定价记录。
 c3@86:14	c3	videoCost	该值是当前模型的一条视频费用配置记录。
+key2@9:30	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。

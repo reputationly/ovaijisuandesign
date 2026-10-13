@@ -19,13 +19,13 @@ import { TooltipContent } from "../infra/dialog-content.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
 import { useAttachmentFaceNoticeGate } from "../chat/use-attachment-face-notice-gate.jsx";
 
-export const ChatToolbar = reactExports.memo(function ChatToolbar2({
+export const ChatToolbar = reactExports.memo(function ChatToolbar({
   addFromLocal,
   attachmentAccept,
   uploading,
   interactionLocked = false,
   busy,
-  running: running2,
+  running,
   triggerSlash,
   skillTriggerRef,
   selectedModelId,
@@ -44,7 +44,7 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
   const modelButtonRef = reactExports.useRef(null);
   const [modelPickerOpen, setModelPickerOpen] = reactExports.useState(false);
   const { data: mediaModels } = useMediaModels();
-  const controlsLocked = busy || running2 || interactionLocked;
+  const controlsLocked = busy || running || interactionLocked;
   const modelSelectorVisible = showModelSelector && !hideMediaModelSelector;
   const attachmentOnly = !modelSelectorVisible && !showSkillSelector;
   reactExports.useEffect(() => {
@@ -52,9 +52,9 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
   }, [actionsCompact, controlsLocked]);
   const handleFileChange = reactExports.useCallback(
     (changeEvent) => {
-      const selected2 = changeEvent.target.files;
-      if (selected2 && selected2.length > 0) {
-        addFromLocal(selected2);
+      const selected = changeEvent.target.files;
+      if (selected && selected.length > 0) {
+        addFromLocal(selected);
       }
       changeEvent.target.value = "";
     },
@@ -78,9 +78,9 @@ export const ChatToolbar = reactExports.memo(function ChatToolbar2({
     setModelPickerOpen((isModelPickerOpen) => !isModelPickerOpen);
   }, [controlsLocked]);
   const handleModelCommit = reactExports.useCallback(
-    (next2, rememberForNewChats) => {
+    (next, rememberForNewChats) => {
       if (controlsLocked) return;
-      onModelSelectionChange(next2, rememberForNewChats);
+      onModelSelectionChange(next, rememberForNewChats);
     },
     [controlsLocked, onModelSelectionChange],
   );

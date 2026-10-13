@@ -31,15 +31,15 @@ import {
 function createHeicPreviewObjectUrlFromFile(file) {
   return file
     .arrayBuffer()
-    .then((data2) => createHeicPreviewObjectUrl(file.name, data2));
+    .then((data) => createHeicPreviewObjectUrl(file.name, data));
 }
 
 function arePendingAttachmentsEqual(left, right) {
   if (left === right) return true;
-  const keys2 = Object.keys(left);
+  const keys = Object.keys(left);
   return (
-    keys2.length === Object.keys(right).length &&
-    keys2.every((key2) => left[key2] === right[key2])
+    keys.length === Object.keys(right).length &&
+    keys.every((key) => left[key] === right[key])
   );
 }
 
@@ -58,18 +58,18 @@ function isPreviewableFileType(fileType) {
 }
 
 class UploadRequestError extends Error {
-  constructor(message2, status, code2) {
-    super(message2);
+  constructor(message, status, code) {
+    super(message);
     this.status = status;
-    this.code = code2;
+    this.code = code;
     this.name = "UploadRequestError";
   }
 }
 
 function uploadCommitErrorCode(value) {
   if (!value || typeof value !== "object") return void 0;
-  const code2 = value.error_code;
-  return typeof code2 === "string" ? code2 : void 0;
+  const code = value.error_code;
+  return typeof code === "string" ? code : void 0;
 }
 
 function reportUnsupportedUploadCommitFilesystem(fileCount) {
@@ -84,12 +84,12 @@ function reportUnsupportedUploadCommitFilesystem(fileCount) {
 
 function stagedUploadResponse(value) {
   if (!value || typeof value !== "object") return null;
-  const record2 = value;
-  if (typeof record2.relative !== "string" || record2.relative.length === 0)
+  const record = value;
+  if (typeof record.relative !== "string" || record.relative.length === 0)
     return null;
-  if (record2.staged !== true) return null;
+  if (record.staged !== true) return null;
   return {
-    relative: record2.relative,
+    relative: record.relative,
     staged: true,
   };
 }
@@ -101,51 +101,51 @@ function uploadCommitResponse(value, expectedPaths) {
     return null;
   const mappings = committed.flatMap((entry) => {
     if (!entry || typeof entry !== "object") return [];
-    const record2 = entry;
-    return typeof record2.from === "string" &&
-      record2.from.length > 0 &&
-      typeof record2.to === "string" &&
-      record2.to.length > 0
+    const record = entry;
+    return typeof record.from === "string" &&
+      record.from.length > 0 &&
+      typeof record.to === "string" &&
+      record.to.length > 0
       ? [
           {
-            from: record2.from,
-            to: record2.to,
+            from: record.from,
+            to: record.to,
           },
         ]
       : [];
   });
   if (mappings.length !== expectedPaths.length) return null;
   const expected = new Set(expectedPaths);
-  const actual = new Set(mappings.map(({ from: from2 }) => from2));
+  const actual = new Set(mappings.map(({ from }) => from));
   if (
     actual.size !== expected.size ||
-    [...expected].some((path2) => !actual.has(path2))
+    [...expected].some((path) => !actual.has(path))
   )
     return null;
   const committedPaths = new Set(mappings.map(({ to }) => to));
   const rawRefs = value.attachment_refs;
   const attachmentRefs = [];
   if (Array.isArray(rawRefs)) {
-    const seen2 = new Set();
+    const seen = new Set();
     for (const entry of rawRefs) {
       if (!entry || typeof entry !== "object") continue;
-      const record2 = entry;
+      const record = entry;
       if (
-        typeof record2.path !== "string" ||
-        !committedPaths.has(record2.path) ||
-        record2.attachment_source !== "asset_vault" ||
-        typeof record2.attachment_id !== "string" ||
-        record2.attachment_id.length === 0
+        typeof record.path !== "string" ||
+        !committedPaths.has(record.path) ||
+        record.attachment_source !== "asset_vault" ||
+        typeof record.attachment_id !== "string" ||
+        record.attachment_id.length === 0
       ) {
         continue;
       }
-      const key2 = `${record2.path}:${record2.attachment_id}`;
-      if (seen2.has(key2)) continue;
-      seen2.add(key2);
+      const key = `${record.path}:${record.attachment_id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
       attachmentRefs.push({
-        path: record2.path,
+        path: record.path,
         attachment_source: "asset_vault",
-        attachment_id: record2.attachment_id,
+        attachment_id: record.attachment_id,
       });
     }
   }
@@ -168,10 +168,10 @@ async function stableUploadCommitOperationId(paths) {
   ).slice(0, 16);
   digest[6] = ((digest[6] ?? 0) & 15) | 80;
   digest[8] = ((digest[8] ?? 0) & 63) | 128;
-  const hex2 = [...digest]
+  const hex = [...digest]
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
-  return `${hex2.slice(0, 8)}-${hex2.slice(8, 12)}-${hex2.slice(12, 16)}-${hex2.slice(16, 20)}-${hex2.slice(20)}`;
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 const UPLOAD_OWNERSHIP_REQUEST_TIMEOUT_MS = 5e3;
@@ -181,9 +181,9 @@ export function useUpload(options) {
   const maxAttachments = options?.maxAttachments ?? MAX_ATTACHMENTS;
   const attachmentAccept = options?.attachmentAccept;
   const replacementAccept = options?.replacementAccept;
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const gatewayScopeKey = useCurrentWorkspace() || "app";
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const [attachments, setAttachments] = reactExports.useState([]);
   const [replacingIds, setReplacingIds] = reactExports.useState(new Set());
   const replacementLocksRef = reactExports.useRef(new Set());
@@ -221,13 +221,13 @@ export function useUpload(options) {
   );
   onAttachmentsChangeRef.current = options?.onAttachmentsChange;
   const guardCommittedOwnership = reactExports.useCallback(
-    (next2, options2) => {
+    (next, options) => {
       const nextById = new Map(
-        next2.map((attachment) => [attachment.id, attachment]),
+        next.map((attachment) => [attachment.id, attachment]),
       );
       const blocked = attachmentsRef.current.filter((attachment) => {
         const operationId = attachment.commitOperationId;
-        if (!operationId || options2?.releaseOperationIds?.has(operationId))
+        if (!operationId || options?.releaseOperationIds?.has(operationId))
           return false;
         const replacement = nextById.get(attachment.id);
         return (
@@ -243,41 +243,41 @@ export function useUpload(options) {
     [],
   );
   const syncAttachments = reactExports.useCallback(
-    (next2, options2) => {
-      if (!guardCommittedOwnership(next2, options2)) return false;
+    (next, options) => {
+      if (!guardCommittedOwnership(next, options)) return false;
       attachmentRevisionRef.current += 1;
       const previousById = new Map(
         attachmentsRef.current.map((item) => [item.id, item]),
       );
       attachmentVersionsRef.current = new Map(
-        next2.map((item) => {
-          const previous2 = previousById.get(item.id);
-          const version2 =
-            previous2 && arePendingAttachmentsEqual(previous2, item)
+        next.map((item) => {
+          const previous = previousById.get(item.id);
+          const version =
+            previous && arePendingAttachmentsEqual(previous, item)
               ? (attachmentVersionsRef.current.get(item.id) ??
                 attachmentRevisionRef.current)
               : attachmentRevisionRef.current;
-          return [item.id, version2];
+          return [item.id, version];
         }),
       );
-      attachmentsRef.current = next2;
-      setAttachments(next2);
-      if (options2?.notifyParent !== false)
-        onAttachmentsChangeRef.current?.(next2);
+      attachmentsRef.current = next;
+      setAttachments(next);
+      if (options?.notifyParent !== false)
+        onAttachmentsChangeRef.current?.(next);
       return true;
     },
     [guardCommittedOwnership],
   );
   const updateAttachments = reactExports.useCallback(
-    (updater, options2) => {
-      const next2 = updater(attachmentsRef.current);
-      return syncAttachments(next2, options2);
+    (updater, options) => {
+      const next = updater(attachmentsRef.current);
+      return syncAttachments(next, options);
     },
     [syncAttachments],
   );
   const replaceAttachments = reactExports.useCallback(
-    (next2) =>
-      syncAttachments([...next2], {
+    (next) =>
+      syncAttachments([...next], {
         notifyParent: false,
       }),
     [syncAttachments],
@@ -285,8 +285,8 @@ export function useUpload(options) {
   reactExports.useEffect(() => {
     const urls = objectUrlsRef.current;
     return () => {
-      for (const url2 of urls) {
-        URL.revokeObjectURL(url2);
+      for (const url of urls) {
+        URL.revokeObjectURL(url);
       }
       urls.clear();
     };
@@ -295,7 +295,7 @@ export function useUpload(options) {
     async (paths) => {
       if (paths.length === 0) return;
       try {
-        await gatewayFetch2(API_PATHS.uploadStagingDelete, {
+        await gatewayFetch(API_PATHS.uploadStagingDelete, {
           method: "POST",
           timeoutMs: UPLOAD_OWNERSHIP_REQUEST_TIMEOUT_MS,
           headers: {
@@ -307,7 +307,7 @@ export function useUpload(options) {
         });
       } catch {}
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const deleteStagedFiles = reactExports.useCallback(
     (paths) => {
@@ -319,7 +319,7 @@ export function useUpload(options) {
     async (operationId, paths) => {
       if (paths.length === 0) return "aborted";
       try {
-        const response = await gatewayFetch2(API_PATHS.uploadCommitAbort, {
+        const response = await gatewayFetch(API_PATHS.uploadCommitAbort, {
           method: "POST",
           timeoutMs: UPLOAD_OWNERSHIP_REQUEST_TIMEOUT_MS,
           headers: {
@@ -343,7 +343,7 @@ export function useUpload(options) {
         return "pending";
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const requestCommittedFileAbort = reactExports.useCallback(
     async (attachmentsToAbort) => {
@@ -374,7 +374,7 @@ export function useUpload(options) {
   const acknowledgeUploadCommit = reactExports.useCallback(
     async (operationId) => {
       try {
-        const response = await gatewayFetch2(API_PATHS.uploadCommitFinalize, {
+        const response = await gatewayFetch(API_PATHS.uploadCommitFinalize, {
           method: "POST",
           timeoutMs: UPLOAD_OWNERSHIP_REQUEST_TIMEOUT_MS,
           headers: {
@@ -394,7 +394,7 @@ export function useUpload(options) {
         return status === 404 || status === 410 ? "terminal" : "retry";
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const releaseUploadCommitOwnership = reactExports.useCallback(
     (operationIds) => {
@@ -431,11 +431,11 @@ export function useUpload(options) {
     [updateAttachments],
   );
   const flushUploadFinalizeOutbox = reactExports.useCallback(async () => {
-    const pending2 = readUploadFinalizeOutbox().filter(
-      (record2) => record2.scopeKey === gatewayScopeKey,
+    const pending = readUploadFinalizeOutbox().filter(
+      (record) => record.scopeKey === gatewayScopeKey,
     );
     const acknowledged = await Promise.all(
-      pending2.map(async ({ operationId }) => {
+      pending.map(async ({ operationId }) => {
         const outcome = await acknowledgeUploadCommit(operationId);
         if (outcome !== "retry") {
           removeUploadFinalizeOperation(gatewayScopeKey, operationId);
@@ -481,8 +481,8 @@ export function useUpload(options) {
   reactExports.useEffect(() => {
     const prepared = preparedSourceAttachmentsRef.current;
     return () => {
-      const paths = Array.from(prepared.values()).flatMap((batch2) =>
-        batch2.staged.flatMap((attachment) => attachment.relativePath ?? []),
+      const paths = Array.from(prepared.values()).flatMap((batch) =>
+        batch.staged.flatMap((attachment) => attachment.relativePath ?? []),
       );
       prepared.clear();
       void requestStagedFileDeletion(paths);
@@ -559,15 +559,15 @@ export function useUpload(options) {
     [applyConvertedPreviewUrl],
   );
   const prepareHeicPreviewFromUrl = reactExports.useCallback(
-    async (filename, url2, attachmentId) => {
+    async (filename, url, attachmentId) => {
       const previewUrl = await createHeicPreviewObjectUrlFromUrl(
         filename,
-        url2,
-        gatewayFetch2,
+        url,
+        gatewayFetch,
       );
       if (previewUrl) applyConvertedPreviewUrl(attachmentId, previewUrl);
     },
-    [applyConvertedPreviewUrl, gatewayFetch2],
+    [applyConvertedPreviewUrl, gatewayFetch],
   );
   const uploadFile = reactExports.useCallback(
     async (file, attachmentId) => {
@@ -585,33 +585,33 @@ export function useUpload(options) {
         file_type: detectFileType(file.name),
       });
       try {
-        const resp = await gatewayFetch2(API_PATHS.upload, {
+        const resp = await gatewayFetch(API_PATHS.upload, {
           method: "POST",
           body: form,
         });
         if (resp.ok === false) {
-          let message2 = resp.statusText || "Upload failed";
+          let message = resp.statusText || "Upload failed";
           let errorCode;
           try {
-            const body2 = await resp.json();
+            const body = await resp.json();
             const detail =
-              typeof body2.message === "string" ? body2.message : body2.error;
-            if (typeof detail === "string" && detail.trim()) message2 = detail;
-            const code2 =
-              typeof body2.error_code === "string"
-                ? body2.error_code
-                : body2.code;
-            errorCode = typeof code2 === "string" ? code2 : void 0;
+              typeof body.message === "string" ? body.message : body.error;
+            if (typeof detail === "string" && detail.trim()) message = detail;
+            const code =
+              typeof body.error_code === "string"
+                ? body.error_code
+                : body.code;
+            errorCode = typeof code === "string" ? code : void 0;
           } catch {}
-          throw new UploadRequestError(message2, resp.status, errorCode);
+          throw new UploadRequestError(message, resp.status, errorCode);
         }
-        const data2 = await resp.json();
+        const data = await resp.json();
         const stillAttached = attachmentsRef.current.some(
           (attachment) => attachment.id === attachmentId,
         );
         if (!stillAttached) {
-          if (data2.staged && data2.relative)
-            deleteStagedFiles([data2.relative]);
+          if (data.staged && data.relative)
+            deleteStagedFiles([data.relative]);
           return;
         }
         updateAttachments((prev) =>
@@ -619,22 +619,22 @@ export function useUpload(options) {
             attachment.id === attachmentId
               ? {
                   ...attachment,
-                  relativePath: data2.relative,
-                  ...(data2.id
+                  relativePath: data.relative,
+                  ...(data.id
                     ? {
-                        attachmentId: data2.id,
+                        attachmentId: data.id,
                       }
                     : {}),
                   status: "done",
-                  staged: data2.staged ?? false,
+                  staged: data.staged ?? false,
                 }
               : attachment,
           ),
         );
-        if (data2.enrollError) {
+        if (data.enrollError) {
           dedupedToast.warning(
             translate("assets.uploadEnrollFailed", {
-              error: data2.enrollError,
+              error: data.enrollError,
             }),
           );
         }
@@ -645,10 +645,10 @@ export function useUpload(options) {
           duration_ms: Date.now() - startedAt,
         });
       } catch (err) {
-        const errorMessage2 =
+        const errorMessage =
           err instanceof Error ? err.message : "Upload failed";
         const errorKind = classifyUploadError(
-          errorMessage2,
+          errorMessage,
           err instanceof UploadRequestError ? err.status : void 0,
           err instanceof UploadRequestError ? err.code : void 0,
         );
@@ -685,7 +685,7 @@ export function useUpload(options) {
     },
     [
       deleteStagedFiles,
-      gatewayFetch2,
+      gatewayFetch,
       options?.useDefaultDir,
       translate,
       updateAttachments,
@@ -704,7 +704,7 @@ export function useUpload(options) {
         file_type: fileType,
       });
       try {
-        const response = await gatewayFetch2(API_PATHS.upload, {
+        const response = await gatewayFetch(API_PATHS.upload, {
           method: "POST",
           body: form,
         });
@@ -735,10 +735,10 @@ export function useUpload(options) {
           staged: true,
         };
       } catch (error) {
-        const errorMessage2 =
+        const errorMessage =
           error instanceof Error ? error.message : "Upload failed";
         const errorKind = classifyUploadError(
-          errorMessage2,
+          errorMessage,
           error instanceof UploadRequestError ? error.status : void 0,
           error instanceof UploadRequestError ? error.code : void 0,
         );
@@ -754,54 +754,54 @@ export function useUpload(options) {
         throw error;
       }
     },
-    [gatewayFetch2],
+    [gatewayFetch],
   );
   const applyEditedFile = reactExports.useCallback(
-    async (attachmentId, file, options2) => {
-      const version2 = attachmentVersionsRef.current.get(attachmentId);
-      const isValid2 = () =>
-        !options2.signal.aborted &&
-        version2 !== void 0 &&
-        version2 === attachmentVersionsRef.current.get(attachmentId) &&
-        options2.canApply() &&
+    async (attachmentId, file, options) => {
+      const version = attachmentVersionsRef.current.get(attachmentId);
+      const isValid = () =>
+        !options.signal.aborted &&
+        version !== void 0 &&
+        version === attachmentVersionsRef.current.get(attachmentId) &&
+        options.canApply() &&
         attachmentsRef.current.some(
           (attachment) =>
             attachment.id === attachmentId && isFileAttachment(attachment),
         ) &&
-        (options2.mode === "replace" ||
+        (options.mode === "replace" ||
           attachmentsRef.current.length < maxAttachments);
-      if (!isValid2()) return false;
+      if (!isValid()) return false;
       const accept =
-        options2.mode === "replace" ? replacementAccept : attachmentAccept;
+        options.mode === "replace" ? replacementAccept : attachmentAccept;
       if (!fileMatchesAccept(file, accept))
         throw new UploadRequestError("Unsupported edited file type");
       const staged = await stageSourceFile(file);
       let published = false;
       let previewUrl = "";
       try {
-        if (!isValid2()) return false;
-        const previous2 = attachmentsRef.current;
-        const index2 = previous2.findIndex(
+        if (!isValid()) return false;
+        const previous = attachmentsRef.current;
+        const index = previous.findIndex(
           (attachment) => attachment.id === attachmentId,
         );
-        const original = previous2[index2];
+        const original = previous[index];
         previewUrl = URL.createObjectURL(file);
         const edited = {
           ...staged,
           previewUrl,
-          ...(options2.mode === "replace" && original.source
+          ...(options.mode === "replace" && original.source
             ? {
                 source: original.source,
               }
             : {}),
         };
-        const next2 = [...previous2];
-        if (options2.mode === "replace") next2[index2] = edited;
-        else next2.push(edited);
-        if (!syncAttachments(next2)) return false;
+        const next = [...previous];
+        if (options.mode === "replace") next[index] = edited;
+        else next.push(edited);
+        if (!syncAttachments(next)) return false;
         published = true;
         objectUrlsRef.current.add(previewUrl);
-        if (options2.mode === "replace") {
+        if (options.mode === "replace") {
           if (original.previewUrl.startsWith("blob:")) {
             URL.revokeObjectURL(original.previewUrl);
             objectUrlsRef.current.delete(original.previewUrl);
@@ -852,7 +852,7 @@ export function useUpload(options) {
       );
       if (
         new Set(incomingKeys).size !== incomingKeys.length ||
-        incomingKeys.some((key2) => existingKeys.has(key2))
+        incomingKeys.some((key) => existingKeys.has(key))
       ) {
         return {
           status: "duplicate",
@@ -870,10 +870,10 @@ export function useUpload(options) {
           status: "upload-failed",
         };
       }
-      const batch2 = {
+      const batch = {
         id: `prepared-${genId()}`,
       };
-      preparedSourceAttachmentsRef.current.set(batch2.id, {
+      preparedSourceAttachmentsRef.current.set(batch.id, {
         baseRevision,
         files: [...files],
         source,
@@ -881,17 +881,17 @@ export function useUpload(options) {
       });
       return {
         status: "ready",
-        batch: batch2,
+        batch,
       };
     },
     [maxAttachments, requestStagedFileDeletion, stageSourceFile],
   );
   const commitPreparedSourceAttachments = reactExports.useCallback(
-    (batch2, commitOptions) => {
-      const prepared = preparedSourceAttachmentsRef.current.get(batch2.id);
+    (batch, commitOptions) => {
+      const prepared = preparedSourceAttachmentsRef.current.get(batch.id);
       if (!prepared) return false;
       const rejectPrepared = () => {
-        preparedSourceAttachmentsRef.current.delete(batch2.id);
+        preparedSourceAttachmentsRef.current.delete(batch.id);
         deleteStagedFiles(
           prepared.staged.flatMap(
             (attachment) => attachment.relativePath ?? [],
@@ -923,8 +923,8 @@ export function useUpload(options) {
       ];
       if (!guardCommittedOwnership(ownershipCandidate)) return false;
       const nextSourceAttachments = prepared.staged.map(
-        (attachment, index2) => {
-          const file = prepared.files[index2];
+        (attachment, index) => {
+          const file = prepared.files[index];
           const shouldConvertHeic =
             attachment.fileType === "image" && isHeicFilename(file.name);
           let previewUrl = "";
@@ -970,15 +970,15 @@ export function useUpload(options) {
         }
         return false;
       }
-      preparedSourceAttachmentsRef.current.delete(batch2.id);
+      preparedSourceAttachmentsRef.current.delete(batch.id);
       for (const attachment of dropping) {
         if (attachment.previewUrl.startsWith("blob:")) {
           URL.revokeObjectURL(attachment.previewUrl);
           objectUrlsRef.current.delete(attachment.previewUrl);
         }
       }
-      for (const [index2, attachment] of nextSourceAttachments.entries()) {
-        const file = prepared.files[index2];
+      for (const [index, attachment] of nextSourceAttachments.entries()) {
+        const file = prepared.files[index];
         if (attachment.fileType === "image" && isHeicFilename(file.name)) {
           void prepareHeicPreviewFromFile(file, attachment.id);
         }
@@ -995,10 +995,10 @@ export function useUpload(options) {
     ],
   );
   const rollbackPreparedSourceAttachments = reactExports.useCallback(
-    async (batch2) => {
-      const prepared = preparedSourceAttachmentsRef.current.get(batch2.id);
+    async (batch) => {
+      const prepared = preparedSourceAttachmentsRef.current.get(batch.id);
       if (!prepared) return;
-      preparedSourceAttachmentsRef.current.delete(batch2.id);
+      preparedSourceAttachmentsRef.current.delete(batch.id);
       await requestStagedFileDeletion(
         prepared.staged.flatMap((attachment) => attachment.relativePath ?? []),
       );
@@ -1098,7 +1098,7 @@ export function useUpload(options) {
     ],
   );
   const replaceAttachment = reactExports.useCallback(
-    async (attachmentId, input, options2) => {
+    async (attachmentId, input, options) => {
       const target = attachmentsRef.current.find(
         (item) => item.id === attachmentId,
       );
@@ -1109,16 +1109,16 @@ export function useUpload(options) {
         replacementLocksRef.current.has(attachmentId)
       )
         return false;
-      const version2 = attachmentVersionsRef.current.get(attachmentId);
+      const version = attachmentVersionsRef.current.get(attachmentId);
       const isLocal = input instanceof File;
       const filename = isLocal ? input.name : input.filename;
-      const valid2 = () =>
+      const valid = () =>
         mountedRef.current &&
         replacementScopeRef.current.gatewayScopeKey === gatewayScopeKey &&
         replacementScopeRef.current.replacementAccept === replacementAccept &&
-        version2 === attachmentVersionsRef.current.get(attachmentId) &&
-        (options2?.canApply?.() ?? true);
-      if (!valid2()) return false;
+        version === attachmentVersionsRef.current.get(attachmentId) &&
+        (options?.canApply?.() ?? true);
+      if (!valid()) return false;
       if (
         !fileMatchesAccept(
           isLocal
@@ -1168,10 +1168,10 @@ export function useUpload(options) {
               fileType,
               previewUrl:
                 isPreviewableFileType(fileType) && input.relativePath
-                  ? (gatewayUrl2(API_PATHS.serveFile(input.relativePath)) ?? "")
+                  ? (gatewayUrl(API_PATHS.serveFile(input.relativePath)) ?? "")
                   : "",
             };
-        if (!valid2() || duplicate()) return false;
+        if (!valid() || duplicate()) return false;
         const shouldConvertHeic =
           fileType === "image" && isHeicFilename(filename);
         if (isLocal && isPreviewableFileType(fileType) && !shouldConvertHeic)
@@ -1181,14 +1181,14 @@ export function useUpload(options) {
           source: target.source,
           chatContextOnly: target.chatContextOnly,
         };
-        const next2 = attachmentsRef.current.map((item) =>
+        const next = attachmentsRef.current.map((item) =>
           item.id === attachmentId ? replacement : item,
         );
-        if (!syncAttachments(next2)) return false;
+        if (!syncAttachments(next)) return false;
         published = true;
         if (replacement.previewUrl.startsWith("blob:"))
           objectUrlsRef.current.add(replacement.previewUrl);
-        options2?.onReplaced?.(target, replacement);
+        options?.onReplaced?.(target, replacement);
         if (target.previewUrl.startsWith("blob:")) {
           URL.revokeObjectURL(target.previewUrl);
           objectUrlsRef.current.delete(target.previewUrl);
@@ -1196,7 +1196,7 @@ export function useUpload(options) {
         if (
           target.staged &&
           target.relativePath &&
-          !next2.some((item) => item.relativePath === target.relativePath)
+          !next.some((item) => item.relativePath === target.relativePath)
         )
           deleteStagedFiles([target.relativePath]);
         if (shouldConvertHeic) {
@@ -1228,7 +1228,7 @@ export function useUpload(options) {
       gatewayScopeKey,
       replacementAccept,
       stageSourceFile,
-      gatewayUrl2,
+      gatewayUrl,
       syncAttachments,
       deleteStagedFiles,
       requestStagedFileDeletion,
@@ -1238,18 +1238,18 @@ export function useUpload(options) {
     ],
   );
   const replaceFromLocal = reactExports.useCallback(
-    (localAttachmentId, file, options2) => replaceAttachment(localAttachmentId, file, options2),
+    (localAttachmentId, file, options) => replaceAttachment(localAttachmentId, file, options),
     [replaceAttachment],
   );
   const replaceFromAsset = reactExports.useCallback(
-    (localAttachmentId, asset, options2) => replaceAttachment(localAttachmentId, asset, options2),
+    (localAttachmentId, asset, options) => replaceAttachment(localAttachmentId, asset, options),
     [replaceAttachment],
   );
   const addFromAssetPath = reactExports.useCallback(
     (relativePath, filename, nodeId, attachmentId) => {
       const prev = attachmentsRef.current;
-      const markToast = (key2) => {
-        pendingToastsRef.current[key2] = true;
+      const markToast = (key) => {
+        pendingToastsRef.current[key] = true;
         if (!pendingToastsRef.current.scheduled) {
           pendingToastsRef.current.scheduled = true;
           queueMicrotask(() => {
@@ -1293,8 +1293,8 @@ export function useUpload(options) {
           (nodeId && !existing.nodeId) ||
           (attachmentId && !existing.attachmentId)
         ) {
-          const updated2 = [...prev];
-          updated2[existingIdx] = {
+          const updated = [...prev];
+          updated[existingIdx] = {
             ...existing,
             ...(nodeId
               ? {
@@ -1307,8 +1307,8 @@ export function useUpload(options) {
                 }
               : {}),
           };
-          attachmentsRef.current = updated2;
-          setAttachments(updated2);
+          attachmentsRef.current = updated;
+          setAttachments(updated);
           return true;
         }
         markToast("duplicate");
@@ -1320,7 +1320,7 @@ export function useUpload(options) {
       }
       const fileType = detectFileType(filename);
       const previewUrl = isPreviewableFileType(fileType)
-        ? (gatewayUrl2(API_PATHS.serveFile(relativePath)) ?? "")
+        ? (gatewayUrl(API_PATHS.serveFile(relativePath)) ?? "")
         : "";
       const localAttachmentId = genId();
       const updated = [
@@ -1346,7 +1346,7 @@ export function useUpload(options) {
     },
     [
       attachmentAccept,
-      gatewayUrl2,
+      gatewayUrl,
       maxAttachments,
       prepareHeicPreviewFromUrl,
       translate,
@@ -1363,10 +1363,10 @@ export function useUpload(options) {
       if (!hasMatch) return;
       const fileType = detectFileType(newFilename);
       const nextPreview = isPreviewableFileType(fileType)
-        ? (gatewayUrl2(API_PATHS.serveFile(newPath)) ?? "")
+        ? (gatewayUrl(API_PATHS.serveFile(newPath)) ?? "")
         : "";
-      updateAttachments((list2) =>
-        list2.map((attachment) => {
+      updateAttachments((list) =>
+        list.map((attachment) => {
           if (!isFileAttachment(attachment) || attachment.staged || attachment.relativePath !== oldPath)
             return attachment;
           return {
@@ -1380,10 +1380,10 @@ export function useUpload(options) {
         }),
       );
     },
-    [gatewayUrl2, updateAttachments],
+    [gatewayUrl, updateAttachments],
   );
   const addFromPluginNode = reactExports.useCallback(
-    (nodeId, pluginId, name2) => {
+    (nodeId, pluginId, pluginName) => {
       const prev = attachmentsRef.current;
       if (attachmentAccept) {
         dedupedToast.warning(uploadErrorMessage(translate, "unsupportedType"));
@@ -1401,12 +1401,12 @@ export function useUpload(options) {
         );
         return;
       }
-      const displayName2 = name2?.trim() || pluginId;
+      const displayName = pluginName?.trim() || pluginId;
       syncAttachments([
         ...prev,
         {
           id: genId(),
-          filename: displayName2,
+          filename: displayName,
           relativePath: null,
           previewUrl: "",
           fileType: void 0,
@@ -1420,8 +1420,8 @@ export function useUpload(options) {
     },
     [attachmentAccept, maxAttachments, syncAttachments, translate],
   );
-  const remove2 = reactExports.useCallback(
-    (localAttachmentId, options2) => {
+  const remove = reactExports.useCallback(
+    (localAttachmentId, options) => {
       const target = attachmentsRef.current.find((attachment) => attachment.id === localAttachmentId);
       if (target?.commitOperationId) {
         void finalizeCommit([target.commitOperationId]);
@@ -1430,7 +1430,7 @@ export function useUpload(options) {
         URL.revokeObjectURL(target.previewUrl);
         objectUrlsRef.current.delete(target.previewUrl);
       }
-      if (target?.staged && target.relativePath && !options2?.preserveFile) {
+      if (target?.staged && target.relativePath && !options?.preserveFile) {
         deleteStagedFiles([target.relativePath]);
       }
       updateAttachments((prev) => prev.filter((attachment) => attachment.id !== localAttachmentId));
@@ -1439,10 +1439,10 @@ export function useUpload(options) {
   );
   const clear = reactExports.useCallback(
     (opts) => {
-      const filter2 = opts?.source;
+      const filter = opts?.source;
       const prev = attachmentsRef.current;
-      const matches2 = (attachment) => filter2 === void 0 || attachment.source === filter2;
-      const dropping = prev.filter(matches2);
+      const matches = (attachment) => filter === void 0 || attachment.source === filter;
+      const dropping = prev.filter(matches);
       const operationIds = dropping.flatMap(
         (attachment) => attachment.commitOperationId ?? [],
       );
@@ -1459,8 +1459,8 @@ export function useUpload(options) {
       if (stagedPaths.length > 0) {
         deleteStagedFiles(stagedPaths);
       }
-      updateAttachments((current2) =>
-        current2.filter((attachment) => !matches2(attachment)),
+      updateAttachments((current) =>
+        current.filter((attachment) => !matches(attachment)),
       );
     },
     [updateAttachments, deleteStagedFiles, finalizeCommit],
@@ -1562,7 +1562,7 @@ export function useUpload(options) {
     ).length;
     let resp;
     try {
-      resp = await gatewayFetch2(API_PATHS.uploadCommit, {
+      resp = await gatewayFetch(API_PATHS.uploadCommit, {
         method: "POST",
         // Commit hashes staged bytes before durable publication. Scale the
         // client deadline for legal large batches instead of timing out every
@@ -1602,11 +1602,11 @@ export function useUpload(options) {
       }
       throw new Error(`upload commit HTTP ${resp.status}`);
     }
-    const data2 = uploadCommitResponse(await resp.json(), allPaths);
-    if (!data2) throw new Error("invalid upload commit response");
-    const pathMap = new Map(data2.committed.map((committedPathMapping) => [committedPathMapping.from, committedPathMapping.to]));
+    const data = uploadCommitResponse(await resp.json(), allPaths);
+    if (!data) throw new Error("invalid upload commit response");
+    const pathMap = new Map(data.committed.map((committedPathMapping) => [committedPathMapping.from, committedPathMapping.to]));
     const attachmentIdByPath = new Map(
-      (data2.attachment_refs ?? []).map((ref) => [ref.path, ref.attachment_id]),
+      (data.attachment_refs ?? []).map((ref) => [ref.path, ref.attachment_id]),
     );
     const committedReady = ready.map((attachment) => {
       const committedPath = attachment.relativePath
@@ -1630,17 +1630,17 @@ export function useUpload(options) {
     if (attachmentRevisionRef.current !== attachmentRevision) {
       const abortOutcome = await requestUploadCommitAbort(
         operationId,
-        data2.committed.flatMap(({ from: from2, to }) =>
-          from2 !== to ? [to] : [],
+        data.committed.flatMap(({ from, to }) =>
+          from !== to ? [to] : [],
         ),
       );
       if (abortOutcome === "pending") {
-        updateAttachments((current2) => {
+        updateAttachments((current) => {
           const currentIds = new Set(
-            current2.map((attachment) => attachment.id),
+            current.map((attachment) => attachment.id),
           );
           return [
-            ...current2,
+            ...current,
             ...committedReady.filter(
               (attachment) => !currentIds.has(attachment.id),
             ),
@@ -1672,7 +1672,7 @@ export function useUpload(options) {
     );
     return {
       ...payloadFrom(committedReady),
-      committed: data2.committed,
+      committed: data.committed,
       commitOperationIds: [
         ...new Set(
           committedReady.flatMap(
@@ -1681,7 +1681,7 @@ export function useUpload(options) {
         ),
       ],
     };
-  }, [gatewayFetch2, requestUploadCommitAbort, updateAttachments]);
+  }, [gatewayFetch, requestUploadCommitAbort, updateAttachments]);
   const uploading =
     replacingIds.size > 0 ||
     attachments.some((attachment) => attachment.status === "uploading");
@@ -1696,7 +1696,7 @@ export function useUpload(options) {
     addFromAssetPath,
     renameAttachment,
     addFromPluginNode,
-    remove: remove2,
+    remove,
     clear,
     replaceAttachments,
     replaceSourceAttachmentPlaceholders,

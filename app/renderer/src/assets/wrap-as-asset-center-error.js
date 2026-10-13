@@ -8,29 +8,29 @@ import {
 import { assetCenterLog } from "../vendor-inline/vscode-base/graph.jsx";
 export const CANVAS_SURFACE_RECOVERY_MEASURE = "hilo:canvas:surface-recovery";
 export const FALLBACK_LOG_SERVICE = {
-  info: (message2) => console.info(message2),
-  warn: (message2) => console.warn(message2),
+  info: (message) => console.info(message),
+  warn: (message) => console.warn(message),
 };
-export function safeInfo(logService2, message2) {
+export function safeInfo(logService, message) {
   try {
-    logService2.info(message2);
+    logService.info(message);
   } catch {
-    FALLBACK_LOG_SERVICE.info(message2);
+    FALLBACK_LOG_SERVICE.info(message);
   }
 }
-export function safeWarn(logService2, message2) {
+export function safeWarn(logService, message) {
   try {
-    logService2.warn(message2);
+    logService.warn(message);
   } catch {
-    FALLBACK_LOG_SERVICE.warn(message2);
+    FALLBACK_LOG_SERVICE.warn(message);
   }
 }
-export function safeTrack(services2, eventName, properties2) {
+export function safeTrack(services, eventName, properties) {
   try {
-    services2.trackEvent(eventName, properties2);
+    services.trackEvent(eventName, properties);
   } catch (error) {
     safeWarn(
-      services2.logService,
+      services.logService,
       `[canvas-render] telemetry_failed ${error instanceof Error ? error.message : String(error)}`,
     );
   }
@@ -54,17 +54,17 @@ export const queryClient = new QueryClient({
 export function resolveSeenRevision(dismissed, markId) {
   if (!Array.isArray(dismissed)) return 0;
   const prefix = `${markId}@`;
-  let seen2 = 0;
+  let seen = 0;
   for (const entry of dismissed) {
     if (typeof entry !== "string") continue;
     if (entry === markId) {
-      seen2 = Math.max(seen2, 1);
+      seen = Math.max(seen, 1);
     } else if (entry.startsWith(prefix)) {
       const rev = Number(entry.slice(prefix.length));
-      if (Number.isInteger(rev)) seen2 = Math.max(seen2, rev);
+      if (Number.isInteger(rev)) seen = Math.max(seen, rev);
     }
   }
-  return seen2;
+  return seen;
 }
 export const HOME_INPUT_COACH_MARK_ID = "home-input-intro";
 export const HOME_INPUT_TOUR_REVISION = 3;
@@ -80,79 +80,79 @@ export async function readObject(res, label) {
   }
   return value;
 }
-export async function readEnvelope(res, key2, label, expected = "object") {
-  const data2 = await readObject(res, label);
-  const value = data2[key2];
+export async function readEnvelope(res, key, label, expected = "object") {
+  const data = await readObject(res, label);
+  const value = data[key];
   if (
     value === void 0 ||
     (expected === "array" && !Array.isArray(value)) ||
     (expected === "object" && !isRecord(value))
   ) {
-    throw new Error(`Invalid asset-center response shape: ${label}.${key2}`);
+    throw new Error(`Invalid asset-center response shape: ${label}.${key}`);
   }
   return value;
 }
 export class AssetCenterApiError extends Error {
   code;
   httpStatus;
-  constructor(message2, opts) {
-    super(message2);
+  constructor(message, opts) {
+    super(message);
     this.name = "AssetCenterApiError";
     this.code = opts.code;
     this.httpStatus = opts.httpStatus;
   }
 }
-function parseAssetCenterErrorBody(body2) {
-  if (!isRecord(body2)) return null;
-  const code2 = body2.code;
-  const message2 = body2.message;
-  const httpStatus = body2.httpStatus;
+function parseAssetCenterErrorBody(body) {
+  if (!isRecord(body)) return null;
+  const code = body.code;
+  const message = body.message;
+  const httpStatus = body.httpStatus;
   if (
-    typeof code2 !== "string" ||
-    typeof message2 !== "string" ||
+    typeof code !== "string" ||
+    typeof message !== "string" ||
     typeof httpStatus !== "number"
   ) {
     return null;
   }
-  return body2;
+  return body;
 }
 export async function wrapAsAssetCenterError(res) {
   const httpStatus = res.status;
-  let code2;
-  let message2;
+  let code;
+  let message;
   try {
-    const body2 = await res.clone().json();
-    const parsed = parseAssetCenterErrorBody(body2);
+    const body = await res.clone().json();
+    const parsed = parseAssetCenterErrorBody(body);
     if (parsed) {
-      code2 = parsed.code;
-      message2 = parsed.message;
+      code = parsed.code;
+      message = parsed.message;
     } else {
-      const data2 = body2;
-      if (isRecord(data2)) {
-        if (typeof data2.message === "string") message2 = data2.message;
-        else if (Array.isArray(data2.message))
-          message2 = data2.message.join("; ");
-        else if (typeof data2.error === "string") message2 = data2.error;
-        else message2 = `${httpStatus} ${res.statusText}`;
+      const data = body;
+      if (isRecord(data)) {
+        if (typeof data.message === "string") message = data.message;
+        else if (Array.isArray(data.message))
+          message = data.message.join("; ");
+        else if (typeof data.error === "string") message = data.error;
+        else message = `${httpStatus} ${res.statusText}`;
       } else {
-        message2 = `${httpStatus} ${res.statusText}`;
+        message = `${httpStatus} ${res.statusText}`;
       }
     }
   } catch {
-    message2 = `${httpStatus} ${res.statusText}`;
+    message = `${httpStatus} ${res.statusText}`;
   }
-  return new AssetCenterApiError(message2, {
-    code: code2,
+  return new AssetCenterApiError(message, {
+    code,
     httpStatus,
   });
 }
-async function reissueAsAssetCenterError(path2, options, buildUrl) {
-  const url2 = buildUrl(path2);
-  if (!url2) return null;
-  const { timeoutMs: _timeoutMs, ...init2 } = options ?? {};
+async function reissueAsAssetCenterError(path, options, buildUrl) {
+  const url = buildUrl(path);
+  if (!url) return null;
+  const { timeoutMs: _timeoutMs, ...init } = options ?? {};
   let res;
   try {
-    res = await fetch(url2, init2);
+    res = await fetch(url, init);
   } catch {
     return null;
   }
@@ -160,18 +160,18 @@ async function reissueAsAssetCenterError(path2, options, buildUrl) {
   return wrapAsAssetCenterError(res);
 }
 function wrapFetcherForAssetCenterErrors(fetcher, buildUrl) {
-  return async (path2, options) => {
+  return async (path, options) => {
     try {
-      return await fetcher(path2, options);
+      return await fetcher(path, options);
     } catch (err) {
-      if (!(err instanceof Error) || !path2.startsWith(BASE)) {
+      if (!(err instanceof Error) || !path.startsWith(BASE)) {
         throw err;
       }
       const method = (options?.method ?? "GET").toUpperCase();
       if (method !== "GET" && method !== "HEAD") {
         throw err;
       }
-      const wrapped = await reissueAsAssetCenterError(path2, options, buildUrl);
+      const wrapped = await reissueAsAssetCenterError(path, options, buildUrl);
       throw wrapped ?? err;
     }
   };
@@ -188,14 +188,14 @@ async function listEntities(fetcher, opts = {}) {
 }
 async function getAssetCenterLibraryStatus(fetcher) {
   const res = await fetcher(`${BASE}/library-status`);
-  const data2 = await readObject(res, "library-status");
-  if (typeof data2.initialized !== "boolean") {
+  const data = await readObject(res, "library-status");
+  if (typeof data.initialized !== "boolean") {
     throw new Error(
       "Invalid asset-center response shape: library-status.initialized",
     );
   }
   return {
-    initialized: data2.initialized,
+    initialized: data.initialized,
   };
 }
 export const ROOT_KEY = ["asset-center"];
@@ -363,12 +363,12 @@ export const CLOUD_ASSET_ACCEPT = [...EXTENSION_TO_CATEGORY.keys()]
   .map((ext) => `.${ext}`)
   .join(",");
 export function cloudAssetExtension(fileName) {
-  const base2 = fileName.slice(
+  const base = fileName.slice(
     Math.max(fileName.lastIndexOf("/"), fileName.lastIndexOf("\\")) + 1,
   );
-  const idx = base2.lastIndexOf(".");
-  if (idx <= 0 || idx === base2.length - 1) return "";
-  return base2.slice(idx + 1).toLowerCase();
+  const idx = base.lastIndexOf(".");
+  if (idx <= 0 || idx === base.length - 1) return "";
+  return base.slice(idx + 1).toLowerCase();
 }
 export function cloudAssetMimeType(fileName) {
   return CLOUD_ASSET_MIME_TYPES[cloudAssetExtension(fileName)];

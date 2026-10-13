@@ -46,9 +46,9 @@ import {
 import { joinFilePath } from "../assets/use-file-explorer-canvas-integration.js";
 import { MediaLightbox } from "../assets/text-preview.jsx";
 import { inferArtifactMime } from "../workspace/use-project-delete.js";
-function artifactDisplayName(path2, url2) {
-  const raw2 = path2 || url2;
-  const clean = raw2.split("?")[0]?.split("#")[0] ?? raw2;
+function artifactDisplayName(path, url) {
+  const raw = path || url;
+  const clean = raw.split("?")[0]?.split("#")[0] ?? raw;
   return clean.split("/").filter(Boolean).pop() ?? clean;
 }
 function safeDecodeURIComponent(value) {
@@ -58,27 +58,27 @@ function safeDecodeURIComponent(value) {
     return value;
   }
 }
-function cleanPath(raw2) {
+function cleanPath(raw) {
   try {
-    const url2 = new URL(raw2);
-    return safeDecodeURIComponent(url2.pathname);
+    const url = new URL(raw);
+    return safeDecodeURIComponent(url.pathname);
   } catch {
-    return safeDecodeURIComponent(raw2.split(/[?#]/)[0] ?? raw2);
+    return safeDecodeURIComponent(raw.split(/[?#]/)[0] ?? raw);
   }
 }
-function stripLeadingSlash(path2) {
-  return path2.replace(/^\/+/, "");
+function stripLeadingSlash(path) {
+  return path.replace(/^\/+/, "");
 }
-function toWorkspaceRelativePath(raw2) {
-  if (!raw2) return void 0;
-  const clean = cleanPath(raw2).replace(/\\/g, "/");
+function toWorkspaceRelativePath(raw) {
+  if (!raw) return void 0;
+  const clean = cleanPath(raw).replace(/\\/g, "/");
   const filesIdx = clean.indexOf("/files/");
   if (filesIdx >= 0)
     return stripLeadingSlash(clean.slice(filesIdx + "/files/".length));
   const outputIdx = clean.indexOf("output_files/");
   if (outputIdx >= 0)
     return stripLeadingSlash(clean.slice(outputIdx + "output_files/".length));
-  if (/^https?:\/\//i.test(raw2)) return void 0;
+  if (/^https?:\/\//i.test(raw)) return void 0;
   if (clean.startsWith("/")) return void 0;
   return stripLeadingSlash(clean.replace(/^\.\//, "")) || void 0;
 }
@@ -95,8 +95,8 @@ function artifactVideoThumbnailUrl(artifact, resolvedSrc, displayWidth) {
     ? buildVideoThumbnailUrl(resolvedSrc, relativePath, displayWidth)
     : void 0;
 }
-function normalizePath(path2) {
-  return stripLeadingSlash(path2.replace(/\\/g, "/"));
+function normalizePath(path) {
+  return stripLeadingSlash(path.replace(/\\/g, "/"));
 }
 function findAssetForRelativePath(assets, relativePath) {
   if (!relativePath) return void 0;
@@ -127,13 +127,13 @@ function artifactCanvasItem({ relativePath, absolutePath, filename, assetId }) {
   );
 }
 function ArtifactIcon({ filename, compact = false }) {
-  const type2 = artifactAssetTypeFromPath(filename);
+  const type = artifactAssetTypeFromPath(filename);
   const className = compact ? "size-3.5" : "size-4";
-  if (type2 === "image")
+  if (type === "image")
     return <ImageOutlineIcon className={className} strokeWidth={1.5} />;
-  if (type2 === "video")
+  if (type === "video")
     return <Video className={className} strokeWidth={1.5} />;
-  if (type2 === "audio") return <AudioBarsIcon className={className} />;
+  if (type === "audio") return <AudioBarsIcon className={className} />;
   return (
     <FileTypeIcon
       {...classifyFileType({
@@ -144,18 +144,18 @@ function ArtifactIcon({ filename, compact = false }) {
     />
   );
 }
-function previewUnavailableLabel(type2, translate) {
-  if (type2 === "image")
+function previewUnavailableLabel(type, translate) {
+  if (type === "image")
     return translate("assetPreview.imageUnavailable", "Preview unavailable");
-  if (type2 === "video")
+  if (type === "video")
     return translate("assetPreview.videoUnavailable", "Preview unavailable");
-  if (type2 === "audio")
+  if (type === "audio")
     return translate("assetPreview.audioUnavailable", "Preview unavailable");
   return translate("assetPreview.unsupportedText", "Preview not supported");
 }
-function ArtifactPreviewFailed({ type: type2, filename, compact }) {
+function ArtifactPreviewFailed({ type, filename, compact }) {
   const { t: translate } = useTranslation();
-  const label = previewUnavailableLabel(type2, translate);
+  const label = previewUnavailableLabel(type, translate);
   return (
     <div
       className={cn(
@@ -178,7 +178,7 @@ function ArtifactPreviewFailed({ type: type2, filename, compact }) {
     </div>
   );
 }
-function ArtifactThumbnail({ type: type2, src, filename, onFailure }) {
+function ArtifactThumbnail({ type, src, filename, onFailure }) {
   const [loaded, setLoaded] = reactExports.useState(false);
   return (
     <span className="relative flex h-full w-full items-center justify-center bg-muted/40">
@@ -200,7 +200,7 @@ function ArtifactThumbnail({ type: type2, src, filename, onFailure }) {
         onLoad={() => setLoaded(true)}
         onFailure={onFailure}
       />
-      {type2 === "video" && loaded && (
+      {type === "video" && loaded && (
         <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white pointer-events-none">
           <PlaybackPlayIcon size={12} strokeWidth={2} fill="currentColor" />
         </span>
@@ -264,7 +264,7 @@ export function ArtifactAssetCard({
   artifact,
   assetId,
   src,
-  size: size2 = "lg",
+  size = "lg",
   showLabel = true,
 }) {
   const { t: translate } = useTranslation();
@@ -297,10 +297,10 @@ export function ArtifactAssetCard({
   const canOpenLightbox =
     artifact.type === "image" || artifact.type === "video";
   const previewDisplayWidth =
-    size2 === "lg" ? 144 : size2 === "md" ? 64 : size2 === "sm" ? 32 : 28;
+    size === "lg" ? 144 : size === "md" ? 64 : size === "sm" ? 32 : 28;
   const previewSrc =
     artifact.type === "image"
-      ? withThumbnail(src, size2 === "sm" ? 64 : 240)
+      ? withThumbnail(src, size === "sm" ? 64 : 240)
       : artifactVideoThumbnailUrl(artifact, src, previewDisplayWidth);
   const previewKey = `${artifact.type}:${src}`;
   const previewFailed = failedPreviewKey === previewKey;
@@ -360,7 +360,7 @@ export function ArtifactAssetCard({
       select: true,
     });
   }, [artifact.nodeIds, canvasItem, resolvedAssetId, workspacePath]);
-  const handleClick2 = reactExports.useCallback(() => {
+  const handleClick = reactExports.useCallback(() => {
     if (locateTimerRef.current != null)
       window.clearTimeout(locateTimerRef.current);
     locateTimerRef.current = window.setTimeout(() => {
@@ -368,7 +368,7 @@ export function ArtifactAssetCard({
       locateOnCanvas();
     }, 180);
   }, [locateOnCanvas]);
-  const handleDoubleClick2 = reactExports.useCallback(() => {
+  const handleDoubleClick = reactExports.useCallback(() => {
     if (locateTimerRef.current != null) {
       window.clearTimeout(locateTimerRef.current);
       locateTimerRef.current = null;
@@ -431,15 +431,15 @@ export function ArtifactAssetCard({
     }
     focusAssetAfterInsert();
   }, [canvasItem, focusAssetAfterInsert]);
-  const isSmall = size2 === "sm";
-  const isChip = size2 === "chip";
-  const isCompactFailure = previewUnavailable && size2 !== "lg";
+  const isSmall = size === "sm";
+  const isChip = size === "chip";
+  const isCompactFailure = previewUnavailable && size !== "lg";
   const cardClassName =
-    size2 === "lg"
+    size === "lg"
       ? "h-20 w-36 rounded-sm"
-      : size2 === "md"
+      : size === "md"
         ? cn("h-16 rounded-sm", isCompactFailure ? "w-16" : "min-w-16")
-        : size2 === "chip"
+        : size === "chip"
           ? "flex h-8 w-full items-center gap-1.5 rounded-md bg-foreground/[0.05] pr-2 pl-0.5 hover:bg-foreground/[0.08]"
           : "h-8 w-8 rounded-sm";
   const actionUiId =
@@ -471,8 +471,8 @@ export function ArtifactAssetCard({
               cardClassName,
             )}
             draggable={canDrag}
-            onClick={handleClick2}
-            onDoubleClick={handleDoubleClick2}
+            onClick={handleClick}
+            onDoubleClick={handleDoubleClick}
             onDragStart={handleDragStart}
             title={title}
           >
@@ -508,7 +508,7 @@ export function ArtifactAssetCard({
                   <ArtifactPreviewFailed
                     type={artifact.type}
                     filename={filename}
-                    compact={isSmall || size2 === "md"}
+                    compact={isSmall || size === "md"}
                   />
                 )}
                 {!previewFailed &&
@@ -521,7 +521,7 @@ export function ArtifactAssetCard({
                   <div
                     className={cn(
                       "absolute inset-x-0 bottom-0 flex items-center bg-gradient-to-t from-background/95 via-background/70 to-background/0 font-medium text-foreground",
-                      size2 === "lg"
+                      size === "lg"
                         ? "gap-1.5 px-2 pb-1 pt-2 text-caption-11"
                         : "gap-1 px-1.5 pb-1 pt-2 text-caption-10",
                     )}
