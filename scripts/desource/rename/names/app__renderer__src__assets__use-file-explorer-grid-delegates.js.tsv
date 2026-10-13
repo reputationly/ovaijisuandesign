@@ -1,0 +1,5 @@
+key	old	new	依据
+t2@17:14	t2	translate	该绑定是文件拖动失败提示读取文案的翻译函数。
+p3@35:48	p3	sourcePath	该值是待转换为相对路径的单个拖动源绝对路径。
+e2@70:61	e2	selectionModifiers	该值提供更新选择所需的 meta、ctrl 与 shift 修饰键状态。
+a2@72:52	a2	asset	该值是用于取得显示路径的单个已排序资产记录。

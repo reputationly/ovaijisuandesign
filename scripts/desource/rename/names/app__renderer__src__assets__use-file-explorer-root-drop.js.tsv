@@ -1,0 +1,13 @@
+key	old	new	依据
+t2@42:14	t2	translate	该绑定是文件重命名失败提示读取文案的翻译函数。
+e2@83:6	e2	dragEvent	该事件提供 dataTransfer 类型以识别内部资源拖动。
+e2@87:6	e2	dragEvent	该事件用于设置根目录内部拖放的移动效果。
+e2@95:53	e2	dragEvent	该事件携带根目录接收的内部拖动路径。
+e2@107:6	e2	dragEvent	该事件来自根目录 dragenter 并分派内部或外部处理。
+e2@117:6	e2	dragEvent	该事件来自根目录 dragover 并分派内部或外部处理。
+e2@127:6	e2	dragEvent	该事件来自根目录 dragleave 并分派外部处理。
+e2@134:6	e2	dragEvent	该事件来自根目录 drop 并分派内部或外部处理。
+e2@186:54	e2	selectionModifiers	该值提供更新文件选择所需的修饰键状态。
+e2@214:54	e2	selectionModifiers	该值是传给文件选择更新逻辑的修饰键状态。
+r2@216:16	r2	row	该值是用于排除创建中占位项的文件树行记录。
+r2@217:13	r2	row	该值是用于提取可见路径的文件树行记录。

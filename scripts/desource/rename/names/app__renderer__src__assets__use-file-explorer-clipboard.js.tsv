@@ -1,0 +1,5 @@
+key	old	new	依据
+t2@27:14	t2	translate	该绑定是文件浏览器剪贴板操作读取状态提示的翻译函数。
+it2@101:22	it2	importedItem	该值是导入接口返回的单个文件记录。
+ts2@127:15	ts2	timestamp	该值是用于生成粘贴文件名的时间戳字符串。
+r2@184:24	r2	resolve	该函数用于完成等待下一帧 requestAnimationFrame 的 Promise。

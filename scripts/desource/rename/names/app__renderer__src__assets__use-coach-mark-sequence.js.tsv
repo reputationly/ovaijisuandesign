@@ -1,0 +1,5 @@
+key	old	new	依据
+id2@18:13	id2	seenEntryId	该值是待去重写入的已读引导步骤标识字符串。
+s2@39:12	s2	step	该值是用于计算最高版本号的引导步骤对象。
+s2@44:38	s2	step	该值是待按已读版本筛选的引导步骤对象。
+e2@132:22	e2	keyboardEvent	该事件来自窗口 keydown 监听并处理 Escape 关闭逻辑。

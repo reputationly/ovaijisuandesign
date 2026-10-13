@@ -15,7 +15,7 @@ function appendSeenEntries(prev, markId, maxRevision) {
   const additions = [
     markId,
     ...(maxRevision > 1 ? [`${markId}@${maxRevision}`] : []),
-  ].filter((id2) => !arr.includes(id2));
+  ].filter((seenEntryId) => !arr.includes(seenEntryId));
   return additions.length ? [...arr, ...additions] : arr;
 }
 
@@ -36,12 +36,12 @@ export function useCoachMarkSequence(
   const openedRef = reactExports.useRef(false);
   const lockedSeenRef = reactExports.useRef(null);
   const maxRevision = steps.reduce(
-    (max2, s2) => Math.max(max2, stepRevision(s2)),
+    (max2, step) => Math.max(max2, stepRevision(step)),
     1,
   );
   const seenRevision =
     lockedSeenRef.current ?? resolveSeenRevision(dismissedMarks, markId);
-  const visibleSteps = steps.filter((s2) => stepRevision(s2) > seenRevision);
+  const visibleSteps = steps.filter((step) => stepRevision(step) > seenRevision);
   const stepTotal = visibleSteps.length;
   const stepsRef = reactExports.useRef(visibleSteps);
   stepsRef.current = visibleSteps;
@@ -129,9 +129,9 @@ export function useCoachMarkSequence(
   );
   reactExports.useEffect(() => {
     if (!isOpen) return;
-    const handler = (e2) => {
-      if (e2.key === "Escape") {
-        e2.stopPropagation();
+    const handler = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        keyboardEvent.stopPropagation();
         if (persistOnEscape) {
           dismiss("close");
         } else {

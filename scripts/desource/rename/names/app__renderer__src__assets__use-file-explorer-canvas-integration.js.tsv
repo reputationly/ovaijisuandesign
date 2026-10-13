@@ -1,0 +1,8 @@
+key	old	new	依据
+ta2@13:9	ta2	normalizedTimeA	该值是排序时对空值补空字符串后的左侧时间值。
+id2@25:27	id2	tagId	该值是标签过滤器中的单个标签标识。
+r2@33:9	r2	rawPreferences	该对象是待校验并规范化的原始资产面板偏好值。
+x2@37:8	x2	category	该值是待保留的资源分类字符串。
+x2@41:10	x2	category	该值是待从无效分类中筛除的资源分类字符串。
+p3@153:60	p3	absolutePath	该值是从拖放载荷中解析出的绝对文件路径。
+t2@171:14	t2	translate	该绑定是画布集成 hook 读取复制失败提示的翻译函数。

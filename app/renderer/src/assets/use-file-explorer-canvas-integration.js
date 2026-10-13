@@ -10,19 +10,19 @@ import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { workspaceEvents } from "../workspace/topbar-state-context.jsx";
 import { getFileName } from "../canvas/uploading-assets.jsx";
 export function compareByTimeOrName(timeA, timeB, keyA, keyB, sortOrder) {
-  const ta2 = timeA ?? "";
+  const normalizedTimeA = timeA ?? "";
   const tb = timeB ?? "";
-  if (ta2 === "" && tb === "") return keyA.localeCompare(keyB);
-  if (ta2 === "") return 1;
+  if (normalizedTimeA === "" && tb === "") return keyA.localeCompare(keyB);
+  if (normalizedTimeA === "") return 1;
   if (tb === "") return -1;
-  const cmp2 = ta2 < tb ? -1 : ta2 > tb ? 1 : 0;
+  const cmp2 = normalizedTimeA < tb ? -1 : normalizedTimeA > tb ? 1 : 0;
   if (cmp2 !== 0) return sortOrder === "desc" ? -cmp2 : cmp2;
   return keyA.localeCompare(keyB);
 }
 export function matchesTagFilter(tagIds, tagFilters) {
   if (!tagFilters || tagFilters.length === 0) return true;
   if (!tagIds || tagIds.length === 0) return false;
-  return tagFilters.some((id2) => tagIds.includes(id2));
+  return tagFilters.some((tagId) => tagIds.includes(tagId));
 }
 export const DEFAULTS = WORKSPACE_STORAGE_DEFAULTS.assetPanel;
 const VALID_CATEGORIES = ["image", "video", "audio", "text", "other"];
@@ -30,34 +30,34 @@ const VALID_DATE_KINDS = ["all", "today", "last7days", "last30days", "custom"];
 const VALID_SORT = ["desc", "asc"];
 export function normalizeAssetPanelPreferences(raw2) {
   if (!raw2 || typeof raw2 !== "object") return DEFAULTS;
-  const r2 = raw2;
+  const rawPreferences = raw2;
   let typeFilters = [...DEFAULTS.typeFilters];
-  if (Array.isArray(r2.typeFilters)) {
-    typeFilters = r2.typeFilters.filter(
-      (x2) => typeof x2 === "string" && VALID_CATEGORIES.includes(x2),
+  if (Array.isArray(rawPreferences.typeFilters)) {
+    typeFilters = rawPreferences.typeFilters.filter(
+      (category) => typeof category === "string" && VALID_CATEGORIES.includes(category),
     );
-    if (typeFilters.length !== r2.typeFilters.length) {
-      const dropped = r2.typeFilters.filter(
-        (x2) => !(typeof x2 === "string" && VALID_CATEGORIES.includes(x2)),
+    if (typeFilters.length !== rawPreferences.typeFilters.length) {
+      const dropped = rawPreferences.typeFilters.filter(
+        (category) => !(typeof category === "string" && VALID_CATEGORIES.includes(category)),
       );
       console.warn(
         "[assetPanelPreferences] dropped invalid typeFilters entries:",
         {
-          raw: r2.typeFilters,
+          raw: rawPreferences.typeFilters,
           kept: typeFilters,
           dropped,
         },
       );
     }
-  } else if (r2.typeFilters !== void 0) {
+  } else if (rawPreferences.typeFilters !== void 0) {
     console.warn(
       "[assetPanelPreferences] typeFilters is not an array, fallback to default:",
-      r2.typeFilters,
+      rawPreferences.typeFilters,
     );
   }
   let dateFilter = DEFAULTS.dateFilter;
-  if (r2.dateFilter && typeof r2.dateFilter === "object") {
-    const df = r2.dateFilter;
+  if (rawPreferences.dateFilter && typeof rawPreferences.dateFilter === "object") {
+    const df = rawPreferences.dateFilter;
     const kind = df.kind;
     if (typeof kind === "string" && VALID_DATE_KINDS.includes(kind)) {
       if (kind === "custom") {
@@ -81,12 +81,12 @@ export function normalizeAssetPanelPreferences(raw2) {
     }
   }
   let sortOrder = DEFAULTS.sortOrder;
-  if (typeof r2.sortOrder === "string" && VALID_SORT.includes(r2.sortOrder)) {
-    sortOrder = r2.sortOrder;
-  } else if (r2.sortOrder !== void 0) {
+  if (typeof rawPreferences.sortOrder === "string" && VALID_SORT.includes(rawPreferences.sortOrder)) {
+    sortOrder = rawPreferences.sortOrder;
+  } else if (rawPreferences.sortOrder !== void 0) {
     console.warn(
       "[assetPanelPreferences] invalid sortOrder, fallback to default:",
-      r2.sortOrder,
+      rawPreferences.sortOrder,
     );
   }
   return {
@@ -150,7 +150,7 @@ export function extractDropSourcePaths(dataTransfer) {
     dataTransfer,
   });
   if (parsed && parsed.length > 0) {
-    return parsed.map((item) => item.absolutePath).filter((p3) => Boolean(p3));
+    return parsed.map((item) => item.absolutePath).filter((absolutePath) => Boolean(absolutePath));
   }
   const legacySingle = dataTransfer.getData(LEGACY_DRAG_MIME);
   return legacySingle ? [legacySingle] : [];
@@ -168,7 +168,7 @@ export function useFileExplorerCanvasIntegration({
   assetMap,
   duplicate,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const handleAddToCanvas = useStableCallback((target) => {
     const anchorAbsPath = target.path;
     const pathsToAdd = selectedPaths.has(anchorAbsPath)
@@ -195,7 +195,7 @@ export function useFileExplorerCanvasIntegration({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.duplicateFailed") +
+        translate("fileExplorer.duplicateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -208,7 +208,7 @@ export function useFileExplorerCanvasIntegration({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.duplicateFailed") +
+        translate("fileExplorer.duplicateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }

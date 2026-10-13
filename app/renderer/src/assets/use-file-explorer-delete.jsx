@@ -15,7 +15,7 @@ function DeleteUndoToast({
   count: count2,
   gatewayFetch: gatewayFetch2,
   onUndoSuccess,
-  t: t2,
+  t: translate,
 }) {
   const [remaining, setRemaining] = reactExports.useState(
     Math.ceil(DELETE_UNDO_TTL_MS / 1e3),
@@ -23,7 +23,7 @@ function DeleteUndoToast({
   const [busy, setBusy] = reactExports.useState(false);
   reactExports.useEffect(() => {
     const tick = setInterval(() => {
-      setRemaining((s2) => (s2 > 0 ? s2 - 1 : 0));
+      setRemaining((remainingSeconds) => (remainingSeconds > 0 ? remainingSeconds - 1 : 0));
     }, 1e3);
     return () => clearInterval(tick);
   }, []);
@@ -52,13 +52,13 @@ function DeleteUndoToast({
         dedupedToast.dismiss(toastId);
         return;
       }
-      dedupedToast.error(t2("fileExplorer.undoFailed"));
+      dedupedToast.error(translate("fileExplorer.undoFailed"));
       dedupedToast.dismiss(toastId);
     } catch (err) {
       dedupedToast.error(
         err instanceof Error && err.message
-          ? `${t2("fileExplorer.undoFailed")}: ${err.message}`
-          : t2("fileExplorer.undoFailed"),
+          ? `${translate("fileExplorer.undoFailed")}: ${err.message}`
+          : translate("fileExplorer.undoFailed"),
       );
       dedupedToast.dismiss(toastId);
     } finally {
@@ -68,7 +68,7 @@ function DeleteUndoToast({
   return (
     <div className="elevated-surface-border flex items-center gap-3 rounded-lg px-3 py-2 bg-popover text-popover-foreground text-xs">
       <span>
-        {t2("fileExplorer.deleteUndoToast", {
+        {translate("fileExplorer.deleteUndoToast", {
           count: count2,
         })}
       </span>
@@ -80,19 +80,19 @@ function DeleteUndoToast({
         disabled={busy}
         className="h-6 rounded-sm px-2"
       >
-        {t2("fileExplorer.deleteUndoToastUndo")}
+        {translate("fileExplorer.deleteUndoToastUndo")}
         {" ("}
         {remaining})
       </Button>
     </div>
   );
 }
-function removeFromActiveToasts(id2) {
-  const idx = activeToastIds.indexOf(id2);
+function removeFromActiveToasts(toastId) {
+  const idx = activeToastIds.indexOf(toastId);
   if (idx !== -1) activeToastIds.splice(idx, 1);
 }
 function showDeleteUndoToast(opts) {
-  const id2 = dedupedToast.custom(
+  const toastId = dedupedToast.custom(
     (id22) => (
       <DeleteUndoToast
         toastId={id22}
@@ -109,12 +109,12 @@ function showDeleteUndoToast(opts) {
       // Plain sonner doesn't expose an unmount hook for custom toasts,
       // so onDismiss + onAutoClose cover the two paths sonner uses to
       // retire a toast.
-      onDismiss: (t2) => removeFromActiveToasts(t2.id),
-      onAutoClose: (t2) => removeFromActiveToasts(t2.id),
+      onDismiss: (toast) => removeFromActiveToasts(toast.id),
+      onAutoClose: (toast) => removeFromActiveToasts(toast.id),
     },
   );
-  activeToastIds.push(id2);
-  return id2;
+  activeToastIds.push(toastId);
+  return toastId;
 }
 export function useFileExplorerDelete({
   remove: remove2,
@@ -129,7 +129,7 @@ export function useFileExplorerDelete({
   queryClient: queryClient2,
   gatewayScopeKey,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [deletingEntries, setDeletingEntries] = reactExports.useState([]);
   const requestDelete = useStableCallback((entries2) => {
     if (entries2.length === 0) return;
@@ -169,7 +169,7 @@ export function useFileExplorerDelete({
                   });
                 }
               : void 0,
-          t: t2,
+          t: translate,
         });
       }
       if (lastSelectedPath && deletedPaths.includes(lastSelectedPath)) {
@@ -178,12 +178,12 @@ export function useFileExplorerDelete({
       }
       const stillSelected = new Set();
       let anyRemoved = false;
-      for (const p3 of selectedPaths) {
-        if (deletedPaths.includes(p3)) {
+      for (const selectedPath of selectedPaths) {
+        if (deletedPaths.includes(selectedPath)) {
           anyRemoved = true;
           continue;
         }
-        stillSelected.add(p3);
+        stillSelected.add(selectedPath);
       }
       if (anyRemoved) setSelectedPaths(stillSelected);
       if (hasDirectory) {
@@ -191,7 +191,7 @@ export function useFileExplorerDelete({
       }
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.deleteFailed") +
+        translate("fileExplorer.deleteFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }

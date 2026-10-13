@@ -7,9 +7,9 @@ import { useStableCallback } from "./use-cloud-review-nodes.js";
 import { getFileName } from "../canvas/uploading-assets.jsx";
 import { OPERATIONS_UNDO_PATH } from "../generation/to-workspace-browser-url.js";
 function dismissNewestDeleteUndoToast() {
-  const id2 = activeToastIds.pop();
-  if (id2 === void 0) return;
-  dedupedToast.dismiss(id2);
+  const toastId = activeToastIds.pop();
+  if (toastId === void 0) return;
+  dedupedToast.dismiss(toastId);
 }
 export function useFileExplorerShortcuts({
   setSelectedPaths,
@@ -29,7 +29,7 @@ export function useFileExplorerShortcuts({
   queryClient: queryClient2,
   gatewayScopeKey,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const handleSelectAll = useStableCallback(() => {
     setSelectedPaths(new Set(visiblePaths));
   });
@@ -60,7 +60,7 @@ export function useFileExplorerShortcuts({
     const first2 = targets[0];
     if (targets.length > 1) {
       dedupedToast.info(
-        t2("fileExplorer.copyMultiSelectFirst", {
+        translate("fileExplorer.copyMultiSelectFirst", {
           name: getFileName(first2),
         }),
       );
@@ -69,7 +69,7 @@ export function useFileExplorerShortcuts({
       await handleCopyFile(first2);
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.copyFailed") +
+        translate("fileExplorer.copyFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -89,7 +89,7 @@ export function useFileExplorerShortcuts({
       });
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.duplicateFailed") +
+        translate("fileExplorer.duplicateFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -106,20 +106,20 @@ export function useFileExplorerShortcuts({
     } catch (err) {
       dedupedToast.error(
         err instanceof Error && err.message
-          ? `${t2("fileExplorer.undoFailed")}: ${err.message}`
-          : t2("fileExplorer.undoFailed"),
+          ? `${translate("fileExplorer.undoFailed")}: ${err.message}`
+          : translate("fileExplorer.undoFailed"),
       );
       return;
     }
     if (!res.ok) {
       dedupedToast.error(
-        `${t2("fileExplorer.undoFailed")}: ${res.status} ${res.statusText}`,
+        `${translate("fileExplorer.undoFailed")}: ${res.status} ${res.statusText}`,
       );
       return;
     }
     const body2 = await res.json().catch(() => null);
     if (!body2) {
-      dedupedToast.error(t2("fileExplorer.undoFailed"));
+      dedupedToast.error(translate("fileExplorer.undoFailed"));
       return;
     }
     if (body2.ok) {
@@ -139,8 +139,8 @@ export function useFileExplorerShortcuts({
         dismissNewestDeleteUndoToast();
         dedupedToast.error(
           body2.errorMessage
-            ? `${t2("fileExplorer.undoPathConflict")}: ${body2.errorMessage}`
-            : t2("fileExplorer.undoPathConflict"),
+            ? `${translate("fileExplorer.undoPathConflict")}: ${body2.errorMessage}`
+            : translate("fileExplorer.undoPathConflict"),
         );
         return;
       case "partial": {
@@ -155,8 +155,8 @@ export function useFileExplorerShortcuts({
         dismissNewestDeleteUndoToast();
         dedupedToast.error(
           body2.errorMessage
-            ? `${t2("fileExplorer.undoFailed")}: ${body2.errorMessage}`
-            : t2("fileExplorer.undoFailed"),
+            ? `${translate("fileExplorer.undoFailed")}: ${body2.errorMessage}`
+            : translate("fileExplorer.undoFailed"),
         );
     }
   });

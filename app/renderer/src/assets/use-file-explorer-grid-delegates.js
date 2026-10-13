@@ -14,7 +14,7 @@ export function useFileExplorerDrag({
   move,
   invalidateDirs,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const buildDragPayload = useStableCallback((anchorAbsPath) => {
     const pathsToDrag = selectedPaths.has(anchorAbsPath)
       ? Array.from(selectedPaths)
@@ -32,7 +32,7 @@ export function useFileExplorerDrag({
   const handleMove = useStableCallback(async (sourcePaths, targetDir) => {
     if (sourcePaths.length === 0) return;
     try {
-      const relativeSources = sourcePaths.map((p3) => toRelativePath(p3));
+      const relativeSources = sourcePaths.map((sourcePath) => toRelativePath(sourcePath));
       const relativeTarget = toRelativePath(targetDir);
       await move({
         paths: relativeSources,
@@ -41,7 +41,7 @@ export function useFileExplorerDrag({
       invalidateDirs();
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.moveFailed") +
+        translate("fileExplorer.moveFailed") +
           (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
     }
@@ -67,12 +67,12 @@ export function useFileExplorerGridDelegates({
       rootPath ? joinFilePath(rootPath, relativePath) : relativePath,
     [rootPath],
   );
-  const handleGridSelect = useStableCallback((relativePath, e2) => {
+  const handleGridSelect = useStableCallback((relativePath, selectionModifiers) => {
     const absPath = resolveAssetPath(relativePath);
-    const visiblePaths = sortedFilteredAssets.map((a2) =>
-      resolveAssetPath(a2.path),
+    const visiblePaths = sortedFilteredAssets.map((asset) =>
+      resolveAssetPath(asset.path),
     );
-    updateSelection2(absPath, e2, visiblePaths);
+    updateSelection2(absPath, selectionModifiers, visiblePaths);
   });
   const handleGridDoubleClick = useStableCallback((relativePath) => {
     const absPath = resolveAssetPath(relativePath);

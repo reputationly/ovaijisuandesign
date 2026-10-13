@@ -16,7 +16,7 @@ async function findFreeRenameCandidate(
   targetDirRel,
 ) {
   let candidate = generateCopyName(baseName, isDirectory);
-  for (let i2 = 0; i2 < 1e3; i2++) {
+  for (let attempt = 0; attempt < 1e3; attempt++) {
     const probe = await postCheckConflicts(gatewayFetch2, {
       items: [
         {
@@ -47,7 +47,7 @@ export function useFileExplorerCreate({
   setSelectedPaths,
   setLastSelectedPath,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [creatingEntry, setCreatingEntry] = reactExports.useState(null);
   const startCreate = reactExports.useCallback(
     (parentPath, isDirectory) => {
@@ -102,7 +102,7 @@ export function useFileExplorerCreate({
       }
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.createFailed", {
+        translate("fileExplorer.createFailed", {
           name: name2,
         }) + (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
@@ -124,7 +124,7 @@ export function useFileExplorerCreate({
       createdOk = true;
     } catch (err) {
       dedupedToast.error(
-        t2("fileExplorer.createFailed", {
+        translate("fileExplorer.createFailed", {
           name: confirmedName,
         }) + (err instanceof Error && err.message ? `: ${err.message}` : ""),
       );
