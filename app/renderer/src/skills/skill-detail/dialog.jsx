@@ -4,7 +4,7 @@ import { Switch } from "../../generation/select-content.jsx";
 import { StrokeIcon, RetryIcon } from "../../workspace/use-prompt-icon.jsx";
 import { cn$2 as cn, Button, TooltipContent } from "../../infra/dialog-content.jsx";
 import { toDisplayName, formatDownloads, UPDATE_INDICATOR_STYLES } from "../../generation/use-mention-models.jsx";
-import { Download as Download$1, MessageSquare } from "../../media-editing/package.jsx";
+import { Download, MessageSquare } from "../../media-editing/package.jsx";
 import { Tooltip, TooltipTrigger } from "../../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { canSubmitSkillDetail, mergeSkillDetail, useSkillDetail } from "./data.js";
@@ -136,7 +136,7 @@ export function SkillDetailDialog({
                 />
               )}
               <span className="ml-3 flex items-center gap-1.5">
-                <Download$1 size={14} strokeWidth={1.5} aria-hidden="true" />
+                <Download size={14} strokeWidth={1.5} aria-hidden="true" />
                 <span className="sr-only">
                   {t("skills.detail.downloadCount")}
                   {": "}
@@ -264,7 +264,7 @@ export function SkillDetailDialog({
                     {installing ? (
                       <Loader2 size={16} strokeWidth={1.5} className="animate-spin" />
                     ) : (
-                      <Download$1 size={16} strokeWidth={1.5} />
+                      <Download size={16} strokeWidth={1.5} />
                     )}
                     {installing ? t("skills.market.installing") : t("skills.market.install")}
                   </Button>

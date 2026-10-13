@@ -356,10 +356,10 @@ function SkillsPage() {
     fetchSkills();
   }, [fetchSkills]);
   reactExports.useEffect(() => {
-    const d = pluginEvents.onPluginsChanged(() => {
+    const pluginsChangedSubscription = pluginEvents.onPluginsChanged(() => {
       fetchSkills();
     });
-    return () => d.dispose();
+    return () => pluginsChangedSubscription.dispose();
   }, [fetchSkills]);
   reactExports.useEffect(() => {
     if (!window.hilo?.skills) return;
@@ -591,8 +591,8 @@ function SkillsPage() {
   }, []);
   const findCommunityHostHook = reactExports.useCallback(
     (name) => {
-      for (const h of [market, marketOfficialFeatured, marketCommunity, marketOther]) {
-        if (h.skills.some((s) => s.name === name)) return h;
+      for (const marketHook of [market, marketOfficialFeatured, marketCommunity, marketOther]) {
+        if (marketHook.skills.some((s) => s.name === name)) return marketHook;
       }
       return null;
     },
@@ -707,8 +707,8 @@ function SkillsPage() {
         });
       }
     } else {
-      const m = skillType === "plugin" ? pluginMarket : (findCommunityHostHook(name) ?? market);
-      ok = await m.uninstall(name);
+      const uninstallMarket = skillType === "plugin" ? pluginMarket : (findCommunityHostHook(name) ?? market);
+      ok = await uninstallMarket.uninstall(name);
     }
     const isPlugin = skillType === "plugin";
     if (ok) {

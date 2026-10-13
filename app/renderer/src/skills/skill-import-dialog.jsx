@@ -136,16 +136,16 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
     [t],
   );
   const handleInputChange = reactExports.useCallback(
-    (e) => {
-      const selected = e.target.files?.[0];
+    (changeEvent) => {
+      const selected = changeEvent.target.files?.[0];
       if (selected) handleFileSelect(selected);
     },
     [handleFileSelect],
   );
-  const handleDragOver = reactExports.useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const items = e.dataTransfer.items;
+  const handleDragOver = reactExports.useCallback((dragEvent) => {
+    dragEvent.preventDefault();
+    dragEvent.stopPropagation();
+    const items = dragEvent.dataTransfer.items;
     if (items.length > 0) {
       const mimeType = items[0].type || "";
       if (mimeType.includes("zip") || mimeType.includes("markdown") || mimeType === "") {
@@ -157,19 +157,19 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
       }
     }
   }, []);
-  const handleDragLeave = reactExports.useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDragLeave = reactExports.useCallback((dragEvent) => {
+    dragEvent.preventDefault();
+    dragEvent.stopPropagation();
     setDragOver(false);
     setDragInvalid(false);
   }, []);
   const handleDrop = reactExports.useCallback(
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    (dragEvent) => {
+      dragEvent.preventDefault();
+      dragEvent.stopPropagation();
       setDragOver(false);
       setDragInvalid(false);
-      const dropped = e.dataTransfer.files[0];
+      const dropped = dragEvent.dataTransfer.files[0];
       if (dropped) handleFileSelect(dropped);
     },
     [handleFileSelect],
@@ -549,9 +549,9 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
     reset();
   }, [reset]);
   const handleOpenChange = reactExports.useCallback(
-    (v) => {
-      if (!v) reset();
-      onOpenChange(v);
+    (isOpen) => {
+      if (!isOpen) reset();
+      onOpenChange(isOpen);
     },
     [onOpenChange, reset],
   );
@@ -580,12 +580,12 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
                 <p className="font-medium">{errorInfo.message}</p>
                 {errorInfo.missingFields && errorInfo.missingFields.length > 0 && (
                   <div className="flex items-center gap-1.5 mt-1">
-                    {errorInfo.missingFields.map((f) => (
+                    {errorInfo.missingFields.map((missingField) => (
                       <span
-                        key={f}
+                        key={missingField}
                         className="rounded-sm bg-destructive/10 px-1 py-0.5 font-mono text-[11px]"
                       >
-                        {f}
+                        {missingField}
                       </span>
                     ))}
                   </div>
@@ -712,8 +712,8 @@ export function SkillImportDialog({ open, onOpenChange, onImported }) {
                   data-action-ui-id="skills-import-rename-input"
                   className="h-10 text-sm"
                   value={newName}
-                  onChange={(e) => {
-                    const val = e.target.value;
+                  onChange={(changeEvent) => {
+                    const val = changeEvent.target.value;
                     setNewName(val);
                     setNameError(
                       val && !isValidSkillName(val)

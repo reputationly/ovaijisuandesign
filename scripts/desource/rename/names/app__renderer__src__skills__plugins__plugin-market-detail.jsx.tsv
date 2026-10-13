@@ -1,4 +1,4 @@
 key	new	reason
 Download$1@3:30	Download	导入别名（来源导出 Download），去掉打包器加的 $ 去重后缀
-resolvePluginIcon$1@13:10	resolvePluginIcon	原名 resolvePluginIcon，去掉打包器加的 $ 去重后缀
+resolvePluginIcon$1@13:10	resolveLocalizedPluginIcon	返回字符串图标或按 locale 取本地化图标；同文件下方另有实现相同的 resolvePluginIcon 占用原名
 e@341:67	clickEvent	onClick 回调收到的事件对象
