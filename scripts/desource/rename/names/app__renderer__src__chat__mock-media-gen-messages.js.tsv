@@ -1,0 +1,2 @@
+key	新名	依据
+id@5:10	createMockMessageId	`createMockMessageId` 组合媒体生成标记和随机片段生成模拟消息 ID。

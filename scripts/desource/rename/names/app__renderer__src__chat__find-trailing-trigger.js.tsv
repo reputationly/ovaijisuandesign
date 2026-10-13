@@ -1,0 +1,2 @@
+key	新名	依据
+re2@16:9	trailingTriggerPattern	`trailingTriggerPattern` 是用于匹配输入末尾触发符的正则表达式。

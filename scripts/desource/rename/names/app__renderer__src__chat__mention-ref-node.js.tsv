@@ -1,0 +1,2 @@
+key	新名	依据
+tr2@94:45	transaction	`transaction` 是用于删除引用标记并派发文档更新的 ProseMirror 事务。

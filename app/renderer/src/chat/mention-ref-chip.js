@@ -5,7 +5,7 @@ import {
   NodeViewWrapper,
   reactExports,
   Workflow,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import {
   FileKindIcon,
@@ -240,7 +240,7 @@ export function MentionRefChip({ node: node2, deleteNode: deleteNode2 }) {
           deleteNode2();
         },
       },
-      reactExports.createElement(X, {
+      reactExports.createElement(CloseIcon, {
         size: 9,
         strokeWidth: 2.2,
         "aria-hidden": true,

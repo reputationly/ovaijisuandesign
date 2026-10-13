@@ -13,8 +13,8 @@ export function currentCanvasWorkflowNodeKey(workflow) {
 
 export function findTrailingTrigger(textBeforeCaret, trigger, invalidChars) {
   const escaped = trigger === "/" ? "\\/" : trigger;
-  const re2 = new RegExp(`${escaped}([^${invalidChars}]*)$`);
-  const match2 = textBeforeCaret.match(re2);
+  const trailingTriggerPattern = new RegExp(`${escaped}([^${invalidChars}]*)$`);
+  const match2 = textBeforeCaret.match(trailingTriggerPattern);
   if (!match2) return null;
   const start2 = match2.index ?? 0;
   return {

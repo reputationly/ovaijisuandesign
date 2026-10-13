@@ -1,0 +1,2 @@
+key	新名	依据
+po@2:10	MermaidRenderer	`MermaidRenderer` 渲染 Mermaid 图表并提供加载、错误和缩放交互。

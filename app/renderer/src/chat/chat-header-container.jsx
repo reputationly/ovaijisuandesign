@@ -117,7 +117,7 @@ export function ChatHeaderContainer({
         }
       }
       const visibleTabOrder = openedTabOrder.filter(
-        (id2) => !hiddenSessionIds.has(id2),
+        (openedTabId) => !hiddenSessionIds.has(openedTabId),
       );
       return {
         ordinarySessions: sessions.filter(
