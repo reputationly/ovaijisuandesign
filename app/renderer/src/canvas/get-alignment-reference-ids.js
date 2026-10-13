@@ -21,14 +21,14 @@ export function applyEdgeCullingVisibility(edges, hiddenIds) {
   }
   return dirty ? out : edges;
 }
-export function computeHiddenEdgeIds(state2, edges, bufferRatio) {
+export function computeHiddenEdgeIds(state, edges, bufferRatio) {
   const hidden = new Set();
-  const [tx, ty, zoom2] = state2.transform;
-  if (!zoom2 || zoom2 <= 0) return hidden;
-  const vLeft = -tx / zoom2;
-  const vTop = -ty / zoom2;
-  const vWidth = state2.width / zoom2;
-  const vHeight = state2.height / zoom2;
+  const [tx, ty, zoom] = state.transform;
+  if (!zoom || zoom <= 0) return hidden;
+  const vLeft = -tx / zoom;
+  const vTop = -ty / zoom;
+  const vWidth = state.width / zoom;
+  const vHeight = state.height / zoom;
   const vRight = vLeft + vWidth;
   const vBottom = vTop + vHeight;
   const bufW = vWidth * Math.max(0, bufferRatio - 1) * 0.5;
@@ -38,8 +38,8 @@ export function computeHiddenEdgeIds(state2, edges, bufferRatio) {
   const bRight = vRight + bufW;
   const bBottom = vBottom + bufH;
   for (const edge of edges) {
-    const src = state2.nodeLookup.get(edge.source);
-    const tgt = state2.nodeLookup.get(edge.target);
+    const src = state.nodeLookup.get(edge.source);
+    const tgt = state.nodeLookup.get(edge.target);
     if (!src || !tgt) continue;
     const srcPos = src.internals?.positionAbsolute ?? src.position;
     const tgtPos = tgt.internals?.positionAbsolute ?? tgt.position;
@@ -52,90 +52,90 @@ export function computeHiddenEdgeIds(state2, edges, bufferRatio) {
     const eTop = Math.min(srcPos.y, tgtPos.y);
     const eRight = Math.max(srcPos.x + srcW, tgtPos.x + tgtW);
     const eBottom = Math.max(srcPos.y + srcH, tgtPos.y + tgtH);
-    const intersects2 = !(
+    const intersects = !(
       eRight < bLeft ||
       eLeft > bRight ||
       eBottom < bTop ||
       eTop > bBottom
     );
-    if (!intersects2) hidden.add(edge.id);
+    if (!intersects) hidden.add(edge.id);
   }
   return hidden;
 }
 export function sameMembership(leftSet, rightSet) {
   if (leftSet === rightSet) return true;
   if (leftSet.size !== rightSet.size) return false;
-  for (const nodeId of leftSet) {
-    if (!rightSet.has(nodeId)) return false;
+  for (const id of leftSet) {
+    if (!rightSet.has(id)) return false;
   }
   return true;
 }
 export const MIDDLE_DRAG_CLASS = "hilo-canvas-middle-pan";
 export const STYLE_ELEMENT_ID = "hilo-middle-pan-style";
-function ancestors(node2, byId) {
+function ancestors(node, byId) {
   const result = [];
-  const seen2 = new Set([node2.id]);
-  let parentId = node2.parentId;
-  while (parentId && !seen2.has(parentId)) {
-    seen2.add(parentId);
+  const seen = new Set([node.id]);
+  let parentId = node.parentId;
+  while (parentId && !seen.has(parentId)) {
+    seen.add(parentId);
     result.push(parentId);
     parentId = byId.get(parentId)?.parentId;
   }
   return result;
 }
 export function getAlignmentReferenceIds(nodes, draggedIds) {
-  const byId = new Map(nodes.map((node2) => [node2.id, node2]));
+  const byId = new Map(nodes.map((node) => [node.id, node]));
   const dragged = new Set(draggedIds);
   const chains = new Map(
-    nodes.map((node2) => [node2.id, ancestors(node2, byId)]),
+    nodes.map((node) => [node.id, ancestors(node, byId)]),
   );
   const roots = nodes.filter(
-    (node2) =>
-      dragged.has(node2.id) &&
-      !chains.get(node2.id)?.some((ancestorId) => dragged.has(ancestorId)),
+    (node) =>
+      dragged.has(node.id) &&
+      !chains.get(node.id)?.some((id) => dragged.has(id)),
   );
-  if (roots.length === 0 || roots.some((node2) => node2.collapsed)) return [];
+  if (roots.length === 0 || roots.some((node) => node.collapsed)) return [];
   const scopes = [...(chains.get(roots[0].id) ?? []), void 0];
-  const scope = scopes.find((scopeId) =>
+  const scope = scopes.find((id) =>
     roots.every(
-      (node2) => scopeId === void 0 || chains.get(node2.id)?.includes(scopeId),
+      (node) => id === void 0 || chains.get(node.id)?.includes(id),
     ),
   );
   const movingAncestors = new Set(
-    roots.flatMap((node2) => chains.get(node2.id) ?? []),
+    roots.flatMap((node) => chains.get(node.id) ?? []),
   );
   const affected = new Set(
     nodes
       .filter(
-        (node2) =>
-          dragged.has(node2.id) ||
-          chains.get(node2.id)?.some((ancestorId) => dragged.has(ancestorId)),
+        (node) =>
+          dragged.has(node.id) ||
+          chains.get(node.id)?.some((id) => dragged.has(id)),
       )
-      .map((node2) => node2.id),
+      .map((node) => node.id),
   );
   return nodes
-    .filter((node2) => {
+    .filter((node) => {
       if (
-        node2.parentId !== scope ||
-        affected.has(node2.id) ||
-        movingAncestors.has(node2.id)
+        node.parentId !== scope ||
+        affected.has(node.id) ||
+        movingAncestors.has(node.id)
       ) {
         return false;
       }
       if (
-        node2.hidden ||
-        node2.collapsed ||
-        chains.get(node2.id)?.some((ancestorId) => byId.get(ancestorId)?.hidden)
+        node.hidden ||
+        node.collapsed ||
+        chains.get(node.id)?.some((id) => byId.get(id)?.hidden)
       )
         return false;
       if (
-        node2.type === "sticker" &&
-        affected.has(String(node2.data?.targetId ?? ""))
+        node.type === "sticker" &&
+        affected.has(String(node.data?.targetId ?? ""))
       )
         return false;
       return true;
     })
-    .map((node2) => node2.id);
+    .map((node) => node.id);
 }
 export function intersectsViewport(firstRect, secondRect) {
   return (

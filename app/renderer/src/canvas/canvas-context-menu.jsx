@@ -380,7 +380,7 @@ function ConnectionLineOverlay({ source }) {
 const VIDEO_MODEL_BADGE = "MiniMax H3";
 export function CanvasContextMenu({
   motionProps,
-  position: position2,
+  position,
   flowPosition,
   onClose,
   onAddNode,
@@ -410,20 +410,20 @@ export function CanvasContextMenu({
   }, [comfyUiOpen]);
   const getAnchorPosition = reactExports.useCallback(
     (menuHeight) => {
-      if (!position2.dockAnchor) return position2;
+      if (!position.dockAnchor) return position;
       return {
-        x: position2.dockAnchor.button.getBoundingClientRect().left,
+        x: position.dockAnchor.button.getBoundingClientRect().left,
         y:
-          position2.dockAnchor.toolbar.getBoundingClientRect().top -
+          position.dockAnchor.toolbar.getBoundingClientRect().top -
           8 -
           menuHeight,
       };
     },
-    [position2],
+    [position],
   );
   const { menuRef, clampedPosition } = useClampedMenuPosition({
-    position: position2,
-    getAnchorPosition: position2.dockAnchor ? getAnchorPosition : void 0,
+    position,
+    getAnchorPosition: position.dockAnchor ? getAnchorPosition : void 0,
     estimatedWidth: MENU_WIDTH_PX,
     estimatedHeight: MENU_ESTIMATED_HEIGHT_PX,
   });
@@ -431,10 +431,10 @@ export function CanvasContextMenu({
     menuRef,
     handleClose,
     handleEscape,
-    position2.dockAnchor?.button,
+    position.dockAnchor?.button,
     !motionProps?.inert,
   );
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (action) => {
       setComfyUiOpen(false);
       action();
@@ -471,9 +471,9 @@ export function CanvasContextMenu({
       {connectionSource && <ConnectionLineOverlay source={connectionSource} />}
       <div
         {...motionProps}
-        ref={(element2) => {
-          menuRef.current = element2;
-          if (motionProps) motionProps.ref.current = element2;
+        ref={(element) => {
+          menuRef.current = element;
+          if (motionProps) motionProps.ref.current = element;
         }}
         data-action-ui-id="canvas.add-node-menu"
         className="dp-motion-quick-zoom fixed flex w-[240px] flex-col rounded-[16px] p-2 select-none"
@@ -498,9 +498,9 @@ export function CanvasContextMenu({
             "1px solid var(--canvas-border-subtle, var(--canvas-controls-border))",
           boxShadow: "var(--canvas-prompt-panel-shadow)",
           zIndex: 50,
-          transformOrigin: position2.dockAnchor
+          transformOrigin: position.dockAnchor
             ? "bottom left"
-            : `${position2.x - clampedPosition.x}px ${position2.y - clampedPosition.y}px`,
+            : `${position.x - clampedPosition.x}px ${position.y - clampedPosition.y}px`,
         }}
       >
         <h4
@@ -517,7 +517,7 @@ export function CanvasContextMenu({
             label={translate("canvas.text")}
             description={translate("canvas.textDesc")}
             dataActionUiId="canvas.menu-add-text"
-            onClick={() => handleClick2(() => onAddNode("text"))}
+            onClick={() => handleClick(() => onAddNode("text"))}
           />
         )}
         {show.table && (
@@ -529,7 +529,7 @@ export function CanvasContextMenu({
               "Structured data with rows and columns",
             )}
             dataActionUiId="canvas.menu-add-table"
-            onClick={() => handleClick2(() => onAddNode("table"))}
+            onClick={() => handleClick(() => onAddNode("table"))}
           />
         )}
         {show.image && (
@@ -538,7 +538,7 @@ export function CanvasContextMenu({
             label={translate("canvas.image")}
             description={translate("canvas.imageDesc")}
             dataActionUiId="canvas.menu-add-image"
-            onClick={() => handleClick2(() => onAddNode("image"))}
+            onClick={() => handleClick(() => onAddNode("image"))}
           />
         )}
         {show.video && (
@@ -549,7 +549,7 @@ export function CanvasContextMenu({
             badge={VIDEO_MODEL_BADGE}
             badgeVariant="accent"
             dataActionUiId="canvas.menu-add-video"
-            onClick={() => handleClick2(() => onAddNode("video"))}
+            onClick={() => handleClick(() => onAddNode("video"))}
           />
         )}
         {show.audio && (
@@ -558,7 +558,7 @@ export function CanvasContextMenu({
             label={translate("canvas.audio")}
             description={translate("canvas.audioDesc")}
             dataActionUiId="canvas.menu-add-audio"
-            onClick={() => handleClick2(() => onAddNode("audio"))}
+            onClick={() => handleClick(() => onAddNode("audio"))}
           />
         )}
         <MenuItem
@@ -568,7 +568,7 @@ export function CanvasContextMenu({
           badge={addNodeMenuBadges?.directorStage}
           dataActionUiId="canvas.menu-add-director-stage"
           onClick={() =>
-            handleClick2(() => {
+            handleClick(() => {
               completeAddNodeMenuBadge(
                 onAddNodeMenuBadgeComplete,
                 "directorStage",
@@ -584,7 +584,7 @@ export function CanvasContextMenu({
           badge={addNodeMenuBadges?.videoEditing}
           dataActionUiId="canvas.menu-add-video-editing"
           onClick={() =>
-            handleClick2(() => {
+            handleClick(() => {
               completeAddNodeMenuBadge(
                 onAddNodeMenuBadgeComplete,
                 "videoEditing",

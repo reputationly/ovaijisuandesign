@@ -20,27 +20,27 @@ const PLUS_CLICK_FLOW_OFFSET = 120;
 
 const PLUS_CLICK_MENU_GAP_PX = 16;
 
-function inputHandleOffset(sourcePos, size2) {
+function inputHandleOffset(sourcePos, size) {
   switch (sourcePos) {
     case Position.Right:
       return {
         x: 0,
-        y: size2.height / 2,
+        y: size.height / 2,
       };
     case Position.Left:
       return {
-        x: size2.width,
-        y: size2.height / 2,
+        x: size.width,
+        y: size.height / 2,
       };
     case Position.Bottom:
       return {
-        x: size2.width / 2,
+        x: size.width / 2,
         y: 0,
       };
     case Position.Top:
       return {
-        x: size2.width / 2,
-        y: size2.height,
+        x: size.width / 2,
+        y: size.height,
       };
     default: {
       const _exhaustive = sourcePos;
@@ -49,27 +49,27 @@ function inputHandleOffset(sourcePos, size2) {
   }
 }
 
-function offsetAlongHandle(point2, pos, distance2) {
+function offsetAlongHandle(point, pos, distance) {
   switch (pos) {
     case Position.Right:
       return {
-        x: point2.x + distance2,
-        y: point2.y,
+        x: point.x + distance,
+        y: point.y,
       };
     case Position.Left:
       return {
-        x: point2.x - distance2,
-        y: point2.y,
+        x: point.x - distance,
+        y: point.y,
       };
     case Position.Bottom:
       return {
-        x: point2.x,
-        y: point2.y + distance2,
+        x: point.x,
+        y: point.y + distance,
       };
     case Position.Top:
       return {
-        x: point2.x,
-        y: point2.y - distance2,
+        x: point.x,
+        y: point.y - distance,
       };
     default: {
       const _exhaustive = pos;
@@ -84,27 +84,27 @@ function newSourcesForTarget(sources, target, edges) {
     if (edge.target === target) existing.add(edge.source);
   }
   const result = [];
-  const seen2 = new Set();
+  const seen = new Set();
   for (const source of sources) {
     if (source === target) continue;
     if (existing.has(source)) continue;
-    if (seen2.has(source)) continue;
+    if (seen.has(source)) continue;
     result.push(source);
-    seen2.add(source);
+    seen.add(source);
   }
   return result;
 }
 
 const NO_NEW_NODE_SOURCE_TYPES = new Set([CanvasNodeType.Table]);
 
-function getNodePluginId(data2) {
-  if (!data2 || typeof data2 !== "object" || !("pluginId" in data2))
+function getNodePluginId(data) {
+  if (!data || typeof data !== "object" || !("pluginId" in data))
     return void 0;
-  return typeof data2.pluginId === "string" ? data2.pluginId : void 0;
+  return typeof data.pluginId === "string" ? data.pluginId : void 0;
 }
 
 export function useConnectToAddNode({
-  instance: instance2,
+  instance,
   commands,
   bridgeAddNode,
   bridgeInstantiatePlugin,
@@ -154,35 +154,35 @@ export function useConnectToAddNode({
         y: clientY,
       });
       const connectedTargets = new Set();
-      for (const edge of instance2.getGraph().edges) {
+      for (const edge of instance.getGraph().edges) {
         if (edge.source === sourceId) connectedTargets.add(edge.target);
       }
-      const { nodeLookup, transform: transform2 } = storeApi.getState();
-      const zoom2 = transform2[2];
+      const { nodeLookup, transform } = storeApi.getState();
+      const zoom = transform[2];
       if (
-        findConnectionTarget(nodeLookup, dropFlow, sourceId, zoom2) !== null
+        findConnectionTarget(nodeLookup, dropFlow, sourceId, zoom) !== null
       ) {
         const target = findConnectionTarget(
           nodeLookup,
           dropFlow,
           sourceId,
-          zoom2,
+          zoom,
           connectedTargets,
         );
         if (target) {
           const nodesById = new Map(
-            instance2.getGraph().nodes.map((node) => [node.id, node]),
+            instance.getGraph().nodes.map((node) => [node.id, node]),
           );
-          const oriented = orientUserEdge(sourceId, target, (nodeId) =>
-            nodesById.get(nodeId),
+          const oriented = orientUserEdge(sourceId, target, (id) =>
+            nodesById.get(id),
           );
-          instance2.addEdge({
+          instance.addEdge({
             id: `${oriented.source}->${oriented.target}`,
             source: oriented.source,
             target: oriented.target,
             type: "derivation",
           });
-          instance2.eventBus.emit({
+          instance.eventBus.emit({
             type: "persist:flush",
           });
         }
@@ -229,7 +229,7 @@ export function useConnectToAddNode({
       flowToScreenPosition,
       openContextMenuAt,
       storeApi,
-      instance2,
+      instance,
     ],
   );
   const openAddNodeMenuRef = reactExports.useRef(null);
@@ -304,15 +304,15 @@ export function useConnectToAddNode({
       if (dropFlow !== void 0) {
         const nodeLookup = storeApi.getState().nodeLookup;
         const points = [];
-        for (const nodeId of sourceNodeIds) {
-          const node2 = nodeLookup.get(nodeId);
-          if (!node2) continue;
-          const width = node2.measured?.width ?? node2.width ?? 0;
-          const height = node2.measured?.height ?? node2.height ?? 0;
+        for (const id of sourceNodeIds) {
+          const node = nodeLookup.get(id);
+          if (!node) continue;
+          const width = node.measured?.width ?? node.width ?? 0;
+          const height = node.measured?.height ?? node.height ?? 0;
           if (!width || !height) continue;
           points.push({
-            sourceFlowX: node2.internals.positionAbsolute.x + width,
-            sourceFlowY: node2.internals.positionAbsolute.y + height / 2,
+            sourceFlowX: node.internals.positionAbsolute.x + width,
+            sourceFlowY: node.internals.positionAbsolute.y + height / 2,
             handlePosition: Position.Right,
           });
         }
@@ -364,52 +364,52 @@ export function useConnectToAddNode({
       const todo = newSourcesForTarget(
         sourceNodeIds,
         targetNodeId,
-        instance2.getGraph().edges,
+        instance.getGraph().edges,
       );
       if (todo.length === 0) return;
       const nodesById = new Map(
-        instance2.getGraph().nodes.map((node) => [node.id, node]),
+        instance.getGraph().nodes.map((node) => [node.id, node]),
       );
       for (const source of todo) {
-        const oriented = orientUserEdge(source, targetNodeId, (nodeId) =>
-          nodesById.get(nodeId),
+        const oriented = orientUserEdge(source, targetNodeId, (id) =>
+          nodesById.get(id),
         );
-        instance2.addEdge({
+        instance.addEdge({
           id: `${oriented.source}->${oriented.target}`,
           source: oriented.source,
           target: oriented.target,
           type: "derivation",
         });
       }
-      instance2.eventBus.emit({
+      instance.eventBus.emit({
         type: "persist:flush",
       });
     },
-    [instance2],
+    [instance],
   );
   const handleAddNode = reactExports.useCallback(
-    async (type2) => {
+    async (type) => {
       const startedAt = Date.now();
-      const pending2 = pendingConnectionRef.current;
+      const pending = pendingConnectionRef.current;
       clearPendingConnection();
-      const pluginId = parsePluginAddNodeType(type2);
-      const source = !pending2
+      const pluginId = parsePluginAddNodeType(type);
+      const source = !pending
         ? "pane_menu"
-        : pending2.sourceNodeIds.length > 1
-          ? pending2.isPlusClick
+        : pending.sourceNodeIds.length > 1
+          ? pending.isPlusClick
             ? "multi_plus_click"
             : "multi_drop"
-          : pending2.isPlusClick
+          : pending.isPlusClick
             ? "connect_plus_click"
             : "connect_drop";
-      if (!pending2) {
+      if (!pending) {
         if (pluginId) {
           const nodeId = await bridgeInstantiatePlugin?.({
             pluginId,
             position: getAddNodePosition(),
           });
           if (nodeId) {
-            instance2.selection.set([nodeId]);
+            instance.selection.set([nodeId]);
             onNodeAdd?.({
               nodeType:
                 pluginId === "comfyui" ? "comfyui" : CanvasNodeType.File,
@@ -426,19 +426,19 @@ export function useConnectToAddNode({
           }
           return;
         }
-        const newNodeId2 = await bridgeAddNode(type2);
+        const newNodeId = await bridgeAddNode(type);
         if (
-          newNodeId2 &&
-          (type2 === CanvasNodeType.Image ||
-            type2 === CanvasNodeType.Video ||
-            type2 === CanvasNodeType.Audio ||
-            type2 === CanvasNodeType.Text)
+          newNodeId &&
+          (type === CanvasNodeType.Image ||
+            type === CanvasNodeType.Video ||
+            type === CanvasNodeType.Audio ||
+            type === CanvasNodeType.Text)
         ) {
-          instance2.selection.set([newNodeId2]);
+          instance.selection.set([newNodeId]);
         }
-        if (newNodeId2)
+        if (newNodeId)
           onNodeAdd?.({
-            nodeType: type2,
+            nodeType: type,
             source,
           });
         return;
@@ -447,10 +447,10 @@ export function useConnectToAddNode({
         const nodeId = await bridgeInstantiatePlugin?.({
           pluginId,
           position: getAddNodePosition(),
-          sourceNodeIds: pending2.sourceNodeIds,
+          sourceNodeIds: pending.sourceNodeIds,
         });
         if (nodeId) {
-          instance2.selection.set([nodeId]);
+          instance.selection.set([nodeId]);
           onNodeAdd?.({
             nodeType: pluginId === "comfyui" ? "comfyui" : CanvasNodeType.File,
             pluginId,
@@ -461,27 +461,27 @@ export function useConnectToAddNode({
         }
         return;
       }
-      const dropPoint2 = getAddNodePosition();
-      const size2 = defaultNodeSizeForType(type2);
-      const offset2 = inputHandleOffset(pending2.sourceHandlePosition, size2);
-      const position2 = {
-        x: dropPoint2.x - offset2.x,
-        y: dropPoint2.y - offset2.y,
+      const dropPoint = getAddNodePosition();
+      const size = defaultNodeSizeForType(type);
+      const offset = inputHandleOffset(pending.sourceHandlePosition, size);
+      const position = {
+        x: dropPoint.x - offset.x,
+        y: dropPoint.y - offset.y,
       };
       const wireEdges = (targetNodeId) => {
         const todo = newSourcesForTarget(
-          pending2.sourceNodeIds,
+          pending.sourceNodeIds,
           targetNodeId,
-          instance2.getGraph().edges,
+          instance.getGraph().edges,
         );
         const nodesById = new Map(
-          instance2.getGraph().nodes.map((node) => [node.id, node]),
+          instance.getGraph().nodes.map((node) => [node.id, node]),
         );
         for (const sourceId of todo) {
-          const oriented = orientUserEdge(sourceId, targetNodeId, (nodeId) =>
-            nodesById.get(nodeId),
+          const oriented = orientUserEdge(sourceId, targetNodeId, (id) =>
+            nodesById.get(id),
           );
-          instance2.addEdge({
+          instance.addEdge({
             id: `${oriented.source}->${oriented.target}`,
             source: oriented.source,
             target: oriented.target,
@@ -490,25 +490,25 @@ export function useConnectToAddNode({
         }
       };
       if (
-        type2 === CanvasNodeType.Image ||
-        type2 === CanvasNodeType.Video ||
-        type2 === CanvasNodeType.Audio
+        type === CanvasNodeType.Image ||
+        type === CanvasNodeType.Video ||
+        type === CanvasNodeType.Audio
       ) {
         const nodeId = crypto.randomUUID();
         let nodeData;
         if (
-          type2 === CanvasNodeType.Audio &&
-          pending2.sourceNodeType === CanvasNodeType.Text &&
-          pending2.sourceNodeIds.length === 1 &&
+          type === CanvasNodeType.Audio &&
+          pending.sourceNodeType === CanvasNodeType.Text &&
+          pending.sourceNodeIds.length === 1 &&
           loadSourceText
         ) {
-          const text2 = (
-            await loadSourceText(pending2.sourceNodeIds[0])
+          const text = (
+            await loadSourceText(pending.sourceNodeIds[0])
           ).trim();
-          if (text2) {
+          if (text) {
             const draftMap = {
               t2a: {
-                prompt: text2,
+                prompt: text,
               },
             };
             nodeData = {
@@ -517,7 +517,7 @@ export function useConnectToAddNode({
           }
         }
         const { size: emptySize, aspectRatio } = emptyMediaNodeInit(
-          type2,
+          type,
           getLastUsedModelParams,
         );
         if (aspectRatio)
@@ -526,33 +526,33 @@ export function useConnectToAddNode({
             aspectRatio,
           };
         commands.addNode({
-          type: type2,
+          type,
           id: nodeId,
-          position: position2,
+          position,
           data: nodeData,
           size: emptySize,
           isEmpty: true,
         });
         wireEdges(nodeId);
-        instance2.selection.set([nodeId]);
-        instance2.eventBus.emit({
+        instance.selection.set([nodeId]);
+        instance.eventBus.emit({
           type: "persist:flush",
         });
         onNodeAdd?.({
-          nodeType: type2,
+          nodeType: type,
           source,
         });
         return;
       }
-      const newNodeId = await bridgeAddNode(type2, position2);
+      const newNodeId = await bridgeAddNode(type, position);
       if (!newNodeId) return;
       wireEdges(newNodeId);
-      instance2.selection.set([newNodeId]);
-      instance2.eventBus.emit({
+      instance.selection.set([newNodeId]);
+      instance.eventBus.emit({
         type: "persist:flush",
       });
       onNodeAdd?.({
-        nodeType: type2,
+        nodeType: type,
         source,
       });
     },
@@ -560,7 +560,7 @@ export function useConnectToAddNode({
       bridgeAddNode,
       bridgeInstantiatePlugin,
       commands,
-      instance2,
+      instance,
       getAddNodePosition,
       clearPendingConnection,
       onNodeAdd,

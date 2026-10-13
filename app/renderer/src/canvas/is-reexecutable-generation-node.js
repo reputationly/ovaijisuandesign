@@ -25,14 +25,14 @@ export function isGroupColorKey(value) {
 }
 export const AGENT_CANVAS_TEXT_SOURCE_TOOL = "hub_canvas_write_node";
 export const CANVAS_TEXT_AGENT_PROMPT_SOURCE = "agent";
-export function getPopoverDraftMap(data2) {
-  if (!data2 || typeof data2 !== "object") return void 0;
-  const map3 = data2[POPOVER_DRAFT_DATA_KEY];
-  if (!map3 || typeof map3 !== "object") return void 0;
-  return map3;
+export function getPopoverDraftMap(data) {
+  if (!data || typeof data !== "object") return void 0;
+  const map = data[POPOVER_DRAFT_DATA_KEY];
+  if (!map || typeof map !== "object") return void 0;
+  return map;
 }
-export function getPopoverDraft(data2, key2) {
-  return getPopoverDraftMap(data2)?.[key2];
+export function getPopoverDraft(data, key) {
+  return getPopoverDraftMap(data)?.[key];
 }
 const NON_RESUBMITTABLE_STATUS = new Set([
   "pending",
@@ -41,21 +41,21 @@ const NON_RESUBMITTABLE_STATUS = new Set([
   "recoverable_error",
   "status_unknown",
 ]);
-export function isReexecutableGenerationNode(node2) {
+export function isReexecutableGenerationNode(node) {
   if (
-    node2.type !== CanvasNodeType.Image &&
-    node2.type !== CanvasNodeType.Video &&
-    node2.type !== CanvasNodeType.Audio &&
-    node2.type !== CanvasNodeType.Text
+    node.type !== CanvasNodeType.Image &&
+    node.type !== CanvasNodeType.Video &&
+    node.type !== CanvasNodeType.Audio &&
+    node.type !== CanvasNodeType.Text
   ) {
     return false;
   }
-  const data2 = node2.data;
-  if (!data2) return false;
-  const status = data2.status;
+  const data = node.data;
+  if (!data) return false;
+  const status = data.status;
   if (typeof status === "string" && NON_RESUBMITTABLE_STATUS.has(status))
     return false;
-  const modelId = data2.model_id;
+  const modelId = data.model_id;
   return typeof modelId === "string" && modelId.length > 0;
 }
 export function groupByLevel(levelMap) {
@@ -129,18 +129,18 @@ export function resolveActiveNodeDraft(draft, hostStatus) {
   return isDraftProtectedGenerationStatus(hostStatus) ? draft : void 0;
 }
 const EDGE_DATA_KEEP_KEYS = ["time"];
-export function prunePersistedEdgeData(data2) {
-  if (!data2 || typeof data2 !== "object") return void 0;
-  const source = data2;
-  let next2;
-  for (const key2 of EDGE_DATA_KEEP_KEYS) {
-    const val = source[key2];
+export function prunePersistedEdgeData(data) {
+  if (!data || typeof data !== "object") return void 0;
+  const source = data;
+  let next;
+  for (const key of EDGE_DATA_KEEP_KEYS) {
+    const val = source[key];
     if (val !== void 0) {
-      next2 ??= {};
-      next2[key2] = val;
+      next ??= {};
+      next[key] = val;
     }
   }
-  return next2;
+  return next;
 }
 const PARAM_BLACKLIST = new Set([
   "prompt",
@@ -151,13 +151,13 @@ const PARAM_BLACKLIST = new Set([
 ]);
 export function pickPersistableModelParams(params, model) {
   const out = {};
-  for (const [key2, value] of Object.entries(params)) {
+  for (const [key, value] of Object.entries(params)) {
     if (value === void 0 || value === null || value === "") continue;
-    if (PARAM_BLACKLIST.has(key2)) continue;
-    const def = model.params[key2];
+    if (PARAM_BLACKLIST.has(key)) continue;
+    const def = model.params[key];
     if (!def) continue;
     if (def.type === "textarea") continue;
-    out[key2] = value;
+    out[key] = value;
   }
   return out;
 }
@@ -189,24 +189,24 @@ function sortJsonValue(value) {
   }
   const source = value;
   const sorted = {};
-  for (const key2 of Object.keys(source).sort()) {
-    sorted[key2] = sortJsonValue(source[key2]);
+  for (const key of Object.keys(source).sort()) {
+    sorted[key] = sortJsonValue(source[key]);
   }
   return sorted;
 }
 export function stableCanvasHash(canvas) {
   const input = JSON.stringify(sortJsonValue(canvas));
-  let hash2 = HASH_OFFSET_BASIS;
+  let hash = HASH_OFFSET_BASIS;
   for (let characterIndex = 0; characterIndex < input.length; characterIndex++) {
-    hash2 ^= input.charCodeAt(characterIndex);
-    hash2 = Math.imul(hash2, HASH_PRIME);
+    hash ^= input.charCodeAt(characterIndex);
+    hash = Math.imul(hash, HASH_PRIME);
   }
-  return (hash2 >>> 0).toString(16).padStart(8, "0");
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 const SUBTITLE_FILE_EXTENSIONS = [".srt", ".vtt", ".ass", ".ssa"];
-export function isSubtitleFileName(name2) {
-  const lower2 = name2.toLowerCase();
-  return SUBTITLE_FILE_EXTENSIONS.some((ext) => lower2.endsWith(ext));
+export function isSubtitleFileName(fileName) {
+  const lower = fileName.toLowerCase();
+  return SUBTITLE_FILE_EXTENSIONS.some((ext) => lower.endsWith(ext));
 }
 export const DEFAULT_ROW_HEIGHT = "low";
 export const ROW_HEIGHT_ORDER = ["low", "medium", "tall", "extraTall"];
@@ -236,9 +236,9 @@ export function newTablePath() {
   const secondIdSegment = Math.random().toString(36).slice(2, 8);
   return `.hilo/tables/${firstIdSegment}${secondIdSegment}.htable`;
 }
-export function defaultColumnWidth(type2) {
-  if (type2 === "attachment") return 200;
-  if (type2 === "number") return 120;
+export function defaultColumnWidth(type) {
+  if (type === "attachment") return 200;
+  if (type === "number") return 120;
   return 200;
 }
 export function createEmptyDocument(defaultColumnTitle = "Text") {
@@ -256,26 +256,26 @@ export function createEmptyDocument(defaultColumnTitle = "Text") {
     rows: [],
   };
 }
-export function addColumn(doc2, init2) {
+export function addColumn(doc, init) {
   const col = {
     id: newColumnId(),
-    title: init2.title.trim() || "Untitled",
-    type: init2.type,
+    title: init.title.trim() || "Untitled",
+    type: init.type,
     visible: true,
-    width: init2.width ?? defaultColumnWidth(init2.type),
+    width: init.width ?? defaultColumnWidth(init.type),
   };
   return {
-    ...doc2,
-    columns: [...doc2.columns, col],
+    ...doc,
+    columns: [...doc.columns, col],
   };
 }
-export function addRow(doc2) {
+export function addRow(doc) {
   const row = {
     id: newRowId(),
     cells: {},
   };
   return {
-    ...doc2,
-    rows: [...doc2.rows, row],
+    ...doc,
+    rows: [...doc.rows, row],
   };
 }

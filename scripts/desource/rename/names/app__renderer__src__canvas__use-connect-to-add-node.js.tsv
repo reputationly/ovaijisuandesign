@@ -1,11 +1,28 @@
 key	old	new	依据
 e2@83:14	e2	edge	该值是用于避免重复连线的现有边。
 n2@174:45	n2	node	该值是按节点标识查到的源节点。
-id2@176:62	id2	nodeId	该值是需要查找并连接的源节点标识。
-id2@307:20	id2	nodeId	该值是待读取源节点位置的节点标识。
+id2@176:62	id2	id	该值是需要查找并连接的源节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@307:20	id2	id	该值是待读取源节点位置的节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 w3@310:17	w3	width	该值是源节点测量宽度或布局宽度。
 h2@311:17	h2	height	该值是源节点测量高度或布局高度。
 n2@371:41	n2	node	该值是用于连接的新建图节点。
-id2@374:64	id2	nodeId	该值是从图节点映射中查找的节点标识。
+id2@374:64	id2	id	该值是从图节点映射中查找的节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 n2@478:43	n2	node	该值是用于构建节点标识映射的图节点。
-id2@481:68	id2	nodeId	该值是用于查找定向边端点的节点标识。
+id2@481:68	id2	id	该值是用于查找定向边端点的节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+size2@23:39	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+point2@52:28	point2	point	原名 point2 的末尾 2 是打包器去重后缀；恢复词干 point，该绑定表示坐标点。
+distance2@52:41	distance2	distance	原名 distance2 的末尾 2 是打包器去重后缀；恢复词干 distance，该绑定表示距离值。
+seen2@87:9	seen2	seen	原名 seen2 的末尾 2 是打包器去重后缀；恢复词干 seen，该绑定表示已访问集合。
+data2@100:26	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+instance2@107:13	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+transform2@160:38	transform2	transform	原名 transform2 的末尾 2 是打包器去重后缀；恢复词干 transform，该绑定表示变换函数。
+zoom2@161:13	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+node2@308:17	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+type2@391:12	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
+pending2@393:13	pending2	pending	原名 pending2 的末尾 2 是打包器去重后缀；恢复词干 pending，该绑定表示待处理状态。
+dropPoint2@464:13	dropPoint2	dropPoint	原名 dropPoint2 的末尾 2 是打包器去重后缀；恢复词干 dropPoint，该绑定表示放置位置坐标。
+size2@465:13	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+offset2@466:13	offset2	offset	原名 offset2 的末尾 2 是打包器去重后缀；恢复词干 offset，该绑定表示偏移量。
+position2@467:13	position2	position	原名 position2 的末尾 2 是打包器去重后缀；恢复词干 position，该绑定表示位置坐标。
+newNodeId2@429:15	newNodeId2	newNodeId	原名 newNodeId2 的末尾 2 是打包器去重后缀；恢复词干 newNodeId，该绑定表示新节点标识符。
+text2@505:17	text2	text	原名 text2 的末尾 2 是打包器去重后缀；恢复词干 text，该绑定表示文本内容。

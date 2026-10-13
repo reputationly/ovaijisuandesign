@@ -18,8 +18,8 @@ export class LayoutEngine {
   register(strategy) {
     this.strategies.set(strategy.name, strategy);
   }
-  unregister(name2) {
-    this.strategies.delete(name2);
+  unregister(strategyName) {
+    this.strategies.delete(strategyName);
   }
   compute(strategyName, nodes, edges, options) {
     const strategy = this.strategies.get(strategyName);
@@ -59,15 +59,15 @@ export class LayoutEngine {
         options,
       );
     }
-    const mode2 = options?.mode ?? CanvasMode.Workflow;
-    const anchor = options?.anchor ?? computeCentroid(existingNodes, mode2);
-    const occupied = existingNodes.map((node) => nodeToRect(node, mode2));
+    const mode = options?.mode ?? CanvasMode.Workflow;
+    const anchor = options?.anchor ?? computeCentroid(existingNodes, mode);
+    const occupied = existingNodes.map((node) => nodeToRect(node, mode));
     const allNodeIds = new Set([
       ...existingNodes.map((node) => node.id),
       ...newNodes.map((node) => node.id),
     ]);
-    const { children: children2, parents } = buildAdjacency(allNodeIds, edges);
-    const levels = topoSortLevels(allNodeIds, children2, parents);
+    const { children, parents } = buildAdjacency(allNodeIds, edges);
+    const levels = topoSortLevels(allNodeIds, children, parents);
     const newByLevel = new Map();
     for (const node of newNodes) {
       const level = levels.get(node.id) ?? 0;
@@ -80,8 +80,8 @@ export class LayoutEngine {
     for (const level of sortedLevels) {
       const nodesAtLevel = newByLevel.get(level) ?? [];
       for (let nodeIndex = 0; nodeIndex < nodesAtLevel.length; nodeIndex++) {
-        const node2 = nodesAtLevel[nodeIndex];
-        const sz = sizeOf(node2, mode2);
+        const node = nodesAtLevel[nodeIndex];
+        const sz = sizeOf(node, mode);
         const pos = {
           x: anchor.x + level * levelGap,
           y: anchor.y + nodeIndex * (sz.height + COLLISION_MARGIN),
@@ -101,7 +101,7 @@ export class LayoutEngine {
           x: candidate.x,
           y: candidate.y,
         };
-        result.set(node2.id, finalPos);
+        result.set(node.id, finalPos);
         occupied.push({
           x: finalPos.x,
           y: finalPos.y,

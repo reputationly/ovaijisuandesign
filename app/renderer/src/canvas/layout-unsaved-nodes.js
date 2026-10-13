@@ -15,8 +15,8 @@ function deepEqualJsonLike(leftValue, rightValue) {
   if (Array.isArray(rightValue)) return false;
   const aObj = leftValue;
   const bObj = rightValue;
-  const keys2 = new Set([...Object.keys(aObj), ...Object.keys(bObj)]);
-  for (const key of keys2) {
+  const keys = new Set([...Object.keys(aObj), ...Object.keys(bObj)]);
+  for (const key of keys) {
     if (!deepEqualJsonLike(aObj[key], bObj[key])) return false;
   }
   return true;
@@ -80,21 +80,21 @@ export function reuseUnchangedNodeRefs(freshNodes, currentNodes) {
     ? new Map(currentNodes.map((node) => [node.id, node]))
     : currentNodes;
   for (let nodeIndex = 0; nodeIndex < freshNodes.length; nodeIndex++) {
-    const next2 = freshNodes[nodeIndex];
-    const prev = lookup.get(next2.id);
-    if (prev && areCanvasNodesContentEqual(prev, next2)) {
+    const next = freshNodes[nodeIndex];
+    const prev = lookup.get(next.id);
+    if (prev && areCanvasNodesContentEqual(prev, next)) {
       freshNodes[nodeIndex] = prev;
     }
   }
   return freshNodes;
 }
 
-function partitionByPosition(nodes, allSavedNodes, mode2) {
+function partitionByPosition(nodes, allSavedNodes, mode) {
   const withSaved = [];
   const withoutSaved = [];
   for (const node of nodes) {
     const savedNode = allSavedNodes.get(node.id);
-    (node.meta?.hidden || isFiniteCanvasPosition(savedNode?.positions?.[mode2])
+    (node.meta?.hidden || isFiniteCanvasPosition(savedNode?.positions?.[mode])
       ? withSaved
       : withoutSaved
     ).push(node);
@@ -105,7 +105,7 @@ function partitionByPosition(nodes, allSavedNodes, mode2) {
   };
 }
 
-function applyPositions(nodes, positions, mode2) {
+function applyPositions(nodes, positions, mode) {
   return nodes.map((node) => {
     const pos = positions.get(node.id);
     return pos
@@ -113,7 +113,7 @@ function applyPositions(nodes, positions, mode2) {
           ...node,
           positions: {
             ...node.positions,
-            [mode2]: pos,
+            [mode]: pos,
           },
         }
       : node;
@@ -121,17 +121,17 @@ function applyPositions(nodes, positions, mode2) {
 }
 
 export function layoutUnsavedNodes(
-  instance2,
+  instance,
   nodes,
   allSavedNodes,
-  mode2,
+  mode,
   edges,
   anchor,
 ) {
   const { withSaved, withoutSaved } = partitionByPosition(
     nodes,
     allSavedNodes,
-    mode2,
+    mode,
   );
   if (withoutSaved.length === 0) {
     return {
@@ -139,13 +139,13 @@ export function layoutUnsavedNodes(
       needsPersist: false,
     };
   }
-  const positions = instance2.layout.computeIncremental(
+  const positions = instance.layout.computeIncremental(
     "dagre",
     withSaved,
     withoutSaved,
     edges,
     {
-      mode: mode2,
+      mode,
       ...(anchor
         ? {
             anchor,
@@ -154,7 +154,7 @@ export function layoutUnsavedNodes(
     },
   );
   return {
-    nodes: applyPositions(nodes, positions, mode2),
+    nodes: applyPositions(nodes, positions, mode),
     needsPersist: true,
   };
 }

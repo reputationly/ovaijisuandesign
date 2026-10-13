@@ -1,9 +1,9 @@
 // ungroup-in-canvas.js
 import { CanvasNodeType } from "../vendor.js";
 import { withParentId } from "./compute-group-bounds-from-children.js";
-export function ungroupInCanvas(canvas, groupId2) {
-  const mode2 = canvas.mode;
-  const groupNode = canvas.nodes.find((node) => node.id === groupId2);
+export function ungroupInCanvas(canvas, groupId) {
+  const mode = canvas.mode;
+  const groupNode = canvas.nodes.find((node) => node.id === groupId);
   if (!groupNode || groupNode.type !== CanvasNodeType.Group) {
     return {
       canvas,
@@ -13,15 +13,15 @@ export function ungroupInCanvas(canvas, groupId2) {
     };
   }
   const groupModes = new Set();
-  for (const mode of Object.keys(groupNode.positions ?? {})) {
-    groupModes.add(mode);
+  for (const layoutMode of Object.keys(groupNode.positions ?? {})) {
+    groupModes.add(layoutMode);
   }
   const groupAbsByMode = new Map();
-  for (const mode of groupModes) {
-    const position = groupNode.positions?.[mode];
-    if (position) groupAbsByMode.set(mode, position);
+  for (const layoutMode of groupModes) {
+    const position = groupNode.positions?.[layoutMode];
+    if (position) groupAbsByMode.set(layoutMode, position);
   }
-  if (!groupAbsByMode.has(mode2)) {
+  if (!groupAbsByMode.has(mode)) {
     const availableModes = Array.from(groupAbsByMode.keys());
     return {
       canvas,
@@ -30,40 +30,40 @@ export function ungroupInCanvas(canvas, groupId2) {
       removed: false,
       error: {
         code: "incomplete-positions",
-        mode: mode2,
-        missingNodeIds: [groupId2],
+        mode,
+        missingNodeIds: [groupId],
         availableModes,
       },
     };
   }
   const updatedChildren = [];
   const nextNodes = [];
-  for (const node2 of canvas.nodes) {
-    if (node2.id === groupId2) continue;
-    if (node2.parentId === groupId2) {
+  for (const node of canvas.nodes) {
+    if (node.id === groupId) continue;
+    if (node.parentId === groupId) {
       const newPositions = {
-        ...(node2.positions ?? {}),
+        ...(node.positions ?? {}),
       };
-      for (const [mode, groupAbs] of groupAbsByMode) {
-        const rel = node2.positions?.[mode];
+      for (const [layoutMode, groupAbs] of groupAbsByMode) {
+        const rel = node.positions?.[layoutMode];
         if (!rel) continue;
-        newPositions[mode] = {
+        newPositions[layoutMode] = {
           x: rel.x + groupAbs.x,
           y: rel.y + groupAbs.y,
         };
       }
-      const next2 = withParentId(
+      const next = withParentId(
         {
-          ...node2,
+          ...node,
           positions: newPositions,
         },
         void 0,
       );
-      nextNodes.push(next2);
-      updatedChildren.push(next2);
+      nextNodes.push(next);
+      updatedChildren.push(next);
       continue;
     }
-    nextNodes.push(node2);
+    nextNodes.push(node);
   }
   return {
     canvas: {
@@ -71,18 +71,18 @@ export function ungroupInCanvas(canvas, groupId2) {
       nodes: nextNodes,
       edges: canvas.edges,
     },
-    removedNodeIds: [groupId2],
+    removedNodeIds: [groupId],
     updatedNodes: updatedChildren,
     removed: true,
   };
 }
-export function isGroupedNode(node2) {
-  return typeof node2.groupId === "string" && node2.groupId.length > 0;
+export function isGroupedNode(node) {
+  return typeof node.groupId === "string" && node.groupId.length > 0;
 }
-export function collectGroupMembers(nodes, groupId2) {
+export function collectGroupMembers(nodes, groupId) {
   const members = [];
   for (let nodeIndex = 0; nodeIndex < nodes.length; nodeIndex += 1) {
-    if (nodes[nodeIndex].groupId === groupId2)
+    if (nodes[nodeIndex].groupId === groupId)
       members.push({
         node: nodes[nodeIndex],
         i: nodeIndex,
@@ -105,16 +105,16 @@ export function resolveMainNode(members) {
   return members.find((node) => node.meta?.hidden !== true) ?? members[0];
 }
 export function resolveGroupMainId(nodes, nodeId) {
-  const node2 = nodes.find((node) => node.id === nodeId);
-  if (!node2 || !isGroupedNode(node2)) return nodeId;
-  const main2 = resolveMainNode(collectGroupMembers(nodes, node2.groupId));
-  return main2?.id ?? nodeId;
+  const node = nodes.find((candidateNode) => candidateNode.id === nodeId);
+  if (!node || !isGroupedNode(node)) return nodeId;
+  const main = resolveMainNode(collectGroupMembers(nodes, node.groupId));
+  return main?.id ?? nodeId;
 }
 export function pickSuccessorMain(remaining, removedSortedIndex) {
   if (remaining.length === 0) return void 0;
   const sorted = remaining
-    .map((node2, index) => ({
-      node: node2,
+    .map((node, index) => ({
+      node,
       i: index,
     }))
     .sort((leftMember, rightMember) => {
@@ -131,9 +131,9 @@ export function pickSuccessorMain(remaining, removedSortedIndex) {
   const idx = Math.max(0, removedSortedIndex);
   return (sorted[idx] ?? sorted[sorted.length - 1])?.id;
 }
-export function removeGroup(nodes, groupId2) {
+export function removeGroup(nodes, groupId) {
   const removed = new Set();
-  for (const node of nodes) if (node.groupId === groupId2) removed.add(node.id);
+  for (const node of nodes) if (node.groupId === groupId) removed.add(node.id);
   if (removed.size === 0) {
     return {
       nodes: nodes.slice(),
@@ -147,22 +147,22 @@ export function removeGroup(nodes, groupId2) {
     updatedIds: [],
   };
 }
-export function imageNodeAssetId(node2) {
-  if (typeof node2.assetId === "string" && node2.assetId.length > 0)
-    return node2.assetId;
-  const da = node2.data?.assetId;
+export function imageNodeAssetId(node) {
+  if (typeof node.assetId === "string" && node.assetId.length > 0)
+    return node.assetId;
+  const da = node.data?.assetId;
   if (typeof da === "string" && da.length > 0) return da;
-  return node2.id;
+  return node.id;
 }
-export function mirrorAssetIdIntoData(node2) {
-  const assetId = imageNodeAssetId(node2);
-  if (!assetId || assetId === node2.id) return node2;
-  const data2 = node2.data ?? {};
-  if (data2.assetId === assetId) return node2;
+export function mirrorAssetIdIntoData(node) {
+  const assetId = imageNodeAssetId(node);
+  if (!assetId || assetId === node.id) return node;
+  const data = node.data ?? {};
+  if (data.assetId === assetId) return node;
   return {
-    ...node2,
+    ...node,
     data: {
-      ...data2,
+      ...data,
       assetId,
     },
   };
@@ -189,7 +189,7 @@ export function promoteToMain(nodes, nodeId) {
   const out = nodes.map((node) => {
     if (node.id === nodeId) {
       updatedIds.push(node.id);
-      const next2 = {
+      const next = {
         ...node,
         meta: {
           ...(node.meta ?? {}),
@@ -200,16 +200,16 @@ export function promoteToMain(nodes, nodeId) {
         },
       };
       if (oldMain.size)
-        next2.size = {
+        next.size = {
           ...oldMain.size,
         };
       if (oldMain.sizes)
-        next2.sizes = {
+        next.sizes = {
           ...oldMain.sizes,
         };
-      if (oldMain.parentId !== void 0) next2.parentId = oldMain.parentId;
-      else delete next2.parentId;
-      return mirrorAssetIdIntoData(next2);
+      if (oldMain.parentId !== void 0) next.parentId = oldMain.parentId;
+      else delete next.parentId;
+      return mirrorAssetIdIntoData(next);
     }
     if (node.id === oldMain.id) {
       updatedIds.push(node.id);

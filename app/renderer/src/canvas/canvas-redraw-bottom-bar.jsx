@@ -61,12 +61,12 @@ const CanvasRedrawRegionNode = Node.create({
     ];
   },
 });
-function AttachmentThumb({ attachment, onRemove: onRemove2 }) {
+function AttachmentThumb({ attachment, onRemove }) {
   const { t: translate } = useTranslation();
-  const url2 = useAssetMetadataStore(
+  const url = useAssetMetadataStore(
     (storeState) => storeState.assets.get(attachment.assetId)?.url,
   );
-  const thumb = url2 ? buildThumbnailUrl(url2, 96) : void 0;
+  const thumb = url ? buildThumbnailUrl(url, 96) : void 0;
   return (
     <div
       className="group relative h-7 w-7 shrink-0 overflow-hidden rounded-md border"
@@ -95,7 +95,7 @@ function AttachmentThumb({ attachment, onRemove: onRemove2 }) {
       )}
       <button
         type="button"
-        onClick={onRemove2}
+        onClick={onRemove}
         className="absolute right-0 top-0 rounded-bl-md bg-black/50 p-0.5 text-white transition-colors hover:bg-red-500/80 [&>svg]:size-3"
         aria-label={translate("a11y.removeAttachment", "Remove attachment")}
       >
@@ -105,7 +105,7 @@ function AttachmentThumb({ attachment, onRemove: onRemove2 }) {
   );
 }
 export const CanvasRedrawBottomBar = reactExports.memo(
-  function CanvasRedrawBottomBar2({
+  function CanvasRedrawBottomBar({
     hasRegions,
     submitting,
     onSend,
@@ -178,7 +178,7 @@ export const CanvasRedrawBottomBar = reactExports.memo(
         console.warn("[redraw-bottom-bar] pickAsset rejected", err);
       }
     }, [pickAsset, attachments]);
-    const removeAttachment2 = reactExports.useCallback(() => {
+    const removeAttachment = reactExports.useCallback(() => {
       setAttachments([]);
     }, []);
     return (
@@ -210,7 +210,7 @@ export const CanvasRedrawBottomBar = reactExports.memo(
               {attachments.length > 0 ? (
                 <AttachmentThumb
                   attachment={attachments[0]}
-                  onRemove={removeAttachment2}
+                  onRemove={removeAttachment}
                 />
               ) : (
                 <button

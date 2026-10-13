@@ -11,3 +11,10 @@ a2@115:33	a2	currentPeer	该值是当前堆叠列中的节点。
 b3@115:37	b3	candidatePeer	该值是比较是否更靠下的节点。
 a2@251:39	a2	currentPeer	该值是当前堆叠列中的节点。
 b3@251:43	b3	candidatePeer	该值是比较是否更靠下的节点。
+nextY2@46:13	nextY2	nextY	原名 nextY2 的末尾 2 是打包器去重后缀；恢复词干 nextY，该绑定表示后续纵坐标。
+nextX2@51:13	nextX2	nextX	原名 nextX2 的末尾 2 是打包器去重后缀；恢复词干 nextX，该绑定表示后续横坐标。
+match2@88:11	match2	match	原名 match2 的末尾 2 是打包器去重后缀；恢复词干 match，该绑定表示匹配结果。
+anchors2@172:9	anchors2	anchors	原名 anchors2 的末尾 2 是打包器去重后缀；恢复词干 anchors，该绑定表示锚点集合。
+index2@177:14	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
+max2@238:8	max2	max	原名 max2 的末尾 2 是打包器去重后缀；恢复词干 max，该绑定表示最大值。
+min2@243:8	min2	min	原名 min2 的末尾 2 是打包器去重后缀；恢复词干 min，该绑定表示最小值。

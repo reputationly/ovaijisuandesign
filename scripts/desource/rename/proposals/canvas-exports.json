@@ -1,5 +1,8 @@
 {
   "app/renderer/src/canvas/history-manager2.js": {
     "HistoryManager2": "HistoryManager"
+  },
+  "app/renderer/src/canvas/fullscreen-icon.jsx": {
+    "AnnotationIcon$1": "AnnotationIcon"
   }
 }

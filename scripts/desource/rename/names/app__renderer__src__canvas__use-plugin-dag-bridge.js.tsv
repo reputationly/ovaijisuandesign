@@ -1,3 +1,24 @@
 key	old	new	依据
-id2@57:8	id2	runId	group.runIds 中的运行标识用于读取对应结果并构造失败占位项。
+id2@57:8	id2	id	group.runIds 中的运行标识用于读取对应结果并构造失败占位项。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 r2@273:18	r2	settledResult	该条 settled 结果按 fulfilled 或 rejected 分流处理。
+code2@11:24	code2	code	原名 code2 的末尾 2 是打包器去重后缀；恢复词干 code，该绑定表示代码文本。
+gatewayFetch2@33:36	gatewayFetch2	gatewayFetch	原名 gatewayFetch2 的末尾 2 是打包器去重后缀；恢复词干 gatewayFetch，该绑定表示网关请求函数。
+groupId2@47:14	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
+set2@48:13	set2	set	原名 set2 的末尾 2 是打包器去重后缀；恢复词干 set，该绑定表示赋值函数。
+listeners2@64:11	listeners2	listeners	原名 listeners2 的末尾 2 是打包器去重后缀；恢复词干 listeners，该绑定表示监听器集合。
+envelope2@68:13	envelope2	envelope	原名 envelope2 的末尾 2 是打包器去重后缀；恢复词干 envelope，该绑定表示信封数据对象。
+count2@103:9	count2	count	原名 count2 的末尾 2 是打包器去重后缀；恢复词干 count，该绑定表示数量。
+groupId2@104:16	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
+body2@140:11	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。
+groupId2@173:13	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
+timer2@175:13	timer2	timer	原名 timer2 的末尾 2 是打包器去重后缀；恢复词干 timer，该绑定表示定时器标识。
+groupId2@286:13	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
+body2@258:15	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。
+text2@253:19	text2	text	原名 text2 的末尾 2 是打包器去重后缀；恢复词干 text，该绑定表示文本内容。
+first2@278:15	first2	first	原名 first2 的末尾 2 是打包器去重后缀；恢复词干 first，该绑定表示首个值。
+body2@328:11	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。
+text2@323:15	text2	text	原名 text2 的末尾 2 是打包器去重后缀；恢复词干 text，该绑定表示文本内容。
+set2@338:9	set2	set	原名 set2 的末尾 2 是打包器去重后缀；恢复词干 set，该绑定表示赋值函数。
+current2@345:13	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+list2@355:13	list2	list	原名 list2 的末尾 2 是打包器去重后缀；恢复词干 list，该绑定表示列表数据。
+groupId2@356:18	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。

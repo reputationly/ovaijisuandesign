@@ -33,9 +33,9 @@ function carryIsEmptyField(saved) {
       }
     : {};
 }
-function displaySizeFromData(type2, data2) {
-  if (type2 !== "image") return void 0;
-  const value = data2?.displaySize;
+function displaySizeFromData(type, data) {
+  if (type !== "image") return void 0;
+  const value = data?.displaySize;
   if (!value || typeof value !== "object") return void 0;
   const { width, height } = value;
   if (
@@ -54,40 +54,40 @@ function displaySizeFromData(type2, data2) {
 function sizeFromItem(item) {
   return computeNodeSize(item.meta.width, item.meta.height);
 }
-function resolveNodeSize(type2, savedSize, item, data2) {
+function resolveNodeSize(type, savedSize, item, data) {
   return (
-    displaySizeFromData(type2, data2) ??
+    displaySizeFromData(type, data) ??
     savedSize ??
     (item ? sizeFromItem(item) : void 0) ??
-    defaultNodeSizeForType(type2)
+    defaultNodeSizeForType(type)
   );
 }
-function metaToData(meta2) {
+function metaToData(meta) {
   const out = {};
-  if (meta2.name !== void 0) out.name = meta2.name;
-  if (meta2.path !== void 0) out.path = meta2.path;
-  if (meta2.prompt !== void 0) out.prompt = meta2.prompt;
-  if (meta2.description !== void 0) out.description = meta2.description;
-  if (meta2.model !== void 0) out.model = meta2.model;
-  if (meta2.model_id !== void 0) out.model_id = meta2.model_id;
-  if (meta2.backend !== void 0) out.backend = meta2.backend;
-  if (meta2.source_tool !== void 0) out.source_tool = meta2.source_tool;
-  if (meta2.params !== void 0) out.params = meta2.params;
-  if (meta2.voiceId !== void 0) out.voiceId = meta2.voiceId;
-  if (meta2.lyrics !== void 0) out.lyrics = meta2.lyrics;
-  if (meta2.compositionPlan !== void 0)
-    out.composition_plan = meta2.compositionPlan;
-  if (meta2.width !== void 0) out.width = meta2.width;
-  if (meta2.height !== void 0) out.height = meta2.height;
-  if (meta2.durationSec !== void 0) out.duration = meta2.durationSec;
-  if (meta2.referenceImageIds !== void 0)
-    out.referenceImageIds = meta2.referenceImageIds;
-  if (meta2.referenceVideoIds !== void 0)
-    out.referenceVideoIds = meta2.referenceVideoIds;
-  if (meta2.referenceAudioIds !== void 0)
-    out.referenceAudioIds = meta2.referenceAudioIds;
-  if (meta2.referenceTextIds !== void 0)
-    out.referenceTextIds = meta2.referenceTextIds;
+  if (meta.name !== void 0) out.name = meta.name;
+  if (meta.path !== void 0) out.path = meta.path;
+  if (meta.prompt !== void 0) out.prompt = meta.prompt;
+  if (meta.description !== void 0) out.description = meta.description;
+  if (meta.model !== void 0) out.model = meta.model;
+  if (meta.model_id !== void 0) out.model_id = meta.model_id;
+  if (meta.backend !== void 0) out.backend = meta.backend;
+  if (meta.source_tool !== void 0) out.source_tool = meta.source_tool;
+  if (meta.params !== void 0) out.params = meta.params;
+  if (meta.voiceId !== void 0) out.voiceId = meta.voiceId;
+  if (meta.lyrics !== void 0) out.lyrics = meta.lyrics;
+  if (meta.compositionPlan !== void 0)
+    out.composition_plan = meta.compositionPlan;
+  if (meta.width !== void 0) out.width = meta.width;
+  if (meta.height !== void 0) out.height = meta.height;
+  if (meta.durationSec !== void 0) out.duration = meta.durationSec;
+  if (meta.referenceImageIds !== void 0)
+    out.referenceImageIds = meta.referenceImageIds;
+  if (meta.referenceVideoIds !== void 0)
+    out.referenceVideoIds = meta.referenceVideoIds;
+  if (meta.referenceAudioIds !== void 0)
+    out.referenceAudioIds = meta.referenceAudioIds;
+  if (meta.referenceTextIds !== void 0)
+    out.referenceTextIds = meta.referenceTextIds;
   return out;
 }
 const warnedRecoveredNodeIds = new Set();
@@ -96,11 +96,11 @@ function anchorOrder(nodes, existingOrder) {
   for (const node of nodes) byId.set(node.id, node);
   const result = [];
   const consumed = new Set();
-  for (const nodeId of existingOrder) {
-    const node = byId.get(nodeId);
-    if (node && !consumed.has(nodeId)) {
+  for (const id of existingOrder) {
+    const node = byId.get(id);
+    if (node && !consumed.has(id)) {
       result.push(node);
-      consumed.add(nodeId);
+      consumed.add(id);
     }
   }
   for (const node of nodes) {
@@ -149,24 +149,24 @@ export function buildCanvasNodes(input) {
   const nodes = [];
   for (const item of visibleItems) {
     const saved = savedByAssetId.get(item.id);
-    const type2 = mediaTypeToNodeType(item.meta.type);
+    const type = mediaTypeToNodeType(item.meta.type);
     const nodeId = saved?.id ?? crypto.randomUUID();
     if (!saved) {
       syntheticSavedNodes.set(nodeId, {
         id: nodeId,
-        type: type2,
+        type,
         positions: {},
         assetId: item.id,
       });
     }
     nodes.push({
       id: nodeId,
-      type: type2,
+      type,
       // Pass the full per-mode positions map through unchanged. Missing
       // entries (node never placed in a particular mode) are filled in by
       // `layoutUnsavedNodes` downstream.
       positions: sanitizeCanvasPositions(saved?.positions ?? {}).positions,
-      size: resolveNodeSize(type2, saved?.size, item, saved?.data),
+      size: resolveNodeSize(type, saved?.size, item, saved?.data),
       data: {
         ...(saved ? mirrorImageFieldsIntoData(saved) : {}),
         assetId: item.id,
@@ -184,44 +184,44 @@ export function buildCanvasNodes(input) {
   }
   const hiddenAssetIds = input.hiddenAssetIds;
   if (cloneNodes?.length) {
-    for (const clone2 of cloneNodes) {
+    for (const clone of cloneNodes) {
       const assetId =
-        typeof clone2.assetId === "string" && clone2.assetId.length > 0
-          ? clone2.assetId
-          : parseNodeId(clone2.id).assetId;
+        typeof clone.assetId === "string" && clone.assetId.length > 0
+          ? clone.assetId
+          : parseNodeId(clone.id).assetId;
       const primaryItem = itemByAssetId.get(assetId);
       if (!primaryItem) {
         if (
-          !isAssetBackedNode(clone2.type) ||
-          clone2.type === CanvasNodeType.Text
+          !isAssetBackedNode(clone.type) ||
+          clone.type === CanvasNodeType.Text
         ) {
           nodes.push({
-            id: clone2.id,
-            type: clone2.type,
-            positions: sanitizeCanvasPositions(clone2.positions ?? {})
+            id: clone.id,
+            type: clone.type,
+            positions: sanitizeCanvasPositions(clone.positions ?? {})
               .positions,
             size: resolveNodeSize(
-              clone2.type,
-              clone2.size,
+              clone.type,
+              clone.size,
               void 0,
-              clone2.data,
+              clone.data,
             ),
-            data: mirrorImageFieldsIntoData(clone2),
-            ...carryAssetIdField(clone2),
-            ...carryIsEmptyField(clone2),
-            meta: clone2.meta,
-            ...(clone2.parentId
+            data: mirrorImageFieldsIntoData(clone),
+            ...carryAssetIdField(clone),
+            ...carryIsEmptyField(clone),
+            meta: clone.meta,
+            ...(clone.parentId
               ? {
-                  parentId: clone2.parentId,
+                  parentId: clone.parentId,
                 }
               : {}),
-            ...carryGroupFields(clone2),
+            ...carryGroupFields(clone),
           });
           continue;
         }
         continue;
       }
-      const type2 = clone2.type || mediaTypeToNodeType(primaryItem.meta.type);
+      const type = clone.type || mediaTypeToNodeType(primaryItem.meta.type);
       const primarySaved = savedByAssetId.get(assetId);
       const primaryData = primarySaved
         ? mirrorImageFieldsIntoData(primarySaved)
@@ -229,7 +229,7 @@ export function buildCanvasNodes(input) {
       const inheritedData = {
         ...metaToData(primaryItem.meta),
         ...primaryData,
-        ...(clone2.data ?? {}),
+        ...(clone.data ?? {}),
         // Mirror the backing assetId into data so `useImageNodeView` resolves
         // the shared asset URL. A pasted clone has a random-UUID node id (not
         // `<assetId>~<suffix>`), so `parseNodeId(nodeId)` can't recover the
@@ -243,47 +243,47 @@ export function buildCanvasNodes(input) {
         // branch builds `data` from scratch instead of calling that helper, so
         // re-derive `cloneOf` here too — otherwise `useNodeRename` would treat a
         // reloaded clone as an origin and rename the SHARED physical file.
-        ...(clone2.meta?.cloneOf != null
+        ...(clone.meta?.cloneOf != null
           ? {
-              cloneOf: clone2.meta.cloneOf,
+              cloneOf: clone.meta.cloneOf,
             }
           : {}),
       };
       nodes.push({
-        id: clone2.id,
-        type: type2,
-        positions: sanitizeCanvasPositions(clone2.positions ?? {}).positions,
-        size: resolveNodeSize(type2, clone2.size, primaryItem, inheritedData),
+        id: clone.id,
+        type,
+        positions: sanitizeCanvasPositions(clone.positions ?? {}).positions,
+        size: resolveNodeSize(type, clone.size, primaryItem, inheritedData),
         data: inheritedData,
-        ...carryAssetIdField(clone2),
-        ...carryIsEmptyField(clone2),
-        meta: clone2.meta,
-        ...(clone2.parentId
+        ...carryAssetIdField(clone),
+        ...carryIsEmptyField(clone),
+        meta: clone.meta,
+        ...(clone.parentId
           ? {
-              parentId: clone2.parentId,
+              parentId: clone.parentId,
             }
           : {}),
-        ...carryGroupFields(clone2),
+        ...carryGroupFields(clone),
       });
     }
   }
   if (standaloneNodes?.length) {
-    for (const standaloneNode of standaloneNodes) {
+    for (const sn of standaloneNodes) {
       nodes.push({
-        id: standaloneNode.id,
-        type: standaloneNode.type,
-        positions: sanitizeCanvasPositions(standaloneNode.positions ?? {}).positions,
-        size: resolveNodeSize(standaloneNode.type, standaloneNode.size, void 0, standaloneNode.data),
-        data: mirrorImageFieldsIntoData(standaloneNode),
-        ...carryAssetIdField(standaloneNode),
-        ...carryIsEmptyField(standaloneNode),
-        meta: standaloneNode.meta,
-        ...(standaloneNode.parentId
+        id: sn.id,
+        type: sn.type,
+        positions: sanitizeCanvasPositions(sn.positions ?? {}).positions,
+        size: resolveNodeSize(sn.type, sn.size, void 0, sn.data),
+        data: mirrorImageFieldsIntoData(sn),
+        ...carryAssetIdField(sn),
+        ...carryIsEmptyField(sn),
+        meta: sn.meta,
+        ...(sn.parentId
           ? {
-              parentId: standaloneNode.parentId,
+              parentId: sn.parentId,
             }
           : {}),
-        ...carryGroupFields(standaloneNode),
+        ...carryGroupFields(sn),
       });
     }
   }
@@ -343,10 +343,10 @@ export function buildCanvasNodes(input) {
     }
     if (recovered.length > 0) {
       const unreported = recovered.filter(
-        (nodeId) => !warnedRecoveredNodeIds.has(nodeId),
+        (id) => !warnedRecoveredNodeIds.has(id),
       );
       if (unreported.length > 0) {
-        for (const nodeId of unreported) warnedRecoveredNodeIds.add(nodeId);
+        for (const id of unreported) warnedRecoveredNodeIds.add(id);
         console.warn(
           "[hilo/canvas] superset guard recovered %d on-disk node(s) no build branch emitted: %o",
           unreported.length,

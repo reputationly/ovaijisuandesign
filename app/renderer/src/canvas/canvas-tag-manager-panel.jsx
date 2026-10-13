@@ -18,7 +18,7 @@ import {
   validateCanvasTagName,
 } from "../infra/parse-connector-selection.js";
 import { Button, TooltipContent } from "../infra/dialog-content.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { useCanvasTags } from "./use-canvas-tags.js";
 import { useCanvasTagName } from "../assets/use-canvas-model-registry-hydration.js";
 export function CanvasTagManagerPanel({
@@ -32,15 +32,15 @@ export function CanvasTagManagerPanel({
 }) {
   const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
-  const resolveName2 = useCanvasTagName();
+  const resolveName = useCanvasTagName();
   const {
-    registry: registry2,
+    registry,
     createTag,
     updateTag,
     reorderTags,
     deleteTag,
   } = useCanvasTags();
-  const [localTags, setLocalTags] = reactExports.useState(registry2.tags);
+  const [localTags, setLocalTags] = reactExports.useState(registry.tags);
   const [creating, setCreating] = reactExports.useState(false);
   const [newName, setNewName] = reactExports.useState("");
   const submittedCreateNameRef = reactExports.useRef("");
@@ -58,17 +58,17 @@ export function CanvasTagManagerPanel({
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-  reactExports.useEffect(() => setLocalTags(registry2.tags), [registry2.tags]);
+  reactExports.useEffect(() => setLocalTags(registry.tags), [registry.tags]);
   const resolvedNames = reactExports.useMemo(
-    () => new Map(registry2.tags.map((tag) => [tag.id, resolveName2(tag)])),
-    [registry2.tags, resolveName2],
+    () => new Map(registry.tags.map((tag) => [tag.id, resolveName(tag)])),
+    [registry.tags, resolveName],
   );
   const pendingName = submittedCreateNameRef.current.trim();
   const pendingKeywordCommitted = Boolean(
     pendingName &&
     localTags.some(
       (tag) =>
-        isCanvasKeywordTag(tag) && resolveName2(tag).trim() === pendingName,
+        isCanvasKeywordTag(tag) && resolveName(tag).trim() === pendingName,
     ),
   );
   const resetCreate = () => {
@@ -77,13 +77,13 @@ export function CanvasTagManagerPanel({
   };
   const handleCreate = async () => {
     if (creatingSavingRef.current) return;
-    const name2 = newName.trim();
-    if (!name2) {
+    const trimmedName = newName.trim();
+    if (!trimmedName) {
       resetCreate();
       return;
     }
-    const validation = validateCanvasTagName(name2);
-    const duplicate = isTagNameTaken(name2, resolvedNames);
+    const validation = validateCanvasTagName(trimmedName);
+    const duplicate = isTagNameTaken(trimmedName, resolvedNames);
     if (validation || duplicate) {
       dedupedToast.error(
         translate(
@@ -98,10 +98,10 @@ export function CanvasTagManagerPanel({
       return;
     }
     creatingSavingRef.current = true;
-    submittedCreateNameRef.current = name2;
+    submittedCreateNameRef.current = trimmedName;
     setCreatingSaving(true);
     try {
-      await createTag(name2);
+      await createTag(trimmedName);
       resetCreate();
     } catch {
       submittedCreateNameRef.current = "";
@@ -112,36 +112,36 @@ export function CanvasTagManagerPanel({
     }
   };
   const handleUpdate = reactExports.useCallback(
-    async (tagId, patch2) => {
-      await updateTag(tagId, patch2);
+    async (tagId, patch) => {
+      await updateTag(tagId, patch);
     },
     [updateTag],
   );
-  const handleDragEnd = async ({ active: active2, over }) => {
-    if (!over || active2.id === over.id) return;
-    const activeTag = localTags.find((tag) => tag.id === active2.id);
+  const handleDragEnd = async ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+    const activeTag = localTags.find((tag) => tag.id === active.id);
     const overTag = localTags.find((tag) => tag.id === over.id);
     if (!activeTag || !overTag || activeTag.kind !== overTag.kind) return;
     const colorTags = localTags.filter(isCanvasColorTag);
     const keywordTags = localTags.filter(isCanvasKeywordTag);
     const group = activeTag.kind === "color" ? colorTags : keywordTags;
-    const oldIndex = group.findIndex((tag) => tag.id === active2.id);
+    const oldIndex = group.findIndex((tag) => tag.id === active.id);
     const newIndex = group.findIndex((tag) => tag.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
     const reordered = arrayMove(group, oldIndex, newIndex);
-    const next2 =
+    const next =
       activeTag.kind === "color"
         ? [...reordered, ...keywordTags]
         : [...colorTags, ...reordered];
-    setLocalTags(next2);
+    setLocalTags(next);
     try {
-      await reorderTags(next2.map((tag) => tag.id));
+      await reorderTags(next.map((tag) => tag.id));
     } catch {
-      setLocalTags(registry2.tags);
+      setLocalTags(registry.tags);
       dedupedToast.error(translate("canvasTags.sortFailed"));
     }
   };
-  const handleDelete2 = async (tag) => {
+  const handleDelete = async (tag) => {
     if (deletingTagIdsRef.current.has(tag.id)) return;
     deletingTagIdsRef.current.add(tag.id);
     try {
@@ -240,10 +240,10 @@ export function CanvasTagManagerPanel({
                       <SortableTagRow
                         key={tag.id}
                         tag={tag}
-                        label={resolveName2(tag)}
+                        label={resolveName(tag)}
                         resolvedNames={resolvedNames}
                         onUpdate={handleUpdate}
-                        onDelete={(target) => void handleDelete2(target)}
+                        onDelete={(target) => void handleDelete(target)}
                         assetCount={assetCountsByTag?.get(tag.id) ?? 0}
                         downloadDisabled={
                           !downloadEnabled ||
@@ -267,7 +267,7 @@ export function CanvasTagManagerPanel({
                             className="size-4 shrink-0 rounded-full border-[1px] border-solid border-[rgba(0,0,0,0.3)] dark:border-[rgba(255,255,255,0.4)]"
                             aria-hidden={true}
                           />
-                          <Input3
+                          <Input
                             autoFocus={true}
                             value={newName}
                             disabled={creatingSaving}

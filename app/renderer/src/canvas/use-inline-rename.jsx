@@ -28,15 +28,15 @@ export function requestNodeRename(nodeId) {
   renameRequestStore.getState().requestRename(nodeId);
 }
 export const CanvasLabelIcon = reactExports.forwardRef(
-  function CanvasLabelIcon2(
-    { size: size2 = 20, strokeWidth = 1.25, ...props },
+  function CanvasLabelIcon(
+    { size = 20, strokeWidth = 1.25, ...props },
     ref,
   ) {
     return (
       <CompositedSvg
         ref={ref}
-        width={size2}
-        height={size2}
+        width={size}
+        height={size}
         viewBox="0 0 20 20"
         fill="none"
         stroke="currentColor"
@@ -116,7 +116,7 @@ export function NodeQuickTagTrigger({
 export function useInlineRename({
   currentValue,
   onCommit,
-  preserveExtension: preserveExtension2 = false,
+  preserveExtension = false,
 }) {
   const storeApi = useStoreApi();
   const [editing, setEditing] = reactExports.useState(false);
@@ -130,30 +130,30 @@ export function useInlineRename({
       setOptimisticValue(null);
       return;
     }
-    const timer2 = setTimeout(() => setOptimisticValue(null), 300);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => setOptimisticValue(null), 300);
+    return () => clearTimeout(timer);
   }, [currentValue, optimisticValue]);
   const displayValue = optimisticValue ?? currentValue;
   const beginEdit = reactExports.useCallback(() => {
     storeApi.getState().unselectNodesAndEdges();
-    const dotIdx = preserveExtension2 ? displayValue.lastIndexOf(".") : -1;
+    const dotIdx = preserveExtension ? displayValue.lastIndexOf(".") : -1;
     setEditValue(dotIdx > 0 ? displayValue.slice(0, dotIdx) : displayValue);
     committedRef.current = false;
     setEditing(true);
-  }, [displayValue, storeApi, preserveExtension2]);
+  }, [displayValue, storeApi, preserveExtension]);
   const commit = reactExports.useCallback(() => {
     if (committedRef.current) return;
     committedRef.current = true;
     setEditing(false);
     const trimmed = editValue.trim();
     if (!trimmed || !onCommit) return;
-    const dotIdx = preserveExtension2 ? currentValue.lastIndexOf(".") : -1;
+    const dotIdx = preserveExtension ? currentValue.lastIndexOf(".") : -1;
     const ext = dotIdx > 0 ? currentValue.slice(dotIdx) : "";
     const newValue = trimmed + ext;
     if (newValue === currentValue) return;
     setOptimisticValue(newValue);
     onCommit(newValue);
-  }, [editValue, currentValue, preserveExtension2, onCommit]);
+  }, [editValue, currentValue, preserveExtension, onCommit]);
   const cancel = reactExports.useCallback(() => {
     committedRef.current = true;
     setEditing(false);
@@ -190,43 +190,43 @@ export function useInlineRename({
     onKeyDown,
   };
 }
-export function CanvasModalGuardProvider({ children: children2 }) {
-  const [count2, setCount] = reactExports.useState(0);
-  const push2 = reactExports.useCallback(() => setCount((count) => count + 1), []);
+export function CanvasModalGuardProvider({ children }) {
+  const [count, setCount] = reactExports.useState(0);
+  const push = reactExports.useCallback(() => setCount((currentCount) => currentCount + 1), []);
   const pop = reactExports.useCallback(
-    () => setCount((count) => Math.max(0, count - 1)),
+    () => setCount((currentCount) => Math.max(0, currentCount - 1)),
     [],
   );
   const value = reactExports.useMemo(
     () => ({
-      count: count2,
-      push: push2,
+      count,
+      push,
       pop,
     }),
-    [count2, push2, pop],
+    [count, push, pop],
   );
   return (
     <CanvasModalGuardContext.Provider value={value}>
-      {children2}
+      {children}
     </CanvasModalGuardContext.Provider>
   );
 }
-export function useSuspendCanvasInteractions(active2) {
+export function useSuspendCanvasInteractions(active) {
   const ctx = reactExports.useContext(CanvasModalGuardContext);
-  const push2 = ctx?.push;
+  const push = ctx?.push;
   const pop = ctx?.pop;
   reactExports.useEffect(() => {
-    if (!active2 || !push2 || !pop) return;
-    push2();
+    if (!active || !push || !pop) return;
+    push();
     return () => pop();
-  }, [active2, push2, pop]);
+  }, [active, push, pop]);
 }
-export function RecentlyAddedStoreProvider({ store, children: children2 }) {
+export function RecentlyAddedStoreProvider({ store, children }) {
   return reactExports.createElement(
     RecentlyAddedStoreContext.Provider,
     {
       value: store,
     },
-    children2,
+    children,
   );
 }

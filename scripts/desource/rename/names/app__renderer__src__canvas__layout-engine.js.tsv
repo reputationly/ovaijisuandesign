@@ -6,3 +6,7 @@ n2@72:16	n2	node	新节点按拓扑层级放入对应层级的布局队列。
 a2@79:55	a2	leftLevel	比较排序中左侧的拓扑层级值。
 b3@79:59	b3	rightLevel	比较排序中右侧的拓扑层级值。
 i2@82:16	i2	nodeIndex	该索引选取层级中的节点并决定其初始纵坐标。
+name2@21:14	name2	strategyName	该参数是要从策略表中删除的策略键；name 是全局名，故使用 strategyName。
+mode2@62:11	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+children2@69:23	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
+node2@83:15	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。

@@ -19,38 +19,38 @@ import {
 import { ReferenceNavigationContext } from "../media-editing/get-reference-navigation-defaults.jsx";
 const RECENTER_PADDING = 0.5;
 const RECENTER_MAX_ZOOM = 0.2;
-function isUsableNode(node2) {
-  if (node2.hidden) return false;
-  const width = node2.measured?.width ?? node2.width ?? 0;
-  const height = node2.measured?.height ?? node2.height ?? 0;
+function isUsableNode(node) {
+  if (node.hidden) return false;
+  const width = node.measured?.width ?? node.width ?? 0;
+  const height = node.measured?.height ?? node.height ?? 0;
   return width > 0 && height > 0;
 }
-function readBox(node2) {
-  if (node2.hidden) return null;
-  const width = node2.measured?.width ?? node2.width ?? 0;
-  const height = node2.measured?.height ?? node2.height ?? 0;
+function readBox(node) {
+  if (node.hidden) return null;
+  const width = node.measured?.width ?? node.width ?? 0;
+  const height = node.measured?.height ?? node.height ?? 0;
   if (width === 0 || height === 0) return null;
   return {
-    left: node2.position.x,
-    top: node2.position.y,
-    right: node2.position.x + width,
-    bottom: node2.position.y + height,
+    left: node.position.x,
+    top: node.position.y,
+    right: node.position.x + width,
+    bottom: node.position.y + height,
   };
 }
-function findLastNodeId(state2) {
-  let last2 = null;
-  for (const [nodeId, node2] of state2.nodeLookup) {
-    if (isUsableNode(node2)) last2 = nodeId;
+function findLastNodeId(state) {
+  let last = null;
+  for (const [id, node] of state.nodeLookup) {
+    if (isUsableNode(node)) last = id;
   }
-  return last2;
+  return last;
 }
 function recenterToNodes(args) {
-  const nodeId = findLastNodeId(args.state);
-  if (!nodeId) return void 0;
+  const id = findLastNodeId(args.state);
+  if (!id) return void 0;
   return args.fitView({
     nodes: [
       {
-        id: nodeId,
+        id,
       },
     ],
     padding: RECENTER_PADDING,
@@ -60,23 +60,23 @@ function recenterToNodes(args) {
 }
 function selectIsViewportEmpty(state) {
   if (state.nodeLookup.size === 0) return false;
-  const [tx, ty, zoom2] = state.transform;
-  if (state.width === 0 || state.height === 0 || zoom2 === 0) return false;
-  const vpLeft = -tx / zoom2;
-  const vpTop = -ty / zoom2;
-  const vpRight = (state.width - tx) / zoom2;
-  const vpBottom = (state.height - ty) / zoom2;
+  const [tx, ty, zoom] = state.transform;
+  if (state.width === 0 || state.height === 0 || zoom === 0) return false;
+  const vpLeft = -tx / zoom;
+  const vpTop = -ty / zoom;
+  const vpRight = (state.width - tx) / zoom;
+  const vpBottom = (state.height - ty) / zoom;
   let consideredCount = 0;
-  for (const node2 of state.nodeLookup.values()) {
-    if (node2.dragging) return false;
-    const box2 = readBox(node2);
-    if (!box2) continue;
+  for (const node of state.nodeLookup.values()) {
+    if (node.dragging) return false;
+    const box = readBox(node);
+    if (!box) continue;
     consideredCount += 1;
     if (
-      box2.right >= vpLeft &&
-      box2.left <= vpRight &&
-      box2.bottom >= vpTop &&
-      box2.top <= vpBottom
+      box.right >= vpLeft &&
+      box.left <= vpRight &&
+      box.bottom >= vpTop &&
+      box.top <= vpBottom
     ) {
       return false;
     }
@@ -93,12 +93,12 @@ function CanvasBottomToast(props) {
       setRetained(true);
       return;
     }
-    const timer2 = setTimeout(() => setRetained(false), 200);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => setRetained(false), 200);
+    return () => clearTimeout(timer);
   }, [show]);
   if (!show && !retained) return null;
   const {
-    message: message2,
+    message,
     action,
     dismiss,
     dataActionUiId,
@@ -134,7 +134,7 @@ function CanvasBottomToast(props) {
             setRetained(false);
         }}
       >
-        <span className="min-w-0">{message2}</span>
+        <span className="min-w-0">{message}</span>
         <Button
           size="sm"
           variant={action.variant}
@@ -168,16 +168,16 @@ export function EmptyViewportToast({ duration = 500, quietDelay = 1e3 }) {
   );
   const { fitView, getViewport } = useReactFlow();
   const storeApi = useStoreApi();
-  const active2 = useCanvasActive();
+  const active = useCanvasActive();
   const isDragging = useCanvasIsDragging();
   const { isAnyActive } = useActiveMode();
   const [shouldShow, setShouldShow] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    if (!active2 || isAnyActive || isDragging) {
+    if (!active || isAnyActive || isDragging) {
       setShouldShow(false);
       return;
     }
-    let rafId2 = 0;
+    let rafId = 0;
     let pendingTimer = null;
     let prevTransform = storeApi.getState().transform;
     const cancelTimer = () => {
@@ -187,16 +187,16 @@ export function EmptyViewportToast({ duration = 500, quietDelay = 1e3 }) {
       }
     };
     const check = () => {
-      rafId2 = 0;
-      const state2 = storeApi.getState();
-      const next2 = state2.transform;
+      rafId = 0;
+      const state = storeApi.getState();
+      const next = state.transform;
       const transformChanged =
-        next2[0] !== prevTransform[0] ||
-        next2[1] !== prevTransform[1] ||
-        next2[2] !== prevTransform[2];
-      prevTransform = next2;
-      const empty2 = selectIsViewportEmpty(state2);
-      if (!empty2) {
+        next[0] !== prevTransform[0] ||
+        next[1] !== prevTransform[1] ||
+        next[2] !== prevTransform[2];
+      prevTransform = next;
+      const empty = selectIsViewportEmpty(state);
+      if (!empty) {
         cancelTimer();
         setShouldShow(false);
         return;
@@ -213,15 +213,15 @@ export function EmptyViewportToast({ duration = 500, quietDelay = 1e3 }) {
     };
     check();
     const unsubscribe = storeApi.subscribe(() => {
-      if (rafId2 !== 0) return;
-      rafId2 = requestAnimationFrame(check);
+      if (rafId !== 0) return;
+      rafId = requestAnimationFrame(check);
     });
     return () => {
-      if (rafId2 !== 0) cancelAnimationFrame(rafId2);
+      if (rafId !== 0) cancelAnimationFrame(rafId);
       cancelTimer();
       unsubscribe();
     };
-  }, [active2, isAnyActive, isDragging, storeApi, quietDelay]);
+  }, [active, isAnyActive, isDragging, storeApi, quietDelay]);
   const handleBack = reactExports.useCallback(() => {
     const result = recenterToNodes({
       state: storeApi.getState(),
@@ -236,7 +236,7 @@ export function EmptyViewportToast({ duration = 500, quietDelay = 1e3 }) {
   );
   return (
     <CanvasBottomToast
-      show={active2 && (focused || shouldShow)}
+      show={active && (focused || shouldShow)}
       message={translate(
         focused ? "canvas.referenceNavigation.focused" : "canvas.emptyViewport",
       )}

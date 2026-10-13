@@ -22,19 +22,19 @@ import {
 } from "../infra/create-recently-added-store.js";
 import { useNodeTagColors } from "./use-inline-rename.jsx";
 import { RetryIcon } from "./fullscreen-icon.jsx";
-const useRecentlyAddedStore = (selector2) =>
-  useStore(useRecentlyAddedApi(), selector2);
+const useRecentlyAddedStore = (selector) =>
+  useStore(useRecentlyAddedApi(), selector);
 useRecentlyAddedStore.getState = defaultRecentlyAddedStore.getState;
 useRecentlyAddedStore.setState = defaultRecentlyAddedStore.setState;
 useRecentlyAddedStore.subscribe = defaultRecentlyAddedStore.subscribe;
 function useIsRecentlyAdded(nodeId) {
   return useRecentlyAddedStore((storeState) => Boolean(nodeId && storeState.ids.has(nodeId)));
 }
-function UploadIcon({ size: size2 = 16 }) {
+function UploadIcon({ size = 16 }) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden="true"
@@ -57,10 +57,10 @@ function UploadIcon({ size: size2 = 16 }) {
   );
 }
 function NodeShellInner({
-  id: nodeId,
+  id,
   tagIds,
   width,
-  children: children2,
+  children,
   className,
   generating,
   onMouseEnter,
@@ -73,23 +73,23 @@ function NodeShellInner({
 }) {
   const isModalOpen = useIsCanvasModalOpen();
   const tagFilterActive = useCanvasTagFilterActive();
-  const matchesTagFilter2 = useNodeTagColors(tagIds).some((tag) => tag.active);
-  const dimmedByTagFilter = tagFilterActive && !matchesTagFilter2;
-  const isNewlyAdded = useIsRecentlyAdded(nodeId);
+  const matchesTagFilter = useNodeTagColors(tagIds).some((tag) => tag.active);
+  const dimmedByTagFilter = tagFilterActive && !matchesTagFilter;
+  const isNewlyAdded = useIsRecentlyAdded(id);
   const recentlyAddedApi = useRecentlyAddedApi();
-  const handleDoubleClick2 = reactExports.useCallback(
+  const handleDoubleClick = reactExports.useCallback(
     (doubleClickEvent) => {
       if (isModalOpen) return;
       onDoubleClick?.(doubleClickEvent);
     },
     [isModalOpen, onDoubleClick],
   );
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (clickEvent) => {
-      if (nodeId && isNewlyAdded) recentlyAddedApi.getState().remove(nodeId);
+      if (id && isNewlyAdded) recentlyAddedApi.getState().remove(id);
       onClick?.(clickEvent);
     },
-    [nodeId, isNewlyAdded, recentlyAddedApi, onClick],
+    [id, isNewlyAdded, recentlyAddedApi, onClick],
   );
   const mergedClassName = `canvas-node-shell group cursor-default [contain:layout_style] relative overflow-visible${isNewlyAdded ? " is-newly-added" : ""}${generating ? " is-generating" : ""}${dimmedByTagFilter ? " opacity-25 transition-opacity duration-150" : ""}${className ? ` ${className}` : ""}`;
   return (
@@ -102,16 +102,16 @@ function NodeShellInner({
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      onClick={onClick || isNewlyAdded ? handleClick2 : void 0}
-      onDoubleClick={onDoubleClick ? handleDoubleClick2 : void 0}
+      onClick={onClick || isNewlyAdded ? handleClick : void 0}
+      onDoubleClick={onDoubleClick ? handleDoubleClick : void 0}
       data-action-ui-id={dataActionUiId}
       data-state={dataState}
       data-aspect-ratio={dataAspectRatio}
       data-tag-filter-match={
-        tagFilterActive ? String(matchesTagFilter2) : void 0
+        tagFilterActive ? String(matchesTagFilter) : void 0
       }
     >
-      {children2}
+      {children}
     </div>
   );
 }
@@ -162,27 +162,27 @@ const buttonVariants = cva(
 export function Button({
   className,
   variant = "default",
-  size: size2 = "default",
+  size = "default",
   loading = false,
-  disabled: disabled2,
-  children: children2,
+  disabled,
+  children,
   ...props
 }) {
   return (
     <BaseButton
       data-slot="button"
-      disabled={disabled2 || loading}
+      disabled={disabled || loading}
       className={cn(
         buttonVariants({
           variant,
-          size: size2,
+          size,
           className,
         }),
       )}
       {...props}
     >
       {loading && <Loader2Icon className="animate-spin" />}
-      {children2}
+      {children}
     </BaseButton>
   );
 }
@@ -240,16 +240,16 @@ export function NodeEmptyState({
 }
 export function PlaceholderUploadButton({
   icon,
-  children: children2,
+  children,
   label,
   onUpload,
 }) {
   const { t: translate } = useTranslation();
   const [nodeShell, setNodeShell] = reactExports.useState(null);
-  const handlePlaceholderRef = reactExports.useCallback((element2) => {
-    setNodeShell(element2?.closest(".canvas-node-shell") ?? null);
+  const handlePlaceholderRef = reactExports.useCallback((element) => {
+    setNodeShell(element?.closest(".canvas-node-shell") ?? null);
   }, []);
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (clickEvent) => {
       clickEvent.stopPropagation();
       onUpload(clickEvent.currentTarget);
@@ -260,7 +260,7 @@ export function PlaceholderUploadButton({
     <button
       type="button"
       data-action-ui-id="canvas.placeholder-upload"
-      onClick={handleClick2}
+      onClick={handleClick}
       onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
       onDoubleClick={(doubleClickEvent) => doubleClickEvent.stopPropagation()}
       className="nodrag nopan nowheel absolute bottom-[calc(100%+1.5rem)] left-1/2 z-20 inline-flex h-8 -translate-x-1/2 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-[color-mix(in_srgb,var(--canvas-controls-border)_60%,transparent)] bg-[var(--canvas-controls-bg)] px-3 text-[13px] font-normal text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)]"
@@ -276,7 +276,7 @@ export function PlaceholderUploadButton({
         ref={handlePlaceholderRef}
         className="flex h-full w-full items-center justify-center"
       >
-        {children2 ?? <NodeEmptyState icon={icon} />}
+        {children ?? <NodeEmptyState icon={icon} />}
       </div>
       {nodeShell ? reactDomExports.createPortal(button, nodeShell) : null}
     </>
@@ -338,7 +338,7 @@ export function GenerationWaitEstimate({ seconds, actionUiId }) {
   );
 }
 export function QueueGenerationControl({
-  state: state2,
+  state,
   onCancel,
   onResume,
   cancelling = false,
@@ -347,11 +347,11 @@ export function QueueGenerationControl({
   actionUiId,
 }) {
   const { t: translate } = useTranslation();
-  const isQueued = state2 === "queued";
-  const disabled2 = isQueued ? cancelling : resuming || !canResume;
-  const handleClick2 = (event) => {
+  const isQueued = state === "queued";
+  const disabled = isQueued ? cancelling : resuming || !canResume;
+  const handleClick = (event) => {
     event.stopPropagation();
-    if (disabled2) return;
+    if (disabled) return;
     if (isQueued) onCancel?.();
     else onResume?.();
   };
@@ -370,9 +370,9 @@ export function QueueGenerationControl({
         <button
           type="button"
           className={QUEUE_ACTION_BUTTON_CLASS}
-          disabled={disabled2}
+          disabled={disabled}
           aria-busy={!isQueued && resuming ? true : void 0}
-          onClick={handleClick2}
+          onClick={handleClick}
           data-action-ui-id={`${actionUiId}.${isQueued ? "cancel" : "resume"}`}
         >
           {isQueued ? (
@@ -402,19 +402,19 @@ export function useMediaFallbackRetry(options) {
   const [failed, setFailed] = reactExports.useState(false);
   const [attempt, setAttempt] = reactExports.useState(0);
   const timerRef = reactExports.useRef(null);
-  const clearTimer2 = reactExports.useCallback(() => {
+  const clearTimer = reactExports.useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
   }, []);
-  reactExports.useEffect(() => clearTimer2, [clearTimer2]);
+  reactExports.useEffect(() => clearTimer, [clearTimer]);
   const onError = reactExports.useCallback(() => {
     if (attempt >= retries) {
       setFailed(true);
       return;
     }
-    clearTimer2();
+    clearTimer();
     timerRef.current = setTimeout(
       () => {
         timerRef.current = null;
@@ -422,17 +422,17 @@ export function useMediaFallbackRetry(options) {
       },
       delayMs * (0.5 + Math.random()),
     );
-  }, [attempt, retries, delayMs, clearTimer2]);
-  const reset2 = reactExports.useCallback(() => {
-    clearTimer2();
+  }, [attempt, retries, delayMs, clearTimer]);
+  const reset = reactExports.useCallback(() => {
+    clearTimer();
     setFailed(false);
     setAttempt(0);
-  }, [clearTimer2]);
+  }, [clearTimer]);
   return {
     failed,
     attempt,
     onError,
-    reset: reset2,
+    reset,
   };
 }
 export function getAdjacentNodePosition(reactFlow, nodeId, fallbackSize) {
@@ -446,11 +446,11 @@ export function getAdjacentNodePosition(reactFlow, nodeId, fallbackSize) {
 function resolveAddToChatPath(metaPath, fallbackPath) {
   return metaPath || fallbackPath;
 }
-export function useAddToChat(nodeId, meta2, onAddToChat, fallbackPath) {
+export function useAddToChat(nodeId, meta, onAddToChat, fallbackPath) {
   return reactExports.useCallback(() => {
-    const filePath = resolveAddToChatPath(meta2?.path, fallbackPath);
+    const filePath = resolveAddToChatPath(meta?.path, fallbackPath);
     if (!filePath || !onAddToChat) return;
     const filename = filePath.split("/").pop() ?? filePath;
     onAddToChat(filePath, filename, nodeId);
-  }, [meta2?.path, onAddToChat, nodeId, fallbackPath]);
+  }, [meta?.path, onAddToChat, nodeId, fallbackPath]);
 }

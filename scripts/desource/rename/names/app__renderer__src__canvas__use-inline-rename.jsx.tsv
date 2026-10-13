@@ -1,5 +1,15 @@
 key	old	new	依据
 t2@63:14	t2	translate	该函数翻译节点快速标签入口的提示和无障碍标签。
 e2@162:6	e2	keyboardEvent	onKeyDown 按 Enter 提交、按 Escape 取消重命名。
-c3@195:58	c3	count	React 状态更新器接收当前挂起计数并加一。
-c3@197:21	c3	count	React 状态更新器接收当前挂起计数并递减且不低于零。
+c3@195:58	c3	currentCount	React 状态更新器接收当前挂起计数并加一。
+c3@197:21	c3	currentCount	React 状态更新器接收当前挂起计数并递减且不低于零。
+size2@32:13	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+CanvasLabelIcon2@31:12	CanvasLabelIcon2	CanvasLabelIcon	原名 CanvasLabelIcon2 的末尾 2 是打包器去重后缀；恢复词干 CanvasLabelIcon，该绑定表示CanvasLabelIcon 对应的值。
+preserveExtension2@119:22	preserveExtension2	preserveExtension	原名 preserveExtension2 的末尾 2 是打包器去重后缀；恢复词干 preserveExtension，该绑定表示保留文件扩展名的判断结果。
+timer2@133:11	timer2	timer	原名 timer2 的末尾 2 是打包器去重后缀；恢复词干 timer，该绑定表示定时器标识。
+children2@193:54	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
+count2@194:10	count2	count	原名 count2 的末尾 2 是打包器去重后缀；恢复词干 count，该绑定表示数量。
+push2@195:9	push2	push	原名 push2 的末尾 2 是打包器去重后缀；恢复词干 push，该绑定表示入栈操作。
+active2@214:46	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
+push2@216:9	push2	push	原名 push2 的末尾 2 是打包器去重后缀；恢复词干 push，该绑定表示入栈操作。
+children2@224:63	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。

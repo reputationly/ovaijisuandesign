@@ -3,3 +3,4 @@ a2@20:35	a2	firstRect	y 排序时参与比较的左侧矩形。
 b3@20:39	b3	secondRect	y 排序时参与比较的右侧矩形。
 a2@35:43	a2	firstRect	x 排序时参与比较的左侧矩形。
 b3@35:47	b3	secondRect	x 排序时参与比较的右侧矩形。
+match2@23:11	match2	match	原名 match2 的末尾 2 是打包器去重后缀；恢复词干 match，该绑定表示匹配结果。

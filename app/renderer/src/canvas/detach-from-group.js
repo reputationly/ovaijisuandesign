@@ -38,7 +38,7 @@ function cloneGenerationValue(value) {
 }
 
 function resolveGroupGenerationData(members, preferredNode) {
-  const main2 = resolveMainNode(members);
+  const main = resolveMainNode(members);
   const sameRound = preferredNode
     ? members.filter(
         (member) =>
@@ -47,49 +47,49 @@ function resolveGroupGenerationData(members, preferredNode) {
           member.round === preferredNode.round,
       )
     : [];
-  const candidates2 = [
+  const candidates = [
     ...sameRound,
-    ...(main2 && main2.id !== preferredNode?.id ? [main2] : []),
+    ...(main && main.id !== preferredNode?.id ? [main] : []),
     ...members.filter(
       (member) =>
         member.id !== preferredNode?.id &&
-        member.id !== main2?.id &&
+        member.id !== main?.id &&
         !sameRound.some((same) => same.id === member.id),
     ),
   ];
   const shared = {};
-  for (const key2 of GROUP_GENERATION_DATA_KEYS) {
-    for (const member of candidates2) {
-      const value = member.data?.[key2];
+  for (const key of GROUP_GENERATION_DATA_KEYS) {
+    for (const member of candidates) {
+      const value = member.data?.[key];
       if (!hasGenerationValue(value)) continue;
-      shared[key2] = cloneGenerationValue(value);
+      shared[key] = cloneGenerationValue(value);
       break;
     }
   }
   return shared;
 }
 
-function inheritGroupGenerationData(node2, shared) {
-  const current2 = node2.data ?? {};
-  const next2 = {
-    ...current2,
+function inheritGroupGenerationData(node, shared) {
+  const current = node.data ?? {};
+  const next = {
+    ...current,
   };
   let changed = false;
-  for (const key2 of GROUP_GENERATION_DATA_KEYS) {
-    if (hasGenerationValue(next2[key2]) || !hasGenerationValue(shared[key2]))
+  for (const key of GROUP_GENERATION_DATA_KEYS) {
+    if (hasGenerationValue(next[key]) || !hasGenerationValue(shared[key]))
       continue;
-    next2[key2] = cloneGenerationValue(shared[key2]);
+    next[key] = cloneGenerationValue(shared[key]);
     changed = true;
   }
   return changed
     ? {
-        ...node2,
-        data: next2,
+        ...node,
+        data: next,
       }
-    : node2;
+    : node;
 }
 
-export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
+export function detachFromGroup(nodes, nodeId, absPosition, mode) {
   const target = nodes.find((node) => node.id === nodeId);
   if (!target || !isGroupedNode(target)) {
     return {
@@ -98,12 +98,12 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
       updatedIds: [],
     };
   }
-  const groupId2 = target.groupId;
-  const orderedBefore = collectGroupMembers(nodes, groupId2);
+  const groupId = target.groupId;
+  const orderedBefore = collectGroupMembers(nodes, groupId);
   const detachedWasMain = resolveMainNode(orderedBefore)?.id === nodeId;
   const removedSortedIndex = orderedBefore.findIndex((node) => node.id === nodeId);
   const leftover = nodes.filter(
-    (node) => node.groupId === groupId2 && node.id !== nodeId,
+    (node) => node.groupId === groupId && node.id !== nodeId,
   );
   const collapseId = leftover.length === 1 ? leftover[0].id : void 0;
   const successorId =
@@ -131,7 +131,7 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
             ? {
                 positions: {
                   ...(rest.positions ?? {}),
-                  [mode2]: pos,
+                  [mode]: pos,
                 },
               }
             : {}),
@@ -155,26 +155,26 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
     if (collapseId && node.id === collapseId) {
       const collapsed = ungroup(node);
       if (!detachedWasMain) return collapsed;
-      const next2 = {
+      const next = {
         ...collapsed,
         positions: {
           ...target.positions,
         },
       };
       if (target.size)
-        next2.size = {
+        next.size = {
           ...target.size,
         };
       if (target.sizes)
-        next2.sizes = {
+        next.sizes = {
           ...target.sizes,
         };
-      if (target.parentId !== void 0) next2.parentId = target.parentId;
-      else delete next2.parentId;
-      return next2;
+      if (target.parentId !== void 0) next.parentId = target.parentId;
+      else delete next.parentId;
+      return next;
     }
     if (successorId && node.id === successorId) {
-      const next2 = inheritGroupGenerationData(
+      const next = inheritGroupGenerationData(
         {
           ...node,
           meta: {
@@ -188,16 +188,16 @@ export function detachFromGroup(nodes, nodeId, absPosition, mode2) {
         resolveGroupGenerationData(orderedBefore, node),
       );
       if (target.size)
-        next2.size = {
+        next.size = {
           ...target.size,
         };
       if (target.sizes)
-        next2.sizes = {
+        next.sizes = {
           ...target.sizes,
         };
-      if (target.parentId !== void 0) next2.parentId = target.parentId;
-      else delete next2.parentId;
-      return mirrorAssetIdIntoData(next2);
+      if (target.parentId !== void 0) next.parentId = target.parentId;
+      else delete next.parentId;
+      return mirrorAssetIdIntoData(next);
     }
     return node;
   });

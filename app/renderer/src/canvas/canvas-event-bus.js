@@ -36,21 +36,21 @@ const INVISIBLE_DATA_KEYS = new Set([
   ...TRANSIENT_DATA_KEYS,
 ]);
 
-function stripInvisibleKeys(node2) {
-  const data2 = node2.data;
-  if (!data2) return node2;
+function stripInvisibleKeys(node) {
+  const data = node.data;
+  if (!data) return node;
   let hasInvisible = false;
   const cleaned = {};
-  for (const [key, value] of Object.entries(data2)) {
+  for (const [key, value] of Object.entries(data)) {
     if (INVISIBLE_DATA_KEYS.has(key)) hasInvisible = true;
     else cleaned[key] = value;
   }
   return hasInvisible
     ? {
-        ...node2,
+        ...node,
         data: cleaned,
       }
-    : node2;
+    : node;
 }
 
 export function isInvisibleHistoryTransition(before, after) {
@@ -74,8 +74,8 @@ export function isInvisibleHistoryTransition(before, after) {
 }
 
 export function findAllowedHistorySteps(
-  current2,
-  history2,
+  current,
+  historyManager,
   direction,
   maxTransparentSteps,
   onBlocked,
@@ -83,31 +83,31 @@ export function findAllowedHistorySteps(
   for (let steps = 1; steps <= maxTransparentSteps + 1; steps++) {
     const candidate =
       direction === "undo"
-        ? history2.peekUndoState(steps)
-        : history2.peekRedoState(steps);
-    const decision = decideHistoryStep(current2, candidate);
+        ? historyManager.peekUndoState(steps)
+        : historyManager.peekRedoState(steps);
+    const decision = decideHistoryStep(current, candidate);
     if (!decision.allow) {
       if (decision.blockReason) onBlocked?.(decision.blockReason);
       return 0;
     }
-    if (candidate && !isInvisibleHistoryTransition(current2, candidate))
+    if (candidate && !isInvisibleHistoryTransition(current, candidate))
       return steps;
   }
   return maxTransparentSteps + 1;
 }
 
 export function rebaseRetainedHistoryNodes(
-  history2,
-  pending2,
+  historyManager,
+  pending,
   live,
   currentNodes,
 ) {
   const retainedIds = new Set(
-    pending2
+    pending
       .filter((entry) => {
-        const current2 = live.get(entry.id);
+        const current = live.get(entry.id);
         return (
-          isRetainedGenerationNode(current2) ||
+          isRetainedGenerationNode(current) ||
           (entry.hasData &&
             isRetainedGenerationNode({
               data: entry.data,
@@ -119,13 +119,13 @@ export function rebaseRetainedHistoryNodes(
   if (retainedIds.size === 0) return;
   const canonicalById = new Map(
     currentNodes
-      .filter((node2) => retainedIds.has(node2.id))
-      .map((node2) => [node2.id, structuredClone(node2)]),
+      .filter((node) => retainedIds.has(node.id))
+      .map((node) => [node.id, structuredClone(node)]),
   );
-  history2.rebase((draft) => {
-    for (let index2 = 0; index2 < draft.nodes.length; index2++) {
-      const canonical = canonicalById.get(draft.nodes[index2].id);
-      if (canonical) draft.nodes[index2] = structuredClone(canonical);
+  historyManager.rebase((draft) => {
+    for (let index = 0; index < draft.nodes.length; index++) {
+      const canonical = canonicalById.get(draft.nodes[index].id);
+      if (canonical) draft.nodes[index] = structuredClone(canonical);
     }
   });
 }
@@ -133,16 +133,16 @@ export function rebaseRetainedHistoryNodes(
 export class CanvasEventBus {
   handlers = new Map();
   interceptors = new Map();
-  on(type2, handler) {
-    let set2 = this.handlers.get(type2);
-    if (!set2) {
-      set2 = new Set();
-      this.handlers.set(type2, set2);
+  on(type, handler) {
+    let set = this.handlers.get(type);
+    if (!set) {
+      set = new Set();
+      this.handlers.set(type, set);
     }
     const registeredHandler = handler;
-    set2.add(registeredHandler);
+    set.add(registeredHandler);
     return () => {
-      set2.delete(registeredHandler);
+      set.delete(registeredHandler);
     };
   }
   /**
@@ -164,9 +164,9 @@ export class CanvasEventBus {
   }
   /** Emit without running interceptors. Use when canEmit() was already checked. */
   emitDirect(event) {
-    const handlers2 = this.handlers.get(event.type);
-    if (handlers2) {
-      for (const handler of handlers2) {
+    const handlers = this.handlers.get(event.type);
+    if (handlers) {
+      for (const handler of handlers) {
         try {
           handler(event);
         } catch (err) {
@@ -178,16 +178,16 @@ export class CanvasEventBus {
       }
     }
   }
-  intercept(type2, interceptor) {
-    let set2 = this.interceptors.get(type2);
-    if (!set2) {
-      set2 = new Set();
-      this.interceptors.set(type2, set2);
+  intercept(type, interceptor) {
+    let set = this.interceptors.get(type);
+    if (!set) {
+      set = new Set();
+      this.interceptors.set(type, set);
     }
     const registeredInterceptor = interceptor;
-    set2.add(registeredInterceptor);
+    set.add(registeredInterceptor);
     return () => {
-      set2.delete(registeredInterceptor);
+      set.delete(registeredInterceptor);
     };
   }
   /** Remove all listeners and interceptors */

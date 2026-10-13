@@ -1,13 +1,36 @@
 key	old	new	依据
 a2@4:21	a2	firstRect	该参数是选区交叠判断中的第一个矩形。
 b3@4:25	b3	secondRect	该参数是选区交叠判断中的第二个矩形。
-id2@15:37	id2	rowKey	该值是候选条目的行标识。
-id2@24:17	id2	rowKey	该值是候选条目的行标识。
-id2@29:14	id2	rowKey	该值是之前选择映射中的行标识。
-id2@30:14	id2	rowKey	该值是当前框选顺序中的行标识。
+id2@15:37	id2	id	该值是候选条目的行标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@24:17	id2	id	该值是候选条目的行标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@29:14	id2	id	该值是之前选择映射中的行标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@30:14	id2	id	该值是当前框选顺序中的行标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 x2@100:13	x2	localX	该值是指针在可滚动区域内裁剪后的水平坐标。
 y4@104:13	y4	localY	该值是指针在可滚动区域内裁剪后的垂直坐标。
-id2@143:30	id2	rowKey	该值是比较选择映射时的行标识。
+id2@143:30	id2	id	该值是比较选择映射时的行标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 y4@160:13	y4	pointerY	该值是用于计算边缘自动滚动的指针纵坐标。
 x2@198:13	x2	pointerX	该值是指针相对滚动容器的水平坐标。
 y4@199:13	y4	pointerY	该值是指针相对滚动容器的垂直坐标。
+snapshot2@13:27	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+previous2@13:38	previous2	previous	原名 previous2 的末尾 2 是打包器去重后缀；恢复词干 previous，该绑定表示前一状态值。
+candidates2@14:9	candidates2	candidates	原名 candidates2 的末尾 2 是打包器去重后缀；恢复词干 candidates，该绑定表示candidates 对应的值。
+order2@15:9	order2	order	原名 order2 的末尾 2 是打包器去重后缀；恢复词干 order，该绑定表示顺序值。
+selection2@23:9	selection2	selection	原名 selection2 的末尾 2 是打包器去重后缀；恢复词干 selection，该绑定表示选择状态。
+add2@24:9	add2	add	原名 add2 的末尾 2 是打包器去重后缀；恢复词干 add，该绑定表示添加操作。
+view2@38:42	view2	view	原名 view2 的末尾 2 是打包器去重后缀；恢复词干 view，该绑定表示视图对象。
+latest2@39:9	latest2	latest	原名 latest2 的末尾 2 是打包器去重后缀；恢复词干 latest，该绑定表示最新值。
+frame2@50:9	frame2	frame	原名 frame2 的末尾 2 是打包器去重后缀；恢复词干 frame，该绑定表示动画帧标识。
+update2@95:14	update2	update	原名 update2 的末尾 2 是打包器去重后缀；恢复词干 update，该绑定表示更新操作。
+handleClick2@284:14	handleClick2	handleClick	原名 handleClick2 的末尾 2 是打包器去重后缀；恢复词干 handleClick，该绑定表示handleClick 事件处理函数。
+selection2@54:13	selection2	selection	原名 selection2 的末尾 2 是打包器去重后缀；恢复词干 selection，该绑定表示选择状态。
+active2@69:17	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
+snapshot2@70:19	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+top2@99:13	top2	viewportTop	该值是滚动视口内容区域上边缘的屏幕坐标；top 是全局名，故使用 viewportTop。
+next2@131:13	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+current2@140:13	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+element2@116:18	element2	element	原名 element2 的末尾 2 是打包器去重后缀；恢复词干 element，该绑定表示DOM 元素。
+key2@117:15	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+box2@118:15	box2	box	原名 box2 的末尾 2 是打包器去重后缀；恢复词干 box，该绑定表示边界框。
+box2@128:15	box2	box	原名 box2 的末尾 2 是打包器去重后缀；恢复词干 box，该绑定表示边界框。
+previous2@147:21	previous2	previous	原名 previous2 的末尾 2 是打包器去重后缀；恢复词干 previous，该绑定表示前一状态值。
+snapshot2@208:13	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。

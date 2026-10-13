@@ -1,3 +1,18 @@
 key	old	new	依据
 t2@38:14	t2	translate	该组件翻译单个标签行的保存失败反馈。
 t2@216:14	t2	translate	标签选择面板使用该函数翻译标签操作和反馈文案。
+Input3@19:10	Input3	Input	原名 Input3 的末尾 3 是打包器去重后缀；恢复词干 Input，该绑定表示Input 对应的值。
+state2@29:10	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+disabled2@30:13	disabled2	disabled	原名 disabled2 的末尾 2 是打包器去重后缀；恢复词干 disabled，该绑定表示禁用状态。
+name2@71:11	name2	trimmedName	该值是去除首尾空格后的待更新标签名称；name 是全局名，故使用 trimmedName。
+registry2@220:15	registry2	registry	原名 registry2 的末尾 2 是打包器去重后缀；恢复词干 registry，该绑定表示注册表对象。
+name2@239:11	name2	trimmedName	该值是去除首尾空格后用于查找重复标签的名称；name 是全局名，故使用 trimmedName。
+state2@253:17	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+current2@262:25	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+current2@273:27	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+next2@274:17	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+name2@289:11	name2	trimmedName	该值是去除首尾空格后的待创建标签名称；name 是全局名，故使用 trimmedName。
+state2@353:21	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+name2@364:36	name2	updatedTagName	该参数是提交给 updateTag 的新标签名称；name 是全局名，故使用 updatedTagName。
+state2@421:19	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+name2@432:34	name2	updatedTagName	该参数是提交给 updateTag 的新标签名称；name 是全局名，故使用 updatedTagName。

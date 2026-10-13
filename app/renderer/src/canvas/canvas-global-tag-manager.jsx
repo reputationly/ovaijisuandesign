@@ -39,8 +39,8 @@ import {
   PreviewCardContent,
   PreviewCardTrigger,
 } from "../text-editor/use-placeholder-asset-source.jsx";
-function summarizeCanvasTagDownloads(assets, canvasAssetIds, tags2) {
-  const knownTagIds = new Set(tags2.map(({ id: tagId }) => tagId));
+function summarizeCanvasTagDownloads(assets, canvasAssetIds, tags) {
+  const knownTagIds = new Set(tags.map(({ id }) => id));
   const assetCountsByTag = new Map();
   let taggedAssetCount = 0;
   for (const asset of selectDownloadableCanvasAssets(assets, canvasAssetIds)) {
@@ -88,7 +88,7 @@ function AssetTypeThumbnail({ item }) {
   );
 }
 export function CanvasGlobalTagManager({
-  workspaceId: workspaceId2,
+  workspaceId,
   workspaceAssets,
   activeTagId,
   onActiveTagChange,
@@ -106,14 +106,14 @@ export function CanvasGlobalTagManager({
 }) {
   const { t: translate } = useTranslation();
   const tagNameInputLimit = useCanvasTagNameInputLimit();
-  const resolveName2 = useCanvasTagName();
+  const resolveName = useCanvasTagName();
   const {
-    registry: registry2,
+    registry,
     toggleTagForAssets,
     updateTag,
   } = useCanvasTags();
-  const gatewayUrl2 = useGatewayUrl();
-  const canvasNodeIdsByAsset = useCanvasAssetNodeIds(workspaceId2);
+  const gatewayUrl = useGatewayUrl();
+  const canvasNodeIdsByAsset = useCanvasAssetNodeIds(workspaceId);
   const [open, setOpen] = reactExports.useState(false);
   const [paletteOpen, setPaletteOpen] = reactExports.useState(false);
   const [previewedTagId, setPreviewedTagId] = reactExports.useState();
@@ -132,7 +132,7 @@ export function CanvasGlobalTagManager({
     for (const asset of workspaceAssets) {
       const nodeIds = canvasNodeIdsByAsset.get(asset.id) ?? [];
       if (nodeIds.length === 0) continue;
-      const label2 = getAssetLabel(asset);
+      const label = getAssetLabel(asset);
       const mediaPath =
         asset.type === "image"
           ? API_PATHS.serveFile(asset.path)
@@ -140,21 +140,21 @@ export function CanvasGlobalTagManager({
             ? API_PATHS.thumbnail(asset.path)
             : void 0;
       const thumbnailUrl = mediaPath
-        ? withThumbnail(gatewayUrl2(mediaPath), 28)
+        ? withThumbnail(gatewayUrl(mediaPath), 28)
         : void 0;
       for (const tagId of asset.tagIds ?? []) {
         const taggedItems = itemsByTag.get(tagId) ?? [];
-        nodeIds.forEach((nodeId, index2) => {
+        nodeIds.forEach((nodeId, index) => {
           taggedItems.push({
             asset,
-            label: nodeIds.length > 1 ? `${label2} · ${index2 + 1}` : label2,
+            label: nodeIds.length > 1 ? `${label} · ${index + 1}` : label,
             nodeId,
             previewResource: {
               nodeId,
               assetId: asset.id,
               type: asset.type,
-              name: label2,
-              url: gatewayUrl2(API_PATHS.serveFile(asset.path)) ?? "",
+              name: label,
+              url: gatewayUrl(API_PATHS.serveFile(asset.path)) ?? "",
               path: asset.path,
               width: asset.width,
               height: asset.height,
@@ -169,7 +169,7 @@ export function CanvasGlobalTagManager({
       }
     }
     return itemsByTag;
-  }, [canvasNodeIdsByAsset, gatewayUrl2, workspaceAssets]);
+  }, [canvasNodeIdsByAsset, gatewayUrl, workspaceAssets]);
   const countsByTag = reactExports.useMemo(
     () =>
       new Map(
@@ -185,11 +185,11 @@ export function CanvasGlobalTagManager({
       summarizeCanvasTagDownloads(
         workspaceAssets,
         new Set(canvasNodeIdsByAsset.keys()),
-        registry2.tags,
+        registry.tags,
       ),
-    [canvasNodeIdsByAsset, registry2.tags, workspaceAssets],
+    [canvasNodeIdsByAsset, registry.tags, workspaceAssets],
   );
-  const tagsWithCanvasAssets = registry2.tags
+  const tagsWithCanvasAssets = registry.tags
     .filter(isCanvasColorTag)
     .filter((tag) => (countsByTag.get(tag.id) ?? 0) > 0);
   const activeTag = tagsWithCanvasAssets.find((tag) => tag.id === activeTagId);
@@ -198,8 +198,8 @@ export function CanvasGlobalTagManager({
     if (activeTagId && !activeTag) onActiveTagChange(void 0);
   }, [activeTag, activeTagId, onActiveTagChange]);
   const resolvedNames = reactExports.useMemo(
-    () => new Map(registry2.tags.map((tag) => [tag.id, resolveName2(tag)])),
-    [registry2.tags, resolveName2],
+    () => new Map(registry.tags.map((tag) => [tag.id, resolveName(tag)])),
+    [registry.tags, resolveName],
   );
   reactExports.useEffect(() => {
     if (!renamingTagId) return;
@@ -220,7 +220,7 @@ export function CanvasGlobalTagManager({
     },
     [],
   );
-  const hasLabelDefinitions = registry2.tags.some(isCanvasColorTag);
+  const hasLabelDefinitions = registry.tags.some(isCanvasColorTag);
   const hasTaggedCanvasAssets = visibleTags.length > 0;
   const emptyStateLabel = hasLabelDefinitions
     ? translate("canvasTags.noTaggedAssets")
@@ -298,9 +298,9 @@ export function CanvasGlobalTagManager({
   };
   const commitRename = async (tag, currentName) => {
     if (renameSavingRef.current) return;
-    const name2 = renameDraft.trim();
-    const validation = validateCanvasTagName(name2);
-    const duplicate = isTagNameTaken(name2, resolvedNames, tag.id);
+    const trimmedName = renameDraft.trim();
+    const validation = validateCanvasTagName(trimmedName);
+    const duplicate = isTagNameTaken(trimmedName, resolvedNames, tag.id);
     if (validation || duplicate) {
       dedupedToast.error(
         translate(
@@ -314,7 +314,7 @@ export function CanvasGlobalTagManager({
       cancelRename(currentName);
       return;
     }
-    if (name2 === currentName) {
+    if (trimmedName === currentName) {
       finishRename();
       return;
     }
@@ -322,7 +322,7 @@ export function CanvasGlobalTagManager({
     setRenameSaving(true);
     try {
       await updateTag(tag.id, {
-        name: name2,
+        name: trimmedName,
       });
       finishRename();
     } catch {
@@ -403,13 +403,13 @@ export function CanvasGlobalTagManager({
               data-action-ui-id="canvas.tag-dock-palette"
             >
               {visibleTags.map((tag) => {
-                const name2 = resolveName2(tag);
+                const resolvedTagName = resolveName(tag);
                 const items = canvasItemsByTag.get(tag.id) ?? [];
-                const count2 = items.length;
+                const count = items.length;
                 const countLabel = translate("canvasTags.canvasAssetCount", {
-                  count: count2,
+                  count,
                 });
-                const active2 = tag.id === activeTagId;
+                const active = tag.id === activeTagId;
                 const downloading = downloadingTagId === tag.id;
                 const clearing = clearingTagId === tag.id;
                 return (
@@ -429,15 +429,15 @@ export function CanvasGlobalTagManager({
                       closeDelay={180}
                       render={
                         <CanvasToolbarExtensionButton
-                          label={`${name2}: ${countLabel}`}
+                          label={`${resolvedTagName}: ${countLabel}`}
                           tooltipContent={null}
                           onClick={() =>
-                            onActiveTagChange(active2 ? void 0 : tag.id)
+                            onActiveTagChange(active ? void 0 : tag.id)
                           }
                           dataActionUiId="canvas.toolbar-tag-filter"
                           data-tag-id={tag.id}
                           kind="toggle"
-                          active={active2}
+                          active={active}
                           className="canvas-global-tag-manager__tag aria-pressed:!h-[calc(100%-4px)] aria-pressed:!rounded-full focus-visible:ring-0!"
                           style={{
                             "--canvas-tag-color": getCanvasTagPresentationColor(
@@ -457,8 +457,8 @@ export function CanvasGlobalTagManager({
                             }}
                             aria-hidden="true"
                           />
-                          {active2 && (
-                            <span className="tabular-nums">{count2}</span>
+                          {active && (
+                            <span className="tabular-nums">{count}</span>
                           )}
                         </CanvasToolbarExtensionButton>
                       }
@@ -489,7 +489,7 @@ export function CanvasGlobalTagManager({
                               ref={renameInputRef}
                               value={renameDraft}
                               disabled={renameSaving}
-                              aria-label={name2}
+                              aria-label={resolvedTagName}
                               data-action-ui-id="canvas.tag-hover-rename-input"
                               className="h-5 min-w-0 flex-1 border-0 bg-transparent p-0 text-sm font-medium text-inherit outline-none disabled:opacity-50"
                               onChange={(event) =>
@@ -509,17 +509,17 @@ export function CanvasGlobalTagManager({
                                   ),
                                 )
                               }
-                              onBlur={() => void commitRename(tag, name2)}
+                              onBlur={() => void commitRename(tag, resolvedTagName)}
                               onDoubleClick={(event) => event.stopPropagation()}
                               onKeyDown={(event) => {
                                 if (event.key === "Enter") {
                                   event.preventDefault();
-                                  void commitRename(tag, name2);
+                                  void commitRename(tag, resolvedTagName);
                                 }
                                 if (event.key === "Escape") {
                                   event.preventDefault();
                                   event.stopPropagation();
-                                  cancelRename(name2);
+                                  cancelRename(resolvedTagName);
                                 }
                               }}
                             />
@@ -530,17 +530,17 @@ export function CanvasGlobalTagManager({
                               data-action-ui-id="canvas.tag-hover-name"
                               onClick={(event) => {
                                 if (event.detail !== 0) return;
-                                setRenameDraft(name2);
+                                setRenameDraft(resolvedTagName);
                                 setRenamingTagId(tag.id);
                               }}
                               onDoubleClick={(event) => {
                                 event.preventDefault();
                                 event.stopPropagation();
-                                setRenameDraft(name2);
+                                setRenameDraft(resolvedTagName);
                                 setRenamingTagId(tag.id);
                               }}
                             >
-                              {name2}
+                              {resolvedTagName}
                             </button>
                           )}
                         </div>

@@ -14,19 +14,19 @@ function trackPluginEditorOpen(props) {
   trackEvent(TRACK_EVENTS.PLUGIN_EDITOR_OPEN, props);
 }
 
-export function useNodeContextMenuState(isActive2) {
+export function useNodeContextMenuState(isActive) {
   const [contextMenu, setContextMenu] = reactExports.useState(null);
   const contextMenuRef = reactExports.useRef(null);
   contextMenuRef.current = contextMenu;
   const closeNodeContextMenu = reactExports.useCallback(() => {
-    const current2 = contextMenuRef.current;
+    const current = contextMenuRef.current;
     contextMenuRef.current = null;
-    current2?.actions.dismissContextMenu();
+    current?.actions.dismissContextMenu();
     setContextMenu(null);
   }, []);
   reactExports.useEffect(() => {
-    if (isActive2 === false) closeNodeContextMenu();
-  }, [closeNodeContextMenu, isActive2]);
+    if (isActive === false) closeNodeContextMenu();
+  }, [closeNodeContextMenu, isActive]);
   reactExports.useEffect(
     () => () => {
       contextMenuRef.current?.actions.dismissContextMenu();
@@ -42,31 +42,31 @@ export function useNodeContextMenuState(isActive2) {
 }
 
 export function usePluginEditorActiveChangeTracking(
-  workspaceId2,
+  workspaceId,
   closeNodeContextMenu,
 ) {
   const lastOpenRef = reactExports.useRef(new Map());
   return reactExports.useCallback(
-    (session, active2, agentName, pluginId, openContext) => {
-      if (!workspaceId2) return;
-      if (active2) closeNodeContextMenu();
+    (session, active, agentName, pluginId, openContext) => {
+      if (!workspaceId) return;
+      if (active) closeNodeContextMenu();
       workspaceEvents.firePluginEditActive(
-        workspaceId2,
+        workspaceId,
         session,
-        active2,
+        active,
         agentName,
         pluginId,
       );
-      if (!active2 || !pluginId) return;
-      const now2 = Date.now();
-      const previous2 = lastOpenRef.current.get(session.editSessionId);
-      if (previous2 !== void 0 && now2 - previous2 < 1e3) return;
-      lastOpenRef.current.set(session.editSessionId, now2);
-      const meta2 = getPluginMeta(pluginId);
+      if (!active || !pluginId) return;
+      const now = Date.now();
+      const previous = lastOpenRef.current.get(session.editSessionId);
+      if (previous !== void 0 && now - previous < 1e3) return;
+      lastOpenRef.current.set(session.editSessionId, now);
+      const meta = getPluginMeta(pluginId);
       trackPluginEditorOpen({
         plugin_id: pluginId,
-        plugin_version: meta2?.version ?? "unknown",
-        plugin_source: meta2?.source ?? "installed",
+        plugin_version: meta?.version ?? "unknown",
+        plugin_source: meta?.source ?? "installed",
         plugin_instance_id: session.nodeId,
         surface: "canvas",
         entry_source: openContext?.entrySource ?? "programmatic",
@@ -74,27 +74,27 @@ export function usePluginEditorActiveChangeTracking(
         duration_ms: openContext?.durationMs ?? 0,
       });
     },
-    [workspaceId2, closeNodeContextMenu],
+    [workspaceId, closeNodeContextMenu],
   );
 }
 
 const PLUGIN_NAVIGATE_LEGACY_REDIRECTS = {};
 
 export function usePluginNavigate() {
-  const router2 = useRouter();
+  const router = useRouter();
   return reactExports.useCallback(
     async (args) => {
       const to = PLUGIN_NAVIGATE_LEGACY_REDIRECTS[args.to] ?? args.to;
       if (!to.startsWith("/")) return false;
       try {
-        const location2 = router2.buildLocation({
+        const routeLocation = router.buildLocation({
           to,
           params: args.params,
           search: args.search,
         });
-        if (!router2.getMatchedRoutes(location2.pathname).foundRoute)
+        if (!router.getMatchedRoutes(routeLocation.pathname).foundRoute)
           return false;
-        await router2.navigate({
+        await router.navigate({
           to,
           params: args.params,
           search: args.search,
@@ -104,7 +104,7 @@ export function usePluginNavigate() {
         return false;
       }
     },
-    [router2],
+    [router],
   );
 }
 
@@ -133,12 +133,12 @@ export function pickCanvasNodeToolApplyDetails(input) {
     "cell_count",
     "region_count",
   ];
-  for (const key2 of numberKeys) {
-    if (typeof input[key2] === "number") output[key2] = input[key2];
+  for (const key of numberKeys) {
+    if (typeof input[key] === "number") output[key] = input[key];
   }
   const stringKeys = ["crop_ratio", "resolution", "magnification", "language"];
-  for (const key2 of stringKeys) {
-    if (typeof input[key2] === "string") output[key2] = input[key2];
+  for (const key of stringKeys) {
+    if (typeof input[key] === "string") output[key] = input[key];
   }
   if (typeof input.flip_horizontal === "boolean")
     output.flip_horizontal = input.flip_horizontal;
@@ -167,10 +167,10 @@ export function resolveNodeSize(file, intrinsic) {
 
 function measureImageFile(file) {
   return new Promise((resolve) => {
-    const url2 = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      URL.revokeObjectURL(url2);
+      URL.revokeObjectURL(url);
       const mediaWidth = img.naturalWidth;
       const mediaHeight = img.naturalHeight;
       resolve(
@@ -183,20 +183,20 @@ function measureImageFile(file) {
       );
     };
     img.onerror = () => {
-      URL.revokeObjectURL(url2);
+      URL.revokeObjectURL(url);
       resolve(void 0);
     };
-    img.src = url2;
+    img.src = url;
   });
 }
 
 function measureVideoFile(file) {
   return new Promise((resolve) => {
-    const url2 = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
     const video = document.createElement("video");
     video.preload = "metadata";
     const cleanup = () => {
-      URL.revokeObjectURL(url2);
+      URL.revokeObjectURL(url);
       video.src = "";
     };
     video.onloadedmetadata = () => {
@@ -216,7 +216,7 @@ function measureVideoFile(file) {
       cleanup();
       resolve(void 0);
     };
-    video.src = url2;
+    video.src = url;
   });
 }
 
@@ -256,10 +256,10 @@ export async function resizeImageBlob(blob, targetWidth, targetHeight) {
 
 export function computeEnhanceGridTarget(srcWidth, srcHeight, multiplier) {
   if (srcWidth <= 0 || srcHeight <= 0 || multiplier <= 0) return null;
-  const shortEdge2 = Math.min(srcWidth, srcHeight);
+  const shortEdge = Math.min(srcWidth, srcHeight);
   const prepScale =
-    shortEdge2 < ENHANCE_INPUT_SHORT_MIN
-      ? ENHANCE_INPUT_SHORT_MIN / shortEdge2
+    shortEdge < ENHANCE_INPUT_SHORT_MIN
+      ? ENHANCE_INPUT_SHORT_MIN / shortEdge
       : 1;
   const prepWidth = Math.max(1, Math.round(srcWidth * prepScale));
   const prepHeight = Math.max(1, Math.round(srcHeight * prepScale));
@@ -267,9 +267,9 @@ export function computeEnhanceGridTarget(srcWidth, srcHeight, multiplier) {
   let targetHeight = Math.round(srcHeight * multiplier);
   const longTarget = Math.max(targetWidth, targetHeight);
   if (longTarget > ENHANCE_OUTPUT_EDGE_MAX) {
-    const clampScale2 = ENHANCE_OUTPUT_EDGE_MAX / longTarget;
-    targetWidth = Math.round(targetWidth * clampScale2);
-    targetHeight = Math.round(targetHeight * clampScale2);
+    const clampScale = ENHANCE_OUTPUT_EDGE_MAX / longTarget;
+    targetWidth = Math.round(targetWidth * clampScale);
+    targetHeight = Math.round(targetHeight * clampScale);
   }
   targetWidth = Math.max(1, targetWidth);
   targetHeight = Math.max(1, targetHeight);
@@ -281,11 +281,11 @@ export function computeEnhanceGridTarget(srcWidth, srcHeight, multiplier) {
   };
 }
 
-export async function buildImageCopyPayload(node2, assetMetadataStore) {
-  const meta2 = getAssetMetaByNodeIdFromStore(assetMetadataStore, node2.id);
-  if (!meta2?.url) return null;
+export async function buildImageCopyPayload(node, assetMetadataStore) {
+  const meta = getAssetMetaByNodeIdFromStore(assetMetadataStore, node.id);
+  if (!meta?.url) return null;
   try {
-    const res = await fetch(meta2.url);
+    const res = await fetch(meta.url);
     if (!res.ok) return null;
     const png = await blobToPng(await res.blob());
     return png
@@ -312,26 +312,26 @@ export function blobToDataUri(blob) {
   });
 }
 
-export function mapPluginDataReadResult(raw2) {
-  if (!raw2 || typeof raw2 !== "object") {
+export function mapPluginDataReadResult(raw) {
+  if (!raw || typeof raw !== "object") {
     throw new Error("plugin: readPluginData returned a non-object response");
   }
-  const record2 = raw2;
-  if (typeof record2.nodeId !== "string" || !record2.nodeId) {
+  const record = raw;
+  if (typeof record.nodeId !== "string" || !record.nodeId) {
     throw new Error("plugin: readPluginData response is missing nodeId");
   }
   if (
-    !Array.isArray(record2.keys) ||
-    !record2.keys.every((key2) => typeof key2 === "string")
+    !Array.isArray(record.keys) ||
+    !record.keys.every((key) => typeof key === "string")
   ) {
     throw new Error("plugin: readPluginData response has invalid keys");
   }
   return {
-    nodeId: record2.nodeId,
-    keys: record2.keys,
-    ...(Object.hasOwn(record2, "value")
+    nodeId: record.nodeId,
+    keys: record.keys,
+    ...(Object.hasOwn(record, "value")
       ? {
-          value: record2.value,
+          value: record.value,
         }
       : {}),
   };

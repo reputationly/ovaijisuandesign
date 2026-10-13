@@ -27,8 +27,8 @@ function isToolConfirmRejectReason(value) {
 }
 export function parseToolConfirmRejectReason(value) {
   if (!value) return void 0;
-  const match2 = value.match(/\[tool-confirm-reject:([a-z_]+)\]/);
-  return isToolConfirmRejectReason(match2?.[1]) ? match2[1] : void 0;
+  const match = value.match(/\[tool-confirm-reject:([a-z_]+)\]/);
+  return isToolConfirmRejectReason(match?.[1]) ? match[1] : void 0;
 }
 export const QUEUED_USER_MESSAGE_LIMIT = 20;
 export function deriveBusy(agentRunning, pendingReasons) {
@@ -51,8 +51,8 @@ function shallowEqualActions(leftActions, rightActions) {
   const keysA = Object.keys(leftActions);
   const keysB = Object.keys(rightActions);
   if (keysA.length !== keysB.length) return false;
-  for (const key2 of keysA) {
-    if (leftActions[key2] !== rightActions[key2]) return false;
+  for (const key of keysA) {
+    if (leftActions[key] !== rightActions[key]) return false;
   }
   return true;
 }
@@ -65,36 +65,36 @@ function useShallowStableActions(actions) {
   }
   return prev;
 }
-export function CanvasBridgeProvider({ children: children2, ...actions }) {
+export function CanvasBridgeProvider({ children, ...actions }) {
   const stable = useShallowStableActions(actions);
   return (
     <CanvasBridgeContext.Provider value={stable}>
-      {children2}
+      {children}
     </CanvasBridgeContext.Provider>
   );
 }
 function createNodeDraggingSelector(nodeId) {
-  return (state2) => !!state2.nodeLookup.get(nodeId)?.dragging;
+  return (state) => !!state.nodeLookup.get(nodeId)?.dragging;
 }
 export function useCanvasNodeIsDragging(nodeId) {
-  const selector2 = reactExports.useMemo(
+  const selector = reactExports.useMemo(
     () => createNodeDraggingSelector(nodeId),
     [nodeId],
   );
-  return useStore(selector2);
+  return useStore(selector);
 }
 const DEFAULT_VIEWPORT_BUFFER_RATIO = 1.5;
-function classify(state2, nodeId, nodeWidth, nodeHeight, bufferRatio) {
-  const lookup = state2.nodeLookup?.get(nodeId);
+function classify(state, nodeId, nodeWidth, nodeHeight, bufferRatio) {
+  const lookup = state.nodeLookup?.get(nodeId);
   if (!lookup) return "far";
   const pos = lookup.internals?.positionAbsolute ?? lookup.position;
   if (!pos) return "far";
-  const [tx, ty, zoom2] = state2.transform;
-  if (!zoom2 || zoom2 <= 0) return "far";
-  const vLeft = -tx / zoom2;
-  const vTop = -ty / zoom2;
-  const vRight = vLeft + state2.width / zoom2;
-  const vBottom = vTop + state2.height / zoom2;
+  const [tx, ty, zoom] = state.transform;
+  if (!zoom || zoom <= 0) return "far";
+  const vLeft = -tx / zoom;
+  const vTop = -ty / zoom;
+  const vRight = vLeft + state.width / zoom;
+  const vBottom = vTop + state.height / zoom;
   const renderBounds = lookup.renderBounds;
   const hostWidth = lookup.measured?.width ?? lookup.width ?? nodeWidth;
   const hostHeight = lookup.measured?.height ?? lookup.height ?? nodeHeight;
@@ -109,8 +109,8 @@ function classify(state2, nodeId, nodeWidth, nodeHeight, bufferRatio) {
     nTop > vBottom
   );
   if (visible) return "inView";
-  const bufW = (state2.width / zoom2) * (bufferRatio - 1) * 0.5;
-  const bufH = (state2.height / zoom2) * (bufferRatio - 1) * 0.5;
+  const bufW = (state.width / zoom) * (bufferRatio - 1) * 0.5;
+  const bufH = (state.height / zoom) * (bufferRatio - 1) * 0.5;
   const bLeft = vLeft - bufW;
   const bTop = vTop - bufH;
   const bRight = vRight + bufW;
@@ -125,59 +125,59 @@ function classify(state2, nodeId, nodeWidth, nodeHeight, bufferRatio) {
 }
 export function useViewportStatus(nodeId, width, height, options) {
   const bufferRatio = DEFAULT_VIEWPORT_BUFFER_RATIO;
-  const selector2 = reactExports.useMemo(
-    () => (state2) => {
-      return classify(state2, nodeId, width, height, bufferRatio);
+  const selector = reactExports.useMemo(
+    () => (state) => {
+      return classify(state, nodeId, width, height, bufferRatio);
     },
     [nodeId, width, height, bufferRatio],
   );
-  return useStore(selector2);
+  return useStore(selector);
 }
-export function AssetMetadataStoreProvider({ store, children: children2 }) {
+export function AssetMetadataStoreProvider({ store, children }) {
   return reactExports.createElement(
     AssetMetadataStoreContext.Provider,
     {
       value: store,
     },
-    children2,
+    children,
   );
 }
-export function getAssetMetaByNodeIdFromStore(store, key2) {
-  return store.getState().assets.get(key2);
+export function getAssetMetaByNodeIdFromStore(store, key) {
+  return store.getState().assets.get(key);
 }
-export function GeneratingStateStoreProvider({ store, children: children2 }) {
+export function GeneratingStateStoreProvider({ store, children }) {
   return reactExports.createElement(
     GeneratingStateStoreContext.Provider,
     {
       value: store,
     },
-    children2,
+    children,
   );
 }
-export function areNodePropsEqual(prev, next2) {
-  if (prev.id !== next2.id) return false;
-  if (prev.selected !== next2.selected) return false;
-  if (prev.data !== next2.data) return false;
-  if (prev.width !== next2.width) return false;
-  if (prev.height !== next2.height) return false;
+export function areNodePropsEqual(prev, next) {
+  if (prev.id !== next.id) return false;
+  if (prev.selected !== next.selected) return false;
+  if (prev.data !== next.data) return false;
+  if (prev.width !== next.width) return false;
+  if (prev.height !== next.height) return false;
   return true;
 }
-export function formatFileSize(bytes2) {
-  if (typeof bytes2 !== "number" || !Number.isFinite(bytes2) || bytes2 < 0)
+export function formatFileSize(bytes) {
+  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes < 0)
     return void 0;
-  if (bytes2 < 1024) return `${bytes2} B`;
-  const kb = bytes2 / 1024;
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
   if (kb < 1024) return `${kb.toFixed(2)} KB`;
   const mb = kb / 1024;
   if (mb < 1024) return `${mb.toFixed(2)} MB`;
   const gb = mb / 1024;
   return `${gb.toFixed(2)} GB`;
 }
-export function getFileExtension(name2) {
-  if (!name2) return void 0;
-  const idx = name2.lastIndexOf(".");
-  if (idx <= 0 || idx === name2.length - 1) return void 0;
-  return name2.slice(idx).toLowerCase();
+export function getFileExtension(fileName) {
+  if (!fileName) return void 0;
+  const idx = fileName.lastIndexOf(".");
+  if (idx <= 0 || idx === fileName.length - 1) return void 0;
+  return fileName.slice(idx).toLowerCase();
 }
 const ADD_TO_CHAT_VIEW_BOX = "0 0 20 20";
 const ADD_TO_CHAT_PATHS = [
@@ -187,11 +187,11 @@ const ADD_TO_CHAT_PATHS = [
   "M5.93323 7.60952L12.7507 7.60952",
   "M5.93323 12.1545L9.34196 12.1545",
 ];
-export function AddToChatIcon({ size: size2 = 20, ...props } = {}) {
+export function AddToChatIcon({ size = 20, ...props } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox={ADD_TO_CHAT_VIEW_BOX}
       fill="none"
       stroke="currentColor"
@@ -207,11 +207,11 @@ export function AddToChatIcon({ size: size2 = 20, ...props } = {}) {
     </CompositedSvg>
   );
 }
-export function AnnotationIcon$1({ size: size2 = 24, ...props } = {}) {
+export function AnnotationIcon$1({ size = 24, ...props } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -225,8 +225,8 @@ export function AnnotationIcon$1({ size: size2 = 24, ...props } = {}) {
     </CompositedSvg>
   );
 }
-export const RetryIcon = reactExports.forwardRef(function RetryIcon2(
-  { size: size2 = 24, style: style2, ...props },
+export const RetryIcon = reactExports.forwardRef(function RetryIcon(
+  { size = 24, style, ...props },
   ref,
 ) {
   const ariaHidden =
@@ -235,12 +235,12 @@ export const RetryIcon = reactExports.forwardRef(function RetryIcon2(
     <CompositedSvg
       ref={ref}
       {...props}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden={ariaHidden}
-      style={withArtworkOpacity(style2, 0.85)}
+      style={withArtworkOpacity(style, 0.85)}
     >
       <title>{props["aria-label"] ?? "Retry"}</title>
       <path
@@ -251,9 +251,9 @@ export const RetryIcon = reactExports.forwardRef(function RetryIcon2(
   );
 });
 const TOOLBAR_STROKE_WIDTH_24 = 1.8;
-export function AnnotationIcon({ size: size2 = 20 } = {}) {
+export function AnnotationIcon({ size = 20 } = {}) {
   return (
-    <AnnotationIcon$1 size={size2} strokeWidth={TOOLBAR_STROKE_WIDTH_24} />
+    <AnnotationIcon$1 size={size} strokeWidth={TOOLBAR_STROKE_WIDTH_24} />
   );
 }
 export function TextEditIcon() {
@@ -283,11 +283,11 @@ export function CopyIcon() {
     </CompositedSvg>
   );
 }
-export function MoreVerticalIcon({ size: size2 = 16 } = {}) {
+export function MoreVerticalIcon({ size = 16 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="currentColor"
       aria-hidden="true"
@@ -378,11 +378,11 @@ export function MinimizeIcon() {
     </CompositedSvg>
   );
 }
-export function RelightIcon({ size: size2 = 18 } = {}) {
+export function RelightIcon({ size = 18 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -402,13 +402,13 @@ export function RelightIcon({ size: size2 = 18 } = {}) {
   );
 }
 export function StoryboardGridIcon({
-  size: size2 = 18,
+  size = 18,
   strokeWidth = 1.5,
 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -421,11 +421,11 @@ export function StoryboardGridIcon({
     </CompositedSvg>
   );
 }
-export function PanoramaIcon({ size: size2 = 18 } = {}) {
+export function PanoramaIcon({ size = 18 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       fill="none"
       viewBox="0 0 14 14"
       aria-hidden="true"
@@ -437,11 +437,11 @@ export function PanoramaIcon({ size: size2 = 18 } = {}) {
     </CompositedSvg>
   );
 }
-export function MultiAngleIcon({ size: size2 = 16 } = {}) {
+export function MultiAngleIcon({ size = 16 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 21.6 21.8"
       fill="none"
       aria-hidden="true"
@@ -453,11 +453,11 @@ export function MultiAngleIcon({ size: size2 = 16 } = {}) {
     </CompositedSvg>
   );
 }
-export function AddToClipNodeIcon({ size: size2 = 20 } = {}) {
+export function AddToClipNodeIcon({ size = 20 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 20 20"
       fill="none"
       aria-hidden="true"

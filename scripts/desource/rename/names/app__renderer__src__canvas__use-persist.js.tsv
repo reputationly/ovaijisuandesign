@@ -4,6 +4,19 @@ n2@185:14	n2	node	每条持久化节点记录按 id 放入 updatedNodes。
 n2@189:22	n2	node	assetIdOf 从节点记录读取直接或 data 中的素材标识。
 n2@199:14	n2	node	遍历持久化节点以收集节点标识和可见素材标识。
 a2@201:11	a2	assetId	assetIdOf 返回的素材标识被加入可见素材集合。
-id2@215:14	id2	assetId	当前可见素材标识不再属于隐藏素材集合。
-id2@216:14	id2	nodeId	当前节点标识不再属于隐藏素材集合。
+id2@215:14	id2	id	当前可见素材标识不再属于隐藏素材集合。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
+id2@216:14	id2	id	当前节点标识不再属于隐藏素材集合。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 e2@217:43	e2	edge	每条图边被转换为持久化边记录。
+previous2@22:47	previous2	previous	原名 previous2 的末尾 2 是打包器去重后缀；恢复词干 previous，该绑定表示前一状态值。
+next2@22:58	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+body2@51:9	body2	body	原名 body2 的末尾 2 是打包器去重后缀；恢复词干 body，该绑定表示主体内容。
+code2@61:9	code2	code	原名 code2 的末尾 2 是打包器去重后缀；恢复词干 code，该绑定表示代码文本。
+instance2@81:21	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+mode2@81:38	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+isPluginNode2@93:11	isPluginNode2	isPluginNode	原名 isPluginNode2 的末尾 2 是打包器去重后缀；恢复词干 isPluginNode，该绑定表示插件节点类型判断结果。
+instance2@263:15	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+mode2@306:6	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+node2@312:41	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+mode2@377:12	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+snapshot2@379:13	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+mode2@486:6	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。

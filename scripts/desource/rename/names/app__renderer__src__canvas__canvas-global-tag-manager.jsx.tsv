@@ -1,4 +1,15 @@
 key	old	new	依据
 X@6:146	X	XIcon	Lucide 导出名为 X 的图标组件，局部别名按图标本名命名。
-id2@43:48	id2	tagId	已知标签标识集合由 tags 中每个 id 组成。
+id2@43:48	id2	id	已知标签标识集合由 tags 中每个 id 组成。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 t2@107:14	t2	translate	该函数翻译标签管理、下载和操作提示。
+tags2@42:62	tags2	tags	原名 tags2 的末尾 2 是打包器去重后缀；恢复词干 tags，该绑定表示标签集合。
+workspaceId2@91:16	workspaceId2	workspaceId	原名 workspaceId2 的末尾 2 是打包器去重后缀；恢复词干 workspaceId，该绑定表示工作区标识符。
+resolveName2@109:9	resolveName2	resolveName	原名 resolveName2 的末尾 2 是打包器去重后缀；恢复词干 resolveName，该绑定表示解析名称的函数。
+registry2@111:15	registry2	registry	原名 registry2 的末尾 2 是打包器去重后缀；恢复词干 registry，该绑定表示注册表对象。
+gatewayUrl2@115:9	gatewayUrl2	gatewayUrl	原名 gatewayUrl2 的末尾 2 是打包器去重后缀；恢复词干 gatewayUrl，该绑定表示网关地址。
+label2@135:13	label2	label	原名 label2 的末尾 2 是打包器去重后缀；恢复词干 label，该绑定表示标签文本。
+index2@147:34	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
+name2@301:11	name2	trimmedName	该值是去除首尾空格后的标签名称；name 是全局名，故使用 trimmedName。
+name2@406:23	name2	resolvedTagName	该值是按标签解析出的显示名称；name 是全局名，故使用 resolvedTagName。
+count2@408:23	count2	count	原名 count2 的末尾 2 是打包器去重后缀；恢复词干 count，该绑定表示数量。
+active2@412:23	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。

@@ -1,2 +1,10 @@
 key	old	new	依据
 t2@33:14	t2	translate	CanvasTagManagerPanel 用该翻译器显示标签管理及操作反馈文案。
+Input3@21:10	Input3	Input	原名 Input3 的末尾 3 是打包器去重后缀；恢复词干 Input，该绑定表示Input 对应的值。
+resolveName2@35:9	resolveName2	resolveName	原名 resolveName2 的末尾 2 是打包器去重后缀；恢复词干 resolveName，该绑定表示解析名称的函数。
+registry2@37:15	registry2	registry	原名 registry2 的末尾 2 是打包器去重后缀；恢复词干 registry，该绑定表示注册表对象。
+handleDelete2@144:9	handleDelete2	handleDelete	原名 handleDelete2 的末尾 2 是打包器去重后缀；恢复词干 handleDelete，该绑定表示handleDelete 事件处理函数。
+name2@80:11	name2	trimmedName	该值是去除首尾空格后的新标签名称；name 是全局名，故使用 trimmedName。
+patch2@115:19	patch2	patch	原名 patch2 的末尾 2 是打包器去重后缀；恢复词干 patch，该绑定表示局部更新数据。
+active2@120:42	active2	active	原名 active2 的末尾 2 是打包器去重后缀；恢复词干 active，该绑定表示活动状态值。
+next2@132:11	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。

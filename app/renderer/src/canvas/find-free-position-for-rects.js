@@ -20,10 +20,10 @@ function groupRectsByRows(rects, tolerance) {
   const sorted = [...rects].sort((firstRect, secondRect) => firstRect.y - secondRect.y);
   const rows = [];
   for (const rect of sorted) {
-    const match2 = rows.find((row) => Math.abs(row.y - rect.y) <= tolerance);
-    if (match2) {
-      match2.rects.push(rect);
-      match2.maxHeight = Math.max(match2.maxHeight, rect.h);
+    const match = rows.find((row) => Math.abs(row.y - rect.y) <= tolerance);
+    if (match) {
+      match.rects.push(rect);
+      match.maxHeight = Math.max(match.maxHeight, rect.h);
     } else {
       rows.push({
         y: rect.y,

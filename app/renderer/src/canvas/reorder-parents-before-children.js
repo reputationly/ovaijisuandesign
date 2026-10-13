@@ -12,7 +12,7 @@ import {
 const INTERNAL_COPY_HTML_MARKER = `<span ${INTERNAL_COPY_HTML_ATTRIBUTE}="true"></span>`;
 
 export function toFlowEdge(edge, selectedNodeIds, hidden) {
-  const selected2 = selectedNodeIds
+  const selected = selectedNodeIds
     ? selectedNodeIds.has(edge.source) || selectedNodeIds.has(edge.target)
     : void 0;
   const sourceHandle = normaliseHandle(edge.sourceHandle);
@@ -33,9 +33,9 @@ export function toFlowEdge(edge, selectedNodeIds, hidden) {
       : {}),
     type: edge.type ?? "default",
     data: edge.data ?? {},
-    ...(selected2 !== void 0
+    ...(selected !== void 0
       ? {
-          selected: selected2,
+          selected,
         }
       : {}),
     // Mirrors the `hidden` treatment in `toFlowNode`: omitted unless explicitly
@@ -65,18 +65,18 @@ export function injectDerivedChildCounts(nodes, childCountByParent) {
   let mutated = false;
   const result = nodes.map((node) => {
     if (node.type !== CanvasNodeType.Group) return node;
-    const next2 = counts.get(node.id) ?? 0;
+    const next = counts.get(node.id) ?? 0;
     const collapsedRaw = !!node.meta?.collapsed;
-    const data2 = node.data;
-    const prevCount = data2?.[GROUP_DERIVED_CHILD_COUNT_KEY];
-    const prevCollapsed = data2?.[GROUP_DERIVED_COLLAPSED_KEY];
-    if (prevCount === next2 && prevCollapsed === collapsedRaw) return node;
+    const data = node.data;
+    const prevCount = data?.[GROUP_DERIVED_CHILD_COUNT_KEY];
+    const prevCollapsed = data?.[GROUP_DERIVED_COLLAPSED_KEY];
+    if (prevCount === next && prevCollapsed === collapsedRaw) return node;
     mutated = true;
     return {
       ...node,
       data: {
-        ...(data2 ?? {}),
-        [GROUP_DERIVED_CHILD_COUNT_KEY]: next2,
+        ...(data ?? {}),
+        [GROUP_DERIVED_CHILD_COUNT_KEY]: next,
         [GROUP_DERIVED_COLLAPSED_KEY]: collapsedRaw,
       },
     };
@@ -105,25 +105,25 @@ export function reorderParentsBeforeChildren(nodes) {
     }
     bucket.push(node);
   }
-  const seen2 = new Set();
+  const seen = new Set();
   const result = [];
   for (const node of nodes) {
     if (parentOf(node)) continue;
-    if (seen2.has(node.id)) continue;
-    seen2.add(node.id);
+    if (seen.has(node.id)) continue;
+    seen.add(node.id);
     result.push(node);
-    const children2 = childrenByParent.get(node.id);
-    if (children2) {
-      for (const child of children2) {
-        if (seen2.has(child.id)) continue;
-        seen2.add(child.id);
+    const children = childrenByParent.get(node.id);
+    if (children) {
+      for (const child of children) {
+        if (seen.has(child.id)) continue;
+        seen.add(child.id);
         result.push(child);
       }
     }
   }
   for (const node of nodes) {
-    if (seen2.has(node.id)) continue;
-    seen2.add(node.id);
+    if (seen.has(node.id)) continue;
+    seen.add(node.id);
     result.push(node);
   }
   return result;

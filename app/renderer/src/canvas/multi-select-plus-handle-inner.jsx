@@ -37,13 +37,13 @@ function targetsFullyConnectedFromAll(sources, edges) {
   return fullyConnected;
 }
 function resolveSelectionConnectionSources(nodes, selectedIds) {
-  const nodesById = new Map(nodes.map((node2) => [node2.id, node2]));
+  const nodesById = new Map(nodes.map((node) => [node.id, node]));
   const childIdsByParent = new Map();
-  for (const node2 of nodes) {
-    if (!node2.parentId) continue;
-    const childIds = childIdsByParent.get(node2.parentId) ?? [];
-    childIds.push(node2.id);
-    childIdsByParent.set(node2.parentId, childIds);
+  for (const node of nodes) {
+    if (!node.parentId) continue;
+    const childIds = childIdsByParent.get(node.parentId) ?? [];
+    childIds.push(node.id);
+    childIdsByParent.set(node.parentId, childIds);
   }
   const sourceNodeIds = [];
   const seenSourceIds = new Set();
@@ -123,19 +123,19 @@ function DragPreview({ cursorScreenX, cursorScreenY, sourceAnchors }) {
   );
   const paths = [];
   for (const anchor of sourceAnchors) {
-    const screen2 = flowToScreenPosition({
+    const screenPoint = flowToScreenPosition({
       x: anchor.flowX,
       y: anchor.flowY,
     });
-    const [path2] = getBezierPath({
-      sourceX: screen2.x,
-      sourceY: screen2.y,
+    const [path] = getBezierPath({
+      sourceX: screenPoint.x,
+      sourceY: screenPoint.y,
       sourcePosition: Position.Right,
       targetX: cursorScreenX,
       targetY: cursorScreenY,
       targetPosition: Position.Left,
     });
-    paths.push(path2);
+    paths.push(path);
   }
   const preview = (
     <>
@@ -208,10 +208,10 @@ function MultiSelectPlusHandleInner({
     (leftSources, rightSources) =>
       leftSources.isSingleGroupSelection === rightSources.isSingleGroupSelection &&
       leftSources.sourceNodeIds.length === rightSources.sourceNodeIds.length &&
-      leftSources.sourceNodeIds.every((nodeId, index2) => nodeId === rightSources.sourceNodeIds[index2]),
+      leftSources.sourceNodeIds.every((id, index) => id === rightSources.sourceNodeIds[index]),
   );
   const buttonRef = reactExports.useRef(null);
-  const [drag2, setDrag] = reactExports.useState(null);
+  const [drag, setDrag] = reactExports.useState(null);
   const sourceNodeIdsRef = reactExports.useRef(sourceNodeIds);
   sourceNodeIdsRef.current = sourceNodeIds;
   const cleanupRef = reactExports.useRef(null);
@@ -237,7 +237,7 @@ function MultiSelectPlusHandleInner({
     },
     [],
   );
-  const onPointerDown2 = reactExports.useCallback(
+  const onPointerDown = reactExports.useCallback(
     (pointerEvent) => {
       if (pointerEvent.button !== 0) return;
       pointerEvent.stopPropagation();
@@ -246,15 +246,15 @@ function MultiSelectPlusHandleInner({
       if (!button) return;
       const nodeLookup = storeApi.getState().nodeLookup;
       const sourceAnchors = [];
-      for (const nodeId of sourceNodeIdsRef.current) {
-        const node2 = nodeLookup.get(nodeId);
-        if (!node2) continue;
-        const width = node2.measured?.width ?? node2.width ?? 0;
-        const height = node2.measured?.height ?? node2.height ?? 0;
+      for (const id of sourceNodeIdsRef.current) {
+        const node = nodeLookup.get(id);
+        if (!node) continue;
+        const width = node.measured?.width ?? node.width ?? 0;
+        const height = node.measured?.height ?? node.height ?? 0;
         if (!width || !height) continue;
         sourceAnchors.push({
-          flowX: node2.internals.positionAbsolute.x + width,
-          flowY: node2.internals.positionAbsolute.y + height / 2,
+          flowX: node.internals.positionAbsolute.x + width,
+          flowY: node.internals.positionAbsolute.y + height / 2,
         });
       }
       const rect = button.getBoundingClientRect();
@@ -369,19 +369,19 @@ function MultiSelectPlusHandleInner({
             // shows the released-position cap). Keep the element mounted so
             // NodeToolbar's transform stays alive — flipping back to visible
             // when the menu closes is instant.
-            visibility: drag2?.isDragging || hideAnchor ? "hidden" : "visible",
+            visibility: drag?.isDragging || hideAnchor ? "hidden" : "visible",
           }}
-          onPointerDown={onPointerDown2}
+          onPointerDown={onPointerDown}
           onClick={(clickEvent) => clickEvent.stopPropagation()}
         >
           <PlusIcon />
         </button>
       </NodeToolbar>
-      {drag2?.isDragging && (
+      {drag?.isDragging && (
         <DragPreview
-          cursorScreenX={drag2.cursorScreenX}
-          cursorScreenY={drag2.cursorScreenY}
-          sourceAnchors={drag2.sourceAnchors}
+          cursorScreenX={drag.cursorScreenX}
+          cursorScreenY={drag.cursorScreenY}
+          sourceAnchors={drag.sourceAnchors}
         />
       )}
     </>

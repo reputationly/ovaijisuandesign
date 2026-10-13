@@ -1,7 +1,25 @@
 key	old	new	依据
-ts2@44:31	ts2	timestamp	该参数是云端更新时间的时间戳。
+ts2@44:31	ts2	ts	该参数是云端更新时间的时间戳。；原名 ts2 的末尾 2 是打包器去重后缀；恢复词干 ts，该绑定表示ts 对应的值。
 t2@59:14	t2	translate	该函数翻译云资产同步状态文案。
 t2@104:14	t2	translate	该函数翻译云资产上传者和更新时间文案。
 t2@188:14	t2	translate	该函数翻译云资产重命名对话框文案。
 t2@277:14	t2	translate	该函数翻译上传中的状态文案。
 t2@374:6	t2	translate	该函数翻译本地文件导入错误文案。
+Input3@19:10	Input3	Input	原名 Input3 的末尾 3 是打包器去重后缀；恢复词干 Input，该绑定表示Input 对应的值。
+language2@44:36	language2	language	原名 language2 的末尾 2 是打包器去重后缀；恢复词干 language，该绑定表示语言标识。
+date2@46:9	date2	date	原名 date2 的末尾 2 是打包器去重后缀；恢复词干 date，该绑定表示日期值。
+state2@58:36	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+node2@103:41	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+name2@107:9	name2	uploaderName	该值是根据节点上传者标识查得的上传者名称；name 是全局名，故使用 uploaderName。
+path2@129:29	path2	path	原名 path2 的末尾 2 是打包器去重后缀；恢复词干 path，该绑定表示路径值。
+name2@133:31	name2	fileName	该参数是待拆分扩展名的文件名；name 是全局名，故使用 fileName。
+dot2@134:9	dot2	dot	原名 dot2 的末尾 2 是打包器去重后缀；恢复词干 dot，该绑定表示点积结果。
+extension2@150:14	extension2	extension	原名 extension2 的末尾 2 是打包器去重后缀；恢复词干 extension，该绑定表示文件扩展名。
+node2@187:42	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+name2@189:10	name2	baseName	该状态保存重命名输入框中的基础文件名（不含扩展名）；name 是全局名，故使用 baseName。
+pending2@190:10	pending2	pending	原名 pending2 的末尾 2 是打包器去重后缀；恢复词干 pending，该绑定表示待处理状态。
+extension2@191:17	extension2	extension	原名 extension2 的末尾 2 是打包器去重后缀；恢复词干 extension，该绑定表示文件扩展名。
+pending2@280:11	pending2	pending	原名 pending2 的末尾 2 是打包器去重后缀；恢复词干 pending，该绑定表示待处理状态。
+service2@370:12	service2	service	原名 service2 的末尾 2 是打包器去重后缀；恢复词干 service，该绑定表示服务对象。
+path2@378:11	path2	path	原名 path2 的末尾 2 是打包器去重后缀；恢复词干 path，该绑定表示路径值。
+name2@398:15	name2	sourceFileName	该值是从导入源路径提取的文件名；name 是全局名，故使用 sourceFileName。

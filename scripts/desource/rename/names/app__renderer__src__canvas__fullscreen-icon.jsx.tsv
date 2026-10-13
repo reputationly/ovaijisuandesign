@@ -2,3 +2,31 @@ key	old	new	依据
 a2@49:30	a2	leftActions	该参数是浅比较中的第一组动作。
 b3@49:34	b3	rightActions	该参数是浅比较中的第二组动作。
 d2@204:31	d2	pathData	该字符串是 SVG path 的绘制数据。
+export:AnnotationIcon$1	AnnotationIcon$1	AnnotationIcon	该画布导出名带打包器去重后缀 $1；仅登记恢复为 AnnotationIcon 的建议，本批不改导出名。
+match2@30:9	match2	match	原名 match2 的末尾 2 是打包器去重后缀；恢复词干 match，该绑定表示匹配结果。
+key2@54:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+children2@68:50	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
+state2@77:11	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+selector2@80:9	selector2	selector	原名 selector2 的末尾 2 是打包器去重后缀；恢复词干 selector，该绑定表示选择器函数。
+state2@87:19	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+zoom2@92:18	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+selector2@128:9	selector2	selector	原名 selector2 的末尾 2 是打包器去重后缀；恢复词干 selector，该绑定表示选择器函数。
+state2@129:12	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+children2@136:63	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
+key2@145:54	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+children2@148:65	children2	children	原名 children2 的末尾 2 是打包器去重后缀；恢复词干 children，该绑定表示子节点集合。
+next2@157:41	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+bytes2@165:32	bytes2	bytes	原名 bytes2 的末尾 2 是打包器去重后缀；恢复词干 bytes，该绑定表示字节序列。
+name2@176:34	name2	fileName	该参数是用于提取扩展名的文件名；name 是全局名，故使用 fileName。
+size2@190:39	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+size2@210:42	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+style2@229:30	style2	style	原名 style2 的末尾 2 是打包器去重后缀；恢复词干 style，该绑定表示样式对象。
+size2@229:11	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+RetryIcon2@228:59	RetryIcon2	RetryIcon	原名 RetryIcon2 的末尾 2 是打包器去重后缀；恢复词干 RetryIcon，该绑定表示RetryIcon 对应的值。
+size2@254:40	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+size2@286:42	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+size2@381:37	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+size2@405:9	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+size2@424:38	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+size2@440:40	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+size2@456:43	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。

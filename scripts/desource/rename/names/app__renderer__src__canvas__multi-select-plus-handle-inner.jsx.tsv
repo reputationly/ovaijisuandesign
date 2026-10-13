@@ -10,9 +10,17 @@ s2@202:33	s2	storeState	该参数提供节点是否可连接的状态。
 s2@205:8	s2	storeState	该参数提供解析连接来源所需的节点状态。
 a2@208:6	a2	leftSources	该对象是选择连接来源比较的左侧结果。
 b3@208:10	b3	rightSources	该对象是选择连接来源比较的右侧结果。
-id2@211:31	id2	nodeId	该值是待比较的来源节点标识。
+id2@211:31	id2	id	该值是待比较的来源节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 e2@241:6	e2	pointerEvent	该值是触发拖动连接的指针事件。
-id2@249:18	id2	nodeId	该值是需要读取位置的来源节点标识。
+id2@249:18	id2	id	该值是需要读取位置的来源节点标识。；原名 id2 的末尾 2 是打包器去重后缀；恢复词干 id，该绑定表示对象标识符。
 w3@252:15	w3	width	该值是来源节点测量或布局宽度。
 h2@253:15	h2	height	该值是来源节点测量或布局高度。
 e2@375:21	e2	clickEvent	该值是需要阻止冒泡的按钮点击事件。
+node2@40:40	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+node2@42:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+screen2@126:11	screen2	screenPoint	该值是锚点转换得到的屏幕坐标；screen 是全局名，故使用 screenPoint。
+path2@130:12	path2	path	原名 path2 的末尾 2 是打包器去重后缀；恢复词干 path，该绑定表示路径值。
+drag2@214:10	drag2	drag	原名 drag2 的末尾 2 是打包器去重后缀；恢复词干 drag，该绑定表示拖拽状态。
+onPointerDown2@240:9	onPointerDown2	onPointerDown	原名 onPointerDown2 的末尾 2 是打包器去重后缀；恢复词干 onPointerDown，该绑定表示指针按下事件回调。
+index2@211:36	index2	index	原名 index2 的末尾 2 是打包器去重后缀；恢复词干 index，该绑定表示集合下标。
+node2@250:15	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
