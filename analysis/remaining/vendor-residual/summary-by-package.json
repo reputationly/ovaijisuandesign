@@ -1,0 +1,596 @@
+[
+ {
+  "pkg": "(无匹配)",
+  "decls": 424,
+  "bytes": 479163,
+  "status": {
+   "none": 424
+  },
+  "statusBytes": {
+   "none": 479163
+  },
+  "versionsAllExact": [],
+  "versionsSeen": [],
+  "installedVersions": []
+ },
+ {
+  "pkg": "lucide-react",
+  "decls": 488,
+  "bytes": 93270,
+  "status": {
+   "installed-exact": 487,
+   "mismatch": 1
+  },
+  "statusBytes": {
+   "installed-exact": 92975,
+   "mismatch": 295
+  },
+  "versionsAllExact": [],
+  "versionsSeen": [
+   "0.468.0",
+   "1.42.0"
+  ],
+  "installedVersions": [
+   "0.468.0",
+   "1.42.0"
+  ]
+ },
+ {
+  "pkg": "i18next",
+  "decls": 54,
+  "bytes": 81159,
+  "status": {
+   "installed-exact": 54
+  },
+  "statusBytes": {
+   "installed-exact": 81159
+  },
+  "versionsAllExact": [
+   "25.10.10"
+  ],
+  "versionsSeen": [
+   "25.10.10"
+  ],
+  "installedVersions": [
+   "25.10.10"
+  ]
+ },
+ {
+  "pkg": "@xyflow/react",
+  "decls": 140,
+  "bytes": 75324,
+  "status": {
+   "installed-exact": 127,
+   "mismatch": 13
+  },
+  "statusBytes": {
+   "installed-exact": 54741,
+   "mismatch": 20583
+  },
+  "versionsAllExact": [
+   "12.10.2"
+  ],
+  "versionsSeen": [
+   "12.10.2",
+   "12.11.6"
+  ],
+  "installedVersions": [
+   "12.11.6"
+  ]
+ },
+ {
+  "pkg": "react-day-picker",
+  "decls": 115,
+  "bytes": 61752,
+  "status": {
+   "installed-exact": 115
+  },
+  "statusBytes": {
+   "installed-exact": 61752
+  },
+  "versionsAllExact": [
+   "9.14.0"
+  ],
+  "versionsSeen": [
+   "9.13.1",
+   "9.13.2",
+   "9.14.0",
+   "10.0.0",
+   "10.0.1",
+   "10.0.2"
+  ],
+  "installedVersions": [
+   "9.14.0"
+  ]
+ },
+ {
+  "pkg": "sonner",
+  "decls": 34,
+  "bytes": 40463,
+  "status": {
+   "installed-exact": 34
+  },
+  "statusBytes": {
+   "installed-exact": 40463
+  },
+  "versionsAllExact": [
+   "2.0.7"
+  ],
+  "versionsSeen": [
+   "2.0.1",
+   "2.0.2",
+   "2.0.3",
+   "2.0.4",
+   "2.0.5",
+   "2.0.6",
+   "2.0.7",
+   "2.0.8"
+  ],
+  "installedVersions": [
+   "2.0.7"
+  ]
+ },
+ {
+  "pkg": "@xyflow/system",
+  "decls": 43,
+  "bytes": 37517,
+  "status": {
+   "installed-exact": 43
+  },
+  "statusBytes": {
+   "installed-exact": 37517
+  },
+  "versionsAllExact": [
+   "0.0.76"
+  ],
+  "versionsSeen": [
+   "0.0.76",
+   "0.0.82"
+  ],
+  "installedVersions": [
+   "0.0.76",
+   "0.0.82"
+  ]
+ },
+ {
+  "pkg": "shiki",
+  "decls": 6,
+  "bytes": 33412,
+  "status": {
+   "mismatch": 6
+  },
+  "statusBytes": {
+   "mismatch": 33412
+  },
+  "versionsAllExact": [
+   "3.23.0"
+  ],
+  "versionsSeen": [
+   "3.23.0"
+  ],
+  "installedVersions": []
+ },
+ {
+  "pkg": "@speed-highlight/core",
+  "decls": 113,
+  "bytes": 15649,
+  "status": {
+   "mismatch": 113
+  },
+  "statusBytes": {
+   "mismatch": 15649
+  },
+  "versionsAllExact": [
+   "1.2.22"
+  ],
+  "versionsSeen": [
+   "1.2.22",
+   "1.2.23",
+   "1.2.24",
+   "2.0.0",
+   "2.0.1",
+   "2.1.0"
+  ],
+  "installedVersions": []
+ },
+ {
+  "pkg": "mediabunny",
+  "decls": 65,
+  "bytes": 14138,
+  "status": {
+   "installed-exact": 65
+  },
+  "statusBytes": {
+   "installed-exact": 14138
+  },
+  "versionsAllExact": [
+   "1.44.2"
+  ],
+  "versionsSeen": [
+   "1.44.2"
+  ],
+  "installedVersions": [
+   "1.44.2"
+  ]
+ },
+ {
+  "pkg": "@tiptap/extension-table",
+  "decls": 7,
+  "bytes": 12711,
+  "status": {
+   "mismatch": 7
+  },
+  "statusBytes": {
+   "mismatch": 12711
+  },
+  "versionsAllExact": [
+   "3.31.3"
+  ],
+  "versionsSeen": [
+   "3.27.3",
+   "3.31.3"
+  ],
+  "installedVersions": []
+ },
+ {
+  "pkg": "@dagrejs/graphlib",
+  "decls": 37,
+  "bytes": 8732,
+  "status": {
+   "mismatch": 37
+  },
+  "statusBytes": {
+   "mismatch": 8732
+  },
+  "versionsAllExact": [
+   "4.0.1"
+  ],
+  "versionsSeen": [
+   "3.0.4",
+   "4.0.1",
+   "4.0.3",
+   "4.0.5"
+  ],
+  "installedVersions": []
+ },
+ {
+  "pkg": "@tanstack/store",
+  "decls": 16,
+  "bytes": 8728,
+  "status": {
+   "installed-exact": 16
+  },
+  "statusBytes": {
+   "installed-exact": 8728
+  },
+  "versionsAllExact": [
+   "0.9.3"
+  ],
+  "versionsSeen": [
+   "0.9.3"
+  ],
+  "installedVersions": [
+   "0.9.3"
+  ]
+ },
+ {
+  "pkg": "wavesurfer.js",
+  "decls": 19,
+  "bytes": 7605,
+  "status": {
+   "installed-exact": 16,
+   "mismatch": 3
+  },
+  "statusBytes": {
+   "installed-exact": 5080,
+   "mismatch": 2525
+  },
+  "versionsAllExact": [
+   "7.12.2",
+   "7.12.3",
+   "7.12.4",
+   "7.12.5",
+   "7.12.6",
+   "7.12.7"
+  ],
+  "versionsSeen": [
+   "7.12.2",
+   "7.12.3",
+   "7.12.4",
+   "7.12.5",
+   "7.12.6",
+   "7.12.7",
+   "7.12.8",
+   "7.12.9",
+   "7.12.10",
+   "7.12.11",
+   "7.12.12",
+   "8.0.0",
+   "8.0.1",
+   "8.0.2"
+  ],
+  "installedVersions": [
+   "7.12.12"
+  ]
+ },
+ {
+  "pkg": "unplugin",
+  "decls": 5,
+  "bytes": 5374,
+  "status": {
+   "mismatch": 5
+  },
+  "statusBytes": {
+   "mismatch": 5374
+  },
+  "versionsAllExact": [],
+  "versionsSeen": [],
+  "installedVersions": [
+   "3.4.0"
+  ]
+ },
+ {
+  "pkg": "vfile",
+  "decls": 8,
+  "bytes": 4572,
+  "status": {
+   "installed-exact": 8
+  },
+  "statusBytes": {
+   "installed-exact": 4572
+  },
+  "versionsAllExact": [
+   "6.0.3"
+  ],
+  "versionsSeen": [
+   "6.0.3"
+  ],
+  "installedVersions": [
+   "6.0.3"
+  ]
+ },
+ {
+  "pkg": "@dnd-kit/sortable",
+  "decls": 10,
+  "bytes": 4314,
+  "status": {
+   "installed-exact": 10
+  },
+  "statusBytes": {
+   "installed-exact": 4314
+  },
+  "versionsAllExact": [
+   "10.0.0"
+  ],
+  "versionsSeen": [
+   "10.0.0"
+  ],
+  "installedVersions": [
+   "10.0.0"
+  ]
+ },
+ {
+  "pkg": "zustand",
+  "decls": 12,
+  "bytes": 4164,
+  "status": {
+   "installed-exact": 12
+  },
+  "statusBytes": {
+   "installed-exact": 4164
+  },
+  "versionsAllExact": [],
+  "versionsSeen": [
+   "4.5.7",
+   "5.0.8"
+  ],
+  "installedVersions": [
+   "4.5.7",
+   "5.0.8"
+  ]
+ },
+ {
+  "pkg": "travels",
+  "decls": 12,
+  "bytes": 3886,
+  "status": {
+   "installed-exact": 12
+  },
+  "statusBytes": {
+   "installed-exact": 3886
+  },
+  "versionsAllExact": [
+   "2.2.0"
+  ],
+  "versionsSeen": [
+   "2.2.0"
+  ],
+  "installedVersions": [
+   "2.2.0"
+  ]
+ },
+ {
+  "pkg": "@date-fns/tz",
+  "decls": 10,
+  "bytes": 3788,
+  "status": {
+   "installed-exact": 10
+  },
+  "statusBytes": {
+   "installed-exact": 3788
+  },
+  "versionsAllExact": [
+   "1.5.0"
+  ],
+  "versionsSeen": [
+   "1.5.0"
+  ],
+  "installedVersions": [
+   "1.5.0"
+  ]
+ },
+ {
+  "pkg": "react-markdown",
+  "decls": 8,
+  "bytes": 2820,
+  "status": {
+   "mismatch": 8
+  },
+  "statusBytes": {
+   "mismatch": 2820
+  },
+  "versionsAllExact": [
+   "10.0.0",
+   "10.0.1",
+   "10.1.0"
+  ],
+  "versionsSeen": [
+   "9.0.0",
+   "9.0.1",
+   "9.0.2",
+   "9.0.3",
+   "9.1.0",
+   "10.0.0",
+   "10.0.1",
+   "10.1.0"
+  ],
+  "installedVersions": []
+ },
+ {
+  "pkg": "class-variance-authority",
+  "decls": 2,
+  "bytes": 2056,
+  "status": {
+   "installed-exact": 2
+  },
+  "statusBytes": {
+   "installed-exact": 2056
+  },
+  "versionsAllExact": [
+   "0.7.1"
+  ],
+  "versionsSeen": [
+   "0.7.1"
+  ],
+  "installedVersions": [
+   "0.7.1"
+  ]
+ },
+ {
+  "pkg": "react-i18next",
+  "decls": 2,
+  "bytes": 889,
+  "status": {
+   "installed-exact": 2
+  },
+  "statusBytes": {
+   "installed-exact": 889
+  },
+  "versionsAllExact": [
+   "15.7.4"
+  ],
+  "versionsSeen": [
+   "15.7.4"
+  ],
+  "installedVersions": [
+   "15.7.4"
+  ]
+ },
+ {
+  "pkg": "streamdown",
+  "decls": 6,
+  "bytes": 527,
+  "status": {
+   "installed-exact": 3,
+   "mismatch": 3
+  },
+  "statusBytes": {
+   "installed-exact": 90,
+   "mismatch": 437
+  },
+  "versionsAllExact": [
+   "1.6.0",
+   "1.6.1",
+   "1.6.2",
+   "1.6.3",
+   "1.6.4",
+   "1.6.5",
+   "1.6.6",
+   "1.6.7"
+  ],
+  "versionsSeen": [
+   "1.1.8",
+   "1.1.9",
+   "1.1.10",
+   "1.2.0",
+   "1.3.0",
+   "1.4.0",
+   "1.5.0",
+   "1.5.1",
+   "1.6.0",
+   "1.6.1",
+   "1.6.2",
+   "1.6.3",
+   "1.6.4",
+   "1.6.5",
+   "1.6.6",
+   "1.6.7",
+   "1.6.8",
+   "1.6.9",
+   "1.6.10",
+   "1.6.11",
+   "2.0.0",
+   "2.0.1",
+   "2.1.0",
+   "2.2.0",
+   "2.3.0",
+   "2.4.0",
+   "2.5.0",
+   "2.6.0",
+   "2.7.0"
+  ],
+  "installedVersions": [
+   "2.5.0"
+  ]
+ },
+ {
+  "pkg": "classcat",
+  "decls": 1,
+  "bytes": 403,
+  "status": {
+   "installed-exact": 1
+  },
+  "statusBytes": {
+   "installed-exact": 403
+  },
+  "versionsAllExact": [
+   "5.0.5"
+  ],
+  "versionsSeen": [
+   "5.0.5"
+  ],
+  "installedVersions": [
+   "5.0.5"
+  ]
+ },
+ {
+  "pkg": "vitest",
+  "decls": 2,
+  "bytes": 284,
+  "status": {
+   "installed-exact": 2
+  },
+  "statusBytes": {
+   "installed-exact": 284
+  },
+  "versionsAllExact": [
+   "3.2.7"
+  ],
+  "versionsSeen": [
+   "3.2.7"
+  ],
+  "installedVersions": [
+   "3.2.7"
+  ]
+ }
+]

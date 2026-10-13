@@ -32,6 +32,8 @@ function pkgDirs() {
   for (const e of fs.readdirSync(store)) scanNm(path.join(store, e, "node_modules"));
   scanNm("/home/ubuntu/ana/sddeps/node_modules");
   add("/home/ubuntu/ana/pkgs/streamdown@2.5.0/package"); add("/home/ubuntu/ana/pkgs/remend@1.3.0/package");
+  // EXTRA_PKGS=dir1:dir2 ：每个目录下 <x>/package 是一个 npm pack 解压的包
+  for (const root of (process.env.EXTRA_PKGS || "").split(":").filter(Boolean)) for (const e of fs.readdirSync(root)) { const d = path.join(root, e, "package"); if (fs.existsSync(d)) add(d); }
   return dirs;
 }
 
@@ -44,14 +46,15 @@ if (isMainThread) {
     console.error("packages", dirs.size, "files", jobs.length);
   } else {
     const fl = []; walk(SRC, fl, true);
-    for (const f of fl) { const rel = path.relative(SRC, f); if (rel === "vendor.js" || rel.startsWith("vendor-inline/vscode-base/")) continue; jobs.push({ file: f, pkg: "src", rel }); }
+    const only = process.env.SRC_ONLY ? new Set(process.env.SRC_ONLY.split(",")) : null;
+    for (const f of fl) { const rel = path.relative(SRC, f); if (only ? !only.has(rel) : (rel === "vendor.js" || rel.startsWith("vendor-inline/vscode-base/"))) continue; jobs.push({ file: f, pkg: "src", rel }); }
     console.error("src files", jobs.length);
   }
   jobs.sort((a, b) => fs.statSync(b.file).size - fs.statSync(a.file).size);
   const ws = fs.createWriteStream(out); let next = 0, done = 0, recs = 0; const N = Math.max(1, os.cpus().length);
   const t0 = Date.now();
   await Promise.all(Array.from({ length: N }, () => new Promise((res) => {
-    const w = new Worker(fileURLToPath(import.meta.url), { workerData: {}, resourceLimits: { maxOldGenerationSizeMb: 3000 } });
+    const w = new Worker(fileURLToPath(import.meta.url), { workerData: { all: !!process.env.ALL_DECLS }, resourceLimits: { maxOldGenerationSizeMb: 3000 } });
     const feed = () => { if (next >= jobs.length) { w.terminate(); res(); return; } w.postMessage(jobs[next++]); };
     w.on("message", (m) => { for (const r of m) { ws.write(JSON.stringify(r) + "\n"); recs++; } if (++done % 1000 === 0) console.error(done, "/", jobs.length, recs, ((Date.now() - t0) / 1000).toFixed(0) + "s"); feed(); });
     w.on("error", (e) => { console.error("worker error", e.message); done++; const nw = null; res(); });
@@ -68,12 +71,12 @@ if (isMainThread) {
       let idx = 0;
       for (const d of m.decls.values()) {
         const ord = idx++;
-        if (!isFnLike(d)) continue;
+        if (!workerData.all && !isFnLike(d)) continue;
         let s; try { s = g.shape(job.file + "#" + d.name); } catch (e) { continue; }
         if (!s || s.err || !s.F) continue;
         const F = mask(s.F);
         const coarse = F.replace(/"(?:[^"\\]|\\.)*"/g, '""').replace(/`(?:[^`\\]|\\.)*`/g, "``").replace(/\b\d+(\.\d+)?\b/g, "0");
-        out.push({ p: job.pkg, f: job.rel, n: d.name, o: ord, l: d.line, b: d.end - d.start, k: F.length, h: sha(F), c: sha(coarse) });
+        out.push({ p: job.pkg, f: job.rel, n: d.name, o: ord, l: d.line, b: d.end - d.start, k: F.length, h: sha(F), c: sha(coarse), fn: isFnLike(d) ? 1 : 0 });
       }
     } catch (e) { out.push({ p: job.pkg, f: job.rel, err: String(e.message).slice(0, 200) }); }
     parentPort.postMessage(out);

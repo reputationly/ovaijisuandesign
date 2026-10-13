@@ -172,7 +172,13 @@ export class Graph {
   // 顶层名（本模块作用域里的名字）→ key
   resolveLocal(file, name) {
     const m = this.mod(file);
-    if (m.decls.has(name)) return file + "#" + name;
+    if (m.decls.has(name)) {
+      // rollup commonjs 互操作：const X = getDefaultExportFromCjs(Y) 视同 Y
+      const d = m.decls.get(name), init = d.kind === "var" && d.node.init;
+      if (init && init.type === "CallExpression" && init.callee.type === "Identifier" && /^getDefaultExportFromCjs/.test(init.callee.name) && init.arguments.length === 1 && init.arguments[0].type === "Identifier" && init.arguments[0].name !== name)
+        return this.resolveLocal(file, init.arguments[0].name);
+      return file + "#" + name;
+    }
     const im = m.imports.get(name);
     if (im) return this.resolveImport(file, im.from, im.name);
     return "global:" + name;
