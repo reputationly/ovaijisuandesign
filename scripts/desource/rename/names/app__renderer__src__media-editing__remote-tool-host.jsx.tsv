@@ -1,15 +1,15 @@
 key	new	依据
-m@4:10	ErrorBoundary	按压缩短名规则改为描述该值或行为的名称；此处保存“ErrorBoundary”所表示的值。
-res@11:9	response	按压缩短名规则改为描述该值或行为的名称；此处保存“response”所表示的值。
-mod@19:11	remoteModule	按压缩短名规则改为描述该值或行为的名称；此处保存“remoteModule”所表示的值。
-sdk@28:3	toolSdk	按压缩短名规则改为描述该值或行为的名称；此处保存“toolSdk”所表示的值。
-t2@34:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
-ro@69:9	resizeObserver	按压缩短名规则改为描述该值或行为的名称；此处保存“resizeObserver”所表示的值。
-mod@93:14	remoteModule	按压缩短名规则改为描述该值或行为的名称；此处保存“remoteModule”所表示的值。
-url2@10:37	url	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“url”所表示的值。
-content2@13:9	content	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“content”所表示的值。
-scale2@147:9	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“scale”所表示的值。
-shadow2@60:11	shadow	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“shadow”所表示的值。
-entries2@71:32	entries	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“entries”所表示的值。
-node2@95:20	node	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“node”所表示的值。
-info2@195:34	info	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“info”所表示的值。
+m@4:10	ErrorBoundary	从 vendor 导入的错误边界组件，包裹远程工具 UI 并将渲染错误交给 onError 记录。
+res@11:9	response	fetch(toolUrl) 的 HTTP 响应；非 2xx 状态会抛出包含 status 的加载错误。
+mod@19:11	remoteModule	从 Blob URL 动态导入的远程工具模块，返回给调用方以供 mount 使用。
+sdk@28:3	toolSdk	调用方传入的工具 SDK 对象，写入 sdkRef 并传给远程模块的 mount/update。
+t2@34:14	t	useTranslation 返回的翻译函数，用于远程工具加载中和加载失败提示。
+ro@69:9	resizeObserver	fit 布局下观察 mountPoint 尺寸并更新 productSize，effect 清理时断开观察。
+mod@93:14	remoteModule	loadRemoteToolModule 解析得到的远程模块，调用其 mount 将工具挂载到 Shadow DOM。
+url2@10:37	url	远程工具脚本地址，传给 fetch 获取工具源码。
+content2@13:9	content	HTTP 响应读出的远程 JavaScript 源码字符串，用于创建 text/javascript Blob。
+scale2@147:9	scale	fit 模式下把超宽工具缩到 availableWidth 的比例，应用到 host 的 CSS transform。
+shadow2@60:11	shadow	当前 ShadowRoot；清除旧挂载内容，并在其中插入 mountPoint 和远程样式。
+entries2@71:32	entries	ResizeObserver 提供的尺寸变更记录数组，逐项读取 mountPoint 的 contentRect。
+node2@95:20	node	head 中当前 stylesheet DOM 节点的克隆源，克隆后插入 ShadowRoot 的 mountPoint 前。
+info2@195:34	info	ErrorBoundary onError 提供的组件栈信息，从中截取 componentStack 写入远程工具错误日志。

@@ -1,15 +1,15 @@
 key	new	依据
-t2@55:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存读取当前语言文案的 i18n 函数。
-s2@68:34	playbackState	按压缩短名规则改为描述该值或行为的名称；此处保存音频视频播放 store 的当前状态。
-s2@70:39	playbackState	按压缩短名规则改为描述该值或行为的名称；此处保存音频视频播放 store 的当前状态。
-e2@122:28	cardClickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存子视频卡片收到的点击事件。
-e2@127:29	selectClickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存子视频卡片收到的选择点击事件。
-e2@132:30	contextMenuEvent	按压缩短名规则改为描述该值或行为的名称；此处保存子视频卡片收到的上下文菜单事件。
-e2@138:31	doubleClickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存子视频卡片收到的双击事件。
-e2@144:24	splitClickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存子视频卡片收到的拆分点击事件。
-e2@149:26	deleteClickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存子视频卡片收到的删除点击事件。
-e2@154:27	downloadClickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存子视频卡片收到的下载点击事件。
-e2@159:58	metadataEvent	按压缩短名规则改为描述该值或行为的名称；此处保存视频元素收到的元数据加载事件。
+t2@55:14	t	useTranslation 返回的翻译函数，为主视频、拆分和全屏预览按钮��成标签。
+s2@68:34	playbackState	播放状态 store 快照；stop 选择器从中读取停止当前播放的 action。
+s2@70:39	playbackState	播放状态 store 快照；playingId 选择器据此判断当前节点是否正在播放。
+e2@122:28	cardClickEvent	就绪视频卡片的点击事件；有视频 URL 时打开原始插槽对应的播放器。
+e2@127:29	selectClickEvent	设为主视频按钮的点击事件；非只读且插槽有 URL 时调用 onSelectSlot。
+e2@132:30	contextMenuEvent	视频卡片右键菜单事件；阻止默认菜单和冒泡后调用 onSubContextMenu。
+e2@138:31	doubleClickEvent	视频卡片双击事件；阻止默认行为和冒泡后打开对应插槽。
+e2@144:24	splitClickEvent	拆分视频按钮的点击事件；非只读且有视频时按索引调用 onSplitSub。
+e2@149:26	deleteClickEvent	删除视频按钮的点击事件；非只读且有视频时按索引调用 onDeleteSub。
+e2@154:27	downloadClickEvent	下载视频按钮的点击事件；阻止冒泡后按原始插槽索引调用 onDownloadSub。
+e2@159:58	metadataEvent	video 的 loadedmetadata 事件；从 currentTarget 读取有限正时长并更新格式化标签。
 position2@42:13	position	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前子视频卡片在多图布局中的位置数据。
 meta2@56:9	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前子视频资产的元数据。
 handleMouseLeave2@101:9	handleMouseLeave	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存处理鼠标离开子视频卡片的回调。

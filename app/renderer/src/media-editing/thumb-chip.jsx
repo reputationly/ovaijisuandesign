@@ -59,8 +59,8 @@ function ReferenceAudioIcon() {
 }
 export function ThumbChip({
   item,
-  disabled,
-  readOnly,
+  disabled: isDisabled,
+  readOnly: isReadOnly,
   videoDurationExcessSec,
   audioDurationExcessSec,
   onClipVideo,
@@ -162,9 +162,9 @@ export function ThumbChip({
     <div
       ref={setChipEl}
       role="button"
-      tabIndex={disabled || isDurationExceeded ? -1 : 0}
-      aria-disabled={disabled || isDurationExceeded || void 0}
-      className={`group/thumb relative transition-transform duration-150 motion-reduce:transform-none ${hovered && isPreviewable ? "scale-[1.04]" : ""} shrink-0 flex items-center justify-center border-[1.5px] ${item.kind === "video" ? "border-[var(--canvas-node-border)]" : "border-transparent"} ${item.kind === "text" || item.kind === "file" ? "bg-[var(--canvas-controls-hover)]" : ""} rounded-[8px] overflow-hidden ${item.durationOutOfRange ? "opacity-50" : ""} ${disabled ? "cursor-default opacity-60" : isDurationExceeded ? "cursor-default" : "cursor-pointer"}`}
+      tabIndex={isDisabled || isDurationExceeded ? -1 : 0}
+      aria-disabled={isDisabled || isDurationExceeded || void 0}
+      className={`group/thumb relative transition-transform duration-150 motion-reduce:transform-none ${hovered && isPreviewable ? "scale-[1.04]" : ""} shrink-0 flex items-center justify-center border-[1.5px] ${item.kind === "video" ? "border-[var(--canvas-node-border)]" : "border-transparent"} ${item.kind === "text" || item.kind === "file" ? "bg-[var(--canvas-controls-hover)]" : ""} rounded-[8px] overflow-hidden ${item.durationOutOfRange ? "opacity-50" : ""} ${isDisabled ? "cursor-default opacity-60" : isDurationExceeded ? "cursor-default" : "cursor-pointer"}`}
       style={{
         width: THUMB_SIZE,
         height: THUMB_SIZE,
@@ -176,7 +176,7 @@ export function ThumbChip({
         event.preventDefault();
       }}
       onClick={(clickEvent) => {
-        if (disabled || isDurationExceeded) {
+        if (isDisabled || isDurationExceeded) {
           clickEvent.stopPropagation();
           return;
         }
@@ -184,7 +184,7 @@ export function ThumbChip({
       }}
       onKeyDown={(keyDownEvent) => {
         if (keyDownEvent.target !== keyDownEvent.currentTarget) return;
-        if (disabled || isDurationExceeded) {
+        if (isDisabled || isDurationExceeded) {
           keyDownEvent.stopPropagation();
           return;
         }
@@ -248,7 +248,7 @@ export function ThumbChip({
       {isPreviewable && (
         <ReferenceThumbnailOverlay
           visible={hovered}
-          disabled={disabled || isDurationExceeded}
+          disabled={isDisabled || isDurationExceeded}
           onReference={() => {
             showPreview();
             onClick(item);
@@ -289,8 +289,8 @@ export function ThumbChip({
       )}
       {videoDurationExcessSec != null &&
         onClipVideo &&
-        !disabled &&
-        !readOnly && (
+        !isDisabled &&
+        !isReadOnly && (
           <Tooltip content={t("canvas.videoSlot.durationTooLong")} side="top">
             <button
               type="button"
@@ -307,8 +307,8 @@ export function ThumbChip({
         )}
       {audioDurationExcessSec != null &&
         onClipAudio &&
-        !disabled &&
-        !readOnly && (
+        !isDisabled &&
+        !isReadOnly && (
           <Tooltip content={t("canvas.audioSlot.durationTooLong")} side="top">
             <button
               type="button"
@@ -323,7 +323,7 @@ export function ThumbChip({
             </button>
           </Tooltip>
         )}
-      {!disabled && !readOnly && (
+      {!isDisabled && !isReadOnly && (
         <div
           className={`absolute top-px right-px z-[3] flex transition-opacity duration-150 motion-reduce:transition-none focus-within:opacity-100 ${hovered ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
@@ -364,7 +364,7 @@ export function ThumbChip({
                 : void 0
             }
             action={
-              onReplace && !disabled && !readOnly
+              onReplace && !isDisabled && !isReadOnly
                 ? {
                     label: t("canvas.attachment.replace", {
                       defaultValue: "Replace",
@@ -423,7 +423,7 @@ export function ThumbChip({
                 : void 0
             }
             action={
-              onReplace && !disabled && !readOnly
+              onReplace && !isDisabled && !isReadOnly
                 ? {
                     label: t("canvas.attachment.replace", {
                       defaultValue: "Replace",

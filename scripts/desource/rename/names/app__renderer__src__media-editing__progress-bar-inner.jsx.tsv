@@ -1,17 +1,17 @@
 key	new	依据
-m3@8:9	minutes	按压缩短名规则改为描述该值或行为的名称；此处保存视频时间的分钟部分。
-s2@9:9	secondsPart	按压缩短名规则改为描述该值或行为的名称；此处保存视频时间的秒数部分。
-el@26:11	videoElement	按压缩短名规则改为描述该值或行为的名称；此处保存当前控制的 HTMLVideoElement。
-t2@28:11	currentTime	按压缩短名规则改为描述该值或行为的名称；此处保存视频当前播放时间。
-d2@29:11	duration	按压缩短名规则改为描述该值或行为的名称；此处保存视频媒体时长。
-pct@31:11	progressPercent	按压缩短名规则改为描述该值或行为的名称；此处保存当前播放时间占视频时长的百分比。
-el@44:11	videoElement	按压缩短名规则改为描述该值或行为的名称；此处保存当前控制的 HTMLVideoElement。
-el@59:11	videoElement	按压缩短名规则改为描述该值或行为的名称；此处保存当前控制的 HTMLVideoElement。
-el@76:13	videoElement	按压缩短名规则改为描述该值或行为的名称；此处保存当前控制的 HTMLVideoElement。
-bar@77:13	progressBar	按压缩短名规则改为描述该值或行为的名称；此处保存可拖动定位的进度条 DOM 元素。
-d2@79:13	duration	按压缩短名规则改为描述该值或行为的名称；此处保存视频媒体时长。
-e2@92:6	pointerEvent	按压缩短名规则改为描述该值或行为的名称；此处保存进度条收到的指针或鼠标事件。
-e2@99:6	pointerEvent	按压缩短名规则改为描述该值或行为的名称；此处保存进度条收到的指针或鼠标事件。
-ev@103:23	pointerEvent	按压缩短名规则改为描述该值或行为的名称；此处保存进度条收到的指针或鼠标事件。
+m3@8:9	minutes	有效总秒数除以 60 向下取整所得的分钟数，与秒数部分一起格式化为 mm:ss。
+s2@9:9	secondsPart	有效总秒数对 60 取余所得的秒数，补零后显示在分钟后。
+el@26:11	videoElement	videoRef 当前指向的 HTMLVideoElement，syncDOM 从中读取播放时间和总时长。
+t2@28:11	currentTime	视频元素当前播放秒数，用于显示时间并除以 duration 计算进度百分比。
+d2@29:11	duration	视频元素的总秒数，用于计算进度并格式化总时长标签。
+pct@31:11	progressPercent	currentTime 占 duration 的百分比，写入进度填充条宽度和滑块位置。
+el@44:11	videoElement	effect 中读取的 HTMLVideoElement；isPlaying 且未拖动时注册逐帧同步。
+el@59:11	videoElement	effect 中读取的 HTMLVideoElement，添加并清理 metadata、seeked 等同步监听器。
+el@76:13	videoElement	seekToPosition 使用的 HTMLVideoElement，按进度条位置设置 currentTime。
+bar@77:13	progressBar	barRef 指向的进度条 DOM，用其边界矩形把鼠标横坐标换算成播放比例。
+d2@79:13	duration	被 seek 的视频总秒数；需为有限正值后才将比例换算成 currentTime。
+e2@92:6	pointerEvent	进度条点击事件；阻止事件传到画布，并用 clientX 定位播放时间。
+e2@99:6	pointerEvent	进度滑块按下事件；阻止默认行为并开始拖动以注册 document 级移动监听。
+ev@103:23	pointerEvent	拖动期间 document mousemove 收到的事件，用 clientX 持续更新播放位置。
 handleClick2@91:9	handleClick	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存按点击位置跳转视频播放时间的回调函数。
 events2@61:11	events	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存需要监听以同步播放进度的媒体事件名称列表。
