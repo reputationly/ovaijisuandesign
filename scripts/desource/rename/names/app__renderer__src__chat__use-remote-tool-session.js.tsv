@@ -5,3 +5,23 @@ sid@71:11	sessionId	`sessionId` 是当前聚焦会话对应的待处理远程工
 sid@86:11	sessionId	`sessionId` 是读取并更新待处理远程工具的会话键。
 err@137:16	error	`error` 是发送技能 GUI 事件时捕获的异常。
 msg@149:6	message	`message` 是远程工具 WebSocket 回调收到的消息，包含不同类型的事件数据。
+next2@10:9	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+send2@23:9	send	`send` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+timer2@44:18	timer	`timer` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+timer2@48:18	timer	`timer` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@59:13	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@65:13	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@74:13	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@80:13	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+pending2@91:11	pending	`pending` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@103:15	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+data2@114:25	data	`data` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@172:17	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@183:19	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+timer2@213:15	timer	`timer` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+toolName2@230:15	toolName	`toolName` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+timer2@254:15	timer	`timer` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@278:17	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@288:17	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@296:17	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@304:17	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。

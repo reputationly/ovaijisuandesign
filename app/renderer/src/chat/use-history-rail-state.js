@@ -46,7 +46,7 @@ export function useHistoryRailState(options) {
     enabled = true,
   } = options;
   const [showRail, setShowRail] = reactExports.useState(false);
-  const [mode2, setMode] = reactExports.useState("hidden");
+  const [mode, setMode] = reactExports.useState("hidden");
   const [activeIndex, setActiveIndex] = reactExports.useState(-1);
   const [activeIndexes, setActiveIndexes] = reactExports.useState([]);
   const rafIdRef = reactExports.useRef(null);
@@ -78,14 +78,14 @@ export function useHistoryRailState(options) {
         scrollElement.clientHeight,
         virtualItemsRef.current,
       );
-      const next2 = nextIndexes.at(-1) ?? -1;
+      const next = nextIndexes.at(-1) ?? -1;
       setActiveIndexes((prev) =>
         prev.length === nextIndexes.length &&
-        prev.every((value, index2) => value === nextIndexes[index2])
+        prev.every((value, index) => value === nextIndexes[index])
           ? prev
           : nextIndexes,
       );
-      setActiveIndex((prev) => (prev === next2 ? prev : next2));
+      setActiveIndex((prev) => (prev === next ? prev : next));
     });
   }, [scrollRef, turnCount, enabled]);
   reactExports.useEffect(() => {
@@ -106,9 +106,9 @@ export function useHistoryRailState(options) {
     if (!enabled) return;
     const scrollElement = scrollRef.current;
     if (!scrollElement || typeof ResizeObserver === "undefined") return;
-    const observer2 = new ResizeObserver(() => recompute());
-    observer2.observe(scrollElement);
-    return () => observer2.disconnect();
+    const observer = new ResizeObserver(() => recompute());
+    observer.observe(scrollElement);
+    return () => observer.disconnect();
   }, [scrollRef, recompute, enabled]);
   reactExports.useEffect(() => {
     if (!enabled) return;
@@ -121,7 +121,7 @@ export function useHistoryRailState(options) {
   }, [resetKey]);
   return {
     showRail: enabled && showRail,
-    mode: enabled ? mode2 : "hidden",
+    mode: enabled ? mode : "hidden",
     activeIndex,
     activeIndexes,
   };

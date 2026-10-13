@@ -28,17 +28,17 @@ export function mergeTextEditSessionBindings(persisted, inMemory) {
     ...Object.keys(inMemory),
   ])) {
     const saved = persisted[nodeId];
-    const current2 = inMemory[nodeId];
+    const current = inMemory[nodeId];
     if (!saved) {
-      if (current2) merged[nodeId] = current2;
+      if (current) merged[nodeId] = current;
       continue;
     }
-    if (!current2) {
+    if (!current) {
       merged[nodeId] = saved;
       continue;
     }
-    const newer = current2.updatedAt >= saved.updatedAt ? current2 : saved;
-    const older = newer === current2 ? saved : current2;
+    const newer = current.updatedAt >= saved.updatedAt ? current : saved;
+    const older = newer === current ? saved : current;
     const sessions = normalizeEntryList([
       ...listTextEditSessionEntries(newer),
       ...listTextEditSessionEntries(older),
@@ -57,35 +57,35 @@ export function mergeTextEditSessionBindings(persisted, inMemory) {
   return merged;
 }
 export function collectBindingSessionIds(binding) {
-  const ids2 = new Set();
-  if (!binding) return ids2;
-  if (binding.uiSessionId) ids2.add(binding.uiSessionId);
-  if (binding.runtimeSessionId) ids2.add(binding.runtimeSessionId);
+  const ids = new Set();
+  if (!binding) return ids;
+  if (binding.uiSessionId) ids.add(binding.uiSessionId);
+  if (binding.runtimeSessionId) ids.add(binding.runtimeSessionId);
   for (const entry of listTextEditSessionEntries(binding)) {
-    if (entry.uiSessionId) ids2.add(entry.uiSessionId);
-    if (entry.runtimeSessionId) ids2.add(entry.runtimeSessionId);
+    if (entry.uiSessionId) ids.add(entry.uiSessionId);
+    if (entry.runtimeSessionId) ids.add(entry.runtimeSessionId);
   }
-  return ids2;
+  return ids;
 }
 export function collectTextEditSessionIds(bindings) {
-  const ids2 = new Set();
+  const ids = new Set();
   for (const binding of Object.values(bindings)) {
-    for (const sessionId of collectBindingSessionIds(binding)) ids2.add(sessionId);
+    for (const sessionId of collectBindingSessionIds(binding)) ids.add(sessionId);
   }
-  return ids2;
+  return ids;
 }
-export function resolveTextEditSessionId(binding, state2) {
+export function resolveTextEditSessionId(binding, state) {
   if (!binding) return null;
-  const candidates2 = [binding.runtimeSessionId, binding.uiSessionId].filter(
+  const candidates = [binding.runtimeSessionId, binding.uiSessionId].filter(
     (value) => Boolean(value),
   );
-  for (const candidate of candidates2) {
-    if (state2.sessions.has(candidate)) return candidate;
+  for (const candidate of candidates) {
+    if (state.sessions.has(candidate)) return candidate;
   }
-  for (const [sessionId, session] of state2.sessions) {
+  for (const [sessionId, session] of state.sessions) {
     if (
       session.runtimeSessionId &&
-      candidates2.includes(session.runtimeSessionId)
+      candidates.includes(session.runtimeSessionId)
     )
       return sessionId;
   }
@@ -95,17 +95,17 @@ export function useAgentModeAwareSend(sendRaw, agentMode = "auto") {
   const agentModeRef = reactExports.useRef(agentMode);
   agentModeRef.current = agentMode;
   return reactExports.useCallback(
-    (message2) => {
+    (message) => {
       if (
-        message2.type === "create_session" ||
-        message2.type === "switch_session"
+        message.type === "create_session" ||
+        message.type === "switch_session"
       ) {
         return sendRaw({
-          ...message2,
-          mode: message2.mode ?? agentModeRef.current,
+          ...message,
+          mode: message.mode ?? agentModeRef.current,
         });
       }
-      return sendRaw(message2);
+      return sendRaw(message);
     },
     [sendRaw],
   );
@@ -123,22 +123,22 @@ export function useModelDefaults({
     media: defaultSelectedMediaModels,
   };
   const [, setRevision] = reactExports.useState(0);
-  const getDefaults2 = reactExports.useCallback(
+  const getDefaults = reactExports.useCallback(
     () => pendingRef.current ?? persistedRef.current,
     [],
   );
   const rememberDefaults = reactExports.useCallback(
-    async (selection2) => {
+    async (selection) => {
       const request = {
-        ...getDefaults2(),
-        ...selection2,
+        ...getDefaults(),
+        ...selection,
       };
       pendingRef.current = request;
       setRevision((revision) => revision + 1);
       if (!onRememberDefaults) return;
       let saved = false;
       try {
-        saved = await onRememberDefaults(selection2);
+        saved = await onRememberDefaults(selection);
       } catch {
       } finally {
         if (pendingRef.current === request) {
@@ -149,19 +149,19 @@ export function useModelDefaults({
           dedupedToast.error(translate("chat.mediaModels.defaultSaveFailed"));
       }
     },
-    [getDefaults2, onRememberDefaults, translate],
+    [getDefaults, onRememberDefaults, translate],
   );
   const getDefaultModelId = reactExports.useCallback(
-    () => getDefaults2().modelId,
-    [getDefaults2],
+    () => getDefaults().modelId,
+    [getDefaults],
   );
   const getDefaultSelectedMediaModels = reactExports.useCallback(
-    () => getDefaults2().media,
-    [getDefaults2],
+    () => getDefaults().media,
+    [getDefaults],
   );
   return {
-    defaultModelId: getDefaults2().modelId,
-    defaultSelectedMediaModels: getDefaults2().media,
+    defaultModelId: getDefaults().modelId,
+    defaultSelectedMediaModels: getDefaults().media,
     rememberDefaults,
     getDefaultModelId,
     getDefaultSelectedMediaModels,

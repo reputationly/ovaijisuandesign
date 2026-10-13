@@ -19,21 +19,21 @@ function languageDetectionLeafText(leafNode) {
   if (leafNode.type.name === "mentionRef") return " ";
   return "";
 }
-export function getDocLanguageDetectionText(doc2) {
-  return doc2.textBetween(
+export function getDocLanguageDetectionText(doc) {
+  return doc.textBetween(
     0,
-    doc2.content.size,
+    doc.content.size,
     "\n",
     languageDetectionLeafText,
   );
 }
-export function pmPosToTextOffset(doc2, pmPos) {
+export function pmPosToTextOffset(doc, pmPos) {
   if (pmPos <= 0) return 0;
-  return doc2.textBetween(0, pmPos, "\n", mentionRefLeafText).length;
+  return doc.textBetween(0, pmPos, "\n", mentionRefLeafText).length;
 }
-export function scheduleEditorFocus(editor, position2) {
+export function scheduleEditorFocus(editor, position) {
   requestAnimationFrame(() => {
-    if (editor && !editor.isDestroyed) editor.commands.focus(position2);
+    if (editor && !editor.isDestroyed) editor.commands.focus(position);
   });
 }
 export const highlightPluginKey = new PluginKey("chatHighlight");

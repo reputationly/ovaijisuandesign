@@ -4,12 +4,12 @@ import { reactExports } from "../vendor.js";
 import { SessionTabsPersister } from "../canvas/session-tabs-persister.js";
 
 function createWorkspaceSessionTabsSnapshot(
-  state2,
+  state,
   excludedSessionIds = new Set(),
 ) {
-  const openedTabIds = state2.openedTabOrder
+  const openedTabIds = state.openedTabOrder
     .filter((sessionId) => {
-      const session = state2.sessions.get(sessionId);
+      const session = state.sessions.get(sessionId);
       return (
         session !== void 0 &&
         !excludedSessionIds.has(sessionId) &&
@@ -19,11 +19,11 @@ function createWorkspaceSessionTabsSnapshot(
       );
     })
     .map((sessionId) => {
-      const session = state2.sessions.get(sessionId);
+      const session = state.sessions.get(sessionId);
       return session?.runtimeSessionId ?? sessionId;
     });
-  const rawFocused = state2.focusedSessionId;
-  const focusedSession = rawFocused ? state2.sessions.get(rawFocused) : void 0;
+  const rawFocused = state.focusedSessionId;
+  const focusedSession = rawFocused ? state.sessions.get(rawFocused) : void 0;
   const persistedFocusedId = focusedSession
     ? (focusedSession.runtimeSessionId ?? rawFocused)
     : null;
@@ -43,8 +43,8 @@ function createWorkspaceSessionTabsSnapshot(
   };
 }
 
-function workspaceSessionTabsSignature(snapshot2) {
-  return JSON.stringify([snapshot2.focusedSessionId, snapshot2.openedTabIds]);
+function workspaceSessionTabsSignature(snapshot) {
+  return JSON.stringify([snapshot.focusedSessionId, snapshot.openedTabIds]);
 }
 
 function resolveRestoreDecision(saved, sessions) {
@@ -116,15 +116,15 @@ export function useSessionTabPersistence(
   const persistIfReady = reactExports.useCallback(() => {
     const workspaceKey = workspaceRef.current;
     if (!readyRef.current || !workspaceKey) return;
-    const state2 = sessionStore.getState();
+    const state = sessionStore.getState();
     const excludedSessionIds = getExcludedSessionIds?.() ?? new Set();
-    let snapshot2 = createWorkspaceSessionTabsSnapshot(
-      state2,
+    let snapshot = createWorkspaceSessionTabsSnapshot(
+      state,
       excludedSessionIds,
     );
-    const rawFocusedId = state2.focusedSessionId;
+    const rawFocusedId = state.focusedSessionId;
     const focusedSession = rawFocusedId
-      ? state2.sessions.get(rawFocusedId)
+      ? state.sessions.get(rawFocusedId)
       : void 0;
     const focusedIsExcluded = Boolean(
       rawFocusedId &&
@@ -137,38 +137,38 @@ export function useSessionTabPersistence(
     const scopedConversationActive = preservedRawFocusedId !== void 0;
     if (scopedConversationActive) {
       const preservedSession = preservedRawFocusedId
-        ? state2.sessions.get(preservedRawFocusedId)
+        ? state.sessions.get(preservedRawFocusedId)
         : void 0;
       const preservedFocusedId = preservedRawFocusedId
         ? (preservedSession?.runtimeSessionId ?? preservedRawFocusedId)
         : null;
-      snapshot2 = {
-        ...snapshot2,
+      snapshot = {
+        ...snapshot,
         focusedSessionId:
           preservedFocusedId &&
-          snapshot2.openedTabIds.includes(preservedFocusedId)
+          snapshot.openedTabIds.includes(preservedFocusedId)
             ? preservedFocusedId
             : null,
       };
-      lastPresentableFocusedIdRef.current = snapshot2.focusedSessionId;
+      lastPresentableFocusedIdRef.current = snapshot.focusedSessionId;
     } else if (focusedIsExcluded) {
       const previousFocusedId = lastPresentableFocusedIdRef.current;
       if (
         previousFocusedId &&
-        snapshot2.openedTabIds.includes(previousFocusedId)
+        snapshot.openedTabIds.includes(previousFocusedId)
       ) {
-        snapshot2 = {
-          ...snapshot2,
+        snapshot = {
+          ...snapshot,
           focusedSessionId: previousFocusedId,
         };
       }
     } else {
-      lastPresentableFocusedIdRef.current = snapshot2.focusedSessionId;
+      lastPresentableFocusedIdRef.current = snapshot.focusedSessionId;
     }
-    const signature = workspaceSessionTabsSignature(snapshot2);
+    const signature = workspaceSessionTabsSignature(snapshot);
     if (signature === lastSignatureRef.current) return;
     lastSignatureRef.current = signature;
-    void persister.persist(workspaceKey, snapshot2);
+    void persister.persist(workspaceKey, snapshot);
   }, [
     getExcludedSessionIds,
     getPreservedFocusedSessionId,
@@ -186,10 +186,10 @@ export function useSessionTabPersistence(
   }, [sessionStore, persistIfReady]);
   const openDefaultSession = reactExports.useCallback(
     (sessions) => {
-      const active2 = sessions.find((session) => session.active) ?? sessions[0];
-      if (active2) {
-        sessionStore.openTab(active2.id);
-        requestSessionSwitch(active2.id);
+      const active = sessions.find((session) => session.active) ?? sessions[0];
+      if (active) {
+        sessionStore.openTab(active.id);
+        requestSessionSwitch(active.id);
       } else {
         onConfirmedEmptyConversation?.(workspaceRef.current);
       }

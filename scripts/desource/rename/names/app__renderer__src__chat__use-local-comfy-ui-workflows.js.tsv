@@ -1,2 +1,10 @@
 key	新名	依据
 id2@59:11	currentWorkflowId	`currentWorkflowId` 是从工作流配置中提取并校验的当前工作流 ID。
+record2@42:25	record	`record` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@42:34	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+record2@46:26	record	`record` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@46:35	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+record2@56:11	record	`record` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+gatewayFetch2@91:9	gatewayFetch	`gatewayFetch` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+path2@104:29	path	`path` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+currentCanvasWorkflows2@124:13	currentCanvasWorkflows	`currentCanvasWorkflows` 是标识值；末尾数字是打包器为避免重名添加的后缀。

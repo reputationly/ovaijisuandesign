@@ -33,14 +33,14 @@ function formatMentionInsert(item) {
   return formatFileMentionInsert(item.file);
 }
 
-async function defaultFetcher(gatewayFetch2, path2, signal) {
-  const resp = await gatewayFetch2(path2, {
+async function defaultFetcher(gatewayFetch, path, signal) {
+  const resp = await gatewayFetch(path, {
     signal,
   });
-  const data2 = await resp.json();
+  const data = await resp.json();
   return {
-    items: Array.isArray(data2?.items) ? data2.items : [],
-    truncated: Boolean(data2?.truncated),
+    items: Array.isArray(data?.items) ? data.items : [],
+    truncated: Boolean(data?.truncated),
   };
 }
 
@@ -136,22 +136,22 @@ function matchWorkflows(
   ];
 }
 
-function setCacheEntry(cache2, key2, entry, maxEntries) {
-  const cap2 = Math.max(1, Math.floor(maxEntries));
-  cache2.delete(key2);
-  cache2.set(key2, entry);
-  while (cache2.size > cap2) {
-    const oldest = cache2.keys().next().value;
+function setCacheEntry(cache, key, entry, maxEntries) {
+  const cap = Math.max(1, Math.floor(maxEntries));
+  cache.delete(key);
+  cache.set(key, entry);
+  while (cache.size > cap) {
+    const oldest = cache.keys().next().value;
     if (oldest === void 0) return;
-    cache2.delete(oldest);
+    cache.delete(oldest);
   }
 }
 
-function touchCacheEntry(cache2, key2) {
-  const entry = cache2.get(key2);
+function touchCacheEntry(cache, key) {
+  const entry = cache.get(key);
   if (!entry) return void 0;
-  cache2.delete(key2);
-  cache2.set(key2, entry);
+  cache.delete(key);
+  cache.set(key, entry);
   return entry;
 }
 
@@ -162,7 +162,7 @@ export function useMention(
   _anchorRef,
   options = {},
 ) {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const {
     getCaret,
     debounceMs = DEBOUNCE_MS,
@@ -184,8 +184,8 @@ export function useMention(
   const fetcher = reactExports.useMemo(
     () =>
       options.fetcher ??
-      ((path2, signal) => defaultFetcher(gatewayFetch2, path2, signal)),
-    [gatewayFetch2, options.fetcher],
+      ((path, signal) => defaultFetcher(gatewayFetch, path, signal)),
+    [gatewayFetch, options.fetcher],
   );
   const projectAssetFetcher = reactExports.useMemo(
     () => options.projectAssetFetcher ?? fetcher,
@@ -223,7 +223,7 @@ export function useMention(
     abortRef.current?.abort();
     abortRef.current = null;
   }, []);
-  const close2 = reactExports.useCallback(() => {
+  const closeMentionPopover = reactExports.useCallback(() => {
     cancelInFlight();
     browseInputRef.current = null;
     setOpen(false);
@@ -260,8 +260,8 @@ export function useMention(
       setLoading(true);
       const controller = new AbortController();
       abortRef.current = controller;
-      const seq2 = ++fetchSeqRef.current;
-      const run2 = () => {
+      const seq = ++fetchSeqRef.current;
+      const run = () => {
         const params = new URLSearchParams({
           workspace: workspacePath,
           q: query,
@@ -289,7 +289,7 @@ export function useMention(
               }),
         ]).then(([fileResult, projectAssetResult]) => {
           if (controller.signal.aborted) return;
-          if (seq2 !== fetchSeqRef.current) return;
+          if (seq !== fetchSeqRef.current) return;
           const fileResponse =
             fileResult.status === "fulfilled"
               ? fileResult.value
@@ -326,9 +326,9 @@ export function useMention(
         });
       };
       if (debounceMs <= 0) {
-        run2();
+        run();
       } else {
-        debounceRef.current = setTimeout(run2, debounceMs);
+        debounceRef.current = setTimeout(run, debounceMs);
       }
     },
     [
@@ -342,21 +342,21 @@ export function useMention(
     ],
   );
   const onChange = reactExports.useCallback(
-    (text2, caret) => {
-      const before = text2.slice(0, caret);
-      const match2 = findMentionTrigger(before);
-      if (!match2) {
-        if (open && (!openedByButton || text2 !== browseInputRef.current))
-          close2();
+    (text, caret) => {
+      const before = text.slice(0, caret);
+      const match = findMentionTrigger(before);
+      if (!match) {
+        if (open && (!openedByButton || text !== browseInputRef.current))
+          closeMentionPopover();
         return;
       }
-      triggerStartRef.current = match2.start;
+      triggerStartRef.current = match.start;
       setOpenedByButton(false);
-      setQuery(match2.query);
+      setQuery(match.query);
       setOpen(true);
-      scheduleFetch(match2.query);
+      scheduleFetch(match.query);
     },
-    [open, openedByButton, close2, scheduleFetch],
+    [open, openedByButton, closeMentionPopover, scheduleFetch],
   );
   const openPopover = reactExports.useCallback(() => {
     const caret = getCaret ? getCaret() : inputRef.current.length;
@@ -443,14 +443,14 @@ export function useMention(
       !connectorsLoading &&
       items.length === 0
     ) {
-      close2();
+      closeMentionPopover();
     }
-  }, [open, query, loading, connectorsLoading, items.length, close2]);
+  }, [open, query, loading, connectorsLoading, items.length, closeMentionPopover]);
   const onSelect = reactExports.useCallback(
     (item) => {
       const triggerStart = triggerStartRef.current;
       if (triggerStart === null) {
-        close2();
+        closeMentionPopover();
         return;
       }
       let inserted = true;
@@ -458,14 +458,14 @@ export function useMention(
         inserted = onInsertItem(item);
       } else {
         const caret = getCaret ? getCaret() : inputRef.current.length;
-        const text2 = inputRef.current;
+        const text = inputRef.current;
         const insertion = formatMentionInsert(item);
-        const next2 =
-          text2.slice(0, triggerStart) + insertion + text2.slice(caret);
-        setInput(next2);
+        const next =
+          text.slice(0, triggerStart) + insertion + text.slice(caret);
+        setInput(next);
       }
       if (!inserted) {
-        close2();
+        closeMentionPopover();
         return;
       }
       if (item.category === "file" || item.category === "project-asset") {
@@ -478,12 +478,12 @@ export function useMention(
       if (onAfterSelect) {
         requestAnimationFrame(() => onAfterSelect());
       }
-      close2();
+      closeMentionPopover();
     },
     [
       setInput,
       getCaret,
-      close2,
+      closeMentionPopover,
       onSelectMedia,
       onSelectModel,
       onSelectWorkflow,
@@ -510,24 +510,24 @@ export function useMention(
         case "Enter":
         case "Tab": {
           if (items.length === 0) return false;
-          const selected2 = items[activeIndex];
-          if (!selected2) return false;
+          const selected = items[activeIndex];
+          if (!selected) return false;
           keyboardEvent.preventDefault();
-          onSelect(selected2);
+          onSelect(selected);
           return true;
         }
         case "Escape": {
           keyboardEvent.preventDefault();
-          close2();
+          closeMentionPopover();
           return true;
         }
         default:
           return false;
       }
     },
-    [open, items, activeIndex, onSelect, close2],
+    [open, items, activeIndex, onSelect, closeMentionPopover],
   );
-  const state2 = reactExports.useMemo(
+  const state = reactExports.useMemo(
     () => ({
       open,
       openedByButton,
@@ -551,13 +551,13 @@ export function useMention(
     ],
   );
   return {
-    state: state2,
+    state,
     setActiveIndex,
     setFileKindFilter,
     onChange,
     onKeyDown,
     onSelect,
     openPopover,
-    close: close2,
+    close: closeMentionPopover,
   };
 }

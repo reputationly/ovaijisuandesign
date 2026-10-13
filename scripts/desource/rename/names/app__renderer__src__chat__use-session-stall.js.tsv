@@ -6,3 +6,6 @@ sid@33:13	sessionId	`sessionId` 是停滞通知携带并用于更新状态与埋
 sid@64:6	sessionId	`sessionId` 是查询停滞数据并记录用户操作的会话键。
 sid@77:6	sessionId	`sessionId` 是记录继续等待操作并清除状态的会话 ID。
 sid@89:18	sessionId	`sessionId` 是待与存活会话集合核对并可能清理的状态键。
+next2@24:13	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+info2@65:13	info	`info` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@88:11	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。

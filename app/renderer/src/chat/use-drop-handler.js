@@ -52,7 +52,7 @@ export function useDropHandler({
     dragCounterRef.current = Math.max(0, dragCounterRef.current - 1);
     if (dragCounterRef.current === 0) setIsDragging(false);
   }, []);
-  const handleDrop2 = reactExports.useCallback(
+  const handleDrop = reactExports.useCallback(
     (dropEvent) => {
       dropEvent.preventDefault();
       dragCounterRef.current = 0;
@@ -161,7 +161,7 @@ export function useDropHandler({
       onDragOver: handleDragOver,
       onDragEnter: handleDragEnter,
       onDragLeave: handleDragLeave,
-      onDrop: handleDrop2,
+      onDrop: handleDrop,
     },
   };
 }
