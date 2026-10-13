@@ -107,11 +107,11 @@ export function useTrialGrantedPopup(userID) {
     reactExports.useState(false);
   reactExports.useEffect(() => {
     const recompute = () => {
-      const pending2 = getPendingTrialGranted();
+      const pending = getPendingTrialGranted();
       setPendingMatchesUser(
-        !!pending2 &&
+        !!pending &&
           !!userID &&
-          pending2 === userID &&
+          pending === userID &&
           !hasShownTrialGranted(userID),
       );
     };
@@ -145,7 +145,7 @@ export function useTrialGrantedPopup(userID) {
     statusUnavailable,
     trialStatusQuery.data?.activityActive,
   ]);
-  const close2 = reactExports.useCallback(() => {
+  const closePopup = reactExports.useCallback(() => {
     if (userID) markTrialGrantedShown(userID);
     clearPendingTrialGranted();
     setPendingMatchesUser(false);
@@ -157,14 +157,14 @@ export function useTrialGrantedPopup(userID) {
     trialStatusQuery.data?.activityActive === true;
   return {
     visible,
-    close: close2,
+    close: closePopup,
   };
 }
 
 export function resolveRuntimeServices(enableResumeRecovery) {
-  let logService2 = FALLBACK_LOG_SERVICE;
+  let logService = FALLBACK_LOG_SERVICE;
   try {
-    logService2 = instantiationService.invokeFunction((accessor) =>
+    logService = instantiationService.invokeFunction((accessor) =>
       accessor.get(ILogService),
     );
   } catch (error) {
@@ -177,7 +177,7 @@ export function resolveRuntimeServices(enableResumeRecovery) {
   if (!enableResumeRecovery)
     return {
       powerStateService,
-      logService: logService2,
+      logService,
       trackEvent,
     };
   try {
@@ -186,13 +186,13 @@ export function resolveRuntimeServices(enableResumeRecovery) {
     );
   } catch (error) {
     safeWarn(
-      logService2,
+      logService,
       `[canvas-render] power_bridge_unavailable ${error instanceof Error ? error.message : String(error)}`,
     );
   }
   return {
     powerStateService,
-    logService: logService2,
+    logService,
     trackEvent,
   };
 }

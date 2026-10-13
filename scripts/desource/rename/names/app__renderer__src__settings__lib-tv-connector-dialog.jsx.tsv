@@ -1,2 +1,5 @@
 key	new	reason
 t2@30:14	t	useTranslation() 返回的翻译函数 t
+code2@14:30	code	去掉打包器加的数字后缀，恢复原名 code
+pending2@33:9	pending	去掉打包器加的数字后缀，恢复原名 pending
+content2@84:9	content	去掉打包器加的数字后缀，恢复原名 content

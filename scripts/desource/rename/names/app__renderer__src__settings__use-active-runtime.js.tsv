@@ -1,3 +1,11 @@
 key	new	reason
 os2@84:37	os	原名 os，去掉打包器加的数字去重后缀
 r2@124:16	runtime	请求返回的当前运行时
+type2@5:32	type	去掉打包器加的数字后缀，恢复原名 type
+base2@33:9	base	去掉打包器加的数字后缀，恢复原名 base
+url2@41:31	url	去掉打包器加的数字后缀，恢复原名 url
+data2@47:9	data	去掉打包器加的数字后缀，恢复原名 data
+url2@59:9	url	去掉打包器加的数字后缀，恢复原名 url
+data2@60:17	data	去掉打包器加的数字后缀，恢复原名 data
+timer2@64:13	timer	去掉打包器加的数字后缀，恢复原名 timer
+entries2@136:60	entries	去掉打包器加的数字后缀，恢复原名 entries

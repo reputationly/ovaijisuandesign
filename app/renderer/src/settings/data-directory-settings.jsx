@@ -21,14 +21,14 @@ import { folderNameFromPath } from "../generation/use-model-catalog-scope-key.js
 import { SettingGroup, SettingRow } from "./settings-select.jsx";
 import { LocalFolderIcon } from "../workspace/home-service.jsx";
 import { useDataDirectory } from "./use-data-directory.js";
-function formatBytes(bytes2) {
-  if (bytes2 === 0) return "0 B";
+function formatBytes(bytes) {
+  if (bytes === 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
-  const unitIndex = Math.floor(Math.log(bytes2) / Math.log(1024));
-  return `${(bytes2 / 1024 ** unitIndex).toFixed(1)} ${units[unitIndex]}`;
+  const unitIndex = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / 1024 ** unitIndex).toFixed(1)} ${units[unitIndex]}`;
 }
 function DataDirectoryMigrateDialog({
-  pending: pending2,
+  pending,
   busy,
   failure,
   onConfirm,
@@ -36,52 +36,52 @@ function DataDirectoryMigrateDialog({
 }) {
   const { t } = useTranslation();
   const title =
-    pending2?.mode === "recover"
+    pending?.mode === "recover"
       ? t("settings.storage.confirm.recoveryTitle")
-      : pending2?.mode === "residue"
+      : pending?.mode === "residue"
         ? t("settings.storage.confirm.residueTitle")
-        : pending2?.recoveringUnavailable
+        : pending?.recoveringUnavailable
           ? t("settings.storage.confirm.recoverTitle")
-          : pending2?.mode === "relink"
+          : pending?.mode === "relink"
             ? t("settings.storage.confirm.relinkTitle")
             : t("settings.storage.confirm.title");
   const description =
-    pending2?.mode === "recover"
+    pending?.mode === "recover"
       ? t("settings.storage.confirm.recoveryDescription")
-      : pending2?.mode === "residue"
+      : pending?.mode === "residue"
         ? t("settings.storage.confirm.residueDescription")
-        : pending2?.recoveringUnavailable
+        : pending?.recoveringUnavailable
           ? t("settings.storage.confirm.recoverDescription")
-          : pending2?.mode === "relink"
+          : pending?.mode === "relink"
             ? t("settings.storage.confirm.relinkDescription")
-            : pending2?.totalBytes === void 0
+            : pending?.totalBytes === void 0
               ? t("settings.storage.confirm.descriptionUnknownSize")
               : t("settings.storage.confirm.description", {
-                  size: formatBytes(pending2.totalBytes),
+                  size: formatBytes(pending.totalBytes),
                 });
   const safetyNote =
-    pending2?.mode === "recover"
+    pending?.mode === "recover"
       ? t("settings.storage.confirm.recoverySafetyNote")
-      : pending2?.mode === "residue"
+      : pending?.mode === "residue"
         ? t("settings.storage.confirm.residueSafetyNote")
-        : pending2?.recoveringUnavailable
+        : pending?.recoveringUnavailable
           ? t("settings.storage.confirm.recoverSafetyNote")
-          : pending2?.mode === "relink"
+          : pending?.mode === "relink"
             ? t("settings.storage.confirm.relinkSafetyNote")
             : t("settings.storage.confirm.safetyNote");
   const action =
-    pending2?.mode === "recover"
+    pending?.mode === "recover"
       ? t("settings.storage.confirm.recoveryAction")
-      : pending2?.mode === "residue"
+      : pending?.mode === "residue"
         ? t("settings.storage.confirm.residueAction")
-        : pending2?.recoveringUnavailable
+        : pending?.recoveringUnavailable
           ? t("settings.storage.confirm.recoverAction")
-          : pending2?.mode === "relink"
+          : pending?.mode === "relink"
             ? t("settings.storage.confirm.relinkAction")
             : t("settings.storage.confirm.startMigration");
   return (
     <AlertDialog
-      open={pending2 !== null}
+      open={pending !== null}
       onOpenChange={(open) => !open && !busy && onCancel()}
     >
       <AlertDialogContent>
@@ -89,35 +89,35 @@ function DataDirectoryMigrateDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
-        {pending2 && (
+        {pending && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 overflow-hidden rounded-sm border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
               <span
                 className="min-w-0 flex-1 truncate"
-                title={pending2.sourcePath}
+                title={pending.sourcePath}
               >
-                {pending2.sourceIsDefault
+                {pending.sourceIsDefault
                   ? t("settings.storage.systemDefaultLocation")
-                  : pending2.sourcePath}
+                  : pending.sourcePath}
               </span>
               <ArrowRight size={14} strokeWidth={1.5} className="shrink-0" />
               <span
                 className="min-w-0 flex-1 truncate text-foreground"
-                title={pending2.targetPath}
+                title={pending.targetPath}
               >
-                {pending2.targetIsDefault
+                {pending.targetIsDefault
                   ? t("settings.storage.systemDefaultLocation")
-                  : pending2.targetPath}
+                  : pending.targetPath}
               </span>
             </div>
             <p className="text-xs text-muted-foreground">{safetyNote}</p>
           </div>
         )}
-        {pending2?.warning && !busy && (
+        {pending?.warning && !busy && (
           <div className="flex items-start gap-2 rounded-sm border border-warning/50 bg-warning/10 px-3 py-2">
             <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" />
             <p className="text-xs text-warning">
-              {t(`settings.storage.warnings.${pending2.warning}`)}
+              {t(`settings.storage.warnings.${pending.warning}`)}
             </p>
           </div>
         )}

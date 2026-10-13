@@ -60,15 +60,15 @@ import { Switch } from "../generation/select-content.jsx";
 import { MEMORY_TYPES } from "../generation/to-workspace-browser-url.js";
 import { Alert, AlertDescription } from "../team/alert-variants.jsx";
 import { useSettings } from "./use-settings.js";
-async function searchMemory(fetcher, query, scope = "all", type2) {
+async function searchMemory(fetcher, query, scope = "all", type) {
   const params = new URLSearchParams({
     q: query,
     scope,
   });
   const res = await fetcher(`${BASE}/search?${params.toString()}`);
   await expectOk(res);
-  const data2 = await res.json();
-  return data2.entries;
+  const data = await res.json();
+  return data.entries;
 }
 async function listRecentAutoFeedback(fetcher, options = {}) {
   const params = new URLSearchParams();
@@ -80,8 +80,8 @@ async function listRecentAutoFeedback(fetcher, options = {}) {
     suffix ? `${BASE}/recent-auto?${suffix}` : `${BASE}/recent-auto`,
   );
   await expectOk(res);
-  const data2 = await res.json();
-  return data2.entries ?? [];
+  const data = await res.json();
+  return data.entries ?? [];
 }
 async function listSnapshots(fetcher) {
   const params = new URLSearchParams({
@@ -91,33 +91,33 @@ async function listSnapshots(fetcher) {
     `${COMPACTION_BASE}/snapshots?${params.toString()}`,
   );
   await expectOk(res);
-  const data2 = await res.json();
-  return data2.snapshots ?? [];
+  const data = await res.json();
+  return data.snapshots ?? [];
 }
 function useMemoryWSInvalidation() {
-  const { subscribe: subscribe2 } = useWSConnection();
-  const queryClient2 = useQueryClient();
+  const { subscribe } = useWSConnection();
+  const queryClient = useQueryClient();
   const scopeKey = useGatewayScopeKey();
   reactExports.useEffect(() => {
-    return subscribe2((msg) => {
+    return subscribe((msg) => {
       if (msg.type !== "memory_changed") return;
       const evt = msg;
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: memoryQueryKeys.scopeRoot(scopeKey),
       });
-      queryClient2.removeQueries({
+      queryClient.removeQueries({
         queryKey: memoryQueryKeys.entry(scopeKey, evt.scope, evt.name),
       });
     });
-  }, [subscribe2, queryClient2, scopeKey]);
+  }, [subscribe, queryClient, scopeKey]);
 }
-function useMemorySearch(query, scope, type2) {
+function useMemorySearch(query, scope, type) {
   const baseUrl = useGatewayBaseUrl();
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
   const trimmed = query.trim();
   return useQuery({
-    queryKey: memoryQueryKeys.search(scopeKey, trimmed, scope, type2),
+    queryKey: memoryQueryKeys.search(scopeKey, trimmed, scope, type),
     queryFn: () => searchMemory(fetcher, trimmed, scope),
     enabled: Boolean(baseUrl) && trimmed.length > 0,
   });
@@ -125,11 +125,11 @@ function useMemorySearch(query, scope, type2) {
 function useMemoryDelete() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ scope, name: name2 }) => deleteMemory(fetcher, scope, name2),
+    mutationFn: ({ scope, name: memoryName }) => deleteMemory(fetcher, scope, memoryName),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: memoryQueryKeys.scopeRoot(scopeKey),
       });
     },
@@ -172,7 +172,7 @@ function MemoryDeleteConfirm({
   open,
   onOpenChange,
   scope,
-  name: name2,
+  name: memoryName,
   loading,
   onConfirm,
 }) {
@@ -202,7 +202,7 @@ function MemoryDeleteConfirm({
             <span className="font-medium text-foreground">
               {t("memory.fieldName", "Name")}:
             </span>{" "}
-            <span className="font-mono">{name2}</span>
+            <span className="font-mono">{memoryName}</span>
           </p>
         </div>
         <AlertDialogFooter>
@@ -232,12 +232,12 @@ function MemoryDeleteConfirm({
 const ASSET_URI_RE = /^hilo:\/\/asset\/([a-zA-Z0-9_-]+)$/;
 function parseAssetUri(uri) {
   if (!uri) return void 0;
-  const match2 = uri.match(ASSET_URI_RE);
-  return match2 ? match2[1] : void 0;
+  const match = uri.match(ASSET_URI_RE);
+  return match ? match[1] : void 0;
 }
-function AssetPinPreview({ scope, name: name2 }) {
+function AssetPinPreview({ scope, name: memoryName }) {
   const { t } = useTranslation();
-  const entry = useMemoryEntry(scope, name2);
+  const entry = useMemoryEntry(scope, memoryName);
   if (entry.isLoading) {
     return (
       <div className="flex h-16 w-16 items-center justify-center bg-muted text-muted-foreground">
@@ -291,7 +291,7 @@ function AssetPinPreview({ scope, name: name2 }) {
   return (
     <img
       src={src}
-      alt={fm?.description ?? name2}
+      alt={fm?.description ?? memoryName}
       className="h-16 w-16 bg-muted object-cover"
       onError={(errorEvent) => {
         const target = errorEvent.currentTarget;
@@ -308,7 +308,7 @@ const TYPE_VARIANT = {
   "media-style": "secondary",
   "asset-pin": "secondary",
 };
-function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
+function MemoryList({ scopeLabel, entries, onEdit, onDelete }) {
   const { t } = useTranslation();
   return (
     <section className="flex flex-col gap-2">
@@ -316,10 +316,10 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
         <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {scopeLabel}
         </span>
-        <span className="text-xs text-muted-foreground">{entries2.length}</span>
+        <span className="text-xs text-muted-foreground">{entries.length}</span>
       </header>
       <ul className="flex flex-col divide-y divide-border rounded-lg border border-border overflow-hidden">
-        {entries2.map((entry) => {
+        {entries.map((entry) => {
           const matchedIn =
             "match_in" in entry && Array.isArray(entry.match_in)
               ? entry.match_in
@@ -419,8 +419,8 @@ function RecentAutoFeedbackList({ lookbackMs }) {
     lookbackMs,
   });
   const deleteMutation = useMemoryDelete();
-  const entries2 = query.data ?? [];
-  if (!query.isLoading && entries2.length === 0) {
+  const entries = query.data ?? [];
+  if (!query.isLoading && entries.length === 0) {
     return null;
   }
   async function handleUndo(entry) {
@@ -460,7 +460,7 @@ function RecentAutoFeedbackList({ lookbackMs }) {
           {t("memory.autoPanel.title", "Recently learnt")}
         </span>
         <div className="h-px flex-1 bg-border" />
-        <span className="text-xs text-muted-foreground">{entries2.length}</span>
+        <span className="text-xs text-muted-foreground">{entries.length}</span>
       </header>
       {query.isError ? (
         <p className="px-3 py-2 text-xs text-muted-foreground">
@@ -469,13 +469,13 @@ function RecentAutoFeedbackList({ lookbackMs }) {
             "Could not load recent auto-extractions",
           )}
         </p>
-      ) : query.isLoading && entries2.length === 0 ? (
+      ) : query.isLoading && entries.length === 0 ? (
         <p className="px-3 py-2 text-xs text-muted-foreground">
           {t("common.loading", "Loading…")}
         </p>
       ) : (
         <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border">
-          {entries2.map((entry) => (
+          {entries.map((entry) => (
             <li
               key={`${entry.scope}/${entry.name}`}
               className="flex items-start gap-3 px-3 py-2"
@@ -522,11 +522,11 @@ function RecentAutoFeedbackList({ lookbackMs }) {
     </section>
   );
 }
-function formatBytes(bytes2) {
-  if (!Number.isFinite(bytes2) || bytes2 <= 0) return "0 B";
-  if (bytes2 < 1024) return `${bytes2} B`;
-  if (bytes2 < 1024 * 1024) return `${(bytes2 / 1024).toFixed(1)} KB`;
-  return `${(bytes2 / (1024 * 1024)).toFixed(2)} MB`;
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 function relativeFromNow(iso, nowMs = Date.now()) {
   const ts = Date.parse(iso);
@@ -543,8 +543,8 @@ function relativeFromNow(iso, nowMs = Date.now()) {
 function SnapshotList({ onRequestRestore }) {
   const { t } = useTranslation();
   const query = useSnapshotsList();
-  const snapshots2 = query.data ?? [];
-  if (query.isLoading && snapshots2.length === 0) {
+  const snapshots = query.data ?? [];
+  if (query.isLoading && snapshots.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 py-10 text-xs text-muted-foreground">
         <LoaderCircle size={16} strokeWidth={1.5} className="animate-spin" />
@@ -561,7 +561,7 @@ function SnapshotList({ onRequestRestore }) {
       </p>
     );
   }
-  if (snapshots2.length === 0) {
+  if (snapshots.length === 0) {
     return (
       <div className="flex flex-col items-center gap-1 py-10 text-center">
         <p className="text-sm font-medium text-foreground">
@@ -581,7 +581,7 @@ function SnapshotList({ onRequestRestore }) {
       className="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border"
       data-action-ui-id="settings.memory.snapshots.list.user"
     >
-      {snapshots2.map((snap) => (
+      {snapshots.map((snap) => (
         <li
           key={snap.id}
           className="flex flex-col gap-1 px-3 py-2"
@@ -638,13 +638,13 @@ function SnapshotList({ onRequestRestore }) {
     </ul>
   );
 }
-function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
+function RestoreConfirm({ snapshot, onClose, onRestored }) {
   const { t } = useTranslation();
   const restore = useSnapshotRestore();
   async function handleConfirm() {
     try {
       const res = await restore.mutateAsync({
-        snapshotId: snapshot2.id,
+        snapshotId: snapshot.id,
       });
       dedupedToast.success(
         t("memory.snapshots.restoreDoneToast", {
@@ -679,15 +679,15 @@ function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
             <span className="font-medium text-foreground">
               {t("memory.snapshots.snapshotIdLabel", "快照")}:
             </span>{" "}
-            <span className="font-mono">{snapshot2.id}</span>
+            <span className="font-mono">{snapshot.id}</span>
           </p>
           <p className="text-muted-foreground">
             <span className="font-medium text-foreground">
               {t("memory.snapshots.entryCountLabel", "条目")}:
             </span>{" "}
-            {snapshot2.entryCount}
+            {snapshot.entryCount}
             {" ("}
-            {formatBytes(snapshot2.bytes)})
+            {formatBytes(snapshot.bytes)})
           </p>
         </div>
         <AlertDialogFooter>
@@ -800,13 +800,13 @@ export function MemoryManager({ onHeaderChange } = {}) {
   const hasWorkspace = Boolean(scopeBaseUrl) && scopeBaseUrl !== appBaseUrl;
   const workspaceDir = useCurrentWorkspace();
   useMemoryWSInvalidation();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const scopeKey = useGatewayScopeKey();
   reactExports.useEffect(() => {
-    queryClient2.invalidateQueries({
+    queryClient.invalidateQueries({
       queryKey: memoryQueryKeys.scopeRoot(scopeKey),
     });
-  }, [queryClient2, scopeKey]);
+  }, [queryClient, scopeKey]);
   const { config: settingsConfig, set: setSetting } = useSettings();
   const autoFeedbackEnabled = settingsConfig.autoFeedbackEnabled ?? false;
   const compactionEnabled = settingsConfig.compactionEnabled ?? true;
@@ -864,12 +864,12 @@ export function MemoryManager({ onHeaderChange } = {}) {
       return true;
     });
   }, [baseEntries, typeFilter]);
-  const { project: project2, user } = reactExports.useMemo(() => {
-    const project22 = visibleEntries.filter((entry) => entry.scope === "project");
-    const user2 = visibleEntries.filter((entry) => entry.scope === "user");
+  const { project, user } = reactExports.useMemo(() => {
+    const project = visibleEntries.filter((entry) => entry.scope === "project");
+    const user = visibleEntries.filter((entry) => entry.scope === "user");
     return {
-      project: project22,
-      user: user2,
+      project,
+      user,
     };
   }, [visibleEntries]);
   const loading = isSearching ? searchQuery.isLoading : listQuery.isLoading;
@@ -1006,13 +1006,13 @@ export function MemoryManager({ onHeaderChange } = {}) {
               >
                 {t("memory.typeAll", "All types")}
               </SelectItem>
-              {MEMORY_TYPES.map((type2) => (
+              {MEMORY_TYPES.map((type) => (
                 <SelectItem
-                  key={type2}
+                  key={type}
                   className={FILTER_SELECT_ITEM_CLASS}
-                  value={type2}
+                  value={type}
                 >
-                  {t(`memory.type.${type2}`, type2)}
+                  {t(`memory.type.${type}`, type)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -1171,13 +1171,13 @@ export function MemoryManager({ onHeaderChange } = {}) {
         <EmptyState searching={isSearching} />
       ) : (
         <div className="flex flex-col gap-4">
-          {project2.length > 0 && (
+          {project.length > 0 && (
             <MemoryList
               scopeLabel={t(
                 "memory.groupProject",
                 "Project scope (current workspace)",
               )}
-              entries={project2}
+              entries={project}
               onEdit={(entry) =>
                 setEditorState({
                   mode: "edit",

@@ -2,3 +2,9 @@ key	new	reason
 t2@71:14	t	useTranslation() 返回的翻译函数 t
 t2@160:14	t	useTranslation() 返回的翻译函数 t
 s2@75:14	routerState	路由状态选择器收到的 router state
+current2@16:10	current	去掉打包器加的数字后缀，恢复原名 current
+key2@77:57	key	去掉打包器加的数字后缀，恢复原名 key
+current2@83:21	current	去掉打包器加的数字后缀，恢复原名 current
+next2@86:15	next	去掉打包器加的数字后缀，恢复原名 next
+message2@131:15	message	去掉打包器加的数字后缀，恢复原名 message
+handleClick2@165:9	handleClick	去掉打包器加的数字后缀，恢复原名 handleClick

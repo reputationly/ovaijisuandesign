@@ -39,18 +39,18 @@ export function normalizePopup(raw2) {
   return raw2;
 }
 export function normalizeAnnouncements(raw2) {
-  const seen2 = new Set();
+  const seen = new Set();
   return (raw2?.announcements?.length ? raw2.announcements : raw2 ? [raw2] : [])
     .map(normalizePopup)
     .filter((popup) => {
       if (
         !popup ||
         popup.popup_type !== PopupType.POPUP_TYPE_FEATURE ||
-        seen2.has(popup.id)
+        seen.has(popup.id)
       ) {
         return false;
       }
-      seen2.add(popup.id);
+      seen.add(popup.id);
       return true;
     })
     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
@@ -65,9 +65,9 @@ const PRUNE_INTERVAL_MS = 60 * 1e3;
 function buildKey(userID, popupId) {
   return `${KEY_PREFIX}${userID}:${popupId}`;
 }
-function parseRecord(raw2) {
+function parseRecord(raw) {
   try {
-    const obj = JSON.parse(raw2);
+    const obj = JSON.parse(raw);
     if (
       typeof obj.u === "number" &&
       Number.isFinite(obj.u) &&
@@ -84,21 +84,21 @@ function parseRecord(raw2) {
     return null;
   }
 }
-function writeRecord(key2, record2) {
+function writeRecord(key, record) {
   try {
-    window.localStorage.setItem(key2, JSON.stringify(record2));
+    window.localStorage.setItem(key, JSON.stringify(record));
   } catch {}
 }
 export function readMutedUntil(userID, popupId) {
   if (!userID || !popupId) return null;
   try {
-    const key2 = buildKey(userID, popupId);
-    const raw2 = window.localStorage.getItem(key2);
-    if (!raw2) return null;
-    const record2 = parseRecord(raw2);
-    if (!record2) return null;
-    if (record2.u <= Date.now()) return null;
-    return record2.u;
+    const key = buildKey(userID, popupId);
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    const record = parseRecord(raw);
+    if (!record) return null;
+    if (record.u <= Date.now()) return null;
+    return record.u;
   } catch {
     return null;
   }
@@ -106,51 +106,51 @@ export function readMutedUntil(userID, popupId) {
 export function touchSeen(userID, popupId) {
   if (!userID || !popupId) return;
   try {
-    const key2 = buildKey(userID, popupId);
-    const raw2 = window.localStorage.getItem(key2);
-    if (!raw2) return;
-    const record2 = parseRecord(raw2);
-    if (!record2) return;
-    const now2 = Date.now();
-    if (record2.s === now2) return;
-    writeRecord(key2, {
-      u: record2.u,
-      s: now2,
+    const key = buildKey(userID, popupId);
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return;
+    const record = parseRecord(raw);
+    if (!record) return;
+    const now = Date.now();
+    if (record.s === now) return;
+    writeRecord(key, {
+      u: record.u,
+      s: now,
     });
   } catch {}
 }
-function pruneExpiredAndDead(userID, now2) {
+function pruneExpiredAndDead(userID, now) {
   try {
     const userPrefix = `${KEY_PREFIX}${userID}:`;
-    const deadBefore = now2 - DEAD_ID_AFTER_MS;
+    const deadBefore = now - DEAD_ID_AFTER_MS;
     const toRemove = [];
     for (let i = 0; i < window.localStorage.length; i++) {
-      const key2 = window.localStorage.key(i);
-      if (!key2?.startsWith(userPrefix)) continue;
-      const raw2 = window.localStorage.getItem(key2);
-      if (!raw2) continue;
-      const record2 = parseRecord(raw2);
-      if (!record2 || record2.u <= now2 || record2.s < deadBefore) {
-        toRemove.push(key2);
+      const key = window.localStorage.key(i);
+      if (!key?.startsWith(userPrefix)) continue;
+      const raw = window.localStorage.getItem(key);
+      if (!raw) continue;
+      const record = parseRecord(raw);
+      if (!record || record.u <= now || record.s < deadBefore) {
+        toRemove.push(key);
       }
     }
-    for (const key2 of toRemove) window.localStorage.removeItem(key2);
+    for (const key of toRemove) window.localStorage.removeItem(key);
   } catch {}
 }
 let lastPrunedAt = 0;
-function maybePrune(userID, now2) {
-  if (now2 - lastPrunedAt < PRUNE_INTERVAL_MS) return;
-  lastPrunedAt = now2;
-  pruneExpiredAndDead(userID, now2);
+function maybePrune(userID, now) {
+  if (now - lastPrunedAt < PRUNE_INTERVAL_MS) return;
+  lastPrunedAt = now;
+  pruneExpiredAndDead(userID, now);
 }
 export function setMutedUntil(userID, popupId, mutedUntilMs) {
   if (!userID || !popupId) return;
-  const now2 = Date.now();
+  const now = Date.now();
   writeRecord(buildKey(userID, popupId), {
     u: mutedUntilMs,
-    s: now2,
+    s: now,
   });
-  maybePrune(userID, now2);
+  maybePrune(userID, now);
 }
 export function clearMutesForUser(userID) {
   if (!userID) return;
@@ -158,14 +158,14 @@ export function clearMutesForUser(userID) {
     const userPrefix = `${KEY_PREFIX}${userID}:`;
     const toRemove = [];
     for (let i = 0; i < window.localStorage.length; i++) {
-      const key2 = window.localStorage.key(i);
-      if (key2?.startsWith(userPrefix)) toRemove.push(key2);
+      const key = window.localStorage.key(i);
+      if (key?.startsWith(userPrefix)) toRemove.push(key);
     }
-    for (const key2 of toRemove) window.localStorage.removeItem(key2);
+    for (const key of toRemove) window.localStorage.removeItem(key);
   } catch {}
 }
 export function useAutoAnnouncement(raw2, userID) {
-  const [selection2, setSelection] = reactExports.useState(null);
+  const [selection, setSelection] = reactExports.useState(null);
   reactExports.useEffect(() => {
     if (!userID || !raw2?.announcements?.length) return;
     for (const popup of normalizeAnnouncements(raw2))
@@ -176,7 +176,7 @@ export function useAutoAnnouncement(raw2, userID) {
       setSelection(null);
       return;
     }
-    if (selection2?.userID === userID) return;
+    if (selection?.userID === userID) return;
     if (!raw2?.announcements?.length) return;
     const candidate = normalizeAnnouncements(raw2).find(
       (popup) =>
@@ -187,13 +187,13 @@ export function useAutoAnnouncement(raw2, userID) {
       userID,
       popupId: candidate?.id ?? "",
     });
-  }, [raw2, userID, selection2]);
+  }, [raw2, userID, selection]);
   if (!raw2?.announcements?.length)
     return {
       popup: normalizePopup(raw2),
       ready: true,
     };
-  if (!userID || selection2?.userID !== userID)
+  if (!userID || selection?.userID !== userID)
     return {
       popup: null,
       ready: false,
@@ -201,7 +201,7 @@ export function useAutoAnnouncement(raw2, userID) {
   return {
     popup:
       normalizeAnnouncements(raw2).find(
-        (popup) => popup.id === selection2.popupId,
+        (popup) => popup.id === selection.popupId,
       ) ?? null,
     ready: true,
   };

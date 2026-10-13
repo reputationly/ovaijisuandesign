@@ -13,3 +13,11 @@ id2@223:36	id	原名 id，去掉打包器加的数字去重后缀
 id2@235:43	id	原名 id，去掉打包器加的数字去重后缀
 id2@246:11	id	原名 id，去掉打包器加的数字去重后缀
 id2@273:46	id	原名 id，去掉打包器加的数字去重后缀
+valid2@26:13	valid	去掉打包器加的数字后缀，恢复原名 valid
+next2@70:9	next	去掉打包器加的数字后缀，恢复原名 next
+key2@71:9	key	去掉打包器加的数字后缀，恢复原名 key
+key2@154:13	key	去掉打包器加的数字后缀，恢复原名 key
+key2@157:16	key	去掉打包器加的数字后缀，恢复原名 key
+current2@174:9	current	去掉打包器加的数字后缀，恢复原名 current
+timeout2@193:11	timeout	去掉打包器加的数字后缀，恢复原名 timeout
+timeout2@248:11	timeout	去掉打包器加的数字后缀，恢复原名 timeout

@@ -76,7 +76,7 @@ function useAvailablePlatforms() {
   return available;
 }
 function useWechatQrLogin() {
-  const [state2, setState] = reactExports.useState({
+  const [state, setState] = reactExports.useState({
     sessionId: null,
     status: null,
     qrcodeUrl: null,
@@ -89,16 +89,16 @@ function useWechatQrLogin() {
   const startSeqRef = reactExports.useRef(0);
   reactExports.useEffect(() => {
     const svc = getImBridgeMainService();
-    const unsub = svc.onWechatQrState((update2) => {
-      if (update2.sessionId !== sessionIdRef.current) return;
+    const unsub = svc.onWechatQrState((update) => {
+      if (update.sessionId !== sessionIdRef.current) return;
       setState((prev) => ({
         ...prev,
-        status: update2.status,
-        qrcodeUrl: update2.qrcodeUrl ?? prev.qrcodeUrl,
-        isImageData: update2.isImageData ?? prev.isImageData,
-        message: update2.message ?? null,
-        errorReason: update2.errorReason ?? null,
-        accountId: update2.accountId ?? null,
+        status: update.status,
+        qrcodeUrl: update.qrcodeUrl ?? prev.qrcodeUrl,
+        isImageData: update.isImageData ?? prev.isImageData,
+        message: update.message ?? null,
+        errorReason: update.errorReason ?? null,
+        accountId: update.accountId ?? null,
       }));
     });
     return () => unsub.dispose();
@@ -111,7 +111,7 @@ function useWechatQrLogin() {
       }
     };
   }, []);
-  const start2 = reactExports.useCallback(async (alias) => {
+  const start = reactExports.useCallback(async (alias) => {
     const gen = ++startSeqRef.current;
     const sid = await getImBridgeMainService().startWechatQrLogin(alias);
     if (gen !== startSeqRef.current) {
@@ -148,13 +148,13 @@ function useWechatQrLogin() {
     });
   }, []);
   return {
-    state: state2,
-    start: start2,
+    state,
+    start,
     cancel,
   };
 }
 function useFeishuQrLogin() {
-  const [state2, setState] = reactExports.useState({
+  const [state, setState] = reactExports.useState({
     sessionId: null,
     status: null,
     qrcodeUrl: null,
@@ -165,14 +165,14 @@ function useFeishuQrLogin() {
   const sessionIdRef = reactExports.useRef(null);
   const startSeqRef = reactExports.useRef(0);
   const pendingEventsRef = reactExports.useRef(new Map());
-  const applyQrEvent = reactExports.useCallback((update2) => {
+  const applyQrEvent = reactExports.useCallback((update) => {
     setState((prev) => ({
       ...prev,
-      status: update2.status,
-      qrcodeUrl: update2.qrcodeUrl ?? prev.qrcodeUrl,
-      message: update2.message ?? null,
-      errorReason: update2.errorReason ?? null,
-      accountId: update2.accountId ?? null,
+      status: update.status,
+      qrcodeUrl: update.qrcodeUrl ?? prev.qrcodeUrl,
+      message: update.message ?? null,
+      errorReason: update.errorReason ?? null,
+      accountId: update.accountId ?? null,
     }));
   }, []);
   const adoptSession = reactExports.useCallback(
@@ -188,16 +188,16 @@ function useFeishuQrLogin() {
   );
   reactExports.useEffect(() => {
     const svc = getImBridgeMainService();
-    const unsub = svc.onFeishuQrState((update2) => {
-      if (update2.sessionId !== sessionIdRef.current) {
-        const buf = pendingEventsRef.current.get(update2.sessionId) ?? [];
+    const unsub = svc.onFeishuQrState((update) => {
+      if (update.sessionId !== sessionIdRef.current) {
+        const buf = pendingEventsRef.current.get(update.sessionId) ?? [];
         if (buf.length < 16) {
-          buf.push(update2);
-          pendingEventsRef.current.set(update2.sessionId, buf);
+          buf.push(update);
+          pendingEventsRef.current.set(update.sessionId, buf);
         }
         return;
       }
-      applyQrEvent(update2);
+      applyQrEvent(update);
     });
     return () => unsub.dispose();
   }, [applyQrEvent]);
@@ -209,7 +209,7 @@ function useFeishuQrLogin() {
       }
     };
   }, []);
-  const start2 = reactExports.useCallback(
+  const start = reactExports.useCallback(
     async (alias) => {
       const gen = ++startSeqRef.current;
       const sid = await getImBridgeMainService().startFeishuQrLogin(alias);
@@ -272,8 +272,8 @@ function useFeishuQrLogin() {
     });
   }, []);
   return {
-    state: state2,
-    start: start2,
+    state,
+    start,
     startUserAuth,
     cancel,
   };
@@ -287,9 +287,9 @@ const DEFAULT_ALIAS = {
   discord: "Discord",
   dingtalk: "DingTalk",
 };
-function localizeImDisplayName(displayName2, locale) {
-  if (isZhLocale(locale)) return displayName2;
-  return displayName2
+function localizeImDisplayName(displayName, locale) {
+  if (isZhLocale(locale)) return displayName;
+  return displayName
     .replace(/\s*的\s*飞书\s*CLI/g, "'s Lark CLI")
     .replace(/\s*的\s*飞书智能体/g, "'s Lark agent")
     .replace(/飞书\s*CLI/g, "Lark CLI")
@@ -306,12 +306,12 @@ function getAccountDisplayName(account, status, locale) {
   return localizeImDisplayName(alias, locale);
 }
 const AUTH_HANDOFF_MIN_MS = 900;
-function trackConnectionFailure(action, platform2, layout, error) {
+function trackConnectionFailure(action, platform, layout, error) {
   trackEvent(TRACK_EVENTS.IM_BRIDGE_ACCOUNT_ACTION, {
     action,
     result: "failed",
     surface: layout === "settings" ? "settings" : "dialog",
-    platform: platform2,
+    platform,
     error_message: (error instanceof Error
       ? error.message
       : String(error)
@@ -319,7 +319,7 @@ function trackConnectionFailure(action, platform2, layout, error) {
   });
 }
 function QrConnectView({
-  platform: platform2,
+  platform,
   step = "scan",
   layout = "dialog",
   status,
@@ -341,15 +341,15 @@ function QrConnectView({
   const agentLabel =
     agentName?.trim() ||
     t("settings.imBridge.addFlow.defaultAgentName.feishu");
-  const isChineseLocale2 = isZhLocale(i18n.resolvedLanguage || i18n.language);
-  const readyHintKey = `settings.imBridge.addFlow.${step === "auth" ? "authQrHint" : "scanQrHint"}.${platform2}`;
+  const isChineseLocale = isZhLocale(i18n.resolvedLanguage || i18n.language);
+  const readyHintKey = `settings.imBridge.addFlow.${step === "auth" ? "authQrHint" : "scanQrHint"}.${platform}`;
   const readyHint = t(readyHintKey, {
     agentName: agentLabel,
   });
   const qrReadyHint = readyHint === readyHintKey ? void 0 : readyHint;
   return (
     <AddFlowFrame
-      platform={platform2}
+      platform={platform}
       step={step}
       layout={layout}
       onBack={onBack}
@@ -366,24 +366,24 @@ function QrConnectView({
         <div
           className={cn(
             "flex max-w-full items-center justify-center gap-2",
-            isChineseLocale2 ? "flex-wrap" : "flex-col",
+            isChineseLocale ? "flex-wrap" : "flex-col",
           )}
         >
-          <h3 className={addFlowTitleClassName(isChineseLocale2)}>
-            {t(`settings.imBridge.addFlow.${titleKey}.${platform2}`)}
+          <h3 className={addFlowTitleClassName(isChineseLocale)}>
+            {t(`settings.imBridge.addFlow.${titleKey}.${platform}`)}
           </h3>
         </div>
-        {platform2 === "feishu" && step === "auth" ? (
+        {platform === "feishu" && step === "auth" ? (
           <p className="mt-2 max-w-[480px] text-[13px] leading-relaxed text-muted-foreground">
             {t("settings.imBridge.addFlow.authDescription.action")}
           </p>
         ) : (
           <p className="mt-1.5 max-w-[360px] text-[13px] leading-relaxed text-muted-foreground">
-            {t(`settings.imBridge.addFlow.${descriptionKey}.${platform2}`)}
+            {t(`settings.imBridge.addFlow.${descriptionKey}.${platform}`)}
           </p>
         )}
         <QrCard
-          platform={platform2}
+          platform={platform}
           status={status}
           errorReason={errorReason}
           canRetry={canRetry}
@@ -398,25 +398,25 @@ function QrConnectView({
   );
 }
 function QrSuccessView({
-  platform: platform2,
+  platform,
   layout = "dialog",
   onDone,
   onDialogHeaderChange,
   agentName,
 }) {
   const { t, i18n } = useTranslation();
-  const label = t(`settings.imBridge.platform.${platform2}`);
+  const label = t(`settings.imBridge.platform.${platform}`);
   const agentLabel =
     agentName?.trim() ||
     t("settings.imBridge.addFlow.defaultAgentName.feishu");
   const entityLabel =
-    platform2 === "feishu"
+    platform === "feishu"
       ? agentLabel
       : t("settings.imBridge.addFlow.defaultAgentName.wechat");
-  const isChineseLocale2 = isZhLocale(i18n.resolvedLanguage || i18n.language);
+  const isChineseLocale = isZhLocale(i18n.resolvedLanguage || i18n.language);
   return (
     <AddFlowFrame
-      platform={platform2}
+      platform={platform}
       step="done"
       layout={layout}
       onBack={onDone}
@@ -427,23 +427,23 @@ function QrSuccessView({
           "mx-auto flex w-full max-w-[560px] flex-none flex-col text-center",
           layout === "settings" ? "pt-3" : "pt-2",
         )}
-        data-action-ui-id={`im-bridge.${platform2}.qr.success`}
+        data-action-ui-id={`im-bridge.${platform}.qr.success`}
       >
         <div className="flex flex-col">
-          <h3 className={addFlowTitleClassName(isChineseLocale2)}>
-            {t(`settings.imBridge.addFlow.successTitle.${platform2}`)}
+          <h3 className={addFlowTitleClassName(isChineseLocale)}>
+            {t(`settings.imBridge.addFlow.successTitle.${platform}`)}
           </h3>
           <div className="mx-4 mt-5 flex items-center gap-3 rounded-lg border border-border bg-secondary/40 px-4 py-3 text-left">
             <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-card">
               <PlatformIcon
-                platform={platform2}
+                platform={platform}
                 label={label}
                 className="size-9 rounded-md object-cover"
               />
             </span>
             <div className="min-w-0 flex-1">
               <p className="min-w-0 truncate font-medium text-foreground text-sm">
-                {t(`settings.imBridge.addFlow.accountSummary.${platform2}`)}
+                {t(`settings.imBridge.addFlow.accountSummary.${platform}`)}
               </p>
               <p className="mt-0.5 truncate text-muted-foreground text-xs">
                 {t("settings.imBridge.addFlow.currentDevice")}
@@ -459,14 +459,14 @@ function QrSuccessView({
               {t("settings.imBridge.addFlow.successGuide.title")}
             </p>
             <ol className="mt-2 flex flex-col gap-1 text-[13px] leading-snug text-muted-foreground">
-              {[1, 2, 3, 4].map((index2) => (
-                <li key={index2} className="flex items-start gap-2">
+              {[1, 2, 3, 4].map((index) => (
+                <li key={index} className="flex items-start gap-2">
                   <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-card text-[10px] leading-none text-foreground/70">
-                    {index2}
+                    {index}
                   </span>
                   <span>
                     {t(
-                      `settings.imBridge.addFlow.successGuide.${platform2}.${index2}`,
+                      `settings.imBridge.addFlow.successGuide.${platform}.${index}`,
                     )}
                   </span>
                 </li>
@@ -475,8 +475,8 @@ function QrSuccessView({
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-2">
             <TutorialButton
-              platform={platform2}
-              actionId={`im-bridge.${platform2}.qr.guide`}
+              platform={platform}
+              actionId={`im-bridge.${platform}.qr.guide`}
               label={t("settings.imBridge.addFlow.viewGuide")}
               variant="outline"
               size="default"
@@ -487,7 +487,7 @@ function QrSuccessView({
               size="default"
               className="w-28"
               onClick={onDone}
-              data-action-ui-id={`im-bridge.${platform2}.qr.done`}
+              data-action-ui-id={`im-bridge.${platform}.qr.done`}
             >
               {t("settings.imBridge.addFlow.done")}
             </Button>
@@ -507,8 +507,8 @@ function FeishuQrSection({
 }) {
   const { t, i18n } = useTranslation();
   const {
-    state: state2,
-    start: start2,
+    state,
+    start,
     startUserAuth,
     cancel,
   } = useFeishuQrLogin();
@@ -524,8 +524,8 @@ function FeishuQrSection({
   const connectedNotifiedRef = reactExports.useRef(false);
   const authHandoffTimerRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    void start2(aliasRef.current || void 0);
-  }, [start2]);
+    void start(aliasRef.current || void 0);
+  }, [start]);
   reactExports.useEffect(() => {
     return () => {
       if (authHandoffTimerRef.current !== null) {
@@ -534,11 +534,11 @@ function FeishuQrSection({
     };
   }, []);
   reactExports.useEffect(() => {
-    if (state2.status !== "confirmed") return;
+    if (state.status !== "confirmed") return;
     if (step === "scan") {
-      if (!state2.accountId) return;
-      accountIdRef.current = state2.accountId;
-      scanSessionIdRef.current = state2.sessionId;
+      if (!state.accountId) return;
+      accountIdRef.current = state.accountId;
+      scanSessionIdRef.current = state.sessionId;
       if (!connectedNotifiedRef.current) {
         connectedNotifiedRef.current = true;
         void onConnected?.();
@@ -553,31 +553,31 @@ function FeishuQrSection({
         authHandoffTimerRef.current = null;
       }, AUTH_HANDOFF_MIN_MS);
       setStep("auth");
-      void startUserAuth(state2.accountId);
+      void startUserAuth(state.accountId);
       return;
     }
-    if (state2.sessionId && state2.sessionId !== scanSessionIdRef.current) {
+    if (state.sessionId && state.sessionId !== scanSessionIdRef.current) {
       setConfirmed(true);
     }
   }, [
-    state2.status,
-    state2.accountId,
-    state2.sessionId,
+    state.status,
+    state.accountId,
+    state.sessionId,
     step,
     startUserAuth,
     onConnected,
     refreshAccounts,
   ]);
   reactExports.useEffect(() => {
-    if (state2.status !== "error" && state2.status !== "pending_approval")
+    if (state.status !== "error" && state.status !== "pending_approval")
       return;
     trackConnectionFailure(
       step === "auth" ? "authorize" : "connect",
       "feishu",
       layout,
-      state2.errorReason ?? state2.status,
+      state.errorReason ?? state.status,
     );
-  }, [layout, state2.errorReason, state2.status, step]);
+  }, [layout, state.errorReason, state.status, step]);
   const connectedAccountId = accountIdRef.current;
   const connectedAccount = connectedAccountId
     ? accounts.find((account) => account.accountId === connectedAccountId)
@@ -598,15 +598,15 @@ function FeishuQrSection({
       />
     );
   }
-  const displayStatus = authHandoffPending ? "loading" : state2.status;
+  const displayStatus = authHandoffPending ? "loading" : state.status;
   const authLoading = step === "auth" && displayStatus === "loading";
   const authLoadingLabel = authLoading
     ? t("settings.imBridge.addFlow.transition.auth.feishu")
     : void 0;
   const qrNode =
-    !authHandoffPending && state2.status === "ready" && state2.qrcodeUrl ? (
+    !authHandoffPending && state.status === "ready" && state.qrcodeUrl ? (
       <img
-        src={state2.qrcodeUrl}
+        src={state.qrcodeUrl}
         alt={t(
           `settings.imBridge.addFlow.qrAlt.${step === "auth" ? "feishuAuth" : "feishu"}`,
         )}
@@ -619,10 +619,10 @@ function FeishuQrSection({
       step={step}
       layout={layout}
       status={displayStatus}
-      errorReason={state2.errorReason}
+      errorReason={state.errorReason}
       qrNode={qrNode}
       canRetry={
-        state2.status === "error" || state2.status === "pending_approval"
+        state.status === "error" || state.status === "pending_approval"
       }
       onBack={() => {
         void cancel();
@@ -633,7 +633,7 @@ function FeishuQrSection({
           void startUserAuth(accountIdRef.current);
           return;
         }
-        void start2(aliasRef.current || void 0);
+        void start(aliasRef.current || void 0);
       }}
       onDialogHeaderChange={onDialogHeaderChange}
       agentName={agentName}
@@ -652,27 +652,27 @@ function FeishuUserAuthFlow({
   agentName,
 }) {
   const { t } = useTranslation();
-  const { state: state2, startUserAuth, cancel } = useFeishuQrLogin();
+  const { state, startUserAuth, cancel } = useFeishuQrLogin();
   const [confirmed, setConfirmed] = reactExports.useState(false);
   const accountIdRef = reactExports.useRef(accountId);
   reactExports.useEffect(() => {
     void startUserAuth(accountIdRef.current);
   }, [startUserAuth]);
   reactExports.useEffect(() => {
-    if (state2.status === "confirmed") {
+    if (state.status === "confirmed") {
       setConfirmed(true);
     }
-  }, [state2.status]);
+  }, [state.status]);
   reactExports.useEffect(() => {
-    if (state2.status !== "error" && state2.status !== "pending_approval")
+    if (state.status !== "error" && state.status !== "pending_approval")
       return;
     trackConnectionFailure(
       "authorize",
       "feishu",
       layout,
-      state2.errorReason ?? state2.status,
+      state.errorReason ?? state.status,
     );
-  }, [layout, state2.errorReason, state2.status]);
+  }, [layout, state.errorReason, state.status]);
   const handleDone = () => {
     void Promise.resolve(onAuthorized()).finally(() => onClose());
   };
@@ -688,9 +688,9 @@ function FeishuUserAuthFlow({
     );
   }
   const qrNode =
-    state2.status === "ready" && state2.qrcodeUrl ? (
+    state.status === "ready" && state.qrcodeUrl ? (
       <img
-        src={state2.qrcodeUrl}
+        src={state.qrcodeUrl}
         alt={t("settings.imBridge.addFlow.qrAlt.feishuAuth")}
         className="size-full object-contain"
       />
@@ -700,11 +700,11 @@ function FeishuUserAuthFlow({
       platform="feishu"
       step="auth"
       layout={layout}
-      status={state2.status}
-      errorReason={state2.errorReason}
+      status={state.status}
+      errorReason={state.errorReason}
       qrNode={qrNode}
       canRetry={
-        state2.status === "error" || state2.status === "pending_approval"
+        state.status === "error" || state.status === "pending_approval"
       }
       onBack={() => {
         void cancel();
@@ -715,14 +715,14 @@ function FeishuUserAuthFlow({
       }}
       onDialogHeaderChange={onDialogHeaderChange}
       agentName={agentName}
-      transitioningToStep={state2.status === "loading" ? "auth" : void 0}
+      transitioningToStep={state.status === "loading" ? "auth" : void 0}
       transitionLabel={
-        state2.status === "loading"
+        state.status === "loading"
           ? t("settings.imBridge.addFlow.transition.auth.feishu")
           : void 0
       }
       statusLabelOverride={
-        state2.status === "loading"
+        state.status === "loading"
           ? t("settings.imBridge.addFlow.transition.auth.feishu")
           : void 0
       }
@@ -757,36 +757,36 @@ function WechatQrSection({
   onConnected,
 }) {
   const { t } = useTranslation();
-  const { state: state2, start: start2, cancel } = useWechatQrLogin();
+  const { state, start, cancel } = useWechatQrLogin();
   const [confirmed, setConfirmed] = reactExports.useState(false);
   const aliasRef = reactExports.useRef(alias);
   const connectedNotifiedRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    void start2(aliasRef.current || void 0);
-  }, [start2]);
+    void start(aliasRef.current || void 0);
+  }, [start]);
   reactExports.useEffect(() => {
-    if (state2.status === "confirmed") {
+    if (state.status === "confirmed") {
       if (!connectedNotifiedRef.current) {
         connectedNotifiedRef.current = true;
         void onConnected?.();
       }
       setConfirmed(true);
     }
-  }, [state2.status, onConnected]);
+  }, [state.status, onConnected]);
   reactExports.useEffect(() => {
-    if (state2.status !== "error") return;
+    if (state.status !== "error") return;
     trackConnectionFailure(
       "connect",
       "wechat",
       layout,
-      state2.errorReason ?? state2.status,
+      state.errorReason ?? state.status,
     );
-  }, [layout, state2.errorReason, state2.status]);
+  }, [layout, state.errorReason, state.status]);
   const showQr =
-    (state2.status === "ready" ||
-      state2.status === "scanned" ||
-      state2.status === "expired") &&
-    state2.qrcodeUrl;
+    (state.status === "ready" ||
+      state.status === "scanned" ||
+      state.status === "expired") &&
+    state.qrcodeUrl;
   if (confirmed) {
     return (
       <QrSuccessView
@@ -798,38 +798,38 @@ function WechatQrSection({
     );
   }
   const qrNode =
-    showQr && state2.qrcodeUrl ? (
-      state2.isImageData ? (
+    showQr && state.qrcodeUrl ? (
+      state.isImageData ? (
         <img
-          src={state2.qrcodeUrl}
+          src={state.qrcodeUrl}
           alt={t("settings.imBridge.addFlow.qrAlt.wechat")}
           className="size-full object-contain"
         />
       ) : (
-        <QRCode value={state2.qrcodeUrl} size={208} />
+        <QRCode value={state.qrcodeUrl} size={208} />
       )
     ) : null;
   return (
     <QrConnectView
       platform="wechat"
       layout={layout}
-      status={state2.status}
-      errorReason={state2.errorReason}
+      status={state.status}
+      errorReason={state.errorReason}
       qrNode={qrNode}
-      canRetry={state2.status === "error"}
+      canRetry={state.status === "error"}
       onBack={() => {
         void cancel();
         onClose();
       }}
       onRetry={() => {
-        void start2(aliasRef.current || void 0);
+        void start(aliasRef.current || void 0);
       }}
       onDialogHeaderChange={onDialogHeaderChange}
     />
   );
 }
 function AddAccountForm({
-  platform: platform2,
+  platform,
   onClose,
   onAdded,
   onDialogHeaderChange,
@@ -861,9 +861,9 @@ function AddAccountForm({
   return (
     <div
       className="flex min-h-full flex-1 flex-col gap-4"
-      data-action-ui-id={`im-bridge.add.${platform2}`}
+      data-action-ui-id={`im-bridge.add.${platform}`}
     >
-      {platform2 === "feishu" && (
+      {platform === "feishu" && (
         <FeishuSection
           alias=""
           layout={layout}
@@ -873,7 +873,7 @@ function AddAccountForm({
           onConnected={onConnected}
         />
       )}
-      {platform2 === "wechat" && (
+      {platform === "wechat" && (
         <WechatQrSection
           alias=""
           layout={layout}
@@ -883,7 +883,7 @@ function AddAccountForm({
           onConnected={onConnected}
         />
       )}
-      {platform2 === "telegram" && (
+      {platform === "telegram" && (
         <>
           <div className="space-y-1">
             <Label htmlFor="im-bottoken" className="text-xs">
@@ -925,7 +925,7 @@ function AddAccountForm({
   );
 }
 function getAccountStatusHint(status) {
-  const state2 = status?.state ?? "disconnected";
+  const state = status?.state ?? "disconnected";
   if (status?.errorKind === "credential_corrupt") {
     return {
       key: "settings.imBridge.credentialError.rowHint",
@@ -935,7 +935,7 @@ function getAccountStatusHint(status) {
   if (status?.lastError) {
     return null;
   }
-  switch (state2) {
+  switch (state) {
     case "connected":
       return null;
     case "connecting":
@@ -986,14 +986,14 @@ function getAddablePlatformOrder() {
     ? ["feishu", "telegram"]
     : ["feishu", "wechat"];
 }
-function AccountMoreMenu({ accountId, onRemove: onRemove2 }) {
+function AccountMoreMenu({ accountId, onRemove }) {
   const { t } = useTranslation();
   return (
     <IntegrationMoreMenu
       triggerLabel={t("settings.imBridge.actions.more")}
       actionLabel={t("settings.imBridge.actions.remove")}
       actionIcon={<Icon icon={Trash2} size="sm" strokeWidth={1.5} />}
-      onAction={onRemove2}
+      onAction={onRemove}
       actionUiIds={{
         trigger: `im-bridge.row.${accountId}.more`,
         content: `im-bridge.row.${accountId}.more-popover`,
@@ -1003,11 +1003,11 @@ function AccountMoreMenu({ accountId, onRemove: onRemove2 }) {
     />
   );
 }
-function PlatformIconFrame({ platform: platform2, label }) {
+function PlatformIconFrame({ platform, label }) {
   return (
     <IntegrationIconFrame>
       <PlatformIcon
-        platform={platform2}
+        platform={platform}
         label={label}
         className="size-12 rounded-md bg-white object-contain"
       />
@@ -1028,7 +1028,7 @@ function getAccountRowStatusDisplay({
   needsAuth,
   credentialError,
 }) {
-  const state2 = status?.state ?? "disconnected";
+  const state = status?.state ?? "disconnected";
   if (credentialError) {
     return {
       key: "settings.imBridge.channel.status.error",
@@ -1053,33 +1053,33 @@ function getAccountRowStatusDisplay({
       tone: "warning",
     };
   }
-  switch (state2) {
+  switch (state) {
     case "connected":
       return {
         key: "settings.imBridge.channel.status.connected",
         markerTone: "success",
-        state: state2,
+        state,
         tone: "neutral",
       };
     case "connecting":
       return {
         key: "settings.imBridge.channel.status.connecting",
         markerTone: "warning",
-        state: state2,
+        state,
         tone: "warning",
       };
     case "error":
       return {
         key: "settings.imBridge.channel.status.error",
         markerTone: "destructive",
-        state: state2,
+        state,
         tone: "destructive",
       };
     case "disconnected":
       return {
         key: "settings.imBridge.channel.status.disconnected",
         markerTone: "muted",
-        state: state2,
+        state,
         tone: "muted",
       };
   }
@@ -1111,21 +1111,21 @@ function ConnectionStatusIndicator({
     />
   );
 }
-function AddableAccountRow({ option: option2, onAdd: onAdd2 }) {
+function AddableAccountRow({ option, onAdd }) {
   const { t } = useTranslation();
   const status = getPlatformStatusDisplay("notConnected");
   return (
     <IntegrationCard>
-      <PlatformIconFrame platform={option2.platform} label={option2.label} />
+      <PlatformIconFrame platform={option.platform} label={option.label} />
       <div className="flex min-w-0 flex-1 flex-col justify-center self-stretch">
         <div className="flex min-w-0 items-center gap-2">
           <p className="truncate font-medium text-[16px] text-foreground leading-none">
-            {option2.label}
+            {option.label}
           </p>
           <ConnectionStatusIndicator display={status} />
         </div>
         <p className="mt-2 truncate text-muted-foreground text-xs">
-          {t(`settings.imBridge.channel.description.${option2.platform}`)}
+          {t(`settings.imBridge.channel.description.${option.platform}`)}
         </p>
       </div>
       <div className="shrink-0">
@@ -1133,21 +1133,21 @@ function AddableAccountRow({ option: option2, onAdd: onAdd2 }) {
           type="button"
           size="lg"
           className="h-8 min-w-20 px-3 text-sm font-medium"
-          onClick={() => onAdd2(option2.platform)}
-          data-action-ui-id={`im-bridge.empty.add.${option2.platform}`}
+          onClick={() => onAdd(option.platform)}
+          data-action-ui-id={`im-bridge.empty.add.${option.platform}`}
         >
           {t("settings.imBridge.channel.action.connectPlatform", {
-            platform: option2.label,
+            platform: option.label,
           })}
         </Button>
       </div>
     </IntegrationCard>
   );
 }
-function TutorialLink({ platform: platform2, actionId, className }) {
+function TutorialLink({ platform, actionId, className }) {
   const { t } = useTranslation();
   const shellPlatform = usePlatform();
-  const tutorialUrl = TUTORIAL_URL[platform2];
+  const tutorialUrl = TUTORIAL_URL[platform];
   if (!tutorialUrl) return null;
   return (
     <Button
@@ -1181,14 +1181,14 @@ const ACCOUNT_STATUS_HINT_TONE_CLASS = {
 function AccountRow({
   account,
   status,
-  onRemove: onRemove2,
+  onRemove,
   onPause,
   onResume,
   onAuthorize,
 }) {
   const { t, i18n } = useTranslation();
   const platformLabel = t(`settings.imBridge.platform.${account.platform}`);
-  const displayName2 =
+  const displayName =
     getAccountDisplayName(
       account,
       status,
@@ -1218,7 +1218,7 @@ function AccountRow({
   const subtitle =
     account.paused && !credentialError
       ? t("settings.imBridge.channel.subtitle.paused", {
-          name: displayName2,
+          name: displayName,
         })
       : statusHint
         ? t(statusHint.key)
@@ -1226,7 +1226,7 @@ function AccountRow({
           ? t(
               `settings.imBridge.channel.subtitle.connected.${connectedGuidePlatform}`,
             )
-          : `${displayName2}${!credentialError && status?.lastError ? ` • ${status.lastError}` : ""}`;
+          : `${displayName}${!credentialError && status?.lastError ? ` • ${status.lastError}` : ""}`;
   const subtitleToneClass = statusHint
     ? ACCOUNT_STATUS_HINT_TONE_CLASS[statusHint.tone]
     : "text-muted-foreground";
@@ -1294,7 +1294,7 @@ function AccountRow({
             data-action-ui-id={`im-bridge.row.${account.accountId}.${account.paused ? "resume" : "pause"}`}
           />
         )}
-        <AccountMoreMenu accountId={account.accountId} onRemove={onRemove2} />
+        <AccountMoreMenu accountId={account.accountId} onRemove={onRemove} />
       </IntegrationActionGroup>
     </IntegrationCard>
   );
@@ -1304,50 +1304,50 @@ function ConnectionList({
   accounts,
   statuses,
   addableOptions,
-  onAdd: onAdd2,
-  onRemove: onRemove2,
+  onAdd,
+  onRemove,
   onPause,
   onResume,
   onAuthorize,
 }) {
   const accountsByPlatform = reactExports.useMemo(() => {
-    const map3 = new Map();
+    const map = new Map();
     for (const account of accounts) {
-      const existing = map3.get(account.platform) ?? [];
+      const existing = map.get(account.platform) ?? [];
       existing.push(account);
-      map3.set(account.platform, existing);
+      map.set(account.platform, existing);
     }
-    return map3;
+    return map;
   }, [accounts]);
   const addableByPlatform = reactExports.useMemo(
-    () => new Map(addableOptions.map((option2) => [option2.platform, option2])),
+    () => new Map(addableOptions.map((option) => [option.platform, option])),
     [addableOptions],
   );
   return (
     <div className="flex flex-col gap-2">
       <ul className="flex flex-col gap-2">
-        {platformOrder.flatMap((platform2) => {
-          const platformAccounts = accountsByPlatform.get(platform2);
+        {platformOrder.flatMap((platform) => {
+          const platformAccounts = accountsByPlatform.get(platform);
           if (platformAccounts?.length) {
             return platformAccounts.map((acc) => (
               <AccountRow
                 key={acc.accountId}
                 account={acc}
                 status={statuses[acc.accountId]}
-                onRemove={() => onRemove2(acc.accountId)}
+                onRemove={() => onRemove(acc.accountId)}
                 onPause={() => onPause(acc.accountId)}
                 onResume={() => onResume(acc.accountId)}
                 onAuthorize={() => onAuthorize(acc)}
               />
             ));
           }
-          const option2 = addableByPlatform.get(platform2);
-          return option2
+          const option = addableByPlatform.get(platform);
+          return option
             ? [
                 <AddableAccountRow
-                  key={option2.platform}
-                  option={option2}
-                  onAdd={onAdd2}
+                  key={option.platform}
+                  option={option}
+                  onAdd={onAdd}
                 />,
               ]
             : [];
@@ -1374,28 +1374,28 @@ export function ImBridgeManager({
   } = useImAccounts();
   const statuses = useImStatuses();
   const available = useAvailablePlatforms();
-  const { config: config2, set: set2 } = useSettings();
+  const { config, set } = useSettings();
   const [addingPlatform, setAddingPlatform] = reactExports.useState(null);
   const [authorizingAccount, setAuthorizingAccount] =
     reactExports.useState(null);
   const [updatingCredentials, setUpdatingCredentials] =
     reactExports.useState(false);
   const surface = layout === "settings" ? "settings" : "dialog";
-  const trackAccountAction = (action, result, platform2, error2) => {
+  const trackAccountAction = (action, result, platform, error) => {
     trackEvent(TRACK_EVENTS.IM_BRIDGE_ACCOUNT_ACTION, {
       action,
       result,
       surface,
-      ...(platform2
+      ...(platform
         ? {
-            platform: platform2,
+            platform,
           }
         : {}),
-      ...(error2
+      ...(error
         ? {
-            error_message: (error2 instanceof Error
-              ? error2.message
-              : String(error2)
+            error_message: (error instanceof Error
+              ? error.message
+              : String(error)
             ).slice(0, 200),
           }
         : {}),
@@ -1411,7 +1411,7 @@ export function ImBridgeManager({
   );
   const platformRank = reactExports.useMemo(
     () =>
-      new Map(platformOrder.map((platform2, index2) => [platform2, index2])),
+      new Map(platformOrder.map((platform, index) => [platform, index])),
     [platformOrder],
   );
   const sorted = reactExports.useMemo(
@@ -1431,11 +1431,11 @@ export function ImBridgeManager({
   const addableAccountOptions = reactExports.useMemo(() => {
     return addablePlatformOrder
       .filter(
-        (platform2) => available[platform2] && !boundPlatforms.has(platform2),
+        (platform) => available[platform] && !boundPlatforms.has(platform),
       )
-      .map((platform2) => ({
-        platform: platform2,
-        label: t(`settings.imBridge.platform.${platform2}`),
+      .map((platform) => ({
+        platform,
+        label: t(`settings.imBridge.platform.${platform}`),
       }));
   }, [addablePlatformOrder, available, boundPlatforms, t]);
   const hasCredentialError = reactExports.useMemo(
@@ -1561,12 +1561,12 @@ export function ImBridgeManager({
                   dedupedToast.success(
                     t("settings.imBridge.credentialUpdate.success"),
                   );
-                } catch (error2) {
+                } catch (error) {
                   trackAccountAction(
                     "reset_credentials",
                     "failed",
                     void 0,
-                    error2,
+                    error,
                   );
                   dedupedToast.error(
                     t("settings.imBridge.credentialUpdate.failed"),
@@ -1587,9 +1587,9 @@ export function ImBridgeManager({
             accounts={sorted}
             statuses={statuses}
             addableOptions={addableAccountOptions}
-            onAdd={(platform2) => {
-              trackAccountAction("connect", "start", platform2);
-              setAddingPlatform(platform2);
+            onAdd={(platform) => {
+              trackAccountAction("connect", "start", platform);
+              setAddingPlatform(platform);
             }}
             onRemove={async (accountId) => {
               const account = sorted.find(
@@ -1599,12 +1599,12 @@ export function ImBridgeManager({
               try {
                 await removeAccount(accountId);
                 trackAccountAction("remove", "success", account?.platform);
-              } catch (error2) {
+              } catch (error) {
                 trackAccountAction(
                   "remove",
                   "failed",
                   account?.platform,
-                  error2,
+                  error,
                 );
                 dedupedToast.error(t("settings.imBridge.errors.removeFailed"));
               }
@@ -1617,14 +1617,14 @@ export function ImBridgeManager({
               try {
                 await pauseAccount(accountId);
                 trackAccountAction("pause", "success", account?.platform);
-              } catch (error2) {
+              } catch (error) {
                 trackAccountAction(
                   "pause",
                   "failed",
                   account?.platform,
-                  error2,
+                  error,
                 );
-                throw error2;
+                throw error;
               }
             }}
             onResume={async (accountId) => {
@@ -1635,14 +1635,14 @@ export function ImBridgeManager({
               try {
                 await resumeAccount(accountId);
                 trackAccountAction("resume", "success", account?.platform);
-              } catch (error2) {
+              } catch (error) {
                 trackAccountAction(
                   "resume",
                   "failed",
                   account?.platform,
-                  error2,
+                  error,
                 );
-                throw error2;
+                throw error;
               }
             }}
             onAuthorize={(account) => {
@@ -1663,7 +1663,7 @@ export function ImBridgeManager({
             </p>
           </div>
           <Switch
-            checked={config2.preventSleep ?? false}
+            checked={config.preventSleep ?? false}
             onCheckedChange={(checked) => {
               trackEvent(TRACK_EVENTS.IM_BRIDGE_ACCOUNT_ACTION, {
                 action: "prevent_sleep",
@@ -1671,7 +1671,7 @@ export function ImBridgeManager({
                 surface,
                 enabled: checked,
               });
-              void set2("preventSleep", checked)
+              void set("preventSleep", checked)
                 .then(() => {
                   trackEvent(TRACK_EVENTS.IM_BRIDGE_ACCOUNT_ACTION, {
                     action: "prevent_sleep",
@@ -1680,15 +1680,15 @@ export function ImBridgeManager({
                     enabled: checked,
                   });
                 })
-                .catch((error2) => {
+                .catch((error) => {
                   trackEvent(TRACK_EVENTS.IM_BRIDGE_ACCOUNT_ACTION, {
                     action: "prevent_sleep",
                     result: "failed",
                     surface,
                     enabled: checked,
-                    error_message: (error2 instanceof Error
-                      ? error2.message
-                      : String(error2)
+                    error_message: (error instanceof Error
+                      ? error.message
+                      : String(error)
                     ).slice(0, 200),
                   });
                 });

@@ -1,3 +1,6 @@
 key	new	reason
 t2@33:14	t	useTranslation() 返回的翻译函数 t
 e2@59:52	keyboardEvent	函数体读取 key/code 的键盘事件
+platform2@34:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+state2@36:12	state	去掉打包器加的数字后缀，恢复原名 state
+handleKeyDown2@59:9	handleKeyDown	去掉打包器加的数字后缀，恢复原名 handleKeyDown

@@ -25,7 +25,7 @@ import {
   useGatewayScopeKey,
 } from "../generation/use-model-catalog-scope-key.js";
 async function previewRewrite(fetcher, selectedNames) {
-  const body2 = {
+  const body = {
     scope: "user",
     selectedNames,
   };
@@ -34,13 +34,13 @@ async function previewRewrite(fetcher, selectedNames) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body2),
+    body: JSON.stringify(body),
   });
   await expectOk(res);
   return await res.json();
 }
 async function executeRewrite(fetcher, proposalId) {
-  const body2 = {
+  const body = {
     scope: "user",
     proposalId,
   };
@@ -49,7 +49,7 @@ async function executeRewrite(fetcher, proposalId) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body2),
+    body: JSON.stringify(body),
   });
   await expectOk(res);
   return await res.json();
@@ -63,11 +63,11 @@ function useRewritePreview() {
 function useRewriteExecute() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ proposalId }) => executeRewrite(fetcher, proposalId),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: memoryQueryKeys.scopeRoot(scopeKey),
       });
     },
@@ -75,8 +75,8 @@ function useRewriteExecute() {
 }
 function getMergeOp(plan) {
   if (!plan || plan.operations.length === 0) return null;
-  const merge2 = plan.operations.find((op) => op.type === "merge");
-  return merge2 ?? null;
+  const merge = plan.operations.find((op) => op.type === "merge");
+  return merge ?? null;
 }
 function PreviewPhase({ originalEntries, upserts }) {
   const { t } = useTranslation();
@@ -163,7 +163,7 @@ function PhaseSpinner({ label }) {
   );
 }
 function SelectPhase({
-  entries: entries2,
+  entries,
   assetPinCount,
   loading,
   error,
@@ -187,7 +187,7 @@ function SelectPhase({
       </p>
     );
   }
-  if (entries2.length === 0) {
+  if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
         <p className="text-sm font-medium text-foreground">
@@ -209,7 +209,7 @@ function SelectPhase({
     );
   }
   const allSelected =
-    entries2.length > 0 && entries2.every((entry) => selectedNames.has(entry.name));
+    entries.length > 0 && entries.every((entry) => selectedNames.has(entry.name));
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
@@ -235,25 +235,25 @@ function SelectPhase({
         )}
       </div>
       <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border">
-        {entries2.map((entry) => {
-          const name2 = entry.name;
-          const checked = selectedNames.has(name2);
+        {entries.map((entry) => {
+          const entryName = entry.name;
+          const checked = selectedNames.has(entryName);
           return (
             <li
-              key={name2}
+              key={entryName}
               className="flex items-center gap-2 px-2 py-1.5"
-              data-action-ui-id={`settings.memory.compaction.row.${name2}`}
+              data-action-ui-id={`settings.memory.compaction.row.${entryName}`}
             >
               <Checkbox
                 checked={checked}
-                onCheckedChange={() => onToggle(name2)}
-                aria-label={name2}
-                data-action-ui-id={`settings.memory.compaction.select.${name2}`}
+                onCheckedChange={() => onToggle(entryName)}
+                aria-label={entryName}
+                data-action-ui-id={`settings.memory.compaction.select.${entryName}`}
               />
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <div className="flex items-center gap-2">
                   <span className="truncate font-mono text-xs text-foreground">
-                    {name2}
+                    {entryName}
                   </span>
                   <Badge variant="secondary" className="text-[10px]">
                     {entry.type}
@@ -334,12 +334,12 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
   const executeMutation = useRewriteExecute();
   const restoreMutation = useSnapshotRestore();
   const eligibleEntries = reactExports.useMemo(() => {
-    const entries2 = memoryList.data ?? [];
-    return entries2.filter((entry) => entry.type !== "asset-pin");
+    const entries = memoryList.data ?? [];
+    return entries.filter((entry) => entry.type !== "asset-pin");
   }, [memoryList.data]);
   const assetPinCount = reactExports.useMemo(() => {
-    const entries2 = memoryList.data ?? [];
-    return entries2.filter((entry) => entry.type === "asset-pin").length;
+    const entries = memoryList.data ?? [];
+    return entries.filter((entry) => entry.type === "asset-pin").length;
   }, [memoryList.data]);
   const seededRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
@@ -358,15 +358,15 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       setProposal(null);
     }
   }, [open]);
-  function toggleSelect(name2) {
+  function toggleSelect(entryName) {
     setSelectedNames((prev) => {
-      const next2 = new Set(prev);
-      if (next2.has(name2)) next2.delete(name2);
-      else next2.add(name2);
-      return next2;
+      const next = new Set(prev);
+      if (next.has(entryName)) next.delete(entryName);
+      else next.add(entryName);
+      return next;
     });
   }
-  function selectAll2() {
+  function selectAll() {
     setSelectedNames(new Set(eligibleEntries.map((entry) => entry.name)));
   }
   function selectNone() {
@@ -398,14 +398,14 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       const summary = await executeMutation.mutateAsync({
         proposalId: proposal.proposalId,
       });
-      const description2 = t("memory.compaction.rewrite.doneToast", {
+      const description = t("memory.compaction.rewrite.doneToast", {
         deleted: summary.deleted,
         merged: summary.merged,
         defaultValue: "Rewrote {{deleted}} entries into {{merged}}",
       });
       const snapshotId = summary.snapshotId;
       if (snapshotId) {
-        dedupedToast.success(description2, {
+        dedupedToast.success(description, {
           action: {
             label: t("memory.compaction.undo", "Undo"),
             onClick: () => {
@@ -431,12 +431,12 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
           },
         });
       } else {
-        dedupedToast.success(description2);
+        dedupedToast.success(description);
       }
       onClose();
     } catch (err) {
-      const message2 = err instanceof Error ? err.message : "";
-      const isExpired = /\b410\b|gone|expired|proposal/i.test(message2);
+      const message = err instanceof Error ? err.message : "";
+      const isExpired = /\b410\b|gone|expired|proposal/i.test(message);
       if (isExpired) {
         setPhase("select");
         setProposal(null);
@@ -452,7 +452,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
           t(
             "memory.compaction.rewrite.executeFailed",
             "Failed to apply rewrite",
-          ) + (message2 ? `: ${message2}` : ""),
+          ) + (message ? `: ${message}` : ""),
         );
       }
     }
@@ -497,7 +497,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
           "memory.compaction.rewrite.subtitle",
           "Pick entries to consolidate; the AI rewrites them into fewer, denser notes for review before any change is applied.",
         );
-  const body2 = (
+  const body = (
     <>
       {phase === "select" && (
         <SelectPhase
@@ -507,7 +507,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
           error={memoryList.isError ? memoryList.error : null}
           selectedNames={selectedNames}
           onToggle={toggleSelect}
-          onSelectAll={selectAll2}
+          onSelectAll={selectAll}
           onSelectNone={selectNone}
         />
       )}
@@ -539,7 +539,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       )}
     </>
   );
-  const footer2 = (
+  const footer = (
     <>
       {phase === "select" && (
         <SelectFooter
@@ -573,9 +573,9 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
         data-action-ui-id="settings.memory.compaction.page"
       >
         <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>
-        <div className="min-h-0 flex-1 overflow-y-auto pr-1">{body2}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto pr-1">{body}</div>
         <div className="flex shrink-0 justify-end gap-2 border-border border-t pt-3">
-          {footer2}
+          {footer}
         </div>
       </div>
     );
@@ -587,9 +587,9 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
         <DialogDescription>{description}</DialogDescription>
       </DialogHeader>
       <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
-        {body2}
+        {body}
       </div>
-      <DialogFooter className="flex-shrink-0">{footer2}</DialogFooter>
+      <DialogFooter className="flex-shrink-0">{footer}</DialogFooter>
     </>
   );
 }

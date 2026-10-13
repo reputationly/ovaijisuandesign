@@ -16,14 +16,14 @@ import {
   rollbackAssetListSnapshot,
 } from "../infra/error-boundary.jsx";
 
-async function fetchAssets(gatewayFetch2) {
-  const res = await gatewayFetch2(API_PATHS.allAssets);
-  const data2 = await res.json();
-  return [...data2.assets];
+async function fetchAssets(gatewayFetch) {
+  const res = await gatewayFetch(API_PATHS.allAssets);
+  const data = await res.json();
+  return [...data.assets];
 }
 
-async function renameAsset(gatewayFetch2, params) {
-  await gatewayFetch2(API_PATHS.rename, {
+async function renameAsset(gatewayFetch, params) {
+  await gatewayFetch(API_PATHS.rename, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -35,8 +35,8 @@ async function renameAsset(gatewayFetch2, params) {
   });
 }
 
-async function removeAssets(gatewayFetch2, params) {
-  await gatewayFetch2(API_PATHS.deleteFiles, {
+async function removeAssets(gatewayFetch, params) {
+  await gatewayFetch(API_PATHS.deleteFiles, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -47,8 +47,8 @@ async function removeAssets(gatewayFetch2, params) {
   });
 }
 
-async function moveAssets(gatewayFetch2, params) {
-  await gatewayFetch2(API_PATHS.move, {
+async function moveAssets(gatewayFetch, params) {
+  await gatewayFetch(API_PATHS.move, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -60,14 +60,14 @@ async function moveAssets(gatewayFetch2, params) {
   });
 }
 
-async function readContent(gatewayFetch2, params) {
-  const res = await gatewayFetch2(API_PATHS.readContent(params.path));
-  const data2 = await res.json();
-  return data2.content;
+async function readContent(gatewayFetch, params) {
+  const res = await gatewayFetch(API_PATHS.readContent(params.path));
+  const data = await res.json();
+  return data.content;
 }
 
-async function writeContent(gatewayFetch2, params) {
-  const res = await gatewayFetch2(API_PATHS.writeContent, {
+async function writeContent(gatewayFetch, params) {
+  const res = await gatewayFetch(API_PATHS.writeContent, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -80,8 +80,8 @@ async function writeContent(gatewayFetch2, params) {
   return await res.json();
 }
 
-async function mergeCandidateAsset(gatewayFetch2, params) {
-  await gatewayFetch2(API_PATHS.mergeMissingCandidate(params.id), {
+async function mergeCandidateAsset(gatewayFetch, params) {
+  await gatewayFetch(API_PATHS.mergeMissingCandidate(params.id), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -92,14 +92,14 @@ async function mergeCandidateAsset(gatewayFetch2, params) {
   });
 }
 
-async function removeMissingAsset(gatewayFetch2, params) {
-  await gatewayFetch2(API_PATHS.removeMissing(params.id), {
+async function removeMissingAsset(gatewayFetch, params) {
+  await gatewayFetch(API_PATHS.removeMissing(params.id), {
     method: "POST",
   });
 }
 
-async function manualLocateAsset(gatewayFetch2, params) {
-  await gatewayFetch2(API_PATHS.locateMissing(params.id), {
+async function manualLocateAsset(gatewayFetch, params) {
+  await gatewayFetch(API_PATHS.locateMissing(params.id), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -110,8 +110,8 @@ async function manualLocateAsset(gatewayFetch2, params) {
   });
 }
 
-async function duplicateFiles(gatewayFetch2, params) {
-  const res = await gatewayFetch2(API_PATHS.duplicateFiles, {
+async function duplicateFiles(gatewayFetch, params) {
+  const res = await gatewayFetch(API_PATHS.duplicateFiles, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -124,34 +124,34 @@ async function duplicateFiles(gatewayFetch2, params) {
 }
 
 export function useAssets(options) {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { t } = useTranslation();
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const gatewayScopeKey = useGatewayScopeKey();
   const contentPath = options?.contentPath;
   const enabled = options?.enabled ?? true;
   const {
-    data: data2,
+    data,
     isLoading,
     error,
   } = useQuery({
     queryKey: [...ASSETS_QUERY_KEY, gatewayScopeKey],
-    queryFn: () => fetchAssets(gatewayFetch2),
+    queryFn: () => fetchAssets(gatewayFetch),
     staleTime: Number.POSITIVE_INFINITY,
     enabled,
   });
-  const assets = reactExports.useMemo(() => data2 ?? [], [data2]);
+  const assets = reactExports.useMemo(() => data ?? [], [data]);
   const refresh = reactExports.useCallback(async () => {
     await refreshAssetIndex({
-      qc: queryClient2,
+      qc: queryClient,
       gatewayScopeKey,
     });
-  }, [gatewayScopeKey, queryClient2]);
+  }, [gatewayScopeKey, queryClient]);
   const renameMutation = useMutation({
-    mutationFn: (params) => renameAsset(gatewayFetch2, params),
+    mutationFn: (params) => renameAsset(gatewayFetch, params),
   });
   const removeMutation = useMutation({
-    mutationFn: (params) => removeAssets(gatewayFetch2, params),
+    mutationFn: (params) => removeAssets(gatewayFetch, params),
     // Optimistic UI: hide the rows immediately. The chokidar watcher in
     // @hilo/assets has a RENAME_GRACE_MS window before it fires `unlink`
     // (so it can promote unlink+add pairs into renames without losing
@@ -159,56 +159,56 @@ export function useAssets(options) {
     // perceived latency on plain deletes. We close that gap client-side
     // and let the eventual `asset_changed` WS event reconcile.
     onMutate: async (params) => {
-      const snapshot2 = await optimisticallyRemoveAssets({
-        qc: queryClient2,
+      const snapshot = await optimisticallyRemoveAssets({
+        qc: queryClient,
         gatewayScopeKey,
         paths: params.paths,
       });
       return {
-        snapshot: snapshot2,
+        snapshot,
       };
     },
     onError: (_err, _params, context) => {
       rollbackAssetListSnapshot({
-        qc: queryClient2,
+        qc: queryClient,
         snapshot: context?.snapshot,
       });
     },
   });
   const moveMutation = useMutation({
-    mutationFn: (params) => moveAssets(gatewayFetch2, params),
+    mutationFn: (params) => moveAssets(gatewayFetch, params),
   });
   const writeContentMutation = useMutation({
-    mutationFn: (params) => writeContent(gatewayFetch2, params),
-    onSuccess: (data22, variables) => {
+    mutationFn: (params) => writeContent(gatewayFetch, params),
+    onSuccess: (data, variables) => {
       void refreshFileContent({
-        qc: queryClient2,
+        qc: queryClient,
         gatewayScopeKey,
         path: variables.path,
       });
-      if (data22.enrollError) {
+      if (data.enrollError) {
         dedupedToast.warning(
           t("assets.uploadEnrollFailed", {
-            error: data22.enrollError,
+            error: data.enrollError,
           }),
         );
       }
     },
   });
   const mergeCandidateMutation = useMutation({
-    mutationFn: (params) => mergeCandidateAsset(gatewayFetch2, params),
+    mutationFn: (params) => mergeCandidateAsset(gatewayFetch, params),
   });
   const removeMissingMutation = useMutation({
-    mutationFn: (params) => removeMissingAsset(gatewayFetch2, params),
+    mutationFn: (params) => removeMissingAsset(gatewayFetch, params),
   });
   const manualLocateMutation = useMutation({
-    mutationFn: (params) => manualLocateAsset(gatewayFetch2, params),
+    mutationFn: (params) => manualLocateAsset(gatewayFetch, params),
   });
   const duplicateMutation = useMutation({
-    mutationFn: (params) => duplicateFiles(gatewayFetch2, params),
+    mutationFn: (params) => duplicateFiles(gatewayFetch, params),
     onSuccess: () =>
       void refreshAssetIndex({
-        qc: queryClient2,
+        qc: queryClient,
         gatewayScopeKey,
       }),
   });
@@ -220,7 +220,7 @@ export function useAssets(options) {
   } = useQuery({
     queryKey: [...FILE_CONTENT_QUERY_KEY, gatewayScopeKey, contentPath],
     queryFn: () =>
-      readContent(gatewayFetch2, {
+      readContent(gatewayFetch, {
         path: contentPath,
       }),
     enabled: contentEnabled,
@@ -234,7 +234,7 @@ export function useAssets(options) {
     rename: renameMutation.mutateAsync,
     remove: removeMutation.mutateAsync,
     move: moveMutation.mutateAsync,
-    readContent: (params) => readContent(gatewayFetch2, params),
+    readContent: (params) => readContent(gatewayFetch, params),
     writeContent: writeContentMutation.mutateAsync,
     mergeCandidate: mergeCandidateMutation.mutateAsync,
     removeMissing: removeMissingMutation.mutateAsync,

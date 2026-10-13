@@ -1,2 +1,5 @@
 key	new	reason
 t2@35:14	t	useTranslation() 返回的翻译函数 t
+raw2@15:17	raw	去掉打包器加的数字后缀，恢复原名 raw
+language2@36:9	language	去掉打包器加的数字后缀，恢复原名 language
+invalid2@41:15	invalid	去掉打包器加的数字后缀，恢复原名 invalid

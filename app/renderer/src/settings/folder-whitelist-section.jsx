@@ -17,15 +17,15 @@ import { folderNameFromPath } from "../generation/use-model-catalog-scope-key.js
 import { Button } from "../infra/dialog-content.jsx";
 import { SettingGroup, SettingRow } from "./settings-select.jsx";
 function useFolderWhitelist() {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const { t } = useTranslation();
-  const [config2, , persistConfig] = useStorage("global.config");
-  const whitelist = config2.folderWhitelist ?? [];
+  const [config, , persistConfig] = useStorage("global.config");
+  const whitelist = config.folderWhitelist ?? [];
   const [saving, setSaving] = reactExports.useState(false);
   const [error, setError] = reactExports.useState(null);
-  const caseInsensitive = isCaseInsensitiveOs(platform2.app.os);
+  const caseInsensitive = isCaseInsensitiveOs(platform.app.os);
   const addFolder = reactExports.useCallback(async () => {
-    const showOpenDialog = platform2.fs.showOpenDialog;
+    const showOpenDialog = platform.fs.showOpenDialog;
     if (!showOpenDialog) return;
     const picked = await showOpenDialog({
       directory: true,
@@ -36,8 +36,8 @@ function useFolderWhitelist() {
     setSaving(true);
     setError(null);
     try {
-      const saved = await persistConfig((current2) => {
-        const existing = current2.folderWhitelist ?? [];
+      const saved = await persistConfig((current) => {
+        const existing = current.folderWhitelist ?? [];
         if (isPathInWhitelist(folderPath, existing, caseInsensitive)) return {};
         const withoutChildren = existing.filter(
           (entry) => !isPathInWhitelist(entry, [folderPath], caseInsensitive),
@@ -50,14 +50,14 @@ function useFolderWhitelist() {
     } finally {
       setSaving(false);
     }
-  }, [caseInsensitive, persistConfig, platform2.fs, t]);
+  }, [caseInsensitive, persistConfig, platform.fs, t]);
   const removeFolder = reactExports.useCallback(
     async (folderPath) => {
       setSaving(true);
       setError(null);
       try {
-        const saved = await persistConfig((current2) => ({
-          folderWhitelist: (current2.folderWhitelist ?? []).filter(
+        const saved = await persistConfig((current) => ({
+          folderWhitelist: (current.folderWhitelist ?? []).filter(
             (whitelistedPath) => whitelistedPath !== folderPath,
           ),
         }));

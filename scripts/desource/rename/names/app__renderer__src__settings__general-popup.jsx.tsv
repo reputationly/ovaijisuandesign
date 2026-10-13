@@ -1,2 +1,4 @@
 key	new	reason
 t2@19:14	t	useTranslation() 返回的翻译函数 t
+platform2@20:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+url2@21:9	url	去掉打包器加的数字后缀，恢复原名 url

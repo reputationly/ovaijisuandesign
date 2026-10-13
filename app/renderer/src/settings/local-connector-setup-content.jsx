@@ -27,52 +27,52 @@ import { connectorTitle } from "./make-async-image-task.jsx";
 import { ConnectorStatusPill } from "./connector-prompt-action.jsx";
 const POLL_INTERVAL_MS = 3e4;
 const QUERY_KEY = ["local-connector-host-status"];
-const hostQueryKey = (name2) => [...QUERY_KEY, name2];
+const hostQueryKey = (connectorName) => [...QUERY_KEY, connectorName];
 function requiresLiveHostStatus(connectorId) {
   return connectorId === "nuke";
 }
 function createLocalConnectorHostStatusTracker(
-  service2,
-  client2 = queryClient,
+  service,
+  client = queryClient,
 ) {
   const configurations = new Map();
   const installations = new Map();
-  const options = (name2) =>
+  const options = (connectorName) =>
     queryOptions({
-      queryKey: hostQueryKey(name2),
+      queryKey: hostQueryKey(connectorName),
       queryFn: async () => ({
-        status: await service2.status(name2),
+        status: await service.status(connectorName),
       }),
       staleTime: POLL_INTERVAL_MS,
       gcTime: Number.POSITIVE_INFINITY,
       retry: false,
       networkMode: "always",
-      enabled: () => !installations.has(name2) && focusManager.isFocused(),
+      enabled: () => !installations.has(connectorName) && focusManager.isFocused(),
       refetchInterval: () =>
-        installations.has(name2) ? false : POLL_INTERVAL_MS,
+        installations.has(connectorName) ? false : POLL_INTERVAL_MS,
       refetchIntervalInBackground: false,
       refetchOnWindowFocus: true,
       refetchOnReconnect: false,
     });
-  const invalidate = (name2) => {
-    const installation = installations.get(name2);
+  const invalidate = (connectorName) => {
+    const installation = installations.get(connectorName);
     if (installation) installation.invalidated = true;
-    void client2.cancelQueries({
-      queryKey: hostQueryKey(name2),
+    void client.cancelQueries({
+      queryKey: hostQueryKey(connectorName),
       exact: true,
     });
-    client2.setQueryData(hostQueryKey(name2), {});
-    void client2.invalidateQueries({
-      queryKey: hostQueryKey(name2),
+    client.setQueryData(hostQueryKey(connectorName), {});
+    void client.invalidateQueries({
+      queryKey: hostQueryKey(connectorName),
       exact: true,
       refetchType: "none",
     });
   };
-  const refresh = async (name2, force = false) => {
-    if (installations.has(name2)) return void 0;
+  const refresh = async (connectorName, force = false) => {
+    if (installations.has(connectorName)) return void 0;
     try {
-      const result = await client2.fetchQuery({
-        ...options(name2),
+      const result = await client.fetchQuery({
+        ...options(connectorName),
         staleTime: force ? 0 : POLL_INTERVAL_MS,
       });
       return result.status;
@@ -80,43 +80,43 @@ function createLocalConnectorHostStatusTracker(
       return void 0;
     }
   };
-  const configure2 = (server) => {
+  const configure = (server) => {
     const fingerprint = JSON.stringify([
       server.enabled,
       server.transport,
       server.endpoint,
       server.runtimeName,
     ]);
-    const previous2 = configurations.get(server.name);
+    const previous = configurations.get(server.name);
     configurations.set(server.name, fingerprint);
-    if (previous2 !== void 0 && previous2 !== fingerprint) {
+    if (previous !== void 0 && previous !== fingerprint) {
       invalidate(server.name);
       void refresh(server.name, true);
       return true;
     }
     return false;
   };
-  const remove2 = (name2) => {
-    configurations.delete(name2);
-    invalidate(name2);
+  const remove = (connectorName) => {
+    configurations.delete(connectorName);
+    invalidate(connectorName);
   };
   return {
-    client: client2,
+    client,
     options,
     getSnapshot() {
       return Object.fromEntries(
-        client2
+        client
           .getQueryCache()
           .findAll({
             queryKey: QUERY_KEY,
           })
           .map((query) => {
-            const state2 = client2.getQueryState(query.queryKey);
+            const state = client.getQueryState(query.queryKey);
             return [
               query.queryKey[1],
               {
-                status: state2?.data?.status,
-                ...(state2?.status === "error"
+                status: state?.data?.status,
+                ...(state?.status === "error"
                   ? {
                       queryFailed: true,
                     }
@@ -127,26 +127,26 @@ function createLocalConnectorHostStatusTracker(
       );
     },
     refresh,
-    async preflight(name2) {
-      const pending2 = client2.getQueryCache().find({
-        queryKey: hostQueryKey(name2),
+    async preflight(connectorName) {
+      const pending = client.getQueryCache().find({
+        queryKey: hostQueryKey(connectorName),
         exact: true,
       });
-      if (pending2?.state.fetchStatus === "fetching") {
+      if (pending?.state.fetchStatus === "fetching") {
         try {
-          const result = await pending2.promise;
+          const result = await pending.promise;
           if (result?.preflight) return result.preflight;
         } catch (error) {
           if (isCancelledError(error)) return void 0;
         }
       }
-      if (installations.has(name2)) return void 0;
+      if (installations.has(connectorName)) return void 0;
       try {
-        const result = await client2.fetchQuery({
-          ...options(name2),
+        const result = await client.fetchQuery({
+          ...options(connectorName),
           staleTime: 0,
           queryFn: async () => {
-            const preflight = await service2.preflight(name2);
+            const preflight = await service.preflight(connectorName);
             return {
               status: preflight.status,
               preflight,
@@ -159,50 +159,50 @@ function createLocalConnectorHostStatusTracker(
       }
     },
     invalidate,
-    configure: configure2,
-    remove: remove2,
+    configure,
+    remove,
     reconcile(servers) {
       const names = new Set(servers.map((server) => server.name));
-      for (const name2 of configurations.keys()) {
-        if (!names.has(name2)) remove2(name2);
+      for (const connectorName of configurations.keys()) {
+        if (!names.has(connectorName)) remove(connectorName);
       }
-      for (const server of servers) configure2(server);
+      for (const server of servers) configure(server);
     },
-    beginInstallation(name2) {
-      void client2.cancelQueries({
-        queryKey: hostQueryKey(name2),
+    beginInstallation(connectorName) {
+      void client.cancelQueries({
+        queryKey: hostQueryKey(connectorName),
         exact: true,
       });
       const installation = {
         invalidated: false,
       };
-      installations.set(name2, installation);
-      const previous2 = client2.getQueryData(hostQueryKey(name2))?.status;
-      client2.setQueryData(hostQueryKey(name2), {
+      installations.set(connectorName, installation);
+      const previous = client.getQueryData(hostQueryKey(connectorName))?.status;
+      client.setQueryData(hostQueryKey(connectorName), {
         status: {
-          connectorId: previous2?.connectorId ?? name2,
-          packageStaged: previous2?.packageStaged ?? false,
-          packageUsable: previous2?.packageUsable ?? false,
-          updateAvailable: previous2?.updateAvailable ?? false,
-          connectorConfigured: previous2?.connectorConfigured ?? false,
+          connectorId: previous?.connectorId ?? connectorName,
+          packageStaged: previous?.packageStaged ?? false,
+          packageUsable: previous?.packageUsable ?? false,
+          updateAvailable: previous?.updateAvailable ?? false,
+          connectorConfigured: previous?.connectorConfigured ?? false,
           state: "installing",
         },
       });
       return (status) => {
-        if (installations.get(name2) !== installation) return;
-        installations.delete(name2);
+        if (installations.get(connectorName) !== installation) return;
+        installations.delete(connectorName);
         if (status && !installation.invalidated) {
-          client2.setQueryData(hostQueryKey(name2), {
+          client.setQueryData(hostQueryKey(connectorName), {
             status,
           });
         } else {
-          invalidate(name2);
-          void refresh(name2, true);
+          invalidate(connectorName);
+          void refresh(connectorName, true);
         }
       };
     },
     reset() {
-      client2.removeQueries({
+      client.removeQueries({
         queryKey: QUERY_KEY,
       });
       configurations.clear();
@@ -211,25 +211,25 @@ function createLocalConnectorHostStatusTracker(
   };
 }
 const localConnectorHostStatus = createLocalConnectorHostStatusTracker({
-  status: (name2) => homeService.connector.status(name2),
-  preflight: (name2) => homeService.connector.preflight(name2),
+  status: (connectorName) => homeService.connector.status(connectorName),
+  preflight: (connectorName) => homeService.connector.preflight(connectorName),
 });
 function useLocalConnectorHostStatus(
   names,
-  tracker2 = localConnectorHostStatus,
+  tracker = localConnectorHostStatus,
 ) {
   const queries = useQueries(
     {
-      queries: names.map(tracker2.options),
+      queries: names.map(tracker.options),
     },
-    tracker2.client,
+    tracker.client,
   );
   return Object.fromEntries(
-    names.map((name2, index2) => [
-      name2,
+    names.map((connectorName, index) => [
+      connectorName,
       {
-        status: queries[index2].data?.status,
-        ...(queries[index2].isError
+        status: queries[index].data?.status,
+        ...(queries[index].isError
           ? {
               queryFailed: true,
             }
@@ -238,32 +238,32 @@ function useLocalConnectorHostStatus(
     ]),
   );
 }
-function localConnectorHostDisplayState(snapshot2) {
-  if (snapshot2?.status?.state === "installing") return "installing";
-  if (snapshot2?.queryFailed) return "saved";
-  if (snapshot2?.status?.runtimeState === "disabled") return "disabled";
+function localConnectorHostDisplayState(snapshot) {
+  if (snapshot?.status?.state === "installing") return "installing";
+  if (snapshot?.queryFailed) return "saved";
+  if (snapshot?.status?.runtimeState === "disabled") return "disabled";
   if (
-    snapshot2?.status?.runtimeState === "failed" ||
-    snapshot2?.status?.runtimeState === "partial"
+    snapshot?.status?.runtimeState === "failed" ||
+    snapshot?.status?.runtimeState === "partial"
   )
     return "saved";
-  if (!snapshot2?.status) return "checking";
-  if (snapshot2.status.state === "connected") return "connected";
+  if (!snapshot?.status) return "checking";
+  if (snapshot.status.state === "connected") return "connected";
   return "notConnected";
 }
 const PROBE_INTERVAL_MS = 3e3;
 const connectorStepLineClassName =
   "absolute left-1/2 w-[1px] -translate-x-1/2 bg-[repeating-linear-gradient(to_bottom,var(--muted-foreground)_0,var(--muted-foreground)_1px,transparent_1px,transparent_3px)]";
 function LocalConnectorPreparationStatus({
-  state: state2,
+  state,
   connectorName,
   onRetry,
 }) {
   const { t } = useTranslation();
-  if (state2 === "skipped") return null;
-  const labelKey = `connectors.connector.prepare.${state2}`;
-  const icon = state2 === "checking" ? Loader2 : CircleAlert;
-  const isUnsupported = state2 === "unsupported";
+  if (state === "skipped") return null;
+  const labelKey = `connectors.connector.prepare.${state}`;
+  const icon = state === "checking" ? Loader2 : CircleAlert;
+  const isUnsupported = state === "unsupported";
   return (
     <div
       role={isUnsupported ? "alert" : "status"}
@@ -272,7 +272,7 @@ function LocalConnectorPreparationStatus({
         isUnsupported && "text-destructive",
       )}
       data-action-ui-id="connector-local-preparation-status"
-      data-preparation-state={state2}
+      data-preparation-state={state}
     >
       <div className="flex min-w-0 items-start gap-1.5">
         <Icon
@@ -281,7 +281,7 @@ function LocalConnectorPreparationStatus({
           strokeWidth={1.5}
           className={cn(
             "mt-0.5 shrink-0",
-            state2 === "checking" && "animate-spin",
+            state === "checking" && "animate-spin",
           )}
           aria-hidden={true}
         />
@@ -291,7 +291,7 @@ function LocalConnectorPreparationStatus({
           })}
         </span>
       </div>
-      {state2 === "error" ? (
+      {state === "error" ? (
         <Button
           type="button"
           variant="ghost"
@@ -309,11 +309,11 @@ function LocalConnectorPreparationStatus({
 function LocalConnectorStep({
   ordinal,
   title,
-  first: first2 = false,
-  last: last2 = false,
+  first = false,
+  last = false,
   completed = false,
   action,
-  children: children2,
+  children,
 }) {
   const { t } = useTranslation();
   return (
@@ -324,7 +324,7 @@ function LocalConnectorStep({
       data-step-state={completed ? "complete" : "active"}
     >
       <div className="relative flex justify-center pt-4">
-        {!first2 ? (
+        {!first ? (
           <span
             aria-hidden={true}
             className={cn(connectorStepLineClassName, "top-0 h-4")}
@@ -338,7 +338,7 @@ function LocalConnectorStep({
         >
           {t(`connectors.stepOrdinal.${ordinal}`)}
         </span>
-        {!last2 ? (
+        {!last ? (
           <span
             aria-hidden={true}
             className={cn(connectorStepLineClassName, "top-10 bottom-0")}
@@ -346,7 +346,7 @@ function LocalConnectorStep({
           />
         ) : null}
       </div>
-      <div className={cn("min-w-0 py-4", completed && !children2 && "py-3.5")}>
+      <div className={cn("min-w-0 py-4", completed && !children && "py-3.5")}>
         <div className="flex min-w-0 items-center justify-between gap-3">
           <h3 className="min-w-0 text-sm font-medium text-foreground">
             {title}
@@ -363,12 +363,12 @@ function LocalConnectorStep({
             {action}
           </div>
         </div>
-        {children2 ? (
+        {children ? (
           <div
             className="mt-3 min-w-0"
             data-layout-slot="connector-local-step-content"
           >
-            {children2}
+            {children}
           </div>
         ) : null}
       </div>
@@ -386,7 +386,7 @@ export function LocalConnectorSetupContent({
 }) {
   const { t, i18n } = useTranslation();
   const targetName = serverName ?? connectorId;
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const [legacyStatus, setStatus] = reactExports.useState();
   const [installing, setInstalling] = reactExports.useState(false);
   const [preparationState, setPreparationState] =
@@ -411,9 +411,9 @@ export function LocalConnectorSetupContent({
     if (liveHostStatus)
       return localConnectorHostStatus.refresh(targetName, true);
     try {
-      const next2 = await homeService.connector.status(targetName);
-      if (!closed.current) setStatus(next2);
-      return next2;
+      const next = await homeService.connector.status(targetName);
+      if (!closed.current) setStatus(next);
+      return next;
     } catch {
       return void 0;
     }
@@ -443,12 +443,12 @@ export function LocalConnectorSetupContent({
   reactExports.useEffect(() => {
     closed.current = false;
     void checkPreparation();
-    const timer2 = liveHostStatus
+    const timer = liveHostStatus
       ? void 0
       : setInterval(() => void refresh(), PROBE_INTERVAL_MS);
     return () => {
       closed.current = true;
-      clearInterval(timer2);
+      clearInterval(timer);
     };
   }, [checkPreparation, liveHostStatus, refresh]);
   reactExports.useEffect(() => {
@@ -521,13 +521,13 @@ export function LocalConnectorSetupContent({
       if (!closed.current) setInstalling(false);
     }
   };
-  const state2 = installInProgress
+  const state = installInProgress
     ? "installing"
     : liveHostStatus &&
         (hostDisplayState === "saved" || hostDisplayState === "disabled")
       ? hostDisplayState
       : (status?.state ?? (liveHostStatus ? "checking" : "not_installed"));
-  const connected = state2 === "connected";
+  const connected = state === "connected";
   const connectorName = connectorTitle(
     t,
     i18n?.language ?? "en",
@@ -542,11 +542,11 @@ export function LocalConnectorSetupContent({
         ? "connectors.connector.prepare.componentPackage"
         : "connectors.connector.prepare.inAppActivation";
   const blenderInstallerUrl =
-    platform2.app?.os === "win32"
+    platform.app?.os === "win32"
       ? CDN_BLENDER_INSTALLER_WINDOWS_X64
-      : platform2.app?.os === "darwin" &&
-          (platform2.app.arch === "arm64" ||
-            platform2.app.runningUnderARM64Translation === true)
+      : platform.app?.os === "darwin" &&
+          (platform.app.arch === "arm64" ||
+            platform.app.runningUnderARM64Translation === true)
         ? CDN_BLENDER_INSTALLER_MACOS_ARM64
         : void 0;
   return (
@@ -571,17 +571,17 @@ export function LocalConnectorSetupContent({
                   <ConnectorStatusPill state={hostDisplayState} />
                 ) : (
                   <IntegrationStatusPill
-                    label={t(`connectors.connector.state.${state2}`)}
+                    label={t(`connectors.connector.state.${state}`)}
                     tone={connected ? "neutral" : "muted"}
                     markerTone={
                       connected
                         ? "success"
-                        : state2 === "installing"
+                        : state === "installing"
                           ? "warning"
                           : "muted"
                     }
-                    markerActive={state2 === "installing"}
-                    markerLabel={t(`connectors.connector.state.${state2}`)}
+                    markerActive={state === "installing"}
+                    markerLabel={t(`connectors.connector.state.${state}`)}
                   />
                 )}
               </span>
@@ -647,7 +647,7 @@ export function LocalConnectorSetupContent({
                         size="xs"
                         className="mt-2 -ml-2 font-normal text-foreground underline underline-offset-2"
                         onClick={() => {
-                          void openExternalUrl(platform2, blenderInstallerUrl, {
+                          void openExternalUrl(platform, blenderInstallerUrl, {
                             source: "connector-blender-download",
                           });
                         }}

@@ -22,37 +22,37 @@ import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 const API_KEY_MAX_LENGTH = 2048;
 function isValidApiKey(value) {
-  const key2 = value.trim();
+  const key = value.trim();
   return (
-    key2.length > 0 &&
-    key2.length <= API_KEY_MAX_LENGTH &&
-    /^[\x21-\x7e]+$/u.test(key2) &&
-    !key2.includes("://") &&
-    !/^(?:Authorization|secret-key):/iu.test(key2)
+    key.length > 0 &&
+    key.length <= API_KEY_MAX_LENGTH &&
+    /^[\x21-\x7e]+$/u.test(key) &&
+    !key.includes("://") &&
+    !/^(?:Authorization|secret-key):/iu.test(key)
   );
 }
-function buildApiKeyConnectorInput(manifest, key2, description) {
+function buildApiKeyConnectorInput(manifest, key, description) {
   const mcp = manifest.capabilities.mcp;
   if (mcp?.kind !== "remote" || manifest.auth.kind !== "apiKey") {
     throw new Error("Invalid connector configuration");
   }
-  if (!isValidApiKey(key2)) throw new Error("Invalid connector configuration");
-  const value = key2.trim();
+  if (!isValidApiKey(key)) throw new Error("Invalid connector configuration");
+  const value = key.trim();
   const placeholder = `\${user_config.${manifest.auth.configKey}}`;
   const substitute = (template) => template.split(placeholder).join(value);
-  const url2 = new URL(mcp.endpoint);
+  const url = new URL(mcp.endpoint);
   for (const [param, template] of Object.entries(mcp.queryParams ?? {})) {
-    url2.searchParams.set(param, substitute(template));
+    url.searchParams.set(param, substitute(template));
   }
   const headerEntries = Object.entries(mcp.headers ?? {}).map(
-    ([name2, template]) => [name2, substitute(template)],
+    ([fieldName, template]) => [fieldName, substitute(template)],
   );
   return {
     name: mcp.serverName,
     enabled: true,
     config: {
       transport: mcp.transport,
-      url: url2.href,
+      url: url.href,
       ...(headerEntries.length > 0
         ? {
             headers: Object.fromEntries(headerEntries),
@@ -75,12 +75,12 @@ export function ConnectorApiKeySection({
   const { t, i18n } = useTranslation();
   const connectorId = manifest.connectorId;
   const auth = manifest.auth.kind === "apiKey" ? manifest.auth : void 0;
-  const { copy: copy2 } = useConnectorCopy(
+  const { copy } = useConnectorCopy(
     connectorId,
     manifest.displayName,
     "generic",
   );
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const [apiKey, setApiKey] = reactExports.useState("");
   const [submitting, setSubmitting] = reactExports.useState(false);
   const [openingLogin, setOpeningLogin] = reactExports.useState(false);
@@ -103,10 +103,10 @@ export function ConnectorApiKeySection({
     setApiKey("");
     onClose();
   };
-  const handleOpenPage = async (url2, source) => {
+  const handleOpenPage = async (url, source) => {
     setOpeningLogin(true);
     setLoginError(false);
-    const opened = await openExternalUrl(platform2, url2, {
+    const opened = await openExternalUrl(platform, url, {
       source,
     });
     if (mounted.current) {
@@ -168,8 +168,8 @@ export function ConnectorApiKeySection({
       >
         <ConnectorDialogIntro
           iconUrl={iconUrl}
-          title={copy2("title")}
-          description={copy2("description")}
+          title={copy("title")}
+          description={copy("description")}
         >
           <div
             className="-mx-3 rounded-[10px] bg-secondary/60 px-3 pb-3"
@@ -181,11 +181,11 @@ export function ConnectorApiKeySection({
             >
               <ConnectorDialogStep ordinal={1} first={true}>
                 <h3 className="text-sm font-medium text-foreground">
-                  {copy2("loginTitle")}
+                  {copy("loginTitle")}
                 </h3>
                 <div data-layout-slot="connector-credential-step-content">
                   <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                    {copy2("loginDescription")}
+                    {copy("loginDescription")}
                   </p>
                   <div
                     className="mt-3 flex flex-wrap items-center gap-2"
@@ -206,7 +206,7 @@ export function ConnectorApiKeySection({
                       }
                       data-action-ui-id={`connectors-${connectorId}-login`}
                     >
-                      {copy2("login")}
+                      {copy("login")}
                       <Icon icon={ArrowUpRight} size="sm" aria-hidden={true} />
                     </Button>
                     {auth?.docsUrl ? (
@@ -235,7 +235,7 @@ export function ConnectorApiKeySection({
                   </div>
                   {loginError ? (
                     <p role="alert" className="mt-2 text-xs text-destructive">
-                      {copy2("loginError")}
+                      {copy("loginError")}
                     </p>
                   ) : null}
                 </div>
@@ -245,7 +245,7 @@ export function ConnectorApiKeySection({
                   htmlFor={keyInputId}
                   className="text-sm font-medium text-foreground"
                 >
-                  {copy2("keyLabel")}
+                  {copy("keyLabel")}
                 </Label>
                 <div data-layout-slot="connector-credential-step-content">
                   <Input3
@@ -264,7 +264,7 @@ export function ConnectorApiKeySection({
                     aria-invalid={Boolean(apiKey.trim()) && !keyValid}
                     aria-describedby={keyHintId}
                     aria-required="true"
-                    placeholder={copy2("keyPlaceholder")}
+                    placeholder={copy("keyPlaceholder")}
                     className="mt-3 h-10 rounded-lg bg-card"
                     data-action-ui-id={`connectors-${connectorId}-key`}
                   />
@@ -272,17 +272,17 @@ export function ConnectorApiKeySection({
                     id={keyHintId}
                     className="mt-2 text-[13px] leading-relaxed text-muted-foreground"
                   >
-                    {copy2("keyHint")}
+                    {copy("keyHint")}
                   </p>
                   {apiKey.trim() && !keyValid ? (
                     <p role="alert" className="mt-2 text-xs text-destructive">
-                      {copy2("invalidKey")}
+                      {copy("invalidKey")}
                     </p>
                   ) : null}
                 </div>
               </ConnectorDialogStep>
             </div>
-            <ConnectorConsentNote text={copy2("consent")} className="mt-4" />
+            <ConnectorConsentNote text={copy("consent")} className="mt-4" />
             {error ? <ConnectorDialogError message={error} /> : null}
           </div>
         </ConnectorDialogIntro>
@@ -299,7 +299,7 @@ export function ConnectorApiKeySection({
             loading={submitting}
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
-            {submitting ? t("connectors.detail.connecting") : copy2("connect")}
+            {submitting ? t("connectors.detail.connecting") : copy("connect")}
           </Button>
         </ConnectorDialogActions>
       </form>

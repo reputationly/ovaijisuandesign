@@ -22,10 +22,10 @@ import {
   useMpWallet,
 } from "../team/hailuo-credit-row.jsx";
 const MIN_AMOUNT = 10;
-function renderBoldPrefix(text2) {
-  const match2 = text2.match(/^\*\*(.+?)\*\*(.*)$/s);
-  if (!match2) return text2;
-  const [, bold, rest] = match2;
+function renderBoldPrefix(text) {
+  const match = text.match(/^\*\*(.+?)\*\*(.*)$/s);
+  if (!match) return text;
+  const [, bold, rest] = match;
   return (
     <>
       <strong className="font-medium text-foreground">{bold}</strong>
@@ -33,10 +33,10 @@ function renderBoldPrefix(text2) {
     </>
   );
 }
-function NoteItem({ text: text2 }) {
+function NoteItem({ text }) {
   return (
     <li className="relative pl-2.5 before:absolute before:left-0 before:top-[7px] before:size-[3px] before:rounded-full before:bg-muted-foreground before:content-['']">
-      {renderBoldPrefix(text2)}
+      {renderBoldPrefix(text)}
     </li>
   );
 }
@@ -76,8 +76,8 @@ export function MigrationDialog({ open, onOpenChange, onSuccess }) {
     setConfirmed(false);
     setAmount(hailuoCredits);
   }, [open, hailuoCredits]);
-  const handleAmountChange = (raw2) => {
-    const trimmed = raw2.trim();
+  const handleAmountChange = (raw) => {
+    const trimmed = raw.trim();
     if (trimmed === "") {
       setAmount(0);
       return;

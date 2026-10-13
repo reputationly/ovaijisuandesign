@@ -31,7 +31,7 @@ export function CanvasHelpButton({
   variant = "floating",
 }) {
   const { t, i18n } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const { openFeedback } = useFeedback();
   const [shortcutsOpen, setShortcutsOpen] = reactExports.useState(false);
   const [uncontrolledMenuOpen, setUncontrolledMenuOpen] =
@@ -42,7 +42,7 @@ export function CanvasHelpButton({
     onMenuOpenChange?.(open);
   };
   const handleTutorial = () => {
-    void openExternalUrl(platform2, getTutorialUrlByLocale(i18n.language), {
+    void openExternalUrl(platform, getTutorialUrlByLocale(i18n.language), {
       source: "canvas.help.tutorial",
     });
   };

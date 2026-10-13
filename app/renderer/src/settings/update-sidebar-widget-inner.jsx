@@ -26,7 +26,7 @@ import {
 } from "./diagnostics-group.jsx";
 const UpdateSidebarWidgetInner = ({ compact }) => {
   const { t } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const updater = useOptionalUpdaterContext();
   const { imageUrl, handleImageError } = useUpdatePoster();
   const [actionPending, setActionPending] = reactExports.useState(false);
@@ -40,65 +40,65 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
   }, [compact, phase]);
   if (!updater) return null;
   const {
-    state: state2,
+    state,
     notification,
     download,
     check,
     retryInstall,
   } = updater;
   if (
-    state2.forced ||
+    state.forced ||
     notification.type === "silent" ||
-    state2.phase === "idle" ||
-    state2.phase === "checking"
+    state.phase === "idle" ||
+    state.phase === "checking"
   ) {
     return null;
   }
   const showPoster = !compact && notification.type === "banner";
   const canManualDownload =
-    !!state2.manualDownloadUrl &&
-    (state2.manualOnly || state2.phase === "error");
-  const isManualRecovery = state2.phase === "error" && state2.manualOnly;
+    !!state.manualDownloadUrl &&
+    (state.manualOnly || state.phase === "error");
+  const isManualRecovery = state.phase === "error" && state.manualOnly;
   const canRetryLocalInstall =
     !canManualDownload &&
     isManualRecovery &&
-    state2.manualRecoverySource === "local" &&
-    isManualRecoveryRetryable(state2.manualRecoveryCode);
+    state.manualRecoverySource === "local" &&
+    isManualRecoveryRetryable(state.manualRecoveryCode);
   const canRetryUpdateCheck =
     !canManualDownload &&
-    state2.phase === "error" &&
+    state.phase === "error" &&
     (isManualRecovery
-      ? isManualRecoveryCheckRetryable(state2.manualRecoveryCode)
-      : state2.error?.canRetry === true);
+      ? isManualRecoveryCheckRetryable(state.manualRecoveryCode)
+      : state.error?.canRetry === true);
   const actionDisabled =
     actionPending ||
-    state2.phase === "downloading" ||
-    (state2.phase === "error" &&
+    state.phase === "downloading" ||
+    (state.phase === "error" &&
       !canManualDownload &&
       !canRetryLocalInstall &&
       !canRetryUpdateCheck);
   const handleManualDownload = async () => {
-    const url2 = state2.manualDownloadUrl;
-    if (!url2) return;
+    const url = state.manualDownloadUrl;
+    if (!url) return;
     await openManualInstallerDownload(
-      platform2.shell,
-      url2,
-      state2.manualDownloadFallbackUrl,
+      platform.shell,
+      url,
+      state.manualDownloadFallbackUrl,
       "update.sidebar.manual-download",
     );
   };
   const handleCompactAction = async () => {
     if (actionDisabled) return;
     setActionPending(true);
-    if (state2.phase === "available") {
-      if (state2.manualOnly) {
+    if (state.phase === "available") {
+      if (state.manualOnly) {
         void handleManualDownload().finally(() => setActionPending(false));
       } else download();
       return;
     }
-    if (state2.phase === "downloaded") {
+    if (state.phase === "downloaded") {
       try {
-        await installUpdateForPlatform(updater.install, platform2.app.os);
+        await installUpdateForPlatform(updater.install, platform.app.os);
       } catch (error) {
         actionTrailLog.error("update sidebar install request failed", {
           error: String(error),
@@ -108,7 +108,7 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
       }
       return;
     }
-    if (state2.phase === "error") {
+    if (state.phase === "error") {
       if (canManualDownload) {
         void handleManualDownload().finally(() => setActionPending(false));
       } else if (canRetryLocalInstall) {
@@ -135,28 +135,28 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
       </div>
     );
   }
-  const Icon2 =
-    state2.phase === "downloading"
+  const Icon =
+    state.phase === "downloading"
       ? LoaderCircle
-      : state2.phase === "downloaded"
+      : state.phase === "downloaded"
         ? RotateCw
-        : state2.phase === "error"
+        : state.phase === "error"
           ? AlertTriangle
           : Download;
   const label =
-    state2.phase === "downloaded"
+    state.phase === "downloaded"
       ? t("update.btn.restartUpgrade")
-      : state2.phase === "downloading"
+      : state.phase === "downloading"
         ? t("update.title.downloading")
-        : state2.phase === "error"
+        : state.phase === "error"
           ? canManualDownload
             ? t("update.btn.manualDownload")
             : t("update.btn.retry")
-          : state2.manualOnly
+          : state.manualOnly
             ? t("update.btn.manualDownload")
             : t("update.btn.download");
   const shortcutLabel = t("update.btn.shortLabel");
-  const canExpandShortcut = !compact && state2.phase !== "downloading";
+  const canExpandShortcut = !compact && state.phase !== "downloading";
   return (
     <span
       className={cn(
@@ -169,14 +169,14 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
         type="button"
         className={cn(
           "update-sidebar-shortcut group/update-shortcut no-drag relative inline-flex h-6 w-6 min-w-6 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-brand-accent px-0 text-brand-accent-foreground shadow-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-default disabled:opacity-50",
-          state2.phase === "downloading" && "cursor-default",
+          state.phase === "downloading" && "cursor-default",
         )}
         disabled={actionDisabled}
         onClick={handleCompactAction}
         title={label}
         aria-label={label}
         data-action-ui-id="update.sidebar.shortcut"
-        data-update-phase={state2.phase}
+        data-update-phase={state.phase}
         data-sidebar-compact={compact ? "true" : "false"}
         onMouseEnter={() => {
           if (canExpandShortcut) setShortcutExpanded(true);
@@ -187,10 +187,10 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
         }}
         onBlur={() => setShortcutExpanded(false)}
       >
-        <Icon2
+        <Icon
           className={cn(
             "update-sidebar-shortcut-icon size-3.5",
-            state2.phase === "downloading" &&
+            state.phase === "downloading" &&
               "update-sidebar-shortcut-icon--loading",
           )}
           strokeWidth={1.7}
@@ -198,9 +198,9 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
         <span className="update-sidebar-shortcut-label text-xs font-medium leading-none">
           {shortcutLabel}
         </span>
-        {state2.phase === "downloading" && state2.progress ? (
+        {state.phase === "downloading" && state.progress ? (
           <span className="sr-only">
-            {Math.round(state2.progress.percent)}%
+            {Math.round(state.progress.percent)}%
           </span>
         ) : null}
       </button>
@@ -210,10 +210,10 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
 export const UpdateSidebarWidget = (props) =>
   jsxRuntimeExports.jsx(m, {
     fallback: null,
-    onError: (error, info2) => {
+    onError: (error, info) => {
       actionTrailLog.error("update sidebar render failed", {
         error,
-        component_stack: info2.componentStack,
+        component_stack: info.componentStack,
       });
     },
     children: <UpdateSidebarWidgetInner {...props} />,

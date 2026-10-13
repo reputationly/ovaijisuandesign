@@ -23,7 +23,7 @@ function parseToolDisplayPatterns(value) {
   return Object.fromEntries(
     Object.entries(value).flatMap(([label, patterns]) => {
       if (!label.trim() || !Array.isArray(patterns)) return [];
-      const valid2 = patterns.filter((pattern) => {
+      const valid = patterns.filter((pattern) => {
         if (typeof pattern !== "string" || !pattern.trim()) return false;
         try {
           new RegExp(pattern);
@@ -32,7 +32,7 @@ function parseToolDisplayPatterns(value) {
           return false;
         }
       });
-      return valid2.length ? [[label, valid2]] : [];
+      return valid.length ? [[label, valid]] : [];
     }),
   );
 }
@@ -67,12 +67,12 @@ export let configuredLabelIds = compileToolDisplayPatterns(
   EMPTY_TOOL_CALL_DISPLAY_CONFIG.labelIds,
 );
 export function setToolCallDisplayConfig(value) {
-  const next2 = parseToolCallDisplayConfig(value);
-  const key2 = JSON.stringify(next2);
-  if (key2 === toolCallDisplayConfigKey) return;
-  toolCallDisplayConfigKey = key2;
-  configuredDisplayLabels = compileToolDisplayPatterns(next2.displayLabels);
-  configuredLabelIds = compileToolDisplayPatterns(next2.labelIds);
+  const next = parseToolCallDisplayConfig(value);
+  const key = JSON.stringify(next);
+  if (key === toolCallDisplayConfigKey) return;
+  toolCallDisplayConfigKey = key;
+  configuredDisplayLabels = compileToolDisplayPatterns(next.displayLabels);
+  configuredLabelIds = compileToolDisplayPatterns(next.labelIds);
 }
 export function getConfiguredToolDisplayLabel(toolName2) {
   return configuredDisplayLabels.find(({ patterns }) =>
@@ -151,10 +151,10 @@ export function clearClaimsForUser(userID) {
     const userPrefix = `${KEY_PREFIX}${userID}:`;
     const toRemove = [];
     for (let i = 0; i < window.localStorage.length; i++) {
-      const key2 = window.localStorage.key(i);
-      if (key2?.startsWith(userPrefix)) toRemove.push(key2);
+      const key = window.localStorage.key(i);
+      if (key?.startsWith(userPrefix)) toRemove.push(key);
     }
-    for (const key2 of toRemove) window.localStorage.removeItem(key2);
+    for (const key of toRemove) window.localStorage.removeItem(key);
   } catch {}
 }
 export function rehypeSanitize(options) {
@@ -171,9 +171,9 @@ let nextId = 0;
 let pendingPromptPrefill = null;
 export function completePromptPrefill(id, success) {
   if (pendingPromptPrefill?.request.id !== id) return false;
-  const current2 = pendingPromptPrefill;
+  const current = pendingPromptPrefill;
   pendingPromptPrefill = null;
-  current2.finish(success);
+  current.finish(success);
   emitPromptPrefillChange();
   return true;
 }
@@ -190,7 +190,7 @@ export function requestPromptPrefill(payload, signal) {
     const id = ++nextId;
     const controller = new AbortController();
     const abort = () => completePromptPrefill(id, false);
-    const timeout2 = setTimeout(abort, 15e3);
+    const timeout = setTimeout(abort, 15e3);
     signal?.addEventListener("abort", abort, {
       once: true,
     });
@@ -202,7 +202,7 @@ export function requestPromptPrefill(payload, signal) {
       },
       claimed: false,
       finish: (success) => {
-        clearTimeout(timeout2);
+        clearTimeout(timeout);
         signal?.removeEventListener("abort", abort);
         if (!success) controller.abort();
         resolve(success);
@@ -245,7 +245,7 @@ export function requestRandomInspiration(signal, queryIds) {
   return new Promise((resolve) => {
     const id = ++nextRandomInspirationId;
     const abort = () => completeRandomInspiration(id, false);
-    const timeout2 = setTimeout(abort, 15e3);
+    const timeout = setTimeout(abort, 15e3);
     signal?.addEventListener("abort", abort, {
       once: true,
     });
@@ -253,7 +253,7 @@ export function requestRandomInspiration(signal, queryIds) {
       id,
       queryIds: queryIds ? [...queryIds] : void 0,
       finish: (success) => {
-        clearTimeout(timeout2);
+        clearTimeout(timeout);
         signal?.removeEventListener("abort", abort);
         resolve(success);
       },

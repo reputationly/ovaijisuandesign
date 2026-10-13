@@ -1,2 +1,19 @@
 key	new	reason
 t2@128:14	t	useTranslation() 返回的翻译函数 t
+gatewayFetch2@19:28	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+data2@21:9	data	去掉打包器加的数字后缀，恢复原名 data
+gatewayFetch2@25:28	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+gatewayFetch2@38:29	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+gatewayFetch2@50:27	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+gatewayFetch2@63:28	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+data2@65:9	data	去掉打包器加的数字后缀，恢复原名 data
+gatewayFetch2@69:29	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+gatewayFetch2@83:36	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+gatewayFetch2@95:35	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+gatewayFetch2@101:34	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+gatewayFetch2@113:31	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+queryClient2@127:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+gatewayFetch2@129:9	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+data2@134:11	data	去掉打包器加的数字后缀，恢复原名 data
+snapshot2@162:13	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+data22@183:17	data	去掉打包器加的数字后缀，恢复原名 data

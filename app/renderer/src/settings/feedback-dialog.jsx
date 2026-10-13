@@ -78,8 +78,8 @@ export function FeedbackDialog({ open, options, onClose }) {
     };
   }, []);
   const handleOpenChange = reactExports.useCallback(
-    (next2) => {
-      if (!next2 && !submitting) onClose();
+    (next) => {
+      if (!next && !submitting) onClose();
     },
     [onClose, submitting],
   );
@@ -163,10 +163,10 @@ export function FeedbackDialog({ open, options, onClose }) {
       );
       onClose();
     } catch (err) {
-      const message2 = err instanceof Error ? err.message : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       dedupedToast.error(
         t("feedback.toast.failed", {
-          error: message2,
+          error: message,
         }),
       );
       setSubmitting(false);
@@ -220,16 +220,16 @@ export function FeedbackDialog({ open, options, onClose }) {
             </div>
             <div className="flex flex-wrap gap-1.5">
               {FEATURE_REQUEST_MODULES.map((featureModule) => {
-                const active2 = selectedModule === featureModule;
+                const active = selectedModule === featureModule;
                 return (
                   <button
                     key={featureModule}
                     type="button"
                     onClick={() => setSelectedModule(featureModule)}
-                    aria-pressed={active2}
+                    aria-pressed={active}
                     data-action-ui-id={`feedback.dialog.module.${featureModule}`}
                     className={
-                      active2
+                      active
                         ? "cursor-pointer rounded-sm bg-foreground px-2.5 py-1 text-xs text-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         : "cursor-pointer rounded-sm border border-border px-2.5 py-1 text-xs text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     }

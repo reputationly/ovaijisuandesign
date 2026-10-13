@@ -17,3 +17,7 @@ v2@263:33	nextType	类型下拉选中的新值
 v2@276:23	type	SelectValue 渲染函数收到的类型
 v2@356:35	nextModality	资产模态下拉选中的新值
 m3@371:44	modality	ASSET_MODALITIES 中的单个模态
+queryClient2@56:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+children2@77:48	children	去掉打包器加的数字后缀，恢复原名 children
+state2@99:10	state	去掉打包器加的数字后缀，恢复原名 state
+type2@280:38	type	去掉打包器加的数字后缀，恢复原名 type

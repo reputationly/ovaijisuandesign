@@ -1,2 +1,5 @@
 key	new	reason
 t2@29:14	t	useTranslation() 返回的翻译函数 t
+update2@31:9	update	去掉打包器加的数字后缀，恢复原名 update
+state2@34:18	state	去掉打包器加的数字后缀，恢复原名 state
+isStale2@38:11	isStale	去掉打包器加的数字后缀，恢复原名 isStale

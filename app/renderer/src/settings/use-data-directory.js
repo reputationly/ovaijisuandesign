@@ -41,7 +41,7 @@ class DataDirectoryTimeoutError extends Error {
 }
 function withIpcTimeout(work, operation, timeoutMs) {
   return new Promise((resolve, reject) => {
-    const timer2 = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       void window.hilo?.logger?.error?.(
         `[storage] ${operation} timed out after ${timeoutMs}ms; the IPC reply never arrived`,
         "storage",
@@ -50,11 +50,11 @@ function withIpcTimeout(work, operation, timeoutMs) {
     }, timeoutMs);
     work.then(
       (value) => {
-        window.clearTimeout(timer2);
+        window.clearTimeout(timer);
         resolve(value);
       },
       (error) => {
-        window.clearTimeout(timer2);
+        window.clearTimeout(timer);
         reject(error);
       },
     );
@@ -70,25 +70,25 @@ function isDirValidationError(error) {
   );
 }
 function dataDirectoryRecoveryErrorCode(failure, legacyError) {
-  const code2 = failure?.code ?? legacyError;
+  const code = failure?.code ?? legacyError;
   if (
-    code2 === "active_workspaces" ||
-    code2 === "initialization_failed" ||
-    isDirValidationError(code2)
+    code === "active_workspaces" ||
+    code === "initialization_failed" ||
+    isDirValidationError(code)
   ) {
-    return code2;
+    return code;
   }
   return "migration_failed";
 }
-function recoveryModeForPending(mode2) {
-  if (mode2 === "recover") return "recovery_merge";
-  if (mode2 === "residue") return "default_residue_merge";
+function recoveryModeForPending(mode) {
+  if (mode === "recover") return "recovery_merge";
+  if (mode === "residue") return "default_residue_merge";
   return void 0;
 }
-function trackRecovery(mode2, outcome, result, errorCode) {
+function trackRecovery(mode, outcome, result, errorCode) {
   trackEvent(TRACK_EVENTS.DATA_DIRECTORY_RECOVERY, {
     outcome,
-    recovery_mode: mode2,
+    recovery_mode: mode,
     ...(errorCode
       ? {
           error_code: errorCode,
@@ -111,14 +111,14 @@ function trackMigrationBlocked(gate, openWorkspaceCount) {
 }
 async function hiloApp() {
   const [
-    { instantiationService: instantiationService2 },
-    { IHiloApp: IHiloApp2 },
+    { instantiationService },
+    { IHiloApp },
   ] = await Promise.all([
     (() => Promise.resolve().then(() => instantiation))(),
     (() => Promise.resolve().then(() => hilo))(),
   ]);
-  return instantiationService2.invokeFunction((accessor) =>
-    accessor.get(IHiloApp2),
+  return instantiationService.invokeFunction((accessor) =>
+    accessor.get(IHiloApp),
   );
 }
 async function closeOpenWorkspaceViaHiloApp(folderPath) {
@@ -144,23 +144,23 @@ function normalizeDataDirectoryFailure(failure, legacyError) {
   };
 }
 function isSameDataDirectoryPath(left, right, os) {
-  const normalize2 = (value) => {
+  const normalize = (value) => {
     const normalized = value.replace(/\\/g, "/").replace(/\/+$/, "");
     return os === "win32" || os === "darwin"
       ? normalized.toLowerCase()
       : normalized;
   };
-  return normalize2(left) === normalize2(right);
+  return normalize(left) === normalize(right);
 }
 export function useDataDirectory() {
   const { t } = useTranslation();
-  const { config: config2 } = useSettings();
-  const platform2 = usePlatform();
-  const queryClient2 = useQueryClient();
+  const { config } = useSettings();
+  const platform = usePlatform();
+  const queryClient = useQueryClient();
   const [appliedDataDir, setAppliedDataDir] = reactExports.useState(null);
   const [status, setStatus] = reactExports.useState(null);
   const dataDir =
-    appliedDataDir ?? status?.dataDirectory ?? config2.dataDirectory ?? "";
+    appliedDataDir ?? status?.dataDirectory ?? config.dataDirectory ?? "";
   const [residue, setResidue] = reactExports.useState(null);
   const [recoverySummary, setRecoverySummary] = reactExports.useState(null);
   const [needsRestart, setNeedsRestart] = reactExports.useState(false);
@@ -177,10 +177,10 @@ export function useDataDirectory() {
   const [workspaceStatuses, setWorkspaceStatuses] = reactExports.useState([]);
   const refreshStatus = reactExports.useCallback(async () => {
     const sequence = ++refreshSequenceRef.current;
-    const service2 = getDataDirectoryMainService();
-    const [nextStatus, entries2] = await Promise.all([
+    const service = getDataDirectoryMainService();
+    const [nextStatus, entries] = await Promise.all([
       withIpcTimeout(
-        service2.getStatus(),
+        service.getStatus(),
         "getStatus",
         PREFLIGHT_IPC_TIMEOUT_MS,
       ),
@@ -193,7 +193,7 @@ export function useDataDirectory() {
     if (!mountedRef.current || sequence !== refreshSequenceRef.current)
       return nextStatus;
     setStatus(nextStatus);
-    setWorkspaceStatuses(entries2);
+    setWorkspaceStatuses(entries);
     setNeedsRestart(nextStatus.state === "pending_restart");
     setConfiguredLocationUnavailable(
       nextStatus.state === "configured_location_unavailable",
@@ -204,13 +204,13 @@ export function useDataDirectory() {
       !isSameDataDirectoryPath(
         nextStatus.activeDirectory,
         nextStatus.defaultDirectory,
-        platform2.app.os,
+        platform.app.os,
       );
     if (!activeCustom) {
       setResidue(null);
       return nextStatus;
     }
-    void service2
+    void service
       .getDefaultStorageResidue()
       .then((nextResidue) => {
         if (mountedRef.current && sequence === refreshSequenceRef.current) {
@@ -222,7 +222,7 @@ export function useDataDirectory() {
           setResidue(null);
       });
     return nextStatus;
-  }, [platform2.app.os]);
+  }, [platform.app.os]);
   reactExports.useEffect(() => {
     mountedRef.current = true;
     let disposed = false;
@@ -251,7 +251,7 @@ export function useDataDirectory() {
     ? isSameDataDirectoryPath(
         status.activeDirectory,
         status.defaultDirectory,
-        platform2.app.os,
+        platform.app.os,
       )
     : !dataDir;
   const openWorkspaceCount = status?.openWorkspaceCount ?? 0;
@@ -263,39 +263,39 @@ export function useDataDirectory() {
   const refreshGlobalStorageCache = reactExports.useCallback(async () => {
     try {
       await Promise.all([
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: storageKeys.global("config"),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: storageKeys.global("recentWorkspaces"),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: storageKeys.global("projects"),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: storageKeys.global("currentWorkspace"),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: storageKeys.global("openWorkspacePaths"),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: storageKeys.global("lastActiveWorkspacePath"),
         }),
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: storageKeys.global("workspaceSessionTabs"),
         }),
       ]);
     } catch (refreshError) {
-      const message2 =
+      const message =
         refreshError instanceof Error
           ? refreshError.message
           : String(refreshError);
       void window.hilo?.logger?.error?.(
-        `[storage] Failed to refresh global storage cache after migration: ${message2}`,
+        `[storage] Failed to refresh global storage cache after migration: ${message}`,
         "storage",
       );
     }
-  }, [queryClient2]);
+  }, [queryClient]);
   const recordFailure = reactExports.useCallback((failure, legacy) => {
     const normalized = normalizeDataDirectoryFailure(failure, legacy);
     setError(normalized.validationError);
@@ -312,12 +312,12 @@ export function useDataDirectory() {
     try {
       await refreshStatus();
     } catch (refreshError) {
-      const message2 =
+      const message =
         refreshError instanceof Error
           ? refreshError.message
           : String(refreshError);
       void window.hilo?.logger?.error?.(
-        `[storage] Failed to refresh data-directory status after migration: ${message2}`,
+        `[storage] Failed to refresh data-directory status after migration: ${message}`,
         "storage",
       );
     }
@@ -345,10 +345,10 @@ export function useDataDirectory() {
         toastWorkspaceCloseBlocked(folderPath, result);
         await refreshStatus();
       } catch (closeError) {
-        const message2 =
+        const message =
           closeError instanceof Error ? closeError.message : String(closeError);
         void window.hilo?.logger?.error?.(
-          `[storage] Failed to close open workspace from settings: ${message2}`,
+          `[storage] Failed to close open workspace from settings: ${message}`,
           "storage",
         );
         toastWorkspaceCloseBlocked(folderPath, {});
@@ -365,7 +365,7 @@ export function useDataDirectory() {
       const result = await closeIdleWorkspacesViaHiloApp();
       const nextStatus = await refreshStatus();
       const closedPaths = result.closedWorkspaceIds.filter(
-        (path2) => !nextStatus.openWorkspacePaths.includes(path2),
+        (path) => !nextStatus.openWorkspacePaths.includes(path),
       );
       if (closedPaths.length > 0) hideVisiblePreviewTabs(closedPaths);
       if (nextStatus.openWorkspaceCount === 0) {
@@ -379,10 +379,10 @@ export function useDataDirectory() {
         dedupedToast.warning(t("settings.storage.closeIdleProjectsBlocked"));
       }
     } catch (closeError) {
-      const message2 =
+      const message =
         closeError instanceof Error ? closeError.message : String(closeError);
       void window.hilo?.logger?.error?.(
-        `[storage] Failed to close idle workspaces from settings: ${message2}`,
+        `[storage] Failed to close idle workspaces from settings: ${message}`,
         "storage",
       );
       dedupedToast.error(t("settings.storage.closeIdleProjectsFailed"));
@@ -404,13 +404,13 @@ export function useDataDirectory() {
     setCleanupDeferred(false);
     const recoveryMode = recoveryModeForPending(pendingMigration.mode);
     try {
-      const service2 = getDataDirectoryMainService();
+      const service = getDataDirectoryMainService();
       const result =
         pendingMigration.mode === "reset"
-          ? await service2.reset()
+          ? await service.reset()
           : pendingMigration.mode === "residue"
-            ? await service2.recoverDefaultStorageResidue()
-            : await service2.apply(pendingMigration.targetPath);
+            ? await service.recoverDefaultStorageResidue()
+            : await service.apply(pendingMigration.targetPath);
       if (!result.success) {
         setCleanupDeferred((result.cleanupDeferredPaths?.length ?? 0) > 0);
         recordFailure(result.failure, result.error);
@@ -466,16 +466,16 @@ export function useDataDirectory() {
   const handleBrowse = reactExports.useCallback(async () => {
     clearOperationState();
     try {
-      const result = await platform2.fs.showOpenDialog?.({
+      const result = await platform.fs.showOpenDialog?.({
         directory: true,
         title: t("settings.storage.selectDirectory"),
       });
       if (!result?.length) return;
-      const selected2 = result[0];
+      const selected = result[0];
       setValidating(true);
-      const service2 = getDataDirectoryMainService();
+      const service = getDataDirectoryMainService();
       const validation = await withIpcTimeout(
-        service2.validate(selected2),
+        service.validate(selected),
         "validate",
         PREFLIGHT_IPC_TIMEOUT_MS,
       );
@@ -490,59 +490,59 @@ export function useDataDirectory() {
         return;
       }
       const targetIsDefault = isSameDataDirectoryPath(
-        selected2,
+        selected,
         currentStatus.defaultDirectory,
-        platform2.app.os,
+        platform.app.os,
       );
       const targetIsConfigured = isSameDataDirectoryPath(
-        selected2,
+        selected,
         currentStatus.configuredDirectory,
-        platform2.app.os,
+        platform.app.os,
       );
       const recoveringUnavailable =
         currentStatus.state === "configured_location_unavailable";
       if (recoveringUnavailable) {
-        const mode2 = targetIsDefault
+        const mode = targetIsDefault
           ? "reset"
           : targetIsConfigured
             ? "recover"
             : "relink";
         setPendingMigration({
-          mode: mode2,
+          mode,
           sourcePath:
-            mode2 === "recover"
+            mode === "recover"
               ? currentStatus.activeDirectory
               : currentStatus.configuredDirectory,
-          targetPath: selected2,
+          targetPath: selected,
           warning: validation.warning,
           sourceIsDefault:
-            mode2 === "recover" ||
+            mode === "recover" ||
             isSameDataDirectoryPath(
               currentStatus.activeDirectory,
               currentStatus.defaultDirectory,
-              platform2.app.os,
+              platform.app.os,
             ),
           targetIsDefault,
-          recoveringUnavailable: mode2 === "reset",
+          recoveringUnavailable: mode === "reset",
         });
         return;
       }
       const estimate = await withIpcTimeout(
-        service2.estimateMigrationSize(selected2),
+        service.estimateMigrationSize(selected),
         "estimateMigrationSize",
         ESTIMATE_IPC_TIMEOUT_MS,
       ).catch(() => void 0);
       setPendingMigration({
         mode: targetIsDefault ? "reset" : "apply",
         sourcePath: currentStatus.activeDirectory,
-        targetPath: selected2,
+        targetPath: selected,
         // A partial walk would understate the size; show "unknown" instead.
         totalBytes: estimate?.partial ? void 0 : estimate?.totalBytes,
         warning: validation.warning,
         sourceIsDefault: isSameDataDirectoryPath(
           currentStatus.activeDirectory,
           currentStatus.defaultDirectory,
-          platform2.app.os,
+          platform.app.os,
         ),
         targetIsDefault,
         recoveringUnavailable: false,
@@ -552,7 +552,7 @@ export function useDataDirectory() {
     } finally {
       setValidating(false);
     }
-  }, [clearOperationState, platform2.app.os, platform2.fs, refreshStatus, t]);
+  }, [clearOperationState, platform.app.os, platform.fs, refreshStatus, t]);
   const handleReset = reactExports.useCallback(async () => {
     clearOperationState();
     try {
@@ -576,7 +576,7 @@ export function useDataDirectory() {
           isSameDataDirectoryPath(
             currentStatus.activeDirectory,
             currentStatus.defaultDirectory,
-            platform2.app.os,
+            platform.app.os,
           ),
         targetIsDefault: true,
         recoveringUnavailable,
@@ -586,7 +586,7 @@ export function useDataDirectory() {
     } finally {
       setValidating(false);
     }
-  }, [clearOperationState, platform2.app.os, refreshStatus]);
+  }, [clearOperationState, platform.app.os, refreshStatus]);
   const handleRecoverConfigured = reactExports.useCallback(async () => {
     clearOperationState();
     try {
@@ -602,12 +602,12 @@ export function useDataDirectory() {
         !isSameDataDirectoryPath(
           currentStatus.activeDirectory,
           currentStatus.defaultDirectory,
-          platform2.app.os,
+          platform.app.os,
         ) ||
         isSameDataDirectoryPath(
           currentStatus.configuredDirectory,
           currentStatus.defaultDirectory,
-          platform2.app.os,
+          platform.app.os,
         )
       ) {
         return;
@@ -625,7 +625,7 @@ export function useDataDirectory() {
     } finally {
       setValidating(false);
     }
-  }, [clearOperationState, platform2.app.os, refreshStatus]);
+  }, [clearOperationState, platform.app.os, refreshStatus]);
   const handleRecoverResidue = reactExports.useCallback(async () => {
     clearOperationState();
     try {
@@ -642,7 +642,7 @@ export function useDataDirectory() {
         isSameDataDirectoryPath(
           currentStatus.activeDirectory,
           currentStatus.defaultDirectory,
-          platform2.app.os,
+          platform.app.os,
         )
       ) {
         return;
@@ -662,7 +662,7 @@ export function useDataDirectory() {
     }
   }, [
     clearOperationState,
-    platform2.app.os,
+    platform.app.os,
     refreshStatus,
     residue?.available,
   ]);

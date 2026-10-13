@@ -36,16 +36,16 @@ function buildPlainConnectorInput(manifest, description) {
   if (templates.some((value) => value.includes("${user_config."))) {
     throw new Error("Invalid connector configuration");
   }
-  const url2 = new URL(mcp.endpoint);
+  const url = new URL(mcp.endpoint);
   for (const [param, value] of Object.entries(mcp.queryParams ?? {})) {
-    url2.searchParams.set(param, value);
+    url.searchParams.set(param, value);
   }
   return {
     name: mcp.serverName,
     enabled: true,
     config: {
       transport: mcp.transport,
-      url: url2.href,
+      url: url.href,
       ...(mcp.headers
         ? {
             headers: {
@@ -68,18 +68,18 @@ function ConnectorHubOAuthSection({
 }) {
   const { t, i18n } = useTranslation();
   const connectorId = manifest.connectorId;
-  const language2 = i18n?.language ?? "en";
+  const language = i18n?.language ?? "en";
   const profile =
     manifest.auth.kind === "hubOAuthProfile" ? manifest.auth.profile : void 0;
   const serverName = manifest.capabilities.mcp?.serverName ?? connectorId;
   const requiredInputs = profile?.requiredInputs ?? [];
-  const { copy: copy2 } = useConnectorCopy(
+  const { copy } = useConnectorCopy(
     connectorId,
     manifest.displayName,
     "oauth",
   );
-  const [values3, setValues] = reactExports.useState({});
-  const [pending2, setPending] = reactExports.useState(false);
+  const [values, setValues] = reactExports.useState({});
+  const [pending, setPending] = reactExports.useState(false);
   const [cancelling, setCancelling] = reactExports.useState(false);
   const [error, setError] = reactExports.useState();
   const mounted = reactExports.useRef(true);
@@ -87,7 +87,7 @@ function ConnectorHubOAuthSection({
   const touched = reactExports.useRef(false);
   const cancelled = reactExports.useRef(false);
   const inputsReady = requiredInputs.every((input) =>
-    isRequiredInputSatisfied(input, values3[input.key] ?? ""),
+    isRequiredInputSatisfied(input, values[input.key] ?? ""),
   );
   reactExports.useEffect(() => {
     mounted.current = true;
@@ -99,7 +99,7 @@ function ConnectorHubOAuthSection({
           .catch(() => void 0);
     };
   }, [serverName]);
-  const close2 = async () => {
+  const handleClose = async () => {
     if (cancelling) return;
     cancelled.current = true;
     setCancelling(true);
@@ -146,7 +146,7 @@ function ConnectorHubOAuthSection({
           : Object.fromEntries(
               requiredInputs.map((field) => [
                 field.key,
-                (values3[field.key] ?? "").trim(),
+                (values[field.key] ?? "").trim(),
               ]),
             );
       const result = await homeService.customMcp.authorize(serverName, input);
@@ -164,7 +164,7 @@ function ConnectorHubOAuthSection({
           t(`connectors.connector.error.${install.code}`, {
             name: connectorTitle(
               t,
-              language2,
+              language,
               connectorId,
               manifest.displayName,
             ),
@@ -191,13 +191,13 @@ function ConnectorHubOAuthSection({
       connectorId={connectorId}
       embedded={embedded}
       dismissible={!cancelling}
-      onRequestClose={() => void close2()}
+      onRequestClose={() => void handleClose()}
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ConnectorDialogIntro
           iconUrl={iconUrl}
-          title={copy2("title")}
-          description={copy2("description")}
+          title={copy("title")}
+          description={copy("description")}
         >
           <div className="-mx-3 rounded-[10px] bg-secondary/60 px-3 py-3">
             {requiredInputs.length > 0 ? (
@@ -208,12 +208,12 @@ function ConnectorHubOAuthSection({
                 <ConnectorRequiredInputFields
                   connectorId={connectorId}
                   requiredInputs={requiredInputs}
-                  values={values3}
-                  disabled={pending2 || cancelling}
-                  onChange={(key2, value) => {
-                    setValues((current2) => ({
-                      ...current2,
-                      [key2]: value,
+                  values={values}
+                  disabled={pending || cancelling}
+                  onChange={(key, value) => {
+                    setValues((current) => ({
+                      ...current,
+                      [key]: value,
                     }));
                     setError(void 0);
                   }}
@@ -223,8 +223,8 @@ function ConnectorHubOAuthSection({
             <p className="text-[13px] leading-relaxed text-muted-foreground">
               {t("connectors.oauth.instructions")}
             </p>
-            <ConnectorConsentNote text={copy2("consent")} className="mt-3" />
-            {pending2 ? (
+            <ConnectorConsentNote text={copy("consent")} className="mt-3" />
+            {pending ? (
               <p
                 role="status"
                 className="mt-3 text-[13px] leading-relaxed text-muted-foreground"
@@ -239,18 +239,18 @@ function ConnectorHubOAuthSection({
           connectorId={connectorId}
           cancelLabel={t("common.cancel")}
           cancelDisabled={cancelling}
-          onCancel={() => void close2()}
+          onCancel={() => void handleClose()}
         >
           <Button
             type="button"
             className="h-9 min-w-26 rounded-lg px-4"
-            disabled={pending2 || cancelling || !inputsReady}
-            loading={pending2}
+            disabled={pending || cancelling || !inputsReady}
+            loading={pending}
             onClick={() => void authorize()}
             data-action-ui-id={`connectors-${connectorId}-authorize`}
           >
             {t(
-              pending2
+              pending
                 ? "connectors.detail.connecting"
                 : "connectors.oauth.connect",
             )}
@@ -271,7 +271,7 @@ function ConnectorPlainSection({
 }) {
   const { t } = useTranslation();
   const connectorId = manifest.connectorId;
-  const { copy: copy2 } = useConnectorCopy(
+  const { copy } = useConnectorCopy(
     connectorId,
     manifest.displayName,
     "plain",
@@ -293,7 +293,7 @@ function ConnectorPlainSection({
     setError(void 0);
     try {
       const result = await onSubmit(
-        buildPlainConnectorInput(manifest, copy2("description")),
+        buildPlainConnectorInput(manifest, copy("description")),
       );
       if (!mounted.current) return;
       if (!result.ok) {
@@ -323,12 +323,12 @@ function ConnectorPlainSection({
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ConnectorDialogIntro
           iconUrl={iconUrl}
-          title={copy2("title")}
-          description={copy2("description")}
+          title={copy("title")}
+          description={copy("description")}
         >
           <div className="-mx-3 rounded-[10px] bg-secondary/60 px-6 py-5">
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              {copy2("hint")}
+              {copy("hint")}
             </p>
           </div>
           {error ? <ConnectorDialogError message={error} /> : null}
@@ -347,7 +347,7 @@ function ConnectorPlainSection({
             onClick={() => void handleSubmit()}
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
-            {submitting ? t("connectors.detail.connecting") : copy2("connect")}
+            {submitting ? t("connectors.detail.connecting") : copy("connect")}
           </Button>
         </ConnectorDialogActions>
       </div>
@@ -365,7 +365,7 @@ function ConnectorServerOAuthSection({
 }) {
   const { t } = useTranslation();
   const connectorId = manifest.connectorId;
-  const { copy: copy2 } = useConnectorCopy(
+  const { copy } = useConnectorCopy(
     connectorId,
     manifest.displayName,
     "server-oauth",
@@ -391,7 +391,7 @@ function ConnectorServerOAuthSection({
     onBusyChange?.(true);
     try {
       const created = await onSubmit(
-        buildPlainConnectorInput(manifest, copy2("description")),
+        buildPlainConnectorInput(manifest, copy("description")),
       );
       if (!mounted.current) return;
       let serverName;
@@ -435,15 +435,15 @@ function ConnectorServerOAuthSection({
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ConnectorDialogIntro
           iconUrl={iconUrl}
-          title={copy2("title")}
-          description={copy2("description")}
+          title={copy("title")}
+          description={copy("description")}
         >
           <div className="-mx-3 rounded-[10px] bg-secondary/60 px-6 py-5">
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              {copy2(phase === "authorizing" ? "authorizingHint" : "hint")}
+              {copy(phase === "authorizing" ? "authorizingHint" : "hint")}
             </p>
           </div>
-          <ConnectorConsentNote text={copy2("consent")} className="mt-4" />
+          <ConnectorConsentNote text={copy("consent")} className="mt-4" />
           {error ? <ConnectorDialogError message={error} /> : null}
         </ConnectorDialogIntro>
         <ConnectorDialogActions
@@ -460,7 +460,7 @@ function ConnectorServerOAuthSection({
             onClick={() => void handleConnect()}
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
-            {phase === "authorizing" ? copy2("authorizing") : copy2("connect")}
+            {phase === "authorizing" ? copy("authorizing") : copy("connect")}
           </Button>
         </ConnectorDialogActions>
       </div>
@@ -476,7 +476,7 @@ function ConnectorSkillOnlySection({
 }) {
   const { t } = useTranslation();
   const connectorId = manifest.connectorId;
-  const { copy: copy2 } = useConnectorCopy(
+  const { copy } = useConnectorCopy(
     connectorId,
     manifest.displayName,
     "skill-only",
@@ -494,9 +494,9 @@ function ConnectorSkillOnlySection({
     try {
       const result = await homeService.connector.install(connectorId);
       if (result.ok) setInstalled(true);
-      else setError(result.message ?? copy2("installFailed"));
+      else setError(result.message ?? copy("installFailed"));
     } catch {
-      setError(copy2("installFailed"));
+      setError(copy("installFailed"));
     } finally {
       busy.current = false;
       setInstalling(false);
@@ -515,12 +515,12 @@ function ConnectorSkillOnlySection({
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ConnectorDialogIntro
           iconUrl={iconUrl}
-          title={copy2("title")}
-          description={copy2("description")}
+          title={copy("title")}
+          description={copy("description")}
         >
           <div className="-mx-3 rounded-[10px] bg-secondary/60 px-6 py-5">
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              {copy2(installed ? "installedHint" : "installHint")}
+              {copy(installed ? "installedHint" : "installHint")}
             </p>
           </div>
           {error ? <ConnectorDialogError message={error} /> : null}
@@ -540,7 +540,7 @@ function ConnectorSkillOnlySection({
               onClick={() => void handleInstall()}
               data-action-ui-id={`connectors-${connectorId}-install`}
             >
-              {copy2("install")}
+              {copy("install")}
             </Button>
           )}
         </ConnectorDialogActions>

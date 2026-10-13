@@ -189,9 +189,9 @@ export function RecentProjectGroupHeader({
       !releasePreviewHold
     )
       return;
-    const token2 = `home-sidebar.recent-group-menu:${projectId}`;
-    holdPreviewOpen(token2);
-    return () => releasePreviewHold(token2);
+    const token = `home-sidebar.recent-group-menu:${projectId}`;
+    holdPreviewOpen(token);
+    return () => releasePreviewHold(token);
   }, [contextMenuOpen, holdPreviewOpen, projectId, releasePreviewHold]);
   const handleToggle = reactExports.useCallback(
     (event) => {

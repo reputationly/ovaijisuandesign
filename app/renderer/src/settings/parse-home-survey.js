@@ -40,18 +40,18 @@ function pickZhEnText(value, locale) {
   return typeof fallback === "string" ? fallback.trim() : "";
 }
 function httpsUrl(value, locale) {
-  const text2 = localizedString(value, locale);
-  if (!text2) return void 0;
+  const text = localizedString(value, locale);
+  if (!text) return void 0;
   try {
-    const url2 = new URL(text2);
+    const url = new URL(text);
     if (
-      url2.protocol !== "https:" ||
-      url2.username !== "" ||
-      url2.password !== ""
+      url.protocol !== "https:" ||
+      url.username !== "" ||
+      url.password !== ""
     ) {
       return void 0;
     }
-    return url2.toString();
+    return url.toString();
   } catch {
     return void 0;
   }
@@ -59,28 +59,28 @@ function httpsUrl(value, locale) {
 function parseParams(value) {
   if (!isRecord$f(value)) return {};
   const out = {};
-  let count2 = 0;
-  for (const [key2, raw2] of Object.entries(value)) {
-    if (count2 >= MAX_PARAM_ENTRIES) break;
-    const parsedKey = nonEmptyString(key2);
-    if (!parsedKey || typeof raw2 !== "string") continue;
-    out[parsedKey] = raw2;
-    count2 += 1;
+  let count = 0;
+  for (const [key, raw] of Object.entries(value)) {
+    if (count >= MAX_PARAM_ENTRIES) break;
+    const parsedKey = nonEmptyString(key);
+    if (!parsedKey || typeof raw !== "string") continue;
+    out[parsedKey] = raw;
+    count += 1;
   }
   return out;
 }
 function parseRef(value, locale) {
   if (!isRecord$f(value)) return void 0;
-  const url2 = httpsUrl(value.url, locale);
-  const name2 = localizedString(value.name, locale);
-  const type2 = nonEmptyString(value.type);
-  if (!url2 || !name2 || !type2 || !REF_TYPES.has(type2)) {
+  const url = httpsUrl(value.url, locale);
+  const localizedName = localizedString(value.name, locale);
+  const type = nonEmptyString(value.type);
+  if (!url || !localizedName || !type || !REF_TYPES.has(type)) {
     return void 0;
   }
   return {
-    url: url2,
-    name: name2,
-    type: type2,
+    url,
+    name: localizedName,
+    type,
   };
 }
 function parseItem(value, locale) {
@@ -110,26 +110,26 @@ function parseItem(value, locale) {
     refs,
   };
 }
-function parseVideoStarterPresets(raw2, locale = "en") {
-  if (!isRecord$f(raw2)) return [];
-  if (raw2.schema_version !== VIDEO_STARTER_PRESETS_SCHEMA_VERSION) return [];
-  if (raw2.enabled !== true) return [];
-  if (!Array.isArray(raw2.items)) return [];
-  const seen2 = new Set();
+function parseVideoStarterPresets(raw, locale = "en") {
+  if (!isRecord$f(raw)) return [];
+  if (raw.schema_version !== VIDEO_STARTER_PRESETS_SCHEMA_VERSION) return [];
+  if (raw.enabled !== true) return [];
+  if (!Array.isArray(raw.items)) return [];
+  const seen = new Set();
   const items = [];
-  for (const rawItem of raw2.items.slice(0, MAX_PRESET_ITEMS)) {
+  for (const rawItem of raw.items.slice(0, MAX_PRESET_ITEMS)) {
     const parsed = parseItem(rawItem, locale);
-    if (!parsed || seen2.has(parsed.id)) continue;
-    seen2.add(parsed.id);
+    if (!parsed || seen.has(parsed.id)) continue;
+    seen.add(parsed.id);
     items.push(parsed);
   }
   return items;
 }
 const KNOWN_IDS = Object.values(STARTUP_MODAL_IDS);
-function parseIdList(raw2) {
-  if (!Array.isArray(raw2)) return null;
+function parseIdList(raw) {
+  if (!Array.isArray(raw)) return null;
   const out = [];
-  for (const item of raw2) {
+  for (const item of raw) {
     if (typeof item !== "string") continue;
     if (!KNOWN_IDS.includes(item)) continue;
     if (out.includes(item)) continue;
@@ -137,30 +137,30 @@ function parseIdList(raw2) {
   }
   return out;
 }
-function parseBoundedNumber(raw2, min2, max2, fallback) {
-  if (typeof raw2 !== "number" || !Number.isFinite(raw2)) return fallback;
-  if (raw2 < min2 || raw2 > max2) return fallback;
-  return Math.floor(raw2);
+function parseBoundedNumber(raw, min, max, fallback) {
+  if (typeof raw !== "number" || !Number.isFinite(raw)) return fallback;
+  if (raw < min || raw > max) return fallback;
+  return Math.floor(raw);
 }
-function parseStartupModalSchedule(raw2) {
-  if (!raw2 || typeof raw2 !== "object" || Array.isArray(raw2)) {
+function parseStartupModalSchedule(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     return DEFAULT_MODAL_SCHEDULE_CONFIG;
   }
-  const cfg = raw2;
+  const cfg = raw;
   const configuredOrder = parseIdList(cfg.order) ?? [];
-  const order2 = [
+  const order = [
     ...configuredOrder,
     ...DEFAULT_MODAL_SCHEDULE_CONFIG.order.filter(
       (id) => !configuredOrder.includes(id),
     ),
   ];
-  const disabled2 = (parseIdList(cfg.disabled) ?? []).filter(
+  const disabled = (parseIdList(cfg.disabled) ?? []).filter(
     // 合规红线:水印首启弹窗不允许通过远端配置关闭。
     (id) => id !== STARTUP_MODAL_IDS.watermarkOnboarding,
   );
   return {
-    order: order2,
-    disabled: disabled2,
+    order,
+    disabled,
     maxPerLaunch: parseBoundedNumber(
       cfg.max_per_launch,
       1,
@@ -191,8 +191,8 @@ async function refreshToolCallDisplayConfig() {
       API_PATHS.apolloConfig("tool_call_display_config"),
     );
     if (!response.ok) return;
-    const raw2 = await response.json();
-    setToolCallDisplayConfig(raw2);
+    const raw = await response.json();
+    setToolCallDisplayConfig(raw);
   } catch {}
 }
 const DEFAULT_HUB_CLIENT_CONFIG = {
@@ -220,12 +220,12 @@ function safeHttpsUrl(value) {
 function localizedText(value, locale) {
   if (typeof value === "string") return value.trim();
   if (!isRecord$b(value)) return "";
-  const keys2 =
+  const keys =
     locale === "zh"
       ? ["zh-Hans", "zh", "en"]
       : ["en", "en-US", "zh-Hans", "zh"];
-  for (const key2 of keys2) {
-    const candidate = value[key2];
+  for (const key of keys) {
+    const candidate = value[key];
     if (typeof candidate === "string" && candidate.trim())
       return candidate.trim();
   }
@@ -298,9 +298,9 @@ function parseHomeWidget(value) {
       : {}),
   };
 }
-function mapHubClientConfig(raw2, locale) {
-  if (!isRecord$b(raw2)) return DEFAULT_HUB_CLIENT_CONFIG;
-  const cfg = raw2;
+function mapHubClientConfig(raw, locale) {
+  if (!isRecord$b(raw)) return DEFAULT_HUB_CLIENT_CONFIG;
+  const cfg = raw;
   const whatsNew = cfg.whats_new;
   const whatsNewEnabled =
     whatsNew && typeof whatsNew === "object" && "enabled" in whatsNew
@@ -322,7 +322,7 @@ export function useHubClientConfig() {
   const { region, channel } = useRuntimeConfig();
   const { i18n } = useTranslation();
   const locale = i18n.language?.startsWith("zh") ? "zh" : "en";
-  const { data: data2, error } = useQuery({
+  const { data, error } = useQuery({
     queryKey: ["hub-client-config", region, channel, locale],
     queryFn: async () => {
       void refreshToolCallDisplayConfig();
@@ -341,5 +341,5 @@ export function useHubClientConfig() {
   });
   return !gatewayReady || error
     ? DEFAULT_HUB_CLIENT_CONFIG
-    : (data2 ?? DEFAULT_HUB_CLIENT_CONFIG);
+    : (data ?? DEFAULT_HUB_CLIENT_CONFIG);
 }

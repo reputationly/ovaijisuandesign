@@ -8,23 +8,23 @@ import {
 
 const COMMAND_PATH = /^(?:\/|\.{1,2}[\\/]|[a-z]:[\\/]|\\\\|~[\\/])/iu;
 
-function splitCustomMcpCommand(command2, isCommandFile) {
-  if (COMMAND_PATH.test(command2)) {
-    if (!isCommandFile || isCommandFile(command2) || !/\s/u.test(command2))
-      return [command2];
-    const tokens22 = parseCustomMcpArguments(command2, true);
-    if (!tokens22[0] || !isCommandFile(tokens22[0])) return [command2];
-    return tokens22;
+function splitCustomMcpCommand(command, isCommandFile) {
+  if (COMMAND_PATH.test(command)) {
+    if (!isCommandFile || isCommandFile(command) || !/\s/u.test(command))
+      return [command];
+    const tokens = parseCustomMcpArguments(command, true);
+    if (!tokens[0] || !isCommandFile(tokens[0])) return [command];
+    return tokens;
   }
-  const tokens2 = parseCustomMcpArguments(command2, true);
+  const tokens = parseCustomMcpArguments(command, true);
   if (
-    tokens2[0] &&
-    /[\s"']/u.test(tokens2[0]) &&
-    !COMMAND_PATH.test(tokens2[0])
+    tokens[0] &&
+    /[\s"']/u.test(tokens[0]) &&
+    !COMMAND_PATH.test(tokens[0])
   ) {
     throw new CustomMcpCommandSyntaxError("ambiguous_executable");
   }
-  return tokens2;
+  return tokens;
 }
 
 const MAX_COMMAND_LENGTH = 1024;
@@ -48,26 +48,26 @@ function normalizeStringArray(value) {
 }
 
 export function normalizeCustomMcpLaunch(rawCommand, rawArgs, options = {}) {
-  const command2 = requireBoundedString(
+  const command = requireBoundedString(
     rawCommand,
     MAX_COMMAND_LENGTH,
     "command",
   );
   const args = normalizeStringArray(rawArgs);
   try {
-    const tokens2 = splitCustomMcpCommand(command2, options.isCommandFile);
+    const tokens = splitCustomMcpCommand(command, options.isCommandFile);
     const executable = requireBoundedString(
-      tokens2[0],
+      tokens[0],
       MAX_COMMAND_LENGTH,
       "command",
     );
     const mergedArgs = normalizeStringArray([
-      ...tokens2.slice(1),
+      ...tokens.slice(1),
       ...(args ?? []),
     ]);
     return {
       command: executable,
-      ...(args || tokens2.length > 1
+      ...(args || tokens.length > 1
         ? {
             args: mergedArgs,
           }
@@ -81,7 +81,7 @@ export function normalizeCustomMcpLaunch(rawCommand, rawArgs, options = {}) {
       throw error;
     if (options.source === "stored")
       return {
-        command: command2,
+        command,
         ...(args
           ? {
               args,

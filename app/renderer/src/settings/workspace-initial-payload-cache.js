@@ -37,9 +37,9 @@ function cloneSelectedMediaModels(selectedMediaModels) {
 export class WorkspaceInitialPayloadCache {
   payloads = new Map();
   consumedPayloadKeys = new Map();
-  capture(workspaceId2, payload) {
-    if (!workspaceId2 || !hasPayload(payload)) return;
-    const next2 = {
+  capture(workspaceId, payload) {
+    if (!workspaceId || !hasPayload(payload)) return;
+    const next = {
       initialPayloadId: payload.initialPayloadId,
       initialMessage: payload.initialMessage,
       initialAttachments: payload.initialAttachments
@@ -53,22 +53,22 @@ export class WorkspaceInitialPayloadCache {
         payload.initialSelectedMediaModels,
       ),
     };
-    const payloadKey = workspaceInitialPayloadKey(next2);
-    if (this.consumedPayloadKeys.get(workspaceId2) === payloadKey) return;
-    this.payloads.set(workspaceId2, next2);
+    const payloadKey = workspaceInitialPayloadKey(next);
+    if (this.consumedPayloadKeys.get(workspaceId) === payloadKey) return;
+    this.payloads.set(workspaceId, next);
   }
-  get(workspaceId2) {
-    return this.payloads.get(workspaceId2);
+  get(workspaceId) {
+    return this.payloads.get(workspaceId);
   }
-  consume(workspaceId2) {
-    const payload = this.payloads.get(workspaceId2);
+  consume(workspaceId) {
+    const payload = this.payloads.get(workspaceId);
     if (payload) {
       this.consumedPayloadKeys.set(
-        workspaceId2,
+        workspaceId,
         workspaceInitialPayloadKey(payload),
       );
     }
-    this.payloads.delete(workspaceId2);
+    this.payloads.delete(workspaceId);
   }
   /**
    * Drop cached payloads for workspaces that have been closed.

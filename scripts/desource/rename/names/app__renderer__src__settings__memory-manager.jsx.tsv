@@ -30,3 +30,25 @@ v2@976:29	nextScopeFilter	作用域筛选下拉选中的新值
 v2@979:30	scopeFilter	SelectValue 渲染函数收到的作用域筛选值
 v2@998:54	nextTypeFilter	类型筛选下拉选中的新值
 v2@1000:30	typeFilter	SelectValue 渲染函数收到的类型筛选值
+type2@63:60	type	去掉打包器加的数字后缀，恢复原名 type
+data2@70:9	data	去掉打包器加的数字后缀，恢复原名 data
+data2@83:9	data	去掉打包器加的数字后缀，恢复原名 data
+data2@94:9	data	去掉打包器加的数字后缀，恢复原名 data
+subscribe2@98:22	subscribe	去掉打包器加的数字后缀，恢复原名 subscribe
+queryClient2@99:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+type2@114:40	type	去掉打包器加的数字后缀，恢复原名 type
+queryClient2@128:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+name2@130:33	memoryName	记忆条目名；name 是全局名
+name2@175:9	memoryName	记忆条目名；name 是全局名
+match2@235:9	match	去掉打包器加的数字后缀，恢复原名 match
+name2@238:41	memoryName	记忆条目名；name 是全局名
+entries2@311:44	entries	去掉打包器加的数字后缀，恢复原名 entries
+entries2@422:9	entries	去掉打包器加的数字后缀，恢复原名 entries
+bytes2@525:22	bytes	去掉打包器加的数字后缀，恢复原名 bytes
+snapshots2@546:9	snapshots	去掉打包器加的数字后缀，恢复原名 snapshots
+snapshot2@641:37	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+queryClient2@803:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+project2@867:20	project	去掉打包器加的数字后缀，恢复原名 project
+project22@868:11	project	去掉打包器加的数字后缀，恢复原名 project
+user2@869:11	user	去掉打包器加的数字后缀，恢复原名 user
+type2@1009:34	type	去掉打包器加的数字后缀，恢复原名 type

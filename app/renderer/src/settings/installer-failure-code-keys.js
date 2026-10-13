@@ -13,8 +13,8 @@ export function isUpdateCheckAlreadyInProgress(message2) {
   return message2 === UPDATE_CHECK_ALREADY_IN_PROGRESS;
 }
 
-function isUpdateCheckTimedOut(message2) {
-  return message2 === UPDATE_CHECK_TIMED_OUT;
+function isUpdateCheckTimedOut(message) {
+  return message === UPDATE_CHECK_TIMED_OUT;
 }
 
 export function formatUpdaterErrorMessage(message2, t, fallback) {
@@ -107,29 +107,29 @@ export function isManualRecoveryCheckRetryable(manualRecoveryCode) {
 }
 
 export function formatManualRecoveryMessage(manualRecoveryCode, t) {
-  const key2 = manualRecoveryCode
+  const key = manualRecoveryCode
     ? INSTALLER_FAILURE_CODE_KEYS[manualRecoveryCode]
     : void 0;
-  if (key2) return t(key2);
+  if (key) return t(key);
   return t("update.manualRecovery.body");
 }
 
-function formatVersion(version2) {
-  const versionNumber = version2.replace(/^v/, "");
+function formatVersion(version) {
+  const versionNumber = version.replace(/^v/, "");
   return `v${versionNumber}`;
 }
 
 export function computeVersionDelta(currentVersion, targetVersion) {
-  const current2 = parseSemver(currentVersion);
+  const current = parseSemver(currentVersion);
   const target = parseSemver(targetVersion);
   const currentFormatted = formatVersion(currentVersion);
   const targetFormatted = formatVersion(targetVersion);
-  const isMinorBump = !!(current2 && target && current2.minor !== target.minor);
+  const isMinorBump = !!(current && target && current.minor !== target.minor);
   const versionsBehind = (() => {
-    if (!current2 || !target) return null;
-    if (current2.major !== target.major || current2.minor !== target.minor)
+    if (!current || !target) return null;
+    if (current.major !== target.major || current.minor !== target.minor)
       return null;
-    const delta = target.patch - current2.patch;
+    const delta = target.patch - current.patch;
     return delta > 0 ? delta : null;
   })();
   return {

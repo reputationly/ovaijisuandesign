@@ -1,2 +1,7 @@
 key	new	reason
 t2@28:14	t	useTranslation() 返回的翻译函数 t
+platform2@29:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+state2@43:12	state	去掉打包器加的数字后缀，恢复原名 state
+Icon2@138:9	Icon	去掉打包器加的数字后缀，恢复原名 Icon
+url2@81:11	url	去掉打包器加的数字后缀，恢复原名 url
+info2@213:22	info	去掉打包器加的数字后缀，恢复原名 info

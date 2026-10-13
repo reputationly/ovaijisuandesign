@@ -2,3 +2,10 @@ key	new	reason
 t2@27:14	t	useTranslation() 返回的翻译函数 t
 t2@40:14	t	useTranslation() 返回的翻译函数 t
 t2@148:14	t	useTranslation() 返回的翻译函数 t
+platform2@15:38	platform	去掉打包器加的数字后缀，恢复原名 platform
+state2@15:56	state	去掉打包器加的数字后缀，恢复原名 state
+platform2@26:38	platform	去掉打包器加的数字后缀，恢复原名 platform
+platform2@35:13	platform	去掉打包器加的数字后缀，恢复原名 platform
+key2@47:24	key	去掉打包器加的数字后缀，恢复原名 key
+index2@47:30	index	去掉打包器加的数字后缀，恢复原名 index
+state2@48:17	state	去掉打包器加的数字后缀，恢复原名 state

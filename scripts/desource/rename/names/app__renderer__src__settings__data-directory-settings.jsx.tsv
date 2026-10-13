@@ -1,3 +1,5 @@
 key	new	reason
 t2@37:14	t	useTranslation() 返回的翻译函数 t
 t2@192:14	t	useTranslation() 返回的翻译函数 t
+bytes2@24:22	bytes	去掉打包器加的数字后缀，恢复原名 bytes
+pending2@31:12	pending	去掉打包器加的数字后缀，恢复原名 pending

@@ -22,7 +22,7 @@ function makeAsyncImageTask(
   taskId,
   status,
   extra,
-  base2 = {
+  base = {
     code: 0,
     message: "",
   },
@@ -30,7 +30,7 @@ function makeAsyncImageTask(
   return {
     task_id: taskId,
     status,
-    base: base2,
+    base,
     type: "image",
     provider: "midjourney",
     model: "midjourney",
@@ -73,23 +73,23 @@ export function connectorTitle(t, language2, connectorId, displayName2) {
 }
 export function useConnectorCopy(connectorId, displayName2, namespace2) {
   const { t, i18n } = useTranslation();
-  const language2 = i18n?.language ?? "en";
-  const name2 = localizedI18nText(displayName2, language2);
-  const copy2 = reactExports.useCallback(
-    (key2, options) =>
-      t(`connectors.${connectorId}.${key2}`, {
-        name: name2,
+  const language = i18n?.language ?? "en";
+  const localizedName = localizedI18nText(displayName2, language);
+  const copy = reactExports.useCallback(
+    (key, options) =>
+      t(`connectors.${connectorId}.${key}`, {
+        name: localizedName,
         ...options,
-        defaultValue: t(`connectors.${namespace2}.${key2}`, {
-          name: name2,
+        defaultValue: t(`connectors.${namespace2}.${key}`, {
+          name: localizedName,
           ...options,
         }),
       }),
-    [t, connectorId, namespace2, name2],
+    [t, connectorId, namespace2, localizedName],
   );
   return {
-    name: name2,
-    copy: copy2,
+    name: localizedName,
+    copy,
   };
 }
 export function ConnectorDialogShell({

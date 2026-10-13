@@ -4,8 +4,8 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
-function qrStatusLabel(t, platform2, status, errorReason) {
-  const keyPrefix = `settings.imBridge.${platform2}.qr.status`;
+function qrStatusLabel(t, platform, status, errorReason) {
+  const keyPrefix = `settings.imBridge.${platform}.qr.status`;
   if (status === "pending_approval") {
     return t(`${keyPrefix}.pendingApproval`);
   }

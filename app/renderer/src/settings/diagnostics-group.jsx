@@ -22,9 +22,9 @@ export function progressPercent(progress) {
 }
 export function formatProgressDisplay(progress) {
   if (!progress) return "";
-  const percent2 = progressPercent(progress);
+  const percent = progressPercent(progress);
   const speed = formatSpeed(progress.bytesPerSecond);
-  return `${percent2}% · ${speed}`;
+  return `${percent}% · ${speed}`;
 }
 const WINDOWS_UPDATER_INSTALL_OPTIONS = {
   isSilent: false,
@@ -65,8 +65,8 @@ export async function openManualInstallerDownload(
   }
 }
 function normalizeForCompare(filePath, caseInsensitive) {
-  const unified2 = filePath.replace(/\\/g, "/").replace(/\/+$/, "");
-  return caseInsensitive ? unified2.toLowerCase() : unified2;
+  const unified = filePath.replace(/\\/g, "/").replace(/\/+$/, "");
+  return caseInsensitive ? unified.toLowerCase() : unified;
 }
 export function isPathInWhitelist(target, whitelist, caseInsensitive) {
   if (!target) return false;

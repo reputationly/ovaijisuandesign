@@ -30,30 +30,30 @@ import {
   instantiationService,
   IProjectMainService,
 } from "../workspace/home-service.jsx";
-async function createCloudProject(name2) {
-  const data2 = await requestJson("/api/v1/projects", {
+async function createCloudProject(projectName) {
+  const data = await requestJson("/api/v1/projects", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: name2,
+      name: projectName,
     }),
   });
-  const project2 = mapCloudProject(data2.project);
-  if (!project2) {
+  const project = mapCloudProject(data.project);
+  if (!project) {
     throw new CloudProjectRequestError(200, void 0);
   }
-  return project2;
+  return project;
 }
-async function renameCloudProject(projectId, name2) {
+async function renameCloudProject(projectId, projectName) {
   await requestJson(`/api/v1/projects/${encodeURIComponent(projectId)}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: name2,
+      name: projectName,
     }),
   });
 }
@@ -62,21 +62,21 @@ async function deleteCloudProject(projectId) {
     method: "DELETE",
   });
 }
-async function acceptProjectInvite(token2) {
-  const data2 = await requestJson("/api/v1/project-invites/accept", {
+async function acceptProjectInvite(token) {
+  const data = await requestJson("/api/v1/project-invites/accept", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      token: token2,
+      token,
     }),
   });
-  const project2 = mapCloudProject(data2.project);
-  if (!project2) {
+  const project = mapCloudProject(data.project);
+  if (!project) {
     throw new CloudProjectRequestError(200, void 0);
   }
-  return project2;
+  return project;
 }
 function hideProjectId(hiddenProjectIds, projectId) {
   return normalizeHiddenProjectIds([...hiddenProjectIds, projectId]);
@@ -86,24 +86,24 @@ function restoreProjectId(hiddenProjectIds, projectId) {
     (id) => id !== projectId,
   );
 }
-function dedupeProjectName(projects, name2) {
-  const base2 = normalizeProjectName(name2);
-  if (!base2) return base2;
+function dedupeProjectName(projects, projectName) {
+  const base = normalizeProjectName(projectName);
+  if (!base) return base;
   const taken = new Set(
-    projects.map((project2) => project2.name.toLowerCase()),
+    projects.map((project) => project.name.toLowerCase()),
   );
-  if (!taken.has(base2.toLowerCase())) return base2;
+  if (!taken.has(base.toLowerCase())) return base;
   let suffix = 2;
-  while (taken.has(`${base2}-${suffix}`.toLowerCase())) suffix++;
-  return `${base2}-${suffix}`;
+  while (taken.has(`${base}-${suffix}`.toLowerCase())) suffix++;
+  return `${base}-${suffix}`;
 }
-function hasProjectNameConflict(projects, projectId, name2) {
-  const normalized = normalizeProjectName(name2);
+function hasProjectNameConflict(projects, projectId, projectName) {
+  const normalized = normalizeProjectName(projectName);
   if (!normalized) return false;
   const candidate = normalized.toLowerCase();
   return normalizeProjectEntries(projects).some(
-    (project2) =>
-      project2.id !== projectId && project2.name.toLowerCase() === candidate,
+    (project) =>
+      project.id !== projectId && project.name.toLowerCase() === candidate,
   );
 }
 function cloudStatus(err) {
@@ -118,8 +118,8 @@ export function useProjectActions(options = {}) {
     setHiddenProjectIdsAsync,
   } = useProjectStore(options);
   const [, , setGlobalConfigAsync] = useStorage("global.config", options);
-  const queryClient2 = useQueryClient();
-  const service2 = reactExports.useMemo(
+  const queryClient = useQueryClient();
+  const service = reactExports.useMemo(
     () =>
       instantiationService.invokeFunction((accessor) =>
         accessor.get(IProjectMainService),
@@ -128,13 +128,13 @@ export function useProjectActions(options = {}) {
   );
   const refreshProjects = reactExports.useCallback(
     async () =>
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: storageKeys.global("projects"),
       }),
-    [queryClient2],
+    [queryClient],
   );
   const createProject = reactExports.useCallback(
-    async (name2, kind) => {
+    async (projectName, kind) => {
       const operationId = createProjectOperationId("create-project");
       const startedAt = logProjectOperationAttempt(
         "create-project",
@@ -143,7 +143,7 @@ export function useProjectActions(options = {}) {
           kind,
         },
       );
-      const uniqueName = dedupeProjectName(projects, name2);
+      const uniqueName = dedupeProjectName(projects, projectName);
       let safety;
       try {
         safety = await checkTextSafety(uniqueName);
@@ -201,7 +201,7 @@ export function useProjectActions(options = {}) {
       }
       let stage = "local-persist";
       try {
-        const entry = await service2.createProject({
+        const entry = await service.createProject({
           name: uniqueName,
           kind,
           remoteId,
@@ -235,20 +235,20 @@ export function useProjectActions(options = {}) {
         throw error;
       }
     },
-    [parentFolderPath, projects, refreshProjects, service2],
+    [parentFolderPath, projects, refreshProjects, service],
   );
   const renameProject = reactExports.useCallback(
-    async (project2, name2) => {
+    async (project, projectName) => {
       const operationId = createProjectOperationId("rename-project");
       const startedAt = logProjectOperationAttempt(
         "rename-project",
         operationId,
         {
-          projectId: project2.id,
-          kind: project2.kind,
+          projectId: project.id,
+          kind: project.kind,
         },
       );
-      const normalizedName = normalizeProjectName(name2);
+      const normalizedName = normalizeProjectName(projectName);
       if (!normalizedName) {
         logProjectOperationBlocked(
           "rename-project",
@@ -257,7 +257,7 @@ export function useProjectActions(options = {}) {
           "validation",
           "empty-name",
           {
-            projectId: project2.id,
+            projectId: project.id,
           },
         );
         return {};
@@ -273,7 +273,7 @@ export function useProjectActions(options = {}) {
           "text-safety",
           error,
           {
-            projectId: project2.id,
+            projectId: project.id,
           },
         );
         throw error;
@@ -286,8 +286,8 @@ export function useProjectActions(options = {}) {
           "text-safety",
           "safety-blocked",
           {
-            projectId: project2.id,
-            kind: project2.kind,
+            projectId: project.id,
+            kind: project.kind,
             decision: safety.decision,
           },
         );
@@ -296,7 +296,7 @@ export function useProjectActions(options = {}) {
           errorMessageKey: "rename.safetyBlocked",
         };
       }
-      if (hasProjectNameConflict(projects, project2.id, normalizedName)) {
+      if (hasProjectNameConflict(projects, project.id, normalizedName)) {
         logProjectOperationBlocked(
           "rename-project",
           operationId,
@@ -304,16 +304,16 @@ export function useProjectActions(options = {}) {
           "validation",
           "project-name-conflict",
           {
-            projectId: project2.id,
+            projectId: project.id,
           },
         );
         return {
           errorCode: "project-name-conflict",
         };
       }
-      if (project2.kind === "team" && project2.remoteId) {
+      if (project.kind === "team" && project.remoteId) {
         try {
-          await renameCloudProject(project2.remoteId, normalizedName);
+          await renameCloudProject(project.remoteId, normalizedName);
         } catch (err) {
           logProjectOperationFailure(
             "rename-project",
@@ -322,8 +322,8 @@ export function useProjectActions(options = {}) {
             "cloud-rename",
             err,
             {
-              projectId: project2.id,
-              remoteId: project2.remoteId,
+              projectId: project.id,
+              remoteId: project.remoteId,
               status: cloudStatus(err),
             },
           );
@@ -335,12 +335,12 @@ export function useProjectActions(options = {}) {
       }
       let stage = "local-persist";
       try {
-        await service2.renameProject(project2.id, normalizedName);
+        await service.renameProject(project.id, normalizedName);
         stage = "renderer-refresh";
         await refreshProjects();
         logProjectOperationSuccess("rename-project", operationId, startedAt, {
-          projectId: project2.id,
-          kind: project2.kind,
+          projectId: project.id,
+          kind: project.kind,
         });
         return {};
       } catch (error) {
@@ -351,29 +351,29 @@ export function useProjectActions(options = {}) {
           stage,
           error,
           {
-            projectId: project2.id,
+            projectId: project.id,
           },
         );
         throw error;
       }
     },
-    [projects, refreshProjects, service2],
+    [projects, refreshProjects, service],
   );
   const deleteProject = reactExports.useCallback(
-    async (project2) => {
+    async (project) => {
       const operationId = createProjectOperationId("dissolve-project");
       const startedAt = logProjectOperationAttempt(
         "dissolve-project",
         operationId,
         {
-          projectId: project2.id,
-          kind: project2.kind,
+          projectId: project.id,
+          kind: project.kind,
         },
       );
       let hasActiveTransfers;
       try {
-        hasActiveTransfers = await service2.hasActiveProjectTransfers(
-          project2.id,
+        hasActiveTransfers = await service.hasActiveProjectTransfers(
+          project.id,
         );
       } catch (error) {
         logProjectOperationFailure(
@@ -383,7 +383,7 @@ export function useProjectActions(options = {}) {
           "active-transfer-check",
           error,
           {
-            projectId: project2.id,
+            projectId: project.id,
           },
         );
         throw error;
@@ -396,22 +396,22 @@ export function useProjectActions(options = {}) {
           "active-transfer-check",
           "project-transfer-active",
           {
-            projectId: project2.id,
+            projectId: project.id,
           },
         );
         return {
           errorCode: "project-transfer-active",
         };
       }
-      if (project2.kind === "team" && project2.remoteId) {
+      if (project.kind === "team" && project.remoteId) {
         try {
-          await deleteCloudProject(project2.remoteId);
+          await deleteCloudProject(project.remoteId);
         } catch (err) {
           if (err instanceof CloudProjectRequestError && err.status === 404) {
             projectLog.info("dissolve-project cloud already absent", {
               operationId,
-              projectId: project2.id,
-              remoteId: project2.remoteId,
+              projectId: project.id,
+              remoteId: project.remoteId,
             });
           } else {
             logProjectOperationFailure(
@@ -421,8 +421,8 @@ export function useProjectActions(options = {}) {
               "cloud-delete",
               err,
               {
-                projectId: project2.id,
-                remoteId: project2.remoteId,
+                projectId: project.id,
+                remoteId: project.remoteId,
                 status: cloudStatus(err),
               },
             );
@@ -433,8 +433,8 @@ export function useProjectActions(options = {}) {
           }
         }
       }
-      const hidden = await setHiddenProjectIdsAsync((current2) =>
-        hideProjectId(current2, project2.id),
+      const hidden = await setHiddenProjectIdsAsync((current) =>
+        hideProjectId(current, project.id),
       );
       if (!hidden) {
         logProjectOperationFailure(
@@ -446,7 +446,7 @@ export function useProjectActions(options = {}) {
             code: "project-hide-failed",
           },
           {
-            projectId: project2.id,
+            projectId: project.id,
           },
         );
         return {
@@ -454,28 +454,28 @@ export function useProjectActions(options = {}) {
         };
       }
       logProjectOperationSuccess("dissolve-project", operationId, startedAt, {
-        projectId: project2.id,
-        kind: project2.kind,
-        remoteId: project2.remoteId,
-        workspaceCount: project2.workspacePaths.length,
+        projectId: project.id,
+        kind: project.kind,
+        remoteId: project.remoteId,
+        workspaceCount: project.workspacePaths.length,
       });
-      void setGlobalConfigAsync((previous2) => {
-        const pinned = previous2.pinnedProjectIds ?? [];
-        if (!pinned.includes(project2.id)) return previous2;
+      void setGlobalConfigAsync((previous) => {
+        const pinned = previous.pinnedProjectIds ?? [];
+        if (!pinned.includes(project.id)) return previous;
         return {
-          ...previous2,
-          pinnedProjectIds: pinned.filter((id) => id !== project2.id),
+          ...previous,
+          pinnedProjectIds: pinned.filter((id) => id !== project.id),
         };
       });
       return {};
     },
-    [service2, setGlobalConfigAsync, setHiddenProjectIdsAsync],
+    [service, setGlobalConfigAsync, setHiddenProjectIdsAsync],
   );
   const restoreProjectVisibility = reactExports.useCallback(
     async (projectId) => {
       if (!hiddenProjectIds.includes(projectId)) return true;
-      return setHiddenProjectIdsAsync((current2) =>
-        restoreProjectId(current2, projectId),
+      return setHiddenProjectIdsAsync((current) =>
+        restoreProjectId(current, projectId),
       );
     },
     [hiddenProjectIds, setHiddenProjectIdsAsync],
@@ -494,7 +494,7 @@ export function useProjectActions(options = {}) {
       );
       let stage = "local-persist";
       try {
-        await service2.assignWorkspace(
+        await service.assignWorkspace(
           workspacePath,
           projectId,
           caseInsensitive,
@@ -525,7 +525,7 @@ export function useProjectActions(options = {}) {
         throw error;
       }
     },
-    [caseInsensitive, refreshProjects, service2],
+    [caseInsensitive, refreshProjects, service],
   );
   const removeWorkspaceFromProject = reactExports.useCallback(
     async (workspacePath, source) => {
@@ -542,7 +542,7 @@ export function useProjectActions(options = {}) {
       );
       let stage = "local-persist";
       try {
-        await service2.detachWorkspace(workspacePath, caseInsensitive);
+        await service.detachWorkspace(workspacePath, caseInsensitive);
         stage = "renderer-refresh";
         await refreshProjects();
         logProjectOperationSuccess(
@@ -567,25 +567,25 @@ export function useProjectActions(options = {}) {
         throw error;
       }
     },
-    [caseInsensitive, refreshProjects, service2],
+    [caseInsensitive, refreshProjects, service],
   );
   const reorderProject = reactExports.useCallback(
-    async (sourceId, targetId, position2) => {
-      await service2.reorderProject(sourceId, targetId, position2);
+    async (sourceId, targetId, position) => {
+      await service.reorderProject(sourceId, targetId, position);
       await refreshProjects().catch(() => {
         projectLog.warn(
           "Project reorder committed; storage cache refresh incomplete",
         );
       });
     },
-    [service2, refreshProjects],
+    [service, refreshProjects],
   );
   const moveWorkspace = reactExports.useCallback(
     async (input) => {
-      await service2.moveWorkspace(input);
+      await service.moveWorkspace(input);
       const refreshes = await Promise.allSettled(
         ["projects", "recentWorkspaces", "config"].map((field) =>
-          queryClient2.invalidateQueries({
+          queryClient.invalidateQueries({
             queryKey: storageKeys.global(field),
           }),
         ),
@@ -596,7 +596,7 @@ export function useProjectActions(options = {}) {
         );
       }
     },
-    [service2, queryClient2],
+    [service, queryClient],
   );
   const syncCloudProjects = reactExports.useCallback(async () => {
     const operationId = createProjectOperationId("sync-cloud-projects");
@@ -622,7 +622,7 @@ export function useProjectActions(options = {}) {
     }
     let stage = "local-merge";
     try {
-      await service2.mergeCloudProjects(cloudProjects);
+      await service.mergeCloudProjects(cloudProjects);
       stage = "renderer-refresh";
       await refreshProjects();
       logProjectOperationSuccess(
@@ -647,9 +647,9 @@ export function useProjectActions(options = {}) {
       );
       throw error;
     }
-  }, [refreshProjects, service2]);
+  }, [refreshProjects, service]);
   const acceptProjectInviteToken = reactExports.useCallback(
-    async (token2) => {
+    async (token) => {
       const operationId = createProjectOperationId("accept-project-invite");
       const startedAt = logProjectOperationAttempt(
         "accept-project-invite",
@@ -657,7 +657,7 @@ export function useProjectActions(options = {}) {
       );
       let cloud;
       try {
-        cloud = await acceptProjectInvite(token2);
+        cloud = await acceptProjectInvite(token);
       } catch (err) {
         logProjectOperationFailure(
           "accept-project-invite",
@@ -675,7 +675,7 @@ export function useProjectActions(options = {}) {
       }
       let stage = "local-upsert";
       try {
-        const projectId = await service2.upsertCloudProject(cloud);
+        const projectId = await service.upsertCloudProject(cloud);
         stage = "renderer-refresh";
         await refreshProjects();
         logProjectOperationSuccess(
@@ -704,26 +704,26 @@ export function useProjectActions(options = {}) {
         throw error;
       }
     },
-    [refreshProjects, service2],
+    [refreshProjects, service],
   );
   const ensureProjectFolderName = reactExports.useCallback(
     async (projectId) => {
-      const resolved = await service2.getProjectFolderName(projectId);
+      const resolved = await service.getProjectFolderName(projectId);
       return resolved;
     },
-    [service2],
+    [service],
   );
   const provisionSampleProject = reactExports.useCallback(
     async (input) => {
-      const project2 = await service2.provisionSampleProject({
+      const project = await service.provisionSampleProject({
         ...input,
         kind: "local",
         caseInsensitive,
       });
       await refreshProjects();
-      return project2;
+      return project;
     },
-    [caseInsensitive, refreshProjects, service2],
+    [caseInsensitive, refreshProjects, service],
   );
   return {
     createProject,

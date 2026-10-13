@@ -1,2 +1,12 @@
 key	new	reason
 a2@131:16	assetInfo	接口返回的单个资产信息，转成画布项
+meta2@8:9	meta	去掉打包器加的数字后缀，恢复原名 meta
+path2@21:14	path	去掉打包器加的数字后缀，恢复原名 path
+path2@22:14	path	去掉打包器加的数字后缀，恢复原名 path
+path2@40:9	path	去掉打包器加的数字后缀，恢复原名 path
+next2@35:21	next	去掉打包器加的数字后缀，恢复原名 next
+close2@94:11	handleClose	关闭回调；close 是全局名
+message2@148:15	message	去掉打包器加的数字后缀，恢复原名 message
+timer2@178:9	timer	去掉打包器加的数字后缀，恢复原名 timer
+next2@188:15	next	去掉打包器加的数字后缀，恢复原名 next
+path2@215:18	path	去掉打包器加的数字后缀，恢复原名 path

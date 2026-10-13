@@ -1,2 +1,9 @@
 key	new	reason
 t2@75:14	t	useTranslation() 返回的翻译函数 t
+key2@25:9	key	去掉打包器加的数字后缀，恢复原名 key
+key2@34:46	key	去掉打包器加的数字后缀，恢复原名 key
+url2@43:9	url	去掉打包器加的数字后缀，恢复原名 url
+name2@48:7	fieldName	模板字段名；name 是全局名
+copy2@78:17	copy	去掉打包器加的数字后缀，恢复原名 copy
+platform2@83:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+url2@106:33	url	去掉打包器加的数字后缀，恢复原名 url

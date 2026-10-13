@@ -13,3 +13,18 @@ e2@352:51	entry	记忆条目
 e2@370:51	entry	记忆条目
 e2@524:52	entry	记忆条目
 u4@122:33	upsert	重写计划中要新增/更新的条目
+body2@28:9	body	去掉打包器加的数字后缀，恢复原名 body
+body2@43:9	body	去掉打包器加的数字后缀，恢复原名 body
+queryClient2@66:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+merge2@78:9	merge	去掉打包器加的数字后缀，恢复原名 merge
+entries2@166:12	entries	去掉打包器加的数字后缀，恢复原名 entries
+name2@239:17	entryName	条目名；name 是全局名
+selectAll2@369:12	selectAll	去掉打包器加的数字后缀，恢复原名 selectAll
+body2@500:9	body	去掉打包器加的数字后缀，恢复原名 body
+footer2@542:9	footer	去掉打包器加的数字后缀，恢复原名 footer
+entries2@337:11	entries	去掉打包器加的数字后缀，恢复原名 entries
+entries2@341:11	entries	去掉打包器加的数字后缀，恢复原名 entries
+name2@361:25	entryName	条目名；name 是全局名
+next2@363:13	next	去掉打包器加的数字后缀，恢复原名 next
+description2@401:13	description	去掉打包器加的数字后缀，恢复原名 description
+message2@438:13	message	去掉打包器加的数字后缀，恢复原名 message

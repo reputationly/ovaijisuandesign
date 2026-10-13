@@ -11,3 +11,6 @@ a2@132:27	attachment	按 ID 过滤掉的附件
 a2@155:33	attachment	取其 file 提交的附件
 m3@222:45	featureModule	FEATURE_REQUEST_MODULES 中的单个模块
 a2@271:31	attachment	渲染预览的附件
+next2@81:6	next	去掉打包器加的数字后缀，恢复原名 next
+message2@166:13	message	去掉打包器加的数字后缀，恢复原名 message
+active2@223:23	active	去掉打包器加的数字后缀，恢复原名 active

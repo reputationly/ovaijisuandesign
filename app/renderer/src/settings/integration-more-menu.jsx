@@ -38,7 +38,7 @@ export function IntegrationMoreMenu({
     clearCloseTimer();
     setOpen(true);
   };
-  const handleMouseLeave2 = () => {
+  const handleMouseLeave = () => {
     clearCloseTimer();
     closeTimerRef.current = window.setTimeout(() => {
       setOpen(false);
@@ -64,7 +64,7 @@ export function IntegrationMoreMenu({
               triggerClassName,
             )}
             onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave2}
+            onMouseLeave={handleMouseLeave}
             data-action-ui-id={actionUiIds.trigger}
           />
         }
@@ -78,7 +78,7 @@ export function IntegrationMoreMenu({
         sideOffset={4}
         className="relative w-max min-w-28 gap-0 p-1"
         onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave2}
+        onMouseLeave={handleMouseLeave}
         data-action-ui-id={actionUiIds.content}
       >
         <span

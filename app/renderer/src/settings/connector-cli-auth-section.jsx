@@ -20,9 +20,9 @@ import { Button } from "../infra/dialog-content.jsx";
 import { homeService } from "../workspace/home-service.jsx";
 import { Label } from "../team/use-wallet-query.jsx";
 import { Input3 } from "../infra/select-content.jsx";
-function formatCapacity(bytes2) {
+function formatCapacity(bytes) {
   const units = ["B", "KB", "MB", "GB", "TB", "PB"];
-  let value = bytes2;
+  let value = bytes;
   let unit = 0;
   while (value >= 1024 && unit < units.length - 1) {
     value /= 1024;
@@ -40,12 +40,12 @@ export function ConnectorCliAuthSection({
 }) {
   const { t } = useTranslation();
   const connectorId = manifest.connectorId;
-  const { copy: copy2 } = useConnectorCopy(
+  const { copy } = useConnectorCopy(
     connectorId,
     manifest.displayName,
     "cli-auth",
   );
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const [installed, setInstalled] = reactExports.useState(false);
   const [installing, setInstalling] = reactExports.useState(false);
   const [authorizing, setAuthorizing] = reactExports.useState(false);
@@ -121,31 +121,31 @@ export function ConnectorCliAuthSection({
       const result = await homeService.connector.install(connectorId);
       if (!mounted.current) return;
       if (!result.ok) {
-        setError(result.message ?? copy2("installFailed"));
+        setError(result.message ?? copy("installFailed"));
         return;
       }
       setInstalled(true);
     });
-  const handleAuthorize = (code2) =>
+  const handleAuthorize = (code) =>
     withBusy(setAuthorizing, async () => {
       const result = await homeService.hcpCli.login(
         connectorId,
-        code2
+        code
           ? {
-              code: code2,
+              code,
             }
           : void 0,
       );
       if (!mounted.current) return;
       if (!result.ok) {
-        if (result.authUrl && !code2) {
+        if (result.authUrl && !code) {
           setAuthUrl(result.authUrl);
-          void openExternalUrl(platform2, result.authUrl, {
+          void openExternalUrl(platform, result.authUrl, {
             source: `connectors.${connectorId}.authUrl`,
           });
           return;
         }
-        setError(result.message ?? copy2("authFailed"));
+        setError(result.message ?? copy("authFailed"));
         if (result.authUrl) setAuthUrl(result.authUrl);
         return;
       }
@@ -174,19 +174,19 @@ export function ConnectorCliAuthSection({
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ConnectorDialogIntro
           iconUrl={iconUrl}
-          title={copy2("title")}
-          description={copy2("description")}
+          title={copy("title")}
+          description={copy("description")}
         >
           {authorized ? (
             <div className="-mx-3 rounded-[10px] bg-secondary/60 px-6 py-5">
               <h3 className="text-sm font-medium text-foreground">
-                {copy2("accountTitle")}
+                {copy("accountTitle")}
               </h3>
               <dl className="mt-3 flex flex-col gap-2 text-[13px] leading-relaxed">
                 {account?.nickname ? (
                   <div className="flex items-center gap-3">
                     <dt className="text-muted-foreground">
-                      {copy2("accountNickname")}
+                      {copy("accountNickname")}
                     </dt>
                     <dd className="text-foreground">{account.nickname}</dd>
                   </div>
@@ -194,17 +194,17 @@ export function ConnectorCliAuthSection({
                 {account?.memberType ? (
                   <div className="flex items-center gap-3">
                     <dt className="text-muted-foreground">
-                      {copy2("accountMember")}
+                      {copy("accountMember")}
                     </dt>
                     <dd className="text-foreground">
-                      {copy2(`memberType.${account.memberType}`)}
+                      {copy(`memberType.${account.memberType}`)}
                     </dd>
                   </div>
                 ) : null}
                 {account?.capacityTotal ? (
                   <div className="flex items-center gap-3">
                     <dt className="text-muted-foreground">
-                      {copy2("accountCapacity")}
+                      {copy("accountCapacity")}
                     </dt>
                     <dd className="text-foreground">
                       {account.capacityUsed !== void 0
@@ -216,17 +216,17 @@ export function ConnectorCliAuthSection({
                 ) : null}
               </dl>
               <p className="mt-4 text-[13px] leading-relaxed text-muted-foreground">
-                {copy2("accountReady")}
+                {copy("accountReady")}
               </p>
             </div>
           ) : (
             <div className="-mx-3 rounded-[10px] bg-secondary/60 px-3 pb-3">
               <ConnectorDialogStep ordinal={1} first={true}>
                 <h3 className="text-sm font-medium text-foreground">
-                  {copy2("installTitle")}
+                  {copy("installTitle")}
                 </h3>
                 <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                  {copy2("installDescription")}
+                  {copy("installDescription")}
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Button
@@ -238,16 +238,16 @@ export function ConnectorCliAuthSection({
                     onClick={() => void handleInstall()}
                     data-action-ui-id={`connectors-${connectorId}-install`}
                   >
-                    {copy2(installed ? "installed" : "install")}
+                    {copy(installed ? "installed" : "install")}
                   </Button>
                 </div>
               </ConnectorDialogStep>
               <ConnectorDialogStep ordinal={2} last={true}>
                 <h3 className="text-sm font-medium text-foreground">
-                  {copy2("authTitle")}
+                  {copy("authTitle")}
                 </h3>
                 <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                  {copy2("authDescription")}
+                  {copy("authDescription")}
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <Button
@@ -259,7 +259,7 @@ export function ConnectorCliAuthSection({
                     onClick={() => void handleAuthorize()}
                     data-action-ui-id={`connectors-${connectorId}-authorize`}
                   >
-                    {copy2(authorizing ? "authorizing" : "authorize")}
+                    {copy(authorizing ? "authorizing" : "authorize")}
                     <Icon icon={ArrowUpRight} size="sm" aria-hidden={true} />
                   </Button>
                   {authUrl ? (
@@ -269,13 +269,13 @@ export function ConnectorCliAuthSection({
                       className="h-8 gap-1 rounded-lg px-3 text-muted-foreground hover:text-foreground"
                       disabled={working}
                       onClick={() =>
-                        void openExternalUrl(platform2, authUrl, {
+                        void openExternalUrl(platform, authUrl, {
                           source: `connectors.${connectorId}.authUrl`,
                         })
                       }
                       data-action-ui-id={`connectors-${connectorId}-auth-url`}
                     >
-                      {copy2("openAuthPage")}
+                      {copy("openAuthPage")}
                       <Icon icon={ArrowUpRight} size="sm" aria-hidden={true} />
                     </Button>
                   ) : null}
@@ -286,7 +286,7 @@ export function ConnectorCliAuthSection({
                       htmlFor={`${connectorId}-auth-code`}
                       className="text-sm font-medium text-foreground"
                     >
-                      {copy2("codeLabel")}
+                      {copy("codeLabel")}
                     </Label>
                     <div className="mt-2 flex items-center gap-2">
                       <Input3
@@ -300,7 +300,7 @@ export function ConnectorCliAuthSection({
                         autoComplete="off"
                         autoCapitalize="none"
                         spellCheck={false}
-                        placeholder={copy2("codePlaceholder")}
+                        placeholder={copy("codePlaceholder")}
                         className="h-9 rounded-lg bg-card"
                         data-action-ui-id={`connectors-${connectorId}-code`}
                       />
@@ -312,16 +312,16 @@ export function ConnectorCliAuthSection({
                         onClick={() => void handleAuthorize(authCode.trim())}
                         data-action-ui-id={`connectors-${connectorId}-code-submit`}
                       >
-                        {copy2("codeSubmit")}
+                        {copy("codeSubmit")}
                       </Button>
                     </div>
                     <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-                      {copy2("codeHint")}
+                      {copy("codeHint")}
                     </p>
                   </div>
                 ) : null}
               </ConnectorDialogStep>
-              <ConnectorConsentNote text={copy2("consent")} className="mt-4" />
+              <ConnectorConsentNote text={copy("consent")} className="mt-4" />
             </div>
           )}
           {error ? <ConnectorDialogError message={error} /> : null}

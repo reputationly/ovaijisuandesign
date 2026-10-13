@@ -55,7 +55,7 @@ export class InstantiationService {
       throw new Error("InstantiationService has been disposed");
     }
   }
-  createChild(services2, store) {
+  createChild(services, store) {
     this._throwIfDisposed();
     const that = this;
     const result = new (class extends InstantiationService {
@@ -63,7 +63,7 @@ export class InstantiationService {
         that._children.delete(result);
         super.dispose();
       }
-    })(services2, this._strict, this, this._enableTracing);
+    })(services, this._strict, this, this._enableTracing);
     this._children.add(result);
     store?.add(result);
     return result;
@@ -120,14 +120,14 @@ export class InstantiationService {
       .sort((a, b) => a.index - b.index);
     const serviceArgs = [];
     for (const dependency of serviceDependencies) {
-      const service2 = this._getOrCreateServiceInstance(dependency.id, _trace);
-      if (!service2) {
+      const service = this._getOrCreateServiceInstance(dependency.id, _trace);
+      if (!service) {
         this._throwIfStrict(
           `[createInstance] ${ctor.name} depends on UNKNOWN service ${dependency.id}.`,
           false,
         );
       }
-      serviceArgs.push(service2);
+      serviceArgs.push(service);
     }
     const firstServiceArgPos =
       serviceDependencies.length > 0
@@ -146,11 +146,11 @@ export class InstantiationService {
     }
     return Reflect.construct(ctor, args.concat(serviceArgs));
   }
-  _setCreatedServiceInstance(id, instance2) {
+  _setCreatedServiceInstance(id, instance) {
     if (this._services.get(id) instanceof SyncDescriptor) {
-      this._services.set(id, instance2);
+      this._services.set(id, instance);
     } else if (this._parent) {
-      this._parent._setCreatedServiceInstance(id, instance2);
+      this._parent._setCreatedServiceInstance(id, instance);
     } else {
       throw new Error("illegalState - setting UNKNOWN service instance");
     }
@@ -183,7 +183,7 @@ export class InstantiationService {
     }
   }
   _activeInstantiations = new Set();
-  _safeCreateAndCacheServiceInstance(id, desc2, _trace) {
+  _safeCreateAndCacheServiceInstance(id, desc, _trace) {
     if (this._activeInstantiations.has(id)) {
       throw new Error(
         `illegal state - RECURSIVELY instantiating service '${id}'`,
@@ -191,18 +191,18 @@ export class InstantiationService {
     }
     this._activeInstantiations.add(id);
     try {
-      return this._createAndCacheServiceInstance(id, desc2, _trace);
+      return this._createAndCacheServiceInstance(id, desc, _trace);
     } finally {
       this._activeInstantiations.delete(id);
     }
   }
-  _createAndCacheServiceInstance(id, desc2, _trace) {
-    const graph = new Graph((data2) => data2.id.toString());
+  _createAndCacheServiceInstance(id, desc, _trace) {
+    const graph = new Graph((data) => data.id.toString());
     let cycleCount = 0;
     const stack = [
       {
         id,
-        desc: desc2,
+        desc,
       },
     ];
     while (stack.length) {
@@ -239,19 +239,19 @@ export class InstantiationService {
         }
         break;
       }
-      for (const { data: data2 } of roots) {
-        const instanceOrDesc = this._getServiceInstanceOrDescriptor(data2.id);
+      for (const { data } of roots) {
+        const instanceOrDesc = this._getServiceInstanceOrDescriptor(data.id);
         if (instanceOrDesc instanceof SyncDescriptor) {
-          const instance2 = this._createServiceInstanceWithOwner(
-            data2.id,
-            data2.desc.ctor,
-            data2.desc.staticArguments,
-            data2.desc.supportsDelayedInstantiation,
+          const instance = this._createServiceInstanceWithOwner(
+            data.id,
+            data.desc.ctor,
+            data.desc.staticArguments,
+            data.desc.supportsDelayedInstantiation,
             _trace,
           );
-          this._setCreatedServiceInstance(data2.id, instance2);
+          this._setCreatedServiceInstance(data.id, instance);
         }
-        graph.removeNode(data2);
+        graph.removeNode(data);
       }
     }
     return this._getServiceInstanceOrDescriptor(id);

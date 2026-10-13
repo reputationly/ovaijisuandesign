@@ -77,7 +77,7 @@ const COMMAND_ISSUE_KEYS = {
   shell_syntax: "connectors.customDialog.shellSyntaxError",
   ambiguous_executable: "connectors.customDialog.commandPathError",
 };
-function editorValidationError(error, name2) {
+function editorValidationError(error, entryName) {
   if (error instanceof CustomMcpCommandSyntaxError) {
     return {
       field: "arguments",
@@ -91,7 +91,7 @@ function editorValidationError(error, name2) {
         messageKey: COMMAND_ISSUE_KEYS[error.commandIssue],
       };
     }
-    if (error.field === "name" && isReservedCustomMcpName(name2)) {
+    if (error.field === "name" && isReservedCustomMcpName(entryName)) {
       return {
         field: "name",
         messageKey: "connectors.customDialog.error.reserved_name",
@@ -142,17 +142,17 @@ function parseEditorKeyValues(value) {
 function normalizeEditorName(value) {
   return value.trim().replace(/\s+/gu, "-");
 }
-function validateEditorForm(state2, existingName) {
-  const keyValues = parseEditorKeyValues(state2.keyValuesText);
+function validateEditorForm(state, existingName) {
+  const keyValues = parseEditorKeyValues(state.keyValuesText);
   if (keyValues === void 0)
     return {
       error: VALIDATION_FIELDS.env,
     };
-  const timeoutMs = state2.timeoutText ? Number(state2.timeoutText) : void 0;
-  const common2 = {
-    ...(state2.description.trim()
+  const timeoutMs = state.timeoutText ? Number(state.timeoutText) : void 0;
+  const common = {
+    ...(state.description.trim()
       ? {
-          description: state2.description.trim(),
+          description: state.description.trim(),
         }
       : {}),
     ...(timeoutMs !== void 0
@@ -164,22 +164,22 @@ function validateEditorForm(state2, existingName) {
   let args;
   try {
     args =
-      state2.transport === "stdio" && state2.argumentsText.trim()
-        ? parseCustomMcpArguments(state2.argumentsText)
+      state.transport === "stdio" && state.argumentsText.trim()
+        ? parseCustomMcpArguments(state.argumentsText)
         : void 0;
   } catch (error) {
     return {
-      error: editorValidationError(error, state2.name),
+      error: editorValidationError(error, state.name),
     };
   }
   const candidate = {
-    name: normalizeEditorName(state2.name),
-    enabled: state2.enabled,
+    name: normalizeEditorName(state.name),
+    enabled: state.enabled,
     config:
-      state2.transport === "stdio"
+      state.transport === "stdio"
         ? {
             transport: "stdio",
-            command: state2.command,
+            command: state.command,
             ...(args
               ? {
                   args,
@@ -190,17 +190,17 @@ function validateEditorForm(state2, existingName) {
                   env: keyValues,
                 }
               : {}),
-            ...common2,
+            ...common,
           }
         : {
-            transport: state2.transport,
-            url: state2.url,
+            transport: state.transport,
+            url: state.url,
             ...(Object.keys(keyValues).length
               ? {
                   headers: keyValues,
                 }
               : {}),
-            ...common2,
+            ...common,
           },
   };
   try {
@@ -215,8 +215,8 @@ function validateEditorForm(state2, existingName) {
     };
   }
 }
-function editorFormToInput(state2) {
-  return validateEditorForm(state2).input;
+function editorFormToInput(state) {
+  return validateEditorForm(state).input;
 }
 function serializeDraftArguments(value) {
   try {
@@ -237,18 +237,18 @@ function serializeEditorInput(input) {
     2,
   );
 }
-function serializeEditorForm(state2) {
-  const input = editorFormToInput(state2);
+function serializeEditorForm(state) {
+  const input = editorFormToInput(state);
   if (input) return serializeEditorInput(input);
-  const keyValues = parseEditorKeyValues(state2.keyValuesText) ?? {};
-  const config2 =
-    state2.transport === "stdio"
+  const keyValues = parseEditorKeyValues(state.keyValuesText) ?? {};
+  const config =
+    state.transport === "stdio"
       ? {
-          transport: state2.transport,
-          command: state2.command.trim(),
-          ...(state2.argumentsText.trim()
+          transport: state.transport,
+          command: state.command.trim(),
+          ...(state.argumentsText.trim()
             ? {
-                args: serializeDraftArguments(state2.argumentsText),
+                args: serializeDraftArguments(state.argumentsText),
               }
             : {}),
           ...(Object.keys(keyValues).length
@@ -258,8 +258,8 @@ function serializeEditorForm(state2) {
             : {}),
         }
       : {
-          transport: state2.transport,
-          url: state2.url.trim(),
+          transport: state.transport,
+          url: state.url.trim(),
           ...(Object.keys(keyValues).length
             ? {
                 headers: keyValues,
@@ -268,19 +268,19 @@ function serializeEditorForm(state2) {
         };
   return JSON.stringify(
     {
-      [state2.name.trim() || "my-server"]: {
-        ...config2,
-        ...(state2.description.trim()
+      [state.name.trim() || "my-server"]: {
+        ...config,
+        ...(state.description.trim()
           ? {
-              description: state2.description.trim(),
+              description: state.description.trim(),
             }
           : {}),
-        ...(state2.timeoutText
+        ...(state.timeoutText
           ? {
-              timeoutMs: Number(state2.timeoutText),
+              timeoutMs: Number(state.timeoutText),
             }
           : {}),
-        enabled: state2.enabled,
+        enabled: state.enabled,
       },
     },
     null,
@@ -296,16 +296,16 @@ function formatEditorArguments(args) {
     )
     .join(" ");
 }
-function normalizeEditorLaunchFields(state2) {
-  if (state2.transport !== "stdio") return void 0;
+function normalizeEditorLaunchFields(state) {
+  if (state.transport !== "stdio") return void 0;
   try {
     const launch = normalizeCustomMcpLaunch(
-      state2.command,
-      state2.argumentsText.trim()
-        ? parseCustomMcpArguments(state2.argumentsText)
+      state.command,
+      state.argumentsText.trim()
+        ? parseCustomMcpArguments(state.argumentsText)
         : void 0,
     );
-    if (launch.command === state2.command.trim()) return void 0;
+    if (launch.command === state.command.trim()) return void 0;
     return {
       command: launch.command,
       argumentsText: formatEditorArguments(launch.args ?? []),
@@ -320,22 +320,22 @@ function formatKeyValues(value) {
     : "";
 }
 function editorInputToForm(input) {
-  const { config: config2 } = input;
+  const { config } = input;
   return {
     name: input.name,
-    transport: config2.transport,
-    command: config2.transport === "stdio" ? config2.command : "",
+    transport: config.transport,
+    command: config.transport === "stdio" ? config.command : "",
     argumentsText:
-      config2.transport === "stdio"
-        ? formatEditorArguments(config2.args ?? [])
+      config.transport === "stdio"
+        ? formatEditorArguments(config.args ?? [])
         : "",
-    url: config2.transport === "stdio" ? "" : config2.url,
-    description: config2.description ?? "",
+    url: config.transport === "stdio" ? "" : config.url,
+    description: config.description ?? "",
     enabled: input.enabled,
     keyValuesText: formatKeyValues(
-      config2.transport === "stdio" ? config2.env : config2.headers,
+      config.transport === "stdio" ? config.env : config.headers,
     ),
-    timeoutText: config2.timeoutMs ? String(config2.timeoutMs) : "",
+    timeoutText: config.timeoutMs ? String(config.timeoutMs) : "",
   };
 }
 function isRecord(value) {
@@ -357,24 +357,24 @@ function validateEditorJson(value, existingName) {
         ? parsed.mcpServers
         : parsed;
     if (!isRecord(source)) return invalidJson;
-    const entries2 = Object.entries(source);
-    if (entries2.length !== 1) return invalidJson;
-    const entry = entries2[0];
+    const entries = Object.entries(source);
+    if (entries.length !== 1) return invalidJson;
+    const entry = entries[0];
     if (!entry) return invalidJson;
-    const [name2, config2] = entry;
-    serverName = name2;
-    if (!isRecord(config2)) return invalidJson;
+    const [entryName, config] = entry;
+    serverName = entryName;
+    if (!isRecord(config)) return invalidJson;
     return {
       input: normalizeCustomMcpServerInput(
         {
-          name: name2,
-          enabled: config2.enabled ?? true,
+          name: entryName,
+          enabled: config.enabled ?? true,
           config: Object.fromEntries(
-            Object.entries(config2).filter(([key2]) => key2 !== "enabled"),
+            Object.entries(config).filter(([key]) => key !== "enabled"),
           ),
         },
         {
-          source: name2 === existingName ? "update" : "create",
+          source: entryName === existingName ? "update" : "create",
         },
       ),
     };
@@ -414,7 +414,7 @@ export function CustomConnectorDialog({
   initialInput,
 }) {
   const { t } = useTranslation();
-  const [mode2, setMode] = reactExports.useState("form");
+  const [mode, setMode] = reactExports.useState("form");
   const [formState, setFormState] = reactExports.useState(INITIAL_FORM_STATE);
   const [jsonText, setJsonText] = reactExports.useState(INITIAL_JSON);
   const [advancedOpen, setAdvancedOpen] = reactExports.useState(false);
@@ -454,10 +454,10 @@ export function CustomConnectorDialog({
   };
   const validation = reactExports.useMemo(
     () =>
-      mode2 === "form"
+      mode === "form"
         ? validateEditorForm(formState, initialInput?.name)
         : validateEditorJson(jsonText, initialInput?.name),
-    [formState, jsonText, mode2, initialInput?.name],
+    [formState, jsonText, mode, initialInput?.name],
   );
   const { input } = validation;
   const validationError = validationAttempted ? validation.error : void 0;
@@ -492,9 +492,9 @@ export function CustomConnectorDialog({
     ) : null;
   const handleModeChange = (nextMode) => {
     const editorMode = nextMode;
-    if (editorMode === "json" && mode2 === "form") {
+    if (editorMode === "json" && mode === "form") {
       setJsonText(serializeEditorForm(formState));
-    } else if (editorMode === "form" && mode2 === "json") {
+    } else if (editorMode === "form" && mode === "json") {
       const parsed = parseEditorJson(jsonText, initialInput?.name);
       if (parsed) setFormState(editorInputToForm(parsed));
     }
@@ -505,8 +505,8 @@ export function CustomConnectorDialog({
   };
   const handleTransportChange = (value) => {
     if (!value) return;
-    setFormState((current2) => ({
-      ...current2,
+    setFormState((current) => ({
+      ...current,
       transport: value,
       keyValuesText: "",
     }));
@@ -515,8 +515,8 @@ export function CustomConnectorDialog({
   const handleCommandBlur = () => {
     const normalized = normalizeEditorLaunchFields(formState);
     if (!normalized) return;
-    setFormState((current2) => ({
-      ...current2,
+    setFormState((current) => ({
+      ...current,
       ...normalized,
     }));
     setCommandWasSplit(true);
@@ -591,7 +591,7 @@ export function CustomConnectorDialog({
             </DialogDescription>
           </DialogHeader>
           <Tabs
-            value={mode2}
+            value={mode}
             onValueChange={handleModeChange}
             className="min-h-0 flex-1 overflow-hidden"
           >
@@ -655,8 +655,8 @@ export function CustomConnectorDialog({
                         value={formState.name}
                         readOnly={Boolean(initialInput)}
                         onChange={(event) =>
-                          setFormState((current2) => ({
-                            ...current2,
+                          setFormState((current) => ({
+                            ...current,
                             name: event.target.value,
                           }))
                         }
@@ -730,8 +730,8 @@ export function CustomConnectorDialog({
                         {...getFieldValidationProps("url")}
                         value={formState.url}
                         onChange={(event) =>
-                          setFormState((current2) => ({
-                            ...current2,
+                          setFormState((current) => ({
+                            ...current,
                             url: event.target.value,
                           }))
                         }
@@ -758,8 +758,8 @@ export function CustomConnectorDialog({
                           value={formState.command}
                           onChange={(event) => {
                             setCommandWasSplit(false);
-                            setFormState((current2) => ({
-                              ...current2,
+                            setFormState((current) => ({
+                              ...current,
                               command: event.target.value,
                             }));
                           }}
@@ -784,8 +784,8 @@ export function CustomConnectorDialog({
                           {...getFieldValidationProps("arguments")}
                           value={formState.argumentsText}
                           onChange={(event) =>
-                            setFormState((current2) => ({
-                              ...current2,
+                            setFormState((current) => ({
+                              ...current,
                               argumentsText: event.target.value,
                             }))
                           }
@@ -825,8 +825,8 @@ export function CustomConnectorDialog({
                       {...getFieldValidationProps("description")}
                       value={formState.description}
                       onChange={(event) =>
-                        setFormState((current2) => ({
-                          ...current2,
+                        setFormState((current) => ({
+                          ...current,
                           description: event.target.value,
                         }))
                       }
@@ -857,8 +857,8 @@ export function CustomConnectorDialog({
                     <Switch
                       checked={formState.enabled}
                       onCheckedChange={(enabled) =>
-                        setFormState((current2) => ({
-                          ...current2,
+                        setFormState((current) => ({
+                          ...current,
                           enabled,
                         }))
                       }
@@ -873,7 +873,7 @@ export function CustomConnectorDialog({
                   <button
                     type="button"
                     aria-expanded={advancedOpen}
-                    onClick={() => setAdvancedOpen((current2) => !current2)}
+                    onClick={() => setAdvancedOpen((current) => !current)}
                     className="flex h-9 w-full items-center justify-between rounded-md text-left text-sm font-medium text-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
                     data-action-ui-id="custom-connector-advanced"
                   >
@@ -903,8 +903,8 @@ export function CustomConnectorDialog({
                           {...getFieldValidationProps("key-values")}
                           value={formState.keyValuesText}
                           onChange={(event) =>
-                            setFormState((current2) => ({
-                              ...current2,
+                            setFormState((current) => ({
+                              ...current,
                               keyValuesText: event.target.value,
                             }))
                           }
@@ -930,8 +930,8 @@ export function CustomConnectorDialog({
                           min={1}
                           value={formState.timeoutText}
                           onChange={(event) =>
-                            setFormState((current2) => ({
-                              ...current2,
+                            setFormState((current) => ({
+                              ...current,
                               timeoutText: event.target.value,
                             }))
                           }

@@ -36,50 +36,50 @@ import {
 } from "./connector-prompt-action.jsx";
 import { CustomConnectorDialog } from "./custom-connector-dialog.jsx";
 const jobs = new Map();
-function stopConnectorPreparation(key2) {
-  clearTimeout(jobs.get(key2));
-  jobs.delete(key2);
+function stopConnectorPreparation(key) {
+  clearTimeout(jobs.get(key));
+  jobs.delete(key);
 }
-function followConnectorPreparation(key2, check) {
-  if (jobs.has(key2)) return;
+function followConnectorPreparation(key, check) {
+  if (jobs.has(key)) return;
   const poll = async () => {
-    const timer2 = jobs.get(key2);
-    if (!timer2) return;
+    const timer = jobs.get(key);
+    if (!timer) return;
     let keepWaiting = false;
     try {
       keepWaiting = await check();
     } catch {}
-    if (jobs.get(key2) !== timer2) return;
+    if (jobs.get(key) !== timer) return;
     if (keepWaiting)
       jobs.set(
-        key2,
+        key,
         setTimeout(() => void poll(), 3e3),
       );
-    else jobs.delete(key2);
+    else jobs.delete(key);
   };
   jobs.set(
-    key2,
+    key,
     setTimeout(() => void poll(), 3e3),
   );
 }
 const POLL_INTERVAL_MS = 3e3;
-function createLocalConnectorInstallationTracker(service2) {
-  let snapshot2 = {};
-  const active2 = new Map();
-  const listeners2 = new Set();
+function createLocalConnectorInstallationTracker(service) {
+  let snapshot = {};
+  const active = new Map();
+  const listeners = new Set();
   const finishedListeners = new Set();
-  const update2 = (connectorId, installation) => {
-    snapshot2 = {
-      ...snapshot2,
+  const update = (connectorId, installation) => {
+    snapshot = {
+      ...snapshot,
       [connectorId]: installation,
     };
-    for (const listener of listeners2) listener();
+    for (const listener of listeners) listener();
   };
   const finish = (task, result) => {
-    if (active2.get(task.connectorId) !== task) return;
+    if (active.get(task.connectorId) !== task) return;
     clearTimeout(task.timer);
-    active2.delete(task.connectorId);
-    update2(task.connectorId, {
+    active.delete(task.connectorId);
+    update(task.connectorId, {
       phase: "finished",
       result,
     });
@@ -88,10 +88,10 @@ function createLocalConnectorInstallationTracker(service2) {
   };
   const follow = (task) => {
     const poll = async () => {
-      if (active2.get(task.connectorId) !== task) return;
+      if (active.get(task.connectorId) !== task) return;
       try {
-        const status = await service2.status(task.connectorId);
-        if (active2.get(task.connectorId) !== task) return;
+        const status = await service.status(task.connectorId);
+        if (active.get(task.connectorId) !== task) return;
         if (status.state !== "installing") {
           finish(
             task,
@@ -104,12 +104,12 @@ function createLocalConnectorInstallationTracker(service2) {
           );
           return;
         }
-        update2(task.connectorId, {
+        update(task.connectorId, {
           phase: "installing",
         });
       } catch {
-        if (active2.get(task.connectorId) !== task) return;
-        update2(task.connectorId, {
+        if (active.get(task.connectorId) !== task) return;
+        update(task.connectorId, {
           phase: "installing",
           queryFailed: true,
         });
@@ -119,22 +119,22 @@ function createLocalConnectorInstallationTracker(service2) {
     task.timer = setTimeout(() => void poll(), POLL_INTERVAL_MS);
   };
   const begin = (connectorId) => {
-    if (active2.has(connectorId)) return void 0;
+    if (active.has(connectorId)) return void 0;
     const task = {
       connectorId,
     };
-    active2.set(connectorId, task);
-    update2(connectorId, {
+    active.set(connectorId, task);
+    update(connectorId, {
       phase: "installing",
     });
     return task;
   };
   return {
-    getSnapshot: () => snapshot2,
+    getSnapshot: () => snapshot,
     subscribe(listener) {
-      listeners2.add(listener);
+      listeners.add(listener);
       return () => {
-        listeners2.delete(listener);
+        listeners.delete(listener);
       };
     },
     subscribeFinished(listener) {
@@ -144,8 +144,8 @@ function createLocalConnectorInstallationTracker(service2) {
       };
     },
     observe(connectorId) {
-      if (active2.has(connectorId)) {
-        update2(connectorId, {
+      if (active.has(connectorId)) {
+        update(connectorId, {
           phase: "installing",
         });
         return;
@@ -157,8 +157,8 @@ function createLocalConnectorInstallationTracker(service2) {
       const task = begin(connectorId);
       if (!task) return;
       try {
-        const result = await service2.install(connectorId);
-        if (active2.get(connectorId) !== task) return;
+        const result = await service.install(connectorId);
+        if (active.get(connectorId) !== task) return;
         if (!result.ok && result.code === "busy") follow(task);
         else finish(task, result);
       } catch {
@@ -166,11 +166,11 @@ function createLocalConnectorInstallationTracker(service2) {
       }
     },
     dispose() {
-      for (const task of active2.values()) clearTimeout(task.timer);
-      active2.clear();
-      listeners2.clear();
+      for (const task of active.values()) clearTimeout(task.timer);
+      active.clear();
+      listeners.clear();
       finishedListeners.clear();
-      snapshot2 = {};
+      snapshot = {};
     },
   };
 }
@@ -257,8 +257,8 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
       setCancelActivityVisible(false);
       return;
     }
-    const timer2 = setTimeout(() => setCancelActivityVisible(true), 300);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => setCancelActivityVisible(true), 300);
+    return () => clearTimeout(timer);
   }, [cancelling]);
   const [waiting, updateWaiting] = reactExports.useState(null);
   const waitingRef = reactExports.useRef(null);
@@ -279,7 +279,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
   const [connectionError, setConnectionError] = reactExports.useState("");
   const selectionRef = reactExports.useRef(null);
   const selectionRevision = reactExports.useRef(0);
-  const [selection2, setSelection] = reactExports.useState(null);
+  const [selection, setSelection] = reactExports.useState(null);
   const [hydrated, setHydrated] = reactExports.useState(false),
     [busy, setBusy] = reactExports.useState(false);
   const [checking, setChecking] = reactExports.useState(null);
@@ -292,17 +292,17 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
       setCheckActivityVisible(false);
       return;
     }
-    const timer2 = setTimeout(() => setCheckActivityVisible(true), 300);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => setCheckActivityVisible(true), 300);
+    return () => clearTimeout(timer);
   }, [busy, checking, installing]);
-  const [state2, setState] = reactExports.useState(capability.state),
+  const [state, setState] = reactExports.useState(capability.state),
     [phase, setPhase] = reactExports.useState("");
   const [error, setError] = reactExports.useState(""),
     [dialog, setDialog] = reactExports.useState(false);
   const settled =
     capability.autoActivated ||
-    selection2?.delivery?.status === "accepted" ||
-    (selection2?.state === "sent" && !selection2.delivery);
+    selection?.delivery?.status === "accepted" ||
+    (selection?.state === "sent" && !selection.delivery);
   const headers = {
     [SESSION_ID_HEADER]: origin ?? "",
     "Content-Type": "application/json",
@@ -312,12 +312,12 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
     if (!origin || originScope !== live.current.scope)
       throw new Error("sessionChanged");
   };
-  const request = async (body2) => {
+  const request = async (body) => {
     selectionRevision.current += 1;
     const response = await fetcher(CONNECTOR_CAPABILITY_PATHS.selection, {
       method: "POST",
       headers,
-      body: JSON.stringify(body2),
+      body: JSON.stringify(body),
     });
     if (!response.ok) {
       const failure = await response.json().catch(() => null);
@@ -331,7 +331,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           throw new Error(errors[failure.message]);
       }
       if (
-        body2.action === "activate" &&
+        body.action === "activate" &&
         response.status === 409 &&
         failure &&
         typeof failure === "object" &&
@@ -349,7 +349,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
   const refresh = reactExports.useCallback(async () => {
     if (!origin) return null;
     const revision = selectionRevision.current;
-    const [records, catalog2] = await Promise.all([
+    const [records, catalog] = await Promise.all([
       fetcher(CONNECTOR_CAPABILITY_PATHS.selection, {
         headers: {
           [SESSION_ID_HEADER]: origin,
@@ -357,24 +357,24 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
       }),
       fetcher(CONNECTOR_CAPABILITY_PATHS.catalog),
     ]);
-    if (!records.ok || !catalog2.ok) throw new Error("unavailable");
-    const entries2 = parseConnectorSelections(await records.json());
-    const current2 = parseConnectorCatalog(
-      await catalog2.json(),
+    if (!records.ok || !catalog.ok) throw new Error("unavailable");
+    const entries = parseConnectorSelections(await records.json());
+    const current = parseConnectorCatalog(
+      await catalog.json(),
     ).connectors.find((entry) => entry.connectorId === capability.connectorId);
     if (selectionRevision.current !== revision) return selectionRef.current;
-    const record2 =
-      entries2.find(
+    const record =
+      entries.find(
         (entry) =>
           entry.connectorId === capability.connectorId &&
           entry.searchCallId === searchCallId,
       ) ?? null;
-    selectionRef.current = record2;
-    if (!mounted.current) return record2;
-    setSelection(record2);
-    if (current2) setState(current2.state);
+    selectionRef.current = record;
+    if (!mounted.current) return record;
+    setSelection(record);
+    if (current) setState(current.state);
     setHydrated(true);
-    return record2;
+    return record;
   }, [origin, fetcher, capability.connectorId, searchCallId]);
   reactExports.useEffect(() => {
     mounted.current = true;
@@ -385,7 +385,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
     void refresh().catch(() => {
       if (mounted.current) setError("unavailable");
     });
-    const timer2 = setInterval(
+    const timer = setInterval(
       () =>
         void refresh().catch(() => {
           if (mounted.current) setError("unavailable");
@@ -394,7 +394,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
     );
     return () => {
       mounted.current = false;
-      clearInterval(timer2);
+      clearInterval(timer);
     };
   }, [refresh, settled]);
   const clearFeedbackErrors = () => {
@@ -500,9 +500,9 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
         await inventory.refresh();
       }
       checkContext();
-      const current2 = (await inventory.refresh()).find(matchesCapability);
+      const current = (await inventory.refresh()).find(matchesCapability);
       checkContext();
-      if (!current2 || current2.runtimeState !== "connected") {
+      if (!current || current.runtimeState !== "connected") {
         clearFeedbackErrors();
         setWaiting("runtime");
         return;
@@ -656,14 +656,14 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
         connectorId: capability.connectorId,
         searchCallId,
       });
-      const snapshot2 = await homeService.customMcp.getForEdit(saved.name);
+      const snapshot = await homeService.customMcp.getForEdit(saved.name);
       checkContext();
-      if (!snapshot2) {
+      if (!snapshot) {
         setConnectionError("server_not_found");
         return;
       }
       configured.current = false;
-      setEditSnapshot(snapshot2);
+      setEditSnapshot(snapshot);
       setDialog(true);
     } catch {
       if (mounted.current) setConnectionError("loadFailed");
@@ -690,7 +690,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
   const savedConnector = inventory.servers.find(matchesCapability);
   const availability =
     !inventory.loaded || inventory.failed
-      ? state2
+      ? state
       : !savedConnector
         ? !configuredOnly && capability.connection === "local"
           ? "not_installed"
@@ -701,9 +701,9 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
             ? "connected"
             : "failed";
   const deliveryPending =
-    selection2?.state !== "cancelled" &&
-    !!selection2?.delivery &&
-    ["submitting", "queued", "unknown"].includes(selection2.delivery.status);
+    selection?.state !== "cancelled" &&
+    !!selection?.delivery &&
+    ["submitting", "queued", "unknown"].includes(selection.delivery.status);
   if (settled) return null;
   const needsRecovery = availability === "failed" || !!connectionError;
   const promptMode =
@@ -719,7 +719,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
               ? "requiresEnable"
               : "ready";
   const showCancelledResult =
-    selection2?.state === "cancelled" || error === "cancelled";
+    selection?.state === "cancelled" || error === "cancelled";
   const showCancelling =
     cancelling && cancelActivityVisible && !showCancelledResult;
   const status = needsRecovery
@@ -869,8 +869,8 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           cancelling ||
           showCancelledResult ||
           deliveryPending ||
-          selection2?.state === "selected" ||
-          selection2?.state === "ready") && (
+          selection?.state === "selected" ||
+          selection?.state === "ready") && (
           <Button
             size="sm"
             variant="ghost"
@@ -916,13 +916,13 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
       {deliveryPending && (
         <p role="status" className="text-xs text-muted-foreground">
           {t(
-            selection2?.delivery?.status === "unknown"
+            selection?.delivery?.status === "unknown"
               ? "chat.connector.deliveryUnknown"
               : "chat.connector.deliveryPending",
           )}
         </p>
       )}
-      {selection2?.delivery?.status === "failed" && (
+      {selection?.delivery?.status === "failed" && (
         <p role="alert" className="text-xs text-destructive">
           {t("chat.capabilitySearch.errors.sendFailed")}
         </p>
@@ -947,8 +947,8 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
             )
           }
           onCreated={(result) => {
-            inventory.update((current2) =>
-              current2.map((server) =>
+            inventory.update((current) =>
+              current.map((server) =>
                 server.name === result.server.name ? result.server : server,
               ),
             );

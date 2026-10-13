@@ -1,2 +1,5 @@
 key	new	reason
 t2@55:14	t	useTranslation() 返回的翻译函数 t
+close2@148:9	closePopup	关闭弹窗；close 是全局名
+pending2@110:13	pending	去掉打包器加的数字后缀，恢复原名 pending
+logService2@165:7	logService	去掉打包器加的数字后缀，恢复原名 logService

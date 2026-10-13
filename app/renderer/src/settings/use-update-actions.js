@@ -14,9 +14,9 @@ import {
 
 const ATTENTION_PHASES = new Set(["available", "downloading", "downloaded"]);
 
-function formatVersionLabel(version2) {
-  if (!version2) return "";
-  return `v${version2.replace(/^v/, "")}`;
+function formatVersionLabel(version) {
+  if (!version) return "";
+  return `v${version.replace(/^v/, "")}`;
 }
 
 function hasUpdateAttention(phase) {
@@ -25,9 +25,9 @@ function hasUpdateAttention(phase) {
 
 export function useUpdateActions({ manualDownloadSource }) {
   const { t } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const {
-    state: state2,
+    state,
     capabilities,
     check,
     download,
@@ -40,7 +40,7 @@ export function useUpdateActions({ manualDownloadSource }) {
     reactExports.useState(false);
   const checkTimeoutRef = reactExports.useRef(void 0);
   reactExports.useEffect(() => {
-    if (state2.phase === "checking") {
+    if (state.phase === "checking") {
       setOptimisticChecking(true);
       checkTimeoutRef.current = setTimeout(
         () => setOptimisticChecking(false),
@@ -53,27 +53,27 @@ export function useUpdateActions({ manualDownloadSource }) {
     return () => {
       if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
     };
-  }, [state2.phase]);
-  const currentVersionLabel = formatVersionLabel(state2.currentVersion);
-  const targetVersionLabel = formatVersionLabel(state2.targetVersion);
-  const checking = optimisticChecking || state2.phase === "checking";
-  const downloading = state2.phase === "downloading";
-  const downloaded = state2.phase === "downloaded";
-  const available = state2.phase === "available";
+  }, [state.phase]);
+  const currentVersionLabel = formatVersionLabel(state.currentVersion);
+  const targetVersionLabel = formatVersionLabel(state.targetVersion);
+  const checking = optimisticChecking || state.phase === "checking";
+  const downloading = state.phase === "downloading";
+  const downloaded = state.phase === "downloaded";
+  const available = state.phase === "available";
   const pendingUpdate = available || downloaded;
-  const attentionUpdate = hasUpdateAttention(state2.phase);
+  const attentionUpdate = hasUpdateAttention(state.phase);
   const canManualDownload =
-    !!state2.manualDownloadUrl &&
-    (state2.manualOnly || state2.phase === "error");
+    !!state.manualDownloadUrl &&
+    (state.manualOnly || state.phase === "error");
   const canRetryLocalInstall =
     !canManualDownload &&
-    state2.phase === "error" &&
-    state2.manualRecoverySource === "local" &&
-    isManualRecoveryRetryable(state2.manualRecoveryCode);
-  const progressValue = progressPercent(state2.progress);
-  const progressText = formatProgressDisplay(state2.progress);
-  const versionDelta = state2.targetVersion
-    ? computeVersionDelta(state2.currentVersion, state2.targetVersion)
+    state.phase === "error" &&
+    state.manualRecoverySource === "local" &&
+    isManualRecoveryRetryable(state.manualRecoveryCode);
+  const progressValue = progressPercent(state.progress);
+  const progressText = formatProgressDisplay(state.progress);
+  const versionDelta = state.targetVersion
+    ? computeVersionDelta(state.currentVersion, state.targetVersion)
     : null;
   const ctaLabel = (() => {
     if (checking) return t("update.version.checking");
@@ -90,27 +90,27 @@ export function useUpdateActions({ manualDownloadSource }) {
     if (downloading) return `${progressValue}%`;
     if (downloaded) return t("update.btn.restartNow");
     if (canRetryLocalInstall) return t("update.btn.retryInstall");
-    if (state2.phase === "error" && canManualDownload)
+    if (state.phase === "error" && canManualDownload)
       return t("update.btn.manualDownload");
     return t("update.version.checkCta");
   })();
   const handleManualDownload = reactExports.useCallback(() => {
-    if (!state2.manualDownloadUrl) return;
+    if (!state.manualDownloadUrl) return;
     void openManualInstallerDownload(
-      platform2.shell,
-      state2.manualDownloadUrl,
-      state2.manualDownloadFallbackUrl,
+      platform.shell,
+      state.manualDownloadUrl,
+      state.manualDownloadFallbackUrl,
       manualDownloadSource,
     );
   }, [
-    platform2.shell,
-    state2.manualDownloadUrl,
-    state2.manualDownloadFallbackUrl,
+    platform.shell,
+    state.manualDownloadUrl,
+    state.manualDownloadFallbackUrl,
     manualDownloadSource,
   ]);
   const handleInstall = reactExports.useCallback(() => {
-    installUpdateForPlatform(install, platform2.app.os);
-  }, [install, platform2.app.os]);
+    installUpdateForPlatform(install, platform.app.os);
+  }, [install, platform.app.os]);
   const handleCheck = reactExports.useCallback(() => {
     setOptimisticChecking(true);
     check({
@@ -119,7 +119,7 @@ export function useUpdateActions({ manualDownloadSource }) {
   }, [check]);
   const handlePrimaryAction = reactExports.useCallback(() => {
     if (checking || downloading) return;
-    if (state2.phase === "available") {
+    if (state.phase === "available") {
       if (canManualDownload) {
         handleManualDownload();
         return;
@@ -127,7 +127,7 @@ export function useUpdateActions({ manualDownloadSource }) {
       download();
       return;
     }
-    if (state2.phase === "downloaded") {
+    if (state.phase === "downloaded") {
       handleInstall();
       return;
     }
@@ -135,7 +135,7 @@ export function useUpdateActions({ manualDownloadSource }) {
       void retryInstall();
       return;
     }
-    if (state2.phase === "error" && canManualDownload) {
+    if (state.phase === "error" && canManualDownload) {
       handleManualDownload();
       return;
     }
@@ -143,7 +143,7 @@ export function useUpdateActions({ manualDownloadSource }) {
   }, [
     checking,
     downloading,
-    state2.phase,
+    state.phase,
     canManualDownload,
     canRetryLocalInstall,
     handleManualDownload,
@@ -153,7 +153,7 @@ export function useUpdateActions({ manualDownloadSource }) {
     handleCheck,
   ]);
   return {
-    state: state2,
+    state,
     capabilities,
     check,
     download,

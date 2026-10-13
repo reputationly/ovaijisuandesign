@@ -1,0 +1,6 @@
+key	new	reason
+command2@11:32	command	去掉打包器加的数字后缀，恢复原名 command
+tokens2@19:9	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+tokens22@15:11	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+command2@51:9	command	去掉打包器加的数字后缀，恢复原名 command
+tokens2@58:11	tokens	去掉打包器加的数字后缀，恢复原名 tokens

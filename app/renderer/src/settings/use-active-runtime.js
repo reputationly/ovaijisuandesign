@@ -2,13 +2,13 @@
 import { reactExports, useQuery } from "../vendor.js";
 import { BUNDLED_CHANGELOG } from "./bundled-changelog.js";
 import { useRuntimeConfig } from "../generation/use-model-catalog-scope-key.js";
-function isRenderableAssetType(type2) {
+function isRenderableAssetType(type) {
   return (
-    type2 === "image" ||
-    type2 === "video" ||
-    type2 === "audio" ||
-    type2 === "text" ||
-    type2 === "file"
+    type === "image" ||
+    type === "video" ||
+    type === "audio" ||
+    type === "text" ||
+    type === "file"
   );
 }
 export const UPDATE_CHECK_TIMED_OUT = "Update check timed out";
@@ -30,42 +30,42 @@ const UPDATE_CDN = {
   overseas: "https://file.cdn.minimax.io",
 };
 function changelogUrl(region, channel) {
-  const base2 = UPDATE_CDN[region];
+  const base = UPDATE_CDN[region];
   const effectiveChannel = channel === "dev" ? "prod" : channel;
   const appName =
     effectiveChannel === "prod"
       ? "minimax-hub"
       : `minimax-hub-${effectiveChannel}`;
-  return `${base2}/public/${appName}/release/${region}/changelog.json`;
+  return `${base}/public/${appName}/release/${region}/changelog.json`;
 }
-async function fetchChangelog(url2, signal) {
-  const resp = await fetch(url2, {
+async function fetchChangelog(url, signal) {
+  const resp = await fetch(url, {
     signal,
     cache: "no-cache",
   });
   if (!resp.ok) throw new Error(`http ${resp.status}`);
-  const data2 = await resp.json();
+  const data = await resp.json();
   if (
-    data2?.schemaVersion !== 1 ||
-    !Array.isArray(data2.en?.items) ||
-    !Array.isArray(data2.zh?.items)
+    data?.schemaVersion !== 1 ||
+    !Array.isArray(data.en?.items) ||
+    !Array.isArray(data.zh?.items)
   ) {
     throw new Error("invalid manifest shape");
   }
-  return data2;
+  return data;
 }
 export function useChangelog() {
   const { region, channel } = useRuntimeConfig();
-  const url2 = changelogUrl(region, channel);
-  const { data: data2, isLoading } = useQuery({
-    queryKey: ["changelog", url2],
+  const url = changelogUrl(region, channel);
+  const { data, isLoading } = useQuery({
+    queryKey: ["changelog", url],
     queryFn: async () => {
       const ctrl = new AbortController();
-      const timer2 = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+      const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
       try {
-        return await fetchChangelog(url2, ctrl.signal);
+        return await fetchChangelog(url, ctrl.signal);
       } finally {
-        clearTimeout(timer2);
+        clearTimeout(timer);
       }
     },
     staleTime: STALE_TIME_MS,
@@ -73,10 +73,10 @@ export function useChangelog() {
     // Network failure must not block the UI — the bundle always wins as fallback.
     throwOnError: false,
   });
-  const source = data2 ? "cdn" : isLoading ? "loading" : "bundle";
-  reactExports.useEffect(() => {}, [source, url2]);
+  const source = data ? "cdn" : isLoading ? "loading" : "bundle";
+  reactExports.useEffect(() => {}, [source, url]);
   return {
-    manifest: data2 ?? BUNDLED_CHANGELOG,
+    manifest: data ?? BUNDLED_CHANGELOG,
     source,
     isLoading,
   };
@@ -133,8 +133,8 @@ export function useActiveRuntime(currentWorkspaceId, hiloApp2) {
       setRuntime(null);
     };
     refresh();
-    const disposable = hiloApp2.onWorkspaceEntriesChanged((entries2) => {
-      if (entries2.some((entry) => entry.workspaceId === currentWorkspaceId)) {
+    const disposable = hiloApp2.onWorkspaceEntriesChanged((entries) => {
+      if (entries.some((entry) => entry.workspaceId === currentWorkspaceId)) {
         refresh();
       } else {
         clear();

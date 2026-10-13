@@ -57,20 +57,20 @@ function parseInlines(parent) {
       continue;
     }
     if (BLOCK_TAGS.has(tag)) {
-      const text2 = el.textContent ?? "";
-      if (text2)
+      const text = el.textContent ?? "";
+      if (text)
         out.push({
           kind: "text",
-          value: text2,
+          value: text,
         });
       continue;
     }
     if (!INLINE_TAGS.has(tag)) {
-      const text2 = el.textContent ?? "";
-      if (text2)
+      const text = el.textContent ?? "";
+      if (text)
         out.push({
           kind: "text",
-          value: text2,
+          value: text,
         });
     }
   }
@@ -122,60 +122,60 @@ function parseBulletContent(parent) {
       continue;
     }
     if (BLOCK_TAGS.has(tag)) {
-      const text2 = el.textContent ?? "";
-      if (text2)
+      const text = el.textContent ?? "";
+      if (text)
         out.push({
           kind: "text",
-          value: text2,
+          value: text,
         });
       continue;
     }
     if (!INLINE_TAGS.has(tag)) {
-      const text2 = el.textContent ?? "";
-      if (text2)
+      const text = el.textContent ?? "";
+      if (text)
         out.push({
           kind: "text",
-          value: text2,
+          value: text,
         });
     }
   }
   return out;
 }
-function fallbackPlainText(text2) {
+function fallbackPlainText(text) {
   return [
     {
       kind: "subtitle",
       inlines: [
         {
           kind: "text",
-          value: text2,
+          value: text,
         },
       ],
     },
   ];
 }
-function parsePopupRichText(raw2) {
-  if (!raw2 || typeof raw2 !== "string") return [];
-  const trimmed = raw2.trim();
+function parsePopupRichText(raw) {
+  if (!raw || typeof raw !== "string") return [];
+  const trimmed = raw.trim();
   if (!trimmed) return [];
-  const doc2 = new DOMParser().parseFromString(
+  const doc = new DOMParser().parseFromString(
     `<root>${trimmed}</root>`,
     "text/html",
   );
-  const root2 = doc2.querySelector("root");
-  if (!root2) return fallbackPlainText(trimmed);
+  const root = doc.querySelector("root");
+  if (!root) return fallbackPlainText(trimmed);
   const blocks = [];
   let hasBlockTag = false;
-  for (const child of Array.from(root2.childNodes)) {
+  for (const child of Array.from(root.childNodes)) {
     if (child.nodeType === Node.TEXT_NODE) {
-      const text2 = (child.textContent ?? "").trim();
-      if (text2)
+      const text = (child.textContent ?? "").trim();
+      if (text)
         blocks.push({
           kind: "subtitle",
           inlines: [
             {
               kind: "text",
-              value: text2,
+              value: text,
             },
           ],
         });
@@ -185,14 +185,14 @@ function parsePopupRichText(raw2) {
     const el = child;
     const tag = el.tagName.toLowerCase();
     if (!BLOCK_TAGS.has(tag)) {
-      const text2 = (el.textContent ?? "").trim();
-      if (text2)
+      const text = (el.textContent ?? "").trim();
+      if (text)
         blocks.push({
           kind: "subtitle",
           inlines: [
             {
               kind: "text",
-              value: text2,
+              value: text,
             },
           ],
         });
@@ -200,14 +200,14 @@ function parsePopupRichText(raw2) {
     }
     hasBlockTag = true;
     if (tag === "details") {
-      const text2 = (el.textContent ?? "").trim();
-      if (text2)
+      const text = (el.textContent ?? "").trim();
+      if (text)
         blocks.push({
           kind: "subtitle",
           inlines: [
             {
               kind: "text",
-              value: text2,
+              value: text,
             },
           ],
         });
@@ -238,14 +238,14 @@ function allBlocksOf(blocks, kind) {
 const POPUP_TYPE = "migration";
 function renderInlines(inlines) {
   if (!inlines || inlines.length === 0) return null;
-  return inlines.map((inline2, i) => renderInline(inline2, i));
+  return inlines.map((inline, i) => renderInline(inline, i));
 }
-function renderInline(inline2, key2) {
-  if (inline2.kind === "text") return <span key={key2}>{inline2.value}</span>;
-  if (inline2.kind === "br") return <br key={key2} />;
+function renderInline(inline, key) {
+  if (inline.kind === "text") return <span key={key}>{inline.value}</span>;
+  if (inline.kind === "br") return <br key={key} />;
   return (
-    <strong key={key2} className="font-medium text-foreground">
-      {renderInlines(inline2.inlines)}
+    <strong key={key} className="font-medium text-foreground">
+      {renderInlines(inline.inlines)}
     </strong>
   );
 }
@@ -294,30 +294,30 @@ function DetailsTooltipTrigger({ details }) {
 }
 function renderBulletInlines(inlines) {
   if (inlines.length === 0) return null;
-  const first2 = inlines[0];
-  if (first2?.kind === "bold") {
+  const first = inlines[0];
+  if (first?.kind === "bold") {
     return (
       <>
         <strong className="font-medium text-foreground mr-1">
-          {renderInlines(first2.inlines)}
+          {renderInlines(first.inlines)}
         </strong>
         <span className="text-muted-foreground">
-          {inlines.slice(1).map((node2, i) => renderInline(node2, i))}
+          {inlines.slice(1).map((node, i) => renderInline(node, i))}
         </span>
       </>
     );
   }
   return renderInlines(inlines);
 }
-function renderBulletContent(content2) {
-  if (content2.length === 0) return null;
-  const detailsIdx = content2.findIndex((contentNode) => contentNode.kind === "details");
+function renderBulletContent(content) {
+  if (content.length === 0) return null;
+  const detailsIdx = content.findIndex((contentNode) => contentNode.kind === "details");
   if (detailsIdx === -1) {
-    return renderBulletInlines(content2);
+    return renderBulletInlines(content);
   }
-  const beforeInlines = content2.slice(0, detailsIdx);
-  const afterInlines = content2.slice(detailsIdx + 1);
-  const details = content2[detailsIdx];
+  const beforeInlines = content.slice(0, detailsIdx);
+  const afterInlines = content.slice(detailsIdx + 1);
+  const details = content[detailsIdx];
   return (
     <>
       {renderBulletInlines(beforeInlines)}
@@ -339,7 +339,7 @@ function inlinesToPlainText(inlines) {
 }
 export function MigrationPopup({ popup, onClose }) {
   const { t } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const walletQuery = useWalletQuery();
   const hailuoWallet = useHailuoWallet();
   const deadline = useMigrateDeadline();
@@ -361,8 +361,8 @@ export function MigrationPopup({ popup, onClose }) {
   const hailuoCredits = hailuoWallet?.total_credit ?? 0;
   const walletLoading = walletQuery.isLoading;
   const showRedeem = walletQuery.isSuccess ? hailuoCredits > 0 : true;
-  const url2 = popup.action?.url ?? "";
-  const trackedUrl = url2;
+  const url = popup.action?.url ?? "";
+  const trackedUrl = url;
   const primaryLabel = popup.action?.label ?? "";
   const handlePrimary = async () => {
     const decision = guardAccountSubmission("personal_checkout");
@@ -371,12 +371,12 @@ export function MigrationPopup({ popup, onClose }) {
       popup_type: POPUP_TYPE,
       url: trackedUrl,
     });
-    if (!url2) {
+    if (!url) {
       onClose();
       return;
     }
     try {
-      const opened = await openExternalUrl(platform2, url2, {
+      const opened = await openExternalUrl(platform, url, {
         source: "server-popup.migration",
       });
       if (!opened) throw new Error("open_external_failed");

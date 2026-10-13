@@ -53,11 +53,11 @@ async function writeMemory(fetcher, payload) {
 function useMemoryWrite() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => writeMemory(fetcher, payload),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: memoryQueryKeys.scopeRoot(scopeKey),
       });
     },
@@ -74,7 +74,7 @@ const DEFAULT_STATE = {
   asset_uri: "",
   asset_modality: "image",
 };
-function Field({ label, hint, error, children: children2 }) {
+function Field({ label, hint, error, children }) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
@@ -83,7 +83,7 @@ function Field({ label, hint, error, children: children2 }) {
           <span className="text-[10px] text-muted-foreground">{hint}</span>
         )}
       </div>
-      {children2}
+      {children}
       {error && <p className="text-[11px] text-destructive">{error}</p>}
     </div>
   );
@@ -96,7 +96,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
     isEdit ? mode2.scope : void 0,
     isEdit ? mode2.name : void 0,
   );
-  const [state2, setState] = reactExports.useState(DEFAULT_STATE);
+  const [state, setState] = reactExports.useState(DEFAULT_STATE);
   const [submitted, setSubmitted] = reactExports.useState(false);
   reactExports.useEffect(() => {
     if (!open) {
@@ -118,67 +118,67 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
       setState(DEFAULT_STATE);
     }
   }, [open, isEdit, entry.data, mode2]);
-  const isAssetPin = state2.type === "asset-pin";
+  const isAssetPin = state.type === "asset-pin";
   const errors = reactExports.useMemo(() => {
     const out = {};
     if (!isEdit) {
-      if (!state2.name)
+      if (!state.name)
         out.name = t("memory.errNameRequired", "name is required");
-      else if (!NAME_RE.test(state2.name))
+      else if (!NAME_RE.test(state.name))
         out.name = t(
           "memory.errNameFormat",
           "name must be kebab-case (1-64 chars)",
         );
-      if (isAssetPin && state2.scope === "user")
+      if (isAssetPin && state.scope === "user")
         out.scope = t(
           "memory.errAssetPinScope",
           "asset-pin requires project scope",
         );
     }
-    if (!state2.description)
+    if (!state.description)
       out.description = t("memory.errDescRequired", "description is required");
-    else if (state2.description.length > MAX_MEMORY_DESCRIPTION_LENGTH)
+    else if (state.description.length > MAX_MEMORY_DESCRIPTION_LENGTH)
       out.description = t(
         "memory.errDescTooLong",
         `description must be ≤ ${MAX_MEMORY_DESCRIPTION_LENGTH} chars`,
       );
-    if (state2.description.includes("\n"))
+    if (state.description.includes("\n"))
       out.description = t(
         "memory.errDescSingleLine",
         "description must be a single line",
       );
-    if (new Blob([state2.body]).size > MAX_MEMORY_BODY_BYTES)
+    if (new Blob([state.body]).size > MAX_MEMORY_BODY_BYTES)
       out.body = t(
         "memory.errBodyTooLong",
         `body exceeds ${MAX_MEMORY_BODY_BYTES} bytes`,
       );
     if (isAssetPin) {
-      if (!state2.asset_uri)
+      if (!state.asset_uri)
         out.asset_uri = t(
           "memory.errAssetUriRequired",
           "asset_uri is required",
         );
-      else if (!ASSET_URI_RE.test(state2.asset_uri))
+      else if (!ASSET_URI_RE.test(state.asset_uri))
         out.asset_uri = t(
           "memory.errAssetUriFormat",
           "asset_uri must look like hilo://asset/<id>",
         );
     }
     return out;
-  }, [isEdit, isAssetPin, state2, t]);
+  }, [isEdit, isAssetPin, state, t]);
   const hasErrors = Object.keys(errors).length > 0;
   async function submit() {
     setSubmitted(true);
     if (hasErrors) return;
     try {
       await writer.mutateAsync({
-        scope: state2.scope,
-        name: state2.name,
-        type: state2.type,
-        description: state2.description,
-        body: state2.body,
-        asset_uri: isAssetPin ? state2.asset_uri : void 0,
-        asset_modality: isAssetPin ? state2.asset_modality : void 0,
+        scope: state.scope,
+        name: state.name,
+        type: state.type,
+        description: state.description,
+        body: state.body,
+        asset_uri: isAssetPin ? state.asset_uri : void 0,
+        asset_modality: isAssetPin ? state.asset_modality : void 0,
       });
       dedupedToast.success(
         isEdit
@@ -226,7 +226,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
               error={submitted ? errors.scope : void 0}
             >
               <Select
-                value={state2.scope}
+                value={state.scope}
                 onValueChange={(nextScope) =>
                   setState((prevState) => ({
                     ...prevState,
@@ -259,7 +259,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
             </Field>
             <Field label={t("memory.fieldType", "Type")}>
               <Select
-                value={state2.type}
+                value={state.type}
                 onValueChange={(nextType) =>
                   setState((prevState) => ({
                     ...prevState,
@@ -277,9 +277,9 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {MEMORY_TYPES.map((type2) => (
-                    <SelectItem key={type2} value={type2}>
-                      {t(`memory.type.${type2}`, type2)}
+                  {MEMORY_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {t(`memory.type.${type}`, type)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -295,7 +295,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
             )}
           >
             <Input3
-              value={state2.name}
+              value={state.name}
               onChange={(changeEvent) =>
                 setState((prevState) => ({
                   ...prevState,
@@ -310,10 +310,10 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
           <Field
             label={t("memory.fieldDescription", "Description")}
             error={submitted ? errors.description : void 0}
-            hint={`${state2.description.length} / ${MAX_MEMORY_DESCRIPTION_LENGTH}`}
+            hint={`${state.description.length} / ${MAX_MEMORY_DESCRIPTION_LENGTH}`}
           >
             <Input3
-              value={state2.description}
+              value={state.description}
               onChange={(changeEvent) =>
                 setState((prevState) => ({
                   ...prevState,
@@ -335,7 +335,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                 hint="hilo://asset/<id>"
               >
                 <Input3
-                  value={state2.asset_uri}
+                  value={state.asset_uri}
                   onChange={(changeEvent) =>
                     setState((prevState) => ({
                       ...prevState,
@@ -352,7 +352,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
               </Field>
               <Field label={t("memory.fieldAssetModality", "Modality")}>
                 <Select
-                  value={state2.asset_modality}
+                  value={state.asset_modality}
                   onValueChange={(nextModality) =>
                     setState((prevState) => ({
                       ...prevState,
@@ -365,7 +365,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
                     className="h-8 text-xs"
                     data-action-ui-id="settings.memory.editor.asset_modality"
                   >
-                    <SelectValue>{() => state2.asset_modality}</SelectValue>
+                    <SelectValue>{() => state.asset_modality}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {ASSET_MODALITIES.map((modality) => (
@@ -381,10 +381,10 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
           <Field
             label={t("memory.fieldBody", "Body (Markdown)")}
             error={submitted ? errors.body : void 0}
-            hint={`${new Blob([state2.body]).size} / ${MAX_MEMORY_BODY_BYTES} bytes`}
+            hint={`${new Blob([state.body]).size} / ${MAX_MEMORY_BODY_BYTES} bytes`}
           >
             <Textarea
-              value={state2.body}
+              value={state.body}
               onChange={(changeEvent) =>
                 setState((prevState) => ({
                   ...prevState,

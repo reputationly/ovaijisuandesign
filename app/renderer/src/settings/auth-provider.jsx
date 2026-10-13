@@ -34,10 +34,10 @@ function isAuthLoginAttemptId(value) {
 
 async function flushAllWorkspaceCanvasPersistence() {
   const results = [];
-  for (const workspaceId2 of Array.from(entriesByWorkspace.keys())) {
+  for (const workspaceId of Array.from(entriesByWorkspace.keys())) {
     results.push({
-      workspaceId: workspaceId2,
-      instanceIds: await flushWorkspaceCanvasPersistence(workspaceId2),
+      workspaceId,
+      instanceIds: await flushWorkspaceCanvasPersistence(workspaceId),
     });
   }
   return results;
@@ -97,7 +97,7 @@ function isWorkspaceRenderer() {
 }
 
 export function AuthProvider({ children: children2 }) {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const navigate = useNavigate();
   const navigateRef = reactExports.useRef(navigate);
   navigateRef.current = navigate;
@@ -111,9 +111,9 @@ export function AuthProvider({ children: children2 }) {
   const [expiredOpen, setExpiredOpen] = reactExports.useState(false);
   const [browserLogin, setBrowserLogin] = reactExports.useState(null);
   const browserLoginRef = reactExports.useRef(null);
-  const updateBrowserLogin = reactExports.useCallback((next2) => {
-    browserLoginRef.current = next2;
-    setBrowserLogin(next2);
+  const updateBrowserLogin = reactExports.useCallback((next) => {
+    browserLoginRef.current = next;
+    setBrowserLogin(next);
   }, []);
   const lastExpiredAtRef = reactExports.useRef(0);
   const gracePendingRef = reactExports.useRef(null);
@@ -130,9 +130,9 @@ export function AuthProvider({ children: children2 }) {
   const tRef = reactExports.useRef(t);
   tRef.current = t;
   const userRef = reactExports.useRef(user);
-  const applyUser = reactExports.useCallback((next2) => {
-    userRef.current = next2;
-    setUser(next2);
+  const applyUser = reactExports.useCallback((next) => {
+    userRef.current = next;
+    setUser(next);
   }, []);
   const cancelExpiredLogout = reactExports.useCallback(() => {
     if (gracePendingRef.current) clearTimeout(gracePendingRef.current);
@@ -141,13 +141,13 @@ export function AuthProvider({ children: children2 }) {
     setExpiredOpen(false);
   }, []);
   const writeAuth = reactExports.useCallback((epoch, write) => {
-    const pending2 = authWriteQueueRef.current.then(async () => {
+    const pending = authWriteQueueRef.current.then(async () => {
       if (authEpochRef.current !== epoch) return false;
       await write();
       return authEpochRef.current === epoch;
     });
-    authWriteQueueRef.current = pending2.catch(() => void 0);
-    return pending2;
+    authWriteQueueRef.current = pending.catch(() => void 0);
+    return pending;
   }, []);
   reactExports.useEffect(
     () => () => {
@@ -170,12 +170,12 @@ export function AuthProvider({ children: children2 }) {
           );
         } catch (error) {
           if (authEpochRef.current === epoch) {
-            const snapshot2 = await auth.getStoredAuth().catch(() => null);
+            const snapshot = await auth.getStoredAuth().catch(() => null);
             if (
               authEpochRef.current === epoch &&
-              (!snapshot2 ||
-                snapshot2.tokens.accessToken !== userRef.current?.accessToken ||
-                snapshot2.user.userID !== userRef.current?.userID)
+              (!snapshot ||
+                snapshot.tokens.accessToken !== userRef.current?.accessToken ||
+                snapshot.user.userID !== userRef.current?.userID)
             ) {
               applyUser(null);
               setUnauthenticatedReason("signed-out");
@@ -374,9 +374,9 @@ export function AuthProvider({ children: children2 }) {
         stage: "dispatched",
         method: "browser",
       });
-      platform2.shell.openExternal(LOGIN_URL);
+      platform.shell.openExternal(LOGIN_URL);
     }
-  }, [cancelExpiredLogout, platform2, updateBrowserLogin]);
+  }, [cancelExpiredLogout, platform, updateBrowserLogin]);
   reactExports.useEffect(() => {
     if (typeof __HILO_AUTH__ === "undefined") {
       markTrackUserAnonymous();
@@ -387,19 +387,19 @@ export function AuthProvider({ children: children2 }) {
     const restoreEpoch = authEpochRef.current;
     (async () => {
       try {
-        const { tokens: tokens2, user: storedUser } =
+        const { tokens, user: storedUser } =
           await __HILO_AUTH__.getStoredAuth();
         if (cancelled || restoreEpoch !== authEpochRef.current) return;
-        if (!tokens2.accessToken) {
+        if (!tokens.accessToken) {
           markTrackUserAnonymous();
           setUnauthenticatedReason("signed-out");
           setIsLoading(false);
           return;
         }
         const cached = {
-          accessToken: tokens2.accessToken,
-          idToken: tokens2.idToken,
-          adAttribution: normalizeAdAttribution(tokens2.adAttribution),
+          accessToken: tokens.accessToken,
+          idToken: tokens.idToken,
+          adAttribution: normalizeAdAttribution(tokens.adAttribution),
           userID: storedUser.userID,
           avatar: storedUser.avatar,
           username: storedUser.username,
@@ -417,12 +417,12 @@ export function AuthProvider({ children: children2 }) {
           );
         }
         try {
-          const payload = JSON.parse(atob(tokens2.accessToken.split(".")[1]));
+          const payload = JSON.parse(atob(tokens.accessToken.split(".")[1]));
           const expMs = (payload.exp ?? 0) * 1e3;
           if (expMs - Date.now() < RENEWAL_THRESHOLD_MS) {
             console.log("[auth] Token expiring soon, attempting renewal...");
             const { token: newToken, error: renewError } =
-              await __HILO_AUTH__.renewToken(tokens2.accessToken);
+              await __HILO_AUTH__.renewToken(tokens.accessToken);
             if (
               !cancelled &&
               restoreEpoch === authEpochRef.current &&
@@ -430,16 +430,16 @@ export function AuthProvider({ children: children2 }) {
               !renewError
             ) {
               console.log("[auth] Token renewed successfully");
-              const current2 = await __HILO_AUTH__.getStoredAuth();
+              const current = await __HILO_AUTH__.getStoredAuth();
               if (cancelled || restoreEpoch !== authEpochRef.current) return;
-              if (current2.tokens.accessToken) {
+              if (current.tokens.accessToken) {
                 applyUser({
-                  accessToken: current2.tokens.accessToken,
-                  idToken: current2.tokens.idToken,
+                  accessToken: current.tokens.accessToken,
+                  idToken: current.tokens.idToken,
                   adAttribution: normalizeAdAttribution(
-                    current2.tokens.adAttribution,
+                    current.tokens.adAttribution,
                   ),
-                  ...current2.user,
+                  ...current.user,
                 });
               }
             } else {
@@ -464,21 +464,21 @@ export function AuthProvider({ children: children2 }) {
     let lastIgnoredCallbackKey;
     const isCurrent = (attempt) =>
       !cancelled && attempt.epoch === authEpochRef.current;
-    const processCallback = async (data2, attempt, confirmedLegacy = false) => {
+    const processCallback = async (data, attempt, confirmedLegacy = false) => {
       try {
         const {
-          user: info2,
+          user: info,
           error,
           authGeneration,
           requiresConfirmation,
         } = await __HILO_AUTH__.fetchUserInfo(
-          data2.accessToken,
-          confirmedLegacy ? void 0 : data2.loginAttemptId,
+          data.accessToken,
+          confirmedLegacy ? void 0 : data.loginAttemptId,
         );
         if (error === "stale_callback") {
           if (cancelled) return;
-          const callbackAttemptId = isAuthLoginAttemptId(data2.loginAttemptId)
-            ? data2.loginAttemptId
+          const callbackAttemptId = isAuthLoginAttemptId(data.loginAttemptId)
+            ? data.loginAttemptId
             : void 0;
           const ignoredKey = `${authEpochRef.current}:${callbackAttemptId ?? "unknown"}`;
           if (lastIgnoredCallbackKey !== ignoredKey) {
@@ -505,25 +505,25 @@ export function AuthProvider({ children: children2 }) {
           return;
         }
         if (!isCurrent(attempt)) return;
-        if (info2) {
+        if (info) {
           if (
             typeof authGeneration !== "number" ||
             !Number.isSafeInteger(authGeneration)
           )
             throw new Error("Missing auth commit generation");
           if (
-            (!data2.loginAttemptId || requiresConfirmation) &&
+            (!data.loginAttemptId || requiresConfirmation) &&
             !confirmedLegacy
           ) {
             updateBrowserLogin({
               user: {
-                ...info2,
-                accessToken: data2.accessToken,
+                ...info,
+                accessToken: data.accessToken,
               },
               epoch: attempt.epoch,
               // Revalidate on confirmation; the dialog can remain open longer
               // than the credential lifetime or another login attempt.
-              confirm: () => processCallback(data2, attempt, true),
+              confirm: () => processCallback(data, attempt, true),
             });
             return;
           }
@@ -531,8 +531,8 @@ export function AuthProvider({ children: children2 }) {
           authTransitionEpochRef.current = attempt.epoch;
           updateBrowserLogin(null);
           cancelExpiredLogout();
-          const previous2 = userRef.current;
-          if (previous2?.userID && previous2.userID !== info2.userID) {
+          const previous = userRef.current;
+          if (previous?.userID && previous.userID !== info.userID) {
             await flushAllWorkspaceCanvasPersistence();
             if (!isCurrent(attempt)) return;
             await navigateRef.current({
@@ -547,21 +547,21 @@ export function AuthProvider({ children: children2 }) {
           }
           const persisted = await persistUser(
             {
-              accessToken: data2.accessToken,
-              idToken: data2.idToken,
-              adAttribution: normalizeAdAttribution(data2.adAttribution),
-              ...info2,
+              accessToken: data.accessToken,
+              idToken: data.idToken,
+              adAttribution: normalizeAdAttribution(data.adAttribution),
+              ...info,
             },
             attempt.epoch,
             {
               generation: authGeneration,
-              loginAttemptId: confirmedLegacy ? void 0 : data2.loginAttemptId,
+              loginAttemptId: confirmedLegacy ? void 0 : data.loginAttemptId,
               confirmedLegacy,
             },
           );
           if (persisted && isCurrent(attempt)) {
             const completed = completedTokensRef.current;
-            completed.add(data2.accessToken);
+            completed.add(data.accessToken);
             if (completed.size > MAX_COMPLETED_AUTH_CALLBACKS) {
               const oldest = completed.values().next().value;
               if (oldest) completed.delete(oldest);
@@ -608,37 +608,37 @@ export function AuthProvider({ children: children2 }) {
           authTransitionEpochRef.current = null;
       }
     };
-    const handleCallback = async (data2) => {
+    const handleCallback = async (data) => {
       if (logoutInFlightRef.current) return;
-      if (completedTokensRef.current.has(data2.accessToken)) return;
+      if (completedTokensRef.current.has(data.accessToken)) return;
       if (processing && isCurrent(processing)) {
-        if (processing.token !== data2.accessToken) pendingCallback = data2;
+        if (processing.token !== data.accessToken) pendingCallback = data;
         return;
       }
       const attempt = {
-        token: data2.accessToken,
+        token: data.accessToken,
         epoch: authEpochRef.current,
       };
       processing = attempt;
       pendingCallback = null;
       try {
-        await processCallback(data2, attempt);
+        await processCallback(data, attempt);
       } finally {
         if (processing === attempt) {
           processing = null;
-          const next2 = pendingCallback;
+          const next = pendingCallback;
           pendingCallback = null;
-          if (isCurrent(attempt) && next2) await handleCallback(next2);
+          if (isCurrent(attempt) && next) await handleCallback(next);
         }
       }
     };
-    const unsub = __HILO_AUTH__.onAuthCallback(async (data2) => {
+    const unsub = __HILO_AUTH__.onAuthCallback(async (data) => {
       const epoch = authEpochRef.current;
       try {
         const pendingDispatch = loginDispatchPromiseRef.current;
         if (pendingDispatch) await pendingDispatch;
         if (cancelled || epoch !== authEpochRef.current) return;
-        await handleCallback(data2);
+        await handleCallback(data);
       } catch (err) {
         console.error("[auth] onAuthCallback dispatch ordering error:", err);
       }
@@ -654,20 +654,20 @@ export function AuthProvider({ children: children2 }) {
     let readVersion = 0;
     const unsub = __HILO_AUTH__.onAuthChanged(async () => {
       const epoch = authEpochRef.current;
-      const version2 = ++readVersion;
+      const version = ++readVersion;
       try {
-        const { tokens: tokens2, user: storedUser } =
+        const { tokens, user: storedUser } =
           await __HILO_AUTH__.getStoredAuth();
         if (
           cancelled ||
           epoch !== authEpochRef.current ||
-          version2 !== readVersion
+          version !== readVersion
         )
           return;
         const tokenChanged =
-          (tokens2.accessToken || "") !== (userRef.current?.accessToken || "");
+          (tokens.accessToken || "") !== (userRef.current?.accessToken || "");
         if (
-          Boolean(tokens2.accessToken) !==
+          Boolean(tokens.accessToken) !==
             Boolean(userRef.current?.accessToken) ||
           (storedUser.userID || "") !== (userRef.current?.userID || "")
         ) {
@@ -676,12 +676,12 @@ export function AuthProvider({ children: children2 }) {
         }
         if (tokenChanged) cancelExpiredLogout();
         setIsLoading(false);
-        if (tokens2.accessToken) {
+        if (tokens.accessToken) {
           setUnauthenticatedReason("initial");
           applyUser({
-            accessToken: tokens2.accessToken,
-            idToken: tokens2.idToken,
-            adAttribution: normalizeAdAttribution(tokens2.adAttribution),
+            accessToken: tokens.accessToken,
+            idToken: tokens.idToken,
+            adAttribution: normalizeAdAttribution(tokens.adAttribution),
             userID: storedUser.userID,
             avatar: storedUser.avatar,
             username: storedUser.username,
@@ -726,9 +726,9 @@ export function AuthProvider({ children: children2 }) {
       authExpiryCheckRef.current.epoch === epoch
     )
       return;
-    const now2 = Date.now();
-    if (now2 - lastExpiredAtRef.current < AUTH_EXPIRED_DEDUPE_MS) return;
-    lastExpiredAtRef.current = now2;
+    const now = Date.now();
+    if (now - lastExpiredAtRef.current < AUTH_EXPIRED_DEDUPE_MS) return;
+    lastExpiredAtRef.current = now;
     const check = {
       token: expiredToken,
       epoch,
@@ -736,12 +736,12 @@ export function AuthProvider({ children: children2 }) {
     authExpiryCheckRef.current = check;
     void (async () => {
       try {
-        const { user: current2, error } =
+        const { user: current, error } =
           await auth.fetchUserInfo(expiredToken);
         if (
           authEpochRef.current !== epoch ||
           userRef.current?.accessToken !== expiredToken ||
-          current2 ||
+          current ||
           error !== "token_invalid"
         )
           return;
@@ -770,8 +770,8 @@ export function AuthProvider({ children: children2 }) {
             .then((cleared) => {
               if (cleared) setExpiredOpen(true);
             })
-            .catch((error2) => {
-              console.error("[auth] expired session cleanup failed:", error2);
+            .catch((error) => {
+              console.error("[auth] expired session cleanup failed:", error);
             });
         }, AUTH_EXPIRED_GRACE_MS);
       } catch (error) {
@@ -830,14 +830,14 @@ export function AuthProvider({ children: children2 }) {
     updateBrowserLogin(null);
   }, [updateBrowserLogin]);
   const handleConfirmBrowserLogin = reactExports.useCallback(() => {
-    const pending2 = browserLoginRef.current;
-    if (pending2 && pending2 !== browserLogin) return;
-    if (!pending2 || pending2.epoch !== authEpochRef.current) {
+    const pending = browserLoginRef.current;
+    if (pending && pending !== browserLogin) return;
+    if (!pending || pending.epoch !== authEpochRef.current) {
       updateBrowserLogin(null);
       return;
     }
     updateBrowserLogin(null);
-    void pending2.confirm();
+    void pending.confirm();
   }, [browserLogin, updateBrowserLogin]);
   const requestClearUser = reactExports.useCallback(
     async (remoteLogout = false) => {
@@ -895,16 +895,16 @@ export function AuthProvider({ children: children2 }) {
   }, [requestClearUser]);
   const updateUsername = reactExports.useCallback(
     async (username) => {
-      const current2 = userRef.current;
-      if (!current2?.userID) return;
-      const expectedUserID = current2.userID;
-      const next2 = {
-        ...current2,
+      const current = userRef.current;
+      if (!current?.userID) return;
+      const expectedUserID = current.userID;
+      const next = {
+        ...current,
         username,
       };
-      applyUser(next2);
-      if (current2.userID) {
-        setTrackUser(current2.userID, {
+      applyUser(next);
+      if (current.userID) {
+        setTrackUser(current.userID, {
           username,
         });
       }

@@ -3,3 +3,7 @@ t2@21:14	t	useTranslation() 返回的翻译函数 t
 t2@80:14	t	useTranslation() 返回的翻译函数 t
 e2@92:20	keyboardEvent	函数体读取 key/code 的键盘事件
 p3@61:14	whitelistedPath	白名单中的单个路径，过滤掉当前路径
+platform2@20:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+config2@22:10	config	去掉打包器加的数字后缀，恢复原名 config
+current2@39:42	current	去掉打包器加的数字后缀，恢复原名 current
+current2@59:44	current	去掉打包器加的数字后缀，恢复原名 current

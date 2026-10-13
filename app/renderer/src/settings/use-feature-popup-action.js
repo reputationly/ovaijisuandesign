@@ -36,15 +36,15 @@ function markClaimed(userID, popupId) {
     window.localStorage.setItem(buildKey(userID, popupId), "1");
   } catch {}
 }
-function isProjectArchiveUrl(url2) {
+function isProjectArchiveUrl(url) {
   try {
-    return new URL(url2).pathname.toLowerCase().endsWith(".zip");
+    return new URL(url).pathname.toLowerCase().endsWith(".zip");
   } catch {
     return false;
   }
 }
-function bundledProjectTemplateForAction(popupId, url2) {
-  return popupId === H3_LAUNCH_POPUP_ID && isProjectArchiveUrl(url2)
+function bundledProjectTemplateForAction(popupId, url) {
+  return popupId === H3_LAUNCH_POPUP_ID && isProjectArchiveUrl(url)
     ? "h3-playground"
     : null;
 }
@@ -57,13 +57,13 @@ function requestTrialGrantedPopup(userID) {
 }
 export function useFeaturePopupAction(popup, { source }) {
   const { t } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const [, setConfig] = useStorage("global.config");
   const navigate = useNavigate();
   const { user } = useAuth();
   const { runImportBundledProject, runImportFromUrl } =
     useProjectArchiveActions();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const actionPendingRef = reactExports.useRef(false);
   const inspirationAbortRef = reactExports.useRef(null);
   reactExports.useEffect(() => () => inspirationAbortRef.current?.abort(), []);
@@ -94,26 +94,26 @@ export function useFeaturePopupAction(popup, { source }) {
   const applyClaimResult = reactExports.useCallback(
     (status) => {
       if (!status?.claimed || !popup) return false;
-      queryClient2.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
+      queryClient.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
       if (userID) {
         markClaimed(userID, popup.id);
         setLocallyClaimedKey(claimKey);
       }
       return true;
     },
-    [claimKey, popup, queryClient2, userID],
+    [claimKey, popup, queryClient, userID],
   );
   const execute = reactExports.useCallback(async () => {
     if (!popup || actionPendingRef.current) return false;
-    const url2 = action?.url ?? "";
+    const url = action?.url ?? "";
     trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_ACTION_CLICK, {
       popup_type: "feature",
-      url: url2,
+      url,
     });
     const isRandomInspiration = action?.type === "random_inspiration";
     const isPromptPrefill = action?.type === "prefill_prompt";
     const isHomeAction = isRandomInspiration || isPromptPrefill;
-    if (!url2 && !isHomeAction) return true;
+    if (!url && !isHomeAction) return true;
     actionPendingRef.current = true;
     setIsPending(true);
     const claimPromise =
@@ -155,14 +155,14 @@ export function useFeaturePopupAction(popup, { source }) {
         }
         return true;
       }
-      if (isProjectArchiveUrl(url2)) {
+      if (isProjectArchiveUrl(url)) {
         const bundledTemplateId = bundledProjectTemplateForAction(
           popup.id,
-          url2,
+          url,
         );
         const importProject = bundledTemplateId
           ? runImportBundledProject(bundledTemplateId)
-          : runImportFromUrl(url2);
+          : runImportFromUrl(url);
         const [claimStatus, outcome] = await Promise.all([
           claimPromise,
           importProject,
@@ -170,7 +170,7 @@ export function useFeaturePopupAction(popup, { source }) {
         if (!outcome.success) {
           trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_ACTION_FAILED, {
             popup_type: "feature",
-            url: url2,
+            url,
             error_type: outcome.failureStage ?? "unknown",
             error_message: outcome.failureStage ?? "project_import_failed",
           });
@@ -182,7 +182,7 @@ export function useFeaturePopupAction(popup, { source }) {
         }
       } else {
         applyClaimResult(claimPromise ? await claimPromise : null);
-        const opened = await openExternalUrl(platform2, url2, {
+        const opened = await openExternalUrl(platform, url, {
           source,
         });
         if (!opened) throw new Error("open_external_failed");
@@ -191,7 +191,7 @@ export function useFeaturePopupAction(popup, { source }) {
     } catch (error) {
       trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_ACTION_FAILED, {
         popup_type: "feature",
-        url: url2,
+        url,
         error_type: "unknown",
         error_message: String(error),
       });
@@ -211,7 +211,7 @@ export function useFeaturePopupAction(popup, { source }) {
     isH3TrialPopup,
     navigate,
     claimed,
-    platform2,
+    platform,
     popup,
     runImportBundledProject,
     runImportFromUrl,

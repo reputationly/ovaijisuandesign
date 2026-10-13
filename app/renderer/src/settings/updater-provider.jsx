@@ -24,28 +24,28 @@ import {
 import { BUNDLED_CHANGELOG } from "./bundled-changelog.js";
 const UPDATE_DISMISS_REMINDER_MS = 2 * 60 * 60 * 1e3;
 function resolveNotification(input) {
-  const { state: state2, userTriggered } = input;
-  const dismissed = input.dismissed ?? state2.dismissed;
+  const { state, userTriggered } = input;
+  const dismissed = input.dismissed ?? state.dismissed;
   const currentTime = input.now ?? Date.now();
-  const dismissedAt = state2.dismissedAt ?? 0;
+  const dismissedAt = state.dismissedAt ?? 0;
   const dismissExpired =
     dismissed &&
     dismissedAt > 0 &&
     currentTime - dismissedAt > UPDATE_DISMISS_REMINDER_MS;
-  if (state2.forced)
+  if (state.forced)
     return {
       type: "forced-modal",
     };
   if (
-    state2.startupOwnershipUnverified &&
-    !state2.targetVersion &&
+    state.startupOwnershipUnverified &&
+    !state.targetVersion &&
     !userTriggered
   ) {
     return {
       type: "silent",
     };
   }
-  if (state2.manualOnly && state2.phase === "error") {
+  if (state.manualOnly && state.phase === "error") {
     return dismissed
       ? {
           type: "sidebar-only",
@@ -54,11 +54,11 @@ function resolveNotification(input) {
           type: "banner",
         };
   }
-  if (state2.phase === "idle" || state2.phase === "checking")
+  if (state.phase === "idle" || state.phase === "checking")
     return {
       type: "silent",
     };
-  if (state2.phase === "downloaded") {
+  if (state.phase === "downloaded") {
     if (dismissExpired)
       return {
         type: "banner",
@@ -71,7 +71,7 @@ function resolveNotification(input) {
           type: "banner",
         };
   }
-  if (state2.phase === "downloading") {
+  if (state.phase === "downloading") {
     return dismissed
       ? {
           type: "sidebar-only",
@@ -80,7 +80,7 @@ function resolveNotification(input) {
           type: "banner",
         };
   }
-  if (state2.phase === "available") {
+  if (state.phase === "available") {
     if (dismissExpired)
       return {
         type: "banner",
@@ -93,10 +93,10 @@ function resolveNotification(input) {
       type: "banner",
     };
   }
-  if (state2.phase === "error") {
+  if (state.phase === "error") {
     if (
-      state2.targetVersion &&
-      compareSemver(state2.targetVersion, state2.currentVersion) > 0
+      state.targetVersion &&
+      compareSemver(state.targetVersion, state.currentVersion) > 0
     ) {
       return dismissed
         ? {
@@ -141,17 +141,17 @@ function useUpdaterDevPreviewMode() {
     () => null,
   );
 }
-function createUpdaterDevPreviewState(mode2) {
+function createUpdaterDevPreviewState(mode) {
   const phase =
-    mode2 === "downloading"
+    mode === "downloading"
       ? "downloading"
-      : mode2 === "downloaded"
+      : mode === "downloaded"
         ? "downloaded"
-        : mode2 === "error"
+        : mode === "error"
           ? "error"
           : "available";
   const progress =
-    mode2 === "downloading"
+    mode === "downloading"
       ? {
           percent: 55,
           bytesPerSecond: 1.7 * 1024 * 1024,
@@ -162,11 +162,11 @@ function createUpdaterDevPreviewState(mode2) {
       : null;
   return {
     phase,
-    forced: mode2 === "forced",
+    forced: mode === "forced",
     policyStatus: "ready",
-    forceSource: mode2 === "forced" ? "cdn" : "none",
+    forceSource: mode === "forced" ? "cdn" : "none",
     manualDownloadUrl:
-      mode2 === "forced" ? "https://example.com/download" : null,
+      mode === "forced" ? "https://example.com/download" : null,
     manualOnly: false,
     manualRecoveryReason: null,
     manualRecoverySource: null,
@@ -175,10 +175,10 @@ function createUpdaterDevPreviewState(mode2) {
     currentVersion: "0.1.20",
     targetVersion: "0.2.0",
     subtitle:
-      mode2 === "forced"
+      mode === "forced"
         ? "关键兼容性更新，需要升级后继续使用。"
         : "修复稳定性问题并优化启动体验。",
-    requiredReason: mode2 === "forced" ? "关键服务协议升级" : null,
+    requiredReason: mode === "forced" ? "关键服务协议升级" : null,
     changelog: {
       version: "0.2.0",
       date: "2026-05-21",
@@ -191,7 +191,7 @@ function createUpdaterDevPreviewState(mode2) {
     },
     progress,
     error:
-      mode2 === "error"
+      mode === "error"
         ? {
             code: "DOWNLOAD_FAILED",
             message: "模拟下载失败，请重试。",
@@ -209,76 +209,76 @@ function createUpdaterDevPreviewState(mode2) {
   };
 }
 const UPDATE_CHECK_RESULT_TIMEOUT_MS = 3e4;
-function hasResolvedUpdateFlow(state2) {
+function hasResolvedUpdateFlow(state) {
   return (
-    state2.phase === "available" ||
-    state2.phase === "downloading" ||
-    state2.phase === "downloaded"
+    state.phase === "available" ||
+    state.phase === "downloading" ||
+    state.phase === "downloaded"
   );
 }
-function hasActiveUpdateFlow(state2) {
-  return state2.phase === "checking" || hasResolvedUpdateFlow(state2);
+function hasActiveUpdateFlow(state) {
+  return state.phase === "checking" || hasResolvedUpdateFlow(state);
 }
-function waitForUpdateCheckResult(service2) {
-  let timeout2;
+function waitForUpdateCheckResult(service) {
+  let timeout;
   let disposable;
   const promise = new Promise((resolve) => {
-    const settle2 = (state2) => {
-      if (timeout2) {
-        clearTimeout(timeout2);
-        timeout2 = void 0;
+    const settle = (state) => {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = void 0;
       }
       disposable?.dispose();
       disposable = void 0;
-      resolve(state2);
+      resolve(state);
     };
-    timeout2 = setTimeout(() => settle2(null), UPDATE_CHECK_RESULT_TIMEOUT_MS);
-    timeout2.unref?.();
-    disposable = service2.onStateChanged((event) => {
+    timeout = setTimeout(() => settle(null), UPDATE_CHECK_RESULT_TIMEOUT_MS);
+    timeout.unref?.();
+    disposable = service.onStateChanged((event) => {
       if (event.state.phase === "checking") return;
-      settle2(event.state);
+      settle(event.state);
     });
   });
   return {
     promise,
     dispose: () => {
-      if (timeout2) {
-        clearTimeout(timeout2);
-        timeout2 = void 0;
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = void 0;
       }
       disposable?.dispose();
       disposable = void 0;
     },
   };
 }
-async function runManualUpdateCheck(service2) {
+async function runManualUpdateCheck(service) {
   try {
-    const { state: state2 } = await service2.getState();
-    if (hasResolvedUpdateFlow(state2)) {
+    const { state } = await service.getState();
+    if (hasResolvedUpdateFlow(state)) {
       return {
         accepted: true,
-        state: state2,
+        state,
       };
     }
   } catch {}
-  const pendingState = waitForUpdateCheckResult(service2);
-  const checkOutcome = service2
+  const pendingState = waitForUpdateCheckResult(service);
+  const checkOutcome = service
     .check({
       userTriggered: true,
     })
     .then(
-      (result2) => ({
+      (result) => ({
         type: "check",
-        result: result2,
+        result,
       }),
       (error) => ({
         type: "check-error",
         error: error instanceof Error ? error.message : String(error),
       }),
     );
-  const stateOutcome = pendingState.promise.then((state2) => ({
+  const stateOutcome = pendingState.promise.then((state) => ({
     type: "state",
-    state: state2,
+    state,
   }));
   const firstOutcome = await Promise.race([checkOutcome, stateOutcome]);
   if (firstOutcome.type === "state") {
@@ -304,11 +304,11 @@ async function runManualUpdateCheck(service2) {
   if (!result.accepted) {
     pendingState.dispose();
     try {
-      const { state: state2 } = await service2.getState();
-      if (hasActiveUpdateFlow(state2)) {
+      const { state } = await service.getState();
+      if (hasActiveUpdateFlow(state)) {
         return {
           accepted: true,
-          state: state2,
+          state,
         };
       }
     } catch {}
@@ -318,11 +318,11 @@ async function runManualUpdateCheck(service2) {
     };
   }
   try {
-    let { state: state2 } = await service2.getState();
-    if (state2.phase === "checking") {
+    let { state } = await service.getState();
+    if (state.phase === "checking") {
       const resolved = await pendingState.promise;
       if (resolved) {
-        state2 = resolved;
+        state = resolved;
       } else {
         return {
           accepted: false,
@@ -334,7 +334,7 @@ async function runManualUpdateCheck(service2) {
     }
     return {
       accepted: true,
-      state: state2,
+      state,
     };
   } catch (error) {
     pendingState.dispose();
@@ -397,58 +397,58 @@ function showManualUpdateCheckFeedback(result, t) {
     );
     return;
   }
-  const { state: state2 } = result;
-  if (state2.phase === "error") {
-    const message2 = formatUpdaterErrorMessage(
-      state2.error?.message,
+  const { state } = result;
+  if (state.phase === "error") {
+    const message = formatUpdaterErrorMessage(
+      state.error?.message,
       t,
       t("update.error"),
     );
-    if (isUpdateCheckAlreadyInProgress(state2.error?.message)) {
-      dedupedToast.info(message2, {
+    if (isUpdateCheckAlreadyInProgress(state.error?.message)) {
+      dedupedToast.info(message, {
         id: MANUAL_UPDATE_CHECK_TOAST_ID,
       });
       return;
     }
-    dedupedToast.error(message2, {
+    dedupedToast.error(message, {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
     return;
   }
-  if (state2.phase === "checking") {
+  if (state.phase === "checking") {
     dedupedToast.info(t("update.checking"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
     return;
   }
-  if (state2.phase === "available") {
+  if (state.phase === "available") {
     dedupedToast.info(t("update.title.available"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
     return;
   }
-  if (state2.phase === "downloading") {
+  if (state.phase === "downloading") {
     dedupedToast.info(t("update.title.downloading"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
     return;
   }
-  if (state2.phase === "downloaded") {
+  if (state.phase === "downloaded") {
     dedupedToast.info(t("update.title.downloaded"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
     return;
   }
-  if (state2.phase === "idle" && !state2.targetVersion) {
+  if (state.phase === "idle" && !state.targetVersion) {
     dedupedToast.success(t("update.notAvailable"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
   }
 }
-export const UpdaterProvider = ({ children: children2 }) => {
+export const UpdaterProvider = ({ children }) => {
   const { t } = useTranslation();
   const devPreviewMode = useUpdaterDevPreviewMode();
-  const [state2, setState] = reactExports.useState(() =>
+  const [state, setState] = reactExports.useState(() =>
     devPreviewMode
       ? createUpdaterDevPreviewState(devPreviewMode)
       : createInitialState(),
@@ -461,7 +461,7 @@ export const UpdaterProvider = ({ children: children2 }) => {
     downloadCancellation: devPreviewMode !== null,
   });
   const serviceRef = reactExports.useRef(null);
-  const stateRef = reactExports.useRef(state2);
+  const stateRef = reactExports.useRef(state);
   const wasDevPreviewRef = reactExports.useRef(devPreviewMode !== null);
   reactExports.useEffect(() => {
     if (devPreviewMode) {
@@ -486,18 +486,18 @@ export const UpdaterProvider = ({ children: children2 }) => {
     setState(initial);
   }, [devPreviewMode]);
   reactExports.useEffect(() => {
-    const dismissedAt = state2.dismissedAt ?? 0;
+    const dismissedAt = state.dismissedAt ?? 0;
     const supportsReminder =
-      state2.phase === "available" || state2.phase === "downloaded";
-    if (!state2.dismissed || dismissedAt <= 0 || !supportsReminder)
+      state.phase === "available" || state.phase === "downloaded";
+    if (!state.dismissed || dismissedAt <= 0 || !supportsReminder)
       return void 0;
     const remainingMs = dismissedAt + UPDATE_DISMISS_REMINDER_MS - Date.now();
     if (remainingMs <= 0) return void 0;
-    const timer2 = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setNotificationNow(Date.now());
     }, remainingMs + 1);
-    return () => window.clearTimeout(timer2);
-  }, [state2.dismissed, state2.dismissedAt, state2.phase]);
+    return () => window.clearTimeout(timer);
+  }, [state.dismissed, state.dismissedAt, state.phase]);
   reactExports.useEffect(() => {
     if (devPreviewMode) return void 0;
     try {
@@ -512,15 +512,15 @@ export const UpdaterProvider = ({ children: children2 }) => {
         setState(event.state);
         setTrigger(event.trigger);
       });
-      svc.getVersion().then((version2) => {
+      svc.getVersion().then((version) => {
         if (disposed) return;
         setState((prev) => {
-          const next2 = {
+          const next = {
             ...prev,
-            currentVersion: version2,
+            currentVersion: version,
           };
-          stateRef.current = next2;
-          return next2;
+          stateRef.current = next;
+          return next;
         });
       });
       svc.getCapabilities().then((nextCapabilities) => {
@@ -549,22 +549,22 @@ export const UpdaterProvider = ({ children: children2 }) => {
         setState(previewState);
         return;
       }
-      const service2 = serviceRef.current;
-      if (!service2) return;
+      const service = serviceRef.current;
+      if (!service) return;
       if (opts?.userTriggered) {
-        void runManualUpdateCheck(service2).then((result) =>
+        void runManualUpdateCheck(service).then((result) =>
           showManualUpdateCheckFeedback(result, t),
         );
         return;
       }
-      service2.check(opts);
+      service.check(opts);
     },
     [t, devPreviewMode],
   );
   const download = reactExports.useCallback(() => {
     if (devPreviewMode) {
       setState((prev) => {
-        const next2 = {
+        const next = {
           ...prev,
           phase: "downloading",
           progress: {
@@ -582,8 +582,8 @@ export const UpdaterProvider = ({ children: children2 }) => {
           dismissedVersion: null,
           dismissedAt: 0,
         };
-        stateRef.current = next2;
-        return next2;
+        stateRef.current = next;
+        return next;
       });
       return;
     }
@@ -593,51 +593,51 @@ export const UpdaterProvider = ({ children: children2 }) => {
     if (
       !devPreviewMode ||
       devPreviewMode === "downloading" ||
-      state2.phase !== "downloading"
+      state.phase !== "downloading"
     ) {
       return void 0;
     }
-    let percent2 = 0;
-    const timer2 = setInterval(() => {
-      percent2 += 20;
+    let percent = 0;
+    const timer = setInterval(() => {
+      percent += 20;
       setState((prev) => {
-        if (percent2 >= 100) {
-          const next22 = {
+        if (percent >= 100) {
+          const next = {
             ...prev,
             phase: "downloaded",
             progress: null,
             userTriggeredDownload: false,
           };
-          stateRef.current = next22;
-          return next22;
+          stateRef.current = next;
+          return next;
         }
         const total = 100 * 1024 * 1024;
-        const next2 = {
+        const next = {
           ...prev,
           progress: {
-            percent: percent2,
+            percent,
             bytesPerSecond: 2.4 * 1024 * 1024,
-            transferred: Math.round((total * percent2) / 100),
+            transferred: Math.round((total * percent) / 100),
             total,
             delta: 20 * 1024 * 1024,
           },
         };
-        stateRef.current = next2;
-        return next2;
+        stateRef.current = next;
+        return next;
       });
     }, 500);
-    return () => clearInterval(timer2);
-  }, [devPreviewMode, state2.phase]);
+    return () => clearInterval(timer);
+  }, [devPreviewMode, state.phase]);
   const cancelDownload = reactExports.useCallback(() => {
     if (devPreviewMode) {
       setState((prev) => {
-        const next2 = {
+        const next = {
           ...prev,
           phase: "available",
           progress: null,
         };
-        stateRef.current = next2;
-        return next2;
+        stateRef.current = next;
+        return next;
       });
       return;
     }
@@ -670,14 +670,14 @@ export const UpdaterProvider = ({ children: children2 }) => {
   const dismissAction = reactExports.useCallback(() => {
     if (devPreviewMode) {
       setState((prev) => {
-        const next2 = {
+        const next = {
           ...prev,
           dismissed: true,
           dismissedVersion: prev.targetVersion,
           dismissedAt: Date.now(),
         };
-        stateRef.current = next2;
-        return next2;
+        stateRef.current = next;
+        return next;
       });
       return;
     }
@@ -686,19 +686,19 @@ export const UpdaterProvider = ({ children: children2 }) => {
   const notification = reactExports.useMemo(
     () =>
       resolveNotification({
-        state: state2,
+        state,
         userTriggered: trigger === "user",
         now: Math.max(notificationNow, Date.now()),
         // dismissed is now read from state SSOT (main process)
       }),
-    [state2, trigger, notificationNow],
+    [state, trigger, notificationNow],
   );
   const value = reactExports.useMemo(
     () => ({
-      state: state2,
+      state,
       trigger,
       notification,
-      dismissed: state2.dismissed,
+      dismissed: state.dismissed,
       capabilities,
       check,
       download,
@@ -708,7 +708,7 @@ export const UpdaterProvider = ({ children: children2 }) => {
       dismiss: dismissAction,
     }),
     [
-      state2,
+      state,
       trigger,
       notification,
       capabilities,
@@ -721,7 +721,7 @@ export const UpdaterProvider = ({ children: children2 }) => {
     ],
   );
   return (
-    <UpdaterContext.Provider value={value}>{children2}</UpdaterContext.Provider>
+    <UpdaterContext.Provider value={value}>{children}</UpdaterContext.Provider>
   );
 };
 ({

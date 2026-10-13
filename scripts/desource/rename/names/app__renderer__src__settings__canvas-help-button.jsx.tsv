@@ -1,2 +1,3 @@
 key	new	reason
 t2@33:14	t	useTranslation() 返回的翻译函数 t
+platform2@34:9	platform	去掉打包器加的数字后缀，恢复原名 platform

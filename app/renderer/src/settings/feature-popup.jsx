@@ -41,7 +41,7 @@ export function FeaturePopup({ popup, onClose }) {
   } = useFeaturePopupAction(popup, {
     source: "server-popup.feature",
   });
-  const url2 = activeAction?.url ?? "";
+  const url = activeAction?.url ?? "";
   const label = activeAction?.label ?? "";
   const trialWindowActive = popup.trial_active !== false;
   const isH3TrialPopup = popup.id === H3_LAUNCH_POPUP_ID;
@@ -91,7 +91,7 @@ export function FeaturePopup({ popup, onClose }) {
       eventDetails.reason === "escape-key" ? "escape" : "cancel_button";
     trackEvent(TRACK_EVENTS.SERVER_DRIVEN_POPUP_DISMISS, {
       popup_type: POPUP_TYPE,
-      url: url2,
+      url,
       method,
     });
     beginClose();

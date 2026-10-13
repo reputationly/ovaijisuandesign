@@ -1,2 +1,6 @@
 key	new	reason
 b3@43:36	byte	随机字节，转成两位十六进制
+bytes2@29:9	bytes	去掉打包器加的数字后缀，恢复原名 bytes
+hex2@43:9	hex	去掉打包器加的数字后缀，恢复原名 hex
+raw2@75:11	raw	去掉打包器加的数字后缀，恢复原名 raw
+now2@101:9	now	去掉打包器加的数字后缀，恢复原名 now

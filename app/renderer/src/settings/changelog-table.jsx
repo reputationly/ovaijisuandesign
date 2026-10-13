@@ -63,10 +63,10 @@ export const BASE = "/api/memory";
 export const COMPACTION_BASE = "/api/memory-compaction";
 async function readError(res) {
   try {
-    const data2 = await res.json();
-    if (typeof data2.message === "string") return data2.message;
-    if (Array.isArray(data2.message)) return data2.message.join("; ");
-    if (data2.error) return data2.error;
+    const data = await res.json();
+    if (typeof data.message === "string") return data.message;
+    if (Array.isArray(data.message)) return data.message.join("; ");
+    if (data.error) return data.error;
   } catch {}
   return `${res.status} ${res.statusText}`;
 }
@@ -77,11 +77,11 @@ export async function expectOk(res) {
 async function listMemory(fetcher, scope = "all") {
   const res = await fetcher(`${BASE}?scope=${encodeURIComponent(scope)}`);
   await expectOk(res);
-  const data2 = await res.json();
-  return data2.entries;
+  const data = await res.json();
+  return data.entries;
 }
-async function readMemory(fetcher, scope, name2) {
-  const res = await fetcher(`${BASE}/${scope}/${encodeURIComponent(name2)}`);
+async function readMemory(fetcher, scope, memoryName) {
+  const res = await fetcher(`${BASE}/${scope}/${encodeURIComponent(memoryName)}`);
   await expectOk(res);
   return await res.json();
 }
@@ -111,20 +111,20 @@ async function restoreSnapshot(fetcher, snapshotId) {
 const ROOT_KEY = ["memory"];
 export const memoryQueryKeys = {
   list: (scopeKey, scope) => [...ROOT_KEY, scopeKey, "list", scope],
-  search: (scopeKey, query, scope, type2) => [
+  search: (scopeKey, query, scope, type) => [
     ...ROOT_KEY,
     scopeKey,
     "search",
     query,
     scope,
-    type2 ?? "",
+    type ?? "",
   ],
-  entry: (scopeKey, scope, name2) => [
+  entry: (scopeKey, scope, memoryName) => [
     ...ROOT_KEY,
     scopeKey,
     "entry",
     scope,
-    name2,
+    memoryName,
   ],
   recentAuto: (scopeKey, options) => [
     ...ROOT_KEY,
@@ -187,11 +187,11 @@ export function useMemoryEntry(scope, name2) {
 export function useSnapshotRestore() {
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ snapshotId }) => restoreSnapshot(fetcher, snapshotId),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: memoryQueryKeys.scopeRoot(scopeKey),
       });
     },
@@ -305,13 +305,13 @@ export function ChangelogTable({
         <span className="flex-1 min-w-0">{t("home.news")}</span>
         <span className="w-[100px] shrink-0 text-right">{t("home.type")}</span>
       </div>
-      {visibleRows.map((item, index2) => (
+      {visibleRows.map((item, index) => (
         <button
           key={item.id}
           type="button"
           className="home-fade-up w-full group flex items-center border-b border-border py-5 pr-6 hover:bg-foreground/8 transition-colors duration-150 cursor-pointer text-left"
           style={{
-            animationDelay: `${index2 * 30}ms`,
+            animationDelay: `${index * 30}ms`,
           }}
           onClick={() => onRowClick?.(item)}
           onMouseEnter={() => onRowHover?.(item)}

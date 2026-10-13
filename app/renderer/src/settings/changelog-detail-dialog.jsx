@@ -78,10 +78,10 @@ export function ChangelogDetailDialog({
               {t("home.changelog")}
             </span>
             <ul className="flex flex-col gap-1 text-xs text-foreground/80">
-              {item?.changelog.map((text2) => (
-                <li key={text2}>
+              {item?.changelog.map((text) => (
+                <li key={text}>
                   {"- "}
-                  {text2}
+                  {text}
                 </li>
               ))}
             </ul>

@@ -39,8 +39,8 @@ const PROXY_RECOMMENDATION_CODES = new Set([
   "try_direct_proxy_mode",
   "try_system_proxy_mode",
 ]);
-function diagnosticsRecommendationKey(code2) {
-  return `topbar.diagnostics.recommendation.${code2}`;
+function diagnosticsRecommendationKey(code) {
+  return `topbar.diagnostics.recommendation.${code}`;
 }
 function diagnosticsProbeLabelKey(target) {
   return `topbar.diagnostics.probe.${target}`;
@@ -51,9 +51,9 @@ function diagnosticsProbeStatusKey(status) {
 function diagnosticsFailureKindKey(failureKind) {
   return `topbar.diagnostics.failureKind.${failureKind}`;
 }
-function proxyModeForDiagnosticsRecommendation(code2) {
-  if (code2 === "try_direct_proxy_mode") return "direct";
-  if (code2 === "try_system_proxy_mode") return "system";
+function proxyModeForDiagnosticsRecommendation(code) {
+  if (code === "try_direct_proxy_mode") return "direct";
+  if (code === "try_system_proxy_mode") return "system";
   return null;
 }
 function worstDiagnosticsStatusCardSeverity(cards) {
@@ -157,42 +157,42 @@ function pickWorstSeverity(probes, targets, failedSeverity) {
   if (matched.every((probe) => probe.status === "skipped")) return "warning";
   return "ok";
 }
-function buildDiagnosticsDomainCards(snapshot2) {
+function buildDiagnosticsDomainCards(snapshot) {
   const localSeverity = pickWorstSeverity(
-    snapshot2?.probes,
+    snapshot?.probes,
     LOCAL_TARGETS,
     "error",
   );
   const cloudSeverity = pickWorstSeverity(
-    snapshot2?.probes,
+    snapshot?.probes,
     CLOUD_TARGETS,
     "error",
   );
   const accountProbes =
-    snapshot2?.probes.filter((probe) => probe.target === "team_account_api") ??
+    snapshot?.probes.filter((probe) => probe.target === "team_account_api") ??
     [];
   const hasAccountProbe = accountProbes.length > 0;
   const accountProbeUnconfigured =
     hasAccountProbe &&
     accountProbes.every((probe) => probe.status === "skipped");
   const accountProbeNotApplicable =
-    accountProbeUnconfigured && snapshot2?.release.channel === "staging";
+    accountProbeUnconfigured && snapshot?.release.channel === "staging";
   const accountSeverity = pickWorstSeverity(
-    snapshot2?.probes,
+    snapshot?.probes,
     ACCOUNT_TARGETS,
     "error",
   );
   const updateSeverity = pickWorstSeverity(
-    snapshot2?.probes,
+    snapshot?.probes,
     UPDATE_TARGETS,
     "warning",
   );
   const observabilitySeverity = pickWorstSeverity(
-    snapshot2?.probes,
+    snapshot?.probes,
     OBSERVABILITY_TARGETS,
     "warning",
   );
-  const proxyRecommendation = snapshot2?.recommendations.find(
+  const proxyRecommendation = snapshot?.recommendations.find(
     (recommendation) => PROXY_RECOMMENDATION_CODES.has(recommendation.code),
   );
   const proxySeverity = proxyRecommendation?.severity ?? "ok";
@@ -237,9 +237,9 @@ function buildDiagnosticsDomainCards(snapshot2) {
       id: "proxy",
       severity: proxySeverity,
       titleKey: "topbar.diagnostics.domain.proxy.title",
-      detailKey: snapshot2?.tunDetected
+      detailKey: snapshot?.tunDetected
         ? "topbar.diagnostics.domain.proxy.tun"
-        : snapshot2?.proxyDetected
+        : snapshot?.proxyDetected
           ? "topbar.diagnostics.domain.proxy.detected"
           : "topbar.diagnostics.domain.proxy.ok",
     },
@@ -249,8 +249,8 @@ function buildDiagnosticsDomainCards(snapshot2) {
 function statusOrUnknown(value, fallback) {
   return value ?? fallback;
 }
-function readinessLabel(t, state2) {
-  return t(`topbar.diagnostics.readiness.${state2}`);
+function readinessLabel(t, state) {
+  return t(`topbar.diagnostics.readiness.${state}`);
 }
 function finiteNumberText(value) {
   return typeof value === "number" && Number.isFinite(value)
@@ -319,18 +319,18 @@ function isIntegrityNotApplicable(integrity) {
     INTEGRITY_NOT_APPLICABLE_REASONS.has(integrity.reason)
   );
 }
-function buildIntegrityDetail(t, state2) {
-  return t(`topbar.diagnostics.status.integrity.detail.${state2}`);
+function buildIntegrityDetail(t, state) {
+  return t(`topbar.diagnostics.status.integrity.detail.${state}`);
 }
-function readinessSeverity(state2) {
-  if (state2 === "not_ready") return "error";
-  if (state2 === "degraded") return "warning";
-  if (state2 === "unknown") return "pending";
+function readinessSeverity(state) {
+  if (state === "not_ready") return "error";
+  if (state === "degraded") return "warning";
+  if (state === "unknown") return "pending";
   return "ok";
 }
-function markerSeverity(state2) {
-  if (state2 === "present") return "warning";
-  if (state2 === "unknown") return "pending";
+function markerSeverity(state) {
+  if (state === "present") return "warning";
+  if (state === "unknown") return "pending";
   return "ok";
 }
 function memorySeverity(pressure) {
@@ -338,10 +338,10 @@ function memorySeverity(pressure) {
   if (pressure === "unknown") return "pending";
   return "ok";
 }
-function integritySeverity(state2) {
-  if (state2 === "error") return "error";
-  if (state2 === "warning") return "warning";
-  if (state2 === "unknown") return "pending";
+function integritySeverity(state) {
+  if (state === "error") return "error";
+  if (state === "warning") return "warning";
+  if (state === "unknown") return "pending";
   return "ok";
 }
 function strongestSeverity(severities) {
@@ -428,14 +428,14 @@ function probeAttentionSeverity(status) {
   return "ok";
 }
 function buildAttentionProbeMeta(probe, t) {
-  const meta2 = [t(diagnosticsProbeStatusKey(probe.status))];
+  const meta = [t(diagnosticsProbeStatusKey(probe.status))];
   const hasHttpStatus =
     typeof probe.httpStatus === "number" && probe.httpStatus > 0;
   if (probe.failureKind && !(probe.failureKind === "http" && hasHttpStatus)) {
-    meta2.push(t(diagnosticsFailureKindKey(probe.failureKind)));
+    meta.push(t(diagnosticsFailureKindKey(probe.failureKind)));
   }
   if (hasHttpStatus) {
-    meta2.push(
+    meta.push(
       t("topbar.diagnostics.failureDetails.httpStatus", {
         status: probe.httpStatus,
       }),
@@ -445,13 +445,13 @@ function buildAttentionProbeMeta(probe, t) {
     typeof probe.durationMs === "number" &&
     Number.isFinite(probe.durationMs)
   ) {
-    meta2.push(
+    meta.push(
       t("topbar.diagnostics.failureDetails.duration", {
         duration: Math.round(probe.durationMs),
       }),
     );
   }
-  return meta2;
+  return meta;
 }
 function buildDiagnosticsAttentionProbes(probes, t) {
   return (probes ?? [])
@@ -552,7 +552,7 @@ export function DiagnosticsStatusButton({
     workspaceBinding: workspaceRuntime?.gatewayBinding,
   });
   const { proxyMode, loading, refresh, setProxyMode } = live;
-  const snapshot2 = mockSeverity
+  const snapshot = mockSeverity
     ? mockSeverity === "pending"
       ? null
       : {
@@ -585,40 +585,40 @@ export function DiagnosticsStatusButton({
   }, [open, refresh]);
   const failedProbeCount = reactExports.useMemo(
     () =>
-      snapshot2?.probes.filter((probe) => probe.status === "failed").length ??
+      snapshot?.probes.filter((probe) => probe.status === "failed").length ??
       0,
-    [snapshot2],
+    [snapshot],
   );
   const statusCards = reactExports.useMemo(
     () =>
-      buildDiagnosticsStatusCards(snapshot2?.status, (key2, options) =>
-        String(t(key2, options)),
+      buildDiagnosticsStatusCards(snapshot?.status, (key, options) =>
+        String(t(key, options)),
       ),
-    [snapshot2?.status, t],
+    [snapshot?.status, t],
   );
   const summary = reactExports.useMemo(
     () =>
       summarizeDiagnosticsOverall({
-        snapshot: snapshot2,
+        snapshot,
         error,
         failedProbeCount,
         statusSeverity: worstDiagnosticsStatusCardSeverity(statusCards),
       }),
-    [error, failedProbeCount, snapshot2, statusCards],
+    [error, failedProbeCount, snapshot, statusCards],
   );
   const domainCards = reactExports.useMemo(
-    () => buildDiagnosticsDomainCards(snapshot2),
-    [snapshot2],
+    () => buildDiagnosticsDomainCards(snapshot),
+    [snapshot],
   );
   const attentionProbes = reactExports.useMemo(
     () =>
-      buildDiagnosticsAttentionProbes(snapshot2?.probes, (key2, options) =>
-        String(t(key2, options)),
+      buildDiagnosticsAttentionProbes(snapshot?.probes, (key, options) =>
+        String(t(key, options)),
       ),
-    [snapshot2?.probes, t],
+    [snapshot?.probes, t],
   );
   const triggerText =
-    snapshot2 || error
+    snapshot || error
       ? t(`topbar.diagnostics.trigger.${summary.severity}`)
       : t("topbar.diagnostics.trigger.pending");
   const showTrigger =
@@ -626,9 +626,9 @@ export function DiagnosticsStatusButton({
     (summary.triggerSeverity !== "ok" && summary.triggerSeverity !== "pending");
   if (!showTrigger) return null;
   const handleCopy = async () => {
-    if (!snapshot2) return;
+    if (!snapshot) return;
     try {
-      await navigator.clipboard.writeText(JSON.stringify(snapshot2, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(snapshot, null, 2));
       dedupedToast.success(t("topbar.diagnostics.copySuccess"));
     } catch {
       dedupedToast.error(t("topbar.diagnostics.copyFailed"));
@@ -646,7 +646,7 @@ export function DiagnosticsStatusButton({
   const handleUpload = async () => {
     const result = await window.hilo?.diagnostics?.uploadLogs?.("manual", {
       source: "topbar_status_diagnostics",
-      snapshot: snapshot2,
+      snapshot,
     });
     if (result?.success)
       dedupedToast.success(t("topbar.diagnostics.uploadSuccess"));
@@ -673,10 +673,10 @@ export function DiagnosticsStatusButton({
       setProxyUpdating(false);
     }
   };
-  const handleRecommendationAction = async (mode2) => {
+  const handleRecommendationAction = async (mode) => {
     setProxyUpdating(true);
     try {
-      const ok = await setProxyMode(mode2);
+      const ok = await setProxyMode(mode);
       if (ok) dedupedToast.success(t("topbar.diagnostics.proxyModeSaved"));
       else dedupedToast.error(t("topbar.diagnostics.proxyModeFailed"));
     } finally {
@@ -804,7 +804,7 @@ export function DiagnosticsStatusButton({
             variant="outline"
             size="xs"
             onClick={() => void handleCopy()}
-            disabled={!snapshot2}
+            disabled={!snapshot}
             data-action-ui-id="topbar.diagnostics.copy"
           >
             <ClipboardIcon className="size-3.5" />
@@ -890,7 +890,7 @@ export function DiagnosticsStatusButton({
               </div>
               <div className="space-y-1.5">
                 {attentionProbes.map(
-                  ({ target, displayLabelKey, severity, meta: meta2 }) => (
+                  ({ target, displayLabelKey, severity, meta }) => (
                     <div
                       key={target}
                       className="flex items-start justify-between gap-3"
@@ -900,7 +900,7 @@ export function DiagnosticsStatusButton({
                         {t(displayLabelKey)}
                       </div>
                       <div className="flex shrink-0 flex-wrap justify-end gap-1">
-                        {meta2.map((item) => (
+                        {meta.map((item) => (
                           <span
                             key={item}
                             className={cn(
@@ -942,9 +942,9 @@ export function DiagnosticsStatusButton({
                 </SelectValue>
               </SelectTrigger>
               <SelectContent align="end">
-                {PROXY_MODES.map((mode2) => (
-                  <SelectItem key={mode2} value={mode2}>
-                    {t(`topbar.diagnostics.proxyMode.${mode2}`)}
+                {PROXY_MODES.map((mode) => (
+                  <SelectItem key={mode} value={mode}>
+                    {t(`topbar.diagnostics.proxyMode.${mode}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -969,13 +969,13 @@ export function DiagnosticsStatusButton({
             </div>
           </div>
         )}
-        {snapshot2?.recommendations.length ? (
+        {snapshot?.recommendations.length ? (
           <div className="px-4 py-3">
             <div className="mb-1.5 text-[12px] font-medium">
               {t("topbar.diagnostics.recommendations")}
             </div>
             <ul className="space-y-1 text-[11px] leading-relaxed text-muted-foreground">
-              {snapshot2.recommendations.map((item) => {
+              {snapshot.recommendations.map((item) => {
                 const actionMode = proxyModeForDiagnosticsRecommendation(
                   item.code,
                 );
