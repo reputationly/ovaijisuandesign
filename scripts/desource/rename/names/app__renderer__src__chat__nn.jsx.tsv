@@ -1,0 +1,122 @@
+key	新名	依据
+L@2:29	useIconComponents	`useIconComponents` 是从 vendor 图标上下文读取 Lucide 图标组件。
+R@4:10	markdownRenderOptionsContext	`markdownRenderOptionsContext` 是Mermaid 读取 Markdown 渲染选项的上下文，且与 ae.jsx 导出提议一致。
+y3@4:13	useClassNameMerger	`useClassNameMerger` 是从 ae.jsx 读取类名合并函数，且与其导出提议一致。
+de@5:10	useMermaidPluginOptions	`useMermaidPluginOptions` 是从媒体编辑上下文读取 Mermaid 插件选项。
+Bn@7:5	DEFAULT_DEBOUNCE_DELAY_MS	`DEFAULT_DEBOUNCE_DELAY_MS` 是IntersectionObserver 处理前的默认防抖时长。
+An@9:5	DEFAULT_INTERSECTION_ROOT_MARGIN	`DEFAULT_INTERSECTION_ROOT_MARGIN` 是延迟渲染观察器的默认根边距。
+On@11:5	DEFAULT_IDLE_TIMEOUT_MS	`DEFAULT_IDLE_TIMEOUT_MS` 是浏览器空闲回调的默认超时时长。
+Rt@13:10	useLazyIntersectionRendering	`useLazyIntersectionRendering` 是在容器进入视口并获得空闲调度后允许内容渲染。
+e2@13:13	renderOptions	`renderOptions` 是控制延迟渲染行为的选项对象。
+t2@15:18	immediate	`immediate` 是是否跳过可见性和空闲调度等待。
+o2@16:22	debounceDelay	`debounceDelay` 是IntersectionObserver 事件的防抖时长。
+n2@17:19	rootMargin	`rootMargin` 是观察器视口边界的扩展距离。
+r2@18:20	idleTimeout	`idleTimeout` 是空闲任务等待执行的超时时长。
+s2@20:6	shouldRender	`shouldRender` 是观察到容器并完成空闲调度后是否允许渲染。
+a2@20:10	setShouldRender	`setShouldRender` 是更新延迟渲染的允许状态。
+l2@21:5	containerRef	`containerRef` 是供 IntersectionObserver 观察的渲染容器引用。
+i2@22:5	debounceTimeoutRef	`debounceTimeoutRef` 是合并观察器事件的定时器 ID。
+d2@23:5	idleCallbackRef	`idleCallbackRef` 是待执行空闲回调的 ID。
+c3@24:5	createFallbackIdleScheduler	`createFallbackIdleScheduler` 是以定时器模拟 requestIdleCallback 的回退调度器。
+u4@25:14	idleCallback	`idleCallback` 是等待浏览器空闲时执行的回调。
+f2@26:13	fallbackStartTime	`fallbackStartTime` 是模拟空闲回调开始时的时间。
+p3@36:5	scheduleIdleCallback	`scheduleIdleCallback` 是优先使用 requestIdleCallback，否则以定时器安排空闲回调。
+u4@39:14	idleCallback	`idleCallback` 是等待浏览器空闲时执行的回调。
+f2@39:18	idleOptions	`idleOptions` 是传递给浏览器空闲回调的调度选项。
+m3@43:5	cancelIdleWork	`cancelIdleWork` 是取消浏览器空闲回调或其定时器回退任务。
+u4@46:14	idleCallbackId	`idleCallbackId` 是待取消的浏览器空闲回调 ID。
+u4@47:14	timeoutId	`timeoutId` 是定时器回退调度返回的 ID。
+u4@58:11	observedContainer	`observedContainer` 是交给 IntersectionObserver 观察的 DOM 元素。
+f2@62:11	cancelPendingTimers	`cancelPendingTimers` 是清除防抖定时器和已排队的空闲回调。
+h2@66:9	scheduleRenderWhenIdle	`scheduleRenderWhenIdle` 是在容器可见后安排空闲渲染。
+v2@66:15	intersectionObserver	`intersectionObserver` 是管理容器可见性和渲染调度的观察器实例。
+w3@68:14	idleDeadline	`idleDeadline` 是提供空闲回调的剩余时间与超时状态。
+b3@85:9	handleIntersection	`handleIntersection` 是读取观察器记录并触发空闲渲染调度。
+v2@85:15	intersectionObserver	`intersectionObserver` 是管理容器可见性和渲染调度的观察器实例。
+M2@88:19	latestEntry	`latestEntry` 是本次观察器记录中最新的可见性记录。
+H2@88:23	isLatestEntryIntersecting	`isLatestEntryIntersecting` 是最新观察记录是否与视口相交。
+w3@89:19	intersectionRecords	`intersectionRecords` 是IntersectionObserver 当前待处理的记录列表。
+g2@97:9	processIntersectionEntry	`processIntersectionEntry` 是根据交叉状态选择安排渲染或取消调度。
+v2@97:15	intersectionEntry	`intersectionEntry` 是当前处理的单条容器交叉状态记录。
+w3@97:19	intersectionObserver	`intersectionObserver` 是管理容器可见性和渲染调度的观察器实例。
+T2@100:9	intersectionObserver	`intersectionObserver` 是管理容器可见性和渲染调度的观察器实例。
+v2@101:12	intersectionEntries	`intersectionEntries` 是IntersectionObserver 回调收到的记录列表。
+w3@102:22	intersectionEntry	`intersectionEntry` 是当前处理的单条容器交叉状态记录。
+Nn@125:5	ZoomableDiagram	`ZoomableDiagram` 是支持缩放、平移和全屏布局的图表容器组件。
+e2@126:13	children	`children` 是图表缩放容器接收的内部内容。
+t2@127:14	className	`className` 是附加到图表缩放容器的 CSS 类名。
+o2@128:12	minZoom	`minZoom` 是交互缩放的最小比例。
+n2@129:12	maxZoom	`maxZoom` 是交互缩放的最大比例。
+r2@130:13	zoomStep	`zoomStep` 是每次点击或滚轮调整缩放的比例变化量。
+s2@131:17	showControls	`showControls` 是是否显示缩放操作按钮。
+a2@132:16	initialZoom	`initialZoom` 是缩放状态的初始比例。
+l2@133:15	fullscreen	`fullscreen` 是图表容器是否使用全屏布局。
+i2@135:24	resetZoomIcon	`resetZoomIcon` 是重置缩放操作使用的图标组件。
+d2@135:40	zoomInIcon	`zoomInIcon` 是放大操作使用的图标组件。
+c3@135:57	zoomOutIcon	`zoomOutIcon` 是缩小操作使用的图标组件。
+p3@136:5	mergeClassNames	`mergeClassNames` 是组合图表容器 CSS 类名的函数。
+m3@137:5	wheelContainerRef	`wheelContainerRef` 是接收滚轮缩放事件的容器引用。
+u4@138:5	pointerContainerRef	`pointerContainerRef` 是接收指针平移事件的容器引用。
+f2@139:6	zoomLevel	`zoomLevel` 是图表当前的缩放比例。
+h2@139:10	setZoomLevel	`setZoomLevel` 是更新图表缩放比例。
+b3@140:6	panOffset	`panOffset` 是图表当前的水平与垂直平移距离。
+g2@140:10	setPanOffset	`setPanOffset` 是更新图表平移距离。
+T2@144:6	isDragging	`isDragging` 是用户是否正在拖动图表。
+v2@144:10	setIsDragging	`setIsDragging` 是更新图表拖动状态。
+w3@145:6	pointerStartPosition	`pointerStartPosition` 是本次拖动开始时的指针坐标。
+P3@145:10	setPointerStartPosition	`setPointerStartPosition` 是保存本次拖动开始时的指针坐标。
+M2@149:6	dragStartPanOffset	`dragStartPanOffset` 是拖动开始时图表原有的平移距离。
+H2@149:10	setDragStartPanOffset	`setDragStartPanOffset` 是记录拖动开始时图表的平移距离。
+S3@153:5	adjustZoom	`adjustZoom` 是将缩放比例调整到最小与最大范围内。
+x2@154:8	zoomDelta	`zoomDelta` 是本次缩放比例调整的增量。
+q2@155:13	nextZoomLevel	`nextZoomLevel` 是应用缩放增量并限制范围后的比例。
+F2@159:5	zoomIn	`zoomIn` 是按一个缩放步长放大图表。
+j2@162:5	zoomOut	`zoomOut` 是按一个缩放步长缩小图表。
+z3@165:5	resetZoomAndPan	`resetZoomAndPan` 是恢复初始缩放比例并清零平移距离。
+B2@172:5	handleWheelZoom	`handleWheelZoom` 是将滚轮事件转换为图表缩放操作。
+x2@173:8	wheelEvent	`wheelEvent` 是图表容器收到的滚轮事件。
+q2@175:13	wheelZoomDelta	`wheelZoomDelta` 是根据滚轮方向计算出的缩放增量。
+_2@180:5	handlePointerDown	`handlePointerDown` 是捕获主指针并记录拖动起点。
+x2@181:8	pointerEvent	`pointerEvent` 是图表容器收到的指针事件。
+q2@189:13	eventTarget	`eventTarget` 是当前指针事件对应的 DOM 元素。
+Q2@194:5	handlePointerMove	`handlePointerMove` 是按指针移动距离更新图表平移位置。
+x2@195:8	pointerEvent	`pointerEvent` 是图表容器收到的指针事件。
+q2@198:13	pointerDeltaX	`pointerDeltaX` 是指针相对拖动起点的水平位移。
+X2@199:11	pointerDeltaY	`pointerDeltaY` 是指针相对拖动起点的垂直位移。
+U2@207:5	handlePointerEnd	`handlePointerEnd` 是结束拖动并释放捕获的指针。
+x2@207:36	pointerEvent	`pointerEvent` 是图表容器收到的指针事件。
+q2@209:11	eventTarget	`eventTarget` 是当前指针事件对应的 DOM 元素。
+x2@214:11	wheelContainer	`wheelContainer` 是注册和移除滚轮监听器的 DOM 元素。
+x2@226:11	pointerContainer	`pointerContainer` 是注册和移除指针监听器的 DOM 元素。
+e2@327:10	chart	`chart` 是待交给 Mermaid 渲染的图表源码。
+t2@328:14	className	`className` 是附加到图表缩放容器的 CSS 类名。
+o2@329:11	config	`config` 是传给 Mermaid 插件的图表配置。
+n2@330:15	fullscreen	`fullscreen` 是图表容器是否使用全屏布局。
+r2@331:17	showControls	`showControls` 是是否显示缩放操作按钮。
+s2@333:7	mergeClassNames	`mergeClassNames` 是组合图表容器 CSS 类名的函数。
+a2@334:6	renderError	`renderError` 是Mermaid 插件缺失或图表渲染失败的信息。
+l2@334:10	setRenderError	`setRenderError` 是更新 Mermaid 图表的渲染错误状态。
+i2@335:6	isLoading	`isLoading` 是Mermaid 图表是否正在渲染。
+d2@335:10	setIsLoading	`setIsLoading` 是更新 Mermaid 图表的加载状态。
+c3@336:6	renderedSvg	`renderedSvg` 是Mermaid 返回的 SVG 字符串。
+p3@336:10	setRenderedSvg	`setRenderedSvg` 是保存 Mermaid 返回的 SVG 字符串。
+m3@337:6	displaySvg	`displaySvg` 是用于展示的 Mermaid SVG 字符串。
+u4@337:10	setDisplaySvg	`setDisplaySvg` 是更新用于展示的 Mermaid SVG 字符串。
+f2@338:6	retryCount	`retryCount` 是触发 Mermaid 图表重新渲染的次数。
+h2@338:10	setRetryCount	`setRetryCount` 是更新 Mermaid 图表的重试次数。
+b3@339:16	mermaidOptions	`mermaidOptions` 是Markdown 渲染上下文中的 Mermaid 配置。
+g2@340:5	mermaidPluginOptions	`mermaidPluginOptions` 是从上下文读取的 Mermaid 插件选项。
+T2@341:5	MermaidErrorComponent	`MermaidErrorComponent` 是配置的 Mermaid 渲染错误展示组件。
+v2@342:21	shouldRender	`shouldRender` 是观察到容器并完成空闲调度后是否允许渲染。
+w3@342:39	containerRef	`containerRef` 是供 IntersectionObserver 观察的渲染容器引用。
+H2@357:15	mermaidRenderer	`mermaidRenderer` 是根据图表配置创建的 Mermaid 渲染器。
+S3@358:13	chartHash	`chartHash` 是根据图表源码字符计算的稳定数值摘要。
+z3@360:24	hashAccumulator	`hashAccumulator` 是逐字符累积图表源码摘要的数值。
+B2@360:28	character	`character` 是当前参与图表源码摘要计算的字符。
+F2@361:13	chartRenderId	`chartRenderId` 是本次 Mermaid SVG 渲染使用的唯一 ID。
+j2@362:20	svgMarkup	`svgMarkup` 是Mermaid 渲染结果中的 SVG 标记文本。
+H2@364:18	error	`error` 是Mermaid 渲染过程中捕获的异常。
+S3@366:17	renderErrorMessage	`renderErrorMessage` 是供错误状态展示的渲染失败说明。
+M2@396:9	handleRetry	`handleRetry` 是增加重试计数以重新执行 Mermaid 渲染。
+H2@396:24	retryCount	`retryCount` 是触发 Mermaid 图表重新渲染的次数。
+P3@422:7	diagramMarkup	`diagramMarkup` 是最终注入图表容器的 SVG 标记文本。
