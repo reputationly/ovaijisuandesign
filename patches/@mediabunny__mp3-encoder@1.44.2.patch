@@ -1,0 +1,22 @@
+diff --git a/dist/bundles/mediabunny-mp3-encoder.mjs b/dist/bundles/mediabunny-mp3-encoder.mjs
+index d23a9403016b68ba16605a7aa75d9a66082238c5..aa725b887dc7d95ad36fa46d9436498c1a9dfb15 100644
+--- a/dist/bundles/mediabunny-mp3-encoder.mjs
++++ b/dist/bundles/mediabunny-mp3-encoder.mjs
+@@ -211,9 +211,6 @@ var readMp3FrameHeader = (word, remainingBytes) => {
+   const bitrate = kilobitRate * 1e3;
+   const sampleRate = SAMPLING_RATES[frequencyIndex] >> lowSamplingFrequency + mpeg25;
+   const frameLength = computeMp3FrameSize(lowSamplingFrequency, layer, bitrate, sampleRate, padding);
+-  if (remainingBytes !== null && remainingBytes < frameLength) {
+-    return { header: null, bytesAdvanced: 1 };
+-  }
+   let audioSamplesInFrame;
+   if (mpegVersionId === 3) {
+     audioSamplesInFrame = layer === 3 ? 384 : 1152;
+@@ -230,7 +227,6 @@ var readMp3FrameHeader = (word, remainingBytes) => {
+     header: {
+       totalSize: frameLength,
+       mpegVersionId,
+-      lowSamplingFrequency,
+       layer,
+       bitrate,
+       frequencyIndex,
