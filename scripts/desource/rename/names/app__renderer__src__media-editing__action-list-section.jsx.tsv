@@ -1,14 +1,14 @@
 key	new	依据
-DialogTrigger$1@10:3	DialogTriggerPrimitive	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“DialogTriggerPrimitive”所表示的值。
-t2@184:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
-t2@597:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
-t2@709:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
-t2@768:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
-t2@803:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
-psd@804:9	fileType	按压缩短名规则改为描述该值或行为的名称；此处保存“fileType”所表示的值。
-ext@894:17	extension	按压缩短名规则改为描述该值或行为的名称；此处保存“extension”所表示的值。
-Separator$1@51:23	CanvasSeparator	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“CanvasSeparator”所表示的值。
-Input3@54:3	Input	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“Input”所表示的值。
-size2@630:33	size	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“size”所表示的值。
-size2@837:52	size	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“size”所表示的值。
-reset2@1159:12	reset	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“reset”所表示的值。
+DialogTrigger$1@10:3	DialogTriggerPrimitive	该别名指向底层 DialogTrigger 组件，本文件用它实现画布对话框、提示框和侧栏的触发器包装。
+t2@184:14	t	useTranslation 返回的翻译函数，为动作列表示例生成打开、复制、删除和不可用状态的本地化文案。
+t2@597:14	t	useTranslation 返回的翻译函数，为复选框示例生成说明、用法和 API 文案。
+t2@709:14	t	useTranslation 返回的翻译函数，为上下文动作列表示例生成分组标签和菜单文案。
+t2@768:14	t	useTranslation 返回的翻译函数，为下拉动作列示例生成分组标签和操作文案。
+t2@803:14	t	useTranslation 返回的翻译函数，为文件类型图标示例生成说明、用法和边界文案。
+psd@804:9	fileType	classifyFileType 根据 poster.psd 得到的文件类型属性对象，随后传给多个 FileTypeIcon 示例。
+ext@894:17	extension	当前文件扩展名用于构造 sample.<extension> 文件名，并转换为大写标签展示。
+Separator$1@51:23	CanvasSeparator	从 canvas/separator 模块导入的分隔线组件，用于画布界面示例并与其他 Separator 原语区分。
+Input3@54:3	Input	表单输入组件别名，供输入框状态和尺寸示例渲染使用。
+size2@630:33	size	当前循环项是 sm、md 或 lg 尺寸标记，用作示例分组标签和组件的 size 属性。
+size2@837:52	size	当前数值是 FileTypeIcon 的像素尺寸，同时显示在对应图标下方。
+reset2@1159:12	reset	useResizableWidth 返回的回调把预览面板宽度恢复到 defaultWidth，双击调整手柄时调用。

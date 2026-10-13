@@ -11,23 +11,23 @@ export function CountChip({
   options: explicitOptions,
   minCount = 1,
   onChange,
-  disabled,
+  disabled: isDisabled,
 }) {
   const { t } = useTranslation();
-  const [open, setOpen] = reactExports.useState(false);
+  const [isPopupOpen, setIsPopupOpen] = reactExports.useState(false);
   const anchorRef = reactExports.useRef(null);
   const popupRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    if (!open) return;
+    if (!isPopupOpen) return;
     const handleMouseDown = (mouseDownEvent) => {
       const eventTarget = mouseDownEvent.target;
       if (!eventTarget) return;
       if (popupRef.current?.contains(eventTarget)) return;
       if (anchorRef.current?.contains(eventTarget)) return;
-      setOpen(false);
+      setIsPopupOpen(false);
     };
     const handleKeyDown = (keyDownEvent) => {
-      if (keyDownEvent.key === "Escape") setOpen(false);
+      if (keyDownEvent.key === "Escape") setIsPopupOpen(false);
     };
     document.addEventListener("mousedown", handleMouseDown, true);
     document.addEventListener("keydown", handleKeyDown);
@@ -35,9 +35,9 @@ export function CountChip({
       document.removeEventListener("mousedown", handleMouseDown, true);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open]);
+  }, [isPopupOpen]);
   const placement = usePortalAnchorPlacement(anchorRef, {
-    open,
+    open: isPopupOpen,
     minHeight: 80,
     maxHeight: 200,
     align: "center",
@@ -72,9 +72,9 @@ export function CountChip({
         data-action-ui-id="canvas.image-node.count-chip"
         onClick={(clickEvent) => {
           clickEvent.stopPropagation();
-          setOpen((isOpen) => !isOpen);
+          setIsPopupOpen((isOpen) => !isOpen);
         }}
-        disabled={disabled || options.length <= 1}
+        disabled={isDisabled || options.length <= 1}
         className="h-8 min-w-10 px-2 text-[13px] font-normal tracking-[-0.52px] leading-[20px] opacity-70 text-foreground hover:enabled:opacity-100 disabled:cursor-default disabled:opacity-40 flex items-center justify-center gap-1 canvas-prompt-control"
         title={t("canvas.imageNode.generateVariations", {
           count: value,
@@ -84,7 +84,7 @@ export function CountChip({
         <span aria-hidden="true">×</span>
         <span>{value}</span>
       </button>
-      {open &&
+      {isPopupOpen &&
         options.length > 1 &&
         placement &&
         reactDomExports.createPortal(
@@ -112,7 +112,7 @@ export function CountChip({
               })}
             </div>
             {options.map((option) => {
-              const active = option === value;
+              const isSelected = option === value;
               return (
                 <button
                   key={option}
@@ -121,11 +121,11 @@ export function CountChip({
                   onClick={(clickEvent) => {
                     clickEvent.stopPropagation();
                     onChange(option);
-                    setOpen(false);
+                    setIsPopupOpen(false);
                   }}
                   role="option"
-                  aria-selected={active}
-                  className={`h-7 px-2 text-center text-sm rounded-sm transition-colors duration-150 ${active ? "bg-[var(--canvas-param-selected-bg)] text-foreground" : "text-foreground hover:bg-[var(--canvas-controls-hover)]"}`}
+                  aria-selected={isSelected}
+                  className={`h-7 px-2 text-center text-sm rounded-sm transition-colors duration-150 ${isSelected ? "bg-[var(--canvas-param-selected-bg)] text-foreground" : "text-foreground hover:bg-[var(--canvas-controls-hover)]"}`}
                 >
                   {"× "}
                   {option}

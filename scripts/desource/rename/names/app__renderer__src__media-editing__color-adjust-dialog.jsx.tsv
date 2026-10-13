@@ -1,9 +1,9 @@
 key	new	依据
-t2@212:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存读取当前语言文案的 i18n 函数。
-res@285:14	lutList	按压缩短名规则改为描述该值或行为的名称；此处保存从颜色查找表存储读取的列表。
-e2@585:57	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存颜色调整控件收到的点击事件。
-e2@592:63	pointerEvent	按压缩短名规则改为描述该值或行为的名称；此处保存颜色调整控件收到的指针事件。
-s2@652:41	slider	按压缩短名规则改为描述该值或行为的名称；此处保存当前渲染的颜色调整滑块配置。
+t2@212:14	t	useTranslation 返回的翻译函数，为 LUT 选择器、删除确认、操作按钮和错误提示生成文案。
+res@285:14	lutList	lut.listLuts() 完成后返回的 LUT 列表；未取消请求时将其写入 luts 状态。
+e2@585:57	clickEvent	删除 LUT 按钮的点击事件；阻止默认行为和冒泡后调用 handleDeleteLut。
+e2@592:63	pointerEvent	删除 LUT 按钮的指针按下事件；阻止默认行为和冒泡以免触发父项操作。
+s2@652:41	slider	group.sliders 中当前的调节项配置，提供 key、标签、数值及控制项属性。
 rafId2@232:11	rafId	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存更新 LUT 预览使用的 requestAnimationFrame 帧 ID。
 rafId2@267:11	rafId	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存更新 LUT 预览使用的 requestAnimationFrame 帧 ID。
 text2@306:20	text	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前颜色调整选项显示的文本。

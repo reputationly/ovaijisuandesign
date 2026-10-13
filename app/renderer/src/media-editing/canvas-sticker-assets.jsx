@@ -426,7 +426,7 @@ export function moveItem(list, fromId, toId, position) {
 export function removeFilterCondition(canvasDocument, conditionId) {
   if (!canvasDocument.filter) return canvasDocument;
   const conditions = canvasDocument.filter.conditions.filter(
-    (column) => column.id !== conditionId,
+    (filterCondition) => filterCondition.id !== conditionId,
   );
   if (conditions.length === 0)
     return {
@@ -444,7 +444,7 @@ export function removeFilterCondition(canvasDocument, conditionId) {
 export function pruneFilterColumn(filter, columnId) {
   if (!filter) return void 0;
   const conditions = filter.conditions.filter(
-    (column) => column.columnId !== columnId,
+    (filterCondition) => filterCondition.columnId !== columnId,
   );
   if (conditions.length === 0) return void 0;
   if (conditions.length === filter.conditions.length) return filter;

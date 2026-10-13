@@ -1,17 +1,17 @@
 key	new	依据
-t2@74:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存提供界面翻译文案的 i18n 函数。
-e2@76:25	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存贴纸按钮收到的点击事件。
-t2@97:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存提供界面翻译文案的 i18n 函数。
-e2@99:25	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存贴纸按钮收到的点击事件。
-id2@192:44	assetId	按压缩短名规则改为描述该值或行为的名称；此处保存画布贴纸资源的资产 ID。
-id2@209:39	assetId	按压缩短名规则改为描述该值或行为的名称；此处保存画布贴纸资源的资产 ID。
-x2@232:6	anchorX	按压缩短名规则改为描述该值或行为的名称；此处保存贴纸提示锚点的横向坐标。
-c3@401:32	column	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布文档中的列配置对象。
-c3@413:36	column	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布文档中的列配置对象。
-c3@414:34	column	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布文档中的列配置对象。
-c3@419:36	column	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布文档中的列配置对象。
-c3@429:6	column	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布文档中的列配置对象。
-c3@447:6	column	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布文档中的列配置对象。
+t2@74:14	t	useTranslation 返回的翻译函数，为“全部独立”贴纸按钮生成显示文案。
+e2@76:25	clickEvent	全部独立按钮收到的点击事件；处理器先阻止冒泡再调用拆分回调。
+t2@97:14	t	useTranslation 返回的翻译函数，为“独立展示”贴纸按钮生成显示文案。
+e2@99:25	clickEvent	独立展示按钮收到的点击事件；处理器先阻止冒泡再调用拆分回调。
+id2@192:44	assetId	贴纸资源 ID 列表中的当前 ID，用来从资源映射中取出对应资源。
+id2@209:39	assetId	getCanvasStickerAsset 接收的资源 ID，用于在资源数组中查找匹配项。
+x2@232:6	anchorX	提示框锚点的横坐标，用于计算其居中后的左边缘位置。
+c3@401:32	column	canvasDocument.columns 中当前列对象；匹配 columnId 后复制该对象并更新标题。
+c3@413:36	column	moveItem 在 list 中查找 id 等于 fromId 的列，以确定移动项的起始索引。
+c3@414:34	column	moveItem 在 list 中查找 id 等于 toId 的列，以确定插入位置参照项。
+c3@419:36	column	移除原列后，扫描剩余列并查找 toId 对应项以计算插入索引。
+c3@429:6	filterCondition	待处理的筛选条件数组元素；按其 id 是否等于 conditionId 决定是否保留。
+c3@447:6	filterCondition	待处理的筛选条件数组元素；按其 columnId 是否等于目标列 ID 决定是否保留。
 position2@30:13	position	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存贴纸工具提示或弹层的锚点位置。
 children2@31:13	children	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存组件接收并渲染的 React 子节点。
 disabled2@73:61	disabled	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存贴纸选择或操作是否不可用。
@@ -37,9 +37,11 @@ doc2@456:30	doc	去掉打包器为避免重名添加的数字后缀并恢复原�
 doc2@459:30	doc	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前画布文档对象。
 doc2@466:32	doc	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前画布文档对象。
 doc2@469:35	doc	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前画布文档对象。
-doc@397:30	canvasDocument	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布的文档状态对象。
-doc@426:39	canvasDocument	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布的文档状态对象。
-doc@456:30	canvasDocument	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布的文档状态对象。
-doc@459:30	canvasDocument	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布的文档状态对象。
-doc@466:32	canvasDocument	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布的文档状态对象。
-doc@469:35	canvasDocument	按压缩短名规则改为描述该值或行为的名称；此处保存当前画布的文档状态对象。
+doc@397:30	canvasDocument	renameColumn 接收的画布文档；返回保留其余字段并更新指定列标题的新对象。
+doc@426:39	canvasDocument	removeFilterCondition 接收的画布文档；从其 filter.conditions 移除目标条件或清空 filter。
+doc@456:30	canvasDocument	getRowHeight 从画布文档读取 rowHeight，缺失时返回默认行高。
+doc@459:30	canvasDocument	setRowHeight 基于原画布文档生成 rowHeight 更新后的副本。
+doc@466:32	canvasDocument	getRowHeightPx 从画布文档的行高预设查出对应像素值。
+doc@469:35	canvasDocument	getRowHeightLines 从画布文档的行高预设查出对应显示行数。
+column@429:6	filterCondition	之前的局部名 column 指向 conditions 数组中的筛选条件对象，现改为 filterCondition 以准确表达其用途。
+column@447:6	filterCondition	之前的局部名 column 指向 conditions 数组中的筛选条件对象，现改为 filterCondition 以准确表达其用途。
