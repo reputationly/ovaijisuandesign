@@ -96,18 +96,18 @@ function emit() {
   for (const listener of listeners) listener();
 }
 export let snapshot = EMPTY_SNAPSHOT;
-export function setTopbarActiveWorkspaceSnapshot(next2) {
+export function setTopbarActiveWorkspaceSnapshot(next) {
   if (
-    snapshot.currentWorkspaceId === next2.currentWorkspaceId &&
-    snapshot.activeRuntime === next2.activeRuntime
+    snapshot.currentWorkspaceId === next.currentWorkspaceId &&
+    snapshot.activeRuntime === next.activeRuntime
   ) {
     return;
   }
   snapshot =
-    next2.currentWorkspaceId || next2.activeRuntime ? next2 : EMPTY_SNAPSHOT;
+    next.currentWorkspaceId || next.activeRuntime ? next : EMPTY_SNAPSHOT;
   emit();
 }
-export function useActiveRuntime(currentWorkspaceId, hiloApp2) {
+export function useActiveRuntime(currentWorkspaceId, hiloApp) {
   const [runtime, setRuntime] = reactExports.useState(null);
   reactExports.useEffect(() => {
     if (!currentWorkspaceId) {
@@ -119,7 +119,7 @@ export function useActiveRuntime(currentWorkspaceId, hiloApp2) {
     let requestId = 0;
     const refresh = () => {
       const currentRequest = ++requestId;
-      void hiloApp2
+      void hiloApp
         .getWorkspaceRuntime(currentWorkspaceId)
         .then((runtime) => {
           if (!disposed && currentRequest === requestId) setRuntime(runtime ?? null);
@@ -133,7 +133,7 @@ export function useActiveRuntime(currentWorkspaceId, hiloApp2) {
       setRuntime(null);
     };
     refresh();
-    const disposable = hiloApp2.onWorkspaceEntriesChanged((entries) => {
+    const disposable = hiloApp.onWorkspaceEntriesChanged((entries) => {
       if (entries.some((entry) => entry.workspaceId === currentWorkspaceId)) {
         refresh();
       } else {
@@ -145,7 +145,7 @@ export function useActiveRuntime(currentWorkspaceId, hiloApp2) {
       requestId += 1;
       disposable.dispose();
     };
-  }, [currentWorkspaceId, hiloApp2]);
+  }, [currentWorkspaceId, hiloApp]);
   return runtime;
 }
 export function normalizeWorkspaceId(value) {

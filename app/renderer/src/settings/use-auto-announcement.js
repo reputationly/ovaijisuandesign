@@ -13,34 +13,34 @@ export function clearPendingTrialGranted() {
   } catch {}
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
 }
-export function normalizePopup(raw2) {
-  if (!raw2) return null;
+export function normalizePopup(raw) {
+  if (!raw) return null;
   const isKnownType =
-    raw2.popup_type === PopupType.POPUP_TYPE_NONE ||
-    raw2.popup_type === PopupType.POPUP_TYPE_GENERAL ||
-    raw2.popup_type === PopupType.POPUP_TYPE_MIGRATION ||
-    raw2.popup_type === PopupType.POPUP_TYPE_FEATURE;
+    raw.popup_type === PopupType.POPUP_TYPE_NONE ||
+    raw.popup_type === PopupType.POPUP_TYPE_GENERAL ||
+    raw.popup_type === PopupType.POPUP_TYPE_MIGRATION ||
+    raw.popup_type === PopupType.POPUP_TYPE_FEATURE;
   if (!isKnownType) return null;
-  if (raw2.popup_type === PopupType.POPUP_TYPE_NONE) {
-    return raw2;
+  if (raw.popup_type === PopupType.POPUP_TYPE_NONE) {
+    return raw;
   }
-  const actionType = raw2.action?.type ?? "url";
+  const actionType = raw.action?.type ?? "url";
   const validAction =
     actionType === "random_inspiration"
-      ? raw2.popup_type === PopupType.POPUP_TYPE_FEATURE
+      ? raw.popup_type === PopupType.POPUP_TYPE_FEATURE
       : actionType === "prefill_prompt"
-        ? raw2.popup_type === PopupType.POPUP_TYPE_FEATURE &&
-          !!raw2.action?.prompt?.trim() &&
-          !!raw2.action?.model_id?.trim()
-        : actionType === "url" && !!raw2.action?.url;
-  if (!raw2.id || !raw2.description || !raw2.action?.label || !validAction) {
+        ? raw.popup_type === PopupType.POPUP_TYPE_FEATURE &&
+          !!raw.action?.prompt?.trim() &&
+          !!raw.action?.model_id?.trim()
+        : actionType === "url" && !!raw.action?.url;
+  if (!raw.id || !raw.description || !raw.action?.label || !validAction) {
     return null;
   }
-  return raw2;
+  return raw;
 }
-export function normalizeAnnouncements(raw2) {
+export function normalizeAnnouncements(raw) {
   const seen = new Set();
-  return (raw2?.announcements?.length ? raw2.announcements : raw2 ? [raw2] : [])
+  return (raw?.announcements?.length ? raw.announcements : raw ? [raw] : [])
     .map(normalizePopup)
     .filter((popup) => {
       if (
@@ -164,21 +164,21 @@ export function clearMutesForUser(userID) {
     for (const key of toRemove) window.localStorage.removeItem(key);
   } catch {}
 }
-export function useAutoAnnouncement(raw2, userID) {
+export function useAutoAnnouncement(raw, userID) {
   const [selection, setSelection] = reactExports.useState(null);
   reactExports.useEffect(() => {
-    if (!userID || !raw2?.announcements?.length) return;
-    for (const popup of normalizeAnnouncements(raw2))
+    if (!userID || !raw?.announcements?.length) return;
+    for (const popup of normalizeAnnouncements(raw))
       touchSeen(userID, popup.id);
-  }, [raw2, userID]);
+  }, [raw, userID]);
   reactExports.useEffect(() => {
     if (!userID) {
       setSelection(null);
       return;
     }
     if (selection?.userID === userID) return;
-    if (!raw2?.announcements?.length) return;
-    const candidate = normalizeAnnouncements(raw2).find(
+    if (!raw?.announcements?.length) return;
+    const candidate = normalizeAnnouncements(raw).find(
       (popup) =>
         canAutoShowAnnouncement(popup) &&
         readMutedUntil(userID, popup.id) === null,
@@ -187,10 +187,10 @@ export function useAutoAnnouncement(raw2, userID) {
       userID,
       popupId: candidate?.id ?? "",
     });
-  }, [raw2, userID, selection]);
-  if (!raw2?.announcements?.length)
+  }, [raw, userID, selection]);
+  if (!raw?.announcements?.length)
     return {
-      popup: normalizePopup(raw2),
+      popup: normalizePopup(raw),
       ready: true,
     };
   if (!userID || selection?.userID !== userID)
@@ -200,7 +200,7 @@ export function useAutoAnnouncement(raw2, userID) {
     };
   return {
     popup:
-      normalizeAnnouncements(raw2).find(
+      normalizeAnnouncements(raw).find(
         (popup) => popup.id === selection.popupId,
       ) ?? null,
     ready: true,

@@ -57,8 +57,8 @@ class PluginRecentsStore {
 }
 const pluginRecents = new PluginRecentsStore();
 export async function instantiatePluginOnCanvas(
-  { pluginId, position: position2, sourceNodeIds, initialData },
-  { currentWorkspace, gatewayFetch: gatewayFetch2, t },
+  { pluginId, position, sourceNodeIds, initialData },
+  { currentWorkspace, gatewayFetch, t },
 ) {
   if (!currentWorkspace) {
     dedupedToast.error(
@@ -69,7 +69,7 @@ export async function instantiatePluginOnCanvas(
     return null;
   }
   try {
-    const resp = await gatewayFetch2(
+    const resp = await gatewayFetch(
       `/api/plugins/${encodeURIComponent(pluginId)}/instantiate`,
       {
         method: "POST",
@@ -78,9 +78,9 @@ export async function instantiatePluginOnCanvas(
         },
         body: JSON.stringify({
           workspacePath: currentWorkspace,
-          ...(position2
+          ...(position
             ? {
-                position: position2,
+                position,
               }
             : {}),
           ...(sourceNodeIds && sourceNodeIds.length > 0

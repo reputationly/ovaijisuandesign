@@ -150,7 +150,7 @@ function clampToViewport(
   };
 }
 export function useClampedMenuPosition({
-  position: position2,
+  position,
   estimatedWidth,
   estimatedHeight,
   getAnchorPosition,
@@ -160,8 +160,8 @@ export function useClampedMenuPosition({
     () =>
       getAnchorPosition?.(
         menuRef.current?.offsetHeight || estimatedHeight || 400,
-      ) ?? position2,
-    [getAnchorPosition, estimatedHeight, position2],
+      ) ?? position,
+    [getAnchorPosition, estimatedHeight, position],
   );
   const [clampedPosition, setClampedPosition] = reactExports.useState(() =>
     clampToViewport(

@@ -9,30 +9,30 @@ const VELOPACK_PACKAGE_MUTATION_UNOWNED = "VELOPACK_PACKAGE_MUTATION_UNOWNED:";
 const DRIVE_TYPE_PROBE_UNAVAILABLE =
   "Install root drive type probe is unavailable.";
 
-export function isUpdateCheckAlreadyInProgress(message2) {
-  return message2 === UPDATE_CHECK_ALREADY_IN_PROGRESS;
+export function isUpdateCheckAlreadyInProgress(message) {
+  return message === UPDATE_CHECK_ALREADY_IN_PROGRESS;
 }
 
 function isUpdateCheckTimedOut(message) {
   return message === UPDATE_CHECK_TIMED_OUT;
 }
 
-export function formatUpdaterErrorMessage(message2, t, fallback) {
-  if (isUpdateCheckAlreadyInProgress(message2)) {
+export function formatUpdaterErrorMessage(message, t, fallback) {
+  if (isUpdateCheckAlreadyInProgress(message)) {
     return t("update.checkInProgress");
   }
-  if (isUpdateCheckTimedOut(message2)) {
+  if (isUpdateCheckTimedOut(message)) {
     return t("update.timeout");
   }
-  if (message2 === "ERR_TIMED_OUT: Update preparation timed out") {
+  if (message === "ERR_TIMED_OUT: Update preparation timed out") {
     return t("update.preparationTimeout");
   }
-  if (message2?.includes(VELOPACK_PACKAGE_MUTATION_UNOWNED)) {
-    return message2.includes(DRIVE_TYPE_PROBE_UNAVAILABLE)
+  if (message?.includes(VELOPACK_PACKAGE_MUTATION_UNOWNED)) {
+    return message.includes(DRIVE_TYPE_PROBE_UNAVAILABLE)
       ? t("update.failureCode.UPDATE_RUNTIME_UNAVAILABLE")
       : t("update.failureCode.INSTDIR_OWNERSHIP_UNVERIFIED");
   }
-  return message2 ?? fallback;
+  return message ?? fallback;
 }
 
 const INSTALLER_FAILURE_CODE_KEYS = {

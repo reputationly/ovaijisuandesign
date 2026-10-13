@@ -39,3 +39,14 @@ state2@328:7	state	去掉打包器加的数字后缀，恢复原名 state
 state2@344:9	state	去掉打包器加的数字后缀，恢复原名 state
 node2@348:6	node	去掉打包器加的数字后缀，恢复原名 node
 state2@353:9	state	去掉打包器加的数字后缀，恢复原名 state
+children2@69:64	children	去掉打包器加的数字后缀，恢复原名 children
+entries2@188:32	entries	去掉打包器加的数字后缀，恢复原名 entries
+path2@265:32	path	去掉打包器加的数字后缀，恢复原名 path
+path2@273:36	path	去掉打包器加的数字后缀，恢复原名 path
+url2@282:41	url	去掉打包器加的数字后缀，恢复原名 url
+version2@282:47	version	去掉打包器加的数字后缀，恢复原名 version
+workspaceId2@323:32	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+workspaceId2@326:34	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+state2@335:23	state	去掉打包器加的数字后缀，恢复原名 state
+workspaceId2@343:49	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+workspaceId2@352:50	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId

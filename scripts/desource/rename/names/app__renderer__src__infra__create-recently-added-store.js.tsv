@@ -50,3 +50,8 @@ node2@378:16	node	去掉打包器加的数字后缀，恢复原名 node
 internal2@380:13	internal	去掉打包器加的数字后缀，恢复原名 internal
 getSnapshot2@410:9	getSnapshot	去掉打包器加的数字后缀，恢复原名 getSnapshot
 node2@411:11	node	去掉打包器加的数字后缀，恢复原名 node
+type2@51:52	type	去掉打包器加的数字后缀，恢复原名 type
+html2@127:32	html	去掉打包器加的数字后缀，恢复原名 html
+zoom2@140:31	zoom	去掉打包器加的数字后缀，恢复原名 zoom
+color2@202:41	color	去掉打包器加的数字后缀，恢复原名 color
+zoom2@206:37	zoom	去掉打包器加的数字后缀，恢复原名 zoom

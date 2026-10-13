@@ -125,13 +125,13 @@ export function useOnline() {
   }, []);
   return online;
 }
-export function jsonInit(method, body2) {
+export function jsonInit(method, body) {
   return {
     method,
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body2),
+    body: JSON.stringify(body),
   };
 }
 function exportEntityUrl(buildUrl, entityId) {
@@ -254,17 +254,17 @@ const ToggleGroupContext = reactExports.createContext({
 export function ToggleGroup({
   className,
   variant,
-  size: size2,
+  size,
   spacing = 0,
   orientation = "horizontal",
-  children: children2,
+  children,
   ...props
 }) {
   return (
     <ToggleGroup$1
       data-slot="toggle-group"
       data-variant={variant}
-      data-size={size2}
+      data-size={size}
       data-spacing={spacing}
       data-orientation={orientation}
       style={{
@@ -279,21 +279,21 @@ export function ToggleGroup({
       <ToggleGroupContext.Provider
         value={{
           variant,
-          size: size2,
+          size,
           spacing,
           orientation,
         }}
       >
-        {children2}
+        {children}
       </ToggleGroupContext.Provider>
     </ToggleGroup$1>
   );
 }
 export function ToggleGroupItem({
   className,
-  children: children2,
+  children,
   variant = "default",
-  size: size2 = "default",
+  size = "default",
   ...props
 }) {
   const context = reactExports.useContext(ToggleGroupContext);
@@ -301,19 +301,19 @@ export function ToggleGroupItem({
     <Toggle
       data-slot="toggle-group-item"
       data-variant={context.variant || variant}
-      data-size={context.size || size2}
+      data-size={context.size || size}
       data-spacing={context.spacing}
       className={cn(
         "shrink-0 group-data-[spacing=0]/toggle-group:rounded-sm group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-sm group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-sm group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-sm group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-sm group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-l-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:[border-left-width:var(--control-border-width)] group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:[border-top-width:var(--control-border-width)]",
         toggleVariants({
           variant: context.variant || variant,
-          size: context.size || size2,
+          size: context.size || size,
         }),
         className,
       )}
       {...props}
     >
-      {children2}
+      {children}
     </Toggle>
   );
 }

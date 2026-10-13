@@ -6,3 +6,8 @@ b3@138:16	b	sort 比较函数的后一个条目
 info2@29:28	info	去掉打包器加的数字后缀，恢复原名 info
 snapshot2@77:9	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
 start2@125:9	start	去掉打包器加的数字后缀，恢复原名 start
+workspaceId2@64:42	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+snapshot2@88:59	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+message2@97:38	message	去掉打包器加的数字后缀，恢复原名 message
+data2@97:48	data	去掉打包器加的数字后缀，恢复原名 data
+data2@103:40	data	去掉打包器加的数字后缀，恢复原名 data

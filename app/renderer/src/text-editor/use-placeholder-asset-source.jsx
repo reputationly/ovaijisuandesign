@@ -42,7 +42,7 @@ export function PreviewCardContent({
   collisionPadding,
   positionerClassName,
   portalContainer,
-  children: children2,
+  children,
   ...props
 }) {
   return (
@@ -73,7 +73,7 @@ export function PreviewCardContent({
           )}
           {...props}
         >
-          {children2}
+          {children}
         </PreviewCardPopup>
       </PreviewCardPositioner>
     </PreviewCardPortal>
@@ -138,7 +138,7 @@ export function useCanvasResourceResolvers(httpClient) {
   };
 }
 export function usePlaceholderAssetSource({
-  active: active2,
+  active,
   scope,
   pick,
   fill,
@@ -147,12 +147,12 @@ export function usePlaceholderAssetSource({
 }) {
   const epoch = reactExports.useRef(0);
   const current = reactExports.useRef({
-    active: active2,
+    active,
     scope,
   });
-  if (current.current.active !== active2 || current.current.scope !== scope) {
+  if (current.current.active !== active || current.current.scope !== scope) {
     current.current = {
-      active: active2,
+      active,
       scope,
     };
     epoch.current++;
@@ -166,7 +166,7 @@ export function usePlaceholderAssetSource({
   );
   return reactExports.useCallback(
     async (nodeId, kind, anchor) => {
-      if (!active2 || !anchor || requests.current.has(nodeId)) return;
+      if (!active || !anchor || requests.current.has(nodeId)) return;
       const targetValid = captureTarget(nodeId);
       if (!targetValid()) return;
       const generation = epoch.current;
@@ -199,14 +199,14 @@ export function usePlaceholderAssetSource({
           requests.current.delete(nodeId);
       }
     },
-    [active2, captureTarget, fill, onError, pick],
+    [active, captureTarget, fill, onError, pick],
   );
 }
-export function uploadResponseMediaResourceFields(res, meta2) {
-  const width = meta2?.width ?? res.width;
-  const height = meta2?.height ?? res.height;
+export function uploadResponseMediaResourceFields(res, meta) {
+  const width = meta?.width ?? res.width;
+  const height = meta?.height ?? res.height;
   const durationSec =
-    meta2?.durationSec ??
+    meta?.durationSec ??
     (typeof res.durationMs === "number" && res.durationMs > 0
       ? res.durationMs / 1e3
       : void 0);
@@ -288,8 +288,8 @@ export function useImportExternalFiles() {
   );
 }
 const HTABLE_SUFFIX = `.${CLOUD_ASSET_TABLE_EXTENSION}`;
-export function isHtableFileName(name2) {
-  return name2.toLowerCase().endsWith(HTABLE_SUFFIX);
+export function isHtableFileName(fileName) {
+  return fileName.toLowerCase().endsWith(HTABLE_SUFFIX);
 }
 function htableTitleFromFileName(fileName) {
   const base = fileName.split(/[\\/]/).pop() ?? fileName;
@@ -342,12 +342,12 @@ function htableContentToWriteRequest(raw, opts = {}) {
       : {}),
   };
 }
-export async function importHtableToCanvas(file, fetcher, position2) {
+export async function importHtableToCanvas(file, fetcher, position) {
   const readRes = await fetcher(API_PATHS.serveLocal(file.absolutePath));
   if (!readRes.ok) throw new Error(`Read .htable failed: ${readRes.status}`);
   const body = htableContentToWriteRequest(await readRes.text(), {
     title: htableTitleFromFileName(file.name),
-    position: position2,
+    position,
   });
   const writeRes = await fetcher("/api/canvas/table-node", {
     method: "POST",

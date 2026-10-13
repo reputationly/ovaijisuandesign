@@ -66,13 +66,13 @@ export const CanvasRenderRuntimeContext =
   reactExports.createContext(DEFAULT_CONTEXT);
 const defaultHtmlFullscreenStore = createHtmlFullscreenStore();
 export const HtmlFullscreenStoreContext = reactExports.createContext(null);
-export function HtmlFullscreenStoreProvider({ store, children: children2 }) {
+export function HtmlFullscreenStoreProvider({ store, children }) {
   return reactExports.createElement(
     HtmlFullscreenStoreContext.Provider,
     {
       value: store,
     },
-    children2,
+    children,
   );
 }
 export function useHtmlFullscreenApi() {
@@ -185,8 +185,8 @@ export function usePluginMeta(pluginId) {
     pluginId ? state.plugins.get(pluginId) : void 0,
   );
 }
-export function setPluginMetas(entries2) {
-  usePluginMetadataStore.getState().setPluginMetas(entries2);
+export function setPluginMetas(entries) {
+  usePluginMetadataStore.getState().setPluginMetas(entries);
 }
 export function getPluginMeta(id) {
   return usePluginMetadataStore.getState().get(id);
@@ -262,26 +262,26 @@ const fileVersionStore = createStore((set) => ({
       pathVersions: new Map(),
     }),
 }));
-export function useFileVersion(path2, scope = "all") {
+export function useFileVersion(path, scope = "all") {
   return useStore(
     fileVersionStore,
     (state) =>
       (scope === "all" ? state.globalVersion : 0) +
-      (path2 ? (state.pathVersions.get(path2) ?? 0) : 0),
+      (path ? (state.pathVersions.get(path) ?? 0) : 0),
   );
 }
-export function usePathFileVersion(path2) {
+export function usePathFileVersion(path) {
   return useStore(fileVersionStore, (state) =>
-    path2 ? (state.pathVersions.get(path2) ?? 0) : 0,
+    path ? (state.pathVersions.get(path) ?? 0) : 0,
   );
 }
 export function bumpFileVersion(paths) {
   fileVersionStore.getState().bump(typeof paths === "string" ? [paths] : paths);
 }
 export const CANVAS_FILE_VERSION_QUERY_KEY = "_canvas_v";
-export function appendCanvasFileVersion(url2, version2) {
-  const separator = url2.includes("?") ? "&" : "?";
-  return `${url2}${separator}${CANVAS_FILE_VERSION_QUERY_KEY}=${version2}`;
+export function appendCanvasFileVersion(url, version) {
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}${CANVAS_FILE_VERSION_QUERY_KEY}=${version}`;
 }
 export function useFileUrl(filePath, options) {
   const cacheBust = options?.cacheBust ?? true;
@@ -320,11 +320,11 @@ export function createState() {
   };
 }
 export const statesByWorkspace = new Map();
-export function workspaceScope(workspaceId2) {
-  return workspaceId2?.trim() || DEFAULT_WORKSPACE_SCOPE;
+export function workspaceScope(workspaceId) {
+  return workspaceId?.trim() || DEFAULT_WORKSPACE_SCOPE;
 }
-export function getOrCreateState(workspaceId2) {
-  const scope = workspaceScope(workspaceId2);
+export function getOrCreateState(workspaceId) {
+  const scope = workspaceScope(workspaceId);
   let state = statesByWorkspace.get(scope);
   if (!state) {
     state = createState();
@@ -332,16 +332,16 @@ export function getOrCreateState(workspaceId2) {
   }
   return state;
 }
-export function touch(state2) {
-  state2.updatedAtMs = Date.now();
+export function touch(state) {
+  state.updatedAtMs = Date.now();
 }
 export const WorkspaceContentBudgetScopeContext =
   reactExports.createContext(void 0);
 export function useWorkspaceContentBudgetScope() {
   return reactExports.useContext(WorkspaceContentBudgetScopeContext);
 }
-export function recordCanvasGraphMetrics(input, workspaceId2) {
-  const state = getOrCreateState(workspaceId2);
+export function recordCanvasGraphMetrics(input, workspaceId) {
+  const state = getOrCreateState(workspaceId);
   state.canvasNodeCount = input.nodes.length;
   state.canvasEdgeCount = input.edges.length;
   state.canvasFileNodeCount = input.nodes.filter(
@@ -349,8 +349,8 @@ export function recordCanvasGraphMetrics(input, workspaceId2) {
   ).length;
   touch(state);
 }
-export function resetWorkspaceCanvasGraphMetrics(workspaceId2) {
-  const state = getOrCreateState(workspaceId2);
+export function resetWorkspaceCanvasGraphMetrics(workspaceId) {
+  const state = getOrCreateState(workspaceId);
   state.canvasNodeCount = 0;
   state.canvasEdgeCount = 0;
   state.canvasFileNodeCount = 0;

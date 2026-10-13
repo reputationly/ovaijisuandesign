@@ -12,7 +12,7 @@ import { DialogDescription, DialogTitle } from "./badge-variants.jsx";
 import { FolderDrillDownPicker } from "../assets/folder-drill-down-picker.jsx";
 export function MoveNodeDialog({
   open,
-  name: name2,
+  name: nodeName,
   itemCount = 1,
   options,
   loading = false,
@@ -69,8 +69,8 @@ export function MoveNodeDialog({
                 </span>
                 <span
                   className="min-w-0 flex-1 truncate"
-                  title={name2}
-                >{`“${name2}”`}</span>
+                  title={nodeName}
+                >{`“${nodeName}”`}</span>
                 <span className="shrink-0">
                   {t("localAssets.moveDialogTitleSuffix", {
                     defaultValue: "到",
@@ -85,7 +85,7 @@ export function MoveNodeDialog({
                   count: itemCount,
                 })
               : t("localAssets.moveDialogTitle", {
-                  name: name2,
+                  name: nodeName,
                 })}
           </DialogDescription>
         </DialogHeader>

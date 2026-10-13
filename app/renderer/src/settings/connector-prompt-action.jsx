@@ -25,13 +25,13 @@ const connectorPromptActionIcon = {
   requiresRecovery: RetryIcon,
 };
 export function ConnectorPromptAction({
-  mode: mode2,
+  mode,
   label,
   checking = false,
   className,
   ...props
 }) {
-  const actionIcon = connectorPromptActionIcon[mode2];
+  const actionIcon = connectorPromptActionIcon[mode];
   return (
     <Button
       type="button"
@@ -41,7 +41,7 @@ export function ConnectorPromptAction({
         "h-[30px] shrink-0 self-center gap-1 rounded-[10px] pl-2.5 pr-3 font-normal",
         className,
       )}
-      data-connector-prompt-action-mode={mode2}
+      data-connector-prompt-action-mode={mode}
       {...props}
     >
       <span
@@ -54,7 +54,7 @@ export function ConnectorPromptAction({
           size="sm"
           strokeWidth={1.5}
           className={
-            mode2 === "installing"
+            mode === "installing"
               ? "animate-spin"
               : checking
                 ? "motion-safe:animate-spin"
@@ -67,13 +67,13 @@ export function ConnectorPromptAction({
     </Button>
   );
 }
-export function ConnectorStatusPill({ state: state2 }) {
+export function ConnectorStatusPill({ state }) {
   const { t } = useTranslation();
-  const visual = CONNECTOR_STATUS_VISUAL[state2];
+  const visual = CONNECTOR_STATUS_VISUAL[state];
   const label = t(
-    state2 === "removing"
+    state === "removing"
       ? "connectors.detail.disconnecting"
-      : `connectors.runtimeState.${state2}`,
+      : `connectors.runtimeState.${state}`,
   );
   return (
     <IntegrationStatusPill
@@ -81,12 +81,12 @@ export function ConnectorStatusPill({ state: state2 }) {
       tone={visual.tone}
       markerTone={visual.markerTone}
       markerActive={
-        state2 === "removing" ||
-        state2 === "checking" ||
-        state2 === "installing"
+        state === "removing" ||
+        state === "checking" ||
+        state === "installing"
       }
       markerIcon={
-        state2 === "disabled" ? (
+        state === "disabled" ? (
           <PlaybackPauseIcon size={10} className="shrink-0 text-warning/80" />
         ) : (
           void 0

@@ -39,8 +39,8 @@ export function CapabilitySearchCard({ result, searchCallId }) {
   );
 }
 
-export function parseCapabilitySearchCardResult(name2, result) {
-  if (name2 !== "hub_capability_search" || !result) return null;
+export function parseCapabilitySearchCardResult(toolName, result) {
+  if (toolName !== "hub_capability_search" || !result) return null;
   try {
     let value = JSON.parse(normalizeJsonToolResult(result));
     if (

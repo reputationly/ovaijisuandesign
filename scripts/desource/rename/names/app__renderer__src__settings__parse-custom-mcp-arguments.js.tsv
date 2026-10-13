@@ -10,3 +10,4 @@ start2@66:13	start	去掉打包器加的数字后缀，恢复原名 start
 message2@122:15	message	去掉打包器加的数字后缀，恢复原名 message
 name2@185:9	errorName	error.name；name 是全局名
 name2@194:9	errorName	error.name；name 是全局名
+name2@129:41	mcpName	自定义 MCP 名；name 是全局名

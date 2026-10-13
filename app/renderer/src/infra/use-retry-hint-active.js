@@ -9,8 +9,8 @@ function isTerminalState(state) {
   return TERMINAL_STATES.has(state);
 }
 
-export function shouldRefreshStatusOnResume(isActive2, lastState) {
-  if (!isActive2 || lastState === void 0) return false;
+export function shouldRefreshStatusOnResume(isActive, lastState) {
+  if (!isActive || lastState === void 0) return false;
   return isTerminalState(lastState) || lastState === "stopping";
 }
 

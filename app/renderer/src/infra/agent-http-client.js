@@ -1158,12 +1158,12 @@ export function activateAccountSubmissionGuard() {
 }
 
 export function updateAccountSubmissionDecision(
-  snapshot2,
+  snapshot,
   contract,
   creditSummary = null,
 ) {
   const selectedScope =
-    snapshot2?.status === "ready" ? deriveActiveScope(snapshot2) : null;
+    snapshot?.status === "ready" ? deriveActiveScope(snapshot) : null;
   const incomingSummaryMatches =
     selectedScope !== null &&
     creditSummary !== null &&
@@ -1171,7 +1171,7 @@ export function updateAccountSubmissionDecision(
   const effectiveCreditSummary = incomingSummaryMatches ? creditSummary : null;
   state = {
     ...state,
-    snapshot: snapshot2,
+    snapshot,
     contract,
     creditSummary: effectiveCreditSummary,
   };
@@ -1296,24 +1296,24 @@ export function guardAccountSubmission(kind) {
   return decision;
 }
 
-export function guardCanvasAccountRequest(url2, init2) {
-  if ((init2.method ?? "GET").toUpperCase() !== "POST") return;
-  const pathname = new URL(url2, window.location.origin).pathname;
+export function guardCanvasAccountRequest(url, init) {
+  if ((init.method ?? "GET").toUpperCase() !== "POST") return;
+  const pathname = new URL(url, window.location.origin).pathname;
   if (!ACCOUNT_SENSITIVE_CANVAS_PATHS.has(pathname)) return;
   const decision = guardAccountSubmission("canvas");
   if (!decision.allowed)
     throw new AccountSubmissionBlockedError(decision.reasonCode);
   if (decision.mode === "CANONICAL") {
-    const headers = new Headers(init2.headers);
+    const headers = new Headers(init.headers);
     headers.set(GROUP_ID_HEADER, decision.scope.groupId);
-    init2.headers = headers;
+    init.headers = headers;
   }
 }
 
-export function logMediaLineage(record2) {
+export function logMediaLineage(record) {
   try {
-    const fields = mediaLineageFields(record2);
-    if (record2.errorKind) canvasLog.warn("media-lineage", fields);
+    const fields = mediaLineageFields(record);
+    if (record.errorKind) canvasLog.warn("media-lineage", fields);
     else canvasLog.info("media-lineage", fields);
   } catch {}
 }
@@ -1365,7 +1365,7 @@ export function createAssetMutator({
   httpClient,
   assetMetadataStore,
   probeDurationSec = probeMediaDurationSec,
-  inferKind: inferKind2,
+  inferKind,
 }) {
   const store = assetMetadataStore ?? useAssetMetadataStore;
   const mirror = (assetId, partial) => {
@@ -1421,7 +1421,7 @@ export function createAssetMutator({
       const durationSec = await durationPromise;
       warnEnrollError("upload", res);
       if (res.id) {
-        const resolvedKind = kind ?? inferKind2?.(file) ?? "file";
+        const resolvedKind = kind ?? inferKind?.(file) ?? "file";
         const serverDurationSec =
           typeof res.durationMs === "number" && res.durationMs > 0
             ? res.durationMs / 1e3

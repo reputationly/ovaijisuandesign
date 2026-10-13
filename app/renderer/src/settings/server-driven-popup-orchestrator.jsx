@@ -1761,7 +1761,7 @@ function PlatformCanvasRenderProvider({ children }) {
     </PlatformProvider>
   );
 }
-export function AppProviders({ children: children2 }) {
+export function AppProviders({ children }) {
   return jsxRuntimeExports.jsx(m, {
     FallbackComponent: ErrorFallback,
     onError: handleBoundaryError,
@@ -1785,7 +1785,7 @@ export function AppProviders({ children: children2 }) {
                                 <DebugPanelProvider>
                                   <TopbarProvider>
                                     <NewWorkspaceDialogProvider>
-                                      {children2}
+                                      {children}
                                     </NewWorkspaceDialogProvider>
                                   </TopbarProvider>
                                   <LoginGateDialog />

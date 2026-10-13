@@ -8,3 +8,4 @@ current2@83:21	current	去掉打包器加的数字后缀，恢复原名 current
 next2@86:15	next	去掉打包器加的数字后缀，恢复原名 next
 message2@131:15	message	去掉打包器加的数字后缀，恢复原名 message
 handleClick2@165:9	handleClick	去掉打包器加的数字后缀，恢复原名 handleClick
+children2@15:46	children	去掉打包器加的数字后缀，恢复原名 children

@@ -3,3 +3,4 @@ t2@23:14	t	useTranslation() 返回的翻译函数 t
 pending2@25:10	pending	去掉打包器加的数字后缀，恢复原名 pending
 selected2@32:9	selected	去掉打包器加的数字后缀，恢复原名 selected
 option2@32:35	option	去掉打包器加的数字后缀，恢复原名 option
+name2@15:9	nodeName	要移动的节点名；name 是全局名

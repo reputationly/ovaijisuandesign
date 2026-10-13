@@ -48,9 +48,9 @@ function lookupForAsset(state, backend, modelId, type) {
       (registryModel.id === id || registryModel.model_name === id || registryModel.pricingId === id),
   );
 }
-export function useModelForAsset(backend, modelId, type2) {
+export function useModelForAsset(backend, modelId, type) {
   return useModelRegistryStore((state) =>
-    lookupForAsset(state, backend, modelId, type2),
+    lookupForAsset(state, backend, modelId, type),
   );
 }
 function register(hook) {
@@ -124,23 +124,23 @@ export function looksLikeHtml(text) {
 function stripWhitelistedTags(html) {
   return html.replace(HTML_TAG_RE_GLOBAL, "");
 }
-export function stripErrorHtml(html2) {
-  if (!html2) return "";
-  if (!looksLikeHtml(html2)) return html2;
-  if (typeof DOMParser === "undefined") return stripWhitelistedTags(html2);
+export function stripErrorHtml(html) {
+  if (!html) return "";
+  if (!looksLikeHtml(html)) return html;
+  if (typeof DOMParser === "undefined") return stripWhitelistedTags(html);
   try {
-    const doc = new DOMParser().parseFromString(html2, "text/html");
+    const doc = new DOMParser().parseFromString(html, "text/html");
     return doc.body.textContent ?? "";
   } catch {
-    return stripWhitelistedTags(html2);
+    return stripWhitelistedTags(html);
   }
 }
 const registry = new Set();
 let lastZoom = 1;
-export function broadcastZoom(zoom2) {
-  lastZoom = zoom2;
+export function broadcastZoom(zoom) {
+  lastZoom = zoom;
   for (const el of registry) {
-    el.style.setProperty("--canvas-zoom", String(zoom2));
+    el.style.setProperty("--canvas-zoom", String(zoom));
   }
 }
 function registerZoomCounter(el) {
@@ -199,12 +199,12 @@ const NODE_TAG_THEME_SURFACE_TOKEN_BY_PRESET = {
   "#30D158": "--canvas-node-tag-green-surface",
   "#FFD60A": "--canvas-node-tag-yellow-surface",
 };
-export function resolveNodeTagRingColor(color2, readThemeToken) {
-  const token = NODE_TAG_THEME_SURFACE_TOKEN_BY_PRESET[color2.toUpperCase()];
-  return (token ? readThemeToken(token).trim() : "") || color2;
+export function resolveNodeTagRingColor(color, readThemeToken) {
+  const token = NODE_TAG_THEME_SURFACE_TOKEN_BY_PRESET[color.toUpperCase()];
+  return (token ? readThemeToken(token).trim() : "") || color;
 }
-export function getNodeTagRingWidth(zoom2) {
-  const safeZoom = zoom2 > 0 ? zoom2 : 1;
+export function getNodeTagRingWidth(zoom) {
+  const safeZoom = zoom > 0 ? zoom : 1;
   const visualZoom = Math.max(safeZoom, NODE_TAG_RING_ZOOM_FLOOR);
   const screenWidth = 4 - visualZoom;
   return Math.max(1, Math.min(28, screenWidth / safeZoom));

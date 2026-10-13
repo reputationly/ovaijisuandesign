@@ -61,10 +61,10 @@ class TeamCreditTransferRejectedError extends Error {
   }
 }
 export function TransferCreditForm({
-  active: active2,
+  active,
   scope,
   teamRemaining,
-  disabled: disabled2 = false,
+  disabled = false,
   autoFocus = false,
   submitLabel,
   targetPlaceholder,
@@ -90,7 +90,7 @@ export function TransferCreditForm({
   const [unknownIntent, setUnknownIntent] = reactExports.useState(null);
   const contextsQuery = useTeamContextsQuery(
     snapshot?.identityKey ?? null,
-    active2,
+    active,
   );
   const targets = reactExports.useMemo(
     () =>
@@ -100,13 +100,13 @@ export function TransferCreditForm({
     [contextsQuery.data, scope.groupId],
   );
   reactExports.useEffect(() => {
-    if (active2) {
+    if (active) {
       setTargetGroupId("");
       setAmountText("");
       setActionError(null);
       setUnknownIntent(null);
     }
-  }, [active2]);
+  }, [active]);
   const amountIssue = validateTransferAmount(amountText, teamRemaining);
   const amountError =
     amountText.trim().length === 0
@@ -231,7 +231,7 @@ export function TransferCreditForm({
   }, [mutation.isPending, onPendingChange]);
   const targetsUnavailable = contextsQuery.isSuccess && targets.length === 0;
   const canSubmit =
-    !disabled2 &&
+    !disabled &&
     !mutation.isPending &&
     unknownIntent === null &&
     targetGroupId.length > 0 &&
@@ -255,7 +255,7 @@ export function TransferCreditForm({
             setActionError(null);
           }}
           disabled={
-            disabled2 ||
+            disabled ||
             mutation.isPending ||
             unknownIntent !== null ||
             targets.length === 0
@@ -325,7 +325,7 @@ export function TransferCreditForm({
           inputMode="numeric"
           autoComplete="off"
           autoFocus={autoFocus}
-          disabled={disabled2 || mutation.isPending || unknownIntent !== null}
+          disabled={disabled || mutation.isPending || unknownIntent !== null}
           onChange={(event) => {
             setAmountText(event.target.value);
             setActionError(null);

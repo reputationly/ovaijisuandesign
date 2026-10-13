@@ -126,8 +126,8 @@ export class CustomMcpValidationError extends Error {
   }
   name = "CustomMcpValidationError";
 }
-export function isReservedCustomMcpName(name2) {
-  const normalized = name2.trim().replace(/\./gu, "_").toLowerCase();
+export function isReservedCustomMcpName(mcpName) {
+  const normalized = mcpName.trim().replace(/\./gu, "_").toLowerCase();
   return (
     normalized === "hub" ||
     normalized.startsWith("hub_") ||

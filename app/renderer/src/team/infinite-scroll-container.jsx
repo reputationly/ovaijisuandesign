@@ -6,7 +6,7 @@ import { Spinner } from "./use-team-transactions-feed-query.jsx";
 const INFINITE_SCROLL_PRELOAD_BATCHES = 3;
 const LOAD_AHEAD_PX = 160;
 export function InfiniteScrollContainer({
-  children: children2,
+  children,
   loadedBatchCount,
   hasMore,
   isLoadingMore,
@@ -85,7 +85,7 @@ export function InfiniteScrollContainer({
       aria-busy={isLoadingMore || void 0}
       data-action-ui-id={actionUiId}
     >
-      {children2}
+      {children}
       <div
         ref={sentinelRef}
         className="flex min-h-1 items-center justify-center py-1"

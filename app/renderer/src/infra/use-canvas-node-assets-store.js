@@ -75,26 +75,26 @@ export const useCanvasNodeAssetsStore = create((set) => ({
       byWorkspace: new Map(),
     }),
 }));
-export function getNodeIdsForAsset(assetId, workspaceId2) {
+export function getNodeIdsForAsset(assetId, workspaceId) {
   return (
     useCanvasNodeAssetsStore
       .getState()
-      .byWorkspace.get(workspaceScope(workspaceId2))
+      .byWorkspace.get(workspaceScope(workspaceId))
       ?.get(assetId) ?? []
   );
 }
 const EMPTY_ASSET_NODE_IDS = new Map();
-export function useCanvasAssetNodeIds(workspaceId2) {
+export function useCanvasAssetNodeIds(workspaceId) {
   return useCanvasNodeAssetsStore(
     (state) =>
-      state.byWorkspace.get(workspaceScope(workspaceId2)) ??
+      state.byWorkspace.get(workspaceScope(workspaceId)) ??
       EMPTY_ASSET_NODE_IDS,
   );
 }
-export function useHasAssetOnCanvas(assetId, workspaceId2) {
+export function useHasAssetOnCanvas(assetId, workspaceId) {
   return useCanvasNodeAssetsStore((state) =>
     assetId
-      ? (state.byWorkspace.get(workspaceScope(workspaceId2))?.has(assetId) ??
+      ? (state.byWorkspace.get(workspaceScope(workspaceId))?.has(assetId) ??
         false)
       : false,
   );

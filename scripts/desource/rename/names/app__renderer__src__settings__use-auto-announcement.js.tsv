@@ -24,3 +24,6 @@ now2@148:9	now	去掉打包器加的数字后缀，恢复原名 now
 key2@161:13	key	去掉打包器加的数字后缀，恢复原名 key
 key2@164:16	key	去掉打包器加的数字后缀，恢复原名 key
 selection2@168:10	selection	去掉打包器加的数字后缀，恢复原名 selection
+raw2@16:32	raw	去掉打包器加的数字后缀，恢复原名 raw
+raw2@41:40	raw	去掉打包器加的数字后缀，恢复原名 raw
+raw2@167:37	raw	去掉打包器加的数字后缀，恢复原名 raw

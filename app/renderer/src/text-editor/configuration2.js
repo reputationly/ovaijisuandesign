@@ -49,8 +49,8 @@ export const annotationPluginKey = new PluginKey("canvasAnnotation");
 export function getAnnotationMarks(editor) {
   return annotationPluginKey.getState(editor.state)?.marks ?? [];
 }
-export function getAnnotationSelectionRanges(selection2) {
-  return selection2.ranges
+export function getAnnotationSelectionRanges(selection) {
+  return selection.ranges
     .map((range) => ({
       from: range.$from.pos,
       to: range.$to.pos,

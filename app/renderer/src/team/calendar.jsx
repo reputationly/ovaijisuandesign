@@ -81,8 +81,8 @@ export function Calendar({
   captionLayout = "label",
   buttonVariant = "ghost",
   locale,
-  formatters: formatters2,
-  components: components2,
+  formatters,
+  components,
   ...props
 }) {
   const defaultClassNames = getDefaultClassNames();
@@ -102,7 +102,7 @@ export function Calendar({
           date.toLocaleString(locale?.code, {
             month: "short",
           }),
-        ...formatters2,
+        ...formatters,
       }}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),
@@ -239,7 +239,7 @@ export function Calendar({
             </td>
           );
         },
-        ...components2,
+        ...components,
       }}
       {...props}
     />

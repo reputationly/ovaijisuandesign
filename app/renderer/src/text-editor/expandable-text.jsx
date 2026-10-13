@@ -4,7 +4,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { useChatPresentation } from "../chat/use-copy.jsx";
 
 export function ExpandableText({
-  children: children2,
+  children,
   lineClamp = 8,
   className,
   asPre = false,
@@ -41,7 +41,7 @@ export function ExpandableText({
     const resizeObserver = new ResizeObserver(measure);
     resizeObserver.observe(el);
     return () => resizeObserver.disconnect();
-  }, [measure, children2, isPresented]);
+  }, [measure, children, isPresented]);
   const overflow =
     fullHeight != null &&
     collapsedHeight != null &&
@@ -92,7 +92,7 @@ export function ExpandableText({
           style={style}
           onTransitionEnd={handleTransitionEnd}
         >
-          {children2}
+          {children}
         </pre>
       ) : (
         <div
@@ -105,7 +105,7 @@ export function ExpandableText({
           style={style}
           onTransitionEnd={handleTransitionEnd}
         >
-          {children2}
+          {children}
         </div>
       )}
       {overflow && (

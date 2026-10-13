@@ -114,7 +114,7 @@ function useComfyUiWorkflowBridge() {
   };
 }
 export function CanvasWorkflowBridge({
-  children: children2,
+  children,
   ...canvasBridgeState
 }) {
   const comfyUiWorkflowBridge = useComfyUiWorkflowBridge();
@@ -125,7 +125,7 @@ export function CanvasWorkflowBridge({
       {...comfyUiWorkflowBridge}
       {...addNodeMenuBadgeBridge}
     >
-      {children2}
+      {children}
     </CanvasBridgeProvider>
   );
 }

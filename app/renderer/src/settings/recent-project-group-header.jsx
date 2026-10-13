@@ -148,12 +148,12 @@ function UngroupedSortMenu({
 const HOME_RECENT_GROUP_ACTION_CLASS =
   "icon-sidebar-action-control flex size-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none";
 export function RecentProjectGroupHeader({
-  project: project2,
+  project,
   expanded,
   onToggle,
   ungroupedToggleKey,
-  selected: selected2 = false,
-  depth: depth2 = 0,
+  selected = false,
+  depth = 0,
   onNewCreation,
   onOpenDetail,
   onRequestDelete,
@@ -175,12 +175,12 @@ export function RecentProjectGroupHeader({
 }) {
   const { t } = useTranslation();
   const [contextMenuOpen, setContextMenuOpen] = reactExports.useState(false);
-  const label = project2?.name ?? t("project.ungrouped");
-  const projectId = project2?.id;
+  const label = project?.name ?? t("project.ungrouped");
+  const projectId = project?.id;
   const FolderIcon =
-    project2?.kind === "team" ? Users : expanded ? FolderOpen : Folder;
+    project?.kind === "team" ? Users : expanded ? FolderOpen : Folder;
   const ChevronToggle = expanded ? ChevronDown : ChevronRight;
-  const indentPx = 20 + depth2 * 16;
+  const indentPx = 20 + depth * 16;
   reactExports.useEffect(() => {
     if (
       !contextMenuOpen ||
@@ -209,12 +209,12 @@ export function RecentProjectGroupHeader({
     dragging && "sidebar-drag-source",
     dragOver &&
       `home-sidebar-recent-drag-over home-sidebar-recent-drag-over-${dragOver}`,
-    project2
+    project
       ? "text-sm text-[var(--home-sidebar-secondary-text)]"
       : "text-[13px] text-[var(--home-sidebar-section-text)]",
     "before:pointer-events-none before:absolute before:inset-y-0 before:right-0 before:left-[calc(var(--hover-left)_-_6px)] before:-z-10 before:rounded-md",
-    project2
-      ? selected2
+    project
+      ? selected
         ? "before:bg-[var(--home-sidebar-nav-active)] text-foreground"
         : "hover:before:bg-[var(--home-sidebar-nav-hover)]"
       : ungroupedToggleKey &&
@@ -230,7 +230,7 @@ export function RecentProjectGroupHeader({
       data-action-ui-id="home-sidebar.recent-group-header"
       data-project-id={projectId}
       data-drag-over-position={dragOver}
-      data-selected={selected2 ? "true" : "false"}
+      data-selected={selected ? "true" : "false"}
     >
       {projectId ? (
         <button
@@ -345,7 +345,7 @@ export function RecentProjectGroupHeader({
           ) : null}
         </div>
       ) : null}
-      {project2 ? (
+      {project ? (
         <span
           className={cn(
             "pointer-events-none absolute inset-y-0 right-0.5 z-10 flex items-center gap-0.5 rounded-r-md px-1 opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100 group-has-[:focus-visible]:pointer-events-auto group-has-[:focus-visible]:opacity-100",
@@ -363,7 +363,7 @@ export function RecentProjectGroupHeader({
                     className={HOME_RECENT_GROUP_ACTION_CLASS}
                     onClick={(event) => {
                       event.stopPropagation();
-                      onOpenDetail(project2.id);
+                      onOpenDetail(project.id);
                     }}
                   />
                 }
@@ -390,7 +390,7 @@ export function RecentProjectGroupHeader({
                     className={HOME_RECENT_GROUP_ACTION_CLASS}
                     onClick={(event) => {
                       event.stopPropagation();
-                      onNewCreation(project2.id);
+                      onNewCreation(project.id);
                     }}
                   />
                 }
@@ -408,7 +408,7 @@ export function RecentProjectGroupHeader({
       ) : null}
     </div>
   );
-  if (!project2) {
+  if (!project) {
     return (
       // biome-ignore lint/a11y/noStaticElementInteractions: drag-only drop zone; the header inside owns the click and menu affordances.
       <div role="presentation" onDragOver={onDragOver} onDrop={onDrop}>
@@ -437,11 +437,11 @@ export function RecentProjectGroupHeader({
         data-action-ui-id="home-sidebar.recent-group-menu"
         data-global-sidebar-hover-region="true"
       >
-        <ContextMenuItem onClick={() => onNewCreation(project2.id)}>
+        <ContextMenuItem onClick={() => onNewCreation(project.id)}>
           <StrokeIcon icon={Plus} size={14} />
           {t("project.newCreation")}
         </ContextMenuItem>
-        <ContextMenuItem onClick={() => onOpenDetail(project2.id)}>
+        <ContextMenuItem onClick={() => onOpenDetail(project.id)}>
           <StrokeIcon icon={ArrowUpRight} size={14} />
           {t("project.openDetail")}
         </ContextMenuItem>
@@ -457,7 +457,7 @@ export function RecentProjectGroupHeader({
           data-action-ui-id="home-sidebar.recent-group-delete"
           onClick={() => {
             setContextMenuOpen(false);
-            onRequestDelete(project2);
+            onRequestDelete(project);
           }}
         >
           <StrokeIcon icon={Trash2} size={14} />

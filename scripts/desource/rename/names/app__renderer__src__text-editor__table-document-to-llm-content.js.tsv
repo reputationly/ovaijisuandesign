@@ -10,3 +10,7 @@ identity2@223:9	identity	去掉打包器加的数字后缀，恢复原名 identi
 path2@224:14	path	去掉打包器加的数字后缀，恢复原名 path
 url2@269:16	url	去掉打包器加的数字后缀，恢复原名 url
 url2@274:41	url	去掉打包器加的数字后缀，恢复原名 url
+doc2@3:25	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@19:40	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@22:43	doc	去掉打包器加的数字后缀，恢复原名 doc
+text2@85:33	text	去掉打包器加的数字后缀，恢复原名 text

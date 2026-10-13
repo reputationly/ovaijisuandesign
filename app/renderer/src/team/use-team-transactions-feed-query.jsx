@@ -123,11 +123,11 @@ export function useInGroupMembersQuery({ scope, enabled = true }) {
 }
 export function useTeamMembersFeedQuery({
   scope,
-  keyword: keyword2,
+  keyword,
   pageSize,
   enabled = true,
 }) {
-  const normalizedKeyword = normalizeTeamKeyword(keyword2);
+  const normalizedKeyword = normalizeTeamKeyword(keyword);
   return useInfiniteQuery({
     queryKey: scope
       ? teamQueryKeys.memberFeed(scope, normalizedKeyword, pageSize)

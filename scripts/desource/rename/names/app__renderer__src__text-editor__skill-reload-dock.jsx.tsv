@@ -13,3 +13,8 @@ path2@272:18	path	去掉打包器加的数字后缀，恢复原名 path
 workspaceId2@316:9	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
 start2@387:11	start	去掉打包器加的数字后缀，恢复原名 start
 end2@388:11	end	去掉打包器加的数字后缀，恢复原名 end
+mode2@167:43	mode	去掉打包器加的数字后缀，恢复原名 mode
+messages2@172:42	messages	去掉打包器加的数字后缀，恢复原名 messages
+workspaceId2@298:35	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+disabled2@312:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+message2@400:26	message	去掉打包器加的数字后缀，恢复原名 message

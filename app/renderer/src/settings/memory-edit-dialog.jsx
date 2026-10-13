@@ -88,13 +88,13 @@ function Field({ label, hint, error, children }) {
     </div>
   );
 }
-export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
+export function MemoryEditDialog({ open, mode, onOpenChange }) {
   const { t } = useTranslation();
-  const isEdit = mode2.mode === "edit";
+  const isEdit = mode.mode === "edit";
   const writer = useMemoryWrite();
   const entry = useMemoryEntry(
-    isEdit ? mode2.scope : void 0,
-    isEdit ? mode2.name : void 0,
+    isEdit ? mode.scope : void 0,
+    isEdit ? mode.name : void 0,
   );
   const [state, setState] = reactExports.useState(DEFAULT_STATE);
   const [submitted, setSubmitted] = reactExports.useState(false);
@@ -106,8 +106,8 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
     if (isEdit && entry.data) {
       const fm = entry.data.frontmatter;
       setState({
-        scope: mode2.scope,
-        name: mode2.name,
+        scope: mode.scope,
+        name: mode.name,
         type: fm.type,
         description: fm.description,
         body: entry.data.body,
@@ -117,7 +117,7 @@ export function MemoryEditDialog({ open, mode: mode2, onOpenChange }) {
     } else if (!isEdit) {
       setState(DEFAULT_STATE);
     }
-  }, [open, isEdit, entry.data, mode2]);
+  }, [open, isEdit, entry.data, mode]);
   const isAssetPin = state.type === "asset-pin";
   const errors = reactExports.useMemo(() => {
     const out = {};

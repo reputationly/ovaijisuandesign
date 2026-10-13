@@ -10,3 +10,7 @@ type2@114:36	type	去掉打包器加的数字后缀，恢复原名 type
 name2@122:28	memoryName	记忆条目名；name 是全局名
 queryClient2@190:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
 index2@308:31	index	去掉打包器加的数字后缀，恢复原名 index
+children2@35:13	children	去掉打包器加的数字后缀，恢复原名 children
+name2@88:52	memoryName	记忆条目名；name 是全局名
+name2@174:39	memoryName	记忆条目名；name 是全局名
+children2@222:13	children	去掉打包器加的数字后缀，恢复原名 children

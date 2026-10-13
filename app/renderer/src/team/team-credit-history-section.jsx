@@ -109,7 +109,7 @@ export function isAnnualMember(wallet) {
   );
 }
 export function TeamCreditHistorySection({
-  children: children2,
+  children,
   showInfo = true,
   action,
 }) {
@@ -155,7 +155,7 @@ export function TeamCreditHistorySection({
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
-      {children2}
+      {children}
     </section>
   );
 }

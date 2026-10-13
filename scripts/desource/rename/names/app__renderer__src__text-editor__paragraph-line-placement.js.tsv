@@ -16,3 +16,9 @@ matches2@191:9	matches	去掉打包器加的数字后缀，恢复原名 matches
 from2@198:13	from	去掉打包器加的数字后缀，恢复原名 from
 token2@220:58	token	去掉打包器加的数字后缀，恢复原名 token
 first2@226:13	first	去掉打包器加的数字后缀，恢复原名 first
+config2@7:41	config	去掉打包器加的数字后缀，恢复原名 config
+config2@28:42	config	去掉打包器加的数字后缀，恢复原名 config
+doc2@47:33	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@61:41	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@91:40	doc	去掉打包器加的数字后缀，恢复原名 doc
+text2@181:35	text	去掉打包器加的数字后缀，恢复原名 text

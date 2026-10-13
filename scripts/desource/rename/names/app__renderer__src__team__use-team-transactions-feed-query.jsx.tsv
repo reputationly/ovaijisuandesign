@@ -1,3 +1,4 @@
 key	new	reason
 t2@385:14	t	useTranslation() 返回的翻译函数 t
 index2@44:12	index	去掉打包器加的数字后缀，恢复原名 index
+keyword2@126:12	keyword	去掉打包器加的数字后缀，恢复原名 keyword

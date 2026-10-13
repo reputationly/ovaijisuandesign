@@ -98,8 +98,8 @@ function _notifyDebugListeners(eventName, properties) {
   }
 }
 
-export function trackEvent(eventName, properties2 = {}) {
-  const sanitized = sanitizeTrackProps(properties2);
+export function trackEvent(eventName, properties = {}) {
+  const sanitized = sanitizeTrackProps(properties);
   if (sanitized.truncatedStrings > 0 || sanitized.droppedProps > 0) {
     _guard.note({
       truncated_strings: sanitized.truncatedStrings,

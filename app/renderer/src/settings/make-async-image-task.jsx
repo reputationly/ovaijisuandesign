@@ -65,27 +65,27 @@ makeAsyncImageTask("520029720819908617", "TASK_STATUS_COMPLETED", {
     "",
   ]),
 });
-export function connectorTitle(t, language2, connectorId, displayName2) {
+export function connectorTitle(t, language, connectorId, displayName) {
   return t(
     `connectors.catalog.${connectorId}.title`,
-    localizedI18nText(displayName2, language2),
+    localizedI18nText(displayName, language),
   );
 }
-export function useConnectorCopy(connectorId, displayName2, namespace2) {
+export function useConnectorCopy(connectorId, displayName, namespace) {
   const { t, i18n } = useTranslation();
   const language = i18n?.language ?? "en";
-  const localizedName = localizedI18nText(displayName2, language);
+  const localizedName = localizedI18nText(displayName, language);
   const copy = reactExports.useCallback(
     (key, options) =>
       t(`connectors.${connectorId}.${key}`, {
         name: localizedName,
         ...options,
-        defaultValue: t(`connectors.${namespace2}.${key}`, {
+        defaultValue: t(`connectors.${namespace}.${key}`, {
           name: localizedName,
           ...options,
         }),
       }),
-    [t, connectorId, namespace2, localizedName],
+    [t, connectorId, namespace, localizedName],
   );
   return {
     name: localizedName,
@@ -97,10 +97,10 @@ export function ConnectorDialogShell({
   embedded,
   dismissible,
   onRequestClose,
-  children: children2,
+  children,
 }) {
   const { t } = useTranslation();
-  if (embedded) return <>{children2}</>;
+  if (embedded) return <>{children}</>;
   return (
     <ConnectorDialogFrame
       open={true}
@@ -113,7 +113,7 @@ export function ConnectorDialogShell({
       className="sm:max-w-[600px]"
       showCloseButton={dismissible}
     >
-      {children2}
+      {children}
     </ConnectorDialogFrame>
   );
 }
@@ -121,7 +121,7 @@ export function ConnectorDialogIntro({
   iconUrl,
   title,
   description,
-  children: children2,
+  children,
 }) {
   const scrollRef = reactExports.useRef(null);
   const isScrolling = useIsScrolling({
@@ -146,11 +146,11 @@ export function ConnectorDialogIntro({
           {description}
         </DialogDescription>
       </DialogHeader>
-      {children2}
+      {children}
     </div>
   );
 }
-export function ConnectorConsentNote({ text: text2, className }) {
+export function ConnectorConsentNote({ text, className }) {
   return (
     <div
       className={`flex gap-2.5 rounded-lg bg-secondary px-3 py-2.5 ${className ?? ""}`}
@@ -162,15 +162,15 @@ export function ConnectorConsentNote({ text: text2, className }) {
         className="mt-0.5 shrink-0 text-muted-foreground"
       />
       <p className="text-[13px] leading-relaxed text-muted-foreground">
-        {text2}
+        {text}
       </p>
     </div>
   );
 }
-export function ConnectorDialogError({ message: message2 }) {
+export function ConnectorDialogError({ message }) {
   return (
     <p role="alert" className="mt-3 text-xs text-destructive">
-      {message2}
+      {message}
     </p>
   );
 }
@@ -180,7 +180,7 @@ export function ConnectorDialogActions({
   cancelDisabled = false,
   cancelActionUiId,
   onCancel,
-  children: children2,
+  children,
 }) {
   return (
     <DialogFooter className="shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5">
@@ -196,15 +196,15 @@ export function ConnectorDialogActions({
       >
         {cancelLabel}
       </Button>
-      {children2}
+      {children}
     </DialogFooter>
   );
 }
 export function ConnectorDialogStep({
   ordinal,
-  first: first2 = false,
-  last: last2 = false,
-  children: children2,
+  first = false,
+  last = false,
+  children,
 }) {
   const { t } = useTranslation();
   const lineClassName =
@@ -215,7 +215,7 @@ export function ConnectorDialogStep({
       data-layout-slot="connector-credential-step"
     >
       <div className="relative flex justify-center pt-4">
-        {first2 ? null : (
+        {first ? null : (
           <span aria-hidden={true} className={`${lineClassName} top-0 h-4`} />
         )}
         <span
@@ -225,14 +225,14 @@ export function ConnectorDialogStep({
         >
           {t(`connectors.stepOrdinal.${ordinal}`)}
         </span>
-        {last2 ? null : (
+        {last ? null : (
           <span
             aria-hidden={true}
             className={`${lineClassName} top-10 bottom-0`}
           />
         )}
       </div>
-      <div className="min-w-0 py-4">{children2}</div>
+      <div className="min-w-0 py-4">{children}</div>
     </section>
   );
 }

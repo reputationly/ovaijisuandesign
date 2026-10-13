@@ -4,12 +4,12 @@ const DIFF_DEL_CLASS = "canvas-diff-del";
 
 const DIFF_DEL_INLINE_CLASS = "canvas-diff-del-inline";
 
-export function buildDeletedBlock(hunk, config2) {
+export function buildDeletedBlock(hunk, config) {
   const block = document.createElement("div");
   block.className = DIFF_DEL_CLASS;
   block.setAttribute("data-diff-del-for", hunk.id);
   block.contentEditable = "false";
-  const rendered = config2.renderMarkdown(
+  const rendered = config.renderMarkdown(
     hunk.deletedMarkdown,
     hunk.deletedContext,
   );
@@ -25,12 +25,12 @@ export function buildDeletedBlock(hunk, config2) {
   return block;
 }
 
-export function buildDeletedInline(hunk, config2) {
+export function buildDeletedInline(hunk, config) {
   const inline = document.createElement("span");
   inline.className = DIFF_DEL_INLINE_CLASS;
   inline.setAttribute("data-diff-del-for", hunk.id);
   inline.contentEditable = "false";
-  const rendered = config2.renderMarkdown(
+  const rendered = config.renderMarkdown(
     hunk.deletedMarkdown,
     hunk.deletedContext,
   );
@@ -44,9 +44,9 @@ export function buildDeletedInline(hunk, config2) {
   return inline;
 }
 
-export function topLevelBlockAt(doc2, pos) {
+export function topLevelBlockAt(doc, pos) {
   try {
-    const $pos = doc2.resolve(Math.min(Math.max(pos, 0), doc2.content.size));
+    const $pos = doc.resolve(Math.min(Math.max(pos, 0), doc.content.size));
     if ($pos.depth === 0) return null;
     return {
       from: $pos.before(1),
@@ -58,7 +58,7 @@ export function topLevelBlockAt(doc2, pos) {
   }
 }
 
-export function isInlineTextReplacement(doc2, hunk) {
+export function isInlineTextReplacement(doc, hunk) {
   if (
     hunk.zeroWidth ||
     !hunk.deletedMarkdown ||
@@ -66,8 +66,8 @@ export function isInlineTextReplacement(doc2, hunk) {
   )
     return false;
   try {
-    const $from = doc2.resolve(hunk.from);
-    const $to = doc2.resolve(hunk.to);
+    const $from = doc.resolve(hunk.from);
+    const $to = doc.resolve(hunk.to);
     if (!$from.sameParent($to) || !$from.parent.isTextblock) return false;
     const parent = $from.parent;
     const fromOffset = $from.parentOffset;
@@ -88,10 +88,10 @@ export function isInlineTextReplacement(doc2, hunk) {
   }
 }
 
-export function paragraphLinePlacement(doc2, hunk) {
+export function paragraphLinePlacement(doc, hunk) {
   try {
-    const $from = doc2.resolve(hunk.from);
-    const $to = doc2.resolve(hunk.to);
+    const $from = doc.resolve(hunk.from);
+    const $to = doc.resolve(hunk.to);
     if (!$from.sameParent($to) || $from.parent.type.name !== "paragraph")
       return null;
     const parent = $from.parent;
@@ -178,7 +178,7 @@ function isWholeWordMatch(text, from, to) {
   return true;
 }
 
-export function findMatchesInText(text2, query, options, opts) {
+export function findMatchesInText(text, query, options, opts) {
   const pattern = opts?.pattern ?? compileFindPattern(query, options);
   if (!pattern)
     return {
@@ -190,14 +190,14 @@ export function findMatchesInText(text2, query, options, opts) {
   const baseOffset = opts?.baseOffset ?? 0;
   const matches = [];
   let limited = false;
-  let match = pattern.exec(text2);
+  let match = pattern.exec(text);
   while (match != null) {
     if (match[0].length === 0) {
       pattern.lastIndex += 1;
     } else {
       const from = match.index;
       const to = match.index + match[0].length;
-      if (!options.wholeWord || isWholeWordMatch(text2, from, to)) {
+      if (!options.wholeWord || isWholeWordMatch(text, from, to)) {
         matches.push({
           from: from + baseOffset,
           to: to + baseOffset,
@@ -208,7 +208,7 @@ export function findMatchesInText(text2, query, options, opts) {
         }
       }
     }
-    match = pattern.exec(text2);
+    match = pattern.exec(text);
   }
   return {
     matches,

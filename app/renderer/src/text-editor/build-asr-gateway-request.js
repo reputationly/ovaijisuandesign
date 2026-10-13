@@ -30,8 +30,8 @@ function isCanvasGenerationHandoffTarget(value) {
   );
 }
 
-export function parseCanvasGenerationHandoffTargets(text2) {
-  const normalized = text2.trim();
+export function parseCanvasGenerationHandoffTargets(text) {
+  const normalized = text.trim();
   if (!normalized.startsWith(CANVAS_HANDOFF_MARKER_PREFIX)) return [];
   try {
     const parsed = JSON.parse(
@@ -63,16 +63,16 @@ const CANCEL_MARKER_TEXTS = [
   CANCELLED_WITH_CANVAS_CONTINUATION_TEXT,
 ];
 
-export function isCancelMarkerText(text2) {
-  const normalized = text2.trim();
+export function isCancelMarkerText(text) {
+  const normalized = text.trim();
   return (
     CANCEL_MARKER_TEXTS.some((marker) => marker === normalized) ||
     normalized.startsWith(CANVAS_HANDOFF_MARKER_PREFIX)
   );
 }
 
-export function cancelMarkerHasCanvasContinuation(text2) {
-  const normalized = text2.trim();
+export function cancelMarkerHasCanvasContinuation(text) {
+  const normalized = text.trim();
   return (
     normalized === CANCELLED_WITH_CANVAS_CONTINUATION_TEXT ||
     normalized.startsWith(CANVAS_HANDOFF_MARKER_PREFIX)
@@ -90,8 +90,8 @@ const RECOVERED_MESSAGE_PREFIXES = [
   RECOVERED_MESSAGE_PREFIX_EN,
 ];
 
-export function isRecoveredMessage(text2) {
-  const trimmed = text2.trimStart();
+export function isRecoveredMessage(text) {
+  const trimmed = text.trimStart();
   return RECOVERED_MESSAGE_PREFIXES.some((prefix) => trimmed.startsWith(prefix));
 }
 
@@ -101,23 +101,23 @@ const RESUME_CHILD_PROMPT_EN = `${RECOVERED_MESSAGE_PREFIX_EN} The generation st
 
 const RESUME_CHILD_PROMPTS = [RESUME_CHILD_PROMPT_ZH, RESUME_CHILD_PROMPT_EN];
 
-export function stripRecoveredPrefix(text2) {
-  const trimmed = text2.trimStart();
+export function stripRecoveredPrefix(text) {
+  const trimmed = text.trimStart();
   for (const prefix of RECOVERED_MESSAGE_PREFIXES) {
     if (trimmed.startsWith(prefix)) return trimmed.slice(prefix.length).trimStart();
   }
-  return text2;
+  return text;
 }
 
 const CONTEXT_PREFIX_RE =
   /^(?:\[IM chat_id: [^\]]*\]\n)?(?:\[IM message_id: [^\]]*\]\n)?(?:\[CONTEXT [^\]]*\]\s*)?(?:\[HISTORY[\s\S]*?\[END HISTORY\]\s*)?(?:\[USER_MSG\][\s\S]*?\[\/USER_MSG\]\s*)?/;
 
-export function stripContextPrefix(text2) {
-  return text2.replace(CONTEXT_PREFIX_RE, "");
+export function stripContextPrefix(text) {
+  return text.replace(CONTEXT_PREFIX_RE, "");
 }
 
-export function isResumeChildPrompt(text2) {
-  const normalized = stripContextPrefix(text2).trim();
+export function isResumeChildPrompt(text) {
+  const normalized = stripContextPrefix(text).trim();
   return RESUME_CHILD_PROMPTS.some((resumePrompt) => normalized === resumePrompt);
 }
 
@@ -139,7 +139,7 @@ export function diagnosticToolPart(part) {
   };
 }
 
-export function diagnosticChatTools(messages2) {
+export function diagnosticChatTools(messages) {
   const result = [];
   const visitChildren = (children) => {
     for (const child of children) {
@@ -153,7 +153,7 @@ export function diagnosticChatTools(messages2) {
       if (child.subMessages) visitChildren(child.subMessages);
     }
   };
-  for (const message of messages2) {
+  for (const message of messages) {
     if (message.type === "tool")
       result.push({
         tool: message.content,
@@ -199,9 +199,9 @@ export const CHAT_RATING_COMMENT_MAX_LENGTH = 1e3;
 
 const CONNECTOR_TOKEN_RE = new RegExp(`^${CONNECTOR_TOKEN_SOURCE}`, "u");
 
-export function parseConnectorMentionAt(text2, start2) {
-  if (start2 > 0 && !/\s/u.test(text2.charAt(start2 - 1))) return void 0;
-  const match = CONNECTOR_TOKEN_RE.exec(text2.slice(start2));
+export function parseConnectorMentionAt(text, start) {
+  if (start > 0 && !/\s/u.test(text.charAt(start - 1))) return void 0;
+  const match = CONNECTOR_TOKEN_RE.exec(text.slice(start));
   if (!match) return void 0;
   return {
     serverName: match[1],
@@ -210,8 +210,8 @@ export function parseConnectorMentionAt(text2, start2) {
           displayName: match[2],
         }
       : {}),
-    start: start2,
-    end: start2 + match[0].length,
+    start,
+    end: start + match[0].length,
   };
 }
 
@@ -265,17 +265,17 @@ const VALID_MEDIA_TYPES = new Set(["image", "video", "audio", "text"]);
 export function buildResourceDragItem(
   absolutePath,
   relativePath,
-  name2,
+  resourceName,
   isDirectory,
   assetId,
   projectAsset,
 ) {
-  const detected = isDirectory ? void 0 : detectFileType(name2);
+  const detected = isDirectory ? void 0 : detectFileType(resourceName);
   const type = detected && VALID_MEDIA_TYPES.has(detected) ? detected : "file";
   return {
     path: relativePath,
     absolutePath,
-    name: name2,
+    name: resourceName,
     type,
     isDirectory,
     ...(assetId != null && {

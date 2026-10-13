@@ -21,7 +21,7 @@ export function InviteLinkHistoryPage({
   items,
   isPending,
   isError,
-  isStale: isStale2,
+  isStale,
   isLoadingMore,
   loadMoreError,
   loadedBatchCount,
@@ -66,7 +66,7 @@ export function InviteLinkHistoryPage({
               onRetry={onRetry}
             />
           ) : null}
-          {isStale2 ? <TeamPanelStale onRetry={onRetry} /> : null}
+          {isStale ? <TeamPanelStale onRetry={onRetry} /> : null}
           {!isPending && !isError && items.length === 0 ? (
             <TeamPanelEmpty
               title={t("team.management.noInviteLinks", {

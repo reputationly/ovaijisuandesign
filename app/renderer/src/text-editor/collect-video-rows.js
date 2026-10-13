@@ -290,22 +290,22 @@ function collectUpscaleRows(pricing, copy, locale) {
 export function buildComfyUiNodePriceDescription(
   pricing,
   nodeType,
-  copy2,
+  copy,
   locale,
 ) {
   if (!pricing) return null;
   if (pricing.enabled === false) {
-    return `### ${copy2.heading}
+    return `### ${copy.heading}
 
-${copy2.free}`;
+${copy.free}`;
   }
   const imageModelId = IMAGE_MODEL_BY_NODE[nodeType];
   const rows = imageModelId
-    ? collectImageRows(pricing, imageModelId, copy2, locale)
+    ? collectImageRows(pricing, imageModelId, copy, locale)
     : nodeType === "MinimaxH3PromptExpandNode"
-      ? collectContextIrRows(pricing, copy2, locale)
+      ? collectContextIrRows(pricing, copy, locale)
       : nodeType === "MinimaxH3VideoEnhancementNode"
-        ? collectUpscaleRows(pricing, copy2, locale)
-        : collectVideoRows(pricing, nodeType, copy2, locale);
-  return render(rows, copy2, locale);
+        ? collectUpscaleRows(pricing, copy, locale)
+        : collectVideoRows(pricing, nodeType, copy, locale);
+  return render(rows, copy, locale);
 }

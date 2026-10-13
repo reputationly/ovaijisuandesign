@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "../infra/select-content.jsx";
 const DEFAULT_REPORT_INTERVAL_MS = 1e4;
-export function startRendererDiagnosticsReporter(hiloApp2, options = {}) {
+export function startRendererDiagnosticsReporter(hiloApp, options = {}) {
   const intervalMs = options.intervalMs ?? DEFAULT_REPORT_INTERVAL_MS;
   const schedule = options.schedule ?? setInterval;
   const clear = options.clear ?? clearInterval;
@@ -20,7 +20,7 @@ export function startRendererDiagnosticsReporter(hiloApp2, options = {}) {
   const report = () => {
     if (stopped) return;
     Promise.resolve(
-      hiloApp2.updateRendererDiagnosticsSnapshot(
+      hiloApp.updateRendererDiagnosticsSnapshot(
         buildRendererDiagnosticsSnapshot(),
       ),
     ).catch(() => {});
@@ -48,26 +48,26 @@ const DISABLED_GPU_ATTRIBUTE = "data-hilo-gpu";
 const DISABLED_GPU_REASON_ATTRIBUTE = "data-hilo-gpu-reason";
 const TRANSPARENT_WINDOW_ATTRIBUTE = "data-window-transparent";
 export function applyRenderingModeAttributes(
-  config2,
-  root2 = document.documentElement,
+  config,
+  root = document.documentElement,
 ) {
-  if (config2.transparentWindowActive) {
-    root2.setAttribute(TRANSPARENT_WINDOW_ATTRIBUTE, "true");
+  if (config.transparentWindowActive) {
+    root.setAttribute(TRANSPARENT_WINDOW_ATTRIBUTE, "true");
   } else {
-    root2.removeAttribute(TRANSPARENT_WINDOW_ATTRIBUTE);
+    root.removeAttribute(TRANSPARENT_WINDOW_ATTRIBUTE);
   }
-  if (config2.gpuAccelerationDisabled) {
-    root2.setAttribute(DISABLED_GPU_ATTRIBUTE, "disabled");
-    root2.setAttribute(
+  if (config.gpuAccelerationDisabled) {
+    root.setAttribute(DISABLED_GPU_ATTRIBUTE, "disabled");
+    root.setAttribute(
       DISABLED_GPU_REASON_ATTRIBUTE,
-      config2.gpuAccelerationDisabledReason ?? "unknown",
+      config.gpuAccelerationDisabledReason ?? "unknown",
     );
     return;
   }
-  root2.removeAttribute(DISABLED_GPU_ATTRIBUTE);
-  root2.removeAttribute(DISABLED_GPU_REASON_ATTRIBUTE);
+  root.removeAttribute(DISABLED_GPU_ATTRIBUTE);
+  root.removeAttribute(DISABLED_GPU_REASON_ATTRIBUTE);
 }
-export function SettingGroup({ title, children: children2 }) {
+export function SettingGroup({ title, children }) {
   return (
     <div className="space-y-1.5">
       {title && (
@@ -77,14 +77,14 @@ export function SettingGroup({ title, children: children2 }) {
           </span>
         </div>
       )}
-      {children2}
+      {children}
     </div>
   );
 }
 export function SettingRow({
   label,
   description,
-  children: children2,
+  children,
   className,
 }) {
   return (
@@ -100,7 +100,7 @@ export function SettingRow({
           <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
         )}
       </div>
-      <div className="shrink-0">{children2}</div>
+      <div className="shrink-0">{children}</div>
     </div>
   );
 }
@@ -193,12 +193,12 @@ function publishPersistenceStatus(entry) {
   entry.reportPromise = promise;
 }
 export function registerWorkspaceCanvasPersistence(
-  workspaceId2,
+  workspaceId,
   instanceId,
   controller,
   reportStatus,
 ) {
-  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId2);
+  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId);
   const key = lifetimeKey(instanceId);
   const previous = workspaceEntries.get(key);
   const entry = {
@@ -222,15 +222,15 @@ export function registerWorkspaceCanvasPersistence(
     current.controller = void 0;
     current.reportStatus = void 0;
     if (current.status === "clean") workspaceEntries.delete(key);
-    if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId2);
+    if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId);
   };
 }
 export function reportWorkspaceCanvasPersistence(
-  workspaceId2,
+  workspaceId,
   instanceId,
   status,
 ) {
-  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId2);
+  const workspaceEntries = getOrCreateWorkspaceEntries(workspaceId);
   const key = lifetimeKey(instanceId);
   const entry = workspaceEntries.get(key);
   if (entry) {
@@ -246,10 +246,10 @@ export function reportWorkspaceCanvasPersistence(
   if (status === "clean" && !workspaceEntries.get(key)?.controller) {
     workspaceEntries.delete(key);
   }
-  if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId2);
+  if (workspaceEntries.size === 0) entriesByWorkspace.delete(workspaceId);
 }
-export async function flushWorkspaceCanvasPersistence(workspaceId2) {
-  const entries = entriesByWorkspace.get(workspaceId2);
+export async function flushWorkspaceCanvasPersistence(workspaceId) {
+  const entries = entriesByWorkspace.get(workspaceId);
   if (!entries) return [];
   for (const entry of entries.values()) {
     if (entry.controller) {

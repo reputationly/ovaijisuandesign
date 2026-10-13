@@ -2,21 +2,21 @@
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
-export function selectPendingHunksForNode(state2, nodeId) {
-  if (!nodeId || !state2.session || state2.session.nodeId !== nodeId) return [];
-  return state2.session.hunks.filter((hunk) => hunk.status === "pending");
+export function selectPendingHunksForNode(state, nodeId) {
+  if (!nodeId || !state.session || state.session.nodeId !== nodeId) return [];
+  return state.session.hunks.filter((hunk) => hunk.status === "pending");
 }
 
-export function selectHasPendingHunksForNode(state2, nodeId) {
-  if (!nodeId || !state2.session || state2.session.nodeId !== nodeId)
+export function selectHasPendingHunksForNode(state, nodeId) {
+  if (!nodeId || !state.session || state.session.nodeId !== nodeId)
     return false;
-  return state2.session.hunks.some((hunk) => hunk.status === "pending");
+  return state.session.hunks.some((hunk) => hunk.status === "pending");
 }
 
-export function selectAgentWriteSignalForNode(state2, nodeId) {
-  if (!nodeId || !state2.session || state2.session.nodeId !== nodeId)
+export function selectAgentWriteSignalForNode(state, nodeId) {
+  if (!nodeId || !state.session || state.session.nodeId !== nodeId)
     return null;
-  return state2.session.requestId;
+  return state.session.requestId;
 }
 
 const ABSOLUTE_URL_RE = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
@@ -65,9 +65,9 @@ const VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|ogv|ogg)$/i;
 
 const AUDIO_EXT_RE = /\.(mp3|wav|m4a|aac|flac|opus|oga)$/i;
 
-export function classifyMarkdownAsset(url2) {
-  if (!url2) return "image";
-  const cleaned = url2.split("#")[0]?.split("?")[0] ?? "";
+export function classifyMarkdownAsset(url) {
+  if (!url) return "image";
+  const cleaned = url.split("#")[0]?.split("?")[0] ?? "";
   if (VIDEO_EXT_RE.test(cleaned)) return "video";
   if (AUDIO_EXT_RE.test(cleaned)) return "audio";
   return "image";
@@ -81,9 +81,9 @@ export function isTextEditorContentReady(loaded, currentPath, loadedPath) {
   );
 }
 
-export function resolveTextEditorMode(markdown2, plain) {
+export function resolveTextEditorMode(markdown, plain) {
   if (plain) return "plain-text";
-  return markdown2.length <= RICH_MARKDOWN_MAX_CHARS
+  return markdown.length <= RICH_MARKDOWN_MAX_CHARS
     ? "rich-markdown"
     : "source-markdown";
 }

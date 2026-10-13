@@ -12,7 +12,7 @@ export function CreateTeamFormSurface({
   submitActionId,
   teamName,
   placeholder,
-  disabled: disabled2,
+  disabled,
   submitting,
   submitDisabled,
   actionsDisabled = false,
@@ -38,7 +38,7 @@ export function CreateTeamFormSurface({
             value={teamName}
             onChange={(event) => onTeamNameChange(event.target.value)}
             placeholder={placeholder}
-            disabled={disabled2}
+            disabled={disabled}
             maxLength={MAX_TEAM_NAME_LENGTH}
             autoFocus={autoFocus}
             data-action-ui-id={inputActionId}

@@ -25,7 +25,7 @@ function writeDiffPreference(enabled) {
   } catch {}
 }
 export function useTextVersionPreview({
-  version: version2,
+  version,
   label,
   sourceNodeId,
   prepareForReplace,
@@ -47,7 +47,7 @@ export function useTextVersionPreview({
   const [error, setError] = reactExports.useState(null);
   const [busy, setBusy] = reactExports.useState(false);
   const loadingMoreRef = reactExports.useRef(false);
-  const versionId = version2?.id ?? null;
+  const versionId = version?.id ?? null;
   reactExports.useEffect(() => {
     setDiff(null);
     setContent("");
@@ -228,7 +228,7 @@ export function useTextVersionPreview({
     }
   }, [textVersions, versionId, sourceNodeId, canvasActions, t]);
   const renderAsMarkdown =
-    (version2?.contentBytes ?? 0) <= MARKDOWN_RENDER_MAX_BYTES;
+    (version?.contentBytes ?? 0) <= MARKDOWN_RENDER_MAX_BYTES;
   const contentEl = reactExports.useMemo(
     () =>
       renderAsMarkdown ? (
@@ -242,14 +242,14 @@ export function useTextVersionPreview({
       ),
     [content, renderAsMarkdown],
   );
-  if (!version2) {
+  if (!version) {
     return {
       headerLeft: null,
       toolbarActions: null,
       body: null,
     };
   }
-  const contentMissing = version2.objectState === "missing";
+  const contentMissing = version.objectState === "missing";
   const matchesCurrent = diff?.total === 0;
   return {
     headerLeft: (

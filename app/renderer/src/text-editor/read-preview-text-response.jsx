@@ -80,7 +80,7 @@ export function usePreviewTextLoader() {
     [gatewayFetch],
   );
 }
-export async function uploadCanvasReferenceFile(file, fetch2) {
+export async function uploadCanvasReferenceFile(file, fetchImpl) {
   const data = await observeClientMediaUpload(
     file,
     file.name,
@@ -88,7 +88,7 @@ export async function uploadCanvasReferenceFile(file, fetch2) {
     async (headers) => {
       const form = new FormData();
       form.append("file", file, file.name);
-      const response = await fetch2(API_PATHS.upload, {
+      const response = await fetchImpl(API_PATHS.upload, {
         method: "POST",
         body: form,
         ...(headers
@@ -104,10 +104,10 @@ export async function uploadCanvasReferenceFile(file, fetch2) {
     throw new Error("Upload failed: missing relative path in response");
   return data.relative;
 }
-export async function uploadCanvasFileToCdn(file, fetch2) {
+export async function uploadCanvasFileToCdn(file, fetchImpl) {
   const form = new FormData();
   form.append("file", file, file.name);
-  const response = await fetch2(API_PATHS.filesUploadCdn, {
+  const response = await fetchImpl(API_PATHS.filesUploadCdn, {
     method: "POST",
     body: form,
   });
@@ -121,13 +121,13 @@ const AttachmentLocatorContext = reactExports.createContext(null);
 export function useAttachmentLocator() {
   return reactExports.useContext(AttachmentLocatorContext);
 }
-export function AssetSourcePickerProvider({ children: children2 }) {
+export function AssetSourcePickerProvider({ children }) {
   const picker = reactExports.useRef(null);
   const locator = reactExports.useRef(null);
   return (
     <AssetSourcePickerContext.Provider value={picker}>
       <AttachmentLocatorContext.Provider value={locator}>
-        {children2}
+        {children}
       </AttachmentLocatorContext.Provider>
     </AssetSourcePickerContext.Provider>
   );
@@ -178,12 +178,12 @@ async function notifyBrowserCanvasImport(workspaceId, addFiles, t) {
 }
 export function useBrowserCanvasImport(
   currentWorkspace,
-  isActive2,
+  isActive,
   handleSystemPasteToCanvas,
 ) {
   const { t } = useTranslation();
   reactExports.useEffect(() => {
-    if (isActive2 === false || !currentWorkspace) return;
+    if (isActive === false || !currentWorkspace) return;
     const subscription = workspaceEvents.onAddFilesToCanvas(
       ({ files, source }) => {
         if (files.length === 0) return;
@@ -195,7 +195,7 @@ export function useBrowserCanvasImport(
       },
     );
     return () => subscription.dispose();
-  }, [currentWorkspace, handleSystemPasteToCanvas, isActive2, t]);
+  }, [currentWorkspace, handleSystemPasteToCanvas, isActive, t]);
 }
 const ANIMATED_IMAGE_EXTENSIONS = new Set(["gif"]);
 export function filenameExtension(filename) {
@@ -211,11 +211,11 @@ export function isAnnotatableImage(attachment) {
     !ANIMATED_IMAGE_EXTENSIONS.has(filenameExtension(attachment.filename))
   );
 }
-export function isSameImageAnnotationTarget(current2, snapshot2) {
+export function isSameImageAnnotationTarget(current, snapshot) {
   return (
-    current2.id === snapshot2.id &&
-    current2.filename === snapshot2.filename &&
-    current2.previewUrl === snapshot2.previewUrl &&
-    current2.relativePath === snapshot2.relativePath
+    current.id === snapshot.id &&
+    current.filename === snapshot.filename &&
+    current.previewUrl === snapshot.previewUrl &&
+    current.relativePath === snapshot.relativePath
   );
 }

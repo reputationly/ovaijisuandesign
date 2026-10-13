@@ -5,3 +5,12 @@ dot2@42:9	dot	去掉打包器加的数字后缀，恢复原名 dot
 Input2@54:12	Input	去掉打包器加的数字后缀，恢复原名 Input
 next2@340:18	next	去掉打包器加的数字后缀，恢复原名 next
 next2@344:26	next	去掉打包器加的数字后缀，恢复原名 next
+children2@130:13	children	去掉打包器加的数字后缀，恢复原名 children
+children2@161:13	children	去掉打包器加的数字后缀，恢复原名 children
+disabled2@237:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+children2@238:13	children	去掉打包器加的数字后缀，恢复原名 children
+size2@235:9	size	去掉打包器加的数字后缀，恢复原名 size
+children2@383:13	children	去掉打包器加的数字后缀，恢复原名 children
+size2@385:9	size	去掉打包器加的数字后缀，恢复原名 size
+layer2@386:10	layer	去掉打包器加的数字后缀，恢复原名 layer
+children2@439:13	children	去掉打包器加的数字后缀，恢复原名 children

@@ -72,7 +72,7 @@ const ProgressIndicatorPrimitive = reactExports.forwardRef(
   },
 );
 export function TeamHelpTip({
-  content: content2,
+  content,
   label,
   side = "top",
   className,
@@ -95,7 +95,7 @@ export function TeamHelpTip({
           <Info size={12} strokeWidth={1.5} aria-hidden={true} />
         </TooltipTrigger>
         <TooltipContent side={side} className="max-w-xs leading-relaxed">
-          {content2}
+          {content}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -300,7 +300,7 @@ export function ProgressIndicator({ className, ...props }) {
     />
   );
 }
-export function Progress({ className, children: children2, value, ...props }) {
+export function Progress({ className, children, value, ...props }) {
   return (
     <ProgressRoot
       value={value}
@@ -308,7 +308,7 @@ export function Progress({ className, children: children2, value, ...props }) {
       className={cn("flex flex-wrap gap-3", className)}
       {...props}
     >
-      {children2}
+      {children}
       <ProgressTrack>
         <ProgressIndicator />
       </ProgressTrack>

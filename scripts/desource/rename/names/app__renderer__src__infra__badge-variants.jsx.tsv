@@ -1,0 +1,5 @@
+key	new	reason
+size2@62:9	size	去掉打包器加的数字后缀，恢复原名 size
+layer2@63:10	layer	去掉打包器加的数字后缀，恢复原名 layer
+size2@146:9	size	去掉打包器加的数字后缀，恢复原名 size
+render2@188:11	render	去掉打包器加的数字后缀，恢复原名 render

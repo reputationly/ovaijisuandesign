@@ -113,14 +113,14 @@ function formatCreditCountdown(remainingMs) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-export function useCreditCountdown(expiresAt, active2) {
+export function useCreditCountdown(expiresAt, active) {
   const [nowMs, setNowMs] = reactExports.useState(() => Date.now());
   reactExports.useEffect(() => {
-    if (!active2 || expiresAt === void 0) return;
+    if (!active || expiresAt === void 0) return;
     const timer = setInterval(() => setNowMs(Date.now()), 1e3);
     return () => clearInterval(timer);
-  }, [active2, expiresAt]);
-  return expiresAt !== void 0 && active2
+  }, [active, expiresAt]);
+  return expiresAt !== void 0 && active
     ? formatCreditCountdown(expiresAt - nowMs)
     : void 0;
 }

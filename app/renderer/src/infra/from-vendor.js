@@ -46,8 +46,8 @@ export const HILO_DEFAULT_VERSION_CODE = "0.1.0";
 
 export const VERSION_CODE_SEMVER_CORE_PATTERN = /^v?(\d+\.\d+\.\d+)(?:[-+].*)?$/;
 
-export function normalizeVersionCodeForCloud(version2) {
-  const trimmed = version2.trim();
+export function normalizeVersionCodeForCloud(version) {
+  const trimmed = version.trim();
   const match = VERSION_CODE_SEMVER_CORE_PATTERN.exec(trimmed);
   return match?.[1] ?? trimmed;
 }
@@ -77,8 +77,8 @@ export const DEFAULT_RUNTIME_CONFIG = {
   downloadSource: "default"
 };
 
-export function parseSemver(version2) {
-  const match = version2.trim().replace(/^v/i, "").match(/^(\d+)\.(\d+)\.(\d+)(?:-([\w.]+))?(?:\+.*)?$/);
+export function parseSemver(version) {
+  const match = version.trim().replace(/^v/i, "").match(/^(\d+)\.(\d+)\.(\d+)(?:-([\w.]+))?(?:\+.*)?$/);
   if (!match) return null;
   return {
     major: Number(match[1]),
@@ -185,9 +185,9 @@ export function mediaLineageFilename(value) {
   return safe?.split("/").at(-1);
 }
 
-export function mediaLineageFormat(bytes2) {
-  const prefix = (...signature) => signature.every((value, index) => bytes2[index] === value);
-  const ascii = (offset, value) => [...value].every((char, index) => bytes2[offset + index] === char.charCodeAt(0));
+export function mediaLineageFormat(bytes) {
+  const prefix = (...signature) => signature.every((value, index) => bytes[index] === value);
+  const ascii = (offset, value) => [...value].every((char, index) => bytes[offset + index] === char.charCodeAt(0));
   if (prefix(137, 80, 78, 71, 13, 10, 26, 10)) return "png";
   if (prefix(255, 216, 255)) return "jpeg";
   if (ascii(0, "GIF87a") || ascii(0, "GIF89a")) return "gif";
@@ -205,27 +205,27 @@ export function finite$1(value) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : void 0;
 }
 
-export function mediaLineageFields(record2) {
+export function mediaLineageFields(record) {
   const fields = {
     schema: 1,
-    stage: mediaLineageToken(record2.stage) ?? "unknown"
+    stage: mediaLineageToken(record.stage) ?? "unknown"
   };
   for (const key of ["requestId", "generationAttemptId", "nodeId", "sourceNodeId", "assetId", "source", "backend", "modelId", "errorKind", "errorCode", "decoderReason"]) {
-    const value = mediaLineageToken(record2[key]);
+    const value = mediaLineageToken(record[key]);
     if (value) fields[key] = value;
   }
   for (const key of ["referenceIndex", "referenceCount", "omittedCount", "durationMs"]) {
-    const value = finite$1(record2[key]);
+    const value = finite$1(record[key]);
     if (value !== void 0) fields[key] = value;
   }
-  const filename = mediaLineageFilename(record2.filename);
-  const relativePath = mediaLineagePath(record2.path);
+  const filename = mediaLineageFilename(record.filename);
+  const relativePath = mediaLineagePath(record.path);
   if (filename) fields.filename = filename;
   if (relativePath) fields.path = relativePath;
-  if (record2.declaredMime && /^[\w.+-]+\/[\w.+-]{1,80}$/.test(record2.declaredMime)) fields.declaredMime = record2.declaredMime;
-  if (typeof record2.bytesMatch === "boolean") fields.bytesMatch = record2.bytesMatch;
+  if (record.declaredMime && /^[\w.+-]+\/[\w.+-]{1,80}$/.test(record.declaredMime)) fields.declaredMime = record.declaredMime;
+  if (typeof record.bytesMatch === "boolean") fields.bytesMatch = record.bytesMatch;
   for (const phase of ["input", "stored", "output"]) {
-    const fingerprint = record2[phase];
+    const fingerprint = record[phase];
     if (!fingerprint) continue;
     fields[`${phase}HashStatus`] = ["full", "size-limit", "busy", "unavailable", "changed"].includes(fingerprint.hashStatus) ? fingerprint.hashStatus : "unavailable";
     const size = finite$1(fingerprint.sizeBytes);
@@ -696,28 +696,28 @@ export const PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP = "hilo:canvas:persist-http-roun
 
 export const measurePerfCounters = /* @__PURE__ */new Map();
 
-export function measurePerf(name2, start2, detail, options = {}) {
+export function measurePerf(metricName, start, detail, options = {}) {
   const samplingRate = options.samplingRate;
   if (samplingRate !== void 0 && samplingRate > 1) {
-    const current = (measurePerfCounters.get(name2) ?? 0) + 1;
-    measurePerfCounters.set(name2, current);
+    const current = (measurePerfCounters.get(metricName) ?? 0) + 1;
+    measurePerfCounters.set(metricName, current);
     if (current % samplingRate !== 0) return;
   }
   const measuredDetail = mergePerfMetadata(detail, options.metadata);
   try {
     if (measuredDetail === void 0) {
-      performance.measure(name2, {
-        start: start2
+      performance.measure(metricName, {
+        start
       });
     } else {
-      performance.measure(name2, {
-        start: start2,
+      performance.measure(metricName, {
+        start,
         detail: measuredDetail
       });
     }
   } catch {} finally {
     try {
-      performance.clearMeasures(name2);
+      performance.clearMeasures(metricName);
     } catch {}
   }
 }
@@ -750,8 +750,8 @@ export const AUTO_PAN_DISTANCE = 40;
 
 export const maskAutoPanSides = ([xMovement, yMovement], suppressed) => [suppressed.left && xMovement > 0 || suppressed.right && xMovement < 0 ? 0 : xMovement, suppressed.top && yMovement > 0 || suppressed.bottom && yMovement < 0 ? 0 : yMovement];
 
-export function hasDraggedAncestor(node2, draggedIds, nodeLookup) {
-  let parentId = node2.parentId;
+export function hasDraggedAncestor(node, draggedIds, nodeLookup) {
+  let parentId = node.parentId;
   while (parentId) {
     if (draggedIds.has(parentId)) return true;
     parentId = nodeLookup.get(parentId)?.parentId;
@@ -867,8 +867,8 @@ export function cascadeAbsolutePosition(parentId, dx, dy, nodeLookup, parentLook
 
 export const AssetMetadataStoreContext = reactExports.createContext(null);
 
-export function clamp$b(start2, value, end2) {
-  return max(start2, min(value, end2));
+export function clamp$b(start, value, end) {
+  return max(start, min(value, end));
 }
 
 export const AUTO_DEDUPE_ID_PREFIX = "hilo-toast-dedupe";
@@ -886,13 +886,13 @@ export function hashToastFingerprint(value) {
   return (hash >>> 0).toString(36);
 }
 
-export function withAutomaticDedupeId(kind, message2, data2) {
-  if (data2?.id !== void 0 || data2?.action !== void 0 || data2?.cancel !== void 0 || data2?.onDismiss !== void 0 || data2?.onAutoClose !== void 0 || !isPlainToastContent(message2) || data2?.description !== void 0 && !isPlainToastContent(data2.description)) {
-    return data2;
+export function withAutomaticDedupeId(kind, message, data) {
+  if (data?.id !== void 0 || data?.action !== void 0 || data?.cancel !== void 0 || data?.onDismiss !== void 0 || data?.onAutoClose !== void 0 || !isPlainToastContent(message) || data?.description !== void 0 && !isPlainToastContent(data.description)) {
+    return data;
   }
-  const fingerprint = JSON.stringify([kind, String(message2), data2?.description === void 0 ? "" : String(data2.description), data2?.toasterId ?? ""]);
+  const fingerprint = JSON.stringify([kind, String(message), data?.description === void 0 ? "" : String(data.description), data?.toasterId ?? ""]);
   return {
-    ...data2,
+    ...data,
     id: `${AUTO_DEDUPE_ID_PREFIX}-${hashToastFingerprint(fingerprint)}`
   };
 }
@@ -932,8 +932,8 @@ export const stateAttributesMapping$a = {
   value: () => null
 };
 
-export function clamp$a(val, min2 = Number.MIN_SAFE_INTEGER, max2 = Number.MAX_SAFE_INTEGER) {
-  return Math.max(min2, Math.min(val, max2));
+export function clamp$a(val, min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER) {
+  return Math.max(min, Math.min(val, max));
 }
 
 export const FRAME_HEADER_SIZE$1 = 4;
@@ -1014,9 +1014,9 @@ export function normalizeTableCellAlign(value) {
   return null;
 }
 
-export function parseAlign(element2) {
-  const styleAlign = (element2.style.textAlign || "").trim().toLowerCase();
-  const attrAlign = (element2.getAttribute("align") || "").trim().toLowerCase();
+export function parseAlign(element) {
+  const styleAlign = (element.style.textAlign || "").trim().toLowerCase();
+  const attrAlign = (element.getAttribute("align") || "").trim().toLowerCase();
   return normalizeTableCellAlign(styleAlign || attrAlign);
 }
 
@@ -1037,28 +1037,28 @@ export function createAlignAttribute() {
   };
 }
 
-export function parseColgroupWidth(element2) {
+export function parseColgroupWidth(element) {
   var _table$querySelectorA;
-  const row = element2.parentElement;
-  const table = element2.closest("table");
+  const row = element.parentElement;
+  const table = element.closest("table");
   if (!row || !table) return null;
-  const cellIndex = Array.from(row.children).indexOf(element2);
+  const cellIndex = Array.from(row.children).indexOf(element);
   const width = (_table$querySelectorA = table.querySelectorAll("colgroup > col")[cellIndex]) === null || _table$querySelectorA === void 0 ? void 0 : _table$querySelectorA.getAttribute("width");
   return width ? [parseInt(width, 10)] : null;
 }
 
-export function parseColwidth(element2) {
-  const colwidth = element2.getAttribute("colwidth");
+export function parseColwidth(element) {
+  const colwidth = element.getAttribute("colwidth");
   if (colwidth) return colwidth.split(",").map(width => parseInt(width, 10));
-  return parseColgroupWidth(element2);
+  return parseColgroupWidth(element);
 }
 
 export const COLLAPSIBLE_WHITESPACE = /[ \t\r\n\f]+/g;
 
-export function isEmptyCellElement(element2) {
+export function isEmptyCellElement(element) {
   var _element$textContent;
-  if (element2.children.length > 0) return false;
-  return ((_element$textContent = element2.textContent) !== null && _element$textContent !== void 0 ? _element$textContent : "").replace(COLLAPSIBLE_WHITESPACE, "") === "";
+  if (element.children.length > 0) return false;
+  return ((_element$textContent = element.textContent) !== null && _element$textContent !== void 0 ? _element$textContent : "").replace(COLLAPSIBLE_WHITESPACE, "") === "";
 }
 
 export function fillEmptyCellContent(cellType) {
@@ -1072,11 +1072,11 @@ export function getColStyleDeclaration(minWidth, width) {
   return ["min-width", `${minWidth}px`];
 }
 
-export function updateColumns(node2, colgroup2, table2, cellMinWidth, overrideCol, overrideValue) {
+export function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, overrideValue) {
   let totalWidth = 0;
   let fixedWidth = true;
-  let nextDOM = colgroup2.firstChild;
-  const row = node2.firstChild;
+  let nextDOM = colgroup.firstChild;
+  const row = node.firstChild;
   if (row !== null) for (let i = 0, col = 0; i < row.childCount; i += 1) {
     const {
       colspan,
@@ -1091,7 +1091,7 @@ export function updateColumns(node2, colgroup2, table2, cellMinWidth, overrideCo
         const colElement = document.createElement("col");
         const [propertyKey, propertyValue] = getColStyleDeclaration(cellMinWidth, hasWidth);
         colElement.style.setProperty(propertyKey, propertyValue);
-        colgroup2.appendChild(colElement);
+        colgroup.appendChild(colElement);
       } else {
         if (nextDOM.style.width !== cssWidth) {
           const [propertyKey, propertyValue] = getColStyleDeclaration(cellMinWidth, hasWidth);
@@ -1107,13 +1107,13 @@ export function updateColumns(node2, colgroup2, table2, cellMinWidth, overrideCo
     (_nextDOM$parentNode = nextDOM.parentNode) === null || _nextDOM$parentNode === void 0 || _nextDOM$parentNode.removeChild(nextDOM);
     nextDOM = after;
   }
-  const hasUserWidth = node2.attrs.style && typeof node2.attrs.style === "string" && /\bwidth\s*:/i.test(node2.attrs.style);
+  const hasUserWidth = node.attrs.style && typeof node.attrs.style === "string" && /\bwidth\s*:/i.test(node.attrs.style);
   if (fixedWidth && !hasUserWidth) {
-    table2.style.width = `${totalWidth}px`;
-    table2.style.minWidth = "";
+    table.style.width = `${totalWidth}px`;
+    table.style.minWidth = "";
   } else {
-    table2.style.width = "";
-    table2.style.minWidth = `${totalWidth}px`;
+    table.style.width = "";
+    table.style.minWidth = `${totalWidth}px`;
   }
 }
 
@@ -1149,11 +1149,11 @@ export var TableView2 = class {
   }
 };
 
-export function createColGroup(node2, cellMinWidth, overrideCol, overrideValue) {
+export function createColGroup(node, cellMinWidth, overrideCol, overrideValue) {
   let totalWidth = 0;
   let fixedWidth = true;
   const cols = [];
-  const row = node2.firstChild;
+  const row = node.firstChild;
   if (!row) return {};
   for (let i = 0, col = 0; i < row.childCount; i += 1) {
     const {
@@ -1179,14 +1179,14 @@ export function createColGroup(node2, cellMinWidth, overrideCol, overrideValue) 
   };
 }
 
-export function getTableNodeTypes(schema2) {
-  if (schema2.cached.tableNodeTypes) return schema2.cached.tableNodeTypes;
+export function getTableNodeTypes(schema) {
+  if (schema.cached.tableNodeTypes) return schema.cached.tableNodeTypes;
   const roles = {};
-  Object.keys(schema2.nodes).forEach(type => {
-    const nodeType = schema2.nodes[type];
+  Object.keys(schema.nodes).forEach(type => {
+    const nodeType = schema.nodes[type];
     if (nodeType.spec.tableRole) roles[nodeType.spec.tableRole] = nodeType;
   });
-  schema2.cached.tableNodeTypes = roles;
+  schema.cached.tableNodeTypes = roles;
   return roles;
 }
 
@@ -1242,12 +1242,12 @@ export function collapseWhitespace(text) {
   return (text || "").replace(/\s+/g, " ").trim();
 }
 
-export function renderTableToMarkdown(node2, helpers, options = {}) {
+export function renderTableToMarkdown(node, helpers, options = {}) {
   var _options$cellLineSepa;
   const cellSep = (_options$cellLineSepa = options.cellLineSeparator) !== null && _options$cellLineSepa !== void 0 ? _options$cellLineSepa : "";
-  if (!node2 || !node2.content || node2.content.length === 0) return "";
+  if (!node || !node.content || node.content.length === 0) return "";
   const rows = [];
-  node2.content.forEach(rowNode => {
+  node.content.forEach(rowNode => {
     const cells = [];
     if (rowNode.content) rowNode.content.forEach(cellNode => {
       let raw = "";
@@ -1421,10 +1421,10 @@ export const descendantOp = 145,
   queryVariableName = 3,
   QueryCallee = 4;
 
-export function flowPointToMiniMap(point2, layout) {
+export function flowPointToMiniMap(point, layout) {
   return {
-    x: layout.offsetX + (point2.x - layout.viewBox.x) * layout.scale,
-    y: layout.offsetY + (point2.y - layout.viewBox.y) * layout.scale
+    x: layout.offsetX + (point.x - layout.viewBox.x) * layout.scale,
+    y: layout.offsetY + (point.y - layout.viewBox.y) * layout.scale
   };
 }
 
@@ -1651,8 +1651,8 @@ export class EventEmitter3 {
   }
 }
 
-export function customMcpNameIdentity(name2) {
-  return name2.trim().replace(/[^a-zA-Z0-9_-]/gu, "_").toLowerCase();
+export function customMcpNameIdentity(mcpName) {
+  return mcpName.trim().replace(/[^a-zA-Z0-9_-]/gu, "_").toLowerCase();
 }
 
 export const PlatformContext = reactExports.createContext(null);
@@ -1681,9 +1681,9 @@ export function fmtValue(value) {
   }
 }
 
-export function workspaceGatewayUrl(binding, path2) {
+export function workspaceGatewayUrl(binding, path) {
   const baseUrl = binding.baseUrl.replace(/\/$/, "");
-  const requested = new URL(path2, `${baseUrl}/`);
+  const requested = new URL(path, `${baseUrl}/`);
   const parsed = new URL(`${requested.pathname}${requested.search}${requested.hash}`, `${baseUrl}/`);
   parsed.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, binding.claim);
   parsed.searchParams.set(HILO_WORKSPACE_INSTANCE_QUERY, binding.instanceId);
@@ -1750,10 +1750,10 @@ export class WorkspaceGatewayClient {
   }
 }
 
-export function canReplayAfterRecovery(init2, previous2, recovered) {
-  const method = (init2?.method ?? "GET").toUpperCase();
+export function canReplayAfterRecovery(init, previous, recovered) {
+  const method = (init?.method ?? "GET").toUpperCase();
   if (method === "GET" || method === "HEAD" || method === "OPTIONS") return true;
-  return previous2.claim === recovered.claim && previous2.instanceId === recovered.instanceId;
+  return previous.claim === recovered.claim && previous.instanceId === recovered.instanceId;
 }
 
 export async function isIdentityError(response) {
@@ -1931,12 +1931,12 @@ export class ApiError extends Error {
 
 export let selectedRequestGroupId = null;
 
-export function setSelectedRequestGroupId(groupId2) {
-  selectedRequestGroupId = groupId2;
+export function setSelectedRequestGroupId(groupId) {
+  selectedRequestGroupId = groupId;
 }
 
-export function normalizeGatewayBaseUrl(gatewayUrl2) {
-  return gatewayUrl2?.replace(/\/$/, "") || void 0;
+export function normalizeGatewayBaseUrl(gatewayUrl) {
+  return gatewayUrl?.replace(/\/$/, "") || void 0;
 }
 
 export function toCloudLang(locale) {
@@ -2094,10 +2094,10 @@ export function parseCreditAmount(value) {
   };
 }
 
-export function invalidDisplay(mode2, teamRemaining, reasonCode) {
+export function invalidDisplay(mode, teamRemaining, reasonCode) {
   return {
     status: "INVALID",
-    mode: mode2,
+    mode,
     availableAmount: null,
     memberRemaining: null,
     memberUsed: null,
@@ -2108,14 +2108,14 @@ export function invalidDisplay(mode2, teamRemaining, reasonCode) {
 }
 
 export function unavailableDisplay({
-  mode: mode2,
+  mode,
   memberLimit = null,
   teamRemaining,
   reasonCode
 }) {
   return {
     status: "UNAVAILABLE",
-    mode: mode2,
+    mode,
     availableAmount: null,
     memberRemaining: null,
     memberUsed: null,
@@ -2211,13 +2211,13 @@ export function deriveTeamCreditDisplay(summary) {
   };
 }
 
-export function deriveActiveScope(snapshot2) {
-  if (!snapshot2?.identityKey || !snapshot2.activeContext) return null;
+export function deriveActiveScope(snapshot) {
+  if (!snapshot?.identityKey || !snapshot.activeContext) return null;
   return {
-    identityKey: snapshot2.identityKey,
-    groupId: snapshot2.activeContext.groupId,
-    epoch: snapshot2.activeContext.epoch,
-    membershipRevision: snapshot2.activeContext.membershipRevision
+    identityKey: snapshot.identityKey,
+    groupId: snapshot.activeContext.groupId,
+    epoch: snapshot.activeContext.epoch,
+    membershipRevision: snapshot.activeContext.membershipRevision
   };
 }
 
@@ -2269,13 +2269,13 @@ export const storageKeys = {
 
 export const storageWriteQueues = /* @__PURE__ */new Map();
 
-export function enqueueStorageWrite(key2, task) {
-  const previous = storageWriteQueues.get(key2) ?? Promise.resolve();
+export function enqueueStorageWrite(key, task) {
+  const previous = storageWriteQueues.get(key) ?? Promise.resolve();
   const run = previous.catch(() => void 0).then(task);
   const tail = run.then(() => void 0, () => void 0);
-  storageWriteQueues.set(key2, tail);
+  storageWriteQueues.set(key, tail);
   void tail.then(() => {
-    if (storageWriteQueues.get(key2) === tail) storageWriteQueues.delete(key2);
+    if (storageWriteQueues.get(key) === tail) storageWriteQueues.delete(key);
   });
   return run;
 }
@@ -2288,9 +2288,9 @@ export function isUndefinedStorageValue(value) {
   return value === UNDEFINED_STORAGE_VALUE;
 }
 
-export function toStorageQueryData(value, defaultValue2) {
+export function toStorageQueryData(value, defaultValue) {
   if (value !== void 0) return value;
-  return defaultValue2 === void 0 ? UNDEFINED_STORAGE_VALUE : defaultValue2;
+  return defaultValue === void 0 ? UNDEFINED_STORAGE_VALUE : defaultValue;
 }
 
 export function resolveStorageQueryData(value) {
@@ -2301,28 +2301,28 @@ export function localCacheKey(scope, field, workspaceDir) {
   return scope === "global" ? `global.${field}` : `workspace.${workspaceDir}.${field}`;
 }
 
-export function readLocalCache$2(key2) {
+export function readLocalCache$2(key) {
   try {
-    const raw = localStorage.getItem(`${LS_PREFIX}${key2}`);
+    const raw = localStorage.getItem(`${LS_PREFIX}${key}`);
     return raw != null ? JSON.parse(raw) : void 0;
   } catch {
     return void 0;
   }
 }
 
-export function writeLocalCache$2(key2, value) {
+export function writeLocalCache$2(key, value) {
   try {
-    localStorage.setItem(`${LS_PREFIX}${key2}`, JSON.stringify(value));
+    localStorage.setItem(`${LS_PREFIX}${key}`, JSON.stringify(value));
   } catch (err) {
-    console.warn(`[useStorage] Failed to write localStorage cache for "${key2}":`, err);
+    console.warn(`[useStorage] Failed to write localStorage cache for "${key}":`, err);
   }
 }
 
-export function removeLocalCache(key2) {
+export function removeLocalCache(key) {
   try {
-    localStorage.removeItem(`${LS_PREFIX}${key2}`);
+    localStorage.removeItem(`${LS_PREFIX}${key}`);
   } catch (err) {
-    console.warn(`[useStorage] Failed to remove localStorage cache for "${key2}":`, err);
+    console.warn(`[useStorage] Failed to remove localStorage cache for "${key}":`, err);
   }
 }
 
@@ -2352,8 +2352,8 @@ export class AccountSubmissionBlockedError extends Error {
   }
 }
 
-export function resolveNewProjectPreferences(config2) {
-  const rawPreferences = config2.newProjectPrefs;
+export function resolveNewProjectPreferences(config) {
+  const rawPreferences = config.newProjectPrefs;
   if (!rawPreferences || typeof rawPreferences !== "object" || Array.isArray(rawPreferences)) {
     return {
       loadUserMemory: false
@@ -2368,11 +2368,11 @@ export function resolveNewProjectPreferences(config2) {
   };
 }
 
-export function updateNewProjectPreferences(config2, patch2) {
+export function updateNewProjectPreferences(config, patch) {
   return {
     newProjectPrefs: {
-      ...resolveNewProjectPreferences(config2),
-      ...patch2
+      ...resolveNewProjectPreferences(config),
+      ...patch
     }
   };
 }
@@ -2573,9 +2573,9 @@ export var Target2 = /** @type {const} */
 
 export var $2 = Object.getOwnPropertySymbols;
 
-export function tryParseJson$1(raw2) {
+export function tryParseJson$1(raw) {
   try {
-    return JSON.parse(raw2);
+    return JSON.parse(raw);
   } catch {
     return void 0;
   }

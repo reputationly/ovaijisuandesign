@@ -1111,12 +1111,12 @@ function ColumnHeader({ column, onRename }) {
   );
 }
 export function TableEditorInner({
-  history: history2,
+  history: tableHistory,
   selectedRowIds,
   onSelectionChange,
 }) {
   const { t } = useTranslation();
-  const { doc, apply } = history2;
+  const { doc, apply } = tableHistory;
   const [showAddColumn, setShowAddColumn] = reactExports.useState(false);
   const scrollRef = reactExports.useRef(null);
   const visible = reactExports.useMemo(() => visibleColumns(doc), [doc]);

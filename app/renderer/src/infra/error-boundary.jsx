@@ -61,8 +61,8 @@ export function getVisiblePreviewTabIds() {
   return visiblePreviewTabsStore.getVisibleWorkspaceIds();
 }
 
-export function replaceVisiblePreviewTab(workspaceId2, entry) {
-  visiblePreviewTabsStore.replace(workspaceId2, entry);
+export function replaceVisiblePreviewTab(workspaceId, entry) {
+  visiblePreviewTabsStore.replace(workspaceId, entry);
 }
 
 export async function optimisticallyRemoveAssets({
@@ -85,24 +85,24 @@ export async function optimisticallyRemoveAssets({
   };
 }
 
-export function rollbackAssetListSnapshot({ qc, snapshot: snapshot2 }) {
-  if (!snapshot2?.assets) return;
-  qc.setQueryData(snapshot2.queryKey, snapshot2.assets);
+export function rollbackAssetListSnapshot({ qc, snapshot }) {
+  if (!snapshot?.assets) return;
+  qc.setQueryData(snapshot.queryKey, snapshot.assets);
 }
 
 const MAX_PENDING_FIRST_PROGRESS = 100;
 
 const firstProgressStartByClientId = new Map();
 
-export function recordIdleActionSafe(message2, data2) {
+export function recordIdleActionSafe(message, data) {
   try {
-    recordAction(message2, data2);
+    recordAction(message, data);
   } catch {}
 }
 
-export function recordIdleMismatchSafe(data2) {
+export function recordIdleMismatchSafe(data) {
   try {
-    recordError("chat_busy_state_mismatch", data2);
+    recordError("chat_busy_state_mismatch", data);
   } catch {}
 }
 

@@ -40,19 +40,19 @@ export function installUpdateForPlatform(install, os) {
 }
 export async function openManualInstallerDownload(
   shell,
-  url2,
+  url,
   fallbackUrl,
   source,
 ) {
   try {
-    await shell.openExternal(url2);
+    await shell.openExternal(url);
   } catch (error) {
     actionTrailLog.warn("update manual download open failed", {
       source,
-      target: externalUrlTargetForLog(url2),
+      target: externalUrlTargetForLog(url),
       error,
     });
-    if (!fallbackUrl || fallbackUrl === url2) return;
+    if (!fallbackUrl || fallbackUrl === url) return;
     try {
       await shell.openExternal(fallbackUrl);
     } catch (fallbackError) {

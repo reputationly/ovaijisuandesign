@@ -249,11 +249,11 @@ export function useMigrateCredit() {
     retry: false,
   });
 }
-export function ShellIcon({ size: size2 = 14, className }) {
+export function ShellIcon({ size = 14, className }) {
   return (
     <svg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"

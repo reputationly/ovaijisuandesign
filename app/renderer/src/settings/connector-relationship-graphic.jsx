@@ -64,7 +64,7 @@ const FALLBACK_SIZE = {
 };
 export function ConnectorIcon({
   iconUrl,
-  size: size2 = "list",
+  size = "list",
   className,
   fallback,
 }) {
@@ -73,10 +73,10 @@ export function ConnectorIcon({
   return (
     <span
       data-slot="connector-icon"
-      data-connector-icon-size={size2}
+      data-connector-icon-size={size}
       className={cn(
         "inline-flex shrink-0 items-center justify-center overflow-hidden text-muted-foreground",
-        FRAME_CLASS[size2],
+        FRAME_CLASS[size],
         className,
       )}
       aria-hidden="true"
@@ -89,11 +89,11 @@ export function ConnectorIcon({
           loading="lazy"
           decoding="async"
           draggable={false}
-          className={cn("object-contain", IMAGE_CLASS[size2])}
+          className={cn("object-contain", IMAGE_CLASS[size])}
           onError={() => setFailedUrl(iconUrl ?? null)}
         />
       ) : (
-        (fallback ?? <Link2 size={FALLBACK_SIZE[size2]} strokeWidth={1.5} />)
+        (fallback ?? <Link2 size={FALLBACK_SIZE[size]} strokeWidth={1.5} />)
       )}
     </span>
   );

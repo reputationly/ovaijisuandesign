@@ -21,3 +21,4 @@ queryClient2@56:9	queryClient	去掉打包器加的数字后缀，恢复原名 q
 children2@77:48	children	去掉打包器加的数字后缀，恢复原名 children
 state2@99:10	state	去掉打包器加的数字后缀，恢复原名 state
 type2@280:38	type	去掉打包器加的数字后缀，恢复原名 type
+mode2@91:48	mode	去掉打包器加的数字后缀，恢复原名 mode

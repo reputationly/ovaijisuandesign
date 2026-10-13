@@ -12,7 +12,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { FeedbackIcon } from "../workspace/home-service.jsx";
 import { FeedbackDialog } from "./feedback-dialog.jsx";
 
-export function FeedbackProvider({ children: children2 }) {
+export function FeedbackProvider({ children }) {
   const [current, setCurrent] = reactExports.useState(null);
   const openFeedback = reactExports.useCallback((options) => {
     setCurrent(options);
@@ -44,7 +44,7 @@ export function FeedbackProvider({ children: children2 }) {
   );
   return (
     <FeedbackContext.Provider value={value}>
-      {children2}
+      {children}
       <FeedbackDialog
         open={current !== null}
         options={current}

@@ -137,8 +137,8 @@ function withdrawModalCandidate(id) {
   }
   if (existed) schedule();
 }
-export function setModalScheduleConfig(next2) {
-  config = next2;
+export function setModalScheduleConfig(next) {
+  config = next;
   schedule();
 }
 function beginModalLoadingWait(
@@ -220,12 +220,12 @@ export function useModalSlotWithLoading(id, options) {
   );
   return candidate && holderId === id;
 }
-export function useModalSchedulerSuspension(id, active2) {
+export function useModalSchedulerSuspension(id, active) {
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     suspendModalScheduler(id);
     return () => resumeModalScheduler(id);
-  }, [id, active2]);
+  }, [id, active]);
 }
 export const SESSION_DISMISS_KEY = "__hilo_login_gate_dismissed";
 export const LoginGateContext = reactExports.createContext(null);

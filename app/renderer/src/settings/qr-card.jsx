@@ -20,23 +20,23 @@ function qrStatusLabel(t, platform, status, errorReason) {
   return t(`${keyPrefix}.${status}`);
 }
 export function QrCard({
-  platform: platform2,
+  platform,
   status,
   errorReason,
   canRetry,
   onRetry,
   readyHint,
   statusLabelOverride,
-  children: children2,
+  children,
 }) {
   const { t } = useTranslation();
   const label =
     statusLabelOverride ??
     (status
-      ? qrStatusLabel(t, platform2, status, errorReason)
-      : t(`settings.imBridge.${platform2}.qr.status.loading`));
+      ? qrStatusLabel(t, platform, status, errorReason)
+      : t(`settings.imBridge.${platform}.qr.status.loading`));
   const footerLabel = status === "ready" && readyHint ? readyHint : label;
-  const hasQr = Boolean(children2);
+  const hasQr = Boolean(children);
   const isLoading = status === null || status === "loading";
   const isScanned = status === "scanned";
   const showMask =
@@ -46,11 +46,11 @@ export function QrCard({
     <div className="mt-5 flex flex-col items-center">
       <div
         className="relative flex size-60 items-center justify-center overflow-hidden rounded-2xl bg-secondary/60 p-2"
-        data-action-ui-id={`im-bridge.${platform2}.qrcode`}
+        data-action-ui-id={`im-bridge.${platform}.qrcode`}
       >
         {hasQr ? (
           <div className="flex size-full items-center justify-center rounded-lg bg-card p-2">
-            {children2}
+            {children}
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
@@ -71,7 +71,7 @@ export function QrCard({
                   status !== "pending_approval" &&
                   "text-muted-foreground",
               )}
-              data-action-ui-id={`im-bridge.${platform2}.qr.status`}
+              data-action-ui-id={`im-bridge.${platform}.qr.status`}
             >
               {label}
             </span>
@@ -81,10 +81,10 @@ export function QrCard({
                 variant="outline"
                 size="sm"
                 onClick={onRetry}
-                data-action-ui-id={`im-bridge.${platform2}.qr.retry`}
+                data-action-ui-id={`im-bridge.${platform}.qr.retry`}
               >
                 <RetryIcon size={14} />
-                {t(`settings.imBridge.${platform2}.qr.retry`)}
+                {t(`settings.imBridge.${platform}.qr.retry`)}
               </Button>
             )}
           </div>
@@ -101,7 +101,7 @@ export function QrCard({
             )}
             <span
               className="max-w-44 text-xs leading-relaxed"
-              data-action-ui-id={`im-bridge.${platform2}.qr.mask-status`}
+              data-action-ui-id={`im-bridge.${platform}.qr.mask-status`}
             >
               {label}
             </span>
@@ -112,10 +112,10 @@ export function QrCard({
                 size="sm"
                 className="bg-background"
                 onClick={onRetry}
-                data-action-ui-id={`im-bridge.${platform2}.qr.mask-retry`}
+                data-action-ui-id={`im-bridge.${platform}.qr.mask-retry`}
               >
                 <RetryIcon size={14} />
-                {t(`settings.imBridge.${platform2}.qr.retry`)}
+                {t(`settings.imBridge.${platform}.qr.retry`)}
               </Button>
             )}
           </div>
@@ -131,7 +131,7 @@ export function QrCard({
               status !== "pending_approval" &&
               "text-muted-foreground",
           )}
-          data-action-ui-id={`im-bridge.${platform2}.qr.status`}
+          data-action-ui-id={`im-bridge.${platform}.qr.status`}
         >
           {footerLabel}
         </p>

@@ -21,3 +21,5 @@ key2@157:16	key	去掉打包器加的数字后缀，恢复原名 key
 current2@174:9	current	去掉打包器加的数字后缀，恢复原名 current
 timeout2@193:11	timeout	去掉打包器加的数字后缀，恢复原名 timeout
 timeout2@248:11	timeout	去掉打包器加的数字后缀，恢复原名 timeout
+toolName2@77:47	toolName	去掉打包器加的数字后缀，恢复原名 toolName
+children2@86:59	children	去掉打包器加的数字后缀，恢复原名 children

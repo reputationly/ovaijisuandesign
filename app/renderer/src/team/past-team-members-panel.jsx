@@ -55,7 +55,7 @@ const UNSIGNED_DECIMAL = /^(0|[1-9]\d*)$/;
 const MEMBER_SEARCH_DEBOUNCE_MS = 250;
 const MEMBER_ALREADY_EXISTS_CODE = "member_already_exists";
 const EMPTY_MEMBERS = [];
-export function PastTeamMembersPanel({ scope, active: active2 }) {
+export function PastTeamMembersPanel({ scope, active }) {
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = reactExports.useState("");
   const [keyword, setKeyword] = reactExports.useState("");
@@ -73,7 +73,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
   const feed = usePastTeamMembersQuery({
     scope,
     keyword,
-    enabled: active2,
+    enabled: active,
   });
   const members = feed.data ?? EMPTY_MEMBERS;
   const isEmpty = !feed.isPending && !feed.isError && members.length === 0;

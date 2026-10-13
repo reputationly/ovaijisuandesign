@@ -17,3 +17,5 @@ active2@31:11	active	去掉打包器加的数字后缀，恢复原名 active
 disabled2@32:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
 active2@267:9	active	去掉打包器加的数字后缀，恢复原名 active
 meta2@284:13	meta	去掉打包器加的数字后缀，恢复原名 meta
+find2@317:9	findController	外部传入的查找控制器；find 是全局名
+children2@320:13	children	去掉打包器加的数字后缀，恢复原名 children

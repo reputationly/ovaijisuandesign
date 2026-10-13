@@ -16,16 +16,16 @@ import { getAttachmentSlotActions } from "../i18n/canvas-node-tools.jsx";
 import { FileChip } from "../generation/file-chip.jsx";
 import { isFileAttachment } from "../assets/classify-upload-error.js";
 export function AttachmentPreview({
-  active: active2 = true,
+  active = true,
   loadTextContent,
   attachments,
-  onRemove: onRemove2,
+  onRemove,
   onReplace,
   onAnnotate,
   onRequestReplace,
   onLocate,
   replacingIds,
-  disabled: disabled2 = false,
+  disabled = false,
   replacementAccept,
   onSelect,
   failedAttachments: failedOverride,
@@ -42,7 +42,7 @@ export function AttachmentPreview({
     async (attachment) => {
       const slot = chipRefs.current.get(attachment.id);
       const anchor = slot?.querySelector("button") ?? slot;
-      if (!anchor || disabled2 || choosingId) return;
+      if (!anchor || disabled || choosingId) return;
       const openLocal = () => {
         replacementTargetRef.current = {
           id: attachment.id,
@@ -59,7 +59,7 @@ export function AttachmentPreview({
         setChoosingId(null);
       }
     },
-    [disabled2, choosingId, onReplace, onRequestReplace],
+    [disabled, choosingId, onReplace, onRequestReplace],
   );
   const handleReplacementChange = reactExports.useCallback((event) => {
     const target = replacementTargetRef.current;
@@ -123,7 +123,7 @@ export function AttachmentPreview({
               (att.fileType === "video" || att.fileType === "audio") &&
               att.previewUrl;
             const readOnly = isReadOnly(att);
-            const locked = disabled2 || replacingIds?.has(att.id) === true;
+            const locked = disabled || replacingIds?.has(att.id) === true;
             const errorText = att.error
               ? t("chat.uploadFailedWithReason", {
                   error: att.error,
@@ -213,7 +213,7 @@ export function AttachmentPreview({
                   >
                     <FileChip
                       filename={att.filename}
-                      active={active2}
+                      active={active}
                       textPath={att.relativePath ?? void 0}
                       loadTextContent={loadTextContent}
                       imageUrl={isImage ? att.previewUrl : void 0}
@@ -239,7 +239,7 @@ export function AttachmentPreview({
                 ) : (
                   <FileChip
                     filename={att.filename}
-                    active={active2}
+                    active={active}
                     textPath={att.relativePath ?? void 0}
                     loadTextContent={loadTextContent}
                     imageUrl={isImage ? att.previewUrl : void 0}
@@ -326,8 +326,8 @@ export function AttachmentPreview({
                     type="button"
                     className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-black/80"
                     aria-label={t("common.remove")}
-                    disabled={disabled2}
-                    onClick={() => onRemove2(att.id)}
+                    disabled={disabled}
+                    onClick={() => onRemove(att.id)}
                   >
                     <X size={10} />
                   </button>
@@ -368,7 +368,7 @@ export function AttachmentPreview({
               data-action-ui-id="attachment-remove-failed-btn"
               className="ml-auto shrink-0 rounded-md border border-destructive/30 px-2 py-1 text-[11px] leading-none hover:bg-destructive/10"
               onClick={() => {
-                for (const att of removableFailedAttachments) onRemove2(att.id);
+                for (const att of removableFailedAttachments) onRemove(att.id);
               }}
             >
               {t("chat.uploadRemoveFailed")}

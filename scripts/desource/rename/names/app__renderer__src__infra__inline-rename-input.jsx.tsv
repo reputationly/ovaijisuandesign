@@ -23,3 +23,5 @@ element2@186:11	element	去掉打包器加的数字后缀，恢复原名 element
 children2@246:36	children	去掉打包器加的数字后缀，恢复原名 children
 snapshot2@332:10	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
 service2@334:9	service	去掉打包器加的数字后缀，恢复原名 service
+project2@107:12	project	去掉打包器加的数字后缀，恢复原名 project
+size2@196:43	size	去掉打包器加的数字后缀，恢复原名 size

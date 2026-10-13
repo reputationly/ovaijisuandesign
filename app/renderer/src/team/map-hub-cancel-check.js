@@ -123,8 +123,8 @@ export async function deleteAccount(verifyCode) {
     timeoutMs: 8e4,
   });
 }
-export async function fetchTeamCreditSummaryByGroupId(groupId2, signal) {
-  const res = await gatewayFetch(API_PATHS.teamCreditSummary(groupId2), {
+export async function fetchTeamCreditSummaryByGroupId(groupId, signal) {
+  const res = await gatewayFetch(API_PATHS.teamCreditSummary(groupId), {
     signal,
   });
   return mapTeamCreditSummary(await res.json());

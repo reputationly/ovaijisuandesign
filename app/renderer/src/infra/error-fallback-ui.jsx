@@ -33,7 +33,7 @@ function SupportInfoRow({ label, value }) {
   );
 }
 export function ErrorFallbackUI({
-  message: message2,
+  message,
   stack,
   failureId,
   failureTimestamp,
@@ -61,12 +61,12 @@ export function ErrorFallbackUI({
     : void 0;
   const feedbackErrorContext = supportPayload
     ? `${supportPayload}${
-        message2
+        message
           ? `
-${message2}`
+${message}`
           : ""
       }`
-    : message2;
+    : message;
   reactExports.useEffect(() => {
     let cancelled = false;
     window.hilo?.diagnostics
@@ -86,9 +86,9 @@ ${message2}`
     void writeText
       .call(
         navigator.clipboard,
-        message2
+        message
           ? `${supportPayload}
-message: ${message2}`
+message: ${message}`
           : supportPayload,
       )
       .then(() => {
@@ -204,7 +204,7 @@ message: ${message2}`
             })}
           </Button>
         </div>
-        {message2 && (
+        {message && (
           <div className="flex w-full flex-col items-center">
             <Button
               type="button"
@@ -237,7 +237,7 @@ message: ${message2}`
             </Button>
             {showDetails && (
               <pre className="mt-3 max-h-48 w-full overflow-auto rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-[11px] leading-relaxed text-muted-foreground">
-                {message2}
+                {message}
                 {stack &&
                   `
 

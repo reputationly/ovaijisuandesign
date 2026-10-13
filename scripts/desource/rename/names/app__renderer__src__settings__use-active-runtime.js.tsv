@@ -9,3 +9,5 @@ url2@59:9	url	去掉打包器加的数字后缀，恢复原名 url
 data2@60:17	data	去掉打包器加的数字后缀，恢复原名 data
 timer2@64:13	timer	去掉打包器加的数字后缀，恢复原名 timer
 entries2@136:60	entries	去掉打包器加的数字后缀，恢复原名 entries
+next2@99:50	next	去掉打包器加的数字后缀，恢复原名 next
+hiloApp2@110:54	hiloApp	去掉打包器加的数字后缀，恢复原名 hiloApp

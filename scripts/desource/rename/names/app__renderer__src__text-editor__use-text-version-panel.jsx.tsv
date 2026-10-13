@@ -29,3 +29,5 @@ state2@502:35	state	去掉打包器加的数字后缀，恢复原名 state
 state2@525:48	state	去掉打包器加的数字后缀，恢复原名 state
 version2@597:14	version	去掉打包器加的数字后缀，恢复原名 version
 version2@671:22	version	去掉打包器加的数字后缀，恢复原名 version
+path2@510:9	path	去掉打包器加的数字后缀，恢复原名 path
+disabled2@514:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled

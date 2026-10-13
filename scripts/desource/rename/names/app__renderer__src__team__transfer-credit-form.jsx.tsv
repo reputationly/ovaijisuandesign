@@ -6,3 +6,5 @@ code2@58:15	code	去掉打包器加的数字后缀，恢复原名 code
 queryClient2@78:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
 snapshot2@82:15	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
 message2@225:13	message	去掉打包器加的数字后缀，恢复原名 message
+active2@64:11	active	去掉打包器加的数字后缀，恢复原名 active
+disabled2@67:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled

@@ -6,3 +6,5 @@ pending2@43:10	pending	去掉打包器加的数字后缀，恢复原名 pending
 message2@123:9	message	去掉打包器加的数字后缀，恢复原名 message
 statusIcon2@142:9	statusIcon	去掉打包器加的数字后缀，恢复原名 statusIcon
 defaultValue2@234:9	defaultValue	去掉打包器加的数字后缀，恢复原名 defaultValue
+children2@190:13	children	去掉打包器加的数字后缀，恢复原名 children
+size2@192:9	size	去掉打包器加的数字后缀，恢复原名 size

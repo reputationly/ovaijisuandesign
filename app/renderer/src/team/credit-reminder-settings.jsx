@@ -14,11 +14,11 @@ function parseThreshold(value) {
   const parsed = Number(value);
   return Number.isSafeInteger(parsed) ? parsed : void 0;
 }
-export function CreditReminderSettings({ config: config2, onBack, onSave }) {
+export function CreditReminderSettings({ config, onBack, onSave }) {
   const { t } = useTranslation();
-  const [enabled, setEnabled] = reactExports.useState(config2.enabled);
+  const [enabled, setEnabled] = reactExports.useState(config.enabled);
   const [thresholdInput, setThresholdInput] = reactExports.useState(
-    String(config2.threshold),
+    String(config.threshold),
   );
   const [saving, setSaving] = reactExports.useState(false);
   const [saveError, setSaveError] = reactExports.useState(false);
@@ -35,7 +35,7 @@ export function CreditReminderSettings({ config: config2, onBack, onSave }) {
     try {
       await onSave({
         enabled,
-        threshold: thresholdInRange ? threshold : config2.threshold,
+        threshold: thresholdInRange ? threshold : config.threshold,
       });
       onBack();
     } catch {

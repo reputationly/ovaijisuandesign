@@ -13,9 +13,9 @@ export function workflowAttachmentName(workflow) {
   const safe = base.replaceAll("/", "_").replaceAll("\\", "_");
   return safe.toLocaleLowerCase().endsWith(".json") ? safe : `${safe}.json`;
 }
-export function mentionKindFromPath(path2) {
+export function mentionKindFromPath(path) {
   const ext =
-    path2.split("?")[0]?.split("#")[0]?.split(".").pop()?.toLowerCase() ?? "";
+    path.split("?")[0]?.split("#")[0]?.split(".").pop()?.toLowerCase() ?? "";
   if (["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp", "avif"].includes(ext))
     return "image";
   if (["mp4", "webm", "mov", "m4v", "avi", "mkv"].includes(ext)) return "video";
@@ -23,10 +23,10 @@ export function mentionKindFromPath(path2) {
   if (["txt", "md", "json"].includes(ext)) return "text";
   return "other";
 }
-export function basename(path2) {
-  return path2.split("/").pop() || path2;
+export function basename(path) {
+  return path.split("/").pop() || path;
 }
-export function mentionKindFromFileType(fileType, path2) {
+export function mentionKindFromFileType(fileType, path) {
   if (
     fileType === "image" ||
     fileType === "video" ||
@@ -35,7 +35,7 @@ export function mentionKindFromFileType(fileType, path2) {
   ) {
     return fileType;
   }
-  return mentionKindFromPath(path2);
+  return mentionKindFromPath(path);
 }
 export function FileDropFeedback({ label }) {
   return (

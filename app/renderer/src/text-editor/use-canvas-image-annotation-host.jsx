@@ -3,11 +3,11 @@ import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ImageAnnotationDialog } from "./image-annotation-dialog.jsx";
 
-export function useCanvasImageAnnotationHost(active2) {
+export function useCanvasImageAnnotationHost(active) {
   const [session, setSession] = reactExports.useState(null);
   const sessionRef = reactExports.useRef(null);
-  const activeRef = reactExports.useRef(active2);
-  activeRef.current = active2;
+  const activeRef = reactExports.useRef(active);
+  activeRef.current = active;
   const handleClose = reactExports.useCallback(() => {
     const current = sessionRef.current;
     if (!current) return;
@@ -17,8 +17,8 @@ export function useCanvasImageAnnotationHost(active2) {
     setSession(null);
   }, []);
   reactExports.useEffect(() => {
-    if (!active2) handleClose();
-  }, [active2, handleClose]);
+    if (!active) handleClose();
+  }, [active, handleClose]);
   reactExports.useEffect(
     () => () => {
       const current = sessionRef.current;
@@ -65,7 +65,7 @@ export function useCanvasImageAnnotationHost(active2) {
       key={session.attachment.id}
       attachment={session.attachment}
       canAppend={session.request.canAppend}
-      applyDisabled={!active2}
+      applyDisabled={!active}
       onClose={handleClose}
       onApply={async (_attachment, file, mode, signal) => {
         const isCurrent = () =>

@@ -9,3 +9,5 @@ platform2@35:13	platform	去掉打包器加的数字后缀，恢复原名 platfo
 key2@47:24	key	去掉打包器加的数字后缀，恢复原名 key
 index2@47:30	index	去掉打包器加的数字后缀，恢复原名 index
 state2@48:17	state	去掉打包器加的数字后缀，恢复原名 state
+platform2@139:13	platform	去掉打包器加的数字后缀，恢复原名 platform
+children2@141:13	children	去掉打包器加的数字后缀，恢复原名 children

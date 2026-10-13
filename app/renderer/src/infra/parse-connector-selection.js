@@ -193,17 +193,17 @@ function getCanvasTagNameGraphemeWidth(grapheme) {
   return WIDE_CANVAS_TAG_GRAPHEME.test(grapheme) ? 2 : 1;
 }
 
-export function countCanvasTagNameUnits(name2) {
-  return segmentCanvasTagName(name2).reduce(
+export function countCanvasTagNameUnits(tagName) {
+  return segmentCanvasTagName(tagName).reduce(
     (total, grapheme) => total + getCanvasTagNameGraphemeWidth(grapheme),
     0,
   );
 }
 
-export function truncateCanvasTagName(name2) {
+export function truncateCanvasTagName(tagName) {
   let units = 0;
   let result = "";
-  for (const grapheme of segmentCanvasTagName(name2)) {
+  for (const grapheme of segmentCanvasTagName(tagName)) {
     const width = getCanvasTagNameGraphemeWidth(grapheme);
     if (units + width > CANVAS_TAG_NAME_MAX_LENGTH) break;
     units += width;
@@ -212,8 +212,8 @@ export function truncateCanvasTagName(name2) {
   return result;
 }
 
-export function validateCanvasTagName(name2) {
-  const trimmed = name2.trim();
+export function validateCanvasTagName(tagName) {
+  const trimmed = tagName.trim();
   if (!trimmed) return "required";
   if (countCanvasTagNameUnits(trimmed) > CANVAS_TAG_NAME_MAX_LENGTH)
     return "too-long";
@@ -232,8 +232,8 @@ function buildTagIndex(registry) {
   return new Map(registry.tags.map((tag) => [tag.id, tag]));
 }
 
-export function resolveTagIds(tagIds, registry2) {
-  const index = buildTagIndex(registry2);
+export function resolveTagIds(tagIds, registry) {
+  const index = buildTagIndex(registry);
   const resolved = [];
   for (const id of tagIds ?? []) {
     const tag = index.get(id);
@@ -242,8 +242,8 @@ export function resolveTagIds(tagIds, registry2) {
   return resolved;
 }
 
-export function isTagNameTaken(name2, resolvedNames, excludeId) {
-  const needle = name2.trim();
+export function isTagNameTaken(tagName, resolvedNames, excludeId) {
+  const needle = tagName.trim();
   if (!needle) return false;
   for (const [id, display] of resolvedNames) {
     if (id !== excludeId && display.trim() === needle) return true;

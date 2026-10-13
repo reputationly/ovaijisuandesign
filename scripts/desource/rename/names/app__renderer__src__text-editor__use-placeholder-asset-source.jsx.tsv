@@ -12,3 +12,8 @@ base2@295:9	base	去掉打包器加的数字后缀，恢复原名 base
 raw2@306:38	raw	去掉打包器加的数字后缀，恢复原名 raw
 position2@314:9	position	去掉打包器加的数字后缀，恢复原名 position
 body2@348:9	body	去掉打包器加的数字后缀，恢复原名 body
+children2@45:13	children	去掉打包器加的数字后缀，恢复原名 children
+active2@141:11	active	去掉打包器加的数字后缀，恢复原名 active
+meta2@205:56	meta	去掉打包器加的数字后缀，恢复原名 meta
+name2@291:34	fileName	待判断是否为 htable 的文件名；name 是全局名
+position2@345:59	position	去掉打包器加的数字后缀，恢复原名 position

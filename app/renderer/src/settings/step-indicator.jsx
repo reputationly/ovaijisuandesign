@@ -136,9 +136,9 @@ function StepIndicator({
   );
 }
 export function AddFlowFrame({
-  platform: platform2,
+  platform,
   step,
-  children: children2,
+  children,
   layout = "dialog",
   onBack,
   onDialogHeaderChange,
@@ -146,7 +146,7 @@ export function AddFlowFrame({
   transitionLabel,
 }) {
   const { t } = useTranslation();
-  const title = t(`settings.imBridge.addFlow.title.${platform2}`);
+  const title = t(`settings.imBridge.addFlow.title.${platform}`);
   const onBackRef = reactExports.useRef(onBack);
   reactExports.useEffect(() => {
     onBackRef.current = onBack;
@@ -165,15 +165,15 @@ export function AddFlowFrame({
         "flex min-h-full flex-1 flex-col duration-150 animate-in fade-in-0 slide-in-from-right-4",
         layout === "settings" ? "gap-0 pt-5" : "gap-6",
       )}
-      data-action-ui-id={`im-bridge.${platform2}.flow`}
+      data-action-ui-id={`im-bridge.${platform}.flow`}
     >
       <StepIndicator
-        platform={platform2}
+        platform={platform}
         step={step}
         transitioningToStep={transitioningToStep}
         transitionLabel={transitionLabel}
       />
-      {children2}
+      {children}
     </div>
   );
 }

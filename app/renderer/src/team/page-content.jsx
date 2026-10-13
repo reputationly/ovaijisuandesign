@@ -10,7 +10,7 @@ import {
 } from "../infra/dialog-content.jsx";
 import { reactExports } from "../vendor.js";
 export const TeamDialogNavigationContext = reactExports.createContext(null);
-export function Page({ open, onOpenChange, children: children2 }) {
+export function Page({ open, onOpenChange, children }) {
   const dialogNavigation = reactExports.useContext(TeamDialogNavigationContext);
   const closeRef = reactExports.useRef(onOpenChange);
   closeRef.current = onOpenChange;
@@ -25,11 +25,11 @@ export function Page({ open, onOpenChange, children: children2 }) {
   if (!open) return null;
   return (
     <Dialog open={true} onOpenChange={onOpenChange}>
-      {children2}
+      {children}
     </Dialog>
   );
 }
-export function PageContent({ children: children2, className, ...props }) {
+export function PageContent({ children, className, ...props }) {
   const focusRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     const previous = document.activeElement;
@@ -50,7 +50,7 @@ export function PageContent({ children: children2, className, ...props }) {
         className,
       )}
     >
-      {children2}
+      {children}
     </DialogContent>
   );
 }

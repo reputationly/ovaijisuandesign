@@ -164,15 +164,15 @@ const CLIP_EDITOR_PLACEHOLDER = {
   key: "chat.clipEditAgent.inputPlaceholder",
   fallback: "想用 AI 做简单剪辑或生成字幕？告诉我视频和处理需求",
 };
-export function nodeAgentInputPlaceholder(mode2) {
-  return mode2 === "director-stage"
+export function nodeAgentInputPlaceholder(mode) {
+  return mode === "director-stage"
     ? DIRECTOR_STAGE_PLACEHOLDER
     : CLIP_EDITOR_PLACEHOLDER;
 }
-export function findPendingQuestionState(messages2) {
+export function findPendingQuestionState(messages) {
   let pendingQuestion = null;
-  for (let index = messages2.length - 1; index >= 0; index--) {
-    const message = messages2[index];
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index];
     if (message.type === "question" && !message.resolved) {
       pendingQuestion = message;
       break;
@@ -182,8 +182,8 @@ export function findPendingQuestionState(messages2) {
     return {
       pendingQuestion,
     };
-  for (let index = messages2.length - 1; index >= 0; index--) {
-    const message = messages2[index];
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index];
     if (
       message.type === "error" &&
       message.requestId === pendingQuestion.requestId
@@ -295,11 +295,11 @@ export function canFocusStageOutputs(stage) {
     getStageOutputPaths(stage).length > 0
   );
 }
-export function focusStageOutputs(workspaceId2, stage) {
+export function focusStageOutputs(workspaceId, stage) {
   const nodeIds = getStageFocusNodeIds(stage);
   const outputPaths = getStageOutputPaths(stage);
   if (nodeIds.length === 0 && outputPaths.length === 0) return false;
-  workspaceEvents.fireLocateCanvasTargets(workspaceId2, {
+  workspaceEvents.fireLocateCanvasTargets(workspaceId, {
     nodeIds,
     paths: outputPaths,
     preferParentGroup: true,
@@ -309,7 +309,7 @@ export function focusStageOutputs(workspaceId2, stage) {
 export function StageConfirmationBar({
   stage,
   finalStage,
-  disabled: disabled2 = false,
+  disabled = false,
   onConfirm,
 }) {
   const { t } = useTranslation();
@@ -352,7 +352,7 @@ export function StageConfirmationBar({
         type="button"
         size="sm"
         className="relative rounded-md"
-        disabled={disabled2}
+        disabled={disabled}
         onClick={onConfirm}
         data-action-ui-id="production-plan.confirm-stage"
       >
@@ -397,8 +397,8 @@ export function parseJsonObject(value) {
     }
   }
 }
-export function toolName(message2) {
+export function toolName(message) {
   return (
-    ("toolName" in message2 ? message2.toolName : void 0) || message2.content
+    ("toolName" in message ? message.toolName : void 0) || message.content
   );
 }

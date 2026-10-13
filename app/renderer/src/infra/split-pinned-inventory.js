@@ -140,11 +140,11 @@ export function persistRecentProjectDismissals(dismissals) {
   });
 }
 
-export function upsertRecentProjectDismissal(previous2, dismissal) {
+export function upsertRecentProjectDismissal(previous, dismissal) {
   const paths = normalizePaths(dismissal.paths);
-  if (paths.length === 0) return [...previous2];
+  if (paths.length === 0) return [...previous];
   const pathSet = new Set(paths);
-  const withoutAliases = previous2.filter(
+  const withoutAliases = previous.filter(
     (entry) => !entry.paths.some((path) => pathSet.has(path)),
   );
   return [
@@ -156,9 +156,9 @@ export function upsertRecentProjectDismissal(previous2, dismissal) {
   ].slice(-MAX_RECENT_PROJECT_DISMISSALS);
 }
 
-export function removeRecentProjectDismissal(previous2, dismissal) {
+export function removeRecentProjectDismissal(previous, dismissal) {
   const paths = new Set(dismissal.paths);
-  return previous2.filter(
+  return previous.filter(
     (entry) =>
       entry.recentOpenedAt !== dismissal.recentOpenedAt ||
       !entry.paths.some((path) => paths.has(path)),

@@ -2,3 +2,4 @@ key	new	reason
 t2@46:14	t	useTranslation() 返回的翻译函数 t
 timestamp2@20:28	timestamp	去掉打包器加的数字后缀，恢复原名 timestamp
 date2@21:9	date	去掉打包器加的数字后缀，恢复原名 date
+message2@36:12	message	去掉打包器加的数字后缀，恢复原名 message

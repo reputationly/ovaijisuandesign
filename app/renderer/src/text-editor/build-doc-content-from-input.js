@@ -9,7 +9,7 @@ import {
   MENTION_PREVIEW_PX,
   MENTION_THUMB_PX,
 } from "../chat/create-expanded-composer-actions-measurer.jsx";
-export function buildDocContentFromInput(text2, ctx) {
+export function buildDocContentFromInput(text, ctx) {
   const modelCandidates = ctx.mentionModels
     .flatMap((model) => [
       {
@@ -51,34 +51,34 @@ export function buildDocContentFromInput(text2, ctx) {
     token: `workflow:${workflow.id}`,
     workflow,
   }));
-  const fileMentions = findAllMentions(text2);
+  const fileMentions = findAllMentions(text);
   const fileMentionByStart = new Map();
   for (const fileMention of fileMentions) fileMentionByStart.set(fileMention.start, fileMention);
   const inline = [];
   let lastIdx = 0;
-  while (lastIdx < text2.length) {
-    const idx = text2.indexOf("@", lastIdx);
+  while (lastIdx < text.length) {
+    const idx = text.indexOf("@", lastIdx);
     if (idx < 0) break;
     if (idx > lastIdx) {
       inline.push({
         type: "text",
-        text: text2.slice(lastIdx, idx),
+        text: text.slice(lastIdx, idx),
       });
     }
     const workflowMatch = workflowCandidates.find(({ token }) => {
-      if (!text2.startsWith(token, idx + 1)) return false;
-      const next = text2[idx + 1 + token.length];
+      if (!text.startsWith(token, idx + 1)) return false;
+      const next = text[idx + 1 + token.length];
       return next === void 0 || /\s/.test(next);
     });
     const modelMatch = modelCandidates.find(({ token }) => {
-      if (!text2.startsWith(token, idx + 1)) return false;
-      const next = text2[idx + 1 + token.length];
+      if (!text.startsWith(token, idx + 1)) return false;
+      const next = text[idx + 1 + token.length];
       return next === void 0 || /\s/.test(next);
     });
     let token;
     let attrs;
     let end;
-    const connectorMatch = parseConnectorMentionAt(text2, idx);
+    const connectorMatch = parseConnectorMentionAt(text, idx);
     if (connectorMatch) {
       end = connectorMatch.end;
       const serverName = connectorMatch.serverName;
@@ -130,16 +130,16 @@ export function buildDocContentFromInput(text2, ctx) {
       };
     } else {
       const fileMention = fileMentionByStart.get(idx);
-      const isBracket = !!fileMention && text2[idx + 1] === "[";
+      const isBracket = !!fileMention && text[idx + 1] === "[";
       if (fileMention) {
         token = fileMention.path;
         end = fileMention.end;
       } else {
         const tokenStart = idx + 1;
-        const rest = text2.slice(tokenStart);
+        const rest = text.slice(tokenStart);
         const spaceMatch = rest.search(/\s/);
-        end = spaceMatch < 0 ? text2.length : tokenStart + spaceMatch;
-        token = text2.slice(tokenStart, end);
+        end = spaceMatch < 0 ? text.length : tokenStart + spaceMatch;
+        token = text.slice(tokenStart, end);
       }
       if (!token) {
         inline.push({
@@ -189,10 +189,10 @@ export function buildDocContentFromInput(text2, ctx) {
     });
     lastIdx = end;
   }
-  if (lastIdx < text2.length) {
+  if (lastIdx < text.length) {
     inline.push({
       type: "text",
-      text: text2.slice(lastIdx),
+      text: text.slice(lastIdx),
     });
   }
   return {

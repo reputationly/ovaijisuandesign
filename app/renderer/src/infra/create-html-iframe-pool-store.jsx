@@ -196,7 +196,7 @@ let htmlViewerHolderCounter = 0;
 export function HtmlViewer({
   filePath,
   interactive,
-  displayName: displayName2,
+  displayName,
   eagerActivate,
   pluginOpenRequest,
   supportsCanvasPresentation,
@@ -243,7 +243,7 @@ export function HtmlViewer({
       <HtmlViewerInner
         filePath={filePath}
         interactive={interactive}
-        displayName={displayName2}
+        displayName={displayName}
         pluginOpenRequest={pluginOpenRequest}
         supportsCanvasPresentation={supportsCanvasPresentation}
         surface={surface}
@@ -254,7 +254,7 @@ export function HtmlViewer({
   }
   return (
     <HtmlViewerPlaceholder
-      displayName={displayName2}
+      displayName={displayName}
       onActivate={handleManualActivate}
     />
   );

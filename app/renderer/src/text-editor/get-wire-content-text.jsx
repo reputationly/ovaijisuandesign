@@ -26,8 +26,8 @@ export function WorkspaceCreationGuidePlaceholder({
     />
   );
 }
-export function connectorMentionToken(serverName, displayName2) {
-  return formatConnectorMention(serverName, displayName2);
+export function connectorMentionToken(serverName, displayName) {
+  return formatConnectorMention(serverName, displayName);
 }
 function isUsableConnector(server) {
   return (
@@ -110,23 +110,23 @@ function overlapsExcludedRange(start, end, ranges) {
 function colorHasAlpha(value) {
   return value.length === 5 || value.length === 9;
 }
-export function findInlineVisualTokens(text2, { allowEnd = true } = {}) {
-  const excludedRanges = collectExcludedRanges(text2);
+export function findInlineVisualTokens(text, { allowEnd = true } = {}) {
+  const excludedRanges = collectExcludedRanges(text);
   const tokens = [];
   HEX_COLOR_PATTERN.lastIndex = 0;
   for (
-    let match = HEX_COLOR_PATTERN.exec(text2);
+    let match = HEX_COLOR_PATTERN.exec(text);
     match;
-    match = HEX_COLOR_PATTERN.exec(text2)
+    match = HEX_COLOR_PATTERN.exec(text)
   ) {
     const raw = match[0];
     const start = match.index;
     const end = start + raw.length;
-    const previous = text2[start - 1];
-    const next = text2[end];
+    const previous = text[start - 1];
+    const next = text[end];
     if (previous && IDENTIFIER_CHAR_PATTERN.test(previous)) continue;
     if (next && IDENTIFIER_CHAR_PATTERN.test(next)) continue;
-    if (!allowEnd && end === text2.length) continue;
+    if (!allowEnd && end === text.length) continue;
     if (overlapsExcludedRange(start, end, excludedRanges)) continue;
     tokens.push({
       type: "color",
@@ -313,19 +313,19 @@ function getWireContentText(content) {
   }
   return text;
 }
-export function getDocText(doc2) {
-  return doc2.textBetween(0, doc2.content.size, "\n", mentionRefLeafText);
+export function getDocText(doc) {
+  return doc.textBetween(0, doc.content.size, "\n", mentionRefLeafText);
 }
-export function getDocTriggerText(doc2) {
-  return doc2.textBetween(0, doc2.content.size, "\n", (node) =>
+export function getDocTriggerText(doc) {
+  return doc.textBetween(0, doc.content.size, "\n", (node) =>
     node.type.name === "mentionRef"
       ? " ".repeat(mentionRefLeafText(node).length)
       : mentionRefLeafText(node),
   );
 }
-export function getWireFragmentText(fragment2) {
-  return getWireContentText(fragment2.toJSON() ?? []);
+export function getWireFragmentText(fragment) {
+  return getWireContentText(fragment.toJSON() ?? []);
 }
-export function getDocWireText(doc2) {
-  return getWireFragmentText(doc2.content);
+export function getDocWireText(doc) {
+  return getWireFragmentText(doc.content);
 }

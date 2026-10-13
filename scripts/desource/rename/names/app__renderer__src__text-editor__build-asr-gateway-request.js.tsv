@@ -17,3 +17,14 @@ path2@321:39	path	去掉打包器加的数字后缀，恢复原名 path
 language2@335:27	language	去掉打包器加的数字后缀，恢复原名 language
 base2@350:9	base	去掉打包器加的数字后缀，恢复原名 base
 language2@365:9	language	去掉打包器加的数字后缀，恢复原名 language
+text2@33:53	text	去掉打包器加的数字后缀，恢复原名 text
+text2@66:36	text	去掉打包器加的数字后缀，恢复原名 text
+text2@74:51	text	去掉打包器加的数字后缀，恢复原名 text
+text2@93:36	text	去掉打包器加的数字后缀，恢复原名 text
+text2@104:38	text	去掉打包器加的数字后缀，恢复原名 text
+text2@115:36	text	去掉打包器加的数字后缀，恢复原名 text
+text2@119:37	text	去掉打包器加的数字后缀，恢复原名 text
+messages2@142:37	messages	去掉打包器加的数字后缀，恢复原名 messages
+text2@202:41	text	去掉打包器加的数字后缀，恢复原名 text
+start2@202:48	start	去掉打包器加的数字后缀，恢复原名 start
+name2@268:3	resourceName	拖拽资源项显示的名字；name 是全局名

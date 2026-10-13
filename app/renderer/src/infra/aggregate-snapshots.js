@@ -154,8 +154,8 @@ function aggregateSnapshots(snapshots) {
     },
   };
 }
-export function getWorkspaceContentBudgetSnapshot(workspaceId2) {
-  if (workspaceId2 !== void 0)
-    return snapshotFromState(getOrCreateState(workspaceId2));
+export function getWorkspaceContentBudgetSnapshot(workspaceId) {
+  if (workspaceId !== void 0)
+    return snapshotFromState(getOrCreateState(workspaceId));
   return aggregateSnapshots(getExistingStates().map(snapshotFromState));
 }

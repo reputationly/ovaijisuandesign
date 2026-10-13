@@ -12,7 +12,7 @@ import {
 } from "./dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "./badge-variants.jsx";
 export function DeleteNodeDialog({
-  node: node2,
+  node,
   batchNodes,
   onOpenChange,
   onConfirm,
@@ -20,7 +20,7 @@ export function DeleteNodeDialog({
 }) {
   const { t } = useTranslation();
   const [pending, setPending] = reactExports.useState(false);
-  const targets = batchNodes?.length ? batchNodes : node2 ? [node2] : [];
+  const targets = batchNodes?.length ? batchNodes : node ? [node] : [];
   const isBatch = targets.length > 1;
   const run = reactExports.useCallback(async () => {
     if (targets.length === 0 || pending) return;

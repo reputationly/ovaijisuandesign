@@ -20,7 +20,7 @@ export function TeamMemberCombobox({
   options,
   searchQuery,
   onSearchChange,
-  disabled: disabled2 = false,
+  disabled = false,
   loading = false,
   error = false,
   onRetry,
@@ -69,7 +69,7 @@ export function TeamMemberCombobox({
     <Popover
       open={open}
       onOpenChange={(next) => {
-        if (disabled2) return;
+        if (disabled) return;
         setOpen(next);
         if (!next) onSearchChange("");
       }}
@@ -77,7 +77,7 @@ export function TeamMemberCombobox({
       <PopoverTrigger
         id={id}
         type="button"
-        disabled={disabled2}
+        disabled={disabled}
         role="combobox"
         aria-expanded={open}
         aria-controls={listboxId}

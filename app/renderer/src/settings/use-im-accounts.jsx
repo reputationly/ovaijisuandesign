@@ -43,7 +43,7 @@ export function IntegrationActionButton({
   className,
   tone,
   leadingIcon,
-  children: children2,
+  children,
   ...props
 }) {
   return (
@@ -58,7 +58,7 @@ export function IntegrationActionButton({
       {...props}
     >
       {leadingIcon}
-      {children2}
+      {children}
     </Button>
   );
 }

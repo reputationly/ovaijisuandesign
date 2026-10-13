@@ -377,7 +377,7 @@ function LocalConnectorStep({
 }
 export function LocalConnectorSetupContent({
   connectorId,
-  displayName: displayName2,
+  displayName,
   serverName,
   iconUrl,
   onClose,
@@ -506,7 +506,7 @@ export function LocalConnectorSetupContent({
             t,
             i18n?.language ?? "en",
             connectorId,
-            displayName2,
+            displayName,
           ),
         });
         setInstallError(
@@ -532,7 +532,7 @@ export function LocalConnectorSetupContent({
     t,
     i18n?.language ?? "en",
     connectorId,
-    displayName2,
+    displayName,
   );
   const installStepTitle = t("connectors.connector.step.install");
   const prepareSecondaryKey =

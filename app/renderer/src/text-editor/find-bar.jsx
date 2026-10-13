@@ -314,32 +314,32 @@ export function FullscreenShell({
   overlay,
   hideFind,
   hideClose,
-  find: find2,
+  find: findController,
   editorOwnsScroll,
   onClose,
-  children: children2,
+  children,
 }) {
   const { t } = useTranslation();
   const canvasRootEl = useCanvasRootElement();
   useCanvasShortcutGuard();
   const findItem = reactExports.useMemo(
     () =>
-      find2 && !hideFind
+      findController && !hideFind
         ? {
             id: "find",
             label: t("canvas.find.title", "查找"),
             icon: <Search size={16} strokeWidth={1.5} />,
-            onClick: () => find2.open(),
-            active: find2.isOpen,
+            onClick: () => findController.open(),
+            active: findController.isOpen,
             dataActionUiId: "canvas-text-find-open",
           }
         : null,
-    [find2, hideFind, t],
+    [findController, hideFind, t],
   );
   const handlePanelKeyDown = reactExports.useCallback(
     (keyboardEvent) => {
       if (
-        find2 &&
+        findController &&
         !hideFind &&
         (keyboardEvent.metaKey || keyboardEvent.ctrlKey) &&
         !keyboardEvent.altKey &&
@@ -347,14 +347,14 @@ export function FullscreenShell({
         keyboardEvent.key.toLowerCase() === "f"
       ) {
         keyboardEvent.preventDefault();
-        find2.open();
-      } else if (find2?.isOpen && keyboardEvent.key === "Escape") {
+        findController.open();
+      } else if (findController?.isOpen && keyboardEvent.key === "Escape") {
         keyboardEvent.preventDefault();
-        find2.close();
+        findController.close();
       }
       keyboardEvent.stopPropagation();
     },
-    [find2, hideFind],
+    [findController, hideFind],
   );
   return reactDomExports.createPortal(
     <div
@@ -395,7 +395,7 @@ export function FullscreenShell({
         </div>
       </div>
       <div className="relative min-h-0 flex-1">
-        {find2?.isOpen && <FindBar controller={find2} />}
+        {findController?.isOpen && <FindBar controller={findController} />}
         <div className="flex h-full min-h-0">
           <div
             className={
@@ -405,7 +405,7 @@ export function FullscreenShell({
             }
             data-diff-scroll-root="true"
           >
-            {children2}
+            {children}
           </div>
         </div>
         {overlay}

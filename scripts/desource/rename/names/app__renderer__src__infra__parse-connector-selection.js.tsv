@@ -10,3 +10,8 @@ color2@156:64	color	去掉打包器加的数字后缀，恢复原名 color
 name2@180:31	tagName	画布标签名；name 是全局名
 registry2@231:24	registry	去掉打包器加的数字后缀，恢复原名 registry
 index2@236:9	index	去掉打包器加的数字后缀，恢复原名 index
+name2@196:41	tagName	画布标签名；name 是全局名
+name2@203:39	tagName	画布标签名；name 是全局名
+name2@215:39	tagName	画布标签名；name 是全局名
+registry2@235:39	registry	去掉打包器加的数字后缀，恢复原名 registry
+name2@245:32	tagName	画布标签名；name 是全局名

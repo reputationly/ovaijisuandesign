@@ -14,8 +14,8 @@ export function ConnectorDialogFrame({
   onOpenChange,
   actionUiId,
   closeLabel,
-  children: children2,
-  size: size2 = "md",
+  children,
+  size = "md",
   className,
   stableHeight = false,
   showCloseButton = true,
@@ -135,7 +135,7 @@ export function ConnectorDialogFrame({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         ref={dialogRef}
-        size={size2}
+        size={size}
         showCloseButton={false}
         className={cn(
           "flex max-h-[calc(100vh-2rem)] flex-col gap-0 overflow-hidden rounded-xl p-0 motion-safe:transition-[height] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none [&_[data-slot=dialog-close]]:size-8! [&_[data-slot=dialog-close]_svg]:size-[18px]!",
@@ -145,7 +145,7 @@ export function ConnectorDialogFrame({
         data-action-ui-id={actionUiId}
         data-layout-slot="connector-dialog-frame"
       >
-        {children2}
+        {children}
         {showCloseButton ? (
           <DialogClose
             render={

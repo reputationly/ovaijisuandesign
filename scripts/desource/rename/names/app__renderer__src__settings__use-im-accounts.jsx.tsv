@@ -2,3 +2,4 @@ key	new	reason
 s2@188:18	accountStatus	初始状态列表中的单个账号状态
 state2@103:10	state	去掉打包器加的数字后缀，恢复原名 state
 map3@187:13	map	去掉打包器加的数字后缀，恢复原名 map
+children2@46:13	children	去掉打包器加的数字后缀，恢复原名 children

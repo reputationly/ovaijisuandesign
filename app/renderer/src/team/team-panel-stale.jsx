@@ -187,9 +187,9 @@ export function TeamUnavailableAction({
   reason,
   dataActionUiId,
   icon,
-  children: children2,
+  children,
   variant = "outline",
-  size: size2 = "default",
+  size = "default",
   className,
 }) {
   const reasonId = reactExports.useId();
@@ -202,7 +202,7 @@ export function TeamUnavailableAction({
               <Button
                 type="button"
                 variant={variant}
-                size={size2}
+                size={size}
                 className={cn(
                   "h-auto min-h-8 max-w-full min-w-0 shrink cursor-not-allowed whitespace-normal text-center leading-relaxed opacity-50",
                   className,
@@ -214,7 +214,7 @@ export function TeamUnavailableAction({
               />
             }
           >
-            {children2 ?? (
+            {children ?? (
               <>
                 {icon}
                 <span className="min-w-0 break-words">{label}</span>

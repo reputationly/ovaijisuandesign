@@ -85,16 +85,16 @@ export function getDiffReviewHistorySnapshot(transaction) {
   }
   return null;
 }
-export function selectionNearPosition(doc2, position2) {
+export function selectionNearPosition(doc, position) {
   return Selection.near(
-    doc2.resolve(Math.max(0, Math.min(position2, doc2.content.size))),
+    doc.resolve(Math.max(0, Math.min(position, doc.content.size))),
   );
 }
-export function selectionFromSnapshot(doc2, snapshot2, fallbackPosition) {
+export function selectionFromSnapshot(doc, snapshot, fallbackPosition) {
   try {
-    return Selection.fromJSON(doc2, snapshot2);
+    return Selection.fromJSON(doc, snapshot);
   } catch {
-    return selectionNearPosition(doc2, fallbackPosition);
+    return selectionNearPosition(doc, fallbackPosition);
   }
 }
 export function closeDiffReviewHistoryGroup(editor) {
@@ -125,9 +125,9 @@ export function rewindReviewHistory(editor, targetDepth) {
   }
   if (state !== editor.state) editor.view.updateState(state);
 }
-export function restoreEditorSelection(editor, selection2, fallbackPosition) {
+export function restoreEditorSelection(editor, selection, fallbackPosition) {
   const transaction = editor.state.tr.setSelection(
-    selectionFromSnapshot(editor.state.doc, selection2, fallbackPosition),
+    selectionFromSnapshot(editor.state.doc, selection, fallbackPosition),
   );
   transaction.setMeta("addToHistory", false);
   transaction.setMeta(DIFF_REVIEW_SYNC_META, true);
@@ -135,9 +135,9 @@ export function restoreEditorSelection(editor, selection2, fallbackPosition) {
 }
 export function replaceEditorMarkdown(
   editor,
-  markdown2,
+  markdown,
   addToHistory,
-  selection2,
+  selection,
   fallbackPosition = 0,
 ) {
   let chain = editor
@@ -148,13 +148,13 @@ export function replaceEditorMarkdown(
       tr.setMeta(DIFF_REVIEW_SYNC_META, true);
       return true;
     })
-    .setContent(markdown2, {
+    .setContent(markdown, {
       contentType: "markdown",
     });
-  if (selection2) {
+  if (selection) {
     chain = chain.command(({ tr }) => {
       tr.setSelection(
-        selectionFromSnapshot(tr.doc, selection2, fallbackPosition),
+        selectionFromSnapshot(tr.doc, selection, fallbackPosition),
       );
       return true;
     });

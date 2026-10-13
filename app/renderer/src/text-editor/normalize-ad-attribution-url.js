@@ -124,7 +124,7 @@ function normalizeAdAttributionUrl(value, region) {
   }
 }
 
-export function normalizeAdAttribution(value, now2 = Date.now(), region) {
+export function normalizeAdAttribution(value, now = Date.now(), region) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const record = value;
   const { capturedAt, expiresAt } = record;
@@ -135,8 +135,8 @@ export function normalizeAdAttribution(value, now2 = Date.now(), region) {
     !Number.isSafeInteger(capturedAt) ||
     !Number.isSafeInteger(expiresAt) ||
     capturedAt <= 0 ||
-    capturedAt > now2 + CLOCK_SKEW_MS ||
-    expiresAt <= now2 ||
+    capturedAt > now + CLOCK_SKEW_MS ||
+    expiresAt <= now ||
     expiresAt <= capturedAt ||
     expiresAt - capturedAt > AD_ATTRIBUTION_MAX_AGE_MS
   )

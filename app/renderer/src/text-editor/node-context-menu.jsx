@@ -102,7 +102,7 @@ function MenuButton({ icon, label, onClick, testId, destructive }) {
   );
 }
 export function NodeContextMenu({
-  position: position2,
+  position,
   targets,
   actions,
   onCopy,
@@ -121,7 +121,7 @@ export function NodeContextMenu({
   const closing = motionProps?.["data-ending-style"] !== void 0;
   const [menuPosition, setMenuPosition] = reactExports.useState(() =>
     resolveNodeContextMenuPosition({
-      anchor: position2,
+      anchor: position,
       menuSize: ESTIMATED_MENU_SIZE,
       viewportSize:
         typeof window === "undefined"
@@ -140,8 +140,8 @@ export function NodeContextMenu({
     const menu = ref.current;
     const next = resolveNodeContextMenuPosition({
       anchor: {
-        x: position2.x,
-        y: position2.y,
+        x: position.x,
+        y: position.y,
       },
       menuSize: menu
         ? {
@@ -157,7 +157,7 @@ export function NodeContextMenu({
     setMenuPosition((current) =>
       current.x === next.x && current.y === next.y ? current : next,
     );
-  }, [position2.x, position2.y, ref]);
+  }, [position.x, position.y, ref]);
   reactExports.useLayoutEffect(updateMenuPosition, [updateMenuPosition]);
   reactExports.useEffect(() => {
     window.addEventListener("resize", updateMenuPosition);

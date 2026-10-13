@@ -32,3 +32,4 @@ platform2@389:9	platform	去掉打包器加的数字后缀，恢复原名 platfo
 state2@524:9	state	去掉打包器加的数字后缀，恢复原名 state
 next2@414:13	next	去掉打包器加的数字后缀，恢复原名 next
 timer2@446:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+displayName2@380:16	displayName	去掉打包器加的数字后缀，恢复原名 displayName

@@ -258,7 +258,7 @@ function resolveService(override) {
   }
 }
 export function TeamProvider({
-  children: children2,
+  children,
   service: serviceOverride,
   enabled = true,
 }) {
@@ -1262,7 +1262,7 @@ export function TeamProvider({
   );
   return (
     <TeamAccountContext.Provider value={value}>
-      {children2}
+      {children}
     </TeamAccountContext.Provider>
   );
 }

@@ -5,3 +5,4 @@ setContent2@43:20	setContent	去掉打包器加的数字后缀，恢复原名 se
 offset2@96:12	offset	去掉打包器加的数字后缀，恢复原名 offset
 next2@139:13	next	去掉打包器加的数字后缀，恢复原名 next
 position2@199:13	position	去掉打包器加的数字后缀，恢复原名 position
+version2@28:12	version	去掉打包器加的数字后缀，恢复原名 version

@@ -16,17 +16,17 @@ export function CanvasHostToolbarButton({
   iconSize = "md",
   tooltipSide = "top",
   kind = "action",
-  active: active2,
+  active,
   controlsId,
   hasPopup,
-  count: count2,
+  count,
 }) {
   const content = (
     <>
       <Icon icon={icon} size={iconSize} aria-hidden={true} />
-      {count2 !== void 0 && (
+      {count !== void 0 && (
         <span className="text-[11px] tabular-nums" aria-hidden="true">
-          {count2}
+          {count}
         </span>
       )}
     </>
@@ -51,7 +51,7 @@ export function CanvasHostToolbarButton({
         onClick={onClick}
         dataActionUiId={dataActionUiId}
         kind="toggle"
-        active={active2 ?? false}
+        active={active ?? false}
       >
         {content}
       </CanvasToolbarExtensionButton>
@@ -64,7 +64,7 @@ export function CanvasHostToolbarButton({
         onClick={onClick}
         dataActionUiId={dataActionUiId}
         kind="panel"
-        active={active2 ?? false}
+        active={active ?? false}
         controlsId={controlsId}
         hasPopup={hasPopup}
       >

@@ -127,7 +127,7 @@ export function DropdownMenuLabel({ className, ...props }) {
 }
 export function DropdownMenuRadioItem({
   className,
-  children: children2,
+  children,
   closeOnClick = true,
   ...props
 }) {
@@ -142,7 +142,7 @@ export function DropdownMenuRadioItem({
       closeOnClick={closeOnClick}
       {...props}
     >
-      {children2}
+      {children}
       <span className="pointer-events-none absolute right-2 flex size-3.5 items-center justify-center">
         <MenuRadioItemIndicator>
           <Check className="size-3" strokeWidth={1.75} />
@@ -158,7 +158,7 @@ export function TooltipContent({
   sideOffset = 4,
   align = "center",
   alignOffset = 0,
-  children: children2,
+  children,
   ...props
 }) {
   return (
@@ -182,7 +182,7 @@ export function TooltipContent({
           )}
           {...props}
         >
-          {children2}
+          {children}
         </TooltipPopup>
       </TooltipPositioner>
     </TooltipPortal>
@@ -232,27 +232,27 @@ export const buttonVariants = cva(
 export function Button({
   className,
   variant = "default",
-  size: size2 = "default",
+  size = "default",
   loading = false,
-  disabled: disabled2,
-  children: children2,
+  disabled,
+  children,
   ...props
 }) {
   return (
     <Button$3
       data-slot="button"
-      disabled={disabled2 || loading}
+      disabled={disabled || loading}
       className={cn$2(
         buttonVariants({
           variant,
-          size: size2,
+          size,
           className,
         }),
       )}
       {...props}
     >
       {loading && <Loader2Icon className="animate-spin" />}
-      {children2}
+      {children}
     </Button$3>
   );
 }
@@ -380,10 +380,10 @@ function DialogOverlay({ className, ...props }) {
 }
 export function DialogContent({
   className,
-  children: children2,
+  children,
   showCloseButton = true,
-  size: size2 = "sm",
-  layer: layer2 = "default",
+  size = "sm",
+  layer = "default",
   portalContainer,
   overlayClassName,
   ...props
@@ -392,20 +392,20 @@ export function DialogContent({
   return (
     <DialogPortal container={portalContainer ?? void 0}>
       <DialogOverlay
-        forceRender={layer2 === "nested"}
-        className={cn$2(DIALOG_CONTENT_LAYER_CLASSES[layer2], overlayClassName)}
+        forceRender={layer === "nested"}
+        className={cn$2(DIALOG_CONTENT_LAYER_CLASSES[layer], overlayClassName)}
       />
       <DialogPopup
         data-slot="dialog-content"
         className={cn$2(
           "elevated-surface-border no-drag fixed top-1/2 left-1/2 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-xs/relaxed text-popover-foreground duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
-          DIALOG_CONTENT_LAYER_CLASSES[layer2],
-          DIALOG_CONTENT_SIZE_CLASSES[size2],
+          DIALOG_CONTENT_LAYER_CLASSES[layer],
+          DIALOG_CONTENT_SIZE_CLASSES[size],
           className,
         )}
         {...props}
       >
-        {children2}
+        {children}
         {showCloseButton && (
           <DialogClose
             data-slot="dialog-close"
@@ -436,7 +436,7 @@ export function DialogHeader({ className, ...props }) {
 export function DialogFooter({
   className,
   showCloseButton = false,
-  children: children2,
+  children,
   ...props
 }) {
   const { t } = useTranslation();
@@ -449,7 +449,7 @@ export function DialogFooter({
       )}
       {...props}
     >
-      {children2}
+      {children}
       {showCloseButton && (
         <DialogClose render={<Button variant="outline" />}>
           {t("common.close")}

@@ -291,7 +291,7 @@ async function performGatewayFetch(
   return res;
 }
 
-export async function gatewayFetchFromBase(baseUrl, path2, options) {
+export async function gatewayFetchFromBase(baseUrl, path, options) {
   const workspaceClient =
     options?.workspaceClient ??
     (options?.workspaceBinding
@@ -306,7 +306,7 @@ export async function gatewayFetchFromBase(baseUrl, path2, options) {
       workspaceClaim: options?.workspaceClaim,
       workspaceClient,
     },
-    path2,
+    path,
     options,
     true,
   );

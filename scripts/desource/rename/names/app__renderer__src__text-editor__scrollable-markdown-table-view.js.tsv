@@ -8,3 +8,10 @@ state2@115:7	state	去掉打包器加的数字后缀，恢复原名 state
 node2@166:35	node	去掉打包器加的数字后缀，恢复原名 node
 node2@175:5	node	去掉打包器加的数字后缀，恢复原名 node
 node2@192:10	node	去掉打包器加的数字后缀，恢复原名 node
+doc2@88:39	doc	去掉打包器加的数字后缀，恢复原名 doc
+position2@88:45	position	去掉打包器加的数字后缀，恢复原名 position
+doc2@93:39	doc	去掉打包器加的数字后缀，恢复原名 doc
+snapshot2@93:45	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+selection2@128:48	selection	去掉打包器加的数字后缀，恢复原名 selection
+markdown2@138:3	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+selection2@140:3	selection	去掉打包器加的数字后缀，恢复原名 selection

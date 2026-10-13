@@ -40,11 +40,11 @@ export function DialogPortal({ ...props }) {
 export function DialogClose({ ...props }) {
   return <DialogClose$1 data-slot="dialog-close" {...props} />;
 }
-export function recordAction(message2, data2) {
-  actionTrailLog.info(message2, data2);
+export function recordAction(message, data) {
+  actionTrailLog.info(message, data);
 }
-export function buildWSUrl(url2) {
-  return url2 ?? DEFAULT_RUNTIME_CONFIG.wsUrl;
+export function buildWSUrl(url) {
+  return url ?? DEFAULT_RUNTIME_CONFIG.wsUrl;
 }
 const listeners = new Set();
 export const authExpiredBus = {
@@ -116,20 +116,20 @@ export class GatewayHttpError extends Error {
 export function getBaseUrl() {
   return normalizeGatewayBaseUrl(getRuntimeConfig().gatewayUrl);
 }
-export function gatewayUrlFromBase(baseUrl, path2, workspaceIdentity) {
+export function gatewayUrlFromBase(baseUrl, path, workspaceIdentity) {
   if (typeof workspaceIdentity === "object") {
-    return workspaceGatewayUrl(workspaceIdentity, path2);
+    return workspaceGatewayUrl(workspaceIdentity, path);
   }
   const base = normalizeGatewayBaseUrl(baseUrl);
   if (!base) return void 0;
-  const result = new URL(`${base}${path2}`);
+  const result = new URL(`${base}${path}`);
   if (workspaceIdentity) {
     result.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, workspaceIdentity);
   }
   return result.toString();
 }
-export function gatewayUrl(path2) {
+export function gatewayUrl(path) {
   const base = getBaseUrl();
-  return gatewayUrlFromBase(base, path2);
+  return gatewayUrlFromBase(base, path);
 }
 export const FeedbackContext = reactExports.createContext(null);

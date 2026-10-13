@@ -32,3 +32,9 @@ text2@283:7	text	去掉打包器加的数字后缀，恢复原名 text
 previous2@284:7	previous	去掉打包器加的数字后缀，恢复原名 previous
 node2@285:14	node	去掉打包器加的数字后缀，恢复原名 node
 node2@320:56	node	去掉打包器加的数字后缀，恢复原名 node
+displayName2@29:51	displayName	去掉打包器加的数字后缀，恢复原名 displayName
+text2@113:40	text	去掉打包器加的数字后缀，恢复原名 text
+doc2@316:28	doc	去掉打包器加的数字后缀，恢复原名 doc
+doc2@319:35	doc	去掉打包器加的数字后缀，恢复原名 doc
+fragment2@326:37	fragment	去掉打包器加的数字后缀，恢复原名 fragment
+doc2@329:32	doc	去掉打包器加的数字后缀，恢复原名 doc

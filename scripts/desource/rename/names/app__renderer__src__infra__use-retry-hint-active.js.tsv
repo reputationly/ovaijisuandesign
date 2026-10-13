@@ -3,3 +3,4 @@ s2@8:26	state	待判断是否为终止态的状态值
 timer2@37:11	timer	去掉打包器加的数字后缀，恢复原名 timer
 code2@51:62	code	去掉打包器加的数字后缀，恢复原名 code
 meta2@51:69	meta	去掉打包器加的数字后缀，恢复原名 meta
+isActive2@12:45	isActive	去掉打包器加的数字后缀，恢复原名 isActive

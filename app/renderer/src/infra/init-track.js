@@ -43,7 +43,7 @@ export function _markUserReady() {
   _flushPendingEvents();
 }
 
-export function _queueEvent(eventName, properties2) {
+export function _queueEvent(eventName, properties) {
   if (_pendingEvents.length >= MAX_PENDING_EVENTS) {
     _pendingEvents = _pendingEvents.slice(1);
     _guard.note({
@@ -52,16 +52,16 @@ export function _queueEvent(eventName, properties2) {
   }
   _pendingEvents.push({
     eventName,
-    properties: properties2,
+    properties,
   });
 }
 
-export function _sendTrackEvent(eventName, properties2) {
+export function _sendTrackEvent(eventName, properties) {
   if (!_initialized || !_sdk) return;
   const finalProperties = {
-    ...properties2,
+    ...properties,
     ip_country: resolveEventIpCountry(
-      properties2.ip_country,
+      properties.ip_country,
       _baseProps?.ip_country ?? "",
     ),
   };

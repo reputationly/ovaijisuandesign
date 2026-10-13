@@ -96,7 +96,7 @@ function isWorkspaceRenderer() {
   return new URLSearchParams(window.location.search).has("workspaceId");
 }
 
-export function AuthProvider({ children: children2 }) {
+export function AuthProvider({ children }) {
   const platform = usePlatform();
   const navigate = useNavigate();
   const navigateRef = reactExports.useRef(navigate);
@@ -948,7 +948,7 @@ export function AuthProvider({ children: children2 }) {
   );
   return (
     <AuthContext value={value}>
-      {children2}
+      {children}
       <AlertDialog
         open={browserLogin !== null}
         onOpenChange={(open) => {

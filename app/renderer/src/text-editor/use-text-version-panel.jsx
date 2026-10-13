@@ -507,17 +507,17 @@ function shouldShowCurrentVersionTag(dirty) {
   return dirty !== true;
 }
 export function useTextVersionPanel({
-  path: path2,
+  path,
   nodeId,
   flushBeforeSave,
   prepareForReplace,
-  disabled: disabled2,
+  disabled,
   dirty,
   getContent,
 }) {
   const { t } = useTranslation();
   const versions = useTextVersions({
-    path: path2,
+    path,
     nodeId,
     flushBeforeSave,
   });
@@ -646,7 +646,7 @@ export function useTextVersionPanel({
     dirty: dirty?.dirty,
     hasVersions: versions.versions.length > 0,
   });
-  const saveDisabled = disabled2 || versions.saving || saveDisabledForNoChanges;
+  const saveDisabled = disabled || versions.saving || saveDisabledForNoChanges;
   if (!versions.available) {
     return {
       toolbarButtons: null,
@@ -666,7 +666,7 @@ export function useTextVersionPanel({
           versions={versions.versions}
           labelOf={labelOf}
           showCurrentTag={shouldShowCurrentVersionTag(dirty?.dirty)}
-          disabled={disabled2}
+          disabled={disabled}
           onSelect={setPreviewVersion}
           onRename={(version) => setNamingId(version.id)}
         />

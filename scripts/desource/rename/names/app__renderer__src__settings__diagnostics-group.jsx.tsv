@@ -6,3 +6,4 @@ t2@73:9	normalizedTarget	规整后的目标路径
 d2@75:11	normalizedDir	规整后的白名单目录
 percent2@25:9	percent	去掉打包器加的数字后缀，恢复原名 percent
 unified2@68:9	unified	去掉打包器加的数字后缀，恢复原名 unified
+url2@43:3	url	去掉打包器加的数字后缀，恢复原名 url

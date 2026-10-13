@@ -1,9 +1,9 @@
 // table-document-to-llm-content.js
 
-export function setCell(doc2, rowId, columnId, value) {
+export function setCell(doc, rowId, columnId, value) {
   return {
-    ...doc2,
-    rows: doc2.rows.map((row) =>
+    ...doc,
+    rows: doc.rows.map((row) =>
       row.id === rowId
         ? {
             ...row,
@@ -16,15 +16,15 @@ export function setCell(doc2, rowId, columnId, value) {
     ),
   };
 }
-export function serializeTableDocument(doc2) {
-  return JSON.stringify(doc2, null, 2);
+export function serializeTableDocument(doc) {
+  return JSON.stringify(doc, null, 2);
 }
-export function tableDocumentToLlmContent(doc2) {
+export function tableDocumentToLlmContent(doc) {
   const columnIndexById = new Map();
-  doc2.columns.forEach((col, idx) => {
+  doc.columns.forEach((col, idx) => {
     columnIndexById.set(col.id, idx);
   });
-  const llmColumns = doc2.columns.map((col) => ({
+  const llmColumns = doc.columns.map((col) => ({
     title: col.title,
     type: col.type,
     ...(col.visible === false
@@ -38,8 +38,8 @@ export function tableDocumentToLlmContent(doc2) {
         }
       : {}),
   }));
-  const llmRows = doc2.rows.map((row) => ({
-    cells: doc2.columns.map((col) => {
+  const llmRows = doc.rows.map((row) => ({
+    cells: doc.columns.map((col) => {
       const cell = row.cells[col.id];
       if (cell === void 0 || cell === null) return null;
       if (Array.isArray(cell)) {
@@ -56,10 +56,10 @@ export function tableDocumentToLlmContent(doc2) {
     columns: llmColumns,
     rows: llmRows,
   };
-  if (doc2.filter && doc2.filter.conditions.length > 0) {
+  if (doc.filter && doc.filter.conditions.length > 0) {
     llmContent.filter = {
-      match: doc2.filter.match,
-      conditions: doc2.filter.conditions
+      match: doc.filter.match,
+      conditions: doc.filter.conditions
         .map((cond) => {
           const idx = columnIndexById.get(cond.columnId);
           if (idx == null) return null;
@@ -75,18 +75,18 @@ export function tableDocumentToLlmContent(doc2) {
       llmContent.filter = void 0;
     }
   }
-  if (doc2.rowHeight) llmContent.rowHeight = doc2.rowHeight;
+  if (doc.rowHeight) llmContent.rowHeight = doc.rowHeight;
   return llmContent;
 }
 export function DerivationEdge() {
   return null;
 }
 const MENTION_TOKEN_RE = /@\[([^\]\n]+)\]|@([^\s@[\]]+)/g;
-export function findAllMentions(text2) {
-  if (!text2) return [];
+export function findAllMentions(text) {
+  if (!text) return [];
   const out = [];
   MENTION_TOKEN_RE.lastIndex = 0;
-  let match = MENTION_TOKEN_RE.exec(text2);
+  let match = MENTION_TOKEN_RE.exec(text);
   while (match !== null) {
     const path = match[1] ?? match[2] ?? "";
     out.push({
@@ -94,7 +94,7 @@ export function findAllMentions(text2) {
       end: match.index + match[0].length,
       path,
     });
-    match = MENTION_TOKEN_RE.exec(text2);
+    match = MENTION_TOKEN_RE.exec(text);
   }
   return out;
 }

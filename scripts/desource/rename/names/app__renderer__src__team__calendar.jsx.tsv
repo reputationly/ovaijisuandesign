@@ -12,3 +12,5 @@ props2@209:60	props	去掉打包器加的数字后缀，恢复原名 props
 props2@230:26	props	去掉打包器加的数字后缀，恢复原名 props
 children2@233:34	children	去掉打包器加的数字后缀，恢复原名 children
 props2@233:48	props	去掉打包器加的数字后缀，恢复原名 props
+formatters2@84:15	formatters	去掉打包器加的数字后缀，恢复原名 formatters
+components2@85:15	components	去掉打包器加的数字后缀，恢复原名 components

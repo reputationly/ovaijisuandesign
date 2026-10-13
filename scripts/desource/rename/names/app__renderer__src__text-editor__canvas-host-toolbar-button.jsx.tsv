@@ -14,3 +14,5 @@ tags2@136:11	tags	去掉打包器加的数字后缀，恢复原名 tags
 size2@169:18	size	去掉打包器加的数字后缀，恢复原名 size
 min2@217:9	min	去掉打包器加的数字后缀，恢复原名 min
 max2@218:9	max	去掉打包器加的数字后缀，恢复原名 max
+active2@19:11	active	去掉打包器加的数字后缀，恢复原名 active
+count2@22:10	count	去掉打包器加的数字后缀，恢复原名 count

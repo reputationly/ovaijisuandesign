@@ -85,3 +85,8 @@ snapshot2@1533:13	snapshot	去掉打包器加的数字后缀，恢复原名 snap
 client22@1554:13	client	去掉打包器加的数字后缀，恢复原名 client
 mutator2@1555:13	mutator	去掉打包器加的数字后缀，恢复原名 mutator
 current2@1584:17	current	去掉打包器加的数字后缀，恢复原名 current
+snapshot2@1161:3	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+url2@1299:43	url	去掉打包器加的数字后缀，恢复原名 url
+init2@1299:49	init	去掉打包器加的数字后缀，恢复原名 init
+record2@1313:33	record	去掉打包器加的数字后缀，恢复原名 record
+inferKind2@1368:14	inferKind	去掉打包器加的数字后缀，恢复原名 inferKind

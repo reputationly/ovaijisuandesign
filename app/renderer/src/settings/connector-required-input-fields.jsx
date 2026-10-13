@@ -12,9 +12,9 @@ import { Input3 } from "../infra/select-content.jsx";
 export function isRequiredInputSatisfied(
   input,
   value,
-  normalize2 = (raw) => raw.trim(),
+  normalize = (raw) => raw.trim(),
 ) {
-  const normalized = normalize2(value);
+  const normalized = normalize(value);
   if (normalized.length === 0) return false;
   if (!input.pattern) return true;
   try {
@@ -27,9 +27,9 @@ export function isRequiredInputSatisfied(
 export function ConnectorRequiredInputFields({
   connectorId,
   requiredInputs,
-  values: values3,
-  disabled: disabled2,
-  normalize: normalize2,
+  values,
+  disabled,
+  normalize,
   onChange,
 }) {
   const { t, i18n } = useTranslation();
@@ -37,10 +37,10 @@ export function ConnectorRequiredInputFields({
   return (
     <>
       {requiredInputs.map((field) => {
-        const value = values3[field.key] ?? "";
+        const value = values[field.key] ?? "";
         const invalid =
           value.trim().length > 0 &&
-          !isRequiredInputSatisfied(field, value, normalize2);
+          !isRequiredInputSatisfied(field, value, normalize);
         const fieldId = `connectors-${connectorId}-${field.key}`;
         return (
           <div key={field.key}>
@@ -55,7 +55,7 @@ export function ConnectorRequiredInputFields({
               type="text"
               value={value}
               onChange={(event) => onChange(field.key, event.target.value)}
-              disabled={disabled2}
+              disabled={disabled}
               autoComplete="off"
               autoCapitalize="none"
               spellCheck={false}

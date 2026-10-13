@@ -7,11 +7,11 @@ export const DIFF_CONTROLS_CLASS = "canvas-diff-controls";
 
 export const diffReviewPluginKey = new PluginKey("canvasDiffReview");
 
-export function buildControls(ids2, config2) {
+export function buildControls(ids, config) {
   const bar = document.createElement("div");
   bar.className = DIFF_CONTROLS_CLASS;
-  bar.setAttribute("data-diff-controls-for", ids2.join(" "));
-  bar.setAttribute("data-diff-control-count", String(ids2.length));
+  bar.setAttribute("data-diff-controls-for", ids.join(" "));
+  bar.setAttribute("data-diff-control-count", String(ids.length));
   bar.contentEditable = "false";
   const mkBtn = (label, action, onClick) => {
     const btn = document.createElement("button");
@@ -19,7 +19,7 @@ export function buildControls(ids2, config2) {
     btn.textContent = label;
     btn.className = `${DIFF_CONTROLS_CLASS}-btn ${DIFF_CONTROLS_CLASS}-btn-${action}`;
     btn.setAttribute("data-action-ui-id", `canvas-diff-${action}`);
-    btn.disabled = config2.disabled;
+    btn.disabled = config.disabled;
     btn.addEventListener("mousedown", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -31,14 +31,14 @@ export function buildControls(ids2, config2) {
     });
     bar.appendChild(btn);
   };
-  const hunkIds = [...ids2];
-  mkBtn(config2.undoLabel, "undo", () => {
-    if (hunkIds.length === 1) config2.onUndo(hunkIds[0]);
-    else config2.onUndoGroup(hunkIds);
+  const hunkIds = [...ids];
+  mkBtn(config.undoLabel, "undo", () => {
+    if (hunkIds.length === 1) config.onUndo(hunkIds[0]);
+    else config.onUndoGroup(hunkIds);
   });
-  mkBtn(config2.acceptLabel, "accept", () => {
-    if (hunkIds.length === 1) config2.onAccept(hunkIds[0]);
-    else config2.onAcceptGroup(hunkIds);
+  mkBtn(config.acceptLabel, "accept", () => {
+    if (hunkIds.length === 1) config.onAccept(hunkIds[0]);
+    else config.onAcceptGroup(hunkIds);
   });
   return bar;
 }

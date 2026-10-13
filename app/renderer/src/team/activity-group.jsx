@@ -228,7 +228,7 @@ function isTimelineEntryActive(entry, latestEntry, isStreaming) {
   );
 }
 export function ActivityGroup({
-  data: data2,
+  data,
   isStreaming,
   onSend,
   focusedSessionId,
@@ -243,7 +243,7 @@ export function ActivityGroup({
   collapseTools = false,
   keepToolsExpanded = false,
 }) {
-  const { items } = data2;
+  const { items } = data;
   const { t } = useTranslation();
   const rawToolView = useDebugFlag(DEBUG_FLAGS.rawToolView);
   const displayItems =
@@ -278,7 +278,7 @@ export function ActivityGroup({
   const useToolGroups = collapseTools && !rawToolView;
   const timelineEntries = mergeIntoTimelineEntries(displayItems, {
     raw: rawToolView,
-    legacyMediaReconciliationApplied: data2.legacyMediaReconciliationApplied,
+    legacyMediaReconciliationApplied: data.legacyMediaReconciliationApplied,
   }).filter((entry, index, entries) => {
     if (entry.type === "thinking") {
       return showThinking && (!useToolGroups || index === entries.length - 1);

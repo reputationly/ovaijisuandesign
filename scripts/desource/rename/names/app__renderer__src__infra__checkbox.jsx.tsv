@@ -2,3 +2,4 @@ key	new	reason
 id2@22:9	id	原名 id，去掉打包器加的数字去重后缀
 node2@25:6	node	去掉打包器加的数字后缀，恢复原名 node
 state2@64:19	state	去掉打包器加的数字后缀，恢复原名 state
+size2@8:9	size	去掉打包器加的数字后缀，恢复原名 size

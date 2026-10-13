@@ -47,8 +47,8 @@ function migrateFilter(raw) {
   };
 }
 
-export function parseTableDocument(raw2) {
-  const data = JSON.parse(raw2);
+export function parseTableDocument(raw) {
+  const data = JSON.parse(raw);
   if (!data || typeof data !== "object") {
     throw new Error("Invalid table document: not an object");
   }

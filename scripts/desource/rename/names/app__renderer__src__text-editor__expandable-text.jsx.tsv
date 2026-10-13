@@ -4,3 +4,4 @@ ro@41:11	resizeObserver	观察尺寸变化的 ResizeObserver
 v2@75:18	isExpanded	切换前的展开状态
 e2@77:32	transitionEvent	transitionend 事件，检查 propertyName
 style2@50:9	style	去掉打包器加的数字后缀，恢复原名 style
+children2@7:13	children	去掉打包器加的数字后缀，恢复原名 children

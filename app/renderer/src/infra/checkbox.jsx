@@ -5,7 +5,7 @@ import { cn } from "./dialog-content.jsx";
 export function Checkbox({
   className,
   shape = "square",
-  size: size2 = "md",
+  size = "md",
   appearance = "default",
   label,
   description,
@@ -57,7 +57,7 @@ export function Checkbox({
       }}
       data-slot="checkbox"
       data-shape={shape}
-      data-size={size2}
+      data-size={size}
       data-appearance={appearance}
       aria-invalid={error ? true : props["aria-invalid"]}
       aria-describedby={describedBy}
@@ -110,7 +110,7 @@ export function Checkbox({
   return (
     <span
       className="hilo-checkbox-field"
-      data-size={size2}
+      data-size={size}
       data-disabled={props.disabled || void 0}
     >
       {control}

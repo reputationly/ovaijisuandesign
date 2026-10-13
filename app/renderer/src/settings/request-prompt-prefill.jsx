@@ -74,16 +74,16 @@ export function setToolCallDisplayConfig(value) {
   configuredDisplayLabels = compileToolDisplayPatterns(next.displayLabels);
   configuredLabelIds = compileToolDisplayPatterns(next.labelIds);
 }
-export function getConfiguredToolDisplayLabel(toolName2) {
+export function getConfiguredToolDisplayLabel(toolName) {
   return configuredDisplayLabels.find(({ patterns }) =>
-    patterns.some((pattern) => pattern.test(toolName2)),
+    patterns.some((pattern) => pattern.test(toolName)),
   )?.label;
 }
 export const TOAST_ID = "proxy-detected";
 export const TOAST_DURATION_MS = 15e3;
 export const PROXY_RECHECK_INTERVAL_MS = 3e3;
 export const WARNING_CONFIRMATION_COUNT = 2;
-export function ConnectorDialogScrollableBody({ children: children2 }) {
+export function ConnectorDialogScrollableBody({ children }) {
   const scrollRef = reactExports.useRef(null);
   const isScrolling = useIsScrolling({
     scrollRef,
@@ -95,7 +95,7 @@ export function ConnectorDialogScrollableBody({ children: children2 }) {
       className="connector-dialog-scrollbar scrollbar-fade min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges]"
       data-layout-slot="connector-dialog-scroll"
     >
-      {children2}
+      {children}
     </div>
   );
 }

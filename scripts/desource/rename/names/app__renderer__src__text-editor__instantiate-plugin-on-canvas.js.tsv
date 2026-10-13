@@ -8,3 +8,5 @@ next2@45:11	next	去掉打包器加的数字后缀，恢复原名 next
 json2@103:11	json	去掉打包器加的数字后缀，恢复原名 json
 body2@100:13	body	去掉打包器加的数字后缀，恢复原名 body
 message2@108:11	message	去掉打包器加的数字后缀，恢复原名 message
+position2@60:25	position	去掉打包器加的数字后缀，恢复原名 position
+gatewayFetch2@61:37	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch

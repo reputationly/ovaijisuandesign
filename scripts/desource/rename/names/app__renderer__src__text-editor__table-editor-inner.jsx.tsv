@@ -103,3 +103,4 @@ sum2@1185:44	sum	去掉打包器加的数字后缀，恢复原名 sum
 next2@1189:13	next	去掉打包器加的数字后缀，恢复原名 next
 type2@1221:21	type	去掉打包器加的数字后缀，恢复原名 type
 isAfter2@1241:11	isAfter	去掉打包器加的数字后缀，恢复原名 isAfter
+history2@1114:12	tableHistory	表格撤销历史；history 是全局名

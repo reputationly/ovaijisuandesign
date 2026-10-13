@@ -32,7 +32,7 @@ import {
 import { buildWSUrl } from "../infra/gateway-http-error.jsx";
 import { WSConnectionProviderCore } from "./ws-connection-provider-core.jsx";
 export function WorkspaceWSConnectionProvider({
-  children: children2,
+  children,
   wsUrl,
   syncCanvasAssetMetadata,
 }) {
@@ -43,7 +43,7 @@ export function WorkspaceWSConnectionProvider({
       scope="workspace"
       syncCanvasAssetMetadata={syncCanvasAssetMetadata}
     >
-      {children2}
+      {children}
     </WSConnectionProviderCore>
   );
 }
@@ -85,8 +85,8 @@ async function readMemory(fetcher, scope, memoryName) {
   await expectOk(res);
   return await res.json();
 }
-export async function deleteMemory(fetcher, scope, name2) {
-  const res = await fetcher(`${BASE}/${scope}/${encodeURIComponent(name2)}`, {
+export async function deleteMemory(fetcher, scope, memoryName) {
+  const res = await fetcher(`${BASE}/${scope}/${encodeURIComponent(memoryName)}`, {
     method: "DELETE",
   });
   await expectOk(res);
@@ -171,17 +171,17 @@ export function useMemoryList(scope) {
     refetchOnMount: "always",
   });
 }
-export function useMemoryEntry(scope, name2) {
+export function useMemoryEntry(scope, memoryName) {
   const baseUrl = useGatewayBaseUrl();
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
   return useQuery({
     queryKey:
-      scope && name2
-        ? memoryQueryKeys.entry(scopeKey, scope, name2)
+      scope && memoryName
+        ? memoryQueryKeys.entry(scopeKey, scope, memoryName)
         : ["memory", scopeKey, "entry", "noop"],
-    queryFn: () => readMemory(fetcher, scope, name2),
-    enabled: Boolean(baseUrl && scope && name2),
+    queryFn: () => readMemory(fetcher, scope, memoryName),
+    enabled: Boolean(baseUrl && scope && memoryName),
   });
 }
 export function useSnapshotRestore() {
@@ -219,7 +219,7 @@ function SheetOverlay({ className, ...props }) {
 }
 export function SheetContent({
   className,
-  children: children2,
+  children,
   side = "right",
   showCloseButton = true,
   ...props
@@ -237,7 +237,7 @@ export function SheetContent({
         )}
         {...props}
       >
-        {children2}
+        {children}
         {showCloseButton && (
           <DialogClose
             data-slot="sheet-close"

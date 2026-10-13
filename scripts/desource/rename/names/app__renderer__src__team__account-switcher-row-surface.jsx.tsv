@@ -1,3 +1,8 @@
 key	new	reason
 t2@39:14	t	useTranslation() 返回的翻译函数 t
 content2@42:9	content	去掉打包器加的数字后缀，恢复原名 content
+displayName2@31:16	displayName	去掉打包器加的数字后缀，恢复原名 displayName
+groupId2@32:12	groupId	去掉打包器加的数字后缀，恢复原名 groupId
+meta2@34:9	meta	去掉打包器加的数字后缀，恢复原名 meta
+active2@25:11	active	去掉打包器加的数字后缀，恢复原名 active
+disabled2@29:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled

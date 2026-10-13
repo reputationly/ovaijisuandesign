@@ -2,3 +2,4 @@ key	new	reason
 t2@21:14	t	useTranslation() 返回的翻译函数 t
 pending2@22:10	pending	去掉打包器加的数字后缀，恢复原名 pending
 run2@25:9	run	去掉打包器加的数字后缀，恢复原名 run
+node2@15:9	node	去掉打包器加的数字后缀，恢复原名 node

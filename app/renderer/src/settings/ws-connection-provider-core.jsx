@@ -574,7 +574,7 @@ function guardedSubmissionKind(msg) {
 }
 
 export function WSConnectionProviderCore({
-  children: children2,
+  children,
   wsUrl,
   scope,
   syncCanvasAssetMetadata = true,
@@ -879,7 +879,7 @@ export function WSConnectionProviderCore({
   );
   return (
     <WSConnectionContext.Provider value={value}>
-      {children2}
+      {children}
     </WSConnectionContext.Provider>
   );
 }

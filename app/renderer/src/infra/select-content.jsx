@@ -22,7 +22,7 @@ const inputBaseClass =
   "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-xs transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-xs file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-foreground focus-visible:ring-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 md:text-xs dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40";
 export function Input3({
   className,
-  type: type2,
+  type,
   startIcon,
   endIcon,
   ...props
@@ -30,7 +30,7 @@ export function Input3({
   if (!startIcon && !endIcon) {
     return (
       <Input
-        type={type2}
+        type={type}
         data-slot="input"
         className={cn(inputBaseClass, className)}
         {...props}
@@ -45,7 +45,7 @@ export function Input3({
         </span>
       )}
       <Input
-        type={type2}
+        type={type}
         data-slot="input"
         className={cn(
           inputBaseClass,
@@ -74,21 +74,21 @@ export function SelectValue({ className, ...props }) {
 }
 export function SelectTrigger({
   className,
-  size: size2 = "default",
-  children: children2,
+  size = "default",
+  children,
   ...props
 }) {
   return (
     <SelectTrigger$2
       data-slot="select-trigger"
-      data-size={size2}
+      data-size={size}
       className={cn(
         "flex w-fit cursor-pointer items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-xs whitespace-nowrap transition-colors outline-none select-none hover:bg-muted/60 hover:text-foreground focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-lg *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
     >
-      {children2}
+      {children}
       <SelectIcon
         render={
           <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
@@ -97,7 +97,7 @@ export function SelectTrigger({
     </SelectTrigger$2>
   );
 }
-export function SelectItem({ className, children: children2, ...props }) {
+export function SelectItem({ className, children, ...props }) {
   return (
     <SelectItem$2
       data-slot="select-item"
@@ -108,7 +108,7 @@ export function SelectItem({ className, children: children2, ...props }) {
       {...props}
     >
       <SelectItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
-        {children2}
+        {children}
       </SelectItemText>
       <SelectItemIndicator
         render={
@@ -150,7 +150,7 @@ function SelectScrollDownButton({ className, ...props }) {
 }
 export function SelectContent({
   className,
-  children: children2,
+  children,
   side = "bottom",
   sideOffset = 6,
   align = "center",
@@ -182,7 +182,7 @@ export function SelectContent({
           {...props}
         >
           <SelectScrollUpButton />
-          <SelectList>{children2}</SelectList>
+          <SelectList>{children}</SelectList>
           <SelectScrollDownButton />
         </SelectPopup>
       </SelectPositioner>
