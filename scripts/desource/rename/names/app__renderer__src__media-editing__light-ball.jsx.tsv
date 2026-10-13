@@ -1,0 +1,75 @@
+key	new	依据
+DEG@139:7	RADIANS_PER_DEGREE	保存将角度换算为弧度时使用的每度弧度值。
+r2@19:12	redHexDigit	保存压缩十六进制颜色中的红色通道字符。
+g2@19:16	greenHexDigit	保存压缩十六进制颜色中的绿色通道字符。
+b3@19:20	blueHexDigit	保存压缩十六进制颜色中的蓝色通道字符。
+t2@116:9	intensityFraction	保存将光照强度归一化到 0–1 范围的比例。
+h2@141:9	horizontalRadians	保存水平角换算得到的弧度。
+v2@142:9	verticalRadians	保存垂直角换算得到的弧度。
+p3@149:22	point	接收用于计算水平和垂直角度的三维点。
+r2@150:9	distanceFromOrigin	保存该点到原点的向量长度。
+a2@158:19	leftQuaternion	接收四元数乘法左侧操作数。
+b3@158:23	rightQuaternion	接收四元数乘法右侧操作数。
+x2@159:10	leftX	保存左侧四元数的 x 分量。
+y4@159:14	leftY	保存左侧四元数的 y 分量。
+z3@159:18	leftZ	保存左侧四元数的 z 分量。
+w3@159:22	leftW	保存左侧四元数的 w 分量。
+u4@160:10	rightX	保存右侧四元数的 x 分量。
+v2@160:14	rightY	保存右侧四元数的 y 分量。
+t2@160:18	rightZ	保存右侧四元数的 z 分量。
+s2@160:22	rightW	保存右侧四元数的 w 分量。
+q2@161:9	resultQuaternion	保存左右四元数相乘得到的结果向量。
+q2@170:23	currentRotation	接收当前用于拖动旋转的四元数。
+dx@170:27	deltaX	保存指针横向移动的像素距离。
+dy@170:31	deltaY	保存指针纵向移动的像素距离。
+yaw@172:9	yawRotation	保存由横向拖动生成的偏航四元数。
+p3@176:17	point	接收需要按四元数旋转的三维点。
+q2@176:21	rotation	接收应用于三维点的旋转四元数。
+x2@177:10	quaternionX	保存旋转四元数的 x 分量。
+y4@177:14	quaternionY	保存旋转四元数的 y 分量。
+z3@177:18	quaternionZ	保存旋转四元数的 z 分量。
+w3@177:22	quaternionW	保存旋转四元数的 w 分量。
+tx@178:9	rotationOffsetX	保存四元数旋转产生的 x 方向偏移。
+ty@179:9	rotationOffsetY	保存四元数旋转产生的 y 方向偏移。
+tz@180:9	rotationOffsetZ	保存四元数旋转产生的 z 方向偏移。
+dx@188:34	deltaX	保存拖动事件的横向像素变化。
+dy@188:38	deltaY	保存拖动事件的纵向像素变化。
+l2@202:11	light	序列化该灯光的标识及水平、垂直角度。
+q2@204:30	rotation	接收用于烘焙到灯光角度中的旋转四元数。
+l2@205:14	light	将当前灯光角度转换为旋转后的球面位置。
+_2@216:6	_unusedValue	标明 Array.from 映射器中未使用的首个回调值。
+_22@222:10	_unusedValue	标明 Array.from 映射器中未使用的首个回调值。
+_2@230:6	_unusedValue	标明 Array.from 映射器中未使用的首个回调值。
+_22@236:10	_unusedValue	标明 Array.from 映射器中未使用的首个回调值。
+q2@245:20	rotation	接收计算经视图旋转后经纬网格路径的四元数。
+p3@249:37	point	保存当前经纬网格线上的三维点。
+a2@251:13	startPoint	保存当前网格线段的起点。
+b3@252:13	endPoint	保存当前网格线段的终点。
+x2@280:25	centerX	保存长方体中心点的 x 坐标。
+y4@280:29	centerY	保存长方体中心点的 y 坐标。
+z3@280:33	centerZ	保存长方体中心点的 z 坐标。
+sx@280:37	sizeX	保存长方体在 x 方向上的尺寸。
+sy@280:41	sizeY	保存长方体在 y 方向上的尺寸。
+sz@280:45	sizeZ	保存长方体在 z 方向上的尺寸。
+a2@305:13	firstFace	保存按深度排序时正在比较的第一个灯具表面。
+b3@305:17	secondFace	保存按深度排序时正在比较的第二个灯具表面。
+z3@308:32	depth	保存灯具前表面形状所在的 z 深度。
+y4@347:30	verticalOffset	保存灯具背板通风槽的垂直偏移。
+n2@424:9	lightDirection	保存光锥的单位方向向量。
+u4@432:9	tangent	保存构造光锥圆环时使用的切向基向量。
+v2@444:9	bitangent	保存光锥圆环的第二个屏幕平面基向量。
+a2@459:13	angle	保存采样光锥圆环点时使用的弧度角。
+a2@471:16	firstPoint	保存按坐标排序时比较的第一个轮廓点。
+b3@471:20	secondPoint	保存按坐标排序时比较的第二个轮廓点。
+o2@472:19	originPoint	接收二维叉积计算中的原点。
+a2@472:23	firstPoint	接收二维叉积中的第一条点向量终点。
+b3@472:27	secondPoint	接收二维叉积中的第二条点向量终点。
+p3@476:16	point	遍历用于计算凸包的轮廓点。
+p3@487:11	point	将凸包顶点转换为 SVG 坐标字符串。
+p3@577:11	pointerPosition	保存指针相对球体中心的局部位置。
+p3@607:11	pointerPosition	保存更新拖动时指针的局部位置。
+l2@645:37	light	按灯光标识合并拖动后的角度。
+l2@657:36	light	更新预览中的目标灯光角度。
+l2@691:39	light	按灯光标识合并最终提交的灯光角度。
+a2@739:12	firstItem	保存排序时比较的第一个已显示灯光项目。
+b3@739:16	secondItem	保存排序时比较的第二个已显示灯光项目。
