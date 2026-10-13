@@ -141,3 +141,6 @@ export:vt	vt	findType1Conflicts	对应 dagre 内联布局库的 findType1Conflic
 export:Ot	Ot	verticalAlignment	对应 dagre 内联布局库的 verticalAlignment API；暂不改导出名。
 export:Rt	Rt	findSmallestWidthAlignment	对应 dagre 内联布局库的 findSmallestWidthAlignment API；暂不改导出名。
 file:ot.js	ot.js	dagre-layout-utils.js	文件内容来自 dagre 的布局算法模块，提议使用描述性文件名。
+Ie@3:5	Ie	MAX_CHUNK_SIZE	该常量限制每次调用 fn 时传入的参数分块大小，值为 65535。
+Tt@150:10	Tt	hasConflict	先按节点顺序规范化 firstNode 与 secondNode，再查询两者是否记录为冲突；对应 dagre lib/position/bk.ts 的 hasConflict。
+St@198:10	St	getNodeWidth	返回 graph 中 nodeId 对应节点的 width；对应 dagre lib/position/bk.ts 的 width，但为避免与 en 中的 width@39:7 冲突，改用 getNodeWidth。

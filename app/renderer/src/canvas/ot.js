@@ -1,7 +1,7 @@
 // ot.js
 
-var Ie = 65535;
-function chunkArguments(values, chunkSize = Ie) {
+var MAX_CHUNK_SIZE = 65535;
+function chunkArguments(values, chunkSize = MAX_CHUNK_SIZE) {
   let chunks = [];
   for (let offset = 0; offset < values.length; offset += chunkSize) {
     let chunk = values.slice(offset, offset + chunkSize);
@@ -10,7 +10,7 @@ function chunkArguments(values, chunkSize = Ie) {
   return chunks;
 }
 export function L(fn, values) {
-  if (values.length > Ie) {
+  if (values.length > MAX_CHUNK_SIZE) {
     let chunks = chunkArguments(values);
     return fn(...chunks.map((chunk) => fn(...chunk)));
   } else return fn(...values);
@@ -147,7 +147,7 @@ export function vt(graph, layers) {
   }
   return (layers.length && layers.reduce(findLayerConflicts), conflictMap);
 }
-function Tt(conflictMap, firstNode, secondNode) {
+function hasConflict(conflictMap, firstNode, secondNode) {
   if (firstNode > secondNode) {
     let originalFirstNode = firstNode;
     ((firstNode = secondNode), (secondNode = originalFirstNode));
@@ -180,7 +180,7 @@ export function Ot(graph, layers, constraintGraph, predecessorIds) {
             let predecessorId = sortedPredecessors[index];
             if (predecessorId === void 0) continue;
             let predecessorOrder = positionByNode[predecessorId];
-            if (predecessorOrder !== void 0 && alignmentByNode[nodeId] === nodeId && previousAlignedOrder < predecessorOrder && !Tt(constraintGraph, nodeId, predecessorId)) {
+            if (predecessorOrder !== void 0 && alignmentByNode[nodeId] === nodeId && previousAlignedOrder < predecessorOrder && !hasConflict(constraintGraph, nodeId, predecessorId)) {
               let rootId = rootByNode[predecessorId];
               rootId !== void 0 &&
                 ((alignmentByNode[predecessorId] = nodeId), (alignmentByNode[nodeId] = rootByNode[nodeId] = rootId), (previousAlignedOrder = predecessorOrder));
@@ -195,7 +195,7 @@ export function Ot(graph, layers, constraintGraph, predecessorIds) {
     }
   );
 }
-function St(graph, nodeId) {
+function getNodeWidth(graph, nodeId) {
   return graph.node(nodeId).width;
 }
 export function Rt(graph, alignments) {
@@ -204,7 +204,7 @@ export function Rt(graph, alignments) {
       let rightmost = Number.NEGATIVE_INFINITY,
         leftmost = Number.POSITIVE_INFINITY;
       Object.entries(alignment).forEach(([nodeId, position]) => {
-        let halfNodeWidth = St(graph, nodeId) / 2;
+        let halfNodeWidth = getNodeWidth(graph, nodeId) / 2;
         ((rightmost = Math.max(position + halfNodeWidth, rightmost)), (leftmost = Math.min(position - halfNodeWidth, leftmost)));
       });
       let width = rightmost - leftmost;

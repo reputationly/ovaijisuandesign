@@ -192,3 +192,5 @@ export:S	S	longestPath	对应 dagre lib/rank/util.ts 的 longestPath
 export:v$4	v$4	slack	对应 dagre lib/rank/util.ts 的 slack
 export:V	V	feasibleTree	对应 dagre lib/rank/feasible-tree.ts 的 feasibleTree
 export:it	it	longestPath	对应 dagre lib/rank/util.ts 的 longestPath
+i2@202:32	i2	candidate	负步长时，candidate 是 endCondition 正在与 limit 比较的候选值。
+o2@212:9	o2	rank	读取 nodeLabel.rank，并将其用作节点所在层的索引。

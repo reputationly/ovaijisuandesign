@@ -199,7 +199,7 @@ export function q(graph, prefix, rank, order) {
 export function k(start, limit, step = 1) {
   limit == null && ((limit = start), (start = 0));
   let endCondition = (value) => value < limit;
-  step < 0 && (endCondition = (i2) => limit < i2);
+  step < 0 && (endCondition = (candidate) => limit < candidate);
   let values = [];
   for (let value = start; endCondition(value); value += step) values.push(value);
   return values;
@@ -209,8 +209,8 @@ export function N(graph) {
   return (
     graph.nodes().forEach((nodeId) => {
       let nodeLabel = graph.node(nodeId),
-        o2 = nodeLabel.rank;
-      o2 !== void 0 && (layers[o2] || (layers[o2] = []), (layers[o2][nodeLabel.order] = nodeId));
+        rank = nodeLabel.rank;
+      rank !== void 0 && (layers[rank] || (layers[rank] = []), (layers[rank][nodeLabel.order] = nodeId));
     }),
     layers
   );
