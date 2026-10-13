@@ -8,7 +8,7 @@ import {
   reactExports,
   useTranslation,
   Video,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { ReferenceSwitchPopover } from "./reference-switch-popover.jsx";
@@ -33,7 +33,7 @@ export function MentionChipNodeView({
   deleteNode: deleteNode2,
   updateAttributes: updateAttributes2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { kind, filename, path: path2 } = node2.attrs;
   const [hovered, setHovered] = reactExports.useState(false);
   const [reading, setReading] = reactExports.useState(false);
@@ -51,17 +51,17 @@ export function MentionChipNodeView({
   });
   const isSubject = reference?.target === "entity";
   const subjectTypeLabel = isSubject
-    ? t2(
+    ? translate(
         `assetCenter.types.${reference.entityType ?? "other"}`,
-        reference.entityType ?? t2("canvas.reference.subject", "Subject"),
+        reference.entityType ?? translate("canvas.reference.subject", "Subject"),
       )
     : "";
   const statusLabel2 =
     !reference || status === "available" || invalid2
       ? ""
       : status === "unavailable"
-        ? t2("canvas.reference.checkFailed", "Unavailable")
-        : t2("canvas.reference.checking", "Checking");
+        ? translate("canvas.reference.checkFailed", "Unavailable")
+        : translate("canvas.reference.checking", "Checking");
   const displayName2 = currentResolution?.name ?? filename;
   reactExports.useEffect(() => {
     if (
@@ -98,8 +98,8 @@ export function MentionChipNodeView({
   );
   const fallbackStatusLabel = invalid2
     ? status === "deleted"
-      ? t2("canvas.reference.deleted", "Deleted")
-      : t2("canvas.reference.missing", "File missing")
+      ? translate("canvas.reference.deleted", "Deleted")
+      : translate("canvas.reference.missing", "File missing")
     : statusLabel2;
   const [failedPreviewUrl, setFailedPreviewUrl] = reactExports.useState(null);
   const showImageThumb =
@@ -263,7 +263,7 @@ export function MentionChipNodeView({
       <button
         type="button"
         contentEditable={false}
-        aria-label={t2("mention.popover.removeReference", "Remove")}
+        aria-label={translate("mention.popover.removeReference", "Remove")}
         data-action-ui-id="popover.prompt-reference-remove"
         className="pointer-events-none absolute right-0.5 top-1/2 flex size-3.5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-foreground text-background opacity-0 transition-opacity focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring group-hover/reference:pointer-events-auto group-hover/reference:opacity-100"
         onMouseDown={(event) => {
@@ -277,7 +277,7 @@ export function MentionChipNodeView({
           deleteNode2();
         }}
       >
-        <X size={9} strokeWidth={2.2} />
+        <CloseIcon size={9} strokeWidth={2.2} />
       </button>
     </span>
   );

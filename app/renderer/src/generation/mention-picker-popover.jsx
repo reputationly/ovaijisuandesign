@@ -67,7 +67,7 @@ export function MentionPickerPopover({
   onSelect,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { getNodeById, getNodeIdByPath } = useCanvasActions();
   const [focusIdx, setFocusIdx] = reactExports.useState(0);
   const containerRef = reactExports.useRef(null);
@@ -77,9 +77,9 @@ export function MentionPickerPopover({
   const flyoutCloseTimerRef = reactExports.useRef(null);
   const [activeKind, setActiveKind] = reactExports.useState(null);
   const [flyoutOffset, setFlyoutOffset] = reactExports.useState(0);
-  const viewportTransform = useStore((s2) => s2.transform);
+  const viewportTransform = useStore((canvasState) => canvasState.transform);
   const pointerActiveRef = reactExports.useRef(false);
-  const assets = useAssetMetadataStore((s2) => s2.assets);
+  const assets = useAssetMetadataStore((assetStoreState) => assetStoreState.assets);
   const { resolveThumbUrl, directReferences } = useCanvasBridge();
   const {
     items: directItems,
@@ -93,7 +93,7 @@ export function MentionPickerPopover({
     constraints: constraints2,
     onSelect,
     onConstraintViolation: (reason) =>
-      dedupedToast.error(disabledReasonLabel(reason, constraints2, t2)),
+      dedupedToast.error(disabledReasonLabel(reason, constraints2, translate)),
   });
   const allowedKinds = reactExports.useMemo(
     () => new Set(kindFilter),
@@ -103,9 +103,9 @@ export function MentionPickerPopover({
     const result = [];
     const seenPaths = new Set();
     const lowerQuery = query.toLowerCase();
-    assets.forEach((meta2, id2) => {
+    assets.forEach((meta2, assetId) => {
       const kind = mapKind(meta2.type);
-      if (!isMentionCandidate(id2, kind, allowedKinds, excludeAssetIds)) return;
+      if (!isMentionCandidate(assetId, kind, allowedKinds, excludeAssetIds)) return;
       const definedKind = kind;
       const isReference = existingPaths.has(meta2.path);
       if (
@@ -120,7 +120,7 @@ export function MentionPickerPopover({
       if (!meta2.path || seenPaths.has(meta2.path)) return;
       seenPaths.add(meta2.path);
       result.push({
-        assetId: id2,
+        assetId,
         meta: meta2,
         kind: definedKind,
         thumbUrl:
@@ -140,9 +140,9 @@ export function MentionPickerPopover({
           : reasonForDisabled(definedKind, meta2, constraints2),
       });
     });
-    result.sort((a2, b3) => {
-      if (a2.alreadyAdded !== b3.alreadyAdded) return a2.alreadyAdded ? -1 : 1;
-      return a2.meta.name.localeCompare(b3.meta.name);
+    result.sort((leftCandidate, rightCandidate) => {
+      if (leftCandidate.alreadyAdded !== rightCandidate.alreadyAdded) return leftCandidate.alreadyAdded ? -1 : 1;
+      return leftCandidate.meta.name.localeCompare(rightCandidate.meta.name);
     });
     return result;
   }, [
@@ -281,7 +281,7 @@ export function MentionPickerPopover({
         key={item.meta.path}
         content={
           item.disabledReason
-            ? disabledReasonLabel(item.disabledReason, constraints2, t2)
+            ? disabledReasonLabel(item.disabledReason, constraints2, translate)
             : void 0
         }
       >
@@ -325,30 +325,30 @@ export function MentionPickerPopover({
     );
   }, [navigableItems.length]);
   reactExports.useEffect(() => {
-    const handle2 = (e2) => {
-      if (e2.key === "ArrowDown") {
-        e2.preventDefault();
-        e2.stopPropagation();
+    const handle2 = (keyEvent) => {
+      if (keyEvent.key === "ArrowDown") {
+        keyEvent.preventDefault();
+        keyEvent.stopPropagation();
         pointerActiveRef.current = false;
         setFocusIdx((prev) =>
           navigableItems.length === 0
             ? 0
             : Math.min(prev + 1, navigableItems.length - 1),
         );
-      } else if (e2.key === "ArrowUp") {
-        e2.preventDefault();
-        e2.stopPropagation();
+      } else if (keyEvent.key === "ArrowUp") {
+        keyEvent.preventDefault();
+        keyEvent.stopPropagation();
         pointerActiveRef.current = false;
         setFocusIdx((prev) => Math.max(prev - 1, 0));
-      } else if (e2.key === "Enter") {
+      } else if (keyEvent.key === "Enter") {
         const item = navigableItems[focusIdx];
         if (!item || item.disabledReason) return;
-        e2.preventDefault();
-        e2.stopPropagation();
+        keyEvent.preventDefault();
+        keyEvent.stopPropagation();
         selectItem(item);
-      } else if (e2.key === "Escape") {
-        e2.preventDefault();
-        e2.stopPropagation();
+      } else if (keyEvent.key === "Escape") {
+        keyEvent.preventDefault();
+        keyEvent.stopPropagation();
         onClose();
       }
     };
@@ -471,7 +471,7 @@ export function MentionPickerPopover({
     >
       <div
         role="dialog"
-        aria-label={t2("mention.popover.heading", "Mention")}
+        aria-label={translate("mention.popover.heading", "Mention")}
         className="elevated-surface-border flex flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-lg outline-none"
         style={{
           width: POPOVER_WIDTH,
@@ -479,11 +479,11 @@ export function MentionPickerPopover({
         }}
       >
         <div className="flex h-10 shrink-0 items-center justify-between px-3 text-sm font-medium text-foreground">
-          <span>{t2("canvas.reference.addReference", "Add reference")}</span>
+          <span>{translate("canvas.reference.addReference", "Add reference")}</span>
           {directLoading ? (
             <Loader2Icon
               className="size-4 animate-spin text-muted-foreground"
-              aria-label={t2("common.loading", "Loading...")}
+              aria-label={translate("common.loading", "Loading...")}
             />
           ) : null}
         </div>
@@ -496,7 +496,7 @@ export function MentionPickerPopover({
             {referenceItems.length > 0 && (
               <>
                 <div className="px-3 py-1.5 text-xs font-normal text-muted-foreground">
-                  {t2("mention.switch.current", "Current references")}
+                  {translate("mention.switch.current", "Current references")}
                 </div>
                 {referenceItems.map(renderItem)}
               </>
@@ -504,8 +504,8 @@ export function MentionPickerPopover({
             {referenceItems.length > 0 ? (
               <div className="mx-3 mt-1 border-t border-border pt-3 pb-1.5 text-xs font-normal text-muted-foreground">
                 {directReferences
-                  ? t2("canvas.reference.addReference", "Add reference")
-                  : t2("mention.switch.fromCanvas", "Add from canvas")}
+                  ? translate("canvas.reference.addReference", "Add reference")
+                  : translate("mention.switch.fromCanvas", "Add from canvas")}
               </div>
             ) : null}
           </div>
@@ -514,7 +514,7 @@ export function MentionPickerPopover({
               role="status"
               className="px-3 py-1 text-xs text-muted-foreground"
             >
-              {t2(
+              {translate(
                 "canvas.reference.loadFailed",
                 "References could not be loaded",
               )}
@@ -553,7 +553,7 @@ export function MentionPickerPopover({
                   <Icon2 size={16} aria-hidden={true} />
                 </span>
                 <span className="flex-1 text-sm font-normal text-foreground">
-                  {t2(labelKey, fallback)}
+                  {translate(labelKey, fallback)}
                 </span>
                 <span className="text-xs text-muted-foreground">{count2}</span>
                 <ChevronRight
@@ -577,7 +577,7 @@ export function MentionPickerPopover({
         >
           <section
             ref={flyoutRef}
-            aria-label={t2(
+            aria-label={translate(
               categoryRows.find((row) => row.kind === activeKind)?.labelKey ??
                 "",
               categoryRows.find((row) => row.kind === activeKind)?.fallback ??
@@ -602,7 +602,7 @@ export function MentionPickerPopover({
                 categoryItems.map(renderItem)
               ) : (
                 <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-                  {t2("mention.switch.empty", "No available assets")}
+                  {translate("mention.switch.empty", "No available assets")}
                 </div>
               )}
             </div>

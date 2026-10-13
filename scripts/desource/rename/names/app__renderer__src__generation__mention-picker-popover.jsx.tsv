@@ -1,0 +1,8 @@
+key	old	new	依据
+t2@70:14	t2	translate	该绑定来自 useTranslation 并用于提及选择器界面文案。
+s2@80:39	s2	canvasState	该值是画布 store 当前状态，用于读取视口变换。
+s2@82:41	s2	assetStoreState	该值是资产元数据 store 当前状态，用于读取资产集合。
+id2@106:28	id2	assetId	该值是遍历资产元数据时的资产标识。
+a2@143:18	a2	leftCandidate	该值是候选排序比较器左侧的提及候选项。
+b3@143:22	b3	rightCandidate	该值是候选排序比较器右侧的提及候选项。
+e2@328:22	e2	keyEvent	该事件来自键盘导航处理器，用于检查方向键并阻止默认行为。

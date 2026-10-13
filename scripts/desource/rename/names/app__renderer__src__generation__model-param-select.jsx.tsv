@@ -1,0 +1,6 @@
+key	old	new	依据
+t2@36:14	t2	translate	该绑定来自 useTranslation 并用于参数选项标签。
+t2@124:14	t2	translate	该绑定来自 useTranslation 并用于任务标识复制提示。
+e2@132:6	e2	clickEvent	该事件来自复制任务标识按钮并用于阻止冒泡。
+e2@146:25	e2	pointerEvent	该事件来自参数选项 pointerdown 并用于阻止冒泡。
+e2@163:23	e2	pointerEvent	该事件来自参数选项 pointerdown 并用于阻止冒泡。

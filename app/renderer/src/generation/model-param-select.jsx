@@ -33,11 +33,11 @@ export function ModelParamSelect({
   disabled: disabled2,
   disabledOptions,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const labelKey = paramI18nKey(paramKey, definition2.label);
   const fallback = paramLabelFallback(paramKey, definition2.label);
   const label = labelKey
-    ? t2(labelKey, {
+    ? translate(labelKey, {
         defaultValue: fallback,
       })
     : fallback;
@@ -66,11 +66,11 @@ export function ModelParamSelect({
   }
   const getOptionLabel = (option2) => {
     if (option2 === "true")
-      return t2("canvas.params.generateAudio.on", {
+      return translate("canvas.params.generateAudio.on", {
         defaultValue: "有声",
       });
     if (option2 === "false")
-      return t2("canvas.params.generateAudio.off", {
+      return translate("canvas.params.generateAudio.off", {
         defaultValue: "无声",
       });
     return option2;
@@ -121,29 +121,29 @@ export function ProviderTaskIdChip({
   display = "label",
   compact = false,
 }) {
-  const { t: t2 } = useTranslation();
-  const label = t2("canvas.providerTaskId", {
+  const { t: translate } = useTranslation();
+  const label = translate("canvas.providerTaskId", {
     defaultValue: "Task ID",
   });
-  const compactLabel = t2("canvas.copyProviderTaskId", {
+  const compactLabel = translate("canvas.copyProviderTaskId", {
     defaultValue: "Copy ID",
   });
   const handleCopy = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       navigator.clipboard
         .writeText(value)
-        .then(() => dedupedToast.success(t2("fileExplorer.copiedToClipboard")))
-        .catch(() => dedupedToast.error(t2("fileExplorer.copyFailed")));
+        .then(() => dedupedToast.success(translate("fileExplorer.copiedToClipboard")))
+        .catch(() => dedupedToast.error(translate("fileExplorer.copyFailed")));
     },
-    [value, t2],
+    [value, translate],
   );
   if (compact) {
     return (
       <button
         type="button"
         onClick={handleCopy}
-        onPointerDown={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
         title={`${label}: ${value}`}
         aria-label={`${compactLabel}: ${value}`}
         className="pointer-events-auto flex shrink-0 items-center text-[11px] font-light tabular-nums text-muted-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none"
@@ -160,9 +160,9 @@ export function ProviderTaskIdChip({
     <button
       type="button"
       onClick={handleCopy}
-      onPointerDown={(e2) => e2.stopPropagation()}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
       title={`${label}: ${value}`}
-      aria-label={`${t2("canvas.copyContent")} ${label}: ${value}`}
+      aria-label={`${translate("canvas.copyContent")} ${label}: ${value}`}
       className="h-8 max-w-[170px] shrink-0 rounded-[4px] px-2 text-[12px] font-normal leading-[20px] text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)] transition-colors duration-150 flex items-center gap-1 disabled:cursor-default disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-border)]"
       data-action-ui-id="canvas.provider-task-id-copy"
     >

@@ -63,11 +63,11 @@ const PLACEHOLDER_MODEL_I18N_KEYS = {
     fallback: "字幕生成",
   },
 };
-export function translateModelName(model, t2) {
+export function translateModelName(model, translate) {
   if (!model) return model;
   const entry = PLACEHOLDER_MODEL_I18N_KEYS[model];
   if (!entry) return model;
-  return t2(entry.key, {
+  return translate(entry.key, {
     defaultValue: entry.fallback ?? model,
   });
 }
@@ -159,7 +159,7 @@ export function CreditCostBadge({ cost, className, compact = false }) {
   );
 }
 export function RefundHint({ refundStatus, refundedCredits, compact = false }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (!isGenerationRefundStatus(refundStatus)) return null;
   return (
     <span
@@ -174,18 +174,18 @@ export function RefundHint({ refundStatus, refundedCredits, compact = false }) {
       <span className="truncate">
         {refundStatus === "refunded"
           ? refundedCredits && refundedCredits > 0
-            ? t2("canvas.refundHint.refundedWithAmount", {
+            ? translate("canvas.refundHint.refundedWithAmount", {
                 count: refundedCredits,
                 defaultValue: "已退还 {{count}} 积分",
               })
-            : t2("canvas.refundHint.refundedNoAmount", {
+            : translate("canvas.refundHint.refundedNoAmount", {
                 defaultValue: "积分已退还",
               })
           : refundStatus === "pending"
-            ? t2("canvas.refundHint.pending", {
+            ? translate("canvas.refundHint.pending", {
                 defaultValue: "积分退还处理中",
               })
-            : t2("canvas.refundHint.notCharged", {
+            : translate("canvas.refundHint.notCharged", {
                 defaultValue: "未扣款",
               })}
       </span>
@@ -202,19 +202,19 @@ export function MediaUnpreviewableFallback({
   sizeLabel,
   reason = "unsupported",
 }) {
-  const { t: t2 } = useTranslation();
-  const extLabel = extension2 ?? t2("canvas.file.unknownExt", "该");
+  const { t: translate } = useTranslation();
+  const extLabel = extension2 ?? translate("canvas.file.unknownExt", "该");
   const headline =
     reason === "tooLarge"
-      ? t2("canvas.file.unpreviewableTooLarge", "文件过大，暂不支持预览")
+      ? translate("canvas.file.unpreviewableTooLarge", "文件过大，暂不支持预览")
       : reason === "resourceLimit"
-        ? t2(
+        ? translate(
             "canvas.file.unpreviewableResourceLimit",
             "预览数量过多，已暂停内嵌预览",
           )
         : reason === "missing"
-          ? t2("canvas.file.missing", "文件不存在或已被移动")
-          : t2("canvas.file.unpreviewable", "{{ext}} 文件类型无法预览", {
+          ? translate("canvas.file.missing", "文件不存在或已被移动")
+          : translate("canvas.file.unpreviewable", "{{ext}} 文件类型无法预览", {
               ext: extLabel,
             });
   return (
@@ -239,11 +239,11 @@ export function MediaUnpreviewableFallback({
 const ACTION_BUTTON_CLASS =
   "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-foreground/10 bg-foreground/[0.04] px-2.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/[0.08] hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50";
 export function MissingAssetCard({ nodeId, name: name2 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { deleteElements } = useReactFlow();
   const handleDelete2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       void deleteElements({
         nodes: [
           {
@@ -267,14 +267,14 @@ export function MissingAssetCard({ nodeId, name: name2 }) {
           strokeWidth={1.75}
           className="text-muted-foreground"
           role="img"
-          aria-label={t2("canvas.missingAsset.title")}
+          aria-label={translate("canvas.missingAsset.title")}
         />
         <div className="flex max-w-full flex-col items-center gap-1.5">
           <span className="text-[16px] leading-6 font-medium text-foreground">
-            {t2("canvas.missingAsset.title")}
+            {translate("canvas.missingAsset.title")}
           </span>
           <span className="max-w-full line-clamp-2 whitespace-pre-wrap break-words text-center text-xs leading-5 text-muted-foreground">
-            {t2("canvas.missingAsset.description")}
+            {translate("canvas.missingAsset.description")}
           </span>
           {name2 ? (
             <span
@@ -293,7 +293,7 @@ export function MissingAssetCard({ nodeId, name: name2 }) {
             data-action-ui-id="canvas.missing-asset.delete"
           >
             <Trash2 size={14} strokeWidth={1.5} className="size-3.5 shrink-0" />
-            {t2("common.delete")}
+            {translate("common.delete")}
           </button>
         </div>
       </div>

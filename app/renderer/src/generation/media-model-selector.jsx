@@ -139,7 +139,7 @@ const AgentModelRow = reactExports.memo(function AgentModelRow2({
   selected: selected2,
   onSelect,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const description = display?.description;
   const listDescription = display?.listDescription ?? description;
   const metrics = display?.metrics;
@@ -180,7 +180,7 @@ const AgentModelRow = reactExports.memo(function AgentModelRow2({
               data-action-ui-id={`chat-agent-model-membership-${model}`}
               className="inline-flex h-5 shrink-0 items-center rounded-full bg-brand-accent px-2 text-[11px] font-medium leading-none text-brand-accent-foreground"
             >
-              {t2("chat.mediaModels.agent.membership")}
+              {translate("chat.mediaModels.agent.membership")}
             </span>
           ) : null}
         </span>
@@ -223,12 +223,12 @@ const AgentModelRow = reactExports.memo(function AgentModelRow2({
               {visibleMetrics.map(({ key: metric, value }) => (
                 <div key={metric} className="flex items-center gap-2.5">
                   <span className="w-9 shrink-0 text-xs text-muted-foreground">
-                    {t2(`chat.mediaModels.agent.metrics.${metric}`)}
+                    {translate(`chat.mediaModels.agent.metrics.${metric}`)}
                   </span>
                   <span
                     role="img"
                     className="flex w-32 shrink-0 gap-1.5"
-                    aria-label={t2("chat.mediaModels.agent.metricValue", {
+                    aria-label={translate("chat.mediaModels.agent.metricValue", {
                       value,
                       max: 5,
                     })}
@@ -251,10 +251,10 @@ const AgentModelRow = reactExports.memo(function AgentModelRow2({
   );
 });
 function AgentReasoningSelector({ model, selectedId, onSelect }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const choices = [
     {
-      level: t2("chat.mediaModels.agent.reasoningDefault"),
+      level: translate("chat.mediaModels.agent.reasoningDefault"),
       modelId: model.id,
     },
     ...(model.reasoningLevels ?? []),
@@ -262,7 +262,7 @@ function AgentReasoningSelector({ model, selectedId, onSelect }) {
   return (
     <fieldset className="mb-2 ml-14 space-y-1.5 px-2.5">
       <legend className="text-xs text-muted-foreground">
-        {t2("chat.mediaModels.agent.reasoning")}
+        {translate("chat.mediaModels.agent.reasoning")}
       </legend>
       <div className="flex flex-wrap gap-1">
         {choices.map((choice) => (
@@ -456,7 +456,7 @@ function areSelectedMediaModelsEqual(left, right) {
     if (leftIds === void 0 || rightIds === void 0) return leftIds === rightIds;
     if (leftIds.length !== rightIds.length) return false;
     const rightIdSet = new Set(rightIds);
-    return leftIds.every((id2) => rightIdSet.has(id2));
+    return leftIds.every((leftId) => rightIdSet.has(leftId));
   });
 }
 function isMiniMaxH3Model(model) {
@@ -499,7 +499,7 @@ function orderVideoModelsWithMiniMaxH3First(models) {
   const priorityIndexSet = new Set(priorityIndexes);
   return [
     ...priorityIndexes.map((index2) => models[index2]),
-    ...models.filter((_2, index2) => !priorityIndexSet.has(index2)),
+    ...models.filter((_unusedValue, index2) => !priorityIndexSet.has(index2)),
   ];
 }
 function buildMinimumVisibleMediaModelSelection(models) {
@@ -566,59 +566,59 @@ function isAllVisibleMediaModelsSelectedForCategory(
 const MEDIA_MODEL_TABS = ["agent", "video", "image", "audio"];
 const DEFAULT_MEDIA_MODEL_TAB = "agent";
 function pickBrandIcon(model, region = "overseas") {
-  const id2 = model.id.toLowerCase();
+  const modelId = model.id.toLowerCase();
   const series = model.series_id.toLowerCase();
   const name2 = model.display_name.toLowerCase();
-  if (series === "g-image-2" || id2.startsWith("g-image"))
+  if (series === "g-image-2" || modelId.startsWith("g-image"))
     return region === "domestic" ? GeneralImageIcon : GptImageDomesticIcon;
-  if (series === "openai-image" || id2.startsWith("gpt-image"))
+  if (series === "openai-image" || modelId.startsWith("gpt-image"))
     return region === "domestic" ? GeneralImageIcon : GptImageOverseasIcon;
-  if (series === "beta" || id2.startsWith("beta")) return VeoDomesticIcon;
-  if (series === "veo3" || id2.startsWith("veo")) return VeoOverseasIcon;
+  if (series === "beta" || modelId.startsWith("beta")) return VeoDomesticIcon;
+  if (series === "veo3" || modelId.startsWith("veo")) return VeoOverseasIcon;
   if (
     series === "banana" ||
     series === "nano-banana" ||
-    id2.startsWith("banana") ||
-    id2.startsWith("nano_banana")
+    modelId.startsWith("banana") ||
+    modelId.startsWith("nano_banana")
   )
     return region === "domestic" ? GeneralImageIcon : NanoBananaIcon;
-  if (series === "midjourney" || id2.startsWith("midjourney"))
+  if (series === "midjourney" || modelId.startsWith("midjourney"))
     return MidjourneyIcon;
-  if (series === "seedream" || id2.startsWith("doubao-seedream"))
+  if (series === "seedream" || modelId.startsWith("doubao-seedream"))
     return SeedreamIcon;
   if (
     series === "seedance" ||
     series === "seedaudio" ||
-    id2.includes("seedance") ||
-    id2.includes("seed-audio")
+    modelId.includes("seedance") ||
+    modelId.includes("seed-audio")
   )
     return VeoDomesticIcon;
   if (
     series === "kling" ||
     series === "kling-image" ||
-    id2.startsWith("kling") ||
+    modelId.startsWith("kling") ||
     name2.startsWith("kling")
   )
     return KlingIcon;
   if (
     series === "minimax_v3" ||
     series.includes("hailuo03") ||
-    id2.startsWith("minimax-h3") ||
-    id2.startsWith("minimax h3") ||
-    id2.includes("hailuo03") ||
+    modelId.startsWith("minimax-h3") ||
+    modelId.startsWith("minimax h3") ||
+    modelId.includes("hailuo03") ||
     name2.includes("minimax h3") ||
     name2.includes("minimax-h3") ||
     name2.includes("hailuo03")
   )
     return MinimaxIcon;
-  if (id2.startsWith("hilo") || id2.startsWith("hailuo")) return HailuoIcon;
-  if (series === "wan" || id2.startsWith("wan")) return WanIcon;
+  if (modelId.startsWith("hilo") || modelId.startsWith("hailuo")) return HailuoIcon;
+  if (series === "wan" || modelId.startsWith("wan")) return WanIcon;
   if (
     series === "minimax" ||
     series === "official-speech" ||
     series === "official-music" ||
-    id2.startsWith("speech") ||
-    id2.startsWith("music")
+    modelId.startsWith("speech") ||
+    modelId.startsWith("music")
   )
     return MinimaxIcon;
   return null;
@@ -697,9 +697,9 @@ function getInitialDraft(current2) {
   if (current2?.audio !== void 0) draft.audio = [...current2.audio];
   return draft;
 }
-function localizedCategoryLabel(cat, t2) {
-  if (cat === "agent") return t2("chat.mediaModels.tabs.agent");
-  return t2(`chat.mediaModels.tabs.${cat}`);
+function localizedCategoryLabel(cat, translate) {
+  if (cat === "agent") return translate("chat.mediaModels.tabs.agent");
+  return translate(`chat.mediaModels.tabs.${cat}`);
 }
 const ModelSubtitleRow = reactExports.memo(function ModelSubtitleRow2({
   subtitle,
@@ -780,18 +780,18 @@ const ModelRow = reactExports.memo(function ModelRow2({
   checked,
   onToggle,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const subtitle = buildModelSubtitle(model);
   const promotion = model.promotion;
   const isNewModel = isMiniMaxH3Model(model);
   const promotionTagLabel = promotion?.toastTitle?.trim();
   const modelHoverDescription = isMiniMaxH3MaxModel(model)
     ? model.id.toLowerCase().includes("h3-max-turbo")
-      ? t2("canvas.minimaxH3MaxTurbo.hoverDescription", {
+      ? translate("canvas.minimaxH3MaxTurbo.hoverDescription", {
           defaultValue:
             "H3 Max Turbo supports text-to-video and image-to-video, but not omnireference.",
         })
-      : t2("canvas.minimaxH3Max.hoverDescription", {
+      : translate("canvas.minimaxH3Max.hoverDescription", {
           defaultValue:
             "H3 Max is a video generation model post-trained by fal.ai on MiniMax H3 and optimized for high-speed generation. It supports omnireference, text-to-video, and image-to-video.",
         })
@@ -826,7 +826,7 @@ const ModelRow = reactExports.memo(function ModelRow2({
               data-action-ui-id="chat-model-new-tag"
               className="shrink-0 rounded-md bg-foreground px-1.5 py-0.5 text-[11px] font-medium leading-none text-background"
             >
-              {t2("canvas.modelNew", {
+              {translate("canvas.modelNew", {
                 defaultValue: "New",
               })}
             </span>
@@ -842,7 +842,7 @@ const ModelRow = reactExports.memo(function ModelRow2({
           )}
           {model.hot && (
             <span className="shrink-0 px-1 py-0.5 rounded-sm bg-badge-hot-bg text-badge-hot-fg text-[10px] font-heading font-medium leading-none">
-              {t2("chat.mediaModels.hot")}
+              {translate("chat.mediaModels.hot")}
             </span>
           )}
         </span>
@@ -878,7 +878,7 @@ export function MediaModelSelector({
   onCommit,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const platform2 = usePlatform();
   const { openSettings } = useSettingsDialog();
   const agentModelMembership = useAgentModelMembershipAccess();
@@ -991,7 +991,7 @@ export function MediaModelSelector({
   const modelTabOptions = reactExports.useMemo(
     () =>
       MEDIA_MODEL_TABS.map((tab2) => {
-        const categoryLabel = localizedCategoryLabel(tab2, t2);
+        const categoryLabel = localizedCategoryLabel(tab2, translate);
         if (tab2 === "agent" || isPending || isError) {
           return {
             value: tab2,
@@ -1007,7 +1007,7 @@ export function MediaModelSelector({
         );
         return {
           value: tab2,
-          ariaLabel: t2("chat.mediaModels.tabs.selectionCount", {
+          ariaLabel: translate("chat.mediaModels.tabs.selectionCount", {
             category: categoryLabel,
             count: count2,
           }),
@@ -1022,7 +1022,7 @@ export function MediaModelSelector({
           dataActionUiId: `chat-model-tab-${tab2}`,
         };
       }),
-    [draft, isError, isPending, t2, visibleMediaModels],
+    [draft, isError, isPending, translate, visibleMediaModels],
   );
   const handleRememberForNewChatsChange = reactExports.useCallback(
     (checked) => {
@@ -1116,15 +1116,15 @@ export function MediaModelSelector({
   }, [open, anchorRef, placement]);
   reactExports.useEffect(() => {
     if (!open) return;
-    const onDocPointerDown = (e2) => {
-      const target = e2.target;
+    const onDocPointerDown = (pointerEvent) => {
+      const target = pointerEvent.target;
       if (!target) return;
       if (popoverRef.current?.contains(target)) return;
       if (anchorRef.current?.contains(target)) return;
       handleClose();
     };
-    const onKeyDown = (e2) => {
-      if (e2.key === "Escape") {
+    const onKeyDown = (keyEvent) => {
+      if (keyEvent.key === "Escape") {
         handleClose();
       }
     };
@@ -1138,7 +1138,7 @@ export function MediaModelSelector({
   const tabModels = reactExports.useMemo(() => {
     if (!activeMediaCategory) return [];
     const models = visibleMediaModels.filter(
-      (m3) => m3.type === activeMediaCategory,
+      (candidateModel) => candidateModel.type === activeMediaCategory,
     );
     if (activeMediaCategory !== "video") return models;
     return orderVideoModelsWithMiniMaxH3First(models);
@@ -1147,23 +1147,23 @@ export function MediaModelSelector({
     (category, modelId) => {
       setDraft((prev) => {
         const visibleModelsInCategory = visibleMediaModels.filter(
-          (m3) => m3.type === category,
+          (checkedModel) => checkedModel.type === category,
         );
-        const visibleIdsInCat = visibleModelsInCategory.map((m3) => m3.id);
+        const visibleIdsInCat = visibleModelsInCategory.map((visibleModel) => visibleModel.id);
         if (visibleIdsInCat.length === 0) return prev;
         const currentChecked = visibleModelsInCategory
           .filter((model) => isVisibleMediaModelSelected(prev, model))
           .map((model) => model.id);
         const next2 = currentChecked.includes(modelId)
-          ? currentChecked.filter((id2) => id2 !== modelId)
+          ? currentChecked.filter((checkedModelId) => checkedModelId !== modelId)
           : [...currentChecked, modelId];
         if (next2.length === 0) {
-          dedupedToast.info(t2("chat.mediaModels.hint.atLeastOne"));
+          dedupedToast.info(translate("chat.mediaModels.hint.atLeastOne"));
           return prev;
         }
         const allVisibleChecked =
           next2.length === visibleIdsInCat.length &&
-          visibleIdsInCat.every((id2) => next2.includes(id2));
+          visibleIdsInCat.every((modelId) => next2.includes(modelId));
         if (allVisibleChecked) {
           return {
             ...prev,
@@ -1176,7 +1176,7 @@ export function MediaModelSelector({
         };
       });
     },
-    [visibleMediaModels, t2],
+    [visibleMediaModels, translate],
   );
   const selectAllInActiveTab = reactExports.useCallback(() => {
     if (!activeMediaCategory) return;
@@ -1186,7 +1186,7 @@ export function MediaModelSelector({
   }, [activeMediaCategory]);
   const clearAllInActiveTab = reactExports.useCallback(() => {
     if (!activeMediaCategory) return;
-    dedupedToast.info(t2("chat.mediaModels.hint.keptFirst"));
+    dedupedToast.info(translate("chat.mediaModels.hint.keptFirst"));
     setDraft((previous2) =>
       selectMinimumVisibleMediaModelForCategory(
         previous2,
@@ -1194,7 +1194,7 @@ export function MediaModelSelector({
         visibleMediaModels,
       ),
     );
-  }, [activeMediaCategory, visibleMediaModels, t2]);
+  }, [activeMediaCategory, visibleMediaModels, translate]);
   const allSelected =
     activeMediaCategory !== null &&
     isAllVisibleMediaModelsSelectedForCategory(
@@ -1228,7 +1228,7 @@ export function MediaModelSelector({
             inert={!open}
             aria-hidden={!open || void 0}
             role="dialog"
-            aria-label={t2("chat.mediaModels.title")}
+            aria-label={translate("chat.mediaModels.title")}
             style={{
               position: "fixed",
               left: position22.left,
@@ -1241,14 +1241,14 @@ export function MediaModelSelector({
             className={`dp-motion-quick-zoom elevated-surface-border bg-popover rounded-xl shadow-lg flex flex-col p-1.5 overflow-hidden ${position22.placement === "below" ? "[--dp-quick-zoom-origin:top]" : "[--dp-quick-zoom-origin:bottom]"}`}
           >
             <CapabilityPopoverHeader
-              title={t2("chat.mediaModels.title")}
-              description={t2("chat.mediaModels.selectionDescription")}
+              title={translate("chat.mediaModels.title")}
+              description={translate("chat.mediaModels.selectionDescription")}
               trailing={false}
             />
             <SegmentedSwitch
               value={activeTab}
               onValueChange={setActiveTab}
-              ariaLabel={t2("chat.mediaModels.title")}
+              ariaLabel={translate("chat.mediaModels.title")}
               dataActionUiId="chat-model-tabs"
               thumbDataSlot="chat-model-tabs-thumb"
               variant="label"
@@ -1267,7 +1267,7 @@ export function MediaModelSelector({
                 )}
                 {agentModels.isError && (
                   <div className="flex flex-col items-center gap-2 px-2 py-6 text-xs text-destructive">
-                    <span>{t2("chat.mediaModels.loadFailed")}</span>
+                    <span>{translate("chat.mediaModels.loadFailed")}</span>
                     <button
                       type="button"
                       data-action-ui-id="chat-agent-model-retry"
@@ -1275,7 +1275,7 @@ export function MediaModelSelector({
                       onClick={() => void agentModels.refetch()}
                       className="rounded-md px-2 py-1 text-foreground/70 hover:bg-muted disabled:opacity-50"
                     >
-                      {t2("common.retry")}
+                      {translate("common.retry")}
                     </button>
                   </div>
                 )}
@@ -1283,7 +1283,7 @@ export function MediaModelSelector({
                   !agentModels.isError &&
                   !agentModels.data?.models.length && (
                     <div className="px-2 py-6 text-center text-xs text-muted-foreground">
-                      {t2("chat.mediaModels.empty")}
+                      {translate("chat.mediaModels.empty")}
                     </div>
                   )}
                 {!agentModels.isError &&
@@ -1307,14 +1307,14 @@ export function MediaModelSelector({
                             model,
                             selectedAgentModel,
                           )}
-                          onSelect={(id2) =>
+                          onSelect={(modelId) =>
                             handleAgentModelSelect(
                               agentModelMatchesSelection(
                                 model,
                                 selectedAgentModel,
                               )
-                                ? (selectedAgentModel ?? id2)
-                                : id2,
+                                ? (selectedAgentModel ?? modelId)
+                                : modelId,
                             )
                           }
                         />
@@ -1337,10 +1337,10 @@ export function MediaModelSelector({
               <>
                 <div className="flex h-7 shrink-0 items-center justify-between px-2">
                   <span className="text-[11px] font-medium leading-4 text-muted-foreground">
-                    {t2("chat.mediaModels.generationModels")}
+                    {translate("chat.mediaModels.generationModels")}
                   </span>
                   <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                    <span>{t2("chat.mediaModels.selectAll")}</span>
+                    <span>{translate("chat.mediaModels.selectAll")}</span>
                     <Switch
                       checked={allSelected}
                       onCheckedChange={(checked) =>
@@ -1359,7 +1359,7 @@ export function MediaModelSelector({
                   )}
                   {!isPending && isError && (
                     <div className="flex flex-col items-center gap-2 px-2 py-6 text-center text-xs text-destructive">
-                      <span>{t2("chat.mediaModels.loadFailed")}</span>
+                      <span>{translate("chat.mediaModels.loadFailed")}</span>
                       <button
                         type="button"
                         data-action-ui-id="chat-model-registry-retry"
@@ -1367,13 +1367,13 @@ export function MediaModelSelector({
                         onClick={() => void refetch()}
                         className="rounded-md px-2 py-1 text-foreground/70 hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {t2("common.retry")}
+                        {translate("common.retry")}
                       </button>
                     </div>
                   )}
                   {!isPending && !isError && tabModels.length === 0 && (
                     <div className="px-2 py-6 text-center text-xs text-muted-foreground">
-                      {t2("chat.mediaModels.empty")}
+                      {translate("chat.mediaModels.empty")}
                     </div>
                   )}
                   {!isPending &&
@@ -1402,7 +1402,7 @@ export function MediaModelSelector({
                   data-action-ui-id="chat-model-remember-default"
                   size="sm"
                 />
-                <span>{t2("chat.mediaModels.scope.currentAndFuture")}</span>
+                <span>{translate("chat.mediaModels.scope.currentAndFuture")}</span>
               </label>
               <button
                 type="button"
@@ -1410,7 +1410,7 @@ export function MediaModelSelector({
                 data-action-ui-id="chat-model-pricing"
                 className="inline-flex items-center gap-0.5 rounded-md py-1 pl-1.5 pr-1 text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
               >
-                {t2("chat.mediaModels.pricing")}
+                {translate("chat.mediaModels.pricing")}
                 <Icon icon={ArrowUpRight} size="sm" strokeWidth={2} />
               </button>
             </div>
