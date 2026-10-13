@@ -14,18 +14,18 @@ import {
   reactDomExports,
   reactExports,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
-function fromDef(def) {
+function fromDef(definition) {
   return {
-    labelKey: def.labelKey,
-    mac: resolveShortcutDisplay(def.mac, "darwin").tokens.map(
-      (token2) => token2.label,
+    labelKey: definition.labelKey,
+    mac: resolveShortcutDisplay(definition.mac, "darwin").tokens.map(
+      (token) => token.label,
     ),
-    win: resolveShortcutDisplay(def.other, "win32").tokens.map(
-      (token2) => token2.label,
+    win: resolveShortcutDisplay(definition.other, "win32").tokens.map(
+      (token) => token.label,
     ),
   };
 }
@@ -178,29 +178,29 @@ const SHORTCUT_CATEGORIES = [
 const ITEMS_PER_COLUMN = 5;
 function chunkIntoColumns(items, perColumn) {
   const columns = [];
-  for (let i2 = 0; i2 < items.length; i2 += perColumn) {
-    columns.push(items.slice(i2, i2 + perColumn));
+  for (let startIndex = 0; startIndex < items.length; startIndex += perColumn) {
+    columns.push(items.slice(startIndex, startIndex + perColumn));
   }
   return columns;
 }
-function ShortcutRow({ item, isMac: isMac2 }) {
-  const { t: t2 } = useTranslation();
-  const keys2 = isMac2 ? item.mac : item.win;
+function ShortcutRow({ item, isMac }) {
+  const { t: translate } = useTranslation();
+  const keys = isMac ? item.mac : item.win;
   return (
     <div className="group flex cursor-default items-center justify-between gap-4 rounded-sm px-2 py-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-      <span className="truncate text-xs">{t2(item.labelKey)}</span>
+      <span className="truncate text-xs">{translate(item.labelKey)}</span>
       <KbdGroup>
-        {keys2.map((key2) => (
+        {keys.map((key) => (
           // 同一条快捷键内键位互不重复，label+key 组合即唯一
-          <ShortcutKeycap key={`${item.labelKey}-${key2}`} token={key2} />
+          <ShortcutKeycap key={`${item.labelKey}-${key}`} token={key} />
         ))}
       </KbdGroup>
     </div>
   );
 }
 export function ShortcutsPanel({ open, onOpenChange }) {
-  const { t: t2 } = useTranslation();
-  const isMac2 = isMacPlatform();
+  const { t: translate } = useTranslation();
+  const isMac = isMacPlatform();
   const [activeTab, setActiveTab] = reactExports.useState(
     SHORTCUT_CATEGORIES[0]?.id ?? "global",
   );
@@ -208,8 +208,8 @@ export function ShortcutsPanel({ open, onOpenChange }) {
   reactExports.useEffect(() => setMounted(true), []);
   reactExports.useEffect(() => {
     if (!open) return;
-    const onKeyDown = (e2) => {
-      if (e2.key === "Escape") onOpenChange(false);
+    const onKeyDown = (keyEvent) => {
+      if (keyEvent.key === "Escape") onOpenChange(false);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -232,19 +232,19 @@ export function ShortcutsPanel({ open, onOpenChange }) {
     >
       <Tabs
         value={activeTab}
-        onValueChange={(v2) => setActiveTab(v2)}
+        onValueChange={(nextTabValue) => setActiveTab(nextTabValue)}
         className="h-full gap-0"
       >
         <div className="relative flex h-8 shrink-0 justify-center border-b border-border [border-bottom-width:var(--divider-width)]">
           <TabsList className="h-full gap-6! rounded-lg! bg-transparent! p-0!">
-            {SHORTCUT_CATEGORIES.map((cat) => (
+            {SHORTCUT_CATEGORIES.map((category) => (
               <TabsTrigger
-                key={cat.id}
-                value={cat.id}
+                key={category.id}
+                value={category.id}
                 className="h-full rounded-none! border-b border-transparent bg-transparent! px-1 py-0 text-xs text-muted-foreground shadow-none! transition-colors hover:text-foreground data-active:border-foreground data-active:font-medium data-active:text-foreground [border-bottom-width:var(--divider-width)]"
-                data-action-ui-id={`shortcuts.panel.tab.${cat.id}`}
+                data-action-ui-id={`shortcuts.panel.tab.${category.id}`}
               >
-                {t2(cat.labelKey)}
+                {translate(category.labelKey)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -252,30 +252,30 @@ export function ShortcutsPanel({ open, onOpenChange }) {
             variant="ghost"
             size="icon-sm"
             onClick={() => onOpenChange(false)}
-            aria-label={t2("common.close")}
+            aria-label={translate("common.close")}
             data-action-ui-id="shortcuts.panel.close"
             className="absolute inset-y-0 right-3 my-auto"
           >
-            <X />
+            <CloseIcon />
           </Button>
         </div>
-        {SHORTCUT_CATEGORIES.map((cat) => (
+        {SHORTCUT_CATEGORIES.map((category) => (
           <TabsContent
-            key={cat.id}
-            value={cat.id}
+            key={category.id}
+            value={category.id}
             className="min-h-0 flex-1 overflow-x-auto overflow-y-hidden px-4 py-3"
           >
             <div className="flex h-full justify-center divide-x-[var(--divider-width)] divide-border">
-              {chunkIntoColumns(cat.items, ITEMS_PER_COLUMN).map((column) => (
+              {chunkIntoColumns(category.items, ITEMS_PER_COLUMN).map((column) => (
                 <div
-                  key={column.map((i2) => i2.labelKey).join("|")}
+                  key={column.map((shortcutItem) => shortcutItem.labelKey).join("|")}
                   className="w-52 shrink-0 px-3"
                 >
                   {column.map((item) => (
                     <ShortcutRow
                       key={item.labelKey}
                       item={item}
-                      isMac={isMac2}
+                      isMac={isMac}
                     />
                   ))}
                 </div>

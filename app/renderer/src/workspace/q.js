@@ -1,17 +1,17 @@
 // q.js
 import {
-  A,
-  c2,
-  f,
-  g,
-  h,
+  A as countDoubleAsteriskMarkers,
+  c2 as isInsideMarkdownCode,
+  f as isInsideInlineCode,
+  g as isWordCharacter,
+  h as isInsideMath,
 } from "./build-inspiration-media-showcase-collections.js";
-import { d, U } from "../vendor.js";
-var In = (n2, r2) => {
-  for (let e2 = r2; e2 < n2.length; e2 += 1) {
-    if (n2[e2] === ")") return true;
+import { d as onlyWhitespaceOrMarkdownMarkersPattern, U as trailingUnderscorePattern } from "../vendor.js";
+var hasClosingParenBeforeLineBreak = (text, position) => {
+  for (let scanIndex = position; scanIndex < text.length; scanIndex += 1) {
+    if (text[scanIndex] === ")") return true;
     if (
-      n2[e2] ===
+      text[scanIndex] ===
       `
 `
     )
@@ -19,13 +19,13 @@ var In = (n2, r2) => {
   }
   return false;
 };
-var m2 = (n2, r2) => {
-  for (let e2 = r2 - 1; e2 >= 0; e2 -= 1) {
-    if (n2[e2] === ")") return false;
-    if (n2[e2] === "(")
-      return e2 > 0 && n2[e2 - 1] === "]" ? In(n2, r2) : false;
+var isInsideMarkdownLinkDestination = (text, position) => {
+  for (let scanIndex = position - 1; scanIndex >= 0; scanIndex -= 1) {
+    if (text[scanIndex] === ")") return false;
+    if (text[scanIndex] === "(")
+      return scanIndex > 0 && text[scanIndex - 1] === "]" ? hasClosingParenBeforeLineBreak(text, position) : false;
     if (
-      n2[e2] ===
+      text[scanIndex] ===
       `
 `
     )
@@ -33,15 +33,15 @@ var m2 = (n2, r2) => {
   }
   return false;
 };
-var z2 = (n2, r2) => {
-  for (let e2 = r2 - 1; e2 >= 0; e2 -= 1) {
-    if (n2[e2] === ">") return false;
-    if (n2[e2] === "<") {
-      let i2 = e2 + 1 < n2.length ? n2[e2 + 1] : "";
-      return (i2 >= "a" && i2 <= "z") || (i2 >= "A" && i2 <= "Z") || i2 === "/";
+var isInsideAngleBracketTag = (text, position) => {
+  for (let scanIndex = position - 1; scanIndex >= 0; scanIndex -= 1) {
+    if (text[scanIndex] === ">") return false;
+    if (text[scanIndex] === "<") {
+      let tagStartCharacter = scanIndex + 1 < text.length ? text[scanIndex + 1] : "";
+      return (tagStartCharacter >= "a" && tagStartCharacter <= "z") || (tagStartCharacter >= "A" && tagStartCharacter <= "Z") || tagStartCharacter === "/";
     }
     if (
-      n2[e2] ===
+      text[scanIndex] ===
       `
 `
     )
@@ -49,100 +49,100 @@ var z2 = (n2, r2) => {
   }
   return false;
 };
-var bn = (n2, r2, e2, i2) =>
+var isUnderscoreExcludedFromEmphasis = (text, position, previousCharacter, nextCharacter) =>
   !!(
-    e2 === "\\" ||
-    (n2.includes("$") && h(n2, r2)) ||
-    m2(n2, r2) ||
-    z2(n2, r2) ||
-    e2 === "_" ||
-    i2 === "_" ||
-    (e2 && i2 && g(e2) && g(i2))
+    previousCharacter === "\\" ||
+    (text.includes("$") && isInsideMath(text, position)) ||
+    isInsideMarkdownLinkDestination(text, position) ||
+    isInsideAngleBracketTag(text, position) ||
+    previousCharacter === "_" ||
+    nextCharacter === "_" ||
+    (previousCharacter && nextCharacter && isWordCharacter(previousCharacter) && isWordCharacter(nextCharacter))
   );
-var Tn = (n2) => {
-  let r2 = 0,
-    e2 = false,
-    i2 = n2.length;
-  for (let s2 = 0; s2 < i2; s2 += 1) {
+var countValidUnderscoreDelimiters = (text) => {
+  let delimiterCount = 0,
+    insideFencedCode = false,
+    textLength = text.length;
+  for (let scanIndex = 0; scanIndex < textLength; scanIndex += 1) {
     if (
-      n2[s2] === "`" &&
-      s2 + 2 < i2 &&
-      n2[s2 + 1] === "`" &&
-      n2[s2 + 2] === "`"
+      text[scanIndex] === "`" &&
+      scanIndex + 2 < textLength &&
+      text[scanIndex + 1] === "`" &&
+      text[scanIndex + 2] === "`"
     ) {
-      ((e2 = !e2), (s2 += 2));
+      ((insideFencedCode = !insideFencedCode), (scanIndex += 2));
       continue;
     }
-    if (e2 || n2[s2] !== "_") continue;
-    let o2 = s2 > 0 ? n2[s2 - 1] : "",
-      t2 = s2 < i2 - 1 ? n2[s2 + 1] : "";
-    bn(n2, s2, o2, t2) || (r2 += 1);
+    if (insideFencedCode || text[scanIndex] !== "_") continue;
+    let previousCharacter = scanIndex > 0 ? text[scanIndex - 1] : "",
+      nextCharacter = scanIndex < textLength - 1 ? text[scanIndex + 1] : "";
+    isUnderscoreExcludedFromEmphasis(text, scanIndex, previousCharacter, nextCharacter) || (delimiterCount += 1);
   }
-  return r2;
+  return delimiterCount;
 };
-var q = (n2) => {
-  let r2 = false;
-  for (let e2 = 0; e2 < n2.length; e2 += 1) {
+var findOpeningUnderscoreDelimiter = (text) => {
+  let insideFencedCode = false;
+  for (let scanIndex = 0; scanIndex < text.length; scanIndex += 1) {
     if (
-      n2[e2] === "`" &&
-      e2 + 2 < n2.length &&
-      n2[e2 + 1] === "`" &&
-      n2[e2 + 2] === "`"
+      text[scanIndex] === "`" &&
+      scanIndex + 2 < text.length &&
+      text[scanIndex + 1] === "`" &&
+      text[scanIndex + 2] === "`"
     ) {
-      ((r2 = !r2), (e2 += 2));
+      ((insideFencedCode = !insideFencedCode), (scanIndex += 2));
       continue;
     }
     if (
-      !r2 &&
-      n2[e2] === "_" &&
-      n2[e2 - 1] !== "_" &&
-      n2[e2 + 1] !== "_" &&
-      n2[e2 - 1] !== "\\" &&
-      !h(n2, e2) &&
-      !m2(n2, e2)
+      !insideFencedCode &&
+      text[scanIndex] === "_" &&
+      text[scanIndex - 1] !== "_" &&
+      text[scanIndex + 1] !== "_" &&
+      text[scanIndex - 1] !== "\\" &&
+      !isInsideMath(text, scanIndex) &&
+      !isInsideMarkdownLinkDestination(text, scanIndex)
     ) {
-      let i2 = e2 > 0 ? n2[e2 - 1] : "",
-        s2 = e2 < n2.length - 1 ? n2[e2 + 1] : "";
-      if (i2 && s2 && g(i2) && g(s2)) continue;
-      return e2;
+      let previousCharacter = scanIndex > 0 ? text[scanIndex - 1] : "",
+        nextCharacter = scanIndex < text.length - 1 ? text[scanIndex + 1] : "";
+      if (previousCharacter && nextCharacter && isWordCharacter(previousCharacter) && isWordCharacter(nextCharacter)) continue;
+      return scanIndex;
     }
   }
   return -1;
 };
-var _n = (n2) => {
-  let r2 = n2.length;
+var appendClosingUnderscore = (text) => {
+  let endIndex = text.length;
   for (
     ;
-    r2 > 0 &&
-    n2[r2 - 1] ===
+    endIndex > 0 &&
+    text[endIndex - 1] ===
       `
 `;
   )
-    r2 -= 1;
-  if (r2 < n2.length) {
-    let e2 = n2.slice(0, r2),
-      i2 = n2.slice(r2);
-    return `${e2}_${i2}`;
+    endIndex -= 1;
+  if (endIndex < text.length) {
+    let textBeforeTrailingNewlines = text.slice(0, endIndex),
+      trailingNewlines = text.slice(endIndex);
+    return `${textBeforeTrailingNewlines}_${trailingNewlines}`;
   }
-  return `${n2}_`;
+  return `${text}_`;
 };
-var Pn = (n2) => {
-  if (!n2.endsWith("**")) return null;
-  let r2 = n2.slice(0, -2);
-  if (A(r2) % 2 !== 1) return null;
-  let i2 = r2.indexOf("**"),
-    s2 = q(r2);
-  return i2 !== -1 && s2 !== -1 && i2 < s2 ? `${r2}_**` : null;
+var appendUnderscoreBeforeTrailingAsterisks = (text) => {
+  if (!text.endsWith("**")) return null;
+  let textWithoutTrailingAsterisks = text.slice(0, -2);
+  if (countDoubleAsteriskMarkers(textWithoutTrailingAsterisks) % 2 !== 1) return null;
+  let doubleAsteriskIndex = textWithoutTrailingAsterisks.indexOf("**"),
+    underscoreIndex = findOpeningUnderscoreDelimiter(textWithoutTrailingAsterisks);
+  return doubleAsteriskIndex !== -1 && underscoreIndex !== -1 && doubleAsteriskIndex < underscoreIndex ? `${textWithoutTrailingAsterisks}_**` : null;
 };
-export var J2 = (n2) => {
-  if (!n2.match(U)) return n2;
-  let e2 = q(n2);
-  if (e2 === -1) return n2;
-  let i2 = n2.substring(e2 + 1);
-  if (!i2 || d.test(i2) || c2(n2, e2) || f(n2, e2)) return n2;
-  if (Tn(n2) % 2 === 1) {
-    let o2 = Pn(n2);
-    return o2 !== null ? o2 : _n(n2);
+export var J2 = (text) => {
+  if (!text.match(trailingUnderscorePattern)) return text;
+  let openingUnderscoreIndex = findOpeningUnderscoreDelimiter(text);
+  if (openingUnderscoreIndex === -1) return text;
+  let trailingText = text.substring(openingUnderscoreIndex + 1);
+  if (!trailingText || onlyWhitespaceOrMarkdownMarkersPattern.test(trailingText) || isInsideMarkdownCode(text, openingUnderscoreIndex) || isInsideInlineCode(text, openingUnderscoreIndex)) return text;
+  if (countValidUnderscoreDelimiters(text) % 2 === 1) {
+    let repairedText = appendUnderscoreBeforeTrailingAsterisks(text);
+    return repairedText !== null ? repairedText : appendClosingUnderscore(text);
   }
-  return n2;
+  return text;
 };

@@ -1,0 +1,12 @@
+key	old	new	依据
+bytes2@23:39	bytes2	bytes	去掉打包器防重名追加的后缀，恢复原名 bytes，即该绑定持有的值。
+entries2@6:33	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+found2@10:13	found2	found	去掉打包器防重名追加的后缀，恢复原名 found，即该绑定持有的值。
+i2@27:7	i2	unitIndex	文件大小单位数组中的当前索引。
+mm@19:9	mm	minutes	总秒数换算出的分钟数。
+mode2@64:45	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+n2@26:7	n2	scaledBytes	按 1024 单位换算后的文件大小数值。
+path2@6:43	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+queryClient2@81:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+selection2@56:9	selection2	selection	去掉打包器防重名追加的后缀，恢复原名 selection，即该绑定持有的值。
+ss2@20:9	ss2	remainingSeconds	换算分钟后余下的秒数。

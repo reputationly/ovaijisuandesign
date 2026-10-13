@@ -50,13 +50,13 @@ const SCENE_ASSET_URLS_OVERSEAS = {
     "https://cdn.hailuoai.video/open-hailuo-video-web/public_assets/aed35ca0-2075-4037-9129-e56ba0dd611f.png",
 };
 
-function urlFor(name2) {
+function urlFor(sceneAssetName) {
   let region = "domestic";
   try {
     region = getRuntimeConfig().region;
   } catch {}
-  const overseasUrl = SCENE_ASSET_URLS_OVERSEAS[name2];
-  const domesticUrl = SCENE_ASSET_URLS_DOMESTIC[name2];
+  const overseasUrl = SCENE_ASSET_URLS_OVERSEAS[sceneAssetName];
+  const domesticUrl = SCENE_ASSET_URLS_DOMESTIC[sceneAssetName];
   const picked =
     region === "overseas" ? overseasUrl || domesticUrl : domesticUrl;
   return picked && picked.length > 0 ? picked : void 0;
@@ -292,8 +292,8 @@ const DEFAULT_HOME_FEATURED_SKILLS = [
 ];
 
 function buildDefaultCategories() {
-  const scenes = DEFAULT_SCENE_IDS.flatMap((id2) => {
-    const scene = SCENE_CATEGORIES.find((candidate) => candidate.id === id2);
+  const scenes = DEFAULT_SCENE_IDS.flatMap((id) => {
+    const scene = SCENE_CATEGORIES.find((candidate) => candidate.id === id);
     if (!scene) return [];
     return [
       {

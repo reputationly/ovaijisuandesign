@@ -1,0 +1,19 @@
+key	old	new	依据
+Input3@31:10	Input3	Input	来自 select-content 模块的带图标输入框组件。
+isImage2@370:9	isImage2	isImage	去掉打包器防重名追加的后缀，恢复原名 isImage，即该绑定持有的值。
+message2@214:13	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+name2@51:10	name2	assetFileName	保存到项目资产对话框中用户输入的目标资产文件名。
+node2@178:15	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+option2@138:25	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+option2@199:27	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+pending2@56:10	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+previous2@184:21	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@198:21	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@441:53	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+project2@46:9	project2	project	从项目列表中读取或展示的项目对象。
+rel@113:33	rel	relativePath	项目资产目录中的相对文件夹路径。
+rel@197:15	rel	relativePath	项目资产目录中的相对文件夹路径。
+selected2@137:9	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+service2@47:9	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。
+state2@43:52	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+t2@44:14	t2	translate	useTranslation 返回的翻译函数。

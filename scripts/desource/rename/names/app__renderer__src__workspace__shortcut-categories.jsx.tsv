@@ -1,0 +1,17 @@
+key	old	new	依据
+cat@240:39	cat	category	快捷键分类及其条目集合。
+cat@262:35	cat	category	快捷键分类及其条目集合。
+def@21:18	def	definition	快捷键定义对象，包含平台按键及标签键。
+e2@211:24	e2	keyEvent	快捷键面板收到的键盘事件。
+i2@181:12	i2	startIndex	当前分列切片的起始数组索引。
+i2@271:36	i2	shortcutItem	当前快捷键条目。
+isMac2@186:37	isMac2	isMac	去掉打包器防重名追加的后缀，恢复原名 isMac，即该绑定持有的值。
+isMac2@203:9	isMac2	isMac	去掉打包器防重名追加的后缀，恢复原名 isMac，即该绑定持有的值。
+key2@193:21	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+keys2@188:9	keys2	keys	去掉打包器防重名追加的后缀，恢复原名 keys，即该绑定持有的值。
+t2@187:14	t2	translate	useTranslation 返回的翻译函数。
+t2@202:14	t2	translate	useTranslation 返回的翻译函数。
+token2@25:8	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+token2@28:8	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+v2@235:25	v2	nextTabValue	Tabs 组件即将切换到的标签值。
+X@17:10	X	CloseIcon	来自 vendor 的关闭图标组件。

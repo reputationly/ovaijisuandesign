@@ -1,0 +1,32 @@
+key	old	new	依据
+c3@654:20	c3	retryCount	当前工作区重试次数的更新器参数。
+e2@627:36	e2	workspaceEntry	与当前工作区 ID 对应的运行时目录条目。
+entries2@626:60	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+errorMessage2@352:9	errorMessage2	errorMessage	错误对应的展示文本。
+hiloApp2@464:11	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+hiloApp2@588:13	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+hiloApp2@623:11	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+hiloApp2@656:13	hiloApp2	hiloApp	去掉打包器防重名追加的后缀，恢复原名 hiloApp，即该绑定持有的值。
+isActive2@39:44	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@398:13	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+isActive2@59:15	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+key2@526:34	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@672:28	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@681:28	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+message2@227:33	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+message2@45:3	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+next2@496:17	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@591:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@660:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+runtime2@471:58	runtime2	runtime	去掉打包器防重名追加的后缀，恢复原名 runtime，即该绑定持有的值。
+t2@345:20	t2	translate	useTranslation 返回的翻译函数。
+t2@414:14	t2	translate	useTranslation 返回的翻译函数。
+url2@182:9	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+view2@130:20	view2	view	去掉打包器防重名追加的后缀，恢复原名 view，即该绑定持有的值。
+view2@695:11	view2	view	去掉打包器防重名追加的后缀，恢复原名 view，即该绑定持有的值。
+workspaceId2@213:44	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId2@247:38	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId2@33:46	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId2@397:16	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId2@43:3	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
+workspaceId2@58:18	workspaceId2	workspaceId	CanvasSidebarOverlay 接收的工作区标识，用于关联当前画布侧栏状态。
