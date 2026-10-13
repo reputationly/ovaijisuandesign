@@ -1,0 +1,6 @@
+key	new	依据
+ctx@15:11	decoderContext	视频帧缓存返回的解码上下文，提供素材源时长和画面尺寸。
+dpr@38:11	pixelScale	用于把逻辑缩略图高度换算成物理像素的屏幕像素比例。
+ctx@50:11	decoderContext	视频帧缓存返回的解码上下文，提供源时长上限和视频轨道。
+img@103:15	imageBitmap	由解码画布创建并存入缩略图帧的 ImageBitmap。
+now@108:15	flushTimeMs	当前 performance 时间戳，用于限制缩略图更新通知频率。
