@@ -88,7 +88,7 @@ const FILE_KIND_FILTERS = [
   },
 ];
 function buildMentionThumbUrl(
-  gatewayUrl2,
+  gatewayUrl,
   kind,
   workspaceRelativePath,
   displayWidth,
@@ -99,13 +99,13 @@ function buildMentionThumbUrl(
     .map(encodeURIComponent)
     .join("/");
   const prefix = kind === "image" ? "/files/" : "/api/thumbnail/";
-  const base2 = gatewayUrl2(`${prefix}${encoded}`);
-  return withThumbnail(base2, displayWidth);
+  const base = gatewayUrl(`${prefix}${encoded}`);
+  return withThumbnail(base, displayWidth);
 }
-const MentionThumb = reactExports.memo(function MentionThumb2({ item }) {
-  const gatewayUrl2 = useGatewayUrl();
-  const url2 = buildMentionThumbUrl(
-    gatewayUrl2,
+const MentionThumb = reactExports.memo(function MentionThumb({ item }) {
+  const gatewayUrl = useGatewayUrl();
+  const url = buildMentionThumbUrl(
+    gatewayUrl,
     item.kind,
     item.path,
     THUMB_PX,
@@ -113,13 +113,13 @@ const MentionThumb = reactExports.memo(function MentionThumb2({ item }) {
   const [errored, setErrored] = reactExports.useState(false);
   const wrapperCls =
     "flex-shrink-0 flex items-center justify-center rounded-sm bg-muted/40 overflow-hidden";
-  const wrapperStyle2 = {
+  const wrapperStyle = {
     width: THUMB_PX,
     height: THUMB_PX,
   };
-  if (!url2 || errored) {
+  if (!url || errored) {
     return (
-      <span className={wrapperCls} style={wrapperStyle2}>
+      <span className={wrapperCls} style={wrapperStyle}>
         {(item.kind === "image" ||
           item.kind === "video" ||
           item.kind === "audio") &&
@@ -143,9 +143,9 @@ const MentionThumb = reactExports.memo(function MentionThumb2({ item }) {
     );
   }
   return (
-    <span className={wrapperCls} style={wrapperStyle2}>
+    <span className={wrapperCls} style={wrapperStyle}>
       <img
-        src={url2}
+        src={url}
         alt=""
         loading="lazy"
         decoding="async"
@@ -157,23 +157,23 @@ const MentionThumb = reactExports.memo(function MentionThumb2({ item }) {
   );
 });
 MentionThumb.displayName = "MentionThumb";
-const ModelIcon = reactExports.memo(function ModelIcon2({ model }) {
+const ModelIcon = reactExports.memo(function ModelIcon({ model }) {
   const [errored, setErrored] = reactExports.useState(false);
   const wrapperCls =
     "flex-shrink-0 flex items-center justify-center rounded-sm bg-muted/40 overflow-hidden";
-  const wrapperStyle2 = {
+  const wrapperStyle = {
     width: THUMB_PX,
     height: THUMB_PX,
   };
   if (!model.iconUrl || errored) {
     return (
-      <span className={wrapperCls} style={wrapperStyle2}>
+      <span className={wrapperCls} style={wrapperStyle}>
         <ModelTypeIcon mediaType={model.mediaType} />
       </span>
     );
   }
   return (
-    <span className={wrapperCls} style={wrapperStyle2}>
+    <span className={wrapperCls} style={wrapperStyle}>
       <img
         src={model.iconUrl}
         alt=""
@@ -187,25 +187,25 @@ const ModelIcon = reactExports.memo(function ModelIcon2({ model }) {
   );
 });
 ModelIcon.displayName = "ModelIcon";
-function EmptyState({ text: text2 }) {
+function EmptyState({ text }) {
   return (
     <PageStateBoundary
       empty={true}
       density="compact"
       emptyOptions={{
-        text: text2,
+        text,
       }}
     />
   );
 }
-const MentionFileRow = reactExports.memo(function MentionFileRow2({
+const MentionFileRow = reactExports.memo(function MentionFileRow({
   item,
   gi: globalIndex,
-  isActive: isActive2,
+  isActive,
   onSelect,
   onHover,
 }) {
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     () => onSelect(item),
     [onSelect, item],
   );
@@ -218,10 +218,10 @@ const MentionFileRow = reactExports.memo(function MentionFileRow2({
       id={`mention-opt-${globalIndex}`}
       type="button"
       role="option"
-      aria-selected={isActive2}
+      aria-selected={isActive}
       data-action-ui-id={`mention-opt-${globalIndex}`}
-      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive2 ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
-      onClick={handleClick2}
+      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
+      onClick={handleClick}
       onMouseEnter={handleHover}
     >
       <MentionThumb item={item.file} />
@@ -232,15 +232,15 @@ const MentionFileRow = reactExports.memo(function MentionFileRow2({
   );
 });
 MentionFileRow.displayName = "MentionFileRow";
-const MentionModelRow = reactExports.memo(function MentionModelRow2({
+const MentionModelRow = reactExports.memo(function MentionModelRow({
   item,
   gi: globalIndex,
-  isActive: isActive2,
+  isActive,
   isSearching,
   onSelect,
   onHover,
 }) {
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     () => onSelect(item),
     [onSelect, item],
   );
@@ -253,10 +253,10 @@ const MentionModelRow = reactExports.memo(function MentionModelRow2({
       id={`mention-opt-${globalIndex}`}
       type="button"
       role="option"
-      aria-selected={isActive2}
+      aria-selected={isActive}
       data-action-ui-id={`mention-opt-${globalIndex}`}
-      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive2 ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
-      onClick={handleClick2}
+      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
+      onClick={handleClick}
       onMouseEnter={handleHover}
     >
       <ModelIcon model={item.model} />
@@ -272,14 +272,14 @@ const MentionModelRow = reactExports.memo(function MentionModelRow2({
   );
 });
 MentionModelRow.displayName = "MentionModelRow";
-const MentionConnectorRow = reactExports.memo(function MentionConnectorRow2({
+const MentionConnectorRow = reactExports.memo(function MentionConnectorRow({
   item,
   gi: globalIndex,
-  isActive: isActive2,
+  isActive,
   onSelect,
   onHover,
 }) {
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     () => onSelect(item),
     [onSelect, item],
   );
@@ -292,10 +292,10 @@ const MentionConnectorRow = reactExports.memo(function MentionConnectorRow2({
       id={`mention-opt-${globalIndex}`}
       type="button"
       role="option"
-      aria-selected={isActive2}
+      aria-selected={isActive}
       data-action-ui-id={`mention-connector-${item.connector.serverName}`}
-      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive2 ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
-      onClick={handleClick2}
+      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
+      onClick={handleClick}
       onMouseEnter={handleHover}
     >
       <ConnectorIcon iconUrl={item.connector.iconUrl} size="list" />
@@ -306,15 +306,15 @@ const MentionConnectorRow = reactExports.memo(function MentionConnectorRow2({
   );
 });
 MentionConnectorRow.displayName = "MentionConnectorRow";
-const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow2({
+const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow({
   item,
   gi: globalIndex,
-  isActive: isActive2,
+  isActive,
   onSelect,
   onHover,
 }) {
   const { t: translate } = useTranslation();
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     () => onSelect(item),
     [onSelect, item],
   );
@@ -337,10 +337,10 @@ const MentionWorkflowRow = reactExports.memo(function MentionWorkflowRow2({
       id={`mention-opt-${globalIndex}`}
       type="button"
       role="option"
-      aria-selected={isActive2}
+      aria-selected={isActive}
       data-action-ui-id={`mention-workflow-${item.canvasNodeId ?? item.workflow.id}`}
-      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive2 ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
-      onClick={handleClick2}
+      className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors ${isActive ? "bg-popup-item-active text-foreground" : "hover:bg-popup-item-hover"}`}
+      onClick={handleClick}
       onMouseEnter={handleHover}
     >
       <span className="flex size-6 shrink-0 items-center justify-center rounded-sm bg-muted/40">
@@ -386,7 +386,7 @@ export function MentionPopover({
   hideAssetMention = false,
   showCurrentCanvasWorkflowTab = true,
   onClose,
-  position: position2 = "up",
+  position = "up",
   anchorRef,
 }) {
   const { t: translate } = useTranslation();
@@ -421,7 +421,7 @@ export function MentionPopover({
       const mediaType = modelEntry.model.mediaType;
       if (mediaType === "image" || mediaType === "video" || mediaType === "audio") tabs.add(mediaType);
     }
-    const order2 = ["image", "video", "audio"];
+    const order = ["image", "video", "audio"];
     return {
       referenceItems: references,
       connectorItems: connectors,
@@ -429,7 +429,7 @@ export function MentionPopover({
       fileItems: files,
       projectAssetItems: projectAssets,
       workflowItems: workflows,
-      availableTabs: order2.filter((mediaTab) => tabs.has(mediaTab)),
+      availableTabs: order.filter((mediaTab) => tabs.has(mediaTab)),
     };
   }, [items]);
   const isSearching = query.length > 0;
@@ -462,51 +462,51 @@ export function MentionPopover({
       tabSyncMountedRef.current = true;
       return;
     }
-    const current2 = items[activeIndex];
-    if (!current2) return;
-    if (current2.category === "reference") setActiveTab("references");
-    else if (current2.category === "connector") setActiveTab("connectors");
-    else if (current2.category === "file") setActiveTab("files");
-    else if (current2.category === "project-asset")
+    const current = items[activeIndex];
+    if (!current) return;
+    if (current.category === "reference") setActiveTab("references");
+    else if (current.category === "connector") setActiveTab("connectors");
+    else if (current.category === "file") setActiveTab("files");
+    else if (current.category === "project-asset")
       setActiveTab("project-assets");
-    else if (current2.category === "workflow") setActiveTab("workflows");
-    else if (current2.category === "model") setActiveTab("models");
+    else if (current.category === "workflow") setActiveTab("workflows");
+    else if (current.category === "model") setActiveTab("models");
   }, [activeIndex]);
   reactExports.useEffect(() => {
     if (!isSearching) return;
-    const current2 = items[activeIndex] ?? items[0];
-    if (!current2) return;
-    if (current2.category === "reference") setActiveTab("references");
-    else if (current2.category === "connector") setActiveTab("connectors");
-    else if (current2.category === "file") setActiveTab("files");
-    else if (current2.category === "project-asset")
+    const current = items[activeIndex] ?? items[0];
+    if (!current) return;
+    if (current.category === "reference") setActiveTab("references");
+    else if (current.category === "connector") setActiveTab("connectors");
+    else if (current.category === "file") setActiveTab("files");
+    else if (current.category === "project-asset")
       setActiveTab("project-assets");
-    else if (current2.category === "workflow") setActiveTab("workflows");
-    else if (current2.category === "model") setActiveTab("models");
+    else if (current.category === "workflow") setActiveTab("workflows");
+    else if (current.category === "model") setActiveTab("models");
   }, [activeIndex, isSearching, items]);
   reactExports.useEffect(() => {
     if (isSearching) return;
-    const active2 = items[activeIndex];
-    if (active2?.category !== "model") return;
-    const mediaType = active2.model.mediaType;
+    const active = items[activeIndex];
+    if (active?.category !== "model") return;
+    const mediaType = active.model.mediaType;
     if (mediaType === "image" || mediaType === "video" || mediaType === "audio") {
       if (mediaType !== modelTab) setModelTab(mediaType);
     }
   }, [activeIndex]);
   const handleTabClick = reactExports.useCallback(
-    (tab2) => {
-      setActiveTab(tab2);
-      if (tab2 === "assets") return;
+    (tab) => {
+      setActiveTab(tab);
+      if (tab === "assets") return;
       const target =
-        tab2 === "references"
+        tab === "references"
           ? "reference"
-          : tab2 === "connectors"
+          : tab === "connectors"
             ? "connector"
-            : tab2 === "files"
+            : tab === "files"
               ? "file"
-              : tab2 === "project-assets"
+              : tab === "project-assets"
                 ? "project-asset"
-                : tab2 === "workflows"
+                : tab === "workflows"
                   ? "workflow"
                   : "model";
       const categoryIndex = items.findIndex((item) => item.category === target);
@@ -547,11 +547,11 @@ export function MentionPopover({
     workflowScopeTab,
   ]);
   const globalIndexMap = reactExports.useMemo(() => {
-    const map3 = new Map();
+    const map = new Map();
     for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
-      map3.set(items[itemIndex], itemIndex);
+      map.set(items[itemIndex], itemIndex);
     }
-    return map3;
+    return map;
   }, [items]);
   const handleWorkflowScopeTabChange = reactExports.useCallback(
     (value) => {
@@ -562,8 +562,8 @@ export function MentionPopover({
           ? currentCanvasWorkflowItems[0]
           : localWorkflowItems[0];
       if (!firstItem) return;
-      const index2 = items.indexOf(firstItem);
-      if (index2 >= 0) onHover(index2);
+      const index = items.indexOf(firstItem);
+      if (index >= 0) onHover(index);
     },
     [currentCanvasWorkflowItems, items, localWorkflowItems, onHover],
   );
@@ -598,7 +598,7 @@ export function MentionPopover({
     const anchor = anchorRef.current;
     const popover = listRef.current;
     if (!anchor || !popover) return;
-    const update2 = () => {
+    const update = () => {
       const anchorRect = anchor.getBoundingClientRect();
       const inputRoot = anchor.closest("[data-message-input-root]");
       const inputRect = inputRoot?.getBoundingClientRect() ?? anchorRect;
@@ -616,11 +616,11 @@ export function MentionPopover({
       popover.style.zIndex = String(MESSAGE_INPUT_POPOVER_Z_INDEX);
       popover.style.left = `${left}px`;
       let availableHeight;
-      if (position2 === "down") {
-        const top2 = inputRect.bottom + HOME_POPOVER_GAP;
-        popover.style.top = `${top2}px`;
+      if (position === "down") {
+        const popoverTop = inputRect.bottom + HOME_POPOVER_GAP;
+        popover.style.top = `${popoverTop}px`;
         popover.style.bottom = "";
-        availableHeight = window.innerHeight - top2 - VIEWPORT_GAP;
+        availableHeight = window.innerHeight - popoverTop - VIEWPORT_GAP;
       } else {
         const bottom = window.innerHeight - anchorRect.top + 4;
         popover.style.bottom = `${bottom}px`;
@@ -636,14 +636,14 @@ export function MentionPopover({
       }
       popover.style.visibility = "visible";
     };
-    update2();
-    window.addEventListener("scroll", update2, true);
-    window.addEventListener("resize", update2);
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
     return () => {
-      window.removeEventListener("scroll", update2, true);
-      window.removeEventListener("resize", update2);
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
     };
-  }, [anchorRef, position2]);
+  }, [anchorRef, position]);
   const renderFileButton = (item) => {
     const globalIndex = globalIndexMap.get(item) ?? 0;
     return (
@@ -683,20 +683,20 @@ export function MentionPopover({
       </div>
       <div className="flex overflow-x-auto border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.filter(
-          (tab2) =>
+          (tab) =>
             !(
               hideAssetMention &&
-              (tab2.key === "assets" || tab2.key === "project-assets")
+              (tab.key === "assets" || tab.key === "project-assets")
             ),
-        ).map(({ key: key2, labelKey, fallback }) => {
-          const isActive2 = activeTab === key2;
+        ).map(({ key, labelKey, fallback }) => {
+          const isActive = activeTab === key;
           return (
             <button
-              key={key2}
+              key={key}
               type="button"
-              data-action-ui-id={`mention-tab-${key2}`}
-              onClick={() => handleTabClick(key2)}
-              className={`flex-1 shrink-0 whitespace-nowrap px-3 py-2 text-xs transition-colors ${isActive2 ? "text-foreground border-b-2 border-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              data-action-ui-id={`mention-tab-${key}`}
+              onClick={() => handleTabClick(key)}
+              className={`flex-1 shrink-0 whitespace-nowrap px-3 py-2 text-xs transition-colors ${isActive ? "text-foreground border-b-2 border-foreground" : "text-muted-foreground hover:text-foreground"}`}
             >
               {translate(labelKey, fallback)}
             </button>
@@ -857,22 +857,22 @@ export function MentionPopover({
           <div className="flex-1 flex flex-col min-h-0">
             {!isSearching && availableTabs.length > 0 && (
               <div className="shrink-0 px-3 py-2 flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {availableTabs.map((tab2) => (
+                {availableTabs.map((tab) => (
                   <Button
-                    key={tab2}
+                    key={tab}
                     type="button"
-                    variant={modelTab === tab2 ? "default" : "ghost"}
+                    variant={modelTab === tab ? "default" : "ghost"}
                     size="xs"
-                    data-action-ui-id={`mention-model-tab-${tab2}`}
+                    data-action-ui-id={`mention-model-tab-${tab}`}
                     className={mergeClassNames(
                       "shrink-0 whitespace-nowrap rounded-sm",
-                      modelTab === tab2
+                      modelTab === tab
                         ? ""
                         : "bg-muted text-muted-foreground hover:bg-muted/80",
                     )}
-                    onClick={() => setModelTab(tab2)}
+                    onClick={() => setModelTab(tab)}
                   >
-                    {translate(`mention.popover.${tab2}`, tab2)}
+                    {translate(`mention.popover.${tab}`, tab)}
                   </Button>
                 ))}
               </div>

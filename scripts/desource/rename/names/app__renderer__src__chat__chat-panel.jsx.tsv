@@ -27,3 +27,34 @@ e2@1733:61	dragEvent	`dragEvent` 是聊天面板拖动经过处理器接收的�
 e2@1748:62	dragEvent	`dragEvent` 是聊天面板拖离处理器接收的拖放事件。
 e2@1759:6	dragEvent	`dragEvent` 是聊天面板放置处理器接收的拖放事件。
 err@1789:21	error	`error` 是实体物化失败后记录的异常。
+workspaceId2@147:9	workspaceId	`workspaceId` 是此处持有的工作区标识，末尾数字是打包器为避免重名添加的后缀。
+selected2@152:9	selected	`selected` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@170:15	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+state2@158:8	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+preparing2@244:6	preparing	`preparing` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+snapshot2@351:6	snapshot	`snapshot` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+current2@357:13	current	`current` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@358:13	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+mode2@602:6	mode	`mode` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@616:6	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+ids2@636:11	ids	`ids` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+seq2@855:13	seq	`seq` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+first2@1050:11	first	`first` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+node2@1052:11	node	`node` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages22@1073:14	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+content2@1099:6	content	`content` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@1138:7	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+index2@1218:17	index	`index` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@1347:11	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+transition2@1392:11	transition	`transition` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+content2@1454:11	content	`content` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@1581:6	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@1588:12	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+text2@1656:12	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+name2@1676:34	pluginName	`pluginName` 是插件节点事件提供的名称，避免与全局 `name` 冲突。
+name2@1712:26	entityName	`entityName` 是实体事件提供的名称，避免与全局 `name` 冲突。
+type2@1712:39	type	`type` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+types2@1741:11	types	`types` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+raw2@1795:13	raw	`raw` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+data2@1799:15	data	`data` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@1938:12	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。

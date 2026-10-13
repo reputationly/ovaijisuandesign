@@ -26,3 +26,40 @@ m3@868:33	message	`message` 是待按 ID 检查是否仍存在的任意消息。
 m3@871:42	message	`message` 是待按 ID 从会话历史中移除的任意消息。
 id2@1009:54	sessionId	`sessionId` 是待检查是否仍存在于新会话映射中的打开标签标识。
 id2@1011:53	sessionId	`sessionId` 是待保留在打开标签顺序中的会话标识。
+ids2@14:9	ids	`ids` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@31:9	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@47:22	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+seen2@59:11	seen	`seen` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+message2@48:16	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+message2@61:16	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+name2@117:31	sessionName	`sessionName` 是用于判断是否为默认会话名的字符串，避免与全局 `name` 冲突。
+info2@121:33	info	`info` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+info2@128:39	info	`info` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+info2@140:41	info	`info` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@202:12	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@208:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+order2@216:22	order	`order` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+name2@271:5	sessionName	`sessionName` 是新建会话时传入的名称，避免与全局 `name` 冲突。
+displayName2@275:5	displayName	`displayName` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@281:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@330:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@367:28	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@387:5	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+messages2@459:5	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+focus2@464:5	shouldFocus	`shouldFocus` 表示应用快照后是否聚焦该会话，避免与全局 `focus` 冲突。
+hasSelectedMediaModelsSnapshot2@468:11	hasSelectedMediaModelsSnapshot	`hasSelectedMediaModelsSnapshot` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@482:13	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@538:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+candidates2@580:11	candidates	`candidates` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+pending2@586:13	pending	`pending` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+running2@588:13	running	`running` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@709:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+messages2@769:30	messages	`messages` 是此处持有的聊天消息集合，末尾数字是打包器为避免重名添加的后缀。
+message2@784:10	message	`message` 是此处持有的聊天消息记录，末尾数字是打包器为避免重名添加的后缀。
+name2@881:28	sessionName	`sessionName` 是重命名会话时传入的新名称，避免与全局 `name` 冲突。
+displayName2@903:36	displayName	`displayName` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@906:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@949:11	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+info2@957:16	info	`info` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+update2@1050:23	update	`update` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+update2@1065:30	update	`update` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。

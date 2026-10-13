@@ -30,8 +30,8 @@ import { CoachMark } from "../assets/use-materialized-entities.jsx";
 import { useWorkspacePaneReorder } from "./use-browser-chat-media.jsx";
 import { SessionHistory } from "./session-history.jsx";
 function useSessionCostVisible(session) {
-  const { data: data2 } = usePricingConfig();
-  const statsSince = data2?.sessionStatsSinceMs;
+  const { data } = usePricingConfig();
+  const statsSince = data?.sessionStatsSinceMs;
   if (statsSince === void 0) return false;
   const createdAt = Date.parse(session.created_at);
   if (!Number.isFinite(createdAt)) return false;
@@ -53,38 +53,38 @@ const VIDEO_TYPES = new Set(["video"]);
 const AUDIO_TYPES = new Set(["audio", "music"]);
 const AGENT_TYPES = new Set(["agent"]);
 function bucketSessionCost(cost) {
-  let image2 = 0;
+  let image = 0;
   let video = 0;
   let audio = 0;
-  let agent2 = 0;
+  let agent = 0;
   for (const item of cost.items) {
-    if (IMAGE_TYPES.has(item.mediaType)) image2 += item.amount;
+    if (IMAGE_TYPES.has(item.mediaType)) image += item.amount;
     else if (VIDEO_TYPES.has(item.mediaType)) video += item.amount;
     else if (AUDIO_TYPES.has(item.mediaType)) audio += item.amount;
-    else if (AGENT_TYPES.has(item.mediaType)) agent2 += item.amount;
+    else if (AGENT_TYPES.has(item.mediaType)) agent += item.amount;
   }
-  const other = cost.totalAmount - image2 - video - audio - agent2;
+  const other = cost.totalAmount - image - video - audio - agent;
   return {
-    image: image2,
+    image,
     video,
     audio,
-    agent: agent2,
+    agent,
     other: Math.max(0, other),
     total: cost.totalAmount,
   };
 }
 const ALWAYS_VISIBLE = ["image", "video", "audio"];
 const CONDITIONAL = ["agent", "other"];
-function visibleCostCategories(buckets2) {
-  const rows = ALWAYS_VISIBLE.map((key2) => ({
-    key: key2,
-    amount: buckets2[key2],
+function visibleCostCategories(buckets) {
+  const rows = ALWAYS_VISIBLE.map((key) => ({
+    key,
+    amount: buckets[key],
   }));
-  for (const key2 of CONDITIONAL) {
-    if (buckets2[key2] > 0)
+  for (const key of CONDITIONAL) {
+    if (buckets[key] > 0)
       rows.push({
-        key: key2,
-        amount: buckets2[key2],
+        key,
+        amount: buckets[key],
       });
   }
   return rows;
@@ -97,16 +97,16 @@ function toNumber(value) {
   }
   return 0;
 }
-function mapResult(raw2) {
-  if (typeof raw2 !== "object" || raw2 === null)
+function mapResult(raw) {
+  if (typeof raw !== "object" || raw === null)
     return {
       totalAmount: 0,
       items: [],
     };
-  const record2 = raw2;
-  const rawItems = Array.isArray(record2.items) ? record2.items : [];
+  const record = raw;
+  const rawItems = Array.isArray(record.items) ? record.items : [];
   return {
-    totalAmount: toNumber(record2.total_amount),
+    totalAmount: toNumber(record.total_amount),
     items: rawItems.flatMap((entry) => {
       if (typeof entry !== "object" || entry === null) return [];
       const item = entry;
@@ -123,10 +123,10 @@ function mapResult(raw2) {
   };
 }
 const SESSION_COST_CHUNK_SIZE = 500;
-function chunk(items, size2) {
+function chunk(items, size) {
   const chunks = [];
-  for (let startIndex = 0; startIndex < items.length; startIndex += size2)
-    chunks.push(items.slice(startIndex, startIndex + size2));
+  for (let startIndex = 0; startIndex < items.length; startIndex += size)
+    chunks.push(items.slice(startIndex, startIndex + size));
   return chunks;
 }
 function mergeSessionCosts(parts) {
@@ -160,9 +160,9 @@ async function fetchSessionCostChunk(sessionIds, signal) {
     }),
     signal,
   });
-  const raw2 = await response.json();
+  const raw = await response.json();
   signal?.throwIfAborted();
-  return mapResult(raw2);
+  return mapResult(raw);
 }
 async function fetchSessionCost(sessionIds, options) {
   if (sessionIds.length === 0)
@@ -172,7 +172,7 @@ async function fetchSessionCost(sessionIds, options) {
     };
   const batches = chunk(sessionIds, SESSION_COST_CHUNK_SIZE);
   const parts = await Promise.all(
-    batches.map((batch2) => fetchSessionCostChunk(batch2, options?.signal)),
+    batches.map((batch) => fetchSessionCostChunk(batch, options?.signal)),
   );
   return mergeSessionCosts(parts);
 }
@@ -191,7 +191,7 @@ function requestSessionTree(webSocketConnection, sessionId, signal) {
     const finish = (settle) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timer2);
+      clearTimeout(timer);
       unsubscribe();
       signal?.removeEventListener("abort", onAbort);
       settle();
@@ -208,7 +208,7 @@ function requestSessionTree(webSocketConnection, sessionId, signal) {
         finish(() => resolve(message.session_ids));
       }
     });
-    const timer2 = setTimeout(() => {
+    const timer = setTimeout(() => {
       finish(() =>
         reject(new Error(`session tree request timed out for ${sessionId}`)),
       );
@@ -260,7 +260,7 @@ function useSessionCost(session, enabled) {
 }
 const OPEN_DELAY_MS = 400;
 const CLOSE_DELAY_MS = 120;
-function CostBreakdown({ buckets: buckets2 }) {
+function CostBreakdown({ buckets }) {
   const { t: translate } = useTranslation();
   const labels = {
     image: translate("session.cost.image", "Image"),
@@ -269,7 +269,7 @@ function CostBreakdown({ buckets: buckets2 }) {
     agent: translate("session.cost.agent", "Agent"),
     other: translate("session.cost.other", "Other"),
   };
-  const rows = visibleCostCategories(buckets2);
+  const rows = visibleCostCategories(buckets);
   return (
     <div className="flex flex-col gap-1.5">
       {rows.map((costRow) => (
@@ -286,58 +286,58 @@ function CostBreakdown({ buckets: buckets2 }) {
           {translate("session.cost.total", "Total")}
         </span>
         <span className="tabular-nums font-medium text-foreground">
-          {buckets2.total}
+          {buckets.total}
         </span>
       </div>
     </div>
   );
 }
-function SessionCostPopover({ session, children: children2 }) {
+function SessionCostPopover({ session, children }) {
   const { t: translate } = useTranslation();
   const [hovering, setHovering] = reactExports.useState(false);
   const timerRef = reactExports.useRef(null);
   const visible = useSessionCostVisible(session);
-  const state2 = useSessionCost(session, hovering && visible);
-  const clearTimer2 = reactExports.useCallback(() => {
+  const state = useSessionCost(session, hovering && visible);
+  const clearTimer = reactExports.useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
   }, []);
-  const schedule2 = reactExports.useCallback(
-    (next2, delay) => {
-      clearTimer2();
-      timerRef.current = setTimeout(() => setHovering(next2), delay);
+  const schedule = reactExports.useCallback(
+    (next, delay) => {
+      clearTimer();
+      timerRef.current = setTimeout(() => setHovering(next), delay);
     },
-    [clearTimer2],
+    [clearTimer],
   );
-  reactExports.useEffect(() => clearTimer2, [clearTimer2]);
-  if (!visible) return <>{children2}</>;
-  const hasContent2 =
-    state2.status === "error" ||
-    (state2.status === "ready" && state2.buckets.total > 0);
+  reactExports.useEffect(() => clearTimer, [clearTimer]);
+  if (!visible) return <>{children}</>;
+  const hasContent =
+    state.status === "error" ||
+    (state.status === "ready" && state.buckets.total > 0);
   return (
     <Popover
-      open={hovering && hasContent2}
+      open={hovering && hasContent}
       onOpenChange={() => {
-        clearTimer2();
+        clearTimer();
         setHovering(false);
       }}
     >
       <PopoverTrigger
-        render={children2}
+        render={children}
         nativeButton={false}
         aria-haspopup="dialog"
-        onMouseEnter={() => schedule2(true, OPEN_DELAY_MS)}
-        onMouseLeave={() => schedule2(false, CLOSE_DELAY_MS)}
+        onMouseEnter={() => schedule(true, OPEN_DELAY_MS)}
+        onMouseLeave={() => schedule(false, CLOSE_DELAY_MS)}
       />
       <PopoverContent
         side="bottom"
         align="start"
         sideOffset={6}
         className="w-[200px] p-3"
-        onMouseEnter={clearTimer2}
-        onMouseLeave={() => schedule2(false, CLOSE_DELAY_MS)}
+        onMouseEnter={clearTimer}
+        onMouseLeave={() => schedule(false, CLOSE_DELAY_MS)}
       >
         <div className="mb-2 border-b border-border pb-2">
           <div className="text-sm font-medium text-foreground">
@@ -350,8 +350,8 @@ function SessionCostPopover({ session, children: children2 }) {
             )}
           </div>
         </div>
-        {state2.status === "ready" ? (
-          <CostBreakdown buckets={state2.buckets} />
+        {state.status === "ready" ? (
+          <CostBreakdown buckets={state.buckets} />
         ) : (
           <div className="text-[13px] text-muted-foreground">
             {translate("session.cost.unavailable", "Temporarily unavailable")}
@@ -361,9 +361,9 @@ function SessionCostPopover({ session, children: children2 }) {
     </Popover>
   );
 }
-function TabStatusBadge({ status, active: active2 }) {
+function TabStatusBadge({ status, active }) {
   const { t: translate } = useTranslation();
-  if (active2) return null;
+  if (active) return null;
   switch (status.kind) {
     case "needs-user-action": {
       const needsAnswer = status.action === "answer";
@@ -417,9 +417,9 @@ function TabStatusBadge({ status, active: active2 }) {
       return null;
   }
 }
-const SessionTab = reactExports.memo(function SessionTab2({
+const SessionTab = reactExports.memo(function SessionTab({
   session,
-  active: active2,
+  active,
   status,
   hideClose = false,
   onActivate,
@@ -434,17 +434,17 @@ const SessionTab = reactExports.memo(function SessionTab2({
     onClose(session.id);
   };
   const handleActivate = () => {
-    if (!active2) onActivate(session.id);
+    if (!active) onActivate(session.id);
   };
   const handleRenameConfirm = reactExports.useCallback(
-    (name2) => {
-      const trimmed = name2.trim();
+    (newTitle) => {
+      const trimmed = newTitle.trim();
       if (trimmed && trimmed !== title) onRename(session.id, trimmed);
       setRenaming(false);
     },
     [onRename, session.id, title],
   );
-  const handleMouseDown2 = (mouseEvent) => {
+  const handleMouseDown = (mouseEvent) => {
     if (mouseEvent.button === 1 && !hideClose) {
       mouseEvent.preventDefault();
       onClose(session.id);
@@ -458,7 +458,7 @@ const SessionTab = reactExports.memo(function SessionTab2({
           data-window-drag-region="no-drag"
           className={mergeClassNames(
             "no-drag group/tab relative flex h-7 w-full cursor-pointer select-none items-center rounded-md px-2 transition-colors duration-150 ease-out",
-            active2
+            active
               ? "bg-foreground/[0.08] text-foreground"
               : "bg-transparent text-foreground/55 hover:bg-foreground/[0.05] hover:text-foreground",
           )}
@@ -477,10 +477,10 @@ const SessionTab = reactExports.memo(function SessionTab2({
             <button
               type="button"
               role="tab"
-              aria-selected={active2}
-              tabIndex={active2 ? 0 : -1}
+              aria-selected={active}
+              tabIndex={active ? 0 : -1}
               onClick={handleActivate}
-              onMouseDown={handleMouseDown2}
+              onMouseDown={handleMouseDown}
               onDoubleClick={(event) => {
                 event.stopPropagation();
                 setRenaming(true);
@@ -489,7 +489,7 @@ const SessionTab = reactExports.memo(function SessionTab2({
                 "flex h-full min-w-0 flex-1 cursor-pointer items-center gap-1.5 text-left transition-colors",
                 hideClose
                   ? "pr-0"
-                  : active2
+                  : active
                     ? "pr-5"
                     : "pr-0 group-hover/tab:pr-5",
               )}
@@ -501,14 +501,14 @@ const SessionTab = reactExports.memo(function SessionTab2({
               >
                 {title}
               </span>
-              {!active2 && status.kind !== "idle" && (
+              {!active && status.kind !== "idle" && (
                 <span
                   className={mergeClassNames(
                     "flex shrink-0 items-center",
                     "group-hover/tab:hidden",
                   )}
                 >
-                  <TabStatusBadge status={status} active={active2} />
+                  <TabStatusBadge status={status} active={active} />
                 </span>
               )}
             </button>
@@ -528,7 +528,7 @@ const SessionTab = reactExports.memo(function SessionTab2({
                       "text-foreground/40 hover:bg-foreground/10 hover:text-foreground",
                       hideClose && "hidden",
                       !hideClose &&
-                        (active2
+                        (active
                           ? "flex opacity-100"
                           : "hidden opacity-0 group-hover/tab:flex group-hover/tab:opacity-100 focus-visible:flex focus-visible:opacity-100"),
                     )}
@@ -563,7 +563,7 @@ function isDocumentForeground() {
 }
 function SessionCostCoachMark({
   session,
-  running: running2,
+  running,
   isPresented,
   anchorRef,
 }) {
@@ -577,7 +577,7 @@ function SessionCostCoachMark({
     Array.isArray(dismissedMarks) &&
     dismissedMarks.includes(MARK_ID);
   const canCheckCost = dismissedMarksHydrated && !markAlreadySeen;
-  const wasRunningRef = reactExports.useRef(running2);
+  const wasRunningRef = reactExports.useRef(running);
   const completionTimerRef = reactExports.useRef(null);
   const [documentForeground, setDocumentForeground] =
     reactExports.useState(isDocumentForeground);
@@ -600,11 +600,11 @@ function SessionCostCoachMark({
       completionTimerRef.current = null;
     }
     if (!isPresented) {
-      wasRunningRef.current = running2;
+      wasRunningRef.current = running;
       setShouldCheckCost(false);
       return;
     }
-    if (running2) {
+    if (running) {
       wasRunningRef.current = true;
       setShouldCheckCost(false);
       return;
@@ -633,7 +633,7 @@ function SessionCostCoachMark({
     documentForeground,
     isPresented,
     markAlreadySeen,
-    running2,
+    running,
     visible,
   ]);
   const cost = useSessionCost(
@@ -700,37 +700,37 @@ function nodeEditSessionTitle(session, translate, agentTitle) {
   return sessionDisplayName(session, translate);
 }
 function nodeEditTitleIcon(agentTitle) {
-  const identity2 = agentTitle.toLocaleLowerCase();
-  if (identity2.includes("director") || identity2.includes("导演"))
+  const identity = agentTitle.toLocaleLowerCase();
+  if (identity.includes("director") || identity.includes("导演"))
     return Clapperboard;
   if (
-    identity2.includes("dialogue") ||
-    identity2.includes("script") ||
-    identity2.includes("台词")
+    identity.includes("dialogue") ||
+    identity.includes("script") ||
+    identity.includes("台词")
   ) {
     return MessageSquareQuote;
   }
   if (
-    identity2.includes("editing") ||
-    identity2.includes("editor") ||
-    identity2.includes("剪辑")
+    identity.includes("editing") ||
+    identity.includes("editor") ||
+    identity.includes("剪辑")
   ) {
     return Scissors;
   }
   if (
-    identity2.includes("summary") ||
-    identity2.includes("brief") ||
-    identity2.includes("简介")
+    identity.includes("summary") ||
+    identity.includes("brief") ||
+    identity.includes("简介")
   ) {
     return NotebookPen;
   }
   return PencilRuler;
 }
 function snapshotStatuses(store, openedTabOrder) {
-  const state2 = store.getState();
+  const state = store.getState();
   const statusBySessionId = new Map();
   for (const sessionId of openedTabOrder) {
-    const sessionState = state2.sessions.get(sessionId);
+    const sessionState = state.sessions.get(sessionId);
     if (!sessionState) continue;
     statusBySessionId.set(
       sessionId,
@@ -786,14 +786,14 @@ export function SessionTabStrip({
     snapshotStatuses(sessionStore, openedTabOrder),
   );
   reactExports.useEffect(() => {
-    const update2 = () => {
-      const next2 = snapshotStatuses(sessionStore, openedTabOrder);
-      setRawStatusById((current2) =>
-        equalTabStatusMaps(current2, next2) ? current2 : next2,
+    const update = () => {
+      const next = snapshotStatuses(sessionStore, openedTabOrder);
+      setRawStatusById((current) =>
+        equalTabStatusMaps(current, next) ? current : next,
       );
     };
-    update2();
-    return sessionStore.subscribe(update2);
+    update();
+    return sessionStore.subscribe(update);
   }, [sessionStore, openedTabOrder]);
   const prevRunningRef = reactExports.useRef(new Set());
   const [unreadIds, setUnreadIds] = reactExports.useState(() => new Set());
@@ -805,41 +805,41 @@ export function SessionTabStrip({
     const prevRunning = prevRunningRef.current;
     prevRunningRef.current = currRunning;
     setUnreadIds((prev) => {
-      let next2 = null;
+      let next = null;
       for (const sessionId of prevRunning) {
         if (
           !currRunning.has(sessionId) &&
           sessionId !== focusedSessionId &&
           !prev.has(sessionId)
         ) {
-          if (!next2) next2 = new Set(prev);
-          next2.add(sessionId);
+          if (!next) next = new Set(prev);
+          next.add(sessionId);
         }
       }
-      return next2 ?? prev;
+      return next ?? prev;
     });
   }, [rawStatusById, focusedSessionId]);
   reactExports.useEffect(() => {
     if (!focusedSessionId && openedTabOrder.length === 0) return;
     setUnreadIds((prev) => {
       if (prev.size === 0) return prev;
-      const next2 = new Set(prev);
-      if (focusedSessionId) next2.delete(focusedSessionId);
+      const next = new Set(prev);
+      if (focusedSessionId) next.delete(focusedSessionId);
       for (const sessionId of prev) {
         if (!openedTabOrder.includes(sessionId) && sessionId !== focusedSessionId)
-          next2.delete(sessionId);
+          next.delete(sessionId);
       }
-      return next2.size === prev.size &&
-        [...next2].every((sessionId) => prev.has(sessionId)) &&
-        [...prev].every((sessionId) => next2.has(sessionId))
+      return next.size === prev.size &&
+        [...next].every((sessionId) => prev.has(sessionId)) &&
+        [...prev].every((sessionId) => next.has(sessionId))
         ? prev
-        : next2;
+        : next;
     });
   }, [focusedSessionId, openedTabOrder]);
   const statusById = new Map(rawStatusById);
   for (const sessionId of unreadIds) {
-    const raw2 = statusById.get(sessionId);
-    if (!raw2 || raw2.kind === "idle") {
+    const raw = statusById.get(sessionId);
+    if (!raw || raw.kind === "idle") {
       statusById.set(sessionId, {
         kind: "unread",
       });
@@ -879,8 +879,8 @@ export function SessionTabStrip({
     [onCloseTab, translate],
   );
   const handleRename = reactExports.useCallback(
-    (sessionId, name2) => {
-      onRename(sessionId, name2);
+    (sessionId, newTitle) => {
+      onRename(sessionId, newTitle);
     },
     [onRename],
   );
@@ -1087,16 +1087,16 @@ export function SessionTabStrip({
             className="flex h-full items-center gap-1 px-2"
           >
             {visibleTabs.map((session) => {
-              const isActive2 = session.id === focusedSessionId;
+              const isActive = session.id === focusedSessionId;
               return (
                 <div
                   key={session.id}
-                  ref={isActive2 ? activeTabRef : void 0}
+                  ref={isActive ? activeTabRef : void 0}
                   className="relative flex min-w-0 max-w-[220px] flex-1 basis-0"
                 >
                   <SessionTab
                     session={session}
-                    active={isActive2}
+                    active={isActive}
                     status={
                       statusById.get(session.id) ?? {
                         kind: "idle",
