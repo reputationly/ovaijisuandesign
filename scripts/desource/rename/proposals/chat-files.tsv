@@ -7,3 +7,5 @@ app/renderer/src/chat/at.jsx	app/renderer/src/chat/code-block-body.jsx	`at.jsx` 
 app/renderer/src/chat/st.jsx	app/renderer/src/chat/highlighted-code-block.jsx	`st.jsx` 导出封装代码块结构、语言标题和高亮主体的组件。
 app/renderer/src/chat/fo.jsx	app/renderer/src/chat/mermaid-fullscreen-button.jsx	`fo.jsx` 导出控制 Mermaid 图表进入和退出全屏的按钮。
 app/renderer/src/chat/pe.jsx	app/renderer/src/chat/table-download-menu.jsx	`pe.jsx` 导出提供 CSV 和 Markdown 下载选项的表格菜单。
+app/renderer/src/chat/te.jsx	app/renderer/src/chat/table-copy-button.jsx	`te.jsx` 导出提供 TSV、CSV 和 Markdown 复制格式的表格菜单。
+app/renderer/src/chat/co.jsx	app/renderer/src/chat/mermaid-download-button.jsx	`co.jsx` 导出提供 MMD、SVG 和 PNG 下载格式的 Mermaid 菜单。

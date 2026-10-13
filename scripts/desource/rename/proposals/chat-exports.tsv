@@ -8,3 +8,5 @@ app/renderer/src/chat/at.jsx	At	CodeBlockBody	`CodeBlockBody` 渲染高亮代码
 app/renderer/src/chat/st.jsx	st	HighlightedCodeBlock	`HighlightedCodeBlock` 负责封装代码块容器、语言标题及高亮主体的加载和回退显示。
 app/renderer/src/chat/fo.jsx	fo	MermaidFullscreenButton	`MermaidFullscreenButton` 切换 Mermaid 图表全屏显示并响应退出操作。
 app/renderer/src/chat/pe.jsx	Pe	TableDownloadMenu	`TableDownloadMenu` 提供 Markdown 表格的 CSV 和 Markdown 下载操作。
+app/renderer/src/chat/te.jsx	Te	TableCopyButton	`TableCopyButton` 提供 Markdown 表格的 TSV、CSV 和 Markdown 剪贴板复制操作。
+app/renderer/src/chat/co.jsx	co	MermaidDownloadButton	`MermaidDownloadButton` 提供 Mermaid 图表的 MMD、SVG 和 PNG 下载操作。

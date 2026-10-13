@@ -1,160 +1,160 @@
 // co.jsx
-import { L, reactExports } from "../vendor.js";
+import { L as useIcons, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { R, W2, y3 } from "./ae.jsx";
-import { D3, de } from "../media-editing/wt.js";
+import { R as markdownRenderOptionsContext, W2 as downloadFile, y3 as useClassNameMerger } from "./ae.jsx";
+import { D3 as useStreamdownLabels, de as useMermaidPlugin } from "../media-editing/wt.js";
 
-var io = (e2, t2) => {
-  var n2;
-  let o2 = (n2 = void 0) != null ? n2 : 5;
-  return new Promise((r2, s2) => {
-    let a2 =
-        "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(e2))),
-      l2 = new Image();
-    ((l2.crossOrigin = "anonymous"),
-      (l2.onload = () => {
-        let i2 = document.createElement("canvas"),
-          d2 = l2.width * o2,
-          c3 = l2.height * o2;
-        ((i2.width = d2), (i2.height = c3));
-        let p3 = i2.getContext("2d");
-        if (!p3) {
-          s2(new Error("Failed to create 2D canvas context for PNG export"));
+var convertSvgToPngBlob = (svgMarkup, options) => {
+  var undefinedValue;
+  let scale = (undefinedValue = void 0) != null ? undefinedValue : 5;
+  return new Promise((resolve, reject) => {
+    let svgDataUrl =
+        "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgMarkup))),
+      image = new Image();
+    ((image.crossOrigin = "anonymous"),
+      (image.onload = () => {
+        let canvas = document.createElement("canvas"),
+          canvasWidth = image.width * scale,
+          canvasHeight = image.height * scale;
+        ((canvas.width = canvasWidth), (canvas.height = canvasHeight));
+        let context = canvas.getContext("2d");
+        if (!context) {
+          reject(new Error("Failed to create 2D canvas context for PNG export"));
           return;
         }
-        (p3.drawImage(l2, 0, 0, d2, c3),
-          i2.toBlob((m3) => {
-            if (!m3) {
-              s2(new Error("Failed to create PNG blob"));
+        (context.drawImage(image, 0, 0, canvasWidth, canvasHeight),
+          canvas.toBlob((pngBlob) => {
+            if (!pngBlob) {
+              reject(new Error("Failed to create PNG blob"));
               return;
             }
-            r2(m3);
+            resolve(pngBlob);
           }, "image/png"));
       }),
-      (l2.onerror = () => s2(new Error("Failed to load SVG image"))),
-      (l2.src = a2));
+      (image.onerror = () => reject(new Error("Failed to load SVG image"))),
+      (image.src = svgDataUrl));
   });
 };
 
 export var co = ({
-  chart: e2,
-  children: t2,
-  className: o2,
-  onDownload: n2,
-  config: r2,
-  onError: s2,
+  chart,
+  children,
+  className,
+  onDownload,
+  config,
+  onError,
 }) => {
-  let a2 = y3(),
-    [l2, i2] = reactExports.useState(false),
-    d2 = reactExports.useRef(null),
-    { isAnimating: c3 } = reactExports.useContext(R),
-    p3 = L(),
-    m3 = de(),
-    u4 = D3(),
-    f2 = async (h2) => {
+  let mergeClassNames = useClassNameMerger(),
+    [isMenuOpen, setIsMenuOpen] = reactExports.useState(false),
+    menuRef = reactExports.useRef(null),
+    { isAnimating } = reactExports.useContext(markdownRenderOptionsContext),
+    icons = useIcons(),
+    mermaidPlugin = useMermaidPlugin(),
+    translations = useStreamdownLabels(),
+    downloadDiagram = async (format) => {
       try {
-        if (h2 === "mmd") {
-          (W2("diagram.mmd", e2, "text/plain"),
-            i2(false),
-            n2 == null || n2(h2));
+        if (format === "mmd") {
+          (downloadFile("diagram.mmd", chart, "text/plain"),
+            setIsMenuOpen(false),
+            onDownload == null || onDownload(format));
           return;
         }
-        if (!m3) {
-          s2 == null || s2(new Error("Mermaid plugin not available"));
+        if (!mermaidPlugin) {
+          onError == null || onError(new Error("Mermaid plugin not available"));
           return;
         }
-        let b3 = m3.getMermaid(r2),
-          g2 = e2
+        let mermaid = mermaidPlugin.getMermaid(config),
+          chartHash = chart
             .split("")
-            .reduce((w3, P3) => ((w3 << 5) - w3 + P3.charCodeAt(0)) | 0, 0),
-          T2 = `mermaid-${Math.abs(g2)}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          { svg: v2 } = await b3.render(T2, e2);
-        if (!v2) {
-          s2 == null ||
-            s2(
+            .reduce((hash, character) => ((hash << 5) - hash + character.charCodeAt(0)) | 0, 0),
+          renderId = `mermaid-${Math.abs(chartHash)}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          { svg: svgOutput } = await mermaid.render(renderId, chart);
+        if (!svgOutput) {
+          onError == null ||
+            onError(
               new Error(
                 "SVG not found. Please wait for the diagram to render.",
               ),
             );
           return;
         }
-        if (h2 === "svg") {
-          (W2("diagram.svg", v2, "image/svg+xml"),
-            i2(false),
-            n2 == null || n2(h2));
+        if (format === "svg") {
+          (downloadFile("diagram.svg", svgOutput, "image/svg+xml"),
+            setIsMenuOpen(false),
+            onDownload == null || onDownload(format));
           return;
         }
-        if (h2 === "png") {
-          let w3 = await io(v2);
-          (W2("diagram.png", w3, "image/png"), n2 == null || n2(h2), i2(false));
+        if (format === "png") {
+          let pngBlob = await convertSvgToPngBlob(svgOutput);
+          (downloadFile("diagram.png", pngBlob, "image/png"), onDownload == null || onDownload(format), setIsMenuOpen(false));
           return;
         }
-      } catch (b3) {
-        s2 == null || s2(b3);
+      } catch (error) {
+        onError == null || onError(error);
       }
     };
   return (
     reactExports.useEffect(() => {
-      let h2 = (b3) => {
-        let g2 = b3.composedPath();
-        d2.current && !g2.includes(d2.current) && i2(false);
+      let handleOutsideMouseDown = (mouseEvent) => {
+        let eventPath = mouseEvent.composedPath();
+        menuRef.current && !eventPath.includes(menuRef.current) && setIsMenuOpen(false);
       };
       return (
-        document.addEventListener("mousedown", h2),
+        document.addEventListener("mousedown", handleOutsideMouseDown),
         () => {
-          document.removeEventListener("mousedown", h2);
+          document.removeEventListener("mousedown", handleOutsideMouseDown);
         }
       );
     }, []),
     (
-      <div className={a2("relative")} ref={d2}>
+      <div className={mergeClassNames("relative")} ref={menuRef}>
         <button
-          className={a2(
+          className={mergeClassNames(
             "cursor-pointer p-1 text-muted-foreground transition-all hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-            o2,
+            className,
           )}
-          disabled={c3}
-          onClick={() => i2(!l2)}
-          title={u4.downloadDiagram}
+          disabled={isAnimating}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          title={translations.downloadDiagram}
           type="button"
         >
-          {t2 != null ? t2 : <p3.DownloadIcon size={14} />}
+          {children != null ? children : <icons.DownloadIcon size={14} />}
         </button>
-        {l2 ? (
+        {isMenuOpen ? (
           <div
-            className={a2(
+            className={mergeClassNames(
               "absolute top-full right-0 z-10 mt-1 min-w-[120px] overflow-hidden rounded-md border border-border bg-background shadow-lg",
             )}
           >
             <button
-              className={a2(
+              className={mergeClassNames(
                 "w-full px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40",
               )}
-              onClick={() => f2("svg")}
-              title={u4.downloadDiagramAsSvg}
+              onClick={() => downloadDiagram("svg")}
+              title={translations.downloadDiagramAsSvg}
               type="button"
             >
-              {u4.mermaidFormatSvg}
+              {translations.mermaidFormatSvg}
             </button>
             <button
-              className={a2(
+              className={mergeClassNames(
                 "w-full px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40",
               )}
-              onClick={() => f2("png")}
-              title={u4.downloadDiagramAsPng}
+              onClick={() => downloadDiagram("png")}
+              title={translations.downloadDiagramAsPng}
               type="button"
             >
-              {u4.mermaidFormatPng}
+              {translations.mermaidFormatPng}
             </button>
             <button
-              className={a2(
+              className={mergeClassNames(
                 "w-full px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40",
               )}
-              onClick={() => f2("mmd")}
-              title={u4.downloadDiagramAsMmd}
+              onClick={() => downloadDiagram("mmd")}
+              title={translations.downloadDiagramAsMmd}
               type="button"
             >
-              {u4.mermaidFormatMmd}
+              {translations.mermaidFormatMmd}
             </button>
           </div>
         ) : null}

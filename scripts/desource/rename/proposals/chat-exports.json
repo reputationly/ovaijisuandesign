@@ -23,5 +23,11 @@
   },
   "app/renderer/src/chat/pe.jsx": {
     "Pe": "TableDownloadMenu"
+  },
+  "app/renderer/src/chat/te.jsx": {
+    "Te": "TableCopyButton"
+  },
+  "app/renderer/src/chat/co.jsx": {
+    "co": "MermaidDownloadButton"
   }
 }
