@@ -45,19 +45,19 @@ const FOV_MIN = 30;
 const FOV_MAX = 110;
 const MAX_TEXTURE_WIDTH = 4096;
 function getWindowButtonBridge() {
-  const platform2 = window.__HILO_PLATFORM__;
-  return platform2?.window;
+  const platform = window.__HILO_PLATFORM__;
+  return platform?.window;
 }
 function snapshotCanvasAsPng(source) {
-  const snapshot2 = document.createElement("canvas");
-  snapshot2.width = source.width;
-  snapshot2.height = source.height;
-  const context = snapshot2.getContext("2d");
+  const snapshot = document.createElement("canvas");
+  snapshot.width = source.width;
+  snapshot.height = source.height;
+  const context = snapshot.getContext("2d");
   if (!context)
     return Promise.reject(new Error("Unable to create capture canvas"));
   context.drawImage(source, 0, 0);
   return new Promise((resolve, reject) => {
-    snapshot2.toBlob(
+    snapshot.toBlob(
       (value) => (value ? resolve(value) : reject(new Error("toBlob failed"))),
       "image/png",
     );
@@ -95,93 +95,93 @@ function CompositionGuidesIcon() {
     </CompositedSvg>
   );
 }
-function compileShader(gl, type2, source) {
-  const shader = gl.createShader(type2);
+function compileShader(webGlContext, type, source) {
+  const shader = webGlContext.createShader(type);
   if (!shader) throw new Error("Unable to create WebGL shader");
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const message2 =
-      gl.getShaderInfoLog(shader) || "Unable to compile WebGL shader";
-    gl.deleteShader(shader);
-    throw new Error(message2);
+  webGlContext.shaderSource(shader, source);
+  webGlContext.compileShader(shader);
+  if (!webGlContext.getShaderParameter(shader, webGlContext.COMPILE_STATUS)) {
+    const message =
+      webGlContext.getShaderInfoLog(shader) || "Unable to compile WebGL shader";
+    webGlContext.deleteShader(shader);
+    throw new Error(message);
   }
   return shader;
 }
 function initializeWebGl(canvas) {
-  const gl = canvas.getContext("webgl", {
+  const webGlContext = canvas.getContext("webgl", {
     antialias: true,
     preserveDrawingBuffer: false,
   });
-  if (!gl) throw new Error("WebGL is unavailable");
+  if (!webGlContext) throw new Error("WebGL is unavailable");
   let vertex = null;
-  let fragment2 = null;
+  let fragment = null;
   let program = null;
   let buffer = null;
   let texture = null;
   try {
-    vertex = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
-    fragment2 = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
-    program = gl.createProgram();
+    vertex = compileShader(webGlContext, webGlContext.VERTEX_SHADER, VERTEX_SHADER);
+    fragment = compileShader(webGlContext, webGlContext.FRAGMENT_SHADER, FRAGMENT_SHADER);
+    program = webGlContext.createProgram();
     if (!program) throw new Error("Unable to create WebGL program");
-    gl.attachShader(program, vertex);
-    gl.attachShader(program, fragment2);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    webGlContext.attachShader(program, vertex);
+    webGlContext.attachShader(program, fragment);
+    webGlContext.linkProgram(program);
+    if (!webGlContext.getProgramParameter(program, webGlContext.LINK_STATUS)) {
       throw new Error(
-        gl.getProgramInfoLog(program) || "Unable to link WebGL program",
+        webGlContext.getProgramInfoLog(program) || "Unable to link WebGL program",
       );
     }
-    gl.useProgram(program);
-    buffer = gl.createBuffer();
+    webGlContext.useProgram(program);
+    buffer = webGlContext.createBuffer();
     if (!buffer) throw new Error("Unable to create WebGL buffer");
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
+    webGlContext.bindBuffer(webGlContext.ARRAY_BUFFER, buffer);
+    webGlContext.bufferData(
+      webGlContext.ARRAY_BUFFER,
       new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-      gl.STATIC_DRAW,
+      webGlContext.STATIC_DRAW,
     );
-    const position2 = gl.getAttribLocation(program, "aPos");
-    gl.enableVertexAttribArray(position2);
-    gl.vertexAttribPointer(position2, 2, gl.FLOAT, false, 0, 0);
-    texture = gl.createTexture();
+    const position = webGlContext.getAttribLocation(program, "aPos");
+    webGlContext.enableVertexAttribArray(position);
+    webGlContext.vertexAttribPointer(position, 2, webGlContext.FLOAT, false, 0, 0);
+    texture = webGlContext.createTexture();
     if (!texture) throw new Error("Unable to create WebGL texture");
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    webGlContext.bindTexture(webGlContext.TEXTURE_2D, texture);
+    webGlContext.texParameteri(webGlContext.TEXTURE_2D, webGlContext.TEXTURE_WRAP_S, webGlContext.REPEAT);
+    webGlContext.texParameteri(webGlContext.TEXTURE_2D, webGlContext.TEXTURE_WRAP_T, webGlContext.CLAMP_TO_EDGE);
+    webGlContext.texParameteri(webGlContext.TEXTURE_2D, webGlContext.TEXTURE_MIN_FILTER, webGlContext.LINEAR);
+    webGlContext.texParameteri(webGlContext.TEXTURE_2D, webGlContext.TEXTURE_MAG_FILTER, webGlContext.LINEAR);
     return {
-      gl,
+      gl: webGlContext,
       program,
       buffer,
       texture,
-      textureUniform: gl.getUniformLocation(program, "uTex"),
-      yaw: gl.getUniformLocation(program, "uYaw"),
-      pitch: gl.getUniformLocation(program, "uPitch"),
-      fov: gl.getUniformLocation(program, "uFov"),
-      aspect: gl.getUniformLocation(program, "uAspect"),
+      textureUniform: webGlContext.getUniformLocation(program, "uTex"),
+      yaw: webGlContext.getUniformLocation(program, "uYaw"),
+      pitch: webGlContext.getUniformLocation(program, "uPitch"),
+      fov: webGlContext.getUniformLocation(program, "uFov"),
+      aspect: webGlContext.getUniformLocation(program, "uAspect"),
     };
   } catch (error) {
-    if (texture) gl.deleteTexture(texture);
-    if (buffer) gl.deleteBuffer(buffer);
-    if (program) gl.deleteProgram(program);
+    if (texture) webGlContext.deleteTexture(texture);
+    if (buffer) webGlContext.deleteBuffer(buffer);
+    if (program) webGlContext.deleteProgram(program);
     throw error;
   } finally {
-    if (vertex) gl.deleteShader(vertex);
-    if (fragment2) gl.deleteShader(fragment2);
+    if (vertex) webGlContext.deleteShader(vertex);
+    if (fragment) webGlContext.deleteShader(fragment);
   }
 }
-function disposeWebGl(state2) {
-  state2.gl.deleteTexture(state2.texture);
-  state2.gl.deleteBuffer(state2.buffer);
-  state2.gl.deleteProgram(state2.program);
+function disposeWebGl(state) {
+  state.gl.deleteTexture(state.texture);
+  state.gl.deleteBuffer(state.buffer);
+  state.gl.deleteProgram(state.program);
 }
-function uploadTexture(state2, image2) {
-  const { gl, texture } = state2;
+function uploadTexture(state, image) {
+  const { gl: webGlContext, texture } = state;
   const textureWidth = Math.min(
     MAX_TEXTURE_WIDTH,
-    image2.naturalWidth >= 4096 ? 4096 : 2048,
+    image.naturalWidth >= 4096 ? 4096 : 2048,
   );
   const textureHeight = textureWidth / 2;
   const textureCanvas = document.createElement("canvas");
@@ -189,32 +189,32 @@ function uploadTexture(state2, image2) {
   textureCanvas.height = textureHeight;
   const context = textureCanvas.getContext("2d");
   if (!context) throw new Error("Unable to create panorama texture canvas");
-  context.drawImage(image2, 0, 0, textureWidth, textureHeight);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-  gl.texImage2D(
-    gl.TEXTURE_2D,
+  context.drawImage(image, 0, 0, textureWidth, textureHeight);
+  webGlContext.bindTexture(webGlContext.TEXTURE_2D, texture);
+  webGlContext.pixelStorei(webGlContext.UNPACK_FLIP_Y_WEBGL, false);
+  webGlContext.texImage2D(
+    webGlContext.TEXTURE_2D,
     0,
-    gl.RGBA,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
+    webGlContext.RGBA,
+    webGlContext.RGBA,
+    webGlContext.UNSIGNED_BYTE,
     textureCanvas,
   );
-  if (gl.getError() !== gl.NO_ERROR)
+  if (webGlContext.getError() !== webGlContext.NO_ERROR)
     throw new Error("Unable to upload panorama texture");
 }
-function drawPanoramaFrame(state2, canvas, camera) {
-  const { gl, program, texture } = state2;
-  gl.viewport(0, 0, canvas.width, canvas.height);
-  gl.useProgram(program);
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.uniform1i(state2.textureUniform, 0);
-  gl.uniform1f(state2.yaw, camera.yaw);
-  gl.uniform1f(state2.pitch, camera.pitch);
-  gl.uniform1f(state2.fov, (camera.fov * Math.PI) / 180);
-  gl.uniform1f(state2.aspect, canvas.width / Math.max(1, canvas.height));
-  gl.drawArrays(gl.TRIANGLES, 0, 6);
+function drawPanoramaFrame(state, canvas, camera) {
+  const { gl: webGlContext, program, texture } = state;
+  webGlContext.viewport(0, 0, canvas.width, canvas.height);
+  webGlContext.useProgram(program);
+  webGlContext.activeTexture(webGlContext.TEXTURE0);
+  webGlContext.bindTexture(webGlContext.TEXTURE_2D, texture);
+  webGlContext.uniform1i(state.textureUniform, 0);
+  webGlContext.uniform1f(state.yaw, camera.yaw);
+  webGlContext.uniform1f(state.pitch, camera.pitch);
+  webGlContext.uniform1f(state.fov, (camera.fov * Math.PI) / 180);
+  webGlContext.uniform1f(state.aspect, canvas.width / Math.max(1, canvas.height));
+  webGlContext.drawArrays(webGlContext.TRIANGLES, 0, 6);
 }
 export function PanoramaViewer({
   src,
@@ -230,7 +230,7 @@ export function PanoramaViewer({
   onCapture,
   onCaptureRequestSettled,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const rootRef = reactExports.useRef(null);
   const canvasRef = reactExports.useRef(null);
   const webGlRef = reactExports.useRef(null);
@@ -247,7 +247,7 @@ export function PanoramaViewer({
   const lastFullscreenRequestRef = reactExports.useRef(0);
   const dragRef = reactExports.useRef(null);
   const [status, setStatus] = reactExports.useState(src ? "loading" : "empty");
-  const [fov, setFov] = reactExports.useState(90);
+  const [fieldOfView, setFov] = reactExports.useState(90);
   const [autoRotate, setAutoRotate] = reactExports.useState(false);
   const [fullscreen, setFullscreen] = reactExports.useState(false);
   const [guides, setGuides] = reactExports.useState(false);
@@ -264,17 +264,17 @@ export function PanoramaViewer({
       return;
     }
     const draw = (cameraOverride) => {
-      const state2 = webGlRef.current;
-      if (!state2 || !textureReadyRef.current) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const width = Math.max(1, Math.floor(canvas.clientWidth * dpr));
-      const height = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+      const state = webGlRef.current;
+      if (!state || !textureReadyRef.current) return;
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(1, Math.floor(canvas.clientWidth * pixelRatio));
+      const height = Math.max(1, Math.floor(canvas.clientHeight * pixelRatio));
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
       }
       const camera = cameraOverride ?? cameraRef.current;
-      drawPanoramaFrame(state2, canvas, camera);
+      drawPanoramaFrame(state, canvas, camera);
     };
     drawRef.current = draw;
     const resizeObserver = new ResizeObserver(() => draw());
@@ -292,8 +292,8 @@ export function PanoramaViewer({
       resizeObserver.disconnect();
       canvas.removeEventListener("webglcontextlost", handleContextLost);
       canvas.removeEventListener("webglcontextrestored", handleContextRestored);
-      const state2 = webGlRef.current;
-      if (state2) disposeWebGl(state2);
+      const state = webGlRef.current;
+      if (state) disposeWebGl(state);
       webGlRef.current = null;
       textureReadyRef.current = false;
       drawRef.current = () => {};
@@ -306,14 +306,14 @@ export function PanoramaViewer({
       return;
     }
     setStatus("loading");
-    const image2 = new Image();
-    image2.crossOrigin = "anonymous";
-    image2.onload = () => {
-      const state2 = webGlRef.current;
-      if (!state2) return;
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      const state = webGlRef.current;
+      if (!state) return;
       try {
-        uploadTexture(state2, image2);
-        sourceImageRef.current = image2;
+        uploadTexture(state, image);
+        sourceImageRef.current = image;
         textureReadyRef.current = true;
         setStatus("ready");
         requestAnimationFrame(() => drawRef.current());
@@ -322,41 +322,41 @@ export function PanoramaViewer({
         setStatus("error");
       }
     };
-    image2.onerror = () => setStatus("error");
-    image2.src = src;
+    image.onerror = () => setStatus("error");
+    image.src = src;
     return () => {
-      if (sourceImageRef.current === image2) sourceImageRef.current = null;
-      image2.onload = null;
-      image2.onerror = null;
+      if (sourceImageRef.current === image) sourceImageRef.current = null;
+      image.onload = null;
+      image.onerror = null;
     };
   }, [contextGeneration, fullscreen, src]);
   reactExports.useEffect(() => {
     if (!interactive || !autoRotate || status !== "ready") return;
-    let frame2 = 0;
+    let frame = 0;
     let previousTime = performance.now();
-    const rotate2 = (time) => {
+    const rotate = (time) => {
       if (!captureBusyRef.current) {
         cameraRef.current.yaw +=
           Math.min((time - previousTime) / 1e3, 0.1) * 0.18;
         drawRef.current();
       }
       previousTime = time;
-      frame2 = requestAnimationFrame(rotate2);
+      frame = requestAnimationFrame(rotate);
     };
-    frame2 = requestAnimationFrame(rotate2);
-    return () => cancelAnimationFrame(frame2);
+    frame = requestAnimationFrame(rotate);
+    return () => cancelAnimationFrame(frame);
   }, [autoRotate, interactive, status]);
-  const zoom2 = reactExports.useCallback((delta) => {
+  const zoom = reactExports.useCallback((delta) => {
     if (captureBusyRef.current) return;
-    const next2 = Math.max(
+    const next = Math.max(
       FOV_MIN,
       Math.min(FOV_MAX, cameraRef.current.fov + delta),
     );
-    cameraRef.current.fov = next2;
-    setFov(Math.round(next2));
+    cameraRef.current.fov = next;
+    setFov(Math.round(next));
     drawRef.current();
   }, []);
-  const reset2 = reactExports.useCallback(() => {
+  const reset = reactExports.useCallback(() => {
     if (captureBusyRef.current) return;
     cameraRef.current = {
       yaw: 0,
@@ -382,16 +382,16 @@ export function PanoramaViewer({
   );
   const handlePointerMove = reactExports.useCallback((event) => {
     if (captureBusyRef.current) return;
-    const drag2 = dragRef.current;
-    if (!drag2 || drag2.pointerId !== event.pointerId) return;
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
     const height = Math.max(1, event.currentTarget.clientHeight);
-    const scale2 = (cameraRef.current.fov * Math.PI) / 180 / height;
-    cameraRef.current.yaw += (event.clientX - drag2.x) * scale2;
+    const scale = (cameraRef.current.fov * Math.PI) / 180 / height;
+    cameraRef.current.yaw += (event.clientX - drag.x) * scale;
     cameraRef.current.pitch = Math.max(
       -Math.PI / 2 + 0.01,
       Math.min(
         Math.PI / 2 - 0.01,
-        cameraRef.current.pitch + (event.clientY - drag2.y) * scale2,
+        cameraRef.current.pitch + (event.clientY - drag.y) * scale,
       ),
     );
     dragRef.current = {
@@ -409,12 +409,12 @@ export function PanoramaViewer({
       if (!interactive || status !== "ready" || captureBusyRef.current) return;
       event.preventDefault();
       event.stopPropagation();
-      zoom2(event.deltaY * 0.05);
+      zoom(event.deltaY * 0.05);
     },
-    [interactive, status, zoom2],
+    [interactive, status, zoom],
   );
   const capture = reactExports.useCallback(
-    async (count2) => {
+    async (count) => {
       const canvas = canvasRef.current;
       const sourceImage = sourceImageRef.current;
       if (
@@ -440,22 +440,22 @@ export function PanoramaViewer({
         captureState = initializeWebGl(captureCanvas);
         uploadTexture(captureState, sourceImage);
         const items = [];
-        for (let index2 = 0; index2 < count2; index2 += 1) {
+        for (let index = 0; index < count; index += 1) {
           const captureCamera =
-            count2 > 1
+            count > 1
               ? {
-                  yaw: (index2 / count2) * Math.PI * 2,
+                  yaw: (index / count) * Math.PI * 2,
                   pitch: 0,
                   fov: 90,
                 }
               : original;
           drawPanoramaFrame(captureState, captureCanvas, captureCamera);
           const blob = await snapshotCanvasAsPng(captureCanvas);
-          const degree = Math.round((index2 * 360) / count2);
+          const degree = Math.round((index * 360) / count);
           const filename =
-            count2 === 1
+            count === 1
               ? `${safeName}_view.png`
-              : `${safeName}_${count2}view_${String(degree).padStart(3, "0")}.png`;
+              : `${safeName}_${count}view_${String(degree).padStart(3, "0")}.png`;
           items.push({
             blob,
             filename,
@@ -464,19 +464,19 @@ export function PanoramaViewer({
         if (onCapture) {
           await onCapture(
             items,
-            count2 === 1 ? "当前视角" : `${count2} 大视角截图`,
+            count === 1 ? "当前视角" : `${count} 大视角截图`,
             {
               fullscreen,
             },
           );
         } else {
           for (const item of items) {
-            const url2 = URL.createObjectURL(item.blob);
+            const url = URL.createObjectURL(item.blob);
             const anchor = document.createElement("a");
-            anchor.href = url2;
+            anchor.href = url;
             anchor.download = item.filename;
             anchor.click();
-            setTimeout(() => URL.revokeObjectURL(url2), 1e3);
+            setTimeout(() => URL.revokeObjectURL(url), 1e3);
           }
         }
       } catch (error) {
@@ -497,8 +497,8 @@ export function PanoramaViewer({
       return;
     if (status !== "ready") return;
     lastCaptureRequestRef.current = captureRequest.sequence;
-    const { count: count2, sequence } = captureRequest;
-    void capture(count2).finally(() => onCaptureRequestSettled?.(sequence));
+    const { count, sequence } = captureRequest;
+    void capture(count).finally(() => onCaptureRequestSettled?.(sequence));
   }, [capture, captureRequest, onCaptureRequestSettled, status]);
   reactExports.useEffect(() => {
     if (
@@ -513,14 +513,14 @@ export function PanoramaViewer({
     if (!fullscreen && !onExitPreview) return;
     const windowBridge = fullscreen ? getWindowButtonBridge() : void 0;
     windowBridge?.setWindowButtonVisibility?.(false);
-    const handleKeyDown2 = (event) => {
+    const handleKeyDown = (event) => {
       if (event.key !== "Escape") return;
       if (fullscreen) setFullscreen(false);
       else onExitPreview?.();
     };
-    window.addEventListener("keydown", handleKeyDown2);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown2);
+      window.removeEventListener("keydown", handleKeyDown);
       windowBridge?.setWindowButtonVisibility?.(true);
     };
   }, [fullscreen, onExitPreview]);
@@ -580,7 +580,7 @@ export function PanoramaViewer({
         <TooltipProvider delay={150} closeDelay={0}>
           <div className="nodrag nowheel absolute left-1/2 top-6 z-[6] -translate-x-1/2 rounded-lg border border-transparent bg-black/65 p-1 shadow-[var(--canvas-shadow-panel)] backdrop-blur-xl transition-colors hover:border-white/35">
             <Tooltip
-              content={t2("canvas.panorama.capture", "截取当前画面")}
+              content={t("canvas.panorama.capture", "截取当前画面")}
               side="bottom"
               sideOffset={8}
             >
@@ -589,16 +589,16 @@ export function PanoramaViewer({
                 className="nodrag nowheel flex h-10 items-center justify-center gap-2 rounded-[8px] px-3 text-[13px] font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white disabled:opacity-50"
                 onClick={onRequestCaptureCurrent}
                 disabled={captureBusy || !onRequestCaptureCurrent}
-                aria-label={t2("canvas.panorama.capture", "截取当前画面")}
+                aria-label={t("canvas.panorama.capture", "截取当前画面")}
               >
                 <Camera size={19} strokeWidth={1.8} />
-                <span>{t2("canvas.panorama.capture", "截取当前画面")}</span>
+                <span>{t("canvas.panorama.capture", "截取当前画面")}</span>
               </button>
             </Tooltip>
           </div>
           <div className="nodrag nowheel absolute right-6 top-6 z-[6] rounded-lg border border-transparent bg-black/65 p-1 shadow-[var(--canvas-shadow-panel)] backdrop-blur-xl transition-colors hover:border-white/35">
             <Tooltip
-              content={t2("canvas.panorama.exitFullscreen", "退出全屏模式")}
+              content={t("canvas.panorama.exitFullscreen", "退出全屏模式")}
               side="bottom"
               sideOffset={8}
             >
@@ -606,7 +606,7 @@ export function PanoramaViewer({
                 type="button"
                 className="nodrag nowheel flex size-10 items-center justify-center rounded-[8px] text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
                 onClick={() => setFullscreen(false)}
-                aria-label={t2(
+                aria-label={t(
                   "canvas.panorama.exitFullscreen",
                   "退出全屏模式",
                 )}
@@ -624,15 +624,15 @@ export function PanoramaViewer({
           >
             <div className={controlSurfaceClass}>
               <Tooltip
-                content={t2("canvas.panorama.autoRotate", "自动旋转")}
+                content={t("canvas.panorama.autoRotate", "自动旋转")}
                 side="top"
                 sideOffset={8}
               >
                 <button
                   type="button"
                   className={`${controlClass} ${autoRotate ? "bg-white/15" : ""}`}
-                  onClick={() => setAutoRotate((current2) => !current2)}
-                  aria-label={t2("canvas.panorama.autoRotate", "自动旋转")}
+                  onClick={() => setAutoRotate((current) => !current)}
+                  aria-label={t("canvas.panorama.autoRotate", "自动旋转")}
                   aria-pressed={autoRotate}
                 >
                   <RotateCw size={19} strokeWidth={1.8} />
@@ -641,32 +641,32 @@ export function PanoramaViewer({
             </div>
             <div className={controlSurfaceClass}>
               <Tooltip
-                content={t2("canvas.panorama.zoomOut", "缩小")}
+                content={t("canvas.panorama.zoomOut", "缩小")}
                 side="top"
                 sideOffset={8}
               >
                 <button
                   type="button"
                   className={controlClass}
-                  onClick={() => zoom2(10)}
-                  aria-label={t2("canvas.panorama.zoomOut", "缩小")}
+                  onClick={() => zoom(10)}
+                  aria-label={t("canvas.panorama.zoomOut", "缩小")}
                 >
                   <ZoomOut size={19} strokeWidth={1.8} />
                 </button>
               </Tooltip>
               <span className="min-w-[42px] select-none px-0.5 text-center text-[12px] font-medium tabular-nums text-white">
-                {fov}°
+                {fieldOfView}°
               </span>
               <Tooltip
-                content={t2("canvas.panorama.zoomIn", "放大")}
+                content={t("canvas.panorama.zoomIn", "放大")}
                 side="top"
                 sideOffset={8}
               >
                 <button
                   type="button"
                   className={controlClass}
-                  onClick={() => zoom2(-10)}
-                  aria-label={t2("canvas.panorama.zoomIn", "放大")}
+                  onClick={() => zoom(-10)}
+                  aria-label={t("canvas.panorama.zoomIn", "放大")}
                 >
                   <ZoomIn size={19} strokeWidth={1.8} />
                 </button>
@@ -676,22 +676,22 @@ export function PanoramaViewer({
                 aria-hidden="true"
               />
               <Tooltip
-                content={t2("canvas.panorama.reset", "重置视角")}
+                content={t("canvas.panorama.reset", "重置视角")}
                 side="top"
                 sideOffset={8}
               >
                 <button
                   type="button"
                   className={controlClass}
-                  onClick={reset2}
-                  aria-label={t2("canvas.panorama.reset", "重置视角")}
+                  onClick={reset}
+                  aria-label={t("canvas.panorama.reset", "重置视角")}
                 >
                   <PanoramaResetIcon />
                 </button>
               </Tooltip>
               {!fullscreen && (
                 <Tooltip
-                  content={t2("canvas.panorama.fullscreen", "进入全屏模式")}
+                  content={t("canvas.panorama.fullscreen", "进入全屏模式")}
                   side="top"
                   sideOffset={8}
                 >
@@ -699,7 +699,7 @@ export function PanoramaViewer({
                     type="button"
                     className={controlClass}
                     onClick={() => setFullscreen(true)}
-                    aria-label={t2(
+                    aria-label={t(
                       "canvas.panorama.fullscreen",
                       "进入全屏模式",
                     )}
@@ -711,15 +711,15 @@ export function PanoramaViewer({
             </div>
             <div className={controlSurfaceClass}>
               <Tooltip
-                content={t2("canvas.panorama.guides", "构图参考线")}
+                content={t("canvas.panorama.guides", "构图参考线")}
                 side="top"
                 sideOffset={8}
               >
                 <button
                   type="button"
                   className={`${controlClass} ${guides ? "bg-white/15" : ""}`}
-                  onClick={() => setGuides((current2) => !current2)}
-                  aria-label={t2("canvas.panorama.guides", "构图参考线")}
+                  onClick={() => setGuides((current) => !current)}
+                  aria-label={t("canvas.panorama.guides", "构图参考线")}
                   aria-pressed={guides}
                 >
                   <CompositionGuidesIcon />

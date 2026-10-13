@@ -60,38 +60,38 @@ import { ToolConfirmCard } from "../generation/tool-confirm-card.jsx";
 function useProductionPlanDisclosure() {
   return reactExports.useContext(ProductionPlanDisclosureContext);
 }
-function matchKnowledgePath(path2) {
-  if (!path2) return void 0;
-  const match2 = path2.match(KNOWLEDGE_PATH_RE);
-  if (!match2) return void 0;
+function matchKnowledgePath(path) {
+  if (!path) return void 0;
+  const match = path.match(KNOWLEDGE_PATH_RE);
+  if (!match) return void 0;
   return {
-    short: match2[1].replace(/\\/g, "/"),
-    full: path2.replace(/\\/g, "/"),
+    short: match[1].replace(/\\/g, "/"),
+    full: path.replace(/\\/g, "/"),
   };
 }
-const HTTP_URL_RE$1 = /^https?:\/\//i;
-const WINDOWS_ABSOLUTE_PATH_RE$1 = /^[a-zA-Z]:[\\/]/;
-const WINDOWS_UNC_PATH_RE$1 = /^\\\\/;
-function isWindowsPath(path2) {
+const knowledgeHttpUrlPattern = /^https?:\/\//i;
+const knowledgeWindowsAbsolutePathPattern = /^[a-zA-Z]:[\\/]/;
+const knowledgeWindowsUncPathPattern = /^\\\\/;
+function isWindowsPath(path) {
   return (
-    WINDOWS_ABSOLUTE_PATH_RE$1.test(path2) || WINDOWS_UNC_PATH_RE$1.test(path2)
+    knowledgeWindowsAbsolutePathPattern.test(path) || knowledgeWindowsUncPathPattern.test(path)
   );
 }
-function isAbsoluteLocalPath$1(path2) {
-  return path2.startsWith("/") || isWindowsPath(path2);
+function isAbsoluteKnowledgePath(path) {
+  return path.startsWith("/") || isWindowsPath(path);
 }
-function stripQueryAndHash(path2) {
-  return path2.split(/[?#]/, 1)[0] ?? path2;
+function stripQueryAndHash(path) {
+  return path.split(/[?#]/, 1)[0] ?? path;
 }
-function decodeRoutePath(path2) {
+function decodeRoutePath(path) {
   try {
-    return decodeURIComponent(path2);
+    return decodeURIComponent(path);
   } catch {
     return void 0;
   }
 }
-function normalizeRelativePath(path2) {
-  const segments = path2
+function normalizeRelativePath(path) {
+  const segments = path
     .replace(/\\/g, "/")
     .split("/")
     .filter((segment) => segment && segment !== ".");
@@ -99,16 +99,16 @@ function normalizeRelativePath(path2) {
     return void 0;
   return segments.join("/");
 }
-function toWorkspaceFileRelativePath(path2, workspacePath) {
-  const source = path2.trim();
-  if (!source || HTTP_URL_RE$1.test(source)) return void 0;
+function toWorkspaceFileRelativePath(path, workspacePath) {
+  const source = path.trim();
+  if (!source || knowledgeHttpUrlPattern.test(source)) return void 0;
   if (source.startsWith("/files/")) {
     const routePath = stripQueryAndHash(source).slice("/files/".length);
     const decodedPath = decodeRoutePath(routePath);
     return decodedPath ? normalizeRelativePath(decodedPath) : void 0;
   }
   if (source.startsWith("/api/")) return void 0;
-  if (!isAbsoluteLocalPath$1(source)) {
+  if (!isAbsoluteKnowledgePath(source)) {
     return normalizeRelativePath(stripQueryAndHash(source));
   }
   const workspace = workspacePath.trim();
@@ -146,8 +146,8 @@ function formatElapsedMilliseconds(milliseconds) {
   return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 }
 const TIMELINE_ICON_SIZE = 16;
-function thinkingSummary(content2) {
-  return content2
+function thinkingSummary(content) {
+  return content
     .replace(/[*_`#>]/g, "")
     .replace(/\s+/g, " ")
     .trim();
@@ -159,8 +159,8 @@ function getTimelineIconSize(entry) {
     ? TIMELINE_TOOL_ICON_SIZE
     : TIMELINE_ICON_SIZE;
 }
-function extractKnowledgePaths(toolName2, toolArgs) {
-  if (toolName2 !== "hub_read" || !toolArgs) return void 0;
+function extractKnowledgePaths(toolName, toolArgs) {
+  if (toolName !== "hub_read" || !toolArgs) return void 0;
   try {
     const parsed = JSON.parse(toolArgs);
     const filePath = parsed.file_path ?? parsed.filePath ?? "";
@@ -174,10 +174,10 @@ function extractSkillName(toolArgs) {
     const parsed = JSON.parse(toolArgs);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
       return void 0;
-    const record2 = parsed;
-    const name2 = record2.name ?? record2.skill ?? record2.skill_name;
-    return typeof name2 === "string" && name2.trim().length > 0
-      ? name2.trim()
+    const record = parsed;
+    const skillName = record.name ?? record.skill ?? record.skill_name;
+    return typeof skillName === "string" && skillName.trim().length > 0
+      ? skillName.trim()
       : void 0;
   } catch {}
   return void 0;
@@ -189,72 +189,72 @@ function parseComfyUiRunDisplayResult(toolResult) {
     const parsed = JSON.parse(normalized);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
       return void 0;
-    const record2 = parsed;
-    const paths = Array.isArray(record2.output_paths)
-      ? record2.output_paths.filter(
-          (path2) => typeof path2 === "string" && path2.trim().length > 0,
+    const record = parsed;
+    const paths = Array.isArray(record.output_paths)
+      ? record.output_paths.filter(
+          (path) => typeof path === "string" && path.trim().length > 0,
         )
       : [];
     const uniquePaths = [...new Set(paths)];
     const succeededCount =
-      typeof record2.succeeded_count === "number"
-        ? record2.succeeded_count
+      typeof record.succeeded_count === "number"
+        ? record.succeeded_count
         : uniquePaths.length;
     return {
-      terminal: record2.terminal === true,
-      status: typeof record2.status === "string" ? record2.status : void 0,
+      terminal: record.terminal === true,
+      status: typeof record.status === "string" ? record.status : void 0,
       succeededCount,
-      outputFiles: uniquePaths.map((path2) => ({
-        name: path2.split(/[\\/]/).pop() ?? path2,
-        path: path2,
+      outputFiles: uniquePaths.map((path) => ({
+        name: path.split(/[\\/]/).pop() ?? path,
+        path,
       })),
     };
   } catch {
     return void 0;
   }
 }
-function renderToolLabel(entry, t2) {
+function renderToolLabel(entry, t) {
   if (entry.type === "tool" && entry.toolName === "hub_run_comfyui_workflow") {
     const result = parseComfyUiRunDisplayResult(entry.toolResult);
     if (entry.toolStatus === "running" || entry.toolStatus === "pending") {
-      return t2("chat.toolLabel.runComfyUiWorkflow.running");
+      return t("chat.toolLabel.runComfyUiWorkflow.running");
     }
     if (entry.toolStatus === "ok" && result?.terminal) {
       if (result.status === "failed" && result.succeededCount === 0) {
-        return t2("chat.toolLabel.runComfyUiWorkflow.failed");
+        return t("chat.toolLabel.runComfyUiWorkflow.failed");
       }
-      return t2("chat.toolLabel.runComfyUiWorkflow.completed", {
+      return t("chat.toolLabel.runComfyUiWorkflow.completed", {
         count: result.succeededCount,
       });
     }
   }
   if (entry.type === "tool" && isTransientTool(entry.toolName)) {
-    return getToolDisplayLabel(entry.toolName, t2);
+    return getToolDisplayLabel(entry.toolName, t);
   }
   if (entry.type === "tool" && entry.category === "connector") {
-    return getToolDisplayLabel(entry.toolName, t2);
+    return getToolDisplayLabel(entry.toolName, t);
   }
   if (
     (entry.category === "canvas" || entry.category === "plan") &&
     (entry.toolStatus === "running" || entry.toolStatus === "pending")
   ) {
-    return getToolDisplayLabel(entry.toolName, t2);
+    return getToolDisplayLabel(entry.toolName, t);
   }
   if (entry.aggregatedFiles) {
     if (entry.toolStatus === "running" || entry.toolStatus === "pending") {
       const runningKey = CATEGORY_RUNNING_I18N[entry.category];
-      if (runningKey) return t2(runningKey);
+      if (runningKey) return t(runningKey);
     }
     if (entry.toolStatus === "error") {
       const failedKey = FILE_ACTIVITY_FAILED_I18N[entry.category];
-      if (failedKey) return t2(failedKey);
+      if (failedKey) return t(failedKey);
     }
-    return t2(CATEGORY_I18N[entry.category], {
+    return t(CATEGORY_I18N[entry.category], {
       count: entry.aggregatedFiles.length,
     });
   }
   if (entry.aggregatedSearchChips) {
-    return t2("chat.activity.search", {
+    return t("chat.activity.search", {
       count: entry.aggregatedSearchChips.length,
     });
   }
@@ -265,30 +265,30 @@ function renderToolLabel(entry, t2) {
       entry.category === "canvas" ||
       entry.category === "plan")
   ) {
-    return t2(CATEGORY_I18N[entry.category], {
+    return t(CATEGORY_I18N[entry.category], {
       count: entry.aggregatedCount,
     });
   }
   if (entry.aggregatedTimelineOperations) {
-    const count2 =
+    const count =
       entry.aggregatedTimelineOperations.reduce(
-        (sum2, operation) => sum2 + operation.count,
+        (sum, operation) => sum + operation.count,
         0,
       ) + (entry.aggregatedTimelineFallbackCount ?? 0);
-    return t2(CATEGORY_I18N[entry.category], {
-      count: count2,
+    return t(CATEGORY_I18N[entry.category], {
+      count,
     });
   }
   if (entry.category === "skillOp") {
-    const name2 = extractSkillName(entry.toolArgs);
-    if (!name2) return t2("chat.activity.skillLoadedFallback");
+    const skillName = extractSkillName(entry.toolArgs);
+    if (!skillName) return t("chat.activity.skillLoadedFallback");
     return (
       <>
-        {t2("chat.activity.skillLoadedPrefix", {
+        {t("chat.activity.skillLoadedPrefix", {
           defaultValue: "加载Skill",
         })}
         <span className="ml-1.5 inline-flex items-center rounded-sm bg-foreground/5 px-1.5 py-0.5 text-foreground/80 font-mono text-[12px]">
-          {name2}
+          {skillName}
         </span>
       </>
     );
@@ -298,12 +298,12 @@ function renderToolLabel(entry, t2) {
   if (MEDIA_GEN_CATEGORIES.has(entry.category)) {
     if (entry.toolStatus === "running" || entry.toolStatus === "pending") {
       if (isLyrics)
-        return t2("chat.activity.lyricsGen.running", {
+        return t("chat.activity.lyricsGen.running", {
           defaultValue: "歌词生成",
         });
       const runningKey = CATEGORY_RUNNING_I18N[entry.category];
-      if (runningKey) return t2(runningKey);
-      return t2(CATEGORY_I18N[entry.category], {
+      if (runningKey) return t(runningKey);
+      return t(CATEGORY_I18N[entry.category], {
         count: 1,
       });
     }
@@ -312,43 +312,43 @@ function renderToolLabel(entry, t2) {
       (isToolRecoveredInterrupted(entry.toolResult) ||
         hasSuccessfulMediaOutput(entry.toolResult))
     ) {
-      return t2(CATEGORY_I18N[entry.category], {
+      return t(CATEGORY_I18N[entry.category], {
         count: 1,
       });
     }
     const failurePresentation = generationFailurePresentation(entry.toolResult);
     if (failurePresentation === "recoverable") {
-      return t2("chat.activity.mediaGenRecoverable");
+      return t("chat.activity.mediaGenRecoverable");
     }
     if (failurePresentation === "status_unknown") {
-      return t2("chat.activity.mediaGenUnknown");
+      return t("chat.activity.mediaGenUnknown");
     }
     if (failurePresentation === "cancelled") {
-      return t2("chat.activity.mediaGenCancelled");
+      return t("chat.activity.mediaGenCancelled");
     }
     const interruption =
       entry.toolStatus === "error"
         ? resolveToolInterruption(entry.toolResult, entry.interruption)
         : void 0;
     if (interruption === "canvas_continuation") {
-      return t2("chat.activity.mediaGenInterrupted");
+      return t("chat.activity.mediaGenInterrupted");
     }
     if (interruption === "aborted") {
-      return t2("chat.activity.mediaGenAborted");
+      return t("chat.activity.mediaGenAborted");
     }
     const rejectReason = resolveToolConfirmRejectReason(entry);
-    if (rejectReason) return toolConfirmRejectLabel(rejectReason, t2);
-    const count2 = extractMediaCount(sanitizeDisplayText(entry.toolResult));
-    if (count2 === 0) return t2("chat.activity.mediaGenFailed");
+    if (rejectReason) return toolConfirmRejectLabel(rejectReason, t);
+    const count = extractMediaCount(sanitizeDisplayText(entry.toolResult));
+    if (count === 0) return t("chat.activity.mediaGenFailed");
     if (isLyrics)
-      return t2("chat.activity.lyricsGen", {
+      return t("chat.activity.lyricsGen", {
         defaultValue: "生成了歌词",
       });
-    return t2(CATEGORY_I18N[entry.category], {
-      count: count2,
+    return t(CATEGORY_I18N[entry.category], {
+      count,
     });
   }
-  return t2(CATEGORY_I18N[entry.category], {
+  return t(CATEGORY_I18N[entry.category], {
     count: 1,
   });
 }
@@ -393,9 +393,9 @@ function TimelineOperationTargetChip({ operation }) {
     </span>
   );
 }
-function TimelineOperationRow({ operation, isActive: isActive2 }) {
-  const { t: t2 } = useTranslation();
-  const labelKey = isActive2
+function TimelineOperationRow({ operation, isActive }) {
+  const { t } = useTranslation();
+  const labelKey = isActive
     ? (operation.activeLabelKey ?? operation.labelKey)
     : operation.labelKey;
   const OperationIcon =
@@ -403,7 +403,7 @@ function TimelineOperationRow({ operation, isActive: isActive2 }) {
   return (
     <div className="flex min-w-0 items-center gap-1.5 text-body-14">
       <span className="flex size-4 shrink-0 items-center justify-center text-foreground">
-        {isActive2 ? (
+        {isActive ? (
           <Spinner className="size-4 text-tertiary" />
         ) : (
           <Icon
@@ -416,7 +416,7 @@ function TimelineOperationRow({ operation, isActive: isActive2 }) {
       </span>
       <div className="flex min-w-0 items-center gap-1">
         <span className="shrink-0 font-normal text-muted-foreground">
-          {t2(labelKey)}
+          {t(labelKey)}
         </span>
         <TimelineOperationTargetChip operation={operation} />
       </div>
@@ -433,7 +433,7 @@ function timelineOperationKey(operation) {
     operation.inputSummary,
   ].join("|");
 }
-function TimelineOperationRows({ operations, isActive: isActive2 }) {
+function TimelineOperationRows({ operations, isActive }) {
   return (
     <div
       className="flex min-w-0 flex-col gap-2"
@@ -445,7 +445,7 @@ function TimelineOperationRows({ operations, isActive: isActive2 }) {
           <TimelineOperationRow
             key={operationKey}
             operation={operation}
-            isActive={isActive2}
+            isActive={isActive}
           />
         );
       })}
@@ -455,14 +455,14 @@ function TimelineOperationRows({ operations, isActive: isActive2 }) {
 const HTTP_URL_RE = /^https?:\/\//i;
 const WINDOWS_ABSOLUTE_PATH_RE = /^[a-zA-Z]:[\\/]/;
 const WINDOWS_UNC_PATH_RE = /^\\\\/;
-function isGatewayRoute(path2) {
-  return path2.startsWith("/files/") || path2.startsWith("/api/");
+function isGatewayRoute(path) {
+  return path.startsWith("/files/") || path.startsWith("/api/");
 }
-function isAbsoluteLocalPath(path2) {
+function isAbsoluteLocalPath(path) {
   return (
-    (!isGatewayRoute(path2) && path2.startsWith("/")) ||
-    WINDOWS_ABSOLUTE_PATH_RE.test(path2) ||
-    WINDOWS_UNC_PATH_RE.test(path2)
+    (!isGatewayRoute(path) && path.startsWith("/")) ||
+    WINDOWS_ABSOLUTE_PATH_RE.test(path) ||
+    WINDOWS_UNC_PATH_RE.test(path)
   );
 }
 function resolveFileChipMediaUrl(item, resolveUrl) {
@@ -483,12 +483,12 @@ function FileOpChipsRow({ items }) {
         {items.map((item) => {
           const kind = item.kind ?? inferFileKind(item.path);
           const src = resolveFileChipMediaUrl(item, resolveUrl);
-          const isImage2 = kind === "image";
+          const isImage = kind === "image";
           const isVideo = kind === "video";
           const isAudio = kind === "audio";
-          const previewable = src && (isImage2 || isVideo || isAudio);
+          const previewable = src && (isImage || isVideo || isAudio);
           const mediaProps =
-            src && isImage2
+            src && isImage
               ? {
                   imageUrl: src,
                   mediaUrl: src,
@@ -520,10 +520,10 @@ function FileOpChipsRow({ items }) {
     </div>
   );
 }
-function ProcessStepsDetail({ steps, t: t2 }) {
+function ProcessStepsDetail({ steps, t }) {
   return (
     <div className="flex min-w-0 flex-col gap-2" data-process-steps={true}>
-      {steps.map((step, index2) => {
+      {steps.map((step, index) => {
         const displayResult = sanitizeDisplayText(step.toolResult);
         return (
           <div
@@ -531,14 +531,14 @@ function ProcessStepsDetail({ steps, t: t2 }) {
             className="min-w-0 rounded-md border border-border bg-foreground/[0.02] px-2.5 py-2"
           >
             <div className="text-body-12 font-medium text-foreground">
-              {index2 + 1}
+              {index + 1}
               {". "}
-              {getToolDisplayLabel(step.toolName, t2)}
+              {getToolDisplayLabel(step.toolName, t)}
             </div>
             {step.toolArgs && (
               <div className="mt-1.5">
                 <div className="mb-0.5 text-body-12 text-muted-foreground">
-                  {t2("chat.input")}
+                  {t("chat.input")}
                 </div>
                 <ExpandableText
                   asPre={true}
@@ -552,7 +552,7 @@ function ProcessStepsDetail({ steps, t: t2 }) {
             {displayResult && (
               <div className="mt-1.5">
                 <div className="mb-0.5 text-body-12 text-muted-foreground">
-                  {t2("chat.output")}
+                  {t("chat.output")}
                 </div>
                 <ExpandableText
                   asPre={true}
@@ -569,22 +569,22 @@ function ProcessStepsDetail({ steps, t: t2 }) {
     </div>
   );
 }
-function DetailCornerWrap({ children: children2, dataMessageId }) {
+function DetailCornerWrap({ children, dataMessageId }) {
   return (
     <div className="ml-[9px] pl-3 min-w-0" data-message-id={dataMessageId}>
-      {children2}
+      {children}
     </div>
   );
 }
 export function TimelineItem({
   entry,
-  isActive: isActive2,
+  isActive,
   onSend,
   showDetailRail = true,
   showThinkingSummary = true,
   defaultDetailExpanded = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const isComfyUiRun =
     entry.type === "tool" && entry.toolName === "hub_run_comfyui_workflow";
   const comfyUiRunResult = isComfyUiRun
@@ -646,7 +646,7 @@ export function TimelineItem({
       detailEligible &&
       (knowledgePaths || entry.toolArgs || showToolResult)) ||
     (entry.type === "thinking" && entry.thinkingContent);
-  const Icon2 = CATEGORY_ICON[entry.category];
+  const Icon = CATEGORY_ICON[entry.category];
   const isFailed =
     entry.type === "tool" &&
     entry.toolStatus === "error" &&
@@ -654,7 +654,7 @@ export function TimelineItem({
     !isToolRecoveredInterrupted(entry.toolResult) &&
     !resolveToolInterruption(entry.toolResult, entry.interruption) &&
     !hasSuccessfulMediaOutput(entry.toolResult);
-  const DisplayIcon = isFailed ? CATEGORY_ICON.mediaGenFailed : Icon2;
+  const DisplayIcon = isFailed ? CATEGORY_ICON.mediaGenFailed : Icon;
   const timelineIconSize = getTimelineIconSize(entry);
   const timelineOperations =
     entry.type === "tool" &&
@@ -691,11 +691,11 @@ export function TimelineItem({
     return (
       <TimelineOperationRows
         operations={timelineOperations}
-        isActive={isActive2}
+        isActive={isActive}
       />
     );
   }
-  const toggleDetail = () => setDetailExpanded((v2) => !v2);
+  const toggleDetail = () => setDetailExpanded((isExpanded) => !isExpanded);
   const handleDetailKeyDown = (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
@@ -723,7 +723,7 @@ export function TimelineItem({
     );
   return (
     <div
-      className={`relative ${isActive2 || (isMediaGen && detailExpanded) ? "" : "hover:opacity-90"} transition-opacity`}
+      className={`relative ${isActive || (isMediaGen && detailExpanded) ? "" : "hover:opacity-90"} transition-opacity`}
       data-action-ui-id={isConnector ? "chat-connector-tool" : void 0}
       data-tool-name={isConnector ? entry.toolName : void 0}
       data-tool-status={isConnector ? entry.toolStatus : void 0}
@@ -736,7 +736,7 @@ export function TimelineItem({
         }
       >
         <span className="shrink-0 size-4 flex items-center justify-center text-foreground">
-          {isActive2 ? (
+          {isActive ? (
             <Spinner className="size-4 text-tertiary" />
           ) : (
             <DisplayIcon
@@ -752,8 +752,8 @@ export function TimelineItem({
             title={isConnector ? entry.toolName : void 0}
           >
             {entry.type === "thinking"
-              ? t2("chat.activity.thought")
-              : renderToolLabel(entry, t2)}
+              ? t("chat.activity.thought")
+              : renderToolLabel(entry, t)}
           </span>
           {entry.type === "thinking" &&
             showThinkingSummary &&
@@ -765,7 +765,7 @@ export function TimelineItem({
             )}
           {(rawToolView ||
             (isConnector &&
-              getToolDisplayLabel(entry.toolName, t2) !== entry.toolName)) &&
+              getToolDisplayLabel(entry.toolName, t) !== entry.toolName)) &&
             entry.type === "tool" &&
             entry.toolName && (
               <span
@@ -779,7 +779,7 @@ export function TimelineItem({
             <span className="shrink-0 text-body-12 text-muted-foreground">
               {getToolStatusLabel(
                 entry.toolStatus,
-                t2,
+                t,
                 entry.toolResult,
                 entry.interruption,
               )}
@@ -829,7 +829,7 @@ export function TimelineItem({
                               entry.comfyUiProgress.workflow_id}
                           </span>
                           <span className="shrink-0 text-muted-foreground">
-                            {t2(
+                            {t(
                               "chat.toolLabel.runComfyUiWorkflow.progressCompleted",
                               {
                                 completed:
@@ -843,7 +843,7 @@ export function TimelineItem({
                         </div>
                         <div className="flex flex-wrap gap-x-3 gap-y-1 text-caption-10 text-muted-foreground">
                           <span>
-                            {t2(
+                            {t(
                               "chat.toolLabel.runComfyUiWorkflow.progressQueued",
                               {
                                 count: entry.comfyUiProgress.queued_count,
@@ -851,7 +851,7 @@ export function TimelineItem({
                             )}
                           </span>
                           <span>
-                            {t2(
+                            {t(
                               "chat.toolLabel.runComfyUiWorkflow.progressRunning",
                               {
                                 count: entry.comfyUiProgress.running_count,
@@ -859,7 +859,7 @@ export function TimelineItem({
                             )}
                           </span>
                           <span>
-                            {t2(
+                            {t(
                               "chat.toolLabel.runComfyUiWorkflow.progressMaterializing",
                               {
                                 count:
@@ -869,7 +869,7 @@ export function TimelineItem({
                             )}
                           </span>
                           <span>
-                            {t2(
+                            {t(
                               "chat.toolLabel.runComfyUiWorkflow.progressElapsed",
                               {
                                 elapsed: formatElapsedMilliseconds(
@@ -882,7 +882,7 @@ export function TimelineItem({
                       </>
                     ) : (
                       <div className="text-body-12 text-muted-foreground">
-                        {t2(
+                        {t(
                           "chat.toolLabel.runComfyUiWorkflow.progressDescription",
                         )}
                       </div>
@@ -902,7 +902,7 @@ export function TimelineItem({
                             )
                           : null
                       }
-                      aria-label={t2(
+                      aria-label={t(
                         "chat.toolLabel.runComfyUiWorkflow.running",
                       )}
                     />
@@ -919,9 +919,9 @@ export function TimelineItem({
                     data-command-details={true}
                   >
                     {aggregatedCommands.map(
-                      ({ id: id2, command: command2 }) => (
+                      ({ id: commandId, command }) => (
                         <div
-                          key={id2}
+                          key={commandId}
                           className="min-w-0 rounded-md border border-border bg-foreground/[0.02] px-2.5 py-2"
                         >
                           <ExpandableText
@@ -929,7 +929,7 @@ export function TimelineItem({
                             lineClamp={6}
                             className="text-body-12"
                           >
-                            {command2}
+                            {command}
                           </ExpandableText>
                         </div>
                       ),
@@ -938,7 +938,7 @@ export function TimelineItem({
                 </DetailCornerWrap>
               ) : aggregatedProcessSteps?.length ? (
                 <DetailCornerWrap>
-                  <ProcessStepsDetail steps={aggregatedProcessSteps} t={t2} />
+                  <ProcessStepsDetail steps={aggregatedProcessSteps} t={t} />
                 </DetailCornerWrap>
               ) : isMediaGen && entry.type === "tool" ? (
                 <DetailCornerWrap>
@@ -957,7 +957,7 @@ export function TimelineItem({
                       !knowledgePaths && (
                         <div>
                           <div className="text-muted-foreground mb-0.5">
-                            {t2("chat.input")}
+                            {t("chat.input")}
                           </div>
                           <ExpandableText
                             asPre={true}
@@ -980,7 +980,7 @@ export function TimelineItem({
                     {showToolResult && !knowledgePaths && (
                       <div>
                         <div className="text-muted-foreground mb-0.5">
-                          {t2("chat.output")}
+                          {t("chat.output")}
                         </div>
                         <ExpandableText
                           asPre={true}

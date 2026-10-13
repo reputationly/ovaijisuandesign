@@ -11,29 +11,29 @@ export function CountChip({
   options: explicitOptions,
   minCount = 1,
   onChange,
-  disabled: disabled2,
+  disabled,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const anchorRef = reactExports.useRef(null);
   const popupRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!open) return;
-    const handleMouseDown2 = (e2) => {
-      const t22 = e2.target;
-      if (!t22) return;
-      if (popupRef.current?.contains(t22)) return;
-      if (anchorRef.current?.contains(t22)) return;
+    const handleMouseDown = (mouseDownEvent) => {
+      const eventTarget = mouseDownEvent.target;
+      if (!eventTarget) return;
+      if (popupRef.current?.contains(eventTarget)) return;
+      if (anchorRef.current?.contains(eventTarget)) return;
       setOpen(false);
     };
-    const handleKeyDown2 = (e2) => {
-      if (e2.key === "Escape") setOpen(false);
+    const handleKeyDown = (keyDownEvent) => {
+      if (keyDownEvent.key === "Escape") setOpen(false);
     };
-    document.addEventListener("mousedown", handleMouseDown2, true);
-    document.addEventListener("keydown", handleKeyDown2);
+    document.addEventListener("mousedown", handleMouseDown, true);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handleMouseDown2, true);
-      document.removeEventListener("keydown", handleKeyDown2);
+      document.removeEventListener("mousedown", handleMouseDown, true);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open]);
   const placement = usePortalAnchorPlacement(anchorRef, {
@@ -44,21 +44,21 @@ export function CountChip({
     panelWidth: COUNT_POPUP_WIDTH,
   });
   const options = reactExports.useMemo(() => {
-    const next2 = [];
+    const next = [];
     if (explicitOptions) {
-      for (const option2 of explicitOptions) {
+      for (const option of explicitOptions) {
         if (
-          option2 >= minCount &&
-          option2 <= maxCount &&
-          !next2.includes(option2)
+          option >= minCount &&
+          option <= maxCount &&
+          !next.includes(option)
         ) {
-          next2.push(option2);
+          next.push(option);
         }
       }
-      return next2;
+      return next;
     }
-    for (let i2 = minCount; i2 <= maxCount; i2++) next2.push(i2);
-    return next2;
+    for (let count = minCount; count <= maxCount; count++) next.push(count);
+    return next;
   }, [explicitOptions, maxCount, minCount]);
   reactExports.useEffect(() => {
     const fallback = options.at(-1);
@@ -70,13 +70,13 @@ export function CountChip({
         ref={anchorRef}
         type="button"
         data-action-ui-id="canvas.image-node.count-chip"
-        onClick={(e2) => {
-          e2.stopPropagation();
-          setOpen((v2) => !v2);
+        onClick={(clickEvent) => {
+          clickEvent.stopPropagation();
+          setOpen((isOpen) => !isOpen);
         }}
-        disabled={disabled2 || options.length <= 1}
+        disabled={disabled || options.length <= 1}
         className="h-8 min-w-10 px-2 text-[13px] font-normal tracking-[-0.52px] leading-[20px] opacity-70 text-foreground hover:enabled:opacity-100 disabled:cursor-default disabled:opacity-40 flex items-center justify-center gap-1 canvas-prompt-control"
-        title={t2("canvas.imageNode.generateVariations", {
+        title={t("canvas.imageNode.generateVariations", {
           count: value,
           defaultValue: `Generate ${value} variation${value > 1 ? "s" : ""}`,
         })}
@@ -101,34 +101,34 @@ export function CountChip({
               maxHeight: placement.maxHeight,
               width: COUNT_POPUP_WIDTH,
             }}
-            onClick={(e2) => e2.stopPropagation()}
-            onKeyDown={(e2) => e2.stopPropagation()}
+            onClick={(clickEvent) => clickEvent.stopPropagation()}
+            onKeyDown={(keyDownEvent) => keyDownEvent.stopPropagation()}
             role="listbox"
             tabIndex={-1}
           >
             <div className="px-2 pt-1.5 pb-1 text-center text-xs font-normal text-muted-foreground">
-              {t2("canvas.imageNode.generationCount", {
+              {t("canvas.imageNode.generationCount", {
                 defaultValue: "Generation Count",
               })}
             </div>
-            {options.map((opt) => {
-              const active2 = opt === value;
+            {options.map((option) => {
+              const active = option === value;
               return (
                 <button
-                  key={opt}
+                  key={option}
                   type="button"
-                  data-action-ui-id={`canvas.image-node.count-chip.option-${opt}`}
-                  onClick={(e2) => {
-                    e2.stopPropagation();
-                    onChange(opt);
+                  data-action-ui-id={`canvas.image-node.count-chip.option-${option}`}
+                  onClick={(clickEvent) => {
+                    clickEvent.stopPropagation();
+                    onChange(option);
                     setOpen(false);
                   }}
                   role="option"
-                  aria-selected={active2}
-                  className={`h-7 px-2 text-center text-sm rounded-sm transition-colors duration-150 ${active2 ? "bg-[var(--canvas-param-selected-bg)] text-foreground" : "text-foreground hover:bg-[var(--canvas-controls-hover)]"}`}
+                  aria-selected={active}
+                  className={`h-7 px-2 text-center text-sm rounded-sm transition-colors duration-150 ${active ? "bg-[var(--canvas-param-selected-bg)] text-foreground" : "text-foreground hover:bg-[var(--canvas-controls-hover)]"}`}
                 >
                   {"× "}
-                  {opt}
+                  {option}
                 </button>
               );
             })}

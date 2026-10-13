@@ -1,0 +1,15 @@
+key	new	依据
+m@4:10	ErrorBoundary	按压缩短名规则改为描述该值或行为的名称；此处保存“ErrorBoundary”所表示的值。
+res@11:9	response	按压缩短名规则改为描述该值或行为的名称；此处保存“response”所表示的值。
+mod@19:11	remoteModule	按压缩短名规则改为描述该值或行为的名称；此处保存“remoteModule”所表示的值。
+sdk@28:3	toolSdk	按压缩短名规则改为描述该值或行为的名称；此处保存“toolSdk”所表示的值。
+t2@34:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
+ro@69:9	resizeObserver	按压缩短名规则改为描述该值或行为的名称；此处保存“resizeObserver”所表示的值。
+mod@93:14	remoteModule	按压缩短名规则改为描述该值或行为的名称；此处保存“remoteModule”所表示的值。
+url2@10:37	url	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“url”所表示的值。
+content2@13:9	content	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“content”所表示的值。
+scale2@147:9	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“scale”所表示的值。
+shadow2@60:11	shadow	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“shadow”所表示的值。
+entries2@71:32	entries	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“entries”所表示的值。
+node2@95:20	node	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“node”所表示的值。
+info2@195:34	info	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“info”所表示的值。

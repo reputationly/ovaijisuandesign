@@ -1,81 +1,81 @@
 // hit-handle.js
 import { Tool, uid } from "./keep-tag-in-canvas.js";
 export const HANDLE_SIZE = 8;
-export function hitHandle(p3, b3, uiScale = 1) {
+export function hitHandle(pointer, bounds, uiScale = 1) {
   const half = uiScale > 0 ? HANDLE_SIZE / uiScale : HANDLE_SIZE;
   const corners = [
     {
       c: "nw",
-      x: b3.x,
-      y: b3.y,
+      x: bounds.x,
+      y: bounds.y,
     },
     {
       c: "ne",
-      x: b3.x + b3.width,
-      y: b3.y,
+      x: bounds.x + bounds.width,
+      y: bounds.y,
     },
     {
       c: "sw",
-      x: b3.x,
-      y: b3.y + b3.height,
+      x: bounds.x,
+      y: bounds.y + bounds.height,
     },
     {
       c: "se",
-      x: b3.x + b3.width,
-      y: b3.y + b3.height,
+      x: bounds.x + bounds.width,
+      y: bounds.y + bounds.height,
     },
   ];
-  for (const { c: c3, x: x2, y: y4 } of corners) {
-    if (Math.abs(p3.x - x2) <= half && Math.abs(p3.y - y4) <= half) return c3;
+  for (const { c: corner, x: cornerX, y: cornerY } of corners) {
+    if (Math.abs(pointer.x - cornerX) <= half && Math.abs(pointer.y - cornerY) <= half) return corner;
   }
   return null;
 }
-export function cornerCursor(c3) {
-  return c3 === "nw" || c3 === "se" ? "nwse-resize" : "nesw-resize";
+export function cornerCursor(corner) {
+  return corner === "nw" || corner === "se" ? "nwse-resize" : "nesw-resize";
 }
 export class TextTool extends Tool {
   cursor = "text";
-  onPointerDown(e2) {
-    if (e2.button !== 0) return;
-    this.editor.openTextEditor(e2.point);
+  onPointerDown(pointerEvent) {
+    if (pointerEvent.button !== 0) return;
+    this.editor.openTextEditor(pointerEvent.point);
   }
 }
-export function buildTextShapeData(point2, text2, style2) {
+export function buildTextShapeData(point, text, style) {
   return {
     id: uid("text"),
     type: "text",
-    x: point2.x,
-    y: point2.y,
-    text: text2,
+    x: point.x,
+    y: point.y,
+    text,
     width: 0,
     height: 0,
     style: {
-      ...style2,
+      ...style,
     },
   };
 }
 export class EventBus {
   listeners = new Map();
-  on(type2, handler) {
-    let set2 = this.listeners.get(type2);
-    if (!set2) {
-      set2 = new Set();
-      this.listeners.set(type2, set2);
+  on(type, handler) {
+    let set = this.listeners.get(type);
+    if (!set) {
+      set = new Set();
+      this.listeners.set(type, set);
     }
-    set2.add(handler);
-    return () => this.off(type2, handler);
+    set.add(handler);
+    return () => this.off(type, handler);
   }
-  off(type2, handler) {
-    this.listeners.get(type2)?.delete(handler);
+  off(type, handler) {
+    this.listeners.get(type)?.delete(handler);
   }
-  emit(type2, payload) {
-    const set2 = this.listeners.get(type2);
-    if (!set2) return;
-    for (const h2 of Array.from(set2)) {
+  emit(type, payload) {
+    const set = this.listeners.get(type);
+    if (!set) return;
+    for (const handler of Array.from(set)) {
       try {
-        h2(payload);
-      } catch (e2) {
-        console.error("[EventBus] handler error", e2);
+        handler(payload);
+      } catch (error) {
+        console.error("[EventBus] handler error", error);
       }
     }
   }

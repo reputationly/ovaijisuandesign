@@ -1,23 +1,23 @@
 // default-settings.js
 
 // highlights-fragment.js
-export function lutToRGBA8(lut) {
-  const { data: data2, size: size2, domainMin, domainMax } = lut;
-  const total = size2 * size2 * size2;
-  const out = new Uint8Array(total * 4);
-  const dxR = domainMax[0] - domainMin[0] || 1;
-  const dxG = domainMax[1] - domainMin[1] || 1;
-  const dxB = domainMax[2] - domainMin[2] || 1;
-  for (let i2 = 0; i2 < total; i2++) {
-    const r2 = (data2[i2 * 3] - domainMin[0]) / dxR;
-    const g2 = (data2[i2 * 3 + 1] - domainMin[1]) / dxG;
-    const b3 = (data2[i2 * 3 + 2] - domainMin[2]) / dxB;
-    out[i2 * 4] = Math.max(0, Math.min(255, Math.round(r2 * 255)));
-    out[i2 * 4 + 1] = Math.max(0, Math.min(255, Math.round(g2 * 255)));
-    out[i2 * 4 + 2] = Math.max(0, Math.min(255, Math.round(b3 * 255)));
-    out[i2 * 4 + 3] = 255;
+export function lutToRGBA8(lookupTable) {
+  const { data, size, domainMin, domainMax } = lookupTable;
+  const total = size * size * size;
+  const rgbaBuffer = new Uint8Array(total * 4);
+  const redRange = domainMax[0] - domainMin[0] || 1;
+  const greenRange = domainMax[1] - domainMin[1] || 1;
+  const blueRange = domainMax[2] - domainMin[2] || 1;
+  for (let voxelIndex = 0; voxelIndex < total; voxelIndex++) {
+    const redValue = (data[voxelIndex * 3] - domainMin[0]) / redRange;
+    const greenValue = (data[voxelIndex * 3 + 1] - domainMin[1]) / greenRange;
+    const blueValue = (data[voxelIndex * 3 + 2] - domainMin[2]) / blueRange;
+    rgbaBuffer[voxelIndex * 4] = Math.max(0, Math.min(255, Math.round(redValue * 255)));
+    rgbaBuffer[voxelIndex * 4 + 1] = Math.max(0, Math.min(255, Math.round(greenValue * 255)));
+    rgbaBuffer[voxelIndex * 4 + 2] = Math.max(0, Math.min(255, Math.round(blueValue * 255)));
+    rgbaBuffer[voxelIndex * 4 + 3] = 255;
   }
-  return out;
+  return rgbaBuffer;
 }
 
 export const defaultSettings = {

@@ -1,0 +1,18 @@
+key	new	依据
+t2@16:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
+e2@22:31	mouseDownEvent	按压缩短名规则改为描述该值或行为的名称；此处保存mouseDown 的事件对象。
+t22@23:13	eventTarget	按压缩短名规则改为描述该值或行为的名称；此处保存“eventTarget”所表示的值。
+e2@29:29	keyDownEvent	按压缩短名规则改为描述该值或行为的名称；此处保存keyDown 的事件对象。
+i2@60:14	count	按压缩短名规则改为描述该值或行为的名称；此处保存“count”所表示的值。
+e2@73:19	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存click 的事件对象。
+v2@75:20	isOpen	按压缩短名规则改为描述该值或行为的名称；此处保存表示“isOpen”条件是否成立的布尔值。
+e2@104:23	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存click 的事件对象。
+e2@105:25	keyDownEvent	按压缩短名规则改为描述该值或行为的名称；此处保存keyDown 的事件对象。
+opt@114:27	option	按压缩短名规则改为描述该值或行为的名称；此处保存“option”所表示的值。
+e2@121:29	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存click 的事件对象。
+disabled2@14:13	disabled	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“disabled”所表示的值。
+handleMouseDown2@22:11	handleMouseDown	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“handleMouseDown”所表示的值。
+handleKeyDown2@29:11	handleKeyDown	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“handleKeyDown”所表示的值。
+next2@47:11	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“next”所表示的值。
+option2@49:18	option	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“option”所表示的值。
+active2@115:21	active	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“active”所表示的值。

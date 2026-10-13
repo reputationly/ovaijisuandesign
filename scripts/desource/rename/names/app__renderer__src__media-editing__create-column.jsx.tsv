@@ -1,0 +1,16 @@
+key	new	依据
+op@22:44	operator	按压缩短名规则改为描述该值或行为的名称；此处保存“operator”所表示的值。
+n2@42:11	cellNumber	按压缩短名规则改为描述该值或行为的名称；此处保存“cellNumber”所表示的值。
+t2@44:11	targetNumber	按压缩短名规则改为描述该值或行为的名称；此处保存“targetNumber”所表示的值。
+f2@66:9	filterConfig	按压缩短名规则改为描述该值或行为的名称；此处保存“filterConfig”所表示的值。
+c3@69:39	column	按压缩短名规则改为描述该值或行为的名称；此处保存“column”所表示的值。
+row@72:13	rowData	按压缩短名规则改为描述该值或行为的名称；此处保存“rowData”所表示的值。
+row@81:30	rowData	按压缩短名规则改为描述该值或行为的名称；此处保存“rowData”所表示的值。
+p3@81:56	predicate	按压缩短名规则改为描述该值或行为的名称；此处保存“predicate”所表示的值。
+row@83:28	rowData	按压缩短名规则改为描述该值或行为的名称；此处保存“rowData”所表示的值。
+p3@83:53	predicate	按压缩短名规则改为描述该值或行为的名称；此处保存“predicate”所表示的值。
+c3@86:31	column	按压缩短名规则改为描述该值或行为的名称；此处保存“column”所表示的值。
+doc2@65:29	doc	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“doc”所表示的值。
+doc2@85:32	doc	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“doc”所表示的值。
+doc@65:29	columnDocument	按压缩短名规则改为描述该值或行为的名称；此处保存“columnDocument”所表示的值。
+doc@85:32	columnDocument	按压缩短名规则改为描述该值或行为的名称；此处保存“columnDocument”所表示的值。

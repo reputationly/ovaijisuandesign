@@ -1,0 +1,12 @@
+key	new	依据
+lut@4:28	lookupTable	按压缩短名规则改为描述该值或行为的名称；此处保存“lookupTable”所表示的值。
+out@7:9	rgbaBuffer	按压缩短名规则改为描述该值或行为的名称；此处保存“rgbaBuffer”所表示的值。
+dxR@8:9	redRange	按压缩短名规则改为描述该值或行为的名称；此处保存“redRange”所表示的值。
+dxG@9:9	greenRange	按压缩短名规则改为描述该值或行为的名称；此处保存“greenRange”所表示的值。
+dxB@10:9	blueRange	按压缩短名规则改为描述该值或行为的名称；此处保存“blueRange”所表示的值。
+i2@11:12	voxelIndex	按压缩短名规则改为描述该值或行为的名称；此处保存“voxelIndex”所表示的值。
+r2@12:11	redValue	按压缩短名规则改为描述该值或行为的名称；此处保存“redValue”所表示的值。
+g2@13:11	greenValue	按压缩短名规则改为描述该值或行为的名称；此处保存“greenValue”所表示的值。
+b3@14:11	blueValue	按压缩短名规则改为描述该值或行为的名称；此处保存“blueValue”所表示的值。
+data2@5:17	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“data”所表示的值。
+size2@5:30	size	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“size”所表示的值。

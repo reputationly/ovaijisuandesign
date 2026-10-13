@@ -1,0 +1,14 @@
+key	new	依据
+X@8:10	X	按压缩短名规则改为描述该值或行为的名称；此处保存“X”所表示的值。
+t2@73:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
+e2@97:6	removeEvent	按压缩短名规则改为描述该值或行为的名称；此处保存remove 的事件对象。
+e2@129:6	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存click 的事件对象。
+e2@139:6	clipVideoEvent	按压缩短名规则改为描述该值或行为的名称；此处保存clipVideo 的事件对象。
+e2@146:6	clipAudioEvent	按压缩短名规则改为描述该值或行为的名称；此处保存clipAudio 的事件对象。
+e2@178:17	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存click 的事件对象。
+e2@185:19	keyDownEvent	按压缩短名规则改为描述该值或行为的名称；此处保存keyDown 的事件对象。
+e2@228:30	loadedMetadataEvent	按压缩短名规则改为描述该值或行为的名称；此处保存loadedMetadata 的事件对象。
+disabled2@62:13	disabled	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“disabled”所表示的值。
+readOnly2@63:13	readOnly	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“readOnly”所表示的值。
+onRemove2@69:13	onRemove	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“onRemove”所表示的值。
+handleClick2@128:9	handleClick	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“handleClick”所表示的值。

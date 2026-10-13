@@ -19,13 +19,13 @@ function isEmptyCell(cell) {
   if (Array.isArray(cell)) return cell.length === 0;
   return false;
 }
-function matchesCondition(cell, fieldType, op, value) {
-  if (op === "empty") return isEmptyCell(cell);
-  if (op === "notEmpty") return !isEmptyCell(cell);
+function matchesCondition(cell, fieldType, operator, value) {
+  if (operator === "empty") return isEmptyCell(cell);
+  if (operator === "notEmpty") return !isEmptyCell(cell);
   if (fieldType === "text") {
     if (typeof cell !== "string") return false;
     const target = String(value ?? "");
-    switch (op) {
+    switch (operator) {
       case "contains":
         return cell.toLowerCase().includes(target.toLowerCase());
       case "notContains":
@@ -39,51 +39,51 @@ function matchesCondition(cell, fieldType, op, value) {
     }
   }
   if (fieldType === "number") {
-    const n2 = typeof cell === "number" ? cell : Number.NaN;
-    if (Number.isNaN(n2)) return false;
-    const t2 = typeof value === "number" ? value : Number(value);
-    if (Number.isNaN(t2)) return false;
-    switch (op) {
+    const cellNumber = typeof cell === "number" ? cell : Number.NaN;
+    if (Number.isNaN(cellNumber)) return false;
+    const targetNumber = typeof value === "number" ? value : Number(value);
+    if (Number.isNaN(targetNumber)) return false;
+    switch (operator) {
       case "equals":
-        return n2 === t2;
+        return cellNumber === targetNumber;
       case "notEquals":
-        return n2 !== t2;
+        return cellNumber !== targetNumber;
       case "gt":
-        return n2 > t2;
+        return cellNumber > targetNumber;
       case "lt":
-        return n2 < t2;
+        return cellNumber < targetNumber;
       case "gte":
-        return n2 >= t2;
+        return cellNumber >= targetNumber;
       case "lte":
-        return n2 <= t2;
+        return cellNumber <= targetNumber;
       default:
         return false;
     }
   }
   return false;
 }
-export function applyFilter(doc2) {
-  const f2 = doc2.filter;
-  if (!f2 || f2.conditions.length === 0) return doc2.rows;
-  const predicates = f2.conditions.map((cond) => {
-    const column = doc2.columns.find((c3) => c3.id === cond.columnId);
+export function applyFilter(columnDocument) {
+  const filterConfig = columnDocument.filter;
+  if (!filterConfig || filterConfig.conditions.length === 0) return columnDocument.rows;
+  const predicates = filterConfig.conditions.map((cond) => {
+    const column = columnDocument.columns.find((column) => column.id === cond.columnId);
     if (!column) return () => true;
     if (isConditionInactive(cond)) return () => true;
-    return (row) =>
+    return (rowData) =>
       matchesCondition(
-        row.cells[cond.columnId],
+        rowData.cells[cond.columnId],
         column.type,
         cond.op,
         cond.value,
       );
   });
-  if (f2.match === "all") {
-    return doc2.rows.filter((row) => predicates.every((p3) => p3(row)));
+  if (filterConfig.match === "all") {
+    return columnDocument.rows.filter((rowData) => predicates.every((predicate) => predicate(rowData)));
   }
-  return doc2.rows.filter((row) => predicates.some((p3) => p3(row)));
+  return columnDocument.rows.filter((rowData) => predicates.some((predicate) => predicate(rowData)));
 }
-export function visibleColumns(doc2) {
-  return doc2.columns.filter((c3) => c3.visible !== false);
+export function visibleColumns(columnDocument) {
+  return columnDocument.columns.filter((column) => column.visible !== false);
 }
 export const MATCH_LABELS = {
   all: {
