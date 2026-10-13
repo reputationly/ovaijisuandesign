@@ -48,12 +48,12 @@ export function TagDots({ tagIds, size = 9, className, ringColor }) {
   const { t: translate } = useTranslation();
   const tags = resolveTagIds(tagIds, registry).filter(isCanvasColorTag);
   if (tags.length === 0) return null;
-  const colorName = (colorId, custom) =>
+  const getColorName = (colorId, custom) =>
     custom && custom.length > 0
       ? custom
       : translate(PRESET_COLOR_NAME_KEYS[colorId] ?? "") || colorId;
   const visibleTags = tags.slice(0, MAX_VISIBLE_CANVAS_TAG_COLORS);
-  const title = visibleTags.map((tag) => colorName(tag.id, tag.name)).join("、");
+  const title = visibleTags.map((tag) => getColorName(tag.id, tag.name)).join("、");
   const overlap = Math.round(size * 0.4);
   const ring = ringColor ?? "var(--background, #fff)";
   return (

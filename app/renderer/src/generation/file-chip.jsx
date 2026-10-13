@@ -487,7 +487,7 @@ export function FileChip({
     !suppressHoverPreview;
   reactExports.useEffect(() => {
     if (!hoverPreviewOpen || !chipEl) return;
-    const handlePreviewOutsideClick = (event) => {
+    const dismissPreview = (event) => {
       if (
         event?.target instanceof Element &&
         event.target.closest(
@@ -497,21 +497,21 @@ export function FileChip({
         return;
       setHoverPreviewOpen(false);
     };
-    document.addEventListener("scroll", handlePreviewOutsideClick, {
+    document.addEventListener("scroll", dismissPreview, {
       capture: true,
       passive: true,
     });
     const handleEscape = (event) => {
-      if (event.key === "Escape") handlePreviewOutsideClick();
+      if (event.key === "Escape") dismissPreview();
     };
     document.addEventListener("keydown", handleEscape);
-    window.addEventListener("blur", handlePreviewOutsideClick);
+    window.addEventListener("blur", dismissPreview);
     return () => {
-      document.removeEventListener("scroll", handlePreviewOutsideClick, {
+      document.removeEventListener("scroll", dismissPreview, {
         capture: true,
       });
       document.removeEventListener("keydown", handleEscape);
-      window.removeEventListener("blur", handlePreviewOutsideClick);
+      window.removeEventListener("blur", dismissPreview);
     };
   }, [hoverPreviewOpen, chipEl]);
   const imageLoadFailed = imageUrl === failedImageUrl;

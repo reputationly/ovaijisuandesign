@@ -17,4 +17,4 @@ handleKeyDown2@545:9	handleKeyDown2	handleKeyDown	去掉打包器防重名追加
 meta2@896:9	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
 url2@376:6	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
 dimensions2@386:13	dimensions2	dimensions	去掉打包器防重名追加的后缀，恢复原名 dimensions，即该绑定持有的值。
-close2@490:11	close2	handlePreviewOutsideClick	该函数处理悬浮预览外部点击并关闭预览。
+close2@490:11	close2	dismissPreview	该函数在外部点击、滚动、窗口失焦或按 Escape 时关闭悬浮预览；点击预览内部则忽略。

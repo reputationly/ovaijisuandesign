@@ -12,7 +12,7 @@ color2@40:53	color2	color	去掉打包器防重名追加的后缀，恢复原名
 size2@46:41	size2	size	去掉打包器防重名追加的后缀，恢复原名 size，即该绑定持有的值。
 registry2@47:9	registry2	registry	去掉打包器防重名追加的后缀，恢复原名 registry，即该绑定持有的值。
 tags2@49:9	tags2	tags	去掉打包器防重名追加的后缀，恢复原名 tags，即该绑定持有的值。
-name2@51:9	name2	colorName	该函数根据颜色标签 ID 和自定义名称返回显示名称。
+name2@51:9	name2	getColorName	该函数根据颜色标签 ID 和自定义名称取得颜色显示名称。
 index2@70:38	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
 next2@93:46	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
 key2@94:14	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
