@@ -40,13 +40,13 @@ const TYPE_FALLBACK_MIME = {
   file: "application/octet-stream",
 };
 
-export function inferArtifactMime(url2, type2) {
-  if (!url2) return TYPE_FALLBACK_MIME[type2];
-  const clean = url2.split("?")[0]?.split("#")[0] ?? "";
-  const dot2 = clean.lastIndexOf(".");
-  if (dot2 < 0) return TYPE_FALLBACK_MIME[type2];
-  const ext = clean.slice(dot2 + 1).toLowerCase();
-  return MIME_BY_EXT[ext] ?? TYPE_FALLBACK_MIME[type2];
+export function inferArtifactMime(url, type) {
+  if (!url) return TYPE_FALLBACK_MIME[type];
+  const clean = url.split("?")[0]?.split("#")[0] ?? "";
+  const dot = clean.lastIndexOf(".");
+  if (dot < 0) return TYPE_FALLBACK_MIME[type];
+  const ext = clean.slice(dot + 1).toLowerCase();
+  return MIME_BY_EXT[ext] ?? TYPE_FALLBACK_MIME[type];
 }
 
 export function useWorkspaceThumbnails(workspacePath, enabled = true) {
@@ -62,7 +62,7 @@ export function useWorkspaceThumbnails(workspacePath, enabled = true) {
 }
 
 export function useProjectDelete(deleteProject) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [pendingDelete, setPendingDelete] = reactExports.useState(null);
   const handleCancelDelete = reactExports.useCallback(
     () => setPendingDelete(null),
@@ -74,19 +74,19 @@ export function useProjectDelete(deleteProject) {
     if (!target) return;
     void deleteProject(target).then((result) => {
       if (result.errorCode === "project-transfer-active") {
-        dedupedToast.warning(t2("project.dissolve.transferActive"));
+        dedupedToast.warning(translate("project.dissolve.transferActive"));
       } else if (result.errorCode === "project-hide-failed") {
-        dedupedToast.error(t2("project.dissolve.failed"));
+        dedupedToast.error(translate("project.dissolve.failed"));
       } else if (
         result.errorMessage ||
         result.errorCode === "cloud-request-failed"
       ) {
         dedupedToast.error(
-          result.errorMessage ?? t2("project.dissolve.failed"),
+          result.errorMessage ?? translate("project.dissolve.failed"),
         );
       }
     });
-  }, [deleteProject, pendingDelete, t2]);
+  }, [deleteProject, pendingDelete, translate]);
   return {
     pendingDelete,
     requestDelete: setPendingDelete,

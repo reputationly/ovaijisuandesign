@@ -34,14 +34,14 @@ function resolveGroupDropPlacement(clientY, headerBottom, rows) {
   };
 }
 
-function isUnchangedSidebarPosition(paths, sourcePath, anchorPath, position2) {
+function isUnchangedSidebarPosition(paths, sourcePath, anchorPath, position) {
   const sourceIndex = paths.indexOf(sourcePath);
   const anchorIndex = paths.indexOf(anchorPath);
   if (sourceIndex < 0 || anchorIndex < 0) return true;
   return (
     sourceIndex === anchorIndex ||
-    (position2 === "before" && sourceIndex === anchorIndex - 1) ||
-    (position2 === "after" && sourceIndex === anchorIndex + 1)
+    (position === "before" && sourceIndex === anchorIndex - 1) ||
+    (position === "after" && sourceIndex === anchorIndex + 1)
   );
 }
 
@@ -66,7 +66,7 @@ export function useSidebarProjectDrag({
   holdPreviewOpen,
   releasePreviewHold,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [groupTarget, setGroupTarget] = reactExports.useState(null);
   const [rowTarget, setRowTarget] = reactExports.useState(null);
   const [projectTarget, setProjectTarget] = reactExports.useState(null);
@@ -86,17 +86,17 @@ export function useSidebarProjectDrag({
   }, [dragActive, clearPreview]);
   reactExports.useEffect(() => {
     if (!dragActive && !pendingMove) return;
-    const token2 = "home-sidebar.project-drag";
-    holdPreviewOpen?.(token2);
-    return () => releasePreviewHold?.(token2);
+    const token = "home-sidebar.project-drag";
+    holdPreviewOpen?.(token);
+    return () => releasePreviewHold?.(token);
   }, [dragActive, pendingMove, holdPreviewOpen, releasePreviewHold]);
   reactExports.useEffect(() => {
     if (!dragActive) return;
-    let frame2 = 0;
+    let frame = 0;
     let speed = 0;
     const tick = () => {
       if (scrollRef.current && speed) scrollRef.current.scrollTop += speed;
-      frame2 = requestAnimationFrame(tick);
+      frame = requestAnimationFrame(tick);
     };
     const handleOver = (event) => {
       const scroll = scrollRef.current;
@@ -117,42 +117,42 @@ export function useSidebarProjectDrag({
         clearPreview();
     };
     document.addEventListener("dragover", handleOver, true);
-    frame2 = requestAnimationFrame(tick);
+    frame = requestAnimationFrame(tick);
     return () => {
       document.removeEventListener("dragover", handleOver, true);
-      cancelAnimationFrame(frame2);
+      cancelAnimationFrame(frame);
     };
   }, [dragActive, scrollRef, clearPreview]);
   reactExports.useEffect(() => {
     if (!completedPath) return;
     const row = [
       ...(scrollRef.current?.querySelectorAll("[data-workspace-path]") ?? []),
-    ].find((element2) => element2.dataset.workspacePath === completedPath);
+    ].find((element) => element.dataset.workspacePath === completedPath);
     row?.scrollIntoView?.({
       block: "nearest",
       behavior: "auto",
     });
-    const timeout2 = setTimeout(() => setCompletedPath(null), 1800);
-    return () => clearTimeout(timeout2);
+    const timeout = setTimeout(() => setCompletedPath(null), 1800);
+    return () => clearTimeout(timeout);
   }, [completedPath, scrollRef]);
   const resolveOwner = reactExports.useCallback(
-    (path2) => {
-      const key2 = projectWorkspaceKey(path2, caseInsensitive);
+    (path) => {
+      const key = projectWorkspaceKey(path, caseInsensitive);
       const item = currentInventory.find(
         (entry) =>
-          projectWorkspaceKey(entry.workspace.path, caseInsensitive) === key2,
+          projectWorkspaceKey(entry.workspace.path, caseInsensitive) === key,
       );
       const alias =
         item?.recentPath &&
         projectWorkspaceKey(item.recentPath, caseInsensitive);
       return (
-        projects.find((project2) =>
-          project2.workspacePaths.some((candidate) => {
+        projects.find((project) =>
+          project.workspacePaths.some((candidate) => {
             const candidateKey = projectWorkspaceKey(
               candidate,
               caseInsensitive,
             );
-            return candidateKey === key2 || candidateKey === alias;
+            return candidateKey === key || candidateKey === alias;
           }),
         )?.id ?? null
       );
@@ -185,25 +185,25 @@ export function useSidebarProjectDrag({
           if (drop) onClearDrag();
           return;
         }
-        const position2 =
+        const position =
           event.clientY < headerRect.top + headerRect.height / 2
             ? "before"
             : "after";
         const projectOrder = sourcePinned
-          ? pinnedProjectIds.filter((id2) =>
-              projects.some((project2) => project2.id === id2),
+          ? pinnedProjectIds.filter((projectId) =>
+              projects.some((project) => project.id === projectId),
             )
           : projects
               .filter(
-                (project2) => !isProjectPinned(project2.id, pinnedProjectIds),
+                (project) => !isProjectPinned(project.id, pinnedProjectIds),
               )
-              .map((project2) => project2.id);
+              .map((project) => project.id);
         if (
           isUnchangedSidebarPosition(
             projectOrder,
             draggedProjectId,
             targetId,
-            position2,
+            position,
           )
         ) {
           event.dataTransfer.dropEffect = "none";
@@ -214,10 +214,10 @@ export function useSidebarProjectDrag({
         event.dataTransfer.dropEffect = "move";
         setProjectTarget({
           id: targetId,
-          position: position2,
+          position,
         });
         if (drop) {
-          onProjectReorder(draggedProjectId, targetId, position2);
+          onProjectReorder(draggedProjectId, targetId, position);
           clearPreview();
           onClearDrag();
         }
@@ -231,10 +231,10 @@ export function useSidebarProjectDrag({
         return;
       }
       const rows = [...group.querySelectorAll("[data-workspace-path]")].map(
-        (element2) => ({
-          path: element2.dataset.workspacePath ?? "",
-          top: element2.getBoundingClientRect().top,
-          height: element2.getBoundingClientRect().height,
+        (element) => ({
+          path: element.dataset.workspacePath ?? "",
+          top: element.getBoundingClientRect().top,
+          height: element.getBoundingClientRect().height,
         }),
       );
       const placement = resolveGroupDropPlacement(
@@ -293,11 +293,11 @@ export function useSidebarProjectDrag({
             )
           : void 0;
       const sourceName =
-        projects.find((p3) => p3.id === sourceProjectId)?.name ??
-        t2("project.ungrouped");
+        projects.find((project) => project.id === sourceProjectId)?.name ??
+        translate("project.ungrouped");
       const targetName =
-        projects.find((p3) => p3.id === targetId)?.name ??
-        t2("project.ungrouped");
+        projects.find((project) => project.id === targetId)?.name ??
+        translate("project.ungrouped");
       setError(null);
       setPendingMove({
         input: {
@@ -331,7 +331,7 @@ export function useSidebarProjectDrag({
       projects,
       sortMode,
       caseInsensitive,
-      t2,
+      translate,
       clearPreview,
       onClearDrag,
       onRowOver,
@@ -348,22 +348,22 @@ export function useSidebarProjectDrag({
     if (!pendingMove || submittingRef.current) return;
     const { input, summary } = pendingMove;
     const placement = input.placement;
-    const hasPath2 = (path2) =>
+    const hasPath = (path) =>
       currentInventory.some(
         (item) =>
           projectWorkspaceKey(item.workspace.path, caseInsensitive) ===
-          projectWorkspaceKey(path2, caseInsensitive),
+          projectWorkspaceKey(path, caseInsensitive),
       );
     if (
-      !hasPath2(input.workspacePath) ||
+      !hasPath(input.workspacePath) ||
       resolveOwner(input.workspacePath) !== input.expectedSourceProjectId ||
       (input.targetProjectId !== null &&
-        !projects.some((p3) => p3.id === input.targetProjectId)) ||
+        !projects.some((project) => project.id === input.targetProjectId)) ||
       (placement.kind === "relative" &&
-        (!hasPath2(placement.anchorPath) ||
+        (!hasPath(placement.anchorPath) ||
           resolveOwner(placement.anchorPath) !== input.targetProjectId))
     ) {
-      setError(t2("project.move.invalid"));
+      setError(translate("project.move.invalid"));
       return;
     }
     submittingRef.current = true;
@@ -375,12 +375,12 @@ export function useSidebarProjectDrag({
       setCompletedPath(input.workspacePath);
       setPendingMove(null);
       dedupedToast.success(
-        t2("project.move.success", {
+        translate("project.move.success", {
           target: summary.targetName,
         }),
       );
     } catch {
-      setError(t2("project.move.failed"));
+      setError(translate("project.move.failed"));
     } finally {
       submittingRef.current = false;
       setSubmitting(false);
@@ -393,7 +393,7 @@ export function useSidebarProjectDrag({
     projects,
     onMove,
     onReveal,
-    t2,
+    translate,
   ]);
   return {
     groupTarget,
