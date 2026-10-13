@@ -14,35 +14,35 @@ export function toSafeRumError(error) {
 const SENSITIVE_KEY_PATTERN =
   /token|password|secret|authorization|cookie|credential|api.?key|bearer/i;
 export function sanitizeRumContext(context) {
-  const seen2 = new WeakSet();
-  const next2 = {};
-  for (const [key2, value] of Object.entries(context)) {
+  const seen = new WeakSet();
+  const next = {};
+  for (const [key, value] of Object.entries(context)) {
     if (value === void 0 || value === null || value === "") continue;
-    next2[key2] = SENSITIVE_KEY_PATTERN.test(key2) ? "[REDACTED]" : sanitizeRumValue(value, seen2);
+    next[key] = SENSITIVE_KEY_PATTERN.test(key) ? "[REDACTED]" : sanitizeRumValue(value, seen);
   }
-  return next2;
+  return next;
 }
-function sanitizeRumValue(value, seen2, depth2 = 0) {
+function sanitizeRumValue(value, seen, depth = 0) {
   if (typeof value === "string") return sanitizeRumMessage(value);
   if (typeof value !== "object" || value === null) return value;
-  if (depth2 >= 8) return "[TRUNCATED]";
-  if (seen2.has(value)) return "[CIRCULAR]";
-  seen2.add(value);
+  if (depth >= 8) return "[TRUNCATED]";
+  if (seen.has(value)) return "[CIRCULAR]";
+  seen.add(value);
   if (Array.isArray(value)) {
-    return value.map((item) => sanitizeRumValue(item, seen2, depth2 + 1));
+    return value.map((item) => sanitizeRumValue(item, seen, depth + 1));
   }
-  const next2 = {};
-  for (const [key2, item] of Object.entries(value)) {
+  const next = {};
+  for (const [key, item] of Object.entries(value)) {
     if (item === void 0 || item === null || item === "") continue;
-    next2[key2] = SENSITIVE_KEY_PATTERN.test(key2)
+    next[key] = SENSITIVE_KEY_PATTERN.test(key)
       ? "[REDACTED]"
-      : sanitizeRumValue(item, seen2, depth2 + 1);
+      : sanitizeRumValue(item, seen, depth + 1);
   }
-  return next2;
+  return next;
 }
 const RUM_MAX_LENGTH = 500;
-export function sanitizeRumMessage(message2) {
-  return message2
+export function sanitizeRumMessage(message) {
+  return message
     .replace(/\/Users\/[^/\s]+\/[^\s]*/g, "{path}")
     .replace(/\/home\/[^/\s]+\/[^\s]*/g, "{path}")
     .replace(/[A-Za-z]:\\Users\\[^\\\s]+\\[^\s]*/g, "{path}")
@@ -55,8 +55,8 @@ export function getDefaultLanguage() {
   try {
     const cached = localStorage.getItem("hilo:storage:global.config");
     if (cached) {
-      const config2 = JSON.parse(cached);
-      if (config2.language === "zh" || config2.language === "en") return config2.language;
+      const config = JSON.parse(cached);
+      if (config.language === "zh" || config.language === "en") return config.language;
     }
   } catch {}
   try {
@@ -87,7 +87,7 @@ export function isComfyUiModelUnavailable(task, modelName) {
     task.missingSourceModels.includes(modelName) || task.untrustedSourceModels.includes(modelName)
   );
 }
-export function createSingleCallFunction(fn2, fnDidRunCallback) {
+export function createSingleCallFunction(fn, fnDidRunCallback) {
   const _this = this;
   let didCall = false;
   let result;
@@ -97,7 +97,7 @@ export function createSingleCallFunction(fn2, fnDidRunCallback) {
     }
     didCall = true;
     {
-      result = fn2.apply(_this, arguments);
+      result = fn.apply(_this, arguments);
     }
     return result;
   };
@@ -114,12 +114,12 @@ export function dispose(arg) {
   if (arg !== void 0 && arg !== null) {
     if (Symbol.iterator in arg) {
       const errors = [];
-      for (const d2 of arg) {
-        if (d2) {
+      for (const d of arg) {
+        if (d) {
           try {
-            d2.dispose();
-          } catch (e2) {
-            errors.push(e2);
+            d.dispose();
+          } catch (e) {
+            errors.push(e);
           }
         }
       }
@@ -135,14 +135,14 @@ export function dispose(arg) {
     }
   }
 }
-export function combinedDisposable(...disposables2) {
-  return toDisposable(() => dispose(disposables2));
+export function combinedDisposable(...disposables) {
+  return toDisposable(() => dispose(disposables));
 }
-export function toDisposable(fn2) {
-  const self2 = {
-    dispose: createSingleCallFunction(fn2),
+export function toDisposable(fn) {
+  const disposable = {
+    dispose: createSingleCallFunction(fn),
   };
-  return self2;
+  return disposable;
 }
 export class DisposableStore {
   static DISABLE_DISPOSED_WARNING = false;
@@ -180,11 +180,11 @@ export class DisposableStore {
   /**
    * Add a new {@link IDisposable disposable} to the collection.
    */
-  add(o2) {
-    if (!o2 || o2 === Disposable.None) {
-      return o2;
+  add(o) {
+    if (!o || o === Disposable.None) {
+      return o;
     }
-    if (o2 === this) {
+    if (o === this) {
       throw new Error("Cannot register a disposable on itself!");
     }
     if (this._isDisposed) {
@@ -196,31 +196,31 @@ export class DisposableStore {
         );
       }
     } else {
-      this._toDispose.add(o2);
+      this._toDispose.add(o);
     }
-    return o2;
+    return o;
   }
   /**
    * Deletes a disposable from store and disposes of it.
    */
-  delete(o2) {
-    if (!o2) {
+  delete(o) {
+    if (!o) {
       return;
     }
-    if (o2 === this) {
+    if (o === this) {
       throw new Error("Cannot dispose a disposable on itself!");
     }
-    this._toDispose.delete(o2);
-    o2.dispose();
+    this._toDispose.delete(o);
+    o.dispose();
   }
   /**
    * Deletes the value from the store, but does not dispose it.
    */
-  deleteAndLeak(o2) {
-    if (!o2) {
+  deleteAndLeak(o) {
+    if (!o) {
       return;
     }
-    this._toDispose.delete(o2);
+    this._toDispose.delete(o);
   }
 }
 export class Disposable {
@@ -237,28 +237,28 @@ export class Disposable {
   /**
    * Adds `o` to the collection of disposables managed by this object.
    */
-  _register(o2) {
-    if (o2 === this) {
+  _register(o) {
+    if (o === this) {
       throw new Error("Cannot register a disposable on itself!");
     }
-    return this._store.add(o2);
+    return this._store.add(o);
   }
 }
 export function workspaceRuntimeFromOpenResult(result) {
   return result.kind === "opened" || result.kind === "reused" ? result.runtime : void 0;
 }
 export const errorListeners = [];
-export function onUnexpectedError(e2) {
-  if (!isCancellationError(e2)) {
+export function onUnexpectedError(e) {
+  if (!isCancellationError(e)) {
     for (const listener of errorListeners) {
-      listener(e2);
+      listener(e);
     }
   }
   return void 0;
 }
-export function illegalState(name2) {
+export function illegalState(stateName) {
   {
-    return new Error(`Illegal state: ${name2}`);
+    return new Error(`Illegal state: ${stateName}`);
   }
 }
 const canceledName = "Canceled";
@@ -293,48 +293,48 @@ export class ErrorNoTelemetry extends Error {
     return err.name === "ErrorNoTelemetry";
   }
 }
-let Node$2 = class Node3 {
-  static Undefined = new Node3(void 0);
+let LinkedListNode = class LinkedListNode {
+  static Undefined = new LinkedListNode(void 0);
   element;
   next;
   prev;
-  constructor(element2) {
-    this.element = element2;
-    this.next = Node3.Undefined;
-    this.prev = Node3.Undefined;
+  constructor(element) {
+    this.element = element;
+    this.next = LinkedListNode.Undefined;
+    this.prev = LinkedListNode.Undefined;
   }
 };
 export class LinkedList {
-  _first = Node$2.Undefined;
-  _last = Node$2.Undefined;
+  _first = LinkedListNode.Undefined;
+  _last = LinkedListNode.Undefined;
   _size = 0;
   get size() {
     return this._size;
   }
   isEmpty() {
-    return this._first === Node$2.Undefined;
+    return this._first === LinkedListNode.Undefined;
   }
   clear() {
-    let node2 = this._first;
-    while (node2 !== Node$2.Undefined) {
-      const next2 = node2.next;
-      node2.prev = Node$2.Undefined;
-      node2.next = Node$2.Undefined;
-      node2 = next2;
+    let node = this._first;
+    while (node !== LinkedListNode.Undefined) {
+      const next = node.next;
+      node.prev = LinkedListNode.Undefined;
+      node.next = LinkedListNode.Undefined;
+      node = next;
     }
-    this._first = Node$2.Undefined;
-    this._last = Node$2.Undefined;
+    this._first = LinkedListNode.Undefined;
+    this._last = LinkedListNode.Undefined;
     this._size = 0;
   }
-  unshift(element2) {
-    return this._insert(element2, false);
+  unshift(element) {
+    return this._insert(element, false);
   }
-  push(element2) {
-    return this._insert(element2, true);
+  push(element) {
+    return this._insert(element, true);
   }
-  _insert(element2, atTheEnd) {
-    const newNode = new Node$2(element2);
-    if (this._first === Node$2.Undefined) {
+  _insert(element, atTheEnd) {
+    const newNode = new LinkedListNode(element);
+    if (this._first === LinkedListNode.Undefined) {
       this._first = newNode;
       this._last = newNode;
     } else if (atTheEnd) {
@@ -358,45 +358,45 @@ export class LinkedList {
     };
   }
   shift() {
-    if (this._first === Node$2.Undefined) {
+    if (this._first === LinkedListNode.Undefined) {
       return void 0;
     } else {
-      const res = this._first.element;
+      const element = this._first.element;
       this._remove(this._first);
-      return res;
+      return element;
     }
   }
   pop() {
-    if (this._last === Node$2.Undefined) {
+    if (this._last === LinkedListNode.Undefined) {
       return void 0;
     } else {
-      const res = this._last.element;
+      const element = this._last.element;
       this._remove(this._last);
-      return res;
+      return element;
     }
   }
-  _remove(node2) {
-    if (node2.prev !== Node$2.Undefined && node2.next !== Node$2.Undefined) {
-      const anchor = node2.prev;
-      anchor.next = node2.next;
-      node2.next.prev = anchor;
-    } else if (node2.prev === Node$2.Undefined && node2.next === Node$2.Undefined) {
-      this._first = Node$2.Undefined;
-      this._last = Node$2.Undefined;
-    } else if (node2.next === Node$2.Undefined) {
+  _remove(node) {
+    if (node.prev !== LinkedListNode.Undefined && node.next !== LinkedListNode.Undefined) {
+      const anchor = node.prev;
+      anchor.next = node.next;
+      node.next.prev = anchor;
+    } else if (node.prev === LinkedListNode.Undefined && node.next === LinkedListNode.Undefined) {
+      this._first = LinkedListNode.Undefined;
+      this._last = LinkedListNode.Undefined;
+    } else if (node.next === LinkedListNode.Undefined) {
       this._last = this._last.prev;
-      this._last.next = Node$2.Undefined;
-    } else if (node2.prev === Node$2.Undefined) {
+      this._last.next = LinkedListNode.Undefined;
+    } else if (node.prev === LinkedListNode.Undefined) {
       this._first = this._first.next;
-      this._first.prev = Node$2.Undefined;
+      this._first.prev = LinkedListNode.Undefined;
     }
     this._size -= 1;
   }
   *[Symbol.iterator]() {
-    let node2 = this._first;
-    while (node2 !== Node$2.Undefined) {
-      yield node2.element;
-      node2 = node2.next;
+    let node = this._first;
+    while (node !== LinkedListNode.Undefined) {
+      yield node.element;
+      node = node.next;
     }
   }
 }

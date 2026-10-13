@@ -1,13 +1,19 @@
 // video-color-adjust-dialog.jsx
-import { BlobSource, BufferTarget, jsxRuntimeExports, Mp4OutputFormat, Output, PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon, reactExports, UrlSource, useTranslation, WebMOutputFormat } from "../vendor.js";
+import { jsxRuntimeExports, PlaybackPauseIcon$1 as PlaybackPauseIcon, PlaybackPlayIcon$1 as PlaybackPlayIcon, reactExports, useTranslation } from "../vendor.js";
+import {
+  ALL_FORMATS,
+  BlobSource,
+  BufferTarget,
+  Conversion,
+  Input,
+  Mp4OutputFormat,
+  Output,
+  UrlSource,
+  WebMOutputFormat,
+} from "mediabunny";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { VolumeIcon, VolumeMuteIcon } from "./build-video-thumb-base.jsx";
-import {
-  ALL_FORMATS,
-  Conversion,
-  Input$3 as Input,
-} from "../vendor-inline/mediabunny/hls-segmented-input.js";
 import { Dialog } from "../canvas/separator.jsx";
 import { Trash2, Upload } from "./package.jsx";
 import { SendArrowIcon } from "../canvas/file-missing-icon.jsx";
