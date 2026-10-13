@@ -1,21 +1,21 @@
 // use-history-state.js
 import { reactExports } from "../vendor.js";
 
-export function useHistoryState(instance2) {
+export function useHistoryState(instance) {
   const [canUndo, setCanUndo] = reactExports.useState(() =>
-    instance2.canUndo(),
+    instance.canUndo(),
   );
   const [canRedo, setCanRedo] = reactExports.useState(() =>
-    instance2.canRedo(),
+    instance.canRedo(),
   );
   reactExports.useEffect(() => {
     const sync = () => {
-      setCanUndo(instance2.canUndo());
-      setCanRedo(instance2.canRedo());
+      setCanUndo(instance.canUndo());
+      setCanRedo(instance.canRedo());
     };
     sync();
-    return instance2.history.onHistoryChange(sync);
-  }, [instance2]);
+    return instance.history.onHistoryChange(sync);
+  }, [instance]);
   return {
     canUndo,
     canRedo,

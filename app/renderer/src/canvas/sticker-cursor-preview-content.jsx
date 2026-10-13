@@ -7,9 +7,9 @@ import { CANVAS_STAMP_CURSOR_URL } from "../media-editing/canvas-sticker-assets.
 const PRESS_FEEDBACK_MS = 240;
 
 function StickerCursorPreviewContent({
-  active: active2,
+  active,
   asset,
-  emoji: emoji2,
+  emoji,
   resolvePlacement,
 }) {
   const previewRef = reactExports.useRef(null);
@@ -18,7 +18,7 @@ function StickerCursorPreviewContent({
   reactExports.useEffect(() => {
     const preview = previewRef.current;
     if (!preview) return;
-    if (!active2) {
+    if (!active) {
       preview.style.display = "none";
       setPressed(false);
       return;
@@ -50,12 +50,12 @@ function StickerCursorPreviewContent({
         preview.style.display = "none";
         return;
       }
-      const position2 = resolvePlacement({
+      const position = resolvePlacement({
         x: event.clientX,
         y: event.clientY,
       });
       preview.style.display = "block";
-      preview.style.transform = `translate3d(${position2.x}px, ${position2.y}px, 0)`;
+      preview.style.transform = `translate3d(${position.x}px, ${position.y}px, 0)`;
     };
     const handlePointerDown = (event) => {
       if (event.button !== 0) return;
@@ -79,7 +79,7 @@ function StickerCursorPreviewContent({
       pressTimerRef.current = null;
       setPressed(false);
     };
-  }, [active2, resolvePlacement]);
+  }, [active, resolvePlacement]);
   return (
     <div
       ref={previewRef}
@@ -101,7 +101,7 @@ function StickerCursorPreviewContent({
             className="sticker-cursor-preview-image"
           />
         ) : (
-          <span className="sticker-cursor-preview-emoji">{emoji2}</span>
+          <span className="sticker-cursor-preview-emoji">{emoji}</span>
         )}
         <img
           src={CANVAS_STAMP_CURSOR_URL}
@@ -115,17 +115,17 @@ function StickerCursorPreviewContent({
 }
 
 export function StickerCursorPreview({
-  active: active2,
+  active,
   asset,
-  emoji: emoji2,
+  emoji,
   resolvePlacement,
 }) {
   return (
     <ViewportPortal>
       <StickerCursorPreviewContent
-        active={active2}
+        active={active}
         asset={asset}
-        emoji={emoji2}
+        emoji={emoji}
         resolvePlacement={resolvePlacement}
       />
     </ViewportPortal>

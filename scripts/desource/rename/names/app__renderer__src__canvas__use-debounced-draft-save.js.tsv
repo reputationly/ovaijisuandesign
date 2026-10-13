@@ -1,0 +1,6 @@
+key	old	new	reason
+markdown2@17:52	markdown2@17:52	markdown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+markdown2@24:11	markdown2@24:11	markdown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+markdown2@29:6	markdown2@29:6	markdown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+next2@51:19	next2@51:19	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+markdown2@158:6	markdown2@158:6	markdown	去掉打包器去重后缀，恢复原名；作用域内无同名冲突

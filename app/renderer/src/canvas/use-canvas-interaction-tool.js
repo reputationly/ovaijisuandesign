@@ -50,7 +50,7 @@ export function useCanvasClickHandlers({
     ],
   );
   const handleCanvasNodeClick = reactExports.useCallback(
-    (event, node2) => {
+    (event, node) => {
       if (isCanvasChromeTarget(event.target)) return;
       restoreSelectionChrome();
       if (stickerMode) {
@@ -63,7 +63,7 @@ export function useCanvasClickHandlers({
         return;
       }
       if (commentsActive)
-        emitCommentContext(event.clientX, event.clientY, node2.id);
+        emitCommentContext(event.clientX, event.clientY, node.id);
     },
     [
       commentsActive,
@@ -86,43 +86,43 @@ const DEFAULT_STICKER_SELECTION = {
 };
 
 export function useCanvasInteractionTool() {
-  const [state2, setState] = reactExports.useState({
+  const [state, setState] = reactExports.useState({
     tool: "select",
     activeCommand: null,
     stickerSelection: DEFAULT_STICKER_SELECTION,
   });
   const setActiveCommand = reactExports.useCallback((activeCommand) => {
-    setState((current2) => ({
-      ...current2,
+    setState((current) => ({
+      ...current,
       activeCommand,
     }));
   }, []);
   const setStickerSelection = reactExports.useCallback((stickerSelection) => {
-    setState((current2) => ({
-      ...current2,
+    setState((current) => ({
+      ...current,
       stickerSelection,
     }));
   }, []);
   const setInteractionTool = reactExports.useCallback(
-    (tool2, source = "trigger") => {
-      setState((current2) => {
-        if (tool2 !== "sticker")
+    (tool, source = "trigger") => {
+      setState((current) => {
+        if (tool !== "sticker")
           return {
-            ...current2,
-            tool: tool2,
+            ...current,
+            tool,
             activeCommand: null,
           };
         if (source === "keyboard") {
-          if (current2.tool === "sticker") return current2;
+          if (current.tool === "sticker") return current;
           return {
-            tool: tool2,
+            tool,
             activeCommand: null,
             stickerSelection: DEFAULT_STICKER_SELECTION,
           };
         }
-        const isOpen = current2.activeCommand === CANVAS_COMMAND_IDS.sticker;
+        const isOpen = current.activeCommand === CANVAS_COMMAND_IDS.sticker;
         return {
-          ...current2,
+          ...current,
           tool: isOpen ? "select" : "sticker",
           activeCommand: isOpen ? null : CANVAS_COMMAND_IDS.sticker,
         };
@@ -131,30 +131,30 @@ export function useCanvasInteractionTool() {
     [],
   );
   const dismissStickerPanel = reactExports.useCallback(() => {
-    setState((current2) =>
-      current2.activeCommand === CANVAS_COMMAND_IDS.sticker
+    setState((current) =>
+      current.activeCommand === CANVAS_COMMAND_IDS.sticker
         ? {
-            ...current2,
+            ...current,
             activeCommand: null,
           }
-        : current2,
+        : current,
     );
   }, []);
   const closeCommandPanel = reactExports.useCallback(() => {
-    setState((current2) => ({
-      ...current2,
+    setState((current) => ({
+      ...current,
       tool:
-        current2.activeCommand === CANVAS_COMMAND_IDS.sticker
+        current.activeCommand === CANVAS_COMMAND_IDS.sticker
           ? "select"
-          : current2.tool,
+          : current.tool,
       activeCommand: null,
     }));
   }, []);
   return {
-    activeCommand: state2.activeCommand,
-    stickerMode: state2.tool === "sticker",
-    handTool: state2.tool === "hand",
-    stickerSelection: state2.stickerSelection,
+    activeCommand: state.activeCommand,
+    stickerMode: state.tool === "sticker",
+    handTool: state.tool === "hand",
+    stickerSelection: state.stickerSelection,
     setStickerSelection,
     setActiveCommand,
     setInteractionTool,
