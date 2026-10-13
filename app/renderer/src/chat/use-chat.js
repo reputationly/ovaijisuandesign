@@ -146,7 +146,7 @@ export function useChat(
   const queryClient2 = useQueryClient();
   const gatewayScopeKey = useGatewayScopeKey();
   const scopedGatewayUrl = useGatewayUrl();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const autoSendSubmissionDecision = useAccountSubmissionDecision("auto_send");
   const [messages2, setMessages] = reactExports.useState([]);
   const [focusedSessionId, setFocusedSessionId] = reactExports.useState(null);
@@ -307,7 +307,7 @@ export function useChat(
       setConversationLoading,
       setHistoryLoadFailed,
       setSwitchError,
-      timeoutMessage: sessionSwitchTimeoutMessage(t2),
+      timeoutMessage: sessionSwitchTimeoutMessage(translate),
     });
   const [creatingSession, setCreatingSession] = reactExports.useState(false);
   const pendingSessionSwitchRef = reactExports.useRef(null);
@@ -520,18 +520,18 @@ export function useChat(
   }, [draftController]);
   const notifyDroppedAttachments = reactExports.useCallback(() => {
     dedupedToast.warning(
-      t2(
+      translate(
         "chat.draft.attachmentsDropped",
         "Some attachments could not be restored — please re-add them.",
       ),
     );
-  }, [t2]);
+  }, [translate]);
   const trackInputChange = reactExports.useCallback(
     (text2, editorDoc) => {
       currentInputTextRef.current = text2;
       currentInputEditorDocRef.current = editorDoc;
-      const sid = sessionStore.getState().focusedSessionId;
-      const key2 = sid ?? DRAFT_NEW_TAB;
+      const sessionId = sessionStore.getState().focusedSessionId;
+      const key2 = sessionId ?? DRAFT_NEW_TAB;
       const draft = {
         text: text2,
         editorDoc,
@@ -551,8 +551,8 @@ export function useChat(
   const trackAttachmentsChange = reactExports.useCallback(
     (attachments) => {
       currentAttachmentsRef.current = attachments;
-      const sid = sessionStore.getState().focusedSessionId;
-      const key2 = sid ?? DRAFT_NEW_TAB;
+      const sessionId = sessionStore.getState().focusedSessionId;
+      const key2 = sessionId ?? DRAFT_NEW_TAB;
       const draft = {
         text: currentInputTextRef.current,
         editorDoc: currentInputEditorDocRef.current,
@@ -613,7 +613,7 @@ export function useChat(
         setInput(preservedDraft.text);
         setPendingAttachments(preservedDraft.attachments);
       }
-      dedupedToast.error(userMessage ?? t2("chat.sendFailed"));
+      dedupedToast.error(userMessage ?? translate("chat.sendFailed"));
       return true;
     },
     [
@@ -621,7 +621,7 @@ export function useChat(
       draftController,
       rejectSessionFocusIntent,
       sessionStore,
-      t2,
+      translate,
     ],
   );
   const [pendingEditorReset, setPendingEditorReset] = reactExports.useState(0);
@@ -664,7 +664,7 @@ export function useChat(
       if (newTabDraft.text) {
         setInput(newTabDraft.text);
       } else {
-        setPendingEditorReset((n2) => n2 + 1);
+        setPendingEditorReset((resetGeneration) => resetGeneration + 1);
       }
       setPendingNewTab(true);
       retainVisibleTranscriptUntilHydrationRef.current = false;
@@ -683,8 +683,8 @@ export function useChat(
     ],
   );
   const restoreDraft = reactExports.useCallback(() => {
-    const sid = sessionStore.getState().focusedSessionId;
-    const key2 = sid ?? DRAFT_NEW_TAB;
+    const sessionId = sessionStore.getState().focusedSessionId;
+    const key2 = sessionId ?? DRAFT_NEW_TAB;
     const restored = draftController.restore(key2);
     if (!restored && currentInputTextRef.current) {
       return;
@@ -850,11 +850,11 @@ export function useChat(
           (item) => item.clientMessageId === message2.clientMessageId,
         );
         if (index2 === -1) {
-          return [...prev, message2].sort((a2, b3) => {
-            const positionA = a2.position ?? Number.MAX_SAFE_INTEGER;
-            const positionB = b3.position ?? Number.MAX_SAFE_INTEGER;
+          return [...prev, message2].sort((leftMessage, rightMessage) => {
+            const positionA = leftMessage.position ?? Number.MAX_SAFE_INTEGER;
+            const positionB = rightMessage.position ?? Number.MAX_SAFE_INTEGER;
             return positionA === positionB
-              ? a2.createdAt - b3.createdAt
+              ? leftMessage.createdAt - rightMessage.createdAt
               : positionA - positionB;
           });
         }
@@ -894,16 +894,16 @@ export function useChat(
     if (next2.size > MESSAGE_DELIVERY_TRACE_LIMIT) {
       const overflow = next2.size - MESSAGE_DELIVERY_TRACE_LIMIT;
       const oldestIds = [...next2.values()]
-        .sort((a2, b3) => a2.updatedAt - b3.updatedAt)
+        .sort((leftRecord, rightRecord) => leftRecord.updatedAt - rightRecord.updatedAt)
         .slice(0, overflow)
         .map((item) => item.clientMessageId);
-      for (const id2 of oldestIds) {
-        const timer2 = messageDeliveryTimersRef.current.get(id2);
+      for (const clientMessageId of oldestIds) {
+        const timer2 = messageDeliveryTimersRef.current.get(clientMessageId);
         if (timer2) {
           clearTimeout(timer2);
-          messageDeliveryTimersRef.current.delete(id2);
+          messageDeliveryTimersRef.current.delete(clientMessageId);
         }
-        next2.delete(id2);
+        next2.delete(clientMessageId);
       }
     }
     messageDeliveryByClientIdRef.current = next2;
@@ -928,12 +928,12 @@ export function useChat(
   const settlePreflightDeliveries = reactExports.useCallback(
     (sessionId, clientMessageIds, status) => {
       let settled = false;
-      for (const id2 of clientMessageIds) {
-        const current2 = messageDeliveryByClientIdRef.current.get(id2);
+      for (const clientMessageId of clientMessageIds) {
+        const current2 = messageDeliveryByClientIdRef.current.get(clientMessageId);
         if (current2?.sessionId !== sessionId || !isMessagePreflight(current2))
           continue;
         markMessageDeliveryFinal({
-          clientMessageId: id2,
+          clientMessageId,
           sessionId,
           status,
           delivery: current2.delivery,
@@ -983,7 +983,7 @@ ${errorInfo.details}`
           messageDeliveryByClientIdRef.current.get(clientMessageId);
         messageDeliveryTimersRef.current.delete(clientMessageId);
         if (!current2 || current2.status !== expectedStatus) return;
-        const timeoutMessage = t2(
+        const timeoutMessage = translate(
           "chat.errors.deliveryTimeoutShort",
           "Message delivery timed out.",
         );
@@ -1040,7 +1040,7 @@ ${errorInfo.details}`
           error_code: timeoutStage,
         });
         dedupedToast.error(
-          t2(
+          translate(
             "chat.errors.deliveryTimeout",
             "Message delivery timed out. Please retry.",
           ),
@@ -1056,7 +1056,7 @@ ${errorInfo.details}`
       clearMessageDeliveryTimer,
       removeQueuedUserMessages,
       sessionStore,
-      t2,
+      translate,
       upsertMessageDeliveryState,
     ],
   );
@@ -1253,7 +1253,7 @@ ${errorInfo.details}`
         (state2) => state2.status === "sent" && !isMessagePreflight(state2),
       );
       if (states.length === 0) return;
-      const disconnectMessage = t2(
+      const disconnectMessage = translate(
         "chat.errors.deliveryDisconnected",
         "Connection lost before the message was acknowledged. Please retry.",
       );
@@ -1302,7 +1302,7 @@ ${errorInfo.details}`
       clearMessageDeliveryTimer,
       removeQueuedUserMessages,
       sessionStore,
-      t2,
+      translate,
       upsertMessageDeliveryState,
     ]);
   const markRuntimeProgressStartedForSession = reactExports.useCallback(
@@ -1438,15 +1438,15 @@ ${errorInfo.details}`
       languageDetectionText,
       browserContext,
     ) => {
-      const sid = sessionStore.getState().focusedSessionId;
-      if (!sid) return false;
+      const sessionId = sessionStore.getState().focusedSessionId;
+      if (!sessionId) return false;
       const groupId2 = accountScopedMessage.groupId("queue");
       if (groupId2 === null) return false;
       const queuedCount =
-        queuedUserMessagesBySessionRef.current.get(sid)?.length ?? 0;
+        queuedUserMessagesBySessionRef.current.get(sessionId)?.length ?? 0;
       if (queuedCount >= QUEUED_USER_MESSAGE_LIMIT) {
         dedupedToast.warning(
-          t2(
+          translate(
             "chat.queue.limitReached",
             "Queued message limit reached. Please wait.",
           ),
@@ -1469,15 +1469,15 @@ ${errorInfo.details}`
       if (canvasNodeAttachments?.length) {
         queuedMessage.canvasNodeAttachments = [...canvasNodeAttachments];
       }
-      upsertQueuedUserMessage(sid, queuedMessage);
-      requestQueuedMessageScroll(sid, clientMessageId);
+      upsertQueuedUserMessage(sessionId, queuedMessage);
+      requestQueuedMessageScroll(sessionId, clientMessageId);
       const message2 = {
         type: "message",
         content: text2,
         agent_type: "general",
         delivery: "defer_if_busy",
         client_message_id: clientMessageId,
-        session_id: sid,
+        session_id: sessionId,
         group_id: groupId2,
         language_detection_text: languageDetectionText,
         browser_context: browserContext,
@@ -1496,14 +1496,14 @@ ${errorInfo.details}`
       }
       const sent = send2(message2);
       if (!sent) {
-        removeQueuedUserMessages(sid, {
+        removeQueuedUserMessages(sessionId, {
           clientMessageIds: [clientMessageId],
         });
         return false;
       }
-      markMessageDeliverySent(sid, clientMessageId, "defer_if_busy");
+      markMessageDeliverySent(sessionId, clientMessageId, "defer_if_busy");
       trackEvent(TRACK_EVENTS.CHAT_MESSAGE_SEND, {
-        session_id: sid,
+        session_id: sessionId,
         text_length: text2.length,
         attachment_count: attachments?.length ?? 0,
         delivery: "defer_if_busy",
@@ -1516,22 +1516,22 @@ ${errorInfo.details}`
       requestQueuedMessageScroll,
       send2,
       sessionStore,
-      t2,
+      translate,
       upsertQueuedUserMessage,
     ],
   );
   const sendQueuedUserMessageNow = reactExports.useCallback(
     (message2) => {
-      const sid = sessionStore.getState().focusedSessionId;
-      if (!sid) return false;
+      const sessionId = sessionStore.getState().focusedSessionId;
+      if (!sessionId) return false;
       const sent = send2({
         type: "send_queued_user_message_now",
-        session_id: sid,
+        session_id: sessionId,
         queue_id: message2.queueId,
         client_message_id: message2.clientMessageId,
       });
       if (!sent) return false;
-      updateQueuedUserMessages(sid, (prev) =>
+      updateQueuedUserMessages(sessionId, (prev) =>
         prev.map((item) =>
           item.clientMessageId === message2.clientMessageId
             ? {
@@ -1542,7 +1542,7 @@ ${errorInfo.details}`
         ),
       );
       trackEvent(TRACK_EVENTS.CHAT_MESSAGE_SEND, {
-        session_id: sid,
+        session_id: sessionId,
         text_length: message2.text.length,
         attachment_count: message2.attachments?.length ?? 0,
         delivery: "send_queued_now",
@@ -1553,10 +1553,10 @@ ${errorInfo.details}`
   );
   const reorderQueuedUserMessage = reactExports.useCallback(
     (sourceIndex, targetIndex) => {
-      const sid = sessionStore.getState().focusedSessionId;
-      if (!sid) return;
+      const sessionId = sessionStore.getState().focusedSessionId;
+      if (!sessionId) return;
       if (sourceIndex === targetIndex) return;
-      const current2 = queuedUserMessagesBySessionRef.current.get(sid) ?? [];
+      const current2 = queuedUserMessagesBySessionRef.current.get(sessionId) ?? [];
       if (sourceIndex < 0 || sourceIndex >= current2.length) return;
       if (targetIndex < 0 || targetIndex >= current2.length) return;
       const next2 = [...current2];
@@ -1566,10 +1566,10 @@ ${errorInfo.details}`
       next2.splice(targetIndex, 0, moved);
       const queuedRows = next2.filter((item) => item.status === "queued");
       if (queuedRows.some((item) => !item.queueId)) return;
-      updateQueuedUserMessages(sid, () => next2);
+      updateQueuedUserMessages(sessionId, () => next2);
       send2({
         type: "reorder_queued_user_messages",
-        session_id: sid,
+        session_id: sessionId,
         queue_ids: queuedRows.map((item) => item.queueId),
       });
     },
@@ -1591,8 +1591,8 @@ ${errorInfo.details}`
       attachmentRefs,
       browserContext,
     ) => {
-      const sid = targetSessionId ?? sessionStore.getState().focusedSessionId;
-      if (!sid) return false;
+      const sessionId = targetSessionId ?? sessionStore.getState().focusedSessionId;
+      if (!sessionId) return false;
       const chatAttachments = chatAttachmentsFromPaths(attachments);
       const messageId = nextMessageId();
       sessionStore.pushMessage(
@@ -1609,7 +1609,7 @@ ${errorInfo.details}`
             ? documentEditRequest.annotations
             : void 0,
         },
-        sid,
+        sessionId,
       );
       const clientMessageId = requestedClientMessageId ?? crypto.randomUUID();
       if (
@@ -1618,7 +1618,7 @@ ${errorInfo.details}`
       ) {
         pendingInitialClientMessageIdRef.current = clientMessageId;
       }
-      optimisticUserMessagesRef.current.set(sid, {
+      optimisticUserMessagesRef.current.set(sessionId, {
         messageId,
         clientMessageId,
         text: text2,
@@ -1628,7 +1628,7 @@ ${errorInfo.details}`
         registerDocumentEditSubmission(
           documentEditRequest,
           clientMessageId,
-          sid,
+          sessionId,
         );
       }
       const sent = accountScopedMessage.send("chat", send2, {
@@ -1637,7 +1637,7 @@ ${errorInfo.details}`
         agent_type: "general",
         attachments,
         attachment_refs: attachmentRefs,
-        session_id: sid,
+        session_id: sessionId,
         client_message_id: clientMessageId,
         canvas_node_attachments: canvasNodeAttachments,
         entity_refs: entityRefs,
@@ -1649,8 +1649,8 @@ ${errorInfo.details}`
         browser_context: browserContext,
       });
       if (!sent) {
-        sessionStore.removeMessageById(sid, messageId);
-        optimisticUserMessagesRef.current.delete(sid);
+        sessionStore.removeMessageById(sessionId, messageId);
+        optimisticUserMessagesRef.current.delete(sessionId);
         if (documentEditRequest) {
           updateDocumentEditByClientMessage(
             clientMessageId,
@@ -1660,13 +1660,13 @@ ${errorInfo.details}`
         }
         return false;
       }
-      markMessageDeliverySent(sid, clientMessageId, "normal");
+      markMessageDeliverySent(sessionId, clientMessageId, "normal");
       trackEvent(TRACK_EVENTS.CHAT_MESSAGE_SEND, {
-        session_id: sid,
+        session_id: sessionId,
         text_length: text2.length,
         attachment_count: attachments?.length ?? 0,
       });
-      sessionStore.setBusy(true, sid);
+      sessionStore.setBusy(true, sessionId);
       return true;
     },
     [
@@ -1678,86 +1678,86 @@ ${errorInfo.details}`
     ],
   );
   const ensureTextAgentIntro = reactExports.useMemo(
-    () => createTextAgentIntroEnsurer(sessionStore, nodeEditAgentKindRef, t2),
-    [sessionStore, t2],
+    () => createTextAgentIntroEnsurer(sessionStore, nodeEditAgentKindRef, translate),
+    [sessionStore, translate],
   );
   const handleMessage = reactExports.useCallback(
-    (msg) => {
-      chatDiagnostics.received(msg);
-      if (controller.shouldIgnoreServerMessage(msg)) return;
-      settleQueuedUserMessageCancellation(msg);
+    (serverMessage) => {
+      chatDiagnostics.received(serverMessage);
+      if (controller.shouldIgnoreServerMessage(serverMessage)) return;
+      settleQueuedUserMessageCancellation(serverMessage);
       if (
-        msg.type === "message_started" ||
-        (msg.type === "session_status_changed" && msg.status === "running")
+        serverMessage.type === "message_started" ||
+        (serverMessage.type === "session_status_changed" && serverMessage.status === "running")
       ) {
-        const timer2 = idleBusyDiagnosticTimersRef.current.get(msg.session_id);
+        const timer2 = idleBusyDiagnosticTimersRef.current.get(serverMessage.session_id);
         if (timer2) clearTimeout(timer2);
-        idleBusyDiagnosticTimersRef.current.delete(msg.session_id);
+        idleBusyDiagnosticTimersRef.current.delete(serverMessage.session_id);
       }
-      if (msg.type === "session_list" && !textEditBindingsReadyRef.current) {
-        pendingSessionListUntilBindingsRef.current = msg;
+      if (serverMessage.type === "session_list" && !textEditBindingsReadyRef.current) {
+        pendingSessionListUntilBindingsRef.current = serverMessage;
         return;
       }
       const mediaErrorMessage =
-        msg.type === "error" &&
-        msg.error?.error_code === ErrorCodes.INPUT_MEDIA_REVIEW_FAILED
-          ? t2(
-              msg.error.retryable
+        serverMessage.type === "error" &&
+        serverMessage.error?.error_code === ErrorCodes.INPUT_MEDIA_REVIEW_FAILED
+          ? translate(
+              serverMessage.error.retryable
                 ? "chat.errors.mediaReviewFailed"
                 : "chat.errors.mediaReviewBlocked",
             )
           : void 0;
       const focusSafeMsg = fenceSessionActivation2(
-        mediaErrorMessage && msg.type === "error" && msg.error
+        mediaErrorMessage && serverMessage.type === "error" && serverMessage.error
           ? {
-              ...msg,
+              ...serverMessage,
               content: mediaErrorMessage,
               error: {
-                ...msg.error,
+                ...serverMessage.error,
                 user_message: mediaErrorMessage,
               },
             }
-          : msg,
+          : serverMessage,
       );
-      if (mediaErrorMessage && msg.type === "error" && !msg.request_id) {
+      if (mediaErrorMessage && serverMessage.type === "error" && !serverMessage.request_id) {
         dedupedToast.warning(mediaErrorMessage);
         return;
       }
-      if (msg.type === "session_rename_failed") {
+      if (serverMessage.type === "session_rename_failed") {
         const latestRequestId = latestRenameRequestBySessionRef.current.get(
-          msg.session_id,
+          serverMessage.session_id,
         );
-        if (latestRequestId === msg.request_id) {
-          latestRenameRequestBySessionRef.current.delete(msg.session_id);
+        if (latestRequestId === serverMessage.request_id) {
+          latestRenameRequestBySessionRef.current.delete(serverMessage.session_id);
           dedupedToast.error(
-            msg.error.error_code === ErrorCodes.CONTENT_BLOCKED
-              ? t2("rename.safetyBlocked")
-              : t2("session.renameFailed", "Failed to rename chat"),
+            serverMessage.error.error_code === ErrorCodes.CONTENT_BLOCKED
+              ? translate("rename.safetyBlocked")
+              : translate("session.renameFailed", "Failed to rename chat"),
           );
         }
         return;
       }
-      if (msg.type === "session_renamed" && msg.request_id) {
+      if (serverMessage.type === "session_renamed" && serverMessage.request_id) {
         for (const [
           sessionId,
           requestId,
         ] of latestRenameRequestBySessionRef.current) {
-          if (requestId !== msg.request_id) continue;
+          if (requestId !== serverMessage.request_id) continue;
           latestRenameRequestBySessionRef.current.delete(sessionId);
           break;
         }
       }
-      if (msg.type === "error" && msg.request_id) {
-        authoritativeHydrationRequestIdsRef.current.delete(msg.request_id);
+      if (serverMessage.type === "error" && serverMessage.request_id) {
+        authoritativeHydrationRequestIdsRef.current.delete(serverMessage.request_id);
         const displayError =
-          msg.error?.user_message ?? msg.content ?? t2("chat.sendFailed");
+          serverMessage.error?.user_message ?? serverMessage.content ?? translate("chat.sendFailed");
         if (
           initialPayloadAwaitingDispatchRef.current ||
-          !failVisibleConversationHydration(msg.request_id, displayError)
+          !failVisibleConversationHydration(serverMessage.request_id, displayError)
         ) {
           if (
             visibleConversationHydrationRequestsRef.current.delete(
-              msg.request_id,
+              serverMessage.request_id,
             )
           ) {
             setConversationLoading(false);
@@ -1769,16 +1769,16 @@ ${errorInfo.details}`
         ) {
           reportInitialPayloadHydrationStalled("switch_failed");
         }
-        if (finishHistoryReload(msg.request_id)) {
+        if (finishHistoryReload(serverMessage.request_id)) {
           dedupedToast.error(displayError);
           return;
         }
-        if (failPendingCreate(msg.request_id, displayError)) return;
+        if (failPendingCreate(serverMessage.request_id, displayError)) return;
         const pendingTextCreate = pendingTextEditCreatesRef.current.get(
-          msg.request_id,
+          serverMessage.request_id,
         );
         if (pendingTextCreate) {
-          pendingTextEditCreatesRef.current.delete(msg.request_id);
+          pendingTextEditCreatesRef.current.delete(serverMessage.request_id);
           const active2 = activeTextEditAgentRef.current;
           if (
             active2 &&
@@ -1808,25 +1808,25 @@ ${errorInfo.details}`
             }
           }
           rejectSessionFocusIntent(
-            msg.request_id,
+            serverMessage.request_id,
             active2?.previousSessionId ?? DRAFT_NEW_TAB,
           );
           return;
         }
-        if (pendingForkDraftsRef.current.delete(msg.request_id)) {
+        if (pendingForkDraftsRef.current.delete(serverMessage.request_id)) {
           rejectSessionFocusIntent(
-            msg.request_id,
+            serverMessage.request_id,
             sessionStore.getState().focusedSessionId ?? DRAFT_NEW_TAB,
           );
           dedupedToast.error(displayError);
           return;
         }
         const pendingSwitch = pendingSessionSwitchRef.current;
-        if (pendingSwitch?.requestId === msg.request_id) {
+        if (pendingSwitch?.requestId === serverMessage.request_id) {
           pendingSessionSwitchRef.current = null;
           setSwitching(false);
           rejectSessionFocusIntent(
-            msg.request_id,
+            serverMessage.request_id,
             pendingSwitch.sourceSessionId ?? DRAFT_NEW_TAB,
           );
           setSwitchError(displayError);
@@ -1859,7 +1859,7 @@ ${errorInfo.details}`
           return;
         }
       }
-      if (msg.type === "session_list") {
+      if (serverMessage.type === "session_list") {
         const sessionListReason =
           pendingSessionListRequestRef.current?.reason ?? "initial";
         pendingSessionListRequestRef.current = null;
@@ -1875,7 +1875,7 @@ ${errorInfo.details}`
         );
         controller.handleServerMessage(focusSafeMsg);
         syncTextEditBindingsWithSessions();
-        const ordinarySessions = msg.sessions.filter(
+        const ordinarySessions = serverMessage.sessions.filter(
           (session) =>
             !textEditSessionIdsRef.current.has(session.id) &&
             !(session.runtime_session_id
@@ -1885,7 +1885,7 @@ ${errorInfo.details}`
         if (!reconnectingFromPreviousTabs) {
           restoreBusySessionsAfterSessionList(
             busyBeforeSessionList,
-            msg.sessions,
+            serverMessage.sessions,
           );
         }
         setSessionsLoading(false);
@@ -1898,7 +1898,7 @@ ${errorInfo.details}`
         }
         updateInitialPayloadDispatchReadiness(false);
         if (
-          msg.sessions.length === 0 &&
+          serverMessage.sessions.length === 0 &&
           previousSessionRefsRef.current &&
           previousSessionRefsRef.current.length > 0 &&
           !emptyListRetryRef.current
@@ -1912,63 +1912,63 @@ ${errorInfo.details}`
           return;
         }
         emptyListRetryRef.current = false;
-        if (msg.sessions.length === 0 && previousSessionRefsRef.current) {
+        if (serverMessage.sessions.length === 0 && previousSessionRefsRef.current) {
           previousSessionRefsRef.current = null;
           previousFocusedRef.current = null;
         }
-        if (msg.sessions.length > 0) {
+        if (serverMessage.sessions.length > 0) {
           const previousRefs = previousSessionRefsRef.current;
           const previousFocused = previousFocusedRef.current;
           previousSessionRefsRef.current = null;
           previousFocusedRef.current = null;
           if (previousRefs && previousRefs.length > 0) {
-            const sessionsById = new Map(msg.sessions.map((s2) => [s2.id, s2]));
-            const resolveReconnectId = (ref) => {
-              if (!ref) return null;
-              if (sessionsById.has(ref.uiSessionId)) return ref.uiSessionId;
+            const sessionsById = new Map(serverMessage.sessions.map((session) => [session.id, session]));
+            const resolveReconnectId = (sessionReference) => {
+              if (!sessionReference) return null;
+              if (sessionsById.has(sessionReference.uiSessionId)) return sessionReference.uiSessionId;
               if (
-                ref.runtimeSessionId &&
-                sessionsById.has(ref.runtimeSessionId)
+                sessionReference.runtimeSessionId &&
+                sessionsById.has(sessionReference.runtimeSessionId)
               ) {
-                return ref.runtimeSessionId;
+                return sessionReference.runtimeSessionId;
               }
               return null;
             };
             const restoreIds = [];
             const seenRestoreIds = new Set();
-            for (const ref of previousRefs) {
-              const id2 = resolveReconnectId(ref);
-              if (!id2 || seenRestoreIds.has(id2)) continue;
-              restoreIds.push(id2);
-              seenRestoreIds.add(id2);
+            for (const sessionReference of previousRefs) {
+              const sessionId = resolveReconnectId(sessionReference);
+              if (!sessionId || seenRestoreIds.has(sessionId)) continue;
+              restoreIds.push(sessionId);
+              seenRestoreIds.add(sessionId);
             }
             const focusedId = resolveReconnectId(previousFocused);
             const sessionsToRestore = restoreIds
-              .map((id2) => sessionsById.get(id2))
-              .filter((s2) => s2 !== void 0);
+              .map((sessionId) => sessionsById.get(sessionId))
+              .filter((session) => session !== void 0);
             const nonFocused = sessionsToRestore.filter(
-              (s2) => s2.id !== focusedId,
+              (session) => session.id !== focusedId,
             );
-            const focused = sessionsToRestore.find((s2) => s2.id === focusedId);
-            for (const ref of previousRefs) {
-              const resolvedId = resolveReconnectId(ref);
-              if (resolvedId && resolvedId !== ref.uiSessionId) {
+            const focused = sessionsToRestore.find((session) => session.id === focusedId);
+            for (const sessionReference of previousRefs) {
+              const resolvedId = resolveReconnectId(sessionReference);
+              if (resolvedId && resolvedId !== sessionReference.uiSessionId) {
                 const activeTextEdit = activeTextEditAgentRef.current;
-                if (activeTextEdit?.previousSessionId === ref.uiSessionId) {
+                if (activeTextEdit?.previousSessionId === sessionReference.uiSessionId) {
                   activeTextEditAgentRef.current = {
                     ...activeTextEdit,
                     previousSessionId: resolvedId,
                   };
                 }
-                sessionStore.rekeySession(ref.uiSessionId, resolvedId);
+                sessionStore.rekeySession(sessionReference.uiSessionId, resolvedId);
               }
             }
-            for (const s2 of sessionsToRestore) {
-              if (!textEditSessionIdsRef.current.has(s2.id))
-                sessionStore.openTab(s2.id);
+            for (const session of sessionsToRestore) {
+              if (!textEditSessionIdsRef.current.has(session.id))
+                sessionStore.openTab(session.id);
             }
-            for (const s2 of nonFocused) {
-              const request = prepareSessionSwitch(s2.id, {
+            for (const session of nonFocused) {
+              const request = prepareSessionSwitch(session.id, {
                 activate: false,
               });
               if (send2(request)) {
@@ -2031,40 +2031,40 @@ ${errorInfo.details}`
         }
         return;
       }
-      if (msg.type === "session_list_unavailable") {
+      if (serverMessage.type === "session_list_unavailable") {
         pendingSessionListRequestRef.current = null;
         updateInitialPayloadDispatchReadiness(false);
-        handleSessionListUnavailable(msg.reason, msg.retry_after_ms);
+        handleSessionListUnavailable(serverMessage.reason, serverMessage.retry_after_ms);
         return;
       }
-      if (msg.type === "document_edit_result") {
+      if (serverMessage.type === "document_edit_result") {
         const ownsRequest =
-          msg.origin === "agent" ||
+          serverMessage.origin === "agent" ||
           Array.from(documentEditRequestByClientIdRef.current.values()).some(
-            (request) => request.requestId === msg.requestId,
+            (request) => request.requestId === serverMessage.requestId,
           );
         setDocumentEditSubmissions((previous2) => {
-          const current2 = previous2.get(msg.requestId);
-          if (!current2 || current2.nodeId !== msg.nodeId) return previous2;
+          const current2 = previous2.get(serverMessage.requestId);
+          if (!current2 || current2.nodeId !== serverMessage.nodeId) return previous2;
           const next2 = new Map(previous2);
           const turnActive =
             current2.status === "submitting" ||
             current2.status === "accepted" ||
             current2.status === "running";
-          if (msg.status === "conflict" && turnActive) {
-            next2.set(msg.requestId, {
+          if (serverMessage.status === "conflict" && turnActive) {
+            next2.set(serverMessage.requestId, {
               ...current2,
-              result: msg,
+              result: serverMessage,
             });
             return next2;
           }
-          next2.set(msg.requestId, {
+          next2.set(serverMessage.requestId, {
             ...current2,
-            status: msg.status,
-            result: msg,
-            ...(msg.error
+            status: serverMessage.status,
+            result: serverMessage,
+            ...(serverMessage.error
               ? {
-                  error: msg.error,
+                  error: serverMessage.error,
                 }
               : {}),
           });
@@ -2075,15 +2075,15 @@ ${errorInfo.details}`
         });
         if (
           ownsRequest &&
-          msg.status === "applied" &&
-          Array.isArray(msg.appliedEdits) &&
-          msg.appliedEdits.length > 0
+          serverMessage.status === "applied" &&
+          Array.isArray(serverMessage.appliedEdits) &&
+          serverMessage.appliedEdits.length > 0
         ) {
           const reviewSession = {
-            requestId: msg.requestId,
-            nodeId: msg.nodeId,
-            contentHash: msg.contentHash,
-            appliedEdits: msg.appliedEdits,
+            requestId: serverMessage.requestId,
+            nodeId: serverMessage.nodeId,
+            contentHash: serverMessage.contentHash,
+            appliedEdits: serverMessage.appliedEdits,
           };
           if (options.isActive === false) {
             pendingDiffReviewSessionRef.current = reviewSession;
@@ -2093,10 +2093,10 @@ ${errorInfo.details}`
         }
         return;
       }
-      if (msg.type === "message_received") {
-        if (msg.phase) {
+      if (serverMessage.type === "message_received") {
+        if (serverMessage.phase) {
           const current2 = messageDeliveryByClientIdRef.current.get(
-            msg.client_message_id,
+            serverMessage.client_message_id,
           );
           if (
             current2?.status === "failed" ||
@@ -2108,121 +2108,121 @@ ${errorInfo.details}`
           if (current2)
             clearBridgeTimeoutPresentation(sessionStore, current2, true);
           upsertMessageDeliveryState({
-            clientMessageId: msg.client_message_id,
-            sessionId: msg.session_id,
+            clientMessageId: serverMessage.client_message_id,
+            sessionId: serverMessage.session_id,
             status: "sent",
-            phase: msg.phase,
+            phase: serverMessage.phase,
             delivery: current2?.delivery ?? "normal",
           });
           scheduleMessageDeliveryTimeout(
-            msg.session_id,
-            msg.client_message_id,
+            serverMessage.session_id,
+            serverMessage.client_message_id,
             current2?.delivery ?? "normal",
             "sent",
-            msg.phase === "media_review"
+            serverMessage.phase === "media_review"
               ? 11 * 6e4
               : MESSAGE_RUNTIME_PROGRESS_TIMEOUT_MS,
           );
           return;
         }
-        updateDocumentEditByClientMessage(msg.client_message_id, "accepted");
+        updateDocumentEditByClientMessage(serverMessage.client_message_id, "accepted");
         const optimistic = optimisticUserMessagesRef.current.get(
-          msg.session_id,
+          serverMessage.session_id,
         );
-        if (optimistic?.clientMessageId === msg.client_message_id) {
-          optimisticUserMessagesRef.current.delete(msg.session_id);
+        if (optimistic?.clientMessageId === serverMessage.client_message_id) {
+          optimisticUserMessagesRef.current.delete(serverMessage.session_id);
         }
         markMessageDeliveryReceived(
-          msg.session_id,
-          msg.client_message_id,
-          msg.timestamp,
+          serverMessage.session_id,
+          serverMessage.client_message_id,
+          serverMessage.timestamp,
         );
         if (
-          pendingInitialClientMessageIdRef.current === msg.client_message_id
+          pendingInitialClientMessageIdRef.current === serverMessage.client_message_id
         ) {
           chatLog.info("initial-payload acknowledged", {
-            client_message_id: msg.client_message_id,
-            session_id: msg.session_id,
-            gateway_timestamp: msg.timestamp,
+            client_message_id: serverMessage.client_message_id,
+            session_id: serverMessage.session_id,
+            gateway_timestamp: serverMessage.timestamp,
           });
           pendingInitialClientMessageIdRef.current = null;
           pendingInitialPayloadKeyRef.current = null;
           onInitialMessageSentRef.current?.();
         }
         recordAction("chat:message-received", {
-          sessionId: msg.session_id,
-          clientMessageId: msg.client_message_id,
+          sessionId: serverMessage.session_id,
+          clientMessageId: serverMessage.client_message_id,
         });
         return;
       }
-      if (msg.type === "message_accepted") {
-        updateDocumentEditByClientMessage(msg.client_message_id, "accepted");
-        if (msg.runtime_session_id) {
+      if (serverMessage.type === "message_accepted") {
+        updateDocumentEditByClientMessage(serverMessage.client_message_id, "accepted");
+        if (serverMessage.runtime_session_id) {
           sessionStore.setRuntimeSessionId(
-            msg.session_id,
-            msg.runtime_session_id,
+            serverMessage.session_id,
+            serverMessage.runtime_session_id,
           );
           syncTextEditBindingsWithSessions();
         }
-        markMessageDeliveryAccepted(msg.session_id, msg.client_message_id);
+        markMessageDeliveryAccepted(serverMessage.session_id, serverMessage.client_message_id);
         recordAction("chat:message-accepted", {
-          sessionId: msg.session_id,
-          clientMessageId: msg.client_message_id,
-          runtimeSessionId: msg.runtime_session_id,
+          sessionId: serverMessage.session_id,
+          clientMessageId: serverMessage.client_message_id,
+          runtimeSessionId: serverMessage.runtime_session_id,
         });
         return;
       }
-      if (msg.type === "session_stalled") {
-        handleSessionStalledMessage(msg);
+      if (serverMessage.type === "session_stalled") {
+        handleSessionStalledMessage(serverMessage);
         return;
       }
-      if (msg.type === "message_started") {
-        cancelInFlightSessionIdsRef.current.delete(msg.session_id);
-        updateDocumentEditByClientMessage(msg.client_message_id, "running");
+      if (serverMessage.type === "message_started") {
+        cancelInFlightSessionIdsRef.current.delete(serverMessage.session_id);
+        updateDocumentEditByClientMessage(serverMessage.client_message_id, "running");
         const previousDeliveryState = messageDeliveryByClientIdRef.current.get(
-          msg.client_message_id,
+          serverMessage.client_message_id,
         );
         const transitioned = markMessageDeliveryStarted(
-          msg.session_id,
-          msg.client_message_id,
+          serverMessage.session_id,
+          serverMessage.client_message_id,
         );
         if (transitioned || !previousDeliveryState) {
-          sessionStore.setBusy(true, msg.session_id);
+          sessionStore.setBusy(true, serverMessage.session_id);
         }
         recordAction("chat:message-started", {
-          sessionId: msg.session_id,
-          clientMessageId: msg.client_message_id,
+          sessionId: serverMessage.session_id,
+          clientMessageId: serverMessage.client_message_id,
         });
         return;
       }
-      if (msg.type === "message_failed") {
+      if (serverMessage.type === "message_failed") {
         if (
-          pendingInitialClientMessageIdRef.current === msg.client_message_id
+          pendingInitialClientMessageIdRef.current === serverMessage.client_message_id
         ) {
           chatLog.error("initial-payload failed", {
-            client_message_id: msg.client_message_id,
-            session_id: msg.session_id,
-            stage: msg.stage,
-            error_code: msg.error_info?.error_code ?? null,
+            client_message_id: serverMessage.client_message_id,
+            session_id: serverMessage.session_id,
+            stage: serverMessage.stage,
+            error_code: serverMessage.error_info?.error_code ?? null,
           });
         }
         updateDocumentEditByClientMessage(
-          msg.client_message_id,
+          serverMessage.client_message_id,
           "failed",
-          msg.error,
+          serverMessage.error,
         );
         const isBusyRejection =
-          msg.stage === "gateway_validation" &&
-          /agent is busy|pending operations/i.test(msg.error);
+          serverMessage.stage === "gateway_validation" &&
+          /agent is busy|pending operations/i.test(serverMessage.error);
         if (!isBusyRejection) {
-          sessionStore.setBusy(false, msg.session_id);
-          clearStalledForSession(msg.session_id);
+          sessionStore.setBusy(false, serverMessage.session_id);
+          clearStalledForSession(serverMessage.session_id);
         }
-        removeQueuedUserMessages(msg.session_id, {
-          clientMessageIds: [msg.client_message_id],
+        removeQueuedUserMessages(serverMessage.session_id, {
+          clientMessageIds: [serverMessage.client_message_id],
         });
         const previousDeliveryState = messageDeliveryByClientIdRef.current.get(
-          msg.client_message_id,
+          serverMessage.client_message_id,
         );
         if (previousDeliveryState?.status === "failed") {
           return;
@@ -2235,37 +2235,37 @@ ${errorInfo.details}`
           );
         }
         const previousDelivery = previousDeliveryState?.delivery ?? "normal";
-        const sanitizedError = sanitizeMessageDeliveryError(msg.error);
-        const errorInfo = msg.error_info;
+        const sanitizedError = sanitizeMessageDeliveryError(serverMessage.error);
+        const errorInfo = serverMessage.error_info;
         const isMediaReviewFailure =
           errorInfo?.error_code === ErrorCodes.INPUT_MEDIA_REVIEW_FAILED;
         const displayError = isMediaReviewFailure
           ? errorInfo.retryable
-            ? t2("chat.errors.mediaReviewFailed")
-            : t2("chat.errors.mediaReviewBlocked")
+            ? translate("chat.errors.mediaReviewFailed")
+            : translate("chat.errors.mediaReviewBlocked")
           : (errorInfo?.user_message ??
             (TECHNICAL_MESSAGE_DELIVERY_ERROR_PATTERN.test(sanitizedError)
-              ? t2(
+              ? translate(
                   "chat.errors.deliveryFailed",
                   "Message failed to send. Please retry.",
                 )
               : sanitizedError));
         const displayErrorCode =
-          errorInfo?.error_code ?? errorCodeForMessageDeliveryStage(msg.stage);
+          errorInfo?.error_code ?? errorCodeForMessageDeliveryStage(serverMessage.stage);
         const isContentBlockedDeliveryFailure =
-          msg.stage === "gateway_validation" &&
+          serverMessage.stage === "gateway_validation" &&
           (errorInfo?.error_code === ErrorCodes.CONTENT_BLOCKED ||
-            msg.error.toLowerCase().includes("content blocked"));
+            serverMessage.error.toLowerCase().includes("content blocked"));
         const isWorkspaceCapacityDeliveryFailure =
-          msg.stage === "gateway_validation" &&
+          serverMessage.stage === "gateway_validation" &&
           errorInfo?.error_code ===
             ErrorCodes.WORKSPACE_CONCURRENCY_LIMIT_REACHED;
         markMessageDeliveryFinal({
-          clientMessageId: msg.client_message_id,
-          sessionId: msg.session_id,
+          clientMessageId: serverMessage.client_message_id,
+          sessionId: serverMessage.session_id,
           status: "failed",
           delivery: previousDelivery,
-          stage: msg.stage,
+          stage: serverMessage.stage,
           error: displayError,
         });
         if (isContentBlockedDeliveryFailure) {
@@ -2273,14 +2273,14 @@ ${errorInfo.details}`
         }
         if (isWorkspaceCapacityDeliveryFailure || isMediaReviewFailure) {
           const optimistic2 = optimisticUserMessagesRef.current.get(
-            msg.session_id,
+            serverMessage.session_id,
           );
-          if (optimistic2?.clientMessageId === msg.client_message_id) {
+          if (optimistic2?.clientMessageId === serverMessage.client_message_id) {
             sessionStore.removeMessageById(
-              msg.session_id,
+              serverMessage.session_id,
               optimistic2.messageId,
             );
-            if (sessionStore.getFocusedSession()?.id === msg.session_id) {
+            if (sessionStore.getFocusedSession()?.id === serverMessage.session_id) {
               const restoredAttachments =
                 currentAttachmentsRef.current.length > 0
                   ? currentAttachmentsRef.current
@@ -2295,7 +2295,7 @@ ${errorInfo.details}`
               setInput((previous2) => {
                 const restoredText = previous2 || optimistic2.text;
                 currentInputTextRef.current = restoredText;
-                draftController.setNow(msg.session_id, {
+                draftController.setNow(serverMessage.session_id, {
                   text: restoredText,
                   editorDoc: currentInputEditorDocRef.current,
                   attachments: restoredAttachments,
@@ -2303,15 +2303,15 @@ ${errorInfo.details}`
                 return restoredText;
               });
             }
-            optimisticUserMessagesRef.current.delete(msg.session_id);
+            optimisticUserMessagesRef.current.delete(serverMessage.session_id);
           }
           if (
-            pendingInitialClientMessageIdRef.current === msg.client_message_id
+            pendingInitialClientMessageIdRef.current === serverMessage.client_message_id
           ) {
             pendingInitialClientMessageIdRef.current = null;
           }
           trackEvent(TRACK_EVENTS.CHAT_MESSAGE_FAILED, {
-            session_id: msg.session_id,
+            session_id: serverMessage.session_id,
             error_type: isMediaReviewFailure
               ? "input_media_review"
               : "workspace_capacity",
@@ -2322,7 +2322,7 @@ ${errorInfo.details}`
           dedupedToast.warning(
             isMediaReviewFailure
               ? displayError
-              : t2(
+              : translate(
                   "chat.errors.workspaceConcurrencyLimit",
                   "Ten projects are already working. Wait for one to finish or stop a running task, then try again.",
                 ),
@@ -2330,39 +2330,39 @@ ${errorInfo.details}`
           return;
         }
         const optimistic = optimisticUserMessagesRef.current.get(
-          msg.session_id,
+          serverMessage.session_id,
         );
-        if (optimistic?.clientMessageId === msg.client_message_id) {
-          optimisticUserMessagesRef.current.delete(msg.session_id);
+        if (optimistic?.clientMessageId === serverMessage.client_message_id) {
+          optimisticUserMessagesRef.current.delete(serverMessage.session_id);
         }
         if (previousDelivery === "normal") {
           appendMessageDeliveryError(
-            msg.session_id,
+            serverMessage.session_id,
             displayError,
             displayErrorCode,
-            msg.stage,
+            serverMessage.stage,
             errorInfo,
           );
         }
         recordMessageDeliveryFailureBreadcrumb(
-          msg.session_id,
-          msg.client_message_id,
-          msg.stage,
-          errorInfo?.details ?? msg.error,
+          serverMessage.session_id,
+          serverMessage.client_message_id,
+          serverMessage.stage,
+          errorInfo?.details ?? serverMessage.error,
         );
         recordError("chat:message-failed", {
-          sessionId: msg.session_id,
-          clientMessageId: msg.client_message_id,
-          stage: msg.stage,
+          sessionId: serverMessage.session_id,
+          clientMessageId: serverMessage.client_message_id,
+          stage: serverMessage.stage,
         });
         trackEvent(TRACK_EVENTS.CHAT_MESSAGE_FAILED, {
-          session_id: msg.session_id,
+          session_id: serverMessage.session_id,
           error_type: "delivery",
-          error_code: errorInfo?.error_code ?? msg.stage,
+          error_code: errorInfo?.error_code ?? serverMessage.stage,
         });
-        if (!msg.error.toLowerCase().includes("content blocked")) {
+        if (!serverMessage.error.toLowerCase().includes("content blocked")) {
           dedupedToast.error(
-            t2(
+            translate(
               "chat.errors.deliveryFailed",
               "Message failed to send. Please retry.",
             ),
@@ -2371,21 +2371,21 @@ ${errorInfo.details}`
         return;
       }
       if (
-        (msg.type === "error" || msg.type === "session_error") &&
-        msg.error?.error_code === ErrorCodes.CONTENT_BLOCKED
+        (serverMessage.type === "error" || serverMessage.type === "session_error") &&
+        serverMessage.error?.error_code === ErrorCodes.CONTENT_BLOCKED
       ) {
-        const sid = msg.session_id;
-        if (sid) {
-          sessionStore.setBusy(false, sid);
-          updateQueuedUserMessages(sid, (prev) => {
+        const sessionId = serverMessage.session_id;
+        if (sessionId) {
+          sessionStore.setBusy(false, sessionId);
+          updateQueuedUserMessages(sessionId, (prev) => {
             const lastSendingIndex = [...prev]
               .reverse()
               .findIndex((queued) => queued.status === "sending");
             if (lastSendingIndex === -1) return prev;
             const index2 = prev.length - 1 - lastSendingIndex;
-            return prev.filter((_2, i2) => i2 !== index2);
+            return prev.filter((message, index) => index !== index2);
           });
-          const optimistic = optimisticUserMessagesRef.current.get(sid);
+          const optimistic = optimisticUserMessagesRef.current.get(sessionId);
           if (optimistic) {
             const previousDeliveryState =
               messageDeliveryByClientIdRef.current.get(
@@ -2400,25 +2400,25 @@ ${errorInfo.details}`
             }
             if (previousDeliveryState?.status !== "failed") {
               const errorMessage2 =
-                msg.error?.user_message ??
-                msg.content ??
-                t2("chat.errors.contentBlocked");
+                serverMessage.error?.user_message ??
+                serverMessage.content ??
+                translate("chat.errors.contentBlocked");
               markMessageDeliveryFinal({
                 clientMessageId: optimistic.clientMessageId,
-                sessionId: sid,
+                sessionId,
                 status: "failed",
                 delivery: previousDeliveryState?.delivery ?? "normal",
                 stage: "gateway_validation",
                 error: sanitizeMessageDeliveryError(errorMessage2),
               });
             }
-            sessionStore.removeMessageById(sid, optimistic.messageId);
-            const isFocused = sessionStore.getFocusedSession()?.id === sid;
+            sessionStore.removeMessageById(sessionId, optimistic.messageId);
+            const isFocused = sessionStore.getFocusedSession()?.id === sessionId;
             if (isFocused) {
               setInput((prev) => {
                 if (prev) return prev;
                 currentInputTextRef.current = optimistic.text;
-                draftController.setNow(sid, {
+                draftController.setNow(sessionId, {
                   text: optimistic.text,
                   editorDoc: currentInputEditorDocRef.current,
                   attachments: currentAttachmentsRef.current,
@@ -2426,7 +2426,7 @@ ${errorInfo.details}`
                 return optimistic.text;
               });
             }
-            optimisticUserMessagesRef.current.delete(sid);
+            optimisticUserMessagesRef.current.delete(sessionId);
             if (
               pendingInitialClientMessageIdRef.current ===
               optimistic.clientMessageId
@@ -2438,16 +2438,16 @@ ${errorInfo.details}`
           }
         }
         trackEvent(TRACK_EVENTS.CHAT_MESSAGE_FAILED, {
-          session_id: msg.session_id,
+          session_id: serverMessage.session_id,
           error_type: "permission",
-          error_code: msg.error?.error_code,
-          error_message: msg.error?.user_message ?? "content blocked",
+          error_code: serverMessage.error?.error_code,
+          error_message: serverMessage.error?.user_message ?? "content blocked",
         });
-        dedupedToast.warning(t2("chat.errors.contentBlocked"));
+        dedupedToast.warning(translate("chat.errors.contentBlocked"));
         return;
       }
-      if (msg.type === "queued_user_message") {
-        const queued = msg;
+      if (serverMessage.type === "queued_user_message") {
+        const queued = serverMessage;
         const wasPreparing = isMessagePreflight(
           messageDeliveryByClientIdRef.current.get(queued.client_message_id),
         );
@@ -2491,22 +2491,22 @@ ${errorInfo.details}`
         }
         return;
       }
-      if (msg.type === "queued_user_messages_delivered") {
+      if (serverMessage.type === "queued_user_messages_delivered") {
         settlePreflightDeliveries(
-          msg.session_id,
-          msg.client_message_ids,
+          serverMessage.session_id,
+          serverMessage.client_message_ids,
           "started",
         );
-        removeQueuedUserMessages(msg.session_id, {
-          queueIds: msg.queue_ids,
-          clientMessageIds: msg.client_message_ids,
+        removeQueuedUserMessages(serverMessage.session_id, {
+          queueIds: serverMessage.queue_ids,
+          clientMessageIds: serverMessage.client_message_ids,
         });
         return;
       }
-      if (msg.type === "queued_user_messages_started") {
+      if (serverMessage.type === "queued_user_messages_started") {
         const startedMessages =
-          msg.phase === "preparing"
-            ? msg.messages.filter((message2) => {
+          serverMessage.phase === "preparing"
+            ? serverMessage.messages.filter((message2) => {
                 const current2 = messageDeliveryByClientIdRef.current.get(
                   message2.client_message_id,
                 );
@@ -2516,13 +2516,13 @@ ${errorInfo.details}`
                   current2.status === "received"
                 );
               })
-            : msg.messages;
+            : serverMessage.messages;
         if (startedMessages.length === 0) return;
-        if (msg.phase === "preparing") {
+        if (serverMessage.phase === "preparing") {
           for (const message2 of startedMessages) {
             markMessageDeliveryFinal({
               clientMessageId: message2.client_message_id,
-              sessionId: msg.session_id,
+              sessionId: serverMessage.session_id,
               status: "sent",
               phase: "preparing",
               delivery: "defer_if_busy",
@@ -2530,35 +2530,35 @@ ${errorInfo.details}`
           }
         } else {
           settlePreflightDeliveries(
-            msg.session_id,
+            serverMessage.session_id,
             startedMessages.map((message2) => message2.client_message_id),
             "started",
           );
         }
-        removeQueuedUserMessages(msg.session_id, {
+        removeQueuedUserMessages(serverMessage.session_id, {
           queueIds: startedMessages.map((message2) => message2.queue_id),
           clientMessageIds: startedMessages.map(
             (message2) => message2.client_message_id,
           ),
         });
-        appendStartedQueuedUserMessages(msg.session_id, startedMessages);
-        if (sessionStore.getState().focusedSessionId === msg.session_id) {
+        appendStartedQueuedUserMessages(serverMessage.session_id, startedMessages);
+        if (sessionStore.getState().focusedSessionId === serverMessage.session_id) {
           setMessages(sessionStore.getFocusedMessages());
         }
-        sessionStore.setBusy(true, msg.session_id);
+        sessionStore.setBusy(true, serverMessage.session_id);
         return;
       }
-      if (msg.type === "queued_user_messages_cancelled") {
-        const cancelledIds = new Set(msg.client_message_ids ?? []);
+      if (serverMessage.type === "queued_user_messages_cancelled") {
+        const cancelledIds = new Set(serverMessage.client_message_ids ?? []);
         for (const queued of queuedUserMessagesBySessionRef.current.get(
-          msg.session_id,
+          serverMessage.session_id,
         ) ?? []) {
-          if (queued.queueId && msg.queue_ids?.includes(queued.queueId)) {
+          if (queued.queueId && serverMessage.queue_ids?.includes(queued.queueId)) {
             cancelledIds.add(queued.clientMessageId);
           }
         }
         const settled = settlePreflightDeliveries(
-          msg.session_id,
+          serverMessage.session_id,
           [...cancelledIds],
           "completed",
         );
@@ -2566,22 +2566,22 @@ ${errorInfo.details}`
           settled &&
           ![...messageDeliveryByClientIdRef.current.values()].some(
             (state2) =>
-              state2.sessionId === msg.session_id && isMessagePreflight(state2),
+              state2.sessionId === serverMessage.session_id && isMessagePreflight(state2),
           )
         ) {
-          sessionStore.setBusy(false, msg.session_id);
+          sessionStore.setBusy(false, serverMessage.session_id);
         }
-        removeQueuedUserMessages(msg.session_id, {
-          queueIds: msg.queue_ids,
-          clientMessageIds: msg.client_message_ids,
+        removeQueuedUserMessages(serverMessage.session_id, {
+          queueIds: serverMessage.queue_ids,
+          clientMessageIds: serverMessage.client_message_ids,
         });
         return;
       }
-      if (msg.type === "queued_user_messages_reordered") {
+      if (serverMessage.type === "queued_user_messages_reordered") {
         const order2 = new Map(
-          msg.queue_ids.map((id2, index2) => [id2, index2]),
+          serverMessage.queue_ids.map((queueId, index2) => [queueId, index2]),
         );
-        updateQueuedUserMessages(msg.session_id, (prev) => {
+        updateQueuedUserMessages(serverMessage.session_id, (prev) => {
           const known = prev.filter(
             (item) => item.queueId && order2.has(item.queueId),
           );
@@ -2589,8 +2589,8 @@ ${errorInfo.details}`
             (item) => !item.queueId || !order2.has(item.queueId),
           );
           known.sort(
-            (a2, b3) =>
-              (order2.get(a2.queueId) ?? 0) - (order2.get(b3.queueId) ?? 0),
+            (leftQueuedMessage, rightQueuedMessage) =>
+              (order2.get(leftQueuedMessage.queueId) ?? 0) - (order2.get(rightQueuedMessage.queueId) ?? 0),
           );
           return [
             ...known.map((item, index2) => ({
@@ -2603,7 +2603,7 @@ ${errorInfo.details}`
         return;
       }
       const runtimeProgressSessionId =
-        messageDeliveryRuntimeProgressSessionId(msg);
+        messageDeliveryRuntimeProgressSessionId(serverMessage);
       const runtimeProgressStarted = runtimeProgressSessionId
         ? markRuntimeProgressStartedForSession(runtimeProgressSessionId)
         : false;
@@ -2792,41 +2792,41 @@ ${errorInfo.details}`
       if (
         runtimeProgressSessionId &&
         runtimeProgressStarted &&
-        isRuntimeBusyProgress(msg)
+        isRuntimeBusyProgress(serverMessage)
       ) {
         sessionStore.setBusy(true, runtimeProgressSessionId);
       }
-      if (remoteTool.handleRemoteToolWsMessage(msg));
-      if (msg.type === "session_cancelled" && msg.session_id) {
+      if (remoteTool.handleRemoteToolWsMessage(serverMessage));
+      if (serverMessage.type === "session_cancelled" && serverMessage.session_id) {
         const settled = settlePreflightDeliveries(
-          msg.session_id,
+          serverMessage.session_id,
           [...messageDeliveryByClientIdRef.current.keys()],
           "completed",
         );
-        if (settled) sessionStore.setBusy(false, msg.session_id);
-        cancelInFlightSessionIdsRef.current.delete(msg.session_id);
-        controller.markSessionCancelled(msg.session_id);
+        if (settled) sessionStore.setBusy(false, serverMessage.session_id);
+        cancelInFlightSessionIdsRef.current.delete(serverMessage.session_id);
+        controller.markSessionCancelled(serverMessage.session_id);
       }
       if (
-        msg.type === "done" ||
-        (msg.type === "session_idle" && !msg.childSessionId)
+        serverMessage.type === "done" ||
+        (serverMessage.type === "session_idle" && !serverMessage.childSessionId)
       ) {
-        if (msg.type === "done" && msg.session_id) {
+        if (serverMessage.type === "done" && serverMessage.session_id) {
           controller.finalizeSessionCancellation(
-            msg.session_id,
-            msg.generation_handoff === "canvas",
-            msg.generation_handoff_targets,
+            serverMessage.session_id,
+            serverMessage.generation_handoff === "canvas",
+            serverMessage.generation_handoff_targets,
           );
         }
         trackEvent(TRACK_EVENTS.CHAT_MESSAGE_RECEIVED, {
-          session_id: msg.session_id,
+          session_id: serverMessage.session_id,
         });
         setDocumentEditSubmissions((previous2) => {
           let changed = false;
           const next2 = new Map(previous2);
           for (const [requestId, submission] of previous2) {
             if (
-              submission.sessionId !== msg.session_id ||
+              submission.sessionId !== serverMessage.session_id ||
               submission.status === "applied" ||
               submission.status === "conflict" ||
               submission.status === "failed"
@@ -2855,7 +2855,7 @@ ${errorInfo.details}`
           return changed ? next2 : previous2;
         });
       }
-      const terminalSessionId = rootRuntimeTerminalSessionId(msg);
+      const terminalSessionId = rootRuntimeTerminalSessionId(serverMessage);
       if (terminalSessionId) {
         clearStalledForSession(terminalSessionId);
         completeActiveMessageDeliveriesForSession(terminalSessionId);
@@ -2869,7 +2869,7 @@ ${errorInfo.details}`
           sessionStore.setBusy(true, terminalSessionId);
         }
       }
-      if (msg.type === "sessions_changed") {
+      if (serverMessage.type === "sessions_changed") {
         requestSessionList("refresh");
       }
       if (focusSafeMsg.type === "session_created") {
@@ -3018,7 +3018,7 @@ ${errorInfo.details}`
       settleQueuedUserMessageCancellation,
       syncSelectedModelId,
       syncTextEditBindingsWithSessions,
-      t2,
+      translate,
       tabPersistence,
       updateDocumentEditByClientMessage,
       updateInitialPayloadDispatchReadiness,
@@ -3126,11 +3126,11 @@ ${errorInfo.details}`
   const autoOpenedImSessionsRef = reactExports.useRef(new Set());
   reactExports.useEffect(() => {
     if (!connected) return;
-    for (const s2 of sessions) {
-      if (s2.origin !== "im") continue;
-      if (autoOpenedImSessionsRef.current.has(s2.id)) continue;
-      autoOpenedImSessionsRef.current.add(s2.id);
-      sessionStore.openTab(s2.id);
+    for (const session of sessions) {
+      if (session.origin !== "im") continue;
+      if (autoOpenedImSessionsRef.current.has(session.id)) continue;
+      autoOpenedImSessionsRef.current.add(session.id);
+      sessionStore.openTab(session.id);
     }
   }, [sessions, connected, sessionStore]);
   reactExports.useEffect(() => {
@@ -3191,7 +3191,7 @@ ${errorInfo.details}`
   const handleMessageRef = reactExports.useRef(handleMessage);
   handleMessageRef.current = handleMessage;
   reactExports.useEffect(() => {
-    return subscribe2((msg) => handleMessageRef.current(msg));
+    return subscribe2((serverMessage) => handleMessageRef.current(serverMessage));
   }, [subscribe2]);
   reactExports.useEffect(() => {
     if (!currentWorkspace) return;
@@ -3203,8 +3203,8 @@ ${errorInfo.details}`
       : focusedSessionId;
     hiloApp2
       .updateFocusedSession(currentWorkspace, ordinaryFocusedSessionId)
-      .catch((err) => {
-        console.warn("[use-chat] updateFocusedSession failed", err);
+      .catch((error) => {
+        console.warn("[use-chat] updateFocusedSession failed", error);
       });
   }, [currentWorkspace, focusedSessionId, textEditAgentState]);
   reactExports.useEffect(() => {
@@ -3240,7 +3240,7 @@ ${errorInfo.details}`
           previousRefs.length > 0 ? previousRefs : null;
         previousFocusedRef.current = state2.focusedSessionId
           ? (previousRefs.find(
-              (ref) => ref.uiSessionId === state2.focusedSessionId,
+              (sessionReference) => sessionReference.uiSessionId === state2.focusedSessionId,
             ) ?? null)
           : null;
       }
@@ -3317,12 +3317,12 @@ ${errorInfo.details}`
     if (activeTextEditAgentRef.current) return;
     const sourceSessionId = pendingSessionSwitchRef.current?.sourceSessionId;
     cancelPendingSessionSwitch(sourceSessionId ?? DRAFT_NEW_TAB);
-    setSwitchError(sessionSwitchTimeoutMessage(t2));
+    setSwitchError(sessionSwitchTimeoutMessage(translate));
   });
   useSessionSwitchErrorFeedback(switchError, setSwitchError);
   useInitialPayloadHydrationStalledFeedback(
     initialPayloadHydrationStalled,
-    t2,
+    translate,
     () => {
       updateInitialPayloadDispatchReadiness(false);
       requestSessionList("initial");
@@ -3366,7 +3366,7 @@ ${errorInfo.details}`
         setPendingEditorDoc(targetDraft.editorDoc ?? null);
         setPendingAttachments(targetDraft.attachments);
         if (targetDraft.text) setInput(targetDraft.text);
-        else setPendingEditorReset((n2) => n2 + 1);
+        else setPendingEditorReset((resetGeneration) => resetGeneration + 1);
       };
       const existingSession = sessionStore.getState().sessions.get(sessionId);
       if (
@@ -3403,7 +3403,7 @@ ${errorInfo.details}`
       };
       if (send2(switchRequest)) return true;
       cancelPendingSessionSwitch(currentId ?? DRAFT_NEW_TAB);
-      setSwitchError(sessionSwitchNotConnectedMessage(t2));
+      setSwitchError(sessionSwitchNotConnectedMessage(translate));
       return false;
     },
     [
@@ -3415,27 +3415,27 @@ ${errorInfo.details}`
       requestSessionFocus,
       send2,
       sessionStore,
-      t2,
+      translate,
     ],
   );
   const sendWsMessage = reactExports.useCallback(
-    (msg) => {
+    (message) => {
       if (
         activeTextEditAgentRef.current &&
-        (msg.type === "create_session" || msg.type === "switch_session")
+        (message.type === "create_session" || message.type === "switch_session")
       ) {
         return false;
       }
-      if (msg.type === "create_session") {
+      if (message.type === "create_session") {
         activateNewTabDraft();
         return true;
       }
-      if (msg.type === "switch_session") {
-        return switchChatSession(msg.session_id, {
-          origin: msg.origin,
+      if (message.type === "switch_session") {
+        return switchChatSession(message.session_id, {
+          origin: message.origin,
         });
       }
-      return send2(msg);
+      return send2(message);
     },
     [activateNewTabDraft, send2, switchChatSession],
   );
@@ -3460,7 +3460,7 @@ ${errorInfo.details}`
         targetSessionId,
         nodeEditSessionName(
           nodeEditAgentKindRef.current,
-          t2,
+          translate,
           nodeEditAgentNameRef.current,
         ),
         currentWorkspace,
@@ -3567,7 +3567,7 @@ ${errorInfo.details}`
       request_id: requestId,
       name: nodeEditSessionName(
         nodeEditAgentKindRef.current,
-        t2,
+        translate,
         nodeEditAgentNameRef.current,
       ),
       model_id: getSelectedModelId() ?? void 0,
@@ -3608,7 +3608,7 @@ ${errorInfo.details}`
     send2,
     sessionStore,
     switchChatSession,
-    t2,
+    translate,
   ]);
   const enterTextEditAgent = reactExports.useCallback(
     (editor, kind = "text", agentName) => {
@@ -3902,8 +3902,8 @@ ${errorInfo.details}`
           session_id: target,
         });
       }
-      for (const id2 of collectBindingSessionIds(binding)) {
-        if (state2.sessions.has(id2)) sessionStore.removeSession(id2);
+      for (const sessionId of collectBindingSessionIds(binding)) {
+        if (state2.sessions.has(sessionId)) sessionStore.removeSession(sessionId);
       }
     },
     [
@@ -3983,11 +3983,11 @@ ${errorInfo.details}`
       setSwitching(false);
       setSwitchError(
         nodeEditAgentKindRef.current === "plugin"
-          ? t2(
+          ? translate(
               "chat.pluginEditAgent.prepareFailedShort",
               "Editor Agent session could not be prepared.",
             )
-          : t2(
+          : translate(
               "chat.textEditAgent.prepareFailedShort",
               "Text Assistant session could not be prepared.",
             ),
@@ -3998,7 +3998,7 @@ ${errorInfo.details}`
     clearPendingSessionSwitch,
     rejectSessionFocusIntent,
     supersedeSessionFocusIntent,
-    t2,
+    translate,
     textEditAgentState,
   ]);
   const reloadSessionHistory = reactExports.useCallback(() => {
@@ -4055,10 +4055,10 @@ ${errorInfo.details}`
       });
       if (!sent) {
         latestRenameRequestBySessionRef.current.delete(sessionId);
-        dedupedToast.error(t2("session.renameFailed", "Failed to rename chat"));
+        dedupedToast.error(translate("session.renameFailed", "Failed to rename chat"));
       }
     },
-    [send2, t2],
+    [send2, translate],
   );
   const sendMessage = reactExports.useCallback(
     (
@@ -4205,21 +4205,21 @@ ${errorInfo.details}`
     [draftController, input, sendMessage, sessionStore],
   );
   reactExports.useEffect(() => {
-    const msg = initialMessage;
+    const startupMessage = initialMessage;
     const attachments = initialAttachments;
     const entityRefs = options.initialEntityRefs;
     const payloadId = options.initialPayloadId;
     const payloadKey = payloadId
       ? `operation:${payloadId}`
       : `legacy:${workspaceInitialPayloadSignature({
-          initialMessage: msg,
+          initialMessage: startupMessage,
           initialAttachments: attachments,
           initialEntityRefs: entityRefs,
           initialModelId: options.initialModelId,
           initialSelectedMediaModels:
             initialSelectedMediaModels ?? getSelectedMediaModels(),
         })}`;
-    if (!msg || sentInitialPayloadKeyRef.current === payloadKey) {
+    if (!startupMessage || sentInitialPayloadKeyRef.current === payloadKey) {
       initialPayloadAwaitingDispatchRef.current = false;
       return;
     }
@@ -4279,7 +4279,7 @@ ${errorInfo.details}`
     }
     pendingInitialPayloadKeyRef.current = payloadKey;
     const sent = sendMessage(
-      msg,
+      startupMessage,
       attachments?.length ? attachments : void 0,
       void 0,
       entityRefs?.length ? entityRefs : void 0,
@@ -4290,7 +4290,7 @@ ${errorInfo.details}`
       client_message_id: payloadId ?? pendingInitialClientMessageIdRef.current,
       session_id: sessionStore.getState().focusedSessionId,
       sent,
-      message_length: msg.length,
+      message_length: startupMessage.length,
       attachment_count: attachments?.length ?? 0,
       entity_ref_count: entityRefs?.length ?? 0,
     };
@@ -4330,8 +4330,8 @@ ${errorInfo.details}`
   const handleRetry = reactExports.useCallback(
     (targetUserMessage) => {
       if (busyRef.current || !connectedRef.current) return false;
-      const sid = sessionStore.getState().focusedSessionId;
-      if (!sid) return false;
+      const sessionId = sessionStore.getState().focusedSessionId;
+      if (!sessionId) return false;
       const retryMessage = resolveRetryMessagePayload(
         messagesRef.current,
         targetUserMessage,
@@ -4347,7 +4347,7 @@ ${errorInfo.details}`
         clientMessageId,
         textLength: text2.length,
         hasAttachments: (attachmentPaths?.length ?? 0) > 0,
-        sessionId: sid,
+        sessionId,
         retry: true,
       });
       const sent = accountScopedMessage.send("retry", send2, {
@@ -4357,12 +4357,12 @@ ${errorInfo.details}`
         attachments: attachmentPaths,
         plugin_node_attachments: pluginNodeAttachments,
         client_message_id: clientMessageId,
-        session_id: sid,
+        session_id: sessionId,
         browser_context: getBuiltinBrowserChatContextForSend(),
       });
       if (sent) {
-        sessionStore.setBusy(true, sid);
-        markMessageDeliverySent(sid, clientMessageId, "normal");
+        sessionStore.setBusy(true, sessionId);
+        markMessageDeliverySent(sessionId, clientMessageId, "normal");
       }
       return sent;
     },
@@ -4378,14 +4378,14 @@ ${errorInfo.details}`
     clearMessageDeliveryTimersForSession,
   });
   const stopStalledSession = reactExports.useCallback(() => {
-    const sid = sessionStore.getState().focusedSessionId;
-    if (sid) recordStallAction(sid, "stop_task");
+    const sessionId = sessionStore.getState().focusedSessionId;
+    if (sessionId) recordStallAction(sessionId, "stop_task");
     performCancel("stall_banner_stop");
-    if (sid) clearStalledForSession(sid);
+    if (sessionId) clearStalledForSession(sessionId);
   }, [performCancel, sessionStore, recordStallAction, clearStalledForSession]);
   const dismissStalledNotice = reactExports.useCallback(() => {
-    const sid = sessionStore.getState().focusedSessionId;
-    if (sid) dismissStalledForSession(sid);
+    const sessionId = sessionStore.getState().focusedSessionId;
+    if (sessionId) dismissStalledForSession(sessionId);
   }, [sessionStore, dismissStalledForSession]);
   const openNewTab = reactExports.useCallback(() => {
     if (activeTextEditAgentRef.current) return;
@@ -4398,31 +4398,31 @@ ${errorInfo.details}`
     setEvictedTabIds((prev) => (prev.length === 0 ? prev : []));
   }, []);
   const closeTab = reactExports.useCallback(
-    (id2) => {
+    (sessionId) => {
       const state2 = sessionStore.getState();
-      if (!state2.openedTabIds.has(id2)) return false;
-      if (state2.focusedSessionId !== id2) {
-        sessionStore.closeTab(id2);
+      if (!state2.openedTabIds.has(sessionId)) return false;
+      if (state2.focusedSessionId !== sessionId) {
+        sessionStore.closeTab(sessionId);
         return true;
       }
       const order2 = state2.openedTabOrder;
-      const idx = order2.indexOf(id2);
-      const nextFocusedId = order2[idx + 1] ?? order2[idx - 1] ?? null;
+      const tabIndex = order2.indexOf(sessionId);
+      const nextFocusedId = order2[tabIndex + 1] ?? order2[tabIndex - 1] ?? null;
       if (nextFocusedId) {
         sendWsMessage({
           type: "switch_session",
           session_id: nextFocusedId,
         });
-        sessionStore.closeTab(id2);
+        sessionStore.closeTab(sessionId);
         return true;
       }
       cancelPendingSessionSwitch(DRAFT_NEW_TAB);
-      draftController.setNow(id2, {
+      draftController.setNow(sessionId, {
         text: currentInputTextRef.current,
         editorDoc: currentInputEditorDocRef.current,
         attachments: currentAttachmentsRef.current,
       });
-      sessionStore.closeTab(id2);
+      sessionStore.closeTab(sessionId);
       const newTabDraft = draftController.get(DRAFT_NEW_TAB);
       currentInputTextRef.current = newTabDraft.text;
       currentInputEditorDocRef.current = newTabDraft.editorDoc;
@@ -4432,7 +4432,7 @@ ${errorInfo.details}`
       if (newTabDraft.text) {
         setInput(newTabDraft.text);
       } else {
-        setPendingEditorReset((n2) => n2 + 1);
+        setPendingEditorReset((resetGeneration) => resetGeneration + 1);
       }
       return true;
     },
@@ -4456,8 +4456,8 @@ ${errorInfo.details}`
     [beginForkFocusIntent, sessionStore, send2],
   );
   const markSessionCancelled = reactExports.useCallback(
-    (sid) => {
-      controller.markSessionCancelled(sid);
+    (sessionId) => {
+      controller.markSessionCancelled(sessionId);
     },
     [controller],
   );

@@ -1,0 +1,49 @@
+key	新名	依据
+t2@149:14	translate	`translate` 是 use-chat 中获取本地化文案的函数。
+sid@533:13	sessionId	`sessionId` 是写入输入草稿时当前聚焦会话的标识。
+sid@554:13	sessionId	`sessionId` 是写入附件草稿时当前聚焦会话的标识。
+n2@667:32	resetGeneration	`resetGeneration` 是 pending editor reset 计数器更新前的值。
+sid@686:11	sessionId	`sessionId` 是恢复输入草稿时当前聚焦会话的标识。
+a2@853:44	leftMessage	`leftMessage` 是按位置排序比较中的左侧消息记录。
+b3@853:48	rightMessage	`rightMessage` 是按位置排序比较中的右侧消息记录。
+a2@897:16	leftRecord	`leftRecord` 是按更新时间排序比较中的左侧送达跟踪记录。
+b3@897:20	rightRecord	`rightRecord` 是按更新时间排序比较中的右侧送达跟踪记录。
+id2@900:18	clientMessageId	`clientMessageId` 是需要清理送达跟踪计时器的客户端消息标识。
+id2@931:18	clientMessageId	`clientMessageId` 是待确认送达状态的客户端消息标识。
+sid@1441:13	sessionId	`sessionId` 是创建队列消息时当前聚焦会话的标识。
+sid@1525:13	sessionId	`sessionId` 是立即发送排队消息时当前聚焦会话的标识。
+sid@1556:13	sessionId	`sessionId` 是重排排队消息时当前聚焦会话的标识。
+sid@1594:13	sessionId	`sessionId` 是确认代理任务时目标或当前聚焦会话的标识。
+msg@1685:6	serverMessage	`serverMessage` 是 WebSocket 消息处理器接收的服务端消息。
+s2@1925:60	session	`session` 是从 WebSocket 重连消息建立索引的会话记录。
+ref@1926:41	sessionReference	`sessionReference` 是包含会话标识信息的重连引用记录。
+ref@1939:24	sessionReference	`sessionReference` 是上一连接记录的会话引用。
+id2@1940:21	sessionId	`sessionId` 是由重连引用解析出的会话标识。
+id2@1947:21	sessionId	`sessionId` 是用于会话索引查找的待恢复会话标识。
+s2@1948:24	session	`session` 是按重连 ID 查找到的待恢复会话记录。
+s2@1950:16	session	`session` 是与聚焦会话区分开来的恢复会话记录。
+s2@1952:53	session	`session` 是待优先恢复的聚焦会话记录。
+ref@1953:24	sessionReference	`sessionReference` 是用于更新重连关联的上一连接记录。
+s2@1966:24	session	`session` 是依次重新打开的会话记录。
+s2@1970:24	session	`session` 是在非聚焦标签中后台恢复的会话记录。
+sid@2377:15	sessionId	`sessionId` 是服务端内容拦截错误对应的会话标识。
+_2@2386:33	message	`message` 是筛选时接收但不读取的历史消息项。
+i2@2386:37	index	`index` 是反向计算出的待删除消息下标。
+id2@2582:30	queueId	`queueId` 是服务端重排消息队列时携带的队列项标识。
+a2@2592:14	leftQueuedMessage	`leftQueuedMessage` 是比较两个排队用户消息顺序时的左侧消息。
+b3@2592:18	rightQueuedMessage	`rightQueuedMessage` 是比较两个排队用户消息顺序时的右侧消息。
+s2@3129:16	session	`session` 是自动打开即时消息标签时检查的会话记录。
+msg@3194:24	serverMessage	`serverMessage` 是 WebSocket 订阅回调收到的服务端消息。
+err@3206:15	error	`error` 是更新聚焦会话失败时捕获的异常。
+ref@3243:16	sessionReference	`sessionReference` 是用于匹配重连聚焦会话的会话引用。
+n2@3369:37	resetGeneration	`resetGeneration` 是 pending editor reset 计数器更新前的值。
+msg@3422:6	message	`message` 是交由 WebSocket 发送的聊天消息负载。
+id2@3905:18	sessionId	`sessionId` 是从资源绑定中收集并清理的会话标识。
+msg@4208:11	startupMessage	`startupMessage` 是从启动参数读取并注入输入框的初始消息。
+sid@4333:13	sessionId	`sessionId` 是重试失败用户消息所属的当前会话标识。
+sid@4381:11	sessionId	`sessionId` 是停止超时任务对应的当前会话标识。
+sid@4387:11	sessionId	`sessionId` 是关闭超时提示对应的当前会话标识。
+id2@4401:6	sessionId	`sessionId` 是关闭会话标签回调接收的会话标识。
+idx@4409:13	tabIndex	`tabIndex` 是目标会话在打开标签顺序中的位置。
+n2@4435:32	resetGeneration	`resetGeneration` 是 pending editor reset 计数器更新前的值。
+sid@4459:6	sessionId	`sessionId` 是标记为已取消的会话标识。
