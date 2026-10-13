@@ -1,0 +1,94 @@
+key	old	new	依据
+BAR_GAP$2@103:14	BAR_GAP$2	ERASE_BAR_GAP	use-active-mode.js 的 BAR_GAP 与 banana-resolution-picker.js 的 BAR_GAP$2 同名；该值用于擦除工具栏定位，故别名为 ERASE_BAR_GAP。
+active2@126:41	active2	active	控制当前画布或交互组件是否激活的布尔值。
+children2@126:60	children2	children	React 组件接收并渲染的子元素。
+children2@139:48	children2	children	React 组件接收并渲染的子元素。
+zoom2@167:29	zoom2	zoom	当前视口的缩放倍数。
+active2@170:39	active2	active	控制当前画布或交互组件是否激活的布尔值。
+flow2@186:11	flow2	flow	包含 React Flow 画布的 DOM 元素。
+rafId2@188:9	rafId2	rafId	当前请求的动画帧标识。
+state2@218:13	state2	state	当前 store 提供的 Zustand 状态对象。
+zoom2@219:22	zoom2	zoom	当前视口的缩放倍数。
+color2@226:27	color2	color	当前节点标签环或背景网格使用的颜色值。
+box2@230:15	box2	box	从节点读取的边界框数据。
+token2@232:60	token2	token	颜色解析函数提供的设计令牌名称。
+batch2@235:13	batch2	batch	按颜色聚合的节点绘制批次。
+batch2@254:18	batch2	batch	按颜色聚合的节点绘制批次。
+schedule2@266:11	schedule2	schedule	请求画布重绘的回调。
+c3@326:37	c3	connection	React Flow 当前连接状态对象。
+set2@329:11	set2	set	用于成员判断或去重的集合。
+id2@338:16	id2	id	当前遍历到的目标或参考节点标识。
+fn2@347:18	fn2	fn	清理回调数组中的一个函数。
+active2@352:22	active2	active	控制当前画布或交互组件是否激活的布尔值。
+e2@356:24	e2	keyboardEvent	触发键盘处理器的键盘事件对象。
+e2@362:22	e2	keyboardEvent	触发键盘处理器的键盘事件对象。
+active2@381:3	active2	active	控制当前画布或交互组件是否激活的布尔值。
+v2@396:13	v2	viewportState	React Flow 当前视口对象，包含平移和缩放值。
+t2@411:14	t2	translate	useTranslation 返回的翻译函数。
+NodeAlignmentGuides2@476:56	NodeAlignmentGuides2	NodeAlignmentGuides	绘制画布对齐辅助线的 React 组件函数。
+svg2@481:11	svg2	svg	用于绘制对齐辅助线的 SVG 元素。
+render2@489:11	render2	render	依据辅助线和视口变换更新 SVG 内容的回调。
+zoom2@489:52	zoom2	zoom	当前视口的缩放倍数。
+i2@493:16	i2	index	遍历辅助线槽位时的数组下标。
+y22@508:15	y22	endY	对齐辅助线第二端点经过缩放和平移后的垂直坐标。
+cap2@510:15	cap2	cap	辅助线端点刻度的半长。
+text2@551:15	text2	text	辅助线显示的距离文本。
+CanvasEraseOverlay2@578:55	CanvasEraseOverlay2	CanvasEraseOverlay	渲染画布擦除工具覆盖层的 React 组件函数。
+meta2@579:17	meta2	meta	当前擦除或重绘操作的元数据。
+transform2@590:9	transform2	transform	当前 React Flow 视口变换数组。
+s2@590:32	s2	state	当前 store 提供的 Zustand 状态对象。
+tool2@599:11	tool2	tool	当前擦除或重绘工具对象。
+CanvasRedrawOverlay2@771:56	CanvasRedrawOverlay2	CanvasRedrawOverlay	渲染画布重绘工具覆盖层的 React 组件函数。
+meta2@772:17	meta2	meta	当前擦除或重绘操作的元数据。
+node2@778:11	node2	node	当前处理的 React Flow 节点对象。
+entries2@780:36	entries2	entries	ResizeObserver 本次报告的尺寸变化条目。
+h2@782:15	h2	height	ResizeObserver 当前测得的底部栏高度。
+transform2@794:9	transform2	transform	当前 React Flow 视口变换数组。
+s2@794:32	s2	state	当前 store 提供的 Zustand 状态对象。
+tool2@803:11	tool2	tool	当前擦除或重绘工具对象。
+raw2@993:9	raw2	raw	从样式表读取并修剪后的原始背景颜色值。
+active2@998:37	active2	active	控制当前画布或交互组件是否激活的布尔值。
+flow2@1008:11	flow2	flow	包含 React Flow 画布的 DOM 元素。
+rafId2@1010:9	rafId2	rafId	当前请求的动画帧标识。
+color2@1014:9	color2	color	当前节点标签环或背景网格使用的颜色值。
+state2@1034:13	state2	state	当前 store 提供的 Zustand 状态对象。
+zoom2@1035:22	zoom2	zoom	当前视口的缩放倍数。
+schedule2@1064:11	schedule2	schedule	请求画布重绘的回调。
+next2@1080:13	next2	next	刚读取或计算出的下一份状态值。
+disabled2@1121:9	disabled2	disabled	是否禁用边缘裁剪的布尔值。
+active2@1122:9	active2	active	控制当前画布或交互组件是否激活的布尔值。
+rafId2@1145:9	rafId2	rafId	当前请求的动画帧标识。
+list2@1151:13	list2	list	当前参与边缘裁剪的边集合。
+next2@1152:11	next2	next	刚读取或计算出的下一份状态值。
+state2@1156:15	state2	state	当前 store 提供的 Zustand 状态对象。
+next2@1178:9	next2	next	刚读取或计算出的下一份状态值。
+state2@1182:13	state2	state	当前 store 提供的 Zustand 状态对象。
+active2@1192:35	active2	active	控制当前画布或交互组件是否激活的布尔值。
+style2@1198:13	style2	style	用于设置中键拖动画布光标的 style 元素。
+state2@1247:13	state2	state	当前 store 提供的 Zustand 状态对象。
+node2@1252:53	node2	node	当前处理的 React Flow 节点对象。
+zoom2@1268:22	zoom2	zoom	当前视口的缩放倍数。
+id2@1282:18	id2	id	当前遍历到的目标或参考节点标识。
+node2@1283:15	node2	node	当前处理的 React Flow 节点对象。
+state2@1329:46	state2	state	当前 store 提供的 Zustand 状态对象。
+previous2@1329:54	previous2	previous	React Flow 上一次 store 状态，用于与当前 transform 比较。
+mode2@1352:9	mode2	mode	useActiveMode 返回的当前画布工具模式状态对象。
+registry2@1366:13	registry2	registry	画布节点和边组件注册表。
+children2@1385:13	children2	children	React 组件接收并渲染的子元素。
+active2@1386:11	active2	active	控制当前画布或交互组件是否激活的布尔值。
+s2@1395:40	s2	state	当前 store 提供的 Zustand 状态对象。
+state2@1405:6	state2	state	当前 store 提供的 Zustand 状态对象。
+c3@1416:39	c3	connection	React Flow 当前连接状态对象。
+position2@1419:14	position2	position	小地图点击位置对应的画布坐标。
+zoom2@1420:21	zoom2	zoom	当前视口的缩放倍数。
+set2@1438:11	set2	set	用于成员判断或去重的集合。
+nodeTypes2@1453:9	nodeTypes2	nodeTypes	按节点类型索引的 React 组件映射。
+n2@1464:27	n2	node	当前处理的 React Flow 节点对象。
+n2@1475:46	n2	node	当前处理的 React Flow 节点对象。
+zoom2@1489:62	zoom2	zoom	当前视口的缩放倍数。
+active22@1498:48	active22	active	控制当前画布或交互组件是否激活的布尔值。
+zoom2@1528:57	zoom2	zoom	当前视口的缩放倍数。
+g2@1550:13	g2	gesture	当前画布平移或缩放手势状态对象。
+instance2@1577:6	instance2	instance	React Flow 实例对象。
+zoom2@1578:13	zoom2	zoom	当前视口的缩放倍数。
+next2@1601:13	next2	next	刚读取或计算出的下一份状态值。
