@@ -2,3 +2,6 @@ key	old	new	依据
 n2@16:43	n2	fileNode	changes.updatedNodes 中的文件节点按 id 放入更新映射。
 n2@20:33	n2	fileNode	changes.addedNodes 中的文件节点被转换为运行时节点。
 n2@101:44	n2	node	next 中的运行时节点 id 被加入 existingIds 集合用于去重。
+mode2@9:55	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+next2@23:9	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+node2@24:14	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。

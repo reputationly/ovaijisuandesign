@@ -1,2 +1,16 @@
 key	old	new	依据
 n2@138:14	n2	node	循环读取每个节点的位置以计算节点集合的质心。
+content2@14:9	content2	content	原名 content2 的末尾 2 是打包器去重后缀；恢复词干 content，该绑定表示内容值。
+key2@75:38	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+key2@83:39	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+set2@89:56	set2	set	原名 set2 的末尾 2 是打包器去重后缀；恢复词干 set，该绑定表示赋值函数。
+get3@89:62	get3	get	原名 get3 的末尾 3 是打包器去重后缀；恢复词干 get，该绑定表示取值函数。
+node2@109:33	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+mode2@109:40	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+node2@114:33	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+mode2@114:40	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+node2@121:29	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+mode2@121:36	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+node2@127:24	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+mode2@127:31	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+mode2@130:40	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。

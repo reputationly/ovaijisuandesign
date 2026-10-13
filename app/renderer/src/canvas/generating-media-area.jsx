@@ -79,13 +79,13 @@ export function RefreshIcon() {
   return <RetryIcon size={18} />;
 }
 export function VideoPlaceholderIcon({
-  size: size2 = PLACEHOLDER_ICON_SIZE,
+  size = PLACEHOLDER_ICON_SIZE,
   className = PLACEHOLDER_ICON_CLASS,
 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 20 20"
       fill="currentColor"
       className={className}
@@ -95,11 +95,11 @@ export function VideoPlaceholderIcon({
     </CompositedSvg>
   );
 }
-export function PromoteToAssetIcon({ size: size2 = 16 } = {}) {
+export function PromoteToAssetIcon({ size = 16 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"
@@ -136,13 +136,13 @@ export function PromoteToAssetIcon({ size: size2 = 16 } = {}) {
   );
 }
 export function TextPlaceholderIcon({
-  size: size2 = PLACEHOLDER_ICON_SIZE,
+  size = PLACEHOLDER_ICON_SIZE,
   className = PLACEHOLDER_ICON_CLASS,
 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 20 20"
       fill="currentColor"
       className={className}
@@ -153,13 +153,13 @@ export function TextPlaceholderIcon({
   );
 }
 export function AudioPlaceholderIcon({
-  size: size2 = PLACEHOLDER_ICON_SIZE,
+  size = PLACEHOLDER_ICON_SIZE,
   className = PLACEHOLDER_ICON_CLASS,
 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       className={className}
@@ -183,10 +183,10 @@ export function GeneratingMediaArea({
   progress,
   variant = "generating",
   className,
-  style: style2,
+  style,
 }) {
   const interactive = !!onClick;
-  const handleKeyDown2 = interactive
+  const handleKeyDown = interactive
     ? (keyboardEvent) => {
         if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
           keyboardEvent.preventDefault();
@@ -199,7 +199,7 @@ export function GeneratingMediaArea({
     <div
       className={`generating-wash flex items-center justify-center ${variant === "queued" ? "generating-wash--queued" : ""} ${className ?? ""}`}
       onClick={onClick}
-      onKeyDown={handleKeyDown2}
+      onKeyDown={handleKeyDown}
       role={interactive ? "button" : void 0}
       tabIndex={interactive ? 0 : void 0}
       style={{
@@ -213,7 +213,7 @@ export function GeneratingMediaArea({
             : progress != null
               ? `${progress}%`
               : void 0,
-        ...style2,
+        ...style,
       }}
       data-generation-state={variant}
     >
@@ -227,13 +227,13 @@ export function GeneratingMediaArea({
   );
 }
 export function shouldRenderMediaActionSurface({
-  selected: selected2,
+  selected,
   showLightbox,
   showClipPanel,
   showFramePanel = false,
   showDialog = false,
 }) {
   return (
-    selected2 || showLightbox || showClipPanel || showFramePanel || showDialog
+    selected || showLightbox || showClipPanel || showFramePanel || showDialog
   );
 }

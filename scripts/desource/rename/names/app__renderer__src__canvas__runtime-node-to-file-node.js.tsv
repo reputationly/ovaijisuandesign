@@ -1,3 +1,6 @@
 key	old	new	依据
 n2@74:29	n2	node	graph.nodes.map 回调接收待转换为文件快照的运行时节点。
 e2@83:29	e2	edge	graph.edges.map 回调接收写入文件快照的运行时边。
+node2@4:32	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+mode2@4:39	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。
+mode2@70:48	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。

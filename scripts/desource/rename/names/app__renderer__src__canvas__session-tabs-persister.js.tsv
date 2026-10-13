@@ -2,3 +2,11 @@ key	old	new	依据
 a2@51:6	a2	leftEntry	排序比较器左侧的 workspace 键值项，其记录的 updatedAt 用于排序。
 b3@51:10	b3	rightEntry	排序比较器右侧的 workspace 键值项，其记录的 updatedAt 用于排序。
 _2@134:29	_2	removedWorkspaceState	解构取得将被移除的 workspace 标签状态；该值不再使用并由 rest 排除。
+seen2@11:9	seen2	seen	原名 seen2 的末尾 2 是打包器去重后缀；恢复词干 seen，该绑定表示已访问集合。
+state2@44:11	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+entries2@50:9	entries2	entries	原名 entries2 的末尾 2 是打包器去重后缀；恢复词干 entries，该绑定表示键值条目集合。
+record2@82:15	record2	record	原名 record2 的末尾 2 是打包器去重后缀；恢复词干 record，该绑定表示记录对象。
+snapshot2@92:25	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+current2@98:13	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+next2@106:15	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+current2@127:9	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。

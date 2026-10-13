@@ -1,2 +1,6 @@
 key	old	new	依据
 t2@61:14	t2	translate	该函数翻译冲突对话框的标题、说明和操作文本。
+gatewayFetch2@26:40	gatewayFetch2	gatewayFetch	原名 gatewayFetch2 的末尾 2 是打包器去重后缀；恢复词干 gatewayFetch，该绑定表示网关请求函数。
+data2@28:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+gatewayFetch2@32:9	gatewayFetch2	gatewayFetch	原名 gatewayFetch2 的末尾 2 是打包器去重后缀；恢复词干 gatewayFetch，该绑定表示网关请求函数。
+data2@34:17	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。

@@ -1,2 +1,12 @@
 key	old	new	依据
 s2@148:33	s2	storeState	useStore 回调接收 store 状态并读取 nodesConnectable。
+element2@21:34	element2	element	原名 element2 的末尾 2 是打包器去重后缀；恢复词干 element，该绑定表示DOM 元素。
+root2@22:9	root2	root	原名 root2 的末尾 2 是打包器去重后缀；恢复词干 root，该绑定表示根节点。
+node2@23:9	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+tracker2@25:9	tracker2	tracker	原名 tracker2 的末尾 2 是打包器去重后缀；恢复词干 tracker，该绑定表示追踪器对象。
+selected2@71:67	selected2	selected	原名 selected2 的末尾 2 是打包器去重后缀；恢复词干 selected，该绑定表示选中状态。
+handleMouseDown2@92:9	handleMouseDown2	handleMouseDown	原名 handleMouseDown2 的末尾 2 是打包器去重后缀；恢复词干 handleMouseDown，该绑定表示handleMouseDown 事件处理函数。
+handleClick2@104:9	handleClick2	handleClick	原名 handleClick2 的末尾 2 是打包器去重后缀；恢复词干 handleClick，该绑定表示handleClick 事件处理函数。
+element2@83:11	element2	element	原名 element2 的末尾 2 是打包器去重后缀；恢复词干 element，该绑定表示DOM 元素。
+element2@108:13	element2	element	原名 element2 的末尾 2 是打包器去重后缀；恢复词干 element，该绑定表示DOM 元素。
+selected2@144:13	selected2	selected	原名 selected2 的末尾 2 是打包器去重后缀；恢复词干 selected，该绑定表示选中状态。

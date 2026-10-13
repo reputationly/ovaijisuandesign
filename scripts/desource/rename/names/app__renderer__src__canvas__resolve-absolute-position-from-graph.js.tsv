@@ -1,2 +1,4 @@
 key	old	new	依据
 n2@11:37	n2	node	graphNodes.find 回调接收候选父节点并按 id 匹配当前父节点。
+node2@3:50	node2	targetNode	待计算绝对坐标的输入节点；与函数体内的 node@11:37 冲突，故使用 targetNode。
+mode2@3:57	mode2	mode	原名 mode2 的末尾 2 是打包器去重后缀；恢复词干 mode，该绑定表示模式值。

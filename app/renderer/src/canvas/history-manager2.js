@@ -86,10 +86,10 @@ export class HistoryManager2 {
    * across every reachable state.
    */
   rebase(updater) {
-    const history2 = this.travels.getHistory();
-    const position2 = this.travels.getPosition();
-    const rebased = history2.map((state2) => {
-      const temporary = createHistoryStore(state2, {
+    const historyStates = this.travels.getHistory();
+    const position = this.travels.getPosition();
+    const rebased = historyStates.map((state) => {
+      const temporary = createHistoryStore(state, {
         maxHistory: 1,
         autoArchive: false,
       });
@@ -103,15 +103,15 @@ export class HistoryManager2 {
       maxHistory: this.maxHistorySize,
       autoArchive: false,
     });
-    for (const state2 of rebased.slice(1)) {
+    for (const state of rebased.slice(1)) {
       this.travels.setState((draft) => {
-        draft.nodes = state2.nodes;
-        draft.edges = state2.edges;
-        draft.viewport = state2.viewport;
+        draft.nodes = state.nodes;
+        draft.edges = state.edges;
+        draft.viewport = state.viewport;
       });
       this.travels.archive();
     }
-    this.travels.go(Math.min(position2, rebased.length - 1));
+    this.travels.go(Math.min(position, rebased.length - 1));
     this.unsubscribe = this.travels.subscribe(() => {});
     this.pendingServerWrite = false;
     this.mutationVersion++;

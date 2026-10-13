@@ -1,3 +1,12 @@
 key	old	new	依据
 x2@73:9	x2	viewportX	该值是按保存中心点和缩放计算出的画布视口 x 坐标。
 y4@74:9	y4	viewportY	该值是按保存中心点和缩放计算出的画布视口 y 坐标。
+size2@32:44	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+snapshot2@45:9	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+snapshot2@70:9	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+zoom2@72:9	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+key2@82:45	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+key2@89:46	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+size2@89:62	size2	size	原名 size2 的末尾 2 是打包器去重后缀；恢复词干 size，该绑定表示尺寸值。
+first2@96:21	first2	first	原名 first2 的末尾 2 是打包器去重后缀；恢复词干 first，该绑定表示首个值。
+distance2@125:11	distance2	distance	原名 distance2 的末尾 2 是打包器去重后缀；恢复词干 distance，该绑定表示距离值。

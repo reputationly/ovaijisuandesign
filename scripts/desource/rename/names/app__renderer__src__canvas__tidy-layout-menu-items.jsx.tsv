@@ -1,2 +1,6 @@
 key	old	new	依据
 t2@147:14	t2	translate	该函数为整理布局菜单的排序选项、提示和标签生成本地化文本。
+next2@99:9	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+next2@104:33	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+option2@189:28	option2	option	原名 option2 的末尾 2 是打包器去重后缀；恢复词干 option，该绑定表示选项值。
+Icon2@190:15	Icon2	Icon	原名 Icon2 的末尾 2 是打包器去重后缀；恢复词干 Icon，该绑定表示Icon 对应的值。

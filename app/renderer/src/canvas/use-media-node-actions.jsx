@@ -15,7 +15,7 @@ const EMPTY_TOOLBAR_ITEMS = [];
 export function useMediaNodeActions({
   nodeId,
   toolbarActive = true,
-  meta: meta2,
+  meta,
   fallbackPath,
   fallbackWidth,
   onAddToChat,
@@ -35,31 +35,31 @@ export function useMediaNodeActions({
   const [extractingAudio, setExtractingAudio] = reactExports.useState(false);
   const handleAddToChat = useAddToChat(
     nodeId,
-    meta2,
+    meta,
     onAddToChat,
     fallbackPath,
   );
   const handleClip = reactExports.useCallback(() => {
-    if (meta2?.url) setShowClipPanel(true);
-  }, [meta2?.url]);
+    if (meta?.url) setShowClipPanel(true);
+  }, [meta?.url]);
   const handleExtractFrame = reactExports.useCallback(() => {
-    if (meta2?.url) setShowFramePanel(true);
-  }, [meta2?.url]);
+    if (meta?.url) setShowFramePanel(true);
+  }, [meta?.url]);
   const handleClipExport = reactExports.useCallback(
     async (blob, filename) => {
       if (!cropImage) return;
-      const position2 = getAdjacentNodePosition(
+      const position = getAdjacentNodePosition(
         reactFlow,
         nodeId,
         fallbackWidth,
       );
-      await cropImage(nodeId, blob, filename, position2);
+      await cropImage(nodeId, blob, filename, position);
     },
     [nodeId, cropImage, reactFlow, fallbackWidth],
   );
   const handleFullscreen = reactExports.useCallback(
     (nextIndex) => {
-      if (!meta2?.url) return;
+      if (!meta?.url) return;
       setLightboxIndexOverride(
         typeof nextIndex === "number" && Number.isFinite(nextIndex)
           ? nextIndex
@@ -67,7 +67,7 @@ export function useMediaNodeActions({
       );
       setShowLightbox(true);
     },
-    [meta2?.url],
+    [meta?.url],
   );
   const closeLightbox = reactExports.useCallback(() => {
     setShowLightbox(false);
@@ -83,14 +83,14 @@ export function useMediaNodeActions({
     [nodeId, onPromoteToAsset],
   );
   const handleExtractAudio = reactExports.useCallback(async () => {
-    if (!onExtractAudio || !meta2?.path || extractingAudio) return;
+    if (!onExtractAudio || !meta?.path || extractingAudio) return;
     setExtractingAudio(true);
     try {
-      await onExtractAudio(nodeId, meta2.path);
+      await onExtractAudio(nodeId, meta.path);
     } finally {
       setExtractingAudio(false);
     }
-  }, [onExtractAudio, meta2?.path, nodeId, extractingAudio]);
+  }, [onExtractAudio, meta?.path, nodeId, extractingAudio]);
   const closeClipPanel = reactExports.useCallback(
     () => setShowClipPanel(false),
     [],
@@ -149,7 +149,7 @@ export function useMediaNodeActions({
       icon: <FullscreenIcon />,
       onClick: handleFullscreen,
     });
-    if (onPromoteToAsset && meta2?.url) {
+    if (onPromoteToAsset && meta?.url) {
       items.push({
         id: "promote-to-asset",
         label: translate("canvas.promoteToAsset"),
@@ -172,7 +172,7 @@ export function useMediaNodeActions({
     onColorAdjust,
     onExtractAudio,
     onPromoteToAsset,
-    meta2?.url,
+    meta?.url,
     extractingAudio,
     translate,
   ]);

@@ -1,2 +1,35 @@
 key	old	new	依据
-asDraftMap$1@8:10	asDraftMap$1	asPopoverDraftMap	asPopoverDraftMap 仅返回非数组对象，用于读取合并弹出层草稿映射。
+asDraftMap$1@8:10	asDraftMap$1	asPopoverDraftMap	该局部函数仅返回非数组对象，用于读取弹出层草稿映射；与 asDraftMap@363:10 同名冲突，故保留描述名。
+base2@14:32	base2	base	原名 base2 的末尾 2 是打包器去重后缀；恢复词干 base，该绑定表示基础值。
+key2@23:15	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+data2@42:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+data2@63:9	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+name2@69:9	name2	assetName	文件节点关联资源的名称字段；与全局 name 冲突，故改用 assetName。
+path2@70:9	path2	path	原名 path2 的末尾 2 是打包器去重后缀；恢复词干 path，该绑定表示路径值。
+meta2@95:9	meta2	meta	原名 meta2 的末尾 2 是打包器去重后缀；恢复词干 meta，该绑定表示元数据。
+instance2@132:46	instance2	instance	原名 instance2 的末尾 2 是打包器去重后缀；恢复词干 instance，该绑定表示实例对象。
+workspaceId2@132:57	workspaceId2	workspaceId	原名 workspaceId2 的末尾 2 是打包器去重后缀；恢复词干 workspaceId，该绑定表示工作区标识符。
+state2@136:41	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+state2@145:38	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+state2@151:42	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+type2@158:17	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
+type2@179:17	type2	type	原名 type2 的末尾 2 是打包器去重后缀；恢复词干 type，该绑定表示类型值。
+timer2@243:11	timer2	timer	原名 timer2 的末尾 2 是打包器去重后缀；恢复词干 timer，该绑定表示定时器标识。
+load2@257:11	load2	load	原名 load2 的末尾 2 是打包器去重后缀；恢复词干 load，该绑定表示加载操作。
+snapshot2@273:13	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+state2@296:18	state2	state	原名 state2 的末尾 2 是打包器去重后缀；恢复词干 state，该绑定表示状态对象。
+snapshot2@297:7	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+snapshot2@306:3	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+data2@307:3	data2	data	原名 data2 的末尾 2 是打包器去重后缀；恢复词干 data，该绑定表示数据对象。
+snapshot2@316:58	snapshot2	snapshot	原名 snapshot2 的末尾 2 是打包器去重后缀；恢复词干 snapshot，该绑定表示状态快照。
+next2@333:9	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+groupId2@318:22	groupId2	groupId	原名 groupId2 的末尾 2 是打包器去重后缀；恢复词干 groupId，该绑定表示分组标识符。
+round2@318:39	round2	round	原名 round2 的末尾 2 是打包器去重后缀；恢复词干 round，该绑定表示轮次编号。
+node2@318:50	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+next2@372:9	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+key2@375:14	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+key2@383:6	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+key2@409:10	key2	key	原名 key2 的末尾 2 是打包器去重后缀；恢复词干 key，该绑定表示映射键。
+current2@439:3	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+current2@460:45	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+node2@464:39	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。

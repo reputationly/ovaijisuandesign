@@ -1,3 +1,8 @@
 key	old	new	依据
 s2@91:33	s2	canvasState	useStore 选择器接收画布 store 状态并读取画布宽度。
 s2@92:34	s2	canvasState	useStore 选择器接收画布 store 状态并读取画布高度。
+previous2@19:41	previous2	previous	原名 previous2 的末尾 2 是打包器去重后缀；恢复词干 previous，该绑定表示前一状态值。
+next2@19:52	next2	next	原名 next2 的末尾 2 是打包器去重后缀；恢复词干 next，该绑定表示后续值。
+zoom2@66:9	zoom2	zoom	原名 zoom2 的末尾 2 是打包器去重后缀；恢复词干 zoom，该绑定表示缩放比例。
+current2@120:13	current2	current	原名 current2 的末尾 2 是打包器去重后缀；恢复词干 current，该绑定表示当前值。
+distance2@121:13	distance2	distance	原名 distance2 的末尾 2 是打包器去重后缀；恢复词干 distance，该绑定表示距离值。

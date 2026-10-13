@@ -11,18 +11,18 @@ import {
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 export function DeleteLocalNodeDialog({
-  node: node2,
+  node,
   batchNodes,
   onOpenChange,
   onConfirm,
   onCompleted,
 }) {
   const { t: translate } = useTranslation();
-  const [pending2, setPending] = reactExports.useState(false);
-  const targets = batchNodes?.length ? batchNodes : node2 ? [node2] : [];
+  const [pending, setPending] = reactExports.useState(false);
+  const targets = batchNodes?.length ? batchNodes : node ? [node] : [];
   const isBatch = targets.length > 1;
-  const run2 = reactExports.useCallback(async () => {
-    if (targets.length === 0 || pending2) return;
+  const run = reactExports.useCallback(async () => {
+    if (targets.length === 0 || pending) return;
     setPending(true);
     let failed = 0;
     try {
@@ -41,7 +41,7 @@ export function DeleteLocalNodeDialog({
     } finally {
       setPending(false);
     }
-  }, [onCompleted, onConfirm, onOpenChange, pending2, targets]);
+  }, [onCompleted, onConfirm, onOpenChange, pending, targets]);
   const isFolder = targets.length === 1 && targets[0]?.kind === "folder";
   return (
     <Dialog open={targets.length > 0} onOpenChange={onOpenChange}>
@@ -74,7 +74,7 @@ export function DeleteLocalNodeDialog({
           <Button
             variant="outline"
             size="sm"
-            disabled={pending2}
+            disabled={pending}
             onClick={() => onOpenChange(false)}
             data-action-ui-id="local-assets.delete-cancel"
           >
@@ -83,8 +83,8 @@ export function DeleteLocalNodeDialog({
           <Button
             variant="destructive"
             size="sm"
-            disabled={pending2}
-            onClick={() => void run2()}
+            disabled={pending}
+            onClick={() => void run()}
             data-action-ui-id="local-assets.delete-confirm"
           >
             {translate("localAssets.delete")}

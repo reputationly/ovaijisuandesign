@@ -37,8 +37,8 @@ export function CanvasCommandPanelContent({
     );
   }
   if (activeCommand === CANVAS_COMMAND_IDS.sticker) {
-    const stickerOptionClass = (active2) =>
-      `flex h-10 min-w-0 items-center justify-center rounded-md border p-1 transition-colors [border-width:var(--divider-width)] ${active2 ? "border-[var(--canvas-controls-text)] bg-transparent text-[var(--canvas-controls-text)]" : "border-transparent text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`;
+    const stickerOptionClass = (active) =>
+      `flex h-10 min-w-0 items-center justify-center rounded-md border p-1 transition-colors [border-width:var(--divider-width)] ${active ? "border-[var(--canvas-controls-text)] bg-transparent text-[var(--canvas-controls-text)]" : "border-transparent text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"}`;
     const stickerSummaryRow = (
       <div className="flex items-center gap-1 text-[10px] text-[var(--canvas-controls-text-muted)]">
         <span className="shrink-0 px-1">
@@ -130,24 +130,24 @@ export function CanvasCommandPanelContent({
         </div>
         {emojiPickerOpen && (
           <div className="flex items-center gap-1 pt-2 opacity-100">
-            {CANVAS_EMOJI_STICKERS.map((emoji2, index2) => (
+            {CANVAS_EMOJI_STICKERS.map((emoji, index) => (
               <button
-                key={emoji2}
+                key={emoji}
                 type="button"
-                data-action-ui-id={`canvas.sticker-picker-emoji-${index2}`}
-                className={`${stickerOptionClass(!stickerAssetId && stickerEmoji === emoji2)} flex-1 opacity-100`}
-                aria-label={emoji2}
-                aria-pressed={!stickerAssetId && stickerEmoji === emoji2}
+                data-action-ui-id={`canvas.sticker-picker-emoji-${index}`}
+                className={`${stickerOptionClass(!stickerAssetId && stickerEmoji === emoji)} flex-1 opacity-100`}
+                aria-label={emoji}
+                aria-pressed={!stickerAssetId && stickerEmoji === emoji}
                 onClick={() => {
                   onStickerAssetChange("");
-                  onStickerEmojiChange(emoji2);
+                  onStickerEmojiChange(emoji);
                 }}
               >
                 <span
                   className="text-xl leading-none text-[var(--canvas-controls-text)]"
                   aria-hidden="true"
                 >
-                  {emoji2}
+                  {emoji}
                 </span>
               </button>
             ))}

@@ -18,13 +18,13 @@ import {
   useCanvasIsMultiSelect,
 } from "../media-editing/package.jsx";
 import { useCanvasNodeIsDragging } from "./fullscreen-icon.jsx";
-function registerHandleProximity(element2) {
-  const root2 = element2.closest(".react-flow");
-  const node2 = element2.closest(".react-flow__node");
-  if (!root2 || !node2) return null;
-  const tracker2 = trackers.get(root2) ?? createTracker(root2);
-  trackers.set(root2, tracker2);
-  return tracker2.register(element2, node2);
+function registerHandleProximity(element) {
+  const root = element.closest(".react-flow");
+  const node = element.closest(".react-flow__node");
+  if (!root || !node) return null;
+  const tracker = trackers.get(root) ?? createTracker(root);
+  trackers.set(root, tracker);
+  return tracker.register(element, node);
 }
 const HANDLE_BASE = {
   width: 0,
@@ -68,7 +68,7 @@ function HandleIcon() {
     </CompositedSvg>
   );
 }
-function ProximityHandleInner({ nodeId, handlePosition, selected: selected2 }) {
+function ProximityHandleInner({ nodeId, handlePosition, selected }) {
   const isMultiSelect = useCanvasIsMultiSelect();
   const isDragging = useCanvasNodeIsDragging(nodeId);
   const isBoxSelecting = useCanvasIsBoxSelecting();
@@ -80,16 +80,16 @@ function ProximityHandleInner({ nodeId, handlePosition, selected: selected2 }) {
   const proximityRef = reactExports.useRef(null);
   useRegisterZoomCounter(entryRef);
   reactExports.useEffect(() => {
-    const element2 = entryRef.current;
-    if (!element2 || forceHidden) return;
-    const registration = registerHandleProximity(element2);
+    const element = entryRef.current;
+    if (!element || forceHidden) return;
+    const registration = registerHandleProximity(element);
     proximityRef.current = registration;
     return () => {
       registration?.dispose();
       proximityRef.current = null;
     };
   }, [forceHidden]);
-  const handleMouseDown2 = reactExports.useCallback(
+  const handleMouseDown = reactExports.useCallback(
     (event) => {
       const isConnectionSource = !!event.currentTarget.closest(
         ".react-flow__handle.source",
@@ -101,13 +101,13 @@ function ProximityHandleInner({ nodeId, handlePosition, selected: selected2 }) {
     },
     [flowStore],
   );
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (event) => {
       event.stopPropagation();
       if (forceHidden || proximityRef.current?.didDrag()) return;
-      const element2 = entryRef.current;
-      if (!element2) return;
-      const rect = element2.getBoundingClientRect();
+      const element = entryRef.current;
+      if (!element) return;
+      const rect = element.getBoundingClientRect();
       openAddNodeMenu({
         sourceNodeId: nodeId,
         handlePosition,
@@ -126,12 +126,12 @@ function ProximityHandleInner({ nodeId, handlePosition, selected: selected2 }) {
     <div
       ref={entryRef}
       data-action-ui-id="canvas.node-handle-plus"
-      data-selected={selected2 || void 0}
+      data-selected={selected || void 0}
       data-hidden={forceHidden || void 0}
       data-side={side}
       className="node-handle-plus nodrag nopan"
-      onMouseDown={handleMouseDown2}
-      onClick={handleClick2}
+      onMouseDown={handleMouseDown}
+      onClick={handleClick}
     >
       <span className="node-handle-hit-area" aria-hidden="true" />
       <HandleIcon />
@@ -141,7 +141,7 @@ function ProximityHandleInner({ nodeId, handlePosition, selected: selected2 }) {
 const ProximityHandle = reactExports.memo(ProximityHandleInner);
 function NodeHandlesInner({
   nodeId,
-  selected: selected2,
+  selected,
   showSourceAffordance = true,
   sourcePosition = Position.Right,
 }) {
@@ -161,7 +161,7 @@ function NodeHandlesInner({
           <ProximityHandle
             nodeId={nodeId}
             handlePosition={sourcePosition}
-            selected={!!selected2}
+            selected={!!selected}
           />
         ) : null}
       </Handle>

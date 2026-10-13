@@ -1,2 +1,5 @@
 key	old	new	依据
 t2@20:14	t2	translate	该函数翻译本地素材删除对话框的标题、说明和按钮文本。
+node2@14:9	node2	node	原名 node2 的末尾 2 是打包器去重后缀；恢复词干 node，该绑定表示画布节点对象。
+pending2@21:10	pending2	pending	原名 pending2 的末尾 2 是打包器去重后缀；恢复词干 pending，该绑定表示待处理状态。
+run2@24:9	run2	run	原名 run2 的末尾 2 是打包器去重后缀；恢复词干 run，该绑定表示执行操作。

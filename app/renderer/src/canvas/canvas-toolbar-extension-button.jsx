@@ -26,17 +26,17 @@ export function ToolbarTooltipContent({ label, shortcut }) {
   );
 }
 export const CanvasToolbarExtensionButton = reactExports.forwardRef(
-  function CanvasToolbarExtensionButton2(
+  function CanvasToolbarExtensionButton(
     {
-      children: children2,
+      children,
       label,
       tooltipContent = label,
       tooltipSide = "top",
       onClick,
       dataActionUiId,
-      disabled: disabled2 = false,
+      disabled = false,
       kind = "action",
-      active: active2,
+      active,
       controlsId,
       hasPopup,
       className,
@@ -44,7 +44,7 @@ export const CanvasToolbarExtensionButton = reactExports.forwardRef(
     },
     ref,
   ) {
-    const selected2 = kind !== "action" && active2;
+    const selected = kind !== "action" && active;
     return (
       <Tooltip content={tooltipContent} side={tooltipSide} closeOnClick={true}>
         <button
@@ -54,15 +54,15 @@ export const CanvasToolbarExtensionButton = reactExports.forwardRef(
           data-action-ui-id={dataActionUiId}
           data-canvas-control-kind={kind}
           aria-label={label}
-          aria-pressed={kind === "toggle" ? active2 : void 0}
-          aria-expanded={kind === "panel" ? active2 : void 0}
+          aria-pressed={kind === "toggle" ? active : void 0}
+          aria-expanded={kind === "panel" ? active : void 0}
           aria-controls={kind === "panel" ? controlsId : void 0}
           aria-haspopup={kind === "panel" ? hasPopup : void 0}
-          disabled={disabled2}
+          disabled={disabled}
           onClick={onClick}
-          className={`canvas-monochrome-control flex h-full min-w-8 items-center justify-center gap-1 rounded-full px-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${disabled2 ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-30" : selected2 ? "cursor-pointer bg-[var(--canvas-controls-active)] text-[var(--canvas-controls-text)]" : "cursor-pointer text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"} ${className ?? ""}`}
+          className={`canvas-monochrome-control flex h-full min-w-8 items-center justify-center gap-1 rounded-full px-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${disabled ? "cursor-default text-[var(--canvas-controls-text-muted)] opacity-30" : selected ? "cursor-pointer bg-[var(--canvas-controls-active)] text-[var(--canvas-controls-text)]" : "cursor-pointer text-[var(--canvas-controls-text-muted)] hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"} ${className ?? ""}`}
         >
-          {children2}
+          {children}
         </button>
       </Tooltip>
     );

@@ -11,12 +11,12 @@ import {
 } from "../media-editing/use-start-cloud-edit-from-node.js";
 export function insertCanvasRedrawRegion(editor, attrs) {
   if (editor.isDestroyed) return;
-  const content2 = {
+  const content = {
     type: "canvasRedrawRegion",
     attrs,
   };
   if (!editor.isFocused) editor.commands.focus("end");
-  editor.commands.insertContent(content2);
+  editor.commands.insertContent(content);
 }
 const REDRAW_HIGHLIGHT_RGB = {
   r: 168,
@@ -72,31 +72,31 @@ export function shouldRenderNodeTagRings(filterActive) {
 export function getNodeTagRingGlowBlur(devicePixelRatio) {
   return 6 * Math.max(1, devicePixelRatio || 1);
 }
-export function readCanvasPreference(key2, allowed, fallback) {
+export function readCanvasPreference(key, allowed, fallback) {
   try {
-    const value = localStorage.getItem(key2);
+    const value = localStorage.getItem(key);
     return value && allowed.includes(value) ? value : fallback;
   } catch {
     return fallback;
   }
 }
-export function writeCanvasPreference(key2, value) {
+export function writeCanvasPreference(key, value) {
   try {
-    localStorage.setItem(key2, value);
+    localStorage.setItem(key, value);
   } catch {}
 }
 const ALIGNMENT_SNAP_STORAGE_KEY = "hilo:canvas:alignment-snap";
-export const useAlignmentSnapPreferenceStore = create((set2, get3) => ({
+export const useAlignmentSnapPreferenceStore = create((set, get) => ({
   enabled:
     readCanvasPreference(ALIGNMENT_SNAP_STORAGE_KEY, ["0", "1"], "1") === "1",
   setEnabled: (enabled) => {
-    if (get3().enabled === enabled) return;
-    set2({
+    if (get().enabled === enabled) return;
+    set({
       enabled,
     });
     writeCanvasPreference(ALIGNMENT_SNAP_STORAGE_KEY, enabled ? "1" : "0");
   },
-  toggle: () => get3().setEnabled(!get3().enabled),
+  toggle: () => get().setEnabled(!get().enabled),
 }));
 export const DEFAULT_NODE_SIZE = {
   width: NODE_SIZE_MAX,
@@ -106,28 +106,28 @@ const ORIGIN = {
   x: 0,
   y: 0,
 };
-export function getNodePosition(node2, mode2) {
-  const slot = node2.positions?.[mode2];
+export function getNodePosition(node, mode) {
+  const slot = node.positions?.[mode];
   if (slot) return slot;
   return ORIGIN;
 }
-export function setNodePosition(node2, mode2, pos) {
-  if (!node2.positions) node2.positions = {};
-  node2.positions[mode2] = {
+export function setNodePosition(node, mode, pos) {
+  if (!node.positions) node.positions = {};
+  node.positions[mode] = {
     x: pos.x,
     y: pos.y,
   };
 }
-export function getNodeSize(node2, mode2) {
-  if (node2.type === CanvasNodeType.Group) {
-    return node2.sizes?.[mode2] ?? node2.size;
+export function getNodeSize(node, mode) {
+  if (node.type === CanvasNodeType.Group) {
+    return node.sizes?.[mode] ?? node.size;
   }
-  return node2.size;
+  return node.size;
 }
-export function sizeOf(node2, mode2) {
-  return resolveNodeFootprint(node2, mode2, DEFAULT_NODE_SIZE);
+export function sizeOf(node, mode) {
+  return resolveNodeFootprint(node, mode, DEFAULT_NODE_SIZE);
 }
-export function computeCentroid(nodes, mode2) {
+export function computeCentroid(nodes, mode) {
   if (nodes.length === 0)
     return {
       x: 0,
@@ -136,7 +136,7 @@ export function computeCentroid(nodes, mode2) {
   let sumX = 0;
   let sumY = 0;
   for (const node of nodes) {
-    const pos = getNodePosition(node, mode2);
+    const pos = getNodePosition(node, mode);
     sumX += pos.x;
     sumY += pos.y;
   }

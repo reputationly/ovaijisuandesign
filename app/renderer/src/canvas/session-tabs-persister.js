@@ -8,12 +8,12 @@ function isRecord(value) {
 }
 function uniqueStrings(value) {
   if (!Array.isArray(value)) return [];
-  const seen2 = new Set();
+  const seen = new Set();
   const result = [];
   for (const item of value) {
-    if (typeof item !== "string" || item.length === 0 || seen2.has(item))
+    if (typeof item !== "string" || item.length === 0 || seen.has(item))
       continue;
-    seen2.add(item);
+    seen.add(item);
     result.push(item);
   }
   return result;
@@ -41,16 +41,16 @@ function normalizeTabsRecord(value) {
   const result = {};
   for (const [workspaceKey, rawState] of Object.entries(value)) {
     if (!workspaceKey) continue;
-    const state2 = normalizeTabsState(rawState);
-    if (state2) result[workspaceKey] = state2;
+    const state = normalizeTabsState(rawState);
+    if (state) result[workspaceKey] = state;
   }
   return result;
 }
 function pruneTabsRecord(value) {
-  const entries2 = Object.entries(value).sort(
+  const entries = Object.entries(value).sort(
     (leftEntry, rightEntry) => rightEntry[1].updatedAt - leftEntry[1].updatedAt,
   );
-  return Object.fromEntries(entries2.slice(0, MAX_WORKSPACE_RECORDS));
+  return Object.fromEntries(entries.slice(0, MAX_WORKSPACE_RECORDS));
 }
 function readLocalCache() {
   if (typeof localStorage === "undefined") return {};
@@ -79,40 +79,40 @@ export class SessionTabsPersister {
     const storage = this.getStorage();
     if (storage) {
       try {
-        const record2 = normalizeTabsRecord(
+        const record = normalizeTabsRecord(
           await storage.globalGet(STORAGE_KEY),
         );
-        writeLocalCache(record2);
-        return record2[workspaceKey] ?? null;
+        writeLocalCache(record);
+        return record[workspaceKey] ?? null;
       } catch {}
     }
     return readLocalCache()[workspaceKey] ?? null;
   }
   /** Enqueue a persist operation (serial, non-blocking). */
-  persist(workspaceKey, snapshot2) {
+  persist(workspaceKey, snapshot) {
     if (!workspaceKey) return Promise.resolve();
     this.queue = this.queue
       .catch(() => {})
       .then(async () => {
         const storage = this.getStorage();
-        let current2 = readLocalCache();
+        let current = readLocalCache();
         if (storage) {
           try {
-            current2 = normalizeTabsRecord(
+            current = normalizeTabsRecord(
               await storage.globalGet(STORAGE_KEY),
             );
           } catch {}
         }
-        const next2 = pruneTabsRecord({
-          ...current2,
+        const next = pruneTabsRecord({
+          ...current,
           [workspaceKey]: {
-            openedTabIds: [...snapshot2.openedTabIds],
-            focusedSessionId: snapshot2.focusedSessionId,
+            openedTabIds: [...snapshot.openedTabIds],
+            focusedSessionId: snapshot.focusedSessionId,
             updatedAt: Date.now(),
           },
         });
-        writeLocalCache(next2);
-        if (storage) await storage.globalSet(STORAGE_KEY, next2);
+        writeLocalCache(next);
+        if (storage) await storage.globalSet(STORAGE_KEY, next);
       });
     return this.queue;
   }
@@ -124,14 +124,14 @@ export class SessionTabsPersister {
   async remove(workspaceKey) {
     if (!workspaceKey) return;
     const storage = this.getStorage();
-    let current2 = readLocalCache();
+    let current = readLocalCache();
     if (storage) {
       try {
-        current2 = normalizeTabsRecord(await storage.globalGet(STORAGE_KEY));
+        current = normalizeTabsRecord(await storage.globalGet(STORAGE_KEY));
       } catch {}
     }
-    if (!(workspaceKey in current2)) return;
-    const { [workspaceKey]: removedWorkspaceState, ...rest } = current2;
+    if (!(workspaceKey in current)) return;
+    const { [workspaceKey]: removedWorkspaceState, ...rest } = current;
     writeLocalCache(rest);
     if (storage) {
       try {
