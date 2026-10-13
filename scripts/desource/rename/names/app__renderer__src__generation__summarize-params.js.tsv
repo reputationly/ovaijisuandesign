@@ -1,6 +1,6 @@
 key	old	new	依据
 t2@8:35	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
-p3@14:46	p3	p3Value	去掉打包器防重名追加的后缀，恢复原名 p3Value，即该绑定持有的值。
+p3@14:46	p3	lengthPreset	当前音乐时长预设。
 t2@18:33	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
 preset2@14:9	preset2	preset	去掉打包器防重名追加的后缀，恢复原名 preset，即该绑定持有的值。
 key2@22:15	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。

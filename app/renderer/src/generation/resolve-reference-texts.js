@@ -5,12 +5,12 @@ import { CanvasNodeType, reactExports, useReactFlow } from "../vendor.js";
 export function getDisabledOptions(paramKey, currentParams, constraints) {
   const disabled = new Set();
   if (!constraints) return disabled;
-  for (const c3Value of constraints) {
+  for (const constraint of constraints) {
     if (
-      c3Value.disable.param === paramKey &&
-      currentParams[c3Value.if.param] === c3Value.if.eq
+      constraint.disable.param === paramKey &&
+      currentParams[constraint.if.param] === constraint.if.eq
     ) {
-      for (const value of c3Value.disable.options) disabled.add(value);
+      for (const value of constraint.disable.options) disabled.add(value);
     }
   }
   return disabled;

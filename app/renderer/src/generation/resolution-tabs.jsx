@@ -53,7 +53,9 @@ export function calcMusicCostDisplay(pricing, model, params) {
 export function getModelBaseCost(pricing, modelId, mediaType) {
   if (!pricing) return void 0;
   {
-    const videoModel = pricing.video?.find((m3Value) => m3Value.modelID === modelId);
+    const videoModel = pricing.video?.find(
+      (pricingModel) => pricingModel.modelID === modelId,
+    );
     if (!videoModel) return void 0;
     if (videoModel.defaultCost > 0) return videoModel.defaultCost;
     const first = videoModel.videoCosts?.[0];
@@ -63,7 +65,9 @@ export function getModelBaseCost(pricing, modelId, mediaType) {
 }
 export function calcToolCost(pricing, modelId, resolution, sourceDurationSec) {
   if (!pricing?.tool) return void 0;
-  const model = pricing.tool.find((m3Value) => m3Value.modelID === modelId);
+  const model = pricing.tool.find(
+    (pricingModel) => pricingModel.modelID === modelId,
+  );
   if (!model) return void 0;
   const cost = model.costs?.find((entry) =>
     entry.resolutions?.includes(resolution),
@@ -214,12 +218,12 @@ export function ParamSectionLabel({ children }) {
   );
 }
 export function parseRatio(value) {
-  const m3Value = value.match(/^(\d+)\s*[:x]\s*(\d+)$/i);
-  if (!m3Value) return null;
-  const w3Value = Number(m3Value[1]);
-  const h2 = Number(m3Value[2]);
-  if (!w3Value || !h2) return null;
-  return [w3Value, h2];
+  const sizeMatch = value.match(/^(\d+)\s*[:x]\s*(\d+)$/i);
+  if (!sizeMatch) return null;
+  const width = Number(sizeMatch[1]);
+  const height = Number(sizeMatch[2]);
+  if (!width || !height) return null;
+  return [width, height];
 }
 export function AspectRatioIcon({ ratio }) {
   const parsed = parseRatio(ratio);
@@ -227,16 +231,16 @@ export function AspectRatioIcon({ ratio }) {
   let rectW = maxSize;
   let rectH = maxSize;
   if (parsed) {
-    const [w3Value, h2] = parsed;
-    if (w3Value >= h2) {
+    const [width, height] = parsed;
+    if (width >= height) {
       rectW = maxSize;
-      rectH = (maxSize * h2) / w3Value;
+      rectH = (maxSize * height) / width;
     } else {
       rectH = maxSize;
-      rectW = (maxSize * w3Value) / h2;
+      rectW = (maxSize * width) / height;
     }
   }
-  const x2 = (18 - rectW) / 2;
+  const x = (18 - rectW) / 2;
   const y = (18 - rectH) / 2;
   const radius = Math.min(2, rectW / 4, rectH / 4);
   return (
@@ -249,7 +253,7 @@ export function AspectRatioIcon({ ratio }) {
       strokeWidth="1.5"
       aria-hidden="true"
     >
-      <rect x={x2} y={y} width={rectW} height={rectH} rx={radius} />
+      <rect x={x} y={y} width={rectW} height={rectH} rx={radius} />
     </CompositedSvg>
   );
 }

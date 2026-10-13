@@ -11,7 +11,9 @@ function formatMusicLengthSummary(translate, value) {
       defaultValue: "Auto",
     });
   }
-  const preset = MUSIC_LENGTH_PRESETS.find((p3Value) => p3Value.value === value);
+  const preset = MUSIC_LENGTH_PRESETS.find(
+    (lengthPreset) => lengthPreset.value === value,
+  );
   if (preset) return musicLengthPresetLabel(translate, preset);
   return value;
 }

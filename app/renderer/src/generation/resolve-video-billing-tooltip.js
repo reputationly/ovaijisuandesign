@@ -49,28 +49,32 @@ export function resolveVideoBillingTooltip(
   fps,
 ) {
   if (!pricing?.video) return void 0;
-  const model = pricing.video.find((m3Value) => m3Value.modelID === modelId);
+  const model = pricing.video.find(
+    (pricingModel) => pricingModel.modelID === modelId,
+  );
   if (!model) return void 0;
-  for (const c3Value of model.videoCosts) {
+  for (const videoCost of model.videoCosts) {
     if (
       !videoCostMatchesNonResolutionFilters(
-        c3Value,
+        videoCost,
         hasReferenceVideo,
         hasSound,
         fps,
       )
     )
       continue;
-    const resMatch = matchesResolution(c3Value.resolutions, resolution);
+    const resMatch = matchesResolution(videoCost.resolutions, resolution);
     const dur = durationSec ?? 0;
     if (
-      (c3Value.costPerSecond && c3Value.costPerSecond > 0 && resMatch) ||
-      (!c3Value.resolutions?.length && c3Value.durations?.includes(dur)) ||
-      (matchesResolution(c3Value.resolutions, resolution) &&
-        c3Value.durations?.includes(dur))
+      (videoCost.costPerSecond && videoCost.costPerSecond > 0 && resMatch) ||
+      (!videoCost.resolutions?.length && videoCost.durations?.includes(dur)) ||
+      (matchesResolution(videoCost.resolutions, resolution) &&
+        videoCost.durations?.includes(dur))
     ) {
       return (
-        c3Value.billingTooltip?.trim() || model.billingTooltip?.trim() || void 0
+        videoCost.billingTooltip?.trim() ||
+        model.billingTooltip?.trim() ||
+        void 0
       );
     }
   }
@@ -85,27 +89,33 @@ export function calcImageCost(
   refCount = 0,
 ) {
   if (!pricing?.image) return void 0;
-  const model = pricing.image.find((m3Value) => m3Value.modelID === modelId);
+  const model = pricing.image.find(
+    (pricingModel) => pricingModel.modelID === modelId,
+  );
   if (!model) return void 0;
   if (resolution) {
     const resLower = resolution.toLowerCase();
     const qualLower = quality?.toLowerCase();
-    for (const c3Value of model.imageCosts) {
-      if (!c3Value.resolutions?.some((result) => result.toLowerCase() === resLower))
+    for (const imageCost of model.imageCosts) {
+      if (!imageCost.resolutions?.some((result) => result.toLowerCase() === resLower))
         continue;
       if (
-        c3Value.qualities?.length &&
+        imageCost.qualities?.length &&
         (qualLower == null ||
-          !c3Value.qualities.some((q) => q.toLowerCase() === qualLower))
+          !imageCost.qualities.some((candidateQuality) =>
+            candidateQuality.toLowerCase() === qualLower,
+          ))
       )
         continue;
-      if (c3Value.realCost <= 0) return void 0;
-      const billable = c3Value.refCountPrice
-        ? Math.max(0, refCount - (c3Value.refCountFree ?? 0))
+      if (imageCost.realCost <= 0) return void 0;
+      const billable = imageCost.refCountPrice
+        ? Math.max(0, refCount - (imageCost.refCountFree ?? 0))
         : 0;
       const addOn =
-        billable > 0 && c3Value.refCountPrice ? billable * c3Value.refCountPrice : 0;
-      return c3Value.realCost + addOn;
+        billable > 0 && imageCost.refCountPrice
+          ? billable * imageCost.refCountPrice
+          : 0;
+      return imageCost.realCost + addOn;
     }
   }
   return model.defaultCost > 0 ? model.defaultCost : void 0;
