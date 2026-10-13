@@ -1,0 +1,4 @@
+key	old	new	依据
+n2@84:22	n2	byteCount	该参数是待格式化为 B、KB 或 MB 的字节数。
+r2@89:30	r2	resource	该参数是提供尺寸、时长、文件大小与类型的预览资源。
+t2@156:31	t2	translate	该参数用于翻译标签的旧版名称键。

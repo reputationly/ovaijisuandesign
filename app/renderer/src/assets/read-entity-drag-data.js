@@ -7,8 +7,8 @@ import {
 } from "./list-all-cloud-folders.js";
 import { CloudProjectRequestError } from "../workspace/asset-lineage-query-key.js";
 
-export function readEntityDragData(e2) {
-  const raw2 = e2.dataTransfer?.getData(ENTITY_DRAG_MIME);
+export function readEntityDragData(dragEvent) {
+  const raw2 = dragEvent.dataTransfer?.getData(ENTITY_DRAG_MIME);
   if (!raw2) return null;
   try {
     const parsed = JSON.parse(raw2);

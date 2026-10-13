@@ -4,13 +4,13 @@ import {
   Plus,
   reactExports,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { trackAssetCenterAction } from "../infra/use-online.jsx";
 const PRESET_TAGS = ["写实", "二次元", "赛博朋克", "水墨", "像素风"];
 function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [customDraft, setCustomDraft] = reactExports.useState("");
   const [showCustomInput, setShowCustomInput] = reactExports.useState(false);
   const [customAddedTags, setCustomAddedTags] = reactExports.useState(
@@ -25,7 +25,7 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
       selected: selected2,
       tag_count: selected2 ? value.length + 1 : value.length - 1,
     });
-    onChange(selected2 ? [...value, tag] : value.filter((t22) => t22 !== tag));
+    onChange(selected2 ? [...value, tag] : value.filter((existingTag) => existingTag !== tag));
   };
   const commitCustom = () => {
     const trimmed = customDraft.trim();
@@ -59,7 +59,7 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
       return next2;
     });
     if (value.includes(tag)) {
-      onChange(value.filter((t22) => t22 !== tag));
+      onChange(value.filter((existingTag) => existingTag !== tag));
     }
   };
   return (
@@ -86,9 +86,9 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
             role="button"
             tabIndex={0}
             onClick={() => toggle(tag)}
-            onKeyDown={(e2) => {
-              if (e2.key === "Enter" || e2.key === " ") {
-                e2.preventDefault();
+            onKeyDown={(keyboardEvent) => {
+              if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+                keyboardEvent.preventDefault();
                 toggle(tag);
               }
             }}
@@ -99,17 +99,17 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
             <span>{tag}</span>
             <button
               type="button"
-              onClick={(e2) => {
-                e2.stopPropagation();
+              onClick={(clickEvent) => {
+                clickEvent.stopPropagation();
                 removeCustomTag(tag);
               }}
-              aria-label={t2("common.remove", {
+              aria-label={translate("common.remove", {
                 defaultValue: "Remove",
               })}
               tabIndex={-1}
               className={`ml-0.5 inline-flex items-center justify-center size-3.5 rounded-[2px] transition-colors ${selected2 ? "text-background/70 hover:text-background hover:bg-background/15" : "text-muted-foreground hover:text-foreground hover:bg-foreground/10"}`}
             >
-              <X size={10} />
+              <CloseIcon size={10} />
             </button>
           </div>
         );
@@ -117,19 +117,19 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
       {showCustomInput ? (
         <input
           value={customDraft}
-          onChange={(e2) => setCustomDraft(e2.target.value)}
+          onChange={(changeEvent) => setCustomDraft(changeEvent.target.value)}
           onBlur={commitCustom}
-          onKeyDown={(e2) => {
-            if (e2.key === "Enter") {
-              e2.preventDefault();
+          onKeyDown={(keyboardEvent) => {
+            if (keyboardEvent.key === "Enter") {
+              keyboardEvent.preventDefault();
               commitCustom();
             }
-            if (e2.key === "Escape") {
+            if (keyboardEvent.key === "Escape") {
               setCustomDraft("");
               setShowCustomInput(false);
             }
           }}
-          placeholder={t2(
+          placeholder={translate(
             "assetCenter.create.customTagPlaceholder",
             "输入标签",
           )}
@@ -144,7 +144,7 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
           data-action-ui-id="asset-center-add-entity-tags-custom"
         >
           <Plus size={10} />
-          {t2("assetCenter.create.customTag", "自定义")}
+          {translate("assetCenter.create.customTag", "自定义")}
         </button>
       )}
     </div>
@@ -155,7 +155,7 @@ export function CollapsibleTags({
   onChange,
   trackingSurface = "create_dialog",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   return (
     <div>
@@ -178,7 +178,7 @@ export function CollapsibleTags({
           size={12}
           className={`transition-transform ${open ? "rotate-90" : ""}`}
         />
-        {t2("assetCenter.create.addTagsOptional", "添加标签（可选）")}
+        {translate("assetCenter.create.addTagsOptional", "添加标签（可选）")}
         {tags2.length > 0 && (
           <span className="text-[11px] text-muted-foreground/60">
             ({tags2.length})

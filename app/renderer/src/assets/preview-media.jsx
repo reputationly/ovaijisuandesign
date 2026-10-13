@@ -81,17 +81,17 @@ function PreviewMedia({ resource }) {
     </div>
   );
 }
-function formatBytes(n2) {
-  if (n2 < 1024) return `${n2} B`;
-  if (n2 < 1024 * 1024) return `${(n2 / 1024).toFixed(0)} KB`;
-  return `${(n2 / (1024 * 1024)).toFixed(1)} MB`;
+function formatBytes(byteCount) {
+  if (byteCount < 1024) return `${byteCount} B`;
+  if (byteCount < 1024 * 1024) return `${(byteCount / 1024).toFixed(0)} KB`;
+  return `${(byteCount / (1024 * 1024)).toFixed(1)} MB`;
 }
-export function describeMeta(r2) {
+export function describeMeta(resource) {
   const bits = [];
-  if (r2.width && r2.height) bits.push(`${r2.width}×${r2.height}`);
-  if (r2.durationSec !== void 0) bits.push(`${r2.durationSec.toFixed(1)}s`);
-  if (r2.fileSize !== void 0) bits.push(formatBytes(r2.fileSize));
-  return bits.join(" · ") || r2.type.toUpperCase();
+  if (resource.width && resource.height) bits.push(`${resource.width}×${resource.height}`);
+  if (resource.durationSec !== void 0) bits.push(`${resource.durationSec.toFixed(1)}s`);
+  if (resource.fileSize !== void 0) bits.push(formatBytes(resource.fileSize));
+  return bits.join(" · ") || resource.type.toUpperCase();
 }
 export function AssetPreviewPopup({ resource, side = "right" }) {
   return (
@@ -153,10 +153,10 @@ export function formatExceededDuration(value) {
   const rounded = Math.round(value * 10) / 10;
   return `${rounded}s`;
 }
-export function tagLabel(tag, t2) {
+export function tagLabel(tag, translate) {
   if (tag.name) return tag.name;
   return (
-    t2(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") || tag.id
+    translate(tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id] ?? "") || tag.id
   );
 }
 export function normaliseAssetType(raw2, fileName) {

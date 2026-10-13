@@ -23,11 +23,11 @@ export function reconcileDefaultPaths(prev, defaults2, removed) {
   if (defaults2.length === 0) return prev;
   const seen2 = new Set(prev);
   let next2 = null;
-  for (const p3 of defaults2) {
-    if (!p3 || seen2.has(p3) || removed.has(p3)) continue;
-    seen2.add(p3);
+  for (const defaultPath of defaults2) {
+    if (!defaultPath || seen2.has(defaultPath) || removed.has(defaultPath)) continue;
+    seen2.add(defaultPath);
     if (next2 === null) next2 = [...prev];
-    next2.push(p3);
+    next2.push(defaultPath);
   }
   return next2 ?? prev;
 }
@@ -39,7 +39,7 @@ export function normalizeFirstLastFramePaths(paths) {
     {
       length: FIRST_LAST_FRAME_SLOT_COUNT,
     },
-    (_2, index2) => paths[index2] ?? "",
+    (_unusedValue, index2) => paths[index2] ?? "",
   );
   while (next2.length > 0 && !next2[next2.length - 1]) next2.pop();
   return next2;
@@ -84,7 +84,7 @@ export function reconcileFirstLastFrameDefaultPaths(prev, defaults2, removed) {
       ? defaultIndex
       : Array.from({
           length: FIRST_LAST_FRAME_SLOT_COUNT,
-        }).findIndex((_2, index2) => !next2[index2]);
+        }).findIndex((_unusedValue, index2) => !next2[index2]);
     if (vacantSlot < 0) break;
     while (next2.length <= vacantSlot) next2.push("");
     next2[vacantSlot] = path2;

@@ -1,5 +1,5 @@
 // rename-local-node-dialog.jsx
-import { API_PATHS, reactExports, Toggle$1, useTranslation } from "../vendor.js";
+import { API_PATHS, reactExports, Toggle$1 as TogglePrimitive, useTranslation } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { checkTextSafety } from "../workspace/asset-lineage-query-key.js";
@@ -23,7 +23,7 @@ import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js";
 import { toggleVariants } from "../infra/use-online.jsx";
 export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [name2, setName] = reactExports.useState("");
   const [pending2, setPending] = reactExports.useState(false);
   const trimmed = name2.trim();
@@ -38,7 +38,7 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
     try {
       const safety = await checkTextSafety(trimmed);
       if (!safety.pass) {
-        dedupedToast.error(t2("rename.safetyBlocked"));
+        dedupedToast.error(translate("rename.safetyBlocked"));
         return;
       }
       await onCreate(trimmed);
@@ -48,7 +48,7 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
     } finally {
       setPending(false);
     }
-  }, [onCreate, onOpenChange, pending2, t2, trimmed]);
+  }, [onCreate, onOpenChange, pending2, translate, trimmed]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -57,10 +57,10 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
       >
         <DialogHeader>
           <DialogTitle className="text-body-14 leading-5 font-medium">
-            {t2("localAssets.newFolderTitle")}
+            {translate("localAssets.newFolderTitle")}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            {t2("localAssets.newFolderTitle")}
+            {translate("localAssets.newFolderTitle")}
           </DialogDescription>
         </DialogHeader>
         <Input3
@@ -72,8 +72,8 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
             event.preventDefault();
             void handleConfirm();
           }}
-          aria-label={t2("localAssets.newFolderPlaceholder")}
-          placeholder={t2("localAssets.newFolderPlaceholder")}
+          aria-label={translate("localAssets.newFolderPlaceholder")}
+          placeholder={translate("localAssets.newFolderPlaceholder")}
           autoComplete="off"
         />
         <DialogFooter>
@@ -82,14 +82,14 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
             size="sm"
             onClick={() => onOpenChange(false)}
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             size="sm"
             disabled={!trimmed || pending2}
             onClick={() => void handleConfirm()}
           >
-            {t2("common.confirm")}
+            {translate("common.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -97,7 +97,7 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
   );
 }
 export function RenameLocalNodeDialog({ node: node2, onOpenChange, onRename }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [name2, setName] = reactExports.useState("");
   const [pending2, setPending] = reactExports.useState(false);
   const { tail: extension2 } = splitFilename(node2?.name ?? "", node2?.kind);
@@ -116,22 +116,22 @@ export function RenameLocalNodeDialog({ node: node2, onOpenChange, onRename }) {
       const message2 = err instanceof Error ? err.message : String(err);
       dedupedToast.error(
         message2.includes("duplicate_name")
-          ? t2("localAssets.renameDuplicate")
+          ? translate("localAssets.renameDuplicate")
           : message2,
       );
     } finally {
       setPending(false);
     }
-  }, [fullName, node2, onOpenChange, onRename, pending2, t2]);
+  }, [fullName, node2, onOpenChange, onRename, pending2, translate]);
   return (
     <Dialog open={node2 !== null} onOpenChange={onOpenChange}>
       <DialogContent size="sm" data-action-ui-id="local-assets.rename-dialog">
         <DialogHeader>
           <DialogTitle className="text-body-14 leading-5 font-medium">
-            {t2("localAssets.renameTitle")}
+            {translate("localAssets.renameTitle")}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            {t2("localAssets.renameTitle")}
+            {translate("localAssets.renameTitle")}
           </DialogDescription>
         </DialogHeader>
         <AssetRenameInput
@@ -145,8 +145,8 @@ export function RenameLocalNodeDialog({ node: node2, onOpenChange, onRename }) {
             event.preventDefault();
             void handleConfirm();
           }}
-          aria-label={t2("localAssets.renamePlaceholder")}
-          placeholder={t2("localAssets.renamePlaceholder")}
+          aria-label={translate("localAssets.renamePlaceholder")}
+          placeholder={translate("localAssets.renamePlaceholder")}
           autoComplete="off"
         />
         <DialogFooter>
@@ -155,14 +155,14 @@ export function RenameLocalNodeDialog({ node: node2, onOpenChange, onRename }) {
             size="sm"
             onClick={() => onOpenChange(false)}
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             size="sm"
             disabled={!fullName || pending2 || fullName === node2?.name}
             onClick={() => void handleConfirm()}
           >
-            {t2("common.confirm")}
+            {translate("common.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -245,7 +245,7 @@ export function Toggle({
   ...props
 }) {
   return (
-    <Toggle$1
+    <TogglePrimitive
       data-slot="toggle"
       className={cn(
         toggleVariants({

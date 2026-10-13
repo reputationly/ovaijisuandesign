@@ -52,7 +52,7 @@ export function PromoteToAssetForm({
   onSubmittingChange,
   variant = "dialog",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const appendMutation = useAppendAttachmentFromWorkspace();
   const createMutation = useCreateEntityFromPaths();
   const materializeMutation = useMaterializeEntity();
@@ -156,8 +156,8 @@ export function PromoteToAssetForm({
     if (mode2 === "append" && pickedEntity) {
       let successCount = 0;
       try {
-        for (const f2 of files) {
-          const meta2 = getMeta(f2.absolutePath);
+        for (const file of files) {
+          const meta2 = getMeta(file.absolutePath);
           const trimmedDesc = meta2.user_desc.trim();
           await appendMutation.mutateAsync({
             entityId: pickedEntity.entityId,
@@ -166,12 +166,12 @@ export function PromoteToAssetForm({
               // — required because asset-center home gateway baseDir isn't
               // the workspace root, so workspaceRelPath alone can't be
               // resolved correctly there.
-              absolutePath: f2.absolutePath,
+              absolutePath: file.absolutePath,
               // workspaceRelPath: optional, used by gateway purely for
               // vault metadata.prompt lookup (vault is indexed by
               // workspace-relative paths). Passing both is the standard
               // pattern in workspace-context callers.
-              workspaceRelPath: f2.workspaceRelPath,
+              workspaceRelPath: file.workspaceRelPath,
               ...(trimmedDesc
                 ? {
                     user_desc: trimmedDesc,
@@ -182,7 +182,7 @@ export function PromoteToAssetForm({
           successCount += 1;
         }
         dedupedToast.success(
-          t2("assetCenter.promote.toastAppended", {
+          translate("assetCenter.promote.toastAppended", {
             entity: pickedEntity.entityName,
             count: successCount,
           }),
@@ -200,7 +200,7 @@ export function PromoteToAssetForm({
         const msg = err instanceof Error ? err.message : String(err);
         if (successCount > 0) {
           dedupedToast.error(
-            t2("assetCenter.promote.partialAppendError", {
+            translate("assetCenter.promote.partialAppendError", {
               done: successCount,
               total: files.length,
               message: msg,
@@ -232,11 +232,11 @@ export function PromoteToAssetForm({
       try {
         const trimmedName = newName.trim();
         const trimmedDesc = newDescription.trim();
-        const filesForServer = files.map((f2) => {
-          const meta2 = getMeta(f2.absolutePath);
+        const filesForServer = files.map((file) => {
+          const meta2 = getMeta(file.absolutePath);
           const trimmedFileDesc = meta2.user_desc.trim();
           return {
-            absolutePath: f2.absolutePath,
+            absolutePath: file.absolutePath,
             ...(trimmedFileDesc
               ? {
                   user_desc: trimmedFileDesc,
@@ -283,7 +283,7 @@ export function PromoteToAssetForm({
           } catch {}
         }
         dedupedToast.success(
-          t2("assetCenter.promote.toastCreated", {
+          translate("assetCenter.promote.toastCreated", {
             entity: entity.name,
             count: files.length,
           }),
@@ -330,7 +330,7 @@ export function PromoteToAssetForm({
     tags2,
     workspaceRoot,
     onSuccess,
-    t2,
+    translate,
   ]);
   return (
     <>
@@ -342,14 +342,14 @@ export function PromoteToAssetForm({
               className="flex-1 px-3 py-1.5 text-[13px] rounded-[5px] bg-transparent data-[active]:bg-muted-foreground/15 data-[active]:shadow-none text-muted-foreground hover:text-foreground data-[active]:text-foreground transition-all"
               data-action-ui-id="asset-panel.promote-tab-new"
             >
-              {t2("assetCenter.promote.tabNew")}
+              {translate("assetCenter.promote.tabNew")}
             </TabsTrigger>
             <TabsTrigger
               value="append"
               className="flex-1 px-3 py-1.5 text-[13px] rounded-[5px] bg-transparent data-[active]:bg-muted-foreground/15 data-[active]:shadow-none text-muted-foreground hover:text-foreground data-[active]:text-foreground transition-all"
               data-action-ui-id="asset-panel.promote-tab-append"
             >
-              {t2("assetCenter.promote.tabAppend")}
+              {translate("assetCenter.promote.tabAppend")}
             </TabsTrigger>
           </TabsList>
         )}
@@ -363,7 +363,7 @@ export function PromoteToAssetForm({
                   : "text-muted-foreground",
               )}
             >
-              {t2("assetCenter.promote.targetEntityLabel")}
+              {translate("assetCenter.promote.targetEntityLabel")}
             </span>
             <div
               className={cn(
@@ -385,7 +385,7 @@ export function PromoteToAssetForm({
                 className="text-xs text-destructive"
                 data-action-ui-id="asset-panel.promote-target-error"
               >
-                {t2(
+                {translate(
                   "assetCenter.promote.targetRequired",
                   "请选择一个要加入的目标资产",
                 )}
@@ -396,7 +396,7 @@ export function PromoteToAssetForm({
                 className="text-xs text-muted-foreground/70 block"
                 data-action-ui-id="asset-panel.promote-picked-name"
               >
-                {t2("assetCenter.promote.pickedLabel", {
+                {translate("assetCenter.promote.pickedLabel", {
                   name: pickedEntity.entityName,
                 })}
               </span>
@@ -425,13 +425,13 @@ export function PromoteToAssetForm({
                 ref={nameInputRef}
                 id="promote-new-name"
                 value={newName}
-                onChange={(e2) => {
-                  setNewName(e2.target.value);
-                  if (submitAttempted && e2.target.value.trim().length > 0) {
+                onChange={(changeEvent) => {
+                  setNewName(changeEvent.target.value);
+                  if (submitAttempted && changeEvent.target.value.trim().length > 0) {
                     setSubmitAttempted(false);
                   }
                 }}
-                placeholder={`${t2("assetCenter.create.namePlaceholder")}（${t2("common.required", "必填")}）`}
+                placeholder={`${translate("assetCenter.create.namePlaceholder")}（${translate("common.required", "必填")}）`}
                 aria-invalid={showNameError}
                 aria-describedby={
                   showNameError ? "promote-new-name-error" : void 0
@@ -451,7 +451,7 @@ export function PromoteToAssetForm({
                 className="text-xs text-destructive"
                 data-action-ui-id="asset-panel.promote-new-name-error"
               >
-                {t2(
+                {translate(
                   "assetCenter.promote.nameRequired",
                   "请输入资产名称后再创建",
                 )}
@@ -468,14 +468,14 @@ export function PromoteToAssetForm({
                   variant="secondary"
                   className="text-[13px] h-[21px] px-1.5 font-medium gap-0.5 rounded-sm bg-muted-foreground/15 text-secondary-foreground"
                 >
-                  {t2(`assetCenter.types.${newType}`)}
+                  {translate(`assetCenter.types.${newType}`)}
                   <ChevronDown size={12} className="text-muted-foreground" />
                 </Badge>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 {TYPE_OPTIONS.map((opt) => (
                   <DropdownMenuItem key={opt} onClick={() => setNewType(opt)}>
-                    {t2(`assetCenter.types.${opt}`)}
+                    {translate(`assetCenter.types.${opt}`)}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -484,8 +484,8 @@ export function PromoteToAssetForm({
             <textarea
               id="promote-new-description"
               value={newDescription}
-              onChange={(e2) => setNewDescription(e2.target.value)}
-              placeholder={t2("assetCenter.create.descriptionPlaceholder")}
+              onChange={(changeEvent) => setNewDescription(changeEvent.target.value)}
+              placeholder={translate("assetCenter.create.descriptionPlaceholder")}
               rows={1}
               className="flex-1 min-w-0 bg-transparent text-[13px] text-muted-foreground outline-none placeholder:text-muted-foreground/40 resize-none field-sizing-content break-words"
               data-action-ui-id="asset-panel.promote-new-description"
@@ -502,13 +502,13 @@ export function PromoteToAssetForm({
             )}
             data-action-ui-id="asset-panel.promote-files-list"
           >
-            {files.map((f2) => {
-              const meta2 = getMeta(f2.absolutePath);
+            {files.map((file) => {
+              const meta2 = getMeta(file.absolutePath);
               const rowButton = (
                 <button
                   type="button"
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 text-sm hover:bg-muted/50 transition-colors"
-                  onClick={() => toggleExpand(f2.absolutePath)}
+                  onClick={() => toggleExpand(file.absolutePath)}
                   data-action-ui-id="asset-panel.promote-file-toggle"
                 >
                   <FileText
@@ -516,7 +516,7 @@ export function PromoteToAssetForm({
                     className="shrink-0 text-foreground opacity-35"
                   />
                   <span className="flex-1 truncate text-left">
-                    {f2.displayName}
+                    {file.displayName}
                   </span>
                   {meta2.expanded ? (
                     <ChevronDown
@@ -532,15 +532,15 @@ export function PromoteToAssetForm({
                 </button>
               );
               return (
-                <li key={f2.absolutePath}>
-                  {f2.vaultPrompt ? (
+                <li key={file.absolutePath}>
+                  {file.vaultPrompt ? (
                     <Tooltip>
                       <TooltipTrigger render={rowButton} />
                       <TooltipContent
                         side="left"
                         className="max-w-md text-sm whitespace-pre-wrap"
                       >
-                        {f2.vaultPrompt}
+                        {file.vaultPrompt}
                       </TooltipContent>
                     </Tooltip>
                   ) : (
@@ -551,12 +551,12 @@ export function PromoteToAssetForm({
                       <div className="w-0.5 shrink-0 self-stretch bg-muted-foreground/15 rounded-full mr-2.5 ml-[3px]" />
                       <textarea
                         value={meta2.user_desc}
-                        onChange={(e2) =>
-                          updateMeta(f2.absolutePath, {
-                            user_desc: e2.target.value,
+                        onChange={(changeEvent) =>
+                          updateMeta(file.absolutePath, {
+                            user_desc: changeEvent.target.value,
                           })
                         }
-                        placeholder={t2(
+                        placeholder={translate(
                           "assetCenter.create.attachmentCaptionPlaceholder",
                         )}
                         rows={1}
@@ -591,7 +591,7 @@ export function PromoteToAssetForm({
             disabled={isSubmitting}
             data-action-ui-id="asset-panel.promote-close"
           >
-            {t2("common.cancel")}
+            {translate("common.cancel")}
           </Button>
           <Button
             size="sm"
@@ -602,8 +602,8 @@ export function PromoteToAssetForm({
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
             {mode2 === "append"
-              ? t2("assetCenter.promote.submitAppend")
-              : t2("assetCenter.promote.submitNew")}
+              ? translate("assetCenter.promote.submitAppend")
+              : translate("assetCenter.promote.submitNew")}
           </Button>
         </div>
       </div>

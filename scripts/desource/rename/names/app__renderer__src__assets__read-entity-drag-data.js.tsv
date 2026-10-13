@@ -1,0 +1,2 @@
+key	old	new	依据
+e2@10:36	e2	dragEvent	该事件通过 dataTransfer 携带并读取实体拖拽数据。

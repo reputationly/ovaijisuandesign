@@ -1,0 +1,4 @@
+key	old	new	依据
+Toggle$1@2:35	Toggle$1	TogglePrimitive	该供应商切换控件由本地 Toggle 包装组件添加样式与数据标记。
+t2@26:14	t2	translate	该绑定是新建本地文件夹对话框读取状态与按钮文案的翻译函数。
+t2@100:14	t2	translate	该绑定是重命名本地节点对话框读取状态与提示文案的翻译函数。
