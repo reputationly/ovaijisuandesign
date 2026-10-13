@@ -7,7 +7,7 @@ import {
   reactExports,
   TriangleAlert,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -42,10 +42,10 @@ const FeedbackIcon = reactExports.forwardRef(function FeedbackIcon2(
     </CompositedSvg>
   );
 });
-function handleAnchorClick(e2) {
-  const target = e2.target;
+function handleAnchorClick(clickEvent) {
+  const target = clickEvent.target;
   if (target?.tagName === "A") {
-    e2.stopPropagation();
+    clickEvent.stopPropagation();
   }
 }
 function ErrorHtmlContent({ html: html2 }) {
@@ -98,7 +98,7 @@ export function MediaErrorCard({
   refundStatus,
   refundedCredits,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const plainError = stripErrorHtml(errorMessage2);
   const rawClass = classifyRawErrorText(plainError);
   const isConcurrencyLimit =
@@ -106,27 +106,27 @@ export function MediaErrorCard({
   const isRecoverable = variant === "recoverable";
   const isUncertain = variant === "uncertain";
   const title = isRecoverable
-    ? t2("canvas.generationRecovery.title")
+    ? translate("canvas.generationRecovery.title")
     : isConcurrencyLimit
-      ? t2("canvas.concurrencyLimit.title")
-      : t2("canvas.generationFailed");
+      ? translate("canvas.concurrencyLimit.title")
+      : translate("canvas.generationFailed");
   const iconLabel = isRecoverable
     ? title
     : isConcurrencyLimit
-      ? t2("canvas.concurrencyLimit.title")
-      : t2("common.error");
+      ? translate("canvas.concurrencyLimit.title")
+      : translate("common.error");
   const stateDescription = isRecoverable
-    ? t2("canvas.generationRecovery.description")
+    ? translate("canvas.generationRecovery.description")
     : isUncertain
       ? (uncertainDescription ??
-        t2("canvas.generationStatusUnknown.description"))
+        translate("canvas.generationStatusUnknown.description"))
       : void 0;
   const displayError =
     stateDescription ??
-    (rawClass ? t2(RAW_ERROR_CLASS_I18N[rawClass]) : errorMessage2);
+    (rawClass ? translate(RAW_ERROR_CLASS_I18N[rawClass]) : errorMessage2);
   const plainDisplayError = stripErrorHtml(displayError);
   const uncertainReason =
-    isUncertain && rawClass ? t2(UNCERTAIN_REASON_I18N[rawClass]) : void 0;
+    isUncertain && rawClass ? translate(UNCERTAIN_REASON_I18N[rawClass]) : void 0;
   const tooltipText = uncertainReason
     ? `${plainDisplayError}
 ${uncertainReason}`
@@ -204,7 +204,7 @@ ${uncertainReason}`
                   className={`${ERROR_ACTION_ICON_CLASS} animate-spin`}
                 />
               ) : onDismissUnknown ? (
-                <X
+                <CloseIcon
                   size={14}
                   strokeWidth={1.5}
                   className={ERROR_ACTION_ICON_CLASS}
@@ -217,8 +217,8 @@ ${uncertainReason}`
                 />
               )}
               {onDismissUnknown
-                ? t2("canvas.dismissGenerationStatus")
-                : t2("canvas.removeLocalPlaceholder")}
+                ? translate("canvas.dismissGenerationStatus")
+                : translate("canvas.removeLocalPlaceholder")}
             </button>
           ) : !isRecoverable ? (
             <button
@@ -232,7 +232,7 @@ ${uncertainReason}`
                 strokeWidth={1.5}
                 className={ERROR_ACTION_ICON_CLASS}
               />
-              {t2("common.delete")}
+              {translate("common.delete")}
             </button>
           ) : onCancel ? (
             <button
@@ -256,7 +256,7 @@ ${uncertainReason}`
                   className={ERROR_ACTION_ICON_CLASS}
                 />
               )}
-              {t2("canvas.cancelGeneration")}
+              {translate("canvas.cancelGeneration")}
             </button>
           ) : null}
           {isConcurrencyLimit && onRetry ? (
@@ -273,8 +273,8 @@ ${uncertainReason}`
                 className={`${ERROR_ACTION_ICON_CLASS}${retrying ? " animate-spin" : ""}`}
               />
               {retrying
-                ? t2("canvas.retryGeneration.retrying")
-                : t2("common.retry")}
+                ? translate("canvas.retryGeneration.retrying")
+                : translate("common.retry")}
             </button>
           ) : onReport ? (
             <button
@@ -285,8 +285,8 @@ ${uncertainReason}`
               aria-busy={reportStatus === "submitting"}
               title={
                 isRecoverable
-                  ? t2("canvas.reportGenerationRecoveryTooltip")
-                  : t2("canvas.reportGenerationFailureTooltip")
+                  ? translate("canvas.reportGenerationRecoveryTooltip")
+                  : translate("canvas.reportGenerationFailureTooltip")
               }
               data-action-ui-id="canvas.media-error.report"
             >
@@ -306,8 +306,8 @@ ${uncertainReason}`
                 <FeedbackIcon size={14} className={ERROR_ACTION_ICON_CLASS} />
               )}
               {reportStatus === "submitted"
-                ? t2("feedback.reported")
-                : t2("canvas.mediaError.report")}
+                ? translate("feedback.reported")
+                : translate("canvas.mediaError.report")}
             </button>
           ) : null}
         </div>

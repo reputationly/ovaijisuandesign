@@ -26,14 +26,14 @@ export function MediaGenerationErrorOverlay({
   uncertain = false,
   errorSource = "in-place",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const bridge = useCanvasBridge();
   const { mergeNodeData } = useCanvasActions();
   const { deleteElements } = useReactFlow();
   const nodeRefund = useNodesData(nodeId)?.data;
   const [cancelGenerationPending, setCancelGenerationPending] =
     reactExports.useState(false);
-  const generating = useGeneratingStateStore((s2) => s2.byNode.get(nodeId));
+  const generating = useGeneratingStateStore((generationState) => generationState.byNode.get(nodeId));
   const registryModel = useModelForAsset(
     generating?.backend,
     generating?.modelId,
@@ -41,9 +41,9 @@ export function MediaGenerationErrorOverlay({
   );
   const displayModel =
     registryModel?.name ??
-    (generating?.model ? translateModelName(generating.model, t2) : void 0);
-  const handleDelete2 = (e2) => {
-    e2.stopPropagation();
+    (generating?.model ? translateModelName(generating.model, translate) : void 0);
+  const handleDelete2 = (clickEvent) => {
+    clickEvent.stopPropagation();
     useGeneratingStateStore.getState().clear(nodeId);
     deleteElements({
       nodes: [
@@ -54,8 +54,8 @@ export function MediaGenerationErrorOverlay({
     });
   };
   const handleDismissUnknown = reactExports.useCallback(
-    async (e2) => {
-      e2.stopPropagation();
+    async (clickEvent) => {
+      clickEvent.stopPropagation();
       if (cancelGenerationPending) return;
       if (bridge.onDismissUnknownGeneration) {
         setCancelGenerationPending(true);
@@ -84,8 +84,8 @@ export function MediaGenerationErrorOverlay({
     [bridge, cancelGenerationPending, mergeNodeData, nodeId],
   );
   const handleReport = bridge.onReportNodeError
-    ? (e2) => {
-        e2.stopPropagation();
+    ? (clickEvent) => {
+        clickEvent.stopPropagation();
         bridge.onReportNodeError?.({
           nodeId,
           nodeType: nodeType ?? "media",
@@ -104,14 +104,14 @@ export function MediaGenerationErrorOverlay({
       : void 0;
   const handleRetry =
     retryPayload && bridge.onRetryGeneration
-      ? (e2) => {
-          e2.stopPropagation();
+      ? (clickEvent) => {
+          clickEvent.stopPropagation();
           bridge.onRetryGeneration?.(nodeId, retryPayload);
         }
       : void 0;
   const handleCancel = reactExports.useCallback(
-    async (e2) => {
-      e2.stopPropagation();
+    async (clickEvent) => {
+      clickEvent.stopPropagation();
       if (!bridge.onCancelGeneration || cancelGenerationPending) return;
       setCancelGenerationPending(true);
       try {
@@ -148,7 +148,7 @@ export function MediaGenerationErrorOverlay({
       dismissing={uncertain && cancelGenerationPending}
       uncertainDescription={
         uncertain && errorSource === "in-place"
-          ? t2("canvas.generationStatusUnknown.inPlaceDescription")
+          ? translate("canvas.generationStatusUnknown.inPlaceDescription")
           : void 0
       }
       onRetry={handleRetry}

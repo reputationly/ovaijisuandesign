@@ -1,0 +1,4 @@
+key	old	new	依据
+X@10:10	X	CloseIcon	该导入是错误卡片展示的关闭图标。
+e2@45:28	e2	clickEvent	该事件来自锚点点击，用于读取目标并阻止冒泡。
+t2@101:14	t2	translate	该绑定来自 useTranslation 并用于错误卡片标题及说明。

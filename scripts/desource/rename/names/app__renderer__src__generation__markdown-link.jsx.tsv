@@ -1,0 +1,14 @@
+key	old	new	依据
+G@2:106	G	codeHighlighterPlugin	该导入由 vendor 的 Shiki 高亮工厂创建，作为代码高亮插件传给 Markdown。
+Ae@43:10	Ae	CodeBlockCopyButton	该导入组件负责复制代码块内容并显示复制按钮。
+t2@440:14	t2	translate	该绑定来自 useTranslation 并用于媒体预览操作提示。
+t2@587:14	t2	translate	该绑定来自 useTranslation 并用于媒体加载失败提示。
+h2@607:9	h2	hours	该值是时长格式化结果中的小时数。
+m3@608:9	m3	minutes	该值是时长格式化结果中的分钟数。
+s2@609:9	s2	remainingSeconds	该值是时长取模后用于显示的剩余秒数。
+t2@786:14	t2	translate	该绑定来自 useTranslation 并用于技能卡片操作文案。
+id2@864:14	id2	internalReferenceId	该值是正则替换捕获的内部知识引用标识。
+id2@871:15	id2	referenceId	该值是内部定义映射中的引用标识。
+t2@926:14	t2	translate	该绑定来自 useTranslation 并用于 Markdown 链接操作提示。
+t2@1323:14	t2	translate	该绑定来自 useTranslation 并用于画布节点引用提示。
+t2@1660:14	t2	translate	该绑定来自 useTranslation 并用于 Markdown 内容提示。

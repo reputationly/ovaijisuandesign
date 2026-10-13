@@ -12,23 +12,23 @@ function normalizeToolsByAgent(raw2) {
   const out = {};
   for (const [agentName, value] of Object.entries(raw2)) {
     if (!Array.isArray(value)) continue;
-    const tools = value.filter((v2) => typeof v2 === "string" && v2.length > 0);
+    const tools = value.filter((toolName) => typeof toolName === "string" && toolName.length > 0);
     if (tools.length > 0) out[agentName] = tools;
   }
   return Object.keys(out).length > 0 ? out : void 0;
 }
-function toStringArray(v2) {
-  if (Array.isArray(v2))
-    return v2.filter((x2) => typeof x2 === "string" && x2 !== "");
-  if (typeof v2 === "string" && v2) return [v2];
+function toStringArray(value) {
+  if (Array.isArray(value))
+    return value.filter((item) => typeof item === "string" && item !== "");
+  if (typeof value === "string" && value) return [value];
   return [];
 }
-function firstString(v2) {
-  if (Array.isArray(v2)) {
-    const first2 = v2.find((x2) => typeof x2 === "string" && x2 !== "");
+function firstString(value) {
+  if (Array.isArray(value)) {
+    const first2 = value.find((item) => typeof item === "string" && item !== "");
     return first2 ?? "";
   }
-  if (typeof v2 === "string") return v2;
+  if (typeof value === "string") return value;
   return "";
 }
 function reconcileTag(tagRaw, completeRaw) {
@@ -47,11 +47,11 @@ function reconcileTag(tagRaw, completeRaw) {
   };
 }
 function mapCloudSkillToMarketSkillInfo(raw2) {
-  const en2 = reconcileTag(
+  const englishTagData = reconcileTag(
     raw2.tagEn ?? raw2.tag_en ?? raw2["tag-en"],
     raw2.completeTagsEn ?? raw2.complete_tags_en ?? raw2["complete-tags-en"],
   );
-  const cn2 = reconcileTag(
+  const chineseTagData = reconcileTag(
     raw2.tagCn ?? raw2.tag_cn ?? raw2["tag-cn"],
     raw2.completeTagsCn ?? raw2.complete_tags_cn ?? raw2["complete-tags-cn"],
   );
@@ -74,10 +74,10 @@ function mapCloudSkillToMarketSkillInfo(raw2) {
       raw2.guide_prompt_en ||
       SKILL_GUIDE_PROMPT_DEFAULTS.en,
     displayNameZh: raw2.displayNameZh || raw2.display_name_zh || "",
-    tagEn: en2.single,
-    tagCn: cn2.single,
-    completeTagsEn: en2.list,
-    completeTagsCn: cn2.list,
+    tagEn: englishTagData.single,
+    tagCn: chineseTagData.single,
+    completeTagsEn: englishTagData.list,
+    completeTagsCn: chineseTagData.list,
     categoryCodes: toStringArray(raw2.categoryCodes ?? raw2.category_codes),
     descEn: raw2.descEn || raw2.desc_en || raw2["desc-en"] || "",
     descCn: raw2.descCn || raw2.desc_cn || raw2["desc-cn"] || "",

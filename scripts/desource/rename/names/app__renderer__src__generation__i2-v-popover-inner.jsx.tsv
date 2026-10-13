@@ -1,0 +1,30 @@
+key	old	new	依据
+t2@202:14	t2	translate	该绑定来自 useTranslation 并用于图生视频弹出框文案。
+s2@291:54	s2	modelRegistryState	该值是模型注册表 store 中读取视频模型的状态对象。
+m3@293:43	m3	videoModel	该值是当前选中的视频模型记录。
+k2@777:8	k2	parameterKey	该值是查询所选模型参数定义的键。
+k2@780:8	k2	parameterKey	该值是查询所选模型参数定义的键。
+k2@1021:44	k2	parameterKey	该值是查找宽高比参数定义的候选键。
+m3@1048:18	m3	candidateModel	该值是待按引用数量和隐藏标志筛选的视频模型记录。
+m3@1053:34	m3	videoModel	该值是转换为标识列表的视频模型记录。
+m3@1195:39	m3	videoModel	该值是按标识查找的目标视频模型记录。
+e2@1237:12	e2	clickEvent	该事件来自领取视频试用操作并用于阻止事件冒泡。
+e2@1554:6	e2	clickEvent	该事件来自恢复草稿操作并用于阻止事件冒泡。
+e2@1629:12	e2	submitEvent	该事件由提交回调接收并用于阻止画布事件冒泡。
+p3@1708:22	p3	audioPath	该值是待按时长累计的裁剪后音频路径。
+p3@1723:22	p3	videoPath	该值是待按时长累计的裁剪后视频路径。
+u4@1830:58	u4	unresolvedReference	该值是编译结果中未解析引用的记录。
+e2@1926:6	e2	submitEvent	该事件来自确认生成按钮并转交给提交逻辑。
+e2@1938:6	e2	submitEvent	该事件来自新建节点按钮并转交给提交逻辑。
+e2@1950:6	e2	submitEvent	该事件来自替换节点按钮并转交给提交逻辑。
+s2@2125:27	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
+s2@2142:25	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
+a2@2242:44	a2	parameterAlias	该值是标准参数定义中的候选别名。
+v2@2268:26	v2	nextValue	该值是图生视频参数字段 onChange 回调提供的新值。
+v2@2302:32	v2	nextValue	该值是图生视频参数字段 onChange 回调提供的新值。
+v2@2415:24	v2	nextValue	该值是图生视频参数字段 onChange 回调提供的新值。
+v2@2437:22	v2	nextValue	该值是图生视频参数字段 onChange 回调提供的新值。
+v2@2499:38	v2	isExpanded	该值是展开状态 setter 收到的当前布尔值。
+s2@2522:31	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
+s2@2568:33	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
+v2@2596:48	v2	isOpen	该值是参数面板打开状态 setter 收到的当前布尔值。

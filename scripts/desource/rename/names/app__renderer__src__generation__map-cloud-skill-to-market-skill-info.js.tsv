@@ -1,0 +1,8 @@
+key	old	new	依据
+v2@15:33	v2	toolName	该值是工具名称数组中经过字符串校验的元素。
+v2@20:24	v2	value	该参数可以是字符串或字符串数组，随后被统一转换为字符串数组。
+x2@22:23	x2	item	该值是待筛选的字符串数组元素。
+v2@26:22	v2	value	该参数是待提取首个非空字符串的输入值。
+x2@28:29	x2	item	该值是待筛选的字符串数组元素。
+en2@50:9	en2	englishTagData	该值是 reconcileTag 返回的英文单标签及完整标签集合。
+cn2@54:9	cn2	chineseTagData	该值是 reconcileTag 返回的中文单标签及完整标签集合。

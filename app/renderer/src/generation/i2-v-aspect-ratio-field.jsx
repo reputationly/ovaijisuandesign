@@ -5,7 +5,7 @@ import {
   isSeedance25InheritedVideoMode,
   isSeedance25Model,
   KLING_AVATAR_MODEL_NAMES,
-  LEGACY_SEEDANCE_25_TASK_TYPE_PARAM as LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1,
+  LEGACY_SEEDANCE_25_TASK_TYPE_PARAM as seedance25TaskTypeParam,
   normalizeIdentifier,
   resolveSpecialI2VRouteKind,
   SEEDANCE_25_INHERITED_VIDEO_MODES,
@@ -188,7 +188,7 @@ export function resolveSeedance25SubmitParams(model, params, imageMode) {
   const next2 = {
     ...params,
   };
-  delete next2[LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1];
+  delete next2[seedance25TaskTypeParam];
   if (!isSeedance25InheritedVideoMode(model, imageMode)) return next2;
   if (
     imageMode === SEEDANCE_25_VIDEO_EDIT_MODE ||
@@ -308,7 +308,7 @@ export function I2VAspectRatioField({
   disabledOptions,
   label,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const disableAdaptive = shouldDisableH3AdaptiveRatio(
     model,
     imageMode,
@@ -334,7 +334,7 @@ export function I2VAspectRatioField({
       <ParamSectionLabel>{label}</ParamSectionLabel>
       {forceAdaptive ? (
         <p className="mb-2 text-xs leading-4 text-muted-foreground">
-          {t2(
+          {translate(
             inheritsSourceVideoRatio
               ? "canvas.param.seedance25InheritedVideoRatioHint"
               : "canvas.param.seedance25AdaptiveRatioHint",
@@ -423,30 +423,30 @@ export function resolveI2VDefaultImagePaths({
     preserveDraftSlots: imageMode === "first-last-frame",
   });
 }
-export function imageModeOptionLabel(t2, opt) {
+export function imageModeOptionLabel(translate, opt) {
   if (opt === "first-last-frame") {
-    return t2("canvas.imageMode.firstLastFrame");
+    return translate("canvas.imageMode.firstLastFrame");
   }
   if (opt === "reference") {
-    return t2("canvas.imageMode.omniReference");
+    return translate("canvas.imageMode.omniReference");
   }
   if (opt === "text-to-video") {
-    return t2("canvas.imageMode.textToVideo", {
+    return translate("canvas.imageMode.textToVideo", {
       defaultValue: "Text to Video",
     });
   }
   if (opt === VIDEO_EXTENSION_MODE) {
-    return t2("canvas.imageMode.videoExtension", {
+    return translate("canvas.imageMode.videoExtension", {
       defaultValue: "Extend Video",
     });
   }
   if (opt === SEEDANCE_25_VIDEO_EDIT_MODE) {
-    return t2("canvas.seedance25.omniMode.edit", {
+    return translate("canvas.seedance25.omniMode.edit", {
       defaultValue: "视频编辑",
     });
   }
   if (opt === SEEDANCE_25_VIDEO_EXTEND_MODE) {
-    return t2("canvas.seedance25.omniMode.extend", {
+    return translate("canvas.seedance25.omniMode.extend", {
       defaultValue: "视频续写",
     });
   }

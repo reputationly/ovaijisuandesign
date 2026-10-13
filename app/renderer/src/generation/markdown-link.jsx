@@ -1,5 +1,5 @@
 // markdown-link.jsx
-import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, defaultSchema, ExternalLink, G$1 as G, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
+import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, defaultSchema, ExternalLink, G$1 as codeHighlighterPlugin, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   cleanRaw,
@@ -40,7 +40,7 @@ import {
 } from "../workspace/context-menu-content.jsx";
 import { InlineColorValue } from "./use-mention-models.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
-import { Ae, ot, rt } from "../chat/ae.jsx";
+import { Ae as CodeBlockCopyButton, ot, rt } from "../chat/ae.jsx";
 import { st } from "../chat/st.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import { resolveChatFileReference } from "./resolve-chat-file-reference.js";
@@ -166,7 +166,7 @@ function codeBlockContent(children2) {
   return "";
 }
 const stablePlugins = {
-  code: G,
+  code: codeHighlighterPlugin,
 };
 const CANVAS_NODE_ID_PATTERN = "[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}";
 const CANVAS_NODE_REFERENCE_PATTERN =
@@ -437,7 +437,7 @@ function MarkdownMediaCard({
   onPreview,
   unavailable = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const workspaceId2 = useCurrentWorkspace();
   const relativePath = reactExports.useMemo(
     () => toWorkspaceRelativePath(originalSrc, resolvedSrc),
@@ -462,11 +462,11 @@ function MarkdownMediaCard({
     [asset?.id, fileName, relativePath, workspaceId2],
   );
   const canDrag = canWriteResourceDragData(dragSource);
-  const locateTitle = t2("assetPreview.locateOnCanvas", {
+  const locateTitle = translate("assetPreview.locateOnCanvas", {
     defaultValue: "Locate on canvas",
   });
-  const previewTitle = t2("common.expand");
-  const copyTitle = t2("common.copy");
+  const previewTitle = translate("common.expand");
+  const copyTitle = translate("common.copy");
   const { copyFile, copyImage, copyPath, isLocalPath } = useMediaActions();
   const copySource = reactExports.useMemo(() => {
     const src = resolvedSrc ?? originalSrc;
@@ -584,13 +584,13 @@ function MarkdownMediaCard({
   );
 }
 function MediaUnavailable({ kind }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const label =
     kind === "image"
-      ? t2("chat.failedToLoadImage", {
+      ? translate("chat.failedToLoadImage", {
           defaultValue: "Failed to load image",
         })
-      : t2("chat.failedToLoadVideo", {
+      : translate("chat.failedToLoadVideo", {
           defaultValue: "Failed to load video",
         });
   const FailIcon = kind === "image" ? ImageOffOutlineIcon : VideoOff;
@@ -604,12 +604,12 @@ function MediaUnavailable({ kind }) {
 function formatDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds == null || seconds < 0) return "";
   const total = Math.floor(seconds);
-  const h2 = Math.floor(total / 3600);
-  const m3 = Math.floor((total % 3600) / 60);
-  const s2 = total % 60;
-  if (h2 > 0)
-    return `${h2}:${m3.toString().padStart(2, "0")}:${s2.toString().padStart(2, "0")}`;
-  return `${m3}:${s2.toString().padStart(2, "0")}`;
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const remainingSeconds = total % 60;
+  if (hours > 0)
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 function videoThumbnailUrl(relativePath, resolveUrl) {
   if (!relativePath) return void 0;
@@ -783,7 +783,7 @@ function tryParseSkillCard(raw2) {
   }
 }
 function InlineSkillCard({ content: content2 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const data2 = reactExports.useMemo(
     () => tryParseSkillCard(content2),
     [content2],
@@ -807,7 +807,7 @@ function InlineSkillCard({ content: content2 }) {
         />
         <span className="text-sm font-medium truncate">{data2.name}</span>
         <span className="text-xs text-muted-foreground">
-          {t2("skills.skillLabel", "Skill")}
+          {translate("skills.skillLabel", "Skill")}
         </span>
       </div>
       <Button
@@ -816,7 +816,7 @@ function InlineSkillCard({ content: content2 }) {
         className="shrink-0 text-xs h-7"
         onClick={handleTry}
       >
-        {t2("skills.trySkill", "开始使用")}
+        {translate("skills.trySkill", "开始使用")}
       </Button>
     </div>
   );
@@ -861,15 +861,15 @@ function redactInternalKnowledgeReferences(content2, labels) {
   const internalDefinitions = new Map();
   const withoutDefinitions = content2.replace(
     REFERENCE_DEFINITION_RE,
-    (match2, id2, target) => {
+    (match2, internalReferenceId, target) => {
       if (!isInternalKnowledgeReference(target)) return match2;
-      internalDefinitions.set(id2.trim().toLowerCase(), target);
+      internalDefinitions.set(internalReferenceId.trim().toLowerCase(), target);
       return "";
     },
   );
   let withoutInternalLinks = withoutDefinitions;
-  for (const [id2, target] of internalDefinitions) {
-    const escapedId = id2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  for (const [referenceId, target] of internalDefinitions) {
+    const escapedId = referenceId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     withoutInternalLinks = withoutInternalLinks.replace(
       new RegExp(`\\[([^\\]\\n]*)\\]\\[${escapedId}\\]`, "gi"),
       neutralLabel(target, labels),
@@ -923,7 +923,7 @@ function MarkdownLink({
   node: _node,
   ...rest
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const platform2 = usePlatform();
   const fileReferenceAction = useChatFileReferenceAction(href ?? "");
   const isNonClickableFileReference =
@@ -1013,8 +1013,8 @@ function MarkdownLink({
       target_domain: targetDomain,
       result: opened ? "accepted" : "failed",
     });
-    if (!opened) dedupedToast.error(t2("workspace.browser.openExternalError"));
-  }, [href, platform2, t2, targetDomain]);
+    if (!opened) dedupedToast.error(translate("workspace.browser.openExternalError"));
+  }, [href, platform2, translate, targetDomain]);
   const handleCopyLink = reactExports.useCallback(async () => {
     if (!href) return;
     try {
@@ -1025,7 +1025,7 @@ function MarkdownLink({
         target_domain: targetDomain,
         result: "accepted",
       });
-      dedupedToast.success(t2("chat.copied"));
+      dedupedToast.success(translate("chat.copied"));
     } catch {
       trackChatLinkAction({
         action: "copy",
@@ -1033,9 +1033,9 @@ function MarkdownLink({
         target_domain: targetDomain,
         result: "failed",
       });
-      dedupedToast.error(t2("common.copyFailed"));
+      dedupedToast.error(translate("common.copyFailed"));
     }
-  }, [href, platform2.clipboard, t2, targetDomain]);
+  }, [href, platform2.clipboard, translate, targetDomain]);
   if (isNonClickableFileReference) {
     return <span>{children2}</span>;
   }
@@ -1090,14 +1090,14 @@ function MarkdownLink({
               onClick={handleOpenBuiltin}
             >
               <Globe />
-              {t2("chat.link.openBuiltin")}
+              {translate("chat.link.openBuiltin")}
             </ContextMenuItem>
             <ContextMenuItem
               data-action-ui-id="chat-markdown-link-open-external"
               onClick={() => void handleOpenExternal()}
             >
               <ExternalLink />
-              {t2("workspace.browser.openExternal")}
+              {translate("workspace.browser.openExternal")}
             </ContextMenuItem>
             <ContextMenuSeparator />
             <ContextMenuItem
@@ -1105,7 +1105,7 @@ function MarkdownLink({
               onClick={() => void handleCopyLink()}
             >
               <Copy />
-              {t2("chat.copyUrl")}
+              {translate("chat.copyUrl")}
             </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
@@ -1320,12 +1320,12 @@ function CanvasNodeReference({
   className,
   ...props
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const currentWorkspace = useCurrentWorkspace();
   const assetMeta = useAssetMeta(nodeId);
   const assetPath = assetMeta?.path || assetMeta?.name;
   const resolvedDisplayName =
-    assetMeta?.name || displayName2 || t2("chat.canvasArtifact");
+    assetMeta?.name || displayName2 || translate("chat.canvasArtifact");
   const extension2 =
     fileExtension(assetPath) ?? fileExtension(resolvedDisplayName);
   const label =
@@ -1487,7 +1487,7 @@ function DefaultCodeBlock({
     isIncomplete,
     language: language2,
     lineNumbers: false,
-    children: <Ae />,
+    children: <CodeBlockCopyButton />,
   });
 }
 function FileReferenceCodeBlockLine({ line }) {
@@ -1574,7 +1574,7 @@ function FileReferenceCodeBlock({
           className="pointer-events-auto flex shrink-0 items-center gap-2 rounded-md border border-sidebar bg-sidebar/80 px-1.5 py-1 supports-[backdrop-filter]:bg-sidebar/70 supports-[backdrop-filter]:backdrop-blur"
           data-streamdown="code-block-actions"
         >
-          <Ae code={codeText2} />
+          <CodeBlockCopyButton code={codeText2} />
         </div>
       </div>,
       <div
@@ -1657,16 +1657,16 @@ export function MarkdownContent({
   className,
   isStreaming = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const displayContent = reactExports.useMemo(
     () =>
       encodeMarkdownUrlSpaces(
         redactInternalKnowledgeReferences(redactForCurrentRegion(content2), {
-          workflow: t2("chat.internalReference.workflow", "Project workflow"),
-          material: t2("chat.internalReference.material", "Internal material"),
+          workflow: translate("chat.internalReference.workflow", "Project workflow"),
+          material: translate("chat.internalReference.material", "Internal material"),
         }),
       ),
-    [content2, t2],
+    [content2, translate],
   );
   const preparedCanvasNodeReferences = reactExports.useMemo(
     () => prepareCanvasNodeReferences(displayContent),

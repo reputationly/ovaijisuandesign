@@ -1,0 +1,4 @@
+key	old	new	依据
+LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1@8:41	LEGACY_SEEDANCE_25_TASK_TYPE_PARAM$1	seedance25TaskTypeParam	该本地导入绑定指向 Seedance 2.5 任务类型常量。
+t2@311:14	t2	translate	该绑定来自 useTranslation 并用于图生视频参数标签。
+t2@426:38	t2	translate	该参数是生成图生视频模式标签时调用的翻译函数。

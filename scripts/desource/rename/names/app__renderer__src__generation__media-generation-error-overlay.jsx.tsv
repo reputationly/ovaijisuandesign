@@ -1,0 +1,8 @@
+key	old	new	依据
+t2@29:14	t2	translate	该绑定来自 useTranslation 并用于生成错误提示。
+s2@36:47	s2	generationState	该值是生成状态 store 中按节点读取的状态对象。
+e2@45:26	e2	clickEvent	该事件来自清除生成节点操作并用于阻止冒泡。
+e2@57:12	e2	clickEvent	该事件来自关闭未知生成操作并用于阻止冒泡。
+e2@87:8	e2	clickEvent	该事件来自上报生成错误操作并用于阻止冒泡。
+e2@107:10	e2	clickEvent	该事件来自重试生成操作并用于阻止冒泡。
+e2@113:12	e2	clickEvent	该事件来自取消生成操作并用于阻止冒泡。
