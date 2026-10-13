@@ -1,0 +1,34 @@
+binding_key	old_name	new_name	basis
+seen2@17:9	seen2	seen	第17行的声明与引用表明该绑定表示「seen」；去除打包器数字后缀并保留绑定结构（const seen2 = new WeakSet();）
+next2@18:9	next2	next	第18行的声明与引用表明该绑定表示「next」；去除打包器数字后缀并保留绑定结构（const next2 = {};）
+key2@19:15	key2	key	第19行的声明与引用表明该绑定表示「key」；去除打包器数字后缀并保留绑定结构（for (const [key2, value] of Object.entries(context)) {）
+seen2@25:34	seen2	seen	第25行的声明与引用表明该绑定表示「seen」；去除打包器数字后缀并保留绑定结构（function sanitizeRumValue(value, seen2, depth2 = 0) {）
+depth2@25:41	depth2	depth	第25行的声明与引用表明该绑定表示「depth」；去除打包器数字后缀并保留绑定结构（function sanitizeRumValue(value, seen2, depth2 = 0) {）
+next2@34:9	next2	next	第34行的声明与引用表明该绑定表示「next」；去除打包器数字后缀并保留绑定结构（const next2 = {};）
+key2@35:15	key2	key	第35行的声明与引用表明该绑定表示「key」；去除打包器数字后缀并保留绑定结构（for (const [key2, item] of Object.entries(value)) {）
+message2@44:36	message2	message	第44行的声明与引用表明该绑定表示「message」；去除打包器数字后缀并保留绑定结构（export function sanitizeRumMessage(message2) {）
+config2@58:13	config2	config	第58行的声明与引用表明该绑定表示「config」；去除打包器数字后缀并保留绑定结构（const config2 = JSON.parse(cached);）
+fn2@90:42	fn2	fn	monaco 0.57.0 vs/base/common/functional.js
+d2@117:18	d2	d	monaco 0.57.0 vs/base/common/lifecycle.js
+e2@121:20	e2	e	monaco 0.57.0 vs/base/common/lifecycle.js
+disposables2@138:39	disposables2	disposables	monaco 0.57.0 vs/base/common/lifecycle.js
+fn2@141:30	fn2	fn	monaco 0.57.0 vs/base/common/lifecycle.js
+self2@142:9	self2	disposable	toDisposable returns the single-call disposable object
+o2@183:7	o2	o	monaco 0.57.0 vs/base/common/lifecycle.js
+o2@206:10	o2	o	monaco 0.57.0 vs/base/common/lifecycle.js
+o2@219:17	o2	o	monaco 0.57.0 vs/base/common/lifecycle.js
+o2@240:13	o2	o	monaco 0.57.0 vs/base/common/lifecycle.js
+e2@251:35	e2	e	monaco 0.57.0 vs/base/common/errors.js
+name2@259:30	name2	stateName	illegalState formats the supplied state name
+Node$2@296:5	Node$2	LinkedListNode	monaco 0.57.0 vs/base/common/linkedList.js
+Node3@296:20	Node3	LinkedListNode	monaco 0.57.0 vs/base/common/linkedList.js
+element2@301:15	element2	element	monaco 0.57.0 vs/base/common/linkedList.js
+node2@318:9	node2	node	monaco 0.57.0 vs/base/common/linkedList.js
+next2@320:13	next2	next	monaco 0.57.0 vs/base/common/linkedList.js
+element2@329:11	element2	element	monaco 0.57.0 vs/base/common/linkedList.js
+element2@332:8	element2	element	monaco 0.57.0 vs/base/common/linkedList.js
+element2@335:11	element2	element	monaco 0.57.0 vs/base/common/linkedList.js
+res@364:13	res	element	LinkedList.first returns the first stored element
+res@373:13	res	element	LinkedList.last returns the last stored element
+node2@378:11	node2	node	monaco 0.57.0 vs/base/common/linkedList.js
+node2@396:9	node2	node	monaco 0.57.0 vs/base/common/linkedList.js
