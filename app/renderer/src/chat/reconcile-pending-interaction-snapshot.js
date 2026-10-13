@@ -4,35 +4,35 @@ export function extractSessionId(message) {
   return message.session_id;
 }
 
-export function applyComfyUiProgress(messages2, callID, progress) {
+export function applyComfyUiProgress(messages, callID, progress) {
   const patchSubMessages = (subMessages) =>
-    subMessages?.map((message2) => ({
-      ...message2,
-      ...(message2.type === "tool" && message2.callID === callID
+    subMessages?.map((message) => ({
+      ...message,
+      ...(message.type === "tool" && message.callID === callID
         ? {
             comfyUiProgress: progress,
           }
         : {}),
-      ...(message2.subMessages
+      ...(message.subMessages
         ? {
-            subMessages: patchSubMessages(message2.subMessages),
+            subMessages: patchSubMessages(message.subMessages),
           }
         : {}),
     }));
-  return messages2.map((message2) => {
-    if (message2.type === "tool" && message2.callID === callID) {
+  return messages.map((message) => {
+    if (message.type === "tool" && message.callID === callID) {
       return {
-        ...message2,
+        ...message,
         comfyUiProgress: progress,
       };
     }
-    if (message2.type === "sub_agent" && message2.subMessages) {
+    if (message.type === "sub_agent" && message.subMessages) {
       return {
-        ...message2,
-        subMessages: patchSubMessages(message2.subMessages),
+        ...message,
+        subMessages: patchSubMessages(message.subMessages),
       };
     }
-    return message2;
+    return message;
   });
 }
 
@@ -56,25 +56,25 @@ function chatMessageShallowEqual(leftMessage, rightMessage) {
   const aKeys = Object.keys(aRecord);
   const bKeys = Object.keys(bRecord);
   if (aKeys.length !== bKeys.length) return false;
-  for (const key2 of aKeys) {
-    if (aRecord[key2] !== bRecord[key2]) {
+  for (const key of aKeys) {
+    if (aRecord[key] !== bRecord[key]) {
       return false;
     }
   }
   return true;
 }
 
-export function messagesShallowEqual(prev, next2) {
-  if (prev === next2) return true;
-  if (prev.length !== next2.length) return false;
-  for (let index2 = 0; index2 < prev.length; index2 += 1) {
-    if (!chatMessageShallowEqual(prev[index2], next2[index2])) return false;
+export function messagesShallowEqual(prev, next) {
+  if (prev === next) return true;
+  if (prev.length !== next.length) return false;
+  for (let index = 0; index < prev.length; index += 1) {
+    if (!chatMessageShallowEqual(prev[index], next[index])) return false;
   }
   return true;
 }
 
 export function reconcilePendingInteractionSnapshot(
-  messages2,
+  messages,
   pendingInteractions,
 ) {
   const pendingIds = new Set(
@@ -87,42 +87,42 @@ export function reconcilePendingInteractionSnapshot(
       .filter((interaction) => interaction.type === "credit_threshold_request")
       .map((interaction) => interaction.id),
   );
-  return messages2.map((message2) => {
-    if (message2.type === "credit_threshold" && message2.requestId) {
-      return pendingCreditThresholdIds.has(message2.requestId)
-        ? message2.resolved
+  return messages.map((message) => {
+    if (message.type === "credit_threshold" && message.requestId) {
+      return pendingCreditThresholdIds.has(message.requestId)
+        ? message.resolved
           ? {
-              ...message2,
+              ...message,
               resolved: false,
               settlementStatus: void 0,
               decision: void 0,
             }
-          : message2
-        : message2.resolved
-          ? message2
+          : message
+        : message.resolved
+          ? message
           : {
-              ...message2,
+              ...message,
               resolved: true,
               settlementStatus: "unavailable",
             };
     }
-    if (message2.type !== "loop_guard_ask" || !message2.requestId) {
-      return message2;
+    if (message.type !== "loop_guard_ask" || !message.requestId) {
+      return message;
     }
-    if (pendingIds.has(message2.requestId)) {
-      return message2.resolved
+    if (pendingIds.has(message.requestId)) {
+      return message.resolved
         ? {
-            ...message2,
+            ...message,
             resolved: false,
             loopGuardDecision: void 0,
             loopGuardSettlementCause: void 0,
           }
-        : message2;
+        : message;
     }
-    return message2.resolved
-      ? message2
+    return message.resolved
+      ? message
       : {
-          ...message2,
+          ...message,
           resolved: true,
           loopGuardDecision: void 0,
           loopGuardSettlementCause: "unavailable",
@@ -130,26 +130,26 @@ export function reconcilePendingInteractionSnapshot(
   });
 }
 
-export function applyToolConfirmSettlements(messages2, settlements) {
-  if (settlements.length === 0) return [...messages2];
+export function applyToolConfirmSettlements(messages, settlements) {
+  if (settlements.length === 0) return [...messages];
   const byRequestId = new Map(
     settlements.map((settlement) => [settlement.id, settlement]),
   );
-  return messages2.map((message2) => {
-    if (message2.type !== "tool_confirm_ask" || !message2.requestId)
-      return message2;
-    const settlement = byRequestId.get(message2.requestId);
-    if (!settlement) return message2;
+  return messages.map((message) => {
+    if (message.type !== "tool_confirm_ask" || !message.requestId)
+      return message;
+    const settlement = byRequestId.get(message.requestId);
+    if (!settlement) return message;
     return {
-      ...message2,
+      ...message,
       resolved: true,
       expired: settlement.cause !== "reply",
       toolConfirmDecision: settlement.decision,
       toolConfirmSettlementCause: settlement.cause,
-      ...(settlement.modified_args && message2.toolConfirmData
+      ...(settlement.modified_args && message.toolConfirmData
         ? {
             toolConfirmData: {
-              ...message2.toolConfirmData,
+              ...message.toolConfirmData,
               args: settlement.modified_args,
             },
           }
@@ -158,19 +158,19 @@ export function applyToolConfirmSettlements(messages2, settlements) {
   });
 }
 
-export function applyLoopGuardSettlements(messages2, settlements) {
-  if (settlements.length === 0) return [...messages2];
+export function applyLoopGuardSettlements(messages, settlements) {
+  if (settlements.length === 0) return [...messages];
   const byRequestId = new Map(
     settlements.map((settlement) => [settlement.id, settlement]),
   );
-  return messages2.map((message2) => {
-    if (message2.type !== "loop_guard_ask" || !message2.requestId)
-      return message2;
-    const settlement = byRequestId.get(message2.requestId);
-    if (!settlement || settlement.session_id !== message2.loopGuardSessionId)
-      return message2;
+  return messages.map((message) => {
+    if (message.type !== "loop_guard_ask" || !message.requestId)
+      return message;
+    const settlement = byRequestId.get(message.requestId);
+    if (!settlement || settlement.session_id !== message.loopGuardSessionId)
+      return message;
     return {
-      ...message2,
+      ...message,
       resolved: true,
       loopGuardDecision: settlement.decision,
       loopGuardSettlementCause: settlement.cause,
@@ -178,9 +178,9 @@ export function applyLoopGuardSettlements(messages2, settlements) {
   });
 }
 
-function stripToolResultPrefix(content2) {
-  const separatorIndex = content2.indexOf(": ");
-  return separatorIndex >= 0 ? content2.slice(0, separatorIndex) : content2;
+function stripToolResultPrefix(content) {
+  const separatorIndex = content.indexOf(": ");
+  return separatorIndex >= 0 ? content.slice(0, separatorIndex) : content;
 }
 
 function safeParseToolArgs(serialized) {
@@ -198,8 +198,8 @@ function stableStringify(value) {
     return `[${value.map(stableStringify).join(",")}]`;
   }
   const record = value;
-  const keys2 = Object.keys(record).sort();
-  return `{${keys2.map((propertyKey) => `${JSON.stringify(propertyKey)}:${stableStringify(record[propertyKey])}`).join(",")}}`;
+  const keys = Object.keys(record).sort();
+  return `{${keys.map((propertyKey) => `${JSON.stringify(propertyKey)}:${stableStringify(record[propertyKey])}`).join(",")}}`;
 }
 
 function canonicalArgsKey(args) {
@@ -245,21 +245,21 @@ export function insertToolConfirmAsk(prev, chatMsg) {
   return [...prev, chatMsg];
 }
 
-export function resplicePendingToolConfirms(messages2) {
-  const base2 = [];
+export function resplicePendingToolConfirms(messages) {
+  const base = [];
   const lifted = [];
-  for (const message2 of messages2) {
+  for (const message of messages) {
     if (
-      message2.type === "tool_confirm_ask" &&
-      !message2.resolved &&
-      !message2.expired
+      message.type === "tool_confirm_ask" &&
+      !message.resolved &&
+      !message.expired
     ) {
-      lifted.push(message2);
+      lifted.push(message);
     } else {
-      base2.push(message2);
+      base.push(message);
     }
   }
-  let result = base2;
+  let result = base;
   for (const confirmationAsk of lifted) {
     result = insertToolConfirmAsk(result, confirmationAsk);
   }
@@ -271,18 +271,18 @@ export function upsertPendingInteraction(prev, interaction) {
   if (
     requestId &&
     prev.some(
-      (message2) => "requestId" in message2 && message2.requestId === requestId,
+      (message) => "requestId" in message && message.requestId === requestId,
     )
   ) {
     if (interaction.type === "credit_threshold") {
-      return prev.map((message2) =>
-        message2.type === "credit_threshold" && message2.requestId === requestId
+      return prev.map((message) =>
+        message.type === "credit_threshold" && message.requestId === requestId
           ? {
               ...interaction,
-              id: message2.id,
-              revision: (message2.revision ?? 0) + 1,
+              id: message.id,
+              revision: (message.revision ?? 0) + 1,
             }
-          : message2,
+          : message,
       );
     }
     return [...prev];

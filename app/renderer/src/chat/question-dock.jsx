@@ -31,12 +31,12 @@ import { localizeRecommendedQuestionOptionLabel } from "../text-editor/capabilit
 import { Label } from "../team/use-wallet-query.jsx";
 import { MessageInput } from "./chat-compliance-notice.jsx";
 import { MEDIA_FILE_ACCEPT } from "../text-editor/build-asr-gateway-request.js";
-function QuestionSelectionCheck({ selected: selected2 }) {
+function QuestionSelectionCheck({ selected }) {
   return (
     <CompositedSvg
       viewBox="0 0 16 16"
       aria-hidden="true"
-      className={`size-3 shrink-0 overflow-visible [&_path]:[stroke-dasharray:24] [&_path]:transition-[stroke-dashoffset] [&_path]:duration-200 [&_path]:ease-out motion-reduce:[&_path]:transition-none ${selected2 ? "[&_path]:[stroke-dashoffset:0]" : "[&_path]:[stroke-dashoffset:-24]"}`}
+      className={`size-3 shrink-0 overflow-visible [&_path]:[stroke-dasharray:24] [&_path]:transition-[stroke-dashoffset] [&_path]:duration-200 [&_path]:ease-out motion-reduce:[&_path]:transition-none ${selected ? "[&_path]:[stroke-dashoffset:0]" : "[&_path]:[stroke-dashoffset:-24]"}`}
     >
       <path
         d="M12.75 5.05 6.35 11.55 3.2 9.4"
@@ -109,7 +109,7 @@ function findFirstQuestionSubmitBlocker(
 }
 function buildQuestionReplyMessage(requestId, selectedAnswers, customAnswers) {
   const attachmentContexts = [];
-  const answers = selectedAnswers.map((selected2, questionIndex) => {
+  const answers = selectedAnswers.map((selected, questionIndex) => {
     const custom = customAnswers[questionIndex];
     if (custom?.attachments.length) {
       attachmentContexts.push({
@@ -123,8 +123,8 @@ function buildQuestionReplyMessage(requestId, selectedAnswers, customAnswers) {
       });
     }
     return custom?.text.trim()
-      ? [...selected2, custom.text.trim()]
-      : [...selected2];
+      ? [...selected, custom.text.trim()]
+      : [...selected];
   });
   return {
     type: "question_reply",
@@ -138,7 +138,7 @@ function buildQuestionReplyMessage(requestId, selectedAnswers, customAnswers) {
   };
 }
 export function QuestionDock({
-  question: question2,
+  question: questionData,
   submissionFailureId,
   onSend,
   isPresented = true,
@@ -147,9 +147,9 @@ export function QuestionDock({
   const { t: translate } = useTranslation();
   const { data: mentionModels = [] } = useMentionModels();
   const displayAgentText = reactExports.useCallback(
-    (text2) =>
+    (text) =>
       replaceConfiguredModelNamesForCurrentRegion(
-        redactForCurrentRegion(text2),
+        redactForCurrentRegion(text),
         mentionModels,
       ),
     [mentionModels],
@@ -159,9 +159,9 @@ export function QuestionDock({
       localizeRecommendedQuestionOptionLabel(displayAgentText(label), translate),
     [displayAgentText, translate],
   );
-  const raw2 = question2.questionData?.questions;
-  const questions = Array.isArray(raw2) ? raw2 : [];
-  const requestId = question2.requestId;
+  const raw = questionData.questionData?.questions;
+  const questions = Array.isArray(raw) ? raw : [];
+  const requestId = questionData.requestId;
   const [currentIndex, setCurrentIndex] = reactExports.useState(0);
   const [answers, setAnswers] = reactExports.useState(() =>
     questions.map(() => []),
@@ -194,7 +194,7 @@ export function QuestionDock({
   const submitLockRef = reactExports.useRef(false);
   const submissionDispatchedRef = reactExports.useRef(false);
   const handledSubmissionFailureIdRef = reactExports.useRef(void 0);
-  const previousQuestionMessageIdRef = reactExports.useRef(question2.id);
+  const previousQuestionMessageIdRef = reactExports.useRef(questionData.id);
   const focusDockAfterNavigationRef = reactExports.useRef(null);
   customTextsRef.current = customTexts;
   const releaseSubmissionForRetry = reactExports.useCallback(() => {
@@ -214,10 +214,10 @@ export function QuestionDock({
     releaseSubmissionForRetry();
   }, [releaseSubmissionForRetry, submissionFailureId]);
   reactExports.useEffect(() => {
-    if (previousQuestionMessageIdRef.current === question2.id) return;
-    previousQuestionMessageIdRef.current = question2.id;
+    if (previousQuestionMessageIdRef.current === questionData.id) return;
+    previousQuestionMessageIdRef.current = questionData.id;
     releaseSubmissionForRetry();
-  }, [question2.id, releaseSubmissionForRetry]);
+  }, [questionData.id, releaseSubmissionForRetry]);
   const toggleCollapsed = reactExports.useCallback(
     () => setCollapsed((isCollapsed) => !isCollapsed),
     [],
@@ -269,29 +269,29 @@ export function QuestionDock({
       customPreviousAnswersRef.current[currentIndex] = [];
       setAnswers((prev) => {
         const updated = [...prev];
-        const current2 = [...(updated[currentIndex] ?? [])];
+        const current = [...(updated[currentIndex] ?? [])];
         if (isMultiple) {
-          const answerIndex = current2.indexOf(label);
+          const answerIndex = current.indexOf(label);
           if (answerIndex >= 0) {
-            current2.splice(answerIndex, 1);
+            current.splice(answerIndex, 1);
           } else {
-            current2.push(label);
+            current.push(label);
           }
         } else {
-          if (current2[0] === label) {
+          if (current[0] === label) {
             updated[currentIndex] = [];
             return updated;
           }
           updated[currentIndex] = [label];
           composerRefs.current[currentIndex]?.reset();
-          setEditingCustom((prev2) => {
-            const editingCustomFlags = [...prev2];
+          setEditingCustom((prev) => {
+            const editingCustomFlags = [...prev];
             editingCustomFlags[currentIndex] = false;
             return editingCustomFlags;
           });
           return updated;
         }
-        updated[currentIndex] = current2;
+        updated[currentIndex] = current;
         return updated;
       });
     },
@@ -299,11 +299,11 @@ export function QuestionDock({
   );
   const handleSelectOptionByKeyboard = reactExports.useCallback(
     (optionIndex) => {
-      const option2 = currentQuestion?.options[optionIndex];
-      if (!option2) return;
-      if (!isMultiple && answers[currentIndex]?.[0] === option2.label) return;
+      const option = currentQuestion?.options[optionIndex];
+      if (!option) return;
+      if (!isMultiple && answers[currentIndex]?.[0] === option.label) return;
       if (!isMultiple) suppressAutoAdvanceRef.current = currentIndex;
-      handleSelectOption(option2.label);
+      handleSelectOption(option.label);
     },
     [answers, currentIndex, currentQuestion, handleSelectOption, isMultiple],
   );
@@ -331,8 +331,8 @@ export function QuestionDock({
         )
           ? currentIndex + 1
           : null;
-        setCurrentIndex((index2) =>
-          index2 === currentIndex ? index2 + 1 : index2,
+        setCurrentIndex((index) =>
+          index === currentIndex ? index + 1 : index,
         );
       }, 150);
       return clearPendingAutoAdvance;
@@ -352,13 +352,13 @@ export function QuestionDock({
     });
   }, [currentIndex]);
   const handleCustomTextChange = reactExports.useCallback(
-    (questionIndex, text2) => {
+    (questionIndex, text) => {
       setCustomTexts((prev) => {
         const updated = [...prev];
-        updated[questionIndex] = text2;
+        updated[questionIndex] = text;
         return updated;
       });
-      if (!questions[questionIndex]?.multiple && text2.trim()) {
+      if (!questions[questionIndex]?.multiple && text.trim()) {
         setAnswers((prev) => {
           const updated = [...prev];
           updated[questionIndex] = [];
@@ -485,7 +485,7 @@ export function QuestionDock({
   const handleCustomCommit = reactExports.useCallback(
     (
       questionIndex,
-      text2,
+      text,
       filePaths,
       canvasNodeAttachments,
       entityRefs,
@@ -502,7 +502,7 @@ export function QuestionDock({
         return false;
       }
       committedCustomAnswersRef.current[questionIndex] = {
-        text: text2,
+        text,
         attachments: [...filePaths],
         ...(attachmentRefs?.length
           ? {
@@ -515,18 +515,18 @@ export function QuestionDock({
     [],
   );
   reactExports.useEffect(() => {
-    setSubmitBlocker((current2) => {
-      if (!current2) return current2;
+    setSubmitBlocker((current) => {
+      if (!current) return current;
       const reason = getQuestionSubmitBlockReason(
-        current2.questionIndex,
+        current.questionIndex,
         answers,
         customTexts,
         customAttachments,
       );
-      if (reason === current2.reason) return current2;
+      if (reason === current.reason) return current;
       return reason
         ? {
-            ...current2,
+            ...current,
             reason,
           }
         : null;
@@ -912,7 +912,7 @@ export function QuestionDock({
                         Boolean(attachment.relativePath),
                     ),
                   );
-                const active2 = questionIndex === currentIndex;
+                const active = questionIndex === currentIndex;
                 return jsxRuntimeExports.jsxs(
                   reactExports.Fragment,
                   {
@@ -928,14 +928,14 @@ export function QuestionDock({
                         type="button"
                         data-action-ui-id={`chat-question-step-${questionIndex}`}
                         data-answered={answered ? "true" : "false"}
-                        aria-current={active2 ? "step" : void 0}
+                        aria-current={active ? "step" : void 0}
                         aria-label={`${questionIndex + 1}. ${displayAgentText(question.header)}`}
                         title={displayAgentText(question.header)}
                         className="group flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
                         onClick={() => handleGoToQuestion(questionIndex)}
                       >
                         <span
-                          className={`flex size-6 items-center justify-center rounded-full border transition-[color,background-color,border-color,box-shadow] duration-200 ${active2 ? "border-foreground bg-foreground text-background" : answered ? "border-foreground/20 bg-muted/60 text-foreground" : "border-foreground/20 bg-transparent text-muted-foreground group-hover:border-foreground/40 group-hover:text-foreground"}`}
+                          className={`flex size-6 items-center justify-center rounded-full border transition-[color,background-color,border-color,box-shadow] duration-200 ${active ? "border-foreground bg-foreground text-background" : answered ? "border-foreground/20 bg-muted/60 text-foreground" : "border-foreground/20 bg-transparent text-muted-foreground group-hover:border-foreground/40 group-hover:text-foreground"}`}
                         >
                           {answered ? (
                             <QuestionSelectionCheck selected={true} />
@@ -1077,11 +1077,11 @@ export function QuestionDock({
                       })}
                     </RadioGroup>
                   ))}
-                {questions.map((info2, questionIndex) => {
-                  if (info2.custom === false) return null;
-                  const active2 = questionIndex === currentIndex;
-                  const multiple = info2.multiple ?? false;
-                  const selected2 =
+                {questions.map((info, questionIndex) => {
+                  if (info.custom === false) return null;
+                  const active = questionIndex === currentIndex;
+                  const multiple = info.multiple ?? false;
+                  const selected =
                     Boolean(customTexts[questionIndex]?.trim()) ||
                     customAttachments[questionIndex]?.some(
                       (attachment) =>
@@ -1092,14 +1092,14 @@ export function QuestionDock({
                   return (
                     <div
                       key={`${requestId}-${questionIndex}`}
-                      hidden={!active2}
-                      className={active2 ? "block" : "hidden"}
+                      hidden={!active}
+                      className={active ? "block" : "hidden"}
                     >
                       <div
                         data-action-ui-id={
-                          active2 ? "chat-question-custom-option" : void 0
+                          active ? "chat-question-custom-option" : void 0
                         }
-                        className={`flex w-full items-start gap-2 rounded-lg border p-2 transition-colors ${selected2 ? "border-foreground bg-foreground/[0.02]" : "border-border bg-transparent hover:bg-muted/30"}`}
+                        className={`flex w-full items-start gap-2 rounded-lg border p-2 transition-colors ${selected ? "border-foreground bg-foreground/[0.02]" : "border-border bg-transparent hover:bg-muted/30"}`}
                         onFocusCapture={() => handleStartCustom(questionIndex)}
                         onBlurCapture={(event) => {
                           if (
@@ -1119,7 +1119,7 @@ export function QuestionDock({
                         <span
                           aria-hidden="true"
                           data-action-ui-id="chat-question-custom-icon"
-                          className={`flex h-8 w-4 translate-x-1 shrink-0 items-center justify-center transition-colors ${selected2 ? "text-foreground" : "text-muted-foreground"}`}
+                          className={`flex h-8 w-4 translate-x-1 shrink-0 items-center justify-center transition-colors ${selected ? "text-foreground" : "text-muted-foreground"}`}
                         >
                           <Icon
                             icon={PencilLine}
@@ -1129,12 +1129,12 @@ export function QuestionDock({
                           />
                         </span>
                         <MessageInput
-                          ref={(node2) => {
-                            composerRefs.current[questionIndex] = node2;
+                          ref={(node) => {
+                            composerRefs.current[questionIndex] = node;
                           }}
                           fileDropScope="parent"
                           onSend={(
-                            text2,
+                            text,
                             filePaths,
                             canvasNodeAttachments,
                             entityRefs,
@@ -1145,7 +1145,7 @@ export function QuestionDock({
                           ) =>
                             handleCustomCommit(
                               questionIndex,
-                              text2,
+                              text,
                               filePaths,
                               canvasNodeAttachments,
                               entityRefs,
@@ -1171,7 +1171,7 @@ export function QuestionDock({
                           editorAriaLabel={
                             questions.length === 1
                               ? translate("chat.question.other")
-                              : `${translate("chat.question.other")}: ${redactForCurrentRegion(info2.header)}`
+                              : `${translate("chat.question.other")}: ${redactForCurrentRegion(info.header)}`
                           }
                           editorActionId={`chat-question-custom-input-${questionIndex}`}
                           toolbar={(context) => (
@@ -1185,8 +1185,8 @@ export function QuestionDock({
                               showSkillSelector={false}
                             />
                           )}
-                          onInputChange={(text2) =>
-                            handleCustomTextChange(questionIndex, text2)
+                          onInputChange={(text) =>
+                            handleCustomTextChange(questionIndex, text)
                           }
                           onAttachmentsChange={(attachments) =>
                             handleCustomAttachmentsChange(

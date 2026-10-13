@@ -15,3 +15,22 @@ opt@978:53	option	`option` 是多选问题中正在渲染的选项记录。
 i2@978:58	optionIndex	`optionIndex` 用于生成多选项 ID 并取得快捷键。
 opt@1031:53	option	`option` 是单选问题中正在渲染的选项记录。
 i2@1031:58	optionIndex	`optionIndex` 用于生成单选项 ID 并取得快捷键。
+selected2@34:45	selected	`selected` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+selected2@112:40	selected	`selected` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+question2@141:13	questionData	`questionData` 是传入 QuestionDock 的问题数据；原名 `question` 与后代问题列表回调参数冲突。
+raw2@162:9	raw	`raw` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@150:6	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@272:15	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+prev2@287:29	prev	`prev` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+option2@302:13	option	`option` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+index2@334:26	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@355:21	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@488:7	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@518:23	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+active2@915:23	active	`active` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+info2@1080:33	info	`info` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+active2@1082:25	active	`active` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+selected2@1084:25	selected	`selected` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+node2@1132:33	node	`node` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@1137:29	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+text2@1188:43	text	`text` 是标识值；末尾数字是打包器为避免重名添加的后缀。

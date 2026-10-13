@@ -3,3 +3,11 @@ t2@61:14	translate	`translate` 为模式菜单及选项描述获取本地化文�
 e2@93:22	mouseEvent	`mouseEvent` 是用于判断点击是否发生在模式菜单外的鼠标事件。
 e2@103:22	keyboardEvent	`keyboardEvent` 是用于响应 Escape 并关闭模式菜单的键盘事件。
 o2@110:24	modeOption	`modeOption` 是包含模式值、图标及文案键的菜单选项。
+size2@18:34	size	`size` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+mode2@55:9	mode	`mode` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+disabled2@57:13	disabled	`disabled` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+ModeSelector2@54:56	ModeSelector	`ModeSelector` 是执行相应业务操作的函数；末尾数字是打包器为避免重名添加的后缀。
+view2@64:10	view	`view` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+config2@111:43	config	`config` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+option2@123:26	option	`option` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+isActive2@125:15	isActive	`isActive` 是标识值；末尾数字是打包器为避免重名添加的后缀。

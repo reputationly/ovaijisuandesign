@@ -1,2 +1,4 @@
 key	新名	依据
 id@5:10	createMockMessageId	`createMockMessageId` 组合媒体生成标记和随机片段生成模拟消息 ID。
+name2@11:15	mediaToolName	`mediaToolName` 是生成 mock 工具消息时用于拼接 hub 前缀和填写工具名称的参数，避免与全局 `name` 冲突。
+name2@25:18	mediaToolName	`mediaToolName` 是生成 mock 工具消息时用于拼接 hub 前缀和填写工具名称的参数，避免与全局 `name` 冲突。

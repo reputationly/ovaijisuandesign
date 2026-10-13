@@ -15,13 +15,13 @@ import { useComposerActionsCompact } from "./create-expanded-composer-actions-me
 import { StrokeIcon } from "../workspace/use-prompt-icon.jsx";
 import { QuickZoomPresence } from "../canvas/canvas-high-blast-delete-dialog.jsx";
 import { CreditReminderSettings } from "../team/credit-reminder-settings.jsx";
-function ShieldArrowIcon({ size: size2 = 24, strokeWidth = 2, className }) {
+function ShieldArrowIcon({ size = 24, strokeWidth = 2, className }) {
   return (
     <CompositedSvg
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -51,17 +51,17 @@ const MODE_OPTIONS = [
     descKey: "chat.mode.askDesc",
   },
 ];
-export const ModeSelector = reactExports.memo(function ModeSelector2({
-  mode: mode2,
+export const ModeSelector = reactExports.memo(function ModeSelector({
+  mode,
   onChange,
-  disabled: disabled2 = false,
+  disabled = false,
   creditReminderConfig,
   onCreditReminderConfigChange,
 }) {
   const { t: translate } = useTranslation();
   const actionsCompact = useComposerActionsCompact();
   const [open, setOpen] = reactExports.useState(false);
-  const [view2, setView] = reactExports.useState("modes");
+  const [view, setView] = reactExports.useState("modes");
   const containerRef = reactExports.useRef(null);
   const creditReminderReady =
     creditReminderConfig !== void 0 && onCreditReminderConfigChange !== void 0;
@@ -73,21 +73,21 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
     : void 0;
   const handleSelect = reactExports.useCallback(
     (value) => {
-      if (disabled2) return;
+      if (disabled) return;
       onChange(value);
       setOpen(false);
     },
-    [disabled2, onChange],
+    [disabled, onChange],
   );
   reactExports.useEffect(() => {
-    if (actionsCompact || disabled2) {
+    if (actionsCompact || disabled) {
       setOpen(false);
       setView("modes");
     }
-  }, [actionsCompact, disabled2]);
+  }, [actionsCompact, disabled]);
   reactExports.useEffect(() => {
-    if (!creditReminderReady && view2 === "credit-reminder") setView("modes");
-  }, [creditReminderReady, view2]);
+    if (!creditReminderReady && view === "credit-reminder") setView("modes");
+  }, [creditReminderReady, view]);
   reactExports.useEffect(() => {
     if (!open) return;
     const handler = (mouseEvent) => {
@@ -107,44 +107,44 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
     return () => document.removeEventListener("keydown", handler);
   }, [open]);
   const currentOption =
-    MODE_OPTIONS.find((modeOption) => modeOption.value === mode2) ?? MODE_OPTIONS[0];
-  const handleCreditReminderSave = async (config2) => {
+    MODE_OPTIONS.find((modeOption) => modeOption.value === mode) ?? MODE_OPTIONS[0];
+  const handleCreditReminderSave = async (config) => {
     if (!creditReminderAdapter) return;
-    await creditReminderAdapter.save(config2);
+    await creditReminderAdapter.save(config);
   };
   const showCreditReminderSettings =
-    view2 === "credit-reminder" && !!creditReminderAdapter;
+    view === "credit-reminder" && !!creditReminderAdapter;
   const popoverClassName = `elevated-surface-border @container/mode-menu absolute bottom-[calc(100%+6px)] right-0 w-[min(300px,calc(100cqw-2.5rem))] bg-popover rounded-xl shadow-lg p-1.5 z-50 overflow-hidden flex flex-col gap-0.5 [--dp-quick-zoom-origin:bottom_right] dp-motion-quick-zoom`;
   const modeMenuContent = (
     <>
       <div className="px-2.5 pt-1 pb-0.5 text-[10px] font-normal text-muted-foreground uppercase tracking-wider">
         {translate("chat.mode.label", "Agent Mode")}
       </div>
-      {MODE_OPTIONS.map((option2) => {
-        const OptionIcon = option2.icon;
-        const isActive2 = option2.value === mode2;
+      {MODE_OPTIONS.map((option) => {
+        const OptionIcon = option.icon;
+        const isActive = option.value === mode;
         return (
           <button
-            key={option2.value}
+            key={option.value}
             type="button"
             role="menuitemradio"
-            aria-checked={isActive2}
+            aria-checked={isActive}
             className="list-row-hit-area [--list-row-gap:2px] first:before:top-0 [&:has(+div)]:before:bottom-0 last:before:bottom-0 w-full flex items-start gap-2.5 px-2.5 py-2 text-left cursor-pointer text-foreground rounded-md transition-colors duration-100 hover:bg-popup-item-hover @max-[220px]/mode-menu:items-center"
-            onClick={() => handleSelect(option2.value)}
-            data-action-ui-id={`chat-mode-option-${option2.value}`}
+            onClick={() => handleSelect(option.value)}
+            data-action-ui-id={`chat-mode-option-${option.value}`}
           >
             <span className="flex-shrink-0 mt-0.5 text-foreground @max-[220px]/mode-menu:mt-0">
               <StrokeIcon icon={OptionIcon} size={16} />
             </span>
             <div className="flex-1 min-w-0 flex flex-col gap-0.5">
               <span className="min-w-0 truncate whitespace-nowrap text-[13px] font-heading font-normal text-foreground">
-                {translate(option2.labelKey, option2.value)}
+                {translate(option.labelKey, option.value)}
               </span>
               <span className="line-clamp-2 text-[12px] text-muted-foreground leading-snug @max-[220px]/mode-menu:hidden">
-                {translate(option2.descKey)}
+                {translate(option.descKey)}
               </span>
             </div>
-            {isActive2 && (
+            {isActive && (
               <StrokeIcon
                 icon={Check}
                 size={14}
@@ -190,12 +190,12 @@ export const ModeSelector = reactExports.memo(function ModeSelector2({
         data-action-ui-id="chat-mode-selector"
         className={`inline-flex items-center gap-0.5 h-8 pl-2 pr-1 whitespace-nowrap rounded-full bg-transparent border-none text-[length:var(--home-input-toolbar-font-size)] tracking-[var(--tracking-toolbar)] cursor-pointer transition-colors duration-75 ${open ? "bg-foreground/8" : "hover:bg-[var(--message-input-control-hover)]"} text-foreground/70 hover:text-foreground`}
         onClick={() => {
-          if (!disabled2) {
+          if (!disabled) {
             setOpen((prev) => !prev);
             setView("modes");
           }
         }}
-        disabled={disabled2}
+        disabled={disabled}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={translate(currentOption.labelKey, currentOption.value)}

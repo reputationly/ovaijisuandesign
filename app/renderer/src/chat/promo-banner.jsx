@@ -13,19 +13,19 @@ import { isAnnualMember } from "../team/team-credit-history-section.jsx";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Sparkles } from "../media-editing/package.jsx";
-function readDismissedUntil(key2) {
+function readDismissedUntil(key) {
   try {
-    const raw2 = window.localStorage.getItem(key2);
-    if (!raw2) return 0;
-    const dismissedUntil = Number(raw2);
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return 0;
+    const dismissedUntil = Number(raw);
     return Number.isFinite(dismissedUntil) ? dismissedUntil : 0;
   } catch {
     return 0;
   }
 }
-function writeDismissedUntil(key2, untilMs) {
+function writeDismissedUntil(key, untilMs) {
   try {
-    window.localStorage.setItem(key2, String(untilMs));
+    window.localStorage.setItem(key, String(untilMs));
   } catch {}
 }
 function usePromotionGate(keyPrefix) {
@@ -45,8 +45,8 @@ function usePromotionGate(keyPrefix) {
       promotion: null,
       dismiss,
     };
-  const now2 = Date.now();
-  if (!isBillingPromotionActive(promotion, now2))
+  const now = Date.now();
+  if (!isBillingPromotionActive(promotion, now))
     return {
       promotion: null,
       dismiss,
@@ -54,7 +54,7 @@ function usePromotionGate(keyPrefix) {
   const dismissedUntil = readDismissedUntil(
     `${keyPrefix}${promotion.activityID}`,
   );
-  if (now2 < dismissedUntil)
+  if (now < dismissedUntil)
     return {
       promotion: null,
       dismiss,
@@ -84,7 +84,7 @@ function usePromoBanner() {
 }
 export function PromoBanner() {
   const { t: translate } = useTranslation();
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const subscribeUrl = useMpSubscribeUrl();
   const { promotion, dismiss } = usePromoBanner();
   const handleJump = reactExports.useCallback(() => {
@@ -92,10 +92,10 @@ export function PromoBanner() {
       dedupedToast.error(translate("credits.walletUrlNotReady"));
       return;
     }
-    void openExternalUrl(platform2, subscribeUrl, {
+    void openExternalUrl(platform, subscribeUrl, {
       source: "promo.banner.subscribe",
     });
-  }, [platform2, subscribeUrl, translate]);
+  }, [platform, subscribeUrl, translate]);
   if (!promotion) return null;
   return (
     // biome-ignore lint/a11y/useSemanticElements: can't use a native <button> here — it contains a nested close <button>, which is invalid HTML. role="button" + keyboard handler keeps it accessible.

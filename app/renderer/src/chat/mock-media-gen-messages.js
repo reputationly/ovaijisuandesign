@@ -8,8 +8,8 @@ function createMockMessageId() {
 
 const PREFIX = "hub_";
 
-function tool(name2, args, result, status = "ok") {
-  const fullName = `${PREFIX}${name2}`;
+function tool(mediaToolName, args, result, status = "ok") {
+  const fullName = `${PREFIX}${mediaToolName}`;
   return {
     id: createMockMessageId(),
     role: "agent",
@@ -22,8 +22,8 @@ function tool(name2, args, result, status = "ok") {
   };
 }
 
-function running(name2, args) {
-  const fullName = `${PREFIX}${name2}`;
+function running(mediaToolName, args) {
+  const fullName = `${PREFIX}${mediaToolName}`;
   return {
     id: createMockMessageId(),
     role: "agent",
