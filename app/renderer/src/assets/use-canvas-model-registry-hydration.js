@@ -259,13 +259,13 @@ export function selectDownloadableCanvasAssets(assets, canvasAssetIds) {
 }
 
 export function useCanvasTagName() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return reactExports.useCallback(
     (tag) => {
       if (tag.name?.trim()) return tag.name;
       const key2 = tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id];
-      return key2 ? t2(key2) : tag.id;
+      return key2 ? translate(key2) : tag.id;
     },
-    [t2],
+    [translate],
   );
 }

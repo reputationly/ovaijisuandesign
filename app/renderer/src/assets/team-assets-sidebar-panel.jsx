@@ -146,7 +146,7 @@ function cloudThumbSrc(node2) {
     : void 0;
 }
 function ReviewBadge({ node: node2 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (node2.kind === "folder" || node2.review === "pass") return null;
   return (
     <span
@@ -158,8 +158,8 @@ function ReviewBadge({ node: node2 }) {
       )}
     >
       {node2.review === "reviewing"
-        ? t2("cloudAssets.reviewing")
-        : t2("cloudAssets.blocked")}
+        ? translate("cloudAssets.reviewing")
+        : translate("cloudAssets.blocked")}
     </span>
   );
 }
@@ -182,7 +182,7 @@ function CloudAssetGridCard({
   dndProps,
   dropActive,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const node2 = row.node;
   const isFolder = node2.kind === "folder";
   const typeBucket = resolveTypeBucket({
@@ -261,15 +261,15 @@ function CloudAssetGridCard({
           <>
             <ContextMenuItem onClick={() => onDownloadFolder(row)}>
               <Icon icon={Download} size="sm" strokeWidth={1.5} />
-              {t2("cloudAssets.download")}
+              {translate("cloudAssets.download")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onRename(row)}>
               <PencilIcon size={14} strokeWidth={1.5} />
-              {t2("cloudAssets.rename")}
+              {translate("cloudAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onMove(row)}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {t2("cloudAssets.moveTo")}
+              {translate("cloudAssets.moveTo")}
             </ContextMenuItem>
           </>
         ) : (
@@ -279,21 +279,21 @@ function CloudAssetGridCard({
               onClick={() => void onAddToCanvas(row)}
             >
               <Icon icon={ImageOutlineIcon} size="sm" strokeWidth={1.5} />
-              {t2("localAssets.addToCanvas")}
+              {translate("localAssets.addToCanvas")}
             </ContextMenuItem>
             <ContextMenuItem
               disabled={!canUse}
               onClick={() => void onAddToAgent(row)}
             >
               <AddToChatIcon size={14} />
-              {t2("localAssets.addToAgent")}
+              {translate("localAssets.addToAgent")}
             </ContextMenuItem>
             <ContextMenuItem
               disabled={!canDownload}
               onClick={() => void onDownload(row)}
             >
               <Icon icon={Download} size="sm" strokeWidth={1.5} />
-              {t2("cloudAssets.download")}
+              {translate("cloudAssets.download")}
             </ContextMenuItem>
             <ContextMenuItem
               disabled={!downloaded}
@@ -307,17 +307,17 @@ function CloudAssetGridCard({
               onClick={() => onRename(row)}
             >
               <PencilIcon size={14} strokeWidth={1.5} />
-              {t2("cloudAssets.rename")}
+              {translate("cloudAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => onMove(row)}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {t2("cloudAssets.moveTo")}
+              {translate("cloudAssets.moveTo")}
             </ContextMenuItem>
           </>
         )}
         <ContextMenuItem variant="destructive" onClick={() => onDelete(row)}>
           <Icon icon={Trash2} size="sm" strokeWidth={1.5} />
-          {t2("cloudAssets.delete")}
+          {translate("cloudAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -336,7 +336,7 @@ function CloudFolderRow({
   dndProps,
   dropActive,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const Chevron2 = expanded ? ChevronDown : ChevronRight;
   return (
     <ContextMenu>
@@ -384,19 +384,19 @@ function CloudFolderRow({
       <ContextMenuContent>
         <ContextMenuItem onClick={() => onDownload(row)}>
           <Download size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.download")}
+          {translate("cloudAssets.download")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onRename(row)}>
           <PencilIcon size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.rename")}
+          {translate("cloudAssets.rename")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onMove(row)}>
           <FolderInput size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.moveTo")}
+          {translate("cloudAssets.moveTo")}
         </ContextMenuItem>
         <ContextMenuItem variant="destructive" onClick={() => onDelete(row)}>
           <Trash2 size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.delete")}
+          {translate("cloudAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -417,7 +417,7 @@ function CloudFileRow({
   onDelete,
   dndProps,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const canFetch2 = row.node.review === "pass" && !!row.node.cdnUrl;
   const canDownload = isCloudFileDownloadEnabled(row.node, syncState);
   const canUse = downloaded || canFetch2;
@@ -465,21 +465,21 @@ function CloudFileRow({
           onClick={() => void onAddToCanvas(row)}
         >
           <ImageOutlineIcon size={14} strokeWidth={1.5} />
-          {t2("localAssets.addToCanvas")}
+          {translate("localAssets.addToCanvas")}
         </ContextMenuItem>
         <ContextMenuItem
           disabled={!canUse}
           onClick={() => void onAddToAgent(row)}
         >
           <AddToChatIcon size={14} strokeWidth={1.5} />
-          {t2("localAssets.addToAgent")}
+          {translate("localAssets.addToAgent")}
         </ContextMenuItem>
         <ContextMenuItem
           disabled={!canDownload}
           onClick={() => void onDownload(row)}
         >
           <Download size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.download")}
+          {translate("cloudAssets.download")}
         </ContextMenuItem>
         <ContextMenuItem
           disabled={!downloaded}
@@ -493,15 +493,15 @@ function CloudFileRow({
           onClick={() => onRename(row)}
         >
           <PencilIcon size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.rename")}
+          {translate("cloudAssets.rename")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onMove(row)}>
           <FolderInput size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.moveTo")}
+          {translate("cloudAssets.moveTo")}
         </ContextMenuItem>
         <ContextMenuItem variant="destructive" onClick={() => onDelete(row)}>
           <Trash2 size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.delete")}
+          {translate("cloudAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -513,7 +513,7 @@ export function TeamAssetsSidebarPanel({
   onToolbarStateChange,
   searchQuery,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const platform2 = usePlatform();
   const service2 = useProjectAssetsService();
   const { ensureProjectFolderName } = useProjectActions();
@@ -574,9 +574,9 @@ export function TeamAssetsSidebarPanel({
   }, [folderName, refreshLocalRecords, service2]);
   const syncMap = reactExports.useMemo(() => {
     const next2 = new Map();
-    for (const [id2, record2] of localRecords) {
+    for (const [assetId, record2] of localRecords) {
       if (record2.remoteUpdatedAt !== void 0)
-        next2.set(id2, record2.remoteUpdatedAt);
+        next2.set(assetId, record2.remoteUpdatedAt);
     }
     return next2;
   }, [localRecords]);
@@ -609,7 +609,7 @@ export function TeamAssetsSidebarPanel({
       } catch (err) {
         if (!silent && epoch === epochRef.current) {
           dedupedToast.error(
-            cloudErrorDisplayMessage(err) ?? t2("cloudAssets.failServer"),
+            cloudErrorDisplayMessage(err) ?? translate("cloudAssets.failServer"),
           );
         }
       } finally {
@@ -620,7 +620,7 @@ export function TeamAssetsSidebarPanel({
         });
       }
     },
-    [cloudProjectId, t2],
+    [cloudProjectId, translate],
   );
   reactExports.useEffect(() => {
     epochRef.current += 1;
@@ -694,7 +694,7 @@ export function TeamAssetsSidebarPanel({
         await moveCloudNode(row.node.id, target.folderId);
       } catch (err) {
         dedupedToast.error(
-          cloudErrorDisplayMessage(err) ?? t2("cloudAssets.failServer"),
+          cloudErrorDisplayMessage(err) ?? translate("cloudAssets.failServer"),
         );
         return;
       }
@@ -723,7 +723,7 @@ export function TeamAssetsSidebarPanel({
           }
         } catch {
           dedupedToast.warning(
-            t2("cloudAssets.moveLocalFailed", {
+            translate("cloudAssets.moveLocalFailed", {
               name: row.node.name,
             }),
           );
@@ -739,7 +739,7 @@ export function TeamAssetsSidebarPanel({
       }
       refresh(true);
     },
-    [expanded, folderName, refresh, service2, t2],
+    [expanded, folderName, refresh, service2, translate],
   );
   const canDropRow = reactExports.useCallback((row, target) => {
     if (row.node.kind === "folder" && target.idPath.includes(row.node.id))
@@ -868,13 +868,13 @@ export function TeamAssetsSidebarPanel({
     async (row, action) => {
       const needsDownload = !localRecords.has(row.node.id);
       const toastId = needsDownload
-        ? dedupedToast.loading(t2("cloudAssets.statusDownloading"))
+        ? dedupedToast.loading(translate("cloudAssets.statusDownloading"))
         : void 0;
       try {
         const copy2 = await ensureLocalCopy(row);
         if (!copy2) {
           dedupedToast.error(
-            t2("localAssets.importFailed", {
+            translate("localAssets.importFailed", {
               name: row.node.name,
             }),
           );
@@ -887,7 +887,7 @@ export function TeamAssetsSidebarPanel({
         if (toastId !== void 0) dedupedToast.dismiss(toastId);
       }
     },
-    [ensureLocalCopy, localRecords, t2],
+    [ensureLocalCopy, localRecords, translate],
   );
   const anchorLocalCopy = reactExports.useCallback(
     async ({ absolute, record: record2 }) => {
@@ -904,14 +904,14 @@ export function TeamAssetsSidebarPanel({
         return anchored;
       } catch {
         dedupedToast.error(
-          t2("localAssets.importFailed", {
+          translate("localAssets.importFailed", {
             name: record2.name,
           }),
         );
         return void 0;
       }
     },
-    [anchorProjectAssets, folderName, t2],
+    [anchorProjectAssets, folderName, translate],
   );
   const handleAddToCanvas = reactExports.useCallback(
     (row) =>
@@ -955,7 +955,7 @@ export function TeamAssetsSidebarPanel({
       );
       if (!absolute || !platform2.shell.showItemInFolder) {
         dedupedToast.error(
-          t2("localAssets.openFailed", {
+          translate("localAssets.openFailed", {
             name: node2.name,
           }),
         );
@@ -964,7 +964,7 @@ export function TeamAssetsSidebarPanel({
       }
       await platform2.shell.showItemInFolder(absolute);
     },
-    [folderName, platform2.shell, refreshLocalRecords, service2, t2],
+    [folderName, platform2.shell, refreshLocalRecords, service2, translate],
   );
   const [newFolderOpen, setNewFolderOpen] = reactExports.useState(false);
   const [renameTarget, setRenameTarget] = reactExports.useState(null);
@@ -1039,17 +1039,17 @@ export function TeamAssetsSidebarPanel({
           folderName: row.node.name,
           folderSegments: [...row.segments, row.node.name],
         });
-        toastFolderDownloadSummary(t2, summary);
+        toastFolderDownloadSummary(translate, summary);
       } catch (err) {
         dedupedToast.error(
           cloudErrorDisplayMessage(err) ??
-            t2("cloudAssets.folderDownloadFailed", {
-              message: t2("cloudAssets.failServer"),
+            translate("cloudAssets.folderDownloadFailed", {
+              message: translate("cloudAssets.failServer"),
             }),
         );
       }
     },
-    [cloudProjectId, folderName, service2, t2],
+    [cloudProjectId, folderName, service2, translate],
   );
   const handleUploadPicked = reactExports.useCallback(
     async (files) => {
@@ -1059,7 +1059,7 @@ export function TeamAssetsSidebarPanel({
         (file) => window.hilo?.webUtils?.getPathForFile(file),
       );
       for (const rejection of rejected) {
-        dedupedToast.error(rejectionToastText(t2, rejection));
+        dedupedToast.error(rejectionToastText(translate, rejection));
       }
       for (const entry of accepted) {
         try {
@@ -1078,7 +1078,7 @@ export function TeamAssetsSidebarPanel({
           });
         } catch (err) {
           dedupedToast.error(
-            t2("cloudAssets.uploadStartFailed", {
+            translate("cloudAssets.uploadStartFailed", {
               name: entry.file.name,
               message: err instanceof Error ? err.message : String(err),
             }),
@@ -1086,7 +1086,7 @@ export function TeamAssetsSidebarPanel({
         }
       }
     },
-    [cloudProjectId, folderName, service2, t2],
+    [cloudProjectId, folderName, service2, translate],
   );
   const handleDelete2 = reactExports.useCallback(
     async (node2) => {
@@ -1103,7 +1103,7 @@ export function TeamAssetsSidebarPanel({
           }
         } catch {
           dedupedToast.warning(
-            t2("cloudAssets.deleteLocalFailed", {
+            translate("cloudAssets.deleteLocalFailed", {
               name: node2.name,
             }),
           );
@@ -1111,7 +1111,7 @@ export function TeamAssetsSidebarPanel({
       }
       refresh(true);
     },
-    [deleteTarget, folderName, refresh, service2, t2],
+    [deleteTarget, folderName, refresh, service2, translate],
   );
   const handleRenamed = reactExports.useCallback(
     async (row, newName) => {
@@ -1143,7 +1143,7 @@ export function TeamAssetsSidebarPanel({
           }
         } catch {
           dedupedToast.warning(
-            t2("cloudAssets.renameLocalFailed", {
+            translate("cloudAssets.renameLocalFailed", {
               name: row.node.name,
             }),
           );
@@ -1152,7 +1152,7 @@ export function TeamAssetsSidebarPanel({
       }
       refresh(true);
     },
-    [folderName, refresh, refreshLocalRecords, service2, syncMap, t2],
+    [folderName, refresh, refreshLocalRecords, service2, syncMap, translate],
   );
   const handleFileClick = reactExports.useCallback((node2) => {
     if (node2.review !== "pass" || !node2.cdnUrl) return;
@@ -1169,14 +1169,14 @@ export function TeamAssetsSidebarPanel({
         await deleteCloudNode(node2.id);
       } catch (err) {
         dedupedToast.error(
-          cloudErrorDisplayMessage(err) ?? t2("cloudAssets.failServer"),
+          cloudErrorDisplayMessage(err) ?? translate("cloudAssets.failServer"),
         );
         return;
       }
       review.refresh();
       refresh(true);
     },
-    [refresh, review.refresh, t2],
+    [refresh, review.refresh, translate],
   );
   reactExports.useEffect(() => {
     if (!onToolbarStateChange) return;
@@ -1301,7 +1301,7 @@ export function TeamAssetsSidebarPanel({
     >
       <section
         {...externalDropProps}
-        aria-label={t2("projectAssets.title")}
+        aria-label={translate("projectAssets.title")}
         data-action-ui-id="project-assets-sidebar.drop-area"
         className={cn(
           "min-h-0 flex-1 overflow-y-auto py-1",
@@ -1317,11 +1317,11 @@ export function TeamAssetsSidebarPanel({
                 className="h-full"
                 errorOptions={{
                   title: search2.membershipError
-                    ? t2("cloudAssets.notTeamMemberTitle")
+                    ? translate("cloudAssets.notTeamMemberTitle")
                     : void 0,
                   description: search2.membershipError
-                    ? t2("cloudAssets.notTeamMemberDescription")
-                    : (search2.userMessage ?? t2("cloudAssets.failServer")),
+                    ? translate("cloudAssets.notTeamMemberDescription")
+                    : (search2.userMessage ?? translate("cloudAssets.failServer")),
                   retry: {
                     icon: <RetryIcon size={14} />,
                     onClick: search2.refresh,
@@ -1336,7 +1336,7 @@ export function TeamAssetsSidebarPanel({
                 density="panel"
                 className="h-full"
                 emptyOptions={{
-                  title: t2("fileExplorer.noMatchingFiles"),
+                  title: translate("fileExplorer.noMatchingFiles"),
                 }}
               />
             ) : (
@@ -1357,7 +1357,7 @@ export function TeamAssetsSidebarPanel({
                 className="mx-2 my-1 flex h-7 w-[calc(100%-1rem)] items-center justify-center rounded-md text-xs text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
                 data-action-ui-id="project-assets-sidebar.search-load-more"
               >
-                {t2("cloudAssets.loadMore")}
+                {translate("cloudAssets.loadMore")}
               </button>
             ) : null}
           </>
@@ -1367,8 +1367,8 @@ export function TeamAssetsSidebarPanel({
             density="panel"
             className="h-full"
             emptyOptions={{
-              title: t2("cloudAssets.emptyTitle"),
-              description: t2("cloudAssets.emptyDescription"),
+              title: translate("cloudAssets.emptyTitle"),
+              description: translate("cloudAssets.emptyDescription"),
             }}
           />
         ) : (
@@ -1384,7 +1384,7 @@ export function TeamAssetsSidebarPanel({
           data-action-ui-id="project-assets-sidebar.new-folder"
         >
           <FolderPlus size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.newFolder")}
+          {translate("cloudAssets.newFolder")}
         </Button>
         <Button
           type="button"
@@ -1396,7 +1396,7 @@ export function TeamAssetsSidebarPanel({
           data-action-ui-id="project-assets-sidebar.upload"
         >
           <Upload size={14} strokeWidth={1.5} />
-          {t2("cloudAssets.upload")}
+          {translate("cloudAssets.upload")}
         </Button>
         <input
           ref={fileInputRef}

@@ -286,7 +286,7 @@ function ProblemStatusTag({ label }) {
   );
 }
 function SelectionOrderBadge({ order: order2, className }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (order2 === void 0) return null;
   return (
     <span
@@ -295,7 +295,7 @@ function SelectionOrderBadge({ order: order2, className }) {
         "inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border-2 border-white bg-black px-1 text-[10px] font-semibold leading-none text-white shadow-sm tabular-nums",
         className,
       )}
-      aria-label={`${t2("assetPicker.selected", "已选择")} ${order2}`}
+      aria-label={`${translate("assetPicker.selected", "已选择")} ${order2}`}
       data-action-ui-id="asset-picker.selection-order"
       data-selection-order={order2}
     >
@@ -303,12 +303,12 @@ function SelectionOrderBadge({ order: order2, className }) {
     </span>
   );
 }
-function RowBadge({ existing, reason, labelForReason, t: t2, selectionOrder }) {
+function RowBadge({ existing, reason, labelForReason, t: translate, selectionOrder }) {
   return (
     <>
       {existing ? (
         <ExistingStatusTag
-          label={t2("assetPicker.existing", "已添加")}
+          label={translate("assetPicker.existing", "已添加")}
           overlay={true}
           className="absolute left-2 top-2"
         />
@@ -354,11 +354,11 @@ function VideoPlayIndicator() {
   );
 }
 function AssetPreviewButton({ row, onPreview, className }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <button
       type="button"
-      aria-label={t2("assetPicker.preview", "预览")}
+      aria-label={translate("assetPicker.preview", "预览")}
       data-action-ui-id={`asset-picker.preview.${row.type}`}
       className={cn(
         "flex cursor-pointer items-center justify-center rounded-full bg-black/20 text-white opacity-0 shadow-sm backdrop-blur-md transition-[opacity,background-color] hover:bg-black/30 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white [@media(hover:none)]:opacity-100",
@@ -385,7 +385,7 @@ function GridTile({
   isRowExisting,
   onPreview,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const sel = selected2.has(row.rowKey);
   const selectionOrder = selectionOrderByKey.get(row.rowKey);
   const existing = isRowExisting(row);
@@ -424,7 +424,7 @@ function GridTile({
         tabIndex={-1}
         data-asset-index={assetIndex}
         data-marquee-start="true"
-        aria-label={existing ? t2("assetPicker.existing", "已添加") : row.name}
+        aria-label={existing ? translate("assetPicker.existing", "已添加") : row.name}
         className={cn(
           "flex h-full w-full cursor-pointer flex-col items-stretch text-left outline-none",
           isFocused &&
@@ -476,7 +476,7 @@ function GridTile({
         existing={existing}
         reason={reason === "full" ? void 0 : reason}
         labelForReason={labelForReason}
-        t={t2}
+        t={translate}
         selectionOrder={selectionOrder}
       />
       {!existing && (
@@ -675,7 +675,7 @@ function ListRow({
   isRowExisting,
   onPreview,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const sel = selected2.has(row.rowKey);
   const selectionOrder = selectionOrderByKey.get(row.rowKey);
   const existing = isRowExisting(row);
@@ -717,7 +717,7 @@ function ListRow({
           data-asset-index={assetIndex}
           data-marquee-start="true"
           aria-label={
-            existing ? t2("assetPicker.existing", "已添加") : row.name
+            existing ? translate("assetPicker.existing", "已添加") : row.name
           }
           className={cn(
             "flex h-full min-w-0 flex-1 cursor-pointer items-center gap-3 px-3 text-left outline-none",
@@ -767,7 +767,7 @@ function ListRow({
         )}
         <div className="flex shrink-0 items-center gap-2 pr-3 text-[11px]">
           {existing ? (
-            <ExistingStatusTag label={t2("assetPicker.existing", "已添加")} />
+            <ExistingStatusTag label={translate("assetPicker.existing", "已添加")} />
           ) : (
             reason &&
             reason !== "full" && (
@@ -775,7 +775,7 @@ function ListRow({
             )
           )}
           <span className="text-muted-foreground">
-            {t2(`assetPicker.typeFilter.${row.type}`, row.type)}
+            {translate(`assetPicker.typeFilter.${row.type}`, row.type)}
           </span>
           <span className="flex h-5 min-w-5 shrink-0 items-center justify-center">
             <SelectionOrderBadge order={selectionOrder} />

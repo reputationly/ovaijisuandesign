@@ -5,7 +5,7 @@ import { getAssetCenterMainService } from "./split-shortcut-keys.js";
 const ASSET_CENTER_ROOT_KEY = ["asset-center"];
 
 function useMigrateErrorMessage() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return reactExports.useCallback(
     (reasonCode) => {
       const key2 = {
@@ -31,17 +31,17 @@ function useMigrateErrorMessage() {
           "settings.assetCenter.migrateReason.verificationFailed",
       };
       return reasonCode
-        ? t2(key2[reasonCode])
-        : t2("settings.assetCenter.migrateFailed");
+        ? translate(key2[reasonCode])
+        : translate("settings.assetCenter.migrateFailed");
     },
-    [t2],
+    [translate],
   );
 }
 
 export function useAssetCenterSettings() {
   const queryClient2 = useQueryClient();
   const migrateErrorMessage = useMigrateErrorMessage();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [status, setStatus] = reactExports.useState(null);
   const [busy, setBusy] = reactExports.useState(false);
   const [needsRestart, setNeedsRestart] = reactExports.useState(false);
@@ -59,16 +59,16 @@ export function useAssetCenterSettings() {
         "invalid_path",
       ];
       if (message2.includes("data_directory_change_pending")) {
-        return t2("settings.assetCenter.dataDirectoryChangePending");
+        return translate("settings.assetCenter.dataDirectoryChangePending");
       }
       const code2 = knownErrors.find((candidate) =>
         message2.includes(candidate),
       );
       return code2
-        ? t2(`settings.storage.errors.${code2}`)
-        : t2("settings.assetCenter.changeFailed");
+        ? translate(`settings.storage.errors.${code2}`)
+        : translate("settings.assetCenter.changeFailed");
     },
-    [t2],
+    [translate],
   );
   const refreshStatus = reactExports.useCallback(async () => {
     try {
@@ -93,22 +93,22 @@ export function useAssetCenterSettings() {
     try {
       const service2 = getAssetCenterMainService();
       const picked = await service2.pickDirectory(
-        t2("settings.assetCenter.selectDirectory"),
+        translate("settings.assetCenter.selectDirectory"),
       );
       if (picked === null) return;
       const from2 = status?.directory;
       if (from2 && (await service2.isCurrentDirectory(picked))) return;
       const targetKind = await service2.inspectDirectory(picked);
       if (targetKind === "not_directory") {
-        setError(t2("settings.assetCenter.targetNotDirectory"));
+        setError(translate("settings.assetCenter.targetNotDirectory"));
         return;
       }
       if (targetKind === "unavailable") {
-        setError(t2("settings.assetCenter.targetUnavailable"));
+        setError(translate("settings.assetCenter.targetUnavailable"));
         return;
       }
       if (targetKind === "unrelated_content") {
-        setError(t2("settings.assetCenter.targetContainsOtherFiles"));
+        setError(translate("settings.assetCenter.targetContainsOtherFiles"));
         return;
       }
       const offerMigrate =
@@ -134,7 +134,7 @@ export function useAssetCenterSettings() {
     } finally {
       setBusy(false);
     }
-  }, [invalidate, refreshStatus, status, t2, toDisplayError]);
+  }, [invalidate, refreshStatus, status, translate, toDisplayError]);
   const handleReset = reactExports.useCallback(async () => {
     setBusy(true);
     setError(null);
@@ -158,7 +158,7 @@ export function useAssetCenterSettings() {
           targetKind === "unavailable"
         ) {
           setError(
-            t2(
+            translate(
               targetKind === "not_directory"
                 ? "settings.assetCenter.targetNotDirectory"
                 : targetKind === "unavailable"
@@ -187,7 +187,7 @@ export function useAssetCenterSettings() {
     } finally {
       setBusy(false);
     }
-  }, [invalidate, refreshStatus, status, t2, toDisplayError]);
+  }, [invalidate, refreshStatus, status, translate, toDisplayError]);
   const applyPendingSwitch = reactExports.useCallback(
     async (pending2) => {
       if (pending2.mode === "reset") {
@@ -208,7 +208,7 @@ export function useAssetCenterSettings() {
     if (!pendingSwitch) return;
     const pending2 = pendingSwitch;
     if (pending2.sourceUnavailable) {
-      setDialogError(t2("settings.assetCenter.sourceUnavailableWarning"));
+      setDialogError(translate("settings.assetCenter.sourceUnavailableWarning"));
       return;
     }
     setBusy(true);
@@ -244,7 +244,7 @@ export function useAssetCenterSettings() {
     migrateErrorMessage,
     pendingSwitch,
     refreshStatus,
-    t2,
+    translate,
     toDisplayError,
   ]);
   const confirmSwitchOnly = reactExports.useCallback(async () => {

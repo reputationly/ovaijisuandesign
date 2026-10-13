@@ -1,0 +1,6 @@
+key	old	new	依据
+t2@39:14	t2	translate	该绑定是画布资产保存菜单读取操作文案的翻译函数。
+e2@88:27	e2	mouseEvent	该事件来自 document 的 mousedown 监听并用于判断是否点击弹层外部。
+e2@92:24	e2	keyboardEvent	该事件来自 document 的 keydown 监听并用于处理 Escape 关闭操作。
+o2@207:22	o2	isOpen	该布尔值表示 Popover 状态更新后的是否打开状态。
+a2@264:12	a2	workspaceAsset	该值是在工作区资产列表中按文件路径匹配到的资产记录。

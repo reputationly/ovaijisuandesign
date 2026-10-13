@@ -110,11 +110,11 @@ export function normalizeCloudParentId(parentId) {
 export function formatBytes(bytes2) {
   if (!Number.isFinite(bytes2) || bytes2 <= 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
-  const i2 = Math.min(
+  const unitIndex = Math.min(
     Math.floor(Math.log(bytes2) / Math.log(1024)),
     units.length - 1,
   );
-  return `${(bytes2 / 1024 ** i2).toFixed(1)} ${units[i2]}`;
+  return `${(bytes2 / 1024 ** unitIndex).toFixed(1)} ${units[unitIndex]}`;
 }
 export function isCloudFileDownloadEnabled(node2, syncState) {
   return (
@@ -195,10 +195,10 @@ export function useCloudMoveOptions(projectId, active2) {
     loading,
   };
 }
-export function useStableCallback(fn2) {
-  const ref = reactExports.useRef(fn2);
+export function useStableCallback(callback) {
+  const ref = reactExports.useRef(callback);
   reactExports.useInsertionEffect(() => {
-    ref.current = fn2;
+    ref.current = callback;
   });
   return reactExports.useCallback((...args) => ref.current(...args), []);
 }

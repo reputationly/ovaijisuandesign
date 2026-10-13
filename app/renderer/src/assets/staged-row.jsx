@@ -7,7 +7,7 @@ import {
   Scan,
   useTranslation,
   Video,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
@@ -47,7 +47,7 @@ export function StagedRow({
   isCover,
   coverPreviewSrc,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const isBusy = entry.status === "uploading";
   const preview = useFilePreviewUrl(entry.file);
   const [lightboxOpen, setLightboxOpen] = reactExports.useState(false);
@@ -90,7 +90,7 @@ export function StagedRow({
             onClick={() => setLightboxOpen(true)}
             disabled={isBusy}
             data-action-ui-id="asset-center-staged-attachment-image"
-            aria-label={t2("assetCenter.detail.viewLarge")}
+            aria-label={translate("assetCenter.detail.viewLarge")}
           >
             {failedPreview === imageSrc ? (
               <FileTypeIcon
@@ -116,7 +116,7 @@ export function StagedRow({
             onClick={() => setLightboxOpen(true)}
             disabled={isBusy}
             data-action-ui-id="asset-center-staged-attachment-video"
-            aria-label={t2("assetCenter.detail.viewLarge")}
+            aria-label={translate("assetCenter.detail.viewLarge")}
           >
             {uploadedVideoPosterSrc ? (
               failedPreview === uploadedVideoPosterSrc ? (
@@ -188,7 +188,7 @@ export function StagedRow({
             data-action-ui-id="asset-center-attachment-set-cover"
           >
             <Icon icon={Scan} size="xs" strokeWidth={2} />
-            {t2(isCover ? "assetCenter.cover.edit" : "assetCenter.cover.set")}
+            {translate(isCover ? "assetCenter.cover.edit" : "assetCenter.cover.set")}
           </Button>
         ) : null}
         <Button
@@ -198,9 +198,9 @@ export function StagedRow({
           onClick={onRemove2}
           disabled={isBusy}
           data-action-ui-id="asset-center-add-entity-staged-remove"
-          aria-label={t2("common.remove")}
+          aria-label={translate("common.remove")}
         >
-          <X size={10} />
+          <CloseIcon size={10} />
         </Button>
       </div>
       <div className="flex flex-col gap-1 p-2">
@@ -216,7 +216,7 @@ export function StagedRow({
               entry.status === "pending" && "text-muted-foreground/60",
             )}
           >
-            {t2(`assetCenter.create.uploadStatus.${entry.status}`)}
+            {translate(`assetCenter.create.uploadStatus.${entry.status}`)}
           </span>
         </div>
         {(entry.status === "uploaded" || entry.status === "staged") && (
@@ -224,8 +224,8 @@ export function StagedRow({
             <div className="w-0.5 h-3 shrink-0 bg-muted-foreground/20 mr-2 mt-0.5" />
             <textarea
               value={entry.caption ?? ""}
-              onChange={(e2) => onCaptionChange?.(e2.target.value)}
-              placeholder={t2(
+              onChange={(changeEvent) => onCaptionChange?.(changeEvent.target.value)}
+              placeholder={translate(
                 "assetCenter.create.attachmentCaptionPlaceholder",
               )}
               rows={1}

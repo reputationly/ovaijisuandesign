@@ -1,0 +1,2 @@
+key	old	new	依据
+t2@262:14	t2	translate	该绑定是画布标签名称解析 hook 读取标签文案的翻译函数。

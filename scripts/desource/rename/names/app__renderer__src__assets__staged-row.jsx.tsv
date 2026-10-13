@@ -1,0 +1,4 @@
+key	old	new	依据
+X@10:10	X	CloseIcon	该供应商 X 图标用于暂存附件卡片的移除按钮。
+t2@50:14	t2	translate	该绑定是暂存附件卡片读取预览和状态文案的翻译函数。
+e2@227:26	e2	changeEvent	该事件提供附件说明文本框的新文本。

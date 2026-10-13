@@ -325,7 +325,7 @@ function pathToDisplayItem(
 }
 
 export function useAttachmentState(opts) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const {
     defaultFilePaths,
     maxImageRefs,
@@ -738,17 +738,17 @@ export function useAttachmentState(opts) {
   ]);
   const usedAudioSec = reactExports.useMemo(() => {
     let total = 0;
-    for (const p3 of filledAudios) {
-      const d2 = findMetaByPath(p3, assetMetadataAssets, "audio")?.durationSec;
-      if (typeof d2 === "number" && d2 > 0) total += d2;
+    for (const audioPath of filledAudios) {
+      const audioDurationSec = findMetaByPath(audioPath, assetMetadataAssets, "audio")?.durationSec;
+      if (typeof audioDurationSec === "number" && audioDurationSec > 0) total += audioDurationSec;
     }
     return total;
   }, [assetMetadataAssets, filledAudios]);
   const usedVideoSec = reactExports.useMemo(() => {
     let total = 0;
-    for (const p3 of filledVideos) {
-      const d2 = findMetaByPath(p3, assetMetadataAssets, "video")?.durationSec;
-      if (typeof d2 === "number" && d2 > 0) total += d2;
+    for (const videoPath of filledVideos) {
+      const videoDurationSec = findMetaByPath(videoPath, assetMetadataAssets, "video")?.durationSec;
+      if (typeof videoDurationSec === "number" && videoDurationSec > 0) total += videoDurationSec;
     }
     return total;
   }, [assetMetadataAssets, filledVideos]);
@@ -842,24 +842,24 @@ export function useAttachmentState(opts) {
       seen2.add(item.path);
       result.push(item);
     };
-    for (const p3 of editableText ? filledTexts : (defaultTextPaths ?? [])) {
-      pushOnce(pathToDisplayItem(p3, "text", assetMetadataAssets, void 0));
+    for (const textPath of editableText ? filledTexts : (defaultTextPaths ?? [])) {
+      pushOnce(pathToDisplayItem(textPath, "text", assetMetadataAssets, void 0));
     }
-    for (const p3 of filledFiles) {
-      pushOnce(pathToDisplayItem(p3, "file", assetMetadataAssets, void 0));
+    for (const filePath of filledFiles) {
+      pushOnce(pathToDisplayItem(filePath, "file", assetMetadataAssets, void 0));
     }
-    for (let i2 = 0; i2 < filledImages.length; i2++) {
-      if (!filledImages[i2]) continue;
+    for (let imageIndex = 0; imageIndex < filledImages.length; imageIndex++) {
+      if (!filledImages[imageIndex]) continue;
       const badge = isFirstLastFrame
-        ? i2 === 0
+        ? imageIndex === 0
           ? "first"
-          : i2 === 1
+          : imageIndex === 1
             ? "last"
             : void 0
         : void 0;
       pushOnce(
         pathToDisplayItem(
-          filledImages[i2],
+          filledImages[imageIndex],
           "image",
           assetMetadataAssets,
           resolveFileUrl,
@@ -868,10 +868,10 @@ export function useAttachmentState(opts) {
       );
     }
     if (!isFirstLastFrame) {
-      for (const p3 of filledVideos) {
+      for (const videoPath of filledVideos) {
         pushOnce(
           pathToDisplayItem(
-            p3,
+            videoPath,
             "video",
             assetMetadataAssets,
             resolveFileUrl,
@@ -882,10 +882,10 @@ export function useAttachmentState(opts) {
         );
       }
       if (!isVideoExtension) {
-        for (const p3 of filledAudios) {
+        for (const audioPath of filledAudios) {
           pushOnce(
             pathToDisplayItem(
-              p3,
+              audioPath,
               "audio",
               assetMetadataAssets,
               resolveFileUrl,
@@ -927,11 +927,11 @@ export function useAttachmentState(opts) {
     );
     if (allPaths.size === 0) return [];
     const list2 = [];
-    assetMetadataStore.getState().assets.forEach((meta2, id2) => {
+    assetMetadataStore.getState().assets.forEach((meta2, assetId) => {
       if (meta2.path && allPaths.has(meta2.path)) {
         const kind = meta2.type;
         list2.push({
-          assetId: id2,
+          assetId,
           name: meta2.name,
           kind,
         });
@@ -1027,7 +1027,7 @@ export function useAttachmentState(opts) {
       const reasons = new Set(rejectedImages.values());
       if (reasons.has("image-aspect")) {
         dedupedToast.warning(
-          t2(
+          translate(
             "canvas.attachment.imageAspectRejected",
             "Image aspect ratio does not meet the current model requirements. Connection removed.",
           ),
@@ -1037,7 +1037,7 @@ export function useAttachmentState(opts) {
         );
       } else if (reasons.has("image-size")) {
         dedupedToast.warning(
-          t2(
+          translate(
             "canvas.attachment.imageSizeRejected",
             "Image is smaller than the current model requires. Connection removed.",
           ),
@@ -1064,7 +1064,7 @@ export function useAttachmentState(opts) {
     isFirstLastFrame,
     rejectedImages,
     suppressImageAspectRejectedToast,
-    t2,
+    translate,
     unwireEdge,
     updatePathsForKind,
   ]);
@@ -1200,7 +1200,7 @@ export function useAttachmentState(opts) {
               for (const { path: path2 } of admission.admitted) {
                 const vacantSlot = Array.from({
                   length: FIRST_LAST_FRAME_SLOT_COUNT,
-                }).findIndex((_2, index2) => !next2[index2]);
+                }).findIndex((_unusedValue, index2) => !next2[index2]);
                 if (vacantSlot < 0) break;
                 while (next2.length <= vacantSlot) next2.push("");
                 next2[vacantSlot] = path2;
@@ -1293,21 +1293,21 @@ export function useAttachmentState(opts) {
       updatePathsForKind("image", (currentPaths) =>
         isFirstLastFrame
           ? normalizeFirstLastFramePaths(
-              currentPaths.map((p3) => (p3 === path2 ? "" : p3)),
+              currentPaths.map((currentPath) => (currentPath === path2 ? "" : currentPath)),
             )
-          : currentPaths.filter((p3) => p3 !== path2),
+          : currentPaths.filter((currentPath) => currentPath !== path2),
       );
       updatePathsForKind("video", (currentPaths) =>
-        currentPaths.filter((p3) => p3 !== path2),
+        currentPaths.filter((currentPath) => currentPath !== path2),
       );
       updatePathsForKind("audio", (currentPaths) =>
-        currentPaths.filter((p3) => p3 !== path2),
+        currentPaths.filter((currentPath) => currentPath !== path2),
       );
       updatePathsForKind("text", (currentPaths) =>
-        currentPaths.filter((p3) => p3 !== path2),
+        currentPaths.filter((currentPath) => currentPath !== path2),
       );
       updatePathsForKind("file", (currentPaths) =>
-        currentPaths.filter((p3) => p3 !== path2),
+        currentPaths.filter((currentPath) => currentPath !== path2),
       );
       if (opts2?.tearEdge) unwireEdge(path2);
       logImageReferences(
@@ -1351,7 +1351,7 @@ export function useAttachmentState(opts) {
             // button on `showAddButton` so we never reach here in that state.
             type: [...pickerKindFilter],
             multiple: true,
-            existingAssetIds: existingAttachments.map((a2) => a2.assetId),
+            existingAssetIds: existingAttachments.map((attachment) => attachment.assetId),
             constraints: pickerConstraints,
             uploadMode: "attach",
             // Canvas composers have no upstream lineage to display — hide that
@@ -1373,24 +1373,24 @@ export function useAttachmentState(opts) {
         devLogAttachment("picker-confirmed", {
           hostNodeId: hostNodeId ?? "",
           resourceCount: resources.length,
-          kinds: resources.map((r2) => r2.type),
+          kinds: resources.map((resource) => resource.type),
         });
         picks = resources
           .filter(
-            (r2) =>
-              r2.type === "image" ||
-              r2.type === "video" ||
-              r2.type === "audio" ||
-              (editableText && r2.type === "text") ||
+            (resource) =>
+              resource.type === "image" ||
+              resource.type === "video" ||
+              resource.type === "audio" ||
+              (editableText && resource.type === "text") ||
               (effectiveMaxFile > 0 &&
-                (r2.type === "file" || r2.type === "text")),
+                (resource.type === "file" || resource.type === "text")),
           )
-          .map((r2) => ({
-            assetId: r2.assetId,
-            name: r2.name,
-            kind: r2.type,
-            nodeId: r2.nodeId,
-            path: r2.path,
+          .map((resource) => ({
+            assetId: resource.assetId,
+            name: resource.name,
+            kind: resource.type,
+            nodeId: resource.nodeId,
+            path: resource.path,
           }));
       } catch (err) {
         if (err?.code === "picker_busy") return;
@@ -1438,7 +1438,7 @@ export function useAttachmentState(opts) {
       }
       if (rejectedFileExtension) {
         dedupedToast.error(
-          t2("canvas.attachment.fileExtensionRejected", {
+          translate("canvas.attachment.fileExtensionRejected", {
             defaultValue:
               "The current model does not support this document format.",
           }),
@@ -1466,7 +1466,7 @@ export function useAttachmentState(opts) {
       fileExtensions,
       addPaths,
       hostNodeId,
-      t2,
+      translate,
     ],
   );
   const replacementContextRef = reactExports.useRef({
@@ -1572,7 +1572,7 @@ export function useAttachmentState(opts) {
         !matchesFileExtensions(nextPath, fileExtensions)
       ) {
         dedupedToast.error(
-          t2("canvas.attachment.fileExtensionRejected", {
+          translate("canvas.attachment.fileExtensionRejected", {
             defaultValue:
               "The current model does not support this document format.",
           }),
@@ -1652,7 +1652,7 @@ export function useAttachmentState(opts) {
       pickAsset,
       pickerConstraints,
       resolveFileUrl,
-      t2,
+      translate,
       unwireEdge,
       updatePathsForKind,
       videoPerClipMaxSec,
@@ -1707,7 +1707,7 @@ export function useAttachmentState(opts) {
               return false;
             if (getImageConstraintReason(saved, imageInputLimits)) {
               throw new Error(
-                t2(
+                translate(
                   "canvas.imageSlot.annotatedImageRejected",
                   "The edited image does not meet the current model requirements.",
                 ),
@@ -1768,7 +1768,7 @@ export function useAttachmentState(opts) {
       updatePathsForKind,
       unwireEdge,
       wireEdge,
-      t2,
+      translate,
     ],
   );
   return {

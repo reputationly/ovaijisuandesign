@@ -1,0 +1,23 @@
+key	old	new	依据
+t2@328:14	t2	translate	该绑定是附件状态 hook 生成选取资源错误提示的翻译函数。
+p3@741:16	p3	audioPath	该路径用于查询已填充音频的时长元数据。
+d2@742:13	d2	audioDurationSec	该值是当前音频资源的元数据时长秒数。
+p3@749:16	p3	videoPath	该路径用于查询已填充视频的时长元数据。
+d2@750:13	d2	videoDurationSec	该值是当前视频资源的元数据时长秒数。
+p3@845:16	p3	textPath	该路径用于构建文本附件展示项。
+p3@848:16	p3	filePath	该路径用于构建文件附件展示项。
+i2@851:14	i2	imageIndex	该索引定位已填充图片及其首尾帧徽标。
+p3@871:18	p3	videoPath	该路径用于构建视频附件展示项。
+p3@885:20	p3	audioPath	该路径用于构建音频附件展示项。
+id2@930:58	id2	assetId	该值是资产元数据映射中的资产标识键。
+_2@1203:31	_2	_unusedValue	该参数是 Array.from 生成的未使用占位元素。
+p3@1296:33	p3	currentPath	该值是待移除路径更新中的当前图片路径。
+p3@1298:34	p3	currentPath	该值是当前图片路径列表中的元素。
+p3@1301:30	p3	currentPath	该值是当前视频路径列表中的元素。
+p3@1304:30	p3	currentPath	该值是当前音频路径列表中的元素。
+p3@1307:30	p3	currentPath	该值是当前文本路径列表中的元素。
+p3@1310:30	p3	currentPath	该值是当前文件路径列表中的元素。
+a2@1354:56	a2	attachment	该值是现有附件记录，包含可供选取器排除的资产标识。
+r2@1376:33	r2	resource	该值是资产选取器返回资源列表中的单个资源。
+r2@1380:14	r2	resource	该值是用于筛选资源类型的单个选取资源。
+r2@1388:17	r2	resource	该值是映射为附件条目的单个选取资源。

@@ -12,7 +12,7 @@ import { mapCanvasReferenceResolutions } from "../text-editor/map-canvas-referen
 
 export function useAssetsRefValidate({ path: path2, anchor, submit }) {
   const { directReferences } = useCanvasBridge();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const reference = reactExports.useMemo(
     () => parseCanvasReference(path2),
     [path2],
@@ -122,7 +122,7 @@ export function useAssetsRefValidate({ path: path2, anchor, submit }) {
         : (latest2.current?.promptText ?? "");
       if (currentPrompt !== prompt) return false;
       const invalid2 = entries2.filter(
-        (_2, index2) =>
+        (_unusedValue, index2) =>
           resolutions[index2].status === "deleted" ||
           resolutions[index2].status === "missing",
       );
@@ -149,16 +149,16 @@ export function useAssetsRefValidate({ path: path2, anchor, submit }) {
         );
         dedupedToast.error(
           subjectsOnly
-            ? t2(
+            ? translate(
                 "canvas.reference.invalidSubjectRemoved",
                 "Invalid subject detected and automatically removed.",
               )
             : assetsOnly
-              ? t2(
+              ? translate(
                   "canvas.reference.invalidAssetRemoved",
                   "Invalid asset detected and automatically removed.",
                 )
-              : t2(
+              : translate(
                   "canvas.reference.invalidReferencesRemoved",
                   "Invalid references detected and automatically removed.",
                 ),
@@ -178,7 +178,7 @@ export function useAssetsRefValidate({ path: path2, anchor, submit }) {
       latest2.current?.attachmentState.updateReferenceMetadata(resolutions);
       if (metadataChanged) {
         dedupedToast.error(
-          t2(
+          translate(
             "canvas.reference.contentChanged",
             "Reference content changed. Review the updated limits and estimated cost, then submit again.",
           ),
@@ -189,7 +189,7 @@ export function useAssetsRefValidate({ path: path2, anchor, submit }) {
     } catch {
       if (mounted.current)
         dedupedToast.error(
-          t2(
+          translate(
             "canvas.reference.loadFailed",
             "Failed to load reference. Please try again.",
           ),
@@ -198,7 +198,7 @@ export function useAssetsRefValidate({ path: path2, anchor, submit }) {
     } finally {
       pending2.current = false;
     }
-  }, [checkReferences, t2]);
+  }, [checkReferences, translate]);
   const resolution =
     reference &&
     result?.bridge === directReferences &&

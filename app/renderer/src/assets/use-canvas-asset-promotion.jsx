@@ -36,7 +36,7 @@ function AssetSaveMenuContent({
   onClose,
   motionProps,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const ref = motionProps.ref;
   const closing2 = motionProps["data-ending-style"] !== void 0;
   const [menuPosition, setMenuPosition] = reactExports.useState(() =>
@@ -85,12 +85,12 @@ function AssetSaveMenuContent({
   }, [updateMenuPosition]);
   reactExports.useEffect(() => {
     if (closing2) return;
-    const handleClick2 = (e2) => {
-      if (ref.current?.contains(e2.target)) return;
+    const handleClick2 = (mouseEvent) => {
+      if (ref.current?.contains(mouseEvent.target)) return;
       onClose();
     };
-    const handleKey = (e2) => {
-      if (e2.key === "Escape") onClose();
+    const handleKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") onClose();
     };
     document.addEventListener("mousedown", handleClick2);
     document.addEventListener("keydown", handleKey);
@@ -127,14 +127,14 @@ function AssetSaveMenuContent({
         onClick={handleSaveToProject}
       >
         <StrokeIcon icon={FolderInput} size={16} />
-        {t2("canvas.saveToProjectAssets")}
+        {translate("canvas.saveToProjectAssets")}
       </ActionListItem>
       <ActionListItem
         data-action-ui-id="canvas-asset-save-menu.add-to-library"
         onClick={handleAddToLibrary}
       >
         <StrokeIcon icon={Library} size={16} />
-        {t2("canvas.addToLibrary")}
+        {translate("canvas.addToLibrary")}
       </ActionListItem>
     </ActionListPanel>
   );
@@ -204,8 +204,8 @@ function PromoteToAssetPopover({
   return (
     <Popover
       open={open}
-      onOpenChange={(o2) => {
-        if (!o2 && !isSubmitting) onClose();
+      onOpenChange={(isOpen) => {
+        if (!isOpen && !isSubmitting) onClose();
       }}
     >
       <PopoverContent
@@ -261,7 +261,7 @@ export function useCanvasAssetPromotion({
           : ref.filePath;
         const displayName2 = ref.filePath.split("/").pop() ?? ref.filePath;
         const vaultPrompt = workspaceAssets.find(
-          (a2) => a2.path === ref.filePath,
+          (workspaceAsset) => workspaceAsset.path === ref.filePath,
         )?.prompt;
         files.push({
           workspaceRelPath: ref.filePath,

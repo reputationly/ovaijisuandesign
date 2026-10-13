@@ -108,31 +108,31 @@ function arePropsEqual(prev, next2) {
   const prevIsRenaming = prev.renamingPath === prev.entry.path;
   const nextIsRenaming = next2.renamingPath === next2.entry.path;
   if (prevIsRenaming !== nextIsRenaming) return false;
-  const pe2 = prev.entry;
-  const ne2 = next2.entry;
-  if (pe2.path !== ne2.path) return false;
-  if (pe2.name !== ne2.name) return false;
-  if (pe2.isDirectory !== ne2.isDirectory) return false;
-  if (pe2.status !== ne2.status) return false;
-  if (pe2.isDirectory) {
-    if ((pe2.children?.length ?? 0) !== (ne2.children?.length ?? 0))
+  const previousEntry = prev.entry;
+  const nextEntry = next2.entry;
+  if (previousEntry.path !== nextEntry.path) return false;
+  if (previousEntry.name !== nextEntry.name) return false;
+  if (previousEntry.isDirectory !== nextEntry.isDirectory) return false;
+  if (previousEntry.status !== nextEntry.status) return false;
+  if (previousEntry.isDirectory) {
+    if ((previousEntry.children?.length ?? 0) !== (nextEntry.children?.length ?? 0))
       return false;
   }
-  if (pe2.status === "missing" || ne2.status === "missing") {
-    if (pe2.candidate?.asset_id !== ne2.candidate?.asset_id) return false;
+  if (previousEntry.status === "missing" || nextEntry.status === "missing") {
+    if (previousEntry.candidate?.asset_id !== nextEntry.candidate?.asset_id) return false;
   }
   if (prev.asset !== next2.asset) {
-    const pa = prev.asset;
+    const previousAsset = prev.asset;
     const na = next2.asset;
-    if (!pa || !na) return false;
-    if (pa.id !== na.id) return false;
-    if (pa.path !== na.path) return false;
-    if (pa.name !== na.name) return false;
-    if (pa.type !== na.type) return false;
-    if (pa.status !== na.status) return false;
-    if (pa.duration !== na.duration) return false;
-    if (pa.candidate?.asset_id !== na.candidate?.asset_id) return false;
-    if (pa.candidate?.path !== na.candidate?.path) return false;
+    if (!previousAsset || !na) return false;
+    if (previousAsset.id !== na.id) return false;
+    if (previousAsset.path !== na.path) return false;
+    if (previousAsset.name !== na.name) return false;
+    if (previousAsset.type !== na.type) return false;
+    if (previousAsset.status !== na.status) return false;
+    if (previousAsset.duration !== na.duration) return false;
+    if (previousAsset.candidate?.asset_id !== na.candidate?.asset_id) return false;
+    if (previousAsset.candidate?.path !== na.candidate?.path) return false;
   }
   return arePropsRefEqualExcept(prev, next2, SPECIAL_PROPS);
 }
@@ -178,7 +178,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
   onHoverIntent,
   onHoverEnd,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const gatewayUrl2 = useGatewayUrl();
   const isRenaming = renamingPath === entry.path;
   const [dragOver, setDragOver] = reactExports.useState(false);
@@ -277,11 +277,11 @@ export const TreeItem = reactExports.memo(function TreeItem2({
     }
   }, [entry.path, isSelected, onFileSelect]);
   const handlePointerEnter = reactExports.useCallback(
-    (e2) => {
+    (pointerEvent) => {
       if (!asset || !onHoverIntent) return;
       onHoverIntent({
         asset,
-        anchor: e2.currentTarget,
+        anchor: pointerEvent.currentTarget,
         absolutePath: entry.path,
       });
     },
@@ -320,35 +320,35 @@ export const TreeItem = reactExports.memo(function TreeItem2({
       </div>
     );
   }
-  const handleDragStart = (e2) => {
-    e2.dataTransfer.setData(RESOURCE_DRAG_MIME, buildDragPayload(entry.path));
-    e2.dataTransfer.setData(DRAG_MIME, entry.path);
-    e2.dataTransfer.effectAllowed = "copyMove";
+  const handleDragStart = (dragEvent) => {
+    dragEvent.dataTransfer.setData(RESOURCE_DRAG_MIME, buildDragPayload(entry.path));
+    dragEvent.dataTransfer.setData(DRAG_MIME, entry.path);
+    dragEvent.dataTransfer.effectAllowed = "copyMove";
   };
-  const handleDragOver = (e2) => {
+  const handleDragOver = (dragEvent) => {
     if (!entry.isDirectory) return;
-    const types2 = e2.dataTransfer.types;
+    const types2 = dragEvent.dataTransfer.types;
     if (!types2.includes(RESOURCE_DRAG_MIME) && !types2.includes(DRAG_MIME))
       return;
-    e2.preventDefault();
-    e2.dataTransfer.dropEffect = "move";
+    dragEvent.preventDefault();
+    dragEvent.dataTransfer.dropEffect = "move";
     setDragOver(true);
   };
   const handleDragLeave = () => setDragOver(false);
-  const handleDrop2 = (e2) => {
+  const handleDrop2 = (dragEvent) => {
     setDragOver(false);
     if (!entry.isDirectory) return;
-    e2.preventDefault();
-    const sourcePaths = extractDropSourcePaths(e2.dataTransfer);
+    dragEvent.preventDefault();
+    const sourcePaths = extractDropSourcePaths(dragEvent.dataTransfer);
     if (sourcePaths.length === 0) return;
     if (isInvalidDropTarget(sourcePaths, entry.path)) return;
     onMove(sourcePaths, entry.path);
   };
-  const handleClick2 = (e2) => {
-    if (entry.isDirectory && !(e2.metaKey || e2.ctrlKey || e2.shiftKey)) {
+  const handleClick2 = (clickEvent) => {
+    if (entry.isDirectory && !(clickEvent.metaKey || clickEvent.ctrlKey || clickEvent.shiftKey)) {
       onToggle(entry.path);
     }
-    onFileSelect(entry.path, e2);
+    onFileSelect(entry.path, clickEvent);
   };
   const handleDoubleClick2 = () => {
     if (!entry.isDirectory) {
@@ -548,8 +548,8 @@ export const TreeItem = reactExports.memo(function TreeItem2({
         {!isMissing && !isRenaming && (
           <button
             type="button"
-            aria-label={t2("fileExplorer.locateOnCanvas")}
-            title={t2("fileExplorer.locateOnCanvas")}
+            aria-label={translate("fileExplorer.locateOnCanvas")}
+            title={translate("fileExplorer.locateOnCanvas")}
             data-action-ui-id="asset-panel.row-locate-on-canvas"
             onClick={handleLocateButtonClick}
             className={cn(
