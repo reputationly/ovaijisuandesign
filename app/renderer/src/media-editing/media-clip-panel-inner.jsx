@@ -21,11 +21,11 @@ import { MediaClipEngine } from "./media-clip-engine.js";
 function formatTime(seconds, showMs = false) {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-  const milliseconds = Math.floor((seconds % 1) * 100);
+  const centiseconds = Math.floor((seconds % 1) * 100);
   const minsStr = mins.toString().padStart(2, "0");
   const secsStr = secs.toString().padStart(2, "0");
   if (showMs) {
-    const msStr = milliseconds.toString().padStart(2, "0");
+    const msStr = centiseconds.toString().padStart(2, "0");
     return `${minsStr}:${secsStr}.${msStr}`;
   }
   return `${minsStr}:${secsStr}`;

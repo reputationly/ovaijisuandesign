@@ -1,16 +1,16 @@
 key	new	依据
-d2@137:9	nodeData	按压缩短名规则改为描述该值或行为的名称；此处保存用于读取主提示词的画布节点数据。
-id2@169:7	nodeId	按压缩短名规则改为描述该值或行为的名称；此处保存占位节点的标识。
-t2@175:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存读取当前语言文案的 i18n 函数。
-s2@226:44	storeState	按压缩短名规则改为描述该值或行为的名称；此处保存资产元数据 store 的当前状态。
-e2@343:6	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存占位节点按钮收到的点击事件。
-e2@356:6	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存占位节点按钮收到的点击事件。
-e2@379:6	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存占位节点按钮收到的点击事件。
-e2@387:12	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存占位节点按钮收到的点击事件。
-e2@657:6	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存占位节点按钮收到的点击事件。
-sub@670:40	subImage	按压缩短名规则改为描述该值或行为的名称；此处保存当前遍历的子图像节点。
-sub@690:40	subImage	按压缩短名规则改为描述该值或行为的名称；此处保存当前遍历的子图像节点。
-e2@711:6	clickEvent	按压缩短名规则改为描述该值或行为的名称；此处保存占位节点按钮收到的点击事件。
+d2@137:9	nodeData	当前占位节点的 data 对象；从中读取 prompt、description 等生成信息。
+id2@169:7	nodeId	当前占位画布节点的 ID，供节点 hooks、删除和生成队列桥接操作使用。
+t2@175:14	t	useTranslation 返回的翻译函数，用于模型标签、生成数量单位和状态提示。
+s2@226:44	storeState	资源元数据 store 的当前状态；选择器从中读取 assets 映射。
+e2@343:6	clickEvent	删除按钮的点击事件；阻止传播后通过 deleteElements 删除当前 nodeId。
+e2@356:6	clickEvent	错误上报按钮的点击事件；阻止传播后向 bridge.onReportNodeError 提交节点和错误信息。
+e2@379:6	clickEvent	重新生成按钮的点击事件；阻止传播并在存在 retryPayload 时调用 onRetryGeneration。
+e2@387:12	clickEvent	取消生成按钮的点击事件；阻止传播后设置 pending 状态并调用 onCancelGeneration。
+e2@657:6	clickEvent	覆盖层徽标点击事件；阻止传播后根据当前状态打开或关闭该节点的 overlay。
+sub@670:40	subImage	当前待提升为主图的子图节点，在 subImages 中按节点 ID 或 assetId 查找。
+sub@690:40	subImage	当前视频插槽对应的子图节点，在 subImages 中按节点 ID 或 assetId 查找。
+e2@711:6	clickEvent	生成徽标的点击事件；多轮单插槽时阻止传播并切换轮次，否则交给 overlay 切换处理。
 data2@93:3	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存占位节点的序列化数据。
 data2@136:33	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存占位节点的序列化数据。
 data2@170:9	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存占位节点的序列化数据。

@@ -247,7 +247,7 @@ export function PanoramaViewer({
   const lastFullscreenRequestRef = reactExports.useRef(0);
   const dragRef = reactExports.useRef(null);
   const [status, setStatus] = reactExports.useState(src ? "loading" : "empty");
-  const [fieldOfView, setFov] = reactExports.useState(90);
+  const [fieldOfView, setFieldOfView] = reactExports.useState(90);
   const [autoRotate, setAutoRotate] = reactExports.useState(false);
   const [fullscreen, setFullscreen] = reactExports.useState(false);
   const [guides, setGuides] = reactExports.useState(false);
@@ -353,7 +353,7 @@ export function PanoramaViewer({
       Math.min(FOV_MAX, cameraRef.current.fov + delta),
     );
     cameraRef.current.fov = next;
-    setFov(Math.round(next));
+    setFieldOfView(Math.round(next));
     drawRef.current();
   }, []);
   const reset = reactExports.useCallback(() => {
@@ -363,7 +363,7 @@ export function PanoramaViewer({
       pitch: 0,
       fov: 90,
     };
-    setFov(90);
+    setFieldOfView(90);
     drawRef.current();
   }, []);
   const handlePointerDown = reactExports.useCallback(
@@ -631,7 +631,7 @@ export function PanoramaViewer({
                 <button
                   type="button"
                   className={`${controlClass} ${autoRotate ? "bg-white/15" : ""}`}
-                  onClick={() => setAutoRotate((current) => !current)}
+                  onClick={() => setAutoRotate((isAutoRotateEnabled) => !isAutoRotateEnabled)}
                   aria-label={t("canvas.panorama.autoRotate", "自动旋转")}
                   aria-pressed={autoRotate}
                 >
@@ -718,7 +718,7 @@ export function PanoramaViewer({
                 <button
                   type="button"
                   className={`${controlClass} ${guides ? "bg-white/15" : ""}`}
-                  onClick={() => setGuides((current) => !current)}
+                  onClick={() => setGuides((areGuidesVisible) => !areGuidesVisible)}
                   aria-label={t("canvas.panorama.guides", "构图参考线")}
                   aria-pressed={guides}
                 >

@@ -25,7 +25,7 @@ vv@551:25	vendorValue	读取当前供应商参数值并生成标签。
 tag@554:27	existingTag	检查当前参数键是否已存在于标签列表。
 p3@573:22	outputPath	收集当前结果中的输出路径。
 p3@710:18	outputPath	筛选生成结果中的有效输出路径。
-r2@715:18	resultEntry	遍历生成结果并读取其中的路径。
+r2@715:18	resultEntry	parsed.results 中当前生成结果记录；从其 paths 数组或 path 字段收集输出文件。
 p3@717:22	outputPath	读取单项结果中的输出路径。
 a2@809:6	firstTag	比较排序中两项标签的语义顺序。
 b3@809:10	secondTag	比较排序中两项标签的语义顺序。

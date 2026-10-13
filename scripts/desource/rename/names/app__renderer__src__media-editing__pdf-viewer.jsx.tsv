@@ -79,7 +79,7 @@ Zt@481:16	highlightCodeTokens	按语言语法匹配代码并逐段调用渲染�
 we@540:16	renderHighlightedCodeHtml	生成可选行号的语法高亮 HTML。
 id2@112:9	registrationId	保存此文件查看器注册项的 ID。
 t2@197:10	moduleFactories	保存模块路径到模块加载函数的映射。
-e2@197:18	modulePath	保存待加载模块的路径。
+e2@197:18	modulePath	语言模块工厂表中的请求路径键；命中时执行对应 loader，缺失时抛出模块未找到错误。
 p3@198:7	moduleFactory	保存模块路径对应的加载函数。
 a2@245:9	leftBytes	保存字节比较左侧的输入数据。
 b3@246:9	rightBytes	保存字节比较右侧的输入数据。

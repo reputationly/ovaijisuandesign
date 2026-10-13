@@ -1,36 +1,39 @@
 key	new	依据
-gl@98:24	webGlContext	按压缩短名规则改为描述该值或行为的名称；此处保存“webGlContext”所表示的值。
-gl@112:9	webGlContext	按压缩短名规则改为描述该值或行为的名称；此处保存“webGlContext”所表示的值。
-gl@181:11	webGlContext	按压缩短名规则改为描述该值或行为的名称；此处保存“webGlContext”所表示的值。
-gl@207:11	webGlContext	按压缩短名规则改为描述该值或行为的名称；此处保存“webGlContext”所表示的值。
-t2@233:14	t	按压缩短名规则改为描述该值或行为的名称；此处保存“t”所表示的值。
-fov@250:10	fieldOfView	按压缩短名规则改为描述该值或行为的名称；此处保存“fieldOfView”所表示的值。
-dpr@269:13	pixelRatio	按压缩短名规则改为描述该值或行为的名称；此处保存“pixelRatio”所表示的值。
-platform2@48:9	platform	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“platform”所表示的值。
-snapshot2@52:9	snapshot	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“snapshot”所表示的值。
-type2@98:28	type	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“type”所表示的值。
-message2@104:11	message	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“message”所表示的值。
-fragment2@118:7	fragment	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“fragment”所表示的值。
-position2@144:11	position	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“position”所表示的值。
-state2@175:23	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“state”所表示的值。
-state2@180:24	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“state”所表示的值。
-image2@180:32	image	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“image”所表示的值。
-state2@206:28	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“state”所表示的值。
-zoom2@349:9	zoom	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“zoom”所表示的值。
-reset2@359:9	reset	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“reset”所表示的值。
-state2@267:13	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“state”所表示的值。
-state2@295:13	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“state”所表示的值。
-image2@309:11	image	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“image”所表示的值。
-state2@312:13	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“state”所表示的值。
-frame2@335:9	frame	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“frame”所表示的值。
-rotate2@337:11	rotate	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“rotate”所表示的值。
-next2@351:11	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“next”所表示的值。
-drag2@385:11	drag	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“drag”所表示的值。
-scale2@388:11	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“scale”所表示的值。
-count2@417:12	count	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“count”所表示的值。
-index2@443:18	index	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“index”所表示的值。
-url2@474:19	url	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“url”所表示的值。
-count2@500:20	count	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“count”所表示的值。
-handleKeyDown2@516:11	handleKeyDown	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“handleKeyDown”所表示的值。
-current2@634:49	current	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“current”所表示的值。
-current2@721:45	current	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存“current”所表示的值。
+gl@98:24	webGlContext	compileShader 使用的 WebGL 上下文，创建 shader、提交源码并查询编译结果。
+gl@112:9	webGlContext	从 canvas 获取的 WebGL 上下文；initializeWebGl 用它创建 program、buffer 与 texture。
+gl@181:11	webGlContext	从上传状态中取出的 WebGL 上下文，用来绑定纹理并上传画布像素。
+gl@207:11	webGlContext	绘制当前全景帧所用的 WebGL 上下文，设置视口、uniform 并发起 drawArrays。
+t2@233:14	t	useTranslation 返回的翻译函数，用于全景捕获按钮和控件标签。
+fov@250:10	fieldOfView	界面显示的视野角度状态，缩放时更新并显示为度数。
+dpr@269:13	pixelRatio	窗口 devicePixelRatio 限制在 1 到 2 的像素倍率，用于计算 WebGL 画布尺寸。
+platform2@48:9	platform	window 上注入的平台桥对象，从中读取桌面窗口按钮控制 API。
+snapshot2@52:9	snapshot	用于导出 PNG 截图的临时 canvas，按 source 尺寸绘制后调用 toBlob。
+type2@98:28	type	传给 createShader 的顶点或片段 shader 类型常量。
+message2@104:11	message	shader 编译失败时读取的 info log，作为 Error 文本抛出。
+fragment2@118:7	fragment	initializeWebGl 创建的片段着色器对象，链接到 program 并在 finally 中释放。
+position2@144:11	position	program 中 aPos 属性的位置索引，传给 vertexAttribPointer 配置顶点坐标。
+state2@175:23	state	待释放的 WebGL 资源状态对象；删除其中的 texture、buffer 和 program。
+state2@180:24	state	持有 WebGL context 和 texture 的全景状态，供 uploadTexture 取得上传资源。
+image2@180:32	image	解码完成的全景源图像，依据其 naturalWidth 决定上传纹理宽度并绘制到纹理画布。
+state2@206:28	state	drawPanoramaFrame 使用的 WebGL 资源状态，包含 context、program、纹理及 uniform 位置。
+zoom2@349:9	zoom	全景缩放回调，将视野角度限制在 FOV_MIN/FOV_MAX 范围并重绘画面。
+reset2@359:9	reset	恢复相机 yaw、pitch 和 fov 的默认值，并同步视野角状态后重绘。
+state2@267:13	state	当前 webGlRef 指向的资源状态；画布就绪时交给 drawPanoramaFrame 绘制。
+state2@295:13	state	当前 webGlRef 指向的资源状态，effect 清理前将其传给 disposeWebGl。
+image2@309:11	image	加载全景 src 的浏览器 Image 对象；onload 后用于上传纹理并开始绘制。
+state2@312:13	state	图像加载完成时从 webGlRef 读取的当前资源状态，传给 uploadTexture。
+frame2@335:9	frame	requestAnimationFrame 返回的动画帧 ID，effect 清理时传给 cancelAnimationFrame。
+rotate2@337:11	rotate	自动旋转动画帧回调；按帧间隔推进相机 yaw、绘制并请求下一帧。
+next2@351:11	next	把当前 fov 加上缩放增量并限制到允许范围后得到的新视野角度。
+drag2@385:11	drag	pointerId 匹配时读取的拖拽起始状态，提供基准 x/y 用于更新相机 yaw/pitch。
+scale2@388:11	scale	每像素指针位移对应的弧度倍率，由当前 fov 与画布高度计算。
+count2@417:12	count	本次截图请求的视角数量；大于 1 时按圆周间隔生成多个 yaw 视角。
+index2@443:18	index	当前生成视角的序号，用于计算 yaw 角度与输出文件名中的方位度数。
+url2@474:19	url	由截图 Blob 创建的临时下载 URL，点击下载后延迟撤销。
+count2@500:20	count	captureRequest 携带的截图数量，传给 capture 生成相应视角图片。
+handleKeyDown2@516:11	handleKeyDown	全屏或预览模式下处理键盘事件；Escape 退出全屏或关闭预览。
+current2@634:49	isAutoRotateEnabled	setAutoRotate 回调收到的当前开关状态，取反后切换自动旋转。
+current2@721:45	areGuidesVisible	setGuides 回调收到的当前显示状态，取反后切换构图参考线。
+setFov@250:23	setFieldOfView	与 fieldOfView 状态配对的 setter；接收缩放后取整的视野角度。
+current@634:49	isAutoRotateEnabled	当前自动旋转开关值；点击按钮取反后更新 autoRotate。
+current@721:45	areGuidesVisible	当前构图参考线显示值；点击按钮取反后更新 guides。
