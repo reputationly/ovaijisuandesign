@@ -1,0 +1,7 @@
+key	new	依据
+type2@22:40	type	待解析的插件新增节点类型，前缀匹配后用于提取插件 ID。
+agent2@27:39	agent	待检查的编辑器 agent，其 editorSurface 标记决定是否属于插件编辑器界面。
+handle2@38:11	handle	registerSurface 返回的可释放句柄，保存到 ref 并在 effect 清理时 dispose。
+node2@53:55	node	待解析的画布节点，需为图像占位节点才继续计算生成失败展示信息。
+data2@54:9	data	占位节点的节点数据，用于检查失败状态并读取重试 payload。
+node2@79:51	node	用于生成展示缓存键的画布节点，传入展示信息解析函数。

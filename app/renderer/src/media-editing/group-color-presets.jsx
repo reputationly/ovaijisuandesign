@@ -14,10 +14,10 @@ const pdfWorkerUrl =
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 function FileNodeDispatcher(props) {
-  const data2 = props.data;
-  if (data2?.pluginId === PANORAMA_VIEWER_PLUGIN_ID)
+  const data = props.data;
+  if (data?.pluginId === PANORAMA_VIEWER_PLUGIN_ID)
     return <PanoramaNode {...props} />;
-  const isPlugin = typeof data2?.pluginId === "string";
+  const isPlugin = typeof data?.pluginId === "string";
   return isPlugin ? (
     <PluginNodeInner {...props} />
   ) : (

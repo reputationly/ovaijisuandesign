@@ -1,0 +1,4 @@
+key	new	依据
+MIN_SCALE2@43:16	MIN_SCALE	从时间线配置解构出的最小缩放比例常量。
+MAX_SCALE2@44:16	MAX_SCALE	从时间线配置解构出的最大缩放比例常量。
+scale2@47:9	scale	由可用容器宽度、时长和档位倍率计算出的时间线初始缩放比例。

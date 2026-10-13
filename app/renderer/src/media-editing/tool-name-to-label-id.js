@@ -96,13 +96,13 @@ const PREFIX_RULES = [
   [/^hub_preview_/, "askUser"],
 ];
 
-export function getBuiltInToolLabelId(toolName2) {
-  const exact = Object.hasOwn(TOOL_NAME_TO_LABEL_ID, toolName2)
-    ? TOOL_NAME_TO_LABEL_ID[toolName2]
+export function getBuiltInToolLabelId(toolName) {
+  const exact = Object.hasOwn(TOOL_NAME_TO_LABEL_ID, toolName)
+    ? TOOL_NAME_TO_LABEL_ID[toolName]
     : void 0;
   if (exact) return exact;
   for (const [pattern, labelId] of PREFIX_RULES) {
-    if (pattern.test(toolName2)) return labelId;
+    if (pattern.test(toolName)) return labelId;
   }
   return void 0;
 }
