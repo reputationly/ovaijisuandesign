@@ -1,5 +1,5 @@
 // general-section.jsx
-import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, Brain$2 as Brain, ChevronLeftIcon, CircleArrowUp, CurrentWorkspaceContext, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2 as SettingsDialogDescription, DialogPopup, DialogTitle$2 as SettingsDialogTitle, getRuntimeConfig, Globe, jsxRuntimeExports, Library, Loader2, Monitor, Pencil, Plus, reactExports, ServerIcon, ShieldAlert, Smartphone, Sun, useNavigate, usePlatform, useQueries, useQuery, useTranslation, XIcon } from "../vendor.js";
+import { AlertCircle, AlertTriangle, ArrowUpRight, Bell, Brain$2 as Brain, ChevronLeftIcon, CircleArrowUp, CurrentWorkspaceContext, DialogBackdrop, DialogClose$1 as DialogClose, DialogDescription$2 as DialogDescriptionPrimitive, DialogPopup, DialogTitle$2 as DialogTitlePrimitive, getRuntimeConfig, Globe, jsxRuntimeExports, Library, Loader2, Monitor, Pencil, Plus, reactExports, ServerIcon, ShieldAlert, Smartphone, Sun, useNavigate, usePlatform, useQueries, useQuery, useTranslation, XIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { PlatformSection } from "../settings/platform-section.jsx";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
@@ -56,7 +56,7 @@ import {
   listeners,
   normalizeWorkspaceId,
   SettingsPanelHeaderContext,
-  snapshot as topbarWorkspaceSnapshot,
+  snapshot as activeRuntimeSnapshot,
   useActiveRuntime,
   useOptionalUpdaterContext,
 } from "../settings/use-active-runtime.js";
@@ -109,7 +109,7 @@ function useSettingsPanelHeader() {
   return reactExports.useContext(SettingsPanelHeaderContext);
 }
 function getTopbarActiveWorkspaceSnapshot() {
-  return topbarWorkspaceSnapshot;
+  return activeRuntimeSnapshot;
 }
 function subscribeTopbarActiveWorkspaceSnapshot(listener) {
   listeners.add(listener);
@@ -1609,14 +1609,14 @@ export function SettingsDialog({
           data-action-ui-id="settings-dialog"
           className="elevated-surface-border fixed top-1/2 left-1/2 z-50 flex h-[min(620px,80vh)] w-full max-w-[860px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl bg-modal-shell p-1 text-popover-foreground shadow-lg outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 [&_[data-slot=button]]:rounded-md [&_[data-slot=input]]:rounded-md [&_[data-slot=select-trigger]]:rounded-md"
         >
-          <SettingsDialogDescription className="sr-only">
+          <DialogDescriptionPrimitive className="sr-only">
             {translate("settings.title")}
-          </SettingsDialogDescription>
+          </DialogDescriptionPrimitive>
           <aside className="flex w-52 shrink-0 flex-col rounded-md p-2">
             <div className="px-2 pb-4">
-              <SettingsDialogTitle className="pt-4 font-heading text-sm font-normal text-muted-foreground">
+              <DialogTitlePrimitive className="pt-4 font-heading text-sm font-normal text-muted-foreground">
                 {translate("settings.title")}
-              </SettingsDialogTitle>
+              </DialogTitlePrimitive>
             </div>
             <nav className="flex flex-col gap-1">
               {SECTIONS.map((section) => {

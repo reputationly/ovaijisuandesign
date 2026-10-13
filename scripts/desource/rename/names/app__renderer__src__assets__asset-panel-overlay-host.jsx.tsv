@@ -42,3 +42,4 @@ t2@1349:16	t2	translate	该绑定是缺失素材定位对话框读取界面文�
 s2@1435:13	s2	overlayState	该值是当前悬停或定位缺失素材的弹层状态。
 s2@1449:13	s2	overlayState	该值是当前悬停或定位缺失素材的弹层状态。
 io2@1476:13	io2	intersectionObserver	该对象观察锚点是否离开可见区域。
+_t2@122:27	_t2	_unusedArg	该参数未被使用，且唯一调用点只传入 asset。

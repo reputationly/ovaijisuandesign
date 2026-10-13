@@ -1,7 +1,7 @@
 key	old	new	依据
-DialogDescription$2@2:179	DialogDescription$2	SettingsDialogDescription	该导入组件为设置弹窗提供辅助描述文本。
-DialogTitle$2@2:213	DialogTitle$2	SettingsDialogTitle	该导入组件为设置弹窗提供标题文本。
-snapshot$2@59:15	snapshot$2	topbarWorkspaceSnapshot	该值是当前顶栏工作区标识与运行时的共享快照。
+SettingsDialogDescription@2:202	SettingsDialogDescription	DialogDescriptionPrimitive	vendor.js 中的 forwardRef 对话框描述原语，与本地 DialogDescription 包装组件区分。
+SettingsDialogTitle@2:259	SettingsDialogTitle	DialogTitlePrimitive	vendor.js 中的 forwardRef 对话框标题原语，与本地 DialogTitle 包装组件区分。
+topbarWorkspaceSnapshot@59:15	topbarWorkspaceSnapshot	activeRuntimeSnapshot	来源模块的快照仅保存 currentWorkspaceId 与 activeRuntime。
 t2@141:14	t2	translate	该绑定是账户删除对话框读取界面文案的翻译函数。
 t2@319:14	t2	translate	该绑定是复制信息行读取按钮文案的翻译函数。
 t2@341:14	t2	translate	该绑定是账户名称行显示校验与更新错误文案的翻译函数。

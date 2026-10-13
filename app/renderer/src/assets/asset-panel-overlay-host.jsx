@@ -119,7 +119,7 @@ function imageRows(asset) {
     },
   ];
 }
-function videoRows(asset, _t2) {
+function videoRows(asset, _unusedArg) {
   const fps = pickNumber(asset.metadata, "fps");
   const codec = pickString(asset.metadata, "codec");
   const bitRate = pickNumber(asset.metadata, "bitRate");
