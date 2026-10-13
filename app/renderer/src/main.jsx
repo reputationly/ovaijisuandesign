@@ -458,7 +458,7 @@ import "./workspace/use-home-quick-start-config.js";
 import "./chat/at.jsx";
 import "./chat/ae.jsx";
 import "./chat/use-history-rail-state.js";
-import "./chat/qs.jsx";
+import "./chat/streamdown.jsx";
 import "./media-editing/message-list-props-equal.jsx";
 import "./chat/loop-guard-ask-dock.jsx";
 import "./chat/question-dock.jsx";

@@ -9,15 +9,20 @@
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test --concurrency=1",
+    "test:desource-rename": "vitest run --config scripts/desource/rename/vitest.config.mjs",
     "typecheck": "turbo run typecheck",
     "dev": "turbo run dev --filter=@ov/desktop"
   },
   "devDependencies": {
+    "@babel/parser": "7.29.9",
+    "@babel/traverse": "7.29.8",
+    "@babel/types": "7.29.8",
+    "@types/node": "^24.0.0",
+    "globals": "17.13.0",
+    "pixelmatch": "7.2.0",
     "turbo": "^2.5.0",
     "typescript": "^5.9.0",
-    "vitest": "^3.2.0",
-    "@types/node": "^24.0.0",
-    "pixelmatch": "7.2.0"
+    "vitest": "^3.2.0"
   },
   "pnpm": {
     "overrides": {

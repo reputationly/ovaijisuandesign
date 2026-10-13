@@ -70,7 +70,7 @@ import {
 } from "./use-astra-send-gate.js";
 import { joinFilePath } from "../assets/use-file-explorer-canvas-integration.js";
 import { MarkdownAudio } from "../media-editing/markdown-audio.jsx";
-import { Qs } from "../chat/qs.jsx";
+import { Streamdown } from "../chat/streamdown.jsx";
 function resolveMediaUrl(relativeUrl) {
   if (!relativeUrl) return void 0;
   if (/^https?:\/\//.test(relativeUrl)) return relativeUrl;
@@ -1687,7 +1687,7 @@ export function MarkdownContent({
       value={preparedCanvasNodeReferences.references}
     >
       <div className={markdownClassName}>
-        <Qs
+        <Streamdown
           mode={isStreaming ? "streaming" : "static"}
           isAnimating={isStreaming}
           parseIncompleteMarkdown={isStreaming}
@@ -1708,7 +1708,7 @@ export function MarkdownContent({
           plugins={stablePlugins}
         >
           {preparedCanvasNodeReferences.content}
-        </Qs>
+        </Streamdown>
       </div>
     </CanvasNodeReferencesContext.Provider>
   );
