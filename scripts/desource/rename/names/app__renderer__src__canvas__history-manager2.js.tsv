@@ -1,2 +1,3 @@
 key	old	new	依据
 Tt@3:10	Tt	createHistoryStore	来源函数用初始状态构造可订阅、可读写并支持历史操作的状态存储器。
+export:HistoryManager2	HistoryManager2	HistoryManager	该画布历史管理器类的导出名带数字后缀；只登记将其恢复为 HistoryManager 的建议，本批不改导出名。
