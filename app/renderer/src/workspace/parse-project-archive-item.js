@@ -12,14 +12,14 @@ import {
 import { FolderOpen } from "../media-editing/package.jsx";
 function parseProjectArchiveItem(value) {
   if (!isRecord(value)) return void 0;
-  const id2 = configIdentifier(value.id);
+  const id = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
   const action = isRecord(value.action) ? value.action : null;
   const actionType = action && nonEmptyString(action.type);
   const archiveUrl = action && normalizeConfiguredAssetUrl(action.archive_url);
   const label = action && parseLocalizedText(action.cta);
   if (
-    !id2 ||
+    !id ||
     !title ||
     actionType !== "project-archive" ||
     !archiveUrl ||
@@ -35,7 +35,7 @@ function parseProjectArchiveItem(value) {
     parseOptionalLocalizedText(value.attribution) ??
     parseOptionalLocalizedText(value.author);
   return {
-    id: id2,
+    id,
     title: title.zh,
     titleEn: title.en,
     ...(description
@@ -64,9 +64,9 @@ function parseProjectArchiveItem(value) {
   };
 }
 export function parseProjectArchiveSection(value) {
-  const id2 = configIdentifier(value.id);
+  const id = configIdentifier(value.id);
   const title = parseLocalizedText(value.title);
-  if (!id2 || !title || value.showcase !== true) return void 0;
+  if (!id || !title || value.showcase !== true) return void 0;
   const items = Array.isArray(value.items)
     ? uniqueBy(
         value.items
@@ -82,7 +82,7 @@ export function parseProjectArchiveSection(value) {
   return {
     kind: "project-archive",
     showcase: true,
-    id: id2,
+    id,
     name: title.zh,
     nameEn: title.en,
     icon: FolderOpen,
@@ -151,7 +151,7 @@ export function buildFeaturedItems(scenes) {
     ? scenes.filter(({ scene }) => !BRAND_ADVERTISING_SCENE_IDS.has(scene.id))
     : scenes;
   const allSceneEntries = featuredScenes.flatMap(
-    ({ entries: entries2 }) => entries2,
+    ({ entries }) => entries,
   );
   const explicitlyFeaturedItems = allSceneEntries
     .filter(({ featured }) => featured)

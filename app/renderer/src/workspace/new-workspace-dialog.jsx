@@ -1,5 +1,5 @@
 // new-workspace-dialog.jsx
-import { AlertTriangle, ChevronDown, isWorkspaceFolderMissingError, jsxRuntimeExports, Plus, reactExports, resolveNewProjectPreferences, updateNewProjectPreferences, useNewProjectFolder, usePlatform, useStorage, useTranslation, workspaceLog, X$7 as X } from "../vendor.js";
+import { AlertTriangle, ChevronDown, isWorkspaceFolderMissingError, jsxRuntimeExports, Plus, reactExports, resolveNewProjectPreferences, updateNewProjectPreferences, useNewProjectFolder, usePlatform, useStorage, useTranslation, workspaceLog, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   DropdownMenu,
@@ -32,7 +32,7 @@ import { TRACK_EVENTS } from "../infra/track-events.js";
 import { folderNameFromPath } from "../generation/use-model-catalog-scope-key.js";
 import { useProjects } from "./normalize-project-entries.js";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { LocalFolderIcon } from "./home-service.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { Switch } from "../generation/select-content.jsx";
@@ -47,10 +47,10 @@ function ProjectSelectRow({
   onChange,
   className,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [createDialogOpen, setCreateDialogOpen] = reactExports.useState(false);
-  const selected2 = projects.find(
-    (project2) => project2.id === selectedProjectId,
+  const selected = projects.find(
+    (project) => project.id === selectedProjectId,
   );
   const handleCreateProject = useCreateProjectAndSelect((projectId) => {
     onChange(projectId);
@@ -73,17 +73,17 @@ function ProjectSelectRow({
               <TooltipTrigger
                 render={
                   <span className="max-w-[82px] shrink cursor-help truncate text-body-14 text-muted-foreground">
-                    {t2("project.selectRow.label")}
+                    {translate("project.selectRow.label")}
                   </span>
                 }
               />
               <TooltipContent side="top" className="max-w-64">
-                {t2("project.selectRow.hint")}
+                {translate("project.selectRow.hint")}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <span className="min-w-0 flex-1 truncate whitespace-nowrap text-body-14 text-muted-foreground">
-            {selected2?.name ?? t2("project.selectRow.none")}
+            {selected?.name ?? translate("project.selectRow.none")}
           </span>
         </span>
       </div>
@@ -93,9 +93,9 @@ function ProjectSelectRow({
             className="flex shrink-0 items-center gap-0.5 rounded-sm px-1.5 py-1 text-body-14 font-medium whitespace-nowrap text-brand-accent transition-colors hover:bg-brand-accent/10"
             data-action-ui-id="new-workspace-project-pick"
           >
-            {selected2
-              ? t2("project.selectRow.change")
-              : t2("project.selectRow.pick")}
+            {selected
+              ? translate("project.selectRow.change")
+              : translate("project.selectRow.pick")}
             <ChevronDown size={13} strokeWidth={1.5} aria-hidden="true" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -111,57 +111,57 @@ function ProjectSelectRow({
               className="text-[13px] font-normal text-foreground/70"
             >
               <Plus size={16} strokeWidth={1.5} />
-              <span>{t2("project.create.trigger")}</span>
+              <span>{translate("project.create.trigger")}</span>
             </DropdownMenuItem>
             {projects.length === 0 ? (
               <p className="px-2.5 py-1.5 whitespace-nowrap text-foreground/70">
-                {t2("project.noProjects")}
+                {translate("project.noProjects")}
               </p>
             ) : (
               <>
                 <DropdownMenuSeparator />
                 <div className="max-h-56 overflow-y-auto">
-                  {projects.map((project2) => (
+                  {projects.map((project) => (
                     <DropdownMenuItem
-                      key={project2.id}
-                      onClick={() => onChange(project2.id)}
+                      key={project.id}
+                      onClick={() => onChange(project.id)}
                       className="text-[13px] font-normal text-foreground/70"
                     >
-                      {project2.kind === "team" ? (
+                      {project.kind === "team" ? (
                         <Users size={14} strokeWidth={1.5} />
                       ) : (
                         <Folder size={14} strokeWidth={1.5} />
                       )}
                       <span className="min-w-0 flex-1 truncate">
-                        {project2.name}
+                        {project.name}
                       </span>
                     </DropdownMenuItem>
                   ))}
                 </div>
               </>
             )}
-            {selected2 ? (
+            {selected ? (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => onChange(void 0)}
                   className="text-[13px] font-normal text-foreground/70"
                 >
-                  {t2("project.selectRow.clear")}
+                  {translate("project.selectRow.clear")}
                 </DropdownMenuItem>
               </>
             ) : null}
           </DropdownMenuContent>
         </DropdownMenu>
-        {selected2 ? (
+        {selected ? (
           <button
             type="button"
             onClick={() => onChange(void 0)}
             className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
-            aria-label={t2("common.clear")}
+            aria-label={translate("common.clear")}
             data-action-ui-id="new-workspace-project-clear"
           >
-            <X size={14} strokeWidth={1.5} />
+            <CloseIcon size={14} strokeWidth={1.5} />
           </button>
         ) : null}
       </div>
@@ -180,13 +180,13 @@ export function NewWorkspaceDialog({
   onConfirm,
   defaultProjectId,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const settingsDialog = useOptionalSettingsDialog();
-  const platform2 = usePlatform();
-  const [config2, setConfig] = useStorage("global.config");
+  const platform = usePlatform();
+  const [config, setConfig] = useStorage("global.config");
   const { loadUserMemory: rememberedMemory } =
-    resolveNewProjectPreferences(config2);
-  const [name2, setName] = reactExports.useState("");
+    resolveNewProjectPreferences(config);
+  const [newWorkspaceName, setName] = reactExports.useState("");
   const submittingRef = reactExports.useRef(false);
   const [submitting, setSubmitting] = reactExports.useState(false);
   const [loadUserMemory, setLoadUserMemory] =
@@ -205,13 +205,13 @@ export function NewWorkspaceDialog({
     reactExports.useState(false);
   const { ensureGranted, dialog: permissionDialog } = useFolderPermissionGate();
   const composingRef = reactExports.useRef(false);
-  const trimmed = truncateProjectName(name2);
+  const trimmed = truncateProjectName(newWorkspaceName);
   const handleLoadUserMemoryChange = reactExports.useCallback(
-    (next2) => {
-      setLoadUserMemory(next2);
+    (next) => {
+      setLoadUserMemory(next);
       setConfig((prev) =>
         updateNewProjectPreferences(prev, {
-          loadUserMemory: next2,
+          loadUserMemory: next,
         }),
       );
     },
@@ -219,8 +219,8 @@ export function NewWorkspaceDialog({
   );
   const refreshDataDirectoryStatus = reactExports.useCallback(() => {
     let cancelled = false;
-    const service2 = getDataDirectoryMainService();
-    Promise.all([service2.getStatus(), service2.getProjectsRoot()])
+    const service = getDataDirectoryMainService();
+    Promise.all([service.getStatus(), service.getProjectsRoot()])
       .then(([status, nextProjectsRoot]) => {
         if (!cancelled) {
           setDataDirectoryStatus(status);
@@ -256,7 +256,7 @@ export function NewWorkspaceDialog({
       );
     };
   }, [open, refreshDataDirectoryStatus]);
-  const reset2 = reactExports.useCallback(() => {
+  const reset = reactExports.useCallback(() => {
     setName("");
     setLoadUserMemory(rememberedMemory);
     setDataDirectoryStatus(null);
@@ -265,21 +265,21 @@ export function NewWorkspaceDialog({
   }, [defaultProjectId, rememberedMemory]);
   reactExports.useEffect(() => {
     if (!open) {
-      reset2();
+      reset();
       return;
     }
     setLoadUserMemory(rememberedMemory);
-  }, [open, reset2, rememberedMemory]);
+  }, [open, reset, rememberedMemory]);
   reactExports.useEffect(() => {
     if (open) setProjectId(defaultProjectId);
   }, [open, defaultProjectId]);
   const handlePickFolder = reactExports.useCallback(async () => {
-    const showOpenDialog = platform2.fs.showOpenDialog;
+    const showOpenDialog = platform.fs.showOpenDialog;
     if (!showOpenDialog) return;
     const picked = await showOpenDialog({
       directory: true,
       multiple: false,
-      title: t2("workspace.newProject.selectFolderTitle", "选择工作区文件夹"),
+      title: translate("workspace.newProject.selectFolderTitle", "选择工作区文件夹"),
       defaultPath: folderPath ?? projectsRoot,
     }).catch(() => void 0);
     const pickedPath = picked?.[0];
@@ -296,20 +296,20 @@ export function NewWorkspaceDialog({
     }
     setFolderPath(pickedPath);
   }, [
-    platform2.fs,
-    t2,
+    platform.fs,
+    translate,
     ensureGranted,
     folderPath,
     projectsRoot,
     setFolderPath,
   ]);
   const handleConfirm = reactExports.useCallback(async () => {
-    const storageBlocked2 =
+    const storageBlocked =
       !folderPath &&
       (dataDirectoryStatus?.state === "pending_restart" ||
         (dataDirectoryStatus?.state === "configured_location_unavailable" &&
           !allowDataDirectoryFallback));
-    if (!trimmed || storageBlocked2 || submittingRef.current) return;
+    if (!trimmed || storageBlocked || submittingRef.current) return;
     if (!folderPath && allowDataDirectoryFallback) {
       trackEvent(TRACK_EVENTS.DATA_DIRECTORY_FALLBACK_CREATE, {
         outcome: "temporary_opt_in",
@@ -336,7 +336,7 @@ export function NewWorkspaceDialog({
           : {}),
       });
       if (result === false) return;
-      reset2();
+      reset();
       onOpenChange(false);
     } catch (error) {
       workspaceLog.error("new-workspace: create-failed", {
@@ -344,15 +344,15 @@ export function NewWorkspaceDialog({
       });
       dedupedToast.error(
         isWorkspaceFolderMissingError(error)
-          ? t2("home.workspaceFolderMissing")
-          : t2("home.workspaceOpenFailed"),
+          ? translate("home.workspaceFolderMissing")
+          : translate("home.workspaceOpenFailed"),
       );
     } finally {
       submittingRef.current = false;
       setSubmitting(false);
     }
   }, [
-    t2,
+    translate,
     trimmed,
     folderPath,
     dataDirectoryStatus?.state,
@@ -361,13 +361,13 @@ export function NewWorkspaceDialog({
     projectId,
     onConfirm,
     onOpenChange,
-    reset2,
+    reset,
   ]);
-  const handleKeyDown2 = reactExports.useCallback(
-    (e2) => {
-      if (composingRef.current || e2.nativeEvent.isComposing) return;
-      if (e2.key === "Enter") {
-        e2.preventDefault();
+  const handleKeyDown = reactExports.useCallback(
+    (keyboardEvent) => {
+      if (composingRef.current || keyboardEvent.nativeEvent.isComposing) return;
+      if (keyboardEvent.key === "Enter") {
+        keyboardEvent.preventDefault();
         handleConfirm();
       }
     },
@@ -375,15 +375,15 @@ export function NewWorkspaceDialog({
   );
   const handleOpenChange = reactExports.useCallback(
     (nextOpen) => {
-      if (!nextOpen) reset2();
+      if (!nextOpen) reset();
       onOpenChange(nextOpen);
     },
-    [onOpenChange, reset2],
+    [onOpenChange, reset],
   );
   const displayedFolderPath =
     folderPath ??
     projectsRoot ??
-    t2("workspace.newProject.locationLoading", "正在读取…");
+    translate("workspace.newProject.locationLoading", "正在读取…");
   const storageBlocked =
     !folderPath &&
     (dataDirectoryStatus?.state === "pending_restart" ||
@@ -404,32 +404,32 @@ export function NewWorkspaceDialog({
           >
             <DialogHeader className="mb-4">
               <DialogTitle className="text-body-14 leading-5 font-medium tracking-normal">
-                {t2("topbar.newProject.title")}
+                {translate("topbar.newProject.title")}
               </DialogTitle>
               <DialogDescription className="sr-only">
-                {t2("topbar.newProject.description")}
+                {translate("topbar.newProject.description")}
               </DialogDescription>
             </DialogHeader>
             <div
               className="relative min-w-0 overflow-visible"
               data-action-ui-id="new-workspace-fields"
             >
-              <Input3
+              <Input
                 id="new-workspace-name"
                 data-action-ui-id="new-workspace-name-input"
                 className="creation-dialog-name-input relative z-2 h-12 rounded-lg px-3 text-body-15 font-normal tracking-normal"
                 autoFocus={true}
-                value={name2}
-                onChange={(e2) => setName(e2.target.value)}
+                value={newWorkspaceName}
+                onChange={(changeEvent) => setName(changeEvent.target.value)}
                 onCompositionStart={() => {
                   composingRef.current = true;
                 }}
                 onCompositionEnd={() => {
                   composingRef.current = false;
                 }}
-                onKeyDown={handleKeyDown2}
-                aria-label={t2("topbar.newProject.placeholder")}
-                placeholder={t2("topbar.newProject.placeholder")}
+                onKeyDown={handleKeyDown}
+                aria-label={translate("topbar.newProject.placeholder")}
+                placeholder={translate("topbar.newProject.placeholder")}
                 autoComplete="off"
                 maxLength={PROJECT_NAME_MAX_CHARS}
               />
@@ -445,7 +445,7 @@ export function NewWorkspaceDialog({
                     <LocalFolderIcon className="size-4 shrink-0" />
                     <span className="flex min-w-0 flex-1 items-baseline gap-2 overflow-hidden">
                       <span className="max-w-[82px] shrink truncate text-body-14 text-muted-foreground">
-                        {t2("workspace.newProject.locationLabel")}
+                        {translate("workspace.newProject.locationLabel")}
                       </span>
                       <span
                         className="min-w-0 flex-1 truncate whitespace-nowrap text-body-14 text-muted-foreground"
@@ -465,7 +465,7 @@ export function NewWorkspaceDialog({
                       className="shrink-0 rounded-sm px-1.5 py-1 text-body-14 font-medium whitespace-nowrap text-brand-accent transition-colors hover:bg-brand-accent/10"
                       data-action-ui-id="new-workspace-folder-pick"
                     >
-                      {t2("workspace.newProject.changeFolder")}
+                      {translate("workspace.newProject.changeFolder")}
                     </button>
                     {folderPath ? (
                       <button
@@ -473,9 +473,9 @@ export function NewWorkspaceDialog({
                         onClick={() => setFolderPath(void 0)}
                         className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
                         data-action-ui-id="new-workspace-folder-clear"
-                        aria-label={t2("common.clear", "清除")}
+                        aria-label={translate("common.clear", "清除")}
                       >
-                        <X size={14} strokeWidth={1.5} />
+                        <CloseIcon size={14} strokeWidth={1.5} />
                       </button>
                     ) : null}
                   </div>
@@ -502,10 +502,10 @@ export function NewWorkspaceDialog({
                   />
                   <div className="min-w-0 space-y-1">
                     <p className="text-xs font-medium">
-                      {t2("workspace.newProject.storageFallbackTitle")}
+                      {translate("workspace.newProject.storageFallbackTitle")}
                     </p>
                     <p className="text-xs/relaxed">
-                      {t2("workspace.newProject.storageFallbackDescription")}
+                      {translate("workspace.newProject.storageFallbackDescription")}
                     </p>
                     <p
                       className="truncate text-xs text-muted-foreground"
@@ -521,16 +521,16 @@ export function NewWorkspaceDialog({
                     className="text-xs font-medium underline underline-offset-2"
                     onClick={() => settingsDialog?.openSettings("storage")}
                   >
-                    {t2("settings.storage.openSettings")}
+                    {translate("settings.storage.openSettings")}
                   </button>
                   <div className="flex items-center gap-2">
                     <span className="text-xs">
-                      {t2("workspace.newProject.useTemporaryDefault")}
+                      {translate("workspace.newProject.useTemporaryDefault")}
                     </span>
                     <Switch
                       checked={allowDataDirectoryFallback}
                       onCheckedChange={setAllowDataDirectoryFallback}
-                      aria-label={t2(
+                      aria-label={translate(
                         "workspace.newProject.useTemporaryDefault",
                       )}
                       data-action-ui-id="new-workspace-storage-fallback-toggle"
@@ -547,13 +547,13 @@ export function NewWorkspaceDialog({
                   className="mt-0.5 shrink-0"
                 />
                 <p className="text-xs/relaxed">
-                  {t2("workspace.newProject.storageRestartRequired")}
+                  {translate("workspace.newProject.storageRestartRequired")}
                 </p>
               </div>
             ) : null}
             <section className="mt-5 border-t border-border-soft pt-3">
               <h3 className="mb-2 text-body-14 leading-5 font-normal text-muted-foreground">
-                {t2("topbar.newProject.settingsTitle")}
+                {translate("topbar.newProject.settingsTitle")}
               </h3>
               <div className="grid grid-cols-1 gap-1">
                 <div
@@ -562,16 +562,16 @@ export function NewWorkspaceDialog({
                 >
                   <div className="min-w-0 flex-1">
                     <div className="text-body-14 leading-5 font-normal">
-                      {t2("topbar.newProject.loadUserMemory.label")}
+                      {translate("topbar.newProject.loadUserMemory.label")}
                     </div>
                     <p className="mt-0.5 text-xs leading-4 text-muted-foreground">
-                      {t2("topbar.newProject.loadUserMemory.description")}
+                      {translate("topbar.newProject.loadUserMemory.description")}
                     </p>
                   </div>
                   <Switch
                     checked={loadUserMemory}
                     onCheckedChange={handleLoadUserMemoryChange}
-                    aria-label={t2("topbar.newProject.loadUserMemory.label")}
+                    aria-label={translate("topbar.newProject.loadUserMemory.label")}
                     data-action-ui-id="new-workspace-load-user-memory-toggle"
                   />
                 </div>
@@ -584,7 +584,7 @@ export function NewWorkspaceDialog({
               onClick={() => handleOpenChange(false)}
               className="creation-dialog-action-button min-w-20 font-medium"
             >
-              {t2("common.cancel")}
+              {translate("common.cancel")}
             </Button>
             <Button
               data-action-ui-id="new-workspace-confirm"
@@ -592,7 +592,7 @@ export function NewWorkspaceDialog({
               onClick={handleConfirm}
               className="creation-dialog-action-button min-w-22 font-medium"
             >
-              {t2("topbar.newProject.create")}
+              {translate("topbar.newProject.create")}
             </Button>
           </DialogFooter>
         </DialogContent>

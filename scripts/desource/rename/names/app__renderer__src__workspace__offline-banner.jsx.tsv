@@ -1,0 +1,4 @@
+key	old	new	依据
+isMac2@43:9	isMac2	isMac	去掉打包器防重名追加的后缀，恢复原名 isMac，即该绑定持有的值。
+os2@42:29	os2	os	去掉打包器防重名追加的后缀，恢复原名 os，即该绑定持有的值。
+t2@18:14	t2	translate	useTranslation 返回的翻译函数。

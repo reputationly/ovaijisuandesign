@@ -1,0 +1,54 @@
+key	old	new	依据
+a2@365:14	a2	leftEntry	结合所在函数体的实际用途命名，说明该绑定持有的 leftEntry。
+b3@365:18	b3	rightEntry	结合所在函数体的实际用途命名，说明该绑定持有的 rightEntry。
+entries2@145:14	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+index2@360:19	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@374:11	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@683:11	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@834:23	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+isActive2@904:9	isActive2	isActive	去掉打包器防重名追加的后缀，恢复原名 isActive，即该绑定持有的值。
+key2@307:11	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@318:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@377:15	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+match2@978:11	match2	match	正则匹配结果。
+mode2@595:6	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+mode2@621:6	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+name2@633:12	name2	projectName	用户输入或提交的项目名称。
+next2@532:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@553:19	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@560:19	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@945:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@953:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@986:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+observer2@421:11	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+path2@376:18	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@526:23	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+platform2@136:9	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+position2@729:7	position2	position	当前文本扫描位置。
+position2@787:7	position2	position	当前文本扫描位置。
+position2@992:22	position2	position	当前文本扫描位置。
+previous2@211:34	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@224:34	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@531:35	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@541:38	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@552:39	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@559:39	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@575:36	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@599:34	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@623:34	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@754:26	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@808:38	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@838:37	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@944:27	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@984:29	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@985:29	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@999:34	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+project2@375:16	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。
+queryClient2@142:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+selected2@1298:21	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+snapshot2@823:13	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+t2@135:14	t2	translate	useTranslation 返回的翻译函数。
+token2@170:11	token2	token	去掉打包器防重名追加的后缀，恢复原名 token，即该绑定持有的值。
+workspaceId2@350:13	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
+workspaceId2@505:13	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
+workspaceId2@913:17	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
