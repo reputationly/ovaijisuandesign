@@ -1,0 +1,4 @@
+t2@33:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+keyword2@34:10	keyword2	keyword	去掉打包器防重名追加的后缀，恢复原名 keyword，即该绑定持有的值。
+candidates2@35:9	candidates2	candidates	去掉打包器防重名追加的后缀，恢复原名 candidates，即该绑定持有的值。
+project2@78:30	project2	project	去掉打包器防重名追加的后缀，恢复原名 project，即该绑定持有的值。

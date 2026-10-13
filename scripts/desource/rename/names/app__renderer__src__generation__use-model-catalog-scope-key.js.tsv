@@ -1,0 +1,7 @@
+ts2@108:36	ts2	ts	去掉打包器防重名追加的后缀，恢复原名 ts，即该绑定持有的值。
+d2@109:9	d2	date	该绑定持有 date 所表示的值，按其实际用途命名。
+path2@26:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@41:6	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+selected2@113:38	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。
+theme2@128:30	theme2	theme	去掉打包器防重名追加的后缀，恢复原名 theme，即该绑定持有的值。
+mode2@144:42	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。

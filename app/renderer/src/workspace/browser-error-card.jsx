@@ -5,41 +5,41 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { BROWSER_ERROR_ILLUSTRATION_URL } from "./shortcut-hint.jsx";
 import { PageStateView } from "../assets/page-state-view.jsx";
 
-function classifyBrowserLoadError(code2) {
-  if (code2 === -105 || code2 === -137 || code2 === -803) return "dns";
-  if (code2 === -106) return "offline";
-  if (code2 === -7 || code2 === -118) return "timeout";
-  if ([-111, -130, -131, -136, -115].includes(code2)) return "proxy";
-  if (code2 <= -200 && code2 > -300) return "certificate";
-  if ([-107, -113, -117].includes(code2)) return "secureConnection";
-  if ([-100, -101, -102, -103, -104, -109].includes(code2)) return "connection";
-  if ([-20, -21, -22, -27, -138].includes(code2)) return "blocked";
-  if ([-300, -301, -302].includes(code2)) return "address";
-  if (code2 === -310) return "redirect";
+function classifyBrowserLoadError(code) {
+  if (code === -105 || code === -137 || code === -803) return "dns";
+  if (code === -106) return "offline";
+  if (code === -7 || code === -118) return "timeout";
+  if ([-111, -130, -131, -136, -115].includes(code)) return "proxy";
+  if (code <= -200 && code > -300) return "certificate";
+  if ([-107, -113, -117].includes(code)) return "secureConnection";
+  if ([-100, -101, -102, -103, -104, -109].includes(code)) return "connection";
+  if ([-20, -21, -22, -27, -138].includes(code)) return "blocked";
+  if ([-300, -301, -302].includes(code)) return "address";
+  if (code === -310) return "redirect";
   return "unknown";
 }
 
-function browserErrorAllowsExternalOpen(code2, url2) {
-  const category = classifyBrowserLoadError(code2);
+function browserErrorAllowsExternalOpen(code, url) {
+  const category = classifyBrowserLoadError(code);
   if (
     ["certificate", "secureConnection", "blocked", "address"].includes(category)
   )
     return false;
   try {
-    return ["https:", "http:"].includes(new URL(url2).protocol);
+    return ["https:", "http:"].includes(new URL(url).protocol);
   } catch {
     return false;
   }
 }
 
-function browserErrorSteps(code2, url2) {
-  const category = classifyBrowserLoadError(code2);
+function browserErrorSteps(code, url) {
+  const category = classifyBrowserLoadError(code);
   const steps = [];
   if (
     ["dns", "timeout", "connection", "redirect", "unknown"].includes(
       category,
     ) &&
-    browserErrorAllowsExternalOpen(code2, url2)
+    browserErrorAllowsExternalOpen(code, url)
   ) {
     steps.push({
       key: "workspace.browser.error.visitExternal",
@@ -53,7 +53,7 @@ function browserErrorSteps(code2, url2) {
 }
 
 export function BrowserErrorCard({ error, onOpenExternal }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const category = classifyBrowserLoadError(error.code);
   const steps = browserErrorSteps(error.code, error.url);
   return (
@@ -92,10 +92,10 @@ export function BrowserErrorCard({ error, onOpenExternal }) {
                   </span>
                   <div className="min-w-0 space-y-2">
                     <h2 className="text-xl font-semibold leading-snug tracking-tight">
-                      {t2(`workspace.browser.error.${category}.title`)}
+                      {translate(`workspace.browser.error.${category}.title`)}
                     </h2>
                     <p className="text-sm font-normal leading-6 text-muted-foreground">
-                      {t2(`workspace.browser.error.${category}.description`)}
+                      {translate(`workspace.browser.error.${category}.description`)}
                     </p>
                   </div>
                 </div>
@@ -104,16 +104,16 @@ export function BrowserErrorCard({ error, onOpenExternal }) {
                 <div className="mt-5 text-left text-sm leading-6">
                   <div className="border-t border-border/60 pt-5">
                     <h3 className="mb-4 font-semibold text-foreground">
-                      {t2("workspace.browser.error.nextStep")}
+                      {translate("workspace.browser.error.nextStep")}
                     </h3>
                     <ol className="space-y-5">
-                      {steps.map((step, index2) => (
+                      {steps.map((step, index) => (
                         <li key={step.key} className="flex items-start gap-3">
                           <span
                             aria-hidden="true"
                             className="flex h-6 w-4 shrink-0 items-center justify-center text-sm font-semibold tabular-nums text-foreground/80"
                           >
-                            {index2 + 1}
+                            {index + 1}
                           </span>
                           {step.action === "external" ? (
                             <button
@@ -121,7 +121,7 @@ export function BrowserErrorCard({ error, onOpenExternal }) {
                               onClick={onOpenExternal}
                               className="inline-flex min-w-0 cursor-pointer items-center gap-1.5 rounded-sm text-left font-medium text-foreground underline decoration-foreground/40 underline-offset-4 transition-colors hover:decoration-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             >
-                              {t2(step.key)}
+                              {translate(step.key)}
                               <ExternalLink
                                 className="size-4 shrink-0"
                                 aria-hidden="true"
@@ -129,7 +129,7 @@ export function BrowserErrorCard({ error, onOpenExternal }) {
                             </button>
                           ) : (
                             <span className="min-w-0 text-foreground/70">
-                              {t2(step.key)}
+                              {translate(step.key)}
                             </span>
                           )}
                         </li>
@@ -143,7 +143,7 @@ export function BrowserErrorCard({ error, onOpenExternal }) {
           />
           <details className="mt-6 border-t border-border/60 pt-4 text-xs text-muted-foreground">
             <summary className="cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              {t2("workspace.browser.error.details")}
+              {translate("workspace.browser.error.details")}
             </summary>
             <code className="mt-3 block break-all whitespace-pre-wrap rounded-md bg-muted/50 p-3 leading-5">
               {error.description || "UNKNOWN"}

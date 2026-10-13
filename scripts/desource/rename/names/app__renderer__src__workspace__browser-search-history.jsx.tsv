@@ -1,0 +1,37 @@
+X@2:55	X	CloseIcon	该绑定持有 CloseIcon 所表示的值，按其实际用途命名。
+t2@7:15	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@8:32	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@10:31	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@12:27	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@14:29	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@16:33	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@18:26	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@20:35	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@22:31	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@24:29	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@26:23	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@28:24	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@30:26	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@32:21	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@33:28	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@35:29	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@37:29	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@39:23	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@41:26	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@43:22	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@45:22	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@48:50	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@53:45	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@111:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+id2@231:48	id2	id	去掉打包器防重名追加的后缀，恢复原名 id，即该绑定持有的值。
+code2@48:54	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+count2@54:9	count2	count	去掉打包器防重名追加的后缀，恢复原名 count，即该绑定持有的值。
+onRemove2@107:13	onRemove2	onRemove	去掉打包器防重名追加的后缀，恢复原名 onRemove，即该绑定持有的值。
+previous2@192:10	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+entries2@196:10	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+tab2@197:15	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+next2@207:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+tab2@205:36	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@206:48	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@216:16	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+current2@232:17	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。

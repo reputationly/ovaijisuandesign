@@ -1,0 +1,25 @@
+TOOL_LABEL_DEFINITIONS$1@7:36	TOOL_LABEL_DEFINITIONS$1	importedToolLabelDefinitions	原名去后缀后发生作用域冲突；该绑定实际表示 importedToolLabelDefinitions。
+t2@176:48	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+msg@206:28	msg	message	该绑定持有 message 所表示的值，按其实际用途命名。
+workspaceId2@20:40	workspaceId2	workspaceId	去掉打包器防重名追加的后缀，恢复原名 workspaceId，即该绑定持有的值。
+history2@21:10	history2	connectionHistory	原名去后缀后发生作用域冲突；该绑定实际表示 connectionHistory。
+current2@26:17	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+entries2@47:29	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+map3@48:9	map3	map	去掉打包器防重名追加的后缀，恢复原名 map，即该绑定持有的值。
+key2@50:16	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+clearTimer2@69:9	clearTimer2	clearTimer	去掉打包器防重名追加的后缀，恢复原名 clearTimer，即该绑定持有的值。
+previous2@89:30	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+activeIds2@89:41	activeIds2	activeIds	去掉打包器防重名追加的后缀，恢复原名 activeIds，即该绑定持有的值。
+next2@91:9	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+previous2@102:15	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+state2@107:60	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+previous2@108:23	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+activeIds2@124:11	activeIds2	activeIds	去掉打包器防重名追加的后缀，恢复原名 activeIds，即该绑定持有的值。
+message2@126:15	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+previous2@129:15	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@130:23	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+toolName2@170:41	toolName2	toolName	去掉打包器防重名追加的后缀，恢复原名 toolName，即该绑定持有的值。
+toolName2@173:33	toolName2	toolName	去掉打包器防重名追加的后缀，恢复原名 toolName，即该绑定持有的值。
+toolName2@176:37	toolName2	toolName	去掉打包器防重名追加的后缀，恢复原名 toolName，即该绑定持有的值。
+messages2@205:35	messages2	messages	去掉打包器防重名追加的后缀，恢复原名 messages，即该绑定持有的值。
+name2@208:11	name2	toolName	原名去后缀后发生作用域冲突；该绑定实际表示 toolName。

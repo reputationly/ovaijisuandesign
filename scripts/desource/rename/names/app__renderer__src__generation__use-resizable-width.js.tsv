@@ -1,0 +1,10 @@
+e2@78:6	e2	pointerEvent	该绑定持有 pointerEvent 所表示的值，按其实际用途命名。
+ev@86:23	ev	pointerEvent	该绑定持有 pointerEvent 所表示的值，按其实际用途命名。
+min2@3:23	min2	min	去掉打包器防重名追加的后缀，恢复原名 min，即该绑定持有的值。
+max2@3:29	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
+reset2@115:9	reset2	reset	去掉打包器防重名追加的后缀，恢复原名 reset，即该绑定持有的值。
+persist2@29:6	persist2	persist	去掉打包器防重名追加的后缀，恢复原名 persist，即该绑定持有的值。
+next2@64:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+previous2@66:15	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+next2@70:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@91:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。

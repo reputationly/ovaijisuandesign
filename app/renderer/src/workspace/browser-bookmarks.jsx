@@ -2,19 +2,19 @@
 import {
   CDN_BROWSER_START_ICON,
   ChevronDown,
-  Globe2,
+  Globe2 as Globe,
   Palette,
   reactExports,
   Shuffle,
   TAB_CONTENT_ENTER_CLASS_NAME,
   useTranslation,
-  X$7 as X,
+  X$7 as CloseIcon,
 } from "../vendor.js";
 import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Bookmark,
-  Building2,
+  Building2 as Building,
   Clapperboard,
   Megaphone,
 } from "../media-editing/package.jsx";
@@ -23,7 +23,7 @@ import { BrowserSearchHistory } from "./browser-search-history.jsx";
 import { useTheme } from "../generation/use-model-catalog-scope-key.js";
 import { Button } from "../infra/dialog-content.jsx";
 import { EnterIcon } from "./home-service.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import {
   CDN_BROWSER_INSPIRATION_FALLBACK,
   cdnAssetFile,
@@ -39,27 +39,27 @@ function groupBrowserBookmarks(bookmarks) {
           (folder) => typeof folder === "string" && folder.trim().length > 0,
         )
       : [];
-    const id2 = JSON.stringify(folders);
-    let group = groups.get(id2);
+    const id = JSON.stringify(folders);
+    let group = groups.get(id);
     if (!group) {
       group = {
-        id: id2,
+        id,
         folders,
         bookmarks: [],
       };
-      groups.set(id2, group);
+      groups.set(id, group);
     }
     group.bookmarks.push(bookmark);
   }
   return [...groups.values()];
 }
 function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const groups = reactExports.useMemo(
     () =>
       groupBrowserBookmarks(bookmarks).sort(
-        (a2, b3) =>
-          Number(a2.folders.length > 0) - Number(b3.folders.length > 0),
+        (leftGroup, rightGroup) =>
+          Number(leftGroup.folders.length > 0) - Number(rightGroup.folders.length > 0),
       ),
     [bookmarks],
   );
@@ -72,7 +72,7 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
     groups.find((group) => group.id === selectedGroupId)?.id ??
     groups[0]?.id ??
     null;
-  const ungroupedLabel = t2("workspace.browser.ungroupedBookmarks", "默认收藏");
+  const ungroupedLabel = translate("workspace.browser.ungroupedBookmarks", "默认收藏");
   const groupLabels = groups.map((group) => {
     const label = group.folders.length
       ? group.folders.join(" / ")
@@ -93,46 +93,46 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
     setSelectedGroupId(activeGroupId);
   }, [activeGroupId]);
   reactExports.useEffect(() => {
-    const list2 = tabListRef.current;
+    const list = tabListRef.current;
     const activeTab =
-      list2?.querySelectorAll('[role="tab"]')[
+      list?.querySelectorAll('[role="tab"]')[
         groups.findIndex((group) => group.id === activeGroupId)
       ];
-    if (!list2 || !activeTab) return;
-    const viewport = list2.getBoundingClientRect();
-    const tab2 = activeTab.getBoundingClientRect();
-    if (tab2.left < viewport.left)
-      list2.scrollLeft += tab2.left - viewport.left;
-    else if (tab2.right > viewport.right)
-      list2.scrollLeft += tab2.right - viewport.right;
+    if (!list || !activeTab) return;
+    const viewport = list.getBoundingClientRect();
+    const tab = activeTab.getBoundingClientRect();
+    if (tab.left < viewport.left)
+      list.scrollLeft += tab.left - viewport.left;
+    else if (tab.right > viewport.right)
+      list.scrollLeft += tab.right - viewport.right;
   }, [activeGroupId, groups]);
   reactExports.useLayoutEffect(() => {
-    const content2 = activeContentRef.current;
-    const frame2 = contentFrameRef.current;
-    if (!content2 || !frame2) return;
-    let active2 = true;
+    const content = activeContentRef.current;
+    const frame = contentFrameRef.current;
+    if (!content || !frame) return;
+    let active = true;
     const measure = () => {
-      if (!active2 || content2.offsetHeight === 0) return;
+      if (!active || content.offsetHeight === 0) return;
       const minimum =
-        Number.parseFloat(getComputedStyle(frame2).minHeight) || 0;
-      setContentHeight(Math.max(minimum, content2.offsetHeight));
+        Number.parseFloat(getComputedStyle(frame).minHeight) || 0;
+      setContentHeight(Math.max(minimum, content.offsetHeight));
     };
     measure();
-    const observer2 =
+    const observer =
       typeof ResizeObserver === "undefined"
         ? null
         : new ResizeObserver(measure);
-    observer2?.observe(content2);
+    observer?.observe(content);
     return () => {
-      active2 = false;
-      observer2?.disconnect();
+      active = false;
+      observer?.disconnect();
     };
   }, [activeGroupId, groups]);
   if (bookmarks.length === 0) return null;
   return (
     <section
       className="mt-10 min-w-0"
-      aria-label={t2("workspace.browser.bookmarks")}
+      aria-label={translate("workspace.browser.bookmarks")}
     >
       <div className="mb-4 flex h-9 items-center justify-start gap-2 px-1 text-sm font-medium text-foreground">
         <Icon
@@ -142,7 +142,7 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
           className="size-4 text-foreground"
         />
         <span className="text-[14px] font-medium leading-5">
-          {t2("workspace.browser.bookmarks", {
+          {translate("workspace.browser.bookmarks", {
             defaultValue: "我的书签",
           })}
         </span>
@@ -157,14 +157,14 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
         <TabsList
           activateOnFocus={true}
           ref={tabListRef}
-          aria-label={t2("workspace.browser.bookmarks")}
+          aria-label={translate("workspace.browser.bookmarks")}
           data-action-ui-id="browser-start-page-bookmark-groups"
           className="mb-3 max-w-full flex-nowrap justify-start overflow-x-auto bg-transparent p-1 [scrollbar-width:thin]"
         >
-          {groupLabels.map(({ id: id2, label, tabLabel }) => (
+          {groupLabels.map(({ id, label, tabLabel }) => (
             <TabsTrigger
-              key={id2}
-              value={id2}
+              key={id}
+              value={id}
               title={label}
               data-action-ui-id="browser-start-page-bookmark-group-tab"
               className="h-9 max-w-52 shrink-0 gap-2 rounded-lg transition-colors hover:bg-foreground/5 data-[active]:bg-foreground/10 data-[active]:shadow-none"
@@ -213,7 +213,7 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
                           />
                         ) : (
                           <Icon
-                            icon={Globe2}
+                            icon={Globe}
                             size="md"
                             className="shrink-0 text-muted-foreground"
                           />
@@ -224,15 +224,15 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
                         type="button"
                         data-action-ui-id="browser-start-page-bookmark-delete"
                         className="pointer-events-none absolute right-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-[color,background-color,opacity] hover:bg-background/80 hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"
-                        aria-label={t2("workspace.browser.deleteBookmark", {
+                        aria-label={translate("workspace.browser.deleteBookmark", {
                           defaultValue: "删除书签",
                         })}
-                        title={t2("workspace.browser.deleteBookmark", {
+                        title={translate("workspace.browser.deleteBookmark", {
                           defaultValue: "删除书签",
                         })}
                         onClick={() => onRemoveBookmark(bookmark.id)}
                       >
-                        <Icon icon={X} size="sm" />
+                        <Icon icon={CloseIcon} size="sm" />
                       </button>
                     </div>
                   ))}
@@ -245,24 +245,24 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
     </section>
   );
 }
-function inspirationRegionForLanguage(language2) {
-  return language2.toLowerCase().startsWith("zh") ? "domestic" : "overseas";
+function inspirationRegionForLanguage(language) {
+  return language.toLowerCase().startsWith("zh") ? "domestic" : "overseas";
 }
-function pickInspirationSites(sites, previous2 = []) {
+function pickInspirationSites(sites, previous = []) {
   const uniqueSites = [
     ...new Map(sites.map((site) => [site.id, site])).values(),
   ];
-  const previousIds = new Set(previous2.map((site) => site.id));
+  const previousIds = new Set(previous.map((site) => site.id));
   const fresh = uniqueSites.filter((site) => !previousIds.has(site.id));
   const repeated = uniqueSites.filter((site) => previousIds.has(site.id));
-  const selected2 = [];
+  const selected = [];
   for (const pool of [fresh, repeated]) {
-    while (pool.length > 0 && selected2.length < 4) {
-      const index2 = Math.floor(Math.random() * pool.length);
-      selected2.push(pool.splice(index2, 1)[0]);
+    while (pool.length > 0 && selected.length < 4) {
+      const index = Math.floor(Math.random() * pool.length);
+      selected.push(pool.splice(index, 1)[0]);
     }
   }
-  return selected2;
+  return selected;
 }
 const categorySiteIds = {
   domestic: {
@@ -375,17 +375,17 @@ function getBrowserInspirationCategories(region) {
   const sitesById = new Map(
     browserInspirationSites[region].map((site) => [site.id, site]),
   );
-  return categoryOrder.map((id2) => ({
-    id: id2,
-    sites: categorySiteIds[region][id2].flatMap((siteId) => {
+  return categoryOrder.map((id) => ({
+    id,
+    sites: categorySiteIds[region][id].flatMap((siteId) => {
       const site = sitesById.get(siteId);
       return site ? [site] : [];
     }),
   }));
 }
-function pickCategorizedInspirationSites(categories, previous2 = []) {
+function pickCategorizedInspirationSites(categories, previous = []) {
   const previousById = new Map(
-    previous2.map((category) => [category.id, category.sites]),
+    previous.map((category) => [category.id, category.sites]),
   );
   return categories.map((category) => ({
     id: category.id,
@@ -525,9 +525,9 @@ const browserInspirationFavicons = Object.fromEntries([
   ),
 ]);
 function BrowserInspirationTrigger({ open, panelId, onOpenChange }) {
-  const { t: t2 } = useTranslation();
-  const openLabel = t2("workspace.browser.inspiration.open", "开启今日灵感");
-  const closeLabel = t2("workspace.browser.inspiration.close", "点击收起");
+  const { t: translate } = useTranslation();
+  const openLabel = translate("workspace.browser.inspiration.open", "开启今日灵感");
+  const closeLabel = translate("workspace.browser.inspiration.close", "点击收起");
   return (
     <Button
       variant="ghost"
@@ -553,7 +553,7 @@ const categoryIcons = {
   filmMotion: Clapperboard,
   visualDesign: Palette,
   brandCreative: Megaphone,
-  architectureProduct: Building2,
+  architectureProduct: Building,
 };
 function categoryTranslationKey(categoryId) {
   return `workspace.browser.inspiration.category.${categoryId}`;
@@ -568,7 +568,7 @@ function categoryFallback(categoryId) {
   return fallbacks[categoryId];
 }
 function InspirationCategory({ category, region, onNavigate }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const CategoryIcon = categoryIcons[category.id];
   return (
     <article
@@ -584,7 +584,7 @@ function InspirationCategory({ category, region, onNavigate }) {
           className="shrink-0"
         />
         <h3 className="truncate font-heading text-[11px] font-normal uppercase leading-4 tracking-wide">
-          {t2(
+          {translate(
             categoryTranslationKey(category.id),
             categoryFallback(category.id),
           )}
@@ -620,11 +620,11 @@ function InspirationCategory({ category, region, onNavigate }) {
   );
 }
 function InspirationCategories({ region, panelId, categories, onNavigate }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <section
       id={panelId}
-      aria-label={t2("workspace.browser.inspiration.title", "灵感盲盒")}
+      aria-label={translate("workspace.browser.inspiration.title", "灵感盲盒")}
       data-action-ui-id="browser-inspiration"
       data-inspiration-region={region}
       className="w-full"
@@ -649,7 +649,7 @@ function InspirationExperience({
   onOpenChange,
   onNavigate,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const categories = getBrowserInspirationCategories(region);
   const [visibleCategories, setVisibleCategories] = reactExports.useState(() =>
     pickCategorizedInspirationSites(categories),
@@ -702,7 +702,7 @@ function InspirationExperience({
       <div className="mb-3 flex h-8 items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-1">
           <h2 className="text-sm font-medium">
-            {t2("workspace.browser.inspiration.title", "灵感盲盒")}
+            {translate("workspace.browser.inspiration.title", "灵感盲盒")}
           </h2>
           <BrowserInspirationTrigger
             open={open}
@@ -720,7 +720,7 @@ function InspirationExperience({
             onClick={handleExplore}
           >
             <Icon icon={Shuffle} size="sm" className="size-[13px]" />
-            {t2("workspace.browser.inspiration.shuffle", "换一换")}
+            {translate("workspace.browser.inspiration.shuffle", "换一换")}
           </Button>
         )}
       </div>
@@ -756,8 +756,8 @@ function InspirationExperience({
 }
 function BrowserInspiration({ onNavigate }) {
   const { i18n } = useTranslation();
-  const language2 = i18n.resolvedLanguage ?? i18n.language;
-  const region = inspirationRegionForLanguage(language2);
+  const language = i18n.resolvedLanguage ?? i18n.language;
+  const region = inspirationRegionForLanguage(language);
   const [open, setOpen] = reactExports.useState(true);
   const panelId = reactExports.useId();
   return (
@@ -777,11 +777,11 @@ function BrowserStartSearch({
   onSelectHistory,
   onRemoveHistory,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { resolved } = useTheme();
   const [value, setValue] = reactExports.useState("");
   const [focused, setFocused] = reactExports.useState(false);
-  const label = t2("workspace.browser.urlPlaceholder", "搜索或输入网址");
+  const label = translate("workspace.browser.urlPlaceholder", "搜索或输入网址");
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-8">
       <span data-action-ui-id="browser-start-globe" aria-hidden="true">
@@ -810,7 +810,7 @@ function BrowserStartSearch({
           }
         }}
       >
-        <Input3
+        <Input
           onClick={() => setFocused(true)}
           autoComplete="off"
           value={value}
@@ -828,7 +828,7 @@ function BrowserStartSearch({
               variant="ghost"
               size="icon-sm"
               data-action-ui-id="browser.start-search-submit"
-              aria-label={t2("common.search")}
+              aria-label={translate("common.search")}
               className="text-muted-foreground/60 hover:text-muted-foreground/60 active:not-aria-[haspopup]:translate-y-0"
             >
               <EnterIcon size={16} />

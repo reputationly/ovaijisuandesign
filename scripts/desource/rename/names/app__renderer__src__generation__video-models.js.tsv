@@ -1,0 +1,5 @@
+_2@252:4	_2	_unusedArg	该参数在函数体中未使用，按约定标记为 _unusedArg。
+_2@508:12	_2	_unusedArg	该参数在函数体中未使用，按约定标记为 _unusedArg。
+BACKEND_VEO3@10:7	BACKEND_VEO3	BACKEND_VEO	去掉打包器防重名追加的后缀，恢复原名 BACKEND_VEO，即该绑定持有的值。
+index2@252:8	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@508:16	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
