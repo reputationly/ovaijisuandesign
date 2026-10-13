@@ -248,8 +248,8 @@ async function equalBytes(left, right, signal) {
   for (let start2 = 0; start2 < leftBytes.length; start2 += chunkSize) {
     if (signal.aborted) return false;
     const end2 = Math.min(start2 + chunkSize, leftBytes.length);
-    for (let i2 = start2; i2 < end2; i2++) {
-      if (leftBytes[i2] !== rightBytes[i2]) return false;
+    for (let byteIndex = start2; byteIndex < end2; byteIndex++) {
+      if (leftBytes[byteIndex] !== rightBytes[byteIndex]) return false;
     }
     if (end2 < leftBytes.length)
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -913,10 +913,10 @@ function PdfViewer({
         canvas.height = scaled.height;
         canvas.style.width = `${scaled.width / pixelRatio}px`;
         canvas.style.height = `${scaled.height / pixelRatio}px`;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        const canvasContext = canvas.getContext("2d");
+        if (!canvasContext) return;
         renderTask = page.render({
-          canvasContext: ctx,
+          canvasContext,
           viewport: scaled,
         });
         return renderTask.promise;
@@ -1126,16 +1126,16 @@ function buildTree(entries2) {
     if (!cleanPath2) continue;
     const parts = cleanPath2.split("/");
     let cursor = root2;
-    for (let i2 = 0; i2 < parts.length; i2++) {
-      const part = parts[i2];
-      const isLast = i2 === parts.length - 1;
+    for (let pathSegmentIndex = 0; pathSegmentIndex < parts.length; pathSegmentIndex++) {
+      const part = parts[pathSegmentIndex];
+      const isLast = pathSegmentIndex === parts.length - 1;
       const isLeafFolder = isLast && entry.isFolder;
       const isLeafFile = isLast && !entry.isFolder;
       let next2 = cursor.children.find((childNode) => childNode.name === part);
       if (!next2) {
         next2 = {
           name: part,
-          path: parts.slice(0, i2 + 1).join("/"),
+          path: parts.slice(0, pathSegmentIndex + 1).join("/"),
           isFolder: !isLeafFile,
           size: isLeafFile ? entry.size : 0,
           children: [],
