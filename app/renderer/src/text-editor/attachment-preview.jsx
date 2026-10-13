@@ -32,7 +32,7 @@ export function AttachmentPreview({
   hiddenSources,
   readOnlySources,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const replacementInputRef = reactExports.useRef(null);
   const replacementTargetRef = reactExports.useRef(null);
   const chipRefs = reactExports.useRef(new Map());
@@ -91,19 +91,19 @@ export function AttachmentPreview({
   );
   if (visibleAttachments.length === 0 && failedAttachments.length === 0)
     return null;
-  const uploadFailedShort = t2("chat.uploadFailedShort");
+  const uploadFailedShort = t("chat.uploadFailedShort");
   const failedSummary =
     failedAttachments.length === 1
-      ? t2("chat.uploadFailedFile", {
+      ? t("chat.uploadFailedFile", {
           name: failedAttachments[0]?.filename ?? "",
         })
-      : t2("chat.uploadFailedCount", {
+      : t("chat.uploadFailedCount", {
           count: failedAttachments.length,
         });
   const failedReason =
     failedAttachments.length === 1 && failedAttachments[0]?.error
       ? failedAttachments[0].error
-      : t2("chat.uploadFailedHint");
+      : t("chat.uploadFailedHint");
   return (
     <div
       data-message-input-attachment-preview="true"
@@ -125,7 +125,7 @@ export function AttachmentPreview({
             const readOnly2 = isReadOnly(att);
             const locked = disabled2 || replacingIds?.has(att.id) === true;
             const errorText = att.error
-              ? t2("chat.uploadFailedWithReason", {
+              ? t("chat.uploadFailedWithReason", {
                   error: att.error,
                 })
               : uploadFailedShort;
@@ -149,7 +149,7 @@ export function AttachmentPreview({
             );
             const hoverAction = replaceable
               ? {
-                  label: t2("canvas.attachment.replace", {
+                  label: t("canvas.attachment.replace", {
                     defaultValue: "Replace",
                   }),
                   onClick: () => requestReplacement(att),
@@ -189,7 +189,7 @@ export function AttachmentPreview({
                         {att.filename}
                       </span>
                       <span className="text-[10px] text-muted-foreground truncate">
-                        {t2("chat.pluginNodeChipMeta", {
+                        {t("chat.pluginNodeChipMeta", {
                           defaultValue: "画布插件",
                         })}
                       </span>
@@ -290,7 +290,7 @@ export function AttachmentPreview({
                         ? "text-[var(--canvas-media-control-fg)]"
                         : "text-foreground",
                     )}
-                    aria-label={t2("canvas.reference.addReference")}
+                    aria-label={t("canvas.reference.addReference")}
                     data-action-ui-id="chat.attachment-reference"
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => onSelect?.(att)}
@@ -313,8 +313,8 @@ export function AttachmentPreview({
                   <button
                     type="button"
                     className="absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-sm bg-[var(--attachment-annotation-background)] text-[var(--attachment-annotation-foreground)] opacity-0 shadow-sm transition-opacity focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
-                    aria-label={t2("chat.imageAnnotation.annotate")}
-                    title={t2("chat.imageAnnotation.annotate")}
+                    aria-label={t("chat.imageAnnotation.annotate")}
+                    title={t("chat.imageAnnotation.annotate")}
                     data-action-ui-id="chat-image-annotation-open"
                     onClick={() => onAnnotate?.(att)}
                   >
@@ -325,7 +325,7 @@ export function AttachmentPreview({
                   <button
                     type="button"
                     className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 hover:bg-black/80"
-                    aria-label={t2("common.remove")}
+                    aria-label={t("common.remove")}
                     disabled={disabled2}
                     onClick={() => onRemove2(att.id)}
                   >
@@ -371,7 +371,7 @@ export function AttachmentPreview({
                 for (const att of removableFailedAttachments) onRemove2(att.id);
               }}
             >
-              {t2("chat.uploadRemoveFailed")}
+              {t("chat.uploadRemoveFailed")}
             </button>
           ) : null}
         </div>

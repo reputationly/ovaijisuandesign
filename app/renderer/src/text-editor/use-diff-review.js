@@ -31,28 +31,28 @@ const FENCE_RE = /^(\s*)(```|~~~)/;
 const TABLE_DELIM_RE = /^\s*\|?[\s:|-]+\|?\s*$/;
 const BLOCK_PREFIX_RE =
   /^(\s*)((?:>\s*)*)((?:[-*+]|\d{1,9}[.)])\s+(?:\[[ xX]\]\s+)?|#{1,6}\s+)?/;
-function pushChar(b3, ch, rawOffset, isSynthetic) {
+function pushChar(normalizeMap, ch, rawOffset, isSynthetic) {
   if (ch === " ") {
-    const last2 = b3.normalized.length - 1;
-    if (last2 < 0 || b3.normalized[last2] === " ") {
+    const last2 = normalizeMap.normalized.length - 1;
+    if (last2 < 0 || normalizeMap.normalized[last2] === " ") {
       if (last2 >= 0 || isSynthetic) return;
     }
   }
-  b3.normalized.push(ch);
-  b3.normToRaw.push(rawOffset);
-  b3.synthetic.push(isSynthetic);
+  normalizeMap.normalized.push(ch);
+  normalizeMap.normToRaw.push(rawOffset);
+  normalizeMap.synthetic.push(isSynthetic);
 }
 function findStrippableDelimiters(line) {
   const strip = new Array(line.length).fill(false);
   const openByToken = new Map();
-  for (let i2 = 0; i2 < line.length; i2++) {
-    const ch = line[i2];
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
     if (ch === "\\") {
-      i2 += 1;
+      i += 1;
       continue;
     }
     if (ch !== "*" && ch !== "_" && ch !== "~" && ch !== "`") continue;
-    const two = line.slice(i2, i2 + 2);
+    const two = line.slice(i, i + 2);
     let token2;
     if (two === "**" || two === "__" || two === "~~") {
       token2 = two;
@@ -63,97 +63,97 @@ function findStrippableDelimiters(line) {
     }
     const open = openByToken.get(token2);
     if (open === void 0) {
-      openByToken.set(token2, i2);
+      openByToken.set(token2, i);
     } else {
-      for (let k2 = 0; k2 < token2.length; k2++) {
-        strip[open + k2] = true;
-        strip[i2 + k2] = true;
+      for (let charIndex = 0; charIndex < token2.length; charIndex++) {
+        strip[open + charIndex] = true;
+        strip[i + charIndex] = true;
       }
       openByToken.delete(token2);
     }
-    i2 += token2.length - 1;
+    i += token2.length - 1;
   }
   return strip;
 }
 function findBracketClose(line, open) {
   let depth2 = 0;
-  for (let i2 = open; i2 < line.length; i2++) {
-    if (line[i2] === "[") depth2 += 1;
-    else if (line[i2] === "]") {
+  for (let i = open; i < line.length; i++) {
+    if (line[i] === "[") depth2 += 1;
+    else if (line[i] === "]") {
       depth2 -= 1;
-      if (depth2 === 0) return i2;
+      if (depth2 === 0) return i;
     }
   }
   return -1;
 }
-function matchParen(line, at2) {
-  if (line[at2] !== "(") return -1;
+function matchParen(line, openIndex) {
+  if (line[openIndex] !== "(") return -1;
   let depth2 = 0;
-  for (let i2 = at2; i2 < line.length; i2++) {
-    if (line[i2] === "(") depth2 += 1;
-    else if (line[i2] === ")") {
+  for (let i = openIndex; i < line.length; i++) {
+    if (line[i] === "(") depth2 += 1;
+    else if (line[i] === ")") {
       depth2 -= 1;
-      if (depth2 === 0) return i2;
+      if (depth2 === 0) return i;
     }
   }
   return -1;
 }
-function pushInline(b3, line, lineStart, from2, strippable) {
+function pushInline(normalizeMap, line, lineStart, from2, strippable) {
   const strip = strippable ?? findStrippableDelimiters(line);
-  let i2 = from2;
-  while (i2 < line.length) {
-    const ch = line[i2];
-    const next2 = line[i2 + 1];
-    if ((ch === "*" || ch === "_" || ch === "~" || ch === "`") && strip[i2]) {
-      i2 += 1;
+  let i = from2;
+  while (i < line.length) {
+    const ch = line[i];
+    const next2 = line[i + 1];
+    if ((ch === "*" || ch === "_" || ch === "~" || ch === "`") && strip[i]) {
+      i += 1;
       continue;
     }
     if (ch === "!" && next2 === "[") {
-      const close2 = findBracketClose(line, i2 + 1);
+      const close2 = findBracketClose(line, i + 1);
       if (close2 >= 0) {
         const paren = matchParen(line, close2 + 1);
         if (paren >= 0) {
-          pushChar(b3, " ", lineStart + i2, true);
-          i2 = paren + 1;
+          pushChar(normalizeMap, " ", lineStart + i, true);
+          i = paren + 1;
           continue;
         }
       }
     }
     if (ch === "[") {
-      const close2 = findBracketClose(line, i2);
+      const close2 = findBracketClose(line, i);
       if (close2 >= 0) {
         const paren = matchParen(line, close2 + 1);
         if (paren >= 0) {
-          pushInline(b3, line.slice(0, close2), lineStart, i2 + 1, strip);
-          i2 = paren + 1;
+          pushInline(normalizeMap, line.slice(0, close2), lineStart, i + 1, strip);
+          i = paren + 1;
           continue;
         }
       }
     }
     if (ch === "<") {
-      const m3 = /^<br\s*\/?>/i.exec(line.slice(i2));
-      if (m3) {
-        pushChar(b3, " ", lineStart + i2, true);
-        i2 += m3[0].length;
+      const brMatch = /^<br\s*\/?>/i.exec(line.slice(i));
+      if (brMatch) {
+        pushChar(normalizeMap, " ", lineStart + i, true);
+        i += brMatch[0].length;
         continue;
       }
     }
     if (ch === "|") {
-      pushChar(b3, " ", lineStart + i2, true);
-      i2 += 1;
+      pushChar(normalizeMap, " ", lineStart + i, true);
+      i += 1;
       continue;
     }
     if (ch === "\\" && next2 && "\\`*_{}[]()#+-.!|~>".includes(next2)) {
-      pushChar(b3, next2, lineStart + i2 + 1, false);
-      i2 += 2;
+      pushChar(normalizeMap, next2, lineStart + i + 1, false);
+      i += 2;
       continue;
     }
-    pushChar(b3, ch === "	" ? " " : ch, lineStart + i2, ch === "	");
-    i2 += 1;
+    pushChar(normalizeMap, ch === "	" ? " " : ch, lineStart + i, ch === "	");
+    i += 1;
   }
 }
 function buildMarkdownNormalizeMap(raw2) {
-  const b3 = {
+  const normalizeMap = {
     normalized: [],
     normToRaw: [],
     synthetic: [],
@@ -161,47 +161,47 @@ function buildMarkdownNormalizeMap(raw2) {
   const lines = raw2.split("\n");
   let inFence = false;
   let offset2 = 0;
-  for (let li2 = 0; li2 < lines.length; li2++) {
-    const line = lines[li2];
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    const line = lines[lineIndex];
     const lineStart = offset2;
     offset2 += line.length + 1;
     if (FENCE_RE.test(line)) {
       inFence = !inFence;
-      pushChar(b3, " ", lineStart, true);
+      pushChar(normalizeMap, " ", lineStart, true);
       continue;
     }
     if (inFence) {
-      for (let i2 = 0; i2 < line.length; i2++)
-        pushChar(b3, line[i2], lineStart + i2, false);
-      pushChar(b3, " ", lineStart + line.length, true);
+      for (let i = 0; i < line.length; i++)
+        pushChar(normalizeMap, line[i], lineStart + i, false);
+      pushChar(normalizeMap, " ", lineStart + line.length, true);
       continue;
     }
     if (line.includes("|") && line.includes("-") && TABLE_DELIM_RE.test(line)) {
-      pushChar(b3, " ", lineStart, true);
+      pushChar(normalizeMap, " ", lineStart, true);
       continue;
     }
     if (/^\s*(?:[-*_]\s*){3,}$/.test(line) && line.trim().length >= 3) {
-      pushChar(b3, " ", lineStart, true);
+      pushChar(normalizeMap, " ", lineStart, true);
       continue;
     }
     const prefix = BLOCK_PREFIX_RE.exec(line);
     const contentFrom = prefix ? prefix[0].length : 0;
-    pushInline(b3, line, lineStart, contentFrom);
-    pushChar(b3, " ", lineStart + line.length, true);
+    pushInline(normalizeMap, line, lineStart, contentFrom);
+    pushChar(normalizeMap, " ", lineStart + line.length, true);
   }
   while (
-    b3.normalized.length > 0 &&
-    b3.normalized[b3.normalized.length - 1] === " " &&
-    b3.synthetic[b3.synthetic.length - 1]
+    normalizeMap.normalized.length > 0 &&
+    normalizeMap.normalized[normalizeMap.normalized.length - 1] === " " &&
+    normalizeMap.synthetic[normalizeMap.synthetic.length - 1]
   ) {
-    b3.normalized.pop();
-    b3.normToRaw.pop();
-    b3.synthetic.pop();
+    normalizeMap.normalized.pop();
+    normalizeMap.normToRaw.pop();
+    normalizeMap.synthetic.pop();
   }
   return {
-    normalized: b3.normalized.join(""),
-    normToRaw: b3.normToRaw,
-    synthetic: b3.synthetic,
+    normalized: normalizeMap.normalized.join(""),
+    normToRaw: normalizeMap.normToRaw,
+    synthetic: normalizeMap.synthetic,
   };
 }
 function collapseRenderedText(text2) {
@@ -218,11 +218,11 @@ function stripInlineMarkChars(text2) {
 function stripInlineMarkCharsWithMap(text2) {
   const chars2 = [];
   const map3 = [];
-  for (let i2 = 0; i2 < text2.length; i2++) {
-    const ch = text2[i2];
+  for (let i = 0; i < text2.length; i++) {
+    const ch = text2[i];
     if (INLINE_MARK_CHARS.has(ch)) continue;
     chars2.push(ch);
-    map3.push(i2);
+    map3.push(i);
   }
   return {
     stripped: chars2.join(""),
@@ -379,12 +379,12 @@ function buildDocTextIndex(doc2) {
 function toPmPos(index2, offset2, bias) {
   const { segments } = index2;
   if (segments.length === 0) return null;
-  for (let i2 = 0; i2 < segments.length; i2++) {
-    const seg = segments[i2];
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i];
     const segEnd = seg.textStart + seg.length;
     if (offset2 < seg.textStart) {
       if (bias === "start") return seg.pmStart;
-      const prev = segments[i2 - 1];
+      const prev = segments[i - 1];
       return prev ? prev.pmStart + prev.length : seg.pmStart;
     }
     if (offset2 <= segEnd) {
@@ -398,8 +398,8 @@ function collapseWithMap(text2) {
   const chars2 = [];
   const map3 = [];
   let pendingSpace = -1;
-  for (let i2 = 0; i2 < text2.length; i2++) {
-    const ch = text2[i2];
+  for (let i = 0; i < text2.length; i++) {
+    const ch = text2[i];
     if (
       ch === " " ||
       ch === "\n" ||
@@ -407,7 +407,7 @@ function collapseWithMap(text2) {
       ch === "\r" ||
       ch === LEAF_PLACEHOLDER
     ) {
-      if (pendingSpace < 0) pendingSpace = i2;
+      if (pendingSpace < 0) pendingSpace = i;
       continue;
     }
     if (pendingSpace >= 0 && chars2.length > 0) {
@@ -416,7 +416,7 @@ function collapseWithMap(text2) {
     }
     pendingSpace = -1;
     chars2.push(ch);
-    map3.push(i2);
+    map3.push(i);
   }
   return {
     collapsed: chars2.join(""),
@@ -464,10 +464,10 @@ function splitTableHunkCells(index2, hunk, textFrom, textTo) {
   if (oldCells.length !== covered.length || newCells.length !== covered.length)
     return null;
   const cells2 = [];
-  for (let i2 = 0; i2 < covered.length; i2++) {
-    const seg = covered[i2];
-    const oldCell = oldCells[i2];
-    const newCell = newCells[i2];
+  for (let i = 0; i < covered.length; i++) {
+    const seg = covered[i];
+    const oldCell = oldCells[i];
+    const newCell = newCells[i];
     const docCellText = index2.text.slice(
       seg.textStart,
       seg.textStart + seg.length,
@@ -569,7 +569,7 @@ function locateHunksInDoc(doc2, hunks) {
   const { collapsed, map: map3 } = collapseWithMap(index2.text);
   const usedRanges = [];
   const overlapsUsed = (from2, to) =>
-    usedRanges.some((r2) => Math.max(r2.from, from2) < Math.min(r2.to, to));
+    usedRanges.some((usedRange) => Math.max(usedRange.from, from2) < Math.min(usedRange.to, to));
   for (const hunk of hunks) {
     const needle = normalizeMarkdownSnippet(hunk.replacement);
     const prefixProbe = normalizeMarkdownSnippet(hunk.reversePrefix).slice(
@@ -643,8 +643,8 @@ function locateHunksInDoc(doc2, hunks) {
       const range2 = toCollapsedRange(idx);
       if (!range2) return false;
       const from22 = map3[range2.start];
-      const to2 = map3[range2.endChar] + 1;
-      return from22 !== void 0 && to2 !== void 0 && !overlapsUsed(from22, to2);
+      const to = map3[range2.endChar] + 1;
+      return from22 !== void 0 && to !== void 0 && !overlapsUsed(from22, to);
     });
     const chosenRange = chosen === void 0 ? null : toCollapsedRange(chosen);
     if (!chosenRange) {
@@ -718,21 +718,21 @@ function recordDiffReviewTransition(editor, transition2) {
     selectionTransaction.setMeta(DIFF_REVIEW_SYNC_META, true);
     editor.view.dispatch(selectionTransaction);
   }
-  let chain = editor.chain().command(({ tr: tr2 }) => {
-    closeHistory(tr2);
-    tr2.step(new DiffReviewHistoryStep(transition2.before, transition2.after));
-    if (transition2.kind === "revert") tr2.setMeta(DIFF_REVIEW_SYNC_META, true);
+  let chain = editor.chain().command(({ tr }) => {
+    closeHistory(tr);
+    tr.step(new DiffReviewHistoryStep(transition2.before, transition2.after));
+    if (transition2.kind === "revert") tr.setMeta(DIFF_REVIEW_SYNC_META, true);
     return true;
   });
   if (transition2.kind === "revert") {
     chain = chain.setContent(transition2.content ?? "", {
       contentType: "markdown",
     });
-    chain = chain.command(({ tr: tr2 }) => {
+    chain = chain.command(({ tr }) => {
       if (transitionAnchor === null) {
-        tr2.setSelection(
+        tr.setSelection(
           selectionFromSnapshot(
-            tr2.doc,
+            tr.doc,
             selectionBefore,
             selectionPositionBefore,
           ),
@@ -745,8 +745,8 @@ function recordDiffReviewTransition(editor, transition2) {
         replacement: transitionAnchor.hunk.originalText,
       };
       const revertedPosition =
-        locateHunkPosition(tr2.doc, revertedHunk) ?? transitionAnchor.position;
-      tr2.setSelection(selectionNearPosition(tr2.doc, revertedPosition));
+        locateHunkPosition(tr.doc, revertedHunk) ?? transitionAnchor.position;
+      tr.setSelection(selectionNearPosition(tr.doc, revertedPosition));
       return true;
     });
   }
@@ -1135,7 +1135,7 @@ function withEnclosingBlockPrefix(markdown2, doc2, pos) {
 }
 export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
   const { sourceMarkdown, onReviewDocumentApplied } = options;
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const session = useDiffReviewStore((state2) => state2.session);
   const reverting = useDiffReviewStore((state2) => state2.reverting);
   const acceptHunk = useDiffReviewStore((state2) => state2.acceptHunk);
@@ -1385,8 +1385,8 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
     locatedIdsRef.current = navIds;
     setModificationCount(modifications);
     setDiffReviewHunks(editor, views, {
-      undoLabel: t2("canvas.diffReview.undo", "撤销"),
-      acceptLabel: t2("canvas.diffReview.accept", "接受"),
+      undoLabel: t("canvas.diffReview.undo", "撤销"),
+      acceptLabel: t("canvas.diffReview.accept", "接受"),
       disabled: reviewBlocked,
       onUndo: handleUndo,
       onAccept: handleAccept,
@@ -1419,7 +1419,7 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
     handleUndoGroup,
     handleAcceptGroup,
     renderMarkdown,
-    t2,
+    t,
   ]);
   reactExports.useEffect(() => {
     setActiveIndex((index2) =>
@@ -1433,8 +1433,8 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
       if (located.length === 0) return;
       setActiveIndex((prev) => {
         const next2 = (prev + dir + located.length) % located.length;
-        const id2 = located[next2];
-        if (id2) scrollToDiffHunk(editor, id2);
+        const id = located[next2];
+        if (id) scrollToDiffHunk(editor, id);
         return next2;
       });
     },

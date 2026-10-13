@@ -74,6 +74,6 @@ export function textEditNodeDraftKey(nodeId) {
   return `__text_edit_node__:${nodeId}`;
 }
 
-export function sameTextEditSession(a2, b3) {
-  return a2.nodeId === b3.nodeId && a2.editSessionId === b3.editSessionId;
+export function sameTextEditSession(a, b) {
+  return a.nodeId === b.nodeId && a.editSessionId === b.editSessionId;
 }

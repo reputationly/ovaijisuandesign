@@ -2,8 +2,8 @@
 import { reactExports } from "../vendor.js";
 function pickInitialMatchIndex(matches2, caretPos) {
   if (matches2.length === 0) return -1;
-  for (let i2 = 0; i2 < matches2.length; i2++) {
-    if (matches2[i2].from >= caretPos) return i2;
+  for (let i = 0; i < matches2.length; i++) {
+    if (matches2[i].from >= caretPos) return i;
   }
   return 0;
 }
@@ -51,10 +51,10 @@ export function useFindController(adapter) {
   }, []);
   reactExports.useEffect(() => cancelPendingSearch, [cancelPendingSearch]);
   const runSearch = reactExports.useCallback(() => {
-    const a2 = adapterRef.current;
+    const adapter = adapterRef.current;
     const { query, options } = stateRef.current;
     if (!query) {
-      a2.clear();
+      adapter.clear();
       matchesRef.current = [];
       update2({
         total: 0,
@@ -63,7 +63,7 @@ export function useFindController(adapter) {
       });
       return;
     }
-    const { matches: matches2, limited, caretPos } = a2.search(query, options);
+    const { matches: matches2, limited, caretPos } = adapter.search(query, options);
     matchesRef.current = matches2;
     const initialIndex = pickInitialMatchIndex(matches2, caretPos);
     update2({
@@ -72,9 +72,9 @@ export function useFindController(adapter) {
       currentIndex: initialIndex,
     });
     if (matches2.length === 0) {
-      a2.clear();
+      adapter.clear();
     } else {
-      a2.activate(matches2, initialIndex);
+      adapter.activate(matches2, initialIndex);
     }
   }, [update2]);
   const scheduleSearch = reactExports.useCallback(

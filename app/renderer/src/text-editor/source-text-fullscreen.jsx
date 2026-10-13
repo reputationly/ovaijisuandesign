@@ -31,8 +31,8 @@ import { useTextVersionPanel } from "./use-text-version-panel.jsx";
 function countNewlinesBefore(text2, offset2) {
   let count2 = 0;
   const end2 = Math.min(offset2, text2.length);
-  for (let i2 = 0; i2 < end2; i2++) {
-    if (text2.charCodeAt(i2) === 10) count2++;
+  for (let i = 0; i < end2; i++) {
+    if (text2.charCodeAt(i) === 10) count2++;
   }
   return count2;
 }
@@ -65,14 +65,14 @@ function replaceAllInText(text2, query, options, replacement, maxMatches) {
     };
   let out = "";
   let last2 = 0;
-  for (const m3 of matches2) {
-    const matched = text2.slice(m3.from, m3.to);
+  for (const match of matches2) {
+    const matched = text2.slice(match.from, match.to);
     out +=
-      text2.slice(last2, m3.from) +
+      text2.slice(last2, match.from) +
       (options.regex
         ? computeReplacementWith(pattern, matched, replacement)
         : replacement);
-    last2 = m3.to;
+    last2 = match.to;
   }
   out += text2.slice(last2);
   return {
@@ -81,13 +81,13 @@ function replaceAllInText(text2, query, options, replacement, maxMatches) {
   };
 }
 function SourceEditorHistoryControls({ editorRef, availability }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <>
       <ToolbarBtn
         item={{
           id: "undo",
-          label: t2("canvas.undo", "Undo"),
+          label: t("canvas.undo", "Undo"),
           icon: <Undo2 size={16} strokeWidth={1.5} aria-hidden="true" />,
           disabled: !availability.canUndo,
           onClick: () => {
@@ -100,7 +100,7 @@ function SourceEditorHistoryControls({ editorRef, availability }) {
       <ToolbarBtn
         item={{
           id: "redo",
-          label: t2("canvas.redo", "Redo"),
+          label: t("canvas.redo", "Redo"),
           icon: <Redo2 size={16} strokeWidth={1.5} aria-hidden="true" />,
           disabled: !availability.canRedo,
           onClick: () => {
@@ -124,7 +124,7 @@ export function SourceTextFullscreen({
   sourceNodeId,
   editorKind,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const textareaRef = reactExports.useRef(null);
   const codeMirrorRef = reactExports.useRef(null);
   const isCodeMirror = editorKind === "codemirror";
@@ -271,7 +271,7 @@ export function SourceTextFullscreen({
     if (closedRef.current) return;
     if (conflict.active) {
       dedupedToast.error(
-        t2("canvas.textConflict.blockedClose", "请先处理完所有冲突再退出"),
+        t("canvas.textConflict.blockedClose", "请先处理完所有冲突再退出"),
       );
       return;
     }
@@ -302,7 +302,7 @@ export function SourceTextFullscreen({
     onDraftChange,
     openConflict,
     setLatestDraft,
-    t2,
+    t,
   ]);
   const scheduleSelectionReport = useEditingSelectionReporter(
     onEditingSelectionChange,
@@ -445,8 +445,8 @@ export function SourceTextFullscreen({
   findRef.current = find2;
   useFindEscapeClose(find2, handleClose);
   const handleInput = reactExports.useCallback(
-    (e2) => {
-      const el = e2.currentTarget;
+    (domEvent) => {
+      const el = domEvent.currentTarget;
       handleDocumentChange(() => el.value);
     },
     [handleDocumentChange],

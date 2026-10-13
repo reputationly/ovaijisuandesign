@@ -142,19 +142,19 @@ export function replaceEditorMarkdown(
 ) {
   let chain = editor
     .chain()
-    .command(({ tr: tr2 }) => {
-      if (addToHistory) closeHistory(tr2);
-      else tr2.setMeta("addToHistory", false);
-      tr2.setMeta(DIFF_REVIEW_SYNC_META, true);
+    .command(({ tr }) => {
+      if (addToHistory) closeHistory(tr);
+      else tr.setMeta("addToHistory", false);
+      tr.setMeta(DIFF_REVIEW_SYNC_META, true);
       return true;
     })
     .setContent(markdown2, {
       contentType: "markdown",
     });
   if (selection2) {
-    chain = chain.command(({ tr: tr2 }) => {
-      tr2.setSelection(
-        selectionFromSnapshot(tr2.doc, selection2, fallbackPosition),
+    chain = chain.command(({ tr }) => {
+      tr.setSelection(
+        selectionFromSnapshot(tr.doc, selection2, fallbackPosition),
       );
       return true;
     });

@@ -22,12 +22,12 @@ const DEFAULT_IMAGE_SIZE = {
   width: 1200,
   height: 800,
 };
-function sameBounds(a2, b3) {
+function sameBounds(a, b) {
   return (
-    a2.x === b3.x &&
-    a2.y === b3.y &&
-    a2.width === b3.width &&
-    a2.height === b3.height
+    a.x === b.x &&
+    a.y === b.y &&
+    a.width === b.width &&
+    a.height === b.height
   );
 }
 function resolveDisplaySize(imageSize, stageSize) {
@@ -47,7 +47,7 @@ function resolveDisplaySize(imageSize, stageSize) {
     scale: scale2,
   };
 }
-function buildTagData(id2, text2, bounds, imageSize) {
+function buildTagData(id, text2, bounds, imageSize) {
   const fontSize = 18;
   const longestLine = Math.max(
     ...text2.split("\n").map((line) => line.length),
@@ -80,7 +80,7 @@ function buildTagData(id2, text2, bounds, imageSize) {
     Math.min(cardY + estimatedHeight - 8, bounds.y + bounds.height * 0.78),
   );
   return {
-    id: id2,
+    id,
     type: "tag",
     anchorX,
     anchorY,
@@ -160,7 +160,7 @@ function DraftCommentInput({
   onConfirm,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const inputRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     const frame2 = requestAnimationFrame(() => inputRef.current?.focus());
@@ -209,10 +209,10 @@ function DraftCommentInput({
         value={value}
         rows={1}
         data-action-ui-id="browser.annotation-comment"
-        aria-label={t2("workspace.browser.annotationComment", {
+        aria-label={t("workspace.browser.annotationComment", {
           defaultValue: "批注内容",
         })}
-        placeholder={t2("workspace.browser.annotationCommentPlaceholder", {
+        placeholder={t("workspace.browser.annotationCommentPlaceholder", {
           defaultValue: "添加批注…",
         })}
         onChange={(event) => onChange(event.target.value)}
@@ -236,10 +236,10 @@ function DraftCommentInput({
       <button
         type="submit"
         data-action-ui-id="browser.annotation-add"
-        aria-label={t2("workspace.browser.annotationConfirm", {
+        aria-label={t("workspace.browser.annotationConfirm", {
           defaultValue: "确认批注",
         })}
-        title={t2("workspace.browser.annotationConfirm", {
+        title={t("workspace.browser.annotationConfirm", {
           defaultValue: "确认批注",
         })}
         disabled={!value.trim()}
@@ -267,7 +267,7 @@ export function BrowserAnnotationEditor({
   onClose,
   onSend,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const editorRef = reactExports.useRef(null);
   const stageRef = reactExports.useRef(null);
   const shapeAddCleanupRef = reactExports.useRef(null);
@@ -594,7 +594,7 @@ export function BrowserAnnotationEditor({
   return (
     <section
       className="flex min-h-0 flex-1 flex-col bg-background"
-      aria-label={t2("workspace.browser.annotation", {
+      aria-label={t("workspace.browser.annotation", {
         defaultValue: "批注",
       })}
     >
@@ -607,7 +607,7 @@ export function BrowserAnnotationEditor({
         <div className="flex shrink-0 items-center gap-1">
           <AnnotationHeaderButton
             actionId="browser.annotation-exit"
-            label={t2("workspace.browser.annotationClose", {
+            label={t("workspace.browser.annotationClose", {
               defaultValue: "退出批注",
             })}
             onClick={() => void closeEditor()}
@@ -616,7 +616,7 @@ export function BrowserAnnotationEditor({
           </AnnotationHeaderButton>
         </div>
         <div className="min-w-0 flex-1 truncate text-center text-sm font-medium">
-          {t2("workspace.browser.annotationTitle", {
+          {t("workspace.browser.annotationTitle", {
             defaultValue: "正在批注 · {{site}}",
             site: title,
           })}
@@ -625,10 +625,10 @@ export function BrowserAnnotationEditor({
           <button
             type="button"
             data-action-ui-id="browser.annotation-send"
-            aria-label={t2("workspace.browser.annotationSend", {
+            aria-label={t("workspace.browser.annotationSend", {
               defaultValue: "发送批注",
             })}
-            title={t2("workspace.browser.annotationSend", {
+            title={t("workspace.browser.annotationSend", {
               defaultValue: "发送批注",
             })}
             disabled={annotations.length === 0 || sending || !editorReady}
@@ -641,7 +641,7 @@ export function BrowserAnnotationEditor({
               <Icon icon={Send} size="sm" />
             )}
             <span>
-              {t2("workspace.browser.annotationSend", {
+              {t("workspace.browser.annotationSend", {
                 defaultValue: "发送",
               })}
             </span>
@@ -701,7 +701,7 @@ export function BrowserAnnotationEditor({
         ) : (
           <div className="flex size-full items-center justify-center text-sm text-muted-foreground">
             <Icon icon={LoaderCircle} size="md" className="mr-2 animate-spin" />
-            {t2("workspace.browser.annotationLoading", {
+            {t("workspace.browser.annotationLoading", {
               defaultValue: "正在准备截图…",
             })}
           </div>

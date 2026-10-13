@@ -1,0 +1,7 @@
+key	new	reason
+t2@34:14	t	useTranslation() 返回的翻译函数 t
+e2@111:21	mouseEvent	onMouseDown 回调收到的事件对象
+e2@120:20	changeEvent	onChange 回调收到的事件对象
+e2@122:21	keyboardEvent	onKeyDown 回调收到的事件对象
+m3@50:10	annotation	按 annotationId 查找的批注
+ro@85:11	resizeObserver	观察尺寸变化的 ResizeObserver

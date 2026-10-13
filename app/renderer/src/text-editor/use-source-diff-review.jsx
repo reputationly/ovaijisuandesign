@@ -166,7 +166,7 @@ function buildSourceDiffReviewEntries(hunks) {
 const SOURCE_DIFF_VIRTUALIZE_HUNK_THRESHOLD = 30;
 
 function SourceDiffReviewCard({ entry, blocked, onUndo, onAccept }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <TextDiffHunkView
       hunk={entry.diff}
@@ -180,7 +180,7 @@ function SourceDiffReviewCard({ entry, blocked, onUndo, onAccept }) {
             className="h-6 rounded-md px-2 text-xs text-muted-foreground transition-colors hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
             data-action-ui-id="canvas-source-diff-review-undo"
           >
-            {t2("canvas.diffReview.undo", "撤销")}
+            {t("canvas.diffReview.undo", "撤销")}
           </button>
           <button
             type="button"
@@ -189,7 +189,7 @@ function SourceDiffReviewCard({ entry, blocked, onUndo, onAccept }) {
             className="h-6 rounded-md bg-foreground px-2 text-xs font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
             data-action-ui-id="canvas-source-diff-review-accept"
           >
-            {t2("canvas.diffReview.accept", "接受")}
+            {t("canvas.diffReview.accept", "接受")}
           </button>
         </div>
       }
@@ -313,7 +313,7 @@ const SourceDiffReviewList = reactExports.forwardRef(
 export function useSourceDiffReview(nodeId, options) {
   const { sourceMarkdown, readCurrentMarkdown, onReviewDocumentApplied } =
     options;
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const session = useDiffReviewStore((state2) => state2.session);
   const queuedSession = useDiffReviewStore((state2) => state2.queuedSession);
   const reverting = useDiffReviewStore((state2) => state2.reverting);
@@ -443,16 +443,16 @@ export function useSourceDiffReview(nodeId, options) {
     [entries2.length],
   );
   const undoOne = reactExports.useCallback(
-    (id2) => {
+    (id) => {
       if (reviewBlocked) return;
-      void requestUndo([id2]);
+      void requestUndo([id]);
     },
     [requestUndo, reviewBlocked],
   );
   const acceptOne = reactExports.useCallback(
-    (id2) => {
+    (id) => {
       if (reviewBlocked) return;
-      acceptHunk(id2);
+      acceptHunk(id);
     },
     [acceptHunk, reviewBlocked],
   );
@@ -471,14 +471,14 @@ export function useSourceDiffReview(nodeId, options) {
     return (
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <span className="text-sm font-medium text-foreground">
-          {t2("canvas.diffReview.counter", "{{current}} / {{total}} 处修改", {
+          {t("canvas.diffReview.counter", "{{current}} / {{total}} 处修改", {
             current: Math.min(activeIndex + 1, entries2.length),
             total: entries2.length,
           })}
         </span>
         <button
           type="button"
-          title={t2("canvas.diffReview.prev", "上一处")}
+          title={t("canvas.diffReview.prev", "上一处")}
           onClick={() => step(-1)}
           className={navClass}
           data-action-ui-id="canvas-source-diff-review-prev"
@@ -487,7 +487,7 @@ export function useSourceDiffReview(nodeId, options) {
         </button>
         <button
           type="button"
-          title={t2("canvas.diffReview.next", "下一处")}
+          title={t("canvas.diffReview.next", "下一处")}
           onClick={() => step(1)}
           className={navClass}
           data-action-ui-id="canvas-source-diff-review-next"
@@ -496,7 +496,7 @@ export function useSourceDiffReview(nodeId, options) {
         </button>
       </div>
     );
-  }, [active2, activeIndex, entries2.length, step, t2]);
+  }, [active2, activeIndex, entries2.length, step, t]);
   const toolbarActions = reactExports.useMemo(() => {
     if (!active2) return null;
     return (
@@ -508,7 +508,7 @@ export function useSourceDiffReview(nodeId, options) {
           className="h-7 rounded-md px-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
           data-action-ui-id="canvas-source-diff-review-undo-all"
         >
-          {t2("canvas.diffReview.undoAll", "全部撤销")}
+          {t("canvas.diffReview.undoAll", "全部撤销")}
         </button>
         <button
           type="button"
@@ -517,11 +517,11 @@ export function useSourceDiffReview(nodeId, options) {
           className="h-7 rounded-md bg-foreground px-2.5 text-xs font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
           data-action-ui-id="canvas-source-diff-review-accept-all"
         >
-          {t2("canvas.diffReview.acceptAll", "全部接受")}
+          {t("canvas.diffReview.acceptAll", "全部接受")}
         </button>
       </div>
     );
-  }, [active2, reviewBlocked, undoAll, keepAll, t2]);
+  }, [active2, reviewBlocked, undoAll, keepAll, t]);
   const body2 = reactExports.useMemo(() => {
     if (!active2) return null;
     const truncated = entries2.some((entry) => entry.truncated);
@@ -532,7 +532,7 @@ export function useSourceDiffReview(nodeId, options) {
       >
         {truncated && (
           <div className="shrink-0 bg-muted px-4 py-2 text-xs text-muted-foreground">
-            {t2(
+            {t(
               "canvas.diffReview.truncated",
               "改动内容过大，已仅展示每处修改的首尾片段。",
             )}
@@ -547,7 +547,7 @@ export function useSourceDiffReview(nodeId, options) {
         />
       </div>
     );
-  }, [active2, entries2, reviewBlocked, undoOne, acceptOne, t2]);
+  }, [active2, entries2, reviewBlocked, undoOne, acceptOne, t]);
   return {
     active: active2,
     ready,

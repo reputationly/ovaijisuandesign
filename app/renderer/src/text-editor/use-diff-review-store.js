@@ -31,7 +31,7 @@ function toHunk(edit) {
 function toSession(input, contentReady = input.contentReady ?? false) {
   const hunks = input.appliedEdits
     .map(toHunk)
-    .sort((a2, b3) => a2.startLine - b3.startLine);
+    .sort((a, b) => a.startLine - b.startLine);
   return {
     requestId: input.requestId,
     nodeId: input.nodeId,
@@ -242,8 +242,8 @@ export const useDiffReviewStore = create((set2, get3) => ({
       queuedSession: null,
     });
   },
-  acceptHunk(id2) {
-    get3().acceptHunks([id2]);
+  acceptHunk(id) {
+    get3().acceptHunks([id]);
   },
   acceptHunks(ids2) {
     const { session, historyHandler } = get3();

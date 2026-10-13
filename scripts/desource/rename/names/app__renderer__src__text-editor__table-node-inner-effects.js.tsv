@@ -1,0 +1,4 @@
+key	new	reason
+i2@9:12	i	原名 i，去掉打包器加的数字去重后缀
+s2@8:13	base36Text	36 进制编码的数字串
+n2@9:20	position	累加得到的区间端点位置

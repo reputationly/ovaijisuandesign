@@ -77,19 +77,19 @@ function OverlayScrollbarInner({
     if (!el) return;
     measure();
     if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    if (el.firstElementChild) ro.observe(el.firstElementChild);
-    return () => ro.disconnect();
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(el);
+    if (el.firstElementChild) resizeObserver.observe(el.firstElementChild);
+    return () => resizeObserver.disconnect();
   }, [targetRef, measure]);
   const beginThumbDrag = reactExports.useCallback(
-    (e2) => {
-      e2.preventDefault();
-      e2.stopPropagation();
-      if (e2.button !== 0) return;
+    (mouseEvent) => {
+      mouseEvent.preventDefault();
+      mouseEvent.stopPropagation();
+      if (mouseEvent.button !== 0) return;
       const el = targetRef.current;
       if (!el || !metrics) return;
-      const startPos = horizontal ? e2.clientX : e2.clientY;
+      const startPos = horizontal ? mouseEvent.clientX : mouseEvent.clientY;
       const startScroll = horizontal ? el.scrollLeft : el.scrollTop;
       const client2 = horizontal ? el.clientWidth : el.clientHeight;
       const scrollSize = horizontal ? el.scrollWidth : el.scrollHeight;
@@ -99,9 +99,9 @@ function OverlayScrollbarInner({
       setDragging(true);
       const previousUserSelect = document.body.style.userSelect;
       document.body.style.userSelect = "none";
-      const onMove = (ev) => {
+      const onMove = (mouseEvent) => {
         if (maxOffset2 <= 0) return;
-        const delta = (horizontal ? ev.clientX : ev.clientY) - startPos;
+        const delta = (horizontal ? mouseEvent.clientX : mouseEvent.clientY) - startPos;
         const next2 = startScroll + (delta / maxOffset2) * maxScroll;
         if (horizontal) el.scrollLeft = next2;
         else el.scrollTop = next2;
@@ -119,16 +119,16 @@ function OverlayScrollbarInner({
     [targetRef, metrics, horizontal, cleanupActiveDrag],
   );
   const handleTrackPointerDown = reactExports.useCallback(
-    (e2) => {
-      if (e2.button !== 0) return;
-      e2.preventDefault();
-      e2.stopPropagation();
+    (mouseEvent) => {
+      if (mouseEvent.button !== 0) return;
+      mouseEvent.preventDefault();
+      mouseEvent.stopPropagation();
       const el = targetRef.current;
       if (!el || !metrics) return;
-      const rect = e2.currentTarget.getBoundingClientRect();
+      const rect = mouseEvent.currentTarget.getBoundingClientRect();
       const clickPos = horizontal
-        ? e2.clientX - rect.left
-        : e2.clientY - rect.top;
+        ? mouseEvent.clientX - rect.left
+        : mouseEvent.clientY - rect.top;
       const maxOffset2 = metrics.trackPx - metrics.thumbPx;
       if (maxOffset2 <= 0) return;
       const client2 = horizontal ? el.clientWidth : el.clientHeight;

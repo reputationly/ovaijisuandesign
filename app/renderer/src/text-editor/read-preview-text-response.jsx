@@ -135,17 +135,17 @@ export function AssetSourcePickerProvider({ children: children2 }) {
 export function useAssetSourcePicker() {
   return reactExports.useContext(AssetSourcePickerContext);
 }
-async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
+async function notifyBrowserCanvasImport(workspaceId2, addFiles, t) {
   try {
     const nodeIds = await addFiles();
     if (nodeIds.length === 0) {
       dedupedToast.error(
-        t2("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"),
+        t("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"),
       );
       return;
     }
     const toastId = dedupedToast.success(
-      t2("workspace.browser.pluginAddedToCanvas", "已添加到画布"),
+      t("workspace.browser.pluginAddedToCanvas", "已添加到画布"),
       {
         duration: 8e3,
         action: (
@@ -162,7 +162,7 @@ async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
               });
             }}
           >
-            {t2("workspace.browser.viewOnCanvas", "查看")}
+            {t("workspace.browser.viewOnCanvas", "查看")}
           </Button>
         ),
       },
@@ -172,7 +172,7 @@ async function notifyBrowserCanvasImport(workspaceId2, addFiles, t2) {
       error,
     });
     dedupedToast.error(
-      t2("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"),
+      t("workspace.browser.pluginCanvasError", "添加到画布失败，请重试"),
     );
   }
 }
@@ -181,7 +181,7 @@ export function useBrowserCanvasImport(
   isActive2,
   handleSystemPasteToCanvas,
 ) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   reactExports.useEffect(() => {
     if (isActive2 === false || !currentWorkspace) return;
     const subscription = workspaceEvents.onAddFilesToCanvas(
@@ -190,12 +190,12 @@ export function useBrowserCanvasImport(
         void notifyBrowserCanvasImport(
           currentWorkspace,
           () => handleSystemPasteToCanvas(files, void 0, source),
-          t2,
+          t,
         );
       },
     );
     return () => subscription.dispose();
-  }, [currentWorkspace, handleSystemPasteToCanvas, isActive2, t2]);
+  }, [currentWorkspace, handleSystemPasteToCanvas, isActive2, t]);
 }
 const ANIMATED_IMAGE_EXTENSIONS = new Set(["gif"]);
 export function filenameExtension(filename) {

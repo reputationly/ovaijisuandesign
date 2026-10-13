@@ -1,0 +1,10 @@
+key	new	reason
+t2@39:14	t	useTranslation() 返回的翻译函数 t
+t2@118:14	t	useTranslation() 返回的翻译函数 t
+e2@186:24	keyboardEvent	函数体读取 key/code 的键盘事件
+fn2@196:18	fn	原名 fn，去掉打包器加的数字去重后缀
+e2@176:27	mouseEvent	document 点击事件，判断是否点在菜单外
+t22@203:45	menuTarget	右键菜单作用的目标节点
+t22@205:37	menuTarget	右键菜单作用的目标节点
+t22@220:6	menuTarget	右键菜单作用的目标节点
+t22@222:40	menuTarget	右键菜单作用的目标节点

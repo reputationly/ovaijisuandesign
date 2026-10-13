@@ -1,0 +1,9 @@
+key	new	reason
+t2@104:14	t	useTranslation() 返回的翻译函数 t
+t2@150:14	t	useTranslation() 返回的翻译函数 t
+i2@187:33	i	原名 i，去掉打包器加的数字去重后缀
+t2@238:14	t	useTranslation() 返回的翻译函数 t
+v2@159:37	isExpanded	切换前的展开状态
+q2@187:29	questionItem	问题卡片中的单个问题
+q2@260:27	questionItem	问题卡片中的单个问题
+q2@290:21	questionItem	问题卡片中的单个问题

@@ -1,0 +1,4 @@
+key	new	reason
+a2@49:12	a	sort 比较函数的前一个提及
+b3@49:16	b	sort 比较函数的后一个提及
+m3@56:14	fileMention	文件提及，按起点建索引

@@ -46,14 +46,14 @@ export function buildDocContentFromInput(text2, ctx) {
       },
     ])
     .filter((entry) => entry.token.length > 0)
-    .sort((a2, b3) => b3.token.length - a2.token.length);
+    .sort((a, b) => b.token.length - a.token.length);
   const workflowCandidates = (ctx.workflows ?? []).map((workflow) => ({
     token: `workflow:${workflow.id}`,
     workflow,
   }));
   const fileMentions = findAllMentions(text2);
   const fileMentionByStart = new Map();
-  for (const m3 of fileMentions) fileMentionByStart.set(m3.start, m3);
+  for (const fileMention of fileMentions) fileMentionByStart.set(fileMention.start, fileMention);
   const inline2 = [];
   let lastIdx = 0;
   while (lastIdx < text2.length) {

@@ -1,0 +1,6 @@
+key	new	reason
+r2@6:26	row	表格行
+llm@55:9	llmContent	要交给模型的表格内容对象
+a2@46:26	attachment	单元格附件
+c3@72:18	condition	筛选条件
+m3@89:7	match	提及标记正则的匹配结果

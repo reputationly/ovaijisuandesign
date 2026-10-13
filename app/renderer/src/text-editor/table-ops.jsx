@@ -136,17 +136,17 @@ function clampToViewport(
   estimatedHeight = 400,
 ) {
   const VIEWPORT_MARGIN2 = 8;
-  const { x: x2, y: y4 } = position2;
+  const { x, y } = position2;
   const el = menuRef.current;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
   const menuW = el?.offsetWidth || estimatedWidth;
   const menuH = el?.offsetHeight || estimatedHeight;
-  const maxX = Math.max(VIEWPORT_MARGIN2, vw - menuW - VIEWPORT_MARGIN2);
-  const maxY = Math.max(VIEWPORT_MARGIN2, vh - menuH - VIEWPORT_MARGIN2);
+  const maxX = Math.max(VIEWPORT_MARGIN2, viewportWidth - menuW - VIEWPORT_MARGIN2);
+  const maxY = Math.max(VIEWPORT_MARGIN2, viewportHeight - menuH - VIEWPORT_MARGIN2);
   return {
-    x: Math.max(VIEWPORT_MARGIN2, Math.min(x2, maxX)),
-    y: Math.max(VIEWPORT_MARGIN2, Math.min(y4, maxY)),
+    x: Math.max(VIEWPORT_MARGIN2, Math.min(x, maxX)),
+    y: Math.max(VIEWPORT_MARGIN2, Math.min(y, maxY)),
   };
 }
 export function useClampedMenuPosition({

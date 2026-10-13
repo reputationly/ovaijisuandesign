@@ -1,0 +1,23 @@
+key	new	reason
+i2@48:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@80:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@92:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@103:7	i	原名 i，去掉打包器加的数字去重后缀
+i2@174:16	i	原名 i，去掉打包器加的数字去重后缀
+i2@221:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@382:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@401:12	i	原名 i，去掉打包器加的数字去重后缀
+i2@467:12	i	原名 i，去掉打包器加的数字去重后缀
+to2@646:13	to	原名 to，去掉打包器加的数字去重后缀
+t2@1138:14	t	useTranslation() 返回的翻译函数 t
+id2@1436:15	id	原名 id，去掉打包器加的数字去重后缀
+b3@34:19	normalizeMap	buildMarkdownNormalizeMap 构造的归一化映射对象（含 normalized 等数组）
+k2@68:16	charIndex	分隔符 token 内的字符序号
+at2@89:27	openIndex	左括号所在下标
+b3@101:21	normalizeMap	buildMarkdownNormalizeMap 构造的归一化映射对象（含 normalized 等数组）
+m3@134:13	brMatch	<br> 标签的匹配结果
+b3@156:9	normalizeMap	buildMarkdownNormalizeMap 构造的归一化映射对象（含 normalized 等数组）
+li2@164:12	lineIndex	行序号
+r2@572:22	usedRange	已占用的区间
+tr2@721:45	tr	command 回调收到的事务
+tr2@731:34	tr	command 回调收到的事务

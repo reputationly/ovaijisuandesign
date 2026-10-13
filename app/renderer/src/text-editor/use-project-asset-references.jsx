@@ -73,7 +73,7 @@ function useProjectAssetReferences(workspace) {
   };
 }
 function CanvasReferencePreview({ reference, trigger, status }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const missing = status === "deleted" || status === "missing";
   return (
     <PreviewCard>
@@ -82,8 +82,8 @@ function CanvasReferencePreview({ reference, trigger, status }) {
         {missing ? (
           <p className="p-3 text-sm text-muted-foreground">
             {reference.source === "subject"
-              ? t2("canvas.reference.subjectNotFound", "Subject not found")
-              : t2("canvas.reference.assetNotFound", "Asset not found")}
+              ? t("canvas.reference.subjectNotFound", "Subject not found")
+              : t("canvas.reference.assetNotFound", "Asset not found")}
           </p>
         ) : reference.target === "entity" ? (
           <EntityHoverCardBody entityId={reference.id} />

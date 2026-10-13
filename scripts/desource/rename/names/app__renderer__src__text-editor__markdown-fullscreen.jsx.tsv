@@ -1,0 +1,25 @@
+key	new	reason
+t2@397:35	t	调用方传入的翻译函数 t
+i2@539:27	i	原名 i，去掉打包器加的数字去重后缀
+t2@556:14	t	useTranslation() 返回的翻译函数 t
+e2@568:29	keyboardEvent	函数体读取 key/code 的键盘事件
+ed@1072:30	editor	从同名属性 editor 解构出的值
+e2@1090:27	mouseEvent	onMouseDown 回调收到的事件对象
+t2@1116:14	t	useTranslation() 返回的翻译函数 t
+i2@1610:18	i	原名 i，去掉打包器加的数字去重后缀
+e2@1638:6	mouseEvent	函数体读取指针坐标/按键的鼠标事件
+tr2@258:17	tr	插件 state.apply 收到的事务
+m3@279:48	mark	批注标记，过滤掉被删除者
+m3@299:47	mark	批注标记，按事务映射位置
+m3@318:18	mark	批注标记，筛出仍有效者
+m3@320:21	mark	批注标记，生成行内装饰
+tr2@348:17	tr	插件 state.apply 收到的事务
+tr2@357:23	tr	设置元数据并恢复选区的事务
+e2@563:31	mouseEvent	document mousedown 事件，判断是否点在菜单外
+tr2@759:17	tr	插件 state.apply 收到的事务
+tr2@939:17	tr	插件 state.apply 收到的事务
+tr2@1252:25	tr	command 回调收到的事务
+tr2@1371:27	tr	command 回调收到的事务
+tr2@1591:15	tr	插入替换文本的事务
+tr2@1609:15	tr	批量替换的事务
+m3@1611:17	match	当前替换的查找匹配项

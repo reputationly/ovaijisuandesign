@@ -189,8 +189,8 @@ export const ColorVisualDecoration = Extension.create({
         key: colorVisualPluginKey,
         state: {
           init: (_config, state2) => buildColorDecorations(state2.doc),
-          apply(tr2, previous2) {
-            return tr2.docChanged ? buildColorDecorations(tr2.doc) : previous2;
+          apply(tr, previous2) {
+            return tr.docChanged ? buildColorDecorations(tr.doc) : previous2;
           },
         },
         props: {
@@ -229,8 +229,8 @@ export const GhostTextDecoration = Extension.create({
           init() {
             return null;
           },
-          apply(tr2, prev) {
-            const meta2 = tr2.getMeta(ghostTextPluginKey);
+          apply(tr, prev) {
+            const meta2 = tr.getMeta(ghostTextPluginKey);
             if (meta2 !== void 0) return meta2;
             return prev;
           },

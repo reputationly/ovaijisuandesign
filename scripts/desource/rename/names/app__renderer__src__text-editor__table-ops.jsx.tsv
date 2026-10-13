@@ -1,0 +1,5 @@
+key	new	reason
+x2@139:14	x	原名 x，去掉打包器加的数字去重后缀
+y4@139:21	y	原名 y，去掉打包器加的数字去重后缀
+vw@141:9	viewportWidth	窗口宽度
+vh@142:9	viewportHeight	窗口高度

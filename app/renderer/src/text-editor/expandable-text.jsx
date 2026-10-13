@@ -11,7 +11,7 @@ export function ExpandableText({
   richContent = false,
   ellipsis = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const isPresented = useChatPresentation();
   const [expanded, setExpanded] = reactExports.useState(false);
   const [collapsedHeight, setCollapsedHeight] = reactExports.useState(null);
@@ -38,9 +38,9 @@ export function ExpandableText({
     if (!el || !isPresented) return;
     measure();
     if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
   }, [measure, children2, isPresented]);
   const overflow =
     fullHeight != null &&
@@ -72,10 +72,10 @@ export function ExpandableText({
     .join(" ");
   const handleToggle = () => {
     transitioningRef.current = true;
-    setExpanded((v2) => !v2);
+    setExpanded((isExpanded) => !isExpanded);
   };
-  const handleTransitionEnd = (e2) => {
-    if (e2.propertyName !== "max-height") return;
+  const handleTransitionEnd = (transitionEvent) => {
+    if (transitionEvent.propertyName !== "max-height") return;
     transitioningRef.current = false;
     measure();
   };
@@ -114,7 +114,7 @@ export function ExpandableText({
           className="self-start text-xs text-foreground/60 hover:text-muted-foreground transition-colors cursor-pointer"
           onClick={handleToggle}
         >
-          {expanded ? t2("chat.showLess") : t2("chat.showMore")}
+          {expanded ? t("chat.showLess") : t("chat.showMore")}
         </button>
       )}
     </div>

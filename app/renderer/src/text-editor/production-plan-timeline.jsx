@@ -40,16 +40,16 @@ function getProductionPlanProgress(model) {
   );
   return `${currentIndex >= 0 ? currentIndex + 1 : 1}/${total}`;
 }
-function statusLabel(status, t2) {
+function statusLabel(status, t) {
   if (status === "waiting_user")
-    return t2("productionPlan.status.review", "待确认");
-  if (status === "doing") return t2("productionPlan.status.doing", "进行中");
-  if (status === "blocked") return t2("productionPlan.status.blocked", "受阻");
-  if (status === "pending") return t2("productionPlan.status.todo", "待规划");
-  return t2("productionPlan.status.done", "已完成");
+    return t("productionPlan.status.review", "待确认");
+  if (status === "doing") return t("productionPlan.status.doing", "进行中");
+  if (status === "blocked") return t("productionPlan.status.blocked", "受阻");
+  if (status === "pending") return t("productionPlan.status.todo", "待规划");
+  return t("productionPlan.status.done", "已完成");
 }
 function PendingStageRow({ stage, current: current2, displayOrder }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       className={`relative flex min-h-7 items-center gap-1.5 rounded-md px-1.5 ${current2 ? "bg-foreground/[0.06]" : ""}`}
@@ -69,7 +69,7 @@ function PendingStageRow({ stage, current: current2, displayOrder }) {
           </p>
           {current2 && (
             <span className="shrink-0 text-[11px] text-muted-foreground">
-              {statusLabel("pending", t2)}
+              {statusLabel("pending", t)}
             </span>
           )}
         </div>
@@ -78,7 +78,7 @@ function PendingStageRow({ stage, current: current2, displayOrder }) {
   );
 }
 function StageRow({ stage, current: current2, onLocate }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const canLocate = canFocusStageOutputs(stage);
   const statusIcon2 =
     stage.status === "done"
@@ -112,7 +112,7 @@ function StageRow({ stage, current: current2, onLocate }) {
           </p>
           {current2 && (
             <span className="shrink-0 text-[11px] font-normal text-muted-foreground">
-              {statusLabel(stage.status, t2)}
+              {statusLabel(stage.status, t)}
             </span>
           )}
         </div>
@@ -128,8 +128,8 @@ function StageRow({ stage, current: current2, onLocate }) {
           variant="ghost"
           size="icon-sm"
           onClick={() => onLocate(stage)}
-          aria-label={t2("productionPlan.actions.viewOutput", "查看产物")}
-          title={t2("productionPlan.actions.viewOutput", "查看产物")}
+          aria-label={t("productionPlan.actions.viewOutput", "查看产物")}
+          title={t("productionPlan.actions.viewOutput", "查看产物")}
           data-action-ui-id={`production-plan.locate-stage-${stage.id}`}
         >
           <Icon icon={Crosshair} size="sm" strokeWidth={1.5} />
@@ -146,7 +146,7 @@ export function ProductionPlanTimeline({
   expanded: controlledExpanded,
   onExpandedChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const workspaceId2 = useCurrentWorkspace();
   const [uncontrolledExpanded, setUncontrolledExpanded] =
     reactExports.useState(false);
@@ -194,7 +194,7 @@ export function ProductionPlanTimeline({
   return (
     <section
       className="shrink-0 border-b border-border bg-card"
-      aria-label={t2("productionPlan.title", "制作计划")}
+      aria-label={t("productionPlan.title", "制作计划")}
     >
       <button
         type="button"
@@ -210,7 +210,7 @@ export function ProductionPlanTimeline({
           className="shrink-0"
         />
         <span className="shrink-0 text-[13px] font-medium text-foreground">
-          {t2("productionPlan.title", "制作计划")}
+          {t("productionPlan.title", "制作计划")}
         </span>
         {loading ? (
           <Icon
@@ -233,11 +233,11 @@ export function ProductionPlanTimeline({
         )}
         <span className="min-w-0 flex-1 truncate text-xs text-foreground/70">
           {currentActionLabel ??
-            t2("productionPlan.loadFailed", "暂时无法读取")}
+            t("productionPlan.loadFailed", "暂时无法读取")}
         </span>
         {currentStatus && (
           <span className="shrink-0 text-[11px] text-muted-foreground">
-            {statusLabel(currentStatus, t2)}
+            {statusLabel(currentStatus, t)}
           </span>
         )}
         <Icon
@@ -259,7 +259,7 @@ export function ProductionPlanTimeline({
             {error ? (
               <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-2">
                 <p className="min-w-0 flex-1 text-xs text-muted-foreground">
-                  {t2("productionPlan.loadFailed", "暂时无法读取")}
+                  {t("productionPlan.loadFailed", "暂时无法读取")}
                 </p>
                 {onRetry && (
                   <Button
@@ -269,7 +269,7 @@ export function ProductionPlanTimeline({
                     onClick={onRetry}
                     data-action-ui-id="production-plan.retry"
                   >
-                    {t2("productionPlan.retry", "重试")}
+                    {t("productionPlan.retry", "重试")}
                   </Button>
                 )}
               </div>
@@ -307,13 +307,13 @@ export function ProductionPlanTimeline({
             size="sm"
             className="mt-0.5 h-7 w-full gap-1 text-[11px] font-normal text-muted-foreground"
             onClick={handleToggle}
-            aria-label={t2(
+            aria-label={t(
               "productionPlan.actions.collapsePlanAria",
               "收起制作计划",
             )}
             data-action-ui-id="production-plan.collapse-bottom"
           >
-            {t2("productionPlan.actions.collapsePlan", "收起")}
+            {t("productionPlan.actions.collapsePlan", "收起")}
             <Icon
               icon={ChevronDown}
               size="xs"

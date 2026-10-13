@@ -11,7 +11,7 @@ import { openUrlInBuiltinBrowser } from "../workspace/resolve-retry-message-payl
 
 export function CreationGuidePlaceholder({ source, triggerMention, triggerSlash }) {
   const guides = [];
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const platform2 = usePlatform();
   const guideUrls = getCreationGuideUrlsByLocale(i18n.language);
   const handleGuideClick = (event, guide) => {
@@ -35,7 +35,7 @@ export function CreationGuidePlaceholder({ source, triggerMention, triggerSlash 
     "pointer-events-auto inline-flex cursor-pointer items-center whitespace-nowrap text-muted-foreground/70 underline decoration-current/60 underline-offset-2 transition-colors hover:text-foreground";
   return (
     <div className="min-w-0 max-w-full whitespace-normal break-words text-[length:var(--message-input-editor-font-size)] leading-[var(--text-body-14--line-height)]">
-      <span>{t2("creationGuide.placeholderLead")}</span>
+      <span>{t("creationGuide.placeholderLead")}</span>
       {triggerMention ? (
         <>
           <button
@@ -51,7 +51,7 @@ export function CreationGuidePlaceholder({ source, triggerMention, triggerSlash 
           >
             @
           </button>{" "}
-          <span>{t2("creationGuide.placeholderAtHint")}</span>
+          <span>{t("creationGuide.placeholderAtHint")}</span>
         </>
       ) : null}
       {triggerSlash ? (
@@ -70,7 +70,7 @@ export function CreationGuidePlaceholder({ source, triggerMention, triggerSlash 
           >
             /
           </button>{" "}
-          <span>{t2("creationGuide.placeholderSlashHint")}</span>
+          <span>{t("creationGuide.placeholderSlashHint")}</span>
         </>
       ) : null}
       {guides.length > 0 && (triggerMention || triggerSlash) ? (
@@ -89,8 +89,8 @@ export function CreationGuidePlaceholder({ source, triggerMention, triggerSlash 
             >
               <span className="inline-flex items-center gap-0.5">
                 {guide === "design"
-                  ? t2("creationGuide.designGuide")
-                  : t2("creationGuide.h3Guide")}
+                  ? t("creationGuide.designGuide")
+                  : t("creationGuide.h3Guide")}
                 <ArrowUpRight size={11} strokeWidth={1.8} aria-hidden="true" />
               </span>
             </button>

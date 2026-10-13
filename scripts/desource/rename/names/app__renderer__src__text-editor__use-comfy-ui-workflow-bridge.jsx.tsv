@@ -1,0 +1,5 @@
+key	new	reason
+t2@16:14	t	useTranslation() 返回的翻译函数 t
+id2@22:68	id	原名 id，去掉打包器加的数字去重后缀
+t2@70:14	t	useTranslation() 返回的翻译函数 t
+gatewayFetch$1@71:9	scopedGatewayFetch	useGatewayFetch() 返回的 fetch；与导入的 gatewayFetch 并存，不能用原名

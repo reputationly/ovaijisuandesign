@@ -1,0 +1,5 @@
+key	new	reason
+t2@169:14	t	useTranslation() 返回的翻译函数 t
+t2@316:14	t	useTranslation() 返回的翻译函数 t
+id2@446:6	id	原名 id，去掉打包器加的数字去重后缀
+id2@453:6	id	原名 id，去掉打包器加的数字去重后缀

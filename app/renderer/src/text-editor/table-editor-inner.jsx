@@ -46,7 +46,7 @@ const HORIZONTAL_PADDING = 4;
 const MIN_CHIP_SIZE = 22;
 const PREVIEW_THUMB_WIDTH = 280;
 function ChipPreviewCard({
-  x: x2,
+  x,
   anchorTop,
   anchorBottom,
   name: name2,
@@ -59,7 +59,7 @@ function ChipPreviewCard({
     if (!el) return;
     const rect = el.getBoundingClientRect();
     const margin = 8;
-    let left = x2 - rect.width / 2;
+    let left = x - rect.width / 2;
     if (left < margin) left = margin;
     if (left + rect.width > window.innerWidth - margin) {
       left = window.innerWidth - rect.width - margin;
@@ -76,7 +76,7 @@ function ChipPreviewCard({
       left,
       top: top2,
     });
-  }, [x2, anchorTop, anchorBottom]);
+  }, [x, anchorTop, anchorBottom]);
   const [host] = reactExports.useState(() =>
     typeof document !== "undefined" ? document.body : null,
   );
@@ -118,9 +118,9 @@ function ChipPreviewCard({
   );
 }
 function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
-  const { t: t2 } = useTranslation();
-  const meta2 = useAssetMetadataStore((s2) =>
-    s2.assets.get(attachment.assetId),
+  const { t } = useTranslation();
+  const meta2 = useAssetMetadataStore((state) =>
+    state.assets.get(attachment.assetId),
   );
   const thumbnail = attachmentThumbnailUrl(attachment, meta2, size2);
   const [failedThumbnail, setFailedThumbnail] = reactExports.useState(null);
@@ -245,19 +245,19 @@ function AttachmentChip({ attachment, size: size2, onRemove: onRemove2 }) {
               accessibleLabel={
                 attachment.name.trim()
                   ? attachment.name
-                  : t2("canvas.file.untitled", "Untitled")
+                  : t("canvas.file.untitled", "Untitled")
               }
             />
           )}
         </span>
         <button
           type="button"
-          onClick={(e2) => {
-            e2.stopPropagation();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
             hideHover();
             onRemove2();
           }}
-          aria-label={t2("a11y.removeAttachment", "Remove attachment")}
+          aria-label={t("a11y.removeAttachment", "Remove attachment")}
           className="absolute z-10 hidden cursor-pointer items-center justify-center rounded-full bg-black/60 text-white shadow-sm transition-colors group-hover/chip:flex hover:bg-black/80"
           style={{
             width: removeBtnSize,
@@ -329,7 +329,7 @@ function TableCellAttachmentInner({
   onAdd: onAdd2,
   onRemove: onRemove2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { pickAsset } = useCanvasBridge();
   const chipSize = Math.max(
     MIN_CHIP_SIZE,
@@ -345,7 +345,7 @@ function TableCellAttachmentInner({
     try {
       const picks = await pickAsset({
         multiple: true,
-        existingAssetIds: attachments.map((a2) => a2.assetId),
+        existingAssetIds: attachments.map((attachment) => attachment.assetId),
         uploadMode: "attach",
         // Table cells have no caller-on-canvas linkage; drop the upstream
         // tab to keep the dialog focused on workspace + upload.
@@ -354,16 +354,16 @@ function TableCellAttachmentInner({
       if (!picks || picks.length === 0) return;
       const next2 = picks
         .filter(
-          (r2) =>
-            r2.type === "image" ||
-            r2.type === "video" ||
-            r2.type === "audio" ||
-            r2.type === "text",
+          (pickedAsset) =>
+            pickedAsset.type === "image" ||
+            pickedAsset.type === "video" ||
+            pickedAsset.type === "audio" ||
+            pickedAsset.type === "text",
         )
-        .map((r2) => ({
-          assetId: r2.assetId,
-          name: r2.name,
-          kind: r2.type,
+        .map((pickedAsset) => ({
+          assetId: pickedAsset.assetId,
+          name: pickedAsset.name,
+          kind: pickedAsset.type,
         }));
       if (next2.length > 0) onAdd2(next2);
     } catch (err) {
@@ -378,7 +378,7 @@ function TableCellAttachmentInner({
         paddingTop: VERTICAL_PADDING,
         paddingBottom: VERTICAL_PADDING,
       }}
-      onWheel={(e2) => e2.stopPropagation()}
+      onWheel={(wheelEvent) => wheelEvent.stopPropagation()}
     >
       {attachments.map((att) => (
         <AttachmentChip
@@ -393,7 +393,7 @@ function TableCellAttachmentInner({
         onClick={() => {
           void handleOpenPicker();
         }}
-        title={t2("canvas.table.attachment.add", "Add attachment")}
+        title={t("canvas.table.attachment.add", "Add attachment")}
         className="flex shrink-0 items-center justify-center bg-[var(--bg-subtle,#f5f5f5)] transition-colors hover:bg-[var(--bg-subtle-hover,#eee)]"
         style={{
           width: chipSize,
@@ -431,12 +431,12 @@ function TableCellNumberInner({ value, onChange }) {
       if (value !== null) onChange(null);
       return;
     }
-    const n2 = Number(trimmed);
-    if (Number.isNaN(n2)) {
+    const parsedNumber = Number(trimmed);
+    if (Number.isNaN(parsedNumber)) {
       setDraft(value == null ? "" : String(value));
       return;
     }
-    if (n2 !== value) onChange(n2);
+    if (parsedNumber !== value) onChange(parsedNumber);
   }, [draft, value, onChange]);
   const cancel = reactExports.useCallback(() => {
     setDraft(value == null ? "" : String(value));
@@ -449,19 +449,19 @@ function TableCellNumberInner({ value, onChange }) {
         rows={1}
         inputMode="decimal"
         value={draft}
-        onChange={(e2) => setDraft(e2.target.value)}
+        onChange={(changeEvent) => setDraft(changeEvent.target.value)}
         onBlur={commit}
-        onKeyDown={(e2) => {
-          if (e2.key === "Enter") {
-            if (!e2.nativeEvent.isComposing) {
-              e2.preventDefault();
+        onKeyDown={(keyboardEvent) => {
+          if (keyboardEvent.key === "Enter") {
+            if (!keyboardEvent.nativeEvent.isComposing) {
+              keyboardEvent.preventDefault();
               commit();
             }
-          } else if (e2.key === "Escape") {
-            e2.preventDefault();
+          } else if (keyboardEvent.key === "Escape") {
+            keyboardEvent.preventDefault();
             cancel();
           }
-          e2.stopPropagation();
+          keyboardEvent.stopPropagation();
         }}
         className="absolute left-0 top-0 z-20 block w-full resize-none overflow-hidden px-2 py-1.5 text-left text-[13px] leading-snug tabular-nums shadow-lg outline-none"
         style={{
@@ -534,19 +534,19 @@ function TableCellTextInner({ value, onChange, rowHeightPx, maxLines }) {
       <textarea
         ref={textareaRef}
         value={draft}
-        onChange={(e2) => setDraft(e2.target.value)}
+        onChange={(changeEvent) => setDraft(changeEvent.target.value)}
         onBlur={commit}
-        onKeyDown={(e2) => {
-          if (e2.key === "Enter") {
-            if (!e2.shiftKey && !e2.nativeEvent.isComposing) {
-              e2.preventDefault();
+        onKeyDown={(keyboardEvent) => {
+          if (keyboardEvent.key === "Enter") {
+            if (!keyboardEvent.shiftKey && !keyboardEvent.nativeEvent.isComposing) {
+              keyboardEvent.preventDefault();
               commit();
             }
-          } else if (e2.key === "Escape") {
-            e2.preventDefault();
+          } else if (keyboardEvent.key === "Escape") {
+            keyboardEvent.preventDefault();
             cancel();
           }
-          e2.stopPropagation();
+          keyboardEvent.stopPropagation();
         }}
         className="absolute left-0 top-0 z-20 block w-full resize-none overflow-y-auto px-2 py-1.5 text-[13px] leading-snug shadow-lg outline-none"
         style={{
@@ -592,13 +592,13 @@ function resizeColumn(doc2, columnId, width) {
   const clamped = Math.max(100, Math.round(width));
   return {
     ...doc2,
-    columns: doc2.columns.map((c3) =>
-      c3.id === columnId
+    columns: doc2.columns.map((column) =>
+      column.id === columnId
         ? {
-            ...c3,
+            ...column,
             width: clamped,
           }
-        : c3,
+        : column,
     ),
   };
 }
@@ -614,16 +614,16 @@ function appendAttachments(doc2, rowId, columnId, add2) {
   if (add2.length === 0) return doc2;
   return {
     ...doc2,
-    rows: doc2.rows.map((r2) => {
-      if (r2.id !== rowId) return r2;
-      const existing = r2.cells[columnId];
+    rows: doc2.rows.map((row) => {
+      if (row.id !== rowId) return row;
+      const existing = row.cells[columnId];
       const list2 = Array.isArray(existing) ? existing : [];
-      const seen2 = new Set(list2.map((a2) => a2.assetId));
-      const merged = [...list2, ...add2.filter((a2) => !seen2.has(a2.assetId))];
+      const seen2 = new Set(list2.map((attachment) => attachment.assetId));
+      const merged = [...list2, ...add2.filter((attachment) => !seen2.has(attachment.assetId))];
       return {
-        ...r2,
+        ...row,
         cells: {
-          ...r2.cells,
+          ...row.cells,
           [columnId]: merged,
         },
       };
@@ -633,15 +633,15 @@ function appendAttachments(doc2, rowId, columnId, add2) {
 function removeAttachment(doc2, rowId, columnId, assetId) {
   return {
     ...doc2,
-    rows: doc2.rows.map((r2) => {
-      if (r2.id !== rowId) return r2;
-      const cell = r2.cells[columnId];
-      if (!Array.isArray(cell)) return r2;
-      const filtered = cell.filter((a2) => a2.assetId !== assetId);
+    rows: doc2.rows.map((row) => {
+      if (row.id !== rowId) return row;
+      const cell = row.cells[columnId];
+      if (!Array.isArray(cell)) return row;
+      const filtered = cell.filter((attachment) => attachment.assetId !== assetId);
       return {
-        ...r2,
+        ...row,
         cells: {
-          ...r2.cells,
+          ...row.cells,
           [columnId]: filtered,
         },
       };
@@ -660,19 +660,19 @@ function linesForHeightPx(heightPx) {
 }
 function setRowHeightOverride(doc2, rowId, heightPx) {
   let mutated = false;
-  const rows = doc2.rows.map((r2) => {
-    if (r2.id !== rowId) return r2;
+  const rows = doc2.rows.map((row) => {
+    if (row.id !== rowId) return row;
     if (heightPx === null) {
-      if (r2.height === void 0) return r2;
+      if (row.height === void 0) return row;
       mutated = true;
-      const { height: _drop, ...rest } = r2;
+      const { height: _drop, ...rest } = row;
       return rest;
     }
     const next2 = clampRowHeightPx(heightPx);
-    if (r2.height === next2) return r2;
+    if (row.height === next2) return row;
     mutated = true;
     return {
-      ...r2,
+      ...row,
       height: next2,
     };
   });
@@ -714,10 +714,10 @@ const CellRenderer = reactExports.memo(function CellRenderer2({
     [apply2, rowId, columnId],
   );
   if (columnType === "text") {
-    const v2 = typeof value === "string" ? value : "";
+    const textValue = typeof value === "string" ? value : "";
     return (
       <TableCellText
-        value={v2}
+        value={textValue}
         onChange={onChange}
         rowHeightPx={rowHeightPx}
         maxLines={maxLines}
@@ -725,8 +725,8 @@ const CellRenderer = reactExports.memo(function CellRenderer2({
     );
   }
   if (columnType === "number") {
-    const v2 = typeof value === "number" ? value : null;
-    return <TableCellNumber value={v2} onChange={onChange} />;
+    const numberValue = typeof value === "number" ? value : null;
+    return <TableCellNumber value={numberValue} onChange={onChange} />;
   }
   const list2 = Array.isArray(value) ? value : [];
   return (
@@ -740,7 +740,7 @@ const CellRenderer = reactExports.memo(function CellRenderer2({
   );
 });
 function RowToggle({ rowIndex, selected: selected2, onToggle }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="relative min-h-7 w-7">
       {!selected2 && (
@@ -754,8 +754,8 @@ function RowToggle({ rowIndex, selected: selected2, onToggle }) {
         onCheckedChange={onToggle}
         aria-label={
           selected2
-            ? t2("canvas.table.deselectRow", "Deselect")
-            : t2("canvas.table.selectRow", "Select")
+            ? t("canvas.table.deselectRow", "Deselect")
+            : t("canvas.table.selectRow", "Select")
         }
         data-action-ui-id="canvas.table.select-row"
         className={
@@ -768,12 +768,12 @@ function RowToggle({ rowIndex, selected: selected2, onToggle }) {
   );
 }
 function RowHandle({ rowId, rowIndex, selected: selected2, onToggle }) {
-  const { t: t2 } = useTranslation();
-  const handleDragStart = (e2) => {
-    e2.dataTransfer.setData(ROW_DRAG_MIME, rowId);
-    e2.dataTransfer.effectAllowed = "move";
-    const tr2 = e2.currentTarget.closest("tr");
-    if (tr2) e2.dataTransfer.setDragImage(tr2, 12, tr2.offsetHeight / 2);
+  const { t } = useTranslation();
+  const handleDragStart = (dragEvent) => {
+    dragEvent.dataTransfer.setData(ROW_DRAG_MIME, rowId);
+    dragEvent.dataTransfer.effectAllowed = "move";
+    const rowElement = dragEvent.currentTarget.closest("tr");
+    if (rowElement) dragEvent.dataTransfer.setDragImage(rowElement, 12, rowElement.offsetHeight / 2);
   };
   return (
     <div className="relative flex h-full w-full items-start justify-center gap-1 pt-1">
@@ -784,7 +784,7 @@ function RowHandle({ rowId, rowIndex, selected: selected2, onToggle }) {
         style={{
           color: "var(--fg-muted, #999)",
         }}
-        title={t2("canvas.table.dragRow", "Drag to reorder")}
+        title={t("canvas.table.dragRow", "Drag to reorder")}
       >
         <DragHandleIcon />
       </span>
@@ -793,11 +793,11 @@ function RowHandle({ rowId, rowIndex, selected: selected2, onToggle }) {
   );
 }
 function HeaderSelectAll({ state: state2, disabled: disabled2, onToggle }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const title =
     state2 === "all"
-      ? t2("canvas.table.deselectAll", "Deselect all")
-      : t2("canvas.table.selectAll", "Select all");
+      ? t("canvas.table.deselectAll", "Deselect all")
+      : t("canvas.table.selectAll", "Select all");
   return (
     <div className="flex h-full w-full items-center justify-center gap-1">
       <span className="h-5 w-3 shrink-0" aria-hidden="true" />
@@ -824,11 +824,11 @@ function useColumnResize(apply2) {
     [],
   );
   const beginColumnResize = reactExports.useCallback(
-    (e2, columnId, currentWidth) => {
-      e2.preventDefault();
-      e2.stopPropagation();
-      if (e2.button !== 0) return;
-      const startX = e2.clientX;
+    (pressEvent, columnId, currentWidth) => {
+      pressEvent.preventDefault();
+      pressEvent.stopPropagation();
+      if (pressEvent.button !== 0) return;
+      const startX = pressEvent.clientX;
       const startWidth = currentWidth;
       let lastWidth = currentWidth;
       setPreviewWidth({
@@ -845,10 +845,10 @@ function useColumnResize(apply2) {
         restoreBodyStylesRef.current = null;
       };
       restoreBodyStylesRef.current = restore;
-      const onMove = (ev) => {
+      const onMove = (mouseEvent) => {
         const next2 = Math.max(
           MIN_COLUMN_WIDTH,
-          Math.round(startWidth + (ev.clientX - startX)),
+          Math.round(startWidth + (mouseEvent.clientX - startX)),
         );
         if (next2 === lastWidth) return;
         lastWidth = next2;
@@ -882,7 +882,7 @@ function ColumnResizeHandle({
   active: active2,
   onPointerDown: onPointerDown2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     // Mouse-only resize affordance: there is no keyboard equivalent (column
     // widths are derived from drag delta), and the 6px hit zone is invisible
@@ -891,8 +891,8 @@ function ColumnResizeHandle({
     // biome-ignore lint/a11y/noStaticElementInteractions: mouse-only resize affordance, no keyboard equivalent.
     <div
       onPointerDown={onPointerDown2}
-      onDoubleClick={(e2) => e2.preventDefault()}
-      title={t2("canvas.table.resizeColumn", "Resize column")}
+      onDoubleClick={(clickEvent) => clickEvent.preventDefault()}
+      title={t("canvas.table.resizeColumn", "Resize column")}
       className="group/resize absolute top-0 z-10 flex h-full cursor-col-resize select-none items-stretch justify-center"
       style={{
         // Center the hit area on the cell's right border so users hovering
@@ -921,11 +921,11 @@ function useRowResize(apply2) {
     [],
   );
   const beginRowResize = reactExports.useCallback(
-    (e2, rowId, currentHeight) => {
-      e2.preventDefault();
-      e2.stopPropagation();
-      if (e2.button !== 0) return;
-      const startY = e2.clientY;
+    (mouseEvent, rowId, currentHeight) => {
+      mouseEvent.preventDefault();
+      mouseEvent.stopPropagation();
+      if (mouseEvent.button !== 0) return;
+      const startY = mouseEvent.clientY;
       const startHeight = currentHeight;
       let lastHeight = currentHeight;
       setPreviewRowHeight({
@@ -983,7 +983,7 @@ function RowResizeHandle({
   width,
   onPointerDown: onPointerDown2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     // Mouse-only resize affordance: there is no keyboard equivalent, and the
     // 6px hit zone is invisible — exposing a fake separator role only misleads
@@ -991,8 +991,8 @@ function RowResizeHandle({
     // biome-ignore lint/a11y/noStaticElementInteractions: mouse-only resize affordance, no keyboard equivalent.
     <div
       onPointerDown={onPointerDown2}
-      onDoubleClick={(e2) => e2.preventDefault()}
-      title={t2("canvas.table.resizeRow", "Resize row")}
+      onDoubleClick={(clickEvent) => clickEvent.preventDefault()}
+      title={t("canvas.table.resizeRow", "Resize row")}
       className="group/row-resize absolute left-0 z-10 flex cursor-row-resize select-none items-center justify-center"
       style={{
         // Center the hit area on the row's bottom border so users hovering
@@ -1048,16 +1048,16 @@ function FieldTypeIcon({ type: type2 }) {
   );
 }
 function ColumnHeader({ column, onRename }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [editing, setEditing] = reactExports.useState(false);
   const inputRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!editing) return;
-    const id2 = requestAnimationFrame(() => {
+    const id = requestAnimationFrame(() => {
       inputRef.current?.focus();
       inputRef.current?.select();
     });
-    return () => cancelAnimationFrame(id2);
+    return () => cancelAnimationFrame(id);
   }, [editing]);
   const commitEdit = () => {
     const next2 = inputRef.current?.value ?? column.title;
@@ -1073,19 +1073,19 @@ function ColumnHeader({ column, onRename }) {
           type="text"
           defaultValue={column.title}
           onBlur={commitEdit}
-          onKeyDown={(e2) => {
-            e2.stopPropagation();
-            if (e2.key === "Enter") {
-              e2.preventDefault();
+          onKeyDown={(keyboardEvent) => {
+            keyboardEvent.stopPropagation();
+            if (keyboardEvent.key === "Enter") {
+              keyboardEvent.preventDefault();
               commitEdit();
-            } else if (e2.key === "Escape") {
-              e2.preventDefault();
+            } else if (keyboardEvent.key === "Escape") {
+              keyboardEvent.preventDefault();
               setEditing(false);
             }
           }}
-          onClick={(e2) => e2.stopPropagation()}
-          onDoubleClick={(e2) => e2.stopPropagation()}
-          onPointerDown={(e2) => e2.stopPropagation()}
+          onClick={(clickEvent) => clickEvent.stopPropagation()}
+          onDoubleClick={(clickEvent) => clickEvent.stopPropagation()}
+          onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
           className="min-w-0 flex-1 bg-[var(--bg-subtle,#fafafa)] px-1 outline-none"
           style={{
             color: "var(--fg-default, #141414)",
@@ -1099,11 +1099,11 @@ function ColumnHeader({ column, onRename }) {
         // biome-ignore lint/a11y/noStaticElementInteractions: column rename also reachable via field-config panel kebab menu
         <span
           onDoubleClick={() => setEditing(true)}
-          title={t2("canvas.table.field.edit", "Edit")}
+          title={t("canvas.table.field.edit", "Edit")}
           className="flex h-full min-w-0 flex-1 cursor-text select-none items-center"
         >
           <span className="block min-w-0 flex-1 truncate">
-            {column.title || t2("canvas.table.untitledColumn", "Untitled")}
+            {column.title || t("canvas.table.untitledColumn", "Untitled")}
           </span>
         </span>
       )}
@@ -1115,7 +1115,7 @@ export function TableEditorInner({
   selectedRowIds,
   onSelectionChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { doc: doc2, apply: apply2 } = history2;
   const [showAddColumn, setShowAddColumn] = reactExports.useState(false);
   const scrollRef = reactExports.useRef(null);
@@ -1182,7 +1182,7 @@ export function TableEditorInner({
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id,
   });
-  const totalColumnWidth = visible.reduce((sum2, c3) => sum2 + widthOf(c3), 0);
+  const totalColumnWidth = visible.reduce((sum2, column) => sum2 + widthOf(column), 0);
   const tableMinWidth = ROW_HANDLE_WIDTH + totalColumnWidth + ADD_COLUMN_WIDTH;
   const toggleRowSelection = reactExports.useCallback(
     (rowId) => {
@@ -1194,13 +1194,13 @@ export function TableEditorInner({
     [selectedRowIds, onSelectionChange],
   );
   const visibleRowIds = reactExports.useMemo(
-    () => filteredRows.map((r2) => r2.id),
+    () => filteredRows.map((row) => row.id),
     [filteredRows],
   );
   const selectedVisibleCount = reactExports.useMemo(
     () =>
       visibleRowIds.reduce(
-        (n2, id2) => (selectedRowIds.has(id2) ? n2 + 1 : n2),
+        (count, id) => (selectedRowIds.has(id) ? count + 1 : count),
         0,
       ),
     [visibleRowIds, selectedRowIds],
@@ -1233,12 +1233,12 @@ export function TableEditorInner({
     apply2((prev) => addRow(prev));
   }, [apply2]);
   const [rowDragOver, setRowDragOver] = reactExports.useState(null);
-  const handleRowDragOver = reactExports.useCallback((rowId, e2) => {
-    if (!e2.dataTransfer.types.includes(ROW_DRAG_MIME)) return;
-    e2.preventDefault();
-    e2.dataTransfer.dropEffect = "move";
-    const rect = e2.currentTarget.getBoundingClientRect();
-    const isAfter2 = e2.clientY > rect.top + rect.height / 2;
+  const handleRowDragOver = reactExports.useCallback((rowId, dragEvent) => {
+    if (!dragEvent.dataTransfer.types.includes(ROW_DRAG_MIME)) return;
+    dragEvent.preventDefault();
+    dragEvent.dataTransfer.dropEffect = "move";
+    const rect = dragEvent.currentTarget.getBoundingClientRect();
+    const isAfter2 = dragEvent.clientY > rect.top + rect.height / 2;
     setRowDragOver((prev) =>
       prev?.rowId === rowId && prev.edge === (isAfter2 ? "after" : "before")
         ? prev
@@ -1248,18 +1248,18 @@ export function TableEditorInner({
           },
     );
   }, []);
-  const handleRowDragLeave = reactExports.useCallback((e2) => {
-    if (!e2.currentTarget.contains(e2.relatedTarget)) {
+  const handleRowDragLeave = reactExports.useCallback((dragEvent) => {
+    if (!dragEvent.currentTarget.contains(dragEvent.relatedTarget)) {
       setRowDragOver(null);
     }
   }, []);
   const handleRowDrop = reactExports.useCallback(
-    (rowId, e2) => {
-      const fromId = e2.dataTransfer.getData(ROW_DRAG_MIME);
+    (rowId, dragEvent) => {
+      const fromId = dragEvent.dataTransfer.getData(ROW_DRAG_MIME);
       const edge = rowDragOver?.edge ?? "before";
       setRowDragOver(null);
       if (!fromId || fromId === rowId) return;
-      e2.preventDefault();
+      dragEvent.preventDefault();
       apply2((prev) => moveRow(prev, fromId, rowId, edge));
     },
     [apply2, rowDragOver],
@@ -1283,11 +1283,11 @@ export function TableEditorInner({
                     width: ROW_HANDLE_WIDTH,
                   }}
                 />
-                {visible.map((c3) => (
+                {visible.map((column) => (
                   <col
-                    key={c3.id}
+                    key={column.id}
                     style={{
-                      width: widthOf(c3),
+                      width: widthOf(column),
                     }}
                   />
                 ))}
@@ -1316,7 +1316,7 @@ export function TableEditorInner({
                   </th>
                   {table2.getHeaderGroups()[0]?.headers.map((header) => {
                     const column = visible.find(
-                      (c3) => c3.id === header.column.id,
+                      (column) => column.id === header.column.id,
                     );
                     return (
                       <th
@@ -1337,8 +1337,8 @@ export function TableEditorInner({
                         {column && (
                           <ColumnResizeHandle
                             active={previewWidth?.id === column.id}
-                            onPointerDown={(e2) =>
-                              beginColumnResize(e2, column.id, widthOf(column))
+                            onPointerDown={(pointerEvent) =>
+                              beginColumnResize(pointerEvent, column.id, widthOf(column))
                             }
                           />
                         )}
@@ -1356,7 +1356,7 @@ export function TableEditorInner({
                   >
                     <button
                       type="button"
-                      title={t2("canvas.table.addColumn", "Add column")}
+                      title={t("canvas.table.addColumn", "Add column")}
                       onClick={() => setShowAddColumn(true)}
                       className="flex cursor-pointer items-center justify-center transition-colors hover:bg-[var(--bg-subtle,#eee)]"
                       style={{
@@ -1386,7 +1386,7 @@ export function TableEditorInner({
                           "1px solid var(--canvas-node-border, #e0e0e0)",
                       }}
                     >
-                      {t2(
+                      {t(
                         "canvas.table.noRows",
                         "No rows yet — click + below to add one",
                       )}
@@ -1403,9 +1403,9 @@ export function TableEditorInner({
                       <tr
                         key={row.id}
                         className="group"
-                        onDragOver={(e2) => handleRowDragOver(row.id, e2)}
+                        onDragOver={(dragEvent) => handleRowDragOver(row.id, dragEvent)}
                         onDragLeave={handleRowDragLeave}
-                        onDrop={(e2) => handleRowDrop(row.id, e2)}
+                        onDrop={(dragEvent) => handleRowDrop(row.id, dragEvent)}
                         style={{
                           height: rowEffectivePx,
                           background: isSelected
@@ -1442,8 +1442,8 @@ export function TableEditorInner({
                           <RowResizeHandle
                             active={isResizingThisRow}
                             width={tableMinWidth}
-                            onPointerDown={(e2) =>
-                              beginRowResize(e2, row.id, rowEffectivePx)
+                            onPointerDown={(pointerEvent) =>
+                              beginRowResize(pointerEvent, row.id, rowEffectivePx)
                             }
                           />
                         </td>
@@ -1517,7 +1517,7 @@ export function TableEditorInner({
                           <PlusIcon />
                         </span>
                       </span>
-                      <span>{t2("canvas.table.addRow", "Add row")}</span>
+                      <span>{t("canvas.table.addRow", "Add row")}</span>
                     </button>
                   </td>
                 </tr>

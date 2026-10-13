@@ -1,0 +1,7 @@
+key	new	reason
+id2@218:39	id	原名 id，去掉打包器加的数字去重后缀
+id2@222:33	id	原名 id，去掉打包器加的数字去重后缀
+e2@245:35	dragEvent	函数体读取 dataTransfer 的拖放事件
+p3@95:43	prefix	恢复消息前缀
+p3@106:14	prefix	恢复消息前缀，命中则剥掉
+p3@121:37	resumePrompt	续写子任务的提示词

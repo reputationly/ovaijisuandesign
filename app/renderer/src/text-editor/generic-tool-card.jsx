@@ -39,7 +39,7 @@ function getRunningPhraseKeys(labelId, toolName2) {
 const ROTATE_INTERVAL_MS = 1e4;
 
 function useRunningPhrase(labelId, isRunning, toolName2) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [index2, setIndex] = reactExports.useState(0);
   reactExports.useEffect(() => {
     setIndex(0);
@@ -47,7 +47,7 @@ function useRunningPhrase(labelId, isRunning, toolName2) {
     const keys22 = getRunningPhraseKeys(labelId, toolName2);
     if (keys22.length <= 1) return;
     const tick = setInterval(() => {
-      setIndex((i2) => (i2 + 1) % keys22.length);
+      setIndex((i) => (i + 1) % keys22.length);
     }, ROTATE_INTERVAL_MS);
     return () => clearInterval(tick);
   }, [labelId, isRunning, toolName2]);
@@ -55,11 +55,11 @@ function useRunningPhrase(labelId, isRunning, toolName2) {
   const keys2 = getRunningPhraseKeys(labelId, toolName2);
   if (keys2.length === 0) return null;
   const key2 = keys2[index2] ?? keys2[0];
-  return key2 ? t2(key2) : null;
+  return key2 ? t(key2) : null;
 }
 
 export function GenericToolCard({ msg, repeatCount: _repeatCount }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const toolName2 = msg.content;
   const status = msg.toolStatus ?? "pending";
   const labelId = getToolLabelId(toolName2);
@@ -69,7 +69,7 @@ export function GenericToolCard({ msg, repeatCount: _repeatCount }) {
     toolName2,
   );
   if (labelId === "silent") return null;
-  const staticLabel = getToolDisplayLabel(toolName2, t2);
+  const staticLabel = getToolDisplayLabel(toolName2, t);
   const chipLabelText = runningPhrase ?? staticLabel;
   const isTask = labelId === "spawnSubtask";
   const toolMarker = isTask
@@ -95,7 +95,7 @@ export function GenericToolCard({ msg, repeatCount: _repeatCount }) {
         data-action-ui-id={isTask ? "chat-task-status" : void 0}
         className="ml-auto text-body-14 text-muted-foreground shrink-0"
       >
-        {getToolStatusLabel(status, t2, msg.toolResult, msg.interruption)}
+        {getToolStatusLabel(status, t, msg.toolResult, msg.interruption)}
       </span>
     </div>
   );

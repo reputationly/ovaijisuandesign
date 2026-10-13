@@ -56,7 +56,7 @@ export function getAnnotationSelectionRanges(selection2) {
       to: range2.$to.pos,
     }))
     .filter((range2) => range2.from < range2.to)
-    .sort((a2, b3) => a2.from - b3.from || a2.to - b3.to);
+    .sort((a, b) => a.from - b.from || a.to - b.to);
 }
 export function updateAttrs(dom, prev, attrs) {
   let changed = false;

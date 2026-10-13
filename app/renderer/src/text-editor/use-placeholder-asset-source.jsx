@@ -82,7 +82,7 @@ export function PreviewCardContent({
 export function useCanvasResourceResolvers(httpClient) {
   const gatewayFetch2 = useGatewayFetch();
   const gatewayUrl2 = useGatewayUrl();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const handleLoadTextContent = reactExports.useCallback(
     async (filePath) => {
       if (isCanvasReferenceUri(filePath)) {
@@ -91,7 +91,7 @@ export function useCanvasResourceResolvers(httpClient) {
         );
         if (!response.ok)
           throw new Error(
-            t2("canvas.reference.unavailable", "Reference unavailable"),
+            t("canvas.reference.unavailable", "Reference unavailable"),
           );
         return response.text();
       }
@@ -101,7 +101,7 @@ export function useCanvasResourceResolvers(httpClient) {
         return "";
       }
     },
-    [httpClient, gatewayFetch2, t2],
+    [httpClient, gatewayFetch2, t],
   );
   const handleResolveFileUrl = reactExports.useCallback(
     (path2) =>

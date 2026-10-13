@@ -14,14 +14,14 @@ import { Flag } from "../media-editing/package.jsx";
 import { Button } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
 export function SkillReloadDock({ skillNames, onReload, onDismiss }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const hasNames = skillNames && skillNames.length > 0;
   const title = hasNames
-    ? t2("skills.reloadDock.titleWithCount", {
+    ? t("skills.reloadDock.titleWithCount", {
         count: skillNames.length,
         defaultValue: "{{count}} 个新 Skill 已就绪",
       })
-    : t2("skills.reloadDock.title", {
+    : t("skills.reloadDock.title", {
         defaultValue: "Skill 已更新",
       });
   return (
@@ -46,7 +46,7 @@ export function SkillReloadDock({ skillNames, onReload, onDismiss }) {
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {t2("skills.reloadDock.warning", {
+            {t("skills.reloadDock.warning", {
               defaultValue: "重新加载将重启 Agent，当前对话会中断",
             })}
           </p>
@@ -59,7 +59,7 @@ export function SkillReloadDock({ skillNames, onReload, onDismiss }) {
             className="h-7 rounded-md text-xs"
             onClick={onReload}
           >
-            {t2("skills.reloadDock.reload", {
+            {t("skills.reloadDock.reload", {
               defaultValue: "重新加载",
             })}
           </Button>
@@ -105,7 +105,7 @@ export function ToolConfirmMiniBar({
   onJump,
   onApproveAll,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (pendingCount <= 0) return null;
   return (
     <div
@@ -117,13 +117,13 @@ export function ToolConfirmMiniBar({
           <ApprovalIcon className="shrink-0 text-brand-accent" />
           <span className="text-body-12 text-foreground">
             {approvalState === "checking"
-              ? t2("chat.toolConfirm.miniBar.checking", "Checking workflow")
+              ? t("chat.toolConfirm.miniBar.checking", "Checking workflow")
               : approvalState === "blocked"
-                ? t2(
+                ? t(
                     "chat.toolConfirm.miniBar.blocked",
                     "Complete required inputs",
                   )
-                : t2(
+                : t(
                     "chat.toolConfirm.miniBar.needsApproval",
                     "Needs approval to run",
                   )}
@@ -136,7 +136,7 @@ export function ToolConfirmMiniBar({
             className="inline-flex items-center h-7 px-2.5 text-body-12 font-medium rounded-md bg-foreground/5 text-foreground hover:bg-foreground/10 transition-colors cursor-pointer"
             onClick={onJump}
           >
-            {t2("chat.toolConfirm.miniBar.jumpToTop", "Jump")}
+            {t("chat.toolConfirm.miniBar.jumpToTop", "Jump")}
           </button>
           {approvalState === "ready" && (
             <button
@@ -146,7 +146,7 @@ export function ToolConfirmMiniBar({
               className="inline-flex items-center gap-0.5 h-7 px-2.5 text-body-12 font-medium rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
               onClick={onApproveAll}
             >
-              {t2("chat.toolConfirm.miniBar.generate", "Generate")}
+              {t("chat.toolConfirm.miniBar.generate", "Generate")}
               <span>X</span>
               <span>{pendingCount}</span>
             </button>
@@ -260,7 +260,7 @@ function runtimeNodeId(item) {
 }
 function getStageRuntimeNodeIds(stage) {
   return [
-    ...new Set(stage.runtime_refs.map(runtimeNodeId).filter((id2) => !!id2)),
+    ...new Set(stage.runtime_refs.map(runtimeNodeId).filter((id) => !!id)),
   ];
 }
 function getStageOutputPaths(stage) {
@@ -285,7 +285,7 @@ function getStageFocusNodeIds(stage) {
           item.node_id,
           item.document_node_id,
         ])
-        .filter((id2) => !!id2),
+        .filter((id) => !!id),
     ),
   ];
 }
@@ -312,7 +312,7 @@ export function StageConfirmationBar({
   disabled: disabled2 = false,
   onConfirm,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const workspaceId2 = useCurrentWorkspace();
   const canLocate = canFocusStageOutputs(stage);
   const confirmationCopy = getStageConfirmationCopy(stage, finalStage);
@@ -344,7 +344,7 @@ export function StageConfirmationBar({
           />
           <Icon icon={Crosshair} size="sm" strokeWidth={1.5} />
           <span className="pointer-events-none">
-            {t2("productionPlan.actions.viewOutput", "查看产物")}
+            {t("productionPlan.actions.viewOutput", "查看产物")}
           </span>
         </Button>
       )}
@@ -363,7 +363,7 @@ export function StageConfirmationBar({
         />
         <Icon icon={ConfirmationIcon} size="sm" strokeWidth={1.5} />
         <span className="pointer-events-none">
-          {t2(confirmationCopy.actionKey, confirmationCopy.actionFallback)}
+          {t(confirmationCopy.actionKey, confirmationCopy.actionFallback)}
         </span>
       </Button>
     </div>

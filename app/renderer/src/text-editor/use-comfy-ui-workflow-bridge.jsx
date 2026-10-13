@@ -13,14 +13,14 @@ const CANVAS_ADD_NODE_BADGE_IDS = {
   comfyUi: "canvas-add-comfyui-new-v1",
 };
 function useCanvasAddNodeMenuBadges() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const configs = reactExports.useMemo(() => {
     const appearance = {
-      label: t2("canvas.releaseBadgeNew"),
+      label: t("canvas.releaseBadgeNew"),
       tone: "brand",
     };
-    return Object.entries(CANVAS_ADD_NODE_BADGE_IDS).map(([target, id2]) => ({
-      id: id2,
+    return Object.entries(CANVAS_ADD_NODE_BADGE_IDS).map(([target, id]) => ({
+      id,
       target,
       display: {
         mode: "once",
@@ -28,7 +28,7 @@ function useCanvasAddNodeMenuBadges() {
         afterComplete: null,
       },
     }));
-  }, [t2]);
+  }, [t]);
   const { badges: badges2, markReleaseBadgeComplete } =
     useReleaseBadges(configs);
   const addNodeMenuBadges = reactExports.useMemo(
@@ -67,8 +67,8 @@ function parseOpenWorkflowResult(value) {
   };
 }
 function useComfyUiWorkflowBridge() {
-  const { t: t2 } = useTranslation();
-  const gatewayFetch$1 = useGatewayFetch();
+  const { t } = useTranslation();
+  const scopedGatewayFetch = useGatewayFetch();
   const fetchComfyUiWorkflows = reactExports.useCallback(
     () => fetchLocalComfyUiWorkflows(gatewayFetch),
     [],
@@ -76,7 +76,7 @@ function useComfyUiWorkflowBridge() {
   const openComfyUiWorkflow = reactExports.useCallback(
     async (workflowId, position2) => {
       try {
-        const response = await gatewayFetch$1(
+        const response = await scopedGatewayFetch(
           API_PATHS.comfyUiWorkflowOpen(workflowId),
           {
             method: "POST",
@@ -100,13 +100,13 @@ function useComfyUiWorkflowBridge() {
           throw new Error(result.error || result.status);
       } catch (error) {
         dedupedToast.error(
-          t2("workflows.addFailed", {
+          t("workflows.addFailed", {
             message: error instanceof Error ? error.message : String(error),
           }),
         );
       }
     },
-    [gatewayFetch$1, t2],
+    [scopedGatewayFetch, t],
   );
   return {
     fetchComfyUiWorkflows,

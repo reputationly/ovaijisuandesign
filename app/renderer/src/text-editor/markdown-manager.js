@@ -99,8 +99,8 @@ function findMarksToCloseAtEnd(
         .forEach(([markType, activeMark]) => {
           if (
             !nextNode.marks.find(
-              (m3) =>
-                m3.type === markType && attrsEqual(m3.attrs, activeMark.attrs),
+              (mark) =>
+                mark.type === markType && attrsEqual(mark.attrs, activeMark.attrs),
             )
           )
             marksToCloseAtEnd.push(markType);
@@ -176,7 +176,7 @@ export var MarkdownManager = class {
     var _options$marked,
       _options$indentation$,
       _options$indentation,
-      _options$indentation$2,
+      optionsIndentation,
       _options$indentation2;
     this.activeParseLexer = null;
     this.extensionRanks = new Map();
@@ -204,15 +204,15 @@ export var MarkdownManager = class {
         ? _options$indentation$
         : "space";
     this.indentSize =
-      (_options$indentation$2 =
+      (optionsIndentation =
         options === null ||
         options === void 0 ||
         (_options$indentation2 = options.indentation) === null ||
         _options$indentation2 === void 0
           ? void 0
           : _options$indentation2.size) !== null &&
-      _options$indentation$2 !== void 0
-        ? _options$indentation$2
+      optionsIndentation !== void 0
+        ? optionsIndentation
         : 2;
     this.baseExtensions =
       (options === null || options === void 0 ? void 0 : options.extensions) ||
@@ -560,8 +560,8 @@ export var MarkdownManager = class {
     const groups = [];
     let currentGroup = [];
     let currentType = null;
-    for (let i2 = 0; i2 < token2.items.length; i2 += 1) {
-      const item = token2.items[i2];
+    for (let i = 0; i < token2.items.length; i += 1) {
+      const item = token2.items[i];
       const { isTask, checked, indentLevel } = isTaskItem(item);
       let processedItem = item;
       if (isTask) {
@@ -622,8 +622,8 @@ export var MarkdownManager = class {
         items: currentGroup,
       });
     const results = [];
-    for (let i2 = 0; i2 < groups.length; i2 += 1) {
-      const group = groups[i2];
+    for (let i = 0; i < groups.length; i += 1) {
+      const group = groups[i];
       const subToken = {
         ...token2,
         type: group.type,
@@ -711,8 +711,8 @@ export var MarkdownManager = class {
    */
   parseInlineTokens(tokens2) {
     const result = [];
-    for (let i2 = 0; i2 < tokens2.length; i2 += 1) {
-      const token2 = tokens2[i2];
+    for (let i = 0; i < tokens2.length; i += 1) {
+      const token2 = tokens2[i];
       if (token2.type === "text")
         result.push({
           type: "text",
@@ -741,20 +741,20 @@ export var MarkdownManager = class {
           const closingRegex = new RegExp(`^<\\/\\s*${escapedTagName}\\b`, "i");
           let foundIndex = -1;
           const parts = [raw2];
-          for (let j2 = i2 + 1; j2 < tokens2.length; j2 += 1) {
+          for (let j = i + 1; j < tokens2.length; j += 1) {
             var _ref2, _t$raw;
-            const t2 = tokens2[j2];
+            const token = tokens2[j];
             const tRaw = (
               (_ref2 =
-                (_t$raw = t2.raw) !== null && _t$raw !== void 0
+                (_t$raw = token.raw) !== null && _t$raw !== void 0
                   ? _t$raw
-                  : t2.text) !== null && _ref2 !== void 0
+                  : token.text) !== null && _ref2 !== void 0
                 ? _ref2
                 : ""
             ).toString();
             parts.push(tRaw);
-            if (t2.type === "html" && closingRegex.test(tRaw)) {
-              foundIndex = j2;
+            if (token.type === "html" && closingRegex.test(tRaw)) {
+              foundIndex = j;
               break;
             }
           }
@@ -772,7 +772,7 @@ export var MarkdownManager = class {
               if (Array.isArray(normalized)) result.push(...normalized);
               else if (normalized) result.push(normalized);
             }
-            i2 = foundIndex;
+            i = foundIndex;
             continue;
           }
         }
@@ -803,15 +803,15 @@ export var MarkdownManager = class {
           result.push(...this.parseInlineTokens(token2.tokens));
       }
     }
-    for (let i2 = result.length - 1; i2 > 0; i2 -= 1) {
-      const current2 = result[i2];
-      const previous2 = result[i2 - 1];
+    for (let i = result.length - 1; i > 0; i -= 1) {
+      const current2 = result[i];
+      const previous2 = result[i - 1];
       if (current2.type === "text" && previous2.type === "text") {
         const currentMarks = current2.marks || [];
         const previousMarks = previous2.marks || [];
         if (marksEqual(currentMarks, previousMarks)) {
           previous2.text = (previous2.text || "") + (current2.text || "");
-          result.splice(i2, 1);
+          result.splice(i, 1);
         }
       }
     }
@@ -1059,8 +1059,8 @@ export var MarkdownManager = class {
         ? void 0
         : parentNode2.type) != null &&
         this.codeTypes.has(parentNode2.type)) ||
-      (node2.marks || []).some((m3) =>
-        this.codeTypes.has(typeof m3 === "string" ? m3 : m3.type),
+      (node2.marks || []).some((mark) =>
+        this.codeTypes.has(typeof mark === "string" ? mark : mark.type),
       )
     )
       return text2;
@@ -1174,8 +1174,8 @@ export var MarkdownManager = class {
     const activeMarks = new Map();
     const reopenWithHtmlOnNextOpen = new Set();
     const markOpeningModes = new Map();
-    nodes.forEach((node2, i2) => {
-      const nextNode = i2 < nodes.length - 1 ? nodes[i2 + 1] : null;
+    nodes.forEach((node2, i) => {
+      const nextNode = i < nodes.length - 1 ? nodes[i + 1] : null;
       if (!node2.type) return;
       if (node2.type === "text") {
         let textContent = this.encodeTextForMarkdown(
@@ -1290,11 +1290,11 @@ export var MarkdownManager = class {
           const activeMarksClosingHereLifo = activeMarksClosingHere
             .slice()
             .sort(
-              (a2, b3) =>
-                activeMarkKeys.indexOf(b3) - activeMarkKeys.indexOf(a2),
+              (a, b) =>
+                activeMarkKeys.indexOf(b) - activeMarkKeys.indexOf(a),
             );
           marksToCloseAtEnd = [
-            ...marksToOpen.map((m3) => m3.type),
+            ...marksToOpen.map((mark) => mark.type),
             ...activeMarksClosingHereLifo,
           ];
         } else
@@ -1364,7 +1364,7 @@ export var MarkdownManager = class {
         const nodeContent = this.renderNodeToMarkdown(
           node2,
           parentNode2,
-          i2,
+          i,
           level,
         );
         const afterMarkdown =
@@ -1536,22 +1536,22 @@ export var MarkdownManager = class {
       [];
     const continuesInNextNode = (markType, attrs) =>
       nextMarks.some(
-        (m3) => m3.type === markType && attrsEqual(m3.attrs, attrs),
+        (mark) => mark.type === markType && attrsEqual(mark.attrs, attrs),
       );
-    const byRankInnerFirst = (a2, b3) => {
+    const byRankInnerFirst = (a, b) => {
       var _this$extensionRanks$, _this$extensionRanks;
       const rankA =
-        (_this$extensionRanks$ = this.extensionRanks.get(a2.type)) !== null &&
+        (_this$extensionRanks$ = this.extensionRanks.get(a.type)) !== null &&
         _this$extensionRanks$ !== void 0
           ? _this$extensionRanks$
           : Number.MAX_SAFE_INTEGER;
       const rankB =
-        (_this$extensionRanks = this.extensionRanks.get(b3.type)) !== null &&
+        (_this$extensionRanks = this.extensionRanks.get(b.type)) !== null &&
         _this$extensionRanks !== void 0
           ? _this$extensionRanks
           : Number.MAX_SAFE_INTEGER;
       if (rankA !== rankB) return rankB - rankA;
-      return a2.type.localeCompare(b3.type);
+      return a.type.localeCompare(b.type);
     };
     const endingHere = marksToOpen
       .filter((mark2) => !continuesInNextNode(mark2.type, mark2.mark.attrs))

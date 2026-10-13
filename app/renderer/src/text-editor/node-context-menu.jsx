@@ -36,10 +36,10 @@ function NodeContextMenuIcon({ icon, viewBoxSize = 24 }) {
   return <StrokeIcon icon={icon} size={16} viewBoxSize={viewBoxSize} />;
 }
 function TagMenuItem({ assets }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const panelId = reactExports.useId();
-  const label = t2("canvasTags.entry");
+  const label = t("canvasTags.entry");
   const trigger = (
     <ActionListItem
       aria-haspopup="dialog"
@@ -115,7 +115,7 @@ export function NodeContextMenu({
   onClose,
   motionProps,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const fallbackRef = reactExports.useRef(null);
   const ref = motionProps?.ref ?? fallbackRef;
   const closing2 = motionProps?.["data-ending-style"] !== void 0;
@@ -173,8 +173,8 @@ export function NodeContextMenu({
   }, [updateMenuPosition, ref]);
   reactExports.useEffect(() => {
     if (closing2) return;
-    const handleClick2 = (e2) => {
-      const target = e2.target;
+    const handleClick2 = (mouseEvent) => {
+      const target = mouseEvent.target;
       if (ref.current?.contains(target)) return;
       if (
         target instanceof Element &&
@@ -183,8 +183,8 @@ export function NodeContextMenu({
         return;
       onClose();
     };
-    const handleKey = (e2) => {
-      if (e2.key === "Escape") onClose();
+    const handleKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") onClose();
     };
     document.addEventListener("mousedown", handleClick2);
     document.addEventListener("keydown", handleKey);
@@ -193,16 +193,16 @@ export function NodeContextMenu({
       document.removeEventListener("keydown", handleKey);
     };
   }, [onClose, closing2, ref]);
-  const wrap2 = (fn2) => () => {
-    fn2();
+  const wrap2 = (fn) => () => {
+    fn();
     onClose();
   };
   const isSingle = targets.length === 1;
   const single = isSingle ? targets[0] : null;
   const isSingleGroup = isSingle && single?.nodeType === CanvasNodeType.Group;
-  const fileBackedTargets = targets.filter((t22) => t22.filePath);
+  const fileBackedTargets = targets.filter((menuTarget) => menuTarget.filePath);
   const hasFileBackedTargets = fileBackedTargets.length > 0;
-  const fsTargets = targets.filter((t22) => t22.filePath && t22.absolutePath);
+  const fsTargets = targets.filter((menuTarget) => menuTarget.filePath && menuTarget.absolutePath);
   const isTable = single?.fileType === "table";
   const showAddToChat = hasFileBackedTargets;
   const hasFileSlot = isSingle && !!single?.filePath && !!single.absolutePath;
@@ -217,9 +217,9 @@ export function NodeContextMenu({
   const showGroup = !isSingle;
   const showUngroup = !!isSingleGroup && !!single;
   const hasGroupTarget = targets.some(
-    (t22) => t22.nodeType === CanvasNodeType.Group,
+    (menuTarget) => menuTarget.nodeType === CanvasNodeType.Group,
   );
-  const hasTableTarget = targets.some((t22) => t22.fileType === "table");
+  const hasTableTarget = targets.some((menuTarget) => menuTarget.fileType === "table");
   const showPromoteToAsset =
     !!actions.promoteToAsset &&
     !hasTableTarget &&
@@ -314,7 +314,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-add-to-chat"
           icon={<NodeContextMenuIcon icon={AddToChatIcon} viewBoxSize={20} />}
-          label={t2("canvas.addToChat")}
+          label={t("canvas.addToChat")}
           onClick={handleAddToChat}
         />
       )}
@@ -323,12 +323,12 @@ export function NodeContextMenu({
           <MenuButton
             testId="canvas-copy-from-menu"
             icon={<NodeContextMenuIcon icon={Copy} />}
-            label={t2("common.copy")}
+            label={t("common.copy")}
             onClick={handleCopy}
           />
           <MenuButton
             icon={<NodeContextMenuIcon icon={Save} />}
-            label={t2("common.saveAs")}
+            label={t("common.saveAs")}
             onClick={handleSaveAs}
           />
         </>
@@ -337,7 +337,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-rename-from-menu"
           icon={<NodeContextMenuIcon icon={PencilIcon} />}
-          label={t2("common.rename")}
+          label={t("common.rename")}
           onClick={handleRename}
         />
       )}
@@ -347,14 +347,14 @@ export function NodeContextMenu({
       <MenuButton
         testId="canvas-copy-canvas"
         icon={<NodeContextMenuIcon icon={CopyPlus} />}
-        label={t2("canvas.copyCanvasNode")}
+        label={t("canvas.copyCanvasNode")}
         onClick={handleCopyCanvas}
       />
       {showGroup && (
         <MenuButton
           testId="canvas-group-from-menu"
           icon={<GroupIcon size={16} />}
-          label={t2("canvas.group")}
+          label={t("canvas.group")}
           onClick={handleGroup}
         />
       )}
@@ -362,7 +362,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-ungroup-from-menu"
           icon={<UngroupIcon size={16} />}
-          label={t2("canvas.ungroup")}
+          label={t("canvas.ungroup")}
           onClick={handleUngroup}
         />
       )}
@@ -370,7 +370,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-promote-to-asset-from-menu"
           icon={<NodeContextMenuIcon icon={Library} />}
-          label={t2("canvas.addToLibrary")}
+          label={t("canvas.addToLibrary")}
           onClick={handlePromoteToAsset}
         />
       )}
@@ -378,7 +378,7 @@ export function NodeContextMenu({
         <MenuButton
           testId="canvas-save-to-project-assets-from-menu"
           icon={<NodeContextMenuIcon icon={FolderInput} />}
-          label={t2("canvas.saveToProjectAssets")}
+          label={t("canvas.saveToProjectAssets")}
           onClick={handleSaveToProjectAssets}
         />
       )}
@@ -401,8 +401,8 @@ export function NodeContextMenu({
           icon={<NodeContextMenuIcon icon={Trash2} />}
           label={
             single?.generationErrorStatus === "status_unknown"
-              ? t2("canvas.removeLocalPlaceholder")
-              : t2("common.delete")
+              ? t("canvas.removeLocalPlaceholder")
+              : t("common.delete")
           }
           onClick={handleDelete2}
         />

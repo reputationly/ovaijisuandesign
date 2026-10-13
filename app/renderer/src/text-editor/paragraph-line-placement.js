@@ -190,13 +190,13 @@ export function findMatchesInText(text2, query, options, opts) {
   const baseOffset = opts?.baseOffset ?? 0;
   const matches2 = [];
   let limited = false;
-  let m3 = pattern.exec(text2);
-  while (m3 != null) {
-    if (m3[0].length === 0) {
+  let match = pattern.exec(text2);
+  while (match != null) {
+    if (match[0].length === 0) {
       pattern.lastIndex += 1;
     } else {
-      const from2 = m3.index;
-      const to = m3.index + m3[0].length;
+      const from2 = match.index;
+      const to = match.index + match[0].length;
       if (!options.wholeWord || isWholeWordMatch(text2, from2, to)) {
         matches2.push({
           from: from2 + baseOffset,
@@ -208,7 +208,7 @@ export function findMatchesInText(text2, query, options, opts) {
         }
       }
     }
-    m3 = pattern.exec(text2);
+    match = pattern.exec(text2);
   }
   return {
     matches: matches2,
@@ -216,15 +216,15 @@ export function findMatchesInText(text2, query, options, opts) {
   };
 }
 
-function expandReplacement(m3, replacement) {
+function expandReplacement(match, replacement) {
   return replacement.replace(/\$(\$|&|\d{1,2})/g, (full, token2) => {
     if (token2 === "$") return "$";
-    if (token2 === "&") return m3[0];
-    const n2 = Number(token2);
-    if (m3[n2] !== void 0) return m3[n2];
+    if (token2 === "&") return match[0];
+    const groupIndex = Number(token2);
+    if (match[groupIndex] !== void 0) return match[groupIndex];
     if (token2.length === 2) {
       const first2 = Number(token2[0]);
-      if (m3[first2] !== void 0) return m3[first2] + token2[1];
+      if (match[first2] !== void 0) return match[first2] + token2[1];
     }
     return full;
   });
@@ -233,10 +233,10 @@ function expandReplacement(m3, replacement) {
 export function computeReplacementWith(pattern, matchedText, replacement) {
   if (!pattern) return replacement;
   pattern.lastIndex = 0;
-  const m3 = pattern.exec(matchedText);
-  if (!m3 || m3.index !== 0 || m3[0].length !== matchedText.length)
+  const match = pattern.exec(matchedText);
+  if (!match || match.index !== 0 || match[0].length !== matchedText.length)
     return replacement;
-  return expandReplacement(m3, replacement);
+  return expandReplacement(match, replacement);
 }
 
 export function computeReplacement(matchedText, query, options, replacement) {

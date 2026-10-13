@@ -22,8 +22,8 @@ export function buildDecorations(doc2, meta2) {
     );
   };
   const count2 = Math.min(meta2.ranges.length, MAX_FIND_DECORATIONS);
-  for (let i2 = 0; i2 < count2; i2++) {
-    push2(meta2.ranges[i2], i2 === meta2.activeIndex);
+  for (let i = 0; i < count2; i++) {
+    push2(meta2.ranges[i], i === meta2.activeIndex);
   }
   if (meta2.activeIndex >= count2 && meta2.activeIndex < meta2.ranges.length) {
     push2(meta2.ranges[meta2.activeIndex], true);
@@ -51,7 +51,7 @@ export function reconstructDiffReviewBaseline(postApplyMarkdown, session) {
       index: index2,
     }))
     .sort(
-      (a2, b3) => b3.hunk.newStart - a2.hunk.newStart || b3.index - a2.index,
+      (a, b) => b.hunk.newStart - a.hunk.newStart || b.index - a.index,
     )
     .map(({ hunk }) => hunk);
   for (const hunk of hunks) {

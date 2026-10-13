@@ -31,7 +31,7 @@ import { markdown } from "@codemirror/lang-markdown";
 import {
   replaceAll,
   SearchQuery,
-  search as search$1,
+  search,
   setSearchQuery,
 } from "@codemirror/search";
 import { markdownLanguage } from "../vendor-inline/codemirror/insert-newline-continue-markup-command.js";
@@ -64,7 +64,7 @@ function buildSourceFindDecorations(
     );
   };
   const count2 = Math.min(matches2.length, MAX_SOURCE_FIND_DECORATIONS);
-  for (let i2 = 0; i2 < count2; i2++) push2(matches2[i2], i2 === activeIndex);
+  for (let i = 0; i < count2; i++) push2(matches2[i], i === activeIndex);
   if (activeIndex >= count2 && activeIndex < matches2.length)
     push2(matches2[activeIndex], true);
   return Decoration2.set(ranges, true);
@@ -262,7 +262,7 @@ export const CodeMirrorSourceEditor = reactExports.forwardRef(
         sourceFindHighlightField,
         // Search state is headless here: FullscreenShell keeps the product FindBar,
         // while CodeMirror supplies rope-backed scanning and replace-all commands.
-        search$1(),
+        search(),
         sourceEditorTheme,
         EditorView2.lineWrapping,
         EditorView2.contentAttributes.of({

@@ -255,9 +255,9 @@ const AnnotationHighlight = Extension.create({
               activeId: null,
             };
           },
-          apply(tr2, prev) {
-            const meta2 = tr2.getMeta(annotationPluginKey);
-            const historySnapshot = getAnnotationHistorySnapshot(tr2);
+          apply(tr, prev) {
+            const meta2 = tr.getMeta(annotationPluginKey);
+            const historySnapshot = getAnnotationHistorySnapshot(tr);
             let next2 = historySnapshot
               ? {
                   marks: historySnapshot.marks.map((mark2) => ({
@@ -276,7 +276,7 @@ const AnnotationHighlight = Extension.create({
                   break;
                 case "remove":
                   next2 = {
-                    marks: next2.marks.filter((m3) => m3.id !== meta2.id),
+                    marks: next2.marks.filter((mark) => mark.id !== meta2.id),
                     activeId:
                       next2.activeId === meta2.id ? null : next2.activeId,
                   };
@@ -295,11 +295,11 @@ const AnnotationHighlight = Extension.create({
                   break;
               }
             }
-            if (tr2.docChanged && !historySnapshot) {
-              const mapped = next2.marks.map((m3) => ({
-                id: m3.id,
-                from: tr2.mapping.map(m3.from, -1),
-                to: tr2.mapping.map(m3.to, 1),
+            if (tr.docChanged && !historySnapshot) {
+              const mapped = next2.marks.map((mark) => ({
+                id: mark.id,
+                from: tr.mapping.map(mark.from, -1),
+                to: tr.mapping.map(mark.to, 1),
               }));
               next2 = {
                 ...next2,
@@ -315,15 +315,15 @@ const AnnotationHighlight = Extension.create({
             if (!pluginState) return DecorationSet.empty;
             const decorations2 = pluginState.marks
               .filter(
-                (m3) => m3.from < m3.to && m3.to <= state2.doc.content.size,
+                (mark) => mark.from < mark.to && mark.to <= state2.doc.content.size,
               )
-              .map((m3) =>
-                Decoration.inline(m3.from, m3.to, {
+              .map((mark) =>
+                Decoration.inline(mark.from, mark.to, {
                   class:
-                    m3.id === pluginState.activeId
+                    mark.id === pluginState.activeId
                       ? `${ANNOTATION_CLASS} ${ANNOTATION_ACTIVE_CLASS}`
                       : ANNOTATION_CLASS,
-                  "data-annotation-id": m3.id,
+                  "data-annotation-id": mark.id,
                 }),
               );
             return DecorationSet.create(state2.doc, decorations2);
@@ -345,8 +345,8 @@ const BlurSelectionHighlight = Extension.create({
           init() {
             return false;
           },
-          apply(tr2, prev) {
-            const meta2 = tr2.getMeta(blurSelectionPluginKey);
+          apply(tr, prev) {
+            const meta2 = tr.getMeta(blurSelectionPluginKey);
             return meta2 ?? prev;
           },
         },
@@ -354,16 +354,16 @@ const BlurSelectionHighlight = Extension.create({
           handleDOMEvents: {
             focus(view2) {
               if (blurSelectionPluginKey.getState(view2.state)) {
-                const tr2 = view2.state.tr.setMeta(
+                const tr = view2.state.tr.setMeta(
                   blurSelectionPluginKey,
                   false,
                 );
                 if (!view2.state.selection.empty) {
-                  tr2.setSelection(
+                  tr.setSelection(
                     TextSelection.near(view2.state.selection.$head),
                   );
                 }
-                view2.dispatch(tr2);
+                view2.dispatch(tr);
               }
               return false;
             },
@@ -394,11 +394,11 @@ const BlurSelectionHighlight = Extension.create({
     ];
   },
 });
-function buildFormatItems(editor, t2) {
+function buildFormatItems(editor, t) {
   return [
     {
       id: "h1",
-      label: t2("canvas.heading1"),
+      label: t("canvas.heading1"),
       icon: (
         <span className="text-[13px] font-semibold leading-none">
           H<sub className="text-[9px]">1</sub>
@@ -415,7 +415,7 @@ function buildFormatItems(editor, t2) {
     },
     {
       id: "h2",
-      label: t2("canvas.heading2"),
+      label: t("canvas.heading2"),
       icon: (
         <span className="text-[13px] font-semibold leading-none">
           H<sub className="text-[9px]">2</sub>
@@ -432,7 +432,7 @@ function buildFormatItems(editor, t2) {
     },
     {
       id: "h3",
-      label: t2("canvas.heading3"),
+      label: t("canvas.heading3"),
       icon: (
         <span className="text-[13px] font-semibold leading-none">
           H<sub className="text-[9px]">3</sub>
@@ -449,33 +449,33 @@ function buildFormatItems(editor, t2) {
     },
     {
       id: "paragraph",
-      label: t2("canvas.paragraph"),
+      label: t("canvas.paragraph"),
       icon: <ParagraphIcon />,
       onClick: () => editor.chain().focus().setParagraph().run(),
     },
     {
       id: "bold",
-      label: t2("canvas.bold"),
+      label: t("canvas.bold"),
       icon: <BoldIcon />,
       separator: true,
       onClick: () => editor.chain().focus().toggleBold().run(),
     },
     {
       id: "italic",
-      label: t2("canvas.italic"),
+      label: t("canvas.italic"),
       icon: <ItalicIcon />,
       onClick: () => editor.chain().focus().toggleItalic().run(),
     },
     {
       id: "bullet-list",
-      label: t2("canvas.bulletList"),
+      label: t("canvas.bulletList"),
       icon: <BulletListIcon />,
       separator: true,
       onClick: () => editor.chain().focus().toggleBulletList().run(),
     },
     {
       id: "ordered-list",
-      label: t2("canvas.orderedList"),
+      label: t("canvas.orderedList"),
       icon: <OrderedListIcon />,
       onClick: () => editor.chain().focus().toggleOrderedList().run(),
     },
@@ -536,8 +536,8 @@ function tableDocumentFromGrid(grid, untitledColumn = "Untitled") {
       id: newRowId(),
       cells: {},
     };
-    columns.forEach((col, i2) => {
-      row.cells[col.id] = cells2[i2] ?? "";
+    columns.forEach((col, i) => {
+      row.cells[col.id] = cells2[i] ?? "";
     });
     return row;
   });
@@ -553,21 +553,21 @@ function TableContextMenu({
   onClose,
   onConvertToNode,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { menuRef, clampedPosition } = useClampedMenuPosition({
     position: position2,
     estimatedWidth: 208,
     estimatedHeight: 360,
   });
   reactExports.useEffect(() => {
-    const handleMouseDown2 = (e2) => {
-      if (menuRef.current && !menuRef.current.contains(e2.target)) {
+    const handleMouseDown2 = (mouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(mouseEvent.target)) {
         onClose();
       }
     };
-    const handleKeyDown2 = (e2) => {
-      if (e2.key === "Escape") {
-        e2.stopPropagation();
+    const handleKeyDown2 = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        keyboardEvent.stopPropagation();
         onClose();
       }
     };
@@ -609,7 +609,7 @@ function TableContextMenu({
                 actionId={op.id}
                 destructive={op.destructive}
                 icon={<op.Icon size={16} strokeWidth={1.5} />}
-                label={t2(op.labelKey)}
+                label={t(op.labelKey)}
                 onClick={() => {
                   op.run(editor);
                   onClose();
@@ -626,7 +626,7 @@ function TableContextMenu({
           <MenuItem
             actionId="convert-to-node"
             icon={<Grid2x2Plus size={16} strokeWidth={1.5} />}
-            label={t2("canvas.mdTable.toNode")}
+            label={t("canvas.mdTable.toNode")}
             onClick={() => {
               onConvertToNode();
               onClose();
@@ -756,8 +756,8 @@ const DiffReviewHighlight = Extension.create({
               config: null,
             };
           },
-          apply(tr2, prev) {
-            const meta2 = tr2.getMeta(diffReviewPluginKey);
+          apply(tr, prev) {
+            const meta2 = tr.getMeta(diffReviewPluginKey);
             let next2 = prev;
             if (meta2) {
               next2 =
@@ -771,13 +771,13 @@ const DiffReviewHighlight = Extension.create({
                       config: meta2.config,
                     };
             }
-            if (tr2.docChanged && next2.hunks.length > 0) {
+            if (tr.docChanged && next2.hunks.length > 0) {
               next2 = {
                 ...next2,
                 hunks: next2.hunks.map((hunk) => ({
                   ...hunk,
-                  from: tr2.mapping.map(hunk.from, -1),
-                  to: tr2.mapping.map(hunk.to, 1),
+                  from: tr.mapping.map(hunk.from, -1),
+                  to: tr.mapping.map(hunk.to, 1),
                 })),
               };
             }
@@ -936,10 +936,10 @@ const FindHighlight = Extension.create({
           init() {
             return DecorationSet.empty;
           },
-          apply(tr2, prev) {
-            const meta2 = tr2.getMeta(findPluginKey);
-            if (meta2) return buildDecorations(tr2.doc, meta2);
-            if (tr2.docChanged) return prev.map(tr2.mapping, tr2.doc);
+          apply(tr, prev) {
+            const meta2 = tr.getMeta(findPluginKey);
+            if (meta2) return buildDecorations(tr.doc, meta2);
+            if (tr.docChanged) return prev.map(tr.mapping, tr.doc);
             return prev;
           },
         },
@@ -1069,8 +1069,8 @@ function SelectionFormatToolbar({ editor, formatItems, annotate }) {
         placement: "top",
         offset: 8,
       }}
-      shouldShow={({ editor: ed, state: state2 }) => {
-        if (!ed.isEditable) return false;
+      shouldShow={({ editor, state: state2 }) => {
+        if (!editor.isEditable) return false;
         const { from: from2, to } = state2.selection;
         return from2 !== to;
       }}
@@ -1087,7 +1087,7 @@ function SelectionFormatToolbar({ editor, formatItems, annotate }) {
           <button
             type="button"
             title={annotate.label}
-            onMouseDown={(e2) => e2.preventDefault()}
+            onMouseDown={(mouseEvent) => mouseEvent.preventDefault()}
             onClick={annotate.onClick}
             className="canvas-toolbar-action"
             data-action-ui-id="canvas-text-annotate"
@@ -1113,7 +1113,7 @@ export function MarkdownFullscreen({
   onEditingSelectionChange,
   getCloseBlockReason,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const closedRef = reactExports.useRef(false);
   const initializedRef = reactExports.useRef(false);
   const userEditedRef = reactExports.useRef(false);
@@ -1170,7 +1170,7 @@ export function MarkdownFullscreen({
       TableCell,
       Markdown,
       src_default$1.configure({
-        placeholder: t2("canvas.editorPlaceholder"),
+        placeholder: t("canvas.editorPlaceholder"),
       }),
       FindHighlight,
       AnnotationHighlight,
@@ -1249,8 +1249,8 @@ export function MarkdownFullscreen({
     if (initialMarkdown) {
       fsEditor
         .chain()
-        .command(({ tr: tr2 }) => {
-          tr2.setMeta("addToHistory", false);
+        .command(({ tr }) => {
+          tr.setMeta("addToHistory", false);
           return true;
         })
         .setContent(initialMarkdown, {
@@ -1274,9 +1274,9 @@ export function MarkdownFullscreen({
   const canvasRootEl = useCanvasRootElement();
   const handleAnnotationConflict = reactExports.useCallback(() => {
     dedupedToast.error(
-      t2("canvas.annotationConflict", "选区与已有批注重叠，请重新选择"),
+      t("canvas.annotationConflict", "选区与已有批注重叠，请重新选择"),
     );
-  }, [t2]);
+  }, [t]);
   const annotations = useAnnotations(fsEditor, {
     onSnapshotsChange: onAnnotationsChange,
     onActivate: onAnnotationActivate,
@@ -1285,13 +1285,13 @@ export function MarkdownFullscreen({
   const handleAnnotationStart = reactExports.useCallback(() => {
     startTextAnnotation(getCloseBlockReason, annotations.begin, () => {
       dedupedToast.warning(
-        t2(
+        t(
           "canvas.annotationAgentRunning",
           "Text Assistant is running. Annotation is unavailable.",
         ),
       );
     });
-  }, [annotations.begin, getCloseBlockReason, t2]);
+  }, [annotations.begin, getCloseBlockReason, t]);
   const editorAnnotationsRef = reactExports.useRef(annotations);
   editorAnnotationsRef.current = annotations;
   useEditorHistoryShortcuts(fsEditor, sourceNodeId);
@@ -1368,8 +1368,8 @@ export function MarkdownFullscreen({
       try {
         fsEditor
           .chain()
-          .command(({ tr: tr2 }) => {
-            tr2.setMeta("addToHistory", false);
+          .command(({ tr }) => {
+            tr.setMeta("addToHistory", false);
             return true;
           })
           .setContent(md, {
@@ -1488,7 +1488,7 @@ export function MarkdownFullscreen({
     }
     if (conflict.active) {
       dedupedToast.error(
-        t2("canvas.textConflict.blockedClose", "请先处理完所有冲突再退出"),
+        t("canvas.textConflict.blockedClose", "请先处理完所有冲突再退出"),
       );
       return;
     }
@@ -1515,7 +1515,7 @@ export function MarkdownFullscreen({
     latestDraftRef,
     onDraftChange,
     openConflict,
-    t2,
+    t,
   ]);
   const findAdapter = reactExports.useMemo(
     () => ({
@@ -1588,15 +1588,15 @@ export function MarkdownFullscreen({
           options,
           replacement,
         );
-        const tr2 = fsEditor.state.tr.insertText(
+        const tr = fsEditor.state.tr.insertText(
           expanded,
           match2.from,
           match2.to,
         );
-        tr2.setSelection(
-          TextSelection.create(tr2.doc, match2.from + expanded.length),
+        tr.setSelection(
+          TextSelection.create(tr.doc, match2.from + expanded.length),
         );
-        fsEditor.view.dispatch(tr2);
+        fsEditor.view.dispatch(tr);
       },
       replaceAll(query, options, replacement) {
         if (!fsEditor) return;
@@ -1606,22 +1606,22 @@ export function MarkdownFullscreen({
           options,
         );
         if (matches2.length === 0) return;
-        const tr2 = fsEditor.state.tr;
-        for (let i2 = matches2.length - 1; i2 >= 0; i2--) {
-          const m3 = matches2[i2];
+        const tr = fsEditor.state.tr;
+        for (let i = matches2.length - 1; i >= 0; i--) {
+          const match = matches2[i];
           const matched = fsEditor.state.doc.textBetween(
-            m3.from,
-            m3.to,
+            match.from,
+            match.to,
             void 0,
             LEAF_PLACEHOLDER,
           );
-          tr2.insertText(
+          tr.insertText(
             computeReplacement(matched, query, options, replacement),
-            m3.from,
-            m3.to,
+            match.from,
+            match.to,
           );
         }
-        fsEditor.view.dispatch(tr2);
+        fsEditor.view.dispatch(tr);
       },
     }),
     [fsEditor],
@@ -1635,18 +1635,18 @@ export function MarkdownFullscreen({
     [],
   );
   const handleEditorContextMenu = reactExports.useCallback(
-    (e2) => {
+    (mouseEvent) => {
       if (!fsEditor) return;
-      if (!e2.target.closest("td, th")) return;
-      e2.preventDefault();
+      if (!mouseEvent.target.closest("td, th")) return;
+      mouseEvent.preventDefault();
       const coords = fsEditor.view.posAtCoords({
-        left: e2.clientX,
-        top: e2.clientY,
+        left: mouseEvent.clientX,
+        top: mouseEvent.clientY,
       });
       if (coords) fsEditor.chain().setTextSelection(coords.pos).run();
       setTableCtxPos({
-        x: e2.clientX,
-        y: e2.clientY,
+        x: mouseEvent.clientX,
+        y: mouseEvent.clientY,
       });
     },
     [fsEditor],
@@ -1659,25 +1659,25 @@ export function MarkdownFullscreen({
       if (!grid) return;
       const doc2 = tableDocumentFromGrid(
         grid,
-        t2("canvas.table.untitledColumn", "Untitled"),
+        t("canvas.table.untitledColumn", "Untitled"),
       );
       void canvasActions
         .addTableNodeFromDocument(doc2, sourceNodeId)
         .then((nodeId) => {
           if (nodeId)
             dedupedToast.success(
-              t2("canvas.mdTable.toNodeDone", "已插入表格节点"),
+              t("canvas.mdTable.toNodeDone", "已插入表格节点"),
             );
           else
             dedupedToast.error(
-              t2("canvas.mdTable.toNodeFailed", "插入表格节点失败"),
+              t("canvas.mdTable.toNodeFailed", "插入表格节点失败"),
             );
         });
     };
-  }, [canvasActions, fsEditor, sourceNodeId, t2]);
+  }, [canvasActions, fsEditor, sourceNodeId, t]);
   const formatItems = reactExports.useMemo(
-    () => (fsEditor ? buildFormatItems(fsEditor, t2) : []),
-    [fsEditor, t2],
+    () => (fsEditor ? buildFormatItems(fsEditor, t) : []),
+    [fsEditor, t],
   );
   const flushForVersionSave = reactExports.useCallback(async () => {
     if (fsEditor) latestDraftRef.current = fsEditor.getMarkdown();
@@ -1745,7 +1745,7 @@ export function MarkdownFullscreen({
           editor={fsEditor}
           formatItems={formatItems}
           annotate={{
-            label: t2("canvas.annotate", "批注"),
+            label: t("canvas.annotate", "批注"),
             onClick: handleAnnotationStart,
           }}
         />
@@ -1785,7 +1785,7 @@ export function MarkdownFullscreen({
           editor={fsEditor}
           annotationId={annotations.pending.id}
           value={annotations.pendingComment}
-          placeholder={t2("canvas.annotationPlaceholder", "添加批注……")}
+          placeholder={t("canvas.annotationPlaceholder", "添加批注……")}
           portalTarget={canvasRootEl}
           boundsEl={editorAreaEl}
           onChange={annotations.updatePendingComment}

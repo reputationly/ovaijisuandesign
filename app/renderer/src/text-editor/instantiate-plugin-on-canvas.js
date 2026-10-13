@@ -29,7 +29,7 @@ class PluginRecentsStore {
       }
       const parsed = JSON.parse(raw2);
       this.snapshot = Array.isArray(parsed)
-        ? parsed.filter((x2) => typeof x2 === "string")
+        ? parsed.filter((x) => typeof x === "string")
         : [];
     } catch {
       this.snapshot = [];
@@ -40,9 +40,9 @@ class PluginRecentsStore {
    * Promote `id` to the front of the recents list (dedup + unshift + cap).
    * No-op on empty id. Fires `onChange` so subscribers refresh.
    */
-  record(id2) {
-    if (!id2) return;
-    const next2 = [id2, ...this.get().filter((x2) => x2 !== id2)].slice(
+  record(id) {
+    if (!id) return;
+    const next2 = [id, ...this.get().filter((x) => x !== id)].slice(
       0,
       MAX_STORED,
     );
@@ -58,11 +58,11 @@ class PluginRecentsStore {
 const pluginRecents = new PluginRecentsStore();
 export async function instantiatePluginOnCanvas(
   { pluginId, position: position2, sourceNodeIds, initialData },
-  { currentWorkspace, gatewayFetch: gatewayFetch2, t: t2 },
+  { currentWorkspace, gatewayFetch: gatewayFetch2, t },
 ) {
   if (!currentWorkspace) {
     dedupedToast.error(
-      t2("skills.plugin.addFailed", {
+      t("skills.plugin.addFailed", {
         error: "no workspace",
       }),
     );
@@ -108,7 +108,7 @@ export async function instantiatePluginOnCanvas(
     const message2 = err instanceof Error ? err.message : String(err);
     console.error("[canvas] Plugin instantiate failed:", err);
     dedupedToast.error(
-      t2("skills.plugin.addFailed", {
+      t("skills.plugin.addFailed", {
         error: message2,
       }),
     );

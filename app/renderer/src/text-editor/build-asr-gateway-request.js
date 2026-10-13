@@ -92,7 +92,7 @@ const RECOVERED_MESSAGE_PREFIXES = [
 
 export function isRecoveredMessage(text2) {
   const trimmed = text2.trimStart();
-  return RECOVERED_MESSAGE_PREFIXES.some((p3) => trimmed.startsWith(p3));
+  return RECOVERED_MESSAGE_PREFIXES.some((prefix) => trimmed.startsWith(prefix));
 }
 
 const RESUME_CHILD_PROMPT_ZH = `${RECOVERED_MESSAGE_PREFIX} 你之前中断的生成步骤已恢复，产物见上。请基于这些产物继续完成本任务剩余的步骤；若已全部完成，简要总结产物即可。`;
@@ -103,8 +103,8 @@ const RESUME_CHILD_PROMPTS = [RESUME_CHILD_PROMPT_ZH, RESUME_CHILD_PROMPT_EN];
 
 export function stripRecoveredPrefix(text2) {
   const trimmed = text2.trimStart();
-  for (const p3 of RECOVERED_MESSAGE_PREFIXES) {
-    if (trimmed.startsWith(p3)) return trimmed.slice(p3.length).trimStart();
+  for (const prefix of RECOVERED_MESSAGE_PREFIXES) {
+    if (trimmed.startsWith(prefix)) return trimmed.slice(prefix.length).trimStart();
   }
   return text2;
 }
@@ -118,7 +118,7 @@ export function stripContextPrefix(text2) {
 
 export function isResumeChildPrompt(text2) {
   const normalized = stripContextPrefix(text2).trim();
-  return RESUME_CHILD_PROMPTS.some((p3) => normalized === p3);
+  return RESUME_CHILD_PROMPTS.some((resumePrompt) => normalized === resumePrompt);
 }
 
 export const AGENT_LABELS = {
@@ -215,12 +215,12 @@ export function parseConnectorMentionAt(text2, start2) {
   };
 }
 
-export function isCustomModelProvider(id2) {
-  return /^user-custom-[a-z0-9-]+$/.test(id2 ?? "");
+export function isCustomModelProvider(id) {
+  return /^user-custom-[a-z0-9-]+$/.test(id ?? "");
 }
 
-export function isCustomModelId(id2) {
-  return isCustomModelProvider(id2?.split("/")[0]);
+export function isCustomModelId(id) {
+  return isCustomModelProvider(id?.split("/")[0]);
 }
 
 export const MEDIA_FILE_ACCEPT = {
@@ -242,8 +242,8 @@ export const SEEDANCE_REFERENCE_AUDIO_MAX_SEC = 15.2;
 
 export const RESOURCE_DRAG_MIME = "application/x-hilo-resource";
 
-export function parseResourceDrag(e2) {
-  const raw2 = e2.dataTransfer?.getData(RESOURCE_DRAG_MIME);
+export function parseResourceDrag(dragEvent) {
+  const raw2 = dragEvent.dataTransfer?.getData(RESOURCE_DRAG_MIME);
   if (!raw2) return null;
   try {
     const parsed = JSON.parse(raw2);

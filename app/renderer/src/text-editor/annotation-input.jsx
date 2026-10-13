@@ -31,7 +31,7 @@ export function AnnotationInput({
       bottom: window.innerHeight,
     };
   }, [boundsEl, portalTarget]);
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const cardRef = reactExports.useRef(null);
   const textareaRef = reactExports.useRef(null);
   const [pos, setPos] = reactExports.useState(null);
@@ -47,7 +47,7 @@ export function AnnotationInput({
   reactExports.useLayoutEffect(() => {
     const compute = () => {
       const mark2 = getAnnotationMarks(editor).find(
-        (m3) => m3.id === annotationId,
+        (annotation) => annotation.id === annotationId,
       );
       if (!mark2) return;
       try {
@@ -82,13 +82,13 @@ export function AnnotationInput({
     window.addEventListener("resize", onScroll);
     const onTransaction = () => compute();
     editor.on("transaction", onTransaction);
-    const ro = cardRef.current ? new ResizeObserver(() => compute()) : null;
-    if (ro && cardRef.current) ro.observe(cardRef.current);
+    const resizeObserver = cardRef.current ? new ResizeObserver(() => compute()) : null;
+    if (resizeObserver && cardRef.current) resizeObserver.observe(cardRef.current);
     return () => {
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onScroll);
       editor.off("transaction", onTransaction);
-      ro?.disconnect();
+      resizeObserver?.disconnect();
     };
   }, [editor, annotationId, getBounds]);
   const node2 = (
@@ -108,8 +108,8 @@ export function AnnotationInput({
         opacity: pos ? 1 : 0,
         pointerEvents: pos ? "auto" : "none",
       }}
-      onMouseDown={(e2) => {
-        if (e2.target !== textareaRef.current) e2.preventDefault();
+      onMouseDown={(mouseEvent) => {
+        if (mouseEvent.target !== textareaRef.current) mouseEvent.preventDefault();
       }}
     >
       <textarea
@@ -117,18 +117,18 @@ export function AnnotationInput({
         rows={2}
         value={value}
         placeholder={placeholder}
-        onChange={(e2) => onChange(e2.currentTarget.value)}
+        onChange={(changeEvent) => onChange(changeEvent.currentTarget.value)}
         onBlur={onClose}
-        onKeyDown={(e2) => {
-          e2.stopPropagation();
-          if (e2.nativeEvent.isComposing || e2.keyCode === 229) return;
-          if (e2.key === "Escape") {
-            e2.preventDefault();
+        onKeyDown={(keyboardEvent) => {
+          keyboardEvent.stopPropagation();
+          if (keyboardEvent.nativeEvent.isComposing || keyboardEvent.keyCode === 229) return;
+          if (keyboardEvent.key === "Escape") {
+            keyboardEvent.preventDefault();
             onClose();
             return;
           }
-          if (e2.key === "Enter" && !e2.shiftKey) {
-            e2.preventDefault();
+          if (keyboardEvent.key === "Enter" && !keyboardEvent.shiftKey) {
+            keyboardEvent.preventDefault();
             onClose();
           }
         }}
@@ -150,7 +150,7 @@ export function AnnotationInput({
             color: "var(--fg-disabled, #919191)",
           }}
         >
-          {t2("canvas.annotationHint", "Enter 确认 · Shift+Enter 换行")}
+          {t("canvas.annotationHint", "Enter 确认 · Shift+Enter 换行")}
         </span>
         <button
           type="button"
@@ -161,7 +161,7 @@ export function AnnotationInput({
             color: "var(--canvas-text-accent-foreground)",
           }}
         >
-          {t2("canvas.annotationConfirm", "完成")}
+          {t("canvas.annotationConfirm", "完成")}
         </button>
       </div>
     </div>

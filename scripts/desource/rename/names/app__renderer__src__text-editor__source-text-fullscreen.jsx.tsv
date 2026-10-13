@@ -1,0 +1,6 @@
+key	new	reason
+i2@34:12	i	原名 i，去掉打包器加的数字去重后缀
+t2@84:14	t	useTranslation() 返回的翻译函数 t
+t2@127:14	t	useTranslation() 返回的翻译函数 t
+m3@68:14	match	查找匹配项，逐个替换
+e2@448:6	domEvent	回调收到的 DOM 事件，读取 currentTarget

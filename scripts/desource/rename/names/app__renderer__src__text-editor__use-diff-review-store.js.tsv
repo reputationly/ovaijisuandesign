@@ -1,0 +1,4 @@
+key	new	reason
+id2@245:14	id	原名 id，去掉打包器加的数字去重后缀
+a2@34:12	a	sort 比较函数的前一个 hunk
+b3@34:16	b	sort 比较函数的后一个 hunk

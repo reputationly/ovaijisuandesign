@@ -78,7 +78,7 @@ export function ErrorBlock({
       <button
         type="button"
         className="flex items-center gap-2 w-full text-left cursor-pointer"
-        onClick={() => setExpanded((v2) => !v2)}
+        onClick={() => setExpanded((isExpanded) => !isExpanded)}
         aria-expanded={expanded}
         disabled={!hasBody}
       >

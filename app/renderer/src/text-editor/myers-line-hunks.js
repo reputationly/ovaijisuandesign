@@ -22,106 +22,106 @@ export function myersLineHunks(oldLines, newLines) {
     oldEnd -= 1;
     newEnd -= 1;
   }
-  const a2 = oldLines.slice(start2, oldEnd);
-  const b3 = newLines.slice(start2, newEnd);
-  const n2 = a2.length;
-  const m3 = b3.length;
-  if (n2 === 0 && m3 === 0) return [];
-  if (n2 === 0)
+  const oldSlice = oldLines.slice(start2, oldEnd);
+  const newSlice = newLines.slice(start2, newEnd);
+  const oldLength = oldSlice.length;
+  const newLength = newSlice.length;
+  if (oldLength === 0 && newLength === 0) return [];
+  if (oldLength === 0)
     return [
       {
         oldStart: start2,
         oldCount: 0,
         newStart: start2,
-        newCount: m3,
+        newCount: newLength,
       },
     ];
-  if (m3 === 0)
+  if (newLength === 0)
     return [
       {
         oldStart: start2,
-        oldCount: n2,
+        oldCount: oldLength,
         newStart: start2,
         newCount: 0,
       },
     ];
-  const max2 = Math.min(n2 + m3, MYERS_MAX_D);
+  const max2 = Math.min(oldLength + newLength, MYERS_MAX_D);
   const offset2 = max2;
-  let v2 = new Int32Array(2 * max2 + 2);
+  let frontier = new Int32Array(2 * max2 + 2);
   const trace = [];
   let foundD = -1;
-  for (let d2 = 0; d2 <= max2; d2 += 1) {
-    trace.push(v2.slice());
-    const next2 = v2.slice();
-    for (let k2 = -d2; k2 <= d2; k2 += 2) {
-      if (k2 < -max2 || k2 > max2) continue;
-      let x22;
+  for (let editDistance = 0; editDistance <= max2; editDistance += 1) {
+    trace.push(frontier.slice());
+    const next2 = frontier.slice();
+    for (let diagonal = -editDistance; diagonal <= editDistance; diagonal += 2) {
+      if (diagonal < -max2 || diagonal > max2) continue;
+      let x;
       if (
-        k2 === -d2 ||
-        (k2 !== d2 && v2[k2 - 1 + offset2] < v2[k2 + 1 + offset2])
+        diagonal === -editDistance ||
+        (diagonal !== editDistance && frontier[diagonal - 1 + offset2] < frontier[diagonal + 1 + offset2])
       ) {
-        x22 = v2[k2 + 1 + offset2];
+        x = frontier[diagonal + 1 + offset2];
       } else {
-        x22 = v2[k2 - 1 + offset2] + 1;
+        x = frontier[diagonal - 1 + offset2] + 1;
       }
-      let y22 = x22 - k2;
-      while (x22 < n2 && y22 < m3 && a2[x22] === b3[y22]) {
-        x22 += 1;
-        y22 += 1;
+      let y = x - diagonal;
+      while (x < oldLength && y < newLength && oldSlice[x] === newSlice[y]) {
+        x += 1;
+        y += 1;
       }
-      next2[k2 + offset2] = x22;
-      if (x22 >= n2 && y22 >= m3) {
-        foundD = d2;
+      next2[diagonal + offset2] = x;
+      if (x >= oldLength && y >= newLength) {
+        foundD = editDistance;
         break;
       }
     }
-    v2 = next2;
+    frontier = next2;
     if (foundD >= 0) break;
   }
   if (foundD < 0) return null;
   const ops = [];
-  let x2 = n2;
-  let y4 = m3;
-  for (let d2 = foundD; d2 > 0; d2 -= 1) {
-    const prev = trace[d2];
+  let x = oldLength;
+  let y = newLength;
+  for (let editDistance = foundD; editDistance > 0; editDistance -= 1) {
+    const prev = trace[editDistance];
     if (!prev) return null;
-    const k2 = x2 - y4;
+    const diagonal = x - y;
     let prevK;
     if (
-      k2 === -d2 ||
-      (k2 !== d2 && prev[k2 - 1 + offset2] < prev[k2 + 1 + offset2])
+      diagonal === -editDistance ||
+      (diagonal !== editDistance && prev[diagonal - 1 + offset2] < prev[diagonal + 1 + offset2])
     ) {
-      prevK = k2 + 1;
+      prevK = diagonal + 1;
     } else {
-      prevK = k2 - 1;
+      prevK = diagonal - 1;
     }
     const prevX = prev[prevK + offset2];
     const prevY = prevX - prevK;
-    while (x2 > prevX && y4 > prevY) {
+    while (x > prevX && y > prevY) {
       ops.push("equal");
-      x2 -= 1;
-      y4 -= 1;
+      x -= 1;
+      y -= 1;
     }
-    if (x2 === prevX) {
+    if (x === prevX) {
       ops.push("insert");
-      y4 -= 1;
+      y -= 1;
     } else {
       ops.push("delete");
-      x2 -= 1;
+      x -= 1;
     }
   }
-  while (x2 > 0 && y4 > 0) {
+  while (x > 0 && y > 0) {
     ops.push("equal");
-    x2 -= 1;
-    y4 -= 1;
+    x -= 1;
+    y -= 1;
   }
-  while (x2 > 0) {
+  while (x > 0) {
     ops.push("delete");
-    x2 -= 1;
+    x -= 1;
   }
-  while (y4 > 0) {
+  while (y > 0) {
     ops.push("insert");
-    y4 -= 1;
+    y -= 1;
   }
   ops.reverse();
   const hunks = [];

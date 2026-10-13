@@ -102,11 +102,11 @@ export function AnnotationGutter({
     const compute = () => {
       const hostTop = anchorEl.getBoundingClientRect().top;
       const next2 = {};
-      for (const m3 of markers) {
-        if (m3.seq == null) continue;
+      for (const marker of markers) {
+        if (marker.seq == null) continue;
         try {
-          const coords = editor.view.coordsAtPos(m3.from);
-          next2[m3.id] = coords.top - hostTop;
+          const coords = editor.view.coordsAtPos(marker.from);
+          next2[marker.id] = coords.top - hostTop;
         } catch {}
       }
       setPositions(next2);
@@ -124,17 +124,17 @@ export function AnnotationGutter({
   }, [editor, anchorEl, markers]);
   return (
     <div className="pointer-events-none absolute inset-y-0 right-0 w-0">
-      {markers.map((m3) => {
-        if (m3.seq == null) return null;
-        const top2 = positions[m3.id];
+      {markers.map((marker) => {
+        if (marker.seq == null) return null;
+        const top2 = positions[marker.id];
         if (top2 == null) return null;
-        const active2 = m3.id === activeId;
+        const active2 = marker.id === activeId;
         return (
           <button
-            key={m3.id}
+            key={marker.id}
             type="button"
-            data-annotation-badge={m3.id}
-            onClick={() => onActivate(m3.id)}
+            data-annotation-badge={marker.id}
+            onClick={() => onActivate(marker.id)}
             className="pointer-events-auto absolute flex h-[18px] w-[18px] -translate-y-0.5 items-center justify-center rounded-full text-xs font-medium transition-transform hover:scale-110"
             style={{
               top: top2,
@@ -149,9 +149,9 @@ export function AnnotationGutter({
                 ? "0 0 0 2px var(--canvas-text-accent)"
                 : "none",
             }}
-            title={`#${m3.seq}`}
+            title={`#${marker.seq}`}
           >
-            {m3.seq}
+            {marker.seq}
           </button>
         );
       })}

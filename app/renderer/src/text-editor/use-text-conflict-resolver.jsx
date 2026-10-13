@@ -124,7 +124,7 @@ function mergeConflictChoices(externalText, hunks, choices) {
 }
 
 function LineBlock({ lines, tone, dimmed }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const background =
     tone === "external"
       ? "var(--canvas-diff-del-bg, oklch(0.63 0.21 25 / 0.12))"
@@ -140,7 +140,7 @@ function LineBlock({ lines, tone, dimmed }) {
     >
       {lines.length === 0 ? (
         <div className="px-3 py-px text-muted-foreground">
-          {t2("canvas.textConflict.emptySide", "（这一侧没有内容）")}
+          {t("canvas.textConflict.emptySide", "（这一侧没有内容）")}
         </div>
       ) : (
         lines.map((line, index2) => (
@@ -182,7 +182,7 @@ function ConflictHunkView({
   onChoose,
   registerRef,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       ref={(el) => registerRef(hunk.id, el)}
@@ -191,12 +191,12 @@ function ConflictHunkView({
     >
       <div className="flex items-center justify-between gap-2 bg-muted px-3 py-1.5">
         <span className="text-xs text-muted-foreground">
-          {t2("canvas.textConflict.hunkLabel", "第 {{index}} 处冲突", {
+          {t("canvas.textConflict.hunkLabel", "第 {{index}} 处冲突", {
             index: index2 + 1,
           })}
           {choice === void 0 && (
             <span className="ml-2 text-foreground">
-              {t2("canvas.textConflict.unresolvedTag", "待处理")}
+              {t("canvas.textConflict.unresolvedTag", "待处理")}
             </span>
           )}
         </span>
@@ -206,14 +206,14 @@ function ConflictHunkView({
             onClick={() => onChoose(hunk.id, "external")}
             dataActionUiId="canvas-text-conflict-use-external"
           >
-            {t2("canvas.textConflict.useExternal", "用 Agent 的")}
+            {t("canvas.textConflict.useExternal", "用 Agent 的")}
           </ChoiceButton>
           <ChoiceButton
             selected={choice === "mine"}
             onClick={() => onChoose(hunk.id, "mine")}
             dataActionUiId="canvas-text-conflict-use-mine"
           >
-            {t2("canvas.textConflict.useMine", "用我的")}
+            {t("canvas.textConflict.useMine", "用我的")}
           </ChoiceButton>
         </div>
       </div>
@@ -222,7 +222,7 @@ function ConflictHunkView({
       )}
       <div className="border-y border-border">
         <div className="bg-muted/50 px-3 py-1 text-[11px] text-muted-foreground">
-          {t2("canvas.textConflict.externalSide", "Agent 的修改")}
+          {t("canvas.textConflict.externalSide", "Agent 的修改")}
         </div>
         <LineBlock
           lines={hunk.externalLines}
@@ -230,7 +230,7 @@ function ConflictHunkView({
           dimmed={choice === "mine"}
         />
         <div className="border-t border-border bg-muted/50 px-3 py-1 text-[11px] text-muted-foreground">
-          {t2("canvas.textConflict.mineSide", "我的修改")}
+          {t("canvas.textConflict.mineSide", "我的修改")}
         </div>
         <LineBlock
           lines={hunk.mineLines}
@@ -246,7 +246,7 @@ function ConflictHunkView({
 }
 
 export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [session, setSession] = reactExports.useState(null);
   const [choices, setChoices] = reactExports.useState({});
   const [activeIndex, setActiveIndex] = reactExports.useState(0);
@@ -275,14 +275,14 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
     setActiveIndex(0);
     return true;
   }, []);
-  const registerRef = reactExports.useCallback((id2, el) => {
-    if (el) hunkElsRef.current.set(id2, el);
-    else hunkElsRef.current.delete(id2);
+  const registerRef = reactExports.useCallback((id, el) => {
+    if (el) hunkElsRef.current.set(id, el);
+    else hunkElsRef.current.delete(id);
   }, []);
-  const choose = reactExports.useCallback((id2, choice) => {
+  const choose = reactExports.useCallback((id, choice) => {
     setChoices((prev) => ({
       ...prev,
-      [id2]: choice,
+      [id]: choice,
     }));
   }, []);
   const chooseAll = reactExports.useCallback(
@@ -336,17 +336,17 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
     return (
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <span className="text-sm font-medium text-foreground">
-          {t2("canvas.textConflict.title", "需要处理的冲突")}
+          {t("canvas.textConflict.title", "需要处理的冲突")}
         </span>
         <span className="text-xs text-muted-foreground">
-          {t2("canvas.textConflict.counter", "{{current}} / {{total}} 处", {
+          {t("canvas.textConflict.counter", "{{current}} / {{total}} 处", {
             current: Math.min(activeIndex + 1, total),
             total,
           })}
         </span>
         <button
           type="button"
-          title={t2("canvas.textConflict.prev", "上一处")}
+          title={t("canvas.textConflict.prev", "上一处")}
           onClick={() => step(-1)}
           className={navBtnClass}
           data-action-ui-id="canvas-text-conflict-prev"
@@ -355,7 +355,7 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
         </button>
         <button
           type="button"
-          title={t2("canvas.textConflict.next", "下一处")}
+          title={t("canvas.textConflict.next", "下一处")}
           onClick={() => step(1)}
           className={navBtnClass}
           data-action-ui-id="canvas-text-conflict-next"
@@ -364,7 +364,7 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
         </button>
       </div>
     );
-  }, [session, activeIndex, step, t2]);
+  }, [session, activeIndex, step, t]);
   const toolbarActions = reactExports.useMemo(() => {
     if (!session) return null;
     return (
@@ -375,7 +375,7 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
           className="h-7 rounded-md px-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           data-action-ui-id="canvas-text-conflict-use-all-external"
         >
-          {t2("canvas.textConflict.useAllExternal", "全部用 Agent 的")}
+          {t("canvas.textConflict.useAllExternal", "全部用 Agent 的")}
         </button>
         <button
           type="button"
@@ -383,7 +383,7 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
           className="h-7 rounded-md px-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           data-action-ui-id="canvas-text-conflict-use-all-mine"
         >
-          {t2("canvas.textConflict.useAllMine", "全部用我的")}
+          {t("canvas.textConflict.useAllMine", "全部用我的")}
         </button>
         <button
           type="button"
@@ -393,14 +393,14 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
           data-action-ui-id="canvas-text-conflict-done"
         >
           {resolved
-            ? t2("canvas.textConflict.done", "完成合并")
-            : t2("canvas.textConflict.remaining", "还有 {{count}} 处未处理", {
+            ? t("canvas.textConflict.done", "完成合并")
+            : t("canvas.textConflict.remaining", "还有 {{count}} 处未处理", {
                 count: unresolvedCount,
               })}
         </button>
       </div>
     );
-  }, [session, chooseAll, complete, resolved, unresolvedCount, t2]);
+  }, [session, chooseAll, complete, resolved, unresolvedCount, t]);
   const body2 = reactExports.useMemo(() => {
     if (!session) return null;
     return (
@@ -409,12 +409,12 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
         data-action-ui-id="canvas-text-conflict-page"
       >
         <div className="shrink-0 bg-muted px-4 py-2 text-xs text-muted-foreground">
-          {t2(
+          {t(
             "canvas.textConflict.banner",
             "你编辑期间 Agent 也改了这个文件。请逐处选择保留哪一侧，全部处理完成后才能退出编辑。",
           )}
           {session.coarse &&
-            ` ${t2("canvas.textConflict.coarseHint", "改动过多，已合并为一个区块展示。")}`}
+            ` ${t("canvas.textConflict.coarseHint", "改动过多，已合并为一个区块展示。")}`}
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 py-4">
           {session.hunks.map((hunk, index2) => (
@@ -430,7 +430,7 @@ export function useTextConflictResolver({ getMineMarkdown, onResolved }) {
         </div>
       </div>
     );
-  }, [session, choices, choose, registerRef, t2]);
+  }, [session, choices, choose, registerRef, t]);
   return {
     active: session !== null,
     open,

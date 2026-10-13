@@ -1,0 +1,13 @@
+key	new	reason
+t2@103:20	t	useTranslation() 返回的翻译函数 t
+t2@216:55	t	调用方传入的翻译函数 t
+t2@230:14	t	useTranslation() 返回的翻译函数 t
+t2@249:14	t	useTranslation() 返回的翻译函数 t
+e2@320:26	changeEvent	onChange 回调收到的事件对象
+e2@337:26	changeEvent	onChange 回调收到的事件对象
+id2@436:12	id	原名 id，去掉打包器加的数字去重后缀
+id2@471:12	id	原名 id，去掉打包器加的数字去重后缀
+id2@479:12	id	原名 id，去掉打包器加的数字去重后缀
+t2@518:14	t	useTranslation() 返回的翻译函数 t
+ok2@566:13	ok	原名 ok，去掉打包器加的数字去重后缀
+v2@538:36	version	文本版本列表中的单个版本

@@ -19,10 +19,10 @@ function addAnnotationMark(editor, mark2) {
   });
 }
 
-function removeAnnotationMark(editor, id2) {
+function removeAnnotationMark(editor, id) {
   dispatchMeta(editor, {
     kind: "remove",
-    id: id2,
+    id,
   });
 }
 
@@ -32,10 +32,10 @@ function clearAnnotationMarks(editor) {
   });
 }
 
-function setActiveAnnotationMark(editor, id2) {
+function setActiveAnnotationMark(editor, id) {
   dispatchMeta(editor, {
     kind: "setActive",
-    id: id2,
+    id,
   });
 }
 
@@ -44,20 +44,20 @@ function createAnnotationCaretSelection(doc2, ranges) {
   return first2 ? TextSelection.near(doc2.resolve(first2.to), -1) : null;
 }
 
-function rangesOverlap(a2, b3) {
-  return a2.from < b3.to && b3.from < a2.to;
+function rangesOverlap(a, b) {
+  return a.from < b.to && b.from < a.to;
 }
 
 function findConflictingIds(next2, existing, ignoreId) {
   const out = new Set();
-  for (const a2 of existing) {
-    if (rangesOverlap(next2, a2)) out.add(a2.id);
+  for (const annotation of existing) {
+    if (rangesOverlap(next2, annotation)) out.add(annotation.id);
   }
   return [...out];
 }
 
 function orderByPosition(items) {
-  return [...items].sort((a2, b3) => a2.from - b3.from || a2.to - b3.to);
+  return [...items].sort((a, b) => a.from - b.from || a.to - b.to);
 }
 
 function groupAnnotationRanges(items) {
@@ -67,8 +67,8 @@ function groupAnnotationRanges(items) {
     if (ranges) ranges.push(item);
     else byId.set(item.id, [item]);
   }
-  return [...byId.entries()].map(([id2, ranges]) => ({
-    id: id2,
+  return [...byId.entries()].map(([id, ranges]) => ({
+    id,
     from: ranges[0].from,
     to: ranges[ranges.length - 1].to,
     ranges,
@@ -101,8 +101,8 @@ function captureAnnotationState(editor, comments) {
   };
 }
 
-function annotationStatesEqual(a2, b3) {
-  return JSON.stringify(a2) === JSON.stringify(b3);
+function annotationStatesEqual(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 function recordAnnotationHistory(editor, before, after) {
@@ -115,7 +115,7 @@ function recordAnnotationHistory(editor, before, after) {
 
 export function useAnnotations(editor, options = {}) {
   const { onSnapshotsChange, onActivate, onConflict } = options;
-  const [version2, bump] = reactExports.useReducer((n2) => n2 + 1, 0);
+  const [version2, bump] = reactExports.useReducer((count) => count + 1, 0);
   const [comments, setComments] = reactExports.useState({});
   const [pending2, setPending] = reactExports.useState(null);
   const [activeId, setActiveId] = reactExports.useState(null);
@@ -230,20 +230,20 @@ export function useAnnotations(editor, options = {}) {
       return;
     }
     editStartRef.current = captureAnnotationState(editor, commentsRef.current);
-    const id2 = nextAnnotationId();
+    const id = nextAnnotationId();
     for (const range2 of ranges)
       addAnnotationMark(editor, {
-        id: id2,
+        id,
         ...range2,
       });
     const nextPending = {
-      id: id2,
+      id,
     };
     pendingRef.current = nextPending;
     setPending(nextPending);
-    activeIdRef.current = id2;
-    setActiveId(id2);
-    setActiveAnnotationMark(editor, id2);
+    activeIdRef.current = id;
+    setActiveId(id);
+    setActiveAnnotationMark(editor, id);
     const caretSelection = createAnnotationCaretSelection(
       editor.state.doc,
       ranges,
@@ -254,31 +254,31 @@ export function useAnnotations(editor, options = {}) {
   }, [editor, onConflict]);
   const updatePendingComment = reactExports.useCallback(
     (text2) => {
-      const p3 = pendingRef.current;
-      if (!p3) return;
+      const pendingAnnotation = pendingRef.current;
+      if (!pendingAnnotation) return;
       replaceComments({
         ...commentsRef.current,
-        [p3.id]: text2,
+        [pendingAnnotation.id]: text2,
       });
     },
     [replaceComments],
   );
   const closePending = reactExports.useCallback(() => {
     if (!editor) return;
-    const p3 = pendingRef.current;
-    if (!p3) return;
+    const pendingAnnotation = pendingRef.current;
+    if (!pendingAnnotation) return;
     const before =
       editStartRef.current ??
       captureAnnotationState(editor, commentsRef.current);
     let nextComments = commentsRef.current;
-    const text2 = (nextComments[p3.id] ?? "").trim();
+    const text2 = (nextComments[pendingAnnotation.id] ?? "").trim();
     if (!text2) {
-      removeAnnotationMark(editor, p3.id);
-      if (p3.id in nextComments) {
+      removeAnnotationMark(editor, pendingAnnotation.id);
+      if (pendingAnnotation.id in nextComments) {
         nextComments = {
           ...nextComments,
         };
-        delete nextComments[p3.id];
+        delete nextComments[pendingAnnotation.id];
         replaceComments(nextComments);
       }
     }
@@ -293,28 +293,28 @@ export function useAnnotations(editor, options = {}) {
     bump();
   }, [editor, onActivate, recordChange, replaceComments]);
   const activate = reactExports.useCallback(
-    (id2) => {
+    (id) => {
       if (
         !editor ||
-        !getAnnotationMarks(editor).some((mark2) => mark2.id === id2)
+        !getAnnotationMarks(editor).some((mark2) => mark2.id === id)
       )
         return;
       editStartRef.current = captureAnnotationState(
         editor,
         commentsRef.current,
       );
-      activeIdRef.current = id2;
-      setActiveId(id2);
-      setActiveAnnotationMark(editor, id2);
-      onActivate?.(id2);
+      activeIdRef.current = id;
+      setActiveId(id);
+      setActiveAnnotationMark(editor, id);
+      onActivate?.(id);
       const nextPending = {
-        id: id2,
+        id,
       };
       pendingRef.current = nextPending;
       setPending(nextPending);
       requestAnimationFrame(() => {
         editor.view.dom
-          .querySelector(`[data-annotation-id="${id2}"]`)
+          .querySelector(`[data-annotation-id="${id}"]`)
           ?.scrollIntoView({
             block: "center",
             behavior: "smooth",
@@ -325,27 +325,27 @@ export function useAnnotations(editor, options = {}) {
     [editor, onActivate],
   );
   const remove2 = reactExports.useCallback(
-    (id2) => {
+    (id) => {
       if (!editor) return;
       const before = captureAnnotationState(editor, commentsRef.current);
       if (
-        !before.marks.some((mark2) => mark2.id === id2) &&
-        !(id2 in before.comments)
+        !before.marks.some((mark2) => mark2.id === id) &&
+        !(id in before.comments)
       )
         return;
-      removeAnnotationMark(editor, id2);
+      removeAnnotationMark(editor, id);
       const nextComments = {
         ...commentsRef.current,
       };
-      delete nextComments[id2];
+      delete nextComments[id];
       replaceComments(nextComments);
       recordChange(before, captureAnnotationState(editor, nextComments));
       editStartRef.current = null;
-      if (pendingRef.current?.id === id2) {
+      if (pendingRef.current?.id === id) {
         pendingRef.current = null;
         setPending(null);
       }
-      if (activeIdRef.current === id2) {
+      if (activeIdRef.current === id) {
         activeIdRef.current = null;
         setActiveId(null);
         onActivate?.(null);

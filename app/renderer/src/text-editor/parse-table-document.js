@@ -24,11 +24,11 @@ function migrateFilter(raw2) {
     if (filter2.conditions.length === 0) return void 0;
     return {
       match: filter2.match === "all" ? "all" : "any",
-      conditions: filter2.conditions.map((c3) => ({
-        id: c3.id || newConditionId(),
-        columnId: c3.columnId,
-        op: c3.op,
-        value: c3.value,
+      conditions: filter2.conditions.map((condition) => ({
+        id: condition.id || newConditionId(),
+        columnId: condition.columnId,
+        op: condition.op,
+        value: condition.value,
       })),
     };
   }
@@ -60,16 +60,16 @@ export function parseTableDocument(raw2) {
     throw new Error("Invalid table document: columns/rows must be arrays");
   }
   const rowHeight = isTableRowHeight(doc2.rowHeight) ? doc2.rowHeight : void 0;
-  const rows = doc2.rows.map((r2) => {
-    if (!("height" in r2) || r2.height === void 0) return r2;
-    const sanitized = sanitizeRowHeightOverride(r2.height);
-    if (sanitized === r2.height) return r2;
+  const rows = doc2.rows.map((row) => {
+    if (!("height" in row) || row.height === void 0) return row;
+    const sanitized = sanitizeRowHeightOverride(row.height);
+    if (sanitized === row.height) return row;
     if (sanitized === void 0) {
-      const { height: _drop, ...rest } = r2;
+      const { height: _drop, ...rest } = row;
       return rest;
     }
     return {
-      ...r2,
+      ...row,
       height: sanitized,
     };
   });

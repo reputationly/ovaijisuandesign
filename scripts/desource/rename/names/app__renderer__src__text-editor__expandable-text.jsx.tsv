@@ -1,0 +1,5 @@
+key	new	reason
+t2@14:14	t	useTranslation() 返回的翻译函数 t
+ro@41:11	resizeObserver	观察尺寸变化的 ResizeObserver
+v2@75:18	isExpanded	切换前的展开状态
+e2@77:32	transitionEvent	transitionend 事件，检查 propertyName
