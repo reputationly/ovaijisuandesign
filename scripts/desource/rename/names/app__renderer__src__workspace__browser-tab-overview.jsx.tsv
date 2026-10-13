@@ -1,0 +1,7 @@
+X@8:10	X	CloseIcon	该绑定持有 CloseIcon 所表示的值，按其实际用途命名。
+t2@26:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+disabled2@22:13	disabled2	disabled	去掉打包器防重名追加的后缀，恢复原名 disabled，即该绑定持有的值。
+element2@30:46	element2	element	去掉打包器防重名追加的后缀，恢复原名 element，即该绑定持有的值。
+onPointerDown2@66:11	onPointerDown2	onPointerDown	去掉打包器防重名追加的后缀，恢复原名 onPointerDown，即该绑定持有的值。
+tab2@111:22	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+active2@113:19	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
