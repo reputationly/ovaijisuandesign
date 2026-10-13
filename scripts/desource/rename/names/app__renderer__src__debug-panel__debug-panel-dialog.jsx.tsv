@@ -1,0 +1,103 @@
+key	新名	依据
+Plus$1@2:463	PlusIcon	`PlusIcon` 是区别于同一导入中的基础 `Plus` 图标的变体图标别名。
+cn@3:26	mergeClassNames	`mergeClassNames` 将 CLSX 生成的类名与 Tailwind 合并结果合并返回。
+t@345:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+tab@347:10	activeTab	`activeTab` 保存 Chat 预览当前选择的标签页。
+setTab@347:15	setActiveTab	`setActiveTab` 更新 Chat 预览当前选择的标签页。
+t@767:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+id@1135:31	fieldId	`fieldId` 是预览选择字段的 DOM 标识，用于关联 Label 与控件。
+t@1168:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@1224:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@1299:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@1328:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+_@1366:6	unusedEntry	`unusedEntry` 是该映射回调中未使用的条目参数。
+t@1508:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+application2@1658:52	application	`application` 是当前连接器预览卡片使用的应用元数据。
+t@1846:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@1871:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@1950:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+FixtureFrame$1@2066:10	ScenarioFixtureFrame	`ScenarioFixtureFrame` 包裹团队预览场景示例；同文件已有 `FixtureFrame` 绑定。
+t@2102:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2251:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2291:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2373:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2463:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2515:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2582:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2612:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2634:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2701:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2728:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2787:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@2815:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3082:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3157:23	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3180:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+row@3181:33	ledgerRow	`ledgerRow` 是待添加本地化描述的积分流水行。
+t@3199:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3334:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3346:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3378:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3411:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3435:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3500:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3773:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3815:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3861:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@3903:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4060:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4101:30	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4113:26	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4159:24	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4187:26	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4260:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4276:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4312:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4343:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4385:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+handlePreviewAction$2@4450:7	ignoreLifecyclePreviewAction	`ignoreLifecyclePreviewAction` 是团队生命周期静态预览中不执行实际操作的点击回调。
+PreviewAction$2@4451:10	LifecyclePreviewAction	`LifecyclePreviewAction` 渲染团队离开或解散场景的静态预览操作按钮。
+TeamIdentity$1@4465:10	PreviewTeamIdentitySummary	`PreviewTeamIdentitySummary` 渲染团队名称与团队信息标签；同文件已有职责更完整的 `TeamIdentity` 组件。
+t@4465:27	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4477:28	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4513:27	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4594:32	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4707:32	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4753:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+handlePreviewAction$1@4765:7	ignoreMemberPreviewAction	`ignoreMemberPreviewAction` 是成员管理静态预览中不执行实际操作的点击回调。
+PreviewAction$1@4784:10	MemberPreviewAction	`MemberPreviewAction` 渲染成员管理静态预览操作按钮。
+t@4797:28	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@4917:29	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5054:30	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5131:30	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5222:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5238:25	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5266:28	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5315:29	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5430:30	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5554:29	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5596:32	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@5687:22	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+id@5696:9	quotaId	`quotaId` 区分团队额度预览中的“选中成员”与“全部成员”额度项。
+t@5830:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@6068:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@6099:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@6246:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+_@6297:4	unusedValue	`unusedValue` 是该映射回调中未使用的元素值。
+i@6297:7	index	`index` 是当前映射元素的索引。
+raw@6414:9	serializedSnapshot	`serializedSnapshot` 是诊断快照序列化后的 JSON 文本。
+t@6593:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+set@6594:19	setSetting	`setSetting` 是更新设置项的函数。
+ok@6612:13	settingSaved	`settingSaved` 表示设置更新是否成功。
+e@6637:22	inputEvent	`inputEvent` 是 Lane 文本输入框触发的变更事件。
+t@6683:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@6930:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@7048:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+id@7124:10	tourId	`tourId` 是待更新的新用户引导已读修订标识。
+t@7696:17	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@7797:17	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+t@7915:11	translate	`translate` 是从 useTranslation 取得的本地化文本转换函数。
+v@7921:56	storedVersion	`storedVersion` 是从全局存储读取的版本值。
+_@7932:6	unusedElement	`unusedElement` 是数组映射回调中未使用的空元素值。
+n@7932:9	migrationIndex	`migrationIndex` 是当前存储版本迁移说明的索引。
+opt@7997:23	versionOption	`versionOption` 是版本选择列表中的一个选项。
