@@ -356,10 +356,10 @@ function SkillsPage() {
     fetchSkills();
   }, [fetchSkills]);
   reactExports.useEffect(() => {
-    const d = pluginEvents.onPluginsChanged(() => {
+    const pluginsChangedSubscription = pluginEvents.onPluginsChanged(() => {
       fetchSkills();
     });
-    return () => d.dispose();
+    return () => pluginsChangedSubscription.dispose();
   }, [fetchSkills]);
   reactExports.useEffect(() => {
     if (!window.hilo?.skills) return;
@@ -524,9 +524,9 @@ function SkillsPage() {
           force: true,
         });
         dedupedToast.success(t("skills.mine.offlineSuccess", "Skill 已下线"));
-      } catch (error2) {
+      } catch (error) {
         dedupedToast.error(
-          `${t("skills.mine.offlineError", "下线失败")}: ${error2 instanceof Error ? error2.message : String(error2)}`,
+          `${t("skills.mine.offlineError", "下线失败")}: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
     },
@@ -591,8 +591,8 @@ function SkillsPage() {
   }, []);
   const findCommunityHostHook = reactExports.useCallback(
     (name) => {
-      for (const h of [market, marketOfficialFeatured, marketCommunity, marketOther]) {
-        if (h.skills.some((s) => s.name === name)) return h;
+      for (const marketHook of [market, marketOfficialFeatured, marketCommunity, marketOther]) {
+        if (marketHook.skills.some((s) => s.name === name)) return marketHook;
       }
       return null;
     },
@@ -707,8 +707,8 @@ function SkillsPage() {
         });
       }
     } else {
-      const m = skillType === "plugin" ? pluginMarket : (findCommunityHostHook(name) ?? market);
-      ok = await m.uninstall(name);
+      const uninstallMarket = skillType === "plugin" ? pluginMarket : (findCommunityHostHook(name) ?? market);
+      ok = await uninstallMarket.uninstall(name);
     }
     const isPlugin = skillType === "plugin";
     if (ok) {

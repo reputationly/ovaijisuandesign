@@ -1,0 +1,20 @@
+key	new	reason
+t2@63:14	t	useTranslation() 返回的翻译函数 t
+ok2@106:15	ok	原名 ok，去掉打包器加的数字去重后缀
+service2@22:26	service	去掉打包器加的数字后缀，恢复原名 service
+service2@26:24	service	去掉打包器加的数字后缀，恢复原名 service
+service2@30:20	service	去掉打包器加的数字后缀，恢复原名 service
+service2@34:17	service	去掉打包器加的数字后缀，恢复原名 service
+service2@38:24	service	去掉打包器加的数字后缀，恢复原名 service
+service2@42:31	service	去掉打包器加的数字后缀，恢复原名 service
+service2@46:28	service	去掉打包器加的数字后缀，恢复原名 service
+service2@50:29	service	去掉打包器加的数字后缀，恢复原名 service
+service2@54:16	service	去掉打包器加的数字后缀，恢复原名 service
+queryClient2@61:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+config2@62:10	config	去掉打包器加的数字后缀，恢复原名 config
+set2@82:9	set	去掉打包器加的数字后缀，恢复原名 set
+key2@75:6	key	去掉打包器加的数字后缀，恢复原名 key
+key2@83:12	key	去掉打包器加的数字后缀，恢复原名 key
+effect2@97:13	effect	去掉打包器加的数字后缀，恢复原名 effect
+patch2@135:12	patch	去掉打包器加的数字后缀，恢复原名 patch
+key2@141:18	key	去掉打包器加的数字后缀，恢复原名 key

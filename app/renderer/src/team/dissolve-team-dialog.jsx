@@ -24,9 +24,9 @@ import {
   useTeamCreditSummaryQuery,
 } from "./use-team-transactions-feed-query.jsx";
 
-let TeamScopeChangedError$2 = class TeamScopeChangedError extends Error {};
+let DissolveScopeChangedError = class TeamScopeChangedError extends Error {};
 
-let TeamExitResultError$1 = class TeamExitResultError extends Error {
+let DissolveExitResultError = class TeamExitResultError extends Error {
   constructor(result) {
     super(result.status);
     this.result = result;
@@ -42,12 +42,12 @@ export function DissolveTeamDialog({
   onOpenChange,
   onDissolved,
 }) {
-  const { t: t2 } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const {
     activeScope,
     exitCurrentTeam,
-    snapshot: snapshot2,
+    snapshot,
   } = useTeamAccount();
   const confirmInputId = reactExports.useId();
   const destinationSelectId = reactExports.useId();
@@ -64,7 +64,7 @@ export function DissolveTeamDialog({
   const nameConfirmed = confirmText === teamName;
   const summaryQuery = useTeamCreditSummaryQuery(scope, open);
   const contextsQuery = useTeamContextsQuery(
-    snapshot2?.identityKey ?? null,
+    snapshot?.identityKey ?? null,
     open,
   );
   const targets = reactExports.useMemo(
@@ -78,16 +78,16 @@ export function DissolveTeamDialog({
     () => [
       {
         userId: DISCARD_CREDIT_DESTINATION,
-        displayName: t2("team.management.dissolveCreditDiscard", {
+        displayName: t("team.management.dissolveCreditDiscard", {
           defaultValue: "不转移，放弃剩余积分",
         }),
       },
       ...targets.map((item) => ({
         userId: item.groupId,
         displayName: item.displayName,
-        description: `${t2("team.management.groupId", {
+        description: `${t("team.management.groupId", {
           defaultValue: "Group ID",
-        })} ${item.groupId} · ${t2(
+        })} ${item.groupId} · ${t(
           item.accountType === "PERSONAL"
             ? "team.account.personalTag"
             : "team.account.teamTag",
@@ -97,15 +97,15 @@ export function DissolveTeamDialog({
         )}`,
       })),
     ],
-    [t2, targets],
+    [t, targets],
   );
   const filteredDestinationOptions = reactExports.useMemo(() => {
     const query = destinationSearchQuery.trim().toLocaleLowerCase();
     if (!query) return destinationOptions;
     return destinationOptions.filter(
-      (option2) =>
-        option2.displayName.toLocaleLowerCase().includes(query) ||
-        option2.userId.toLocaleLowerCase().includes(query),
+      (option) =>
+        option.displayName.toLocaleLowerCase().includes(query) ||
+        option.userId.toLocaleLowerCase().includes(query),
     );
   }, [destinationOptions, destinationSearchQuery]);
   const selectedTarget =
@@ -131,11 +131,11 @@ export function DissolveTeamDialog({
         !scope.membershipRevision ||
         !accountScopeEquals(activeScope, scope)
       ) {
-        throw new TeamScopeChangedError$2();
+        throw new DissolveScopeChangedError();
       }
       const amount = selectedTarget ? summaryQuery.data?.teamRemaining : void 0;
       if (selectedTarget && (amount === void 0 || !/^\d+$/.test(amount))) {
-        throw new TeamExitResultError$1({
+        throw new DissolveExitResultError({
           status: "rejected",
           code: "credit_balance_unavailable",
         });
@@ -169,7 +169,7 @@ export function DissolveTeamDialog({
         result.status === "partial" ||
         result.status === "rejected"
       ) {
-        throw new TeamExitResultError$1(result);
+        throw new DissolveExitResultError(result);
       }
       return result;
     },
@@ -186,14 +186,14 @@ export function DissolveTeamDialog({
             }
           : null;
       setActionError(null);
-      queryClient2.removeQueries({
+      queryClient.removeQueries({
         queryKey: teamQueryKeys.membership(scope),
       });
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: teamQueryKeys.contexts(scope.identityKey),
       });
       dedupedToast.success(
-        t2("team.management.dissolveSucceeded", {
+        t("team.management.dissolveSucceeded", {
           defaultValue: "团队已解散。",
         }),
       );
@@ -201,10 +201,10 @@ export function DissolveTeamDialog({
       onDissolved(transferSuccess);
     },
     onError: (error) => {
-      if (error instanceof TeamScopeChangedError$2) {
+      if (error instanceof DissolveScopeChangedError) {
         setActionError(null);
         dedupedToast.error(
-          t2("team.management.scopeChanged", {
+          t("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
           }),
         );
@@ -212,21 +212,21 @@ export function DissolveTeamDialog({
         return;
       }
       if (
-        error instanceof TeamExitResultError$1 &&
+        error instanceof DissolveExitResultError &&
         error.result.status === "rejected" &&
         error.result.code === "credit_balance_unavailable"
       ) {
-        const message22 = t2(
+        const message = t(
           "team.management.dissolveCreditBalanceUnavailable",
           {
             defaultValue: "团队剩余积分暂不可用。请选择“不转移”，或稍后重试。",
           },
         );
-        setActionError(message22);
+        setActionError(message);
         return;
       }
       const transferred =
-        error instanceof TeamExitResultError$1 &&
+        error instanceof DissolveExitResultError &&
         error.result.status === "partial" &&
         error.result.phase === "CREDIT_TRANSFERRED";
       if (transferred && selectedTarget && scope.membershipRevision) {
@@ -238,7 +238,7 @@ export function DissolveTeamDialog({
         };
       }
       if (
-        error instanceof TeamExitResultError$1 &&
+        error instanceof DissolveExitResultError &&
         error.result.status === "partial" &&
         error.result.phase === "CREDIT_TRANSFER_UNKNOWN"
       ) {
@@ -252,7 +252,7 @@ export function DissolveTeamDialog({
           };
         }
         setActionError(
-          t2("team.management.dissolveTransferUnknown", {
+          t("team.management.dissolveTransferUnknown", {
             defaultValue:
               "积分转移结果尚未确认。为避免重复扣款，已禁止再次提交；请核对积分流水并联系支持处理。",
           }),
@@ -260,27 +260,27 @@ export function DissolveTeamDialog({
         return;
       }
       if (
-        error instanceof TeamExitResultError$1 &&
+        error instanceof DissolveExitResultError &&
         error.result.status === "partial" &&
         error.result.phase === "EXIT_RESULT_UNKNOWN"
       ) {
         setActionError(
-          t2("team.management.dissolveResultUnknown", {
+          t("team.management.dissolveResultUnknown", {
             defaultValue:
               "解散结果尚未确认，已切换到个人空间并暂停原团队的新请求。成员关系刷新后再确认最终状态。",
           }),
         );
         return;
       }
-      const message2 = transferred
-        ? t2("team.management.dissolveFailedAfterTransfer", {
+      const message = transferred
+        ? t("team.management.dissolveFailedAfterTransfer", {
             defaultValue:
               "剩余积分已转移，但团队解散失败。请再次点击，只重试解散。",
           })
-        : t2("team.management.dissolveFailed", {
+        : t("team.management.dissolveFailed", {
             defaultValue: "团队解散失败，请稍后重试。",
           });
-      setActionError(message2);
+      setActionError(message);
     },
   });
   return (
@@ -294,12 +294,12 @@ export function DissolveTeamDialog({
       >
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("team.management.dissolveTitle", {
+            {t("team.management.dissolveTitle", {
               defaultValue: "解散团队",
             })}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("team.management.dissolveDescription", {
+            {t("team.management.dissolveDescription", {
               defaultValue:
                 "解散“{{name}}”后，团队及成员权限将无法恢复。请先确认剩余积分的处理方式。",
               name: teamName,
@@ -314,7 +314,7 @@ export function DissolveTeamDialog({
             htmlFor={destinationSelectId}
             className="text-muted-foreground font-normal"
           >
-            {t2("team.management.dissolveCreditDestinationLabel", {
+            {t("team.management.dissolveCreditDestinationLabel", {
               defaultValue: "剩余积分去向",
             })}
           </Label>
@@ -330,19 +330,19 @@ export function DissolveTeamDialog({
             onSearchChange={setDestinationSearchQuery}
             disabled={mutation.isPending || transferIntentRef.current !== null}
             selectedLabelMode="name"
-            placeholder={t2(
+            placeholder={t(
               "team.management.dissolveCreditDestinationPlaceholder",
               {
                 defaultValue: "请选择剩余积分去向",
               },
             )}
-            searchPlaceholder={t2(
+            searchPlaceholder={t(
               "team.management.dissolveCreditDestinationSearchPlaceholder",
               {
                 defaultValue: "搜索团队名称或 Group ID",
               },
             )}
-            emptyText={t2(
+            emptyText={t(
               "team.management.dissolveCreditDestinationSearchEmpty",
               {
                 defaultValue: "没有匹配的账号，请调整搜索条件。",
@@ -353,16 +353,16 @@ export function DissolveTeamDialog({
           <p className="text-xs text-muted-foreground">
             {selectedTarget
               ? transferBalanceReady
-                ? t2("team.management.dissolveCreditTransferDescription", {
+                ? t("team.management.dissolveCreditTransferDescription", {
                     defaultValue:
                       "确认解散后，团队剩余积分将全部转移至“{{target}}”。",
                     target: selectedTarget.displayName,
                   })
-                : t2("team.management.dissolveCreditBalanceUnavailable", {
+                : t("team.management.dissolveCreditBalanceUnavailable", {
                     defaultValue:
                       "团队剩余积分暂不可用。请选择“不转移”，或稍后重试。",
                   })
-              : t2("team.management.dissolveCreditDiscardDescription", {
+              : t("team.management.dissolveCreditDiscardDescription", {
                   defaultValue:
                     "未选择转入账号时，团队剩余积分将在解散后失效，且无法恢复。",
                 })}
@@ -373,7 +373,7 @@ export function DissolveTeamDialog({
             htmlFor={confirmInputId}
             className="text-muted-foreground font-normal"
           >
-            {t2("team.management.dissolveConfirmPrompt", {
+            {t("team.management.dissolveConfirmPrompt", {
               defaultValue: "请输入团队名称 “{{name}}” 以确认：",
               name: teamName,
             })}
@@ -421,7 +421,7 @@ export function DissolveTeamDialog({
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={mutation.isPending}>
-            {t2("common.cancel", {
+            {t("common.cancel", {
               defaultValue: "取消",
             })}
           </AlertDialogCancel>
@@ -448,7 +448,7 @@ export function DissolveTeamDialog({
             }}
             data-action-ui-id="team.management-dissolve-confirm"
           >
-            {t2("team.management.dissolveConfirm", {
+            {t("team.management.dissolveConfirm", {
               defaultValue: "确认解散",
             })}
           </AlertDialogAction>

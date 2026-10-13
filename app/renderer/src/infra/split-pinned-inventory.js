@@ -19,13 +19,13 @@ export function removePinnedWorkspacePaths(
   caseInsensitive,
 ) {
   const aliasKeys = new Set(
-    aliasPaths.map((path2) =>
-      workspaceInventoryPathKey(path2, caseInsensitive),
+    aliasPaths.map((path) =>
+      workspaceInventoryPathKey(path, caseInsensitive),
     ),
   );
   return pinnedPaths.filter(
-    (path2) =>
-      !aliasKeys.has(workspaceInventoryPathKey(path2, caseInsensitive)),
+    (path) =>
+      !aliasKeys.has(workspaceInventoryPathKey(path, caseInsensitive)),
   );
 }
 
@@ -38,21 +38,21 @@ export function splitPinnedInventory(inventory, pinnedPaths, caseInsensitive) {
   const itemByAliasKey = new Map();
   for (const item of inventory) {
     for (const alias of pinnedWorkspaceAliases(item)) {
-      const key2 = workspaceInventoryPathKey(alias, caseInsensitive);
-      if (!itemByAliasKey.has(key2)) itemByAliasKey.set(key2, item);
+      const key = workspaceInventoryPathKey(alias, caseInsensitive);
+      if (!itemByAliasKey.has(key)) itemByAliasKey.set(key, item);
     }
   }
-  const seen2 = new Set();
+  const seen = new Set();
   const pinned = [];
-  for (const path2 of pinnedPaths) {
+  for (const path of pinnedPaths) {
     const item = itemByAliasKey.get(
-      workspaceInventoryPathKey(path2, caseInsensitive),
+      workspaceInventoryPathKey(path, caseInsensitive),
     );
-    if (!item || seen2.has(item)) continue;
-    seen2.add(item);
+    if (!item || seen.has(item)) continue;
+    seen.add(item);
     pinned.push(item);
   }
-  const unpinned = inventory.filter((item) => !seen2.has(item));
+  const unpinned = inventory.filter((item) => !seen.has(item));
   return {
     pinned,
     unpinned,
@@ -71,7 +71,7 @@ export const recentProjectDismissalListeners = new Set();
 function normalizePaths(paths) {
   return Array.from(
     new Set(
-      paths.map((path2) => path2.trim()).filter((path2) => path2.length > 0),
+      paths.map((path) => path.trim()).filter((path) => path.length > 0),
     ),
   );
 }
@@ -85,7 +85,7 @@ function normalizeDismissal(value) {
   )
     return null;
   const paths = normalizePaths(
-    candidate.paths.filter((path2) => typeof path2 === "string"),
+    candidate.paths.filter((path) => typeof path === "string"),
   );
   return paths.length > 0 && candidate.recentOpenedAt !== void 0
     ? {
@@ -97,11 +97,11 @@ function normalizeDismissal(value) {
 
 export function readRecentProjectDismissals() {
   try {
-    const raw2 = window.localStorage.getItem(
+    const raw = window.localStorage.getItem(
       RECENT_PROJECT_DISMISSALS_STORAGE_KEY,
     );
-    if (!raw2) return [];
-    const parsed = JSON.parse(raw2);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
     if (
       parsed.version !== RECENT_PROJECT_DISMISSALS_VERSION ||
       !Array.isArray(parsed.dismissals)
@@ -140,12 +140,12 @@ export function persistRecentProjectDismissals(dismissals) {
   });
 }
 
-export function upsertRecentProjectDismissal(previous2, dismissal) {
+export function upsertRecentProjectDismissal(previous, dismissal) {
   const paths = normalizePaths(dismissal.paths);
-  if (paths.length === 0) return [...previous2];
+  if (paths.length === 0) return [...previous];
   const pathSet = new Set(paths);
-  const withoutAliases = previous2.filter(
-    (entry) => !entry.paths.some((path2) => pathSet.has(path2)),
+  const withoutAliases = previous.filter(
+    (entry) => !entry.paths.some((path) => pathSet.has(path)),
   );
   return [
     ...withoutAliases,
@@ -156,12 +156,12 @@ export function upsertRecentProjectDismissal(previous2, dismissal) {
   ].slice(-MAX_RECENT_PROJECT_DISMISSALS);
 }
 
-export function removeRecentProjectDismissal(previous2, dismissal) {
+export function removeRecentProjectDismissal(previous, dismissal) {
   const paths = new Set(dismissal.paths);
-  return previous2.filter(
+  return previous.filter(
     (entry) =>
       entry.recentOpenedAt !== dismissal.recentOpenedAt ||
-      !entry.paths.some((path2) => paths.has(path2)),
+      !entry.paths.some((path) => paths.has(path)),
   );
 }
 
@@ -194,11 +194,11 @@ const badgeConfig = {
 const SIDEBAR_BADGE_CONFIG = badgeConfig;
 
 export function useSidebarBadges() {
-  const { badges: badges2, markReleaseBadgeComplete } = useReleaseBadges(
+  const { badges, markReleaseBadgeComplete } = useReleaseBadges(
     SIDEBAR_BADGE_CONFIG.badges,
   );
   return {
-    badges: badges2,
+    badges,
     markSidebarBadgeVisited: markReleaseBadgeComplete,
   };
 }

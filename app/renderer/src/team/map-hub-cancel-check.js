@@ -15,35 +15,35 @@ import { teamQueryKeys } from "../assets/gateway-scope-provider.jsx";
 import { mapTeamCreditSummary } from "./map-team-credit-summary.js";
 import { GatewayHttpError } from "../infra/gateway-http-error.jsx";
 function mapHailuoWebSummary(value) {
-  const raw2 = asRecord(value);
+  const raw = asRecord(value);
   return {
-    subscriptionPlan: asNullableString(raw2?.subscription_plan),
-    remainingCredits: asNullableString(raw2?.remaining_credits),
+    subscriptionPlan: asNullableString(raw?.subscription_plan),
+    remainingCredits: asNullableString(raw?.remaining_credits),
   };
 }
 function mapHailuoCancelCheck(value) {
-  const raw2 = asRecord(value);
+  const raw = asRecord(value);
   return {
-    canCancel: raw2?.can_cancel === true,
-    reason: asNullableString(raw2?.reason),
+    canCancel: raw?.can_cancel === true,
+    reason: asNullableString(raw?.reason),
   };
 }
 function mapBlockingTeam(value) {
-  const raw2 = asRecord(value);
-  if (!raw2) return null;
-  const groupId2 = asString(raw2.group_id);
-  if (!groupId2) return null;
+  const raw = asRecord(value);
+  if (!raw) return null;
+  const groupId = asString(raw.group_id);
+  if (!groupId) return null;
   const role =
-    raw2.role === "OWNER" || raw2.role === "ADMIN" ? raw2.role : "MEMBER";
+    raw.role === "OWNER" || raw.role === "ADMIN" ? raw.role : "MEMBER";
   return {
-    groupId: groupId2,
-    groupName: asString(raw2.group_name),
+    groupId,
+    groupName: asString(raw.group_name),
     role,
   };
 }
 function mapHubCancelCheck(value) {
-  const raw2 = asRecord(value);
-  if (!raw2) {
+  const raw = asRecord(value);
+  if (!raw) {
     return {
       canDelete: false,
       hasIapSubscription: false,
@@ -52,15 +52,15 @@ function mapHubCancelCheck(value) {
       personalCredits: null,
     };
   }
-  const blockingTeams = Array.isArray(raw2.blocking_teams)
-    ? raw2.blocking_teams.map(mapBlockingTeam).filter((t2) => t2 !== null)
+  const blockingTeams = Array.isArray(raw.blocking_teams)
+    ? raw.blocking_teams.map(mapBlockingTeam).filter((blockingTeam) => blockingTeam !== null)
     : [];
   return {
-    canDelete: raw2.can_delete === true,
-    hasIapSubscription: raw2.has_iap_subscription === true,
+    canDelete: raw.can_delete === true,
+    hasIapSubscription: raw.has_iap_subscription === true,
     blockingTeams,
-    personalSubscriptionPlan: asNullableString(raw2.personal_subscription_plan),
-    personalCredits: asNullableString(raw2.personal_credits),
+    personalSubscriptionPlan: asNullableString(raw.personal_subscription_plan),
+    personalCredits: asNullableString(raw.personal_credits),
   };
 }
 async function fetchAccountProfile(signal) {
@@ -70,7 +70,7 @@ async function fetchAccountProfile(signal) {
   return mapAccountProfile(await res.json());
 }
 async function updateAccountProfile(userName) {
-  const body2 = {
+  const body = {
     user_name: userName,
   };
   const res = await gatewayFetch(API_PATHS.accountProfile, {
@@ -78,7 +78,7 @@ async function updateAccountProfile(userName) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body2),
+    body: JSON.stringify(body),
   });
   return mapAccountProfile(await res.json());
 }
@@ -110,7 +110,7 @@ export async function sendCancelCode() {
   });
 }
 export async function deleteAccount(verifyCode) {
-  const body2 = {
+  const body = {
     acknowledgements: ["data_erased", "self_initiated"],
     verify_code: verifyCode,
   };
@@ -119,12 +119,12 @@ export async function deleteAccount(verifyCode) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body2),
+    body: JSON.stringify(body),
     timeoutMs: 8e4,
   });
 }
-export async function fetchTeamCreditSummaryByGroupId(groupId2, signal) {
-  const res = await gatewayFetch(API_PATHS.teamCreditSummary(groupId2), {
+export async function fetchTeamCreditSummaryByGroupId(groupId, signal) {
+  const res = await gatewayFetch(API_PATHS.teamCreditSummary(groupId), {
     signal,
   });
   return mapTeamCreditSummary(await res.json());
@@ -138,12 +138,12 @@ export const ACCOUNT_QUERY_KEYS = {
     "hailuo-cancel-check",
   ],
   hubCancelCheck: (identityKey) => ["account", identityKey, "hub-cancel-check"],
-  deletionPreviewTeamCredit: (identityKey, groupId2) => [
+  deletionPreviewTeamCredit: (identityKey, groupId) => [
     "account",
     identityKey,
     "deletion-preview",
     "team-credit",
-    groupId2,
+    groupId,
   ],
 };
 const PROFILE_STALE_TIME = 5 * 60 * 1e3;
@@ -166,17 +166,17 @@ export function useAccountProfile(enabled = true) {
   });
 }
 export function useUpdateAccountProfile() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { updateUsername } = useAuth();
   const { identityKey } = useAccountQueryIdentity(true);
   return useMutation({
     mutationFn: (userName) => updateAccountProfile(userName),
     onSuccess: (profile) => {
-      queryClient2.setQueryData(
+      queryClient.setQueryData(
         ACCOUNT_QUERY_KEYS.profile(identityKey),
         profile,
       );
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: teamQueryKeys.root,
       });
       if (profile.user_name) {

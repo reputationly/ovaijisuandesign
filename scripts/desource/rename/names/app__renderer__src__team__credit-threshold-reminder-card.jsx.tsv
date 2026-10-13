@@ -1,0 +1,7 @@
+key	new	reason
+t2@52:14	t	useTranslation() 返回的翻译函数 t
+id2@221:46	selectedItemId	已选中的批次项 ID，过滤掉当前项
+state2@53:10	state	去掉打包器加的数字后缀，恢复原名 state
+sum2@102:18	sum	去掉打包器加的数字后缀，恢复原名 sum
+selected2@116:65	selected	去掉打包器加的数字后缀，恢复原名 selected
+current2@219:43	current	去掉打包器加的数字后缀，恢复原名 current

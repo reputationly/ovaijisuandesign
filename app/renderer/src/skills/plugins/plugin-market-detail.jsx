@@ -1,6 +1,6 @@
 // 插件市场详情：图标解析、首帧静态图、详情弹窗、预览视频与列表条目。
 import { useTranslation, reactExports, jsxRuntimeExports, Loader2 } from "../../vendor.js";
-import { Trash2, Download as Download$1 } from "../../media-editing/package.jsx";
+import { Trash2, Download } from "../../media-editing/package.jsx";
 import { Badge } from "../../infra/badge-variants.jsx";
 import { Button, Dialog, DialogContent } from "../../infra/dialog-content.jsx";
 import { formatDownloads } from "../../generation/use-mention-models.jsx";
@@ -10,7 +10,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { __jsx } from "../../shared/jsx-runtime.js";
 import { Carousel, CarouselContent, CarouselItem } from "./carousel.jsx";
 import { normalizePluginLocale } from "./template-project.js";
-function resolvePluginIcon$1(icon, locale) {
+function resolveLocalizedPluginIcon(icon, locale) {
   if (!icon) return void 0;
   if (typeof icon === "string") return icon || void 0;
   return pickLocalized(icon, locale) || void 0;
@@ -107,7 +107,7 @@ export function PluginMarketDetailDialog({
   const summary = plugin ? pickLocalized(plugin.description, locale) : "";
   const description = plugin ? pickLocalized(plugin.details, locale) : "";
   const tags = plugin ? pickLocalized(plugin.tags, locale, []) : [];
-  const iconUrl = plugin ? resolvePluginIcon$1(plugin.icon, locale) : void 0;
+  const iconUrl = plugin ? resolveLocalizedPluginIcon(plugin.icon, locale) : void 0;
   const previews = plugin ? pickLocalized(plugin.previews, locale, []) : [];
   const version = plugin?.version;
   const isInstalled = !!installedSkill;
@@ -255,7 +255,7 @@ export function PluginMarketDetailDialog({
                   className="text-xs"
                   onClick={handleInstallClick}
                 >
-                  {!installing && <Download$1 size={14} strokeWidth={1.5} />}
+                  {!installing && <Download size={14} strokeWidth={1.5} />}
                   {installing ? t("skills.plugin.installing") : t("skills.plugin.install")}
                 </Button>
               )}
@@ -331,14 +331,14 @@ export function PluginMarketListItem({
           <span className="truncate text-sm font-semibold text-foreground">{displayName}</span>
           {downloads != null && downloads > 0 && (
             <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
-              <Download$1 size={12} strokeWidth={1.5} />
+              <Download size={12} strokeWidth={1.5} />
               {formatDownloads(downloads)}
             </span>
           )}
         </div>
         {summary && <p className="mt-1 truncate text-xs text-muted-foreground">{summary}</p>}
       </div>
-      <div className="flex shrink-0 items-center gap-2" onClick={(e) => e.stopPropagation()}>
+      <div className="flex shrink-0 items-center gap-2" onClick={(clickEvent) => clickEvent.stopPropagation()}>
         {isInstalled ? (
           <button
             type="button"
@@ -365,7 +365,7 @@ export function PluginMarketListItem({
                 </>
               ) : (
                 <>
-                  <Download$1 size={14} strokeWidth={1.5} />
+                  <Download size={14} strokeWidth={1.5} />
                   {t("skills.plugin.install")}
                 </>
               )}

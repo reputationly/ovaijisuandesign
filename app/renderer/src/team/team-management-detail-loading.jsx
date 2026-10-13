@@ -21,33 +21,33 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { Skeleton } from "./use-wallet-query.jsx";
-const ProgressTrack$1 = reactExports.forwardRef(
-  function ProgressTrack2(componentProps, forwardedRef) {
-    const { render: render2, className, ...elementProps } = componentProps;
-    const { state: state2 } = useProgressRootContext();
-    const element2 = useRenderElement("div", componentProps, {
-      state: state2,
+const ProgressTrackPrimitive = reactExports.forwardRef(
+  function ProgressTrack(componentProps, forwardedRef) {
+    const { render, className, ...elementProps } = componentProps;
+    const { state } = useProgressRootContext();
+    const element = useRenderElement("div", componentProps, {
+      state,
       ref: forwardedRef,
       props: elementProps,
       stateAttributesMapping: progressStateAttributesMapping,
     });
-    return element2;
+    return element;
   },
 );
-const ProgressIndicator$1 = reactExports.forwardRef(
-  function ProgressIndicator2(componentProps, forwardedRef) {
-    const { render: render2, className, ...elementProps } = componentProps;
+const ProgressIndicatorPrimitive = reactExports.forwardRef(
+  function ProgressIndicator(componentProps, forwardedRef) {
+    const { render, className, ...elementProps } = componentProps;
     const {
-      max: max2,
-      min: min2,
+      max,
+      min,
       value,
-      state: state2,
+      state,
     } = useProgressRootContext();
     const percentageValue =
       Number.isFinite(value) && value !== null
-        ? valueToPercent(value, min2, max2)
+        ? valueToPercent(value, min, max)
         : null;
-    const getStyles2 = reactExports.useCallback(() => {
+    const getStyles = reactExports.useCallback(() => {
       if (percentageValue == null) {
         return {};
       }
@@ -57,22 +57,22 @@ const ProgressIndicator$1 = reactExports.forwardRef(
         width: `${percentageValue}%`,
       };
     }, [percentageValue]);
-    const element2 = useRenderElement("div", componentProps, {
-      state: state2,
+    const element = useRenderElement("div", componentProps, {
+      state,
       ref: forwardedRef,
       props: [
         {
-          style: getStyles2(),
+          style: getStyles(),
         },
         elementProps,
       ],
       stateAttributesMapping: progressStateAttributesMapping,
     });
-    return element2;
+    return element;
   },
 );
 export function TeamHelpTip({
-  content: content2,
+  content,
   label,
   side = "top",
   className,
@@ -95,7 +95,7 @@ export function TeamHelpTip({
           <Info size={12} strokeWidth={1.5} aria-hidden={true} />
         </TooltipTrigger>
         <TooltipContent side={side} className="max-w-xs leading-relaxed">
-          {content2}
+          {content}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -104,7 +104,7 @@ export function TeamHelpTip({
 const DETAIL_MEMBER_ROW_IDS = ["first", "second", "third"];
 const DETAIL_QUOTA_CELL_IDS = ["default", "remaining", "members"];
 export function TeamManagementDetailLoading() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       role="status"
@@ -113,7 +113,7 @@ export function TeamManagementDetailLoading() {
       data-action-ui-id="team.management-detail-loading"
     >
       <span className="sr-only">
-        {t2("common.loading", {
+        {t("common.loading", {
           defaultValue: "加载中…",
         })}
       </span>
@@ -135,7 +135,7 @@ export function TeamManagementDetailLoading() {
           <Skeleton className="h-2.5 w-56 max-w-full rounded-sm" />
         </div>
         <div className="grid overflow-hidden rounded-lg border border-border sm:grid-cols-3 sm:divide-x sm:divide-border">
-          {DETAIL_QUOTA_CELL_IDS.map((cellId, index2) => (
+          {DETAIL_QUOTA_CELL_IDS.map((cellId, index) => (
             <div
               key={cellId}
               className="space-y-2 border-b border-border p-3 last:border-b-0 sm:border-b-0"
@@ -143,7 +143,7 @@ export function TeamManagementDetailLoading() {
               <Skeleton className="h-2.5 w-20 rounded-sm" />
               <Skeleton
                 className={
-                  index2 === 1 ? "h-3 w-24 rounded-sm" : "h-3 w-14 rounded-sm"
+                  index === 1 ? "h-3 w-24 rounded-sm" : "h-3 w-14 rounded-sm"
                 }
               />
             </div>
@@ -183,7 +183,7 @@ export function TeamManagementDetailLoading() {
 }
 const MEMBER_ROW_IDS = ["first", "second", "third", "fourth"];
 export function TeamManagementMemberLoading() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       role="status"
@@ -192,7 +192,7 @@ export function TeamManagementMemberLoading() {
       data-action-ui-id="team.management-members-loading"
     >
       <span className="sr-only">
-        {t2("common.loading", {
+        {t("common.loading", {
           defaultValue: "加载中…",
         })}
       </span>
@@ -224,7 +224,7 @@ export function TeamManagementQuotaMetrics({ metrics }) {
     <div className="grid overflow-hidden rounded-lg border border-border text-xs sm:grid-flow-col sm:auto-cols-fr sm:divide-x sm:divide-border">
       {metrics.map((metric) => {
         const interactive = typeof metric.onActivate === "function";
-        const body2 = (
+        const body = (
           <>
             <div className="flex items-center gap-1.5">
               <p className="break-words text-muted-foreground">
@@ -247,11 +247,11 @@ export function TeamManagementQuotaMetrics({ metrics }) {
         const cell =
           metric.action && metric.actionPlacement !== "label" ? (
             <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">{body2}</div>
+              <div className="min-w-0">{body}</div>
               <div className="shrink-0">{metric.action}</div>
             </div>
           ) : (
-            body2
+            body
           );
         if (interactive) {
           return (
@@ -281,7 +281,7 @@ export function TeamManagementQuotaMetrics({ metrics }) {
 }
 export function ProgressTrack({ className, ...props }) {
   return (
-    <ProgressTrack$1
+    <ProgressTrackPrimitive
       className={cn(
         "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
         className,
@@ -293,14 +293,14 @@ export function ProgressTrack({ className, ...props }) {
 }
 export function ProgressIndicator({ className, ...props }) {
   return (
-    <ProgressIndicator$1
+    <ProgressIndicatorPrimitive
       data-slot="progress-indicator"
       className={cn("h-full bg-primary transition-all", className)}
       {...props}
     />
   );
 }
-export function Progress({ className, children: children2, value, ...props }) {
+export function Progress({ className, children, value, ...props }) {
   return (
     <ProgressRoot
       value={value}
@@ -308,7 +308,7 @@ export function Progress({ className, children: children2, value, ...props }) {
       className={cn("flex flex-wrap gap-3", className)}
       {...props}
     >
-      {children2}
+      {children}
       <ProgressTrack>
         <ProgressIndicator />
       </ProgressTrack>
@@ -337,10 +337,10 @@ export function TeamPanelEmpty({ title, description }) {
     </div>
   );
 }
-function firstString(details, keys2) {
+function firstString(details, keys) {
   if (!details) return void 0;
-  for (const key2 of keys2) {
-    const value = details[key2];
+  for (const key of keys) {
+    const value = details[key];
     if (typeof value === "string" && value.trim().length > 0)
       return value.trim();
   }

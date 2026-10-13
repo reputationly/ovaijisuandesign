@@ -51,11 +51,11 @@ export function ComfyUiModelDownloadSection() {
 function DownloadTaskRow({ task, onCancel, onDismiss }) {
   const { t } = useTranslation();
   const active = isActiveComfyUiDownloadTask(task);
-  const Icon2 = getTaskIcon(task);
+  const Icon = getTaskIcon(task);
   return (
     <div className="px-4 py-3" data-action-ui-id="workflows-model-download-task">
       <div className="flex items-start gap-3">
-        <Icon2 size={16} strokeWidth={1.5} className="mt-0.5 shrink-0 text-muted-foreground" />
+        <Icon size={16} strokeWidth={1.5} className="mt-0.5 shrink-0 text-muted-foreground" />
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
             <p className="truncate text-sm font-medium text-foreground">{task.workflowTitle}</p>

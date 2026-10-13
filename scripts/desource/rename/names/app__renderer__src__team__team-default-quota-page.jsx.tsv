@@ -1,0 +1,5 @@
+key	new	reason
+t2@42:14	t	useTranslation() 返回的翻译函数 t
+ScopeChangedError2@28:31	ScopeChangedError	去掉打包器加的数字后缀，恢复原名 ScopeChangedError
+queryClient2@43:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+next2@148:38	next	去掉打包器加的数字后缀，恢复原名 next

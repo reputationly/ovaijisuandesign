@@ -31,7 +31,7 @@ function toHunk(edit) {
 function toSession(input, contentReady = input.contentReady ?? false) {
   const hunks = input.appliedEdits
     .map(toHunk)
-    .sort((a2, b3) => a2.startLine - b3.startLine);
+    .sort((a, b) => a.startLine - b.startLine);
   return {
     requestId: input.requestId,
     nodeId: input.nodeId,
@@ -46,7 +46,7 @@ function withResolvedCleanup(session) {
     ? session
     : null;
 }
-export const useDiffReviewStore = create((set2, get3) => ({
+export const useDiffReviewStore = create((set, get) => ({
   session: null,
   reverting: false,
   undoHandler: null,
@@ -57,73 +57,73 @@ export const useDiffReviewStore = create((set2, get3) => ({
   pendingScrollToFirstHunkNodeId: null,
   navigation: null,
   setUndoHandler(handler) {
-    set2({
+    set({
       undoHandler: handler,
     });
   },
   setHistoryHandler(handler) {
-    set2({
+    set({
       historyHandler: handler,
     });
   },
   setActiveEditorNodeId(nodeId) {
-    set2({
+    set({
       activeEditorNodeId: nodeId,
     });
   },
-  setNavigation(navigation2) {
-    set2({
-      navigation: navigation2,
+  setNavigation(nextNavigation) {
+    set({
+      navigation: nextNavigation,
     });
   },
   requestOpenEditor(nodeId) {
-    set2({
+    set({
       pendingOpenNodeId: nodeId,
       pendingScrollToFirstHunkNodeId: nodeId,
     });
   },
   consumeOpenEditor(nodeId) {
-    if (get3().pendingOpenNodeId !== nodeId) return false;
-    set2({
+    if (get().pendingOpenNodeId !== nodeId) return false;
+    set({
       pendingOpenNodeId: null,
     });
     return true;
   },
   consumeScrollToFirstHunk(nodeId) {
-    if (get3().pendingScrollToFirstHunkNodeId !== nodeId) return false;
-    set2({
+    if (get().pendingScrollToFirstHunkNodeId !== nodeId) return false;
+    set({
       pendingScrollToFirstHunkNodeId: null,
     });
     return true;
   },
   setContentReady(requestId) {
-    const { session } = get3();
+    const { session } = get();
     if (
       !session ||
       session.requestId !== requestId ||
       isDiffReviewSessionReady(session)
     )
       return;
-    set2({
+    set({
       session: {
         ...session,
         contentReady: true,
       },
     });
-    const queued = get3().queuedSession;
+    const queued = get().queuedSession;
     if (queued) {
-      set2({
+      set({
         queuedSession: null,
       });
-      get3().startSession(queued);
+      get().startSession(queued);
     }
   },
   promoteQueuedSession(requestId) {
-    const { queuedSession, reverting } = get3();
+    const { queuedSession, reverting } = get();
     if (!queuedSession || queuedSession.requestId !== requestId) return;
     if (reverting) {
       if (queuedSession.contentReady === true) return;
-      set2({
+      set({
         queuedSession: {
           ...queuedSession,
           contentReady: true,
@@ -131,37 +131,37 @@ export const useDiffReviewStore = create((set2, get3) => ({
       });
       return;
     }
-    set2({
+    set({
       session: toSession(queuedSession, true),
       queuedSession: null,
     });
   },
-  setBaselineMarkdown(requestId, markdown2, historyDepthAtStart = 0) {
-    const { session } = get3();
+  setBaselineMarkdown(requestId, markdown, historyDepthAtStart = 0) {
+    const { session } = get();
     if (
       !session ||
       session.requestId !== requestId ||
       session.baselineMarkdown !== void 0
     )
       return;
-    set2({
+    set({
       session: {
         ...session,
         contentReady: true,
-        baselineMarkdown: markdown2,
+        baselineMarkdown: markdown,
         historyDepthAtStart,
       },
     });
-    const queued = get3().queuedSession;
+    const queued = get().queuedSession;
     if (queued) {
-      set2({
+      set({
         queuedSession: null,
       });
-      get3().startSession(queued);
+      get().startSession(queued);
     }
   },
   restoreRetainedSession(restored) {
-    set2({
+    set({
       session: restored,
       reverting: false,
       queuedSession: null,
@@ -172,43 +172,43 @@ export const useDiffReviewStore = create((set2, get3) => ({
     });
   },
   restoreHistorySession(restored) {
-    const { session } = get3();
+    const { session } = get();
     if (!session || session.requestId !== restored.requestId) return;
-    set2({
+    set({
       session: restored,
     });
   },
   finishHistorySession(requestId) {
-    const { session } = get3();
+    const { session } = get();
     if (
       !session ||
       session.requestId !== requestId ||
       session.hunks.some((hunk) => hunk.status === "pending")
     )
       return;
-    set2({
+    set({
       session: null,
     });
   },
   finishSessionForUserEdit(requestId) {
-    const { session } = get3();
+    const { session } = get();
     if (!session || session.requestId !== requestId) return;
-    set2({
+    set({
       session: null,
     });
   },
   startSession(input) {
     if (input.appliedEdits.length === 0) return;
-    const { reverting, session, historyHandler } = get3();
+    const { reverting, session, historyHandler } = get();
     if (reverting) {
-      set2({
+      set({
         queuedSession: input,
       });
       return;
     }
     if (session?.requestId === input.requestId) return;
     if (session && historyHandler && !isDiffReviewSessionReady(session)) {
-      set2({
+      set({
         queuedSession: input,
       });
       return;
@@ -232,24 +232,24 @@ export const useDiffReviewStore = create((set2, get3) => ({
           after,
         })
       ) {
-        set2({
+        set({
           session: null,
         });
       }
     }
-    set2({
+    set({
       session: toSession(input),
       queuedSession: null,
     });
   },
-  acceptHunk(id2) {
-    get3().acceptHunks([id2]);
+  acceptHunk(id) {
+    get().acceptHunks([id]);
   },
-  acceptHunks(ids2) {
-    const { session, historyHandler } = get3();
+  acceptHunks(ids) {
+    const { session, historyHandler } = get();
     if (!session || (historyHandler && !isDiffReviewSessionReady(session)))
       return;
-    const acceptedIds = new Set(ids2);
+    const acceptedIds = new Set(ids);
     const after = {
       ...session,
       hunks: session.hunks.map((hunk) =>
@@ -261,7 +261,7 @@ export const useDiffReviewStore = create((set2, get3) => ({
           : hunk,
       ),
     };
-    if (after.hunks.every((hunk, index2) => hunk === session.hunks[index2]))
+    if (after.hunks.every((hunk, index) => hunk === session.hunks[index]))
       return;
     if (
       historyHandler?.({
@@ -271,12 +271,12 @@ export const useDiffReviewStore = create((set2, get3) => ({
       })
     )
       return;
-    set2({
+    set({
       session: withResolvedCleanup(after),
     });
   },
   acceptAll() {
-    const { session, historyHandler } = get3();
+    const { session, historyHandler } = get();
     if (!session || (historyHandler && !isDiffReviewSessionReady(session)))
       return;
     const after = {
@@ -290,7 +290,7 @@ export const useDiffReviewStore = create((set2, get3) => ({
           : hunk,
       ),
     };
-    if (after.hunks.every((hunk, index2) => hunk === session.hunks[index2]))
+    if (after.hunks.every((hunk, index) => hunk === session.hunks[index]))
       return;
     if (
       historyHandler?.({
@@ -300,12 +300,12 @@ export const useDiffReviewStore = create((set2, get3) => ({
       })
     )
       return;
-    set2({
+    set({
       session: withResolvedCleanup(after),
     });
   },
-  async requestUndo(ids2) {
-    const { session, undoHandler, reverting, historyHandler } = get3();
+  async requestUndo(ids) {
+    const { session, undoHandler, reverting, historyHandler } = get();
     if (
       !session ||
       !undoHandler ||
@@ -314,32 +314,32 @@ export const useDiffReviewStore = create((set2, get3) => ({
     )
       return;
     const targets = session.hunks.filter(
-      (hunk) => hunk.status === "pending" && (!ids2 || ids2.includes(hunk.id)),
+      (hunk) => hunk.status === "pending" && (!ids || ids.includes(hunk.id)),
     );
     if (targets.length === 0) return;
     const focusHunkId =
-      ids2?.length === 1 && targets.length === 1 && ids2[0] === targets[0]?.id
+      ids?.length === 1 && targets.length === 1 && ids[0] === targets[0]?.id
         ? targets[0].id
         : void 0;
-    set2({
+    set({
       reverting: true,
     });
     try {
-      const { undoneIds, content: content2 } = await undoHandler(
+      const { undoneIds, content } = await undoHandler(
         session.nodeId,
         targets,
       );
       const undone = new Set(undoneIds);
-      const current2 = get3().session;
+      const current = get().session;
       if (
-        !current2 ||
-        current2.requestId !== session.requestId ||
+        !current ||
+        current.requestId !== session.requestId ||
         undone.size === 0
       )
         return;
       const after = {
-        ...current2,
-        hunks: current2.hunks.map((hunk) =>
+        ...current,
+        hunks: current.hunks.map((hunk) =>
           undone.has(hunk.id)
             ? {
                 ...hunk,
@@ -348,14 +348,14 @@ export const useDiffReviewStore = create((set2, get3) => ({
             : hunk,
         ),
       };
-      const { historyHandler: historyHandler2 } = get3();
+      const { historyHandler } = get();
       if (
-        content2 !== void 0 &&
-        historyHandler2?.({
+        content !== void 0 &&
+        historyHandler?.({
           kind: "revert",
-          before: current2,
+          before: current,
           after,
-          content: content2,
+          content,
           ...(focusHunkId
             ? {
                 focusHunkId,
@@ -364,24 +364,24 @@ export const useDiffReviewStore = create((set2, get3) => ({
         })
       )
         return;
-      set2({
+      set({
         session: withResolvedCleanup(after),
       });
     } finally {
-      set2({
+      set({
         reverting: false,
       });
-      const queued = get3().queuedSession;
+      const queued = get().queuedSession;
       if (queued) {
-        set2({
+        set({
           queuedSession: null,
         });
-        get3().startSession(queued);
+        get().startSession(queued);
       }
     }
   },
   clearSession() {
-    set2({
+    set({
       session: null,
       reverting: false,
       queuedSession: null,

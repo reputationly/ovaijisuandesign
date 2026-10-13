@@ -1,0 +1,4 @@
+key	new	reason
+renameAsset2@8:24	renameAsset	去掉打包器加的数字后缀，恢复原名 renameAsset
+meta2@11:9	meta	去掉打包器加的数字后缀，恢复原名 meta
+state2@24:19	state	去掉打包器加的数字后缀，恢复原名 state

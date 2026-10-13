@@ -22,24 +22,24 @@ import {
 } from "../infra/dialog-content.jsx";
 export function AccountSwitcherRowSurface({
   accountType,
-  active: active2 = false,
+  active = false,
   dataActionUiId,
   dataGroupId,
   dataTeamRole,
-  disabled: disabled2 = false,
+  disabled = false,
   disabledReason,
-  displayName: displayName2,
-  groupId: groupId2,
+  displayName,
+  groupId,
   loading = false,
-  meta: meta2,
+  meta,
   tag,
   onClick,
 }) {
   const reasonId = reactExports.useId();
-  const { t: t2 } = useTranslation();
-  const unavailable = disabled2 && !active2 && Boolean(disabledReason);
-  const nativeDisabled = active2 || (disabled2 && !disabledReason);
-  const content2 = (
+  const { t } = useTranslation();
+  const unavailable = disabled && !active && Boolean(disabledReason);
+  const nativeDisabled = active || (disabled && !disabledReason);
+  const content = (
     <>
       <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-foreground/[0.05]">
         <Icon
@@ -52,21 +52,21 @@ export function AccountSwitcherRowSurface({
       <span className="min-w-0 flex-1 text-left">
         <span className="flex min-w-0 items-center gap-1.5">
           <span className="min-w-0 truncate font-normal text-body-12 text-current">
-            {displayName2}
+            {displayName}
           </span>
-          {meta2 ? (
+          {meta ? (
             <span className="shrink-0 truncate text-caption-11 font-normal text-muted-foreground">
-              {meta2}
+              {meta}
             </span>
           ) : null}
         </span>
-        {groupId2 ? (
+        {groupId ? (
           <span className="block truncate text-caption-11 font-normal text-muted-foreground">
-            {t2("team.management.groupId", {
+            {t("team.management.groupId", {
               defaultValue: "Group ID",
             })}
             {": "}
-            {groupId2}
+            {groupId}
           </span>
         ) : null}
       </span>
@@ -81,7 +81,7 @@ export function AccountSwitcherRowSurface({
           <span className="sr-only">Loading</span>
         </span>
       ) : null}
-      {active2 && !loading ? (
+      {active && !loading ? (
         <Icon
           icon={Check}
           size="sm"
@@ -93,7 +93,7 @@ export function AccountSwitcherRowSurface({
   );
   const buttonClassName = cn(
     "h-auto min-h-10 w-full min-w-0 justify-start gap-2 rounded-md px-2 py-1.5 leading-tight whitespace-normal text-foreground/70 hover:bg-foreground/[0.03] hover:text-foreground",
-    active2 &&
+    active &&
       "bg-foreground/[0.05] text-foreground hover:bg-foreground/[0.05] disabled:opacity-100",
     unavailable && "cursor-not-allowed opacity-50",
   );
@@ -109,7 +109,7 @@ export function AccountSwitcherRowSurface({
                   variant="ghost"
                   className={buttonClassName}
                   aria-disabled="true"
-                  aria-label={displayName2}
+                  aria-label={displayName}
                   aria-describedby={reasonId}
                   data-action-ui-id={dataActionUiId}
                   data-account-type={accountType.toLowerCase()}
@@ -118,7 +118,7 @@ export function AccountSwitcherRowSurface({
                 />
               }
             >
-              {content2}
+              {content}
             </TooltipTrigger>
             <TooltipContent>{disabledReason}</TooltipContent>
           </Tooltip>
@@ -135,8 +135,8 @@ export function AccountSwitcherRowSurface({
       variant="ghost"
       className={buttonClassName}
       disabled={nativeDisabled}
-      aria-label={displayName2}
-      aria-current={active2 ? "true" : void 0}
+      aria-label={displayName}
+      aria-current={active ? "true" : void 0}
       aria-busy={loading || void 0}
       onClick={onClick}
       data-action-ui-id={dataActionUiId}
@@ -144,7 +144,7 @@ export function AccountSwitcherRowSurface({
       data-group-id={dataGroupId}
       data-team-role={dataTeamRole}
     >
-      {content2}
+      {content}
     </Button>
   );
 }

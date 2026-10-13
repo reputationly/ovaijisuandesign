@@ -9,30 +9,30 @@ const VELOPACK_PACKAGE_MUTATION_UNOWNED = "VELOPACK_PACKAGE_MUTATION_UNOWNED:";
 const DRIVE_TYPE_PROBE_UNAVAILABLE =
   "Install root drive type probe is unavailable.";
 
-export function isUpdateCheckAlreadyInProgress(message2) {
-  return message2 === UPDATE_CHECK_ALREADY_IN_PROGRESS;
+export function isUpdateCheckAlreadyInProgress(message) {
+  return message === UPDATE_CHECK_ALREADY_IN_PROGRESS;
 }
 
-function isUpdateCheckTimedOut(message2) {
-  return message2 === UPDATE_CHECK_TIMED_OUT;
+function isUpdateCheckTimedOut(message) {
+  return message === UPDATE_CHECK_TIMED_OUT;
 }
 
-export function formatUpdaterErrorMessage(message2, t2, fallback) {
-  if (isUpdateCheckAlreadyInProgress(message2)) {
-    return t2("update.checkInProgress");
+export function formatUpdaterErrorMessage(message, t, fallback) {
+  if (isUpdateCheckAlreadyInProgress(message)) {
+    return t("update.checkInProgress");
   }
-  if (isUpdateCheckTimedOut(message2)) {
-    return t2("update.timeout");
+  if (isUpdateCheckTimedOut(message)) {
+    return t("update.timeout");
   }
-  if (message2 === "ERR_TIMED_OUT: Update preparation timed out") {
-    return t2("update.preparationTimeout");
+  if (message === "ERR_TIMED_OUT: Update preparation timed out") {
+    return t("update.preparationTimeout");
   }
-  if (message2?.includes(VELOPACK_PACKAGE_MUTATION_UNOWNED)) {
-    return message2.includes(DRIVE_TYPE_PROBE_UNAVAILABLE)
-      ? t2("update.failureCode.UPDATE_RUNTIME_UNAVAILABLE")
-      : t2("update.failureCode.INSTDIR_OWNERSHIP_UNVERIFIED");
+  if (message?.includes(VELOPACK_PACKAGE_MUTATION_UNOWNED)) {
+    return message.includes(DRIVE_TYPE_PROBE_UNAVAILABLE)
+      ? t("update.failureCode.UPDATE_RUNTIME_UNAVAILABLE")
+      : t("update.failureCode.INSTDIR_OWNERSHIP_UNVERIFIED");
   }
-  return message2 ?? fallback;
+  return message ?? fallback;
 }
 
 const INSTALLER_FAILURE_CODE_KEYS = {
@@ -106,30 +106,30 @@ export function isManualRecoveryCheckRetryable(manualRecoveryCode) {
   return manualRecoveryCode === "UPDATE_PROXY_PROTOCOL_UNSUPPORTED";
 }
 
-export function formatManualRecoveryMessage(manualRecoveryCode, t2) {
-  const key2 = manualRecoveryCode
+export function formatManualRecoveryMessage(manualRecoveryCode, t) {
+  const key = manualRecoveryCode
     ? INSTALLER_FAILURE_CODE_KEYS[manualRecoveryCode]
     : void 0;
-  if (key2) return t2(key2);
-  return t2("update.manualRecovery.body");
+  if (key) return t(key);
+  return t("update.manualRecovery.body");
 }
 
-function formatVersion(version2) {
-  const v2 = version2.replace(/^v/, "");
-  return `v${v2}`;
+function formatVersion(version) {
+  const versionNumber = version.replace(/^v/, "");
+  return `v${versionNumber}`;
 }
 
 export function computeVersionDelta(currentVersion, targetVersion) {
-  const current2 = parseSemver(currentVersion);
+  const current = parseSemver(currentVersion);
   const target = parseSemver(targetVersion);
   const currentFormatted = formatVersion(currentVersion);
   const targetFormatted = formatVersion(targetVersion);
-  const isMinorBump = !!(current2 && target && current2.minor !== target.minor);
+  const isMinorBump = !!(current && target && current.minor !== target.minor);
   const versionsBehind = (() => {
-    if (!current2 || !target) return null;
-    if (current2.major !== target.major || current2.minor !== target.minor)
+    if (!current || !target) return null;
+    if (current.major !== target.major || current.minor !== target.minor)
       return null;
-    const delta = target.patch - current2.patch;
+    const delta = target.patch - current.patch;
     return delta > 0 ? delta : null;
   })();
   return {

@@ -1,0 +1,5 @@
+key	new	reason
+att@18:35	attachment	要转成 mention 属性的附件
+a@41:14	attachment	attachments 中的单个附件，按名称和别名登记进 lookup
+m@51:11	bracketMatch	part 匹配 [名称] 形式的正则结果
+att@54:13	attachment	按方括号内名称查到的附件

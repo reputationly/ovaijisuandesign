@@ -1,0 +1,17 @@
+key	new	reason
+id2@157:9	id	原名 id，去掉打包器加的数字去重后缀
+id2@238:14	id	原名 id，去掉打包器加的数字去重后缀
+id2@248:15	id	原名 id，去掉打包器加的数字去重后缀
+url2@40:13	url	去掉打包器加的数字后缀，恢复原名 url
+key2@45:14	key	去掉打包器加的数字后缀，恢复原名 key
+text2@46:11	text	去掉打包器加的数字后缀，恢复原名 text
+key2@55:16	key	去掉打包器加的数字后缀，恢复原名 key
+color2@156:64	color	去掉打包器加的数字后缀，恢复原名 color
+name2@180:31	tagName	画布标签名；name 是全局名
+registry2@231:24	registry	去掉打包器加的数字后缀，恢复原名 registry
+index2@236:9	index	去掉打包器加的数字后缀，恢复原名 index
+name2@196:41	tagName	画布标签名；name 是全局名
+name2@203:39	tagName	画布标签名；name 是全局名
+name2@215:39	tagName	画布标签名；name 是全局名
+registry2@235:39	registry	去掉打包器加的数字后缀，恢复原名 registry
+name2@245:32	tagName	画布标签名；name 是全局名

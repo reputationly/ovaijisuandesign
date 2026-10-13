@@ -1,0 +1,3 @@
+key	new	reason
+t2@24:14	t	useTranslation() 返回的翻译函数 t
+text2@81:37	text	去掉打包器加的数字后缀，恢复原名 text

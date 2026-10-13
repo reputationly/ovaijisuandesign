@@ -1,0 +1,6 @@
+key	new	reason
+t2@41:14	t	useTranslation() 返回的翻译函数 t
+bytes2@23:25	bytes	去掉打包器加的数字后缀，恢复原名 bytes
+copy2@43:17	copy	去掉打包器加的数字后缀，恢复原名 copy
+platform2@48:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+code2@129:28	code	去掉打包器加的数字后缀，恢复原名 code

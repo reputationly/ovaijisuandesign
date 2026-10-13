@@ -70,27 +70,27 @@ function normalizeCommonConfig(input) {
 function requireServerName(value, maxLength) {
   if (typeof value !== "string")
     throw new CustomMcpValidationError("Invalid MCP server name", "name");
-  const name2 = value.trim();
+  const trimmedName = value.trim();
   if (
-    !SERVER_NAME_PATTERN.test(name2) ||
-    Array.from(name2).length > maxLength
+    !SERVER_NAME_PATTERN.test(trimmedName) ||
+    Array.from(trimmedName).length > maxLength
   ) {
     throw new CustomMcpValidationError("Invalid MCP server name", "name");
   }
-  return name2;
+  return trimmedName;
 }
 
 function requireRemoteUrl(value) {
-  const raw2 = requireBoundedString(value, MAX_URL_LENGTH, "url");
+  const raw = requireBoundedString(value, MAX_URL_LENGTH, "url");
   try {
-    const url2 = new URL(raw2);
+    const url = new URL(raw);
     if (
-      (url2.protocol !== "http:" && url2.protocol !== "https:") ||
-      !url2.hostname
+      (url.protocol !== "http:" && url.protocol !== "https:") ||
+      !url.hostname
     ) {
       throw new CustomMcpValidationError("Invalid MCP URL", "url");
     }
-    return raw2;
+    return raw;
   } catch (error) {
     if (error instanceof CustomMcpValidationError) throw error;
     throw new CustomMcpValidationError("Invalid MCP URL", "url");
@@ -99,7 +99,7 @@ function requireRemoteUrl(value) {
 
 function hasUnknownKeys(value, allowed) {
   const allowedKeys = new Set(allowed);
-  return Object.keys(value).some((key2) => !allowedKeys.has(key2));
+  return Object.keys(value).some((key) => !allowedKeys.has(key));
 }
 
 function isRecord$e(value) {
@@ -115,14 +115,14 @@ function normalizeStringMap(value, caseInsensitive) {
     );
   }
   const result = {};
-  const seen2 = new Set();
+  const seen = new Set();
   for (const [rawKey, rawValue] of Object.entries(value)) {
-    const key2 = rawKey.trim();
-    const normalizedKey = caseInsensitive ? key2.toLocaleLowerCase() : key2;
+    const key = rawKey.trim();
+    const normalizedKey = caseInsensitive ? key.toLocaleLowerCase() : key;
     if (
-      !key2 ||
-      key2.length > MAX_KEY_LENGTH ||
-      seen2.has(normalizedKey) ||
+      !key ||
+      key.length > MAX_KEY_LENGTH ||
+      seen.has(normalizedKey) ||
       typeof rawValue !== "string" ||
       rawValue.length > MAX_VALUE_LENGTH
     ) {
@@ -131,8 +131,8 @@ function normalizeStringMap(value, caseInsensitive) {
         caseInsensitive ? "headers" : "env",
       );
     }
-    seen2.add(normalizedKey);
-    result[key2] = rawValue;
+    seen.add(normalizedKey);
+    result[key] = rawValue;
   }
   return result;
 }
@@ -141,7 +141,7 @@ function normalizeConfig(input, options) {
   if (!isRecord$e(input) || typeof input.transport !== "string") {
     throw new CustomMcpValidationError("Invalid MCP server config");
   }
-  const common2 = normalizeCommonConfig(input);
+  const common = normalizeCommonConfig(input);
   if (input.transport === "stdio") {
     if (
       hasUnknownKeys(input, [
@@ -156,16 +156,16 @@ function normalizeConfig(input, options) {
       throw new CustomMcpValidationError("Unsupported stdio MCP field");
     }
     const launch = normalizeCustomMcpLaunch(input.command, input.args, options);
-    const env2 = normalizeStringMap(input.env, false);
+    const env = normalizeStringMap(input.env, false);
     return {
       transport: "stdio",
       ...launch,
-      ...(env2
+      ...(env
         ? {
-            env: env2,
+            env,
           }
         : {}),
-      ...common2,
+      ...common,
     };
   }
   if (
@@ -186,17 +186,17 @@ function normalizeConfig(input, options) {
   ) {
     throw new CustomMcpValidationError("Unsupported remote MCP field");
   }
-  const url2 = requireRemoteUrl(input.url);
+  const url = requireRemoteUrl(input.url);
   const headers = normalizeStringMap(input.headers, true);
   return {
     transport: input.transport,
-    url: url2,
+    url,
     ...(headers
       ? {
           headers,
         }
       : {}),
-    ...common2,
+    ...common,
   };
 }
 
@@ -207,20 +207,20 @@ export function normalizeCustomMcpServerInput(input, options = {}) {
   ) {
     throw new CustomMcpValidationError("Invalid MCP server input");
   }
-  const name2 = requireServerName(
+  const serverName = requireServerName(
     input.name,
     options.source === "stored" || options.source === "update"
       ? STORED_NAME_MAX_LENGTH
       : CUSTOM_MCP_NAME_MAX_LENGTH,
   );
-  if (isReservedCustomMcpName(name2)) {
+  if (isReservedCustomMcpName(serverName)) {
     throw new CustomMcpValidationError("Reserved MCP server name", "name");
   }
   if (typeof input.enabled !== "boolean") {
     throw new CustomMcpValidationError("Invalid MCP enabled state");
   }
   return {
-    name: name2,
+    name: serverName,
     enabled: input.enabled,
     config: normalizeConfig(input.config, options),
   };

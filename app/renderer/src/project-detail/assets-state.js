@@ -19,16 +19,16 @@ export function useAssetsListState() {
     });
   }, []);
   const clearBuckets = reactExports.useCallback(() => setActiveBuckets(void 0), []);
-  const toggleSort = reactExports.useCallback((by) => {
+  const toggleSort = reactExports.useCallback((sortField) => {
     setSort((current) => {
-      if (current.by !== by) {
+      if (current.by !== sortField) {
         return {
-          by,
-          dir: by === "name" || by === "type" ? "asc" : "desc",
+          by: sortField,
+          dir: sortField === "name" || sortField === "type" ? "asc" : "desc",
         };
       }
       return {
-        by,
+        by: sortField,
         dir: current.dir === "asc" ? "desc" : "asc",
       };
     });
@@ -53,13 +53,13 @@ export function useAssetsListState() {
         toggle(targetKey);
         return;
       }
-      const a = allKeys.indexOf(anchor);
-      const b = allKeys.indexOf(targetKey);
-      if (a === -1 || b === -1) {
+      const anchorIndex = allKeys.indexOf(anchor);
+      const targetIndex = allKeys.indexOf(targetKey);
+      if (anchorIndex === -1 || targetIndex === -1) {
         toggle(targetKey);
         return;
       }
-      const [from, to] = a < b ? [a, b] : [b, a];
+      const [from, to] = anchorIndex < targetIndex ? [anchorIndex, targetIndex] : [targetIndex, anchorIndex];
       setSelection((current) => {
         const next = new Set(current);
         for (let i = from; i <= to; i += 1) {

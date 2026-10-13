@@ -41,10 +41,10 @@ function keepPreviousDataForMembershipRevision(
     return void 0;
   }
   const revisionIndex = identityIndex + 3;
-  for (let index2 = 0; index2 < currentQueryKey.length; index2 += 1) {
+  for (let index = 0; index < currentQueryKey.length; index += 1) {
     if (
-      index2 !== revisionIndex &&
-      currentQueryKey[index2] !== previousQuery.queryKey[index2]
+      index !== revisionIndex &&
+      currentQueryKey[index] !== previousQuery.queryKey[index]
     ) {
       return void 0;
     }
@@ -123,11 +123,11 @@ export function useInGroupMembersQuery({ scope, enabled = true }) {
 }
 export function useTeamMembersFeedQuery({
   scope,
-  keyword: keyword2,
+  keyword,
   pageSize,
   enabled = true,
 }) {
-  const normalizedKeyword = normalizeTeamKeyword(keyword2);
+  const normalizedKeyword = normalizeTeamKeyword(keyword);
   return useInfiniteQuery({
     queryKey: scope
       ? teamQueryKeys.memberFeed(scope, normalizedKeyword, pageSize)
@@ -382,11 +382,11 @@ export function useTeamTransactionsFeedQuery({
   });
 }
 export function Spinner({ className, ...props }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <Loader2Icon
       role="status"
-      aria-label={t2("a11y.loading")}
+      aria-label={t("a11y.loading")}
       className={cn("size-4 animate-spin", className)}
       {...props}
     />

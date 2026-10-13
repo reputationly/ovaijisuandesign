@@ -1,0 +1,20 @@
+key	new	reason
+t2@59:14	t	useTranslation() 返回的翻译函数 t
+m3@99:42	member	members 中的单个成员，按是否被选中过滤
+keyword2@21:52	keyword	去掉打包器加的数字后缀，恢复原名 keyword
+keyword2@61:10	keyword	去掉打包器加的数字后缀，恢复原名 keyword
+selected2@62:10	selected	去掉打包器加的数字后缀，恢复原名 selected
+queryClient2@65:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+isEmpty2@79:9	isEmpty	去掉打包器加的数字后缀，恢复原名 isEmpty
+timer2@68:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+current2@113:18	current	去掉打包器加的数字后缀，恢复原名 current
+next2@125:13	next	去掉打包器加的数字后缀，恢复原名 next
+next22@116:15	next	去掉打包器加的数字后缀，恢复原名 next
+candidates2@130:28	candidates	去掉打包器加的数字后缀，恢复原名 candidates
+current2@131:18	current	去掉打包器加的数字后缀，恢复原名 current
+next2@132:13	next	去掉打包器加的数字后缀，恢复原名 next
+current2@154:18	current	去掉打包器加的数字后缀，恢复原名 current
+next2@155:13	next	去掉打包器加的数字后缀，恢复原名 next
+current2@205:20	current	去掉打包器加的数字后缀，恢复原名 current
+next2@206:15	next	去掉打包器加的数字后缀，恢复原名 next
+active2@58:55	active	去掉打包器加的数字后缀，恢复原名 active

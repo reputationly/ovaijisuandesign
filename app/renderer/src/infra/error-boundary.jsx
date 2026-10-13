@@ -26,8 +26,8 @@ export class ErrorBoundary extends reactExports.Component {
       error,
     };
   }
-  componentDidCatch(error, info2) {
-    const diagnostic = logErrorBoundary(error, info2.componentStack);
+  componentDidCatch(error, info) {
+    const diagnostic = logErrorBoundary(error, info.componentStack);
     this.setState({
       diagnostic,
     });
@@ -45,8 +45,8 @@ export class ErrorBoundary extends reactExports.Component {
           failureTimestamp={this.state.diagnostic?.timestamp}
           showDetails={this.state.showDetails}
           onToggleDetails={() =>
-            this.setState((s2) => ({
-              showDetails: !s2.showDetails,
+            this.setState((prevState) => ({
+              showDetails: !prevState.showDetails,
             }))
           }
           onRetry={this.handleReload}
@@ -61,8 +61,8 @@ export function getVisiblePreviewTabIds() {
   return visiblePreviewTabsStore.getVisibleWorkspaceIds();
 }
 
-export function replaceVisiblePreviewTab(workspaceId2, entry) {
-  visiblePreviewTabsStore.replace(workspaceId2, entry);
+export function replaceVisiblePreviewTab(workspaceId, entry) {
+  visiblePreviewTabsStore.replace(workspaceId, entry);
 }
 
 export async function optimisticallyRemoveAssets({
@@ -74,35 +74,35 @@ export async function optimisticallyRemoveAssets({
   await qc.cancelQueries({
     queryKey,
   });
-  const snapshot2 = qc.getQueryData(queryKey);
+  const snapshot = qc.getQueryData(queryKey);
   const removed = new Set(paths);
   qc.setQueryData(queryKey, (prev) =>
     prev ? prev.filter((asset) => !removed.has(asset.path)) : prev,
   );
   return {
     queryKey,
-    assets: snapshot2,
+    assets: snapshot,
   };
 }
 
-export function rollbackAssetListSnapshot({ qc, snapshot: snapshot2 }) {
-  if (!snapshot2?.assets) return;
-  qc.setQueryData(snapshot2.queryKey, snapshot2.assets);
+export function rollbackAssetListSnapshot({ qc, snapshot }) {
+  if (!snapshot?.assets) return;
+  qc.setQueryData(snapshot.queryKey, snapshot.assets);
 }
 
 const MAX_PENDING_FIRST_PROGRESS = 100;
 
 const firstProgressStartByClientId = new Map();
 
-export function recordIdleActionSafe(message2, data2) {
+export function recordIdleActionSafe(message, data) {
   try {
-    recordAction(message2, data2);
+    recordAction(message, data);
   } catch {}
 }
 
-export function recordIdleMismatchSafe(data2) {
+export function recordIdleMismatchSafe(data) {
   try {
-    recordError("chat_busy_state_mismatch", data2);
+    recordError("chat_busy_state_mismatch", data);
   } catch {}
 }
 
@@ -122,10 +122,10 @@ function observeFirstProgress(trace) {
     return;
   }
   if (trace.status === "received" || trace.status === "accepted") return;
-  const start2 = firstProgressStartByClientId.get(trace.clientMessageId);
+  const start = firstProgressStartByClientId.get(trace.clientMessageId);
   firstProgressStartByClientId.delete(trace.clientMessageId);
-  if (start2 === void 0 || trace.status !== "started") return;
-  measurePerf(PERF_CHAT_FIRST_PROGRESS, start2, {
+  if (start === void 0 || trace.status !== "started") return;
+  measurePerf(PERF_CHAT_FIRST_PROGRESS, start, {
     sessionId: trace.sessionId,
     delivery: trace.delivery,
   });
@@ -135,11 +135,11 @@ function trimTraceMap() {
   if (tracesByClientId.size <= MAX_RECENT_TRACES) return;
   const overflow = tracesByClientId.size - MAX_RECENT_TRACES;
   const oldestIds = [...tracesByClientId.values()]
-    .sort((a2, b3) => a2.updatedAt - b3.updatedAt)
+    .sort((a, b) => a.updatedAt - b.updatedAt)
     .slice(0, overflow)
     .map((trace) => trace.clientMessageId);
-  for (const id2 of oldestIds) {
-    tracesByClientId.delete(id2);
+  for (const id of oldestIds) {
+    tracesByClientId.delete(id);
   }
 }
 

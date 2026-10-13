@@ -42,13 +42,13 @@ function readAttr(selector, attr, index) {
         error: `Element not found: ${selector}`,
       };
     }
-    const value2 = el.getAttribute(attr);
+    const value = el.getAttribute(attr);
     return {
       index: 0,
       action,
       status: "ok",
       duration: performance.now() - start,
-      detail: { value: value2, present: value2 !== null, matched: 1 },
+      detail: { value, present: value !== null, matched: 1 },
     };
   }
   const all = document.querySelectorAll(selector);
@@ -255,8 +255,8 @@ async function waitStage(options) {
     return true;
   };
   const sleep = (ms) =>
-    new Promise((r) => {
-      setTimeout(r, ms);
+    new Promise((resolve) => {
+      setTimeout(resolve, ms);
     });
   const waitForChange = (timeoutMs, predicate) =>
     new Promise((resolve) => {
@@ -585,10 +585,10 @@ async function typeText(selector, value) {
     }
     if (!inserted) {
       try {
-        const dt = new DataTransfer();
-        dt.setData("text/plain", value);
+        const dataTransfer = new DataTransfer();
+        dataTransfer.setData("text/plain", value);
         const pasteEvent = new ClipboardEvent("paste", {
-          clipboardData: dt,
+          clipboardData: dataTransfer,
           bubbles: true,
           cancelable: true,
         });
@@ -626,7 +626,7 @@ async function tryAnswerDockIfPresent() {
     '[data-action-ui-id="chat-question-option-0"]',
   );
   if (opt instanceof HTMLElement) opt.click();
-  await new Promise((r) => setTimeout(r, 200));
+  await new Promise((resolve) => setTimeout(resolve, 200));
   const next = findVisibleElement('[data-action-ui-id="chat-question-next"]');
   if (next instanceof HTMLElement) next.click();
   const submit = findVisibleElement(
@@ -1033,17 +1033,17 @@ function describeAction(step) {
   if ("count-elements" in step)
     return `count-elements ${step["count-elements"].target}`;
   if ("wait-count" in step) {
-    const wc = step["wait-count"];
+    const waitCountStep = step["wait-count"];
     const threshold =
-      wc.min ?? (wc.baseline !== void 0 ? wc.baseline + 1 : "?");
-    return `wait-count ${wc.target} >= ${threshold}`;
+      waitCountStep.min ?? (waitCountStep.baseline !== void 0 ? waitCountStep.baseline + 1 : "?");
+    return `wait-count ${waitCountStep.target} >= ${threshold}`;
   }
   if ("wait-any" in step)
     return `wait-any [${step["wait-any"].targets.join(", ")}]`;
   if ("wait-stage" in step) {
-    const ws = step["wait-stage"];
-    const expected = ws.expectedNew ?? 1;
-    return `wait-stage ${ws.artifactSelector} +${expected}`;
+    const waitStageStep = step["wait-stage"];
+    const expected = waitStageStep.expectedNew ?? 1;
+    return `wait-stage ${waitStageStep.artifactSelector} +${expected}`;
   }
   if ("switch-window" in step) return `switch-window ${step["switch-window"]}`;
   if ("reset" in step) return "reset";
@@ -1329,25 +1329,25 @@ async function executeOneStep(step) {
   if ("count-elements" in resolved)
     return countElements(resolved["count-elements"].target);
   if ("wait-count" in resolved) {
-    const wc = resolved["wait-count"];
-    return waitCount(wc.target, {
-      min: wc.min,
-      baseline: wc.baseline,
-      timeout: wc.timeout,
+    const waitCountStep = resolved["wait-count"];
+    return waitCount(waitCountStep.target, {
+      min: waitCountStep.min,
+      baseline: waitCountStep.baseline,
+      timeout: waitCountStep.timeout,
     });
   }
   if ("wait-any" in resolved)
     return waitAny(resolved["wait-any"].targets, resolved["wait-any"].timeout);
   if ("wait-stage" in resolved) {
-    const ws = resolved["wait-stage"];
+    const waitStageStep = resolved["wait-stage"];
     return waitStage({
-      artifactSelector: ws.artifactSelector,
-      timeout: ws.timeout,
-      baseline: ws.baseline,
-      expectedNew: ws.expectedNew,
-      autoAnswerDock: ws.autoAnswerDock,
-      dockMaxRounds: ws.dockMaxRounds,
-      readAttrs: ws.readAttrs,
+      artifactSelector: waitStageStep.artifactSelector,
+      timeout: waitStageStep.timeout,
+      baseline: waitStageStep.baseline,
+      expectedNew: waitStageStep.expectedNew,
+      autoAnswerDock: waitStageStep.autoAnswerDock,
+      dockMaxRounds: waitStageStep.dockMaxRounds,
+      readAttrs: waitStageStep.readAttrs,
     });
   }
   if ("switch-window" in resolved) {

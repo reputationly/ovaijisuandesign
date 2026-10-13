@@ -1,5 +1,5 @@
 // 插件市场的卡片：图标取色、封面横幅、工作流按钮。
-import { useTranslation, reactExports, BadgeCheck, Eye as Eye$1, Workflow } from "../../vendor.js";
+import { useTranslation, reactExports, BadgeCheck, Eye, Workflow } from "../../vendor.js";
 import { PluginIcon } from "../../workspace/home-service.jsx";
 import { pickLocalized } from "../../generation/normalize-skill-detail-metadata.js";
 import { pluginTrackBase } from "../../generation/use-mention-models.jsx";
@@ -102,7 +102,7 @@ function PluginLogoBanner({ iconUrl, className, ...rest }) {
     </div>
   );
 }
-function resolvePluginIcon$2(icon, locale) {
+function resolvePluginIcon(icon, locale) {
   if (!icon) return void 0;
   if (typeof icon === "string") return icon || void 0;
   return pickLocalized(icon, locale) || void 0;
@@ -112,7 +112,7 @@ export function PluginMarketCard({ plugin, installedSkill, entrySource, position
   const locale = normalizePluginLocale(i18n.language);
   const displayName = pickLocalized(plugin.name, locale) || plugin.id;
   const summary = pickLocalized(plugin.description, locale);
-  const iconUrl = resolvePluginIcon$2(plugin.icon, locale);
+  const iconUrl = resolvePluginIcon(plugin.icon, locale);
   const workflowTemplate = getPluginTemplateProject(plugin.id);
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: cover/card opens detail
@@ -127,7 +127,7 @@ export function PluginMarketCard({ plugin, installedSkill, entrySource, position
         <PluginLogoBanner iconUrl={iconUrl} />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 flex gap-3 p-3 opacity-0 translate-y-2 transition-[opacity,transform] duration-200 ease-out group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(clickEvent) => clickEvent.stopPropagation()}
         >
           {onDetail && (
             <button
@@ -136,7 +136,7 @@ export function PluginMarketCard({ plugin, installedSkill, entrySource, position
               className="flex flex-1 items-center justify-center gap-1.5 h-9 rounded-[4px] text-[13px] font-normal whitespace-nowrap bg-black/50 text-white backdrop-blur-md hover:bg-black/70 transition-colors cursor-pointer"
               onClick={() => onDetail(plugin)}
             >
-              <Eye$1 size={14} strokeWidth={1.5} />
+              <Eye size={14} strokeWidth={1.5} />
               {t("skills.viewDetail")}
             </button>
           )}

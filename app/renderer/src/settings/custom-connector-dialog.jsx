@@ -77,7 +77,7 @@ const COMMAND_ISSUE_KEYS = {
   shell_syntax: "connectors.customDialog.shellSyntaxError",
   ambiguous_executable: "connectors.customDialog.commandPathError",
 };
-function editorValidationError(error, name2) {
+function editorValidationError(error, entryName) {
   if (error instanceof CustomMcpCommandSyntaxError) {
     return {
       field: "arguments",
@@ -91,7 +91,7 @@ function editorValidationError(error, name2) {
         messageKey: COMMAND_ISSUE_KEYS[error.commandIssue],
       };
     }
-    if (error.field === "name" && isReservedCustomMcpName(name2)) {
+    if (error.field === "name" && isReservedCustomMcpName(entryName)) {
       return {
         field: "name",
         messageKey: "connectors.customDialog.error.reserved_name",
@@ -142,17 +142,17 @@ function parseEditorKeyValues(value) {
 function normalizeEditorName(value) {
   return value.trim().replace(/\s+/gu, "-");
 }
-function validateEditorForm(state2, existingName) {
-  const keyValues = parseEditorKeyValues(state2.keyValuesText);
+function validateEditorForm(state, existingName) {
+  const keyValues = parseEditorKeyValues(state.keyValuesText);
   if (keyValues === void 0)
     return {
       error: VALIDATION_FIELDS.env,
     };
-  const timeoutMs = state2.timeoutText ? Number(state2.timeoutText) : void 0;
-  const common2 = {
-    ...(state2.description.trim()
+  const timeoutMs = state.timeoutText ? Number(state.timeoutText) : void 0;
+  const common = {
+    ...(state.description.trim()
       ? {
-          description: state2.description.trim(),
+          description: state.description.trim(),
         }
       : {}),
     ...(timeoutMs !== void 0
@@ -164,22 +164,22 @@ function validateEditorForm(state2, existingName) {
   let args;
   try {
     args =
-      state2.transport === "stdio" && state2.argumentsText.trim()
-        ? parseCustomMcpArguments(state2.argumentsText)
+      state.transport === "stdio" && state.argumentsText.trim()
+        ? parseCustomMcpArguments(state.argumentsText)
         : void 0;
   } catch (error) {
     return {
-      error: editorValidationError(error, state2.name),
+      error: editorValidationError(error, state.name),
     };
   }
   const candidate = {
-    name: normalizeEditorName(state2.name),
-    enabled: state2.enabled,
+    name: normalizeEditorName(state.name),
+    enabled: state.enabled,
     config:
-      state2.transport === "stdio"
+      state.transport === "stdio"
         ? {
             transport: "stdio",
-            command: state2.command,
+            command: state.command,
             ...(args
               ? {
                   args,
@@ -190,17 +190,17 @@ function validateEditorForm(state2, existingName) {
                   env: keyValues,
                 }
               : {}),
-            ...common2,
+            ...common,
           }
         : {
-            transport: state2.transport,
-            url: state2.url,
+            transport: state.transport,
+            url: state.url,
             ...(Object.keys(keyValues).length
               ? {
                   headers: keyValues,
                 }
               : {}),
-            ...common2,
+            ...common,
           },
   };
   try {
@@ -215,8 +215,8 @@ function validateEditorForm(state2, existingName) {
     };
   }
 }
-function editorFormToInput(state2) {
-  return validateEditorForm(state2).input;
+function editorFormToInput(state) {
+  return validateEditorForm(state).input;
 }
 function serializeDraftArguments(value) {
   try {
@@ -237,18 +237,18 @@ function serializeEditorInput(input) {
     2,
   );
 }
-function serializeEditorForm(state2) {
-  const input = editorFormToInput(state2);
+function serializeEditorForm(state) {
+  const input = editorFormToInput(state);
   if (input) return serializeEditorInput(input);
-  const keyValues = parseEditorKeyValues(state2.keyValuesText) ?? {};
-  const config2 =
-    state2.transport === "stdio"
+  const keyValues = parseEditorKeyValues(state.keyValuesText) ?? {};
+  const config =
+    state.transport === "stdio"
       ? {
-          transport: state2.transport,
-          command: state2.command.trim(),
-          ...(state2.argumentsText.trim()
+          transport: state.transport,
+          command: state.command.trim(),
+          ...(state.argumentsText.trim()
             ? {
-                args: serializeDraftArguments(state2.argumentsText),
+                args: serializeDraftArguments(state.argumentsText),
               }
             : {}),
           ...(Object.keys(keyValues).length
@@ -258,8 +258,8 @@ function serializeEditorForm(state2) {
             : {}),
         }
       : {
-          transport: state2.transport,
-          url: state2.url.trim(),
+          transport: state.transport,
+          url: state.url.trim(),
           ...(Object.keys(keyValues).length
             ? {
                 headers: keyValues,
@@ -268,19 +268,19 @@ function serializeEditorForm(state2) {
         };
   return JSON.stringify(
     {
-      [state2.name.trim() || "my-server"]: {
-        ...config2,
-        ...(state2.description.trim()
+      [state.name.trim() || "my-server"]: {
+        ...config,
+        ...(state.description.trim()
           ? {
-              description: state2.description.trim(),
+              description: state.description.trim(),
             }
           : {}),
-        ...(state2.timeoutText
+        ...(state.timeoutText
           ? {
-              timeoutMs: Number(state2.timeoutText),
+              timeoutMs: Number(state.timeoutText),
             }
           : {}),
-        enabled: state2.enabled,
+        enabled: state.enabled,
       },
     },
     null,
@@ -296,16 +296,16 @@ function formatEditorArguments(args) {
     )
     .join(" ");
 }
-function normalizeEditorLaunchFields(state2) {
-  if (state2.transport !== "stdio") return void 0;
+function normalizeEditorLaunchFields(state) {
+  if (state.transport !== "stdio") return void 0;
   try {
     const launch = normalizeCustomMcpLaunch(
-      state2.command,
-      state2.argumentsText.trim()
-        ? parseCustomMcpArguments(state2.argumentsText)
+      state.command,
+      state.argumentsText.trim()
+        ? parseCustomMcpArguments(state.argumentsText)
         : void 0,
     );
-    if (launch.command === state2.command.trim()) return void 0;
+    if (launch.command === state.command.trim()) return void 0;
     return {
       command: launch.command,
       argumentsText: formatEditorArguments(launch.args ?? []),
@@ -320,22 +320,22 @@ function formatKeyValues(value) {
     : "";
 }
 function editorInputToForm(input) {
-  const { config: config2 } = input;
+  const { config } = input;
   return {
     name: input.name,
-    transport: config2.transport,
-    command: config2.transport === "stdio" ? config2.command : "",
+    transport: config.transport,
+    command: config.transport === "stdio" ? config.command : "",
     argumentsText:
-      config2.transport === "stdio"
-        ? formatEditorArguments(config2.args ?? [])
+      config.transport === "stdio"
+        ? formatEditorArguments(config.args ?? [])
         : "",
-    url: config2.transport === "stdio" ? "" : config2.url,
-    description: config2.description ?? "",
+    url: config.transport === "stdio" ? "" : config.url,
+    description: config.description ?? "",
     enabled: input.enabled,
     keyValuesText: formatKeyValues(
-      config2.transport === "stdio" ? config2.env : config2.headers,
+      config.transport === "stdio" ? config.env : config.headers,
     ),
-    timeoutText: config2.timeoutMs ? String(config2.timeoutMs) : "",
+    timeoutText: config.timeoutMs ? String(config.timeoutMs) : "",
   };
 }
 function isRecord(value) {
@@ -357,24 +357,24 @@ function validateEditorJson(value, existingName) {
         ? parsed.mcpServers
         : parsed;
     if (!isRecord(source)) return invalidJson;
-    const entries2 = Object.entries(source);
-    if (entries2.length !== 1) return invalidJson;
-    const entry = entries2[0];
+    const entries = Object.entries(source);
+    if (entries.length !== 1) return invalidJson;
+    const entry = entries[0];
     if (!entry) return invalidJson;
-    const [name2, config2] = entry;
-    serverName = name2;
-    if (!isRecord(config2)) return invalidJson;
+    const [entryName, config] = entry;
+    serverName = entryName;
+    if (!isRecord(config)) return invalidJson;
     return {
       input: normalizeCustomMcpServerInput(
         {
-          name: name2,
-          enabled: config2.enabled ?? true,
+          name: entryName,
+          enabled: config.enabled ?? true,
           config: Object.fromEntries(
-            Object.entries(config2).filter(([key2]) => key2 !== "enabled"),
+            Object.entries(config).filter(([key]) => key !== "enabled"),
           ),
         },
         {
-          source: name2 === existingName ? "update" : "create",
+          source: entryName === existingName ? "update" : "create",
         },
       ),
     };
@@ -413,8 +413,8 @@ export function CustomConnectorDialog({
   onCreated,
   initialInput,
 }) {
-  const { t: t2 } = useTranslation();
-  const [mode2, setMode] = reactExports.useState("form");
+  const { t } = useTranslation();
+  const [mode, setMode] = reactExports.useState("form");
   const [formState, setFormState] = reactExports.useState(INITIAL_FORM_STATE);
   const [jsonText, setJsonText] = reactExports.useState(INITIAL_JSON);
   const [advancedOpen, setAdvancedOpen] = reactExports.useState(false);
@@ -454,10 +454,10 @@ export function CustomConnectorDialog({
   };
   const validation = reactExports.useMemo(
     () =>
-      mode2 === "form"
+      mode === "form"
         ? validateEditorForm(formState, initialInput?.name)
         : validateEditorJson(jsonText, initialInput?.name),
-    [formState, jsonText, mode2, initialInput?.name],
+    [formState, jsonText, mode, initialInput?.name],
   );
   const { input } = validation;
   const validationError = validationAttempted ? validation.error : void 0;
@@ -487,14 +487,14 @@ export function CustomConnectorDialog({
         className="text-xs text-destructive"
         role="alert"
       >
-        {t2(validationError.messageKey)}
+        {t(validationError.messageKey)}
       </p>
     ) : null;
   const handleModeChange = (nextMode) => {
     const editorMode = nextMode;
-    if (editorMode === "json" && mode2 === "form") {
+    if (editorMode === "json" && mode === "form") {
       setJsonText(serializeEditorForm(formState));
-    } else if (editorMode === "form" && mode2 === "json") {
+    } else if (editorMode === "form" && mode === "json") {
       const parsed = parseEditorJson(jsonText, initialInput?.name);
       if (parsed) setFormState(editorInputToForm(parsed));
     }
@@ -505,8 +505,8 @@ export function CustomConnectorDialog({
   };
   const handleTransportChange = (value) => {
     if (!value) return;
-    setFormState((current2) => ({
-      ...current2,
+    setFormState((current) => ({
+      ...current,
       transport: value,
       keyValuesText: "",
     }));
@@ -515,8 +515,8 @@ export function CustomConnectorDialog({
   const handleCommandBlur = () => {
     const normalized = normalizeEditorLaunchFields(formState);
     if (!normalized) return;
-    setFormState((current2) => ({
-      ...current2,
+    setFormState((current) => ({
+      ...current,
       ...normalized,
     }));
     setCommandWasSplit(true);
@@ -532,7 +532,7 @@ export function CustomConnectorDialog({
       return;
     }
     if (initialInput && input.name !== initialInput.name) {
-      setSubmitError(t2("connectors.customDialog.nameLocked"));
+      setSubmitError(t("connectors.customDialog.nameLocked"));
       return;
     }
     busy.current = true;
@@ -543,14 +543,14 @@ export function CustomConnectorDialog({
       const result = await onSubmit(input);
       if (epoch !== requestEpoch.current) return;
       if (!result.ok) {
-        setSubmitError(t2(`connectors.customDialog.error.${result.code}`));
+        setSubmitError(t(`connectors.customDialog.error.${result.code}`));
         return;
       }
       onCreated?.(result);
       onOpenChange(false);
     } catch {
       if (epoch === requestEpoch.current) {
-        setSubmitError(t2("connectors.customDialog.error.requestFailed"));
+        setSubmitError(t("connectors.customDialog.error.requestFailed"));
       }
     } finally {
       if (epoch === requestEpoch.current) {
@@ -564,7 +564,7 @@ export function CustomConnectorDialog({
       open={open}
       onOpenChange={handleOpenChange}
       actionUiId="custom-connector-dialog"
-      closeLabel={t2("common.close")}
+      closeLabel={t("common.close")}
       size="lg"
       showCloseButton={!submitting}
     >
@@ -576,14 +576,14 @@ export function CustomConnectorDialog({
         >
           <DialogHeader className="mb-4 gap-1 pr-10">
             <DialogTitle className="text-base leading-5 text-foreground">
-              {t2(
+              {t(
                 initialInput
                   ? "connectors.customDialog.editTitle"
                   : "connectors.customDialog.title",
               )}
             </DialogTitle>
             <DialogDescription className="text-sm leading-5 text-muted-foreground">
-              {t2(
+              {t(
                 initialInput
                   ? "connectors.customDialog.editSubtitle"
                   : "connectors.customDialog.subtitle",
@@ -591,7 +591,7 @@ export function CustomConnectorDialog({
             </DialogDescription>
           </DialogHeader>
           <Tabs
-            value={mode2}
+            value={mode}
             onValueChange={handleModeChange}
             className="min-h-0 flex-1 overflow-hidden"
           >
@@ -604,14 +604,14 @@ export function CustomConnectorDialog({
                 className="flex-1 font-normal text-muted-foreground transition-colors duration-200 data-[active]:font-medium data-[active]:text-foreground"
                 data-action-ui-id="custom-connector-form-tab"
               >
-                {t2("connectors.customDialog.formTab")}
+                {t("connectors.customDialog.formTab")}
               </TabsTrigger>
               <TabsTrigger
                 value="json"
                 className="flex-1 font-normal text-muted-foreground transition-colors duration-200 data-[active]:font-medium data-[active]:text-foreground"
                 data-action-ui-id="custom-connector-json-tab"
               >
-                {t2("connectors.customDialog.jsonTab")}
+                {t("connectors.customDialog.jsonTab")}
               </TabsTrigger>
             </TabsList>
             <div
@@ -633,7 +633,7 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-name"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2("connectors.customDialog.name")}
+                          {t("connectors.customDialog.name")}
                         </Label>
                         {!initialInput ? (
                           <span
@@ -642,7 +642,7 @@ export function CustomConnectorDialog({
                             className={`shrink-0 text-xs tabular-nums ${nameLength > CUSTOM_MCP_NAME_MAX_LENGTH ? "text-destructive" : "text-muted-foreground"}`}
                             data-action-ui-id="custom-connector-name-count"
                           >
-                            {t2("connectors.customDialog.nameCount", {
+                            {t("connectors.customDialog.nameCount", {
                               current: nameLength,
                               max: CUSTOM_MCP_NAME_MAX_LENGTH,
                             })}
@@ -655,12 +655,12 @@ export function CustomConnectorDialog({
                         value={formState.name}
                         readOnly={Boolean(initialInput)}
                         onChange={(event) =>
-                          setFormState((current2) => ({
-                            ...current2,
+                          setFormState((current) => ({
+                            ...current,
                             name: event.target.value,
                           }))
                         }
-                        placeholder={t2(
+                        placeholder={t(
                           "connectors.customDialog.namePlaceholder",
                         )}
                         className={FORM_CONTROL_CLASS_NAME}
@@ -671,7 +671,7 @@ export function CustomConnectorDialog({
                         id="custom-connector-name-hint"
                         className="text-xs leading-4 text-muted-foreground"
                       >
-                        {t2(
+                        {t(
                           initialInput
                             ? "connectors.customDialog.nameLocked"
                             : "connectors.customDialog.nameHint",
@@ -686,7 +686,7 @@ export function CustomConnectorDialog({
                         htmlFor="custom-connector-transport"
                         className={FORM_LABEL_CLASS_NAME}
                       >
-                        {t2("connectors.customDialog.transport")}
+                        {t("connectors.customDialog.transport")}
                       </Label>
                       <Select
                         value={formState.transport}
@@ -723,19 +723,19 @@ export function CustomConnectorDialog({
                         htmlFor="custom-connector-url"
                         className={FORM_LABEL_CLASS_NAME}
                       >
-                        {t2("connectors.customDialog.url")}
+                        {t("connectors.customDialog.url")}
                       </Label>
                       <Input3
                         id="custom-connector-url"
                         {...getFieldValidationProps("url")}
                         value={formState.url}
                         onChange={(event) =>
-                          setFormState((current2) => ({
-                            ...current2,
+                          setFormState((current) => ({
+                            ...current,
                             url: event.target.value,
                           }))
                         }
-                        placeholder={t2(
+                        placeholder={t(
                           "connectors.customDialog.urlPlaceholder",
                         )}
                         className={FORM_CONTROL_CLASS_NAME}
@@ -750,7 +750,7 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-command"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2("connectors.customDialog.command")}
+                          {t("connectors.customDialog.command")}
                         </Label>
                         <Input3
                           id="custom-connector-command"
@@ -758,13 +758,13 @@ export function CustomConnectorDialog({
                           value={formState.command}
                           onChange={(event) => {
                             setCommandWasSplit(false);
-                            setFormState((current2) => ({
-                              ...current2,
+                            setFormState((current) => ({
+                              ...current,
                               command: event.target.value,
                             }));
                           }}
                           onBlur={handleCommandBlur}
-                          placeholder={t2(
+                          placeholder={t(
                             "connectors.customDialog.commandPlaceholder",
                           )}
                           className={FORM_CONTROL_CLASS_NAME}
@@ -777,19 +777,19 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-arguments"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2("connectors.customDialog.arguments")}
+                          {t("connectors.customDialog.arguments")}
                         </Label>
                         <Input3
                           id="custom-connector-arguments"
                           {...getFieldValidationProps("arguments")}
                           value={formState.argumentsText}
                           onChange={(event) =>
-                            setFormState((current2) => ({
-                              ...current2,
+                            setFormState((current) => ({
+                              ...current,
                               argumentsText: event.target.value,
                             }))
                           }
-                          placeholder={t2(
+                          placeholder={t(
                             "connectors.customDialog.argumentsPlaceholder",
                           )}
                           className={FORM_CONTROL_CLASS_NAME}
@@ -802,14 +802,14 @@ export function CustomConnectorDialog({
                         className={`${HELPER_TEXT_CLASS_NAME} sm:col-span-2`}
                         aria-live="polite"
                       >
-                        {t2(
+                        {t(
                           commandWasSplit
                             ? "connectors.customDialog.commandSplitHint"
                             : "connectors.customDialog.commandHint",
                         )}
                       </p>
                       <p className={`${HELPER_TEXT_CLASS_NAME} sm:col-span-2`}>
-                        {t2("connectors.customDialog.stdioRisk")}
+                        {t("connectors.customDialog.stdioRisk")}
                       </p>
                     </div>
                   )}
@@ -818,19 +818,19 @@ export function CustomConnectorDialog({
                       htmlFor="custom-connector-description"
                       className={FORM_LABEL_CLASS_NAME}
                     >
-                      {t2("connectors.customDialog.description")}
+                      {t("connectors.customDialog.description")}
                     </Label>
                     <Input3
                       id="custom-connector-description"
                       {...getFieldValidationProps("description")}
                       value={formState.description}
                       onChange={(event) =>
-                        setFormState((current2) => ({
-                          ...current2,
+                        setFormState((current) => ({
+                          ...current,
                           description: event.target.value,
                         }))
                       }
-                      placeholder={t2(
+                      placeholder={t(
                         "connectors.customDialog.descriptionPlaceholder",
                       )}
                       className={FORM_CONTROL_CLASS_NAME}
@@ -844,25 +844,25 @@ export function CustomConnectorDialog({
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground">
-                        {t2(
+                        {t(
                           initialInput
                             ? "connectors.customDialog.enabledAfterSave"
                             : "connectors.customDialog.enabled",
                         )}
                       </p>
                       <p className={`mt-0.5 ${HELPER_TEXT_CLASS_NAME}`}>
-                        {t2("connectors.customDialog.enabledHint")}
+                        {t("connectors.customDialog.enabledHint")}
                       </p>
                     </div>
                     <Switch
                       checked={formState.enabled}
                       onCheckedChange={(enabled) =>
-                        setFormState((current2) => ({
-                          ...current2,
+                        setFormState((current) => ({
+                          ...current,
                           enabled,
                         }))
                       }
-                      aria-label={t2(
+                      aria-label={t(
                         initialInput
                           ? "connectors.customDialog.enabledAfterSave"
                           : "connectors.customDialog.enabled",
@@ -873,11 +873,11 @@ export function CustomConnectorDialog({
                   <button
                     type="button"
                     aria-expanded={advancedOpen}
-                    onClick={() => setAdvancedOpen((current2) => !current2)}
+                    onClick={() => setAdvancedOpen((current) => !current)}
                     className="flex h-9 w-full items-center justify-between rounded-md text-left text-sm font-medium text-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
                     data-action-ui-id="custom-connector-advanced"
                   >
-                    <span>{t2("connectors.customDialog.advanced")}</span>
+                    <span>{t("connectors.customDialog.advanced")}</span>
                     <Icon
                       icon={ChevronDown}
                       size="md"
@@ -892,7 +892,7 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-key-values"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2(
+                          {t(
                             remote
                               ? "connectors.customDialog.headers"
                               : "connectors.customDialog.environment",
@@ -903,12 +903,12 @@ export function CustomConnectorDialog({
                           {...getFieldValidationProps("key-values")}
                           value={formState.keyValuesText}
                           onChange={(event) =>
-                            setFormState((current2) => ({
-                              ...current2,
+                            setFormState((current) => ({
+                              ...current,
                               keyValuesText: event.target.value,
                             }))
                           }
-                          placeholder={t2(
+                          placeholder={t(
                             "connectors.customDialog.keyValuesPlaceholder",
                           )}
                           className={`min-h-24 font-mono text-xs ${FORM_OUTLINE_CLASS_NAME}`}
@@ -921,7 +921,7 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-timeout"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2("connectors.customDialog.timeout")}
+                          {t("connectors.customDialog.timeout")}
                         </Label>
                         <Input3
                           id="custom-connector-timeout"
@@ -930,12 +930,12 @@ export function CustomConnectorDialog({
                           min={1}
                           value={formState.timeoutText}
                           onChange={(event) =>
-                            setFormState((current2) => ({
-                              ...current2,
+                            setFormState((current) => ({
+                              ...current,
                               timeoutText: event.target.value,
                             }))
                           }
-                          placeholder={t2(
+                          placeholder={t(
                             "connectors.customDialog.timeoutPlaceholder",
                           )}
                           className={FORM_CONTROL_CLASS_NAME}
@@ -950,14 +950,14 @@ export function CustomConnectorDialog({
               <TabsContent value="json">
                 <div className="flex flex-col gap-3">
                   <p className={HELPER_TEXT_CLASS_NAME}>
-                    {t2("connectors.customDialog.jsonHint")}
+                    {t("connectors.customDialog.jsonHint")}
                   </p>
                   <Textarea
                     id="custom-connector-json"
                     {...getFieldValidationProps("json")}
                     value={jsonText}
                     onChange={(event) => setJsonText(event.target.value)}
-                    aria-label={t2("connectors.customDialog.jsonEditorLabel")}
+                    aria-label={t("connectors.customDialog.jsonEditorLabel")}
                     spellCheck={false}
                     className={`min-h-80 resize-none font-mono text-xs leading-relaxed ${FORM_OUTLINE_CLASS_NAME}`}
                     data-action-ui-id="custom-connector-json-editor"
@@ -972,7 +972,7 @@ export function CustomConnectorDialog({
       <DialogFooter className="shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5">
         {submitError || (validationError && !validationError.field) ? (
           <p className="mr-auto text-xs text-destructive" role="alert">
-            {submitError ?? (validationError && t2(validationError.messageKey))}
+            {submitError ?? (validationError && t(validationError.messageKey))}
           </p>
         ) : null}
         <Button
@@ -983,7 +983,7 @@ export function CustomConnectorDialog({
           onClick={() => handleOpenChange(false)}
           data-action-ui-id="custom-connector-cancel"
         >
-          {t2("common.cancel")}
+          {t("common.cancel")}
         </Button>
         <Button
           type="button"
@@ -993,7 +993,7 @@ export function CustomConnectorDialog({
           onClick={handleSubmit}
           data-action-ui-id="custom-connector-submit"
         >
-          {t2(
+          {t(
             initialInput
               ? "connectors.customDialog.save"
               : "connectors.customDialog.add",

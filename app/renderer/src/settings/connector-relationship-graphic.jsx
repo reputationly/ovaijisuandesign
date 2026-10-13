@@ -13,16 +13,16 @@ const CDN_CONNECTOR_HUB = cdnRegionalImage({
   overseas: "connector-hub-512-283b2f4fd24a.png",
 });
 function ProxyToastContent({ onDismiss }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="elevated-surface-border-width flex items-start gap-3 w-full rounded-lg border-yellow-500/30 bg-popover p-4 text-popover-foreground shadow-lg">
       <ShieldAlert className="size-5 text-yellow-500 mt-0.5 shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium">
-          {t2("proxy.toastTitle", "Proxy / VPN detected")}
+          {t("proxy.toastTitle", "Proxy / VPN detected")}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {t2(
+          {t(
             "proxy.toastDescription",
             "A system proxy or VPN is active. This may cause connection issues. For best experience, add MiniMax Design to your proxy bypass list or disable the proxy while using MiniMax Design.",
           )}
@@ -64,7 +64,7 @@ const FALLBACK_SIZE = {
 };
 export function ConnectorIcon({
   iconUrl,
-  size: size2 = "list",
+  size = "list",
   className,
   fallback,
 }) {
@@ -73,10 +73,10 @@ export function ConnectorIcon({
   return (
     <span
       data-slot="connector-icon"
-      data-connector-icon-size={size2}
+      data-connector-icon-size={size}
       className={cn(
         "inline-flex shrink-0 items-center justify-center overflow-hidden text-muted-foreground",
-        FRAME_CLASS[size2],
+        FRAME_CLASS[size],
         className,
       )}
       aria-hidden="true"
@@ -89,11 +89,11 @@ export function ConnectorIcon({
           loading="lazy"
           decoding="async"
           draggable={false}
-          className={cn("object-contain", IMAGE_CLASS[size2])}
+          className={cn("object-contain", IMAGE_CLASS[size])}
           onError={() => setFailedUrl(iconUrl ?? null)}
         />
       ) : (
-        (fallback ?? <Link2 size={FALLBACK_SIZE[size2]} strokeWidth={1.5} />)
+        (fallback ?? <Link2 size={FALLBACK_SIZE[size]} strokeWidth={1.5} />)
       )}
     </span>
   );
@@ -141,7 +141,7 @@ export function HubBrandLine({
   showSubtitle = true,
   className,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <HubLogo size={logoSize} className="shrink-0" />
@@ -153,7 +153,7 @@ export function HubBrandLine({
               —
             </span>
             <span className="whitespace-nowrap text-foreground/85">
-              {t2("home.heroSubtitle")}
+              {t("home.heroSubtitle")}
             </span>
           </>
         )}

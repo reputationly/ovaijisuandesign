@@ -185,19 +185,19 @@ export function OperationsView({ role, onExit }) {
     const metadata = normalizeSkillDetailMetadata({
       ...submission,
     });
-    const selected2 = selectSkillStructuredInfo(
+    const selected = selectSkillStructuredInfo(
       metadata.structuredInfo,
       submission.content_locale || i18n.language,
     );
     setDraft({
       structuredInfo: metadata.structuredInfo ?? {},
-      contentLocale: selected2.locale,
+      contentLocale: selected.locale,
       skillName: submission.skill_name,
       displayName: submission.display_name,
-      summary: selected2.info.summary,
-      bestFor: selected2.info.best_for.join("\n"),
-      howToUse: selected2.info.how_to_use,
-      outputs: selected2.info.outputs,
+      summary: selected.info.summary,
+      bestFor: selected.info.best_for.join("\n"),
+      howToUse: selected.info.how_to_use,
+      outputs: selected.info.outputs,
       categories: submission.categories,
       stage: submission.stage,
       creator: submission.creator,
@@ -212,7 +212,7 @@ export function OperationsView({ role, onExit }) {
     if (!id) return;
     if (action === "approve" && item.submission) {
       const submission = item.submission;
-      const selected2 = selectSkillStructuredInfo(
+      const selected = selectSkillStructuredInfo(
         normalizeSkillDetailMetadata({
           ...submission,
         }).structuredInfo,
@@ -222,11 +222,11 @@ export function OperationsView({ role, onExit }) {
         {
           skillName: submission.skill_name,
           displayName: submission.display_name,
-          summary: selected2.info.summary,
-          bestFor: selected2.info.best_for,
-          howToUse: selected2.info.how_to_use,
-          outputs: selected2.info.outputs,
-          locale: selected2.locale === "zh-CN" ? "zh" : "en",
+          summary: selected.info.summary,
+          bestFor: selected.info.best_for,
+          howToUse: selected.info.how_to_use,
+          outputs: selected.info.outputs,
+          locale: selected.locale === "zh-CN" ? "zh" : "en",
           categories: submission.categories,
           stage: submission.stage,
           creator: submission.creator,

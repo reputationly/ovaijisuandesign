@@ -17,12 +17,12 @@ function replaceInvalidFolderCharacters(value) {
     .join("")
     .replace(INVALID_FOLDER_CHARACTERS, "_");
 }
-function sanitizeDownloadFolderName(name2, fallback = "download") {
+function sanitizeDownloadFolderName(folderName, fallback = "download") {
   const normalizedFallback =
     replaceInvalidFolderCharacters(fallback.normalize("NFC"))
       .replace(TRAILING_DOTS_OR_SPACES, "")
       .trim() || "download";
-  let value = replaceInvalidFolderCharacters(name2.normalize("NFC"))
+  let value = replaceInvalidFolderCharacters(folderName.normalize("NFC"))
     .replace(TRAILING_DOTS_OR_SPACES, "")
     .trim()
     .slice(0, MAX_FOLDER_NAME_LENGTH)
@@ -34,26 +34,26 @@ function sanitizeDownloadFolderName(name2, fallback = "download") {
 function createUniqueDownloadFolderNames(names) {
   const result = new Map();
   const reserved = new Set();
-  for (const name2 of names) {
-    if (result.has(name2)) continue;
-    const base2 = sanitizeDownloadFolderName(name2);
-    let candidate = base2;
-    for (let index2 = 1; reserved.has(candidate.toLowerCase()); index2 += 1) {
-      candidate = `${base2} (${index2})`;
+  for (const folderName of names) {
+    if (result.has(folderName)) continue;
+    const base = sanitizeDownloadFolderName(folderName);
+    let candidate = base;
+    for (let index = 1; reserved.has(candidate.toLowerCase()); index += 1) {
+      candidate = `${base} (${index})`;
     }
     reserved.add(candidate.toLowerCase());
-    result.set(name2, candidate);
+    result.set(folderName, candidate);
   }
   return result;
 }
 const log = window.hilo?.logger;
-function getFileName$2(pathOrUrl) {
-  const raw2 = pathOrUrl.split(/[/\\]/).pop() ?? "file";
-  return raw2.split("?")[0] ?? raw2;
+function getFileName(pathOrUrl) {
+  const raw = pathOrUrl.split(/[/\\]/).pop() ?? "file";
+  return raw.split("?")[0] ?? raw;
 }
-function getExtension(name2) {
-  const dot2 = name2.lastIndexOf(".");
-  return dot2 >= 0 ? name2.slice(dot2 + 1).toLowerCase() : "";
+function getExtension(fileName) {
+  const dot = fileName.lastIndexOf(".");
+  return dot >= 0 ? fileName.slice(dot + 1).toLowerCase() : "";
 }
 function isImageExtension(ext) {
   return [
@@ -74,15 +74,15 @@ function joinTargetPath(directory, fileName) {
   return `${directory.replace(/[\\/]+$/, "")}${separator}${fileName}`;
 }
 function splitFileName(fileName) {
-  const dot2 = fileName.lastIndexOf(".");
-  if (dot2 <= 0)
+  const dot = fileName.lastIndexOf(".");
+  if (dot <= 0)
     return {
       stem: fileName,
       extension: "",
     };
   return {
-    stem: fileName.slice(0, dot2),
-    extension: fileName.slice(dot2),
+    stem: fileName.slice(0, dot),
+    extension: fileName.slice(dot),
   };
 }
 async function resolveAvailableTargetPath(
@@ -91,12 +91,12 @@ async function resolveAvailableTargetPath(
   exists,
   reservedTargets,
 ) {
-  const { stem, extension: extension2 } = splitFileName(fileName || "file");
-  for (let index2 = 0; index2 < 1e3; index2 += 1) {
+  const { stem, extension } = splitFileName(fileName || "file");
+  for (let index = 0; index < 1e3; index += 1) {
     const candidateName =
-      index2 === 0
-        ? `${stem}${extension2}`
-        : `${stem} (${index2})${extension2}`;
+      index === 0
+        ? `${stem}${extension}`
+        : `${stem} (${index})${extension}`;
     const candidatePath = joinTargetPath(directory, candidateName);
     const reservationKey = candidatePath.toLowerCase();
     if (reservedTargets.has(reservationKey)) continue;
@@ -104,81 +104,81 @@ async function resolveAvailableTargetPath(
     reservedTargets.add(reservationKey);
     return candidatePath;
   }
-  return joinTargetPath(directory, `${stem}-${Date.now()}${extension2}`);
+  return joinTargetPath(directory, `${stem}-${Date.now()}${extension}`);
 }
 async function resolveAvailableTargetDirectory(
   parentDirectory,
   folderName,
   exists,
 ) {
-  const base2 = sanitizeDownloadFolderName(folderName);
-  for (let index2 = 0; index2 < 1e3; index2 += 1) {
-    const candidateName = index2 === 0 ? base2 : `${base2} (${index2})`;
+  const base = sanitizeDownloadFolderName(folderName);
+  for (let index = 0; index < 1e3; index += 1) {
+    const candidateName = index === 0 ? base : `${base} (${index})`;
     const candidatePath = joinTargetPath(parentDirectory, candidateName);
     if (!(await exists(candidatePath))) return candidatePath;
   }
-  return joinTargetPath(parentDirectory, `${base2}-${Date.now()}`);
+  return joinTargetPath(parentDirectory, `${base}-${Date.now()}`);
 }
 export function useMediaActions() {
-  const platform2 = usePlatform();
-  const { t: t2 } = useTranslation();
+  const platform = usePlatform();
+  const { t } = useTranslation();
   const copyImage = reactExports.useCallback(
     async (pathOrUrl) => {
       try {
         if (isAbsoluteLocalFilePath(pathOrUrl)) {
-          await platform2.clipboard.writeImage?.(pathOrUrl);
+          await platform.clipboard.writeImage?.(pathOrUrl);
         } else {
           const response = await fetch(pathOrUrl);
           const buffer = await response.arrayBuffer();
-          await platform2.clipboard.writeImageData?.(buffer);
+          await platform.clipboard.writeImageData?.(buffer);
         }
-        dedupedToast.success(t2("common.copied"));
+        dedupedToast.success(t("common.copied"));
       } catch (err) {
         log?.error(
           `[media-actions] copyImage failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("common.copyFailed"));
+        dedupedToast.error(t("common.copyFailed"));
       }
     },
-    [platform2, t2],
+    [platform, t],
   );
   const copyFile = reactExports.useCallback(
     async (filePath) => {
       try {
-        await platform2.clipboard.writeFile?.(filePath);
-        dedupedToast.success(t2("common.copied"));
+        await platform.clipboard.writeFile?.(filePath);
+        dedupedToast.success(t("common.copied"));
       } catch (err) {
         log?.error(
           `[media-actions] copyFile failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("common.copyFailed"));
+        dedupedToast.error(t("common.copyFailed"));
       }
     },
-    [platform2, t2],
+    [platform, t],
   );
   const copyPath = reactExports.useCallback(
-    async (path2) => {
+    async (path) => {
       try {
-        await platform2.clipboard.writeText(path2);
-        dedupedToast.success(t2("fileExplorer.pathCopied"));
+        await platform.clipboard.writeText(path);
+        dedupedToast.success(t("fileExplorer.pathCopied"));
       } catch (err) {
         log?.error(
           `[media-actions] copyPath failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("common.copyFailed"));
+        dedupedToast.error(t("common.copyFailed"));
       }
     },
-    [platform2, t2],
+    [platform, t],
   );
   const saveAs = reactExports.useCallback(
     async (pathOrUrl, defaultName) => {
       try {
-        const fileName = defaultName ?? getFileName$2(pathOrUrl);
+        const fileName = defaultName ?? getFileName(pathOrUrl);
         const ext = getExtension(fileName);
-        const targetPath = await platform2.fs.showSaveDialog?.({
+        const targetPath = await platform.fs.showSaveDialog?.({
           defaultPath: fileName,
           filters: ext
             ? [
@@ -191,16 +191,16 @@ export function useMediaActions() {
         });
         if (!targetPath) return;
         if (isAbsoluteLocalFilePath(pathOrUrl)) {
-          await platform2.fs.copy?.(pathOrUrl, targetPath, true);
+          await platform.fs.copy?.(pathOrUrl, targetPath, true);
         } else {
           const response = await fetch(pathOrUrl);
           if (!response.ok) {
             throw new Error(`Download failed: HTTP ${response.status}`);
           }
           const buffer = await response.arrayBuffer();
-          await platform2.fs.writeBinaryFile?.(targetPath, buffer);
+          await platform.fs.writeBinaryFile?.(targetPath, buffer);
         }
-        dedupedToast.success(t2("common.saved"));
+        dedupedToast.success(t("common.saved"));
       } catch (err) {
         const detail = getErrorMessage(err);
         log?.error(
@@ -208,20 +208,20 @@ export function useMediaActions() {
           "media-actions",
         );
         if (isPathAccessError(err)) {
-          dedupedToast.error(t2("common.saveFailed"), {
+          dedupedToast.error(t("common.saveFailed"), {
             description: detail,
           });
         } else {
-          dedupedToast.error(t2("common.saveFailed"));
+          dedupedToast.error(t("common.saveFailed"));
         }
       }
     },
-    [platform2, t2],
+    [platform, t],
   );
   const saveManyAs = reactExports.useCallback(
     async (files, options = {}) => {
-      const candidates2 = files.filter((file) => file.filePath);
-      const totalCount = candidates2.length;
+      const candidates = files.filter((file) => file.filePath);
+      const totalCount = candidates.length;
       const result = (status, savedCount, failedFiles, outputDirectory) => ({
         status,
         totalCount,
@@ -231,9 +231,9 @@ export function useMediaActions() {
         outputDirectory,
       });
       const failAll = (reason) =>
-        candidates2.map((file) => ({
+        candidates.map((file) => ({
           filePath: file.filePath,
-          fileName: file.fileName ?? getFileName$2(file.filePath),
+          fileName: file.fileName ?? getFileName(file.filePath),
           folderName: file.folderName,
           reason,
         }));
@@ -265,7 +265,7 @@ export function useMediaActions() {
           }),
         );
         return {
-          label: t2("common.retry"),
+          label: t("common.retry"),
           onClick: () => {
             if (options.onRetry) {
               options.onRetry(retryFiles);
@@ -284,41 +284,41 @@ export function useMediaActions() {
       let createdRootDirectory = false;
       try {
         if (
-          !platform2.fs.showOpenDialog ||
-          !platform2.fs.copy ||
-          !platform2.fs.exists ||
-          !platform2.fs.mkdir
+          !platform.fs.showOpenDialog ||
+          !platform.fs.copy ||
+          !platform.fs.exists ||
+          !platform.fs.mkdir
         ) {
-          dedupedToast.error(t2("common.saveFailed"));
+          dedupedToast.error(t("common.saveFailed"));
           return result(
             "failed",
             0,
             failAll("Batch file saving is not supported"),
           );
         }
-        const selected2 = await platform2.fs.showOpenDialog({
+        const selected = await platform.fs.showOpenDialog({
           title:
-            options?.dialogTitle ?? t2("canvas.lightbox.selectDownloadFolder"),
+            options?.dialogTitle ?? t("canvas.lightbox.selectDownloadFolder"),
           directory: true,
         });
-        const selectedDirectory = selected2[0];
+        const selectedDirectory = selected[0];
         if (!selectedDirectory) return result("cancelled", 0, []);
         if (options.signal?.aborted) return result("cancelled", 0, []);
         targetDirectory = options.rootFolderName
           ? await resolveAvailableTargetDirectory(
               selectedDirectory,
               options.rootFolderName,
-              platform2.fs.exists,
+              platform.fs.exists,
             )
           : selectedDirectory;
         if (options.signal?.aborted) return result("cancelled", 0, []);
         if (options.rootFolderName) {
-          await platform2.fs.mkdir(targetDirectory);
+          await platform.fs.mkdir(targetDirectory);
           createdRootDirectory = true;
         }
         const reservedTargets = new Set();
         const folderNames = createUniqueDownloadFolderNames(
-          candidates2.flatMap((file) =>
+          candidates.flatMap((file) =>
             file.folderName ? [file.folderName] : [],
           ),
         );
@@ -333,9 +333,9 @@ export function useMediaActions() {
           savedCount: 0,
           totalCount,
         });
-        for (const file of candidates2) {
+        for (const file of candidates) {
           if (options.signal?.aborted) break;
-          const fileName = file.fileName ?? getFileName$2(file.filePath);
+          const fileName = file.fileName ?? getFileName(file.filePath);
           let safeFolderName;
           let attemptedTargetPath;
           try {
@@ -346,25 +346,25 @@ export function useMediaActions() {
               ? joinTargetPath(targetDirectory, safeFolderName)
               : targetDirectory;
             if (safeFolderName && !createdFolders.has(safeFolderName)) {
-              await platform2.fs.mkdir(fileTargetDirectory);
+              await platform.fs.mkdir(fileTargetDirectory);
               createdFolders.set(safeFolderName, fileTargetDirectory);
             }
             if (options.signal?.aborted) break;
             attemptedTargetPath = await resolveAvailableTargetPath(
               fileTargetDirectory,
               fileName,
-              platform2.fs.exists,
+              platform.fs.exists,
               reservedTargets,
             );
             if (options.signal?.aborted) break;
             if (isAbsoluteLocalFilePath(file.filePath)) {
-              await platform2.fs.copy(
+              await platform.fs.copy(
                 file.filePath,
                 attemptedTargetPath,
                 false,
               );
             } else {
-              if (!platform2.fs.writeBinaryFile) {
+              if (!platform.fs.writeBinaryFile) {
                 throw new Error("Binary file writing is not supported");
               }
               const response = await fetch(file.filePath, {
@@ -375,16 +375,16 @@ export function useMediaActions() {
               }
               const buffer = await response.arrayBuffer();
               if (options.signal?.aborted) break;
-              await platform2.fs.writeBinaryFile(attemptedTargetPath, buffer);
+              await platform.fs.writeBinaryFile(attemptedTargetPath, buffer);
             }
             savedCount += 1;
             if (safeFolderName) successfulFolders.add(safeFolderName);
           } catch (err) {
             if (options.signal?.aborted) {
-              if (attemptedTargetPath && platform2.fs.delete) {
+              if (attemptedTargetPath && platform.fs.delete) {
                 try {
-                  if (await platform2.fs.exists(attemptedTargetPath)) {
-                    await platform2.fs.delete(attemptedTargetPath);
+                  if (await platform.fs.exists(attemptedTargetPath)) {
+                    await platform.fs.delete(attemptedTargetPath);
                   }
                 } catch (cleanupError) {
                   log?.error(
@@ -406,10 +406,10 @@ export function useMediaActions() {
               `[media-actions] saveManyAs item failed: ${failure.reason}, source=${file.filePath}`,
               "media-actions",
             );
-            if (attemptedTargetPath && platform2.fs.delete) {
+            if (attemptedTargetPath && platform.fs.delete) {
               try {
-                if (await platform2.fs.exists(attemptedTargetPath)) {
-                  await platform2.fs.delete(attemptedTargetPath);
+                if (await platform.fs.exists(attemptedTargetPath)) {
+                  await platform.fs.delete(attemptedTargetPath);
                 }
               } catch (cleanupError) {
                 log?.error(
@@ -428,15 +428,15 @@ export function useMediaActions() {
             totalCount,
           });
         }
-        if (createdRootDirectory && platform2.fs.delete) {
+        if (createdRootDirectory && platform.fs.delete) {
           try {
             if (savedCount === 0) {
-              await platform2.fs.delete(targetDirectory);
+              await platform.fs.delete(targetDirectory);
               createdRootDirectory = false;
             } else {
               for (const [folderName, folderPath] of createdFolders) {
                 if (!successfulFolders.has(folderName))
-                  await platform2.fs.delete(folderPath);
+                  await platform.fs.delete(folderPath);
               }
             }
           } catch (cleanupError) {
@@ -451,7 +451,7 @@ export function useMediaActions() {
         );
         if (cancelled) {
           dedupedToast.info(
-            t2("canvas.lightbox.batchSaveCancelled", {
+            t("canvas.lightbox.batchSaveCancelled", {
               count: savedCount,
             }),
           );
@@ -464,14 +464,14 @@ export function useMediaActions() {
         }
         if (savedCount > 0 && failedFiles.length === 0) {
           dedupedToast.success(
-            t2("canvas.lightbox.batchSaveSuccess", {
+            t("canvas.lightbox.batchSaveSuccess", {
               count: savedCount,
             }),
           );
           return result("completed", savedCount, [], targetDirectory);
         } else if (savedCount > 0) {
           dedupedToast.error(
-            t2("canvas.lightbox.batchSavePartial", {
+            t("canvas.lightbox.batchSavePartial", {
               saved: savedCount,
               failed: failedFiles.length,
             }),
@@ -482,7 +482,7 @@ export function useMediaActions() {
           );
           return result("partial", savedCount, failedFiles, targetDirectory);
         } else {
-          dedupedToast.error(t2("common.saveFailed"), {
+          dedupedToast.error(t("common.saveFailed"), {
             description: failedFileDescription(failedFiles),
             action: retryAction(failedFiles),
           });
@@ -495,12 +495,12 @@ export function useMediaActions() {
           "media-actions",
         );
         const failedFiles = failAll(detail);
-        dedupedToast.error(t2("common.saveFailed"), {
+        dedupedToast.error(t("common.saveFailed"), {
           action: retryAction(failedFiles),
         });
-        if (createdRootDirectory && targetDirectory && platform2.fs.delete) {
+        if (createdRootDirectory && targetDirectory && platform.fs.delete) {
           try {
-            await platform2.fs.delete(targetDirectory);
+            await platform.fs.delete(targetDirectory);
           } catch (cleanupError) {
             log?.error(
               `[media-actions] saveManyAs root cleanup failed: ${getErrorMessage(cleanupError)}`,
@@ -511,39 +511,39 @@ export function useMediaActions() {
         return result("failed", 0, failedFiles);
       }
     },
-    [platform2, t2],
+    [platform, t],
   );
   const showInFolder = reactExports.useCallback(
-    async (path2) => {
+    async (path) => {
       try {
-        await platform2.shell.showItemInFolder?.(path2);
+        await platform.shell.showItemInFolder?.(path);
       } catch (err) {
         log?.error(
           `[media-actions] showInFolder failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("fileExplorer.cannotOpenFolder"));
+        dedupedToast.error(t("fileExplorer.cannotOpenFolder"));
       }
     },
-    [platform2, t2],
+    [platform, t],
   );
   const openWithDefault = reactExports.useCallback(
-    async (path2) => {
+    async (path) => {
       try {
-        if (platform2.shell.openPath) {
-          await platform2.shell.openPath(path2);
+        if (platform.shell.openPath) {
+          await platform.shell.openPath(path);
           return;
         }
-        dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+        dedupedToast.error(t("fileExplorer.platformNotSupported"));
       } catch (err) {
         log?.error(
           `[media-actions] openWithDefault failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("fileExplorer.openFailed"));
+        dedupedToast.error(t("fileExplorer.openFailed"));
       }
     },
-    [platform2, t2],
+    [platform, t],
   );
   const openWith = reactExports.useCallback(async (_path, _appPath) => {}, []);
   const pickAppAndOpen = reactExports.useCallback(async (_path) => {}, []);
@@ -559,6 +559,6 @@ export function useMediaActions() {
     pickAppAndOpen,
     isLocalPath: isAbsoluteLocalFilePath,
     isImageExtension,
-    getFileName: getFileName$2,
+    getFileName,
   };
 }

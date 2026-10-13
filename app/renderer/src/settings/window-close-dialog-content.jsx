@@ -12,7 +12,7 @@ import {
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 export function WindowCloseDialogContent({ onChoose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [remember, setRemember] = reactExports.useState(false);
   const [busy, setBusy] = reactExports.useState(false);
   const [failed, setFailed] = reactExports.useState(false);
@@ -60,11 +60,11 @@ export function WindowCloseDialogContent({ onChoose }) {
               />
             </div>
             <DialogTitle className="text-base">
-              {t2("windowClose.message")}
+              {t("windowClose.message")}
             </DialogTitle>
           </div>
           <DialogDescription className="whitespace-pre-line text-sm/relaxed">
-            {t2("windowClose.description")}
+            {t("windowClose.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
@@ -79,14 +79,14 @@ export function WindowCloseDialogContent({ onChoose }) {
               disabled={busy}
               data-action-ui-id="window-close-remember"
             />
-            {t2("windowClose.dontShowAgain")}
+            {t("windowClose.dontShowAgain")}
           </label>
           <p className="pl-8 text-xs text-muted-foreground pointer-coarse:pl-11">
-            {t2("windowClose.settingsHint")}
+            {t("windowClose.settingsHint")}
           </p>
           {failed && (
             <p role="alert" className="text-xs text-destructive">
-              {t2("windowClose.failed")}
+              {t("windowClose.failed")}
             </p>
           )}
         </div>
@@ -100,7 +100,7 @@ export function WindowCloseDialogContent({ onChoose }) {
             onClick={() => void handleChoose("cancel")}
             data-action-ui-id="window-close-cancel"
           >
-            {t2("windowClose.cancel")}
+            {t("windowClose.cancel")}
           </Button>
           <Button
             variant="outline"
@@ -110,7 +110,7 @@ export function WindowCloseDialogContent({ onChoose }) {
             onClick={() => void handleChoose("quit")}
             data-action-ui-id="window-close-quit"
           >
-            {t2("windowClose.quit")}
+            {t("windowClose.quit")}
           </Button>
           <Button
             size="lg"
@@ -119,7 +119,7 @@ export function WindowCloseDialogContent({ onChoose }) {
             onClick={() => void handleChoose("tray")}
             data-action-ui-id="window-close-tray"
           >
-            {t2("windowClose.tray")}
+            {t("windowClose.tray")}
           </Button>
         </div>
       </DialogContent>

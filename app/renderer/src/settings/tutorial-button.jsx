@@ -14,8 +14,8 @@ const PLATFORM_ICON_SRC = {
   feishu: feishuIcon,
   wechat: wechatIcon,
 };
-export function PlatformIcon({ platform: platform2, label, className }) {
-  const iconSrc = PLATFORM_ICON_SRC[platform2];
+export function PlatformIcon({ platform, label, className }) {
+  const iconSrc = PLATFORM_ICON_SRC[platform];
   if (iconSrc) {
     return (
       <img
@@ -43,8 +43,8 @@ const TUTORIAL_URL = {
   feishu: "https://my.feishu.cn/wiki/OAmLwbUOsiGOfSk8sB8c3klinPd",
 };
 export function AgentEntityChip({
-  name: name2,
-  size: size2 = "default",
+  name: entityName,
+  size = "default",
   className,
 }) {
   return (
@@ -52,7 +52,7 @@ export function AgentEntityChip({
       className={cn(
         "inline-flex min-w-0 max-w-[220px] items-center rounded-full border font-medium",
         "border-brand-accent/20 bg-brand-accent/10 text-brand-accent",
-        size2 === "lg"
+        size === "lg"
           ? "max-w-[260px] gap-1.5 px-3 py-1 text-[15px]"
           : "gap-1 px-2.5 py-1 text-[13px]",
         className,
@@ -60,36 +60,36 @@ export function AgentEntityChip({
     >
       <Icon
         icon={Bot}
-        size={size2 === "lg" ? "md" : "sm"}
+        size={size === "lg" ? "md" : "sm"}
         strokeWidth={2}
         className="shrink-0"
       />
-      <span className="truncate">{name2}</span>
+      <span className="truncate">{entityName}</span>
     </span>
   );
 }
-export function addFlowTitleClassName(isChineseLocale2) {
+export function addFlowTitleClassName(isChineseLocale) {
   return cn(
     "max-w-full break-words text-center font-heading text-[20px] font-medium leading-tight text-foreground",
-    isChineseLocale2 && "tracking-[0.03em]",
+    isChineseLocale && "tracking-[0.03em]",
   );
 }
 export function TutorialButton({
-  platform: platform2,
+  platform,
   actionId,
   label,
   variant,
-  size: size2 = "sm",
+  size = "sm",
   className,
 }) {
   const shellPlatform = usePlatform();
-  const tutorialUrl = TUTORIAL_URL[platform2];
+  const tutorialUrl = TUTORIAL_URL[platform];
   if (!tutorialUrl) return null;
   return (
     <Button
       type="button"
       variant={variant}
-      size={size2}
+      size={size}
       className={cn(
         "gap-1",
         variant === "ghost" && "text-brand-accent hover:text-brand-accent",

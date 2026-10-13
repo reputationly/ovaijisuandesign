@@ -26,24 +26,24 @@ function sanitizeDiagnosticText(
 }
 
 function createErrorBoundaryFailureId() {
-  const bytes2 = new Uint8Array(4);
+  const bytes = new Uint8Array(4);
   if (
     typeof crypto !== "undefined" &&
     typeof crypto.getRandomValues === "function"
   ) {
-    crypto.getRandomValues(bytes2);
+    crypto.getRandomValues(bytes);
   } else {
     const fallback =
       (Date.now() ^ Math.floor(Math.random() * 4294967295)) >>> 0;
-    bytes2[0] = (fallback >>> 24) & 255;
-    bytes2[1] = (fallback >>> 16) & 255;
-    bytes2[2] = (fallback >>> 8) & 255;
-    bytes2[3] = fallback & 255;
+    bytes[0] = (fallback >>> 24) & 255;
+    bytes[1] = (fallback >>> 16) & 255;
+    bytes[2] = (fallback >>> 8) & 255;
+    bytes[3] = fallback & 255;
   }
-  const hex2 = Array.from(bytes2, (b3) =>
-    b3.toString(16).padStart(2, "0"),
+  const hex = Array.from(bytes, (byte) =>
+    byte.toString(16).padStart(2, "0"),
   ).join("");
-  return `EB-${hex2.toUpperCase()}`;
+  return `EB-${hex.toUpperCase()}`;
 }
 
 function buildErrorBoundaryDiagnostic(error, componentStack) {
@@ -72,9 +72,9 @@ function getErrorBoundaryUploadKey(diagnostic) {
 
 function readErrorBoundaryUploadMarker() {
   try {
-    const raw2 = localStorage.getItem(ERROR_BOUNDARY_UPLOAD_STORAGE_KEY);
-    if (!raw2) return null;
-    const parsed = JSON.parse(raw2);
+    const raw = localStorage.getItem(ERROR_BOUNDARY_UPLOAD_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
     if (typeof parsed.at !== "number" || typeof parsed.key !== "string")
       return null;
     return {
@@ -98,20 +98,20 @@ function writeErrorBoundaryUploadMarker(marker) {
 let lastErrorBoundaryAutoUploadAt = 0;
 
 function shouldAutoUploadErrorBoundaryLogs(diagnostic) {
-  const now2 = Date.now();
+  const now = Date.now();
   if (
-    now2 - lastErrorBoundaryAutoUploadAt <
+    now - lastErrorBoundaryAutoUploadAt <
     ERROR_BOUNDARY_AUTO_UPLOAD_COOLDOWN_MS
   ) {
     return false;
   }
   const marker = readErrorBoundaryUploadMarker();
-  if (marker && now2 - marker.at < ERROR_BOUNDARY_AUTO_UPLOAD_COOLDOWN_MS) {
+  if (marker && now - marker.at < ERROR_BOUNDARY_AUTO_UPLOAD_COOLDOWN_MS) {
     return false;
   }
-  lastErrorBoundaryAutoUploadAt = now2;
+  lastErrorBoundaryAutoUploadAt = now;
   writeErrorBoundaryUploadMarker({
-    at: now2,
+    at: now,
     key: getErrorBoundaryUploadKey(diagnostic),
   });
   return true;

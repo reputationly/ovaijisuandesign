@@ -66,13 +66,13 @@ export const CanvasRenderRuntimeContext =
   reactExports.createContext(DEFAULT_CONTEXT);
 const defaultHtmlFullscreenStore = createHtmlFullscreenStore();
 export const HtmlFullscreenStoreContext = reactExports.createContext(null);
-export function HtmlFullscreenStoreProvider({ store, children: children2 }) {
+export function HtmlFullscreenStoreProvider({ store, children }) {
   return reactExports.createElement(
     HtmlFullscreenStoreContext.Provider,
     {
       value: store,
     },
-    children2,
+    children,
   );
 }
 export function useHtmlFullscreenApi() {
@@ -81,42 +81,42 @@ export function useHtmlFullscreenApi() {
     defaultHtmlFullscreenStore
   );
 }
-export const useHtmlFullscreenStore = (selector2) =>
-  useStore(useHtmlFullscreenApi(), selector2);
+export const useHtmlFullscreenStore = (selector) =>
+  useStore(useHtmlFullscreenApi(), selector);
 useHtmlFullscreenStore.getState = defaultHtmlFullscreenStore.getState;
 useHtmlFullscreenStore.setState = defaultHtmlFullscreenStore.setState;
 useHtmlFullscreenStore.subscribe = defaultHtmlFullscreenStore.subscribe;
 export function useIsHtmlFullscreen(nodeId) {
   return useHtmlFullscreenStore(
-    (s2) => s2.nodeId === nodeId && s2.presentation === "fullscreen",
+    (state) => state.nodeId === nodeId && state.presentation === "fullscreen",
   );
 }
 export function useHtmlViewerPresentation(nodeId) {
-  return useHtmlFullscreenStore((s2) =>
-    s2.nodeId === nodeId ? s2.presentation : null,
+  return useHtmlFullscreenStore((state) =>
+    state.nodeId === nodeId ? state.presentation : null,
   );
 }
 export function useFullscreenContainerEl() {
-  return useHtmlFullscreenStore((s2) => s2.containerEl);
+  return useHtmlFullscreenStore((state) => state.containerEl);
 }
 function createHtmlViewerHandleStore() {
-  return createStore((set2) => ({
+  return createStore((set) => ({
     byNode: new Map(),
-    set: (nodeId, handle2) =>
-      set2((state2) => {
-        const next2 = new Map(state2.byNode);
-        next2.set(nodeId, handle2);
+    set: (nodeId, handle) =>
+      set((state) => {
+        const next = new Map(state.byNode);
+        next.set(nodeId, handle);
         return {
-          byNode: next2,
+          byNode: next,
         };
       }),
     clear: (nodeId) =>
-      set2((state2) => {
-        if (!state2.byNode.has(nodeId)) return state2;
-        const next2 = new Map(state2.byNode);
-        next2.delete(nodeId);
+      set((state) => {
+        if (!state.byNode.has(nodeId)) return state;
+        const next = new Map(state.byNode);
+        next.delete(nodeId);
         return {
-          byNode: next2,
+          byNode: next,
         };
       }),
   }));
@@ -129,21 +129,21 @@ export function useHtmlViewerHandleApi() {
     defaultHtmlViewerHandleStore
   );
 }
-const useHtmlViewerHandleStore = (selector2) =>
-  useStore(useHtmlViewerHandleApi(), selector2);
+const useHtmlViewerHandleStore = (selector) =>
+  useStore(useHtmlViewerHandleApi(), selector);
 useHtmlViewerHandleStore.getState = defaultHtmlViewerHandleStore.getState;
 useHtmlViewerHandleStore.setState = defaultHtmlViewerHandleStore.setState;
 useHtmlViewerHandleStore.subscribe = defaultHtmlViewerHandleStore.subscribe;
 export function useHtmlViewerHandle(nodeId) {
-  return useHtmlViewerHandleStore((s2) => s2.byNode.get(nodeId));
+  return useHtmlViewerHandleStore((state) => state.byNode.get(nodeId));
 }
-export const usePluginMetadataStore = create((set2, get3) => ({
+export const usePluginMetadataStore = create((set, get) => ({
   plugins: new Map(),
-  setPluginMetas: (entries2) => {
-    const next2 = new Map();
-    for (const entry of entries2) {
+  setPluginMetas: (entries) => {
+    const next = new Map();
+    for (const entry of entries) {
       if (!entry?.id) continue;
-      next2.set(entry.id, {
+      next.set(entry.id, {
         id: entry.id,
         name: entry.name ?? {},
         description: entry.description ?? {},
@@ -170,45 +170,45 @@ export const usePluginMetadataStore = create((set2, get3) => ({
           : {}),
       });
     }
-    set2({
-      plugins: next2,
+    set({
+      plugins: next,
     });
   },
-  get: (id2) => get3().plugins.get(id2),
+  get: (id) => get().plugins.get(id),
   clear: () =>
-    set2({
+    set({
       plugins: new Map(),
     }),
 }));
 export function usePluginMeta(pluginId) {
-  return usePluginMetadataStore((s2) =>
-    pluginId ? s2.plugins.get(pluginId) : void 0,
+  return usePluginMetadataStore((state) =>
+    pluginId ? state.plugins.get(pluginId) : void 0,
   );
 }
-export function setPluginMetas(entries2) {
-  usePluginMetadataStore.getState().setPluginMetas(entries2);
+export function setPluginMetas(entries) {
+  usePluginMetadataStore.getState().setPluginMetas(entries);
 }
-export function getPluginMeta(id2) {
-  return usePluginMetadataStore.getState().get(id2);
+export function getPluginMeta(id) {
+  return usePluginMetadataStore.getState().get(id);
 }
 function createPluginRunStateStore() {
-  return createStore((set2) => ({
+  return createStore((set) => ({
     byNode: new Map(),
-    set: (nodeId, info2) =>
-      set2((state2) => {
-        const next2 = new Map(state2.byNode);
-        next2.set(nodeId, info2);
+    set: (nodeId, info) =>
+      set((state) => {
+        const next = new Map(state.byNode);
+        next.set(nodeId, info);
         return {
-          byNode: next2,
+          byNode: next,
         };
       }),
     clear: (nodeId) =>
-      set2((state2) => {
-        if (!state2.byNode.has(nodeId)) return state2;
-        const next2 = new Map(state2.byNode);
-        next2.delete(nodeId);
+      set((state) => {
+        if (!state.byNode.has(nodeId)) return state;
+        const next = new Map(state.byNode);
+        next.delete(nodeId);
         return {
-          byNode: next2,
+          byNode: next,
         };
       }),
   }));
@@ -221,82 +221,82 @@ export function usePluginRunStateApi() {
     defaultPluginRunStateStore
   );
 }
-const usePluginRunStateStore = (selector2) =>
-  useStore(usePluginRunStateApi(), selector2);
+const usePluginRunStateStore = (selector) =>
+  useStore(usePluginRunStateApi(), selector);
 usePluginRunStateStore.getState = defaultPluginRunStateStore.getState;
 usePluginRunStateStore.setState = defaultPluginRunStateStore.setState;
 usePluginRunStateStore.subscribe = defaultPluginRunStateStore.subscribe;
 export function usePluginRunInfo(nodeId) {
-  return usePluginRunStateStore((s2) => s2.byNode.get(nodeId));
+  return usePluginRunStateStore((state) => state.byNode.get(nodeId));
 }
 const MAX_PATH_VERSION_ENTRIES = 1e3;
-const fileVersionStore = createStore((set2) => ({
+const fileVersionStore = createStore((set) => ({
   globalVersion: 0,
   pathVersions: new Map(),
   bump: (paths) =>
-    set2((state2) => {
+    set((state) => {
       if (!paths || paths.length === 0) {
         return {
-          globalVersion: state2.globalVersion + 1,
+          globalVersion: state.globalVersion + 1,
         };
       }
-      const next2 = new Map(state2.pathVersions);
-      for (const path2 of paths) {
-        if (!path2) continue;
-        const version2 = (next2.get(path2) ?? 0) + 1;
-        next2.delete(path2);
-        next2.set(path2, version2);
+      const next = new Map(state.pathVersions);
+      for (const path of paths) {
+        if (!path) continue;
+        const version = (next.get(path) ?? 0) + 1;
+        next.delete(path);
+        next.set(path, version);
       }
-      while (next2.size > MAX_PATH_VERSION_ENTRIES) {
-        const oldest = next2.keys().next().value;
+      while (next.size > MAX_PATH_VERSION_ENTRIES) {
+        const oldest = next.keys().next().value;
         if (oldest === void 0) break;
-        next2.delete(oldest);
+        next.delete(oldest);
       }
       return {
-        pathVersions: next2,
+        pathVersions: next,
       };
     }),
   resetForTest: () =>
-    set2({
+    set({
       globalVersion: 0,
       pathVersions: new Map(),
     }),
 }));
-export function useFileVersion(path2, scope = "all") {
+export function useFileVersion(path, scope = "all") {
   return useStore(
     fileVersionStore,
-    (s2) =>
-      (scope === "all" ? s2.globalVersion : 0) +
-      (path2 ? (s2.pathVersions.get(path2) ?? 0) : 0),
+    (state) =>
+      (scope === "all" ? state.globalVersion : 0) +
+      (path ? (state.pathVersions.get(path) ?? 0) : 0),
   );
 }
-export function usePathFileVersion(path2) {
-  return useStore(fileVersionStore, (s2) =>
-    path2 ? (s2.pathVersions.get(path2) ?? 0) : 0,
+export function usePathFileVersion(path) {
+  return useStore(fileVersionStore, (state) =>
+    path ? (state.pathVersions.get(path) ?? 0) : 0,
   );
 }
 export function bumpFileVersion(paths) {
   fileVersionStore.getState().bump(typeof paths === "string" ? [paths] : paths);
 }
 export const CANVAS_FILE_VERSION_QUERY_KEY = "_canvas_v";
-export function appendCanvasFileVersion(url2, version2) {
-  const separator = url2.includes("?") ? "&" : "?";
-  return `${url2}${separator}${CANVAS_FILE_VERSION_QUERY_KEY}=${version2}`;
+export function appendCanvasFileVersion(url, version) {
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}${CANVAS_FILE_VERSION_QUERY_KEY}=${version}`;
 }
 export function useFileUrl(filePath, options) {
   const cacheBust = options?.cacheBust ?? true;
   const { resolveFileUrl } = useCanvasBridge();
-  const version2 = useFileVersion(filePath, options?.versionScope ?? "all");
+  const version = useFileVersion(filePath, options?.versionScope ?? "all");
   return reactExports.useMemo(() => {
     if (!filePath || !resolveFileUrl) return void 0;
     try {
-      const base2 = resolveFileUrl(filePath);
-      if (!cacheBust) return base2;
-      return appendCanvasFileVersion(base2, version2);
+      const base = resolveFileUrl(filePath);
+      if (!cacheBust) return base;
+      return appendCanvasFileVersion(base, version);
     } catch {
       return void 0;
     }
-  }, [filePath, resolveFileUrl, version2, cacheBust]);
+  }, [filePath, resolveFileUrl, version, cacheBust]);
 }
 export const CANVAS_MIN_ZOOM = 0.1;
 export const CANVAS_MAX_ZOOM = 4;
@@ -320,39 +320,39 @@ export function createState() {
   };
 }
 export const statesByWorkspace = new Map();
-export function workspaceScope(workspaceId2) {
-  return workspaceId2?.trim() || DEFAULT_WORKSPACE_SCOPE;
+export function workspaceScope(workspaceId) {
+  return workspaceId?.trim() || DEFAULT_WORKSPACE_SCOPE;
 }
-export function getOrCreateState(workspaceId2) {
-  const scope = workspaceScope(workspaceId2);
-  let state2 = statesByWorkspace.get(scope);
-  if (!state2) {
-    state2 = createState();
-    statesByWorkspace.set(scope, state2);
+export function getOrCreateState(workspaceId) {
+  const scope = workspaceScope(workspaceId);
+  let state = statesByWorkspace.get(scope);
+  if (!state) {
+    state = createState();
+    statesByWorkspace.set(scope, state);
   }
-  return state2;
+  return state;
 }
-export function touch(state2) {
-  state2.updatedAtMs = Date.now();
+export function touch(state) {
+  state.updatedAtMs = Date.now();
 }
 export const WorkspaceContentBudgetScopeContext =
   reactExports.createContext(void 0);
 export function useWorkspaceContentBudgetScope() {
   return reactExports.useContext(WorkspaceContentBudgetScopeContext);
 }
-export function recordCanvasGraphMetrics(input, workspaceId2) {
-  const state2 = getOrCreateState(workspaceId2);
-  state2.canvasNodeCount = input.nodes.length;
-  state2.canvasEdgeCount = input.edges.length;
-  state2.canvasFileNodeCount = input.nodes.filter(
-    (node2) => node2.type === CanvasNodeType.File,
+export function recordCanvasGraphMetrics(input, workspaceId) {
+  const state = getOrCreateState(workspaceId);
+  state.canvasNodeCount = input.nodes.length;
+  state.canvasEdgeCount = input.edges.length;
+  state.canvasFileNodeCount = input.nodes.filter(
+    (node) => node.type === CanvasNodeType.File,
   ).length;
-  touch(state2);
+  touch(state);
 }
-export function resetWorkspaceCanvasGraphMetrics(workspaceId2) {
-  const state2 = getOrCreateState(workspaceId2);
-  state2.canvasNodeCount = 0;
-  state2.canvasEdgeCount = 0;
-  state2.canvasFileNodeCount = 0;
-  touch(state2);
+export function resetWorkspaceCanvasGraphMetrics(workspaceId) {
+  const state = getOrCreateState(workspaceId);
+  state.canvasNodeCount = 0;
+  state.canvasEdgeCount = 0;
+  state.canvasFileNodeCount = 0;
+  touch(state);
 }

@@ -290,8 +290,8 @@ export function CloudAssetsPanel({ project }) {
   const handleUploadPicked = reactExports.useCallback(
     async (files) => {
       if (files.length === 0) return;
-      const folderName2 = await ensureProjectFolderName(project.id);
-      if (!folderName2) return;
+      const folderName = await ensureProjectFolderName(project.id);
+      if (!folderName) return;
       const { accepted, rejected } = await gateCloudAssetUploads(files, (file) =>
         window.hilo?.webUtils?.getPathForFile(file),
       );
@@ -301,7 +301,7 @@ export function CloudAssetsPanel({ project }) {
       for (const entry of accepted) {
         try {
           await service.startUpload({
-            projectFolderName: folderName2,
+            projectFolderName: folderName,
             cloudProjectId,
             parentId: folder.currentFolderId,
             filePath: entry.path,
@@ -339,10 +339,10 @@ export function CloudAssetsPanel({ project }) {
       if (downloadingIds.has(node.id) || downloadStartingIdsRef.current.has(node.id)) return;
       downloadStartingIdsRef.current.add(node.id);
       try {
-        const folderName2 = await ensureProjectFolderName(project.id);
-        if (!folderName2) return;
+        const folderName = await ensureProjectFolderName(project.id);
+        if (!folderName) return;
         await service.startDownload({
-          projectFolderName: folderName2,
+          projectFolderName: folderName,
           cloudProjectId,
           nodeId: node.id,
           name: node.name,
@@ -372,11 +372,11 @@ export function CloudAssetsPanel({ project }) {
   );
   const handleDownloadFolder = reactExports.useCallback(
     async (node) => {
-      const folderName2 = await ensureProjectFolderName(project.id);
-      if (!folderName2) return;
+      const folderName = await ensureProjectFolderName(project.id);
+      if (!folderName) return;
       try {
         const summary = await service.startFolderDownload({
-          projectFolderName: folderName2,
+          projectFolderName: folderName,
           cloudProjectId,
           folderNodeId: node.id,
           folderName: node.name,
@@ -411,13 +411,13 @@ export function CloudAssetsPanel({ project }) {
   const handleDelete = reactExports.useCallback(
     async (node) => {
       await deleteCloudNode(node.id);
-      const folderName2 = await ensureProjectFolderName(project.id);
-      if (folderName2) {
+      const folderName = await ensureProjectFolderName(project.id);
+      if (folderName) {
         try {
           if (node.kind === "folder") {
-            await service.deleteLocalFolder(folderName2, [...parentSegmentsFor(node), node.name]);
+            await service.deleteLocalFolder(folderName, [...parentSegmentsFor(node), node.name]);
           } else {
-            await service.deleteLocalAsset(folderName2, node.id);
+            await service.deleteLocalAsset(folderName, node.id);
           }
         } catch {
           dedupedToast.warning(

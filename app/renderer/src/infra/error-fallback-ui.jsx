@@ -17,10 +17,10 @@ function buildSupportPayload(input) {
     `time: ${input.timestamp}`,
   ].join("\n");
 }
-function formatSupportTime(timestamp2) {
-  const date2 = new Date(timestamp2);
-  if (Number.isNaN(date2.getTime())) return timestamp2;
-  return date2.toLocaleString();
+function formatSupportTime(timestamp) {
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return timestamp;
+  return date.toLocaleString();
 }
 function SupportInfoRow({ label, value }) {
   return (
@@ -33,7 +33,7 @@ function SupportInfoRow({ label, value }) {
   );
 }
 export function ErrorFallbackUI({
-  message: message2,
+  message,
   stack,
   failureId,
   failureTimestamp,
@@ -43,7 +43,7 @@ export function ErrorFallbackUI({
   showFeedbackAction = true,
   containerClassName = "h-screen w-screen",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [copied, setCopied] = reactExports.useState(false);
   const [diagnosticsContext, setDiagnosticsContext] =
     reactExports.useState(null);
@@ -61,12 +61,12 @@ export function ErrorFallbackUI({
     : void 0;
   const feedbackErrorContext = supportPayload
     ? `${supportPayload}${
-        message2
+        message
           ? `
-${message2}`
+${message}`
           : ""
       }`
-    : message2;
+    : message;
   reactExports.useEffect(() => {
     let cancelled = false;
     window.hilo?.diagnostics
@@ -86,9 +86,9 @@ ${message2}`
     void writeText
       .call(
         navigator.clipboard,
-        message2
+        message
           ? `${supportPayload}
-message: ${message2}`
+message: ${message}`
           : supportPayload,
       )
       .then(() => {
@@ -106,16 +106,16 @@ message: ${message2}`
           <AlertTriangle className="size-5" />
         </div>
         <h1 className="mb-2 text-[15px] font-medium text-destructive">
-          {t2("errorBoundary.title", {
+          {t("errorBoundary.title", {
             defaultValue: "Something went wrong",
           })}
         </h1>
         <p className="mb-6 text-center text-[13px] leading-relaxed text-muted-foreground">
-          {t2("errorBoundary.descriptionLine1", {
+          {t("errorBoundary.descriptionLine1", {
             defaultValue: "The application encountered an unexpected error.",
           })}
           <br />
-          {t2("errorBoundary.descriptionLine2", {
+          {t("errorBoundary.descriptionLine2", {
             defaultValue:
               "You can try again. If the issue persists, please report it.",
           })}
@@ -124,7 +124,7 @@ message: ${message2}`
           <div className="mb-6 w-full rounded-lg border border-border bg-muted/50 px-3 py-2.5 text-[12px]">
             <div className="mb-2 flex items-center justify-between gap-3">
               <span className="font-medium text-foreground">
-                {t2("errorBoundary.diagnosticsTitle", {
+                {t("errorBoundary.diagnosticsTitle", {
                   defaultValue: "Diagnostics info",
                 })}
               </span>
@@ -137,34 +137,34 @@ message: ${message2}`
                 data-action-ui-id="error-boundary.copy-diagnostics"
               >
                 {copied
-                  ? t2("errorBoundary.copied", {
+                  ? t("errorBoundary.copied", {
                       defaultValue: "Copied",
                     })
-                  : t2("errorBoundary.copyDiagnostics", {
+                  : t("errorBoundary.copyDiagnostics", {
                       defaultValue: "Copy info",
                     })}
               </Button>
             </div>
             <div className="grid gap-1.5">
               <SupportInfoRow
-                label={t2("errorBoundary.diagnosticsUid", {
+                label={t("errorBoundary.diagnosticsUid", {
                   defaultValue: "UID",
                 })}
                 value={
                   diagnosticsContext?.userId ??
-                  t2("errorBoundary.diagnosticsUnknownUid", {
+                  t("errorBoundary.diagnosticsUnknownUid", {
                     defaultValue: "Unknown",
                   })
                 }
               />
               <SupportInfoRow
-                label={t2("errorBoundary.diagnosticsCode", {
+                label={t("errorBoundary.diagnosticsCode", {
                   defaultValue: "Code",
                 })}
                 value={failureId}
               />
               <SupportInfoRow
-                label={t2("errorBoundary.diagnosticsTime", {
+                label={t("errorBoundary.diagnosticsTime", {
                   defaultValue: "Time",
                 })}
                 value={formatSupportTime(supportTimestamp)}
@@ -188,7 +188,7 @@ message: ${message2}`
                   : void 0
               }
               reason={ERROR_BOUNDARY_FEEDBACK_REASON}
-              label={t2("errorBoundary.reportIssue", {
+              label={t("errorBoundary.reportIssue", {
                 defaultValue: "Report Issue",
               })}
             />
@@ -199,12 +199,12 @@ message: ${message2}`
             className="h-auto rounded-lg px-4 py-2 text-[13px]"
             data-action-ui-id="error-boundary.retry"
           >
-            {t2("errorBoundary.tryAgain", {
+            {t("errorBoundary.tryAgain", {
               defaultValue: "Try Again",
             })}
           </Button>
         </div>
-        {message2 && (
+        {message && (
           <div className="flex w-full flex-col items-center">
             <Button
               type="button"
@@ -231,13 +231,13 @@ message: ${message2}`
                   strokeLinejoin="round"
                 />
               </CompositedSvg>
-              {t2("errorBoundary.errorDetails", {
+              {t("errorBoundary.errorDetails", {
                 defaultValue: "Error details",
               })}
             </Button>
             {showDetails && (
               <pre className="mt-3 max-h-48 w-full overflow-auto rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-[11px] leading-relaxed text-muted-foreground">
-                {message2}
+                {message}
                 {stack &&
                   `
 
@@ -247,14 +247,14 @@ ${stack}`}
           </div>
         )}
         <p className="mt-10 text-[11px] text-muted-foreground">
-          {t2("errorBoundary.press", {
+          {t("errorBoundary.press", {
             defaultValue: "Press",
           })}{" "}
           <ShortcutHint
             accelerator="CommandOrControl+R"
             className="inline-flex h-auto min-w-0 items-center justify-center rounded border border-border bg-muted px-1.5 py-0.5 text-[11px] leading-none text-muted-foreground"
           />{" "}
-          {t2("errorBoundary.toRetry", {
+          {t("errorBoundary.toRetry", {
             defaultValue: "to try again",
           })}
         </p>

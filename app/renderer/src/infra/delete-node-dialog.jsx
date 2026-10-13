@@ -12,18 +12,18 @@ import {
 } from "./dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "./badge-variants.jsx";
 export function DeleteNodeDialog({
-  node: node2,
+  node,
   batchNodes,
   onOpenChange,
   onConfirm,
   onCompleted,
 }) {
-  const { t: t2 } = useTranslation();
-  const [pending2, setPending] = reactExports.useState(false);
-  const targets = batchNodes?.length ? batchNodes : node2 ? [node2] : [];
+  const { t } = useTranslation();
+  const [pending, setPending] = reactExports.useState(false);
+  const targets = batchNodes?.length ? batchNodes : node ? [node] : [];
   const isBatch = targets.length > 1;
-  const run2 = reactExports.useCallback(async () => {
-    if (targets.length === 0 || pending2) return;
+  const run = reactExports.useCallback(async () => {
+    if (targets.length === 0 || pending) return;
     setPending(true);
     let failed = 0;
     try {
@@ -33,7 +33,7 @@ export function DeleteNodeDialog({
         } catch (err) {
           failed += 1;
           dedupedToast.error(
-            cloudErrorDisplayMessage(err) ?? t2("cloudAssets.failServer"),
+            cloudErrorDisplayMessage(err) ?? t("cloudAssets.failServer"),
           );
         }
       }
@@ -44,7 +44,7 @@ export function DeleteNodeDialog({
     } finally {
       setPending(false);
     }
-  }, [onCompleted, onConfirm, onOpenChange, pending2, t2, targets]);
+  }, [onCompleted, onConfirm, onOpenChange, pending, t, targets]);
   const isFolder = targets.length === 1 && targets[0]?.kind === "folder";
   return (
     <Dialog open={targets.length > 0} onOpenChange={onOpenChange}>
@@ -52,45 +52,45 @@ export function DeleteNodeDialog({
         <DialogHeader>
           <DialogTitle className="text-body-14 leading-5 font-medium">
             {isBatch
-              ? t2("projectAssets.batchDeleteTitle", {
+              ? t("projectAssets.batchDeleteTitle", {
                   count: targets.length,
                 })
               : isFolder
-                ? t2("cloudAssets.deleteFolderTitle", {
+                ? t("cloudAssets.deleteFolderTitle", {
                     name: targets[0]?.name ?? "",
                   })
-                : t2("cloudAssets.deleteFileTitle", {
+                : t("cloudAssets.deleteFileTitle", {
                     name: targets[0]?.name ?? "",
                   })}
           </DialogTitle>
           <DialogDescription className="text-[12px]/relaxed text-muted-foreground">
             {isBatch
-              ? t2("projectAssets.batchDeleteCloudBody", {
+              ? t("projectAssets.batchDeleteCloudBody", {
                   count: targets.length,
                 })
               : isFolder
-                ? t2("cloudAssets.deleteFolderBody")
-                : t2("cloudAssets.deleteFileBody")}
+                ? t("cloudAssets.deleteFolderBody")
+                : t("cloudAssets.deleteFileBody")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button
             variant="outline"
             size="sm"
-            disabled={pending2}
+            disabled={pending}
             onClick={() => onOpenChange(false)}
             data-action-ui-id="cloud-assets.delete-cancel"
           >
-            {t2("common.cancel")}
+            {t("common.cancel")}
           </Button>
           <Button
             variant="destructive"
             size="sm"
-            disabled={pending2}
-            onClick={() => void run2()}
+            disabled={pending}
+            onClick={() => void run()}
             data-action-ui-id="cloud-assets.delete-confirm"
           >
-            {t2("cloudAssets.delete")}
+            {t("cloudAssets.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

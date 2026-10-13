@@ -21,7 +21,7 @@ export const SIDEBAR_BADGE_TARGET_BY_ROUTE = {
   "/workflows": "workflows",
 };
 export function SearchButton({ onClick, surface = "topbar", dataActionUiId }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { app } = usePlatform();
   const shortcut = resolveShortcutDisplay("CommandOrControl+K", app.os);
   const sidebar = surface === "sidebar";
@@ -31,7 +31,7 @@ export function SearchButton({ onClick, surface = "topbar", dataActionUiId }) {
         render={
           <button
             type="button"
-            aria-label={`${t2("topbar.search")} ${shortcut.text}`}
+            aria-label={`${t("topbar.search")} ${shortcut.text}`}
             data-action-ui-id={dataActionUiId}
             onClick={onClick}
             className={cn(
@@ -48,7 +48,7 @@ export function SearchButton({ onClick, surface = "topbar", dataActionUiId }) {
         </MonochromeIcon>
       </TooltipTrigger>
       <TooltipContent side={sidebar ? "right" : "bottom"}>
-        {t2("topbar.search")}
+        {t("topbar.search")}
         <ShortcutHint
           accelerator="CommandOrControl+K"
           os={app.os}

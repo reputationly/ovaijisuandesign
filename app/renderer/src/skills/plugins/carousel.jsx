@@ -29,10 +29,10 @@ export function Carousel({
   );
   const [canScrollPrev, setCanScrollPrev] = reactExports.useState(false);
   const [canScrollNext, setCanScrollNext] = reactExports.useState(false);
-  const onSelect = reactExports.useCallback((api2) => {
-    if (!api2) return;
-    setCanScrollPrev(api2.canScrollPrev());
-    setCanScrollNext(api2.canScrollNext());
+  const onSelect = reactExports.useCallback((api) => {
+    if (!api) return;
+    setCanScrollPrev(api.canScrollPrev());
+    setCanScrollNext(api.canScrollNext());
   }, []);
   const scrollPrev = reactExports.useCallback(() => {
     api?.scrollPrev();

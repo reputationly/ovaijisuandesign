@@ -17,13 +17,13 @@ import { FeedbackButton } from "../settings/use-direct-feedback.jsx";
 import { ErrorBlock } from "../text-editor/error-block.jsx";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
 function ChatErrorActionButton({ action, label }) {
-  const platform2 = usePlatform();
+  const platform = usePlatform();
   const checkoutDecision = useAccountSubmissionDecision("personal_checkout");
-  const handleClick2 = () => {
+  const handleClick = () => {
     if (action.kind === "external-link") {
       const decision = guardAccountSubmission("personal_checkout");
       if (!decision.allowed) return;
-      void openExternalUrl(platform2, action.url, {
+      void openExternalUrl(platform, action.url, {
         source: "chat.error-action",
       });
     }
@@ -34,7 +34,7 @@ function ChatErrorActionButton({ action, label }) {
       size="xs"
       disabled={!checkoutDecision.allowed}
       title={checkoutDecision.allowed ? void 0 : checkoutDecision.reasonCode}
-      onClick={handleClick2}
+      onClick={handleClick}
     >
       {label}
       <ExternalLink data-icon="inline-end" />
@@ -89,7 +89,7 @@ const errorActionRules = [
   },
 ];
 function getChatErrorActions(msg, options) {
-  const rule = errorActionRules.find((r2) => r2.match(msg));
+  const rule = errorActionRules.find((actionRule) => actionRule.match(msg));
   if (rule) return rule.derive(msg, options);
   return {
     actions: [],
@@ -124,8 +124,8 @@ const MESSAGE_DELIVERY_STAGE_DETAIL_PREFIX = "message_delivery_stage:";
 const RAW_AGENT_STALLED_ERROR =
   "Agent turn stalled with no progress; aborted by watchdog.";
 const RUNTIME_ERROR_CODE_PREFIX = "RUNTIME_";
-function isRuntimeErrorCode(code2) {
-  return code2?.startsWith(RUNTIME_ERROR_CODE_PREFIX) ?? false;
+function isRuntimeErrorCode(code) {
+  return code?.startsWith(RUNTIME_ERROR_CODE_PREFIX) ?? false;
 }
 const RAW_ERROR_CLASS_I18N = {
   concurrency: "canvas.errors.concurrency",
@@ -150,14 +150,14 @@ function messageDeliveryStageFromDetails(details) {
       return void 0;
   }
 }
-function presentationFor(code2, isGenerationStalled) {
+function presentationFor(code, isGenerationStalled) {
   if (isGenerationStalled) {
     return {
       titleKey: "chat.errors.title.generationStalled",
       Icon: Zap,
     };
   }
-  switch (code2) {
+  switch (code) {
     case ErrorCodes.BILLING_INSUFFICIENT_BALANCE:
       return {
         titleKey: "chat.errors.title.billing",
@@ -247,7 +247,7 @@ function presentationFor(code2, isGenerationStalled) {
         Icon: AlertCircle,
       };
     default:
-      if (isRuntimeErrorCode(code2)) {
+      if (isRuntimeErrorCode(code)) {
         return {
           titleKey: "chat.errors.title.runtime",
           Icon: ServerOff,
@@ -259,44 +259,44 @@ function presentationFor(code2, isGenerationStalled) {
       };
   }
 }
-function suffixFor(retryable, code2) {
-  if (code2 === ErrorCodes.RUNTIME_CANCELLED)
+function suffixFor(retryable, code) {
+  if (code === ErrorCodes.RUNTIME_CANCELLED)
     return "chat.errors.suffix.cancelled";
   if (
-    code2 === ErrorCodes.BILLING_INSUFFICIENT_BALANCE ||
-    code2 === ErrorCodes.AUTH_EXPIRED
+    code === ErrorCodes.BILLING_INSUFFICIENT_BALANCE ||
+    code === ErrorCodes.AUTH_EXPIRED
   ) {
     return "chat.errors.suffix.actionRequired";
   }
-  if (code2 === ErrorCodes.MODEL_PROVIDER_AUTH_FAILED)
+  if (code === ErrorCodes.MODEL_PROVIDER_AUTH_FAILED)
     return "chat.errors.suffix.actionRequired";
   if (retryable) return "chat.errors.suffix.retry";
   return "chat.errors.suffix.failed";
 }
-function fallbackDetailFor(rawDetail, t2) {
-  if (!rawDetail) return t2("chat.errors.serverError");
+function fallbackDetailFor(rawDetail, t) {
+  if (!rawDetail) return t("chat.errors.serverError");
   const rawClass = classifyRawErrorText(rawDetail);
-  if (rawClass) return t2(RAW_ERROR_CLASS_I18N[rawClass]);
+  if (rawClass) return t(RAW_ERROR_CLASS_I18N[rawClass]);
   return rawDetail;
 }
-function localizeModelProviderDetail(rawDetail, language2, t2) {
-  if (!language2.toLowerCase().startsWith("zh")) return rawDetail;
+function localizeModelProviderDetail(rawDetail, language, t) {
+  if (!language.toLowerCase().startsWith("zh")) return rawDetail;
   return rawDetail
     .split(/\r?\n/)
     .map((line) => {
       const detail = line.trim();
       if (/^Method Not Allowed(?::.*)?$/i.test(detail)) {
-        return t2("chat.errors.modelProviderMethodNotAllowed");
+        return t("chat.errors.modelProviderMethodNotAllowed");
       }
       if (/^FUNCTION_INVOCATION_FAILED$/i.test(detail)) {
-        return t2("chat.errors.modelProviderInvocationFailed");
+        return t("chat.errors.modelProviderInvocationFailed");
       }
       return line;
     })
     .join("\n");
 }
 export function ErrorMessage({ msg, onRetry, retrying = false }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const errorCode = msg.error?.error_code;
   const deliveryStage = messageDeliveryStageFromDetails(msg.error?.details);
   const rawDetail = (msg.error?.user_message ?? msg.content ?? "").trim();
@@ -312,10 +312,10 @@ export function ErrorMessage({ msg, onRetry, retrying = false }) {
   const isModelProviderError = errorCode === ErrorCodes.MODEL_PROVIDER_ERROR;
   const detailText = redactForCurrentRegion(
     isModelProviderError && rawDetail
-      ? localizeModelProviderDetail(rawDetail, i18n.language, t2)
+      ? localizeModelProviderDetail(rawDetail, i18n.language, t)
       : i18nKey
-        ? t2(i18nKey)
-        : fallbackDetailFor(rawDetail, t2),
+        ? t(i18nKey)
+        : fallbackDetailFor(rawDetail, t),
   );
   const retryable = msg.error?.retryable ?? false;
   const isRetrying = retryable && retrying;
@@ -326,7 +326,7 @@ export function ErrorMessage({ msg, onRetry, retrying = false }) {
   });
   const presentation = presentationFor(errorCode, isGenerationStalled);
   const isRuntimeConnectionError = presentation.Icon === ServerOff;
-  const suffix = t2(suffixFor(retryable, errorCode));
+  const suffix = t(suffixFor(retryable, errorCode));
   const hasActions =
     actions.length > 0 || (retryable && !!onRetry) || showFeedback;
   const errorContext = reactExports.useMemo(() => {
@@ -377,7 +377,7 @@ export function ErrorMessage({ msg, onRetry, retrying = false }) {
           <ChatErrorActionButton
             key={action.id}
             action={action}
-            label={t2(action.labelKey)}
+            label={t(action.labelKey)}
           />
         ))}
         {retryable && onRetry && (
@@ -398,14 +398,14 @@ export function ErrorMessage({ msg, onRetry, retrying = false }) {
               if (decision.allowed) onRetry();
             }}
           >
-            {t2(isRetrying ? "chat.retrying" : "chat.retry")}
+            {t(isRetrying ? "chat.retrying" : "chat.retry")}
           </Button>
         )}
         {showFeedback && (
           <FeedbackButton
             errorContext={detailText}
             reason="chat_error"
-            label={t2("feedback.reportIssue", {
+            label={t("feedback.reportIssue", {
               defaultValue: "Report Issue",
             })}
             variant="link"
@@ -420,7 +420,7 @@ export function ErrorMessage({ msg, onRetry, retrying = false }) {
     );
   const errorBlock = (
     <ErrorBlock
-      title={t2(presentation.titleKey)}
+      title={t(presentation.titleKey)}
       statusSuffix={suffix}
       Icon={presentation.Icon}
       iconSize={isRuntimeConnectionError ? 14 : 20}

@@ -3,28 +3,28 @@ import { ARCHIVE_ZIPPER, BODY, FOLD, JPEG, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 const normalizeLabel = (value) => {
-  const raw2 = value?.trim().replace(/^\./, "").toUpperCase() ?? "";
-  return /^[A-Z0-9][A-Z0-9_-]*$/.test(raw2) ? raw2 : "FILE";
+  const raw = value?.trim().replace(/^\./, "").toUpperCase() ?? "";
+  return /^[A-Z0-9][A-Z0-9_-]*$/.test(raw) ? raw : "FILE";
 };
 
-export const FileTypeIcon = reactExports.forwardRef(function FileTypeIcon2(
+export const FileTypeIcon = reactExports.forwardRef(function FileTypeIcon(
   {
     category,
     recognition,
     typeLabel,
     readFailure = false,
-    size: size2 = 32,
+    size = 32,
     decorative = false,
     accessibleLabel,
     className,
   },
   ref,
 ) {
-  if (![14, 16, 24, 28, 32, 48, 64, 80, 99].includes(size2)) {
+  if (![14, 16, 24, 28, 32, 48, 64, 80, 99].includes(size)) {
     throw new RangeError("FileTypeIcon requires a documented size preset");
   }
-  const text2 = normalizeLabel(typeLabel);
-  const visibleText = text2.length > 8 ? `${text2.slice(0, 7)}…` : text2;
+  const text = normalizeLabel(typeLabel);
+  const visibleText = text.length > 8 ? `${text.slice(0, 7)}…` : text;
   const status = readFailure
     ? "unreadable"
     : recognition === "known"
@@ -44,8 +44,8 @@ export const FileTypeIcon = reactExports.forwardRef(function FileTypeIcon2(
       data-slot="file-type-icon"
       data-category={visualCategory}
       data-status={status}
-      width={size2}
-      height={(size2 * 117) / 99}
+      width={size}
+      height={(size * 117) / 99}
       viewBox="0 0 99 117"
       fill="none"
       focusable="false"

@@ -1,0 +1,9 @@
+key	new	reason
+t2@35:14	t	useTranslation() 返回的翻译函数 t
+raw2@15:17	raw	去掉打包器加的数字后缀，恢复原名 raw
+language2@36:9	language	去掉打包器加的数字后缀，恢复原名 language
+invalid2@41:15	invalid	去掉打包器加的数字后缀，恢复原名 invalid
+normalize2@15:3	normalize	去掉打包器加的数字后缀，恢复原名 normalize
+values3@30:11	values	去掉打包器加的数字后缀，恢复原名 values
+disabled2@31:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+normalize2@32:14	normalize	去掉打包器加的数字后缀，恢复原名 normalize

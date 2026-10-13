@@ -1,0 +1,5 @@
+key	new	reason
+t2@91:14	t	useTranslation() 返回的翻译函数 t
+snapshot2@94:15	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+seen2@127:11	seen	去掉打包器加的数字后缀，恢复原名 seen
+code2@296:25	code	去掉打包器加的数字后缀，恢复原名 code

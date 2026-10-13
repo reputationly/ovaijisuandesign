@@ -1,0 +1,41 @@
+key	new	reason
+id2@22:39	id	原名 id，去掉打包器加的数字去重后缀
+id2@35:42	id	原名 id，去掉打包器加的数字去重后缀
+id2@70:36	id	原名 id，去掉打包器加的数字去重后缀
+id2@233:11	id	原名 id，去掉打包器加的数字去重后缀
+id2@296:6	id	原名 id，去掉打包器加的数字去重后缀
+id2@328:6	id	原名 id，去掉打包器加的数字去重后缀
+a2@47:24	a	第一个区间
+b3@47:28	b	第二个区间
+a2@53:14	annotation	已有批注，检查是否与新区间重叠
+a2@60:27	a	sort 比较函数的前一项
+b3@60:31	b	sort 比较函数的后一项
+a2@104:32	a	第一个批注状态
+b3@104:36	b	第二个批注状态
+n2@118:53	count	useReducer 的自增计数
+p3@257:13	pendingAnnotation	待提交的批注
+p3@268:11	pendingAnnotation	待提交的批注
+meta2@11:31	meta	去掉打包器加的数字后缀，恢复原名 meta
+mark2@15:36	mark	去掉打包器加的数字后缀，恢复原名 mark
+doc2@42:41	doc	去掉打包器加的数字后缀，恢复原名 doc
+first2@43:9	first	去掉打包器加的数字后缀，恢复原名 first
+next2@51:29	next	去掉打包器加的数字后缀，恢复原名 next
+text2@78:21	text	去掉打包器加的数字后缀，恢复原名 text
+mark2@95:44	mark	去掉打包器加的数字后缀，恢复原名 mark
+version2@118:10	version	去掉打包器加的数字后缀，恢复原名 version
+pending2@120:10	pending	去掉打包器加的数字后缀，恢复原名 pending
+snapshots2@174:9	snapshots	去掉打包器加的数字后缀，恢复原名 snapshots
+remove2@327:9	remove	去掉打包器加的数字后缀，恢复原名 remove
+reset2@373:9	reset	去掉打包器加的数字后缀，恢复原名 reset
+next2@129:53	next	去掉打包器加的数字后缀，恢复原名 next
+mark2@158:42	mark	去掉打包器加的数字后缀，恢复原名 mark
+seq2@162:9	seq	去掉打包器加的数字后缀，恢复原名 seq
+comment2@178:13	comment	去掉打包器加的数字后缀，恢复原名 comment
+from2@180:49	from	去掉打包器加的数字后缀，恢复原名 from
+range2@226:8	range	去掉打包器加的数字后缀，恢复原名 range
+range2@234:16	range	去掉打包器加的数字后缀，恢复原名 range
+text2@256:6	text	去掉打包器加的数字后缀，恢复原名 text
+text2@274:11	text	去掉打包器加的数字后缀，恢复原名 text
+mark2@299:43	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@332:29	mark	去掉打包器加的数字后缀，恢复原名 mark
+cmd2@386:6	cmd	去掉打包器加的数字后缀，恢复原名 cmd

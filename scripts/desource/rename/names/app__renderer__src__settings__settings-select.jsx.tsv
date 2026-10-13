@@ -1,0 +1,20 @@
+key	new	reason
+v2@136:23	value	下拉选中的值
+schedule2@17:9	schedule	去掉打包器加的数字后缀，恢复原名 schedule
+timer2@40:9	timer	去掉打包器加的数字后缀，恢复原名 timer
+option2@115:40	option	去掉打包器加的数字后缀，恢复原名 option
+option2@116:25	option	去掉打包器加的数字后缀，恢复原名 option
+workspaceId2@169:38	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+key2@202:9	key	去掉打包器加的数字后缀，恢复原名 key
+previous2@203:9	previous	去掉打包器加的数字后缀，恢复原名 previous
+current2@220:11	current	去掉打包器加的数字后缀，恢复原名 current
+key2@234:9	key	去掉打包器加的数字后缀，恢复原名 key
+entries2@252:9	entries	去掉打包器加的数字后缀，恢复原名 entries
+hiloApp2@15:50	hiloApp	去掉打包器加的数字后缀，恢复原名 hiloApp
+config2@51:3	config	去掉打包器加的数字后缀，恢复原名 config
+root2@52:3	root	去掉打包器加的数字后缀，恢复原名 root
+children2@70:49	children	去掉打包器加的数字后缀，恢复原名 children
+children2@87:13	children	去掉打包器加的数字后缀，恢复原名 children
+workspaceId2@196:3	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+workspaceId2@229:3	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+workspaceId2@251:55	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId

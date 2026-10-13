@@ -28,7 +28,7 @@ export function AssetCenterMigrateDialog({
   onSwitchOnly,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [consented, setConsented] = reactExports.useState(false);
   reactExports.useEffect(() => {
     setConsented(false);
@@ -36,14 +36,14 @@ export function AssetCenterMigrateDialog({
   const migrateDisabled =
     busy || sourceUnavailable || (targetHasContent && !consented);
   return (
-    <AlertDialog open={open} onOpenChange={(v2) => !v2 && !busy && onCancel()}>
+    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && !busy && onCancel()}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("settings.assetCenter.migrateTitle")}
+            {t("settings.assetCenter.migrateTitle")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("settings.assetCenter.migrateBody")}
+            {t("settings.assetCenter.migrateBody")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex items-center gap-2 overflow-hidden rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
@@ -66,21 +66,21 @@ export function AssetCenterMigrateDialog({
                 className="mt-0.5 shrink-0 text-destructive"
               />
               <p className="text-xs text-destructive">
-                {t2("settings.assetCenter.overwriteWarning")}
+                {t("settings.assetCenter.overwriteWarning")}
               </p>
             </div>
             <div className="hilo-checkbox-label flex items-start">
               <Checkbox
                 id="asset-center-overwrite-consent"
                 checked={consented}
-                onCheckedChange={(v2) => setConsented(v2 === true)}
+                onCheckedChange={(checkedState) => setConsented(checkedState === true)}
                 data-action-ui-id="settings-asset-center-overwrite-consent"
               />
               <label
                 htmlFor="asset-center-overwrite-consent"
                 className="flex-1 cursor-pointer pt-2 text-xs text-foreground select-none pointer-coarse:pt-3.5"
               >
-                {t2("settings.assetCenter.overwriteConsent", {
+                {t("settings.assetCenter.overwriteConsent", {
                   path: toPath,
                 })}
               </label>
@@ -91,14 +91,14 @@ export function AssetCenterMigrateDialog({
           <div className="flex items-start gap-2 rounded-lg border border-warning/50 bg-warning/10 px-3 py-2">
             <ShieldAlert size={14} className="mt-0.5 shrink-0 text-warning" />
             <p className="text-xs text-warning">
-              {t2("settings.assetCenter.sourceUnavailableWarning")}
+              {t("settings.assetCenter.sourceUnavailableWarning")}
             </p>
           </div>
         )}
         {busy && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Loader2 size={14} strokeWidth={1.5} className="animate-spin" />
-            {t2("settings.assetCenter.migrateInProgress")}
+            {t("settings.assetCenter.migrateInProgress")}
           </div>
         )}
         {error && !busy && (
@@ -122,7 +122,7 @@ export function AssetCenterMigrateDialog({
             ) : (
               <FolderInput size={16} strokeWidth={1.5} />
             )}
-            {t2("settings.assetCenter.migrateConfirm")}
+            {t("settings.assetCenter.migrateConfirm")}
           </Button>
           <Button
             variant="outline"
@@ -132,8 +132,8 @@ export function AssetCenterMigrateDialog({
             data-action-ui-id="settings-asset-center-switch-only"
           >
             {targetHasContent
-              ? t2("settings.assetCenter.useExisting")
-              : t2("settings.assetCenter.switchOnly")}
+              ? t("settings.assetCenter.useExisting")
+              : t("settings.assetCenter.switchOnly")}
           </Button>
           <Button
             variant="ghost"
@@ -142,7 +142,7 @@ export function AssetCenterMigrateDialog({
             className="h-9 w-full justify-start font-normal text-muted-foreground"
             data-action-ui-id="settings-asset-center-migrate-cancel"
           >
-            {t2("common.cancel")}
+            {t("common.cancel")}
           </Button>
         </div>
       </AlertDialogContent>

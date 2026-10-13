@@ -1,0 +1,9 @@
+key	new	reason
+id2@28:22	id	原名 id，去掉打包器加的数字去重后缀
+id2@29:19	id	原名 id，去掉打包器加的数字去重后缀
+record2@18:21	record	去掉打包器加的数字后缀，恢复原名 record
+key2@18:30	key	去掉打包器加的数字后缀，恢复原名 key
+index2@137:25	index	去掉打包器加的数字后缀，恢复原名 index
+raw2@141:34	raw	去掉打包器加的数字后缀，恢复原名 raw
+language2@189:9	language	去掉打包器加的数字后缀，恢复原名 language
+retainedFeature2@196:11	retainedFeature	去掉打包器加的数字后缀，恢复原名 retainedFeature

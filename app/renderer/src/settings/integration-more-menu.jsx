@@ -12,7 +12,7 @@ export function IntegrationMoreMenu({
   actionIcon,
   actionUiIds,
   onAction,
-  disabled: disabled2 = false,
+  disabled = false,
   triggerClassName,
   additionalActions = [],
 }) {
@@ -26,19 +26,19 @@ export function IntegrationMoreMenu({
     };
   }, []);
   reactExports.useEffect(() => {
-    if (disabled2) setOpen(false);
-  }, [disabled2]);
+    if (disabled) setOpen(false);
+  }, [disabled]);
   const clearCloseTimer = () => {
     if (closeTimerRef.current === null) return;
     window.clearTimeout(closeTimerRef.current);
     closeTimerRef.current = null;
   };
   const handleMouseEnter = () => {
-    if (disabled2) return;
+    if (disabled) return;
     clearCloseTimer();
     setOpen(true);
   };
-  const handleMouseLeave2 = () => {
+  const handleMouseLeave = () => {
     clearCloseTimer();
     closeTimerRef.current = window.setTimeout(() => {
       setOpen(false);
@@ -49,7 +49,7 @@ export function IntegrationMoreMenu({
     <Popover
       open={open}
       onOpenChange={(nextOpen) => {
-        if (!disabled2) setOpen(nextOpen);
+        if (!disabled) setOpen(nextOpen);
       }}
     >
       <PopoverTrigger
@@ -58,13 +58,13 @@ export function IntegrationMoreMenu({
             type="button"
             variant="outline"
             size="icon-lg"
-            disabled={disabled2}
+            disabled={disabled}
             className={cn(
               "size-8 rounded-[10px] bg-card p-0 text-muted-foreground hover:bg-muted hover:text-foreground",
               triggerClassName,
             )}
             onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave2}
+            onMouseLeave={handleMouseLeave}
             data-action-ui-id={actionUiIds.trigger}
           />
         }
@@ -78,7 +78,7 @@ export function IntegrationMoreMenu({
         sideOffset={4}
         className="relative w-max min-w-28 gap-0 p-1"
         onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave2}
+        onMouseLeave={handleMouseLeave}
         data-action-ui-id={actionUiIds.content}
       >
         <span

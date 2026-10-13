@@ -1,0 +1,6 @@
+key	new	reason
+t2@14:14	t	useTranslation() 返回的翻译函数 t
+platform2@15:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+triggerClass2@32:9	triggerClass	去掉打包器加的数字后缀，恢复原名 triggerClass
+guideLinkClass2@34:9	guideLinkClass	去掉打包器加的数字后缀，恢复原名 guideLinkClass
+index2@80:29	index	去掉打包器加的数字后缀，恢复原名 index

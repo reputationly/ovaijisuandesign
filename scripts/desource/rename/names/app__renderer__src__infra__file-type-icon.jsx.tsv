@@ -1,0 +1,5 @@
+key	new	reason
+raw2@6:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+size2@16:11	size	去掉打包器加的数字后缀，恢复原名 size
+FileTypeIcon2@10:62	FileTypeIcon	去掉打包器加的数字后缀，恢复原名 FileTypeIcon
+text2@26:9	text	去掉打包器加的数字后缀，恢复原名 text

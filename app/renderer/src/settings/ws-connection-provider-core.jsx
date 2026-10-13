@@ -45,45 +45,45 @@ function resetAssetSeqState(gatewayScopeKey) {
   fileContentResyncStateByScope.delete(gatewayScopeKey);
   const workspaceIds = workspaceIdsByGatewayScope.get(gatewayScopeKey);
   if (workspaceIds) {
-    for (const workspaceId2 of workspaceIds) {
-      seqStateByScope.delete(workspaceId2);
-      assetEventStateByWorkspace.delete(workspaceId2);
+    for (const workspaceId of workspaceIds) {
+      seqStateByScope.delete(workspaceId);
+      assetEventStateByWorkspace.delete(workspaceId);
     }
     workspaceIdsByGatewayScope.delete(gatewayScopeKey);
   }
 }
 
 function collectFileContentResyncPaths(qc, gatewayScopeKey) {
-  const candidates2 = [];
+  const candidates = [];
   for (const query of qc.getQueryCache().getAll()) {
-    const key2 = query.queryKey;
-    if (!Array.isArray(key2)) continue;
-    if (key2[0] !== FILE_CONTENT_QUERY_KEY[0] || key2[1] !== gatewayScopeKey)
+    const key = query.queryKey;
+    if (!Array.isArray(key)) continue;
+    if (key[0] !== FILE_CONTENT_QUERY_KEY[0] || key[1] !== gatewayScopeKey)
       continue;
-    const path2 = key2[2];
-    if (typeof path2 !== "string" || path2.length === 0) continue;
-    candidates2.push({
-      path: path2,
+    const path = key[2];
+    if (typeof path !== "string" || path.length === 0) continue;
+    candidates.push({
+      path,
       active: query.getObserversCount() > 0,
       updatedAt: query.state.dataUpdatedAt,
     });
   }
-  candidates2.sort((a2, b3) => {
-    if (a2.active !== b3.active) return a2.active ? -1 : 1;
-    return b3.updatedAt - a2.updatedAt;
+  candidates.sort((a, b) => {
+    if (a.active !== b.active) return a.active ? -1 : 1;
+    return b.updatedAt - a.updatedAt;
   });
-  return [...new Set(candidates2.map((candidate) => candidate.path))];
+  return [...new Set(candidates.map((candidate) => candidate.path))];
 }
 
-function resolveSeqScopeKey(gatewayScopeKey, workspaceId2) {
-  if (!workspaceId2) return gatewayScopeKey;
+function resolveSeqScopeKey(gatewayScopeKey, workspaceId) {
+  if (!workspaceId) return gatewayScopeKey;
   let workspaceIds = workspaceIdsByGatewayScope.get(gatewayScopeKey);
   if (!workspaceIds) {
     workspaceIds = new Set();
     workspaceIdsByGatewayScope.set(gatewayScopeKey, workspaceIds);
   }
-  workspaceIds.add(workspaceId2);
-  return workspaceId2;
+  workspaceIds.add(workspaceId);
+  return workspaceId;
 }
 
 function checkSeqContinuity(gatewayScopeKey, msg) {
@@ -208,9 +208,9 @@ function checkBatchSeqContinuity(gatewayScopeKey, msg) {
   };
 }
 
-function recordAssetEventState(state2) {
-  assetEventStateByWorkspace.set(state2.workspace_id, {
-    ...state2,
+function recordAssetEventState(state) {
+  assetEventStateByWorkspace.set(state.workspace_id, {
+    ...state,
     updated_at_ms: Date.now(),
   });
 }
@@ -234,15 +234,15 @@ function recordBatchDiagnosticsState(gatewayScopeKey, msg, pendingResync) {
 }
 
 function recordResyncDiagnostics(
-  workspaceId2,
+  workspaceId,
   reason,
   paths,
   skipped,
   cooldown,
 ) {
-  const existing = assetEventStateByWorkspace.get(workspaceId2);
-  assetEventStateByWorkspace.set(workspaceId2, {
-    workspace_id: workspaceId2,
+  const existing = assetEventStateByWorkspace.get(workspaceId);
+  assetEventStateByWorkspace.set(workspaceId, {
+    workspace_id: workspaceId,
     event_epoch: existing?.event_epoch,
     last_seq: existing?.last_seq,
     pending_resync: true,
@@ -259,13 +259,13 @@ function requestAssetWorkspaceResync({ qc, gatewayScopeKey, reason }) {
     qc,
     gatewayScopeKey,
   });
-  const now2 = Date.now();
-  const last2 = fileContentResyncStateByScope.get(gatewayScopeKey) ?? 0;
-  if (now2 - last2 < FILE_CONTENT_RESYNC_COOLDOWN_MS) {
+  const now = Date.now();
+  const last = fileContentResyncStateByScope.get(gatewayScopeKey) ?? 0;
+  if (now - last < FILE_CONTENT_RESYNC_COOLDOWN_MS) {
     recordResyncDiagnostics(gatewayScopeKey, reason, 0, 0, true);
     return;
   }
-  fileContentResyncStateByScope.set(gatewayScopeKey, now2);
+  fileContentResyncStateByScope.set(gatewayScopeKey, now);
   const allPaths = collectFileContentResyncPaths(qc, gatewayScopeKey);
   const paths = allPaths.slice(0, FILE_CONTENT_RESYNC_MAX_PATHS);
   recordResyncDiagnostics(
@@ -275,11 +275,11 @@ function requestAssetWorkspaceResync({ qc, gatewayScopeKey, reason }) {
     Math.max(0, allPaths.length - paths.length),
     false,
   );
-  for (const path2 of paths) {
+  for (const path of paths) {
     void refreshFileContent({
       qc,
       gatewayScopeKey,
-      path: path2,
+      path,
     });
   }
 }
@@ -303,10 +303,10 @@ function handleAssetResyncNeeded({
 }
 
 function applyAssetChange(qc, gatewayScopeKey, msg, syncAssetMeta) {
-  const key2 = scopedAssetsQueryKey(gatewayScopeKey);
+  const key = scopedAssetsQueryKey(gatewayScopeKey);
   if (msg.change === "created" && msg.asset) {
     const asset = msg.asset;
-    qc.setQueryData(key2, (old) =>
+    qc.setQueryData(key, (old) =>
       old ? [asset, ...old.filter((item) => item.id !== asset.id)] : [asset],
     );
   } else if (msg.change === "created") {
@@ -315,14 +315,14 @@ function applyAssetChange(qc, gatewayScopeKey, msg, syncAssetMeta) {
       gatewayScopeKey,
     });
   } else if (msg.change === "removed" && msg.id) {
-    qc.setQueryData(key2, (old) =>
-      old ? old.filter((a2) => a2.id !== msg.id) : old,
+    qc.setQueryData(key, (old) =>
+      old ? old.filter((cachedAsset) => cachedAsset.id !== msg.id) : old,
     );
   } else if (msg.change === "updated" && msg.id) {
     if (msg.asset) {
       const asset = msg.asset;
-      qc.setQueryData(key2, (old) =>
-        old ? old.map((a2) => (a2.id === msg.id ? asset : a2)) : old,
+      qc.setQueryData(key, (old) =>
+        old ? old.map((cachedAsset) => (cachedAsset.id === msg.id ? asset : cachedAsset)) : old,
       );
       syncAssetMeta?.(msg.id, asset);
     }
@@ -343,8 +343,8 @@ function applyAssetChange(qc, gatewayScopeKey, msg, syncAssetMeta) {
   } else if (msg.change === "renamed" && msg.id) {
     if (msg.asset) {
       const asset = msg.asset;
-      qc.setQueryData(key2, (old) =>
-        old ? old.map((a2) => (a2.id === msg.id ? asset : a2)) : old,
+      qc.setQueryData(key, (old) =>
+        old ? old.map((cachedAsset) => (cachedAsset.id === msg.id ? asset : cachedAsset)) : old,
       );
       syncAssetMeta?.(msg.id, asset);
     }
@@ -365,13 +365,13 @@ function applyAssetChange(qc, gatewayScopeKey, msg, syncAssetMeta) {
       });
     }
   } else if (msg.change === "status-changed" && msg.id && msg.status) {
-    qc.setQueryData(key2, (old) =>
+    qc.setQueryData(key, (old) =>
       old
-        ? old.map((a2) => {
-            if (a2.id !== msg.id) return a2;
+        ? old.map((cachedAsset) => {
+            if (cachedAsset.id !== msg.id) return cachedAsset;
             if (msg.asset) return msg.asset;
             return {
-              ...a2,
+              ...cachedAsset,
               status: msg.status,
               candidate: void 0,
             };
@@ -434,18 +434,18 @@ function invalidateAssetBatchQueries({
 function applyAssetReplayEvents({
   qc,
   gatewayScopeKey,
-  events: events2,
+  events,
   syncAssetMeta,
 }) {
-  for (const event of events2) {
+  for (const event of events) {
     applyAssetChange(qc, gatewayScopeKey, event, syncAssetMeta);
   }
-  const last2 = events2.at(-1);
-  if (last2) {
+  const last = events.at(-1);
+  if (last) {
     recordAssetEventState({
-      workspace_id: last2.workspace_id ?? gatewayScopeKey,
-      event_epoch: last2.event_epoch,
-      last_seq: last2.seq,
+      workspace_id: last.workspace_id ?? gatewayScopeKey,
+      event_epoch: last.event_epoch,
+      last_seq: last.seq,
       pending_resync: false,
     });
   }
@@ -496,7 +496,7 @@ function requestFallbackResync(qc, gatewayScopeKey, onFallbackResync) {
 async function replayAssetChangesOrFallback({
   qc,
   gatewayScopeKey,
-  gatewayFetch: gatewayFetch2,
+  gatewayFetch,
   request,
   syncAssetMeta,
   onReplayApplied,
@@ -504,7 +504,7 @@ async function replayAssetChangesOrFallback({
   replayLimit = DEFAULT_ASSET_CHANGES_REPLAY_LIMIT,
 }) {
   try {
-    const response = await gatewayFetch2(
+    const response = await gatewayFetch(
       buildAssetChangesReplayUrl(request, replayLimit),
     );
     if (!response.ok)
@@ -537,10 +537,10 @@ const LOOPBACK_HOSTNAMES = new Set(["127.0.0.1", "localhost", "[::1]"]);
 
 function rebindWorkspaceAssetMetadataUrls(assets, resolveGatewayUrl) {
   let nextAssets;
-  for (const [key2, meta2] of assets) {
+  for (const [key, meta] of assets) {
     let parsed;
     try {
-      parsed = new URL(meta2.url);
+      parsed = new URL(meta.url);
     } catch {
       continue;
     }
@@ -551,10 +551,10 @@ function rebindWorkspaceAssetMetadataUrls(assets, resolveGatewayUrl) {
       continue;
     }
     const reboundUrl = resolveGatewayUrl(`${parsed.pathname}${parsed.search}`);
-    if (!reboundUrl || reboundUrl === meta2.url) continue;
+    if (!reboundUrl || reboundUrl === meta.url) continue;
     nextAssets ??= new Map(assets);
-    nextAssets.set(key2, {
-      ...meta2,
+    nextAssets.set(key, {
+      ...meta,
       url: reboundUrl,
     });
   }
@@ -574,18 +574,18 @@ function guardedSubmissionKind(msg) {
 }
 
 export function WSConnectionProviderCore({
-  children: children2,
+  children,
   wsUrl,
   scope,
   syncCanvasAssetMetadata = true,
 }) {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const assetMetadataStore = useAssetMetadataApi();
   const gatewayScopeKey = useGatewayScopeKey();
   const { gatewayBinding, gatewayReady, recoverWorkspace, workspaceClaim } =
     useGatewayScope();
-  const gatewayFetch2 = useGatewayFetch();
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayFetch = useGatewayFetch();
+  const gatewayUrl = useGatewayUrl();
   const resolvedWsUrl = reactExports.useMemo(() => buildWSUrl(wsUrl), [wsUrl]);
   const [connected, setConnected] = reactExports.useState(false);
   const subscribersRef = reactExports.useRef(new Set());
@@ -594,27 +594,27 @@ export function WSConnectionProviderCore({
     syncCanvasAssetMetadata,
   );
   syncCanvasAssetMetadataRef.current = syncCanvasAssetMetadata;
-  const queryClientRef = reactExports.useRef(queryClient2);
-  queryClientRef.current = queryClient2;
+  const queryClientRef = reactExports.useRef(queryClient);
+  queryClientRef.current = queryClient;
   const assetMetadataStoreRef = reactExports.useRef(assetMetadataStore);
   assetMetadataStoreRef.current = assetMetadataStore;
-  const gatewayFetchRef = reactExports.useRef(gatewayFetch2);
-  gatewayFetchRef.current = gatewayFetch2;
+  const gatewayFetchRef = reactExports.useRef(gatewayFetch);
+  gatewayFetchRef.current = gatewayFetch;
   reactExports.useEffect(() => {
     if (scope !== "workspace") return;
-    assetMetadataStore.setState((state2) => {
+    assetMetadataStore.setState((state) => {
       const assets = rebindWorkspaceAssetMetadataUrls(
-        state2.assets,
-        gatewayUrl2,
+        state.assets,
+        gatewayUrl,
       );
-      return assets === state2.assets
-        ? state2
+      return assets === state.assets
+        ? state
         : {
-            ...state2,
+            ...state,
             assets,
           };
     });
-  }, [assetMetadataStore, gatewayUrl2, scope]);
+  }, [assetMetadataStore, gatewayUrl, scope]);
   reactExports.useEffect(() => {
     let connectStart = 0;
     let wasConnected = false;
@@ -630,58 +630,58 @@ export function WSConnectionProviderCore({
       if (!existing) return;
       const nextMeta = assetInfoToAssetMeta(asset, () => existing.url);
       if (!nextMeta) return;
-      const next2 = {
+      const next = {
         ...existing,
         ...nextMeta,
         url: existing.url,
       };
       const assetLevelChanged =
-        existing.name !== next2.name ||
-        existing.path !== next2.path ||
-        JSON.stringify(existing.tagIds) !== JSON.stringify(next2.tagIds);
+        existing.name !== next.name ||
+        existing.path !== next.path ||
+        JSON.stringify(existing.tagIds) !== JSON.stringify(next.tagIds);
       if (
         assetLevelChanged ||
-        existing.prompt !== next2.prompt ||
-        existing.description !== next2.description ||
-        existing.model !== next2.model ||
-        existing.backend !== next2.backend ||
-        existing.model_id !== next2.model_id ||
-        existing.source_tool !== next2.source_tool ||
-        existing.cloudTraceId !== next2.cloudTraceId ||
-        existing.cloudTaskId !== next2.cloudTaskId ||
-        JSON.stringify(existing.params) !== JSON.stringify(next2.params) ||
+        existing.prompt !== next.prompt ||
+        existing.description !== next.description ||
+        existing.model !== next.model ||
+        existing.backend !== next.backend ||
+        existing.model_id !== next.model_id ||
+        existing.source_tool !== next.source_tool ||
+        existing.cloudTraceId !== next.cloudTraceId ||
+        existing.cloudTaskId !== next.cloudTaskId ||
+        JSON.stringify(existing.params) !== JSON.stringify(next.params) ||
         JSON.stringify(existing.referenceImageIds) !==
-          JSON.stringify(next2.referenceImageIds) ||
+          JSON.stringify(next.referenceImageIds) ||
         JSON.stringify(existing.referenceAudioIds) !==
-          JSON.stringify(next2.referenceAudioIds) ||
+          JSON.stringify(next.referenceAudioIds) ||
         JSON.stringify(existing.referenceVideoIds) !==
-          JSON.stringify(next2.referenceVideoIds) ||
+          JSON.stringify(next.referenceVideoIds) ||
         JSON.stringify(existing.referenceTextIds) !==
-          JSON.stringify(next2.referenceTextIds) ||
-        existing.width !== next2.width ||
-        existing.height !== next2.height ||
-        existing.durationSec !== next2.durationSec ||
-        existing.fileSize !== next2.fileSize
+          JSON.stringify(next.referenceTextIds) ||
+        existing.width !== next.width ||
+        existing.height !== next.height ||
+        existing.durationSec !== next.durationSec ||
+        existing.fileSize !== next.fileSize
       ) {
         if (assetLevelChanged) {
           metaStore.mergeAsset(assetId, {
-            name: next2.name,
-            path: next2.path,
-            tagIds: next2.tagIds,
+            name: next.name,
+            path: next.path,
+            tagIds: next.tagIds,
           });
         }
-        metaStore.set(assetId, next2);
+        metaStore.set(assetId, next);
       }
     };
     const recordAssetStateBreadcrumb = (reason) => {
-      const now2 = Date.now();
+      const now = Date.now();
       if (
         reason !== "resync" &&
-        now2 - lastAssetStateBreadcrumbAt < ASSET_STATE_BREADCRUMB_INTERVAL_MS
+        now - lastAssetStateBreadcrumbAt < ASSET_STATE_BREADCRUMB_INTERVAL_MS
       ) {
         return;
       }
-      lastAssetStateBreadcrumbAt = now2;
+      lastAssetStateBreadcrumbAt = now;
       void window.hilo?.diagnostics
         ?.addBreadcrumb?.("network", "asset-events: state", {
           reason,
@@ -710,12 +710,12 @@ export function WSConnectionProviderCore({
     const hiloLogger = window.hilo?.logger;
     const wsLogger = hiloLogger
       ? {
-          info: (m3) => hiloLogger.info(m3, "chat"),
-          warn: (m3) => hiloLogger.warn(m3, "chat"),
-          error: (m3) => hiloLogger.error(m3, "chat"),
+          info: (message) => hiloLogger.info(message, "chat"),
+          warn: (message) => hiloLogger.warn(message, "chat"),
+          error: (message) => hiloLogger.error(message, "chat"),
         }
       : void 0;
-    const ws2 = new AgentWSClient({
+    const ws = new AgentWSClient({
       url: resolvedWsUrl,
       workspaceClaim,
       workspaceBinding: gatewayBinding,
@@ -793,8 +793,8 @@ export function WSConnectionProviderCore({
           }
         }
       },
-      onConnectionChange: (next2) => {
-        if (next2 && !wasConnected) {
+      onConnectionChange: (next) => {
+        if (next && !wasConnected) {
           trackEvent(TRACK_EVENTS.WS_CONNECT_SUCCESS, {
             duration_ms: Date.now() - connectStart,
           });
@@ -811,13 +811,13 @@ export function WSConnectionProviderCore({
               queryKey: canvasTagRegistryQueryKey(gatewayScopeKey),
             });
           }
-        } else if (!next2 && wasConnected) {
+        } else if (!next && wasConnected) {
           trackEvent(TRACK_EVENTS.WS_DISCONNECT, {});
           wasConnected = false;
           connectStart = Date.now();
           trackEvent(TRACK_EVENTS.WS_RECONNECT, {});
           failedAttempts = 0;
-        } else if (!next2 && !wasConnected) {
+        } else if (!next && !wasConnected) {
           failedAttempts += 1;
           const isPowerOfTwo = (failedAttempts & (failedAttempts - 1)) === 0;
           if (isPowerOfTwo) {
@@ -829,13 +829,13 @@ export function WSConnectionProviderCore({
           }
           connectStart = Date.now();
         }
-        setConnected(next2);
+        setConnected(next);
       },
     });
-    wsRef.current = ws2;
-    ws2.connect();
+    wsRef.current = ws;
+    ws.connect();
     return () => {
-      ws2.disconnect();
+      ws.disconnect();
       resetAssetSeqState(gatewayScopeKey);
       wsRef.current = null;
     };
@@ -850,7 +850,7 @@ export function WSConnectionProviderCore({
   reactExports.useEffect(() => {
     if (gatewayReady) wsRef.current?.reconnectNow();
   }, [gatewayReady]);
-  const send2 = reactExports.useCallback(
+  const send = reactExports.useCallback(
     (msg) => {
       if (scope === "workspace") {
         const submissionKind = guardedSubmissionKind(msg);
@@ -861,7 +861,7 @@ export function WSConnectionProviderCore({
     },
     [scope],
   );
-  const subscribe2 = reactExports.useCallback((handler) => {
+  const subscribe = reactExports.useCallback((handler) => {
     subscribersRef.current.add(handler);
     return () => {
       subscribersRef.current.delete(handler);
@@ -872,14 +872,14 @@ export function WSConnectionProviderCore({
       scope,
       wsUrl: resolvedWsUrl,
       connected,
-      send: send2,
-      subscribe: subscribe2,
+      send,
+      subscribe,
     }),
-    [scope, resolvedWsUrl, connected, send2, subscribe2],
+    [scope, resolvedWsUrl, connected, send, subscribe],
   );
   return (
     <WSConnectionContext.Provider value={value}>
-      {children2}
+      {children}
     </WSConnectionContext.Provider>
   );
 }

@@ -1,0 +1,2 @@
+key	new	reason
+formatFileSize$1@4:10	formatFileSize	原名 formatFileSize，去掉打包器加的 $ 去重后缀

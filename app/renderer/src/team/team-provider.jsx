@@ -52,19 +52,19 @@ function useTeamContractQuery(clientVersion, enabled) {
     gcTime: TEAM_CONTRACT_GC_MS,
   });
 }
-function isNewerSnapshot(current2, incoming) {
+function isNewerSnapshot(current, incoming) {
   try {
     const incomingSequence = BigInt(incoming.sequence);
-    return current2 === null || incomingSequence > BigInt(current2.sequence);
+    return current === null || incomingSequence > BigInt(current.sequence);
   } catch {
     return false;
   }
 }
-function mergeTeamSnapshot(current2, incoming) {
-  return isNewerSnapshot(current2, incoming) ? incoming : current2;
+function mergeTeamSnapshot(current, incoming) {
+  return isNewerSnapshot(current, incoming) ? incoming : current;
 }
 function deriveTeamAccountViewModel({
-  snapshot: snapshot2,
+  snapshot,
   contract,
   contractPending,
   contractFailed,
@@ -73,54 +73,54 @@ function deriveTeamAccountViewModel({
   if (!serviceAvailable) {
     return {
       kind: "blocked",
-      snapshot: snapshot2,
+      snapshot,
       status: "temporarily_unavailable",
       reasonCode: "team_account_service_unavailable",
     };
   }
-  if (!snapshot2) {
+  if (!snapshot) {
     return {
       kind: "bootstrapping",
       snapshot: null,
       reasonCode: "canonical_context_pending",
     };
   }
-  if (snapshot2.status === "signed_out")
+  if (snapshot.status === "signed_out")
     return {
       kind: "signed_out",
-      snapshot: snapshot2,
+      snapshot,
     };
-  if (snapshot2.status !== "ready") {
+  if (snapshot.status !== "ready") {
     return {
       kind: "blocked",
-      snapshot: snapshot2,
-      status: snapshot2.status,
+      snapshot,
+      status: snapshot.status,
       reasonCode:
-        snapshot2.status === "syncing"
+        snapshot.status === "syncing"
           ? "canonical_context_syncing"
-          : snapshot2.reasonCode,
+          : snapshot.reasonCode,
     };
   }
-  const scope = deriveActiveScope(snapshot2);
+  const scope = deriveActiveScope(snapshot);
   if (!scope) {
     return {
       kind: "blocked",
-      snapshot: snapshot2,
+      snapshot,
       status: "temporarily_unavailable",
       reasonCode: "canonical_scope_missing",
     };
   }
-  if (snapshot2.activeContext.accountType === "PERSONAL") {
+  if (snapshot.activeContext.accountType === "PERSONAL") {
     return {
       kind: "ready_personal",
-      snapshot: snapshot2,
+      snapshot,
       scope,
     };
   }
   if (contractPending || (!contract && !contractFailed)) {
     return {
       kind: "blocked",
-      snapshot: snapshot2,
+      snapshot,
       status: "syncing",
       reasonCode: "team_contract_pending",
     };
@@ -128,7 +128,7 @@ function deriveTeamAccountViewModel({
   if (contractFailed || !contract) {
     return {
       kind: "blocked",
-      snapshot: snapshot2,
+      snapshot,
       status: "temporarily_unavailable",
       reasonCode: "team_contract_unavailable",
     };
@@ -136,7 +136,7 @@ function deriveTeamAccountViewModel({
   if (contract.compatibility === "UPGRADE_REQUIRED") {
     return {
       kind: "blocked",
-      snapshot: snapshot2,
+      snapshot,
       status: "upgrade_required",
       reasonCode: "minimum_client_version",
     };
@@ -147,7 +147,7 @@ function deriveTeamAccountViewModel({
   ) {
     return {
       kind: "blocked",
-      snapshot: snapshot2,
+      snapshot,
       status: "temporarily_unavailable",
       reasonCode: contract.gates.teamRead
         ? "team_contract_unavailable"
@@ -156,38 +156,38 @@ function deriveTeamAccountViewModel({
   }
   return {
     kind: "ready_team",
-    snapshot: snapshot2,
+    snapshot,
     scope,
     contract,
     billingAvailable: contract.gates.teamBilling,
   };
 }
-async function clearIdentityQueries(queryClient2, identityKey) {
+async function clearIdentityQueries(queryClient, identityKey) {
   const predicate = (query) =>
     isQueryOwnedByIdentity(query.queryKey, identityKey);
-  await queryClient2.cancelQueries({
+  await queryClient.cancelQueries({
     predicate,
   });
-  queryClient2.removeQueries({
+  queryClient.removeQueries({
     predicate,
   });
 }
-async function clearAccountScopeQueries(queryClient2, scope) {
+async function clearAccountScopeQueries(queryClient, scope) {
   const predicate = (query) => isQueryOwnedByScope(query.queryKey, scope);
-  await queryClient2.cancelQueries({
+  await queryClient.cancelQueries({
     predicate,
   });
-  queryClient2.removeQueries({
+  queryClient.removeQueries({
     predicate,
   });
 }
 function createRequestId() {
   return crypto.randomUUID();
 }
-function rejectedResult(code2) {
+function rejectedResult(code) {
   return {
     status: "rejected",
-    code: code2,
+    code,
   };
 }
 function isDeterministicCompositeCommandResult(result) {
@@ -203,22 +203,22 @@ function isRetryableRevalidationResult(result) {
     (result.status === "rejected" && result.code === "temporarily_unavailable")
   );
 }
-function contextConfirmsCanonical(item, snapshot2) {
+function contextConfirmsCanonical(item, snapshot) {
   const membershipConfirmed =
     item.accountType === "PERSONAL" ||
     (item.role !== null && item.switchDecision.allowed);
   return (
-    snapshot2.status === "ready" &&
-    item.groupId === snapshot2.activeContext.groupId &&
-    item.accountType === snapshot2.activeContext.accountType &&
+    snapshot.status === "ready" &&
+    item.groupId === snapshot.activeContext.groupId &&
+    item.accountType === snapshot.activeContext.accountType &&
     item.lifecycle === "ACTIVE" &&
     membershipConfirmed
   );
 }
-function snapshotReachedSequence(snapshot2, sequence) {
-  if (!snapshot2) return false;
+function snapshotReachedSequence(snapshot, sequence) {
+  if (!snapshot) return false;
   try {
-    return BigInt(snapshot2.sequence) >= BigInt(sequence);
+    return BigInt(snapshot.sequence) >= BigInt(sequence);
   } catch {
     return false;
   }
@@ -237,12 +237,12 @@ function invitationIntentKey(invitationId, expectedInvitationVersion) {
     expectedInvitationVersion.trim(),
   ]);
 }
-function contextsSyncingSnapshot(snapshot2) {
-  if (snapshot2?.status !== "ready") return snapshot2;
+function contextsSyncingSnapshot(snapshot) {
+  if (snapshot?.status !== "ready") return snapshot;
   return {
-    schemaVersion: snapshot2.schemaVersion,
-    sequence: snapshot2.sequence,
-    identityKey: snapshot2.identityKey,
+    schemaVersion: snapshot.schemaVersion,
+    sequence: snapshot.sequence,
+    identityKey: snapshot.identityKey,
     status: "syncing",
     activeContext: null,
   };
@@ -258,18 +258,18 @@ function resolveService(override) {
   }
 }
 export function TeamProvider({
-  children: children2,
+  children,
   service: serviceOverride,
   enabled = true,
 }) {
   if (enabled) activateAccountSubmissionGuard();
-  const { t: t2 } = useTranslation();
-  const queryClient2 = useQueryClient();
-  const service2 = reactExports.useMemo(
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const service = reactExports.useMemo(
     () => (enabled ? resolveService(serviceOverride) : null),
     [enabled, serviceOverride],
   );
-  const [snapshot2, setSnapshot] = reactExports.useState(null);
+  const [snapshot, setSnapshot] = reactExports.useState(null);
   const snapshotRef = reactExports.useRef(null);
   const [lastTransitionAttempt, setLastTransitionAttempt] =
     reactExports.useState(null);
@@ -282,29 +282,29 @@ export function TeamProvider({
   const dialogGenerationRef = reactExports.useRef(0);
   const dialogCloseSequenceRef = reactExports.useRef(null);
   const previousIdentityRef = reactExports.useRef(null);
-  const previousScopeRef = reactExports.useRef(deriveActiveScope(snapshot2));
+  const previousScopeRef = reactExports.useRef(deriveActiveScope(snapshot));
   const startedContextsRefreshRef = reactExports.useRef(null);
   const processedContextsObservationRef = reactExports.useRef(null);
   const lastContextRevalidationRef = reactExports.useRef(null);
   const createTeamIntentsRef = reactExports.useRef(new Map());
   const invitationIntentsRef = reactExports.useRef(new Map());
   reactExports.useEffect(() => {
-    if (!service2) return void 0;
+    if (!service) return void 0;
     let disposed = false;
     const acceptSnapshot = (incoming) => {
       if (disposed) return;
-      const next2 = mergeTeamSnapshot(snapshotRef.current, incoming);
-      if (!next2 || next2 === snapshotRef.current) return;
-      if (snapshotRef.current?.identityKey !== next2.identityKey) {
+      const next = mergeTeamSnapshot(snapshotRef.current, incoming);
+      if (!next || next === snapshotRef.current) return;
+      if (snapshotRef.current?.identityKey !== next.identityKey) {
         createTeamIntentsRef.current.clear();
         invitationIntentsRef.current.clear();
       }
-      snapshotRef.current = next2;
-      updateAccountSubmissionDecision(contextsSyncingSnapshot(next2), null);
-      setSnapshot(next2);
+      snapshotRef.current = next;
+      updateAccountSubmissionDecision(contextsSyncingSnapshot(next), null);
+      setSnapshot(next);
     };
-    const subscription = service2.onDidChange(acceptSnapshot);
-    void service2
+    const subscription = service.onDidChange(acceptSnapshot);
+    void service
       .getSnapshot()
       .then(acceptSnapshot)
       .catch(() => {});
@@ -312,50 +312,50 @@ export function TeamProvider({
       disposed = true;
       subscription.dispose();
     };
-  }, [service2]);
-  const identityKey = snapshot2?.identityKey ?? null;
+  }, [service]);
+  const identityKey = snapshot?.identityKey ?? null;
   const activeScope = reactExports.useMemo(
-    () => deriveActiveScope(snapshot2),
-    [snapshot2],
+    () => deriveActiveScope(snapshot),
+    [snapshot],
   );
   const canonicalAccountReady =
-    snapshot2?.status === "ready" && activeScope !== null;
+    snapshot?.status === "ready" && activeScope !== null;
   const clientVersion = getRuntimeConfig().appVersion?.trim() || "unknown";
   const contractQuery = useTeamContractQuery(
     clientVersion,
-    enabled && service2 !== null && canonicalAccountReady,
+    enabled && service !== null && canonicalAccountReady,
   );
   const contract = contractQuery.isError ? null : (contractQuery.data ?? null);
   const viewModel = reactExports.useMemo(
     () =>
       deriveTeamAccountViewModel({
-        snapshot: snapshot2,
+        snapshot,
         contract,
         contractPending:
           contractQuery.isPending && contractQuery.fetchStatus !== "idle",
         contractFailed: contractQuery.isError,
-        serviceAvailable: service2 !== null,
+        serviceAvailable: service !== null,
       }),
     [
       contract,
       contractQuery.fetchStatus,
       contractQuery.isError,
       contractQuery.isPending,
-      service2,
-      snapshot2,
+      service,
+      snapshot,
     ],
   );
   const contextsConfirmationEnabled = Boolean(
     enabled &&
-    service2 !== null &&
+    service !== null &&
     canonicalAccountReady &&
-    snapshot2?.status === "ready" &&
+    snapshot?.status === "ready" &&
     activeScope,
   );
   const contextsRefreshKey =
-    contextsConfirmationEnabled && snapshot2?.status === "ready" && activeScope
+    contextsConfirmationEnabled && snapshot?.status === "ready" && activeScope
       ? [
-          snapshot2.sequence,
+          snapshot.sequence,
           activeScope.identityKey,
           activeScope.groupId,
           activeScope.epoch,
@@ -419,9 +419,9 @@ export function TeamProvider({
   );
   reactExports.useLayoutEffect(() => {
     if (!enabled) return;
-    if (snapshotRef.current !== snapshot2) return;
+    if (snapshotRef.current !== snapshot) return;
     updateAccountSubmissionDecision(
-      snapshot2,
+      snapshot,
       viewModel.kind === "ready_team" ? viewModel.contract : null,
       preloadedCreditSummaryQuery.isSuccess
         ? preloadedCreditSummaryQuery.data
@@ -431,19 +431,19 @@ export function TeamProvider({
     enabled,
     preloadedCreditSummaryQuery.data,
     preloadedCreditSummaryQuery.isSuccess,
-    snapshot2,
+    snapshot,
     viewModel,
   ]);
   reactExports.useEffect(() => {
     const previousIdentity = previousIdentityRef.current;
     const previousScope = previousScopeRef.current;
     if (previousIdentity && previousIdentity !== identityKey) {
-      void clearIdentityQueries(queryClient2, previousIdentity);
+      void clearIdentityQueries(queryClient, previousIdentity);
     } else if (
       previousScope &&
       !accountScopeEquals(previousScope, activeScope)
     ) {
-      void clearAccountScopeQueries(queryClient2, previousScope);
+      void clearAccountScopeQueries(queryClient, previousScope);
     }
     if (
       previousIdentity !== identityKey ||
@@ -453,40 +453,40 @@ export function TeamProvider({
     }
     previousIdentityRef.current = identityKey;
     previousScopeRef.current = activeScope;
-  }, [activeScope, identityKey, queryClient2]);
+  }, [activeScope, identityKey, queryClient]);
   reactExports.useEffect(() => {
-    setDialog((current2) => {
-      if (current2.type === "closed") return current2;
-      if (current2.type === "create") {
-        return current2.identityKey === identityKey
-          ? current2
+    setDialog((current) => {
+      if (current.type === "closed") return current;
+      if (current.type === "create") {
+        return current.identityKey === identityKey
+          ? current
           : {
               type: "closed",
             };
       }
-      if (current2.type === "switch-blocked") {
-        return current2.identityKey === identityKey
-          ? current2
+      if (current.type === "switch-blocked") {
+        return current.identityKey === identityKey
+          ? current
           : {
               type: "closed",
             };
       }
       if (
         activeScope &&
-        !accountScopeEquals(current2.scope, activeScope) &&
-        current2.scope.identityKey === activeScope.identityKey &&
-        current2.scope.groupId === activeScope.groupId &&
-        current2.scope.epoch === activeScope.epoch
+        !accountScopeEquals(current.scope, activeScope) &&
+        current.scope.identityKey === activeScope.identityKey &&
+        current.scope.groupId === activeScope.groupId &&
+        current.scope.epoch === activeScope.epoch
       ) {
-        if (!accountDataVisible) return current2;
+        if (!accountDataVisible) return current;
         return {
-          ...current2,
+          ...current,
           scope: activeScope,
         };
       }
-      if (accountScopeEquals(current2.scope, activeScope)) {
+      if (accountScopeEquals(current.scope, activeScope)) {
         return accountDataVisible
-          ? current2
+          ? current
           : {
               type: "closed",
             };
@@ -497,7 +497,7 @@ export function TeamProvider({
     });
   }, [accountDataVisible, activeScope, identityKey]);
   reactExports.useEffect(() => {
-    if (!pendingManagementOpen || !snapshot2) return;
+    if (!pendingManagementOpen || !snapshot) return;
     const pendingIntent = createTeamIntentsRef.current.get(
       pendingManagementOpen.intentKey,
     );
@@ -513,21 +513,21 @@ export function TeamProvider({
       setPendingManagementOpen(null);
       return;
     }
-    if (snapshot2.identityKey !== pendingManagementOpen.identityKey) {
+    if (snapshot.identityKey !== pendingManagementOpen.identityKey) {
       pendingManagementIntentRef.current = null;
       setPendingManagementOpen(null);
       return;
     }
     if (
-      !snapshotReachedSequence(snapshot2, pendingManagementOpen.appliedSequence)
+      !snapshotReachedSequence(snapshot, pendingManagementOpen.appliedSequence)
     )
       return;
-    if (snapshot2.status !== "ready") return;
+    if (snapshot.status !== "ready") return;
     createTeamIntentsRef.current.delete(pendingManagementOpen.intentKey);
     pendingManagementIntentRef.current = null;
     setPendingManagementOpen(null);
     if (
-      snapshot2.activeContext.accountType !== "TEAM" ||
+      snapshot.activeContext.accountType !== "TEAM" ||
       !activeScope?.membershipRevision
     )
       return;
@@ -536,7 +536,7 @@ export function TeamProvider({
       type: "management",
       scope: activeScope,
     });
-  }, [activeScope, pendingManagementOpen, snapshot2]);
+  }, [activeScope, pendingManagementOpen, snapshot]);
   const closeDialogAtSequence = reactExports.useCallback((sequence) => {
     dialogCloseSequenceRef.current = sequence;
     if (!snapshotReachedSequence(snapshotRef.current, sequence)) return;
@@ -547,12 +547,12 @@ export function TeamProvider({
   }, []);
   reactExports.useEffect(() => {
     const closeAt = dialogCloseSequenceRef.current;
-    if (!closeAt || !snapshotReachedSequence(snapshot2, closeAt)) return;
+    if (!closeAt || !snapshotReachedSequence(snapshot, closeAt)) return;
     dialogCloseSequenceRef.current = null;
     setDialog({
       type: "closed",
     });
-  }, [snapshot2]);
+  }, [snapshot]);
   const applyCommandResult = reactExports.useCallback(
     (result) => {
       if (result.status === "busy") {
@@ -580,35 +580,35 @@ export function TeamProvider({
     [closeDialogAtSequence],
   );
   const currentCommandBase = reactExports.useCallback(() => {
-    const current2 = snapshotRef.current;
-    if (!current2?.identityKey) return null;
+    const current = snapshotRef.current;
+    if (!current?.identityKey) return null;
     return {
       commandId: createRequestId(),
-      expectedIdentityKey: current2.identityKey,
-      expectedSequence: current2.sequence,
+      expectedIdentityKey: current.identityKey,
+      expectedSequence: current.sequence,
     };
   }, []);
   const commandScopeMatchesCurrent = reactExports.useCallback(
     (expectedIdentityKey, expectedScope) => {
-      const current2 = snapshotRef.current;
+      const current = snapshotRef.current;
       return (
-        current2?.identityKey === expectedIdentityKey &&
-        accountScopeEquals(deriveActiveScope(current2), expectedScope)
+        current?.identityKey === expectedIdentityKey &&
+        accountScopeEquals(deriveActiveScope(current), expectedScope)
       );
     },
     [],
   );
   const currentCompositeCommandIntent = reactExports.useCallback(
     (intents, intentKey) => {
-      const current2 = snapshotRef.current;
-      if (!current2?.identityKey) return null;
+      const current = snapshotRef.current;
+      if (!current?.identityKey) return null;
       const existing = intents.get(intentKey);
-      if (existing?.expectedIdentityKey === current2.identityKey)
+      if (existing?.expectedIdentityKey === current.identityKey)
         return existing;
       const intent = {
         commandId: createRequestId(),
-        expectedIdentityKey: current2.identityKey,
-        expectedSequence: current2.sequence,
+        expectedIdentityKey: current.identityKey,
+        expectedSequence: current.sequence,
         idempotencyKey: createRequestId(),
       };
       intents.set(intentKey, intent);
@@ -618,12 +618,12 @@ export function TeamProvider({
   );
   const currentCreateTeamCommandIntent = reactExports.useCallback(
     (intentKey) => {
-      const current2 = snapshotRef.current;
-      if (!current2?.identityKey) return null;
+      const current = snapshotRef.current;
+      if (!current?.identityKey) return null;
       const dialogGeneration = dialogGenerationRef.current;
       const existing = createTeamIntentsRef.current.get(intentKey);
       if (
-        existing?.expectedIdentityKey === current2.identityKey &&
+        existing?.expectedIdentityKey === current.identityKey &&
         existing.dialogGeneration === dialogGeneration &&
         pendingManagementIntentRef.current !== existing
       ) {
@@ -635,8 +635,8 @@ export function TeamProvider({
       }
       const intent = {
         commandId: createRequestId(),
-        expectedIdentityKey: current2.identityKey,
-        expectedSequence: current2.sequence,
+        expectedIdentityKey: current.identityKey,
+        expectedSequence: current.sequence,
         idempotencyKey: createRequestId(),
         dialogGeneration,
       };
@@ -646,7 +646,7 @@ export function TeamProvider({
     [],
   );
   const rejectLocally = reactExports.useCallback(
-    (code2) => applyCommandResult(rejectedResult(code2)),
+    (code) => applyCommandResult(rejectedResult(code)),
     [applyCommandResult],
   );
   const handleCommandTransportFailure = reactExports.useCallback(
@@ -660,30 +660,30 @@ export function TeamProvider({
   );
   const invalidateCompositeIdentity = reactExports.useCallback(
     (commandIdentityKey) => {
-      const keys2 = [
+      const keys = [
         teamQueryKeys.contexts(commandIdentityKey),
         teamQueryKeys.userCapabilities(commandIdentityKey),
       ];
-      for (const queryKey of keys2) {
-        void queryClient2.invalidateQueries({
+      for (const queryKey of keys) {
+        void queryClient.invalidateQueries({
           queryKey,
           exact: true,
         });
       }
     },
-    [queryClient2],
+    [queryClient],
   );
   const switchContext = reactExports.useCallback(
     async (targetGroupId, membershipProof) => {
-      const base2 = currentCommandBase();
-      if (!service2 || !base2) {
+      const base = currentCommandBase();
+      if (!service || !base) {
         return rejectLocally("temporarily_unavailable");
       }
       const expectedScope = deriveActiveScope(snapshotRef.current);
       let result;
       try {
-        result = await service2.switchContext({
-          ...base2,
+        result = await service.switchContext({
+          ...base,
           targetGroupId,
           ...(membershipProof
             ? {
@@ -694,25 +694,25 @@ export function TeamProvider({
       } catch {
         const failure = rejectedResult("temporarily_unavailable");
         if (
-          !commandScopeMatchesCurrent(base2.expectedIdentityKey, expectedScope)
+          !commandScopeMatchesCurrent(base.expectedIdentityKey, expectedScope)
         )
           return failure;
         return applyCommandResult(failure);
       }
-      if (snapshotRef.current?.identityKey !== base2.expectedIdentityKey)
+      if (snapshotRef.current?.identityKey !== base.expectedIdentityKey)
         return result;
       if (result.status === "rejected" && result.code === "membership_stale") {
         if (
-          commandScopeMatchesCurrent(base2.expectedIdentityKey, expectedScope)
+          commandScopeMatchesCurrent(base.expectedIdentityKey, expectedScope)
         ) {
           setLastTransitionAttempt(null);
-          invalidateCompositeIdentity(base2.expectedIdentityKey);
+          invalidateCompositeIdentity(base.expectedIdentityKey);
         }
         return result;
       }
       if (
         (result.status === "busy" || result.status === "rejected") &&
-        !commandScopeMatchesCurrent(base2.expectedIdentityKey, expectedScope)
+        !commandScopeMatchesCurrent(base.expectedIdentityKey, expectedScope)
       ) {
         return result;
       }
@@ -724,20 +724,20 @@ export function TeamProvider({
       currentCommandBase,
       invalidateCompositeIdentity,
       rejectLocally,
-      service2,
+      service,
     ],
   );
   const createTeamAndSwitch = reactExports.useCallback(
     async (teamName) => {
       const normalizedTeamName = teamName.trim();
-      if (!service2 || !snapshotRef.current?.identityKey) {
+      if (!service || !snapshotRef.current?.identityKey) {
         return rejectLocally("temporarily_unavailable");
       }
       const intent = currentCreateTeamCommandIntent(normalizedTeamName);
       if (!intent) return rejectLocally("temporarily_unavailable");
       let result;
       try {
-        result = await service2.createTeamAndSwitch({
+        result = await service.createTeamAndSwitch({
           ...intent,
           teamName: normalizedTeamName,
         });
@@ -788,13 +788,13 @@ export function TeamProvider({
       handleCommandTransportFailure,
       invalidateCompositeIdentity,
       rejectLocally,
-      service2,
+      service,
     ],
   );
   const acceptInvitationAndSwitch = reactExports.useCallback(
     async (invitationId, expectedInvitationVersion) => {
       if (
-        !service2 ||
+        !service ||
         !snapshotRef.current?.identityKey ||
         contract?.compatibility !== "SUPPORTED" ||
         !contract.gates.teamRead ||
@@ -802,7 +802,7 @@ export function TeamProvider({
         !contract.gates.teamInvitation
       ) {
         return rejectLocally(
-          service2 ? "feature_disabled" : "temporarily_unavailable",
+          service ? "feature_disabled" : "temporarily_unavailable",
         );
       }
       const normalizedInvitationId = invitationId.trim();
@@ -818,7 +818,7 @@ export function TeamProvider({
       if (!intent) return rejectLocally("temporarily_unavailable");
       let result;
       try {
-        result = await service2.acceptInvitationAndSwitch({
+        result = await service.acceptInvitationAndSwitch({
           ...intent,
           invitationId: normalizedInvitationId,
           expectedInvitationVersion: normalizedInvitationVersion,
@@ -846,32 +846,32 @@ export function TeamProvider({
       handleCommandTransportFailure,
       invalidateCompositeIdentity,
       rejectLocally,
-      service2,
+      service,
     ],
   );
   const revalidateContext = reactExports.useCallback(
     async (observedContextsRevision) => {
-      const base2 = currentCommandBase();
+      const base = currentCommandBase();
       if (
-        !service2 ||
-        !base2 ||
+        !service ||
+        !base ||
         contract?.compatibility !== "SUPPORTED" ||
         !contract.gates.teamRead
       ) {
         return rejectLocally(
-          service2 ? "invalid_request" : "temporarily_unavailable",
+          service ? "invalid_request" : "temporarily_unavailable",
         );
       }
       let result;
       try {
-        result = await service2.revalidateContext({
-          ...base2,
+        result = await service.revalidateContext({
+          ...base,
           observedContextsRevision,
         });
       } catch {
-        return handleCommandTransportFailure(base2.expectedIdentityKey);
+        return handleCommandTransportFailure(base.expectedIdentityKey);
       }
-      if (snapshotRef.current?.identityKey !== base2.expectedIdentityKey)
+      if (snapshotRef.current?.identityKey !== base.expectedIdentityKey)
         return result;
       return applyCommandResult(result);
     },
@@ -881,30 +881,30 @@ export function TeamProvider({
       currentCommandBase,
       handleCommandTransportFailure,
       rejectLocally,
-      service2,
+      service,
     ],
   );
   const exitCurrentTeam = reactExports.useCallback(
     async (request) => {
-      const base2 = currentCommandBase();
-      const command2 = service2?.exitCurrentTeam;
+      const base = currentCommandBase();
+      const command = service?.exitCurrentTeam;
       if (
-        !service2 ||
-        !command2 ||
-        !base2 ||
+        !service ||
+        !command ||
+        !base ||
         contract?.compatibility !== "SUPPORTED" ||
         !contract.gates.teamRead ||
         !contract.gates.teamMutation
       ) {
         return {
           status: "rejected",
-          code: service2 ? "feature_disabled" : "temporarily_unavailable",
+          code: service ? "feature_disabled" : "temporarily_unavailable",
         };
       }
       let result;
       try {
-        result = await command2({
-          ...base2,
+        result = await command({
+          ...base,
           ...request,
         });
       } catch {
@@ -913,7 +913,7 @@ export function TeamProvider({
           code: "temporarily_unavailable",
         };
       }
-      if (snapshotRef.current?.identityKey !== base2.expectedIdentityKey)
+      if (snapshotRef.current?.identityKey !== base.expectedIdentityKey)
         return result;
       if (result.status === "busy") {
         setLastTransitionAttempt({
@@ -936,7 +936,7 @@ export function TeamProvider({
         closeDialogAtSequence(result.appliedSequence);
       }
       if (result.status === "completed" || result.status === "recovering") {
-        invalidateCompositeIdentity(base2.expectedIdentityKey);
+        invalidateCompositeIdentity(base.expectedIdentityKey);
       }
       return result;
     },
@@ -945,28 +945,28 @@ export function TeamProvider({
       contract,
       currentCommandBase,
       invalidateCompositeIdentity,
-      service2,
+      service,
     ],
   );
   const transferCredits = reactExports.useCallback(
     async (request) => {
-      const base2 = currentCommandBase();
-      const command2 = service2?.transferCredits;
+      const base = currentCommandBase();
+      const command = service?.transferCredits;
       if (
-        !service2 ||
-        !command2 ||
-        !base2 ||
+        !service ||
+        !command ||
+        !base ||
         contract?.compatibility !== "SUPPORTED" ||
         !contract.gates.teamBilling
       ) {
         return {
           status: "rejected",
-          code: service2 ? "feature_disabled" : "temporarily_unavailable",
+          code: service ? "feature_disabled" : "temporarily_unavailable",
         };
       }
       try {
-        return await command2({
-          ...base2,
+        return await command({
+          ...base,
           ...request,
         });
       } catch {
@@ -976,20 +976,20 @@ export function TeamProvider({
         };
       }
     },
-    [contract, currentCommandBase, service2],
+    [contract, currentCommandBase, service],
   );
   const acknowledgeCreditTransfer = reactExports.useCallback(
     async (request) => {
-      const base2 = currentCommandBase();
-      if (!service2?.acknowledgeCreditTransfer || !base2) {
+      const base = currentCommandBase();
+      if (!service?.acknowledgeCreditTransfer || !base) {
         throw new Error("team_credit_transfer_ack_unavailable");
       }
-      await service2.acknowledgeCreditTransfer({
-        ...base2,
+      await service.acknowledgeCreditTransfer({
+        ...base,
         ...request,
       });
     },
-    [currentCommandBase, service2],
+    [currentCommandBase, service],
   );
   const observedContexts = contextsQuery.isSuccess ? contextsQuery.data : null;
   const observedContextsKey =
@@ -1003,16 +1003,16 @@ export function TeamProvider({
       : null;
   reactExports.useEffect(() => {
     if (
-      !service2 ||
+      !service ||
       !activeScope ||
-      snapshot2?.status !== "ready" ||
+      snapshot?.status !== "ready" ||
       !contextsRefreshKey
     ) {
       return;
     }
     let disposed = false;
-    const expectedIdentityKey = snapshot2.identityKey;
-    const expectedSequence = snapshot2.sequence;
+    const expectedIdentityKey = snapshot.identityKey;
+    const expectedSequence = snapshot.sequence;
     void (async () => {
       let contexts = observedContexts;
       let observationKey = observedContextsKey;
@@ -1034,31 +1034,31 @@ export function TeamProvider({
       if (!contexts || !observationKey) return;
       if (processedContextsObservationRef.current === observationKey) return;
       processedContextsObservationRef.current = observationKey;
-      const current2 = snapshotRef.current;
+      const current = snapshotRef.current;
       if (
-        current2?.status !== "ready" ||
-        current2.identityKey !== expectedIdentityKey ||
-        current2.sequence !== expectedSequence
+        current?.status !== "ready" ||
+        current.identityKey !== expectedIdentityKey ||
+        current.sequence !== expectedSequence
       ) {
         return;
       }
-      const currentScope = deriveActiveScope(current2);
+      const currentScope = deriveActiveScope(current);
       if (!accountScopeEquals(currentScope, activeScope)) return;
       if (
-        contexts.items.some((item) => contextConfirmsCanonical(item, current2))
+        contexts.items.some((item) => contextConfirmsCanonical(item, current))
       ) {
         return;
       }
       const activeTeamGroupId =
-        current2.activeContext.accountType === "TEAM"
-          ? current2.activeContext.groupId
+        current.activeContext.accountType === "TEAM"
+          ? current.activeContext.groupId
           : null;
       const revalidationKey = `${contextsRefreshKey}:${contexts.contextsRevision}`;
       if (lastContextRevalidationRef.current === revalidationKey) return;
       lastContextRevalidationRef.current = revalidationKey;
       let commandResult;
       try {
-        commandResult = await service2.revalidateContext({
+        commandResult = await service.revalidateContext({
           commandId: createRequestId(),
           expectedIdentityKey,
           expectedSequence,
@@ -1081,19 +1081,19 @@ export function TeamProvider({
         commandResult.status === "completed" &&
         activeTeamGroupId !== null
       ) {
-        let latest2 = snapshotRef.current;
-        if (!snapshotReachedSequence(latest2, commandResult.appliedSequence)) {
-          latest2 = await service2.getSnapshot();
+        let latest = snapshotRef.current;
+        if (!snapshotReachedSequence(latest, commandResult.appliedSequence)) {
+          latest = await service.getSnapshot();
         }
         if (disposed) return;
         const switchedToAnotherAccount =
-          latest2?.status === "ready" &&
-          latest2.activeContext !== null &&
-          (latest2.activeContext.accountType !== "TEAM" ||
-            latest2.activeContext.groupId !== activeTeamGroupId);
+          latest?.status === "ready" &&
+          latest.activeContext !== null &&
+          (latest.activeContext.accountType !== "TEAM" ||
+            latest.activeContext.groupId !== activeTeamGroupId);
         if (switchedToAnotherAccount) {
           dedupedToast.warning(
-            t2("team.account.autoSwitching", {
+            t("team.account.autoSwitching", {
               defaultValue: "当前团队账号已不可用，将自动切换到其他账号。",
             }),
           );
@@ -1111,9 +1111,9 @@ export function TeamProvider({
     contextsQuery.refetch,
     observedContexts,
     observedContextsKey,
-    service2,
-    snapshot2,
-    t2,
+    service,
+    snapshot,
+    t,
   ]);
   const getSubmissionDecision = reactExports.useCallback(
     (kind) => evaluateAccountSubmission(kind),
@@ -1129,24 +1129,24 @@ export function TeamProvider({
   }, []);
   const recoverSelectedGroup = reactExports.useCallback(
     async (trigger = "user_retry") => {
-      const identityKey2 = snapshotRef.current?.identityKey;
-      if (!service2 || !identityKey2) return false;
+      const identityKey = snapshotRef.current?.identityKey;
+      if (!service || !identityKey) return false;
       try {
-        const next2 = await service2.recoverSelectedGroup({
+        const next = await service.recoverSelectedGroup({
           commandId: createRequestId(),
-          expectedIdentityKey: identityKey2,
+          expectedIdentityKey: identityKey,
           trigger,
         });
-        return next2.status === "ready";
+        return next.status === "ready";
       } catch {
         return false;
       }
     },
-    [service2],
+    [service],
   );
   reactExports.useEffect(() => {
-    if (!service2) return void 0;
-    if (!isRecoverableTeamAccountStatus(snapshot2?.status ?? "signed_out"))
+    if (!service) return void 0;
+    if (!isRecoverableTeamAccountStatus(snapshot?.status ?? "signed_out"))
       return void 0;
     let disposed = false;
     const attempt = (event) => {
@@ -1163,7 +1163,7 @@ export function TeamProvider({
       window.removeEventListener("online", attempt);
       window.removeEventListener("focus", attempt);
     };
-  }, [recoverSelectedGroup, service2, snapshot2?.status]);
+  }, [recoverSelectedGroup, service, snapshot?.status]);
   const openCreate = reactExports.useCallback(() => {
     if (!identityKey) return;
     beginDialogGeneration();
@@ -1209,7 +1209,7 @@ export function TeamProvider({
   const value = reactExports.useMemo(
     () => ({
       integrationEnabled: enabled,
-      snapshot: snapshot2,
+      snapshot,
       viewModel,
       contract,
       activeScope,
@@ -1253,7 +1253,7 @@ export function TeamProvider({
       openSwitchBlocked,
       recoverSelectedGroup,
       revalidateContext,
-      snapshot2,
+      snapshot,
       submissionAllowed,
       switchContext,
       transferCredits,
@@ -1262,7 +1262,7 @@ export function TeamProvider({
   );
   return (
     <TeamAccountContext.Provider value={value}>
-      {children2}
+      {children}
     </TeamAccountContext.Provider>
   );
 }

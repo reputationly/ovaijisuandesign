@@ -1,16 +1,16 @@
 // use-find-controller.js
 import { reactExports } from "../vendor.js";
-function pickInitialMatchIndex(matches2, caretPos) {
-  if (matches2.length === 0) return -1;
-  for (let i2 = 0; i2 < matches2.length; i2++) {
-    if (matches2[i2].from >= caretPos) return i2;
+function pickInitialMatchIndex(matches, caretPos) {
+  if (matches.length === 0) return -1;
+  for (let i = 0; i < matches.length; i++) {
+    if (matches[i].from >= caretPos) return i;
   }
   return 0;
 }
-function stepMatchIndex(current2, total, dir) {
+function stepMatchIndex(current, total, dir) {
   if (total <= 0) return -1;
-  if (current2 < 0) return dir === 1 ? 0 : total - 1;
-  return (current2 + dir + total) % total;
+  if (current < 0) return dir === 1 ? 0 : total - 1;
+  return (current + dir + total) % total;
 }
 const SEARCH_DEBOUNCE_MS = 150;
 const DEFAULT_OPTIONS = {
@@ -31,15 +31,15 @@ const INITIAL_STATE = {
 export function useFindController(adapter) {
   const adapterRef = reactExports.useRef(adapter);
   adapterRef.current = adapter;
-  const [state2, setState] = reactExports.useState(INITIAL_STATE);
-  const stateRef = reactExports.useRef(state2);
+  const [state, setState] = reactExports.useState(INITIAL_STATE);
+  const stateRef = reactExports.useRef(state);
   const matchesRef = reactExports.useRef([]);
   const inputRef = reactExports.useRef(null);
   const debounceRef = reactExports.useRef(null);
-  const update2 = reactExports.useCallback((patch2) => {
+  const update = reactExports.useCallback((patch) => {
     stateRef.current = {
       ...stateRef.current,
-      ...patch2,
+      ...patch,
     };
     setState(stateRef.current);
   }, []);
@@ -51,32 +51,32 @@ export function useFindController(adapter) {
   }, []);
   reactExports.useEffect(() => cancelPendingSearch, [cancelPendingSearch]);
   const runSearch = reactExports.useCallback(() => {
-    const a2 = adapterRef.current;
+    const adapter = adapterRef.current;
     const { query, options } = stateRef.current;
     if (!query) {
-      a2.clear();
+      adapter.clear();
       matchesRef.current = [];
-      update2({
+      update({
         total: 0,
         limited: false,
         currentIndex: -1,
       });
       return;
     }
-    const { matches: matches2, limited, caretPos } = a2.search(query, options);
-    matchesRef.current = matches2;
-    const initialIndex = pickInitialMatchIndex(matches2, caretPos);
-    update2({
-      total: matches2.length,
+    const { matches, limited, caretPos } = adapter.search(query, options);
+    matchesRef.current = matches;
+    const initialIndex = pickInitialMatchIndex(matches, caretPos);
+    update({
+      total: matches.length,
       limited,
       currentIndex: initialIndex,
     });
-    if (matches2.length === 0) {
-      a2.clear();
+    if (matches.length === 0) {
+      adapter.clear();
     } else {
-      a2.activate(matches2, initialIndex);
+      adapter.activate(matches, initialIndex);
     }
-  }, [update2]);
+  }, [update]);
   const scheduleSearch = reactExports.useCallback(
     (immediate) => {
       cancelPendingSearch();
@@ -98,20 +98,20 @@ export function useFindController(adapter) {
     });
   }, []);
   const open = reactExports.useCallback(() => {
-    const selected2 = adapterRef.current.getSelectedText();
-    const seed = selected2 && !selected2.includes("\n") ? selected2 : "";
-    const patch2 = {};
-    if (seed && seed !== stateRef.current.query) patch2.query = seed;
-    if (!stateRef.current.isOpen) patch2.isOpen = true;
-    if (Object.keys(patch2).length > 0) update2(patch2);
+    const selected = adapterRef.current.getSelectedText();
+    const seed = selected && !selected.includes("\n") ? selected : "";
+    const patch = {};
+    if (seed && seed !== stateRef.current.query) patch.query = seed;
+    if (!stateRef.current.isOpen) patch.isOpen = true;
+    if (Object.keys(patch).length > 0) update(patch);
     if (stateRef.current.query) scheduleSearch(true);
     focusInput();
-  }, [focusInput, scheduleSearch, update2]);
-  const close2 = reactExports.useCallback(() => {
+  }, [focusInput, scheduleSearch, update]);
+  const closeFind = reactExports.useCallback(() => {
     if (!stateRef.current.isOpen) return;
     cancelPendingSearch();
     matchesRef.current = [];
-    update2({
+    update({
       isOpen: false,
       total: 0,
       limited: false,
@@ -119,93 +119,93 @@ export function useFindController(adapter) {
     });
     adapterRef.current.clear();
     adapterRef.current.focusEditor();
-  }, [cancelPendingSearch, update2]);
+  }, [cancelPendingSearch, update]);
   const setQuery = reactExports.useCallback(
-    (next22) => {
-      update2({
-        query: next22,
+    (next) => {
+      update({
+        query: next,
       });
       scheduleSearch(false);
     },
-    [scheduleSearch, update2],
+    [scheduleSearch, update],
   );
   const toggleOption = reactExports.useCallback(
-    (key2) => {
+    (key) => {
       const options = stateRef.current.options;
-      update2({
+      update({
         options: {
           ...options,
-          [key2]: !options[key2],
+          [key]: !options[key],
         },
       });
       scheduleSearch(true);
     },
-    [scheduleSearch, update2],
+    [scheduleSearch, update],
   );
   const step = reactExports.useCallback(
     (dir) => {
       const { currentIndex, total } = stateRef.current;
       const nextIndex = stepMatchIndex(currentIndex, total, dir);
-      update2({
+      update({
         currentIndex: nextIndex,
       });
       if (nextIndex >= 0)
         adapterRef.current.activate(matchesRef.current, nextIndex);
     },
-    [update2],
+    [update],
   );
-  const next2 = reactExports.useCallback(() => step(1), [step]);
+  const next = reactExports.useCallback(() => step(1), [step]);
   const prev = reactExports.useCallback(() => step(-1), [step]);
   const refresh = reactExports.useCallback(() => {
     if (!stateRef.current.isOpen || !stateRef.current.query) return;
     scheduleSearch(false);
   }, [scheduleSearch]);
   const toggleReplaceOpen = reactExports.useCallback(() => {
-    update2({
+    update({
       replaceOpen: !stateRef.current.replaceOpen,
     });
-  }, [update2]);
+  }, [update]);
   const setReplaceValue = reactExports.useCallback(
     (value) => {
-      update2({
+      update({
         replaceValue: value,
       });
     },
-    [update2],
+    [update],
   );
   const replaceCurrent = reactExports.useCallback(() => {
     const { query, options, currentIndex, replaceValue } = stateRef.current;
-    const match2 = matchesRef.current[currentIndex];
-    if (!query || !match2) return;
-    adapterRef.current.replaceOne(match2, query, options, replaceValue);
+    const match = matchesRef.current[currentIndex];
+    if (!query || !match) return;
+    adapterRef.current.replaceOne(match, query, options, replaceValue);
     scheduleSearch(true);
   }, [scheduleSearch]);
-  const replaceAll2 = reactExports.useCallback(() => {
+  const replaceAll = reactExports.useCallback(() => {
     const { query, options, replaceValue } = stateRef.current;
     if (!query) return;
     adapterRef.current.replaceAll(query, options, replaceValue);
     scheduleSearch(true);
   }, [scheduleSearch]);
   return {
-    isOpen: state2.isOpen,
+    isOpen: state.isOpen,
     open,
-    close: close2,
-    query: state2.query,
+    close: closeFind,
+    query: state.query,
     setQuery,
-    options: state2.options,
+    options: state.options,
     toggleOption,
-    currentIndex: state2.currentIndex,
-    total: state2.total,
-    limited: state2.limited,
-    next: next2,
+    currentIndex: state.currentIndex,
+    total: state.total,
+    limited: state.limited,
+    next,
     prev,
     refresh,
     inputRef,
-    replaceOpen: state2.replaceOpen,
+    replaceOpen: state.replaceOpen,
     toggleReplaceOpen,
-    replaceValue: state2.replaceValue,
+    replaceValue: state.replaceValue,
     setReplaceValue,
     replaceCurrent,
-    replaceAll: replaceAll2,
+    replaceAll,
   };
 }

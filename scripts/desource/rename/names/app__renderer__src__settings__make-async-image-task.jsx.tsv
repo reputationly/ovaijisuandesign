@@ -1,0 +1,22 @@
+key	new	reason
+t2@68:32	t	调用方传入的翻译函数 t
+t2@75:14	t	useTranslation() 返回的翻译函数 t
+t2@102:14	t	useTranslation() 返回的翻译函数 t
+t2@209:14	t	useTranslation() 返回的翻译函数 t
+base2@25:3	base	去掉打包器加的数字后缀，恢复原名 base
+language2@76:9	language	去掉打包器加的数字后缀，恢复原名 language
+name2@77:9	localizedName	本地化后的显示名；name 是全局名
+copy2@78:9	copy	去掉打包器加的数字后缀，恢复原名 copy
+key2@79:6	key	去掉打包器加的数字后缀，恢复原名 key
+language2@68:35	language	去掉打包器加的数字后缀，恢复原名 language
+displayName2@68:59	displayName	去掉打包器加的数字后缀，恢复原名 displayName
+displayName2@74:47	displayName	去掉打包器加的数字后缀，恢复原名 displayName
+namespace2@74:61	namespace	去掉打包器加的数字后缀，恢复原名 namespace
+children2@100:13	children	去掉打包器加的数字后缀，恢复原名 children
+children2@124:13	children	去掉打包器加的数字后缀，恢复原名 children
+text2@153:46	text	去掉打包器加的数字后缀，恢复原名 text
+message2@170:49	message	去掉打包器加的数字后缀，恢复原名 message
+children2@183:13	children	去掉打包器加的数字后缀，恢复原名 children
+children2@207:13	children	去掉打包器加的数字后缀，恢复原名 children
+first2@205:10	first	去掉打包器加的数字后缀，恢复原名 first
+last2@206:9	last	去掉打包器加的数字后缀，恢复原名 last

@@ -43,9 +43,9 @@ export function reorderVisibleRecentWorkspaces(
   } else {
     ordered.splice(toIndex, 0, moved);
   }
-  return ordered.map((workspace, index2) => ({
+  return ordered.map((workspace, index) => ({
     ...workspace,
-    manualOrder: index2,
+    manualOrder: index,
   }));
 }
 
@@ -61,24 +61,24 @@ export function persistVisibleWorkspaceManualOrder(
     ]),
   );
   const orderedKeys = [];
-  const seen2 = new Set();
+  const seen = new Set();
   for (const workspace of reorderedVisibleWorkspaces) {
-    const key2 = workspaceInventoryPathKey(workspace.path, caseInsensitive);
-    if (seen2.has(key2) || !latestByPath.has(key2)) continue;
-    seen2.add(key2);
-    orderedKeys.push(key2);
+    const key = workspaceInventoryPathKey(workspace.path, caseInsensitive);
+    if (seen.has(key) || !latestByPath.has(key)) continue;
+    seen.add(key);
+    orderedKeys.push(key);
   }
   const unranked = latestInventory.flatMap((item) => {
-    const key2 = workspaceInventoryPathKey(
+    const key = workspaceInventoryPathKey(
       item.workspace.path,
       caseInsensitive,
     );
-    if (seen2.has(key2)) return [];
+    if (seen.has(key)) return [];
     const { manualOrder: _manualOrder, ...workspace } = item.workspace;
     return [workspace];
   });
-  const ranked = orderedKeys.flatMap((key2, manualOrder) => {
-    const workspace = latestByPath.get(key2);
+  const ranked = orderedKeys.flatMap((key, manualOrder) => {
+    const workspace = latestByPath.get(key);
     return workspace
       ? [
           {

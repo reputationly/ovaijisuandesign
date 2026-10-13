@@ -31,248 +31,248 @@ const FENCE_RE = /^(\s*)(```|~~~)/;
 const TABLE_DELIM_RE = /^\s*\|?[\s:|-]+\|?\s*$/;
 const BLOCK_PREFIX_RE =
   /^(\s*)((?:>\s*)*)((?:[-*+]|\d{1,9}[.)])\s+(?:\[[ xX]\]\s+)?|#{1,6}\s+)?/;
-function pushChar(b3, ch, rawOffset, isSynthetic) {
+function pushChar(normalizeMap, ch, rawOffset, isSynthetic) {
   if (ch === " ") {
-    const last2 = b3.normalized.length - 1;
-    if (last2 < 0 || b3.normalized[last2] === " ") {
-      if (last2 >= 0 || isSynthetic) return;
+    const last = normalizeMap.normalized.length - 1;
+    if (last < 0 || normalizeMap.normalized[last] === " ") {
+      if (last >= 0 || isSynthetic) return;
     }
   }
-  b3.normalized.push(ch);
-  b3.normToRaw.push(rawOffset);
-  b3.synthetic.push(isSynthetic);
+  normalizeMap.normalized.push(ch);
+  normalizeMap.normToRaw.push(rawOffset);
+  normalizeMap.synthetic.push(isSynthetic);
 }
 function findStrippableDelimiters(line) {
   const strip = new Array(line.length).fill(false);
   const openByToken = new Map();
-  for (let i2 = 0; i2 < line.length; i2++) {
-    const ch = line[i2];
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
     if (ch === "\\") {
-      i2 += 1;
+      i += 1;
       continue;
     }
     if (ch !== "*" && ch !== "_" && ch !== "~" && ch !== "`") continue;
-    const two = line.slice(i2, i2 + 2);
-    let token2;
+    const two = line.slice(i, i + 2);
+    let token;
     if (two === "**" || two === "__" || two === "~~") {
-      token2 = two;
+      token = two;
     } else if (ch === "*" || ch === "`") {
-      token2 = ch;
+      token = ch;
     } else {
       continue;
     }
-    const open = openByToken.get(token2);
+    const open = openByToken.get(token);
     if (open === void 0) {
-      openByToken.set(token2, i2);
+      openByToken.set(token, i);
     } else {
-      for (let k2 = 0; k2 < token2.length; k2++) {
-        strip[open + k2] = true;
-        strip[i2 + k2] = true;
+      for (let charIndex = 0; charIndex < token.length; charIndex++) {
+        strip[open + charIndex] = true;
+        strip[i + charIndex] = true;
       }
-      openByToken.delete(token2);
+      openByToken.delete(token);
     }
-    i2 += token2.length - 1;
+    i += token.length - 1;
   }
   return strip;
 }
 function findBracketClose(line, open) {
-  let depth2 = 0;
-  for (let i2 = open; i2 < line.length; i2++) {
-    if (line[i2] === "[") depth2 += 1;
-    else if (line[i2] === "]") {
-      depth2 -= 1;
-      if (depth2 === 0) return i2;
+  let depth = 0;
+  for (let i = open; i < line.length; i++) {
+    if (line[i] === "[") depth += 1;
+    else if (line[i] === "]") {
+      depth -= 1;
+      if (depth === 0) return i;
     }
   }
   return -1;
 }
-function matchParen(line, at2) {
-  if (line[at2] !== "(") return -1;
-  let depth2 = 0;
-  for (let i2 = at2; i2 < line.length; i2++) {
-    if (line[i2] === "(") depth2 += 1;
-    else if (line[i2] === ")") {
-      depth2 -= 1;
-      if (depth2 === 0) return i2;
+function matchParen(line, openIndex) {
+  if (line[openIndex] !== "(") return -1;
+  let depth = 0;
+  for (let i = openIndex; i < line.length; i++) {
+    if (line[i] === "(") depth += 1;
+    else if (line[i] === ")") {
+      depth -= 1;
+      if (depth === 0) return i;
     }
   }
   return -1;
 }
-function pushInline(b3, line, lineStart, from2, strippable) {
+function pushInline(normalizeMap, line, lineStart, from, strippable) {
   const strip = strippable ?? findStrippableDelimiters(line);
-  let i2 = from2;
-  while (i2 < line.length) {
-    const ch = line[i2];
-    const next2 = line[i2 + 1];
-    if ((ch === "*" || ch === "_" || ch === "~" || ch === "`") && strip[i2]) {
-      i2 += 1;
+  let i = from;
+  while (i < line.length) {
+    const ch = line[i];
+    const next = line[i + 1];
+    if ((ch === "*" || ch === "_" || ch === "~" || ch === "`") && strip[i]) {
+      i += 1;
       continue;
     }
-    if (ch === "!" && next2 === "[") {
-      const close2 = findBracketClose(line, i2 + 1);
-      if (close2 >= 0) {
-        const paren = matchParen(line, close2 + 1);
+    if (ch === "!" && next === "[") {
+      const closeIndex = findBracketClose(line, i + 1);
+      if (closeIndex >= 0) {
+        const paren = matchParen(line, closeIndex + 1);
         if (paren >= 0) {
-          pushChar(b3, " ", lineStart + i2, true);
-          i2 = paren + 1;
+          pushChar(normalizeMap, " ", lineStart + i, true);
+          i = paren + 1;
           continue;
         }
       }
     }
     if (ch === "[") {
-      const close2 = findBracketClose(line, i2);
-      if (close2 >= 0) {
-        const paren = matchParen(line, close2 + 1);
+      const closeIndex = findBracketClose(line, i);
+      if (closeIndex >= 0) {
+        const paren = matchParen(line, closeIndex + 1);
         if (paren >= 0) {
-          pushInline(b3, line.slice(0, close2), lineStart, i2 + 1, strip);
-          i2 = paren + 1;
+          pushInline(normalizeMap, line.slice(0, closeIndex), lineStart, i + 1, strip);
+          i = paren + 1;
           continue;
         }
       }
     }
     if (ch === "<") {
-      const m3 = /^<br\s*\/?>/i.exec(line.slice(i2));
-      if (m3) {
-        pushChar(b3, " ", lineStart + i2, true);
-        i2 += m3[0].length;
+      const brMatch = /^<br\s*\/?>/i.exec(line.slice(i));
+      if (brMatch) {
+        pushChar(normalizeMap, " ", lineStart + i, true);
+        i += brMatch[0].length;
         continue;
       }
     }
     if (ch === "|") {
-      pushChar(b3, " ", lineStart + i2, true);
-      i2 += 1;
+      pushChar(normalizeMap, " ", lineStart + i, true);
+      i += 1;
       continue;
     }
-    if (ch === "\\" && next2 && "\\`*_{}[]()#+-.!|~>".includes(next2)) {
-      pushChar(b3, next2, lineStart + i2 + 1, false);
-      i2 += 2;
+    if (ch === "\\" && next && "\\`*_{}[]()#+-.!|~>".includes(next)) {
+      pushChar(normalizeMap, next, lineStart + i + 1, false);
+      i += 2;
       continue;
     }
-    pushChar(b3, ch === "	" ? " " : ch, lineStart + i2, ch === "	");
-    i2 += 1;
+    pushChar(normalizeMap, ch === "	" ? " " : ch, lineStart + i, ch === "	");
+    i += 1;
   }
 }
-function buildMarkdownNormalizeMap(raw2) {
-  const b3 = {
+function buildMarkdownNormalizeMap(raw) {
+  const normalizeMap = {
     normalized: [],
     normToRaw: [],
     synthetic: [],
   };
-  const lines = raw2.split("\n");
+  const lines = raw.split("\n");
   let inFence = false;
-  let offset2 = 0;
-  for (let li2 = 0; li2 < lines.length; li2++) {
-    const line = lines[li2];
-    const lineStart = offset2;
-    offset2 += line.length + 1;
+  let offset = 0;
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    const line = lines[lineIndex];
+    const lineStart = offset;
+    offset += line.length + 1;
     if (FENCE_RE.test(line)) {
       inFence = !inFence;
-      pushChar(b3, " ", lineStart, true);
+      pushChar(normalizeMap, " ", lineStart, true);
       continue;
     }
     if (inFence) {
-      for (let i2 = 0; i2 < line.length; i2++)
-        pushChar(b3, line[i2], lineStart + i2, false);
-      pushChar(b3, " ", lineStart + line.length, true);
+      for (let i = 0; i < line.length; i++)
+        pushChar(normalizeMap, line[i], lineStart + i, false);
+      pushChar(normalizeMap, " ", lineStart + line.length, true);
       continue;
     }
     if (line.includes("|") && line.includes("-") && TABLE_DELIM_RE.test(line)) {
-      pushChar(b3, " ", lineStart, true);
+      pushChar(normalizeMap, " ", lineStart, true);
       continue;
     }
     if (/^\s*(?:[-*_]\s*){3,}$/.test(line) && line.trim().length >= 3) {
-      pushChar(b3, " ", lineStart, true);
+      pushChar(normalizeMap, " ", lineStart, true);
       continue;
     }
     const prefix = BLOCK_PREFIX_RE.exec(line);
     const contentFrom = prefix ? prefix[0].length : 0;
-    pushInline(b3, line, lineStart, contentFrom);
-    pushChar(b3, " ", lineStart + line.length, true);
+    pushInline(normalizeMap, line, lineStart, contentFrom);
+    pushChar(normalizeMap, " ", lineStart + line.length, true);
   }
   while (
-    b3.normalized.length > 0 &&
-    b3.normalized[b3.normalized.length - 1] === " " &&
-    b3.synthetic[b3.synthetic.length - 1]
+    normalizeMap.normalized.length > 0 &&
+    normalizeMap.normalized[normalizeMap.normalized.length - 1] === " " &&
+    normalizeMap.synthetic[normalizeMap.synthetic.length - 1]
   ) {
-    b3.normalized.pop();
-    b3.normToRaw.pop();
-    b3.synthetic.pop();
+    normalizeMap.normalized.pop();
+    normalizeMap.normToRaw.pop();
+    normalizeMap.synthetic.pop();
   }
   return {
-    normalized: b3.normalized.join(""),
-    normToRaw: b3.normToRaw,
-    synthetic: b3.synthetic,
+    normalized: normalizeMap.normalized.join(""),
+    normToRaw: normalizeMap.normToRaw,
+    synthetic: normalizeMap.synthetic,
   };
 }
-function collapseRenderedText(text2) {
-  return text2.replace(/\s+/g, " ");
+function collapseRenderedText(text) {
+  return text.replace(/\s+/g, " ");
 }
 const INLINE_MARK_CHARS = new Set(["*", "~", "`"]);
-function stripInlineMarkChars(text2) {
+function stripInlineMarkChars(text) {
   let out = "";
-  for (const ch of text2) {
+  for (const ch of text) {
     if (!INLINE_MARK_CHARS.has(ch)) out += ch;
   }
   return out;
 }
-function stripInlineMarkCharsWithMap(text2) {
-  const chars2 = [];
-  const map3 = [];
-  for (let i2 = 0; i2 < text2.length; i2++) {
-    const ch = text2[i2];
+function stripInlineMarkCharsWithMap(text) {
+  const chars = [];
+  const map = [];
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
     if (INLINE_MARK_CHARS.has(ch)) continue;
-    chars2.push(ch);
-    map3.push(i2);
+    chars.push(ch);
+    map.push(i);
   }
   return {
-    stripped: chars2.join(""),
-    map: map3,
+    stripped: chars.join(""),
+    map,
   };
 }
 const DIFF_CONTEXT_START = "";
 const DIFF_CONTEXT_END = "";
 const EXPLICIT_BLOCK_PREFIX_RE = /^(#{1,6}\s|>|[-*+]\s|\d+[.)]\s|```|~~~)/;
-function parseMarkdownDocument(editor, markdown2) {
+function parseMarkdownDocument(editor, markdown) {
   try {
     const manager = editor.storage.markdown?.manager;
     if (!manager) return null;
-    const json2 = manager.parse(markdown2);
-    if (!json2 || typeof json2 !== "object") return null;
-    return Node.fromJSON(editor.schema, json2);
+    const json = manager.parse(markdown);
+    if (!json || typeof json !== "object") return null;
+    return Node.fromJSON(editor.schema, json);
   } catch {
     return null;
   }
 }
-function serializeMarkdownDocument(editor, doc2) {
+function serializeMarkdownDocument(editor, doc) {
   try {
     const container = document.createElement("div");
     container.appendChild(
-      DOMSerializer.fromSchema(editor.schema).serializeFragment(doc2.content),
+      DOMSerializer.fromSchema(editor.schema).serializeFragment(doc.content),
     );
     return container;
   } catch {
     return null;
   }
 }
-function serializeMarkdownNode(editor, node2) {
+function serializeMarkdownNode(editor, node) {
   try {
     const container = document.createElement("div");
     container.appendChild(
-      DOMSerializer.fromSchema(editor.schema).serializeNode(node2),
+      DOMSerializer.fromSchema(editor.schema).serializeNode(node),
     );
     return container;
   } catch {
     return null;
   }
 }
-function findMarkerPosition(doc2, marker) {
-  let found2 = null;
-  doc2.descendants((node2, pos) => {
-    if (found2 !== null || !node2.isText) return;
-    const index2 = node2.text?.indexOf(marker) ?? -1;
-    if (index2 >= 0) found2 = pos + index2;
+function findMarkerPosition(doc, marker) {
+  let found = null;
+  doc.descendants((node, pos) => {
+    if (found !== null || !node.isText) return;
+    const index = node.text?.indexOf(marker) ?? -1;
+    if (index >= 0) found = pos + index;
   });
-  return found2;
+  return found;
 }
 function extractContextualTextblock(editor, context) {
   if (EXPLICIT_BLOCK_PREFIX_RE.test(context.sourceMarkdown.trimStart()))
@@ -285,37 +285,37 @@ function extractContextualTextblock(editor, context) {
     `${context.prefix}${DIFF_CONTEXT_START}${context.sourceMarkdown}${DIFF_CONTEXT_END}${context.suffix}`,
   );
   if (!contextualDoc) return null;
-  const start2 = findMarkerPosition(contextualDoc, DIFF_CONTEXT_START);
-  const end2 = findMarkerPosition(contextualDoc, DIFF_CONTEXT_END);
+  const start = findMarkerPosition(contextualDoc, DIFF_CONTEXT_START);
+  const end = findMarkerPosition(contextualDoc, DIFF_CONTEXT_END);
   if (
-    start2 === null ||
-    end2 === null ||
-    end2 < start2 + DIFF_CONTEXT_START.length
+    start === null ||
+    end === null ||
+    end < start + DIFF_CONTEXT_START.length
   )
     return null;
-  const from2 = start2 + DIFF_CONTEXT_START.length;
-  const $from = contextualDoc.resolve(from2);
-  const $to = contextualDoc.resolve(end2);
+  const from = start + DIFF_CONTEXT_START.length;
+  const $from = contextualDoc.resolve(from);
+  const $to = contextualDoc.resolve(end);
   if (!$from.sameParent($to) || !$from.parent.isTextblock) return null;
   return {
     block: $from.parent,
-    content: contextualDoc.slice(from2, end2).content,
+    content: contextualDoc.slice(from, end).content,
   };
 }
-function rebuildSoleTextblock(node2, content2) {
+function rebuildSoleTextblock(node, content) {
   try {
-    if (node2.isTextblock)
-      return node2.type.create(node2.attrs, content2, node2.marks);
-    if (node2.childCount !== 1) return null;
-    const child = rebuildSoleTextblock(node2.child(0), content2);
-    return child ? node2.type.create(node2.attrs, child, node2.marks) : null;
+    if (node.isTextblock)
+      return node.type.create(node.attrs, content, node.marks);
+    if (node.childCount !== 1) return null;
+    const child = rebuildSoleTextblock(node.child(0), content);
+    return child ? node.type.create(node.attrs, child, node.marks) : null;
   } catch {
     return null;
   }
 }
-function renderDeletedMarkdown(editor, markdown2, context) {
+function renderDeletedMarkdown(editor, markdown, context) {
   if (editor.isDestroyed) return null;
-  const standaloneDoc = parseMarkdownDocument(editor, markdown2);
+  const standaloneDoc = parseMarkdownDocument(editor, markdown);
   if (context) {
     const contextual = extractContextualTextblock(editor, context);
     if (contextual) {
@@ -339,36 +339,36 @@ function renderDeletedMarkdown(editor, markdown2, context) {
     ? serializeMarkdownDocument(editor, standaloneDoc)
     : null;
 }
-function isInsideTableCell(doc2, pos) {
+function isInsideTableCell(doc, pos) {
   try {
-    const $pos = doc2.resolve(Math.min(Math.max(pos, 0), doc2.content.size));
-    for (let depth2 = $pos.depth; depth2 > 0; depth2--) {
-      const name2 = $pos.node(depth2).type.name;
-      if (name2 === "tableCell" || name2 === "tableHeader") return true;
+    const $pos = doc.resolve(Math.min(Math.max(pos, 0), doc.content.size));
+    for (let depth = $pos.depth; depth > 0; depth--) {
+      const nodeTypeName = $pos.node(depth).type.name;
+      if (nodeTypeName === "tableCell" || nodeTypeName === "tableHeader") return true;
     }
   } catch {}
   return false;
 }
-function buildDocTextIndex(doc2) {
+function buildDocTextIndex(doc) {
   const segments = [];
   const parts = [];
   let textStart = 0;
-  doc2.descendants((node2, pos) => {
-    if (!node2.isTextblock) return true;
-    const text2 = node2.textBetween(
+  doc.descendants((node, pos) => {
+    if (!node.isTextblock) return true;
+    const text = node.textBetween(
       0,
-      node2.content.size,
+      node.content.size,
       void 0,
       LEAF_PLACEHOLDER,
     );
     segments.push({
       textStart,
       pmStart: pos + 1,
-      length: text2.length,
-      isTableCell: isInsideTableCell(doc2, pos + 1),
+      length: text.length,
+      isTableCell: isInsideTableCell(doc, pos + 1),
     });
-    parts.push(text2);
-    textStart += text2.length + 1;
+    parts.push(text);
+    textStart += text.length + 1;
     return false;
   });
   return {
@@ -376,30 +376,30 @@ function buildDocTextIndex(doc2) {
     segments,
   };
 }
-function toPmPos(index2, offset2, bias) {
-  const { segments } = index2;
+function toPmPos(index, offset, bias) {
+  const { segments } = index;
   if (segments.length === 0) return null;
-  for (let i2 = 0; i2 < segments.length; i2++) {
-    const seg = segments[i2];
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i];
     const segEnd = seg.textStart + seg.length;
-    if (offset2 < seg.textStart) {
+    if (offset < seg.textStart) {
       if (bias === "start") return seg.pmStart;
-      const prev = segments[i2 - 1];
+      const prev = segments[i - 1];
       return prev ? prev.pmStart + prev.length : seg.pmStart;
     }
-    if (offset2 <= segEnd) {
-      return seg.pmStart + (offset2 - seg.textStart);
+    if (offset <= segEnd) {
+      return seg.pmStart + (offset - seg.textStart);
     }
   }
-  const last2 = segments[segments.length - 1];
-  return last2.pmStart + last2.length;
+  const last = segments[segments.length - 1];
+  return last.pmStart + last.length;
 }
-function collapseWithMap(text2) {
-  const chars2 = [];
-  const map3 = [];
+function collapseWithMap(text) {
+  const chars = [];
+  const map = [];
   let pendingSpace = -1;
-  for (let i2 = 0; i2 < text2.length; i2++) {
-    const ch = text2[i2];
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
     if (
       ch === " " ||
       ch === "\n" ||
@@ -407,36 +407,36 @@ function collapseWithMap(text2) {
       ch === "\r" ||
       ch === LEAF_PLACEHOLDER
     ) {
-      if (pendingSpace < 0) pendingSpace = i2;
+      if (pendingSpace < 0) pendingSpace = i;
       continue;
     }
-    if (pendingSpace >= 0 && chars2.length > 0) {
-      chars2.push(" ");
-      map3.push(pendingSpace);
+    if (pendingSpace >= 0 && chars.length > 0) {
+      chars.push(" ");
+      map.push(pendingSpace);
     }
     pendingSpace = -1;
-    chars2.push(ch);
-    map3.push(i2);
+    chars.push(ch);
+    map.push(i);
   }
   return {
-    collapsed: chars2.join(""),
-    map: map3,
+    collapsed: chars.join(""),
+    map,
   };
 }
-function normalizeMarkdownSnippet(markdown2) {
-  if (!markdown2) return "";
+function normalizeMarkdownSnippet(markdown) {
+  if (!markdown) return "";
   return collapseRenderedText(
-    buildMarkdownNormalizeMap(markdown2).normalized,
+    buildMarkdownNormalizeMap(markdown).normalized,
   ).trim();
 }
 const TABLE_DELIM_LINE = /^[|\s:-]+$/;
-function parseTableRowCells(markdown2) {
-  const lines = markdown2
+function parseTableRowCells(markdown) {
+  const lines = markdown
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
   if (lines.length === 0) return null;
-  const cells2 = [];
+  const cells = [];
   for (const line of lines) {
     if (!line.includes("|")) return null;
     if (TABLE_DELIM_LINE.test(line) && line.includes("-")) continue;
@@ -444,31 +444,31 @@ function parseTableRowCells(markdown2) {
     if (parts.length > 0 && parts[0]?.trim() === "") parts = parts.slice(1);
     if (parts.length > 0 && parts[parts.length - 1]?.trim() === "")
       parts = parts.slice(0, -1);
-    for (const part of parts) cells2.push(part.trim());
+    for (const part of parts) cells.push(part.trim());
   }
-  return cells2.length > 0 ? cells2 : null;
+  return cells.length > 0 ? cells : null;
 }
-function splitTableHunkCells(index2, hunk, textFrom, textTo) {
+function splitTableHunkCells(index, hunk, textFrom, textTo) {
   const overlaps = (seg) =>
     Math.max(seg.textStart, textFrom) <
     Math.min(seg.textStart + seg.length, textTo);
-  const covered = index2.segments.filter(
+  const covered = index.segments.filter(
     (seg) => seg.isTableCell && overlaps(seg),
   );
   if (covered.length < 2) return null;
-  if (index2.segments.some((seg) => !seg.isTableCell && overlaps(seg)))
+  if (index.segments.some((seg) => !seg.isTableCell && overlaps(seg)))
     return null;
   const oldCells = parseTableRowCells(hunk.originalText);
   const newCells = parseTableRowCells(hunk.replacement);
   if (!oldCells || !newCells) return null;
   if (oldCells.length !== covered.length || newCells.length !== covered.length)
     return null;
-  const cells2 = [];
-  for (let i2 = 0; i2 < covered.length; i2++) {
-    const seg = covered[i2];
-    const oldCell = oldCells[i2];
-    const newCell = newCells[i2];
-    const docCellText = index2.text.slice(
+  const cells = [];
+  for (let i = 0; i < covered.length; i++) {
+    const seg = covered[i];
+    const oldCell = oldCells[i];
+    const newCell = newCells[i];
+    const docCellText = index.text.slice(
       seg.textStart,
       seg.textStart + seg.length,
     );
@@ -480,28 +480,28 @@ function splitTableHunkCells(index2, hunk, textFrom, textTo) {
     if (normalizeMarkdownSnippet(oldCell) === normalizeMarkdownSnippet(newCell))
       continue;
     const cellFrom = toPmPos(
-      index2,
+      index,
       Math.max(seg.textStart, textFrom),
       "start",
     );
     const cellTo = toPmPos(
-      index2,
+      index,
       Math.min(seg.textStart + seg.length, textTo),
       "end",
     );
     if (cellFrom === null || cellTo === null || cellTo <= cellFrom) return null;
-    cells2.push({
+    cells.push({
       from: cellFrom,
       to: cellTo,
       deletedMarkdown: oldCell,
     });
   }
-  return cells2.length > 0 ? cells2 : null;
+  return cells.length > 0 ? cells : null;
 }
-function collectOccurrences(haystack, needle, cap2 = 50) {
+function collectOccurrences(haystack, needle, cap = 50) {
   const out = [];
   let cursor = 0;
-  while (out.length < cap2) {
+  while (out.length < cap) {
     const idx = haystack.indexOf(needle, cursor);
     if (idx < 0) break;
     out.push(idx);
@@ -511,30 +511,30 @@ function collectOccurrences(haystack, needle, cap2 = 50) {
 }
 const CONTEXT_PROBE_CHARS = 14;
 function locateDeletionPoint(
-  index2,
+  index,
   collapsed,
-  map3,
+  map,
   prefixProbe,
   suffixProbe,
 ) {
   if (prefixProbe) {
-    const candidates2 = collectOccurrences(collapsed, prefixProbe);
-    for (const idx of candidates2) {
-      const end2 = idx + prefixProbe.length;
+    const candidates = collectOccurrences(collapsed, prefixProbe);
+    for (const idx of candidates) {
+      const end = idx + prefixProbe.length;
       const suffixIndex = suffixProbe
-        ? collapsed.indexOf(suffixProbe, end2)
+        ? collapsed.indexOf(suffixProbe, end)
         : -1;
-      if (suffixProbe && (suffixIndex < end2 || suffixIndex > end2 + 1))
+      if (suffixProbe && (suffixIndex < end || suffixIndex > end + 1))
         continue;
       const sourceOffset =
         suffixIndex >= 0
-          ? map3[suffixIndex]
-          : map3[end2 - 1] !== void 0
-            ? map3[end2 - 1] + 1
+          ? map[suffixIndex]
+          : map[end - 1] !== void 0
+            ? map[end - 1] + 1
             : void 0;
       if (sourceOffset === void 0) continue;
       const pm = toPmPos(
-        index2,
+        index,
         sourceOffset,
         suffixIndex >= 0 ? "start" : "end",
       );
@@ -550,9 +550,9 @@ function locateDeletionPoint(
   if (suffixProbe) {
     const idx = collapsed.indexOf(suffixProbe);
     if (idx < 0) return null;
-    const first2 = map3[idx];
-    if (first2 === void 0) return null;
-    const pm = toPmPos(index2, first2, "start");
+    const first = map[idx];
+    if (first === void 0) return null;
+    const pm = toPmPos(index, first, "start");
     return pm !== null
       ? {
           from: pm,
@@ -562,14 +562,14 @@ function locateDeletionPoint(
   }
   return null;
 }
-function locateHunksInDoc(doc2, hunks) {
+function locateHunksInDoc(doc, hunks) {
   const result = new Map();
   if (hunks.length === 0) return result;
-  const index2 = buildDocTextIndex(doc2);
-  const { collapsed, map: map3 } = collapseWithMap(index2.text);
+  const index = buildDocTextIndex(doc);
+  const { collapsed, map } = collapseWithMap(index.text);
   const usedRanges = [];
-  const overlapsUsed = (from2, to) =>
-    usedRanges.some((r2) => Math.max(r2.from, from2) < Math.min(r2.to, to));
+  const overlapsUsed = (from, to) =>
+    usedRanges.some((usedRange) => Math.max(usedRange.from, from) < Math.min(usedRange.to, to));
   for (const hunk of hunks) {
     const needle = normalizeMarkdownSnippet(hunk.replacement);
     const prefixProbe = normalizeMarkdownSnippet(hunk.reversePrefix).slice(
@@ -582,18 +582,18 @@ function locateHunksInDoc(doc2, hunks) {
     if (!needle) {
       result.set(
         hunk.id,
-        locateDeletionPoint(index2, collapsed, map3, prefixProbe, suffixProbe),
+        locateDeletionPoint(index, collapsed, map, prefixProbe, suffixProbe),
       );
       continue;
     }
-    let candidates2 = collectOccurrences(collapsed, needle);
+    let candidates = collectOccurrences(collapsed, needle);
     let candidateLength = needle.length;
     let candidateMap = null;
-    if (candidates2.length === 0) {
+    if (candidates.length === 0) {
       const strippedHay = stripInlineMarkCharsWithMap(collapsed);
       const strippedNeedle = stripInlineMarkChars(needle).trim();
       if (strippedNeedle) {
-        candidates2 = collectOccurrences(strippedHay.stripped, strippedNeedle);
+        candidates = collectOccurrences(strippedHay.stripped, strippedNeedle);
         candidateLength = strippedNeedle.length;
         candidateMap = strippedHay.map;
       }
@@ -604,112 +604,112 @@ function locateHunksInDoc(doc2, hunks) {
           start: idx,
           endChar: idx + candidateLength - 1,
         };
-      const start2 = candidateMap[idx];
+      const start = candidateMap[idx];
       const endChar = candidateMap[idx + candidateLength - 1];
-      return start2 === void 0 || endChar === void 0
+      return start === void 0 || endChar === void 0
         ? null
         : {
-            start: start2,
+            start,
             endChar,
           };
     };
-    if (candidates2.length > 1 && prefixProbe) {
-      const byPrefix = candidates2.filter((idx) => {
-        const range2 = toCollapsedRange(idx);
-        if (!range2) return false;
+    if (candidates.length > 1 && prefixProbe) {
+      const byPrefix = candidates.filter((idx) => {
+        const range = toCollapsedRange(idx);
+        if (!range) return false;
         return collapsed
           .slice(
-            Math.max(0, range2.start - prefixProbe.length - 1),
-            range2.start,
+            Math.max(0, range.start - prefixProbe.length - 1),
+            range.start,
           )
           .includes(prefixProbe);
       });
-      if (byPrefix.length > 0) candidates2 = byPrefix;
+      if (byPrefix.length > 0) candidates = byPrefix;
     }
-    if (candidates2.length > 1 && suffixProbe) {
-      const bySuffix = candidates2.filter((idx) => {
-        const range2 = toCollapsedRange(idx);
-        if (!range2) return false;
+    if (candidates.length > 1 && suffixProbe) {
+      const bySuffix = candidates.filter((idx) => {
+        const range = toCollapsedRange(idx);
+        if (!range) return false;
         return collapsed
           .slice(
-            range2.endChar + 1,
-            range2.endChar + 1 + suffixProbe.length + 1,
+            range.endChar + 1,
+            range.endChar + 1 + suffixProbe.length + 1,
           )
           .includes(suffixProbe);
       });
-      if (bySuffix.length > 0) candidates2 = bySuffix;
+      if (bySuffix.length > 0) candidates = bySuffix;
     }
-    const chosen = candidates2.find((idx) => {
-      const range2 = toCollapsedRange(idx);
-      if (!range2) return false;
-      const from22 = map3[range2.start];
-      const to2 = map3[range2.endChar] + 1;
-      return from22 !== void 0 && to2 !== void 0 && !overlapsUsed(from22, to2);
+    const chosen = candidates.find((idx) => {
+      const range = toCollapsedRange(idx);
+      if (!range) return false;
+      const from = map[range.start];
+      const to = map[range.endChar] + 1;
+      return from !== void 0 && to !== void 0 && !overlapsUsed(from, to);
     });
     const chosenRange = chosen === void 0 ? null : toCollapsedRange(chosen);
     if (!chosenRange) {
       result.set(hunk.id, null);
       continue;
     }
-    const textFrom = map3[chosenRange.start];
-    const textTo = map3[chosenRange.endChar] + 1;
+    const textFrom = map[chosenRange.start];
+    const textTo = map[chosenRange.endChar] + 1;
     usedRanges.push({
       from: textFrom,
       to: textTo,
     });
-    const from2 = toPmPos(index2, textFrom, "start");
-    const to = toPmPos(index2, textTo, "end");
-    if (from2 === null || to === null || to <= from2) {
+    const from = toPmPos(index, textFrom, "start");
+    const to = toPmPos(index, textTo, "end");
+    if (from === null || to === null || to <= from) {
       result.set(hunk.id, null);
       continue;
     }
-    const cells2 = splitTableHunkCells(index2, hunk, textFrom, textTo);
+    const cells = splitTableHunkCells(index, hunk, textFrom, textTo);
     result.set(
       hunk.id,
-      cells2
+      cells
         ? {
-            from: from2,
+            from,
             to,
-            cells: cells2,
+            cells,
           }
         : {
-            from: from2,
+            from,
             to,
           },
     );
   }
   return result;
 }
-function locateHunkPosition(doc2, hunk) {
-  const range2 = locateHunksInDoc(doc2, [hunk]).get(hunk.id);
-  return range2 ? (range2.cells?.[0]?.from ?? range2.from) : null;
+function locateHunkPosition(doc, hunk) {
+  const range = locateHunksInDoc(doc, [hunk]).get(hunk.id);
+  return range ? (range.cells?.[0]?.from ?? range.from) : null;
 }
-function locateTransitionAnchor(editor, transition2) {
-  if (transition2.kind !== "revert" || !transition2.focusHunkId) return null;
-  const hunk = transition2.before.hunks.find(
-    (candidate) => candidate.id === transition2.focusHunkId,
+function locateTransitionAnchor(editor, transition) {
+  if (transition.kind !== "revert" || !transition.focusHunkId) return null;
+  const hunk = transition.before.hunks.find(
+    (candidate) => candidate.id === transition.focusHunkId,
   );
-  const afterHunk = transition2.after.hunks.find(
-    (candidate) => candidate.id === transition2.focusHunkId,
+  const afterHunk = transition.after.hunks.find(
+    (candidate) => candidate.id === transition.focusHunkId,
   );
   if (!hunk || !afterHunk || hunk.status === afterHunk.status) return null;
-  const position2 = locateHunkPosition(editor.state.doc, hunk);
-  return position2 === null
+  const position = locateHunkPosition(editor.state.doc, hunk);
+  return position === null
     ? null
     : {
         hunk,
-        position: position2,
+        position,
       };
 }
-function recordDiffReviewTransition(editor, transition2) {
+function recordDiffReviewTransition(editor, transition) {
   if (
     editor.isDestroyed ||
-    (transition2.kind === "revert" && transition2.content === void 0)
+    (transition.kind === "revert" && transition.content === void 0)
   )
     return false;
   const selectionBefore = editor.state.selection.toJSON();
   const selectionPositionBefore = editor.state.selection.from;
-  const transitionAnchor = locateTransitionAnchor(editor, transition2);
+  const transitionAnchor = locateTransitionAnchor(editor, transition);
   if (transitionAnchor !== null) {
     const selectionTransaction = editor.state.tr.setSelection(
       selectionNearPosition(editor.state.doc, transitionAnchor.position),
@@ -718,21 +718,21 @@ function recordDiffReviewTransition(editor, transition2) {
     selectionTransaction.setMeta(DIFF_REVIEW_SYNC_META, true);
     editor.view.dispatch(selectionTransaction);
   }
-  let chain = editor.chain().command(({ tr: tr2 }) => {
-    closeHistory(tr2);
-    tr2.step(new DiffReviewHistoryStep(transition2.before, transition2.after));
-    if (transition2.kind === "revert") tr2.setMeta(DIFF_REVIEW_SYNC_META, true);
+  let chain = editor.chain().command(({ tr }) => {
+    closeHistory(tr);
+    tr.step(new DiffReviewHistoryStep(transition.before, transition.after));
+    if (transition.kind === "revert") tr.setMeta(DIFF_REVIEW_SYNC_META, true);
     return true;
   });
-  if (transition2.kind === "revert") {
-    chain = chain.setContent(transition2.content ?? "", {
+  if (transition.kind === "revert") {
+    chain = chain.setContent(transition.content ?? "", {
       contentType: "markdown",
     });
-    chain = chain.command(({ tr: tr2 }) => {
+    chain = chain.command(({ tr }) => {
       if (transitionAnchor === null) {
-        tr2.setSelection(
+        tr.setSelection(
           selectionFromSnapshot(
-            tr2.doc,
+            tr.doc,
             selectionBefore,
             selectionPositionBefore,
           ),
@@ -745,8 +745,8 @@ function recordDiffReviewTransition(editor, transition2) {
         replacement: transitionAnchor.hunk.originalText,
       };
       const revertedPosition =
-        locateHunkPosition(tr2.doc, revertedHunk) ?? transitionAnchor.position;
-      tr2.setSelection(selectionNearPosition(tr2.doc, revertedPosition));
+        locateHunkPosition(tr.doc, revertedHunk) ?? transitionAnchor.position;
+      tr.setSelection(selectionNearPosition(tr.doc, revertedPosition));
       return true;
     });
   }
@@ -769,13 +769,13 @@ function captureScrollTop(editor) {
       }
     : null;
 }
-function restoreScrollTop(snapshot2) {
-  if (!snapshot2) return;
-  const { el, top: top2 } = snapshot2;
-  el.scrollTop = top2;
+function restoreScrollTop(snapshot) {
+  if (!snapshot) return;
+  const { el, top: snapshotTop } = snapshot;
+  el.scrollTop = snapshotTop;
   if (typeof requestAnimationFrame === "function") {
     requestAnimationFrame(() => {
-      el.scrollTop = top2;
+      el.scrollTop = snapshotTop;
     });
   }
 }
@@ -786,41 +786,41 @@ function collapseDiffReviewHistory(
   historyDepthAtStart = 0,
 ) {
   if (editor.isDestroyed) return;
-  const selection2 = editor.state.selection.toJSON();
+  const selection = editor.state.selection.toJSON();
   const selectionPosition = editor.state.selection.from;
   const scrollSnapshot = captureScrollTop(editor);
   rewindReviewHistory(editor, historyDepthAtStart);
   if (editor.getMarkdown() !== baselineMarkdown) {
     replaceEditorMarkdown(editor, baselineMarkdown, false);
   }
-  restoreEditorSelection(editor, selection2, selectionPosition);
+  restoreEditorSelection(editor, selection, selectionPosition);
   if (baselineMarkdown !== finalMarkdown) {
     replaceEditorMarkdown(
       editor,
       finalMarkdown,
       true,
-      selection2,
+      selection,
       selectionPosition,
     );
   } else {
     recordFinalizedBoundary(editor);
   }
   closeDiffReviewHistoryGroup(editor);
-  restoreEditorSelection(editor, selection2, selectionPosition);
+  restoreEditorSelection(editor, selection, selectionPosition);
   restoreScrollTop(scrollSnapshot);
 }
-function setDiffReviewHunks(editor, hunks, config2) {
+function setDiffReviewHunks(editor, hunks, config) {
   editor.view.dispatch(
     editor.state.tr.setMeta(diffReviewPluginKey, {
       kind: "set",
       hunks,
-      config: config2,
+      config,
     }),
   );
 }
 function clearDiffReviewHunks(editor) {
-  const state2 = diffReviewPluginKey.getState(editor.state);
-  if (!state2 || (state2.hunks.length === 0 && !state2.config)) return;
+  const state = diffReviewPluginKey.getState(editor.state);
+  if (!state || (state.hunks.length === 0 && !state.config)) return;
   editor.view.dispatch(
     editor.state.tr.setMeta(diffReviewPluginKey, {
       kind: "clear",
@@ -872,15 +872,15 @@ async function reconstructVerifiedDiffReviewBaseline(
   if (contentHash !== session.contentHash) return null;
   return reconstructDiffReviewBaseline(postApplyMarkdown, session);
 }
-function containsMarkdownTableRow(markdown2) {
-  return markdown2.split("\n").some((line) => /^\s*\|.*\|\s*$/.test(line));
+function containsMarkdownTableRow(markdown) {
+  return markdown.split("\n").some((line) => /^\s*\|.*\|\s*$/.test(line));
 }
-function countNewlines(text2) {
-  let count2 = 0;
-  for (let index2 = 0; index2 < text2.length; index2 += 1) {
-    if (text2.charCodeAt(index2) === 10) count2 += 1;
+function countNewlines(text) {
+  let count = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    if (text.charCodeAt(index) === 10) count += 1;
   }
-  return count2;
+  return count;
 }
 const MARKDOWN_DELIMITER_POINTS = new Set([
   "#",
@@ -895,9 +895,9 @@ const MARKDOWN_DELIMITER_POINTS = new Set([
 ]);
 const MARKDOWN_BLOCK_PREFIX =
   /^(?: {0,3})(?:#{1,6}(?:[ \t]+|$)|[-+*>][ \t]+|\d{1,9}[.)][ \t]+|`{3,}|~{3,})/;
-function locatableRenderedText(markdown2) {
+function locatableRenderedText(markdown) {
   const normalized = collapseRenderedText(
-    buildMarkdownNormalizeMap(markdown2).normalized,
+    buildMarkdownNormalizeMap(markdown).normalized,
   ).trim();
   return stripInlineMarkChars(
     normalized.replace(MARKDOWN_BLOCK_PREFIX, ""),
@@ -905,24 +905,24 @@ function locatableRenderedText(markdown2) {
 }
 function commonPrefixLength(left, right) {
   const limit = Math.min(left.length, right.length);
-  let length2 = 0;
-  while (length2 < limit && left[length2] === right[length2]) length2 += 1;
-  return length2;
+  let prefixLength = 0;
+  while (prefixLength < limit && left[prefixLength] === right[prefixLength]) prefixLength += 1;
+  return prefixLength;
 }
 function commonSuffixLength(left, right, prefixLength) {
-  let length2 = 0;
+  let suffixLength = 0;
   while (
-    length2 < left.length - prefixLength &&
-    length2 < right.length - prefixLength &&
-    left[left.length - length2 - 1] === right[right.length - length2 - 1]
+    suffixLength < left.length - prefixLength &&
+    suffixLength < right.length - prefixLength &&
+    left[left.length - suffixLength - 1] === right[right.length - suffixLength - 1]
   ) {
-    length2 += 1;
+    suffixLength += 1;
   }
-  return length2;
+  return suffixLength;
 }
-function containsNewline(points, from2, to) {
-  for (let index2 = from2; index2 < to; index2 += 1) {
-    if (points[index2] === "\n") return true;
+function containsNewline(points, from, to) {
+  for (let index = from; index < to; index += 1) {
+    if (points[index] === "\n") return true;
   }
   return false;
 }
@@ -974,9 +974,9 @@ function markerRunStart(points, boundary) {
   const previousNewline = points.lastIndexOf("\n", boundary - 1);
   const lineStart = previousNewline + 1;
   const nextNewline = points.indexOf("\n", lineStart);
-  const lineEnd2 = nextNewline < 0 ? points.length : nextNewline;
+  const lineEnd = nextNewline < 0 ? points.length : nextNewline;
   const blockPrefix = MARKDOWN_BLOCK_PREFIX.exec(
-    points.slice(lineStart, lineEnd2).join(""),
+    points.slice(lineStart, lineEnd).join(""),
   );
   if (blockPrefix) {
     const blockPrefixEnd = lineStart + Array.from(blockPrefix[0]).length;
@@ -990,10 +990,10 @@ function markerRunStart(points, boundary) {
   ) {
     return boundary;
   }
-  let start2 = boundary - 1;
-  while (start2 > 0 && MARKDOWN_DELIMITER_POINTS.has(points[start2 - 1]))
-    start2 -= 1;
-  return start2;
+  let start = boundary - 1;
+  while (start > 0 && MARKDOWN_DELIMITER_POINTS.has(points[start - 1]))
+    start -= 1;
+  return start;
 }
 function markerRunEnd(points, boundary) {
   if (
@@ -1004,10 +1004,10 @@ function markerRunEnd(points, boundary) {
   ) {
     return boundary;
   }
-  let end2 = boundary;
-  while (end2 < points.length && MARKDOWN_DELIMITER_POINTS.has(points[end2]))
-    end2 += 1;
-  return end2;
+  let end = boundary;
+  while (end < points.length && MARKDOWN_DELIMITER_POINTS.has(points[end]))
+    end += 1;
+  return end;
 }
 function alignMarkdownDelimiterBoundaries(
   left,
@@ -1103,9 +1103,9 @@ function minimizeDiffReviewHunk(hunk) {
     startLine: hunk.startLine + countNewlines(commonPrefix),
   };
 }
-function enclosingTableKey(doc2, pos) {
+function enclosingTableKey(doc, pos) {
   try {
-    const $pos = doc2.resolve(Math.min(Math.max(pos, 0), doc2.content.size));
+    const $pos = doc.resolve(Math.min(Math.max(pos, 0), doc.content.size));
     if ($pos.depth === 0) return null;
     return $pos.node(1).type.name === "table"
       ? `${$pos.before(1)}:${$pos.after(1)}`
@@ -1114,33 +1114,33 @@ function enclosingTableKey(doc2, pos) {
     return null;
   }
 }
-function enclosingHeadingLevel(doc2, pos) {
+function enclosingHeadingLevel(doc, pos) {
   try {
-    const $pos = doc2.resolve(Math.min(Math.max(pos, 0), doc2.content.size));
-    const node2 = $pos.depth > 0 ? $pos.node(1) : null;
-    if (node2?.type.name === "heading") {
-      const level = node2.attrs.level;
+    const $pos = doc.resolve(Math.min(Math.max(pos, 0), doc.content.size));
+    const node = $pos.depth > 0 ? $pos.node(1) : null;
+    if (node?.type.name === "heading") {
+      const level = node.attrs.level;
       return typeof level === "number" ? level : 1;
     }
   } catch {}
   return null;
 }
-function withEnclosingBlockPrefix(markdown2, doc2, pos) {
-  if (markdown2.includes("\n")) return markdown2;
-  const trimmed = markdown2.trimStart();
+function withEnclosingBlockPrefix(markdown, doc, pos) {
+  if (markdown.includes("\n")) return markdown;
+  const trimmed = markdown.trimStart();
   if (trimmed === "" || /^(#{1,6}\s|>|[-*+]\s|\d+\.\s|```)/.test(trimmed))
-    return markdown2;
-  const level = enclosingHeadingLevel(doc2, pos);
-  return level ? `${"#".repeat(level)} ${markdown2}` : markdown2;
+    return markdown;
+  const level = enclosingHeadingLevel(doc, pos);
+  return level ? `${"#".repeat(level)} ${markdown}` : markdown;
 }
 export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
   const { sourceMarkdown, onReviewDocumentApplied } = options;
-  const { t: t2 } = useTranslation();
-  const session = useDiffReviewStore((state2) => state2.session);
-  const reverting = useDiffReviewStore((state2) => state2.reverting);
-  const acceptHunk = useDiffReviewStore((state2) => state2.acceptHunk);
-  const acceptHunks = useDiffReviewStore((state2) => state2.acceptHunks);
-  const requestUndo = useDiffReviewStore((state2) => state2.requestUndo);
+  const { t } = useTranslation();
+  const session = useDiffReviewStore((state) => state.session);
+  const reverting = useDiffReviewStore((state) => state.reverting);
+  const acceptHunk = useDiffReviewStore((state) => state.acceptHunk);
+  const acceptHunks = useDiffReviewStore((state) => state.acceptHunks);
+  const requestUndo = useDiffReviewStore((state) => state.requestUndo);
   const pendingHunks = reactExports.useMemo(
     () =>
       selectPendingHunksForNode(
@@ -1165,12 +1165,12 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
   const locatedIdsRef = reactExports.useRef([]);
   reactExports.useEffect(() => {
     if (!editor || !nodeId) return;
-    const syncEditable = (state2) => {
+    const syncEditable = (state) => {
       if (editor.isDestroyed) return;
-      const ownsReview = state2.session?.nodeId === nodeId;
-      const reviewReady = state2.session?.baselineMarkdown !== void 0;
+      const ownsReview = state.session?.nodeId === nodeId;
+      const reviewReady = state.session?.baselineMarkdown !== void 0;
       editor.setEditable(
-        !(ownsReview && (state2.reverting || !reviewReady)),
+        !(ownsReview && (state.reverting || !reviewReady)),
         false,
       );
     };
@@ -1195,11 +1195,11 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
     void reconstructVerifiedDiffReviewBaseline(appliedMarkdown, session)
       .then((baseline) => {
         if (cancelled || editor.isDestroyed || baseline === null) return;
-        const current2 = useDiffReviewStore.getState().session;
+        const current = useDiffReviewStore.getState().session;
         if (
-          !current2 ||
-          current2.requestId !== session.requestId ||
-          current2.baselineMarkdown !== void 0
+          !current ||
+          current.requestId !== session.requestId ||
+          current.baselineMarkdown !== void 0
         )
           return;
         const historyDepthAtStart = recordProvisionalDiffReviewHistory(
@@ -1211,7 +1211,7 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
         useDiffReviewStore
           .getState()
           .setBaselineMarkdown(
-            current2.requestId,
+            current.requestId,
             baseline,
             historyDepthAtStart,
           );
@@ -1235,35 +1235,35 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
   }, [editor, nodeId]);
   reactExports.useEffect(() => {
     if (!editor || !nodeId) return;
-    const handler = (transition2) => {
+    const handler = (transition) => {
       if (
         editor.isDestroyed ||
-        transition2.before.nodeId !== nodeId ||
-        transition2.after.nodeId !== nodeId
+        transition.before.nodeId !== nodeId ||
+        transition.after.nodeId !== nodeId
       )
         return false;
       if (
-        transition2.before.baselineMarkdown === void 0 ||
-        (transition2.kind === "revert" && transition2.content === void 0)
+        transition.before.baselineMarkdown === void 0 ||
+        (transition.kind === "revert" && transition.content === void 0)
       )
         return false;
-      if (!recordDiffReviewTransition(editor, transition2)) return false;
-      useDiffReviewStore.getState().restoreHistorySession(transition2.after);
-      if (transition2.kind === "revert" && transition2.content !== void 0) {
-        onReviewDocumentApplied?.(transition2.content);
+      if (!recordDiffReviewTransition(editor, transition)) return false;
+      useDiffReviewStore.getState().restoreHistorySession(transition.after);
+      if (transition.kind === "revert" && transition.content !== void 0) {
+        onReviewDocumentApplied?.(transition.content);
       }
-      if (!transition2.after.hunks.some((hunk) => hunk.status === "pending")) {
-        const baseline = transition2.after.baselineMarkdown;
+      if (!transition.after.hunks.some((hunk) => hunk.status === "pending")) {
+        const baseline = transition.after.baselineMarkdown;
         if (baseline === void 0) return false;
         collapseDiffReviewHistory(
           editor,
           baseline,
           editor.getMarkdown(),
-          transition2.after.historyDepthAtStart,
+          transition.after.historyDepthAtStart,
         );
         useDiffReviewStore
           .getState()
-          .finishHistorySession(transition2.after.requestId);
+          .finishHistorySession(transition.after.requestId);
       }
       return true;
     };
@@ -1308,9 +1308,9 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
     [acceptHunks],
   );
   const renderMarkdown = reactExports.useCallback(
-    (markdown2, context) => {
+    (markdown, context) => {
       if (!editor) return null;
-      return renderDeletedMarkdown(editor, markdown2, context);
+      return renderDeletedMarkdown(editor, markdown, context);
     },
     [editor],
   );
@@ -1321,23 +1321,23 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
       clearDiffReviewHunks(editor);
       return;
     }
-    const doc2 = editor.state.doc;
-    const ranges = locateHunksInDoc(doc2, presentationHunks);
+    const doc = editor.state.doc;
+    const ranges = locateHunksInDoc(doc, presentationHunks);
     const views = [];
     const navIds = [];
     const seenTableKeys = new Set();
     let modifications = 0;
     for (const hunk of presentationHunks) {
-      const range2 = ranges.get(hunk.id);
-      if (!range2) {
+      const range = ranges.get(hunk.id);
+      if (!range) {
         modifications++;
         continue;
       }
       let repId;
-      if (range2.cells && range2.cells.length > 0) {
-        range2.cells.forEach((cell, index2) => {
+      if (range.cells && range.cells.length > 0) {
+        range.cells.forEach((cell, index) => {
           views.push({
-            id: `${hunk.id}::c${index2}`,
+            id: `${hunk.id}::c${index}`,
             controlId: hunk.id,
             from: cell.from,
             to: cell.to,
@@ -1355,25 +1355,25 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
         views.push({
           id: hunk.id,
           controlId: hunk.id,
-          from: range2.from,
-          to: range2.to,
+          from: range.from,
+          to: range.to,
           deletedMarkdown: withEnclosingBlockPrefix(
             hunk.originalText,
-            doc2,
-            range2.from,
+            doc,
+            range.from,
           ),
           deletedContext: {
             sourceMarkdown: hunk.originalText,
             prefix: hunk.reversePrefix,
             suffix: hunk.reverseSuffix,
           },
-          zeroWidth: range2.from === range2.to,
+          zeroWidth: range.from === range.to,
         });
         repId = hunk.id;
       }
       const tableKey = enclosingTableKey(
-        doc2,
-        range2.cells?.[0]?.from ?? range2.from,
+        doc,
+        range.cells?.[0]?.from ?? range.from,
       );
       if (tableKey) {
         if (seenTableKeys.has(tableKey)) continue;
@@ -1385,8 +1385,8 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
     locatedIdsRef.current = navIds;
     setModificationCount(modifications);
     setDiffReviewHunks(editor, views, {
-      undoLabel: t2("canvas.diffReview.undo", "撤销"),
-      acceptLabel: t2("canvas.diffReview.accept", "接受"),
+      undoLabel: t("canvas.diffReview.undo", "撤销"),
+      acceptLabel: t("canvas.diffReview.accept", "接受"),
       disabled: reviewBlocked,
       onUndo: handleUndo,
       onAccept: handleAccept,
@@ -1419,11 +1419,11 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
     handleUndoGroup,
     handleAcceptGroup,
     renderMarkdown,
-    t2,
+    t,
   ]);
   reactExports.useEffect(() => {
-    setActiveIndex((index2) =>
-      Math.min(index2, Math.max(0, modificationCount - 1)),
+    setActiveIndex((index) =>
+      Math.min(index, Math.max(0, modificationCount - 1)),
     );
   }, [modificationCount]);
   const step = reactExports.useCallback(
@@ -1432,10 +1432,10 @@ export function useDiffReview(editor, nodeId, contentRevision, options = {}) {
       const located = locatedIdsRef.current;
       if (located.length === 0) return;
       setActiveIndex((prev) => {
-        const next2 = (prev + dir + located.length) % located.length;
-        const id2 = located[next2];
-        if (id2) scrollToDiffHunk(editor, id2);
-        return next2;
+        const next = (prev + dir + located.length) % located.length;
+        const id = located[next];
+        if (id) scrollToDiffHunk(editor, id);
+        return next;
       });
     },
     [editor, pendingHunks.length],

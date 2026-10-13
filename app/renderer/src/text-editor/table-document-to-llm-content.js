@@ -1,30 +1,30 @@
 // table-document-to-llm-content.js
 
-export function setCell(doc2, rowId, columnId, value) {
+export function setCell(doc, rowId, columnId, value) {
   return {
-    ...doc2,
-    rows: doc2.rows.map((r2) =>
-      r2.id === rowId
+    ...doc,
+    rows: doc.rows.map((row) =>
+      row.id === rowId
         ? {
-            ...r2,
+            ...row,
             cells: {
-              ...r2.cells,
+              ...row.cells,
               [columnId]: value,
             },
           }
-        : r2,
+        : row,
     ),
   };
 }
-export function serializeTableDocument(doc2) {
-  return JSON.stringify(doc2, null, 2);
+export function serializeTableDocument(doc) {
+  return JSON.stringify(doc, null, 2);
 }
-export function tableDocumentToLlmContent(doc2) {
+export function tableDocumentToLlmContent(doc) {
   const columnIndexById = new Map();
-  doc2.columns.forEach((col, idx) => {
+  doc.columns.forEach((col, idx) => {
     columnIndexById.set(col.id, idx);
   });
-  const llmColumns = doc2.columns.map((col) => ({
+  const llmColumns = doc.columns.map((col) => ({
     title: col.title,
     type: col.type,
     ...(col.visible === false
@@ -38,28 +38,28 @@ export function tableDocumentToLlmContent(doc2) {
         }
       : {}),
   }));
-  const llmRows = doc2.rows.map((row) => ({
-    cells: doc2.columns.map((col) => {
+  const llmRows = doc.rows.map((row) => ({
+    cells: doc.columns.map((col) => {
       const cell = row.cells[col.id];
       if (cell === void 0 || cell === null) return null;
       if (Array.isArray(cell)) {
-        return cell.map((a2) => ({
-          assetId: a2.assetId,
-          name: a2.name,
-          kind: a2.kind,
+        return cell.map((attachment) => ({
+          assetId: attachment.assetId,
+          name: attachment.name,
+          kind: attachment.kind,
         }));
       }
       return cell;
     }),
   }));
-  const llm = {
+  const llmContent = {
     columns: llmColumns,
     rows: llmRows,
   };
-  if (doc2.filter && doc2.filter.conditions.length > 0) {
-    llm.filter = {
-      match: doc2.filter.match,
-      conditions: doc2.filter.conditions
+  if (doc.filter && doc.filter.conditions.length > 0) {
+    llmContent.filter = {
+      match: doc.filter.match,
+      conditions: doc.filter.conditions
         .map((cond) => {
           const idx = columnIndexById.get(cond.columnId);
           if (idx == null) return null;
@@ -69,32 +69,32 @@ export function tableDocumentToLlmContent(doc2) {
             value: cond.value,
           };
         })
-        .filter((c3) => c3 != null),
+        .filter((condition) => condition != null),
     };
-    if (llm.filter.conditions.length === 0) {
-      llm.filter = void 0;
+    if (llmContent.filter.conditions.length === 0) {
+      llmContent.filter = void 0;
     }
   }
-  if (doc2.rowHeight) llm.rowHeight = doc2.rowHeight;
-  return llm;
+  if (doc.rowHeight) llmContent.rowHeight = doc.rowHeight;
+  return llmContent;
 }
 export function DerivationEdge() {
   return null;
 }
 const MENTION_TOKEN_RE = /@\[([^\]\n]+)\]|@([^\s@[\]]+)/g;
-export function findAllMentions(text2) {
-  if (!text2) return [];
+export function findAllMentions(text) {
+  if (!text) return [];
   const out = [];
   MENTION_TOKEN_RE.lastIndex = 0;
-  let m3 = MENTION_TOKEN_RE.exec(text2);
-  while (m3 !== null) {
-    const path2 = m3[1] ?? m3[2] ?? "";
+  let match = MENTION_TOKEN_RE.exec(text);
+  while (match !== null) {
+    const path = match[1] ?? match[2] ?? "";
     out.push({
-      start: m3.index,
-      end: m3.index + m3[0].length,
-      path: path2,
+      start: match.index,
+      end: match.index + match[0].length,
+      path,
     });
-    m3 = MENTION_TOKEN_RE.exec(text2);
+    match = MENTION_TOKEN_RE.exec(text);
   }
   return out;
 }
@@ -191,10 +191,10 @@ export function canvasReferenceIdentity(reference) {
 export function mapCanvasReferenceCandidates(value) {
   if (!Array.isArray(value))
     throw new Error("Invalid reference search response");
-  return value.map((raw2) => {
-    if (!raw2 || typeof raw2 !== "object")
+  return value.map((raw) => {
+    if (!raw || typeof raw !== "object")
       throw new Error("Invalid reference candidate");
-    const row = raw2;
+    const row = raw;
     if (
       typeof row.id !== "string" ||
       typeof row.name !== "string" ||
@@ -220,11 +220,11 @@ export function mapCanvasReferenceCandidates(value) {
   });
 }
 export function existingCanvasReferencePath(reference, paths) {
-  const identity2 = canvasReferenceIdentity(reference);
-  for (const path2 of paths) {
-    const candidate = parseCanvasReference(path2);
-    if (candidate && canvasReferenceIdentity(candidate) === identity2)
-      return path2;
+  const identity = canvasReferenceIdentity(reference);
+  for (const path of paths) {
+    const candidate = parseCanvasReference(path);
+    if (candidate && canvasReferenceIdentity(candidate) === identity)
+      return path;
   }
   return void 0;
 }
@@ -266,12 +266,12 @@ const CLOUD_GATEWAY_URL_PREFIXES = [
         Object.values(channels),
       ),
       ...LEGACY_PLATFORM_PROVIDER_URLS,
-    ].flatMap((url2) => [url2, url2.replace("https://", "http://")]),
+    ].flatMap((url) => [url, url.replace("https://", "http://")]),
   ),
 ];
 new Set([
   "https://design.minimax.cn",
-  ...CLOUD_GATEWAY_URL_PREFIXES.filter((url2) => url2.startsWith("https://")),
+  ...CLOUD_GATEWAY_URL_PREFIXES.filter((url) => url.startsWith("https://")),
   "https://hailuo-pre.xaminim.com",
   "https://hailuoai-video-test.xaminim.com",
   "https://hailuoai.com",

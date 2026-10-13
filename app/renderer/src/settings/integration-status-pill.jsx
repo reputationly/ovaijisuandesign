@@ -26,7 +26,7 @@ const integrationStatusMarkerInnerClass = {
 };
 function IntegrationStatusMarker({
   tone,
-  active: active2 = false,
+  active = false,
   icon,
   label,
 }) {
@@ -42,7 +42,7 @@ function IntegrationStatusMarker({
       </span>
     );
   }
-  if (!active2) {
+  if (!active) {
     return (
       <span
         role="status"
@@ -89,7 +89,7 @@ export function IntegrationStatusPill({
   tooltipContent,
   className,
 }) {
-  const content2 = (
+  const content = (
     <>
       <IntegrationStatusMarker
         tone={markerTone}
@@ -110,7 +110,7 @@ export function IntegrationStatusPill({
     className,
   );
   if (!tooltipContent) {
-    return <span className={pillClassName}>{content2}</span>;
+    return <span className={pillClassName}>{content}</span>;
   }
   return (
     <Tooltip>
@@ -126,7 +126,7 @@ export function IntegrationStatusPill({
           />
         }
       >
-        {content2}
+        {content}
       </TooltipTrigger>
       <TooltipContent
         side="top"

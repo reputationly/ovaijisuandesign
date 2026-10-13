@@ -9,17 +9,17 @@ function mapReferenceMediaMetadata(value) {
     throw new Error("Invalid reference media metadata");
   const row = value;
   const result = {};
-  for (const key2 of ["duration_sec", "width", "height", "file_size"]) {
-    const number2 = row[key2];
-    if (number2 === void 0) continue;
+  for (const key of ["duration_sec", "width", "height", "file_size"]) {
+    const number = row[key];
+    if (number === void 0) continue;
     if (
-      typeof number2 !== "number" ||
-      !Number.isFinite(number2) ||
-      (key2 === "file_size" ? number2 < 0 : number2 <= 0) ||
-      (key2 !== "duration_sec" && !Number.isSafeInteger(number2))
+      typeof number !== "number" ||
+      !Number.isFinite(number) ||
+      (key === "file_size" ? number < 0 : number <= 0) ||
+      (key !== "duration_sec" && !Number.isSafeInteger(number))
     )
       throw new Error("Invalid reference media metadata");
-    result[key2] = number2;
+    result[key] = number;
   }
   return result;
 }
@@ -32,10 +32,10 @@ function mapCanvasReferenceMetadata(value) {
     throw new Error("Invalid reference attachments");
   return {
     media: row.media === void 0 ? void 0 : mapReferenceMediaMetadata(row.media),
-    attachments: row.attachments.map((raw2) => {
-      if (!raw2 || typeof raw2 !== "object")
+    attachments: row.attachments.map((raw) => {
+      if (!raw || typeof raw !== "object")
         throw new Error("Invalid reference attachment");
-      const attachment = raw2;
+      const attachment = raw;
       if (
         typeof attachment.id !== "string" ||
         !attachment.id ||
@@ -63,10 +63,10 @@ export function mapCanvasReferenceResolutions(value, expected) {
   if (expected && value.length !== expected.length) {
     throw new Error("Reference resolution count mismatch");
   }
-  return value.map((raw2, index2) => {
-    if (!raw2 || typeof raw2 !== "object")
+  return value.map((raw, index) => {
+    if (!raw || typeof raw !== "object")
       throw new Error("Invalid reference resolution");
-    const row = raw2;
+    const row = raw;
     const reference = mapCanvasDirectReference(row.reference);
     if (
       !reference ||
@@ -79,7 +79,7 @@ export function mapCanvasReferenceResolutions(value, expected) {
     if (
       expected &&
       canvasReferenceIdentity(reference) !==
-        canvasReferenceIdentity(expected[index2])
+        canvasReferenceIdentity(expected[index])
     ) {
       throw new Error("Reference resolution identity mismatch");
     }

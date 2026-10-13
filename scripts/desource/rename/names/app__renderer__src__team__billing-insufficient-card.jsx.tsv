@@ -1,0 +1,4 @@
+key	new	reason
+t2@30:14	t	useTranslation() 返回的翻译函数 t
+platform2@31:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+timer2@50:11	timer	去掉打包器加的数字后缀，恢复原名 timer

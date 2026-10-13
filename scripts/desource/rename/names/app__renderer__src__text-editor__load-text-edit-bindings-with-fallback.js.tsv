@@ -1,0 +1,4 @@
+key	new	reason
+a2@77:37	a	第一个编辑会话
+b3@77:41	b	第二个编辑会话
+timer2@49:11	timer	去掉打包器加的数字后缀，恢复原名 timer

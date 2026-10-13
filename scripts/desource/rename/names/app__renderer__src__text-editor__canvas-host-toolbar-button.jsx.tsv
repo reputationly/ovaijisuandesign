@@ -1,0 +1,18 @@
+key	new	reason
+t2@78:14	t	useTranslation() 返回的翻译函数 t
+id2@131:11	id	原名 id，去掉打包器加的数字去重后缀
+i2@169:15	i	原名 i，去掉打包器加的数字去重后缀
+t2@190:14	t	useTranslation() 返回的翻译函数 t
+t2@185:29	value	待校验是否为媒体类型的值
+content2@24:9	content	去掉打包器加的数字后缀，恢复原名 content
+config2@80:10	config	去掉打包器加的数字后缀，恢复原名 config
+record2@121:25	record	去掉打包器加的数字后缀，恢复原名 record
+key2@121:34	key	去掉打包器加的数字后缀，恢复原名 key
+record2@129:11	record	去掉打包器加的数字后缀，恢复原名 record
+name2@132:11	recordName	record 上必填的 name 字段；name 是全局名
+tags2@136:11	tags	去掉打包器加的数字后缀，恢复原名 tags
+size2@169:18	size	去掉打包器加的数字后缀，恢复原名 size
+min2@217:9	min	去掉打包器加的数字后缀，恢复原名 min
+max2@218:9	max	去掉打包器加的数字后缀，恢复原名 max
+active2@19:11	active	去掉打包器加的数字后缀，恢复原名 active
+count2@22:10	count	去掉打包器加的数字后缀，恢复原名 count

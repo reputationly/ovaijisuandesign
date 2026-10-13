@@ -6,7 +6,7 @@ import { Spinner } from "./use-team-transactions-feed-query.jsx";
 const INFINITE_SCROLL_PRELOAD_BATCHES = 3;
 const LOAD_AHEAD_PX = 160;
 export function InfiniteScrollContainer({
-  children: children2,
+  children,
   loadedBatchCount,
   hasMore,
   isLoadingMore,
@@ -59,17 +59,17 @@ export function InfiniteScrollContainer({
     const sentinel = sentinelRef.current;
     if (!viewport || !sentinel || typeof IntersectionObserver === "undefined")
       return;
-    const observer2 = new IntersectionObserver(
-      (entries2) => {
-        if (entries2.some((entry) => entry.isIntersecting)) requestLoadMore();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) requestLoadMore();
       },
       {
         root: viewport,
         rootMargin: `0px 0px ${LOAD_AHEAD_PX}px 0px`,
       },
     );
-    observer2.observe(sentinel);
-    return () => observer2.disconnect();
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, [requestLoadMore]);
   const handleScroll = (event) => {
     const viewport = event.currentTarget;
@@ -85,7 +85,7 @@ export function InfiniteScrollContainer({
       aria-busy={isLoadingMore || void 0}
       data-action-ui-id={actionUiId}
     >
-      {children2}
+      {children}
       <div
         ref={sentinelRef}
         className="flex min-h-1 items-center justify-center py-1"

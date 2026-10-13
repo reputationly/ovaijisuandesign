@@ -32,8 +32,8 @@ function defaultCreditReminderConfig() {
     threshold: DEFAULT_CREDIT_REMINDER_THRESHOLD,
   };
 }
-function resolveCreditReminderScope(uid2, teamAccount) {
-  if (!uid2) return null;
+function resolveCreditReminderScope(uid, teamAccount) {
+  if (!uid) return null;
   if (teamAccount?.integrationEnabled) {
     const activeScope = teamAccount.activeScope;
     const viewKind = teamAccount.viewModel.kind;
@@ -47,22 +47,22 @@ function resolveCreditReminderScope(uid2, teamAccount) {
       // The persisted key must use the authenticated user's UID. TeamAccount's
       // identityKey is an internal session/identity handle and is not the
       // user-facing account identifier promised by the local-storage contract.
-      uid: uid2,
+      uid,
       scopeType: viewKind === "ready_team" ? "team" : "personal",
       groupId: activeScope.groupId,
     };
   }
   return {
-    uid: uid2,
+    uid,
     scopeType: "personal",
     groupId: LEGACY_PERSONAL_GROUP_ID,
   };
 }
-function assertValidConfig(config2) {
-  const normalized = normalizeCreditReminderConfig(config2);
+function assertValidConfig(config) {
+  const normalized = normalizeCreditReminderConfig(config);
   if (
-    normalized.enabled !== config2.enabled ||
-    normalized.threshold !== config2.threshold
+    normalized.enabled !== config.enabled ||
+    normalized.threshold !== config.threshold
   ) {
     throw new Error("Invalid credit reminder configuration");
   }
@@ -76,16 +76,16 @@ export function useCreditReminderConfig() {
   );
   const scope = resolveCreditReminderScope(user?.userID, teamAccount);
   const scopeKey = scope ? creditReminderScopeKey(scope) : null;
-  const config2 = reactExports.useMemo(() => {
+  const config = reactExports.useMemo(() => {
     if (!scopeKey) return defaultCreditReminderConfig();
     return normalizeCreditReminderConfig(configs[scopeKey]);
   }, [configs, scopeKey]);
   const saveConfig = reactExports.useCallback(
-    async (next2) => {
+    async (next) => {
       if (!scopeKey) throw new Error("Credit reminder scope is unavailable");
-      const normalized = assertValidConfig(next2);
-      const persisted = await setConfigsAsync((current2) => ({
-        ...current2,
+      const normalized = assertValidConfig(next);
+      const persisted = await setConfigsAsync((current) => ({
+        ...current,
         [scopeKey]: normalized,
       }));
       if (!persisted)
@@ -94,7 +94,7 @@ export function useCreditReminderConfig() {
     [scopeKey, setConfigsAsync],
   );
   return {
-    config: config2,
+    config,
     scope,
     scopeKey,
     isReady: isHydrated && scopeKey !== null,
@@ -109,17 +109,17 @@ export function isAnnualMember(wallet) {
   );
 }
 export function TeamCreditHistorySection({
-  children: children2,
+  children,
   showInfo = true,
   action,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <section className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <h3 className="font-heading text-sm font-medium text-foreground">
-            {t2("team.credit.history", {
+            {t("team.credit.history", {
               defaultValue: "积分流水",
             })}
           </h3>
@@ -131,7 +131,7 @@ export function TeamCreditHistorySection({
                     <button
                       type="button"
                       className="inline-flex size-4 items-center justify-center text-muted-foreground hover:text-foreground"
-                      aria-label={t2("team.credit.historyHelp", {
+                      aria-label={t("team.credit.historyHelp", {
                         defaultValue: "积分流水说明",
                       })}
                       data-action-ui-id="team.credit-history-info"
@@ -144,7 +144,7 @@ export function TeamCreditHistorySection({
                   side="top"
                   className="!max-w-[26rem] leading-relaxed"
                 >
-                  {t2("team.credit.historyHelpContent", {
+                  {t("team.credit.historyHelpContent", {
                     defaultValue:
                       "该积分流水仅展示该用户在该团队下使用过的积分明细，无法查看团队其他人的用量。",
                   })}
@@ -155,12 +155,12 @@ export function TeamCreditHistorySection({
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
-      {children2}
+      {children}
     </section>
   );
 }
 export function TeamCreditSummaryLoading() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       role="status"
@@ -169,7 +169,7 @@ export function TeamCreditSummaryLoading() {
       data-action-ui-id="team.credit-summary-loading"
     >
       <span className="sr-only">
-        {t2("common.loading", {
+        {t("common.loading", {
           defaultValue: "加载中…",
         })}
       </span>

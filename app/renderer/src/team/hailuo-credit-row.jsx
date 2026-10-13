@@ -118,7 +118,7 @@ function useSubscriptionWalletQuery() {
 export function useMpSubscriptionWalletQuery() {
   const query = useSubscriptionWalletQuery();
   const mpWallet = query.data?.wallets?.find(
-    (w3) => w3.source === WalletSource.WALLET_SOURCE_OP,
+    (wallet) => wallet.source === WalletSource.WALLET_SOURCE_OP,
   );
   return {
     ...query,
@@ -126,9 +126,9 @@ export function useMpSubscriptionWalletQuery() {
   };
 }
 export function useMpWallet() {
-  const { data: data2 } = useWalletQuery();
-  return data2?.wallets?.find(
-    (w3) => w3.source === WalletSource.WALLET_SOURCE_OP,
+  const { data } = useWalletQuery();
+  return data?.wallets?.find(
+    (wallet) => wallet.source === WalletSource.WALLET_SOURCE_OP,
   );
 }
 export function useMpSubscribeUrl() {
@@ -150,10 +150,10 @@ export function deriveMpCreditSummary(mpWallet) {
       hasBreakdown: false,
     };
   }
-  const sumByType = (type2) =>
+  const sumByType = (type) =>
     (mpWallet.sub_credits ?? [])
-      .filter((sc) => sc.credit_type === type2)
-      .reduce((acc, sc) => acc + (sc.credit ?? 0), 0);
+      .filter((subCredit) => subCredit.credit_type === type)
+      .reduce((acc, subCredit) => acc + (subCredit.credit ?? 0), 0);
   return {
     total: mpWallet.total_credit ?? 0,
     membership: sumByType(CreditType.CREDIT_TYPE_MEMBERSHIP),
@@ -164,35 +164,35 @@ export function deriveMpCreditSummary(mpWallet) {
   };
 }
 export function useHailuoWallet() {
-  const { data: data2 } = useWalletQuery();
-  return data2?.wallets?.find(
-    (w3) => w3.source === WalletSource.WALLET_SOURCE_HILO,
+  const { data } = useWalletQuery();
+  return data?.wallets?.find(
+    (wallet) => wallet.source === WalletSource.WALLET_SOURCE_HILO,
   );
 }
 export function useCanMigrate() {
-  const { data: data2, isError, isRefetchError } = useWalletQuery();
+  const { data, isError, isRefetchError } = useWalletQuery();
   if (isError || isRefetchError) return false;
-  if (!data2?.can_migrate) return false;
-  const endTime = data2.migrate_end_time ?? 0;
+  if (!data?.can_migrate) return false;
+  const endTime = data.migrate_end_time ?? 0;
   return endTime > 0 && Date.now() < endTime;
 }
 export function useHiloToMpRatio() {
   return 10;
 }
 export function useMigrateDeadline() {
-  const { data: data2 } = useWalletQuery();
-  const endTime = data2?.migrate_end_time ?? 0;
+  const { data } = useWalletQuery();
+  const endTime = data?.migrate_end_time ?? 0;
   if (endTime <= 0) return null;
-  const d2 = new Date(endTime);
-  const yyyy = d2.getFullYear();
-  const mm = String(d2.getMonth() + 1).padStart(2, "0");
-  const dd2 = String(d2.getDate()).padStart(2, "0");
+  const endDate = new Date(endTime);
+  const yyyy = endDate.getFullYear();
+  const month = String(endDate.getMonth() + 1).padStart(2, "0");
+  const day = String(endDate.getDate()).padStart(2, "0");
   return {
-    date: `${yyyy}/${mm}/${dd2}`,
+    date: `${yyyy}/${month}/${day}`,
   };
 }
 export function useMigrateCredit() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const { queryScope, canMutatePersonalCredit } = useCreditAccountState();
   const submittedScopesRef = reactExports.useRef(new WeakMap());
   return useMutation({
@@ -228,7 +228,7 @@ export function useMigrateCredit() {
           submittedScope &&
           creditScopeMatchesCurrentDecision(submittedScope)
         ) {
-          queryClient2.invalidateQueries({
+          queryClient.invalidateQueries({
             queryKey: creditQueryKeys.account(submittedScope),
           });
         }
@@ -249,11 +249,11 @@ export function useMigrateCredit() {
     retry: false,
   });
 }
-export function ShellIcon({ size: size2 = 14, className }) {
+export function ShellIcon({ size = 14, className }) {
   return (
     <svg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
@@ -279,8 +279,8 @@ export function SubscriptionRenewalBadge({ placement = "corner" }) {
   );
 }
 export function MpCreditRow({ onClick, showRenewalBadge = false }) {
-  const { t: t2 } = useTranslation();
-  const { data: data2, isLoading, isError, isRefetchError } = useWalletQuery();
+  const { t } = useTranslation();
+  const { data, isLoading, isError, isRefetchError } = useWalletQuery();
   const walletFailed = isError || isRefetchError;
   const mpWallet = useMpWallet();
   const mpCredits = mpWallet?.total_credit ?? 0;
@@ -292,9 +292,9 @@ export function MpCreditRow({ onClick, showRenewalBadge = false }) {
         creditLog.warn("mp_row.render_dash", {
           isError,
           isRefetchError,
-          hasData: !!data2,
-          walletsCount: data2?.wallets?.length,
-          walletSources: data2?.wallets?.map((w3) => w3.source),
+          hasData: !!data,
+          walletsCount: data?.wallets?.length,
+          walletSources: data?.wallets?.map((wallet) => wallet.source),
           mpTotalCredit: mpWallet?.total_credit,
           traceId: getLastGatewayTraceId(),
         });
@@ -302,7 +302,7 @@ export function MpCreditRow({ onClick, showRenewalBadge = false }) {
     } else {
       loggedDashRef.current = false;
     }
-  }, [isLoading, walletFailed, isError, isRefetchError, data2, mpWallet]);
+  }, [isLoading, walletFailed, isError, isRefetchError, data, mpWallet]);
   return (
     <button
       type="button"
@@ -312,7 +312,7 @@ export function MpCreditRow({ onClick, showRenewalBadge = false }) {
     >
       <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-muted-foreground">
         <span className="truncate">
-          {t2("mediaplan.userMenu.mpCreditLabel")}
+          {t("mediaplan.userMenu.mpCreditLabel")}
         </span>
         {showRenewalBadge && <SubscriptionRenewalBadge placement="inline" />}
       </span>
@@ -337,8 +337,8 @@ export function MpCreditRow({ onClick, showRenewalBadge = false }) {
   );
 }
 export function HailuoCreditRow({ onExchange }) {
-  const { t: t2 } = useTranslation();
-  const { data: data2, isLoading, isError, isRefetchError } = useWalletQuery();
+  const { t } = useTranslation();
+  const { data, isLoading, isError, isRefetchError } = useWalletQuery();
   const walletFailed = isError || isRefetchError;
   const hailuoWallet = useHailuoWallet();
   const hailuoCredits = hailuoWallet?.total_credit ?? 0;
@@ -350,8 +350,8 @@ export function HailuoCreditRow({ onExchange }) {
         creditLog.warn("hailuo_row.render_dash", {
           isError,
           isRefetchError,
-          hasData: !!data2,
-          walletSources: data2?.wallets?.map((w3) => w3.source),
+          hasData: !!data,
+          walletSources: data?.wallets?.map((wallet) => wallet.source),
           hailuoCredits: hailuoWallet?.total_credit,
           traceId: getLastGatewayTraceId(),
         });
@@ -359,13 +359,13 @@ export function HailuoCreditRow({ onExchange }) {
     } else {
       loggedDashRef.current = false;
     }
-  }, [isLoading, walletFailed, isError, isRefetchError, data2, hailuoWallet]);
+  }, [isLoading, walletFailed, isError, isRefetchError, data, hailuoWallet]);
   if (!isLoading && !walletFailed && hailuoCredits <= 0) return null;
   return (
     <div className="flex h-9 w-full items-center justify-between gap-2 rounded-sm px-2">
       <div className="flex min-w-0 items-center gap-1">
         <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {t2("userMenu.hailuoBalanceLabel")}
+          {t("userMenu.hailuoBalanceLabel")}
         </span>
         <TooltipProvider delay={200}>
           <Tooltip>
@@ -380,7 +380,7 @@ export function HailuoCreditRow({ onExchange }) {
               sideOffset={8}
               className="max-w-72 text-xs"
             >
-              {t2("mediaplan.userMenu.hailuoTooltip")}
+              {t("mediaplan.userMenu.hailuoTooltip")}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -403,7 +403,7 @@ export function HailuoCreditRow({ onExchange }) {
           disabled={hailuoCredits <= 0}
           className="inline-flex h-[18px] cursor-pointer items-center gap-0.5 whitespace-nowrap rounded-full bg-foreground px-1.5 text-[10px] font-medium text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {t2("userMenu.hailuoBalanceRedeemCta")}
+          {t("userMenu.hailuoBalanceRedeemCta")}
           <ArrowRight size={10} strokeWidth={2} />
         </button>
       </div>

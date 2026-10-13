@@ -143,7 +143,7 @@ export function InviteProjectPanel({
               defaultValue: "成员",
             })}
           </span>
-          {members.some((m) => m.userId !== user?.userID) ? (
+          {members.some((member) => member.userId !== user?.userID) ? (
             <span className="ml-auto text-[11px] tabular-nums">
               {t("project.invite.membersTotal", {
                 count: members.length,

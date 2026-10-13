@@ -1,0 +1,37 @@
+key	new	reason
+id2@92:11	id	原名 id，去掉打包器加的数字去重后缀
+id2@177:38	id	原名 id，去掉打包器加的数字去重后缀
+t2@178:14	t	useTranslation() 返回的翻译函数 t
+id2@188:7	id	原名 id，去掉打包器加的数字去重后缀
+t2@196:14	t	useTranslation() 返回的翻译函数 t
+t2@326:14	t	useTranslation() 返回的翻译函数 t
+t2@509:14	t	useTranslation() 返回的翻译函数 t
+t2@690:14	t	useTranslation() 返回的翻译函数 t
+_2@623:40	_	filter 中未使用的元素
+_2@1020:20	_	filter 中未使用的元素
+ids2@76:9	ids	去掉打包器加的数字后缀，恢复原名 ids
+url2@61:11	url	去掉打包器加的数字后缀，恢复原名 url
+index2@83:15	index	去掉打包器加的数字后缀，恢复原名 index
+index2@136:15	index	去掉打包器加的数字后缀，恢复原名 index
+name2@145:11	headerName	header.name 规整后的值；name 是全局名
+value2@167:18	value	去掉打包器加的数字后缀，恢复原名 value
+index2@189:10	index	去掉打包器加的数字后缀，恢复原名 index
+disabled2@192:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+invalid2@193:12	invalid	去掉打包器加的数字后缀，恢复原名 invalid
+next2@201:11	next	去掉打包器加的数字后缀，恢复原名 next
+index2@320:10	index	去掉打包器加的数字后缀，恢复原名 index
+disabled2@321:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+onRemove2@324:13	onRemove	去掉打包器加的数字后缀，恢复原名 onRemove
+disabled2@505:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+index2@514:29	index	去掉打包器加的数字后缀，恢复原名 index
+name2@560:20	savedName	已保存的 header 名；name 是全局名
+name2@581:20	savedName	已保存的 header 名；name 是全局名
+name2@590:20	savedName	已保存的 header 名；name 是全局名
+name2@682:53	headerName	headers 的键；name 是全局名
+pending2@693:10	pending	去掉打包器加的数字后缀，恢复原名 pending
+patch2@723:25	patch	去掉打包器加的数字后缀，恢复原名 patch
+current2@725:15	current	去掉打包器加的数字后缀，恢复原名 current
+index2@758:50	index	去掉打包器加的数字后缀，恢复原名 index
+current2@963:42	current	去掉打包器加的数字后缀，恢复原名 current
+index2@997:43	index	去掉打包器加的数字后缀，恢复原名 index
+next2@1005:24	next	去掉打包器加的数字后缀，恢复原名 next

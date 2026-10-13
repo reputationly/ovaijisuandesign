@@ -28,8 +28,8 @@ import { accountScopeEquals } from "./account-scope-equals.js";
 import { useTeamContextsQuery } from "./use-team-transactions-feed-query.jsx";
 const INTEGER_RE = /^\d+$/;
 const MAX_SAFE_TRANSFER_CREDIT = BigInt(Number.MAX_SAFE_INTEGER);
-function validateTransferAmount(raw2, teamRemaining) {
-  const value = raw2.trim();
+function validateTransferAmount(raw, teamRemaining) {
+  const value = raw.trim();
   if (value.length === 0) return "empty";
   if (!INTEGER_RE.test(value)) return "not_integer";
   let amount;
@@ -47,7 +47,7 @@ function validateTransferAmount(raw2, teamRemaining) {
   if (amount > MAX_SAFE_TRANSFER_CREDIT) return "exceeds_safe_integer";
   return null;
 }
-class TeamScopeChangedError3 extends Error {}
+class TeamScopeChangedError extends Error {}
 class TeamCreditTransferResultUnknownError extends Error {
   constructor(intent) {
     super("team_credit_transfer_result_unknown");
@@ -55,16 +55,16 @@ class TeamCreditTransferResultUnknownError extends Error {
   }
 }
 class TeamCreditTransferRejectedError extends Error {
-  constructor(code2) {
-    super(code2);
-    this.code = code2;
+  constructor(code) {
+    super(code);
+    this.code = code;
   }
 }
 export function TransferCreditForm({
-  active: active2,
+  active,
   scope,
   teamRemaining,
-  disabled: disabled2 = false,
+  disabled = false,
   autoFocus = false,
   submitLabel,
   targetPlaceholder,
@@ -74,12 +74,12 @@ export function TransferCreditForm({
   onScopeChanged,
   selectPortalContainer,
 }) {
-  const { t: t2 } = useTranslation();
-  const queryClient2 = useQueryClient();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const {
     acknowledgeCreditTransfer,
     activeScope,
-    snapshot: snapshot2,
+    snapshot,
     transferCredits,
   } = useTeamAccount();
   const amountInputId = reactExports.useId();
@@ -89,8 +89,8 @@ export function TransferCreditForm({
   const [actionError, setActionError] = reactExports.useState(null);
   const [unknownIntent, setUnknownIntent] = reactExports.useState(null);
   const contextsQuery = useTeamContextsQuery(
-    snapshot2?.identityKey ?? null,
-    active2,
+    snapshot?.identityKey ?? null,
+    active,
   );
   const targets = reactExports.useMemo(
     () =>
@@ -100,13 +100,13 @@ export function TransferCreditForm({
     [contextsQuery.data, scope.groupId],
   );
   reactExports.useEffect(() => {
-    if (active2) {
+    if (active) {
       setTargetGroupId("");
       setAmountText("");
       setActionError(null);
       setUnknownIntent(null);
     }
-  }, [active2]);
+  }, [active]);
   const amountIssue = validateTransferAmount(amountText, teamRemaining);
   const amountError =
     amountText.trim().length === 0
@@ -114,11 +114,11 @@ export function TransferCreditForm({
       : amountIssue === "not_integer" ||
           amountIssue === "not_positive" ||
           amountIssue === "exceeds_safe_integer"
-        ? t2("team.transferCredit.amountInvalid", {
+        ? t("team.transferCredit.amountInvalid", {
             defaultValue: "请输入大于 0 的整数积分。",
           })
         : amountIssue === "exceeds_balance"
-          ? t2("team.transferCredit.amountExceedsBalance", {
+          ? t("team.transferCredit.amountExceedsBalance", {
               defaultValue: "超出团队可用积分。",
             })
           : null;
@@ -129,10 +129,10 @@ export function TransferCreditForm({
         !scope.membershipRevision ||
         !accountScopeEquals(activeScope, scope)
       ) {
-        throw new TeamScopeChangedError3();
+        throw new TeamScopeChangedError();
       }
       const decision = guardAccountSubmission("team_credit_transfer");
-      if (!decision.allowed) throw new TeamScopeChangedError3();
+      if (!decision.allowed) throw new TeamScopeChangedError();
       if (
         decision.mode !== "CANONICAL" ||
         !accountScopeEquals(decision.scope, scope)
@@ -141,7 +141,7 @@ export function TransferCreditForm({
           kind: "team_credit_transfer",
           reasonCode: "account_scope_changed",
         });
-        throw new TeamScopeChangedError3();
+        throw new TeamScopeChangedError();
       }
       const amount = amountText.trim();
       const intent = {
@@ -174,7 +174,7 @@ export function TransferCreditForm({
         targets.find((item) => item.groupId === targetGroupId)?.displayName ??
         targetGroupId;
       dedupedToast.success(
-        t2("team.transferCredit.succeeded", {
+        t("team.transferCredit.succeeded", {
           defaultValue: "已转移 {{amount}} 积分到「{{target}}」。",
           amount: formatCreditAmount(receipt.transferredCredit),
           target: targetName,
@@ -183,13 +183,13 @@ export function TransferCreditForm({
       void acknowledgeCreditTransfer({
         ...intent,
       }).catch(() => {});
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: teamQueryKeys.membership(scope),
       });
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: creditQueryKeys.scope(scope),
       });
-      void queryClient2.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: teamQueryKeys.contexts(scope.identityKey),
       });
       setTargetGroupId("");
@@ -197,10 +197,10 @@ export function TransferCreditForm({
       onTransferred?.();
     },
     onError: (error) => {
-      if (error instanceof TeamScopeChangedError3) {
+      if (error instanceof TeamScopeChangedError) {
         setActionError(null);
         dedupedToast.error(
-          t2("team.management.scopeChanged", {
+          t("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
           }),
         );
@@ -210,7 +210,7 @@ export function TransferCreditForm({
       if (error instanceof TeamCreditTransferResultUnknownError) {
         setUnknownIntent(error.intent);
         setActionError(
-          t2("team.transferCredit.resultUnknown", {
+          t("team.transferCredit.resultUnknown", {
             defaultValue:
               "转移结果尚未确认。为避免重复扣款，已禁止再次提交；请核对积分流水并联系支持处理。",
           }),
@@ -219,11 +219,11 @@ export function TransferCreditForm({
       }
       const detail = describeTeamMutationError(error);
       const suffix = formatTeamMutationErrorSuffix(detail);
-      const primary = t2("team.transferCredit.failed", {
+      const primary = t("team.transferCredit.failed", {
         defaultValue: "积分转移失败，请稍后重试。",
       });
-      const message2 = suffix ? `${primary}（${suffix}）` : primary;
-      setActionError(message2);
+      const message = suffix ? `${primary}（${suffix}）` : primary;
+      setActionError(message);
     },
   });
   reactExports.useEffect(() => {
@@ -231,7 +231,7 @@ export function TransferCreditForm({
   }, [mutation.isPending, onPendingChange]);
   const targetsUnavailable = contextsQuery.isSuccess && targets.length === 0;
   const canSubmit =
-    !disabled2 &&
+    !disabled &&
     !mutation.isPending &&
     unknownIntent === null &&
     targetGroupId.length > 0 &&
@@ -244,7 +244,7 @@ export function TransferCreditForm({
           htmlFor={targetSelectId}
           className="text-muted-foreground font-normal"
         >
-          {t2("team.transferCredit.targetLabel", {
+          {t("team.transferCredit.targetLabel", {
             defaultValue: "转入账号",
           })}
         </Label>
@@ -255,7 +255,7 @@ export function TransferCreditForm({
             setActionError(null);
           }}
           disabled={
-            disabled2 ||
+            disabled ||
             mutation.isPending ||
             unknownIntent !== null ||
             targets.length === 0
@@ -269,7 +269,7 @@ export function TransferCreditForm({
             <SelectValue
               placeholder={
                 targetPlaceholder ??
-                t2("team.transferCredit.targetPlaceholder", {
+                t("team.transferCredit.targetPlaceholder", {
                   defaultValue: "选择转入账号",
                 })
               }
@@ -294,14 +294,14 @@ export function TransferCreditForm({
         </Select>
         {targetsUnavailable ? (
           <p className="text-xs text-muted-foreground">
-            {t2("team.transferCredit.noTarget", {
+            {t("team.transferCredit.noTarget", {
               defaultValue: "当前没有其他可转入的团队或个人空间。",
             })}
           </p>
         ) : null}
         {contextsQuery.isError ? (
           <p className="text-xs text-muted-foreground">
-            {getTeamReasonText(t2, "temporarily_unavailable")}
+            {getTeamReasonText(t, "temporarily_unavailable")}
           </p>
         ) : null}
       </div>
@@ -311,10 +311,10 @@ export function TransferCreditForm({
           className="text-muted-foreground font-normal"
         >
           {teamRemaining === null
-            ? t2("team.transferCredit.amountLabel", {
+            ? t("team.transferCredit.amountLabel", {
                 defaultValue: "转移数量",
               })
-            : t2("team.transferCredit.amountLabelWithBalance", {
+            : t("team.transferCredit.amountLabelWithBalance", {
                 defaultValue: "转移数量（团队可用 {{balance}}）",
                 balance: formatCreditAmount(teamRemaining),
               })}
@@ -325,7 +325,7 @@ export function TransferCreditForm({
           inputMode="numeric"
           autoComplete="off"
           autoFocus={autoFocus}
-          disabled={disabled2 || mutation.isPending || unknownIntent !== null}
+          disabled={disabled || mutation.isPending || unknownIntent !== null}
           onChange={(event) => {
             setAmountText(event.target.value);
             setActionError(null);
@@ -363,7 +363,7 @@ export function TransferCreditForm({
             disabled={mutation.isPending}
             onClick={onCancel}
           >
-            {t2("common.cancel", {
+            {t("common.cancel", {
               defaultValue: "取消",
             })}
           </Button>
@@ -379,7 +379,7 @@ export function TransferCreditForm({
           data-action-ui-id="team.transfer-credit-confirm"
         >
           {submitLabel ??
-            t2("team.transferCredit.confirm", {
+            t("team.transferCredit.confirm", {
               defaultValue: "确认转移",
             })}
         </Button>

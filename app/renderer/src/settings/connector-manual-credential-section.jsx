@@ -48,34 +48,34 @@ export function ConnectorManualCredentialSection({
   onCreated,
   onBusyChange,
 }) {
-  const { t: t2, i18n } = useTranslation();
-  const platform2 = usePlatform();
+  const { t, i18n } = useTranslation();
+  const platform = usePlatform();
   const connectorId = manifest.connectorId;
-  const language2 = i18n?.language ?? "en";
+  const language = i18n?.language ?? "en";
   const profile =
     manifest.auth.kind === "hubOAuthProfile" ? manifest.auth.profile : void 0;
   const manual = profile?.flow?.manual;
   const serverName = manifest.capabilities.mcp?.serverName ?? connectorId;
   const requiredInputs = profile?.requiredInputs ?? [];
   const docsUrl = profile?.flow?.docsUrl;
-  const { copy: copy2 } = useConnectorCopy(
+  const { copy } = useConnectorCopy(
     connectorId,
     manifest.displayName,
     "manual",
   );
-  const manualCopy = (key2) => {
-    const override = manual?.copy?.[key2];
-    return override ? localizedI18nText(override, language2) : copy2(key2);
+  const manualCopy = (key) => {
+    const override = manual?.copy?.[key];
+    return override ? localizedI18nText(override, language) : copy(key);
   };
   const modes = manual?.modes ?? [];
-  const [mode2, setMode] = reactExports.useState(
+  const [mode, setMode] = reactExports.useState(
     modes[0] ?? "clientCredentials",
   );
-  const [values3, setValues] = reactExports.useState({});
+  const [values, setValues] = reactExports.useState({});
   const [clientId, setClientId] = reactExports.useState("");
   const [clientSecret, setClientSecret] = reactExports.useState("");
   const [accessToken, setAccessToken] = reactExports.useState("");
-  const [pending2, setPending] = reactExports.useState(false);
+  const [pending, setPending] = reactExports.useState(false);
   const [error, setError] = reactExports.useState();
   const mounted = reactExports.useRef(true);
   reactExports.useEffect(() => {
@@ -87,17 +87,17 @@ export function ConnectorManualCredentialSection({
   const inputsReady = requiredInputs.every((input) =>
     isRequiredInputSatisfied(
       input,
-      values3[input.key] ?? "",
+      values[input.key] ?? "",
       normalizeHostInput,
     ),
   );
   const credentialsReady =
-    mode2 === "accessToken"
+    mode === "accessToken"
       ? isValidSecret(accessToken)
       : isValidSecret(clientId) && isValidSecret(clientSecret);
-  const otherMode = modes.find((candidate) => candidate !== mode2);
+  const otherMode = modes.find((candidate) => candidate !== mode);
   const connect = async () => {
-    if (pending2 || !inputsReady || !credentialsReady) return;
+    if (pending || !inputsReady || !credentialsReady) return;
     setPending(true);
     onBusyChange?.(true);
     setError(void 0);
@@ -105,10 +105,10 @@ export function ConnectorManualCredentialSection({
       const input = Object.fromEntries(
         requiredInputs.map((field) => [
           field.key,
-          normalizeHostInput(values3[field.key] ?? ""),
+          normalizeHostInput(values[field.key] ?? ""),
         ]),
       );
-      if (mode2 === "accessToken") {
+      if (mode === "accessToken") {
         input.access_token = accessToken.trim();
       } else {
         input.client_id = clientId.trim();
@@ -120,17 +120,17 @@ export function ConnectorManualCredentialSection({
       );
       if (!mounted.current) return;
       if (!staged.ok) {
-        setError(t2(`connectors.customDialog.error.${staged.code}`));
+        setError(t(`connectors.customDialog.error.${staged.code}`));
         return;
       }
       const finalized = await installStagedConnector(connectorId, serverName);
       if (!mounted.current) return;
       if (!finalized.ok) {
         setError(
-          t2(`connectors.connector.error.${finalized.code}`, {
+          t(`connectors.connector.error.${finalized.code}`, {
             name: connectorTitle(
-              t2,
-              language2,
+              t,
+              language,
               connectorId,
               manifest.displayName,
             ),
@@ -142,7 +142,7 @@ export function ConnectorManualCredentialSection({
       onClose();
     } catch {
       if (mounted.current)
-        setError(t2("connectors.customDialog.error.authorization_failed"));
+        setError(t("connectors.customDialog.error.authorization_failed"));
     } finally {
       if (mounted.current) {
         setPending(false);
@@ -150,20 +150,20 @@ export function ConnectorManualCredentialSection({
       }
     }
   };
-  const secretField = (id2, label, placeholder, value, onChange, masked) => (
+  const secretField = (id, label, placeholder, value, onChange, masked) => (
     <div>
-      <Label htmlFor={id2} className="text-sm font-medium text-foreground">
+      <Label htmlFor={id} className="text-sm font-medium text-foreground">
         {label}
       </Label>
       <Input3
-        id={id2}
+        id={id}
         type={masked ? "password" : "text"}
         value={value}
         onChange={(event) => {
           onChange(event.target.value);
           setError(void 0);
         }}
-        disabled={pending2}
+        disabled={pending}
         autoComplete="off"
         autoCapitalize="none"
         spellCheck={false}
@@ -174,7 +174,7 @@ export function ConnectorManualCredentialSection({
             }
           : {})}
         className="mt-1.5 h-10 rounded-lg bg-card"
-        data-action-ui-id={id2}
+        data-action-ui-id={id}
       />
     </div>
   );
@@ -182,7 +182,7 @@ export function ConnectorManualCredentialSection({
     <ConnectorDialogShell
       connectorId={connectorId}
       embedded={embedded}
-      dismissible={!pending2}
+      dismissible={!pending}
       onRequestClose={onClose}
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -200,7 +200,7 @@ export function ConnectorManualCredentialSection({
                 >
                   {manual.steps.map((step) => (
                     <li key={step.text.en}>
-                      {localizedI18nText(step.text, language2)}
+                      {localizedI18nText(step.text, language)}
                     </li>
                   ))}
                 </ol>
@@ -209,7 +209,7 @@ export function ConnectorManualCredentialSection({
                     type="button"
                     className="mt-2 inline-flex items-center gap-1 text-[13px] text-foreground underline-offset-2 hover:underline"
                     onClick={() =>
-                      void openExternalUrl(platform2, docsUrl, {
+                      void openExternalUrl(platform, docsUrl, {
                         source: `connectors.${connectorId}.docs`,
                       })
                     }
@@ -224,18 +224,18 @@ export function ConnectorManualCredentialSection({
             <ConnectorRequiredInputFields
               connectorId={connectorId}
               requiredInputs={requiredInputs}
-              values={values3}
-              disabled={pending2}
+              values={values}
+              disabled={pending}
               normalize={normalizeHostInput}
-              onChange={(key2, value) => {
-                setValues((current2) => ({
-                  ...current2,
-                  [key2]: value,
+              onChange={(key, value) => {
+                setValues((current) => ({
+                  ...current,
+                  [key]: value,
                 }));
                 setError(void 0);
               }}
             />
-            {mode2 === "accessToken" ? (
+            {mode === "accessToken" ? (
               secretField(
                 `connectors-${connectorId}-access-token`,
                 manualCopy("token.label"),
@@ -287,20 +287,20 @@ export function ConnectorManualCredentialSection({
         </ConnectorDialogIntro>
         <ConnectorDialogActions
           connectorId={connectorId}
-          cancelLabel={t2("common.cancel")}
-          cancelDisabled={pending2}
+          cancelLabel={t("common.cancel")}
+          cancelDisabled={pending}
           onCancel={onClose}
         >
           <Button
             type="button"
             className="h-9 min-w-26 rounded-lg px-4"
-            disabled={pending2 || !inputsReady || !credentialsReady}
-            loading={pending2}
+            disabled={pending || !inputsReady || !credentialsReady}
+            loading={pending}
             onClick={() => void connect()}
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
-            {pending2
-              ? t2("connectors.detail.connecting")
+            {pending
+              ? t("connectors.detail.connecting")
               : manualCopy("connect")}
           </Button>
         </ConnectorDialogActions>

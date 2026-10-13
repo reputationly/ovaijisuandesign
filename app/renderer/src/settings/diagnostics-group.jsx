@@ -22,16 +22,16 @@ export function progressPercent(progress) {
 }
 export function formatProgressDisplay(progress) {
   if (!progress) return "";
-  const percent2 = progressPercent(progress);
+  const percent = progressPercent(progress);
   const speed = formatSpeed(progress.bytesPerSecond);
-  return `${percent2}% · ${speed}`;
+  return `${percent}% · ${speed}`;
 }
 const WINDOWS_UPDATER_INSTALL_OPTIONS = {
   isSilent: false,
   isForceRunAfter: true,
 };
-export function installUpdateForPlatform(install, os2) {
-  if (os2 === "win32") {
+export function installUpdateForPlatform(install, os) {
+  if (os === "win32") {
     return install({
       ...WINDOWS_UPDATER_INSTALL_OPTIONS,
     });
@@ -40,19 +40,19 @@ export function installUpdateForPlatform(install, os2) {
 }
 export async function openManualInstallerDownload(
   shell,
-  url2,
+  url,
   fallbackUrl,
   source,
 ) {
   try {
-    await shell.openExternal(url2);
+    await shell.openExternal(url);
   } catch (error) {
     actionTrailLog.warn("update manual download open failed", {
       source,
-      target: externalUrlTargetForLog(url2),
+      target: externalUrlTargetForLog(url),
       error,
     });
-    if (!fallbackUrl || fallbackUrl === url2) return;
+    if (!fallbackUrl || fallbackUrl === url) return;
     try {
       await shell.openExternal(fallbackUrl);
     } catch (fallbackError) {
@@ -64,21 +64,21 @@ export async function openManualInstallerDownload(
     }
   }
 }
-function normalizeForCompare(p3, caseInsensitive) {
-  const unified2 = p3.replace(/\\/g, "/").replace(/\/+$/, "");
-  return caseInsensitive ? unified2.toLowerCase() : unified2;
+function normalizeForCompare(filePath, caseInsensitive) {
+  const unified = filePath.replace(/\\/g, "/").replace(/\/+$/, "");
+  return caseInsensitive ? unified.toLowerCase() : unified;
 }
 export function isPathInWhitelist(target, whitelist, caseInsensitive) {
   if (!target) return false;
-  const t2 = normalizeForCompare(target, caseInsensitive);
+  const normalizedTarget = normalizeForCompare(target, caseInsensitive);
   return whitelist.some((dir) => {
-    const d2 = normalizeForCompare(dir, caseInsensitive);
-    if (!d2) return false;
-    return t2 === d2 || t2.startsWith(`${d2}/`);
+    const normalizedDir = normalizeForCompare(dir, caseInsensitive);
+    if (!normalizedDir) return false;
+    return normalizedTarget === normalizedDir || normalizedTarget.startsWith(`${normalizedDir}/`);
   });
 }
 export function DiagnosticsGroup() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [uploading, setUploading] = reactExports.useState(false);
   const openLogDir = reactExports.useCallback(async () => {
     await window.hilo?.diagnostics?.openLogDir();
@@ -89,21 +89,21 @@ export function DiagnosticsGroup() {
     try {
       const result = await window.hilo.diagnostics.uploadLogs("manual");
       if (result.success) {
-        dedupedToast.success(t2("settings.uploadLogsSuccess"));
+        dedupedToast.success(t("settings.uploadLogsSuccess"));
       } else {
-        dedupedToast.error(result.error ?? t2("settings.uploadLogsFailed"));
+        dedupedToast.error(result.error ?? t("settings.uploadLogsFailed"));
       }
     } catch {
-      dedupedToast.error(t2("settings.uploadLogsFailed"));
+      dedupedToast.error(t("settings.uploadLogsFailed"));
     } finally {
       setUploading(false);
     }
-  }, [t2]);
+  }, [t]);
   return (
-    <SettingGroup title={t2("settings.groupDiagnostics")}>
+    <SettingGroup title={t("settings.groupDiagnostics")}>
       <SettingRow
-        label={t2("settings.logDirectory")}
-        description={t2("settings.logDirectoryDesc")}
+        label={t("settings.logDirectory")}
+        description={t("settings.logDirectoryDesc")}
       >
         <Button
           variant="outline"
@@ -112,12 +112,12 @@ export function DiagnosticsGroup() {
           onClick={() => void openLogDir()}
         >
           <LocalFolderIcon />
-          {t2("settings.openLogDir")}
+          {t("settings.openLogDir")}
         </Button>
       </SettingRow>
       <SettingRow
-        label={t2("settings.uploadLogs")}
-        description={t2("settings.uploadLogsDesc")}
+        label={t("settings.uploadLogs")}
+        description={t("settings.uploadLogsDesc")}
       >
         <Button
           variant="outline"
@@ -132,8 +132,8 @@ export function DiagnosticsGroup() {
             className={uploading ? "animate-pulse" : ""}
           />
           {uploading
-            ? t2("settings.uploadLogsUploading")
-            : t2("settings.uploadLogs")}
+            ? t("settings.uploadLogsUploading")
+            : t("settings.uploadLogs")}
         </Button>
       </SettingRow>
     </SettingGroup>

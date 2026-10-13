@@ -40,11 +40,11 @@ export function DialogPortal({ ...props }) {
 export function DialogClose({ ...props }) {
   return <DialogClose$1 data-slot="dialog-close" {...props} />;
 }
-export function recordAction(message2, data2) {
-  actionTrailLog.info(message2, data2);
+export function recordAction(message, data) {
+  actionTrailLog.info(message, data);
 }
-export function buildWSUrl(url2) {
-  return url2 ?? DEFAULT_RUNTIME_CONFIG.wsUrl;
+export function buildWSUrl(url) {
+  return url ?? DEFAULT_RUNTIME_CONFIG.wsUrl;
 }
 const listeners = new Set();
 export const authExpiredBus = {
@@ -55,9 +55,9 @@ export const authExpiredBus = {
     };
   },
   emit() {
-    for (const fn2 of listeners) {
+    for (const fn of listeners) {
       try {
-        fn2();
+        fn();
       } catch (err) {
         console.error("[auth-expired-bus] listener threw:", err);
       }
@@ -95,20 +95,20 @@ export class GatewayHttpError extends Error {
   constructor({
     status,
     method,
-    path: path2,
+    path,
     detail,
-    code: code2,
+    code,
     details,
     userMessage,
   }) {
     super(
-      `Gateway ${method} ${path2} failed: ${status}${detail ? ` - ${detail}` : ""}`,
+      `Gateway ${method} ${path} failed: ${status}${detail ? ` - ${detail}` : ""}`,
     );
     this.name = "GatewayHttpError";
     this.status = status;
     this.method = method;
-    this.path = path2;
-    this.code = code2;
+    this.path = path;
+    this.code = code;
     this.details = details;
     this.userMessage = userMessage;
   }
@@ -116,20 +116,20 @@ export class GatewayHttpError extends Error {
 export function getBaseUrl() {
   return normalizeGatewayBaseUrl(getRuntimeConfig().gatewayUrl);
 }
-export function gatewayUrlFromBase(baseUrl, path2, workspaceIdentity) {
+export function gatewayUrlFromBase(baseUrl, path, workspaceIdentity) {
   if (typeof workspaceIdentity === "object") {
-    return workspaceGatewayUrl(workspaceIdentity, path2);
+    return workspaceGatewayUrl(workspaceIdentity, path);
   }
-  const base2 = normalizeGatewayBaseUrl(baseUrl);
-  if (!base2) return void 0;
-  const result = new URL(`${base2}${path2}`);
+  const base = normalizeGatewayBaseUrl(baseUrl);
+  if (!base) return void 0;
+  const result = new URL(`${base}${path}`);
   if (workspaceIdentity) {
     result.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, workspaceIdentity);
   }
   return result.toString();
 }
-export function gatewayUrl(path2) {
-  const base2 = getBaseUrl();
-  return gatewayUrlFromBase(base2, path2);
+export function gatewayUrl(path) {
+  const base = getBaseUrl();
+  return gatewayUrlFromBase(base, path);
 }
 export const FeedbackContext = reactExports.createContext(null);

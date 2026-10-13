@@ -1,0 +1,9 @@
+key	new	reason
+t2@35:14	t	useTranslation() 返回的翻译函数 t
+isPluginNode2@115:19	isPluginNode	去掉打包器加的数字后缀，恢复原名 isPluginNode
+isImage2@116:19	isImage	去掉打包器加的数字后缀，恢复原名 isImage
+readOnly2@125:19	readOnly	去掉打包器加的数字后缀，恢复原名 readOnly
+element2@163:23	element	去掉打包器加的数字后缀，恢复原名 element
+onRemove2@22:13	onRemove	去掉打包器加的数字后缀，恢复原名 onRemove
+active2@19:11	active	去掉打包器加的数字后缀，恢复原名 active
+disabled2@28:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled

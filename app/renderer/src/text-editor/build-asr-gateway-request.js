@@ -30,8 +30,8 @@ function isCanvasGenerationHandoffTarget(value) {
   );
 }
 
-export function parseCanvasGenerationHandoffTargets(text2) {
-  const normalized = text2.trim();
+export function parseCanvasGenerationHandoffTargets(text) {
+  const normalized = text.trim();
   if (!normalized.startsWith(CANVAS_HANDOFF_MARKER_PREFIX)) return [];
   try {
     const parsed = JSON.parse(
@@ -51,9 +51,9 @@ const CANVAS_HANDOFF_METADATA_KEY = "hilo_canvas_handoff";
 export function parseCanvasGenerationHandoffTargetsFromMetadata(metadata) {
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata))
     return [];
-  const raw2 = metadata[CANVAS_HANDOFF_METADATA_KEY];
-  if (!Array.isArray(raw2)) return [];
-  return raw2
+  const raw = metadata[CANVAS_HANDOFF_METADATA_KEY];
+  if (!Array.isArray(raw)) return [];
+  return raw
     .filter(isCanvasGenerationHandoffTarget)
     .slice(0, MAX_CANVAS_HANDOFF_TARGETS);
 }
@@ -63,16 +63,16 @@ const CANCEL_MARKER_TEXTS = [
   CANCELLED_WITH_CANVAS_CONTINUATION_TEXT,
 ];
 
-export function isCancelMarkerText(text2) {
-  const normalized = text2.trim();
+export function isCancelMarkerText(text) {
+  const normalized = text.trim();
   return (
     CANCEL_MARKER_TEXTS.some((marker) => marker === normalized) ||
     normalized.startsWith(CANVAS_HANDOFF_MARKER_PREFIX)
   );
 }
 
-export function cancelMarkerHasCanvasContinuation(text2) {
-  const normalized = text2.trim();
+export function cancelMarkerHasCanvasContinuation(text) {
+  const normalized = text.trim();
   return (
     normalized === CANCELLED_WITH_CANVAS_CONTINUATION_TEXT ||
     normalized.startsWith(CANVAS_HANDOFF_MARKER_PREFIX)
@@ -90,9 +90,9 @@ const RECOVERED_MESSAGE_PREFIXES = [
   RECOVERED_MESSAGE_PREFIX_EN,
 ];
 
-export function isRecoveredMessage(text2) {
-  const trimmed = text2.trimStart();
-  return RECOVERED_MESSAGE_PREFIXES.some((p3) => trimmed.startsWith(p3));
+export function isRecoveredMessage(text) {
+  const trimmed = text.trimStart();
+  return RECOVERED_MESSAGE_PREFIXES.some((prefix) => trimmed.startsWith(prefix));
 }
 
 const RESUME_CHILD_PROMPT_ZH = `${RECOVERED_MESSAGE_PREFIX} 你之前中断的生成步骤已恢复，产物见上。请基于这些产物继续完成本任务剩余的步骤；若已全部完成，简要总结产物即可。`;
@@ -101,24 +101,24 @@ const RESUME_CHILD_PROMPT_EN = `${RECOVERED_MESSAGE_PREFIX_EN} The generation st
 
 const RESUME_CHILD_PROMPTS = [RESUME_CHILD_PROMPT_ZH, RESUME_CHILD_PROMPT_EN];
 
-export function stripRecoveredPrefix(text2) {
-  const trimmed = text2.trimStart();
-  for (const p3 of RECOVERED_MESSAGE_PREFIXES) {
-    if (trimmed.startsWith(p3)) return trimmed.slice(p3.length).trimStart();
+export function stripRecoveredPrefix(text) {
+  const trimmed = text.trimStart();
+  for (const prefix of RECOVERED_MESSAGE_PREFIXES) {
+    if (trimmed.startsWith(prefix)) return trimmed.slice(prefix.length).trimStart();
   }
-  return text2;
+  return text;
 }
 
 const CONTEXT_PREFIX_RE =
   /^(?:\[IM chat_id: [^\]]*\]\n)?(?:\[IM message_id: [^\]]*\]\n)?(?:\[CONTEXT [^\]]*\]\s*)?(?:\[HISTORY[\s\S]*?\[END HISTORY\]\s*)?(?:\[USER_MSG\][\s\S]*?\[\/USER_MSG\]\s*)?/;
 
-export function stripContextPrefix(text2) {
-  return text2.replace(CONTEXT_PREFIX_RE, "");
+export function stripContextPrefix(text) {
+  return text.replace(CONTEXT_PREFIX_RE, "");
 }
 
-export function isResumeChildPrompt(text2) {
-  const normalized = stripContextPrefix(text2).trim();
-  return RESUME_CHILD_PROMPTS.some((p3) => normalized === p3);
+export function isResumeChildPrompt(text) {
+  const normalized = stripContextPrefix(text).trim();
+  return RESUME_CHILD_PROMPTS.some((resumePrompt) => normalized === resumePrompt);
 }
 
 export const AGENT_LABELS = {
@@ -139,10 +139,10 @@ export function diagnosticToolPart(part) {
   };
 }
 
-export function diagnosticChatTools(messages2) {
+export function diagnosticChatTools(messages) {
   const result = [];
-  const visitChildren = (children2) => {
-    for (const child of children2) {
+  const visitChildren = (children) => {
+    for (const child of children) {
       if (child.type === "tool")
         result.push({
           tool: child.content,
@@ -153,21 +153,21 @@ export function diagnosticChatTools(messages2) {
       if (child.subMessages) visitChildren(child.subMessages);
     }
   };
-  for (const message2 of messages2) {
-    if (message2.type === "tool")
+  for (const message of messages) {
+    if (message.type === "tool")
       result.push({
-        tool: message2.content,
-        partId: message2.partId,
-        callID: message2.callID,
-        status: message2.toolStatus,
+        tool: message.content,
+        partId: message.partId,
+        callID: message.callID,
+        status: message.toolStatus,
       });
-    if (message2.type === "sub_agent") {
+    if (message.type === "sub_agent") {
       result.push({
         tool: "task",
-        partId: message2.partId?.replace(/__sub_agent$/, ""),
-        status: message2.resolved ? "completed" : "running",
+        partId: message.partId?.replace(/__sub_agent$/, ""),
+        status: message.resolved ? "completed" : "running",
       });
-      visitChildren(message2.subMessages ?? []);
+      visitChildren(message.subMessages ?? []);
     }
   }
   return result;
@@ -199,28 +199,28 @@ export const CHAT_RATING_COMMENT_MAX_LENGTH = 1e3;
 
 const CONNECTOR_TOKEN_RE = new RegExp(`^${CONNECTOR_TOKEN_SOURCE}`, "u");
 
-export function parseConnectorMentionAt(text2, start2) {
-  if (start2 > 0 && !/\s/u.test(text2.charAt(start2 - 1))) return void 0;
-  const match2 = CONNECTOR_TOKEN_RE.exec(text2.slice(start2));
-  if (!match2) return void 0;
+export function parseConnectorMentionAt(text, start) {
+  if (start > 0 && !/\s/u.test(text.charAt(start - 1))) return void 0;
+  const match = CONNECTOR_TOKEN_RE.exec(text.slice(start));
+  if (!match) return void 0;
   return {
-    serverName: match2[1],
-    ...(match2[2]
+    serverName: match[1],
+    ...(match[2]
       ? {
-          displayName: match2[2],
+          displayName: match[2],
         }
       : {}),
-    start: start2,
-    end: start2 + match2[0].length,
+    start,
+    end: start + match[0].length,
   };
 }
 
-export function isCustomModelProvider(id2) {
-  return /^user-custom-[a-z0-9-]+$/.test(id2 ?? "");
+export function isCustomModelProvider(id) {
+  return /^user-custom-[a-z0-9-]+$/.test(id ?? "");
 }
 
-export function isCustomModelId(id2) {
-  return isCustomModelProvider(id2?.split("/")[0]);
+export function isCustomModelId(id) {
+  return isCustomModelProvider(id?.split("/")[0]);
 }
 
 export const MEDIA_FILE_ACCEPT = {
@@ -242,16 +242,16 @@ export const SEEDANCE_REFERENCE_AUDIO_MAX_SEC = 15.2;
 
 export const RESOURCE_DRAG_MIME = "application/x-hilo-resource";
 
-export function parseResourceDrag(e2) {
-  const raw2 = e2.dataTransfer?.getData(RESOURCE_DRAG_MIME);
-  if (!raw2) return null;
+export function parseResourceDrag(dragEvent) {
+  const raw = dragEvent.dataTransfer?.getData(RESOURCE_DRAG_MIME);
+  if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw2);
+    const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || parsed.length === 0) return null;
-    const first2 = parsed[0];
+    const first = parsed[0];
     if (
-      typeof first2.path !== "string" ||
-      typeof first2.absolutePath !== "string"
+      typeof first.path !== "string" ||
+      typeof first.absolutePath !== "string"
     )
       return null;
     return parsed;
@@ -265,18 +265,18 @@ const VALID_MEDIA_TYPES = new Set(["image", "video", "audio", "text"]);
 export function buildResourceDragItem(
   absolutePath,
   relativePath,
-  name2,
+  resourceName,
   isDirectory,
   assetId,
   projectAsset,
 ) {
-  const detected = isDirectory ? void 0 : detectFileType(name2);
-  const type2 = detected && VALID_MEDIA_TYPES.has(detected) ? detected : "file";
+  const detected = isDirectory ? void 0 : detectFileType(resourceName);
+  const type = detected && VALID_MEDIA_TYPES.has(detected) ? detected : "file";
   return {
     path: relativePath,
     absolutePath,
-    name: name2,
-    type: type2,
+    name: resourceName,
+    type,
     isDirectory,
     ...(assetId != null && {
       assetId,
@@ -290,37 +290,37 @@ export function buildResourceDragItem(
 export const TEXT_EDIT_SELECTION_MAX_LENGTH = 2e4;
 
 export function coarseLineHunk(oldLines, newLines) {
-  let start2 = 0;
+  let start = 0;
   const oldLen = oldLines.length;
   const newLen = newLines.length;
   while (
-    start2 < oldLen &&
-    start2 < newLen &&
-    oldLines[start2] === newLines[start2]
+    start < oldLen &&
+    start < newLen &&
+    oldLines[start] === newLines[start]
   )
-    start2 += 1;
+    start += 1;
   let oldEnd = oldLen;
   let newEnd = newLen;
   while (
-    oldEnd > start2 &&
-    newEnd > start2 &&
+    oldEnd > start &&
+    newEnd > start &&
     oldLines[oldEnd - 1] === newLines[newEnd - 1]
   ) {
     oldEnd -= 1;
     newEnd -= 1;
   }
-  if (oldEnd === start2 && newEnd === start2) return null;
+  if (oldEnd === start && newEnd === start) return null;
   return {
-    oldStart: start2,
-    oldCount: oldEnd - start2,
-    newStart: start2,
-    newCount: newEnd - start2,
+    oldStart: start,
+    oldCount: oldEnd - start,
+    newStart: start,
+    newCount: newEnd - start,
   };
 }
 
-function isWorkspaceRelativeMediaPath(path2) {
-  if (!path2 || typeof path2 !== "string") return false;
-  const trimmed = path2.trim();
+function isWorkspaceRelativeMediaPath(path) {
+  if (!path || typeof path !== "string") return false;
+  const trimmed = path.trim();
   if (!trimmed) return false;
   if (/^https?:\/\//i.test(trimmed)) return false;
   if (trimmed.startsWith("/files/")) return false;
@@ -332,9 +332,9 @@ function isAsrAudioInput(mediaPath, mediaType) {
   return false;
 }
 
-function mediakitLanguage(language2) {
-  if (language2 === "en") return "en";
-  if (language2 === "auto") return "auto";
+function mediakitLanguage(language) {
+  if (language === "en") return "en";
+  if (language === "auto") return "auto";
   return "zh";
 }
 
@@ -347,7 +347,7 @@ export function buildAsrGatewayRequest(input) {
     };
   }
   const isAudio = isAsrAudioInput();
-  const base2 = {
+  const base = {
     filename,
     ...(sourceNodeId
       ? {
@@ -362,13 +362,13 @@ export function buildAsrGatewayRequest(input) {
     : {
         video_path: mediaPath,
       };
-  const language2 = input.language ?? "zh";
-  if (language2 === "other") {
+  const language = input.language ?? "zh";
+  if (language === "other") {
     return {
       ok: true,
       route: "whisper",
       request: {
-        ...base2,
+        ...base,
         ...pathField,
       },
     };
@@ -377,9 +377,9 @@ export function buildAsrGatewayRequest(input) {
     ok: true,
     route: "mediakit",
     request: {
-      ...base2,
+      ...base,
       ...pathField,
-      language: mediakitLanguage(language2),
+      language: mediakitLanguage(language),
     },
   };
 }

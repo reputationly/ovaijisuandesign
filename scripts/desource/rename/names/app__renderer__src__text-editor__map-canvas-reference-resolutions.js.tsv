@@ -1,0 +1,6 @@
+key	new	reason
+key2@12:14	key	去掉打包器加的数字后缀，恢复原名 key
+number2@13:11	number	去掉打包器加的数字后缀，恢复原名 number
+raw2@35:39	raw	去掉打包器加的数字后缀，恢复原名 raw
+raw2@66:21	raw	去掉打包器加的数字后缀，恢复原名 raw
+index2@66:27	index	去掉打包器加的数字后缀，恢复原名 index

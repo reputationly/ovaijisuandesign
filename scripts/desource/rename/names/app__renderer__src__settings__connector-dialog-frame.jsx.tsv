@@ -1,0 +1,5 @@
+key	new	reason
+content2@36:11	content	去掉打包器加的数字后缀，恢复原名 content
+observer2@111:11	observer	去掉打包器加的数字后缀，恢复原名 observer
+children2@17:13	children	去掉打包器加的数字后缀，恢复原名 children
+size2@18:9	size	去掉打包器加的数字后缀，恢复原名 size

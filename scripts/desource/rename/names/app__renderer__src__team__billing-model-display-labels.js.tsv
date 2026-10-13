@@ -1,0 +1,8 @@
+key	new	reason
+t2@161:38	t	调用方传入的翻译函数 t
+t2@224:54	t	调用方传入的翻译函数 t
+type2@198:36	type	去掉打包器加的数字后缀，恢复原名 type
+candidates2@207:9	candidates	去掉打包器加的数字后缀，恢复原名 candidates
+match2@214:9	match	去掉打包器加的数字后缀，恢复原名 match
+displayName2@236:9	displayName	去掉打包器加的数字后缀，恢复原名 displayName
+mediaType2@252:11	mediaType	去掉打包器加的数字后缀，恢复原名 mediaType

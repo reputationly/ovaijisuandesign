@@ -10,7 +10,7 @@ export function isCreditTransferTarget(item, sourceGroupId) {
 }
 
 export function TeamPanelLoading({ rows = 3 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const rowIds = ["first", "second", "third", "fourth", "fifth"].slice(0, rows);
   return (
     <div
@@ -20,7 +20,7 @@ export function TeamPanelLoading({ rows = 3 }) {
       data-action-ui-id="team.panel-loading"
     >
       <span className="sr-only">
-        {t2("common.loading", {
+        {t("common.loading", {
           defaultValue: "加载中…",
         })}
       </span>

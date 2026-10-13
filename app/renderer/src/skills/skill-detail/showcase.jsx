@@ -262,13 +262,13 @@ export function SkillStructuredOverview({ info }) {
       className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"
       data-action-ui-id="skill-detail-structured-info"
     >
-      {sections.map(({ key, title, icon: Icon2, text, tags }) => (
+      {sections.map(({ key, title, icon: Icon, text, tags }) => (
         <section
           key={key}
           className="group min-w-0 rounded-lg border border-border bg-card p-4 transition-colors duration-150 hover:border-foreground/20 hover:bg-muted/40"
         >
           <h3 className="mb-2 flex items-center gap-2 text-xs font-medium uppercase">
-            <Icon2
+            <Icon
               size={16}
               strokeWidth={1.5}
               className="shrink-0 text-muted-foreground transition-colors duration-150 group-hover:text-foreground"

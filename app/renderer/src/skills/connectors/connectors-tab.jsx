@@ -580,12 +580,12 @@ export function ConnectorsTab({
                   {section.cards.map((card) => {
                     if (card.kind === "browser") return browserCard;
                     if (card.kind === "saved") {
-                      const { connector: connector2, catalogEntry, title, description } = card;
+                      const { connector, catalogEntry, title, description } = card;
                       return (
                         <CustomConnectorCard
-                          key={`saved:${connector2.name}`}
-                          connector={connector2}
-                          editable={!findOfficialConnectorForServer(connector2)}
+                          key={`saved:${connector.name}`}
+                          connector={connector}
+                          editable={!findOfficialConnectorForServer(connector)}
                           title={title}
                           description={description}
                           icon={catalogEntry?.icon}
@@ -596,7 +596,7 @@ export function ConnectorsTab({
                           }
                           onClick={
                             catalogEntry?.detail
-                              ? () => handleCardClick(catalogEntry, connector2)
+                              ? () => handleCardClick(catalogEntry, connector)
                               : void 0
                           }
                           onUpdated={handleConnectorUpdated}

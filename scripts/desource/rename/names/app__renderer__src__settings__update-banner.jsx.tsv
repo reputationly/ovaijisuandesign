@@ -1,0 +1,7 @@
+key	new	reason
+t2@37:14	t	useTranslation() 返回的翻译函数 t
+i2@96:8	i	原名 i，去掉打包器加的数字去重后缀
+s2@40:14	routerState	路由状态选择器收到的 router state
+platform2@38:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+state2@43:12	state	去掉打包器加的数字后缀，恢复原名 state
+locale2@84:13	locale	去掉打包器加的数字后缀，恢复原名 locale

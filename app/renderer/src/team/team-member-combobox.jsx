@@ -14,13 +14,13 @@ import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { PopoverContent } from "./hailuo-credit-row.jsx";
 export function TeamMemberCombobox({
-  id: id2,
+  id,
   value,
   onValueChange,
   options,
   searchQuery,
   onSearchChange,
-  disabled: disabled2 = false,
+  disabled = false,
   loading = false,
   error = false,
   onRetry,
@@ -34,10 +34,10 @@ export function TeamMemberCombobox({
   popupZClassName = "z-[70]",
   "data-action-ui-id": dataActionUiId = "team.member-combobox",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const listboxId = reactExports.useId();
-  const selected2 = options.find((option2) => option2.userId === value) ?? null;
+  const selected = options.find((option) => option.userId === value) ?? null;
   const searchActionUiId =
     dataActionUiId === "team.management-leave-successor"
       ? "team.management-leave-successor-search"
@@ -46,38 +46,38 @@ export function TeamMemberCombobox({
     dataActionUiId === "team.management-leave-successor"
       ? "team.management-leave-successor-option"
       : `${dataActionUiId}-option`;
-  const selectedDescription = selected2
-    ? (selected2.description ??
-      (selected2.role
-        ? `UID ${selected2.userId} · ${t2(
-            `team.role.${selected2.role.toLowerCase()}`,
+  const selectedDescription = selected
+    ? (selected.description ??
+      (selected.role
+        ? `UID ${selected.userId} · ${t(
+            `team.role.${selected.role.toLowerCase()}`,
             {
-              defaultValue: selected2.role,
+              defaultValue: selected.role,
             },
           )}`
         : null))
     : null;
-  const triggerLabel = selected2
+  const triggerLabel = selected
     ? selectedLabelMode === "name" || !selectedDescription
-      ? selected2.displayName
-      : `${selected2.displayName} · ${selectedDescription}`
+      ? selected.displayName
+      : `${selected.displayName} · ${selectedDescription}`
     : (placeholder ??
-      t2("team.management.successorPlaceholder", {
+      t("team.management.successorPlaceholder", {
         defaultValue: "搜索并选择继任 Owner",
       }));
   return (
     <Popover
       open={open}
-      onOpenChange={(next2) => {
-        if (disabled2) return;
-        setOpen(next2);
-        if (!next2) onSearchChange("");
+      onOpenChange={(next) => {
+        if (disabled) return;
+        setOpen(next);
+        if (!next) onSearchChange("");
       }}
     >
       <PopoverTrigger
-        id={id2}
+        id={id}
         type="button"
-        disabled={disabled2}
+        disabled={disabled}
         role="combobox"
         aria-expanded={open}
         aria-controls={listboxId}
@@ -88,7 +88,7 @@ export function TeamMemberCombobox({
           "flex h-auto min-h-9 w-full items-center justify-between gap-2 rounded-lg border border-input bg-transparent px-2.5 py-2 text-left text-xs outline-none transition-colors",
           "hover:bg-muted/60 focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          !selected2 && "text-muted-foreground",
+          !selected && "text-muted-foreground",
         )}
       >
         <span className="line-clamp-2 min-w-0 flex-1">{triggerLabel}</span>
@@ -110,13 +110,13 @@ export function TeamMemberCombobox({
             startIcon={<Icon icon={Search} size="sm" aria-hidden={true} />}
             placeholder={
               searchPlaceholder ??
-              t2("team.management.searchPlaceholder", {
+              t("team.management.searchPlaceholder", {
                 defaultValue: "搜索姓名或 UID",
               })
             }
             aria-label={
               searchPlaceholder ??
-              t2("team.management.searchPlaceholder", {
+              t("team.management.searchPlaceholder", {
                 defaultValue: "搜索姓名或 UID",
               })
             }
@@ -132,7 +132,7 @@ export function TeamMemberCombobox({
         >
           {loading ? (
             <div className="px-2 py-3 text-xs text-muted-foreground">
-              {t2("common.loading", {
+              {t("common.loading", {
                 defaultValue: "加载中…",
               })}
             </div>
@@ -140,7 +140,7 @@ export function TeamMemberCombobox({
           {error ? (
             <div className="flex flex-col gap-2 px-2 py-3">
               <p className="text-xs text-muted-foreground">
-                {t2("team.management.membersLoadFailed", {
+                {t("team.management.membersLoadFailed", {
                   defaultValue: "成员列表加载失败",
                 })}
               </p>
@@ -151,7 +151,7 @@ export function TeamMemberCombobox({
                   variant="outline"
                   onClick={() => onRetry()}
                 >
-                  {t2("common.retry", {
+                  {t("common.retry", {
                     defaultValue: "重试",
                   })}
                 </Button>
@@ -164,26 +164,26 @@ export function TeamMemberCombobox({
               data-action-ui-id={`${dataActionUiId}-empty`}
             >
               {emptyText ??
-                t2("team.management.successorSearchEmpty", {
+                t("team.management.successorSearchEmpty", {
                   defaultValue: "没有匹配的成员，请调整筛选。",
                 })}
             </div>
           ) : null}
-          {options.map((option2) => {
-            const isSelected = option2.userId === value;
+          {options.map((option) => {
+            const isSelected = option.userId === value;
             const description =
-              option2.description ??
-              (option2.role
-                ? `UID ${option2.userId} · ${t2(
-                    `team.role.${option2.role.toLowerCase()}`,
+              option.description ??
+              (option.role
+                ? `UID ${option.userId} · ${t(
+                    `team.role.${option.role.toLowerCase()}`,
                     {
-                      defaultValue: option2.role,
+                      defaultValue: option.role,
                     },
                   )}`
                 : null);
             return (
               <button
-                key={option2.userId}
+                key={option.userId}
                 type="button"
                 role="option"
                 aria-selected={isSelected}
@@ -194,16 +194,16 @@ export function TeamMemberCombobox({
                 )}
                 onMouseDown={(event) => {
                   event.preventDefault();
-                  onValueChange(option2.userId);
+                  onValueChange(option.userId);
                   setOpen(false);
                   onSearchChange("");
                 }}
                 data-action-ui-id={optionActionUiId}
-                data-successor-user-id={option2.userId}
+                data-successor-user-id={option.userId}
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium text-foreground">
-                    {option2.displayName}
+                    {option.displayName}
                   </span>
                   {description ? (
                     <span className="block truncate text-muted-foreground">
@@ -232,10 +232,10 @@ export function TeamMemberCombobox({
                 data-action-ui-id={`${dataActionUiId}-more`}
               >
                 {loadingMore
-                  ? t2("common.loading", {
+                  ? t("common.loading", {
                       defaultValue: "加载中…",
                     })
-                  : t2("team.management.loadMoreMembers", {
+                  : t("team.management.loadMoreMembers", {
                       defaultValue: "加载更多成员",
                     })}
               </Button>

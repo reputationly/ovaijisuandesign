@@ -1,0 +1,21 @@
+key	new	reason
+e2@41:21	mouseEvent	onMouseDown 回调收到的事件对象
+t2@69:14	t	useTranslation() 返回的翻译函数 t
+e2@84:6	keyboardEvent	函数体读取 key/code 的键盘事件
+e2@98:6	keyboardEvent	函数体读取 key/code 的键盘事件
+e2@129:23	mouseEvent	onMouseDown 回调收到的事件对象
+e2@154:26	changeEvent	onChange 回调收到的事件对象
+e2@232:28	changeEvent	onChange 回调收到的事件对象
+e2@276:31	keyboardEvent	函数体读取 key/code 的键盘事件
+e2@282:29	keyboardEvent	函数体读取 key/code 的键盘事件
+t2@322:14	t	useTranslation() 返回的翻译函数 t
+e2@340:6	keyboardEvent	函数体读取 key/code 的键盘事件
+e2@368:17	keyboardEvent	onKeyUp 回调收到的事件对象
+e2@369:23	contextMenuEvent	onContextMenu 回调收到的事件对象
+e2@292:31	clipboardEvent	copy/cut/paste 捕获监听收到的剪贴板事件
+active2@31:11	active	去掉打包器加的数字后缀，恢复原名 active
+disabled2@32:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+active2@267:9	active	去掉打包器加的数字后缀，恢复原名 active
+meta2@284:13	meta	去掉打包器加的数字后缀，恢复原名 meta
+find2@317:9	findController	外部传入的查找控制器；find 是全局名
+children2@320:13	children	去掉打包器加的数字后缀，恢复原名 children

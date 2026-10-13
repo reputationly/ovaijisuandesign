@@ -1,0 +1,6 @@
+key	new	reason
+key2@18:23	key	去掉打包器加的数字后缀，恢复原名 key
+properties2@31:29	properties	去掉打包器加的数字后缀，恢复原名 properties
+key2@36:15	key	去掉打包器加的数字后缀，恢复原名 key
+properties2@87:43	properties	去掉打包器加的数字后缀，恢复原名 properties
+properties2@101:39	properties	去掉打包器加的数字后缀，恢复原名 properties

@@ -1,0 +1,37 @@
+key	new	reason
+ws2@718:11	ws	原名 ws，去掉打包器加的数字去重后缀
+a2@71:21	a	sort 比较函数的前一个候选
+b3@71:25	b	sort 比较函数的后一个候选
+a2@319:25	cachedAsset	缓存列表中的资产
+a2@325:24	cachedAsset	缓存列表中的资产
+a2@347:24	cachedAsset	缓存列表中的资产
+a2@370:20	cachedAsset	缓存列表中的资产
+m3@713:18	message	日志消息
+m3@714:18	message	日志消息
+m3@715:19	message	日志消息
+workspaceId2@48:16	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+candidates2@57:9	candidates	去掉打包器加的数字后缀，恢复原名 candidates
+key2@59:11	key	去掉打包器加的数字后缀，恢复原名 key
+path2@63:11	path	去掉打包器加的数字后缀，恢复原名 path
+workspaceId2@78:46	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+state2@211:32	state	去掉打包器加的数字后缀，恢复原名 state
+workspaceId2@237:3	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+now2@262:9	now	去掉打包器加的数字后缀，恢复原名 now
+last2@263:9	last	去掉打包器加的数字后缀，恢复原名 last
+path2@278:14	path	去掉打包器加的数字后缀，恢复原名 path
+key2@306:9	key	去掉打包器加的数字后缀，恢复原名 key
+events2@437:11	events	去掉打包器加的数字后缀，恢复原名 events
+last2@443:9	last	去掉打包器加的数字后缀，恢复原名 last
+gatewayFetch2@499:17	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+key2@540:15	key	去掉打包器加的数字后缀，恢复原名 key
+meta2@540:21	meta	去掉打包器加的数字后缀，恢复原名 meta
+queryClient2@582:9	queryClient	去掉打包器加的数字后缀，恢复原名 queryClient
+gatewayFetch2@587:9	gatewayFetch	去掉打包器加的数字后缀，恢复原名 gatewayFetch
+gatewayUrl2@588:9	gatewayUrl	去掉打包器加的数字后缀，恢复原名 gatewayUrl
+send2@853:9	send	去掉打包器加的数字后缀，恢复原名 send
+subscribe2@864:9	subscribe	去掉打包器加的数字后缀，恢复原名 subscribe
+state2@605:34	state	去掉打包器加的数字后缀，恢复原名 state
+next2@633:13	next	去掉打包器加的数字后缀，恢复原名 next
+now2@677:13	now	去掉打包器加的数字后缀，恢复原名 now
+next2@796:28	next	去掉打包器加的数字后缀，恢复原名 next
+children2@577:13	children	去掉打包器加的数字后缀，恢复原名 children

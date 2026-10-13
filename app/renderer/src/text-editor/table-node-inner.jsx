@@ -70,103 +70,103 @@ import { NodeShell } from "../canvas/node-shell-inner.jsx";
 import { NodeBody } from "../canvas/node-body-inner.jsx";
 import { parseTableDocument } from "./parse-table-document.js";
 import { serializeTableDocument } from "./table-document-to-llm-content.js";
-function removeColumn(doc2, columnId) {
-  const columns = doc2.columns.filter((c3) => c3.id !== columnId);
-  const rows = doc2.rows.map((r2) => {
-    if (!(columnId in r2.cells)) return r2;
-    const { [columnId]: _omit, ...rest } = r2.cells;
+function removeColumn(doc, columnId) {
+  const columns = doc.columns.filter((column) => column.id !== columnId);
+  const rows = doc.rows.map((row) => {
+    if (!(columnId in row.cells)) return row;
+    const { [columnId]: _omit, ...rest } = row.cells;
     return {
-      ...r2,
+      ...row,
       cells: rest,
     };
   });
-  const filter2 = pruneFilterColumn(doc2.filter, columnId);
+  const filter = pruneFilterColumn(doc.filter, columnId);
   return {
-    ...doc2,
+    ...doc,
     columns,
     rows,
-    filter: filter2,
+    filter,
   };
 }
-function toggleColumnVisibility(doc2, columnId, visible) {
+function toggleColumnVisibility(doc, columnId, visible) {
   return {
-    ...doc2,
-    columns: doc2.columns.map((c3) =>
-      c3.id === columnId
+    ...doc,
+    columns: doc.columns.map((column) =>
+      column.id === columnId
         ? {
-            ...c3,
-            visible: !(c3.visible ?? true),
+            ...column,
+            visible: !(column.visible ?? true),
           }
-        : c3,
+        : column,
     ),
   };
 }
-function moveColumn(doc2, fromId, toId, position2 = "before") {
-  const columns = moveItem(doc2.columns, fromId, toId, position2);
-  if (columns === doc2.columns) return doc2;
+function moveColumn(doc, fromId, toId, position = "before") {
+  const columns = moveItem(doc.columns, fromId, toId, position);
+  if (columns === doc.columns) return doc;
   return {
-    ...doc2,
+    ...doc,
     columns,
   };
 }
-function removeRow(doc2, rowId) {
+function removeRow(doc, rowId) {
   return {
-    ...doc2,
-    rows: doc2.rows.filter((r2) => r2.id !== rowId),
+    ...doc,
+    rows: doc.rows.filter((row) => row.id !== rowId),
   };
 }
-function setFilterMatch(doc2, match2) {
-  if (!doc2.filter) return doc2;
-  if (doc2.filter.match === match2) return doc2;
+function setFilterMatch(doc, match) {
+  if (!doc.filter) return doc;
+  if (doc.filter.match === match) return doc;
   return {
-    ...doc2,
+    ...doc,
     filter: {
-      ...doc2.filter,
-      match: match2,
+      ...doc.filter,
+      match,
     },
   };
 }
-function addFilterCondition(doc2, condition) {
-  const existing = doc2.filter?.conditions ?? [];
+function addFilterCondition(doc, condition) {
+  const existing = doc.filter?.conditions ?? [];
   return {
-    ...doc2,
+    ...doc,
     filter: {
-      match: doc2.filter?.match ?? "any",
+      match: doc.filter?.match ?? "any",
       conditions: [...existing, condition],
     },
   };
 }
-function updateFilterCondition(doc2, conditionId, patch2) {
-  if (!doc2.filter) return doc2;
-  const conditions = doc2.filter.conditions.map((c3) =>
-    c3.id === conditionId
+function updateFilterCondition(doc, conditionId, patch) {
+  if (!doc.filter) return doc;
+  const conditions = doc.filter.conditions.map((condition) =>
+    condition.id === conditionId
       ? {
-          ...c3,
-          ...patch2,
+          ...condition,
+          ...patch,
         }
-      : c3,
+      : condition,
   );
   return {
-    ...doc2,
+    ...doc,
     filter: {
-      ...doc2.filter,
+      ...doc.filter,
       conditions,
     },
   };
 }
 function FieldConfigPanelInner({
-  history: history2,
+  history: tableHistory,
   onClose,
   align = "right",
 }) {
-  const { t: t2 } = useTranslation();
-  const { doc: doc2, apply: apply2 } = history2;
+  const { t } = useTranslation();
+  const { doc, apply } = tableHistory;
   const panelRef = reactExports.useRef(null);
   const [showAddColumn, setShowAddColumn] = reactExports.useState(false);
   reactExports.useEffect(() => {
     if (showAddColumn) return;
-    const handler = (e2) => {
-      const target = e2.target;
+    const handler = (domEvent) => {
+      const target = domEvent.target;
       if (!target) return;
       if (panelRef.current?.contains(target)) return;
       if (target.closest("[data-field-row-menu]")) return;
@@ -176,31 +176,31 @@ function FieldConfigPanelInner({
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose, showAddColumn]);
   const handleToggleVisibility = (columnId) => {
-    apply2((prev) => toggleColumnVisibility(prev, columnId));
+    apply((prev) => toggleColumnVisibility(prev, columnId));
   };
   const handleRename = (columnId, title) => {
-    apply2((prev) => renameColumn(prev, columnId, title));
+    apply((prev) => renameColumn(prev, columnId, title));
   };
-  const handleDelete2 = (columnId) => {
-    apply2((prev) => removeColumn(prev, columnId));
+  const handleDelete = (columnId) => {
+    apply((prev) => removeColumn(prev, columnId));
   };
   const handleMoveColumn = reactExports.useCallback(
-    (fromId, toId, position2) => {
-      apply2((prev) => moveColumn(prev, fromId, toId, position2));
+    (fromId, toId, position) => {
+      apply((prev) => moveColumn(prev, fromId, toId, position));
     },
-    [apply2],
+    [apply],
   );
   const handleCommitColumn = reactExports.useCallback(
-    ({ title, type: type2 }) => {
-      apply2((prev) =>
+    ({ title, type }) => {
+      apply((prev) =>
         addColumn(prev, {
           title,
-          type: type2,
+          type,
         }),
       );
       setShowAddColumn(false);
     },
-    [apply2],
+    [apply],
   );
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: popover container; keyboard handled by inner controls
@@ -212,7 +212,7 @@ function FieldConfigPanelInner({
         border: "1px solid var(--canvas-node-border, #e0e0e0)",
         animation: "context-menu-in 0.12s ease-out",
       }}
-      onKeyDown={(e2) => e2.stopPropagation()}
+      onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
     >
       <div
         className="flex shrink-0 items-center justify-between px-3 py-2.5"
@@ -226,27 +226,27 @@ function FieldConfigPanelInner({
             color: "var(--fg-default,#141414)",
           }}
         >
-          {t2("canvas.table.fieldConfig", "Field configuration")}
+          {t("canvas.table.fieldConfig", "Field configuration")}
         </span>
       </div>
       <div className="flex max-h-[360px] flex-col gap-0.5 overflow-y-auto p-1">
-        {doc2.columns.length === 0 ? (
+        {doc.columns.length === 0 ? (
           <div
             className="px-3 py-4 text-center text-[12px]"
             style={{
               color: "var(--fg-muted,#999)",
             }}
           >
-            {t2("canvas.table.noColumns", "No columns")}
+            {t("canvas.table.noColumns", "No columns")}
           </div>
         ) : (
-          doc2.columns.map((column) => (
+          doc.columns.map((column) => (
             <FieldRow
               key={column.id}
               column={column}
               onToggle={() => handleToggleVisibility(column.id)}
               onRename={(title) => handleRename(column.id, title)}
-              onDelete={() => handleDelete2(column.id)}
+              onDelete={() => handleDelete(column.id)}
               onMove={handleMoveColumn}
             />
           ))
@@ -262,7 +262,7 @@ function FieldConfigPanelInner({
         }}
       >
         <PlusIcon />
-        <span>{t2("canvas.table.addField", "Add field")}</span>
+        <span>{t("canvas.table.addField", "Add field")}</span>
       </button>
       {showAddColumn && (
         <AddColumnDialog
@@ -282,16 +282,16 @@ function createCondition(column) {
     value: void 0,
   };
 }
-function FilterPanelInner({ history: history2, onClose, align = "right" }) {
-  const { t: t2 } = useTranslation();
-  const { doc: doc2, apply: apply2 } = history2;
+function FilterPanelInner({ history: tableHistory, onClose, align = "right" }) {
+  const { t } = useTranslation();
+  const { doc, apply } = tableHistory;
   const panelRef = reactExports.useRef(null);
-  const conditions = doc2.filter?.conditions ?? [];
-  const match2 = doc2.filter?.match ?? "any";
-  const hasColumns = doc2.columns.length > 0;
+  const conditions = doc.filter?.conditions ?? [];
+  const match = doc.filter?.match ?? "any";
+  const hasColumns = doc.columns.length > 0;
   reactExports.useEffect(() => {
-    const handler = (e2) => {
-      const target = e2.target;
+    const handler = (domEvent) => {
+      const target = domEvent.target;
       if (!target) return;
       if (panelRef.current?.contains(target)) return;
       const el =
@@ -306,64 +306,64 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose]);
   const handleColumnChange = (conditionId, columnId) => {
-    const column = doc2.columns.find((c3) => c3.id === columnId);
+    const column = doc.columns.find((column) => column.id === columnId);
     if (!column) return;
     const ops = operatorsForFieldType(column.type);
-    apply2((prev) => {
-      const current2 = prev.filter?.conditions.find(
-        (c3) => c3.id === conditionId,
+    apply((prev) => {
+      const current = prev.filter?.conditions.find(
+        (condition) => condition.id === conditionId,
       );
       const keepOp =
-        current2 && ops.includes(current2.op)
-          ? current2.op
+        current && ops.includes(current.op)
+          ? current.op
           : defaultOpForFieldType(column.type);
       const needsValue = OPS_REQUIRING_VALUE.has(keepOp);
       return updateFilterCondition(prev, conditionId, {
         columnId,
         op: keepOp,
-        value: needsValue ? current2?.value : void 0,
+        value: needsValue ? current?.value : void 0,
       });
     });
   };
   const handleOpChange = (conditionId, op) => {
-    apply2((prev) => {
-      const current2 = prev.filter?.conditions.find(
-        (c3) => c3.id === conditionId,
+    apply((prev) => {
+      const current = prev.filter?.conditions.find(
+        (condition) => condition.id === conditionId,
       );
       const needsValue = OPS_REQUIRING_VALUE.has(op);
       return updateFilterCondition(prev, conditionId, {
         op,
-        value: needsValue ? current2?.value : void 0,
+        value: needsValue ? current?.value : void 0,
       });
     });
   };
-  const handleValueChange = (conditionId, raw2, columnType) => {
+  const handleValueChange = (conditionId, raw, columnType) => {
     const value =
-      raw2 === "" ? void 0 : columnType === "number" ? Number(raw2) : raw2;
-    apply2((prev) =>
+      raw === "" ? void 0 : columnType === "number" ? Number(raw) : raw;
+    apply((prev) =>
       updateFilterCondition(prev, conditionId, {
         value,
       }),
     );
   };
   const handleRemoveCondition = (conditionId) => {
-    apply2((prev) => removeFilterCondition(prev, conditionId));
+    apply((prev) => removeFilterCondition(prev, conditionId));
   };
   const handleAddCondition = () => {
-    const firstColumn = doc2.columns[0];
+    const firstColumn = doc.columns[0];
     if (!firstColumn) return;
-    apply2((prev) => addFilterCondition(prev, createCondition(firstColumn)));
+    apply((prev) => addFilterCondition(prev, createCondition(firstColumn)));
   };
-  const handleMatchChange = (next2) => {
-    apply2((prev) => setFilterMatch(prev, next2));
+  const handleMatchChange = (next) => {
+    apply((prev) => setFilterMatch(prev, next));
   };
   const showMatchSelector = conditions.length >= 2;
   const matchLabels = reactExports.useMemo(
     () => ({
-      all: t2(MATCH_LABELS.all.key, MATCH_LABELS.all.defaultLabel),
-      any: t2(MATCH_LABELS.any.key, MATCH_LABELS.any.defaultLabel),
+      all: t(MATCH_LABELS.all.key, MATCH_LABELS.all.defaultLabel),
+      any: t(MATCH_LABELS.any.key, MATCH_LABELS.any.defaultLabel),
     }),
-    [t2],
+    [t],
   );
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: popover container; keyboard handled by inner controls
@@ -374,35 +374,35 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
         animation: "context-menu-in 0.12s ease-out",
         background: "var(--canvas-controls-bg)",
       }}
-      onKeyDown={(e2) => e2.stopPropagation()}
+      onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12px] font-medium text-foreground">
-          {t2("canvas.table.filter.title", "Set filter conditions")}
+          {t("canvas.table.filter.title", "Set filter conditions")}
         </span>
         {showMatchSelector ? (
           <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
-            <span>{t2("canvas.table.filter.match.prefix", "Match")}</span>
+            <span>{t("canvas.table.filter.match.prefix", "Match")}</span>
             <Select
-              value={match2}
+              value={match}
               items={matchLabels}
-              onValueChange={(v2) => {
-                if (v2 != null) handleMatchChange(v2);
+              onValueChange={(nextMatch) => {
+                if (nextMatch != null) handleMatchChange(nextMatch);
               }}
             >
               <SelectTrigger className="h-7 w-[80px] px-2 text-[12px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {["all", "any"].map((m3) => (
-                  <SelectItem key={m3} value={m3}>
-                    {t2(MATCH_LABELS[m3].key, MATCH_LABELS[m3].defaultLabel)}
+                {["all", "any"].map((matchMode) => (
+                  <SelectItem key={matchMode} value={matchMode}>
+                    {t(MATCH_LABELS[matchMode].key, MATCH_LABELS[matchMode].defaultLabel)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <span>
-              {t2("canvas.table.filter.match.suffix", "condition(s)")}
+              {t("canvas.table.filter.match.suffix", "condition(s)")}
             </span>
           </div>
         ) : null}
@@ -410,7 +410,7 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
       {conditions.length === 0 ? (
         !hasColumns ? (
           <div className="text-[12px] text-muted-foreground">
-            {t2(
+            {t(
               "canvas.table.filter.noColumns",
               "Add a column first to start filtering.",
             )}
@@ -422,13 +422,13 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
             <ConditionRow
               key={cond.id}
               condition={cond}
-              columns={doc2.columns}
+              columns={doc.columns}
               onColumnChange={(columnId) =>
                 handleColumnChange(cond.id, columnId)
               }
               onOpChange={(op) => handleOpChange(cond.id, op)}
-              onValueChange={(raw2, columnType) =>
-                handleValueChange(cond.id, raw2, columnType)
+              onValueChange={(raw, columnType) =>
+                handleValueChange(cond.id, raw, columnType)
               }
               onRemove={() => handleRemoveCondition(cond.id)}
             />
@@ -442,28 +442,28 @@ function FilterPanelInner({ history: history2, onClose, align = "right" }) {
         className="flex h-7 w-fit items-center gap-1 rounded-md text-[12px] text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-muted-foreground"
       >
         <PlusIcon />
-        <span>{t2("canvas.table.filter.addCondition", "Add condition")}</span>
+        <span>{t("canvas.table.filter.addCondition", "Add condition")}</span>
       </button>
     </div>
   );
 }
 const FilterPanel = reactExports.memo(FilterPanelInner);
-function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
-  const { t: t2 } = useTranslation();
-  const { doc: doc2, apply: apply2 } = history2;
+function RowHeightPanelInner({ history: tableHistory, onClose, align = "right" }) {
+  const { t } = useTranslation();
+  const { doc, apply } = tableHistory;
   const panelRef = reactExports.useRef(null);
-  const current2 = getRowHeight(doc2);
+  const current = getRowHeight(doc);
   reactExports.useEffect(() => {
-    const handler = (e2) => {
-      if (panelRef.current && !panelRef.current.contains(e2.target)) {
+    const handler = (domEvent) => {
+      if (panelRef.current && !panelRef.current.contains(domEvent.target)) {
         onClose();
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose]);
-  const handlePick = (next2) => {
-    if (next2 !== current2) apply2((prev) => setRowHeight(prev, next2));
+  const handlePick = (next) => {
+    if (next !== current) apply((prev) => setRowHeight(prev, next));
     onClose();
   };
   return (
@@ -476,7 +476,7 @@ function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
         border: "1px solid var(--canvas-node-border, #e0e0e0)",
         animation: "context-menu-in 0.12s ease-out",
       }}
-      onKeyDown={(e2) => e2.stopPropagation()}
+      onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
     >
       <div
         className="flex shrink-0 items-center px-3 py-2.5"
@@ -490,12 +490,12 @@ function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
             color: "var(--fg-default,#141414)",
           }}
         >
-          {t2("canvas.table.rowHeight", "Row height")}
+          {t("canvas.table.rowHeight", "Row height")}
         </span>
       </div>
       <div className="flex flex-col gap-0.5 p-1">
         {ROW_HEIGHT_ORDER.map((opt) => {
-          const active2 = opt === current2;
+          const active = opt === current;
           return (
             <button
               key={opt}
@@ -507,12 +507,12 @@ function RowHeightPanelInner({ history: history2, onClose, align = "right" }) {
               }}
             >
               <span>
-                {t2(
+                {t(
                   ROW_HEIGHT_LABELS[opt].key,
                   ROW_HEIGHT_LABELS[opt].defaultLabel,
                 )}
               </span>
-              {active2 && <CheckIcon />}
+              {active && <CheckIcon />}
             </button>
           );
         })}
@@ -528,155 +528,155 @@ function createHistory(initial) {
     autoArchive: false,
   });
 }
-function mergeOptionalField(draft, key2, next2, prev) {
-  if (next2 === void 0) {
-    if (prev !== void 0) delete draft[key2];
+function mergeOptionalField(draft, key, next, prev) {
+  if (next === void 0) {
+    if (prev !== void 0) delete draft[key];
     return;
   }
-  draft[key2] = next2;
+  draft[key] = next;
 }
-function mergeColumnInto(draft, next2, prev) {
-  if (next2 === prev) return;
-  if (next2.id !== prev.id) draft.id = next2.id;
-  if (next2.title !== prev.title) draft.title = next2.title;
-  if (next2.type !== prev.type) draft.type = next2.type;
-  if (next2.visible !== prev.visible) draft.visible = next2.visible;
-  if (next2.width !== prev.width) draft.width = next2.width;
+function mergeColumnInto(draft, next, prev) {
+  if (next === prev) return;
+  if (next.id !== prev.id) draft.id = next.id;
+  if (next.title !== prev.title) draft.title = next.title;
+  if (next.type !== prev.type) draft.type = next.type;
+  if (next.visible !== prev.visible) draft.visible = next.visible;
+  if (next.width !== prev.width) draft.width = next.width;
 }
-function mergeCellsInto(draft, next2, prev) {
-  for (const key2 of Object.keys(prev)) {
-    if (!(key2 in next2)) delete draft[key2];
+function mergeCellsInto(draft, next, prev) {
+  for (const key of Object.keys(prev)) {
+    if (!(key in next)) delete draft[key];
   }
-  for (const key2 of Object.keys(next2)) {
-    if (next2[key2] !== prev[key2]) draft[key2] = next2[key2];
-  }
-}
-function mergeRowInto(draft, next2, prev) {
-  if (next2 === prev) return;
-  if (next2.id !== prev.id) draft.id = next2.id;
-  if (next2.cells !== prev.cells) {
-    mergeCellsInto(draft.cells, next2.cells, prev.cells);
-  }
-  if (next2.height !== prev.height) {
-    if (next2.height === void 0) delete draft.height;
-    else draft.height = next2.height;
+  for (const key of Object.keys(next)) {
+    if (next[key] !== prev[key]) draft[key] = next[key];
   }
 }
-function tryMergeArrayById(draft, next2, prev, mergeItem) {
-  if (next2 === prev) return true;
-  if (next2.length === prev.length) {
-    for (let i2 = 0; i2 < next2.length; i2++) {
-      const n2 = next2[i2];
-      const p3 = prev[i2];
-      if (!n2 || !p3 || n2.id !== p3.id) return false;
+function mergeRowInto(draft, next, prev) {
+  if (next === prev) return;
+  if (next.id !== prev.id) draft.id = next.id;
+  if (next.cells !== prev.cells) {
+    mergeCellsInto(draft.cells, next.cells, prev.cells);
+  }
+  if (next.height !== prev.height) {
+    if (next.height === void 0) delete draft.height;
+    else draft.height = next.height;
+  }
+}
+function tryMergeArrayById(draft, next, prev, mergeItem) {
+  if (next === prev) return true;
+  if (next.length === prev.length) {
+    for (let i = 0; i < next.length; i++) {
+      const nextItem = next[i];
+      const prevItem = prev[i];
+      if (!nextItem || !prevItem || nextItem.id !== prevItem.id) return false;
     }
-    for (let i2 = 0; i2 < next2.length; i2++) {
-      const n2 = next2[i2];
-      const p3 = prev[i2];
-      if (n2 !== p3) mergeItem(draft[i2], n2, p3);
+    for (let i = 0; i < next.length; i++) {
+      const nextItem = next[i];
+      const prevItem = prev[i];
+      if (nextItem !== prevItem) mergeItem(draft[i], nextItem, prevItem);
     }
     return true;
   }
-  if (next2.length === prev.length + 1) {
-    for (let i2 = 0; i2 < prev.length; i2++) {
-      const n2 = next2[i2];
-      const p3 = prev[i2];
-      if (!n2 || !p3 || n2.id !== p3.id) return false;
+  if (next.length === prev.length + 1) {
+    for (let i = 0; i < prev.length; i++) {
+      const nextItem = next[i];
+      const prevItem = prev[i];
+      if (!nextItem || !prevItem || nextItem.id !== prevItem.id) return false;
     }
-    draft.push(next2[prev.length]);
+    draft.push(next[prev.length]);
     return true;
   }
-  if (next2.length + 1 === prev.length) {
+  if (next.length + 1 === prev.length) {
     let removedAt = -1;
     let scan = 0;
-    for (let i2 = 0; i2 < prev.length; i2++) {
-      const p3 = prev[i2];
-      const n2 = scan < next2.length ? next2[scan] : void 0;
-      if (p3 && n2 && p3.id === n2.id) {
+    for (let i = 0; i < prev.length; i++) {
+      const prevItem = prev[i];
+      const nextItem = scan < next.length ? next[scan] : void 0;
+      if (prevItem && nextItem && prevItem.id === nextItem.id) {
         scan++;
       } else if (removedAt === -1) {
-        removedAt = i2;
+        removedAt = i;
       } else {
         return false;
       }
     }
-    if (removedAt >= 0 && scan === next2.length) {
+    if (removedAt >= 0 && scan === next.length) {
       draft.splice(removedAt, 1);
       return true;
     }
   }
   return false;
 }
-function mergeDocIntoDraft(draft, next2, prev) {
-  if (next2 === prev) return;
-  if (next2.version !== prev.version) draft.version = next2.version;
-  if (next2.columns !== prev.columns) {
+function mergeDocIntoDraft(draft, next, prev) {
+  if (next === prev) return;
+  if (next.version !== prev.version) draft.version = next.version;
+  if (next.columns !== prev.columns) {
     if (
       !tryMergeArrayById(
         draft.columns,
-        next2.columns,
+        next.columns,
         prev.columns,
         mergeColumnInto,
       )
     ) {
-      draft.columns = next2.columns;
+      draft.columns = next.columns;
     }
   }
-  if (next2.rows !== prev.rows) {
-    if (!tryMergeArrayById(draft.rows, next2.rows, prev.rows, mergeRowInto)) {
-      draft.rows = next2.rows;
+  if (next.rows !== prev.rows) {
+    if (!tryMergeArrayById(draft.rows, next.rows, prev.rows, mergeRowInto)) {
+      draft.rows = next.rows;
     }
   }
-  if (next2.filter !== prev.filter) {
-    mergeOptionalField(draft, "filter", next2.filter, prev.filter);
+  if (next.filter !== prev.filter) {
+    mergeOptionalField(draft, "filter", next.filter, prev.filter);
   }
-  if (next2.rowHeight !== prev.rowHeight) {
-    mergeOptionalField(draft, "rowHeight", next2.rowHeight, prev.rowHeight);
+  if (next.rowHeight !== prev.rowHeight) {
+    mergeOptionalField(draft, "rowHeight", next.rowHeight, prev.rowHeight);
   }
 }
 function useTableHistory(initial) {
   const travelsRef = reactExports.useRef(null);
   if (travelsRef.current === null) travelsRef.current = createHistory(initial);
-  const [doc2, setDoc] = reactExports.useState(initial);
+  const [doc, setDoc] = reactExports.useState(initial);
   reactExports.useEffect(() => {
     travelsRef.current = createHistory(initial);
     setDoc(initial);
   }, [initial]);
-  const apply2 = reactExports.useCallback((transform2) => {
-    const travels2 = travelsRef.current;
-    if (!travels2) return;
-    const prev = travels2.getState();
-    const next2 = transform2(prev);
-    if (next2 === prev) return;
-    travels2.setState((draft) => {
-      mergeDocIntoDraft(draft, next2, prev);
+  const apply = reactExports.useCallback((transform) => {
+    const travels = travelsRef.current;
+    if (!travels) return;
+    const prev = travels.getState();
+    const next = transform(prev);
+    if (next === prev) return;
+    travels.setState((draft) => {
+      mergeDocIntoDraft(draft, next, prev);
     });
-    travels2.archive();
-    setDoc(travels2.getState());
+    travels.archive();
+    setDoc(travels.getState());
   }, []);
-  const reset2 = reactExports.useCallback((next2) => {
-    travelsRef.current = createHistory(next2);
-    setDoc(next2);
+  const reset = reactExports.useCallback((next) => {
+    travelsRef.current = createHistory(next);
+    setDoc(next);
   }, []);
-  const undo2 = reactExports.useCallback(() => {
-    const travels2 = travelsRef.current;
-    if (!travels2?.canBack()) return;
-    travels2.back();
-    setDoc(travels2.getState());
+  const undo = reactExports.useCallback(() => {
+    const travels = travelsRef.current;
+    if (!travels?.canBack()) return;
+    travels.back();
+    setDoc(travels.getState());
   }, []);
-  const redo2 = reactExports.useCallback(() => {
-    const travels2 = travelsRef.current;
-    if (!travels2?.canForward()) return;
-    travels2.forward();
-    setDoc(travels2.getState());
+  const redo = reactExports.useCallback(() => {
+    const travels = travelsRef.current;
+    if (!travels?.canForward()) return;
+    travels.forward();
+    setDoc(travels.getState());
   }, []);
   const travels = travelsRef.current;
   return {
-    doc: doc2,
-    apply: apply2,
-    reset: reset2,
-    undo: undo2,
-    redo: redo2,
+    doc,
+    apply,
+    reset,
+    undo,
+    redo,
     canUndo: travels?.canBack() ?? false,
     canRedo: travels?.canForward() ?? false,
   };
@@ -684,14 +684,14 @@ function useTableHistory(initial) {
 const TableEditor = reactExports.memo(TableEditorInner);
 function useBackdropDismiss(onDismiss) {
   const downOnBackdropRef = reactExports.useRef(false);
-  const onMouseDown = reactExports.useCallback((e2) => {
-    downOnBackdropRef.current = e2.target === e2.currentTarget;
+  const onMouseDown = reactExports.useCallback((mouseEvent) => {
+    downOnBackdropRef.current = mouseEvent.target === mouseEvent.currentTarget;
   }, []);
   const onClick = reactExports.useCallback(
-    (e2) => {
+    (mouseEvent) => {
       const downOnBackdrop = downOnBackdropRef.current;
       downOnBackdropRef.current = false;
-      if (downOnBackdrop && e2.target === e2.currentTarget) onDismiss();
+      if (downOnBackdrop && mouseEvent.target === mouseEvent.currentTarget) onDismiss();
     },
     [onDismiss],
   );
@@ -704,16 +704,16 @@ function ToolbarButton({
   title,
   label,
   onClick,
-  disabled: disabled2,
-  active: active2,
-  dot: dot2,
-  children: children2,
+  disabled,
+  active,
+  dot,
+  children,
 }) {
   return (
     <button
       type="button"
       title={title}
-      disabled={disabled2}
+      disabled={disabled}
       onClick={onClick}
       className={
         label
@@ -722,12 +722,12 @@ function ToolbarButton({
       }
       style={{
         color: "var(--fg-muted, #666)",
-        background: active2 ? "var(--bg-subtle, #f5f5f5)" : void 0,
+        background: active ? "var(--bg-subtle, #f5f5f5)" : void 0,
       }}
     >
-      {children2}
+      {children}
       {label && <span>{label}</span>}
-      {dot2 && (
+      {dot && (
         <span
           className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full"
           style={{
@@ -829,12 +829,12 @@ Object.prototype.constructor.toString();
 function TableToolbarInner({
   title,
   onTitleChange,
-  history: history2,
+  history: tableHistory,
   onClose,
   selectedCount,
   onRemoveSelected,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [draft, setDraft] = reactExports.useState(title);
   const [openPanel, setOpenPanel] = reactExports.useState(null);
   reactExports.useEffect(() => setDraft(title), [title]);
@@ -843,7 +843,7 @@ function TableToolbarInner({
     if (trimmed !== title) onTitleChange(trimmed || title);
   };
   const filterActive =
-    !!history2.doc.filter && history2.doc.filter.conditions.length > 0;
+    !!tableHistory.doc.filter && tableHistory.doc.filter.conditions.length > 0;
   return (
     <div
       className="relative flex shrink-0 items-center gap-2 px-4 py-2.5"
@@ -854,21 +854,21 @@ function TableToolbarInner({
       <input
         type="text"
         value={draft}
-        onChange={(e2) => setDraft(e2.target.value)}
+        onChange={(changeEvent) => setDraft(changeEvent.target.value)}
         onBlur={commit}
-        onKeyDown={(e2) => {
-          if (e2.key === "Enter") {
-            e2.preventDefault();
-            e2.currentTarget.blur();
+        onKeyDown={(keyboardEvent) => {
+          if (keyboardEvent.key === "Enter") {
+            keyboardEvent.preventDefault();
+            keyboardEvent.currentTarget.blur();
           }
-          if (e2.key === "Escape") {
-            e2.preventDefault();
+          if (keyboardEvent.key === "Escape") {
+            keyboardEvent.preventDefault();
             setDraft(title);
-            e2.currentTarget.blur();
+            keyboardEvent.currentTarget.blur();
           }
-          e2.stopPropagation();
+          keyboardEvent.stopPropagation();
         }}
-        placeholder={t2("canvas.table.untitled", "Untitled table")}
+        placeholder={t("canvas.table.untitled", "Untitled table")}
         className="shrink-0 truncate bg-transparent text-[14px] font-medium outline-none border-0 [border-bottom-width:var(--control-border-width)] border-solid border-b-transparent transition-colors hover:border-b-[var(--canvas-node-border,#e0e0e0)] focus:border-b-[var(--fg-default,#141414)]"
         style={{
           width: 200,
@@ -888,14 +888,14 @@ function TableToolbarInner({
                 color: "#dc2626",
                 background: "rgba(220, 38, 38, 0.08)",
               }}
-              title={t2("canvas.table.removeSelected", {
+              title={t("canvas.table.removeSelected", {
                 defaultValue: "Remove ({{count}})",
                 count: selectedCount,
               })}
             >
               <TrashIcon size={13} />
               <span>
-                {t2("canvas.table.removeSelected", {
+                {t("canvas.table.removeSelected", {
                   defaultValue: "Remove ({{count}})",
                   count: selectedCount,
                 })}
@@ -911,10 +911,10 @@ function TableToolbarInner({
         )}
         <div className="relative">
           <ToolbarButton
-            title={t2("canvas.table.fieldConfig", "Field configuration")}
-            label={t2("canvas.table.fieldConfig", "Field configuration")}
+            title={t("canvas.table.fieldConfig", "Field configuration")}
+            label={t("canvas.table.fieldConfig", "Field configuration")}
             onClick={() =>
-              setOpenPanel((p3) => (p3 === "fields" ? null : "fields"))
+              setOpenPanel((prevPanel) => (prevPanel === "fields" ? null : "fields"))
             }
             active={openPanel === "fields"}
           >
@@ -922,7 +922,7 @@ function TableToolbarInner({
           </ToolbarButton>
           {openPanel === "fields" && (
             <FieldConfigPanel
-              history={history2}
+              history={tableHistory}
               align="left"
               onClose={() => setOpenPanel(null)}
             />
@@ -930,10 +930,10 @@ function TableToolbarInner({
         </div>
         <div className="relative">
           <ToolbarButton
-            title={t2("canvas.table.filter", "Filter")}
-            label={t2("canvas.table.filter", "Filter")}
+            title={t("canvas.table.filter", "Filter")}
+            label={t("canvas.table.filter", "Filter")}
             onClick={() =>
-              setOpenPanel((p3) => (p3 === "filter" ? null : "filter"))
+              setOpenPanel((prevPanel) => (prevPanel === "filter" ? null : "filter"))
             }
             active={openPanel === "filter" || filterActive}
             dot={filterActive}
@@ -942,7 +942,7 @@ function TableToolbarInner({
           </ToolbarButton>
           {openPanel === "filter" && (
             <FilterPanel
-              history={history2}
+              history={tableHistory}
               align="right"
               onClose={() => setOpenPanel(null)}
             />
@@ -950,10 +950,10 @@ function TableToolbarInner({
         </div>
         <div className="relative">
           <ToolbarButton
-            title={t2("canvas.table.rowHeight", "Row height")}
-            label={t2("canvas.table.rowHeight", "Row height")}
+            title={t("canvas.table.rowHeight", "Row height")}
+            label={t("canvas.table.rowHeight", "Row height")}
             onClick={() =>
-              setOpenPanel((p3) => (p3 === "rowHeight" ? null : "rowHeight"))
+              setOpenPanel((prevPanel) => (prevPanel === "rowHeight" ? null : "rowHeight"))
             }
             active={openPanel === "rowHeight"}
           >
@@ -961,7 +961,7 @@ function TableToolbarInner({
           </ToolbarButton>
           {openPanel === "rowHeight" && (
             <RowHeightPanel
-              history={history2}
+              history={tableHistory}
               align="right"
               onClose={() => setOpenPanel(null)}
             />
@@ -974,16 +974,16 @@ function TableToolbarInner({
           }}
         />
         <ToolbarButton
-          title={t2("canvas.undo", "Undo")}
-          onClick={history2.undo}
-          disabled={!history2.canUndo}
+          title={t("canvas.undo", "Undo")}
+          onClick={tableHistory.undo}
+          disabled={!tableHistory.canUndo}
         >
           <UndoIcon />
         </ToolbarButton>
         <ToolbarButton
-          title={t2("canvas.redo", "Redo")}
-          onClick={history2.redo}
-          disabled={!history2.canRedo}
+          title={t("canvas.redo", "Redo")}
+          onClick={tableHistory.redo}
+          disabled={!tableHistory.canRedo}
         >
           <RedoIcon />
         </ToolbarButton>
@@ -993,7 +993,7 @@ function TableToolbarInner({
             background: "var(--canvas-node-border, #e0e0e0)",
           }}
         />
-        <ToolbarButton title={t2("canvas.close", "Close")} onClick={onClose}>
+        <ToolbarButton title={t("canvas.close", "Close")} onClick={onClose}>
           <CloseIcon />
         </ToolbarButton>
       </div>
@@ -1003,40 +1003,40 @@ function TableToolbarInner({
 const TableToolbar = reactExports.memo(TableToolbarInner);
 const NOOP_TITLE_CHANGE = () => {};
 function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
-  const { t: t2 } = useTranslation();
-  const active2 = useCanvasActive();
+  const { t } = useTranslation();
+  const active = useCanvasActive();
   const startDoc = initialDoc ?? createEmptyDocument();
-  const history2 = useTableHistory(startDoc);
+  const tableHistory = useTableHistory(startDoc);
   const baselineDocRef = reactExports.useRef(startDoc);
   const [selectedRowIds, setSelectedRowIds] = reactExports.useState(
     () => new Set(),
   );
   const validSelectedRowIds = reactExports.useMemo(() => {
     if (selectedRowIds.size === 0) return selectedRowIds;
-    const live = new Set(history2.doc.rows.map((r2) => r2.id));
+    const live = new Set(tableHistory.doc.rows.map((row) => row.id));
     let drift = false;
-    const next2 = new Set();
-    for (const id2 of selectedRowIds) {
-      if (live.has(id2)) next2.add(id2);
+    const next = new Set();
+    for (const id of selectedRowIds) {
+      if (live.has(id)) next.add(id);
       else drift = true;
     }
-    return drift ? next2 : selectedRowIds;
-  }, [selectedRowIds, history2.doc.rows]);
+    return drift ? next : selectedRowIds;
+  }, [selectedRowIds, tableHistory.doc.rows]);
   const handleDeleteSelected = reactExports.useCallback(() => {
     if (validSelectedRowIds.size === 0) return;
-    history2.apply((prev) => {
-      let next2 = prev;
-      for (const id2 of validSelectedRowIds) {
-        next2 = removeRow(next2, id2);
+    tableHistory.apply((prev) => {
+      let next = prev;
+      for (const id of validSelectedRowIds) {
+        next = removeRow(next, id);
       }
-      return next2;
+      return next;
     });
     setSelectedRowIds(new Set());
-  }, [validSelectedRowIds, history2]);
+  }, [validSelectedRowIds, tableHistory]);
   const handleClose = reactExports.useCallback(() => {
-    const next2 = history2.doc;
-    onClose(next2 === baselineDocRef.current ? void 0 : next2);
-  }, [history2.doc, onClose]);
+    const next = tableHistory.doc;
+    onClose(next === baselineDocRef.current ? void 0 : next);
+  }, [tableHistory.doc, onClose]);
   const panelRef = reactExports.useRef(null);
   const handlePanelDragLeave = reactExports.useCallback(
     (event) => {
@@ -1050,46 +1050,46 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
     [handleClose],
   );
   reactExports.useEffect(() => {
-    if (!active2) return;
+    if (!active) return;
     const isInEditor = (target) =>
       target instanceof HTMLElement &&
       (target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.isContentEditable);
-    const captureHandler = (e2) => {
-      if (e2.key !== "Delete" && e2.key !== "Backspace") return;
-      if (isInEditor(e2.target)) return;
-      e2.stopPropagation();
-      e2.stopImmediatePropagation();
+    const captureHandler = (keyboardEvent) => {
+      if (keyboardEvent.key !== "Delete" && keyboardEvent.key !== "Backspace") return;
+      if (isInEditor(keyboardEvent.target)) return;
+      keyboardEvent.stopPropagation();
+      keyboardEvent.stopImmediatePropagation();
     };
-    const handler = (e2) => {
-      if (e2.key === "Escape") {
-        if (isInEditor(e2.target)) return;
-        e2.stopPropagation();
+    const handler = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        if (isInEditor(keyboardEvent.target)) return;
+        keyboardEvent.stopPropagation();
         handleClose();
         return;
       }
-      const meta2 = e2.metaKey || e2.ctrlKey;
-      if (meta2 && (e2.key === "z" || e2.key === "Z")) {
-        if (isInEditor(e2.target)) return;
-        e2.stopPropagation();
-        e2.preventDefault();
-        if (e2.shiftKey) history2.redo();
-        else history2.undo();
+      const meta = keyboardEvent.metaKey || keyboardEvent.ctrlKey;
+      if (meta && (keyboardEvent.key === "z" || keyboardEvent.key === "Z")) {
+        if (isInEditor(keyboardEvent.target)) return;
+        keyboardEvent.stopPropagation();
+        keyboardEvent.preventDefault();
+        if (keyboardEvent.shiftKey) tableHistory.redo();
+        else tableHistory.undo();
         return;
       }
-      if (meta2 && (e2.key === "y" || e2.key === "Y")) {
-        if (isInEditor(e2.target)) return;
-        e2.stopPropagation();
-        e2.preventDefault();
-        history2.redo();
+      if (meta && (keyboardEvent.key === "y" || keyboardEvent.key === "Y")) {
+        if (isInEditor(keyboardEvent.target)) return;
+        keyboardEvent.stopPropagation();
+        keyboardEvent.preventDefault();
+        tableHistory.redo();
         return;
       }
       if (
-        meta2 ||
-        (e2.shiftKey && (e2.code === "Digit1" || e2.code === "Digit2"))
+        meta ||
+        (keyboardEvent.shiftKey && (keyboardEvent.code === "Digit1" || keyboardEvent.code === "Digit2"))
       ) {
-        e2.stopPropagation();
+        keyboardEvent.stopPropagation();
       }
     };
     document.addEventListener("keydown", captureHandler, true);
@@ -1098,10 +1098,10 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
       document.removeEventListener("keydown", captureHandler, true);
       document.removeEventListener("keydown", handler);
     };
-  }, [active2, handleClose, history2]);
+  }, [active, handleClose, tableHistory]);
   const backdrop = useBackdropDismiss(handleClose);
   const dpr = useDevicePixelRatio();
-  const cap2 =
+  const cap =
     dpr >= 2
       ? {
           w: 2400,
@@ -1124,27 +1124,27 @@ function TableFullscreenInner({ initialDoc, title, onClose, onTitleChange }) {
         ref={panelRef}
         className="flex flex-col rounded-xl overflow-hidden shadow-2xl animate-[lightbox-fade-in_0.15s_ease-out]"
         style={{
-          width: `min(${cap2.w}px, 80vw)`,
-          height: `min(${cap2.h}px, 92vh)`,
+          width: `min(${cap.w}px, 80vw)`,
+          height: `min(${cap.h}px, 92vh)`,
           background: "var(--canvas-node-bg, #fff)",
           border: "1px solid var(--canvas-node-border, #e0e0e0)",
         }}
-        onKeyDown={(e2) => e2.stopPropagation()}
-        onKeyUp={(e2) => e2.stopPropagation()}
-        onClick={(e2) => e2.stopPropagation()}
+        onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
+        onKeyUp={(keyboardEvent) => keyboardEvent.stopPropagation()}
+        onClick={(clickEvent) => clickEvent.stopPropagation()}
         onDragLeave={handlePanelDragLeave}
       >
         <TableToolbar
-          title={title || t2("canvas.table.untitled", "Untitled table")}
+          title={title || t("canvas.table.untitled", "Untitled table")}
           onTitleChange={onTitleChange ?? NOOP_TITLE_CHANGE}
-          history={history2}
+          history={tableHistory}
           onClose={handleClose}
           selectedCount={validSelectedRowIds.size}
           onRemoveSelected={handleDeleteSelected}
         />
         <div className="flex-1 overflow-hidden">
           <TableEditor
-            history={history2}
+            history={tableHistory}
             selectedRowIds={validSelectedRowIds}
             onSelectionChange={setSelectedRowIds}
           />
@@ -1161,21 +1161,21 @@ const FALLBACK_COL_WIDTH = 200;
 const ATTACHMENT_VERTICAL_PADDING = 4;
 const MIN_ATTACHMENT_CHIP_SIZE = 18;
 const MAX_PREVIEW_CHIPS = 2;
-function AttachmentPreviewChip({ attachment, size: size2 }) {
-  const { t: t2 } = useTranslation();
-  const meta2 = useAssetMetadataStore((s2) =>
-    s2.assets.get(attachment.assetId),
+function AttachmentPreviewChip({ attachment, size }) {
+  const { t } = useTranslation();
+  const meta = useAssetMetadataStore((state) =>
+    state.assets.get(attachment.assetId),
   );
-  const thumbnail = attachmentThumbnailUrl(attachment, meta2, size2);
+  const thumbnail = attachmentThumbnailUrl(attachment, meta, size);
   const [failedThumbnail, setFailedThumbnail] = reactExports.useState(null);
   const thumb = thumbnail === failedThumbnail ? void 0 : thumbnail;
-  const missing = !meta2;
+  const missing = !meta;
   return (
     <span
       className="inline-flex shrink-0 items-center justify-center"
       style={{
-        width: size2,
-        height: size2,
+        width: size,
+        height: size,
       }}
       title={missing ? `${attachment.name} (missing)` : attachment.name}
     >
@@ -1205,11 +1205,11 @@ function AttachmentPreviewChip({ attachment, size: size2 }) {
             {...classifyFileType({
               filename: attachment.name,
             })}
-            size={size2 >= 30 ? 24 : 14}
+            size={size >= 30 ? 24 : 14}
             accessibleLabel={
               attachment.name.trim()
                 ? attachment.name
-                : t2("canvas.file.untitled", "Untitled")
+                : t("canvas.file.untitled", "Untitled")
             }
           />
         )}
@@ -1270,11 +1270,11 @@ function AttachmentPreviewList({ attachments, rowHeightPx }) {
     </div>
   );
 }
-function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
-  if (type2 === "attachment") {
-    const list2 = Array.isArray(value) ? value : [];
+function CellPreview({ value, type, rowHeightPx, maxLines }) {
+  if (type === "attachment") {
+    const list = Array.isArray(value) ? value : [];
     return (
-      <AttachmentPreviewList attachments={list2} rowHeightPx={rowHeightPx} />
+      <AttachmentPreviewList attachments={list} rowHeightPx={rowHeightPx} />
     );
   }
   if (value == null || value === "") {
@@ -1290,7 +1290,7 @@ function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
       </div>
     );
   }
-  if (type2 === "number") {
+  if (type === "number") {
     return (
       <div
         className="flex h-full items-start justify-start px-2 tabular-nums"
@@ -1303,7 +1303,7 @@ function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
       </div>
     );
   }
-  const text2 = String(value);
+  const text = String(value);
   return (
     <div
       className="h-full px-2"
@@ -1311,7 +1311,7 @@ function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
         paddingTop: 4,
         paddingBottom: 4,
       }}
-      title={text2}
+      title={text}
     >
       <span
         className="block w-full overflow-hidden break-words"
@@ -1322,7 +1322,7 @@ function CellPreview({ value, type: type2, rowHeightPx, maxLines }) {
           whiteSpace: maxLines === 1 ? "normal" : "pre-wrap",
         }}
       >
-        {text2}
+        {text}
       </span>
     </div>
   );
@@ -1359,31 +1359,31 @@ function NumberIcon() {
     </CompositedSvg>
   );
 }
-function FieldIcon({ type: type2 }) {
-  if (type2 === "number") return <NumberIcon />;
-  if (type2 === "attachment") return <PaperclipIcon />;
+function FieldIcon({ type }) {
+  if (type === "number") return <NumberIcon />;
+  if (type === "attachment") return <PaperclipIcon />;
   return <TextFieldIcon />;
 }
-function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
-  const { t: t2 } = useTranslation();
+function TablePreviewInner({ doc, bodyHeight, bodyWidth }) {
+  const { t } = useTranslation();
   const allColumns = reactExports.useMemo(
-    () => (doc2 ? visibleColumns(doc2) : []),
-    [doc2],
+    () => (doc ? visibleColumns(doc) : []),
+    [doc],
   );
   const rows = reactExports.useMemo(
-    () => (doc2 ? applyFilter(doc2) : []),
-    [doc2],
+    () => (doc ? applyFilter(doc) : []),
+    [doc],
   );
-  const rowHeightPx = doc2 ? getRowHeightPx(doc2) : FALLBACK_ROW_HEIGHT;
-  const maxLines = doc2 ? getRowHeightLines(doc2) : 1;
+  const rowHeightPx = doc ? getRowHeightPx(doc) : FALLBACK_ROW_HEIGHT;
+  const maxLines = doc ? getRowHeightLines(doc) : 1;
   const columns = reactExports.useMemo(() => {
     if (allColumns.length === 0) return allColumns;
     const limit = Math.max(0, bodyWidth);
     let acc = 0;
     const out = [];
-    for (const c3 of allColumns) {
-      out.push(c3);
-      acc += c3.width ?? FALLBACK_COL_WIDTH;
+    for (const column of allColumns) {
+      out.push(column);
+      acc += column.width ?? FALLBACK_COL_WIDTH;
       if (acc >= limit) break;
     }
     return out;
@@ -1404,17 +1404,17 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
   const displayRows = rows.slice(0, visibleRowCount);
   const hiddenRowCount = Math.max(0, rows.length - displayRows.length);
   Math.max(0, allColumns.length - columns.length);
-  if (!doc2) {
+  if (!doc) {
     return (
       <div className="flex h-full w-full items-center justify-center text-[12px] text-[var(--fg-muted,#999)]">
-        {t2("canvas.table.loading", "Loading...")}
+        {t("canvas.table.loading", "Loading...")}
       </div>
     );
   }
   if (allColumns.length === 0) {
     return (
       <div className="flex h-full w-full items-center justify-center text-[12px] text-[var(--fg-muted,#999)]">
-        {t2("canvas.table.empty", "No visible columns")}
+        {t("canvas.table.empty", "No visible columns")}
       </div>
     );
   }
@@ -1422,11 +1422,11 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
     <div className="flex h-full w-full flex-col overflow-hidden text-[12px]">
       <table className="w-full table-fixed border-collapse select-none">
         <colgroup>
-          {columns.map((c3) => (
+          {columns.map((column) => (
             <col
-              key={c3.id}
+              key={column.id}
               style={{
-                width: c3.width ?? FALLBACK_COL_WIDTH,
+                width: column.width ?? FALLBACK_COL_WIDTH,
               }}
             />
           ))}
@@ -1437,9 +1437,9 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
               height: HEADER_HEIGHT,
             }}
           >
-            {columns.map((c3) => (
+            {columns.map((column) => (
               <th
-                key={c3.id}
+                key={column.id}
                 className="border-b px-2 text-left font-normal"
                 style={{
                   borderColor: "var(--canvas-node-border, #e5e5e5)",
@@ -1448,8 +1448,8 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
                 }}
               >
                 <span className="flex items-center gap-1 truncate">
-                  <FieldIcon type={c3.type} />
-                  <span className="truncate">{c3.title}</span>
+                  <FieldIcon type={column.type} />
+                  <span className="truncate">{column.title}</span>
                 </span>
               </th>
             ))}
@@ -1470,7 +1470,7 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
                   borderBottom: "1px solid var(--canvas-node-border, #e5e5e5)",
                 }}
               >
-                {t2("canvas.table.noRows", "No rows")}
+                {t("canvas.table.noRows", "No rows")}
               </td>
             </tr>
           ) : (
@@ -1481,9 +1481,9 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
                   height: rowHeightPx,
                 }}
               >
-                {columns.map((c3) => (
+                {columns.map((column) => (
                   <td
-                    key={c3.id}
+                    key={column.id}
                     className="overflow-hidden align-top"
                     style={{
                       height: rowHeightPx,
@@ -1493,8 +1493,8 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
                     }}
                   >
                     <CellPreview
-                      value={row.cells[c3.id]}
-                      type={c3.type}
+                      value={row.cells[column.id]}
+                      type={column.type}
                       rowHeightPx={rowHeightPx}
                       maxLines={maxLines}
                     />
@@ -1514,7 +1514,7 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
         >
           {hiddenRowCount > 0 && (
             <span>
-              {t2("canvas.table.moreRows", "+{{count}} rows", {
+              {t("canvas.table.moreRows", "+{{count}} rows", {
                 count: hiddenRowCount,
               })}
             </span>
@@ -1526,21 +1526,21 @@ function TablePreviewInner({ doc: doc2, bodyHeight, bodyWidth }) {
 }
 const TablePreview = reactExports.memo(TablePreviewInner);
 function TableNodeInner({
-  id: id2,
-  selected: selected2,
+  id,
+  selected,
   width,
   height,
-  data: data2,
+  data,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
-  const isDragging = useCanvasNodeIsDragging(id2);
+  const isDragging = useCanvasNodeIsDragging(id);
   const isInteractiveSelect = !isMultiSelect && !isBoxSelecting && !isDragging;
-  const tableData = data2 ?? {};
+  const tableData = data ?? {};
   const tablePath = tableData.tablePath;
   const title =
-    tableData.title || t2("canvas.table.untitled", "Untitled table");
+    tableData.title || t("canvas.table.untitled", "Untitled table");
   const tableRevision = tableData.tableRevision;
   const [nodeWidth, setNodeWidth] = reactExports.useState(
     width || TABLE_CARD_DEFAULT_SIZE.width,
@@ -1554,7 +1554,7 @@ function TableNodeInner({
   reactExports.useEffect(() => {
     if (typeof height === "number" && height > 0) setNodeHeight(height);
   }, [height]);
-  const [doc2, setDoc] = reactExports.useState(null);
+  const [doc, setDoc] = reactExports.useState(null);
   const [loaded, setLoaded] = reactExports.useState(false);
   const [fullscreen, setFullscreen] = reactExports.useState(false);
   const appliedRevisionRef = reactExports.useRef(tableRevision);
@@ -1570,10 +1570,10 @@ function TableNodeInner({
     let cancelled = false;
     appliedRevisionRef.current = tableRevision;
     loadTableContent(tablePath)
-      .then((raw2) => {
+      .then((raw) => {
         if (cancelled) return;
         try {
-          setDoc(parseTableDocument(raw2));
+          setDoc(parseTableDocument(raw));
         } catch (err) {
           console.warn("[table-node] failed to parse", tablePath, err);
           setDoc(null);
@@ -1589,9 +1589,9 @@ function TableNodeInner({
       cancelled = true;
     };
   }, [tablePath, tableRevision, loadTableContent, fullscreen, loaded]);
-  const handleDoubleClick2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+  const handleDoubleClick = reactExports.useCallback(
+    (domEvent) => {
+      domEvent.stopPropagation();
       if (!loaded) return;
       setFullscreen(true);
     },
@@ -1605,17 +1605,17 @@ function TableNodeInner({
   tableDataRef.current = tableData;
   const handleRename = reactExports.useCallback(
     (newName) => {
-      updateNodeData(id2, {
+      updateNodeData(id, {
         ...tableDataRef.current,
         title: newName,
       });
     },
-    [id2, updateNodeData],
+    [id, updateNodeData],
   );
   const handleAddToChat = reactExports.useCallback(() => {
     if (!tablePath || !onAddToChat) return;
-    onAddToChat(tablePath, `${title}.htable`, id2);
-  }, [tablePath, onAddToChat, title, id2]);
+    onAddToChat(tablePath, `${title}.htable`, id);
+  }, [tablePath, onAddToChat, title, id]);
   const handleCloseFullscreen = reactExports.useCallback(
     (dirtyDoc) => {
       setFullscreen(false);
@@ -1626,12 +1626,12 @@ function TableNodeInner({
         saveTableContent(tablePath, serialized).catch((err) => {
           console.error("[table-node] save failed", err);
           dedupedToast.error(
-            t2("canvas.table.saveFailed", "Failed to save table"),
+            t("canvas.table.saveFailed", "Failed to save table"),
           );
         });
       }
     },
-    [tablePath, saveTableContent, t2],
+    [tablePath, saveTableContent, t],
   );
   const previewBodyHeight = reactExports.useMemo(
     () => Math.max(80, nodeHeight),
@@ -1645,41 +1645,41 @@ function TableNodeInner({
     () => [
       {
         id: "add-to-chat",
-        label: t2("canvas.addToChat"),
+        label: t("canvas.addToChat"),
         icon: <AddToChatIcon />,
         onClick: handleAddToChat,
       },
       {
         id: "fullscreen",
-        label: t2("canvas.fullscreenEdit"),
+        label: t("canvas.fullscreenEdit"),
         icon: <FullscreenIcon />,
         onClick: () => {
           if (loaded) setFullscreen(true);
         },
       },
     ],
-    [t2, handleAddToChat, loaded],
+    [t, handleAddToChat, loaded],
   );
   return (
     <NodeShell width={nodeWidth} dataActionUiId="canvas.table-node">
       <NodeHeader
         nodeType="table"
         name={title}
-        selected={selected2}
+        selected={selected}
         maxWidth={nodeWidth}
         onRename={handleRename}
         preserveExtension={false}
       />
-      {selected2 && isInteractiveSelect && (
+      {selected && isInteractiveSelect && (
         <NodeToolbar items={toolbarItems} visible={true} />
       )}
-      <NodeHandles nodeId={id2} selected={!!selected2} />
+      <NodeHandles nodeId={id} selected={!!selected} />
       <NodeBody
         width={nodeWidth}
         height={nodeHeight}
-        selected={!!selected2}
+        selected={!!selected}
         variant="panel"
-        onDoubleClick={handleDoubleClick2}
+        onDoubleClick={handleDoubleClick}
       >
         <div
           style={{
@@ -1687,15 +1687,15 @@ function TableNodeInner({
           }}
         >
           <TablePreview
-            doc={doc2}
+            doc={doc}
             bodyHeight={previewBodyHeight}
             bodyWidth={previewBodyWidth}
           />
         </div>
       </NodeBody>
-      {selected2 && (
+      {selected && (
         <NodeResizeFrame
-          nodeId={id2}
+          nodeId={id}
           minWidth={TABLE_CARD_DEFAULT_SIZE.width}
           minHeight={TABLE_CARD_DEFAULT_SIZE.height}
           onResize={handleResize}
@@ -1703,7 +1703,7 @@ function TableNodeInner({
       )}
       {fullscreen && (
         <TableFullscreen
-          initialDoc={doc2}
+          initialDoc={doc}
           title={title}
           onClose={handleCloseFullscreen}
           onTitleChange={handleRename}

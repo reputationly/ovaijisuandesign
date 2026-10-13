@@ -39,7 +39,7 @@ export function OtherSkillItem({ skill, installing, onInstall, onToggle, onDetai
       </div>
       <div
         className="relative flex shrink-0 items-center gap-2"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(clickEvent) => clickEvent.stopPropagation()}
       >
         {isInstalled ? (
           <>
@@ -127,7 +127,7 @@ function FeaturedSkillCard({ skill, installing, onInstall, onTryItOut, onDetail,
         <SkillCoverMedia url={cover} />
         <div
           className="pointer-events-none absolute inset-x-0 bottom-0 flex gap-3 p-3 opacity-0 translate-y-2 transition-[opacity,transform] duration-200 ease-out group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(clickEvent) => clickEvent.stopPropagation()}
         >
           {onDetail && (
             <button

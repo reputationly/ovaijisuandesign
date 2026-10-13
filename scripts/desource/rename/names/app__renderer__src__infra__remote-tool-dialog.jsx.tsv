@@ -1,0 +1,6 @@
+key	new	reason
+t2@73:14	t	useTranslation() 返回的翻译函数 t
+r2@128:14	response	fetch 的响应
+entries2@20:9	entries	去掉打包器加的数字后缀，恢复原名 entries
+key2@21:40	key	去掉打包器加的数字后缀，恢复原名 key
+json2@34:15	json	去掉打包器加的数字后缀，恢复原名 json

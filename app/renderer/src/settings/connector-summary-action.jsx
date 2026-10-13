@@ -38,7 +38,7 @@ export function ConnectorDetailNotice({
 export function ConnectorSetupSection({
   title,
   headerAction,
-  children: children2,
+  children,
   actionUiId,
   className,
 }) {
@@ -54,7 +54,7 @@ export function ConnectorSetupSection({
         </h3>
         {headerAction}
       </div>
-      <div className="mt-3 min-w-0">{children2}</div>
+      <div className="mt-3 min-w-0">{children}</div>
     </section>
   );
 }
@@ -85,18 +85,18 @@ const connectorSummaryActionVisual = {
   },
 };
 export function ConnectorSummaryAction({
-  mode: mode2,
+  mode,
   label,
   loading = false,
-  disabled: disabled2,
+  disabled,
   ...props
 }) {
-  const visual = connectorSummaryActionVisual[mode2];
+  const visual = connectorSummaryActionVisual[mode];
   const actionIcon = loading ? Loader2 : visual.icon;
   return (
     <IntegrationActionButton
       variant={visual.variant}
-      disabled={disabled2 || loading}
+      disabled={disabled || loading}
       aria-busy={loading || void 0}
       leadingIcon={
         <span
@@ -113,7 +113,7 @@ export function ConnectorSummaryAction({
           />
         </span>
       }
-      data-connector-summary-action-mode={mode2}
+      data-connector-summary-action-mode={mode}
       {...props}
     >
       {label}

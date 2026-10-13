@@ -1,0 +1,25 @@
+key	new	reason
+emit$1@167:7	emitPromptPrefillChange	通知提示词预填请求的订阅者
+pending$1@171:5	pendingPromptPrefill	当前待处理的提示词预填请求
+listeners$2@229:7	randomInspirationListeners	随机灵感请求的订阅者集合
+nextId$1@233:5	nextRandomInspirationId	随机灵感请求的自增 ID
+os2@138:40	os	原名 os，去掉打包器加的数字去重后缀
+os2@143:48	os	原名 os，去掉打包器加的数字去重后缀
+t2@144:14	t	useTranslation() 返回的翻译函数 t
+i2@153:14	i	原名 i，去掉打包器加的数字去重后缀
+id2@172:39	id	原名 id，去掉打包器加的数字去重后缀
+id2@190:11	id	原名 id，去掉打包器加的数字去重后缀
+id2@223:36	id	原名 id，去掉打包器加的数字去重后缀
+id2@235:43	id	原名 id，去掉打包器加的数字去重后缀
+id2@246:11	id	原名 id，去掉打包器加的数字去重后缀
+id2@273:46	id	原名 id，去掉打包器加的数字去重后缀
+valid2@26:13	valid	去掉打包器加的数字后缀，恢复原名 valid
+next2@70:9	next	去掉打包器加的数字后缀，恢复原名 next
+key2@71:9	key	去掉打包器加的数字后缀，恢复原名 key
+key2@154:13	key	去掉打包器加的数字后缀，恢复原名 key
+key2@157:16	key	去掉打包器加的数字后缀，恢复原名 key
+current2@174:9	current	去掉打包器加的数字后缀，恢复原名 current
+timeout2@193:11	timeout	去掉打包器加的数字后缀，恢复原名 timeout
+timeout2@248:11	timeout	去掉打包器加的数字后缀，恢复原名 timeout
+toolName2@77:47	toolName	去掉打包器加的数字后缀，恢复原名 toolName
+children2@86:59	children	去掉打包器加的数字后缀，恢复原名 children

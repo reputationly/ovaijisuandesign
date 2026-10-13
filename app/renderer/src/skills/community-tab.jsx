@@ -219,7 +219,7 @@ export function CommunityTabContent({
                 />
                 {t("skills.filter.hideInstalled", "仅显示未安装")}
               </label>
-              <Select value={sortBy ?? "recent"} onValueChange={(v) => onSortChange?.(v)}>
+              <Select value={sortBy ?? "recent"} onValueChange={(sortValue) => onSortChange?.(sortValue)}>
                 <SelectTrigger
                   size="sm"
                   className="h-8 min-w-24 border-border bg-transparent text-xs"

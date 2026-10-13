@@ -16,17 +16,17 @@ export function CanvasHostToolbarButton({
   iconSize = "md",
   tooltipSide = "top",
   kind = "action",
-  active: active2,
+  active,
   controlsId,
   hasPopup,
-  count: count2,
+  count,
 }) {
-  const content2 = (
+  const content = (
     <>
       <Icon icon={icon} size={iconSize} aria-hidden={true} />
-      {count2 !== void 0 && (
+      {count !== void 0 && (
         <span className="text-[11px] tabular-nums" aria-hidden="true">
-          {count2}
+          {count}
         </span>
       )}
     </>
@@ -40,7 +40,7 @@ export function CanvasHostToolbarButton({
         onClick={onClick}
         dataActionUiId={dataActionUiId}
       >
-        {content2}
+        {content}
       </CanvasToolbarExtensionButton>
     );
   } else if (kind === "toggle") {
@@ -51,9 +51,9 @@ export function CanvasHostToolbarButton({
         onClick={onClick}
         dataActionUiId={dataActionUiId}
         kind="toggle"
-        active={active2 ?? false}
+        active={active ?? false}
       >
-        {content2}
+        {content}
       </CanvasToolbarExtensionButton>
     );
   } else {
@@ -64,20 +64,20 @@ export function CanvasHostToolbarButton({
         onClick={onClick}
         dataActionUiId={dataActionUiId}
         kind="panel"
-        active={active2 ?? false}
+        active={active ?? false}
         controlsId={controlsId}
         hasPopup={hasPopup}
       >
-        {content2}
+        {content}
       </CanvasToolbarExtensionButton>
     );
   }
   return trigger;
 }
 export function CanvasWatermarkChip({ variant = "floating" }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { openSettings } = useSettingsDialog();
-  const [config2] = useStorage("global.config");
+  const [config] = useStorage("global.config");
   const watermarkEnabled = false;
   if (!watermarkEnabled) return null;
   const handleWatermarkSettings = () => {
@@ -96,8 +96,8 @@ export function CanvasWatermarkChip({ variant = "floating" }) {
       <button
         type="button"
         onClick={handleWatermarkSettings}
-        title={t2("canvas.watermark.settings")}
-        aria-label={t2("canvas.watermark.settings")}
+        title={t("canvas.watermark.settings")}
+        aria-label={t("canvas.watermark.settings")}
         data-action-ui-id="canvas.watermark-settings"
         className={buttonClassName}
       >
@@ -105,7 +105,7 @@ export function CanvasWatermarkChip({ variant = "floating" }) {
           <Settings2 size={14} strokeWidth={1.5} />
           {variant === "floating" && (
             <span className="@max-[640px]/canvas-area:hidden">
-              {t2("canvas.watermark.settings")}
+              {t("canvas.watermark.settings")}
             </span>
           )}
         </span>
@@ -118,28 +118,28 @@ function asRecord(value) {
     ? value
     : null;
 }
-function requiredString(record2, key2) {
-  const value = record2[key2];
+function requiredString(record, key) {
+  const value = record[key];
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 export function mapLocalComfyUiWorkflows(value) {
   const workflows = asRecord(value)?.workflows;
   if (!Array.isArray(workflows)) return [];
   return workflows.flatMap((candidate) => {
-    const record2 = asRecord(candidate);
-    if (!record2 || record2.source !== "user") return [];
-    const id2 = requiredString(record2, "id");
-    const name2 = requiredString(record2, "name");
-    const title = requiredString(record2, "title");
-    if (!id2 || !name2 || !title) return [];
-    const shortDesc = requiredString(record2, "short_desc");
-    const tags2 = Array.isArray(record2.tags)
-      ? record2.tags.filter((tag) => typeof tag === "string")
+    const record = asRecord(candidate);
+    if (!record || record.source !== "user") return [];
+    const id = requiredString(record, "id");
+    const recordName = requiredString(record, "name");
+    const title = requiredString(record, "title");
+    if (!id || !recordName || !title) return [];
+    const shortDesc = requiredString(record, "short_desc");
+    const tags = Array.isArray(record.tags)
+      ? record.tags.filter((tag) => typeof tag === "string")
       : void 0;
     return [
       {
-        id: id2,
-        name: name2,
+        id,
+        name: recordName,
         title,
         source: "user",
         ...(shortDesc
@@ -147,9 +147,9 @@ export function mapLocalComfyUiWorkflows(value) {
               short_desc: shortDesc,
             }
           : {}),
-        ...(tags2?.length
+        ...(tags?.length
           ? {
-              tags: tags2,
+              tags,
             }
           : {}),
       },
@@ -166,8 +166,8 @@ export function computeGridDropPositions(
   let cursorX = anchor.x;
   let cursorY = anchor.y;
   let rowMaxHeight = 0;
-  for (const [i2, size2] of sizes.entries()) {
-    if (i2 > 0 && i2 % cols === 0) {
+  for (const [i, size] of sizes.entries()) {
+    if (i > 0 && i % cols === 0) {
       cursorX = anchor.x;
       cursorY += rowMaxHeight + gap;
       rowMaxHeight = 0;
@@ -176,18 +176,18 @@ export function computeGridDropPositions(
       x: cursorX,
       y: cursorY,
     });
-    cursorX += size2.width + gap;
-    rowMaxHeight = Math.max(rowMaxHeight, size2.height);
+    cursorX += size.width + gap;
+    rowMaxHeight = Math.max(rowMaxHeight, size.height);
   }
   return positions;
 }
 const MEDIA_TYPE_SET = new Set(["image", "video", "audio", "text", "file"]);
-export function asMediaType(t2) {
-  return t2 && MEDIA_TYPE_SET.has(t2) ? t2 : void 0;
+export function asMediaType(value) {
+  return value && MEDIA_TYPE_SET.has(value) ? value : void 0;
 }
 const MARK_ID = "canvas-group-intro";
 export function GroupCoachMark({ anchorRef, selectedCount }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <CoachMark
       markId={MARK_ID}
@@ -202,25 +202,25 @@ export function GroupCoachMark({ anchorRef, selectedCount }) {
         url: CDN_COACHMARK_CANVAS_GROUP,
         type: "image",
       }}
-      title={t2("coachMark.canvas.group.title", "素材编组")}
-      description={t2(
+      title={t("coachMark.canvas.group.title", "素材编组")}
+      description={t(
         "coachMark.canvas.group.desc",
         "画布乱了？选多个节点右键「编组」，垂直/水平/宫格三种布局自动排",
       )}
-      ctaLabel={t2("coachMark.gotIt", "我知道了")}
+      ctaLabel={t("coachMark.gotIt", "我知道了")}
     />
   );
 }
 export const NODE_CONTEXT_MENU_VIEWPORT_MARGIN = 8;
 const NODE_CONTEXT_MENU_ANCHOR_GAP = 4;
 function resolveAxis(anchor, menuSize, viewportSize, margin, gap) {
-  const min2 = margin;
-  const max2 = Math.max(min2, viewportSize - margin - menuSize);
+  const min = margin;
+  const max = Math.max(min, viewportSize - margin - menuSize);
   const after = anchor + gap;
   const before = anchor - gap - menuSize;
-  if (after >= min2 && after <= max2) return after;
-  if (before >= min2 && before <= max2) return before;
-  return Math.min(Math.max(after, min2), max2);
+  if (after >= min && after <= max) return after;
+  if (before >= min && before <= max) return before;
+  return Math.min(Math.max(after, min), max);
 }
 export function resolveNodeContextMenuPosition({
   anchor,

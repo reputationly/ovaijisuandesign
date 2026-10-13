@@ -2,26 +2,26 @@
 import { isWorkspaceFolderMissingError } from "../vendor.js";
 import { workspaceRuntimeFromOpenResult } from "../vendor-inline/vscode-base/linked-list.js";
 export var _util;
-((_util2) => {
-  _util2.serviceIds = new Map();
-  _util2.DI_TARGET = "$di$target";
-  _util2.DI_DEPENDENCIES = "$di$dependencies";
+((_util) => {
+  _util.serviceIds = new Map();
+  _util.DI_TARGET = "$di$target";
+  _util.DI_DEPENDENCIES = "$di$dependencies";
   function getServiceDependencies(ctor) {
-    return ctor[_util2.DI_DEPENDENCIES] || [];
+    return ctor[_util.DI_DEPENDENCIES] || [];
   }
-  _util2.getServiceDependencies = getServiceDependencies;
+  _util.getServiceDependencies = getServiceDependencies;
 })(_util || (_util = {}));
-function storeServiceDependency(id2, target, index2) {
+function storeServiceDependency(id, target, index) {
   if (target[_util.DI_TARGET] === target) {
     target[_util.DI_DEPENDENCIES].push({
-      id: id2,
-      index: index2,
+      id,
+      index,
     });
   } else {
     target[_util.DI_DEPENDENCIES] = [
       {
-        id: id2,
-        index: index2,
+        id,
+        index,
       },
     ];
     target[_util.DI_TARGET] = target;
@@ -31,17 +31,17 @@ export function createDecorator(serviceId) {
   if (_util.serviceIds.has(serviceId)) {
     return _util.serviceIds.get(serviceId);
   }
-  const id2 = function (target, _key, index2) {
+  const id = function (target, _key, index) {
     if (arguments.length !== 3) {
       throw new Error(
         "@IServiceName-decorator can only be used to decorate a parameter",
       );
     }
-    storeServiceDependency(id2, target, index2);
+    storeServiceDependency(id, target, index);
   };
-  id2.toString = () => serviceId;
-  _util.serviceIds.set(serviceId, id2);
-  return id2;
+  id.toString = () => serviceId;
+  _util.serviceIds.set(serviceId, id);
+  return id;
 }
 export const IComfyUiModelDownloadService = createDecorator(
   "comfyUiModelDownloadService",
@@ -56,17 +56,17 @@ export class CustomMcpCommandSyntaxError extends Error {
 }
 export function parseCustomMcpArguments(value, commandLine = false) {
   const result = [];
-  let current2 = "";
+  let current = "";
   let quote;
   let tokenStarted = false;
   let windowsPath = false;
-  for (let index2 = 0; index2 < value.length; index2++) {
-    const character = value.charAt(index2);
+  for (let index = 0; index < value.length; index++) {
+    const character = value.charAt(index);
     if (!tokenStarted && !/\s/u.test(character)) {
-      const start2 =
-        character === '"' || character === "'" ? index2 + 1 : index2;
+      const start =
+        character === '"' || character === "'" ? index + 1 : index;
       windowsPath =
-        character !== "'" && /^(?:[a-z]:\\|\\\\)/iu.test(value.slice(start2));
+        character !== "'" && /^(?:[a-z]:\\|\\\\)/iu.test(value.slice(start));
     }
     if (
       commandLine &&
@@ -77,8 +77,8 @@ export function parseCustomMcpArguments(value, commandLine = false) {
     }
     if (!quote && /\s/u.test(character)) {
       if (tokenStarted) {
-        result.push(current2);
-        current2 = "";
+        result.push(current);
+        current = "";
         tokenStarted = false;
       }
       continue;
@@ -96,38 +96,38 @@ export function parseCustomMcpArguments(value, commandLine = false) {
       character === "\\" &&
       !windowsPath &&
       quote !== "'" &&
-      index2 + 1 < value.length
+      index + 1 < value.length
     ) {
-      const nextCharacter = value.charAt(index2 + 1);
+      const nextCharacter = value.charAt(index + 1);
       if (
         (quote === '"' && /["\\$`]/u.test(nextCharacter)) ||
         (!quote && /[\s"'\\|&;<>$`]/u.test(nextCharacter))
       ) {
-        current2 += nextCharacter;
-        index2 += 1;
+        current += nextCharacter;
+        index += 1;
         tokenStarted = true;
         continue;
       }
     }
-    current2 += character;
+    current += character;
     tokenStarted = true;
   }
   if (quote) throw new CustomMcpCommandSyntaxError("unclosed_quote");
-  if (tokenStarted) result.push(current2);
+  if (tokenStarted) result.push(current);
   return result;
 }
 export const ICustomMcpService = createDecorator("customMcpService");
 export const CUSTOM_MCP_NAME_MAX_LENGTH = 24;
 export class CustomMcpValidationError extends Error {
-  constructor(message2, field, commandIssue) {
-    super(message2);
+  constructor(message, field, commandIssue) {
+    super(message);
     this.field = field;
     this.commandIssue = commandIssue;
   }
   name = "CustomMcpValidationError";
 }
-export function isReservedCustomMcpName(name2) {
-  const normalized = name2.trim().replace(/\./gu, "_").toLowerCase();
+export function isReservedCustomMcpName(mcpName) {
+  const normalized = mcpName.trim().replace(/\./gu, "_").toLowerCase();
   return (
     normalized === "hub" ||
     normalized.startsWith("hub_") ||
@@ -182,20 +182,20 @@ const FILE_PUBLISH_FAILURE_REASONS = new Set([
 function getFilePublishFailureReason(error) {
   if (!error || typeof error !== "object") return void 0;
   const prefix = "FilePublishError:";
-  const name2 = error.name;
-  if (typeof name2 !== "string" || !name2.startsWith(prefix)) return void 0;
-  const reason = name2.slice(prefix.length);
+  const errorName = error.name;
+  if (typeof errorName !== "string" || !errorName.startsWith(prefix)) return void 0;
+  const reason = errorName.slice(prefix.length);
   return FILE_PUBLISH_FAILURE_REASONS.has(reason) ? reason : void 0;
 }
 export function getProjectExportFailureReason(error) {
   const publishReason = getFilePublishFailureReason(error);
   if (publishReason) return publishReason;
   if (!error || typeof error !== "object") return void 0;
-  const name2 = error.name;
-  if (name2 === "ProjectExportDestinationError:destination_inside_project") {
+  const errorName = error.name;
+  if (errorName === "ProjectExportDestinationError:destination_inside_project") {
     return "destination_inside_project";
   }
-  return name2 === "ProjectExportActivityError:activity_unavailable"
+  return errorName === "ProjectExportActivityError:activity_unavailable"
     ? "activity_unavailable"
     : void 0;
 }

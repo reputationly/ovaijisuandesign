@@ -43,7 +43,7 @@ export function IntegrationActionButton({
   className,
   tone,
   leadingIcon,
-  children: children2,
+  children,
   ...props
 }) {
   return (
@@ -58,7 +58,7 @@ export function IntegrationActionButton({
       {...props}
     >
       {leadingIcon}
-      {children2}
+      {children}
     </Button>
   );
 }
@@ -100,7 +100,7 @@ export function getImBridgeMainService() {
   return _service;
 }
 export function useImAccounts() {
-  const [state2, setState] = reactExports.useState({
+  const [state, setState] = reactExports.useState({
     accounts: [],
     legacyCredentialsPresent: false,
     loading: true,
@@ -167,7 +167,7 @@ export function useImAccounts() {
     await refresh();
   }, [refresh]);
   return {
-    ...state2,
+    ...state,
     refresh,
     addAccount,
     removeAccount,
@@ -184,9 +184,9 @@ export function useImStatuses() {
     let cancelled = false;
     void svc.listStatuses().then((initial) => {
       if (cancelled) return;
-      const map3 = {};
-      for (const s2 of initial) map3[s2.accountId] = s2;
-      setStatuses(map3);
+      const map = {};
+      for (const accountStatus of initial) map[accountStatus.accountId] = accountStatus;
+      setStatuses(map);
     });
     const unsubscribe = svc.onStatusChange((status) => {
       setStatuses((prev) => ({

@@ -13,7 +13,7 @@ export function ErrorBlock({
   statusSuffix,
   detail,
   actions,
-  Icon: Icon2 = AlertCircle,
+  Icon = AlertCircle,
   icon,
   iconSize = 20,
   iconStrokeWidth = 1.5,
@@ -30,7 +30,7 @@ export function ErrorBlock({
           <span
             className={`flex shrink-0 items-center justify-center ${iconContainerClassName}`}
           >
-            <Icon2 size={iconSize} strokeWidth={iconStrokeWidth} />
+            <Icon size={iconSize} strokeWidth={iconStrokeWidth} />
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex w-full items-center gap-1 text-left">
@@ -78,14 +78,14 @@ export function ErrorBlock({
       <button
         type="button"
         className="flex items-center gap-2 w-full text-left cursor-pointer"
-        onClick={() => setExpanded((v2) => !v2)}
+        onClick={() => setExpanded((isExpanded) => !isExpanded)}
         aria-expanded={expanded}
         disabled={!hasBody}
       >
         <span
           className={`flex shrink-0 items-center justify-center ${iconContainerClassName}`}
         >
-          {icon ?? <Icon2 size={iconSize} strokeWidth={iconStrokeWidth} />}
+          {icon ?? <Icon size={iconSize} strokeWidth={iconStrokeWidth} />}
         </span>
         <div className="min-w-0 text-body-14 flex items-center gap-1">
           <span

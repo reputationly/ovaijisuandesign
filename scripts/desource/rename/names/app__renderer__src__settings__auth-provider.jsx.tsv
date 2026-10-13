@@ -1,0 +1,26 @@
+key	new	reason
+t2@104:14	t	useTranslation() 返回的翻译函数 t
+u4@159:12	userInfo	要持久化并应用的用户信息
+workspaceId2@37:14	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+platform2@100:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+next2@114:56	next	去掉打包器加的数字后缀，恢复原名 next
+next2@133:47	next	去掉打包器加的数字后缀，恢复原名 next
+pending2@144:11	pending	去掉打包器加的数字后缀，恢复原名 pending
+snapshot2@173:19	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+tokens2@390:25	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+current2@433:21	current	去掉打包器加的数字后缀，恢复原名 current
+data2@467:36	data	去掉打包器加的数字后缀，恢复原名 data
+info2@470:17	info	去掉打包器加的数字后缀，恢复原名 info
+previous2@534:17	previous	去掉打包器加的数字后缀，恢复原名 previous
+data2@611:35	data	去掉打包器加的数字后缀，恢复原名 data
+next2@629:17	next	去掉打包器加的数字后缀，恢复原名 next
+data2@635:55	data	去掉打包器加的数字后缀，恢复原名 data
+version2@657:13	version	去掉打包器加的数字后缀，恢复原名 version
+tokens2@659:25	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+now2@729:11	now	去掉打包器加的数字后缀，恢复原名 now
+current2@739:23	current	去掉打包器加的数字后缀，恢复原名 current
+error2@773:21	error	去掉打包器加的数字后缀，恢复原名 error
+pending2@833:11	pending	去掉打包器加的数字后缀，恢复原名 pending
+current2@898:13	current	去掉打包器加的数字后缀，恢复原名 current
+next2@901:13	next	去掉打包器加的数字后缀，恢复原名 next
+children2@99:42	children	去掉打包器加的数字后缀，恢复原名 children

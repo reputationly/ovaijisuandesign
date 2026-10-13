@@ -17,15 +17,15 @@ import { folderNameFromPath } from "../generation/use-model-catalog-scope-key.js
 import { Button } from "../infra/dialog-content.jsx";
 import { SettingGroup, SettingRow } from "./settings-select.jsx";
 function useFolderWhitelist() {
-  const platform2 = usePlatform();
-  const { t: t2 } = useTranslation();
-  const [config2, , persistConfig] = useStorage("global.config");
-  const whitelist = config2.folderWhitelist ?? [];
+  const platform = usePlatform();
+  const { t } = useTranslation();
+  const [config, , persistConfig] = useStorage("global.config");
+  const whitelist = config.folderWhitelist ?? [];
   const [saving, setSaving] = reactExports.useState(false);
   const [error, setError] = reactExports.useState(null);
-  const caseInsensitive = isCaseInsensitiveOs(platform2.app.os);
+  const caseInsensitive = isCaseInsensitiveOs(platform.app.os);
   const addFolder = reactExports.useCallback(async () => {
-    const showOpenDialog = platform2.fs.showOpenDialog;
+    const showOpenDialog = platform.fs.showOpenDialog;
     if (!showOpenDialog) return;
     const picked = await showOpenDialog({
       directory: true,
@@ -36,8 +36,8 @@ function useFolderWhitelist() {
     setSaving(true);
     setError(null);
     try {
-      const saved = await persistConfig((current2) => {
-        const existing = current2.folderWhitelist ?? [];
+      const saved = await persistConfig((current) => {
+        const existing = current.folderWhitelist ?? [];
         if (isPathInWhitelist(folderPath, existing, caseInsensitive)) return {};
         const withoutChildren = existing.filter(
           (entry) => !isPathInWhitelist(entry, [folderPath], caseInsensitive),
@@ -46,27 +46,27 @@ function useFolderWhitelist() {
           folderWhitelist: [...withoutChildren, folderPath],
         };
       });
-      if (!saved) setError(t2("settings.folderWhitelist.saveFailed"));
+      if (!saved) setError(t("settings.folderWhitelist.saveFailed"));
     } finally {
       setSaving(false);
     }
-  }, [caseInsensitive, persistConfig, platform2.fs, t2]);
+  }, [caseInsensitive, persistConfig, platform.fs, t]);
   const removeFolder = reactExports.useCallback(
     async (folderPath) => {
       setSaving(true);
       setError(null);
       try {
-        const saved = await persistConfig((current2) => ({
-          folderWhitelist: (current2.folderWhitelist ?? []).filter(
-            (p3) => p3 !== folderPath,
+        const saved = await persistConfig((current) => ({
+          folderWhitelist: (current.folderWhitelist ?? []).filter(
+            (whitelistedPath) => whitelistedPath !== folderPath,
           ),
         }));
-        if (!saved) setError(t2("settings.folderWhitelist.saveFailed"));
+        if (!saved) setError(t("settings.folderWhitelist.saveFailed"));
       } finally {
         setSaving(false);
       }
     },
-    [persistConfig, t2],
+    [persistConfig, t],
   );
   return {
     whitelist,
@@ -77,7 +77,7 @@ function useFolderWhitelist() {
   };
 }
 export function FolderWhitelistSection() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { whitelist, addFolder, removeFolder, saving, error } =
     useFolderWhitelist();
   const [manageOpen, setManageOpen] = reactExports.useState(false);
@@ -89,9 +89,9 @@ export function FolderWhitelistSection() {
   }, [manageOpen]);
   reactExports.useEffect(() => {
     if (!manageOpen) return;
-    const onKey = (e2) => {
-      if (e2.key === "Escape") {
-        e2.stopPropagation();
+    const onKey = (keyboardEvent) => {
+      if (keyboardEvent.key === "Escape") {
+        keyboardEvent.stopPropagation();
         setManageOpen(false);
       }
     };
@@ -123,10 +123,10 @@ export function FolderWhitelistSection() {
               id="folder-whitelist-title"
               className="font-heading text-sm font-normal"
             >
-              {t2("settings.folderWhitelist.title", "已信任文件夹")}
+              {t("settings.folderWhitelist.title", "已信任文件夹")}
             </h2>
             <p className="text-xs/relaxed text-muted-foreground">
-              {t2(
+              {t(
                 "settings.folderWhitelist.description",
                 "在新建项目时选择这些文件夹，将不再重复询问是否允许。此设置仅记住你的选择，不会扩大系统权限。",
               )}
@@ -136,7 +136,7 @@ export function FolderWhitelistSection() {
             variant="ghost"
             size="icon-sm"
             onClick={() => setManageOpen(false)}
-            aria-label={t2("common.close", "关闭")}
+            aria-label={t("common.close", "关闭")}
             data-action-ui-id="folder-whitelist-dialog-close"
             className="shrink-0"
           >
@@ -151,7 +151,7 @@ export function FolderWhitelistSection() {
               className="text-muted-foreground"
             />
             <p className="text-xs text-muted-foreground">
-              {t2("settings.folderWhitelist.empty", "暂无已记住的文件夹")}
+              {t("settings.folderWhitelist.empty", "暂无已记住的文件夹")}
             </p>
           </div>
         ) : (
@@ -188,7 +188,7 @@ export function FolderWhitelistSection() {
                   onClick={() => void removeFolder(folderPath)}
                   disabled={saving}
                   data-action-ui-id="settings-folder-whitelist-remove"
-                  aria-label={t2("common.delete", "删除")}
+                  aria-label={t("common.delete", "删除")}
                 >
                   <Trash2 size={14} strokeWidth={1.5} />
                 </Button>
@@ -206,7 +206,7 @@ export function FolderWhitelistSection() {
             data-action-ui-id="settings-folder-whitelist-add"
           >
             <FolderPlus size={14} strokeWidth={1.5} />
-            {t2("settings.folderWhitelist.add", "添加文件夹")}
+            {t("settings.folderWhitelist.add", "添加文件夹")}
           </Button>
           {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
         </div>
@@ -214,10 +214,10 @@ export function FolderWhitelistSection() {
     </>
   );
   return (
-    <SettingGroup title={t2("settings.folderWhitelist.title", "已信任文件夹")}>
+    <SettingGroup title={t("settings.folderWhitelist.title", "已信任文件夹")}>
       <SettingRow
-        label={t2("settings.folderWhitelist.listGroup", "免重复确认的文件夹")}
-        description={t2(
+        label={t("settings.folderWhitelist.listGroup", "免重复确认的文件夹")}
+        description={t(
           "settings.folderWhitelist.description",
           "在新建项目时选择这些文件夹，将不再重复询问是否允许。此设置仅记住你的选择，不会扩大系统权限。",
         )}
@@ -229,7 +229,7 @@ export function FolderWhitelistSection() {
           onClick={() => setManageOpen(true)}
           data-action-ui-id="settings-folder-whitelist-manage"
         >
-          {t2("settings.folderWhitelist.manage", "管理")}
+          {t("settings.folderWhitelist.manage", "管理")}
         </Button>
       </SettingRow>
       {overlay && container

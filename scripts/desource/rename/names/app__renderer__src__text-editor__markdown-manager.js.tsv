@@ -1,0 +1,126 @@
+key	new	reason
+i2@563:14	i	原名 i，去掉打包器加的数字去重后缀
+i2@625:14	i	原名 i，去掉打包器加的数字去重后缀
+i2@714:14	i	原名 i，去掉打包器加的数字去重后缀
+j2@744:20	j	原名 j，去掉打包器加的数字去重后缀
+i2@806:14	i	原名 i，去掉打包器加的数字去重后缀
+i2@1177:27	i	原名 i，去掉打包器加的数字去重后缀
+m3@102:16	mark	活动标记集中的标记，按类型和属性匹配
+_options$indentation$2@179:7	optionsIndentationSize	编译产生的临时变量，保存 options.indentation.size（赋给 this.indentSize，缺省 2）
+t2@746:19	token	词法 token 列表中的当前 token
+m3@1062:33	mark	节点上的标记，判断是否为代码类标记
+a2@1293:16	a	sort 比较函数的前一个标记键
+b3@1293:20	b	sort 比较函数的后一个标记键
+m3@1297:33	mark	要开启的标记
+m3@1539:10	mark	下一节点的标记，按类型和属性匹配
+a2@1541:31	a	比较函数的前一个标记
+b3@1541:35	b	比较函数的后一个标记
+tokens2@17:36	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+token2@18:27	token	去掉打包器加的数字后缀，恢复原名 token
+index2@18:35	index	去掉打包器加的数字后缀，恢复原名 index
+content2@41:38	content	去掉打包器加的数字后缀，恢复原名 content
+mark2@58:10	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@68:58	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@92:35	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@126:59	mark	去掉打包器加的数字后缀，恢复原名 mark
+match2@134:9	match	去掉打包器加的数字后缀，恢复原名 match
+html2@149:30	html	去掉打包器加的数字后缀，恢复原名 html
+match2@151:7	match	去掉打包器加的数字后缀，恢复原名 match
+lower2@157:9	lower	去掉打包器加的数字后缀，恢复原名 lower
+html2@161:38	html	去掉打包器加的数字后缀，恢复原名 html
+extension2@257:21	extension	去掉打包器加的数字后缀，恢复原名 extension
+name2@261:11	extensionName	扩展的 name；name 是全局名
+name2@332:13	tokenizerName	自定义 tokenizer 的 name；name 是全局名
+start2@333:14	start	去掉打包器加的数字后缀，恢复原名 start
+tokenize2@335:17	tokenize	去掉打包器加的数字后缀，恢复原名 tokenize
+tokens2@357:22	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+type2@377:23	type	去掉打包器加的数字后缀，恢复原名 type
+type2@385:22	type	去掉打包器加的数字后缀，恢复原名 type
+type2@392:26	type	去掉打包器加的数字后缀，恢复原名 type
+markdown2@413:17	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+markdown2@425:9	markdown	去掉打包器加的数字后缀，恢复原名 markdown
+tokens2@432:13	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+tokens2@444:15	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+token2@449:17	token	去掉打包器加的数字后缀，恢复原名 token
+index2@449:25	index	去掉打包器加的数字后缀，恢复原名 index
+token2@457:38	token	去掉打包器加的数字后缀，恢复原名 token
+index2@457:46	index	去掉打包器加的数字后缀，恢复原名 index
+token2@486:5	token	去掉打包器加的数字后缀，恢复原名 token
+raw2@509:28	raw	去掉打包器加的数字后缀，恢复原名 raw
+token2@515:14	token	去掉打包器加的数字后缀，恢复原名 token
+handlers2@518:11	handlers	去掉打包器加的数字后缀，恢复原名 handlers
+token2@549:18	token	去掉打包器加的数字后缀，恢复原名 token
+token2@643:26	token	去掉打包器加的数字后缀，恢复原名 token
+handlers2@645:11	handlers	去掉打包器加的数字后缀，恢复原名 handlers
+tokens2@675:21	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+tokens2@677:23	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+tokens2@678:28	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+text2@679:24	text	去掉打包器加的数字后缀，恢复原名 text
+type2@686:20	type	去掉打包器加的数字后缀，恢复原名 type
+content2@686:34	content	去掉打包器加的数字后缀，恢复原名 content
+node2@687:15	node	去掉打包器加的数字后缀，恢复原名 node
+content2@695:29	content	去掉打包器加的数字后缀，恢复原名 content
+str2@705:15	str	去掉打包器加的数字后缀，恢复原名 str
+tokens2@712:21	tokens	去掉打包器加的数字后缀，恢复原名 tokens
+token2@715:13	inlineToken	行内 token 列表中的当前 token；子作用域已有 token
+raw2@728:15	raw	去掉打包器加的数字后缀，恢复原名 raw
+current2@807:13	current	去掉打包器加的数字后缀，恢复原名 current
+previous2@808:13	previous	去掉打包器加的数字后缀，恢复原名 previous
+content2@823:32	content	去掉打包器加的数字后缀，恢复原名 content
+node2@824:26	node	去掉打包器加的数字后缀，恢复原名 node
+token2@862:22	token	去掉打包器加的数字后缀，恢复原名 token
+token2@907:18	token	去掉打包器加的数字后缀，恢复原名 token
+html2@908:11	html	去掉打包器加的数字后缀，恢复原名 html
+content2@939:19	content	去掉打包器加的数字后缀，恢复原名 content
+node2@941:30	node	去掉打包器加的数字后缀，恢复原名 node
+types2@956:11	types	去掉打包器加的数字后缀，恢复原名 types
+schema2@958:13	schema	去掉打包器加的数字后缀，恢复原名 schema
+type2@959:45	type	去掉打包器加的数字后缀，恢复原名 type
+html2@982:22	html	去掉打包器加的数字后缀，恢复原名 html
+tags2@997:11	tags	去掉打包器加的数字后缀，恢复原名 tags
+schema2@999:13	schema	去掉打包器加的数字后缀，恢复原名 schema
+match2@1009:19	match	去掉打包器加的数字后缀，恢复原名 match
+type2@1014:45	type	去掉打包器加的数字后缀，恢复原名 type
+type2@1015:45	type	去掉打包器加的数字后缀，恢复原名 type
+html2@1032:21	html	去掉打包器加的数字后缀，恢复原名 html
+text2@1033:11	text	去掉打包器加的数字后缀，恢复原名 text
+text2@1056:25	text	去掉打包器加的数字后缀，恢复原名 text
+node2@1056:32	node	去掉打包器加的数字后缀，恢复原名 node
+parentNode2@1056:39	parentNode	去掉打包器加的数字后缀，恢复原名 parentNode
+text2@1078:24	text	去掉打包器加的数字后缀，恢复原名 text
+node2@1081:24	node	去掉打包器加的数字后缀，恢复原名 node
+parentNode2@1081:31	parentNode	去掉打包器加的数字后缀，恢复原名 parentNode
+index2@1081:44	index	去掉打包器加的数字后缀，恢复原名 index
+meta2@1081:67	meta	去掉打包器加的数字后缀，恢复原名 meta
+content2@1124:16	content	去掉打包器加的数字后缀，恢复原名 content
+parentNode2@1156:28	parentNode	去掉打包器加的数字后缀，恢复原名 parentNode
+index2@1156:57	index	去掉打包器加的数字后缀，恢复原名 index
+parentNode2@1172:40	parentNode	去掉打包器加的数字后缀，恢复原名 parentNode
+node2@1177:20	node	去掉打包器加的数字后缀，恢复原名 node
+mark2@1187:36	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@1239:21	mark	去掉打包器加的数字后缀，恢复原名 mark
+type2@1259:38	type	去掉打包器加的数字后缀，恢复原名 type
+mark2@1259:51	mark	去掉打包器加的数字后缀，恢复原名 mark
+type2@1272:31	type	去掉打包器加的数字后缀，恢复原名 type
+mark2@1272:44	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@1283:20	mark	去掉打包器加的数字后缀，恢复原名 mark
+type2@1285:40	type	去掉打包器加的数字后缀，恢复原名 type
+mark2@1317:17	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@1336:36	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@1340:30	mark	去掉打包器加的数字后缀，恢复原名 mark
+type2@1340:37	type	去掉打包器加的数字后缀，恢复原名 type
+mark2@1355:22	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@1376:28	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@1396:28	mark	去掉打包器加的数字后缀，恢复原名 mark
+handlers2@1406:11	handlers	去掉打包器加的数字后缀，恢复原名 handlers
+content2@1426:20	content	去掉打包器加的数字后缀，恢复原名 content
+content2@1427:33	content	去掉打包器加的数字后缀，恢复原名 content
+mark2@1447:28	mark	去掉打包器加的数字后缀，恢复原名 mark
+handlers2@1457:11	handlers	去掉打包器加的数字后缀，恢复原名 handlers
+content2@1477:20	content	去掉打包器加的数字后缀，恢复原名 content
+content2@1478:33	content	去掉打包器加的数字后缀，恢复原名 content
+handlers2@1499:11	handlers	去掉打包器加的数字后缀，恢复原名 handlers
+type2@1508:49	type	去掉打包器加的数字后缀，恢复原名 type
+mark2@1508:56	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@1557:16	mark	去掉打包器加的数字后缀，恢复原名 mark
+mark2@1560:16	mark	去掉打包器加的数字后缀，恢复原名 mark

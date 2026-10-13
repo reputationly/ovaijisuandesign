@@ -14,8 +14,8 @@ export function ConnectorDialogFrame({
   onOpenChange,
   actionUiId,
   closeLabel,
-  children: children2,
-  size: size2 = "md",
+  children,
+  size = "md",
   className,
   stableHeight = false,
   showCloseButton = true,
@@ -33,7 +33,7 @@ export function ConnectorDialogFrame({
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
     )
       return;
-    const content2 = dialog.querySelector(
+    const content = dialog.querySelector(
       '[data-layout-slot="connector-dialog-view"]',
     );
     const currentHeight = Math.min(window.innerHeight - 32, 700);
@@ -41,9 +41,9 @@ export function ConnectorDialogFrame({
     dialog.style.height = `${currentHeight}px`;
     dialog.getBoundingClientRect();
     dialog.style.transition = "";
-    if (content2) {
-      content2.style.opacity = "0.94";
-      content2.style.transform = "translateX(0.25rem)";
+    if (content) {
+      content.style.opacity = "0.94";
+      content.style.transform = "translateX(0.25rem)";
     }
     let settleTimer = 0;
     let cleanupTimer = 0;
@@ -53,13 +53,13 @@ export function ConnectorDialogFrame({
     const finish = () => {
       if (finished) return;
       finished = true;
-      observer2.disconnect();
+      observer.disconnect();
       window.clearTimeout(settleTimer);
       window.clearTimeout(cleanupTimer);
       dialog.style.height = "";
-      if (content2) {
-        content2.style.opacity = "";
-        content2.style.transform = "";
+      if (content) {
+        content.style.opacity = "";
+        content.style.transform = "";
       }
       contentAnimation?.cancel();
     };
@@ -78,12 +78,12 @@ export function ConnectorDialogFrame({
         finish();
         return;
       }
-      observer2.disconnect();
+      observer.disconnect();
       animationFrame = window.requestAnimationFrame(() => {
         if (Math.abs(startHeight - targetHeight) >= 1)
           dialog.style.height = `${targetHeight}px`;
-        if (content2?.animate) {
-          contentAnimation = content2.animate(
+        if (content?.animate) {
+          contentAnimation = content.animate(
             [
               {
                 opacity: 0.94,
@@ -108,9 +108,9 @@ export function ConnectorDialogFrame({
       window.clearTimeout(settleTimer);
       settleTimer = window.setTimeout(beginAnimation, 80);
     };
-    const observer2 = new MutationObserver(scheduleAnimation);
+    const observer = new MutationObserver(scheduleAnimation);
     dialog.addEventListener("transitionend", handleTransitionEnd);
-    observer2.observe(dialog, {
+    observer.observe(dialog, {
       childList: true,
       characterData: true,
       subtree: true,
@@ -120,13 +120,13 @@ export function ConnectorDialogFrame({
       window.cancelAnimationFrame(animationFrame);
       window.clearTimeout(settleTimer);
       window.clearTimeout(cleanupTimer);
-      observer2.disconnect();
+      observer.disconnect();
       dialog.removeEventListener("transitionend", handleTransitionEnd);
       dialog.style.transition = "";
       dialog.style.height = "";
-      if (content2) {
-        content2.style.opacity = "";
-        content2.style.transform = "";
+      if (content) {
+        content.style.opacity = "";
+        content.style.transform = "";
       }
       contentAnimation?.cancel();
     };
@@ -135,7 +135,7 @@ export function ConnectorDialogFrame({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         ref={dialogRef}
-        size={size2}
+        size={size}
         showCloseButton={false}
         className={cn(
           "flex max-h-[calc(100vh-2rem)] flex-col gap-0 overflow-hidden rounded-xl p-0 motion-safe:transition-[height] motion-safe:duration-200 motion-safe:ease-out motion-reduce:transition-none [&_[data-slot=dialog-close]]:size-8! [&_[data-slot=dialog-close]_svg]:size-[18px]!",
@@ -145,7 +145,7 @@ export function ConnectorDialogFrame({
         data-action-ui-id={actionUiId}
         data-layout-slot="connector-dialog-frame"
       >
-        {children2}
+        {children}
         {showCloseButton ? (
           <DialogClose
             render={

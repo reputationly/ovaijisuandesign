@@ -52,7 +52,7 @@ export function roleLabelKey(role) {
   }
 }
 export function CopyIconButton({ value, label, actionId }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [copied, setCopied] = reactExports.useState(false);
   return (
     <button
@@ -65,7 +65,7 @@ export function CopyIconButton({ value, label, actionId }) {
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
         } catch {
-          dedupedToast.error(t2("common.copyFailed"));
+          dedupedToast.error(t("common.copyFailed"));
         }
       }}
       className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
@@ -109,29 +109,29 @@ const desktopSettingsMainService = Object.freeze(
 );
 export async function readActiveCustomModel() {
   if (!isElectron()) return null;
-  let timer2;
+  let timer;
   try {
     return await Promise.race([
       (async () => {
         const {
-          getDesktopSettingsMainService: getDesktopSettingsMainService2,
+          getDesktopSettingsMainService,
         } = await Promise.resolve().then(() => desktopSettingsMainService);
         return {
-          getDesktopSettingsMainService: getDesktopSettingsMainService2,
+          getDesktopSettingsMainService,
         };
       })().then(
-        ({ getDesktopSettingsMainService: getDesktopSettingsMainService2 }) =>
-          getDesktopSettingsMainService2().getActiveCustomModel(),
+        ({ getDesktopSettingsMainService }) =>
+          getDesktopSettingsMainService().getActiveCustomModel(),
       ),
-      new Promise((_2, reject) => {
-        timer2 = setTimeout(
+      new Promise((_, reject) => {
+        timer = setTimeout(
           () => reject(new Error("Custom model configuration is unavailable")),
           5e3,
         );
       }),
     ]);
   } finally {
-    clearTimeout(timer2);
+    clearTimeout(timer);
   }
 }
 export function useActiveCustomModel() {

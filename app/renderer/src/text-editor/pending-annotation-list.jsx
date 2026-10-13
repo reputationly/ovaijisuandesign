@@ -14,50 +14,50 @@ export function PendingAnnotationList({
   submission,
   sendDisabled = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const listRef = reactExports.useRef(null);
   const submissionInFlight =
     submission?.status === "submitting" ||
     submission?.status === "accepted" ||
     submission?.status === "running";
   const submissionStatus = submissionInFlight
-    ? t2("chat.pendingAnnotations.submitting", "Submitting to Agent…")
+    ? t("chat.pendingAnnotations.submitting", "Submitting to Agent…")
     : submission?.status === "conflict"
-      ? t2(
+      ? t(
           "chat.pendingAnnotations.conflict",
           "Document changed. Review and retry.",
         )
       : submission?.status === "failed"
-        ? t2(
+        ? t(
             "chat.pendingAnnotations.failed",
             "Agent did not apply these edits. Retry available.",
           )
         : null;
   const [maxHeight, setMaxHeight] = reactExports.useState(void 0);
   reactExports.useLayoutEffect(() => {
-    const list2 = listRef.current;
-    if (!list2 || annotations.length <= MAX_VISIBLE_CARDS) {
+    const list = listRef.current;
+    if (!list || annotations.length <= MAX_VISIBLE_CARDS) {
       setMaxHeight(void 0);
       return;
     }
-    const cards = list2.children;
+    const cards = list.children;
     const lastVisible = cards[MAX_VISIBLE_CARDS - 1];
     if (!lastVisible) return;
     setMaxHeight(
-      lastVisible.offsetTop - list2.offsetTop + lastVisible.offsetHeight,
+      lastVisible.offsetTop - list.offsetTop + lastVisible.offsetHeight,
     );
   }, [annotations]);
   const keydownRef = reactExports.useRef(() => {});
-  keydownRef.current = (e2) => {
-    if (e2.key !== "Enter" || e2.isComposing || e2.keyCode === 229) return;
-    if (e2.shiftKey || e2.metaKey || e2.ctrlKey || e2.altKey) return;
-    if (shouldIgnoreChatGlobalShortcut(e2)) return;
+  keydownRef.current = (keyboardEvent) => {
+    if (keyboardEvent.key !== "Enter" || keyboardEvent.isComposing || keyboardEvent.keyCode === 229) return;
+    if (keyboardEvent.shiftKey || keyboardEvent.metaKey || keyboardEvent.ctrlKey || keyboardEvent.altKey) return;
+    if (shouldIgnoreChatGlobalShortcut(keyboardEvent)) return;
     if (annotations.length === 0 || sendDisabled || submissionInFlight) return;
-    e2.preventDefault();
+    keyboardEvent.preventDefault();
     onSend();
   };
   reactExports.useEffect(() => {
-    const handler = (e2) => keydownRef.current(e2);
+    const handler = (keyboardEvent) => keydownRef.current(keyboardEvent);
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, []);
@@ -66,7 +66,7 @@ export function PendingAnnotationList({
     <div className="mb-2 rounded-lg border border-border bg-muted/30 p-2">
       <div className="mb-1.5 flex items-center justify-between px-1">
         <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-          <span>{t2("chat.pendingAnnotations.title", "待提交批注")}</span>
+          <span>{t("chat.pendingAnnotations.title", "待提交批注")}</span>
           <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary/15 px-1 text-[10px] text-primary">
             {annotations.length}
           </span>
@@ -79,7 +79,7 @@ export function PendingAnnotationList({
             className="text-xs text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
             data-action-ui-id="chat.pending-annotations-clear"
           >
-            {t2("chat.pendingAnnotations.clear", "清空")}
+            {t("chat.pendingAnnotations.clear", "清空")}
           </button>
           <Button
             type="button"
@@ -90,8 +90,8 @@ export function PendingAnnotationList({
           >
             {submission?.status === "conflict" ||
             submission?.status === "failed"
-              ? t2("common.retry", "Retry")
-              : t2("chat.send", "发送")}
+              ? t("common.retry", "Retry")
+              : t("chat.send", "发送")}
           </Button>
         </div>
       </div>
@@ -114,46 +114,46 @@ export function PendingAnnotationList({
             : void 0
         }
       >
-        {annotations.map((a2) => {
-          const active2 = a2.id === activeId;
+        {annotations.map((annotation) => {
+          const active = annotation.id === activeId;
           return (
             // biome-ignore lint/a11y/useSemanticElements: the card wraps a nested delete <button>, so it can't itself be a <button>
             <div
-              key={a2.id}
+              key={annotation.id}
               role="button"
               tabIndex={0}
-              onClick={() => onLocate(a2.id)}
-              onKeyDown={(e2) => {
-                if (e2.key === "Enter" || e2.key === " ") {
-                  e2.preventDefault();
-                  onLocate(a2.id);
+              onClick={() => onLocate(annotation.id)}
+              onKeyDown={(keyboardEvent) => {
+                if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+                  keyboardEvent.preventDefault();
+                  onLocate(annotation.id);
                 }
               }}
-              className={`group relative cursor-pointer rounded-md border px-2 py-1.5 transition-colors ${active2 ? "border-primary bg-primary/5" : "border-transparent bg-card hover:bg-muted/60"}`}
-              data-annotation-card={a2.id}
+              className={`group relative cursor-pointer rounded-md border px-2 py-1.5 transition-colors ${active ? "border-primary bg-primary/5" : "border-transparent bg-card hover:bg-muted/60"}`}
+              data-annotation-card={annotation.id}
             >
               <div className="flex items-start gap-2">
                 <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[10px] font-medium text-primary">
-                  {a2.seq}
+                  {annotation.seq}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-xs text-muted-foreground">
-                    {a2.quote}
+                    {annotation.quote}
                   </div>
                   <div className="mt-0.5 line-clamp-2 text-xs text-foreground">
-                    {a2.comment}
+                    {annotation.comment}
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={(e2) => {
-                    e2.stopPropagation();
-                    if (!submissionInFlight) onDelete(a2.id);
+                  onClick={(clickEvent) => {
+                    clickEvent.stopPropagation();
+                    if (!submissionInFlight) onDelete(annotation.id);
                   }}
                   disabled={submissionInFlight}
                   className="text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-0"
-                  title={t2("common.delete", "删除")}
-                  aria-label={t2("common.delete", "删除")}
+                  title={t("common.delete", "删除")}
+                  aria-label={t("common.delete", "删除")}
                 >
                   <X size={13} />
                 </button>

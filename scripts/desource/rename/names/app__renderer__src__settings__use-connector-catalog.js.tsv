@@ -1,0 +1,14 @@
+key	new	reason
+identity2@12:9	identity	去掉打包器加的数字后缀，恢复原名 identity
+pending2@21:9	pending	去掉打包器加的数字后缀，恢复原名 pending
+apply2@22:9	apply	去掉打包器加的数字后缀，恢复原名 apply
+snapshot2@22:44	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+snapshot2@32:13	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+previous2@36:21	previous	去掉打包器加的数字后缀，恢复原名 previous
+snapshot2@47:13	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+previous2@51:21	previous	去掉打包器加的数字后缀，恢复原名 previous
+snapshot2@61:13	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+timer2@86:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+previous2@78:17	previous	去掉打包器加的数字后缀，恢复原名 previous
+snapshot2@104:15	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+previous2@111:23	previous	去掉打包器加的数字后缀，恢复原名 previous

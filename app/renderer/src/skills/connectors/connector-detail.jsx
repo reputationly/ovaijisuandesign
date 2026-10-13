@@ -168,13 +168,13 @@ export function ConnectorManagementActions({
     setPendingAction(action);
     try {
       if (enabled && action === "retry" && isManagedLibTv) {
-        const result2 = await homeService.customMcp.authorizeServer(connector.name);
-        if (!result2.ok) {
-          if (result2.code !== "authorization_cancelled")
-            dedupedToast.error(t(`connectors.customDialog.error.${result2.code}`));
+        const result = await homeService.customMcp.authorizeServer(connector.name);
+        if (!result.ok) {
+          if (result.code !== "authorization_cancelled")
+            dedupedToast.error(t(`connectors.customDialog.error.${result.code}`));
           return;
         }
-        onUpdated(result2.server);
+        onUpdated(result.server);
         return;
       }
       const reauthorize =

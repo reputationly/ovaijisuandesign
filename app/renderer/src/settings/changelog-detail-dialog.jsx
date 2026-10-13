@@ -21,7 +21,7 @@ export function ChangelogDetailDialog({
   imageUrl,
   onImageError,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [imageVisible, setImageVisible] = reactExports.useState(
     Boolean(imageUrl),
   );
@@ -41,7 +41,7 @@ export function ChangelogDetailDialog({
       }
     >
       <X className="size-3" strokeWidth={1.8} />
-      <span className="sr-only">{t2("common.close")}</span>
+      <span className="sr-only">{t("common.close")}</span>
     </DialogClose>
   );
   return (
@@ -75,13 +75,13 @@ export function ChangelogDetailDialog({
         <div className="flex flex-col gap-3 py-2 text-sm text-foreground">
           <div className="flex flex-col gap-1.5">
             <span className="text-xs font-medium text-muted-foreground">
-              {t2("home.changelog")}
+              {t("home.changelog")}
             </span>
             <ul className="flex flex-col gap-1 text-xs text-foreground/80">
-              {item?.changelog.map((text2) => (
-                <li key={text2}>
+              {item?.changelog.map((text) => (
+                <li key={text}>
                   {"- "}
-                  {text2}
+                  {text}
                 </li>
               ))}
             </ul>
@@ -109,7 +109,7 @@ export function ChangelogDetailDialog({
                 className="size-4"
                 strokeWidth={1.7}
               />
-              {t2("update.btn.installNow")}
+              {t("update.btn.installNow")}
             </Button>
           )}
         </div>

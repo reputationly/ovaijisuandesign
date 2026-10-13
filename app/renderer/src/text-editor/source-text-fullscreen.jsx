@@ -28,66 +28,66 @@ import { useSourceDiffReview } from "./use-source-diff-review.jsx";
 import { useTextConflictResolver } from "./use-text-conflict-resolver.jsx";
 import { useTextDocumentDirty } from "./text-diff-hunk-view.jsx";
 import { useTextVersionPanel } from "./use-text-version-panel.jsx";
-function countNewlinesBefore(text2, offset2) {
-  let count2 = 0;
-  const end2 = Math.min(offset2, text2.length);
-  for (let i2 = 0; i2 < end2; i2++) {
-    if (text2.charCodeAt(i2) === 10) count2++;
+function countNewlinesBefore(text, offset) {
+  let count = 0;
+  const end = Math.min(offset, text.length);
+  for (let i = 0; i < end; i++) {
+    if (text.charCodeAt(i) === 10) count++;
   }
-  return count2;
+  return count;
 }
-function scrollTextareaToOffset(textarea, offset2, lineHeight) {
+function scrollTextareaToOffset(textarea, offset, lineHeight) {
   if (!Number.isFinite(lineHeight) || lineHeight <= 0) return;
-  const line = countNewlinesBefore(textarea.value, offset2);
+  const line = countNewlinesBefore(textarea.value, offset);
   const target = line * lineHeight - textarea.clientHeight / 2;
   textarea.scrollTop = Math.max(0, target);
 }
 function resolveLineHeight(textarea) {
-  const raw2 = window.getComputedStyle(textarea).lineHeight;
-  const parsed = Number.parseFloat(raw2);
+  const raw = window.getComputedStyle(textarea).lineHeight;
+  const parsed = Number.parseFloat(raw);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 20;
 }
-function replaceAllInText(text2, query, options, replacement, maxMatches) {
+function replaceAllInText(text, query, options, replacement, maxMatches) {
   const pattern = compileFindPattern(query, options);
   if (!pattern)
     return {
-      text: text2,
+      text,
       count: 0,
     };
-  const { matches: matches2 } = findMatchesInText(text2, query, options, {
+  const { matches } = findMatchesInText(text, query, options, {
     maxMatches: Number.POSITIVE_INFINITY,
     pattern,
   });
-  if (matches2.length === 0)
+  if (matches.length === 0)
     return {
-      text: text2,
+      text,
       count: 0,
     };
   let out = "";
-  let last2 = 0;
-  for (const m3 of matches2) {
-    const matched = text2.slice(m3.from, m3.to);
+  let last = 0;
+  for (const match of matches) {
+    const matched = text.slice(match.from, match.to);
     out +=
-      text2.slice(last2, m3.from) +
+      text.slice(last, match.from) +
       (options.regex
         ? computeReplacementWith(pattern, matched, replacement)
         : replacement);
-    last2 = m3.to;
+    last = match.to;
   }
-  out += text2.slice(last2);
+  out += text.slice(last);
   return {
     text: out,
-    count: matches2.length,
+    count: matches.length,
   };
 }
 function SourceEditorHistoryControls({ editorRef, availability }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <>
       <ToolbarBtn
         item={{
           id: "undo",
-          label: t2("canvas.undo", "Undo"),
+          label: t("canvas.undo", "Undo"),
           icon: <Undo2 size={16} strokeWidth={1.5} aria-hidden="true" />,
           disabled: !availability.canUndo,
           onClick: () => {
@@ -100,7 +100,7 @@ function SourceEditorHistoryControls({ editorRef, availability }) {
       <ToolbarBtn
         item={{
           id: "redo",
-          label: t2("canvas.redo", "Redo"),
+          label: t("canvas.redo", "Redo"),
           icon: <Redo2 size={16} strokeWidth={1.5} aria-hidden="true" />,
           disabled: !availability.canRedo,
           onClick: () => {
@@ -124,7 +124,7 @@ export function SourceTextFullscreen({
   sourceNodeId,
   editorKind,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const textareaRef = reactExports.useRef(null);
   const codeMirrorRef = reactExports.useRef(null);
   const isCodeMirror = editorKind === "codemirror";
@@ -185,17 +185,17 @@ export function SourceTextFullscreen({
   }, [isCodeMirror]);
   const applySync = reactExports.useCallback(
     (md) => {
-      const current2 = getCurrentValue();
-      if (current2 !== md) markDirty();
+      const current = getCurrentValue();
+      if (current !== md) markDirty();
       setCurrentValue(md);
       return true;
     },
     [getCurrentValue, markDirty, setCurrentValue],
   );
   const handleSourceReviewDocumentApplied = reactExports.useCallback(
-    (markdown2) => {
-      if (getCurrentValue() !== markdown2) applySync(markdown2);
-      resetBaseline(markdown2);
+    (markdown) => {
+      if (getCurrentValue() !== markdown) applySync(markdown);
+      resetBaseline(markdown);
     },
     [applySync, getCurrentValue, resetBaseline],
   );
@@ -235,11 +235,11 @@ export function SourceTextFullscreen({
   const handleExternalConflict = reactExports.useCallback(
     (external) => {
       if (openConflict(external)) return;
-      const current2 = getCurrentValue();
+      const current = getCurrentValue();
       externalUpdatedWhileEditingRef.current = false;
       resetBaseline(external);
       resumeDraftSave();
-      if (current2 !== external) scheduleDraftSaveFrom(getCurrentValue);
+      if (current !== external) scheduleDraftSaveFrom(getCurrentValue);
     },
     [
       getCurrentValue,
@@ -271,7 +271,7 @@ export function SourceTextFullscreen({
     if (closedRef.current) return;
     if (conflict.active) {
       dedupedToast.error(
-        t2("canvas.textConflict.blockedClose", "请先处理完所有冲突再退出"),
+        t("canvas.textConflict.blockedClose", "请先处理完所有冲突再退出"),
       );
       return;
     }
@@ -292,8 +292,8 @@ export function SourceTextFullscreen({
       openConflict(externalMarkdownRef.current);
       return;
     }
-    const markdown2 = flushDraftSave();
-    finalizeClose(onDraftChange ? void 0 : markdown2);
+    const markdown = flushDraftSave();
+    finalizeClose(onDraftChange ? void 0 : markdown);
   }, [
     conflict.active,
     finalizeClose,
@@ -302,7 +302,7 @@ export function SourceTextFullscreen({
     onDraftChange,
     openConflict,
     setLatestDraft,
-    t2,
+    t,
   ]);
   const scheduleSelectionReport = useEditingSelectionReporter(
     onEditingSelectionChange,
@@ -312,8 +312,8 @@ export function SourceTextFullscreen({
   }, [getCurrentSelectionState, scheduleSelectionReport]);
   reactExports.useEffect(() => {
     if (!subscribeAnnotationCommand) return;
-    return subscribeAnnotationCommand((cmd2) => {
-      if (cmd2.type !== "clearSelection") return;
+    return subscribeAnnotationCommand((cmd) => {
+      if (cmd.type !== "clearSelection") return;
       if (isCodeMirror) {
         codeMirrorRef.current?.clearSelection();
       } else {
@@ -340,11 +340,11 @@ export function SourceTextFullscreen({
     canUndo: false,
     canRedo: false,
   });
-  const handleHistoryAvailabilityChange = reactExports.useCallback((next2) => {
-    setSourceHistory((current2) =>
-      current2.canUndo === next2.canUndo && current2.canRedo === next2.canRedo
-        ? current2
-        : next2,
+  const handleHistoryAvailabilityChange = reactExports.useCallback((next) => {
+    setSourceHistory((current) =>
+      current.canUndo === next.canUndo && current.canRedo === next.canRedo
+        ? current
+        : next,
     );
   }, []);
   const lineHeightRef = reactExports.useRef(null);
@@ -364,7 +364,7 @@ export function SourceTextFullscreen({
           };
         }
         const value = getCurrentValue();
-        const { matches: matches2, limited } = findMatchesInText(
+        const { matches, limited } = findMatchesInText(
           value,
           query,
           options,
@@ -373,23 +373,23 @@ export function SourceTextFullscreen({
           },
         );
         return {
-          matches: matches2,
+          matches,
           limited,
           caretPos: textareaRef.current?.selectionStart ?? 0,
         };
       },
-      activate(matches2, index2) {
-        const match2 = matches2[index2];
-        if (!match2) return;
+      activate(matches, index) {
+        const match = matches[index];
+        if (!match) return;
         if (isCodeMirror) {
-          codeMirrorRef.current?.setFindMatches(matches2, index2);
+          codeMirrorRef.current?.setFindMatches(matches, index);
           return;
         }
         const el = textareaRef.current;
         if (!el) return;
-        el.setSelectionRange(match2.from, match2.to);
+        el.setSelectionRange(match.from, match.to);
         lineHeightRef.current ??= resolveLineHeight(el);
-        scrollTextareaToOffset(el, match2.from, lineHeightRef.current);
+        scrollTextareaToOffset(el, match.from, lineHeightRef.current);
       },
       clear() {
         if (isCodeMirror) codeMirrorRef.current?.clearFindMatches();
@@ -402,10 +402,10 @@ export function SourceTextFullscreen({
         return el.value.slice(el.selectionStart, el.selectionEnd);
       },
       focusEditor: focusCurrentEditor,
-      replaceOne(match2, query, options, replacement) {
+      replaceOne(match, query, options, replacement) {
         const matchedText = isCodeMirror
-          ? (codeMirrorRef.current?.getText(match2.from, match2.to) ?? "")
-          : getCurrentValue().slice(match2.from, match2.to);
+          ? (codeMirrorRef.current?.getText(match.from, match.to) ?? "")
+          : getCurrentValue().slice(match.from, match.to);
         const expanded = computeReplacement(
           matchedText,
           query,
@@ -413,12 +413,12 @@ export function SourceTextFullscreen({
           replacement,
         );
         if (isCodeMirror) {
-          codeMirrorRef.current?.replaceRange(match2.from, match2.to, expanded);
+          codeMirrorRef.current?.replaceRange(match.from, match.to, expanded);
           return;
         }
         const el = textareaRef.current;
         if (!el) return;
-        el.setRangeText(expanded, match2.from, match2.to, "end");
+        el.setRangeText(expanded, match.from, match.to, "end");
         handleDocumentChange(() => el.value);
       },
       replaceAll(query, options, replacement) {
@@ -426,27 +426,27 @@ export function SourceTextFullscreen({
           codeMirrorRef.current?.replaceAll(query, options, replacement);
           return;
         }
-        const { text: text2, count: count2 } = replaceAllInText(
+        const { text, count } = replaceAllInText(
           getCurrentValue(),
           query,
           options,
           replacement,
         );
-        if (count2 === 0) return;
+        if (count === 0) return;
         const el = textareaRef.current;
         if (!el) return;
-        el.value = text2;
+        el.value = text;
         handleDocumentChange(() => el.value);
       },
     }),
     [focusCurrentEditor, getCurrentValue, handleDocumentChange, isCodeMirror],
   );
-  const find2 = useFindController(findAdapter);
-  findRef.current = find2;
-  useFindEscapeClose(find2, handleClose);
+  const findController = useFindController(findAdapter);
+  findRef.current = findController;
+  useFindEscapeClose(findController, handleClose);
   const handleInput = reactExports.useCallback(
-    (e2) => {
-      const el = e2.currentTarget;
+    (domEvent) => {
+      const el = domEvent.currentTarget;
       handleDocumentChange(() => el.value);
     },
     [handleDocumentChange],
@@ -483,18 +483,18 @@ export function SourceTextFullscreen({
   }, [focusCurrentEditor, sourceEditorBlocked]);
   reactExports.useEffect(() => {
     if (!sourceEditorBlocked) return;
-    const activeElement2 = document.activeElement;
-    if (!(activeElement2 instanceof HTMLElement)) return;
+    const activeElement = document.activeElement;
+    if (!(activeElement instanceof HTMLElement)) return;
     const belongsToSourceEditor =
-      activeElement2 === textareaRef.current ||
-      activeElement2.closest(
+      activeElement === textareaRef.current ||
+      activeElement.closest(
         '[data-action-ui-id="canvas-text-large-markdown-editor"]',
       ) !== null;
-    if (belongsToSourceEditor) activeElement2.blur();
+    if (belongsToSourceEditor) activeElement.blur();
   }, [sourceEditorBlocked]);
   return (
     <FullscreenShell
-      find={find2}
+      find={findController}
       onClose={handleClose}
       saveStatus={
         <TextSaveStatus

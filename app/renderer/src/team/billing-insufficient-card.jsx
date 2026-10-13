@@ -27,8 +27,8 @@ export function BillingInsufficientCard({
   retryResetMs,
   refreshRevision,
 }) {
-  const { t: t2 } = useTranslation();
-  const platform2 = usePlatform();
+  const { t } = useTranslation();
+  const platform = usePlatform();
   const subscribeUrl = useMpSubscribeUrl();
   const isTeamContext =
     useOptionalTeamAccount()?.snapshot?.activeContext?.accountType === "TEAM";
@@ -47,27 +47,27 @@ export function BillingInsufficientCard({
   const [retryState, setRetryState] = reactExports.useState("idle");
   reactExports.useEffect(() => {
     if (retryState !== "submitted" || retryResetMs === void 0) return;
-    const timer2 = setTimeout(() => setRetryState("idle"), retryResetMs);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => setRetryState("idle"), retryResetMs);
+    return () => clearTimeout(timer);
   }, [retryState, retryResetMs]);
   const countdown = useCreditCountdown(expiresAt, !resolved);
   const topupContinued = resolved && settlementStatus === "continued";
   const settledSummary =
     settlementStatus === "continued"
-      ? t2(
+      ? t(
           "chat.creditReminder.topupContinued",
           "Credits have been added. This generation resumed automatically.",
         )
-      : t2(
+      : t(
           "chat.creditReminder.topupExpired",
           "No top-up arrived in time. This generation has stopped.",
         );
   const title = topupContinued
-    ? t2(
+    ? t(
         "chat.creditReminder.topupContinuedTitle",
         "Top-up successful. Generation is continuing.",
       )
-    : t2("chat.billingInsufficient.title");
+    : t("chat.billingInsufficient.title");
   const { collapsed, expand, collapse } = useSettledCollapse(resolved);
   const [collapsedWaiting, setCollapsedWaiting] = reactExports.useState(false);
   const [notArrived, setNotArrived] = reactExports.useState(false);
@@ -91,10 +91,10 @@ export function BillingInsufficientCard({
   };
   const handleOpenPurchase = (source) => {
     if (!subscribeUrl) {
-      dedupedToast.error(t2("credits.walletUrlNotReady"));
+      dedupedToast.error(t("credits.walletUrlNotReady"));
       return;
     }
-    void openExternalUrl(platform2, subscribeUrl, {
+    void openExternalUrl(platform, subscribeUrl, {
       source: `chat.billing-insufficient.${source}`,
     });
   };
@@ -137,7 +137,7 @@ export function BillingInsufficientCard({
       </div>
       {!resolved && !collapsedWaiting && (
         <p className="mt-3 text-[14px] leading-[22px] text-muted-foreground">
-          {t2(
+          {t(
             isTeamContext
               ? "chat.billingInsufficient.teamDescription"
               : "chat.billingInsufficient.description",
@@ -151,7 +151,7 @@ export function BillingInsufficientCard({
             {estimatedCredits && (
               <div className="min-w-0">
                 <dt className="text-muted-foreground">
-                  {t2("chat.billingInsufficient.estimatedCredits")}
+                  {t("chat.billingInsufficient.estimatedCredits")}
                 </dt>
                 <dd className="mt-0.5 truncate text-foreground">
                   {estimatedCredits}
@@ -161,7 +161,7 @@ export function BillingInsufficientCard({
             {currentCredits && (
               <div className="min-w-0">
                 <dt className="text-muted-foreground">
-                  {t2("chat.billingInsufficient.currentCredits")}
+                  {t("chat.billingInsufficient.currentCredits")}
                 </dt>
                 <dd className="mt-0.5 truncate text-foreground">
                   {currentCredits}
@@ -171,7 +171,7 @@ export function BillingInsufficientCard({
             {shortfallCredits && (
               <div className="min-w-0">
                 <dt className="text-muted-foreground">
-                  {t2("chat.billingInsufficient.shortfallCredits")}
+                  {t("chat.billingInsufficient.shortfallCredits")}
                 </dt>
                 <dd className="mt-0.5 truncate text-foreground">
                   {shortfallCredits}
@@ -190,7 +190,7 @@ export function BillingInsufficientCard({
             className="min-w-0 flex-1 text-xs text-muted-foreground"
             aria-live="polite"
           >
-            {t2("chat.billingInsufficient.waitingCollapsed")}
+            {t("chat.billingInsufficient.waitingCollapsed")}
           </p>
           <Button
             type="button"
@@ -200,14 +200,14 @@ export function BillingInsufficientCard({
             onClick={handleRetryAfterPurchase}
             data-action-ui-id="chat.billing-insufficient.recheck-again"
           >
-            {t2("chat.billingInsufficient.recheckAgain")}
+            {t("chat.billingInsufficient.recheckAgain")}
           </Button>
         </div>
       ) : (
         <>
           {notArrived && (
             <p className="mt-3 text-xs text-muted-foreground" role="alert">
-              {t2("chat.billingInsufficient.topupNotArrived")}
+              {t("chat.billingInsufficient.topupNotArrived")}
             </p>
           )}
           {!isTeamContext && (
@@ -219,7 +219,7 @@ export function BillingInsufficientCard({
                 onClick={() => handleOpenPurchase("top-up")}
                 data-action-ui-id="chat.billing-insufficient.top-up"
               >
-                {t2("chat.billingInsufficient.topUp")}
+                {t("chat.billingInsufficient.topUp")}
               </Button>
               <Button
                 type="button"
@@ -229,7 +229,7 @@ export function BillingInsufficientCard({
                 onClick={() => handleOpenPurchase("upgrade")}
                 data-action-ui-id="chat.billing-insufficient.upgrade"
               >
-                {t2("chat.billingInsufficient.upgrade")}
+                {t("chat.billingInsufficient.upgrade")}
               </Button>
             </div>
           )}
@@ -237,7 +237,7 @@ export function BillingInsufficientCard({
             <>
               {retryState === "failed" && (
                 <p className="mt-3 text-xs text-destructive" role="alert">
-                  {t2("chat.billingInsufficient.retryFailed")}
+                  {t("chat.billingInsufficient.retryFailed")}
                 </p>
               )}
               <Button
@@ -251,7 +251,7 @@ export function BillingInsufficientCard({
                 onClick={handleRetryAfterPurchase}
                 data-action-ui-id="chat.billing-insufficient.retry-after-purchase"
               >
-                {t2("chat.billingInsufficient.retryAfterPurchase")}
+                {t("chat.billingInsufficient.retryAfterPurchase")}
               </Button>
             </>
           )}

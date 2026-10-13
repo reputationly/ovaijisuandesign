@@ -1,0 +1,20 @@
+key	new	reason
+t2@17:14	t	useTranslation() 返回的翻译函数 t
+t2@108:14	t	useTranslation() 返回的翻译函数 t
+id2@263:62	id	原名 id，去掉打包器加的数字去重后缀
+id2@288:18	id	原名 id，去掉打包器加的数字去重后缀
+t2@315:14	t	useTranslation() 返回的翻译函数 t
+index2@174:12	index	去掉打包器加的数字后缀，恢复原名 index
+message2@175:11	message	去掉打包器加的数字后缀，恢复原名 message
+index2@185:12	index	去掉打包器加的数字后缀，恢复原名 index
+message2@186:11	message	去掉打包器加的数字后缀，恢复原名 message
+path2@271:15	path	去掉打包器加的数字后缀，恢复原名 path
+path2@272:18	path	去掉打包器加的数字后缀，恢复原名 path
+workspaceId2@316:9	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+start2@387:11	start	去掉打包器加的数字后缀，恢复原名 start
+end2@388:11	end	去掉打包器加的数字后缀，恢复原名 end
+mode2@167:43	mode	去掉打包器加的数字后缀，恢复原名 mode
+messages2@172:42	messages	去掉打包器加的数字后缀，恢复原名 messages
+workspaceId2@298:35	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+disabled2@312:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled
+message2@400:26	message	去掉打包器加的数字后缀，恢复原名 message

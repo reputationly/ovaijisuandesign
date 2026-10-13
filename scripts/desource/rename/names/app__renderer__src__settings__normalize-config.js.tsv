@@ -1,0 +1,11 @@
+key	new	reason
+name2@73:9	trimmedName	去掉首尾空白的名字；name 是全局名
+raw2@84:9	raw	去掉打包器加的数字后缀，恢复原名 raw
+url2@86:11	url	去掉打包器加的数字后缀，恢复原名 url
+key2@102:35	key	去掉打包器加的数字后缀，恢复原名 key
+seen2@118:9	seen	去掉打包器加的数字后缀，恢复原名 seen
+key2@120:11	key	去掉打包器加的数字后缀，恢复原名 key
+common2@144:9	common	去掉打包器加的数字后缀，恢复原名 common
+url2@189:9	url	去掉打包器加的数字后缀，恢复原名 url
+env2@159:11	env	去掉打包器加的数字后缀，恢复原名 env
+name2@210:9	serverName	requireServerName 返回的服务器名；name 是全局名

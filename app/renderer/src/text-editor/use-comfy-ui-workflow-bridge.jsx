@@ -13,14 +13,14 @@ const CANVAS_ADD_NODE_BADGE_IDS = {
   comfyUi: "canvas-add-comfyui-new-v1",
 };
 function useCanvasAddNodeMenuBadges() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const configs = reactExports.useMemo(() => {
     const appearance = {
-      label: t2("canvas.releaseBadgeNew"),
+      label: t("canvas.releaseBadgeNew"),
       tone: "brand",
     };
-    return Object.entries(CANVAS_ADD_NODE_BADGE_IDS).map(([target, id2]) => ({
-      id: id2,
+    return Object.entries(CANVAS_ADD_NODE_BADGE_IDS).map(([target, id]) => ({
+      id,
       target,
       display: {
         mode: "once",
@@ -28,55 +28,55 @@ function useCanvasAddNodeMenuBadges() {
         afterComplete: null,
       },
     }));
-  }, [t2]);
-  const { badges: badges2, markReleaseBadgeComplete } =
+  }, [t]);
+  const { badges, markReleaseBadgeComplete } =
     useReleaseBadges(configs);
   const addNodeMenuBadges = reactExports.useMemo(
     () =>
       Object.fromEntries(
-        Object.entries(badges2).map(([target, appearance]) => [
+        Object.entries(badges).map(([target, appearance]) => [
           target,
           appearance?.label,
         ]),
       ),
-    [badges2],
+    [badges],
   );
   return {
     addNodeMenuBadges,
     onAddNodeMenuBadgeComplete: markReleaseBadgeComplete,
   };
 }
-async function fetchLocalComfyUiWorkflows(gatewayFetch2) {
-  const response = await gatewayFetch2(API_PATHS.comfyUiWorkflows);
+async function fetchLocalComfyUiWorkflows(gatewayFetch) {
+  const response = await gatewayFetch(API_PATHS.comfyUiWorkflows);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return mapLocalComfyUiWorkflows(await response.json());
 }
 function parseOpenWorkflowResult(value) {
   if (!value || typeof value !== "object")
     throw new Error("Invalid ComfyUI response");
-  const record2 = value;
-  if (typeof record2.status !== "string")
+  const record = value;
+  if (typeof record.status !== "string")
     throw new Error("Invalid ComfyUI response");
   return {
-    status: record2.status,
-    ...(typeof record2.error === "string"
+    status: record.status,
+    ...(typeof record.error === "string"
       ? {
-          error: record2.error,
+          error: record.error,
         }
       : {}),
   };
 }
 function useComfyUiWorkflowBridge() {
-  const { t: t2 } = useTranslation();
-  const gatewayFetch$1 = useGatewayFetch();
+  const { t } = useTranslation();
+  const scopedGatewayFetch = useGatewayFetch();
   const fetchComfyUiWorkflows = reactExports.useCallback(
     () => fetchLocalComfyUiWorkflows(gatewayFetch),
     [],
   );
   const openComfyUiWorkflow = reactExports.useCallback(
-    async (workflowId, position2) => {
+    async (workflowId, position) => {
       try {
-        const response = await gatewayFetch$1(
+        const response = await scopedGatewayFetch(
           API_PATHS.comfyUiWorkflowOpen(workflowId),
           {
             method: "POST",
@@ -86,9 +86,9 @@ function useComfyUiWorkflowBridge() {
             body: JSON.stringify({
               target: "new",
               open_editor: false,
-              ...(position2
+              ...(position
                 ? {
-                    position: position2,
+                    position,
                   }
                 : {}),
             }),
@@ -100,13 +100,13 @@ function useComfyUiWorkflowBridge() {
           throw new Error(result.error || result.status);
       } catch (error) {
         dedupedToast.error(
-          t2("workflows.addFailed", {
+          t("workflows.addFailed", {
             message: error instanceof Error ? error.message : String(error),
           }),
         );
       }
     },
-    [gatewayFetch$1, t2],
+    [scopedGatewayFetch, t],
   );
   return {
     fetchComfyUiWorkflows,
@@ -114,7 +114,7 @@ function useComfyUiWorkflowBridge() {
   };
 }
 export function CanvasWorkflowBridge({
-  children: children2,
+  children,
   ...canvasBridgeState
 }) {
   const comfyUiWorkflowBridge = useComfyUiWorkflowBridge();
@@ -125,7 +125,7 @@ export function CanvasWorkflowBridge({
       {...comfyUiWorkflowBridge}
       {...addNodeMenuBadgeBridge}
     >
-      {children2}
+      {children}
     </CanvasBridgeProvider>
   );
 }

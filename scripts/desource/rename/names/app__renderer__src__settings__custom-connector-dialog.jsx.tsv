@@ -1,0 +1,26 @@
+key	new	reason
+t2@416:14	t	useTranslation() 返回的翻译函数 t
+name2@80:39	entryName	出错条目的名字；name 是全局名
+state2@145:29	state	去掉打包器加的数字后缀，恢复原名 state
+common2@152:9	common	去掉打包器加的数字后缀，恢复原名 common
+state2@218:28	state	去掉打包器加的数字后缀，恢复原名 state
+state2@240:30	state	去掉打包器加的数字后缀，恢复原名 state
+config2@244:9	config	去掉打包器加的数字后缀，恢复原名 config
+state2@299:38	state	去掉打包器加的数字后缀，恢复原名 state
+config2@323:19	config	去掉打包器加的数字后缀，恢复原名 config
+entries2@360:11	entries	去掉打包器加的数字后缀，恢复原名 entries
+name2@364:12	entryName	配置条目名；name 是全局名
+config2@364:19	config	去掉打包器加的数字后缀，恢复原名 config
+key2@373:46	key	去掉打包器加的数字后缀，恢复原名 key
+mode2@417:10	mode	去掉打包器加的数字后缀，恢复原名 mode
+current2@508:19	current	去掉打包器加的数字后缀，恢复原名 current
+current2@518:19	current	去掉打包器加的数字后缀，恢复原名 current
+current2@658:41	current	去掉打包器加的数字后缀，恢复原名 current
+current2@733:41	current	去掉打包器加的数字后缀，恢复原名 current
+current2@761:43	current	去掉打包器加的数字后缀，恢复原名 current
+current2@787:43	current	去掉打包器加的数字后缀，恢复原名 current
+current2@828:39	current	去掉打包器加的数字后缀，恢复原名 current
+current2@860:39	current	去掉打包器加的数字后缀，恢复原名 current
+current2@876:53	current	去掉打包器加的数字后缀，恢复原名 current
+current2@906:43	current	去掉打包器加的数字后缀，恢复原名 current
+current2@933:43	current	去掉打包器加的数字后缀，恢复原名 current

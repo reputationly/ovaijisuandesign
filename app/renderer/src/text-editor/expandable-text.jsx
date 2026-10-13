@@ -4,14 +4,14 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { useChatPresentation } from "../chat/use-copy.jsx";
 
 export function ExpandableText({
-  children: children2,
+  children,
   lineClamp = 8,
   className,
   asPre = false,
   richContent = false,
   ellipsis = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const isPresented = useChatPresentation();
   const [expanded, setExpanded] = reactExports.useState(false);
   const [collapsedHeight, setCollapsedHeight] = reactExports.useState(null);
@@ -38,16 +38,16 @@ export function ExpandableText({
     if (!el || !isPresented) return;
     measure();
     if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [measure, children2, isPresented]);
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
+  }, [measure, children, isPresented]);
   const overflow =
     fullHeight != null &&
     collapsedHeight != null &&
     fullHeight > collapsedHeight + 1;
   const showEllipsis = ellipsis && overflow && !expanded;
-  const style2 = {
+  const style = {
     maxHeight:
       !overflow || expanded
         ? (fullHeight ?? void 0)
@@ -72,10 +72,10 @@ export function ExpandableText({
     .join(" ");
   const handleToggle = () => {
     transitioningRef.current = true;
-    setExpanded((v2) => !v2);
+    setExpanded((isExpanded) => !isExpanded);
   };
-  const handleTransitionEnd = (e2) => {
-    if (e2.propertyName !== "max-height") return;
+  const handleTransitionEnd = (transitionEvent) => {
+    if (transitionEvent.propertyName !== "max-height") return;
     transitioningRef.current = false;
     measure();
   };
@@ -89,10 +89,10 @@ export function ExpandableText({
             ref.current = el;
           }}
           className={innerClass}
-          style={style2}
+          style={style}
           onTransitionEnd={handleTransitionEnd}
         >
-          {children2}
+          {children}
         </pre>
       ) : (
         <div
@@ -102,10 +102,10 @@ export function ExpandableText({
             ref.current = el;
           }}
           className={innerClass}
-          style={style2}
+          style={style}
           onTransitionEnd={handleTransitionEnd}
         >
-          {children2}
+          {children}
         </div>
       )}
       {overflow && (
@@ -114,7 +114,7 @@ export function ExpandableText({
           className="self-start text-xs text-foreground/60 hover:text-muted-foreground transition-colors cursor-pointer"
           onClick={handleToggle}
         >
-          {expanded ? t2("chat.showLess") : t2("chat.showMore")}
+          {expanded ? t("chat.showLess") : t("chat.showMore")}
         </button>
       )}
     </div>

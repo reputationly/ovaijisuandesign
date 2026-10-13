@@ -178,7 +178,7 @@ export function SubmissionDetailsDialog({
           >
             <div className="flex flex-wrap gap-2">
               {categories
-                .filter((item2) => item2.tag_type === "category")
+                .filter((item) => item.tag_type === "category")
                 .map((category) => {
                   const active = draft.categories.includes(category.category);
                   return (
@@ -213,7 +213,7 @@ export function SubmissionDetailsDialog({
               </SelectTrigger>
               <SelectContent>
                 {categories
-                  .filter((item2) => item2.tag_type === "stage")
+                  .filter((item) => item.tag_type === "stage")
                   .map((stage) => (
                     <SelectItem key={stage.category} value={stage.category}>
                       {isZh ? stage.cn_name : stage.en_name}

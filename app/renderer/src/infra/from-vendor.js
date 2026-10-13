@@ -1,7 +1,7 @@
 // from-vendor.js
 // 从打包文件里搬出的第一方语句。它们不引用仍留在那里的库代码。
 import reactExports from "react";
-import { max as max$2, min as min$2 } from "@floating-ui/utils";
+import { max, min } from "@floating-ui/utils";
 
 export const CanvasNodeType = {
   Image: "image",
@@ -26,8 +26,8 @@ export const SIZE_STROKE_WIDTH_MAP = {
   32: 3
 };
 
-export const getDefaultStrokeWidth = size2 => {
-  const sizeNum = typeof size2 === "string" ? parseInt(size2, 10) : size2;
+export const getDefaultStrokeWidth = size => {
+  const sizeNum = typeof size === "string" ? parseInt(size, 10) : size;
   if (SIZE_STROKE_WIDTH_MAP[sizeNum] !== void 0) {
     return SIZE_STROKE_WIDTH_MAP[sizeNum];
   }
@@ -46,10 +46,10 @@ export const HILO_DEFAULT_VERSION_CODE = "0.1.0";
 
 export const VERSION_CODE_SEMVER_CORE_PATTERN = /^v?(\d+\.\d+\.\d+)(?:[-+].*)?$/;
 
-export function normalizeVersionCodeForCloud(version2) {
-  const trimmed = version2.trim();
-  const match2 = VERSION_CODE_SEMVER_CORE_PATTERN.exec(trimmed);
-  return match2?.[1] ?? trimmed;
+export function normalizeVersionCodeForCloud(version) {
+  const trimmed = version.trim();
+  const match = VERSION_CODE_SEMVER_CORE_PATTERN.exec(trimmed);
+  return match?.[1] ?? trimmed;
 }
 
 export const ASSET_MODEL_USER_UPLOADED = "user_uploaded";
@@ -77,20 +77,20 @@ export const DEFAULT_RUNTIME_CONFIG = {
   downloadSource: "default"
 };
 
-export function parseSemver(version2) {
-  const match2 = version2.trim().replace(/^v/i, "").match(/^(\d+)\.(\d+)\.(\d+)(?:-([\w.]+))?(?:\+.*)?$/);
-  if (!match2) return null;
+export function parseSemver(version) {
+  const match = version.trim().replace(/^v/i, "").match(/^(\d+)\.(\d+)\.(\d+)(?:-([\w.]+))?(?:\+.*)?$/);
+  if (!match) return null;
   return {
-    major: Number(match2[1]),
-    minor: Number(match2[2]),
-    patch: Number(match2[3]),
-    prerelease: match2[4] ?? null
+    major: Number(match[1]),
+    minor: Number(match[2]),
+    patch: Number(match[3]),
+    prerelease: match[4] ?? null
   };
 }
 
-export function compareSemver(a2, b3) {
-  const pa = parseSemver(a2);
-  const pb = parseSemver(b3);
+export function compareSemver(a, b) {
+  const pa = parseSemver(a);
+  const pb = parseSemver(b);
   if (!pa || !pb) return 0;
   if (pa.major !== pb.major) return pa.major - pb.major;
   if (pa.minor !== pb.minor) return pa.minor - pb.minor;
@@ -142,8 +142,8 @@ export function inferMediaKind(mime, ext) {
   if (mime === "text/markdown" || mime === "text/plain") return "text";
   if (mime === "application/pdf" || mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || mime === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || mime === "application/vnd.openxmlformats-officedocument.presentationml.presentation" || mime === "text/csv") return "file";
   if (!ext) return "file";
-  const key2 = (ext.startsWith(".") ? ext : `.${ext}`).toLowerCase();
-  return MEDIA_EXTENSIONS[key2] ?? "file";
+  const key = (ext.startsWith(".") ? ext : `.${ext}`).toLowerCase();
+  return MEDIA_EXTENSIONS[key] ?? "file";
 }
 
 export const LIBTV_CONNECTOR = {
@@ -185,18 +185,18 @@ export function mediaLineageFilename(value) {
   return safe?.split("/").at(-1);
 }
 
-export function mediaLineageFormat(bytes2) {
-  const prefix = (...signature) => signature.every((value, index2) => bytes2[index2] === value);
-  const ascii2 = (offset2, value) => [...value].every((char, index2) => bytes2[offset2 + index2] === char.charCodeAt(0));
+export function mediaLineageFormat(bytes) {
+  const prefix = (...signature) => signature.every((value, index) => bytes[index] === value);
+  const ascii = (offset, value) => [...value].every((char, index) => bytes[offset + index] === char.charCodeAt(0));
   if (prefix(137, 80, 78, 71, 13, 10, 26, 10)) return "png";
   if (prefix(255, 216, 255)) return "jpeg";
-  if (ascii2(0, "GIF87a") || ascii2(0, "GIF89a")) return "gif";
-  if (ascii2(0, "RIFF") && ascii2(8, "WEBP")) return "webp";
-  if (ascii2(0, "BM")) return "bmp";
+  if (ascii(0, "GIF87a") || ascii(0, "GIF89a")) return "gif";
+  if (ascii(0, "RIFF") && ascii(8, "WEBP")) return "webp";
+  if (ascii(0, "BM")) return "bmp";
   if (prefix(73, 73, 42, 0) || prefix(77, 77, 0, 42)) return "tiff";
-  if (ascii2(4, "ftyp")) {
-    if (["heic", "heix", "hevc", "hevx", "mif1", "msf1"].some(brand => ascii2(8, brand))) return "heif";
-    if (ascii2(8, "avif") || ascii2(8, "avis")) return "avif";
+  if (ascii(4, "ftyp")) {
+    if (["heic", "heix", "hevc", "hevx", "mif1", "msf1"].some(brand => ascii(8, brand))) return "heif";
+    if (ascii(8, "avif") || ascii(8, "avis")) return "avif";
   }
   return "unknown";
 }
@@ -205,33 +205,33 @@ export function finite$1(value) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : void 0;
 }
 
-export function mediaLineageFields(record2) {
+export function mediaLineageFields(record) {
   const fields = {
     schema: 1,
-    stage: mediaLineageToken(record2.stage) ?? "unknown"
+    stage: mediaLineageToken(record.stage) ?? "unknown"
   };
-  for (const key2 of ["requestId", "generationAttemptId", "nodeId", "sourceNodeId", "assetId", "source", "backend", "modelId", "errorKind", "errorCode", "decoderReason"]) {
-    const value = mediaLineageToken(record2[key2]);
-    if (value) fields[key2] = value;
+  for (const key of ["requestId", "generationAttemptId", "nodeId", "sourceNodeId", "assetId", "source", "backend", "modelId", "errorKind", "errorCode", "decoderReason"]) {
+    const value = mediaLineageToken(record[key]);
+    if (value) fields[key] = value;
   }
-  for (const key2 of ["referenceIndex", "referenceCount", "omittedCount", "durationMs"]) {
-    const value = finite$1(record2[key2]);
-    if (value !== void 0) fields[key2] = value;
+  for (const key of ["referenceIndex", "referenceCount", "omittedCount", "durationMs"]) {
+    const value = finite$1(record[key]);
+    if (value !== void 0) fields[key] = value;
   }
-  const filename = mediaLineageFilename(record2.filename);
-  const relativePath = mediaLineagePath(record2.path);
+  const filename = mediaLineageFilename(record.filename);
+  const relativePath = mediaLineagePath(record.path);
   if (filename) fields.filename = filename;
   if (relativePath) fields.path = relativePath;
-  if (record2.declaredMime && /^[\w.+-]+\/[\w.+-]{1,80}$/.test(record2.declaredMime)) fields.declaredMime = record2.declaredMime;
-  if (typeof record2.bytesMatch === "boolean") fields.bytesMatch = record2.bytesMatch;
+  if (record.declaredMime && /^[\w.+-]+\/[\w.+-]{1,80}$/.test(record.declaredMime)) fields.declaredMime = record.declaredMime;
+  if (typeof record.bytesMatch === "boolean") fields.bytesMatch = record.bytesMatch;
   for (const phase of ["input", "stored", "output"]) {
-    const fingerprint = record2[phase];
+    const fingerprint = record[phase];
     if (!fingerprint) continue;
     fields[`${phase}HashStatus`] = ["full", "size-limit", "busy", "unavailable", "changed"].includes(fingerprint.hashStatus) ? fingerprint.hashStatus : "unavailable";
-    const size2 = finite$1(fingerprint.sizeBytes);
-    if (size2 !== void 0) fields[`${phase}SizeBytes`] = size2;
-    const format2 = mediaLineageToken(fingerprint.detectedFormat);
-    if (format2) fields[`${phase}Format`] = format2;
+    const size = finite$1(fingerprint.sizeBytes);
+    if (size !== void 0) fields[`${phase}SizeBytes`] = size;
+    const format = mediaLineageToken(fingerprint.detectedFormat);
+    if (format) fields[`${phase}Format`] = format;
     if (/^[a-f\d]{64}$/i.test(fingerprint.sha256 ?? "") && fingerprint.hashStatus === "full") fields[`${phase}Sha256`] = fingerprint.sha256;
   }
   return fields;
@@ -239,12 +239,12 @@ export function mediaLineageFields(record2) {
 
 export function mediaLineageError(error) {
   try {
-    const record2 = typeof error === "object" && error !== null ? error : void 0;
-    const message2 = error instanceof Error ? error.message : "";
-    const decoderReason = /premature end of data segment/i.test(message2) ? "jpeg-premature-end" : /VipsJpeg:|jpegload/i.test(message2) ? "jpeg-decode" : /pngload|vipspng/i.test(message2) ? "png-decode" : /webpload/i.test(message2) ? "webp-decode" : void 0;
+    const record = typeof error === "object" && error !== null ? error : void 0;
+    const message = error instanceof Error ? error.message : "";
+    const decoderReason = /premature end of data segment/i.test(message) ? "jpeg-premature-end" : /VipsJpeg:|jpegload/i.test(message) ? "jpeg-decode" : /pngload|vipspng/i.test(message) ? "png-decode" : /webpload/i.test(message) ? "webp-decode" : void 0;
     return {
       errorKind: error instanceof Error ? mediaLineageToken(error.name) : typeof error,
-      errorCode: record2 ? mediaLineageToken(Reflect.get(record2, "code")) : void 0,
+      errorCode: record ? mediaLineageToken(Reflect.get(record, "code")) : void 0,
       decoderReason
     };
   } catch {
@@ -288,8 +288,8 @@ export function isWorkspaceIdentityErrorCode(value) {
   return value === WORKSPACE_IDENTITY_MISMATCH_CODE || value === WORKSPACE_IDENTITY_REQUIRED_CODE;
 }
 
-export function encodePath(p3) {
-  return p3.split("/").map(encodeURIComponent).join("/");
+export function encodePath(filePath) {
+  return filePath.split("/").map(encodeURIComponent).join("/");
 }
 
 export const DEFAULT_VIDEO_PLAYBACK_MAX_HEIGHT = 1080;
@@ -303,9 +303,9 @@ export function videoPlaybackPath(source, maxHeight = DEFAULT_VIDEO_PLAYBACK_MAX
   });
   try {
     const parsedSource = new URL(source, "http://hilo.local");
-    for (const key2 of VIDEO_PLAYBACK_IDENTITY_QUERY_KEYS) {
-      const value = parsedSource.searchParams.get(key2);
-      if (value) params.set(key2, value);
+    for (const key of VIDEO_PLAYBACK_IDENTITY_QUERY_KEYS) {
+      const value = parsedSource.searchParams.get(key);
+      if (value) params.set(key, value);
     }
   } catch {}
   return `/api/asset/video-playback?${params.toString()}`;
@@ -352,7 +352,7 @@ export const API_PATHS = {
   duplicateFiles: "/api/files/duplicate",
   writeContent: "/api/files/content",
   createTextAsset: "/api/files/text-asset",
-  readContent: path2 => `/api/files/content?path=${encodeURIComponent(path2)}`,
+  readContent: path => `/api/files/content?path=${encodeURIComponent(path)}`,
   filesUploadCdn: "/api/files/upload-cdn",
   upload: "/api/upload",
   uploadCommit: "/api/upload/commit",
@@ -394,10 +394,10 @@ export const API_PATHS = {
    */
   listDirs: "/api/files/dirs",
   trackFile: "/api/files/track",
-  thumbnail: path2 => `/api/thumbnail/${encodePath(path2)}`,
-  serveFile: path2 => `/files/${encodePath(path2)}`,
+  thumbnail: path => `/api/thumbnail/${encodePath(path)}`,
+  serveFile: path => `/files/${encodePath(path)}`,
   adoptFiles: "/api/files/adopt",
-  serveFileById: id2 => `/files/id/${encodeURIComponent(id2)}`,
+  serveFileById: id => `/files/id/${encodeURIComponent(id)}`,
   scanMedia: (dir, limit = 3) => `/api/files/scan-media?dir=${encodeURIComponent(dir)}&limit=${limit}`,
   workspaceSummary: dir => `/api/files/workspace-summary?dir=${encodeURIComponent(dir)}`,
   serveLocal: absolutePath => `/api/local-file?path=${encodeURIComponent(absolutePath)}`,
@@ -408,13 +408,13 @@ export const API_PATHS = {
   // carries { assetId, title, note } and the gateway snapshots off disk.
   textVersions: "/api/files/versions",
   textVersionsList: assetId => `/api/files/versions?assetId=${encodeURIComponent(assetId)}`,
-  textVersion: id2 => `/api/files/versions/${encodeURIComponent(id2)}`,
-  textVersionContent: (id2, offset2 = 0, limit) => {
+  textVersion: id => `/api/files/versions/${encodeURIComponent(id)}`,
+  textVersionContent: (id, offset = 0, limit) => {
     const query = new URLSearchParams({
-      offset: String(offset2)
+      offset: String(offset)
     });
     if (limit !== void 0) query.set("limit", String(limit));
-    return `/api/files/versions/${encodeURIComponent(id2)}/content?${query.toString()}`;
+    return `/api/files/versions/${encodeURIComponent(id)}/content?${query.toString()}`;
   },
   /**
    * Diff between two snapshots of one document. `to` may be omitted to diff
@@ -431,8 +431,8 @@ export const API_PATHS = {
     if (params.limit !== void 0) query.set("limit", String(params.limit));
     return `/api/files/versions/diff?${query.toString()}`;
   },
-  textVersionRestore: id2 => `/api/files/versions/${encodeURIComponent(id2)}/restore`,
-  textVersionMaterialize: id2 => `/api/files/versions/${encodeURIComponent(id2)}/materialize`,
+  textVersionRestore: id => `/api/files/versions/${encodeURIComponent(id)}/restore`,
+  textVersionMaterialize: id => `/api/files/versions/${encodeURIComponent(id)}/materialize`,
   textVersionSummarize: "/api/files/versions/summarize",
   // Media preview
   heicPreview: "/api/media/heic-preview",
@@ -453,17 +453,17 @@ export const API_PATHS = {
   allAssetsWithMetadata: "/api/assets?include=metadata",
   assetChanges: "/api/assets/changes",
   // W4-T1: missing-asset reconciliation actions (ADR-004 Phase 4)
-  mergeMissingCandidate: id2 => `/api/assets/${encodeURIComponent(id2)}/merge-candidate`,
-  removeMissing: id2 => `/api/assets/${encodeURIComponent(id2)}/remove-missing`,
-  locateMissing: id2 => `/api/assets/${encodeURIComponent(id2)}/locate`,
+  mergeMissingCandidate: id => `/api/assets/${encodeURIComponent(id)}/merge-candidate`,
+  removeMissing: id => `/api/assets/${encodeURIComponent(id)}/remove-missing`,
+  locateMissing: id => `/api/assets/${encodeURIComponent(id)}/locate`,
   // Canvas asset tags (PRD: canvas 内标签体系)
-  assetTags: id2 => `/api/assets/${encodeURIComponent(id2)}/tags`,
+  assetTags: id => `/api/assets/${encodeURIComponent(id)}/tags`,
   assetTagsBatch: "/api/assets/tags/batch",
   assetTagMutationsBatch: "/api/assets/tags/mutations/batch",
   tagRegistry: "/api/canvas/tag-registry",
   canvasTags: "/api/canvas/tags",
-  canvasTag: id2 => `/api/canvas/tags/${encodeURIComponent(id2)}`,
-  canvasTagImpact: id2 => `/api/canvas/tags/${encodeURIComponent(id2)}/impact`,
+  canvasTag: id => `/api/canvas/tags/${encodeURIComponent(id)}`,
+  canvasTagImpact: id => `/api/canvas/tags/${encodeURIComponent(id)}/impact`,
   canvasTagOrder: "/api/canvas/tags/order",
   // Dependencies (ADR-005 Layer 3 / W5-T1)
   // Lineage queries follow role='source' edges only; inputs returns
@@ -472,28 +472,28 @@ export const API_PATHS = {
   dependenciesDownstream: assetId => `/api/dependencies/${encodeURIComponent(assetId)}/downstream`,
   dependenciesInputs: assetId => `/api/dependencies/${encodeURIComponent(assetId)}/inputs`,
   addDependency: "/api/dependencies",
-  deleteDependency: id2 => `/api/dependencies/${id2}`,
+  deleteDependency: id => `/api/dependencies/${id}`,
   // Asset hover-card preview (text excerpt + read-only metadata enrichment)
-  assetTextPreview: (path2, chars2 = 200) => `/api/asset/text-preview?path=${encodeURIComponent(path2)}&chars=${chars2}`,
-  documentRead: (path2, offset2 = 1, limit = 2e3, imagePage) => `/api/internal/document/read?path=${encodeURIComponent(path2)}&offset=${offset2}&limit=${limit}${imagePage === void 0 ? "" : `&image_page=${imagePage}`}`,
-  assetMetadata: id2 => `/api/asset/${encodeURIComponent(id2)}/metadata`,
+  assetTextPreview: (path, chars = 200) => `/api/asset/text-preview?path=${encodeURIComponent(path)}&chars=${chars}`,
+  documentRead: (path, offset = 1, limit = 2e3, imagePage) => `/api/internal/document/read?path=${encodeURIComponent(path)}&offset=${offset}&limit=${limit}${imagePage === void 0 ? "" : `&image_page=${imagePage}`}`,
+  assetMetadata: id => `/api/asset/${encodeURIComponent(id)}/metadata`,
   /**
    * Hover-only height-capped MP4 stream. Compatible H.264 MP4 sources pass
    * through; other containers/codecs are remuxed or transcoded for Chromium.
    */
-  assetVideoStream: (path2, maxHeight = 480) => `/api/asset/video-stream?path=${encodeURIComponent(path2)}&maxHeight=${maxHeight}`,
+  assetVideoStream: (path, maxHeight = 480) => `/api/asset/video-stream?path=${encodeURIComponent(path)}&maxHeight=${maxHeight}`,
   /** Browser-compatible H.264/AAC MP4 for canvas playback. */
   assetVideoPlayback: videoPlaybackPath,
   // Pre-computed audio peaks (issue #5 follow-up §2): wavesurfer.js skips
   // its own decode when peaks + duration are supplied via constructor opts.
   // Buckets are clamped server-side to [50, 4096]; default 200 matches the
   // typical hover-card waveform width (~400 px @ 2-bar minimum).
-  assetPeaks: (path2, buckets2 = 200) => `/api/asset/peaks?path=${encodeURIComponent(path2)}&buckets=${buckets2}`,
+  assetPeaks: (path, buckets = 200) => `/api/asset/peaks?path=${encodeURIComponent(path)}&buckets=${buckets}`,
   // Asset Center
   assetCenterWorkspaceRefs: workspace => `/api/asset-center/workspace-refs?workspace=${encodeURIComponent(workspace)}`,
   assetCenterAttachmentBlob: (attachmentId, width) => {
-    const base2 = `/api/asset-center/attachments/${encodeURIComponent(attachmentId)}/blob`;
-    return width === void 0 ? base2 : `${base2}?w=${width}`;
+    const base = `/api/asset-center/attachments/${encodeURIComponent(attachmentId)}/blob`;
+    return width === void 0 ? base : `${base}?w=${width}`;
   },
   assetCenterAttachmentPlayback: (attachmentId, maxHeight = 1080) => `/api/asset-center/attachments/${encodeURIComponent(attachmentId)}/playback?maxHeight=${maxHeight}`,
   assetCenterBlobPreview: (blobPath, width = 512) => `/api/asset-center/blobs/preview?${new URLSearchParams({
@@ -588,8 +588,8 @@ export const API_PATHS = {
   marketOperatorPublish: "/api/skills/market/operator/publish",
   marketOperatorCategories: "/api/skills/market/categories",
   marketTrending: "/api/skills/market/trending",
-  skillFiles: name2 => `/api/skills/${encodeURIComponent(name2)}/files`,
-  skillFileContent: (name2, filePath) => `/api/skills/${encodeURIComponent(name2)}/file-content?path=${encodeURIComponent(filePath)}`,
+  skillFiles: skillName => `/api/skills/${encodeURIComponent(skillName)}/files`,
+  skillFileContent: (skillName, filePath) => `/api/skills/${encodeURIComponent(skillName)}/file-content?path=${encodeURIComponent(filePath)}`,
   skillUserTrash: "/api/skills/user/trash",
   skillFork: "/api/skills/fork",
   // Plugin management (local plugin listing, not cloud market)
@@ -599,7 +599,7 @@ export const API_PATHS = {
   feedbackUploadAttachment: "/api/feedback/upload-attachment",
   feedbackDetail: ticketId => `/api/feedback/${encodeURIComponent(ticketId)}`,
   // Export
-  exportSession: id2 => `/api/sessions/${id2}/export`,
+  exportSession: id => `/api/sessions/${id}/export`,
   customMcpApply: "/api/connectors/mcp",
   customMcpAuthorize: "/api/connectors/mcp/authorize",
   customMcpAuthenticate: "/api/connectors/mcp/authenticate",
@@ -621,7 +621,7 @@ export const API_PATHS = {
   hubClientConfig: "/api/v1/hub/client_config",
   /** Cloud-side OAuth code→token exchange for confidential connector providers. */
   connectorOAuthExchange: "/api/v1/connector/oauth/exchange",
-  apolloConfig: key2 => `/api/v1/apollo/config?key=${encodeURIComponent(key2)}`,
+  apolloConfig: key => `/api/v1/apollo/config?key=${encodeURIComponent(key)}`,
   /** Legacy path retained for old Desktop releases. */
   homeQuickStartConfig: "/api/v1/home/quick_start_config",
   /** Current Desktop explicitly selects the isolated Apollo v2 key. */
@@ -650,19 +650,19 @@ export const API_PATHS = {
   groupMembersBatchAdd: "/backend/group/members/batch_add",
   teamInvitations: "/api/v1/team/invitations",
   teamInvitation: invitationId => `/api/v1/team/invitations/${encodeURIComponent(invitationId)}`,
-  teamDetail: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}`,
-  teamRename: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}`,
-  teamDelete: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}`,
-  teamMembers: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/members`,
-  teamInviteMembers: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/members/invite`,
-  teamRemoveMember: (groupId2, userId) => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/members/${encodeURIComponent(userId)}`,
-  teamChangeMemberRole: (groupId2, userId) => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/members/${encodeURIComponent(userId)}/role`,
-  teamLeave: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/leave`,
-  teamTransferOwner: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/transfer-owner`,
-  teamInviteLinks: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/invite-links`,
-  teamInviteLinkInfo: (token2, region) => {
+  teamDetail: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}`,
+  teamRename: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}`,
+  teamDelete: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}`,
+  teamMembers: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/members`,
+  teamInviteMembers: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/members/invite`,
+  teamRemoveMember: (groupId, userId) => `/api/v1/team/groups/${encodeURIComponent(groupId)}/members/${encodeURIComponent(userId)}`,
+  teamChangeMemberRole: (groupId, userId) => `/api/v1/team/groups/${encodeURIComponent(groupId)}/members/${encodeURIComponent(userId)}/role`,
+  teamLeave: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/leave`,
+  teamTransferOwner: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/transfer-owner`,
+  teamInviteLinks: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/invite-links`,
+  teamInviteLinkInfo: (token, region) => {
     const params = new URLSearchParams({
-      token: token2
+      token
     });
     if (region) params.set("region", region);
     return `/api/v1/team/invite-links/info?${params.toString()}`;
@@ -670,16 +670,16 @@ export const API_PATHS = {
   teamInviteLinkAccept: "/api/v1/team/invite-links/accept",
   teamInviteLinkDecline: "/api/v1/team/invite-links/decline",
   teamInvitationAccept: "/api/v1/team/invitations/accept",
-  teamQuota: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/quota`,
-  teamMemberQuotas: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/member-quotas`,
+  teamQuota: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/quota`,
+  teamMemberQuotas: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/member-quotas`,
   /** 云网关 member/details 代理：全量成员 + Quota 使用 + 历史累计消耗（不分页）。 */
-  teamMemberDetails: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/member-details`,
-  teamCreditSummary: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/credit-summary`,
-  teamTransactions: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/transactions`,
-  teamSelfTransactions: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/self/transactions`,
-  teamMemberTransactions: (groupId2, memberId) => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/members/${encodeURIComponent(memberId)}/transactions`,
-  teamTransfers: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/transfers`,
-  teamCheckoutSessions: groupId2 => `/api/v1/team/groups/${encodeURIComponent(groupId2)}/checkout-sessions`,
+  teamMemberDetails: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/member-details`,
+  teamCreditSummary: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/credit-summary`,
+  teamTransactions: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/transactions`,
+  teamSelfTransactions: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/self/transactions`,
+  teamMemberTransactions: (groupId, memberId) => `/api/v1/team/groups/${encodeURIComponent(groupId)}/members/${encodeURIComponent(memberId)}/transactions`,
+  teamTransfers: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/transfers`,
+  teamCheckoutSessions: groupId => `/api/v1/team/groups/${encodeURIComponent(groupId)}/checkout-sessions`,
   // WebSocket
   wsChat: "/ws"
 };
@@ -696,28 +696,28 @@ export const PERF_CANVAS_PERSIST_HTTP_ROUNDTRIP = "hilo:canvas:persist-http-roun
 
 export const measurePerfCounters = /* @__PURE__ */new Map();
 
-export function measurePerf(name2, start2, detail, options = {}) {
+export function measurePerf(metricName, start, detail, options = {}) {
   const samplingRate = options.samplingRate;
   if (samplingRate !== void 0 && samplingRate > 1) {
-    const current2 = (measurePerfCounters.get(name2) ?? 0) + 1;
-    measurePerfCounters.set(name2, current2);
-    if (current2 % samplingRate !== 0) return;
+    const current = (measurePerfCounters.get(metricName) ?? 0) + 1;
+    measurePerfCounters.set(metricName, current);
+    if (current % samplingRate !== 0) return;
   }
   const measuredDetail = mergePerfMetadata(detail, options.metadata);
   try {
     if (measuredDetail === void 0) {
-      performance.measure(name2, {
-        start: start2
+      performance.measure(metricName, {
+        start
       });
     } else {
-      performance.measure(name2, {
-        start: start2,
+      performance.measure(metricName, {
+        start,
         detail: measuredDetail
       });
     }
   } catch {} finally {
     try {
-      performance.clearMeasures(name2);
+      performance.clearMeasures(metricName);
     } catch {}
   }
 }
@@ -744,14 +744,14 @@ export function mergePerfMetadata(detail, metadata) {
   };
 }
 
-export const clamp$c = (val, min2 = 0, max2 = 1) => Math.min(Math.max(val, min2), max2);
+export const clamp$c = (val, min = 0, max = 1) => Math.min(Math.max(val, min), max);
 
 export const AUTO_PAN_DISTANCE = 40;
 
 export const maskAutoPanSides = ([xMovement, yMovement], suppressed) => [suppressed.left && xMovement > 0 || suppressed.right && xMovement < 0 ? 0 : xMovement, suppressed.top && yMovement > 0 || suppressed.bottom && yMovement < 0 ? 0 : yMovement];
 
-export function hasDraggedAncestor(node2, draggedIds, nodeLookup) {
-  let parentId = node2.parentId;
+export function hasDraggedAncestor(node, draggedIds, nodeLookup) {
+  let parentId = node.parentId;
   while (parentId) {
     if (draggedIds.has(parentId)) return true;
     parentId = nodeLookup.get(parentId)?.parentId;
@@ -762,21 +762,21 @@ export function hasDraggedAncestor(node2, draggedIds, nodeLookup) {
 export function getDragSnapReferenceBounds(nodeLookup, dragItems) {
   const draggedIds = new Set(dragItems.keys());
   const references = [];
-  for (const [id2, node2] of nodeLookup) {
-    const width = node2.measured.width;
-    const height = node2.measured.height;
-    if (draggedIds.has(id2) || hasDraggedAncestor(node2, draggedIds, nodeLookup) || node2.hidden || !width || !height) {
+  for (const [id, node] of nodeLookup) {
+    const width = node.measured.width;
+    const height = node.measured.height;
+    if (draggedIds.has(id) || hasDraggedAncestor(node, draggedIds, nodeLookup) || node.hidden || !width || !height) {
       continue;
     }
     references.push({
-      id: id2,
-      x: node2.internals.positionAbsolute.x,
-      y: node2.internals.positionAbsolute.y,
+      id,
+      x: node.internals.positionAbsolute.x,
+      y: node.internals.positionAbsolute.y,
       width,
       height,
-      parentId: node2.parentId,
-      type: node2.type,
-      data: node2.data
+      parentId: node.parentId,
+      type: node.type,
+      data: node.data
     });
   }
   return references;
@@ -785,36 +785,36 @@ export function getDragSnapReferenceBounds(nodeLookup, dragItems) {
 export function getDragSnapAffectedIds(nodeLookup, dragItems) {
   const dragRootIds = new Set(dragItems.keys());
   const affectedIds = [];
-  for (const [id2, node2] of nodeLookup) {
-    if (dragRootIds.has(id2) || hasDraggedAncestor(node2, dragRootIds, nodeLookup)) {
-      affectedIds.push(id2);
+  for (const [id, node] of nodeLookup) {
+    if (dragRootIds.has(id) || hasDraggedAncestor(node, dragRootIds, nodeLookup)) {
+      affectedIds.push(id);
     }
   }
   return affectedIds;
 }
 
 export function getDragBounds(previews) {
-  let x1 = Infinity;
-  let y1 = Infinity;
-  let x2 = -Infinity;
-  let y22 = -Infinity;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
   for (const preview of previews) {
-    x1 = Math.min(x1, preview.positionAbsolute.x);
-    y1 = Math.min(y1, preview.positionAbsolute.y);
-    x2 = Math.max(x2, preview.positionAbsolute.x + preview.width);
-    y22 = Math.max(y22, preview.positionAbsolute.y + preview.height);
+    minX = Math.min(minX, preview.positionAbsolute.x);
+    minY = Math.min(minY, preview.positionAbsolute.y);
+    maxX = Math.max(maxX, preview.positionAbsolute.x + preview.width);
+    maxY = Math.max(maxY, preview.positionAbsolute.y + preview.height);
   }
   return {
-    x: x1,
-    y: y1,
-    width: Math.max(0, x2 - x1),
-    height: Math.max(0, y22 - y1)
+    x: minX,
+    y: minY,
+    width: Math.max(0, maxX - minX),
+    height: Math.max(0, maxY - minY)
   };
 }
 
-export function interpolateNumber(a2, b3) {
-  return a2 = +a2, b3 = +b3, function (t2) {
-    return a2 * (1 - t2) + b3 * t2;
+export function interpolateNumber(start, end) {
+  return start = +start, end = +end, function (progress) {
+    return start * (1 - progress) + end * progress;
   };
 }
 
@@ -824,11 +824,11 @@ export function getNodesSelectionActiveOnPointerUp(selectionInProgress, selected
   return selectionInProgress ? selectedNodeCount >= 2 : void 0;
 }
 
-export const edgeZones = (x2, y4, bounds) => ({
-  left: x2 < AUTO_PAN_DISTANCE,
-  right: x2 > bounds.width - AUTO_PAN_DISTANCE,
-  top: y4 < AUTO_PAN_DISTANCE,
-  bottom: y4 > bounds.height - AUTO_PAN_DISTANCE
+export const edgeZones = (x, y, bounds) => ({
+  left: x < AUTO_PAN_DISTANCE,
+  right: x > bounds.width - AUTO_PAN_DISTANCE,
+  top: y < AUTO_PAN_DISTANCE,
+  bottom: y > bounds.height - AUTO_PAN_DISTANCE
 });
 
 export const DEFAULT_LARGE_MOVE_FACTOR = 4;
@@ -850,9 +850,9 @@ export function cascadeAbsolutePosition(parentId, dx, dy, nodeLookup, parentLook
   const stack = [parentId];
   while (stack.length > 0) {
     const currentId = stack.pop();
-    const children2 = parentLookup.get(currentId);
-    if (!children2 || children2.size === 0) continue;
-    for (const childId of children2.keys()) {
+    const children = parentLookup.get(currentId);
+    if (!children || children.size === 0) continue;
+    for (const childId of children.keys()) {
       const childNode = nodeLookup.get(childId);
       if (!childNode) continue;
       const prev = childNode.internals.positionAbsolute;
@@ -867,8 +867,8 @@ export function cascadeAbsolutePosition(parentId, dx, dy, nodeLookup, parentLook
 
 export const AssetMetadataStoreContext = reactExports.createContext(null);
 
-export function clamp$b(start2, value, end2) {
-  return max$2(start2, min$2(value, end2));
+export function clamp$b(start, value, end) {
+  return max(start, min(value, end));
 }
 
 export const AUTO_DEDUPE_ID_PREFIX = "hilo-toast-dedupe";
@@ -878,21 +878,21 @@ export function isPlainToastContent(value) {
 }
 
 export function hashToastFingerprint(value) {
-  let hash2 = 2166136261;
-  for (let index2 = 0; index2 < value.length; index2 += 1) {
-    hash2 ^= value.charCodeAt(index2);
-    hash2 = Math.imul(hash2, 16777619);
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
   }
-  return (hash2 >>> 0).toString(36);
+  return (hash >>> 0).toString(36);
 }
 
-export function withAutomaticDedupeId(kind, message2, data2) {
-  if (data2?.id !== void 0 || data2?.action !== void 0 || data2?.cancel !== void 0 || data2?.onDismiss !== void 0 || data2?.onAutoClose !== void 0 || !isPlainToastContent(message2) || data2?.description !== void 0 && !isPlainToastContent(data2.description)) {
-    return data2;
+export function withAutomaticDedupeId(kind, message, data) {
+  if (data?.id !== void 0 || data?.action !== void 0 || data?.cancel !== void 0 || data?.onDismiss !== void 0 || data?.onAutoClose !== void 0 || !isPlainToastContent(message) || data?.description !== void 0 && !isPlainToastContent(data.description)) {
+    return data;
   }
-  const fingerprint = JSON.stringify([kind, String(message2), data2?.description === void 0 ? "" : String(data2.description), data2?.toasterId ?? ""]);
+  const fingerprint = JSON.stringify([kind, String(message), data?.description === void 0 ? "" : String(data.description), data?.toasterId ?? ""]);
   return {
-    ...data2,
+    ...data,
     id: `${AUTO_DEDUPE_ID_PREFIX}-${hashToastFingerprint(fingerprint)}`
   };
 }
@@ -913,9 +913,9 @@ export function normalizePromptFontSize(value) {
 export function readPersistedPromptFontSize() {
   if (typeof window === "undefined") return PROMPT_FONT_SIZE_DEFAULT;
   try {
-    const raw2 = window.localStorage.getItem(STORAGE_KEY$a);
-    if (raw2 === null || raw2.trim() === "") return PROMPT_FONT_SIZE_DEFAULT;
-    return normalizePromptFontSize(Number(raw2));
+    const raw = window.localStorage.getItem(STORAGE_KEY$a);
+    if (raw === null || raw.trim() === "") return PROMPT_FONT_SIZE_DEFAULT;
+    return normalizePromptFontSize(Number(raw));
   } catch {
     return PROMPT_FONT_SIZE_DEFAULT;
   }
@@ -932,15 +932,15 @@ export const stateAttributesMapping$a = {
   value: () => null
 };
 
-export function clamp$a(val, min2 = Number.MIN_SAFE_INTEGER, max2 = Number.MAX_SAFE_INTEGER) {
-  return Math.max(min2, Math.min(val, max2));
+export function clamp$a(val, min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER) {
+  return Math.max(min, Math.min(val, max));
 }
 
 export const FRAME_HEADER_SIZE$1 = 4;
 
 export var Bitstream2 = class _Bitstream {
-  constructor(bytes2) {
-    this.bytes = bytes2;
+  constructor(bytes) {
+    this.bytes = bytes;
     this.pos = 0;
   }
   seekToByte(byteOffset) {
@@ -954,28 +954,28 @@ export var Bitstream2 = class _Bitstream {
     this.pos++;
     return bit;
   }
-  readBits(n2) {
-    if (n2 === 1) {
+  readBits(bitCount) {
+    if (bitCount === 1) {
       return this.readBit();
     }
     let result = 0;
-    for (let i2 = 0; i2 < n2; i2++) {
+    for (let i = 0; i < bitCount; i++) {
       result <<= 1;
       result |= this.readBit();
     }
     return result;
   }
-  writeBits(n2, value) {
-    const end2 = this.pos + n2;
-    for (let i2 = this.pos; i2 < end2; i2++) {
-      const byteIndex = Math.floor(i2 / 8);
+  writeBits(bitCount, value) {
+    const end = this.pos + bitCount;
+    for (let i = this.pos; i < end; i++) {
+      const byteIndex = Math.floor(i / 8);
       let byte = this.bytes[byteIndex];
-      const bitIndex = 7 - (i2 & 7);
+      const bitIndex = 7 - (i & 7);
       byte &= ~(1 << bitIndex);
-      byte |= (value & 1 << end2 - i2 - 1) >> end2 - i2 - 1 << bitIndex;
+      byte |= (value & 1 << end - i - 1) >> end - i - 1 << bitIndex;
       this.bytes[byteIndex] = byte;
     }
-    this.pos = end2;
+    this.pos = end;
   }
   readAlignedByte() {
     if (this.pos % 8 !== 0) {
@@ -986,16 +986,16 @@ export var Bitstream2 = class _Bitstream {
     this.pos += 8;
     return byte;
   }
-  skipBits(n2) {
-    this.pos += n2;
+  skipBits(bitCount) {
+    this.pos += bitCount;
   }
   getBitsLeft() {
     return this.bytes.length * 8 - this.pos;
   }
   clone() {
-    const clone2 = new _Bitstream(this.bytes);
-    clone2.pos = this.pos;
-    return clone2;
+    const clone = new _Bitstream(this.bytes);
+    clone.pos = this.pos;
+    return clone;
   }
 };
 
@@ -1014,9 +1014,9 @@ export function normalizeTableCellAlign(value) {
   return null;
 }
 
-export function parseAlign(element2) {
-  const styleAlign = (element2.style.textAlign || "").trim().toLowerCase();
-  const attrAlign = (element2.getAttribute("align") || "").trim().toLowerCase();
+export function parseAlign(element) {
+  const styleAlign = (element.style.textAlign || "").trim().toLowerCase();
+  const attrAlign = (element.getAttribute("align") || "").trim().toLowerCase();
   return normalizeTableCellAlign(styleAlign || attrAlign);
 }
 
@@ -1027,7 +1027,7 @@ export function normalizeTableCellAlignFromAttributes(attributes) {
 export function createAlignAttribute() {
   return {
     default: null,
-    parseHTML: element2 => parseAlign(element2),
+    parseHTML: element => parseAlign(element),
     renderHTML: attributes => {
       if (!attributes.align) return {};
       return {
@@ -1037,28 +1037,28 @@ export function createAlignAttribute() {
   };
 }
 
-export function parseColgroupWidth(element2) {
+export function parseColgroupWidth(element) {
   var _table$querySelectorA;
-  const row = element2.parentElement;
-  const table2 = element2.closest("table");
-  if (!row || !table2) return null;
-  const cellIndex = Array.from(row.children).indexOf(element2);
-  const width = (_table$querySelectorA = table2.querySelectorAll("colgroup > col")[cellIndex]) === null || _table$querySelectorA === void 0 ? void 0 : _table$querySelectorA.getAttribute("width");
+  const row = element.parentElement;
+  const table = element.closest("table");
+  if (!row || !table) return null;
+  const cellIndex = Array.from(row.children).indexOf(element);
+  const width = (_table$querySelectorA = table.querySelectorAll("colgroup > col")[cellIndex]) === null || _table$querySelectorA === void 0 ? void 0 : _table$querySelectorA.getAttribute("width");
   return width ? [parseInt(width, 10)] : null;
 }
 
-export function parseColwidth(element2) {
-  const colwidth = element2.getAttribute("colwidth");
+export function parseColwidth(element) {
+  const colwidth = element.getAttribute("colwidth");
   if (colwidth) return colwidth.split(",").map(width => parseInt(width, 10));
-  return parseColgroupWidth(element2);
+  return parseColgroupWidth(element);
 }
 
 export const COLLAPSIBLE_WHITESPACE = /[ \t\r\n\f]+/g;
 
-export function isEmptyCellElement(element2) {
+export function isEmptyCellElement(element) {
   var _element$textContent;
-  if (element2.children.length > 0) return false;
-  return ((_element$textContent = element2.textContent) !== null && _element$textContent !== void 0 ? _element$textContent : "").replace(COLLAPSIBLE_WHITESPACE, "") === "";
+  if (element.children.length > 0) return false;
+  return ((_element$textContent = element.textContent) !== null && _element$textContent !== void 0 ? _element$textContent : "").replace(COLLAPSIBLE_WHITESPACE, "") === "";
 }
 
 export function fillEmptyCellContent(cellType) {
@@ -1072,30 +1072,30 @@ export function getColStyleDeclaration(minWidth, width) {
   return ["min-width", `${minWidth}px`];
 }
 
-export function updateColumns(node2, colgroup2, table2, cellMinWidth, overrideCol, overrideValue) {
+export function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, overrideValue) {
   let totalWidth = 0;
   let fixedWidth = true;
-  let nextDOM = colgroup2.firstChild;
-  const row = node2.firstChild;
-  if (row !== null) for (let i2 = 0, col = 0; i2 < row.childCount; i2 += 1) {
+  let nextDOM = colgroup.firstChild;
+  const row = node.firstChild;
+  if (row !== null) for (let i = 0, col = 0; i < row.childCount; i += 1) {
     const {
       colspan,
       colwidth
-    } = row.child(i2).attrs;
-    for (let j2 = 0; j2 < colspan; j2 += 1, col += 1) {
-      const hasWidth = overrideCol === col ? overrideValue : colwidth && colwidth[j2];
+    } = row.child(i).attrs;
+    for (let j = 0; j < colspan; j += 1, col += 1) {
+      const hasWidth = overrideCol === col ? overrideValue : colwidth && colwidth[j];
       const cssWidth = hasWidth ? `${hasWidth}px` : "";
       totalWidth += hasWidth || cellMinWidth;
       if (!hasWidth) fixedWidth = false;
       if (!nextDOM) {
         const colElement = document.createElement("col");
-        const [propertyKey, propertyValue2] = getColStyleDeclaration(cellMinWidth, hasWidth);
-        colElement.style.setProperty(propertyKey, propertyValue2);
-        colgroup2.appendChild(colElement);
+        const [propertyKey, propertyValue] = getColStyleDeclaration(cellMinWidth, hasWidth);
+        colElement.style.setProperty(propertyKey, propertyValue);
+        colgroup.appendChild(colElement);
       } else {
         if (nextDOM.style.width !== cssWidth) {
-          const [propertyKey, propertyValue2] = getColStyleDeclaration(cellMinWidth, hasWidth);
-          nextDOM.style.setProperty(propertyKey, propertyValue2);
+          const [propertyKey, propertyValue] = getColStyleDeclaration(cellMinWidth, hasWidth);
+          nextDOM.style.setProperty(propertyKey, propertyValue);
         }
         nextDOM = nextDOM.nextSibling;
       }
@@ -1107,35 +1107,35 @@ export function updateColumns(node2, colgroup2, table2, cellMinWidth, overrideCo
     (_nextDOM$parentNode = nextDOM.parentNode) === null || _nextDOM$parentNode === void 0 || _nextDOM$parentNode.removeChild(nextDOM);
     nextDOM = after;
   }
-  const hasUserWidth = node2.attrs.style && typeof node2.attrs.style === "string" && /\bwidth\s*:/i.test(node2.attrs.style);
+  const hasUserWidth = node.attrs.style && typeof node.attrs.style === "string" && /\bwidth\s*:/i.test(node.attrs.style);
   if (fixedWidth && !hasUserWidth) {
-    table2.style.width = `${totalWidth}px`;
-    table2.style.minWidth = "";
+    table.style.width = `${totalWidth}px`;
+    table.style.minWidth = "";
   } else {
-    table2.style.width = "";
-    table2.style.minWidth = `${totalWidth}px`;
+    table.style.width = "";
+    table.style.minWidth = `${totalWidth}px`;
   }
 }
 
 export var TableView2 = class {
-  constructor(node2, cellMinWidth, _view, HTMLAttributes = {}) {
-    this.node = node2;
+  constructor(node, cellMinWidth, _view, HTMLAttributes = {}) {
+    this.node = node;
     this.cellMinWidth = cellMinWidth;
     this.dom = document.createElement("div");
     this.dom.className = "tableWrapper";
     this.table = this.dom.appendChild(document.createElement("table"));
-    for (const [key2, value] of Object.entries(HTMLAttributes)) if (value !== void 0 && value !== null) {
-      if (key2 === "style") this.table.style.cssText = String(value);else this.table.setAttribute(key2, String(value));
+    for (const [key, value] of Object.entries(HTMLAttributes)) if (value !== void 0 && value !== null) {
+      if (key === "style") this.table.style.cssText = String(value);else this.table.setAttribute(key, String(value));
     }
-    if (node2.attrs.style) this.table.style.cssText = node2.attrs.style;
+    if (node.attrs.style) this.table.style.cssText = node.attrs.style;
     this.colgroup = this.table.appendChild(document.createElement("colgroup"));
-    updateColumns(node2, this.colgroup, this.table, cellMinWidth);
+    updateColumns(node, this.colgroup, this.table, cellMinWidth);
     this.contentDOM = this.table.appendChild(document.createElement("tbody"));
   }
-  update(node2) {
-    if (node2.type !== this.node.type) return false;
-    this.node = node2;
-    updateColumns(node2, this.colgroup, this.table, this.cellMinWidth);
+  update(node) {
+    if (node.type !== this.node.type) return false;
+    this.node = node;
+    updateColumns(node, this.colgroup, this.table, this.cellMinWidth);
     return true;
   }
   ignoreMutation(mutation) {
@@ -1149,19 +1149,19 @@ export var TableView2 = class {
   }
 };
 
-export function createColGroup(node2, cellMinWidth, overrideCol, overrideValue) {
+export function createColGroup(node, cellMinWidth, overrideCol, overrideValue) {
   let totalWidth = 0;
   let fixedWidth = true;
   const cols = [];
-  const row = node2.firstChild;
+  const row = node.firstChild;
   if (!row) return {};
-  for (let i2 = 0, col = 0; i2 < row.childCount; i2 += 1) {
+  for (let i = 0, col = 0; i < row.childCount; i += 1) {
     const {
       colspan,
       colwidth
-    } = row.child(i2).attrs;
-    for (let j2 = 0; j2 < colspan; j2 += 1, col += 1) {
-      const hasWidth = overrideCol === col ? overrideValue : colwidth && colwidth[j2];
+    } = row.child(i).attrs;
+    for (let j = 0; j < colspan; j += 1, col += 1) {
+      const hasWidth = overrideCol === col ? overrideValue : colwidth && colwidth[j];
       totalWidth += hasWidth || cellMinWidth;
       if (!hasWidth) fixedWidth = false;
       const [property, value] = getColStyleDeclaration(cellMinWidth, hasWidth);
@@ -1179,53 +1179,53 @@ export function createColGroup(node2, cellMinWidth, overrideCol, overrideValue) 
   };
 }
 
-export function getTableNodeTypes(schema2) {
-  if (schema2.cached.tableNodeTypes) return schema2.cached.tableNodeTypes;
+export function getTableNodeTypes(schema) {
+  if (schema.cached.tableNodeTypes) return schema.cached.tableNodeTypes;
   const roles = {};
-  Object.keys(schema2.nodes).forEach(type2 => {
-    const nodeType = schema2.nodes[type2];
+  Object.keys(schema.nodes).forEach(type => {
+    const nodeType = schema.nodes[type];
     if (nodeType.spec.tableRole) roles[nodeType.spec.tableRole] = nodeType;
   });
-  schema2.cached.tableNodeTypes = roles;
+  schema.cached.tableNodeTypes = roles;
   return roles;
 }
 
 export function escapeTableCellPipes(line) {
   let result = "";
-  let i2 = 0;
-  while (i2 < line.length) {
-    if (line[i2] === "\\" && i2 + 1 < line.length) {
-      result += line[i2] + line[i2 + 1];
-      i2 += 2;
+  let i = 0;
+  while (i < line.length) {
+    if (line[i] === "\\" && i + 1 < line.length) {
+      result += line[i] + line[i + 1];
+      i += 2;
       continue;
     }
-    if (line[i2] !== "`") {
-      result += line[i2++];
+    if (line[i] !== "`") {
+      result += line[i++];
       continue;
     }
     let runLen = 0;
-    while (i2 + runLen < line.length && line[i2 + runLen] === "`") runLen += 1;
-    let j2 = i2 + runLen;
-    let found2 = false;
-    while (j2 < line.length) {
-      if (line[j2] !== "`") {
-        j2 += 1;
+    while (i + runLen < line.length && line[i + runLen] === "`") runLen += 1;
+    let j = i + runLen;
+    let found = false;
+    while (j < line.length) {
+      if (line[j] !== "`") {
+        j += 1;
         continue;
       }
       let closeLen = 0;
-      while (j2 + closeLen < line.length && line[j2 + closeLen] === "`") closeLen += 1;
+      while (j + closeLen < line.length && line[j + closeLen] === "`") closeLen += 1;
       if (closeLen === runLen) {
-        const spanContent = line.slice(i2 + runLen, j2);
-        result += line.slice(i2, i2 + runLen) + spanContent.replace(/\\\||\|/g, match2 => match2 === "|" ? "\\|" : match2) + line.slice(j2, j2 + runLen);
-        i2 = j2 + runLen;
-        found2 = true;
+        const spanContent = line.slice(i + runLen, j);
+        result += line.slice(i, i + runLen) + spanContent.replace(/\\\||\|/g, match => match === "|" ? "\\|" : match) + line.slice(j, j + runLen);
+        i = j + runLen;
+        found = true;
         break;
       }
-      j2 += closeLen;
+      j += closeLen;
     }
-    if (!found2) {
-      result += line.slice(i2, i2 + runLen);
-      i2 += runLen;
+    if (!found) {
+      result += line.slice(i, i + runLen);
+      i += runLen;
     }
   }
   return result;
@@ -1238,75 +1238,75 @@ export function preprocessTablePipes(src) {
   }).join("\n");
 }
 
-export function collapseWhitespace(s2) {
-  return (s2 || "").replace(/\s+/g, " ").trim();
+export function collapseWhitespace(text) {
+  return (text || "").replace(/\s+/g, " ").trim();
 }
 
-export function renderTableToMarkdown(node2, h2, options = {}) {
+export function renderTableToMarkdown(node, helpers, options = {}) {
   var _options$cellLineSepa;
   const cellSep = (_options$cellLineSepa = options.cellLineSeparator) !== null && _options$cellLineSepa !== void 0 ? _options$cellLineSepa : "";
-  if (!node2 || !node2.content || node2.content.length === 0) return "";
+  if (!node || !node.content || node.content.length === 0) return "";
   const rows = [];
-  node2.content.forEach(rowNode => {
-    const cells2 = [];
+  node.content.forEach(rowNode => {
+    const cells = [];
     if (rowNode.content) rowNode.content.forEach(cellNode => {
-      let raw2 = "";
-      if (cellNode.content && Array.isArray(cellNode.content) && cellNode.content.length > 1) raw2 = cellNode.content.map(child => h2.renderChildren(child)).join(cellSep);else raw2 = cellNode.content ? h2.renderChildren(cellNode.content) : "";
-      const text2 = collapseWhitespace(raw2.split(cellSep).join("\n").replace(/[ \t]*\r?\n[ \t]*/g, "<br>"));
+      let raw = "";
+      if (cellNode.content && Array.isArray(cellNode.content) && cellNode.content.length > 1) raw = cellNode.content.map(child => helpers.renderChildren(child)).join(cellSep);else raw = cellNode.content ? helpers.renderChildren(cellNode.content) : "";
+      const text = collapseWhitespace(raw.split(cellSep).join("\n").replace(/[ \t]*\r?\n[ \t]*/g, "<br>"));
       const isHeader = cellNode.type === "tableHeader";
       const align = normalizeTableCellAlignFromAttributes(cellNode.attrs);
-      cells2.push({
-        text: text2,
+      cells.push({
+        text,
         isHeader,
         align
       });
     });
-    rows.push(cells2);
+    rows.push(cells);
   });
-  const columnCount = rows.reduce((max2, r2) => Math.max(max2, r2.length), 0);
+  const columnCount = rows.reduce((max, row) => Math.max(max, row.length), 0);
   if (columnCount === 0) return "";
   const colWidths = Array.from({
     length: columnCount
   }).fill(0);
-  rows.forEach(r2 => {
-    for (let i2 = 0; i2 < columnCount; i2 += 1) {
+  rows.forEach(row => {
+    for (let i = 0; i < columnCount; i += 1) {
       var _r$i;
-      const len = (((_r$i = r2[i2]) === null || _r$i === void 0 ? void 0 : _r$i.text) || "").length;
-      if (len > colWidths[i2]) colWidths[i2] = len;
-      if (colWidths[i2] < 3) colWidths[i2] = 3;
+      const len = (((_r$i = row[i]) === null || _r$i === void 0 ? void 0 : _r$i.text) || "").length;
+      if (len > colWidths[i]) colWidths[i] = len;
+      if (colWidths[i] < 3) colWidths[i] = 3;
     }
   });
-  const pad = (s2, width) => s2 + " ".repeat(Math.max(0, width - s2.length));
+  const pad = (text, width) => text + " ".repeat(Math.max(0, width - text.length));
   const headerRow = rows[0];
-  const hasHeader = headerRow.some(c3 => c3.isHeader);
+  const hasHeader = headerRow.some(cell => cell.isHeader);
   const colAlignments = Array.from({
     length: columnCount
   }).fill(null);
-  rows.forEach(r2 => {
-    for (let i2 = 0; i2 < columnCount; i2 += 1) {
+  rows.forEach(row => {
+    for (let i = 0; i < columnCount; i += 1) {
       var _r$i2;
-      if (!colAlignments[i2] && ((_r$i2 = r2[i2]) === null || _r$i2 === void 0 ? void 0 : _r$i2.align)) colAlignments[i2] = r2[i2].align;
+      if (!colAlignments[i] && ((_r$i2 = row[i]) === null || _r$i2 === void 0 ? void 0 : _r$i2.align)) colAlignments[i] = row[i].align;
     }
   });
   let out = "\n";
   const headerTexts = Array.from({
     length: columnCount
-  }).map((_2, i2) => hasHeader ? headerRow[i2] && headerRow[i2].text || "" : "");
-  out += `| ${headerTexts.map((t2, i2) => pad(t2, colWidths[i2])).join(" | ")} |
+  }).map((_, i) => hasHeader ? headerRow[i] && headerRow[i].text || "" : "");
+  out += `| ${headerTexts.map((headerText, i) => pad(headerText, colWidths[i])).join(" | ")} |
 `;
-  out += `| ${colWidths.map((w3, index2) => {
-    const dashCount = Math.max(3, w3);
-    const alignment = colAlignments[index2];
+  out += `| ${colWidths.map((colWidth, index) => {
+    const dashCount = Math.max(3, colWidth);
+    const alignment = colAlignments[index];
     if (alignment === "left") return `:${"-".repeat(dashCount)}`;
     if (alignment === "right") return `${"-".repeat(dashCount)}:`;
     if (alignment === "center") return `:${"-".repeat(dashCount)}:`;
     return "-".repeat(dashCount);
   }).join(" | ")} |
 `;
-  (hasHeader ? rows.slice(1) : rows).forEach(r2 => {
+  (hasHeader ? rows.slice(1) : rows).forEach(row => {
     out += `| ${Array.from({
       length: columnCount
-    }).fill(0).map((_2, i2) => pad(r2[i2] && r2[i2].text || "", colWidths[i2])).join(" | ")} |
+    }).fill(0).map((_, i) => pad(row[i] && row[i].text || "", colWidths[i])).join(" | ")} |
 `;
   });
   return out;
@@ -1335,7 +1335,7 @@ export class WidgetType2 {
   couldn't (in which case the widget will be redrawn). The default
   implementation just returns false.
   */
-  updateDOM(dom, view2, from2) {
+  updateDOM(dom, view, from) {
     return false;
   }
   /**
@@ -1421,34 +1421,34 @@ export const descendantOp = 145,
   queryVariableName = 3,
   QueryCallee = 4;
 
-export function flowPointToMiniMap(point2, layout) {
+export function flowPointToMiniMap(point, layout) {
   return {
-    x: layout.offsetX + (point2.x - layout.viewBox.x) * layout.scale,
-    y: layout.offsetY + (point2.y - layout.viewBox.y) * layout.scale
+    x: layout.offsetX + (point.x - layout.viewBox.x) * layout.scale,
+    y: layout.offsetY + (point.y - layout.viewBox.y) * layout.scale
   };
 }
 
 export function findHitTarget(nodeLookup, dropFlow, sourceId, excludedTargets) {
   let bestId = null;
   let bestZ = Number.NEGATIVE_INFINITY;
-  for (const [id2, node2] of nodeLookup) {
-    if (id2 === sourceId) continue;
-    if (node2.type === CanvasNodeType.Group) continue;
-    if (excludedTargets?.has(id2)) continue;
-    if (node2.hidden) continue;
-    const w3 = node2.measured?.width ?? node2.width ?? 0;
-    const h2 = node2.measured?.height ?? node2.height ?? 0;
-    if (w3 <= 0 || h2 <= 0) continue;
+  for (const [id, node] of nodeLookup) {
+    if (id === sourceId) continue;
+    if (node.type === CanvasNodeType.Group) continue;
+    if (excludedTargets?.has(id)) continue;
+    if (node.hidden) continue;
+    const width = node.measured?.width ?? node.width ?? 0;
+    const height = node.measured?.height ?? node.height ?? 0;
+    if (width <= 0 || height <= 0) continue;
     const {
-      x: x2,
-      y: y4
-    } = node2.internals.positionAbsolute;
-    if (dropFlow.x < x2 || dropFlow.x > x2 + w3) continue;
-    if (dropFlow.y < y4 || dropFlow.y > y4 + h2) continue;
-    const z3 = node2.internals.z ?? 0;
-    if (z3 >= bestZ) {
-      bestZ = z3;
-      bestId = id2;
+      x,
+      y
+    } = node.internals.positionAbsolute;
+    if (dropFlow.x < x || dropFlow.x > x + width) continue;
+    if (dropFlow.y < y || dropFlow.y > y + height) continue;
+    const zIndex = node.internals.z ?? 0;
+    if (zIndex >= bestZ) {
+      bestZ = zIndex;
+      bestId = id;
     }
   }
   return bestId;
@@ -1460,15 +1460,15 @@ export const STORAGE_KEY$6 = "hilo:canvas:image-edit:last-used";
 
 export const DEFAULT_TOOL = "redraw";
 
-export function isMergedImageEditTool(v2) {
-  return IMAGE_EDIT_TOOLS.includes(v2);
+export function isMergedImageEditTool(tool) {
+  return IMAGE_EDIT_TOOLS.includes(tool);
 }
 
 export function readPersisted() {
   if (typeof window === "undefined") return DEFAULT_TOOL;
   try {
-    const v2 = window.localStorage.getItem(STORAGE_KEY$6);
-    if (isMergedImageEditTool(v2)) return v2;
+    const storedTool = window.localStorage.getItem(STORAGE_KEY$6);
+    if (isMergedImageEditTool(storedTool)) return storedTool;
   } catch {}
   return DEFAULT_TOOL;
 }
@@ -1477,7 +1477,7 @@ export async function probeMediaDurationSec(file) {
   const kind = mediaKindFromFile(file);
   if (!kind) return 0;
   return new Promise(resolve => {
-    const url2 = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
     const el = kind === "video" ? document.createElement("video") : document.createElement("audio");
     el.preload = "metadata";
     let settled = false;
@@ -1486,17 +1486,17 @@ export async function probeMediaDurationSec(file) {
       settled = true;
       el.removeEventListener("loadedmetadata", onLoaded);
       el.removeEventListener("error", onError);
-      URL.revokeObjectURL(url2);
+      URL.revokeObjectURL(url);
       resolve(value);
     };
     const onLoaded = () => {
-      const d2 = el.duration;
-      cleanup(Number.isFinite(d2) && d2 > 0 ? d2 : 0);
+      const duration = el.duration;
+      cleanup(Number.isFinite(duration) && duration > 0 ? duration : 0);
     };
     const onError = () => cleanup(0);
     el.addEventListener("loadedmetadata", onLoaded);
     el.addEventListener("error", onError);
-    el.src = url2;
+    el.src = url;
     setTimeout(() => cleanup(0), 5e3);
   });
 }
@@ -1519,20 +1519,20 @@ export let _cachedConfig = null;
 
 export function getRuntimeConfig() {
   if (_cachedConfig) return _cachedConfig;
-  let raw2 = null;
+  let raw = null;
   if (typeof window !== "undefined" && RUNTIME_CONFIG_KEY in window) {
-    raw2 = window[RUNTIME_CONFIG_KEY];
+    raw = window[RUNTIME_CONFIG_KEY];
   }
-  if (!raw2 && typeof document !== "undefined") {
-    const meta2 = document.querySelector('meta[name="hilo-config"]');
-    if (meta2) {
+  if (!raw && typeof document !== "undefined") {
+    const meta = document.querySelector('meta[name="hilo-config"]');
+    if (meta) {
       try {
-        raw2 = JSON.parse(meta2.getAttribute("content") ?? "{}");
+        raw = JSON.parse(meta.getAttribute("content") ?? "{}");
       } catch {}
     }
   }
-  if (raw2) {
-    const cleaned = Object.fromEntries(Object.entries(raw2).filter(([, v2]) => v2 != null));
+  if (raw) {
+    const cleaned = Object.fromEntries(Object.entries(raw).filter(([, value]) => value != null));
     _cachedConfig = {
       ...DEFAULT_RUNTIME_CONFIG,
       ...cleaned
@@ -1544,13 +1544,13 @@ export function getRuntimeConfig() {
 }
 
 export function getCssSelector(el) {
-  const path2 = [];
+  const path = [];
   let parent;
   while (parent = el.parentNode) {
-    path2.push(`${el.tagName}:nth-child(${Array.prototype.indexOf.call(parent.children, el) + 1})`);
+    path.push(`${el.tagName}:nth-child(${Array.prototype.indexOf.call(parent.children, el) + 1})`);
     el = parent;
   }
-  return `${path2.reverse().join(" > ")}`.toLowerCase();
+  return `${path.reverse().join(" > ")}`.toLowerCase();
 }
 
 export var CatchBoundaryImpl = class extends reactExports.Component {
@@ -1605,8 +1605,8 @@ export var intersectionObserverOptions = {
   rootMargin: "100px"
 };
 
-export function isCtrlEvent(e2) {
-  return !!(e2.metaKey || e2.altKey || e2.ctrlKey || e2.shiftKey);
+export function isCtrlEvent(uiEvent) {
+  return !!(uiEvent.metaKey || uiEvent.altKey || uiEvent.ctrlKey || uiEvent.shiftKey);
 }
 
 export var define_process_env_default = {};
@@ -1615,8 +1615,8 @@ export class EventEmitter3 {
   constructor() {
     this.observers = {};
   }
-  on(events2, listener) {
-    events2.split(" ").forEach(event => {
+  on(events, listener) {
+    events.split(" ").forEach(event => {
       if (!this.observers[event]) this.observers[event] = /* @__PURE__ */new Map();
       const numListeners = this.observers[event].get(listener) || 0;
       this.observers[event].set(listener, numListeners + 1);
@@ -1634,25 +1634,25 @@ export class EventEmitter3 {
   emit(event, ...args) {
     if (this.observers[event]) {
       const cloned = Array.from(this.observers[event].entries());
-      cloned.forEach(([observer2, numTimesAdded]) => {
-        for (let i2 = 0; i2 < numTimesAdded; i2++) {
-          observer2(...args);
+      cloned.forEach(([observer, numTimesAdded]) => {
+        for (let i = 0; i < numTimesAdded; i++) {
+          observer(...args);
         }
       });
     }
     if (this.observers["*"]) {
       const cloned = Array.from(this.observers["*"].entries());
-      cloned.forEach(([observer2, numTimesAdded]) => {
-        for (let i2 = 0; i2 < numTimesAdded; i2++) {
-          observer2.apply(observer2, [event, ...args]);
+      cloned.forEach(([observer, numTimesAdded]) => {
+        for (let i = 0; i < numTimesAdded; i++) {
+          observer.apply(observer, [event, ...args]);
         }
       });
     }
   }
 }
 
-export function customMcpNameIdentity(name2) {
-  return name2.trim().replace(/[^a-zA-Z0-9_-]/gu, "_").toLowerCase();
+export function customMcpNameIdentity(mcpName) {
+  return mcpName.trim().replace(/[^a-zA-Z0-9_-]/gu, "_").toLowerCase();
 }
 
 export const PlatformContext = reactExports.createContext(null);
@@ -1665,25 +1665,25 @@ export function usePlatform() {
 
 export const MAX_VALUE_LEN = 256;
 
-export function fmtValue(v2) {
-  if (v2 === null || v2 === void 0) return String(v2);
-  if (typeof v2 === "string") {
-    return v2.length > MAX_VALUE_LEN ? `${v2.slice(0, MAX_VALUE_LEN)}…` : v2;
+export function fmtValue(value) {
+  if (value === null || value === void 0) return String(value);
+  if (typeof value === "string") {
+    return value.length > MAX_VALUE_LEN ? `${value.slice(0, MAX_VALUE_LEN)}…` : value;
   }
-  if (v2 instanceof Error) {
-    return v2.message.length > MAX_VALUE_LEN ? `${v2.message.slice(0, MAX_VALUE_LEN)}…` : v2.message;
+  if (value instanceof Error) {
+    return value.message.length > MAX_VALUE_LEN ? `${value.message.slice(0, MAX_VALUE_LEN)}…` : value.message;
   }
   try {
-    const s2 = JSON.stringify(v2);
-    return s2.length > MAX_VALUE_LEN ? `${s2.slice(0, MAX_VALUE_LEN)}…` : s2;
+    const json = JSON.stringify(value);
+    return json.length > MAX_VALUE_LEN ? `${json.slice(0, MAX_VALUE_LEN)}…` : json;
   } catch {
-    return String(v2);
+    return String(value);
   }
 }
 
-export function workspaceGatewayUrl(binding, path2) {
+export function workspaceGatewayUrl(binding, path) {
   const baseUrl = binding.baseUrl.replace(/\/$/, "");
-  const requested = new URL(path2, `${baseUrl}/`);
+  const requested = new URL(path, `${baseUrl}/`);
   const parsed = new URL(`${requested.pathname}${requested.search}${requested.hash}`, `${baseUrl}/`);
   parsed.searchParams.set(HILO_WORKSPACE_IDENTITY_QUERY, binding.claim);
   parsed.searchParams.set(HILO_WORKSPACE_INSTANCE_QUERY, binding.instanceId);
@@ -1693,8 +1693,8 @@ export function workspaceGatewayUrl(binding, path2) {
 
 export function withWorkspaceGatewayHeaders(binding, headers) {
   const result = new Headers(headers);
-  for (const [key2, value] of Object.entries(workspaceGatewayIdentityHeaders(binding))) {
-    result.set(key2, value);
+  for (const [key, value] of Object.entries(workspaceGatewayIdentityHeaders(binding))) {
+    result.set(key, value);
   }
   return result;
 }
@@ -1712,16 +1712,16 @@ export class WorkspaceGatewayClient {
   get binding() {
     return this.bindingValue;
   }
-  url(path2) {
-    return workspaceGatewayUrl(this.bindingValue, path2);
+  url(path) {
+    return workspaceGatewayUrl(this.bindingValue, path);
   }
-  async request(path2, init2) {
-    return this.performRequest(path2, init2, true);
+  async request(path, init) {
+    return this.performRequest(path, init, true);
   }
-  async performRequest(path2, init2, allowRecovery) {
-    const response = await this.fetchImpl(this.url(path2), {
-      ...init2,
-      headers: withWorkspaceGatewayHeaders(this.bindingValue, init2?.headers)
+  async performRequest(path, init, allowRecovery) {
+    const response = await this.fetchImpl(this.url(path), {
+      ...init,
+      headers: withWorkspaceGatewayHeaders(this.bindingValue, init?.headers)
     });
     if (!allowRecovery || !this.recoverWorkspace || !(await isIdentityError(response))) {
       return response;
@@ -1729,11 +1729,11 @@ export class WorkspaceGatewayClient {
     const previousBinding = this.bindingValue;
     const recovered = await this.recoverBinding();
     if (!recovered) return response;
-    if (!canReplayAfterRecovery(init2, previousBinding, recovered)) {
+    if (!canReplayAfterRecovery(init, previousBinding, recovered)) {
       return response;
     }
     this.bindingValue = recovered;
-    return this.performRequest(path2, init2, false);
+    return this.performRequest(path, init, false);
   }
   async recoverBinding() {
     if (!this.recoverWorkspace) return void 0;
@@ -1750,17 +1750,17 @@ export class WorkspaceGatewayClient {
   }
 }
 
-export function canReplayAfterRecovery(init2, previous2, recovered) {
-  const method = (init2?.method ?? "GET").toUpperCase();
+export function canReplayAfterRecovery(init, previous, recovered) {
+  const method = (init?.method ?? "GET").toUpperCase();
   if (method === "GET" || method === "HEAD" || method === "OPTIONS") return true;
-  return previous2.claim === recovered.claim && previous2.instanceId === recovered.instanceId;
+  return previous.claim === recovered.claim && previous.instanceId === recovered.instanceId;
 }
 
 export async function isIdentityError(response) {
   if (response.status !== 409 && response.status !== 428) return false;
   try {
-    const body2 = await response.clone().json();
-    return isWorkspaceIdentityErrorCode(body2.code);
+    const body = await response.clone().json();
+    return isWorkspaceIdentityErrorCode(body.code);
   } catch {
     return false;
   }
@@ -1796,21 +1796,21 @@ export const CANVAS_WRITER_REVISIONS_PER_MS = 1e3;
 export const canvasWriterRevisions = /* @__PURE__ */new Map();
 
 export function nextCanvasWriterRevision(binding) {
-  const key2 = binding.claim;
+  const key = binding.claim;
   const timeFloor = Date.now() * CANVAS_WRITER_REVISIONS_PER_MS;
-  const next2 = Math.max((canvasWriterRevisions.get(key2) ?? 0) + 1, timeFloor);
-  canvasWriterRevisions.set(key2, next2);
+  const next = Math.max((canvasWriterRevisions.get(key) ?? 0) + 1, timeFloor);
+  canvasWriterRevisions.set(key, next);
   if (canvasWriterRevisions.size > MAX_CANVAS_WRITER_WORKSPACES) {
     const oldest = canvasWriterRevisions.keys().next().value;
-    if (oldest !== void 0 && oldest !== key2) canvasWriterRevisions.delete(oldest);
+    if (oldest !== void 0 && oldest !== key) canvasWriterRevisions.delete(oldest);
   }
-  return next2;
+  return next;
 }
 
 export function advanceCanvasWriterRevision(binding, observedRevision) {
   if (!Number.isSafeInteger(observedRevision) || (observedRevision ?? 0) < 1) return;
-  const current2 = canvasWriterRevisions.get(binding.claim) ?? 0;
-  if (observedRevision > current2) {
+  const current = canvasWriterRevisions.get(binding.claim) ?? 0;
+  if (observedRevision > current) {
     canvasWriterRevisions.set(binding.claim, observedRevision);
   }
 }
@@ -1831,8 +1831,8 @@ export function normalizeRecoveredBinding(recovered) {
 
 export function headersToRecord(headers) {
   const result = {};
-  headers.forEach((value, key2) => {
-    result[key2] = value;
+  headers.forEach((value, key) => {
+    result[key] = value;
   });
   return result;
 }
@@ -1856,14 +1856,14 @@ export class ApiError extends Error {
    * user_message, code}`.
    */
   parsedError;
-  constructor(status, body2, url2, method, type2, preParsedError) {
-    const t2 = type2 ?? "http";
+  constructor(status, body, url, method, type, preParsedError) {
+    const errorType = type ?? "http";
     let computedParsed;
     if (preParsedError) {
       computedParsed = preParsedError;
     } else {
       try {
-        const parsed = JSON.parse(body2);
+        const parsed = JSON.parse(body);
         if (parsed && typeof parsed === "object" && "error" in parsed) {
           const err = parsed.error;
           if (err && typeof err === "object") {
@@ -1878,14 +1878,14 @@ export class ApiError extends Error {
         }
       } catch {}
     }
-    const displayText = computedParsed?.user_message ?? computedParsed?.message ?? body2;
-    super(`API ${t2} error ${status}: ${displayText}`);
+    const displayText = computedParsed?.user_message ?? computedParsed?.message ?? body;
+    super(`API ${errorType} error ${status}: ${displayText}`);
     this.status = status;
-    this.body = body2;
-    this.url = url2;
+    this.body = body;
+    this.url = url;
     this.method = method;
     this.name = "ApiError";
-    this.type = t2;
+    this.type = errorType;
     this.parsedError = computedParsed;
   }
   /**
@@ -1931,12 +1931,12 @@ export class ApiError extends Error {
 
 export let selectedRequestGroupId = null;
 
-export function setSelectedRequestGroupId(groupId2) {
-  selectedRequestGroupId = groupId2;
+export function setSelectedRequestGroupId(groupId) {
+  selectedRequestGroupId = groupId;
 }
 
-export function normalizeGatewayBaseUrl(gatewayUrl2) {
-  return gatewayUrl2?.replace(/\/$/, "") || void 0;
+export function normalizeGatewayBaseUrl(gatewayUrl) {
+  return gatewayUrl?.replace(/\/$/, "") || void 0;
 }
 
 export function toCloudLang(locale) {
@@ -1945,12 +1945,12 @@ export function toCloudLang(locale) {
 }
 
 export function getOsName() {
-  const platform2 = navigator.platform || "";
+  const platform = navigator.platform || "";
   const ua = navigator.userAgent || "";
-  if (/mac/i.test(platform2) || /Mac OS X/i.test(ua)) return "macOS";
-  if (/win/i.test(platform2) || /Windows/i.test(ua)) return "Windows";
-  if (/linux/i.test(platform2) || /Linux/i.test(ua)) return "Linux";
-  return platform2 || "unknown";
+  if (/mac/i.test(platform) || /Mac OS X/i.test(ua)) return "macOS";
+  if (/win/i.test(platform) || /Windows/i.test(ua)) return "Windows";
+  if (/linux/i.test(platform) || /Linux/i.test(ua)) return "Linux";
+  return platform || "unknown";
 }
 
 export function getBrowserName() {
@@ -2094,10 +2094,10 @@ export function parseCreditAmount(value) {
   };
 }
 
-export function invalidDisplay(mode2, teamRemaining, reasonCode) {
+export function invalidDisplay(mode, teamRemaining, reasonCode) {
   return {
     status: "INVALID",
-    mode: mode2,
+    mode,
     availableAmount: null,
     memberRemaining: null,
     memberUsed: null,
@@ -2108,14 +2108,14 @@ export function invalidDisplay(mode2, teamRemaining, reasonCode) {
 }
 
 export function unavailableDisplay({
-  mode: mode2,
+  mode,
   memberLimit = null,
   teamRemaining,
   reasonCode
 }) {
   return {
     status: "UNAVAILABLE",
-    mode: mode2,
+    mode,
     availableAmount: null,
     memberRemaining: null,
     memberUsed: null,
@@ -2125,9 +2125,9 @@ export function unavailableDisplay({
   };
 }
 
-export function minCreditAmount(a2, b3) {
-  const left = BigInt(a2);
-  const right = BigInt(b3);
+export function minCreditAmount(a, b) {
+  const left = BigInt(a);
+  const right = BigInt(b);
   return (left < right ? left : right).toString();
 }
 
@@ -2146,9 +2146,9 @@ export function deriveTeamCreditDisplay(summary) {
   }
   if (summary.mode === "UNLIMITED") {
     if (summary.memberUsed !== null) {
-      const parsedMemberUsed2 = parseCreditAmount(summary.memberUsed);
-      if (parsedMemberUsed2.reasonCode) {
-        return invalidDisplay("UNLIMITED", summary.teamRemaining, parsedMemberUsed2.reasonCode);
+      const parsedMemberUsed = parseCreditAmount(summary.memberUsed);
+      if (parsedMemberUsed.reasonCode) {
+        return invalidDisplay("UNLIMITED", summary.teamRemaining, parsedMemberUsed.reasonCode);
       }
     }
     return {
@@ -2211,13 +2211,13 @@ export function deriveTeamCreditDisplay(summary) {
   };
 }
 
-export function deriveActiveScope(snapshot2) {
-  if (!snapshot2?.identityKey || !snapshot2.activeContext) return null;
+export function deriveActiveScope(snapshot) {
+  if (!snapshot?.identityKey || !snapshot.activeContext) return null;
   return {
-    identityKey: snapshot2.identityKey,
-    groupId: snapshot2.activeContext.groupId,
-    epoch: snapshot2.activeContext.epoch,
-    membershipRevision: snapshot2.activeContext.membershipRevision
+    identityKey: snapshot.identityKey,
+    groupId: snapshot.activeContext.groupId,
+    epoch: snapshot.activeContext.epoch,
+    membershipRevision: snapshot.activeContext.membershipRevision
   };
 }
 
@@ -2269,15 +2269,15 @@ export const storageKeys = {
 
 export const storageWriteQueues = /* @__PURE__ */new Map();
 
-export function enqueueStorageWrite(key2, task) {
-  const previous2 = storageWriteQueues.get(key2) ?? Promise.resolve();
-  const run2 = previous2.catch(() => void 0).then(task);
-  const tail = run2.then(() => void 0, () => void 0);
-  storageWriteQueues.set(key2, tail);
+export function enqueueStorageWrite(key, task) {
+  const previous = storageWriteQueues.get(key) ?? Promise.resolve();
+  const run = previous.catch(() => void 0).then(task);
+  const tail = run.then(() => void 0, () => void 0);
+  storageWriteQueues.set(key, tail);
   void tail.then(() => {
-    if (storageWriteQueues.get(key2) === tail) storageWriteQueues.delete(key2);
+    if (storageWriteQueues.get(key) === tail) storageWriteQueues.delete(key);
   });
-  return run2;
+  return run;
 }
 
 export const LS_PREFIX = "hilo:storage:";
@@ -2288,9 +2288,9 @@ export function isUndefinedStorageValue(value) {
   return value === UNDEFINED_STORAGE_VALUE;
 }
 
-export function toStorageQueryData(value, defaultValue2) {
+export function toStorageQueryData(value, defaultValue) {
   if (value !== void 0) return value;
-  return defaultValue2 === void 0 ? UNDEFINED_STORAGE_VALUE : defaultValue2;
+  return defaultValue === void 0 ? UNDEFINED_STORAGE_VALUE : defaultValue;
 }
 
 export function resolveStorageQueryData(value) {
@@ -2301,28 +2301,28 @@ export function localCacheKey(scope, field, workspaceDir) {
   return scope === "global" ? `global.${field}` : `workspace.${workspaceDir}.${field}`;
 }
 
-export function readLocalCache$2(key2) {
+export function readLocalCache$2(key) {
   try {
-    const raw2 = localStorage.getItem(`${LS_PREFIX}${key2}`);
-    return raw2 != null ? JSON.parse(raw2) : void 0;
+    const raw = localStorage.getItem(`${LS_PREFIX}${key}`);
+    return raw != null ? JSON.parse(raw) : void 0;
   } catch {
     return void 0;
   }
 }
 
-export function writeLocalCache$2(key2, value) {
+export function writeLocalCache$2(key, value) {
   try {
-    localStorage.setItem(`${LS_PREFIX}${key2}`, JSON.stringify(value));
+    localStorage.setItem(`${LS_PREFIX}${key}`, JSON.stringify(value));
   } catch (err) {
-    console.warn(`[useStorage] Failed to write localStorage cache for "${key2}":`, err);
+    console.warn(`[useStorage] Failed to write localStorage cache for "${key}":`, err);
   }
 }
 
-export function removeLocalCache(key2) {
+export function removeLocalCache(key) {
   try {
-    localStorage.removeItem(`${LS_PREFIX}${key2}`);
+    localStorage.removeItem(`${LS_PREFIX}${key}`);
   } catch (err) {
-    console.warn(`[useStorage] Failed to remove localStorage cache for "${key2}":`, err);
+    console.warn(`[useStorage] Failed to remove localStorage cache for "${key}":`, err);
   }
 }
 
@@ -2352,27 +2352,27 @@ export class AccountSubmissionBlockedError extends Error {
   }
 }
 
-export function resolveNewProjectPreferences(config2) {
-  const rawPreferences = config2.newProjectPrefs;
+export function resolveNewProjectPreferences(config) {
+  const rawPreferences = config.newProjectPrefs;
   if (!rawPreferences || typeof rawPreferences !== "object" || Array.isArray(rawPreferences)) {
     return {
       loadUserMemory: false
     };
   }
-  const record2 = rawPreferences;
+  const record = rawPreferences;
   return {
-    loadUserMemory: record2.loadUserMemory === true,
-    ...(typeof record2.folderPath === "string" && record2.folderPath.trim() ? {
-      folderPath: record2.folderPath
+    loadUserMemory: record.loadUserMemory === true,
+    ...(typeof record.folderPath === "string" && record.folderPath.trim() ? {
+      folderPath: record.folderPath
     } : {})
   };
 }
 
-export function updateNewProjectPreferences(config2, patch2) {
+export function updateNewProjectPreferences(config, patch) {
   return {
     newProjectPrefs: {
-      ...resolveNewProjectPreferences(config2),
-      ...patch2
+      ...resolveNewProjectPreferences(config),
+      ...patch
     }
   };
 }
@@ -2436,13 +2436,13 @@ export const BROWSER_ASSET_SOURCE_METADATA_KEYS = {
 export function safeSourcePageUrl(value) {
   if (!value) return "";
   try {
-    const url2 = new URL(value);
-    if (url2.protocol !== "http:" && url2.protocol !== "https:") return "";
-    url2.username = "";
-    url2.password = "";
-    url2.search = "";
-    url2.hash = "";
-    return url2.toString();
+    const url = new URL(value);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return "";
+    url.username = "";
+    url.password = "";
+    url.search = "";
+    url.hash = "";
+    return url.toString();
   } catch {
     return "";
   }
@@ -2508,21 +2508,21 @@ export async function mediaFingerprintFile(file) {
       };
       activeFingerprints += 1;
       try {
-        const bytes2 = file.size <= MEDIA_LINEAGE_HEADER_BYTES ? header : new Uint8Array(await file.slice(0, file.size).arrayBuffer());
+        const bytes = file.size <= MEDIA_LINEAGE_HEADER_BYTES ? header : new Uint8Array(await file.slice(0, file.size).arrayBuffer());
         if (expired) return unavailable();
         observed = {
-          sizeBytes: bytes2.byteLength,
-          detectedFormat: mediaLineageFormat(bytes2)
+          sizeBytes: bytes.byteLength,
+          detectedFormat: mediaLineageFormat(bytes)
         };
-        if (bytes2.byteLength !== file.size) return {
+        if (bytes.byteLength !== file.size) return {
           ...observed,
           hashStatus: "changed"
         };
-        const digest = await crypto.subtle.digest("SHA-256", bytes2);
+        const digest = await crypto.subtle.digest("SHA-256", bytes);
         return {
           ...observed,
           hashStatus: "full",
-          sha256: Array.from(new Uint8Array(digest), v2 => v2.toString(16).padStart(2, "0")).join("")
+          sha256: Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("")
         };
       } finally {
         activeFingerprints -= 1;
@@ -2531,16 +2531,16 @@ export async function mediaFingerprintFile(file) {
       return unavailable();
     }
   })();
-  let timer2;
+  let timer;
   try {
     return await Promise.race([work, new Promise(resolve => {
-      timer2 = setTimeout(() => {
+      timer = setTimeout(() => {
         expired = true;
         resolve(unavailable());
       }, FINGERPRINT_WAIT_MS);
     })]);
   } finally {
-    clearTimeout(timer2);
+    clearTimeout(timer);
   }
 }
 
@@ -2573,9 +2573,9 @@ export var Target2 = /** @type {const} */
 
 export var $2 = Object.getOwnPropertySymbols;
 
-export function tryParseJson$1(raw2) {
+export function tryParseJson$1(raw) {
   try {
-    return JSON.parse(raw2);
+    return JSON.parse(raw);
   } catch {
     return void 0;
   }

@@ -1,0 +1,29 @@
+key	new	reason
+t2@252:25	t	调用方传入的翻译函数 t
+t2@261:3	t	调用方传入的翻译函数 t
+t2@272:29	t	调用方传入的翻译函数 t
+t2@287:28	t	调用方传入的翻译函数 t
+t2@322:31	t	调用方传入的翻译函数 t
+t2@353:46	t	调用方传入的翻译函数 t
+t2@430:41	t	调用方传入的翻译函数 t
+id2@504:25	id	原名 id，去掉打包器加的数字去重后缀
+id2@510:25	id	原名 id，去掉打包器加的数字去重后缀
+t2@522:14	t	useTranslation() 返回的翻译函数 t
+ok2@669:13	ok	原名 ok，去掉打包器加的数字去重后缀
+ok2@679:13	ok	原名 ok，去掉打包器加的数字去重后缀
+t2@456:50	t	调用方传入的翻译函数 t，转交 buildAttentionProbeMeta
+code2@42:39	code	去掉打包器加的数字后缀，恢复原名 code
+code2@54:48	code	去掉打包器加的数字后缀，恢复原名 code
+snapshot2@160:38	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+state2@252:28	state	去掉打包器加的数字后缀，恢复原名 state
+state2@322:34	state	去掉打包器加的数字后缀，恢复原名 state
+state2@325:28	state	去掉打包器加的数字后缀，恢复原名 state
+state2@331:25	state	去掉打包器加的数字后缀，恢复原名 state
+state2@341:28	state	去掉打包器加的数字后缀，恢复原名 state
+meta2@431:9	meta	去掉打包器加的数字后缀，恢复原名 meta
+snapshot2@555:9	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+key2@594:55	key	去掉打包器加的数字后缀，恢复原名 key
+key2@615:59	key	去掉打包器加的数字后缀，恢复原名 key
+mode2@676:45	mode	去掉打包器加的数字后缀，恢复原名 mode
+meta2@893:63	meta	去掉打包器加的数字后缀，恢复原名 meta
+mode2@945:35	mode	去掉打包器加的数字后缀，恢复原名 mode

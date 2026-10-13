@@ -34,13 +34,13 @@ export const UpdateBanner = ({
   imageUrl = null,
   onImageError,
 }) => {
-  const { t: t2, i18n } = useTranslation();
-  const platform2 = usePlatform();
+  const { t, i18n } = useTranslation();
+  const platform = usePlatform();
   const isWorkspace = useRouterState({
-    select: (s2) => s2.location.pathname.startsWith("/workspace"),
+    select: (routerState) => routerState.location.pathname.startsWith("/workspace"),
   });
   const {
-    state: state2,
+    state,
     capabilities,
     dismiss,
     download,
@@ -56,44 +56,44 @@ export const UpdateBanner = ({
     Boolean(imageUrl),
   );
   const canManualDownload =
-    !!state2.manualDownloadUrl &&
-    (state2.manualOnly || state2.phase === "error");
-  const isManualRecovery = state2.phase === "error" && state2.manualOnly;
+    !!state.manualDownloadUrl &&
+    (state.manualOnly || state.phase === "error");
+  const isManualRecovery = state.phase === "error" && state.manualOnly;
   const canRetryLocalInstall =
     !canManualDownload &&
     isManualRecovery &&
-    state2.manualRecoverySource === "local" &&
-    isManualRecoveryRetryable(state2.manualRecoveryCode);
+    state.manualRecoverySource === "local" &&
+    isManualRecoveryRetryable(state.manualRecoveryCode);
   const canRetryUpdateCheck =
     !canManualDownload &&
     isManualRecovery &&
-    isManualRecoveryCheckRetryable(state2.manualRecoveryCode);
+    isManualRecoveryCheckRetryable(state.manualRecoveryCode);
   reactExports.useEffect(() => {
-    if (state2.phase !== "downloaded") {
+    if (state.phase !== "downloaded") {
       setShowConfirm(false);
       setIsInstalling(false);
     }
-  }, [state2.phase]);
+  }, [state.phase]);
   reactExports.useEffect(() => {
     setImageVisible(Boolean(imageUrl));
   }, [imageUrl]);
   const { manifest } = useChangelog();
   const changelogItem = reactExports.useMemo(() => {
-    if (!state2.targetVersion) return null;
-    if (state2.changelog) {
-      const locale2 = i18n.language?.startsWith("zh") ? "zh" : "en";
-      const badge = locale2 === "zh" ? "更新" : "UPDATE";
+    if (!state.targetVersion) return null;
+    if (state.changelog) {
+      const locale = i18n.language?.startsWith("zh") ? "zh" : "en";
+      const badge = locale === "zh" ? "更新" : "UPDATE";
       return {
-        ...state2.changelog,
-        id: state2.changelog.version,
+        ...state.changelog,
+        id: state.changelog.version,
         badge,
       };
     }
     const locale = i18n.language?.startsWith("zh") ? "zh" : "en";
     const localeData = manifest[locale] ?? manifest.en;
-    const normalizedTarget = state2.targetVersion.replace(/^v/, "");
+    const normalizedTarget = state.targetVersion.replace(/^v/, "");
     const item = localeData?.items?.find(
-      (i2) => i2.version.replace(/^v/, "") === normalizedTarget,
+      (i) => i.version.replace(/^v/, "") === normalizedTarget,
     );
     if (!item) return null;
     return {
@@ -101,20 +101,20 @@ export const UpdateBanner = ({
       id: item.version,
       badge: localeData.badge,
     };
-  }, [state2.targetVersion, state2.changelog, manifest, i18n.language]);
-  const delta = state2.targetVersion
-    ? computeVersionDelta(state2.currentVersion, state2.targetVersion)
+  }, [state.targetVersion, state.changelog, manifest, i18n.language]);
+  const delta = state.targetVersion
+    ? computeVersionDelta(state.currentVersion, state.targetVersion)
     : null;
   const title = (() => {
-    switch (state2.phase) {
+    switch (state.phase) {
       case "available":
-        return t2("update.title.ready");
+        return t("update.title.ready");
       case "downloading":
-        return t2("update.title.downloading");
+        return t("update.title.downloading");
       case "downloaded":
-        return t2("update.title.downloaded");
+        return t("update.title.downloaded");
       case "error":
-        return t2("update.title.error");
+        return t("update.title.error");
       default:
         return "";
     }
@@ -126,11 +126,11 @@ export const UpdateBanner = ({
         }
       : void 0;
   const handleManualDownload = () => {
-    if (!state2.manualDownloadUrl) return;
+    if (!state.manualDownloadUrl) return;
     void openManualInstallerDownload(
-      platform2.shell,
-      state2.manualDownloadUrl,
-      state2.manualDownloadFallbackUrl,
+      platform.shell,
+      state.manualDownloadUrl,
+      state.manualDownloadFallbackUrl,
       "update.banner.manual-download",
     );
   };
@@ -138,7 +138,7 @@ export const UpdateBanner = ({
     if (isInstalling) return;
     setIsInstalling(true);
     try {
-      await installUpdateForPlatform(install, platform2.app.os);
+      await installUpdateForPlatform(install, platform.app.os);
     } catch (error) {
       actionTrailLog.error("update banner install request failed", {
         error: String(error),
@@ -159,7 +159,7 @@ export const UpdateBanner = ({
       )}
       onClick={() => dismiss()}
       data-action-ui-id="update.banner.close"
-      aria-label={t2("update.btn.later")}
+      aria-label={t("update.btn.later")}
     >
       <X className="size-3" strokeWidth={1.5} />
     </button>
@@ -174,7 +174,7 @@ export const UpdateBanner = ({
       disabled={!changelogItem}
       data-action-ui-id="update.btn.viewDetails"
     >
-      {t2("update.btn.viewDetails")}
+      {t("update.btn.viewDetails")}
     </Button>
   );
   const actionRowClass = cn(
@@ -235,10 +235,10 @@ export const UpdateBanner = ({
         )}
         data-action-ui-id="update.banner.actions"
       >
-        {state2.phase === "available" && (
+        {state.phase === "available" && (
           <>
-            {state2.subtitle && !embedded ? (
-              <p className="text-xs text-muted-foreground">{state2.subtitle}</p>
+            {state.subtitle && !embedded ? (
+              <p className="text-xs text-muted-foreground">{state.subtitle}</p>
             ) : null}
             <div className={actionRowClass}>
               {detailsAction}
@@ -264,25 +264,25 @@ export const UpdateBanner = ({
                   strokeWidth={1.7}
                 />
                 {canManualDownload
-                  ? t2("update.btn.manualDownload")
-                  : t2("update.btn.download")}
+                  ? t("update.btn.manualDownload")
+                  : t("update.btn.download")}
               </Button>
             </div>
           </>
         )}
-        {state2.phase === "downloading" && (
+        {state.phase === "downloading" && (
           <>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-background">
               <div
                 className="h-full rounded-full bg-brand-accent transition-all duration-300"
                 style={{
-                  width: `${progressPercent(state2.progress)}%`,
+                  width: `${progressPercent(state.progress)}%`,
                 }}
               />
             </div>
             <div className="mt-2 flex items-center justify-between gap-3">
               <span className="text-xs text-muted-foreground">
-                {formatProgressDisplay(state2.progress)}
+                {formatProgressDisplay(state.progress)}
               </span>
               {capabilities.downloadCancellation && (
                 <button
@@ -291,13 +291,13 @@ export const UpdateBanner = ({
                   onClick={() => cancelDownload()}
                   data-action-ui-id="update.btn.cancel"
                 >
-                  {t2("update.btn.cancel")}
+                  {t("update.btn.cancel")}
                 </button>
               )}
             </div>
           </>
         )}
-        {state2.phase === "downloaded" && !showConfirm && (
+        {state.phase === "downloaded" && !showConfirm && (
           <div className={actionRowClass}>
             {embedded ? detailsAction : null}
             <Button
@@ -320,9 +320,9 @@ export const UpdateBanner = ({
               />
               {embedded
                 ? isInstalling
-                  ? t2("update.btn.restarting")
-                  : t2("update.btn.restartUpgrade")
-                : t2("update.btn.restartNow")}
+                  ? t("update.btn.restarting")
+                  : t("update.btn.restartUpgrade")
+                : t("update.btn.restartNow")}
             </Button>
             {!embedded ? (
               <Button
@@ -333,15 +333,15 @@ export const UpdateBanner = ({
                 onClick={() => dismiss()}
                 data-action-ui-id="update.btn.restartLater"
               >
-                {t2("update.btn.restartLater")}
+                {t("update.btn.restartLater")}
               </Button>
             ) : null}
           </div>
         )}
-        {state2.phase === "downloaded" && showConfirm && (
+        {state.phase === "downloaded" && showConfirm && (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">
-              {t2("update.confirm.body")}
+              {t("update.confirm.body")}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -358,8 +358,8 @@ export const UpdateBanner = ({
                   strokeWidth={1.7}
                 />
                 {isInstalling
-                  ? t2("update.btn.restarting")
-                  : t2("update.btn.restartNow")}
+                  ? t("update.btn.restarting")
+                  : t("update.btn.restartNow")}
               </Button>
               <Button
                 type="button"
@@ -372,36 +372,36 @@ export const UpdateBanner = ({
                 }}
                 data-action-ui-id="update.confirm.later"
               >
-                {t2("update.btn.restartLater")}
+                {t("update.btn.restartLater")}
               </Button>
               <button
                 type="button"
                 className="cursor-pointer rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-foreground/[0.04] hover:text-foreground"
                 onClick={() => setShowConfirm(false)}
               >
-                {t2("update.btn.cancel")}
+                {t("update.btn.cancel")}
               </button>
             </div>
           </div>
         )}
-        {state2.phase === "error" && (
+        {state.phase === "error" && (
           <>
             <p className="text-xs text-destructive">
               {isManualRecovery
-                ? formatManualRecoveryMessage(state2.manualRecoveryCode, t2)
+                ? formatManualRecoveryMessage(state.manualRecoveryCode, t)
                 : formatUpdaterErrorMessage(
-                    state2.error?.message,
-                    t2,
-                    t2("update.error"),
+                    state.error?.message,
+                    t,
+                    t("update.error"),
                   )}
             </p>
             {(isManualRecovery || canManualDownload) && (
               <p className="mt-1 text-xs text-muted-foreground">
                 {canRetryUpdateCheck
-                  ? t2("update.manualRecovery.hint.proxy")
+                  ? t("update.manualRecovery.hint.proxy")
                   : canRetryLocalInstall
-                    ? t2("update.manualRecovery.hint.local")
-                    : t2("update.manualRecovery.hint.policy")}
+                    ? t("update.manualRecovery.hint.local")
+                    : t("update.manualRecovery.hint.policy")}
               </p>
             )}
             {(isManualRecovery || canManualDownload) && (
@@ -419,7 +419,7 @@ export const UpdateBanner = ({
                     data-action-ui-id="update.btn.retry"
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
-                    {t2("update.btn.retry")}
+                    {t("update.btn.retry")}
                   </Button>
                 )}
                 {canRetryLocalInstall && (
@@ -435,7 +435,7 @@ export const UpdateBanner = ({
                       className="size-3.5"
                       strokeWidth={1.7}
                     />
-                    {t2("update.btn.retryInstall")}
+                    {t("update.btn.retryInstall")}
                   </Button>
                 )}
                 {canManualDownload && (
@@ -451,15 +451,15 @@ export const UpdateBanner = ({
                       className="size-3.5"
                       strokeWidth={1.7}
                     />
-                    {t2("update.btn.manualDownload")}
+                    {t("update.btn.manualDownload")}
                   </Button>
                 )}
               </div>
             )}
             {!canManualDownload &&
               !isManualRecovery &&
-              state2.error?.canRetry &&
-              !state2.manualOnly && (
+              state.error?.canRetry &&
+              !state.manualOnly && (
                 <div className="mt-2 flex items-center gap-2">
                   <Button
                     type="button"
@@ -474,7 +474,7 @@ export const UpdateBanner = ({
                     data-action-ui-id="update.btn.retry"
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
-                    {t2("update.btn.retry")}
+                    {t("update.btn.retry")}
                   </Button>
                 </div>
               )}
@@ -487,11 +487,11 @@ export const UpdateBanner = ({
         imageUrl={imageUrl}
         onImageError={onImageError}
         onUpdate={
-          state2.phase === "available"
+          state.phase === "available"
             ? canManualDownload
               ? handleManualDownload
               : () => download()
-            : state2.phase === "downloaded"
+            : state.phase === "downloaded"
               ? handleInstall
               : void 0
         }

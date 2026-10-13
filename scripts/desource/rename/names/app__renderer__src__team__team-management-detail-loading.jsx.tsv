@@ -1,0 +1,22 @@
+key	new	reason
+ProgressTrack$1@24:7	ProgressTrackPrimitive	未带样式的进度条轨道基础组件，由导出的 ProgressTrack 包装
+ProgressIndicator$1@37:7	ProgressIndicatorPrimitive	未带样式的进度指示基础组件，由导出的 ProgressIndicator 包装
+t2@107:14	t	useTranslation() 返回的翻译函数 t
+t2@186:14	t	useTranslation() 返回的翻译函数 t
+ProgressTrack2@25:12	ProgressTrack	去掉打包器加的数字后缀，恢复原名 ProgressTrack
+render2@26:21	render	去掉打包器加的数字后缀，恢复原名 render
+state2@27:20	state	去掉打包器加的数字后缀，恢复原名 state
+element2@28:11	element	去掉打包器加的数字后缀，恢复原名 element
+ProgressIndicator2@38:12	ProgressIndicator	去掉打包器加的数字后缀，恢复原名 ProgressIndicator
+render2@39:21	render	去掉打包器加的数字后缀，恢复原名 render
+max2@41:12	max	去掉打包器加的数字后缀，恢复原名 max
+min2@42:12	min	去掉打包器加的数字后缀，恢复原名 min
+state2@44:14	state	去掉打包器加的数字后缀，恢复原名 state
+getStyles2@50:11	getStyles	去掉打包器加的数字后缀，恢复原名 getStyles
+element2@60:11	element	去掉打包器加的数字后缀，恢复原名 element
+index2@138:47	index	去掉打包器加的数字后缀，恢复原名 index
+body2@227:15	body	去掉打包器加的数字后缀，恢复原名 body
+keys2@340:31	keys	去掉打包器加的数字后缀，恢复原名 keys
+key2@342:14	key	去掉打包器加的数字后缀，恢复原名 key
+content2@75:12	content	去掉打包器加的数字后缀，恢复原名 content
+children2@303:49	children	去掉打包器加的数字后缀，恢复原名 children

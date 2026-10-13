@@ -1,0 +1,52 @@
+key	new	reason
+s2@91:6	state	useHtmlFullscreenStore 选择器收到的 store 状态
+s2@95:34	state	useHtmlFullscreenStore 选择器收到的 store 状态
+s2@100:34	state	useHtmlFullscreenStore 选择器收到的 store 状态
+s2@138:36	state	useHtmlViewerHandleStore 选择器收到的 store 状态
+id2@177:9	id	原名 id，去掉打包器加的数字去重后缀
+s2@184:34	state	usePluginMetadataStore 选择器收到的 store 状态
+id2@191:31	id	原名 id，去掉打包器加的数字去重后缀
+s2@230:34	state	usePluginRunStateStore 选择器收到的 store 状态
+s2@268:6	state	useStore 选择器收到的文件版本 store 状态
+s2@274:38	state	useStore 选择器收到的文件版本 store 状态
+selector2@84:40	selector	去掉打包器加的数字后缀，恢复原名 selector
+set2@103:23	set	去掉打包器加的数字后缀，恢复原名 set
+handle2@105:19	handle	去掉打包器加的数字后缀，恢复原名 handle
+state2@106:13	state	去掉打包器加的数字后缀，恢复原名 state
+next2@107:15	next	去掉打包器加的数字后缀，恢复原名 next
+state2@114:13	state	去掉打包器加的数字后缀，恢复原名 state
+next2@116:15	next	去掉打包器加的数字后缀，恢复原名 next
+selector2@132:35	selector	去掉打包器加的数字后缀，恢复原名 selector
+set2@140:47	set	去掉打包器加的数字后缀，恢复原名 set
+get3@140:53	get	去掉打包器加的数字后缀，恢复原名 get
+entries2@142:20	entries	去掉打包器加的数字后缀，恢复原名 entries
+next2@143:11	next	去掉打包器加的数字后缀，恢复原名 next
+set2@195:23	set	去掉打包器加的数字后缀，恢复原名 set
+info2@197:19	info	去掉打包器加的数字后缀，恢复原名 info
+state2@198:13	state	去掉打包器加的数字后缀，恢复原名 state
+next2@199:15	next	去掉打包器加的数字后缀，恢复原名 next
+state2@206:13	state	去掉打包器加的数字后缀，恢复原名 state
+next2@208:15	next	去掉打包器加的数字后缀，恢复原名 next
+selector2@224:33	selector	去掉打包器加的数字后缀，恢复原名 selector
+set2@233:39	set	去掉打包器加的数字后缀，恢复原名 set
+state2@237:11	state	去掉打包器加的数字后缀，恢复原名 state
+next2@243:13	next	去掉打包器加的数字后缀，恢复原名 next
+path2@244:18	path	去掉打包器加的数字后缀，恢复原名 path
+version2@246:15	version	去掉打包器加的数字后缀，恢复原名 version
+version2@289:9	version	去掉打包器加的数字后缀，恢复原名 version
+base2@293:13	base	去掉打包器加的数字后缀，恢复原名 base
+state2@328:7	state	去掉打包器加的数字后缀，恢复原名 state
+state2@344:9	state	去掉打包器加的数字后缀，恢复原名 state
+node2@348:6	node	去掉打包器加的数字后缀，恢复原名 node
+state2@353:9	state	去掉打包器加的数字后缀，恢复原名 state
+children2@69:64	children	去掉打包器加的数字后缀，恢复原名 children
+entries2@188:32	entries	去掉打包器加的数字后缀，恢复原名 entries
+path2@265:32	path	去掉打包器加的数字后缀，恢复原名 path
+path2@273:36	path	去掉打包器加的数字后缀，恢复原名 path
+url2@282:41	url	去掉打包器加的数字后缀，恢复原名 url
+version2@282:47	version	去掉打包器加的数字后缀，恢复原名 version
+workspaceId2@323:32	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+workspaceId2@326:34	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+state2@335:23	state	去掉打包器加的数字后缀，恢复原名 state
+workspaceId2@343:49	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId
+workspaceId2@352:50	workspaceId	去掉打包器加的数字后缀，恢复原名 workspaceId

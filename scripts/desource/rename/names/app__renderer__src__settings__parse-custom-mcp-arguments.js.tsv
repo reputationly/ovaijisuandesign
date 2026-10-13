@@ -1,0 +1,13 @@
+key	new	reason
+id2@14:33	id	原名 id，去掉打包器加的数字去重后缀
+id2@34:9	id	原名 id，去掉打包器加的数字去重后缀
+_util2@5:3	_util	去掉打包器加的数字后缀，恢复原名 _util
+index2@14:45	index	去掉打包器加的数字后缀，恢复原名 index
+index2@34:38	index	去掉打包器加的数字后缀，恢复原名 index
+current2@59:7	current	去掉打包器加的数字后缀，恢复原名 current
+index2@63:12	index	去掉打包器加的数字后缀，恢复原名 index
+start2@66:13	start	去掉打包器加的数字后缀，恢复原名 start
+message2@122:15	message	去掉打包器加的数字后缀，恢复原名 message
+name2@185:9	errorName	error.name；name 是全局名
+name2@194:9	errorName	error.name；name 是全局名
+name2@129:41	mcpName	自定义 MCP 名；name 是全局名

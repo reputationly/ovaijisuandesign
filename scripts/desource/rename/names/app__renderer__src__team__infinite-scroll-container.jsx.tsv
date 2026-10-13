@@ -1,0 +1,4 @@
+key	new	reason
+observer2@62:11	observer	去掉打包器加的数字后缀，恢复原名 observer
+entries2@63:8	entries	去掉打包器加的数字后缀，恢复原名 entries
+children2@9:13	children	去掉打包器加的数字后缀，恢复原名 children

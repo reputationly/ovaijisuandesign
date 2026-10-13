@@ -1,0 +1,35 @@
+key	new	reason
+t2@262:14	t	useTranslation() 返回的翻译函数 t
+t2@318:14	t	useTranslation() 返回的翻译函数 t
+t2@387:14	t	useTranslation() 返回的翻译函数 t
+name2@30:23	connectorName	本地连接器名；name 是全局名
+service2@35:3	service	去掉打包器加的数字后缀，恢复原名 service
+client2@36:3	client	去掉打包器加的数字后缀，恢复原名 client
+configure2@83:9	configure	去掉打包器加的数字后缀，恢复原名 configure
+remove2@99:9	remove	去掉打包器加的数字后缀，恢复原名 remove
+name2@40:20	connectorName	本地连接器名；name 是全局名
+name2@57:23	connectorName	本地连接器名；name 是全局名
+name2@71:26	connectorName	本地连接器名；name 是全局名
+previous2@90:11	previous	去掉打包器加的数字后缀，恢复原名 previous
+name2@99:20	connectorName	本地连接器名；name 是全局名
+state2@114:19	state	去掉打包器加的数字后缀，恢复原名 state
+name2@130:21	connectorName	本地连接器名；name 是全局名
+pending2@131:13	pending	去掉打包器加的数字后缀，恢复原名 pending
+name2@166:18	connectorName	本地连接器名；name 是全局名
+name2@171:23	connectorName	本地连接器名；name 是全局名
+previous2@180:13	previous	去掉打包器加的数字后缀，恢复原名 previous
+name2@214:12	connectorName	本地连接器名；name 是全局名
+name2@215:15	connectorName	本地连接器名；name 是全局名
+tracker2@219:3	tracker	去掉打包器加的数字后缀，恢复原名 tracker
+name2@228:16	connectorName	本地连接器名；name 是全局名
+index2@228:23	index	去掉打包器加的数字后缀，恢复原名 index
+snapshot2@241:41	snapshot	去掉打包器加的数字后缀，恢复原名 snapshot
+state2@258:10	state	去掉打包器加的数字后缀，恢复原名 state
+children2@316:13	children	去掉打包器加的数字后缀，恢复原名 children
+first2@312:10	first	去掉打包器加的数字后缀，恢复原名 first
+last2@313:9	last	去掉打包器加的数字后缀，恢复原名 last
+platform2@389:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+state2@524:9	state	去掉打包器加的数字后缀，恢复原名 state
+next2@414:13	next	去掉打包器加的数字后缀，恢复原名 next
+timer2@446:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+displayName2@380:16	displayName	去掉打包器加的数字后缀，恢复原名 displayName

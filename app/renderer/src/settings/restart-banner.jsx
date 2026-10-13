@@ -3,8 +3,8 @@ import { AlertCircle, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button } from "../infra/dialog-content.jsx";
 import { getDesktopSettingsMainService } from "../team/copy-icon-button.jsx";
-export function RestartBanner({ message: message2 }) {
-  const { t: t2 } = useTranslation();
+export function RestartBanner({ message }) {
+  const { t } = useTranslation();
   const handleRelaunch = reactExports.useCallback(() => {
     void getDesktopSettingsMainService().relaunch();
   }, []);
@@ -16,7 +16,7 @@ export function RestartBanner({ message: message2 }) {
         className="shrink-0 text-muted-foreground"
       />
       <p className="flex-1 text-xs text-muted-foreground">
-        {message2 ?? t2("settings.requiresRestart")}
+        {message ?? t("settings.requiresRestart")}
       </p>
       <Button
         variant="outline"
@@ -24,7 +24,7 @@ export function RestartBanner({ message: message2 }) {
         className="h-6 text-xs font-normal"
         onClick={handleRelaunch}
       >
-        {t2("settings.restartNow")}
+        {t("settings.restartNow")}
       </Button>
     </div>
   );

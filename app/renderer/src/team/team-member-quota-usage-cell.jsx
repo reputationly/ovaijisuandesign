@@ -24,7 +24,7 @@ export function TeamMemberQuotaUsageCell({
   presentation = "usage",
   teamRemaining = null,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (presentation === "current") {
     const currentAmount =
       quota.mode === "LIMITED"
@@ -42,14 +42,14 @@ export function TeamMemberQuotaUsageCell({
             render={
               <span className="inline-flex cursor-help tabular-nums text-muted-foreground" />
             }
-            aria-label={t2("team.management.currentQuotaUnavailable", {
+            aria-label={t("team.management.currentQuotaUnavailable", {
               defaultValue: "当前可用积分暂不可获取",
             })}
           >
             —
           </TooltipTrigger>
           <TooltipContent>
-            {t2("team.management.currentQuotaUnavailable", {
+            {t("team.management.currentQuotaUnavailable", {
               defaultValue: "当前可用积分暂不可获取",
             })}
           </TooltipContent>
@@ -57,7 +57,7 @@ export function TeamMemberQuotaUsageCell({
       );
     }
     const lowAllowance = BigInt(currentAmount) < LOW_ALLOWANCE_THRESHOLD;
-    const lowAllowanceWarning = t2("team.management.lowAllowanceWarning", {
+    const lowAllowanceWarning = t("team.management.lowAllowanceWarning", {
       defaultValue: "成员可使用额度过低，请增加成员额度上限或充值积分。",
     });
     return (
@@ -91,14 +91,14 @@ export function TeamMemberQuotaUsageCell({
       <Tooltip>
         <TooltipTrigger
           render={<span className="inline-flex cursor-help tabular-nums" />}
-          aria-label={t2("team.credit.usageUnavailableTooltip", {
+          aria-label={t("team.credit.usageUnavailableTooltip", {
             defaultValue: "用量数据暂不可获取",
           })}
         >
           —
         </TooltipTrigger>
         <TooltipContent>
-          {t2("team.credit.usageUnavailableTooltip", {
+          {t("team.credit.usageUnavailableTooltip", {
             defaultValue: "用量数据暂不可获取",
           })}
         </TooltipContent>
@@ -108,7 +108,7 @@ export function TeamMemberQuotaUsageCell({
   if (quota.mode === "UNLIMITED") {
     return (
       <span className="text-muted-foreground">
-        {t2("team.credit.unlimited", {
+        {t("team.credit.unlimited", {
           defaultValue: "无限额",
         })}
       </span>
@@ -122,9 +122,9 @@ export function TeamMemberQuotaUsageCell({
           render={
             <span className="inline-flex cursor-help tabular-nums text-foreground" />
           }
-          aria-label={t2("team.credit.usageUnavailableWithAllowance", {
+          aria-label={t("team.credit.usageUnavailableWithAllowance", {
             defaultValue: "{{allowance}}，用量数据暂不可获取",
-            allowance: t2("team.credit.personalLimit", {
+            allowance: t("team.credit.personalLimit", {
               defaultValue: "限额 {{limit}}",
               limit,
             }),
@@ -137,7 +137,7 @@ export function TeamMemberQuotaUsageCell({
           </span>
         </TooltipTrigger>
         <TooltipContent>
-          {t2("team.credit.usageUnavailableTooltip", {
+          {t("team.credit.usageUnavailableTooltip", {
             defaultValue: "用量数据暂不可获取",
           })}
         </TooltipContent>
@@ -157,7 +157,7 @@ export function TeamMemberQuotaUsageCell({
       <Progress
         className="w-32 gap-0"
         value={usagePercent(quota.used, quota.limit ?? "0")}
-        aria-label={t2("team.credit.quotaUsageValue", {
+        aria-label={t("team.credit.quotaUsageValue", {
           defaultValue: "已用 {{used}} / 个人限额 {{limit}}",
           used,
           limit,

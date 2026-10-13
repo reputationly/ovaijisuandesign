@@ -1,0 +1,15 @@
+key	new	reason
+gatewayUrl2@14:9	gatewayUrl	去掉打包器加的数字后缀，恢复原名 gatewayUrl
+current2@81:26	current	去掉打包器加的数字后缀，恢复原名 current
+next2@93:13	next	去掉打包器加的数字后缀，恢复原名 next
+current2@104:28	current	去掉打包器加的数字后缀，恢复原名 current
+current2@124:30	current	去掉打包器加的数字后缀，恢复原名 current
+mode2@139:12	mode	去掉打包器加的数字后缀，恢复原名 mode
+current2@140:28	current	去掉打包器加的数字后缀，恢复原名 current
+service2@153:15	service	去掉打包器加的数字后缀，恢复原名 service
+current2@159:32	current	去掉打包器加的数字后缀，恢复原名 current
+current2@177:32	current	去掉打包器加的数字后缀，恢复原名 current
+service2@212:11	service	去掉打包器加的数字后缀，恢复原名 service
+mode2@215:14	mode	去掉打包器加的数字后缀，恢复原名 mode
+timer2@257:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+now2@272:13	now	去掉打包器加的数字后缀，恢复原名 now

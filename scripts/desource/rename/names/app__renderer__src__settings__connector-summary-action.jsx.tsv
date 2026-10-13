@@ -1,0 +1,4 @@
+key	new	reason
+children2@41:13	children	去掉打包器加的数字后缀，恢复原名 children
+mode2@88:9	mode	去掉打包器加的数字后缀，恢复原名 mode
+disabled2@91:13	disabled	去掉打包器加的数字后缀，恢复原名 disabled

@@ -1,0 +1,15 @@
+key	new	reason
+t2@104:14	t	useTranslation() 返回的翻译函数 t
+t2@150:14	t	useTranslation() 返回的翻译函数 t
+i2@187:33	i	原名 i，去掉打包器加的数字去重后缀
+t2@238:14	t	useTranslation() 返回的翻译函数 t
+v2@159:37	isExpanded	切换前的展开状态
+q2@187:29	questionItem	问题卡片中的单个问题
+q2@260:27	questionItem	问题卡片中的单个问题
+q2@290:21	questionItem	问题卡片中的单个问题
+question2@24:46	question	去掉打包器加的数字后缀，恢复原名 question
+match2@60:11	match	去掉打包器加的数字后缀，恢复原名 match
+path2@65:11	path	去掉打包器加的数字后缀，恢复原名 path
+resolveMediaUrl2@79:9	resolveMediaUrl	去掉打包器加的数字后缀，恢复原名 resolveMediaUrl
+url2@81:9	url	去掉打包器加的数字后缀，恢复原名 url
+raw2@245:13	raw	去掉打包器加的数字后缀，恢复原名 raw

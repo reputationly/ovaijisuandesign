@@ -37,9 +37,9 @@ function cloneSelectedMediaModels(selectedMediaModels) {
 export class WorkspaceInitialPayloadCache {
   payloads = new Map();
   consumedPayloadKeys = new Map();
-  capture(workspaceId2, payload) {
-    if (!workspaceId2 || !hasPayload(payload)) return;
-    const next2 = {
+  capture(workspaceId, payload) {
+    if (!workspaceId || !hasPayload(payload)) return;
+    const next = {
       initialPayloadId: payload.initialPayloadId,
       initialMessage: payload.initialMessage,
       initialAttachments: payload.initialAttachments
@@ -53,22 +53,22 @@ export class WorkspaceInitialPayloadCache {
         payload.initialSelectedMediaModels,
       ),
     };
-    const payloadKey = workspaceInitialPayloadKey(next2);
-    if (this.consumedPayloadKeys.get(workspaceId2) === payloadKey) return;
-    this.payloads.set(workspaceId2, next2);
+    const payloadKey = workspaceInitialPayloadKey(next);
+    if (this.consumedPayloadKeys.get(workspaceId) === payloadKey) return;
+    this.payloads.set(workspaceId, next);
   }
-  get(workspaceId2) {
-    return this.payloads.get(workspaceId2);
+  get(workspaceId) {
+    return this.payloads.get(workspaceId);
   }
-  consume(workspaceId2) {
-    const payload = this.payloads.get(workspaceId2);
+  consume(workspaceId) {
+    const payload = this.payloads.get(workspaceId);
     if (payload) {
       this.consumedPayloadKeys.set(
-        workspaceId2,
+        workspaceId,
         workspaceInitialPayloadKey(payload),
       );
     }
-    this.payloads.delete(workspaceId2);
+    this.payloads.delete(workspaceId);
   }
   /**
    * Drop cached payloads for workspaces that have been closed.
@@ -78,13 +78,13 @@ export class WorkspaceInitialPayloadCache {
    * (which may not yet have appeared in entries).
    */
   cleanupClosed(liveIds, seenIds, currentId) {
-    for (const id2 of liveIds) {
-      seenIds.add(id2);
+    for (const id of liveIds) {
+      seenIds.add(id);
     }
-    for (const id2 of this.payloads.keys()) {
-      if (seenIds.has(id2) && !liveIds.has(id2) && id2 !== currentId) {
-        this.payloads.delete(id2);
-        this.consumedPayloadKeys.delete(id2);
+    for (const id of this.payloads.keys()) {
+      if (seenIds.has(id) && !liveIds.has(id) && id !== currentId) {
+        this.payloads.delete(id);
+        this.consumedPayloadKeys.delete(id);
       }
     }
   }

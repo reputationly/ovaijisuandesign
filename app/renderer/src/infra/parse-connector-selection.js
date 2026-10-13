@@ -37,14 +37,14 @@ export function normalizeAgentModelDisplay(value) {
   if (typeof row.icon === "string" && row.icon.trim().length <= 2048) {
     try {
       const icon = row.icon.trim();
-      const url2 = new URL(icon);
-      if (url2.protocol === "https:" && !url2.username && !url2.password)
+      const url = new URL(icon);
+      if (url.protocol === "https:" && !url.username && !url.password)
         display.icon = icon;
     } catch {}
   }
-  for (const key2 of ["description", "listDescription"]) {
-    const text2 = typeof row[key2] === "string" ? row[key2].trim() : "";
-    if (text2 && text2.length <= 500) display[key2] = text2;
+  for (const key of ["description", "listDescription"]) {
+    const text = typeof row[key] === "string" ? row[key].trim() : "";
+    if (text && text.length <= 500) display[key] = text;
   }
   if (
     row.metrics &&
@@ -52,15 +52,15 @@ export function normalizeAgentModelDisplay(value) {
     !Array.isArray(row.metrics)
   ) {
     const metrics = {};
-    for (const key2 of ["speed", "intelligence", "cost"]) {
-      const score = row.metrics[key2];
+    for (const key of ["speed", "intelligence", "cost"]) {
+      const score = row.metrics[key];
       if (
         typeof score === "number" &&
         Number.isInteger(score) &&
         score >= 0 &&
         score <= 5
       ) {
-        metrics[key2] = score;
+        metrics[key] = score;
       }
     }
     if (Object.keys(metrics).length) display.metrics = metrics;
@@ -153,13 +153,13 @@ const PRESET_COLOR_TAG_ID_BY_COLOR = {
   "#5E3DF5": PRESET_COLOR_TAG_IDS.deepPurple,
 };
 
-export const PRESET_COLOR_TAGS = CANVAS_TAG_COLOR_PALETTE.map((color2) => {
-  const id2 = PRESET_COLOR_TAG_ID_BY_COLOR[color2];
+export const PRESET_COLOR_TAGS = CANVAS_TAG_COLOR_PALETTE.map((color) => {
+  const id = PRESET_COLOR_TAG_ID_BY_COLOR[color];
   return {
-    id: id2,
+    id,
     kind: "color",
-    color: color2,
-    legacyNameKey: PRESET_COLOR_NAME_KEYS[id2],
+    color,
+    legacyNameKey: PRESET_COLOR_NAME_KEYS[id],
   };
 });
 
@@ -177,33 +177,33 @@ export function seedTagRegistry() {
 const WIDE_CANVAS_TAG_GRAPHEME =
   /(?:[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Extended_Pictographic}\p{Regional_Indicator}\u{3000}-\u{303F}\u{FF01}-\u{FF60}\u{FFE0}-\u{FFE6}]|\u{20E3}|\u{FE0F})/u;
 
-function segmentCanvasTagName(name2) {
+function segmentCanvasTagName(tagName) {
   if (typeof Intl.Segmenter === "function") {
     return Array.from(
       new Intl.Segmenter(void 0, {
         granularity: "grapheme",
-      }).segment(name2),
+      }).segment(tagName),
       ({ segment }) => segment,
     );
   }
-  return Array.from(name2);
+  return Array.from(tagName);
 }
 
 function getCanvasTagNameGraphemeWidth(grapheme) {
   return WIDE_CANVAS_TAG_GRAPHEME.test(grapheme) ? 2 : 1;
 }
 
-export function countCanvasTagNameUnits(name2) {
-  return segmentCanvasTagName(name2).reduce(
+export function countCanvasTagNameUnits(tagName) {
+  return segmentCanvasTagName(tagName).reduce(
     (total, grapheme) => total + getCanvasTagNameGraphemeWidth(grapheme),
     0,
   );
 }
 
-export function truncateCanvasTagName(name2) {
+export function truncateCanvasTagName(tagName) {
   let units = 0;
   let result = "";
-  for (const grapheme of segmentCanvasTagName(name2)) {
+  for (const grapheme of segmentCanvasTagName(tagName)) {
     const width = getCanvasTagNameGraphemeWidth(grapheme);
     if (units + width > CANVAS_TAG_NAME_MAX_LENGTH) break;
     units += width;
@@ -212,8 +212,8 @@ export function truncateCanvasTagName(name2) {
   return result;
 }
 
-export function validateCanvasTagName(name2) {
-  const trimmed = name2.trim();
+export function validateCanvasTagName(tagName) {
+  const trimmed = tagName.trim();
   if (!trimmed) return "required";
   if (countCanvasTagNameUnits(trimmed) > CANVAS_TAG_NAME_MAX_LENGTH)
     return "too-long";
@@ -228,25 +228,25 @@ export function isCanvasKeywordTag(tag) {
   return tag.kind === "keyword";
 }
 
-function buildTagIndex(registry2) {
-  return new Map(registry2.tags.map((tag) => [tag.id, tag]));
+function buildTagIndex(registry) {
+  return new Map(registry.tags.map((tag) => [tag.id, tag]));
 }
 
-export function resolveTagIds(tagIds, registry2) {
-  const index2 = buildTagIndex(registry2);
+export function resolveTagIds(tagIds, registry) {
+  const index = buildTagIndex(registry);
   const resolved = [];
-  for (const id2 of tagIds ?? []) {
-    const tag = index2.get(id2);
+  for (const id of tagIds ?? []) {
+    const tag = index.get(id);
     if (tag) resolved.push(tag);
   }
   return resolved;
 }
 
-export function isTagNameTaken(name2, resolvedNames, excludeId) {
-  const needle = name2.trim();
+export function isTagNameTaken(tagName, resolvedNames, excludeId) {
+  const needle = tagName.trim();
   if (!needle) return false;
-  for (const [id2, display] of resolvedNames) {
-    if (id2 !== excludeId && display.trim() === needle) return true;
+  for (const [id, display] of resolvedNames) {
+    if (id !== excludeId && display.trim() === needle) return true;
   }
   return false;
 }

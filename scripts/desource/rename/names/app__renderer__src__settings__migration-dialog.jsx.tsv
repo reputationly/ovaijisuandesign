@@ -1,0 +1,8 @@
+key	new	reason
+t2@58:14	t	useTranslation() 返回的翻译函数 t
+e2@178:28	changeEvent	onChange 回调收到的事件对象
+v2@215:31	checkedState	Checkbox onCheckedChange 传入的勾选状态
+text2@25:27	text	去掉打包器加的数字后缀，恢复原名 text
+match2@26:9	match	去掉打包器加的数字后缀，恢复原名 match
+text2@36:27	text	去掉打包器加的数字后缀，恢复原名 text
+raw2@79:31	raw	去掉打包器加的数字后缀，恢复原名 raw

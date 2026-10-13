@@ -42,7 +42,7 @@ export function PreviewCardContent({
   collisionPadding,
   positionerClassName,
   portalContainer,
-  children: children2,
+  children,
   ...props
 }) {
   return (
@@ -73,25 +73,25 @@ export function PreviewCardContent({
           )}
           {...props}
         >
-          {children2}
+          {children}
         </PreviewCardPopup>
       </PreviewCardPositioner>
     </PreviewCardPortal>
   );
 }
 export function useCanvasResourceResolvers(httpClient) {
-  const gatewayFetch2 = useGatewayFetch();
-  const gatewayUrl2 = useGatewayUrl();
-  const { t: t2 } = useTranslation();
+  const gatewayFetch = useGatewayFetch();
+  const gatewayUrl = useGatewayUrl();
+  const { t } = useTranslation();
   const handleLoadTextContent = reactExports.useCallback(
     async (filePath) => {
       if (isCanvasReferenceUri(filePath)) {
-        const response = await gatewayFetch2(
+        const response = await gatewayFetch(
           `${CANVAS_REFERENCE_API.content}?ref=${encodeURIComponent(filePath)}`,
         );
         if (!response.ok)
           throw new Error(
-            t2("canvas.reference.unavailable", "Reference unavailable"),
+            t("canvas.reference.unavailable", "Reference unavailable"),
           );
         return response.text();
       }
@@ -101,35 +101,35 @@ export function useCanvasResourceResolvers(httpClient) {
         return "";
       }
     },
-    [httpClient, gatewayFetch2, t2],
+    [httpClient, gatewayFetch, t],
   );
   const handleResolveFileUrl = reactExports.useCallback(
-    (path2) =>
-      gatewayUrl2(
-        isCanvasReferenceUri(path2)
-          ? `${CANVAS_REFERENCE_API.content}?ref=${encodeURIComponent(path2)}`
-          : API_PATHS.serveFile(path2),
+    (path) =>
+      gatewayUrl(
+        isCanvasReferenceUri(path)
+          ? `${CANVAS_REFERENCE_API.content}?ref=${encodeURIComponent(path)}`
+          : API_PATHS.serveFile(path),
       ) ?? "",
-    [gatewayUrl2],
+    [gatewayUrl],
   );
   const handleResolveThumbUrl = reactExports.useCallback(
-    (path2, displayWidth, kind) => {
-      if (isCanvasReferenceUri(path2))
+    (path, displayWidth, kind) => {
+      if (isCanvasReferenceUri(path))
         return withThumbnail(
-          gatewayUrl2(
-            `${CANVAS_REFERENCE_API.content}?ref=${encodeURIComponent(path2)}`,
+          gatewayUrl(
+            `${CANVAS_REFERENCE_API.content}?ref=${encodeURIComponent(path)}`,
           ),
           displayWidth,
         );
-      const base2 =
+      const base =
         kind === "image"
-          ? gatewayUrl2(API_PATHS.serveFile(path2))
-          : gatewayUrl2(
-              `/api/thumbnail/${path2.split("/").map(encodeURIComponent).join("/")}`,
+          ? gatewayUrl(API_PATHS.serveFile(path))
+          : gatewayUrl(
+              `/api/thumbnail/${path.split("/").map(encodeURIComponent).join("/")}`,
             );
-      return withThumbnail(base2, displayWidth);
+      return withThumbnail(base, displayWidth);
     },
-    [gatewayUrl2],
+    [gatewayUrl],
   );
   return {
     handleLoadTextContent,
@@ -138,7 +138,7 @@ export function useCanvasResourceResolvers(httpClient) {
   };
 }
 export function usePlaceholderAssetSource({
-  active: active2,
+  active,
   scope,
   pick,
   fill,
@@ -146,13 +146,13 @@ export function usePlaceholderAssetSource({
   onError,
 }) {
   const epoch = reactExports.useRef(0);
-  const current2 = reactExports.useRef({
-    active: active2,
+  const current = reactExports.useRef({
+    active,
     scope,
   });
-  if (current2.current.active !== active2 || current2.current.scope !== scope) {
-    current2.current = {
-      active: active2,
+  if (current.current.active !== active || current.current.scope !== scope) {
+    current.current = {
+      active,
       scope,
     };
     epoch.current++;
@@ -166,13 +166,13 @@ export function usePlaceholderAssetSource({
   );
   return reactExports.useCallback(
     async (nodeId, kind, anchor) => {
-      if (!active2 || !anchor || requests.current.has(nodeId)) return;
+      if (!active || !anchor || requests.current.has(nodeId)) return;
       const targetValid = captureTarget(nodeId);
       if (!targetValid()) return;
       const generation = epoch.current;
       const request = {};
       requests.current.set(nodeId, request);
-      const valid2 = () =>
+      const valid = () =>
         generation === epoch.current &&
         requests.current.get(nodeId) === request &&
         targetValid();
@@ -190,23 +190,23 @@ export function usePlaceholderAssetSource({
           },
         );
         const resource = resources?.[0];
-        if (valid2() && resource?.assetId && resource.type === kind)
+        if (valid() && resource?.assetId && resource.type === kind)
           fill(nodeId, resource);
       } catch (error) {
-        if (valid2()) onError(error);
+        if (valid()) onError(error);
       } finally {
         if (requests.current.get(nodeId) === request)
           requests.current.delete(nodeId);
       }
     },
-    [active2, captureTarget, fill, onError, pick],
+    [active, captureTarget, fill, onError, pick],
   );
 }
-export function uploadResponseMediaResourceFields(res, meta2) {
-  const width = meta2?.width ?? res.width;
-  const height = meta2?.height ?? res.height;
+export function uploadResponseMediaResourceFields(res, meta) {
+  const width = meta?.width ?? res.width;
+  const height = meta?.height ?? res.height;
   const durationSec =
-    meta2?.durationSec ??
+    meta?.durationSec ??
     (typeof res.durationMs === "number" && res.durationMs > 0
       ? res.durationMs / 1e3
       : void 0);
@@ -277,8 +277,8 @@ async function importExternalFiles(absolutePaths, fetcher = gatewayFetch) {
     }),
   });
   if (!res.ok) throw new Error(`Import failed: ${res.status}`);
-  const data2 = await res.json();
-  return (data2.imported ?? []).filter((row) => Boolean(row?.id && row?.path));
+  const data = await res.json();
+  return (data.imported ?? []).filter((row) => Boolean(row?.id && row?.path));
 }
 export function useImportExternalFiles() {
   const scopedFetch = useGatewayFetch();
@@ -288,14 +288,14 @@ export function useImportExternalFiles() {
   );
 }
 const HTABLE_SUFFIX = `.${CLOUD_ASSET_TABLE_EXTENSION}`;
-export function isHtableFileName(name2) {
-  return name2.toLowerCase().endsWith(HTABLE_SUFFIX);
+export function isHtableFileName(fileName) {
+  return fileName.toLowerCase().endsWith(HTABLE_SUFFIX);
 }
 function htableTitleFromFileName(fileName) {
-  const base2 = fileName.split(/[\\/]/).pop() ?? fileName;
-  return isHtableFileName(base2)
-    ? base2.slice(0, base2.length - HTABLE_SUFFIX.length)
-    : base2;
+  const base = fileName.split(/[\\/]/).pop() ?? fileName;
+  return isHtableFileName(base)
+    ? base.slice(0, base.length - HTABLE_SUFFIX.length)
+    : base;
 }
 export class HtableParseError extends Error {
   constructor(cause) {
@@ -303,15 +303,15 @@ export class HtableParseError extends Error {
     this.name = "HtableParseError";
   }
 }
-function htableContentToWriteRequest(raw2, opts = {}) {
+function htableContentToWriteRequest(raw, opts = {}) {
   let llm;
   try {
-    llm = tableDocumentToLlmContent(parseTableDocument(raw2));
+    llm = tableDocumentToLlmContent(parseTableDocument(raw));
   } catch (err) {
     throw new HtableParseError(err);
   }
   const title = opts.title?.trim();
-  const position2 = opts.position
+  const position = opts.position
     ? {
         x: Math.round(opts.position.x),
         y: Math.round(opts.position.y),
@@ -335,26 +335,26 @@ function htableContentToWriteRequest(raw2, opts = {}) {
           title,
         }
       : {}),
-    ...(position2
+    ...(position
       ? {
-          position: position2,
+          position,
         }
       : {}),
   };
 }
-export async function importHtableToCanvas(file, fetcher, position2) {
+export async function importHtableToCanvas(file, fetcher, position) {
   const readRes = await fetcher(API_PATHS.serveLocal(file.absolutePath));
   if (!readRes.ok) throw new Error(`Read .htable failed: ${readRes.status}`);
-  const body2 = htableContentToWriteRequest(await readRes.text(), {
+  const body = htableContentToWriteRequest(await readRes.text(), {
     title: htableTitleFromFileName(file.name),
-    position: position2,
+    position,
   });
   const writeRes = await fetcher("/api/canvas/table-node", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body2),
+    body: JSON.stringify(body),
   });
   if (!writeRes.ok) {
     const detail = await writeRes.text().catch(() => "");

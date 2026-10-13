@@ -69,7 +69,7 @@ export function CreateProjectMenuContent({
   sideOffset = 4,
   sidebarHoverRegion = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { guard: loginGuard } = useLoginGuard();
   return (
     <ActionDropdownMenuContent
@@ -87,7 +87,7 @@ export function CreateProjectMenuContent({
         data-action-ui-id={`${actionUiIdPrefix}.create-local`}
       >
         <LocalFolderIcon className="size-4" aria-hidden="true" />
-        {t2("project.create.localTitle")}
+        {t("project.create.localTitle")}
       </ActionDropdownMenuItem>
       <ActionDropdownMenuSeparator />
       <ActionDropdownMenuItem
@@ -98,35 +98,35 @@ export function CreateProjectMenuContent({
         data-action-ui-id={`${actionUiIdPrefix}.create-team`}
       >
         <Users className="size-4" strokeWidth={1.5} />
-        {t2("project.create.teamTitle")}
+        {t("project.create.teamTitle")}
       </ActionDropdownMenuItem>
     </ActionDropdownMenuContent>
   );
 }
 export function DissolveProjectDialog({
-  project: project2,
+  project,
   onConfirm,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <AlertDialog
-      open={Boolean(project2)}
+      open={Boolean(project)}
       onOpenChange={(open) => !open && onCancel()}
     >
       <AlertDialogContent size="sm" data-action-ui-id="project.dissolve-dialog">
         <AlertDialogHeader>
-          <AlertDialogTitle>{t2("project.dissolve.title")}</AlertDialogTitle>
+          <AlertDialogTitle>{t("project.dissolve.title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("project.dissolve.description", {
-              name: project2?.name ?? "",
+            {t("project.dissolve.description", {
+              name: project?.name ?? "",
             })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t2("common.cancel")}</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            {t2("project.dissolve.confirm")}
+            {t("project.dissolve.confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -134,11 +134,11 @@ export function DissolveProjectDialog({
   );
 }
 const AvatarRoot = reactExports.forwardRef(
-  function AvatarRoot2(componentProps, forwardedRef) {
-    const { className, render: render2, ...elementProps } = componentProps;
+  function AvatarRoot(componentProps, forwardedRef) {
+    const { className, render, ...elementProps } = componentProps;
     const [imageLoadingStatus, setImageLoadingStatus] =
       reactExports.useState("idle");
-    const state2 = {
+    const state = {
       imageLoadingStatus,
     };
     const contextValue = reactExports.useMemo(
@@ -148,24 +148,24 @@ const AvatarRoot = reactExports.forwardRef(
       }),
       [imageLoadingStatus, setImageLoadingStatus],
     );
-    const element2 = useRenderElement("span", componentProps, {
-      state: state2,
+    const element = useRenderElement("span", componentProps, {
+      state,
       ref: forwardedRef,
       props: elementProps,
       stateAttributesMapping: avatarStateAttributesMapping,
     });
     return (
       <AvatarRootContext.Provider value={contextValue}>
-        {element2}
+        {element}
       </AvatarRootContext.Provider>
     );
   },
 );
-const AvatarFallback$1 = reactExports.forwardRef(
-  function AvatarFallback2(componentProps, forwardedRef) {
+const AvatarFallbackPrimitive = reactExports.forwardRef(
+  function AvatarFallback(componentProps, forwardedRef) {
     const {
       className,
-      render: render2,
+      render,
       delay,
       ...elementProps
     } = componentProps;
@@ -173,31 +173,31 @@ const AvatarFallback$1 = reactExports.forwardRef(
     const [delayPassed, setDelayPassed] = reactExports.useState(
       delay === void 0,
     );
-    const timeout2 = useTimeout();
+    const timeout = useTimeout();
     reactExports.useEffect(() => {
       if (delay !== void 0) {
-        timeout2.start(delay, () => setDelayPassed(true));
+        timeout.start(delay, () => setDelayPassed(true));
       }
-      return timeout2.clear;
-    }, [timeout2, delay]);
-    const state2 = {
+      return timeout.clear;
+    }, [timeout, delay]);
+    const state = {
       imageLoadingStatus,
     };
-    const element2 = useRenderElement("span", componentProps, {
-      state: state2,
+    const element = useRenderElement("span", componentProps, {
+      state,
       ref: forwardedRef,
       props: elementProps,
       stateAttributesMapping: avatarStateAttributesMapping,
       enabled: imageLoadingStatus !== "loaded" && delayPassed,
     });
-    return element2;
+    return element;
   },
 );
-export function Avatar({ className, size: size2 = "default", ...props }) {
+export function Avatar({ className, size = "default", ...props }) {
   return (
     <AvatarRoot
       data-slot="avatar"
-      data-size={size2}
+      data-size={size}
       className={cn(
         "group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten",
         className,
@@ -220,7 +220,7 @@ export function AvatarImage({ className, ...props }) {
 }
 export function AvatarFallback({ className, ...props }) {
   return (
-    <AvatarFallback$1
+    <AvatarFallbackPrimitive
       data-slot="avatar-fallback"
       className={cn(
         "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
@@ -243,7 +243,7 @@ export function AvatarGroup({ className, ...props }) {
   );
 }
 export const ClickableArea = reactExports.forwardRef(
-  ({ onClick, onKeyDown, children: children2, ...props }, ref) => {
+  ({ onClick, onKeyDown, children, ...props }, ref) => {
     return (
       // biome-ignore lint/a11y/useSemanticElements: intentional div[role=button] for cases where nested interactive elements prevent using <button>
       <div
@@ -251,16 +251,16 @@ export const ClickableArea = reactExports.forwardRef(
         role="button"
         tabIndex={0}
         onClick={onClick}
-        onKeyDown={(e2) => {
-          if (e2.key === "Enter" || e2.key === " ") {
-            e2.preventDefault();
+        onKeyDown={(keyboardEvent) => {
+          if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+            keyboardEvent.preventDefault();
             onClick?.();
           }
-          onKeyDown?.(e2);
+          onKeyDown?.(keyboardEvent);
         }}
         {...props}
       >
-        {children2}
+        {children}
       </div>
     );
   },
@@ -303,24 +303,24 @@ export function InlineRenameInput({
       value={value}
       placeholder={placeholder}
       maxLength={effectiveMaxLength}
-      onChange={(e2) => setValue(e2.target.value)}
+      onChange={(changeEvent) => setValue(changeEvent.target.value)}
       onCompositionStart={() => {
         composingRef.current = true;
       }}
       onCompositionEnd={() => {
         composingRef.current = false;
       }}
-      onKeyDown={(e2) => {
-        e2.stopPropagation();
-        if (composingRef.current || e2.nativeEvent.isComposing) return;
-        if (e2.key === "Enter") submit();
-        if (e2.key === "Escape") onCancel();
+      onKeyDown={(keyboardEvent) => {
+        keyboardEvent.stopPropagation();
+        if (composingRef.current || keyboardEvent.nativeEvent.isComposing) return;
+        if (keyboardEvent.key === "Enter") submit();
+        if (keyboardEvent.key === "Escape") onCancel();
       }}
       onBlur={submit}
-      onClick={(e2) => e2.stopPropagation()}
-      onDoubleClick={(e2) => e2.stopPropagation()}
-      onMouseDown={(e2) => e2.stopPropagation()}
-      onPointerDown={(e2) => e2.stopPropagation()}
+      onClick={(clickEvent) => clickEvent.stopPropagation()}
+      onDoubleClick={(clickEvent) => clickEvent.stopPropagation()}
+      onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+      onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
       className={cn(
         "w-full min-w-[100px] rounded-sm border border-primary bg-transparent px-1 text-[14px] font-medium text-foreground outline-none placeholder:text-muted-foreground",
         className,
@@ -329,11 +329,11 @@ export function InlineRenameInput({
   );
 }
 export function useGatewayReadiness() {
-  const [snapshot2, setSnapshot] = reactExports.useState(void 0);
+  const [snapshot, setSnapshot] = reactExports.useState(void 0);
   reactExports.useEffect(() => {
-    let service2;
+    let service;
     try {
-      service2 = services.get(IGatewayReadiness);
+      service = services.get(IGatewayReadiness);
     } catch {
       setSnapshot({
         state: "ready",
@@ -352,13 +352,13 @@ export function useGatewayReadiness() {
             },
         );
     }, GATEWAY_READINESS_FALLBACK_MS);
-    Promise.resolve(service2.getSnapshot())
-      .then((s2) => {
-        if (!disposed) setSnapshot((prev) => prev ?? s2);
+    Promise.resolve(service.getSnapshot())
+      .then((initialSnapshot) => {
+        if (!disposed) setSnapshot((prev) => prev ?? initialSnapshot);
       })
       .catch(() => {});
-    const sub = service2.onDidChange((s2) => {
-      if (!disposed) setSnapshot(s2);
+    const sub = service.onDidChange((nextSnapshot) => {
+      if (!disposed) setSnapshot(nextSnapshot);
     });
     return () => {
       disposed = true;
@@ -366,7 +366,7 @@ export function useGatewayReadiness() {
       sub.dispose();
     };
   }, []);
-  return snapshot2;
+  return snapshot;
 }
 export function useGatewayReady() {
   return useGatewayReadiness()?.state === "ready";

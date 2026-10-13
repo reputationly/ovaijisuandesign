@@ -11,21 +11,21 @@ import {
 } from "../media-editing/use-preview-text.jsx";
 import { Button } from "../canvas/node-shell-inner.jsx";
 export function DiffPendingDialog({ open, onDismiss }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <Dialog
       open={open}
-      onOpenChange={(next2) => {
-        if (!next2) onDismiss();
+      onOpenChange={(next) => {
+        if (!next) onDismiss();
       }}
     >
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>
-            {t2("canvas.diffPendingTitle", "还有未处理的修改")}
+            {t("canvas.diffPendingTitle", "还有未处理的修改")}
           </DialogTitle>
           <DialogDescription>
-            {t2(
+            {t(
               "canvas.diffPendingDescription",
               "当前还有 AI 修改未处理，请先接受或撤销所有修改后再关闭编辑。",
             )}
@@ -33,7 +33,7 @@ export function DiffPendingDialog({ open, onDismiss }) {
         </DialogHeader>
         <DialogFooter>
           <Button variant="default" onClick={onDismiss}>
-            {t2("canvas.diffPendingConfirm", "去处理")}
+            {t("canvas.diffPendingConfirm", "去处理")}
           </Button>
         </DialogFooter>
       </DialogContent>

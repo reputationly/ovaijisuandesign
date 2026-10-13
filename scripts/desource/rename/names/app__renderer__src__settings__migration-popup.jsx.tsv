@@ -1,0 +1,30 @@
+key	new	reason
+i2@241:32	i	原名 i，去掉打包器加的数字去重后缀
+t2@253:14	t	useTranslation() 返回的翻译函数 t
+i2@283:35	i	原名 i，去掉打包器加的数字去重后缀
+i2@305:41	i	原名 i，去掉打包器加的数字去重后缀
+i2@332:11	i	原名 i，去掉打包器加的数字去重后缀
+t2@341:14	t	useTranslation() 返回的翻译函数 t
+i2@468:44	i	原名 i，去掉打包器加的数字去重后缀
+b3@233:23	block	内容块，按 kind 查找
+b3@236:25	block	内容块，按 kind 过滤
+n2@314:42	contentNode	要点内容中的节点，查找 details
+text2@60:13	text	去掉打包器加的数字后缀，恢复原名 text
+text2@69:13	text	去掉打包器加的数字后缀，恢复原名 text
+text2@125:13	text	去掉打包器加的数字后缀，恢复原名 text
+text2@134:13	text	去掉打包器加的数字后缀，恢复原名 text
+text2@144:28	text	去掉打包器加的数字后缀，恢复原名 text
+raw2@157:29	raw	去掉打包器加的数字后缀，恢复原名 raw
+doc2@161:9	doc	去掉打包器加的数字后缀，恢复原名 doc
+root2@165:9	root	去掉打包器加的数字后缀，恢复原名 root
+text2@171:13	text	去掉打包器加的数字后缀，恢复原名 text
+text2@188:13	text	去掉打包器加的数字后缀，恢复原名 text
+text2@203:13	text	去掉打包器加的数字后缀，恢复原名 text
+inline2@241:23	inline	去掉打包器加的数字后缀，恢复原名 inline
+inline2@243:23	inline	去掉打包器加的数字后缀，恢复原名 inline
+key2@243:32	key	去掉打包器加的数字后缀，恢复原名 key
+first2@297:9	first	去掉打包器加的数字后缀，恢复原名 first
+node2@305:34	node	去掉打包器加的数字后缀，恢复原名 node
+content2@312:30	content	去掉打包器加的数字后缀，恢复原名 content
+platform2@342:9	platform	去掉打包器加的数字后缀，恢复原名 platform
+url2@364:9	url	去掉打包器加的数字后缀，恢复原名 url

@@ -17,22 +17,22 @@ function sanitizeRowHeightOverride(value) {
   return clampRowHeightPx(value);
 }
 
-function migrateFilter(raw2) {
-  if (!raw2) return void 0;
-  if (Array.isArray(raw2.conditions)) {
-    const filter2 = raw2;
-    if (filter2.conditions.length === 0) return void 0;
+function migrateFilter(raw) {
+  if (!raw) return void 0;
+  if (Array.isArray(raw.conditions)) {
+    const filter = raw;
+    if (filter.conditions.length === 0) return void 0;
     return {
-      match: filter2.match === "all" ? "all" : "any",
-      conditions: filter2.conditions.map((c3) => ({
-        id: c3.id || newConditionId(),
-        columnId: c3.columnId,
-        op: c3.op,
-        value: c3.value,
+      match: filter.match === "all" ? "all" : "any",
+      conditions: filter.conditions.map((condition) => ({
+        id: condition.id || newConditionId(),
+        columnId: condition.columnId,
+        op: condition.op,
+        value: condition.value,
       })),
     };
   }
-  const legacy = raw2;
+  const legacy = raw;
   if (!legacy.columnId || !legacy.op) return void 0;
   return {
     match: "any",
@@ -47,40 +47,40 @@ function migrateFilter(raw2) {
   };
 }
 
-export function parseTableDocument(raw2) {
-  const data2 = JSON.parse(raw2);
-  if (!data2 || typeof data2 !== "object") {
+export function parseTableDocument(raw) {
+  const data = JSON.parse(raw);
+  if (!data || typeof data !== "object") {
     throw new Error("Invalid table document: not an object");
   }
-  const doc2 = data2;
-  if (doc2.version !== TABLE_DOCUMENT_VERSION) {
-    throw new Error(`Unsupported table document version: ${doc2.version}`);
+  const doc = data;
+  if (doc.version !== TABLE_DOCUMENT_VERSION) {
+    throw new Error(`Unsupported table document version: ${doc.version}`);
   }
-  if (!Array.isArray(doc2.columns) || !Array.isArray(doc2.rows)) {
+  if (!Array.isArray(doc.columns) || !Array.isArray(doc.rows)) {
     throw new Error("Invalid table document: columns/rows must be arrays");
   }
-  const rowHeight = isTableRowHeight(doc2.rowHeight) ? doc2.rowHeight : void 0;
-  const rows = doc2.rows.map((r2) => {
-    if (!("height" in r2) || r2.height === void 0) return r2;
-    const sanitized = sanitizeRowHeightOverride(r2.height);
-    if (sanitized === r2.height) return r2;
+  const rowHeight = isTableRowHeight(doc.rowHeight) ? doc.rowHeight : void 0;
+  const rows = doc.rows.map((row) => {
+    if (!("height" in row) || row.height === void 0) return row;
+    const sanitized = sanitizeRowHeightOverride(row.height);
+    if (sanitized === row.height) return row;
     if (sanitized === void 0) {
-      const { height: _drop, ...rest } = r2;
+      const { height: _drop, ...rest } = row;
       return rest;
     }
     return {
-      ...r2,
+      ...row,
       height: sanitized,
     };
   });
-  const filter2 = migrateFilter(doc2.filter);
+  const filter = migrateFilter(doc.filter);
   return {
-    version: doc2.version,
-    columns: doc2.columns,
+    version: doc.version,
+    columns: doc.columns,
     rows,
-    ...(filter2
+    ...(filter
       ? {
-          filter: filter2,
+          filter,
         }
       : {}),
     ...(rowHeight

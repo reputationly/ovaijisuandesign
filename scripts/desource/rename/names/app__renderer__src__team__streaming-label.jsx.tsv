@@ -1,0 +1,7 @@
+key	new	reason
+t2@16:14	t	useTranslation() 返回的翻译函数 t
+t2@63:14	t	useTranslation() 返回的翻译函数 t
+t2@95:14	t	useTranslation() 返回的翻译函数 t
+toolName2@17:9	toolName	去掉打包器加的数字后缀，恢复原名 toolName
+timer2@120:11	timer	去掉打包器加的数字后缀，恢复原名 timer
+active2@116:47	active	去掉打包器加的数字后缀，恢复原名 active
