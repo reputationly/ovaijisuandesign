@@ -10,8 +10,8 @@ t2@571:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统�
 t2@623:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
 t2@652:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
 t2@780:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
-Globe2@5:3	Globe2	Globe	去掉打包器防重名追加的后缀，恢复原名 Globe，即该绑定持有的值。
-Building2@17:3	Building2	Building	去掉打包器防重名追加的后缀，恢复原名 Building，即该绑定持有的值。
+Globe2@5:3	Globe2	Globe2	Lucide 图标的正式名称包含数字，保留其原名。
+Building2@17:3	Building2	Building2	Lucide 图标的正式名称包含数字，保留其原名。
 Input3@26:10	Input3	Input	去掉打包器防重名追加的后缀，恢复原名 Input，即该绑定持有的值。
 list2@96:11	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
 tab2@103:11	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。

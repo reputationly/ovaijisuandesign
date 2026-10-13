@@ -2,7 +2,7 @@
 import {
   CDN_BROWSER_START_ICON,
   ChevronDown,
-  Globe2 as Globe,
+  Globe2,
   Palette,
   reactExports,
   Shuffle,
@@ -14,7 +14,7 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
   Bookmark,
-  Building2 as Building,
+  Building2,
   Clapperboard,
   Megaphone,
 } from "../media-editing/package.jsx";
@@ -213,7 +213,7 @@ function BrowserBookmarks({ bookmarks, onNavigate, onRemoveBookmark }) {
                           />
                         ) : (
                           <Icon
-                            icon={Globe}
+                            icon={Globe2}
                             size="md"
                             className="shrink-0 text-muted-foreground"
                           />
@@ -553,7 +553,7 @@ const categoryIcons = {
   filmMotion: Clapperboard,
   visualDesign: Palette,
   brandCreative: Megaphone,
-  architectureProduct: Building,
+  architectureProduct: Building2,
 };
 function categoryTranslationKey(categoryId) {
   return `workspace.browser.inspiration.category.${categoryId}`;
