@@ -2,17 +2,17 @@
 import {
   reactExports,
   CompositedSvg,
-  TooltipProvider$2,
+  TooltipProvider$2 as BaseUiTooltipProvider,
   getRuntimeConfig,
   desktopMediaIcon,
-  PlaybackPauseIcon$1,
+  PlaybackPauseIcon$1 as BasePlaybackPauseIcon,
   MonochromeIcon,
   MenuRoot,
   MenuGroup,
   MenuRadioGroup,
   MenuSubmenuRoot,
   TooltipRoot,
-  TooltipTrigger$1,
+  TooltipTrigger$1 as BaseUiTooltipTrigger,
   PlatformContext,
   makeLogger,
 } from "../../vendor.js";
@@ -20,16 +20,16 @@ import { __jsx } from "../../shared/jsx-runtime.js";
 import { IPCClient, ProxyChannel } from "./channel-client.js";
 import { DisposableStore } from "./linked-list.js";
 import { getPlatform } from "../../infra/web-storage.js";
-import { Event$1, VSBuffer } from "./vs-buffer.js";
+import { Event$1 as eventApi, VSBuffer } from "./vs-buffer.js";
 class Protocol {
   constructor(sender, onMessage) {
     this.sender = sender;
     this.onMessage = onMessage;
   }
-  send(message2) {
+  send(message) {
     try {
-      this.sender.send("hilo:message", message2.buffer);
-    } catch (_e2) {}
+      this.sender.send("hilo:message", message.buffer);
+    } catch (_error) {}
   }
   disconnect() {
     this.sender.send("hilo:disconnect", null);
@@ -44,11 +44,11 @@ const ipcRenderer =
 class Client extends IPCClient {
   protocol;
   static createProtocol() {
-    const onMessage = Event$1.fromNodeEventEmitter(
+    const onMessage = eventApi.fromNodeEventEmitter(
       {
         on(event, listener) {
-          const dispose2 = ipcRenderer.on(event, listener);
-          listener.__hiloDispose = dispose2;
+          const dispose = ipcRenderer.on(event, listener);
+          listener.__hiloDispose = dispose;
           return this;
         },
         removeListener(_event, listener) {
@@ -61,19 +61,19 @@ class Client extends IPCClient {
         },
       },
       "hilo:message",
-      (_2, message2) => VSBuffer.wrap(message2),
+      (_event, message) => VSBuffer.wrap(message),
     );
     ipcRenderer.send("hilo:hello");
     return new Protocol(
       {
-        send: (channel, msg) => ipcRenderer.send(channel, msg),
+        send: (channel, message) => ipcRenderer.send(channel, message),
       },
       onMessage,
     );
   }
-  constructor(id2) {
+  constructor(clientId) {
     const protocol = Client.createProtocol();
-    super(protocol, id2);
+    super(protocol, clientId);
     this.protocol = protocol;
   }
   dispose() {
@@ -81,10 +81,10 @@ class Client extends IPCClient {
     super.dispose();
   }
 }
-let Node$1 = class Node4 {
-  constructor(key2, data2) {
-    this.key = key2;
-    this.data = data2;
+let GraphNode = class GraphNode {
+  constructor(key, data) {
+    this.key = key;
+    this.data = data;
   }
   incoming = new Map();
   outgoing = new Map();
@@ -95,95 +95,95 @@ export class Graph {
   }
   _nodes = new Map();
   roots() {
-    const ret = [];
-    for (const node2 of this._nodes.values()) {
-      if (node2.outgoing.size === 0) {
-        ret.push(node2);
+    const roots = [];
+    for (const node of this._nodes.values()) {
+      if (node.outgoing.size === 0) {
+        roots.push(node);
       }
     }
-    return ret;
+    return roots;
   }
-  insertEdge(from2, to) {
-    const fromNode = this.lookupOrInsertNode(from2);
-    const toNode = this.lookupOrInsertNode(to);
+  insertEdge(from, destination) {
+    const fromNode = this.lookupOrInsertNode(from);
+    const toNode = this.lookupOrInsertNode(destination);
     fromNode.outgoing.set(toNode.key, toNode);
     toNode.incoming.set(fromNode.key, fromNode);
   }
-  removeNode(data2) {
-    const key2 = this._hashFn(data2);
-    this._nodes.delete(key2);
-    for (const node2 of this._nodes.values()) {
-      node2.outgoing.delete(key2);
-      node2.incoming.delete(key2);
+  removeNode(data) {
+    const key = this._hashFn(data);
+    this._nodes.delete(key);
+    for (const node of this._nodes.values()) {
+      node.outgoing.delete(key);
+      node.incoming.delete(key);
     }
   }
-  lookupOrInsertNode(data2) {
-    const key2 = this._hashFn(data2);
-    let node2 = this._nodes.get(key2);
-    if (!node2) {
-      node2 = new Node$1(key2, data2);
-      this._nodes.set(key2, node2);
+  lookupOrInsertNode(data) {
+    const key = this._hashFn(data);
+    let node = this._nodes.get(key);
+    if (!node) {
+      node = new GraphNode(key, data);
+      this._nodes.set(key, node);
     }
-    return node2;
+    return node;
   }
-  lookup(data2) {
-    return this._nodes.get(this._hashFn(data2));
+  lookup(data) {
+    return this._nodes.get(this._hashFn(data));
   }
   isEmpty() {
     return this._nodes.size === 0;
   }
   toString() {
-    const data2 = [];
-    for (const [key2, value] of this._nodes) {
-      data2.push(`${key2}
+    const data = [];
+    for (const [key, value] of this._nodes) {
+      data.push(`${key}
 	(-> incoming)[${[...value.incoming.keys()].join(", ")}]
 	(outgoing ->)[${[...value.outgoing.keys()].join(",")}]
 `);
     }
-    return data2.join("\n");
+    return data.join("\n");
   }
   findCycleSlow() {
-    for (const [id2, node2] of this._nodes) {
-      const seen2 = new Set([id2]);
-      const res = this._findCycle(node2, seen2);
-      if (res) {
-        return res;
+    for (const [nodeId, node] of this._nodes) {
+      const seen = new Set([nodeId]);
+      const cycle = this._findCycle(node, seen);
+      if (cycle) {
+        return cycle;
       }
     }
     return void 0;
   }
-  _findCycle(node2, seen2) {
-    for (const [id2, outgoing] of node2.outgoing) {
-      if (seen2.has(id2)) {
-        return [...seen2, id2].join(" -> ");
+  _findCycle(node, seen) {
+    for (const [nodeId, outgoing] of node.outgoing) {
+      if (seen.has(nodeId)) {
+        return [...seen, nodeId].join(" -> ");
       }
-      seen2.add(id2);
-      const value = this._findCycle(outgoing, seen2);
+      seen.add(nodeId);
+      const value = this._findCycle(outgoing, seen);
       if (value) {
         return value;
       }
-      seen2.delete(id2);
+      seen.delete(nodeId);
     }
     return void 0;
   }
 }
 export class ServiceCollection {
   _entries = new Map();
-  constructor(...entries2) {
-    for (const [id2, service2] of entries2) {
-      this.set(id2, service2);
+  constructor(...entries) {
+    for (const [serviceId, service] of entries) {
+      this.set(serviceId, service);
     }
   }
-  set(id2, instanceOrDescriptor) {
-    const result = this._entries.get(id2);
-    this._entries.set(id2, instanceOrDescriptor);
+  set(serviceId, instanceOrDescriptor) {
+    const result = this._entries.get(serviceId);
+    this._entries.set(serviceId, instanceOrDescriptor);
     return result;
   }
-  has(id2) {
-    return this._entries.has(id2);
+  has(serviceId) {
+    return this._entries.has(serviceId);
   }
-  get(id2) {
-    return this._entries.get(id2);
+  get(serviceId) {
+    return this._entries.get(serviceId);
   }
 }
 export const _enableAllTracing = false;
@@ -197,9 +197,9 @@ ${graph.toString()}`;
   }
 }
 export class Trace {
-  constructor(type2, name2) {
-    this.type = type2;
-    this.name = name2;
+  constructor(type, traceName) {
+    this.type = type;
+    this.name = traceName;
   }
   static traceInvocation(_enableTracing, _ctor) {
     return Trace._None;
@@ -227,11 +227,11 @@ disposables.add(client);
 export const services = new ServiceCollection();
 export const workspaceId = new URLSearchParams(window.location.search).get("workspaceId");
 const workspaceBundleCache = new Map();
-export function getWorkspaceBundle(workspaceId2) {
-  const cached = workspaceBundleCache.get(workspaceId2);
+export function getWorkspaceBundle(workspaceIdentifier) {
+  const cached = workspaceBundleCache.get(workspaceIdentifier);
   if (cached) return cached;
-  const bundle = ProxyChannel.toService(client.getChannel(`workspace-bundle-${workspaceId2}`));
-  workspaceBundleCache.set(workspaceId2, bundle);
+  const bundle = ProxyChannel.toService(client.getChannel(`workspace-bundle-${workspaceIdentifier}`));
+  workspaceBundleCache.set(workspaceIdentifier, bundle);
   return bundle;
 }
 export function pruneWorkspaceBundleCache(activeWorkspaceIds) {
@@ -259,15 +259,15 @@ export function isActiveComfyUiDownloadTask(task) {
 const macLocalFolderIcon = "" + new URL("../../mac-CHMBn6kt.png", import.meta.url).href;
 const windowsLocalFolderIcon =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABYCAYAAABxlTA0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAAA4lJREFUeAHt3M1OE1EYBuD3TBsNC7WJOzeWBE3clTuoV6AXYCJsNN3hFZhegbqBJXAF0iugXbhyU3ciicymGBM0jUQBpXM8p+lIf+bnm5lSyfR9Eh08HDF5PXzzzZlhACIiIiIiIiIiIpJRsTM29qtm1iN4+rGZXkYWGl3ztVwo1QYKddQWXeRcdMDr+6/M72u4LAW1gudL28ix8IAvO1xfzkMODtiWBY1dzIYpG8XlvJYLJ3hYPcXslKB7u9g8KCGHggPWuoKZ0mWcnr9FDoWsYD371aRRHdT9XAkrEWX8H2um/r9EjgSf5Nb3Na4E7WJmVBlh/75S5mh/Je/dr3jAV1DCttIBJdPTW/02VogBp6HVprStLEomHTwpY151f/ewc/AT9fffh0b7baVtZZtxf18UcPmGaFpOFVG5fR2tzgmahycXwxqigFkihKp3FkYHNEQlggEL3b059l3saAZ8uZxbkllTL67dMw/u8R9zcvCQJ63O6eiAMit4vF0r6C6e3W+PTAv8amMXGrq2hDj2BGDPtCMngrlkr/j0DhaKdawudjOvYLtiV3e/9lsZskwLZ/dUTs6r5ricKWAb7sNGB+1vZ6AJFVMJ1jKd5F68O2K4UczN4tQBt4/OsLX3AxRBq3LqgLf3jkFxdCl1wM3OvHcLEtpNFbB7fM7aK6GcdqqAm4e/QBJeK1XAjc/seUUKSLmCv7D+xjP388xlc+KA7aWwvcCgGMpp2kPigBu8JJbRvYY9JF/BbM9kFq417SFRwGzPhJS5lWR20uyHiQJmeyal/z03kShgtmdSvab/kShgv2tgeyZh2rPaA9f/k2g/2AZsay/bM4FBe+YTl4jtj9w9k9Ejz62JAi5dd3iCk+midq85PCAK2N4lti0axVBea3xIFHBr7u8US6md8RFRwLxjLHXRnvlEAfNZBwndHm7PfHx0aloUWkHDDHhqJuuvxYCnY6I98zHgaVDBq9diwFPhtcI+w4CnYrI98zHgrOzmekB75mPAWXloRX2aAWflRP+kEQPOxG6uB7dnPgacxdjmehAGnMXg2YcoDDiLwbMPURhwWkPPPkQJe6WMC4qhP0hmcQWnFr7/MCw4YMdpgyLEt2e+sNd6vQGFU2pVOjU4YPu/o1EHjeq/3NSEK1y9VvTLQTc+rfTfAuihYmbm8s18MqYkKJiet/c6amOHiIiIiIiIiGL9BRVMNGKRZA1aAAAAAElFTkSuQmCC";
-export function getLocalFolderIconSrc(os2 = getPlatform().app.os) {
-  return os2 === "darwin" ? macLocalFolderIcon : windowsLocalFolderIcon;
+export function getLocalFolderIconSrc(os = getPlatform().app.os) {
+  return os === "darwin" ? macLocalFolderIcon : windowsLocalFolderIcon;
 }
-export function MoreVerticalIcon({ size: size2 = 24, className, ...rest }) {
+export function MoreVerticalIcon({ size = 24, className, ...rest }) {
   return (
     <CompositedSvg
       xmlns="http://www.w3.org/2000/svg"
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="currentColor"
       stroke="none"
@@ -281,7 +281,7 @@ export function MoreVerticalIcon({ size: size2 = 24, className, ...rest }) {
     </CompositedSvg>
   );
 }
-export const PlaybackPauseIcon = desktopMediaIcon(PlaybackPauseIcon$1);
+export const PlaybackPauseIcon = desktopMediaIcon(BasePlaybackPauseIcon);
 const SIZE_PX = {
   xs: 12,
   sm: 14,
@@ -290,7 +290,7 @@ const SIZE_PX = {
 };
 export function Icon({
   icon: LucideIconComp,
-  size: size2 = "sm",
+  size = "sm",
   strokeWidth = 1.5,
   className,
   tone,
@@ -298,7 +298,7 @@ export function Icon({
 }) {
   const glyph = (
     <LucideIconComp
-      size={SIZE_PX[size2]}
+      size={SIZE_PX[size]}
       strokeWidth={strokeWidth}
       className={className}
       aria-hidden={ariaHidden}
@@ -355,11 +355,11 @@ const PROJECT_TUTORIAL_URL = {
 export function getProjectTutorialUrl(region) {
   return PROJECT_TUTORIAL_URL[region];
 }
-export function getTutorialUrlByLocale(language2) {
-  return TUTORIAL_URL$2[language2.startsWith("zh") ? "domestic" : "overseas"];
+export function getTutorialUrlByLocale(language) {
+  return TUTORIAL_URL$2[language.startsWith("zh") ? "domestic" : "overseas"];
 }
-export function getCreationGuideUrlsByLocale(language2) {
-  return CREATION_GUIDE_URLS[language2.startsWith("zh") ? "domestic" : "overseas"];
+export function getCreationGuideUrlsByLocale(language) {
+  return CREATION_GUIDE_URLS[language.startsWith("zh") ? "domestic" : "overseas"];
 }
 export function DropdownMenu({ ...props }) {
   return <MenuRoot data-slot="dropdown-menu" {...props} />;
@@ -374,7 +374,7 @@ export function DropdownMenuSub({ ...props }) {
   return <MenuSubmenuRoot data-slot="dropdown-menu-sub" {...props} />;
 }
 export function TooltipProvider({ delay = 0, ...props }) {
-  return <TooltipProvider$2 data-slot="tooltip-provider" delay={delay} {...props} />;
+  return <BaseUiTooltipProvider data-slot="tooltip-provider" delay={delay} {...props} />;
 }
 export function Tooltip({ disableHoverablePopup = true, ...props }) {
   return (
@@ -382,15 +382,15 @@ export function Tooltip({ disableHoverablePopup = true, ...props }) {
   );
 }
 export function TooltipTrigger({ ...props }) {
-  return <TooltipTrigger$1 data-slot="tooltip-trigger" {...props} />;
+  return <BaseUiTooltipTrigger data-slot="tooltip-trigger" {...props} />;
 }
 export const RuntimeConfigContext = reactExports.createContext(null);
-export function PlatformProvider({ children: children2 }) {
-  const platform2 = reactExports.useMemo(() => getPlatform(), []);
-  const config2 = reactExports.useMemo(() => getRuntimeConfig(), []);
+export function PlatformProvider({ children }) {
+  const platform = reactExports.useMemo(() => getPlatform(), []);
+  const config = reactExports.useMemo(() => getRuntimeConfig(), []);
   return (
-    <PlatformContext value={platform2}>
-      <RuntimeConfigContext value={config2}>{children2}</RuntimeConfigContext>
+    <PlatformContext value={platform}>
+      <RuntimeConfigContext value={config}>{children}</RuntimeConfigContext>
     </PlatformContext>
   );
 }
@@ -401,20 +401,20 @@ export const actionTrailLog = makeLogger("action-trail");
 export const assetCenterLog = makeLogger("asset-center");
 export const serverPopupLog = makeLogger("server-popup");
 export const projectLog = makeLogger("project");
-function errorMessage$1(error) {
+function getErrorMessage(error) {
   return error instanceof Error ? error.message : String(error);
 }
-function isWebUrl$1(url2) {
+function isWebUrl(url) {
   try {
-    const parsed = new URL(url2);
+    const parsed = new URL(url);
     return parsed.protocol === "http:" || parsed.protocol === "https:";
   } catch {
     return false;
   }
 }
-export function externalUrlTargetForLog(url2) {
+export function externalUrlTargetForLog(url) {
   try {
-    const parsed = new URL(url2);
+    const parsed = new URL(url);
     if (parsed.protocol === "http:" || parsed.protocol === "https:") {
       return parsed.origin;
     }
@@ -426,27 +426,27 @@ export function externalUrlTargetForLog(url2) {
     return "<invalid-url>";
   }
 }
-function shouldUseFallback(platform2, url2) {
+function shouldUseFallback(platform, url) {
   return (
-    platform2.app?.os === "win32" &&
-    isWebUrl$1(url2) &&
-    typeof platform2.shell.openExternalWithFallback === "function"
+    platform.app?.os === "win32" &&
+    isWebUrl(url) &&
+    typeof platform.shell.openExternalWithFallback === "function"
   );
 }
-export async function openExternalUrl(platform2, url2, options) {
+export async function openExternalUrl(platform, url, options) {
   try {
-    const fallback = platform2.shell.openExternalWithFallback;
-    if (shouldUseFallback(platform2, url2) && fallback) {
-      await fallback.call(platform2.shell, url2);
+    const fallback = platform.shell.openExternalWithFallback;
+    if (shouldUseFallback(platform, url) && fallback) {
+      await fallback.call(platform.shell, url);
     } else {
-      await platform2.shell.openExternal(url2);
+      await platform.shell.openExternal(url);
     }
     return true;
   } catch (error) {
     actionTrailLog.warn("external-link open failed", {
       source: options.source,
-      target: externalUrlTargetForLog(url2),
-      error: errorMessage$1(error),
+      target: externalUrlTargetForLog(url),
+      error: getErrorMessage(error),
     });
     return false;
   }
