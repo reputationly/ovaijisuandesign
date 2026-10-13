@@ -87,7 +87,7 @@ const TYPE_RULES = {
 export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
   const { t: translate } = useTranslation();
   const [type, setType] = reactExports.useState(initialType ?? "character");
-  const [entityName, setName] = reactExports.useState("");
+  const [entityName, setEntityName] = reactExports.useState("");
   const [description, setDescription] = reactExports.useState("");
   const [tags, setTags] = reactExports.useState([]);
   const [staged, setStaged] = reactExports.useState([]);
@@ -110,7 +110,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
     staged.every((stagedAttachment) => stagedAttachment.status !== "error");
   const reset = reactExports.useCallback(() => {
     setType(initialType ?? "character");
-    setName("");
+    setEntityName("");
     setDescription("");
     setTags([]);
     setStaged([]);
@@ -300,7 +300,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
             <AtSign size={12} className="shrink-0 text-muted-foreground" />
             <input
               value={entityName}
-              onChange={(changeEvent) => setName(changeEvent.target.value)}
+              onChange={(changeEvent) => setEntityName(changeEvent.target.value)}
               onBlur={() => {
                 if (trimmedName) {
                   trackAssetCenterAction({

@@ -1116,8 +1116,8 @@ export function MediaModelSelector({
   }, [open, anchorRef, placement]);
   reactExports.useEffect(() => {
     if (!open) return;
-    const onDocPointerDown = (pointerEvent) => {
-      const target = pointerEvent.target;
+    const onDocPointerDown = (mouseEvent) => {
+      const target = mouseEvent.target;
       if (!target) return;
       if (popoverRef.current?.contains(target)) return;
       if (anchorRef.current?.contains(target)) return;

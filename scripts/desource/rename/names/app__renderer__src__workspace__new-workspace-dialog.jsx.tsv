@@ -16,3 +16,4 @@ storageBlocked2@307:11	storageBlocked2	storageBlocked	去掉打包器防重名�
 t2@183:14	t2	translate	useTranslation 返回的翻译函数。
 t2@50:14	t2	translate	useTranslation 返回的翻译函数。
 X@2:250	X	CloseIcon	来自 vendor 的关闭图标组件。
+setName@189:28	setName	setNewWorkspaceName	newWorkspaceName 状态的 setter。

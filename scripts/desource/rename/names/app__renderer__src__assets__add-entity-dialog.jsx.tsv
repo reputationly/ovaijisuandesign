@@ -12,3 +12,4 @@ name2@90:10	name2	entityName	该状态值是用户填写的实体名称。
 tags2@92:10	tags2	tags	去掉打包器防重名追加的后缀，恢复原名 tags，即该绑定持有的值。
 reset2@111:9	reset2	reset	去掉打包器防重名追加的后缀，恢复原名 reset，即该绑定持有的值。
 next2@142:6	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+setName@90:22	setName	setEntityName	entityName 状态的 setter。

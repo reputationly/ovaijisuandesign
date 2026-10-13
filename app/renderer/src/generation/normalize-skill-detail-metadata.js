@@ -195,8 +195,8 @@ export const LEGACY_HAILUO_MODEL_ALIASES = [
 export const MINIMAX_H3_TEXT_ONLY_DEFAULT_RATIO = "16:9";
 export const HILO_SOURCE_HEADER = "x-hilo-source";
 export const PROJECT_NAME_MAX_CHARS = 50;
-export function truncateProjectName(skillName, maxChars = PROJECT_NAME_MAX_CHARS) {
-  const trimmed = skillName?.trim() ?? "";
+export function truncateProjectName(projectName, maxChars = PROJECT_NAME_MAX_CHARS) {
+  const trimmed = projectName?.trim() ?? "";
   if (!trimmed) return "";
   const chars = [...trimmed];
   return chars.length > maxChars

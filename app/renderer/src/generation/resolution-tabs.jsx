@@ -92,7 +92,7 @@ export function calcTextCost(pricing, modelId) {
   const bare = modelId.includes("/")
     ? modelId.slice(modelId.indexOf("/") + 1)
     : modelId;
-  const entry = pricing.text.find((translate) => translate.modelID === bare);
+  const entry = pricing.text.find((pricingModel) => pricingModel.modelID === bare);
   return entry?.defaultCost;
 }
 function isFinitePositive(value) {

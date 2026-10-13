@@ -64,7 +64,7 @@ t2@314:55	t2	translate	useTranslation 返回的翻译函数。
 t2@348:3	t2	translate	useTranslation 返回的翻译函数。
 t2@377:14	t2	translate	useTranslation 返回的翻译函数。
 t2@660:14	t2	translate	useTranslation 返回的翻译函数。
-t22@535:20	t22	existingTask	合并已完成任务时当前遍历到的已有任务。
+t22@535:20	t22	completedTask	遍历新完成任务与已有完成任务，去重合并。
 t22@574:34	t22	task	当前待处理或待移除的已完成任务。
 w3@901:10	w3	recentWorkspace	与顶栏工作区路径匹配的最近工作区记录。
 workspaceId2@120:28	workspaceId2	workspaceId	工作区的唯一标识。

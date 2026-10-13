@@ -7,7 +7,7 @@ id2@569:9	id2	modelId	该值是小写化后的模型标识。
 t2@700:38	t2	translate	该参数是生成媒体模型分类标签时调用的翻译函数。
 t2@783:14	t2	translate	该绑定来自 useTranslation 并用于模型说明文案。
 t2@881:14	t2	translate	该绑定来自 useTranslation 并用于媒体模型选择器文案。
-e2@1119:31	e2	pointerEvent	该事件来自文档 pointerdown 监听器，用于检查事件目标。
+e2@1119:31	e2	mouseEvent	该参数是 document 上 mousedown 监听收到的鼠标事件。
 e2@1126:24	e2	keyEvent	该事件来自文档 keydown 监听器，用于处理 Escape 键。
 m3@1141:8	m3	candidateModel	该值是待按当前媒体类别筛选的模型记录。
 m3@1150:12	m3	checkedModel	该值是待判断是否已勾选的模型记录。

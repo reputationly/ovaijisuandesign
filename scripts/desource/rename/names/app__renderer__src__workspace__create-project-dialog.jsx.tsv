@@ -8,3 +8,4 @@ root2@47:16	root2	root	去掉打包器防重名追加的后缀，恢复原名 ro
 t2@140:14	t2	translate	useTranslation 返回的翻译函数。
 t2@35:14	t2	translate	useTranslation 返回的翻译函数。
 X@10:10	X	CloseIcon	来自 vendor 的关闭图标组件。
+setName@141:23	setName	setProjectName	projectName 状态的 setter。

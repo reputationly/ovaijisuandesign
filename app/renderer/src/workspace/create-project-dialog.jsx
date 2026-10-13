@@ -138,13 +138,13 @@ function ProjectOutputLocation({ disabled }) {
 }
 export function CreateProjectDialog({ open, kind, onConfirm, onOpenChange }) {
   const { t: translate } = useTranslation();
-  const [projectName, setName] = reactExports.useState("");
+  const [projectName, setProjectName] = reactExports.useState("");
   const [pending, setPending] = reactExports.useState(false);
   const composingRef = reactExports.useRef(false);
   const trimmed = truncateProjectName(projectName);
   reactExports.useEffect(() => {
     if (open) return;
-    setName("");
+    setProjectName("");
     setPending(false);
   }, [open]);
   const handleConfirm = reactExports.useCallback(async () => {
@@ -195,7 +195,7 @@ export function CreateProjectDialog({ open, kind, onConfirm, onOpenChange }) {
                 className="creation-dialog-name-input relative z-2 h-12 rounded-lg px-3 text-body-15 font-normal tracking-normal"
                 autoFocus={true}
                 value={projectName}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) => setProjectName(event.target.value)}
                 onCompositionStart={() => {
                   composingRef.current = true;
                 }}

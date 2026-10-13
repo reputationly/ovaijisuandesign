@@ -15,9 +15,9 @@ v2@662:10	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命
 v2@668:36	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
 q2@686:11	q2	voiceQuery	该绑定持有 voiceQuery 所表示的值，按其实际用途命名。
 v2@688:8	v2	voice	该绑定持有 voice 所表示的值，按其实际用途命名。
-e2@930:12	e2	submitEvent	该绑定持有 submitEvent 所表示的值，按其实际用途命名。
+e2@930:12	e2	clickEvent	该参数是确认/新建/替换按钮转交来的点击事件，用于阻止冒泡。
 u4@1042:46	u4	unresolvedReference	该绑定持有 unresolvedReference 所表示的值，按其实际用途命名。
-e2@1101:6	e2	changeEvent	该绑定持有 changeEvent 所表示的值，按其实际用途命名。
+e2@1101:6	e2	clickEvent	该参数是确认按钮点击事件，转交 doSubmit 阻止冒泡。
 e2@1113:6	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
 e2@1125:6	e2	clickEvent	该绑定持有 clickEvent 所表示的值，按其实际用途命名。
 s2@1202:29	s2	currentState	该绑定持有 currentState 所表示的值，按其实际用途命名。

@@ -1626,8 +1626,8 @@ export function I2VPopoverInner({
   });
   const submitFilePath = attachmentState.filePaths[0];
   const doSubmit = reactExports.useCallback(
-    async (submitEvent, replaceId) => {
-      submitEvent.stopPropagation();
+    async (clickEvent, replaceId) => {
+      clickEvent.stopPropagation();
       if (missingRequiredAttachment) {
         dedupedToast.error(missingRequiredAttachmentMessage);
         return;
@@ -1923,31 +1923,31 @@ export function I2VPopoverInner({
   const inGeneratingState = isGenerating || isPreparing;
   const pendingSubmitRef = reactExports.useRef(null);
   const handleConfirm = reactExports.useCallback(
-    (submitEvent) => {
+    (clickEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = {
           kind: "confirm",
         };
         return;
       }
-      void doSubmit(submitEvent, replaceNodeId);
+      void doSubmit(clickEvent, replaceNodeId);
     },
     [doSubmit, modelsLoading, replaceNodeId, selectedModelId],
   );
   const handleNewNode = reactExports.useCallback(
-    (submitEvent) => {
+    (clickEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = {
           kind: "new",
         };
         return;
       }
-      void doSubmit(submitEvent, void 0);
+      void doSubmit(clickEvent, void 0);
     },
     [doSubmit, modelsLoading, selectedModelId],
   );
   const handleReplace = reactExports.useCallback(
-    (submitEvent) => {
+    (clickEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = nodeId
           ? {
@@ -1959,7 +1959,7 @@ export function I2VPopoverInner({
             };
         return;
       }
-      void doSubmit(submitEvent, nodeId);
+      void doSubmit(clickEvent, nodeId);
     },
     [doSubmit, modelsLoading, nodeId, selectedModelId],
   );

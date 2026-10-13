@@ -522,7 +522,7 @@ function AccountSection() {
 const PROXY_MODES = ["auto", "direct", "system"];
 function NetworkSection() {
   const { t: translate } = useTranslation();
-  const [proxyModeSelection, setMode] = reactExports.useState("auto");
+  const [proxyModeSelection, setProxyModeSelection] = reactExports.useState("auto");
   const requestRevisionRef = reactExports.useRef(0);
   reactExports.useEffect(() => {
     let mounted = true;
@@ -530,7 +530,7 @@ function NetworkSection() {
     getNetworkDiagnosticsMainService()
       .getProxyMode()
       .then((proxyMode) => {
-        if (mounted && requestRevisionRef.current === revision) setMode(proxyMode);
+        if (mounted && requestRevisionRef.current === revision) setProxyModeSelection(proxyMode);
       })
       .catch(() => {});
     return () => {
@@ -542,21 +542,21 @@ function NetworkSection() {
     const revision = ++requestRevisionRef.current;
     const next = value;
     const prev = proxyModeSelection;
-    setMode(next);
+    setProxyModeSelection(next);
     try {
       const result =
         await getNetworkDiagnosticsMainService().setProxyMode(next);
       if (requestRevisionRef.current !== revision) return;
       if (result.success) {
-        setMode(result.mode);
+        setProxyModeSelection(result.mode);
         dedupedToast.success(translate("settings.network.proxyModeSaved"));
       } else {
-        setMode(prev);
+        setProxyModeSelection(prev);
         dedupedToast.error(translate("settings.network.proxyModeFailed"));
       }
     } catch {
       if (requestRevisionRef.current !== revision) return;
-      setMode(prev);
+      setProxyModeSelection(prev);
       dedupedToast.error(translate("settings.network.proxyModeFailed"));
     }
   };

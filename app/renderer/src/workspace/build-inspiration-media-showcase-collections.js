@@ -154,11 +154,11 @@ export var f = (text, position) => {
   }
   return false;
 };
-var taskListQuotePattern = /^(\s*(?:[-*+]|\d+[.)]) +)>(=?\s*[$]?\d)/gm;
+var listItemGreaterThanNumberPattern = /^(\s*(?:[-*+]|\d+[.)]) +)>(=?\s*[$]?\d)/gm;
 export var E = (text) =>
   !text || typeof text != "string" || !text.includes(">")
     ? text
-    : text.replace(taskListQuotePattern, (matchText, listPrefix, quoteMarker, taskMarker) => (c2(text, taskMarker) ? matchText : `${listPrefix}\\>${quoteMarker}`));
+    : text.replace(listItemGreaterThanNumberPattern, (matchText, listPrefix, comparisonOperand, matchOffset) => (c2(text, matchOffset) ? matchText : `${listPrefix}\\>${comparisonOperand}`));
 var closingUnderscorePattern = /(__)([^_]+)_$/;
 export var F = /(~~)([^~]+)~$/;
 export var T = /~~/g;

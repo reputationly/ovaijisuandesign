@@ -1,7 +1,7 @@
 key	old	new	依据
 m3@56:41	m3	pricingModel	回调值是定价配置中的模型记录。
 m3@66:36	m3	pricingModel	回调值是定价配置中的模型记录。
-t2@91:36	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
+t2@91:36	t2	pricingModel	该参数是 pricing.text 中按 modelID 匹配的文本计费模型条目。
 _2@106:6	_2	_unusedArg	去掉打包器防重名追加的后缀，恢复原名 _unusedArg，即该绑定持有的值。
 t2@172:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
 m3@217:9	m3	sizeMatch	正则对分辨率字符串的匹配结果。

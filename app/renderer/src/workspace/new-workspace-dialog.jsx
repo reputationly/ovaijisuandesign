@@ -186,7 +186,7 @@ export function NewWorkspaceDialog({
   const [config, setConfig] = useStorage("global.config");
   const { loadUserMemory: rememberedMemory } =
     resolveNewProjectPreferences(config);
-  const [newWorkspaceName, setName] = reactExports.useState("");
+  const [newWorkspaceName, setNewWorkspaceName] = reactExports.useState("");
   const submittingRef = reactExports.useRef(false);
   const [submitting, setSubmitting] = reactExports.useState(false);
   const [loadUserMemory, setLoadUserMemory] =
@@ -257,7 +257,7 @@ export function NewWorkspaceDialog({
     };
   }, [open, refreshDataDirectoryStatus]);
   const reset = reactExports.useCallback(() => {
-    setName("");
+    setNewWorkspaceName("");
     setLoadUserMemory(rememberedMemory);
     setDataDirectoryStatus(null);
     setAllowDataDirectoryFallback(false);
@@ -420,7 +420,7 @@ export function NewWorkspaceDialog({
                 className="creation-dialog-name-input relative z-2 h-12 rounded-lg px-3 text-body-15 font-normal tracking-normal"
                 autoFocus={true}
                 value={newWorkspaceName}
-                onChange={(changeEvent) => setName(changeEvent.target.value)}
+                onChange={(changeEvent) => setNewWorkspaceName(changeEvent.target.value)}
                 onCompositionStart={() => {
                   composingRef.current = true;
                 }}

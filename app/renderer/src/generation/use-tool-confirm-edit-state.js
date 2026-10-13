@@ -18,12 +18,12 @@ export function dispatchBrowserImageEditToChat(request) {
   return event.defaultPrevented;
 }
 export function useChatConnectionPhase(workspaceId, connected) {
-  const [connectionHistory, setHistory] = reactExports.useState(() => ({
+  const [connectionHistory, setConnectionHistory] = reactExports.useState(() => ({
     workspaceId,
     hasConnected: connected,
   }));
   reactExports.useEffect(() => {
-    setHistory((current) => {
+    setConnectionHistory((current) => {
       if (current.workspaceId !== workspaceId) {
         return {
           workspaceId,

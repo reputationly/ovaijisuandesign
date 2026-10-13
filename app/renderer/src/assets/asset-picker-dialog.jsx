@@ -1023,8 +1023,8 @@ export function AssetPickerDialog({
       ? fpsAssetIdsKey.split("&").map(decodeURIComponent)
       : [];
     const missing = assetIds.filter(
-      (encodedAssetId) =>
-        !videoFpsMapRef.current.has(encodedAssetId) && !fpsInFlightIdsRef.current.has(encodedAssetId),
+      (assetId) =>
+        !videoFpsMapRef.current.has(assetId) && !fpsInFlightIdsRef.current.has(assetId),
     );
     if (missing.length === 0) return;
     const controller = new AbortController();

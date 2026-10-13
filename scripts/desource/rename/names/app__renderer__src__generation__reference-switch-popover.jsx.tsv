@@ -1,7 +1,7 @@
 key	old	new	依据
 t2@62:14	t2	translate	该绑定是 useTranslation 返回的翻译函数，统一命名为 translate。
-a2@141:18	a2	item	去掉打包器防重名追加的后缀，恢复原名 item，即该绑定持有的值。
-b3@141:22	b3	itemValue	去掉打包器防重名追加的后缀，恢复原名 itemValue，即该绑定持有的值。
+a2@141:18	a2	leftItem	排序比较器的左侧条目。
+b3@141:22	b3	rightItem	排序比较器的右侧条目。
 config2@57:11	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
 computePosition2@202:9	computePosition2	computePosition	去掉打包器防重名追加的后缀，恢复原名 computePosition，即该绑定持有的值。
 position2@225:10	position2	position	去掉打包器防重名追加的后缀，恢复原名 position，即该绑定持有的值。

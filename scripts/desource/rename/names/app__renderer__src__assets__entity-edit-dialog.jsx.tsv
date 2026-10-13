@@ -22,3 +22,4 @@ type2@80:10	type2	type	去掉打包器防重名追加的后缀，恢复原名 ty
 tags2@82:10	tags2	tags	去掉打包器防重名追加的后缀，恢复原名 tags，即该绑定持有的值。
 url2@219:11	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
 meta2@274:15	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+setName@79:22	setName	setEntityName	entityName 状态的 setter。

@@ -1,5 +1,5 @@
-e2@78:6	e2	pointerEvent	该绑定持有 pointerEvent 所表示的值，按其实际用途命名。
-ev@86:23	ev	pointerEvent	该绑定持有 pointerEvent 所表示的值，按其实际用途命名。
+e2@78:6	e2	mouseEvent	该参数是拖拽手柄 onMouseDown 收到的鼠标事件。
+ev@86:23	ev	mouseMoveEvent	该参数是 document 上 mousemove 监听收到的鼠标移动事件。
 min2@3:23	min2	min	去掉打包器防重名追加的后缀，恢复原名 min，即该绑定持有的值。
 max2@3:29	max2	max	去掉打包器防重名追加的后缀，恢复原名 max，即该绑定持有的值。
 reset2@115:9	reset2	reset	去掉打包器防重名追加的后缀，恢复原名 reset，即该绑定持有的值。

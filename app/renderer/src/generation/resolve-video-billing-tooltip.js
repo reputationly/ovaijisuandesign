@@ -97,7 +97,7 @@ export function calcImageCost(
     const resLower = resolution.toLowerCase();
     const qualLower = quality?.toLowerCase();
     for (const imageCost of model.imageCosts) {
-      if (!imageCost.resolutions?.some((result) => result.toLowerCase() === resLower))
+      if (!imageCost.resolutions?.some((resolution) => resolution.toLowerCase() === resLower))
         continue;
       if (
         imageCost.qualities?.length &&

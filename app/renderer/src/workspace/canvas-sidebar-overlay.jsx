@@ -44,11 +44,11 @@ function useProjectAssetsDir() {
   const project = useWorkspaceProject(workspacePath || void 0);
   const { ensureProjectFolderName } = useProjectActions();
   const service = useProjectAssetsService();
-  const [directoryPath, setDir] = reactExports.useState(void 0);
+  const [directoryPath, setDirectoryPath] = reactExports.useState(void 0);
   const projectId = project?.id;
   reactExports.useEffect(() => {
     if (!projectId) {
-      setDir(void 0);
+      setDirectoryPath(void 0);
       return;
     }
     let disposed = false;
@@ -60,9 +60,9 @@ function useProjectAssetsDir() {
       try {
         await platform.fs.mkdir(resolved);
       } catch {}
-      if (!disposed) setDir(resolved);
+      if (!disposed) setDirectoryPath(resolved);
     })().catch(() => {
-      if (!disposed) setDir(void 0);
+      if (!disposed) setDirectoryPath(void 0);
     });
     return () => {
       disposed = true;

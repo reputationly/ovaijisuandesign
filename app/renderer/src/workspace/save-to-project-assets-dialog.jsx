@@ -48,7 +48,7 @@ export function SaveToProjectAssetsDialog({ state, onOpenChange }) {
   const { ensureProjectFolderName } = useProjectActions();
   const files = state?.files ?? [];
   const single = files.length === 1 ? files[0] : void 0;
-  const [assetFileName, setName] = reactExports.useState("");
+  const [assetFileName, setAssetFileName] = reactExports.useState("");
   const [options, setOptions] = reactExports.useState([]);
   const [selectedKey, setSelectedKey] = reactExports.useState(ROOT_KEY);
   const [creatingFolder, setCreatingFolder] = reactExports.useState(false);
@@ -79,7 +79,7 @@ export function SaveToProjectAssetsDialog({ state, onOpenChange }) {
     return () => subscription.dispose();
   }, [service, translate]);
   reactExports.useEffect(() => {
-    setName(single?.displayName ?? "");
+    setAssetFileName(single?.displayName ?? "");
     setSelectedKey(ROOT_KEY);
     setCreatingFolder(false);
     setNewFolderName("");
@@ -414,7 +414,7 @@ export function SaveToProjectAssetsDialog({ state, onOpenChange }) {
                 </span>
                 <Input
                   value={assetFileName}
-                  onChange={(event) => setName(event.target.value)}
+                  onChange={(event) => setAssetFileName(event.target.value)}
                   autoComplete="off"
                 />
               </div>

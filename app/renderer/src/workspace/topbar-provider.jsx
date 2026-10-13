@@ -532,10 +532,10 @@ function useCompletedTasks(entries, options = {}) {
       setCompletedTasks((existing) => {
         const seen = new Set();
         const merged = [];
-        for (const existingTask of [task, ...existing]) {
-          if (seen.has(existingTask.id)) continue;
-          seen.add(existingTask.id);
-          merged.push(existingTask);
+        for (const completedTask of [task, ...existing]) {
+          if (seen.has(completedTask.id)) continue;
+          seen.add(completedTask.id);
+          merged.push(completedTask);
           if (merged.length >= COMPLETED_TASK_LIMIT) break;
         }
         return merged;

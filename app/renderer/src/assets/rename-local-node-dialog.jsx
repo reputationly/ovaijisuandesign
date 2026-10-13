@@ -24,12 +24,12 @@ import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js"
 import { toggleVariants } from "../infra/use-online.jsx";
 export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
   const { t: translate } = useTranslation();
-  const [folderName, setName] = reactExports.useState("");
+  const [folderName, setFolderName] = reactExports.useState("");
   const [pending, setPending] = reactExports.useState(false);
   const trimmed = folderName.trim();
   reactExports.useEffect(() => {
     if (open) return;
-    setName("");
+    setFolderName("");
     setPending(false);
   }, [open]);
   const handleConfirm = reactExports.useCallback(async () => {
@@ -66,7 +66,7 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
         <Input
           autoFocus={true}
           value={folderName}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(event) => setFolderName(event.target.value)}
           onKeyDown={(event) => {
             if (event.key !== "Enter") return;
             event.preventDefault();
@@ -98,12 +98,12 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
 }
 export function RenameLocalNodeDialog({ node, onOpenChange, onRename }) {
   const { t: translate } = useTranslation();
-  const [nodeName, setName] = reactExports.useState("");
+  const [nodeName, setNodeName] = reactExports.useState("");
   const [pending, setPending] = reactExports.useState(false);
   const { tail: extension } = splitFilename(node?.name ?? "", node?.kind);
   const fullName = buildRenamedFilename(node?.name ?? "", nodeName, node?.kind);
   reactExports.useEffect(() => {
-    setName(splitFilename(node?.name ?? "", node?.kind).head);
+    setNodeName(splitFilename(node?.name ?? "", node?.kind).head);
     setPending(false);
   }, [node]);
   const handleConfirm = reactExports.useCallback(async () => {
@@ -139,7 +139,7 @@ export function RenameLocalNodeDialog({ node, onOpenChange, onRename }) {
           data-action-ui-id="local-assets.rename-input"
           autoFocus={true}
           value={nodeName}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(event) => setNodeName(event.target.value)}
           onKeyDown={(event) => {
             if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
             event.preventDefault();

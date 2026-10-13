@@ -17,7 +17,7 @@ v2@759:11	v2	storedViewMode	该值是从本地存储读取并校验过的网格�
 t2@780:14	t2	translate	该绑定是资源选择对话框读取界面文案的翻译函数。
 s2@820:41	s2	storeState	该参数是资源元数据存储的状态对象。
 id2@959:18	id2	tagId	该值是当前资源行关联的标签标识。
-id2@1026:8	id2	encodedAssetId	该值是待 URI 解码的视频资源标识。
+id2@1026:8	id2	assetId	该值是解码后的资产 ID。
 id2@1032:16	id2	assetId	该值是尚未获取帧率的资源标识。
 id2@1038:23	id2	assetId	该值是批量帧率结果对应的视频资源标识。
 id2@1044:20	id2	assetId	该值是当前清理的待获取帧率资源标识。

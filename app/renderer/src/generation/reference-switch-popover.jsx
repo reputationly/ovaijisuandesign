@@ -138,7 +138,7 @@ export function ReferenceSwitchPopover({
           : reasonForDisabled(definedKind, meta, config.constraints),
       });
     });
-    result.sort((item, itemValue) => item.meta.name.localeCompare(itemValue.meta.name));
+    result.sort((leftItem, rightItem) => leftItem.meta.name.localeCompare(rightItem.meta.name));
     return result;
   }, [
     allowedKinds,

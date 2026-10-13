@@ -75,19 +75,19 @@ export function useResizableWidth({
     [maxWidth, minWidth, storage],
   );
   const onMouseDown = reactExports.useCallback(
-    (pointerEvent) => {
-      pointerEvent.preventDefault();
+    (mouseEvent) => {
+      mouseEvent.preventDefault();
       releaseActiveDrag(false);
       draggingRef.current = true;
       setIsDragging(true);
-      startX.current = pointerEvent.clientX;
+      startX.current = mouseEvent.clientX;
       startW.current = width;
       latestW.current = width;
-      const onMove = (pointerEvent) => {
+      const onMove = (mouseMoveEvent) => {
         if (!draggingRef.current) return;
         const delta = invertDelta
-          ? startX.current - pointerEvent.clientX
-          : pointerEvent.clientX - startX.current;
+          ? startX.current - mouseMoveEvent.clientX
+          : mouseMoveEvent.clientX - startX.current;
         const next = clamp(startW.current + delta, minWidth, maxWidth);
         latestW.current = next;
         reactDomExports.flushSync(() => setWidth(next));

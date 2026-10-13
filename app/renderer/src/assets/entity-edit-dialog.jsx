@@ -76,7 +76,7 @@ export function EntityEditDialog({
   const updateMutation = useUpdateEntity();
   const uploadMutation = useUploadBlob();
   const exportUrl = useExportEntityUrl();
-  const [entityName, setName] = reactExports.useState("");
+  const [entityName, setEntityName] = reactExports.useState("");
   const [type, setType] = reactExports.useState("character");
   const [description, setDescription] = reactExports.useState("");
   const [tags, setTags] = reactExports.useState([]);
@@ -115,7 +115,7 @@ export function EntityEditDialog({
           : {}),
       });
     }
-    setName(ent.name);
+    setEntityName(ent.name);
     setType(ent.type);
     setDescription(ent.description ?? "");
     setTags(ent.metadata?.tags ?? []);
@@ -386,7 +386,7 @@ export function EntityEditDialog({
                 <AtSign size={12} className="shrink-0 text-muted-foreground" />
                 <input
                   value={entityName}
-                  onChange={(changeEvent) => setName(changeEvent.target.value)}
+                  onChange={(changeEvent) => setEntityName(changeEvent.target.value)}
                   placeholder={translate("assetCenter.edit.namePlaceholder")}
                   className="flex-1 min-w-0 bg-transparent font-heading text-sm font-medium outline-none placeholder:text-muted-foreground/50"
                   data-action-ui-id="asset-center-entity-edit-name"

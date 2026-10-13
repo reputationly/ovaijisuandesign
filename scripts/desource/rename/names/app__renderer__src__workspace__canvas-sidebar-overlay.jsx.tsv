@@ -47,3 +47,4 @@ t2@80:14	t2	translate	useTranslation 返回的翻译函数。
 tab2@644:15	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
 w3@175:43	w3	recentWorkspace	最近打开的工作区条目。
 X@2:93	X	CloseIcon	来自 vendor 的关闭图标组件。
+setDir@47:25	setDir	setDirectoryPath	directoryPath 状态的 setter。

@@ -927,8 +927,8 @@ export function TxtPopoverInner({
     },
   });
   const doSubmit = reactExports.useCallback(
-    async (submitEvent, replaceId) => {
-      submitEvent.stopPropagation();
+    async (clickEvent, replaceId) => {
+      clickEvent.stopPropagation();
       if (!canSubmit) return;
       if (!beforeAccountSubmission()) return;
       if (!(await checkReferencesBeforeSubmit())) return;
@@ -1098,14 +1098,14 @@ export function TxtPopoverInner({
   const inGeneratingState = isGenerating;
   const pendingSubmitRef = reactExports.useRef(null);
   const handleConfirm = reactExports.useCallback(
-    (changeEvent) => {
+    (clickEvent) => {
       if (modelsLoading || !selectedModelId) {
         pendingSubmitRef.current = {
           kind: "confirm",
         };
         return;
       }
-      doSubmit(changeEvent, replaceNodeId);
+      doSubmit(clickEvent, replaceNodeId);
     },
     [doSubmit, modelsLoading, replaceNodeId, selectedModelId],
   );

@@ -10,13 +10,13 @@ m3@1053:34	m3	videoModel	该值是转换为标识列表的视频模型记录。
 m3@1195:39	m3	videoModel	该值是按标识查找的目标视频模型记录。
 e2@1237:12	e2	clickEvent	该事件来自领取视频试用操作并用于阻止事件冒泡。
 e2@1554:6	e2	clickEvent	该事件来自恢复草稿操作并用于阻止事件冒泡。
-e2@1629:12	e2	submitEvent	该事件由提交回调接收并用于阻止画布事件冒泡。
+e2@1629:12	e2	clickEvent	该参数是确认/新建/替换按钮转交来的点击事件，用于阻止冒泡。
 p3@1708:22	p3	audioPath	该值是待按时长累计的裁剪后音频路径。
 p3@1723:22	p3	videoPath	该值是待按时长累计的裁剪后视频路径。
 u4@1830:58	u4	unresolvedReference	该值是编译结果中未解析引用的记录。
-e2@1926:6	e2	submitEvent	该事件来自确认生成按钮并转交给提交逻辑。
-e2@1938:6	e2	submitEvent	该事件来自新建节点按钮并转交给提交逻辑。
-e2@1950:6	e2	submitEvent	该事件来自替换节点按钮并转交给提交逻辑。
+e2@1926:6	e2	clickEvent	该参数是确认按钮点击事件，转交 doSubmit。
+e2@1938:6	e2	clickEvent	该参数是新建节点按钮点击事件，转交 doSubmit。
+e2@1950:6	e2	clickEvent	该参数是替换节点按钮点击事件，转交 doSubmit。
 s2@2125:27	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
 s2@2142:25	s2	pickerState	该值是更新 at 引用选择器前的状态对象。
 a2@2242:44	a2	parameterAlias	该值是标准参数定义中的候选别名。

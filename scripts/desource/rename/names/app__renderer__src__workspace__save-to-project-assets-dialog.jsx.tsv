@@ -17,3 +17,4 @@ selected2@137:9	selected2	selected	去掉打包器防重名追加的后缀，恢
 service2@47:9	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。
 state2@43:52	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
 t2@44:14	t2	translate	useTranslation 返回的翻译函数。
+setName@51:25	setName	setAssetFileName	assetFileName 状态的 setter。
