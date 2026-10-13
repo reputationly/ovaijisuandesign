@@ -100,8 +100,8 @@ text2@878:24	text	去掉打包器加的数字后缀，恢复原名 text
 count2@879:7	count	去掉打包器加的数字后缀，恢复原名 count
 index2@880:12	index	去掉打包器加的数字后缀，恢复原名 index
 markdown2@898:32	markdown	去掉打包器加的数字后缀，恢复原名 markdown
-length2@908:7	totalLength	累加的长度；length 是全局名
-length2@913:7	totalLength	累加的长度；length 是全局名
+length2@908:7	prefixLength	commonPrefixLength 里从头逐字比对的公共前缀长度；length 是全局名
+length2@913:7	suffixLength	commonSuffixLength 里从尾逐字比对的公共后缀长度；length 是全局名
 from2@923:34	from	去掉打包器加的数字后缀，恢复原名 from
 index2@924:12	index	去掉打包器加的数字后缀，恢复原名 index
 lineEnd2@977:9	lineEnd	去掉打包器加的数字后缀，恢复原名 lineEnd

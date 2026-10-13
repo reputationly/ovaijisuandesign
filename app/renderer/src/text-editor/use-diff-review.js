@@ -905,20 +905,20 @@ function locatableRenderedText(markdown) {
 }
 function commonPrefixLength(left, right) {
   const limit = Math.min(left.length, right.length);
-  let totalLength = 0;
-  while (totalLength < limit && left[totalLength] === right[totalLength]) totalLength += 1;
-  return totalLength;
+  let prefixLength = 0;
+  while (prefixLength < limit && left[prefixLength] === right[prefixLength]) prefixLength += 1;
+  return prefixLength;
 }
 function commonSuffixLength(left, right, prefixLength) {
-  let totalLength = 0;
+  let suffixLength = 0;
   while (
-    totalLength < left.length - prefixLength &&
-    totalLength < right.length - prefixLength &&
-    left[left.length - totalLength - 1] === right[right.length - totalLength - 1]
+    suffixLength < left.length - prefixLength &&
+    suffixLength < right.length - prefixLength &&
+    left[left.length - suffixLength - 1] === right[right.length - suffixLength - 1]
   ) {
-    totalLength += 1;
+    suffixLength += 1;
   }
-  return totalLength;
+  return suffixLength;
 }
 function containsNewline(points, from, to) {
   for (let index = from; index < to; index += 1) {
