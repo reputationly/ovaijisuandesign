@@ -154,12 +154,12 @@ export const EntityRow = reactExports.memo(function EntityRow2({
   onExport,
   layout = "row",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const materializeMutation = useMaterializeEntity();
   const canMaterialize = workspacePath.length > 0;
-  const handleMaterialize = (e2) => {
-    e2.stopPropagation();
-    e2.preventDefault();
+  const handleMaterialize = (clickEvent) => {
+    clickEvent.stopPropagation();
+    clickEvent.preventDefault();
     if (!canMaterialize || materializeMutation.isPending) return;
     void materializeMutation
       .mutateAsync({
@@ -174,7 +174,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
       })
       .then(() => {
         dedupedToast.success(
-          t2("assetSidebarPanel.materializeSuccess", {
+          translate("assetSidebarPanel.materializeSuccess", {
             name: entity.name,
           }),
         );
@@ -182,7 +182,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
       .catch((err) => {
         const message2 = err instanceof Error ? err.message : String(err);
         dedupedToast.error(
-          t2("assetSidebarPanel.materializeError", {
+          translate("assetSidebarPanel.materializeError", {
             message: message2,
           }),
         );
@@ -234,11 +234,11 @@ export const EntityRow = reactExports.memo(function EntityRow2({
     }
   };
   const commonLiProps = {
-    onPointerEnter: (e2) => onHoverIntent(entity.id, e2.currentTarget),
+    onPointerEnter: (pointerEvent) => onHoverIntent(entity.id, pointerEvent.currentTarget),
     onPointerLeave: onHoverEnd,
     draggable: true,
-    onDragStart: (e2) =>
-      writeEntityDragData(e2, {
+    onDragStart: (dragEvent) =>
+      writeEntityDragData(dragEvent, {
         entityId: entity.id,
         name: entity.name,
         type: entity.type,
@@ -255,9 +255,9 @@ export const EntityRow = reactExports.memo(function EntityRow2({
     <>
       <Tooltip>
         <TooltipTrigger
-          onClick={(e2) => {
-            e2.stopPropagation();
-            e2.preventDefault();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
+            clickEvent.preventDefault();
             void addToCanvas();
           }}
           className="inline-flex size-6 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
@@ -265,13 +265,13 @@ export const EntityRow = reactExports.memo(function EntityRow2({
         >
           <StrokeIcon icon={Plus} size={14} />
         </TooltipTrigger>
-        <TooltipContent>{t2("fileExplorer.addToCanvas")}</TooltipContent>
+        <TooltipContent>{translate("fileExplorer.addToCanvas")}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger
-          onClick={(e2) => {
-            e2.stopPropagation();
-            e2.preventDefault();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
+            clickEvent.preventDefault();
             void addToChat();
           }}
           className="inline-flex size-6 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
@@ -279,68 +279,68 @@ export const EntityRow = reactExports.memo(function EntityRow2({
         >
           <StrokeIcon icon={AddToChatIcon} size={14} viewBoxSize={20} />
         </TooltipTrigger>
-        <TooltipContent>{t2("fileExplorer.addToChat")}</TooltipContent>
+        <TooltipContent>{translate("fileExplorer.addToChat")}</TooltipContent>
       </Tooltip>
     </>
   );
   const moreMenu = (
     <DropdownMenu>
       <DropdownMenuTrigger
-        onClick={(e2) => {
-          e2.stopPropagation();
-          e2.preventDefault();
+        onClick={(clickEvent) => {
+          clickEvent.stopPropagation();
+          clickEvent.preventDefault();
         }}
-        onMouseDown={(e2) => e2.stopPropagation()}
+        onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
         className="inline-flex size-6 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
         data-action-ui-id="canvas-sidebar-asset-center.more"
-        aria-label={t2("common.more", "More")}
+        aria-label={translate("common.more", "More")}
       >
         <MoreVerticalIcon size={14} />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="bottom" sideOffset={2}>
         <DropdownMenuItem
-          onClick={(e2) => {
-            e2.stopPropagation();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
             onEdit(entity.id);
           }}
           data-action-ui-id="canvas-sidebar-asset-center.more.edit"
         >
           <StrokeIcon icon={PencilIcon} size={14} className="mr-1.5" />
-          {t2("workspace.materializedEntities.entity.edit", "Edit")}
+          {translate("workspace.materializedEntities.entity.edit", "Edit")}
         </DropdownMenuItem>
         {canMaterialize && !isMaterialized && (
           <DropdownMenuItem
-            onClick={(e2) => {
-              e2.stopPropagation();
-              handleMaterialize(e2);
+            onClick={(clickEvent) => {
+              clickEvent.stopPropagation();
+              handleMaterialize(clickEvent);
             }}
             disabled={materializeMutation.isPending}
             data-action-ui-id="canvas-sidebar-asset-center.more.materialize"
           >
             <StrokeIcon icon={FolderInput} size={14} className="mr-1.5" />
-            {t2("assetSidebarPanel.materialize")}
+            {translate("assetSidebarPanel.materialize")}
           </DropdownMenuItem>
         )}
         <DropdownMenuItem
-          onClick={(e2) => {
-            e2.stopPropagation();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
             onExport(entity);
           }}
           data-action-ui-id="canvas-sidebar-asset-center.more.export"
         >
           <StrokeIcon icon={Download} size={14} className="mr-1.5" />
-          {t2("assetCenter.card.exportTooltip")}
+          {translate("assetCenter.card.exportTooltip")}
         </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"
-          onClick={(e2) => {
-            e2.stopPropagation();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
             onDelete(entity);
           }}
           data-action-ui-id="canvas-sidebar-asset-center.more.delete"
         >
           <StrokeIcon icon={Trash2} size={14} className="mr-1.5" />
-          {t2("assetCenter.card.deleteAction")}
+          {translate("assetCenter.card.deleteAction")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -421,14 +421,14 @@ export const EntityRow = reactExports.memo(function EntityRow2({
           data-action-ui-id="canvas-sidebar-asset-center.edit"
         >
           <StrokeIcon icon={PencilIcon} size={14} className="mr-1.5" />
-          {t2("workspace.materializedEntities.entity.edit", "Edit")}
+          {translate("workspace.materializedEntities.entity.edit", "Edit")}
         </ContextMenuItem>
         <ContextMenuItem
           className={COMPACT_MENU_ITEM_CLASS}
           onClick={() => void addToCanvas()}
         >
           <StrokeIcon icon={Plus} size={14} className="mr-1.5" />
-          {t2("fileExplorer.addToCanvas")}
+          {translate("fileExplorer.addToCanvas")}
         </ContextMenuItem>
         <ContextMenuItem
           className={COMPACT_MENU_ITEM_CLASS}
@@ -440,7 +440,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
             viewBoxSize={20}
             className="mr-1.5"
           />
-          {t2("fileExplorer.addToChat")}
+          {translate("fileExplorer.addToChat")}
         </ContextMenuItem>
         {canMaterialize && !isMaterialized && (
           <ContextMenuItem
@@ -449,7 +449,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
             disabled={materializeMutation.isPending}
           >
             <StrokeIcon icon={FolderInput} size={14} className="mr-1.5" />
-            {t2("assetSidebarPanel.materialize")}
+            {translate("assetSidebarPanel.materialize")}
           </ContextMenuItem>
         )}
         <ContextMenuItem
@@ -458,7 +458,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
           data-action-ui-id="canvas-sidebar-asset-center.export"
         >
           <StrokeIcon icon={Download} size={14} className="mr-1.5" />
-          {t2("assetCenter.card.exportTooltip")}
+          {translate("assetCenter.card.exportTooltip")}
         </ContextMenuItem>
         <ContextMenuItem
           className={COMPACT_MENU_ITEM_CLASS}
@@ -467,7 +467,7 @@ export const EntityRow = reactExports.memo(function EntityRow2({
           data-action-ui-id="canvas-sidebar-asset-center.delete"
         >
           <StrokeIcon icon={Trash2} size={14} className="mr-1.5" />
-          {t2("assetCenter.card.deleteAction")}
+          {translate("assetCenter.card.deleteAction")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

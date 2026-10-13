@@ -86,8 +86,8 @@ function loadDraft(
     draft: {
       text: envelope.text,
       ...editorDocSnapshot(envelope.editorDoc),
-      attachments: envelope.attachments.map((a2) =>
-        hydrateAttachment(a2, resolveUrl),
+      attachments: envelope.attachments.map((attachment) =>
+        hydrateAttachment(attachment, resolveUrl),
       ),
       ...(envelope.selectedMediaModels
         ? {
@@ -112,8 +112,8 @@ function cloneDraft(draft) {
   return {
     text: draft.text,
     ...editorDocSnapshot(draft.editorDoc),
-    attachments: draft.attachments.map((a2) => ({
-      ...a2,
+    attachments: draft.attachments.map((attachment) => ({
+      ...attachment,
     })),
     ...(draft.selectedMediaModels
       ? {

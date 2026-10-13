@@ -45,8 +45,8 @@ function probeDurationSeconds(file, timeoutMs = 5e3) {
       resolve(value);
     };
     const onLoaded = () => {
-      const d2 = el.duration;
-      cleanup(Number.isFinite(d2) && d2 > 0 ? d2 : 0);
+      const durationSeconds = el.duration;
+      cleanup(Number.isFinite(durationSeconds) && durationSeconds > 0 ? durationSeconds : 0);
     };
     const onError = () => cleanup(0);
     el.addEventListener("loadedmetadata", onLoaded);

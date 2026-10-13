@@ -85,7 +85,7 @@ export function FolderDrillDownPicker({
   className,
   actionUiId,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const [browsePath, setBrowsePath] = reactExports.useState([]);
   const selected2 = reactExports.useMemo(
@@ -127,7 +127,7 @@ export function FolderDrillDownPicker({
       : void 0;
   const currentLevelLabel =
     browsePath.length === 0
-      ? t2("localAssets.saveRootFolder")
+      ? translate("localAssets.saveRootFolder")
       : (browsePath[browsePath.length - 1] ?? "");
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
@@ -153,15 +153,15 @@ export function FolderDrillDownPicker({
                 </span>
               ) : null}
               {selected2.segments.length === 0
-                ? t2("localAssets.saveRootFolder")
+                ? translate("localAssets.saveRootFolder")
                 : leafName}
             </span>
           </span>
         ) : (
           <span className="truncate text-muted-foreground">
             {loading
-              ? t2("common.loading")
-              : t2("localAssets.saveLocationPlaceholder")}
+              ? translate("common.loading")
+              : translate("localAssets.saveLocationPlaceholder")}
           </span>
         )}
         <ChevronDown
@@ -187,7 +187,7 @@ export function FolderDrillDownPicker({
                 : "text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground",
             )}
           >
-            {t2("localAssets.saveRootFolder")}
+            {translate("localAssets.saveRootFolder")}
           </button>
           {browsePath.map((segment, index2) => {
             const prefixPath = browsePath.slice(0, index2 + 1).join("/");
@@ -232,7 +232,7 @@ export function FolderDrillDownPicker({
                 label={child.segments[child.segments.length - 1] ?? ""}
                 isSelected={child.key === value}
                 canDrill={hasChildren2(child)}
-                drillLabel={t2("localAssets.folderPickerEnter")}
+                drillLabel={translate("localAssets.folderPickerEnter")}
                 onPick={() => pick(child.key)}
                 onDrill={() => setBrowsePath(child.segments)}
               />
@@ -240,7 +240,7 @@ export function FolderDrillDownPicker({
           </div>
         ) : (
           <p className="px-2 py-1.5 text-xs text-muted-foreground">
-            {t2("localAssets.folderPickerEmpty")}
+            {translate("localAssets.folderPickerEmpty")}
           </p>
         )}
       </PopoverContent>

@@ -1,0 +1,3 @@
+key	old	new	依据
+PopoverTrigger$1@7:117	PopoverTrigger$1	PopoverTriggerPrimitive	该绑定是本地 PopoverTrigger 包装组件所委托的供应商触发器原语。
+qc@10:43	qc	queryClient	该参数是用于失效当前网关作用域资产索引缓存的查询客户端。

@@ -4,11 +4,11 @@ import {
   scopedAssetsQueryKey,
   scopeParts,
 } from "./credit-query-keys.jsx";
-import { decisionVersion, GatewayScopeContext, getRuntimeConfig, listeners$8 as listeners, normalizeGatewayBaseUrl, PopoverTrigger$1, reactExports, WorkspaceGatewayClient } from "../vendor.js";
+import { decisionVersion, GatewayScopeContext, getRuntimeConfig, listeners$8 as listeners, normalizeGatewayBaseUrl, PopoverTrigger$1 as PopoverTriggerPrimitive, reactExports, WorkspaceGatewayClient } from "../vendor.js";
 import { evaluateAccountSubmission, guardAccountSubmission } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-export async function refreshAssetIndex({ qc, gatewayScopeKey }) {
-  await qc.invalidateQueries({
+export async function refreshAssetIndex({ qc: queryClient, gatewayScopeKey }) {
+  await queryClient.invalidateQueries({
     queryKey: scopedAssetsQueryKey(gatewayScopeKey),
   });
 }
@@ -93,7 +93,7 @@ export function MpIcon({ size: size2 = 14, className }) {
   );
 }
 export function PopoverTrigger({ ...props }) {
-  return <PopoverTrigger$1 data-slot="popover-trigger" {...props} />;
+  return <PopoverTriggerPrimitive data-slot="popover-trigger" {...props} />;
 }
 const INPUT_EDITABLE_WHILE_BLOCKED_REASON_CODES = new Set([
   "quota_insufficient",

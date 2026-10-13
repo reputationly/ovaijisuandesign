@@ -1,0 +1,2 @@
+key	old	new	依据
+d2@48:13	d2	durationSeconds	该值是视频或音频元素探测到的时长秒数。
