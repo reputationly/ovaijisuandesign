@@ -30,18 +30,18 @@ function useFilePreviewUrl(file) {
       setPreview(null);
       return;
     }
-    const next2 = URL.createObjectURL(file);
+    const next = URL.createObjectURL(file);
     setPreview({
-      url: next2,
+      url: next,
       media,
     });
-    return () => URL.revokeObjectURL(next2);
+    return () => URL.revokeObjectURL(next);
   }, [file]);
   return preview;
 }
 export function StagedRow({
   entry,
-  onRemove: onRemove2,
+  onRemove,
   onCaptionChange,
   onSetCover,
   isCover,
@@ -60,7 +60,7 @@ export function StagedRow({
       ? entry.uploaded.kind
       : void 0;
   const effectiveMedia = uploadedMedia ?? preview?.media;
-  const isImage2 = effectiveMedia === "image";
+  const isImage = effectiveMedia === "image";
   const isVideo = effectiveMedia === "video";
   const isAudio = effectiveMedia === "audio";
   const uploadedVideo =
@@ -83,7 +83,7 @@ export function StagedRow({
       data-status={entry.status}
     >
       <div className="relative aspect-[4/3] bg-muted overflow-hidden flex items-center justify-center">
-        {isImage2 && imageSrc ? (
+        {isImage && imageSrc ? (
           <button
             type="button"
             className="absolute inset-0 cursor-zoom-in focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-default"
@@ -175,7 +175,7 @@ export function StagedRow({
             <Loader2 size={16} className="animate-spin text-foreground" />
           </div>
         )}
-        {entry.status === "uploaded" && isImage2 && imageSrc && onSetCover ? (
+        {entry.status === "uploaded" && isImage && imageSrc && onSetCover ? (
           <Button
             variant="secondary"
             size="xs"
@@ -195,7 +195,7 @@ export function StagedRow({
           variant="ghost"
           size="icon-xs"
           className="absolute top-1 right-1 h-5 w-5 bg-background/60 text-muted-foreground hover:text-destructive hover:bg-background/80"
-          onClick={onRemove2}
+          onClick={onRemove}
           disabled={isBusy}
           data-action-ui-id="asset-center-add-entity-staged-remove"
           aria-label={translate("common.remove")}

@@ -9,14 +9,14 @@ import { stripErrorHtml } from "../infra/create-recently-added-store.js";
 import { pickUserMessage } from "../generation/normalize-skill-detail-metadata.js";
 import { PRESET_COLOR_NAME_KEYS } from "../infra/parse-connector-selection.js";
 
-export function shallowEqualObject(prev, next2) {
-  if (Object.is(prev, next2)) return true;
+export function shallowEqualObject(prev, next) {
+  if (Object.is(prev, next)) return true;
   const prevKeys = Object.keys(prev);
-  const nextKeys = Object.keys(next2);
+  const nextKeys = Object.keys(next);
   if (prevKeys.length !== nextKeys.length) return false;
-  for (const key2 of prevKeys) {
-    if (!Object.hasOwn(next2, key2)) return false;
-    if (!Object.is(prev[key2], next2[key2])) return false;
+  for (const key of prevKeys) {
+    if (!Object.hasOwn(next, key)) return false;
+    if (!Object.is(prev[key], next[key])) return false;
   }
   return true;
 }
@@ -29,8 +29,8 @@ const nullStore = {
 
 export function useWorkspaceChatStoreSelector(
   store,
-  selector2,
-  isEqual2 = Object.is,
+  selector,
+  isEqual = Object.is,
 ) {
   const previousSelectionRef = reactExports.useRef({
     hasValue: false,
@@ -45,13 +45,13 @@ export function useWorkspaceChatStoreSelector(
       if (hasMemo && Object.is(memoizedSnapshot, nextSnapshot)) {
         return memoizedSelection;
       }
-      const nextSelection = selector2(nextSnapshot);
+      const nextSelection = selector(nextSnapshot);
       const previousSelection = hasMemo
         ? memoizedSelection
         : previousSelectionRef.current.value;
       if (
         (hasMemo || previousSelectionRef.current.hasValue) &&
-        isEqual2(previousSelection, nextSelection)
+        isEqual(previousSelection, nextSelection)
       ) {
         hasMemo = true;
         memoizedSnapshot = nextSnapshot;
@@ -63,8 +63,8 @@ export function useWorkspaceChatStoreSelector(
       memoizedSelection = nextSelection;
       return nextSelection;
     };
-  }, [store, selector2, isEqual2]);
-  const selected2 = reactExports.useSyncExternalStore(
+  }, [store, selector, isEqual]);
+  const selected = reactExports.useSyncExternalStore(
     store.subscribe,
     getSelectedSnapshot,
     getSelectedSnapshot,
@@ -72,20 +72,20 @@ export function useWorkspaceChatStoreSelector(
   reactExports.useEffect(() => {
     previousSelectionRef.current = {
       hasValue: true,
-      value: selected2,
+      value: selected,
     };
-  }, [selected2]);
-  return selected2;
+  }, [selected]);
+  return selected;
 }
 
-function useWorkspaceChatStoreOptionalSelector(store, selector2, isEqual2) {
+function useWorkspaceChatStoreOptionalSelector(store, selector, isEqual) {
   const effectiveStore = store ?? nullStore;
   return useWorkspaceChatStoreSelector(
     effectiveStore,
-    (snapshot2) => (snapshot2 === null ? null : selector2(snapshot2)),
-    (prev, next2) => {
-      if (prev === null || next2 === null) return Object.is(prev, next2);
-      return Object.is(prev, next2);
+    (snapshot) => (snapshot === null ? null : selector(snapshot)),
+    (prev, next) => {
+      if (prev === null || next === null) return Object.is(prev, next);
+      return Object.is(prev, next);
     },
   );
 }
@@ -106,13 +106,13 @@ export function useWorkspaceChatOptional() {
   return useWorkspaceChatStoreOptionalSelector(store, (chat) => chat);
 }
 
-export function useWorkspaceChatSelector(selector2, isEqual2) {
+export function useWorkspaceChatSelector(selector, isEqual) {
   const store = reactExports.useContext(WorkspaceChatStoreContext);
   if (!store)
     throw new Error(
       "useWorkspaceChatSelector must be used within WorkspaceChatProvider",
     );
-  return useWorkspaceChatStoreSelector(store, selector2, isEqual2);
+  return useWorkspaceChatStoreSelector(store, selector, isEqual);
 }
 
 export function useWorkspaceProductionPlanDisclosureStore() {
@@ -148,10 +148,10 @@ export function useCanvasGenerationReconcile({ onCanvasTasksChange }) {
 }
 
 export function useCanvasLastUsedModelParams() {
-  const [snapshot2, , setAsync] = useStorage("workspace.lastUsedModelParams");
+  const [snapshot, , setAsync] = useStorage("workspace.lastUsedModelParams");
   const getLastUsedModelParams = reactExports.useCallback(
-    (key2) => {
-      const entry = snapshot2?.[key2];
+    (key) => {
+      const entry = snapshot?.[key];
       if (!entry || typeof entry.modelId !== "string" || !entry.modelId)
         return void 0;
       return {
@@ -159,12 +159,12 @@ export function useCanvasLastUsedModelParams() {
         params: entry.params ?? {},
       };
     },
-    [snapshot2],
+    [snapshot],
   );
   const saveLastUsedModelParams = reactExports.useCallback(
-    (key2, modelId, params) => {
+    (key, modelId, params) => {
       if (!modelId) return;
-      const next2 = {
+      const next = {
         modelId,
         params: {
           ...params,
@@ -173,7 +173,7 @@ export function useCanvasLastUsedModelParams() {
       };
       void setAsync((prev) => ({
         ...(prev ?? {}),
-        [key2]: next2,
+        [key]: next,
       }));
     },
     [setAsync],
@@ -225,9 +225,9 @@ export function useCanvasModelRegistryHydration({
           return `${kind}: ${reason instanceof Error ? reason.message : String(reason)}`;
         })
         .join("; ");
-      const message2 = `[CanvasArea] partially failed to hydrate model registry: ${detail}`;
-      window.hilo?.logger?.warn(message2, "http-client") ??
-        console.warn(message2);
+      const message = `[CanvasArea] partially failed to hydrate model registry: ${detail}`;
+      window.hilo?.logger?.warn(message, "http-client") ??
+        console.warn(message);
     });
     return () => {
       cancelled = true;
@@ -263,8 +263,8 @@ export function useCanvasTagName() {
   return reactExports.useCallback(
     (tag) => {
       if (tag.name?.trim()) return tag.name;
-      const key2 = tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id];
-      return key2 ? translate(key2) : tag.id;
+      const key = tag.legacyNameKey ?? PRESET_COLOR_NAME_KEYS[tag.id];
+      return key ? translate(key) : tag.id;
     },
     [translate],
   );

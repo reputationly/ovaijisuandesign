@@ -39,14 +39,14 @@ import { getImageConstraintReason } from "../generation/attachment-bar.jsx";
 function useAssetsRefMetadata(paths, assets) {
   const { directReferences } = useCanvasBridge();
   const pathKey = JSON.stringify(
-    [...new Set(paths.filter((path2) => !!parseCanvasReference(path2)))].sort(),
+    [...new Set(paths.filter((path) => !!parseCanvasReference(path)))].sort(),
   );
   const [resolved, setResolved] = reactExports.useState({
     bridge: directReferences,
     rows: new Map(),
   });
-  const latest2 = reactExports.useRef(resolved);
-  latest2.current = resolved;
+  const latest = reactExports.useRef(resolved);
+  latest.current = resolved;
   const revision = reactExports.useRef(0);
   const updateReferenceMetadata = reactExports.useCallback(
     (results) => {
@@ -54,29 +54,29 @@ function useAssetsRefMetadata(paths, assets) {
       const byIdentity = new Map(
         results.map((row) => [canvasReferenceIdentity(row.reference), row]),
       );
-      const previous2 =
-        latest2.current.bridge === directReferences
-          ? latest2.current.rows
+      const previous =
+        latest.current.bridge === directReferences
+          ? latest.current.rows
           : new Map();
       const rows = new Map();
       const authoredPaths = JSON.parse(pathKey);
-      for (const path2 of authoredPaths) {
-        const reference = parseCanvasReference(path2);
+      for (const path of authoredPaths) {
+        const reference = parseCanvasReference(path);
         const row =
           reference && byIdentity.get(canvasReferenceIdentity(reference));
         if (!row) {
-          const prior = previous2.get(path2);
-          if (prior) rows.set(path2, prior);
+          const prior = previous.get(path);
+          if (prior) rows.set(path, prior);
           continue;
         }
-        rows.set(path2, row);
+        rows.set(path, row);
       }
-      const next2 = {
+      const next = {
         bridge: directReferences,
         rows,
       };
-      latest2.current = next2;
-      setResolved(next2);
+      latest.current = next;
+      setResolved(next);
     },
     [directReferences, pathKey],
   );
@@ -85,22 +85,22 @@ function useAssetsRefMetadata(paths, assets) {
     const authoredPaths = JSON.parse(pathKey);
     let cancelled = false;
     const refresh = async () => {
-      const current2 = ++revision.current;
+      const current = ++revision.current;
       const rows = [];
       try {
-        for (let offset2 = 0; offset2 < authoredPaths.length; offset2 += 100) {
-          const batch2 = authoredPaths.slice(offset2, offset2 + 100);
-          const references = batch2.flatMap((path2) => {
-            const reference = parseCanvasReference(path2);
+        for (let offset = 0; offset < authoredPaths.length; offset += 100) {
+          const batch = authoredPaths.slice(offset, offset + 100);
+          const references = batch.flatMap((path) => {
+            const reference = parseCanvasReference(path);
             return reference ? [reference] : [];
           });
           const results = await directReferences.checkAvailability(references, {
             include_metadata: true,
           });
-          if (cancelled || current2 !== revision.current) return;
+          if (cancelled || current !== revision.current) return;
           rows.push(...results);
         }
-        if (!cancelled && current2 === revision.current)
+        if (!cancelled && current === revision.current)
           updateReferenceMetadata(rows);
       } catch {}
     };
@@ -114,11 +114,11 @@ function useAssetsRefMetadata(paths, assets) {
   }, [directReferences, pathKey, updateReferenceMetadata]);
   const resolutions = reactExports.useMemo(() => {
     if (resolved.bridge !== directReferences) return new Map();
-    const current2 = JSON.parse(pathKey);
+    const current = JSON.parse(pathKey);
     return new Map(
-      current2.flatMap((path2) => {
-        const row = resolved.rows.get(path2);
-        return row ? [[path2, row]] : [];
+      current.flatMap((path) => {
+        const row = resolved.rows.get(path);
+        return row ? [[path, row]] : [];
       }),
     );
   }, [directReferences, pathKey, resolved]);
@@ -134,28 +134,28 @@ function useAssetsRefMetadata(paths, assets) {
 
 function useImageAnnotationRequest() {
   const { openImageAnnotation } = useCanvasBridge();
-  const active2 = reactExports.useRef(null);
+  const active = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    if (active2.current && !active2.current.isValid())
-      active2.current.controller.abort();
+    if (active.current && !active.current.isValid())
+      active.current.controller.abort();
   });
-  reactExports.useEffect(() => () => active2.current?.controller.abort(), []);
+  reactExports.useEffect(() => () => active.current?.controller.abort(), []);
   const open = reactExports.useCallback(
-    async (request, isValid2) => {
-      if (!openImageAnnotation || active2.current || !isValid2()) return;
+    async (request, isValid) => {
+      if (!openImageAnnotation || active.current || !isValid()) return;
       const controller = new AbortController();
       const entry = {
         controller,
-        isValid: isValid2,
+        isValid,
       };
-      active2.current = entry;
+      active.current = entry;
       try {
         await openImageAnnotation({
           ...request,
           signal: controller.signal,
         });
       } finally {
-        if (active2.current === entry) active2.current = null;
+        if (active.current === entry) active.current = null;
         controller.abort();
       }
     },
@@ -171,10 +171,10 @@ const ATTACHMENT_KINDS = ["image", "video", "audio", "text", "file"];
 
 const FILE_SLOT_PICK_KINDS = ["file", "text"];
 
-function matchesFileExtensions(path2, extensions2) {
-  if (!extensions2 || extensions2.length === 0) return true;
-  const ext = extensionOf(path2);
-  return extensions2.some(
+function matchesFileExtensions(path, extensions) {
+  if (!extensions || extensions.length === 0) return true;
+  const ext = extensionOf(path);
+  return extensions.some(
     (candidate) => candidate.trim().toLowerCase() === ext,
   );
 }
@@ -191,15 +191,15 @@ const AUDIO_PER_CLIP_MAX_SEC = SEEDANCE_REFERENCE_AUDIO_MAX_SEC;
 
 function reconcileImageModeTransitionPaths(
   prev,
-  defaults2,
+  defaults,
   removed,
   isFirstLastFrame,
   options,
 ) {
-  const filledDefaults = defaults2.filter(Boolean);
+  const filledDefaults = defaults.filter(Boolean);
   const canRestoreDefaultOrder =
-    haveSameNonEmptyPathCounts(prev, defaults2) &&
-    !filledDefaults.some((path2) => removed.has(path2));
+    haveSameNonEmptyPathCounts(prev, defaults) &&
+    !filledDefaults.some((path) => removed.has(path));
   if (options?.preserveUserSlots && canRestoreDefaultOrder) {
     return isFirstLastFrame
       ? normalizeFirstLastFramePaths(prev)
@@ -207,22 +207,22 @@ function reconcileImageModeTransitionPaths(
   }
   if (canRestoreDefaultOrder) {
     return isFirstLastFrame
-      ? normalizeFirstLastFramePaths(defaults2)
+      ? normalizeFirstLastFramePaths(defaults)
       : [...filledDefaults];
   }
   return isFirstLastFrame
-    ? reconcileFirstLastFrameDefaultPaths(prev, defaults2, removed)
-    : reconcileDefaultPaths(prev, defaults2, removed);
+    ? reconcileFirstLastFrameDefaultPaths(prev, defaults, removed)
+    : reconcileDefaultPaths(prev, defaults, removed);
 }
 
-function selectNewAttachmentPaths(currentPaths, incomingPaths, max2, count2) {
-  return selectNewAttachments(currentPaths, incomingPaths, max2, count2).map(
+function selectNewAttachmentPaths(currentPaths, incomingPaths, max, count) {
+  return selectNewAttachments(currentPaths, incomingPaths, max, count).map(
     (item) => item.path,
   );
 }
 
-function admitAttachmentSelections(currentPaths, incoming, max2, count2) {
-  const admitted = selectNewAttachments(currentPaths, incoming, max2, count2);
+function admitAttachmentSelections(currentPaths, incoming, max, count) {
+  const admitted = selectNewAttachments(currentPaths, incoming, max, count);
   if (admitted.length === 0)
     return {
       paths: [...currentPaths],
@@ -243,14 +243,14 @@ function boundVideoAudioReferencePaths(
   maxVideoRefs,
   maxAudioRefs,
   maxVideoAudioRefs,
-  count2,
+  count,
 ) {
-  const bound = (paths, max2, kind) =>
-    count2 && paths.some(isCanvasSubjectReference)
-      ? selectNewAttachmentPaths([], paths, max2, (path2) =>
-          count2(path2, kind),
+  const bound = (paths, max, kind) =>
+    count && paths.some(isCanvasSubjectReference)
+      ? selectNewAttachmentPaths([], paths, max, (path) =>
+          count(path, kind),
         )
-      : paths.filter(Boolean).slice(0, max2);
+      : paths.filter(Boolean).slice(0, max);
   const boundedVideos = bound(videoPaths, maxVideoRefs, "video");
   const boundedAudios = bound(audioPaths, maxAudioRefs, "audio");
   if (maxVideoAudioRefs === void 0)
@@ -261,7 +261,7 @@ function boundVideoAudioReferencePaths(
   const sharedCap = Math.max(0, maxVideoAudioRefs);
   const selectedVideos = bound(boundedVideos, sharedCap, "video");
   const usedVideo = selectedVideos.reduce(
-    (total, path2) => total + (count2?.(path2, "video") ?? 1),
+    (total, path) => total + (count?.(path, "video") ?? 1),
     0,
   );
   return {
@@ -274,16 +274,16 @@ function boundVideoAudioReferencePaths(
   };
 }
 
-function resolveAttachmentSourceNodeId(selection2, ensureById, ensureByPath) {
-  if (selection2.sourceNodeId) {
-    const exact = ensureById(selection2.sourceNodeId);
+function resolveAttachmentSourceNodeId(selection, ensureById, ensureByPath) {
+  if (selection.sourceNodeId) {
+    const exact = ensureById(selection.sourceNodeId);
     if (exact) return exact;
   }
-  return ensureByPath(selection2.path);
+  return ensureByPath(selection.path);
 }
 
 function pathToDisplayItem(
-  path2,
+  path,
   kind,
   assets,
   resolveFileUrl,
@@ -291,15 +291,15 @@ function pathToDisplayItem(
   perClipMinSec,
   perClipMaxSec,
 ) {
-  const direct = parseCanvasReference(path2);
-  const name2 = direct
+  const direct = parseCanvasReference(path);
+  const displayName = direct
     ? direct.subjectName
       ? `${direct.subjectName} · ${direct.name}`
       : direct.name
-    : (path2.split("/").pop() ?? path2);
-  const thumbUrl = resolveFileUrl?.(path2) ?? "";
-  const meta2 = findMetaByPath(path2, assets, kind);
-  const durationSec = meta2?.durationSec;
+    : (path.split("/").pop() ?? path);
+  const thumbUrl = resolveFileUrl?.(path) ?? "";
+  const meta = findMetaByPath(path, assets, kind);
+  const durationSec = meta?.durationSec;
   const durationOutOfRange =
     (kind === "audio" || kind === "video") &&
     durationSec != null &&
@@ -309,13 +309,13 @@ function pathToDisplayItem(
       ? durationSec < perClipMinSec || durationSec > perClipMaxSec
       : void 0;
   return {
-    path: path2,
+    path,
     kind,
     thumbUrl,
-    name: name2,
+    name: displayName,
     durationSec,
-    width: meta2?.width,
-    height: meta2?.height,
+    width: meta?.width,
+    height: meta?.height,
     durationOutOfRange,
     durationMinSec: perClipMinSec,
     durationMaxSec: perClipMaxSec,
@@ -400,7 +400,7 @@ export function useAttachmentState(opts) {
   const previousImageModeRef = reactExports.useRef(imageMode);
   const sourceNodeIdByPathRef = reactExports.useRef(new Map());
   const assetMetadataStore = useAssetMetadataApi();
-  const catalogAssets = useAssetMetadataStore((state2) => state2.assets);
+  const catalogAssets = useAssetMetadataStore((state) => state.assets);
   const {
     assets: assetMetadataAssets,
     resolutions,
@@ -410,49 +410,49 @@ export function useAttachmentState(opts) {
     catalogAssets,
   );
   const subjectKinds = reactExports.useCallback(
-    (path2) => {
-      const ref = parseCanvasReference(path2);
+    (path) => {
+      const ref = parseCanvasReference(path);
       if (ref?.target !== "entity") return void 0;
-      const current2 = resolutions.get(path2);
-      return current2?.status === "available" && current2.metadata
-        ? current2.metadata.attachments.map((item) => item.kind)
+      const current = resolutions.get(path);
+      return current?.status === "available" && current.metadata
+        ? current.metadata.attachments.map((item) => item.kind)
         : (ref.attachmentKinds ?? [ref.kind]);
     },
     [resolutions],
   );
   const pathsForKind = reactExports.useCallback(
-    (kind, current2 = pathsByKindRef.current) => {
-      const original = current2[kind];
+    (kind, current = pathsByKindRef.current) => {
+      const original = current[kind];
       if (kind === "file") return original;
       const subjects = [
         ...new Set(
-          Object.values(current2).flat().filter(isCanvasSubjectReference),
+          Object.values(current).flat().filter(isCanvasSubjectReference),
         ),
       ];
       if (!subjects.length) return original;
-      const matching = subjects.filter((path2) =>
-        subjectKinds(path2)?.includes(kind),
+      const matching = subjects.filter((path) =>
+        subjectKinds(path)?.includes(kind),
       );
       return [
         ...original.filter(
-          (path2) =>
-            !isCanvasSubjectReference(path2) || matching.includes(path2),
+          (path) =>
+            !isCanvasSubjectReference(path) || matching.includes(path),
         ),
-        ...matching.filter((path2) => !original.includes(path2)),
+        ...matching.filter((path) => !original.includes(path)),
       ];
     },
     [subjectKinds],
   );
   const referenceCount = reactExports.useCallback(
-    (path2, kind) =>
-      subjectKinds(path2)?.filter((value) => value === kind).length ?? 1,
+    (path, kind) =>
+      subjectKinds(path)?.filter((value) => value === kind).length ?? 1,
     [subjectKinds],
   );
   const usedSlots = reactExports.useCallback(
     (paths, kind) =>
       paths
         .filter(Boolean)
-        .reduce((total, path2) => total + referenceCount(path2, kind), 0),
+        .reduce((total, path) => total + referenceCount(path, kind), 0),
     [referenceCount],
   );
   const isDragging = useCanvasIsDragging();
@@ -473,8 +473,8 @@ export function useAttachmentState(opts) {
     ensureDerivationEdge,
     removeDerivationEdge,
   } = useCanvasActions();
-  const updatePathsForKind = reactExports.useCallback((kind, update2) => {
-    const nextPaths = update2(pathsByKindRef.current[kind]);
+  const updatePathsForKind = reactExports.useCallback((kind, update) => {
+    const nextPaths = update(pathsByKindRef.current[kind]);
     pathsByKindRef.current[kind] = nextPaths;
     if (kind === "image") setImagePaths(nextPaths);
     else if (kind === "video") setVideoPaths(nextPaths);
@@ -491,11 +491,11 @@ export function useAttachmentState(opts) {
       ...textPaths,
     ].filter(isCanvasSubjectReference);
     if (!subjects.length) return;
-    for (const path2 of subjects) removedPathsRef.current.add(path2);
+    for (const path of subjects) removedPathsRef.current.add(path);
     for (const kind of ATTACHMENT_KINDS) {
       updatePathsForKind(kind, (paths) =>
         paths.some(isCanvasSubjectReference)
-          ? paths.filter((path2) => !isCanvasSubjectReference(path2))
+          ? paths.filter((path) => !isCanvasSubjectReference(path))
           : paths,
       );
     }
@@ -627,18 +627,18 @@ export function useAttachmentState(opts) {
   );
   const rejectedImages = reactExports.useMemo(() => {
     const rejected = new Map();
-    for (const path2 of projectedImagePaths) {
-      if (!path2) continue;
-      const meta2 = findMetaByPath(path2, assetMetadataAssets, "image");
-      const reason = getImageConstraintReason(meta2, imageInputLimits);
-      if (reason) rejected.set(path2, reason);
+    for (const path of projectedImagePaths) {
+      if (!path) continue;
+      const meta = findMetaByPath(path, assetMetadataAssets, "image");
+      const reason = getImageConstraintReason(meta, imageInputLimits);
+      if (reason) rejected.set(path, reason);
     }
     return rejected;
   }, [assetMetadataAssets, imageInputLimits, projectedImagePaths]);
   const constrainedImagePaths = reactExports.useMemo(
     () =>
-      projectedImagePaths.map((path2) =>
-        rejectedImages.has(path2) ? "" : path2,
+      projectedImagePaths.map((path) =>
+        rejectedImages.has(path) ? "" : path,
       ),
     [projectedImagePaths, rejectedImages],
   );
@@ -648,7 +648,7 @@ export function useAttachmentState(opts) {
         [],
         constrainedImagePaths,
         effectiveMaxImage,
-        (path2) => referenceCount(path2, "image"),
+        (path) => referenceCount(path, "image"),
       );
   const { videoPaths: filledVideos, audioPaths: filledAudios } =
     boundVideoAudioReferencePaths(
@@ -663,7 +663,7 @@ export function useAttachmentState(opts) {
     [],
     pathsForKind("text"),
     effectiveMaxText,
-    (path2) => referenceCount(path2, "text"),
+    (path) => referenceCount(path, "text"),
   );
   const filledFiles = filePaths.filter(Boolean).slice(0, effectiveMaxFile);
   const referenceCounts = {
@@ -836,10 +836,10 @@ export function useAttachmentState(opts) {
   );
   const items = reactExports.useMemo(() => {
     const result = [];
-    const seen2 = new Set();
+    const seen = new Set();
     const pushOnce = (item) => {
-      if (seen2.has(item.path) || isCanvasSubjectReference(item.path)) return;
-      seen2.add(item.path);
+      if (seen.has(item.path) || isCanvasSubjectReference(item.path)) return;
+      seen.add(item.path);
       result.push(item);
     };
     for (const textPath of editableText ? filledTexts : (defaultTextPaths ?? [])) {
@@ -926,18 +926,18 @@ export function useAttachmentState(opts) {
       ].filter(Boolean),
     );
     if (allPaths.size === 0) return [];
-    const list2 = [];
-    assetMetadataStore.getState().assets.forEach((meta2, assetId) => {
-      if (meta2.path && allPaths.has(meta2.path)) {
-        const kind = meta2.type;
-        list2.push({
+    const list = [];
+    assetMetadataStore.getState().assets.forEach((meta, assetId) => {
+      if (meta.path && allPaths.has(meta.path)) {
+        const kind = meta.type;
+        list.push({
           assetId,
-          name: meta2.name,
+          name: meta.name,
           kind,
         });
       }
     });
-    return list2;
+    return list;
   }, [
     assetMetadataStore,
     filledImages,
@@ -947,18 +947,18 @@ export function useAttachmentState(opts) {
     filledFiles,
   ]);
   const wireEdge = reactExports.useCallback(
-    ({ path: path2, sourceNodeId }, kind) => {
-      if (!hostNodeId || isCanvasReferenceUri(path2)) return;
+    ({ path, sourceNodeId }, kind) => {
+      if (!hostNodeId || isCanvasReferenceUri(path)) return;
       const sourceId = resolveAttachmentSourceNodeId(
         {
-          path: path2,
+          path,
           sourceNodeId,
         },
         ensureStandaloneNodeById,
         ensureStandaloneNodeForPath,
       );
       if (sourceId) {
-        sourceNodeIdByPathRef.current.set(path2, sourceId);
+        sourceNodeIdByPathRef.current.set(path, sourceId);
         ensureDerivationEdge(sourceId, hostNodeId);
         if (kind === "image") {
           try {
@@ -966,17 +966,17 @@ export function useAttachmentState(opts) {
               stage: "reference.bound",
               nodeId: hostNodeId,
               sourceNodeId: sourceId,
-              path: path2,
+              path,
             });
           } catch {}
         }
         return;
       }
       if (ensureMediaNodeForPath) {
-        ensureMediaNodeForPath(path2).then((res) => {
-          if (!res?.nodeId || !pathsByKindRef.current[kind].includes(path2))
+        ensureMediaNodeForPath(path).then((res) => {
+          if (!res?.nodeId || !pathsByKindRef.current[kind].includes(path))
             return;
-          sourceNodeIdByPathRef.current.set(path2, res.nodeId);
+          sourceNodeIdByPathRef.current.set(path, res.nodeId);
           ensureDerivationEdge(res.nodeId, hostNodeId);
           if (kind === "image") {
             try {
@@ -984,7 +984,7 @@ export function useAttachmentState(opts) {
                 stage: "reference.bound",
                 nodeId: hostNodeId,
                 sourceNodeId: res.nodeId,
-                path: path2,
+                path,
               });
             } catch {}
           }
@@ -1001,15 +1001,15 @@ export function useAttachmentState(opts) {
     ],
   );
   const unwireEdge = reactExports.useCallback(
-    (path2) => {
-      if (!hostNodeId || isCanvasReferenceUri(path2)) return;
+    (path) => {
+      if (!hostNodeId || isCanvasReferenceUri(path)) return;
       const sourceId =
-        sourceNodeIdByPathRef.current.get(path2) ??
-        getIncomingSourceNodeIdByPath(hostNodeId, path2) ??
-        getNodeIdByPath(path2);
+        sourceNodeIdByPathRef.current.get(path) ??
+        getIncomingSourceNodeIdByPath(hostNodeId, path) ??
+        getNodeIdByPath(path);
       if (sourceId) {
         removeDerivationEdge(sourceId, hostNodeId);
-        sourceNodeIdByPathRef.current.delete(path2);
+        sourceNodeIdByPathRef.current.delete(path);
       }
     },
     [
@@ -1047,13 +1047,13 @@ export function useAttachmentState(opts) {
         );
       }
     }
-    for (const path2 of rejectedImages.keys()) {
-      removedPathsRef.current.add(path2);
-      unwireEdge(path2);
+    for (const path of rejectedImages.keys()) {
+      removedPathsRef.current.add(path);
+      unwireEdge(path);
     }
     updatePathsForKind("image", (currentPaths) => {
-      const acceptedPaths = currentPaths.map((path2) =>
-        rejectedImages.has(path2) ? "" : path2,
+      const acceptedPaths = currentPaths.map((path) =>
+        rejectedImages.has(path) ? "" : path,
       );
       return isFirstLastFrame
         ? normalizeFirstLastFramePaths(acceptedPaths)
@@ -1079,23 +1079,23 @@ export function useAttachmentState(opts) {
             nodeId: hostNodeId,
             referenceCount: 0,
           });
-        for (const [referenceIndex, path2] of paths
+        for (const [referenceIndex, path] of paths
           .slice(0, MEDIA_LINEAGE_MAX_REFERENCES)
           .entries()) {
           let assetId;
-          for (const [, meta2] of assets) {
-            if (meta2.path === path2) {
-              assetId = meta2.url?.match(/\/files\/id\/([\w-]+)/)?.[1];
+          for (const [, meta] of assets) {
+            if (meta.path === path) {
+              assetId = meta.url?.match(/\/files\/id\/([\w-]+)/)?.[1];
               if (assetId) break;
             }
           }
           onMediaLineage({
             stage,
             nodeId: hostNodeId,
-            sourceNodeId: sourceNodeIdByPathRef.current.get(path2),
+            sourceNodeId: sourceNodeIdByPathRef.current.get(path),
             referenceIndex,
             referenceCount: paths.length,
-            path: path2,
+            path,
             assetId,
           });
         }
@@ -1110,8 +1110,8 @@ export function useAttachmentState(opts) {
         .filter(
           (item) => !isFirstLastFrame || !isCanvasSubjectReference(item.path),
         );
-      const subjects = selections.filter((selection2) =>
-        isCanvasSubjectReference(selection2.path),
+      const subjects = selections.filter((selection) =>
+        isCanvasSubjectReference(selection.path),
       );
       const admittedSubjects = [];
       if (subjects.length) {
@@ -1134,7 +1134,7 @@ export function useAttachmentState(opts) {
               pathsForKind(targetKind),
               [subject],
               limits[targetKind],
-              (path2) => referenceCount(path2, targetKind),
+              (path) => referenceCount(path, targetKind),
             ),
           }));
           if (
@@ -1159,7 +1159,7 @@ export function useAttachmentState(opts) {
           admittedSubjects.push(subject.path);
         }
       }
-      const max2 =
+      const max =
         kind === "image"
           ? effectiveMaxImage
           : kind === "video"
@@ -1176,40 +1176,40 @@ export function useAttachmentState(opts) {
         usedSlots(pathsForKind("audio"), "audio");
       const maxForKind =
         sharedMax === void 0
-          ? max2
+          ? max
           : Math.min(
-              max2,
+              max,
               usedSlots(pathsForKind(kind), kind) +
                 Math.max(0, sharedMax - sharedUsed),
             );
       const admission = admitAttachmentSelections(
         pathsForKind(kind),
         selections.filter(
-          (selection2) => !isCanvasSubjectReference(selection2.path),
+          (selection) => !isCanvasSubjectReference(selection.path),
         ),
         maxForKind,
-        (path2) => referenceCount(path2, kind),
+        (path) => referenceCount(path, kind),
       );
       if (admission.admitted.length === 0) return admittedSubjects;
       const nextPaths =
         kind === "image" && isFirstLastFrame
           ? (() => {
-              const next2 = normalizeFirstLastFramePaths(
+              const next = normalizeFirstLastFramePaths(
                 pathsByKindRef.current.image,
               );
-              for (const { path: path2 } of admission.admitted) {
+              for (const { path } of admission.admitted) {
                 const vacantSlot = Array.from({
                   length: FIRST_LAST_FRAME_SLOT_COUNT,
-                }).findIndex((_unusedValue, index2) => !next2[index2]);
+                }).findIndex((_unusedValue, index) => !next[index]);
                 if (vacantSlot < 0) break;
-                while (next2.length <= vacantSlot) next2.push("");
-                next2[vacantSlot] = path2;
+                while (next.length <= vacantSlot) next.push("");
+                next[vacantSlot] = path;
               }
-              return normalizeFirstLastFramePaths(next2);
+              return normalizeFirstLastFramePaths(next);
             })()
           : admission.paths;
-      for (const { path: path2 } of admission.admitted)
-        removedPathsRef.current.delete(path2);
+      for (const { path } of admission.admitted)
+        removedPathsRef.current.delete(path);
       if (kind === "image" && admission.admitted.length > 0) {
         userEditedImagePathsRef.current = true;
       }
@@ -1220,11 +1220,11 @@ export function useAttachmentState(opts) {
           mergedCount: nextPaths.filter(Boolean).length,
         });
       }
-      for (const selection2 of admission.admitted) wireEdge(selection2, kind);
+      for (const selection of admission.admitted) wireEdge(selection, kind);
       if (kind === "image") logImageReferences("reference.selected", nextPaths);
       return [
         ...admittedSubjects,
-        ...admission.admitted.map(({ path: path2 }) => path2),
+        ...admission.admitted.map(({ path }) => path),
       ];
     },
     [
@@ -1252,17 +1252,17 @@ export function useAttachmentState(opts) {
       const previousPaths = pathsByKindRef.current.image;
       const previousSet = new Set(previousPaths.filter(Boolean));
       const nextSet = new Set(nextPaths.filter(Boolean));
-      for (const path2 of previousSet) {
-        if (nextSet.has(path2)) continue;
-        removedPathsRef.current.add(path2);
-        unwireEdge(path2);
+      for (const path of previousSet) {
+        if (nextSet.has(path)) continue;
+        removedPathsRef.current.add(path);
+        unwireEdge(path);
       }
-      for (const path2 of nextSet) {
-        if (previousSet.has(path2)) continue;
-        removedPathsRef.current.delete(path2);
+      for (const path of nextSet) {
+        if (previousSet.has(path)) continue;
+        removedPathsRef.current.delete(path);
         wireEdge(
           {
-            path: path2,
+            path,
           },
           "image",
         );
@@ -1281,35 +1281,35 @@ export function useAttachmentState(opts) {
     ],
   );
   const removePath = reactExports.useCallback(
-    (path2, opts2) => {
-      if (pathsByKindRef.current.image.includes(path2))
+    (path, opts) => {
+      if (pathsByKindRef.current.image.includes(path))
         logImageReferences(
           "reference.before-remove",
           pathsByKindRef.current.image,
         );
-      removedPathsRef.current.add(path2);
-      if (pathsByKindRef.current.image.includes(path2))
+      removedPathsRef.current.add(path);
+      if (pathsByKindRef.current.image.includes(path))
         userEditedImagePathsRef.current = true;
       updatePathsForKind("image", (currentPaths) =>
         isFirstLastFrame
           ? normalizeFirstLastFramePaths(
-              currentPaths.map((currentPath) => (currentPath === path2 ? "" : currentPath)),
+              currentPaths.map((currentPath) => (currentPath === path ? "" : currentPath)),
             )
-          : currentPaths.filter((currentPath) => currentPath !== path2),
+          : currentPaths.filter((currentPath) => currentPath !== path),
       );
       updatePathsForKind("video", (currentPaths) =>
-        currentPaths.filter((currentPath) => currentPath !== path2),
+        currentPaths.filter((currentPath) => currentPath !== path),
       );
       updatePathsForKind("audio", (currentPaths) =>
-        currentPaths.filter((currentPath) => currentPath !== path2),
+        currentPaths.filter((currentPath) => currentPath !== path),
       );
       updatePathsForKind("text", (currentPaths) =>
-        currentPaths.filter((currentPath) => currentPath !== path2),
+        currentPaths.filter((currentPath) => currentPath !== path),
       );
       updatePathsForKind("file", (currentPaths) =>
-        currentPaths.filter((currentPath) => currentPath !== path2),
+        currentPaths.filter((currentPath) => currentPath !== path),
       );
-      if (opts2?.tearEdge) unwireEdge(path2);
+      if (opts?.tearEdge) unwireEdge(path);
       logImageReferences(
         "reference.after-remove",
         pathsByKindRef.current.image,
@@ -1327,8 +1327,8 @@ export function useAttachmentState(opts) {
       userEditedImagePathsRef.current = true;
     }
     for (const kind of ATTACHMENT_KINDS) {
-      for (const path2 of pathsByKindRef.current[kind]) {
-        if (path2) removedPathsRef.current.add(path2);
+      for (const path of pathsByKindRef.current[kind]) {
+        if (path) removedPathsRef.current.add(path);
       }
       updatePathsForKind(kind, () => []);
     }
@@ -1413,26 +1413,26 @@ export function useAttachmentState(opts) {
       const fileAdds = [];
       let rejectedFileExtension = false;
       for (const pick of picks) {
-        const meta2 = assets.get(pick.assetId);
-        const path2 = meta2?.path ?? pick.path;
-        if (!path2 || allExisting.has(path2)) continue;
-        allExisting.add(path2);
-        const selection2 = {
-          path: path2,
+        const meta = assets.get(pick.assetId);
+        const path = meta?.path ?? pick.path;
+        if (!path || allExisting.has(path)) continue;
+        allExisting.add(path);
+        const selection = {
+          path,
           ...(pick.nodeId
             ? {
                 sourceNodeId: pick.nodeId,
               }
             : {}),
         };
-        if (pick.kind === "image") imageAdds.push(selection2);
-        else if (pick.kind === "video") videoAdds.push(selection2);
-        else if (pick.kind === "audio") audioAdds.push(selection2);
+        if (pick.kind === "image") imageAdds.push(selection);
+        else if (pick.kind === "video") videoAdds.push(selection);
+        else if (pick.kind === "audio") audioAdds.push(selection);
         else if (pick.kind === "text" && editableText)
-          textAdds.push(selection2);
+          textAdds.push(selection);
         else {
-          if (matchesFileExtensions(path2, fileExtensions))
-            fileAdds.push(selection2);
+          if (matchesFileExtensions(path, fileExtensions))
+            fileAdds.push(selection);
           else rejectedFileExtension = true;
         }
       }
@@ -1543,9 +1543,9 @@ export function useAttachmentState(opts) {
                 existingPaths: Object.values(pathsByKindRef.current)
                   .flat()
                   .filter(Boolean),
-                accepts: (resource2) =>
+                accepts: (resource) =>
                   item.kind !== "file" ||
-                  matchesFileExtensions(resource2.path, fileExtensions),
+                  matchesFileExtensions(resource.path, fileExtensions),
               }
             : void 0,
         );
@@ -1564,8 +1564,8 @@ export function useAttachmentState(opts) {
           : resource?.type === item.kind;
       if (!resource || !resourceFitsSlot) return null;
       const assets = assetMetadataStore.getState().assets;
-      const meta2 = assets.get(resource.assetId);
-      const nextPath = meta2?.path ?? resource.path;
+      const meta = assets.get(resource.assetId);
+      const nextPath = meta?.path ?? resource.path;
       if (!nextPath || nextPath === item.path) return null;
       if (
         item.kind === "file" &&
@@ -1611,7 +1611,7 @@ export function useAttachmentState(opts) {
       removedPathsRef.current.add(item.path);
       removedPathsRef.current.delete(nextPath);
       updatePathsForKind(item.kind, (currentPaths) =>
-        currentPaths.map((path2) => (path2 === item.path ? nextPath : path2)),
+        currentPaths.map((path) => (path === item.path ? nextPath : path)),
       );
       unwireEdge(item.path);
       wireEdge(
@@ -1668,18 +1668,18 @@ export function useAttachmentState(opts) {
       )
         return;
       const context = replacementContextRef.current;
-      const index2 =
+      const index =
         options?.slotIndex ?? pathsByKindRef.current.image.indexOf(item.path);
-      const constraints2 = context.pickerConstraintsFingerprint;
-      const valid2 = () =>
+      const constraints = context.pickerConstraintsFingerprint;
+      const valid = () =>
         replacementMountedRef.current &&
-        index2 >= 0 &&
+        index >= 0 &&
         options?.canApply?.() !== false &&
-        pathsByKindRef.current.image[index2] === item.path &&
+        pathsByKindRef.current.image[index] === item.path &&
         context.modelKey === replacementContextRef.current.modelKey &&
         context.hostNodeId === replacementContextRef.current.hostNodeId &&
         context.imageMode === replacementContextRef.current.imageMode &&
-        constraints2 ===
+        constraints ===
           replacementContextRef.current.pickerConstraintsFingerprint;
       const canAppend =
         !isFirstLastFrame && pickerConstraints.remainingByKind.image > 0;
@@ -1689,16 +1689,16 @@ export function useAttachmentState(opts) {
           name: item.name,
           url: resolveFileUrl?.(item.path) || item.thumbUrl || "",
           canAppend,
-          onApply: async (file, mode2, signal) => {
+          onApply: async (file, mode, signal) => {
             if (
-              !valid2() ||
+              !valid() ||
               signal.aborted ||
-              (mode2 === "append" && !canAppend)
+              (mode === "append" && !canAppend)
             )
               return false;
             const saved = await uploadAttachment(file);
             if (
-              !valid2() ||
+              !valid() ||
               signal.aborted ||
               saved.kind !== "image" ||
               !saved.path ||
@@ -1722,7 +1722,7 @@ export function useAttachmentState(opts) {
               width: saved.width,
               height: saved.height,
             });
-            if (mode2 === "append")
+            if (mode === "append")
               return addPaths([saved.path], "image").includes(saved.path);
             const replacement = {
               ...item,
@@ -1735,8 +1735,8 @@ export function useAttachmentState(opts) {
             userEditedImagePathsRef.current = true;
             removedPathsRef.current.delete(saved.path);
             updatePathsForKind("image", (paths) =>
-              paths.map((path2, position2) =>
-                position2 === index2 ? saved.path : path2,
+              paths.map((path, position) =>
+                position === index ? saved.path : path,
               ),
             );
             if (!pathsByKindRef.current.image.includes(item.path)) {
@@ -1753,7 +1753,7 @@ export function useAttachmentState(opts) {
             return true;
           },
         },
-        valid2,
+        valid,
       );
     },
     [

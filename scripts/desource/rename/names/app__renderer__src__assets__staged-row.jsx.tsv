@@ -2,3 +2,6 @@ key	old	new	依据
 X@10:10	X	CloseIcon	该供应商 X 图标用于暂存附件卡片的移除按钮。
 t2@50:14	t2	translate	该绑定是暂存附件卡片读取预览和状态文案的翻译函数。
 e2@227:26	e2	changeEvent	该事件提供附件说明文本框的新文本。
+next2@33:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+onRemove2@44:13	onRemove2	onRemove	去掉打包器防重名追加的后缀，恢复原名 onRemove，即该绑定持有的值。
+isImage2@63:9	isImage2	isImage	去掉打包器防重名追加的后缀，恢复原名 isImage，即该绑定持有的值。

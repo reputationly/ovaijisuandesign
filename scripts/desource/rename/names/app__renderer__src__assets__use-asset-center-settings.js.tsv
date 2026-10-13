@@ -1,3 +1,15 @@
 key	old	new	依据
 t2@8:14	t2	translate	该绑定是资产中心迁移错误消息读取文案的翻译函数。
 t2@44:14	t2	translate	该绑定是资产中心设置 hook 读取状态和错误文案的翻译函数。
+key2@11:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+queryClient2@42:9	queryClient2	queryClient	去掉打包器防重名追加的后缀，恢复原名 queryClient，即该绑定持有的值。
+message2@53:13	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+code2@64:13	code2	code	去掉打包器防重名追加的后缀，恢复原名 code，即该绑定持有的值。
+next2@75:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+service2@94:13	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。
+from2@99:13	from2	from	去掉打包器防重名追加的后缀，恢复原名 from，即该绑定持有的值。
+from2@142:13	from2	from	去掉打包器防重名追加的后缀，恢复原名 from，即该绑定持有的值。
+service2@144:13	service2	service	去掉打包器防重名追加的后缀，恢复原名 service，即该绑定持有的值。
+pending2@192:12	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+pending2@209:11	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+pending2@252:11	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。

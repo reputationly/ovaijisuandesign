@@ -13,13 +13,13 @@ async function listCloudReviewNodes(projectId, cursor) {
     page_size: "100",
   });
   if (cursor) params.set("cursor", cursor);
-  const data2 = await requestJson(
+  const data = await requestJson(
     `/api/v1/cloud-folder/review-nodes?${params}`,
   );
   return {
-    nodes: mapNodes(data2.nodes),
-    nextCursor: typeof data2.next_cursor === "string" ? data2.next_cursor : "",
-    hasMore: data2.has_more === true,
+    nodes: mapNodes(data.nodes),
+    nextCursor: typeof data.next_cursor === "string" ? data.next_cursor : "",
+    hasMore: data.has_more === true,
   };
 }
 const REVIEW_NODES_MAX_PAGES = 10;
@@ -37,15 +37,15 @@ export function useCloudReviewNodes(projectId) {
     setLoading(true);
     void (async () => {
       try {
-        const all2 = [];
+        const all = [];
         let cursor = "";
         for (let page = 0; page < REVIEW_NODES_MAX_PAGES; page++) {
-          const data2 = await listCloudReviewNodes(projectId, cursor || void 0);
-          all2.push(...data2.nodes);
-          if (!data2.hasMore) break;
-          cursor = data2.nextCursor;
+          const data = await listCloudReviewNodes(projectId, cursor || void 0);
+          all.push(...data.nodes);
+          if (!data.hasMore) break;
+          cursor = data.nextCursor;
         }
-        if (epoch === epochRef.current) setNodes(all2);
+        if (epoch === epochRef.current) setNodes(all);
       } catch {
       } finally {
         if (epoch === epochRef.current) setLoading(false);
@@ -56,7 +56,7 @@ export function useCloudReviewNodes(projectId) {
     refresh();
   }, [refresh]);
   const activeCount = reactExports.useMemo(
-    () => nodes.filter((node2) => node2.review === "reviewing").length,
+    () => nodes.filter((node) => node.review === "reviewing").length,
     [nodes],
   );
   return {
@@ -90,7 +90,7 @@ export function useProjectMemberNames(projectId) {
 }
 export function useDownloadingNodeIds(transfers, cloudProjectId) {
   return reactExports.useMemo(() => {
-    const ids2 = new Set();
+    const ids = new Set();
     for (const item of transfers) {
       if (
         item.cloudProjectId === cloudProjectId &&
@@ -98,46 +98,46 @@ export function useDownloadingNodeIds(transfers, cloudProjectId) {
         item.nodeId &&
         (item.status === "pending" || item.status === "downloading")
       ) {
-        ids2.add(item.nodeId);
+        ids.add(item.nodeId);
       }
     }
-    return ids2;
+    return ids;
   }, [transfers, cloudProjectId]);
 }
 export function normalizeCloudParentId(parentId) {
   return parentId === "0" ? "" : parentId;
 }
-export function formatBytes(bytes2) {
-  if (!Number.isFinite(bytes2) || bytes2 <= 0) return "0 B";
+export function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
   const unitIndex = Math.min(
-    Math.floor(Math.log(bytes2) / Math.log(1024)),
+    Math.floor(Math.log(bytes) / Math.log(1024)),
     units.length - 1,
   );
-  return `${(bytes2 / 1024 ** unitIndex).toFixed(1)} ${units[unitIndex]}`;
+  return `${(bytes / 1024 ** unitIndex).toFixed(1)} ${units[unitIndex]}`;
 }
-export function isCloudFileDownloadEnabled(node2, syncState) {
+export function isCloudFileDownloadEnabled(node, syncState) {
   return (
-    node2.kind === "file" &&
-    node2.review === "pass" &&
-    Boolean(node2.cdnUrl) &&
+    node.kind === "file" &&
+    node.review === "pass" &&
+    Boolean(node.cdnUrl) &&
     syncState !== "downloading"
   );
 }
-export function resolveSyncState(node2, syncMap, downloadingIds) {
-  if (node2.kind !== "file" || node2.review !== "pass") return void 0;
-  if (downloadingIds.has(node2.id)) return "downloading";
-  const snapshot2 = syncMap.get(node2.id);
-  if (snapshot2 === void 0) return "notDownloaded";
-  return snapshot2 < node2.updatedAt ? "stale" : "synced";
+export function resolveSyncState(node, syncMap, downloadingIds) {
+  if (node.kind !== "file" || node.review !== "pass") return void 0;
+  if (downloadingIds.has(node.id)) return "downloading";
+  const snapshot = syncMap.get(node.id);
+  if (snapshot === void 0) return "notDownloaded";
+  return snapshot < node.updatedAt ? "stale" : "synced";
 }
 export function filterMoveOptions(options, movedFolderSegments) {
   if (!movedFolderSegments || movedFolderSegments.length === 0) return options;
-  return options.filter((option2) => {
-    if (option2.key === ROOT_KEY) return true;
-    if (option2.segments.length < movedFolderSegments.length) return true;
+  return options.filter((option) => {
+    if (option.key === ROOT_KEY) return true;
+    if (option.segments.length < movedFolderSegments.length) return true;
     return !movedFolderSegments.every(
-      (segment, index2) => option2.segments[index2] === segment,
+      (segment, index) => option.segments[index] === segment,
     );
   });
 }
@@ -153,11 +153,11 @@ export function localFolderOptions(relPaths) {
     })),
   ];
 }
-export function useCloudMoveOptions(projectId, active2) {
+export function useCloudMoveOptions(projectId, active) {
   const [options, setOptions] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    if (!active2 || !projectId) return;
+    if (!active || !projectId) return;
     let disposed = false;
     setLoading(true);
     void listAllCloudFolders(projectId)
@@ -189,7 +189,7 @@ export function useCloudMoveOptions(projectId, active2) {
     return () => {
       disposed = true;
     };
-  }, [active2, projectId]);
+  }, [active, projectId]);
   return {
     options,
     loading,

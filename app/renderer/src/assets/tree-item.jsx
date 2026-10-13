@@ -48,7 +48,7 @@ const TREE_ROW_INNER_CLASS =
   "flex h-7 w-full min-w-0 items-center gap-0.5 rounded-md px-2 transition-colors";
 const TREE_ROW_HOVER_CLASS = "group-hover:bg-foreground/5";
 const TREE_ROW_SELECTED_CLASS = "bg-foreground/[0.12]";
-function getThumbnailUrl(gatewayUrl2, fileName, absPath, rootPath) {
+function getThumbnailUrl(gatewayUrl, fileName, absPath, rootPath) {
   const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
   const prefix =
     rootPath.endsWith("/") || rootPath.endsWith("\\")
@@ -59,15 +59,15 @@ function getThumbnailUrl(gatewayUrl2, fileName, absPath, rootPath) {
     : absPath;
   if (IMAGE_EXTS.has(ext)) {
     return (
-      withThumbnail(gatewayUrl2(API_PATHS.serveFile(relativePath)), 18) ?? null
+      withThumbnail(gatewayUrl(API_PATHS.serveFile(relativePath)), 18) ?? null
     );
   }
   if (VIDEO_EXTS.has(ext) || AUDIO_EXTS.has(ext)) {
-    return gatewayUrl2(API_PATHS.thumbnail(relativePath)) ?? null;
+    return gatewayUrl(API_PATHS.thumbnail(relativePath)) ?? null;
   }
   return null;
 }
-function FileThumbnail({ url: url2, name: name2, isVideo }) {
+function FileThumbnail({ url, name: fileName, isVideo }) {
   const [error, setError] = reactExports.useState(false);
   const [retried, setRetried] = reactExports.useState(false);
   const handleError = () => {
@@ -78,16 +78,16 @@ function FileThumbnail({ url: url2, name: name2, isVideo }) {
     }
   };
   if (error) {
-    return <FileTypeBadge fileName={name2} variant="inline" />;
+    return <FileTypeBadge fileName={fileName} variant="inline" />;
   }
   const src = retried
-    ? `${url2}${url2.includes("?") ? "&" : "?"}force=1`
-    : url2;
+    ? `${url}${url.includes("?") ? "&" : "?"}force=1`
+    : url;
   return (
     <div className="relative shrink-0 size-5 rounded-[2px] overflow-hidden">
       <img
         src={src}
-        alt={name2}
+        alt={fileName}
         className="w-full h-full object-cover"
         loading="lazy"
         onError={handleError}
@@ -104,12 +104,12 @@ function FileThumbnail({ url: url2, name: name2, isVideo }) {
   );
 }
 const SPECIAL_PROPS = ["renamingPath", "entry", "asset"];
-function arePropsEqual(prev, next2) {
+function arePropsEqual(prev, next) {
   const prevIsRenaming = prev.renamingPath === prev.entry.path;
-  const nextIsRenaming = next2.renamingPath === next2.entry.path;
+  const nextIsRenaming = next.renamingPath === next.entry.path;
   if (prevIsRenaming !== nextIsRenaming) return false;
   const previousEntry = prev.entry;
-  const nextEntry = next2.entry;
+  const nextEntry = next.entry;
   if (previousEntry.path !== nextEntry.path) return false;
   if (previousEntry.name !== nextEntry.name) return false;
   if (previousEntry.isDirectory !== nextEntry.isDirectory) return false;
@@ -121,9 +121,9 @@ function arePropsEqual(prev, next2) {
   if (previousEntry.status === "missing" || nextEntry.status === "missing") {
     if (previousEntry.candidate?.asset_id !== nextEntry.candidate?.asset_id) return false;
   }
-  if (prev.asset !== next2.asset) {
+  if (prev.asset !== next.asset) {
     const previousAsset = prev.asset;
-    const na = next2.asset;
+    const na = next.asset;
     if (!previousAsset || !na) return false;
     if (previousAsset.id !== na.id) return false;
     if (previousAsset.path !== na.path) return false;
@@ -134,11 +134,11 @@ function arePropsEqual(prev, next2) {
     if (previousAsset.candidate?.asset_id !== na.candidate?.asset_id) return false;
     if (previousAsset.candidate?.path !== na.candidate?.path) return false;
   }
-  return arePropsRefEqualExcept(prev, next2, SPECIAL_PROPS);
+  return arePropsRefEqualExcept(prev, next, SPECIAL_PROPS);
 }
-export const TreeItem = reactExports.memo(function TreeItem2({
+export const TreeItem = reactExports.memo(function TreeItem({
   entry,
-  depth: depth2,
+  depth,
   isExpanded,
   isSelected,
   isCreating,
@@ -179,12 +179,12 @@ export const TreeItem = reactExports.memo(function TreeItem2({
   onHoverEnd,
 }) {
   const { t: translate } = useTranslation();
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const isRenaming = renamingPath === entry.path;
   const [dragOver, setDragOver] = reactExports.useState(false);
   const [contextOpen, setContextOpen] = reactExports.useState(false);
   const [openWithSubOpen, setOpenWithSubOpen] = reactExports.useState(false);
-  const paddingLeft = depth2 * 16;
+  const paddingLeft = depth * 16;
   const target = reactExports.useMemo(
     () => ({
       path: entry.path,
@@ -225,11 +225,11 @@ export const TreeItem = reactExports.memo(function TreeItem2({
   const rowRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!onAnchorMount || entry.isDirectory || isCreating) return;
-    const path2 = entry.path;
+    const path = entry.path;
     const el = rowRef.current;
     if (!el) return;
-    onAnchorMount(path2, el);
-    return () => onAnchorMount(path2, null);
+    onAnchorMount(path, el);
+    return () => onAnchorMount(path, null);
   }, [onAnchorMount, entry.path, entry.isDirectory, isCreating]);
   const handleOpenDefault = reactExports.useCallback(
     () => onOpenDefault(entry.path),
@@ -255,7 +255,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
     () => onStartRename(entry.path),
     [onStartRename, entry.path],
   );
-  const handleDelete2 = reactExports.useCallback(
+  const handleDelete = reactExports.useCallback(
     () => onDelete(entry),
     [onDelete, entry],
   );
@@ -327,15 +327,15 @@ export const TreeItem = reactExports.memo(function TreeItem2({
   };
   const handleDragOver = (dragEvent) => {
     if (!entry.isDirectory) return;
-    const types2 = dragEvent.dataTransfer.types;
-    if (!types2.includes(RESOURCE_DRAG_MIME) && !types2.includes(DRAG_MIME))
+    const types = dragEvent.dataTransfer.types;
+    if (!types.includes(RESOURCE_DRAG_MIME) && !types.includes(DRAG_MIME))
       return;
     dragEvent.preventDefault();
     dragEvent.dataTransfer.dropEffect = "move";
     setDragOver(true);
   };
   const handleDragLeave = () => setDragOver(false);
-  const handleDrop2 = (dragEvent) => {
+  const handleDrop = (dragEvent) => {
     setDragOver(false);
     if (!entry.isDirectory) return;
     dragEvent.preventDefault();
@@ -344,13 +344,13 @@ export const TreeItem = reactExports.memo(function TreeItem2({
     if (isInvalidDropTarget(sourcePaths, entry.path)) return;
     onMove(sourcePaths, entry.path);
   };
-  const handleClick2 = (clickEvent) => {
+  const handleClick = (clickEvent) => {
     if (entry.isDirectory && !(clickEvent.metaKey || clickEvent.ctrlKey || clickEvent.shiftKey)) {
       onToggle(entry.path);
     }
     onFileSelect(entry.path, clickEvent);
   };
-  const handleDoubleClick2 = () => {
+  const handleDoubleClick = () => {
     if (!entry.isDirectory) {
       onFileDoubleClick?.(entry.path);
     }
@@ -373,7 +373,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
       onCopyFile={handleCopyFile}
       onDuplicate={handleDuplicate}
       onRename={handleStartRename}
-      onDelete={handleDelete2}
+      onDelete={handleDelete}
       onNewFolderInside={
         entry.isDirectory && onStartCreateInside
           ? () => onStartCreateInside(entry.path)
@@ -401,12 +401,12 @@ export const TreeItem = reactExports.memo(function TreeItem2({
               style={{
                 paddingLeft,
               }}
-              onClick={handleClick2}
+              onClick={handleClick}
               onContextMenu={handleContextMenu}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
-              onDrop={handleDrop2}
+              onDrop={handleDrop}
             />
           }
         >
@@ -439,11 +439,11 @@ export const TreeItem = reactExports.memo(function TreeItem2({
               />
             ) : (
               (() => {
-                const { head: stem, tail: ext2 } = splitFilename(entry.name);
+                const { head: stem, tail: ext } = splitFilename(entry.name);
                 return (
                   <span className="min-w-0 flex flex-1 items-baseline text-foreground/70">
                     <span className="truncate">{stem}</span>
-                    {ext2 && <span className="shrink-0">{ext2}</span>}
+                    {ext && <span className="shrink-0">{ext}</span>}
                   </span>
                 );
               })()
@@ -455,7 +455,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
     );
   }
   const thumbUrl = getThumbnailUrl(
-    gatewayUrl2,
+    gatewayUrl,
     entry.name,
     entry.path,
     rootPath,
@@ -480,9 +480,9 @@ export const TreeItem = reactExports.memo(function TreeItem2({
           style={{
             paddingLeft,
           }}
-          onClick={handleClick2}
+          onClick={handleClick}
           onContextMenu={handleContextMenu}
-          onDoubleClick={handleDoubleClick2}
+          onDoubleClick={handleDoubleClick}
           onPointerEnter={handlePointerEnter}
           onPointerLeave={handlePointerLeave}
           onDragStart={handleDragStart}
@@ -512,7 +512,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
           />
         ) : (
           (() => {
-            const { head: stem, tail: ext2 } = splitFilename(entry.name);
+            const { head: stem, tail: ext } = splitFilename(entry.name);
             return (
               <span
                 className={cn(
@@ -521,7 +521,7 @@ export const TreeItem = reactExports.memo(function TreeItem2({
                 )}
               >
                 <span className="truncate">{stem}</span>
-                {ext2 && <span className="shrink-0">{ext2}</span>}
+                {ext && <span className="shrink-0">{ext}</span>}
               </span>
             );
           })()

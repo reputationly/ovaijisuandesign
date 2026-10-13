@@ -4,3 +4,16 @@ e2@88:27	e2	mouseEvent	该事件来自 document 的 mousedown 监听并用于判
 e2@92:24	e2	keyboardEvent	该事件来自 document 的 keydown 监听并用于处理 Escape 关闭操作。
 o2@207:22	o2	isOpen	该布尔值表示 Popover 状态更新后的是否打开状态。
 a2@264:12	a2	workspaceAsset	该值是在工作区资产列表中按文件路径匹配到的资产记录。
+state2@33:10	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+closing2@41:9	closing2	closing	去掉打包器防重名追加的后缀，恢复原名 closing，即该绑定持有的值。
+menu2@60:11	menu2	menu	去掉打包器防重名追加的后缀，恢复原名 menu，即该绑定持有的值。
+next2@61:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+current2@77:22	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+handleClick2@88:11	handleClick2	handleClick	去掉打包器防重名追加的后缀，恢复原名 handleClick，即该绑定持有的值。
+state2@147:10	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+state2@168:10	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+gatewayFetch2@241:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+seen2@254:13	seen2	seen	去掉打包器防重名追加的后缀，恢复原名 seen，即该绑定持有的值。
+displayName2@262:15	displayName2	displayName	去掉打包器防重名追加的后缀，恢复原名 displayName，即该绑定持有的值。
+point2@328:6	point2	point	去掉打包器防重名追加的后缀，恢复原名 point，即该绑定持有的值。
+ids2@332:30	ids2	ids	去掉打包器防重名追加的后缀，恢复原名 ids，即该绑定持有的值。

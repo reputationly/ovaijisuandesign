@@ -1,3 +1,21 @@
 key	old	new	依据
 t2@15:14	t2	translate	该绑定是失效画布引用清理提示读取文案的翻译函数。
 _2@125:10	_2	_unusedValue	该参数是过滤结果中未使用的引用解析项。
+path2@13:46	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+latest2@21:9	latest2	latest	去掉打包器防重名追加的后缀，恢复原名 latest，即该绑定持有的值。
+pending2@23:9	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+active2@37:9	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+current2@41:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+resolution2@42:11	resolution2	resolution	去掉打包器防重名追加的后缀，恢复原名 resolution，即该绑定持有的值。
+snapshot2@71:11	snapshot2	snapshot	去掉打包器防重名追加的后缀，恢复原名 snapshot，即该绑定持有的值。
+entries2@91:11	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+path22@91:37	path22	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+reference2@92:13	reference2	reference	去掉打包器防重名追加的后缀，恢复原名 reference，即该绑定持有的值。
+invalid2@124:13	invalid2	invalid	去掉打包器防重名追加的后缀，恢复原名 invalid，即该绑定持有的值。
+index2@125:24	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+path22@137:20	path22	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+reference2@145:25	reference2	reference	去掉打包器防重名追加的后缀，恢复原名 reference，即该绑定持有的值。
+reference2@148:25	reference2	reference	去掉打包器防重名追加的后缀，恢复原名 reference，即该绑定持有的值。
+result2@168:29	result2	result	去掉打包器防重名追加的后缀，恢复原名 result，即该绑定持有的值。
+path22@172:18	path22	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+index2@172:28	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
