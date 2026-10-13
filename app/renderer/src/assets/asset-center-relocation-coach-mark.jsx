@@ -37,7 +37,7 @@ import { stageWorkspacePreview } from "../workspace/context-menu-content.jsx";
 import { CoachMarkPopup } from "../workspace/coach-mark-popup.jsx";
 
 function usePersistAssetCenterRelocation(relocation) {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const persistStartedRef = reactExports.useRef(false);
   const { ready, libraryInitialized, hasAssetData, assetCenterHidden } =
     relocation;
@@ -55,7 +55,7 @@ function usePersistAssetCenterRelocation(relocation) {
     void Promise.resolve()
       .then(() => getAssetCenterMainService().markLegacyEntryHidden())
       .then(() =>
-        queryClient2.invalidateQueries({
+        queryClient.invalidateQueries({
           queryKey: storageKeys.global("config"),
         }),
       )
@@ -66,7 +66,7 @@ function usePersistAssetCenterRelocation(relocation) {
     assetCenterHidden,
     hasAssetData,
     libraryInitialized,
-    queryClient2,
+    queryClient,
     ready,
   ]);
 }
@@ -77,7 +77,7 @@ const ASSET_CENTER_NAV_SELECTOR =
 export function AssetCenterRelocationCoachMark() {
   const { t: translate } = useTranslation();
   const navigate = useNavigate();
-  const [config2, , , configHydrated] = useStorage("global.config");
+  const [config, , , configHydrated] = useStorage("global.config");
   const [recentWorkspaces] = useStorage("global.recentWorkspaces");
   const [lastActiveWorkspacePath] = useStorage(
     "global.lastActiveWorkspacePath",
@@ -88,7 +88,7 @@ export function AssetCenterRelocationCoachMark() {
   const { createWorkspace } = useTopbarActions();
   const { projects, caseInsensitive } = useProjectStore();
   const hasBlockingModal = useHasBlockingModal();
-  const { loadUserMemory } = resolveNewProjectPreferences(config2);
+  const { loadUserMemory } = resolveNewProjectPreferences(config);
   const anchorRef = reactExports.useRef(null);
   const [anchorEl, setAnchorEl] = reactExports.useState(null);
   const [closedForSession, setClosedForSession] = reactExports.useState(false);
@@ -110,17 +110,17 @@ export function AssetCenterRelocationCoachMark() {
       return;
     }
     const resolveAnchor = () => {
-      const next2 = document.querySelector(ASSET_CENTER_NAV_SELECTOR);
-      anchorRef.current = next2;
-      setAnchorEl((current2) => (current2 === next2 ? current2 : next2));
+      const next = document.querySelector(ASSET_CENTER_NAV_SELECTOR);
+      anchorRef.current = next;
+      setAnchorEl((current) => (current === next ? current : next));
     };
     resolveAnchor();
-    const observer2 = new MutationObserver(resolveAnchor);
-    observer2.observe(document.body, {
+    const observer = new MutationObserver(resolveAnchor);
+    observer.observe(document.body, {
       childList: true,
       subtree: true,
     });
-    return () => observer2.disconnect();
+    return () => observer.disconnect();
   }, [candidate]);
   const sequence = useCoachMarkSequence(
     HOME_INPUT_COACH_MARK_ID,
@@ -140,14 +140,14 @@ export function AssetCenterRelocationCoachMark() {
     () =>
       new Set(
         projects
-          .filter((project2) => project2.kind === "team")
-          .flatMap((project2) => project2.workspacePaths)
-          .map((path2) => projectWorkspaceKey(path2, caseInsensitive)),
+          .filter((project) => project.kind === "team")
+          .flatMap((project) => project.workspacePaths)
+          .map((path) => projectWorkspaceKey(path, caseInsensitive)),
       ),
     [caseInsensitive, projects],
   );
-  const isPersonalWorkspace = (path2) =>
-    !teamWorkspaceKeys.has(projectWorkspaceKey(path2, caseInsensitive));
+  const isPersonalWorkspace = (path) =>
+    !teamWorkspaceKeys.has(projectWorkspaceKey(path, caseInsensitive));
   const handleDismiss = (method) => {
     if (method !== "button") {
       if (ctaLoading) return;
@@ -177,7 +177,7 @@ export function AssetCenterRelocationCoachMark() {
       currentEntry ??
       lastActiveEntry ??
       previewEntries.find((entry) => isPersonalWorkspace(entry.folderPath));
-    const run2 = async () => {
+    const run = async () => {
       if (openEntry) {
         await navigate({
           to: "/workspace",
@@ -219,7 +219,7 @@ export function AssetCenterRelocationCoachMark() {
         },
       );
     };
-    void run2()
+    void run()
       .then((opened) => {
         if (!opened) setHandoffStarted(false);
       })

@@ -50,12 +50,12 @@ async function createEntity(fetcher, input) {
   return readEnvelope(res, "entity", "created entity");
 }
 function useCreateEntity() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ input }) => createEntity(fetcher, input),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
     },
@@ -86,18 +86,18 @@ const TYPE_RULES = {
 };
 export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
   const { t: translate } = useTranslation();
-  const [type2, setType] = reactExports.useState(initialType ?? "character");
-  const [name2, setName] = reactExports.useState("");
+  const [type, setType] = reactExports.useState(initialType ?? "character");
+  const [entityName, setName] = reactExports.useState("");
   const [description, setDescription] = reactExports.useState("");
-  const [tags2, setTags] = reactExports.useState([]);
+  const [tags, setTags] = reactExports.useState([]);
   const [staged, setStaged] = reactExports.useState([]);
   const [submitError, setSubmitError] = reactExports.useState(null);
   const createFromPathsMutation = useCreateEntityFromPaths();
   const createEmptyMutation = useCreateEntity();
   const materializeMutation = useMaterializeEntity();
-  const trimmedName = name2.trim();
+  const trimmedName = entityName.trim();
   const trimmedDescription = description.trim();
-  const rules = TYPE_RULES[type2];
+  const rules = TYPE_RULES[type];
   const isSubmitting =
     createFromPathsMutation.isPending || createEmptyMutation.isPending;
   const descriptionMissing =
@@ -108,7 +108,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
     !isSubmitting &&
     true &&
     staged.every((stagedAttachment) => stagedAttachment.status !== "error");
-  const reset2 = reactExports.useCallback(() => {
+  const reset = reactExports.useCallback(() => {
     setType(initialType ?? "character");
     setName("");
     setDescription("");
@@ -126,37 +126,37 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
     trackAssetCenterAction({
       action: "create_dialog_close",
       surface: "create_dialog",
-      entity_type: type2,
+      entity_type: type,
       had_edits:
-        name2.trim().length > 0 ||
+        entityName.trim().length > 0 ||
         description.trim().length > 0 ||
-        tags2.length > 0 ||
+        tags.length > 0 ||
         staged.length > 0,
       attachment_count: staged.length,
-      tag_count: tags2.length,
+      tag_count: tags.length,
     });
-    reset2();
+    reset();
     onClose();
-  }, [isSubmitting, type2, name2, description, tags2, staged, reset2, onClose]);
+  }, [isSubmitting, type, entityName, description, tags, staged, reset, onClose]);
   const handleStagedChange = reactExports.useCallback(
-    (next2) => {
-      if (next2.length > staged.length) {
+    (next) => {
+      if (next.length > staged.length) {
         trackAssetCenterAction({
           action: "attachment_add",
           surface: "create_dialog",
-          entity_type: type2,
-          attachment_count: next2.length,
+          entity_type: type,
+          attachment_count: next.length,
         });
       }
-      setStaged(next2);
+      setStaged(next);
     },
-    [staged.length, type2],
+    [staged.length, type],
   );
   const metadata = reactExports.useMemo(() => {
     const entityMetadata = {};
-    if (tags2.length > 0) entityMetadata.tags = tags2;
+    if (tags.length > 0) entityMetadata.tags = tags;
     return entityMetadata;
-  }, [tags2]);
+  }, [tags]);
   const handleSubmit = reactExports.useCallback(async () => {
     if (!canSubmit) return;
     setSubmitError(null);
@@ -185,7 +185,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
       if (filesForServer.length > 0) {
         const entity = await createFromPathsMutation.mutateAsync({
           input: {
-            type: type2,
+            type,
             name: trimmedName,
             ...(trimmedDescription
               ? {
@@ -204,7 +204,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
       } else {
         const entity = await createEmptyMutation.mutateAsync({
           input: {
-            type: type2,
+            type,
             name: trimmedName,
             description: trimmedDescription || void 0,
             ...(Object.keys(metadata).length > 0
@@ -225,7 +225,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
               workspacePath,
             },
             _track: {
-              entity_type: type2,
+              entity_type: type,
               trigger: "post_create",
             },
           });
@@ -235,20 +235,20 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
       trackAssetCreate({
         source: workspacePath ? "canvas_sidebar" : "asset_center_page",
         method: "manual",
-        entity_type: type2,
+        entity_type: type,
         success: true,
         attachment_count: filesForServer.length,
         has_description: !!trimmedDescription,
         auto_materialized: autoMaterialized || void 0,
       });
-      reset2();
+      reset();
       onClose();
     } catch (err) {
       setSubmitError(formatAssetCenterError(err, translate));
       trackAssetCreate({
         source: workspacePath ? "canvas_sidebar" : "asset_center_page",
         method: "manual",
-        entity_type: type2,
+        entity_type: type,
         success: false,
         attachment_count: filesForServer.length,
         has_description: !!trimmedDescription,
@@ -262,11 +262,11 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
     createEmptyMutation,
     materializeMutation,
     workspacePath,
-    type2,
+    type,
     trimmedName,
     trimmedDescription,
     metadata,
-    reset2,
+    reset,
     onClose,
     translate,
   ]);
@@ -299,14 +299,14 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
           <div className="flex items-center gap-2">
             <AtSign size={12} className="shrink-0 text-muted-foreground" />
             <input
-              value={name2}
+              value={entityName}
               onChange={(changeEvent) => setName(changeEvent.target.value)}
               onBlur={() => {
                 if (trimmedName) {
                   trackAssetCenterAction({
                     action: "field_complete",
                     surface: "create_dialog",
-                    entity_type: type2,
+                    entity_type: type,
                     value: "name",
                     char_count: trimmedName.length,
                   });
@@ -327,7 +327,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
                   variant="secondary"
                   className="text-xs h-6 px-1.5 font-medium gap-0.5 rounded-[4px] text-secondary-foreground"
                 >
-                  {translate(`assetCenter.types.${type2}`)}
+                  {translate(`assetCenter.types.${type}`)}
                   <ChevronDown size={12} className="text-muted-foreground" />
                 </Badge>
               </DropdownMenuTrigger>
@@ -336,7 +336,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
                   <DropdownMenuItem
                     key={opt}
                     onClick={() => {
-                      if (opt !== type2) {
+                      if (opt !== type) {
                         trackAssetCenterAction({
                           action: "entity_type_change",
                           surface: "create_dialog",
@@ -360,7 +360,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
                   trackAssetCenterAction({
                     action: "field_complete",
                     surface: "create_dialog",
-                    entity_type: type2,
+                    entity_type: type,
                     value: "description",
                     char_count: trimmedDescription.length,
                   });
@@ -380,7 +380,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
             mode="stage"
             compactDropZone={true}
             trackingSurface="create_dialog"
-            trackingEntityType={type2}
+            trackingEntityType={type}
           />
           {staged.length > 0 && (
             <span className="text-[10px] text-muted-foreground mb-1 block text-right">
@@ -390,7 +390,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
             </span>
           )}
           <div className="border-t border-border -mx-4" />
-          <CollapsibleTags tags={tags2} onChange={setTags} />
+          <CollapsibleTags tags={tags} onChange={setTags} />
           {submitError && (
             <p
               className="text-xs text-destructive"

@@ -4,3 +4,12 @@ e2@98:31	e2	materializedEntry	该回调参数是已物化列表中的实体关�
 e2@103:25	e2	entity	该回调参数是待筛选的资产中心实体记录。
 e2@141:6	e2	keyboardEvent	该事件用于处理列表上的方向键、回车和 Escape。
 e2@203:24	e2	changeEvent	该事件提供搜索框变更后的文本值。
+Input3@20:10	Input3	Input	去掉打包器防重名追加的后缀，恢复原名 Input，即该绑定持有的值。
+type2@25:27	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+gatewayUrl2@34:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+wrapperStyle2@38:9	wrapperStyle2	wrapperStyle	去掉打包器防重名追加的后缀，恢复原名 wrapperStyle，即该绑定持有的值。
+handleKeyDown2@140:9	handleKeyDown2	handleKeyDown	去掉打包器防重名追加的后缀，恢复原名 handleKeyDown，即该绑定持有的值。
+list2@97:11	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+raw2@101:11	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+top2@117:11	top2	topEntity	该值是实体列表中的首个实体，用于通知顶部实体变更。
+selected2@157:15	selected2	selected	去掉打包器防重名追加的后缀，恢复原名 selected，即该绑定持有的值。

@@ -4,3 +4,6 @@ b3@23:34	b3	rightEntry	该排序参数是当前比较的右侧文件或目录项
 r2@78:10	r2	treeRow	该回调参数是扁平目录树中待检查的行。
 e2@82:10	e2	directoryEntry	该回调参数是用于判断创建父路径的目录项。
 t2@112:14	t2	translate	该绑定是空白区域菜单读取界面文案的翻译函数。
+entries2@22:22	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+entries2@50:19	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+depth2@50:29	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。

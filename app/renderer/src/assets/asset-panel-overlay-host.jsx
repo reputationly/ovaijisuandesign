@@ -22,7 +22,7 @@ import {
   reactExports,
   useQuery,
   useTranslation,
-  Volume2,
+  Volume2 as Volume,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Package, Sprout, VolumeX } from "../media-editing/package.jsx";
@@ -63,25 +63,25 @@ function browserAssetSourceWebsite(metadata) {
   const pageUrl = metadata?.[BROWSER_ASSET_SOURCE_METADATA_KEYS.pageUrl];
   if (typeof pageUrl !== "string" || !pageUrl) return "";
   try {
-    const url2 = new URL(pageUrl);
-    if (url2.protocol !== "http:" && url2.protocol !== "https:") return "";
-    return url2.hostname.replace(/^www\./iu, "");
+    const url = new URL(pageUrl);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return "";
+    return url.hostname.replace(/^www\./iu, "");
   } catch {
     return "";
   }
 }
-function pickString(meta2, key2) {
-  const stringValue = meta2?.[key2];
+function pickString(meta, key) {
+  const stringValue = meta?.[key];
   return typeof stringValue === "string" && stringValue ? stringValue : void 0;
 }
-function pickNumber(meta2, key2) {
-  const numberValue = meta2?.[key2];
+function pickNumber(meta, key) {
+  const numberValue = meta?.[key];
   return typeof numberValue === "number" && Number.isFinite(numberValue) ? numberValue : void 0;
 }
 function extOf(asset) {
-  const base2 = asset.path.split(/[/\\]/).pop() ?? "";
-  const dot2 = base2.lastIndexOf(".");
-  return dot2 > 0 ? base2.slice(dot2 + 1).toUpperCase() : "";
+  const base = asset.path.split(/[/\\]/).pop() ?? "";
+  const dot = base.lastIndexOf(".");
+  return dot > 0 ? base.slice(dot + 1).toUpperCase() : "";
 }
 function dimensions(asset) {
   if (asset.width && asset.height) return `${asset.width} × ${asset.height}`;
@@ -195,7 +195,7 @@ function fileRows(asset) {
   ];
 }
 const LINEAGE_DEPTH = 5;
-function Section({ title, loading, error, children: children2 }) {
+function Section({ title, loading, error, children }) {
   const { t: translate } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
   const Arrow = collapsed ? ChevronRight : ChevronDown;
@@ -219,7 +219,7 @@ function Section({ title, loading, error, children: children2 }) {
               })}
             </div>
           ) : (
-            children2
+            children
           )}
         </div>
       )}
@@ -238,15 +238,15 @@ function RoleChip({ role }) {
 }
 function AssetRow({
   assetId,
-  path: path2,
-  name: name2,
+  path,
+  name: assetName,
   status,
   role,
   depthHint,
   onSelectAsset,
 }) {
   const isMissing = status === "missing";
-  const display = name2 ?? path2 ?? assetId;
+  const display = assetName ?? path ?? assetId;
   return (
     <button
       type="button"
@@ -259,7 +259,7 @@ function AssetRow({
           : "cursor-default text-hl-text-02",
         isMissing && "opacity-50",
       )}
-      title={path2 ?? void 0}
+      title={path ?? void 0}
     >
       <span className="truncate flex-1">{display}</span>
       {depthHint !== void 0 && depthHint > 1 && (
@@ -271,33 +271,33 @@ function AssetRow({
     </button>
   );
 }
-function EntityTypeChip({ type: type2 }) {
+function EntityTypeChip({ type }) {
   const { t: translate } = useTranslation();
-  const display = translate(`assetCenter.types.${type2}`);
+  const display = translate(`assetCenter.types.${type}`);
   return (
     <span className="shrink-0 px-1 py-0 text-[10px] text-hl-text-03 bg-hl-alpha-04 rounded">
       {display}
     </span>
   );
 }
-function AttachmentRow({ node: node2, role }) {
+function AttachmentRow({ node, role }) {
   const { t: translate } = useTranslation();
-  if (node2.parent_attachment_entity_name && node2.parent_attachment_filename) {
+  if (node.parent_attachment_entity_name && node.parent_attachment_filename) {
     return (
       <div
         className="flex items-center gap-1.5 w-full px-1 py-0.5 text-hl-text-01"
-        title={node2.parent_attachment_entity_id ?? void 0}
+        title={node.parent_attachment_entity_id ?? void 0}
         data-action-ui-id="lineage.attachment-row-live"
       >
         <Package size={11} className="shrink-0 text-hl-text-03" />
         <span className="truncate flex-1">
           {translate("lineage.attachmentEntityLabel", {
-            entityName: node2.parent_attachment_entity_name,
-            filename: node2.parent_attachment_filename,
+            entityName: node.parent_attachment_entity_name,
+            filename: node.parent_attachment_filename,
           })}
         </span>
-        {node2.parent_attachment_entity_type && (
-          <EntityTypeChip type={node2.parent_attachment_entity_type} />
+        {node.parent_attachment_entity_type && (
+          <EntityTypeChip type={node.parent_attachment_entity_type} />
         )}
         <RoleChip role={role} />
       </div>
@@ -314,26 +314,26 @@ function AttachmentRow({ node: node2, role }) {
     </div>
   );
 }
-function UpstreamRow({ node: node2, onSelectAsset }) {
+function UpstreamRow({ node, onSelectAsset }) {
   const { t: translate } = useTranslation();
-  if (node2.parent_id !== null) {
+  if (node.parent_id !== null) {
     return (
       <AssetRow
-        assetId={node2.parent_id}
-        path={node2.parent_path}
-        name={node2.parent_name}
-        status={node2.parent_status}
-        role={node2.role}
+        assetId={node.parent_id}
+        path={node.parent_path}
+        name={node.parent_name}
+        status={node.parent_status}
+        role={node.role}
         onSelectAsset={onSelectAsset}
       />
     );
   }
-  if (node2.parent_attachment_id) {
-    return <AttachmentRow node={node2} role={node2.role} />;
+  if (node.parent_attachment_id) {
+    return <AttachmentRow node={node} role={node.role} />;
   }
   const fallbackPath =
-    typeof node2.metadata?.parent_path === "string"
-      ? node2.metadata.parent_path
+    typeof node.metadata?.parent_path === "string"
+      ? node.metadata.parent_path
       : null;
   return (
     <div className="flex items-center gap-1.5 text-hl-text-03 italic py-0.5">
@@ -345,11 +345,11 @@ function UpstreamRow({ node: node2, onSelectAsset }) {
             })
           : translate("lineage.brokenParent")}
       </span>
-      {node2.role && <RoleChip role={node2.role} />}
+      {node.role && <RoleChip role={node.role} />}
     </div>
   );
 }
-function UpstreamLevel({ depth: depth2, nodes, onSelectAsset }) {
+function UpstreamLevel({ depth, nodes, onSelectAsset }) {
   const { t: translate } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
   const Arrow = collapsed ? ChevronRight : ChevronDown;
@@ -363,16 +363,16 @@ function UpstreamLevel({ depth: depth2, nodes, onSelectAsset }) {
         <Arrow size={11} className="shrink-0" />
         <span>
           {translate("lineage.depthLabel", {
-            depth: depth2,
+            depth,
             count: nodes.length,
           })}
         </span>
       </button>
       {!collapsed && (
         <ul className="flex flex-col pl-3.5">
-          {nodes.map((node2) => (
-            <li key={node2.id}>
-              <UpstreamRow node={node2} onSelectAsset={onSelectAsset} />
+          {nodes.map((node) => (
+            <li key={node.id}>
+              <UpstreamRow node={node} onSelectAsset={onSelectAsset} />
             </li>
           ))}
         </ul>
@@ -380,28 +380,28 @@ function UpstreamLevel({ depth: depth2, nodes, onSelectAsset }) {
     </div>
   );
 }
-function InputRow({ node: node2, onSelectAsset }) {
+function InputRow({ node, onSelectAsset }) {
   const { t: translate } = useTranslation();
-  if (node2.parent_id !== null) {
+  if (node.parent_id !== null) {
     return (
       <AssetRow
-        assetId={node2.parent_id}
-        path={node2.parent_path}
-        name={node2.parent_name}
-        status={node2.parent_status}
-        role={node2.role}
+        assetId={node.parent_id}
+        path={node.parent_path}
+        name={node.parent_name}
+        status={node.parent_status}
+        role={node.role}
         onSelectAsset={onSelectAsset}
       />
     );
   }
-  if (node2.parent_attachment_id) {
-    return <AttachmentRow node={node2} role={node2.role} />;
+  if (node.parent_attachment_id) {
+    return <AttachmentRow node={node} role={node.role} />;
   }
   return (
     <div className="flex items-center gap-1.5 text-hl-text-03 italic py-0.5">
       <AlertTriangle size={11} className="shrink-0" />
       <span className="truncate">{translate("lineage.brokenParent")}</span>
-      <RoleChip role={node2.role} />
+      <RoleChip role={node.role} />
     </div>
   );
 }
@@ -417,9 +417,9 @@ function InputsView({ nodes, onSelectAsset }) {
   }
   return (
     <ul className="flex flex-col">
-      {nodes.map((node2) => (
-        <li key={node2.id}>
-          <InputRow node={node2} onSelectAsset={onSelectAsset} />
+      {nodes.map((node) => (
+        <li key={node.id}>
+          <InputRow node={node} onSelectAsset={onSelectAsset} />
         </li>
       ))}
     </ul>
@@ -427,34 +427,34 @@ function InputsView({ nodes, onSelectAsset }) {
 }
 function StandaloneHint({ variant = "upstream" }) {
   const { t: translate } = useTranslation();
-  const text2 =
+  const text =
     variant === "upstream"
       ? translate("lineage.standaloneUpstream")
       : translate("lineage.standaloneDownstream");
   return (
     <div className="flex items-start gap-1.5 text-hl-text-03 italic py-1">
       <Sprout size={11} className="shrink-0 mt-0.5" />
-      <span className="leading-snug">{text2}</span>
+      <span className="leading-snug">{text}</span>
     </div>
   );
 }
-function UpstreamView({ data: data2, maxDepth, onSelectAsset }) {
+function UpstreamView({ data, maxDepth, onSelectAsset }) {
   const { t: translate } = useTranslation();
   const groupedByDepth = reactExports.useMemo(() => {
-    if (!data2) return [];
-    const buckets2 = new Map();
-    for (const node2 of data2.nodes) {
-      const arr = buckets2.get(node2.depth) ?? [];
-      arr.push(node2);
-      buckets2.set(node2.depth, arr);
+    if (!data) return [];
+    const buckets = new Map();
+    for (const node of data.nodes) {
+      const arr = buckets.get(node.depth) ?? [];
+      arr.push(node);
+      buckets.set(node.depth, arr);
     }
-    return [...buckets2.entries()].sort(([leftDepth], [rightDepth]) => leftDepth - rightDepth);
-  }, [data2]);
-  if (!data2) return null;
-  if (data2.nodes.length === 0) {
+    return [...buckets.entries()].sort(([leftDepth], [rightDepth]) => leftDepth - rightDepth);
+  }, [data]);
+  if (!data) return null;
+  if (data.nodes.length === 0) {
     return <StandaloneHint />;
   }
-  const reachedCap = data2.nodes.some((node) => node.depth >= maxDepth);
+  const reachedCap = data.nodes.some((node) => node.depth >= maxDepth);
   return (
     <div className="flex flex-col gap-1">
       {groupedByDepth.map(([nodeDepth, nodes]) => (
@@ -484,15 +484,15 @@ function DescendantsView({ nodes, maxDepth, onSelectAsset }) {
   return (
     <div className="flex flex-col gap-0.5">
       <ul className="flex flex-col">
-        {nodes.map((node2) => (
-          <li key={node2.id}>
+        {nodes.map((node) => (
+          <li key={node.id}>
             <AssetRow
-              assetId={node2.child_id}
-              path={node2.child_path}
-              name={node2.child_name}
-              status={node2.child_status}
-              role={node2.role}
-              depthHint={node2.depth}
+              assetId={node.child_id}
+              path={node.child_path}
+              name={node.child_name}
+              status={node.child_status}
+              role={node.role}
+              depthHint={node.depth}
               onSelectAsset={onSelectAsset}
             />
           </li>
@@ -510,16 +510,16 @@ function DescendantsView({ nodes, maxDepth, onSelectAsset }) {
 }
 function LineageTree({
   assetId,
-  depth: depth2 = LINEAGE_DEPTH,
+  depth = LINEAGE_DEPTH,
   onSelectAsset,
   className,
 }) {
   const { t: translate } = useTranslation();
   const lineage = useAssetLineage(assetId, {
-    depth: depth2,
+    depth,
   });
   const descendants = useAssetDescendants(assetId, {
-    depth: depth2,
+    depth,
   });
   const inputs = useAssetInputs(assetId);
   if (!assetId) {
@@ -543,7 +543,7 @@ function LineageTree({
       >
         <UpstreamView
           data={lineage.data}
-          maxDepth={depth2}
+          maxDepth={depth}
           onSelectAsset={onSelectAsset}
         />
       </Section>
@@ -554,7 +554,7 @@ function LineageTree({
       >
         <DescendantsView
           nodes={descendants.data?.nodes ?? []}
-          maxDepth={depth2}
+          maxDepth={depth}
           onSelectAsset={onSelectAsset}
         />
       </Section>
@@ -573,7 +573,7 @@ function LineageTree({
 }
 const STALE_TIME_MS = 5 * 60 * 1e3;
 function useAssetMetadata(asset, { enabled }) {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
   return useQuery({
     // `?? null` keeps the queryKey stable & non-warning when asset.id is
@@ -582,7 +582,7 @@ function useAssetMetadata(asset, { enabled }) {
     enabled: Boolean(asset.id),
     staleTime: STALE_TIME_MS,
     queryFn: async () => {
-      const resp = await gatewayFetch2(API_PATHS.assetMetadata(asset.id));
+      const resp = await gatewayFetch(API_PATHS.assetMetadata(asset.id));
       return await resp.json();
     },
   });
@@ -591,17 +591,17 @@ const DEFAULT_CHARS = 200;
 const TEXT_PREVIEW_STALE_TIME_MS = 5 * 60 * 1e3;
 function useAssetTextPreview(
   asset,
-  { enabled, chars: chars2 = DEFAULT_CHARS },
+  { enabled, chars = DEFAULT_CHARS },
 ) {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
   return useQuery({
-    queryKey: ["asset-text-preview", scopeKey, asset.path, chars2],
+    queryKey: ["asset-text-preview", scopeKey, asset.path, chars],
     enabled: asset.type === "text",
     staleTime: TEXT_PREVIEW_STALE_TIME_MS,
     queryFn: async () => {
-      const resp = await gatewayFetch2(
-        API_PATHS.assetTextPreview(asset.path, chars2),
+      const resp = await gatewayFetch(
+        API_PATHS.assetTextPreview(asset.path, chars),
       );
       return await resp.json();
     },
@@ -724,29 +724,29 @@ const PEAKS_ENDPOINT_THRESHOLD_BYTES = 10 * 1024 * 1024;
 const PEAKS_BUCKETS = 200;
 function AudioPreview({ asset }) {
   const { t: translate } = useTranslation();
-  const gatewayUrl2 = useGatewayUrl();
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayUrl = useGatewayUrl();
+  const gatewayFetch = useGatewayFetch();
   const containerRef = reactExports.useRef(null);
   const wavesurferRef = reactExports.useRef(null);
   const [muted, setMuted] = reactExports.useState(true);
-  const url2 = reactExports.useMemo(
-    () => gatewayUrl2(API_PATHS.serveFile(asset.path)),
-    [asset.path, gatewayUrl2],
+  const url = reactExports.useMemo(
+    () => gatewayUrl(API_PATHS.serveFile(asset.path)),
+    [asset.path, gatewayUrl],
   );
   reactExports.useEffect(() => {
     const container = containerRef.current;
-    if (!container || !url2) return;
+    if (!container || !url) return;
     const useServerPeaks =
       (asset.fileSize ?? 0) > PEAKS_ENDPOINT_THRESHOLD_BYTES;
     let cancelled = false;
     let waveSurfer = null;
     let cleanupReady = null;
     const fetchAbort = new AbortController();
-    const start2 = (peaksData) => {
+    const start = (peaksData) => {
       if (cancelled || !container) return;
       waveSurfer = WaveSurfer.create({
         container,
-        url: url2,
+        url,
         ...(peaksData
           ? // Wavesurfer skips decodeAudioData entirely when both peaks
             // and duration are supplied at construction time. The `url`
@@ -783,22 +783,22 @@ function AudioPreview({ asset }) {
       cleanupReady = offReady;
     };
     if (useServerPeaks) {
-      gatewayFetch2(API_PATHS.assetPeaks(asset.path, PEAKS_BUCKETS), {
+      gatewayFetch(API_PATHS.assetPeaks(asset.path, PEAKS_BUCKETS), {
         signal: fetchAbort.signal,
       })
         .then(async (resp) => {
           if (!resp.ok)
             throw new Error(`peaks endpoint returned ${resp.status}`);
-          const data2 = await resp.json();
+          const data = await resp.json();
           if (
-            !data2 ||
-            !Array.isArray(data2.peaks) ||
-            typeof data2.duration !== "number" ||
-            !Number.isFinite(data2.duration)
+            !data ||
+            !Array.isArray(data.peaks) ||
+            typeof data.duration !== "number" ||
+            !Number.isFinite(data.duration)
           ) {
             throw new Error("peaks endpoint returned malformed payload");
           }
-          start2(data2);
+          start(data);
         })
         .catch((err) => {
           if (err?.name === "AbortError") return;
@@ -806,10 +806,10 @@ function AudioPreview({ asset }) {
             "[audio-preview] peaks endpoint failed, falling back to self-decode:",
             err,
           );
-          start2(null);
+          start(null);
         });
     } else {
-      start2(null);
+      start(null);
     }
     return () => {
       cancelled = true;
@@ -821,7 +821,7 @@ function AudioPreview({ asset }) {
       } catch {}
       wavesurferRef.current = null;
     };
-  }, [url2, asset.path, gatewayFetch2]);
+  }, [url, asset.path, gatewayFetch]);
   reactExports.useEffect(() => {
     const waveSurfer = wavesurferRef.current;
     if (!waveSurfer) return;
@@ -829,7 +829,7 @@ function AudioPreview({ asset }) {
     waveSurfer.setVolume(muted ? 0 : UNMUTED_VOLUME);
   }, [muted]);
   const toggleMute = reactExports.useCallback(() => setMuted((wasMuted) => !wasMuted), []);
-  if (!url2) {
+  if (!url) {
     return (
       <div
         data-slot="audio-preview-fallback"
@@ -879,7 +879,7 @@ function AudioPreview({ asset }) {
         {muted ? (
           <VolumeX size={14} strokeWidth={1.5} />
         ) : (
-          <Volume2 size={14} strokeWidth={1.5} />
+          <Volume size={14} strokeWidth={1.5} />
         )}
       </button>
     </div>
@@ -888,15 +888,15 @@ function AudioPreview({ asset }) {
 const PREVIEW_MAX_WIDTH = 480;
 function ImagePreview({ asset }) {
   const { t: translate } = useTranslation();
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const [loaded, setLoaded] = reactExports.useState(false);
   const [errored, setErrored] = reactExports.useState(false);
   const src = reactExports.useMemo(() => {
     return withThumbnail(
-      gatewayUrl2(API_PATHS.serveFile(asset.path)),
+      gatewayUrl(API_PATHS.serveFile(asset.path)),
       PREVIEW_MAX_WIDTH,
     );
-  }, [asset.path, gatewayUrl2]);
+  }, [asset.path, gatewayUrl]);
   const onLoad = reactExports.useCallback(() => setLoaded(true), []);
   const onError = reactExports.useCallback(() => {
     setErrored(true);
@@ -1008,13 +1008,13 @@ function claimInlineVideoSlot(video) {
 const PREVIEW_LOOP_LIMIT_S = 5;
 function VideoPreview({ asset }) {
   const { t: translate } = useTranslation();
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const videoRef = reactExports.useRef(null);
   const progressRef = reactExports.useRef(null);
   const [muted, setMuted] = reactExports.useState(true);
   const src = reactExports.useMemo(
-    () => gatewayUrl2(API_PATHS.assetVideoStream(asset.path, 480)),
-    [asset.path, gatewayUrl2],
+    () => gatewayUrl(API_PATHS.assetVideoStream(asset.path, 480)),
+    [asset.path, gatewayUrl],
   );
   reactExports.useEffect(() => {
     const video = videoRef.current;
@@ -1054,10 +1054,10 @@ function VideoPreview({ asset }) {
   }, []);
   const toggleMute = reactExports.useCallback(() => {
     setMuted((prev) => {
-      const next2 = !prev;
+      const next = !prev;
       const video = videoRef.current;
-      if (video) video.muted = next2;
-      return next2;
+      if (video) video.muted = next;
+      return next;
     });
   }, []);
   if (!src) {
@@ -1114,7 +1114,7 @@ function VideoPreview({ asset }) {
         {muted ? (
           <VolumeX size={14} strokeWidth={1.5} />
         ) : (
-          <Volume2 size={14} strokeWidth={1.5} />
+          <Volume size={14} strokeWidth={1.5} />
         )}
       </button>
       <div
@@ -1203,10 +1203,10 @@ function AssetHoverPopupInner({
       case "audio":
         return <AudioPreview asset={asset} />;
       case "text": {
-        const data2 = textPreview.data;
-        const previewText = data2?.ok ? data2.text : null;
-        const errorReason = data2 && !data2.ok ? data2.reason : null;
-        const errorMessage2 = textPreview.error
+        const data = textPreview.data;
+        const previewText = data?.ok ? data.text : null;
+        const errorReason = data && !data.ok ? data.reason : null;
+        const errorMessage = textPreview.error
           ? String(textPreview.error)
           : errorReason;
         return (
@@ -1214,7 +1214,7 @@ function AssetHoverPopupInner({
             asset={asset}
             previewText={previewText}
             loading={textPreview.isLoading || textPreview.isFetching}
-            error={errorMessage2}
+            error={errorMessage}
           />
         );
       }
@@ -1342,22 +1342,22 @@ function AssetHoverPopup(props) {
 const HOVER_OPEN_DELAY_MS = 300;
 const HOVER_CLOSE_DELAY_MS = 150;
 export const AssetPanelOverlayHost = reactExports.forwardRef(
-  function AssetPanelOverlayHost2(
+  function AssetPanelOverlayHost(
     { onLocateOnCanvas, onLocateMissingConfirmInsert },
     ref,
   ) {
     const { t: translate } = useTranslation();
-    const [state2, setState] = reactExports.useState({
+    const [state, setState] = reactExports.useState({
       kind: "idle",
     });
-    const stateRef = reactExports.useRef(state2);
+    const stateRef = reactExports.useRef(state);
     const openTimerRef = reactExports.useRef(null);
     const closeTimerRef = reactExports.useRef(null);
-    const setBoth = reactExports.useCallback((next2) => {
-      stateRef.current = next2;
-      setState(next2);
+    const setBoth = reactExports.useCallback((next) => {
+      stateRef.current = next;
+      setState(next);
     }, []);
-    const cancelOpen2 = reactExports.useCallback(() => {
+    const cancelOpen = reactExports.useCallback(() => {
       if (openTimerRef.current) {
         clearTimeout(openTimerRef.current);
         openTimerRef.current = null;
@@ -1376,7 +1376,7 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
           if (target.asset.status === "missing") return;
           if (stateRef.current.kind === "locate-missing") return;
           cancelClose();
-          cancelOpen2();
+          cancelOpen();
           openTimerRef.current = setTimeout(() => {
             openTimerRef.current = null;
             if (stateRef.current.kind === "locate-missing") return;
@@ -1387,7 +1387,7 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
           }, HOVER_OPEN_DELAY_MS);
         },
         notifyHoverEnd: () => {
-          cancelOpen2();
+          cancelOpen();
           if (stateRef.current.kind !== "hover") return;
           cancelClose();
           closeTimerRef.current = setTimeout(() => {
@@ -1399,7 +1399,7 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
           }, HOVER_CLOSE_DELAY_MS);
         },
         showLocateMissing: (anchor, absolutePath) => {
-          cancelOpen2();
+          cancelOpen();
           cancelClose();
           setBoth({
             kind: "locate-missing",
@@ -1414,14 +1414,14 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
             });
         },
       }),
-      [cancelClose, cancelOpen2, setBoth],
+      [cancelClose, cancelOpen, setBoth],
     );
     const handlePopupMouseEnter = reactExports.useCallback(() => {
-      cancelOpen2();
+      cancelOpen();
       cancelClose();
-    }, [cancelClose, cancelOpen2]);
+    }, [cancelClose, cancelOpen]);
     const handlePopupMouseLeave = reactExports.useCallback(() => {
-      cancelOpen2();
+      cancelOpen();
       cancelClose();
       closeTimerRef.current = setTimeout(() => {
         closeTimerRef.current = null;
@@ -1430,15 +1430,15 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
             kind: "idle",
           });
       }, HOVER_CLOSE_DELAY_MS);
-    }, [cancelClose, cancelOpen2, setBoth]);
+    }, [cancelClose, cancelOpen, setBoth]);
     const handlePopupLocateOnCanvas = reactExports.useCallback(() => {
       const overlayState = stateRef.current;
       if (overlayState.kind !== "hover" || !onLocateOnCanvas) return;
       onLocateOnCanvas(overlayState.target.absolutePath);
     }, [onLocateOnCanvas]);
     const handleLocateOpenChange = reactExports.useCallback(
-      (next2) => {
-        if (!next2 && stateRef.current.kind === "locate-missing")
+      (next) => {
+        if (!next && stateRef.current.kind === "locate-missing")
           setBoth({
             kind: "idle",
           });
@@ -1448,11 +1448,11 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
     const handleLocateConfirm = reactExports.useCallback(() => {
       const overlayState = stateRef.current;
       if (overlayState.kind !== "locate-missing") return;
-      const path2 = overlayState.absolutePath;
+      const path = overlayState.absolutePath;
       setBoth({
         kind: "idle",
       });
-      onLocateMissingConfirmInsert(path2);
+      onLocateMissingConfirmInsert(path);
     }, [onLocateMissingConfirmInsert, setBoth]);
     const handleLocateCancel = reactExports.useCallback(() => {
       setBoth({
@@ -1460,10 +1460,10 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
       });
     }, [setBoth]);
     const activeAnchor =
-      state2.kind === "hover"
-        ? state2.target.anchor
-        : state2.kind === "locate-missing"
-          ? state2.anchor
+      state.kind === "hover"
+        ? state.target.anchor
+        : state.kind === "locate-missing"
+          ? state.anchor
           : null;
     reactExports.useEffect(() => {
       if (!activeAnchor) return;
@@ -1474,8 +1474,8 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
         return;
       }
       const intersectionObserver = new IntersectionObserver(
-        (entries2) => {
-          for (const entry of entries2) {
+        (entries) => {
+          for (const entry of entries) {
             if (!entry.isIntersecting)
               setBoth({
                 kind: "idle",
@@ -1491,14 +1491,14 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
     }, [activeAnchor, setBoth]);
     reactExports.useEffect(() => {
       return () => {
-        cancelOpen2();
+        cancelOpen();
         cancelClose();
       };
-    }, [cancelOpen2, cancelClose]);
+    }, [cancelOpen, cancelClose]);
     return (
       <>
         <AssetHoverPopup
-          target={state2.kind === "hover" ? state2.target : null}
+          target={state.kind === "hover" ? state.target : null}
           onMouseEnter={handlePopupMouseEnter}
           onMouseLeave={handlePopupMouseLeave}
           onLocateOnCanvas={
@@ -1506,13 +1506,13 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
           }
         />
         <PopoverRoot
-          open={state2.kind === "locate-missing"}
+          open={state.kind === "locate-missing"}
           onOpenChange={handleLocateOpenChange}
         >
-          {state2.kind === "locate-missing" && (
+          {state.kind === "locate-missing" && (
             <PopoverPortal>
               <PopoverPositioner
-                anchor={state2.anchor}
+                anchor={state.anchor}
                 align="center"
                 side="left"
                 sideOffset={8}

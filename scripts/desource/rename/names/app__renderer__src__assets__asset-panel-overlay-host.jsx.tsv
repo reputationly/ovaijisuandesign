@@ -43,3 +43,47 @@ s2@1435:13	s2	overlayState	该值是当前悬停或定位缺失素材的弹层�
 s2@1449:13	s2	overlayState	该值是当前悬停或定位缺失素材的弹层状态。
 io2@1476:13	io2	intersectionObserver	该对象观察锚点是否离开可见区域。
 _t2@122:27	_t2	_unusedArg	该参数未被使用，且唯一调用点只传入 asset。
+Volume2@25:3	Volume2	Volume	去掉打包器防重名追加的后缀，恢复原名 Volume，即该绑定持有的值。
+url2@66:11	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+meta2@73:21	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+key2@73:28	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+meta2@77:21	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+key2@77:28	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+base2@82:9	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
+dot2@83:9	dot2	dot	去掉打包器防重名追加的后缀，恢复原名 dot，即该绑定持有的值。
+children2@198:53	children2	children	去掉打包器防重名追加的后缀，恢复原名 children，即该绑定持有的值。
+path2@241:9	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+name2@242:9	name2	assetName	该值是资产行展示的资产名称。
+type2@274:33	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+node2@283:32	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@317:30	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+depth2@352:33	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+node2@373:23	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@383:27	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@420:19	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+text2@430:9	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+data2@441:31	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+buckets2@445:11	buckets2	buckets	去掉打包器防重名追加的后缀，恢复原名 buckets，即该绑定持有的值。
+node2@446:16	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+node2@487:21	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+depth2@513:10	depth2	depth	去掉打包器防重名追加的后缀，恢复原名 depth，即该绑定持有的值。
+gatewayFetch2@576:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+chars2@594:21	chars2	chars	去掉打包器防重名追加的后缀，恢复原名 chars，即该绑定持有的值。
+gatewayFetch2@596:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+gatewayUrl2@727:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+gatewayFetch2@728:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+url2@732:9	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+start2@745:11	start2	start	去掉打包器防重名追加的后缀，恢复原名 start，即该绑定持有的值。
+data2@792:17	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+gatewayUrl2@891:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+gatewayUrl2@1011:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+next2@1057:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+data2@1206:15	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+errorMessage2@1209:15	errorMessage2	errorMessage	去掉打包器防重名追加的后缀，恢复原名 errorMessage，即该绑定持有的值。
+AssetPanelOverlayHost2@1345:12	AssetPanelOverlayHost2	AssetPanelOverlayHost	去掉打包器防重名追加的后缀，恢复原名 AssetPanelOverlayHost，即该绑定持有的值。
+state2@1350:12	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+cancelOpen2@1360:11	cancelOpen2	cancelOpen	去掉打包器防重名追加的后缀，恢复原名 cancelOpen，即该绑定持有的值。
+next2@1356:47	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@1440:8	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+path2@1451:13	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+entries2@1477:10	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。

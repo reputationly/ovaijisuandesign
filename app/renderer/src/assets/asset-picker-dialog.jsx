@@ -49,7 +49,7 @@ import { useFullscreenContainerEl } from "../infra/use-plugin-metadata-store.js"
 import { useGatewayFetch } from "../generation/use-model-catalog-scope-key.js";
 import { Badge, DialogTitle } from "../infra/badge-variants.jsx";
 import { Checkbox } from "../infra/checkbox.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { MediaLightbox } from "./text-preview.jsx";
 import { SegmentedSwitch } from "../canvas/popover-title.jsx";
 import { getImageConstraintReason } from "../generation/attachment-bar.jsx";
@@ -57,17 +57,17 @@ import { loadAssetFpsBatch } from "../canvas/load-asset-fps-batch.js";
 import { selectionSummary } from "../canvas/selection-summary.js";
 function createAssetPickerPerfSession({
   openedAt = performance.now(),
-  now: now2 = () => performance.now(),
+  now = () => performance.now(),
   totalItems,
-  view: view2,
+  view,
 }) {
   let phase = "opened";
   let mountedItems = 0;
   let firstPaintMs;
   let interactiveMs;
-  const snapshot2 = () => ({
+  const snapshot = () => ({
     phase,
-    view: view2,
+    view,
     totalItemsBucket: bucketItemCount(totalItems),
     mountedItems,
     ...(firstPaintMs === void 0
@@ -84,20 +84,20 @@ function createAssetPickerPerfSession({
   return {
     markFirstPaint() {
       if (firstPaintMs !== void 0) return;
-      firstPaintMs = elapsedMs(openedAt, now2());
+      firstPaintMs = elapsedMs(openedAt, now());
       phase = "first-paint";
-      measurePerf(PERF_ASSET_PICKER_OPEN_FIRST_PAINT, openedAt, snapshot2());
+      measurePerf(PERF_ASSET_PICKER_OPEN_FIRST_PAINT, openedAt, snapshot());
     },
     markInteractive() {
       if (interactiveMs !== void 0) return;
-      interactiveMs = elapsedMs(openedAt, now2());
+      interactiveMs = elapsedMs(openedAt, now());
       phase = "interactive";
-      measurePerf(PERF_ASSET_PICKER_OPEN_INTERACTIVE, openedAt, snapshot2());
+      measurePerf(PERF_ASSET_PICKER_OPEN_INTERACTIVE, openedAt, snapshot());
     },
-    recordMountedItems(count2) {
-      mountedItems = boundedCount(count2, MAX_MOUNTED_ITEMS);
+    recordMountedItems(count) {
+      mountedItems = boundedCount(count, MAX_MOUNTED_ITEMS);
     },
-    snapshot: snapshot2,
+    snapshot,
   };
 }
 function getAssetSourceAvailability(status, reasons) {
@@ -209,10 +209,10 @@ function AssetSourceMenu({
 }
 function AssetList({
   rows,
-  view: view2,
+  view,
   multiple,
   leadingAction,
-  selected: selected2,
+  selected,
   canAddSelection,
   onSelectionChange,
   onToggle,
@@ -255,10 +255,10 @@ function AssetList({
   return (
     <ScrollableAssetView
       rows={rows}
-      view={view2}
+      view={view}
       multiple={multiple}
       leadingAction={leadingAction}
-      selected={selected2}
+      selected={selected}
       canAddSelection={canAddSelection}
       onSelectionChange={onSelectionChange}
       onToggle={onToggle}
@@ -285,7 +285,7 @@ const ALL_TYPE_FILTERS = [
   "subtitle",
   "file",
 ];
-function computeSelectionTotals(selection2) {
+function computeSelectionTotals(selection) {
   const counts = {
     image: 0,
     video: 0,
@@ -295,7 +295,7 @@ function computeSelectionTotals(selection2) {
     audio: 0,
     video: 0,
   };
-  selection2.forEach((res) => {
+  selection.forEach((res) => {
     if (res.type === "image" || res.type === "video" || res.type === "audio") {
       counts[res.type] += 1;
     }
@@ -329,10 +329,10 @@ function TagFilterMark({ tag }) {
   );
 }
 function SidebarFilterButton({
-  active: active2,
+  active,
   onClick,
-  children: children2,
-  count: count2,
+  children,
+  count,
   actionId,
   icon,
   countKind = "type",
@@ -341,34 +341,34 @@ function SidebarFilterButton({
     <button
       type="button"
       onClick={onClick}
-      aria-label={typeof children2 === "string" ? children2 : void 0}
-      aria-pressed={active2}
+      aria-label={typeof children === "string" ? children : void 0}
+      aria-pressed={active}
       data-action-ui-id={actionId}
       className={cn(
         "flex h-8 w-full items-center justify-between gap-2 rounded-md px-2.5 text-left text-xs transition-colors",
-        active2
+        active
           ? "bg-accent font-medium text-foreground"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >
       <span className="flex min-w-0 items-center gap-2">
         {icon}
-        <span className="truncate">{children2}</span>
+        <span className="truncate">{children}</span>
       </span>
       <span
         className="shrink-0 tabular-nums text-muted-foreground/40"
         data-type-count={countKind === "type" ? "" : void 0}
         data-tag-count={countKind === "tag" ? "" : void 0}
       >
-        {count2}
+        {count}
       </span>
     </button>
   );
 }
-function mediaLightboxKindForAsset(type2) {
-  return type2 === "subtitle" ? "text" : type2;
+function mediaLightboxKindForAsset(type) {
+  return type === "subtitle" ? "text" : type;
 }
-function UploadEntry({ view: view2, busy, error, onClick }) {
+function UploadEntry({ view, busy, error, onClick }) {
   const { t: translate } = useTranslation();
   return (
     <button
@@ -380,22 +380,22 @@ function UploadEntry({ view: view2, busy, error, onClick }) {
       aria-busy={busy}
       className={cn(
         "relative flex w-full cursor-pointer items-center justify-center rounded-lg border border-dashed border-foreground/30 bg-muted/30 text-xs text-foreground hover:border-foreground/50 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait",
-        view2 === "grid" ? "h-full flex-col" : "h-14 px-3",
+        view === "grid" ? "h-full flex-col" : "h-14 px-3",
       )}
     >
-      {view2 === "grid" && (
+      {view === "grid" && (
         <span
           aria-hidden={true}
           className="invisible block aspect-3/2 w-full shrink-0"
         />
       )}
-      {view2 === "grid" && (
+      {view === "grid" && (
         <span aria-hidden={true} className="invisible block h-12 shrink-0" />
       )}
       <span
         className={cn(
           "flex items-center justify-center gap-2",
-          view2 === "grid" && "absolute inset-0 flex-col",
+          view === "grid" && "absolute inset-0 flex-col",
         )}
       >
         {busy ? (
@@ -421,7 +421,7 @@ function UploadEntry({ view: view2, busy, error, onClick }) {
     </button>
   );
 }
-function disabledReasonLabel(reason, translate, constraints2) {
+function disabledReasonLabel(reason, translate, constraints) {
   if (reason.startsWith(VIDEO_BUDGET_REASON_PREFIX)) {
     const excessSec = Number(reason.slice(VIDEO_BUDGET_REASON_PREFIX.length));
     if (Number.isFinite(excessSec) && excessSec > 0) {
@@ -436,23 +436,23 @@ function disabledReasonLabel(reason, translate, constraints2) {
   }
   if (reason.startsWith(VIDEO_FPS_REASON_PREFIX)) {
     const fps = Number(reason.slice(VIDEO_FPS_REASON_PREFIX.length));
-    const min2 = constraints2?.videoMinFps;
-    const max2 = constraints2?.videoMaxFps;
-    if (max2 !== void 0 && Number.isFinite(fps) && fps > max2) {
+    const min = constraints?.videoMinFps;
+    const max = constraints?.videoMaxFps;
+    if (max !== void 0 && Number.isFinite(fps) && fps > max) {
       return translate(
         "assetPicker.disabledReason.videoFpsOverMax",
         "帧率超 {{max}}fps",
         {
-          max: max2,
+          max,
         },
       );
     }
-    if (min2 !== void 0 && Number.isFinite(fps) && fps < min2) {
+    if (min !== void 0 && Number.isFinite(fps) && fps < min) {
       return translate(
         "assetPicker.disabledReason.videoFpsUnderMin",
         "帧率低于 {{min}}fps",
         {
-          min: min2,
+          min,
         },
       );
     }
@@ -460,8 +460,8 @@ function disabledReasonLabel(reason, translate, constraints2) {
       "assetPicker.disabledReason.videoFps",
       "帧率需 {{min}}-{{max}}fps",
       {
-        min: min2 ?? 0,
-        max: max2 ?? 0,
+        min: min ?? 0,
+        max: max ?? 0,
       },
     );
   }
@@ -475,7 +475,7 @@ function disabledReasonLabel(reason, translate, constraints2) {
       return translate("assetPicker.disabledReason.full", "已达上限");
     case "image-size":
       return translate("assetPicker.disabledReason.imageSize", "Min {{min}}", {
-        min: formatImageMinDimensionLimit(constraints2),
+        min: formatImageMinDimensionLimit(constraints),
       });
     case "image-aspect":
       return translate("assetPicker.disabledReason.imageAspect", "Ratio out of range");
@@ -484,8 +484,8 @@ function disabledReasonLabel(reason, translate, constraints2) {
         "assetPicker.disabledReason.audioRange",
         "需 {{min}}-{{max}}s",
         {
-          min: formatSeconds(constraints2?.audioPerClipMinSec, "—"),
-          max: formatSeconds(constraints2?.audioPerClipMaxSec, "—"),
+          min: formatSeconds(constraints?.audioPerClipMinSec, "—"),
+          max: formatSeconds(constraints?.audioPerClipMaxSec, "—"),
         },
       );
     case "audio-too-short":
@@ -494,11 +494,11 @@ function disabledReasonLabel(reason, translate, constraints2) {
       return translate("assetPicker.disabledReason.audioTooLong", "音频过长");
     case "audio-budget":
       return translate("assetPicker.disabledReason.audioBudget", "总音频超 {{max}}s", {
-        max: formatSeconds(constraints2?.remainingAudioTotalSec, "—"),
+        max: formatSeconds(constraints?.remainingAudioTotalSec, "—"),
       });
     case "video-budget":
       return translate("assetPicker.disabledReason.videoBudget", "总视频超 {{max}}s", {
-        max: formatSeconds(constraints2?.remainingVideoTotalSec, "—"),
+        max: formatSeconds(constraints?.remainingVideoTotalSec, "—"),
       });
     case "video-too-short":
       return translate("assetPicker.disabledReason.videoTooShort", "视频过短");
@@ -522,45 +522,45 @@ function buildRows(
   const seenPaths = new Set();
   const seenRefs = new WeakSet();
   const out = [];
-  assets.forEach((meta2, key2) => {
-    const type2 = normaliseAssetType(meta2.type, meta2.path || meta2.name);
-    if (allowed.size > 0 && !allowed.has(type2)) return;
-    if (meta2.path) {
-      if (seenPaths.has(meta2.path)) return;
-      seenPaths.add(meta2.path);
+  assets.forEach((meta, key) => {
+    const type = normaliseAssetType(meta.type, meta.path || meta.name);
+    if (allowed.size > 0 && !allowed.has(type)) return;
+    if (meta.path) {
+      if (seenPaths.has(meta.path)) return;
+      seenPaths.add(meta.path);
     } else {
-      if (seenRefs.has(meta2)) return;
-      seenRefs.add(meta2);
+      if (seenRefs.has(meta)) return;
+      seenRefs.add(meta);
     }
     const nodeId =
-      (meta2.path ? resolveCanvasNodeId?.(meta2.path) : void 0) ?? key2;
-    const resolvedTag = tagColorResolver?.(meta2.tagIds)[0];
-    const tagNames = (meta2.tagIds ?? [])
+      (meta.path ? resolveCanvasNodeId?.(meta.path) : void 0) ?? key;
+    const resolvedTag = tagColorResolver?.(meta.tagIds)[0];
+    const tagNames = (meta.tagIds ?? [])
       .map((tagId) => tagRegistry?.tags.find((tag) => tag.id === tagId))
       .filter((tag) => Boolean(tag))
       .map((tag) => (translate ? tagLabel(tag, translate) : (tag.name ?? tag.id)));
     out.push({
-      rowKey: key2,
+      rowKey: key,
       nodeId,
-      assetId: key2,
-      type: type2,
-      name: meta2.name,
-      url: meta2.url,
-      path: meta2.path,
-      ...(meta2.width !== void 0 && {
-        width: meta2.width,
+      assetId: key,
+      type,
+      name: meta.name,
+      url: meta.url,
+      path: meta.path,
+      ...(meta.width !== void 0 && {
+        width: meta.width,
       }),
-      ...(meta2.height !== void 0 && {
-        height: meta2.height,
+      ...(meta.height !== void 0 && {
+        height: meta.height,
       }),
-      ...(meta2.durationSec !== void 0 && {
-        durationSec: meta2.durationSec,
+      ...(meta.durationSec !== void 0 && {
+        durationSec: meta.durationSec,
       }),
-      ...(meta2.fileSize !== void 0 && {
-        fileSize: meta2.fileSize,
+      ...(meta.fileSize !== void 0 && {
+        fileSize: meta.fileSize,
       }),
-      ...(meta2.tagIds !== void 0 && {
-        tagIds: meta2.tagIds,
+      ...(meta.tagIds !== void 0 && {
+        tagIds: meta.tagIds,
       }),
       ...(tagNames.length > 0 && {
         tagNames,
@@ -626,15 +626,15 @@ function applyFilters(rows, query, typeFilter, tagFilter) {
     if (
       normalizedQuery.length > 0 &&
       !row.name.toLowerCase().includes(normalizedQuery) &&
-      !row.tagNames?.some((name2) => name2.toLowerCase().includes(normalizedQuery))
+      !row.tagNames?.some((tagName) => tagName.toLowerCase().includes(normalizedQuery))
     )
       return false;
     return true;
   });
 }
-function normaliseTypeFilter(raw2) {
-  if (!raw2) return [];
-  return Array.isArray(raw2) ? raw2 : [raw2];
+function normaliseTypeFilter(raw) {
+  if (!raw) return [];
+  return Array.isArray(raw) ? raw : [raw];
 }
 function stripRowKey(row) {
   const {
@@ -652,10 +652,10 @@ function resourceToRow(resource, rowKey = resource.assetId) {
     rowKey,
   };
 }
-function deriveAccept(types2) {
-  if (types2.length === 0) return ALL_MEDIA_FILE_ACCEPT;
+function deriveAccept(types) {
+  if (types.length === 0) return ALL_MEDIA_FILE_ACCEPT;
   const parts = [];
-  for (const mediaType of types2) {
+  for (const mediaType of types) {
     const accept = MEDIA_FILE_ACCEPT[mediaType];
     if (!accept) return ALL_MEDIA_FILE_ACCEPT;
     parts.push(accept);
@@ -664,8 +664,8 @@ function deriveAccept(types2) {
 }
 function inferType(file) {
   if (isSubtitleFileName(file.name)) return "subtitle";
-  const dot2 = file.name.lastIndexOf(".");
-  const ext = dot2 >= 0 ? file.name.slice(dot2) : "";
+  const dot = file.name.lastIndexOf(".");
+  const ext = dot >= 0 ? file.name.slice(dot) : "";
   const detected = inferMediaKind(file.type, ext);
   return detected;
 }
@@ -708,8 +708,8 @@ function useResourceUpload({
     try {
       for (const file of files) {
         if (epoch !== epochRef.current) break;
-        const type2 = inferType(file);
-        if (allowedTypes.length > 0 && !allowedTypes.includes(type2)) {
+        const type = inferType(file);
+        if (allowedTypes.length > 0 && !allowedTypes.includes(type)) {
           dedupedToast.error(
             translate(
               "assetPicker.upload.typeRejected",
@@ -724,7 +724,7 @@ function useResourceUpload({
         const res =
           uploadMode === "attach" && onUploadAttachment
             ? await onUploadAttachment(file)
-            : await onUploadAndInsert(file, type2);
+            : await onUploadAndInsert(file, type);
         if (epoch === epochRef.current) {
           resources.push(res);
           onUploaded(res);
@@ -762,10 +762,10 @@ function readStoredView() {
     return "grid";
   }
 }
-function writeStoredView(next2) {
+function writeStoredView(next) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(VIEW_STORAGE_KEY, next2);
+    window.localStorage.setItem(VIEW_STORAGE_KEY, next);
   } catch {}
 }
 export function AssetPickerDialog({
@@ -778,7 +778,7 @@ export function AssetPickerDialog({
   sourceStatus = "ready",
 }) {
   const { t: translate } = useTranslation();
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const open = request !== null;
   const [sourceStep, setSourceStep] = reactExports.useState(() =>
     request?.source ? "source" : "browser",
@@ -793,33 +793,33 @@ export function AssetPickerDialog({
       requestRef.current = null;
     };
   }, [request]);
-  const filter2 = request?.opts ?? null;
-  const multiple = filter2?.multiple ?? false;
+  const filter = request?.opts ?? null;
+  const multiple = filter?.multiple ?? false;
   const maxCount = !multiple
     ? 1
-    : typeof filter2?.maxCount === "number" && filter2.maxCount > 0
-      ? filter2.maxCount
+    : typeof filter?.maxCount === "number" && filter.maxCount > 0
+      ? filter.maxCount
       : void 0;
   const minCount =
-    multiple && typeof filter2?.minCount === "number" && filter2.minCount > 0
-      ? filter2.minCount
+    multiple && typeof filter?.minCount === "number" && filter.minCount > 0
+      ? filter.minCount
       : void 0;
-  const uploadMode = filter2?.uploadMode ?? "insert-node";
+  const uploadMode = filter?.uploadMode ?? "insert-node";
   const existingAssetIds = reactExports.useMemo(
-    () => new Set(filter2?.existingAssetIds ?? []),
-    [filter2?.existingAssetIds],
+    () => new Set(filter?.existingAssetIds ?? []),
+    [filter?.existingAssetIds],
   );
-  const constraints2 = filter2?.constraints;
+  const constraints = filter?.constraints;
   const fpsBounded =
-    constraints2?.videoMinFps !== void 0 ||
-    constraints2?.videoMaxFps !== void 0;
-  const requestedTabs = filter2?.tabs?.length ? filter2.tabs : DEFAULT_TABS;
+    constraints?.videoMinFps !== void 0 ||
+    constraints?.videoMaxFps !== void 0;
+  const requestedTabs = filter?.tabs?.length ? filter.tabs : DEFAULT_TABS;
   const uploadEnabled = requestedTabs.includes("upload");
   const canvasEnabled =
     requestedTabs.includes("canvas") || requestedTabs.includes("upstream");
   const assets = useAssetMetadataStore((storeState) => storeState.assets);
   const fullscreenContainerEl = useFullscreenContainerEl();
-  const [selected2, setSelected] = reactExports.useState(new Map());
+  const [selected, setSelected] = reactExports.useState(new Map());
   const [uploadedList, setUploadedList] = reactExports.useState([]);
   const [previewRow, setPreviewRow] = reactExports.useState(null);
   const dialogRef = reactExports.useRef(null);
@@ -830,7 +830,7 @@ export function AssetPickerDialog({
   const [tagsExpanded, setTagsExpanded] = reactExports.useState(true);
   const tagView = tagFilter !== TAG_FILTER_ALL;
   const activeTag = tagRegistry?.tags.find((tag) => tag.id === tagFilter);
-  const [view2, setView] = reactExports.useState(readStoredView);
+  const [view, setView] = reactExports.useState(readStoredView);
   const [videoFpsMap, setVideoFpsMap] = reactExports.useState(new Map());
   const videoFpsMapRef = reactExports.useRef(videoFpsMap);
   videoFpsMapRef.current = videoFpsMap;
@@ -839,11 +839,11 @@ export function AssetPickerDialog({
   const perfSessionRef = reactExports.useRef(null);
   const perfInputsRef = reactExports.useRef({
     totalItems: 0,
-    view: view2,
+    view,
   });
   const allowedTypes = reactExports.useMemo(
-    () => normaliseTypeFilter(filter2?.type),
-    [filter2?.type],
+    () => normaliseTypeFilter(filter?.type),
+    [filter?.type],
   );
   const visibleTypes =
     allowedTypes.length > 0 ? allowedTypes : ALL_TYPE_FILTERS;
@@ -851,7 +851,7 @@ export function AssetPickerDialog({
     () =>
       typeFilter === TYPE_FILTER_ALL
         ? allowedTypes
-        : visibleTypes.filter((type2) => type2 === typeFilter),
+        : visibleTypes.filter((type) => type === typeFilter),
     [allowedTypes, typeFilter, visibleTypes],
   );
   const uploadAccept = reactExports.useMemo(
@@ -880,7 +880,7 @@ export function AssetPickerDialog({
   );
   perfInputsRef.current = {
     totalItems: canvasMemberRows.length,
-    view: view2,
+    view,
   };
   reactExports.useEffect(() => {
     if (!open) return;
@@ -931,43 +931,43 @@ export function AssetPickerDialog({
     ],
   );
   const typeCounts = reactExports.useMemo(() => {
-    const candidates2 = applyFilters(
+    const candidates = applyFilters(
       canvasMemberRows,
       query,
       TYPE_FILTER_ALL,
       tagFilter,
     );
     return {
-      total: candidates2.length,
+      total: candidates.length,
       byType: new Map(
-        ALL_TYPE_FILTERS.map((type2) => [
-          type2,
-          candidates2.filter((row) => row.type === type2).length,
+        ALL_TYPE_FILTERS.map((type) => [
+          type,
+          candidates.filter((row) => row.type === type).length,
         ]),
       ),
     };
   }, [canvasMemberRows, query, tagFilter]);
   const tagCounts = reactExports.useMemo(() => {
-    const candidates2 = applyFilters(
+    const candidates = applyFilters(
       canvasMemberRows,
       query,
       typeFilter,
       TAG_FILTER_ALL,
     );
-    const byTag2 = new Map();
-    for (const row of candidates2) {
+    const byTag = new Map();
+    for (const row of candidates) {
       for (const tagId of new Set(row.tagIds))
-        byTag2.set(tagId, (byTag2.get(tagId) ?? 0) + 1);
+        byTag.set(tagId, (byTag.get(tagId) ?? 0) + 1);
     }
-    return byTag2;
+    return byTag;
   }, [canvasMemberRows, query, typeFilter]);
   const fpsAssetIdsKey = reactExports.useMemo(() => {
     if (!fpsBounded) return "";
-    const ids2 = new Set();
+    const ids = new Set();
     for (const row of [...canvasMemberRows, ...pendingUploadRows]) {
-      if (row.type === "video" && row.assetId) ids2.add(row.assetId);
+      if (row.type === "video" && row.assetId) ids.add(row.assetId);
     }
-    return [...ids2].sort().map(encodeURIComponent).join("&");
+    return [...ids].sort().map(encodeURIComponent).join("&");
   }, [canvasMemberRows, fpsBounded, pendingUploadRows]);
   reactExports.useEffect(() => {
     if (!open) {
@@ -1030,13 +1030,13 @@ export function AssetPickerDialog({
     const controller = new AbortController();
     fpsBatchControllersRef.current.add(controller);
     for (const assetId of missing) fpsInFlightIdsRef.current.set(assetId, controller);
-    void loadAssetFpsBatch(missing, gatewayFetch2, controller.signal)
-      .then((entries2) => {
+    void loadAssetFpsBatch(missing, gatewayFetch, controller.signal)
+      .then((entries) => {
         if (controller.signal.aborted) return;
         setVideoFpsMap((prev) => {
-          const next2 = new Map(prev);
-          for (const [assetId, fps] of entries2) next2.set(assetId, fps);
-          return next2;
+          const next = new Map(prev);
+          for (const [assetId, fps] of entries) next.set(assetId, fps);
+          return next;
         });
       })
       .finally(() => {
@@ -1047,10 +1047,10 @@ export function AssetPickerDialog({
           }
         }
       });
-  }, [fpsAssetIdsKey, fpsBounded, gatewayFetch2, open]);
+  }, [fpsAssetIdsKey, fpsBounded, gatewayFetch, open]);
   const selectionTotals = reactExports.useMemo(
-    () => computeSelectionTotals(selected2),
-    [selected2],
+    () => computeSelectionTotals(selected),
+    [selected],
   );
   function resourceValidationReasonForRow(row) {
     if (
@@ -1058,54 +1058,54 @@ export function AssetPickerDialog({
       (request?.source?.accepts && !request.source.accepts(row))
     )
       return "type-not-allowed";
-    if (!constraints2) return void 0;
+    if (!constraints) return void 0;
     if (row.type === "text" || row.type === "subtitle" || row.type === "file")
       return void 0;
     if (row.type === "image") {
       if (
-        (constraints2.imageMinWidth !== void 0 ||
-          constraints2.imageMinHeight !== void 0 ||
-          constraints2.imageMaxWidth !== void 0 ||
-          constraints2.imageMaxHeight !== void 0 ||
-          constraints2.imageMaxPixels !== void 0 ||
-          constraints2.imageMinAspectRatio !== void 0 ||
-          constraints2.imageMaxAspectRatio !== void 0) &&
+        (constraints.imageMinWidth !== void 0 ||
+          constraints.imageMinHeight !== void 0 ||
+          constraints.imageMaxWidth !== void 0 ||
+          constraints.imageMaxHeight !== void 0 ||
+          constraints.imageMaxPixels !== void 0 ||
+          constraints.imageMinAspectRatio !== void 0 ||
+          constraints.imageMaxAspectRatio !== void 0) &&
         (!(typeof row.width === "number") || !(typeof row.height === "number"))
       ) {
         return MEDIA_METADATA_PENDING_REASON;
       }
-      return getImageConstraintReason(row, constraints2);
+      return getImageConstraintReason(row, constraints);
     }
     const duration = finitePositive(row.durationSec);
     if (duration === void 0) return MEDIA_METADATA_PENDING_REASON;
     if (row.type === "audio") {
-      if (duration < constraints2.audioPerClipMinSec) return "audio-too-short";
-      if (duration > constraints2.audioPerClipMaxSec) return "audio-too-long";
+      if (duration < constraints.audioPerClipMinSec) return "audio-too-short";
+      if (duration > constraints.audioPerClipMaxSec) return "audio-too-long";
       return void 0;
     }
     if (
-      constraints2.videoPerClipMinSec !== void 0 &&
-      duration < constraints2.videoPerClipMinSec
+      constraints.videoPerClipMinSec !== void 0 &&
+      duration < constraints.videoPerClipMinSec
     ) {
       return "video-too-short";
     }
     if (
-      constraints2.videoPerClipMaxSec !== void 0 &&
-      duration > constraints2.videoPerClipMaxSec
+      constraints.videoPerClipMaxSec !== void 0 &&
+      duration > constraints.videoPerClipMaxSec
     ) {
       return "video-too-long";
     }
     if (
-      constraints2.videoMinFps !== void 0 ||
-      constraints2.videoMaxFps !== void 0
+      constraints.videoMinFps !== void 0 ||
+      constraints.videoMaxFps !== void 0
     ) {
       const fps = videoFpsMapRef.current.get(row.assetId);
       if (fps === void 0) return VIDEO_FPS_PENDING_REASON;
       if (fps <= 0) return MEDIA_METADATA_PENDING_REASON;
       if (
-        (constraints2.videoMinFps !== void 0 &&
-          fps < constraints2.videoMinFps) ||
-        (constraints2.videoMaxFps !== void 0 && fps > constraints2.videoMaxFps)
+        (constraints.videoMinFps !== void 0 &&
+          fps < constraints.videoMinFps) ||
+        (constraints.videoMaxFps !== void 0 && fps > constraints.videoMaxFps)
       ) {
         return `${VIDEO_FPS_REASON_PREFIX}${fps}`;
       }
@@ -1127,7 +1127,7 @@ export function AssetPickerDialog({
       currentSelected.size - (isSelected ? 1 : 0) >= maxCount
     )
       return "full";
-    if (!constraints2) return void 0;
+    if (!constraints) return void 0;
     if (row.type === "text" || row.type === "subtitle" || row.type === "file")
       return void 0;
     const kind = row.type;
@@ -1138,16 +1138,16 @@ export function AssetPickerDialog({
       totals = computeSelectionTotals(selectionWithoutRow);
     } else {
       totals =
-        currentSelected === selected2
+        currentSelected === selected
           ? selectionTotals
           : computeSelectionTotals(currentSelected);
     }
-    const remaining = constraints2.remainingByKind[kind] - totals.counts[kind];
+    const remaining = constraints.remainingByKind[kind] - totals.counts[kind];
     if (remaining <= 0) return "full";
     if (
       (kind === "video" || kind === "audio") &&
-      constraints2.remainingVideoAudio !== void 0 &&
-      constraints2.remainingVideoAudio -
+      constraints.remainingVideoAudio !== void 0 &&
+      constraints.remainingVideoAudio -
         totals.counts.video -
         totals.counts.audio <=
         0
@@ -1157,14 +1157,14 @@ export function AssetPickerDialog({
     if (validationReason) return validationReason;
     if (kind === "audio") {
       const durationSeconds = finitePositive(row.durationSec);
-      if (constraints2.remainingAudioTotalSec - totals.sec.audio - durationSeconds < 0) {
+      if (constraints.remainingAudioTotalSec - totals.sec.audio - durationSeconds < 0) {
         return "audio-budget";
       }
     }
     if (kind === "video") {
       const durationSeconds = finitePositive(row.durationSec);
-      if (constraints2.remainingVideoTotalSec - totals.sec.video - durationSeconds < 0) {
-        return `${VIDEO_BUDGET_REASON_PREFIX}${totals.sec.video + durationSeconds - constraints2.remainingVideoTotalSec}`;
+      if (constraints.remainingVideoTotalSec - totals.sec.video - durationSeconds < 0) {
+        return `${VIDEO_BUDGET_REASON_PREFIX}${totals.sec.video + durationSeconds - constraints.remainingVideoTotalSec}`;
       }
     }
     return void 0;
@@ -1173,7 +1173,7 @@ export function AssetPickerDialog({
     return reasonForRowWithSelection(row, EMPTY_SELECTION, true);
   }
   function reasonForRow(row) {
-    const reason = reasonForRowWithSelection(row, selected2, true);
+    const reason = reasonForRowWithSelection(row, selected, true);
     if (!reason) return void 0;
     return availabilityReasonForRow(row) ?? "full";
   }
@@ -1193,15 +1193,15 @@ export function AssetPickerDialog({
       )
     : allRows;
   const marqueeSelection = {
-    selected: selected2,
-    canAddSelection: (row, selection2) =>
-      !isRowExisting(row) && !reasonForRowWithSelection(row, selection2),
-    onSelectionChange: (selection2) => {
+    selected,
+    canAddSelection: (row, selection) =>
+      !isRowExisting(row) && !reasonForRowWithSelection(row, selection),
+    onSelectionChange: (selection) => {
       setSelected((prev) =>
-        prev.size === selection2.size &&
-        Array.from(selection2).every(([rowKey, row]) => prev.get(rowKey) === row)
+        prev.size === selection.size &&
+        Array.from(selection).every(([rowKey, row]) => prev.get(rowKey) === row)
           ? prev
-          : selection2,
+          : selection,
       );
     },
   };
@@ -1215,25 +1215,25 @@ export function AssetPickerDialog({
   function toggleRow(row) {
     if (isRowExisting(row)) return;
     setSelected((prev) => {
-      const next2 = new Map(prev);
+      const next = new Map(prev);
       if (multiple) {
-        if (next2.has(row.rowKey)) {
-          next2.delete(row.rowKey);
-        } else if (maxCount !== void 0 && next2.size >= maxCount) {
+        if (next.has(row.rowKey)) {
+          next.delete(row.rowKey);
+        } else if (maxCount !== void 0 && next.size >= maxCount) {
           return prev;
         } else if (reasonForRowWithSelection(row, prev)) {
           return prev;
         } else {
-          next2.set(row.rowKey, row);
+          next.set(row.rowKey, row);
         }
       } else {
         if (reasonForRowWithSelection(row, prev)) return prev;
-        next2.clear();
+        next.clear();
         if (!prev.has(row.rowKey)) {
-          next2.set(row.rowKey, row);
+          next.set(row.rowKey, row);
         }
       }
-      return next2;
+      return next;
     });
   }
   function selectRow(row) {
@@ -1250,42 +1250,42 @@ export function AssetPickerDialog({
       }
       const reason = reasonForRowWithSelection(row, prev);
       if (reason) {
-        dedupedToast.warning(disabledReasonLabel(reason, translate, constraints2));
+        dedupedToast.warning(disabledReasonLabel(reason, translate, constraints));
         return prev;
       }
-      const next2 = new Map(prev);
-      if (!multiple) next2.clear();
-      next2.set(row.rowKey, row);
-      return next2;
+      const next = new Map(prev);
+      if (!multiple) next.clear();
+      next.set(row.rowKey, row);
+      return next;
     });
   }
   function cancel() {
     request?.resolve(null);
   }
-  function selectionIssue(selection2) {
-    if (minCount !== void 0 && selection2.size < minCount)
+  function selectionIssue(selection) {
+    if (minCount !== void 0 && selection.size < minCount)
       return translate("assetPicker.confirmMin", "至少选 {{min}} 项", {
         min: minCount,
       });
-    for (const [rowKey, resource] of selection2) {
+    for (const [rowKey, resource] of selection) {
       const reason = reasonForRowWithSelection(
         resourceToRow(resource, rowKey),
-        selection2,
+        selection,
         true,
         rowKey,
       );
-      if (reason) return disabledReasonLabel(reason, translate, constraints2);
+      if (reason) return disabledReasonLabel(reason, translate, constraints);
     }
     return void 0;
   }
   function confirm() {
     if (!request) return;
-    const issue = selectionIssue(selected2);
+    const issue = selectionIssue(selected);
     if (issue) {
       dedupedToast.warning(issue);
       return;
     }
-    request.resolve(Array.from(selected2.values(), stripRowKey));
+    request.resolve(Array.from(selected.values(), stripRowKey));
   }
   function handleUploaded(res) {
     setUploadedList((prev) =>
@@ -1293,16 +1293,16 @@ export function AssetPickerDialog({
     );
     selectRow(resourceToRow(res));
   }
-  function handleViewChange(next2) {
-    setView(next2);
-    writeStoredView(next2);
+  function handleViewChange(next) {
+    setView(next);
+    writeStoredView(next);
   }
-  const selectedRowsValid = Array.from(selected2).every(
-    ([rowKey, row]) => !reasonForRowWithSelection(row, selected2, true, rowKey),
+  const selectedRowsValid = Array.from(selected).every(
+    ([rowKey, row]) => !reasonForRowWithSelection(row, selected, true, rowKey),
   );
   const meetsMin =
-    selected2.size > 0 &&
-    (minCount === void 0 || selected2.size >= minCount) &&
+    selected.size > 0 &&
+    (minCount === void 0 || selected.size >= minCount) &&
     selectedRowsValid;
   function onKeyDown(keyboardEvent) {
     if (keyboardEvent.key === "Enter" && meetsMin && keyboardEvent.target === keyboardEvent.currentTarget) {
@@ -1343,15 +1343,15 @@ export function AssetPickerDialog({
     if (fpsBounded) {
       const controller = new AbortController();
       fpsBatchControllersRef.current.add(controller);
-      const entries2 = await loadAssetFpsBatch(
+      const entries = await loadAssetFpsBatch(
         resources.filter((resource) => resource.type === "video").map((resource) => resource.assetId),
-        gatewayFetch2,
+        gatewayFetch,
         controller.signal,
       );
       fpsBatchControllersRef.current.delete(controller);
       if (controller.signal.aborted || requestRef.current !== activeRequest)
         return;
-      for (const [assetId, fps] of entries2) videoFpsMapRef.current.set(assetId, fps);
+      for (const [assetId, fps] of entries) videoFpsMapRef.current.set(assetId, fps);
     }
     if (requestRef.current !== activeRequest) return;
     const accepted = new Map();
@@ -1360,7 +1360,7 @@ export function AssetPickerDialog({
       if (isRowExisting(row) || accepted.has(row.rowKey)) continue;
       const reason = reasonForRowWithSelection(row, accepted);
       if (reason)
-        dedupedToast.warning(disabledReasonLabel(reason, translate, constraints2));
+        dedupedToast.warning(disabledReasonLabel(reason, translate, constraints));
       else accepted.set(row.rowKey, resource);
     }
     const issue = selectionIssue(accepted);
@@ -1397,8 +1397,8 @@ export function AssetPickerDialog({
     else sourceMenuShownRef.current = true;
   }, [request, sourceAvailability, sourceStep]);
   const summary = selectionSummary(
-    filter2,
-    selected2.size,
+    filter,
+    selected.size,
     allowedTypes,
     translate,
     selectionTotals.counts,
@@ -1406,7 +1406,7 @@ export function AssetPickerDialog({
   const uploadAction =
     !tagView && uploadEnabled ? (
       <UploadEntry
-        view={view2}
+        view={view}
         busy={upload.busy}
         error={upload.lastError}
         onClick={upload.pick}
@@ -1414,12 +1414,12 @@ export function AssetPickerDialog({
     ) : (
       void 0
     );
-  const browser2 = (
+  const browser = (
     <Dialog
       open={open && sourceStep === "browser"}
       disablePointerDismissal={true}
-      onOpenChange={(next2) => {
-        if (!next2) cancel();
+      onOpenChange={(next) => {
+        if (!next) cancel();
       }}
     >
       <DialogContent
@@ -1438,7 +1438,7 @@ export function AssetPickerDialog({
             <DialogTitle className="sr-only">
               {translate("assetPicker.title", "选择资源")}
             </DialogTitle>
-            <Input3
+            <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={translate("assetPicker.searchPlaceholder", "搜索资源…")}
@@ -1459,15 +1459,15 @@ export function AssetPickerDialog({
               >
                 {translate("assetPicker.typeFilter.all", "全部")}
               </SidebarFilterButton>
-              {visibleTypes.map((type2) => (
+              {visibleTypes.map((type) => (
                 <SidebarFilterButton
-                  key={type2}
-                  active={typeFilter === type2}
-                  onClick={() => setTypeFilter(type2)}
-                  count={typeCounts.byType.get(type2) ?? 0}
-                  actionId={`asset-picker.type.${type2}`}
+                  key={type}
+                  active={typeFilter === type}
+                  onClick={() => setTypeFilter(type)}
+                  count={typeCounts.byType.get(type) ?? 0}
+                  actionId={`asset-picker.type.${type}`}
                 >
-                  {translate(`assetPicker.typeFilter.${type2}`, type2.toUpperCase())}
+                  {translate(`assetPicker.typeFilter.${type}`, type.toUpperCase())}
                 </SidebarFilterButton>
               ))}
             </div>
@@ -1524,7 +1524,7 @@ export function AssetPickerDialog({
                 data-action-ui-id="asset-picker.toolbar-actions"
               >
                 <SegmentedSwitch
-                  value={view2}
+                  value={view}
                   onValueChange={handleViewChange}
                   ariaLabel={translate("assetPicker.viewToggle", "视图切换")}
                   iconSize={14}
@@ -1596,7 +1596,7 @@ export function AssetPickerDialog({
               </Button>
             </div>
             <div className="flex min-h-0 flex-1 flex-col pl-4 pr-3">
-              {view2 === "list" && uploadAction && (
+              {view === "list" && uploadAction && (
                 <div
                   className="shrink-0 pt-2 pl-2 pr-3"
                   data-action-ui-id="asset-picker.list-upload-sticky"
@@ -1607,14 +1607,14 @@ export function AssetPickerDialog({
               <div className="min-h-0 flex-1">
                 <AssetList
                   rows={visibleRows}
-                  view={view2}
+                  view={view}
                   multiple={multiple}
-                  leadingAction={view2 === "grid" ? uploadAction : void 0}
+                  leadingAction={view === "grid" ? uploadAction : void 0}
                   {...marqueeSelection}
                   onToggle={toggleRow}
                   reasonForRow={reasonForRow}
                   labelForReason={(reason) =>
-                    disabledReasonLabel(reason, translate, constraints2)
+                    disabledReasonLabel(reason, translate, constraints)
                   }
                   isRowExisting={isRowExisting}
                   onPreview={setPreviewRow}
@@ -1721,8 +1721,8 @@ export function AssetPickerDialog({
       <Dialog
         open={open && sourceStep === "local" && upload.busy}
         disablePointerDismissal={true}
-        onOpenChange={(next2) => {
-          if (!next2) cancel();
+        onOpenChange={(next) => {
+          if (!next) cancel();
         }}
       >
         <DialogContent
@@ -1744,7 +1744,7 @@ export function AssetPickerDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {browser2}
+      {browser}
     </>
   );
 }

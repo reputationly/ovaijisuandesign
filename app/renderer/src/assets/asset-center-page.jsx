@@ -1,5 +1,5 @@
 // asset-center-page.jsx
-import { ArrowLeft, Check, CheckCircle2, ChevronDown, ChevronUp, LayoutGrid, Loader2, Plus, reactExports, Search, ShieldAlert, useMutation, useNavigate, useQuery, useQueryClient, useSearch, useTranslation, X$7 as CloseIcon } from "../vendor.js";
+import { ArrowLeft, Check, CheckCircle2 as CheckCircle, ChevronDown, ChevronUp, LayoutGrid, Loader2, Plus, reactExports, Search, ShieldAlert, useMutation, useNavigate, useQuery, useQueryClient, useSearch, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { PageStateBoundary } from "./page-state-boundary.jsx";
@@ -55,7 +55,7 @@ import {
   Icon,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { CatalogPageHeading } from "./catalog-page-heading.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import { MaterializeWorkspaceDialog } from "./materialize-workspace-dialog.jsx";
 import { AddEntityDialog } from "./add-entity-dialog.jsx";
 import { EntityDeleteConfirm } from "./entity-delete-confirm.jsx";
@@ -64,8 +64,8 @@ import { ImportEntityConflictError } from "./import-entity-conflict-error.js";
 import { useDeleteEntity } from "./use-materialize-entity.js";
 function exportEntitiesBatchUrl(buildUrl, entityIds) {
   if (entityIds.length === 0) return void 0;
-  const ids2 = entityIds.map((entityId) => encodeURIComponent(entityId)).join(",");
-  return buildUrl(`${BASE}/entities-export?ids=${ids2}`);
+  const ids = entityIds.map((entityId) => encodeURIComponent(entityId)).join(",");
+  return buildUrl(`${BASE}/entities-export?ids=${ids}`);
 }
 async function listPendingSuggestions(fetcher, limit) {
   const queryString = `?limit=${encodeURIComponent(String(limit))}`;
@@ -100,25 +100,25 @@ function useExportEntitiesBatchUrl() {
   return (entityIds) => exportEntitiesBatchUrl(buildUrl, entityIds);
 }
 function useApproveSuggestion() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ suggestionId, request }) =>
       approveSuggestion(fetcher, suggestionId, request),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
     },
   });
 }
 function useRejectSuggestion() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const fetcher = useAssetCenterFetcher();
   return useMutation({
     mutationFn: ({ suggestionId }) => rejectSuggestion(fetcher, suggestionId),
     onSuccess: () => {
-      queryClient2.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ROOT_KEY,
       });
     },
@@ -128,7 +128,7 @@ const TYPE_CHIPS = ["all", ...ENTITY_TYPES];
 const SORT_MODES = ["updated_at", "use_count"];
 function AssetCenterToolbar({
   onBack,
-  search: search2,
+  search,
   onSearchChange,
   typeFilter,
   onTypeFilterChange,
@@ -208,8 +208,8 @@ function AssetCenterToolbar({
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 pt-4 pb-3">
         <ToggleGroup
           value={[typeFilter]}
-          onValueChange={(values3) => {
-            onTypeFilterChange(values3[0] ?? "all");
+          onValueChange={(values) => {
+            onTypeFilterChange(values[0] ?? "all");
           }}
           className="gap-1"
           aria-label={translate("assetCenter.typeFilter.label")}
@@ -233,15 +233,15 @@ function AssetCenterToolbar({
               aria-hidden="true"
               className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
             />
-            <Input3
-              value={search2}
+            <Input
+              value={search}
               onChange={(changeEvent) => onSearchChange(changeEvent.target.value)}
               placeholder={translate("assetCenter.searchPlaceholder")}
               aria-label={translate("assetCenter.searchPlaceholder")}
               className="h-8 pl-8 pr-8"
               data-action-ui-id="asset-center-search"
             />
-            {search2 ? (
+            {search ? (
               <button
                 type="button"
                 onClick={() => onSearchChange("")}
@@ -277,9 +277,9 @@ function AssetCenterToolbar({
                   aria-label={translate("assetCenter.sort.label", "排序")}
                   onValueChange={(sortMode) => onSortChange(sortMode)}
                 >
-                  {SORT_MODES.map((mode2) => (
-                    <DropdownMenuRadioItem key={mode2} value={mode2}>
-                      {translate(`assetCenter.sort.${mode2}`)}
+                  {SORT_MODES.map((mode) => (
+                    <DropdownMenuRadioItem key={mode} value={mode}>
+                      {translate(`assetCenter.sort.${mode}`)}
                     </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>
@@ -342,14 +342,14 @@ function buildAssetCenterWorkspaceReturn(returnWorkspaceId) {
 const VIEW_MODE_STORAGE_KEY = "assetCenter.viewMode";
 function readInitialViewMode() {
   try {
-    const raw2 = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
-    if (raw2 === "grid" || raw2 === "list") return raw2;
+    const raw = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+    if (raw === "grid" || raw === "list") return raw;
   } catch {}
   return "grid";
 }
 function useAssetCenterPage() {
   const [typeFilter, setTypeFilter] = reactExports.useState("all");
-  const [search2, setSearch] = reactExports.useState("");
+  const [search, setSearch] = reactExports.useState("");
   const [sort, setSort] = reactExports.useState("updated_at");
   const [viewMode, setViewMode] = reactExports.useState(readInitialViewMode);
   reactExports.useEffect(() => {
@@ -360,36 +360,36 @@ function useAssetCenterPage() {
   const listOpts = reactExports.useMemo(() => {
     const opts = {};
     if (typeFilter !== "all") opts.type = typeFilter;
-    if (search2.trim()) opts.q = search2.trim();
+    if (search.trim()) opts.q = search.trim();
     return opts;
-  }, [typeFilter, search2]);
+  }, [typeFilter, search]);
   const entitiesQuery = useEntities(listOpts);
   const entities = reactExports.useMemo(() => {
-    const data2 = entitiesQuery.data ?? [];
+    const data = entitiesQuery.data ?? [];
     if (sort === "use_count") {
-      return [...data2].sort(
+      return [...data].sort(
         (leftEntity, rightEntity) => rightEntity.useCount - leftEntity.useCount || rightEntity.updatedAt - leftEntity.updatedAt,
       );
     }
-    return data2;
+    return data;
   }, [entitiesQuery.data, sort]);
   const isLoading = entitiesQuery.isPending;
-  const isEmpty2 =
+  const isEmpty =
     !entitiesQuery.isPending &&
     !entitiesQuery.isError &&
     entities.length === 0 &&
-    !search2.trim() &&
+    !search.trim() &&
     typeFilter === "all";
   const loadError = entitiesQuery.error ?? null;
   return {
     isLoading,
     loadError,
     typeFilter,
-    search: search2,
+    search,
     sort,
     viewMode,
     entities,
-    isEmpty: isEmpty2,
+    isEmpty,
     setTypeFilter,
     setSearch,
     setSort,
@@ -475,10 +475,10 @@ function EntityList({
   const exportUrl = useExportEntityUrl();
   const triggerExport = reactExports.useCallback(
     (entity) => {
-      const url2 = exportUrl(entity.id);
-      if (!url2) return;
+      const url = exportUrl(entity.id);
+      if (!url) return;
       const downloadLink = document.createElement("a");
-      downloadLink.href = url2;
+      downloadLink.href = url;
       downloadLink.rel = "noopener";
       document.body.appendChild(downloadLink);
       downloadLink.click();
@@ -534,10 +534,10 @@ function ImportConflictDialog({
 }) {
   const { t: translate } = useTranslation();
   const [pendingMode, setPendingMode] = reactExports.useState(null);
-  const handleChoose = async (mode2) => {
-    setPendingMode(mode2);
+  const handleChoose = async (mode) => {
+    setPendingMode(mode);
     try {
-      await onChoose(mode2);
+      await onChoose(mode);
     } finally {
       setPendingMode(null);
     }
@@ -545,8 +545,8 @@ function ImportConflictDialog({
   return (
     <AlertDialog
       open={open}
-      onOpenChange={(next2) => {
-        if (!next2 && pendingMode === null) onCancel();
+      onOpenChange={(next) => {
+        if (!next && pendingMode === null) onCancel();
       }}
     >
       <AlertDialogContent
@@ -731,7 +731,7 @@ function SuggestionPanel() {
   const { t: translate } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
   const suggestions = usePendingSuggestions(20);
-  const list2 = suggestions.data ?? [];
+  const list = suggestions.data ?? [];
   if (suggestions.isError) {
     return (
       <section
@@ -744,19 +744,19 @@ function SuggestionPanel() {
       </section>
     );
   }
-  if (list2.length === 0) return null;
+  if (list.length === 0) return null;
   return (
     <section
       className="border-b border-border bg-[var(--home-content-surface)] px-16 py-3"
       data-action-ui-id="asset-center-suggestion-panel"
-      data-suggestion-count={list2.length}
+      data-suggestion-count={list.length}
     >
       <div className="flex items-center justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-foreground/60" />
           <h2 className="text-xs font-medium">
             {translate("assetCenter.suggestions.title", {
-              count: list2.length,
+              count: list.length,
             })}
           </h2>
         </div>
@@ -780,7 +780,7 @@ function SuggestionPanel() {
             gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
           }}
         >
-          {list2.map((sug) => (
+          {list.map((sug) => (
             <SuggestionCard key={sug.id} suggestion={sug} />
           ))}
         </div>
@@ -795,14 +795,14 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
   const [editId, setEditId] = reactExports.useState(null);
   const [deleteTarget, setDeleteTarget] = reactExports.useState(null);
   const [addOpen, setAddOpen] = reactExports.useState(false);
-  const search2 = useSearch({
+  const search = useSearch({
     from: "/_home/asset-center/",
     shouldThrow: false,
   });
   const returnWorkspaceId =
-    surface === "route" ? search2?.returnWorkspaceId : void 0;
+    surface === "route" ? search?.returnWorkspaceId : void 0;
   const navigate = useNavigate();
-  const routeAction = surface === "route" ? search2?.action : void 0;
+  const routeAction = surface === "route" ? search?.action : void 0;
   reactExports.useEffect(() => {
     if (surface !== "route") return;
     if (routeAction === "create") {
@@ -828,13 +828,13 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
   );
   const toggleSelectEntity = reactExports.useCallback((entityId) => {
     setSelectedEntityIds((prev) => {
-      const next2 = new Set(prev);
-      if (next2.has(entityId)) {
-        next2.delete(entityId);
+      const next = new Set(prev);
+      if (next.has(entityId)) {
+        next.delete(entityId);
       } else {
-        next2.add(entityId);
+        next.add(entityId);
       }
-      return next2;
+      return next;
     });
   }, []);
   const clearSelection = reactExports.useCallback(
@@ -867,10 +867,10 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
   const buildBatchExportUrl = useExportEntitiesBatchUrl();
   const runBatchExport = reactExports.useCallback(() => {
     if (selectedEntityIds.size === 0) return;
-    const url2 = buildBatchExportUrl([...selectedEntityIds]);
-    if (!url2) return;
+    const url = buildBatchExportUrl([...selectedEntityIds]);
+    if (!url) return;
     const downloadLink = document.createElement("a");
-    downloadLink.href = url2;
+    downloadLink.href = url;
     downloadLink.rel = "noopener";
     document.body.appendChild(downloadLink);
     downloadLink.click();
@@ -899,13 +899,13 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
     [],
   );
   const runImport = reactExports.useCallback(
-    async (file, mode2) => {
+    async (file, mode) => {
       setImportSuccess(null);
       setImportError(null);
       try {
         const result = await importMutation.mutateAsync({
           file,
-          mode: mode2,
+          mode,
         });
         setImportSuccess({
           name: result.entity.name,
@@ -923,7 +923,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           entity_type: result.entity.type,
           success: true,
           has_description: !!result.entity.description,
-          import_mode: mode2,
+          import_mode: mode,
         });
       } catch (err) {
         if (err instanceof ImportEntityConflictError) {
@@ -940,7 +940,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           method: "import",
           success: false,
           has_description: false,
-          import_mode: mode2,
+          import_mode: mode,
           error_type: classifyAssetError(err),
         });
       }
@@ -1024,9 +1024,9 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
     [importMutation, handleImportFile, translate],
   );
   const handleConflictChoice = reactExports.useCallback(
-    async (mode2) => {
+    async (mode) => {
       if (!conflictState) return;
-      await runImport(conflictState.file, mode2);
+      await runImport(conflictState.file, mode);
     },
     [conflictState, runImport],
   );
@@ -1129,7 +1129,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
           data-action-ui-id="asset-center-batch-import-summary"
         >
           {batchImportSummary.failed.length === 0 ? (
-            <CheckCircle2
+            <CheckCircle
               size={14}
               className="mt-0.5 shrink-0 text-foreground"
             />
@@ -1175,7 +1175,7 @@ export function AssetCenterPage({ surface = "route", initialAction } = {}) {
             className="flex items-start gap-2 rounded-lg border border-foreground/20 bg-muted/30 px-3 py-2"
             data-action-ui-id="asset-center-import-success"
           >
-            <CheckCircle2
+            <CheckCircle
               size={14}
               className="mt-0.5 shrink-0 text-foreground"
             />

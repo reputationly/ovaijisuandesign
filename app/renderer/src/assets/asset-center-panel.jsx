@@ -25,17 +25,17 @@ import { EntityDeleteConfirm } from "./entity-delete-confirm.jsx";
 const HOVER_OPEN_DELAY_MS = 300;
 const HOVER_CLOSE_DELAY_MS = 150;
 function useEntityHoverPreview() {
-  const [state2, setState] = reactExports.useState({
+  const [state, setState] = reactExports.useState({
     kind: "idle",
   });
-  const stateRef = reactExports.useRef(state2);
+  const stateRef = reactExports.useRef(state);
   const openTimerRef = reactExports.useRef(null);
   const closeTimerRef = reactExports.useRef(null);
-  const setBoth = reactExports.useCallback((next2) => {
-    stateRef.current = next2;
-    setState(next2);
+  const setBoth = reactExports.useCallback((next) => {
+    stateRef.current = next;
+    setState(next);
   }, []);
-  const cancelOpen2 = reactExports.useCallback(() => {
+  const cancelOpen = reactExports.useCallback(() => {
     if (openTimerRef.current) {
       clearTimeout(openTimerRef.current);
       openTimerRef.current = null;
@@ -51,14 +51,14 @@ function useEntityHoverPreview() {
     (target) => {
       cancelClose();
       if (stateRef.current.kind === "hover") {
-        cancelOpen2();
+        cancelOpen();
         setBoth({
           kind: "hover",
           target,
         });
         return;
       }
-      cancelOpen2();
+      cancelOpen();
       openTimerRef.current = setTimeout(() => {
         openTimerRef.current = null;
         setBoth({
@@ -67,10 +67,10 @@ function useEntityHoverPreview() {
         });
       }, HOVER_OPEN_DELAY_MS);
     },
-    [cancelClose, cancelOpen2, setBoth],
+    [cancelClose, cancelOpen, setBoth],
   );
   const notifyHoverEnd = reactExports.useCallback(() => {
-    cancelOpen2();
+    cancelOpen();
     if (stateRef.current.kind !== "hover") return;
     cancelClose();
     closeTimerRef.current = setTimeout(() => {
@@ -80,13 +80,13 @@ function useEntityHoverPreview() {
           kind: "idle",
         });
     }, HOVER_CLOSE_DELAY_MS);
-  }, [cancelOpen2, cancelClose, setBoth]);
+  }, [cancelOpen, cancelClose, setBoth]);
   const onPopupPointerEnter = reactExports.useCallback(() => {
-    cancelOpen2();
+    cancelOpen();
     cancelClose();
-  }, [cancelOpen2, cancelClose]);
+  }, [cancelOpen, cancelClose]);
   const onPopupPointerLeave = reactExports.useCallback(() => {
-    cancelOpen2();
+    cancelOpen();
     cancelClose();
     closeTimerRef.current = setTimeout(() => {
       closeTimerRef.current = null;
@@ -95,16 +95,16 @@ function useEntityHoverPreview() {
           kind: "idle",
         });
     }, HOVER_CLOSE_DELAY_MS);
-  }, [cancelOpen2, cancelClose, setBoth]);
+  }, [cancelOpen, cancelClose, setBoth]);
   const dismiss = reactExports.useCallback(() => {
-    cancelOpen2();
+    cancelOpen();
     cancelClose();
     if (stateRef.current.kind !== "idle")
       setBoth({
         kind: "idle",
       });
-  }, [cancelOpen2, cancelClose, setBoth]);
-  const activeAnchor = state2.kind === "hover" ? state2.target.anchor : null;
+  }, [cancelOpen, cancelClose, setBoth]);
+  const activeAnchor = state.kind === "hover" ? state.target.anchor : null;
   reactExports.useEffect(() => {
     if (!activeAnchor) return;
     if (!activeAnchor.isConnected) {
@@ -114,8 +114,8 @@ function useEntityHoverPreview() {
       return;
     }
     const intersectionObserver = new IntersectionObserver(
-      (entries2) => {
-        for (const entry of entries2) {
+      (entries) => {
+        for (const entry of entries) {
           if (!entry.isIntersecting)
             setBoth({
               kind: "idle",
@@ -131,12 +131,12 @@ function useEntityHoverPreview() {
   }, [activeAnchor, setBoth]);
   reactExports.useEffect(() => {
     return () => {
-      cancelOpen2();
+      cancelOpen();
       cancelClose();
     };
-  }, [cancelOpen2, cancelClose]);
+  }, [cancelOpen, cancelClose]);
   return {
-    state: state2,
+    state,
     stateRef,
     notifyHoverIntent,
     notifyHoverEnd,
@@ -196,7 +196,7 @@ function EntityHoverPreviewPopup({
   );
 }
 const EntityHoverPreviewHost = reactExports.memo(
-  reactExports.forwardRef(function EntityHoverPreviewHost2(
+  reactExports.forwardRef(function EntityHoverPreviewHost(
     { onPreviewAttachment, onAddToCanvas, onAddToChat },
     ref,
   ) {
@@ -259,23 +259,23 @@ function ProjectSidebarCategoryChips({
         className="scrollbar-none flex h-8 flex-nowrap items-center gap-1 overflow-x-auto"
         data-action-ui-id={rowActionId}
       >
-        {options.map((option2) => {
-          const active2 = option2.value === value;
+        {options.map((option) => {
+          const active = option.value === value;
           return (
             <button
-              key={option2.value}
+              key={option.value}
               type="button"
-              onClick={() => onChange(option2.value)}
-              data-action-ui-id={option2.actionId}
-              aria-pressed={active2}
+              onClick={() => onChange(option.value)}
+              data-action-ui-id={option.actionId}
+              aria-pressed={active}
               className={cn(
                 "group inline-flex h-[26px] max-w-[112px] shrink-0 items-center justify-center rounded-full border px-[9px] text-xs font-normal shadow-none transition-colors duration-150 select-none focus-visible:ring-1 focus-visible:ring-ring/50 focus-visible:outline-none",
-                active2
+                active
                   ? "border-foreground bg-transparent text-foreground"
                   : "border-border bg-transparent text-foreground/70 hover:border-foreground hover:bg-transparent",
               )}
             >
-              <span className="truncate">{option2.label}</span>
+              <span className="truncate">{option.label}</span>
             </button>
           );
         })}
@@ -336,7 +336,7 @@ function AudioLightbox({ src, alt, onClose }) {
   );
 }
 function TextLightbox({ src, alt, onClose }) {
-  const [content2, setContent2] = reactExports.useState(null);
+  const [content, setContent] = reactExports.useState(null);
   const [error, setError] = reactExports.useState(null);
   reactExports.useEffect(() => {
     const controller = new AbortController();
@@ -347,7 +347,7 @@ function TextLightbox({ src, alt, onClose }) {
         if (!res.ok) throw new Error(`${res.status}`);
         return res.text();
       })
-      .then((text2) => setContent2(text2))
+      .then((text) => setContent(text))
       .catch((err) => {
         if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : String(err));
@@ -368,15 +368,15 @@ function TextLightbox({ src, alt, onClose }) {
       <LightboxCloseButton onClose={onClose} />
       <span className="text-sm text-white/80 truncate max-w-[60vw]">{alt}</span>
       <div className="max-h-[70vh] w-full max-w-2xl overflow-auto rounded-lg border border-white/10 bg-white/5 p-4">
-        {content2 === null && !error && (
+        {content === null && !error && (
           <div className="flex items-center justify-center py-6">
             <Loader2 size={16} className="animate-spin text-white opacity-50" />
           </div>
         )}
         {error && <p className="text-xs text-destructive">{error}</p>}
-        {content2 !== null && (
+        {content !== null && (
           <pre className="text-xs text-white/80 whitespace-pre-wrap break-words font-mono leading-relaxed">
-            {content2}
+            {content}
           </pre>
         )}
       </div>
@@ -384,21 +384,21 @@ function TextLightbox({ src, alt, onClose }) {
     document.body,
   );
 }
-const SearchInput = reactExports.memo(function SearchInput2({
+const SearchInput = reactExports.memo(function SearchInput({
   onDebouncedChange,
 }) {
   const { t: translate } = useTranslation();
   const inputRef = reactExports.useRef(null);
   const debounceRef = reactExports.useRef(null);
   const [hasValue, setHasValue] = reactExports.useState(false);
-  const scheduleDebounce = useStableCallback((raw2) => {
+  const scheduleDebounce = useStableCallback((raw) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => onDebouncedChange(raw2.trim()), 200);
+    debounceRef.current = setTimeout(() => onDebouncedChange(raw.trim()), 200);
   });
   const handleInput = (inputEvent) => {
-    const next2 = inputEvent.currentTarget.value;
-    scheduleDebounce(next2);
-    const nextHas = next2.trim().length > 0;
+    const next = inputEvent.currentTarget.value;
+    scheduleDebounce(next);
+    const nextHas = next.trim().length > 0;
     setHasValue((prev) => (prev === nextHas ? prev : nextHas));
   };
   const handleClear = () => {
@@ -455,7 +455,7 @@ export function AssetCenterPanel({
 } = {}) {
   const { t: translate } = useTranslation();
   const workspacePath = useCurrentWorkspace();
-  const gatewayUrl2 = useGatewayUrl();
+  const gatewayUrl = useGatewayUrl();
   const [editingEntityId, setEditingEntityId] = reactExports.useState(null);
   const [deleteTarget, setDeleteTarget] = reactExports.useState(null);
   const buildExportUrl = useExportEntityUrl();
@@ -466,13 +466,13 @@ export function AssetCenterPanel({
     () => setEditingEntityId(null),
     [],
   );
-  const handleDelete2 = useStableCallback((entity) => setDeleteTarget(entity));
+  const handleDelete = useStableCallback((entity) => setDeleteTarget(entity));
   const closeDelete = reactExports.useCallback(() => setDeleteTarget(null), []);
   const handleExport = useStableCallback((entity) => {
-    const url2 = buildExportUrl(entity.id);
-    if (!url2) return;
+    const url = buildExportUrl(entity.id);
+    if (!url) return;
     const downloadLink = document.createElement("a");
-    downloadLink.href = url2;
+    downloadLink.href = url;
     downloadLink.rel = "noopener";
     document.body.appendChild(downloadLink);
     downloadLink.click();
@@ -521,11 +521,11 @@ export function AssetCenterPanel({
     hostRef.current?.notifyHoverEnd();
   });
   const handlePreviewAttachment = useStableCallback((entityId, att) => {
-    const path2 =
+    const path =
       att.kind === "video"
         ? API_PATHS.assetCenterAttachmentPlayback(att.id)
         : API_PATHS.assetCenterAttachmentBlob(att.id);
-    const src = gatewayUrl2(path2);
+    const src = gatewayUrl(path);
     if (!src) return;
     if (att.kind === "document") return;
     setLightbox({
@@ -583,10 +583,10 @@ export function AssetCenterPanel({
         );
         return;
       }
-      const match2 = anchored.agentPayload.attachments.find(
+      const match = anchored.agentPayload.attachments.find(
         (candidateAttachment) => candidateAttachment.id === att.id,
       );
-      if (!match2) {
+      if (!match) {
         dedupedToast.error(
           translate("assetSidebarPanel.addToChatError", {
             message: translate(
@@ -597,7 +597,7 @@ export function AssetCenterPanel({
         );
         return;
       }
-      workspaceEvents.fireAddToChat(match2.path, match2.filename);
+      workspaceEvents.fireAddToChat(match.path, match.filename);
       trackAssetUse({
         entity_id: att.entityId,
         entity_type: "custom",
@@ -607,10 +607,10 @@ export function AssetCenterPanel({
         was_materialized: false,
       });
     } catch (err) {
-      const message2 = err instanceof Error ? err.message : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       dedupedToast.error(
         translate("assetSidebarPanel.addToChatError", {
-          message: message2,
+          message,
         }),
       );
     }
@@ -639,8 +639,8 @@ export function AssetCenterPanel({
     onRegisterRefresh?.(refresh);
   }, [onRegisterRefresh, refresh]);
   const materializedIds = reactExports.useMemo(() => {
-    const list2 = materializedQuery.data ?? [];
-    return new Set(list2.map((materializedEntry) => materializedEntry.entityId));
+    const list = materializedQuery.data ?? [];
+    return new Set(list.map((materializedEntry) => materializedEntry.entityId));
   }, [materializedQuery.data]);
   const materializedOrder = reactExports.useMemo(() => {
     return (materializedQuery.data ?? []).map((materializedEntry) => materializedEntry.entityId);
@@ -665,9 +665,9 @@ export function AssetCenterPanel({
     [translate],
   );
   const entityById = reactExports.useMemo(() => {
-    const map3 = new Map();
-    for (const entity of entities) map3.set(entity.id, entity);
-    return map3;
+    const map = new Map();
+    for (const entity of entities) map.set(entity.id, entity);
+    return map;
   }, [entities]);
   const loadError = entitiesQuery.error ?? null;
   const isLoading = entitiesQuery.isPending;
@@ -773,7 +773,7 @@ export function AssetCenterPanel({
                                 onHoverIntent={handleRowHoverIntent}
                                 onHoverEnd={handleRowHoverEnd}
                                 onEdit={openEdit}
-                                onDelete={handleDelete2}
+                                onDelete={handleDelete}
                                 onExport={handleExport}
                                 layout={viewMode === "grid" ? "grid" : "row"}
                               />
@@ -822,7 +822,7 @@ export function AssetCenterPanel({
                               onHoverIntent={handleRowHoverIntent}
                               onHoverEnd={handleRowHoverEnd}
                               onEdit={openEdit}
-                              onDelete={handleDelete2}
+                              onDelete={handleDelete}
                               onExport={handleExport}
                               layout={viewMode === "grid" ? "grid" : "row"}
                             />

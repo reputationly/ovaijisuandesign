@@ -24,3 +24,24 @@ e2@736:33	e2	keyboardEvent	该事件用于响应列表项上的键盘操作。
 e2@787:37	e2	entity	该回调参数是待检查是否已物化的实体记录。
 e2@792:33	e2	keyboardEvent	该事件用于响应列表项上的键盘操作。
 e2@814:36	e2	entity	该回调参数是过滤中的资产中心实体记录。
+state2@28:10	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+cancelOpen2@38:9	cancelOpen2	cancelOpen	去掉打包器防重名追加的后缀，恢复原名 cancelOpen，即该绑定持有的值。
+next2@34:45	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+entries2@117:8	entries2	entries	去掉打包器防重名追加的后缀，恢复原名 entries，即该绑定持有的值。
+EntityHoverPreviewHost2@199:36	EntityHoverPreviewHost2	EntityHoverPreviewHost	去掉打包器防重名追加的后缀，恢复原名 EntityHoverPreviewHost，即该绑定持有的值。
+option2@262:23	option2	option	去掉打包器防重名追加的后缀，恢复原名 option，即该绑定持有的值。
+active2@263:17	active2	active	去掉打包器防重名追加的后缀，恢复原名 active，即该绑定持有的值。
+content2@339:10	content2	content	去掉打包器防重名追加的后缀，恢复原名 content，即该绑定持有的值。
+setContent2@339:20	setContent2	setContent	去掉打包器防重名追加的后缀，恢复原名 setContent，即该绑定持有的值。
+text2@350:14	text2	text	去掉打包器防重名追加的后缀，恢复原名 text，即该绑定持有的值。
+SearchInput2@387:48	SearchInput2	SearchInput	去掉打包器防重名追加的后缀，恢复原名 SearchInput，即该绑定持有的值。
+raw2@394:47	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+next2@399:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+gatewayUrl2@458:9	gatewayUrl2	gatewayUrl	去掉打包器防重名追加的后缀，恢复原名 gatewayUrl，即该绑定持有的值。
+handleDelete2@469:9	handleDelete2	handleDelete	去掉打包器防重名追加的后缀，恢复原名 handleDelete，即该绑定持有的值。
+url2@472:11	url2	url	去掉打包器防重名追加的后缀，恢复原名 url，即该绑定持有的值。
+path2@524:11	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+match2@586:13	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+message2@610:13	message2	message	去掉打包器防重名追加的后缀，恢复原名 message，即该绑定持有的值。
+list2@642:11	list2	list	去掉打包器防重名追加的后缀，恢复原名 list，即该绑定持有的值。
+map3@668:11	map3	map	去掉打包器防重名追加的后缀，恢复原名 map，即该绑定持有的值。

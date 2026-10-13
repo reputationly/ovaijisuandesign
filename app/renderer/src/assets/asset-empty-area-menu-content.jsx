@@ -19,8 +19,8 @@ import {
 } from "../workspace/context-menu-content.jsx";
 import { ShortcutHint } from "../workspace/shortcut-hint.jsx";
 
-function sortEntries(entries2, fileComparator) {
-  return [...entries2].sort((leftEntry, rightEntry) => {
+function sortEntries(entries, fileComparator) {
+  return [...entries].sort((leftEntry, rightEntry) => {
     if (leftEntry.isDirectory !== rightEntry.isDirectory) return leftEntry.isDirectory ? -1 : 1;
     if (leftEntry.isDirectory) return leftEntry.name.localeCompare(rightEntry.name);
     if (fileComparator) return fileComparator(leftEntry, rightEntry);
@@ -47,11 +47,11 @@ export function useFlattenTree(tree, expanded, creatingEntry, fileComparator) {
   );
   return reactExports.useMemo(() => {
     const rows = [];
-    const walk = (entries2, depth2) => {
-      for (const entry of entries2) {
+    const walk = (entries, depth) => {
+      for (const entry of entries) {
         rows.push({
           entry,
-          depth: depth2,
+          depth,
         });
         if (entry.isDirectory && expanded.has(entry.path)) {
           if (creatingEntry && creatingEntry.parentPath === entry.path) {
@@ -62,11 +62,11 @@ export function useFlattenTree(tree, expanded, creatingEntry, fileComparator) {
                 isDirectory: creatingEntry.isDirectory,
                 loaded: false,
               },
-              depth: depth2 + 1,
+              depth: depth + 1,
             });
           }
           if (entry.children) {
-            walk(entry.children, depth2 + 1);
+            walk(entry.children, depth + 1);
           }
         }
       }
