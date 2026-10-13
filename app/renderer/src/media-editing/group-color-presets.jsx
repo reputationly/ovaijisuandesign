@@ -5,11 +5,9 @@ import { FileNodeImpl } from "./file-node-impl.jsx";
 import { PANORAMA_VIEWER_PLUGIN_ID } from "./resolve-panorama-generation-presentation.js";
 import { PanoramaNode } from "./panorama-node.jsx";
 import { GlobalWorkerOptions } from "pdfjs-dist";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { reactExports } from "../vendor.js";
 import { areNodePropsEqual } from "../canvas/fullscreen-icon.jsx";
-
-const pdfWorkerUrl =
-  "" + new URL("../pdf.worker.min-yatZIOMy.mjs", import.meta.url).href;
 
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
