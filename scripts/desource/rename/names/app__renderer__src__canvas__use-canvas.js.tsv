@@ -1,0 +1,129 @@
+key	old	new	依据
+id2@48:15	id2	id	当前节点、边或选择项的标识值。
+m3@49:11	m3	measuredSize	nodeLookup 条目中实际测量到的宽高对象。
+instance2@59:44	instance2	instance	当前画布 CanvasInstance 实例对象。
+current2@60:9	current2	current	仍有效的历史检查点；检查点失效或不存在时为 null。
+box2@73:28	box2	box	用于视口包含性判断的矩形边界对象。
+definition2@162:28	definition2	definition	画布命令的定义记录。
+id2@167:9	id2	id	当前节点、边或选择项的标识值。
+definition2@168:13	definition2	definition	画布命令的定义记录。
+id2@172:16	id2	id	当前节点、边或选择项的标识值。
+id2@175:13	id2	id	当前节点、边或选择项的标识值。
+x2@186:14	x2	mouseClientX	最近鼠标事件提供的浏览器 clientX 坐标。
+y4@186:21	y4	mouseClientY	最近鼠标事件提供的浏览器 clientY 坐标。
+node2@221:21	node2	node	当前处理的画布节点对象。
+mode2@221:28	mode2	mode	当前画布布局或工具模式。
+selected2@222:9	selected2	selected	当前节点是否选中，或当前已选节点标识集合。
+size2@238:9	size2	size	当前节点在对应布局模式下的尺寸对象。
+position2@247:9	position2	position	当前画布节点或待提交移动的位置对象。
+mode2@303:29	mode2	mode	当前画布布局或工具模式。
+node2@304:21	node2	node	当前处理的画布节点对象。
+cache2@313:26	cache2	cache	按节点标识缓存 React Flow 转换结果的 Map。
+mode2@313:41	mode2	mode	当前画布布局或工具模式。
+next2@315:9	next2	next	下一份节点映射、数组或历史检查点值。
+i2@316:12	i2	index	当前节点或边在数组中的索引。
+node2@317:11	node2	node	当前处理的画布节点对象。
+selected2@318:11	selected2	selected	当前节点是否选中，或当前已选节点标识集合。
+k2@351:15	k2	nodeId	缓存 Map 中当前节点的键标识。
+v2@351:19	v2	cacheEntry	与节点标识对应的 React Flow 转换缓存记录。
+node2@372:14	node2	node	当前处理的画布节点对象。
+node2@384:16	node2	node	当前处理的画布节点对象。
+a2@398:26	a2	firstSet	需要合并的第一组隐藏节点标识。
+b3@398:30	b3	secondSet	需要合并的第二组隐藏节点标识。
+id2@402:14	id2	id	当前节点、边或选择项的标识值。
+index2@406:35	index2	index	当前节点或边在数组中的索引。
+ids2@408:23	ids2	ids	当前节点或边的标识集合。
+ids2@430:9	ids2	ids	当前节点或边的标识集合。
+node2@431:14	node2	node	当前处理的画布节点对象。
+instance2@437:3	instance2	instance	当前画布 CanvasInstance 实例对象。
+selected2@439:3	selected2	selected	当前节点是否选中，或当前已选节点标识集合。
+mode2@444:9	mode2	mode	当前画布布局或工具模式。
+n2@458:48	n2	node	当前处理的画布节点对象。
+id2@459:16	id2	id	当前节点、边或选择项的标识值。
+instance2@464:23	instance2	instance	当前画布 CanvasInstance 实例对象。
+selected2@476:13	selected2	selected	当前节点是否选中，或当前已选节点标识集合。
+data2@498:24	data2	data	节点数据对象或事件传入的新数据对象。
+index2@507:17	index2	index	当前节点或边在数组中的索引。
+n2@507:43	n2	candidateNode	findIndex 正在检查是否与目标标识匹配的画布节点。
+node2@509:17	node2	node	当前处理的画布节点对象。
+next2@511:17	next2	next	下一份节点映射、数组或历史检查点值。
+ids2@522:42	ids2	ids	当前节点或边的标识集合。
+selected2@524:13	selected2	selected	当前节点是否选中，或当前已选节点标识集合。
+id2@526:18	id2	id	当前节点、边或选择项的标识值。
+id2@529:18	id2	id	当前节点、边或选择项的标识值。
+key2@535:13	key2	key	选择键或草稿数据记录使用的属性键。
+index2@553:17	index2	index	当前节点或边在数组中的索引。
+node2@558:17	node2	node	当前处理的画布节点对象。
+index2@601:17	index2	index	当前节点或边在数组中的索引。
+data2@648:18	data2	data	节点数据对象或事件传入的新数据对象。
+key2@648:25	key2	key	选择键或草稿数据记录使用的属性键。
+v2@650:9	v2	value	待检查是否为非空字符串的数据字段值。
+node2@653:25	node2	node	当前处理的画布节点对象。
+data2@654:9	data2	data	节点数据对象或事件传入的新数据对象。
+instance2@747:26	instance2	instance	当前画布 CanvasInstance 实例对象。
+n2@749:43	n2	node	当前处理的画布节点对象。
+id2@752:14	id2	id	当前节点、边或选择项的标识值。
+node2@753:11	node2	node	当前处理的画布节点对象。
+instance2@764:27	instance2	instance	当前画布 CanvasInstance 实例对象。
+t2@765:14	t2	translate	useTranslation 返回的翻译函数。
+p3@798:41	p3	payload	包含云端追踪信息的单个调试信息负载。
+mode2@843:28	mode2	mode	当前画布布局或工具模式。
+instance2@846:10	instance2	instance	当前画布 CanvasInstance 实例对象。
+mode2@867:11	mode2	mode	当前画布布局或工具模式。
+getViewportRect2@922:9	getViewportRect2	getViewportRect	读取当前画布视口在画布坐标系中的矩形边界。
+e2@943:25	e2	mouseEvent	document 收到的鼠标移动事件对象。
+text2@994:13	text2	text	待粘贴到画布的文本字符串。
+instance2@996:9	instance2	instance	当前画布 CanvasInstance 实例对象。
+workspaceId2@1001:9	workspaceId2	workspaceId	getCurrentWorkspace 返回的当前工作区标识。
+ids2@1037:13	ids2	ids	当前节点或边的标识集合。
+n2@1040:56	n2	node	当前处理的画布节点对象。
+transform2@1048:26	transform2	transform	React Flow store 中的视口变换数组。
+options2@1060:14	options2	options	聚焦派生节点时使用的可选配置。
+node2@1062:25	node2	node	当前处理的画布节点对象。
+mode22@1064:15	mode22	mode	当前画布布局或工具模式。
+ns2@1065:15	ns2	nodeSize	当前节点在指定布局模式下计算出的尺寸。
+transform2@1077:28	transform2	transform	React Flow store 中的视口变换数组。
+n2@1088:22	n2	node	当前处理的画布节点对象。
+n2@1120:42	n2	node	当前处理的画布节点对象。
+n2@1121:43	n2	node	当前处理的画布节点对象。
+mode22@1124:15	mode22	mode	当前画布布局或工具模式。
+ss2@1125:15	ss2	sourceSize	源节点在当前布局模式下计算出的尺寸。
+transform2@1141:28	transform2	transform	React Flow store 中的视口变换数组。
+key2@1189:20	key2	key	选择键或草稿数据记录使用的属性键。
+node2@1201:15	node2	node	当前处理的画布节点对象。
+n2@1203:24	n2	node	当前处理的画布节点对象。
+batch2@1248:13	batch2	batch	同一微任务中等待删除的节点和边标识数组。
+c3@1259:42	c3	change	React Flow 节点或边变更记录。
+c3@1260:38	c3	change	React Flow 节点或边变更记录。
+node2@1266:22	node2	node	当前处理的画布节点对象。
+node2@1267:19	node2	node	当前处理的画布节点对象。
+e2@1270:53	e2	edge	当前节点删除保护检查涉及的连线对象。
+c3@1272:14	c3	change	React Flow 节点或边变更记录。
+c3@1291:61	c3	change	React Flow 节点或边变更记录。
+id2@1317:34	id2	id	当前节点、边或选择项的标识值。
+position2@1317:39	position2	position	当前画布节点或待提交移动的位置对象。
+c3@1348:46	c3	change	React Flow 节点或边变更记录。
+c3@1349:38	c3	change	React Flow 节点或边变更记录。
+n2@1353:43	n2	node	当前处理的画布节点对象。
+c3@1357:33	c3	change	React Flow 节点或边变更记录。
+id2@1358:14	id2	id	当前节点、边或选择项的标识值。
+c3@1369:44	c3	change	React Flow 节点或边变更记录。
+c3@1386:61	c3	change	React Flow 节点或边变更记录。
+n2@1408:41	n2	node	当前处理的画布节点对象。
+id2@1413:10	id2	id	当前节点、边或选择项的标识值。
+mode22@1438:15	mode22	mode	当前画布布局或工具模式。
+node2@1439:15	node2	node	当前处理的画布节点对象。
+ids2@1465:21	ids2	ids	当前节点或边的标识集合。
+next2@1476:12	next2	next	下一份节点映射、数组或历史检查点值。
+next2@1497:12	next2	next	下一份节点映射、数组或历史检查点值。
+node2@1519:23	node2	node	当前处理的画布节点对象。
+next2@1531:12	next2	next	下一份节点映射、数组或历史检查点值。
+node2@1564:23	node2	node	当前处理的画布节点对象。
+next2@1579:24	next2	next	下一份节点映射、数组或历史检查点值。
+groupId2@1595:9	groupId2	groupId	需要整理子节点的分组标识。
+node2@1604:23	node2	node	当前处理的画布节点对象。
+next2@1617:12	next2	next	下一份节点映射、数组或历史检查点值。
+groupId2@1633:9	groupId2	groupId	需要整理子节点的分组标识。
+node2@1642:23	node2	node	当前处理的画布节点对象。
+next2@1655:12	next2	next	下一份节点映射、数组或历史检查点值。
+m3@1672:20	m3	mode	当前画布布局或工具模式。
