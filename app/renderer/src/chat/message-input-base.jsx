@@ -1978,8 +1978,8 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
     submitOnEnter,
   ]);
   const handlePaste = reactExports.useCallback(
-    (keyboardEvent) => {
-      attachPastedFiles(keyboardEvent);
+    (clipboardEvent) => {
+      attachPastedFiles(clipboardEvent);
     },
     [attachPastedFiles],
   );

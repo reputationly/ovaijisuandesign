@@ -21,7 +21,7 @@ function useLazyIntersectionRendering(renderOptions = {}) {
     containerRef = reactExports.useRef(null),
     debounceTimeoutRef = reactExports.useRef(null),
     idleCallbackRef = reactExports.useRef(null),
-    createFallbackIdleScheduler = reactExports.useMemo(
+    fallbackRequestIdleCallback = reactExports.useMemo(
       () => (idleCallback) => {
         let fallbackStartTime = Date.now();
         return window.setTimeout(() => {
@@ -37,8 +37,8 @@ function useLazyIntersectionRendering(renderOptions = {}) {
       () =>
         typeof window != "undefined" && window.requestIdleCallback
           ? (idleCallback, idleOptions) => window.requestIdleCallback(idleCallback, idleOptions)
-          : createFallbackIdleScheduler,
-      [createFallbackIdleScheduler],
+          : fallbackRequestIdleCallback,
+      [fallbackRequestIdleCallback],
     ),
     cancelIdleWork = reactExports.useMemo(
       () =>

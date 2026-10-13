@@ -2,3 +2,4 @@ key	新名	依据
 t2@10:14	translate	`translate` 为忙碌提示组件获取本地化文案。
 tip@11:9	chatTip	`chatTip` 是从聊天提示集合中选出的当前提示文本。
 BusyTipIndicator2@7:60	MemoizedBusyTipIndicator	`MemoizedBusyTipIndicator` 是 memo 包装器内的组件函数名；原名 `BusyTipIndicator` 与外层导出绑定冲突。
+MemoizedBusyTipIndicator@7:60	BusyTipIndicatorView	`BusyTipIndicatorView` 是交给 memo 的内层渲染函数，本身未 memo；外层 memo 结果才是 `BusyTipIndicator`。

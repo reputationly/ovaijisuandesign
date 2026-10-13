@@ -120,3 +120,4 @@ S3@366:17	renderErrorMessage	`renderErrorMessage` 是供错误状态展示的渲
 M2@396:9	handleRetry	`handleRetry` 是增加重试计数以重新执行 Mermaid 渲染。
 H2@396:24	retryCount	`retryCount` 是触发 Mermaid 图表重新渲染的次数。
 P3@422:7	diagramMarkup	`diagramMarkup` 是最终注入图表容器的 SVG 标记文本。
+createFallbackIdleScheduler@24:5	fallbackRequestIdleCallback	`fallbackRequestIdleCallback` 在缺少 requestIdleCallback 时用 setTimeout 直接调度空闲回调，本身就是调度函数而非工厂。

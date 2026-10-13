@@ -1,3 +1,4 @@
 key	新名	依据
 id2@120:10	openedTabId	`openedTabId` 是待与隐藏会话集合比较的已打开标签 ID。
 ChatHeader2@10:47	MemoizedChatHeader	`MemoizedChatHeader` 是 memo 包装器内的组件函数名；原名 `ChatHeader` 与外层组件绑定冲突。
+MemoizedChatHeader@10:47	ChatHeaderView	`ChatHeaderView` 是交给 memo 的内层渲染函数，本身未 memo；外层 memo 结果才是 `ChatHeader`。

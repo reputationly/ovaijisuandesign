@@ -111,3 +111,4 @@ doc@508:17	parsedDocument	`parsedDocument` 是解析输入文本或提及节点�
 add@538:21	addMentionedFileFromPath	`addMentionedFileFromPath` 将提及的文件路径加入附件，供编辑器提交。
 cmd@1157:13	slashCommandText	`slashCommandText` 是由技能名称构成、用于输入匹配的斜杠命令文本。
 nav@1922:17	historyNavigationResult	`historyNavigationResult` 是历史导航返回的消息或草稿状态。
+keyboardEvent@1981:6	clipboardEvent	`clipboardEvent` 是粘贴（onPaste）事件对象，从中读取剪贴板文件附加到输入框。
