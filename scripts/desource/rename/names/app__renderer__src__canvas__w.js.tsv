@@ -1,98 +1,98 @@
 key	old	new	依据
-Ce@3:10	Ce	partitionEntries	对应 dagre lib/order/barycenter.js 的 barycenter；此绑定保存该步骤中的 Ce 值。
-e2@3:13	e2	entries	对应 dagre lib/order/barycenter.js 的 barycenter；此绑定保存该步骤中的 e2 值。
-n2@3:17	n2	predicate	对应 dagre lib/order/barycenter.js 的 barycenter；此绑定保存该步骤中的 n2 值。
-t2@4:7	t2	partitions	对应 dagre lib/order/barycenter.js 的 barycenter；此绑定保存该步骤中的 t2 值。
-r2@9:17	r2	entry	对应 dagre lib/order/barycenter.js 的 barycenter；此绑定保存该步骤中的 r2 值。
-ie@15:10	ie	barycenter	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 ie 值。
-e2@15:13	e2	graph	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 e2 值。
-n2@15:17	n2	movableNodes	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 n2 值。
-t2@16:18	t2	nodeId	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 t2 值。
-r2@17:9	r2	incomingEdges	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 r2 值。
-o2@23:11	o2	weightedPosition	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 o2 值。
-i2@24:10	i2	accumulated	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 i2 值。
-s2@24:14	s2	edge	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 s2 值。
-a2@25:15	a2	edgeLabel	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 a2 值。
-d2@26:13	d2	sourceNode	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 d2 值。
-Lt@45:10	Lt	mergeEntries	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 Lt 值。
-e2@45:13	e2	targetEntry	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 e2 值。
-n2@45:17	n2	sourceEntry	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 n2 值。
-t2@46:7	t2	weightedSum	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 t2 值。
-r2@47:5	r2	totalWeight	对应 dagre lib/order/resolve-conflicts.js 的 doResolveConflicts；此绑定保存该步骤中的 r2 值。
-Et@56:10	Et	doResolveConflicts	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 Et 值。
-e2@56:13	e2	sourceSet	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 e2 值。
-n2@57:7	n2	orderedEntries	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 n2 值。
-t2@58:12	t2	handleIncomingEntry	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 t2 值。
-r2@67:12	r2	handleOutgoingEntry	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 r2 值。
-o2@58:15	o2	currentEntry	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 o2 值。
-i2@59:13	i2	incomingEntry	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 i2 值。
-o2@67:15	o2	currentEntry	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 o2 值。
-i2@68:13	i2	outgoingEntry	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 i2 值。
-o2@73:9	o2	currentEntry	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 o2 值。
-o2@77:14	o2	entry	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 o2 值。
-o2@78:11	o2	entry	对应 dagre lib/order/resolve-conflicts.js 的 resolveConflicts；此绑定保存该步骤中的 o2 值。
-se@80:10	se	resolveConflicts	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 se 值。
-e2@80:13	e2	entries	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 e2 值。
-n2@80:17	n2	constraintGraph	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 n2 值。
-t2@81:7	t2	mappedEntries	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 t2 值。
-o2@82:16	o2	entry	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 o2 值。
-i2@82:20	i2	index	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 i2 值。
-s2@83:9	s2	mappedEntry	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 s2 值。
-o2@94:25	o2	edge	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 o2 值。
-i2@95:11	i2	sourceEntry	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 i2 值。
-s2@96:9	s2	targetEntry	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 s2 值。
-r2@99:7	r2	sourceEntries	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 r2 值。
-o2@99:38	o2	entry	对应 dagre lib/order/sort.js 的 consumeUnsortable；此绑定保存该步骤中的 o2 值。
-on@102:10	on	consumeUnsortable	对应 按 barycenter 和原始索引比较排序项；此绑定保存该步骤中的 on 值。
-e2@102:13	e2	orderedGroups	对应 按 barycenter 和原始索引比较排序项；此绑定保存该步骤中的 e2 值。
-n2@102:17	n2	unsortableEntries	对应 按 barycenter 和原始索引比较排序项；此绑定保存该步骤中的 n2 值。
-t2@102:21	t2	nextIndex	对应 按 barycenter 和原始索引比较排序项；此绑定保存该步骤中的 t2 值。
-r2@103:7	r2	lastEntry	对应 按 barycenter 和原始索引比较排序项；此绑定保存该步骤中的 r2 值。
-yt2@108:10	yt2	compareBarycenter	对应 按重心合并可排序项并穿插不可排序项；此绑定保存该步骤中的 yt2 值。
-e2@108:14	e2	reverseOrder	对应 按重心合并可排序项并穿插不可排序项；此绑定保存该步骤中的 e2 值。
-n2@109:11	n2	entryA	对应 按重心合并可排序项并穿插不可排序项；此绑定保存该步骤中的 n2 值。
-t2@109:15	t2	entryB	对应 按重心合并可排序项并穿插不可排序项；此绑定保存该步骤中的 t2 值。
-ae@118:10	ae	sortEntries	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 ae 值。
-e2@118:13	e2	entries	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 e2 值。
-n2@118:17	n2	reverseOrder	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 n2 值。
-t2@119:7	t2	partitions	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 t2 值。
-u4@119:20	u4	entry	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 u4 值。
-o2@121:5	o2	unsortableEntries	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 o2 值。
-u4@121:23	u4	left	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 u4 值。
-c3@121:27	c3	right	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 c3 值。
-r2@120:5	r2	sortableEntries	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 r2 值。
-i2@122:5	i2	orderedGroups	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 i2 值。
-s2@123:5	s2	weightedSum	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 s2 值。
-a2@124:5	a2	totalWeight	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 a2 值。
-d2@125:5	d2	nextIndex	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 d2 值。
-u4@128:17	u4	entry	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 u4 值。
-l2@135:7	l2	result	对应 dagre lib/order/sort-subgraph.js 的 expandSubgraphs；此绑定保存该步骤中的 l2 值。
-wt@140:10	wt	expandSubgraphs	对应 dagre lib/order/sort-subgraph.js 的 mergeBarycenters；此绑定保存该步骤中的 wt 值。
-e2@140:13	e2	entries	对应 dagre lib/order/sort-subgraph.js 的 mergeBarycenters；此绑定保存该步骤中的 e2 值。
-n2@140:17	n2	subgraphs	对应 dagre lib/order/sort-subgraph.js 的 mergeBarycenters；此绑定保存该步骤中的 n2 值。
-t2@141:15	t2	entry	对应 dagre lib/order/sort-subgraph.js 的 mergeBarycenters；此绑定保存该步骤中的 t2 值。
-r2@142:28	r2	nodeId	对应 dagre lib/order/sort-subgraph.js 的 mergeBarycenters；此绑定保存该步骤中的 r2 值。
-Nt@145:10	Nt	mergeBarycenters	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 Nt 值。
-e2@145:13	e2	target	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 e2 值。
-n2@145:17	n2	other	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 n2 值。
-e2@153:19	e2	graph	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 e2 值。
-n2@153:23	n2	parentId	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 n2 值。
-t2@153:27	t2	constraintGraph	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 t2 值。
-r2@153:31	r2	reverseOrder	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 r2 值。
-o2@154:7	o2	children	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 o2 值。
-i2@155:5	i2	parentNode	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 i2 值。
-s2@156:5	s2	borderLeft	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 s2 值。
-a2@157:5	a2	borderRight	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 a2 值。
-d2@158:5	d2	nestedResults	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 d2 值。
-l2@160:7	l2	childBarycenters	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 l2 值。
-h2@161:15	h2	childEntry	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 h2 值。
-f2@163:11	f2	childResult	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 f2 值。
-u4@167:7	u4	resolvedEntries	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 u4 值。
-c3@169:7	c3	sortedResult	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 c3 值。
-h2@172:9	h2	predecessors	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 h2 值。
-f2@174:11	f2	leftBorderPredecessor	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 f2 值。
-g2@175:9	g2	rightBorderPredecessors	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 g2 值。
-b3@176:9	b3	rightBorderPredecessor	对应 dagre lib/order/sort-subgraph.js 的 sortSubgraph；此绑定保存该步骤中的 b3 值。
-export:W	W	sortSubgraph	对应 dagre lib/order/sort-subgraph.ts 的 sortSubgraph。
-file:w.js	w.js	sort-subgraph.js	该文件主要实现 dagre sortSubgraph 布局阶段。
-h2@159:46	h2	childId	从 compound 节点的 children 中筛出非左右边界节点时，h2 持有当前子节点标识。
+Ce@3:10	Ce	partitionEntries	Dagre order/sort.ts 的 partitionEntries：按 predicate 将 entries 划分为 lhs 与 rhs。
+e2@3:13	e2	entries	partitionEntries 的输入条目数组，条目随后按谓词分入两组。
+n2@3:17	n2	predicate	partitionEntries 的分类回调，返回 true 的 entry 进入 lhs。
+t2@4:7	t2	partitions	partitionEntries 输出的 lhs/rhs 两组数组。
+r2@9:17	r2	entry	partitionEntries 正在检查并追加到某一组的条目。
+ie@15:10	ie	barycenter	Dagre order/barycenter.ts 的 barycenter：为每个可移动节点计算入边加权的前序位置。
+e2@15:13	e2	graph	barycenter 查询节点顺序与入边权重的 Graphlib 图。
+n2@15:17	n2	movableNodes	barycenter 需要计算重心的可移动节点 ID 列表。
+t2@16:18	t2	nodeId	barycenter 当前计算的节点 ID。
+r2@17:9	r2	incomingEdges	指向 nodeId 的入边；没有入边时该节点没有 barycenter。
+o2@23:11	o2	weightedPosition	入边权重乘源节点 order 后的加权和及总权重。
+i2@24:10	i2	accumulated	reduce 已累计的 sum/weight 对象。
+s2@24:14	s2	edge	当前参与加权重心计算的入边描述。
+a2@25:15	a2	edgeLabel	graph.edge(edge) 返回的权重属性对象。
+d2@26:13	d2	sourceNode	edge.v 对应的源节点标签，用其 order 计算加权位置。
+Lt@45:10	Lt	mergeEntries	Dagre order/resolve-conflicts.ts 的 mergeEntries：合并两条目节点集合与加权重心。
+e2@45:13	e2	targetEntry	接收合并结果并累加 weight 的目标条目。
+n2@45:17	n2	sourceEntry	提供被合并节点、重心和权重的来源条目。
+t2@46:7	t2	weightedSum	两条目 barycenter 与 weight 的乘积之和。
+r2@47:5	r2	totalWeight	参与合并的非零重心权重总和。
+Et@56:10	Et	doResolveConflicts	Dagre order/resolve-conflicts.ts 的 doResolveConflicts：按约束关系合并可兼容条目并输出未合并项。
+e2@56:13	e2	sourceSet	当前可处理的零入度条目集合，循环中逐项弹出。
+n2@57:7	n2	orderedEntries	按约束消解顺序处理过的条目列表。
+t2@58:12	t2	handleIncomingEntry	为 currentEntry 创建的入边条目处理回调。
+r2@67:12	r2	handleOutgoingEntry	把 currentEntry 加到后继入边并更新其入度的回调。
+o2@58:15	o2	currentEntry	当前从 sourceSet 取出并处理的条目。
+i2@59:13	i2	incomingEntry	handleIncomingEntry 检查是否可并入 currentEntry 的入边条目。
+o2@67:15	o2	currentEntry	当前处理出边的源条目。
+i2@68:13	i2	outgoingEntry	handleOutgoingEntry 正在降低 indegree 的后继条目。
+o2@73:9	o2	currentEntry	从 sourceSet 弹出、准备追加和处理入出边的条目。
+o2@77:14	o2	entry	过滤已标记 merged 的条目。
+o2@78:11	o2	entry	把未合并条目裁成 vs/i/barycenter/weight 四个字段。
+se@80:10	se	resolveConflicts	Dagre order/resolve-conflicts.ts 的 resolveConflicts：构造条目依赖图并调用 doResolveConflicts。
+e2@80:13	e2	entries	按原顺序进入冲突消解的节点重心条目列表。
+n2@80:17	n2	constraintGraph	表示条目先后约束的 Graphlib 图。
+t2@81:7	t2	mappedEntries	按 entry.v 索引、补有 in/out/indegree 的依赖条目记录。
+o2@82:16	o2	entry	初始化 mappedEntries 时正在转换的原始重心条目。
+i2@82:20	i2	index	原始 entries 中的下标，保存在映射条目的 i 字段。
+s2@83:9	s2	mappedEntry	为单个节点建立的约束图记录。
+o2@94:25	o2	edge	constraintGraph 中连接两个条目的有向约束边。
+i2@95:11	i2	sourceEntry	mappedEntries[edge.v] 对应的约束图起点记录。
+s2@96:9	s2	targetEntry	mappedEntries[edge.w] 对应的约束图终点记录。
+r2@99:7	r2	sourceEntries	依赖图中 indegree 为零、可先处理的条目。
+o2@99:38	o2	entry	筛选尚无入边约束的 mapped entry。
+on@102:10	on	consumeUnsortable	Dagre order/sort.ts 的 consumeUnsortable：依 nextIndex 将原索引不大于阈值的不可排序条目推入结果。
+e2@102:13	e2	orderedGroups	按输出顺序收集的节点 ID 组。
+n2@102:17	n2	unsortableEntries	缺少 barycenter、须按原索引插入的条目栈。
+t2@102:21	t2	nextIndex	下一个可输出位置的原索引阈值。
+r2@103:7	r2	lastEntry	unsortableEntries 末尾当前待检查的条目。
+yt2@108:10	yt2	compareBarycenter	Dagre order/sort.ts 的 compareBarycenter：按重心排序，重心相同时按原索引定序。
+e2@108:14	e2	reverseOrder	是否在重心相同的情况下反转原索引次序。
+n2@109:11	n2	entryA	比较左侧条目的 barycenter 与原始索引。
+t2@109:15	t2	entryB	比较右侧条目的 barycenter 与原始索引。
+ae@118:10	ae	sortEntries	Dagre order/sort.ts 的 sortEntries：排序可排序项并穿插保持原序的不可排序组。
+e2@118:13	e2	entries	待按 barycenter 排序及分组的条目数组。
+n2@118:17	n2	reverseOrder	传给比较器以决定同重心条目的原索引方向。
+t2@119:7	t2	partitions	按是否有 barycenter 分出的可排序与不可排序两组。
+u4@119:20	u4	entry	判断条目是否拥有 barycenter 的谓词参数。
+o2@121:5	o2	unsortableEntries	按原索引降序排列、等待 consumeUnsortable 的条目。
+u4@121:23	u4	left	比较器左侧的不可排序条目。
+c3@121:27	c3	right	比较器右侧的不可排序条目。
+r2@120:5	r2	sortableEntries	具有 barycenter、可按重心排序的条目。
+i2@122:5	i2	orderedGroups	组合最终节点顺序的各个 ID 组。
+s2@123:5	s2	weightedSum	已输出可排序项的 barycenter 乘权重累积和。
+a2@124:5	a2	totalWeight	已输出条目的权重总和，用于求合并重心。
+d2@125:5	d2	nextIndex	当前 sortable entry 输出后应接入不可排序项的原索引位置。
+u4@128:17	u4	entry	按顺序消费 sortableEntries 的当前条目。
+l2@135:7	l2	result	展平 orderedGroups 并附加汇总 barycenter/weight 的结果对象。
+wt@140:10	wt	expandSubgraphs	Dagre order/sort-subgraph.ts 的 expandSubgraphs：把子图条目展开为实际节点 ID。
+e2@140:13	e2	entries	需要将嵌套子图 ID 展开的条目数组。
+n2@140:17	n2	subgraphs	以子图 ID 查找其内部排序结果的映射。
+t2@141:15	t2	entry	当前被展开其 vs 节点列表的条目。
+r2@142:28	r2	nodeId	当前检查的节点 ID；若它是子图则替换为子图内部 vs。
+Nt@145:10	Nt	mergeBarycenters	Dagre order/sort-subgraph.ts 的 mergeBarycenters：按权重合并两个重心并更新总权重。
+e2@145:13	e2	target	接收 other 重心与权重的目标子图条目。
+n2@145:17	n2	other	用于更新 target 重心的另一个子图结果。
+e2@153:19	e2	graph	Dagre sortSubgraph 输入的 compound Graphlib 图。
+n2@153:23	n2	parentId	当前需要排序其直接 children 的 compound 父节点 ID。
+t2@153:27	t2	constraintGraph	约束同层节点先后顺序的图。
+r2@153:31	r2	reverseOrder	控制 barycenter 相同条目的逆序排序标志。
+o2@154:7	o2	children	graph.children(parentId) 返回的直接子节点 ID。
+i2@155:5	i2	parentNode	graph.node(parentId) 的父节点属性，用于读取边界节点。
+s2@156:5	s2	borderLeft	parentNode 的左边界节点 ID（如有）。
+a2@157:5	a2	borderRight	parentNode 的右边界节点 ID（如有）。
+d2@158:5	d2	nestedResults	按子图 ID 保存递归 sortSubgraph 结果的对象。
+l2@160:7	l2	childBarycenters	对子节点及子图计算出的重心条目。
+h2@161:15	h2	childEntry	childBarycenters 中当前递归处理的子条目。
+f2@163:11	f2	childResult	递归排序 childEntry 子图得到的结果。
+u4@167:7	u4	resolvedEntries	消解约束冲突后的重心条目列表。
+c3@169:7	c3	sortedResult	sortEntries 生成并展平后的父层条目。
+h2@172:9	h2	predecessors	左边界节点的前驱节点 ID 列表。
+f2@174:11	f2	leftBorderPredecessor	左边界前驱节点的标签，用其 order 修正父层重心。
+g2@175:9	g2	rightBorderPredecessors	右边界节点的前驱节点 ID 列表。
+b3@176:9	b3	rightBorderPredecessor	右边界前驱节点的标签，用其 order 修正父层重心。
+export:W	W	sortSubgraph	Dagre order/sort-subgraph.ts 的 sortSubgraph：递归计算 compound 节点 children 的重心顺序并合并边界位置。
+file:w.js	w.js	sort-subgraph.js	w.js 的导出实现 Dagre order/sort-subgraph.ts 的子图排序算法；建议以 sort-subgraph 命名。
+h2@159:46	h2	childId	sortSubgraph 过滤 compound children 时的当前候选子节点 ID；左右边界节点不会进入 barycenter 排序。

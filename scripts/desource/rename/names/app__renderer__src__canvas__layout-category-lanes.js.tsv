@@ -8,190 +8,190 @@ current2@21:11	current2	current	去掉打包器去重后缀，恢复原名；作
 id2@33:14	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 children2@39:9	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 id2@41:14	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-a2@56:30	a2	rectA	依据rectsOverlap的函数体、调用点及值流，rectA表示该位置实际持有的值或执行的职责
-b3@56:34	b3	rectB	依据rectsOverlap的函数体、调用点及值流，rectB表示该位置实际持有的值或执行的职责
-n2@64:28	n2	node	依据nodeToRect的函数体、调用点及值流，node表示该位置实际持有的值或执行的职责
+a2@56:30	a2	rectA	rectsOverlap 中被检查 x/y/w/h 边界的第一个矩形。
+b3@56:34	b3	rectB	rectsOverlap 中与 rectA 比较碰撞间距的第二个矩形。
+n2@64:28	n2	node	nodeToRect 正在读取位置与尺寸、转换为 {x,y,w,h} 的画布节点。
 mode2@64:32	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 index2@92:38	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 buckets2@106:9	buckets2	buckets	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-a2@114:6	a2	firstLane	依据layoutCategoryLanes的函数体、调用点及值流，firstLane表示该位置实际持有的值或执行的职责
-b3@114:10	b3	secondLane	依据layoutCategoryLanes的函数体、调用点及值流，secondLane表示该位置实际持有的值或执行的职责
-c3@127:13	c3	columnIndex	依据layoutCategoryLanes的函数体、调用点及值流，columnIndex表示该位置实际持有的值或执行的职责
-r2@128:13	r2	rowIndex	依据layoutCategoryLanes的函数体、调用点及值流，rowIndex表示该位置实际持有的值或执行的职责
-c3@133:14	c3	columnIndex	依据layoutCategoryLanes的函数体、调用点及值流，columnIndex表示该位置实际持有的值或执行的职责
-r2@136:14	r2	rowIndex	依据layoutCategoryLanes的函数体、调用点及值流，rowIndex表示该位置实际持有的值或执行的职责
-c3@139:13	c3	columnIndex	依据layoutCategoryLanes的函数体、调用点及值流，columnIndex表示该位置实际持有的值或执行的职责
-r2@140:13	r2	rowIndex	依据layoutCategoryLanes的函数体、调用点及值流，rowIndex表示该位置实际持有的值或执行的职责
-e2@150:19	e2	rectangle	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，rectangle表示该位置实际持有的值或执行的职责
-n2@150:23	n2	point	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，point表示该位置实际持有的值或执行的职责
-t2@151:7	t2	rectangleX	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，rectangleX表示该位置实际持有的值或执行的职责
-r2@152:5	r2	rectangleY	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，rectangleY表示该位置实际持有的值或执行的职责
-o2@153:5	o2	deltaX	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，deltaX表示该位置实际持有的值或执行的职责
-i2@154:5	i2	deltaY	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，deltaY表示该位置实际持有的值或执行的职责
-s2@155:5	s2	halfWidth	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，halfWidth表示该位置实际持有的值或执行的职责
-a2@156:5	a2	halfHeight	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，halfHeight表示该位置实际持有的值或执行的职责
-d2@161:7	d2	intersectionXOffset	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，intersectionXOffset表示该位置实际持有的值或执行的职责
-l2@161:11	l2	intersectionYOffset	依据dagre lib/util.ts 的 intersectRect的函数体、调用点及值流，intersectionYOffset表示该位置实际持有的值或执行的职责
-e2@172:19	e2	graph	依据dagre lib/util.ts 的 maxRank的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-t2@173:7	t2	nodeRanks	依据dagre lib/util.ts 的 maxRank的函数体、调用点及值流，nodeRanks表示该位置实际持有的值或执行的职责
-r2@173:28	r2	nodeId	依据dagre lib/util.ts 的 maxRank的函数体、调用点及值流，nodeId表示该位置实际持有的值或执行的职责
-o2@174:9	o2	nodeRank	依据dagre lib/util.ts 的 maxRank的函数体、调用点及值流，nodeRank表示该位置实际持有的值或执行的职责
-An@179:5	An	uniqueIdCounter	依据dagre lib/util.ts 的 uniqueId的函数体、调用点及值流，uniqueIdCounter表示该位置实际持有的值或执行的职责
-e2@180:19	e2	prefix	依据dagre lib/util.ts 的 uniqueId的函数体、调用点及值流，prefix表示该位置实际持有的值或执行的职责
-n2@181:7	n2	generatedId	依据dagre lib/util.ts 的 uniqueId的函数体、调用点及值流，generatedId表示该位置实际持有的值或执行的职责
-e2@184:21	e2	graph	依据dagre lib/util.ts 的 uniqueId的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-n2@184:25	n2	dummyType	依据dagre lib/util.ts 的 uniqueId的函数体、调用点及值流，dummyType表示该位置实际持有的值或执行的职责
-t2@184:29	t2	attributes	依据dagre lib/util.ts 的 uniqueId的函数体、调用点及值流，attributes表示该位置实际持有的值或执行的职责
-r2@184:33	r2	prefix	依据dagre lib/util.ts 的 uniqueId的函数体、调用点及值流，prefix表示该位置实际持有的值或执行的职责
-o2@185:7	o2	dummyNodeId	依据dagre lib/util.ts 的 uniqueId的函数体、调用点及值流，dummyNodeId表示该位置实际持有的值或执行的职责
-e2@189:19	e2	graph	依据dagre lib/util.ts 的 addBorderNode/addDummyNode的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-n2@189:23	n2	prefix	依据dagre lib/util.ts 的 addBorderNode/addDummyNode的函数体、调用点及值流，prefix表示该位置实际持有的值或执行的职责
-t2@189:27	t2	rank	依据dagre lib/util.ts 的 addBorderNode/addDummyNode的函数体、调用点及值流，rank表示该位置实际持有的值或执行的职责
-r2@189:31	r2	order	依据dagre lib/util.ts 的 addBorderNode/addDummyNode的函数体、调用点及值流，order表示该位置实际持有的值或执行的职责
-o2@190:7	o2	borderNodeLabel	依据dagre lib/util.ts 的 addBorderNode/addDummyNode的函数体、调用点及值流，borderNodeLabel表示该位置实际持有的值或执行的职责
-e2@199:19	e2	start	依据dagre lib/util.ts 的 range的函数体、调用点及值流，start表示该位置实际持有的值或执行的职责
-n2@199:23	n2	limit	依据dagre lib/util.ts 的 range的函数体、调用点及值流，limit表示该位置实际持有的值或执行的职责
-t2@199:27	t2	step	依据dagre lib/util.ts 的 range的函数体、调用点及值流，step表示该位置实际持有的值或执行的职责
-r2@201:7	r2	endCondition	依据dagre lib/util.ts 的 range的函数体、调用点及值流，endCondition表示该位置实际持有的值或执行的职责
-i2@201:13	i2	value	依据dagre lib/util.ts 的 range的函数体、调用点及值流，value表示该位置实际持有的值或执行的职责
-o2@203:7	o2	values	依据dagre lib/util.ts 的 range的函数体、调用点及值流，values表示该位置实际持有的值或执行的职责
-i2@204:12	i2	value	依据dagre lib/util.ts 的 range的函数体、调用点及值流，value表示该位置实际持有的值或执行的职责
-e2@207:19	e2	graph	依据dagre lib/util.ts 的 buildLayerMatrix的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-n2@208:7	n2	layers	依据dagre lib/util.ts 的 buildLayerMatrix的函数体、调用点及值流，layers表示该位置实际持有的值或执行的职责
-t2@210:25	t2	nodeId	依据dagre lib/util.ts 的 buildLayerMatrix的函数体、调用点及值流，nodeId表示该位置实际持有的值或执行的职责
-r2@211:11	r2	nodeLabel	依据dagre lib/util.ts 的 buildLayerMatrix的函数体、调用点及值流，nodeLabel表示该位置实际持有的值或执行的职责
-e2@218:19	e2	source	依据dagre lib/util.ts 的 pick的函数体、调用点及值流，source表示该位置实际持有的值或执行的职责
-n2@218:23	n2	keys	依据dagre lib/util.ts 的 pick的函数体、调用点及值流，keys表示该位置实际持有的值或执行的职责
-t2@219:7	t2	selectedProperties	依据dagre lib/util.ts 的 pick的函数体、调用点及值流，selectedProperties表示该位置实际持有的值或执行的职责
-r2@220:12	r2	key	依据dagre lib/util.ts 的 pick的函数体、调用点及值流，key表示该位置实际持有的值或执行的职责
-e2@223:19	e2	source	依据dagre lib/util.ts 的 mapValues的函数体、调用点及值流，source表示该位置实际持有的值或执行的职责
-n2@223:23	n2	mapperOrProperty	依据dagre lib/util.ts 的 mapValues的函数体、调用点及值流，mapperOrProperty表示该位置实际持有的值或执行的职责
-t2@224:7	t2	mapper	依据dagre lib/util.ts 的 mapValues的函数体、调用点及值流，mapper表示该位置实际持有的值或执行的职责
-r2@226:36	r2	value	依据dagre lib/util.ts 的 mapValues的函数体、调用点及值流，value表示该位置实际持有的值或执行的职责
-r2@227:32	r2	result	依据dagre lib/util.ts 的 mapValues的函数体、调用点及值流，result表示该位置实际持有的值或执行的职责
-o2@227:37	o2	key	依据dagre lib/util.ts 的 mapValues的函数体、调用点及值流，key表示该位置实际持有的值或执行的职责
-i2@227:41	i2	value	依据dagre lib/util.ts 的 mapValues的函数体、调用点及值流，value表示该位置实际持有的值或执行的职责
-e2@231:13	e2	linkedListNode	依据dagre data/list.ts 的 removeLinkedListNode的函数体、调用点及值流，linkedListNode表示该位置实际持有的值或执行的职责
-Pe@231:10	Pe	removeLinkedListNode	依据dagre data/list.ts 的 removeLinkedListNode的函数体、调用点及值流，removeLinkedListNode表示该位置实际持有的值或执行的职责
-e2@237:13	e2	propertyName	依据dagre greedy-fas.ts 的 List JSON 序列化的函数体、调用点及值流，propertyName表示该位置实际持有的值或执行的职责
-n2@237:17	n2	propertyValue	依据dagre greedy-fas.ts 的 List JSON 序列化的函数体、调用点及值流，propertyValue表示该位置实际持有的值或执行的职责
-Vn@237:10	Vn	omitLinkedListPointers	依据dagre greedy-fas.ts 的 List JSON 序列化的函数体、调用点及值流，omitLinkedListPointers表示该位置实际持有的值或执行的职责
-K$3@240:5	K$3	LinkedListClass	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，LinkedListClass表示该位置实际持有的值或执行的职责
-K@240:17	K	List	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，List表示该位置实际持有的值或执行的职责
-n2@243:9	n2	sentinel	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，sentinel表示该位置实际持有的值或执行的职责
-n2@247:9	n2	sentinel	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，sentinel表示该位置实际持有的值或执行的职责
-t2@248:7	t2	lastNode	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，lastNode表示该位置实际持有的值或执行的职责
-n2@251:11	n2	node	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，node表示该位置实际持有的值或执行的职责
-t2@252:9	t2	sentinel	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，sentinel表示该位置实际持有的值或执行的职责
-n2@260:9	n2	serializedNodes	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，serializedNodes表示该位置实际持有的值或执行的职责
-t2@261:7	t2	sentinel	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，sentinel表示该位置实际持有的值或执行的职责
-r2@262:7	r2	currentNode	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，currentNode表示该位置实际持有的值或执行的职责
-Me@267:5	Me	LinkedList	依据dagre greedy-fas.ts 的 List的函数体、调用点及值流，LinkedList表示该位置实际持有的值或执行的职责
-J@268:10	J	assignBucket	依据dagre lib/greedy-fas.ts 的 assignBucket的函数体、调用点及值流，assignBucket表示该位置实际持有的值或执行的职责
-e2@268:12	e2	buckets	依据dagre lib/greedy-fas.ts 的 assignBucket的函数体、调用点及值流，buckets表示该位置实际持有的值或执行的职责
-n2@268:16	n2	zeroIndex	依据dagre lib/greedy-fas.ts 的 assignBucket的函数体、调用点及值流，zeroIndex表示该位置实际持有的值或执行的职责
-t2@268:20	t2	entry	依据dagre lib/greedy-fas.ts 的 assignBucket的函数体、调用点及值流，entry表示该位置实际持有的值或执行的职责
-r2@269:7	r2	middleBucket	依据dagre lib/greedy-fas.ts 的 assignBucket的函数体、调用点及值流，middleBucket表示该位置实际持有的值或执行的职责
-o2@269:11	o2	sinkBucket	依据dagre lib/greedy-fas.ts 的 assignBucket的函数体、调用点及值流，sinkBucket表示该位置实际持有的值或执行的职责
-i2@269:15	i2	sourceBucket	依据dagre lib/greedy-fas.ts 的 assignBucket的函数体、调用点及值流，sourceBucket表示该位置实际持有的值或执行的职责
-$$5@276:10	$$5	removeNode	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，removeNode表示该位置实际持有的值或执行的职责
-e2@276:14	e2	graph	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-n2@276:18	n2	buckets	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，buckets表示该位置实际持有的值或执行的职责
-t2@276:22	t2	zeroIndex	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，zeroIndex表示该位置实际持有的值或执行的职责
-r2@276:26	r2	entry	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，entry表示该位置实际持有的值或执行的职责
-o2@276:30	o2	collectPredecessors	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，collectPredecessors表示该位置实际持有的值或执行的职责
-i2@277:7	i2	predecessors	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，predecessors表示该位置实际持有的值或执行的职责
-s2@278:5	s2	collectedPredecessors	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，collectedPredecessors表示该位置实际持有的值或执行的职责
-a2@280:39	a2	edge	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，edge表示该位置实际持有的值或执行的职责
-d2@281:11	d2	edgeWeight	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，edgeWeight表示该位置实际持有的值或执行的职责
-l2@282:9	l2	sourceEntry	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，sourceEntry表示该位置实际持有的值或执行的职责
-a2@291:40	a2	edge	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，edge表示该位置实际持有的值或执行的职责
-d2@292:11	d2	edgeWeight	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，edgeWeight表示该位置实际持有的值或执行的职责
-l2@293:9	l2	targetNodeId	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，targetNodeId表示该位置实际持有的值或执行的职责
-u4@294:9	u4	targetEntry	依据dagre lib/greedy-fas.ts 的 removeNode的函数体、调用点及值流，targetEntry表示该位置实际持有的值或执行的职责
-e2@301:20	e2	graph	依据dagre lib/greedy-fas.ts 的 doGreedyFAS的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-n2@301:24	n2	buckets	依据dagre lib/greedy-fas.ts 的 doGreedyFAS的函数体、调用点及值流，buckets表示该位置实际持有的值或执行的职责
-t2@301:28	t2	zeroIndex	依据dagre lib/greedy-fas.ts 的 doGreedyFAS的函数体、调用点及值流，zeroIndex表示该位置实际持有的值或执行的职责
-a2@302:7	a2	middleBucket	依据dagre lib/greedy-fas.ts 的 doGreedyFAS的函数体、调用点及值流，middleBucket表示该位置实际持有的值或执行的职责
-r2@303:7	r2	feedbackEdges	依据dagre lib/greedy-fas.ts 的 doGreedyFAS的函数体、调用点及值流，feedbackEdges表示该位置实际持有的值或执行的职责
-o2@304:5	o2	sourceBucket	依据dagre lib/greedy-fas.ts 的 doGreedyFAS的函数体、调用点及值流，sourceBucket表示该位置实际持有的值或执行的职责
-i2@305:5	i2	sinkBucket	依据dagre lib/greedy-fas.ts 的 doGreedyFAS的函数体、调用点及值流，sinkBucket表示该位置实际持有的值或执行的职责
-s2@306:5	s2	entry	依据dagre lib/greedy-fas.ts 的 doGreedyFAS的函数体、调用点及值流，entry表示该位置实际持有的值或执行的职责
-d2@311:16	d2	bucketIndex	依据dagre lib/greedy-fas.ts 的 doGreedyFAS的函数体、调用点及值流，bucketIndex表示该位置实际持有的值或执行的职责
-e2@320:13	e2	limit	依据dagre lib/greedy-fas.ts 的 range的函数体、调用点及值流，limit表示该位置实际持有的值或执行的职责
-zn@320:10	zn	range	依据dagre lib/greedy-fas.ts 的 range的函数体、调用点及值流，range表示该位置实际持有的值或执行的职责
-n2@321:7	n2	values	依据dagre lib/greedy-fas.ts 的 range的函数体、调用点及值流，values表示该位置实际持有的值或执行的职责
-t2@322:12	t2	value	依据dagre lib/greedy-fas.ts 的 range的函数体、调用点及值流，value表示该位置实际持有的值或执行的职责
-e2@325:20	e2	graph	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-n2@325:24	n2	weight	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，weight表示该位置实际持有的值或执行的职责
-t2@326:7	t2	stateGraph	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，stateGraph表示该位置实际持有的值或执行的职责
-r2@327:5	r2	maxInWeight	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，maxInWeight表示该位置实际持有的值或执行的职责
-o2@328:5	o2	maxOutWeight	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，maxOutWeight表示该位置实际持有的值或执行的职责
-a2@329:24	a2	nodeId	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，nodeId表示该位置实际持有的值或执行的职责
-a2@336:25	a2	edge	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，edge表示该位置实际持有的值或执行的职责
-d2@337:11	d2	existingWeight	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，existingWeight表示该位置实际持有的值或执行的职责
-l2@338:9	l2	edgeWeight	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，edgeWeight表示该位置实际持有的值或执行的职责
-u4@339:9	u4	combinedWeight	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，combinedWeight表示该位置实际持有的值或执行的职责
-c3@341:11	c3	sourceEntry	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，sourceEntry表示该位置实际持有的值或执行的职责
-h2@342:9	h2	targetEntry	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，targetEntry表示该位置实际持有的值或执行的职责
-i2@345:7	i2	buckets	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，buckets表示该位置实际持有的值或执行的职责
-s2@346:5	s2	zeroIndex	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，zeroIndex表示该位置实际持有的值或执行的职责
-a2@348:25	a2	nodeId	依据dagre lib/greedy-fas.ts 的 buildState的函数体、调用点及值流，nodeId表示该位置实际持有的值或执行的职责
-e2@358:19	e2	graph	依据dagre lib/rank/util.ts 的 longestPath的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-n2@359:7	n2	visited	依据dagre lib/rank/util.ts 的 longestPath的函数体、调用点及值流，visited表示该位置实际持有的值或执行的职责
-t2@360:12	t2	visitNode	依据dagre lib/rank/util.ts 的 longestPath的函数体、调用点及值流，visitNode表示该位置实际持有的值或执行的职责
-r2@360:15	r2	nodeId	依据dagre lib/rank/util.ts 的 longestPath的函数体、调用点及值流，nodeId表示该位置实际持有的值或执行的职责
-o2@361:9	o2	nodeLabel	依据dagre lib/rank/util.ts 的 longestPath的函数体、调用点及值流，nodeLabel表示该位置实际持有的值或执行的职责
-i2@364:9	i2	outgoingEdges	依据dagre lib/rank/util.ts 的 longestPath的函数体、调用点及值流，outgoingEdges表示该位置实际持有的值或执行的职责
-d2@366:19	d2	edge	依据dagre lib/rank/util.ts 的 longestPath的函数体、调用点及值流，edge表示该位置实际持有的值或执行的职责
-s2@365:7	s2	candidateRanks	依据dagre lib/rank/util.ts 的 longestPath的函数体、调用点及值流，candidateRanks表示该位置实际持有的值或执行的职责
-a2@372:7	a2	rank	依据dagre lib/rank/util.ts 的 longestPath的函数体、调用点及值流，rank表示该位置实际持有的值或执行的职责
-e2@377:21	e2	graph	依据dagre lib/rank/util.ts 的 slack的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-n2@377:25	n2	edge	依据dagre lib/rank/util.ts 的 slack的函数体、调用点及值流，edge表示该位置实际持有的值或执行的职责
-$n@380:10	$n	tightTree	依据dagre lib/rank/feasible-tree.ts 的 tightTree的函数体、调用点及值流，tightTree表示该位置实际持有的值或执行的职责
-e2@380:13	e2	tree	依据dagre lib/rank/feasible-tree.ts 的 tightTree的函数体、调用点及值流，tree表示该位置实际持有的值或执行的职责
-n2@380:17	n2	graph	依据dagre lib/rank/feasible-tree.ts 的 tightTree的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-t2@381:12	t2	visitNode	依据dagre lib/rank/feasible-tree.ts 的 tightTree的函数体、调用点及值流，visitNode表示该位置实际持有的值或执行的职责
-r2@381:15	r2	nodeId	依据dagre lib/rank/feasible-tree.ts 的 tightTree的函数体、调用点及值流，nodeId表示该位置实际持有的值或执行的职责
-o2@382:9	o2	incidentEdges	依据dagre lib/rank/feasible-tree.ts 的 tightTree的函数体、调用点及值流，incidentEdges表示该位置实际持有的值或执行的职责
-i2@384:19	i2	edge	依据dagre lib/rank/feasible-tree.ts 的 tightTree的函数体、调用点及值流，edge表示该位置实际持有的值或执行的职责
-s2@385:13	s2	edgeSource	依据dagre lib/rank/feasible-tree.ts 的 tightTree的函数体、调用点及值流，edgeSource表示该位置实际持有的值或执行的职责
-a2@386:11	a2	edgeTarget	依据dagre lib/rank/feasible-tree.ts 的 tightTree的函数体、调用点及值流，edgeTarget表示该位置实际持有的值或执行的职责
-e2@394:13	e2	tree	依据dagre lib/rank/feasible-tree.ts 的 findMinSlackEdge的函数体、调用点及值流，tree表示该位置实际持有的值或执行的职责
-n2@394:17	n2	graph	依据dagre lib/rank/feasible-tree.ts 的 findMinSlackEdge的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-Jn@394:10	Jn	findMinSlackEdge	依据dagre lib/rank/feasible-tree.ts 的 findMinSlackEdge的函数体、调用点及值流，findMinSlackEdge表示该位置实际持有的值或执行的职责
-r2@396:6	r2	bestCandidate	依据dagre lib/rank/feasible-tree.ts 的 findMinSlackEdge的函数体、调用点及值流，bestCandidate表示该位置实际持有的值或执行的职责
-o2@396:10	o2	edge	依据dagre lib/rank/feasible-tree.ts 的 findMinSlackEdge的函数体、调用点及值流，edge表示该位置实际持有的值或执行的职责
-i2@397:11	i2	edgeSlack	依据dagre lib/rank/feasible-tree.ts 的 findMinSlackEdge的函数体、调用点及值流，edgeSlack表示该位置实际持有的值或执行的职责
-e2@406:13	e2	tree	依据dagre lib/rank/feasible-tree.ts 的 shiftRanks的函数体、调用点及值流，tree表示该位置实际持有的值或执行的职责
-n2@406:17	n2	graph	依据dagre lib/rank/feasible-tree.ts 的 shiftRanks的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-t2@406:21	t2	rankDelta	依据dagre lib/rank/feasible-tree.ts 的 shiftRanks的函数体、调用点及值流，rankDelta表示该位置实际持有的值或执行的职责
-Qn@406:10	Qn	shiftRanks	依据dagre lib/rank/feasible-tree.ts 的 shiftRanks的函数体、调用点及值流，shiftRanks表示该位置实际持有的值或执行的职责
-r2@407:23	r2	nodeId	依据dagre lib/rank/feasible-tree.ts 的 shiftRanks的函数体、调用点及值流，nodeId表示该位置实际持有的值或执行的职责
-Kn@409:10	Kn	feasibleTree	依据dagre lib/rank/feasible-tree.ts 的 feasibleTree的函数体、调用点及值流，feasibleTree表示该位置实际持有的值或执行的职责
-e2@409:13	e2	graph	依据dagre lib/rank/feasible-tree.ts 的 feasibleTree的函数体、调用点及值流，graph表示该位置实际持有的值或执行的职责
-n2@410:7	n2	tree	依据dagre lib/rank/feasible-tree.ts 的 feasibleTree的函数体、调用点及值流，tree表示该位置实际持有的值或执行的职责
-t2@413:5	t2	nodes	依据dagre lib/rank/feasible-tree.ts 的 feasibleTree的函数体、调用点及值流，nodes表示该位置实际持有的值或执行的职责
-r2@415:7	r2	startNode	依据dagre lib/rank/feasible-tree.ts 的 feasibleTree的函数体、调用点及值流，startNode表示该位置实际持有的值或执行的职责
-o2@416:5	o2	nodeCount	依据dagre lib/rank/feasible-tree.ts 的 feasibleTree的函数体、调用点及值流，nodeCount表示该位置实际持有的值或执行的职责
-i2@418:7	i2	edge	依据dagre lib/rank/feasible-tree.ts 的 feasibleTree的函数体、调用点及值流，edge表示该位置实际持有的值或执行的职责
-s2@418:11	s2	rankDelta	依据dagre lib/rank/feasible-tree.ts 的 feasibleTree的函数体、调用点及值流，rankDelta表示该位置实际持有的值或执行的职责
-export:H	H	intersectRect	对应 dagre lib/util.ts 的 intersectRect
-export:X	X	maxRank	对应 dagre lib/util.ts 的 maxRank
-export:j	j	uniqueId	对应 dagre lib/util.ts 的 uniqueId
-export:w$3	w$3	addDummyNode	对应 dagre lib/util.ts 的 addDummyNode
-export:q	q	addBorderNode	对应 dagre lib/util.ts 的 addBorderNode
-export:k	k	range	对应 dagre lib/util.ts 的 range
-export:N	N	buildLayerMatrix	对应 dagre lib/util.ts 的 buildLayerMatrix
-export:T	T	pick	对应 dagre lib/util.ts 的 pick
-export:O	O	mapValues	对应 dagre lib/util.ts 的 mapValues
-export:_	_	GRAPH_NODE	对应 graphlib lib/graph.ts 的 GRAPH_NODE 根图节点哨兵
-export:Bn	Bn	doGreedyFAS	对应 dagre lib/greedy-fas.ts 的 doGreedyFAS
-export:Yn	Yn	buildState	对应 dagre lib/greedy-fas.ts 的 buildState
-export:S	S	longestPath	对应 dagre lib/rank/util.ts 的 longestPath
-export:v$4	v$4	slack	对应 dagre lib/rank/util.ts 的 slack
-export:V	V	feasibleTree	对应 dagre lib/rank/feasible-tree.ts 的 feasibleTree
-export:it	it	longestPath	对应 dagre lib/rank/util.ts 的 longestPath
+a2@114:6	a2	firstLane	orderedLanes 排序比较器左侧的 lane key。
+b3@114:10	b3	secondLane	orderedLanes 排序比较器右侧的 lane key。
+c3@127:13	c3	columnIndex	bucket.forEach 中由 item 下标取余 cols 得到的目标列。
+r2@128:13	r2	rowIndex	bucket.forEach 中由 item 下标除 cols 得到的目标行。
+c3@133:14	c3	columnIndex	计算各列 colX 原点时当前列的下标。
+r2@136:14	r2	rowIndex	计算各行 rowY 原点时当前行的下标。
+c3@139:13	c3	columnIndex	第二次 bucket.forEach 中当前 item 的网格列。
+r2@140:13	r2	rowIndex	第二次 bucket.forEach 中当前 item 的网格行。
+e2@150:19	e2	rectangle	对应 Dagre lib/util.ts 的 intersectRect：按矩形中心和 point 方向求边界交点的矩形。
+n2@150:23	n2	point	对应 Dagre lib/util.ts 的 intersectRect：从 rectangle 中心射向该坐标的点。
+t2@151:7	t2	rectangleX	rectangle 的中心 x 坐标，作为交点计算原点。
+r2@152:5	r2	rectangleY	rectangle 的中心 y 坐标，作为交点计算原点。
+o2@153:5	o2	deltaX	point.x 与 rectangleX 之差，即交点射线的水平分量。
+i2@154:5	i2	deltaY	point.y 与 rectangleY 之差，即交点射线的垂直分量。
+s2@155:5	s2	halfWidth	rectangle.width 的半宽；按射线方向翻转符号后确定左右边界。
+a2@156:5	a2	halfHeight	rectangle.height 的半高；按射线方向翻转符号后确定上下边界。
+d2@161:7	d2	intersectionXOffset	交点相对 rectangle 中心的水平偏移。
+l2@161:11	l2	intersectionYOffset	交点相对 rectangle 中心的垂直偏移。
+e2@172:19	e2	graph	maxRank 接收的 Graphlib 图，其节点标签提供 rank 属性。
+t2@173:7	t2	nodeRanks	graph 中各 node rank 的数组，未设置 rank 时以 Number.MIN_VALUE 占位。
+r2@173:28	r2	nodeId	graph.nodes() map 回调当前处理的节点 ID。
+o2@174:9	o2	nodeRank	graph.node(nodeId).rank；未设置时返回最小数占位值。
+An@179:5	An	uniqueIdCounter	j(prefix) 每生成一个带前缀 ID 后递增的模块级计数器。
+e2@180:19	e2	prefix	j 生成的唯一 ID 前缀。
+n2@181:7	n2	generatedId	本次递增后的全局序号，转成字符串拼接到 prefix 后。
+e2@184:21	e2	graph	w$3 用于检测候选 ID 并写入 dummy 节点的 Graphlib 图。
+n2@184:25	n2	dummyType	写入节点 attributes.dummy 的 dummy 类别。
+t2@184:29	t2	attributes	新 dummy 节点的标签属性对象，函数会原地补入 dummyType。
+r2@184:33	r2	prefix	优先作为 dummyNodeId 的基础 ID，冲突时传给 j 生成新 ID。
+o2@185:7	o2	dummyNodeId	当前待检测的节点 ID；若图中已存在则换成带序号 ID。
+e2@189:19	e2	graph	q 要检查重名并加入边界节点的 Graphlib 图。
+n2@189:23	n2	prefix	q 生成边界节点 ID 时使用的字符串前缀。
+t2@189:27	t2	rank	可选边界节点 rank；只有提供足够实参时才写入标签。
+r2@189:31	r2	order	可选边界节点 order；只有提供足够实参时才写入标签。
+o2@190:7	o2	borderNodeLabel	从 width/height 为零开始、按可选 rank/order 补充的边界节点标签。
+e2@199:19	e2	start	k 生成整数序列的起始值；省略 limit 时会被当作 limit。
+n2@199:23	n2	limit	k 生成序列时的排他上界。
+t2@199:27	t2	step	每轮递增的步长；负值时切换到递减终止条件。
+r2@201:7	r2	endCondition	判断当前 value 是否仍在 limit 范围内的函数。
+i2@201:13	i2	value	负 step 分支终止比较器当前检查的候选整数。
+o2@203:7	o2	values	k 返回的整数数组。
+i2@204:12	i2	value	for 循环当前准备追加到 values 的整数。
+e2@207:19	e2	graph	N 从中读取节点 rank/order 并建立 layer matrix 的图。
+n2@208:7	n2	layers	按最大 rank 创建、再按节点 order 填充节点 ID 的二维数组。
+t2@210:25	t2	nodeId	graph.nodes() 遍历时当前要放入对应 rank/order 槽位的节点 ID。
+r2@211:11	r2	nodeLabel	graph.node(nodeId) 返回的节点标签，提供 rank 与 order。
+e2@218:19	e2	source	pick 要按 keys 提取属性的源对象。
+n2@218:23	n2	keys	pick 允许复制到 selectedProperties 的属性名列表。
+t2@219:7	t2	selectedProperties	仅含 source 中已定义且名称在 keys 内的属性结果对象。
+r2@220:12	r2	key	当前检查是否存在于 source 的属性名。
+e2@223:19	e2	source	mapValues 将逐项转换并返回新对象的源记录。
+n2@223:23	n2	mapperOrProperty	可调用的值转换函数，或用于读取 value[property] 的字符串键。
+t2@224:7	t2	mapper	按 mapperOrProperty 类型归一化得到的统一值转换回调。
+r2@226:36	r2	value	字符串属性映射分支回调接收的源属性值。
+r2@227:32	r2	result	reduce 累积的新对象，逐项写入映射后的属性值。
+o2@227:37	o2	key	Object.entries(source) 当前项的属性名。
+i2@227:41	i2	value	Object.entries(source) 当前项的属性值，传给 mapper。
+e2@231:13	e2	linkedListNode	removeLinkedListNode 要从循环双向链表摘除的节点对象。
+Pe@231:10	Pe	removeLinkedListNode	从相邻节点的 _prev/_next 互链中摘除给定节点的函数。
+e2@237:13	e2	propertyName	JSON.stringify replacer 正在处理的节点属性名。
+n2@237:17	n2	propertyValue	该属性对应的值；仅当不是链表指针时原样保留。
+Vn@237:10	Vn	omitLinkedListPointers	过滤 _next/_prev 引用以避免序列化链表循环的 replacer。
+K$3@240:5	K$3	LinkedListClass	greedy-fas 桶队列使用的 sentinel-based 双向链表类实现。
+K@240:17	K	List	类表达式的局部类名；实现 enqueue/dequeue/toString 链表操作。
+n2@243:9	n2	sentinel	constructor 创建的循环哨兵节点，空链表时 next/prev 均指回自身。
+n2@247:9	n2	sentinel	dequeue 中用于判断链表是否为空的哨兵节点。
+t2@248:7	t2	lastNode	sentinel._prev 指向的队尾节点，非空时从链表摘除并返回。
+n2@251:11	n2	node	enqueue 要插入到哨兵后方的链表节点。
+t2@252:9	t2	sentinel	enqueue 中作为新节点插入位置参照的循环哨兵。
+n2@260:9	n2	serializedNodes	toString 收集从队尾沿 _prev 遍历得到的 JSON 字符串。
+t2@261:7	t2	sentinel	toString 用于终止反向遍历的循环哨兵节点。
+r2@262:7	r2	currentNode	toString 当前序列化并沿 _prev 移动的节点。
+Me@267:5	Me	LinkedList	LinkedListClass 的模块级引用，供 doGreedyFAS 创建桶的空链表。
+J@268:10	J	assignBucket	assignBucket 将 entry 按 in/out 权重状态移动到 source、sink 或 middle bucket。
+e2@268:12	e2	buckets	保存按权重差值索引的双端队列数组。
+n2@268:16	n2	zeroIndex	把可能为负的 out-in 值平移到 buckets 非负下标的偏移量。
+t2@268:20	t2	entry	要根据当前 in/out 权重重新入桶的 Graphlib 节点状态。
+r2@269:7	r2	middleBucket	既非 source 也非 sink 时取出的中心 bucket。
+o2@269:11	o2	sinkBucket	out 为零时存放 sink entry 的最后一个 bucket。
+i2@269:15	i2	sourceBucket	in/out 均非零时按 out-in+zeroIndex 选出的 bucket。
+$$5@276:10	$$5	removeNode	从工作图移除 entry，并更新相邻节点权重、桶位置及可选前驱清单。
+e2@276:14	e2	graph	正在删除节点并更新剩余度数的有向状态图。
+n2@276:18	n2	buckets	相邻节点权重变化后 assignBucket 要更新的桶数组。
+t2@276:22	t2	zeroIndex	传给 assignBucket 还原 bucket 下标的偏移量。
+r2@276:26	r2	entry	当前从 bucket 取出并从状态图删除的节点状态。
+o2@276:30	o2	collectPredecessors	为 true 时保存被删节点的入边端点供反馈边结果使用。
+i2@277:7	i2	predecessors	条件收集 entry 的入边 {v,w} 端点对的数组。
+s2@278:5	s2	collectedPredecessors	仅 collectPredecessors 为真时返回的 predecessors 引用。
+a2@280:39	a2	edge	graph.inEdges(entry.v) 当前指向待删节点的入边。
+d2@281:11	d2	edgeWeight	graph.edge(edge) 返回的入边权重。
+l2@282:9	l2	sourceEntry	入边起点在状态图中的 in/out 权重记录。
+a2@291:40	a2	edge	graph.outEdges(entry.v) 当前从待删节点发出的出边。
+d2@292:11	d2	edgeWeight	graph.edge(edge) 返回的出边权重。
+l2@293:9	l2	targetNodeId	当前出边终点 ID，用于获取并更新其状态。
+u4@294:9	u4	targetEntry	targetNodeId 对应的状态图节点记录，出边移除后其 in 权重递减。
+e2@301:20	e2	graph	Bn 从中反复删除 source/sink 节点并收集剩余节点反馈边的 Graphlib 状态图。
+n2@301:24	n2	buckets	按 out-in 分值分桶的链表数组，供 source/sink/middle 顺序取出节点。
+t2@301:28	t2	zeroIndex	传给 removeNode 和 assignBucket 的桶下标平移量。
+a2@302:7	a2	middleBucket	扫描中间 bucket 时当前取出的链表。
+r2@303:7	r2	feedbackEdges	累计从被选中中间节点移除的入边，作为反馈边返回。
+o2@304:5	o2	sourceBucket	最高分 bucket，循环中持续 dequeue 并移除 source。
+i2@305:5	i2	sinkBucket	最低分 bucket，循环中持续 dequeue 并移除 sink。
+s2@306:5	s2	entry	当前从 source/sink/middle bucket 取出的状态图节点。
+d2@311:16	d2	bucketIndex	从高分向低分扫描中间 bucket 的下标。
+e2@320:13	e2	limit	range 生成 0 到 limit-1 整数序列的排他上界。
+zn@320:10	zn	range	创建 0-based bucket 下标列表的局部整数序列函数。
+n2@321:7	n2	values	range 返回的整数数组。
+t2@322:12	t2	value	for 循环当前追加到 values 的下标值。
+e2@325:20	e2	graph	buildState 据以构造 greedy-FAS 权重状态图的原始 Graphlib 图。
+n2@325:24	n2	weight	从原图边读取其权重的回调。
+t2@326:7	t2	stateGraph	为 greedy-FAS 节点保存 v/in/out 并合并有向边权的状态图。
+r2@327:5	r2	maxInWeight	遍历边时见到的最大累计节点入权重。
+o2@328:5	o2	maxOutWeight	遍历边时见到的最大累计节点出权重。
+a2@329:24	a2	nodeId	graph.nodes() 回调当前复制到 stateGraph 的节点 ID。
+a2@336:25	a2	edge	graph.edges() 回调当前累计权重的有向边。
+d2@337:11	d2	existingWeight	stateGraph 中同方向边此前累计的权重；无边时为 0。
+l2@338:9	l2	edgeWeight	weight(edge) 返回的原图边权。
+u4@339:9	u4	combinedWeight	existingWeight 与当前 edgeWeight 相加后的边权。
+c3@341:11	c3	sourceEntry	合并边起点在 stateGraph 中的 in/out 权重记录。
+h2@342:9	h2	targetEntry	合并边终点在 stateGraph 中的 in/out 权重记录。
+i2@345:7	i2	buckets	按最大入/出权重差范围创建的 LinkedList bucket 数组。
+s2@346:5	s2	zeroIndex	最大入权加一得到的负值下标偏移量。
+a2@348:25	a2	nodeId	stateGraph.nodes() 回调当前交给 assignBucket 的节点 ID。
+e2@358:19	e2	graph	longestPath 从 sources 出发递归写入节点 rank 的 Dagre rank 图。
+n2@359:7	n2	visited	记录已递归计算 rank 的节点 ID，避免重复遍历。
+t2@360:12	t2	visitNode	从 sources 递归沿 outEdges 计算最小可行 rank 的局部函数。
+r2@360:15	r2	nodeId	visitNode 当前读取标签并计算 rank 的节点 ID。
+o2@361:9	o2	nodeLabel	graph.node(nodeId) 返回并最终写入 rank 的节点标签。
+i2@364:9	i2	outgoingEdges	nodeId 的有向出边；每条边约束其源节点 rank。
+s2@365:7	s2	candidateRanks	对各出边目标 rank 减 minlen 得到的候选源 rank。
+d2@366:19	d2	edge	outgoingEdges.map 当前递归处理的出边。
+a2@372:7	a2	rank	候选 rank 的最小值；无有限后继时回退为 0 并写入 nodeLabel。
+e2@377:21	e2	graph	slack 按两端节点 rank 与 edge.minlen 计算松弛量的 Graphlib 图。
+n2@377:25	n2	edge	要计算 rank slack 的有向边描述。
+$n@380:10	$n	tightTree	从已有 tree 节点扩展所有 slack 为零的相邻图节点的递归函数。
+e2@380:13	e2	tree	当前可行树，扩展时将新节点和 tight edge 写入其中。
+n2@380:17	n2	graph	提供 nodeEdges、节点 rank 与 edge minlen 的原图。
+t2@381:12	t2	visitNode	递归遍历 tree 节点并沿 tight incident edge 扩展的函数。
+r2@381:15	r2	nodeId	visitNode 当前从原图读取 incident edges 的树节点 ID。
+o2@382:9	o2	incidentEdges	graph.nodeEdges(nodeId) 返回的关联边列表。
+i2@384:19	i2	edge	当前检查是否 slack 为零并可加入 tree 的关联边。
+s2@385:13	s2	edgeSource	当前 edge 的 v 端点，用于确定另一端节点。
+a2@386:11	a2	edgeTarget	edge 中不等于 nodeId 的另一端节点。
+e2@394:13	e2	tree	findMinSlackEdge 仅考虑一端在 tree 内另一端在外的跨界边。
+n2@394:17	n2	graph	提供候选边与当前 rank slack 的原始 Dagre 图。
+Jn@394:10	Jn	findMinSlackEdge	从跨越 tree 边界的边中返回 slack 最小的一条。
+r2@396:6	r2	bestCandidate	reduce 累积的 [最小 slack, 对应 edge]，初始为 [Infinity, null]。
+o2@396:10	o2	edge	graph.edges() 当前比较是否比 bestCandidate slack 更小的边。
+i2@397:11	i2	edgeSlack	当前跨界 edge 的 slack；非跨界边保持 Infinity。
+e2@406:13	e2	tree	要对其所有节点 rank 一起平移的可行树。
+n2@406:17	n2	graph	提供节点 rank 标签的 Dagre 图。
+t2@406:21	t2	rankDelta	加到 tree 中每个节点 rank 的统一偏移量。
+Qn@406:10	Qn	shiftRanks	将指定 rankDelta 加到可行树所有节点 rank 的函数。
+r2@407:23	r2	nodeId	tree.nodes() 当前返回的待调整节点 ID。
+Kn@409:10	Kn	feasibleTree	创建满足所有边约束的紧边无向树并返回它。
+e2@409:13	e2	graph	输入 Dagre 有向图；算法会按最小 slack 边迭代平移节点 rank。
+n2@410:7	n2	tree	累积 tight edge、覆盖图节点的无向 Graphlib 可行树。
+t2@413:5	t2	nodes	graph.nodes() 的节点 ID 列表，用来选起始点并确定覆盖数。
+r2@415:7	r2	startNode	初始加入可行树的首个节点 ID。
+o2@416:5	o2	nodeCount	原图节点总数，作为 feasible tree 覆盖完成的目标。
+i2@418:7	i2	edge	每轮从 tree 外连接到 tree 内的最小 slack 候选边。
+s2@418:11	s2	rankDelta	使该候选 edge slack 降到零所需的 rank 平移量。
+export:H	H	intersectRect	Dagre lib/util.ts 的 intersectRect：从 rectangle 中心朝 point 求矩形边界交点。
+export:X	X	maxRank	Dagre lib/util.ts 的 maxRank：遍历节点 rank 并返回最大值，空图时回退到 0。
+export:j	j	uniqueId	Dagre lib/util.ts 的 uniqueId：优先使用未占用的 prefix，冲突时递增计数生成唯一 ID。
+export:w$3	w$3	addDummyNode	Dagre lib/util.ts 的 addDummyNode：写入 dummy 类型标签并确保 graph 中节点 ID 唯一。
+export:q	q	addBorderNode	q 为 Dagre build-layer-graph 的单个边界节点 helper，可按实参数量写入 rank/order；与 grid-slot-layout.js 的逐 rank 链式边界节点实现不同。
+export:k	k	rangeByStep	k(start, limit, step) 生成按 step 递增或递减的整数序列；同文件已有 range(limit) 生成 0 到 limit 的序列。
+export:N	N	buildLayerMatrix	Dagre lib/util.ts 的 buildLayerMatrix：按节点 rank 创建层并按 order 将节点 ID 放入对应槽位。
+export:T	T	pick	Dagre lib/util.ts 的 pick：从源对象挑选存在于 keys 列表中的属性。
+export:O	O	mapValues	Dagre lib/util.ts 的 mapValues：逐项调用 mapper 转换对象属性值并返回新对象。
+export:_	_	GRAPH_NODE	Graphlib lib/graph.ts 的 GRAPH_NODE：表示根图节点的内部哨兵键。
+export:Bn	Bn	doGreedyFAS	Dagre lib/greedy-fas.ts 的 doGreedyFAS：反复移除 source/sink 节点，并从剩余图中收集反馈边。
+export:Yn	Yn	buildState	Dagre lib/greedy-fas.ts 的 buildState：累计边权、节点入/出权并建立度差桶队列。
+export:S	S	longestPath	Dagre lib/rank/util.ts 的 longestPath：从 sink 递归计算各节点 rank 并写回节点标签。
+export:v$4	v$4	slack	Dagre lib/rank/util.ts 的 slack：用两端 rank 差减 edge.minlen 计算边松弛量。
+export:V	V	buildFeasibleTree	V 是同文件 feasibleTree 函数的导出别名；buildFeasibleTree 避免与现有私有函数名冲突。
+export:it	it	assignRanksByLongestPath	it 是 S 的导出别名，指向同一个递归计算并写入节点 rank 的实现；此描述名避免与 S 的 longestPath 提议重名。
 i2@202:32	i2	candidate	负步长时，candidate 是 endCondition 正在与 limit 比较的候选值。
 o2@212:9	o2	rank	读取 nodeLabel.rank，并将其用作节点所在层的索引。
 index2@126:27	index2	index	去掉打包器去重后缀，恢复原名；作用域内无同名冲突。

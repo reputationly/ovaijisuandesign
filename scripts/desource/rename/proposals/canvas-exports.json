@@ -3,7 +3,7 @@
     "HistoryManager2": "HistoryManager"
   },
   "app/renderer/src/canvas/fullscreen-icon.jsx": {
-    "AnnotationIcon$1": "AnnotationIcon"
+    "AnnotationIcon$1": "AnnotationIconArtwork"
   },
   "app/renderer/src/canvas/it.js": {
     "It": "horizontalCompaction"
@@ -12,7 +12,7 @@
     "W": "sortSubgraph"
   },
   "app/renderer/src/canvas/we.js": {
-    "qe": "networkSimplex"
+    "qe": "runNetworkSimplex"
   },
   "app/renderer/src/canvas/ot.js": {
     "L": "applyWithChunking",
@@ -30,7 +30,7 @@
   "app/renderer/src/canvas/grid-slot-layout.js": {
     "st": "tightTreeRanker",
     "lt2": "computeLowLimValues",
-    "Qe": "addBorderNode",
+    "Qe": "addRankBorderNode",
     "de": "buildLayerGraph",
     "_t": "findType2Conflicts",
     "Pt": "alignCoordinates",
@@ -43,7 +43,7 @@
     "j": "uniqueId",
     "w$3": "addDummyNode",
     "q": "addBorderNode",
-    "k": "range",
+    "k": "rangeByStep",
     "N": "buildLayerMatrix",
     "T": "pick",
     "O": "mapValues",
@@ -52,7 +52,7 @@
     "Yn": "buildState",
     "S": "longestPath",
     "v$4": "slack",
-    "V": "feasibleTree",
-    "it": "longestPath"
+    "V": "buildFeasibleTree",
+    "it": "assignRanksByLongestPath"
   }
 }

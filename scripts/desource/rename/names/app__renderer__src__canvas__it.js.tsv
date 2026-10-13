@@ -1,68 +1,71 @@
 key	old	new	依据
-p@2:17	p	Graph	对应 dagre lib/position/bk.js 的 sep；此绑定保存 p 所对应的 sep 中间值。
-jt@3:10	jt	sep	对应 dagre lib/position/bk.js 的 sep；此绑定保存 jt 所对应的 sep 中间值。
-e2@3:13	e2	nodeSep	对应 dagre lib/position/bk.js 的 sep；此绑定保存 e2 所对应的 sep 中间值。
-n2@3:17	n2	edgeSep	对应 dagre lib/position/bk.js 的 sep；此绑定保存 n2 所对应的 sep 中间值。
-t2@3:21	t2	reverseSep	对应 dagre lib/position/bk.js 的 sep；此绑定保存 t2 所对应的 sep 中间值。
-r2@4:11	r2	graph	对应 dagre lib/position/bk.js 的 sep；此绑定保存 r2 所对应的 sep 中间值。
-o2@4:15	o2	v	对应 dagre lib/position/bk.js 的 sep；此绑定保存 o2 所对应的 sep 中间值。
-i2@4:19	i2	w	对应 dagre lib/position/bk.js 的 sep；此绑定保存 i2 所对应的 sep 中间值。
-s2@5:9	s2	vLabel	对应 dagre lib/position/bk.js 的 sep；此绑定保存 s2 所对应的 sep 中间值。
-a2@6:7	a2	wLabel	对应 dagre lib/position/bk.js 的 sep；此绑定保存 a2 所对应的 sep 中间值。
-d2@7:7	d2	sum	对应 dagre lib/position/bk.js 的 sep；此绑定保存 d2 所对应的 sep 中间值。
-l2@8:7	l2	delta	对应 dagre lib/position/bk.js 的 sep；此绑定保存 l2 所对应的 sep 中间值。
-Ct@37:10	Ct	buildBlockGraph	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 Ct 所对应的 buildBlockGraph 中间值。
-e2@37:13	e2	graph	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 e2 所对应的 buildBlockGraph 中间值。
-n2@37:17	n2	layering	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 n2 所对应的 buildBlockGraph 中间值。
-t2@37:21	t2	root	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 t2 所对应的 buildBlockGraph 中间值。
-r2@37:25	r2	reverseSep	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 r2 所对应的 buildBlockGraph 中间值。
-o2@38:7	o2	blockGraph	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 o2 所对应的 buildBlockGraph 中间值。
-i2@39:5	i2	graphLabel	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 i2 所对应的 buildBlockGraph 中间值。
-s2@40:5	s2	separation	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 s2 所对应的 buildBlockGraph 中间值。
-a2@42:17	a2	layer	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 a2 所对应的 buildBlockGraph 中间值。
-d2@43:11	d2	previousNode	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 d2 所对应的 buildBlockGraph 中间值。
-l2@44:19	l2	node	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 l2 所对应的 buildBlockGraph 中间值。
-u4@45:13	u4	blockNode	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 u4 所对应的 buildBlockGraph 中间值。
-c3@48:17	c3	previousBlockNode	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 c3 所对应的 buildBlockGraph 中间值。
-h2@50:19	h2	previousEdgeWeight	对应 dagre lib/position/bk.js 的 buildBlockGraph；此绑定保存 h2 所对应的 buildBlockGraph 中间值。
-e2@61:20	e2	graph	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 e2 所对应的 horizontalCompaction 中间值。
-n2@61:24	n2	layering	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 n2 所对应的 horizontalCompaction 中间值。
-t2@61:28	t2	root	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 t2 所对应的 horizontalCompaction 中间值。
-r2@61:32	r2	align	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 r2 所对应的 horizontalCompaction 中间值。
-o2@61:36	o2	reverseSep	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 o2 所对应的 horizontalCompaction 中间值。
-i2@62:7	i2	xs	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 i2 所对应的 horizontalCompaction 中间值。
-s2@63:5	s2	blockGraph	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 s2 所对应的 horizontalCompaction 中间值。
-a2@64:5	a2	borderType	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 a2 所对应的 horizontalCompaction 中间值。
-d2@65:12	d2	iterateBlocks	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 d2 所对应的 horizontalCompaction 中间值。
-f2@65:15	f2	setCoordinate	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 f2 所对应的 horizontalCompaction 中间值。
-g2@65:19	g2	getNextBlocks	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 g2 所对应的 horizontalCompaction 中间值。
-b3@66:9	b3	blockStack	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 b3 所对应的 horizontalCompaction 中间值。
-m3@67:7	m3	visitedBlocks	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 m3 所对应的 horizontalCompaction 中间值。
-E3@68:7	E3	currentBlock	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 E3 所对应的 horizontalCompaction 中间值。
-y4@73:18	y4	nextBlock	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 y4 所对应的 horizontalCompaction 中间值。
-l2@78:12	l2	assignMinimumX	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 l2 所对应的 horizontalCompaction 中间值。
-f2@78:15	f2	block	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 f2 所对应的 horizontalCompaction 中间值。
-g2@79:9	g2	incomingEdges	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 g2 所对应的 horizontalCompaction 中间值。
-b3@81:30	b3	minimumX	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 b3 所对应的 horizontalCompaction 中间值。
-m3@81:34	m3	edge	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 m3 所对应的 horizontalCompaction 中间值。
-I2@82:15	I2	sourceXValue	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 I2 所对应的 horizontalCompaction 中间值。
-E3@83:15	E3	sourceX	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 E3 所对应的 horizontalCompaction 中间值。
-y4@84:13	y4	edgeWeight	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 y4 所对应的 horizontalCompaction 中间值。
-f2@89:15	f2	block	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 f2 所对应的 horizontalCompaction 中间值。
-g2@90:9	g2	outgoingEdges	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 g2 所对应的 horizontalCompaction 中间值。
-b3@91:7	b3	minimumSuccessorX	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 b3 所对应的 horizontalCompaction 中间值。
-m3@101:9	m3	node	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 m3 所对应的 horizontalCompaction 中间值。
-E3@93:24	E3	minimumX	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 E3 所对应的 horizontalCompaction 中间值。
-y4@93:28	y4	successorEdge	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 y4 所对应的 horizontalCompaction 中间值。
-I2@94:13	I2	successorX	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 I2 所对应的 horizontalCompaction 中间值。
-be2@95:11	be2	edgeWeight	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 be2 所对应的 horizontalCompaction 中间值。
-f2@106:15	f2	block	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 f2 所对应的 horizontalCompaction 中间值。
-f2@109:15	f2	block	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 f2 所对应的 horizontalCompaction 中间值。
-f2@115:30	f2	nodeId	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 f2 所对应的 horizontalCompaction 中间值。
-b3@116:11	b3	rootX	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 b3 所对应的 horizontalCompaction 中间值。
-g2@117:11	g2	rootId	对应 dagre lib/position/bk.js 的 horizontalCompaction；此绑定保存 g2 所对应的 horizontalCompaction 中间值。
-export:It	It	horizontalCompaction	对应 dagre lib/position/bk.js 的 horizontalCompaction。
-file:it.js	it.js	horizontal-compaction.js	该文件主要实现 dagre horizontalCompaction 布局阶段。
+p@2:17	p	Graph	vendor.js 导入的 p$4 是 Graphlib Graph 构造器；此文件用它创建 blockGraph。
+jt@3:10	jt	sep	Dagre position/bk.ts 的 sep：按两端节点宽度、dummy 边间距及 labelpos 调整，计算水平分离距离。
+e2@3:13	e2	nodeSep	sep 的参数：非 dummy 节点之间使用的最小间距。
+n2@3:17	n2	edgeSep	sep 的参数：dummy 节点与邻接节点之间使用的间距。
+t2@3:21	t2	reverseSep	sep 的参数：反向对齐时翻转 label 偏移方向的标志。
+r2@4:11	r2	graph	sep 返回的回调参数：读取端点节点标签的 Graphlib 图。
+o2@4:15	o2	v	sep 返回的回调参数：间距计算的起始节点 ID。
+i2@4:19	i2	w	sep 返回的回调参数：间距计算的终止节点 ID。
+s2@5:9	s2	vLabel	sep 从图中按 v 读取的起始节点标签。
+a2@6:7	a2	wLabel	sep 从图中按 w 读取的终止节点标签。
+d2@7:7	d2	sum	sep 累加出的两端半宽、节点间距与标签偏移总和。
+l2@8:7	l2	delta	sep 按 labelpos 得到的单侧水平偏移。
+Ct@37:10	Ct	buildBlockGraph	Dagre position/bk.ts 的 buildBlockGraph：把同层节点合并到对齐块图，并以最小水平间距标记块间边。
+e2@37:13	e2	graph	buildBlockGraph 的输入 Dagre Graph；读取节点标签及 graph-level spacing。
+n2@37:17	n2	layering	buildBlockGraph 接收的按 rank 分组节点序列。
+t2@37:21	t2	root	buildBlockGraph 使用的 nodeId 到对齐块根 ID 的映射。
+r2@37:25	r2	reverseSep	buildBlockGraph 透传给 sep 的反向 label 偏移标志。
+o2@38:7	o2	blockGraph	存放对齐块及其最小分离约束的有向图。
+i2@39:5	i2	graphLabel	graph.graph() 返回的布局属性对象，包含 nodesep 和 edgesep。
+s2@40:5	s2	separation	由 sep 构造的节点对水平间距计算回调。
+a2@42:17	a2	layer	buildBlockGraph 当前遍历的单层节点序列。
+d2@43:11	d2	previousNode	当前层中上一个纳入 blockGraph 的原节点 ID。
+l2@44:19	l2	node	当前层正在检查、并据 root 映射到 block 的原节点 ID。
+u4@45:13	u4	blockNode	root[node] 得到的对齐块节点 ID。
+c3@48:17	c3	previousBlockNode	root[previousNode] 得到的前一个对齐块节点 ID。
+h2@50:19	h2	previousEdgeWeight	blockGraph 中前一块到当前块已有的分离权重。
+e2@61:20	e2	graph	horizontalCompaction 的输入 Dagre Graph，供节点/边标签和布局参数查询。
+n2@61:24	n2	layering	待按四种对齐方式压缩的各层节点序列。
+t2@61:28	t2	root	节点到对齐块根节点的映射。
+r2@61:32	r2	align	当前对齐方向的节点分组映射。
+o2@61:36	o2	reverseSep	控制边界类型和间距方向的布尔标志。
+i2@62:7	i2	xs	按节点 ID 保存水平坐标的结果对象。
+s2@63:5	s2	blockGraph	buildBlockGraph 返回的对齐块约束图。
+a2@64:5	a2	borderType	本次压缩应避开的边界类型（borderLeft 或 borderRight）。
+d2@65:12	d2	iterateBlocks	先序/回溯遍历 blockGraph，并调用坐标分配器。
+f2@65:15	f2	setCoordinate	iterateBlocks 对已访问 block 执行的坐标写入回调。
+g2@65:19	g2	getNextBlocks	iterateBlocks 取得当前 block 后继/前驱的回调。
+b3@66:9	b3	blockStack	保存待访问 block ID 的深度优先栈。
+m3@67:7	m3	visitedBlocks	记录已访问 block ID 的布尔表。
+E3@68:7	E3	currentBlock	每轮从 blockStack 弹出的 block ID。
+y4@73:18	y4	nextBlock	getNextBlocks(currentBlock) 返回并压入栈的相邻 block ID。
+l2@78:12	l2	assignMinimumX	Dagre bk.ts 的 assignXCoordinates：沿 incoming edges 为 block 计算最小可行 x。
+f2@78:15	f2	block	assignMinimumX 当前处理的对齐块 ID。
+g2@79:9	g2	incomingEdges	约束该 block 最小 x 的入边列表。
+b3@81:30	b3	minimumX	reduce 当前最小 x 候选值，初始为 0。
+m3@81:34	m3	edge	来自 incomingEdges、指向当前 block 的约束边。
+I2@82:15	I2	sourceXValue	临时保存 xs[edge.v]，用于区分缺失坐标和数值 0。
+E3@83:15	E3	sourceX	xs[edge.v] 的坐标；未设置时取 0。
+y4@84:13	y4	edgeWeight	当前 incoming edge 的间距权重。
+u4@89:12	u4	assignMaximumX	Dagre bk.ts 的 assignXCoordinates：沿 outgoing edges 回推 block 的最大可行 x。
+f2@89:15	f2	block	assignMaximumX 当前处理的对齐块 ID。
+g2@90:9	g2	outgoingEdges	从当前 block 指向后继 block 的约束边列表。
+b3@91:7	b3	minimumSuccessorX	由所有后继约束得到的最小 x 上界。
+E3@93:24	E3	minimumX	reduce 当前允许的最小后继 x，初始为正无穷。
+y4@93:28	y4	successorEdge	当前遍历的出边，w 指向后继 block。
+I2@94:13	I2	successorX	xs[successorEdge.w] 中记录的后继 block 坐标。
+be2@95:11	be2	edgeWeight	当前出边要求的最小水平分离距离。
+m3@101:9	m3	node	graph.node(block) 取得的 block 节点标签，用于判断边界类型。
+f2@106:15	f2	block	predecessorsWrapper 返回该 block 的前驱 block ID 列表。
+c3@106:12	c3	predecessorsWrapper	提供 blockGraph.predecessors(block) 的包装函数；空结果归一为空数组。
+f2@109:15	f2	block	successorsWrapper 返回该 block 的后继 block ID 列表。
+h2@109:12	h2	successorsWrapper	提供 blockGraph.successors(block) 的包装函数；空结果归一为空数组。
+f2@115:30	f2	nodeId	遍历 align 映射时当前节点 ID。
+b3@116:11	b3	rootX	root block 已计算的 x 坐标，缺失时回退到 0。
+g2@117:11	g2	rootId	root[nodeId] 得到的对齐块根节点 ID。
+export:It	It	horizontalCompaction	Dagre position/bk.ts 的 horizontalCompaction：为四种对齐方案计算节点 x 坐标。
+file:it.js	it.js	horizontal-compaction.js	it.js 的主要导出是 Dagre position/bk.ts 水平压缩阶段；文件名提议按该算法命名。
 u4@89:12	u4	assignMaximumX	计算后继块允许的 x 坐标并据此更新当前块坐标，故命名 assignMaximumX。
 c3@106:12	c3	predecessorsWrapper	返回 blockGraph.predecessors(block) 的节点数组，作为水平压缩第一遍遍历的前驱访问器；对应 dagre lib/position/bk.ts 的 predecessorsWrapper。
 h2@109:12	h2	successorsWrapper	返回 blockGraph.successors(block) 的节点数组，作为水平压缩第二遍遍历的后继访问器；对应 dagre lib/position/bk.ts 的 successorsWrapper。

@@ -1,123 +1,122 @@
 key	old	new	依据
-list2@156:14	list2	list	去掉打包器去重后缀，恢复原名；作用域内无同名冲突。
+list2@156:14	list2	list	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 mode2@19:34	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-n2@23:23	n2	childCount	按画布分层/网格布局的尺寸与位置计算的实际用途命名，childCount表示对应的节点、索引、尺寸或位置值。
+n2@23:23	n2	childCount	pickGridCols 的参数：参与平方根估算网格列数的子节点数量。
 children2@27:20	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-i2@40:12	i2	childIndex	按画布分层/网格布局的尺寸与位置计算的实际用途命名，childIndex表示对应的节点、索引、尺寸或位置值。
-h2@42:11	h2	childHeight	按画布分层/网格布局的尺寸与位置计算的实际用途命名，childHeight表示对应的节点、索引、尺寸或位置值。
-r2@47:12	r2	rowIndex	按画布分层/网格布局的尺寸与位置计算的实际用途命名，rowIndex表示对应的节点、索引、尺寸或位置值。
-i2@52:12	i2	childIndex	按画布分层/网格布局的尺寸与位置计算的实际用途命名，childIndex表示对应的节点、索引、尺寸或位置值。
-c3@53:11	c3	child	按画布分层/网格布局的尺寸与位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-m3@77:8	m3	maxWidth	按画布分层/网格布局的尺寸与位置计算的实际用途命名，maxWidth表示对应的节点、索引、尺寸或位置值。
-c3@77:12	c3	child	按画布分层/网格布局的尺寸与位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-c3@82:16	c3	child	按画布分层/网格布局的尺寸与位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
+i2@40:12	i2	childIndex	placeGrid 的首个循环下标；据此计算 row 并读取该行子节点高度。
+h2@42:11	h2	childHeight	当前子节点的实际高度，用于更新其所在 row 的最大高度。
+r2@47:12	r2	rowIndex	当前 rowYs 项的行下标。
+i2@52:12	i2	childIndex	placeGrid 第二个循环中当前待放置子节点的序号。
+c3@53:11	c3	child	按 childIndex 计算 row/col 后写入 placed 的子节点对象。
+m3@77:8	m3	maxWidth	placeVerticalLinear 转置分支 reduce 的宽度最大值累加器。
+c3@77:12	c3	child	reduce 当前比较尺寸、并参与求最大宽度的子节点。
+c3@82:16	c3	child	转置线性排列中当前写入位置列表的子节点。
 cursor2@80:9	cursor2	cursor	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 placed2@81:11	placed2	placed	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-m3@102:6	m3	maxHeight	按画布分层/网格布局的尺寸与位置计算的实际用途命名，maxHeight表示对应的节点、索引、尺寸或位置值。
-c3@102:10	c3	child	按画布分层/网格布局的尺寸与位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-c3@107:14	c3	child	按画布分层/网格布局的尺寸与位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-i2@135:12	i2	childIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，childIndex表示对应的节点、索引、尺寸或位置值。
+m3@102:6	m3	maxHeight	placeVerticalLinear 非转置分支 reduce 的最大行高累加器。
+c3@102:10	c3	child	reduce 当前比较高度、并参与求最大行高的子节点。
+c3@107:14	c3	child	非转置线性排列中当前写入位置列表的子节点。
+i2@135:12	i2	childIndex	placeVerticalLayered 首个循环中子节点的输入顺序下标，写入 orderIndex。
 ids2@138:9	ids2	ids	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-c3@138:39	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-e2@140:6	e2	edge	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，edge表示对应的节点、索引、尺寸或位置值。
-c3@144:14	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-e2@148:14	e2	edge	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，edge表示对应的节点、索引、尺寸或位置值。
+c3@138:39	c3	child	placeVerticalLayered 建立 child ID 集合时 map 回调正在读取的子节点。
+e2@140:6	e2	edge	筛出 source 与 target 都属于当前 group 子节点集合的边。
+c3@144:14	c3	child	初始化 adj 与 inDeg 时当前登记的子节点。
+e2@148:14	e2	edge	将 innerEdges 的 source→target 关系写入邻接表并递增入度。
 list2@149:11	list2	list	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-a2@158:8	a2	firstChildId	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，firstChildId表示对应的节点、索引、尺寸或位置值。
-b3@158:12	b3	secondChildId	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，secondChildId表示对应的节点、索引、尺寸或位置值。
-c3@164:14	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-c3@165:11	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
+a2@158:8	a2	firstChildId	adj 邻接列表排序比较器中的左侧子节点 ID。
+b3@158:12	b3	secondChildId	adj 邻接列表排序比较器中的右侧子节点 ID。
+c3@164:14	c3	child	从入度为零的起始子节点生成拓扑遍历 queue 时当前检查的节点。
+c3@165:11	c3	child	将入度为零的起始子节点对象映射为其 ID。
 id2@166:14	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 node2@189:19	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-u4@169:11	u4	currentNodeId	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，currentNodeId表示对应的节点、索引、尺寸或位置值。
-dU@171:11	dU	currentDepth	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，currentDepth表示对应的节点、索引、尺寸或位置值。
-v2@172:16	v2	neighborId	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，neighborId表示对应的节点、索引、尺寸或位置值。
-r2@174:13	r2	remainingInDegree	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，remainingInDegree表示对应的节点、索引、尺寸或位置值。
+u4@169:11	u4	currentNodeId	queue.shift() 取出的当前拓扑节点 ID。
+dU@171:11	dU	currentDepth	currentNodeId 在当前最长路径 rank 表中的深度。
+v2@172:16	v2	neighborId	当前节点的后继节点 ID，深度会按 currentDepth + 1 更新。
+r2@174:13	r2	remainingInDegree	neighborId 已处理一条前驱边后的剩余入度。
 depth2@161:9	depth2	depth	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-mn2@212:9	mn2	minimumRowIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，minimumRowIndex表示对应的节点、索引、尺寸或位置值。
-t2@193:43	t2	childId	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，childId表示对应的节点、索引、尺寸或位置值。
-t2@194:16	t2	childId	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，childId表示对应的节点、索引、尺寸或位置值。
-c3@204:16	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-y4@205:13	y4	childRowIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，childRowIndex表示对应的节点、索引、尺寸或位置值。
-y4@214:16	y4	rowIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，rowIndex表示对应的节点、索引、尺寸或位置值。
-c3@220:14	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-c3@223:14	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-c3@224:24	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-c3@225:23	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-c3@227:14	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-d2@228:11	d2	layerIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，layerIndex表示对应的节点、索引、尺寸或位置值。
-c3@233:14	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-d2@234:11	d2	layerIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，layerIndex表示对应的节点、索引、尺寸或位置值。
-s2@235:11	s2	layerExtent	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，layerExtent表示对应的节点、索引、尺寸或位置值。
-d2@241:14	d2	layerIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，layerIndex表示对应的节点、索引、尺寸或位置值。
-c3@252:14	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-r2@253:11	r2	rowIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，rowIndex表示对应的节点、索引、尺寸或位置值。
-s2@255:13	s2	laneExtent	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，laneExtent表示对应的节点、索引、尺寸或位置值。
-c3@260:14	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-s2@261:11	s2	laneExtent	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，laneExtent表示对应的节点、索引、尺寸或位置值。
-i2@264:12	i2	laneIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，laneIndex表示对应的节点、索引、尺寸或位置值。
-i2@270:14	i2	laneIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，laneIndex表示对应的节点、索引、尺寸或位置值。
-c3@278:14	c3	child	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-d2@279:11	d2	layerIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，layerIndex表示对应的节点、索引、尺寸或位置值。
-r2@280:11	r2	rowIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，rowIndex表示对应的节点、索引、尺寸或位置值。
-i0@288:13	i0	lowerLaneIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，lowerLaneIndex表示对应的节点、索引、尺寸或位置值。
-i1@289:13	i1	upperLaneIndex	按画布子图拓扑排序、分层与车道位置计算的实际用途命名，upperLaneIndex表示对应的节点、索引、尺寸或位置值。
-t2@320:18	t2	tile	按画布 tile 网格放置的实际用途命名，tile表示对应的节点、索引、尺寸或位置值。
-i2@320:22	i2	tileIndex	按画布 tile 网格放置的实际用途命名，tileIndex表示对应的节点、索引、尺寸或位置值。
-c3@321:11	c3	columnIndex	按画布 tile 网格放置的实际用途命名，columnIndex表示对应的节点、索引、尺寸或位置值。
-r2@322:11	r2	rowIndex	按画布 tile 网格放置的实际用途命名，rowIndex表示对应的节点、索引、尺寸或位置值。
-c3@327:12	c3	columnIndex	按画布 tile 网格放置的实际用途命名，columnIndex表示对应的节点、索引、尺寸或位置值。
-r2@330:12	r2	rowIndex	按画布 tile 网格放置的实际用途命名，rowIndex表示对应的节点、索引、尺寸或位置值。
-t2@332:18	t2	tile	按画布 tile 网格放置的实际用途命名，tile表示对应的节点、索引、尺寸或位置值。
-i2@332:22	i2	tileIndex	按画布 tile 网格放置的实际用途命名，tileIndex表示对应的节点、索引、尺寸或位置值。
-c3@333:11	c3	columnIndex	按画布 tile 网格放置的实际用途命名，columnIndex表示对应的节点、索引、尺寸或位置值。
-r2@334:11	r2	rowIndex	按画布 tile 网格放置的实际用途命名，rowIndex表示对应的节点、索引、尺寸或位置值。
+mn2@212:9	mn2	minimumRowIndex	当前节点所有已分配子节点 rowIdx 中最小的行位置，用于取父节点的中间位置。
+t2@193:43	t2	childId	assign 中筛出尚未访问的邻接 child ID 的回调参数。
+t2@194:16	t2	childId	assign 将要递归访问的未访问后继 ID。
+c3@204:16	c3	child	assign 从 child 的 rowIdx 读取已布局子节点行号的候选子节点。
+y4@205:13	y4	childRowIndex	rowIdx.get(child) 返回的子节点行位置；有值时纳入父节点居中计算。
+y4@214:16	y4	rowIndex	遍历 ys 时当前子节点行位置，用于更新 minimumRowIndex 和 mx。
+c3@220:14	c3	child	优先启动 assign 的入度为零子节点。
+c3@223:14	c3	child	第二轮 assign 的子节点；用于覆盖未被首轮访问的节点或环。
+c3@224:24	c3	child	layerSizeOf 参数；根据 transpose 选择子节点高度或宽度作为层向尺寸。
+c3@225:23	c3	child	laneSizeOf 参数；根据 transpose 选择子节点宽度或高度作为车道向尺寸。
+c3@227:14	c3	child	扫描 depth、计算最大 layerIndex 的子节点。
+d2@228:11	d2	layerIndex	child.id 在 depth 中对应的图层序号。
+c3@233:14	c3	child	计算各图层最大尺寸时当前遍历的子节点。
+d2@234:11	d2	layerIndex	child.id 对应的图层序号，用作 layerExtents 下标。
+s2@235:11	s2	layerExtent	当前子节点沿图层方向的尺寸，参与更新该层最大值。
+d2@241:14	d2	layerIndex	生成 layerOrigins 时当前图层的索引。
+c3@252:14	c3	child	按 rowIdx 统计 laneExtents 的当前子节点。
+r2@253:11	r2	rowIndex	child.id 对应的 rowIdx 值；仅有效整数行用于更新 laneExtents。
+s2@255:13	s2	laneExtent	当前子节点沿 lane 方向的尺寸，参与更新对应行最大值。
+c3@260:14	c3	child	计算空车道回退尺寸时当前遍历的子节点。
+s2@261:11	s2	laneExtent	当前子节点沿 lane 方向的尺寸，用于求 fallbackLane 最大值。
+i2@264:12	i2	laneIndex	生成 laneOrigins 时当前车道索引。
+i2@270:14	i2	laneIndex	检查并填充 laneExtents 中空车道的索引。
+c3@278:14	c3	child	根据图层深度和行位置生成最终 placement 的子节点。
+d2@279:11	d2	layerIndex	child.id 对应的图层序号，读取其 origin 与 extent 计算 layerCoord。
+r2@280:11	r2	rowIndex	child.id 对应的 rowIdx；整数行直接定位，分数行在相邻车道间插值。
+i0@288:13	i0	lowerLaneIndex	分数 rowIndex 向下取整后钳制到合法车道范围的下侧索引。
+i1@289:13	i1	upperLaneIndex	分数 rowIndex 向上取整后钳制到合法车道范围的上侧索引。
+t2@320:18	t2	tile	packTilesIntoGrid 遍历待排列的 tile 几何对象。
+i2@320:22	i2	tileIndex	当前 tile 在输入序列中的下标，用于计算网格列和行。
+c3@321:11	c3	columnIndex	tileIndex 对 cols 取余所得的目标列。
+r2@322:11	r2	rowIndex	tileIndex 除以 cols 向下取整所得的目标行。
+c3@327:12	c3	columnIndex	计算 colX 时当前列的索引。
+r2@330:12	r2	rowIndex	计算 rowY 时当前行的索引。
+t2@332:18	t2	tile	第二次遍历中将被放置到 colX/rowY 坐标的 tile。
+i2@332:22	i2	tileIndex	当前 tile 的输入下标，用于重算目标列与行。
+c3@333:11	c3	columnIndex	tileIndex 对应的网格列，传入 tile.place。
+r2@334:11	r2	rowIndex	tileIndex 对应的网格行，传入 tile.place。
 children2@74:30	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 children2@128:3	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 children2@343:29	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 ids2@344:9	ids2	ids	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-c3@344:39	c3	child	按画布 workflow/discrete 子图聚类与放置的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-e2@346:6	e2	edge	按画布 workflow/discrete 子图聚类与放置的实际用途命名，edge表示对应的节点、索引、尺寸或位置值。
-c3@353:14	c3	child	按画布 workflow/discrete 子图聚类与放置的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-e2@354:14	e2	edge	按画布 workflow/discrete 子图聚类与放置的实际用途命名，edge表示对应的节点、索引、尺寸或位置值。
-c3@358:39	c3	child	按画布 workflow/discrete 子图聚类与放置的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-c3@359:45	c3	child	按画布 workflow/discrete 子图聚类与放置的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-i2@359:49	i2	childIndex	按画布 workflow/discrete 子图聚类与放置的实际用途命名，childIndex表示对应的节点、索引、尺寸或位置值。
-c3@363:14	c3	child	按画布 workflow/discrete 子图聚类与放置的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
+c3@344:39	c3	child	建立当前 children 的 ID 集合时 map 回调正在读取的子节点。
+e2@346:6	e2	edge	保留 source/target 均在 group 内且非自环的连接边。
+c3@353:14	c3	child	为当前所有子节点创建无向邻接表初始项。
+e2@354:14	e2	edge	将当前 inner edge 的两个端点互相加入邻接表以形成连通分量。
+c3@358:39	c3	child	按输入顺序检查是否启动新的连通分量 BFS。
+c3@359:45	c3	child	当前连通分量起点，先写入 visited 与 BFS queue。
+i2@359:49	i2	childIndex	orderIndex 的输入下标，用于在分量内恢复原有节点顺序。
+c3@363:14	c3	child	将单节点连通分量直接归入 discrete 列表。
 id2@369:13	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-a2@383:8	a2	firstChildId	按画布 workflow/discrete 子图聚类与放置的实际用途命名，firstChildId表示对应的节点、索引、尺寸或位置值。
-b3@383:12	b3	secondChildId	按画布 workflow/discrete 子图聚类与放置的实际用途命名，secondChildId表示对应的节点、索引、尺寸或位置值。
+a2@383:8	a2	firstChildId	workflowComponents 成员排序比较器中的左侧子节点 ID。
+b3@383:12	b3	secondChildId	workflowComponents 成员排序比较器中的右侧子节点 ID。
 id2@385:44	id2	id	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-p3@400:20	p3	placement	按画布 workflow/discrete 子图聚类与放置的实际用途命名，placement表示对应的节点、索引、尺寸或位置值。
-m3@417:31	m3	maxWidth	按画布 workflow/discrete 子图聚类与放置的实际用途命名，maxWidth表示对应的节点、索引、尺寸或位置值。
-c3@417:35	c3	child	按画布 workflow/discrete 子图聚类与放置的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-m3@418:32	m3	maxHeight	按画布 workflow/discrete 子图聚类与放置的实际用途命名，maxHeight表示对应的节点、索引、尺寸或位置值。
-c3@418:36	c3	child	按画布 workflow/discrete 子图聚类与放置的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-p3@427:16	p3	placement	按画布 workflow/discrete 子图聚类与放置的实际用途命名，placement表示对应的节点、索引、尺寸或位置值。
-m3@499:37	m3	maxWidth	按画布分组子节点重排的实际用途命名，maxWidth表示对应的节点、索引、尺寸或位置值。
-c3@499:41	c3	child	按画布分组子节点重排的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-m3@500:37	m3	maxHeight	按画布分组子节点重排的实际用途命名，maxHeight表示对应的节点、索引、尺寸或位置值。
-c3@500:41	c3	child	按画布分组子节点重排的实际用途命名，child表示对应的节点、索引、尺寸或位置值。
-n2@450:9	n2	numericValue	按画布分组子节点重排的实际用途命名，numericValue表示对应的节点、索引、尺寸或位置值。
+p3@400:20	p3	placement	将 workflow tile 子布局的每个 children 坐标叠加 tile origin 后追加到 placed。
+m3@417:31	m3	maxWidth	discreteCell.reduce 中当前宽度最大值累加器。
+c3@417:35	c3	child	reduce 中参与计算离散子节点 cell 最大宽度的节点。
+m3@418:32	m3	maxHeight	discreteCell.reduce 中当前高度最大值累加器。
+c3@418:36	c3	child	reduce 中参与计算离散子节点 cell 最大高度的节点。
+p3@427:16	p3	placement	把离散子节点网格位置追加到 placed，并按 workflow 区域调整 relY。
+m3@499:37	m3	maxWidth	relayoutGroupChildren 中计算 cellW 的 reduce 最大宽度累加值。
+c3@499:41	c3	child	reduce 当前比较其 size.width 的带尺寸子节点记录。
+m3@500:37	m3	maxHeight	relayoutGroupChildren 中计算 cellH 的 reduce 最大高度累加值。
+c3@500:41	c3	child	reduce 当前比较其 size.height 的带尺寸子节点记录。
+n2@450:9	n2	numericValue	order 参数转成 number 或 parseFloat 后、通过有限数值检查的排序值。
 node2@445:28	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 data2@446:9	data2	data	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 raw2@448:9	raw2	raw	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-a2@455:23	a2	firstChild	按画布分组子节点重排的实际用途命名，firstChild表示对应的节点、索引、尺寸或位置值。
-b3@455:27	b3	secondChild	按画布分组子节点重排的实际用途命名，secondChild表示对应的节点、索引、尺寸或位置值。
-a2@463:33	a2	firstChild	按画布分组子节点重排的实际用途命名，firstChild表示对应的节点、索引、尺寸或位置值。
-b3@463:37	b3	secondChild	按画布分组子节点重排的实际用途命名，secondChild表示对应的节点、索引、尺寸或位置值。
-n2@478:40	n2	node	按画布分组子节点重排的实际用途命名，node表示对应的节点、索引、尺寸或位置值。
+a2@455:23	a2	firstChild	positional 比较器中读取 mode 位置并作为比较左侧的子项。
+b3@455:27	b3	secondChild	positional 比较器中读取 mode 位置并作为比较右侧的子项。
+a2@463:33	a2	firstChild	sortedByRowBand sort 比较器的左侧 rawChild 记录。
+b3@463:37	b3	secondChild	sortedByRowBand sort 比较器的右侧 rawChild 记录。
+n2@478:40	n2	node	在 canvas.nodes 中按 groupId 查找目标分组的节点。
 mode2@454:39	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 groupId2@476:47	groupId2	groupId	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 mode2@477:9	mode2	mode	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-n2@487:14	n2	node	按画布分组子节点重排的实际用途命名，node表示对应的节点、索引、尺寸或位置值。
-n2@488:11	n2	node	按画布分组子节点重排的实际用途命名，node表示对应的节点、索引、尺寸或位置值。
+n2@487:14	n2	node	筛选 parentId 等于 groupId 的直接子节点。
+n2@488:11	n2	node	把直接子节点包装为 node 与 resolveChildSize 计算的 size。
 children2@505:9	children2	children	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 node2@506:41	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 size2@506:54	size2	size	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-p3@539:14	p3	placement	按画布分组子节点重排的实际用途命名，placement表示对应的节点、索引、尺寸或位置值。
+p3@539:14	p3	placement	循环中的子节点放置结果，用于记录带 GROUP_NODE_PADDING 的新位置。
 node2@550:24	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 node2@569:39	node2	node	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 next2@589:11	next2	next	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
-n2@601:36	n2	node	按画布分组子节点重排的实际用途命名，node表示对应的节点、索引、尺寸或位置值。
-file:place-vertical-layered.js	place-vertical-layered.js	relayout-group-children.js	文件含 画布分组子节点垂直/网格重排逻辑，提议采用描述性文件名。
+n2@601:36	n2	node	在更新后的节点数组中查找 id 等于 groupId 的分组节点。

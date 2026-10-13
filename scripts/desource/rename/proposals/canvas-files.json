@@ -1,8 +1,7 @@
 {
+  "app/renderer/src/canvas/history-manager2.js": "app/renderer/src/canvas/history-manager.js",
   "app/renderer/src/canvas/it.js": "app/renderer/src/canvas/horizontal-compaction.js",
   "app/renderer/src/canvas/w.js": "app/renderer/src/canvas/sort-subgraph.js",
   "app/renderer/src/canvas/we.js": "app/renderer/src/canvas/network-simplex.js",
-  "app/renderer/src/canvas/ot.js": "app/renderer/src/canvas/dagre-layout-utils.js",
-  "app/renderer/src/canvas/grid-slot-layout.js": "app/renderer/src/canvas/canvas-grid-slot-layout.js",
-  "app/renderer/src/canvas/place-vertical-layered.js": "app/renderer/src/canvas/relayout-group-children.js"
+  "app/renderer/src/canvas/ot.js": "app/renderer/src/canvas/dagre-layout-utils.js"
 }
