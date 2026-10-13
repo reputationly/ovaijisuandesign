@@ -39,7 +39,7 @@ export function useVideoColorAdjust({
   nodeWidth,
   reactFlow,
   cropImage,
-  lut: lookupTable,
+  lut: lutBundle,
 }) {
   const [open, setOpen] = reactExports.useState(false);
   const emitDerived = useEmitDerivedFromBlob({
@@ -70,7 +70,7 @@ export function useVideoColorAdjust({
       open,
       onOpenChange: setOpen,
       onConfirm,
-      lut: lookupTable,
+      lut: lutBundle,
     },
   };
 }

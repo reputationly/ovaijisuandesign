@@ -10,7 +10,7 @@ p3@233:18	assetPath	picked assets 查出的候选字符串；Boolean 过滤会�
 p3@236:42	assetPath	当前待加入素材的候选路径；仅在 existing 集合未收录该路径时保留。
 p3@246:20	writtenPath	写入磁盘后的当前资源路径，传给 ensureStandaloneNodeForPath 创建独立节点。
 s2@417:41	storeState	资源元数据 store 的状态对象；选择器从中读取 assets 映射。
-_2@450:15	_unusedSlotPath	仅用于保持插槽数量的 map 占位参数，回调实际按 slotIndex 读取 imagePaths。
+_2@450:15	_unusedValue	Array.from({ length }) 生成的 undefined 元素占位参数，回调实际按 slotIndex 读取 imagePaths。
 idx@450:19	slotIndex	当前插槽在 map 中的位置，用于读取 imagePaths 并构造标签、操作 ID 和样式。
 e2@484:25	clickEvent	图片插槽按钮的点击事件；阻止冒泡后把当前按钮节点交给文件选择处理器。
 e2@681:25	clickEvent	插槽中的交互按钮点击事件；阻止冒泡以免触发画布节点点击。

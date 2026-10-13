@@ -447,7 +447,7 @@ export function ImageSlotList({
     <div className={`flex flex-wrap ${getSlotLabel ? "gap-1" : "gap-2"}`}>
       {Array.from({
         length: renderedSlotCount,
-      }).map((_unusedSlotPath, slotIndex) => {
+      }).map((_unusedValue, slotIndex) => {
         const path = imagePaths[slotIndex];
         const rawUrl = path ? (resolveFileUrl?.(path) ?? "") : "";
         const slotLabel = getSlotLabel?.(slotIndex);

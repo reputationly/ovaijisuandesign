@@ -437,7 +437,7 @@ function buildDefaultCamera() {
 }
 function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
   const { i18n } = useTranslation();
-  const translationErrors = reactExports.useMemo(
+  const translations = reactExports.useMemo(
     () => (i18n.resolvedLanguage?.startsWith("zh") ? messages.zh : messages.en),
     [i18n.resolvedLanguage],
   );
@@ -502,7 +502,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
       const selected = resources?.[0];
       if (!selected) return;
       if (!selected.url || !selected.path) {
-        dedupedToast.error(translationErrors.error_asset_missing);
+        dedupedToast.error(translations.error_asset_missing);
         return;
       }
       setSource({
@@ -511,10 +511,10 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
       });
     } catch (error) {
       dedupedToast.error(
-        `${translationErrors.error_asset_picker}: ${readableGenerationError(error)}`,
+        `${translations.error_asset_picker}: ${readableGenerationError(error)}`,
       );
     }
-  }, [pickAsset, translationErrors]);
+  }, [pickAsset, translations]);
   const isButtonDisabled =
     isSubmitting || !source.url || !source.path || !submitImg2Image;
   const handleSubmit = reactExports.useCallback(async () => {
@@ -544,18 +544,18 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
       if (!result.success && result.error) throw new Error(result.error);
     } catch (error) {
       dedupedToast.error(
-        `${translationErrors.error_generate}: ${readableGenerationError(error)}`,
+        `${translations.error_generate}: ${readableGenerationError(error)}`,
       );
     } finally {
       submitLockRef.current = false;
       setIsSubmitting(false);
     }
-  }, [camera, nodeId, onClose, source.path, submitImg2Image, translationErrors]);
+  }, [camera, nodeId, onClose, source.path, submitImg2Image, translations]);
   return (
     <div className="multi-angle-theme flex h-full min-h-0 flex-col bg-hl_bg_01">
       <header className="shrink-0 px-4 pb-1 pt-3 pr-10">
         <h2 className="text-hl_text_00 text-sm font-semibold leading-5">
-          {translationErrors.title}
+          {translations.title}
         </h2>
       </header>
       <div className="min-h-0 flex-1">
@@ -574,7 +574,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
                   onClick={handleReset}
                 >
                   <ToolResetIcon />
-                  <span>{translationErrors.reset}</span>
+                  <span>{translations.reset}</span>
                 </button>
                 <div className="h-[212px] shrink-0">
                   <StudioPreview>
@@ -584,7 +584,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
                       disabled={isSubmitting}
                       onRotate={handleRotateCamera}
                       onUpload={handlePickImage}
-                      t={translationErrors}
+                      t={translations}
                     />
                   </StudioPreview>
                 </div>
@@ -592,7 +592,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
                   <MultiAngleCustomPanel
                     camera={camera}
                     onUpdateCamera={handleUpdateCamera}
-                    t={translationErrors}
+                    t={translations}
                   />
                 </section>
               </div>
@@ -602,13 +602,13 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
           rightContent={
             <section className="flex flex-col gap-2 px-4 pb-3 pt-2">
               <h3 className="text-hl_text_01 text-[13px] font-medium">
-                {translationErrors.preset_section}
+                {translations.preset_section}
               </h3>
               <MultiAnglePresetsPanel
                 presets={ANGLE_PRESETS}
                 selectedPresetId={camera.presetId}
                 onSelect={handleSelectPreset}
-                t={translationErrors}
+                t={translations}
               />
             </section>
           }
@@ -618,7 +618,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
               isDisabled={isButtonDisabled}
               isSubmitting={isSubmitting}
               onSubmit={() => void handleSubmit()}
-              t={translationErrors}
+              t={translations}
             />
           }
         />

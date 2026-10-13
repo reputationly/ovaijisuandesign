@@ -87,10 +87,10 @@ buf@315:15	fileBytes	保存响应体读取出的文件字节。
 ext@431:9	normalizedExtension	保存转为小写的文件扩展名。
 t2@451:14	t	保存 i18n 返回的翻译函数。
 t2@475:11	text	保存待转义的语法高亮文本。
-t2@480:11	spanContent	保存高亮 span 内的文本内容。
+t2@480:11	highlightedText	保存将被高亮 span 包裹的文本。
 e2@480:15	tokenType	保存用于构造高亮 CSS 类名的语法类别。
 t2@481:19	codeText	保存待按语法规则分段处理的代码文本。
-e2@481:23	languageInput	保存语言名称或语法定义输入。
+e2@481:23	languageGrammar	保存语言名称字符串或已加载的语法规则对象。
 p3@481:27	renderSegment	保存接收文本片段和语法类别的回调。
 n2@483:9	ruleIndex	保存当前遍历的语法规则索引。
 m3@484:7	grammarRule	保存当前处理的语法规则。
@@ -98,10 +98,10 @@ c3@485:7	nextMatch	保存当前最早匹配位置及对应语法规则。
 i2@486:7	matchResult	保存正则表达式执行得到的匹配结果。
 r2@487:7	cachedMatches	缓存各语法规则的匹配位置。
 h2@488:7	textOffset	保存已处理文本的结束偏移。
-y4@489:7	languageDefinition	保存已加载的语言模块或传入的语法定义。
+y4@489:7	languageGrammarModule	保存按语言名称加载的语法模块，或直接传入的语法规则对象。
 g2@493:7	grammarRules	保存当前语言定义使用的语法规则列表。
 t2@540:19	codeText	保存待渲染为语法高亮 HTML 的代码文本。
-e2@540:23	languageInput	保存语言名称或语法定义输入。
+e2@540:23	languageGrammar	保存语言名称字符串或已加载的语法规则对象。
 p3@540:27	showLineNumbers	控制生成的 HTML 是否包含行号栏。
 n2@540:38	renderOptions	保存高亮 HTML 的渲染选项。
 m3@541:7	highlightedHtml	累积语法高亮渲染回调生成的 HTML。

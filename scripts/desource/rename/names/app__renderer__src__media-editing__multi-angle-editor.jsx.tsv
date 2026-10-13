@@ -7,7 +7,7 @@ v2@203:22	zoom	分段控件选中的缩放档位字符串，转为数字后写�
 t2@218:6	translations	传给生成控件面板的本地化文案对象，供按钮 aria-label 和标题读取。
 t2@386:6	translations	传给预设列表子组件的本地化文案对象，用 titleKey 查找各预设标签。
 id2@407:17	presetId	当前镜头预设的稳定标识，写入返回对象 id 并用于回填相机状态。
-t2@440:9	translationErrors	按 i18n.resolvedLanguage 选择的中英文错误消息表，用于资源选择失败提示。
+t2@440:9	translations	按 i18n.resolvedLanguage 选择的中英文界面文案表，用于标题、重置按钮和错误提示，并作为 t 传给子面板。
 t2@634:14	t	useTranslation 返回的翻译函数，为关闭按钮生成本地化 aria-label。
 children2@39:36	children	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存面板接收并渲染的 React 子节点。
 translate2@220:14	translate	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存读取预设本地化文案的函数。

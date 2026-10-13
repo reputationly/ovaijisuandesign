@@ -521,7 +521,7 @@ export function VideoColorAdjustDialog({
   videoSrc,
   videoName,
   onConfirm,
-  lut: lookupTable,
+  lut: lutBundle,
 }) {
   const { t } = useTranslation();
   useSuspendCanvasInteractions(open);
@@ -612,9 +612,9 @@ export function VideoColorAdjustDialog({
     }
   }, [open]);
   reactExports.useEffect(() => {
-    if (!open || !lookupTable) return;
+    if (!open || !lutBundle) return;
     let cancelled = false;
-    lookupTable
+    lutBundle
       .listLuts()
       .then((lutEntries) => {
         if (!cancelled) setLuts(lutEntries);
@@ -625,10 +625,10 @@ export function VideoColorAdjustDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, lookupTable]);
+  }, [open, lutBundle]);
   reactExports.useEffect(() => {
     const processor = processorRef.current;
-    if (!processor || !lookupTable) return;
+    if (!processor || !lutBundle) return;
     if (!selectedLut) {
       processor.clearLUT();
       if (videoEl?.paused) processor.renderOnce();
@@ -636,7 +636,7 @@ export function VideoColorAdjustDialog({
     }
     let cancelled = false;
     setLutBusy(true);
-    lookupTable
+    lutBundle
       .loadLutContent(selectedLut)
       .then(async (text) => {
         if (cancelled) return;
@@ -655,7 +655,7 @@ export function VideoColorAdjustDialog({
     return () => {
       cancelled = true;
     };
-  }, [selectedLut, lookupTable, videoEl]);
+  }, [selectedLut, lutBundle, videoEl]);
   reactExports.useEffect(() => {
     const processor = processorRef.current;
     if (!processor || !selectedLut) return;
@@ -719,30 +719,30 @@ export function VideoColorAdjustDialog({
     }
   }, [onConfirm, onOpenChange, videoSrc, videoEl, t]);
   const handleImportClick = reactExports.useCallback(() => {
-    lookupTable?.onImportEvent?.({
+    lutBundle?.onImportEvent?.({
       phase: "click",
     });
     fileInputRef.current?.click();
-  }, [lookupTable]);
+  }, [lutBundle]);
   const handleFilePicked = reactExports.useCallback(
     async (event) => {
       const file = event.target.files?.[0];
       event.target.value = "";
-      if (!file || !lookupTable) return;
+      if (!file || !lutBundle) return;
       const startedAt = Date.now();
       setLutBusy(true);
       try {
-        const { name: lutName } = await lookupTable.importLut(file);
-        const fresh = await lookupTable.listLuts();
+        const { name: lutName } = await lutBundle.importLut(file);
+        const fresh = await lutBundle.listLuts();
         setLuts(fresh);
         setSelectedLut(lutName);
-        lookupTable.onImportEvent?.({
+        lutBundle.onImportEvent?.({
           phase: "success",
           fileSize: file.size,
           durationMs: Date.now() - startedAt,
         });
       } catch (err) {
-        lookupTable.onImportEvent?.({
+        lutBundle.onImportEvent?.({
           phase: "failed",
           fileSize: file.size,
           durationMs: Date.now() - startedAt,
@@ -756,19 +756,19 @@ export function VideoColorAdjustDialog({
         setLutBusy(false);
       }
     },
-    [lookupTable, t],
+    [lutBundle, t],
   );
   const handleDeleteLut = reactExports.useCallback(
     async (lutName) => {
-      if (!lookupTable) return;
+      if (!lutBundle) return;
       const confirmed = window.confirm(
         t("colorAdjust.lut.deleteConfirm", "Delete this LUT?"),
       );
       if (!confirmed) return;
       setLutBusy(true);
       try {
-        await lookupTable.deleteLut(lutName);
-        const fresh = await lookupTable.listLuts();
+        await lutBundle.deleteLut(lutName);
+        const fresh = await lutBundle.listLuts();
         setLuts(fresh);
         if (selectedLut === lutName) setSelectedLut(null);
       } catch (err) {
@@ -780,7 +780,7 @@ export function VideoColorAdjustDialog({
         setLutBusy(false);
       }
     },
-    [lookupTable, selectedLut, t],
+    [lutBundle, selectedLut, t],
   );
   const handleLutSelectChange = reactExports.useCallback((value) => {
     if (value === null || value === LUT_NONE) {
@@ -915,7 +915,7 @@ export function VideoColorAdjustDialog({
           </div>
           <div className="flex min-h-0 flex-col border-l border-border/40">
             <div className="min-h-0 flex-1 overflow-y-auto p-4">
-              {lookupTable && (
+              {lutBundle && (
                 <div className="mb-5 border-b border-border/40 pb-5">
                   <div className="mb-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                     {t("colorAdjust.groupLut", "LUT")}

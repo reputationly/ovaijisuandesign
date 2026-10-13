@@ -165,16 +165,16 @@ function parseHex(hex) {
   if (colorHex.length === 3) colorHex = colorHex.replace(/(.)/g, "$1$1");
   if (colorHex.length !== 6) return null;
   const redChannel = Number.parseInt(colorHex.slice(0, 2), 16);
-  const green = Number.parseInt(colorHex.slice(2, 4), 16);
-  const blue = Number.parseInt(colorHex.slice(4, 6), 16);
-  if (Number.isNaN(redChannel) || Number.isNaN(green) || Number.isNaN(blue)) return null;
-  return [redChannel, green, blue];
+  const greenChannel = Number.parseInt(colorHex.slice(2, 4), 16);
+  const blueChannel = Number.parseInt(colorHex.slice(4, 6), 16);
+  if (Number.isNaN(redChannel) || Number.isNaN(greenChannel) || Number.isNaN(blueChannel)) return null;
+  return [redChannel, greenChannel, blueChannel];
 }
 function isLightColor(hex) {
   const rgb = parseHex(hex);
   if (!rgb) return false;
-  const [redChannel, green, blue] = rgb;
-  return (redChannel * 299 + green * 587 + blue * 114) / 1e3 > 165;
+  const [redChannel, greenChannel, blueChannel] = rgb;
+  return (redChannel * 299 + greenChannel * 587 + blueChannel * 114) / 1e3 > 165;
 }
 export function pickContrastColor(hex) {
   return isLightColor(hex) ? "#1C1C1E" : "#FFFFFF";
