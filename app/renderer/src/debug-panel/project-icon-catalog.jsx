@@ -1,5 +1,5 @@
 // project-icon-catalog.jsx
-import { ActivityIcon, AlertCircle, AlertTriangle, AlertTriangleIcon, AppWindow, Archive, ArrowDown, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowLeftToLine, ArrowRight, ArrowRightToLine, ArrowUp, ArrowUpDown, ArrowUpFromLine, ArrowUpRight, ArrowUpToLine, AtSign, AudioLines, AudioWaveform$1 as AudioWaveform, BadgeCheck, BadgeInfo, Bell, BellRing, Bold$1 as Bold, BookUser, Bot, Box, Boxes, BoxSelect, Bug, Calculator, ChartNoAxesCombined, Check, CheckCheck, CheckCircle2, CheckCircle2Icon, ChevronDown, ChevronDownIcon$1 as ChevronDownIcon, ChevronLeft, ChevronLeftIcon, ChevronRight$1 as ChevronRight, ChevronRightIcon, ChevronUp, ChevronUpIcon, CircleAlert, CircleArrowUp, CircleCheckIcon, CircleIcon, CircleMinus, PlaybackPlayIcon$1 as PlaybackPlayIcon, PlaybackStopIcon$1 as PlaybackStopIcon, CircleX, ClipboardIcon, ClipboardList, Cloud, CloudDownload, CloudIcon, CloudUpload, Code$1 as Code, Cog, Command, Compass, Copy, CopyPlus, CreditCard, Crosshair, Crown, DownloadIcon, Ellipsis, ExternalLink, Eye, EyeIcon$1 as EyeIcon, EyeOff, EyeOffIcon$1 as EyeOffIcon, FileImage, FilePlus2, Film, FolderClock, FolderClosed, FolderInput, FolderMinus, FolderOpenIcon, FolderPlus, FolderUp, FolderX, Gauge, GiftIcon, GitCompare, Globe, Globe2, GraduationCap, Grid2X2, Grid2x2Plus, Grid3X3, GripHorizontalIcon, GripVertical, Hand, Headphones, HistoryIcon, Home, ImagePlus, Import, Inbox, Info$1 as Info, InfoIcon$1 as InfoIcon, Italic$1 as Italic, Keyboard, KeyRound, Languages, Layers, Layers2, Layers3, LayoutGrid, LayoutList, LayoutTemplate, Library, Lightbulb, Link2, ListChecks, Loader2, Loader2Icon, LoaderCircle, Lock, LockKeyhole, Mail, Map$1 as Map, MapPin, Maximize, MessageCircle, MessageCircleMore, MessageSquareMore, Minus, MinusIcon, Monitor, MonitorUp, MoreHorizontal, Music, Music2, Network, Newspaper, NotebookPen, OctagonXIcon, PackageSearch, Palette, PanelBottomClose, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PanelsTopLeft, PlaybackPauseIcon$1 as PlaybackPauseIcon, Pencil, PencilRuler, Phone, Pin, PinIcon, PinOff, PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIcon, PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIcon, PlaybackCircleToggleIcon, PlaybackNextIcon$1 as PlaybackNextIcon, PlaybackPreviousIcon$1 as PlaybackPreviousIcon, Plus, PlusCircle, Podcast, Power, Redo2, Regex, Repeat2, RotateCcw, RotateCw, Save, Scan, Scissors, ScrollText, Search, SearchIcon, Send, ServerIcon, ServerOff, Share2, ShieldAlert, ShieldCheck, ShieldCheckIcon, ShieldOff, Shuffle, Slash, Smartphone, Speech, Split, SquareDashed, SquareMousePointer, StickyNote, Sun, SwatchBook, Tag$1 as Tag, ThumbsDown, ThumbsUp, Trash2Icon, TrendingUp, TriangleAlert, TriangleAlertIcon, Tv, Underline$1 as Underline, Undo2, UploadIcon$1 as UploadIcon, User, UserRound, UserRoundPlus, UsersIcon, Video, VideoOff, Volume2, Volume2Icon, VolumeXIcon, Wand2, WandSparkles, WholeWord, WifiIcon, WifiOff, WifiOffIcon, Workflow, Wrench, X$7 as X, XIcon, Zap, ZoomIn, ZoomOut, Brain$2 as VendorBrainIcon, Check$2 as VendorCheckIcon, ChevronDown$2 as ChevronDownVariantIcon, CircleAlert$2 as CircleAlertVariantIcon, Clapperboard$2 as VendorClapperboardIcon, Download$2 as DownloadActionIcon, ExternalLink$2 as ExternalLinkActionIcon, Eye$2 as EyeVariantIcon, File$3 as VendorFileIcon, Film$2 as VendorFilmIcon, FolderInput$2 as VendorFolderInputIcon, Headphones$2 as VendorHeadphonesIcon, Megaphone$2 as VendorMegaphoneIcon, Music$2 as MusicVariantIcon, Package$2 as VendorPackageIcon, Plus$2 as PlusVariantIcon, Search$2 as SearchVariantIcon, Share2$2 as ShareVariantIcon, ShoppingBag$2 as VendorShoppingBagIcon, Square$2 as VendorSquareIcon, Trash2$2 as VendorTrashIcon, Video$2 as VideoVariantIcon, Wrench$2 as VendorWrenchIcon, useTranslation, reactExports, jsxRuntimeExports } from "../vendor.js";
+import { ActivityIcon, AlertCircle, AlertTriangle, AlertTriangleIcon, AppWindow, Archive, ArrowDown, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowLeftToLine, ArrowRight, ArrowRightToLine, ArrowUp, ArrowUpDown, ArrowUpFromLine, ArrowUpRight, ArrowUpToLine, AtSign, AudioLines, AudioWaveform$1 as AudioWaveform, BadgeCheck, BadgeInfo, Bell, BellRing, Bold$1 as Bold, BookUser, Bot, Box, Boxes, BoxSelect, Bug, Calculator, ChartNoAxesCombined, Check, CheckCheck, CheckCircle2, CheckCircle2Icon, ChevronDown, ChevronDownIcon$1 as ChevronDownIcon, ChevronLeft, ChevronLeftIcon, ChevronRight$1 as ChevronRight, ChevronRightIcon, ChevronUp, ChevronUpIcon, CircleAlert, CircleArrowUp, CircleCheckIcon, CircleIcon, CircleMinus, PlaybackPlayIcon$1 as PlaybackPlayIcon, PlaybackStopIcon$1 as PlaybackStopIcon, CircleX, ClipboardIcon, ClipboardList, Cloud, CloudDownload, CloudIcon, CloudUpload, Code$1 as Code, Cog, Command, Compass, Copy, CopyPlus, CreditCard, Crosshair, Crown, DownloadIcon, Ellipsis, ExternalLink, Eye, EyeIcon$1 as EyeIcon, EyeOff, EyeOffIcon$1 as EyeOffIcon, FileImage, FilePlus2, Film, FolderClock, FolderClosed, FolderInput, FolderMinus, FolderOpenIcon, FolderPlus, FolderUp, FolderX, Gauge, GiftIcon, GitCompare, Globe, Globe2, GraduationCap, Grid2X2, Grid2x2Plus, Grid3X3, GripHorizontalIcon, GripVertical, Hand, Headphones, HistoryIcon, Home, ImagePlus, Import, Inbox, Info$1 as Info, InfoIcon$1 as InfoIcon, Italic$1 as Italic, Keyboard, KeyRound, Languages, Layers, Layers2, Layers3, LayoutGrid, LayoutList, LayoutTemplate, Library, Lightbulb, Link2, ListChecks, Loader2, Loader2Icon, LoaderCircle, Lock, LockKeyhole, Mail, Map$1 as Map, MapPin, Maximize, MessageCircle, MessageCircleMore, MessageSquareMore, Minus, MinusIcon, Monitor, MonitorUp, MoreHorizontal, Music, Music2, Network, Newspaper, NotebookPen, OctagonXIcon, PackageSearch, Palette, PanelBottomClose, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PanelsTopLeft, PlaybackPauseIcon$1 as PlaybackPauseIcon, Pencil, PencilRuler, Phone, Pin, PinIcon, PinOff, PlaybackCirclePauseIcon$1 as PlaybackCirclePauseIcon, PlaybackCirclePlayIcon$1 as PlaybackCirclePlayIcon, PlaybackCircleToggleIcon, PlaybackNextIcon$1 as PlaybackNextIcon, PlaybackPreviousIcon$1 as PlaybackPreviousIcon, Plus, PlusCircle, Podcast, Power, Redo2, Regex, Repeat2, RotateCcw, RotateCw, Save, Scan, Scissors, ScrollText, Search, SearchIcon, Send, ServerIcon, ServerOff, Share2, ShieldAlert, ShieldCheck, ShieldCheckIcon, ShieldOff, Shuffle, Slash, Smartphone, Speech, Split, SquareDashed, SquareMousePointer, StickyNote, Sun, SwatchBook, Tag$1 as Tag, ThumbsDown, ThumbsUp, Trash2Icon, TrendingUp, TriangleAlert, TriangleAlertIcon, Tv, Underline$1 as Underline, Undo2, UploadIcon$1 as UploadIcon, User, UserRound, UserRoundPlus, UsersIcon, Video, VideoOff, Volume2, Volume2Icon, VolumeXIcon, Wand2, WandSparkles, WholeWord, WifiIcon, WifiOff, WifiOffIcon, Workflow, Wrench, X$7 as X, XIcon, Zap, ZoomIn, ZoomOut, Brain$2 as MxBrainIcon, Check$2 as MxCheckIcon, ChevronDown$2 as MxChevronDownIcon, CircleAlert$2 as MxCircleAlertIcon, Clapperboard$2 as MxClapperboardIcon, Download$2 as MxDownloadIcon, ExternalLink$2 as MxExternalLinkIcon, Eye$2 as MxEyeIcon, File$3 as MxFileIcon, Film$2 as MxFilmIcon, FolderInput$2 as MxFolderInputIcon, Headphones$2 as MxHeadphonesIcon, Megaphone$2 as MxMegaphoneIcon, Music$2 as MxMusicIcon, Package$2 as MxPackageIcon, Plus$2 as MxPlusIcon, Search$2 as MxSearchIcon, Share2$2 as MxShare2Icon, ShoppingBag$2 as MxShoppingBagIcon, Square$2 as MxSquareIcon, Trash2$2 as MxTrash2Icon, Video$2 as MxVideoIcon, Wrench$2 as MxWrenchIcon, useTranslation, reactExports, jsxRuntimeExports } from "../vendor.js";
 import { AlignCenter, AlignLeft, AlignRight, Ban, Blocks, Bookmark, BookOpen, Brain, Brush, Building2, Cable, CalendarDays, Camera, CaseSensitive, CheckIcon, Chrome, Circle, CircleHelp, CircleUserRound, Clapperboard, ClipboardPaste, Clock, Clock3, CloudOff, CornerDownRight, Download, Droplet, Expand, File$1 as File, FileArchive, FileAudio, FileClock, FileCode, FileDiff, FileInput, FileJson2, Files, FileText, FileVideo, FileWarning, Flag, Folder, FolderKey, FolderOpen, HardDrive, History, ImageOffOutlineIcon, ImageOutlineIcon, ImagePlusOutlineIcon, List, LogOut, Maximize2, Megaphone, MessageSquare, MessageSquarePlus, MessageSquareQuote, Mic, Minimize2, Moon, MousePointer2, Package, Paperclip, PencilLine, PenLine, Plug, Puzzle, ReceiptText, Replace, ReplaceAll, Settings, Settings2, ShoppingBag, SlidersHorizontal, Sparkles, Sprout, Square, Stamp, Trash2, Type, Upload, Users, VolumeX } from "../media-editing/package.jsx";
 import { Ungroup } from "../canvas/diagnostic-history-tools.js";
 import { Input3 as Input } from "../infra/select-content.jsx";
@@ -3930,7 +3930,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Brain",
     name: "Brain",
     source: "@mx/icon",
-    icon: VendorBrainIcon,
+    icon: MxBrainIcon,
     locations: [
       "app/desktop/src/renderer/components/settings/settings-dialog.tsx:28",
     ],
@@ -3939,7 +3939,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Check",
     name: "Check",
     source: "@mx/icon",
-    icon: VendorCheckIcon,
+    icon: MxCheckIcon,
     locations: [
       "app/desktop/src/renderer/modules/business/asset-center/components/AssetMentionList.tsx:27",
     ],
@@ -3948,7 +3948,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:ChevronDown",
     name: "ChevronDown",
     source: "@mx/icon",
-    icon: ChevronDownVariantIcon,
+    icon: MxChevronDownIcon,
     locations: [
       "app/packages/canvas/src/react/nodes/group-node/group-node.tsx:1",
     ],
@@ -3957,7 +3957,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:CircleAlert",
     name: "CircleAlert",
     source: "@mx/icon",
-    icon: CircleAlertVariantIcon,
+    icon: MxCircleAlertIcon,
     locations: [
       "app/packages/canvas/src/react/nodes/image-node/slot/image-slot-error-tile.tsx:26",
     ],
@@ -3966,7 +3966,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Clapperboard",
     name: "Clapperboard",
     source: "@mx/icon",
-    icon: VendorClapperboardIcon,
+    icon: MxClapperboardIcon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/SkillCard.tsx:2",
     ],
@@ -3975,7 +3975,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Download",
     name: "Download",
     source: "@mx/icon",
-    icon: DownloadActionIcon,
+    icon: MxDownloadIcon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/FeaturedSkillCard.tsx:2",
       "app/desktop/src/renderer/pages/skills/components/OtherSkillItem.tsx:2",
@@ -3989,7 +3989,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:ExternalLink",
     name: "ExternalLink",
     source: "@mx/icon",
-    icon: ExternalLinkActionIcon,
+    icon: MxExternalLinkIcon,
     locations: [
       "app/packages/canvas/src/react/nodes/image-node/multi-image-overlay.tsx:2",
       "app/packages/canvas/src/react/nodes/video-node/video-multi-overlay.tsx:2",
@@ -3999,7 +3999,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Eye",
     name: "Eye",
     source: "@mx/icon",
-    icon: EyeVariantIcon,
+    icon: MxEyeIcon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/FeaturedSkillCard.tsx:2",
       "app/desktop/src/renderer/pages/workflows/components/WorkflowCard.tsx:2",
@@ -4009,7 +4009,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:File",
     name: "File",
     source: "@mx/icon",
-    icon: VendorFileIcon,
+    icon: MxFileIcon,
     locations: [
       "app/desktop/src/renderer/layout/canvas-sidebar/AssetCenterPanel.tsx:20",
       "app/desktop/src/renderer/modules/business/asset-center/components/AssetMentionList.tsx:27",
@@ -4019,7 +4019,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Film",
     name: "Film",
     source: "@mx/icon",
-    icon: VendorFilmIcon,
+    icon: MxFilmIcon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/SkillCard.tsx:2",
     ],
@@ -4028,7 +4028,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:FolderInput",
     name: "FolderInput",
     source: "@mx/icon",
-    icon: VendorFolderInputIcon,
+    icon: MxFolderInputIcon,
     locations: [
       "app/desktop/src/renderer/layout/canvas-sidebar/AssetCenterPanel.tsx:20",
     ],
@@ -4037,7 +4037,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Headphones",
     name: "Headphones",
     source: "@mx/icon",
-    icon: VendorHeadphonesIcon,
+    icon: MxHeadphonesIcon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/SkillCard.tsx:2",
     ],
@@ -4046,7 +4046,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Megaphone",
     name: "Megaphone",
     source: "@mx/icon",
-    icon: VendorMegaphoneIcon,
+    icon: MxMegaphoneIcon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/SkillCard.tsx:2",
     ],
@@ -4055,7 +4055,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Music",
     name: "Music",
     source: "@mx/icon",
-    icon: MusicVariantIcon,
+    icon: MxMusicIcon,
     locations: [
       "app/desktop/src/renderer/layout/canvas-sidebar/AssetCenterPanel.tsx:20",
       "app/desktop/src/renderer/modules/business/asset-center/components/AssetMentionList.tsx:27",
@@ -4066,7 +4066,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Package",
     name: "Package",
     source: "@mx/icon",
-    icon: VendorPackageIcon,
+    icon: MxPackageIcon,
     locations: [
       "app/desktop/src/renderer/modules/business/asset-center/components/AssetMentionList.tsx:27",
     ],
@@ -4084,7 +4084,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Plus",
     name: "Plus",
     source: "@mx/icon",
-    icon: PlusVariantIcon,
+    icon: MxPlusIcon,
     locations: [
       "app/desktop/src/renderer/modules/business/message-input/components/SlashCommandPopover.tsx:2",
     ],
@@ -4093,7 +4093,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Search",
     name: "Search",
     source: "@mx/icon",
-    icon: SearchVariantIcon,
+    icon: MxSearchIcon,
     locations: [
       "app/desktop/src/renderer/modules/business/asset-center/components/AssetMentionList.tsx:27",
       "app/desktop/src/renderer/modules/business/message-input/components/SlashCommandPopover.tsx:2",
@@ -4103,7 +4103,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Share2",
     name: "Share2",
     source: "@mx/icon",
-    icon: ShareVariantIcon,
+    icon: MxShare2Icon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/SkillCard.tsx:2",
       "app/desktop/src/renderer/pages/skills/components/SkillListItem.tsx:2",
@@ -4113,7 +4113,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:ShoppingBag",
     name: "ShoppingBag",
     source: "@mx/icon",
-    icon: VendorShoppingBagIcon,
+    icon: MxShoppingBagIcon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/SkillCard.tsx:2",
     ],
@@ -4122,7 +4122,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Square",
     name: "Square",
     source: "@mx/icon",
-    icon: VendorSquareIcon,
+    icon: MxSquareIcon,
     locations: [
       "app/desktop/src/renderer/modules/business/asset-center/components/AssetMentionList.tsx:27",
     ],
@@ -4131,7 +4131,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Trash2",
     name: "Trash2",
     source: "@mx/icon",
-    icon: VendorTrashIcon,
+    icon: MxTrash2Icon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/SkillListItem.tsx:2",
     ],
@@ -4150,7 +4150,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Video",
     name: "Video",
     source: "@mx/icon",
-    icon: VideoVariantIcon,
+    icon: MxVideoIcon,
     locations: [
       "app/desktop/src/renderer/layout/canvas-sidebar/AssetCenterPanel.tsx:20",
       "app/desktop/src/renderer/modules/business/asset-center/components/AssetMentionList.tsx:27",
@@ -4160,7 +4160,7 @@ const PROJECT_ICON_REGISTRY = [
     id: "@mx/icon:Wrench",
     name: "Wrench",
     source: "@mx/icon",
-    icon: VendorWrenchIcon,
+    icon: MxWrenchIcon,
     locations: [
       "app/desktop/src/renderer/pages/skills/components/SkillCard.tsx:2",
     ],

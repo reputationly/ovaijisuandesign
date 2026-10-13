@@ -1,5 +1,5 @@
 // message-input-base.jsx
-import { ArrowUp, DOMParser$1 as DOMParser, EditorContent, jsxRuntimeExports, reactExports, Slice, src_default$1 as PlaceholderExtension, useCurrentWorkspace, useEditor, useTranslation } from "../vendor.js";
+import { ArrowUp, DOMParser$1 as DOMParser, EditorContent, jsxRuntimeExports, reactExports, Slice, src_default$1 as Placeholder, useCurrentWorkspace, useEditor, useTranslation } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   chatLog,
@@ -465,7 +465,7 @@ export const MessageInputBase = reactExports.forwardRef(function MessageInput(
           listItem: false,
           horizontalRule: false,
         }),
-        PlaceholderExtension.configure({
+        Placeholder.configure({
           placeholder: () => placeholderTextRef.current,
           showOnlyWhenEditable: false,
         }),

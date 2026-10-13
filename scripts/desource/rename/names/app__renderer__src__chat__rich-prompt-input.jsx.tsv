@@ -1,5 +1,5 @@
 key	新名	依据
-src_default$1@2:50	placeholderExtension	`placeholderExtension` 是配置编辑器占位提示文字的 TipTap 扩展。
+src_default$1@2:50	Placeholder	`Placeholder` 是 Tiptap Placeholder 扩展，用于配置富文本输入框的占位提示。
 to@105:15	triggerEndPosition	`triggerEndPosition` 是提及触发范围的结束编辑器位置。
 e2@209:26	editor	`editor` 是 TipTap 更新回调传入并用于读取文档及选择的编辑器实例。
 len@212:15	characterCount	`characterCount` 是按当前提示文本计算并传给更新回调的字符数。

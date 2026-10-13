@@ -1,5 +1,5 @@
 // session-tab-strip.jsx
-import { CircleAlert, GripVertical, jsxRuntimeExports, NotebookPen, Pencil, PencilRuler, Plus, reactExports, Scissors, useQuery, useStorage, useTranslation, X$7 as closeIcon } from "../vendor.js";
+import { CircleAlert, GripVertical, jsxRuntimeExports, NotebookPen, Pencil, PencilRuler, Plus, reactExports, Scissors, useQuery, useStorage, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FourCornerLoading, sessionDisplayName } from "./chat-empty-state.jsx";
@@ -535,7 +535,7 @@ const SessionTab = reactExports.memo(function SessionTab({
                   />
                 }
               >
-                <Icon icon={closeIcon} size="xs" />
+                <Icon icon={CloseIcon} size="xs" />
               </TooltipTrigger>
               <TooltipContent side="bottom">
                 {translate("session.tabs.close.tooltip", "Close tab")}

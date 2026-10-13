@@ -1,5 +1,5 @@
 key	新名	依据
-X@2:165	closeIcon	`closeIcon` 是会话标签关闭操作显示的图标组件。
+X@2:165	CloseIcon	`CloseIcon` 是会话标签关闭操作显示的图标组件，并以 PascalCase 表示组件。
 cn@19:18	mergeClassNames	`mergeClassNames` 按来源实现合并并消解冲突的 CSS 类名。
 t2@41:14	translate	`translate` 是加载状态标签查询本地化文案的函数。
 out@127:9	chunks	`chunks` 保存按固定大小切分出的会话 ID 数组。
