@@ -315,7 +315,7 @@ export function CanvasArea({
   const { videoStarterPresets } = useHubClientConfig();
   const {
     status: hailuo03VideoTrialStatus,
-    claim: claimHailuo03VideoTrial2,
+    claim: claimHailuo03VideoTrial,
     refresh: refreshHailuo03VideoTrial,
   } = useHailuo03VideoTrial();
   const nodeErrorFeedback = useCanvasNodeErrorFeedback();
@@ -4041,7 +4041,7 @@ export function CanvasArea({
           isWorkspaceActive={isActive !== false}
           pricingConfig={pricingData}
           hailuo03VideoTrial={hailuo03VideoTrialStatus}
-          claimHailuo03VideoTrial={claimHailuo03VideoTrial2}
+          claimHailuo03VideoTrial={claimHailuo03VideoTrial}
           refreshHailuo03VideoTrial={refreshHailuo03VideoTrial}
           submitImg2Video={handleImg2Video}
           fetchVideoModels={listVideoModels}

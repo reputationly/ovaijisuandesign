@@ -184,6 +184,7 @@ runtimeRegion2@3979:9	runtimeRegion2	runtimeRegion	去掉打包器去重后缀�
 state2@3990:36	state2	state	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 path2@4237:33	path2	path	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 contextMenu2@4244:13	contextMenu2	contextMenu	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
+claimHailuo03VideoTrial2@318:12	claimHailuo03VideoTrial2	claimHailuo03VideoTrial	去掉打包器去重后缀，恢复原名；作用域内无同名冲突
 p3@4261:26	p3	path	该参数是待查找工作区资源的文件路径。
 p3@4262:23	p3	path	该参数是待查找工作区资源的文件路径。
 a2@4262:52	a2	asset	该参数是按文件路径查找的工作区资源项。
