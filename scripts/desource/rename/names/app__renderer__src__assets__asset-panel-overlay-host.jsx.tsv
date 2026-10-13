@@ -1,0 +1,44 @@
+key	old	new	依据
+E@11:10	E	WaveSurfer	该导入是 WaveSurfer 播放器类，用于创建和控制资产预览的音频波形。
+STALE_TIME_MS$1@591:7	STALE_TIME_MS$1	TEXT_PREVIEW_STALE_TIME_MS	该常量为文本资产预览查询设置五分钟缓存时长。
+d2@51:7	d2	date	该值是格式化修改时间时构造的 Date 对象。
+n2@59:16	n2	value	该值是补零格式化的数字部分。
+v2@74:9	v2	stringValue	该值是从元数据中读取并验证过的字符串。
+v2@78:9	v2	numberValue	该值是从元数据中读取并验证过的有限数字。
+t2@199:14	t2	translate	该绑定是谱系区块读取界面文案的翻译函数。
+v2@206:38	v2	isCollapsed	该参数表示折叠状态更新前的布尔值。
+t2@230:14	t2	translate	该绑定是角色标签读取界面文案的翻译函数。
+t2@275:14	t2	translate	该绑定是谱系行读取界面文案的翻译函数。
+t2@284:14	t2	translate	该绑定是独立来源提示读取界面文案的翻译函数。
+t2@318:14	t2	translate	该绑定是上游层级读取界面文案的翻译函数。
+t2@353:14	t2	translate	该绑定是下游层级读取界面文案的翻译函数。
+v2@360:38	v2	isCollapsed	该参数表示折叠状态更新前的布尔值。
+t2@384:14	t2	translate	该绑定是单独谱系提示读取界面文案的翻译函数。
+t2@409:14	t2	translate	该绑定是谱系路径面板读取界面文案的翻译函数。
+t2@429:14	t2	translate	该绑定是谱系树读取界面文案的翻译函数。
+t2@442:14	t2	translate	该绑定是上游视图读取界面文案的翻译函数。
+a2@451:43	a2	leftDepth	该值是排序比较中的左侧上游深度键。
+b3@451:49	b3	rightDepth	该值是排序比较中的右侧上游深度键。
+n2@457:40	n2	node	该节点的深度用于判断上游遍历是否触及层级上限。
+t2@479:14	t2	translate	该绑定是下游视图读取界面文案的翻译函数。
+n2@483:34	n2	node	该后代节点的深度用于判断遍历是否触及层级上限。
+t2@517:14	t2	translate	该绑定是谱系树读取界面文案的翻译函数。
+t2@610:23	t2	translate	该参数是元数据行标签的翻译函数。
+t2@624:27	t2	translate	该参数用于翻译音频元数据中的声道文案。
+t2@676:27	t2	translate	该参数传给音频元数据行生成器以翻译声道文案。
+t2@701:14	t2	translate	该绑定是元数据表读取界面文案的翻译函数。
+r2@702:45	r2	row	该回调项是待保留的非空资产元数据行。
+t2@726:14	t2	translate	该绑定是音频预览读取界面文案的翻译函数。
+ws2@742:9	ws2	waveSurfer	该实例是当前音频预览创建的 WaveSurfer 播放器。
+ws2@826:11	ws2	waveSurfer	该值是音频预览引用中保存的 WaveSurfer 播放器。
+m3@831:63	m3	wasMuted	该布尔值表示静音状态更新前的值。
+t2@890:14	t2	translate	该绑定是图片预览读取界面文案的翻译函数。
+t2@951:14	t2	translate	该绑定是文本预览读取界面文案的翻译函数。
+t2@1010:14	t2	translate	该绑定是视频预览读取界面文案的翻译函数。
+e2@1091:18	e2	playEvent	该事件提供正在播放的视频元素作为当前目标。
+t2@1142:14	t2	translate	该绑定是悬停预览读取界面文案的翻译函数。
+id2@1145:11	id2	positionFrameId	该值是用于完成弹层定位更新的动画帧编号。
+t2@1349:16	t2	translate	该绑定是缺失素材定位对话框读取界面文案的翻译函数。
+s2@1435:13	s2	overlayState	该值是当前悬停或定位缺失素材的弹层状态。
+s2@1449:13	s2	overlayState	该值是当前悬停或定位缺失素材的弹层状态。
+io2@1476:13	io2	intersectionObserver	该对象观察锚点是否离开可见区域。

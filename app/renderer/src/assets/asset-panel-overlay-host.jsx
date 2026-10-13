@@ -8,7 +8,7 @@ import {
   ChevronRight$1 as ChevronRight,
   classifyFileType,
   Crosshair,
-  E$4 as E,
+  E$4 as WaveSurfer,
   jsxRuntimeExports,
   Network,
   PopoverPopup,
@@ -48,16 +48,16 @@ import {
 } from "../settings/use-asset-lineage.js";
 function formatModifiedAt(value) {
   if (value == null || value === "") return "";
-  let d2;
+  let date;
   if (typeof value === "number") {
     const ms = value < 1e12 ? value * 1e3 : value;
-    d2 = new Date(ms);
+    date = new Date(ms);
   } else {
-    d2 = new Date(value);
+    date = new Date(value);
   }
-  if (Number.isNaN(d2.getTime())) return "";
-  const pad = (n2) => n2.toString().padStart(2, "0");
-  return `${d2.getFullYear()}-${pad(d2.getMonth() + 1)}-${pad(d2.getDate())} ${pad(d2.getHours())}:${pad(d2.getMinutes())}`;
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (value) => value.toString().padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 function browserAssetSourceWebsite(metadata) {
   const pageUrl = metadata?.[BROWSER_ASSET_SOURCE_METADATA_KEYS.pageUrl];
@@ -71,12 +71,12 @@ function browserAssetSourceWebsite(metadata) {
   }
 }
 function pickString(meta2, key2) {
-  const v2 = meta2?.[key2];
-  return typeof v2 === "string" && v2 ? v2 : void 0;
+  const stringValue = meta2?.[key2];
+  return typeof stringValue === "string" && stringValue ? stringValue : void 0;
 }
 function pickNumber(meta2, key2) {
-  const v2 = meta2?.[key2];
-  return typeof v2 === "number" && Number.isFinite(v2) ? v2 : void 0;
+  const numberValue = meta2?.[key2];
+  return typeof numberValue === "number" && Number.isFinite(numberValue) ? numberValue : void 0;
 }
 function extOf(asset) {
   const base2 = asset.path.split(/[/\\]/).pop() ?? "";
@@ -196,14 +196,14 @@ function fileRows(asset) {
 }
 const LINEAGE_DEPTH = 5;
 function Section({ title, loading, error, children: children2 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
   const Arrow = collapsed ? ChevronRight : ChevronDown;
   return (
     <section className="flex flex-col gap-1">
       <button
         type="button"
-        onClick={() => setCollapsed((v2) => !v2)}
+        onClick={() => setCollapsed((isCollapsed) => !isCollapsed)}
         className="flex items-center gap-1 text-hl-text-02 hover:text-hl-text-01 transition-colors text-xs font-medium"
       >
         <Arrow size={12} strokeWidth={1.5} className="shrink-0" />
@@ -214,7 +214,7 @@ function Section({ title, loading, error, children: children2 }) {
         <div className="pl-3.5">
           {error ? (
             <div className="text-hl-error text-xs py-1">
-              {t2("lineage.loadError", {
+              {translate("lineage.loadError", {
                 message: error.message,
               })}
             </div>
@@ -227,9 +227,9 @@ function Section({ title, loading, error, children: children2 }) {
   );
 }
 function RoleChip({ role }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const fallback = ROLE_DISPLAY_NAMES[role] ?? role;
-  const display = t2(`assetRole.${role.toLowerCase()}`, fallback);
+  const display = translate(`assetRole.${role.toLowerCase()}`, fallback);
   return (
     <span className="shrink-0 px-1 py-0 text-[10px] text-hl-text-03 bg-hl-alpha-04 rounded">
       {display}
@@ -272,8 +272,8 @@ function AssetRow({
   );
 }
 function EntityTypeChip({ type: type2 }) {
-  const { t: t2 } = useTranslation();
-  const display = t2(`assetCenter.types.${type2}`);
+  const { t: translate } = useTranslation();
+  const display = translate(`assetCenter.types.${type2}`);
   return (
     <span className="shrink-0 px-1 py-0 text-[10px] text-hl-text-03 bg-hl-alpha-04 rounded">
       {display}
@@ -281,7 +281,7 @@ function EntityTypeChip({ type: type2 }) {
   );
 }
 function AttachmentRow({ node: node2, role }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (node2.parent_attachment_entity_name && node2.parent_attachment_filename) {
     return (
       <div
@@ -291,7 +291,7 @@ function AttachmentRow({ node: node2, role }) {
       >
         <Package size={11} className="shrink-0 text-hl-text-03" />
         <span className="truncate flex-1">
-          {t2("lineage.attachmentEntityLabel", {
+          {translate("lineage.attachmentEntityLabel", {
             entityName: node2.parent_attachment_entity_name,
             filename: node2.parent_attachment_filename,
           })}
@@ -309,13 +309,13 @@ function AttachmentRow({ node: node2, role }) {
       data-action-ui-id="lineage.attachment-row-broken"
     >
       <AlertTriangle size={11} className="shrink-0" />
-      <span className="truncate">{t2("lineage.brokenAttachment")}</span>
+      <span className="truncate">{translate("lineage.brokenAttachment")}</span>
       <RoleChip role={role} />
     </div>
   );
 }
 function UpstreamRow({ node: node2, onSelectAsset }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (node2.parent_id !== null) {
     return (
       <AssetRow
@@ -340,29 +340,29 @@ function UpstreamRow({ node: node2, onSelectAsset }) {
       <AlertTriangle size={11} className="shrink-0" />
       <span className="truncate">
         {fallbackPath
-          ? t2("lineage.brokenParentWithPath", {
+          ? translate("lineage.brokenParentWithPath", {
               path: fallbackPath,
             })
-          : t2("lineage.brokenParent")}
+          : translate("lineage.brokenParent")}
       </span>
       {node2.role && <RoleChip role={node2.role} />}
     </div>
   );
 }
 function UpstreamLevel({ depth: depth2, nodes, onSelectAsset }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [collapsed, setCollapsed] = reactExports.useState(false);
   const Arrow = collapsed ? ChevronRight : ChevronDown;
   return (
     <div className="flex flex-col">
       <button
         type="button"
-        onClick={() => setCollapsed((v2) => !v2)}
+        onClick={() => setCollapsed((isCollapsed) => !isCollapsed)}
         className="flex items-center gap-1 text-hl-text-03 hover:text-hl-text-02 transition-colors text-xs"
       >
         <Arrow size={11} className="shrink-0" />
         <span>
-          {t2("lineage.depthLabel", {
+          {translate("lineage.depthLabel", {
             depth: depth2,
             count: nodes.length,
           })}
@@ -381,7 +381,7 @@ function UpstreamLevel({ depth: depth2, nodes, onSelectAsset }) {
   );
 }
 function InputRow({ node: node2, onSelectAsset }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (node2.parent_id !== null) {
     return (
       <AssetRow
@@ -400,18 +400,18 @@ function InputRow({ node: node2, onSelectAsset }) {
   return (
     <div className="flex items-center gap-1.5 text-hl-text-03 italic py-0.5">
       <AlertTriangle size={11} className="shrink-0" />
-      <span className="truncate">{t2("lineage.brokenParent")}</span>
+      <span className="truncate">{translate("lineage.brokenParent")}</span>
       <RoleChip role={node2.role} />
     </div>
   );
 }
 function InputsView({ nodes, onSelectAsset }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (nodes.length === 0) {
     return (
       <div className="flex items-center gap-1.5 text-hl-text-03 italic py-1">
         <Sprout size={11} className="shrink-0" />
-        <span>{t2("lineage.noInputs")}</span>
+        <span>{translate("lineage.noInputs")}</span>
       </div>
     );
   }
@@ -426,11 +426,11 @@ function InputsView({ nodes, onSelectAsset }) {
   );
 }
 function StandaloneHint({ variant = "upstream" }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const text2 =
     variant === "upstream"
-      ? t2("lineage.standaloneUpstream")
-      : t2("lineage.standaloneDownstream");
+      ? translate("lineage.standaloneUpstream")
+      : translate("lineage.standaloneDownstream");
   return (
     <div className="flex items-start gap-1.5 text-hl-text-03 italic py-1">
       <Sprout size={11} className="shrink-0 mt-0.5" />
@@ -439,7 +439,7 @@ function StandaloneHint({ variant = "upstream" }) {
   );
 }
 function UpstreamView({ data: data2, maxDepth, onSelectAsset }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const groupedByDepth = reactExports.useMemo(() => {
     if (!data2) return [];
     const buckets2 = new Map();
@@ -448,13 +448,13 @@ function UpstreamView({ data: data2, maxDepth, onSelectAsset }) {
       arr.push(node2);
       buckets2.set(node2.depth, arr);
     }
-    return [...buckets2.entries()].sort(([a2], [b3]) => a2 - b3);
+    return [...buckets2.entries()].sort(([leftDepth], [rightDepth]) => leftDepth - rightDepth);
   }, [data2]);
   if (!data2) return null;
   if (data2.nodes.length === 0) {
     return <StandaloneHint />;
   }
-  const reachedCap = data2.nodes.some((n2) => n2.depth >= maxDepth);
+  const reachedCap = data2.nodes.some((node) => node.depth >= maxDepth);
   return (
     <div className="flex flex-col gap-1">
       {groupedByDepth.map(([nodeDepth, nodes]) => (
@@ -467,7 +467,7 @@ function UpstreamView({ data: data2, maxDepth, onSelectAsset }) {
       ))}
       {reachedCap && (
         <div className="text-hl-text-03 text-xs italic pl-1">
-          {t2("lineage.depthTruncated", {
+          {translate("lineage.depthTruncated", {
             depth: maxDepth,
           })}
         </div>
@@ -476,11 +476,11 @@ function UpstreamView({ data: data2, maxDepth, onSelectAsset }) {
   );
 }
 function DescendantsView({ nodes, maxDepth, onSelectAsset }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (nodes.length === 0) {
     return <StandaloneHint variant="downstream" />;
   }
-  const reachedCap = nodes.some((n2) => n2.depth >= maxDepth);
+  const reachedCap = nodes.some((node) => node.depth >= maxDepth);
   return (
     <div className="flex flex-col gap-0.5">
       <ul className="flex flex-col">
@@ -500,7 +500,7 @@ function DescendantsView({ nodes, maxDepth, onSelectAsset }) {
       </ul>
       {reachedCap && (
         <div className="text-hl-text-03 text-xs italic pl-1">
-          {t2("lineage.depthTruncated", {
+          {translate("lineage.depthTruncated", {
             depth: maxDepth,
           })}
         </div>
@@ -514,7 +514,7 @@ function LineageTree({
   onSelectAsset,
   className,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const lineage = useAssetLineage(assetId, {
     depth: depth2,
   });
@@ -530,14 +530,14 @@ function LineageTree({
           className,
         )}
       >
-        {t2("lineage.noSelection")}
+        {translate("lineage.noSelection")}
       </div>
     );
   }
   return (
     <div className={cn("flex flex-col gap-4 text-xs", className)}>
       <Section
-        title={t2("lineage.upstreamTitle")}
+        title={translate("lineage.upstreamTitle")}
         loading={lineage.isLoading}
         error={lineage.error}
       >
@@ -548,7 +548,7 @@ function LineageTree({
         />
       </Section>
       <Section
-        title={t2("lineage.downstreamTitle")}
+        title={translate("lineage.downstreamTitle")}
         loading={descendants.isLoading}
         error={descendants.error}
       >
@@ -559,7 +559,7 @@ function LineageTree({
         />
       </Section>
       <Section
-        title={t2("lineage.inputsTitle")}
+        title={translate("lineage.inputsTitle")}
         loading={inputs.isLoading}
         error={inputs.error}
       >
@@ -588,7 +588,7 @@ function useAssetMetadata(asset, { enabled }) {
   });
 }
 const DEFAULT_CHARS = 200;
-const STALE_TIME_MS$1 = 5 * 60 * 1e3;
+const TEXT_PREVIEW_STALE_TIME_MS = 5 * 60 * 1e3;
 function useAssetTextPreview(
   asset,
   { enabled, chars: chars2 = DEFAULT_CHARS },
@@ -598,7 +598,7 @@ function useAssetTextPreview(
   return useQuery({
     queryKey: ["asset-text-preview", scopeKey, asset.path, chars2],
     enabled: asset.type === "text",
-    staleTime: STALE_TIME_MS$1,
+    staleTime: TEXT_PREVIEW_STALE_TIME_MS,
     queryFn: async () => {
       const resp = await gatewayFetch2(
         API_PATHS.assetTextPreview(asset.path, chars2),
@@ -607,11 +607,11 @@ function useAssetTextPreview(
     },
   });
 }
-function RowItem({ t: t2, row }) {
+function RowItem({ t: translate, row }) {
   return (
     <>
       <dt className="text-foreground/30 opacity-70">
-        {t2(`assetPreview.meta.${row.labelKey}`, {
+        {translate(`assetPreview.meta.${row.labelKey}`, {
           defaultValue: row.labelFallback,
         })}
       </dt>
@@ -621,21 +621,21 @@ function RowItem({ t: t2, row }) {
     </>
   );
 }
-function audioRows(asset, t2) {
+function audioRows(asset, translate) {
   const sampleRate = pickNumber(asset.metadata, "sampleRate");
   const channels = pickNumber(asset.metadata, "channels");
   const bitRate = pickNumber(asset.metadata, "bitRate");
   const channelLabel =
     channels === 1
-      ? t2("assetPreview.meta.mono", {
+      ? translate("assetPreview.meta.mono", {
           defaultValue: "Mono",
         })
       : channels === 2
-        ? t2("assetPreview.meta.stereo", {
+        ? translate("assetPreview.meta.stereo", {
             defaultValue: "Stereo",
           })
         : channels != null
-          ? t2("assetPreview.meta.channelCount", {
+          ? translate("assetPreview.meta.channelCount", {
               defaultValue: "{{count}} ch",
               count: channels,
             })
@@ -673,7 +673,7 @@ function audioRows(asset, t2) {
     },
   ];
 }
-function buildRows(asset, t2) {
+function buildRows(asset, translate) {
   let rows;
   switch (asset.type) {
     case "image":
@@ -683,7 +683,7 @@ function buildRows(asset, t2) {
       rows = videoRows(asset);
       break;
     case "audio":
-      rows = audioRows(asset, t2);
+      rows = audioRows(asset, translate);
       break;
     default:
       rows = fileRows(asset);
@@ -698,8 +698,8 @@ function buildRows(asset, t2) {
   ];
 }
 function MetadataTable({ asset, className }) {
-  const { t: t2 } = useTranslation();
-  const rows = buildRows(asset, t2).filter((r2) => r2.value);
+  const { t: translate } = useTranslation();
+  const rows = buildRows(asset, translate).filter((row) => row.value);
   if (rows.length === 0) return null;
   return (
     <dl
@@ -710,7 +710,7 @@ function MetadataTable({ asset, className }) {
       )}
     >
       {rows.map((row) => (
-        <RowItem key={row.labelKey} t={t2} row={row} />
+        <RowItem key={row.labelKey} t={translate} row={row} />
       ))}
     </dl>
   );
@@ -723,7 +723,7 @@ const CURSOR_COLOR = "#8b5cf6";
 const PEAKS_ENDPOINT_THRESHOLD_BYTES = 10 * 1024 * 1024;
 const PEAKS_BUCKETS = 200;
 function AudioPreview({ asset }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const gatewayUrl2 = useGatewayUrl();
   const gatewayFetch2 = useGatewayFetch();
   const containerRef = reactExports.useRef(null);
@@ -739,12 +739,12 @@ function AudioPreview({ asset }) {
     const useServerPeaks =
       (asset.fileSize ?? 0) > PEAKS_ENDPOINT_THRESHOLD_BYTES;
     let cancelled = false;
-    let ws2 = null;
+    let waveSurfer = null;
     let cleanupReady = null;
     const fetchAbort = new AbortController();
     const start2 = (peaksData) => {
       if (cancelled || !container) return;
-      ws2 = E.create({
+      waveSurfer = WaveSurfer.create({
         container,
         url: url2,
         ...(peaksData
@@ -774,11 +774,11 @@ function AudioPreview({ asset }) {
         // for a few hundred ms. Instead we mute first, then start play().
         autoplay: false,
       });
-      wavesurferRef.current = ws2;
-      const offReady = ws2.on("ready", () => {
-        ws2?.setMuted(true);
-        ws2?.setVolume(0);
-        ws2?.play().catch(() => {});
+      wavesurferRef.current = waveSurfer;
+      const offReady = waveSurfer.on("ready", () => {
+        waveSurfer?.setMuted(true);
+        waveSurfer?.setVolume(0);
+        waveSurfer?.play().catch(() => {});
       });
       cleanupReady = offReady;
     };
@@ -816,26 +816,26 @@ function AudioPreview({ asset }) {
       fetchAbort.abort();
       try {
         cleanupReady?.();
-        ws2?.pause();
-        ws2?.destroy();
+        waveSurfer?.pause();
+        waveSurfer?.destroy();
       } catch {}
       wavesurferRef.current = null;
     };
   }, [url2, asset.path, gatewayFetch2]);
   reactExports.useEffect(() => {
-    const ws2 = wavesurferRef.current;
-    if (!ws2) return;
-    ws2.setMuted(muted);
-    ws2.setVolume(muted ? 0 : UNMUTED_VOLUME);
+    const waveSurfer = wavesurferRef.current;
+    if (!waveSurfer) return;
+    waveSurfer.setMuted(muted);
+    waveSurfer.setVolume(muted ? 0 : UNMUTED_VOLUME);
   }, [muted]);
-  const toggleMute = reactExports.useCallback(() => setMuted((m3) => !m3), []);
+  const toggleMute = reactExports.useCallback(() => setMuted((wasMuted) => !wasMuted), []);
   if (!url2) {
     return (
       <div
         data-slot="audio-preview-fallback"
         className="flex w-full h-24 items-center justify-center bg-muted text-muted-foreground text-xs"
       >
-        {t2("assetPreview.audioUnavailable", {
+        {translate("assetPreview.audioUnavailable", {
           defaultValue: "Preview unavailable",
         })}
       </div>
@@ -860,10 +860,10 @@ function AudioPreview({ asset }) {
         onClick={toggleMute}
         title={
           muted
-            ? t2("assetPreview.unmute", {
+            ? translate("assetPreview.unmute", {
                 defaultValue: "Unmute",
               })
-            : t2("assetPreview.mute", {
+            : translate("assetPreview.mute", {
                 defaultValue: "Mute",
               })
         }
@@ -887,7 +887,7 @@ function AudioPreview({ asset }) {
 }
 const PREVIEW_MAX_WIDTH = 480;
 function ImagePreview({ asset }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const gatewayUrl2 = useGatewayUrl();
   const [loaded, setLoaded] = reactExports.useState(false);
   const [errored, setErrored] = reactExports.useState(false);
@@ -917,7 +917,7 @@ function ImagePreview({ asset }) {
           decorative={true}
         />
         <span className="sr-only">
-          {t2("assetPreview.imageUnavailable", {
+          {translate("assetPreview.imageUnavailable", {
             defaultValue: "Preview unavailable",
           })}
         </span>
@@ -948,7 +948,7 @@ function ImagePreview({ asset }) {
   );
 }
 function TextPreview({ asset: _asset, previewText, loading, error }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (loading) {
     return (
       <div data-slot="text-preview" className="flex flex-col gap-1">
@@ -966,7 +966,7 @@ function TextPreview({ asset: _asset, previewText, loading, error }) {
         className="block text-xs text-foreground/30"
         title={error}
       >
-        {t2("assetPreview.unsupportedText", {
+        {translate("assetPreview.unsupportedText", {
           defaultValue: "Preview not supported",
         })}
       </span>
@@ -978,7 +978,7 @@ function TextPreview({ asset: _asset, previewText, loading, error }) {
         data-slot="text-preview-empty"
         className="block text-xs text-foreground/30"
       >
-        {t2("assetPreview.emptyText", {
+        {translate("assetPreview.emptyText", {
           defaultValue: "(empty file)",
         })}
       </span>
@@ -1007,7 +1007,7 @@ function claimInlineVideoSlot(video) {
 }
 const PREVIEW_LOOP_LIMIT_S = 5;
 function VideoPreview({ asset }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const gatewayUrl2 = useGatewayUrl();
   const videoRef = reactExports.useRef(null);
   const progressRef = reactExports.useRef(null);
@@ -1066,7 +1066,7 @@ function VideoPreview({ asset }) {
         data-slot="video-preview-fallback"
         className="flex w-full h-44 items-center justify-center bg-muted text-muted-foreground text-xs"
       >
-        {t2("assetPreview.videoUnavailable", {
+        {translate("assetPreview.videoUnavailable", {
           defaultValue: "Preview unavailable",
         })}
       </div>
@@ -1088,7 +1088,7 @@ function VideoPreview({ asset }) {
         muted={muted}
         loop={true}
         playsInline={true}
-        onPlay={(e2) => claimInlineVideoSlot(e2.currentTarget)}
+        onPlay={(playEvent) => claimInlineVideoSlot(playEvent.currentTarget)}
         onLoadedMetadata={onLoadedMetadata}
         onTimeUpdate={onTimeUpdate}
         className="max-w-full max-h-80 block bg-black"
@@ -1099,10 +1099,10 @@ function VideoPreview({ asset }) {
         onClick={toggleMute}
         title={
           muted
-            ? t2("assetPreview.unmute", {
+            ? translate("assetPreview.unmute", {
                 defaultValue: "Unmute",
               })
-            : t2("assetPreview.mute", {
+            : translate("assetPreview.mute", {
                 defaultValue: "Mute",
               })
         }
@@ -1139,11 +1139,11 @@ function AssetHoverPopupInner({
   onLocateOnCanvas,
 }) {
   const { asset, anchor } = target;
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [positioned, setPositioned] = reactExports.useState(false);
   reactExports.useLayoutEffect(() => {
-    const id2 = requestAnimationFrame(() => setPositioned(true));
-    return () => cancelAnimationFrame(id2);
+    const positionFrameId = requestAnimationFrame(() => setPositioned(true));
+    return () => cancelAnimationFrame(positionFrameId);
   }, []);
   const [lineageOpen, setLineageOpen] = reactExports.useState(false);
   const lineageCloseTimer = reactExports.useRef(null);
@@ -1276,7 +1276,7 @@ function AssetHoverPopupInner({
                   data-slot="asset-hover-card-locate"
                   onClick={handleLocate}
                   disabled={locateDisabled}
-                  title={t2("assetPreview.locateOnCanvas")}
+                  title={translate("assetPreview.locateOnCanvas")}
                   className={cn(
                     "inline-flex items-center justify-center size-6 rounded",
                     "text-foreground/50 hover:text-foreground/70 hover:bg-muted transition-colors",
@@ -1305,7 +1305,7 @@ function AssetHoverPopupInner({
                 >
                   <span className="inline-flex items-center gap-1.5">
                     <Network size={12} strokeWidth={1.5} />
-                    {t2("assetPreview.viewLineage")}
+                    {translate("assetPreview.viewLineage")}
                   </span>
                   <ChevronLeft size={12} strokeWidth={1.5} />
                 </button>
@@ -1323,7 +1323,7 @@ function AssetHoverPopupInner({
                   )}
                 >
                   <span className="text-xs font-medium text-foreground/70">
-                    {t2("assetPreview.lineageTitle")}
+                    {translate("assetPreview.lineageTitle")}
                   </span>
                   <LineageTree assetId={asset.id} />
                 </div>
@@ -1346,7 +1346,7 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
     { onLocateOnCanvas, onLocateMissingConfirmInsert },
     ref,
   ) {
-    const { t: t2 } = useTranslation();
+    const { t: translate } = useTranslation();
     const [state2, setState] = reactExports.useState({
       kind: "idle",
     });
@@ -1432,9 +1432,9 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
       }, HOVER_CLOSE_DELAY_MS);
     }, [cancelClose, cancelOpen2, setBoth]);
     const handlePopupLocateOnCanvas = reactExports.useCallback(() => {
-      const s2 = stateRef.current;
-      if (s2.kind !== "hover" || !onLocateOnCanvas) return;
-      onLocateOnCanvas(s2.target.absolutePath);
+      const overlayState = stateRef.current;
+      if (overlayState.kind !== "hover" || !onLocateOnCanvas) return;
+      onLocateOnCanvas(overlayState.target.absolutePath);
     }, [onLocateOnCanvas]);
     const handleLocateOpenChange = reactExports.useCallback(
       (next2) => {
@@ -1446,9 +1446,9 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
       [setBoth],
     );
     const handleLocateConfirm = reactExports.useCallback(() => {
-      const s2 = stateRef.current;
-      if (s2.kind !== "locate-missing") return;
-      const path2 = s2.absolutePath;
+      const overlayState = stateRef.current;
+      if (overlayState.kind !== "locate-missing") return;
+      const path2 = overlayState.absolutePath;
       setBoth({
         kind: "idle",
       });
@@ -1473,7 +1473,7 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
         });
         return;
       }
-      const io2 = new IntersectionObserver(
+      const intersectionObserver = new IntersectionObserver(
         (entries2) => {
           for (const entry of entries2) {
             if (!entry.isIntersecting)
@@ -1486,8 +1486,8 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
           threshold: 0,
         },
       );
-      io2.observe(activeAnchor);
-      return () => io2.disconnect();
+      intersectionObserver.observe(activeAnchor);
+      return () => intersectionObserver.disconnect();
     }, [activeAnchor, setBoth]);
     reactExports.useEffect(() => {
       return () => {
@@ -1528,10 +1528,10 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
                   <div className="flex items-start gap-2">
                     <div className="flex min-w-0 flex-col gap-0.5">
                       <span className="text-sm text-foreground">
-                        {t2("fileExplorer.locateMissing.title")}
+                        {translate("fileExplorer.locateMissing.title")}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {t2("fileExplorer.locateMissing.description")}
+                        {translate("fileExplorer.locateMissing.description")}
                       </span>
                     </div>
                   </div>
@@ -1542,14 +1542,14 @@ export const AssetPanelOverlayHost = reactExports.forwardRef(
                       onClick={handleLocateCancel}
                       data-action-ui-id="asset-panel.locate-missing-cancel"
                     >
-                      {t2("common.cancel")}
+                      {translate("common.cancel")}
                     </Button>
                     <Button
                       size="sm"
                       onClick={handleLocateConfirm}
                       data-action-ui-id="asset-panel.locate-missing-confirm"
                     >
-                      {t2("fileExplorer.locateMissing.confirm")}
+                      {translate("fileExplorer.locateMissing.confirm")}
                     </Button>
                   </div>
                 </PopoverPopup>
