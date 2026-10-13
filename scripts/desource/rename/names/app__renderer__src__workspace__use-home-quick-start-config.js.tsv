@@ -1,0 +1,39 @@
+key	old	new	依据
+a2@49:36	a2	leftIdentifier	语义化版本号比较中的左侧数字标识符。
+a2@53:30	a2	leftVersion	语义化版本号比较中的左侧版本字符串。
+b3@49:40	b3	rightIdentifier	语义化版本号比较中的右侧数字标识符。
+b3@53:34	b3	rightVersion	语义化版本号比较中的右侧版本字符串。
+config2@886:7	config2	config	去掉打包器防重名追加的后缀，恢复原名 config，即该绑定持有的值。
+contentLength2@514:9	contentLength2	contentLength	去掉打包器防重名追加的后缀，恢复原名 contentLength，即该绑定持有的值。
+data2@814:11	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+id2@184:13	id2	tabId	首页展示配置中的标签标识符。
+id2@205:17	id2	tabId	首页展示配置中的标签标识符。
+id2@274:9	id2	outputId	首页提示词输出配置的标识符。
+id2@314:9	id2	promptItemId	首页提示词条目的配置标识符。
+id2@403:9	id2	sectionId	首页配置分区的标识符。
+id2@444:9	id2	sectionId	首页配置分区的标识符。
+id2@572:9	id2	sectionId	首页配置分区的标识符。
+image2@127:9	image2	image	用于预加载媒体 URL 的浏览器 Image 对象。
+index2@506:14	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@57:12	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+index2@68:9	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+key2@497:34	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@507:13	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+key2@510:16	key2	key	去掉打包器防重名追加的后缀，恢复原名 key，即该绑定持有的值。
+match2@37:9	match2	match	正则匹配结果。
+message2@678:9	message2	message	消息历史中当前遍历到的消息记录。
+name2@249:9	name2	attachmentName	提示词配置中附件记录的名称。
+name2@390:9	name2	skillName	技能记录中的名称，或正在更新选择状态的技能名称。
+pa@54:9	pa	leftVersionParts	解析后的左侧语义化版本对象，包含核心版本和预发布标识。
+pb@55:9	pb	rightVersionParts	解析后的右侧语义化版本对象，包含核心版本和预发布标识。
+properties2@663:9	properties2	properties	去掉打包器防重名追加的后缀，恢复原名 properties，即该绑定持有的值。
+raw2@482:34	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+raw2@751:50	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+raw2@845:11	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+slash2@122:9	slash2	slash	去掉打包器防重名追加的后缀，恢复原名 slash，即该绑定持有的值。
+tab2@179:16	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@205:24	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+tab2@236:46	tab2	tab	去掉打包器防重名追加的后缀，恢复原名 tab，即该绑定持有的值。
+type2@250:9	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+type2@603:9	type2	type	去掉打包器防重名追加的后缀，恢复原名 type，即该绑定持有的值。
+version2@36:28	version2	version	去掉打包器防重名追加的后缀，恢复原名 version，即该绑定持有的值。

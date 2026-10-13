@@ -1,0 +1,13 @@
+key	old	new	依据
+att@88:27	att	attachment	历史消息中的附件记录对象。
+current2@27:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@43:11	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+i2@6:12	i2	messageIndex	消息历史或子消息数组中的当前遍历索引。
+index2@20:10	index2	index	去掉打包器防重名追加的后缀，恢复原名 index，即该绑定持有的值。
+m3@7:11	m3	message	消息历史中当前遍历到的消息记录。
+messages2@15:35	messages2	messages	去掉打包器防重名追加的后缀，恢复原名 messages，即该绑定持有的值。
+messages2@4:30	messages2	messages	去掉打包器防重名追加的后缀，恢复原名 messages，即该绑定持有的值。
+next2@28:13	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+next2@45:11	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+path2@82:34	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+reset2@62:9	reset2	reset	去掉打包器防重名追加的后缀，恢复原名 reset，即该绑定持有的值。

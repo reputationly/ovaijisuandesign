@@ -1,0 +1,31 @@
+key	old	new	依据
+current2@172:6	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@204:11	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@280:11	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@292:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@433:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+current2@463:21	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+gatewayFetch2@116:9	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+i2@61:12	i2	messageIndex	消息历史或子消息数组中的当前遍历索引。
+i2@84:12	i2	messageIndex	消息历史或子消息数组中的当前遍历索引。
+id2@35:39	id2	changedItemId	工作计划变更响应中的工作项标识符。
+id2@72:11	id2	planId	从工作计划工具消息中提取出的计划标识符。
+latest2@332:13	latest2	latest	去掉打包器防重名追加的后缀，恢复原名 latest，即该绑定持有的值。
+match2@55:9	match2	match	正则匹配结果。
+message2@62:11	message2	message	消息历史中当前遍历到的消息记录。
+message2@85:11	message2	message	消息历史中当前遍历到的消息记录。
+messages2@115:36	messages2	messages	去掉打包器防重名追加的后缀，恢复原名 messages，即该绑定持有的值。
+messages2@59:35	messages2	messages	去掉打包器防重名追加的后缀，恢复原名 messages，即该绑定持有的值。
+messages2@83:28	messages2	messages	去掉打包器防重名追加的后缀，恢复原名 messages，即该绑定持有的值。
+name2@70:11	name2	planToolName	工作计划消息中冒号前的工具名称。
+pending2@166:11	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+pending2@173:13	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+pending2@249:11	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+pending2@457:17	pending2	pending	去掉打包器防重名追加的后缀，恢复原名 pending，即该绑定持有的值。
+previous2@211:15	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@221:24	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@262:15	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+previous2@272:24	previous2	previous	去掉打包器防重名追加的后缀，恢复原名 previous，即该绑定持有的值。
+state2@144:10	state2	state	去掉打包器防重名追加的后缀，恢复原名 state，即该绑定持有的值。
+subscribe2@117:22	subscribe2	subscribe	去掉打包器防重名追加的后缀，恢复原名 subscribe，即该绑定持有的值。
+version2@96:11	version2	version	去掉打包器防重名追加的后缀，恢复原名 version，即该绑定持有的值。

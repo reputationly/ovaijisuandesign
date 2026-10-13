@@ -99,20 +99,20 @@ export const listeners = new Set();
 function emit() {
   for (const listener of listeners) listener();
 }
-function acquireModalPresence(id2) {
-  activeIds.add(id2);
+function acquireModalPresence(modalId) {
+  activeIds.add(modalId);
   emit();
   let released = false;
   return () => {
     if (released) return;
     released = true;
-    activeIds.delete(id2);
+    activeIds.delete(modalId);
     emit();
   };
 }
-export function useBlockingModalPresence(id2, active2) {
+export function useBlockingModalPresence(modalId, active) {
   reactExports.useEffect(() => {
-    if (!active2) return;
-    return acquireModalPresence(id2);
-  }, [id2, active2]);
+    if (!active) return;
+    return acquireModalPresence(modalId);
+  }, [modalId, active]);
 }
