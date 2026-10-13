@@ -1,0 +1,2024 @@
+diff --git a/dist/esm/index.js b/dist/esm/index.js
+index aab9da6..de9efd0 100644
+--- a/dist/esm/index.js
++++ b/dist/esm/index.js
+@@ -2,11 +2,52 @@
+ import { jsxs, Fragment, jsx } from 'react/jsx-runtime';
+ import { createContext, useContext, useMemo, forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback, memo } from 'react';
+ import cc from 'classcat';
+-import { errorMessages, mergeAriaLabelConfig, infiniteExtent, isInputDOMNode, getViewportForBounds, pointToRendererPoint, rendererPointToPoint, isNodeBase, isEdgeBase, getElementsToRemove, isRectObject, nodeToRect, getOverlappingArea, getNodesBounds, withResolvers, evaluateAbsolutePosition, getDimensions, XYPanZoom, PanOnScrollMode, SelectionMode, getEventPosition, getNodesInside, areSetsEqual, XYDrag, snapPosition, calculateNodePosition, Position, ConnectionMode, isMouseEvent, XYHandle, getHostForElement, addEdge, getInternalNodesBounds, isNumeric, nodeHasDimensions, getNodeDimensions, elementSelectionKeys, isEdgeVisible, MarkerType, createMarkerIds, getBezierEdgeCenter, getSmoothStepPath, getStraightPath, getBezierPath, getEdgePosition, getElevatedEdgeZIndex, getMarkerId, getConnectionStatus, ConnectionLineType, updateConnectionLookup, adoptUserNodes, initialConnection, devWarn, defaultAriaLabelConfig, updateNodeInternals, updateAbsolutePositions, getHandlePosition, handleExpandParent, panBy, fitViewport, isMacOs, areConnectionMapsEqual, handleConnectionChange, shallowNodeData, XYMinimap, getBoundsOfRects, ResizeControlVariant, XYResizer, XY_RESIZER_LINE_POSITIONS, XY_RESIZER_HANDLE_POSITIONS, getNodeToolbarTransform, getEdgeToolbarTransform } from '@xyflow/system';
++import { errorMessages, mergeAriaLabelConfig, infiniteExtent, isInputDOMNode, getViewportForBounds, pointToRendererPoint, rendererPointToPoint, isNodeBase, isEdgeBase, getElementsToRemove, isRectObject, nodeToRect, getOverlappingArea, getNodesBounds, withResolvers, evaluateAbsolutePosition, getDimensions, XYPanZoom, PanOnScrollMode, SelectionMode, getEventPosition, getNodesInside, areSetsEqual, XYDrag, snapPosition, calculateNodePosition, Position, ConnectionMode, isMouseEvent, XYHandle, getHostForElement, addEdge, getInternalNodesBounds, isNumeric, nodeHasDimensions, getNodeDimensions, elementSelectionKeys, isEdgeVisible, MarkerType, createMarkerIds, getBezierEdgeCenter, getSmoothStepPath, getStraightPath, getBezierPath, getEdgePosition, getElevatedEdgeZIndex, getMarkerId, getConnectionStatus, ConnectionLineType, updateConnectionLookup, adoptUserNodes, initialConnection, devWarn, defaultAriaLabelConfig, updateNodeInternals, updateAbsolutePositions, getHandlePosition, handleExpandParent, panBy, fitViewport, isMacOs, areConnectionMapsEqual, handleConnectionChange, shallowNodeData, XYMinimap, getBoundsOfRects, ResizeControlVariant, XYResizer, XY_RESIZER_LINE_POSITIONS, XY_RESIZER_HANDLE_POSITIONS, getNodeToolbarTransform, getEdgeToolbarTransform, calcAutoPan } from '@xyflow/system';
+ export { ConnectionLineType, ConnectionMode, MarkerType, PanOnScrollMode, Position, ResizeControlVariant, SelectionMode, addEdge, getBezierEdgeCenter, getBezierPath, getConnectedEdges, getEdgeCenter, getIncomers, getNodesBounds, getOutgoers, getSmoothStepPath, getStraightPath, getViewportForBounds, reconnectEdge } from '@xyflow/system';
+ import { useStoreWithEqualityFn, createWithEqualityFn } from 'zustand/traditional';
+ import { shallow } from 'zustand/shallow';
+-import { createPortal } from 'react-dom';
++import { createPortal, flushSync } from 'react-dom';
++const AUTO_PAN_DISTANCE = 40;
++const edgeZones = (x, y, bounds) => ({
++        left: x < AUTO_PAN_DISTANCE,
++        right: x > bounds.width - AUTO_PAN_DISTANCE,
++        top: y < AUTO_PAN_DISTANCE,
++        bottom: y > bounds.height - AUTO_PAN_DISTANCE
++});
++const AUTO_PAN_ARM_SLACK = 10;
++const maskAutoPanSides = ([xMovement, yMovement], suppressed) => [suppressed.left && xMovement > 0 || suppressed.right && xMovement < 0 ? 0 : xMovement, suppressed.top && yMovement > 0 || suppressed.bottom && yMovement < 0 ? 0 : yMovement];
++function getNodesSelectionActiveOnPointerUp(selectionInProgress, selectedNodeCount) {
++        return selectionInProgress ? selectedNodeCount >= 2 : void 0;
++}
++const DEFAULT_LARGE_MOVE_FACTOR = 4;
++function getKeyboardMoveFactor({
++        shiftKey,
++        snapToGrid,
++        snapGridShiftMultiplier
++}) {
++        if (!shiftKey) return 1;
++        return snapToGrid ? snapGridShiftMultiplier : DEFAULT_LARGE_MOVE_FACTOR;
++}
++const OVERSCAN_PX = 300;
++const RECOMPUTE_DELTA_PX = OVERSCAN_PX / 2;
++function cascadeAbsolutePosition(parentId, dx, dy, nodeLookup, parentLookup) {
++        const stack = [parentId];
++        while (stack.length > 0) {
++                const currentId = stack.pop();
++                const children = parentLookup.get(currentId);
++                if (!children || children.size === 0) continue;
++                for (const childId of children.keys()) {
++                        const childNode = nodeLookup.get(childId);
++                        if (!childNode) continue;
++                        const prev = childNode.internals.positionAbsolute;
++                        childNode.internals.positionAbsolute = {
++                                x: prev.x + dx,
++                                y: prev.y + dy
++                        };
++                        stack.push(childId);
++                }
++        }
++}
+ 
+ const StoreContext = createContext(null);
+ const Provider$1 = StoreContext.Provider;
+@@ -211,6 +252,9 @@ const reactFlowFieldsToTrack = [
+     'connectionMode',
+     'snapGrid',
+     'snapToGrid',
++    'nodeDragSnapResolver',
++    'onNodeDragSnapEnd',
++    'snapGridShiftMultiplier',
+     'translateExtent',
+     'connectOnClick',
+     'defaultEdgeOptions',
+@@ -1409,16 +1453,161 @@ const selector$h = (s) => ({
+     connectionInProgress: s.connection.inProgress,
+     dragging: s.paneDragging,
+ });
+-function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.Full, panOnDrag, paneClickDistance, selectionOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children, }) {
++function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.Full, panOnDrag, paneClickDistance, selectionOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children: children, }) {
+     const store = useStoreApi();
+     const { userSelectionActive, elementsSelectable, dragging, connectionInProgress } = useStore(selector$h, shallow);
+     const isSelectionEnabled = elementsSelectable && (isSelecting || userSelectionActive);
+     const container = useRef(null);
+-    const containerBounds = useRef();
++    const containerBounds = useRef(void 0);
+     const selectedNodeIds = useRef(new Set());
+     const selectedEdgeIds = useRef(new Set());
++    const previewedNodeIds = useRef(new Set());
++    const onSelectionEndRef = useRef(onSelectionEnd);
++    onSelectionEndRef.current = onSelectionEnd;
++    const previewCleanupRaf = useRef(0);
+     // Used to prevent click events when the user lets go of the selectionKey during a selection
+     const selectionInProgress = useRef(false);
++    const selectionStartFlow = useRef(null);
++    const lastMousePosition = useRef({
++        x: 0,
++        y: 0
++    });
++    const autoPanId = useRef(0);
++    const autoPanActive = useRef(false);
++    const autoPanSuppressedSides = useRef({
++        left: false,
++        right: false,
++        top: false,
++        bottom: false
++    });
++    const clearSelectionPreview = () => {
++        const root = container.current?.closest('.react-flow');
++        root?.querySelectorAll('.react-flow__node.box-select-preview').forEach(element => {
++            element.classList.remove('box-select-preview');
++            element.style.removeProperty('--box-select-preview-outline-width');
++        });
++        previewedNodeIds.current.clear();
++    };
++    const syncSelectionPreview = (nodeIds, zoom) => {
++        if (areSetsEqual(previewedNodeIds.current, nodeIds)) return;
++        const root = container.current?.closest('.react-flow');
++        const outlineWidth = `${1.5 / Math.max(zoom, 0.01)}px`;
++        root?.querySelectorAll('.react-flow__node[data-id]').forEach(element => {
++            const nodeId = element.dataset.id;
++            const previewed = !!nodeId && nodeIds.has(nodeId);
++            element.classList.toggle('box-select-preview', previewed);
++            if (previewed) {
++                element.style.setProperty('--box-select-preview-outline-width', outlineWidth);
++            } else {
++                element.style.removeProperty('--box-select-preview-outline-width');
++            }
++        });
++        previewedNodeIds.current = new Set(nodeIds);
++    };
++    const updateAutoPanSuppression = (x, y) => {
++        const bounds = containerBounds.current;
++        const startFlow = selectionStartFlow.current;
++        const sides = autoPanSuppressedSides.current;
++        if (!bounds || !startFlow) {
++            return;
++        }
++        const start = rendererPointToPoint(startFlow, store.getState().transform);
++        const zones = edgeZones(x, y, bounds);
++        if (sides.left && (!zones.left || x < start.x - AUTO_PAN_ARM_SLACK)) {
++            sides.left = false;
++        }
++        if (sides.right && (!zones.right || x > start.x + AUTO_PAN_ARM_SLACK)) {
++            sides.right = false;
++        }
++        if (sides.top && (!zones.top || y < start.y - AUTO_PAN_ARM_SLACK)) {
++            sides.top = false;
++        }
++        if (sides.bottom && (!zones.bottom || y > start.y + AUTO_PAN_ARM_SLACK)) {
++            sides.bottom = false;
++        }
++    };
++    const updateSelection = (mouseX, mouseY) => {
++        const {
++            userSelectionRect,
++            transform: transform,
++            nodeLookup,
++            edgeLookup,
++            connectionLookup,
++            defaultEdgeOptions
++        } = store.getState();
++        const startFlow = selectionStartFlow.current;
++        if (!userSelectionRect || !startFlow) {
++            return;
++        }
++        const {
++            x: startX,
++            y: startY
++        } = rendererPointToPoint(startFlow, transform);
++        const nextUserSelectRect = {
++            startX,
++            startY,
++            x: mouseX < startX ? mouseX : startX,
++            y: mouseY < startY ? mouseY : startY,
++            width: Math.abs(mouseX - startX),
++            height: Math.abs(mouseY - startY)
++        };
++        selectedNodeIds.current = new Set(getNodesInside(nodeLookup, nextUserSelectRect, transform, selectionMode === SelectionMode.Partial, true).map(node => node.id));
++        syncSelectionPreview(selectedNodeIds.current, transform[2]);
++        selectedEdgeIds.current = new Set();
++        const edgesSelectable = defaultEdgeOptions?.selectable ?? true;
++        for (const nodeId of selectedNodeIds.current) {
++            const connections = connectionLookup.get(nodeId);
++            if (!connections) continue;
++            for (const {
++                edgeId
++            } of connections.values()) {
++                const edge = edgeLookup.get(edgeId);
++                if (edge && (edge.selectable ?? edgesSelectable)) {
++                    selectedEdgeIds.current.add(edgeId);
++                }
++            }
++        }
++        store.setState({
++            userSelectionRect: nextUserSelectRect,
++            userSelectionActive: true,
++            nodesSelectionActive: false
++        });
++    };
++    const stopAutoPan = () => {
++        cancelAnimationFrame(autoPanId.current);
++        autoPanActive.current = false;
++    };
++    const autoPan = () => {
++        if (!autoPanActive.current || !containerBounds.current) {
++            return;
++        }
++        const {
++            userSelectionRect,
++            panBy: panBy,
++            autoPanSpeed
++        } = store.getState();
++        if (!userSelectionRect) {
++            stopAutoPan();
++            return;
++        }
++        const [xMovement, yMovement] = maskAutoPanSides(calcAutoPan(lastMousePosition.current, containerBounds.current, autoPanSpeed), autoPanSuppressedSides.current);
++        if (xMovement !== 0 || yMovement !== 0) {
++            panBy({
++                x: xMovement,
++                y: yMovement
++            }).then(panned => {
++                if (panned && autoPanActive.current) {
++                    updateSelection(lastMousePosition.current.x, lastMousePosition.current.y);
++                }
++            }).catch(() => {});
++        }
++        autoPanId.current = requestAnimationFrame(autoPan);
++    };
++    useEffect(() => () => {
++        stopAutoPan();
++        cancelAnimationFrame(previewCleanupRaf.current);
++        clearSelectionPreview();
++    }, []);
+     const onClick = (event) => {
+         // We prevent click events when the user let go of the selectionKey during a selection
+         // We also prevent click events when a connection is in progress
+@@ -1427,6 +1616,8 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+             return;
+         }
+         onPaneClick?.(event);
++        cancelAnimationFrame(previewCleanupRaf.current);
++        clearSelectionPreview();
+         store.getState().resetSelectedElements();
+         store.setState({ nodesSelectionActive: false });
+     };
+@@ -1459,17 +1650,31 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+             return;
+         }
+         event.target?.setPointerCapture?.(event.pointerId);
++        cancelAnimationFrame(previewCleanupRaf.current);
++        clearSelectionPreview();
+         selectionInProgress.current = false;
+-        const { x, y } = getEventPosition(event.nativeEvent, containerBounds.current);
++        const {
++            x: x,
++            y: y
++        } = getEventPosition(event.nativeEvent, containerBounds.current);
++        selectionStartFlow.current = pointToRendererPoint({
++            x: x,
++            y: y
++        }, store.getState().transform);
++        lastMousePosition.current = {
++            x: x,
++            y: y
++        };
++        autoPanSuppressedSides.current = edgeZones(x, y, containerBounds.current);
+         store.setState({
+             userSelectionRect: {
+                 width: 0,
+                 height: 0,
+                 startX: x,
+                 startY: y,
+-                x,
+-                y,
+-            },
++                x: x,
++                y: y
++            }
+         });
+         if (!eventTargetIsContainer) {
+             event.stopPropagation();
+@@ -1477,15 +1682,17 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+         }
+     };
+     const onPointerMove = (event) => {
+-        const { userSelectionRect, transform, nodeLookup, edgeLookup, connectionLookup, triggerNodeChanges, triggerEdgeChanges, defaultEdgeOptions, resetSelectedElements, } = store.getState();
++        const { userSelectionRect, resetSelectedElements, } = store.getState();
+         if (!containerBounds.current || !userSelectionRect) {
+             return;
+         }
+         const { x: mouseX, y: mouseY } = getEventPosition(event.nativeEvent, containerBounds.current);
+-        const { startX, startY } = userSelectionRect;
++        lastMousePosition.current.x = mouseX;
++        lastMousePosition.current.y = mouseY;
++        updateAutoPanSuppression(mouseX, mouseY);
+         if (!selectionInProgress.current) {
+-            const requiredDistance = selectionKeyPressed ? 0 : paneClickDistance;
+-            const distance = Math.hypot(mouseX - startX, mouseY - startY);
++            const requiredDistance = paneClickDistance;
++            const distance = Math.hypot(mouseX - userSelectionRect.startX, mouseY - userSelectionRect.startY);
+             if (distance <= requiredDistance) {
+                 return;
+             }
+@@ -1493,49 +1700,18 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+             onSelectionStart?.(event);
+         }
+         selectionInProgress.current = true;
+-        const nextUserSelectRect = {
+-            startX,
+-            startY,
+-            x: mouseX < startX ? mouseX : startX,
+-            y: mouseY < startY ? mouseY : startY,
+-            width: Math.abs(mouseX - startX),
+-            height: Math.abs(mouseY - startY),
+-        };
+-        const prevSelectedNodeIds = selectedNodeIds.current;
+-        const prevSelectedEdgeIds = selectedEdgeIds.current;
+-        selectedNodeIds.current = new Set(getNodesInside(nodeLookup, nextUserSelectRect, transform, selectionMode === SelectionMode.Partial, true).map((node) => node.id));
+-        selectedEdgeIds.current = new Set();
+-        const edgesSelectable = defaultEdgeOptions?.selectable ?? true;
+-        // We look for all edges connected to the selected nodes
+-        for (const nodeId of selectedNodeIds.current) {
+-            const connections = connectionLookup.get(nodeId);
+-            if (!connections)
+-                continue;
+-            for (const { edgeId } of connections.values()) {
+-                const edge = edgeLookup.get(edgeId);
+-                if (edge && (edge.selectable ?? edgesSelectable)) {
+-                    selectedEdgeIds.current.add(edgeId);
+-                }
+-            }
++        if (!autoPanActive.current) {
++            autoPanActive.current = true;
++            autoPan();
+         }
+-        if (!areSetsEqual(prevSelectedNodeIds, selectedNodeIds.current)) {
+-            const changes = getSelectionChanges(nodeLookup, selectedNodeIds.current, true);
+-            triggerNodeChanges(changes);
+-        }
+-        if (!areSetsEqual(prevSelectedEdgeIds, selectedEdgeIds.current)) {
+-            const changes = getSelectionChanges(edgeLookup, selectedEdgeIds.current);
+-            triggerEdgeChanges(changes);
+-        }
+-        store.setState({
+-            userSelectionRect: nextUserSelectRect,
+-            userSelectionActive: true,
+-            nodesSelectionActive: false,
+-        });
++        updateSelection(mouseX, mouseY);
+     };
+     const onPointerUp = (event) => {
+         if (event.button !== 0) {
+             return;
+         }
++        stopAutoPan();
++        selectionStartFlow.current = null;
+         event.target?.releasePointerCapture?.(event.pointerId);
+         /*
+          * We only want to trigger click functions when in selection mode if
+@@ -1544,16 +1720,28 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+         if (!userSelectionActive && event.target === container.current && store.getState().userSelectionRect) {
+             onClick?.(event);
+         }
++        if (selectionInProgress.current) {
++            const {
++                nodeLookup,
++                edgeLookup,
++                triggerNodeChanges,
++                triggerEdgeChanges
++            } = store.getState();
++            flushSync(() => {
++                triggerNodeChanges(getSelectionChanges(nodeLookup, selectedNodeIds.current, true));
++                triggerEdgeChanges(getSelectionChanges(edgeLookup, selectedEdgeIds.current));
++            });
++            onSelectionEndRef.current?.(event);
++        }
++        const nextNodesSelectionActive = getNodesSelectionActiveOnPointerUp(selectionInProgress.current, selectedNodeIds.current.size);
+         store.setState({
+             userSelectionActive: false,
+             userSelectionRect: null,
++            ...(nextNodesSelectionActive === void 0 ? {} : {
++                nodesSelectionActive: nextNodesSelectionActive
++            })
+         });
+-        if (selectionInProgress.current) {
+-            onSelectionEnd?.(event);
+-            store.setState({
+-                nodesSelectionActive: selectedNodeIds.current.size > 0,
+-            });
+-        }
++        previewCleanupRaf.current = requestAnimationFrame(clearSelectionPreview);
+     };
+     const draggable = panOnDrag === true || (Array.isArray(panOnDrag) && panOnDrag.includes(0));
+     return (jsxs("div", { className: cc(['react-flow__pane', { draggable, dragging, selection: isSelecting }]), onClick: isSelectionEnabled ? undefined : wrapHandler(onClick, container), onContextMenu: wrapHandler(onContextMenu, container), onWheel: wrapHandler(onWheel, container), onPointerEnter: isSelectionEnabled ? undefined : onPaneMouseEnter, onPointerMove: isSelectionEnabled ? onPointerMove : onPaneMouseMove, onPointerUp: isSelectionEnabled ? onPointerUp : undefined, onPointerDownCapture: isSelectionEnabled ? onPointerDownCapture : undefined, onClickCapture: isSelectionEnabled ? onClickCapture : undefined, onPointerLeave: onPaneMouseLeave, ref: container, style: containerStyle, children: [children, jsx(UserSelection, {})] }));
+@@ -1565,21 +1753,32 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+  * or
+  * 2. the on drag start handler when node is draggable and selectNodesOnDrag = true
+  */
+-function handleNodeClick({ id, store, unselect = false, nodeRef, }) {
++function handleNodeClick({ id: id, store, unselect = false, nodeRef, }) {
+     const { addSelectedNodes, unselectNodesAndEdges, multiSelectionActive, nodeLookup, onError } = store.getState();
+     const node = nodeLookup.get(id);
+     if (!node) {
+         onError?.('012', errorMessages['error012'](id));
+         return;
+     }
+-    store.setState({ nodesSelectionActive: false });
++    let selectedCount = 0;
++    for (const n of nodeLookup.values()) {
++        if (n.selected) selectedCount++;
++    }
++    let nextSelectedCount;
+     if (!node.selected) {
++        nextSelectedCount = multiSelectionActive ? selectedCount + 1 : 1;
+         addSelectedNodes([id]);
+     }
+     else if (unselect || (node.selected && multiSelectionActive)) {
++        nextSelectedCount = selectedCount - 1;
+         unselectNodesAndEdges({ nodes: [node], edges: [] });
+         requestAnimationFrame(() => nodeRef?.current?.blur());
++    } else {
++        nextSelectedCount = selectedCount;
+     }
++    store.setState({
++        nodesSelectionActive: nextSelectedCount >= 2
++    });
+ }
+ 
+ /**
+@@ -1660,7 +1859,7 @@ function useMoveSelectedNodes() {
+             if (snapToGrid) {
+                 nextPosition = snapPosition(nextPosition, snapGrid);
+             }
+-            const { position, positionAbsolute } = calculateNodePosition({
++            const { position: position, positionAbsolute } = calculateNodePosition({
+                 nodeId: node.id,
+                 nextPosition,
+                 nodeLookup,
+@@ -1672,7 +1871,7 @@ function useMoveSelectedNodes() {
+             node.internals.positionAbsolute = positionAbsolute;
+             nodeUpdates.set(node.id, node);
+         }
+-        updateNodePositions(nodeUpdates);
++        updateNodePositions(nodeUpdates, false, 'keyboard');
+     }, []);
+     return moveSelectedNodes;
+ }
+@@ -1929,19 +2128,20 @@ function getNodeInlineStyleDimensions(node) {
+ }
+ 
+ const selector$f = (s) => {
+-    const { width, height, x, y } = getInternalNodesBounds(s.nodeLookup, {
+-        filter: (node) => !!node.selected,
++    const { width, height, x: x, y: y } = getInternalNodesBounds(s.nodeLookup, {
++        filter: (node) => !!node.selected && !node.hidden,
+     });
+     return {
+         width: isNumeric(width) ? width : null,
+         height: isNumeric(height) ? height : null,
+         userSelectionActive: s.userSelectionActive,
++        multiSelectionActive: s.multiSelectionActive,
+         transformString: `translate(${s.transform[0]}px,${s.transform[1]}px) scale(${s.transform[2]}) translate(${x}px,${y}px)`,
+     };
+ };
+ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboardA11y, }) {
+     const store = useStoreApi();
+-    const { width, height, transformString, userSelectionActive } = useStore(selector$f, shallow);
++    const { width, height, transformString, userSelectionActive, multiSelectionActive } = useStore(selector$f, shallow);
+     const moveSelectedNodes = useMoveSelectedNodes();
+     const nodeRef = useRef(null);
+     useEffect(() => {
+@@ -1968,17 +2168,26 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
+     const onKeyDown = (event) => {
+         if (Object.prototype.hasOwnProperty.call(arrowKeyDiffs, event.key)) {
+             event.preventDefault();
++            const {
++                snapToGrid,
++                snapGridShiftMultiplier
++            } = store.getState();
+             moveSelectedNodes({
+                 direction: arrowKeyDiffs[event.key],
+-                factor: event.shiftKey ? 4 : 1,
++                factor: getKeyboardMoveFactor({
++                    shiftKey: event.shiftKey,
++                    snapToGrid,
++                    snapGridShiftMultiplier
++                }),
+             });
+         }
+     };
+     return (jsx("div", { className: cc(['react-flow__nodesselection', 'react-flow__container', noPanClassName]), style: {
+             transform: transformString,
+-        }, children: jsx("div", { ref: nodeRef, className: "react-flow__nodesselection-rect", onContextMenu: onContextMenu, tabIndex: disableKeyboardA11y ? undefined : -1, onKeyDown: disableKeyboardA11y ? undefined : onKeyDown, style: {
++        }, children: jsx("div", { ref: nodeRef, className: "react-flow__nodesselection-rect", onContextMenu, tabIndex: disableKeyboardA11y ? undefined : -1, onKeyDown: disableKeyboardA11y ? undefined : onKeyDown, style: {
+                 width,
+                 height,
++                pointerEvents: multiSelectionActive ? 'none' : void 0,
+             } }) }));
+ }
+ 
+@@ -2013,8 +2222,34 @@ const selector$d = (onlyRenderVisible) => (s) => {
+  * @returns array with visible node ids
+  */
+ function useVisibleNodeIds(onlyRenderVisible) {
+-    const nodeIds = useStore(useCallback(selector$d(onlyRenderVisible), [onlyRenderVisible]), shallow);
+-    return nodeIds;
++    const cacheRef = useRef(null);
++    const selector = useCallback(s => {
++        if (!onlyRenderVisible) {
++            return Array.from(s.nodeLookup.keys());
++        }
++        const [tx, ty, zoom] = s.transform;
++        const cache = cacheRef.current;
++        if (cache && cache.nodes === s.nodes && cache.width === s.width && cache.height === s.height && cache.zoom === zoom && Math.abs(cache.tx - tx) < RECOMPUTE_DELTA_PX && Math.abs(cache.ty - ty) < RECOMPUTE_DELTA_PX) {
++            return cache.ids;
++        }
++        const ids = getNodesInside(s.nodeLookup, {
++            x: -OVERSCAN_PX,
++            y: -OVERSCAN_PX,
++            width: s.width + OVERSCAN_PX * 2,
++            height: s.height + OVERSCAN_PX * 2
++        }, s.transform, true, false, true).map(node => node.id);
++        cacheRef.current = {
++            ids: ids,
++            tx,
++            ty,
++            zoom: zoom,
++            width: s.width,
++            height: s.height,
++            nodes: s.nodes
++        };
++        return ids;
++    }, [onlyRenderVisible]);
++    return useStore(selector, shallow);
+ }
+ 
+ const selector$c = (s) => s.updateNodeInternals;
+@@ -2098,14 +2333,14 @@ function useNodeObserver({ node, nodeType, hasDimensions, resizeObserver, }) {
+     return nodeRef;
+ }
+ 
+-function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, nodesDraggable, elementsSelectable, nodesConnectable, nodesFocusable, resizeObserver, noDragClassName, noPanClassName, disableKeyboardA11y, rfId, nodeTypes, nodeClickDistance, onError, }) {
+-    const { node, internals, isParent } = useStore((s) => {
+-        const node = s.nodeLookup.get(id);
+-        const isParent = s.parentLookup.has(id);
++function NodeWrapper({ id: id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, nodesDraggable, elementsSelectable, nodesConnectable, nodesFocusable, resizeObserver, noDragClassName, noPanClassName, disableKeyboardA11y, rfId, nodeTypes: nodeTypes, nodeClickDistance, onError, }) {
++    const { node: node, internals, isParent: isParent } = useStore((s) => {
++        const node22 = s.nodeLookup.get(id);
++        const isParent22 = s.parentLookup.has(id);
+         return {
+-            node,
+-            internals: node.internals,
+-            isParent,
++            node: node22,
++            internals: node22.internals,
++            isParent: isParent22,
+         };
+     }, shallow);
+     let nodeType = node.type || 'default';
+@@ -2121,7 +2356,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+     const isFocusable = !!(node.focusable || (nodesFocusable && typeof node.focusable === 'undefined'));
+     const store = useStoreApi();
+     const hasDimensions = nodeHasDimensions(node);
+-    const nodeRef = useNodeObserver({ node, nodeType, hasDimensions, resizeObserver });
++    const nodeRef = useNodeObserver({ node: node, nodeType, hasDimensions, resizeObserver });
+     const dragging = useDrag({
+         nodeRef,
+         disabled: node.hidden || !isDraggable,
+@@ -2161,7 +2396,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+              * here we only need to call it when selectNodesOnDrag=false
+              */
+             handleNodeClick({
+-                id,
++                id: id,
+                 store,
+                 nodeRef,
+             });
+@@ -2177,7 +2412,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+         if (elementSelectionKeys.includes(event.key) && isSelectable) {
+             const unselect = event.key === 'Escape';
+             handleNodeClick({
+-                id,
++                id: id,
+                 store,
+                 unselect,
+                 nodeRef,
+@@ -2194,9 +2429,17 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+                     y: ~~internals.positionAbsolute.y,
+                 }),
+             });
++            const {
++                snapToGrid,
++                snapGridShiftMultiplier
++            } = store.getState();
+             moveSelectedNodes({
+                 direction: arrowKeyDiffs[event.key],
+-                factor: event.shiftKey ? 4 : 1,
++                factor: getKeyboardMoveFactor({
++                    shiftKey: event.shiftKey,
++                    snapToGrid,
++                    snapGridShiftMultiplier
++                }),
+             });
+         }
+     };
+@@ -2204,7 +2447,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+         if (disableKeyboardA11y || !nodeRef.current?.matches(':focus-visible')) {
+             return;
+         }
+-        const { transform, width, height, autoPanOnNodeFocus, setCenter } = store.getState();
++        const { transform: transform, width, height, autoPanOnNodeFocus, setCenter } = store.getState();
+         if (!autoPanOnNodeFocus) {
+             return;
+         }
+@@ -2237,7 +2480,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+             visibility: hasDimensions ? 'visible' : 'hidden',
+             ...node.style,
+             ...inlineDimensions,
+-        }, "data-id": id, "data-testid": `rf__node-${id}`, onMouseEnter: onMouseEnterHandler, onMouseMove: onMouseMoveHandler, onMouseLeave: onMouseLeaveHandler, onContextMenu: onContextMenuHandler, onClick: onSelectNodeHandler, onDoubleClick: onDoubleClickHandler, onKeyDown: isFocusable ? onKeyDown : undefined, tabIndex: isFocusable ? 0 : undefined, onFocus: isFocusable ? onFocus : undefined, role: node.ariaRole ?? (isFocusable ? 'group' : undefined), "aria-roledescription": "node", "aria-describedby": disableKeyboardA11y ? undefined : `${ARIA_NODE_DESC_KEY}-${rfId}`, "aria-label": node.ariaLabel, ...node.domAttributes, children: jsx(Provider, { value: id, children: jsx(NodeComponent, { id: id, data: node.data, type: nodeType, positionAbsoluteX: internals.positionAbsolute.x, positionAbsoluteY: internals.positionAbsolute.y, selected: node.selected ?? false, selectable: isSelectable, draggable: isDraggable, deletable: node.deletable ?? true, isConnectable: isConnectable, sourcePosition: node.sourcePosition, targetPosition: node.targetPosition, dragging: dragging, dragHandle: node.dragHandle, zIndex: internals.z, parentId: node.parentId, ...nodeDimensions }) }) }));
++        }, "data-id": id, "data-testid": `rf__node-${id}`, onMouseEnter: onMouseEnterHandler, onMouseMove: onMouseMoveHandler, onMouseLeave: onMouseLeaveHandler, onContextMenu: onContextMenuHandler, onClick: onSelectNodeHandler, onDoubleClick: onDoubleClickHandler, onKeyDown: isFocusable ? onKeyDown : undefined, tabIndex: isFocusable ? 0 : undefined, onFocus: isFocusable ? onFocus : undefined, role: node.ariaRole ?? (isFocusable ? 'group' : undefined), "aria-roledescription": "node", "aria-describedby": disableKeyboardA11y ? undefined : `${ARIA_NODE_DESC_KEY}-${rfId}`, "aria-label": node.ariaLabel, ...node.domAttributes, children: jsx(Provider, { value: id, children: jsx(NodeComponent, { id: id, data: node.data, type: nodeType, positionAbsoluteX: internals.positionAbsolute.x, positionAbsoluteY: internals.positionAbsolute.y, selected: node.selected ?? false, selectable: isSelectable, draggable: isDraggable, deletable: node.deletable ?? true, isConnectable, sourcePosition: node.sourcePosition, targetPosition: node.targetPosition, dragging, dragHandle: node.dragHandle, zIndex: internals.z, parentId: node.parentId, ...nodeDimensions }) }) }));
+ }
+ var NodeWrapper$1 = memo(NodeWrapper);
+ 
+@@ -3118,13 +3361,13 @@ function useStylesLoadedWarning() {
+     }, []);
+ }
+ 
+-function GraphViewComponent({ nodeTypes, edgeTypes, onInit, onNodeClick, onEdgeClick, onNodeDoubleClick, onEdgeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onSelectionContextMenu, onSelectionStart, onSelectionEnd, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, deleteKeyCode, onlyRenderVisibleElements, elementsSelectable, defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, defaultMarkerColor, zoomOnScroll, zoomOnPinch, panOnScroll, panOnScrollSpeed, panOnScrollMode, zoomOnDoubleClick, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance, nodeClickDistance, onEdgeContextMenu, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, noDragClassName, noWheelClassName, noPanClassName, disableKeyboardA11y, nodeExtent, rfId, viewport, onViewportChange, }) {
++function GraphViewComponent({ nodeTypes: nodeTypes, edgeTypes, onInit, onNodeClick, onNodeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onSelectionContextMenu, onSelectionStart, onSelectionEnd, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, deleteKeyCode, onlyRenderVisibleElements, elementsSelectable, defaultViewport: defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, zoomOnScroll, zoomOnPinch, panOnScroll, panOnScrollSpeed, panOnScrollMode, zoomOnDoubleClick, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance, nodeClickDistance, noDragClassName, noWheelClassName, noPanClassName, disableKeyboardA11y, nodeExtent, rfId, viewport, onViewportChange, }) {
+     useNodeOrEdgeTypesWarning(nodeTypes);
+     useNodeOrEdgeTypesWarning(edgeTypes);
+     useStylesLoadedWarning();
+     useOnInitHandler(onInit);
+     useViewportSync(viewport);
+-    return (jsx(FlowRenderer, { onPaneClick: onPaneClick, onPaneMouseEnter: onPaneMouseEnter, onPaneMouseMove: onPaneMouseMove, onPaneMouseLeave: onPaneMouseLeave, onPaneContextMenu: onPaneContextMenu, onPaneScroll: onPaneScroll, paneClickDistance: paneClickDistance, deleteKeyCode: deleteKeyCode, selectionKeyCode: selectionKeyCode, selectionOnDrag: selectionOnDrag, selectionMode: selectionMode, onSelectionStart: onSelectionStart, onSelectionEnd: onSelectionEnd, multiSelectionKeyCode: multiSelectionKeyCode, panActivationKeyCode: panActivationKeyCode, zoomActivationKeyCode: zoomActivationKeyCode, elementsSelectable: elementsSelectable, zoomOnScroll: zoomOnScroll, zoomOnPinch: zoomOnPinch, zoomOnDoubleClick: zoomOnDoubleClick, panOnScroll: panOnScroll, panOnScrollSpeed: panOnScrollSpeed, panOnScrollMode: panOnScrollMode, panOnDrag: panOnDrag, defaultViewport: defaultViewport, translateExtent: translateExtent, minZoom: minZoom, maxZoom: maxZoom, onSelectionContextMenu: onSelectionContextMenu, preventScrolling: preventScrolling, noDragClassName: noDragClassName, noWheelClassName: noWheelClassName, noPanClassName: noPanClassName, disableKeyboardA11y: disableKeyboardA11y, onViewportChange: onViewportChange, isControlledViewport: !!viewport, children: jsxs(Viewport, { children: [jsx(EdgeRenderer, { edgeTypes: edgeTypes, onEdgeClick: onEdgeClick, onEdgeDoubleClick: onEdgeDoubleClick, onReconnect: onReconnect, onReconnectStart: onReconnectStart, onReconnectEnd: onReconnectEnd, onlyRenderVisibleElements: onlyRenderVisibleElements, onEdgeContextMenu: onEdgeContextMenu, onEdgeMouseEnter: onEdgeMouseEnter, onEdgeMouseMove: onEdgeMouseMove, onEdgeMouseLeave: onEdgeMouseLeave, reconnectRadius: reconnectRadius, defaultMarkerColor: defaultMarkerColor, noPanClassName: noPanClassName, disableKeyboardA11y: disableKeyboardA11y, rfId: rfId }), jsx(ConnectionLineWrapper, { style: connectionLineStyle, type: connectionLineType, component: connectionLineComponent, containerStyle: connectionLineContainerStyle }), jsx("div", { className: "react-flow__edgelabel-renderer" }), jsx(NodeRenderer, { nodeTypes: nodeTypes, onNodeClick: onNodeClick, onNodeDoubleClick: onNodeDoubleClick, onNodeMouseEnter: onNodeMouseEnter, onNodeMouseMove: onNodeMouseMove, onNodeMouseLeave: onNodeMouseLeave, onNodeContextMenu: onNodeContextMenu, nodeClickDistance: nodeClickDistance, onlyRenderVisibleElements: onlyRenderVisibleElements, noPanClassName: noPanClassName, noDragClassName: noDragClassName, disableKeyboardA11y: disableKeyboardA11y, nodeExtent: nodeExtent, rfId: rfId }), jsx("div", { className: "react-flow__viewport-portal" })] }) }));
++    return (jsx(FlowRenderer, { onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneContextMenu, onPaneScroll, paneClickDistance, deleteKeyCode, selectionKeyCode, selectionOnDrag, selectionMode, onSelectionStart, onSelectionEnd, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, elementsSelectable, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, defaultViewport: defaultViewport, translateExtent, minZoom, maxZoom, onSelectionContextMenu, preventScrolling, noDragClassName, noWheelClassName, noPanClassName, disableKeyboardA11y, onViewportChange, isControlledViewport: !!viewport, children: jsxs(Viewport, { children: [jsx(ConnectionLineWrapper, { style: connectionLineStyle, type: connectionLineType, component: connectionLineComponent, containerStyle: connectionLineContainerStyle }), jsx("div", { className: "react-flow__edgelabel-renderer" }), jsx(NodeRenderer, { nodeTypes: nodeTypes, onNodeClick, onNodeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, nodeClickDistance, onlyRenderVisibleElements, noPanClassName, noDragClassName, disableKeyboardA11y, nodeExtent, rfId }), jsx("div", { className: "react-flow__viewport-portal" })] }) }));
+ }
+ GraphViewComponent.displayName = 'GraphView';
+ const GraphView = memo(GraphViewComponent);
+@@ -3149,14 +3392,14 @@ const getInitialState = ({ nodes, edges, defaultNodes, defaultEdges, width, heig
+         const bounds = getInternalNodesBounds(nodeLookup, {
+             filter: (node) => !!((node.width || node.initialWidth) && (node.height || node.initialHeight)),
+         });
+-        const { x, y, zoom } = getViewportForBounds(bounds, width, height, minZoom, maxZoom, fitViewOptions?.padding ?? 0.1);
++        const { x: x, y: y, zoom: zoom } = getViewportForBounds(bounds, width, height, minZoom, maxZoom, fitViewOptions?.padding ?? 0.1);
+         transform = [x, y, zoom];
+     }
+     return {
+         rfId: '1',
+         width: width ?? 0,
+         height: height ?? 0,
+-        transform,
++        transform: transform,
+         nodes: storeNodes,
+         nodesInitialized,
+         nodeLookup,
+@@ -3185,6 +3428,9 @@ const getInitialState = ({ nodes, edges, defaultNodes, defaultEdges, width, heig
+         connectionDragThreshold: 1,
+         snapGrid: [15, 15],
+         snapToGrid: false,
++        nodeDragSnapResolver: void 0,
++        onNodeDragSnapEnd: void 0,
++        snapGridShiftMultiplier: 4,
+         nodesDraggable: true,
+         nodesConnectable: true,
+         nodesFocusable: true,
+@@ -3221,18 +3467,18 @@ const getInitialState = ({ nodes, edges, defaultNodes, defaultEdges, width, heig
+ 
+ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height, fitView, fitViewOptions, minZoom, maxZoom, nodeOrigin, nodeExtent, zIndexMode, }) => createWithEqualityFn((set, get) => {
+     async function resolveFitView() {
+-        const { nodeLookup, panZoom, fitViewOptions, fitViewResolver, width, height, minZoom, maxZoom } = get();
++        const { nodeLookup, panZoom, fitViewOptions: fitViewOptions2, fitViewResolver, width: width2, height: height2, minZoom: minZoom2, maxZoom: maxZoom2 } = get();
+         if (!panZoom) {
+             return;
+         }
+         await fitViewport({
+             nodes: nodeLookup,
+-            width,
+-            height,
++            width: width2,
++            height: height2,
+             panZoom,
+-            minZoom,
+-            maxZoom,
+-        }, fitViewOptions);
++            minZoom: minZoom2,
++            maxZoom: maxZoom2
++        }, fitViewOptions2);
+         fitViewResolver?.resolve(true);
+         /**
+          * wait for the fitViewport to resolve before deleting the resolver,
+@@ -3256,28 +3502,33 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             defaultEdges,
+             zIndexMode,
+         }),
+-        setNodes: (nodes) => {
+-            const { nodeLookup, parentLookup, nodeOrigin, elevateNodesOnSelect, fitViewQueued, zIndexMode, nodesSelectionActive, } = get();
+-            /*
+-             * setNodes() is called exclusively in response to user actions:
+-             * - either when the `<ReactFlow nodes>` prop is updated in the controlled ReactFlow setup,
+-             * - or when the user calls something like `reactFlowInstance.setNodes()` in an uncontrolled ReactFlow setup.
+-             *
+-             * When this happens, we take the note objects passed by the user and extend them with fields
+-             * relevant for internal React Flow operations.
+-             */
+-            const { nodesInitialized, hasSelectedNodes } = adoptUserNodes(nodes, nodeLookup, parentLookup, {
+-                nodeOrigin,
++        setNodes: (nodes2) => {
++            const {
++                nodeLookup,
++                parentLookup,
++                nodeOrigin: nodeOrigin2,
++                elevateNodesOnSelect,
++                fitViewQueued,
++                zIndexMode: zIndexMode2
++            } = get();
++            const {
++                nodesInitialized
++            } = adoptUserNodes(nodes2, nodeLookup, parentLookup, {
++                nodeOrigin: nodeOrigin2,
+                 nodeExtent,
+                 elevateNodesOnSelect,
+                 checkEquality: true,
+-                zIndexMode,
++                zIndexMode: zIndexMode2
+             });
+-            const nextNodesSelectionActive = nodesSelectionActive && hasSelectedNodes;
++            let selectedCount = 0;
++            for (const internalNode of nodeLookup.values()) {
++                if (internalNode.selected && !internalNode.hidden) selectedCount++;
++            }
++            const nextNodesSelectionActive = selectedCount >= 2;
+             if (fitViewQueued && nodesInitialized) {
+                 resolveFitView();
+                 set({
+-                    nodes,
++                    nodes: nodes2,
+                     nodesInitialized,
+                     fitViewQueued: false,
+                     fitViewOptions: undefined,
+@@ -3285,23 +3536,23 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 });
+             }
+             else {
+-                set({ nodes, nodesInitialized, nodesSelectionActive: nextNodesSelectionActive });
++                set({ nodes: nodes2, nodesInitialized, nodesSelectionActive: nextNodesSelectionActive });
+             }
+         },
+-        setEdges: (edges) => {
++        setEdges: (edges2) => {
+             const { connectionLookup, edgeLookup } = get();
+-            updateConnectionLookup(connectionLookup, edgeLookup, edges);
+-            set({ edges });
++            updateConnectionLookup(connectionLookup, edgeLookup, edges2);
++            set({ edges: edges2 });
+         },
+-        setDefaultNodesAndEdges: (nodes, edges) => {
+-            if (nodes) {
++        setDefaultNodesAndEdges: (nodes2, edges2) => {
++            if (nodes2) {
+                 const { setNodes } = get();
+-                setNodes(nodes);
++                setNodes(nodes2);
+                 set({ hasDefaultNodes: true });
+             }
+-            if (edges) {
++            if (edges2) {
+                 const { setEdges } = get();
+-                setEdges(edges);
++                setEdges(edges2);
+                 set({ hasDefaultEdges: true });
+             }
+         },
+@@ -3311,12 +3562,12 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+          * new dimensions and update the nodes.
+          */
+         updateNodeInternals: (updates) => {
+-            const { triggerNodeChanges, nodeLookup, parentLookup, domNode, nodeOrigin, nodeExtent, debug, fitViewQueued, zIndexMode, } = get();
+-            const { changes, updatedInternals } = updateNodeInternals(updates, nodeLookup, parentLookup, domNode, nodeOrigin, nodeExtent, zIndexMode);
++            const { triggerNodeChanges, nodeLookup, parentLookup, domNode, nodeOrigin: nodeOrigin2, nodeExtent: nodeExtent2, debug: debug, fitViewQueued, zIndexMode: zIndexMode2, } = get();
++            const { changes, updatedInternals } = updateNodeInternals(updates, nodeLookup, parentLookup, domNode, nodeOrigin2, nodeExtent2, zIndexMode2);
+             if (!updatedInternals) {
+                 return;
+             }
+-            updateAbsolutePositions(nodeLookup, parentLookup, { nodeOrigin, nodeExtent, zIndexMode });
++            updateAbsolutePositions(nodeLookup, parentLookup, { nodeOrigin: nodeOrigin2, nodeExtent: nodeExtent2, zIndexMode: zIndexMode2 });
+             if (fitViewQueued) {
+                 resolveFitView();
+                 set({ fitViewQueued: false, fitViewOptions: undefined });
+@@ -3332,7 +3583,37 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 triggerNodeChanges?.(changes);
+             }
+         },
+-        updateNodePositions: (nodeDragItems, dragging = false) => {
++        updateNodePositions: (nodeDragItems, dragging = false, positionChangeSource) => {
++            if (dragging) {
++                const {
++                    nodeLookup: nodeLookup2,
++                    parentLookup,
++                    connection: connection2,
++                    updateConnection: updateConnection2
++                } = get();
++                for (const [id, dragItem] of nodeDragItems) {
++                    const internalNode = nodeLookup2.get(id);
++                    if (!internalNode) continue;
++                    const prevAbsolute = internalNode.internals.positionAbsolute;
++                    internalNode.position = dragItem.position;
++                    internalNode.dragging = true;
++                    internalNode.internals.positionAbsolute = dragItem.internals.positionAbsolute;
++                    if (connection2.inProgress && connection2.fromNode.id === internalNode.id) {
++                        const updatedFrom = getHandlePosition(internalNode, connection2.fromHandle, Position.Left, true);
++                        updateConnection2({
++                            ...connection2,
++                            from: updatedFrom
++                        });
++                    }
++                    const dx = dragItem.internals.positionAbsolute.x - prevAbsolute.x;
++                    const dy = dragItem.internals.positionAbsolute.y - prevAbsolute.y;
++                    if (dx !== 0 || dy !== 0) {
++                        cascadeAbsolutePosition(id, dx, dy, nodeLookup2, parentLookup);
++                    }
++                }
++                set({});
++                return;
++            }
+             const parentExpandChildren = [];
+             let changes = [];
+             const { nodeLookup, triggerNodeChanges, connection, updateConnection, onNodesChangeMiddlewareMap } = get();
+@@ -3341,7 +3622,7 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 const node = nodeLookup.get(id);
+                 const expandParent = !!(node?.expandParent && node?.parentId && dragItem?.position);
+                 const change = {
+-                    id,
++                    id: id,
+                     type: 'position',
+                     position: expandParent
+                         ? {
+@@ -3350,6 +3631,7 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                         }
+                         : dragItem.position,
+                     dragging,
++                    positionChangeSource,
+                 };
+                 if (node && connection.inProgress && connection.fromNode.id === node.id) {
+                     const updatedFrom = getHandlePosition(node, connection.fromHandle, Position.Left, true);
+@@ -3357,7 +3639,7 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 }
+                 if (expandParent && node.parentId) {
+                     parentExpandChildren.push({
+-                        id,
++                        id: id,
+                         parentId: node.parentId,
+                         rect: {
+                             ...dragItem.internals.positionAbsolute,
+@@ -3369,8 +3651,8 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 changes.push(change);
+             }
+             if (parentExpandChildren.length > 0) {
+-                const { parentLookup, nodeOrigin } = get();
+-                const parentExpandChanges = handleExpandParent(parentExpandChildren, nodeLookup, parentLookup, nodeOrigin);
++                const { parentLookup, nodeOrigin: nodeOrigin2 } = get();
++                const parentExpandChanges = handleExpandParent(parentExpandChildren, nodeLookup, parentLookup, nodeOrigin2);
+                 changes.push(...parentExpandChanges);
+             }
+             for (const middleware of onNodesChangeMiddlewareMap.values()) {
+@@ -3379,10 +3661,10 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             triggerNodeChanges(changes);
+         },
+         triggerNodeChanges: (changes) => {
+-            const { onNodesChange, setNodes, nodes, hasDefaultNodes, debug } = get();
++            const { onNodesChange, setNodes, nodes: nodes2, hasDefaultNodes, debug: debug } = get();
+             if (changes?.length) {
+                 if (hasDefaultNodes) {
+-                    const updatedNodes = applyNodeChanges(changes, nodes);
++                    const updatedNodes = applyNodeChanges(changes, nodes2);
+                     setNodes(updatedNodes);
+                 }
+                 if (debug) {
+@@ -3392,10 +3674,10 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             }
+         },
+         triggerEdgeChanges: (changes) => {
+-            const { onEdgesChange, setEdges, edges, hasDefaultEdges, debug } = get();
++            const { onEdgesChange, setEdges, edges: edges2, hasDefaultEdges, debug: debug } = get();
+             if (changes?.length) {
+                 if (hasDefaultEdges) {
+-                    const updatedEdges = applyEdgeChanges(changes, edges);
++                    const updatedEdges = applyEdgeChanges(changes, edges2);
+                     setEdges(updatedEdges);
+                 }
+                 if (debug) {
+@@ -3424,10 +3706,10 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             triggerEdgeChanges(getSelectionChanges(edgeLookup, new Set([...selectedEdgeIds])));
+             triggerNodeChanges(getSelectionChanges(nodeLookup, new Set(), true));
+         },
+-        unselectNodesAndEdges: ({ nodes, edges } = {}) => {
++        unselectNodesAndEdges: ({ nodes: nodes2, edges: edges2 } = {}) => {
+             const { edges: storeEdges, nodes: storeNodes, nodeLookup, triggerNodeChanges, triggerEdgeChanges } = get();
+-            const nodesToUnselect = nodes ? nodes : storeNodes;
+-            const edgesToUnselect = edges ? edges : storeEdges;
++            const nodesToUnselect = nodes2 ? nodes2 : storeNodes;
++            const edgesToUnselect = edges2 ? edges2 : storeEdges;
+             const nodeChanges = [];
+             for (const node of nodesToUnselect) {
+                 if (!node.selected) {
+@@ -3453,62 +3735,64 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             triggerNodeChanges(nodeChanges);
+             triggerEdgeChanges(edgeChanges);
+         },
+-        setMinZoom: (minZoom) => {
+-            const { panZoom, maxZoom } = get();
+-            panZoom?.setScaleExtent([minZoom, maxZoom]);
+-            set({ minZoom });
++        setMinZoom: (minZoom2) => {
++            const { panZoom, maxZoom: maxZoom2 } = get();
++            panZoom?.setScaleExtent([minZoom2, maxZoom2]);
++            set({ minZoom: minZoom2 });
+         },
+-        setMaxZoom: (maxZoom) => {
+-            const { panZoom, minZoom } = get();
+-            panZoom?.setScaleExtent([minZoom, maxZoom]);
+-            set({ maxZoom });
++        setMaxZoom: (maxZoom2) => {
++            const { panZoom, minZoom: minZoom2 } = get();
++            panZoom?.setScaleExtent([minZoom2, maxZoom2]);
++            set({ maxZoom: maxZoom2 });
+         },
+         setTranslateExtent: (translateExtent) => {
+             get().panZoom?.setTranslateExtent(translateExtent);
+             set({ translateExtent });
+         },
+         resetSelectedElements: () => {
+-            const { edges, nodes, triggerNodeChanges, triggerEdgeChanges, elementsSelectable } = get();
++            const { edges: edges2, nodes: nodes2, triggerNodeChanges, triggerEdgeChanges, elementsSelectable } = get();
+             if (!elementsSelectable) {
+                 return;
+             }
+-            const nodeChanges = nodes.reduce((res, node) => (node.selected ? [...res, createSelectionChange(node.id, false)] : res), []);
+-            const edgeChanges = edges.reduce((res, edge) => (edge.selected ? [...res, createSelectionChange(edge.id, false)] : res), []);
++            const nodeChanges = nodes2.reduce((res, node) => (node.selected ? [...res, createSelectionChange(node.id, false)] : res), []);
++            const edgeChanges = edges2.reduce((res, edge) => (edge.selected ? [...res, createSelectionChange(edge.id, false)] : res), []);
+             triggerNodeChanges(nodeChanges);
+             triggerEdgeChanges(edgeChanges);
+         },
+         setNodeExtent: (nextNodeExtent) => {
+-            const { nodes, nodeLookup, parentLookup, nodeOrigin, elevateNodesOnSelect, nodeExtent, zIndexMode } = get();
+-            if (nextNodeExtent[0][0] === nodeExtent[0][0] &&
+-                nextNodeExtent[0][1] === nodeExtent[0][1] &&
+-                nextNodeExtent[1][0] === nodeExtent[1][0] &&
+-                nextNodeExtent[1][1] === nodeExtent[1][1]) {
++            const { nodes: nodes2, nodeLookup, parentLookup, nodeOrigin: nodeOrigin2, elevateNodesOnSelect, nodeExtent: nodeExtent2, zIndexMode: zIndexMode2 } = get();
++            if ((nextNodeExtent[0][0] === nodeExtent2[0][0] && nextNodeExtent[0][1] === nodeExtent2[0][1] && nextNodeExtent[1][0] === nodeExtent2[1][0]) &&
++                (nextNodeExtent[1][1] === nodeExtent2[1][1])) {
+                 return;
+             }
+-            adoptUserNodes(nodes, nodeLookup, parentLookup, {
+-                nodeOrigin,
++            adoptUserNodes(nodes2, nodeLookup, parentLookup, {
++                nodeOrigin: nodeOrigin2,
+                 nodeExtent: nextNodeExtent,
+                 elevateNodesOnSelect,
+                 checkEquality: false,
+-                zIndexMode,
++                zIndexMode: zIndexMode2,
+             });
+             set({ nodeExtent: nextNodeExtent });
+         },
+         panBy: (delta) => {
+-            const { transform, width, height, panZoom, translateExtent } = get();
+-            return panBy({ delta, panZoom, transform, translateExtent, width, height });
++            const { transform: transform, width: width2, height: height2, panZoom, translateExtent } = get();
++            return panBy({ delta, panZoom, transform: transform, translateExtent, width: width2, height: height2 });
+         },
+         setCenter: async (x, y, options) => {
+-            const { width, height, maxZoom, panZoom } = get();
++            const { width: width2, height: height2, maxZoom: maxZoom2, panZoom } = get();
+             if (!panZoom) {
+                 return Promise.resolve(false);
+             }
+-            const nextZoom = typeof options?.zoom !== 'undefined' ? options.zoom : maxZoom;
++            const nextZoom = typeof options?.zoom !== 'undefined' ? options.zoom : maxZoom2;
+             await panZoom.setViewport({
+-                x: width / 2 - x * nextZoom,
+-                y: height / 2 - y * nextZoom,
+-                zoom: nextZoom,
+-            }, { duration: options?.duration, ease: options?.ease, interpolate: options?.interpolate });
++                x: width2 / 2 - x * nextZoom,
++                y: height2 / 2 - y * nextZoom,
++                zoom: nextZoom
++            }, {
++                duration: options?.duration,
++                ease: options?.ease,
++                interpolate: options?.interpolate
++            });
+             return Promise.resolve(true);
+         },
+         cancelConnection: () => {
+@@ -3595,7 +3879,7 @@ const wrapperStyle = {
+     position: 'relative',
+     zIndex: 0,
+ };
+-function ReactFlow({ nodes, edges, defaultNodes, defaultEdges, className, nodeTypes, edgeTypes, onNodeClick, onEdgeClick, onInit, onMove, onMoveStart, onMoveEnd, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, onNodeDragStart, onNodeDrag, onNodeDragStop, onNodesDelete, onEdgesDelete, onDelete, onSelectionChange, onSelectionDragStart, onSelectionDrag, onSelectionDragStop, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onBeforeDelete, connectionMode, connectionLineType = ConnectionLineType.Bezier, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, deleteKeyCode = 'Backspace', selectionKeyCode = 'Shift', selectionOnDrag = false, selectionMode = SelectionMode.Full, panActivationKeyCode = 'Space', multiSelectionKeyCode = isMacOs() ? 'Meta' : 'Control', zoomActivationKeyCode = isMacOs() ? 'Meta' : 'Control', snapToGrid, snapGrid, onlyRenderVisibleElements = false, selectNodesOnDrag, nodesDraggable, autoPanOnNodeFocus, nodesConnectable, nodesFocusable, nodeOrigin = defaultNodeOrigin, edgesFocusable, edgesReconnectable, elementsSelectable = true, defaultViewport: defaultViewport$1 = defaultViewport, minZoom = 0.5, maxZoom = 2, translateExtent = infiniteExtent, preventScrolling = true, nodeExtent, defaultMarkerColor = '#b1b1b7', zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, panOnDrag = true, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance = 1, nodeClickDistance = 0, children, onReconnect, onReconnectStart, onReconnectEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, reconnectRadius = 10, onNodesChange, onEdgesChange, noDragClassName = 'nodrag', noWheelClassName = 'nowheel', noPanClassName = 'nopan', fitView, fitViewOptions, connectOnClick, attributionPosition, proOptions, defaultEdgeOptions, elevateNodesOnSelect = true, elevateEdgesOnSelect = false, disableKeyboardA11y = false, autoPanOnConnect, autoPanOnNodeDrag, autoPanSpeed, connectionRadius, isValidConnection, onError, style, id, nodeDragThreshold, connectionDragThreshold, viewport, onViewportChange, width, height, colorMode = 'light', debug, onScroll, ariaLabelConfig, zIndexMode = 'basic', ...rest }, ref) {
++function ReactFlow({ nodes, edges, defaultNodes, defaultEdges, className, nodeTypes: nodeTypes, edgeTypes, onNodeClick, onEdgeClick, onInit, onMove, onMoveStart, onMoveEnd, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, onNodeDragStart, onNodeDrag, onNodeDragStop, onNodesDelete, onEdgesDelete, onDelete, onSelectionChange, onSelectionDragStart, onSelectionDrag, onSelectionDragStop, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onBeforeDelete, connectionMode, connectionLineType = ConnectionLineType.Bezier, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, deleteKeyCode = 'Backspace', selectionKeyCode = 'Shift', selectionOnDrag = false, selectionMode = SelectionMode.Full, panActivationKeyCode = 'Space', multiSelectionKeyCode = isMacOs() ? 'Meta' : 'Control', zoomActivationKeyCode = isMacOs() ? 'Meta' : 'Control', snapToGrid, snapGrid, nodeDragSnapResolver, onNodeDragSnapEnd, snapGridShiftMultiplier, onlyRenderVisibleElements = false, selectNodesOnDrag, nodesDraggable, autoPanOnNodeFocus, nodesConnectable, nodesFocusable, nodeOrigin = defaultNodeOrigin, edgesFocusable, edgesReconnectable, elementsSelectable = true, defaultViewport: defaultViewport$ = defaultViewport, minZoom = 0.5, maxZoom = 2, translateExtent = infiniteExtent, preventScrolling = true, nodeExtent, defaultMarkerColor = '#b1b1b7', zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, panOnDrag = true, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance = 1, nodeClickDistance = 0, children: children, onReconnect, onReconnectStart, onReconnectEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, reconnectRadius = 10, onNodesChange, onEdgesChange, noDragClassName = 'nodrag', noWheelClassName = 'nowheel', noPanClassName = 'nopan', fitView, fitViewOptions, connectOnClick, attributionPosition, proOptions, defaultEdgeOptions, elevateNodesOnSelect = true, elevateEdgesOnSelect = false, disableKeyboardA11y = false, autoPanOnConnect, autoPanOnNodeDrag, autoPanSpeed, connectionRadius, isValidConnection, onError, style: style, id: id, nodeDragThreshold, connectionDragThreshold, viewport, onViewportChange, width, height, colorMode = 'light', debug: debug, onScroll, ariaLabelConfig, zIndexMode = 'basic', ...rest }, ref) {
+     const rfId = id || '1';
+     const colorModeClassName = useColorModeClass(colorMode);
+     // Undo scroll events, preventing viewport from shifting when nodes outside of it are focused
+@@ -3603,7 +3887,7 @@ function ReactFlow({ nodes, edges, defaultNodes, defaultEdges, className, nodeTy
+         e.currentTarget.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+         onScroll?.(e);
+     }, [onScroll]);
+-    return (jsx("div", { "data-testid": "rf__wrapper", ...rest, onScroll: wrapperOnScroll, style: { ...style, ...wrapperStyle }, ref: ref, className: cc(['react-flow', className, colorModeClassName]), id: id, role: "application", children: jsxs(Wrapper, { nodes: nodes, edges: edges, width: width, height: height, fitView: fitView, fitViewOptions: fitViewOptions, minZoom: minZoom, maxZoom: maxZoom, nodeOrigin: nodeOrigin, nodeExtent: nodeExtent, zIndexMode: zIndexMode, children: [jsx(StoreUpdater, { nodes: nodes, edges: edges, defaultNodes: defaultNodes, defaultEdges: defaultEdges, onConnect: onConnect, onConnectStart: onConnectStart, onConnectEnd: onConnectEnd, onClickConnectStart: onClickConnectStart, onClickConnectEnd: onClickConnectEnd, nodesDraggable: nodesDraggable, autoPanOnNodeFocus: autoPanOnNodeFocus, nodesConnectable: nodesConnectable, nodesFocusable: nodesFocusable, edgesFocusable: edgesFocusable, edgesReconnectable: edgesReconnectable, elementsSelectable: elementsSelectable, elevateNodesOnSelect: elevateNodesOnSelect, elevateEdgesOnSelect: elevateEdgesOnSelect, minZoom: minZoom, maxZoom: maxZoom, nodeExtent: nodeExtent, onNodesChange: onNodesChange, onEdgesChange: onEdgesChange, snapToGrid: snapToGrid, snapGrid: snapGrid, connectionMode: connectionMode, translateExtent: translateExtent, connectOnClick: connectOnClick, defaultEdgeOptions: defaultEdgeOptions, fitView: fitView, fitViewOptions: fitViewOptions, onNodesDelete: onNodesDelete, onEdgesDelete: onEdgesDelete, onDelete: onDelete, onNodeDragStart: onNodeDragStart, onNodeDrag: onNodeDrag, onNodeDragStop: onNodeDragStop, onSelectionDrag: onSelectionDrag, onSelectionDragStart: onSelectionDragStart, onSelectionDragStop: onSelectionDragStop, onMove: onMove, onMoveStart: onMoveStart, onMoveEnd: onMoveEnd, noPanClassName: noPanClassName, nodeOrigin: nodeOrigin, rfId: rfId, autoPanOnConnect: autoPanOnConnect, autoPanOnNodeDrag: autoPanOnNodeDrag, autoPanSpeed: autoPanSpeed, onError: onError, connectionRadius: connectionRadius, isValidConnection: isValidConnection, selectNodesOnDrag: selectNodesOnDrag, nodeDragThreshold: nodeDragThreshold, connectionDragThreshold: connectionDragThreshold, onBeforeDelete: onBeforeDelete, debug: debug, ariaLabelConfig: ariaLabelConfig, zIndexMode: zIndexMode }), jsx(GraphView, { onInit: onInit, onNodeClick: onNodeClick, onEdgeClick: onEdgeClick, onNodeMouseEnter: onNodeMouseEnter, onNodeMouseMove: onNodeMouseMove, onNodeMouseLeave: onNodeMouseLeave, onNodeContextMenu: onNodeContextMenu, onNodeDoubleClick: onNodeDoubleClick, nodeTypes: nodeTypes, edgeTypes: edgeTypes, connectionLineType: connectionLineType, connectionLineStyle: connectionLineStyle, connectionLineComponent: connectionLineComponent, connectionLineContainerStyle: connectionLineContainerStyle, selectionKeyCode: selectionKeyCode, selectionOnDrag: selectionOnDrag, selectionMode: selectionMode, deleteKeyCode: deleteKeyCode, multiSelectionKeyCode: multiSelectionKeyCode, panActivationKeyCode: panActivationKeyCode, zoomActivationKeyCode: zoomActivationKeyCode, onlyRenderVisibleElements: onlyRenderVisibleElements, defaultViewport: defaultViewport$1, translateExtent: translateExtent, minZoom: minZoom, maxZoom: maxZoom, preventScrolling: preventScrolling, zoomOnScroll: zoomOnScroll, zoomOnPinch: zoomOnPinch, zoomOnDoubleClick: zoomOnDoubleClick, panOnScroll: panOnScroll, panOnScrollSpeed: panOnScrollSpeed, panOnScrollMode: panOnScrollMode, panOnDrag: panOnDrag, onPaneClick: onPaneClick, onPaneMouseEnter: onPaneMouseEnter, onPaneMouseMove: onPaneMouseMove, onPaneMouseLeave: onPaneMouseLeave, onPaneScroll: onPaneScroll, onPaneContextMenu: onPaneContextMenu, paneClickDistance: paneClickDistance, nodeClickDistance: nodeClickDistance, onSelectionContextMenu: onSelectionContextMenu, onSelectionStart: onSelectionStart, onSelectionEnd: onSelectionEnd, onReconnect: onReconnect, onReconnectStart: onReconnectStart, onReconnectEnd: onReconnectEnd, onEdgeContextMenu: onEdgeContextMenu, onEdgeDoubleClick: onEdgeDoubleClick, onEdgeMouseEnter: onEdgeMouseEnter, onEdgeMouseMove: onEdgeMouseMove, onEdgeMouseLeave: onEdgeMouseLeave, reconnectRadius: reconnectRadius, defaultMarkerColor: defaultMarkerColor, noDragClassName: noDragClassName, noWheelClassName: noWheelClassName, noPanClassName: noPanClassName, rfId: rfId, disableKeyboardA11y: disableKeyboardA11y, nodeExtent: nodeExtent, viewport: viewport, onViewportChange: onViewportChange }), jsx(SelectionListener, { onSelectionChange: onSelectionChange }), children, jsx(Attribution, { proOptions: proOptions, position: attributionPosition }), jsx(A11yDescriptions, { rfId: rfId, disableKeyboardA11y: disableKeyboardA11y })] }) }));
++    return (jsx("div", { "data-testid": "rf__wrapper", ...rest, onScroll: wrapperOnScroll, style: { ...style, ...wrapperStyle }, ref, className: cc(['react-flow', className, colorModeClassName]), id: id, role: "application", children: jsxs(Wrapper, { nodes, edges, width, height, fitView, fitViewOptions, minZoom, maxZoom, nodeOrigin, nodeExtent, zIndexMode, children: [jsx(StoreUpdater, { nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, autoPanOnNodeFocus, nodesConnectable, nodesFocusable, edgesFocusable, edgesReconnectable, elementsSelectable, elevateNodesOnSelect, elevateEdgesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, snapToGrid, snapGrid, nodeDragSnapResolver, onNodeDragSnapEnd, snapGridShiftMultiplier, connectionMode, translateExtent, connectOnClick, defaultEdgeOptions, fitView, fitViewOptions, onNodesDelete, onEdgesDelete, onDelete, onNodeDragStart, onNodeDrag, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, onMove, onMoveStart, onMoveEnd, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, autoPanSpeed, onError, connectionRadius, isValidConnection, selectNodesOnDrag, nodeDragThreshold, connectionDragThreshold, onBeforeDelete, debug: debug, ariaLabelConfig, zIndexMode }), jsx(GraphView, { onInit, onNodeClick, onEdgeClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, nodeTypes: nodeTypes, edgeTypes, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, deleteKeyCode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, onlyRenderVisibleElements, defaultViewport: defaultViewport$, translateExtent, minZoom, maxZoom, preventScrolling, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance, nodeClickDistance, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onReconnect, onReconnectStart, onReconnectEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, reconnectRadius, defaultMarkerColor, noDragClassName, noWheelClassName, noPanClassName, rfId, disableKeyboardA11y, nodeExtent, viewport, onViewportChange }), jsx(SelectionListener, { onSelectionChange }), children, jsx(Attribution, { proOptions, position: attributionPosition }), jsx(A11yDescriptions, { rfId, disableKeyboardA11y })] }) }));
+ }
+ /**
+  * The `<ReactFlow />` component is the heart of your React Flow application.
+diff --git a/dist/esm/index.mjs b/dist/esm/index.mjs
+index aab9da6..de9efd0 100644
+--- a/dist/esm/index.mjs
++++ b/dist/esm/index.mjs
+@@ -2,11 +2,52 @@
+ import { jsxs, Fragment, jsx } from 'react/jsx-runtime';
+ import { createContext, useContext, useMemo, forwardRef, useEffect, useLayoutEffect, useRef, useState, useCallback, memo } from 'react';
+ import cc from 'classcat';
+-import { errorMessages, mergeAriaLabelConfig, infiniteExtent, isInputDOMNode, getViewportForBounds, pointToRendererPoint, rendererPointToPoint, isNodeBase, isEdgeBase, getElementsToRemove, isRectObject, nodeToRect, getOverlappingArea, getNodesBounds, withResolvers, evaluateAbsolutePosition, getDimensions, XYPanZoom, PanOnScrollMode, SelectionMode, getEventPosition, getNodesInside, areSetsEqual, XYDrag, snapPosition, calculateNodePosition, Position, ConnectionMode, isMouseEvent, XYHandle, getHostForElement, addEdge, getInternalNodesBounds, isNumeric, nodeHasDimensions, getNodeDimensions, elementSelectionKeys, isEdgeVisible, MarkerType, createMarkerIds, getBezierEdgeCenter, getSmoothStepPath, getStraightPath, getBezierPath, getEdgePosition, getElevatedEdgeZIndex, getMarkerId, getConnectionStatus, ConnectionLineType, updateConnectionLookup, adoptUserNodes, initialConnection, devWarn, defaultAriaLabelConfig, updateNodeInternals, updateAbsolutePositions, getHandlePosition, handleExpandParent, panBy, fitViewport, isMacOs, areConnectionMapsEqual, handleConnectionChange, shallowNodeData, XYMinimap, getBoundsOfRects, ResizeControlVariant, XYResizer, XY_RESIZER_LINE_POSITIONS, XY_RESIZER_HANDLE_POSITIONS, getNodeToolbarTransform, getEdgeToolbarTransform } from '@xyflow/system';
++import { errorMessages, mergeAriaLabelConfig, infiniteExtent, isInputDOMNode, getViewportForBounds, pointToRendererPoint, rendererPointToPoint, isNodeBase, isEdgeBase, getElementsToRemove, isRectObject, nodeToRect, getOverlappingArea, getNodesBounds, withResolvers, evaluateAbsolutePosition, getDimensions, XYPanZoom, PanOnScrollMode, SelectionMode, getEventPosition, getNodesInside, areSetsEqual, XYDrag, snapPosition, calculateNodePosition, Position, ConnectionMode, isMouseEvent, XYHandle, getHostForElement, addEdge, getInternalNodesBounds, isNumeric, nodeHasDimensions, getNodeDimensions, elementSelectionKeys, isEdgeVisible, MarkerType, createMarkerIds, getBezierEdgeCenter, getSmoothStepPath, getStraightPath, getBezierPath, getEdgePosition, getElevatedEdgeZIndex, getMarkerId, getConnectionStatus, ConnectionLineType, updateConnectionLookup, adoptUserNodes, initialConnection, devWarn, defaultAriaLabelConfig, updateNodeInternals, updateAbsolutePositions, getHandlePosition, handleExpandParent, panBy, fitViewport, isMacOs, areConnectionMapsEqual, handleConnectionChange, shallowNodeData, XYMinimap, getBoundsOfRects, ResizeControlVariant, XYResizer, XY_RESIZER_LINE_POSITIONS, XY_RESIZER_HANDLE_POSITIONS, getNodeToolbarTransform, getEdgeToolbarTransform, calcAutoPan } from '@xyflow/system';
+ export { ConnectionLineType, ConnectionMode, MarkerType, PanOnScrollMode, Position, ResizeControlVariant, SelectionMode, addEdge, getBezierEdgeCenter, getBezierPath, getConnectedEdges, getEdgeCenter, getIncomers, getNodesBounds, getOutgoers, getSmoothStepPath, getStraightPath, getViewportForBounds, reconnectEdge } from '@xyflow/system';
+ import { useStoreWithEqualityFn, createWithEqualityFn } from 'zustand/traditional';
+ import { shallow } from 'zustand/shallow';
+-import { createPortal } from 'react-dom';
++import { createPortal, flushSync } from 'react-dom';
++const AUTO_PAN_DISTANCE = 40;
++const edgeZones = (x, y, bounds) => ({
++        left: x < AUTO_PAN_DISTANCE,
++        right: x > bounds.width - AUTO_PAN_DISTANCE,
++        top: y < AUTO_PAN_DISTANCE,
++        bottom: y > bounds.height - AUTO_PAN_DISTANCE
++});
++const AUTO_PAN_ARM_SLACK = 10;
++const maskAutoPanSides = ([xMovement, yMovement], suppressed) => [suppressed.left && xMovement > 0 || suppressed.right && xMovement < 0 ? 0 : xMovement, suppressed.top && yMovement > 0 || suppressed.bottom && yMovement < 0 ? 0 : yMovement];
++function getNodesSelectionActiveOnPointerUp(selectionInProgress, selectedNodeCount) {
++        return selectionInProgress ? selectedNodeCount >= 2 : void 0;
++}
++const DEFAULT_LARGE_MOVE_FACTOR = 4;
++function getKeyboardMoveFactor({
++        shiftKey,
++        snapToGrid,
++        snapGridShiftMultiplier
++}) {
++        if (!shiftKey) return 1;
++        return snapToGrid ? snapGridShiftMultiplier : DEFAULT_LARGE_MOVE_FACTOR;
++}
++const OVERSCAN_PX = 300;
++const RECOMPUTE_DELTA_PX = OVERSCAN_PX / 2;
++function cascadeAbsolutePosition(parentId, dx, dy, nodeLookup, parentLookup) {
++        const stack = [parentId];
++        while (stack.length > 0) {
++                const currentId = stack.pop();
++                const children = parentLookup.get(currentId);
++                if (!children || children.size === 0) continue;
++                for (const childId of children.keys()) {
++                        const childNode = nodeLookup.get(childId);
++                        if (!childNode) continue;
++                        const prev = childNode.internals.positionAbsolute;
++                        childNode.internals.positionAbsolute = {
++                                x: prev.x + dx,
++                                y: prev.y + dy
++                        };
++                        stack.push(childId);
++                }
++        }
++}
+ 
+ const StoreContext = createContext(null);
+ const Provider$1 = StoreContext.Provider;
+@@ -211,6 +252,9 @@ const reactFlowFieldsToTrack = [
+     'connectionMode',
+     'snapGrid',
+     'snapToGrid',
++    'nodeDragSnapResolver',
++    'onNodeDragSnapEnd',
++    'snapGridShiftMultiplier',
+     'translateExtent',
+     'connectOnClick',
+     'defaultEdgeOptions',
+@@ -1409,16 +1453,161 @@ const selector$h = (s) => ({
+     connectionInProgress: s.connection.inProgress,
+     dragging: s.paneDragging,
+ });
+-function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.Full, panOnDrag, paneClickDistance, selectionOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children, }) {
++function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.Full, panOnDrag, paneClickDistance, selectionOnDrag, onSelectionStart, onSelectionEnd, onPaneClick, onPaneContextMenu, onPaneScroll, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, children: children, }) {
+     const store = useStoreApi();
+     const { userSelectionActive, elementsSelectable, dragging, connectionInProgress } = useStore(selector$h, shallow);
+     const isSelectionEnabled = elementsSelectable && (isSelecting || userSelectionActive);
+     const container = useRef(null);
+-    const containerBounds = useRef();
++    const containerBounds = useRef(void 0);
+     const selectedNodeIds = useRef(new Set());
+     const selectedEdgeIds = useRef(new Set());
++    const previewedNodeIds = useRef(new Set());
++    const onSelectionEndRef = useRef(onSelectionEnd);
++    onSelectionEndRef.current = onSelectionEnd;
++    const previewCleanupRaf = useRef(0);
+     // Used to prevent click events when the user lets go of the selectionKey during a selection
+     const selectionInProgress = useRef(false);
++    const selectionStartFlow = useRef(null);
++    const lastMousePosition = useRef({
++        x: 0,
++        y: 0
++    });
++    const autoPanId = useRef(0);
++    const autoPanActive = useRef(false);
++    const autoPanSuppressedSides = useRef({
++        left: false,
++        right: false,
++        top: false,
++        bottom: false
++    });
++    const clearSelectionPreview = () => {
++        const root = container.current?.closest('.react-flow');
++        root?.querySelectorAll('.react-flow__node.box-select-preview').forEach(element => {
++            element.classList.remove('box-select-preview');
++            element.style.removeProperty('--box-select-preview-outline-width');
++        });
++        previewedNodeIds.current.clear();
++    };
++    const syncSelectionPreview = (nodeIds, zoom) => {
++        if (areSetsEqual(previewedNodeIds.current, nodeIds)) return;
++        const root = container.current?.closest('.react-flow');
++        const outlineWidth = `${1.5 / Math.max(zoom, 0.01)}px`;
++        root?.querySelectorAll('.react-flow__node[data-id]').forEach(element => {
++            const nodeId = element.dataset.id;
++            const previewed = !!nodeId && nodeIds.has(nodeId);
++            element.classList.toggle('box-select-preview', previewed);
++            if (previewed) {
++                element.style.setProperty('--box-select-preview-outline-width', outlineWidth);
++            } else {
++                element.style.removeProperty('--box-select-preview-outline-width');
++            }
++        });
++        previewedNodeIds.current = new Set(nodeIds);
++    };
++    const updateAutoPanSuppression = (x, y) => {
++        const bounds = containerBounds.current;
++        const startFlow = selectionStartFlow.current;
++        const sides = autoPanSuppressedSides.current;
++        if (!bounds || !startFlow) {
++            return;
++        }
++        const start = rendererPointToPoint(startFlow, store.getState().transform);
++        const zones = edgeZones(x, y, bounds);
++        if (sides.left && (!zones.left || x < start.x - AUTO_PAN_ARM_SLACK)) {
++            sides.left = false;
++        }
++        if (sides.right && (!zones.right || x > start.x + AUTO_PAN_ARM_SLACK)) {
++            sides.right = false;
++        }
++        if (sides.top && (!zones.top || y < start.y - AUTO_PAN_ARM_SLACK)) {
++            sides.top = false;
++        }
++        if (sides.bottom && (!zones.bottom || y > start.y + AUTO_PAN_ARM_SLACK)) {
++            sides.bottom = false;
++        }
++    };
++    const updateSelection = (mouseX, mouseY) => {
++        const {
++            userSelectionRect,
++            transform: transform,
++            nodeLookup,
++            edgeLookup,
++            connectionLookup,
++            defaultEdgeOptions
++        } = store.getState();
++        const startFlow = selectionStartFlow.current;
++        if (!userSelectionRect || !startFlow) {
++            return;
++        }
++        const {
++            x: startX,
++            y: startY
++        } = rendererPointToPoint(startFlow, transform);
++        const nextUserSelectRect = {
++            startX,
++            startY,
++            x: mouseX < startX ? mouseX : startX,
++            y: mouseY < startY ? mouseY : startY,
++            width: Math.abs(mouseX - startX),
++            height: Math.abs(mouseY - startY)
++        };
++        selectedNodeIds.current = new Set(getNodesInside(nodeLookup, nextUserSelectRect, transform, selectionMode === SelectionMode.Partial, true).map(node => node.id));
++        syncSelectionPreview(selectedNodeIds.current, transform[2]);
++        selectedEdgeIds.current = new Set();
++        const edgesSelectable = defaultEdgeOptions?.selectable ?? true;
++        for (const nodeId of selectedNodeIds.current) {
++            const connections = connectionLookup.get(nodeId);
++            if (!connections) continue;
++            for (const {
++                edgeId
++            } of connections.values()) {
++                const edge = edgeLookup.get(edgeId);
++                if (edge && (edge.selectable ?? edgesSelectable)) {
++                    selectedEdgeIds.current.add(edgeId);
++                }
++            }
++        }
++        store.setState({
++            userSelectionRect: nextUserSelectRect,
++            userSelectionActive: true,
++            nodesSelectionActive: false
++        });
++    };
++    const stopAutoPan = () => {
++        cancelAnimationFrame(autoPanId.current);
++        autoPanActive.current = false;
++    };
++    const autoPan = () => {
++        if (!autoPanActive.current || !containerBounds.current) {
++            return;
++        }
++        const {
++            userSelectionRect,
++            panBy: panBy,
++            autoPanSpeed
++        } = store.getState();
++        if (!userSelectionRect) {
++            stopAutoPan();
++            return;
++        }
++        const [xMovement, yMovement] = maskAutoPanSides(calcAutoPan(lastMousePosition.current, containerBounds.current, autoPanSpeed), autoPanSuppressedSides.current);
++        if (xMovement !== 0 || yMovement !== 0) {
++            panBy({
++                x: xMovement,
++                y: yMovement
++            }).then(panned => {
++                if (panned && autoPanActive.current) {
++                    updateSelection(lastMousePosition.current.x, lastMousePosition.current.y);
++                }
++            }).catch(() => {});
++        }
++        autoPanId.current = requestAnimationFrame(autoPan);
++    };
++    useEffect(() => () => {
++        stopAutoPan();
++        cancelAnimationFrame(previewCleanupRaf.current);
++        clearSelectionPreview();
++    }, []);
+     const onClick = (event) => {
+         // We prevent click events when the user let go of the selectionKey during a selection
+         // We also prevent click events when a connection is in progress
+@@ -1427,6 +1616,8 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+             return;
+         }
+         onPaneClick?.(event);
++        cancelAnimationFrame(previewCleanupRaf.current);
++        clearSelectionPreview();
+         store.getState().resetSelectedElements();
+         store.setState({ nodesSelectionActive: false });
+     };
+@@ -1459,17 +1650,31 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+             return;
+         }
+         event.target?.setPointerCapture?.(event.pointerId);
++        cancelAnimationFrame(previewCleanupRaf.current);
++        clearSelectionPreview();
+         selectionInProgress.current = false;
+-        const { x, y } = getEventPosition(event.nativeEvent, containerBounds.current);
++        const {
++            x: x,
++            y: y
++        } = getEventPosition(event.nativeEvent, containerBounds.current);
++        selectionStartFlow.current = pointToRendererPoint({
++            x: x,
++            y: y
++        }, store.getState().transform);
++        lastMousePosition.current = {
++            x: x,
++            y: y
++        };
++        autoPanSuppressedSides.current = edgeZones(x, y, containerBounds.current);
+         store.setState({
+             userSelectionRect: {
+                 width: 0,
+                 height: 0,
+                 startX: x,
+                 startY: y,
+-                x,
+-                y,
+-            },
++                x: x,
++                y: y
++            }
+         });
+         if (!eventTargetIsContainer) {
+             event.stopPropagation();
+@@ -1477,15 +1682,17 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+         }
+     };
+     const onPointerMove = (event) => {
+-        const { userSelectionRect, transform, nodeLookup, edgeLookup, connectionLookup, triggerNodeChanges, triggerEdgeChanges, defaultEdgeOptions, resetSelectedElements, } = store.getState();
++        const { userSelectionRect, resetSelectedElements, } = store.getState();
+         if (!containerBounds.current || !userSelectionRect) {
+             return;
+         }
+         const { x: mouseX, y: mouseY } = getEventPosition(event.nativeEvent, containerBounds.current);
+-        const { startX, startY } = userSelectionRect;
++        lastMousePosition.current.x = mouseX;
++        lastMousePosition.current.y = mouseY;
++        updateAutoPanSuppression(mouseX, mouseY);
+         if (!selectionInProgress.current) {
+-            const requiredDistance = selectionKeyPressed ? 0 : paneClickDistance;
+-            const distance = Math.hypot(mouseX - startX, mouseY - startY);
++            const requiredDistance = paneClickDistance;
++            const distance = Math.hypot(mouseX - userSelectionRect.startX, mouseY - userSelectionRect.startY);
+             if (distance <= requiredDistance) {
+                 return;
+             }
+@@ -1493,49 +1700,18 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+             onSelectionStart?.(event);
+         }
+         selectionInProgress.current = true;
+-        const nextUserSelectRect = {
+-            startX,
+-            startY,
+-            x: mouseX < startX ? mouseX : startX,
+-            y: mouseY < startY ? mouseY : startY,
+-            width: Math.abs(mouseX - startX),
+-            height: Math.abs(mouseY - startY),
+-        };
+-        const prevSelectedNodeIds = selectedNodeIds.current;
+-        const prevSelectedEdgeIds = selectedEdgeIds.current;
+-        selectedNodeIds.current = new Set(getNodesInside(nodeLookup, nextUserSelectRect, transform, selectionMode === SelectionMode.Partial, true).map((node) => node.id));
+-        selectedEdgeIds.current = new Set();
+-        const edgesSelectable = defaultEdgeOptions?.selectable ?? true;
+-        // We look for all edges connected to the selected nodes
+-        for (const nodeId of selectedNodeIds.current) {
+-            const connections = connectionLookup.get(nodeId);
+-            if (!connections)
+-                continue;
+-            for (const { edgeId } of connections.values()) {
+-                const edge = edgeLookup.get(edgeId);
+-                if (edge && (edge.selectable ?? edgesSelectable)) {
+-                    selectedEdgeIds.current.add(edgeId);
+-                }
+-            }
++        if (!autoPanActive.current) {
++            autoPanActive.current = true;
++            autoPan();
+         }
+-        if (!areSetsEqual(prevSelectedNodeIds, selectedNodeIds.current)) {
+-            const changes = getSelectionChanges(nodeLookup, selectedNodeIds.current, true);
+-            triggerNodeChanges(changes);
+-        }
+-        if (!areSetsEqual(prevSelectedEdgeIds, selectedEdgeIds.current)) {
+-            const changes = getSelectionChanges(edgeLookup, selectedEdgeIds.current);
+-            triggerEdgeChanges(changes);
+-        }
+-        store.setState({
+-            userSelectionRect: nextUserSelectRect,
+-            userSelectionActive: true,
+-            nodesSelectionActive: false,
+-        });
++        updateSelection(mouseX, mouseY);
+     };
+     const onPointerUp = (event) => {
+         if (event.button !== 0) {
+             return;
+         }
++        stopAutoPan();
++        selectionStartFlow.current = null;
+         event.target?.releasePointerCapture?.(event.pointerId);
+         /*
+          * We only want to trigger click functions when in selection mode if
+@@ -1544,16 +1720,28 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+         if (!userSelectionActive && event.target === container.current && store.getState().userSelectionRect) {
+             onClick?.(event);
+         }
++        if (selectionInProgress.current) {
++            const {
++                nodeLookup,
++                edgeLookup,
++                triggerNodeChanges,
++                triggerEdgeChanges
++            } = store.getState();
++            flushSync(() => {
++                triggerNodeChanges(getSelectionChanges(nodeLookup, selectedNodeIds.current, true));
++                triggerEdgeChanges(getSelectionChanges(edgeLookup, selectedEdgeIds.current));
++            });
++            onSelectionEndRef.current?.(event);
++        }
++        const nextNodesSelectionActive = getNodesSelectionActiveOnPointerUp(selectionInProgress.current, selectedNodeIds.current.size);
+         store.setState({
+             userSelectionActive: false,
+             userSelectionRect: null,
++            ...(nextNodesSelectionActive === void 0 ? {} : {
++                nodesSelectionActive: nextNodesSelectionActive
++            })
+         });
+-        if (selectionInProgress.current) {
+-            onSelectionEnd?.(event);
+-            store.setState({
+-                nodesSelectionActive: selectedNodeIds.current.size > 0,
+-            });
+-        }
++        previewCleanupRaf.current = requestAnimationFrame(clearSelectionPreview);
+     };
+     const draggable = panOnDrag === true || (Array.isArray(panOnDrag) && panOnDrag.includes(0));
+     return (jsxs("div", { className: cc(['react-flow__pane', { draggable, dragging, selection: isSelecting }]), onClick: isSelectionEnabled ? undefined : wrapHandler(onClick, container), onContextMenu: wrapHandler(onContextMenu, container), onWheel: wrapHandler(onWheel, container), onPointerEnter: isSelectionEnabled ? undefined : onPaneMouseEnter, onPointerMove: isSelectionEnabled ? onPointerMove : onPaneMouseMove, onPointerUp: isSelectionEnabled ? onPointerUp : undefined, onPointerDownCapture: isSelectionEnabled ? onPointerDownCapture : undefined, onClickCapture: isSelectionEnabled ? onClickCapture : undefined, onPointerLeave: onPaneMouseLeave, ref: container, style: containerStyle, children: [children, jsx(UserSelection, {})] }));
+@@ -1565,21 +1753,32 @@ function Pane({ isSelecting, selectionKeyPressed, selectionMode = SelectionMode.
+  * or
+  * 2. the on drag start handler when node is draggable and selectNodesOnDrag = true
+  */
+-function handleNodeClick({ id, store, unselect = false, nodeRef, }) {
++function handleNodeClick({ id: id, store, unselect = false, nodeRef, }) {
+     const { addSelectedNodes, unselectNodesAndEdges, multiSelectionActive, nodeLookup, onError } = store.getState();
+     const node = nodeLookup.get(id);
+     if (!node) {
+         onError?.('012', errorMessages['error012'](id));
+         return;
+     }
+-    store.setState({ nodesSelectionActive: false });
++    let selectedCount = 0;
++    for (const n of nodeLookup.values()) {
++        if (n.selected) selectedCount++;
++    }
++    let nextSelectedCount;
+     if (!node.selected) {
++        nextSelectedCount = multiSelectionActive ? selectedCount + 1 : 1;
+         addSelectedNodes([id]);
+     }
+     else if (unselect || (node.selected && multiSelectionActive)) {
++        nextSelectedCount = selectedCount - 1;
+         unselectNodesAndEdges({ nodes: [node], edges: [] });
+         requestAnimationFrame(() => nodeRef?.current?.blur());
++    } else {
++        nextSelectedCount = selectedCount;
+     }
++    store.setState({
++        nodesSelectionActive: nextSelectedCount >= 2
++    });
+ }
+ 
+ /**
+@@ -1660,7 +1859,7 @@ function useMoveSelectedNodes() {
+             if (snapToGrid) {
+                 nextPosition = snapPosition(nextPosition, snapGrid);
+             }
+-            const { position, positionAbsolute } = calculateNodePosition({
++            const { position: position, positionAbsolute } = calculateNodePosition({
+                 nodeId: node.id,
+                 nextPosition,
+                 nodeLookup,
+@@ -1672,7 +1871,7 @@ function useMoveSelectedNodes() {
+             node.internals.positionAbsolute = positionAbsolute;
+             nodeUpdates.set(node.id, node);
+         }
+-        updateNodePositions(nodeUpdates);
++        updateNodePositions(nodeUpdates, false, 'keyboard');
+     }, []);
+     return moveSelectedNodes;
+ }
+@@ -1929,19 +2128,20 @@ function getNodeInlineStyleDimensions(node) {
+ }
+ 
+ const selector$f = (s) => {
+-    const { width, height, x, y } = getInternalNodesBounds(s.nodeLookup, {
+-        filter: (node) => !!node.selected,
++    const { width, height, x: x, y: y } = getInternalNodesBounds(s.nodeLookup, {
++        filter: (node) => !!node.selected && !node.hidden,
+     });
+     return {
+         width: isNumeric(width) ? width : null,
+         height: isNumeric(height) ? height : null,
+         userSelectionActive: s.userSelectionActive,
++        multiSelectionActive: s.multiSelectionActive,
+         transformString: `translate(${s.transform[0]}px,${s.transform[1]}px) scale(${s.transform[2]}) translate(${x}px,${y}px)`,
+     };
+ };
+ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboardA11y, }) {
+     const store = useStoreApi();
+-    const { width, height, transformString, userSelectionActive } = useStore(selector$f, shallow);
++    const { width, height, transformString, userSelectionActive, multiSelectionActive } = useStore(selector$f, shallow);
+     const moveSelectedNodes = useMoveSelectedNodes();
+     const nodeRef = useRef(null);
+     useEffect(() => {
+@@ -1968,17 +2168,26 @@ function NodesSelection({ onSelectionContextMenu, noPanClassName, disableKeyboar
+     const onKeyDown = (event) => {
+         if (Object.prototype.hasOwnProperty.call(arrowKeyDiffs, event.key)) {
+             event.preventDefault();
++            const {
++                snapToGrid,
++                snapGridShiftMultiplier
++            } = store.getState();
+             moveSelectedNodes({
+                 direction: arrowKeyDiffs[event.key],
+-                factor: event.shiftKey ? 4 : 1,
++                factor: getKeyboardMoveFactor({
++                    shiftKey: event.shiftKey,
++                    snapToGrid,
++                    snapGridShiftMultiplier
++                }),
+             });
+         }
+     };
+     return (jsx("div", { className: cc(['react-flow__nodesselection', 'react-flow__container', noPanClassName]), style: {
+             transform: transformString,
+-        }, children: jsx("div", { ref: nodeRef, className: "react-flow__nodesselection-rect", onContextMenu: onContextMenu, tabIndex: disableKeyboardA11y ? undefined : -1, onKeyDown: disableKeyboardA11y ? undefined : onKeyDown, style: {
++        }, children: jsx("div", { ref: nodeRef, className: "react-flow__nodesselection-rect", onContextMenu, tabIndex: disableKeyboardA11y ? undefined : -1, onKeyDown: disableKeyboardA11y ? undefined : onKeyDown, style: {
+                 width,
+                 height,
++                pointerEvents: multiSelectionActive ? 'none' : void 0,
+             } }) }));
+ }
+ 
+@@ -2013,8 +2222,34 @@ const selector$d = (onlyRenderVisible) => (s) => {
+  * @returns array with visible node ids
+  */
+ function useVisibleNodeIds(onlyRenderVisible) {
+-    const nodeIds = useStore(useCallback(selector$d(onlyRenderVisible), [onlyRenderVisible]), shallow);
+-    return nodeIds;
++    const cacheRef = useRef(null);
++    const selector = useCallback(s => {
++        if (!onlyRenderVisible) {
++            return Array.from(s.nodeLookup.keys());
++        }
++        const [tx, ty, zoom] = s.transform;
++        const cache = cacheRef.current;
++        if (cache && cache.nodes === s.nodes && cache.width === s.width && cache.height === s.height && cache.zoom === zoom && Math.abs(cache.tx - tx) < RECOMPUTE_DELTA_PX && Math.abs(cache.ty - ty) < RECOMPUTE_DELTA_PX) {
++            return cache.ids;
++        }
++        const ids = getNodesInside(s.nodeLookup, {
++            x: -OVERSCAN_PX,
++            y: -OVERSCAN_PX,
++            width: s.width + OVERSCAN_PX * 2,
++            height: s.height + OVERSCAN_PX * 2
++        }, s.transform, true, false, true).map(node => node.id);
++        cacheRef.current = {
++            ids: ids,
++            tx,
++            ty,
++            zoom: zoom,
++            width: s.width,
++            height: s.height,
++            nodes: s.nodes
++        };
++        return ids;
++    }, [onlyRenderVisible]);
++    return useStore(selector, shallow);
+ }
+ 
+ const selector$c = (s) => s.updateNodeInternals;
+@@ -2098,14 +2333,14 @@ function useNodeObserver({ node, nodeType, hasDimensions, resizeObserver, }) {
+     return nodeRef;
+ }
+ 
+-function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, nodesDraggable, elementsSelectable, nodesConnectable, nodesFocusable, resizeObserver, noDragClassName, noPanClassName, disableKeyboardA11y, rfId, nodeTypes, nodeClickDistance, onError, }) {
+-    const { node, internals, isParent } = useStore((s) => {
+-        const node = s.nodeLookup.get(id);
+-        const isParent = s.parentLookup.has(id);
++function NodeWrapper({ id: id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onContextMenu, onDoubleClick, nodesDraggable, elementsSelectable, nodesConnectable, nodesFocusable, resizeObserver, noDragClassName, noPanClassName, disableKeyboardA11y, rfId, nodeTypes: nodeTypes, nodeClickDistance, onError, }) {
++    const { node: node, internals, isParent: isParent } = useStore((s) => {
++        const node22 = s.nodeLookup.get(id);
++        const isParent22 = s.parentLookup.has(id);
+         return {
+-            node,
+-            internals: node.internals,
+-            isParent,
++            node: node22,
++            internals: node22.internals,
++            isParent: isParent22,
+         };
+     }, shallow);
+     let nodeType = node.type || 'default';
+@@ -2121,7 +2356,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+     const isFocusable = !!(node.focusable || (nodesFocusable && typeof node.focusable === 'undefined'));
+     const store = useStoreApi();
+     const hasDimensions = nodeHasDimensions(node);
+-    const nodeRef = useNodeObserver({ node, nodeType, hasDimensions, resizeObserver });
++    const nodeRef = useNodeObserver({ node: node, nodeType, hasDimensions, resizeObserver });
+     const dragging = useDrag({
+         nodeRef,
+         disabled: node.hidden || !isDraggable,
+@@ -2161,7 +2396,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+              * here we only need to call it when selectNodesOnDrag=false
+              */
+             handleNodeClick({
+-                id,
++                id: id,
+                 store,
+                 nodeRef,
+             });
+@@ -2177,7 +2412,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+         if (elementSelectionKeys.includes(event.key) && isSelectable) {
+             const unselect = event.key === 'Escape';
+             handleNodeClick({
+-                id,
++                id: id,
+                 store,
+                 unselect,
+                 nodeRef,
+@@ -2194,9 +2429,17 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+                     y: ~~internals.positionAbsolute.y,
+                 }),
+             });
++            const {
++                snapToGrid,
++                snapGridShiftMultiplier
++            } = store.getState();
+             moveSelectedNodes({
+                 direction: arrowKeyDiffs[event.key],
+-                factor: event.shiftKey ? 4 : 1,
++                factor: getKeyboardMoveFactor({
++                    shiftKey: event.shiftKey,
++                    snapToGrid,
++                    snapGridShiftMultiplier
++                }),
+             });
+         }
+     };
+@@ -2204,7 +2447,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+         if (disableKeyboardA11y || !nodeRef.current?.matches(':focus-visible')) {
+             return;
+         }
+-        const { transform, width, height, autoPanOnNodeFocus, setCenter } = store.getState();
++        const { transform: transform, width, height, autoPanOnNodeFocus, setCenter } = store.getState();
+         if (!autoPanOnNodeFocus) {
+             return;
+         }
+@@ -2237,7 +2480,7 @@ function NodeWrapper({ id, onClick, onMouseEnter, onMouseMove, onMouseLeave, onC
+             visibility: hasDimensions ? 'visible' : 'hidden',
+             ...node.style,
+             ...inlineDimensions,
+-        }, "data-id": id, "data-testid": `rf__node-${id}`, onMouseEnter: onMouseEnterHandler, onMouseMove: onMouseMoveHandler, onMouseLeave: onMouseLeaveHandler, onContextMenu: onContextMenuHandler, onClick: onSelectNodeHandler, onDoubleClick: onDoubleClickHandler, onKeyDown: isFocusable ? onKeyDown : undefined, tabIndex: isFocusable ? 0 : undefined, onFocus: isFocusable ? onFocus : undefined, role: node.ariaRole ?? (isFocusable ? 'group' : undefined), "aria-roledescription": "node", "aria-describedby": disableKeyboardA11y ? undefined : `${ARIA_NODE_DESC_KEY}-${rfId}`, "aria-label": node.ariaLabel, ...node.domAttributes, children: jsx(Provider, { value: id, children: jsx(NodeComponent, { id: id, data: node.data, type: nodeType, positionAbsoluteX: internals.positionAbsolute.x, positionAbsoluteY: internals.positionAbsolute.y, selected: node.selected ?? false, selectable: isSelectable, draggable: isDraggable, deletable: node.deletable ?? true, isConnectable: isConnectable, sourcePosition: node.sourcePosition, targetPosition: node.targetPosition, dragging: dragging, dragHandle: node.dragHandle, zIndex: internals.z, parentId: node.parentId, ...nodeDimensions }) }) }));
++        }, "data-id": id, "data-testid": `rf__node-${id}`, onMouseEnter: onMouseEnterHandler, onMouseMove: onMouseMoveHandler, onMouseLeave: onMouseLeaveHandler, onContextMenu: onContextMenuHandler, onClick: onSelectNodeHandler, onDoubleClick: onDoubleClickHandler, onKeyDown: isFocusable ? onKeyDown : undefined, tabIndex: isFocusable ? 0 : undefined, onFocus: isFocusable ? onFocus : undefined, role: node.ariaRole ?? (isFocusable ? 'group' : undefined), "aria-roledescription": "node", "aria-describedby": disableKeyboardA11y ? undefined : `${ARIA_NODE_DESC_KEY}-${rfId}`, "aria-label": node.ariaLabel, ...node.domAttributes, children: jsx(Provider, { value: id, children: jsx(NodeComponent, { id: id, data: node.data, type: nodeType, positionAbsoluteX: internals.positionAbsolute.x, positionAbsoluteY: internals.positionAbsolute.y, selected: node.selected ?? false, selectable: isSelectable, draggable: isDraggable, deletable: node.deletable ?? true, isConnectable, sourcePosition: node.sourcePosition, targetPosition: node.targetPosition, dragging, dragHandle: node.dragHandle, zIndex: internals.z, parentId: node.parentId, ...nodeDimensions }) }) }));
+ }
+ var NodeWrapper$1 = memo(NodeWrapper);
+ 
+@@ -3118,13 +3361,13 @@ function useStylesLoadedWarning() {
+     }, []);
+ }
+ 
+-function GraphViewComponent({ nodeTypes, edgeTypes, onInit, onNodeClick, onEdgeClick, onNodeDoubleClick, onEdgeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onSelectionContextMenu, onSelectionStart, onSelectionEnd, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, deleteKeyCode, onlyRenderVisibleElements, elementsSelectable, defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, defaultMarkerColor, zoomOnScroll, zoomOnPinch, panOnScroll, panOnScrollSpeed, panOnScrollMode, zoomOnDoubleClick, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance, nodeClickDistance, onEdgeContextMenu, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, reconnectRadius, onReconnect, onReconnectStart, onReconnectEnd, noDragClassName, noWheelClassName, noPanClassName, disableKeyboardA11y, nodeExtent, rfId, viewport, onViewportChange, }) {
++function GraphViewComponent({ nodeTypes: nodeTypes, edgeTypes, onInit, onNodeClick, onNodeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onSelectionContextMenu, onSelectionStart, onSelectionEnd, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, deleteKeyCode, onlyRenderVisibleElements, elementsSelectable, defaultViewport: defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, zoomOnScroll, zoomOnPinch, panOnScroll, panOnScrollSpeed, panOnScrollMode, zoomOnDoubleClick, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance, nodeClickDistance, noDragClassName, noWheelClassName, noPanClassName, disableKeyboardA11y, nodeExtent, rfId, viewport, onViewportChange, }) {
+     useNodeOrEdgeTypesWarning(nodeTypes);
+     useNodeOrEdgeTypesWarning(edgeTypes);
+     useStylesLoadedWarning();
+     useOnInitHandler(onInit);
+     useViewportSync(viewport);
+-    return (jsx(FlowRenderer, { onPaneClick: onPaneClick, onPaneMouseEnter: onPaneMouseEnter, onPaneMouseMove: onPaneMouseMove, onPaneMouseLeave: onPaneMouseLeave, onPaneContextMenu: onPaneContextMenu, onPaneScroll: onPaneScroll, paneClickDistance: paneClickDistance, deleteKeyCode: deleteKeyCode, selectionKeyCode: selectionKeyCode, selectionOnDrag: selectionOnDrag, selectionMode: selectionMode, onSelectionStart: onSelectionStart, onSelectionEnd: onSelectionEnd, multiSelectionKeyCode: multiSelectionKeyCode, panActivationKeyCode: panActivationKeyCode, zoomActivationKeyCode: zoomActivationKeyCode, elementsSelectable: elementsSelectable, zoomOnScroll: zoomOnScroll, zoomOnPinch: zoomOnPinch, zoomOnDoubleClick: zoomOnDoubleClick, panOnScroll: panOnScroll, panOnScrollSpeed: panOnScrollSpeed, panOnScrollMode: panOnScrollMode, panOnDrag: panOnDrag, defaultViewport: defaultViewport, translateExtent: translateExtent, minZoom: minZoom, maxZoom: maxZoom, onSelectionContextMenu: onSelectionContextMenu, preventScrolling: preventScrolling, noDragClassName: noDragClassName, noWheelClassName: noWheelClassName, noPanClassName: noPanClassName, disableKeyboardA11y: disableKeyboardA11y, onViewportChange: onViewportChange, isControlledViewport: !!viewport, children: jsxs(Viewport, { children: [jsx(EdgeRenderer, { edgeTypes: edgeTypes, onEdgeClick: onEdgeClick, onEdgeDoubleClick: onEdgeDoubleClick, onReconnect: onReconnect, onReconnectStart: onReconnectStart, onReconnectEnd: onReconnectEnd, onlyRenderVisibleElements: onlyRenderVisibleElements, onEdgeContextMenu: onEdgeContextMenu, onEdgeMouseEnter: onEdgeMouseEnter, onEdgeMouseMove: onEdgeMouseMove, onEdgeMouseLeave: onEdgeMouseLeave, reconnectRadius: reconnectRadius, defaultMarkerColor: defaultMarkerColor, noPanClassName: noPanClassName, disableKeyboardA11y: disableKeyboardA11y, rfId: rfId }), jsx(ConnectionLineWrapper, { style: connectionLineStyle, type: connectionLineType, component: connectionLineComponent, containerStyle: connectionLineContainerStyle }), jsx("div", { className: "react-flow__edgelabel-renderer" }), jsx(NodeRenderer, { nodeTypes: nodeTypes, onNodeClick: onNodeClick, onNodeDoubleClick: onNodeDoubleClick, onNodeMouseEnter: onNodeMouseEnter, onNodeMouseMove: onNodeMouseMove, onNodeMouseLeave: onNodeMouseLeave, onNodeContextMenu: onNodeContextMenu, nodeClickDistance: nodeClickDistance, onlyRenderVisibleElements: onlyRenderVisibleElements, noPanClassName: noPanClassName, noDragClassName: noDragClassName, disableKeyboardA11y: disableKeyboardA11y, nodeExtent: nodeExtent, rfId: rfId }), jsx("div", { className: "react-flow__viewport-portal" })] }) }));
++    return (jsx(FlowRenderer, { onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneContextMenu, onPaneScroll, paneClickDistance, deleteKeyCode, selectionKeyCode, selectionOnDrag, selectionMode, onSelectionStart, onSelectionEnd, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, elementsSelectable, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, defaultViewport: defaultViewport, translateExtent, minZoom, maxZoom, onSelectionContextMenu, preventScrolling, noDragClassName, noWheelClassName, noPanClassName, disableKeyboardA11y, onViewportChange, isControlledViewport: !!viewport, children: jsxs(Viewport, { children: [jsx(ConnectionLineWrapper, { style: connectionLineStyle, type: connectionLineType, component: connectionLineComponent, containerStyle: connectionLineContainerStyle }), jsx("div", { className: "react-flow__edgelabel-renderer" }), jsx(NodeRenderer, { nodeTypes: nodeTypes, onNodeClick, onNodeDoubleClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, nodeClickDistance, onlyRenderVisibleElements, noPanClassName, noDragClassName, disableKeyboardA11y, nodeExtent, rfId }), jsx("div", { className: "react-flow__viewport-portal" })] }) }));
+ }
+ GraphViewComponent.displayName = 'GraphView';
+ const GraphView = memo(GraphViewComponent);
+@@ -3149,14 +3392,14 @@ const getInitialState = ({ nodes, edges, defaultNodes, defaultEdges, width, heig
+         const bounds = getInternalNodesBounds(nodeLookup, {
+             filter: (node) => !!((node.width || node.initialWidth) && (node.height || node.initialHeight)),
+         });
+-        const { x, y, zoom } = getViewportForBounds(bounds, width, height, minZoom, maxZoom, fitViewOptions?.padding ?? 0.1);
++        const { x: x, y: y, zoom: zoom } = getViewportForBounds(bounds, width, height, minZoom, maxZoom, fitViewOptions?.padding ?? 0.1);
+         transform = [x, y, zoom];
+     }
+     return {
+         rfId: '1',
+         width: width ?? 0,
+         height: height ?? 0,
+-        transform,
++        transform: transform,
+         nodes: storeNodes,
+         nodesInitialized,
+         nodeLookup,
+@@ -3185,6 +3428,9 @@ const getInitialState = ({ nodes, edges, defaultNodes, defaultEdges, width, heig
+         connectionDragThreshold: 1,
+         snapGrid: [15, 15],
+         snapToGrid: false,
++        nodeDragSnapResolver: void 0,
++        onNodeDragSnapEnd: void 0,
++        snapGridShiftMultiplier: 4,
+         nodesDraggable: true,
+         nodesConnectable: true,
+         nodesFocusable: true,
+@@ -3221,18 +3467,18 @@ const getInitialState = ({ nodes, edges, defaultNodes, defaultEdges, width, heig
+ 
+ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height, fitView, fitViewOptions, minZoom, maxZoom, nodeOrigin, nodeExtent, zIndexMode, }) => createWithEqualityFn((set, get) => {
+     async function resolveFitView() {
+-        const { nodeLookup, panZoom, fitViewOptions, fitViewResolver, width, height, minZoom, maxZoom } = get();
++        const { nodeLookup, panZoom, fitViewOptions: fitViewOptions2, fitViewResolver, width: width2, height: height2, minZoom: minZoom2, maxZoom: maxZoom2 } = get();
+         if (!panZoom) {
+             return;
+         }
+         await fitViewport({
+             nodes: nodeLookup,
+-            width,
+-            height,
++            width: width2,
++            height: height2,
+             panZoom,
+-            minZoom,
+-            maxZoom,
+-        }, fitViewOptions);
++            minZoom: minZoom2,
++            maxZoom: maxZoom2
++        }, fitViewOptions2);
+         fitViewResolver?.resolve(true);
+         /**
+          * wait for the fitViewport to resolve before deleting the resolver,
+@@ -3256,28 +3502,33 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             defaultEdges,
+             zIndexMode,
+         }),
+-        setNodes: (nodes) => {
+-            const { nodeLookup, parentLookup, nodeOrigin, elevateNodesOnSelect, fitViewQueued, zIndexMode, nodesSelectionActive, } = get();
+-            /*
+-             * setNodes() is called exclusively in response to user actions:
+-             * - either when the `<ReactFlow nodes>` prop is updated in the controlled ReactFlow setup,
+-             * - or when the user calls something like `reactFlowInstance.setNodes()` in an uncontrolled ReactFlow setup.
+-             *
+-             * When this happens, we take the note objects passed by the user and extend them with fields
+-             * relevant for internal React Flow operations.
+-             */
+-            const { nodesInitialized, hasSelectedNodes } = adoptUserNodes(nodes, nodeLookup, parentLookup, {
+-                nodeOrigin,
++        setNodes: (nodes2) => {
++            const {
++                nodeLookup,
++                parentLookup,
++                nodeOrigin: nodeOrigin2,
++                elevateNodesOnSelect,
++                fitViewQueued,
++                zIndexMode: zIndexMode2
++            } = get();
++            const {
++                nodesInitialized
++            } = adoptUserNodes(nodes2, nodeLookup, parentLookup, {
++                nodeOrigin: nodeOrigin2,
+                 nodeExtent,
+                 elevateNodesOnSelect,
+                 checkEquality: true,
+-                zIndexMode,
++                zIndexMode: zIndexMode2
+             });
+-            const nextNodesSelectionActive = nodesSelectionActive && hasSelectedNodes;
++            let selectedCount = 0;
++            for (const internalNode of nodeLookup.values()) {
++                if (internalNode.selected && !internalNode.hidden) selectedCount++;
++            }
++            const nextNodesSelectionActive = selectedCount >= 2;
+             if (fitViewQueued && nodesInitialized) {
+                 resolveFitView();
+                 set({
+-                    nodes,
++                    nodes: nodes2,
+                     nodesInitialized,
+                     fitViewQueued: false,
+                     fitViewOptions: undefined,
+@@ -3285,23 +3536,23 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 });
+             }
+             else {
+-                set({ nodes, nodesInitialized, nodesSelectionActive: nextNodesSelectionActive });
++                set({ nodes: nodes2, nodesInitialized, nodesSelectionActive: nextNodesSelectionActive });
+             }
+         },
+-        setEdges: (edges) => {
++        setEdges: (edges2) => {
+             const { connectionLookup, edgeLookup } = get();
+-            updateConnectionLookup(connectionLookup, edgeLookup, edges);
+-            set({ edges });
++            updateConnectionLookup(connectionLookup, edgeLookup, edges2);
++            set({ edges: edges2 });
+         },
+-        setDefaultNodesAndEdges: (nodes, edges) => {
+-            if (nodes) {
++        setDefaultNodesAndEdges: (nodes2, edges2) => {
++            if (nodes2) {
+                 const { setNodes } = get();
+-                setNodes(nodes);
++                setNodes(nodes2);
+                 set({ hasDefaultNodes: true });
+             }
+-            if (edges) {
++            if (edges2) {
+                 const { setEdges } = get();
+-                setEdges(edges);
++                setEdges(edges2);
+                 set({ hasDefaultEdges: true });
+             }
+         },
+@@ -3311,12 +3562,12 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+          * new dimensions and update the nodes.
+          */
+         updateNodeInternals: (updates) => {
+-            const { triggerNodeChanges, nodeLookup, parentLookup, domNode, nodeOrigin, nodeExtent, debug, fitViewQueued, zIndexMode, } = get();
+-            const { changes, updatedInternals } = updateNodeInternals(updates, nodeLookup, parentLookup, domNode, nodeOrigin, nodeExtent, zIndexMode);
++            const { triggerNodeChanges, nodeLookup, parentLookup, domNode, nodeOrigin: nodeOrigin2, nodeExtent: nodeExtent2, debug: debug, fitViewQueued, zIndexMode: zIndexMode2, } = get();
++            const { changes, updatedInternals } = updateNodeInternals(updates, nodeLookup, parentLookup, domNode, nodeOrigin2, nodeExtent2, zIndexMode2);
+             if (!updatedInternals) {
+                 return;
+             }
+-            updateAbsolutePositions(nodeLookup, parentLookup, { nodeOrigin, nodeExtent, zIndexMode });
++            updateAbsolutePositions(nodeLookup, parentLookup, { nodeOrigin: nodeOrigin2, nodeExtent: nodeExtent2, zIndexMode: zIndexMode2 });
+             if (fitViewQueued) {
+                 resolveFitView();
+                 set({ fitViewQueued: false, fitViewOptions: undefined });
+@@ -3332,7 +3583,37 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 triggerNodeChanges?.(changes);
+             }
+         },
+-        updateNodePositions: (nodeDragItems, dragging = false) => {
++        updateNodePositions: (nodeDragItems, dragging = false, positionChangeSource) => {
++            if (dragging) {
++                const {
++                    nodeLookup: nodeLookup2,
++                    parentLookup,
++                    connection: connection2,
++                    updateConnection: updateConnection2
++                } = get();
++                for (const [id, dragItem] of nodeDragItems) {
++                    const internalNode = nodeLookup2.get(id);
++                    if (!internalNode) continue;
++                    const prevAbsolute = internalNode.internals.positionAbsolute;
++                    internalNode.position = dragItem.position;
++                    internalNode.dragging = true;
++                    internalNode.internals.positionAbsolute = dragItem.internals.positionAbsolute;
++                    if (connection2.inProgress && connection2.fromNode.id === internalNode.id) {
++                        const updatedFrom = getHandlePosition(internalNode, connection2.fromHandle, Position.Left, true);
++                        updateConnection2({
++                            ...connection2,
++                            from: updatedFrom
++                        });
++                    }
++                    const dx = dragItem.internals.positionAbsolute.x - prevAbsolute.x;
++                    const dy = dragItem.internals.positionAbsolute.y - prevAbsolute.y;
++                    if (dx !== 0 || dy !== 0) {
++                        cascadeAbsolutePosition(id, dx, dy, nodeLookup2, parentLookup);
++                    }
++                }
++                set({});
++                return;
++            }
+             const parentExpandChildren = [];
+             let changes = [];
+             const { nodeLookup, triggerNodeChanges, connection, updateConnection, onNodesChangeMiddlewareMap } = get();
+@@ -3341,7 +3622,7 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 const node = nodeLookup.get(id);
+                 const expandParent = !!(node?.expandParent && node?.parentId && dragItem?.position);
+                 const change = {
+-                    id,
++                    id: id,
+                     type: 'position',
+                     position: expandParent
+                         ? {
+@@ -3350,6 +3631,7 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                         }
+                         : dragItem.position,
+                     dragging,
++                    positionChangeSource,
+                 };
+                 if (node && connection.inProgress && connection.fromNode.id === node.id) {
+                     const updatedFrom = getHandlePosition(node, connection.fromHandle, Position.Left, true);
+@@ -3357,7 +3639,7 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 }
+                 if (expandParent && node.parentId) {
+                     parentExpandChildren.push({
+-                        id,
++                        id: id,
+                         parentId: node.parentId,
+                         rect: {
+                             ...dragItem.internals.positionAbsolute,
+@@ -3369,8 +3651,8 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+                 changes.push(change);
+             }
+             if (parentExpandChildren.length > 0) {
+-                const { parentLookup, nodeOrigin } = get();
+-                const parentExpandChanges = handleExpandParent(parentExpandChildren, nodeLookup, parentLookup, nodeOrigin);
++                const { parentLookup, nodeOrigin: nodeOrigin2 } = get();
++                const parentExpandChanges = handleExpandParent(parentExpandChildren, nodeLookup, parentLookup, nodeOrigin2);
+                 changes.push(...parentExpandChanges);
+             }
+             for (const middleware of onNodesChangeMiddlewareMap.values()) {
+@@ -3379,10 +3661,10 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             triggerNodeChanges(changes);
+         },
+         triggerNodeChanges: (changes) => {
+-            const { onNodesChange, setNodes, nodes, hasDefaultNodes, debug } = get();
++            const { onNodesChange, setNodes, nodes: nodes2, hasDefaultNodes, debug: debug } = get();
+             if (changes?.length) {
+                 if (hasDefaultNodes) {
+-                    const updatedNodes = applyNodeChanges(changes, nodes);
++                    const updatedNodes = applyNodeChanges(changes, nodes2);
+                     setNodes(updatedNodes);
+                 }
+                 if (debug) {
+@@ -3392,10 +3674,10 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             }
+         },
+         triggerEdgeChanges: (changes) => {
+-            const { onEdgesChange, setEdges, edges, hasDefaultEdges, debug } = get();
++            const { onEdgesChange, setEdges, edges: edges2, hasDefaultEdges, debug: debug } = get();
+             if (changes?.length) {
+                 if (hasDefaultEdges) {
+-                    const updatedEdges = applyEdgeChanges(changes, edges);
++                    const updatedEdges = applyEdgeChanges(changes, edges2);
+                     setEdges(updatedEdges);
+                 }
+                 if (debug) {
+@@ -3424,10 +3706,10 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             triggerEdgeChanges(getSelectionChanges(edgeLookup, new Set([...selectedEdgeIds])));
+             triggerNodeChanges(getSelectionChanges(nodeLookup, new Set(), true));
+         },
+-        unselectNodesAndEdges: ({ nodes, edges } = {}) => {
++        unselectNodesAndEdges: ({ nodes: nodes2, edges: edges2 } = {}) => {
+             const { edges: storeEdges, nodes: storeNodes, nodeLookup, triggerNodeChanges, triggerEdgeChanges } = get();
+-            const nodesToUnselect = nodes ? nodes : storeNodes;
+-            const edgesToUnselect = edges ? edges : storeEdges;
++            const nodesToUnselect = nodes2 ? nodes2 : storeNodes;
++            const edgesToUnselect = edges2 ? edges2 : storeEdges;
+             const nodeChanges = [];
+             for (const node of nodesToUnselect) {
+                 if (!node.selected) {
+@@ -3453,62 +3735,64 @@ const createStore = ({ nodes, edges, defaultNodes, defaultEdges, width, height,
+             triggerNodeChanges(nodeChanges);
+             triggerEdgeChanges(edgeChanges);
+         },
+-        setMinZoom: (minZoom) => {
+-            const { panZoom, maxZoom } = get();
+-            panZoom?.setScaleExtent([minZoom, maxZoom]);
+-            set({ minZoom });
++        setMinZoom: (minZoom2) => {
++            const { panZoom, maxZoom: maxZoom2 } = get();
++            panZoom?.setScaleExtent([minZoom2, maxZoom2]);
++            set({ minZoom: minZoom2 });
+         },
+-        setMaxZoom: (maxZoom) => {
+-            const { panZoom, minZoom } = get();
+-            panZoom?.setScaleExtent([minZoom, maxZoom]);
+-            set({ maxZoom });
++        setMaxZoom: (maxZoom2) => {
++            const { panZoom, minZoom: minZoom2 } = get();
++            panZoom?.setScaleExtent([minZoom2, maxZoom2]);
++            set({ maxZoom: maxZoom2 });
+         },
+         setTranslateExtent: (translateExtent) => {
+             get().panZoom?.setTranslateExtent(translateExtent);
+             set({ translateExtent });
+         },
+         resetSelectedElements: () => {
+-            const { edges, nodes, triggerNodeChanges, triggerEdgeChanges, elementsSelectable } = get();
++            const { edges: edges2, nodes: nodes2, triggerNodeChanges, triggerEdgeChanges, elementsSelectable } = get();
+             if (!elementsSelectable) {
+                 return;
+             }
+-            const nodeChanges = nodes.reduce((res, node) => (node.selected ? [...res, createSelectionChange(node.id, false)] : res), []);
+-            const edgeChanges = edges.reduce((res, edge) => (edge.selected ? [...res, createSelectionChange(edge.id, false)] : res), []);
++            const nodeChanges = nodes2.reduce((res, node) => (node.selected ? [...res, createSelectionChange(node.id, false)] : res), []);
++            const edgeChanges = edges2.reduce((res, edge) => (edge.selected ? [...res, createSelectionChange(edge.id, false)] : res), []);
+             triggerNodeChanges(nodeChanges);
+             triggerEdgeChanges(edgeChanges);
+         },
+         setNodeExtent: (nextNodeExtent) => {
+-            const { nodes, nodeLookup, parentLookup, nodeOrigin, elevateNodesOnSelect, nodeExtent, zIndexMode } = get();
+-            if (nextNodeExtent[0][0] === nodeExtent[0][0] &&
+-                nextNodeExtent[0][1] === nodeExtent[0][1] &&
+-                nextNodeExtent[1][0] === nodeExtent[1][0] &&
+-                nextNodeExtent[1][1] === nodeExtent[1][1]) {
++            const { nodes: nodes2, nodeLookup, parentLookup, nodeOrigin: nodeOrigin2, elevateNodesOnSelect, nodeExtent: nodeExtent2, zIndexMode: zIndexMode2 } = get();
++            if ((nextNodeExtent[0][0] === nodeExtent2[0][0] && nextNodeExtent[0][1] === nodeExtent2[0][1] && nextNodeExtent[1][0] === nodeExtent2[1][0]) &&
++                (nextNodeExtent[1][1] === nodeExtent2[1][1])) {
+                 return;
+             }
+-            adoptUserNodes(nodes, nodeLookup, parentLookup, {
+-                nodeOrigin,
++            adoptUserNodes(nodes2, nodeLookup, parentLookup, {
++                nodeOrigin: nodeOrigin2,
+                 nodeExtent: nextNodeExtent,
+                 elevateNodesOnSelect,
+                 checkEquality: false,
+-                zIndexMode,
++                zIndexMode: zIndexMode2,
+             });
+             set({ nodeExtent: nextNodeExtent });
+         },
+         panBy: (delta) => {
+-            const { transform, width, height, panZoom, translateExtent } = get();
+-            return panBy({ delta, panZoom, transform, translateExtent, width, height });
++            const { transform: transform, width: width2, height: height2, panZoom, translateExtent } = get();
++            return panBy({ delta, panZoom, transform: transform, translateExtent, width: width2, height: height2 });
+         },
+         setCenter: async (x, y, options) => {
+-            const { width, height, maxZoom, panZoom } = get();
++            const { width: width2, height: height2, maxZoom: maxZoom2, panZoom } = get();
+             if (!panZoom) {
+                 return Promise.resolve(false);
+             }
+-            const nextZoom = typeof options?.zoom !== 'undefined' ? options.zoom : maxZoom;
++            const nextZoom = typeof options?.zoom !== 'undefined' ? options.zoom : maxZoom2;
+             await panZoom.setViewport({
+-                x: width / 2 - x * nextZoom,
+-                y: height / 2 - y * nextZoom,
+-                zoom: nextZoom,
+-            }, { duration: options?.duration, ease: options?.ease, interpolate: options?.interpolate });
++                x: width2 / 2 - x * nextZoom,
++                y: height2 / 2 - y * nextZoom,
++                zoom: nextZoom
++            }, {
++                duration: options?.duration,
++                ease: options?.ease,
++                interpolate: options?.interpolate
++            });
+             return Promise.resolve(true);
+         },
+         cancelConnection: () => {
+@@ -3595,7 +3879,7 @@ const wrapperStyle = {
+     position: 'relative',
+     zIndex: 0,
+ };
+-function ReactFlow({ nodes, edges, defaultNodes, defaultEdges, className, nodeTypes, edgeTypes, onNodeClick, onEdgeClick, onInit, onMove, onMoveStart, onMoveEnd, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, onNodeDragStart, onNodeDrag, onNodeDragStop, onNodesDelete, onEdgesDelete, onDelete, onSelectionChange, onSelectionDragStart, onSelectionDrag, onSelectionDragStop, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onBeforeDelete, connectionMode, connectionLineType = ConnectionLineType.Bezier, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, deleteKeyCode = 'Backspace', selectionKeyCode = 'Shift', selectionOnDrag = false, selectionMode = SelectionMode.Full, panActivationKeyCode = 'Space', multiSelectionKeyCode = isMacOs() ? 'Meta' : 'Control', zoomActivationKeyCode = isMacOs() ? 'Meta' : 'Control', snapToGrid, snapGrid, onlyRenderVisibleElements = false, selectNodesOnDrag, nodesDraggable, autoPanOnNodeFocus, nodesConnectable, nodesFocusable, nodeOrigin = defaultNodeOrigin, edgesFocusable, edgesReconnectable, elementsSelectable = true, defaultViewport: defaultViewport$1 = defaultViewport, minZoom = 0.5, maxZoom = 2, translateExtent = infiniteExtent, preventScrolling = true, nodeExtent, defaultMarkerColor = '#b1b1b7', zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, panOnDrag = true, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance = 1, nodeClickDistance = 0, children, onReconnect, onReconnectStart, onReconnectEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, reconnectRadius = 10, onNodesChange, onEdgesChange, noDragClassName = 'nodrag', noWheelClassName = 'nowheel', noPanClassName = 'nopan', fitView, fitViewOptions, connectOnClick, attributionPosition, proOptions, defaultEdgeOptions, elevateNodesOnSelect = true, elevateEdgesOnSelect = false, disableKeyboardA11y = false, autoPanOnConnect, autoPanOnNodeDrag, autoPanSpeed, connectionRadius, isValidConnection, onError, style, id, nodeDragThreshold, connectionDragThreshold, viewport, onViewportChange, width, height, colorMode = 'light', debug, onScroll, ariaLabelConfig, zIndexMode = 'basic', ...rest }, ref) {
++function ReactFlow({ nodes, edges, defaultNodes, defaultEdges, className, nodeTypes: nodeTypes, edgeTypes, onNodeClick, onEdgeClick, onInit, onMove, onMoveStart, onMoveEnd, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, onNodeDragStart, onNodeDrag, onNodeDragStop, onNodesDelete, onEdgesDelete, onDelete, onSelectionChange, onSelectionDragStart, onSelectionDrag, onSelectionDragStop, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onBeforeDelete, connectionMode, connectionLineType = ConnectionLineType.Bezier, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, deleteKeyCode = 'Backspace', selectionKeyCode = 'Shift', selectionOnDrag = false, selectionMode = SelectionMode.Full, panActivationKeyCode = 'Space', multiSelectionKeyCode = isMacOs() ? 'Meta' : 'Control', zoomActivationKeyCode = isMacOs() ? 'Meta' : 'Control', snapToGrid, snapGrid, nodeDragSnapResolver, onNodeDragSnapEnd, snapGridShiftMultiplier, onlyRenderVisibleElements = false, selectNodesOnDrag, nodesDraggable, autoPanOnNodeFocus, nodesConnectable, nodesFocusable, nodeOrigin = defaultNodeOrigin, edgesFocusable, edgesReconnectable, elementsSelectable = true, defaultViewport: defaultViewport$ = defaultViewport, minZoom = 0.5, maxZoom = 2, translateExtent = infiniteExtent, preventScrolling = true, nodeExtent, defaultMarkerColor = '#b1b1b7', zoomOnScroll = true, zoomOnPinch = true, panOnScroll = false, panOnScrollSpeed = 0.5, panOnScrollMode = PanOnScrollMode.Free, zoomOnDoubleClick = true, panOnDrag = true, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance = 1, nodeClickDistance = 0, children: children, onReconnect, onReconnectStart, onReconnectEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, reconnectRadius = 10, onNodesChange, onEdgesChange, noDragClassName = 'nodrag', noWheelClassName = 'nowheel', noPanClassName = 'nopan', fitView, fitViewOptions, connectOnClick, attributionPosition, proOptions, defaultEdgeOptions, elevateNodesOnSelect = true, elevateEdgesOnSelect = false, disableKeyboardA11y = false, autoPanOnConnect, autoPanOnNodeDrag, autoPanSpeed, connectionRadius, isValidConnection, onError, style: style, id: id, nodeDragThreshold, connectionDragThreshold, viewport, onViewportChange, width, height, colorMode = 'light', debug: debug, onScroll, ariaLabelConfig, zIndexMode = 'basic', ...rest }, ref) {
+     const rfId = id || '1';
+     const colorModeClassName = useColorModeClass(colorMode);
+     // Undo scroll events, preventing viewport from shifting when nodes outside of it are focused
+@@ -3603,7 +3887,7 @@ function ReactFlow({ nodes, edges, defaultNodes, defaultEdges, className, nodeTy
+         e.currentTarget.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+         onScroll?.(e);
+     }, [onScroll]);
+-    return (jsx("div", { "data-testid": "rf__wrapper", ...rest, onScroll: wrapperOnScroll, style: { ...style, ...wrapperStyle }, ref: ref, className: cc(['react-flow', className, colorModeClassName]), id: id, role: "application", children: jsxs(Wrapper, { nodes: nodes, edges: edges, width: width, height: height, fitView: fitView, fitViewOptions: fitViewOptions, minZoom: minZoom, maxZoom: maxZoom, nodeOrigin: nodeOrigin, nodeExtent: nodeExtent, zIndexMode: zIndexMode, children: [jsx(StoreUpdater, { nodes: nodes, edges: edges, defaultNodes: defaultNodes, defaultEdges: defaultEdges, onConnect: onConnect, onConnectStart: onConnectStart, onConnectEnd: onConnectEnd, onClickConnectStart: onClickConnectStart, onClickConnectEnd: onClickConnectEnd, nodesDraggable: nodesDraggable, autoPanOnNodeFocus: autoPanOnNodeFocus, nodesConnectable: nodesConnectable, nodesFocusable: nodesFocusable, edgesFocusable: edgesFocusable, edgesReconnectable: edgesReconnectable, elementsSelectable: elementsSelectable, elevateNodesOnSelect: elevateNodesOnSelect, elevateEdgesOnSelect: elevateEdgesOnSelect, minZoom: minZoom, maxZoom: maxZoom, nodeExtent: nodeExtent, onNodesChange: onNodesChange, onEdgesChange: onEdgesChange, snapToGrid: snapToGrid, snapGrid: snapGrid, connectionMode: connectionMode, translateExtent: translateExtent, connectOnClick: connectOnClick, defaultEdgeOptions: defaultEdgeOptions, fitView: fitView, fitViewOptions: fitViewOptions, onNodesDelete: onNodesDelete, onEdgesDelete: onEdgesDelete, onDelete: onDelete, onNodeDragStart: onNodeDragStart, onNodeDrag: onNodeDrag, onNodeDragStop: onNodeDragStop, onSelectionDrag: onSelectionDrag, onSelectionDragStart: onSelectionDragStart, onSelectionDragStop: onSelectionDragStop, onMove: onMove, onMoveStart: onMoveStart, onMoveEnd: onMoveEnd, noPanClassName: noPanClassName, nodeOrigin: nodeOrigin, rfId: rfId, autoPanOnConnect: autoPanOnConnect, autoPanOnNodeDrag: autoPanOnNodeDrag, autoPanSpeed: autoPanSpeed, onError: onError, connectionRadius: connectionRadius, isValidConnection: isValidConnection, selectNodesOnDrag: selectNodesOnDrag, nodeDragThreshold: nodeDragThreshold, connectionDragThreshold: connectionDragThreshold, onBeforeDelete: onBeforeDelete, debug: debug, ariaLabelConfig: ariaLabelConfig, zIndexMode: zIndexMode }), jsx(GraphView, { onInit: onInit, onNodeClick: onNodeClick, onEdgeClick: onEdgeClick, onNodeMouseEnter: onNodeMouseEnter, onNodeMouseMove: onNodeMouseMove, onNodeMouseLeave: onNodeMouseLeave, onNodeContextMenu: onNodeContextMenu, onNodeDoubleClick: onNodeDoubleClick, nodeTypes: nodeTypes, edgeTypes: edgeTypes, connectionLineType: connectionLineType, connectionLineStyle: connectionLineStyle, connectionLineComponent: connectionLineComponent, connectionLineContainerStyle: connectionLineContainerStyle, selectionKeyCode: selectionKeyCode, selectionOnDrag: selectionOnDrag, selectionMode: selectionMode, deleteKeyCode: deleteKeyCode, multiSelectionKeyCode: multiSelectionKeyCode, panActivationKeyCode: panActivationKeyCode, zoomActivationKeyCode: zoomActivationKeyCode, onlyRenderVisibleElements: onlyRenderVisibleElements, defaultViewport: defaultViewport$1, translateExtent: translateExtent, minZoom: minZoom, maxZoom: maxZoom, preventScrolling: preventScrolling, zoomOnScroll: zoomOnScroll, zoomOnPinch: zoomOnPinch, zoomOnDoubleClick: zoomOnDoubleClick, panOnScroll: panOnScroll, panOnScrollSpeed: panOnScrollSpeed, panOnScrollMode: panOnScrollMode, panOnDrag: panOnDrag, onPaneClick: onPaneClick, onPaneMouseEnter: onPaneMouseEnter, onPaneMouseMove: onPaneMouseMove, onPaneMouseLeave: onPaneMouseLeave, onPaneScroll: onPaneScroll, onPaneContextMenu: onPaneContextMenu, paneClickDistance: paneClickDistance, nodeClickDistance: nodeClickDistance, onSelectionContextMenu: onSelectionContextMenu, onSelectionStart: onSelectionStart, onSelectionEnd: onSelectionEnd, onReconnect: onReconnect, onReconnectStart: onReconnectStart, onReconnectEnd: onReconnectEnd, onEdgeContextMenu: onEdgeContextMenu, onEdgeDoubleClick: onEdgeDoubleClick, onEdgeMouseEnter: onEdgeMouseEnter, onEdgeMouseMove: onEdgeMouseMove, onEdgeMouseLeave: onEdgeMouseLeave, reconnectRadius: reconnectRadius, defaultMarkerColor: defaultMarkerColor, noDragClassName: noDragClassName, noWheelClassName: noWheelClassName, noPanClassName: noPanClassName, rfId: rfId, disableKeyboardA11y: disableKeyboardA11y, nodeExtent: nodeExtent, viewport: viewport, onViewportChange: onViewportChange }), jsx(SelectionListener, { onSelectionChange: onSelectionChange }), children, jsx(Attribution, { proOptions: proOptions, position: attributionPosition }), jsx(A11yDescriptions, { rfId: rfId, disableKeyboardA11y: disableKeyboardA11y })] }) }));
++    return (jsx("div", { "data-testid": "rf__wrapper", ...rest, onScroll: wrapperOnScroll, style: { ...style, ...wrapperStyle }, ref, className: cc(['react-flow', className, colorModeClassName]), id: id, role: "application", children: jsxs(Wrapper, { nodes, edges, width, height, fitView, fitViewOptions, minZoom, maxZoom, nodeOrigin, nodeExtent, zIndexMode, children: [jsx(StoreUpdater, { nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, autoPanOnNodeFocus, nodesConnectable, nodesFocusable, edgesFocusable, edgesReconnectable, elementsSelectable, elevateNodesOnSelect, elevateEdgesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, snapToGrid, snapGrid, nodeDragSnapResolver, onNodeDragSnapEnd, snapGridShiftMultiplier, connectionMode, translateExtent, connectOnClick, defaultEdgeOptions, fitView, fitViewOptions, onNodesDelete, onEdgesDelete, onDelete, onNodeDragStart, onNodeDrag, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, onMove, onMoveStart, onMoveEnd, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, autoPanSpeed, onError, connectionRadius, isValidConnection, selectNodesOnDrag, nodeDragThreshold, connectionDragThreshold, onBeforeDelete, debug: debug, ariaLabelConfig, zIndexMode }), jsx(GraphView, { onInit, onNodeClick, onEdgeClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, nodeTypes: nodeTypes, edgeTypes, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, deleteKeyCode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, onlyRenderVisibleElements, defaultViewport: defaultViewport$, translateExtent, minZoom, maxZoom, preventScrolling, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, paneClickDistance, nodeClickDistance, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onReconnect, onReconnectStart, onReconnectEnd, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, reconnectRadius, defaultMarkerColor, noDragClassName, noWheelClassName, noPanClassName, rfId, disableKeyboardA11y, nodeExtent, viewport, onViewportChange }), jsx(SelectionListener, { onSelectionChange }), children, jsx(Attribution, { proOptions, position: attributionPosition }), jsx(A11yDescriptions, { rfId, disableKeyboardA11y })] }) }));
+ }
+ /**
+  * The `<ReactFlow />` component is the heart of your React Flow application.

@@ -1,0 +1,226 @@
+{
+ "warnings": [],
+ "units": [
+  {
+   "label": "react",
+   "vendor": "reactFlowFieldsToTrack",
+   "npm": "reactFlowFieldsToTrack",
+   "edits": 3
+  },
+  {
+   "label": "react",
+   "vendor": "Pane",
+   "npm": "Pane",
+   "edits": 51
+  },
+  {
+   "label": "react",
+   "vendor": "handleNodeClick",
+   "npm": "handleNodeClick",
+   "edits": 9
+  },
+  {
+   "label": "react",
+   "vendor": "useMoveSelectedNodes",
+   "npm": "useMoveSelectedNodes",
+   "edits": 3
+  },
+  {
+   "label": "react",
+   "vendor": "selector$a",
+   "npm": "selector$f",
+   "edits": 4
+  },
+  {
+   "label": "react",
+   "vendor": "NodesSelection",
+   "npm": "NodesSelection",
+   "edits": 5
+  },
+  {
+   "label": "react",
+   "vendor": "useVisibleNodeIds",
+   "npm": "useVisibleNodeIds",
+   "edits": 4
+  },
+  {
+   "label": "react",
+   "vendor": "NodeWrapper",
+   "npm": "NodeWrapper",
+   "edits": 17
+  },
+  {
+   "label": "react",
+   "vendor": "GraphViewComponent",
+   "npm": "GraphViewComponent",
+   "edits": 54
+  },
+  {
+   "label": "react",
+   "vendor": "getInitialState$1",
+   "npm": "getInitialState",
+   "edits": 7
+  },
+  {
+   "label": "react",
+   "vendor": "createStore$2",
+   "npm": "createStore",
+   "edits": 87
+  },
+  {
+   "label": "react",
+   "vendor": "ReactFlow",
+   "npm": "ReactFlow",
+   "edits": 148
+  },
+  {
+   "label": "system",
+   "vendor": "getNodesInside",
+   "npm": "getNodesInside",
+   "edits": 11
+  },
+  {
+   "label": "system",
+   "vendor": "XYDrag",
+   "npm": "XYDrag",
+   "edits": 19
+  },
+  {
+   "label": "system",
+   "vendor": "XYMinimap",
+   "npm": "XYMinimap",
+   "edits": 9
+  },
+  {
+   "label": "system",
+   "vendor": "wheelDelta",
+   "npm": "wheelDelta",
+   "edits": 5
+  },
+  {
+   "label": "system",
+   "vendor": "XYPanZoom",
+   "npm": "XYPanZoom",
+   "edits": 23
+  }
+ ],
+ "helpers": [
+  {
+   "label": "react",
+   "name": "edgeZones",
+   "origin": "from-vendor",
+   "src": "edgeZones",
+   "lines": 6
+  },
+  {
+   "label": "react",
+   "name": "AUTO_PAN_DISTANCE",
+   "origin": "from-vendor",
+   "src": "AUTO_PAN_DISTANCE",
+   "lines": 1
+  },
+  {
+   "label": "react",
+   "name": "AUTO_PAN_ARM_SLACK",
+   "origin": "from-vendor",
+   "src": "AUTO_PAN_ARM_SLACK",
+   "lines": 1
+  },
+  {
+   "label": "react",
+   "name": "maskAutoPanSides",
+   "origin": "from-vendor",
+   "src": "maskAutoPanSides",
+   "lines": 1
+  },
+  {
+   "label": "react",
+   "name": "getNodesSelectionActiveOnPointerUp",
+   "origin": "from-vendor",
+   "src": "getNodesSelectionActiveOnPointerUp",
+   "lines": 3
+  },
+  {
+   "label": "react",
+   "name": "getKeyboardMoveFactor",
+   "origin": "from-vendor",
+   "src": "getKeyboardMoveFactor",
+   "lines": 8
+  },
+  {
+   "label": "react",
+   "name": "DEFAULT_LARGE_MOVE_FACTOR",
+   "origin": "from-vendor",
+   "src": "DEFAULT_LARGE_MOVE_FACTOR",
+   "lines": 1
+  },
+  {
+   "label": "react",
+   "name": "RECOMPUTE_DELTA_PX",
+   "origin": "from-vendor",
+   "src": "RECOMPUTE_DELTA_PX",
+   "lines": 1
+  },
+  {
+   "label": "react",
+   "name": "OVERSCAN_PX",
+   "origin": "from-vendor",
+   "src": "OVERSCAN_PX",
+   "lines": 1
+  },
+  {
+   "label": "react",
+   "name": "cascadeAbsolutePosition",
+   "origin": "from-vendor",
+   "src": "cascadeAbsolutePosition",
+   "lines": 18
+  },
+  {
+   "label": "system",
+   "name": "getDragBounds",
+   "origin": "from-vendor",
+   "src": "getDragBounds",
+   "lines": 18
+  },
+  {
+   "label": "system",
+   "name": "getDragSnapReferenceBounds",
+   "origin": "from-vendor",
+   "src": "getDragSnapReferenceBounds",
+   "lines": 22
+  },
+  {
+   "label": "system",
+   "name": "hasDraggedAncestor",
+   "origin": "from-vendor",
+   "src": "hasDraggedAncestor",
+   "lines": 8
+  },
+  {
+   "label": "system",
+   "name": "getDragSnapAffectedIds",
+   "origin": "from-vendor",
+   "src": "getDragSnapAffectedIds",
+   "lines": 10
+  },
+  {
+   "label": "system",
+   "name": "clamp$c",
+   "origin": "from-vendor",
+   "src": "clamp$c",
+   "lines": 1
+  },
+  {
+   "label": "system",
+   "name": "resolveInterpolate",
+   "origin": "vendor",
+   "src": "resolveInterpolate",
+   "lines": 4
+  }
+ ],
+ "imports": [
+  "react: @xyflow/system { calcAutoPan }",
+  "react: react-dom { flushSync }"
+ ],
+ "exportsAdded": []
+}

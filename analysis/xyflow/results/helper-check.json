@@ -1,0 +1,107 @@
+[
+  {
+    "label": "react",
+    "helper": "edgeZones",
+    "npm": "edgeZones",
+    "npmLine": 11,
+    "status": "same"
+  },
+  {
+    "label": "react",
+    "helper": "AUTO_PAN_DISTANCE",
+    "npm": "AUTO_PAN_DISTANCE",
+    "npmLine": 10,
+    "status": "same"
+  },
+  {
+    "label": "react",
+    "helper": "AUTO_PAN_ARM_SLACK",
+    "npm": "AUTO_PAN_ARM_SLACK",
+    "npmLine": 17,
+    "status": "same"
+  },
+  {
+    "label": "react",
+    "helper": "maskAutoPanSides",
+    "npm": "maskAutoPanSides",
+    "npmLine": 18,
+    "status": "same"
+  },
+  {
+    "label": "react",
+    "helper": "getNodesSelectionActiveOnPointerUp",
+    "npm": "getNodesSelectionActiveOnPointerUp",
+    "npmLine": 19,
+    "status": "same"
+  },
+  {
+    "label": "react",
+    "helper": "getKeyboardMoveFactor",
+    "npm": "getKeyboardMoveFactor",
+    "npmLine": 23,
+    "status": "same"
+  },
+  {
+    "label": "react",
+    "helper": "DEFAULT_LARGE_MOVE_FACTOR",
+    "npm": "DEFAULT_LARGE_MOVE_FACTOR",
+    "npmLine": 22,
+    "status": "same"
+  },
+  {
+    "label": "react",
+    "helper": "RECOMPUTE_DELTA_PX",
+    "npm": "RECOMPUTE_DELTA_PX",
+    "npmLine": 32,
+    "status": "same"
+  },
+  {
+    "label": "react",
+    "helper": "OVERSCAN_PX",
+    "npm": "OVERSCAN_PX",
+    "npmLine": 31,
+    "status": "same"
+  },
+  {
+    "label": "react",
+    "helper": "cascadeAbsolutePosition",
+    "npm": "cascadeAbsolutePosition",
+    "npmLine": 33,
+    "status": "same"
+  },
+  {
+    "label": "system",
+    "helper": "getDragBounds",
+    "npm": "getDragBounds",
+    "npmLine": 5,
+    "status": "same"
+  },
+  {
+    "label": "system",
+    "helper": "getDragSnapReferenceBounds",
+    "npm": "getDragSnapReferenceBounds",
+    "npmLine": 31,
+    "status": "same"
+  },
+  {
+    "label": "system",
+    "helper": "hasDraggedAncestor",
+    "npm": "hasDraggedAncestor",
+    "npmLine": 23,
+    "status": "same"
+  },
+  {
+    "label": "system",
+    "helper": "getDragSnapAffectedIds",
+    "npm": "getDragSnapAffectedIds",
+    "npmLine": 53,
+    "status": "same"
+  },
+  {
+    "label": "system",
+    "helper": "clamp$c",
+    "npm": "clamp$c",
+    "npmLine": 63,
+    "status": "same"
+  }
+]

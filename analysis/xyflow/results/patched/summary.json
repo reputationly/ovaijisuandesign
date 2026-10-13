@@ -1,0 +1,1271 @@
+{
+ "helperCheck": [
+  {
+   "label": "react",
+   "helper": "edgeZones",
+   "npm": "edgeZones",
+   "npmLine": 11,
+   "status": "same"
+  },
+  {
+   "label": "react",
+   "helper": "AUTO_PAN_DISTANCE",
+   "npm": "AUTO_PAN_DISTANCE",
+   "npmLine": 10,
+   "status": "same"
+  },
+  {
+   "label": "react",
+   "helper": "AUTO_PAN_ARM_SLACK",
+   "npm": "AUTO_PAN_ARM_SLACK",
+   "npmLine": 17,
+   "status": "same"
+  },
+  {
+   "label": "react",
+   "helper": "maskAutoPanSides",
+   "npm": "maskAutoPanSides",
+   "npmLine": 18,
+   "status": "same"
+  },
+  {
+   "label": "react",
+   "helper": "getNodesSelectionActiveOnPointerUp",
+   "npm": "getNodesSelectionActiveOnPointerUp",
+   "npmLine": 19,
+   "status": "same"
+  },
+  {
+   "label": "react",
+   "helper": "getKeyboardMoveFactor",
+   "npm": "getKeyboardMoveFactor",
+   "npmLine": 23,
+   "status": "same"
+  },
+  {
+   "label": "react",
+   "helper": "DEFAULT_LARGE_MOVE_FACTOR",
+   "npm": "DEFAULT_LARGE_MOVE_FACTOR",
+   "npmLine": 22,
+   "status": "same"
+  },
+  {
+   "label": "react",
+   "helper": "RECOMPUTE_DELTA_PX",
+   "npm": "RECOMPUTE_DELTA_PX",
+   "npmLine": 32,
+   "status": "same"
+  },
+  {
+   "label": "react",
+   "helper": "OVERSCAN_PX",
+   "npm": "OVERSCAN_PX",
+   "npmLine": 31,
+   "status": "same"
+  },
+  {
+   "label": "react",
+   "helper": "cascadeAbsolutePosition",
+   "npm": "cascadeAbsolutePosition",
+   "npmLine": 33,
+   "status": "same"
+  },
+  {
+   "label": "system",
+   "helper": "getDragBounds",
+   "npm": "getDragBounds",
+   "npmLine": 5,
+   "status": "same"
+  },
+  {
+   "label": "system",
+   "helper": "getDragSnapReferenceBounds",
+   "npm": "getDragSnapReferenceBounds",
+   "npmLine": 31,
+   "status": "same"
+  },
+  {
+   "label": "system",
+   "helper": "hasDraggedAncestor",
+   "npm": "hasDraggedAncestor",
+   "npmLine": 23,
+   "status": "same"
+  },
+  {
+   "label": "system",
+   "helper": "getDragSnapAffectedIds",
+   "npm": "getDragSnapAffectedIds",
+   "npmLine": 53,
+   "status": "same"
+  },
+  {
+   "label": "system",
+   "helper": "clamp$c",
+   "npm": "clamp$c",
+   "npmLine": 63,
+   "status": "same"
+  }
+ ],
+ "npmUnits": 451,
+ "matched": 221,
+ "missingInVendor": [
+  {
+   "key": "system#getDragBounds",
+   "line": 5
+  },
+  {
+   "key": "system#hasDraggedAncestor",
+   "line": 23
+  },
+  {
+   "key": "system#getDragSnapReferenceBounds",
+   "line": 31
+  },
+  {
+   "key": "system#getDragSnapAffectedIds",
+   "line": 53
+  },
+  {
+   "key": "system#clamp$c",
+   "line": 63
+  },
+  {
+   "key": "system#errorMessages",
+   "line": 69
+  },
+  {
+   "key": "system#infiniteExtent",
+   "line": 86
+  },
+  {
+   "key": "system#elementSelectionKeys",
+   "line": 90
+  },
+  {
+   "key": "system#defaultAriaLabelConfig",
+   "line": 91
+  },
+  {
+   "key": "system#ConnectionMode",
+   "line": 115
+  },
+  {
+   "key": "system@116",
+   "line": 116
+  },
+  {
+   "key": "system#PanOnScrollMode",
+   "line": 128
+  },
+  {
+   "key": "system@129",
+   "line": 129
+  },
+  {
+   "key": "system#SelectionMode",
+   "line": 134
+  },
+  {
+   "key": "system@135",
+   "line": 135
+  },
+  {
+   "key": "system#initialConnection",
+   "line": 139
+  },
+  {
+   "key": "system#ConnectionLineType",
+   "line": 163
+  },
+  {
+   "key": "system@164",
+   "line": 164
+  },
+  {
+   "key": "system#MarkerType",
+   "line": 177
+  },
+  {
+   "key": "system@178",
+   "line": 178
+  },
+  {
+   "key": "system#Position",
+   "line": 190
+  },
+  {
+   "key": "system@191",
+   "line": 191
+  },
+  {
+   "key": "system#oppositePosition",
+   "line": 197
+  },
+  {
+   "key": "system#areConnectionMapsEqual",
+   "line": 207
+  },
+  {
+   "key": "system#handleConnectionChange",
+   "line": 229
+  },
+  {
+   "key": "system#getConnectionStatus",
+   "line": 243
+  },
+  {
+   "key": "system#isEdgeBase",
+   "line": 255
+  },
+  {
+   "key": "system#isNodeBase",
+   "line": 263
+  },
+  {
+   "key": "system#isInternalNodeBase",
+   "line": 264
+  },
+  {
+   "key": "system#getOutgoers",
+   "line": 288
+  },
+  {
+   "key": "system#getIncomers",
+   "line": 323
+  },
+  {
+   "key": "system#getNodePositionWithOrigin",
+   "line": 335
+  },
+  {
+   "key": "system#getInternalNodesBounds",
+   "line": 406
+  },
+  {
+   "key": "system#getConnectedEdges",
+   "line": 478
+  },
+  {
+   "key": "system#getFitViewNodes",
+   "line": 485
+  },
+  {
+   "key": "system#fitViewport",
+   "line": 496
+  },
+  {
+   "key": "system#calculateNodePosition",
+   "line": 516
+  },
+  {
+   "key": "system#clamp",
+   "line": 606
+  },
+  {
+   "key": "system#clampPosition",
+   "line": 607
+  },
+  {
+   "key": "system#clampPositionToParent",
+   "line": 611
+  },
+  {
+   "key": "system#calcAutoPanVelocity",
+   "line": 627
+  },
+  {
+   "key": "system#calcAutoPan",
+   "line": 636
+  },
+  {
+   "key": "system#getBoundsOfBoxes",
+   "line": 641
+  },
+  {
+   "key": "system#rectToBox",
+   "line": 647
+  },
+  {
+   "key": "system#boxToRect",
+   "line": 653
+  },
+  {
+   "key": "system#nodeToRect",
+   "line": 659
+  },
+  {
+   "key": "system#nodeToBox",
+   "line": 670
+  },
+  {
+   "key": "system#getBoundsOfRects",
+   "line": 681
+  },
+  {
+   "key": "system#getOverlappingArea",
+   "line": 682
+  },
+  {
+   "key": "system#isRectObject",
+   "line": 688
+  },
+  {
+   "key": "system#isNumeric",
+   "line": 690
+  },
+  {
+   "key": "system#devWarn",
+   "line": 692
+  },
+  {
+   "key": "system#snapPosition",
+   "line": 697
+  },
+  {
+   "key": "system#pointToRendererPoint",
+   "line": 703
+  },
+  {
+   "key": "system#rendererPointToPoint",
+   "line": 710
+  },
+  {
+   "key": "system#parsePadding",
+   "line": 723
+  },
+  {
+   "key": "system#parsePaddings",
+   "line": 750
+  },
+  {
+   "key": "system#calculateAppliedPaddings",
+   "line": 783
+  },
+  {
+   "key": "system#getViewportForBounds",
+   "line": 811
+  },
+  {
+   "key": "system#isMacOs",
+   "line": 838
+  },
+  {
+   "key": "system#isCoordinateExtent",
+   "line": 839
+  },
+  {
+   "key": "system#getNodeDimensions",
+   "line": 842
+  },
+  {
+   "key": "system#nodeHasDimensions",
+   "line": 848
+  },
+  {
+   "key": "system#evaluateAbsolutePosition",
+   "line": 862
+  },
+  {
+   "key": "system#areSetsEqual",
+   "line": 872
+  },
+  {
+   "key": "system#withResolvers",
+   "line": 887
+  },
+  {
+   "key": "system#mergeAriaLabelConfig",
+   "line": 896
+  },
+  {
+   "key": "system#getPointerPosition",
+   "line": 900
+  },
+  {
+   "key": "system#getDimensions",
+   "line": 911
+  },
+  {
+   "key": "system#getHostForElement",
+   "line": 915
+  },
+  {
+   "key": "system#inputTags",
+   "line": 916
+  },
+  {
+   "key": "system#isInputDOMNode",
+   "line": 917
+  },
+  {
+   "key": "system#isMouseEvent",
+   "line": 926
+  },
+  {
+   "key": "system#getEventPosition",
+   "line": 927
+  },
+  {
+   "key": "system#getHandleBounds",
+   "line": 941
+  },
+  {
+   "key": "system#getBezierEdgeCenter",
+   "line": 960
+  },
+  {
+   "key": "system#calculateControlOffset",
+   "line": 971
+  },
+  {
+   "key": "system#getControlWithCurvature",
+   "line": 977
+  },
+  {
+   "key": "system#getBezierPath",
+   "line": 1020
+  },
+  {
+   "key": "system#getEdgeCenter",
+   "line": 1057
+  },
+  {
+   "key": "system#getElevatedEdgeZIndex",
+   "line": 1069
+  },
+  {
+   "key": "system#isEdgeVisible",
+   "line": 1077
+  },
+  {
+   "key": "system#getEdgeId",
+   "line": 1099
+  },
+  {
+   "key": "system#connectionExists",
+   "line": 1100
+  },
+  {
+   "key": "system#addEdge",
+   "line": 1119
+  },
+  {
+   "key": "system#reconnectEdge",
+   "line": 1162
+  },
+  {
+   "key": "system#getStraightPath",
+   "line": 1215
+  },
+  {
+   "key": "system#handleDirections",
+   "line": 1225
+  },
+  {
+   "key": "system#getDirection",
+   "line": 1231
+  },
+  {
+   "key": "system#distance",
+   "line": 1237
+  },
+  {
+   "key": "system#getPoints",
+   "line": 1242
+  },
+  {
+   "key": "system#getBend",
+   "line": 1365
+  },
+  {
+   "key": "system#getSmoothStepPath",
+   "line": 1413
+  },
+  {
+   "key": "system#isNodeInitialized",
+   "line": 1431
+  },
+  {
+   "key": "system#getEdgePosition",
+   "line": 1436
+  },
+  {
+   "key": "system#toHandleBounds",
+   "line": 1470
+  },
+  {
+   "key": "system#getHandlePosition",
+   "line": 1491
+  },
+  {
+   "key": "system#getHandle$1",
+   "line": 1510
+  },
+  {
+   "key": "system#getMarkerId",
+   "line": 1518
+  },
+  {
+   "key": "system#createMarkerIds",
+   "line": 1531
+  },
+  {
+   "key": "system#getNodeToolbarTransform",
+   "line": 1549
+  },
+  {
+   "key": "system#alignXToPercent",
+   "line": 1590
+  },
+  {
+   "key": "system#alignYToPercent",
+   "line": 1595
+  },
+  {
+   "key": "system#getEdgeToolbarTransform",
+   "line": 1600
+  },
+  {
+   "key": "system#SELECTED_NODE_Z",
+   "line": 1604
+  },
+  {
+   "key": "system#ROOT_PARENT_Z_INCREMENT",
+   "line": 1605
+  },
+  {
+   "key": "system#defaultOptions",
+   "line": 1606
+  },
+  {
+   "key": "system#adoptUserNodesDefaultOptions",
+   "line": 1613
+  },
+  {
+   "key": "system#mergeObjects",
+   "line": 1617
+  },
+  {
+   "key": "system#updateAbsolutePositions",
+   "line": 1627
+  },
+  {
+   "key": "system#parseHandles",
+   "line": 1641
+  },
+  {
+   "key": "system#isManualZIndexMode",
+   "line": 1670
+  },
+  {
+   "key": "system#adoptUserNodes",
+   "line": 1673
+  },
+  {
+   "key": "system#updateParentLookup",
+   "line": 1721
+  },
+  {
+   "key": "system#updateChildNode",
+   "line": 1736
+  },
+  {
+   "key": "system#calculateZ",
+   "line": 1773
+  },
+  {
+   "key": "system#calculateChildXYZ",
+   "line": 1780
+  },
+  {
+   "key": "system#handleExpandParent",
+   "line": 1799
+  },
+  {
+   "key": "system#updateNodeInternals",
+   "line": 1868
+  },
+  {
+   "key": "system#panBy",
+   "line": 1949
+  },
+  {
+   "key": "system#addConnectionToLookup",
+   "line": 1975
+  },
+  {
+   "key": "system#updateConnectionLookup",
+   "line": 1993
+  },
+  {
+   "key": "system#shallowNodeData",
+   "line": 2007
+  },
+  {
+   "key": "react#AUTO_PAN_DISTANCE",
+   "line": 10
+  },
+  {
+   "key": "react#edgeZones",
+   "line": 11
+  },
+  {
+   "key": "react#AUTO_PAN_ARM_SLACK",
+   "line": 17
+  },
+  {
+   "key": "react#maskAutoPanSides",
+   "line": 18
+  },
+  {
+   "key": "react#getNodesSelectionActiveOnPointerUp",
+   "line": 19
+  },
+  {
+   "key": "react#DEFAULT_LARGE_MOVE_FACTOR",
+   "line": 22
+  },
+  {
+   "key": "react#getKeyboardMoveFactor",
+   "line": 23
+  },
+  {
+   "key": "react#OVERSCAN_PX",
+   "line": 31
+  },
+  {
+   "key": "react#RECOMPUTE_DELTA_PX",
+   "line": 32
+  },
+  {
+   "key": "react#cascadeAbsolutePosition",
+   "line": 33
+  },
+  {
+   "key": "react#selector$d",
+   "line": 2212
+  },
+  {
+   "key": "react#useVisibleEdgeIds",
+   "line": 2538
+  },
+  {
+   "key": "react#ArrowSymbol",
+   "line": 2566
+  },
+  {
+   "key": "react#ArrowClosedSymbol",
+   "line": 2573
+  },
+  {
+   "key": "react#MarkerSymbols",
+   "line": 2580
+  },
+  {
+   "key": "react#useMarkerSymbol",
+   "line": 2584
+  },
+  {
+   "key": "react#Marker",
+   "line": 2597
+  },
+  {
+   "key": "react#MarkerDefinitions",
+   "line": 2609
+  },
+  {
+   "key": "react@2626",
+   "line": 2626
+  },
+  {
+   "key": "react#MarkerDefinitions$1",
+   "line": 2627
+  },
+  {
+   "key": "react#createSmoothStepEdge",
+   "line": 2781
+  },
+  {
+   "key": "react#SmoothStepEdge",
+   "line": 2822
+  },
+  {
+   "key": "react#SmoothStepEdgeInternal",
+   "line": 2826
+  },
+  {
+   "key": "react@2827",
+   "line": 2827
+  },
+  {
+   "key": "react@2828",
+   "line": 2828
+  },
+  {
+   "key": "react#createStepEdge",
+   "line": 2830
+  },
+  {
+   "key": "react#StepEdge",
+   "line": 2860
+  },
+  {
+   "key": "react#StepEdgeInternal",
+   "line": 2864
+  },
+  {
+   "key": "react@2865",
+   "line": 2865
+  },
+  {
+   "key": "react@2866",
+   "line": 2866
+  },
+  {
+   "key": "react#createStraightEdge",
+   "line": 2868
+  },
+  {
+   "key": "react#StraightEdge",
+   "line": 2897
+  },
+  {
+   "key": "react#StraightEdgeInternal",
+   "line": 2901
+  },
+  {
+   "key": "react@2902",
+   "line": 2902
+  },
+  {
+   "key": "react@2903",
+   "line": 2903
+  },
+  {
+   "key": "react#createBezierEdge",
+   "line": 2905
+  },
+  {
+   "key": "react#BezierEdge",
+   "line": 2944
+  },
+  {
+   "key": "react#BezierEdgeInternal",
+   "line": 2948
+  },
+  {
+   "key": "react@2949",
+   "line": 2949
+  },
+  {
+   "key": "react@2950",
+   "line": 2950
+  },
+  {
+   "key": "react#builtinEdgeTypes",
+   "line": 2952
+  },
+  {
+   "key": "react#nullPosition",
+   "line": 2959
+  },
+  {
+   "key": "react#shiftX",
+   "line": 2968
+  },
+  {
+   "key": "react#shiftY",
+   "line": 2975
+  },
+  {
+   "key": "react#EdgeUpdaterClassName",
+   "line": 2982
+  },
+  {
+   "key": "react#EdgeAnchor",
+   "line": 2986
+  },
+  {
+   "key": "react#EdgeUpdateAnchors",
+   "line": 2990
+  },
+  {
+   "key": "react#EdgeWrapper",
+   "line": 3042
+  },
+  {
+   "key": "react#EdgeWrapper$1",
+   "line": 3165
+  },
+  {
+   "key": "react#selector$a",
+   "line": 3167
+  },
+  {
+   "key": "react#EdgeRendererComponent",
+   "line": 3174
+  },
+  {
+   "key": "react@3181",
+   "line": 3181
+  },
+  {
+   "key": "react#EdgeRenderer",
+   "line": 3182
+  },
+  {
+   "key": "react#nodesSelector",
+   "line": 4059
+  },
+  {
+   "key": "react#useNodes",
+   "line": 4079
+  },
+  {
+   "key": "react#edgesSelector",
+   "line": 4084
+  },
+  {
+   "key": "react#useEdges",
+   "line": 4103
+  },
+  {
+   "key": "react#viewportSelector",
+   "line": 4108
+  },
+  {
+   "key": "react#useViewport",
+   "line": 4142
+  },
+  {
+   "key": "react#useOnViewportChange",
+   "line": 4272
+  },
+  {
+   "key": "react#useOnSelectionChange",
+   "line": 4321
+  },
+  {
+   "key": "react#useHandleConnections",
+   "line": 4394
+  },
+  {
+   "key": "react#error014",
+   "line": 4412
+  },
+  {
+   "key": "react#useNodeConnections",
+   "line": 4435
+  },
+  {
+   "key": "react#useInternalNode",
+   "line": 4503
+  },
+  {
+   "key": "react#experimental_useOnNodesChangeMiddleware",
+   "line": 4514
+  },
+  {
+   "key": "react#experimental_useOnEdgesChangeMiddleware",
+   "line": 4535
+  },
+  {
+   "key": "react#LinePattern",
+   "line": 4550
+  },
+  {
+   "key": "react#DotPattern",
+   "line": 4553
+  },
+  {
+   "key": "react#BackgroundVariant",
+   "line": 4563
+  },
+  {
+   "key": "react@4564",
+   "line": 4564
+  },
+  {
+   "key": "react#defaultSize",
+   "line": 4570
+  },
+  {
+   "key": "react#selector$3",
+   "line": 4575
+  },
+  {
+   "key": "react#BackgroundComponent",
+   "line": 4576
+  },
+  {
+   "key": "react@4603",
+   "line": 4603
+  },
+  {
+   "key": "react#Background",
+   "line": 4657
+  },
+  {
+   "key": "react#PlusIcon",
+   "line": 4659
+  },
+  {
+   "key": "react#MinusIcon",
+   "line": 4663
+  },
+  {
+   "key": "react#FitViewIcon",
+   "line": 4667
+  },
+  {
+   "key": "react#LockIcon",
+   "line": 4671
+  },
+  {
+   "key": "react#UnlockIcon",
+   "line": 4675
+  },
+  {
+   "key": "react#ControlButton",
+   "line": 4702
+  },
+  {
+   "key": "react#selector$2",
+   "line": 4706
+  },
+  {
+   "key": "react#ControlsComponent",
+   "line": 4712
+  },
+  {
+   "key": "react@4739",
+   "line": 4739
+  },
+  {
+   "key": "react#Controls",
+   "line": 4761
+  },
+  {
+   "key": "react#MiniMapNodeComponent",
+   "line": 4763
+  },
+  {
+   "key": "react#MiniMapNode",
+   "line": 4772
+  },
+  {
+   "key": "react#selectorNodeIds",
+   "line": 4774
+  },
+  {
+   "key": "react#getAttrFunction",
+   "line": 4775
+  },
+  {
+   "key": "react#MiniMapNodes",
+   "line": 4776
+  },
+  {
+   "key": "react#NodeComponentWrapperInner",
+   "line": 4797
+  },
+  {
+   "key": "react#NodeComponentWrapper",
+   "line": 4819
+  },
+  {
+   "key": "react#MiniMapNodes$1",
+   "line": 4820
+  },
+  {
+   "key": "react#defaultWidth",
+   "line": 4822
+  },
+  {
+   "key": "react#defaultHeight",
+   "line": 4823
+  },
+  {
+   "key": "react#filterHidden",
+   "line": 4824
+  },
+  {
+   "key": "react#selector$1",
+   "line": 4825
+  },
+  {
+   "key": "react#ARIA_LABEL_KEY",
+   "line": 4845
+  },
+  {
+   "key": "react#MiniMapComponent",
+   "line": 4846
+  },
+  {
+   "key": "react@4920",
+   "line": 4920
+  },
+  {
+   "key": "react#MiniMap",
+   "line": 4941
+  },
+  {
+   "key": "react#zoomSelector",
+   "line": 5227
+  },
+  {
+   "key": "react#EdgeToolbar",
+   "line": 5251
+  },
+  {
+   "key": "z-vanilla#vanilla",
+   "line": 31
+  },
+  {
+   "key": "z-shallow#shallow",
+   "line": 38
+  }
+ ],
+ "ambiguous": [
+  {
+   "npm": "system#initPrevValues",
+   "vendor": "initPrevValues$1@2739",
+   "candidates": 2
+  },
+  {
+   "npm": "react#storeSelector",
+   "vendor": "storeSelector@7554",
+   "candidates": 2
+  },
+  {
+   "npm": "react#selector",
+   "vendor": "selector@7532",
+   "candidates": 18
+  },
+  {
+   "npm": "react#selector$4",
+   "vendor": "selector$1@7252",
+   "candidates": 18
+  },
+  {
+   "npm": "react#selector$5",
+   "vendor": "selector$2@7208",
+   "candidates": 18
+  },
+  {
+   "npm": "react#selector$6",
+   "vendor": "selector$3@7198",
+   "candidates": 18
+  },
+  {
+   "npm": "react#ReactFlow",
+   "vendor": "ReactFlow@6892",
+   "candidates": 2
+  },
+  {
+   "npm": "react#createStore",
+   "vendor": "createStore$2@6323",
+   "candidates": 2
+  },
+  {
+   "npm": "react#selector$7",
+   "vendor": "selector$4@5955",
+   "candidates": 18
+  },
+  {
+   "npm": "react#storeSelector$1",
+   "vendor": "storeSelector$1@5933",
+   "candidates": 2
+  },
+  {
+   "npm": "react#selector$b",
+   "vendor": "selector$7@5621",
+   "candidates": 18
+  },
+  {
+   "npm": "react#NodeWrapper$1",
+   "vendor": "NodeWrapper$1@5620",
+   "candidates": 2
+  },
+  {
+   "npm": "react#NodeWrapper",
+   "vendor": "NodeWrapper@5394",
+   "candidates": 2
+  },
+  {
+   "npm": "react#selector$c",
+   "vendor": "selector$8@5318",
+   "candidates": 18
+  },
+  {
+   "npm": "react#selector$e",
+   "vendor": "selector$9@5179",
+   "candidates": 18
+  },
+  {
+   "npm": "react#win",
+   "vendor": "win@5178",
+   "candidates": 2
+  },
+  {
+   "npm": "react#selector$f",
+   "vendor": "selector$a@5076",
+   "candidates": 18
+  },
+  {
+   "npm": "react#selector$g",
+   "vendor": "selector$b@4780",
+   "candidates": 18
+  },
+  {
+   "npm": "react#Provider",
+   "vendor": "Provider@4774",
+   "candidates": 2
+  },
+  {
+   "npm": "react#selector$h",
+   "vendor": "selector$c@4294",
+   "candidates": 18
+  },
+  {
+   "npm": "react#selector$i",
+   "vendor": "selector$d@4264",
+   "candidates": 18
+  },
+  {
+   "npm": "react#selector$j",
+   "vendor": "selector$e@4133",
+   "candidates": 18
+  },
+  {
+   "npm": "react#win$1",
+   "vendor": "win$1@4060",
+   "candidates": 2
+  },
+  {
+   "npm": "react#selector$k",
+   "vendor": "selector$f@3800",
+   "candidates": 18
+  },
+  {
+   "npm": "react#selector$l",
+   "vendor": "selector$g@3249",
+   "candidates": 18
+  },
+  {
+   "npm": "react#selector$m",
+   "vendor": "selector$h@3188",
+   "candidates": 18
+  },
+  {
+   "npm": "react#Provider$1",
+   "vendor": "Provider$1@3045",
+   "candidates": 2
+  }
+ ],
+ "fallback": [
+  {
+   "vendor": "resolveInterpolate",
+   "line": 2331,
+   "npm": "system#resolveInterpolate",
+   "how": "same-name+equiv"
+  },
+  {
+   "vendor": "selector$6",
+   "line": 5697,
+   "npm": "react#selector$9",
+   "how": "same-name+equiv"
+  },
+  {
+   "vendor": "Viewport$1",
+   "line": 5698,
+   "npm": "react#Viewport",
+   "how": "same-name+equiv"
+  },
+  {
+   "vendor": "useOnInitHandler",
+   "line": 5710,
+   "npm": "react#useOnInitHandler",
+   "how": "same-name+equiv"
+  },
+  {
+   "vendor": "selector$5",
+   "line": 5720,
+   "npm": "react#selector$8",
+   "how": "same-name+equiv"
+  },
+  {
+   "vendor": "useViewportSync",
+   "line": 5721,
+   "npm": "react#useViewportSync",
+   "how": "same-name+equiv"
+  },
+  {
+   "vendor": "ReactFlow$1",
+   "line": 7197,
+   "npm": "react#index",
+   "how": "ref-overlap 0.67"
+  }
+ ],
+ "region": [
+  814,
+  7560
+ ],
+ "closureOutside": [
+  {
+   "name": "__vite_import_meta_env__",
+   "line": 2990,
+   "interop": true,
+   "from": [
+    "createStoreImpl$1"
+   ]
+  },
+  {
+   "name": "React",
+   "line": 243,
+   "interop": true,
+   "from": [
+    "useDebugValue"
+   ]
+  },
+  {
+   "name": "useSyncExternalStoreExports",
+   "line": 2989,
+   "interop": true,
+   "from": [
+    "useSyncExternalStoreWithSelector"
+   ]
+  }
+ ],
+ "inRegionUnmatched": [
+  {
+   "names": [
+    "useSyncExternalStoreExports"
+   ],
+   "line": 2989,
+   "kind": "const",
+   "refsMatched": 0
+  },
+  {
+   "names": [
+    "__vite_import_meta_env__"
+   ],
+   "line": 2990,
+   "kind": "const",
+   "refsMatched": 0
+  },
+  {
+   "names": [
+    "ReactDOM"
+   ],
+   "line": 4263,
+   "kind": "const",
+   "refsMatched": 0
+  }
+ ],
+ "counts": {
+  "same": 192,
+  "equiv": 29,
+  "diff": 0
+ }
+}

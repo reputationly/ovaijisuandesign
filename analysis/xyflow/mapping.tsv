@@ -1,0 +1,227 @@
+vendor声明	vendor行	npm包/文件	npm声明	npm行	结论	规则
+cc	814-829	classcat@5.0.5 index.js	cc	1-19	一致	
+getNodesBounds$1	830-861	@xyflow/system@0.0.76 dist/esm/index.js	getNodesBounds	317-338	无行为影响	UNDEF+ENV+FOLD+DEADIF+EMPTY
+getNodesInside	862-898	@xyflow/system@0.0.76 dist/esm/index.js	getNodesInside	354-380	行为改动	
+getElementsToRemove	899-948	@xyflow/system@0.0.76 dist/esm/index.js	getElementsToRemove	496-533	一致	
+isParentSelected	949-961	@xyflow/system@0.0.76 dist/esm/index.js	isParentSelected	1953-1965	一致	
+hasSelector	962-970	@xyflow/system@0.0.76 dist/esm/index.js	hasSelector	1966-1976	一致	
+getDragItems	971-1006	@xyflow/system@0.0.76 dist/esm/index.js	getDragItems	1978-2009	一致	
+getEventHandlerParams	1007-1033	@xyflow/system@0.0.76 dist/esm/index.js	getEventHandlerParams	2015-2041	一致	
+calculateSnapOffset	1034-1053	@xyflow/system@0.0.76 dist/esm/index.js	calculateSnapOffset	2046-2060	一致	
+XYDrag	1054-1694	@xyflow/system@0.0.76 dist/esm/index.js	XYDrag	2063-2291	行为改动	
+getNodesWithinDistance	1695-1709	@xyflow/system@0.0.76 dist/esm/index.js	getNodesWithinDistance	2293-2307	一致	
+ADDITIONAL_DISTANCE	1710-1710	@xyflow/system@0.0.76 dist/esm/index.js	ADDITIONAL_DISTANCE	2312-2312	一致	
+getClosestHandle	1711-1753	@xyflow/system@0.0.76 dist/esm/index.js	getClosestHandle	2313-2349	一致	
+getHandle	1754-1765	@xyflow/system@0.0.76 dist/esm/index.js	getHandle	2350-2362	一致	
+getHandleType	1766-1775	@xyflow/system@0.0.76 dist/esm/index.js	getHandleType	2363-2374	一致	
+isConnectionValid	1776-1784	@xyflow/system@0.0.76 dist/esm/index.js	isConnectionValid	2375-2384	一致	
+alwaysValid	1785-1785	@xyflow/system@0.0.76 dist/esm/index.js	alwaysValid	2386-2386	一致	
+onPointerDown	1786-1972	@xyflow/system@0.0.76 dist/esm/index.js	onPointerDown	2387-2542	一致	
+isValidHandle	1973-2021	@xyflow/system@0.0.76 dist/esm/index.js	isValidHandle	2544-2588	无行为影响	UNDEF
+XYHandle	2022-2025	@xyflow/system@0.0.76 dist/esm/index.js	XYHandle	2589-2592	一致	
+XYMinimap	2026-2103	@xyflow/system@0.0.76 dist/esm/index.js	XYMinimap	2594-2665	行为改动	
+transformToViewport	2104-2108	@xyflow/system@0.0.76 dist/esm/index.js	transformToViewport	2668-2672	一致	
+viewportToTransform	2109-2113	@xyflow/system@0.0.76 dist/esm/index.js	viewportToTransform	2673-2673	一致	
+isWrappedWithClass	2114-2114	@xyflow/system@0.0.76 dist/esm/index.js	isWrappedWithClass	2674-2674	一致	
+isRightClickPan	2115-2115	@xyflow/system@0.0.76 dist/esm/index.js	isRightClickPan	2675-2675	一致	
+defaultEase	2116-2116	@xyflow/system@0.0.76 dist/esm/index.js	defaultEase	2677-2677	一致	
+getD3Transition	2117-2123	@xyflow/system@0.0.76 dist/esm/index.js	getD3Transition	2678-2684	一致	
+wheelDelta	2124-2133	@xyflow/system@0.0.76 dist/esm/index.js	wheelDelta	2685-2688	行为改动	
+createPanOnScrollHandler	2134-2188	@xyflow/system@0.0.76 dist/esm/index.js	createPanOnScrollHandler	2690-2744	一致	
+createZoomOnScrollHandler	2189-2207	@xyflow/system@0.0.76 dist/esm/index.js	createZoomOnScrollHandler	2745-2761	一致	
+createPanZoomStartHandler	2208-2228	@xyflow/system@0.0.76 dist/esm/index.js	createPanZoomStartHandler	2762-2779	一致	
+createPanZoomHandler	2229-2245	@xyflow/system@0.0.76 dist/esm/index.js	createPanZoomHandler	2780-2790	一致	
+createPanZoomEndHandler	2246-2275	@xyflow/system@0.0.76 dist/esm/index.js	createPanZoomEndHandler	2791-2816	一致	
+createFilter	2276-2330	@xyflow/system@0.0.76 dist/esm/index.js	createFilter	2819-2874	一致	
+XYPanZoom	2335-2547	@xyflow/system@0.0.76 dist/esm/index.js	XYPanZoom	2876-3060	行为改动	UNDEF
+ResizeControlVariant	2548-2552	@xyflow/system@0.0.76 dist/esm/index.js	ResizeControlVariant	3067-3071	无行为影响	ENUM
+XY_RESIZER_HANDLE_POSITIONS	2553-2553	@xyflow/system@0.0.76 dist/esm/index.js	XY_RESIZER_HANDLE_POSITIONS	3072-3072	一致	
+XY_RESIZER_LINE_POSITIONS	2554-2554	@xyflow/system@0.0.76 dist/esm/index.js	XY_RESIZER_LINE_POSITIONS	3073-3073	一致	
+getResizeDirection	2555-2573	@xyflow/system@0.0.76 dist/esm/index.js	getResizeDirection	3085-3096	一致	
+getControlDirection	2574-2585	@xyflow/system@0.0.76 dist/esm/index.js	getControlDirection	3102-3113	一致	
+getLowerExtentClamp	2586-2588	@xyflow/system@0.0.76 dist/esm/index.js	getLowerExtentClamp	3114-3116	一致	
+getUpperExtentClamp	2589-2591	@xyflow/system@0.0.76 dist/esm/index.js	getUpperExtentClamp	3117-3119	一致	
+getSizeClamp	2592-2594	@xyflow/system@0.0.76 dist/esm/index.js	getSizeClamp	3120-3122	一致	
+xor	2595-2597	@xyflow/system@0.0.76 dist/esm/index.js	xor	3123-3125	一致	
+getDimensionsAfterResize	2598-2738	@xyflow/system@0.0.76 dist/esm/index.js	getDimensionsAfterResize	3145-3292	一致	
+initPrevValues$1	2739-2744	@xyflow/system@0.0.76 dist/esm/index.js	initPrevValues	3294-3294	一致	
+initStartValues	2745-2750	@xyflow/system@0.0.76 dist/esm/index.js	initStartValues	3295-3300	一致	
+nodeToParentExtent	2751-2753	@xyflow/system@0.0.76 dist/esm/index.js	nodeToParentExtent	3301-3306	一致	
+nodeToChildExtent	2754-2762	@xyflow/system@0.0.76 dist/esm/index.js	nodeToChildExtent	3307-3318	一致	
+XYResizer	2763-2988	@xyflow/system@0.0.76 dist/esm/index.js	XYResizer	3319-3512	无行为影响	UNDEF
+createStoreImpl$1	2991-3023	zustand@4.5.7 esm/vanilla.mjs	createStoreImpl	1-29	无行为影响	ENV
+createStore$3	3024-3024	zustand@4.5.7 esm/vanilla.mjs	createStore	30-30	一致	
+useDebugValue	3025-3027	zustand@4.5.7 esm/traditional.mjs	useDebugValue	5-5	一致	
+useSyncExternalStoreWithSelector	3028-3030	zustand@4.5.7 esm/traditional.mjs	useSyncExternalStoreWithSelector	6-6	一致	
+identity$1	3031-3031	zustand@4.5.7 esm/traditional.mjs	identity	7-7	一致	
+useStoreWithEqualityFn	3032-3036	zustand@4.5.7 esm/traditional.mjs	useStoreWithEqualityFn	8-18	一致	
+createWithEqualityFnImpl	3037-3042	zustand@4.5.7 esm/traditional.mjs	createWithEqualityFnImpl	19-24	一致	
+createWithEqualityFn	3043-3043	zustand@4.5.7 esm/traditional.mjs	createWithEqualityFn	25-25	一致	
+StoreContext	3044-3044	@xyflow/react@12.10.2 dist/esm/index.js	StoreContext	11-11	一致	
+Provider$1	3045-3045	@xyflow/react@12.10.2 dist/esm/index.js	Provider$1	12-12	一致	
+zustandErrorMessage	3046-3046	@xyflow/react@12.10.2 dist/esm/index.js	zustandErrorMessage	14-14	一致	
+useStore$3	3047-3053	@xyflow/react@12.10.2 dist/esm/index.js	useStore	38-44	一致	
+useStoreApi	3054-3064	@xyflow/react@12.10.2 dist/esm/index.js	useStoreApi	58-68	一致	
+style$2	3065-3067	@xyflow/react@12.10.2 dist/esm/index.js	style	70-70	一致	
+ariaLiveStyle	3068-3078	@xyflow/react@12.10.2 dist/esm/index.js	ariaLiveStyle	71-81	一致	
+ARIA_NODE_DESC_KEY	3079-3079	@xyflow/react@12.10.2 dist/esm/index.js	ARIA_NODE_DESC_KEY	82-82	一致	
+ARIA_EDGE_DESC_KEY	3080-3080	@xyflow/react@12.10.2 dist/esm/index.js	ARIA_EDGE_DESC_KEY	83-83	一致	
+ARIA_LIVE_MESSAGE	3081-3081	@xyflow/react@12.10.2 dist/esm/index.js	ARIA_LIVE_MESSAGE	84-84	一致	
+ariaLiveSelector	3082-3082	@xyflow/react@12.10.2 dist/esm/index.js	ariaLiveSelector	85-85	一致	
+ariaLabelConfigSelector	3083-3083	@xyflow/react@12.10.2 dist/esm/index.js	ariaLabelConfigSelector	86-86	一致	
+AriaLiveMessage	3084-3095	@xyflow/react@12.10.2 dist/esm/index.js	AriaLiveMessage	87-90	一致	
+A11yDescriptions	3096-3114	@xyflow/react@12.10.2 dist/esm/index.js	A11yDescriptions	91-96	一致	
+Panel	3115-3130	@xyflow/react@12.10.2 dist/esm/index.js	Panel	123-126	一致	
+@3131	3131-3131	react@127		127-127	一致	
+Attribution	3132-3151	@xyflow/react@12.10.2 dist/esm/index.js	Attribution	129-134	一致	
+shallow$1	3152-3187	zustand@4.5.7 esm/shallow.mjs	shallow$1	1-36	一致	
+selector$h	3188-3205	@xyflow/react@12.10.2 dist/esm/index.js	selector$m	136-150	一致	
+selectId	3206-3206	@xyflow/react@12.10.2 dist/esm/index.js	selectId	151-151	一致	
+areEqual	3207-3209	@xyflow/react@12.10.2 dist/esm/index.js	areEqual	152-155	一致	
+SelectionListenerInner	3210-3227	@xyflow/react@12.10.2 dist/esm/index.js	SelectionListenerInner	156-165	一致	
+changeSelector	3228-3228	@xyflow/react@12.10.2 dist/esm/index.js	changeSelector	166-166	一致	
+SelectionListener	3229-3239	@xyflow/react@12.10.2 dist/esm/index.js	SelectionListener	167-173	一致	
+useIsomorphicLayoutEffect$4	3240-3240	@xyflow/react@12.10.2 dist/esm/index.js	useIsomorphicLayoutEffect	176-176	一致	
+defaultNodeOrigin	3241-3241	@xyflow/react@12.10.2 dist/esm/index.js	defaultNodeOrigin	178-178	一致	
+defaultViewport	3242-3246	@xyflow/react@12.10.2 dist/esm/index.js	defaultViewport	179-179	一致	
+reactFlowFieldsToTrack	3247-3247	@xyflow/react@12.10.2 dist/esm/index.js	reactFlowFieldsToTrack	187-246	行为改动	
+fieldsToTrack	3248-3248	@xyflow/react@12.10.2 dist/esm/index.js	fieldsToTrack	248-248	一致	
+selector$g	3249-3258	@xyflow/react@12.10.2 dist/esm/index.js	selector$l	249-258	一致	
+initPrevValues	3259-3272	@xyflow/react@12.10.2 dist/esm/index.js	initPrevValues	259-272	一致	
+StoreUpdater	3273-3314	@xyflow/react@12.10.2 dist/esm/index.js	StoreUpdater	273-327	一致	
+getMediaQuery	3315-3320	@xyflow/react@12.10.2 dist/esm/index.js	getMediaQuery	329-334	一致	
+useColorModeClass	3321-3337	@xyflow/react@12.10.2 dist/esm/index.js	useColorModeClass	341-357	一致	
+defaultDoc	3338-3338	@xyflow/react@12.10.2 dist/esm/index.js	defaultDoc	359-359	一致	
+useKeyPress	3339-3406	@xyflow/react@12.10.2 dist/esm/index.js	useKeyPress	384-481	一致	
+isMatchingKey	3407-3409	@xyflow/react@12.10.2 dist/esm/index.js	isMatchingKey	483-496	一致	
+useKeyOrCode	3410-3412	@xyflow/react@12.10.2 dist/esm/index.js	useKeyOrCode	497-499	一致	
+useViewportHelper	3413-3523	@xyflow/react@12.10.2 dist/esm/index.js	useViewportHelper	507-584	一致	
+applyChanges	3524-3580	@xyflow/react@12.10.2 dist/esm/index.js	applyChanges	591-669	无行为影响	UNDEF
+applyChange	3581-3619	@xyflow/react@12.10.2 dist/esm/index.js	applyChange	671-706	一致	
+applyNodeChanges	3620-3622	@xyflow/react@12.10.2 dist/esm/index.js	applyNodeChanges	738-740	一致	
+applyEdgeChanges	3623-3625	@xyflow/react@12.10.2 dist/esm/index.js	applyEdgeChanges	772-774	一致	
+createSelectionChange	3626-3632	@xyflow/react@12.10.2 dist/esm/index.js	createSelectionChange	775-781	一致	
+getSelectionChanges	3633-3645	@xyflow/react@12.10.2 dist/esm/index.js	getSelectionChanges	782-800	无行为影响	UNDEF
+getElementsDiffChanges	3646-3680	@xyflow/react@12.10.2 dist/esm/index.js	getElementsDiffChanges	801-821	无行为影响	UNDEF
+elementToRemoveChange	3681-3686	@xyflow/react@12.10.2 dist/esm/index.js	elementToRemoveChange	822-827	一致	
+isNode$2	3687-3687	@xyflow/react@12.10.2 dist/esm/index.js	isNode	850-850	一致	
+isEdge	3688-3688	@xyflow/react@12.10.2 dist/esm/index.js	isEdge	872-872	一致	
+fixedForwardRef	3689-3691	@xyflow/react@12.10.2 dist/esm/index.js	fixedForwardRef	874-877	一致	
+useQueue	3692-3703	@xyflow/react@12.10.2 dist/esm/index.js	useQueue	887-915	一致	
+createQueue	3704-3716	@xyflow/react@12.10.2 dist/esm/index.js	createQueue	916-928	一致	
+BatchContext	3717-3717	@xyflow/react@12.10.2 dist/esm/index.js	BatchContext	930-930	一致	
+BatchProvider	3718-3792	@xyflow/react@12.10.2 dist/esm/index.js	BatchProvider	937-995	一致	
+useBatchContext	3793-3799	@xyflow/react@12.10.2 dist/esm/index.js	useBatchContext	996-1002	一致	
+selector$f	3800-3800	@xyflow/react@12.10.2 dist/esm/index.js	selector$k	1004-1004	一致	
+useReactFlow	3801-4058	@xyflow/react@12.10.2 dist/esm/index.js	useReactFlow	1032-1216	无行为影响	UNDEF
+selected	4059-4059	@xyflow/react@12.10.2 dist/esm/index.js	selected	1218-1218	一致	
+win$1	4060-4060	@xyflow/react@12.10.2 dist/esm/index.js	win$1	1219-1219	无行为影响	UNDEF
+useGlobalKeyHandler	4061-4095	@xyflow/react@12.10.2 dist/esm/index.js	useGlobalKeyHandler	1225-1240	一致	
+useResizeHandler	4096-4125	@xyflow/react@12.10.2 dist/esm/index.js	useResizeHandler	1247-1273	一致	
+containerStyle	4126-4132	@xyflow/react@12.10.2 dist/esm/index.js	containerStyle	1275-1281	一致	
+selector$e	4133-4137	@xyflow/react@12.10.2 dist/esm/index.js	selector$j	1283-1287	一致	
+ZoomPane	4138-4262	@xyflow/react@12.10.2 dist/esm/index.js	ZoomPane	1288-1379	无行为影响	REFARG
+selector$d	4264-4267	@xyflow/react@12.10.2 dist/esm/index.js	selector$i	1381-1384	一致	
+UserSelection	4268-4285	@xyflow/react@12.10.2 dist/esm/index.js	UserSelection	1385-1396	一致	
+wrapHandler	4286-4293	@xyflow/react@12.10.2 dist/esm/index.js	wrapHandler	1398-1405	一致	
+selector$c	4294-4299	@xyflow/react@12.10.2 dist/esm/index.js	selector$h	1406-1411	一致	
+Pane	4300-4634	@xyflow/react@12.10.2 dist/esm/index.js	Pane	1412-1560	行为改动	REFARG+UNDEF
+handleNodeClick	4635-4674	@xyflow/react@12.10.2 dist/esm/index.js	handleNodeClick	1568-1583	行为改动	
+useDrag	4675-4722	@xyflow/react@12.10.2 dist/esm/index.js	useDrag	1590-1629	无行为影响	REFARG
+selectedAndDraggable	4723-4723	@xyflow/react@12.10.2 dist/esm/index.js	selectedAndDraggable	1631-1631	一致	
+useMoveSelectedNodes	4724-4772	@xyflow/react@12.10.2 dist/esm/index.js	useMoveSelectedNodes	1638-1678	行为改动	
+NodeIdContext	4773-4773	@xyflow/react@12.10.2 dist/esm/index.js	NodeIdContext	1680-1680	一致	
+Provider	4774-4774	@xyflow/react@12.10.2 dist/esm/index.js	Provider	1681-1681	一致	
+@4775	4775-4775	react@1682		1682-1682	一致	
+useNodeId	4776-4779	@xyflow/react@12.10.2 dist/esm/index.js	useNodeId	1711-1714	一致	
+selector$b	4780-4784	@xyflow/react@12.10.2 dist/esm/index.js	selector$g	1716-1720	一致	
+connectingSelector	4785-4806	@xyflow/react@12.10.2 dist/esm/index.js	connectingSelector	1721-1736	一致	
+HandleComponent	4807-4991	@xyflow/react@12.10.2 dist/esm/index.js	HandleComponent	1737-1862	无行为影响	UNDEF
+Handle	4992-4992	@xyflow/react@12.10.2 dist/esm/index.js	Handle	1888-1888	一致	
+InputNode	4993-5005	@xyflow/react@12.10.2 dist/esm/index.js	InputNode	1890-1892	一致	
+DefaultNode	5006-5023	@xyflow/react@12.10.2 dist/esm/index.js	DefaultNode	1894-1896	一致	
+GroupNode$1	5024-5026	@xyflow/react@12.10.2 dist/esm/index.js	GroupNode	1898-1900	一致	
+OutputNode	5027-5039	@xyflow/react@12.10.2 dist/esm/index.js	OutputNode	1902-1904	一致	
+arrowKeyDiffs	5040-5057	@xyflow/react@12.10.2 dist/esm/index.js	arrowKeyDiffs	1906-1911	一致	
+builtinNodeTypes	5058-5063	@xyflow/react@12.10.2 dist/esm/index.js	builtinNodeTypes	1912-1917	一致	
+getNodeInlineStyleDimensions	5064-5075	@xyflow/react@12.10.2 dist/esm/index.js	getNodeInlineStyleDimensions	1918-1929	无行为影响	UNDEF
+selector$a	5076-5104	@xyflow/react@12.10.2 dist/esm/index.js	selector$f	1931-1941	行为改动	
+NodesSelection	5105-5177	@xyflow/react@12.10.2 dist/esm/index.js	NodesSelection	1942-1983	行为改动	UNDEF
+win	5178-5178	@xyflow/react@12.10.2 dist/esm/index.js	win	1985-1985	无行为影响	UNDEF
+selector$9	5179-5184	@xyflow/react@12.10.2 dist/esm/index.js	selector$e	1986-1988	一致	
+FlowRendererComponent	5185-5285	@xyflow/react@12.10.2 dist/esm/index.js	FlowRendererComponent	1989-1999	一致	
+@5286	5286-5286	react@2000		2000-2000	一致	
+FlowRenderer	5287-5287	@xyflow/react@12.10.2 dist/esm/index.js	FlowRenderer	2001-2001	一致	
+useVisibleNodeIds	5288-5317	@xyflow/react@12.10.2 dist/esm/index.js	useVisibleNodeIds	2015-2018	行为改动	
+selector$8	5318-5318	@xyflow/react@12.10.2 dist/esm/index.js	selector$c	2020-2020	一致	
+useResizeObserver$1	5319-5344	@xyflow/react@12.10.2 dist/esm/index.js	useResizeObserver	2021-2046	一致	
+useNodeObserver	5345-5393	@xyflow/react@12.10.2 dist/esm/index.js	useNodeObserver	2054-2099	一致	
+NodeWrapper	5394-5619	@xyflow/react@12.10.2 dist/esm/index.js	NodeWrapper	2101-2241	行为改动	UNDEF
+NodeWrapper$1	5620-5620	@xyflow/react@12.10.2 dist/esm/index.js	NodeWrapper$1	2242-2242	无行为影响	VARCONST
+selector$7	5621-5627	@xyflow/react@12.10.2 dist/esm/index.js	selector$b	2244-2250	一致	
+NodeRendererComponent	5628-5694	@xyflow/react@12.10.2 dist/esm/index.js	NodeRendererComponent	2251-2284	一致	
+@5695	5695-5695	react@2285		2285-2285	一致	
+NodeRenderer	5696-5696	@xyflow/react@12.10.2 dist/esm/index.js	NodeRenderer	2286-2286	一致	
+selector$6	5697-5697	@xyflow/react@12.10.2 dist/esm/index.js	selector$9	2941-2941	一致	
+Viewport$1	5698-5709	@xyflow/react@12.10.2 dist/esm/index.js	Viewport	2942-2945	一致	
+useOnInitHandler	5710-5719	@xyflow/react@12.10.2 dist/esm/index.js	useOnInitHandler	2952-2961	一致	
+selector$5	5720-5720	@xyflow/react@12.10.2 dist/esm/index.js	selector$8	2963-2963	一致	
+useViewportSync	5721-5733	@xyflow/react@12.10.2 dist/esm/index.js	useViewportSync	2970-2980	一致	
+EdgeTextComponent	5734-5792	@xyflow/react@12.10.2 dist/esm/index.js	EdgeTextComponent	2386-2405	一致	
+@5793	5793-5793	react@2406		2406-2406	一致	
+EdgeText	5794-5794	@xyflow/react@12.10.2 dist/esm/index.js	EdgeText	2433-2433	一致	
+BaseEdge	5795-5831	@xyflow/react@12.10.2 dist/esm/index.js	BaseEdge	2462-2464	一致	
+getControl	5832-5843	@xyflow/react@12.10.2 dist/esm/index.js	getControl	2466-2471	一致	
+getSimpleBezierPath	5844-5877	@xyflow/react@12.10.2 dist/esm/index.js	getSimpleBezierPath	2485-2517	一致	
+createSimpleBezierEdge	5878-5924	@xyflow/react@12.10.2 dist/esm/index.js	createSimpleBezierEdge	2518-2532	无行为影响	UNDEF
+SimpleBezierEdge	5925-5927	@xyflow/react@12.10.2 dist/esm/index.js	SimpleBezierEdge	2533-2533	一致	
+SimpleBezierEdgeInternal	5928-5930	@xyflow/react@12.10.2 dist/esm/index.js	SimpleBezierEdgeInternal	2534-2534	一致	
+@5931	5931-5931	react@2535		2535-2535	一致	
+@5932	5932-5932	react@2536		2536-2536	一致	
+storeSelector$1	5933-5940	@xyflow/react@12.10.2 dist/esm/index.js	storeSelector$1	2982-2986	一致	
+getSelector	5941-5950	@xyflow/react@12.10.2 dist/esm/index.js	getSelector	2987-2996	一致	
+useConnection	5951-5954	@xyflow/react@12.10.2 dist/esm/index.js	useConnection	3026-3029	一致	
+selector$4	5955-5961	@xyflow/react@12.10.2 dist/esm/index.js	selector$7	3031-3037	一致	
+ConnectionLineWrapper	5962-5994	@xyflow/react@12.10.2 dist/esm/index.js	ConnectionLineWrapper	3038-3045	一致	
+ConnectionLine	5995-6068	@xyflow/react@12.10.2 dist/esm/index.js	ConnectionLine	3046-3083	一致	
+@6069	6069-6069	react@3084		3084-3084	一致	
+emptyTypes	6070-6070	@xyflow/react@12.10.2 dist/esm/index.js	emptyTypes	3086-3086	一致	
+useNodeOrEdgeTypesWarning	6071-6075	@xyflow/react@12.10.2 dist/esm/index.js	useNodeOrEdgeTypesWarning	3088-3103	无行为影响	ENV+FOLD+DEADIF+EMPTY+UNUSEDCALL
+useStylesLoadedWarning	6076-6080	@xyflow/react@12.10.2 dist/esm/index.js	useStylesLoadedWarning	3105-3119	无行为影响	ENV+FOLD+DEADIF+EMPTY+UNUSEDCALL
+GraphViewComponent	6081-6206	@xyflow/react@12.10.2 dist/esm/index.js	GraphViewComponent	3121-3128	行为改动	
+@6207	6207-6207	react@3129		3129-3129	一致	
+GraphView	6208-6208	@xyflow/react@12.10.2 dist/esm/index.js	GraphView	3130-3130	一致	
+getInitialState$1	6209-6322	@xyflow/react@12.10.2 dist/esm/index.js	getInitialState	3132-3220	行为改动	UNDEF
+createStore$2	6323-6807	@xyflow/react@12.10.2 dist/esm/index.js	createStore	3222-3524	行为改动	UNDEF
+ReactFlowProvider	6808-6845	@xyflow/react@12.10.2 dist/esm/index.js	ReactFlowProvider	3560-3577	一致	
+Wrapper	6846-6884	@xyflow/react@12.10.2 dist/esm/index.js	Wrapper	3579-3589	一致	
+wrapperStyle	6885-6891	@xyflow/react@12.10.2 dist/esm/index.js	wrapperStyle	3591-3597	一致	
+ReactFlow	6892-7196	@xyflow/react@12.10.2 dist/esm/index.js	ReactFlow	3598-3607	行为改动	
+ReactFlow$1	7197-7197	@xyflow/react@12.10.2 dist/esm/index.js	index	3628-3628	无行为影响	VARCONST
+selector$3	7198-7198	@xyflow/react@12.10.2 dist/esm/index.js	selector$6	3630-3630	一致	
+EdgeLabelRenderer	7199-7207	@xyflow/react@12.10.2 dist/esm/index.js	EdgeLabelRenderer	3672-3678	一致	
+selector$2	7208-7208	@xyflow/react@12.10.2 dist/esm/index.js	selector$5	3680-3680	一致	
+ViewportPortal	7209-7217	@xyflow/react@12.10.2 dist/esm/index.js	ViewportPortal	3706-3712	一致	
+useUpdateNodeInternals	7218-7241	@xyflow/react@12.10.2 dist/esm/index.js	useUpdateNodeInternals	3759-3773	一致	
+useNodesState	7242-7246	@xyflow/react@12.10.2 dist/esm/index.js	useNodesState	3908-3912	一致	
+useEdgesState	7247-7251	@xyflow/react@12.10.2 dist/esm/index.js	useEdgesState	3960-3964	一致	
+selector$1	7252-7267	@xyflow/react@12.10.2 dist/esm/index.js	selector$4	4049-4062	无行为影响	UNDEF
+useNodesInitialized	7268-7273	@xyflow/react@12.10.2 dist/esm/index.js	useNodesInitialized	4096-4101	一致	
+useNodesData	7274-7292	@xyflow/react@12.10.2 dist/esm/index.js	useNodesData	4172-4190	一致	
+scaleSelector	7293-7293	@xyflow/react@12.10.2 dist/esm/index.js	scaleSelector	4659-4659	无行为影响	UNDEF
+defaultPositions	7294-7297	@xyflow/react@12.10.2 dist/esm/index.js	defaultPositions	4660-4663	一致	
+ResizeControl	7298-7471	@xyflow/react@12.10.2 dist/esm/index.js	ResizeControl	4664-4803	无行为影响	UNDEF
+NodeResizeControl	7472-7472	@xyflow/react@12.10.2 dist/esm/index.js	NodeResizeControl	4809-4809	一致	
+NodeResizer	7473-7531	@xyflow/react@12.10.2 dist/esm/index.js	NodeResizer	4835-4840	一致	
+selector	7532-7532	@xyflow/react@12.10.2 dist/esm/index.js	selector	4842-4842	一致	
+NodeToolbarPortal	7533-7541	@xyflow/react@12.10.2 dist/esm/index.js	NodeToolbarPortal	4843-4849	一致	
+nodeEqualityFn	7542-7542	@xyflow/react@12.10.2 dist/esm/index.js	nodeEqualityFn	4851-4856	一致	
+nodesEqualityFn	7543-7553	@xyflow/react@12.10.2 dist/esm/index.js	nodesEqualityFn	4857-4867	一致	
+storeSelector	7554-7559	@xyflow/react@12.10.2 dist/esm/index.js	storeSelector	4868-4873	一致	
+NodeToolbar$1	7560-7616	@xyflow/react@12.10.2 dist/esm/index.js	NodeToolbar	4909-4941	一致	
+
+# 区段内未配对（不属于 npm 包）
+resolveInterpolate	2331	FunctionDeclaration
+useSyncExternalStoreExports	2989	const
+__vite_import_meta_env__	2990	const
+ReactDOM	4263	const

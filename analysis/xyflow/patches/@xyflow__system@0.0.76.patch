@@ -1,0 +1,2084 @@
+diff --git a/dist/esm/index.js b/dist/esm/index.js
+index 69600fc..b4aa1a0 100644
+--- a/dist/esm/index.js
++++ b/dist/esm/index.js
+@@ -2,6 +2,69 @@ import { drag } from 'd3-drag';
+ import { select, pointer } from 'd3-selection';
+ import { zoom, zoomIdentity, zoomTransform } from 'd3-zoom';
+ import { interpolateZoom, interpolate } from 'd3-interpolate';
++function getDragBounds(previews) {
++        let x = Infinity;
++        let y = Infinity;
++        let x2 = -Infinity;
++        let y22 = -Infinity;
++        for (const preview of previews) {
++                x = Math.min(x, preview.positionAbsolute.x);
++                y = Math.min(y, preview.positionAbsolute.y);
++                x2 = Math.max(x2, preview.positionAbsolute.x + preview.width);
++                y22 = Math.max(y22, preview.positionAbsolute.y + preview.height);
++        }
++        return {
++                x: x,
++                y: y,
++                width: Math.max(0, x2 - x),
++                height: Math.max(0, y22 - y)
++        };
++}
++function hasDraggedAncestor(node, draggedIds, nodeLookup) {
++        let parentId = node.parentId;
++        while (parentId) {
++                if (draggedIds.has(parentId)) return true;
++                parentId = nodeLookup.get(parentId)?.parentId;
++        }
++        return false;
++}
++function getDragSnapReferenceBounds(nodeLookup, dragItems) {
++        const draggedIds = new Set(dragItems.keys());
++        const references = [];
++        for (const [id, node] of nodeLookup) {
++                const width = node.measured.width;
++                const height = node.measured.height;
++                if (draggedIds.has(id) || hasDraggedAncestor(node, draggedIds, nodeLookup) || node.hidden || !width || !height) {
++                        continue;
++                }
++                references.push({
++                        id: id,
++                        x: node.internals.positionAbsolute.x,
++                        y: node.internals.positionAbsolute.y,
++                        width,
++                        height,
++                        parentId: node.parentId,
++                        type: node.type,
++                        data: node.data
++                });
++        }
++        return references;
++}
++function getDragSnapAffectedIds(nodeLookup, dragItems) {
++        const dragRootIds = new Set(dragItems.keys());
++        const affectedIds = [];
++        for (const [id, node] of nodeLookup) {
++                if (dragRootIds.has(id) || hasDraggedAncestor(node, dragRootIds, nodeLookup)) {
++                        affectedIds.push(id);
++                }
++        }
++        return affectedIds;
++}
++const clamp$c = (val, min = 0, max = 1) => Math.min(Math.max(val, min), max);
++function resolveInterpolate(option) {
++        if (typeof option === 'function') return option;
++        return option === 'linear' ? interpolate : interpolateZoom;
++}
+ 
+ const errorMessages = {
+     error001: () => '[React Flow]: Seems like you have not used zustand provider as an ancestor. Help: https://reactflow.dev/error#001',
+@@ -353,7 +416,7 @@ const getInternalNodesBounds = (nodeLookup, params = {}) => {
+ };
+ const getNodesInside = (nodes, rect, [tx, ty, tScale] = [0, 0, 1], partially = false, 
+ // set excludeNonSelectableNodes if you want to pay attention to the nodes "selectable" attribute
+-excludeNonSelectableNodes = false) => {
++excludeNonSelectableNodes = false, includeRenderBounds = false) => {
+     const paneRect = {
+         ...pointToRendererPoint(rect, [tx, ty, tScale]),
+         width: rect.width / tScale,
+@@ -365,12 +428,20 @@ excludeNonSelectableNodes = false) => {
+         if ((excludeNonSelectableNodes && !selectable) || hidden) {
+             continue;
+         }
+-        const width = measured.width ?? node.width ?? node.initialWidth ?? null;
+-        const height = measured.height ?? node.height ?? node.initialHeight ?? null;
+-        const overlappingArea = getOverlappingArea(paneRect, nodeToRect(node));
+-        const area = (width ?? 0) * (height ?? 0);
++        measured.width ?? node.width ?? node.initialWidth ?? null;
++        measured.height ?? node.height ?? node.initialHeight ?? null;
++        const nodeRect = nodeToRect(node);
++        const renderBounds = includeRenderBounds ? node.renderBounds : void 0;
++        const renderedRect = renderBounds ? {
++            x: nodeRect.x - (renderBounds.left ?? 0),
++            y: nodeRect.y - (renderBounds.top ?? 0),
++            width: nodeRect.width + (renderBounds.left ?? 0) + (renderBounds.right ?? 0),
++            height: nodeRect.height + (renderBounds.top ?? 0) + (renderBounds.bottom ?? 0)
++        } : nodeRect;
++        const overlappingArea = getOverlappingArea(paneRect, renderedRect);
++        const area = (renderedRect.width) * (renderedRect.height);
+         const partiallyVisible = partially && overlappingArea > 0;
+-        const forceInitialRender = !node.internals.handleBounds;
++        const forceInitialRender = !excludeNonSelectableNodes && !node.internals.handleBounds;
+         const isVisible = forceInitialRender || partiallyVisible || overlappingArea >= area;
+         if (isVisible || node.dragging) {
+             visibleNodes.push(node);
+@@ -2062,7 +2133,12 @@ function calculateSnapOffset({ dragItems, snapGrid, x, y, }) {
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
+ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragStop, }) {
+     let lastPos = { x: null, y: null };
++    let lastProcessedPos = {
++        x: null,
++        y: null
++    };
+     let autoPanId = 0;
++    let autoPanSession = 0;
+     let dragItems = new Map();
+     let autoPanStarted = false;
+     let mousePosition = { x: 0, y: 0 };
+@@ -2073,74 +2149,288 @@ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragSto
+     let nodePositionsChanged = false;
+     // we store the last drag event to be able to use it in the update function
+     let dragEvent = null;
++    let pendingDragPos = null;
++    let dragRafId = 0;
++    let dragNodeElements = new Map();
++    let dragEdgePaths = new Map();
++    let dragEdgeInfo = new Map();
++    let dragSnapReferenceBounds = [];
++    let dragSnapStartBounds = null;
++    let dragSnapAffectedIds = [];
++    let dragSnapActive = false;
+     // public functions
+-    function update({ noDragClassName, handleSelector, domNode, isSelectable, nodeId, nodeClickDistance = 0, }) {
++    function finishDragSnap() {
++        if (!dragSnapActive) return;
++        dragSnapActive = false;
++        getStoreItems().onNodeDragSnapEnd?.();
++    }
++    let activeNodeId;
++    let dragStopDispatched = true;
++    function stopAutoPan() {
++        autoPanStarted = false;
++        autoPanSession += 1;
++        cancelAnimationFrame(autoPanId);
++        autoPanId = 0;
++    }
++    function dispatchDragStop(event) {
++        if (!dragStarted || dragStopDispatched) return;
++        dragStopDispatched = true;
++        const {
++            nodeLookup,
++            updateNodePositions,
++            onNodeDragStop,
++            onSelectionDragStop
++        } = getStoreItems();
++        if (nodePositionsChanged && dragItems.size > 0) {
++            updateNodePositions(dragItems, false);
++        }
++        nodePositionsChanged = false;
++        if (dragItems.size === 0) return;
++        if (onDragStop || onNodeDragStop || !activeNodeId && onSelectionDragStop) {
++            const [currentNode, currentNodes] = getEventHandlerParams({
++                nodeId: activeNodeId,
++                dragItems,
++                nodeLookup,
++                dragging: false
++            });
++            onDragStop?.(event, dragItems, currentNode, currentNodes);
++            onNodeDragStop?.(event, currentNode, currentNodes);
++            if (!activeNodeId) onSelectionDragStop?.(event, currentNodes);
++        }
++    }
++    function update({
++        noDragClassName,
++        handleSelector,
++        domNode,
++        isSelectable,
++        nodeId,
++        nodeClickDistance = 0
++    }) {
++        activeNodeId = nodeId;
+         d3Selection = select(domNode);
+-        function updateNodes({ x, y }) {
+-            const { nodeLookup, nodeExtent, snapGrid, snapToGrid, nodeOrigin, onNodeDrag, onSelectionDrag, onError, updateNodePositions, } = getStoreItems();
+-            lastPos = { x, y };
++        function updateNodes({
++            x: x,
++            y: y
++        }, phase = 'move') {
++            const {
++                nodeLookup,
++                nodeExtent,
++                snapGrid,
++                snapToGrid,
++                nodeDragSnapResolver,
++                transform: transform,
++                nodeOrigin,
++                onNodeDrag,
++                onSelectionDrag,
++                onError,
++                updateNodePositions
++            } = getStoreItems();
++            lastPos = {
++                x: x,
++                y: y
++            };
++            const nativeSnapToGrid = snapToGrid && !nodeDragSnapResolver;
++            lastProcessedPos = nativeSnapToGrid ? snapPosition({
++                x: x,
++                y: y
++            }, snapGrid) : {
++                x: x,
++                y: y
++            };
+             let hasChange = false;
+             const isMultiDrag = dragItems.size > 1;
+             const nodesBox = isMultiDrag && nodeExtent ? rectToBox(getInternalNodesBounds(dragItems)) : null;
+-            const multiDragSnapOffset = isMultiDrag && snapToGrid
+-                ? calculateSnapOffset({
+-                    dragItems,
+-                    snapGrid,
+-                    x,
+-                    y,
+-                })
+-                : null;
++            const multiDragSnapOffset = isMultiDrag && nativeSnapToGrid ? calculateSnapOffset({
++                dragItems,
++                snapGrid,
++                x: x,
++                y: y
++            }) : null;
++            const previews = new Map();
+             for (const [id, dragItem] of dragItems) {
+-                /*
+-                 * if the node is not in the nodeLookup anymore, it was probably deleted while dragging
+-                 */
+                 if (!nodeLookup.has(id)) {
+                     continue;
+                 }
+-                let nextPosition = { x: x - dragItem.distance.x, y: y - dragItem.distance.y };
+-                if (snapToGrid) {
+-                    nextPosition = multiDragSnapOffset
+-                        ? {
+-                            x: Math.round(nextPosition.x + multiDragSnapOffset.x),
+-                            y: Math.round(nextPosition.y + multiDragSnapOffset.y),
+-                        }
+-                        : snapPosition(nextPosition, snapGrid);
++                let nextPosition = {
++                    x: x - dragItem.distance.x,
++                    y: y - dragItem.distance.y
++                };
++                if (nativeSnapToGrid) {
++                    nextPosition = multiDragSnapOffset ? {
++                        x: Math.round(nextPosition.x + multiDragSnapOffset.x),
++                        y: Math.round(nextPosition.y + multiDragSnapOffset.y)
++                    } : snapPosition(nextPosition, snapGrid);
+                 }
+                 let adjustedNodeExtent = null;
+                 if (isMultiDrag && nodeExtent && !dragItem.extent && nodesBox) {
+-                    const { positionAbsolute } = dragItem.internals;
+-                    const x1 = positionAbsolute.x - nodesBox.x + nodeExtent[0][0];
+-                    const x2 = positionAbsolute.x + dragItem.measured.width - nodesBox.x2 + nodeExtent[1][0];
+-                    const y1 = positionAbsolute.y - nodesBox.y + nodeExtent[0][1];
+-                    const y2 = positionAbsolute.y + dragItem.measured.height - nodesBox.y2 + nodeExtent[1][1];
+-                    adjustedNodeExtent = [
+-                        [x1, y1],
+-                        [x2, y2],
+-                    ];
++                    const {
++                        positionAbsolute: positionAbsolute2
++                    } = dragItem.internals;
++                    const x1 = positionAbsolute2.x - nodesBox.x + nodeExtent[0][0];
++                    const x22 = positionAbsolute2.x + dragItem.measured.width - nodesBox.x2 + nodeExtent[1][0];
++                    const y1 = positionAbsolute2.y - nodesBox.y + nodeExtent[0][1];
++                    const y22 = positionAbsolute2.y + dragItem.measured.height - nodesBox.y2 + nodeExtent[1][1];
++                    adjustedNodeExtent = [[x1, y1], [x22, y22]];
+                 }
+-                const { position, positionAbsolute } = calculateNodePosition({
++                const {
++                    position: position,
++                    positionAbsolute
++                } = calculateNodePosition({
+                     nodeId: id,
+                     nextPosition,
+                     nodeLookup,
+                     nodeExtent: adjustedNodeExtent ? adjustedNodeExtent : nodeExtent,
+                     nodeOrigin,
+-                    onError,
++                    onError
++                });
++                previews.set(id, {
++                    nextPosition,
++                    adjustedNodeExtent,
++                    position: position,
++                    positionAbsolute,
++                    width: dragItem.measured.width,
++                    height: dragItem.measured.height
++                });
++            }
++            let customSnapDelta = {
++                x: 0,
++                y: 0
++            };
++            if (nodeDragSnapResolver && previews.size > 0) {
++                dragSnapActive = true;
++                const movingBounds = getDragBounds(Array.from(previews.values()));
++                const result = nodeDragSnapResolver({
++                    movingBounds,
++                    movement: dragSnapStartBounds ? {
++                        x: movingBounds.x - dragSnapStartBounds.x,
++                        y: movingBounds.y - dragSnapStartBounds.y
++                    } : {
++                        x: 0,
++                        y: 0
++                    },
++                    draggedIds: dragSnapAffectedIds,
++                    referenceBounds: dragSnapReferenceBounds,
++                    zoom: transform[2],
++                    bypass: Boolean(dragEvent?.altKey),
++                    phase
++                });
++                if (result) customSnapDelta = result.delta;
++            }
++            for (const [id, preview] of previews) {
++                const dragItem = dragItems.get(id);
++                if (!dragItem) continue;
++                const resolved = customSnapDelta.x === 0 && customSnapDelta.y === 0 ? preview : calculateNodePosition({
++                    nodeId: id,
++                    nextPosition: {
++                        x: preview.nextPosition.x + customSnapDelta.x,
++                        y: preview.nextPosition.y + customSnapDelta.y
++                    },
++                    nodeLookup,
++                    nodeExtent: preview.adjustedNodeExtent ?? nodeExtent,
++                    nodeOrigin,
++                    onError
+                 });
+-                // we want to make sure that we only fire a change event when there is a change
+-                hasChange = hasChange || dragItem.position.x !== position.x || dragItem.position.y !== position.y;
+-                dragItem.position = position;
+-                dragItem.internals.positionAbsolute = positionAbsolute;
++                hasChange = hasChange || dragItem.position.x !== resolved.position.x || dragItem.position.y !== resolved.position.y;
++                dragItem.position = resolved.position;
++                dragItem.internals.positionAbsolute = resolved.positionAbsolute;
+             }
+             nodePositionsChanged = nodePositionsChanged || hasChange;
+             if (!hasChange) {
+                 return;
+             }
+             updateNodePositions(dragItems, true);
+-            if (dragEvent && (onDrag || onNodeDrag || (!nodeId && onSelectionDrag))) {
++            const {
++                connectionMode,
++                domNode: currentDomNode,
++                parentLookup
++            } = getStoreItems();
++            const writeTransform = (id, abs) => {
++                let el = dragNodeElements.get(id);
++                if (el && !el.isConnected) {
++                    el = void 0;
++                }
++                if (!el && currentDomNode) {
++                    const queried = currentDomNode.querySelector(`.react-flow__node[data-id="${id}"]`);
++                    if (queried) {
++                        el = queried;
++                        dragNodeElements.set(id, el);
++                    }
++                }
++                if (el) {
++                    el.style.transform = `translate(${abs.x}px,${abs.y}px)`;
++                }
++            };
++            for (const [id, dragItem] of dragItems) {
++                writeTransform(id, dragItem.internals.positionAbsolute);
++                const stack = [id];
++                while (stack.length > 0) {
++                    const currentId = stack.pop();
++                    const children = parentLookup?.get(currentId);
++                    if (!children || children.size === 0) continue;
++                    for (const childId of children.keys()) {
++                        const childNode = nodeLookup.get(childId);
++                        if (!childNode) continue;
++                        writeTransform(childId, childNode.internals.positionAbsolute);
++                        stack.push(childId);
++                    }
++                }
++            }
++            if (dragEdgeInfo.size > 0) {
++                for (const [edgeId, info] of dragEdgeInfo) {
++                    const sourceNode = nodeLookup.get(info.sourceNodeId);
++                    const targetNode = nodeLookup.get(info.targetNodeId);
++                    if (!sourceNode || !targetNode) continue;
++                    const edgePos = getEdgePosition({
++                        id: edgeId,
++                        sourceNode,
++                        sourceHandle: info.sourceHandle,
++                        targetNode,
++                        targetHandle: info.targetHandle,
++                        connectionMode
++                    });
++                    if (!edgePos) continue;
++                    const pathParams = {
++                        sourceX: edgePos.sourceX,
++                        sourceY: edgePos.sourceY,
++                        sourcePosition: edgePos.sourcePosition,
++                        targetX: edgePos.targetX,
++                        targetY: edgePos.targetY,
++                        targetPosition: edgePos.targetPosition
++                    };
++                    let pathStr;
++                    if (info.edgeType === 'straight') {
++                        [pathStr] = getStraightPath(pathParams);
++                    } else if (info.edgeType === 'smoothstep' || info.edgeType === 'step') {
++                        [pathStr] = getSmoothStepPath({
++                            ...pathParams,
++                            borderRadius: info.edgeType === 'step' ? 0 : void 0
++                        });
++                    } else {
++                        [pathStr] = getBezierPath(pathParams);
++                    }
++                    let paths = dragEdgePaths.get(edgeId);
++                    if (paths && paths.length > 0 && !paths[0].isConnected) {
++                        paths = void 0;
++                    }
++                    if (!paths && currentDomNode) {
++                        const gEl = currentDomNode.querySelector(`g[data-id="${edgeId}"]`);
++                        if (gEl) {
++                            paths = Array.from(gEl.querySelectorAll('path'));
++                            dragEdgePaths.set(edgeId, paths);
++                        }
++                    }
++                    if (paths) {
++                        for (const pathEl of paths) {
++                            pathEl.setAttribute('d', pathStr);
++                        }
++                    }
++                }
++            }
++            if (dragEvent && (onDrag || onNodeDrag || !nodeId && onSelectionDrag)) {
+                 const [currentNode, currentNodes] = getEventHandlerParams({
+                     nodeId,
+                     dragItems,
+-                    nodeLookup,
++                    nodeLookup
+                 });
+                 onDrag?.(dragEvent, dragItems, currentNode, currentNodes);
+                 onNodeDrag?.(dragEvent, currentNode, currentNodes);
+@@ -2149,46 +2439,139 @@ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragSto
+                 }
+             }
+         }
+-        async function autoPan() {
+-            if (!containerBounds) {
++        async function autoPan(session) {
++            if (!autoPanStarted || session !== autoPanSession || !containerBounds) {
+                 return;
+             }
+-            const { transform, panBy, autoPanSpeed, autoPanOnNodeDrag } = getStoreItems();
++            const {
++                transform: transform,
++                panBy: panBy,
++                autoPanSpeed,
++                autoPanOnNodeDrag
++            } = getStoreItems();
+             if (!autoPanOnNodeDrag) {
+-                autoPanStarted = false;
+-                cancelAnimationFrame(autoPanId);
++                stopAutoPan();
+                 return;
+             }
+             const [xMovement, yMovement] = calcAutoPan(mousePosition, containerBounds, autoPanSpeed);
+             if (xMovement !== 0 || yMovement !== 0) {
+-                lastPos.x = (lastPos.x ?? 0) - xMovement / transform[2];
+-                lastPos.y = (lastPos.y ?? 0) - yMovement / transform[2];
+-                if (await panBy({ x: xMovement, y: yMovement })) {
+-                    updateNodes(lastPos);
++                const nextPosition = {
++                    x: (lastPos.x ?? 0) - xMovement / transform[2],
++                    y: (lastPos.y ?? 0) - yMovement / transform[2]
++                };
++                const didPan = await panBy({
++                    x: xMovement,
++                    y: yMovement
++                });
++                if (!autoPanStarted || session !== autoPanSession) return;
++                if (didPan) {
++                    lastPos = nextPosition;
++                    updateNodes(nextPosition);
+                 }
+             }
+-            autoPanId = requestAnimationFrame(autoPan);
++            if (autoPanStarted && session === autoPanSession) {
++                autoPanId = requestAnimationFrame(() => autoPan(session));
++            }
+         }
+         function startDrag(event) {
+-            const { nodeLookup, multiSelectionActive, nodesDraggable, transform, snapGrid, snapToGrid, selectNodesOnDrag, onNodeDragStart, onSelectionDragStart, unselectNodesAndEdges, } = getStoreItems();
++            const {
++                nodeLookup,
++                multiSelectionActive,
++                nodesDraggable,
++                transform: transform,
++                snapGrid,
++                snapToGrid,
++                nodeDragSnapResolver,
++                selectNodesOnDrag,
++                onNodeDragStart,
++                onSelectionDragStart,
++                unselectNodesAndEdges
++            } = getStoreItems();
+             dragStarted = true;
++            dragStopDispatched = false;
+             if ((!selectNodesOnDrag || !isSelectable) && !multiSelectionActive && nodeId) {
+                 if (!nodeLookup.get(nodeId)?.selected) {
+-                    // we need to reset selected nodes when selectNodesOnDrag=false
+                     unselectNodesAndEdges();
+                 }
+             }
+             if (isSelectable && selectNodesOnDrag && nodeId) {
+                 onNodeMouseDown?.(nodeId);
+             }
+-            const pointerPos = getPointerPosition(event.sourceEvent, { transform, snapGrid, snapToGrid, containerBounds });
++            const nativeSnapToGrid = snapToGrid && !nodeDragSnapResolver;
++            const pointerPos = getPointerPosition(event.sourceEvent, {
++                transform: transform,
++                snapGrid,
++                snapToGrid: nativeSnapToGrid,
++                containerBounds
++            });
+             lastPos = pointerPos;
++            lastProcessedPos = nativeSnapToGrid ? {
++                x: pointerPos.xSnapped,
++                y: pointerPos.ySnapped
++            } : {
++                x: pointerPos.x,
++                y: pointerPos.y
++            };
+             dragItems = getDragItems(nodeLookup, nodesDraggable, pointerPos, nodeId);
+-            if (dragItems.size > 0 && (onDragStart || onNodeDragStart || (!nodeId && onSelectionDragStart))) {
++            dragSnapReferenceBounds = getDragSnapReferenceBounds(nodeLookup, dragItems);
++            dragSnapAffectedIds = getDragSnapAffectedIds(nodeLookup, dragItems);
++            const startBounds = dragItems.size > 0 ? getDragBounds(Array.from(dragItems.values()).map(item => ({
++                positionAbsolute: item.internals.positionAbsolute,
++                width: item.measured.width,
++                height: item.measured.height
++            }))) : null;
++            dragSnapStartBounds = startBounds ? {
++                id: '__drag-start__',
++                ...startBounds
++            } : null;
++            dragNodeElements.clear();
++            const {
++                domNode: domNode2,
++                connectionLookup,
++                edgeLookup
++            } = getStoreItems();
++            if (domNode2) {
++                for (const [id] of dragItems) {
++                    const el = domNode2.querySelector(`.react-flow__node[data-id="${id}"]`);
++                    if (el) {
++                        dragNodeElements.set(id, el);
++                    }
++                }
++                dragEdgePaths.clear();
++                dragEdgeInfo.clear();
++                const connectedEdgeIds = new Set();
++                for (const [dragNodeId] of dragItems) {
++                    const connections = connectionLookup.get(dragNodeId);
++                    if (connections) {
++                        for (const [, conn] of connections) {
++                            connectedEdgeIds.add(conn.edgeId);
++                        }
++                    }
++                }
++                for (const edgeId of connectedEdgeIds) {
++                    const edge = edgeLookup.get(edgeId);
++                    if (!edge) continue;
++                    dragEdgeInfo.set(edgeId, {
++                        sourceNodeId: edge.source,
++                        targetNodeId: edge.target,
++                        sourceHandle: edge.sourceHandle ?? null,
++                        targetHandle: edge.targetHandle ?? null,
++                        edgeType: edge.type
++                    });
++                    const gEl = domNode2.querySelector(`g[data-id="${edgeId}"]`);
++                    if (gEl) {
++                        const paths = Array.from(gEl.querySelectorAll('path'));
++                        if (paths.length > 0) {
++                            dragEdgePaths.set(edgeId, paths);
++                        }
++                    }
++                }
++            }
++            if (dragItems.size > 0 && (onDragStart || onNodeDragStart || !nodeId && onSelectionDragStart)) {
+                 const [currentNode, currentNodes] = getEventHandlerParams({
+                     nodeId,
+                     dragItems,
+-                    nodeLookup,
++                    nodeLookup
+                 });
+                 onDragStart?.(event.sourceEvent, dragItems, currentNode, currentNodes);
+                 onNodeDragStart?.(event.sourceEvent, currentNode, currentNodes);
+@@ -2197,39 +2580,83 @@ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragSto
+                 }
+             }
+         }
+-        const d3DragInstance = drag()
+-            .clickDistance(nodeClickDistance)
+-            .on('start', (event) => {
+-            const { domNode, nodeDragThreshold, transform, snapGrid, snapToGrid } = getStoreItems();
+-            containerBounds = domNode?.getBoundingClientRect() || null;
++        const d3DragInstance = drag().clickDistance(nodeClickDistance).on('start', event => {
++            const {
++                domNode: domNode2,
++                nodeDragThreshold,
++                transform: transform,
++                snapGrid,
++                snapToGrid,
++                nodeDragSnapResolver
++            } = getStoreItems();
++            containerBounds = domNode2?.getBoundingClientRect() || null;
+             abortDrag = false;
+             nodePositionsChanged = false;
+             dragEvent = event.sourceEvent;
+             if (nodeDragThreshold === 0) {
+                 startDrag(event);
+             }
+-            const pointerPos = getPointerPosition(event.sourceEvent, { transform, snapGrid, snapToGrid, containerBounds });
++            const nativeSnapToGrid = snapToGrid && !nodeDragSnapResolver;
++            const pointerPos = getPointerPosition(event.sourceEvent, {
++                transform: transform,
++                snapGrid,
++                snapToGrid: nativeSnapToGrid,
++                containerBounds
++            });
+             lastPos = pointerPos;
++            lastProcessedPos = nativeSnapToGrid ? {
++                x: pointerPos.xSnapped,
++                y: pointerPos.ySnapped
++            } : {
++                x: pointerPos.x,
++                y: pointerPos.y
++            };
+             mousePosition = getEventPosition(event.sourceEvent, containerBounds);
+-        })
+-            .on('drag', (event) => {
+-            const { autoPanOnNodeDrag, transform, snapGrid, snapToGrid, nodeDragThreshold, nodeLookup } = getStoreItems();
+-            const pointerPos = getPointerPosition(event.sourceEvent, { transform, snapGrid, snapToGrid, containerBounds });
++        }).on('drag', event => {
++            const {
++                autoPanOnNodeDrag,
++                transform: transform,
++                snapGrid,
++                snapToGrid,
++                nodeDragSnapResolver,
++                nodeDragThreshold,
++                nodeLookup
++            } = getStoreItems();
++            const nativeSnapToGrid = snapToGrid && !nodeDragSnapResolver;
++            const pointerPos = getPointerPosition(event.sourceEvent, {
++                transform: transform,
++                snapGrid,
++                snapToGrid: nativeSnapToGrid,
++                containerBounds
++            });
+             dragEvent = event.sourceEvent;
+-            if ((event.sourceEvent.type === 'touchmove' && event.sourceEvent.touches.length > 1) ||
+-                // if user deletes a node while dragging, we need to abort the drag to prevent errors
+-                (nodeId && !nodeLookup.has(nodeId))) {
++            if (event.sourceEvent.type === 'touchmove' && event.sourceEvent.touches.length > 1 || nodeId && !nodeLookup.has(nodeId)) {
+                 abortDrag = true;
+             }
+             if (abortDrag) {
++                if (dragRafId) {
++                    cancelAnimationFrame(dragRafId);
++                    dragRafId = 0;
++                }
++                pendingDragPos = null;
++                dispatchDragStop(event.sourceEvent);
++                dragStarted = false;
++                stopAutoPan();
++                finishDragSnap();
++                dragNodeElements.clear();
++                dragEdgePaths.clear();
++                dragEdgeInfo.clear();
++                dragSnapReferenceBounds = [];
++                dragSnapStartBounds = null;
++                dragSnapAffectedIds = [];
+                 return;
+             }
+             if (!autoPanStarted && autoPanOnNodeDrag && dragStarted) {
+                 autoPanStarted = true;
+-                autoPan();
++                autoPanSession += 1;
++                autoPan(autoPanSession);
+             }
+             if (!dragStarted) {
+-                // Calculate distance in client coordinates for consistent drag threshold behavior across zoom levels
+                 const currentMousePosition = getEventPosition(event.sourceEvent, containerBounds);
+                 const x = currentMousePosition.x - mousePosition.x;
+                 const y = currentMousePosition.y - mousePosition.y;
+@@ -2238,54 +2665,98 @@ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragSto
+                     startDrag(event);
+                 }
+             }
+-            // skip events without movement
+-            if ((lastPos.x !== pointerPos.xSnapped || lastPos.y !== pointerPos.ySnapped) && dragItems && dragStarted) {
++            const movementPosition = nativeSnapToGrid ? {
++                x: pointerPos.xSnapped,
++                y: pointerPos.ySnapped
++            } : {
++                x: pointerPos.x,
++                y: pointerPos.y
++            };
++            if ((lastProcessedPos.x !== movementPosition.x || lastProcessedPos.y !== movementPosition.y) && dragItems && dragStarted) {
+                 mousePosition = getEventPosition(event.sourceEvent, containerBounds);
+-                updateNodes(pointerPos);
++                pendingDragPos = pointerPos;
++                if (!dragRafId) {
++                    dragRafId = requestAnimationFrame(() => {
++                        dragRafId = 0;
++                        if (pendingDragPos) {
++                            updateNodes(pendingDragPos);
++                            pendingDragPos = null;
++                        }
++                    });
++                }
+             }
+-        })
+-            .on('end', (event) => {
++        }).on('end', event => {
++            dragEvent = event.sourceEvent;
+             if (!dragStarted || abortDrag) {
++                if (dragRafId) {
++                    cancelAnimationFrame(dragRafId);
++                    dragRafId = 0;
++                }
++                pendingDragPos = null;
++                dispatchDragStop(event.sourceEvent);
++                dragStarted = false;
++                stopAutoPan();
++                finishDragSnap();
++                dragNodeElements.clear();
++                dragEdgePaths.clear();
++                dragEdgeInfo.clear();
++                dragSnapReferenceBounds = [];
++                dragSnapStartBounds = null;
++                dragSnapAffectedIds = [];
+                 return;
+             }
+-            autoPanStarted = false;
+-            dragStarted = false;
+-            cancelAnimationFrame(autoPanId);
+-            if (dragItems.size > 0) {
+-                const { nodeLookup, updateNodePositions, onNodeDragStop, onSelectionDragStop } = getStoreItems();
+-                if (nodePositionsChanged) {
+-                    updateNodePositions(dragItems, false);
+-                    nodePositionsChanged = false;
+-                }
+-                if (onDragStop || onNodeDragStop || (!nodeId && onSelectionDragStop)) {
+-                    const [currentNode, currentNodes] = getEventHandlerParams({
+-                        nodeId,
+-                        dragItems,
+-                        nodeLookup,
+-                        dragging: false,
+-                    });
+-                    onDragStop?.(event.sourceEvent, dragItems, currentNode, currentNodes);
+-                    onNodeDragStop?.(event.sourceEvent, currentNode, currentNodes);
+-                    if (!nodeId) {
+-                        onSelectionDragStop?.(event.sourceEvent, currentNodes);
+-                    }
++            if (dragRafId) {
++                cancelAnimationFrame(dragRafId);
++                dragRafId = 0;
++                if (pendingDragPos) {
++                    updateNodes(pendingDragPos);
++                    pendingDragPos = null;
+                 }
+             }
+-        })
+-            .filter((event) => {
++            const {
++                nodeDragSnapResolver
++            } = getStoreItems();
++            if (dragSnapActive && nodeDragSnapResolver && lastPos.x !== null && lastPos.y !== null) {
++                updateNodes(lastPos, 'end');
++            }
++            finishDragSnap();
++            dispatchDragStop(event.sourceEvent);
++            dragStarted = false;
++            stopAutoPan();
++            pendingDragPos = null;
++            dragNodeElements.clear();
++            dragEdgePaths.clear();
++            dragEdgeInfo.clear();
++            dragSnapReferenceBounds = [];
++            dragSnapStartBounds = null;
++            dragSnapAffectedIds = [];
++        }).filter(event => {
+             const target = event.target;
+-            const isDraggable = !event.button &&
+-                (!noDragClassName || !hasSelector(target, `.${noDragClassName}`, domNode)) &&
+-                (!handleSelector || hasSelector(target, handleSelector, domNode));
++            const isDraggable = !event.button && (!noDragClassName || !hasSelector(target, `.${noDragClassName}`, domNode)) && (!handleSelector || hasSelector(target, handleSelector, domNode));
+             return isDraggable;
+         });
+         d3Selection.call(d3DragInstance);
+     }
+     function destroy() {
+         d3Selection?.on('.drag', null);
++        if (dragRafId) {
++            cancelAnimationFrame(dragRafId);
++            dragRafId = 0;
++        }
++        pendingDragPos = null;
++        if (dragEvent) dispatchDragStop(dragEvent);
++        dragStarted = false;
++        stopAutoPan();
++        finishDragSnap();
++        dragNodeElements.clear();
++        dragEdgePaths.clear();
++        dragEdgeInfo.clear();
++        dragSnapReferenceBounds = [];
++        dragSnapStartBounds = null;
++        dragSnapAffectedIds = [];
+     }
+     return {
+-        update,
++        update: update,
+         destroy,
+     };
+ }
+@@ -2591,8 +3062,9 @@ const XYHandle = {
+     isValid: isValidHandle,
+ };
+ 
+-function XYMinimap({ domNode, panZoom, getTransform, getViewScale }) {
++function XYMinimap({ domNode, panZoom, getTransform, getViewScale, getViewBB, getPointerPosition: getPointerPosition }) {
+     const selection = select(domNode);
++    const pointerPosition = getPointerPosition ?? (event => pointer('nativeEvent' in event ? event.nativeEvent : event, domNode));
+     function update({ translateExtent, width, height, zoomStep = 1, pannable = true, zoomable = true, inversePan = false, }) {
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const zoomHandler = (event) => {
+@@ -2608,6 +3080,7 @@ function XYMinimap({ domNode, panZoom, getTransform, getViewScale }) {
+             panZoom.scaleTo(nextZoom);
+         };
+         let panStart = [0, 0];
++        let panActive = true;
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const panStartHandler = (event) => {
+             if (event.sourceEvent.type === 'mousedown' || event.sourceEvent.type === 'touchstart') {
+@@ -2615,10 +3088,20 @@ function XYMinimap({ domNode, panZoom, getTransform, getViewScale }) {
+                     event.sourceEvent.clientX ?? event.sourceEvent.touches[0].clientX,
+                     event.sourceEvent.clientY ?? event.sourceEvent.touches[0].clientY,
+                 ];
++                if (getViewBB) {
++                    const bb = getViewBB();
++                    const [px, py] = pointerPosition(event.sourceEvent);
++                    panActive = !!bb && px >= bb.x && px <= bb.x + bb.width && py >= bb.y && py <= bb.y + bb.height;
++                } else {
++                    panActive = true;
++                }
+             }
+         };
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const panHandler = (event) => {
++            if (!panActive) {
++                return;
++            }
+             const transform = getTransform();
+             if ((event.sourceEvent.type !== 'mousemove' && event.sourceEvent.type !== 'touchmove') || !panZoom) {
+                 return;
+@@ -2655,12 +3138,12 @@ function XYMinimap({ domNode, panZoom, getTransform, getViewScale }) {
+         selection.call(zoomAndPanHandler, {});
+     }
+     function destroy() {
+-        selection.on('zoom', null);
++        selection.on('.zoom', null);
+     }
+     return {
+-        update,
++        update: update,
+         destroy,
+-        pointer,
++        pointer: pointerPosition,
+     };
+ }
+ 
+@@ -2683,8 +3166,14 @@ const getD3Transition = (selection, duration = 0, ease = defaultEase, onEnd = ()
+     return hasDuration ? selection.transition().duration(duration).ease(ease).on('end', onEnd) : selection;
+ };
+ const wheelDelta = (event) => {
+-    const factor = event.ctrlKey && isMacOs() ? 10 : 1;
+-    return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002) * factor;
++    if (event.deltaMode === 1) {
++        return -event.deltaY * 0.05 * (event.ctrlKey ? 10 : 1);
++    }
++    if (event.ctrlKey) {
++        const clamped = Math.max(-10, Math.min(10, event.deltaY));
++        return -clamped * 0.01;
++    }
++    return (-event.deltaY) * (event.deltaMode ? 1 : 0.002);
+ };
+ 
+ function createPanOnScrollHandler({ zoomPanValues, noWheelClassName, d3Selection, d3Zoom, panOnScrollMode, panOnScrollSpeed, zoomOnPinch, onPanZoomStart, onPanZoom, onPanZoomEnd, }) {
+@@ -2877,7 +3366,7 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     const zoomPanValues = {
+         isZoomingOrPanning: false,
+         usedRightMouseButton: false,
+-        prevViewport: { x: 0, y: 0, zoom: 0 },
++        prevViewport: {},
+         mouseButton: 0,
+         timerId: undefined,
+         panScrollTimeout: undefined,
+@@ -2889,7 +3378,7 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     setViewportConstrained({
+         x: viewport.x,
+         y: viewport.y,
+-        zoom: clamp(viewport.zoom, minZoom, maxZoom),
++        zoom: clamp$c(viewport.zoom, minZoom, maxZoom),
+     }, [
+         [0, 0],
+         [bbox.width, bbox.height],
+@@ -2900,13 +3389,13 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     function setTransform(transform, options) {
+         if (d3Selection) {
+             return new Promise((resolve) => {
+-                d3ZoomInstance?.interpolate(options?.interpolate === 'linear' ? interpolate : interpolateZoom).transform(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), transform);
++                d3ZoomInstance?.interpolate(resolveInterpolate(options?.interpolate)).transform(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), transform);
+             });
+         }
+         return Promise.resolve(false);
+     }
+     // public functions
+-    function update({ noWheelClassName, noPanClassName, onPaneContextMenu, userSelectionActive, panOnScroll, panOnDrag, panOnScrollMode, panOnScrollSpeed, preventScrolling, zoomOnPinch, zoomOnScroll, zoomOnDoubleClick, zoomActivationKeyPressed, lib, onTransformChange, connectionInProgress, paneClickDistance, selectionOnDrag, }) {
++    function update({ noWheelClassName, noPanClassName, onPaneContextMenu, userSelectionActive, panOnScroll, panOnDrag, panOnScrollMode, panOnScrollSpeed, preventScrolling, zoomOnPinch, zoomOnScroll, zoomOnDoubleClick, zoomActivationKeyPressed, lib: lib, onTransformChange, connectionInProgress, paneClickDistance, selectionOnDrag, }) {
+         if (userSelectionActive && !zoomPanValues.isZoomingOrPanning) {
+             destroy();
+         }
+@@ -2958,6 +3447,12 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+                 onDraggingChange,
+             });
+             d3ZoomInstance.on('end', panZoomEndHandler);
++        } else {
++            d3ZoomInstance.on('zoom', event => {
++                if (!event.sourceEvent?.sync) {
++                    onTransformChange([event.transform.x, event.transform.y, event.transform.k]);
++                }
++            });
+         }
+         const filter = createFilter({
+             zoomActivationKeyPressed,
+@@ -2969,7 +3464,7 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+             userSelectionActive,
+             noPanClassName,
+             noWheelClassName,
+-            lib,
++            lib: lib,
+             connectionInProgress,
+         });
+         d3ZoomInstance.filter(filter);
+@@ -2988,26 +3483,25 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     function destroy() {
+         d3ZoomInstance.on('zoom', null);
+     }
+-    async function setViewportConstrained(viewport, extent, translateExtent) {
+-        const nextTransform = viewportToTransform(viewport);
+-        const contrainedTransform = d3ZoomInstance?.constrain()(nextTransform, extent, translateExtent);
++    async function setViewportConstrained(viewport2, extent, translateExtent2) {
++        const nextTransform = viewportToTransform(viewport2);
++        const contrainedTransform = d3ZoomInstance?.constrain()(nextTransform, extent, translateExtent2);
+         if (contrainedTransform) {
+             await setTransform(contrainedTransform);
+         }
+         return new Promise((resolve) => resolve(contrainedTransform));
+     }
+-    async function setViewport(viewport, options) {
+-        const nextTransform = viewportToTransform(viewport);
++    async function setViewport(viewport2, options) {
++        const nextTransform = viewportToTransform(viewport2);
+         await setTransform(nextTransform, options);
+         return new Promise((resolve) => resolve(nextTransform));
+     }
+-    function syncViewport(viewport) {
++    function syncViewport(viewport2) {
+         if (d3Selection) {
+-            const nextTransform = viewportToTransform(viewport);
++            const nextTransform = viewportToTransform(viewport2);
+             const currentTransform = d3Selection.property('__zoom');
+-            if (currentTransform.k !== viewport.zoom ||
+-                currentTransform.x !== viewport.x ||
+-                currentTransform.y !== viewport.y) {
++            if ((currentTransform.k !== viewport2.zoom || currentTransform.x !== viewport2.x) ||
++                (currentTransform.y !== viewport2.y)) {
+                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                 // @ts-ignore
+                 d3ZoomInstance?.transform(d3Selection, nextTransform, null, { sync: true });
+@@ -3018,10 +3512,10 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+         const transform = d3Selection ? zoomTransform(d3Selection.node()) : { x: 0, y: 0, k: 1 };
+         return { x: transform.x, y: transform.y, zoom: transform.k };
+     }
+-    function scaleTo(zoom, options) {
++    function scaleTo(zoom2, options) {
+         if (d3Selection) {
+             return new Promise((resolve) => {
+-                d3ZoomInstance?.interpolate(options?.interpolate === 'linear' ? interpolate : interpolateZoom).scaleTo(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), zoom);
++                d3ZoomInstance?.interpolate(resolveInterpolate(options?.interpolate)).scaleTo(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), zoom2);
+             });
+         }
+         return Promise.resolve(false);
+@@ -3029,7 +3523,7 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     function scaleBy(factor, options) {
+         if (d3Selection) {
+             return new Promise((resolve) => {
+-                d3ZoomInstance?.interpolate(options?.interpolate === 'linear' ? interpolate : interpolateZoom).scaleBy(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), factor);
++                d3ZoomInstance?.interpolate(resolveInterpolate(options?.interpolate)).scaleBy(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), factor);
+             });
+         }
+         return Promise.resolve(false);
+@@ -3037,15 +3531,15 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     function setScaleExtent(scaleExtent) {
+         d3ZoomInstance?.scaleExtent(scaleExtent);
+     }
+-    function setTranslateExtent(translateExtent) {
+-        d3ZoomInstance?.translateExtent(translateExtent);
++    function setTranslateExtent(translateExtent2) {
++        d3ZoomInstance?.translateExtent(translateExtent2);
+     }
+     function setClickDistance(distance) {
+         const validDistance = !isNumeric(distance) || distance < 0 ? 0 : distance;
+         d3ZoomInstance?.clickDistance(validDistance);
+     }
+     return {
+-        update,
++        update: update,
+         destroy,
+         setViewport,
+         setViewportConstrained,
+diff --git a/dist/esm/index.mjs b/dist/esm/index.mjs
+index 69600fc..b4aa1a0 100644
+--- a/dist/esm/index.mjs
++++ b/dist/esm/index.mjs
+@@ -2,6 +2,69 @@ import { drag } from 'd3-drag';
+ import { select, pointer } from 'd3-selection';
+ import { zoom, zoomIdentity, zoomTransform } from 'd3-zoom';
+ import { interpolateZoom, interpolate } from 'd3-interpolate';
++function getDragBounds(previews) {
++        let x = Infinity;
++        let y = Infinity;
++        let x2 = -Infinity;
++        let y22 = -Infinity;
++        for (const preview of previews) {
++                x = Math.min(x, preview.positionAbsolute.x);
++                y = Math.min(y, preview.positionAbsolute.y);
++                x2 = Math.max(x2, preview.positionAbsolute.x + preview.width);
++                y22 = Math.max(y22, preview.positionAbsolute.y + preview.height);
++        }
++        return {
++                x: x,
++                y: y,
++                width: Math.max(0, x2 - x),
++                height: Math.max(0, y22 - y)
++        };
++}
++function hasDraggedAncestor(node, draggedIds, nodeLookup) {
++        let parentId = node.parentId;
++        while (parentId) {
++                if (draggedIds.has(parentId)) return true;
++                parentId = nodeLookup.get(parentId)?.parentId;
++        }
++        return false;
++}
++function getDragSnapReferenceBounds(nodeLookup, dragItems) {
++        const draggedIds = new Set(dragItems.keys());
++        const references = [];
++        for (const [id, node] of nodeLookup) {
++                const width = node.measured.width;
++                const height = node.measured.height;
++                if (draggedIds.has(id) || hasDraggedAncestor(node, draggedIds, nodeLookup) || node.hidden || !width || !height) {
++                        continue;
++                }
++                references.push({
++                        id: id,
++                        x: node.internals.positionAbsolute.x,
++                        y: node.internals.positionAbsolute.y,
++                        width,
++                        height,
++                        parentId: node.parentId,
++                        type: node.type,
++                        data: node.data
++                });
++        }
++        return references;
++}
++function getDragSnapAffectedIds(nodeLookup, dragItems) {
++        const dragRootIds = new Set(dragItems.keys());
++        const affectedIds = [];
++        for (const [id, node] of nodeLookup) {
++                if (dragRootIds.has(id) || hasDraggedAncestor(node, dragRootIds, nodeLookup)) {
++                        affectedIds.push(id);
++                }
++        }
++        return affectedIds;
++}
++const clamp$c = (val, min = 0, max = 1) => Math.min(Math.max(val, min), max);
++function resolveInterpolate(option) {
++        if (typeof option === 'function') return option;
++        return option === 'linear' ? interpolate : interpolateZoom;
++}
+ 
+ const errorMessages = {
+     error001: () => '[React Flow]: Seems like you have not used zustand provider as an ancestor. Help: https://reactflow.dev/error#001',
+@@ -353,7 +416,7 @@ const getInternalNodesBounds = (nodeLookup, params = {}) => {
+ };
+ const getNodesInside = (nodes, rect, [tx, ty, tScale] = [0, 0, 1], partially = false, 
+ // set excludeNonSelectableNodes if you want to pay attention to the nodes "selectable" attribute
+-excludeNonSelectableNodes = false) => {
++excludeNonSelectableNodes = false, includeRenderBounds = false) => {
+     const paneRect = {
+         ...pointToRendererPoint(rect, [tx, ty, tScale]),
+         width: rect.width / tScale,
+@@ -365,12 +428,20 @@ excludeNonSelectableNodes = false) => {
+         if ((excludeNonSelectableNodes && !selectable) || hidden) {
+             continue;
+         }
+-        const width = measured.width ?? node.width ?? node.initialWidth ?? null;
+-        const height = measured.height ?? node.height ?? node.initialHeight ?? null;
+-        const overlappingArea = getOverlappingArea(paneRect, nodeToRect(node));
+-        const area = (width ?? 0) * (height ?? 0);
++        measured.width ?? node.width ?? node.initialWidth ?? null;
++        measured.height ?? node.height ?? node.initialHeight ?? null;
++        const nodeRect = nodeToRect(node);
++        const renderBounds = includeRenderBounds ? node.renderBounds : void 0;
++        const renderedRect = renderBounds ? {
++            x: nodeRect.x - (renderBounds.left ?? 0),
++            y: nodeRect.y - (renderBounds.top ?? 0),
++            width: nodeRect.width + (renderBounds.left ?? 0) + (renderBounds.right ?? 0),
++            height: nodeRect.height + (renderBounds.top ?? 0) + (renderBounds.bottom ?? 0)
++        } : nodeRect;
++        const overlappingArea = getOverlappingArea(paneRect, renderedRect);
++        const area = (renderedRect.width) * (renderedRect.height);
+         const partiallyVisible = partially && overlappingArea > 0;
+-        const forceInitialRender = !node.internals.handleBounds;
++        const forceInitialRender = !excludeNonSelectableNodes && !node.internals.handleBounds;
+         const isVisible = forceInitialRender || partiallyVisible || overlappingArea >= area;
+         if (isVisible || node.dragging) {
+             visibleNodes.push(node);
+@@ -2062,7 +2133,12 @@ function calculateSnapOffset({ dragItems, snapGrid, x, y, }) {
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
+ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragStop, }) {
+     let lastPos = { x: null, y: null };
++    let lastProcessedPos = {
++        x: null,
++        y: null
++    };
+     let autoPanId = 0;
++    let autoPanSession = 0;
+     let dragItems = new Map();
+     let autoPanStarted = false;
+     let mousePosition = { x: 0, y: 0 };
+@@ -2073,74 +2149,288 @@ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragSto
+     let nodePositionsChanged = false;
+     // we store the last drag event to be able to use it in the update function
+     let dragEvent = null;
++    let pendingDragPos = null;
++    let dragRafId = 0;
++    let dragNodeElements = new Map();
++    let dragEdgePaths = new Map();
++    let dragEdgeInfo = new Map();
++    let dragSnapReferenceBounds = [];
++    let dragSnapStartBounds = null;
++    let dragSnapAffectedIds = [];
++    let dragSnapActive = false;
+     // public functions
+-    function update({ noDragClassName, handleSelector, domNode, isSelectable, nodeId, nodeClickDistance = 0, }) {
++    function finishDragSnap() {
++        if (!dragSnapActive) return;
++        dragSnapActive = false;
++        getStoreItems().onNodeDragSnapEnd?.();
++    }
++    let activeNodeId;
++    let dragStopDispatched = true;
++    function stopAutoPan() {
++        autoPanStarted = false;
++        autoPanSession += 1;
++        cancelAnimationFrame(autoPanId);
++        autoPanId = 0;
++    }
++    function dispatchDragStop(event) {
++        if (!dragStarted || dragStopDispatched) return;
++        dragStopDispatched = true;
++        const {
++            nodeLookup,
++            updateNodePositions,
++            onNodeDragStop,
++            onSelectionDragStop
++        } = getStoreItems();
++        if (nodePositionsChanged && dragItems.size > 0) {
++            updateNodePositions(dragItems, false);
++        }
++        nodePositionsChanged = false;
++        if (dragItems.size === 0) return;
++        if (onDragStop || onNodeDragStop || !activeNodeId && onSelectionDragStop) {
++            const [currentNode, currentNodes] = getEventHandlerParams({
++                nodeId: activeNodeId,
++                dragItems,
++                nodeLookup,
++                dragging: false
++            });
++            onDragStop?.(event, dragItems, currentNode, currentNodes);
++            onNodeDragStop?.(event, currentNode, currentNodes);
++            if (!activeNodeId) onSelectionDragStop?.(event, currentNodes);
++        }
++    }
++    function update({
++        noDragClassName,
++        handleSelector,
++        domNode,
++        isSelectable,
++        nodeId,
++        nodeClickDistance = 0
++    }) {
++        activeNodeId = nodeId;
+         d3Selection = select(domNode);
+-        function updateNodes({ x, y }) {
+-            const { nodeLookup, nodeExtent, snapGrid, snapToGrid, nodeOrigin, onNodeDrag, onSelectionDrag, onError, updateNodePositions, } = getStoreItems();
+-            lastPos = { x, y };
++        function updateNodes({
++            x: x,
++            y: y
++        }, phase = 'move') {
++            const {
++                nodeLookup,
++                nodeExtent,
++                snapGrid,
++                snapToGrid,
++                nodeDragSnapResolver,
++                transform: transform,
++                nodeOrigin,
++                onNodeDrag,
++                onSelectionDrag,
++                onError,
++                updateNodePositions
++            } = getStoreItems();
++            lastPos = {
++                x: x,
++                y: y
++            };
++            const nativeSnapToGrid = snapToGrid && !nodeDragSnapResolver;
++            lastProcessedPos = nativeSnapToGrid ? snapPosition({
++                x: x,
++                y: y
++            }, snapGrid) : {
++                x: x,
++                y: y
++            };
+             let hasChange = false;
+             const isMultiDrag = dragItems.size > 1;
+             const nodesBox = isMultiDrag && nodeExtent ? rectToBox(getInternalNodesBounds(dragItems)) : null;
+-            const multiDragSnapOffset = isMultiDrag && snapToGrid
+-                ? calculateSnapOffset({
+-                    dragItems,
+-                    snapGrid,
+-                    x,
+-                    y,
+-                })
+-                : null;
++            const multiDragSnapOffset = isMultiDrag && nativeSnapToGrid ? calculateSnapOffset({
++                dragItems,
++                snapGrid,
++                x: x,
++                y: y
++            }) : null;
++            const previews = new Map();
+             for (const [id, dragItem] of dragItems) {
+-                /*
+-                 * if the node is not in the nodeLookup anymore, it was probably deleted while dragging
+-                 */
+                 if (!nodeLookup.has(id)) {
+                     continue;
+                 }
+-                let nextPosition = { x: x - dragItem.distance.x, y: y - dragItem.distance.y };
+-                if (snapToGrid) {
+-                    nextPosition = multiDragSnapOffset
+-                        ? {
+-                            x: Math.round(nextPosition.x + multiDragSnapOffset.x),
+-                            y: Math.round(nextPosition.y + multiDragSnapOffset.y),
+-                        }
+-                        : snapPosition(nextPosition, snapGrid);
++                let nextPosition = {
++                    x: x - dragItem.distance.x,
++                    y: y - dragItem.distance.y
++                };
++                if (nativeSnapToGrid) {
++                    nextPosition = multiDragSnapOffset ? {
++                        x: Math.round(nextPosition.x + multiDragSnapOffset.x),
++                        y: Math.round(nextPosition.y + multiDragSnapOffset.y)
++                    } : snapPosition(nextPosition, snapGrid);
+                 }
+                 let adjustedNodeExtent = null;
+                 if (isMultiDrag && nodeExtent && !dragItem.extent && nodesBox) {
+-                    const { positionAbsolute } = dragItem.internals;
+-                    const x1 = positionAbsolute.x - nodesBox.x + nodeExtent[0][0];
+-                    const x2 = positionAbsolute.x + dragItem.measured.width - nodesBox.x2 + nodeExtent[1][0];
+-                    const y1 = positionAbsolute.y - nodesBox.y + nodeExtent[0][1];
+-                    const y2 = positionAbsolute.y + dragItem.measured.height - nodesBox.y2 + nodeExtent[1][1];
+-                    adjustedNodeExtent = [
+-                        [x1, y1],
+-                        [x2, y2],
+-                    ];
++                    const {
++                        positionAbsolute: positionAbsolute2
++                    } = dragItem.internals;
++                    const x1 = positionAbsolute2.x - nodesBox.x + nodeExtent[0][0];
++                    const x22 = positionAbsolute2.x + dragItem.measured.width - nodesBox.x2 + nodeExtent[1][0];
++                    const y1 = positionAbsolute2.y - nodesBox.y + nodeExtent[0][1];
++                    const y22 = positionAbsolute2.y + dragItem.measured.height - nodesBox.y2 + nodeExtent[1][1];
++                    adjustedNodeExtent = [[x1, y1], [x22, y22]];
+                 }
+-                const { position, positionAbsolute } = calculateNodePosition({
++                const {
++                    position: position,
++                    positionAbsolute
++                } = calculateNodePosition({
+                     nodeId: id,
+                     nextPosition,
+                     nodeLookup,
+                     nodeExtent: adjustedNodeExtent ? adjustedNodeExtent : nodeExtent,
+                     nodeOrigin,
+-                    onError,
++                    onError
++                });
++                previews.set(id, {
++                    nextPosition,
++                    adjustedNodeExtent,
++                    position: position,
++                    positionAbsolute,
++                    width: dragItem.measured.width,
++                    height: dragItem.measured.height
++                });
++            }
++            let customSnapDelta = {
++                x: 0,
++                y: 0
++            };
++            if (nodeDragSnapResolver && previews.size > 0) {
++                dragSnapActive = true;
++                const movingBounds = getDragBounds(Array.from(previews.values()));
++                const result = nodeDragSnapResolver({
++                    movingBounds,
++                    movement: dragSnapStartBounds ? {
++                        x: movingBounds.x - dragSnapStartBounds.x,
++                        y: movingBounds.y - dragSnapStartBounds.y
++                    } : {
++                        x: 0,
++                        y: 0
++                    },
++                    draggedIds: dragSnapAffectedIds,
++                    referenceBounds: dragSnapReferenceBounds,
++                    zoom: transform[2],
++                    bypass: Boolean(dragEvent?.altKey),
++                    phase
++                });
++                if (result) customSnapDelta = result.delta;
++            }
++            for (const [id, preview] of previews) {
++                const dragItem = dragItems.get(id);
++                if (!dragItem) continue;
++                const resolved = customSnapDelta.x === 0 && customSnapDelta.y === 0 ? preview : calculateNodePosition({
++                    nodeId: id,
++                    nextPosition: {
++                        x: preview.nextPosition.x + customSnapDelta.x,
++                        y: preview.nextPosition.y + customSnapDelta.y
++                    },
++                    nodeLookup,
++                    nodeExtent: preview.adjustedNodeExtent ?? nodeExtent,
++                    nodeOrigin,
++                    onError
+                 });
+-                // we want to make sure that we only fire a change event when there is a change
+-                hasChange = hasChange || dragItem.position.x !== position.x || dragItem.position.y !== position.y;
+-                dragItem.position = position;
+-                dragItem.internals.positionAbsolute = positionAbsolute;
++                hasChange = hasChange || dragItem.position.x !== resolved.position.x || dragItem.position.y !== resolved.position.y;
++                dragItem.position = resolved.position;
++                dragItem.internals.positionAbsolute = resolved.positionAbsolute;
+             }
+             nodePositionsChanged = nodePositionsChanged || hasChange;
+             if (!hasChange) {
+                 return;
+             }
+             updateNodePositions(dragItems, true);
+-            if (dragEvent && (onDrag || onNodeDrag || (!nodeId && onSelectionDrag))) {
++            const {
++                connectionMode,
++                domNode: currentDomNode,
++                parentLookup
++            } = getStoreItems();
++            const writeTransform = (id, abs) => {
++                let el = dragNodeElements.get(id);
++                if (el && !el.isConnected) {
++                    el = void 0;
++                }
++                if (!el && currentDomNode) {
++                    const queried = currentDomNode.querySelector(`.react-flow__node[data-id="${id}"]`);
++                    if (queried) {
++                        el = queried;
++                        dragNodeElements.set(id, el);
++                    }
++                }
++                if (el) {
++                    el.style.transform = `translate(${abs.x}px,${abs.y}px)`;
++                }
++            };
++            for (const [id, dragItem] of dragItems) {
++                writeTransform(id, dragItem.internals.positionAbsolute);
++                const stack = [id];
++                while (stack.length > 0) {
++                    const currentId = stack.pop();
++                    const children = parentLookup?.get(currentId);
++                    if (!children || children.size === 0) continue;
++                    for (const childId of children.keys()) {
++                        const childNode = nodeLookup.get(childId);
++                        if (!childNode) continue;
++                        writeTransform(childId, childNode.internals.positionAbsolute);
++                        stack.push(childId);
++                    }
++                }
++            }
++            if (dragEdgeInfo.size > 0) {
++                for (const [edgeId, info] of dragEdgeInfo) {
++                    const sourceNode = nodeLookup.get(info.sourceNodeId);
++                    const targetNode = nodeLookup.get(info.targetNodeId);
++                    if (!sourceNode || !targetNode) continue;
++                    const edgePos = getEdgePosition({
++                        id: edgeId,
++                        sourceNode,
++                        sourceHandle: info.sourceHandle,
++                        targetNode,
++                        targetHandle: info.targetHandle,
++                        connectionMode
++                    });
++                    if (!edgePos) continue;
++                    const pathParams = {
++                        sourceX: edgePos.sourceX,
++                        sourceY: edgePos.sourceY,
++                        sourcePosition: edgePos.sourcePosition,
++                        targetX: edgePos.targetX,
++                        targetY: edgePos.targetY,
++                        targetPosition: edgePos.targetPosition
++                    };
++                    let pathStr;
++                    if (info.edgeType === 'straight') {
++                        [pathStr] = getStraightPath(pathParams);
++                    } else if (info.edgeType === 'smoothstep' || info.edgeType === 'step') {
++                        [pathStr] = getSmoothStepPath({
++                            ...pathParams,
++                            borderRadius: info.edgeType === 'step' ? 0 : void 0
++                        });
++                    } else {
++                        [pathStr] = getBezierPath(pathParams);
++                    }
++                    let paths = dragEdgePaths.get(edgeId);
++                    if (paths && paths.length > 0 && !paths[0].isConnected) {
++                        paths = void 0;
++                    }
++                    if (!paths && currentDomNode) {
++                        const gEl = currentDomNode.querySelector(`g[data-id="${edgeId}"]`);
++                        if (gEl) {
++                            paths = Array.from(gEl.querySelectorAll('path'));
++                            dragEdgePaths.set(edgeId, paths);
++                        }
++                    }
++                    if (paths) {
++                        for (const pathEl of paths) {
++                            pathEl.setAttribute('d', pathStr);
++                        }
++                    }
++                }
++            }
++            if (dragEvent && (onDrag || onNodeDrag || !nodeId && onSelectionDrag)) {
+                 const [currentNode, currentNodes] = getEventHandlerParams({
+                     nodeId,
+                     dragItems,
+-                    nodeLookup,
++                    nodeLookup
+                 });
+                 onDrag?.(dragEvent, dragItems, currentNode, currentNodes);
+                 onNodeDrag?.(dragEvent, currentNode, currentNodes);
+@@ -2149,46 +2439,139 @@ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragSto
+                 }
+             }
+         }
+-        async function autoPan() {
+-            if (!containerBounds) {
++        async function autoPan(session) {
++            if (!autoPanStarted || session !== autoPanSession || !containerBounds) {
+                 return;
+             }
+-            const { transform, panBy, autoPanSpeed, autoPanOnNodeDrag } = getStoreItems();
++            const {
++                transform: transform,
++                panBy: panBy,
++                autoPanSpeed,
++                autoPanOnNodeDrag
++            } = getStoreItems();
+             if (!autoPanOnNodeDrag) {
+-                autoPanStarted = false;
+-                cancelAnimationFrame(autoPanId);
++                stopAutoPan();
+                 return;
+             }
+             const [xMovement, yMovement] = calcAutoPan(mousePosition, containerBounds, autoPanSpeed);
+             if (xMovement !== 0 || yMovement !== 0) {
+-                lastPos.x = (lastPos.x ?? 0) - xMovement / transform[2];
+-                lastPos.y = (lastPos.y ?? 0) - yMovement / transform[2];
+-                if (await panBy({ x: xMovement, y: yMovement })) {
+-                    updateNodes(lastPos);
++                const nextPosition = {
++                    x: (lastPos.x ?? 0) - xMovement / transform[2],
++                    y: (lastPos.y ?? 0) - yMovement / transform[2]
++                };
++                const didPan = await panBy({
++                    x: xMovement,
++                    y: yMovement
++                });
++                if (!autoPanStarted || session !== autoPanSession) return;
++                if (didPan) {
++                    lastPos = nextPosition;
++                    updateNodes(nextPosition);
+                 }
+             }
+-            autoPanId = requestAnimationFrame(autoPan);
++            if (autoPanStarted && session === autoPanSession) {
++                autoPanId = requestAnimationFrame(() => autoPan(session));
++            }
+         }
+         function startDrag(event) {
+-            const { nodeLookup, multiSelectionActive, nodesDraggable, transform, snapGrid, snapToGrid, selectNodesOnDrag, onNodeDragStart, onSelectionDragStart, unselectNodesAndEdges, } = getStoreItems();
++            const {
++                nodeLookup,
++                multiSelectionActive,
++                nodesDraggable,
++                transform: transform,
++                snapGrid,
++                snapToGrid,
++                nodeDragSnapResolver,
++                selectNodesOnDrag,
++                onNodeDragStart,
++                onSelectionDragStart,
++                unselectNodesAndEdges
++            } = getStoreItems();
+             dragStarted = true;
++            dragStopDispatched = false;
+             if ((!selectNodesOnDrag || !isSelectable) && !multiSelectionActive && nodeId) {
+                 if (!nodeLookup.get(nodeId)?.selected) {
+-                    // we need to reset selected nodes when selectNodesOnDrag=false
+                     unselectNodesAndEdges();
+                 }
+             }
+             if (isSelectable && selectNodesOnDrag && nodeId) {
+                 onNodeMouseDown?.(nodeId);
+             }
+-            const pointerPos = getPointerPosition(event.sourceEvent, { transform, snapGrid, snapToGrid, containerBounds });
++            const nativeSnapToGrid = snapToGrid && !nodeDragSnapResolver;
++            const pointerPos = getPointerPosition(event.sourceEvent, {
++                transform: transform,
++                snapGrid,
++                snapToGrid: nativeSnapToGrid,
++                containerBounds
++            });
+             lastPos = pointerPos;
++            lastProcessedPos = nativeSnapToGrid ? {
++                x: pointerPos.xSnapped,
++                y: pointerPos.ySnapped
++            } : {
++                x: pointerPos.x,
++                y: pointerPos.y
++            };
+             dragItems = getDragItems(nodeLookup, nodesDraggable, pointerPos, nodeId);
+-            if (dragItems.size > 0 && (onDragStart || onNodeDragStart || (!nodeId && onSelectionDragStart))) {
++            dragSnapReferenceBounds = getDragSnapReferenceBounds(nodeLookup, dragItems);
++            dragSnapAffectedIds = getDragSnapAffectedIds(nodeLookup, dragItems);
++            const startBounds = dragItems.size > 0 ? getDragBounds(Array.from(dragItems.values()).map(item => ({
++                positionAbsolute: item.internals.positionAbsolute,
++                width: item.measured.width,
++                height: item.measured.height
++            }))) : null;
++            dragSnapStartBounds = startBounds ? {
++                id: '__drag-start__',
++                ...startBounds
++            } : null;
++            dragNodeElements.clear();
++            const {
++                domNode: domNode2,
++                connectionLookup,
++                edgeLookup
++            } = getStoreItems();
++            if (domNode2) {
++                for (const [id] of dragItems) {
++                    const el = domNode2.querySelector(`.react-flow__node[data-id="${id}"]`);
++                    if (el) {
++                        dragNodeElements.set(id, el);
++                    }
++                }
++                dragEdgePaths.clear();
++                dragEdgeInfo.clear();
++                const connectedEdgeIds = new Set();
++                for (const [dragNodeId] of dragItems) {
++                    const connections = connectionLookup.get(dragNodeId);
++                    if (connections) {
++                        for (const [, conn] of connections) {
++                            connectedEdgeIds.add(conn.edgeId);
++                        }
++                    }
++                }
++                for (const edgeId of connectedEdgeIds) {
++                    const edge = edgeLookup.get(edgeId);
++                    if (!edge) continue;
++                    dragEdgeInfo.set(edgeId, {
++                        sourceNodeId: edge.source,
++                        targetNodeId: edge.target,
++                        sourceHandle: edge.sourceHandle ?? null,
++                        targetHandle: edge.targetHandle ?? null,
++                        edgeType: edge.type
++                    });
++                    const gEl = domNode2.querySelector(`g[data-id="${edgeId}"]`);
++                    if (gEl) {
++                        const paths = Array.from(gEl.querySelectorAll('path'));
++                        if (paths.length > 0) {
++                            dragEdgePaths.set(edgeId, paths);
++                        }
++                    }
++                }
++            }
++            if (dragItems.size > 0 && (onDragStart || onNodeDragStart || !nodeId && onSelectionDragStart)) {
+                 const [currentNode, currentNodes] = getEventHandlerParams({
+                     nodeId,
+                     dragItems,
+-                    nodeLookup,
++                    nodeLookup
+                 });
+                 onDragStart?.(event.sourceEvent, dragItems, currentNode, currentNodes);
+                 onNodeDragStart?.(event.sourceEvent, currentNode, currentNodes);
+@@ -2197,39 +2580,83 @@ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragSto
+                 }
+             }
+         }
+-        const d3DragInstance = drag()
+-            .clickDistance(nodeClickDistance)
+-            .on('start', (event) => {
+-            const { domNode, nodeDragThreshold, transform, snapGrid, snapToGrid } = getStoreItems();
+-            containerBounds = domNode?.getBoundingClientRect() || null;
++        const d3DragInstance = drag().clickDistance(nodeClickDistance).on('start', event => {
++            const {
++                domNode: domNode2,
++                nodeDragThreshold,
++                transform: transform,
++                snapGrid,
++                snapToGrid,
++                nodeDragSnapResolver
++            } = getStoreItems();
++            containerBounds = domNode2?.getBoundingClientRect() || null;
+             abortDrag = false;
+             nodePositionsChanged = false;
+             dragEvent = event.sourceEvent;
+             if (nodeDragThreshold === 0) {
+                 startDrag(event);
+             }
+-            const pointerPos = getPointerPosition(event.sourceEvent, { transform, snapGrid, snapToGrid, containerBounds });
++            const nativeSnapToGrid = snapToGrid && !nodeDragSnapResolver;
++            const pointerPos = getPointerPosition(event.sourceEvent, {
++                transform: transform,
++                snapGrid,
++                snapToGrid: nativeSnapToGrid,
++                containerBounds
++            });
+             lastPos = pointerPos;
++            lastProcessedPos = nativeSnapToGrid ? {
++                x: pointerPos.xSnapped,
++                y: pointerPos.ySnapped
++            } : {
++                x: pointerPos.x,
++                y: pointerPos.y
++            };
+             mousePosition = getEventPosition(event.sourceEvent, containerBounds);
+-        })
+-            .on('drag', (event) => {
+-            const { autoPanOnNodeDrag, transform, snapGrid, snapToGrid, nodeDragThreshold, nodeLookup } = getStoreItems();
+-            const pointerPos = getPointerPosition(event.sourceEvent, { transform, snapGrid, snapToGrid, containerBounds });
++        }).on('drag', event => {
++            const {
++                autoPanOnNodeDrag,
++                transform: transform,
++                snapGrid,
++                snapToGrid,
++                nodeDragSnapResolver,
++                nodeDragThreshold,
++                nodeLookup
++            } = getStoreItems();
++            const nativeSnapToGrid = snapToGrid && !nodeDragSnapResolver;
++            const pointerPos = getPointerPosition(event.sourceEvent, {
++                transform: transform,
++                snapGrid,
++                snapToGrid: nativeSnapToGrid,
++                containerBounds
++            });
+             dragEvent = event.sourceEvent;
+-            if ((event.sourceEvent.type === 'touchmove' && event.sourceEvent.touches.length > 1) ||
+-                // if user deletes a node while dragging, we need to abort the drag to prevent errors
+-                (nodeId && !nodeLookup.has(nodeId))) {
++            if (event.sourceEvent.type === 'touchmove' && event.sourceEvent.touches.length > 1 || nodeId && !nodeLookup.has(nodeId)) {
+                 abortDrag = true;
+             }
+             if (abortDrag) {
++                if (dragRafId) {
++                    cancelAnimationFrame(dragRafId);
++                    dragRafId = 0;
++                }
++                pendingDragPos = null;
++                dispatchDragStop(event.sourceEvent);
++                dragStarted = false;
++                stopAutoPan();
++                finishDragSnap();
++                dragNodeElements.clear();
++                dragEdgePaths.clear();
++                dragEdgeInfo.clear();
++                dragSnapReferenceBounds = [];
++                dragSnapStartBounds = null;
++                dragSnapAffectedIds = [];
+                 return;
+             }
+             if (!autoPanStarted && autoPanOnNodeDrag && dragStarted) {
+                 autoPanStarted = true;
+-                autoPan();
++                autoPanSession += 1;
++                autoPan(autoPanSession);
+             }
+             if (!dragStarted) {
+-                // Calculate distance in client coordinates for consistent drag threshold behavior across zoom levels
+                 const currentMousePosition = getEventPosition(event.sourceEvent, containerBounds);
+                 const x = currentMousePosition.x - mousePosition.x;
+                 const y = currentMousePosition.y - mousePosition.y;
+@@ -2238,54 +2665,98 @@ function XYDrag({ onNodeMouseDown, getStoreItems, onDragStart, onDrag, onDragSto
+                     startDrag(event);
+                 }
+             }
+-            // skip events without movement
+-            if ((lastPos.x !== pointerPos.xSnapped || lastPos.y !== pointerPos.ySnapped) && dragItems && dragStarted) {
++            const movementPosition = nativeSnapToGrid ? {
++                x: pointerPos.xSnapped,
++                y: pointerPos.ySnapped
++            } : {
++                x: pointerPos.x,
++                y: pointerPos.y
++            };
++            if ((lastProcessedPos.x !== movementPosition.x || lastProcessedPos.y !== movementPosition.y) && dragItems && dragStarted) {
+                 mousePosition = getEventPosition(event.sourceEvent, containerBounds);
+-                updateNodes(pointerPos);
++                pendingDragPos = pointerPos;
++                if (!dragRafId) {
++                    dragRafId = requestAnimationFrame(() => {
++                        dragRafId = 0;
++                        if (pendingDragPos) {
++                            updateNodes(pendingDragPos);
++                            pendingDragPos = null;
++                        }
++                    });
++                }
+             }
+-        })
+-            .on('end', (event) => {
++        }).on('end', event => {
++            dragEvent = event.sourceEvent;
+             if (!dragStarted || abortDrag) {
++                if (dragRafId) {
++                    cancelAnimationFrame(dragRafId);
++                    dragRafId = 0;
++                }
++                pendingDragPos = null;
++                dispatchDragStop(event.sourceEvent);
++                dragStarted = false;
++                stopAutoPan();
++                finishDragSnap();
++                dragNodeElements.clear();
++                dragEdgePaths.clear();
++                dragEdgeInfo.clear();
++                dragSnapReferenceBounds = [];
++                dragSnapStartBounds = null;
++                dragSnapAffectedIds = [];
+                 return;
+             }
+-            autoPanStarted = false;
+-            dragStarted = false;
+-            cancelAnimationFrame(autoPanId);
+-            if (dragItems.size > 0) {
+-                const { nodeLookup, updateNodePositions, onNodeDragStop, onSelectionDragStop } = getStoreItems();
+-                if (nodePositionsChanged) {
+-                    updateNodePositions(dragItems, false);
+-                    nodePositionsChanged = false;
+-                }
+-                if (onDragStop || onNodeDragStop || (!nodeId && onSelectionDragStop)) {
+-                    const [currentNode, currentNodes] = getEventHandlerParams({
+-                        nodeId,
+-                        dragItems,
+-                        nodeLookup,
+-                        dragging: false,
+-                    });
+-                    onDragStop?.(event.sourceEvent, dragItems, currentNode, currentNodes);
+-                    onNodeDragStop?.(event.sourceEvent, currentNode, currentNodes);
+-                    if (!nodeId) {
+-                        onSelectionDragStop?.(event.sourceEvent, currentNodes);
+-                    }
++            if (dragRafId) {
++                cancelAnimationFrame(dragRafId);
++                dragRafId = 0;
++                if (pendingDragPos) {
++                    updateNodes(pendingDragPos);
++                    pendingDragPos = null;
+                 }
+             }
+-        })
+-            .filter((event) => {
++            const {
++                nodeDragSnapResolver
++            } = getStoreItems();
++            if (dragSnapActive && nodeDragSnapResolver && lastPos.x !== null && lastPos.y !== null) {
++                updateNodes(lastPos, 'end');
++            }
++            finishDragSnap();
++            dispatchDragStop(event.sourceEvent);
++            dragStarted = false;
++            stopAutoPan();
++            pendingDragPos = null;
++            dragNodeElements.clear();
++            dragEdgePaths.clear();
++            dragEdgeInfo.clear();
++            dragSnapReferenceBounds = [];
++            dragSnapStartBounds = null;
++            dragSnapAffectedIds = [];
++        }).filter(event => {
+             const target = event.target;
+-            const isDraggable = !event.button &&
+-                (!noDragClassName || !hasSelector(target, `.${noDragClassName}`, domNode)) &&
+-                (!handleSelector || hasSelector(target, handleSelector, domNode));
++            const isDraggable = !event.button && (!noDragClassName || !hasSelector(target, `.${noDragClassName}`, domNode)) && (!handleSelector || hasSelector(target, handleSelector, domNode));
+             return isDraggable;
+         });
+         d3Selection.call(d3DragInstance);
+     }
+     function destroy() {
+         d3Selection?.on('.drag', null);
++        if (dragRafId) {
++            cancelAnimationFrame(dragRafId);
++            dragRafId = 0;
++        }
++        pendingDragPos = null;
++        if (dragEvent) dispatchDragStop(dragEvent);
++        dragStarted = false;
++        stopAutoPan();
++        finishDragSnap();
++        dragNodeElements.clear();
++        dragEdgePaths.clear();
++        dragEdgeInfo.clear();
++        dragSnapReferenceBounds = [];
++        dragSnapStartBounds = null;
++        dragSnapAffectedIds = [];
+     }
+     return {
+-        update,
++        update: update,
+         destroy,
+     };
+ }
+@@ -2591,8 +3062,9 @@ const XYHandle = {
+     isValid: isValidHandle,
+ };
+ 
+-function XYMinimap({ domNode, panZoom, getTransform, getViewScale }) {
++function XYMinimap({ domNode, panZoom, getTransform, getViewScale, getViewBB, getPointerPosition: getPointerPosition }) {
+     const selection = select(domNode);
++    const pointerPosition = getPointerPosition ?? (event => pointer('nativeEvent' in event ? event.nativeEvent : event, domNode));
+     function update({ translateExtent, width, height, zoomStep = 1, pannable = true, zoomable = true, inversePan = false, }) {
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const zoomHandler = (event) => {
+@@ -2608,6 +3080,7 @@ function XYMinimap({ domNode, panZoom, getTransform, getViewScale }) {
+             panZoom.scaleTo(nextZoom);
+         };
+         let panStart = [0, 0];
++        let panActive = true;
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const panStartHandler = (event) => {
+             if (event.sourceEvent.type === 'mousedown' || event.sourceEvent.type === 'touchstart') {
+@@ -2615,10 +3088,20 @@ function XYMinimap({ domNode, panZoom, getTransform, getViewScale }) {
+                     event.sourceEvent.clientX ?? event.sourceEvent.touches[0].clientX,
+                     event.sourceEvent.clientY ?? event.sourceEvent.touches[0].clientY,
+                 ];
++                if (getViewBB) {
++                    const bb = getViewBB();
++                    const [px, py] = pointerPosition(event.sourceEvent);
++                    panActive = !!bb && px >= bb.x && px <= bb.x + bb.width && py >= bb.y && py <= bb.y + bb.height;
++                } else {
++                    panActive = true;
++                }
+             }
+         };
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const panHandler = (event) => {
++            if (!panActive) {
++                return;
++            }
+             const transform = getTransform();
+             if ((event.sourceEvent.type !== 'mousemove' && event.sourceEvent.type !== 'touchmove') || !panZoom) {
+                 return;
+@@ -2655,12 +3138,12 @@ function XYMinimap({ domNode, panZoom, getTransform, getViewScale }) {
+         selection.call(zoomAndPanHandler, {});
+     }
+     function destroy() {
+-        selection.on('zoom', null);
++        selection.on('.zoom', null);
+     }
+     return {
+-        update,
++        update: update,
+         destroy,
+-        pointer,
++        pointer: pointerPosition,
+     };
+ }
+ 
+@@ -2683,8 +3166,14 @@ const getD3Transition = (selection, duration = 0, ease = defaultEase, onEnd = ()
+     return hasDuration ? selection.transition().duration(duration).ease(ease).on('end', onEnd) : selection;
+ };
+ const wheelDelta = (event) => {
+-    const factor = event.ctrlKey && isMacOs() ? 10 : 1;
+-    return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002) * factor;
++    if (event.deltaMode === 1) {
++        return -event.deltaY * 0.05 * (event.ctrlKey ? 10 : 1);
++    }
++    if (event.ctrlKey) {
++        const clamped = Math.max(-10, Math.min(10, event.deltaY));
++        return -clamped * 0.01;
++    }
++    return (-event.deltaY) * (event.deltaMode ? 1 : 0.002);
+ };
+ 
+ function createPanOnScrollHandler({ zoomPanValues, noWheelClassName, d3Selection, d3Zoom, panOnScrollMode, panOnScrollSpeed, zoomOnPinch, onPanZoomStart, onPanZoom, onPanZoomEnd, }) {
+@@ -2877,7 +3366,7 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     const zoomPanValues = {
+         isZoomingOrPanning: false,
+         usedRightMouseButton: false,
+-        prevViewport: { x: 0, y: 0, zoom: 0 },
++        prevViewport: {},
+         mouseButton: 0,
+         timerId: undefined,
+         panScrollTimeout: undefined,
+@@ -2889,7 +3378,7 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     setViewportConstrained({
+         x: viewport.x,
+         y: viewport.y,
+-        zoom: clamp(viewport.zoom, minZoom, maxZoom),
++        zoom: clamp$c(viewport.zoom, minZoom, maxZoom),
+     }, [
+         [0, 0],
+         [bbox.width, bbox.height],
+@@ -2900,13 +3389,13 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     function setTransform(transform, options) {
+         if (d3Selection) {
+             return new Promise((resolve) => {
+-                d3ZoomInstance?.interpolate(options?.interpolate === 'linear' ? interpolate : interpolateZoom).transform(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), transform);
++                d3ZoomInstance?.interpolate(resolveInterpolate(options?.interpolate)).transform(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), transform);
+             });
+         }
+         return Promise.resolve(false);
+     }
+     // public functions
+-    function update({ noWheelClassName, noPanClassName, onPaneContextMenu, userSelectionActive, panOnScroll, panOnDrag, panOnScrollMode, panOnScrollSpeed, preventScrolling, zoomOnPinch, zoomOnScroll, zoomOnDoubleClick, zoomActivationKeyPressed, lib, onTransformChange, connectionInProgress, paneClickDistance, selectionOnDrag, }) {
++    function update({ noWheelClassName, noPanClassName, onPaneContextMenu, userSelectionActive, panOnScroll, panOnDrag, panOnScrollMode, panOnScrollSpeed, preventScrolling, zoomOnPinch, zoomOnScroll, zoomOnDoubleClick, zoomActivationKeyPressed, lib: lib, onTransformChange, connectionInProgress, paneClickDistance, selectionOnDrag, }) {
+         if (userSelectionActive && !zoomPanValues.isZoomingOrPanning) {
+             destroy();
+         }
+@@ -2958,6 +3447,12 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+                 onDraggingChange,
+             });
+             d3ZoomInstance.on('end', panZoomEndHandler);
++        } else {
++            d3ZoomInstance.on('zoom', event => {
++                if (!event.sourceEvent?.sync) {
++                    onTransformChange([event.transform.x, event.transform.y, event.transform.k]);
++                }
++            });
+         }
+         const filter = createFilter({
+             zoomActivationKeyPressed,
+@@ -2969,7 +3464,7 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+             userSelectionActive,
+             noPanClassName,
+             noWheelClassName,
+-            lib,
++            lib: lib,
+             connectionInProgress,
+         });
+         d3ZoomInstance.filter(filter);
+@@ -2988,26 +3483,25 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     function destroy() {
+         d3ZoomInstance.on('zoom', null);
+     }
+-    async function setViewportConstrained(viewport, extent, translateExtent) {
+-        const nextTransform = viewportToTransform(viewport);
+-        const contrainedTransform = d3ZoomInstance?.constrain()(nextTransform, extent, translateExtent);
++    async function setViewportConstrained(viewport2, extent, translateExtent2) {
++        const nextTransform = viewportToTransform(viewport2);
++        const contrainedTransform = d3ZoomInstance?.constrain()(nextTransform, extent, translateExtent2);
+         if (contrainedTransform) {
+             await setTransform(contrainedTransform);
+         }
+         return new Promise((resolve) => resolve(contrainedTransform));
+     }
+-    async function setViewport(viewport, options) {
+-        const nextTransform = viewportToTransform(viewport);
++    async function setViewport(viewport2, options) {
++        const nextTransform = viewportToTransform(viewport2);
+         await setTransform(nextTransform, options);
+         return new Promise((resolve) => resolve(nextTransform));
+     }
+-    function syncViewport(viewport) {
++    function syncViewport(viewport2) {
+         if (d3Selection) {
+-            const nextTransform = viewportToTransform(viewport);
++            const nextTransform = viewportToTransform(viewport2);
+             const currentTransform = d3Selection.property('__zoom');
+-            if (currentTransform.k !== viewport.zoom ||
+-                currentTransform.x !== viewport.x ||
+-                currentTransform.y !== viewport.y) {
++            if ((currentTransform.k !== viewport2.zoom || currentTransform.x !== viewport2.x) ||
++                (currentTransform.y !== viewport2.y)) {
+                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                 // @ts-ignore
+                 d3ZoomInstance?.transform(d3Selection, nextTransform, null, { sync: true });
+@@ -3018,10 +3512,10 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+         const transform = d3Selection ? zoomTransform(d3Selection.node()) : { x: 0, y: 0, k: 1 };
+         return { x: transform.x, y: transform.y, zoom: transform.k };
+     }
+-    function scaleTo(zoom, options) {
++    function scaleTo(zoom2, options) {
+         if (d3Selection) {
+             return new Promise((resolve) => {
+-                d3ZoomInstance?.interpolate(options?.interpolate === 'linear' ? interpolate : interpolateZoom).scaleTo(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), zoom);
++                d3ZoomInstance?.interpolate(resolveInterpolate(options?.interpolate)).scaleTo(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), zoom2);
+             });
+         }
+         return Promise.resolve(false);
+@@ -3029,7 +3523,7 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     function scaleBy(factor, options) {
+         if (d3Selection) {
+             return new Promise((resolve) => {
+-                d3ZoomInstance?.interpolate(options?.interpolate === 'linear' ? interpolate : interpolateZoom).scaleBy(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), factor);
++                d3ZoomInstance?.interpolate(resolveInterpolate(options?.interpolate)).scaleBy(getD3Transition(d3Selection, options?.duration, options?.ease, () => resolve(true)), factor);
+             });
+         }
+         return Promise.resolve(false);
+@@ -3037,15 +3531,15 @@ function XYPanZoom({ domNode, minZoom, maxZoom, translateExtent, viewport, onPan
+     function setScaleExtent(scaleExtent) {
+         d3ZoomInstance?.scaleExtent(scaleExtent);
+     }
+-    function setTranslateExtent(translateExtent) {
+-        d3ZoomInstance?.translateExtent(translateExtent);
++    function setTranslateExtent(translateExtent2) {
++        d3ZoomInstance?.translateExtent(translateExtent2);
+     }
+     function setClickDistance(distance) {
+         const validDistance = !isNumeric(distance) || distance < 0 ? 0 : distance;
+         d3ZoomInstance?.clickDistance(validDistance);
+     }
+     return {
+-        update,
++        update: update,
+         destroy,
+         setViewport,
+         setViewportConstrained,
