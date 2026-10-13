@@ -74,7 +74,7 @@ export function PageStateBoundary({
   className,
   density = "page",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const online = useOnline();
   let input = {
     type: "normal",
@@ -90,7 +90,7 @@ export function PageStateBoundary({
       ...emptyOptions2,
     };
   }
-  const state2 = resolvePageState(input, t2("common.retry"), online);
+  const state2 = resolvePageState(input, translate("common.retry"), online);
   return (
     <PageStateView state={state2} className={className} density={density}>
       {children2}

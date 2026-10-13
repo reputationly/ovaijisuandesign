@@ -68,7 +68,7 @@ export function PageStateView({
   className,
   density = "page",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   if (state2.type === "normal") return <>{children2}</>;
   const isError = state2.type === "error";
   const errorReason = isError ? (state2.reason ?? "generic") : void 0;
@@ -76,12 +76,12 @@ export function PageStateView({
     state2.type === "empty" ? (state2.reason ?? "generic") : void 0;
   const defaultText = isError
     ? errorReason === "network"
-      ? t2(
+      ? translate(
           "pageState.networkErrorText",
           "No network connection. Check your connection and try again.",
         )
-      : t2("pageState.errorText", "Something went wrong. Please try again.")
-    : t2("pageState.emptyText", "No content yet");
+      : translate("pageState.errorText", "Something went wrong. Please try again.")
+    : translate("pageState.emptyText", "No content yet");
   const hasStructuredContent =
     state2.title != null || state2.description != null;
   const inlineActions = state2.actions.filter(

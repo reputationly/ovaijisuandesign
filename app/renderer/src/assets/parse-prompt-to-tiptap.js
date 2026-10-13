@@ -110,8 +110,8 @@ function serializeInline(nodes, fileRefInclusion) {
       const x1 = Number(attrs?.x1 ?? 0);
       const y1 = Number(attrs?.y1 ?? 0);
       const x2 = Number(attrs?.x2 ?? 999);
-      const y22 = Number(attrs?.y2 ?? 999);
-      text2 += `<bbox>${x1} ${y1} ${x2} ${y22}</bbox>`;
+      const y2 = Number(attrs?.y2 ?? 999);
+      text2 += `<bbox>${x1} ${y1} ${x2} ${y2}</bbox>`;
     }
   }
   return text2;
@@ -162,8 +162,8 @@ export function collectTextChipPaths(editor) {
   const paths = [];
   editor.state.doc.descendants((node2) => {
     if (node2.type.name === "canvasFileRef" && node2.attrs?.kind === "text") {
-      const p3 = node2.attrs?.path;
-      if (typeof p3 === "string" && p3) paths.push(p3);
+      const path = node2.attrs?.path;
+      if (typeof path === "string" && path) paths.push(path);
     }
   });
   return paths;
@@ -198,23 +198,23 @@ export function parsePromptToTiptap(text2, lookup) {
     const inline2 = [];
     const mentions = findAllMentions(line);
     let cursor = 0;
-    for (const m3 of mentions) {
-      if (m3.start > cursor) {
+    for (const mention of mentions) {
+      if (mention.start > cursor) {
         inline2.push({
           type: "text",
-          text: line.slice(cursor, m3.start),
+          text: line.slice(cursor, mention.start),
         });
       }
-      const direct = parseCanvasReference(m3.path);
+      const direct = parseCanvasReference(mention.path);
       const found2 = direct
         ? {
-            path: m3.path,
+            path: mention.path,
             filename: direct.subjectName
               ? `${direct.subjectName} · ${direct.name}`
               : direct.name,
             kind: direct.kind === "other" ? "text" : direct.kind,
           }
-        : lookup(m3.path);
+        : lookup(mention.path);
       if (found2) {
         inline2.push({
           type: "canvasFileRef",
@@ -227,10 +227,10 @@ export function parsePromptToTiptap(text2, lookup) {
       } else {
         inline2.push({
           type: "text",
-          text: line.slice(m3.start, m3.end),
+          text: line.slice(mention.start, mention.end),
         });
       }
-      cursor = m3.end;
+      cursor = mention.end;
     }
     if (cursor < line.length) {
       inline2.push({

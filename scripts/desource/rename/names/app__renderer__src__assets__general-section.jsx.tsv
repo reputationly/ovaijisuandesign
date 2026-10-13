@@ -1,0 +1,26 @@
+key	old	new	依据
+DialogDescription$2@2:179	DialogDescription$2	SettingsDialogDescription	该导入组件为设置弹窗提供辅助描述文本。
+DialogTitle$2@2:213	DialogTitle$2	SettingsDialogTitle	该导入组件为设置弹窗提供标题文本。
+snapshot$2@59:15	snapshot$2	topbarWorkspaceSnapshot	该值是当前顶栏工作区标识与运行时的共享快照。
+t2@141:14	t2	translate	该绑定是账户删除对话框读取界面文案的翻译函数。
+t2@319:14	t2	translate	该绑定是复制信息行读取按钮文案的翻译函数。
+t2@341:14	t2	translate	该绑定是账户名称行显示校验与更新错误文案的翻译函数。
+t2@420:14	t2	translate	该绑定是团队信息行读取界面文案的翻译函数。
+t2@433:14	t2	translate	该绑定是账户设置区读取界面文案的翻译函数。
+t2@524:14	t2	translate	该绑定是网络设置区读取代理模式文案的翻译函数。
+m3@532:14	m3	proxyMode	该值是网络诊断服务返回并用于更新代理模式状态的模式字符串。
+v2@572:29	v2	selectedMode	该值是代理模式选择控件当前选中的模式。
+m3@573:39	m3	mode	该值是代理模式选项数组中的单个模式字符串。
+t2@618:45	t2	translate	该参数是根据更新阶段生成徽标文案时调用的翻译函数。
+t2@640:14	t2	translate	该绑定是高级设置区读取界面文案的翻译函数。
+s2@673:14	s2	routerState	该值是提供 location.search 的路由状态对象。
+t2@725:14	t2	translate	该绑定是软件更新不可用面板读取文案的翻译函数。
+t2@824:14	t2	translate	该绑定是资产中心设置区读取界面文案的翻译函数。
+t2@953:14	t2	translate	该绑定是 ComfyUI 设置区读取状态与错误文案的翻译函数。
+t2@1084:14	t2	translate	该绑定是常规设置区读取界面文案的翻译函数。
+v2@1103:35	v2	language	该值是语言选择控件当前选中的语言标识。
+t2@1269:14	t2	translate	该绑定是安装位置设置区读取界面文案的翻译函数。
+id2@1356:36	id2	providerId	该值是用于校验自定义模型提供方身份的对象键。
+t2@1363:14	t2	translate	该绑定是自定义模型设置区读取界面文案的翻译函数。
+id2@1434:42	id2	providerId	该值是当前遍历的自定义模型提供方标识。
+t2@1559:14	t2	translate	该绑定是设置对话框读取各设置区标题的翻译函数。

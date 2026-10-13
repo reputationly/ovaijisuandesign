@@ -45,13 +45,13 @@ export function getCanvasTagSelectedForegroundColor(color2) {
 }
 export function TagDots({ tagIds, size: size2 = 9, className, ringColor }) {
   const registry2 = useTagRegistry();
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const tags2 = resolveTagIds(tagIds, registry2).filter(isCanvasColorTag);
   if (tags2.length === 0) return null;
-  const name2 = (id2, custom) =>
+  const name2 = (colorId, custom) =>
     custom && custom.length > 0
       ? custom
-      : t2(PRESET_COLOR_NAME_KEYS[id2] ?? "") || id2;
+      : translate(PRESET_COLOR_NAME_KEYS[colorId] ?? "") || colorId;
   const visibleTags = tags2.slice(0, MAX_VISIBLE_CANVAS_TAG_COLORS);
   const title = visibleTags.map((tag) => name2(tag.id, tag.name)).join("、");
   const overlap = Math.round(size2 * 0.4);
@@ -63,9 +63,9 @@ export function TagDots({ tagIds, size: size2 = 9, className, ringColor }) {
           render={
             <span
               className={cn("inline-flex shrink-0 items-center", className)}
-              onPointerEnter={(e2) => e2.stopPropagation()}
-              onPointerMove={(e2) => e2.stopPropagation()}
-              onPointerLeave={(e2) => e2.stopPropagation()}
+              onPointerEnter={(pointerEvent) => pointerEvent.stopPropagation()}
+              onPointerMove={(pointerEvent) => pointerEvent.stopPropagation()}
+              onPointerLeave={(pointerEvent) => pointerEvent.stopPropagation()}
             >
               {visibleTags.map((tag, index2) => (
                 <span
@@ -158,16 +158,16 @@ export function InlineInput({
       inputClassName="h-auto px-0 py-0"
       data-action-ui-id="file-explorer.inline-name-input"
       value={value}
-      onChange={(e2) => setValue(e2.target.value)}
-      onKeyDown={(e2) => {
-        e2.stopPropagation();
-        if (e2.nativeEvent.isComposing) return;
-        if (e2.key === "Enter") {
-          e2.preventDefault();
+      onChange={(changeEvent) => setValue(changeEvent.target.value)}
+      onKeyDown={(keyboardEvent) => {
+        keyboardEvent.stopPropagation();
+        if (keyboardEvent.nativeEvent.isComposing) return;
+        if (keyboardEvent.key === "Enter") {
+          keyboardEvent.preventDefault();
           handleConfirm();
         }
-        if (e2.key === "Escape") {
-          e2.preventDefault();
+        if (keyboardEvent.key === "Escape") {
+          keyboardEvent.preventDefault();
           if (!settledRef.current) {
             settledRef.current = true;
             onCancel();
@@ -175,7 +175,7 @@ export function InlineInput({
         }
       }}
       onBlur={handleConfirm}
-      onClick={(e2) => e2.stopPropagation()}
+      onClick={(clickEvent) => clickEvent.stopPropagation()}
     />
   );
 }

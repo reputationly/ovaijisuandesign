@@ -34,8 +34,8 @@ export function resolveAssetCenterErrorKey(code2) {
   if (!code2) return ASSET_CENTER_ERROR_UNKNOWN_KEY;
   return ASSET_CENTER_ERROR_KEYS[code2] ?? ASSET_CENTER_ERROR_UNKNOWN_KEY;
 }
-function translateAssetCenterError(code2, t2) {
-  return t2(resolveAssetCenterErrorKey(code2));
+function translateAssetCenterError(code2, translate) {
+  return translate(resolveAssetCenterErrorKey(code2));
 }
 function classifyInfraError(err) {
   if (err.name === "GatewayNotReadyError")
@@ -51,17 +51,17 @@ function classifyInfraError(err) {
   }
   return void 0;
 }
-export function formatAssetCenterError(err, t2) {
+export function formatAssetCenterError(err, translate) {
   if (
     err instanceof Error &&
     err.name === "AssetCenterApiError" &&
     "code" in err
   ) {
-    return translateAssetCenterError(err.code, t2);
+    return translateAssetCenterError(err.code, translate);
   }
   if (err instanceof Error) {
     const infraKey = classifyInfraError(err);
-    if (infraKey) return t2(infraKey);
+    if (infraKey) return translate(infraKey);
   }
-  return t2(ASSET_CENTER_ERROR_UNKNOWN_KEY);
+  return translate(ASSET_CENTER_ERROR_UNKNOWN_KEY);
 }

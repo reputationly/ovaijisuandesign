@@ -32,15 +32,15 @@ export function ImageLightbox({ src, alt, onClose }) {
   translateRef.current = translate2;
   reactExports.useEffect(() => {
     if (!transitioning) return;
-    const id2 = setTimeout(() => setTransitioning(false), 200);
-    return () => clearTimeout(id2);
+    const timeoutId = setTimeout(() => setTransitioning(false), 200);
+    return () => clearTimeout(timeoutId);
   }, [transitioning]);
   const handleWheel = reactExports.useCallback((event) => {
     event.stopPropagation();
     const container = containerRef.current;
     if (!container) return;
     const rect = container.getBoundingClientRect();
-    const cx2 = event.clientX - rect.left - rect.width / 2;
+    const pointerOffsetX = event.clientX - rect.left - rect.width / 2;
     const cy = event.clientY - rect.top - rect.height / 2;
     const prevScale = scaleRef.current;
     const delta = -event.deltaY * WHEEL_STEP;
@@ -50,7 +50,7 @@ export function ImageLightbox({ src, alt, onClose }) {
     );
     if (nextScale === prevScale) return;
     const ratio = 1 - nextScale / prevScale;
-    const tx = translateRef.current.x + (cx2 - translateRef.current.x) * ratio;
+    const tx = translateRef.current.x + (pointerOffsetX - translateRef.current.x) * ratio;
     const ty = translateRef.current.y + (cy - translateRef.current.y) * ratio;
     setScale(nextScale);
     setTranslate({

@@ -71,7 +71,7 @@ function flattenAssetTree(records, folders, expanded) {
   const visit2 = (parentRel, depth2) => {
     const childFolders = folders
       .filter((rel) => relParent(rel) === parentRel)
-      .sort((a2, b3) => a2.localeCompare(b3));
+      .sort((leftFolderPath, rightFolderPath) => leftFolderPath.localeCompare(rightFolderPath));
     for (const rel of childFolders) {
       rows.push({
         kind: "folder",
@@ -84,8 +84,8 @@ function flattenAssetTree(records, folders, expanded) {
     const childFiles = records
       .filter((record2) => relParent(record2.relPath) === parentRel)
       .sort(
-        (a2, b3) =>
-          (b3.updatedAt ?? b3.createdAt) - (a2.updatedAt ?? a2.createdAt),
+        (leftRecord, rightRecord) =>
+          (rightRecord.updatedAt ?? rightRecord.createdAt) - (leftRecord.updatedAt ?? leftRecord.createdAt),
       );
     for (const record2 of childFiles) {
       rows.push({
@@ -115,7 +115,7 @@ function LocalAssetGridCard({
   dndProps,
   dropActive,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const record2 = row.record;
   const typeBucket = resolveTypeBucket({
     kind: row.kind,
@@ -191,22 +191,22 @@ function LocalAssetGridCard({
             </ContextMenuItem>
             <ContextMenuItem onClick={onRename}>
               <PencilIcon size={14} strokeWidth={1.5} />
-              {t2("localAssets.rename")}
+              {translate("localAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={onMove}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {t2("localAssets.moveTo")}
+              {translate("localAssets.moveTo")}
             </ContextMenuItem>
           </>
         ) : record2 ? (
           <>
             <ContextMenuItem onClick={() => onAddToCanvas(record2)}>
               <Icon icon={ImageOutlineIcon} size="sm" strokeWidth={1.5} />
-              {t2("localAssets.addToCanvas")}
+              {translate("localAssets.addToCanvas")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => void onAddToAgent(record2)}>
               <AddToChatIcon size={14} />
-              {t2("localAssets.addToAgent")}
+              {translate("localAssets.addToAgent")}
             </ContextMenuItem>
             <ContextMenuItem onClick={() => void onRevealFile(record2)}>
               <Icon icon={FolderOpen} size="sm" strokeWidth={1.5} />
@@ -217,17 +217,17 @@ function LocalAssetGridCard({
               data-action-ui-id="project-assets-sidebar.file-rename"
             >
               <PencilIcon size={14} strokeWidth={1.5} />
-              {t2("localAssets.rename")}
+              {translate("localAssets.rename")}
             </ContextMenuItem>
             <ContextMenuItem onClick={onMove}>
               <Icon icon={FolderInput} size="sm" strokeWidth={1.5} />
-              {t2("localAssets.moveTo")}
+              {translate("localAssets.moveTo")}
             </ContextMenuItem>
           </>
         ) : null}
         <ContextMenuItem variant="destructive" onClick={onDelete}>
           <Icon icon={Trash2} size="sm" strokeWidth={1.5} />
-          {t2("localAssets.delete")}
+          {translate("localAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -244,7 +244,7 @@ function FolderRow({
   dndProps,
   dropActive,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const Chevron2 = expanded ? ChevronDown : ChevronRight;
   return (
     <ContextMenu>
@@ -284,15 +284,15 @@ function FolderRow({
         </ContextMenuItem>
         <ContextMenuItem onClick={onRename}>
           <PencilIcon size={14} strokeWidth={1.5} />
-          {t2("localAssets.rename")}
+          {translate("localAssets.rename")}
         </ContextMenuItem>
         <ContextMenuItem onClick={onMove}>
           <FolderInput size={14} strokeWidth={1.5} />
-          {t2("localAssets.moveTo")}
+          {translate("localAssets.moveTo")}
         </ContextMenuItem>
         <ContextMenuItem variant="destructive" onClick={onDelete}>
           <Trash2 size={14} strokeWidth={1.5} />
-          {t2("localAssets.delete")}
+          {translate("localAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -310,7 +310,7 @@ function FileRow({
   onDelete,
   dndProps,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -337,11 +337,11 @@ function FileRow({
       <ContextMenuContent>
         <ContextMenuItem onClick={() => onAddToCanvas(record2)}>
           <ImageOutlineIcon size={14} strokeWidth={1.5} />
-          {t2("localAssets.addToCanvas")}
+          {translate("localAssets.addToCanvas")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => void onAddToAgent(record2)}>
           <AddToChatIcon size={14} strokeWidth={1.5} />
-          {t2("localAssets.addToAgent")}
+          {translate("localAssets.addToAgent")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => void onReveal(record2)}>
           <FolderOpen size={14} strokeWidth={1.5} />
@@ -352,18 +352,18 @@ function FileRow({
           data-action-ui-id="project-assets-sidebar.file-rename"
         >
           <PencilIcon size={14} strokeWidth={1.5} />
-          {t2("localAssets.rename")}
+          {translate("localAssets.rename")}
         </ContextMenuItem>
         <ContextMenuItem onClick={onMove}>
           <FolderInput size={14} strokeWidth={1.5} />
-          {t2("localAssets.moveTo")}
+          {translate("localAssets.moveTo")}
         </ContextMenuItem>
         <ContextMenuItem
           variant="destructive"
           onClick={() => onDelete(record2)}
         >
           <Trash2 size={14} strokeWidth={1.5} />
-          {t2("localAssets.delete")}
+          {translate("localAssets.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -374,7 +374,7 @@ export function LocalAssetsSidebarPanel({
   onToolbarStateChange,
   searchQuery,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const platform2 = usePlatform();
   const service2 = useProjectAssetsService();
   const { ensureProjectFolderName } = useProjectActions();
@@ -393,11 +393,11 @@ export function LocalAssetsSidebarPanel({
   const fileInputRef = reactExports.useRef(null);
   const [debouncedSearch, setDebouncedSearch] = reactExports.useState("");
   reactExports.useEffect(() => {
-    const id2 = setTimeout(
+    const timeoutId = setTimeout(
       () => setDebouncedSearch((searchQuery ?? "").trim().toLowerCase()),
       200,
     );
-    return () => clearTimeout(id2);
+    return () => clearTimeout(timeoutId);
   }, [searchQuery]);
   const [viewMode, setViewMode] = reactExports.useState("tree");
   reactExports.useEffect(() => {
@@ -475,8 +475,8 @@ export function LocalAssetsSidebarPanel({
             : `file:${row.record?.id ?? ""}`,
         );
         const parts = row.rel.split("/").filter(Boolean);
-        for (let i2 = 1; i2 < parts.length; i2++) {
-          matched.add(`folder:${parts.slice(0, i2).join("/")}`);
+        for (let pathSegmentIndex = 1; pathSegmentIndex < parts.length; pathSegmentIndex++) {
+          matched.add(`folder:${parts.slice(0, pathSegmentIndex).join("/")}`);
         }
       }
     }
@@ -565,14 +565,14 @@ export function LocalAssetsSidebarPanel({
           message: err instanceof Error ? err.message : String(err),
         });
         dedupedToast.error(
-          t2("localAssets.importFailed", {
+          translate("localAssets.importFailed", {
             name: record2.name,
           }),
         );
         return void 0;
       }
     },
-    [absoluteFor, anchorProjectAssets, folderName, t2],
+    [absoluteFor, anchorProjectAssets, folderName, translate],
   );
   const handleAddToCanvas = reactExports.useCallback(
     (record2) => {
@@ -598,7 +598,7 @@ export function LocalAssetsSidebarPanel({
       );
       if (!absolute || !platform2.shell.showItemInFolder) {
         dedupedToast.error(
-          t2("localAssets.openFailed", {
+          translate("localAssets.openFailed", {
             name: record2.name,
           }),
         );
@@ -607,14 +607,14 @@ export function LocalAssetsSidebarPanel({
       }
       await platform2.shell.showItemInFolder(absolute);
     },
-    [folderName, platform2.shell, refresh, service2, t2],
+    [folderName, platform2.shell, refresh, service2, translate],
   );
   const handleRevealFolder = reactExports.useCallback(
     async (row) => {
       const absolute = assetsDir ? `${assetsDir}/${row.rel}` : void 0;
       if (!absolute || !platform2.shell.showItemInFolder) {
         dedupedToast.error(
-          t2("localAssets.openFailed", {
+          translate("localAssets.openFailed", {
             name: row.name,
           }),
         );
@@ -623,7 +623,7 @@ export function LocalAssetsSidebarPanel({
       }
       await platform2.shell.showItemInFolder(absolute);
     },
-    [assetsDir, platform2.shell, refresh, t2],
+    [assetsDir, platform2.shell, refresh, translate],
   );
   const handleDelete2 = reactExports.useCallback(
     async (row) => {
@@ -674,13 +674,13 @@ export function LocalAssetsSidebarPanel({
           folderName,
           folderSegments: [],
           files,
-          t: t2,
+          t: translate,
         })
       ) {
         void refresh();
       }
     },
-    [folderName, refresh, service2, t2],
+    [folderName, refresh, service2, translate],
   );
   const handleMove = reactExports.useCallback(
     async (row, target) => {
@@ -703,9 +703,9 @@ export function LocalAssetsSidebarPanel({
         const message2 = err instanceof Error ? err.message : String(err);
         dedupedToast.error(
           message2.includes("duplicate_name")
-            ? t2("localAssets.moveDuplicate")
+            ? translate("localAssets.moveDuplicate")
             : message2.includes("depth_exceeded")
-              ? t2("localAssets.folderDepthLimit", {
+              ? translate("localAssets.folderDepthLimit", {
                   count: PROJECT_ASSET_MAX_VISIBLE_FOLDER_LEVELS,
                 })
               : message2,
@@ -713,7 +713,7 @@ export function LocalAssetsSidebarPanel({
       }
       void refresh();
     },
-    [folderName, refresh, service2, t2],
+    [folderName, refresh, service2, translate],
   );
   const canDropRow = reactExports.useCallback((row, target) => {
     if (target.key === relParent(row.rel)) return false;
@@ -788,7 +788,7 @@ export function LocalAssetsSidebarPanel({
     >
       <section
         {...externalDropProps}
-        aria-label={t2("projectAssets.title")}
+        aria-label={translate("projectAssets.title")}
         data-action-ui-id="project-assets-sidebar.drop-area"
         className={cn(
           "min-h-0 flex-1 overflow-y-auto pb-1",
@@ -802,7 +802,7 @@ export function LocalAssetsSidebarPanel({
               density="panel"
               className="h-full"
               emptyOptions={{
-                title: t2("fileExplorer.noMatchingFiles"),
+                title: translate("fileExplorer.noMatchingFiles"),
               }}
             />
           ) : (
@@ -895,7 +895,7 @@ export function LocalAssetsSidebarPanel({
           data-action-ui-id="project-assets-sidebar.new-folder"
         >
           <FolderPlus size={14} strokeWidth={1.5} />
-          {t2("localAssets.newFolder")}
+          {translate("localAssets.newFolder")}
         </Button>
         <Button
           type="button"
@@ -907,7 +907,7 @@ export function LocalAssetsSidebarPanel({
           data-action-ui-id="project-assets-sidebar.upload"
         >
           <Upload size={14} strokeWidth={1.5} />
-          {t2("localAssets.upload")}
+          {translate("localAssets.upload")}
         </Button>
         <input
           ref={fileInputRef}
