@@ -1,0 +1,5 @@
+key	old	new	依据
+i2@27:12	i2	index	循环下标逐段读取 padding 字符串并识别括号和空白边界。
+e2@71:55	e2	pointerEvent	onPointerDown 回调用事件的 clientX、clientY 记录拖拽起点。
+e2@78:55	e2	pointerEvent	onPointerMove 回调用事件坐标计算拖拽距离。
+e2@89:6	e2	mouseEvent	onDoubleClick 回调在未拖动且没有模态框时转交双击事件。

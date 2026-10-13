@@ -14,19 +14,19 @@ const FRAME_PADDING_RATIO = 0.15;
 
 const CENTER_ON_NODES_MAX_FRAME_ZOOM = 2;
 
-function easeOutQuart(t2) {
-  return 1 - (1 - t2) ** 4;
+function easeOutQuart(progress) {
+  return 1 - (1 - progress) ** 4;
 }
 
-function interpolateFocusView(a2, b3) {
-  const widthRatio = b3[2] / a2[2];
-  return (t2) => {
-    const scale2 = widthRatio ** t2;
-    const remaining = (1 - t2) * scale2;
+function interpolateFocusView(startView, targetView) {
+  const widthRatio = targetView[2] / startView[2];
+  return (progress) => {
+    const scale2 = widthRatio ** progress;
+    const remaining = (1 - progress) * scale2;
     return [
-      b3[0] - (b3[0] - a2[0]) * remaining,
-      b3[1] - (b3[1] - a2[1]) * remaining,
-      a2[2] * scale2,
+      targetView[0] - (targetView[0] - startView[0]) * remaining,
+      targetView[1] - (targetView[1] - startView[1]) * remaining,
+      startView[2] * scale2,
     ];
   };
 }
@@ -66,8 +66,8 @@ function getNodesBounds(nodeIds, nodeLookup) {
   let minY = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
   let maxY = Number.NEGATIVE_INFINITY;
-  for (const id2 of nodeIds) {
-    const node2 = nodeLookup.get(id2);
+  for (const nodeId of nodeIds) {
+    const node2 = nodeLookup.get(nodeId);
     const width = node2?.measured?.width;
     const height = node2?.measured?.height;
     if (!node2 || !width || !height) continue;

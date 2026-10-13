@@ -12,12 +12,12 @@ export function createCanvasOverlayStore() {
         },
       }),
     cancelCrop: () =>
-      set2((s2) =>
-        s2.active?.kind === "crop"
+      set2((state) =>
+        state.active?.kind === "crop"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
     startOutpaint: (nodeId, meta2) =>
       set2({
@@ -28,12 +28,12 @@ export function createCanvasOverlayStore() {
         },
       }),
     cancelOutpaint: () =>
-      set2((s2) =>
-        s2.active?.kind === "outpaint"
+      set2((state) =>
+        state.active?.kind === "outpaint"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
     startErase: (nodeId, meta2) =>
       set2({
@@ -44,12 +44,12 @@ export function createCanvasOverlayStore() {
         },
       }),
     cancelErase: () =>
-      set2((s2) =>
-        s2.active?.kind === "erase"
+      set2((state) =>
+        state.active?.kind === "erase"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
     startRedraw: (nodeId, meta2) =>
       set2({
@@ -60,12 +60,12 @@ export function createCanvasOverlayStore() {
         },
       }),
     cancelRedraw: () =>
-      set2((s2) =>
-        s2.active?.kind === "redraw"
+      set2((state) =>
+        state.active?.kind === "redraw"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
     startMoveObject: (nodeId, meta2) =>
       set2({
@@ -76,12 +76,12 @@ export function createCanvasOverlayStore() {
         },
       }),
     cancelMoveObject: () =>
-      set2((s2) =>
-        s2.active?.kind === "move-object"
+      set2((state) =>
+        state.active?.kind === "move-object"
           ? {
               active: null,
             }
-          : s2,
+          : state,
       ),
     reset: () =>
       set2({

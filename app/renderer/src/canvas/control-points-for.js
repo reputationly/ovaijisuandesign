@@ -19,14 +19,14 @@ export function sourceHandleSide(entry, source, target) {
 }
 export function readNodeBox(entry) {
   if (!entry) return null;
-  const pos = entry.internals?.positionAbsolute ?? entry.position;
-  if (!pos) return null;
+  const position = entry.internals?.positionAbsolute ?? entry.position;
+  if (!position) return null;
   const width = entry.measured?.width ?? entry.width ?? 0;
   const height = entry.measured?.height ?? entry.height ?? 0;
   if (width <= 0 || height <= 0) return null;
   return {
-    x: pos.x,
-    y: pos.y,
+    x: position.x,
+    y: position.y,
     width,
     height,
   };
@@ -50,33 +50,33 @@ export function pointsForSide(source, target, side) {
   }
   return pointsForRightLeft(source, target);
 }
-function calcOffset(d2) {
-  return d2 >= 0 ? 0.5 * d2 : 6.25 * Math.sqrt(-d2);
+function calcOffset(delta) {
+  return delta >= 0 ? 0.5 * delta : 6.25 * Math.sqrt(-delta);
 }
-export function controlPointsFor(p3, side = "right") {
+export function controlPointsFor(connectionPoints, side = "right") {
   if (side === "left") {
-    const offset22 = calcOffset(p3.sx - p3.tx);
+    const offset22 = calcOffset(connectionPoints.sx - connectionPoints.tx);
     return {
-      sx: p3.sx,
-      sy: p3.sy,
-      cp1x: p3.sx - offset22,
-      cp1y: p3.sy,
-      cp2x: p3.tx + offset22,
-      cp2y: p3.ty,
-      tx: p3.tx,
-      ty: p3.ty,
+      sx: connectionPoints.sx,
+      sy: connectionPoints.sy,
+      cp1x: connectionPoints.sx - offset22,
+      cp1y: connectionPoints.sy,
+      cp2x: connectionPoints.tx + offset22,
+      cp2y: connectionPoints.ty,
+      tx: connectionPoints.tx,
+      ty: connectionPoints.ty,
     };
   }
-  const offset2 = calcOffset(p3.tx - p3.sx);
+  const offset2 = calcOffset(connectionPoints.tx - connectionPoints.sx);
   return {
-    sx: p3.sx,
-    sy: p3.sy,
-    cp1x: p3.sx + offset2,
-    cp1y: p3.sy,
-    cp2x: p3.tx - offset2,
-    cp2y: p3.ty,
-    tx: p3.tx,
-    ty: p3.ty,
+    sx: connectionPoints.sx,
+    sy: connectionPoints.sy,
+    cp1x: connectionPoints.sx + offset2,
+    cp1y: connectionPoints.sy,
+    cp2x: connectionPoints.tx - offset2,
+    cp2y: connectionPoints.ty,
+    tx: connectionPoints.tx,
+    ty: connectionPoints.ty,
   };
 }
 export function isEdgeVisible(edge, nodeLookup, onlySelectedNodes) {
@@ -89,12 +89,12 @@ export function isEdgeVisible(edge, nodeLookup, onlySelectedNodes) {
 }
 export const subscribers = new Set();
 function notify() {
-  for (const cb of subscribers) cb();
+  for (const callback of subscribers) callback();
 }
 export let hoveredId = null;
-export function setHoveredEdgeId(id2) {
-  if (hoveredId === id2) return;
-  hoveredId = id2;
+export function setHoveredEdgeId(edgeId) {
+  if (hoveredId === edgeId) return;
+  hoveredId = edgeId;
   notify();
 }
 export function clearHoveredEdgeIdIfMatches(expected) {

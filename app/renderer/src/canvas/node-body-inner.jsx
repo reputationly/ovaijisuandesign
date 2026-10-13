@@ -24,15 +24,15 @@ function preservePanelContentInset(padding) {
   const values3 = [];
   let depth2 = 0;
   let start2 = 0;
-  for (let i2 = 0; i2 <= padding.length; i2 += 1) {
-    if (padding[i2] === "(") depth2 += 1;
-    if (padding[i2] === ")") depth2 -= 1;
-    if (i2 === padding.length || (depth2 === 0 && /\s/.test(padding[i2]))) {
-      if (start2 < i2) {
-        const value = padding.slice(start2, i2);
+  for (let index = 0; index <= padding.length; index += 1) {
+    if (padding[index] === "(") depth2 += 1;
+    if (padding[index] === ")") depth2 -= 1;
+    if (index === padding.length || (depth2 === 0 && /\s/.test(padding[index]))) {
+      if (start2 < index) {
+        const value = padding.slice(start2, index);
         values3.push(`calc(${value === "0" ? "0px" : value} + 1px)`);
       }
-      start2 = i2 + 1;
+      start2 = index + 1;
     }
   }
   return values3.join(" ");
@@ -68,28 +68,28 @@ function NodeBodyInner({
   useRegisterZoomCounter(bodyRef);
   const downPosRef = reactExports.useRef(null);
   const draggedRef = reactExports.useRef(false);
-  const handlePointerDown = reactExports.useCallback((e2) => {
+  const handlePointerDown = reactExports.useCallback((pointerEvent) => {
     downPosRef.current = {
-      x: e2.clientX,
-      y: e2.clientY,
+      x: pointerEvent.clientX,
+      y: pointerEvent.clientY,
     };
     draggedRef.current = false;
   }, []);
-  const handlePointerMove = reactExports.useCallback((e2) => {
+  const handlePointerMove = reactExports.useCallback((pointerEvent) => {
     const start2 = downPosRef.current;
     if (!start2 || draggedRef.current) return;
     if (
-      Math.hypot(e2.clientX - start2.x, e2.clientY - start2.y) >
+      Math.hypot(pointerEvent.clientX - start2.x, pointerEvent.clientY - start2.y) >
       DRAG_THRESHOLD_PX
     ) {
       draggedRef.current = true;
     }
   }, []);
   const handleDoubleClick2 = reactExports.useCallback(
-    (e2) => {
+    (mouseEvent) => {
       if (isModalOpen) return;
       if (draggedRef.current) return;
-      onDoubleClick?.(e2);
+      onDoubleClick?.(mouseEvent);
     },
     [isModalOpen, onDoubleClick],
   );

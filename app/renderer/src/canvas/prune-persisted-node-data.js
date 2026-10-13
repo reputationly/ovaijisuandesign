@@ -30,29 +30,29 @@ function analyzePromptJson(promptJson) {
   let hasRichContent = false;
   const blocks = [];
   const walkInline = (nodes) => {
-    let out = "";
+    let text = "";
     for (const node2 of nodes) {
       if (!node2 || typeof node2 !== "object") continue;
-      const n2 = node2;
-      if (n2.type === "text") {
-        if (typeof n2.text === "string") out += n2.text;
+      const inlineNode = node2;
+      if (inlineNode.type === "text") {
+        if (typeof inlineNode.text === "string") text += inlineNode.text;
       } else {
         hasRichContent = true;
       }
     }
-    return out;
+    return text;
   };
   const walkBlocks = (node2) => {
     if (!node2 || typeof node2 !== "object") return;
-    const n2 = node2;
-    if (typeof n2.type === "string" && !ALLOWED_BLOCK_TYPES.has(n2.type)) {
+    const blockNode = node2;
+    if (typeof blockNode.type === "string" && !ALLOWED_BLOCK_TYPES.has(blockNode.type)) {
       hasRichContent = true;
     }
-    if (!Array.isArray(n2.content)) return;
-    if (n2.type === "doc") {
-      for (const child of n2.content) walkBlocks(child);
+    if (!Array.isArray(blockNode.content)) return;
+    if (blockNode.type === "doc") {
+      for (const child of blockNode.content) walkBlocks(child);
     } else {
-      blocks.push(walkInline(n2.content));
+      blocks.push(walkInline(blockNode.content));
     }
   };
   walkBlocks(doc2);
@@ -109,7 +109,7 @@ function prunePopoverDraftEntry(draftVal, nodePrompt) {
   };
 }
 
-export function prunePersistedNodeData(data2, ctx) {
+export function prunePersistedNodeData(data2, context) {
   if (!data2 || typeof data2 !== "object") return void 0;
   const source = data2;
   let copy2;
@@ -128,7 +128,7 @@ export function prunePersistedNodeData(data2, ctx) {
   for (const key2 of ["assetId", "cloneOf"]) {
     if (Object.hasOwn(source, key2)) delete ensureCopy()[key2];
   }
-  if (ctx.hasAssetId) {
+  if (context.hasAssetId) {
     const isErrorState = isGenerationErrorStatus(source.status);
     for (const key2 of ASSET_PROJECTED_DATA_KEYS) {
       if (
@@ -147,7 +147,7 @@ export function prunePersistedNodeData(data2, ctx) {
     const protectGenerationDraft = DRAFT_PROTECTED_GENERATION_STATUSES.has(
       typeof source.status === "string" ? source.status : "",
     );
-    if (ctx.hidden && !protectGenerationDraft) {
+    if (context.hidden && !protectGenerationDraft) {
       delete ensureCopy()[POPOVER_DRAFT_KEY];
     } else {
       const nodePrompt =

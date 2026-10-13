@@ -112,12 +112,12 @@ export function parseAspectRatio(ratio) {
   if (trimmed === "" || trimmed === "auto") return void 0;
   const match2 = trimmed.match(/^(\d+(?:\.\d+)?)\s*[:x/]\s*(\d+(?:\.\d+)?)$/);
   if (!match2) return void 0;
-  const w3 = Number(match2[1]);
-  const h2 = Number(match2[2]);
-  if (!w3 || !h2) return void 0;
+  const width = Number(match2[1]);
+  const height = Number(match2[2]);
+  if (!width || !height) return void 0;
   return {
-    w: w3,
-    h: h2,
+    w: width,
+    h: height,
   };
 }
 export const GROUP_NODE_PADDING = {
@@ -128,12 +128,12 @@ export const GROUP_NODE_PADDING = {
   /** Bottom inner padding (px). */
   bottom: 24,
 };
-export function computeNodeSize(w3, h2) {
-  if (!w3 || !h2 || w3 <= 0 || h2 <= 0) return void 0;
-  const scale2 = Math.min(NODE_SIZE_MAX / w3, NODE_SIZE_MAX / h2);
+export function computeNodeSize(width, height) {
+  if (!width || !height || width <= 0 || height <= 0) return void 0;
+  const scale2 = Math.min(NODE_SIZE_MAX / width, NODE_SIZE_MAX / height);
   return {
-    width: Math.max(NODE_SIZE_MIN, Math.round(w3 * scale2)),
-    height: Math.max(NODE_SIZE_MIN, Math.round(h2 * scale2)),
+    width: Math.max(NODE_SIZE_MIN, Math.round(width * scale2)),
+    height: Math.max(NODE_SIZE_MIN, Math.round(height * scale2)),
   };
 }
 export function isIdleEmptyVideoNode(node2) {

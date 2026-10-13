@@ -1,0 +1,5 @@
+key	old	new	依据
+w3@115:9	w3	width	宽高比字符串中的第一项是节点宽度。
+h2@116:9	h2	height	宽高比字符串中的第二项是节点高度。
+w3@131:33	w3	width	computeNodeSize 按输入节点宽度计算缩放比例和输出宽度。
+h2@131:37	h2	height	computeNodeSize 按输入节点高度计算缩放比例和输出高度。

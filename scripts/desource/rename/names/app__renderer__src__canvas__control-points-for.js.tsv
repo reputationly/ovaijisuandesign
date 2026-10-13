@@ -1,0 +1,6 @@
+key	old	new	依据
+pos@22:9	pos	position	entry 的绝对位置或普通 position 被返回为节点框坐标。
+d2@53:21	d2	delta	该有符号距离用于计算贝塞尔曲线控制点的偏移量。
+p3@56:34	p3	connectionPoints	该对象包含 source/target 两端的 sx、sy、tx、ty 坐标。
+cb@92:14	cb	callback	subscribers 集合中的回调在悬停边变化时逐一调用。
+id2@95:34	id2	edgeId	该标识用于更新当前悬停的边并避免重复通知。

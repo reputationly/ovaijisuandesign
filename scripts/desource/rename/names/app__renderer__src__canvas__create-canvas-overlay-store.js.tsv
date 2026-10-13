@@ -1,0 +1,6 @@
+key	old	new	依据
+s2@15:13	s2	state	cancelCrop 仅在当前 active 模式为 crop 时清空覆盖层状态。
+s2@31:13	s2	state	cancelOutpaint 仅在当前 active 模式为 outpaint 时清空覆盖层状态。
+s2@47:13	s2	state	cancelErase 仅在当前 active 模式为 erase 时清空覆盖层状态。
+s2@63:13	s2	state	cancelRedraw 仅在当前 active 模式为 redraw 时清空覆盖层状态。
+s2@79:13	s2	state	cancelMoveObject 仅在当前 active 模式为 move-object 时清空覆盖层状态。

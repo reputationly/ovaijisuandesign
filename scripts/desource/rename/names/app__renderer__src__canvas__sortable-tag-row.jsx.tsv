@@ -1,0 +1,4 @@
+key	old	new	依据
+X@2:47	X	CloseIcon	vendor 中 X$7 是 X Lucide 图标的合成组件，在此表示关键词标签删除操作。
+cn@22:11	cn	mergeClassNames	来源 cn$2 将 clsx 与 tailwind-merge 组合，用于合并组件 className。
+t2@38:14	t2	translate	该函数翻译标签保存失败提示和删除相关说明。

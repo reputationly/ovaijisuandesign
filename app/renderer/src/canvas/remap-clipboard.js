@@ -63,16 +63,16 @@ export function remapClipboard(data2, options) {
     const isGroupSub = newGroupId != null && node2.meta?.hidden === true;
     const isTopLevel = newParentId == null && !isGroupSub;
     const remappedPositions = {};
-    for (const [m3, p3] of Object.entries(node2.positions ?? {})) {
-      if (!p3) continue;
-      remappedPositions[m3] = isTopLevel
+    for (const [positionKey, position] of Object.entries(node2.positions ?? {})) {
+      if (!position) continue;
+      remappedPositions[positionKey] = isTopLevel
         ? {
-            x: p3.x + offset2.x,
-            y: p3.y + offset2.y,
+            x: position.x + offset2.x,
+            y: position.y + offset2.y,
           }
         : {
-            x: p3.x,
-            y: p3.y,
+            x: position.x,
+            y: position.y,
           };
     }
     const clonedData = structuredClone(node2.data) ?? {};
@@ -143,7 +143,7 @@ export function remapClipboard(data2, options) {
     };
   });
   const internalEdges = data2.edges
-    .filter((e2) => idMap.has(e2.source) && idMap.has(e2.target))
+    .filter((edge) => idMap.has(edge.source) && idMap.has(edge.target))
     .map((edge) => {
       const newSource = idMap.get(edge.source) ?? edge.source;
       const newTarget = idMap.get(edge.target) ?? edge.target;
@@ -156,7 +156,7 @@ export function remapClipboard(data2, options) {
       };
     });
   const inheritedEdges = (data2.inheritedSourceEdges ?? [])
-    .filter((e2) => idMap.has(e2.target) && !idMap.has(e2.source))
+    .filter((edge) => idMap.has(edge.target) && !idMap.has(edge.source))
     .map((edge) => {
       const newTarget = idMap.get(edge.target) ?? edge.target;
       return {

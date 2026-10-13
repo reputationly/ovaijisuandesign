@@ -1,0 +1,6 @@
+key	old	new	依据
+t2@17:23	t2	progress	easeOutQuart 按 0 到 1 的动画进度计算四次缓出曲线。
+a2@21:31	a2	startView	起始 viewport 元组用于计算当前视口到目标视口的插值。
+b3@21:35	b3	targetView	目标 viewport 元组提供插值后的平移和缩放值。
+t2@23:11	t2	progress	插值回调按该动画进度计算当前视口平移和缩放。
+id2@69:14	id2	nodeId	循环遍历待定位节点标识并从 nodeLookup 读取节点。

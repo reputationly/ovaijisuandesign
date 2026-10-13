@@ -1,0 +1,5 @@
+key	old	new	依据
+out@33:9	out	text	walkInline 累积文本节点内容并返回纯文本。
+n2@36:13	n2	inlineNode	walkInline 检查文本节点类型并读取其文本值。
+n2@47:11	n2	blockNode	walkBlocks 检查块节点类型并递归处理 content。
+ctx@112:47	ctx	context	该上下文中的 hasAssetId 和 hidden 标志控制持久化字段清理。
