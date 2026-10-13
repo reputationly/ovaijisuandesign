@@ -12,8 +12,8 @@ import { refreshAssetIndex } from "./gateway-scope-provider.jsx";
 import { useStableCallback } from "./use-cloud-review-nodes.js";
 function DeleteUndoToast({
   toastId,
-  count: count2,
-  gatewayFetch: gatewayFetch2,
+  count,
+  gatewayFetch,
   onUndoSuccess,
   t: translate,
 }) {
@@ -31,24 +31,24 @@ function DeleteUndoToast({
     if (busy) return;
     setBusy(true);
     try {
-      const res = await gatewayFetch2(OPERATIONS_UNDO_PATH, {
+      const res = await gatewayFetch(OPERATIONS_UNDO_PATH, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      const body2 = await res.json().catch(() => null);
-      if (res.ok && body2?.ok) {
+      const body = await res.json().catch(() => null);
+      if (res.ok && body?.ok) {
         onUndoSuccess?.();
         dedupedToast.dismiss(toastId);
         return;
       }
-      if (body2?.errorType === "partial") {
+      if (body?.errorType === "partial") {
         onUndoSuccess?.();
         dedupedToast.dismiss(toastId);
         return;
       }
-      if (body2?.errorType === "expired") {
+      if (body?.errorType === "expired") {
         dedupedToast.dismiss(toastId);
         return;
       }
@@ -69,7 +69,7 @@ function DeleteUndoToast({
     <div className="elevated-surface-border flex items-center gap-3 rounded-lg px-3 py-2 bg-popover text-popover-foreground text-xs">
       <span>
         {translate("fileExplorer.deleteUndoToast", {
-          count: count2,
+          count,
         })}
       </span>
       <span className="text-muted-foreground">·</span>
@@ -93,9 +93,9 @@ function removeFromActiveToasts(toastId) {
 }
 function showDeleteUndoToast(opts) {
   const toastId = dedupedToast.custom(
-    (id22) => (
+    (id) => (
       <DeleteUndoToast
-        toastId={id22}
+        toastId={id}
         count={opts.count}
         gatewayFetch={opts.gatewayFetch}
         onUndoSuccess={opts.onUndoSuccess}
@@ -117,7 +117,7 @@ function showDeleteUndoToast(opts) {
   return toastId;
 }
 export function useFileExplorerDelete({
-  remove: remove2,
+  remove,
   toRelativePath,
   invalidateDirs,
   lastSelectedPath,
@@ -125,46 +125,46 @@ export function useFileExplorerDelete({
   selectionAnchorRef,
   selectedPaths,
   setSelectedPaths,
-  gatewayFetch: gatewayFetch2,
-  queryClient: queryClient2,
+  gatewayFetch,
+  queryClient,
   gatewayScopeKey,
 }) {
   const { t: translate } = useTranslation();
   const [deletingEntries, setDeletingEntries] = reactExports.useState([]);
-  const requestDelete = useStableCallback((entries2) => {
-    if (entries2.length === 0) return;
-    const seen2 = new Set();
-    const unique2 = [];
-    for (const entry of entries2) {
-      if (seen2.has(entry.path)) continue;
-      seen2.add(entry.path);
-      unique2.push(entry);
+  const requestDelete = useStableCallback((entries) => {
+    if (entries.length === 0) return;
+    const seen = new Set();
+    const unique = [];
+    for (const entry of entries) {
+      if (seen.has(entry.path)) continue;
+      seen.add(entry.path);
+      unique.push(entry);
     }
-    setDeletingEntries(unique2);
+    setDeletingEntries(unique);
   });
   const cancelDelete = useStableCallback(() => {
     setDeletingEntries([]);
   });
   const handleDeleteConfirm = useStableCallback(async () => {
     if (deletingEntries.length === 0) return;
-    const entries2 = deletingEntries;
-    const deletedPaths = entries2.map((entry) => entry.path);
-    const fileCount = entries2.filter((entry) => !entry.isDirectory).length;
-    const hasDirectory = entries2.some((entry) => entry.isDirectory);
+    const entries = deletingEntries;
+    const deletedPaths = entries.map((entry) => entry.path);
+    const fileCount = entries.filter((entry) => !entry.isDirectory).length;
+    const hasDirectory = entries.some((entry) => entry.isDirectory);
     try {
       const relativePaths = deletedPaths.map(toRelativePath);
-      await remove2({
+      await remove({
         paths: relativePaths,
       });
-      if (!hasDirectory && fileCount > 0 && gatewayFetch2) {
+      if (!hasDirectory && fileCount > 0 && gatewayFetch) {
         showDeleteUndoToast({
           count: fileCount,
-          gatewayFetch: gatewayFetch2,
+          gatewayFetch,
           onUndoSuccess:
-            queryClient2 && gatewayScopeKey
+            queryClient && gatewayScopeKey
               ? () => {
                   void refreshAssetIndex({
-                    qc: queryClient2,
+                    qc: queryClient,
                     gatewayScopeKey,
                   });
                 }

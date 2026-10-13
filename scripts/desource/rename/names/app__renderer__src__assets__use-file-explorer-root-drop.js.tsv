@@ -11,3 +11,12 @@ e2@186:54	e2	selectionModifiers	该值提供更新文件选择所需的修饰键
 e2@214:54	e2	selectionModifiers	该值是传给文件选择更新逻辑的修饰键状态。
 r2@216:16	r2	row	该值是用于排除创建中占位项的文件树行记录。
 r2@217:13	r2	row	该值是用于提取可见路径的文件树行记录。
+path2@44:42	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+node2@155:55	node2	node	去掉打包器防重名追加的后缀，恢复原名 node，即该绑定持有的值。
+observer2@163:13	observer2	observer	去掉打包器防重名追加的后缀，恢复原名 observer，即该绑定持有的值。
+updateSelection2@186:9	updateSelection2	updateSelection	去掉打包器防重名追加的后缀，恢复原名 updateSelection，即该绑定持有的值。
+path2@186:47	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+next2@189:15	next2	next	去掉打包器防重名追加的后缀，恢复原名 next，即该绑定持有的值。
+start2@200:16	start2	start	去掉打包器防重名追加的后缀，恢复原名 start，即该绑定持有的值。
+end2@200:24	end2	end	去掉打包器防重名追加的后缀，恢复原名 end，即该绑定持有的值。
+path2@214:47	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。

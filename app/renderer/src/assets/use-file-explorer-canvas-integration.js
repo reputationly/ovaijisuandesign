@@ -15,8 +15,8 @@ export function compareByTimeOrName(timeA, timeB, keyA, keyB, sortOrder) {
   if (normalizedTimeA === "" && tb === "") return keyA.localeCompare(keyB);
   if (normalizedTimeA === "") return 1;
   if (tb === "") return -1;
-  const cmp2 = normalizedTimeA < tb ? -1 : normalizedTimeA > tb ? 1 : 0;
-  if (cmp2 !== 0) return sortOrder === "desc" ? -cmp2 : cmp2;
+  const cmp = normalizedTimeA < tb ? -1 : normalizedTimeA > tb ? 1 : 0;
+  if (cmp !== 0) return sortOrder === "desc" ? -cmp : cmp;
   return keyA.localeCompare(keyB);
 }
 export function matchesTagFilter(tagIds, tagFilters) {
@@ -28,9 +28,9 @@ export const DEFAULTS = WORKSPACE_STORAGE_DEFAULTS.assetPanel;
 const VALID_CATEGORIES = ["image", "video", "audio", "text", "other"];
 const VALID_DATE_KINDS = ["all", "today", "last7days", "last30days", "custom"];
 const VALID_SORT = ["desc", "asc"];
-export function normalizeAssetPanelPreferences(raw2) {
-  if (!raw2 || typeof raw2 !== "object") return DEFAULTS;
-  const rawPreferences = raw2;
+export function normalizeAssetPanelPreferences(raw) {
+  if (!raw || typeof raw !== "object") return DEFAULTS;
+  const rawPreferences = raw;
   let typeFilters = [...DEFAULTS.typeFilters];
   if (Array.isArray(rawPreferences.typeFilters)) {
     typeFilters = rawPreferences.typeFilters.filter(
@@ -61,11 +61,11 @@ export function normalizeAssetPanelPreferences(raw2) {
     const kind = df.kind;
     if (typeof kind === "string" && VALID_DATE_KINDS.includes(kind)) {
       if (kind === "custom") {
-        const from2 = typeof df.from === "string" ? df.from : "";
+        const from = typeof df.from === "string" ? df.from : "";
         const to = typeof df.to === "string" ? df.to : "";
         dateFilter = {
           kind: "custom",
-          from: from2,
+          from,
           to,
         };
       } else {
@@ -95,8 +95,8 @@ export function normalizeAssetPanelPreferences(raw2) {
     sortOrder,
   };
 }
-function preferredSeparator(path2) {
-  return path2.includes("\\") && !path2.includes("/") ? "\\" : "/";
+function preferredSeparator(path) {
+  return path.includes("\\") && !path.includes("/") ? "\\" : "/";
 }
 export function joinFilePath(parent, child) {
   if (!parent) return child;
@@ -106,11 +106,11 @@ export function joinFilePath(parent, child) {
     return `${parent}${normalizedChild}`;
   return `${parent}${sep}${normalizedChild}`;
 }
-export function getParentDir(path2) {
-  const slash2 = path2.lastIndexOf("/");
-  const backslash2 = path2.lastIndexOf("\\");
-  const idx = Math.max(slash2, backslash2);
-  return idx >= 0 ? path2.slice(0, idx) : "";
+export function getParentDir(path) {
+  const slash = path.lastIndexOf("/");
+  const backslash = path.lastIndexOf("\\");
+  const idx = Math.max(slash, backslash);
+  return idx >= 0 ? path.slice(0, idx) : "";
 }
 export function toRelativeFromRoot(rootPath, absPath) {
   if (!rootPath) return absPath;
@@ -122,25 +122,25 @@ export function toRelativeFromRoot(rootPath, absPath) {
   if (!absPath.startsWith(prefix)) return absPath;
   return absPath.slice(prefix.length).replace(/\\/g, "/");
 }
-export function generateCopyName(name2, isDirectory) {
+export function generateCopyName(fileName, isDirectory) {
   if (isDirectory) {
-    const match22 = name2.match(/^(.+)\((\d+)\)$/);
-    if (match22) {
-      const base2 = match22[1];
-      const num = Number(match22[2]) + 1;
-      return `${base2}(${num})`;
+    const match = fileName.match(/^(.+)\((\d+)\)$/);
+    if (match) {
+      const base = match[1];
+      const num = Number(match[2]) + 1;
+      return `${base}(${num})`;
     }
-    return `${name2}(1)`;
+    return `${fileName}(1)`;
   }
-  const dotIndex = name2.lastIndexOf(".");
+  const dotIndex = fileName.lastIndexOf(".");
   const hasExt = dotIndex > 0;
-  const baseName = hasExt ? name2.slice(0, dotIndex) : name2;
-  const ext = hasExt ? name2.slice(dotIndex) : "";
-  const match2 = baseName.match(/^(.+)\((\d+)\)$/);
-  if (match2) {
-    const base2 = match2[1];
-    const num = Number(match2[2]) + 1;
-    return `${base2}(${num})${ext}`;
+  const baseName = hasExt ? fileName.slice(0, dotIndex) : fileName;
+  const ext = hasExt ? fileName.slice(dotIndex) : "";
+  const match = baseName.match(/^(.+)\((\d+)\)$/);
+  if (match) {
+    const base = match[1];
+    const num = Number(match[2]) + 1;
+    return `${base}(${num})${ext}`;
   }
   return `${baseName}(1)${ext}`;
 }
@@ -176,11 +176,11 @@ export function useFileExplorerCanvasIntegration({
       : [anchorAbsPath];
     const items = pathsToAdd.map((absPath) => {
       const relPath = toRelativePath(absPath);
-      const name2 = getFileName(absPath);
+      const fileName = getFileName(absPath);
       const treeEntry = findEntryByPath(filteredTree, absPath);
       const isDir = treeEntry?.isDirectory ?? false;
       const asset = assetMap.get(relPath);
-      return buildResourceDragItem(absPath, relPath, name2, isDir, asset?.id);
+      return buildResourceDragItem(absPath, relPath, fileName, isDir, asset?.id);
     });
     workspaceEvents.fireAddToCanvas(items);
   });

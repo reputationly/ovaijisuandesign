@@ -30,13 +30,13 @@ export function useCoachMarkSequence(
   const [dismissedMarks, setDismissedMarks, setDismissedMarksAsync] =
     useStorage("global.dismissedCoachMarks");
   const [isOpen, setIsOpen] = reactExports.useState(false);
-  const [index2, setIndex] = reactExports.useState(0);
+  const [index, setIndex] = reactExports.useState(0);
   const indexRef = reactExports.useRef(0);
   const dismissedRef = reactExports.useRef(false);
   const openedRef = reactExports.useRef(false);
   const lockedSeenRef = reactExports.useRef(null);
   const maxRevision = steps.reduce(
-    (max2, step) => Math.max(max2, stepRevision(step)),
+    (max, step) => Math.max(max, stepRevision(step)),
     1,
   );
   const seenRevision =
@@ -61,7 +61,7 @@ export function useCoachMarkSequence(
       dismissedRef.current = true;
       return;
     }
-    const timer2 = setTimeout(() => {
+    const timer = setTimeout(() => {
       if (dismissedRef.current) return;
       openedRef.current = true;
       lockedSeenRef.current = seenNow;
@@ -74,7 +74,7 @@ export function useCoachMarkSequence(
         step: 1,
       });
     }, openDelayMs);
-    return () => clearTimeout(timer2);
+    return () => clearTimeout(timer);
   }, [enabled, stepTotal, dismissedMarks, markId, openDelayMs, maxRevision]);
   const finish = reactExports.useCallback(
     (method) => {
@@ -89,7 +89,7 @@ export function useCoachMarkSequence(
     },
     [markId, persistDismissed],
   );
-  const next2 = reactExports.useCallback(() => {
+  const next = reactExports.useCallback(() => {
     const nextIdx = indexRef.current + 1;
     if (nextIdx >= stepTotal) {
       finish("button");
@@ -151,12 +151,12 @@ export function useCoachMarkSequence(
   ]);
   return {
     isOpen,
-    index: index2,
-    stepCurrent: index2 + 1,
+    index,
+    stepCurrent: index + 1,
     stepTotal,
-    isLast: index2 >= stepTotal - 1,
+    isLast: index >= stepTotal - 1,
     visibleSteps,
-    next: next2,
+    next,
     dismiss,
     closeWithoutPersisting,
     persistSeen,

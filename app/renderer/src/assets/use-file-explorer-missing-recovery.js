@@ -7,7 +7,7 @@ export function useFileExplorerMissingRecovery({
   mergeCandidate,
   removeMissing,
   manualLocate,
-  platform: platform2,
+  platform,
   toRelativePath,
   assetMap,
 }) {
@@ -42,7 +42,7 @@ export function useFileExplorerMissingRecovery({
     }
   });
   const handleLocateMissing = useStableCallback(async (asset) => {
-    const showOpenDialog = platform2.fs.showOpenDialog;
+    const showOpenDialog = platform.fs.showOpenDialog;
     if (!showOpenDialog) {
       dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       return;

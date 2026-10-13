@@ -21,11 +21,11 @@ export function useFileExplorerDrag({
       : [anchorAbsPath];
     const items = pathsToDrag.map((absPath) => {
       const relPath = toRelativePath(absPath);
-      const name2 = getFileName(absPath);
+      const fileName = getFileName(absPath);
       const treeEntry = findEntryByPath(treeRef.current, absPath);
       const isDir = treeEntry?.isDirectory ?? false;
       const asset = assetMap.get(relPath);
-      return buildResourceDragItem(absPath, relPath, name2, isDir, asset?.id);
+      return buildResourceDragItem(absPath, relPath, fileName, isDir, asset?.id);
     });
     return JSON.stringify(items);
   });
@@ -55,7 +55,7 @@ export function useFileExplorerGridDelegates({
   rootPath,
   sortedFilteredAssets,
   filteredTree,
-  updateSelection: updateSelection2,
+  updateSelection,
   onFileOpen,
   requestDeleteFromAnchor,
   handleCopyPath,
@@ -72,12 +72,12 @@ export function useFileExplorerGridDelegates({
     const visiblePaths = sortedFilteredAssets.map((asset) =>
       resolveAssetPath(asset.path),
     );
-    updateSelection2(absPath, selectionModifiers, visiblePaths);
+    updateSelection(absPath, selectionModifiers, visiblePaths);
   });
   const handleGridDoubleClick = useStableCallback((relativePath) => {
     const absPath = resolveAssetPath(relativePath);
-    const name2 = getFileName(relativePath);
-    onFileOpen?.(absPath, name2);
+    const fileName = getFileName(relativePath);
+    onFileOpen?.(absPath, fileName);
   });
   const handleGridDelete = useStableCallback((absolutePath) => {
     const entry = findEntryByPath(filteredTree, absolutePath) ?? {

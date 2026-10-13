@@ -41,8 +41,8 @@ export function useFileExplorerRename({
 }) {
   const { t: translate } = useTranslation();
   const [renamingPath, setRenamingPath] = reactExports.useState(null);
-  const startRename = useStableCallback((path2) => {
-    setRenamingPath(path2);
+  const startRename = useStableCallback((path) => {
+    setRenamingPath(path);
   });
   const handleRename = useStableCallback(async (oldPath, newName) => {
     try {
@@ -152,19 +152,19 @@ export function useFileExplorerScrollContainer() {
   const [scrollEl, setScrollEl] = reactExports.useState(null);
   const [containerWidth, setContainerWidth] = reactExports.useState(0);
   const observerRef = reactExports.useRef(null);
-  const scrollCallbackRef = reactExports.useCallback((node2) => {
+  const scrollCallbackRef = reactExports.useCallback((node) => {
     if (observerRef.current) {
       observerRef.current.disconnect();
       observerRef.current = null;
     }
-    setScrollEl(node2);
-    if (node2) {
-      setContainerWidth(node2.getBoundingClientRect().width);
-      const observer2 = new ResizeObserver(([entry]) => {
+    setScrollEl(node);
+    if (node) {
+      setContainerWidth(node.getBoundingClientRect().width);
+      const observer = new ResizeObserver(([entry]) => {
         setContainerWidth(entry.contentRect.width);
       });
-      observer2.observe(node2);
-      observerRef.current = observer2;
+      observer.observe(node);
+      observerRef.current = observer;
     } else {
       setContainerWidth(0);
     }
@@ -183,42 +183,42 @@ export function useFileExplorerSelection({
   setLastSelectedPath,
   selectionAnchorRef,
 }) {
-  const updateSelection2 = useStableCallback((path2, selectionModifiers, visiblePaths) => {
+  const updateSelection = useStableCallback((path, selectionModifiers, visiblePaths) => {
     if (selectionModifiers.metaKey || selectionModifiers.ctrlKey) {
       setSelectedPaths((prev) => {
-        const next2 = new Set(prev);
-        if (next2.has(path2)) next2.delete(path2);
-        else next2.add(path2);
-        return next2;
+        const next = new Set(prev);
+        if (next.has(path)) next.delete(path);
+        else next.add(path);
+        return next;
       });
-      setLastSelectedPath(path2);
+      setLastSelectedPath(path);
       selectionAnchorRef.current = null;
     } else if (selectionModifiers.shiftKey && lastSelectedPath) {
       const lastIdx = visiblePaths.indexOf(lastSelectedPath);
-      const currentIdx = visiblePaths.indexOf(path2);
+      const currentIdx = visiblePaths.indexOf(path);
       if (lastIdx >= 0 && currentIdx >= 0) {
-        const [start2, end2] =
+        const [start, end] =
           lastIdx < currentIdx ? [lastIdx, currentIdx] : [currentIdx, lastIdx];
-        setSelectedPaths(new Set(visiblePaths.slice(start2, end2 + 1)));
+        setSelectedPaths(new Set(visiblePaths.slice(start, end + 1)));
       } else {
-        setSelectedPaths(new Set([path2]));
-        setLastSelectedPath(path2);
+        setSelectedPaths(new Set([path]));
+        setLastSelectedPath(path);
       }
       selectionAnchorRef.current = null;
     } else {
-      setSelectedPaths(new Set([path2]));
-      setLastSelectedPath(path2);
+      setSelectedPaths(new Set([path]));
+      setLastSelectedPath(path);
       selectionAnchorRef.current = null;
     }
   });
-  const handleFileSelect = useStableCallback((path2, selectionModifiers) => {
+  const handleFileSelect = useStableCallback((path, selectionModifiers) => {
     const visiblePaths = flatRows
       .filter((row) => !row.entry.path.endsWith("/__creating__"))
       .map((row) => row.entry.path);
-    updateSelection2(path2, selectionModifiers, visiblePaths);
+    updateSelection(path, selectionModifiers, visiblePaths);
   });
   return {
-    updateSelection: updateSelection2,
+    updateSelection,
     handleFileSelect,
   };
 }

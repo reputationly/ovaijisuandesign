@@ -7,8 +7,8 @@ import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js"
 import { joinFilePath } from "./use-file-explorer-canvas-integration.js";
 import { postCheckConflicts } from "./post-check-conflicts.js";
 export function useFileExplorerImport({
-  gatewayFetch: gatewayFetch2,
-  platform: platform2,
+  gatewayFetch,
+  platform,
   rootPath,
   conflictResolver,
   refresh,
@@ -20,7 +20,7 @@ export function useFileExplorerImport({
   const dragCounterRef = reactExports.useRef(0);
   const handleImportFilesFromMenu = useStableCallback(async () => {
     if (!rootPath) return;
-    const showOpenDialog = platform2.fs.showOpenDialog;
+    const showOpenDialog = platform.fs.showOpenDialog;
     if (!showOpenDialog) {
       dedupedToast.error(translate("fileExplorer.platformNotSupported"));
       return;
@@ -47,7 +47,7 @@ export function useFileExplorerImport({
     }));
     let conflicts;
     try {
-      const probeJson = await postCheckConflicts(gatewayFetch2, {
+      const probeJson = await postCheckConflicts(gatewayFetch, {
         items: probeItems,
         targetDir: "",
       });
@@ -86,7 +86,7 @@ export function useFileExplorerImport({
     }
     if (overwriteTargets.length > 0) {
       try {
-        const deleteRes = await gatewayFetch2(API_PATHS.deleteFiles, {
+        const deleteRes = await gatewayFetch(API_PATHS.deleteFiles, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -106,7 +106,7 @@ export function useFileExplorerImport({
       }
     }
     try {
-      const res = await gatewayFetch2(API_PATHS.importExternal, {
+      const res = await gatewayFetch(API_PATHS.importExternal, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,22 +118,22 @@ export function useFileExplorerImport({
       if (!res.ok) {
         throw new Error(`Import failed: ${res.status} ${res.statusText}`);
       }
-      let data2;
+      let data;
       try {
-        data2 = await res.json();
+        data = await res.json();
       } catch (err) {
         throw new Error(
           `Import response is not JSON: ${err instanceof Error ? err.message : String(err)}`,
         );
       }
-      const newAbsPaths = (data2.imported ?? []).map((importedItem) =>
+      const newAbsPaths = (data.imported ?? []).map((importedItem) =>
         joinFilePath(rootPath, importedItem.path),
       );
-      if (data2.errors?.length) {
-        console.warn("[fileExplorer] import partial failures:", data2.errors);
+      if (data.errors?.length) {
+        console.warn("[fileExplorer] import partial failures:", data.errors);
         dedupedToast.warning(
           translate("fileExplorer.importFailedCount", {
-            count: data2.errors.length,
+            count: data.errors.length,
           }),
         );
       } else {
@@ -198,7 +198,7 @@ export function useFileExplorerImport({
       .filter((filePath) => !!filePath);
     if (paths.length === 0) return;
     try {
-      const res = await gatewayFetch2(API_PATHS.importExternal, {
+      const res = await gatewayFetch(API_PATHS.importExternal, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -208,11 +208,11 @@ export function useFileExplorerImport({
         }),
       });
       if (!res.ok) throw new Error(`Import failed: ${res.status}`);
-      const data2 = await res.json();
-      if (data2.errors?.length) {
+      const data = await res.json();
+      if (data.errors?.length) {
         dedupedToast.error(
           translate("fileExplorer.importFailedCount", {
-            count: data2.errors.length,
+            count: data.errors.length,
           }),
         );
       }

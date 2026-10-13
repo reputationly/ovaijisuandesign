@@ -16,8 +16,8 @@ const PASTED_IMAGE_EXTENSION = {
 };
 
 export function useFileExplorerClipboard({
-  gatewayFetch: gatewayFetch2,
-  platform: platform2,
+  gatewayFetch,
+  platform,
   rootPath,
   refresh,
   setSelectedPaths,
@@ -64,7 +64,7 @@ export function useFileExplorerClipboard({
         }
       }
       if (onDiskPaths.length > 0) {
-        const res = await gatewayFetch2(API_PATHS.importExternal, {
+        const res = await gatewayFetch(API_PATHS.importExternal, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -89,34 +89,34 @@ export function useFileExplorerClipboard({
             `Import failed: ${res.status} ${res.statusText}${detail}`,
           );
         }
-        let data2;
+        let data;
         try {
-          data2 = await res.json();
+          data = await res.json();
         } catch (err) {
           throw new Error(
             `import-external response is not JSON: ${err instanceof Error ? err.message : String(err)}`,
           );
         }
-        if (data2.imported && rootPath) {
-          for (const importedItem of data2.imported) {
+        if (data.imported && rootPath) {
+          for (const importedItem of data.imported) {
             newAbsPaths.push(joinFilePath(rootPath, importedItem.path));
           }
         }
-        if (data2.errors?.length) {
+        if (data.errors?.length) {
           console.warn(
             "[fileExplorer] import-external partial failures:",
-            data2.errors,
+            data.errors,
           );
           dedupedToast.warning(
             translate("fileExplorer.importFailedCount", {
-              count: data2.errors.length,
+              count: data.errors.length,
             }),
           );
         }
         await refresh();
       }
       if (inMemoryFiles.length > 0 && rootPath) {
-        if (!platform2.fs.writeBinaryFile) {
+        if (!platform.fs.writeBinaryFile) {
           if (onDiskPaths.length > 0) {
             dedupedToast.warning(translate("fileExplorer.platformNotSupported"));
           } else {
@@ -132,16 +132,16 @@ export function useFileExplorerClipboard({
         let successCount = 0;
         for (const file of inMemoryFiles) {
           const rand = Math.random().toString(36).slice(2, 6);
-          const dot2 = file.name?.lastIndexOf(".") ?? -1;
+          const dot = file.name?.lastIndexOf(".") ?? -1;
           const ext =
-            dot2 > 0
-              ? file.name.slice(dot2)
+            dot > 0
+              ? file.name.slice(dot)
               : (PASTED_IMAGE_EXTENSION[file.type] ?? ".bin");
           const filename = `pasted_${timestamp}_${rand}${ext}`;
           const destPath = joinFilePath(rootPath, filename);
           try {
             const ab = await file.arrayBuffer();
-            await platform2.fs.writeBinaryFile(destPath, ab);
+            await platform.fs.writeBinaryFile(destPath, ab);
             successCount++;
             newAbsPaths.push(destPath);
           } catch (err) {

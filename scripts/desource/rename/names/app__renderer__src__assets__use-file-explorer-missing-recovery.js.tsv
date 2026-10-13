@@ -1,2 +1,3 @@
 key	old	new	依据
 t2@14:14	t2	translate	该绑定是缺失资产恢复操作读取失败提示的翻译函数。
+platform2@10:13	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。

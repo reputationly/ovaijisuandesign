@@ -6,3 +6,16 @@ x2@37:8	x2	category	该值是待保留的资源分类字符串。
 x2@41:10	x2	category	该值是待从无效分类中筛除的资源分类字符串。
 p3@153:60	p3	absolutePath	该值是从拖放载荷中解析出的绝对文件路径。
 t2@171:14	t2	translate	该绑定是画布集成 hook 读取复制失败提示的翻译函数。
+cmp2@18:9	cmp2	cmp	去掉打包器防重名追加的后缀，恢复原名 cmp，即该绑定持有的值。
+raw2@31:48	raw2	raw	去掉打包器防重名追加的后缀，恢复原名 raw，即该绑定持有的值。
+from2@64:15	from2	from	去掉打包器防重名追加的后缀，恢复原名 from，即该绑定持有的值。
+path2@98:29	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+path2@109:30	path2	path	去掉打包器防重名追加的后缀，恢复原名 path，即该绑定持有的值。
+slash2@110:9	slash2	slash	去掉打包器防重名追加的后缀，恢复原名 slash，即该绑定持有的值。
+backslash2@111:9	backslash2	backslash	去掉打包器防重名追加的后缀，恢复原名 backslash，即该绑定持有的值。
+name2@125:34	name2	fileName	该值是从资源路径取得的文件名，用于构造拖拽载荷。
+match2@139:9	match2	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+match22@127:11	match22	match	去掉打包器防重名追加的后缀，恢复原名 match，即该绑定持有的值。
+base2@129:13	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
+base2@141:11	base2	base	去掉打包器防重名追加的后缀，恢复原名 base，即该绑定持有的值。
+name2@179:13	name2	fileName	该值是从资源路径取得的文件名，用于构造拖拽载荷。

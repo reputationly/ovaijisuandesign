@@ -13,3 +13,7 @@ e2@180:6	e2	dragEvent	该事件来自外部文件 dragleave 处理。
 e2@190:55	e2	dragEvent	该事件提供放下的文件列表和 dataTransfer 数据。
 f2@197:13	f2	file	该值是待从桌面应用取得本地路径的 File 对象。
 p3@198:16	p3	filePath	该值是从 File 对象解析出的本地文件路径。
+gatewayFetch2@10:17	gatewayFetch2	gatewayFetch	去掉打包器防重名追加的后缀，恢复原名 gatewayFetch，即该绑定持有的值。
+platform2@11:13	platform2	platform	去掉打包器防重名追加的后缀，恢复原名 platform，即该绑定持有的值。
+data2@121:11	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
+data2@211:13	data2	data	去掉打包器防重名追加的后缀，恢复原名 data，即该绑定持有的值。
