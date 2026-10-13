@@ -110,7 +110,7 @@ import {
   RoundDots,
 } from "./round-dots-inner.jsx";
 function useVideoNodeView(nodeId, data2) {
-  const assetsMap = useAssetMetadataStore((s2) => s2.assets);
+  const assetsMap = useAssetMetadataStore((assetMetadataState) => assetMetadataState.assets);
   const subImages = useSubImages(nodeId);
   const isUserEmpty = useNodeIsEmpty(nodeId);
   const { getNodeById, subscribeGraphChange, promoteSubImageToMain } =
@@ -139,7 +139,7 @@ function useVideoNodeView(nodeId, data2) {
         nodeId,
         data2,
         subImages,
-        (id2) => assetsMap.get(id2),
+        (assetId) => assetsMap.get(assetId),
         isUserEmpty,
         mainRound,
         nodeAssetId,
@@ -148,9 +148,9 @@ function useVideoNodeView(nodeId, data2) {
   );
   const resolveSlotNodeId = reactExports.useCallback(
     (slot) => {
-      const subMatch = subImages.find((sub) => {
-        const subAssetId = sub.assetId ?? sub.data?.assetId;
-        return sub.id === slot.id || subAssetId === slot.id;
+      const subMatch = subImages.find((subNode) => {
+        const subAssetId = subNode.assetId ?? subNode.data?.assetId;
+        return subNode.id === slot.id || subAssetId === slot.id;
       });
       return subMatch?.id ?? slot.id;
     },
@@ -238,7 +238,7 @@ const VIDEO_EMPTY_STARTER_SIZE = VIDEO_EMPTY_CARD_SIZE;
 const H3_MAX_MODEL_IDS = new Set(["MiniMax-H3-Max", "MiniMax-H3-Max-Turbo"]);
 const H3_MAX_STARTER_MODES = new Set(["text-to-video", "first-last-frame"]);
 function VideoEmptyStarter({ nodeId, modelId, modelName }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { videoStarterPresets, applyVideoStarterPreset } = useCanvasBridge();
   const {
     savePopoverDraft,
@@ -328,7 +328,7 @@ function VideoEmptyStarter({ nodeId, modelId, modelName }) {
     <NodeEmptyState
       actionUiId="canvas.video-empty-starter"
       icon={<VideoPlaceholderIcon />}
-      guidance={t2("canvas.videoNode.emptyStarter.title", {
+      guidance={t("canvas.videoNode.emptyStarter.title", {
         model: modelName ?? "MiniMax H3 Max",
         defaultValue: "Try {{model}}",
       })}
@@ -561,16 +561,16 @@ async function renderWatermarkedVideoBlob(sourceUrl, settings) {
 const MEDIA_OVERLAY_EXIT_ANIMATION_MS = 160;
 const VIDEO_ACTION_SURFACE_ACTIVATION_DELAY_MS = 80;
 export function VideoNodeInner({
-  id: id2,
+  id: videoNodeId,
   data: data2,
   selected: selected2,
   width,
   height,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
-  const isDragging = useCanvasNodeIsDragging(id2);
+  const isDragging = useCanvasNodeIsDragging(videoNodeId);
   const isInteractiveSelect = !isMultiSelect && !isBoxSelecting && !isDragging;
   const [selectionActionSurfaceReady, setSelectionActionSurfaceReady] =
     reactExports.useState(false);
@@ -604,9 +604,9 @@ export function VideoNodeInner({
     view: videoView,
     roundCount,
     activeRoundIndex,
-  } = useVideoNodeView(id2, data2);
-  const subVideos = useSubImages(id2);
-  const primaryAssetKey = videoView.primary?.id ?? id2;
+  } = useVideoNodeView(videoNodeId, data2);
+  const subVideos = useSubImages(videoNodeId);
+  const primaryAssetKey = videoView.primary?.id ?? videoNodeId;
   const meta2 = useAssetMeta(primaryAssetKey);
   const fileVersion = useFileVersion(meta2?.path);
   const versionedUrl = meta2?.url
@@ -640,7 +640,7 @@ export function VideoNodeInner({
     onCancelGenerationQueue,
     isCancelGenerationQueuePending,
   } = useCanvasBridge();
-  const onRename = useNodeRename(id2, isCloneData(data2));
+  const onRename = useNodeRename(videoNodeId, isCloneData(data2));
   const reactFlow = useReactFlow();
   const nodeWidth = width || VIDEO_CARD_MAX_WIDTH;
   const [showWatermarkPopover, setShowWatermarkPopover] =
@@ -648,7 +648,7 @@ export function VideoNodeInner({
   const [watermarkSettings, setWatermarkSettings] = reactExports.useState(
     () => ({
       ...DEFAULT_WATERMARK_SETTINGS,
-      text: t2("canvas.watermark.defaultText", "@ 水印文案"),
+      text: t("canvas.watermark.defaultText", "@ 水印文案"),
     }),
   );
   const [watermarkFocusTarget, setWatermarkFocusTarget] =
@@ -661,21 +661,21 @@ export function VideoNodeInner({
     1.25,
   );
   const emitWatermarkedVideo = useEmitDerivedFromBlob({
-    id: id2,
+    id: videoNodeId,
     meta: meta2,
     nodeWidth,
     reactFlow,
     cropImage,
   });
-  const hasEmptyId = useNodeIsEmpty(id2);
+  const hasEmptyId = useNodeIsEmpty(videoNodeId);
   const isUserEmpty = hasEmptyId && !meta2;
   const { emptyAspectRatio, setEmptyAspectRatio } = useEmptyAspectRatio({
-    id: id2,
+    id: videoNodeId,
     data: data2,
     isEmptyForWrite: isUserEmpty || !meta2?.url,
     draftKeys: ["i2v"],
   });
-  const liveGenerating = useGenerating(id2);
+  const liveGenerating = useGenerating(videoNodeId);
   const persistedGenerating = reactExports.useMemo(() => {
     const persisted = data2;
     if (persisted?.status !== "pending" && persisted?.status !== "generating")
@@ -686,7 +686,7 @@ export function VideoNodeInner({
         ? persisted.model
         : typeof persisted.model_id === "string"
           ? persisted.model_id
-          : t2("canvas.video");
+          : t("canvas.video");
     const estimatedRemainingWaitSeconds = normalizeEstimatedWaitSeconds(
       persisted.estimatedRemainingWaitSeconds,
       persisted.estimatedRemainingWaitMinutes,
@@ -701,7 +701,7 @@ export function VideoNodeInner({
       estimatedRemainingWaitSeconds,
       generationStartedAt: readGenerationStartedAt(persisted),
     };
-  }, [data2, meta2?.url, t2]);
+  }, [data2, meta2?.url, t]);
   const persistedErrorMessage =
     isGenerationErrorStatus(data2.status) &&
     typeof data2.errorMessage === "string"
@@ -721,9 +721,9 @@ export function VideoNodeInner({
       : void 0;
   reactExports.useEffect(() => {
     if (persistedErrorMessage !== void 0 || persistedQueuePaused) {
-      generatingStateStore.getState().clear(id2);
+      generatingStateStore.getState().clear(videoNodeId);
     }
-  }, [persistedErrorMessage, persistedQueuePaused, id2, generatingStateStore]);
+  }, [persistedErrorMessage, persistedQueuePaused, videoNodeId, generatingStateStore]);
   const delayPendingPresentation = shouldDelayVideoPendingPresentation(
     liveGenerating,
     persistedGenerating,
@@ -760,11 +760,11 @@ export function VideoNodeInner({
     generating?.generationStartedAt;
   const handleResumeQueue = reactExports.useCallback(() => {
     if (!persistedRetryPayload) return;
-    onRetryGeneration?.(id2, persistedRetryPayload);
-  }, [id2, onRetryGeneration, persistedRetryPayload]);
+    onRetryGeneration?.(videoNodeId, persistedRetryPayload);
+  }, [videoNodeId, onRetryGeneration, persistedRetryPayload]);
   const handleCancelQueue = reactExports.useCallback(() => {
-    onCancelGenerationQueue?.(id2);
-  }, [id2, onCancelGenerationQueue]);
+    onCancelGenerationQueue?.(videoNodeId);
+  }, [videoNodeId, onCancelGenerationQueue]);
   const generatingProgress = useSimulatedProgress(
     isGenerating && !isQueued,
     "video",
@@ -776,13 +776,13 @@ export function VideoNodeInner({
   );
   reactExports.useEffect(() => {
     if (isGenerating && meta2?.url && meta2.url !== generating?.prevUrl) {
-      generatingStateStore.getState().clear(id2);
+      generatingStateStore.getState().clear(videoNodeId);
     }
   }, [
     isGenerating,
     meta2?.url,
     generating?.prevUrl,
-    id2,
+    videoNodeId,
     generatingStateStore,
   ]);
   const generationErrorMessage = isGenerating
@@ -820,9 +820,9 @@ export function VideoNodeInner({
     if (isErrorGenerating) {
       if (prev !== "error") {
         reactFlow.setNodes((nodes) =>
-          nodes.map((n2) => {
-            if (n2.id !== id2) return n2;
-            const { width: _w, height: _h, ...rest } = n2;
+          nodes.map((node) => {
+            if (node.id !== videoNodeId) return node;
+            const { width: _removedWidth, height: _removedHeight, ...rest } = node;
             return rest;
           }),
         );
@@ -833,14 +833,14 @@ export function VideoNodeInner({
     if (isEmptyForSync) {
       if (targetEmptyWidth != null && targetEmptyHeight != null) {
         reactFlow.setNodes((nodes) =>
-          nodes.map((n2) =>
-            n2.id === id2
+          nodes.map((node) =>
+            node.id === videoNodeId
               ? {
-                  ...n2,
+                  ...node,
                   width: targetEmptyWidth,
                   height: targetEmptyHeight,
                 }
-              : n2,
+              : node,
           ),
         );
         lastSyncActionRef.current = "empty";
@@ -849,9 +849,9 @@ export function VideoNodeInner({
     }
     if (prev !== "none") {
       reactFlow.setNodes((nodes) =>
-        nodes.map((n2) => {
-          if (n2.id !== id2) return n2;
-          const { width: _w, height: _h, ...rest } = n2;
+        nodes.map((node) => {
+          if (node.id !== videoNodeId) return node;
+          const { width: _removedWidth, height: _removedHeight, ...rest } = node;
           return rest;
         }),
       );
@@ -862,7 +862,7 @@ export function VideoNodeInner({
     isEmptyForSync,
     targetEmptyWidth,
     targetEmptyHeight,
-    id2,
+    videoNodeId,
     reactFlow,
   ]);
   const lutBundle = useLutBundle(
@@ -874,7 +874,7 @@ export function VideoNodeInner({
     onLutImport,
   );
   const colorAdjust = useVideoColorAdjust({
-    id: id2,
+    id: videoNodeId,
     meta: meta2,
     nodeWidth,
     reactFlow,
@@ -882,7 +882,7 @@ export function VideoNodeInner({
     lut: lutBundle,
   });
   const mediaActions = useMediaNodeActions({
-    nodeId: id2,
+    nodeId: videoNodeId,
     toolbarActive: selectionActionSurfaceReady,
     meta: meta2,
     fallbackPath:
@@ -895,7 +895,7 @@ export function VideoNodeInner({
     enableFrameExtract: true,
     onPromoteToAsset,
   });
-  const stop = useMediaPlayback((s2) => s2.stop);
+  const stop = useMediaPlayback((playbackState) => playbackState.stop);
   const [hovered, setHovered] = reactExports.useState(false);
   const thumbnailBase = reactExports.useMemo(() => {
     if (!meta2?.url || !meta2.path) return void 0;
@@ -919,10 +919,10 @@ export function VideoNodeInner({
     setThumbnailState(advanceVideoThumbnailState);
   }, []);
   const videoHeight = reactExports.useMemo(() => {
-    const w3 = meta2?.width ?? meta2?.previewWidth;
-    const h2 = meta2?.height ?? meta2?.previewHeight;
-    if (w3 && h2 && w3 > 0 && h2 > 0) {
-      return Math.round(nodeWidth * (h2 / w3));
+    const videoWidth = meta2?.width ?? meta2?.previewWidth;
+    const videoHeight = meta2?.height ?? meta2?.previewHeight;
+    if (videoWidth && videoHeight && videoWidth > 0 && videoHeight > 0) {
+      return Math.round(nodeWidth * (videoHeight / videoWidth));
     }
     return Math.round(nodeWidth * (9 / 16));
   }, [
@@ -934,11 +934,11 @@ export function VideoNodeInner({
   ]);
   const handleWatermarkOpen = reactExports.useCallback(() => {
     if (!cropImage || !meta2?.url) return;
-    const rect = getNodeFlowRect(reactFlow, id2, nodeWidth, videoHeight);
+    const rect = getNodeFlowRect(reactFlow, videoNodeId, nodeWidth, videoHeight);
     if (!rect) return;
     setWatermarkSettings({
       ...DEFAULT_WATERMARK_SETTINGS,
-      text: t2("canvas.watermark.defaultText", "@ 水印文案"),
+      text: t("canvas.watermark.defaultText", "@ 水印文案"),
     });
     setWatermarkFocusTarget({
       nodeFlowX: rect.x,
@@ -947,7 +947,7 @@ export function VideoNodeInner({
       nodeHeight: rect.height,
     });
     setShowWatermarkPopover(true);
-  }, [cropImage, id2, meta2?.url, nodeWidth, reactFlow, t2, videoHeight]);
+  }, [cropImage, videoNodeId, meta2?.url, nodeWidth, reactFlow, t, videoHeight]);
   const handleWatermarkClose = reactExports.useCallback(() => {
     setShowWatermarkPopover(false);
     setWatermarkFocusTarget(null);
@@ -981,8 +981,8 @@ export function VideoNodeInner({
     if (!canvasActive || isDragging) handleMouseLeave2();
   }, [canvasActive, isDragging, handleMouseLeave2]);
   const handleDownload = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       if (!onSaveAs || !meta2?.path) return;
       onSaveAs(meta2.path, meta2.name);
     },
@@ -1002,7 +1002,7 @@ export function VideoNodeInner({
     handleSubContextMenu,
     handleDownloadSub,
   } = useMultiImageActions({
-    id: id2,
+    id: videoNodeId,
     view: videoView,
     subImages: subVideos,
     reactFlow,
@@ -1051,15 +1051,15 @@ export function VideoNodeInner({
     [videoView.slots, lightboxItems, lightboxInitialIndex, openLightbox],
   );
   const handleVideoBadgeClick = reactExports.useCallback(
-    (e2) => {
+    (clickEvent) => {
       if (videoView.rounds.length > 1 && videoView.slots.length === 1) {
-        e2.stopPropagation();
+        clickEvent.stopPropagation();
         const nextRound =
           (videoView.activeRoundIndex + 1) % videoView.rounds.length;
         handleSelectRound(nextRound);
         return;
       }
-      handleToggleOverlay(e2);
+      handleToggleOverlay(clickEvent);
     },
     [
       videoView.rounds,
@@ -1070,7 +1070,7 @@ export function VideoNodeInner({
     ],
   );
   useWarnMissingAssetMeta({
-    nodeId: id2,
+    nodeId: videoNodeId,
     nodeType: "video",
     data: data2,
     meta: meta2,
@@ -1082,7 +1082,7 @@ export function VideoNodeInner({
     thumbnailState,
   });
   useMediaFallbackSize(
-    id2,
+    videoNodeId,
     isFallback &&
       !isErrorGenerating &&
       !isGenerating &&
@@ -1096,7 +1096,7 @@ export function VideoNodeInner({
       : nodeWidth;
   const expandedMediaOverlay =
     videoView.isMulti && isOverlayOpen && !isEmpty2 && !isFallback;
-  const isPlaying = useMediaPlayback((s2) => s2.playingId === id2);
+  const isPlaying = useMediaPlayback((playbackState) => playbackState.playingId === videoNodeId);
   const videoDurationLabel =
     typeof meta2?.durationSec === "number" &&
     Number.isFinite(meta2.durationSec) &&
@@ -1123,13 +1123,13 @@ export function VideoNodeInner({
   if (isMissingAssetNodeData(data2)) {
     return (
       <MissingAssetCard
-        nodeId={id2}
+        nodeId={videoNodeId}
         name={typeof data2?.name === "string" ? data2.name : void 0}
       />
     );
   }
   if (!meta2 && !isUserEmpty) return null;
-  const videoCollapseLabel = t2("canvas.multiMedia.collapseView", "收起视图");
+  const videoCollapseLabel = t("canvas.multiMedia.collapseView", "收起视图");
   const showVideoSplitAll =
     videoView.isMulti &&
     !videoView.hasLoading &&
@@ -1151,7 +1151,7 @@ export function VideoNodeInner({
     (showVideoCountBadge || showCollapsedVideoSplitRow);
   return (
     <NodeShell
-      id={id2}
+      id={videoNodeId}
       tagIds={meta2?.tagIds}
       width={shellWidth}
       dataActionUiId="canvas.video-node"
@@ -1183,7 +1183,7 @@ export function VideoNodeInner({
           <NodeHeader
             nodeType="video"
             tagIds={meta2?.tagIds}
-            name={meta2?.name || t2("canvas.video")}
+            name={meta2?.name || t("canvas.video")}
             selected={selected2}
             maxWidth={shellWidth}
             onRename={onRename}
@@ -1226,7 +1226,7 @@ export function VideoNodeInner({
         >
           {generationErrorMessage ? (
             <MediaGenerationErrorOverlay
-              nodeId={id2}
+              nodeId={videoNodeId}
               nodeType="video"
               message={generationErrorMessage}
               errorReason={
@@ -1248,7 +1248,7 @@ export function VideoNodeInner({
                 <QueueGenerationControl
                   state="paused"
                   onResume={handleResumeQueue}
-                  resuming={isRetryGenerationPending?.(id2) ?? false}
+                  resuming={isRetryGenerationPending?.(videoNodeId) ?? false}
                   canResume={!!persistedRetryPayload}
                   actionUiId="canvas.video-node.queue"
                 />
@@ -1266,7 +1266,7 @@ export function VideoNodeInner({
                   <QueueGenerationControl
                     state="queued"
                     onCancel={handleCancelQueue}
-                    cancelling={isCancelGenerationQueuePending?.(id2) ?? false}
+                    cancelling={isCancelGenerationQueuePending?.(videoNodeId) ?? false}
                     actionUiId="canvas.video-node.queue"
                   />
                 ) : generating.estimatedRemainingWaitSeconds ? (
@@ -1282,12 +1282,12 @@ export function VideoNodeInner({
           ) : isStarterEmpty || isEmpty2 ? (
             <PlaceholderUploadButton
               icon={<VideoPlaceholderIcon />}
-              label={t2("canvas.uploadVideo")}
-              onUpload={(anchor) => onPlaceholderUpload?.(id2, "video", anchor)}
+              label={t("canvas.uploadVideo")}
+              onUpload={(anchor) => onPlaceholderUpload?.(videoNodeId, "video", anchor)}
             >
               {isStarterEmpty ? (
                 <VideoEmptyStarter
-                  nodeId={id2}
+                  nodeId={videoNodeId}
                   modelId={emptyStarterModel.id}
                   modelName={emptyStarterModel.name}
                 />
@@ -1297,7 +1297,7 @@ export function VideoNodeInner({
             </PlaceholderUploadButton>
           ) : isFallback ? (
             <MediaUnpreviewableFallback
-              displayName={meta2?.name ?? t2("canvas.video")}
+              displayName={meta2?.name ?? t("canvas.video")}
               extension={
                 getFileExtension(meta2?.path) ?? getFileExtension(meta2?.name)
               }
@@ -1314,7 +1314,7 @@ export function VideoNodeInner({
               {resolvedThumbnailUrl && (
                 <CanvasImage
                   src={resolvedThumbnailUrl}
-                  nodeId={id2}
+                  nodeId={videoNodeId}
                   width={nodeWidth}
                   height={videoHeight}
                   alt={meta2?.name}
@@ -1367,7 +1367,7 @@ export function VideoNodeInner({
                     <CountBadge
                       count={totalVideoCount}
                       expanded={isOverlayOpen}
-                      unit={t2("canvas.multiVideo.countUnit", "段")}
+                      unit={t("canvas.multiVideo.countUnit", "段")}
                       onClick={handleVideoBadgeClick}
                     />
                   )}
@@ -1401,7 +1401,7 @@ export function VideoNodeInner({
                 >
                   <VideoPlayer
                     src={resolveVideoPlaybackUrl(versionedUrl ?? meta2.url)}
-                    nodeId={id2}
+                    nodeId={videoNodeId}
                     width={nodeWidth}
                     height={videoHeight}
                     onFullscreen={openLightbox}
@@ -1435,7 +1435,7 @@ export function VideoNodeInner({
             <MediaDownloadButton
               onClick={handleDownload}
               dataActionUiId="canvas.video-node.download"
-              label={t2("canvas.downloadVideo", "Download video")}
+              label={t("canvas.downloadVideo", "Download video")}
               className={`top-1 right-1 ${isExpandedMediaOverlayVisible || hovered ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-1 opacity-0"}`}
             />
           )}
@@ -1463,7 +1463,7 @@ export function VideoNodeInner({
         showDialog: colorAdjust.open,
       }) && (
         <VideoActionSurface
-          nodeId={id2}
+          nodeId={videoNodeId}
           meta={meta2}
           data={data2}
           nodeWidth={nodeWidth}
@@ -1507,7 +1507,7 @@ export function VideoNodeInner({
           }}
         />
       )}
-      <NodeHandles nodeId={id2} selected={!!selected2} />
+      <NodeHandles nodeId={videoNodeId} selected={!!selected2} />
     </NodeShell>
   );
 }

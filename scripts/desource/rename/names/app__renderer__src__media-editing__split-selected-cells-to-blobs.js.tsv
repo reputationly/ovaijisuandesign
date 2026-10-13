@@ -1,0 +1,18 @@
+key	new	依据
+r2@11:9	rowCount	该值是宫格行数的向下取整结果。
+c3@12:9	columnCount	该值是宫格列数的向下取整结果。
+row@17:12	rowIndex	该值是当前宫格单元格的行索引。
+col@18:14	columnIndex	该值是当前宫格单元格的列索引。
+sx@21:13	sourceX	该值是单元格在原图中的横向像素起点。
+sy@22:13	sourceY	该值是单元格在原图中的纵向像素起点。
+sw@23:13	sourceWidth	该值是扣除边缘间隙后的单元格像素宽度。
+sh@24:13	sourceHeight	该值是扣除边缘间隙后的单元格像素高度。
+img@39:11	imageElement	该对象是待加载并返回的 HTMLImageElement。
+e2@42:20	errorEvent	该事件由图像加载失败回调传入并交给 Promise 拒绝。
+img@46:21	sourceImage	该图像作为绘制当前宫格单元格的来源。
+ctx@50:9	context	该对象是 canvas 的二维绘图上下文。
+img@85:9	imageElement	该对象是已加载并用于切分的原图元素。
+sw@86:9	sourceWidth	该值优先使用调用方提供的原图宽度。
+sh@87:9	sourceHeight	该值优先使用调用方提供的原图高度。
+out@89:9	selectedCells	该数组收集所选单元格对应的 Blob 和尺寸。
+i2@90:12	cellIndex	该索引对应当前宫格单元格及其选择状态。

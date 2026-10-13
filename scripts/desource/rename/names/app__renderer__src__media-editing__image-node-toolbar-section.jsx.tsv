@@ -1,0 +1,19 @@
+key	new	依据
+t2@64:14	t	该绑定是 useTranslation 返回的翻译函数。
+_2@73:6	_unusedValue	Array.from 映射只使用索引生成一到 SPLIT_MAX 的行数。
+i2@73:10	index	该索引生成从 1 开始的行数选项。
+_2@79:6	_unusedValue	Array.from 映射只使用索引生成一到 SPLIT_MAX 的列数。
+i2@79:10	index	该索引生成从 1 开始的列数选项。
+r2@102:23	rowCount	该值是当前网格预览行的数量。
+c3@104:27	columnCount	该值是当前网格预览列的数量。
+t2@148:14	t	该绑定是 useTranslation 返回的翻译函数。
+t2@255:14	t	该绑定是 useTranslation 返回的翻译函数。
+t2@326:16	t	该绑定是 useTranslation 返回的翻译函数。
+s2@328:61	customizationState	该选择器读取图像工具栏已固定工具配置。
+s2@338:59	customizationState	该选择器读取图像工具栏标签显示配置。
+s2@340:8	customizationState	该选择器读取图像工具栏布局版本配置。
+id2@345:58	featureId	该值标识要记录为已查看的新工具功能。
+id2@432:39	toolId	该值索引已固定工具的元数据和点击处理函数。
+id2@453:10	toolId	该值用于从溢出菜单中过滤已固定工具。
+id2@458:53	toolId	该值索引溢出菜单工具的元数据和点击处理函数。
+e2@544:27	clickEvent	该点击事件被传递给提升资产对话框处理函数。

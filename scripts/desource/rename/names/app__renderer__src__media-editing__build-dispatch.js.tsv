@@ -1,0 +1,14 @@
+key	new	依据
+cb@104:14	listener	该函数是插件配置变更监听器集合中的当前回调。
+out@118:9	sanitizedData	该对象收集移除隐藏字段后的节点数据。
+k2@119:15	dataKey	该值是遍历中的节点数据属性名。
+v2@119:19	dataValue	该值是与当前节点数据属性名对应的值。
+out@268:13	resources	该数组收集满足过滤条件的上游资源。
+id2@269:18	sourceNodeId	该值标识当前上游来源节点。
+sid@372:18	sourceNodeId	该值用于解析每个上游来源节点的资产标识。
+id2@516:13	placeholderId	该值是失败占位符动作的目标节点标识。
+msg@517:13	errorMessage	该值是失败占位符需要记录的错误消息。
+id2@532:13	placeholderId	该值是清理占位符动作的目标节点标识。
+cur@590:13	currentStorage	该对象是写入键值前读取到的当前插件存储。
+cur@637:13	currentStorage	该对象是删除键值前读取到的当前插件存储。
+id2@1067:13	runId	该值标识待查询的 DAG 运行。

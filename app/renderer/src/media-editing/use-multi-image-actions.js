@@ -23,7 +23,7 @@ function executeSubMediaDownload(target, actions) {
 }
 
 export function useMultiImageActions({
-  id: id2,
+  id: nodeId,
   view: view2,
   subImages,
   reactFlow,
@@ -41,29 +41,29 @@ export function useMultiImageActions({
   const { onSaveAs, onSaveUrlAs } = useCanvasBridge();
   const assetMetadataStore = useAssetMetadataApi();
   const overlayStore = useMultiImageOverlayApi();
-  const isOverlayOpen = useIsOverlayOpen(id2);
+  const isOverlayOpen = useIsOverlayOpen(nodeId);
   const handleToggleOverlay = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       const { open, close: close2 } = overlayStore.getState();
-      if (isOverlayOpen) close2(id2);
-      else open(id2);
+      if (isOverlayOpen) close2(nodeId);
+      else open(nodeId);
     },
-    [overlayStore, isOverlayOpen, id2],
+    [overlayStore, isOverlayOpen, nodeId],
   );
   const findSubNodeBySlot = reactExports.useCallback(
     (slot) => {
       if (!slot) return void 0;
-      return subImages.find((sub) => {
-        const subData = sub.data ?? {};
-        const topLevelAssetId = sub.assetId;
+      return subImages.find((subNode) => {
+        const subData = subNode.data ?? {};
+        const topLevelAssetId = subNode.assetId;
         const subAssetId =
           typeof subData.assetId === "string" && subData.assetId.length > 0
             ? subData.assetId
             : typeof topLevelAssetId === "string" && topLevelAssetId.length > 0
               ? topLevelAssetId
               : void 0;
-        return sub.id === slot.id || subAssetId === slot.id;
+        return subNode.id === slot.id || subAssetId === slot.id;
       });
     },
     [subImages],
@@ -76,11 +76,11 @@ export function useMultiImageActions({
     [findSubNodeBySlot, view2.slots],
   );
   const handleSubContextMenu = reactExports.useCallback(
-    (originalIndex, e2) => {
+    (originalIndex, contextMenuEvent) => {
       if (originalIndex <= 0) return;
-      const sub = findSubNodeBySlotIndex(originalIndex);
-      if (!sub) return;
-      openNodeContextMenu(e2, sub.id);
+      const subNode = findSubNodeBySlotIndex(originalIndex);
+      if (!subNode) return;
+      openNodeContextMenu(contextMenuEvent, subNode.id);
     },
     [findSubNodeBySlotIndex, openNodeContextMenu],
   );
@@ -89,10 +89,10 @@ export function useMultiImageActions({
       if (originalIndex <= 0) return;
       const slot = view2.slots[originalIndex];
       if (!slot) return;
-      const sub = findSubNodeBySlotIndex(originalIndex);
-      if (!sub) return;
-      const subData = sub.data ?? {};
-      const topLevelAssetId = sub.assetId;
+      const subNode = findSubNodeBySlotIndex(originalIndex);
+      if (!subNode) return;
+      const subData = subNode.data ?? {};
+      const topLevelAssetId = subNode.assetId;
       const assetId =
         typeof subData.assetId === "string" && subData.assetId.length > 0
           ? subData.assetId
@@ -101,7 +101,7 @@ export function useMultiImageActions({
             : void 0;
       const meta2 =
         (assetId ? assetMetadataStore.getState().get(assetId) : void 0) ??
-        assetMetadataStore.getState().get(sub.id);
+        assetMetadataStore.getState().get(subNode.id);
       executeSubMediaDownload(
         {
           path: meta2?.path,
@@ -125,16 +125,16 @@ export function useMultiImageActions({
   const handleSetPrimarySlot = reactExports.useCallback(
     (slot) => {
       if (slot.id === view2.primary?.id) return;
-      const sub = findSubNodeBySlot(slot);
-      if (!sub) return;
-      promoteSubImageToMain(sub.id);
-      overlayStore.getState().close(id2);
+      const subNode = findSubNodeBySlot(slot);
+      if (!subNode) return;
+      promoteSubImageToMain(subNode.id);
+      overlayStore.getState().close(nodeId);
     },
     [
       view2.primary?.id,
       findSubNodeBySlot,
       promoteSubImageToMain,
-      id2,
+      nodeId,
       overlayStore,
     ],
   );
@@ -152,9 +152,9 @@ export function useMultiImageActions({
       if (roundIdx === view2.activeRoundIndex) return;
       const targetSlot = view2.rounds[roundIdx]?.[0];
       if (!targetSlot) return;
-      const targetSub = subImages.find((sub) => {
-        const subAssetId = sub.assetId ?? sub.data?.assetId;
-        return sub.id === targetSlot.id || subAssetId === targetSlot.id;
+      const targetSub = subImages.find((subNode) => {
+        const subAssetId = subNode.assetId ?? subNode.data?.assetId;
+        return subNode.id === targetSlot.id || subAssetId === targetSlot.id;
       });
       if (!targetSub) return;
       clearSelection();
@@ -175,60 +175,60 @@ export function useMultiImageActions({
   const handleDeleteSub = reactExports.useCallback(
     (originalIndex) => {
       if (originalIndex <= 0) return;
-      const sub = findSubNodeBySlotIndex(originalIndex);
-      if (!sub) return;
-      removeNode(sub.id);
+      const subNode = findSubNodeBySlotIndex(originalIndex);
+      if (!subNode) return;
+      removeNode(subNode.id);
     },
     [findSubNodeBySlotIndex, removeNode],
   );
   const placeSub = reactExports.useCallback(
     (occupied) => {
-      const mainInternal = reactFlow.getInternalNode(id2);
-      const mainNode = mainInternal ?? reactFlow.getNode(id2);
+      const mainInternal = reactFlow.getInternalNode(nodeId);
+      const mainNode = mainInternal ?? reactFlow.getNode(nodeId);
       const anchorAbs = mainInternal?.internals.positionAbsolute ??
         mainNode?.position ?? {
           x: 0,
           y: 0,
         };
-      const w3 = mainNode?.measured?.width ?? nodeWidth;
-      const h2 = mainNode?.measured?.height ?? nodeHeight ?? w3;
+      const mainNodeWidth = mainNode?.measured?.width ?? nodeWidth;
+      const mainNodeHeight = mainNode?.measured?.height ?? nodeHeight ?? mainNodeWidth;
       const anchor = {
-        x: anchorAbs.x + w3 + DEFAULT_PLACEMENT_GAP,
+        x: anchorAbs.x + mainNodeWidth + DEFAULT_PLACEMENT_GAP,
         y: anchorAbs.y,
       };
-      const { x: x2, y: y4 } = findFreePositionFromAnchor(
+      const { x: positionX, y: positionY } = findFreePositionFromAnchor(
         anchor,
         {
-          width: w3,
-          height: h2,
+          width: mainNodeWidth,
+          height: mainNodeHeight,
         },
         occupied,
       );
       return {
-        x: x2,
-        y: y4,
-        w: w3,
-        h: h2,
+        x: positionX,
+        y: positionY,
+        w: mainNodeWidth,
+        h: mainNodeHeight,
       };
     },
-    [reactFlow, id2, nodeWidth, nodeHeight],
+    [reactFlow, nodeId, nodeWidth, nodeHeight],
   );
   const handleSplitSlot = reactExports.useCallback(
     (slot) => {
       const targetNodeId =
-        slot.id === view2.primary?.id ? id2 : findSubNodeBySlot(slot)?.id;
+        slot.id === view2.primary?.id ? nodeId : findSubNodeBySlot(slot)?.id;
       if (!targetNodeId) return;
-      const { x: x2, y: y4 } = placeSub([]);
+      const { x: positionX, y: positionY } = placeSub([]);
       detachSubImage(targetNodeId, {
-        x: x2,
-        y: y4,
+        x: positionX,
+        y: positionY,
       });
       clearSelection();
-      overlayStore.getState().close(id2);
+      overlayStore.getState().close(nodeId);
     },
     [
       view2.primary?.id,
-      id2,
+      nodeId,
       findSubNodeBySlot,
       placeSub,
       detachSubImage,
@@ -246,18 +246,18 @@ export function useMultiImageActions({
     [view2.slots, handleSplitSlot],
   );
   const handleSplitAll = reactExports.useCallback(() => {
-    const ids2 = [id2];
-    for (let i2 = 1; i2 < view2.slots.length; i2 += 1) {
-      const sub = findSubNodeBySlotIndex(i2);
-      if (sub) ids2.push(sub.id);
+    const ids2 = [nodeId];
+    for (let slotIndex = 1; slotIndex < view2.slots.length; slotIndex += 1) {
+      const subNode = findSubNodeBySlotIndex(slotIndex);
+      if (subNode) ids2.push(subNode.id);
     }
     const occupied = [];
     const entries2 = [];
-    for (const nid of ids2) {
+    for (const detachedNodeId of ids2) {
       const rect = placeSub(occupied);
       occupied.push(rect);
       entries2.push({
-        subId: nid,
+        subId: detachedNodeId,
         position: {
           x: rect.x,
           y: rect.y,
@@ -266,9 +266,9 @@ export function useMultiImageActions({
     }
     detachSubImages(entries2);
     clearSelection();
-    overlayStore.getState().close(id2);
+    overlayStore.getState().close(nodeId);
   }, [
-    id2,
+    nodeId,
     view2.slots,
     findSubNodeBySlotIndex,
     detachSubImages,
@@ -277,14 +277,14 @@ export function useMultiImageActions({
     overlayStore,
   ]);
   const handleSplitMain = reactExports.useCallback(() => {
-    const { x: x2, y: y4 } = placeSub([]);
-    detachSubImage(id2, {
-      x: x2,
-      y: y4,
+    const { x: positionX, y: positionY } = placeSub([]);
+    detachSubImage(nodeId, {
+      x: positionX,
+      y: positionY,
     });
     clearSelection();
-    overlayStore.getState().close(id2);
-  }, [detachSubImage, placeSub, clearSelection, overlayStore, id2]);
+    overlayStore.getState().close(nodeId);
+  }, [detachSubImage, placeSub, clearSelection, overlayStore, nodeId]);
   return {
     isOverlayOpen,
     handleToggleOverlay,

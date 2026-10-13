@@ -1,0 +1,20 @@
+key	new	依据
+s2@113:44	assetMetadataState	该状态选择器提供当前资产元数据映射。
+id2@142:10	assetId	该值用于从资产映射中读取节点视图所需元数据。
+sub@151:40	subNode	该值用于匹配槽位对应的子图节点。
+t2@241:14	t	该绑定是 useTranslation 返回的翻译函数。
+id2@564:7	videoNodeId	该值标识当前视频节点并传给节点状态钩子。
+t2@570:14	t	该绑定是 useTranslation 返回的翻译函数。
+n2@823:22	node	该值是节点列表映射中的当前节点。
+_w@825:28	_removedWidth	该解构绑定仅用于从节点副本中移除 width 属性。
+_h@825:40	_removedHeight	该解构绑定仅用于从节点副本中移除 height 属性。
+n2@836:22	node	该值是节点列表映射中的当前节点。
+n2@852:20	node	该值是节点列表映射中的当前节点。
+_w@854:26	_removedWidth	该解构绑定仅用于从节点副本中移除 width 属性。
+_h@854:38	_removedHeight	该解构绑定仅用于从节点副本中移除 height 属性。
+s2@898:34	playbackState	该状态选择器读取当前视频播放停止动作。
+w3@922:11	videoWidth	该值是视频预览或原始元数据宽度。
+h2@923:11	videoHeight	该值是视频预览或原始元数据高度。
+e2@984:6	clickEvent	该事件用于阻止下载按钮点击继续冒泡。
+e2@1054:6	clickEvent	该事件用于切换视频轮次或多图浮层并阻止冒泡。
+s2@1099:39	playbackState	该状态选择器用于判断当前视频节点是否正在播放。

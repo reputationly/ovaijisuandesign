@@ -101,9 +101,9 @@ function setPluginAgentEditorState(nodeId, state2) {
 function emitPluginConfigChange(pluginId) {
   const set2 = configChangeListeners.get(pluginId);
   if (!set2) return;
-  for (const cb of set2) {
+  for (const listener of set2) {
     try {
-      cb();
+      listener();
     } catch (err) {
       console.error("[plugin-host] config change listener threw", err);
     }
@@ -115,12 +115,12 @@ const IMMUTABLE_PLUGIN_NODE_DATA_KEYS = new Set([
   "pluginId",
 ]);
 function sanitiseNodeData(data2) {
-  const out = {};
-  for (const [k2, v2] of Object.entries(data2)) {
-    if (HIDDEN_NODE_DATA_KEYS.has(k2)) continue;
-    out[k2] = v2;
+  const sanitizedData = {};
+  for (const [dataKey, dataValue] of Object.entries(data2)) {
+    if (HIDDEN_NODE_DATA_KEYS.has(dataKey)) continue;
+    sanitizedData[dataKey] = dataValue;
   }
-  return out;
+  return sanitizedData;
 }
 function pluginStorageHttpStatus(err) {
   if (!err || typeof err !== "object") return void 0;
@@ -265,22 +265,22 @@ export function buildDispatch(deps) {
       const filter2 = args[0] ?? null;
       const sourceIds = actions.getIncomingSourceIds(nodeId);
       const store = assetMetadataApi.getState();
-      const out = [];
-      for (const id2 of sourceIds) {
-        const sourceNode = actions.getNodeById(id2);
+      const resources = [];
+      for (const sourceNodeId of sourceIds) {
+        const sourceNode = actions.getNodeById(sourceNodeId);
         const dataAssetId = sourceNode?.data?.assetId;
         const assetId =
           sourceNode?.assetId ??
           (typeof dataAssetId === "string" && dataAssetId.length > 0
             ? dataAssetId
-            : parseNodeId(id2).assetId);
-        const meta2 = store.assets.get(assetId) ?? store.assets.get(id2);
+            : parseNodeId(sourceNodeId).assetId);
+        const meta2 = store.assets.get(assetId) ?? store.assets.get(sourceNodeId);
         if (!meta2) continue;
         const type2 = normaliseAssetType(meta2.type, meta2.path || meta2.name);
         if (!matchesFilter(type2, filter2)) continue;
-        out.push(buildResource(id2, assetId, meta2, type2));
+        resources.push(buildResource(sourceNodeId, assetId, meta2, type2));
       }
-      return out;
+      return resources;
     },
     [HUB_METHODS.CanvasGetWorkspaceResources]: async (args) => {
       const filter2 = args[0] ?? null;
@@ -369,8 +369,8 @@ export function buildDispatch(deps) {
       const sourceNodeIds = actions.getIncomingSourceIds(nodeId);
       const seenAsset = new Set();
       const upstreamAssetIds = [];
-      for (const sid of sourceNodeIds) {
-        const { assetId } = parseNodeId(sid);
+      for (const sourceNodeId of sourceNodeIds) {
+        const { assetId } = parseNodeId(sourceNodeId);
         if (seenAsset.has(assetId)) continue;
         seenAsset.add(assetId);
         upstreamAssetIds.push(assetId);
@@ -513,29 +513,29 @@ export function buildDispatch(deps) {
       return requirePluginHost().addPlaceholder(payload);
     },
     [HUB_METHODS.CanvasFailPlaceholder]: async (args) => {
-      const id2 = String(args[0] ?? "");
-      const msg = String(args[1] ?? "");
-      if (!id2)
+      const placeholderId = String(args[0] ?? "");
+      const errorMessage = String(args[1] ?? "");
+      if (!placeholderId)
         throw withCode(
           new Error("failPlaceholder: missing id"),
           "invalid_args",
         );
-      if (!msg)
+      if (!errorMessage)
         throw withCode(
           new Error("failPlaceholder: errorMessage must be non-empty"),
           "invalid_args",
         );
-      await requirePluginHost().failPlaceholder(id2, msg);
+      await requirePluginHost().failPlaceholder(placeholderId, errorMessage);
       return void 0;
     },
     [HUB_METHODS.CanvasCleanupPlaceholder]: async (args) => {
-      const id2 = String(args[0] ?? "");
-      if (!id2)
+      const placeholderId = String(args[0] ?? "");
+      if (!placeholderId)
         throw withCode(
           new Error("cleanupPlaceholder: missing id"),
           "invalid_args",
         );
-      await requirePluginHost().cleanupPlaceholder(id2);
+      await requirePluginHost().cleanupPlaceholder(placeholderId);
       return void 0;
     },
     // ── Storage: installed-plugin gateway KV + plain-HTML local fallback ───
@@ -587,9 +587,9 @@ export function buildDispatch(deps) {
         );
         return void 0;
       }
-      const cur = readStorage(actions, nodeId);
-      const isNewKey = !(key2 in cur);
-      if (isNewKey && Object.keys(cur).length >= PLUGIN_STORAGE_MAX_KEYS) {
+      const currentStorage = readStorage(actions, nodeId);
+      const isNewKey = !(key2 in currentStorage);
+      if (isNewKey && Object.keys(currentStorage).length >= PLUGIN_STORAGE_MAX_KEYS) {
         throw withCode(
           new Error(
             `storage.set: too many keys (limit ${PLUGIN_STORAGE_MAX_KEYS}). Delete entries before adding new ones.`,
@@ -598,7 +598,7 @@ export function buildDispatch(deps) {
         );
       }
       const next2 = {
-        ...cur,
+        ...currentStorage,
         [key2]: value,
       };
       const totalSize = pluginStorageByteSize(next2);
@@ -634,10 +634,10 @@ export function buildDispatch(deps) {
         );
         return void 0;
       }
-      const cur = readStorage(actions, nodeId);
-      if (!(key2 in cur)) return void 0;
+      const currentStorage = readStorage(actions, nodeId);
+      if (!(key2 in currentStorage)) return void 0;
       const next2 = {
-        ...cur,
+        ...currentStorage,
       };
       delete next2[key2];
       actions.updateNodeData(nodeId, writeStoragePatch(actions, nodeId, next2));
@@ -1064,10 +1064,10 @@ ${runArgs.content}`
       });
     },
     [HUB_METHODS.DagQuery]: async (args) => {
-      const id2 = String(args[0] ?? "");
-      if (!id2)
+      const runId = String(args[0] ?? "");
+      if (!runId)
         throw withCode(new Error("dag.query: missing runId"), "invalid_args");
-      return requirePluginHost().queryDagRun(id2);
+      return requirePluginHost().queryDagRun(runId);
     },
     // ── Files: CDN upload. Only the string-source branch hits the host —
     // Blob sources are short-circuited shim-side (direct multipart POST,

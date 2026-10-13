@@ -61,7 +61,7 @@ function resolveSplitGridMenuOptions(sourceGrid) {
 }
 const SPLIT_MAX = 5;
 function CustomGridPicker({ onPick }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [hover, setHover] = reactExports.useState({
     rows: 0,
     cols: 0,
@@ -70,19 +70,19 @@ function CustomGridPicker({ onPick }) {
     {
       length: SPLIT_MAX,
     },
-    (_2, i2) => i2 + 1,
+    (_unusedValue, index) => index + 1,
   );
   const colsIdx = Array.from(
     {
       length: SPLIT_MAX,
     },
-    (_2, i2) => i2 + 1,
+    (_unusedValue, index) => index + 1,
   );
   return (
     <div className="select-none">
       <div className="mb-2 flex items-center justify-between gap-6">
         <span className="canvas-toolbar-label text-[var(--canvas-toolbar-muted-fg)]">
-          {t2("canvas.splitGrid.customTitle", "自定义宫格")}
+          {t("canvas.splitGrid.customTitle", "自定义宫格")}
         </span>
         <span className="canvas-toolbar-label tabular-nums text-[var(--canvas-toolbar-muted-fg)]">
           {hover.cols > 0
@@ -99,22 +99,22 @@ function CustomGridPicker({ onPick }) {
           })
         }
       >
-        {rowsIdx.map((r2) => (
-          <div key={r2} className="flex gap-1">
-            {colsIdx.map((c3) => {
-              const selected2 = r2 <= hover.rows && c3 <= hover.cols;
+        {rowsIdx.map((rowCount) => (
+          <div key={rowCount} className="flex gap-1">
+            {colsIdx.map((columnCount) => {
+              const selected2 = rowCount <= hover.rows && columnCount <= hover.cols;
               return (
                 <button
-                  key={c3}
+                  key={columnCount}
                   type="button"
-                  aria-label={`${c3} × ${r2}`}
+                  aria-label={`${columnCount} × ${rowCount}`}
                   onMouseEnter={() =>
                     setHover({
-                      rows: r2,
-                      cols: c3,
+                      rows: rowCount,
+                      cols: columnCount,
                     })
                   }
-                  onClick={() => onPick(r2, c3)}
+                  onClick={() => onPick(rowCount, columnCount)}
                   className={`h-8 w-8 rounded-md border transition-colors ${selected2 ? "border-brand-accent/80 bg-brand-accent/80 hover:bg-brand-accent/90 dark:hover:bg-brand-accent/90" : "border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-hover)]"}`}
                 />
               );
@@ -145,7 +145,7 @@ function ChevronRight() {
   );
 }
 function ImageSplitMenuItems({ onPick, sourceGrid }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const menuOptions = resolveSplitGridMenuOptions(sourceGrid);
   return (
     <>
@@ -161,7 +161,7 @@ function ImageSplitMenuItems({ onPick, sourceGrid }) {
               `${cols}×${rows}`
             ) : (
               <>
-                {t2("canvas.splitGrid.preset", "{{n}}宫格", {
+                {t("canvas.splitGrid.preset", "{{n}}宫格", {
                   n: rows * cols,
                 })}
                 <span className="ml-1 text-[var(--canvas-toolbar-muted-fg)]">
@@ -176,7 +176,7 @@ function ImageSplitMenuItems({ onPick, sourceGrid }) {
       <DropdownMenuSub>
         <ActionListItem render={<DropdownMenuSubTrigger />}>
           <span className="whitespace-nowrap">
-            {t2("canvas.splitGrid.custom", "自定义")}
+            {t("canvas.splitGrid.custom", "自定义")}
           </span>
           <span className="ml-auto pl-3 opacity-60">
             <ChevronRight />
@@ -252,7 +252,7 @@ function PinnedSplitGridToolbarItem({
   onPick,
   sourceGrid,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   return (
     <>
@@ -264,7 +264,7 @@ function PinnedSplitGridToolbarItem({
         >
           <SplitGridIcon />
           <span className="canvas-toolbar-label whitespace-nowrap">
-            {t2("canvas.splitGrid.label", "Split Grid")}
+            {t("canvas.splitGrid.label", "Split Grid")}
           </span>
           <SplitGridDisclosureIcon open={open} />
         </DropdownMenuTrigger>
@@ -323,9 +323,9 @@ export const ImageNodeToolbarSection = reactExports.memo(
     handleCustomizeToolbar,
     onToolClick,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t } = useTranslation();
     const removeBgCost = useImageEditCost("remove-bg");
-    const storedPinned = useImageToolbarCustomizationStore((s2) => s2.pinned);
+    const storedPinned = useImageToolbarCustomizationStore((customizationState) => customizationState.pinned);
     const pinned = reactExports.useMemo(
       () =>
         storedPinned.filter(
@@ -335,18 +335,18 @@ export const ImageNodeToolbarSection = reactExports.memo(
         ),
       [storedPinned, handleStoryboardGrid],
     );
-    const showLabels = useImageToolbarCustomizationStore((s2) => s2.showLabels);
+    const showLabels = useImageToolbarCustomizationStore((customizationState) => customizationState.showLabels);
     const layoutVersion = useImageToolbarCustomizationStore(
-      (s2) => s2.layoutVersion,
+      (customizationState) => customizationState.layoutVersion,
     );
     const [seenNewFeatures, setSeenNewFeatures] = reactExports.useState(
       readSeenImageToolbarFeatures,
     );
-    const markNewFeatureSeen = reactExports.useCallback((id2) => {
+    const markNewFeatureSeen = reactExports.useCallback((featureId) => {
       setSeenNewFeatures((current2) => {
-        if (current2.has(id2)) return current2;
+        if (current2.has(featureId)) return current2;
         const next2 = new Set(current2);
-        next2.add(id2);
+        next2.add(featureId);
         try {
           window.localStorage.setItem(
             IMAGE_TOOLBAR_NEW_FEATURE_STORAGE_KEY,
@@ -418,7 +418,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
           ? [
               {
                 id: "split-grid-pinned",
-                label: t2("canvas.splitGrid.label", "Split Grid"),
+                label: t("canvas.splitGrid.label", "Split Grid"),
                 render: () => (
                   <PinnedSplitGridToolbarItem
                     disabled={!hasDimensions}
@@ -429,52 +429,52 @@ export const ImageNodeToolbarSection = reactExports.memo(
               },
             ]
           : [];
-      const pinnedItems = pinned.map((id2) => {
-        const meta2 = IMAGE_TOOL_META[id2];
+      const pinnedItems = pinned.map((toolId) => {
+        const meta2 = IMAGE_TOOL_META[toolId];
         return {
-          id: id2,
-          label: t2(meta2.labelKey, meta2.defaultLabel),
+          id: toolId,
+          label: t(meta2.labelKey, meta2.defaultLabel),
           icon: meta2.icon,
-          forceLabel: id2 === "panorama-reference" ? true : showLabels,
+          forceLabel: toolId === "panorama-reference" ? true : showLabels,
           disabled:
             (meta2.requiresDimensions && !hasDimensions) ||
-            (id2 === "panorama-reference" && !handlePanoramaReference) ||
-            (id2 === "watermark" && !handleWatermark),
+            (toolId === "panorama-reference" && !handlePanoramaReference) ||
+            (toolId === "watermark" && !handleWatermark),
           dataActionUiId: meta2.dataActionUiId,
-          onClick: wrap2(id2, handlers2[id2], "primary_bar"),
+          onClick: wrap2(toolId, handlers2[toolId], "primary_bar"),
           trailing: trailingFor(meta2),
           showNewFeatureDot:
-            isImageToolbarNewFeatureId(id2) && !seenNewFeatures.has(id2),
+            isImageToolbarNewFeatureId(toolId) && !seenNewFeatures.has(toolId),
         };
       });
       const availableTools =
         layoutVersion === 1 ? LEGACY_IMAGE_TOOLBAR_TOOLS : IMAGE_TOOLBAR_TOOLS;
       const overflowToolIds = availableTools.filter(
-        (id2) =>
-          id2 !== "image-inplace-edit" &&
-          (id2 !== "storyboard-grid" || !!handleStoryboardGrid) &&
-          !pinned.includes(id2),
+        (toolId) =>
+          toolId !== "image-inplace-edit" &&
+          (toolId !== "storyboard-grid" || !!handleStoryboardGrid) &&
+          !pinned.includes(toolId),
       );
-      const overflowDropdown = overflowToolIds.map((id2) => {
-        const meta2 = IMAGE_TOOL_META[id2];
+      const overflowDropdown = overflowToolIds.map((toolId) => {
+        const meta2 = IMAGE_TOOL_META[toolId];
         return {
-          id: id2,
-          label: t2(meta2.labelKey, meta2.defaultLabel),
-          icon: id2 === "rotate" ? <RotateIcon size={16} /> : meta2.icon,
+          id: toolId,
+          label: t(meta2.labelKey, meta2.defaultLabel),
+          icon: toolId === "rotate" ? <RotateIcon size={16} /> : meta2.icon,
           disabled:
             (meta2.requiresDimensions && !hasDimensions) ||
-            (id2 === "panorama-reference" && !handlePanoramaReference) ||
-            (id2 === "watermark" && !handleWatermark),
+            (toolId === "panorama-reference" && !handlePanoramaReference) ||
+            (toolId === "watermark" && !handleWatermark),
           trailing: trailingFor(meta2),
-          onSelect: wrap2(id2, handlers2[id2], "more_menu"),
+          onSelect: wrap2(toolId, handlers2[toolId], "more_menu"),
           showNewFeatureDot:
-            isImageToolbarNewFeatureId(id2) && !seenNewFeatures.has(id2),
+            isImageToolbarNewFeatureId(toolId) && !seenNewFeatures.has(toolId),
         };
       });
       if (handleSplitEnter && !pinSplitGrid) {
         overflowDropdown.push({
           id: "split-grid",
-          label: t2("canvas.splitGrid.label", "宫格切分"),
+          label: t("canvas.splitGrid.label", "宫格切分"),
           icon: <SplitGridIcon />,
           disabled: !hasDimensions,
           onSelect: () => {},
@@ -500,7 +500,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
       }
       overflowDropdown.push({
         id: "customize-toolbar",
-        label: t2("canvas.customizeToolbar.menu", "编辑工具栏"),
+        label: t("canvas.customizeToolbar.menu", "编辑工具栏"),
         icon: <CustomizeIcon />,
         onSelect: wrap2(
           "customize-toolbar",
@@ -511,7 +511,7 @@ export const ImageNodeToolbarSection = reactExports.memo(
       });
       const moreItem = {
         id: "more",
-        label: t2("common.more", "更多"),
+        label: t("common.more", "更多"),
         icon: <MoreVerticalIcon size={16} />,
         hideDropdownArrow: true,
         dropdownItems: overflowDropdown,
@@ -536,12 +536,12 @@ export const ImageNodeToolbarSection = reactExports.memo(
           ? [
               {
                 id: "promote-to-asset",
-                label: t2("canvas.promoteToAsset"),
+                label: t("canvas.promoteToAsset"),
                 icon: <PromoteToAssetIcon />,
                 forceLabel: true,
                 separator: true,
                 dataActionUiId: "canvas.node-promote-to-asset",
-                onClick: (e2) => {
+                onClick: (clickEvent) => {
                   if (onToolClick) {
                     try {
                       onToolClick({
@@ -551,14 +551,14 @@ export const ImageNodeToolbarSection = reactExports.memo(
                       });
                     } catch {}
                   }
-                  handlePromoteToAsset(e2);
+                  handlePromoteToAsset(clickEvent);
                 },
               },
             ]
           : []),
         {
           id: "image-inplace-edit",
-          label: t2(
+          label: t(
             IMAGE_TOOL_META["image-inplace-edit"].labelKey,
             "Edit Image",
           ),
@@ -568,20 +568,20 @@ export const ImageNodeToolbarSection = reactExports.memo(
         },
         {
           id: "add-to-chat",
-          label: t2("canvas.addToChat"),
+          label: t("canvas.addToChat"),
           icon: <AddToChatIcon />,
           separator: false,
           onClick: wrap2("add-to-chat", handleAddToChat, "primary_bar"),
         },
         {
           id: "fullscreen",
-          label: t2("canvas.fullscreen"),
+          label: t("canvas.fullscreen"),
           icon: <FullscreenIcon />,
           onClick: wrap2("fullscreen", handleFullscreen, "primary_bar"),
         },
       ];
     }, [
-      t2,
+      t,
       hasDimensions,
       pinned,
       showLabels,

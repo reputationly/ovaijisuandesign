@@ -1,0 +1,20 @@
+key	new	依据
+id2@159:7	imageNodeId	该值标识当前图像节点并传给视图和图像操作钩子。
+t2@166:14	t	该绑定是 useTranslation 返回的翻译函数。
+w3@359:55	naturalWidth	该参数是加载图像的自然宽度并保存到 naturalSize。
+h2@359:59	naturalHeight	该参数是加载图像的自然高度并保存到 naturalSize。
+x2@442:14	positionX	该参数是提交给画布动作的节点横坐标。
+y4@442:18	positionY	该参数是提交给画布动作的节点纵坐标。
+n2@560:22	node	该值是节点列表映射中的当前节点。
+n2@576:20	node	该值是节点列表映射中的当前节点。
+_w@578:26	_removedWidth	该解构绑定仅用于从节点副本中移除 width 属性。
+_h@578:38	_removedHeight	该解构绑定仅用于从节点副本中移除 height 属性。
+e2@593:13	clickEvent	该事件为工具栏提升资产操作提供点击坐标。
+w3@707:11	imageWidth	该值是用于检查图像增强输入资格的图像宽度。
+h2@708:11	imageHeight	该值是用于检查图像增强输入资格的图像高度。
+w3@849:11	primaryImageWidth	该值是用于按宽高比计算节点高度的主图宽度。
+h2@850:11	primaryImageHeight	该值是用于按宽高比计算节点高度的主图高度。
+n2@881:18	node	该值是节点列表映射中的当前节点。
+e2@1227:6	clickEvent	该事件用于阻止下载按钮点击继续冒泡。
+w3@1445:11	imageWidth	该值是元数据中的图像宽度并用于显示尺寸文本。
+h2@1446:11	imageHeight	该值是元数据中的图像高度并用于显示尺寸文本。
