@@ -259,7 +259,7 @@ function LocalConnectorPreparationStatus({
   connectorName,
   onRetry,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (state2 === "skipped") return null;
   const labelKey = `connectors.connector.prepare.${state2}`;
   const icon = state2 === "checking" ? Loader2 : CircleAlert;
@@ -286,7 +286,7 @@ function LocalConnectorPreparationStatus({
           aria-hidden={true}
         />
         <span>
-          {t2(labelKey, {
+          {t(labelKey, {
             name: connectorName,
           })}
         </span>
@@ -300,7 +300,7 @@ function LocalConnectorPreparationStatus({
           onClick={onRetry}
           data-action-ui-id="connector-local-preparation-retry"
         >
-          {t2("connectors.connector.prepare.retry")}
+          {t("connectors.connector.prepare.retry")}
         </Button>
       ) : null}
     </div>
@@ -315,7 +315,7 @@ function LocalConnectorStep({
   action,
   children: children2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <section
       className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-2"
@@ -336,7 +336,7 @@ function LocalConnectorStep({
           className="relative z-10 flex size-6 shrink-0 items-center justify-center rounded-full bg-card text-xs font-medium leading-none text-foreground"
           data-layout-slot="connector-local-step-node"
         >
-          {t2(`connectors.stepOrdinal.${ordinal}`)}
+          {t(`connectors.stepOrdinal.${ordinal}`)}
         </span>
         {!last2 ? (
           <span
@@ -384,7 +384,7 @@ export function LocalConnectorSetupContent({
   onInstalled,
   setupUrl,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const targetName = serverName ?? connectorId;
   const platform2 = usePlatform();
   const [legacyStatus, setStatus] = reactExports.useState();
@@ -491,19 +491,19 @@ export function LocalConnectorSetupContent({
             status: result.status,
           }) === "saved"
         ) {
-          dedupedToast.error(t2("connectors.runtimeState.failed"));
+          dedupedToast.error(t("connectors.runtimeState.failed"));
         } else
           dedupedToast.success(
-            t2(
+            t(
               result.status.state === "connected"
                 ? "connectors.connector.installedConnected"
                 : "connectors.connector.installedWaiting",
             ),
           );
       } else {
-        const reason = t2(`connectors.connector.error.${result.code}`, {
+        const reason = t(`connectors.connector.error.${result.code}`, {
           name: connectorTitle(
-            t2,
+            t,
             i18n?.language ?? "en",
             connectorId,
             displayName2,
@@ -515,7 +515,7 @@ export function LocalConnectorSetupContent({
       }
     } catch {
       if (!closed.current)
-        setInstallError(t2("connectors.customDialog.error.requestFailed"));
+        setInstallError(t("connectors.customDialog.error.requestFailed"));
     } finally {
       if (!installedStatus) finishInstallation?.();
       if (!closed.current) setInstalling(false);
@@ -529,12 +529,12 @@ export function LocalConnectorSetupContent({
       : (status?.state ?? (liveHostStatus ? "checking" : "not_installed"));
   const connected = state2 === "connected";
   const connectorName = connectorTitle(
-    t2,
+    t,
     i18n?.language ?? "en",
     connectorId,
     displayName2,
   );
-  const installStepTitle = t2("connectors.connector.step.install");
+  const installStepTitle = t("connectors.connector.step.install");
   const prepareSecondaryKey =
     connectorId === "illustrator"
       ? "connectors.connector.prepare.illustrator"
@@ -558,7 +558,7 @@ export function LocalConnectorSetupContent({
         <div className="px-4 pb-5 sm:px-6">
           <DialogHeader className="mt-4 items-center gap-2 text-center">
             <DialogTitle className="font-heading text-lg font-medium text-foreground">
-              {t2("connectors.connector.setupTitle", {
+              {t("connectors.connector.setupTitle", {
                 name: connectorName,
               })}
             </DialogTitle>
@@ -571,7 +571,7 @@ export function LocalConnectorSetupContent({
                   <ConnectorStatusPill state={hostDisplayState} />
                 ) : (
                   <IntegrationStatusPill
-                    label={t2(`connectors.connector.state.${state2}`)}
+                    label={t(`connectors.connector.state.${state2}`)}
                     tone={connected ? "neutral" : "muted"}
                     markerTone={
                       connected
@@ -581,7 +581,7 @@ export function LocalConnectorSetupContent({
                           : "muted"
                     }
                     markerActive={state2 === "installing"}
-                    markerLabel={t2(`connectors.connector.state.${state2}`)}
+                    markerLabel={t(`connectors.connector.state.${state2}`)}
                   />
                 )}
               </span>
@@ -590,7 +590,7 @@ export function LocalConnectorSetupContent({
                   variant="info"
                   data-action-ui-id={`connector-${connectorId}-update-available`}
                 >
-                  {t2("connectors.connector.updateAvailable")}
+                  {t("connectors.connector.updateAvailable")}
                 </Badge>
               ) : null}
             </div>
@@ -603,12 +603,12 @@ export function LocalConnectorSetupContent({
               className="px-3 pt-3 text-xs leading-relaxed font-medium text-muted-foreground"
               data-layout-slot="connector-local-steps-eyebrow"
             >
-              {t2("connectors.connector.setupDescription")}
+              {t("connectors.connector.setupDescription")}
             </DialogDescription>
             <div className="w-full" data-layout-slot="connector-local-steps">
               <LocalConnectorStep
                 ordinal={1}
-                title={t2("connectors.connector.step.prepare", {
+                title={t("connectors.connector.step.prepare", {
                   name: connectorName,
                 })}
                 first={true}
@@ -622,12 +622,12 @@ export function LocalConnectorSetupContent({
                     data-content-structure="primary-secondary"
                   >
                     <p className="text-[13px] leading-relaxed text-muted-foreground">
-                      {t2("connectors.connector.prepare.primary", {
+                      {t("connectors.connector.prepare.primary", {
                         name: connectorName,
                       })}
                     </p>
                     <p className="text-[13px] leading-relaxed text-muted-foreground">
-                      {t2(prepareSecondaryKey, {
+                      {t(prepareSecondaryKey, {
                         name: connectorName,
                       })}
                     </p>
@@ -654,7 +654,7 @@ export function LocalConnectorSetupContent({
                         data-action-ui-id="connector-blender-download"
                       >
                         <Icon icon={Download} size="xs" aria-hidden={true} />
-                        {t2("connectors.connector.downloadHostApp.blender")}
+                        {t("connectors.connector.downloadHostApp.blender")}
                       </Button>
                     ) : null}
                   </div>
@@ -669,7 +669,7 @@ export function LocalConnectorSetupContent({
                 <div className="flex justify-center">
                   <ConnectorSummaryAction
                     mode="install"
-                    label={t2(connectorSummaryActionLabelKey.install)}
+                    label={t(connectorSummaryActionLabelKey.install)}
                     disabled={
                       installInProgress ||
                       hostQueryFailed ||

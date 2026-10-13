@@ -135,14 +135,14 @@ export function useInterestSelection() {
   }
   return ctx;
 }
-export function getFileManagerLabelKey(os2) {
-  if (os2 === "darwin") return "common.fileManager.open.darwin";
-  if (os2 === "win32") return "common.fileManager.open.win32";
+export function getFileManagerLabelKey(os) {
+  if (os === "darwin") return "common.fileManager.open.darwin";
+  if (os === "win32") return "common.fileManager.open.win32";
   return "common.fileManager.open.other";
 }
-export function PlatformFileManagerLabel({ os: os2 }) {
-  const { t: t2 } = useTranslation();
-  return <>{t2(getFileManagerLabelKey(os2 ?? getPlatform().app.os))}</>;
+export function PlatformFileManagerLabel({ os }) {
+  const { t } = useTranslation();
+  return <>{t(getFileManagerLabelKey(os ?? getPlatform().app.os))}</>;
 }
 export const KEY_PREFIX = "hilo:popup:claimed:";
 export function clearClaimsForUser(userID) {
@@ -150,8 +150,8 @@ export function clearClaimsForUser(userID) {
   try {
     const userPrefix = `${KEY_PREFIX}${userID}:`;
     const toRemove = [];
-    for (let i2 = 0; i2 < window.localStorage.length; i2++) {
-      const key2 = window.localStorage.key(i2);
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key2 = window.localStorage.key(i);
       if (key2?.startsWith(userPrefix)) toRemove.push(key2);
     }
     for (const key2 of toRemove) window.localStorage.removeItem(key2);
@@ -164,22 +164,22 @@ export function rehypeSanitize(options) {
   };
 }
 const listeners = new Set();
-const emit$1 = () => {
+const emitPromptPrefillChange = () => {
   for (const listener of listeners) listener();
 };
 let nextId = 0;
-let pending$1 = null;
-export function completePromptPrefill(id2, success) {
-  if (pending$1?.request.id !== id2) return false;
-  const current2 = pending$1;
-  pending$1 = null;
+let pendingPromptPrefill = null;
+export function completePromptPrefill(id, success) {
+  if (pendingPromptPrefill?.request.id !== id) return false;
+  const current2 = pendingPromptPrefill;
+  pendingPromptPrefill = null;
   current2.finish(success);
-  emit$1();
+  emitPromptPrefillChange();
   return true;
 }
 export function requestPromptPrefill(payload, signal) {
   if (
-    pending$1 ||
+    pendingPromptPrefill ||
     signal?.aborted ||
     !payload.prompt.trim() ||
     !payload.modelId.trim()
@@ -187,16 +187,16 @@ export function requestPromptPrefill(payload, signal) {
     return Promise.resolve(false);
   }
   return new Promise((resolve) => {
-    const id2 = ++nextId;
+    const id = ++nextId;
     const controller = new AbortController();
-    const abort = () => completePromptPrefill(id2, false);
+    const abort = () => completePromptPrefill(id, false);
     const timeout2 = setTimeout(abort, 15e3);
     signal?.addEventListener("abort", abort, {
       once: true,
     });
-    pending$1 = {
+    pendingPromptPrefill = {
       request: {
-        id: id2,
+        id,
         ...payload,
         signal: controller.signal,
       },
@@ -208,7 +208,7 @@ export function requestPromptPrefill(payload, signal) {
         resolve(success);
       },
     };
-    emit$1();
+    emitPromptPrefillChange();
   });
 }
 export function subscribePromptPrefill(listener) {
@@ -218,22 +218,22 @@ export function subscribePromptPrefill(listener) {
   };
 }
 export function getPromptPrefillRequest() {
-  return pending$1?.request ?? null;
+  return pendingPromptPrefill?.request ?? null;
 }
-export function claimPromptPrefill(id2) {
-  if (!pending$1 || pending$1.request.id !== id2 || pending$1.claimed)
+export function claimPromptPrefill(id) {
+  if (!pendingPromptPrefill || pendingPromptPrefill.request.id !== id || pendingPromptPrefill.claimed)
     return false;
-  pending$1.claimed = true;
+  pendingPromptPrefill.claimed = true;
   return true;
 }
-const listeners$2 = new Set();
+const randomInspirationListeners = new Set();
 const emit = () => {
-  for (const listener of listeners$2) listener();
+  for (const listener of randomInspirationListeners) listener();
 };
-let nextId$1 = 0;
+let nextRandomInspirationId = 0;
 let pending = null;
-export function completeRandomInspiration(id2, success) {
-  if (pending?.id !== id2) return false;
+export function completeRandomInspiration(id, success) {
+  if (pending?.id !== id) return false;
   const request = pending;
   pending = null;
   request.finish(success);
@@ -243,14 +243,14 @@ export function completeRandomInspiration(id2, success) {
 export function requestRandomInspiration(signal, queryIds) {
   if (pending || signal?.aborted) return Promise.resolve(false);
   return new Promise((resolve) => {
-    const id2 = ++nextId$1;
-    const abort = () => completeRandomInspiration(id2, false);
+    const id = ++nextRandomInspirationId;
+    const abort = () => completeRandomInspiration(id, false);
     const timeout2 = setTimeout(abort, 15e3);
     signal?.addEventListener("abort", abort, {
       once: true,
     });
     pending = {
-      id: id2,
+      id,
       queryIds: queryIds ? [...queryIds] : void 0,
       finish: (success) => {
         clearTimeout(timeout2);
@@ -262,14 +262,14 @@ export function requestRandomInspiration(signal, queryIds) {
   });
 }
 export function subscribeRandomInspiration(listener) {
-  listeners$2.add(listener);
+  randomInspirationListeners.add(listener);
   return () => {
-    listeners$2.delete(listener);
+    randomInspirationListeners.delete(listener);
   };
 }
 export function getRandomInspirationRequest() {
   return pending?.id ?? null;
 }
-export function getRandomInspirationQueryIds(id2) {
-  return pending?.id === id2 ? pending.queryIds : void 0;
+export function getRandomInspirationQueryIds(id) {
+  return pending?.id === id ? pending.queryIds : void 0;
 }

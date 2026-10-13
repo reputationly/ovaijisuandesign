@@ -36,7 +36,7 @@ const FEATURE_REQUEST_MODULES = [
   "other",
 ];
 export function FeedbackDialog({ open, options, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [description, setDescription] = reactExports.useState("");
   const [submitting, setSubmitting] = reactExports.useState(false);
   const [attachments, setAttachments] = reactExports.useState([]);
@@ -45,7 +45,7 @@ export function FeedbackDialog({ open, options, onClose }) {
   const fileInputRef = reactExports.useRef(null);
   const isFeatureRequest = options?.category === "feature_request";
   const routerState = useRouterState({
-    select: (s2) => s2.location.pathname,
+    select: (routerState) => routerState.location.pathname,
   });
   reactExports.useEffect(() => {
     let focusTimer;
@@ -59,7 +59,7 @@ export function FeedbackDialog({ open, options, onClose }) {
       setSubmitting(false);
       setSelectedModule(null);
       setAttachments((prev) => {
-        for (const a2 of prev) URL.revokeObjectURL(a2.previewUrl);
+        for (const attachment of prev) URL.revokeObjectURL(attachment.previewUrl);
         return [];
       });
     }
@@ -72,7 +72,7 @@ export function FeedbackDialog({ open, options, onClose }) {
   reactExports.useEffect(() => {
     return () => {
       setAttachments((prev) => {
-        for (const a2 of prev) URL.revokeObjectURL(a2.previewUrl);
+        for (const attachment of prev) URL.revokeObjectURL(attachment.previewUrl);
         return prev;
       });
     };
@@ -87,16 +87,16 @@ export function FeedbackDialog({ open, options, onClose }) {
     fileInputRef.current?.click();
   }, []);
   const handleFileInputChange = reactExports.useCallback(
-    (e2) => {
-      const picked = Array.from(e2.target.files ?? []);
-      e2.target.value = "";
+    (changeEvent) => {
+      const picked = Array.from(changeEvent.target.files ?? []);
+      changeEvent.target.value = "";
       if (picked.length === 0) return;
       setAttachments((prev) => {
         const remainingSlots =
           FEEDBACK_CONSTRAINTS.ATTACHMENT_MAX_COUNT - prev.length;
         if (remainingSlots <= 0) {
           dedupedToast.error(
-            t2("feedback.toast.tooManyAttachments", {
+            t("feedback.toast.tooManyAttachments", {
               max: FEEDBACK_CONSTRAINTS.ATTACHMENT_MAX_COUNT,
             }),
           );
@@ -113,7 +113,7 @@ export function FeedbackDialog({ open, options, onClose }) {
         }
         if (oversize > 0) {
           dedupedToast.error(
-            t2("feedback.toast.attachmentTooLarge", {
+            t("feedback.toast.attachmentTooLarge", {
               max: Math.round(
                 FEEDBACK_CONSTRAINTS.ATTACHMENT_MAX_BYTES / (1024 * 1024),
               ),
@@ -123,13 +123,13 @@ export function FeedbackDialog({ open, options, onClose }) {
         return [...prev, ...accepted];
       });
     },
-    [t2],
+    [t],
   );
-  const handleRemoveAttachment = reactExports.useCallback((id2) => {
+  const handleRemoveAttachment = reactExports.useCallback((id) => {
     setAttachments((prev) => {
-      const target = prev.find((a2) => a2.id === id2);
+      const target = prev.find((attachment) => attachment.id === id);
       if (target) URL.revokeObjectURL(target.previewUrl);
-      return prev.filter((a2) => a2.id !== id2);
+      return prev.filter((attachment) => attachment.id !== id);
     });
   }, []);
   const handleSubmit = reactExports.useCallback(async () => {
@@ -152,12 +152,12 @@ export function FeedbackDialog({ open, options, onClose }) {
         context: isFeatureRequest ? void 0 : options.context,
         logUploadReason: options.logUploadReason,
         currentRoute: routerState,
-        files: attachments.map((a2) => a2.file),
+        files: attachments.map((attachment) => attachment.file),
         runtimeSessionId,
         workspaceDir: chat?.workspaceDir,
       });
       dedupedToast.success(
-        t2("feedback.toast.successWithId", {
+        t("feedback.toast.successWithId", {
           id: res.ticket_id,
         }),
       );
@@ -165,7 +165,7 @@ export function FeedbackDialog({ open, options, onClose }) {
     } catch (err) {
       const message2 = err instanceof Error ? err.message : String(err);
       dedupedToast.error(
-        t2("feedback.toast.failed", {
+        t("feedback.toast.failed", {
           error: message2,
         }),
       );
@@ -179,7 +179,7 @@ export function FeedbackDialog({ open, options, onClose }) {
     options,
     routerState,
     selectedModule,
-    t2,
+    t,
   ]);
   const trimmedLength = description.trim().length;
   const canSubmit = reactExports.useMemo(
@@ -203,12 +203,12 @@ export function FeedbackDialog({ open, options, onClose }) {
           <DialogHeader className="text-left space-y-1.5">
             <DialogTitle>
               {isFeatureRequest
-                ? t2("feedback.featureRequest.title")
-                : t2("feedback.dialog.title")}
+                ? t("feedback.featureRequest.title")
+                : t("feedback.dialog.title")}
             </DialogTitle>
             {!isFeatureRequest && (
               <DialogDescription>
-                {t2("feedback.dialog.subtitle")}
+                {t("feedback.dialog.subtitle")}
               </DialogDescription>
             )}
           </DialogHeader>
@@ -216,25 +216,25 @@ export function FeedbackDialog({ open, options, onClose }) {
         {isFeatureRequest && (
           <div className="px-6 pb-3">
             <div className="mb-2 text-xs font-medium text-foreground/70">
-              {t2("feedback.featureRequest.moduleLabel")}
+              {t("feedback.featureRequest.moduleLabel")}
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {FEATURE_REQUEST_MODULES.map((m3) => {
-                const active2 = selectedModule === m3;
+              {FEATURE_REQUEST_MODULES.map((featureModule) => {
+                const active2 = selectedModule === featureModule;
                 return (
                   <button
-                    key={m3}
+                    key={featureModule}
                     type="button"
-                    onClick={() => setSelectedModule(m3)}
+                    onClick={() => setSelectedModule(featureModule)}
                     aria-pressed={active2}
-                    data-action-ui-id={`feedback.dialog.module.${m3}`}
+                    data-action-ui-id={`feedback.dialog.module.${featureModule}`}
                     className={
                       active2
                         ? "cursor-pointer rounded-sm bg-foreground px-2.5 py-1 text-xs text-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         : "cursor-pointer rounded-sm border border-border px-2.5 py-1 text-xs text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     }
                   >
-                    {t2(`feedback.featureRequest.module.${m3}`)}
+                    {t(`feedback.featureRequest.module.${featureModule}`)}
                   </button>
                 );
               })}
@@ -245,11 +245,11 @@ export function FeedbackDialog({ open, options, onClose }) {
           <Textarea
             ref={textareaRef}
             value={description}
-            onChange={(e2) => setDescription(e2.target.value)}
+            onChange={(changeEvent) => setDescription(changeEvent.target.value)}
             placeholder={
               isFeatureRequest
-                ? t2("feedback.featureRequest.descriptionPlaceholder")
-                : t2("feedback.dialog.descriptionPlaceholder")
+                ? t("feedback.featureRequest.descriptionPlaceholder")
+                : t("feedback.dialog.descriptionPlaceholder")
             }
             rows={5}
             maxLength={FEEDBACK_CONSTRAINTS.DESCRIPTION_MAX_LENGTH}
@@ -268,21 +268,21 @@ export function FeedbackDialog({ open, options, onClose }) {
             data-action-ui-id="feedback.dialog.fileInput"
           />
           <div className="flex flex-wrap items-center gap-2">
-            {attachments.map((a2) => (
+            {attachments.map((attachment) => (
               <div
-                key={a2.id}
+                key={attachment.id}
                 className="relative size-14 overflow-hidden rounded-[2px] border border-border bg-muted"
               >
                 <img
-                  src={a2.previewUrl}
-                  alt={a2.file.name}
+                  src={attachment.previewUrl}
+                  alt={attachment.file.name}
                   className="h-full w-full object-cover"
                 />
                 <button
                   type="button"
-                  onClick={() => handleRemoveAttachment(a2.id)}
+                  onClick={() => handleRemoveAttachment(attachment.id)}
                   className="absolute right-0 top-0 flex size-4 items-center justify-center bg-foreground/80 text-background transition-colors hover:bg-foreground"
-                  aria-label={t2("feedback.dialog.removeAttachment")}
+                  aria-label={t("feedback.dialog.removeAttachment")}
                   data-action-ui-id="feedback.dialog.removeAttachment"
                 >
                   <X className="size-3" />
@@ -295,15 +295,15 @@ export function FeedbackDialog({ open, options, onClose }) {
                 onClick={handlePickFiles}
                 className="flex h-14 cursor-pointer flex-col items-center justify-center gap-1 rounded-[2px] border border-dashed border-border bg-transparent px-4 py-1 text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
                 data-action-ui-id="feedback.dialog.addAttachment"
-                title={t2("feedback.dialog.addAttachmentTooltip", {
+                title={t("feedback.dialog.addAttachmentTooltip", {
                   max: FEEDBACK_CONSTRAINTS.ATTACHMENT_MAX_COUNT,
                 })}
               >
                 <ImagePlusOutlineIcon className="size-5" />
                 <span className="text-[10px] leading-tight">
                   {isFeatureRequest
-                    ? t2("feedback.featureRequest.addAttachment")
-                    : t2("feedback.dialog.addAttachment")}
+                    ? t("feedback.featureRequest.addAttachment")
+                    : t("feedback.dialog.addAttachment")}
                 </span>
               </button>
             )}
@@ -312,16 +312,16 @@ export function FeedbackDialog({ open, options, onClose }) {
         {!isFeatureRequest && (
           <div className="mx-6 mb-5">
             <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-              {t2("feedback.dialog.contextHeading")}
+              {t("feedback.dialog.contextHeading")}
             </div>
             <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-              {t2("feedback.dialog.contextSummary")}
+              {t("feedback.dialog.contextSummary")}
             </p>
           </div>
         )}
         <DialogFooter className="border-t border-border px-6 py-3 sm:items-center sm:justify-between">
           <span className="text-[11px] text-muted-foreground">
-            {isFeatureRequest ? "" : t2("feedback.dialog.privacyNote")}
+            {isFeatureRequest ? "" : t("feedback.dialog.privacyNote")}
           </span>
           <div className="flex items-center gap-2">
             <Button
@@ -331,7 +331,7 @@ export function FeedbackDialog({ open, options, onClose }) {
               disabled={submitting}
               data-action-ui-id="feedback.dialog.cancel"
             >
-              {t2("common.cancel")}
+              {t("common.cancel")}
             </Button>
             <Button
               size="default"
@@ -340,7 +340,7 @@ export function FeedbackDialog({ open, options, onClose }) {
               loading={submitting}
               data-action-ui-id="feedback.dialog.submit"
             >
-              {t2("feedback.dialog.submit")}
+              {t("feedback.dialog.submit")}
             </Button>
           </div>
         </DialogFooter>

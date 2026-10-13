@@ -25,7 +25,7 @@ import {
   openManualInstallerDownload,
 } from "./diagnostics-group.jsx";
 const UpdateSidebarWidgetInner = ({ compact }) => {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const platform2 = usePlatform();
   const updater = useOptionalUpdaterContext();
   const { imageUrl, handleImageError } = useUpdatePoster();
@@ -145,17 +145,17 @@ const UpdateSidebarWidgetInner = ({ compact }) => {
           : Download;
   const label =
     state2.phase === "downloaded"
-      ? t2("update.btn.restartUpgrade")
+      ? t("update.btn.restartUpgrade")
       : state2.phase === "downloading"
-        ? t2("update.title.downloading")
+        ? t("update.title.downloading")
         : state2.phase === "error"
           ? canManualDownload
-            ? t2("update.btn.manualDownload")
-            : t2("update.btn.retry")
+            ? t("update.btn.manualDownload")
+            : t("update.btn.retry")
           : state2.manualOnly
-            ? t2("update.btn.manualDownload")
-            : t2("update.btn.download");
-  const shortcutLabel = t2("update.btn.shortLabel");
+            ? t("update.btn.manualDownload")
+            : t("update.btn.download");
+  const shortcutLabel = t("update.btn.shortLabel");
   const canExpandShortcut = !compact && state2.phase !== "downloading";
   return (
     <span

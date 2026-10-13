@@ -1,6 +1,6 @@
 // use-data-directory.js
 import { instantiation } from "../workspace/home-service.jsx";
-import { hilo as hilo$1 } from "./parse-custom-mcp-arguments.js";
+import { hilo } from "./parse-custom-mcp-arguments.js";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import {
@@ -115,7 +115,7 @@ async function hiloApp() {
     { IHiloApp: IHiloApp2 },
   ] = await Promise.all([
     (() => Promise.resolve().then(() => instantiation))(),
-    (() => Promise.resolve().then(() => hilo$1))(),
+    (() => Promise.resolve().then(() => hilo))(),
   ]);
   return instantiationService2.invokeFunction((accessor) =>
     accessor.get(IHiloApp2),
@@ -143,17 +143,17 @@ function normalizeDataDirectoryFailure(failure, legacyError) {
     failure: failure ?? UNKNOWN_FAILURE,
   };
 }
-function isSameDataDirectoryPath(left, right, os2) {
+function isSameDataDirectoryPath(left, right, os) {
   const normalize2 = (value) => {
     const normalized = value.replace(/\\/g, "/").replace(/\/+$/, "");
-    return os2 === "win32" || os2 === "darwin"
+    return os === "win32" || os === "darwin"
       ? normalized.toLowerCase()
       : normalized;
   };
   return normalize2(left) === normalize2(right);
 }
 export function useDataDirectory() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { config: config2 } = useSettings();
   const platform2 = usePlatform();
   const queryClient2 = useQueryClient();
@@ -376,7 +376,7 @@ export function useDataDirectory() {
       notifyDataDirectoryStatusChanged();
       await refreshGlobalStorageCache();
       if (result.remaining > 0) {
-        dedupedToast.warning(t2("settings.storage.closeIdleProjectsBlocked"));
+        dedupedToast.warning(t("settings.storage.closeIdleProjectsBlocked"));
       }
     } catch (closeError) {
       const message2 =
@@ -385,7 +385,7 @@ export function useDataDirectory() {
         `[storage] Failed to close idle workspaces from settings: ${message2}`,
         "storage",
       );
-      dedupedToast.error(t2("settings.storage.closeIdleProjectsFailed"));
+      dedupedToast.error(t("settings.storage.closeIdleProjectsFailed"));
     } finally {
       setClosingIdleWorkspaces(false);
     }
@@ -394,7 +394,7 @@ export function useDataDirectory() {
     closingWorkspacePath,
     refreshGlobalStorageCache,
     refreshStatus,
-    t2,
+    t,
   ]);
   const applyPendingMigration = reactExports.useCallback(async () => {
     if (!pendingMigration) return;
@@ -468,7 +468,7 @@ export function useDataDirectory() {
     try {
       const result = await platform2.fs.showOpenDialog?.({
         directory: true,
-        title: t2("settings.storage.selectDirectory"),
+        title: t("settings.storage.selectDirectory"),
       });
       if (!result?.length) return;
       const selected2 = result[0];
@@ -552,7 +552,7 @@ export function useDataDirectory() {
     } finally {
       setValidating(false);
     }
-  }, [clearOperationState, platform2.app.os, platform2.fs, refreshStatus, t2]);
+  }, [clearOperationState, platform2.app.os, platform2.fs, refreshStatus, t]);
   const handleReset = reactExports.useCallback(async () => {
     clearOperationState();
     try {

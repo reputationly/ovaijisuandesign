@@ -13,16 +13,16 @@ const CDN_CONNECTOR_HUB = cdnRegionalImage({
   overseas: "connector-hub-512-283b2f4fd24a.png",
 });
 function ProxyToastContent({ onDismiss }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="elevated-surface-border-width flex items-start gap-3 w-full rounded-lg border-yellow-500/30 bg-popover p-4 text-popover-foreground shadow-lg">
       <ShieldAlert className="size-5 text-yellow-500 mt-0.5 shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium">
-          {t2("proxy.toastTitle", "Proxy / VPN detected")}
+          {t("proxy.toastTitle", "Proxy / VPN detected")}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {t2(
+          {t(
             "proxy.toastDescription",
             "A system proxy or VPN is active. This may cause connection issues. For best experience, add MiniMax Design to your proxy bypass list or disable the proxy while using MiniMax Design.",
           )}
@@ -141,7 +141,7 @@ export function HubBrandLine({
   showSubtitle = true,
   className,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <HubLogo size={logoSize} className="shrink-0" />
@@ -153,7 +153,7 @@ export function HubBrandLine({
               —
             </span>
             <span className="whitespace-nowrap text-foreground/85">
-              {t2("home.heroSubtitle")}
+              {t("home.heroSubtitle")}
             </span>
           </>
         )}

@@ -413,7 +413,7 @@ export function CustomConnectorDialog({
   onCreated,
   initialInput,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [mode2, setMode] = reactExports.useState("form");
   const [formState, setFormState] = reactExports.useState(INITIAL_FORM_STATE);
   const [jsonText, setJsonText] = reactExports.useState(INITIAL_JSON);
@@ -487,7 +487,7 @@ export function CustomConnectorDialog({
         className="text-xs text-destructive"
         role="alert"
       >
-        {t2(validationError.messageKey)}
+        {t(validationError.messageKey)}
       </p>
     ) : null;
   const handleModeChange = (nextMode) => {
@@ -532,7 +532,7 @@ export function CustomConnectorDialog({
       return;
     }
     if (initialInput && input.name !== initialInput.name) {
-      setSubmitError(t2("connectors.customDialog.nameLocked"));
+      setSubmitError(t("connectors.customDialog.nameLocked"));
       return;
     }
     busy.current = true;
@@ -543,14 +543,14 @@ export function CustomConnectorDialog({
       const result = await onSubmit(input);
       if (epoch !== requestEpoch.current) return;
       if (!result.ok) {
-        setSubmitError(t2(`connectors.customDialog.error.${result.code}`));
+        setSubmitError(t(`connectors.customDialog.error.${result.code}`));
         return;
       }
       onCreated?.(result);
       onOpenChange(false);
     } catch {
       if (epoch === requestEpoch.current) {
-        setSubmitError(t2("connectors.customDialog.error.requestFailed"));
+        setSubmitError(t("connectors.customDialog.error.requestFailed"));
       }
     } finally {
       if (epoch === requestEpoch.current) {
@@ -564,7 +564,7 @@ export function CustomConnectorDialog({
       open={open}
       onOpenChange={handleOpenChange}
       actionUiId="custom-connector-dialog"
-      closeLabel={t2("common.close")}
+      closeLabel={t("common.close")}
       size="lg"
       showCloseButton={!submitting}
     >
@@ -576,14 +576,14 @@ export function CustomConnectorDialog({
         >
           <DialogHeader className="mb-4 gap-1 pr-10">
             <DialogTitle className="text-base leading-5 text-foreground">
-              {t2(
+              {t(
                 initialInput
                   ? "connectors.customDialog.editTitle"
                   : "connectors.customDialog.title",
               )}
             </DialogTitle>
             <DialogDescription className="text-sm leading-5 text-muted-foreground">
-              {t2(
+              {t(
                 initialInput
                   ? "connectors.customDialog.editSubtitle"
                   : "connectors.customDialog.subtitle",
@@ -604,14 +604,14 @@ export function CustomConnectorDialog({
                 className="flex-1 font-normal text-muted-foreground transition-colors duration-200 data-[active]:font-medium data-[active]:text-foreground"
                 data-action-ui-id="custom-connector-form-tab"
               >
-                {t2("connectors.customDialog.formTab")}
+                {t("connectors.customDialog.formTab")}
               </TabsTrigger>
               <TabsTrigger
                 value="json"
                 className="flex-1 font-normal text-muted-foreground transition-colors duration-200 data-[active]:font-medium data-[active]:text-foreground"
                 data-action-ui-id="custom-connector-json-tab"
               >
-                {t2("connectors.customDialog.jsonTab")}
+                {t("connectors.customDialog.jsonTab")}
               </TabsTrigger>
             </TabsList>
             <div
@@ -633,7 +633,7 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-name"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2("connectors.customDialog.name")}
+                          {t("connectors.customDialog.name")}
                         </Label>
                         {!initialInput ? (
                           <span
@@ -642,7 +642,7 @@ export function CustomConnectorDialog({
                             className={`shrink-0 text-xs tabular-nums ${nameLength > CUSTOM_MCP_NAME_MAX_LENGTH ? "text-destructive" : "text-muted-foreground"}`}
                             data-action-ui-id="custom-connector-name-count"
                           >
-                            {t2("connectors.customDialog.nameCount", {
+                            {t("connectors.customDialog.nameCount", {
                               current: nameLength,
                               max: CUSTOM_MCP_NAME_MAX_LENGTH,
                             })}
@@ -660,7 +660,7 @@ export function CustomConnectorDialog({
                             name: event.target.value,
                           }))
                         }
-                        placeholder={t2(
+                        placeholder={t(
                           "connectors.customDialog.namePlaceholder",
                         )}
                         className={FORM_CONTROL_CLASS_NAME}
@@ -671,7 +671,7 @@ export function CustomConnectorDialog({
                         id="custom-connector-name-hint"
                         className="text-xs leading-4 text-muted-foreground"
                       >
-                        {t2(
+                        {t(
                           initialInput
                             ? "connectors.customDialog.nameLocked"
                             : "connectors.customDialog.nameHint",
@@ -686,7 +686,7 @@ export function CustomConnectorDialog({
                         htmlFor="custom-connector-transport"
                         className={FORM_LABEL_CLASS_NAME}
                       >
-                        {t2("connectors.customDialog.transport")}
+                        {t("connectors.customDialog.transport")}
                       </Label>
                       <Select
                         value={formState.transport}
@@ -723,7 +723,7 @@ export function CustomConnectorDialog({
                         htmlFor="custom-connector-url"
                         className={FORM_LABEL_CLASS_NAME}
                       >
-                        {t2("connectors.customDialog.url")}
+                        {t("connectors.customDialog.url")}
                       </Label>
                       <Input3
                         id="custom-connector-url"
@@ -735,7 +735,7 @@ export function CustomConnectorDialog({
                             url: event.target.value,
                           }))
                         }
-                        placeholder={t2(
+                        placeholder={t(
                           "connectors.customDialog.urlPlaceholder",
                         )}
                         className={FORM_CONTROL_CLASS_NAME}
@@ -750,7 +750,7 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-command"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2("connectors.customDialog.command")}
+                          {t("connectors.customDialog.command")}
                         </Label>
                         <Input3
                           id="custom-connector-command"
@@ -764,7 +764,7 @@ export function CustomConnectorDialog({
                             }));
                           }}
                           onBlur={handleCommandBlur}
-                          placeholder={t2(
+                          placeholder={t(
                             "connectors.customDialog.commandPlaceholder",
                           )}
                           className={FORM_CONTROL_CLASS_NAME}
@@ -777,7 +777,7 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-arguments"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2("connectors.customDialog.arguments")}
+                          {t("connectors.customDialog.arguments")}
                         </Label>
                         <Input3
                           id="custom-connector-arguments"
@@ -789,7 +789,7 @@ export function CustomConnectorDialog({
                               argumentsText: event.target.value,
                             }))
                           }
-                          placeholder={t2(
+                          placeholder={t(
                             "connectors.customDialog.argumentsPlaceholder",
                           )}
                           className={FORM_CONTROL_CLASS_NAME}
@@ -802,14 +802,14 @@ export function CustomConnectorDialog({
                         className={`${HELPER_TEXT_CLASS_NAME} sm:col-span-2`}
                         aria-live="polite"
                       >
-                        {t2(
+                        {t(
                           commandWasSplit
                             ? "connectors.customDialog.commandSplitHint"
                             : "connectors.customDialog.commandHint",
                         )}
                       </p>
                       <p className={`${HELPER_TEXT_CLASS_NAME} sm:col-span-2`}>
-                        {t2("connectors.customDialog.stdioRisk")}
+                        {t("connectors.customDialog.stdioRisk")}
                       </p>
                     </div>
                   )}
@@ -818,7 +818,7 @@ export function CustomConnectorDialog({
                       htmlFor="custom-connector-description"
                       className={FORM_LABEL_CLASS_NAME}
                     >
-                      {t2("connectors.customDialog.description")}
+                      {t("connectors.customDialog.description")}
                     </Label>
                     <Input3
                       id="custom-connector-description"
@@ -830,7 +830,7 @@ export function CustomConnectorDialog({
                           description: event.target.value,
                         }))
                       }
-                      placeholder={t2(
+                      placeholder={t(
                         "connectors.customDialog.descriptionPlaceholder",
                       )}
                       className={FORM_CONTROL_CLASS_NAME}
@@ -844,14 +844,14 @@ export function CustomConnectorDialog({
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground">
-                        {t2(
+                        {t(
                           initialInput
                             ? "connectors.customDialog.enabledAfterSave"
                             : "connectors.customDialog.enabled",
                         )}
                       </p>
                       <p className={`mt-0.5 ${HELPER_TEXT_CLASS_NAME}`}>
-                        {t2("connectors.customDialog.enabledHint")}
+                        {t("connectors.customDialog.enabledHint")}
                       </p>
                     </div>
                     <Switch
@@ -862,7 +862,7 @@ export function CustomConnectorDialog({
                           enabled,
                         }))
                       }
-                      aria-label={t2(
+                      aria-label={t(
                         initialInput
                           ? "connectors.customDialog.enabledAfterSave"
                           : "connectors.customDialog.enabled",
@@ -877,7 +877,7 @@ export function CustomConnectorDialog({
                     className="flex h-9 w-full items-center justify-between rounded-md text-left text-sm font-medium text-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
                     data-action-ui-id="custom-connector-advanced"
                   >
-                    <span>{t2("connectors.customDialog.advanced")}</span>
+                    <span>{t("connectors.customDialog.advanced")}</span>
                     <Icon
                       icon={ChevronDown}
                       size="md"
@@ -892,7 +892,7 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-key-values"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2(
+                          {t(
                             remote
                               ? "connectors.customDialog.headers"
                               : "connectors.customDialog.environment",
@@ -908,7 +908,7 @@ export function CustomConnectorDialog({
                               keyValuesText: event.target.value,
                             }))
                           }
-                          placeholder={t2(
+                          placeholder={t(
                             "connectors.customDialog.keyValuesPlaceholder",
                           )}
                           className={`min-h-24 font-mono text-xs ${FORM_OUTLINE_CLASS_NAME}`}
@@ -921,7 +921,7 @@ export function CustomConnectorDialog({
                           htmlFor="custom-connector-timeout"
                           className={FORM_LABEL_CLASS_NAME}
                         >
-                          {t2("connectors.customDialog.timeout")}
+                          {t("connectors.customDialog.timeout")}
                         </Label>
                         <Input3
                           id="custom-connector-timeout"
@@ -935,7 +935,7 @@ export function CustomConnectorDialog({
                               timeoutText: event.target.value,
                             }))
                           }
-                          placeholder={t2(
+                          placeholder={t(
                             "connectors.customDialog.timeoutPlaceholder",
                           )}
                           className={FORM_CONTROL_CLASS_NAME}
@@ -950,14 +950,14 @@ export function CustomConnectorDialog({
               <TabsContent value="json">
                 <div className="flex flex-col gap-3">
                   <p className={HELPER_TEXT_CLASS_NAME}>
-                    {t2("connectors.customDialog.jsonHint")}
+                    {t("connectors.customDialog.jsonHint")}
                   </p>
                   <Textarea
                     id="custom-connector-json"
                     {...getFieldValidationProps("json")}
                     value={jsonText}
                     onChange={(event) => setJsonText(event.target.value)}
-                    aria-label={t2("connectors.customDialog.jsonEditorLabel")}
+                    aria-label={t("connectors.customDialog.jsonEditorLabel")}
                     spellCheck={false}
                     className={`min-h-80 resize-none font-mono text-xs leading-relaxed ${FORM_OUTLINE_CLASS_NAME}`}
                     data-action-ui-id="custom-connector-json-editor"
@@ -972,7 +972,7 @@ export function CustomConnectorDialog({
       <DialogFooter className="shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5">
         {submitError || (validationError && !validationError.field) ? (
           <p className="mr-auto text-xs text-destructive" role="alert">
-            {submitError ?? (validationError && t2(validationError.messageKey))}
+            {submitError ?? (validationError && t(validationError.messageKey))}
           </p>
         ) : null}
         <Button
@@ -983,7 +983,7 @@ export function CustomConnectorDialog({
           onClick={() => handleOpenChange(false)}
           data-action-ui-id="custom-connector-cancel"
         >
-          {t2("common.cancel")}
+          {t("common.cancel")}
         </Button>
         <Button
           type="button"
@@ -993,7 +993,7 @@ export function CustomConnectorDialog({
           onClick={handleSubmit}
           data-action-ui-id="custom-connector-submit"
         >
-          {t2(
+          {t(
             initialInput
               ? "connectors.customDialog.save"
               : "connectors.customDialog.add",

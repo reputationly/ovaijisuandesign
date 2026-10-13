@@ -79,31 +79,31 @@ function getMergeOp(plan) {
   return merge2 ?? null;
 }
 function PreviewPhase({ originalEntries, upserts }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       <section className="flex flex-col gap-2">
         <header className="flex items-center justify-between">
           <span className="text-xs font-medium text-foreground">
-            {t2("memory.compaction.rewrite.originalLabel", "Original")}
+            {t("memory.compaction.rewrite.originalLabel", "Original")}
           </span>
           <span className="text-[11px] text-muted-foreground">
             {originalEntries.length}
           </span>
         </header>
         <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border">
-          {originalEntries.map((e2) => (
-            <li key={e2.name} className="flex flex-col gap-0.5 px-2 py-1.5">
+          {originalEntries.map((entry) => (
+            <li key={entry.name} className="flex flex-col gap-0.5 px-2 py-1.5">
               <div className="flex items-center gap-2">
                 <span className="truncate font-mono text-xs text-foreground">
-                  {e2.name}
+                  {entry.name}
                 </span>
                 <Badge variant="secondary" className="text-[10px]">
-                  {e2.type}
+                  {entry.type}
                 </Badge>
               </div>
               <span className="truncate text-[11px] text-muted-foreground">
-                {e2.description}
+                {entry.description}
               </span>
             </li>
           ))}
@@ -112,39 +112,39 @@ function PreviewPhase({ originalEntries, upserts }) {
       <section className="flex flex-col gap-2">
         <header className="flex items-center justify-between">
           <span className="text-xs font-medium text-foreground">
-            {t2("memory.compaction.rewrite.newLabel", "New version")}
+            {t("memory.compaction.rewrite.newLabel", "New version")}
           </span>
           <span className="text-[11px] text-muted-foreground">
             {upserts?.length ?? 0}
           </span>
         </header>
         <ul className="flex flex-col gap-2">
-          {(upserts ?? []).map((u4) => (
+          {(upserts ?? []).map((upsert) => (
             <li
-              key={u4.name}
+              key={upsert.name}
               className="flex flex-col gap-1 border-l-2 border-primary bg-primary/5 px-2 py-1.5"
-              data-action-ui-id={`settings.memory.compaction.upsert.${u4.name}`}
+              data-action-ui-id={`settings.memory.compaction.upsert.${upsert.name}`}
             >
               <div className="flex items-center gap-2">
                 <span className="truncate font-mono text-xs text-foreground">
-                  {u4.name}
+                  {upsert.name}
                 </span>
                 <Badge variant="secondary" className="text-[10px]">
-                  {u4.type}
+                  {upsert.type}
                 </Badge>
                 <Badge variant="outline" className="ml-auto text-[10px]">
-                  {t2("memory.compaction.rewrite.replacesN", {
-                    n: u4.compactedFrom.length,
+                  {t("memory.compaction.rewrite.replacesN", {
+                    n: upsert.compactedFrom.length,
                     defaultValue: "← replaces {{n}}",
                   })}
                 </Badge>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                {u4.description}
+                {upsert.description}
               </p>
-              {u4.body && (
+              {upsert.body && (
                 <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap text-[11px] text-foreground">
-                  {u4.body}
+                  {upsert.body}
                 </pre>
               )}
             </li>
@@ -172,15 +172,15 @@ function SelectPhase({
   onSelectAll,
   onSelectNone,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (loading) {
-    return <PhaseSpinner label={t2("common.loading", "Loading…")} />;
+    return <PhaseSpinner label={t("common.loading", "Loading…")} />;
   }
   if (error) {
     return (
       <p className="px-3 py-2 text-xs text-destructive">
         {error.message ||
-          t2(
+          t(
             "memory.compaction.rewrite.previewFailed",
             "Failed to generate rewrite proposal",
           )}
@@ -191,14 +191,14 @@ function SelectPhase({
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
         <p className="text-sm font-medium text-foreground">
-          {t2(
+          {t(
             "memory.compaction.rewrite.emptyEligible",
             "No user memories available to rewrite.",
           )}
         </p>
         {assetPinCount > 0 && (
           <p className="max-w-sm text-xs text-muted-foreground">
-            {t2("memory.compaction.rewrite.assetPinExcluded", {
+            {t("memory.compaction.rewrite.assetPinExcluded", {
               n: assetPinCount,
               defaultValue:
                 "{{n}} asset-pin anchors are excluded automatically.",
@@ -209,7 +209,7 @@ function SelectPhase({
     );
   }
   const allSelected =
-    entries2.length > 0 && entries2.every((e2) => selectedNames.has(e2.name));
+    entries2.length > 0 && entries2.every((entry) => selectedNames.has(entry.name));
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
@@ -221,12 +221,12 @@ function SelectPhase({
           data-action-ui-id="settings.memory.compaction.selectToggle"
         >
           {allSelected
-            ? t2("memory.compaction.rewrite.selectNone", "Clear selection")
-            : t2("memory.compaction.rewrite.selectAll", "Select all")}
+            ? t("memory.compaction.rewrite.selectNone", "Clear selection")
+            : t("memory.compaction.rewrite.selectAll", "Select all")}
         </Button>
         {assetPinCount > 0 && (
           <span className="text-[11px] text-muted-foreground">
-            {t2("memory.compaction.rewrite.assetPinExcluded", {
+            {t("memory.compaction.rewrite.assetPinExcluded", {
               n: assetPinCount,
               defaultValue:
                 "{{n}} asset-pin anchors are excluded automatically.",
@@ -235,8 +235,8 @@ function SelectPhase({
         )}
       </div>
       <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border">
-        {entries2.map((e2) => {
-          const name2 = e2.name;
+        {entries2.map((entry) => {
+          const name2 = entry.name;
           const checked = selectedNames.has(name2);
           return (
             <li
@@ -256,11 +256,11 @@ function SelectPhase({
                     {name2}
                   </span>
                   <Badge variant="secondary" className="text-[10px]">
-                    {e2.type}
+                    {entry.type}
                   </Badge>
                 </div>
                 <span className="truncate text-[11px] text-muted-foreground">
-                  {e2.description}
+                  {entry.description}
                 </span>
               </div>
             </li>
@@ -271,7 +271,7 @@ function SelectPhase({
   );
 }
 function SelectFooter({ selectedCount, cancelDisabled, onCancel, onGenerate }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <>
       <Button
@@ -280,7 +280,7 @@ function SelectFooter({ selectedCount, cancelDisabled, onCancel, onGenerate }) {
         disabled={cancelDisabled}
         data-action-ui-id="settings.memory.compaction.cancel"
       >
-        {t2("memory.compaction.cancel", "Cancel")}
+        {t("memory.compaction.cancel", "Cancel")}
       </Button>
       <Button
         onClick={onGenerate}
@@ -288,17 +288,17 @@ function SelectFooter({ selectedCount, cancelDisabled, onCancel, onGenerate }) {
         data-action-ui-id="settings.memory.compaction.generate"
       >
         {selectedCount > 0
-          ? t2("memory.compaction.rewrite.generateButtonWithCount", {
+          ? t("memory.compaction.rewrite.generateButtonWithCount", {
               n: selectedCount,
               defaultValue: "Generate rewrite ({{n}})",
             })
-          : t2("memory.compaction.rewrite.generateButton", "Generate rewrite")}
+          : t("memory.compaction.rewrite.generateButton", "Generate rewrite")}
       </Button>
     </>
   );
 }
 function PreviewFooter({ executing, onBack, onApply }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <>
       <Button
@@ -308,7 +308,7 @@ function PreviewFooter({ executing, onBack, onApply }) {
         data-action-ui-id="settings.memory.compaction.back"
       >
         <ChevronLeft size={14} strokeWidth={1} />
-        {t2("memory.compaction.rewrite.backButton", "Back")}
+        {t("memory.compaction.rewrite.backButton", "Back")}
       </Button>
       <Button
         onClick={onApply}
@@ -316,14 +316,14 @@ function PreviewFooter({ executing, onBack, onApply }) {
         data-action-ui-id="settings.memory.compaction.execute"
       >
         {executing
-          ? t2("memory.compaction.rewrite.executing", "Applying rewrite…")
-          : t2("memory.compaction.rewrite.applyButton", "Apply rewrite")}
+          ? t("memory.compaction.rewrite.executing", "Applying rewrite…")
+          : t("memory.compaction.rewrite.applyButton", "Apply rewrite")}
       </Button>
     </>
   );
 }
 export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const memoryList = useMemoryList("user");
   const [phase, setPhase] = reactExports.useState("select");
   const [selectedNames, setSelectedNames] = reactExports.useState(
@@ -335,11 +335,11 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
   const restoreMutation = useSnapshotRestore();
   const eligibleEntries = reactExports.useMemo(() => {
     const entries2 = memoryList.data ?? [];
-    return entries2.filter((e2) => e2.type !== "asset-pin");
+    return entries2.filter((entry) => entry.type !== "asset-pin");
   }, [memoryList.data]);
   const assetPinCount = reactExports.useMemo(() => {
     const entries2 = memoryList.data ?? [];
-    return entries2.filter((e2) => e2.type === "asset-pin").length;
+    return entries2.filter((entry) => entry.type === "asset-pin").length;
   }, [memoryList.data]);
   const seededRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
@@ -349,7 +349,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
     }
     if (seededRef.current) return;
     if (eligibleEntries.length === 0) return;
-    setSelectedNames(new Set(eligibleEntries.map((e2) => e2.name)));
+    setSelectedNames(new Set(eligibleEntries.map((entry) => entry.name)));
     seededRef.current = true;
   }, [open, eligibleEntries]);
   reactExports.useEffect(() => {
@@ -367,7 +367,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
     });
   }
   function selectAll2() {
-    setSelectedNames(new Set(eligibleEntries.map((e2) => e2.name)));
+    setSelectedNames(new Set(eligibleEntries.map((entry) => entry.name)));
   }
   function selectNone() {
     setSelectedNames(new Set());
@@ -384,7 +384,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
     } catch (err) {
       setPhase("select");
       dedupedToast.error(
-        t2(
+        t(
           "memory.compaction.rewrite.previewFailed",
           "Failed to generate rewrite proposal",
         ) + (err instanceof Error ? `: ${err.message}` : ""),
@@ -398,7 +398,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       const summary = await executeMutation.mutateAsync({
         proposalId: proposal.proposalId,
       });
-      const description2 = t2("memory.compaction.rewrite.doneToast", {
+      const description2 = t("memory.compaction.rewrite.doneToast", {
         deleted: summary.deleted,
         merged: summary.merged,
         defaultValue: "Rewrote {{deleted}} entries into {{merged}}",
@@ -407,7 +407,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       if (snapshotId) {
         dedupedToast.success(description2, {
           action: {
-            label: t2("memory.compaction.undo", "Undo"),
+            label: t("memory.compaction.undo", "Undo"),
             onClick: () => {
               void (async () => {
                 try {
@@ -415,14 +415,14 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
                     snapshotId,
                   });
                   dedupedToast.success(
-                    t2(
+                    t(
                       "memory.compaction.undoDone",
                       "Restored to pre-compaction state",
                     ),
                   );
                 } catch (err) {
                   dedupedToast.error(
-                    t2("memory.compaction.undoFailed", "Undo failed") +
+                    t("memory.compaction.undoFailed", "Undo failed") +
                       (err instanceof Error ? `: ${err.message}` : ""),
                   );
                 }
@@ -441,7 +441,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
         setPhase("select");
         setProposal(null);
         dedupedToast.error(
-          t2(
+          t(
             "memory.compaction.rewrite.proposalExpired",
             "The rewrite proposal has expired. Please regenerate.",
           ),
@@ -449,7 +449,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       } else {
         setPhase("preview");
         dedupedToast.error(
-          t2(
+          t(
             "memory.compaction.rewrite.executeFailed",
             "Failed to apply rewrite",
           ) + (message2 ? `: ${message2}` : ""),
@@ -472,10 +472,10 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
   const title =
     phase === "preview" || phase === "executing" ? (
       <>
-        {t2("memory.compaction.rewrite.previewTitle", "Review rewrite")}
+        {t("memory.compaction.rewrite.previewTitle", "Review rewrite")}
         {proposal && (
           <span className="text-xs font-normal text-muted-foreground">
-            {t2("memory.compaction.rewrite.previewSummary", {
+            {t("memory.compaction.rewrite.previewSummary", {
               from: deletes.length,
               to: upserts.length,
               defaultValue: "{{from}} → {{to}}",
@@ -484,16 +484,16 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
         )}
       </>
     ) : (
-      t2("memory.compaction.rewrite.title", "Rewrite memories with AI")
+      t("memory.compaction.rewrite.title", "Rewrite memories with AI")
     );
   const description =
     phase === "preview" || phase === "executing"
       ? proposal &&
-        t2("memory.compaction.rewrite.modelLabel", {
+        t("memory.compaction.rewrite.modelLabel", {
           model: proposal.llmModel,
           defaultValue: "Model: {{model}}",
         })
-      : t2(
+      : t(
           "memory.compaction.rewrite.subtitle",
           "Pick entries to consolidate; the AI rewrites them into fewer, denser notes for review before any change is applied.",
         );
@@ -513,7 +513,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       )}
       {phase === "previewing" && (
         <PhaseSpinner
-          label={t2("memory.compaction.rewrite.previewing", {
+          label={t("memory.compaction.rewrite.previewing", {
             n: selectedNames.size,
             defaultValue: "AI is rewriting {{n}} selected memories…",
           })}
@@ -521,8 +521,8 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       )}
       {isInPreviewLike && proposal && (
         <PreviewPhase
-          originalEntries={eligibleEntries.filter((e2) =>
-            deletes.includes(e2.name),
+          originalEntries={eligibleEntries.filter((entry) =>
+            deletes.includes(entry.name),
           )}
           upserts={upserts}
         />
@@ -530,7 +530,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       {phase === "executing" && (
         <div className="flex-shrink-0">
           <PhaseSpinner
-            label={t2(
+            label={t(
               "memory.compaction.rewrite.executing",
               "Applying rewrite…",
             )}
@@ -551,7 +551,7 @@ export function CompactRewriteFlow({ open, surface, onClose, onBusyChange }) {
       )}
       {phase === "previewing" && (
         <span className="ml-auto text-xs text-muted-foreground">
-          {t2("memory.compaction.rewrite.previewing", {
+          {t("memory.compaction.rewrite.previewing", {
             n: selectedNames.size,
             defaultValue: "AI is rewriting {{n}} selected memories…",
           })}

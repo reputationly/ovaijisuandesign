@@ -11,16 +11,16 @@ export var _util;
   }
   _util2.getServiceDependencies = getServiceDependencies;
 })(_util || (_util = {}));
-function storeServiceDependency(id2, target, index2) {
+function storeServiceDependency(id, target, index2) {
   if (target[_util.DI_TARGET] === target) {
     target[_util.DI_DEPENDENCIES].push({
-      id: id2,
+      id,
       index: index2,
     });
   } else {
     target[_util.DI_DEPENDENCIES] = [
       {
-        id: id2,
+        id,
         index: index2,
       },
     ];
@@ -31,17 +31,17 @@ export function createDecorator(serviceId) {
   if (_util.serviceIds.has(serviceId)) {
     return _util.serviceIds.get(serviceId);
   }
-  const id2 = function (target, _key, index2) {
+  const id = function (target, _key, index2) {
     if (arguments.length !== 3) {
       throw new Error(
         "@IServiceName-decorator can only be used to decorate a parameter",
       );
     }
-    storeServiceDependency(id2, target, index2);
+    storeServiceDependency(id, target, index2);
   };
-  id2.toString = () => serviceId;
-  _util.serviceIds.set(serviceId, id2);
-  return id2;
+  id.toString = () => serviceId;
+  _util.serviceIds.set(serviceId, id);
+  return id;
 }
 export const IComfyUiModelDownloadService = createDecorator(
   "comfyUiModelDownloadService",

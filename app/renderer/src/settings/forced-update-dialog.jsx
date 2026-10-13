@@ -30,7 +30,7 @@ import {
   progressPercent,
 } from "./diagnostics-group.jsx";
 export const ForcedUpdateDialog = () => {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const platform2 = usePlatform();
   const {
     state: state2,
@@ -56,10 +56,10 @@ export const ForcedUpdateDialog = () => {
   const delta = state2.targetVersion
     ? computeVersionDelta(state2.currentVersion, state2.targetVersion)
     : null;
-  const handleKeyDown2 = reactExports.useCallback((e2) => {
-    if (e2.key === "Escape") {
-      e2.preventDefault();
-      e2.stopPropagation();
+  const handleKeyDown2 = reactExports.useCallback((keyboardEvent) => {
+    if (keyboardEvent.key === "Escape") {
+      keyboardEvent.preventDefault();
+      keyboardEvent.stopPropagation();
       setShaking(true);
       setTimeout(() => setShaking(false), 500);
     }
@@ -89,7 +89,7 @@ export const ForcedUpdateDialog = () => {
       source: "menu",
     });
   };
-  const exitLabel = t2("update.forced.btn.exit");
+  const exitLabel = t("update.forced.btn.exit");
   const { imageUrl, handleImageError } = useUpdatePoster();
   return (
     <div
@@ -123,7 +123,7 @@ export const ForcedUpdateDialog = () => {
               id="forced-update-title"
               className="font-heading text-sm font-medium"
             >
-              {t2("update.forced.title")}
+              {t("update.forced.title")}
             </h2>
             {delta && (
               <span className="mt-1 inline-flex items-center rounded-full border border-brand-accent/30 bg-brand-accent/10 px-2 py-0.5 text-[11px] font-medium text-brand-accent">
@@ -135,14 +135,14 @@ export const ForcedUpdateDialog = () => {
         {isManualRecovery && (
           <div className="mt-3 space-y-1.5">
             <p className="text-xs text-foreground">
-              {formatManualRecoveryMessage(state2.manualRecoveryCode, t2)}
+              {formatManualRecoveryMessage(state2.manualRecoveryCode, t)}
             </p>
             <p className="text-xs text-muted-foreground">
               {canRetryUpdateCheck
-                ? t2("update.manualRecovery.hint.proxy")
+                ? t("update.manualRecovery.hint.proxy")
                 : canRetryLocalInstall
-                  ? t2("update.manualRecovery.hint.local")
-                  : t2("update.manualRecovery.hint.policy")}
+                  ? t("update.manualRecovery.hint.local")
+                  : t("update.manualRecovery.hint.policy")}
             </p>
           </div>
         )}
@@ -151,30 +151,30 @@ export const ForcedUpdateDialog = () => {
             <p className="text-xs text-foreground">
               {formatUpdaterErrorMessage(
                 state2.error?.message,
-                t2,
-                t2("update.error"),
+                t,
+                t("update.error"),
               )}
             </p>
             <p className="text-xs text-muted-foreground">
-              {t2("update.manualRecovery.hint.policy")}
+              {t("update.manualRecovery.hint.policy")}
             </p>
           </div>
         )}
         {!isManualRecovery && canManualDownload && state2.phase !== "error" && (
           <p className="mt-3 text-xs text-foreground">
-            {t2("update.forced.manual.body", {
+            {t("update.forced.manual.body", {
               reason:
                 state2.manualRecoverySource === "local"
-                  ? formatManualRecoveryMessage(state2.manualRecoveryCode, t2)
+                  ? formatManualRecoveryMessage(state2.manualRecoveryCode, t)
                   : (state2.manualRecoveryReason ??
                     state2.requiredReason ??
-                    t2("update.forced.manual.defaultReason")),
+                    t("update.forced.manual.defaultReason")),
             })}
           </p>
         )}
         {!isManualRecovery && !canManualDownload && state2.requiredReason && (
           <p className="mt-3 text-xs text-foreground">
-            {t2("update.forced.body", {
+            {t("update.forced.body", {
               reason: state2.requiredReason,
             })}
           </p>
@@ -182,7 +182,7 @@ export const ForcedUpdateDialog = () => {
         {state2.changelog && (
           <div className="mt-4 flex flex-col gap-1.5">
             <h4 className="text-xs font-medium text-muted-foreground">
-              {t2("update.forced.changelogHeader")}
+              {t("update.forced.changelogHeader")}
             </h4>
             <ul className="flex flex-col gap-1 text-xs text-foreground/80">
               {state2.changelog.changelog.map((item) => (
@@ -199,7 +199,7 @@ export const ForcedUpdateDialog = () => {
           (state2.phase === "idle" || state2.phase === "checking") && (
             <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
               <Loader2 className="size-4 animate-spin" />
-              {t2("update.forced.checking")}
+              {t("update.forced.checking")}
             </div>
           )}
         {!isManualRecovery &&
@@ -225,8 +225,8 @@ export const ForcedUpdateDialog = () => {
             <p className="mt-4 text-xs text-destructive">
               {formatUpdaterErrorMessage(
                 state2.error?.message,
-                t2,
-                t2("update.forced.error"),
+                t,
+                t("update.forced.error"),
               )}
             </p>
           )}
@@ -237,7 +237,7 @@ export const ForcedUpdateDialog = () => {
               variant="ghost"
               size="icon-xs"
               onClick={handleFeedback}
-              aria-label={t2("feedback.dialog.title")}
+              aria-label={t("feedback.dialog.title")}
               data-action-ui-id="update.forced.feedback"
             >
               <CircleHelp
@@ -278,7 +278,7 @@ export const ForcedUpdateDialog = () => {
                     data-action-ui-id="update.forced.btn.retry"
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
-                    {t2("update.forced.btn.retry")}
+                    {t("update.forced.btn.retry")}
                   </Button>
                 )}
                 {canRetryLocalInstall && (
@@ -294,7 +294,7 @@ export const ForcedUpdateDialog = () => {
                       className="size-3.5"
                       strokeWidth={1.7}
                     />
-                    {t2("update.btn.retryInstall")}
+                    {t("update.btn.retryInstall")}
                   </Button>
                 )}
                 {state2.manualDownloadUrl && (
@@ -310,7 +310,7 @@ export const ForcedUpdateDialog = () => {
                       className="size-3.5"
                       strokeWidth={1.7}
                     />
-                    {t2("update.forced.btn.manualDownload")}
+                    {t("update.forced.btn.manualDownload")}
                   </Button>
                 )}
               </>
@@ -344,7 +344,7 @@ export const ForcedUpdateDialog = () => {
                     className="size-3.5"
                     strokeWidth={1.7}
                   />
-                  {t2("update.forced.btn.manualDownload")}
+                  {t("update.forced.btn.manualDownload")}
                 </Button>
               </>
             )}
@@ -379,7 +379,7 @@ export const ForcedUpdateDialog = () => {
                       className="size-3.5"
                       strokeWidth={1.7}
                     />
-                    {t2("update.forced.btn.download")}
+                    {t("update.forced.btn.download")}
                   </Button>
                 </>
               )}
@@ -414,7 +414,7 @@ export const ForcedUpdateDialog = () => {
                       className="size-3.5"
                       strokeWidth={1.7}
                     />
-                    {t2("update.forced.btn.restart")}
+                    {t("update.forced.btn.restart")}
                   </Button>
                 </>
               )}
@@ -435,7 +435,7 @@ export const ForcedUpdateDialog = () => {
                     data-action-ui-id="update.forced.btn.retry"
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
-                    {t2("update.forced.btn.retry")}
+                    {t("update.forced.btn.retry")}
                   </Button>
                   {state2.manualDownloadUrl && (
                     <Button
@@ -450,7 +450,7 @@ export const ForcedUpdateDialog = () => {
                         className="size-3.5"
                         strokeWidth={1.7}
                       />
-                      {t2("update.forced.btn.manualDownload")}
+                      {t("update.forced.btn.manualDownload")}
                     </Button>
                   )}
                   <Button

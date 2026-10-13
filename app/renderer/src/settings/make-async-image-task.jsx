@@ -65,27 +65,27 @@ makeAsyncImageTask("520029720819908617", "TASK_STATUS_COMPLETED", {
     "",
   ]),
 });
-export function connectorTitle(t2, language2, connectorId, displayName2) {
-  return t2(
+export function connectorTitle(t, language2, connectorId, displayName2) {
+  return t(
     `connectors.catalog.${connectorId}.title`,
     localizedI18nText(displayName2, language2),
   );
 }
 export function useConnectorCopy(connectorId, displayName2, namespace2) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const language2 = i18n?.language ?? "en";
   const name2 = localizedI18nText(displayName2, language2);
   const copy2 = reactExports.useCallback(
     (key2, options) =>
-      t2(`connectors.${connectorId}.${key2}`, {
+      t(`connectors.${connectorId}.${key2}`, {
         name: name2,
         ...options,
-        defaultValue: t2(`connectors.${namespace2}.${key2}`, {
+        defaultValue: t(`connectors.${namespace2}.${key2}`, {
           name: name2,
           ...options,
         }),
       }),
-    [t2, connectorId, namespace2, name2],
+    [t, connectorId, namespace2, name2],
   );
   return {
     name: name2,
@@ -99,7 +99,7 @@ export function ConnectorDialogShell({
   onRequestClose,
   children: children2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (embedded) return <>{children2}</>;
   return (
     <ConnectorDialogFrame
@@ -108,7 +108,7 @@ export function ConnectorDialogShell({
         if (!open) onRequestClose();
       }}
       actionUiId={`connectors-${connectorId}-dialog`}
-      closeLabel={t2("common.close")}
+      closeLabel={t("common.close")}
       size="md"
       className="sm:max-w-[600px]"
       showCloseButton={dismissible}
@@ -206,7 +206,7 @@ export function ConnectorDialogStep({
   last: last2 = false,
   children: children2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const lineClassName =
     "absolute left-1/2 w-[1px] -translate-x-1/2 bg-[repeating-linear-gradient(to_bottom,var(--muted-foreground)_0,var(--muted-foreground)_1px,transparent_1px,transparent_3px)]";
   return (
@@ -223,7 +223,7 @@ export function ConnectorDialogStep({
           className="relative z-10 flex size-6 shrink-0 items-center justify-center rounded-full bg-card text-xs font-medium leading-none text-foreground"
           data-layout-slot="connector-credential-step-node"
         >
-          {t2(`connectors.stepOrdinal.${ordinal}`)}
+          {t(`connectors.stepOrdinal.${ordinal}`)}
         </span>
         {last2 ? null : (
           <span

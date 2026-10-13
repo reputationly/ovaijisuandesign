@@ -68,9 +68,9 @@ export function ConnectorPromptAction({
   );
 }
 export function ConnectorStatusPill({ state: state2 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const visual = CONNECTOR_STATUS_VISUAL[state2];
-  const label = t2(
+  const label = t(
     state2 === "removing"
       ? "connectors.detail.disconnecting"
       : `connectors.runtimeState.${state2}`,

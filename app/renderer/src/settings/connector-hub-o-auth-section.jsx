@@ -66,7 +66,7 @@ function ConnectorHubOAuthSection({
   onCreated,
   onBusyChange,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const connectorId = manifest.connectorId;
   const language2 = i18n?.language ?? "en";
   const profile =
@@ -127,7 +127,7 @@ function ConnectorHubOAuthSection({
       if (mounted.current) {
         setCancelling(false);
         onBusyChange?.(false);
-        setError(t2("connectors.oauth.cancelFailed"));
+        setError(t("connectors.oauth.cancelFailed"));
       }
     }
   };
@@ -153,7 +153,7 @@ function ConnectorHubOAuthSection({
       if (cancelled.current || !mounted.current) return;
       if (!result.ok) {
         if (result.code === "authorization_busy") touched.current = false;
-        setError(t2(`connectors.customDialog.error.${result.code}`));
+        setError(t(`connectors.customDialog.error.${result.code}`));
         return;
       }
       const install = await installStagedConnector(connectorId, serverName);
@@ -161,9 +161,9 @@ function ConnectorHubOAuthSection({
       touched.current = false;
       if (!install.ok) {
         setError(
-          t2(`connectors.connector.error.${install.code}`, {
+          t(`connectors.connector.error.${install.code}`, {
             name: connectorTitle(
-              t2,
+              t,
               language2,
               connectorId,
               manifest.displayName,
@@ -177,7 +177,7 @@ function ConnectorHubOAuthSection({
       onClose();
     } catch {
       if (mounted.current && !cancelled.current)
-        setError(t2("connectors.customDialog.error.authorization_failed"));
+        setError(t("connectors.customDialog.error.authorization_failed"));
     } finally {
       if (!cancelled.current) started.current = false;
       if (mounted.current) {
@@ -221,7 +221,7 @@ function ConnectorHubOAuthSection({
               </div>
             ) : null}
             <p className="text-[13px] leading-relaxed text-muted-foreground">
-              {t2("connectors.oauth.instructions")}
+              {t("connectors.oauth.instructions")}
             </p>
             <ConnectorConsentNote text={copy2("consent")} className="mt-3" />
             {pending2 ? (
@@ -229,7 +229,7 @@ function ConnectorHubOAuthSection({
                 role="status"
                 className="mt-3 text-[13px] leading-relaxed text-muted-foreground"
               >
-                {t2("connectors.oauth.waiting")}
+                {t("connectors.oauth.waiting")}
               </p>
             ) : null}
             {error ? <ConnectorDialogError message={error} /> : null}
@@ -237,7 +237,7 @@ function ConnectorHubOAuthSection({
         </ConnectorDialogIntro>
         <ConnectorDialogActions
           connectorId={connectorId}
-          cancelLabel={t2("common.cancel")}
+          cancelLabel={t("common.cancel")}
           cancelDisabled={cancelling}
           onCancel={() => void close2()}
         >
@@ -249,7 +249,7 @@ function ConnectorHubOAuthSection({
             onClick={() => void authorize()}
             data-action-ui-id={`connectors-${connectorId}-authorize`}
           >
-            {t2(
+            {t(
               pending2
                 ? "connectors.detail.connecting"
                 : "connectors.oauth.connect",
@@ -269,7 +269,7 @@ function ConnectorPlainSection({
   onCreated,
   onBusyChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const connectorId = manifest.connectorId;
   const { copy: copy2 } = useConnectorCopy(
     connectorId,
@@ -297,14 +297,14 @@ function ConnectorPlainSection({
       );
       if (!mounted.current) return;
       if (!result.ok) {
-        setError(t2(`connectors.customDialog.error.${result.code}`));
+        setError(t(`connectors.customDialog.error.${result.code}`));
         return;
       }
       onCreated(result);
       onClose();
     } catch {
       if (mounted.current)
-        setError(t2("connectors.customDialog.error.requestFailed"));
+        setError(t("connectors.customDialog.error.requestFailed"));
     } finally {
       busy.current = false;
       if (mounted.current) {
@@ -335,7 +335,7 @@ function ConnectorPlainSection({
         </ConnectorDialogIntro>
         <ConnectorDialogActions
           connectorId={connectorId}
-          cancelLabel={t2("common.cancel")}
+          cancelLabel={t("common.cancel")}
           cancelDisabled={submitting}
           onCancel={handleClose}
         >
@@ -347,7 +347,7 @@ function ConnectorPlainSection({
             onClick={() => void handleSubmit()}
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
-            {submitting ? t2("connectors.detail.connecting") : copy2("connect")}
+            {submitting ? t("connectors.detail.connecting") : copy2("connect")}
           </Button>
         </ConnectorDialogActions>
       </div>
@@ -363,7 +363,7 @@ function ConnectorServerOAuthSection({
   onCreated,
   onBusyChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const connectorId = manifest.connectorId;
   const { copy: copy2 } = useConnectorCopy(
     connectorId,
@@ -398,7 +398,7 @@ function ConnectorServerOAuthSection({
       if (!created.ok) {
         if (created.code === "server_exists") serverName = connectorId;
         else {
-          setError(t2(`connectors.customDialog.error.${created.code}`));
+          setError(t(`connectors.customDialog.error.${created.code}`));
           return;
         }
       } else {
@@ -409,14 +409,14 @@ function ConnectorServerOAuthSection({
         await homeService.customMcp.authorizeServer(serverName);
       if (!mounted.current) return;
       if (!authorized.ok) {
-        setError(t2(`connectors.customDialog.error.${authorized.code}`));
+        setError(t(`connectors.customDialog.error.${authorized.code}`));
         return;
       }
       onCreated(authorized);
       onClose();
     } catch {
       if (mounted.current)
-        setError(t2("connectors.customDialog.error.requestFailed"));
+        setError(t("connectors.customDialog.error.requestFailed"));
     } finally {
       busy.current = false;
       if (mounted.current) {
@@ -448,7 +448,7 @@ function ConnectorServerOAuthSection({
         </ConnectorDialogIntro>
         <ConnectorDialogActions
           connectorId={connectorId}
-          cancelLabel={t2("common.cancel")}
+          cancelLabel={t("common.cancel")}
           cancelDisabled={phase === "saving"}
           onCancel={handleClose}
         >
@@ -474,7 +474,7 @@ function ConnectorSkillOnlySection({
   onClose,
   onBusyChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const connectorId = manifest.connectorId;
   const { copy: copy2 } = useConnectorCopy(
     connectorId,
@@ -527,7 +527,7 @@ function ConnectorSkillOnlySection({
         </ConnectorDialogIntro>
         <ConnectorDialogActions
           connectorId={connectorId}
-          cancelLabel={t2(installed ? "common.close" : "common.cancel")}
+          cancelLabel={t(installed ? "common.close" : "common.cancel")}
           cancelDisabled={installing}
           cancelActionUiId={`connectors-${connectorId}-close`}
           onCancel={onClose}

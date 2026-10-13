@@ -53,7 +53,7 @@ export function normalizeAnnouncements(raw2) {
       seen2.add(popup.id);
       return true;
     })
-    .sort((a2, b3) => (b3.priority ?? 0) - (a2.priority ?? 0));
+    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 }
 function canAutoShowAnnouncement(popup) {
   return popup.auto_show !== false && popup.trial_active !== false;
@@ -124,8 +124,8 @@ function pruneExpiredAndDead(userID, now2) {
     const userPrefix = `${KEY_PREFIX}${userID}:`;
     const deadBefore = now2 - DEAD_ID_AFTER_MS;
     const toRemove = [];
-    for (let i2 = 0; i2 < window.localStorage.length; i2++) {
-      const key2 = window.localStorage.key(i2);
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key2 = window.localStorage.key(i);
       if (!key2?.startsWith(userPrefix)) continue;
       const raw2 = window.localStorage.getItem(key2);
       if (!raw2) continue;
@@ -157,8 +157,8 @@ export function clearMutesForUser(userID) {
   try {
     const userPrefix = `${KEY_PREFIX}${userID}:`;
     const toRemove = [];
-    for (let i2 = 0; i2 < window.localStorage.length; i2++) {
-      const key2 = window.localStorage.key(i2);
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key2 = window.localStorage.key(i);
       if (key2?.startsWith(userPrefix)) toRemove.push(key2);
     }
     for (const key2 of toRemove) window.localStorage.removeItem(key2);

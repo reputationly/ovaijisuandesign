@@ -48,7 +48,7 @@ export function ConnectorManualCredentialSection({
   onCreated,
   onBusyChange,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const platform2 = usePlatform();
   const connectorId = manifest.connectorId;
   const language2 = i18n?.language ?? "en";
@@ -120,16 +120,16 @@ export function ConnectorManualCredentialSection({
       );
       if (!mounted.current) return;
       if (!staged.ok) {
-        setError(t2(`connectors.customDialog.error.${staged.code}`));
+        setError(t(`connectors.customDialog.error.${staged.code}`));
         return;
       }
       const finalized = await installStagedConnector(connectorId, serverName);
       if (!mounted.current) return;
       if (!finalized.ok) {
         setError(
-          t2(`connectors.connector.error.${finalized.code}`, {
+          t(`connectors.connector.error.${finalized.code}`, {
             name: connectorTitle(
-              t2,
+              t,
               language2,
               connectorId,
               manifest.displayName,
@@ -142,7 +142,7 @@ export function ConnectorManualCredentialSection({
       onClose();
     } catch {
       if (mounted.current)
-        setError(t2("connectors.customDialog.error.authorization_failed"));
+        setError(t("connectors.customDialog.error.authorization_failed"));
     } finally {
       if (mounted.current) {
         setPending(false);
@@ -150,13 +150,13 @@ export function ConnectorManualCredentialSection({
       }
     }
   };
-  const secretField = (id2, label, placeholder, value, onChange, masked) => (
+  const secretField = (id, label, placeholder, value, onChange, masked) => (
     <div>
-      <Label htmlFor={id2} className="text-sm font-medium text-foreground">
+      <Label htmlFor={id} className="text-sm font-medium text-foreground">
         {label}
       </Label>
       <Input3
-        id={id2}
+        id={id}
         type={masked ? "password" : "text"}
         value={value}
         onChange={(event) => {
@@ -174,7 +174,7 @@ export function ConnectorManualCredentialSection({
             }
           : {})}
         className="mt-1.5 h-10 rounded-lg bg-card"
-        data-action-ui-id={id2}
+        data-action-ui-id={id}
       />
     </div>
   );
@@ -287,7 +287,7 @@ export function ConnectorManualCredentialSection({
         </ConnectorDialogIntro>
         <ConnectorDialogActions
           connectorId={connectorId}
-          cancelLabel={t2("common.cancel")}
+          cancelLabel={t("common.cancel")}
           cancelDisabled={pending2}
           onCancel={onClose}
         >
@@ -300,7 +300,7 @@ export function ConnectorManualCredentialSection({
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
             {pending2
-              ? t2("connectors.detail.connecting")
+              ? t("connectors.detail.connecting")
               : manualCopy("connect")}
           </Button>
         </ConnectorDialogActions>

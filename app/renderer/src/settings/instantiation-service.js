@@ -29,7 +29,7 @@ export class InstantiationService {
     this._enableTracing = _enableTracing;
     this._services.set(IInstantiationService, this);
     this._globalGraph = _enableTracing
-      ? (_parent?._globalGraph ?? new Graph((e2) => e2))
+      ? (_parent?._globalGraph ?? new Graph((node) => node))
       : void 0;
   }
   _globalGraph;
@@ -68,29 +68,29 @@ export class InstantiationService {
     store?.add(result);
     return result;
   }
-  invokeFunction(fn2, ...args) {
+  invokeFunction(fn, ...args) {
     this._throwIfDisposed();
-    const _trace = Trace.traceInvocation(this._enableTracing, fn2);
+    const _trace = Trace.traceInvocation(this._enableTracing, fn);
     let _done = false;
     try {
       const accessor = {
-        get: (id2) => {
+        get: (id) => {
           if (_done) {
             throw illegalState(
               "service accessor is only valid during the invocation of its target method",
             );
           }
-          const result = this._getOrCreateServiceInstance(id2, _trace);
+          const result = this._getOrCreateServiceInstance(id, _trace);
           if (!result) {
             this._throwIfStrict(
-              `[invokeFunction] unknown service '${id2}'`,
+              `[invokeFunction] unknown service '${id}'`,
               false,
             );
           }
           return result;
         },
       };
-      return fn2(accessor, ...args);
+      return fn(accessor, ...args);
     } finally {
       _done = true;
       _trace.stop();
@@ -117,7 +117,7 @@ export class InstantiationService {
   _createInstance(ctor, args = [], _trace) {
     const serviceDependencies = _util
       .getServiceDependencies(ctor)
-      .sort((a2, b3) => a2.index - b3.index);
+      .sort((a, b) => a.index - b.index);
     const serviceArgs = [];
     for (const dependency of serviceDependencies) {
       const service2 = this._getOrCreateServiceInstance(dependency.id, _trace);
@@ -146,62 +146,62 @@ export class InstantiationService {
     }
     return Reflect.construct(ctor, args.concat(serviceArgs));
   }
-  _setCreatedServiceInstance(id2, instance2) {
-    if (this._services.get(id2) instanceof SyncDescriptor) {
-      this._services.set(id2, instance2);
+  _setCreatedServiceInstance(id, instance2) {
+    if (this._services.get(id) instanceof SyncDescriptor) {
+      this._services.set(id, instance2);
     } else if (this._parent) {
-      this._parent._setCreatedServiceInstance(id2, instance2);
+      this._parent._setCreatedServiceInstance(id, instance2);
     } else {
       throw new Error("illegalState - setting UNKNOWN service instance");
     }
   }
-  _getServiceInstanceOrDescriptor(id2) {
-    const instanceOrDesc = this._services.get(id2);
+  _getServiceInstanceOrDescriptor(id) {
+    const instanceOrDesc = this._services.get(id);
     if (!instanceOrDesc && this._parent) {
-      return this._parent._getServiceInstanceOrDescriptor(id2);
+      return this._parent._getServiceInstanceOrDescriptor(id);
     } else {
       return instanceOrDesc;
     }
   }
-  _getOrCreateServiceInstance(id2, _trace) {
+  _getOrCreateServiceInstance(id, _trace) {
     if (this._globalGraph && this._globalGraphImplicitDependency) {
       this._globalGraph.insertEdge(
         this._globalGraphImplicitDependency,
-        String(id2),
+        String(id),
       );
     }
-    const thing = this._getServiceInstanceOrDescriptor(id2);
+    const thing = this._getServiceInstanceOrDescriptor(id);
     if (thing instanceof SyncDescriptor) {
       return this._safeCreateAndCacheServiceInstance(
-        id2,
+        id,
         thing,
-        _trace.branch(id2, true),
+        _trace.branch(id, true),
       );
     } else {
-      _trace.branch(id2, false);
+      _trace.branch(id, false);
       return thing;
     }
   }
   _activeInstantiations = new Set();
-  _safeCreateAndCacheServiceInstance(id2, desc2, _trace) {
-    if (this._activeInstantiations.has(id2)) {
+  _safeCreateAndCacheServiceInstance(id, desc2, _trace) {
+    if (this._activeInstantiations.has(id)) {
       throw new Error(
-        `illegal state - RECURSIVELY instantiating service '${id2}'`,
+        `illegal state - RECURSIVELY instantiating service '${id}'`,
       );
     }
-    this._activeInstantiations.add(id2);
+    this._activeInstantiations.add(id);
     try {
-      return this._createAndCacheServiceInstance(id2, desc2, _trace);
+      return this._createAndCacheServiceInstance(id, desc2, _trace);
     } finally {
-      this._activeInstantiations.delete(id2);
+      this._activeInstantiations.delete(id);
     }
   }
-  _createAndCacheServiceInstance(id2, desc2, _trace) {
+  _createAndCacheServiceInstance(id, desc2, _trace) {
     const graph = new Graph((data2) => data2.id.toString());
     let cycleCount = 0;
     const stack = [
       {
-        id: id2,
+        id,
         desc: desc2,
       },
     ];
@@ -217,17 +217,17 @@ export class InstantiationService {
         );
         if (!instanceOrDesc) {
           this._throwIfStrict(
-            `[createInstance] ${id2} depends on ${dependency.id} which is NOT registered.`,
+            `[createInstance] ${id} depends on ${dependency.id} which is NOT registered.`,
             true,
           );
         }
         if (instanceOrDesc instanceof SyncDescriptor) {
-          const d2 = {
+          const dependencyNode = {
             id: dependency.id,
             desc: instanceOrDesc,
           };
-          graph.insertEdge(item, d2);
-          stack.push(d2);
+          graph.insertEdge(item, dependencyNode);
+          stack.push(dependencyNode);
         }
       }
     }
@@ -254,18 +254,18 @@ export class InstantiationService {
         graph.removeNode(data2);
       }
     }
-    return this._getServiceInstanceOrDescriptor(id2);
+    return this._getServiceInstanceOrDescriptor(id);
   }
   _createServiceInstanceWithOwner(
-    id2,
+    id,
     ctor,
     args = [],
     supportsDelayedInstantiation,
     _trace,
   ) {
-    if (this._services.get(id2) instanceof SyncDescriptor) {
+    if (this._services.get(id) instanceof SyncDescriptor) {
       return this._createServiceInstance(
-        id2,
+        id,
         ctor,
         args,
         supportsDelayedInstantiation,
@@ -273,7 +273,7 @@ export class InstantiationService {
       );
     } else if (this._parent) {
       return this._parent._createServiceInstanceWithOwner(
-        id2,
+        id,
         ctor,
         args,
         supportsDelayedInstantiation,

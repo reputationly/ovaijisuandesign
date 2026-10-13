@@ -83,7 +83,7 @@ function hideProjectId(hiddenProjectIds, projectId) {
 }
 function restoreProjectId(hiddenProjectIds, projectId) {
   return normalizeHiddenProjectIds(hiddenProjectIds).filter(
-    (id2) => id2 !== projectId,
+    (id) => id !== projectId,
   );
 }
 function dedupeProjectName(projects, name2) {
@@ -464,7 +464,7 @@ export function useProjectActions(options = {}) {
         if (!pinned.includes(project2.id)) return previous2;
         return {
           ...previous2,
-          pinnedProjectIds: pinned.filter((id2) => id2 !== project2.id),
+          pinnedProjectIds: pinned.filter((id) => id !== project2.id),
         };
       });
       return {};

@@ -334,16 +334,16 @@ function QrConnectView({
   transitionLabel,
   statusLabelOverride,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const titleKey = step === "auth" ? "authTitle" : "scanTitle";
   const descriptionKey =
     step === "auth" ? "authDescription" : "scanDescription";
   const agentLabel =
     agentName?.trim() ||
-    t2("settings.imBridge.addFlow.defaultAgentName.feishu");
+    t("settings.imBridge.addFlow.defaultAgentName.feishu");
   const isChineseLocale2 = isZhLocale(i18n.resolvedLanguage || i18n.language);
   const readyHintKey = `settings.imBridge.addFlow.${step === "auth" ? "authQrHint" : "scanQrHint"}.${platform2}`;
-  const readyHint = t2(readyHintKey, {
+  const readyHint = t(readyHintKey, {
     agentName: agentLabel,
   });
   const qrReadyHint = readyHint === readyHintKey ? void 0 : readyHint;
@@ -370,16 +370,16 @@ function QrConnectView({
           )}
         >
           <h3 className={addFlowTitleClassName(isChineseLocale2)}>
-            {t2(`settings.imBridge.addFlow.${titleKey}.${platform2}`)}
+            {t(`settings.imBridge.addFlow.${titleKey}.${platform2}`)}
           </h3>
         </div>
         {platform2 === "feishu" && step === "auth" ? (
           <p className="mt-2 max-w-[480px] text-[13px] leading-relaxed text-muted-foreground">
-            {t2("settings.imBridge.addFlow.authDescription.action")}
+            {t("settings.imBridge.addFlow.authDescription.action")}
           </p>
         ) : (
           <p className="mt-1.5 max-w-[360px] text-[13px] leading-relaxed text-muted-foreground">
-            {t2(`settings.imBridge.addFlow.${descriptionKey}.${platform2}`)}
+            {t(`settings.imBridge.addFlow.${descriptionKey}.${platform2}`)}
           </p>
         )}
         <QrCard
@@ -404,15 +404,15 @@ function QrSuccessView({
   onDialogHeaderChange,
   agentName,
 }) {
-  const { t: t2, i18n } = useTranslation();
-  const label = t2(`settings.imBridge.platform.${platform2}`);
+  const { t, i18n } = useTranslation();
+  const label = t(`settings.imBridge.platform.${platform2}`);
   const agentLabel =
     agentName?.trim() ||
-    t2("settings.imBridge.addFlow.defaultAgentName.feishu");
+    t("settings.imBridge.addFlow.defaultAgentName.feishu");
   const entityLabel =
     platform2 === "feishu"
       ? agentLabel
-      : t2("settings.imBridge.addFlow.defaultAgentName.wechat");
+      : t("settings.imBridge.addFlow.defaultAgentName.wechat");
   const isChineseLocale2 = isZhLocale(i18n.resolvedLanguage || i18n.language);
   return (
     <AddFlowFrame
@@ -431,7 +431,7 @@ function QrSuccessView({
       >
         <div className="flex flex-col">
           <h3 className={addFlowTitleClassName(isChineseLocale2)}>
-            {t2(`settings.imBridge.addFlow.successTitle.${platform2}`)}
+            {t(`settings.imBridge.addFlow.successTitle.${platform2}`)}
           </h3>
           <div className="mx-4 mt-5 flex items-center gap-3 rounded-lg border border-border bg-secondary/40 px-4 py-3 text-left">
             <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-card">
@@ -443,10 +443,10 @@ function QrSuccessView({
             </span>
             <div className="min-w-0 flex-1">
               <p className="min-w-0 truncate font-medium text-foreground text-sm">
-                {t2(`settings.imBridge.addFlow.accountSummary.${platform2}`)}
+                {t(`settings.imBridge.addFlow.accountSummary.${platform2}`)}
               </p>
               <p className="mt-0.5 truncate text-muted-foreground text-xs">
-                {t2("settings.imBridge.addFlow.currentDevice")}
+                {t("settings.imBridge.addFlow.currentDevice")}
               </p>
             </div>
             <AgentEntityChip
@@ -456,7 +456,7 @@ function QrSuccessView({
           </div>
           <div className="mx-4 mt-4 rounded-lg bg-secondary/45 px-4 py-3.5 text-left">
             <p className="font-medium text-foreground text-sm">
-              {t2("settings.imBridge.addFlow.successGuide.title")}
+              {t("settings.imBridge.addFlow.successGuide.title")}
             </p>
             <ol className="mt-2 flex flex-col gap-1 text-[13px] leading-snug text-muted-foreground">
               {[1, 2, 3, 4].map((index2) => (
@@ -465,7 +465,7 @@ function QrSuccessView({
                     {index2}
                   </span>
                   <span>
-                    {t2(
+                    {t(
                       `settings.imBridge.addFlow.successGuide.${platform2}.${index2}`,
                     )}
                   </span>
@@ -477,7 +477,7 @@ function QrSuccessView({
             <TutorialButton
               platform={platform2}
               actionId={`im-bridge.${platform2}.qr.guide`}
-              label={t2("settings.imBridge.addFlow.viewGuide")}
+              label={t("settings.imBridge.addFlow.viewGuide")}
               variant="outline"
               size="default"
               className="w-28"
@@ -489,7 +489,7 @@ function QrSuccessView({
               onClick={onDone}
               data-action-ui-id={`im-bridge.${platform2}.qr.done`}
             >
-              {t2("settings.imBridge.addFlow.done")}
+              {t("settings.imBridge.addFlow.done")}
             </Button>
           </div>
         </div>
@@ -505,7 +505,7 @@ function FeishuQrSection({
   onDialogHeaderChange,
   onConnected,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     state: state2,
     start: start2,
@@ -601,13 +601,13 @@ function FeishuQrSection({
   const displayStatus = authHandoffPending ? "loading" : state2.status;
   const authLoading = step === "auth" && displayStatus === "loading";
   const authLoadingLabel = authLoading
-    ? t2("settings.imBridge.addFlow.transition.auth.feishu")
+    ? t("settings.imBridge.addFlow.transition.auth.feishu")
     : void 0;
   const qrNode =
     !authHandoffPending && state2.status === "ready" && state2.qrcodeUrl ? (
       <img
         src={state2.qrcodeUrl}
-        alt={t2(
+        alt={t(
           `settings.imBridge.addFlow.qrAlt.${step === "auth" ? "feishuAuth" : "feishu"}`,
         )}
         className="size-full object-contain"
@@ -651,7 +651,7 @@ function FeishuUserAuthFlow({
   onDialogHeaderChange,
   agentName,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { state: state2, startUserAuth, cancel } = useFeishuQrLogin();
   const [confirmed, setConfirmed] = reactExports.useState(false);
   const accountIdRef = reactExports.useRef(accountId);
@@ -691,7 +691,7 @@ function FeishuUserAuthFlow({
     state2.status === "ready" && state2.qrcodeUrl ? (
       <img
         src={state2.qrcodeUrl}
-        alt={t2("settings.imBridge.addFlow.qrAlt.feishuAuth")}
+        alt={t("settings.imBridge.addFlow.qrAlt.feishuAuth")}
         className="size-full object-contain"
       />
     ) : null;
@@ -718,12 +718,12 @@ function FeishuUserAuthFlow({
       transitioningToStep={state2.status === "loading" ? "auth" : void 0}
       transitionLabel={
         state2.status === "loading"
-          ? t2("settings.imBridge.addFlow.transition.auth.feishu")
+          ? t("settings.imBridge.addFlow.transition.auth.feishu")
           : void 0
       }
       statusLabelOverride={
         state2.status === "loading"
-          ? t2("settings.imBridge.addFlow.transition.auth.feishu")
+          ? t("settings.imBridge.addFlow.transition.auth.feishu")
           : void 0
       }
     />
@@ -756,7 +756,7 @@ function WechatQrSection({
   onDialogHeaderChange,
   onConnected,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { state: state2, start: start2, cancel } = useWechatQrLogin();
   const [confirmed, setConfirmed] = reactExports.useState(false);
   const aliasRef = reactExports.useRef(alias);
@@ -802,7 +802,7 @@ function WechatQrSection({
       state2.isImageData ? (
         <img
           src={state2.qrcodeUrl}
-          alt={t2("settings.imBridge.addFlow.qrAlt.wechat")}
+          alt={t("settings.imBridge.addFlow.qrAlt.wechat")}
           className="size-full object-contain"
         />
       ) : (
@@ -836,7 +836,7 @@ function AddAccountForm({
   onConnected,
   layout = "dialog",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { addAccount } = useImAccounts();
   const [submitting, setSubmitting] = reactExports.useState(false);
   const [error, setError] = reactExports.useState(null);
@@ -887,14 +887,14 @@ function AddAccountForm({
         <>
           <div className="space-y-1">
             <Label htmlFor="im-bottoken" className="text-xs">
-              {t2("settings.imBridge.field.botToken")}
+              {t("settings.imBridge.field.botToken")}
             </Label>
             <Input3
               id="im-bottoken"
               type="password"
               value={botToken}
-              onChange={(e2) => setBotToken(e2.target.value)}
-              placeholder={t2("settings.imBridge.field.botTokenPlaceholder")}
+              onChange={(changeEvent) => setBotToken(changeEvent.target.value)}
+              placeholder={t("settings.imBridge.field.botTokenPlaceholder")}
               autoComplete="off"
             />
           </div>
@@ -913,10 +913,10 @@ function AddAccountForm({
               onClick={onClose}
               disabled={submitting}
             >
-              {t2("common.cancel")}
+              {t("common.cancel")}
             </Button>
             <Button size="sm" onClick={handleSubmit} loading={submitting}>
-              {t2("settings.imBridge.add.submit")}
+              {t("settings.imBridge.add.submit")}
             </Button>
           </div>
         </>
@@ -987,11 +987,11 @@ function getAddablePlatformOrder() {
     : ["feishu", "wechat"];
 }
 function AccountMoreMenu({ accountId, onRemove: onRemove2 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <IntegrationMoreMenu
-      triggerLabel={t2("settings.imBridge.actions.more")}
-      actionLabel={t2("settings.imBridge.actions.remove")}
+      triggerLabel={t("settings.imBridge.actions.more")}
+      actionLabel={t("settings.imBridge.actions.remove")}
       actionIcon={<Icon icon={Trash2} size="sm" strokeWidth={1.5} />}
       onAction={onRemove2}
       actionUiIds={{
@@ -1090,10 +1090,10 @@ function ConnectionStatusIndicator({
   tooltipActionId,
   tooltipContent,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <IntegrationStatusPill
-      label={t2(display.key)}
+      label={t(display.key)}
       tone={display.tone}
       markerTone={display.markerTone}
       markerActive={display.state === "needsAuth"}
@@ -1112,7 +1112,7 @@ function ConnectionStatusIndicator({
   );
 }
 function AddableAccountRow({ option: option2, onAdd: onAdd2 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const status = getPlatformStatusDisplay("notConnected");
   return (
     <IntegrationCard>
@@ -1125,7 +1125,7 @@ function AddableAccountRow({ option: option2, onAdd: onAdd2 }) {
           <ConnectionStatusIndicator display={status} />
         </div>
         <p className="mt-2 truncate text-muted-foreground text-xs">
-          {t2(`settings.imBridge.channel.description.${option2.platform}`)}
+          {t(`settings.imBridge.channel.description.${option2.platform}`)}
         </p>
       </div>
       <div className="shrink-0">
@@ -1136,7 +1136,7 @@ function AddableAccountRow({ option: option2, onAdd: onAdd2 }) {
           onClick={() => onAdd2(option2.platform)}
           data-action-ui-id={`im-bridge.empty.add.${option2.platform}`}
         >
-          {t2("settings.imBridge.channel.action.connectPlatform", {
+          {t("settings.imBridge.channel.action.connectPlatform", {
             platform: option2.label,
           })}
         </Button>
@@ -1145,7 +1145,7 @@ function AddableAccountRow({ option: option2, onAdd: onAdd2 }) {
   );
 }
 function TutorialLink({ platform: platform2, actionId, className }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const shellPlatform = usePlatform();
   const tutorialUrl = TUTORIAL_URL[platform2];
   if (!tutorialUrl) return null;
@@ -1165,7 +1165,7 @@ function TutorialLink({ platform: platform2, actionId, className }) {
       }}
       data-action-ui-id={actionId}
     >
-      {t2("settings.imBridge.tutorialLink")}
+      {t("settings.imBridge.tutorialLink")}
       <Icon icon={ArrowUpRight} size="sm" strokeWidth={2} />
     </Button>
   );
@@ -1186,8 +1186,8 @@ function AccountRow({
   onResume,
   onAuthorize,
 }) {
-  const { t: t2, i18n } = useTranslation();
-  const platformLabel = t2(`settings.imBridge.platform.${account.platform}`);
+  const { t, i18n } = useTranslation();
+  const platformLabel = t(`settings.imBridge.platform.${account.platform}`);
   const displayName2 =
     getAccountDisplayName(
       account,
@@ -1217,13 +1217,13 @@ function AccountRow({
     !credentialError;
   const subtitle =
     account.paused && !credentialError
-      ? t2("settings.imBridge.channel.subtitle.paused", {
+      ? t("settings.imBridge.channel.subtitle.paused", {
           name: displayName2,
         })
       : statusHint
-        ? t2(statusHint.key)
+        ? t(statusHint.key)
         : showConnectedGuide
-          ? t2(
+          ? t(
               `settings.imBridge.channel.subtitle.connected.${connectedGuidePlatform}`,
             )
           : `${displayName2}${!credentialError && status?.lastError ? ` • ${status.lastError}` : ""}`;
@@ -1249,9 +1249,9 @@ function AccountRow({
               tooltipContent={
                 needsAuth ? (
                   <>
-                    <span>{t2("settings.imBridge.userAuth.hint")}</span>
+                    <span>{t("settings.imBridge.userAuth.hint")}</span>
                     <span>
-                      {t2("settings.imBridge.security.availabilityHint")}
+                      {t("settings.imBridge.security.availabilityHint")}
                     </span>
                   </>
                 ) : (
@@ -1281,15 +1281,15 @@ function AccountRow({
             onClick={() => onAuthorize()}
             data-action-ui-id={`im-bridge.row.${account.accountId}.authorize`}
           >
-            <span>{t2("settings.imBridge.userAuth.action")}</span>
+            <span>{t("settings.imBridge.userAuth.action")}</span>
           </IntegrationActionButton>
         )}
         {!needsAuth && (
           <IntegrationLifecycleToggleButton
             type="button"
             inactive={account.paused}
-            activeLabel={t2("settings.imBridge.actions.pause")}
-            inactiveLabel={t2("settings.imBridge.actions.resume")}
+            activeLabel={t("settings.imBridge.actions.pause")}
+            inactiveLabel={t("settings.imBridge.actions.resume")}
             onClick={() => (account.paused ? onResume() : onPause())}
             data-action-ui-id={`im-bridge.row.${account.accountId}.${account.paused ? "resume" : "pause"}`}
           />
@@ -1360,7 +1360,7 @@ export function ImBridgeManager({
   onDialogHeaderChange,
   layout = "dialog",
 } = {}) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     accounts,
     legacyCredentialsPresent,
@@ -1416,16 +1416,16 @@ export function ImBridgeManager({
   );
   const sorted = reactExports.useMemo(
     () =>
-      [...accounts].sort((a2, b3) => {
+      [...accounts].sort((a, b) => {
         const rankDelta =
-          (platformRank.get(a2.platform) ?? Number.MAX_SAFE_INTEGER) -
-          (platformRank.get(b3.platform) ?? Number.MAX_SAFE_INTEGER);
-        return rankDelta === 0 ? a2.createdAt - b3.createdAt : rankDelta;
+          (platformRank.get(a.platform) ?? Number.MAX_SAFE_INTEGER) -
+          (platformRank.get(b.platform) ?? Number.MAX_SAFE_INTEGER);
+        return rankDelta === 0 ? a.createdAt - b.createdAt : rankDelta;
       }),
     [accounts, platformRank],
   );
   const boundPlatforms = reactExports.useMemo(
-    () => new Set(accounts.map((a2) => a2.platform)),
+    () => new Set(accounts.map((account) => account.platform)),
     [accounts],
   );
   const addableAccountOptions = reactExports.useMemo(() => {
@@ -1435,13 +1435,13 @@ export function ImBridgeManager({
       )
       .map((platform2) => ({
         platform: platform2,
-        label: t2(`settings.imBridge.platform.${platform2}`),
+        label: t(`settings.imBridge.platform.${platform2}`),
       }));
-  }, [addablePlatformOrder, available, boundPlatforms, t2]);
+  }, [addablePlatformOrder, available, boundPlatforms, t]);
   const hasCredentialError = reactExports.useMemo(
     () =>
       sorted.some(
-        (a2) => statuses[a2.accountId]?.errorKind === "credential_corrupt",
+        (account) => statuses[account.accountId]?.errorKind === "credential_corrupt",
       ),
     [sorted, statuses],
   );
@@ -1498,16 +1498,16 @@ export function ImBridgeManager({
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="font-medium text-foreground text-sm">
-              {t2("settings.imBridge.hero.title")}
+              {t("settings.imBridge.hero.title")}
             </p>
             <p className="mt-0.5 text-muted-foreground text-xs leading-relaxed">
-              {t2(`settings.imBridge.hero.description.${regionSuffix}`)}
+              {t(`settings.imBridge.hero.description.${regionSuffix}`)}
               <Tooltip>
                 <TooltipTrigger
                   render={
                     <button
                       type="button"
-                      aria-label={t2("settings.imBridge.connection.infoLabel")}
+                      aria-label={t("settings.imBridge.connection.infoLabel")}
                       className="ml-1 inline-flex size-4 cursor-pointer items-center justify-center rounded-full align-middle text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
                     />
                   }
@@ -1518,7 +1518,7 @@ export function ImBridgeManager({
                   side="top"
                   className="max-w-[260px] text-center leading-relaxed"
                 >
-                  {t2("settings.imBridge.executionNotice")}
+                  {t("settings.imBridge.executionNotice")}
                 </TooltipContent>
               </Tooltip>
             </p>
@@ -1531,12 +1531,12 @@ export function ImBridgeManager({
         </div>
         {loading && (
           <p className="rounded-lg border border-border bg-secondary/50 px-3 py-2 text-muted-foreground text-xs">
-            {t2("settings.imBridge.loading")}
+            {t("settings.imBridge.loading")}
           </p>
         )}
         {error && !loading && (
           <p className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-destructive text-xs">
-            {t2("settings.imBridge.errors.listFailed", {
+            {t("settings.imBridge.errors.listFailed", {
               message: error,
             })}
           </p>
@@ -1547,7 +1547,7 @@ export function ImBridgeManager({
             data-action-ui-id="im-bridge.credential-update-banner"
           >
             <p className="text-[13px] leading-relaxed text-foreground">
-              {t2("settings.imBridge.credentialUpdate.banner")}
+              {t("settings.imBridge.credentialUpdate.banner")}
             </p>
             <Button
               size="sm"
@@ -1559,7 +1559,7 @@ export function ImBridgeManager({
                   await resetLegacyCredentialState();
                   trackAccountAction("reset_credentials", "success");
                   dedupedToast.success(
-                    t2("settings.imBridge.credentialUpdate.success"),
+                    t("settings.imBridge.credentialUpdate.success"),
                   );
                 } catch (error2) {
                   trackAccountAction(
@@ -1569,7 +1569,7 @@ export function ImBridgeManager({
                     error2,
                   );
                   dedupedToast.error(
-                    t2("settings.imBridge.credentialUpdate.failed"),
+                    t("settings.imBridge.credentialUpdate.failed"),
                   );
                 } finally {
                   setUpdatingCredentials(false);
@@ -1577,7 +1577,7 @@ export function ImBridgeManager({
               }}
               data-action-ui-id="im-bridge.credential-update"
             >
-              {t2("settings.imBridge.credentialUpdate.action")}
+              {t("settings.imBridge.credentialUpdate.action")}
             </Button>
           </div>
         )}
@@ -1606,7 +1606,7 @@ export function ImBridgeManager({
                   account?.platform,
                   error2,
                 );
-                dedupedToast.error(t2("settings.imBridge.errors.removeFailed"));
+                dedupedToast.error(t("settings.imBridge.errors.removeFailed"));
               }
             }}
             onPause={async (accountId) => {
@@ -1656,10 +1656,10 @@ export function ImBridgeManager({
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <p className="font-medium text-foreground text-sm">
-              {t2("imBridge.preventSleep.title")}
+              {t("imBridge.preventSleep.title")}
             </p>
             <p className="mt-1 text-muted-foreground text-xs leading-relaxed">
-              {t2("imBridge.preventSleep.description")}
+              {t("imBridge.preventSleep.description")}
             </p>
           </div>
           <Switch

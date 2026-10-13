@@ -34,10 +34,10 @@ export const UpdateBanner = ({
   imageUrl = null,
   onImageError,
 }) => {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const platform2 = usePlatform();
   const isWorkspace = useRouterState({
-    select: (s2) => s2.location.pathname.startsWith("/workspace"),
+    select: (routerState) => routerState.location.pathname.startsWith("/workspace"),
   });
   const {
     state: state2,
@@ -93,7 +93,7 @@ export const UpdateBanner = ({
     const localeData = manifest[locale] ?? manifest.en;
     const normalizedTarget = state2.targetVersion.replace(/^v/, "");
     const item = localeData?.items?.find(
-      (i2) => i2.version.replace(/^v/, "") === normalizedTarget,
+      (i) => i.version.replace(/^v/, "") === normalizedTarget,
     );
     if (!item) return null;
     return {
@@ -108,13 +108,13 @@ export const UpdateBanner = ({
   const title = (() => {
     switch (state2.phase) {
       case "available":
-        return t2("update.title.ready");
+        return t("update.title.ready");
       case "downloading":
-        return t2("update.title.downloading");
+        return t("update.title.downloading");
       case "downloaded":
-        return t2("update.title.downloaded");
+        return t("update.title.downloaded");
       case "error":
-        return t2("update.title.error");
+        return t("update.title.error");
       default:
         return "";
     }
@@ -159,7 +159,7 @@ export const UpdateBanner = ({
       )}
       onClick={() => dismiss()}
       data-action-ui-id="update.banner.close"
-      aria-label={t2("update.btn.later")}
+      aria-label={t("update.btn.later")}
     >
       <X className="size-3" strokeWidth={1.5} />
     </button>
@@ -174,7 +174,7 @@ export const UpdateBanner = ({
       disabled={!changelogItem}
       data-action-ui-id="update.btn.viewDetails"
     >
-      {t2("update.btn.viewDetails")}
+      {t("update.btn.viewDetails")}
     </Button>
   );
   const actionRowClass = cn(
@@ -264,8 +264,8 @@ export const UpdateBanner = ({
                   strokeWidth={1.7}
                 />
                 {canManualDownload
-                  ? t2("update.btn.manualDownload")
-                  : t2("update.btn.download")}
+                  ? t("update.btn.manualDownload")
+                  : t("update.btn.download")}
               </Button>
             </div>
           </>
@@ -291,7 +291,7 @@ export const UpdateBanner = ({
                   onClick={() => cancelDownload()}
                   data-action-ui-id="update.btn.cancel"
                 >
-                  {t2("update.btn.cancel")}
+                  {t("update.btn.cancel")}
                 </button>
               )}
             </div>
@@ -320,9 +320,9 @@ export const UpdateBanner = ({
               />
               {embedded
                 ? isInstalling
-                  ? t2("update.btn.restarting")
-                  : t2("update.btn.restartUpgrade")
-                : t2("update.btn.restartNow")}
+                  ? t("update.btn.restarting")
+                  : t("update.btn.restartUpgrade")
+                : t("update.btn.restartNow")}
             </Button>
             {!embedded ? (
               <Button
@@ -333,7 +333,7 @@ export const UpdateBanner = ({
                 onClick={() => dismiss()}
                 data-action-ui-id="update.btn.restartLater"
               >
-                {t2("update.btn.restartLater")}
+                {t("update.btn.restartLater")}
               </Button>
             ) : null}
           </div>
@@ -341,7 +341,7 @@ export const UpdateBanner = ({
         {state2.phase === "downloaded" && showConfirm && (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">
-              {t2("update.confirm.body")}
+              {t("update.confirm.body")}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -358,8 +358,8 @@ export const UpdateBanner = ({
                   strokeWidth={1.7}
                 />
                 {isInstalling
-                  ? t2("update.btn.restarting")
-                  : t2("update.btn.restartNow")}
+                  ? t("update.btn.restarting")
+                  : t("update.btn.restartNow")}
               </Button>
               <Button
                 type="button"
@@ -372,14 +372,14 @@ export const UpdateBanner = ({
                 }}
                 data-action-ui-id="update.confirm.later"
               >
-                {t2("update.btn.restartLater")}
+                {t("update.btn.restartLater")}
               </Button>
               <button
                 type="button"
                 className="cursor-pointer rounded-md px-1.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-foreground/[0.04] hover:text-foreground"
                 onClick={() => setShowConfirm(false)}
               >
-                {t2("update.btn.cancel")}
+                {t("update.btn.cancel")}
               </button>
             </div>
           </div>
@@ -388,20 +388,20 @@ export const UpdateBanner = ({
           <>
             <p className="text-xs text-destructive">
               {isManualRecovery
-                ? formatManualRecoveryMessage(state2.manualRecoveryCode, t2)
+                ? formatManualRecoveryMessage(state2.manualRecoveryCode, t)
                 : formatUpdaterErrorMessage(
                     state2.error?.message,
-                    t2,
-                    t2("update.error"),
+                    t,
+                    t("update.error"),
                   )}
             </p>
             {(isManualRecovery || canManualDownload) && (
               <p className="mt-1 text-xs text-muted-foreground">
                 {canRetryUpdateCheck
-                  ? t2("update.manualRecovery.hint.proxy")
+                  ? t("update.manualRecovery.hint.proxy")
                   : canRetryLocalInstall
-                    ? t2("update.manualRecovery.hint.local")
-                    : t2("update.manualRecovery.hint.policy")}
+                    ? t("update.manualRecovery.hint.local")
+                    : t("update.manualRecovery.hint.policy")}
               </p>
             )}
             {(isManualRecovery || canManualDownload) && (
@@ -419,7 +419,7 @@ export const UpdateBanner = ({
                     data-action-ui-id="update.btn.retry"
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
-                    {t2("update.btn.retry")}
+                    {t("update.btn.retry")}
                   </Button>
                 )}
                 {canRetryLocalInstall && (
@@ -435,7 +435,7 @@ export const UpdateBanner = ({
                       className="size-3.5"
                       strokeWidth={1.7}
                     />
-                    {t2("update.btn.retryInstall")}
+                    {t("update.btn.retryInstall")}
                   </Button>
                 )}
                 {canManualDownload && (
@@ -451,7 +451,7 @@ export const UpdateBanner = ({
                       className="size-3.5"
                       strokeWidth={1.7}
                     />
-                    {t2("update.btn.manualDownload")}
+                    {t("update.btn.manualDownload")}
                   </Button>
                 )}
               </div>
@@ -474,7 +474,7 @@ export const UpdateBanner = ({
                     data-action-ui-id="update.btn.retry"
                   >
                     <RetryIcon data-icon="inline-start" size={14} />
-                    {t2("update.btn.retry")}
+                    {t("update.btn.retry")}
                   </Button>
                 </div>
               )}

@@ -9,7 +9,7 @@ import { platformService } from "../infra/platform-service.js";
 import { SettingGroup, SettingRow } from "./settings-select.jsx";
 const FIRST_RUN_PROMPTED_KEY = "__ovPlatformPrompted";
 export function PlatformSection() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [state, setState] = reactExports.useState(null);
   const [loadError, setLoadError] = reactExports.useState(null);
   const [saveError, setSaveError] = reactExports.useState(null);
@@ -25,30 +25,30 @@ export function PlatformSection() {
         setState(data);
         setForm((prev) => ({ ...prev, baseUrl: data.platform?.baseUrl ?? "" }));
       })
-      .catch((e2) => alive && setLoadError(String(e2?.message ?? e2)));
+      .catch((error) => alive && setLoadError(String(error?.message ?? error)));
     return () => {
       alive = false;
     };
   }, []);
-  if (loadError) return <p className="text-xs text-destructive">{t2("ov.platform.loadFailed")}</p>;
+  if (loadError) return <p className="text-xs text-destructive">{t("ov.platform.loadFailed")}</p>;
   if (!state) return <p className="text-xs text-muted-foreground">…</p>;
   const masked = state.platform?.apiKeyMasked ?? "";
   const hasKey = state.platform?.hasApiKey === true;
-  const m = state.models ?? {};
+  const models = state.models ?? {};
   const usedModels = [
     ["ov.platform.chatModel", state.platform?.chatModel],
-    ["ov.platform.image", m.image],
-    ["ov.platform.imageEdit", m.image_edit],
-    ["ov.platform.video", m.video],
-    ["ov.platform.videoRef", m.video_ref],
-    ["ov.platform.videoUpscale", m.video_upscale],
-    ["ov.platform.imageUpscale", m.image_upscale],
-    ["ov.platform.music", m.music],
-    ["ov.platform.musicEdit", m.music_edit],
-    ["ov.platform.speech", m.speech],
+    ["ov.platform.image", models.image],
+    ["ov.platform.imageEdit", models.image_edit],
+    ["ov.platform.video", models.video],
+    ["ov.platform.videoRef", models.video_ref],
+    ["ov.platform.videoUpscale", models.video_upscale],
+    ["ov.platform.imageUpscale", models.image_upscale],
+    ["ov.platform.music", models.music],
+    ["ov.platform.musicEdit", models.music_edit],
+    ["ov.platform.speech", models.speech],
   ];
   const field = (labelKey, key, opts = {}) => (
-    <SettingRow label={t2(labelKey)} description={opts.desc ? t2(opts.desc) : void 0}>
+    <SettingRow label={t(labelKey)} description={opts.desc ? t(opts.desc) : void 0}>
       <Input3
         type={opts.password ? "password" : "text"}
         value={form[key] ?? ""}
@@ -61,13 +61,13 @@ export function PlatformSection() {
     </SettingRow>
   );
   const usedRow = ([labelKey, value]) => (
-    <SettingRow key={labelKey} label={t2(labelKey)}>
+    <SettingRow key={labelKey} label={t(labelKey)}>
       {value ? (
         <span className="font-mono text-xs text-foreground truncate" title={value}>
           {value}
         </span>
       ) : (
-        <span className="text-xs text-muted-foreground">{t2("ov.platform.notEnabled")}</span>
+        <span className="text-xs text-muted-foreground">{t("ov.platform.notEnabled")}</span>
       )}
     </SettingRow>
   );
@@ -80,29 +80,29 @@ export function PlatformSection() {
       await platformService.save(patch);
       setForm((prev) => ({ ...prev, apiKey: "" }));
       setState(await platformService.get());
-      dedupedToast.success(t2("ov.platform.saved"));
+      dedupedToast.success(t("ov.platform.saved"));
       try {
         await window.hilo.opencode.restart();
       } catch {}
-    } catch (e2) {
-      setSaveError(String(e2?.message ?? e2));
-      dedupedToast.error(t2("ov.platform.saveFailed"));
+    } catch (error) {
+      setSaveError(String(error?.message ?? error));
+      dedupedToast.error(t("ov.platform.saveFailed"));
     } finally {
       setSaving(false);
     }
   };
   return (
     <div className="space-y-2">
-      <p className="text-xs leading-5 text-muted-foreground">{t2("ov.platform.desc")}</p>
-      <SettingGroup title={t2("ov.platform.title")}>
+      <p className="text-xs leading-5 text-muted-foreground">{t("ov.platform.desc")}</p>
+      <SettingGroup title={t("ov.platform.title")}>
         {field("ov.platform.baseUrl", "baseUrl", { placeholder: "https://maas.ovaijisuan.com/v1" })}
         {field("ov.platform.apiKey", "apiKey", { password: true, placeholder: hasKey ? masked : "", desc: "ov.platform.apiKeyHelp" })}
       </SettingGroup>
-      <SettingGroup title={t2("ov.platform.modelsTitle")}>{usedModels.map(usedRow)}</SettingGroup>
+      <SettingGroup title={t("ov.platform.modelsTitle")}>{usedModels.map(usedRow)}</SettingGroup>
       {saveError ? <p className="text-xs text-destructive">{saveError}</p> : null}
       <div className="flex justify-end gap-2">
         <Button onClick={save} disabled={saving} size="sm">
-          {saving ? t2("ov.platform.saving") : t2("ov.platform.save")}
+          {saving ? t("ov.platform.saving") : t("ov.platform.save")}
         </Button>
       </div>
     </div>

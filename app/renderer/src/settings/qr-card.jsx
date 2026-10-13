@@ -4,20 +4,20 @@ import { Icon } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { RetryIcon } from "../workspace/use-prompt-icon.jsx";
-function qrStatusLabel(t2, platform2, status, errorReason) {
-  const ns2 = `settings.imBridge.${platform2}.qr.status`;
+function qrStatusLabel(t, platform2, status, errorReason) {
+  const keyPrefix = `settings.imBridge.${platform2}.qr.status`;
   if (status === "pending_approval") {
-    return t2(`${ns2}.pendingApproval`);
+    return t(`${keyPrefix}.pendingApproval`);
   }
   if (status === "error") {
     if (errorReason && errorReason !== "unknown") {
-      const specific = t2(`${ns2}.error.${errorReason}`);
-      if (specific && specific !== `${ns2}.error.${errorReason}`)
+      const specific = t(`${keyPrefix}.error.${errorReason}`);
+      if (specific && specific !== `${keyPrefix}.error.${errorReason}`)
         return specific;
     }
-    return t2(`${ns2}.error`);
+    return t(`${keyPrefix}.error`);
   }
-  return t2(`${ns2}.${status}`);
+  return t(`${keyPrefix}.${status}`);
 }
 export function QrCard({
   platform: platform2,
@@ -29,12 +29,12 @@ export function QrCard({
   statusLabelOverride,
   children: children2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const label =
     statusLabelOverride ??
     (status
-      ? qrStatusLabel(t2, platform2, status, errorReason)
-      : t2(`settings.imBridge.${platform2}.qr.status.loading`));
+      ? qrStatusLabel(t, platform2, status, errorReason)
+      : t(`settings.imBridge.${platform2}.qr.status.loading`));
   const footerLabel = status === "ready" && readyHint ? readyHint : label;
   const hasQr = Boolean(children2);
   const isLoading = status === null || status === "loading";
@@ -84,7 +84,7 @@ export function QrCard({
                 data-action-ui-id={`im-bridge.${platform2}.qr.retry`}
               >
                 <RetryIcon size={14} />
-                {t2(`settings.imBridge.${platform2}.qr.retry`)}
+                {t(`settings.imBridge.${platform2}.qr.retry`)}
               </Button>
             )}
           </div>
@@ -115,7 +115,7 @@ export function QrCard({
                 data-action-ui-id={`im-bridge.${platform2}.qr.mask-retry`}
               >
                 <RetryIcon size={14} />
-                {t2(`settings.imBridge.${platform2}.qr.retry`)}
+                {t(`settings.imBridge.${platform2}.qr.retry`)}
               </Button>
             )}
           </div>

@@ -230,15 +230,15 @@ function parsePopupRichText(raw2) {
   return blocks;
 }
 function firstBlockOf(blocks, kind) {
-  return blocks.find((b3) => b3.kind === kind);
+  return blocks.find((block) => block.kind === kind);
 }
 function allBlocksOf(blocks, kind) {
-  return blocks.filter((b3) => b3.kind === kind);
+  return blocks.filter((block) => block.kind === kind);
 }
 const POPUP_TYPE = "migration";
 function renderInlines(inlines) {
   if (!inlines || inlines.length === 0) return null;
-  return inlines.map((inline2, i2) => renderInline(inline2, i2));
+  return inlines.map((inline2, i) => renderInline(inline2, i));
 }
 function renderInline(inline2, key2) {
   if (inline2.kind === "text") return <span key={key2}>{inline2.value}</span>;
@@ -250,7 +250,7 @@ function renderInline(inline2, key2) {
   );
 }
 function DetailsTooltipTrigger({ details }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const items = details.items;
   if (items.length === 0) return null;
   const [headItem, ...bodyItems] = items;
@@ -263,7 +263,7 @@ function DetailsTooltipTrigger({ details }) {
           <button
             type="button"
             data-action-ui-id="server-popup.migration.details-icon"
-            aria-label={t2("mediaplan.migration.popup.detailsAriaLabel")}
+            aria-label={t("mediaplan.migration.popup.detailsAriaLabel")}
             className="inline-flex cursor-help items-center text-muted-foreground/70 hover:text-foreground transition-colors"
           >
             <InfoIcon size={12} strokeWidth={1.75} />
@@ -280,9 +280,9 @@ function DetailsTooltipTrigger({ details }) {
                 {renderInlines(headItem)}
               </div>
             )}
-            {bodyItems.map((item, i2) => (
+            {bodyItems.map((item, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: details items 顺序固定
-              <div key={i2} className="text-background/85">
+              <div key={i} className="text-background/85">
                 {renderInlines(item)}
               </div>
             ))}
@@ -302,7 +302,7 @@ function renderBulletInlines(inlines) {
           {renderInlines(first2.inlines)}
         </strong>
         <span className="text-muted-foreground">
-          {inlines.slice(1).map((node2, i2) => renderInline(node2, i2))}
+          {inlines.slice(1).map((node2, i) => renderInline(node2, i))}
         </span>
       </>
     );
@@ -311,7 +311,7 @@ function renderBulletInlines(inlines) {
 }
 function renderBulletContent(content2) {
   if (content2.length === 0) return null;
-  const detailsIdx = content2.findIndex((n2) => n2.kind === "details");
+  const detailsIdx = content2.findIndex((contentNode) => contentNode.kind === "details");
   if (detailsIdx === -1) {
     return renderBulletInlines(content2);
   }
@@ -329,16 +329,16 @@ function renderBulletContent(content2) {
 function inlinesToPlainText(inlines) {
   if (!inlines) return "";
   return inlines
-    .map((i2) => {
-      if (i2.kind === "text") return i2.value;
-      if (i2.kind === "bold") return inlinesToPlainText(i2.inlines);
+    .map((i) => {
+      if (i.kind === "text") return i.value;
+      if (i.kind === "bold") return inlinesToPlainText(i.inlines);
       return "";
     })
     .join("")
     .trim();
 }
 export function MigrationPopup({ popup, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const platform2 = usePlatform();
   const walletQuery = useWalletQuery();
   const hailuoWallet = useHailuoWallet();
@@ -387,7 +387,7 @@ export function MigrationPopup({ popup, onClose }) {
         error_type: "unknown",
         error_message: String(err),
       });
-      dedupedToast.error(t2("serverPopup.errorToast"));
+      dedupedToast.error(t("serverPopup.errorToast"));
       return;
     }
     onClose();
@@ -422,7 +422,7 @@ export function MigrationPopup({ popup, onClose }) {
     onClose();
   };
   const a11yTitle =
-    inlinesToPlainText(titleBlock?.inlines) || t2("serverPopup.a11yTitle");
+    inlinesToPlainText(titleBlock?.inlines) || t("serverPopup.a11yTitle");
   const a11ySubtitle =
     inlinesToPlainText(subtitleBlock?.inlines) ||
     popup.description ||
@@ -465,14 +465,14 @@ export function MigrationPopup({ popup, onClose }) {
           <div className="flex flex-col gap-4 px-6 pb-3 pt-[18px]">
             {bulletBlocks.length > 0 && (
               <ul className="flex flex-col">
-                {bulletBlocks.map((bullet, i2) => {
+                {bulletBlocks.map((bullet, i) => {
                   return (
                     <li
-                      key={i2}
-                      className={`flex gap-2.5 py-2.5 text-xs leading-[1.55] text-foreground ${i2 < bulletBlocks.length - 1 ? "border-b border-dashed border-border" : ""}`}
+                      key={i}
+                      className={`flex gap-2.5 py-2.5 text-xs leading-[1.55] text-foreground ${i < bulletBlocks.length - 1 ? "border-b border-dashed border-border" : ""}`}
                     >
                       <span className="flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center bg-foreground font-heading text-[10px] font-medium leading-none text-background">
-                        {i2 + 1}
+                        {i + 1}
                       </span>
                       <span className="flex-1">
                         {renderBulletContent(bullet.content)}
@@ -501,7 +501,7 @@ export function MigrationPopup({ popup, onClose }) {
                 loading={walletLoading}
                 data-action-ui-id="server-popup.migration.redeem"
               >
-                {t2("mediaplan.migration.popup.redeemCta")}
+                {t("mediaplan.migration.popup.redeemCta")}
               </Button>
             )}
           </DialogFooter>

@@ -72,7 +72,7 @@ export function ConnectorApiKeySection({
   onCreated,
   onBusyChange,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const connectorId = manifest.connectorId;
   const auth = manifest.auth.kind === "apiKey" ? manifest.auth : void 0;
   const { copy: copy2 } = useConnectorCopy(
@@ -126,7 +126,7 @@ export function ConnectorApiKeySection({
           manifest,
           apiKey,
           connectorDescription(
-            t2,
+            t,
             i18n?.language ?? "en",
             connectorId,
             manifest.description,
@@ -135,7 +135,7 @@ export function ConnectorApiKeySection({
       );
       if (!mounted.current) return;
       if (!result.ok) {
-        setError(t2(`connectors.customDialog.error.${result.code}`));
+        setError(t(`connectors.customDialog.error.${result.code}`));
         return;
       }
       setApiKey("");
@@ -143,7 +143,7 @@ export function ConnectorApiKeySection({
       onClose();
     } catch {
       if (mounted.current)
-        setError(t2("connectors.customDialog.error.requestFailed"));
+        setError(t("connectors.customDialog.error.requestFailed"));
     } finally {
       busy.current = false;
       if (mounted.current) {
@@ -224,7 +224,7 @@ export function ConnectorApiKeySection({
                         }
                         data-action-ui-id={`connectors-${connectorId}-docs`}
                       >
-                        {t2("connectors.setupGuide")}
+                        {t("connectors.setupGuide")}
                         <Icon
                           icon={ArrowUpRight}
                           size="sm"
@@ -288,7 +288,7 @@ export function ConnectorApiKeySection({
         </ConnectorDialogIntro>
         <ConnectorDialogActions
           connectorId={connectorId}
-          cancelLabel={t2("common.cancel")}
+          cancelLabel={t("common.cancel")}
           cancelDisabled={submitting}
           onCancel={handleClose}
         >
@@ -299,7 +299,7 @@ export function ConnectorApiKeySection({
             loading={submitting}
             data-action-ui-id={`connectors-${connectorId}-connect`}
           >
-            {submitting ? t2("connectors.detail.connecting") : copy2("connect")}
+            {submitting ? t("connectors.detail.connecting") : copy2("connect")}
           </Button>
         </ConnectorDialogActions>
       </form>

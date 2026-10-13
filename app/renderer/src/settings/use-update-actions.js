@@ -24,7 +24,7 @@ function hasUpdateAttention(phase) {
 }
 
 export function useUpdateActions({ manualDownloadSource }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const platform2 = usePlatform();
   const {
     state: state2,
@@ -76,23 +76,23 @@ export function useUpdateActions({ manualDownloadSource }) {
     ? computeVersionDelta(state2.currentVersion, state2.targetVersion)
     : null;
   const ctaLabel = (() => {
-    if (checking) return t2("update.version.checking");
+    if (checking) return t("update.version.checking");
     if (downloading) return `${progressValue}%`;
-    if (pendingUpdate) return t2("update.version.updateCta");
-    return t2("update.version.checkCta");
+    if (pendingUpdate) return t("update.version.updateCta");
+    return t("update.version.checkCta");
   })();
   const primaryActionLabel = (() => {
-    if (checking) return t2("update.version.checking");
+    if (checking) return t("update.version.checking");
     if (available)
       return canManualDownload
-        ? t2("update.btn.manualDownload")
-        : t2("update.btn.download");
+        ? t("update.btn.manualDownload")
+        : t("update.btn.download");
     if (downloading) return `${progressValue}%`;
-    if (downloaded) return t2("update.btn.restartNow");
-    if (canRetryLocalInstall) return t2("update.btn.retryInstall");
+    if (downloaded) return t("update.btn.restartNow");
+    if (canRetryLocalInstall) return t("update.btn.retryInstall");
     if (state2.phase === "error" && canManualDownload)
-      return t2("update.btn.manualDownload");
-    return t2("update.version.checkCta");
+      return t("update.btn.manualDownload");
+    return t("update.version.checkCta");
   })();
   const handleManualDownload = reactExports.useCallback(() => {
     if (!state2.manualDownloadUrl) return;

@@ -111,11 +111,11 @@ async function restoreSnapshot(fetcher, snapshotId) {
 const ROOT_KEY = ["memory"];
 export const memoryQueryKeys = {
   list: (scopeKey, scope) => [...ROOT_KEY, scopeKey, "list", scope],
-  search: (scopeKey, q2, scope, type2) => [
+  search: (scopeKey, query, scope, type2) => [
     ...ROOT_KEY,
     scopeKey,
     "search",
-    q2,
+    query,
     scope,
     type2 ?? "",
   ],
@@ -126,12 +126,12 @@ export const memoryQueryKeys = {
     scope,
     name2,
   ],
-  recentAuto: (scopeKey, q2) => [
+  recentAuto: (scopeKey, options) => [
     ...ROOT_KEY,
     scopeKey,
     "recent-auto",
-    q2.lookbackMs ?? null,
-    q2.limit ?? null,
+    options.lookbackMs ?? null,
+    options.limit ?? null,
   ],
   /**
    * (ADR-010 Phase 3a) Compaction subtree -- preview/snapshots/config keys.
@@ -224,7 +224,7 @@ export function SheetContent({
   showCloseButton = true,
   ...props
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -250,7 +250,7 @@ export function SheetContent({
             }
           >
             <XIcon />
-            <span className="sr-only">{t2("common.close")}</span>
+            <span className="sr-only">{t("common.close")}</span>
           </DialogClose>
         )}
       </DialogPopup>
@@ -294,16 +294,16 @@ export function ChangelogTable({
   onRowHover,
   className,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const visibleRows = typeof limit === "number" ? rows.slice(0, limit) : rows;
   return (
     <div
       className={`flex-1 min-w-0 overflow-x-auto scrollbar-none ${className ?? ""}`}
     >
       <div className="flex items-center border-b border-border pb-3 pr-6 text-xs uppercase text-muted-foreground font-heading">
-        <span className="w-[100px] shrink-0">{t2("home.date")}</span>
-        <span className="flex-1 min-w-0">{t2("home.news")}</span>
-        <span className="w-[100px] shrink-0 text-right">{t2("home.type")}</span>
+        <span className="w-[100px] shrink-0">{t("home.date")}</span>
+        <span className="flex-1 min-w-0">{t("home.news")}</span>
+        <span className="w-[100px] shrink-0 text-right">{t("home.type")}</span>
       </div>
       {visibleRows.map((item, index2) => (
         <button

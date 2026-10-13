@@ -133,8 +133,8 @@ export function SettingsSelect({
   return (
     <Select
       value={value}
-      onValueChange={(v2) => {
-        if (v2 != null) onValueChange(v2);
+      onValueChange={(value) => {
+        if (value != null) onValueChange(value);
       }}
     >
       <SelectTrigger

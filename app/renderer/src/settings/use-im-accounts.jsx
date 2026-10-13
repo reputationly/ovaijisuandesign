@@ -185,7 +185,7 @@ export function useImStatuses() {
     void svc.listStatuses().then((initial) => {
       if (cancelled) return;
       const map3 = {};
-      for (const s2 of initial) map3[s2.accountId] = s2;
+      for (const accountStatus of initial) map3[accountStatus.accountId] = accountStatus;
       setStatuses(map3);
     });
     const unsubscribe = svc.onStatusChange((status) => {

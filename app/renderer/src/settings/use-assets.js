@@ -125,7 +125,7 @@ async function duplicateFiles(gatewayFetch2, params) {
 
 export function useAssets(options) {
   const queryClient2 = useQueryClient();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const gatewayFetch2 = useGatewayFetch();
   const gatewayScopeKey = useGatewayScopeKey();
   const contentPath = options?.contentPath;
@@ -188,7 +188,7 @@ export function useAssets(options) {
       });
       if (data22.enrollError) {
         dedupedToast.warning(
-          t2("assets.uploadEnrollFailed", {
+          t("assets.uploadEnrollFailed", {
             error: data22.enrollError,
           }),
         );

@@ -101,7 +101,7 @@ export function AuthProvider({ children: children2 }) {
   const navigate = useNavigate();
   const navigateRef = reactExports.useRef(navigate);
   navigateRef.current = navigate;
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [user, setUser] = reactExports.useState(null);
   const [isLoading, setIsLoading] = reactExports.useState(true);
   const [unauthenticatedReason, setUnauthenticatedReason] =
@@ -127,8 +127,8 @@ export function AuthProvider({ children: children2 }) {
   const loginAttemptRef = reactExports.useRef(null);
   const loginDispatchPromiseRef = reactExports.useRef(null);
   const loginDispatchInFlightRef = reactExports.useRef(false);
-  const tRef = reactExports.useRef(t2);
-  tRef.current = t2;
+  const tRef = reactExports.useRef(t);
+  tRef.current = t;
   const userRef = reactExports.useRef(user);
   const applyUser = reactExports.useCallback((next2) => {
     userRef.current = next2;
@@ -156,7 +156,7 @@ export function AuthProvider({ children: children2 }) {
     [],
   );
   const persistUser = reactExports.useCallback(
-    async (u4, epoch, proof) => {
+    async (userInfo, epoch, proof) => {
       if (typeof __HILO_AUTH__ !== "undefined") {
         const auth = __HILO_AUTH__;
         setIsLoading(true);
@@ -164,7 +164,7 @@ export function AuthProvider({ children: children2 }) {
         try {
           stored = await writeAuth(epoch, () =>
             auth.storeAuth({
-              ...u4,
+              ...userInfo,
               proof,
             }),
           );
@@ -190,14 +190,14 @@ export function AuthProvider({ children: children2 }) {
       if (authEpochRef.current !== epoch) return false;
       cancelExpiredLogout();
       setUnauthenticatedReason("initial");
-      applyUser(u4);
+      applyUser(userInfo);
       setIsLoading(false);
-      if (u4.userID) {
+      if (userInfo.userID) {
         setTrackUser(
-          u4.userID,
-          u4.username
+          userInfo.userID,
+          userInfo.username
             ? {
-                username: u4.username,
+                username: userInfo.username,
               }
             : void 0,
         );
@@ -205,8 +205,8 @@ export function AuthProvider({ children: children2 }) {
       trackEvent(TRACK_EVENTS.AUTH_LOGIN_SUCCESS, {
         ...buildAuthLoginTrackingProps(loginAttemptRef.current),
         stage: "completed",
-        user_id: u4.userID ?? "unknown",
-        has_id_token: Boolean(u4.idToken),
+        user_id: userInfo.userID ?? "unknown",
+        has_id_token: Boolean(userInfo.idToken),
       });
       loginAttemptRef.current = null;
       if (typeof __HILO_AUTH__ !== "undefined") {
@@ -961,10 +961,10 @@ export function AuthProvider({ children: children2 }) {
         >
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t2("auth.confirmBrowserLogin.title")}
+              {t("auth.confirmBrowserLogin.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t2("auth.confirmBrowserLogin.description", {
+              {t("auth.confirmBrowserLogin.description", {
                 account: browserLogin?.user.username
                   ? `${browserLogin.user.username} (${browserLogin.user.userID ?? ""})`
                   : (browserLogin?.user.userID ?? ""),
@@ -976,13 +976,13 @@ export function AuthProvider({ children: children2 }) {
               onClick={handleCancelBrowserLogin}
               data-action-ui-id="auth:confirm-browser-login:cancel"
             >
-              {t2("common.cancel")}
+              {t("common.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmBrowserLogin}
               data-action-ui-id="auth:confirm-browser-login:confirm"
             >
-              {t2("common.confirm")}
+              {t("common.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -991,18 +991,18 @@ export function AuthProvider({ children: children2 }) {
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t2("auth.sessionExpired.title")}
+              {t("auth.sessionExpired.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t2("auth.sessionExpired.description")}
+              {t("auth.sessionExpired.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>
-              {t2("auth.sessionExpired.later")}
+              {t("auth.sessionExpired.later")}
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleExpiredRelogin}>
-              {t2("auth.sessionExpired.relogin")}
+              {t("auth.sessionExpired.relogin")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1011,21 +1011,21 @@ export function AuthProvider({ children: children2 }) {
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t2("auth.unsavedLogout.title")}
+              {t("auth.unsavedLogout.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t2("auth.unsavedLogout.description")}
+              {t("auth.unsavedLogout.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>
-              {t2("auth.unsavedLogout.cancel")}
+              {t("auth.unsavedLogout.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={handleDiscardAndLogout}
             >
-              {t2("auth.unsavedLogout.confirm")}
+              {t("auth.unsavedLogout.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

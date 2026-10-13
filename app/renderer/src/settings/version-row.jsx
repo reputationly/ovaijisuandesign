@@ -26,7 +26,7 @@ export const UpdaterRouterInner = () => {
 };
 const STALE_CHECK_MS = 10 * 60 * 1e3;
 export const VersionRow = ({ menuOpen }) => {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { openSettings } = useSettingsDialog();
   const update2 = useUpdateActions({
     manualDownloadSource: "update.version-row.manual-download",
@@ -43,7 +43,7 @@ export const VersionRow = ({ menuOpen }) => {
       });
     }
   }, [menuOpen, state2.phase, state2.lastCheckAt, update2.check]);
-  const buttonLabel = `${t2("update.version.menuLabel")} ${update2.currentVersionLabel} ${update2.ctaLabel}`;
+  const buttonLabel = `${t("update.version.menuLabel")} ${update2.currentVersionLabel} ${update2.ctaLabel}`;
   return (
     <div
       className="group flex h-9 w-full items-center gap-1 rounded-md px-2 text-[14px] leading-5 text-foreground/70 transition-colors hover:bg-foreground/[0.04] hover:text-foreground"
@@ -57,7 +57,7 @@ export const VersionRow = ({ menuOpen }) => {
       >
         <CircleArrowUp size={18} strokeWidth={1.5} className="shrink-0" />
         <span className="min-w-0 flex-1 truncate">
-          {t2("update.version.menuLabel")}{" "}
+          {t("update.version.menuLabel")}{" "}
           <span className="text-xs font-normal text-muted-foreground">
             {update2.currentVersionLabel}
           </span>

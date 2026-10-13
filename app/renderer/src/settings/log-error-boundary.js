@@ -40,8 +40,8 @@ function createErrorBoundaryFailureId() {
     bytes2[2] = (fallback >>> 8) & 255;
     bytes2[3] = fallback & 255;
   }
-  const hex2 = Array.from(bytes2, (b3) =>
-    b3.toString(16).padStart(2, "0"),
+  const hex2 = Array.from(bytes2, (byte) =>
+    byte.toString(16).padStart(2, "0"),
   ).join("");
   return `EB-${hex2.toUpperCase()}`;
 }

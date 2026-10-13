@@ -25,8 +25,8 @@ function readQueryIds(value) {
     ? [
         ...new Set(
           value
-            .filter((id2) => typeof id2 === "string")
-            .map((id2) => id2.trim())
+            .filter((id) => typeof id === "string")
+            .map((id) => id.trim())
             .filter(Boolean),
         ),
       ]

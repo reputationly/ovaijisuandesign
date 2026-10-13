@@ -175,8 +175,8 @@ function createLocalConnectorInstallationTracker(service2) {
   };
 }
 const tracker = createLocalConnectorInstallationTracker({
-  install: (id2) => homeService.connector.install(id2),
-  status: (id2) => homeService.connector.status(id2),
+  install: (id) => homeService.connector.install(id),
+  status: (id) => homeService.connector.status(id),
 });
 function useLocalConnectorInstallations(
   onFinished,
@@ -190,8 +190,8 @@ function useLocalConnectorInstallations(
   onFinishedRef.current = onFinished;
   reactExports.useEffect(
     () =>
-      installationTracker.subscribeFinished((id2, result) =>
-        onFinishedRef.current(id2, result),
+      installationTracker.subscribeFinished((id, result) =>
+        onFinishedRef.current(id, result),
       ),
     [installationTracker],
   );
@@ -203,7 +203,7 @@ function useLocalConnectorInstallations(
   };
 }
 export function ConnectorCapabilityCard({ capability, searchCallId }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const catalog = useConnectorCatalog();
   const manifest = catalog.entries.find(
     (entry) => entry.manifest.connectorId === capability.connectorId,
@@ -224,7 +224,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
   const installationId = [
     capability.connectorId,
     ...(mcp ? [mcp.serverName] : []),
-  ].find((id2) => installations.installations[id2]?.phase === "installing");
+  ].find((id) => installations.installations[id]?.phase === "installing");
   const installing = installationId !== void 0;
   const fetcher = useGatewayFetch(),
     scope = useGatewayScopeKey();
@@ -756,7 +756,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           )}
           aria-hidden={showCancelledResult || void 0}
         >
-          {t2(
+          {t(
             preparing
               ? "chat.connector.setupInProgress"
               : waiting
@@ -786,7 +786,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           )}
           aria-hidden={!showCancelledResult || void 0}
         >
-          {t2(
+          {t(
             installing
               ? "chat.connector.cancelled"
               : "chat.connector.cancelledResult",
@@ -819,7 +819,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
               checkOnly: Boolean(waitingRef.current),
             })
           }
-          label={t2(
+          label={t(
             busy || installing
               ? checking && !installing
                 ? "chat.connector.check"
@@ -861,7 +861,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
               data-action-ui-id="capability-connector-edit"
               onClick={() => void handleEditConfiguration()}
             >
-              {t2("connectors.editConfiguration")}
+              {t("connectors.editConfiguration")}
             </Button>
           )}
         {(busy ||
@@ -889,7 +889,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
                 )}
                 aria-hidden={showCancelling || showCancelledResult || void 0}
               >
-                {t2("chat.connector.cancel")}
+                {t("chat.connector.cancel")}
               </span>
               <span
                 className={cn(
@@ -898,7 +898,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
                 )}
                 aria-hidden={!showCancelling || void 0}
               >
-                {t2("chat.connector.cancelling")}
+                {t("chat.connector.cancelling")}
               </span>
               <span
                 className={cn(
@@ -907,7 +907,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
                 )}
                 aria-hidden={!showCancelledResult || void 0}
               >
-                {t2("chat.connector.cancelledLabel")}
+                {t("chat.connector.cancelledLabel")}
               </span>
             </span>
           </Button>
@@ -915,7 +915,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
       </div>
       {deliveryPending && (
         <p role="status" className="text-xs text-muted-foreground">
-          {t2(
+          {t(
             selection2?.delivery?.status === "unknown"
               ? "chat.connector.deliveryUnknown"
               : "chat.connector.deliveryPending",
@@ -924,12 +924,12 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
       )}
       {selection2?.delivery?.status === "failed" && (
         <p role="alert" className="text-xs text-destructive">
-          {t2("chat.capabilitySearch.errors.sendFailed")}
+          {t("chat.capabilitySearch.errors.sendFailed")}
         </p>
       )}
       {connectionError && (
         <p role="alert" className="text-xs text-destructive">
-          {t2(`connectors.customDialog.error.${connectionError}`)}
+          {t(`connectors.customDialog.error.${connectionError}`)}
         </p>
       )}
       {editSnapshot && (
@@ -967,8 +967,8 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
       {preparing && (
         <div
           role="progressbar"
-          aria-label={t2("chat.connector.progress")}
-          aria-valuetext={t2(`chat.connector.phase.${phase || "connecting"}`)}
+          aria-label={t("chat.connector.progress")}
+          aria-valuetext={t(`chat.connector.phase.${phase || "connecting"}`)}
           className="h-1 overflow-hidden rounded-full bg-border"
         >
           <div className="h-full w-1/2 animate-pulse rounded-full bg-primary" />
@@ -980,7 +980,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           className="flex items-center gap-2 text-xs text-muted-foreground"
         >
           <LoaderCircle className="size-4 animate-spin" strokeWidth={1.5} />
-          {t2(`chat.connector.phase.${phase || "connecting"}`)}
+          {t(`chat.connector.phase.${phase || "connecting"}`)}
         </div>
       )}
       {waiting && (
@@ -989,7 +989,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
           className="space-y-2 text-xs text-muted-foreground"
           data-action-ui-id="capability-connector-waiting"
         >
-          <p>{t2("chat.connector.waitingRuntime")}</p>
+          <p>{t("chat.connector.waitingRuntime")}</p>
           <p className="grid">
             <span
               className={cn(
@@ -998,7 +998,7 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
               )}
               aria-hidden={showCancelledResult || void 0}
             >
-              {t2("chat.connector.autoContinue")}
+              {t("chat.connector.autoContinue")}
             </span>
             <span
               className={cn(
@@ -1007,14 +1007,14 @@ export function ConnectorCapabilityCard({ capability, searchCallId }) {
               )}
               aria-hidden={!showCancelledResult || void 0}
             >
-              {t2("chat.connector.resumeHint")}
+              {t("chat.connector.resumeHint")}
             </span>
           </p>
         </div>
       )}
       {error && error !== "cancelled" && (
         <p role="alert" className="text-xs text-destructive">
-          {t2(`chat.capabilitySearch.errors.${error}`)}
+          {t(`chat.capabilitySearch.errors.${error}`)}
         </p>
       )}
       {dialog &&

@@ -68,11 +68,11 @@ export function useFeedback() {
 const DEFAULT_SUBMISSION_KEY = "default";
 
 export function useDirectFeedback() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const statusByKeyRef = reactExports.useRef(new Map());
   const [statusByKey, setStatusByKey] = reactExports.useState({});
   const routerState = useRouterState({
-    select: (s2) => s2.location.pathname,
+    select: (routerState) => routerState.location.pathname,
   });
   const setSubmissionStatus = reactExports.useCallback((key2, status) => {
     if (status === "idle") {
@@ -122,7 +122,7 @@ export function useDirectFeedback() {
         });
         setSubmissionStatus(submissionKey, "submitted");
         dedupedToast.success(
-          t2("feedback.toast.successWithId", {
+          t("feedback.toast.successWithId", {
             id: res.ticket_id,
           }),
         );
@@ -130,13 +130,13 @@ export function useDirectFeedback() {
         setSubmissionStatus(submissionKey, "idle");
         const message2 = err instanceof Error ? err.message : String(err);
         dedupedToast.error(
-          t2("feedback.toast.failed", {
+          t("feedback.toast.failed", {
             error: message2,
           }),
         );
       }
     },
-    [routerState, setSubmissionStatus, t2],
+    [routerState, setSubmissionStatus, t],
   );
   const defaultStatus = getSubmissionStatus(DEFAULT_SUBMISSION_KEY);
   return {
@@ -157,7 +157,7 @@ export function FeedbackButton({
   contextType,
   context,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { openFeedback } = useFeedback();
   const { submitting, submitted, submitDirect } = useDirectFeedback();
   const resolvedContextType =
@@ -188,7 +188,7 @@ export function FeedbackButton({
   };
   const displayLabel =
     directSubmit && submitted
-      ? t2("feedback.reported", {
+      ? t("feedback.reported", {
           defaultValue: "Reported",
         })
       : (label ?? "Report Issue");

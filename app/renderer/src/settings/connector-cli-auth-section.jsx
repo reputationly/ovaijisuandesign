@@ -38,7 +38,7 @@ export function ConnectorCliAuthSection({
   onCreated,
   onBusyChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const connectorId = manifest.connectorId;
   const { copy: copy2 } = useConnectorCopy(
     connectorId,
@@ -328,7 +328,7 @@ export function ConnectorCliAuthSection({
         </ConnectorDialogIntro>
         <ConnectorDialogActions
           connectorId={connectorId}
-          cancelLabel={t2(authorized ? "common.close" : "common.cancel")}
+          cancelLabel={t(authorized ? "common.close" : "common.cancel")}
           cancelDisabled={working}
           cancelActionUiId={`connectors-${connectorId}-close`}
           onCancel={handleClose}

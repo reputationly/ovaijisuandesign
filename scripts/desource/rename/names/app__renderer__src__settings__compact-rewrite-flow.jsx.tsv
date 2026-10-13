@@ -1,0 +1,15 @@
+key	new	reason
+t2@82:14	t	useTranslation() 返回的翻译函数 t
+t2@175:14	t	useTranslation() 返回的翻译函数 t
+t2@274:14	t	useTranslation() 返回的翻译函数 t
+t2@301:14	t	useTranslation() 返回的翻译函数 t
+t2@326:14	t	useTranslation() 返回的翻译函数 t
+e2@95:33	entry	记忆条目
+e2@212:44	entry	记忆条目
+e2@238:24	entry	记忆条目
+e2@338:29	entry	记忆条目
+e2@342:29	entry	记忆条目
+e2@352:51	entry	记忆条目
+e2@370:51	entry	记忆条目
+e2@524:52	entry	记忆条目
+u4@122:33	upsert	重写计划中要新增/更新的条目

@@ -89,17 +89,17 @@ function getCustomModelValidationErrors(value, stored) {
       errors[`${prefix}.id`] = "modelId";
       continue;
     }
-    const id2 = typeof model.id === "string" ? model.id.trim() : "";
+    const id = typeof model.id === "string" ? model.id.trim() : "";
     if (
-      !id2 ||
-      id2.startsWith("__hub_reasoning__") ||
-      Array.from(id2).some((char) => /\s/.test(char) || char.charCodeAt(0) < 32)
+      !id ||
+      id.startsWith("__hub_reasoning__") ||
+      Array.from(id).some((char) => /\s/.test(char) || char.charCodeAt(0) < 32)
     )
       errors[`${prefix}.id`] = "modelId";
-    else if (ids2.has(id2)) {
+    else if (ids2.has(id)) {
       errors[`${prefix}.id`] = "duplicateModel";
-      errors[`models.${ids2.get(id2)}.id`] = "duplicateModel";
-    } else ids2.set(id2, index2);
+      errors[`models.${ids2.get(id)}.id`] = "duplicateModel";
+    } else ids2.set(id, index2);
     if (!Number.isSafeInteger(model.contextWindow) || model.contextWindow <= 0)
       errors[`${prefix}.contextWindow`] = "positiveInteger";
     if (
@@ -174,18 +174,18 @@ function getCustomModelValidationErrors(value, stored) {
   }
   return errors;
 }
-function CustomModelFieldError({ id: id2, error }) {
-  const { t: t2 } = useTranslation();
+function CustomModelFieldError({ id, error }) {
+  const { t } = useTranslation();
   if (!error) return null;
   return (
-    <p id={`${id2}-error`} role="alert" className="text-xs text-destructive">
-      {t2(`settings.models.validation.${error}`)}
+    <p id={`${id}-error`} role="alert" className="text-xs text-destructive">
+      {t(`settings.models.validation.${error}`)}
     </p>
   );
 }
 const PRESET_LEVELS = ["low", "medium", "high", "xhigh", "max"];
 function CustomReasoningSelect({
-  id: id2,
+  id,
   index: index2,
   levels,
   draft,
@@ -193,7 +193,7 @@ function CustomReasoningSelect({
   invalid: invalid2,
   onChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const anchor = reactExports.useRef(null);
   const [open, setOpen] = reactExports.useState(false);
   const choices = [...new Set([...PRESET_LEVELS, ...levels])];
@@ -224,7 +224,7 @@ function CustomReasoningSelect({
                 size="icon"
                 className="size-4 shrink-0 rounded-full text-muted-foreground"
                 disabled={disabled2}
-                aria-label={t2("settings.models.removeReasoning", {
+                aria-label={t("settings.models.removeReasoning", {
                   level,
                 })}
                 data-action-ui-id={`settings-models.remove-reasoning-${index2}-${level}`}
@@ -240,9 +240,9 @@ function CustomReasoningSelect({
             </Badge>
           ))}
           <Input3
-            id={id2}
+            id={id}
             aria-invalid={invalid2}
-            aria-describedby={invalid2 ? `${id2}-error` : void 0}
+            aria-describedby={invalid2 ? `${id}-error` : void 0}
             value={draft}
             disabled={disabled2}
             autoComplete="off"
@@ -251,7 +251,7 @@ function CustomReasoningSelect({
             placeholder={
               levels.length
                 ? void 0
-                : t2("settings.models.reasoningPlaceholder")
+                : t("settings.models.reasoningPlaceholder")
             }
             onChange={(event) => onChange(levels, event.target.value)}
             onKeyDown={(event) => {
@@ -275,7 +275,7 @@ function CustomReasoningSelect({
               size="icon"
               className="size-6 shrink-0 text-muted-foreground"
               disabled={disabled2}
-              aria-label={t2("settings.models.chooseReasoning")}
+              aria-label={t("settings.models.chooseReasoning")}
               data-action-ui-id={`settings-models.choose-reasoning-${index2}`}
             />
           }
@@ -287,7 +287,7 @@ function CustomReasoningSelect({
         anchor={anchor}
         align="start"
         className="w-(--anchor-width) gap-1 p-1"
-        aria-label={t2("settings.models.reasoningLevels")}
+        aria-label={t("settings.models.reasoningLevels")}
       >
         {choices.map((level) => (
           <Label
@@ -323,18 +323,18 @@ function CustomModelCard({
   onChange,
   onRemove: onRemove2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const prefix = `custom-model-${index2}`;
   return (
     <section
       className="space-y-3"
-      aria-label={t2("settings.models.modelNumber", {
+      aria-label={t("settings.models.modelNumber", {
         number: index2 + 1,
       })}
     >
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-medium">
-          {t2("settings.models.modelNumber", {
+          {t("settings.models.modelNumber", {
             number: String(index2 + 1).padStart(2, "0"),
           })}
         </h3>
@@ -343,7 +343,7 @@ function CustomModelCard({
             variant="ghost"
             size="icon"
             disabled={disabled2}
-            aria-label={t2("settings.models.resetModel")}
+            aria-label={t("settings.models.resetModel")}
             data-action-ui-id={`settings-models.reset-model-${index2}`}
             onClick={() => {
               onChange({
@@ -360,7 +360,7 @@ function CustomModelCard({
             variant="ghost"
             size="icon"
             disabled={disabled2 || !canRemove}
-            aria-label={t2("settings.models.removeModel")}
+            aria-label={t("settings.models.removeModel")}
             data-action-ui-id={`settings-models.remove-model-${index2}`}
             onClick={onRemove2}
           >
@@ -374,7 +374,7 @@ function CustomModelCard({
             htmlFor={`${prefix}-id`}
             className="gap-1 after:text-destructive after:content-['*']"
           >
-            {t2("settings.models.modelId")}
+            {t("settings.models.modelId")}
           </Label>
           <Input3
             id={`${prefix}-id`}
@@ -387,7 +387,7 @@ function CustomModelCard({
             disabled={disabled2}
             autoComplete="off"
             spellCheck={false}
-            placeholder={t2("settings.models.modelIdPlaceholder")}
+            placeholder={t("settings.models.modelIdPlaceholder")}
             onChange={(event) =>
               onChange({
                 ...model,
@@ -407,7 +407,7 @@ function CustomModelCard({
               htmlFor={`${prefix}-context`}
               className="gap-1 after:text-destructive after:content-['*']"
             >
-              {t2("settings.models.contextWindow")}
+              {t("settings.models.contextWindow")}
             </Label>
             <Input3
               id={`${prefix}-context`}
@@ -441,7 +441,7 @@ function CustomModelCard({
               htmlFor={`${prefix}-output`}
               className="gap-1 after:text-destructive after:content-['*']"
             >
-              {t2("settings.models.maxOutputTokens")}
+              {t("settings.models.maxOutputTokens")}
             </Label>
             <Input3
               id={`${prefix}-output`}
@@ -473,7 +473,7 @@ function CustomModelCard({
         </div>
         <div className="space-y-2">
           <Label htmlFor={`${prefix}-reasoning`}>
-            {t2("settings.models.reasoningLevels")}
+            {t("settings.models.reasoningLevels")}
           </Label>
           <CustomReasoningSelect
             id={`${prefix}-reasoning`}
@@ -506,10 +506,10 @@ function CustomModelHeaders({
   savedNames,
   onChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
-    <section className="space-y-3" aria-label={t2("settings.models.headers")}>
-      <h3 className="text-sm font-medium">{t2("settings.models.headers")}</h3>
+    <section className="space-y-3" aria-label={t("settings.models.headers")}>
+      <h3 className="text-sm font-medium">{t("settings.models.headers")}</h3>
       <CustomModelFieldError id="custom-headers" error={errors.headers} />
       {headers.map((header, index2) => (
         <div key={header.rowKey} className="flex items-start gap-2">
@@ -518,7 +518,7 @@ function CustomModelHeaders({
               htmlFor={`custom-header-name-${index2}`}
               className="gap-1 after:text-destructive after:content-['*']"
             >
-              {t2("settings.models.headerName")}
+              {t("settings.models.headerName")}
             </Label>
             <Input3
               id={`custom-header-name-${index2}`}
@@ -564,7 +564,7 @@ function CustomModelHeaders({
                   : void 0
               }
             >
-              {t2("settings.models.headerValue")}
+              {t("settings.models.headerValue")}
             </Label>
             <Input3
               id={`custom-header-value-${index2}`}
@@ -590,7 +590,7 @@ function CustomModelHeaders({
                   (name2) =>
                     name2.toLowerCase() === header.name.trim().toLowerCase(),
                 )
-                  ? t2("settings.models.headerSavedPlaceholder")
+                  ? t("settings.models.headerSavedPlaceholder")
                   : void 0
               }
               onChange={(event) =>
@@ -617,10 +617,10 @@ function CustomModelHeaders({
             size="icon"
             className="mt-6"
             disabled={disabled2}
-            aria-label={t2("settings.models.removeHeader")}
+            aria-label={t("settings.models.removeHeader")}
             data-action-ui-id={`settings-models.remove-header-${index2}`}
             onClick={() =>
-              onChange(headers.filter((_2, rowIndex) => rowIndex !== index2))
+              onChange(headers.filter((_, rowIndex) => rowIndex !== index2))
             }
           >
             <Trash2 className="size-4" strokeWidth={1.5} />
@@ -643,11 +643,11 @@ function CustomModelHeaders({
         data-action-ui-id="settings-models.add-header"
       >
         <Plus className="size-4" strokeWidth={1.5} />
-        {t2("settings.models.addHeader")}
+        {t("settings.models.addHeader")}
       </Button>
       {headers.length > 0 && (
         <p className="text-xs text-muted-foreground">
-          {t2("settings.models.headersHelp")}
+          {t("settings.models.headersHelp")}
         </p>
       )}
     </section>
@@ -687,7 +687,7 @@ function formValue(stored) {
   };
 }
 export function CustomProviderForm({ stored, onSave, onCancel }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [value, setValue] = reactExports.useState(() => formValue(stored));
   const [showKey, setShowKey] = reactExports.useState(false);
   const [pending2, setPending] = reactExports.useState(false);
@@ -769,10 +769,10 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
         setShowKey(false);
         setSaved(true);
       } else {
-        setError(t2("settings.models.saveFailed"));
+        setError(t("settings.models.saveFailed"));
       }
     } catch {
-      setError(t2("settings.models.saveFailed"));
+      setError(t("settings.models.saveFailed"));
     } finally {
       setPending(false);
     }
@@ -780,13 +780,13 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
   return (
     <div ref={formRef} className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        {t2("settings.models.description")}
+        {t("settings.models.description")}
       </p>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="custom-model-provider">
-              {t2("settings.models.providerName")}
+              {t("settings.models.providerName")}
             </Label>
             <Input3
               id="custom-model-provider"
@@ -799,7 +799,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
               value={value.providerName ?? ""}
               disabled={pending2}
               autoComplete="off"
-              placeholder={t2("settings.models.providerNamePlaceholder")}
+              placeholder={t("settings.models.providerNamePlaceholder")}
               onChange={(event) =>
                 handleChange({
                   providerName: event.target.value,
@@ -817,7 +817,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
               htmlFor="custom-model-protocol"
               className="gap-1 after:text-destructive after:content-['*']"
             >
-              {t2("settings.models.protocol")}
+              {t("settings.models.protocol")}
             </Label>
             <Select
               value={value.protocol}
@@ -845,7 +845,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
                 data-action-ui-id="settings-models.protocol"
               >
                 <SelectValue>
-                  {t2(
+                  {t(
                     value.protocol === "anthropic"
                       ? "settings.models.protocolAnthropic"
                       : value.protocol === "openai-responses"
@@ -859,19 +859,19 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
                   value="anthropic"
                   data-action-ui-id="settings-models.protocol-anthropic"
                 >
-                  {t2("settings.models.protocolAnthropic")}
+                  {t("settings.models.protocolAnthropic")}
                 </SelectItem>
                 <SelectItem
                   value="openai-compatible"
                   data-action-ui-id="settings-models.protocol-openai"
                 >
-                  {t2("settings.models.protocolOpenAI")}
+                  {t("settings.models.protocolOpenAI")}
                 </SelectItem>
                 <SelectItem
                   value="openai-responses"
                   data-action-ui-id="settings-models.protocol-responses"
                 >
-                  {t2("settings.models.protocolResponses")}
+                  {t("settings.models.protocolResponses")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -886,7 +886,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
             htmlFor="custom-model-base-url"
             className="gap-1 after:text-destructive after:content-['*']"
           >
-            {t2("settings.models.baseUrl")}
+            {t("settings.models.baseUrl")}
           </Label>
           <Input3
             id="custom-model-base-url"
@@ -899,7 +899,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
             disabled={pending2}
             autoComplete="off"
             spellCheck={false}
-            placeholder={t2("settings.models.baseUrlPlaceholder")}
+            placeholder={t("settings.models.baseUrlPlaceholder")}
             onChange={(event) =>
               handleChange({
                 baseUrl: event.target.value,
@@ -921,7 +921,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
                 : void 0
             }
           >
-            {t2("settings.models.apiKey")}
+            {t("settings.models.apiKey")}
           </Label>
           <div className="relative">
             <Input3
@@ -939,7 +939,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
               disabled={pending2}
               autoComplete="new-password"
               spellCheck={false}
-              placeholder={t2(
+              placeholder={t(
                 stored?.apiKey
                   ? "settings.models.apiKeySavedPlaceholder"
                   : "settings.models.apiKeyPlaceholder",
@@ -956,7 +956,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
               size="icon"
               className="absolute right-0 top-0"
               disabled={pending2}
-              aria-label={t2(
+              aria-label={t(
                 showKey ? "settings.models.hideKey" : "settings.models.showKey",
               )}
               data-action-ui-id="settings-models.toggle-key"
@@ -977,7 +977,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
             id="custom-model-api-key-help"
             className="text-xs text-muted-foreground"
           >
-            {t2("settings.models.apiKeyHelp")}
+            {t("settings.models.apiKeyHelp")}
           </p>
         </div>
       </div>
@@ -1017,7 +1017,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
             onRemove={() =>
               handleChange({
                 models: value.models?.filter(
-                  (_2, entryIndex) => entryIndex !== index2,
+                  (_, entryIndex) => entryIndex !== index2,
                 ),
               })
             }
@@ -1034,11 +1034,11 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
           data-action-ui-id="settings-models.add-model"
         >
           <Plus className="size-4" strokeWidth={1.5} />
-          {t2("settings.models.addModel")}
+          {t("settings.models.addModel")}
         </Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        {t2("settings.models.applyHint")}
+        {t("settings.models.applyHint")}
       </p>
       {error && !deleteOpen && (
         <p role="alert" className="text-xs text-destructive">
@@ -1047,7 +1047,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
       )}
       {saved && (
         <p role="status" className="text-xs text-muted-foreground">
-          {t2("settings.models.saved")}
+          {t("settings.models.saved")}
         </p>
       )}
       <div className="flex flex-wrap gap-2">
@@ -1057,14 +1057,14 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
           onClick={onCancel}
           data-action-ui-id="settings-models.cancel-provider"
         >
-          {t2("common.cancel")}
+          {t("common.cancel")}
         </Button>
         <Button
           disabled={pending2}
           onClick={() => void handleSave()}
           data-action-ui-id="settings-models.save"
         >
-          {t2(pending2 ? "common.saving" : "common.save")}
+          {t(pending2 ? "common.saving" : "common.save")}
         </Button>
         {stored && (
           <Button
@@ -1076,7 +1076,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
             }}
             data-action-ui-id="settings-models.clear"
           >
-            {t2("settings.models.clear")}
+            {t("settings.models.clear")}
           </Button>
         )}
       </div>
@@ -1089,13 +1089,13 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
         <AlertDialogContent size="sm" layer="nested">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t2("settings.models.deleteProviderTitle", {
+              {t("settings.models.deleteProviderTitle", {
                 name:
-                  stored?.providerName || t2("settings.models.customProvider"),
+                  stored?.providerName || t("settings.models.customProvider"),
               })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t2("settings.models.deleteProviderDescription")}
+              {t("settings.models.deleteProviderDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           {error && (
@@ -1108,7 +1108,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
               disabled={pending2}
               data-action-ui-id="settings-models.cancel-delete-provider"
             >
-              {t2("common.cancel")}
+              {t("common.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
@@ -1116,7 +1116,7 @@ export function CustomProviderForm({ stored, onSave, onCancel }) {
               onClick={() => void handleSave(true)}
               data-action-ui-id="settings-models.confirm-delete-provider"
             >
-              {t2(pending2 ? "common.deleting" : "common.delete")}
+              {t(pending2 ? "common.deleting" : "common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

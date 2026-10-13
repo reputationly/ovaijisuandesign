@@ -1,0 +1,18 @@
+key	new	reason
+t2@337:14	t	useTranslation() 返回的翻译函数 t
+t2@407:14	t	useTranslation() 返回的翻译函数 t
+t2@508:14	t	useTranslation() 返回的翻译函数 t
+t2@654:14	t	useTranslation() 返回的翻译函数 t
+t2@759:14	t	useTranslation() 返回的翻译函数 t
+t2@839:14	t	useTranslation() 返回的翻译函数 t
+e2@896:26	changeEvent	onChange 回调收到的事件对象
+t2@990:14	t	useTranslation() 返回的翻译函数 t
+t2@1093:14	t	useTranslation() 返回的翻译函数 t
+t2@1115:14	t	useTranslation() 返回的翻译函数 t
+t2@1148:14	t	useTranslation() 返回的翻译函数 t
+t2@1189:14	t	useTranslation() 返回的翻译函数 t
+t2@1363:14	t	useTranslation() 返回的翻译函数 t
+a2@1419:27	a	sort 比较函数的前一个账号
+b3@1419:31	b	sort 比较函数的后一个账号
+a2@1428:33	account	单个 IM 账号，取其平台
+a2@1444:10	account	单个 IM 账号，检查凭据是否损坏

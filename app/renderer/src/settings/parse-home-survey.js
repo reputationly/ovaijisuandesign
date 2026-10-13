@@ -31,7 +31,7 @@ function localizedString(value, locale) {
     nonEmptyString(value[locale === "zh" ? "en" : "zh"])
   );
 }
-function localizedText$1(value, locale) {
+function pickZhEnText(value, locale) {
   if (typeof value === "string") return value.trim();
   if (!isRecord$f(value)) return "";
   const primary = value[locale];
@@ -85,11 +85,11 @@ function parseRef(value, locale) {
 }
 function parseItem(value, locale) {
   if (!isRecord$f(value)) return void 0;
-  const id2 = nonEmptyString(value.id);
-  if (!id2 || !PRESET_ID_PATTERN.test(id2)) return void 0;
+  const id = nonEmptyString(value.id);
+  if (!id || !PRESET_ID_PATTERN.test(id)) return void 0;
   const title = localizedString(value.title, locale);
   if (!title) return void 0;
-  const prompt = localizedText$1(value.prompt, locale);
+  const prompt = pickZhEnText(value.prompt, locale);
   const modelId = nonEmptyString(value.model_id);
   const refs = Array.isArray(value.refs)
     ? value.refs.slice(0, MAX_PRESET_REFS).flatMap((ref) => {
@@ -98,7 +98,7 @@ function parseItem(value, locale) {
       })
     : [];
   return {
-    id: id2,
+    id,
     title,
     prompt,
     ...(modelId
@@ -151,12 +151,12 @@ function parseStartupModalSchedule(raw2) {
   const order2 = [
     ...configuredOrder,
     ...DEFAULT_MODAL_SCHEDULE_CONFIG.order.filter(
-      (id2) => !configuredOrder.includes(id2),
+      (id) => !configuredOrder.includes(id),
     ),
   ];
   const disabled2 = (parseIdList(cfg.disabled) ?? []).filter(
     // 合规红线:水印首启弹窗不允许通过远端配置关闭。
-    (id2) => id2 !== STARTUP_MODAL_IDS.watermarkOnboarding,
+    (id) => id !== STARTUP_MODAL_IDS.watermarkOnboarding,
   );
   return {
     order: order2,
@@ -236,14 +236,14 @@ function plainText(value) {
 }
 function parseHomeSurvey(value) {
   if (!isRecord$b(value) || value.enabled !== true) return null;
-  const id2 = plainText(value.id);
+  const id = plainText(value.id);
   const imageUrl = safeHttpsUrl(value.image_url);
   const title = plainText(value.title);
   const description = plainText(value.description);
   const cta = isRecord$b(value.cta) ? value.cta : null;
   const ctaLabel = plainText(cta?.label);
   const ctaUrl = safeHttpsUrl(cta?.url);
-  if (!id2 || !imageUrl || !title || !description || !ctaLabel || !ctaUrl)
+  if (!id || !imageUrl || !title || !description || !ctaLabel || !ctaUrl)
     return null;
   const bullets = Array.isArray(value.bullets)
     ? value.bullets
@@ -258,7 +258,7 @@ function parseHomeSurvey(value) {
       ? Math.min(Math.max(0, configuredCooldown), 30 * 24 * 60 * 60 * 1e3)
       : 7 * 24 * 60 * 60 * 1e3;
   return {
-    id: id2,
+    id,
     imageUrl,
     title,
     description,

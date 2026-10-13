@@ -16,7 +16,7 @@ import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 const POPUP_TYPE = "general";
 export function GeneralPopup({ popup, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const platform2 = usePlatform();
   const url2 = popup.action?.url ?? "";
   const label = popup.action?.label ?? "";
@@ -42,7 +42,7 @@ export function GeneralPopup({ popup, onClose }) {
         error_type: "unknown",
         error_message: String(err),
       });
-      dedupedToast.error(t2("serverPopup.errorToast"));
+      dedupedToast.error(t("serverPopup.errorToast"));
       return;
     }
     onClose();
@@ -79,7 +79,7 @@ export function GeneralPopup({ popup, onClose }) {
   };
   const visibleTitle = popup.title?.trim() || "";
   const a11yTitle =
-    visibleTitle || popup.description || t2("serverPopup.a11yTitle");
+    visibleTitle || popup.description || t("serverPopup.a11yTitle");
   if (popup.cover_url) {
     return (
       <Dialog open={true} onOpenChange={handleOpenChange}>
@@ -122,7 +122,7 @@ export function GeneralPopup({ popup, onClose }) {
                   onClick={handleCancel}
                   data-action-ui-id="server-popup.general.cancel"
                 >
-                  {t2("common.cancel")}
+                  {t("common.cancel")}
                 </Button>
               )}
               <Button
@@ -171,7 +171,7 @@ export function GeneralPopup({ popup, onClose }) {
               onClick={handleCancel}
               data-action-ui-id="server-popup.general.cancel"
             >
-              {t2("common.cancel")}
+              {t("common.cancel")}
             </Button>
           )}
           <Button

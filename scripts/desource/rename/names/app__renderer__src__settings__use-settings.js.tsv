@@ -1,0 +1,3 @@
+key	new	reason
+t2@63:14	t	useTranslation() 返回的翻译函数 t
+ok2@106:15	ok	原名 ok，去掉打包器加的数字去重后缀

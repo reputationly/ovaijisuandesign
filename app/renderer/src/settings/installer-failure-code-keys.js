@@ -17,20 +17,20 @@ function isUpdateCheckTimedOut(message2) {
   return message2 === UPDATE_CHECK_TIMED_OUT;
 }
 
-export function formatUpdaterErrorMessage(message2, t2, fallback) {
+export function formatUpdaterErrorMessage(message2, t, fallback) {
   if (isUpdateCheckAlreadyInProgress(message2)) {
-    return t2("update.checkInProgress");
+    return t("update.checkInProgress");
   }
   if (isUpdateCheckTimedOut(message2)) {
-    return t2("update.timeout");
+    return t("update.timeout");
   }
   if (message2 === "ERR_TIMED_OUT: Update preparation timed out") {
-    return t2("update.preparationTimeout");
+    return t("update.preparationTimeout");
   }
   if (message2?.includes(VELOPACK_PACKAGE_MUTATION_UNOWNED)) {
     return message2.includes(DRIVE_TYPE_PROBE_UNAVAILABLE)
-      ? t2("update.failureCode.UPDATE_RUNTIME_UNAVAILABLE")
-      : t2("update.failureCode.INSTDIR_OWNERSHIP_UNVERIFIED");
+      ? t("update.failureCode.UPDATE_RUNTIME_UNAVAILABLE")
+      : t("update.failureCode.INSTDIR_OWNERSHIP_UNVERIFIED");
   }
   return message2 ?? fallback;
 }
@@ -106,17 +106,17 @@ export function isManualRecoveryCheckRetryable(manualRecoveryCode) {
   return manualRecoveryCode === "UPDATE_PROXY_PROTOCOL_UNSUPPORTED";
 }
 
-export function formatManualRecoveryMessage(manualRecoveryCode, t2) {
+export function formatManualRecoveryMessage(manualRecoveryCode, t) {
   const key2 = manualRecoveryCode
     ? INSTALLER_FAILURE_CODE_KEYS[manualRecoveryCode]
     : void 0;
-  if (key2) return t2(key2);
-  return t2("update.manualRecovery.body");
+  if (key2) return t(key2);
+  return t("update.manualRecovery.body");
 }
 
 function formatVersion(version2) {
-  const v2 = version2.replace(/^v/, "");
-  return `v${v2}`;
+  const versionNumber = version2.replace(/^v/, "");
+  return `v${versionNumber}`;
 }
 
 export function computeVersionDelta(currentVersion, targetVersion) {

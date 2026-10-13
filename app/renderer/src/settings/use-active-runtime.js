@@ -81,8 +81,8 @@ export function useChangelog() {
     isLoading,
   };
 }
-export function isCaseInsensitiveOs(os2) {
-  return os2 === "darwin" || os2 === "win32";
+export function isCaseInsensitiveOs(os) {
+  return os === "darwin" || os === "win32";
 }
 export const SettingsPanelHeaderContext = reactExports.createContext({
   setHeaderOverride: () => {},
@@ -121,8 +121,8 @@ export function useActiveRuntime(currentWorkspaceId, hiloApp2) {
       const currentRequest = ++requestId;
       void hiloApp2
         .getWorkspaceRuntime(currentWorkspaceId)
-        .then((r2) => {
-          if (!disposed && currentRequest === requestId) setRuntime(r2 ?? null);
+        .then((runtime) => {
+          if (!disposed && currentRequest === requestId) setRuntime(runtime ?? null);
         })
         .catch(() => {
           if (!disposed && currentRequest === requestId) setRuntime(null);

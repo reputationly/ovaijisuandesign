@@ -52,10 +52,10 @@ function UngroupedSortMenu({
   holdPreviewOpen,
   releasePreviewHold,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const triggerRef = reactExports.useRef(null);
-  const moreLabel = t2("homeSidebar.recentProjectsMore");
+  const moreLabel = t("homeSidebar.recentProjectsMore");
   reactExports.useEffect(() => {
     if (!open || !holdPreviewOpen || !releasePreviewHold) return;
     holdPreviewOpen(UNGROUPED_SORT_PREVIEW_HOLD);
@@ -101,11 +101,11 @@ function UngroupedSortMenu({
       >
         <DropdownMenuGroup>
           <DropdownMenuLabel>
-            {t2("homeSidebar.recentProjectsSortLabel")}
+            {t("homeSidebar.recentProjectsSortLabel")}
           </DropdownMenuLabel>
           <DropdownMenuRadioGroup
             value={sortMode}
-            aria-label={t2("homeSidebar.recentProjectsSortLabel")}
+            aria-label={t("homeSidebar.recentProjectsSortLabel")}
             onValueChange={(value) => {
               if (isRecentProjectsSortMode(value)) onSortModeChange(value);
             }}
@@ -114,13 +114,13 @@ function UngroupedSortMenu({
               value="manual"
               data-action-ui-id="home-sidebar.recent-group-ungrouped-sort-manual"
             >
-              {t2("homeSidebar.recentProjectsSortManual")}
+              {t("homeSidebar.recentProjectsSortManual")}
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem
               value="recent"
               data-action-ui-id="home-sidebar.recent-group-ungrouped-sort-recent"
             >
-              {t2("homeSidebar.recentProjectsSortRecent")}
+              {t("homeSidebar.recentProjectsSortRecent")}
             </DropdownMenuRadioItem>
             <TooltipProvider>
               <Tooltip>
@@ -130,12 +130,12 @@ function UngroupedSortMenu({
                       value="priority"
                       data-action-ui-id="home-sidebar.recent-group-ungrouped-sort-priority"
                     >
-                      {t2("homeSidebar.recentProjectsSortPriority")}
+                      {t("homeSidebar.recentProjectsSortPriority")}
                     </DropdownMenuRadioItem>
                   }
                 />
                 <TooltipContent side="right">
-                  {t2("homeSidebar.recentProjectsSortPriorityTooltip")}
+                  {t("homeSidebar.recentProjectsSortPriorityTooltip")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -173,9 +173,9 @@ export function RecentProjectGroupHeader({
   onDragOver,
   onDrop,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [contextMenuOpen, setContextMenuOpen] = reactExports.useState(false);
-  const label = project2?.name ?? t2("project.ungrouped");
+  const label = project2?.name ?? t("project.ungrouped");
   const projectId = project2?.id;
   const FolderIcon =
     project2?.kind === "team" ? Users : expanded ? FolderOpen : Folder;
@@ -235,7 +235,7 @@ export function RecentProjectGroupHeader({
       {projectId ? (
         <button
           type="button"
-          aria-label={expanded ? t2("project.collapse") : t2("project.expand")}
+          aria-label={expanded ? t("project.collapse") : t("project.expand")}
           aria-expanded={expanded}
           data-action-ui-id="home-sidebar.recent-group-toggle"
           className="icon-sidebar-action-control relative z-10 flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-[var(--home-sidebar-nav-hover)] hover:text-foreground focus-visible:outline-none"
@@ -286,7 +286,7 @@ export function RecentProjectGroupHeader({
                   render={
                     <button
                       type="button"
-                      aria-label={t2("home.viewAll")}
+                      aria-label={t("home.viewAll")}
                       data-action-ui-id="home-sidebar.recent-group-ungrouped-view-all"
                       onClick={(event) => {
                         event.stopPropagation();
@@ -304,7 +304,7 @@ export function RecentProjectGroupHeader({
                     </button>
                   }
                 />
-                <TooltipContent side="top">{t2("home.viewAll")}</TooltipContent>
+                <TooltipContent side="top">{t("home.viewAll")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           ) : null}
@@ -323,7 +323,7 @@ export function RecentProjectGroupHeader({
                   render={
                     <button
                       type="button"
-                      aria-label={t2("project.newCreation")}
+                      aria-label={t("project.newCreation")}
                       data-action-ui-id="home-sidebar.recent-group-ungrouped-new-creation"
                       onClick={(event) => {
                         event.stopPropagation();
@@ -338,7 +338,7 @@ export function RecentProjectGroupHeader({
                   }
                 />
                 <TooltipContent side="top">
-                  {t2("project.newCreation")}
+                  {t("project.newCreation")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -358,7 +358,7 @@ export function RecentProjectGroupHeader({
                 render={
                   <button
                     type="button"
-                    aria-label={t2("project.openDetail")}
+                    aria-label={t("project.openDetail")}
                     data-action-ui-id="home-sidebar.recent-group-open-detail"
                     className={HOME_RECENT_GROUP_ACTION_CLASS}
                     onClick={(event) => {
@@ -377,7 +377,7 @@ export function RecentProjectGroupHeader({
                 </MonochromeIcon>
               </TooltipTrigger>
               <TooltipContent side="top">
-                {t2("project.openDetail")}
+                {t("project.openDetail")}
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -385,7 +385,7 @@ export function RecentProjectGroupHeader({
                 render={
                   <button
                     type="button"
-                    aria-label={t2("project.newCreation")}
+                    aria-label={t("project.newCreation")}
                     data-action-ui-id="home-sidebar.recent-group-new-creation"
                     className={HOME_RECENT_GROUP_ACTION_CLASS}
                     onClick={(event) => {
@@ -400,7 +400,7 @@ export function RecentProjectGroupHeader({
                 </MonochromeIcon>
               </TooltipTrigger>
               <TooltipContent side="top">
-                {t2("project.newCreation")}
+                {t("project.newCreation")}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -439,16 +439,16 @@ export function RecentProjectGroupHeader({
       >
         <ContextMenuItem onClick={() => onNewCreation(project2.id)}>
           <StrokeIcon icon={Plus} size={14} />
-          {t2("project.newCreation")}
+          {t("project.newCreation")}
         </ContextMenuItem>
         <ContextMenuItem onClick={() => onOpenDetail(project2.id)}>
           <StrokeIcon icon={ArrowUpRight} size={14} />
-          {t2("project.openDetail")}
+          {t("project.openDetail")}
         </ContextMenuItem>
         {onTogglePin ? (
           <ContextMenuItem onClick={onTogglePin}>
             <StrokeIcon icon={Pin} size={14} />
-            {pinned ? t2("session.unpin") : t2("session.pin")}
+            {pinned ? t("session.unpin") : t("session.pin")}
           </ContextMenuItem>
         ) : null}
         <ContextMenuSeparator />
@@ -461,7 +461,7 @@ export function RecentProjectGroupHeader({
           }}
         >
           <StrokeIcon icon={Trash2} size={14} />
-          {t2("project.delete")}
+          {t("project.delete")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

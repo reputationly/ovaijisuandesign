@@ -56,7 +56,7 @@ function requestTrialGrantedPopup(userID) {
   window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
 }
 export function useFeaturePopupAction(popup, { source }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const platform2 = usePlatform();
   const [, setConfig] = useStorage("global.config");
   const navigate = useNavigate();
@@ -195,7 +195,7 @@ export function useFeaturePopupAction(popup, { source }) {
         error_type: "unknown",
         error_message: String(error),
       });
-      dedupedToast.error(t2("serverPopup.errorToast"));
+      dedupedToast.error(t("serverPopup.errorToast"));
       return false;
     } finally {
       actionPendingRef.current = false;
@@ -217,7 +217,7 @@ export function useFeaturePopupAction(popup, { source }) {
     runImportFromUrl,
     source,
     setConfig,
-    t2,
+    t,
     userID,
   ]);
   return {

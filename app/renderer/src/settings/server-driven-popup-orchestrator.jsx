@@ -227,7 +227,7 @@ function DebugPanelProvider({ children: children2 }) {
       const otherModifier = isMac2 ? event.ctrlKey : event.metaKey;
       if (!primary || otherModifier) return;
       event.preventDefault();
-      setOpen((v2) => !v2);
+      setOpen((isOpen) => !isOpen);
     };
     window.addEventListener(DEBUG_PANEL_OPEN_EVENT, onOpenDebugPanel);
     window.addEventListener("keydown", onKeyDown);
@@ -272,7 +272,7 @@ function InterestSelectionProvider({ children: children2 }) {
   useBlockingModalPresence(BLOCKING_MODAL_IDS.interestSelection, isOpen);
   const toggle = reactExports.useCallback((key2) => {
     setSelected((prev) => {
-      if (prev.includes(key2)) return prev.filter((k2) => k2 !== key2);
+      if (prev.includes(key2)) return prev.filter((key) => key !== key2);
       if (prev.length >= 3) return prev;
       return [...prev, key2];
     });
@@ -364,13 +364,13 @@ function ThemeProvider({ children: children2 }) {
   }, [resolved]);
   reactExports.useEffect(() => {
     if (theme2 !== "system") return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setSystemTheme(mq.matches ? "dark" : "light");
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setSystemTheme(mediaQuery.matches ? "dark" : "light");
     const handler = (event) => {
       setSystemTheme(event.matches ? "dark" : "light");
     };
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, [theme2]);
   const value = reactExports.useMemo(
     () => ({
@@ -428,7 +428,7 @@ function SettingsDialogProvider({ children: children2 }) {
 }
 function LoginGateDialog() {
   const { isOpen, dismissForSession, triggerLogin } = useLoginGate();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const handleDismiss = () => {
     dismissForSession();
     try {
@@ -456,14 +456,14 @@ function LoginGateDialog() {
         data-action-ui-id="auth.login-gate"
       >
         <DialogDescription className="sr-only">
-          {t2("auth.loginGate.subtitle")}
+          {t("auth.loginGate.subtitle")}
         </DialogDescription>
         <Button
           variant="ghost"
           size="icon-sm"
           className="absolute top-3 right-3 z-10 text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
           onClick={handleDismiss}
-          aria-label={t2("common.close")}
+          aria-label={t("common.close")}
           data-action-ui-id="auth.login-gate.close"
         >
           <XIcon size={16} strokeWidth={1.5} />
@@ -511,10 +511,10 @@ function LoginGateDialog() {
             />
             <div className="mt-6 flex flex-col gap-4">
               <DialogTitle className="font-heading text-[22px] font-medium leading-snug text-foreground">
-                {t2("auth.loginGate.title")}
+                {t("auth.loginGate.title")}
               </DialogTitle>
               <p className="text-sm leading-relaxed text-foreground/70">
-                {t2("auth.loginGate.subtitle")}
+                {t("auth.loginGate.subtitle")}
               </p>
             </div>
             <ul className="mt-5 flex flex-col gap-3.5 text-sm leading-relaxed text-foreground/70">
@@ -543,7 +543,7 @@ function LoginGateDialog() {
                 onClick={triggerLogin}
                 data-action-ui-id="auth.login-gate.confirm"
               >
-                {t2("auth.loginGate.button")}
+                {t("auth.loginGate.button")}
               </Button>
             </div>
           </div>
@@ -838,7 +838,7 @@ function InterestSelectionDialog() {
     toggle,
     complete,
   } = useInterestSelection();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   reactExports.useEffect(() => {
     if (isOpen) {
       trackEvent(TRACK_EVENTS.INTEREST_SELECTION_VIEW, {});
@@ -863,10 +863,10 @@ function InterestSelectionDialog() {
         data-action-ui-id="interestSelection"
       >
         <DialogTitle className="sr-only">
-          {t2("interestSelection.heading")}
+          {t("interestSelection.heading")}
         </DialogTitle>
         <DialogDescription className="sr-only">
-          {t2("interestSelection.description")}
+          {t("interestSelection.description")}
         </DialogDescription>
         <div className="flex flex-col">
           <div className="px-8 pt-8 pb-6">
@@ -875,17 +875,17 @@ function InterestSelectionDialog() {
           <div className="flex flex-col gap-5 px-8 pb-7">
             <div className="flex flex-col gap-1">
               <h2 className="font-heading text-base font-medium text-foreground">
-                {t2("interestSelection.heading")}
+                {t("interestSelection.heading")}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {t2("interestSelection.description")}
+                {t("interestSelection.description")}
               </p>
             </div>
             <InterestOptionGrid value={selected2} onToggle={toggle} />
           </div>
           <div className="flex items-center justify-between gap-4 px-8 pt-2 pb-7">
             <div className="text-sm text-muted-foreground">
-              {t2("interestSelection.counter", {
+              {t("interestSelection.counter", {
                 count: selected2.length,
                 max: MAX_INTERESTS,
               })}
@@ -898,7 +898,7 @@ function InterestSelectionDialog() {
               disabled={selected2.length === 0}
               data-action-ui-id="interestSelection.cta"
             >
-              {t2("interestSelection.cta")}
+              {t("interestSelection.cta")}
             </Button>
           </div>
         </div>
@@ -909,7 +909,7 @@ function InterestSelectionDialog() {
 function ProjectArchiveMenuProvider({ children: children2 }) {
   const { runExport, runImport } = useProjectArchiveActions();
   const routerSearch = useRouterState({
-    select: (s2) => s2.location.search,
+    select: (routerState) => routerState.location.search,
   });
   const currentWorkspaceId = routerSearch?.workspaceId;
   const workspaceIdRef = reactExports.useRef(currentWorkspaceId);
@@ -1404,7 +1404,7 @@ function CanvasRenderRuntimeProvider({
 }) {
   const platform2 = usePlatform();
   const runtimeConfig = useRuntimeConfig();
-  const { arch, os: os2, runningUnderARM64Translation } = platform2.app;
+  const { arch, os, runningUnderARM64Translation } = platform2.app;
   const translationState = runningUnderARM64Translation ?? "unknown";
   const { canvasContentVisibilityOverride, canvasResumeRecoveryEnabled } =
     runtimeConfig;
@@ -1413,7 +1413,7 @@ function CanvasRenderRuntimeProvider({
       resolveDesktopCanvasRenderPolicy(
         {
           arch,
-          os: os2,
+          os,
           runningUnderARM64Translation,
         },
         {
@@ -1423,7 +1423,7 @@ function CanvasRenderRuntimeProvider({
       ),
     [
       arch,
-      os2,
+      os,
       runningUnderARM64Translation,
       canvasContentVisibilityOverride,
       canvasResumeRecoveryEnabled,
@@ -1443,7 +1443,7 @@ function CanvasRenderRuntimeProvider({
       resume_recovery_enabled: policy.recoverAfterResume,
       recovery_frame_budget_ms: policy.recoveryFrameBudgetMs,
       recovery_max_per_frame: policy.recoveryMaxPerFrame,
-      os: os2,
+      os,
       arch,
       running_under_arm64_translation: translationState,
     };
@@ -1459,7 +1459,7 @@ function CanvasRenderRuntimeProvider({
         profile,
       );
     }
-  }, [arch, logService2, os2, policy, runtimeServices, translationState]);
+  }, [arch, logService2, os, policy, runtimeServices, translationState]);
   reactExports.useEffect(() => {
     if (!policy.recoverAfterResume) return;
     if (!powerStateService) {
@@ -1509,7 +1509,7 @@ function CanvasRenderRuntimeProvider({
         ...result,
         profile: policy.reason,
         content_visibility: policy.contentVisibility,
-        os: os2,
+        os,
         arch,
         running_under_arm64_translation: translationState,
       };
@@ -1520,7 +1520,7 @@ function CanvasRenderRuntimeProvider({
       const recoveryProperties = {
         profile: policy.reason,
         content_visibility: policy.contentVisibility,
-        os: os2,
+        os,
         arch,
         running_under_arm64_translation: translationState,
         resume_epoch: result.resumeEpoch,
@@ -1558,7 +1558,7 @@ function CanvasRenderRuntimeProvider({
     [
       arch,
       logService2,
-      os2,
+      os,
       policy.contentVisibility,
       policy.reason,
       runtimeServices,
@@ -1576,10 +1576,10 @@ function CanvasRenderRuntimeProvider({
   );
 }
 function ImBridgeDialog({ open, onOpenChange }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const regionSuffix =
     getRuntimeConfig().region === "overseas" ? "overseas" : "domestic";
-  const defaultTitle = t2(`imBridge.title.${regionSuffix}`);
+  const defaultTitle = t(`imBridge.title.${regionSuffix}`);
   const [headerConfig, setHeaderConfig] = reactExports.useState(null);
   const title = headerConfig?.title ?? defaultTitle;
   const hasBackButton = Boolean(headerConfig?.onBack);
@@ -1613,7 +1613,7 @@ function ImBridgeDialog({ open, onOpenChange }) {
                 data-action-ui-id="im-bridge-dialog.back"
               >
                 <ChevronLeftIcon className="size-6" strokeWidth={1.5} />
-                <span className="sr-only">{t2("common.back")}</span>
+                <span className="sr-only">{t("common.back")}</span>
               </Button>
             )}
             <DialogTitle$2 className="min-w-0 flex-1 truncate pr-14 font-heading font-medium text-base text-foreground">
@@ -1630,7 +1630,7 @@ function ImBridgeDialog({ open, onOpenChange }) {
               }
             >
               <XIcon className="size-6" strokeWidth={1.75} />
-              <span className="sr-only">{t2("common.close")}</span>
+              <span className="sr-only">{t("common.close")}</span>
             </DialogClose>
           </div>
           <DialogDescription$2 className="sr-only">{title}</DialogDescription$2>
@@ -1745,7 +1745,7 @@ function ErrorFallback({ error }) {
       failureId={diagnostic?.failureId}
       failureTimestamp={diagnostic?.timestamp}
       showDetails={showDetails}
-      onToggleDetails={() => setShowDetails((v2) => !v2)}
+      onToggleDetails={() => setShowDetails((isShown) => !isShown)}
       onRetry={() => window.location.reload()}
     />
   );

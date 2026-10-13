@@ -1,0 +1,6 @@
+key	new	reason
+localizedText$1@34:10	pickZhEnText	取字符串或按 locale 取 zh/en 文本并互为回退；下方按多语言键列表回退的 localizedText 占用原名
+id2@88:9	id	原名 id，去掉打包器加的数字去重后缀
+id2@154:8	id	原名 id，去掉打包器加的数字去重后缀
+id2@159:6	id	原名 id，去掉打包器加的数字去重后缀
+id2@239:9	id	原名 id，去掉打包器加的数字去重后缀

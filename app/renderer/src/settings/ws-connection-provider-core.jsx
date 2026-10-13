@@ -68,9 +68,9 @@ function collectFileContentResyncPaths(qc, gatewayScopeKey) {
       updatedAt: query.state.dataUpdatedAt,
     });
   }
-  candidates2.sort((a2, b3) => {
-    if (a2.active !== b3.active) return a2.active ? -1 : 1;
-    return b3.updatedAt - a2.updatedAt;
+  candidates2.sort((a, b) => {
+    if (a.active !== b.active) return a.active ? -1 : 1;
+    return b.updatedAt - a.updatedAt;
   });
   return [...new Set(candidates2.map((candidate) => candidate.path))];
 }
@@ -316,13 +316,13 @@ function applyAssetChange(qc, gatewayScopeKey, msg, syncAssetMeta) {
     });
   } else if (msg.change === "removed" && msg.id) {
     qc.setQueryData(key2, (old) =>
-      old ? old.filter((a2) => a2.id !== msg.id) : old,
+      old ? old.filter((cachedAsset) => cachedAsset.id !== msg.id) : old,
     );
   } else if (msg.change === "updated" && msg.id) {
     if (msg.asset) {
       const asset = msg.asset;
       qc.setQueryData(key2, (old) =>
-        old ? old.map((a2) => (a2.id === msg.id ? asset : a2)) : old,
+        old ? old.map((cachedAsset) => (cachedAsset.id === msg.id ? asset : cachedAsset)) : old,
       );
       syncAssetMeta?.(msg.id, asset);
     }
@@ -344,7 +344,7 @@ function applyAssetChange(qc, gatewayScopeKey, msg, syncAssetMeta) {
     if (msg.asset) {
       const asset = msg.asset;
       qc.setQueryData(key2, (old) =>
-        old ? old.map((a2) => (a2.id === msg.id ? asset : a2)) : old,
+        old ? old.map((cachedAsset) => (cachedAsset.id === msg.id ? asset : cachedAsset)) : old,
       );
       syncAssetMeta?.(msg.id, asset);
     }
@@ -367,11 +367,11 @@ function applyAssetChange(qc, gatewayScopeKey, msg, syncAssetMeta) {
   } else if (msg.change === "status-changed" && msg.id && msg.status) {
     qc.setQueryData(key2, (old) =>
       old
-        ? old.map((a2) => {
-            if (a2.id !== msg.id) return a2;
+        ? old.map((cachedAsset) => {
+            if (cachedAsset.id !== msg.id) return cachedAsset;
             if (msg.asset) return msg.asset;
             return {
-              ...a2,
+              ...cachedAsset,
               status: msg.status,
               candidate: void 0,
             };
@@ -710,12 +710,12 @@ export function WSConnectionProviderCore({
     const hiloLogger = window.hilo?.logger;
     const wsLogger = hiloLogger
       ? {
-          info: (m3) => hiloLogger.info(m3, "chat"),
-          warn: (m3) => hiloLogger.warn(m3, "chat"),
-          error: (m3) => hiloLogger.error(m3, "chat"),
+          info: (message) => hiloLogger.info(message, "chat"),
+          warn: (message) => hiloLogger.warn(message, "chat"),
+          error: (message) => hiloLogger.error(message, "chat"),
         }
       : void 0;
-    const ws2 = new AgentWSClient({
+    const ws = new AgentWSClient({
       url: resolvedWsUrl,
       workspaceClaim,
       workspaceBinding: gatewayBinding,
@@ -832,10 +832,10 @@ export function WSConnectionProviderCore({
         setConnected(next2);
       },
     });
-    wsRef.current = ws2;
-    ws2.connect();
+    wsRef.current = ws;
+    ws.connect();
     return () => {
-      ws2.disconnect();
+      ws.disconnect();
       resetAssetSeqState(gatewayScopeKey);
       wsRef.current = null;
     };

@@ -378,11 +378,11 @@ function createInitialState() {
   };
 }
 const MANUAL_UPDATE_CHECK_TOAST_ID = "manual-update-check";
-function showManualUpdateCheckFeedback(result, t2) {
+function showManualUpdateCheckFeedback(result, t) {
   if (!result.accepted) {
     if (isUpdateCheckAlreadyInProgress(result.error)) {
       dedupedToast.info(
-        formatUpdaterErrorMessage(result.error, t2, t2("update.error")),
+        formatUpdaterErrorMessage(result.error, t, t("update.error")),
         {
           id: MANUAL_UPDATE_CHECK_TOAST_ID,
         },
@@ -390,7 +390,7 @@ function showManualUpdateCheckFeedback(result, t2) {
       return;
     }
     dedupedToast.error(
-      formatUpdaterErrorMessage(result.error, t2, t2("update.error")),
+      formatUpdaterErrorMessage(result.error, t, t("update.error")),
       {
         id: MANUAL_UPDATE_CHECK_TOAST_ID,
       },
@@ -401,8 +401,8 @@ function showManualUpdateCheckFeedback(result, t2) {
   if (state2.phase === "error") {
     const message2 = formatUpdaterErrorMessage(
       state2.error?.message,
-      t2,
-      t2("update.error"),
+      t,
+      t("update.error"),
     );
     if (isUpdateCheckAlreadyInProgress(state2.error?.message)) {
       dedupedToast.info(message2, {
@@ -416,37 +416,37 @@ function showManualUpdateCheckFeedback(result, t2) {
     return;
   }
   if (state2.phase === "checking") {
-    dedupedToast.info(t2("update.checking"), {
+    dedupedToast.info(t("update.checking"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
     return;
   }
   if (state2.phase === "available") {
-    dedupedToast.info(t2("update.title.available"), {
+    dedupedToast.info(t("update.title.available"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
     return;
   }
   if (state2.phase === "downloading") {
-    dedupedToast.info(t2("update.title.downloading"), {
+    dedupedToast.info(t("update.title.downloading"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
     return;
   }
   if (state2.phase === "downloaded") {
-    dedupedToast.info(t2("update.title.downloaded"), {
+    dedupedToast.info(t("update.title.downloaded"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
     return;
   }
   if (state2.phase === "idle" && !state2.targetVersion) {
-    dedupedToast.success(t2("update.notAvailable"), {
+    dedupedToast.success(t("update.notAvailable"), {
       id: MANUAL_UPDATE_CHECK_TOAST_ID,
     });
   }
 }
 export const UpdaterProvider = ({ children: children2 }) => {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const devPreviewMode = useUpdaterDevPreviewMode();
   const [state2, setState] = reactExports.useState(() =>
     devPreviewMode
@@ -553,13 +553,13 @@ export const UpdaterProvider = ({ children: children2 }) => {
       if (!service2) return;
       if (opts?.userTriggered) {
         void runManualUpdateCheck(service2).then((result) =>
-          showManualUpdateCheckFeedback(result, t2),
+          showManualUpdateCheckFeedback(result, t),
         );
         return;
       }
       service2.check(opts);
     },
-    [t2, devPreviewMode],
+    [t, devPreviewMode],
   );
   const download = reactExports.useCallback(() => {
     if (devPreviewMode) {

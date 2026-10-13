@@ -52,7 +52,7 @@ function subscribeTrialGranted(listener) {
 }
 
 export function TrialGrantedPopup({ onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { data: trialStatus } = useQuery({
     queryKey: HAILUO03_VIDEO_TRIAL_QUERY_KEY,
     queryFn: fetchHailuo03VideoTrialStatus,
@@ -74,7 +74,7 @@ export function TrialGrantedPopup({ onClose }) {
       <button
         type="button"
         onClick={onClose}
-        aria-label={t2("common.close")}
+        aria-label={t("common.close")}
         className="absolute top-2 right-2 flex size-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent"
         data-action-ui-id="server-popup.trial-granted.close"
       >
@@ -82,10 +82,10 @@ export function TrialGrantedPopup({ onClose }) {
       </button>
       <div className="flex flex-col items-start gap-2.5 pt-1">
         <div className="font-heading text-[18px] font-bold leading-tight text-foreground">
-          {t2("serverPopup.trialGranted.title")}
+          {t("serverPopup.trialGranted.title")}
         </div>
         <p className="text-[12px] text-muted-foreground">
-          {t2("serverPopup.trialGranted.description", {
+          {t("serverPopup.trialGranted.description", {
             count: freeCount > 0 ? freeCount : 3,
           })}
         </p>
@@ -96,7 +96,7 @@ export function TrialGrantedPopup({ onClose }) {
         className="flex h-8 w-full items-center justify-center rounded-[8px] bg-foreground text-sm font-medium text-background transition-opacity hover:opacity-90"
         data-action-ui-id="server-popup.trial-granted.confirm"
       >
-        {t2("serverPopup.trialGranted.action")}
+        {t("serverPopup.trialGranted.action")}
       </button>
     </div>
   );

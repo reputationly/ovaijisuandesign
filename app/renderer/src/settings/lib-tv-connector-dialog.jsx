@@ -27,7 +27,7 @@ export function LibTvConnectorDialog({
   onBusyChange,
   preparation,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [localPending, setPending] = reactExports.useState(false);
   const [retryStarted, setRetryStarted] = reactExports.useState(false);
   const pending2 = localPending || preparation?.state === "installing";
@@ -61,10 +61,10 @@ export function LibTvConnectorDialog({
       if (!mounted.current || dismissed.current) return;
       onPrepared?.();
       if (result.ok && result.mcpConnected) handleClose();
-      else setError(t2(preparationErrorKey(result.code)));
+      else setError(t(preparationErrorKey(result.code)));
     } catch {
       if (mounted.current && !dismissed.current)
-        setError(t2("connectors.libtv.failed"));
+        setError(t("connectors.libtv.failed"));
     } finally {
       busy.current = false;
       if (mounted.current && !dismissed.current) {
@@ -79,7 +79,7 @@ export function LibTvConnectorDialog({
     preparation &&
     preparation.state !== "installing" &&
     !preparation.ok
-      ? t2(preparationErrorKey(preparation.code))
+      ? t(preparationErrorKey(preparation.code))
       : void 0);
   const content2 = (
     <div
@@ -91,13 +91,13 @@ export function LibTvConnectorDialog({
         className="mb-4 justify-center"
       />
       <DialogHeader className="items-center text-center">
-        <DialogTitle>{t2("connectors.libtv.title")}</DialogTitle>
+        <DialogTitle>{t("connectors.libtv.title")}</DialogTitle>
         <DialogDescription>
-          {t2("connectors.libtv.description")}
+          {t("connectors.libtv.description")}
         </DialogDescription>
       </DialogHeader>
       <p className="my-5 text-sm text-muted-foreground" role="status">
-        {t2(pending2 ? "connectors.libtv.waiting" : "connectors.libtv.hint")}
+        {t(pending2 ? "connectors.libtv.waiting" : "connectors.libtv.hint")}
       </p>
       {visibleError ? (
         <p className="mb-4 text-sm text-destructive" role="alert">
@@ -111,7 +111,7 @@ export function LibTvConnectorDialog({
           onClick={handleClose}
           data-action-ui-id="connectors-libtv-dismiss"
         >
-          {t2("connectors.libtv.dismiss")}
+          {t("connectors.libtv.dismiss")}
         </Button>
         <Button
           className="h-9 min-w-26 rounded-lg px-4"
@@ -120,7 +120,7 @@ export function LibTvConnectorDialog({
           loading={pending2}
           data-action-ui-id="connectors-libtv-authorize"
         >
-          {t2("connectors.libtv.authorize")}
+          {t("connectors.libtv.authorize")}
         </Button>
       </DialogFooter>
     </div>
@@ -132,7 +132,7 @@ export function LibTvConnectorDialog({
       open={true}
       onOpenChange={(open) => !open && handleClose()}
       actionUiId="connectors-libtv-dialog"
-      closeLabel={t2("common.close")}
+      closeLabel={t("common.close")}
       closeActionUiId="connectors-libtv-close"
     >
       {content2}

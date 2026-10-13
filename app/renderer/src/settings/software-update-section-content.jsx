@@ -87,7 +87,7 @@ function SoftwareUpdateStatusIcon({ className }) {
   );
 }
 export function SoftwareUpdateSectionContent() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { config: config2, set: set2 } = useSettings();
   const update2 = useUpdateActions({
     manualDownloadSource: "settings.software-update.manual-download",
@@ -110,55 +110,55 @@ export function SoftwareUpdateSectionContent() {
         return {
           icon: SoftwareUpdateStatusIcon,
           iconClassName: "text-brand-accent",
-          title: t2("settings.softwareUpdate.statusChecking"),
-          description: t2("settings.softwareUpdate.statusCheckingDesc"),
+          title: t("settings.softwareUpdate.statusChecking"),
+          description: t("settings.softwareUpdate.statusCheckingDesc"),
         };
       case "available":
         return {
           icon: SoftwareUpdateStatusIcon,
           iconClassName: "text-brand-accent",
           title: update2.targetVersionLabel
-            ? t2("settings.softwareUpdate.statusAvailableWithVersion", {
+            ? t("settings.softwareUpdate.statusAvailableWithVersion", {
                 version: update2.targetVersionLabel,
               })
-            : t2("update.title.available"),
+            : t("update.title.available"),
           description:
             update2.state.subtitle ??
             changelogItem?.subtitle ??
-            t2("settings.softwareUpdate.statusAvailableDesc"),
+            t("settings.softwareUpdate.statusAvailableDesc"),
         };
       case "downloading":
         return {
           icon: SoftwareUpdateStatusIcon,
           iconClassName: "text-brand-accent",
-          title: t2("update.title.downloading"),
+          title: t("update.title.downloading"),
           description:
             update2.progressText ||
-            t2("settings.softwareUpdate.statusDownloadingDesc"),
+            t("settings.softwareUpdate.statusDownloadingDesc"),
         };
       case "downloaded":
         return {
           icon: SoftwareUpdateStatusIcon,
           iconClassName: "text-brand-accent",
           title: update2.targetVersionLabel
-            ? t2("settings.softwareUpdate.statusReadyWithVersion", {
+            ? t("settings.softwareUpdate.statusReadyWithVersion", {
                 version: update2.targetVersionLabel,
               })
-            : t2("update.title.downloaded"),
-          description: t2("settings.softwareUpdate.statusReadyDesc"),
+            : t("update.title.downloaded"),
+          description: t("settings.softwareUpdate.statusReadyDesc"),
         };
       case "error": {
         const isManualRecovery = update2.state.manualOnly;
         return {
           icon: AlertCircle,
           iconClassName: "text-destructive",
-          title: t2("update.title.error"),
+          title: t("update.title.error"),
           description: isManualRecovery
-            ? formatManualRecoveryMessage(update2.state.manualRecoveryCode, t2)
+            ? formatManualRecoveryMessage(update2.state.manualRecoveryCode, t)
             : formatUpdaterErrorMessage(
                 update2.state.error?.message,
-                t2,
-                t2("update.error"),
+                t,
+                t("update.error"),
               ),
         };
       }
@@ -166,11 +166,11 @@ export function SoftwareUpdateSectionContent() {
         return {
           icon: SoftwareUpdateStatusIcon,
           iconClassName: "text-brand-accent",
-          title: t2("settings.softwareUpdate.statusLatest"),
-          description: t2("settings.softwareUpdate.statusLatestDesc"),
+          title: t("settings.softwareUpdate.statusLatest"),
+          description: t("settings.softwareUpdate.statusLatestDesc"),
         };
     }
-  }, [update2, changelogItem, t2]);
+  }, [update2, changelogItem, t]);
   const StatusIcon = status.icon;
   const showFilledAction =
     update2.available ||
@@ -217,7 +217,7 @@ export function SoftwareUpdateSectionContent() {
           </div>
           <div className="flex shrink-0 items-center gap-2 self-center">
             <span className="whitespace-nowrap text-[11px] text-muted-foreground">
-              {t2("settings.softwareUpdate.currentVersion", {
+              {t("settings.softwareUpdate.currentVersion", {
                 version: update2.currentVersionLabel,
               })}
             </span>
@@ -257,7 +257,7 @@ export function SoftwareUpdateSectionContent() {
               className="text-sm font-normal text-foreground"
               data-action-ui-id="settings.software-update.update-prompt-title"
             >
-              {t2("settings.softwareUpdate.updatePrompt")}
+              {t("settings.softwareUpdate.updatePrompt")}
             </p>
             <p className="mt-1 break-words text-xs leading-relaxed text-muted-foreground">
               {status.description}
@@ -271,7 +271,7 @@ export function SoftwareUpdateSectionContent() {
             </p>
             {update2.canManualDownload && (
               <p className="mt-1 text-xs text-muted-foreground">
-                {t2("update.manualRecovery.hint.policy")}
+                {t("update.manualRecovery.hint.policy")}
               </p>
             )}
           </div>
@@ -294,7 +294,7 @@ export function SoftwareUpdateSectionContent() {
                 onClick={update2.cancelDownload}
                 data-action-ui-id="settings.software-update.cancel"
               >
-                {t2("update.btn.cancel")}
+                {t("update.btn.cancel")}
               </button>
             </div>
           </div>
@@ -315,11 +315,11 @@ export function SoftwareUpdateSectionContent() {
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-normal text-foreground">
-              {t2("settings.softwareUpdate.releaseNotes")}
+              {t("settings.softwareUpdate.releaseNotes")}
             </p>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {changelogItem?.subtitle ??
-                t2("settings.softwareUpdate.releaseNotesEmpty")}
+                t("settings.softwareUpdate.releaseNotesEmpty")}
             </p>
           </div>
         </button>
@@ -338,15 +338,15 @@ export function SoftwareUpdateSectionContent() {
                 autoInstallDisabled ? "cursor-not-allowed" : "cursor-pointer",
               )}
             >
-              {t2("settings.softwareUpdate.autoInstall")}
+              {t("settings.softwareUpdate.autoInstall")}
             </Label>
             <p
               id={autoInstallDescriptionId}
               className="mt-0.5 text-xs text-muted-foreground"
             >
               {manualOnly
-                ? t2("settings.softwareUpdate.autoInstallUnavailable")
-                : t2("settings.softwareUpdate.autoInstallDesc")}
+                ? t("settings.softwareUpdate.autoInstallUnavailable")
+                : t("settings.softwareUpdate.autoInstallDesc")}
             </p>
           </div>
           <Switch
@@ -354,7 +354,7 @@ export function SoftwareUpdateSectionContent() {
             checked={autoInstallOnQuit}
             disabled={autoInstallDisabled}
             onCheckedChange={handleAutoInstallChange}
-            aria-label={t2("settings.softwareUpdate.autoInstall")}
+            aria-label={t("settings.softwareUpdate.autoInstall")}
             aria-describedby={autoInstallDescriptionId}
             data-action-ui-id="settings.software-update.auto-install"
           />

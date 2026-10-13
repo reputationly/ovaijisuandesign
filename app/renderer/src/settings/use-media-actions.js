@@ -47,7 +47,7 @@ function createUniqueDownloadFolderNames(names) {
   return result;
 }
 const log = window.hilo?.logger;
-function getFileName$2(pathOrUrl) {
+function getFileName(pathOrUrl) {
   const raw2 = pathOrUrl.split(/[/\\]/).pop() ?? "file";
   return raw2.split("?")[0] ?? raw2;
 }
@@ -121,7 +121,7 @@ async function resolveAvailableTargetDirectory(
 }
 export function useMediaActions() {
   const platform2 = usePlatform();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const copyImage = reactExports.useCallback(
     async (pathOrUrl) => {
       try {
@@ -132,51 +132,51 @@ export function useMediaActions() {
           const buffer = await response.arrayBuffer();
           await platform2.clipboard.writeImageData?.(buffer);
         }
-        dedupedToast.success(t2("common.copied"));
+        dedupedToast.success(t("common.copied"));
       } catch (err) {
         log?.error(
           `[media-actions] copyImage failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("common.copyFailed"));
+        dedupedToast.error(t("common.copyFailed"));
       }
     },
-    [platform2, t2],
+    [platform2, t],
   );
   const copyFile = reactExports.useCallback(
     async (filePath) => {
       try {
         await platform2.clipboard.writeFile?.(filePath);
-        dedupedToast.success(t2("common.copied"));
+        dedupedToast.success(t("common.copied"));
       } catch (err) {
         log?.error(
           `[media-actions] copyFile failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("common.copyFailed"));
+        dedupedToast.error(t("common.copyFailed"));
       }
     },
-    [platform2, t2],
+    [platform2, t],
   );
   const copyPath = reactExports.useCallback(
     async (path2) => {
       try {
         await platform2.clipboard.writeText(path2);
-        dedupedToast.success(t2("fileExplorer.pathCopied"));
+        dedupedToast.success(t("fileExplorer.pathCopied"));
       } catch (err) {
         log?.error(
           `[media-actions] copyPath failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("common.copyFailed"));
+        dedupedToast.error(t("common.copyFailed"));
       }
     },
-    [platform2, t2],
+    [platform2, t],
   );
   const saveAs = reactExports.useCallback(
     async (pathOrUrl, defaultName) => {
       try {
-        const fileName = defaultName ?? getFileName$2(pathOrUrl);
+        const fileName = defaultName ?? getFileName(pathOrUrl);
         const ext = getExtension(fileName);
         const targetPath = await platform2.fs.showSaveDialog?.({
           defaultPath: fileName,
@@ -200,7 +200,7 @@ export function useMediaActions() {
           const buffer = await response.arrayBuffer();
           await platform2.fs.writeBinaryFile?.(targetPath, buffer);
         }
-        dedupedToast.success(t2("common.saved"));
+        dedupedToast.success(t("common.saved"));
       } catch (err) {
         const detail = getErrorMessage(err);
         log?.error(
@@ -208,15 +208,15 @@ export function useMediaActions() {
           "media-actions",
         );
         if (isPathAccessError(err)) {
-          dedupedToast.error(t2("common.saveFailed"), {
+          dedupedToast.error(t("common.saveFailed"), {
             description: detail,
           });
         } else {
-          dedupedToast.error(t2("common.saveFailed"));
+          dedupedToast.error(t("common.saveFailed"));
         }
       }
     },
-    [platform2, t2],
+    [platform2, t],
   );
   const saveManyAs = reactExports.useCallback(
     async (files, options = {}) => {
@@ -233,7 +233,7 @@ export function useMediaActions() {
       const failAll = (reason) =>
         candidates2.map((file) => ({
           filePath: file.filePath,
-          fileName: file.fileName ?? getFileName$2(file.filePath),
+          fileName: file.fileName ?? getFileName(file.filePath),
           folderName: file.folderName,
           reason,
         }));
@@ -265,7 +265,7 @@ export function useMediaActions() {
           }),
         );
         return {
-          label: t2("common.retry"),
+          label: t("common.retry"),
           onClick: () => {
             if (options.onRetry) {
               options.onRetry(retryFiles);
@@ -289,7 +289,7 @@ export function useMediaActions() {
           !platform2.fs.exists ||
           !platform2.fs.mkdir
         ) {
-          dedupedToast.error(t2("common.saveFailed"));
+          dedupedToast.error(t("common.saveFailed"));
           return result(
             "failed",
             0,
@@ -298,7 +298,7 @@ export function useMediaActions() {
         }
         const selected2 = await platform2.fs.showOpenDialog({
           title:
-            options?.dialogTitle ?? t2("canvas.lightbox.selectDownloadFolder"),
+            options?.dialogTitle ?? t("canvas.lightbox.selectDownloadFolder"),
           directory: true,
         });
         const selectedDirectory = selected2[0];
@@ -335,7 +335,7 @@ export function useMediaActions() {
         });
         for (const file of candidates2) {
           if (options.signal?.aborted) break;
-          const fileName = file.fileName ?? getFileName$2(file.filePath);
+          const fileName = file.fileName ?? getFileName(file.filePath);
           let safeFolderName;
           let attemptedTargetPath;
           try {
@@ -451,7 +451,7 @@ export function useMediaActions() {
         );
         if (cancelled) {
           dedupedToast.info(
-            t2("canvas.lightbox.batchSaveCancelled", {
+            t("canvas.lightbox.batchSaveCancelled", {
               count: savedCount,
             }),
           );
@@ -464,14 +464,14 @@ export function useMediaActions() {
         }
         if (savedCount > 0 && failedFiles.length === 0) {
           dedupedToast.success(
-            t2("canvas.lightbox.batchSaveSuccess", {
+            t("canvas.lightbox.batchSaveSuccess", {
               count: savedCount,
             }),
           );
           return result("completed", savedCount, [], targetDirectory);
         } else if (savedCount > 0) {
           dedupedToast.error(
-            t2("canvas.lightbox.batchSavePartial", {
+            t("canvas.lightbox.batchSavePartial", {
               saved: savedCount,
               failed: failedFiles.length,
             }),
@@ -482,7 +482,7 @@ export function useMediaActions() {
           );
           return result("partial", savedCount, failedFiles, targetDirectory);
         } else {
-          dedupedToast.error(t2("common.saveFailed"), {
+          dedupedToast.error(t("common.saveFailed"), {
             description: failedFileDescription(failedFiles),
             action: retryAction(failedFiles),
           });
@@ -495,7 +495,7 @@ export function useMediaActions() {
           "media-actions",
         );
         const failedFiles = failAll(detail);
-        dedupedToast.error(t2("common.saveFailed"), {
+        dedupedToast.error(t("common.saveFailed"), {
           action: retryAction(failedFiles),
         });
         if (createdRootDirectory && targetDirectory && platform2.fs.delete) {
@@ -511,7 +511,7 @@ export function useMediaActions() {
         return result("failed", 0, failedFiles);
       }
     },
-    [platform2, t2],
+    [platform2, t],
   );
   const showInFolder = reactExports.useCallback(
     async (path2) => {
@@ -522,10 +522,10 @@ export function useMediaActions() {
           `[media-actions] showInFolder failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("fileExplorer.cannotOpenFolder"));
+        dedupedToast.error(t("fileExplorer.cannotOpenFolder"));
       }
     },
-    [platform2, t2],
+    [platform2, t],
   );
   const openWithDefault = reactExports.useCallback(
     async (path2) => {
@@ -534,16 +534,16 @@ export function useMediaActions() {
           await platform2.shell.openPath(path2);
           return;
         }
-        dedupedToast.error(t2("fileExplorer.platformNotSupported"));
+        dedupedToast.error(t("fileExplorer.platformNotSupported"));
       } catch (err) {
         log?.error(
           `[media-actions] openWithDefault failed: ${getErrorMessage(err)}`,
           "media-actions",
         );
-        dedupedToast.error(t2("fileExplorer.openFailed"));
+        dedupedToast.error(t("fileExplorer.openFailed"));
       }
     },
-    [platform2, t2],
+    [platform2, t],
   );
   const openWith = reactExports.useCallback(async (_path, _appPath) => {}, []);
   const pickAppAndOpen = reactExports.useCallback(async (_path) => {}, []);
@@ -559,6 +559,6 @@ export function useMediaActions() {
     pickAppAndOpen,
     isLocalPath: isAbsoluteLocalFilePath,
     isImageExtension,
-    getFileName: getFileName$2,
+    getFileName,
   };
 }

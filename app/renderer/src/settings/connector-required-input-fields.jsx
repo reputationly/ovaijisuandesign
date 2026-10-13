@@ -32,7 +32,7 @@ export function ConnectorRequiredInputFields({
   normalize: normalize2,
   onChange,
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const language2 = i18n?.language ?? "en";
   return (
     <>
@@ -73,7 +73,7 @@ export function ConnectorRequiredInputFields({
               <p role="alert" className="mt-1.5 text-xs text-destructive">
                 {field.patternMessage
                   ? localizedI18nText(field.patternMessage, language2)
-                  : t2("connectors.oauth.invalidInput")}
+                  : t("connectors.oauth.invalidInput")}
               </p>
             ) : null}
           </div>

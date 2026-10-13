@@ -28,7 +28,7 @@ import { PlaybackPlayIcon } from "../workspace/home-service.jsx";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 const POPUP_TYPE = "feature";
 export function FeaturePopup({ popup, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const videoRef = reactExports.useRef(null);
   const closePendingRef = reactExports.useRef(false);
   const [isOpen, setIsOpen] = reactExports.useState(true);
@@ -99,9 +99,9 @@ export function FeaturePopup({ popup, onClose }) {
   const visibleTitle = popup.title?.trim() || "";
   const subtitle =
     popup.subtitle?.trim() ||
-    (isH3TrialPopup ? t2("serverPopup.feature.topTitle") : "");
+    (isH3TrialPopup ? t("serverPopup.feature.topTitle") : "");
   const a11yTitle =
-    visibleTitle || popup.description || t2("serverPopup.a11yTitle");
+    visibleTitle || popup.description || t("serverPopup.a11yTitle");
   return (
     <Dialog
       open={isOpen}
@@ -127,7 +127,7 @@ export function FeaturePopup({ popup, onClose }) {
             }
           >
             <Icon icon={XIcon} size="lg" strokeWidth={2} />
-            <span className="sr-only">{t2("common.close")}</span>
+            <span className="sr-only">{t("common.close")}</span>
           </DialogClose>
         )}
         {videoUrl ? (
@@ -153,7 +153,7 @@ export function FeaturePopup({ popup, onClose }) {
               <button
                 type="button"
                 onClick={handleToggleVideo}
-                aria-label={t2(isVideoPlaying ? "common.pause" : "common.play")}
+                aria-label={t(isVideoPlaying ? "common.pause" : "common.play")}
                 className="group absolute inset-0 flex cursor-pointer items-center justify-center"
                 data-action-ui-id={`server-popup.feature.${isVideoPlaying ? "pause" : "play"}`}
               >
@@ -177,7 +177,7 @@ export function FeaturePopup({ popup, onClose }) {
                   event.stopPropagation();
                   handleToggleMute();
                 }}
-                aria-label={t2(
+                aria-label={t(
                   isVideoMuted
                     ? "serverPopup.feature.unmute"
                     : "serverPopup.feature.mute",

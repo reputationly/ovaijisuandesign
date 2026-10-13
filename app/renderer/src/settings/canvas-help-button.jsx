@@ -30,7 +30,7 @@ export function CanvasHelpButton({
   onMenuOpenChange,
   variant = "floating",
 }) {
-  const { t: t2, i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const platform2 = usePlatform();
   const { openFeedback } = useFeedback();
   const [shortcutsOpen, setShortcutsOpen] = reactExports.useState(false);
@@ -57,7 +57,7 @@ export function CanvasHelpButton({
       category: "feature_request",
     });
   };
-  const helpLabel = t2("canvas.help.tooltip", {
+  const helpLabel = t("canvas.help.tooltip", {
     defaultValue: "帮助指南",
   });
   const helpTrigger = (
@@ -107,7 +107,7 @@ export function CanvasHelpButton({
           >
             <span className="flex items-center gap-2">
               <Lightbulb size={16} strokeWidth={1.5} />
-              {t2("canvas.help.tutorial")}
+              {t("canvas.help.tutorial")}
             </span>
             <ChevronRight
               size={14}
@@ -122,7 +122,7 @@ export function CanvasHelpButton({
           >
             <span className="flex items-center gap-2">
               <FeedbackIcon size={16} />
-              {t2("canvas.help.feedback")}
+              {t("canvas.help.feedback")}
             </span>
             <ChevronRight
               size={14}
@@ -137,7 +137,7 @@ export function CanvasHelpButton({
           >
             <span className="flex items-center gap-2">
               <MessageSquarePlus size={16} strokeWidth={1.5} />
-              {t2("canvas.help.featureRequest")}
+              {t("canvas.help.featureRequest")}
             </span>
             <ChevronRight
               size={14}
@@ -152,7 +152,7 @@ export function CanvasHelpButton({
           >
             <span className="flex items-center gap-2">
               <Keyboard size={16} strokeWidth={1.5} />
-              {t2("canvas.help.shortcuts")}
+              {t("canvas.help.shortcuts")}
             </span>
             <ChevronRight
               size={14}

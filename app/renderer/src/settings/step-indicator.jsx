@@ -24,12 +24,12 @@ function getStepLabelKey({ platform: platform2, state: state2, step }) {
     : `settings.imBridge.addFlow.step.${step}`;
 }
 function StepHintContent({ platform: platform2, step }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const hintKey =
     step === "scan"
       ? `settings.imBridge.addFlow.stepHint.scan.${platform2}`
       : `settings.imBridge.addFlow.stepHint.${step}.${platform2}`;
-  return <>{t2(hintKey)}</>;
+  return <>{t(hintKey)}</>;
 }
 function StepIndicator({
   platform: platform2,
@@ -37,7 +37,7 @@ function StepIndicator({
   transitioningToStep,
   transitionLabel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const stepKeys =
     platform2 === "feishu" ? ["scan", "auth", "done"] : ["scan", "done"];
   const activeIndex = Math.max(stepKeys.indexOf(step), 0);
@@ -90,11 +90,11 @@ function StepIndicator({
                     {state2 === "done" ? (
                       <Icon icon={Check} size="xs" strokeWidth={2} />
                     ) : (
-                      t2(`settings.imBridge.addFlow.stepOrdinal.${index2 + 1}`)
+                      t(`settings.imBridge.addFlow.stepOrdinal.${index2 + 1}`)
                     )}
                   </span>
                   <span className="leading-none">
-                    {t2(
+                    {t(
                       getStepLabelKey({
                         platform: platform2,
                         state: state2,
@@ -145,8 +145,8 @@ export function AddFlowFrame({
   transitioningToStep,
   transitionLabel,
 }) {
-  const { t: t2 } = useTranslation();
-  const title = t2(`settings.imBridge.addFlow.title.${platform2}`);
+  const { t } = useTranslation();
+  const title = t(`settings.imBridge.addFlow.title.${platform2}`);
   const onBackRef = reactExports.useRef(onBack);
   reactExports.useEffect(() => {
     onBackRef.current = onBack;

@@ -60,7 +60,7 @@ const sideEffects = {
 export function useSettings() {
   const queryClient2 = useQueryClient();
   const [config2, , setConfigAsync] = useStorage("global.config");
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const configRef = reactExports.useRef(config2);
   const requestSeqRef = reactExports.useRef({});
   const desktopSettingsServiceRef = reactExports.useRef(null);
@@ -75,9 +75,9 @@ export function useSettings() {
     (key2) => {
       const errorKey = sideEffectErrorKeys[key2];
       if (!errorKey) return;
-      dedupedToast.error(t2(errorKey));
+      dedupedToast.error(t(errorKey));
     },
-    [t2],
+    [t],
   );
   const set2 = reactExports.useCallback(
     async (key2, value) => {
@@ -103,21 +103,21 @@ export function useSettings() {
         return true;
       }
       try {
-        const ok2 = await effect2(getDesktopSettingsService(), value);
-        if (!ok2 && requestSeqRef.current[key2] === requestId) {
+        const ok = await effect2(getDesktopSettingsService(), value);
+        if (!ok && requestSeqRef.current[key2] === requestId) {
           await setConfigAsync((cfg) => ({
             ...cfg,
             [key2]: prev,
           }));
           notifySideEffectError(key2);
         }
-        if (ok2) {
+        if (ok) {
           trackEvent(TRACK_EVENTS.SETTINGS_CHANGE, {
             key: key2,
             value_type: typeof value,
           });
         }
-        return ok2;
+        return ok;
       } catch {
         if (requestSeqRef.current[key2] === requestId) {
           await setConfigAsync((cfg) => ({
@@ -154,16 +154,16 @@ export function useSettings() {
         await getDesktopSettingsService().openNotificationSettings();
       if (!result.success) {
         dedupedToast.error(
-          result.error ?? t2("settings.errors.notificationsFailed"),
+          result.error ?? t("settings.errors.notificationsFailed"),
         );
         return false;
       }
       return true;
     } catch {
-      dedupedToast.error(t2("settings.errors.notificationsFailed"));
+      dedupedToast.error(t("settings.errors.notificationsFailed"));
       return false;
     }
-  }, [t2, getDesktopSettingsService]);
+  }, [t, getDesktopSettingsService]);
   return {
     config: config2,
     set: set2,

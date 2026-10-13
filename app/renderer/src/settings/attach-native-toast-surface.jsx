@@ -211,16 +211,16 @@ function measureNativeToasts(mount, view2) {
     ]) {
       const bounds = element2.getBoundingClientRect();
       if (bounds.width <= 0 || bounds.height <= 0) continue;
-      const x2 = Math.max(0, Math.floor(bounds.left));
-      const y4 = Math.max(0, Math.floor(bounds.top));
+      const x = Math.max(0, Math.floor(bounds.left));
+      const y = Math.max(0, Math.floor(bounds.top));
       const right = Math.min(view2.innerWidth, Math.ceil(bounds.right));
       const bottom = Math.ceil(bounds.bottom);
-      if (right > x2 && bottom > y4)
+      if (right > x && bottom > y)
         rects.push({
-          x: x2,
-          y: y4,
-          width: right - x2,
-          height: bottom - y4,
+          x,
+          y,
+          width: right - x,
+          height: bottom - y,
         });
     }
   }

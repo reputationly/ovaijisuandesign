@@ -60,9 +60,9 @@ import { Switch } from "../generation/select-content.jsx";
 import { MEMORY_TYPES } from "../generation/to-workspace-browser-url.js";
 import { Alert, AlertDescription } from "../team/alert-variants.jsx";
 import { useSettings } from "./use-settings.js";
-async function searchMemory(fetcher, q2, scope = "all", type2) {
+async function searchMemory(fetcher, query, scope = "all", type2) {
   const params = new URLSearchParams({
-    q: q2,
+    q: query,
     scope,
   });
   const res = await fetcher(`${BASE}/search?${params.toString()}`);
@@ -70,11 +70,11 @@ async function searchMemory(fetcher, q2, scope = "all", type2) {
   const data2 = await res.json();
   return data2.entries;
 }
-async function listRecentAutoFeedback(fetcher, q2 = {}) {
+async function listRecentAutoFeedback(fetcher, options = {}) {
   const params = new URLSearchParams();
-  if (q2.lookbackMs !== void 0)
-    params.set("lookback_ms", String(q2.lookbackMs));
-  if (q2.limit !== void 0) params.set("limit", String(q2.limit));
+  if (options.lookbackMs !== void 0)
+    params.set("lookback_ms", String(options.lookbackMs));
+  if (options.limit !== void 0) params.set("limit", String(options.limit));
   const suffix = params.toString();
   const res = await fetcher(
     suffix ? `${BASE}/recent-auto?${suffix}` : `${BASE}/recent-auto`,
@@ -111,11 +111,11 @@ function useMemoryWSInvalidation() {
     });
   }, [subscribe2, queryClient2, scopeKey]);
 }
-function useMemorySearch(q2, scope, type2) {
+function useMemorySearch(query, scope, type2) {
   const baseUrl = useGatewayBaseUrl();
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
-  const trimmed = q2.trim();
+  const trimmed = query.trim();
   return useQuery({
     queryKey: memoryQueryKeys.search(scopeKey, trimmed, scope, type2),
     queryFn: () => searchMemory(fetcher, trimmed, scope),
@@ -135,13 +135,13 @@ function useMemoryDelete() {
     },
   });
 }
-function useRecentAutoFeedback(q2 = {}) {
+function useRecentAutoFeedback(options = {}) {
   const baseUrl = useGatewayBaseUrl();
   const fetcher = useGatewayFetch();
   const scopeKey = useGatewayScopeKey();
   return useQuery({
-    queryKey: memoryQueryKeys.recentAuto(scopeKey, q2),
-    queryFn: () => listRecentAutoFeedback(fetcher, q2),
+    queryKey: memoryQueryKeys.recentAuto(scopeKey, options),
+    queryFn: () => listRecentAutoFeedback(fetcher, options),
     // See `useMemoryList` -- the global staleTime: Infinity default would
     // otherwise serve cached entries forever after the first open, hiding
     // anything the auto-extractor wrote while the panel was closed.
@@ -176,16 +176,16 @@ function MemoryDeleteConfirm({
   loading,
   onConfirm,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent data-action-ui-id="settings.memory.delete-confirm">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("memory.deleteTitle", "Delete memory?")}
+            {t("memory.deleteTitle", "Delete memory?")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2(
+            {t(
               "memory.deleteDesc",
               "This permanently removes the markdown file. The agent will lose this memory immediately.",
             )}
@@ -194,13 +194,13 @@ function MemoryDeleteConfirm({
         <div className="flex flex-col gap-1 border-l-2 border-destructive bg-destructive/5 px-3 py-2 text-xs">
           <p className="text-muted-foreground">
             <span className="font-medium text-foreground">
-              {t2("memory.fieldScope", "Scope")}:
+              {t("memory.fieldScope", "Scope")}:
             </span>{" "}
             {scope}
           </p>
           <p className="text-muted-foreground">
             <span className="font-medium text-foreground">
-              {t2("memory.fieldName", "Name")}:
+              {t("memory.fieldName", "Name")}:
             </span>{" "}
             <span className="font-mono">{name2}</span>
           </p>
@@ -210,19 +210,19 @@ function MemoryDeleteConfirm({
             disabled={loading}
             data-action-ui-id="settings.memory.delete-cancel"
           >
-            {t2("common.cancel", "Cancel")}
+            {t("common.cancel", "Cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={loading}
-            onClick={(e2) => {
-              e2.preventDefault();
+            onClick={(clickEvent) => {
+              clickEvent.preventDefault();
               void onConfirm();
             }}
             data-action-ui-id="settings.memory.delete-confirm-button"
           >
             {loading
-              ? t2("common.deleting", "Deleting…")
-              : t2("common.delete", "Delete")}
+              ? t("common.deleting", "Deleting…")
+              : t("common.delete", "Delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -236,7 +236,7 @@ function parseAssetUri(uri) {
   return match2 ? match2[1] : void 0;
 }
 function AssetPinPreview({ scope, name: name2 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const entry = useMemoryEntry(scope, name2);
   if (entry.isLoading) {
     return (
@@ -251,7 +251,7 @@ function AssetPinPreview({ scope, name: name2 }) {
   if (!assetId) {
     return (
       <div className="flex h-16 items-center px-2 text-[11px] text-muted-foreground">
-        {t2("memory.assetMissing", "asset_uri missing or malformed")}
+        {t("memory.assetMissing", "asset_uri missing or malformed")}
       </div>
     );
   }
@@ -259,7 +259,7 @@ function AssetPinPreview({ scope, name: name2 }) {
   if (!src) {
     return (
       <div className="flex h-16 items-center px-2 text-[11px] text-muted-foreground">
-        {t2("memory.gatewayUnavailable", "Gateway unavailable")}
+        {t("memory.gatewayUnavailable", "Gateway unavailable")}
       </div>
     );
   }
@@ -293,8 +293,8 @@ function AssetPinPreview({ scope, name: name2 }) {
       src={src}
       alt={fm?.description ?? name2}
       className="h-16 w-16 bg-muted object-cover"
-      onError={(e2) => {
-        const target = e2.currentTarget;
+      onError={(errorEvent) => {
+        const target = errorEvent.currentTarget;
         target.style.display = "none";
       }}
     />
@@ -309,7 +309,7 @@ const TYPE_VARIANT = {
   "asset-pin": "secondary",
 };
 function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <section className="flex flex-col gap-2">
       <header className="flex items-center gap-2">
@@ -337,7 +337,7 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
                       {entry.name}
                     </span>
                     <Badge variant={TYPE_VARIANT[entry.type]}>
-                      {t2(`memory.type.${entry.type}`, entry.type)}
+                      {t(`memory.type.${entry.type}`, entry.type)}
                     </Badge>
                     {matchedIn && matchedIn.length > 0 && (
                       <Tooltip>
@@ -346,15 +346,15 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
                             <Badge variant="outline" className="text-[10px]">
                               {matchedIn.includes("body") &&
                               matchedIn.includes("description")
-                                ? t2("memory.matchBoth", "desc+body")
+                                ? t("memory.matchBoth", "desc+body")
                                 : matchedIn.includes("body")
-                                  ? t2("memory.matchBody", "body")
-                                  : t2("memory.matchDescription", "desc")}
+                                  ? t("memory.matchBody", "body")
+                                  : t("memory.matchDescription", "desc")}
                             </Badge>
                           }
                         />
                         <TooltipContent>
-                          {t2("memory.matchTooltip", "Search matched in: ") +
+                          {t("memory.matchTooltip", "Search matched in: ") +
                             matchedIn.join(", ")}
                         </TooltipContent>
                       </Tooltip>
@@ -367,7 +367,7 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
                     )}
                   >
                     {entry.description ||
-                      t2("memory.noDescription", "(no description)")}
+                      t("memory.noDescription", "(no description)")}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-0.5">
@@ -375,7 +375,7 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
                     variant="ghost"
                     size="icon-xs"
                     onClick={() => onEdit(entry)}
-                    aria-label={t2("common.edit", "Edit")}
+                    aria-label={t("common.edit", "Edit")}
                     data-action-ui-id={`settings.memory.edit.${entry.scope}.${entry.name}`}
                   >
                     <PencilIcon size={12} strokeWidth={1.5} />
@@ -384,7 +384,7 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
                     variant="ghost"
                     size="icon-xs"
                     onClick={() => onDelete(entry)}
-                    aria-label={t2("common.delete", "Delete")}
+                    aria-label={t("common.delete", "Delete")}
                     data-action-ui-id={`settings.memory.delete.${entry.scope}.${entry.name}`}
                   >
                     <Trash2 size={12} strokeWidth={1.5} />
@@ -401,10 +401,10 @@ function MemoryList({ scopeLabel, entries: entries2, onEdit, onDelete }) {
     </section>
   );
 }
-function relativeFromNow$1(iso, nowMs = Date.now()) {
-  const t2 = Date.parse(iso);
-  if (Number.isNaN(t2)) return iso;
-  const diffSec = Math.max(0, Math.round((nowMs - t2) / 1e3));
+function formatRelativeAge(iso, nowMs = Date.now()) {
+  const timestamp = Date.parse(iso);
+  if (Number.isNaN(timestamp)) return iso;
+  const diffSec = Math.max(0, Math.round((nowMs - timestamp) / 1e3));
   if (diffSec < 60) return `${diffSec}s`;
   const diffMin = Math.round(diffSec / 60);
   if (diffMin < 60) return `${diffMin}m`;
@@ -414,7 +414,7 @@ function relativeFromNow$1(iso, nowMs = Date.now()) {
   return `${diffDay}d`;
 }
 function RecentAutoFeedbackList({ lookbackMs }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const query = useRecentAutoFeedback({
     lookbackMs,
   });
@@ -431,16 +431,16 @@ function RecentAutoFeedbackList({ lookbackMs }) {
       });
       if (res.deleted) {
         dedupedToast.success(
-          t2("memory.autoPanel.undoSuccess", "Undone — entry removed"),
+          t("memory.autoPanel.undoSuccess", "Undone — entry removed"),
         );
       } else {
         dedupedToast.info(
-          t2("memory.autoPanel.undoNotFound", "Entry was already removed"),
+          t("memory.autoPanel.undoNotFound", "Entry was already removed"),
         );
       }
     } catch (err) {
       dedupedToast.error(
-        t2("memory.autoPanel.undoFailed", "Undo failed") +
+        t("memory.autoPanel.undoFailed", "Undo failed") +
           (err instanceof Error ? `: ${err.message}` : ""),
       );
     }
@@ -457,21 +457,21 @@ function RecentAutoFeedbackList({ lookbackMs }) {
           className="text-muted-foreground"
         />
         <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t2("memory.autoPanel.title", "Recently learnt")}
+          {t("memory.autoPanel.title", "Recently learnt")}
         </span>
         <div className="h-px flex-1 bg-border" />
         <span className="text-xs text-muted-foreground">{entries2.length}</span>
       </header>
       {query.isError ? (
         <p className="px-3 py-2 text-xs text-muted-foreground">
-          {t2(
+          {t(
             "memory.autoPanel.loadFailed",
             "Could not load recent auto-extractions",
           )}
         </p>
       ) : query.isLoading && entries2.length === 0 ? (
         <p className="px-3 py-2 text-xs text-muted-foreground">
-          {t2("common.loading", "Loading…")}
+          {t("common.loading", "Loading…")}
         </p>
       ) : (
         <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-lg border border-border">
@@ -487,13 +487,13 @@ function RecentAutoFeedbackList({ lookbackMs }) {
                     {entry.name}
                   </span>
                   <Badge variant="secondary">
-                    {t2(`memory.type.${entry.type}`, entry.type)}
+                    {t(`memory.type.${entry.type}`, entry.type)}
                   </Badge>
                   <Tooltip>
                     <TooltipTrigger
                       render={
                         <Badge variant="outline" className="text-[10px]">
-                          {relativeFromNow$1(entry.extracted_at)}
+                          {formatRelativeAge(entry.extracted_at)}
                         </Badge>
                       }
                     />
@@ -502,7 +502,7 @@ function RecentAutoFeedbackList({ lookbackMs }) {
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {entry.description ||
-                    t2("memory.noDescription", "(no description)")}
+                    t("memory.noDescription", "(no description)")}
                 </p>
               </div>
               <Button
@@ -513,7 +513,7 @@ function RecentAutoFeedbackList({ lookbackMs }) {
                 data-action-ui-id={`settings.memory.recent-auto.undo.${entry.scope}.${entry.name}`}
               >
                 <Undo2 size={12} strokeWidth={1.5} />
-                {t2("memory.autoPanel.undo", "Undo")}
+                {t("memory.autoPanel.undo", "Undo")}
               </Button>
             </li>
           ))}
@@ -529,9 +529,9 @@ function formatBytes(bytes2) {
   return `${(bytes2 / (1024 * 1024)).toFixed(2)} MB`;
 }
 function relativeFromNow(iso, nowMs = Date.now()) {
-  const ts2 = Date.parse(iso);
-  if (Number.isNaN(ts2)) return iso;
-  const diffSec = Math.max(0, Math.round((nowMs - ts2) / 1e3));
+  const ts = Date.parse(iso);
+  if (Number.isNaN(ts)) return iso;
+  const diffSec = Math.max(0, Math.round((nowMs - ts) / 1e3));
   if (diffSec < 60) return `${diffSec}s`;
   const diffMin = Math.round(diffSec / 60);
   if (diffMin < 60) return `${diffMin}m`;
@@ -541,14 +541,14 @@ function relativeFromNow(iso, nowMs = Date.now()) {
   return `${diffDay}d`;
 }
 function SnapshotList({ onRequestRestore }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const query = useSnapshotsList();
   const snapshots2 = query.data ?? [];
   if (query.isLoading && snapshots2.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 py-10 text-xs text-muted-foreground">
         <LoaderCircle size={16} strokeWidth={1.5} className="animate-spin" />
-        <span>{t2("common.loading", "Loading…")}</span>
+        <span>{t("common.loading", "Loading…")}</span>
       </div>
     );
   }
@@ -557,7 +557,7 @@ function SnapshotList({ onRequestRestore }) {
       <p className="px-3 py-2 text-xs text-destructive">
         {query.error instanceof Error
           ? query.error.message
-          : t2("memory.snapshots.loadFailed", "无法加载快照列表")}
+          : t("memory.snapshots.loadFailed", "无法加载快照列表")}
       </p>
     );
   }
@@ -565,10 +565,10 @@ function SnapshotList({ onRequestRestore }) {
     return (
       <div className="flex flex-col items-center gap-1 py-10 text-center">
         <p className="text-sm font-medium text-foreground">
-          {t2("memory.snapshots.empty", "暂无快照")}
+          {t("memory.snapshots.empty", "暂无快照")}
         </p>
         <p className="max-w-sm text-xs text-muted-foreground">
-          {t2(
+          {t(
             "memory.snapshots.emptyDesc",
             "当 agent 第一次整理记忆，或你手动触发整理后，会在这里看到快照。",
           )}
@@ -594,8 +594,8 @@ function SnapshotList({ onRequestRestore }) {
                   variant={snap.reason === "manual" ? "outline" : "secondary"}
                 >
                   {snap.reason === "manual"
-                    ? t2("memory.snapshots.reasonManual", "手动")
-                    : t2("memory.snapshots.reasonCompaction", "整理")}
+                    ? t("memory.snapshots.reasonManual", "手动")
+                    : t("memory.snapshots.reasonCompaction", "整理")}
                 </Badge>
                 <span
                   className="text-xs text-muted-foreground"
@@ -605,7 +605,7 @@ function SnapshotList({ onRequestRestore }) {
                 </span>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                {t2("memory.snapshots.entryCount", {
+                {t("memory.snapshots.entryCount", {
                   count: snap.entryCount,
                   bytes: formatBytes(snap.bytes),
                   defaultValue: "{{count}} 条 · {{bytes}}",
@@ -613,7 +613,7 @@ function SnapshotList({ onRequestRestore }) {
               </p>
               {snap.summary && (
                 <p className="text-[10px] text-muted-foreground">
-                  {t2("memory.snapshots.summary", {
+                  {t("memory.snapshots.summary", {
                     deleted: snap.summary.deleted,
                     merged: snap.summary.merged,
                     freed: formatBytes(snap.summary.freedBytes),
@@ -630,7 +630,7 @@ function SnapshotList({ onRequestRestore }) {
               data-action-ui-id={`settings.memory.snapshots.restore.${snap.id}`}
             >
               <RotateCcw size={12} strokeWidth={1.5} />
-              {t2("memory.snapshots.restore", "恢复")}
+              {t("memory.snapshots.restore", "恢复")}
             </Button>
           </div>
         </li>
@@ -639,7 +639,7 @@ function SnapshotList({ onRequestRestore }) {
   );
 }
 function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const restore = useSnapshotRestore();
   async function handleConfirm() {
     try {
@@ -647,7 +647,7 @@ function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
         snapshotId: snapshot2.id,
       });
       dedupedToast.success(
-        t2("memory.snapshots.restoreDoneToast", {
+        t("memory.snapshots.restoreDoneToast", {
           count: res.restored,
           defaultValue: "已从快照恢复 {{count}} 条记忆",
         }),
@@ -655,7 +655,7 @@ function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
       onRestored();
     } catch (err) {
       dedupedToast.error(
-        t2("memory.snapshots.restoreFailedToast", "恢复快照失败") +
+        t("memory.snapshots.restoreFailedToast", "恢复快照失败") +
           (err instanceof Error ? `: ${err.message}` : ""),
       );
     }
@@ -665,10 +665,10 @@ function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
       <AlertDialogContent data-action-ui-id="settings.memory.snapshots.restore-confirm">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("memory.snapshots.restoreConfirmTitle", "恢复到此快照?")}
+            {t("memory.snapshots.restoreConfirmTitle", "恢复到此快照?")}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2(
+            {t(
               "memory.snapshots.restoreConfirmDesc",
               "这将覆盖当前范围的全部记忆。系统会先把当前状态快照备份一份作为回退点。",
             )}
@@ -677,13 +677,13 @@ function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
         <div className="flex flex-col gap-1 border-l-2 border-primary bg-primary/5 px-3 py-2 text-xs">
           <p className="text-muted-foreground">
             <span className="font-medium text-foreground">
-              {t2("memory.snapshots.snapshotIdLabel", "快照")}:
+              {t("memory.snapshots.snapshotIdLabel", "快照")}:
             </span>{" "}
             <span className="font-mono">{snapshot2.id}</span>
           </p>
           <p className="text-muted-foreground">
             <span className="font-medium text-foreground">
-              {t2("memory.snapshots.entryCountLabel", "条目")}:
+              {t("memory.snapshots.entryCountLabel", "条目")}:
             </span>{" "}
             {snapshot2.entryCount}
             {" ("}
@@ -695,19 +695,19 @@ function RestoreConfirm({ snapshot: snapshot2, onClose, onRestored }) {
             disabled={restore.isPending}
             data-action-ui-id="settings.memory.snapshots.restore-cancel"
           >
-            {t2("memory.compaction.cancel", "取消")}
+            {t("memory.compaction.cancel", "取消")}
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={restore.isPending}
-            onClick={(e2) => {
-              e2.preventDefault();
+            onClick={(clickEvent) => {
+              clickEvent.preventDefault();
               void handleConfirm();
             }}
             data-action-ui-id="settings.memory.snapshots.restore-confirm-button"
           >
             {restore.isPending
-              ? t2("memory.snapshots.restoring", "恢复中…")
-              : t2("memory.snapshots.restore", "恢复")}
+              ? t("memory.snapshots.restoring", "恢复中…")
+              : t("memory.snapshots.restore", "恢复")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -735,14 +735,14 @@ function SnapshotsContent({ onRestored }) {
   );
 }
 function SnapshotsPage({ onRestored }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       className="flex min-h-[460px] flex-col gap-4"
       data-action-ui-id="settings.memory.snapshots.page"
     >
       <p className="max-w-2xl text-sm text-muted-foreground">
-        {t2(
+        {t(
           "memory.snapshots.subtitle",
           "查看自动 / 手动快照，可一键恢复整个范围的记忆。恢复前会再做一份当前状态快照。",
         )}
@@ -757,31 +757,31 @@ const FILTER_SELECT_TRIGGER_CLASS =
 const FILTER_SELECT_CONTENT_CLASS = "bg-popover! p-1";
 const FILTER_SELECT_ITEM_CLASS =
   "h-7 rounded-md py-1.5 pr-8 pl-2.5 text-xs font-normal text-foreground/70 focus:bg-popup-item-hover! focus:text-foreground! data-[highlighted]:bg-popup-item-hover! data-[highlighted]:text-foreground!";
-function scopeFilterLabel(v2, t2) {
-  if (v2 === "all") return t2("memory.scopeAll", "All scopes");
-  if (v2 === "project") return t2("memory.scopeProject", "Project");
-  return t2("memory.scopeUser", "User");
+function scopeFilterLabel(scopeFilter, t) {
+  if (scopeFilter === "all") return t("memory.scopeAll", "All scopes");
+  if (scopeFilter === "project") return t("memory.scopeProject", "Project");
+  return t("memory.scopeUser", "User");
 }
-function typeFilterLabel(v2, t2) {
-  if (v2 === TYPE_FILTER_ALL) return t2("memory.typeAll", "All types");
-  return t2(`memory.type.${v2}`, v2);
+function typeFilterLabel(typeFilter, t) {
+  if (typeFilter === TYPE_FILTER_ALL) return t("memory.typeAll", "All types");
+  return t(`memory.type.${typeFilter}`, typeFilter);
 }
 function EmptyState({ searching }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center gap-1 py-10 text-center">
       <p className="text-sm font-medium text-foreground">
         {searching
-          ? t2("memory.emptySearch", "No matching memory")
-          : t2("memory.empty", "No memory yet")}
+          ? t("memory.emptySearch", "No matching memory")
+          : t("memory.empty", "No memory yet")}
       </p>
       <p className="max-w-sm text-xs text-muted-foreground">
         {searching
-          ? t2(
+          ? t(
               "memory.emptySearchDesc",
               "Try a different keyword or clear the filters.",
             )
-          : t2(
+          : t(
               "memory.emptyDesc",
               'Memory captures lasting user / project preferences. Click "New" to create one, or let the agent persist them automatically.',
             )}
@@ -790,7 +790,7 @@ function EmptyState({ searching }) {
   );
 }
 export function MemoryManager({ onHeaderChange } = {}) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const scopeBaseUrl = useGatewayBaseUrl();
   const gatewayResolving = !scopeBaseUrl;
   const appBaseUrl = reactExports.useMemo(
@@ -830,8 +830,8 @@ export function MemoryManager({ onHeaderChange } = {}) {
     }
   }, [hasWorkspace, scopeFilter]);
   reactExports.useEffect(() => {
-    const id2 = setTimeout(() => setDebouncedQuery(query.trim()), 200);
-    return () => clearTimeout(id2);
+    const id = setTimeout(() => setDebouncedQuery(query.trim()), 200);
+    return () => clearTimeout(id);
   }, [query]);
   reactExports.useEffect(() => {
     if (!onHeaderChange) return;
@@ -842,14 +842,14 @@ export function MemoryManager({ onHeaderChange } = {}) {
     onHeaderChange({
       title:
         secondaryPage === "compaction"
-          ? t2("memory.compaction.rewrite.title", "Rewrite memories with AI")
-          : t2("memory.snapshots.title", "Snapshots"),
+          ? t("memory.compaction.rewrite.title", "Rewrite memories with AI")
+          : t("memory.snapshots.title", "Snapshots"),
       onBack: () => setSecondaryPage(null),
-      backLabel: t2("common.back", "Back"),
+      backLabel: t("common.back", "Back"),
       backDisabled: secondaryBackDisabled,
     });
     return () => onHeaderChange(null);
-  }, [onHeaderChange, secondaryBackDisabled, secondaryPage, t2]);
+  }, [onHeaderChange, secondaryBackDisabled, secondaryPage, t]);
   const listQuery = useMemoryList(scopeFilter);
   const searchQuery = useMemorySearch(debouncedQuery, scopeFilter);
   const deleteMutation = useMemoryDelete();
@@ -865,8 +865,8 @@ export function MemoryManager({ onHeaderChange } = {}) {
     });
   }, [baseEntries, typeFilter]);
   const { project: project2, user } = reactExports.useMemo(() => {
-    const project22 = visibleEntries.filter((e2) => e2.scope === "project");
-    const user2 = visibleEntries.filter((e2) => e2.scope === "user");
+    const project22 = visibleEntries.filter((entry) => entry.scope === "project");
+    const user2 = visibleEntries.filter((entry) => entry.scope === "user");
     return {
       project: project22,
       user: user2,
@@ -881,15 +881,15 @@ export function MemoryManager({ onHeaderChange } = {}) {
     try {
       const res = await deleteMutation.mutateAsync(pendingDelete);
       if (res.deleted) {
-        dedupedToast.success(t2("memory.deletedSuccess", "Memory deleted"));
+        dedupedToast.success(t("memory.deletedSuccess", "Memory deleted"));
       } else {
         dedupedToast.info(
-          t2("memory.deletedNotFound", "Memory was already removed"),
+          t("memory.deletedNotFound", "Memory was already removed"),
         );
       }
     } catch (err) {
       dedupedToast.error(
-        t2("memory.deletedFailed", "Failed to delete memory") +
+        t("memory.deletedFailed", "Failed to delete memory") +
           (err instanceof Error ? `: ${err.message}` : ""),
       );
     } finally {
@@ -903,7 +903,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
         data-action-ui-id="settings.memory.panel"
       >
         <p className="py-6 text-center text-xs text-muted-foreground">
-          {t2("common.loading", "Loading…")}
+          {t("common.loading", "Loading…")}
         </p>
       </div>
     );
@@ -925,15 +925,15 @@ export function MemoryManager({ onHeaderChange } = {}) {
               disabled={secondaryBackDisabled}
               data-action-ui-id="settings.memory.secondary.back"
             >
-              {t2("common.back", "Back")}
+              {t("common.back", "Back")}
             </Button>
             <h3 className="font-heading text-lg font-medium text-foreground">
               {secondaryPage === "compaction"
-                ? t2(
+                ? t(
                     "memory.compaction.rewrite.title",
                     "Rewrite memories with AI",
                   )
-                : t2("memory.snapshots.title", "Snapshots")}
+                : t("memory.snapshots.title", "Snapshots")}
             </h3>
           </div>
         )}
@@ -962,8 +962,8 @@ export function MemoryManager({ onHeaderChange } = {}) {
             />
             <Input3
               value={query}
-              onChange={(e2) => setQuery(e2.target.value)}
-              placeholder={t2(
+              onChange={(changeEvent) => setQuery(changeEvent.target.value)}
+              placeholder={t(
                 "memory.searchPlaceholder",
                 "Search description or body…",
               )}
@@ -973,38 +973,38 @@ export function MemoryManager({ onHeaderChange } = {}) {
           </div>
           <Select
             value={scopeFilter}
-            onValueChange={(v2) => setScopeFilter(v2)}
+            onValueChange={(nextScopeFilter) => setScopeFilter(nextScopeFilter)}
           >
             <SelectTrigger className={`${FILTER_SELECT_TRIGGER_CLASS} w-32`}>
-              <SelectValue>{(v2) => scopeFilterLabel(v2, t2)}</SelectValue>
+              <SelectValue>{(scopeFilter) => scopeFilterLabel(scopeFilter, t)}</SelectValue>
             </SelectTrigger>
             <SelectContent className={FILTER_SELECT_CONTENT_CLASS}>
               <SelectItem className={FILTER_SELECT_ITEM_CLASS} value="all">
-                {t2("memory.scopeAll", "All scopes")}
+                {t("memory.scopeAll", "All scopes")}
               </SelectItem>
               {hasWorkspace && (
                 <SelectItem
                   className={FILTER_SELECT_ITEM_CLASS}
                   value="project"
                 >
-                  {t2("memory.scopeProject", "Project")}
+                  {t("memory.scopeProject", "Project")}
                 </SelectItem>
               )}
               <SelectItem className={FILTER_SELECT_ITEM_CLASS} value="user">
-                {t2("memory.scopeUser", "User")}
+                {t("memory.scopeUser", "User")}
               </SelectItem>
             </SelectContent>
           </Select>
-          <Select value={typeFilter} onValueChange={(v2) => setTypeFilter(v2)}>
+          <Select value={typeFilter} onValueChange={(nextTypeFilter) => setTypeFilter(nextTypeFilter)}>
             <SelectTrigger className={`${FILTER_SELECT_TRIGGER_CLASS} w-36`}>
-              <SelectValue>{(v2) => typeFilterLabel(v2, t2)}</SelectValue>
+              <SelectValue>{(typeFilter) => typeFilterLabel(typeFilter, t)}</SelectValue>
             </SelectTrigger>
             <SelectContent className={FILTER_SELECT_CONTENT_CLASS}>
               <SelectItem
                 className={FILTER_SELECT_ITEM_CLASS}
                 value={TYPE_FILTER_ALL}
               >
-                {t2("memory.typeAll", "All types")}
+                {t("memory.typeAll", "All types")}
               </SelectItem>
               {MEMORY_TYPES.map((type2) => (
                 <SelectItem
@@ -1012,7 +1012,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
                   className={FILTER_SELECT_ITEM_CLASS}
                   value={type2}
                 >
-                  {t2(`memory.type.${type2}`, type2)}
+                  {t(`memory.type.${type2}`, type2)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -1030,7 +1030,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
             data-action-ui-id="settings.memory.new"
           >
             <Plus size={14} strokeWidth={1.5} />
-            {t2("memory.new", "New")}
+            {t("memory.new", "New")}
           </Button>
           <div className="flex items-center gap-1">
             <Button
@@ -1042,7 +1042,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
                 void listQuery.refetch();
                 if (isSearching) void searchQuery.refetch();
               }}
-              aria-label={t2("common.refresh", "Refresh")}
+              aria-label={t("common.refresh", "Refresh")}
               data-action-ui-id="settings.memory.refresh"
             >
               <RetryIcon
@@ -1062,7 +1062,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
               data-action-ui-id="settings.memory.compaction.open"
             >
               <WandSparkles size={14} strokeWidth={1.5} />
-              {t2("memory.compaction.openButton", "整理")}
+              {t("memory.compaction.openButton", "整理")}
             </Button>
             <Button
               variant="ghost"
@@ -1072,11 +1072,11 @@ export function MemoryManager({ onHeaderChange } = {}) {
                 setSecondaryBackDisabled(false);
                 setSecondaryPage("snapshots");
               }}
-              aria-label={t2("memory.snapshots.openButton", "快照")}
+              aria-label={t("memory.snapshots.openButton", "快照")}
               data-action-ui-id="settings.memory.snapshots.open"
             >
               <History size={14} strokeWidth={1.5} />
-              {t2("memory.snapshots.openButton", "快照")}
+              {t("memory.snapshots.openButton", "快照")}
             </Button>
           </div>
         </div>
@@ -1094,10 +1094,10 @@ export function MemoryManager({ onHeaderChange } = {}) {
           >
             <div className="flex flex-1 min-w-0 flex-col gap-0.5 pr-4">
               <span className="text-xs font-medium">
-                {t2("memory.loadUserMemory.label", "Load user memory")}
+                {t("memory.loadUserMemory.label", "Load user memory")}
               </span>
               <span className="text-[11px] text-muted-foreground">
-                {t2(
+                {t(
                   "memory.loadUserMemory.description",
                   "Include cross-project user memory in this workspace. Project memory still loads.",
                 )}
@@ -1121,10 +1121,10 @@ export function MemoryManager({ onHeaderChange } = {}) {
         >
           <div className="flex flex-1 min-w-0 flex-col gap-0.5 pr-4">
             <span className="text-xs font-medium">
-              {t2("memory.autoFeedback.label", "Auto-summarize conversations")}
+              {t("memory.autoFeedback.label", "Auto-summarize conversations")}
             </span>
             <span className="text-[11px] text-muted-foreground">
-              {t2(
+              {t(
                 "memory.autoFeedback.description",
                 "Off only stops auto-extraction; agents can still write memory explicitly.",
               )}
@@ -1144,10 +1144,10 @@ export function MemoryManager({ onHeaderChange } = {}) {
         >
           <div className="flex flex-1 min-w-0 flex-col gap-0.5 pr-4">
             <span className="text-xs font-medium">
-              {t2("memory.compaction.autoLabel", "Periodic auto-compaction")}
+              {t("memory.compaction.autoLabel", "Periodic auto-compaction")}
             </span>
             <span className="text-[11px] text-muted-foreground">
-              {t2(
+              {t(
                 "memory.compaction.autoDescription",
                 "When entries or vault size exceed the threshold, run compaction in the background. Off keeps it manual.",
               )}
@@ -1165,7 +1165,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
       {!isSearching && <RecentAutoFeedbackList />}
       {loading && !baseEntries.length ? (
         <p className="py-6 text-center text-xs text-muted-foreground">
-          {t2("common.loading", "Loading…")}
+          {t("common.loading", "Loading…")}
         </p>
       ) : visibleEntries.length === 0 ? (
         <EmptyState searching={isSearching} />
@@ -1173,7 +1173,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
         <div className="flex flex-col gap-4">
           {project2.length > 0 && (
             <MemoryList
-              scopeLabel={t2(
+              scopeLabel={t(
                 "memory.groupProject",
                 "Project scope (current workspace)",
               )}
@@ -1195,7 +1195,7 @@ export function MemoryManager({ onHeaderChange } = {}) {
           )}
           {user.length > 0 && (
             <MemoryList
-              scopeLabel={t2("memory.groupUser", "User scope (cross-project)")}
+              scopeLabel={t("memory.groupUser", "User scope (cross-project)")}
               entries={user}
               onEdit={(entry) =>
                 setEditorState({

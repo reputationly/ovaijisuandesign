@@ -1,0 +1,5 @@
+key	new	reason
+t2@227:14	t	useTranslation() 返回的翻译函数 t
+t2@297:14	t	useTranslation() 返回的翻译函数 t
+q2@114:22	query	记忆搜索的查询串，作为 queryKey 一项
+q2@129:26	options	最近自动反馈的查询选项（lookbackMs/limit）

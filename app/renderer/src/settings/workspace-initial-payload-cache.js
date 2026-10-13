@@ -78,13 +78,13 @@ export class WorkspaceInitialPayloadCache {
    * (which may not yet have appeared in entries).
    */
   cleanupClosed(liveIds, seenIds, currentId) {
-    for (const id2 of liveIds) {
-      seenIds.add(id2);
+    for (const id of liveIds) {
+      seenIds.add(id);
     }
-    for (const id2 of this.payloads.keys()) {
-      if (seenIds.has(id2) && !liveIds.has(id2) && id2 !== currentId) {
-        this.payloads.delete(id2);
-        this.consumedPayloadKeys.delete(id2);
+    for (const id of this.payloads.keys()) {
+      if (seenIds.has(id) && !liveIds.has(id) && id !== currentId) {
+        this.payloads.delete(id);
+        this.consumedPayloadKeys.delete(id);
       }
     }
   }

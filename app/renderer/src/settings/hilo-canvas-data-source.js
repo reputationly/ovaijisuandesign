@@ -128,9 +128,9 @@ export class HiloCanvasDataSource {
       signal,
     });
     const items = [];
-    for (const a2 of allAssetsRes.assets) {
+    for (const assetInfo of allAssetsRes.assets) {
       const item = assetInfoToCanvasItem(
-        a2,
+        assetInfo,
         this.httpClient.fileUrlById.bind(this.httpClient),
       );
       if (item) items.push(item);
