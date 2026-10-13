@@ -1,0 +1,2 @@
+key	新名	依据
+cn@5:18	mergeClassNames	`mergeClassNames` 合并并规范化组件传入的 Tailwind class 名。

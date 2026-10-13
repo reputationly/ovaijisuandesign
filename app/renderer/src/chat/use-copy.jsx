@@ -17,11 +17,11 @@ export function useCopy(onCopied) {
       resetTimerRef.current = null;
     };
   }, []);
-  const copy2 = reactExports.useCallback(
-    async (text2) => {
+  const copy = reactExports.useCallback(
+    async (text) => {
       if (!navigator.clipboard) return;
       try {
-        await navigator.clipboard.writeText(text2);
+        await navigator.clipboard.writeText(text);
         if (!mountedRef.current) return;
         if (resetTimerRef.current !== null) clearTimeout(resetTimerRef.current);
         setCopied(true);
@@ -36,34 +36,34 @@ export function useCopy(onCopied) {
   );
   return {
     copied,
-    copy: copy2,
+    copy,
   };
 }
 
-export function collectAssistantCopyText(messages2) {
-  return messages2
+export function collectAssistantCopyText(messages) {
+  return messages
     .filter(
-      (message2) =>
-        message2.role === "agent" &&
-        message2.type === "text" &&
-        message2.content.trim().length > 0,
+      (message) =>
+        message.role === "agent" &&
+        message.type === "text" &&
+        message.content.trim().length > 0,
     )
-    .map((message2) => message2.content.trim())
+    .map((message) => message.content.trim())
     .join("\n\n");
 }
 
-export function BottomAnchorButton({ state: state2, onClick }) {
-  const { t: t2 } = useTranslation();
-  const isScrolling = state2 === "scrolling-to-bottom";
-  const ariaLabel = t2("chat.bottomAnchor.label", "回到最新消息");
-  const handleClick2 = () => {
+export function BottomAnchorButton({ state, onClick }) {
+  const { t: translate } = useTranslation();
+  const isScrolling = state === "scrolling-to-bottom";
+  const ariaLabel = translate("chat.bottomAnchor.label", "回到最新消息");
+  const handleClick = () => {
     if (isScrolling) return;
     onClick();
   };
   return (
     <button
       type="button"
-      onClick={handleClick2}
+      onClick={handleClick}
       aria-label={ariaLabel}
       aria-busy={isScrolling}
       data-action-ui-id="chat-bottom-anchor-button"
@@ -76,10 +76,10 @@ export function BottomAnchorButton({ state: state2, onClick }) {
 
 const ChatPresentationContext = reactExports.createContext(true);
 
-export function ChatPresentationProvider({ children: children2, isPresented }) {
+export function ChatPresentationProvider({ children, isPresented }) {
   return (
     <ChatPresentationContext.Provider value={isPresented}>
-      {children2}
+      {children}
     </ChatPresentationContext.Provider>
   );
 }
@@ -89,26 +89,26 @@ export function useChatPresentation() {
 }
 
 export function GenerationHandoffSummary({ targets }) {
-  const { t: t2 } = useTranslation();
-  const completedCount = useAssetMetadataStore((state22) => {
-    let count2 = 0;
+  const { t: translate } = useTranslation();
+  const completedCount = useAssetMetadataStore((state) => {
+    let count = 0;
     for (const target of targets) {
-      if (state22.assets.get(target.node_id)?.url) count2 += 1;
+      if (state.assets.get(target.node_id)?.url) count += 1;
     }
-    return count2;
+    return count;
   });
-  const activeCount = useGeneratingStateStore((state22) => {
-    let count2 = 0;
+  const activeCount = useGeneratingStateStore((state) => {
+    let count = 0;
     for (const target of targets) {
-      if (state22.byNode.has(target.node_id)) count2 += 1;
+      if (state.byNode.has(target.node_id)) count += 1;
     }
-    return count2;
+    return count;
   });
   const allCompleted =
     targets.length > 0 &&
     activeCount === 0 &&
     completedCount === targets.length;
-  const state2 = allCompleted
+  const state = allCompleted
     ? "completed"
     : activeCount > 0
       ? "generating"
@@ -117,14 +117,14 @@ export function GenerationHandoffSummary({ targets }) {
     <div
       className="flex min-w-0 flex-col gap-1"
       data-action-ui-id="chat-generation-handoff-summary"
-      data-generation-state={state2}
+      data-generation-state={state}
     >
       <p className="text-body-14 text-muted-foreground">
-        {state2 === "completed"
-          ? t2("chat.activity.mediaGenHandoffCompletedDescription", {
+        {state === "completed"
+          ? translate("chat.activity.mediaGenHandoffCompletedDescription", {
               count: targets.length,
             })
-          : t2("chat.activity.mediaGenInterruptedDescription")}
+          : translate("chat.activity.mediaGenInterruptedDescription")}
       </p>
     </div>
   );
@@ -165,23 +165,23 @@ const IM_BRIDGE_TIP_KEY = "chat.tips.system.5";
 
 function availableTipKeys() {
   if (getRuntimeConfig().region === "overseas") {
-    return TIP_KEYS.filter((key2) => key2 !== IM_BRIDGE_TIP_KEY);
+    return TIP_KEYS.filter((key) => key !== IM_BRIDGE_TIP_KEY);
   }
   return TIP_KEYS;
 }
 
-function shuffleArray(arr) {
-  const copy2 = [...arr];
-  for (let i2 = copy2.length - 1; i2 > 0; i2--) {
-    const j2 = Math.floor(Math.random() * (i2 + 1));
-    [copy2[i2], copy2[j2]] = [copy2[j2], copy2[i2]];
+function shuffleArray(items) {
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
   }
-  return copy2;
+  return copy;
 }
 
-function localizeShortcuts(text2) {
-  if (IS_MAC) return text2;
-  return text2
+function localizeShortcuts(text) {
+  if (IS_MAC) return text;
+  return text
     .replace(/⌘⇧/g, "Ctrl+Shift+")
     .replace(/⌘/g, "Ctrl+")
     .replace(/⇧/g, "Shift+")
@@ -191,8 +191,8 @@ function localizeShortcuts(text2) {
     .replace(/Option\+/g, "Alt+");
 }
 
-export function useChatTips(active2) {
-  const { t: t2 } = useTranslation();
+export function useChatTips(active) {
+  const { t: translate } = useTranslation();
   const poolRef = reactExports.useRef(shuffleArray(availableTipKeys()));
   const indexRef = reactExports.useRef(0);
   const [currentKey, setCurrentKey] = reactExports.useState(null);
@@ -206,9 +206,9 @@ export function useChatTips(active2) {
       }
     };
     advance();
-    const timer2 = setInterval(advance, ROTATION_INTERVAL_MS);
-    return () => clearInterval(timer2);
-  }, [active2]);
+    const timer = setInterval(advance, ROTATION_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [active]);
   if (!currentKey) return null;
-  return localizeShortcuts(t2(currentKey));
+  return localizeShortcuts(translate(currentKey));
 }

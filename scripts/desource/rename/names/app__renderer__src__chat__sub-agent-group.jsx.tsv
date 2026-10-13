@@ -1,0 +1,122 @@
+key	新名	依据
+cn@78:18	mergeClassNames	`mergeClassNames` 合并类名并应用 Tailwind 冲突整理，来源实现由 clsx 与 twMerge 组成。
+src@120:3	sourcePath	`sourcePath` 是音频工件的来源路径或 URL，用于解析相对路径和展示文件名。
+workspaceId2@126:9	workspaceId	去掉打包器添加的数字后缀后恢复为 `workspaceId2`，该绑定的原名在此作用域无冲突。
+ext@139:29	fileExtension	`fileExtension` 是从展示文件名拆出的扩展名，用于显示文件类型后缀。
+sub@189:21	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+t2@190:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+resolveMediaUrl2@192:9	resolveMediaUrl	去掉打包器添加的数字后缀后恢复为 `resolveMediaUrl2`，该绑定的原名在此作用域无冲突。
+src@193:9	mediaUrl	`mediaUrl` 是解析后的媒体 URL，用于预览、下载和消息展示。
+sub@218:21	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+t2@219:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+resolveMediaUrl2@221:9	resolveMediaUrl	去掉打包器添加的数字后缀后恢复为 `resolveMediaUrl2`，该绑定的原名在此作用域无冲突。
+src@222:9	mediaUrl	`mediaUrl` 是解析后的媒体 URL，用于预览、下载和消息展示。
+sub@247:21	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+t2@248:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+resolveMediaUrl2@249:9	resolveMediaUrl	去掉打包器添加的数字后缀后恢复为 `resolveMediaUrl2`，该绑定的原名在此作用域无冲突。
+src@250:9	mediaUrl	`mediaUrl` 是解析后的媒体 URL，用于预览、下载和消息展示。
+seen2@261:9	seen	去掉打包器添加的数字后缀后恢复为 `seen2`，该绑定的原名在此作用域无冲突。
+out@262:9	artifacts	`artifacts` 收集子消息中提取出的媒体工件。
+toolName2@266:32	toolName	`toolName` 是解析出的工具名称，用于判断工具类别或填充工具消息内容。
+record2@276:11	record	去掉打包器添加的数字后缀后恢复为 `record2`，该绑定的原名在此作用域无冲突。
+list2@296:17	list	去掉打包器添加的数字后缀后恢复为 `list2`，该绑定的原名在此作用域无冲突。
+s2@297:16	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+s2@326:23	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+keys2@328:28	keys	去掉打包器添加的数字后缀后恢复为 `keys2`，该绑定的原名在此作用域无冲突。
+length2@328:60	blockLength	`blockLength` 表示待比较或遍历的连续消息块长度；原名 length 与全局名称冲突。
+offset2@329:12	offset	去掉打包器添加的数字后缀后恢复为 `offset2`，该绑定的原名在此作用域无冲突。
+messages2@335:46	messages	去掉打包器添加的数字后缀后恢复为 `messages2`，该绑定的原名在此作用域无冲突。
+keys2@336:9	keys	去掉打包器添加的数字后缀后恢复为 `keys2`，该绑定的原名在此作用域无冲突。
+index2@338:7	index	`index` 是当前节点在列表中的位置。
+length2@345:11	blockLength	`blockLength` 表示待比较或遍历的连续消息块长度；原名 length 与全局名称冲突。
+msg@377:25	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+toolName2@378:9	toolName	`toolName` 是解析出的工具名称，用于判断工具类别或填充工具消息内容。
+sub@400:34	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+name2@414:19	toolName	`toolName` 是解析出的工具名称，用于判断工具类别或填充工具消息内容。
+msg@449:25	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@450:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+resolveMediaUrl2@451:9	resolveMediaUrl	去掉打包器添加的数字后缀后恢复为 `resolveMediaUrl2`，该绑定的原名在此作用域无冲突。
+src@452:9	mediaUrl	`mediaUrl` 是解析后的媒体 URL，用于预览、下载和消息展示。
+t2@464:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+message2@480:45	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@481:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+msg@505:27	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@506:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+path2@546:22	path	去掉打包器添加的数字后缀后恢复为 `path2`，该绑定的原名在此作用域无冲突。
+url2@551:20	url	去掉打包器添加的数字后缀后恢复为 `url2`，该绑定的原名在此作用域无冲突。
+msg@559:29	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+resolveMediaUrl2@560:9	resolveMediaUrl	去掉打包器添加的数字后缀后恢复为 `resolveMediaUrl2`，该绑定的原名在此作用域无冲突。
+path2@561:9	path	去掉打包器添加的数字后缀后恢复为 `path2`，该绑定的原名在此作用域无冲突。
+msg@599:25	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@600:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+resolveMediaUrl2@603:9	resolveMediaUrl	去掉打包器添加的数字后缀后恢复为 `resolveMediaUrl2`，该绑定的原名在此作用域无冲突。
+src@604:9	mediaUrl	`mediaUrl` 是解析后的媒体 URL，用于预览、下载和消息展示。
+workspaceId2@609:9	workspaceId	去掉打包器添加的数字后缀后恢复为 `workspaceId2`，该绑定的原名在此作用域无冲突。
+e2@623:24	keyboardEvent	该参数是键盘事件；原名 event 与全局名称冲突，因此使用 `keyboardEvent`。
+handleClick2@642:9	handleClick	去掉打包器添加的数字后缀后恢复为 `handleClick2`，该绑定的原名在此作用域无冲突。
+handleDoubleClick2@650:9	handleDoubleClick	去掉打包器添加的数字后缀后恢复为 `handleDoubleClick2`，该绑定的原名在此作用域无冲突。
+msg@720:28	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@721:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+e2@748:24	inputEvent	该参数是输入框 onChange 收到的事件；原名 event 与全局名称冲突，因此使用 `inputEvent`。
+e2@749:25	keyboardEvent	该参数是键盘事件；原名 event 与全局名称冲突，因此使用 `keyboardEvent`。
+t2@768:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+msg@790:28	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@791:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+raw2@792:9	raw	去掉打包器添加的数字后缀后恢复为 `raw2`，该绑定的原名在此作用域无冲突。
+q2@862:21	question	`question` 是待脱敏展示的问题数据或问题对象。
+messages2@876:36	messages	去掉打包器添加的数字后缀后恢复为 `messages2`，该绑定的原名在此作用域无冲突。
+seen2@877:9	seen	去掉打包器添加的数字后缀后恢复为 `seen2`，该绑定的原名在此作用域无冲突。
+message2@878:28	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+key2@879:11	key	去掉打包器添加的数字后缀后恢复为 `key2`，该绑定的原名在此作用域无冲突。
+messages2@885:37	messages	去掉打包器添加的数字后缀后恢复为 `messages2`，该绑定的原名在此作用域无冲突。
+index2@887:12	index	`index` 是当前节点在列表中的位置。
+message2@895:6	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+index2@895:16	index	`index` 是当前节点在列表中的位置。
+messages2@902:32	messages	去掉打包器添加的数字后缀后恢复为 `messages2`，该绑定的原名在此作用域无冲突。
+message2@903:29	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+children2@914:30	children	去掉打包器添加的数字后缀后恢复为 `children2`，该绑定的原名在此作用域无冲突。
+identity2@918:9	identity	去掉打包器添加的数字后缀后恢复为 `identity2`，该绑定的原名在此作用域无冲突。
+Icon$12@919:9	SubAgentIconComponent	`SubAgentIconComponent` 是根据子代理身份选择后渲染的图标组件。
+node2@943:18	node	去掉打包器添加的数字后缀后恢复为 `node2`，该绑定的原名在此作用域无冲突。
+idx@943:25	index	`index` 是当前节点在列表中的位置。
+node2@948:3	node	去掉打包器添加的数字后缀后恢复为 `node2`，该绑定的原名在此作用域无冲突。
+index2@949:3	index	`index` 是当前节点在列表中的位置。
+sub@970:25	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+t2@971:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+v2@988:37	isExpanded	`isExpanded` 是展开状态更新回调收到的当前布尔值。
+node2@1024:9	node	去掉打包器添加的数字后缀后恢复为 `node2`，该绑定的原名在此作用域无冲突。
+sub@1052:9	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+question2@1058:11	question	`question` 是待脱敏展示的问题数据或问题对象。
+sub@1067:27	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+t2@1068:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+children2@1085:9	children	去掉打包器添加的数字后缀后恢复为 `children2`，该绑定的原名在此作用域无冲突。
+s2@1092:43	childMessage	`childMessage` 是嵌套子代理的消息对象，用于过滤或按 ID 建立索引。
+s2@1096:12	childMessage	`childMessage` 是嵌套子代理的消息对象，用于过滤或按 ID 建立索引。
+map3@1115:11	childMessagesById	`childMessagesById` 按消息 ID 索引可见的嵌套子代理消息。
+s2@1116:16	childMessage	`childMessage` 是嵌套子代理的消息对象，用于过滤或按 ID 建立索引。
+node2@1189:27	node	去掉打包器添加的数字后缀后恢复为 `node2`，该绑定的原名在此作用域无冲突。
+msg@1215:26	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@1216:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+s2@1232:38	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+s2@1236:12	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+map3@1255:11	subMessagesById	`subMessagesById` 按消息 ID 索引当前代理的可见子消息。
+s2@1256:16	subMessage	`subMessage` 是子代理消息对象，承载消息类型、内容及媒体或工具数据。
+statusLabel2@1287:9	statusLabel	去掉打包器添加的数字后缀后恢复为 `statusLabel2`，该绑定的原名在此作用域无冲突。
+v2@1318:37	isExpanded	`isExpanded` 是展开状态更新回调收到的当前布尔值。
+node2@1377:27	node	去掉打包器添加的数字后缀后恢复为 `node2`，该绑定的原名在此作用域无冲突。
+content2@1403:38	content	去掉打包器添加的数字后缀后恢复为 `content2`，该绑定的原名在此作用域无冲突。
+t2@1422:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+TextMessage2@1441:48	TextMessage	去掉打包器添加的数字后缀后恢复为 `TextMessage2`，该绑定的原名在此作用域无冲突。
+msg@1442:3	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@1446:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+text2@1495:25	text	去掉打包器添加的数字后缀后恢复为 `text2`，该绑定的原名在此作用域无冲突。
+msg@1498:26	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@1499:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+content2@1501:9	content	去掉打包器添加的数字后缀后恢复为 `content2`，该绑定的原名在此作用域无冲突。
+hasContent2@1504:9	hasContent	去掉打包器添加的数字后缀后恢复为 `hasContent2`，该绑定的原名在此作用域无冲突。
+msg@1551:25	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。
+t2@1552:14	t	`t` 是 useTranslation 返回的本地化函数，用于生成界面文案。
+resolveMediaUrl2@1554:9	resolveMediaUrl	去掉打包器添加的数字后缀后恢复为 `resolveMediaUrl2`，该绑定的原名在此作用域无冲突。
+src@1555:9	mediaUrl	`mediaUrl` 是解析后的媒体 URL，用于预览、下载和消息展示。
+MessageBubble2@1621:57	MessageBubble	去掉打包器添加的数字后缀后恢复为 `MessageBubble2`，该绑定的原名在此作用域无冲突。
+msg@1622:3	message	`message` 是当前聊天或子代理消息对象，提供角色、内容及状态字段。

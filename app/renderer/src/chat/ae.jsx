@@ -1,30 +1,30 @@
 // ae.jsx
-import { vn, xn } from "./xn.js";
-import { clsx, jsxRuntimeExports, L, reactExports } from "../vendor.js";
+import { vn as defaultCodeThemes, xn as defaultLinkSafety } from "./xn.js";
+import { clsx, jsxRuntimeExports, L as useIconComponents, reactExports } from "../vendor.js";
 import { twMerge } from "../infra/dialog-content.jsx";
-import { ct2, D3, He } from "../media-editing/wt.js";
+import { ct2 as useMarkdownRenderOptions, D3 as useMarkdownUiLabels, He as useCodeBlockContext } from "../media-editing/wt.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 export const CHAT_CONTENT_MAX_WIDTH_PX = 880;
 
-export var he = (...e2) => twMerge(clsx(e2));
+export var he = (...classNames) => twMerge(clsx(classNames));
 
-export var W2 = (e2, t2, o2) => {
-  let n2 = typeof t2 == "string" && o2.startsWith("text/csv") ? "\uFEFF" : "",
-    r2 =
-      typeof t2 == "string"
-        ? new Blob([n2 + t2], {
-            type: o2,
+export var W2 = (fileName, downloadContent, mimeType) => {
+  let byteOrderMarkPrefix = typeof downloadContent == "string" && mimeType.startsWith("text/csv") ? "\uFEFF" : "",
+    blob =
+      typeof downloadContent == "string"
+        ? new Blob([byteOrderMarkPrefix + downloadContent], {
+            type: mimeType,
           })
-        : t2,
-    s2 = URL.createObjectURL(r2),
-    a2 = document.createElement("a");
-  ((a2.href = s2),
-    (a2.download = e2),
-    document.body.appendChild(a2),
-    a2.click(),
-    document.body.removeChild(a2),
-    URL.revokeObjectURL(s2));
+        : downloadContent,
+    objectUrl = URL.createObjectURL(blob),
+    downloadLink = document.createElement("a");
+  ((downloadLink.href = objectUrl),
+    (downloadLink.download = fileName),
+    document.body.appendChild(downloadLink),
+    downloadLink.click(),
+    document.body.removeChild(downloadLink),
+    URL.revokeObjectURL(objectUrl));
 };
 
 export var Ee = reactExports.createContext(he);
@@ -32,183 +32,183 @@ export var Ee = reactExports.createContext(he);
 export var y3 = () => reactExports.useContext(Ee);
 
 export var ot = ({
-  className: e2,
-  language: t2,
-  style: o2,
-  isIncomplete: n2,
-  ...r2
+  className,
+  language,
+  style,
+  isIncomplete,
+  ...restProps
 }) => {
-  let s2 = y3();
+  let mergeClassNames = y3();
   return (
     <div
-      className={s2(
+      className={mergeClassNames(
         "my-4 flex w-full flex-col gap-2 rounded-xl border border-border bg-sidebar p-2",
-        e2,
+        className,
       )}
-      data-incomplete={n2 || void 0}
-      data-language={t2}
+      data-incomplete={isIncomplete || void 0}
+      data-language={language}
       data-streamdown="code-block"
       style={{
         contentVisibility: "auto",
         containIntrinsicSize: "auto 200px",
-        ...o2,
+        ...style,
       }}
-      {...r2}
+      {...restProps}
     />
   );
 };
 
-export var rt = ({ language: e2 }) => {
-  let t2 = y3();
+export var rt = ({ language }) => {
+  let mergeClassNames = y3();
   return (
     <div
-      className={t2("flex h-8 items-center text-muted-foreground text-xs")}
-      data-language={e2}
+      className={mergeClassNames("flex h-8 items-center text-muted-foreground text-xs")}
+      data-language={language}
       data-streamdown="code-block-header"
     >
-      <span className={t2("ml-1 font-mono lowercase")}>{e2}</span>
+      <span className={mergeClassNames("ml-1 font-mono lowercase")}>{language}</span>
     </div>
   );
 };
 
 export var Oe = () => {
-  let { Loader2Icon: e2 } = L(),
-    t2 = y3();
+  let { Loader2Icon: loadingIcon } = useIconComponents(),
+    mergeClassNames = y3();
   return (
     <div
-      className={t2(
+      className={mergeClassNames(
         "w-full divide-y divide-border overflow-hidden rounded-xl border border-border",
       )}
     >
-      <div className={t2("h-[46px] w-full bg-muted/80")} />
-      <div className={t2("flex w-full items-center justify-center p-4")}>
-        {jsxRuntimeExports.jsx(e2, {
-          className: t2("size-4 animate-spin"),
+      <div className={mergeClassNames("h-[46px] w-full bg-muted/80")} />
+      <div className={mergeClassNames("flex w-full items-center justify-center p-4")}>
+        {jsxRuntimeExports.jsx(loadingIcon, {
+          className: mergeClassNames("size-4 animate-spin"),
         })}
       </div>
     </div>
   );
 };
 
-var ke = 0;
+var scrollLockCount = 0;
 
 export var le = () => {
-  ((ke += 1), ke === 1 && (document.body.style.overflow = "hidden"));
+  ((scrollLockCount += 1), scrollLockCount === 1 && (document.body.style.overflow = "hidden"));
 };
 
 export var ce = () => {
-  ((ke = Math.max(0, ke - 1)), ke === 0 && (document.body.style.overflow = ""));
+  ((scrollLockCount = Math.max(0, scrollLockCount - 1)), scrollLockCount === 0 && (document.body.style.overflow = ""));
 };
 
-export var ao = (e2) => {
-  var o2;
-  let t2 = ct2();
-  return t2 != null &&
-    t2.renderers &&
-    e2 &&
-    (o2 = t2.renderers.find((n2) =>
-      Array.isArray(n2.language)
-        ? n2.language.includes(e2)
-        : n2.language === e2,
+export var ao = (language) => {
+  var languageRenderer;
+  let renderOptions = useMarkdownRenderOptions();
+  return renderOptions != null &&
+    renderOptions.renderers &&
+    language &&
+    (languageRenderer = renderOptions.renderers.find((candidateRenderer) =>
+      Array.isArray(candidateRenderer.language)
+        ? candidateRenderer.language.includes(language)
+        : candidateRenderer.language === language,
     )) != null
-    ? o2
+    ? languageRenderer
     : null;
 };
 
-export var To = (e2, t2) => {
-  if (typeof e2 == "boolean") return e2;
-  let o2 = e2.code;
-  return o2 === false
+export var To = (renderOptions, language) => {
+  if (typeof renderOptions == "boolean") return renderOptions;
+  let codeOptions = renderOptions.code;
+  return codeOptions === false
     ? false
-    : o2 === true || o2 === void 0
+    : codeOptions === true || codeOptions === void 0
       ? true
-      : o2[t2] !== false;
+      : codeOptions[language] !== false;
 };
 
-export var Fe = (e2, t2) => {
-  if (typeof e2 == "boolean") return e2;
-  let o2 = e2.mermaid;
-  return o2 === false
+export var Fe = (renderOptions, language) => {
+  if (typeof renderOptions == "boolean") return renderOptions;
+  let mermaidOptions = renderOptions.mermaid;
+  return mermaidOptions === false
     ? false
-    : o2 === true || o2 === void 0
+    : mermaidOptions === true || mermaidOptions === void 0
       ? true
-      : o2[t2] !== false;
+      : mermaidOptions[language] !== false;
 };
 
-var Ys = {
-  shikiTheme: vn,
+var defaultMarkdownRenderOptions = {
+  shikiTheme: defaultCodeThemes,
   controls: true,
   isAnimating: false,
   lineNumbers: true,
   mode: "streaming",
   mermaid: void 0,
-  linkSafety: xn,
+  linkSafety: defaultLinkSafety,
 };
 
-export var R = reactExports.createContext(Ys);
+export var R = reactExports.createContext(defaultMarkdownRenderOptions);
 
 export var Ae = ({
-  onCopy: e2,
-  onError: t2,
-  timeout: o2 = 2e3,
-  children: n2,
-  className: r2,
-  code: s2,
-  ...a2
+  onCopy,
+  onError,
+  timeout = 2e3,
+  children,
+  className,
+  code,
+  ...buttonProps
 }) => {
-  let l2 = y3(),
-    [i2, d2] = reactExports.useState(false),
-    c3 = reactExports.useRef(0),
-    { code: p3 } = He(),
-    { isAnimating: m3 } = reactExports.useContext(R),
-    u4 = D3(),
-    f2 = s2 != null ? s2 : p3,
-    h2 = async () => {
-      var T2;
+  let mergeClassNames = y3(),
+    [isCopied, setIsCopied] = reactExports.useState(false),
+    copyResetTimeoutRef = reactExports.useRef(0),
+    { code: contextualCode } = useCodeBlockContext(),
+    { isAnimating } = reactExports.useContext(R),
+    localizedLabels = useMarkdownUiLabels(),
+    codeToCopy = code != null ? code : contextualCode,
+    handleCopy = async () => {
+      var clipboardApi;
       if (
         typeof window == "undefined" ||
         !(
-          (T2 = navigator == null ? void 0 : navigator.clipboard) != null &&
-          T2.writeText
+          (clipboardApi = navigator == null ? void 0 : navigator.clipboard) != null &&
+          clipboardApi.writeText
         )
       ) {
-        t2 == null || t2(new Error("Clipboard API not available"));
+        onError == null || onError(new Error("Clipboard API not available"));
         return;
       }
       try {
-        i2 ||
-          (await navigator.clipboard.writeText(f2),
-          d2(true),
-          e2 == null || e2(),
-          (c3.current = window.setTimeout(() => d2(false), o2)));
-      } catch (v2) {
-        t2 == null || t2(v2);
+        isCopied ||
+          (await navigator.clipboard.writeText(codeToCopy),
+          setIsCopied(true),
+          onCopy == null || onCopy(),
+          (copyResetTimeoutRef.current = window.setTimeout(() => setIsCopied(false), timeout)));
+      } catch (error) {
+        onError == null || onError(error);
       }
     };
   reactExports.useEffect(
     () => () => {
-      window.clearTimeout(c3.current);
+      window.clearTimeout(copyResetTimeoutRef.current);
     },
     [],
   );
-  let b3 = L(),
-    g2 = i2 ? b3.CheckIcon : b3.CopyIcon;
+  let iconComponents = useIconComponents(),
+    copyFeedbackIcon = isCopied ? iconComponents.CheckIcon : iconComponents.CopyIcon;
   return (
     <button
-      className={l2(
+      className={mergeClassNames(
         "cursor-pointer p-1 text-muted-foreground transition-all hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-        r2,
+        className,
       )}
       data-streamdown="code-block-copy-button"
-      disabled={m3}
-      onClick={h2}
-      title={u4.copyCode}
+      disabled={isAnimating}
+      onClick={handleCopy}
+      title={localizedLabels.copyCode}
       type="button"
-      {...a2}
+      {...buttonProps}
     >
-      {n2 != null
-        ? n2
-        : jsxRuntimeExports.jsx(g2, {
+      {children != null
+        ? children
+        : jsxRuntimeExports.jsx(copyFeedbackIcon, {
             size: 14,
           })}
     </button>

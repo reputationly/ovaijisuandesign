@@ -17,32 +17,32 @@ import {
 import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
 import { API_PATHS, measurePerf } from "../vendor.js";
 import { PERF_DERIVE_MESSAGES } from "../generation/to-workspace-browser-url.js";
-function extractErrorString(err) {
-  if (typeof err === "string") return err;
-  if (err && typeof err === "object") {
-    const e2 = err;
-    if (typeof e2.message === "string") return e2.message;
+function extractErrorString(error) {
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object") {
+    const errorObject = error;
+    if (typeof errorObject.message === "string") return errorObject.message;
     if (
-      typeof e2.data === "object" &&
-      e2.data &&
-      typeof e2.data.message === "string"
+      typeof errorObject.data === "object" &&
+      errorObject.data &&
+      typeof errorObject.data.message === "string"
     ) {
-      return e2.data.message;
+      return errorObject.data.message;
     }
   }
-  return String(err ?? "Unknown error");
+  return String(error ?? "Unknown error");
 }
 function normalizeFileUrl(rawUrl, filename) {
   if (rawUrl.startsWith("/files/") || rawUrl.startsWith("http")) return rawUrl;
-  const name2 = filename ?? rawUrl.split("/").pop() ?? rawUrl;
-  return API_PATHS.serveFile(name2);
+  const fileName = filename ?? rawUrl.split("/").pop() ?? rawUrl;
+  return API_PATHS.serveFile(fileName);
 }
 function serializeToolInput(input) {
   return typeof input === "string" ? input : JSON.stringify(input);
 }
-function deriveToolResult(state2) {
-  if (state2.status === "completed") return String(state2.output ?? "");
-  if (state2.status === "error") return extractErrorString(state2.error);
+function deriveToolResult(state) {
+  if (state.status === "completed") return String(state.output ?? "");
+  if (state.status === "error") return extractErrorString(state.error);
   return void 0;
 }
 const BILLING_GENERATION_ERROR_CODE = "billing_insufficient_balance";
@@ -54,11 +54,11 @@ function toBillingCredits(value) {
 function deriveBillingMetadata(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     return void 0;
-  const record2 = value;
-  const estimated = toBillingCredits(record2.estimated_credits);
-  const current2 = toBillingCredits(record2.current_credits);
-  const shortfall = toBillingCredits(record2.shortfall_credits);
-  if (estimated === void 0 && current2 === void 0 && shortfall === void 0)
+  const record = value;
+  const estimated = toBillingCredits(record.estimated_credits);
+  const current = toBillingCredits(record.current_credits);
+  const shortfall = toBillingCredits(record.shortfall_credits);
+  if (estimated === void 0 && current === void 0 && shortfall === void 0)
     return void 0;
   return {
     ...(estimated !== void 0
@@ -66,9 +66,9 @@ function deriveBillingMetadata(value) {
           estimated_credits: estimated,
         }
       : {}),
-    ...(current2 !== void 0
+    ...(current !== void 0
       ? {
-          current_credits: current2,
+          current_credits: current,
         }
       : {}),
     ...(shortfall !== void 0
@@ -78,7 +78,7 @@ function deriveBillingMetadata(value) {
       : {}),
   };
 }
-function deriveActionRequiredMessage(toolResult, partId, nextId2) {
+function deriveActionRequiredMessage(toolResult, partId, nextId) {
   if (!toolResult) return void 0;
   if (!toolResult.includes(BILLING_GENERATION_ERROR_CODE)) return void 0;
   let payload;
@@ -88,11 +88,11 @@ function deriveActionRequiredMessage(toolResult, partId, nextId2) {
     return void 0;
   }
   if (!payload || typeof payload !== "object") return void 0;
-  const record2 = payload;
-  if (record2.error_code !== BILLING_GENERATION_ERROR_CODE) return void 0;
-  const billing = deriveBillingMetadata(record2.billing);
+  const record = payload;
+  if (record.error_code !== BILLING_GENERATION_ERROR_CODE) return void 0;
+  const billing = deriveBillingMetadata(record.billing);
   return {
-    id: nextId2(),
+    id: nextId(),
     partId: `${partId}__action_required`,
     role: "agent",
     type: "error",
@@ -179,22 +179,22 @@ function normalizeChatMessageResult(result) {
   if (!result) return [];
   return Array.isArray(result) ? result : [result];
 }
-function cloneSubMessages(messages2) {
-  return messages2.map((message2) => ({
-    ...message2,
-    ...(message2.subMessages
+function cloneSubMessages(messages) {
+  return messages.map((message) => ({
+    ...message,
+    ...(message.subMessages
       ? {
-          subMessages: cloneSubMessages(message2.subMessages),
+          subMessages: cloneSubMessages(message.subMessages),
         }
       : {}),
   }));
 }
-function cloneChatMessages(messages2) {
-  return messages2.map((message2) => ({
-    ...message2,
-    ...(message2.type === "sub_agent" && message2.subMessages
+function cloneChatMessages(messages) {
+  return messages.map((message) => ({
+    ...message,
+    ...(message.type === "sub_agent" && message.subMessages
       ? {
-          subMessages: cloneSubMessages(message2.subMessages),
+          subMessages: cloneSubMessages(message.subMessages),
         }
       : {}),
   }));
@@ -203,15 +203,15 @@ function subMessagesReplayEqual(left, right) {
   return (
     left.length === right.length &&
     left.every(
-      (message2, index2) =>
-        message2.callID === right[index2].callID &&
-        subMessageSemanticKey(message2) ===
-          subMessageSemanticKey(right[index2]) &&
+      (message, index) =>
+        message.callID === right[index].callID &&
+        subMessageSemanticKey(message) ===
+          subMessageSemanticKey(right[index]) &&
         // Result evidence affects seed freshness, not transcript identity/deduplication.
-        message2.hasToolResult === right[index2].hasToolResult &&
+        message.hasToolResult === right[index].hasToolResult &&
         subMessagesReplayEqual(
-          message2.subMessages ?? [],
-          right[index2].subMessages ?? [],
+          message.subMessages ?? [],
+          right[index].subMessages ?? [],
         ),
     )
   );
@@ -219,26 +219,26 @@ function subMessagesReplayEqual(left, right) {
 function childSeedKey(childSessionId, agentName) {
   return agentName ? `${childSessionId}\0${agentName}` : childSessionId;
 }
-function subMessageReplayKey(message2) {
+function subMessageReplayKey(message) {
   return {
-    callID: message2.type === "tool" ? message2.callID : void 0,
-    semantic: subMessageSemanticKey(message2),
+    callID: message.type === "tool" ? message.callID : void 0,
+    semantic: subMessageSemanticKey(message),
   };
 }
-function rangesMatch(left, right, offset2) {
-  if (offset2 + left.length > right.length) return false;
-  return left.every((key2, index2) => {
-    const other = right[offset2 + index2];
-    return key2.callID && other.callID
-      ? key2.callID === other.callID
-      : key2.semantic === other.semantic;
+function rangesMatch(left, right, offset) {
+  if (offset + left.length > right.length) return false;
+  return left.every((key, index) => {
+    const other = right[offset + index];
+    return key.callID && other.callID
+      ? key.callID === other.callID
+      : key.semantic === other.semantic;
   });
 }
-function hasSubMessageToolResult(message2) {
+function hasSubMessageToolResult(message) {
   return (
-    message2.hasToolResult ??
-    (message2.toolStatus === "error" ||
-      (message2.toolStatus === "ok" && message2.content.includes(": ")))
+    message.hasToolResult ??
+    (message.toolStatus === "error" ||
+      (message.toolStatus === "ok" && message.content.includes(": ")))
   );
 }
 function reconcileSeededTool(seed, live) {
@@ -257,19 +257,19 @@ function reconcileSeededSubMessages(seeded, live) {
     return [...cloneSubMessages(seeded), ...cloneSubMessages(live)];
   }
   const liveTools = new Map(
-    live.flatMap((message2) =>
-      message2.type === "tool" && message2.callID
-        ? [[message2.callID, message2]]
+    live.flatMap((message) =>
+      message.type === "tool" && message.callID
+        ? [[message.callID, message]]
         : [],
     ),
   );
   const matchedCalls = new Set();
-  const restored = seeded.map((message2) => {
-    if (message2.type !== "tool" || !message2.callID) return message2;
-    const tool2 = liveTools.get(message2.callID);
-    if (!tool2) return message2;
-    matchedCalls.add(message2.callID);
-    return reconcileSeededTool(message2, tool2);
+  const restored = seeded.map((message) => {
+    if (message.type !== "tool" || !message.callID) return message;
+    const tool = liveTools.get(message.callID);
+    if (!tool) return message;
+    matchedCalls.add(message.callID);
+    return reconcileSeededTool(message, tool);
   });
   const seedKeys = seeded.map(subMessageReplayKey);
   const liveKeys = live.map(subMessageReplayKey);
@@ -287,11 +287,11 @@ function reconcileSeededSubMessages(seeded, live) {
   const remaining = live
     .slice(liveOffset)
     .filter(
-      (message2) =>
+      (message) =>
         !(
-          message2.type === "tool" &&
-          message2.callID &&
-          matchedCalls.has(message2.callID)
+          message.type === "tool" &&
+          message.callID &&
+          matchedCalls.has(message.callID)
         ),
     );
   const combined = [
@@ -299,24 +299,24 @@ function reconcileSeededSubMessages(seeded, live) {
     ...cloneSubMessages(remaining),
   ];
   const boundary = seeded.length;
-  const previous2 = combined[boundary - 1];
-  const next2 = combined[boundary];
+  const previous = combined[boundary - 1];
+  const next = combined[boundary];
   if (
-    previous2?.type === "text" &&
-    next2?.type === "text" &&
-    !isRecoveredMessage(previous2.content) &&
-    !isRecoveredMessage(next2.content)
+    previous?.type === "text" &&
+    next?.type === "text" &&
+    !isRecoveredMessage(previous.content) &&
+    !isRecoveredMessage(next.content)
   ) {
     combined.splice(boundary - 1, 2, {
-      ...previous2,
-      content: previous2.content + next2.content,
+      ...previous,
+      content: previous.content + next.content,
     });
   }
   return combined;
 }
 function completeResolvedQuestionPart(part, result) {
-  const now2 = Date.now();
-  const start2 = part.state.status === "pending" ? now2 : part.state.time.start;
+  const now = Date.now();
+  const start = part.state.status === "pending" ? now : part.state.time.start;
   const title =
     part.state.status === "completed" ? part.state.title : result.title;
   return {
@@ -327,8 +327,8 @@ function completeResolvedQuestionPart(part, result) {
       output: result.output,
       title,
       time: {
-        start: start2,
-        end: now2,
+        start,
+        end: now,
       },
       ...(part.state.metadata
         ? {
@@ -356,52 +356,52 @@ function hasQuestionInput(input) {
     return (
       Array.isArray(parsed.questions) &&
       parsed.questions.some(
-        (question2) =>
-          !!question2 &&
-          typeof question2 === "object" &&
-          "question" in question2 &&
-          typeof question2.question === "string" &&
-          "header" in question2 &&
-          typeof question2.header === "string" &&
-          "options" in question2 &&
-          Array.isArray(question2.options),
+        (question) =>
+          !!question &&
+          typeof question === "object" &&
+          "question" in question &&
+          typeof question.question === "string" &&
+          "header" in question &&
+          typeof question.header === "string" &&
+          "options" in question &&
+          Array.isArray(question.options),
       )
     );
   } catch {
     return false;
   }
 }
-function reconcileToolPart(existing, incoming, fromHistory2) {
+function reconcileToolPart(existing, incoming, fromHistory) {
   if (
     !existing ||
     incoming.type !== "tool" ||
     !isSameToolCall(existing, incoming)
   )
     return incoming;
-  const previous2 = existing.state;
-  const next2 = incoming.state;
+  const previous = existing.state;
+  const next = incoming.state;
   const regresses =
-    ((previous2.status === "completed" || previous2.status === "error") &&
-      (next2.status === "pending" || next2.status === "running")) ||
-    (fromHistory2 &&
-      previous2.status === "completed" &&
-      next2.status === "error") ||
-    (previous2.status === "running" && next2.status === "pending");
+    ((previous.status === "completed" || previous.status === "error") &&
+      (next.status === "pending" || next.status === "running")) ||
+    (fromHistory &&
+      previous.status === "completed" &&
+      next.status === "error") ||
+    (previous.status === "running" && next.status === "pending");
   const keepTerminal =
-    fromHistory2 &&
-    previous2.status === next2.status &&
-    ((previous2.status === "completed" && previous2.output !== "") ||
-      (previous2.status === "error" && previous2.error !== ""));
-  const state2 = regresses || keepTerminal ? previous2 : next2;
+    fromHistory &&
+    previous.status === next.status &&
+    ((previous.status === "completed" && previous.output !== "") ||
+      (previous.status === "error" && previous.error !== ""));
+  const state = regresses || keepTerminal ? previous : next;
   let metadata =
-    !fromHistory2 && next2.metadata
+    !fromHistory && next.metadata
       ? {
-          ...previous2.metadata,
-          ...next2.metadata,
+          ...previous.metadata,
+          ...next.metadata,
         }
-      : (previous2.metadata ?? state2.metadata);
+      : (previous.metadata ?? state.metadata);
   if (
-    fromHistory2 &&
+    fromHistory &&
     incoming.tool === "task" &&
     !extractChildSessionId(existing)
   ) {
@@ -412,15 +412,15 @@ function reconcileToolPart(existing, incoming, fromHistory2) {
         sessionId: childSessionId,
       };
   }
-  const alternate = state2 === previous2 ? next2 : previous2;
+  const alternate = state === previous ? next : previous;
   const input =
     incoming.tool === "question" &&
-    !hasQuestionInput(state2.input) &&
+    !hasQuestionInput(state.input) &&
     hasQuestionInput(alternate.input)
       ? alternate.input
-      : state2.input;
+      : state.input;
   const merged = {
-    ...state2,
+    ...state,
     input,
     ...(metadata
       ? {
@@ -428,16 +428,16 @@ function reconcileToolPart(existing, incoming, fromHistory2) {
         }
       : {}),
   };
-  if (fromHistory2) {
-    if (merged.status !== "pending" && previous2.status !== "pending") {
+  if (fromHistory) {
+    if (merged.status !== "pending" && previous.status !== "pending") {
       merged.time = {
         ...merged.time,
-        start: previous2.time.start,
+        start: previous.time.start,
       };
     }
   }
   return {
-    ...(fromHistory2 ? existing : incoming),
+    ...(fromHistory ? existing : incoming),
     state: merged,
   };
 }
@@ -456,8 +456,8 @@ function extractAgentNameFromPart(part) {
       typeof part.state.input === "string"
         ? JSON.parse(part.state.input)
         : part.state.input;
-    const name2 = input?.subagent_type;
-    return typeof name2 === "string" && name2 ? name2 : void 0;
+    const agentName = input?.subagent_type;
+    return typeof agentName === "string" && agentName ? agentName : void 0;
   } catch {
     return void 0;
   }
@@ -504,15 +504,15 @@ export class PartStore {
    * Replaces a stale seed when a later history rebuild contains more rounds,
    * while remaining idempotent across identical session_switched events.
    */
-  seedChildSubMessages(childSessionId, messages2, agentName, taskPartId) {
-    if (messages2.length === 0) return;
+  seedChildSubMessages(childSessionId, messages, agentName, taskPartId) {
+    if (messages.length === 0) return;
     const seeds = taskPartId
       ? this.taskSubMessageSeeds
       : this.childSubMessageSeeds;
     const seedKey = taskPartId ?? childSeedKey(childSessionId, agentName);
     const existing = seeds.get(seedKey);
-    if (existing && subMessagesReplayEqual(existing, messages2)) return;
-    seeds.set(seedKey, cloneSubMessages(messages2));
+    if (existing && subMessagesReplayEqual(existing, messages)) return;
+    seeds.set(seedKey, cloneSubMessages(messages));
     this.invalidateSubMessageCache(childSessionId);
     this.bumpSessionRevision(childSessionId);
   }
@@ -530,35 +530,35 @@ export class PartStore {
     if (this.isMessageWithdrawn(part.messageID)) return;
     this.updatePart(part, false);
   }
-  updatePart(part, fromHistory2) {
+  updatePart(part, fromHistory) {
     const existing = this.parts.get(part.id);
-    if (!fromHistory2) this.historySeedPartIds.delete(part.id);
-    let next2 = reconcileToolPart(existing, part, fromHistory2);
-    if (next2.type === "tool" && next2.tool === "question") {
+    if (!fromHistory) this.historySeedPartIds.delete(part.id);
+    let next = reconcileToolPart(existing, part, fromHistory);
+    if (next.type === "tool" && next.tool === "question") {
       const resolvedQuestionResult = this.resolvedQuestionResults.get(
-        next2.callID,
+        next.callID,
       );
       if (resolvedQuestionResult) {
-        next2 = completeResolvedQuestionPart(next2, resolvedQuestionResult);
+        next = completeResolvedQuestionPart(next, resolvedQuestionResult);
       }
     }
-    if (next2.type === "tool" && !canCarryToolInterruption(next2)) {
-      this.historyToolInterruptions.delete(next2.id);
-      this.cancelledToolPartIds.delete(next2.id);
-      this.handedOffToolPartIds.delete(next2.id);
-      this.handoffTargetsByToolPartId.delete(next2.id);
+    if (next.type === "tool" && !canCarryToolInterruption(next)) {
+      this.historyToolInterruptions.delete(next.id);
+      this.cancelledToolPartIds.delete(next.id);
+      this.handedOffToolPartIds.delete(next.id);
+      this.handoffTargetsByToolPartId.delete(next.id);
     }
-    this.parts.set(next2.id, next2);
-    if (!existing) this.partSequences.set(next2.id, ++this.nextPartSequence);
-    this.bumpPartRevision(next2.id);
-    this.bumpSessionRevision(next2.sessionID);
+    this.parts.set(next.id, next);
+    if (!existing) this.partSequences.set(next.id, ++this.nextPartSequence);
+    this.bumpPartRevision(next.id);
+    this.bumpSessionRevision(next.sessionID);
     if (!existing) {
-      const sesParts = this.sessionParts.get(next2.sessionID) ?? [];
-      sesParts.push(next2.id);
-      this.sessionParts.set(next2.sessionID, sesParts);
+      const sesParts = this.sessionParts.get(next.sessionID) ?? [];
+      sesParts.push(next.id);
+      this.sessionParts.set(next.sessionID, sesParts);
     }
-    if (!fromHistory2) this.trackChildPartOwnership(existing, next2);
-    return next2;
+    if (!fromHistory) this.trackChildPartOwnership(existing, next);
+    return next;
   }
   restoreHistoryTaskOwnership(taskPartIds) {
     const snapshotTaskIds = new Set(taskPartIds);
@@ -625,15 +625,15 @@ export class PartStore {
   }
   /** Only a successful authoritative snapshot may remove obsolete history seeds. */
   pruneHistoryToolSeeds(sessionId, retainedPartIds) {
-    const ids2 = this.sessionParts.get(sessionId);
-    if (!ids2) return;
-    const retained = ids2.filter((id2) => {
-      if (!this.historySeedPartIds.has(id2) || retainedPartIds.has(id2))
+    const ids = this.sessionParts.get(sessionId);
+    if (!ids) return;
+    const retained = ids.filter((partId) => {
+      if (!this.historySeedPartIds.has(partId) || retainedPartIds.has(partId))
         return true;
-      this.removePart(id2);
+      this.removePart(partId);
       return false;
     });
-    if (retained.length === ids2.length) return;
+    if (retained.length === ids.length) return;
     this.sessionParts.set(sessionId, retained);
     this.bumpSessionRevision(sessionId);
   }
@@ -664,20 +664,20 @@ export class PartStore {
     return false;
   }
   getSessionParts(sessionID) {
-    const ids2 = this.sessionParts.get(sessionID);
-    if (!ids2) return [];
-    return ids2.map((id2) => this.parts.get(id2)).filter((p3) => p3 !== void 0);
+    const ids = this.sessionParts.get(sessionID);
+    if (!ids) return [];
+    return ids.map((partId) => this.parts.get(partId)).filter((part) => part !== void 0);
   }
   getSessionPartCount(sessionID) {
     return this.sessionParts.get(sessionID)?.length ?? 0;
   }
   getToolDiagnosticManifest(rootSessionId) {
     return [...this.parts.values()].flatMap((part) => {
-      const tool2 = diagnosticToolPart(part);
-      return tool2
+      const tool = diagnosticToolPart(part);
+      return tool
         ? [
             {
-              ...tool2,
+              ...tool,
               scope: part.sessionID === rootSessionId ? "root" : "child",
             },
           ]
@@ -726,9 +726,9 @@ export class PartStore {
       this.cancelledToolPartIds.add(part.id);
       newlyCancelledPartIds.add(part.id);
     }
-    const pending2 = this.pendingCancelledToolPartIdsBySession.get(sessionId);
-    if (pending2)
-      for (const partId of pending2) newlyCancelledPartIds.add(partId);
+    const pending = this.pendingCancelledToolPartIdsBySession.get(sessionId);
+    if (pending)
+      for (const partId of pending) newlyCancelledPartIds.add(partId);
     this.pendingCancelledToolPartIdsBySession.set(
       sessionId,
       newlyCancelledPartIds,
@@ -790,10 +790,10 @@ export class PartStore {
    * After calling this, deriveMessages() for this session returns [].
    */
   releaseSession(sessionId) {
-    const ids2 = this.sessionParts.get(sessionId);
-    if (!ids2) return;
-    for (const id2 of ids2) {
-      this.removePart(id2);
+    const ids = this.sessionParts.get(sessionId);
+    if (!ids) return;
+    for (const partId of ids) {
+      this.removePart(partId);
     }
     this.sessionParts.delete(sessionId);
     this.activeTaskPartByChildSession.delete(sessionId);
@@ -809,16 +809,16 @@ export class PartStore {
    * @returns The Part objects that were removed (caller can inspect for task tools).
    */
   trimToRecent(sessionId, keepCount) {
-    const ids2 = this.sessionParts.get(sessionId);
-    if (!ids2 || ids2.length <= keepCount) return [];
-    const toRemoveIds = ids2.slice(0, ids2.length - keepCount);
+    const ids = this.sessionParts.get(sessionId);
+    if (!ids || ids.length <= keepCount) return [];
+    const toRemoveIds = ids.slice(0, ids.length - keepCount);
     const removed = [];
-    for (const id2 of toRemoveIds) {
-      const part = this.parts.get(id2);
+    for (const partId of toRemoveIds) {
+      const part = this.parts.get(partId);
       if (part) removed.push(part);
-      this.removePart(id2);
+      this.removePart(partId);
     }
-    this.sessionParts.set(sessionId, ids2.slice(ids2.length - keepCount));
+    this.sessionParts.set(sessionId, ids.slice(ids.length - keepCount));
     this.bumpSessionRevision(sessionId);
     return removed;
   }
@@ -827,9 +827,9 @@ export class PartStore {
     let part = [...this.parts.values()].find(
       (candidate) => candidate.messageID === messageId,
     );
-    const seen2 = new Set();
-    while (part && !seen2.has(part.id)) {
-      seen2.add(part.id);
+    const seen = new Set();
+    while (part && !seen.has(part.id)) {
+      seen.add(part.id);
       const ownerId = this.childPartOwners.get(part.id);
       const owner = ownerId ? this.parts.get(ownerId) : void 0;
       if (!owner) break;
@@ -837,20 +837,20 @@ export class PartStore {
     }
     return part?.messageID ?? messageId;
   }
-  removePart(id2) {
-    this.taskSubMessageSeeds.delete(id2);
-    const part = this.parts.get(id2);
-    this.forgetPartOwnership(id2, part);
+  removePart(partId) {
+    this.taskSubMessageSeeds.delete(partId);
+    const part = this.parts.get(partId);
+    this.forgetPartOwnership(partId, part);
     if (part?.type === "tool" && part.tool === "question") {
       this.resolvedQuestionResults.delete(part.callID);
     }
     if (part) {
-      const pending2 = this.pendingCancelledToolPartIdsBySession.get(
+      const pending = this.pendingCancelledToolPartIdsBySession.get(
         part.sessionID,
       );
-      if (pending2?.has(id2)) {
-        const retained = new Set(pending2);
-        retained.delete(id2);
+      if (pending?.has(partId)) {
+        const retained = new Set(pending);
+        retained.delete(partId);
         if (retained.size > 0)
           this.pendingCancelledToolPartIdsBySession.set(
             part.sessionID,
@@ -859,15 +859,15 @@ export class PartStore {
         else this.pendingCancelledToolPartIdsBySession.delete(part.sessionID);
       }
     }
-    this.parts.delete(id2);
-    this.historyToolInterruptions.delete(id2);
-    this.historySeedPartIds.delete(id2);
-    this.cancelledToolPartIds.delete(id2);
-    this.handedOffToolPartIds.delete(id2);
-    this.handoffTargetsByToolPartId.delete(id2);
-    this.partSequences.delete(id2);
-    this.partRevisions.delete(id2);
-    this.derivedMessageCache.delete(id2);
+    this.parts.delete(partId);
+    this.historyToolInterruptions.delete(partId);
+    this.historySeedPartIds.delete(partId);
+    this.cancelledToolPartIds.delete(partId);
+    this.handedOffToolPartIds.delete(partId);
+    this.handoffTargetsByToolPartId.delete(partId);
+    this.partSequences.delete(partId);
+    this.partRevisions.delete(partId);
+    this.derivedMessageCache.delete(partId);
   }
   getPartSessionId(partId) {
     return this.parts.get(partId)?.sessionID;
@@ -876,22 +876,22 @@ export class PartStore {
     return this.parts.get(partId)?.sessionID === sessionId;
   }
   isLastSessionPart(sessionId, partId) {
-    const ids2 = this.sessionParts.get(sessionId);
-    return ids2?.[ids2.length - 1] === partId;
+    const ids = this.sessionParts.get(sessionId);
+    return ids?.[ids.length - 1] === partId;
   }
   findTaskPartIdByChildSessionId(rootSessionId, childSessionId) {
-    const ids2 = this.sessionParts.get(rootSessionId);
-    if (!ids2) return void 0;
-    for (let index2 = ids2.length - 1; index2 >= 0; index2 -= 1) {
-      const part = this.parts.get(ids2[index2]);
+    const ids = this.sessionParts.get(rootSessionId);
+    if (!ids) return void 0;
+    for (let index = ids.length - 1; index >= 0; index -= 1) {
+      const part = this.parts.get(ids[index]);
       if (part?.type !== "tool" || part.tool !== "task") continue;
       if (extractChildSessionId(part) === childSessionId) return part.id;
     }
     return void 0;
   }
   derivePartMessages(partId, childSessions, options = {}) {
-    const t0 = performance.now();
-    const messages2 = this.derivePartMessagesCached(
+    const startTime = performance.now();
+    const messages = this.derivePartMessagesCached(
       partId,
       childSessions,
       options.sessionCancelled === true,
@@ -900,28 +900,28 @@ export class PartStore {
     );
     measurePerf(
       PERF_DERIVE_MESSAGES,
-      t0,
+      startTime,
       {
         parts: 1,
-        messages: messages2.length,
+        messages: messages.length,
         mode: "part-cache",
       },
       {
         metadata: options.perfMetadata,
       },
     );
-    return messages2;
+    return messages;
   }
   deriveMessages(rootSessionId, childSessions, perfMetadata) {
-    const t0 = performance.now();
-    const messages2 = [];
+    const startTime = performance.now();
+    const messages = [];
     const partIds = this.sessionParts.get(rootSessionId);
-    if (!partIds) return messages2;
-    const cancelMarkers = partIds.reduce((markers, pid, index2) => {
-      const part = this.parts.get(pid);
+    if (!partIds) return messages;
+    const cancelMarkers = partIds.reduce((markers, partId, index) => {
+      const part = this.parts.get(partId);
       if (part && isCancelMarkerPart(part)) {
         markers.push({
-          index: index2,
+          index,
           canvasContinuation: isCanvasContinuationMarkerPart(part),
           targets: markerCanvasGenerationHandoffTargets(part),
         });
@@ -930,49 +930,49 @@ export class PartStore {
     }, []);
     let cancelMarkerCursor = 0;
     let msgCounter = 0;
-    const nextId2 = () => `derived-${++msgCounter}`;
-    for (const [index2, partId] of partIds.entries()) {
+    const nextId = () => `derived-${++msgCounter}`;
+    for (const [index, partId] of partIds.entries()) {
       const part = this.parts.get(partId);
       if (!part) continue;
       if (part.type === "text" && part.synthetic) continue;
       if (part.type === "text" && part.ignored) continue;
       while (
         cancelMarkers[cancelMarkerCursor] !== void 0 &&
-        index2 > cancelMarkers[cancelMarkerCursor].index
+        index > cancelMarkers[cancelMarkerCursor].index
       ) {
         cancelMarkerCursor += 1;
       }
       const governingMarker =
         cancelMarkers[cancelMarkerCursor] !== void 0 &&
-        index2 < cancelMarkers[cancelMarkerCursor].index
+        index < cancelMarkers[cancelMarkerCursor].index
           ? cancelMarkers[cancelMarkerCursor]
           : void 0;
       const partCancelled =
         governingMarker !== void 0 || this.cancelledToolPartIds.has(part.id);
-      messages2.push(
+      messages.push(
         ...this.derivePartMessagesCached(
           part.id,
           childSessions,
           partCancelled,
           governingMarker?.canvasContinuation === true,
           governingMarker?.targets ?? [],
-          nextId2,
+          nextId,
         ),
       );
     }
     measurePerf(
       PERF_DERIVE_MESSAGES,
-      t0,
+      startTime,
       {
         parts: partIds.length,
-        messages: messages2.length,
+        messages: messages.length,
         mode: "full-cache",
       },
       {
         metadata: perfMetadata,
       },
     );
-    return messages2;
+    return messages;
   }
   derivePartMessagesCached(
     partId,
@@ -980,7 +980,7 @@ export class PartStore {
     sessionCancelled,
     markerHandedOff,
     markerHandoffTargets,
-    nextId2 = void 0,
+    nextId = void 0,
   ) {
     const part = this.parts.get(partId);
     if (!part || this.isMessageWithdrawn(part.messageID)) return [];
@@ -995,32 +995,32 @@ export class PartStore {
     );
     const cached = this.derivedMessageCache.get(partId);
     if (cached?.key === cacheKey) {
-      if (nextId2) {
-        for (let index2 = 0; index2 < cached.messages.length; index2 += 1) {
-          nextId2();
+      if (nextId) {
+        for (let index = 0; index < cached.messages.length; index += 1) {
+          nextId();
         }
       }
       return cloneChatMessages(cached.messages);
     }
-    let counter2 = 0;
-    const stableNextId = () => `derived:${part.id}:${++counter2}`;
+    let counter = 0;
+    const stableNextId = () => `derived:${part.id}:${++counter}`;
     const result = this.partToChatMessage(
       part,
-      nextId2 ?? stableNextId,
+      nextId ?? stableNextId,
       childSessions,
       sessionCancelled,
       markerHandedOff,
       markerHandoffTargets,
     );
-    const messages2 = normalizeChatMessageResult(result).map((message2) => ({
-      ...message2,
+    const messages = normalizeChatMessageResult(result).map((message) => ({
+      ...message,
       runtimeMessageId: part.messageID,
     }));
     this.derivedMessageCache.set(partId, {
       key: cacheKey,
-      messages: cloneChatMessages(messages2),
+      messages: cloneChatMessages(messages),
     });
-    return messages2;
+    return messages;
   }
   derivedCacheKey(
     part,
@@ -1055,7 +1055,7 @@ export class PartStore {
   }
   partToChatMessage(
     part,
-    nextId2,
+    nextId,
     childSessions,
     sessionCancelled = false,
     markerHandedOff = false,
@@ -1063,11 +1063,11 @@ export class PartStore {
   ) {
     switch (part.type) {
       case "text": {
-        const text2 = stripContextPrefix(part.text);
-        if (!text2) return null;
-        if (isCancelMarkerText(text2.trim())) {
+        const text = stripContextPrefix(part.text);
+        if (!text) return null;
+        if (isCancelMarkerText(text.trim())) {
           return {
-            id: nextId2(),
+            id: nextId(),
             partId: part.id,
             role: "agent",
             type: "cancelled",
@@ -1083,27 +1083,27 @@ export class PartStore {
         }
         if (part.role === "user") {
           return {
-            id: nextId2(),
+            id: nextId(),
             partId: part.id,
             role: "user",
             type: "text",
-            content: text2,
+            content: text,
             runtimeMessageId: part.messageID,
           };
         }
-        const role = isRecoveredMessage(text2) ? "user" : "agent";
+        const role = isRecoveredMessage(text) ? "user" : "agent";
         return {
-          id: nextId2(),
+          id: nextId(),
           partId: part.id,
           role,
           type: "text",
-          content: text2,
+          content: text,
         };
       }
       case "reasoning": {
         if (!part.text.trim()) return null;
         return {
-          id: nextId2(),
+          id: nextId(),
           partId: part.id,
           role: "agent",
           type: "thinking",
@@ -1144,7 +1144,7 @@ export class PartStore {
               )
             : [];
         const toolMsg = {
-          id: nextId2(),
+          id: nextId(),
           partId: part.id,
           role: "agent",
           type: "tool",
@@ -1168,7 +1168,7 @@ export class PartStore {
         const actionRequiredMessage = deriveActionRequiredMessage(
           toolMsg.type === "tool" ? toolMsg.toolResult : void 0,
           part.id,
-          nextId2,
+          nextId,
         );
         if (isTask && childSessionId) {
           const agentName =
@@ -1188,7 +1188,7 @@ export class PartStore {
           return [
             toolMsg,
             {
-              id: nextId2(),
+              id: nextId(),
               partId: `${part.id}__sub_agent`,
               role: "agent",
               type: "sub_agent",
@@ -1212,7 +1212,7 @@ export class PartStore {
       case "file": {
         const fileUrl = normalizeFileUrl(part.url, part.filename);
         return {
-          id: nextId2(),
+          id: nextId(),
           partId: part.id,
           role: "agent",
           type: mimeToMediaType(part.mime),
@@ -1238,10 +1238,10 @@ export class PartStore {
         this.assignChildOwner(childSessionId, part.id);
         return;
       }
-      const isTerminal2 =
+      const isTerminal =
         part.state.status === "completed" || part.state.status === "error";
       if (
-        isTerminal2 &&
+        isTerminal &&
         this.activeTaskPartByChildSession.get(childSessionId) === part.id
       ) {
         this.activeTaskPartByChildSession.delete(childSessionId);
@@ -1276,7 +1276,7 @@ export class PartStore {
   forgetPartOwnership(partId, part) {
     this.childPartOwners.delete(partId);
     for (const [sessionId, pendingPartIds] of this.pendingChildPartIds) {
-      const remaining = pendingPartIds.filter((id2) => id2 !== partId);
+      const remaining = pendingPartIds.filter((pendingPartId) => pendingPartId !== partId);
       if (remaining.length === 0) this.pendingChildPartIds.delete(sessionId);
       else if (remaining.length !== pendingPartIds.length) {
         this.pendingChildPartIds.set(sessionId, remaining);
@@ -1337,25 +1337,25 @@ export class PartStore {
         ? void 0
         : this.getChildSubMessageSeed(childSessionId, taskAgent));
     const result = [];
-    let counter2 = 0;
-    const nextId2 = () => `sub-${++counter2}`;
+    let counter = 0;
+    const nextId = () => `sub-${++counter}`;
     for (const part of parts) {
       if (part.type === "text" && (part.synthetic || part.ignored)) continue;
       switch (part.type) {
         case "text": {
-          const last2 = result[result.length - 1];
+          const last = result[result.length - 1];
           if (
-            last2?.type === "text" &&
+            last?.type === "text" &&
             !isRecoveredMessage(part.text) &&
-            !isRecoveredMessage(last2.content)
+            !isRecoveredMessage(last.content)
           ) {
             result[result.length - 1] = {
-              ...last2,
-              content: last2.content + part.text,
+              ...last,
+              content: last.content + part.text,
             };
           } else {
             result.push({
-              id: nextId2(),
+              id: nextId(),
               type: "text",
               content: part.text,
             });
@@ -1365,7 +1365,7 @@ export class PartStore {
         case "reasoning":
           if (!part.text.trim()) break;
           result.push({
-            id: nextId2(),
+            id: nextId(),
             type: "thinking",
             content: part.text,
           });
@@ -1395,7 +1395,7 @@ export class PartStore {
                 )
               : [];
           result.push({
-            id: nextId2(),
+            id: nextId(),
             type: "tool",
             content: toolResult ? `${part.tool}: ${toolResult}` : part.tool,
             args: serializeToolInput(part.state.input),
@@ -1419,7 +1419,7 @@ export class PartStore {
         }
         case "file":
           result.push({
-            id: nextId2(),
+            id: nextId(),
             type: mimeToMediaType(part.mime),
             content: part.filename ?? "",
             url: normalizeFileUrl(part.url, part.filename),
@@ -1435,14 +1435,14 @@ export class PartStore {
         ? extractTaskDisplayPrompt(taskPart.state.input)
         : void 0;
     const alreadyIncludesTaskPrompt = combined.some(
-      (message2) => message2.type === "text" && message2.content === taskPrompt,
+      (message) => message.type === "text" && message.content === taskPrompt,
     );
     if (!taskPrompt || result.length > 0 || alreadyIncludesTaskPrompt)
       return combined;
     return [
       ...combined,
       {
-        id: nextId2(),
+        id: nextId(),
         type: "text",
         content: taskPrompt,
       },
@@ -1468,13 +1468,13 @@ export class PartStore {
     )
       .map((target) => `${target.tool_use_id ?? ""}:${target.node_id}`)
       .join(",");
-    const key2 = `${revision}:${taskRevision}:${childSessionCancelled ? 1 : 0}:${taskHandedOff ? 1 : 0}:${handoffTargetKey}`;
+    const key = `${revision}:${taskRevision}:${childSessionCancelled ? 1 : 0}:${taskHandedOff ? 1 : 0}:${handoffTargetKey}`;
     const cacheId = `${childSessionId}\0${taskPartId}`;
     const cached = this.subMessageCache.get(cacheId);
-    if (cached?.key === key2) {
+    if (cached?.key === key) {
       return cloneSubMessages(cached.messages);
     }
-    const messages2 = this.deriveSubMessages(
+    const messages = this.deriveSubMessages(
       childSessionId,
       taskPartId,
       sessionCancelled,
@@ -1482,10 +1482,10 @@ export class PartStore {
       markerHandoffTargets,
     );
     this.subMessageCache.set(cacheId, {
-      key: key2,
-      messages: cloneSubMessages(messages2),
+      key,
+      messages: cloneSubMessages(messages),
     });
-    return messages2;
+    return messages;
   }
   bumpPartRevision(partId) {
     this.partRevisions.set(partId, (this.partRevisions.get(partId) ?? 0) + 1);
@@ -1513,8 +1513,8 @@ export class PartStore {
   }
   invalidateSubMessageCache(childSessionId) {
     const prefix = `${childSessionId}\0`;
-    for (const key2 of this.subMessageCache.keys()) {
-      if (key2.startsWith(prefix)) this.subMessageCache.delete(key2);
+    for (const key of this.subMessageCache.keys()) {
+      if (key.startsWith(prefix)) this.subMessageCache.delete(key);
     }
   }
   getChildSubMessageSeed(childSessionId, agentName) {

@@ -7,37 +7,37 @@ import {
 import { isTransientTool } from "../generation/use-tool-confirm-edit-state.js";
 import { reactExports } from "../vendor.js";
 
-export function parseToolResult(content2) {
-  if (!content2)
+export function parseToolResult(content) {
+  if (!content)
     return {
       name: "",
     };
-  const colonIdx = content2.indexOf(": ");
+  const colonIdx = content.indexOf(": ");
   if (colonIdx > 0) {
     return {
-      name: content2.slice(0, colonIdx),
-      result: content2.slice(colonIdx + 2),
+      name: content.slice(0, colonIdx),
+      result: content.slice(colonIdx + 2),
     };
   }
-  if (content2.endsWith(":"))
+  if (content.endsWith(":"))
     return {
-      name: content2.slice(0, -1),
+      name: content.slice(0, -1),
     };
   return {
-    name: content2,
+    name: content,
   };
 }
 
-function isTerminalComfyUiRunResult(message2, toolName2) {
+function isTerminalComfyUiRunResult(message, toolName) {
   if (
-    toolName2 !== "hub_run_comfyui_workflow" ||
-    message2.toolStatus !== "ok"
+    toolName !== "hub_run_comfyui_workflow" ||
+    message.toolStatus !== "ok"
   ) {
     return false;
   }
   const encodedResult =
-    message2.toolResult ??
-    (message2.content ? parseToolResult(message2.content).result : void 0);
+    message.toolResult ??
+    (message.content ? parseToolResult(message.content).result : void 0);
   if (!encodedResult) return false;
   try {
     const parsed = JSON.parse(normalizeJsonToolResult(encodedResult));
@@ -52,19 +52,19 @@ function isTerminalComfyUiRunResult(message2, toolName2) {
   }
 }
 
-export function filterSupersededTransientTools(messages2, getToolName) {
+export function filterSupersededTransientTools(messages, getToolName) {
   let hasLaterVisibleMessage = false;
   const result = [];
-  for (let index2 = messages2.length - 1; index2 >= 0; index2--) {
-    const message2 = messages2[index2];
-    const toolName2 = getToolName(message2);
-    const transient = message2.type === "tool" && isTransientTool(toolName2);
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index];
+    const toolName = getToolName(message);
+    const transient = message.type === "tool" && isTransientTool(toolName);
     const durableComfyUiResult = isTerminalComfyUiRunResult(
-      message2,
-      toolName2,
+      message,
+      toolName,
     );
     if (!transient || !hasLaterVisibleMessage || durableComfyUiResult)
-      result.push(message2);
+      result.push(message);
     hasLaterVisibleMessage = true;
   }
   return result.reverse();
@@ -118,18 +118,18 @@ export const IMAGE_DISPATCHER_TOOL = "hub_generate_image";
 
 export const VIDEO_DISPATCHER_TOOL = "hub_generate_video";
 
-export function resolveDispatcherSeriesLabel(toolName2, vendor, mediaModels) {
-  if (!toolName2 || !vendor || !mediaModels) return void 0;
+export function resolveDispatcherSeriesLabel(toolName, vendor, mediaModels) {
+  if (!toolName || !vendor || !mediaModels) return void 0;
   const vendorMap =
-    toolName2 === IMAGE_DISPATCHER_TOOL
+    toolName === IMAGE_DISPATCHER_TOOL
       ? IMAGE_VENDOR_TO_MODEL_IDS
-      : toolName2 === VIDEO_DISPATCHER_TOOL
+      : toolName === VIDEO_DISPATCHER_TOOL
         ? VIDEO_VENDOR_TO_MODEL_IDS
         : void 0;
   if (!vendorMap) return void 0;
   for (const candidateId of vendorMap[vendor] ?? []) {
-    const hit = mediaModels.find((m3) => m3.id === candidateId);
-    if (hit?.display_name) return hit.display_name;
+    const matchedModel = mediaModels.find((mediaModel) => mediaModel.id === candidateId);
+    if (matchedModel?.display_name) return matchedModel.display_name;
   }
   return void 0;
 }
@@ -146,17 +146,17 @@ export function isHiddenVideoGenerationMode(value) {
   return HIDDEN_VIDEO_GENERATION_MODES.has(value);
 }
 
-export function getToolStatusLabel(status, t2, toolResult, interruption) {
-  if (!status || status === "pending") return t2("chat.statusPending");
-  if (status === "ok") return t2("chat.statusDone");
+export function getToolStatusLabel(status, translate, toolResult, interruption) {
+  if (!status || status === "pending") return translate("chat.statusPending");
+  if (status === "ok") return translate("chat.statusDone");
   if (status === "error") {
     if (
       isToolCancelInterrupted(toolResult) ||
       resolveToolInterruption(toolResult, interruption)
     ) {
-      return t2("chat.statusInterrupted");
+      return translate("chat.statusInterrupted");
     }
-    return t2("chat.statusError");
+    return translate("chat.statusError");
   }
   return status;
 }
@@ -172,7 +172,7 @@ export function formatArgs(args) {
     const parsed = JSON.parse(args);
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       const filtered = Object.fromEntries(
-        Object.entries(parsed).filter(([k2]) => !INTERNAL_ARG_KEYS.has(k2)),
+        Object.entries(parsed).filter(([argumentKey]) => !INTERNAL_ARG_KEYS.has(argumentKey)),
       );
       return JSON.stringify(filtered, null, 2);
     }
@@ -189,86 +189,86 @@ const ASYNC_APPROVAL_TOOLS = new Set([
 
 const COMFYUI_AGENT = "comfyui-agent";
 
-function subToolMatchesConfirm(sub, ask) {
-  if (sub.type !== "tool") return false;
-  const targetTool = ask.toolConfirmData?.tool;
+function subToolMatchesConfirm(subMessage, confirmationAsk) {
+  if (subMessage.type !== "tool") return false;
+  const targetTool = confirmationAsk.toolConfirmData?.tool;
   if (!targetTool) return false;
-  return parseToolResult(sub.content ?? "").name === targetTool;
+  return parseToolResult(subMessage.content ?? "").name === targetTool;
 }
 
-function subAgentMatchesConfirm(message2, ask) {
-  if (message2.type !== "sub_agent") return false;
-  return (message2.subMessages ?? []).some((sub) =>
-    subToolMatchesConfirm(sub, ask),
+function subAgentMatchesConfirm(message, confirmationAsk) {
+  if (message.type !== "sub_agent") return false;
+  return (message.subMessages ?? []).some((subMessage) =>
+    subToolMatchesConfirm(subMessage, confirmationAsk),
   );
 }
 
-function topLevelToolMatchesConfirm(message2, ask) {
-  if (message2.type !== "tool") return false;
-  const targetTool = ask.toolConfirmData?.tool;
+function topLevelToolMatchesConfirm(message, confirmationAsk) {
+  if (message.type !== "tool") return false;
+  const targetTool = confirmationAsk.toolConfirmData?.tool;
   if (!targetTool) return false;
   return (
-    (message2.toolName ?? parseToolResult(message2.content).name) === targetTool
+    (message.toolName ?? parseToolResult(message.content).name) === targetTool
   );
 }
 
-export function findToolConfirmOwningSubAgent(messages2, ask) {
-  let askIndex = messages2.indexOf(ask);
+export function findToolConfirmOwningSubAgent(messages, confirmationAsk) {
+  let askIndex = messages.indexOf(confirmationAsk);
   if (askIndex < 0)
-    askIndex = messages2.findIndex((message2) => message2.id === ask.id);
-  if (askIndex < 0) askIndex = messages2.length;
-  for (let index2 = askIndex - 1; index2 >= 0; index2 -= 1) {
-    const candidate = messages2[index2];
+    askIndex = messages.findIndex((message) => message.id === confirmationAsk.id);
+  if (askIndex < 0) askIndex = messages.length;
+  for (let index = askIndex - 1; index >= 0; index -= 1) {
+    const candidate = messages[index];
     if (!candidate) continue;
-    if (topLevelToolMatchesConfirm(candidate, ask)) return void 0;
-    if (subAgentMatchesConfirm(candidate, ask)) return candidate;
+    if (topLevelToolMatchesConfirm(candidate, confirmationAsk)) return void 0;
+    if (subAgentMatchesConfirm(candidate, confirmationAsk)) return candidate;
   }
   return void 0;
 }
 
-function isComfyUISubAgentConfirm(message2, transcript) {
+function isComfyUISubAgentConfirm(message, transcript) {
   return (
-    findToolConfirmOwningSubAgent(transcript, message2)?.agent === COMFYUI_AGENT
+    findToolConfirmOwningSubAgent(transcript, message)?.agent === COMFYUI_AGENT
   );
 }
 
-export function getPendingToolConfirms(messages2) {
-  return messages2.filter(
-    (message2) =>
-      message2.type === "tool_confirm_ask" &&
-      !message2.resolved &&
-      !message2.expired,
+export function getPendingToolConfirms(messages) {
+  return messages.filter(
+    (message) =>
+      message.type === "tool_confirm_ask" &&
+      !message.resolved &&
+      !message.expired,
   );
 }
 
-export function getMiniBarToolConfirms(messages2, transcript) {
-  return messages2.filter(
-    (message2) => !isComfyUISubAgentConfirm(message2, transcript),
+export function getMiniBarToolConfirms(messages, transcript) {
+  return messages.filter(
+    (message) => !isComfyUISubAgentConfirm(message, transcript),
   );
 }
 
-export function getLatestInlineToolConfirmId(messages2, transcript) {
-  for (let index2 = messages2.length - 1; index2 >= 0; index2 -= 1) {
-    const message2 = messages2[index2];
-    if (message2 && isComfyUISubAgentConfirm(message2, transcript))
-      return message2.id;
+export function getLatestInlineToolConfirmId(messages, transcript) {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (message && isComfyUISubAgentConfirm(message, transcript))
+      return message.id;
   }
   return void 0;
 }
 
-function requiresAsyncApproval(message2) {
-  return ASYNC_APPROVAL_TOOLS.has(message2.toolConfirmData?.tool ?? "");
+function requiresAsyncApproval(message) {
+  return ASYNC_APPROVAL_TOOLS.has(message.toolConfirmData?.tool ?? "");
 }
 
-export function aggregateToolConfirmApprovalState(messages2, approvalState) {
+export function aggregateToolConfirmApprovalState(messages, approvalState) {
   let checking = false;
-  for (const message2 of messages2) {
-    const requestId = message2.requestId;
-    const state2 = requestId ? approvalState[requestId] : void 0;
-    if (state2 === "blocked") return "blocked";
+  for (const message of messages) {
+    const requestId = message.requestId;
+    const state = requestId ? approvalState[requestId] : void 0;
+    if (state === "blocked") return "blocked";
     if (
-      state2 === "checking" ||
-      (requiresAsyncApproval(message2) && state2 === void 0)
+      state === "checking" ||
+      (requiresAsyncApproval(message) && state === void 0)
     ) {
       checking = true;
     }
@@ -276,12 +276,12 @@ export function aggregateToolConfirmApprovalState(messages2, approvalState) {
   return checking ? "checking" : "ready";
 }
 
-export function canApproveAllToolConfirms(messages2, approvalState, edits) {
-  if (aggregateToolConfirmApprovalState(messages2, approvalState) !== "ready")
+export function canApproveAllToolConfirms(messages, approvalState, edits) {
+  if (aggregateToolConfirmApprovalState(messages, approvalState) !== "ready")
     return false;
-  return messages2.every((message2) => {
-    if (!requiresAsyncApproval(message2)) return true;
-    const requestId = message2.requestId;
+  return messages.every((message) => {
+    if (!requiresAsyncApproval(message)) return true;
+    const requestId = message.requestId;
     return Boolean(
       requestId && approvalState[requestId] === "ready" && edits[requestId],
     );
@@ -291,7 +291,7 @@ export function canApproveAllToolConfirms(messages2, approvalState, edits) {
 const TOOL_CONFIRM_SETTLEMENT_ACK_TIMEOUT_MS = 5e3;
 
 export function useToolConfirmSettlement({
-  messages: messages2,
+  messages,
   isPresented,
   focusedSessionId,
   onAckTimeout,
@@ -311,18 +311,18 @@ export function useToolConfirmSettlement({
     if (!submission) return false;
     clearTimeout(submission.timer);
     submissionsRef.current.delete(requestId);
-    setSubmittingIds((current2) => {
-      if (!current2.has(requestId)) return current2;
-      const next2 = new Set(current2);
-      next2.delete(requestId);
-      return next2;
+    setSubmittingIds((current) => {
+      if (!current.has(requestId)) return current;
+      const next = new Set(current);
+      next.delete(requestId);
+      return next;
     });
     return true;
   }, []);
   const submit = reactExports.useCallback(
-    (requestId, sessionId, send2) => {
+    (requestId, sessionId, send) => {
       if (submissionsRef.current.has(requestId)) return false;
-      const timer2 = setTimeout(() => {
+      const timer = setTimeout(() => {
         if (!removeSubmission(requestId)) return;
         if (
           isPresentedRef.current &&
@@ -332,10 +332,10 @@ export function useToolConfirmSettlement({
         }
       }, TOOL_CONFIRM_SETTLEMENT_ACK_TIMEOUT_MS);
       submissionsRef.current.set(requestId, {
-        timer: timer2,
+        timer,
       });
-      setSubmittingIds((current2) => new Set(current2).add(requestId));
-      const sent = send2();
+      setSubmittingIds((current) => new Set(current).add(requestId));
+      const sent = send();
       if (!sent) removeSubmission(requestId);
       return sent;
     },
@@ -343,14 +343,14 @@ export function useToolConfirmSettlement({
   );
   reactExports.useEffect(() => {
     const actionableIds = new Set(
-      getPendingToolConfirms(messages2)
-        .map((message2) => message2.requestId)
+      getPendingToolConfirms(messages)
+        .map((message) => message.requestId)
         .filter((requestId) => Boolean(requestId)),
     );
     for (const requestId of submissionsRef.current.keys()) {
       if (!actionableIds.has(requestId)) removeSubmission(requestId);
     }
-  }, [messages2, removeSubmission]);
+  }, [messages, removeSubmission]);
   reactExports.useEffect(
     () => () => {
       for (const submission of submissionsRef.current.values()) {

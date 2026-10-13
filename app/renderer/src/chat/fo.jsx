@@ -1,114 +1,114 @@
 // fo.jsx
 import {
   jsxRuntimeExports,
-  L,
+  L as useIcons,
   reactDomExports,
   reactExports,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { ce, le, R, y3 } from "./ae.jsx";
-import { po } from "./nn.jsx";
-import { D3 } from "../media-editing/wt.js";
+import { ce as unlockBodyScroll, le as lockBodyScroll, R as markdownRenderOptionsContext, y3 as useClassNameMerger } from "./ae.jsx";
+import { po as MermaidRenderer } from "./nn.jsx";
+import { D3 as useStreamdownLabels } from "../media-editing/wt.js";
 
 export var fo = ({
-  chart: e2,
-  config: t2,
-  onFullscreen: o2,
-  onExit: n2,
-  className: r2,
-  ...s2
+  chart,
+  config,
+  onFullscreen,
+  onExit,
+  className,
+  ...restProps
 }) => {
-  let { Maximize2Icon: a2, XIcon: l2 } = L(),
-    i2 = y3(),
-    [d2, c3] = reactExports.useState(false),
-    { isAnimating: p3, controls: m3 } = reactExports.useContext(R),
-    u4 = D3(),
-    f2 = (() => {
-      if (typeof m3 == "boolean") return m3;
-      let b3 = m3.mermaid;
-      return b3 === false
+  let { Maximize2Icon: maximizeIcon, XIcon: closeIcon } = useIcons(),
+    mergeClassNames = useClassNameMerger(),
+    [isFullscreen, setIsFullscreen] = reactExports.useState(false),
+    { isAnimating, controls } = reactExports.useContext(markdownRenderOptionsContext),
+    translations = useStreamdownLabels(),
+    shouldShowControls = (() => {
+      if (typeof controls == "boolean") return controls;
+      let mermaidControls = controls.mermaid;
+      return mermaidControls === false
         ? false
-        : b3 === true || b3 === void 0
+        : mermaidControls === true || mermaidControls === void 0
           ? true
-          : b3.panZoom !== false;
+          : mermaidControls.panZoom !== false;
     })(),
-    h2 = () => {
-      c3(!d2);
+    toggleFullscreen = () => {
+      setIsFullscreen(!isFullscreen);
     };
   return (
     reactExports.useEffect(() => {
-      if (d2) {
-        le();
-        let b3 = (g2) => {
-          g2.key === "Escape" && c3(false);
+      if (isFullscreen) {
+        lockBodyScroll();
+        let handleEscapeKey = (keyboardEvent) => {
+          keyboardEvent.key === "Escape" && setIsFullscreen(false);
         };
         return (
-          document.addEventListener("keydown", b3),
+          document.addEventListener("keydown", handleEscapeKey),
           () => {
-            (document.removeEventListener("keydown", b3), ce());
+            (document.removeEventListener("keydown", handleEscapeKey), unlockBodyScroll());
           }
         );
       }
-    }, [d2]),
+    }, [isFullscreen]),
     reactExports.useEffect(() => {
-      d2 ? o2 == null || o2() : n2 && n2();
-    }, [d2, o2, n2]),
+      isFullscreen ? onFullscreen == null || onFullscreen() : onExit && onExit();
+    }, [isFullscreen, onFullscreen, onExit]),
     (
       <>
         <button
-          className={i2(
+          className={mergeClassNames(
             "cursor-pointer p-1 text-muted-foreground transition-all hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-            r2,
+            className,
           )}
-          disabled={p3}
-          onClick={h2}
-          title={u4.viewFullscreen}
+          disabled={isAnimating}
+          onClick={toggleFullscreen}
+          title={translations.viewFullscreen}
           type="button"
-          {...s2}
+          {...restProps}
         >
-          {jsxRuntimeExports.jsx(a2, {
+          {jsxRuntimeExports.jsx(maximizeIcon, {
             size: 14,
           })}
         </button>
-        {d2
+        {isFullscreen
           ? reactDomExports.createPortal(
               <div
-                className={i2(
+                className={mergeClassNames(
                   "fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm",
                 )}
-                onClick={h2}
-                onKeyDown={(b3) => {
-                  b3.key === "Escape" && h2();
+                onClick={toggleFullscreen}
+                onKeyDown={(keyboardEvent) => {
+                  keyboardEvent.key === "Escape" && toggleFullscreen();
                 }}
                 role="button"
                 tabIndex={0}
               >
                 <button
-                  className={i2(
+                  className={mergeClassNames(
                     "absolute top-4 right-4 z-10 rounded-md p-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground",
                   )}
-                  onClick={h2}
-                  title={u4.exitFullscreen}
+                  onClick={toggleFullscreen}
+                  title={translations.exitFullscreen}
                   type="button"
                 >
-                  {jsxRuntimeExports.jsx(l2, {
+                  {jsxRuntimeExports.jsx(closeIcon, {
                     size: 20,
                   })}
                 </button>
                 <div
-                  className={i2(
+                  className={mergeClassNames(
                     "flex size-full items-center justify-center p-4",
                   )}
-                  onClick={(b3) => b3.stopPropagation()}
-                  onKeyDown={(b3) => b3.stopPropagation()}
+                  onClick={(clickEvent) => clickEvent.stopPropagation()}
+                  onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
                   role="presentation"
                 >
-                  {jsxRuntimeExports.jsx(po, {
-                    chart: e2,
-                    className: i2("size-full [&_svg]:h-auto [&_svg]:w-auto"),
-                    config: t2,
+                  {jsxRuntimeExports.jsx(MermaidRenderer, {
+                    chart,
+                    className: mergeClassNames("size-full [&_svg]:h-auto [&_svg]:w-auto"),
+                    config,
                     fullscreen: true,
-                    showControls: f2,
+                    showControls: shouldShowControls,
                   })}
                 </div>
               </div>,

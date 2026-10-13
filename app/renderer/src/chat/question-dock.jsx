@@ -31,12 +31,12 @@ import { localizeRecommendedQuestionOptionLabel } from "../text-editor/capabilit
 import { Label } from "../team/use-wallet-query.jsx";
 import { MessageInput } from "./chat-compliance-notice.jsx";
 import { MEDIA_FILE_ACCEPT } from "../text-editor/build-asr-gateway-request.js";
-function QuestionSelectionCheck({ selected: selected2 }) {
+function QuestionSelectionCheck({ selected }) {
   return (
     <CompositedSvg
       viewBox="0 0 16 16"
       aria-hidden="true"
-      className={`size-3 shrink-0 overflow-visible [&_path]:[stroke-dasharray:24] [&_path]:transition-[stroke-dashoffset] [&_path]:duration-200 [&_path]:ease-out motion-reduce:[&_path]:transition-none ${selected2 ? "[&_path]:[stroke-dashoffset:0]" : "[&_path]:[stroke-dashoffset:-24]"}`}
+      className={`size-3 shrink-0 overflow-visible [&_path]:[stroke-dasharray:24] [&_path]:transition-[stroke-dashoffset] [&_path]:duration-200 [&_path]:ease-out motion-reduce:[&_path]:transition-none ${selected ? "[&_path]:[stroke-dashoffset:0]" : "[&_path]:[stroke-dashoffset:-24]"}`}
     >
       <path
         d="M12.75 5.05 6.35 11.55 3.2 9.4"
@@ -109,7 +109,7 @@ function findFirstQuestionSubmitBlocker(
 }
 function buildQuestionReplyMessage(requestId, selectedAnswers, customAnswers) {
   const attachmentContexts = [];
-  const answers = selectedAnswers.map((selected2, questionIndex) => {
+  const answers = selectedAnswers.map((selected, questionIndex) => {
     const custom = customAnswers[questionIndex];
     if (custom?.attachments.length) {
       attachmentContexts.push({
@@ -123,8 +123,8 @@ function buildQuestionReplyMessage(requestId, selectedAnswers, customAnswers) {
       });
     }
     return custom?.text.trim()
-      ? [...selected2, custom.text.trim()]
-      : [...selected2];
+      ? [...selected, custom.text.trim()]
+      : [...selected];
   });
   return {
     type: "question_reply",
@@ -138,30 +138,30 @@ function buildQuestionReplyMessage(requestId, selectedAnswers, customAnswers) {
   };
 }
 export function QuestionDock({
-  question: question2,
+  question: questionData,
   submissionFailureId,
   onSend,
   isPresented = true,
   onFileDropHandlerChange,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { data: mentionModels = [] } = useMentionModels();
   const displayAgentText = reactExports.useCallback(
-    (text2) =>
+    (text) =>
       replaceConfiguredModelNamesForCurrentRegion(
-        redactForCurrentRegion(text2),
+        redactForCurrentRegion(text),
         mentionModels,
       ),
     [mentionModels],
   );
   const displayQuestionOptionLabel = reactExports.useCallback(
     (label) =>
-      localizeRecommendedQuestionOptionLabel(displayAgentText(label), t2),
-    [displayAgentText, t2],
+      localizeRecommendedQuestionOptionLabel(displayAgentText(label), translate),
+    [displayAgentText, translate],
   );
-  const raw2 = question2.questionData?.questions;
-  const questions = Array.isArray(raw2) ? raw2 : [];
-  const requestId = question2.requestId;
+  const raw = questionData.questionData?.questions;
+  const questions = Array.isArray(raw) ? raw : [];
+  const requestId = questionData.requestId;
   const [currentIndex, setCurrentIndex] = reactExports.useState(0);
   const [answers, setAnswers] = reactExports.useState(() =>
     questions.map(() => []),
@@ -194,7 +194,7 @@ export function QuestionDock({
   const submitLockRef = reactExports.useRef(false);
   const submissionDispatchedRef = reactExports.useRef(false);
   const handledSubmissionFailureIdRef = reactExports.useRef(void 0);
-  const previousQuestionMessageIdRef = reactExports.useRef(question2.id);
+  const previousQuestionMessageIdRef = reactExports.useRef(questionData.id);
   const focusDockAfterNavigationRef = reactExports.useRef(null);
   customTextsRef.current = customTexts;
   const releaseSubmissionForRetry = reactExports.useCallback(() => {
@@ -214,12 +214,12 @@ export function QuestionDock({
     releaseSubmissionForRetry();
   }, [releaseSubmissionForRetry, submissionFailureId]);
   reactExports.useEffect(() => {
-    if (previousQuestionMessageIdRef.current === question2.id) return;
-    previousQuestionMessageIdRef.current = question2.id;
+    if (previousQuestionMessageIdRef.current === questionData.id) return;
+    previousQuestionMessageIdRef.current = questionData.id;
     releaseSubmissionForRetry();
-  }, [question2.id, releaseSubmissionForRetry]);
+  }, [questionData.id, releaseSubmissionForRetry]);
   const toggleCollapsed = reactExports.useCallback(
-    () => setCollapsed((c3) => !c3),
+    () => setCollapsed((isCollapsed) => !isCollapsed),
     [],
   );
   const shortcutLabel = resolveShortcutDisplay(
@@ -269,29 +269,29 @@ export function QuestionDock({
       customPreviousAnswersRef.current[currentIndex] = [];
       setAnswers((prev) => {
         const updated = [...prev];
-        const current2 = [...(updated[currentIndex] ?? [])];
+        const current = [...(updated[currentIndex] ?? [])];
         if (isMultiple) {
-          const idx = current2.indexOf(label);
-          if (idx >= 0) {
-            current2.splice(idx, 1);
+          const answerIndex = current.indexOf(label);
+          if (answerIndex >= 0) {
+            current.splice(answerIndex, 1);
           } else {
-            current2.push(label);
+            current.push(label);
           }
         } else {
-          if (current2[0] === label) {
+          if (current[0] === label) {
             updated[currentIndex] = [];
             return updated;
           }
           updated[currentIndex] = [label];
           composerRefs.current[currentIndex]?.reset();
-          setEditingCustom((prev2) => {
-            const ec = [...prev2];
-            ec[currentIndex] = false;
-            return ec;
+          setEditingCustom((prev) => {
+            const editingCustomFlags = [...prev];
+            editingCustomFlags[currentIndex] = false;
+            return editingCustomFlags;
           });
           return updated;
         }
-        updated[currentIndex] = current2;
+        updated[currentIndex] = current;
         return updated;
       });
     },
@@ -299,11 +299,11 @@ export function QuestionDock({
   );
   const handleSelectOptionByKeyboard = reactExports.useCallback(
     (optionIndex) => {
-      const option2 = currentQuestion?.options[optionIndex];
-      if (!option2) return;
-      if (!isMultiple && answers[currentIndex]?.[0] === option2.label) return;
+      const option = currentQuestion?.options[optionIndex];
+      if (!option) return;
+      if (!isMultiple && answers[currentIndex]?.[0] === option.label) return;
       if (!isMultiple) suppressAutoAdvanceRef.current = currentIndex;
-      handleSelectOption(option2.label);
+      handleSelectOption(option.label);
     },
     [answers, currentIndex, currentQuestion, handleSelectOption, isMultiple],
   );
@@ -331,8 +331,8 @@ export function QuestionDock({
         )
           ? currentIndex + 1
           : null;
-        setCurrentIndex((index2) =>
-          index2 === currentIndex ? index2 + 1 : index2,
+        setCurrentIndex((index) =>
+          index === currentIndex ? index + 1 : index,
         );
       }, 150);
       return clearPendingAutoAdvance;
@@ -352,13 +352,13 @@ export function QuestionDock({
     });
   }, [currentIndex]);
   const handleCustomTextChange = reactExports.useCallback(
-    (questionIndex, text2) => {
+    (questionIndex, text) => {
       setCustomTexts((prev) => {
         const updated = [...prev];
-        updated[questionIndex] = text2;
+        updated[questionIndex] = text;
         return updated;
       });
-      if (!questions[questionIndex]?.multiple && text2.trim()) {
+      if (!questions[questionIndex]?.multiple && text.trim()) {
         setAnswers((prev) => {
           const updated = [...prev];
           updated[questionIndex] = [];
@@ -485,7 +485,7 @@ export function QuestionDock({
   const handleCustomCommit = reactExports.useCallback(
     (
       questionIndex,
-      text2,
+      text,
       filePaths,
       canvasNodeAttachments,
       entityRefs,
@@ -502,7 +502,7 @@ export function QuestionDock({
         return false;
       }
       committedCustomAnswersRef.current[questionIndex] = {
-        text: text2,
+        text,
         attachments: [...filePaths],
         ...(attachmentRefs?.length
           ? {
@@ -515,18 +515,18 @@ export function QuestionDock({
     [],
   );
   reactExports.useEffect(() => {
-    setSubmitBlocker((current2) => {
-      if (!current2) return current2;
+    setSubmitBlocker((current) => {
+      if (!current) return current;
       const reason = getQuestionSubmitBlockReason(
-        current2.questionIndex,
+        current.questionIndex,
         answers,
         customTexts,
         customAttachments,
       );
-      if (reason === current2.reason) return current2;
+      if (reason === current.reason) return current;
       return reason
         ? {
-            ...current2,
+            ...current,
             reason,
           }
         : null;
@@ -579,13 +579,13 @@ export function QuestionDock({
         {
           length: questions.length,
         },
-        (_2, questionIndex) => answers[questionIndex] ?? [],
+        (_unusedValue, questionIndex) => answers[questionIndex] ?? [],
       );
       const scopedCustomAnswers = Array.from(
         {
           length: questions.length,
         },
-        (_2, questionIndex) =>
+        (_unusedValue, questionIndex) =>
           committedCustomAnswersRef.current[questionIndex] ?? {
             text: "",
             attachments: [],
@@ -644,25 +644,25 @@ export function QuestionDock({
     });
   }, [requestId, onSend]);
   const keydownRef = reactExports.useRef(() => {});
-  keydownRef.current = (e2) => {
+  keydownRef.current = (keyboardEvent) => {
     if (!isPresented) return;
     const questionDockTarget =
-      e2.target instanceof HTMLElement
-        ? e2.target.closest('[data-action-ui-id="chat-question-dock"]')
+      keyboardEvent.target instanceof HTMLElement
+        ? keyboardEvent.target.closest('[data-action-ui-id="chat-question-dock"]')
         : null;
     if (questionDockTarget !== questionDockRef.current) return;
     const selectedOptionTarget =
-      e2.target instanceof HTMLElement
-        ? e2.target.closest(
+      keyboardEvent.target instanceof HTMLElement
+        ? keyboardEvent.target.closest(
             '[data-question-option="true"][data-selected="true"]',
           )
         : null;
     const optionTarget =
-      e2.target instanceof HTMLElement
-        ? e2.target.closest('[data-question-option="true"]')
+      keyboardEvent.target instanceof HTMLElement
+        ? keyboardEvent.target.closest('[data-question-option="true"]')
         : null;
-    if (e2.key === "Escape" && questionDockTarget && !e2.defaultPrevented) {
-      e2.preventDefault();
+    if (keyboardEvent.key === "Escape" && questionDockTarget && !keyboardEvent.defaultPrevented) {
+      keyboardEvent.preventDefault();
       if (editingCustom[currentIndex]) {
         handleCancelCustom();
       } else {
@@ -671,55 +671,55 @@ export function QuestionDock({
       return;
     }
     const isPlainEnter =
-      e2.key === "Enter" &&
-      !e2.shiftKey &&
-      !e2.metaKey &&
-      !e2.ctrlKey &&
-      !e2.altKey &&
-      !e2.repeat &&
-      !e2.isComposing &&
-      e2.keyCode !== 229;
+      keyboardEvent.key === "Enter" &&
+      !keyboardEvent.shiftKey &&
+      !keyboardEvent.metaKey &&
+      !keyboardEvent.ctrlKey &&
+      !keyboardEvent.altKey &&
+      !keyboardEvent.repeat &&
+      !keyboardEvent.isComposing &&
+      keyboardEvent.keyCode !== 229;
     if (isPlainEnter && selectedOptionTarget && !collapsed) {
-      e2.preventDefault();
+      keyboardEvent.preventDefault();
       handleKeyboardAdvance();
       return;
     }
     const optionShortcutIndex =
-      e2.key.length === 1
-        ? OPTION_SHORTCUT_KEYS.indexOf(e2.key.toUpperCase())
+      keyboardEvent.key.length === 1
+        ? OPTION_SHORTCUT_KEYS.indexOf(keyboardEvent.key.toUpperCase())
         : -1;
     const isOptionShortcut =
       optionShortcutIndex >= 0 &&
-      !e2.shiftKey &&
-      !e2.metaKey &&
-      !e2.ctrlKey &&
-      !e2.altKey &&
-      !e2.repeat &&
-      !e2.isComposing &&
-      e2.keyCode !== 229;
+      !keyboardEvent.shiftKey &&
+      !keyboardEvent.metaKey &&
+      !keyboardEvent.ctrlKey &&
+      !keyboardEvent.altKey &&
+      !keyboardEvent.repeat &&
+      !keyboardEvent.isComposing &&
+      keyboardEvent.keyCode !== 229;
     if (
       isOptionShortcut &&
       !collapsed &&
       !editingCustom[currentIndex] &&
-      (e2.target === questionDockRef.current || optionTarget)
+      (keyboardEvent.target === questionDockRef.current || optionTarget)
     ) {
       if (currentQuestion?.options[optionShortcutIndex]) {
-        e2.preventDefault();
+        keyboardEvent.preventDefault();
         handleSelectOptionByKeyboard(optionShortcutIndex);
       }
       return;
     }
-    if (shouldIgnoreChatGlobalShortcut(e2)) return;
+    if (shouldIgnoreChatGlobalShortcut(keyboardEvent)) return;
     if (
-      (e2.metaKey || e2.ctrlKey) &&
-      e2.shiftKey &&
-      (e2.key === "d" || e2.key === "D")
+      (keyboardEvent.metaKey || keyboardEvent.ctrlKey) &&
+      keyboardEvent.shiftKey &&
+      (keyboardEvent.key === "d" || keyboardEvent.key === "D")
     ) {
-      e2.preventDefault();
+      keyboardEvent.preventDefault();
       toggleCollapsed();
       return;
     }
-    if (e2.key === "Escape") {
+    if (keyboardEvent.key === "Escape") {
       if (editingCustom[currentIndex]) {
         handleCancelCustom();
       } else {
@@ -729,7 +729,7 @@ export function QuestionDock({
     }
     if (collapsed) return;
     if (isPlainEnter && !editingCustom[currentIndex]) {
-      e2.preventDefault();
+      keyboardEvent.preventDefault();
       handleKeyboardAdvance();
     }
   };
@@ -748,26 +748,26 @@ export function QuestionDock({
     submitBlocker?.questionIndex === currentIndex ? submitBlocker.reason : null;
   const submitBlockMessage = activeSubmitBlockReason
     ? {
-        unanswered: t2(
+        unanswered: translate(
           "chat.question.answerRequired",
           "Answer this question before submitting.",
         ),
-        "attachment-uploading": t2(
+        "attachment-uploading": translate(
           "chat.question.attachmentUploading",
           "This attachment is still uploading. Submit after it finishes.",
         ),
-        "attachment-failed": t2(
+        "attachment-failed": translate(
           "chat.question.attachmentFailed",
           "Attachment upload failed. Retry or remove it before submitting.",
         ),
       }[activeSubmitBlockReason]
     : null;
   const answeredCount = questions.reduce(
-    (n2, _2, i2) =>
-      n2 +
-      ((answers[i2]?.length ?? 0) > 0 ||
-      customTexts[i2]?.trim() ||
-      customAttachments[i2]?.some(
+    (answeredCount, _unusedQuestion, questionIndex) =>
+      answeredCount +
+      ((answers[questionIndex]?.length ?? 0) > 0 ||
+      customTexts[questionIndex]?.trim() ||
+      customAttachments[questionIndex]?.some(
         (attachment) =>
           attachment.status === "done" && Boolean(attachment.relativePath),
       )
@@ -808,7 +808,7 @@ export function QuestionDock({
             </span>
             {!collapsed && isMultiple && (
               <span className="ml-2 text-body-12 font-normal text-muted-foreground">
-                ({t2("chat.question.multiSelect")})
+                ({translate("chat.question.multiSelect")})
               </span>
             )}
           </span>
@@ -832,13 +832,13 @@ export function QuestionDock({
         aria-expanded={!collapsed}
         aria-label={
           collapsed
-            ? t2("chat.question.expand", "Expand")
-            : t2("chat.question.collapse", "Collapse")
+            ? translate("chat.question.expand", "Expand")
+            : translate("chat.question.collapse", "Collapse")
         }
         title={
           collapsed
-            ? `${t2("chat.question.expand", "Expand")} (${shortcutLabel})`
-            : `${t2("chat.question.collapse", "Collapse")} (${shortcutLabel})`
+            ? `${translate("chat.question.expand", "Expand")} (${shortcutLabel})`
+            : `${translate("chat.question.collapse", "Collapse")} (${shortcutLabel})`
         }
         tabIndex={collapsed ? -1 : void 0}
         aria-hidden={collapsed ? true : void 0}
@@ -877,7 +877,7 @@ export function QuestionDock({
             type="button"
             data-action-ui-id="chat-question-card-expand-target"
             aria-expanded="false"
-            aria-label={t2("chat.question.expand", "Expand")}
+            aria-label={translate("chat.question.expand", "Expand")}
             className="absolute inset-0 z-10 size-full cursor-pointer rounded-xl bg-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             onClick={toggleCollapsed}
           />
@@ -891,64 +891,64 @@ export function QuestionDock({
               data-action-ui-id="chat-question-stepper-track"
               className="flex min-w-full flex-nowrap items-center"
             >
-              {questions.map((q2, i2) => {
+              {questions.map((question, questionIndex) => {
                 const answered = Boolean(
-                  answers[i2]?.length > 0 ||
-                  customTexts[i2]?.trim() ||
-                  customAttachments[i2]?.some(
+                  answers[questionIndex]?.length > 0 ||
+                  customTexts[questionIndex]?.trim() ||
+                  customAttachments[questionIndex]?.some(
                     (attachment) =>
                       attachment.status === "done" &&
                       Boolean(attachment.relativePath),
                   ),
                 );
                 const previousAnswered =
-                  i2 > 0 &&
+                  questionIndex > 0 &&
                   Boolean(
-                    answers[i2 - 1]?.length > 0 ||
-                    customTexts[i2 - 1]?.trim() ||
-                    customAttachments[i2 - 1]?.some(
+                    answers[questionIndex - 1]?.length > 0 ||
+                    customTexts[questionIndex - 1]?.trim() ||
+                    customAttachments[questionIndex - 1]?.some(
                       (attachment) =>
                         attachment.status === "done" &&
                         Boolean(attachment.relativePath),
                     ),
                   );
-                const active2 = i2 === currentIndex;
+                const active = questionIndex === currentIndex;
                 return jsxRuntimeExports.jsxs(
                   reactExports.Fragment,
                   {
                     children: [
-                      i2 > 0 && (
+                      questionIndex > 0 && (
                         <span
-                          data-action-ui-id={`chat-question-step-connector-${i2}`}
+                          data-action-ui-id={`chat-question-step-connector-${questionIndex}`}
                           aria-hidden="true"
                           className={`mx-1 h-px min-w-3 max-w-7 flex-1 transition-colors duration-200 ${previousAnswered ? "bg-foreground/25" : "bg-border"}`}
                         />
                       ),
                       <button
                         type="button"
-                        data-action-ui-id={`chat-question-step-${i2}`}
+                        data-action-ui-id={`chat-question-step-${questionIndex}`}
                         data-answered={answered ? "true" : "false"}
-                        aria-current={active2 ? "step" : void 0}
-                        aria-label={`${i2 + 1}. ${displayAgentText(q2.header)}`}
-                        title={displayAgentText(q2.header)}
+                        aria-current={active ? "step" : void 0}
+                        aria-label={`${questionIndex + 1}. ${displayAgentText(question.header)}`}
+                        title={displayAgentText(question.header)}
                         className="group flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
-                        onClick={() => handleGoToQuestion(i2)}
+                        onClick={() => handleGoToQuestion(questionIndex)}
                       >
                         <span
-                          className={`flex size-6 items-center justify-center rounded-full border transition-[color,background-color,border-color,box-shadow] duration-200 ${active2 ? "border-foreground bg-foreground text-background" : answered ? "border-foreground/20 bg-muted/60 text-foreground" : "border-foreground/20 bg-transparent text-muted-foreground group-hover:border-foreground/40 group-hover:text-foreground"}`}
+                          className={`flex size-6 items-center justify-center rounded-full border transition-[color,background-color,border-color,box-shadow] duration-200 ${active ? "border-foreground bg-foreground text-background" : answered ? "border-foreground/20 bg-muted/60 text-foreground" : "border-foreground/20 bg-transparent text-muted-foreground group-hover:border-foreground/40 group-hover:text-foreground"}`}
                         >
                           {answered ? (
                             <QuestionSelectionCheck selected={true} />
                           ) : (
                             <span className="text-caption-10 leading-none">
-                              {i2 + 1}
+                              {questionIndex + 1}
                             </span>
                           )}
                         </span>
                       </button>,
                     ],
                   },
-                  q2.header,
+                  question.header,
                 );
               })}
             </div>
@@ -975,33 +975,33 @@ export function QuestionDock({
                       data-action-ui-id="chat-question-options"
                       className="flex max-h-[min(36vh,18rem)] flex-col gap-1.5 overflow-y-auto"
                     >
-                      {currentQuestion.options.map((opt, i2) => {
-                        const isSelected = currentAnswers.includes(opt.label);
-                        const optionId = `chat-question-${requestId}-${currentIndex}-${i2}`;
-                        const optionShortcutKey = getOptionShortcutKey(i2);
+                      {currentQuestion.options.map((option, optionIndex) => {
+                        const isSelected = currentAnswers.includes(option.label);
+                        const optionId = `chat-question-${requestId}-${currentIndex}-${optionIndex}`;
+                        const optionShortcutKey = getOptionShortcutKey(optionIndex);
                         return (
                           <Label
-                            key={opt.label}
+                            key={option.label}
                             htmlFor={optionId}
-                            data-action-ui-id={`chat-question-option-${i2}`}
+                            data-action-ui-id={`chat-question-option-${optionIndex}`}
                             data-question-option="true"
                             data-selected={isSelected ? "true" : "false"}
                             className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors ${isSelected ? "border-foreground bg-foreground/[0.02] text-foreground" : "border-border bg-transparent text-foreground hover:bg-muted/30"}`}
                           >
                             <span
                               aria-hidden="true"
-                              data-action-ui-id={`chat-question-option-shortcut-${i2}`}
+                              data-action-ui-id={`chat-question-option-shortcut-${optionIndex}`}
                               className="w-4 shrink-0 text-center text-body-14 font-normal leading-5 text-foreground/70"
                             >
                               {optionShortcutKey}
                             </span>
                             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                               <span className="text-body-13 font-medium leading-5">
-                                {displayQuestionOptionLabel(opt.label)}
+                                {displayQuestionOptionLabel(option.label)}
                               </span>
-                              {opt.description && (
+                              {option.description && (
                                 <span className="text-body-12 font-normal leading-[18px] text-muted-foreground">
-                                  {displayAgentText(opt.description)}
+                                  {displayAgentText(option.description)}
                                 </span>
                               )}
                             </span>
@@ -1010,11 +1010,11 @@ export function QuestionDock({
                               checked={isSelected}
                               aria-keyshortcuts={optionShortcutKey?.toLowerCase()}
                               onCheckedChange={() =>
-                                handleSelectOption(opt.label)
+                                handleSelectOption(option.label)
                               }
                               shape="circle"
                               size="sm"
-                              data-action-ui-id={`chat-question-option-index-${i2}`}
+                              data-action-ui-id={`chat-question-option-index-${optionIndex}`}
                             />
                           </Label>
                         );
@@ -1028,45 +1028,45 @@ export function QuestionDock({
                       data-action-ui-id="chat-question-options"
                       className="max-h-[min(36vh,18rem)] gap-1.5 overflow-y-auto"
                     >
-                      {currentQuestion.options.map((opt, i2) => {
-                        const isSelected = currentAnswers.includes(opt.label);
-                        const optionId = `chat-question-${requestId}-${currentIndex}-${i2}`;
-                        const optionShortcutKey = getOptionShortcutKey(i2);
+                      {currentQuestion.options.map((option, optionIndex) => {
+                        const isSelected = currentAnswers.includes(option.label);
+                        const optionId = `chat-question-${requestId}-${currentIndex}-${optionIndex}`;
+                        const optionShortcutKey = getOptionShortcutKey(optionIndex);
                         return (
                           <Label
-                            key={opt.label}
+                            key={option.label}
                             htmlFor={optionId}
-                            data-action-ui-id={`chat-question-option-${i2}`}
+                            data-action-ui-id={`chat-question-option-${optionIndex}`}
                             data-question-option="true"
                             data-selected={isSelected ? "true" : "false"}
                             className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors ${isSelected ? "border-foreground bg-foreground/[0.02] text-foreground" : "border-border bg-transparent text-foreground hover:bg-muted/30"}`}
                           >
                             <RadioGroupItem
                               id={optionId}
-                              value={opt.label}
+                              value={option.label}
                               aria-keyshortcuts={optionShortcutKey?.toLowerCase()}
                               className="pointer-events-none absolute size-px overflow-hidden border-0 p-0 opacity-0"
                             />
                             <span
                               aria-hidden="true"
-                              data-action-ui-id={`chat-question-option-shortcut-${i2}`}
+                              data-action-ui-id={`chat-question-option-shortcut-${optionIndex}`}
                               className="w-4 shrink-0 text-center text-body-14 font-normal leading-5 text-foreground/70"
                             >
                               {optionShortcutKey}
                             </span>
                             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                               <span className="text-body-13 font-medium leading-5">
-                                {displayQuestionOptionLabel(opt.label)}
+                                {displayQuestionOptionLabel(option.label)}
                               </span>
-                              {opt.description && (
+                              {option.description && (
                                 <span className="text-body-12 font-normal leading-[18px] text-muted-foreground">
-                                  {displayAgentText(opt.description)}
+                                  {displayAgentText(option.description)}
                                 </span>
                               )}
                             </span>
                             <span className="flex w-7 shrink-0 items-center justify-center">
                               <span
-                                data-action-ui-id={`chat-question-option-index-${i2}`}
+                                data-action-ui-id={`chat-question-option-index-${optionIndex}`}
                                 className={`flex size-4 shrink-0 items-center justify-center rounded-full border transition-colors ${isSelected ? "border-foreground bg-foreground text-background" : "border-foreground/30 bg-transparent text-transparent"}`}
                               >
                                 <QuestionSelectionCheck selected={isSelected} />
@@ -1077,11 +1077,11 @@ export function QuestionDock({
                       })}
                     </RadioGroup>
                   ))}
-                {questions.map((info2, questionIndex) => {
-                  if (info2.custom === false) return null;
-                  const active2 = questionIndex === currentIndex;
-                  const multiple = info2.multiple ?? false;
-                  const selected2 =
+                {questions.map((info, questionIndex) => {
+                  if (info.custom === false) return null;
+                  const active = questionIndex === currentIndex;
+                  const multiple = info.multiple ?? false;
+                  const selected =
                     Boolean(customTexts[questionIndex]?.trim()) ||
                     customAttachments[questionIndex]?.some(
                       (attachment) =>
@@ -1092,14 +1092,14 @@ export function QuestionDock({
                   return (
                     <div
                       key={`${requestId}-${questionIndex}`}
-                      hidden={!active2}
-                      className={active2 ? "block" : "hidden"}
+                      hidden={!active}
+                      className={active ? "block" : "hidden"}
                     >
                       <div
                         data-action-ui-id={
-                          active2 ? "chat-question-custom-option" : void 0
+                          active ? "chat-question-custom-option" : void 0
                         }
-                        className={`flex w-full items-start gap-2 rounded-lg border p-2 transition-colors ${selected2 ? "border-foreground bg-foreground/[0.02]" : "border-border bg-transparent hover:bg-muted/30"}`}
+                        className={`flex w-full items-start gap-2 rounded-lg border p-2 transition-colors ${selected ? "border-foreground bg-foreground/[0.02]" : "border-border bg-transparent hover:bg-muted/30"}`}
                         onFocusCapture={() => handleStartCustom(questionIndex)}
                         onBlurCapture={(event) => {
                           if (
@@ -1119,7 +1119,7 @@ export function QuestionDock({
                         <span
                           aria-hidden="true"
                           data-action-ui-id="chat-question-custom-icon"
-                          className={`flex h-8 w-4 translate-x-1 shrink-0 items-center justify-center transition-colors ${selected2 ? "text-foreground" : "text-muted-foreground"}`}
+                          className={`flex h-8 w-4 translate-x-1 shrink-0 items-center justify-center transition-colors ${selected ? "text-foreground" : "text-muted-foreground"}`}
                         >
                           <Icon
                             icon={PencilLine}
@@ -1129,12 +1129,12 @@ export function QuestionDock({
                           />
                         </span>
                         <MessageInput
-                          ref={(node2) => {
-                            composerRefs.current[questionIndex] = node2;
+                          ref={(node) => {
+                            composerRefs.current[questionIndex] = node;
                           }}
                           fileDropScope="parent"
                           onSend={(
-                            text2,
+                            text,
                             filePaths,
                             canvasNodeAttachments,
                             entityRefs,
@@ -1145,7 +1145,7 @@ export function QuestionDock({
                           ) =>
                             handleCustomCommit(
                               questionIndex,
-                              text2,
+                              text,
                               filePaths,
                               canvasNodeAttachments,
                               entityRefs,
@@ -1167,11 +1167,11 @@ export function QuestionDock({
                           }}
                           enableSlashCommands={false}
                           hideAssetMention={true}
-                          placeholder={t2("chat.question.customPlaceholder")}
+                          placeholder={translate("chat.question.customPlaceholder")}
                           editorAriaLabel={
                             questions.length === 1
-                              ? t2("chat.question.other")
-                              : `${t2("chat.question.other")}: ${redactForCurrentRegion(info2.header)}`
+                              ? translate("chat.question.other")
+                              : `${translate("chat.question.other")}: ${redactForCurrentRegion(info.header)}`
                           }
                           editorActionId={`chat-question-custom-input-${questionIndex}`}
                           toolbar={(context) => (
@@ -1185,8 +1185,8 @@ export function QuestionDock({
                               showSkillSelector={false}
                             />
                           )}
-                          onInputChange={(text2) =>
-                            handleCustomTextChange(questionIndex, text2)
+                          onInputChange={(text) =>
+                            handleCustomTextChange(questionIndex, text)
                           }
                           onAttachmentsChange={(attachments) =>
                             handleCustomAttachmentsChange(
@@ -1228,7 +1228,7 @@ export function QuestionDock({
                 onClick={handleDismiss}
                 disabled={submitting}
               >
-                {t2("chat.question.dismiss")}
+                {translate("chat.question.dismiss")}
               </Button>
               {currentIndex > 0 && (
                 <Button
@@ -1238,7 +1238,7 @@ export function QuestionDock({
                   onClick={() => handleGoToQuestion(currentIndex - 1)}
                   disabled={submitting}
                 >
-                  {t2("chat.question.back")}
+                  {translate("chat.question.back")}
                 </Button>
               )}
               {isLastQuestion ? (
@@ -1250,7 +1250,7 @@ export function QuestionDock({
                   disabled={submitting}
                 >
                   <Icon icon={Check} size="sm" aria-hidden={true} />
-                  {t2("chat.question.submit")}
+                  {translate("chat.question.submit")}
                 </Button>
               ) : (
                 <Button
@@ -1260,7 +1260,7 @@ export function QuestionDock({
                   onClick={() => handleGoToQuestion(currentIndex + 1)}
                   disabled={submitting}
                 >
-                  {t2("chat.question.next")}
+                  {translate("chat.question.next")}
                 </Button>
               )}
             </div>

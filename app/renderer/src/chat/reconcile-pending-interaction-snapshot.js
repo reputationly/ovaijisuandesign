@@ -1,38 +1,38 @@
 // reconcile-pending-interaction-snapshot.js
 
-export function extractSessionId(msg) {
-  return msg.session_id;
+export function extractSessionId(message) {
+  return message.session_id;
 }
 
-export function applyComfyUiProgress(messages2, callID, progress) {
+export function applyComfyUiProgress(messages, callID, progress) {
   const patchSubMessages = (subMessages) =>
-    subMessages?.map((message2) => ({
-      ...message2,
-      ...(message2.type === "tool" && message2.callID === callID
+    subMessages?.map((message) => ({
+      ...message,
+      ...(message.type === "tool" && message.callID === callID
         ? {
             comfyUiProgress: progress,
           }
         : {}),
-      ...(message2.subMessages
+      ...(message.subMessages
         ? {
-            subMessages: patchSubMessages(message2.subMessages),
+            subMessages: patchSubMessages(message.subMessages),
           }
         : {}),
     }));
-  return messages2.map((message2) => {
-    if (message2.type === "tool" && message2.callID === callID) {
+  return messages.map((message) => {
+    if (message.type === "tool" && message.callID === callID) {
       return {
-        ...message2,
+        ...message,
         comfyUiProgress: progress,
       };
     }
-    if (message2.type === "sub_agent" && message2.subMessages) {
+    if (message.type === "sub_agent" && message.subMessages) {
       return {
-        ...message2,
-        subMessages: patchSubMessages(message2.subMessages),
+        ...message,
+        subMessages: patchSubMessages(message.subMessages),
       };
     }
-    return message2;
+    return message;
   });
 }
 
@@ -49,32 +49,32 @@ export function subAgentPartId(partId) {
   return `${partId}__sub_agent`;
 }
 
-function chatMessageShallowEqual(a2, b3) {
-  if (a2 === b3) return true;
-  const aRecord = a2;
-  const bRecord = b3;
+function chatMessageShallowEqual(leftMessage, rightMessage) {
+  if (leftMessage === rightMessage) return true;
+  const aRecord = leftMessage;
+  const bRecord = rightMessage;
   const aKeys = Object.keys(aRecord);
   const bKeys = Object.keys(bRecord);
   if (aKeys.length !== bKeys.length) return false;
-  for (const key2 of aKeys) {
-    if (aRecord[key2] !== bRecord[key2]) {
+  for (const key of aKeys) {
+    if (aRecord[key] !== bRecord[key]) {
       return false;
     }
   }
   return true;
 }
 
-export function messagesShallowEqual(prev, next2) {
-  if (prev === next2) return true;
-  if (prev.length !== next2.length) return false;
-  for (let index2 = 0; index2 < prev.length; index2 += 1) {
-    if (!chatMessageShallowEqual(prev[index2], next2[index2])) return false;
+export function messagesShallowEqual(prev, next) {
+  if (prev === next) return true;
+  if (prev.length !== next.length) return false;
+  for (let index = 0; index < prev.length; index += 1) {
+    if (!chatMessageShallowEqual(prev[index], next[index])) return false;
   }
   return true;
 }
 
 export function reconcilePendingInteractionSnapshot(
-  messages2,
+  messages,
   pendingInteractions,
 ) {
   const pendingIds = new Set(
@@ -87,42 +87,42 @@ export function reconcilePendingInteractionSnapshot(
       .filter((interaction) => interaction.type === "credit_threshold_request")
       .map((interaction) => interaction.id),
   );
-  return messages2.map((message2) => {
-    if (message2.type === "credit_threshold" && message2.requestId) {
-      return pendingCreditThresholdIds.has(message2.requestId)
-        ? message2.resolved
+  return messages.map((message) => {
+    if (message.type === "credit_threshold" && message.requestId) {
+      return pendingCreditThresholdIds.has(message.requestId)
+        ? message.resolved
           ? {
-              ...message2,
+              ...message,
               resolved: false,
               settlementStatus: void 0,
               decision: void 0,
             }
-          : message2
-        : message2.resolved
-          ? message2
+          : message
+        : message.resolved
+          ? message
           : {
-              ...message2,
+              ...message,
               resolved: true,
               settlementStatus: "unavailable",
             };
     }
-    if (message2.type !== "loop_guard_ask" || !message2.requestId) {
-      return message2;
+    if (message.type !== "loop_guard_ask" || !message.requestId) {
+      return message;
     }
-    if (pendingIds.has(message2.requestId)) {
-      return message2.resolved
+    if (pendingIds.has(message.requestId)) {
+      return message.resolved
         ? {
-            ...message2,
+            ...message,
             resolved: false,
             loopGuardDecision: void 0,
             loopGuardSettlementCause: void 0,
           }
-        : message2;
+        : message;
     }
-    return message2.resolved
-      ? message2
+    return message.resolved
+      ? message
       : {
-          ...message2,
+          ...message,
           resolved: true,
           loopGuardDecision: void 0,
           loopGuardSettlementCause: "unavailable",
@@ -130,26 +130,26 @@ export function reconcilePendingInteractionSnapshot(
   });
 }
 
-export function applyToolConfirmSettlements(messages2, settlements) {
-  if (settlements.length === 0) return [...messages2];
+export function applyToolConfirmSettlements(messages, settlements) {
+  if (settlements.length === 0) return [...messages];
   const byRequestId = new Map(
     settlements.map((settlement) => [settlement.id, settlement]),
   );
-  return messages2.map((message2) => {
-    if (message2.type !== "tool_confirm_ask" || !message2.requestId)
-      return message2;
-    const settlement = byRequestId.get(message2.requestId);
-    if (!settlement) return message2;
+  return messages.map((message) => {
+    if (message.type !== "tool_confirm_ask" || !message.requestId)
+      return message;
+    const settlement = byRequestId.get(message.requestId);
+    if (!settlement) return message;
     return {
-      ...message2,
+      ...message,
       resolved: true,
       expired: settlement.cause !== "reply",
       toolConfirmDecision: settlement.decision,
       toolConfirmSettlementCause: settlement.cause,
-      ...(settlement.modified_args && message2.toolConfirmData
+      ...(settlement.modified_args && message.toolConfirmData
         ? {
             toolConfirmData: {
-              ...message2.toolConfirmData,
+              ...message.toolConfirmData,
               args: settlement.modified_args,
             },
           }
@@ -158,19 +158,19 @@ export function applyToolConfirmSettlements(messages2, settlements) {
   });
 }
 
-export function applyLoopGuardSettlements(messages2, settlements) {
-  if (settlements.length === 0) return [...messages2];
+export function applyLoopGuardSettlements(messages, settlements) {
+  if (settlements.length === 0) return [...messages];
   const byRequestId = new Map(
     settlements.map((settlement) => [settlement.id, settlement]),
   );
-  return messages2.map((message2) => {
-    if (message2.type !== "loop_guard_ask" || !message2.requestId)
-      return message2;
-    const settlement = byRequestId.get(message2.requestId);
-    if (!settlement || settlement.session_id !== message2.loopGuardSessionId)
-      return message2;
+  return messages.map((message) => {
+    if (message.type !== "loop_guard_ask" || !message.requestId)
+      return message;
+    const settlement = byRequestId.get(message.requestId);
+    if (!settlement || settlement.session_id !== message.loopGuardSessionId)
+      return message;
     return {
-      ...message2,
+      ...message,
       resolved: true,
       loopGuardDecision: settlement.decision,
       loopGuardSettlementCause: settlement.cause,
@@ -178,9 +178,9 @@ export function applyLoopGuardSettlements(messages2, settlements) {
   });
 }
 
-function stripToolResultPrefix(content2) {
-  const idx = content2.indexOf(": ");
-  return idx >= 0 ? content2.slice(0, idx) : content2;
+function stripToolResultPrefix(content) {
+  const separatorIndex = content.indexOf(": ");
+  return separatorIndex >= 0 ? content.slice(0, separatorIndex) : content;
 }
 
 function safeParseToolArgs(serialized) {
@@ -197,18 +197,18 @@ function stableStringify(value) {
   if (Array.isArray(value)) {
     return `[${value.map(stableStringify).join(",")}]`;
   }
-  const obj = value;
-  const keys2 = Object.keys(obj).sort();
-  return `{${keys2.map((k2) => `${JSON.stringify(k2)}:${stableStringify(obj[k2])}`).join(",")}}`;
+  const record = value;
+  const keys = Object.keys(record).sort();
+  return `{${keys.map((propertyKey) => `${JSON.stringify(propertyKey)}:${stableStringify(record[propertyKey])}`).join(",")}}`;
 }
 
 function canonicalArgsKey(args) {
   if (args === void 0) return "__undefined__";
   if (args === null || typeof args !== "object") return JSON.stringify(args);
   const filtered = {};
-  for (const k2 of Object.keys(args)) {
-    if (k2 === "_session_id" || k2 === "_tool_use_id") continue;
-    filtered[k2] = args[k2];
+  for (const argumentKey of Object.keys(args)) {
+    if (argumentKey === "_session_id" || argumentKey === "_tool_use_id") continue;
+    filtered[argumentKey] = args[argumentKey];
   }
   return stableStringify(filtered);
 }
@@ -219,49 +219,49 @@ export function insertToolConfirmAsk(prev, chatMsg) {
   }
   const targetTool = chatMsg.toolConfirmData.tool;
   const targetArgsKey = canonicalArgsKey(chatMsg.toolConfirmData.args);
-  for (let i2 = prev.length - 1; i2 >= 0; i2--) {
-    const m3 = prev[i2];
-    if (m3.type === "tool") {
-      if (m3.content === targetTool) {
+  for (let index = prev.length - 1; index >= 0; index--) {
+    const message = prev[index];
+    if (message.type === "tool") {
+      if (message.content === targetTool) {
         if (
-          canonicalArgsKey(safeParseToolArgs(m3.toolArgs)) === targetArgsKey
+          canonicalArgsKey(safeParseToolArgs(message.toolArgs)) === targetArgsKey
         ) {
-          return [...prev.slice(0, i2 + 1), chatMsg, ...prev.slice(i2 + 1)];
+          return [...prev.slice(0, index + 1), chatMsg, ...prev.slice(index + 1)];
         }
       }
-    } else if (m3.type === "sub_agent") {
-      const subs = m3.subMessages ?? [];
+    } else if (message.type === "sub_agent") {
+      const subs = message.subMessages ?? [];
       const matchesSub = subs.some(
-        (s2) =>
-          s2.type === "tool" &&
-          stripToolResultPrefix(s2.content ?? "") === targetTool &&
-          canonicalArgsKey(safeParseToolArgs(s2.args)) === targetArgsKey,
+        (subMessage) =>
+          subMessage.type === "tool" &&
+          stripToolResultPrefix(subMessage.content ?? "") === targetTool &&
+          canonicalArgsKey(safeParseToolArgs(subMessage.args)) === targetArgsKey,
       );
       if (matchesSub) {
-        return [...prev.slice(0, i2 + 1), chatMsg, ...prev.slice(i2 + 1)];
+        return [...prev.slice(0, index + 1), chatMsg, ...prev.slice(index + 1)];
       }
     }
   }
   return [...prev, chatMsg];
 }
 
-export function resplicePendingToolConfirms(messages2) {
-  const base2 = [];
+export function resplicePendingToolConfirms(messages) {
+  const base = [];
   const lifted = [];
-  for (const message2 of messages2) {
+  for (const message of messages) {
     if (
-      message2.type === "tool_confirm_ask" &&
-      !message2.resolved &&
-      !message2.expired
+      message.type === "tool_confirm_ask" &&
+      !message.resolved &&
+      !message.expired
     ) {
-      lifted.push(message2);
+      lifted.push(message);
     } else {
-      base2.push(message2);
+      base.push(message);
     }
   }
-  let result = base2;
-  for (const ask of lifted) {
-    result = insertToolConfirmAsk(result, ask);
+  let result = base;
+  for (const confirmationAsk of lifted) {
+    result = insertToolConfirmAsk(result, confirmationAsk);
   }
   return result;
 }
@@ -271,18 +271,18 @@ export function upsertPendingInteraction(prev, interaction) {
   if (
     requestId &&
     prev.some(
-      (message2) => "requestId" in message2 && message2.requestId === requestId,
+      (message) => "requestId" in message && message.requestId === requestId,
     )
   ) {
     if (interaction.type === "credit_threshold") {
-      return prev.map((message2) =>
-        message2.type === "credit_threshold" && message2.requestId === requestId
+      return prev.map((message) =>
+        message.type === "credit_threshold" && message.requestId === requestId
           ? {
               ...interaction,
-              id: message2.id,
-              revision: (message2.revision ?? 0) + 1,
+              id: message.id,
+              revision: (message.revision ?? 0) + 1,
             }
-          : message2,
+          : message,
       );
     }
     return [...prev];

@@ -3,7 +3,7 @@ import { jsxRuntimeExports, reactExports, useTranslation } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { DEFAULT_SESSION_NAME } from "../canvas/fullscreen-icon.jsx";
 import { redactForCurrentRegion } from "../generation/replace-configured-model-names-for-current-region.js";
-import { cn$2 as cn } from "../infra/dialog-content.jsx";
+import { cn$2 as mergeClassNames } from "../infra/dialog-content.jsx";
 import { EmptyChatRecommendations } from "./empty-chat-recommendations.jsx";
 import {
   usePendingFirstMessage,
@@ -49,23 +49,23 @@ const SPINNERS = {
     interval: 80,
   },
 };
-export function BrailleSpinner({ type: type2 = "braille", className = "" }) {
-  const [frame2, setFrame2] = reactExports.useState(0);
-  const spinner = SPINNERS[type2];
+export function BrailleSpinner({ type = "braille", className = "" }) {
+  const [frame, setFrame] = reactExports.useState(0);
+  const spinner = SPINNERS[type];
   reactExports.useEffect(() => {
-    const timer2 = setInterval(() => {
-      setFrame2((f2) => (f2 + 1) % spinner.frames.length);
+    const timer = setInterval(() => {
+      setFrame((currentFrame) => (currentFrame + 1) % spinner.frames.length);
     }, spinner.interval);
-    return () => clearInterval(timer2);
+    return () => clearInterval(timer);
   }, [spinner]);
   return (
     <span className={`font-mono inline-block ${className}`}>
-      {spinner.frames[frame2]}
+      {spinner.frames[frame]}
     </span>
   );
 }
 export function ChatEmptyState(props) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const pendingFirstMessage = usePendingFirstMessage();
   const starting = useChatReadiness() === "starting";
   const composerHasText = useWorkspaceChatSelector(
@@ -90,36 +90,36 @@ export function ChatEmptyState(props) {
         <BrailleSpinner type="braille" className="text-xs text-tertiary" />
         <span className="text-shimmer text-muted-foreground">
           {starting
-            ? t2(
+            ? translate(
                 "chat.pendingFirstMessage.preparingRuntime",
                 "Preparing your workspace...",
               )
-            : t2("chat.pendingFirstMessage.sending", "Sending your message...")}
+            : translate("chat.pendingFirstMessage.sending", "Sending your message...")}
         </span>
       </div>
     </div>
   );
 }
-export function sessionDisplayName(session, t2) {
+export function sessionDisplayName(session, translate) {
   if (session.name === DEFAULT_SESSION_NAME)
-    return t2("chat.newChat", {
+    return translate("chat.newChat", {
       defaultValue: "New Chat",
     });
   if (session.name) return redactForCurrentRegion(session.name);
-  return t2("chat.sessionFallback", {
+  return translate("chat.sessionFallback", {
     id: session.id.slice(0, 6),
   });
 }
 export function FourCornerLoading({
   variant,
-  size: size2 = "md",
+  size = "md",
   label,
   className,
 }) {
-  const classes = cn(
+  const classes = mergeClassNames(
     "four-corner-loading",
     `is-${variant}`,
-    `is-${size2}`,
+    `is-${size}`,
     className,
   );
   const dots = (

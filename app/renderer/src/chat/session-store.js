@@ -11,12 +11,12 @@ class MessageWithdrawals {
   }
   rememberPart(sessionId, partId, runtimeMessageId) {
     if (!this.has(sessionId, runtimeMessageId)) return;
-    let ids2 = this.partIds.get(sessionId);
-    if (!ids2) {
-      ids2 = new Set();
-      this.partIds.set(sessionId, ids2);
+    let partIds = this.partIds.get(sessionId);
+    if (!partIds) {
+      partIds = new Set();
+      this.partIds.set(sessionId, partIds);
     }
-    ids2.add(partId);
+    partIds.add(partId);
   }
   hasPart(sessionId, partId) {
     return this.partIds.get(sessionId)?.has(partId) ?? false;
@@ -28,10 +28,10 @@ class MessageWithdrawals {
       this.has(sessionId, runtimeMessageId)
     )
       return void 0;
-    let messages2 = this.sessions.get(sessionId);
-    if (!messages2) {
-      messages2 = new Map();
-      this.sessions.set(sessionId, messages2);
+    let messages = this.sessions.get(sessionId);
+    if (!messages) {
+      messages = new Map();
+      this.sessions.set(sessionId, messages);
     }
     const placeholder = {
       id: `withdrawn:${sessionId}:${runtimeMessageId}`,
@@ -41,42 +41,42 @@ class MessageWithdrawals {
       runtimeMessageId,
       reason,
     };
-    messages2.set(runtimeMessageId, placeholder);
+    messages.set(runtimeMessageId, placeholder);
     return placeholder;
   }
-  project(sessionId, messages2) {
-    for (const message2 of messages2) {
-      if (message2.type === "withdrawn") {
+  project(sessionId, messages) {
+    for (const message of messages) {
+      if (message.type === "withdrawn") {
         this.add({
           sessionId,
-          runtimeMessageId: message2.runtimeMessageId,
-          reason: message2.reason,
+          runtimeMessageId: message.runtimeMessageId,
+          reason: message.reason,
         });
       }
     }
     const withdrawals = this.sessions.get(sessionId);
-    if (!withdrawals?.size) return messages2;
-    const seen2 = new Set();
+    if (!withdrawals?.size) return messages;
+    const seen = new Set();
     const result = [];
-    for (const message2 of messages2) {
+    for (const message of messages) {
       const target =
-        message2.role === "agent" && message2.runtimeMessageId
-          ? withdrawals.get(message2.runtimeMessageId)
+        message.role === "agent" && message.runtimeMessageId
+          ? withdrawals.get(message.runtimeMessageId)
           : void 0;
       if (!target) {
-        result.push(message2);
+        result.push(message);
         continue;
       }
-      if (message2.partId)
-        this.rememberPart(sessionId, message2.partId, target.runtimeMessageId);
-      if (!seen2.has(target.runtimeMessageId)) {
+      if (message.partId)
+        this.rememberPart(sessionId, message.partId, target.runtimeMessageId);
+      if (!seen.has(target.runtimeMessageId)) {
         result.push(target);
-        seen2.add(target.runtimeMessageId);
+        seen.add(target.runtimeMessageId);
       }
     }
-    return result.length === messages2.length &&
-      result.every((m3, i2) => m3 === messages2[i2])
-      ? messages2
+    return result.length === messages.length &&
+      result.every((message, messageIndex) => message === messages[messageIndex])
+      ? messages
       : result;
   }
   rekeySession(fromId, toId) {
@@ -114,19 +114,19 @@ const EMPTY_OPENED_TABS = Object.freeze(new Set());
 
 const EMPTY_PENDING_REASONS = Object.freeze([]);
 
-function isDefaultSessionName(name2) {
-  return name2 === DEFAULT_SESSION_NAME;
+function isDefaultSessionName(sessionName) {
+  return sessionName === DEFAULT_SESSION_NAME;
 }
 
-function getIncomingSessionName(info2) {
-  if (info2.display_name && !isDefaultSessionName(info2.display_name))
-    return info2.display_name;
-  if (info2.name && !isDefaultSessionName(info2.name)) return info2.name;
-  return info2.display_name || info2.name || DEFAULT_SESSION_NAME;
+function getIncomingSessionName(info) {
+  if (info.display_name && !isDefaultSessionName(info.display_name))
+    return info.display_name;
+  if (info.name && !isDefaultSessionName(info.name)) return info.name;
+  return info.display_name || info.name || DEFAULT_SESSION_NAME;
 }
 
-function resolveReconciledSessionName(info2, existingName) {
-  const incomingName = getIncomingSessionName(info2);
+function resolveReconciledSessionName(info, existingName) {
+  const incomingName = getIncomingSessionName(info);
   if (
     existingName &&
     !isDefaultSessionName(existingName) &&
@@ -137,8 +137,8 @@ function resolveReconciledSessionName(info2, existingName) {
   return incomingName;
 }
 
-function hasSelectedMediaModelsSnapshot(info2) {
-  return Object.hasOwn(info2, "selected_media_models");
+function hasSelectedMediaModelsSnapshot(info) {
+  return Object.hasOwn(info, "selected_media_models");
 }
 
 const NEEDS_USER_ACTION_KINDS = new Set(["tool_confirm_ask", "loop_guard_ask"]);
@@ -176,7 +176,7 @@ export class SessionStore {
     }
   }
   notify() {
-    const t0 = performance.now();
+    const startedAt = performance.now();
     for (const listener of this.listeners) {
       listener(this.state);
     }
@@ -185,7 +185,7 @@ export class SessionStore {
       : void 0;
     measurePerf(
       PERF_STORE_NOTIFY,
-      t0,
+      startedAt,
       {
         listeners: this.listeners.size,
       },
@@ -199,22 +199,22 @@ export class SessionStore {
     );
   }
   /** Replace internal state immutably and notify subscribers */
-  setState(next2) {
-    this.state = next2;
+  setState(next) {
+    this.state = next;
     this.notify();
   }
   /** Replace a single session immutably */
-  setSession(id2, session) {
-    const next2 = new Map(this.state.sessions);
-    next2.set(id2, session);
+  setSession(sessionId, session) {
+    const next = new Map(this.state.sessions);
+    next.set(sessionId, session);
     this.setState({
       ...this.state,
-      sessions: next2,
+      sessions: next,
     });
   }
   /** Derive an openedTabIds Set from the canonical ordered array. */
-  deriveOpenedTabIds(order2) {
-    return order2.length === 0 ? EMPTY_OPENED_TABS : new Set(order2);
+  deriveOpenedTabIds(order) {
+    return order.length === 0 ? EMPTY_OPENED_TABS : new Set(order);
   }
   // --------------------------------------------------------
   // Getters (return snapshots, not live references)
@@ -248,14 +248,14 @@ export class SessionStore {
   getSessionList() {
     if (this.state.sessions.size === 0) return EMPTY_SESSION_LIST;
     const result = [];
-    for (const [id2, session] of this.state.sessions) {
+    for (const [sessionId, session] of this.state.sessions) {
       result.push({
-        id: id2,
+        id: sessionId,
         runtime_session_id: session.runtimeSessionId,
         name: session.displayName || session.name,
         created_at: session.createdAt ?? "",
         message_count: session.messages.length,
-        active: id2 === this.state.focusedSessionId,
+        active: sessionId === this.state.focusedSessionId,
         folder: session.folder,
         model_id: session.modelId,
         origin: session.origin,
@@ -267,24 +267,24 @@ export class SessionStore {
   // Mutations (immutable: always produce new state objects)
   // --------------------------------------------------------
   createSession(
-    id2,
-    name2,
+    sessionId,
+    sessionName,
     folder,
     modelId,
     createdAt,
-    displayName2,
+    displayName,
     selectedMediaModels,
     initialMessages,
     origin,
     options,
   ) {
-    const next2 = new Map(this.state.sessions);
-    const existing = next2.get(id2);
-    next2.set(id2, {
-      id: id2,
-      name: displayName2 || name2,
+    const next = new Map(this.state.sessions);
+    const existing = next.get(sessionId);
+    next.set(sessionId, {
+      id: sessionId,
+      name: displayName || sessionName,
       messages: this.projectMessages(
-        id2,
+        sessionId,
         initialMessages ? [...initialMessages] : [],
       ),
       userAttentionRevision: (existing?.userAttentionRevision ?? -1) + 1,
@@ -299,42 +299,42 @@ export class SessionStore {
     });
     let nextOrder =
       options?.openTab === false
-        ? this.state.openedTabOrder.filter((tabId) => tabId !== id2)
-        : this.state.openedTabIds.has(id2)
+        ? this.state.openedTabOrder.filter((tabId) => tabId !== sessionId)
+        : this.state.openedTabIds.has(sessionId)
           ? this.state.openedTabOrder
-          : [...this.state.openedTabOrder, id2];
+          : [...this.state.openedTabOrder, sessionId];
     let evictedId = null;
     if (
       options?.openTab !== false &&
       nextOrder.length > SessionStore.OPENED_TAB_CAP
     ) {
       evictedId =
-        this.findEvictableTabId(new Set([this.state.focusedSessionId, id2])) ??
+        this.findEvictableTabId(new Set([this.state.focusedSessionId, sessionId])) ??
         this.state.openedTabOrder[0] ??
         null;
       if (evictedId)
         nextOrder = nextOrder.filter((tabId) => tabId !== evictedId);
     }
     this.setState({
-      sessions: next2,
+      sessions: next,
       focusedSessionId:
-        options?.focus === false ? this.state.focusedSessionId : id2,
+        options?.focus === false ? this.state.focusedSessionId : sessionId,
       openedTabOrder: nextOrder,
       openedTabIds: this.deriveOpenedTabIds(nextOrder),
     });
     if (evictedId) this.notifyTabEvicted(evictedId);
   }
-  updateModelId(id2, modelId) {
-    const session = this.state.sessions.get(id2);
+  updateModelId(sessionId, modelId) {
+    const session = this.state.sessions.get(sessionId);
     if (!session) return;
-    const next2 = new Map(this.state.sessions);
-    next2.set(id2, {
+    const next = new Map(this.state.sessions);
+    next.set(sessionId, {
       ...session,
       modelId,
     });
     this.setState({
       ...this.state,
-      sessions: next2,
+      sessions: next,
     });
   }
   /**
@@ -342,10 +342,10 @@ export class SessionStore {
    * `ServerSelectedMediaModelsUpdated` and as part of `switchSession`).
    * Pass `undefined` to clear (Auto for every category).
    */
-  setSelectedMediaModels(id2, selectedMediaModels) {
-    const session = this.state.sessions.get(id2);
+  setSelectedMediaModels(sessionId, selectedMediaModels) {
+    const session = this.state.sessions.get(sessionId);
     if (!session) return;
-    this.setSession(id2, {
+    this.setSession(sessionId, {
       ...session,
       selectedMediaModels,
     });
@@ -355,19 +355,19 @@ export class SessionStore {
    * `true` keeps the current transcript but tells the UI it is not
    * authoritative; `false` clears the degraded state after a successful load.
    */
-  setHistoryLoadFailed(id2, failed) {
-    const session = this.state.sessions.get(id2);
+  setHistoryLoadFailed(sessionId, failed) {
+    const session = this.state.sessions.get(sessionId);
     if (!session) return;
     if ((session.historyLoadFailed ?? false) === failed) return;
-    this.setSession(id2, {
+    this.setSession(sessionId, {
       ...session,
       historyLoadFailed: failed,
     });
   }
-  switchSession(id2, messages2, folder, modelId, selectedMediaModels, options) {
+  switchSession(sessionId, messages, folder, modelId, selectedMediaModels, options) {
     this.applySessionSnapshot(
-      id2,
-      messages2,
+      sessionId,
+      messages,
       folder,
       modelId,
       selectedMediaModels,
@@ -383,16 +383,16 @@ export class SessionStore {
    * focuses the tab, while the current transcript and send target stay stable.
    */
   hydrateSession(
-    id2,
-    messages2,
+    sessionId,
+    messages,
     folder,
     modelId,
     selectedMediaModels,
     options,
   ) {
     this.applySessionSnapshot(
-      id2,
-      messages2,
+      sessionId,
+      messages,
       folder,
       modelId,
       selectedMediaModels,
@@ -401,9 +401,9 @@ export class SessionStore {
     );
   }
   /** Change visible focus without reloading or replacing session history. */
-  focusSession(id2) {
+  focusSession(sessionId) {
     this.applySessionSnapshot(
-      id2,
+      sessionId,
       void 0,
       void 0,
       void 0,
@@ -455,41 +455,41 @@ export class SessionStore {
     });
   }
   applySessionSnapshot(
-    id2,
-    messages2,
+    sessionId,
+    messages,
     folder,
     modelId,
     selectedMediaModels,
     options,
-    focus2,
+    shouldFocus,
   ) {
-    const session = this.state.sessions.get(id2);
+    const session = this.state.sessions.get(sessionId);
     if (!session) return;
-    const hasSelectedMediaModelsSnapshot2 =
+    const hasSelectedMediaModelsSnapshot =
       options?.selectedMediaModelsSnapshot === true;
     const shouldInstallMessages =
       options?.replaceMessages === true ||
       Boolean(
-        messages2 && messages2.length > 0 && session.messages.length === 0,
+        messages && messages.length > 0 && session.messages.length === 0,
       );
     const needsUpdate =
-      (focus2 && session.hasUnread) ||
+      (shouldFocus && session.hasUnread) ||
       shouldInstallMessages ||
       folder ||
       modelId ||
-      hasSelectedMediaModelsSnapshot2;
+      hasSelectedMediaModelsSnapshot;
     if (needsUpdate) {
-      const next2 = new Map(this.state.sessions);
-      next2.set(id2, {
+      const next = new Map(this.state.sessions);
+      next.set(sessionId, {
         ...session,
-        ...(focus2
+        ...(shouldFocus
           ? {
               hasUnread: false,
             }
           : {}),
         ...(shouldInstallMessages
           ? {
-              messages: this.projectMessages(id2, messages2 ?? []),
+              messages: this.projectMessages(sessionId, messages ?? []),
               userAttentionRevision: session.userAttentionRevision + 1,
             }
           : {}),
@@ -503,7 +503,7 @@ export class SessionStore {
               modelId,
             }
           : {}),
-        ...(hasSelectedMediaModelsSnapshot2
+        ...(hasSelectedMediaModelsSnapshot
           ? {
               selectedMediaModels,
             }
@@ -511,17 +511,17 @@ export class SessionStore {
       });
       this.setState({
         ...this.state,
-        sessions: next2,
-        ...(focus2
+        sessions: next,
+        ...(shouldFocus
           ? {
-              focusedSessionId: id2,
+              focusedSessionId: sessionId,
             }
           : {}),
       });
-    } else if (focus2) {
+    } else if (shouldFocus) {
       this.setState({
         ...this.state,
-        focusedSessionId: id2,
+        focusedSessionId: sessionId,
       });
     }
   }
@@ -533,20 +533,20 @@ export class SessionStore {
       focusedSessionId: null,
     });
   }
-  removeSession(id2) {
-    this.withdrawals.removeSession(id2);
-    const next2 = new Map(this.state.sessions);
-    next2.delete(id2);
+  removeSession(sessionId) {
+    this.withdrawals.removeSession(sessionId);
+    const next = new Map(this.state.sessions);
+    next.delete(sessionId);
     const nextOrder = this.state.openedTabOrder.filter(
-      (tabId) => tabId !== id2,
+      (tabId) => tabId !== sessionId,
     );
     let nextFocusedId = this.state.focusedSessionId;
-    if (nextFocusedId === id2) {
+    if (nextFocusedId === sessionId) {
       nextFocusedId = nextOrder[0] ?? null;
     }
     this.setState({
       ...this.state,
-      sessions: next2,
+      sessions: next,
       openedTabOrder: nextOrder,
       openedTabIds: this.deriveOpenedTabIds(nextOrder),
       focusedSessionId: nextFocusedId,
@@ -577,16 +577,16 @@ export class SessionStore {
    * id. Returns null when every candidate is protected.
    */
   findEvictableTabId(excludeIds) {
-    const candidates2 = this.state.openedTabOrder.filter(
+    const candidates = this.state.openedTabOrder.filter(
       (tabId) => !excludeIds.has(tabId),
     );
     let runningFallback = null;
-    for (const tabId of candidates2) {
+    for (const tabId of candidates) {
       const session = this.state.sessions.get(tabId);
-      const pending2 = session?.pendingReasons ?? EMPTY_PENDING_REASONS;
-      if (pending2.some((r2) => NEEDS_USER_ACTION_KINDS.has(r2.kind))) continue;
-      const running2 = (session?.busy ?? false) || pending2.length > 0;
-      if (!running2) return tabId;
+      const pending = session?.pendingReasons ?? EMPTY_PENDING_REASONS;
+      if (pending.some((pendingReason) => NEEDS_USER_ACTION_KINDS.has(pendingReason.kind))) continue;
+      const running = (session?.busy ?? false) || pending.length > 0;
+      if (!running) return tabId;
       runningFallback ??= tabId;
     }
     return runningFallback;
@@ -601,16 +601,16 @@ export class SessionStore {
    * fallback, IM auto-open, switch_session — surfaces the History guidance
    * without each caller having to plumb the return value.
    */
-  openTab(id2) {
-    if (this.state.openedTabIds.has(id2))
+  openTab(sessionId) {
+    if (this.state.openedTabIds.has(sessionId))
       return {
         evictedId: null,
       };
-    let nextOrder = [...this.state.openedTabOrder, id2];
+    let nextOrder = [...this.state.openedTabOrder, sessionId];
     let evictedId = null;
     if (nextOrder.length > SessionStore.OPENED_TAB_CAP) {
       evictedId =
-        this.findEvictableTabId(new Set([this.state.focusedSessionId, id2])) ??
+        this.findEvictableTabId(new Set([this.state.focusedSessionId, sessionId])) ??
         this.state.openedTabOrder[0] ??
         null;
       if (evictedId)
@@ -669,15 +669,15 @@ export class SessionStore {
    * neighbor. Returns the id of the next session to focus (or null when
    * no tabs remain), so callers can drive a `switch_session` WS message.
    */
-  closeTab(id2) {
-    if (!this.state.openedTabIds.has(id2)) return null;
+  closeTab(sessionId) {
+    if (!this.state.openedTabIds.has(sessionId)) return null;
     const prevOrder = this.state.openedTabOrder;
-    const idx = prevOrder.indexOf(id2);
-    const nextOrder = prevOrder.filter((tabId) => tabId !== id2);
-    const wasFocused = this.state.focusedSessionId === id2;
+    const previousTabIndex = prevOrder.indexOf(sessionId);
+    const nextOrder = prevOrder.filter((tabId) => tabId !== sessionId);
+    const wasFocused = this.state.focusedSessionId === sessionId;
     let nextFocusedId = this.state.focusedSessionId;
     if (wasFocused) {
-      nextFocusedId = nextOrder[idx] ?? nextOrder[idx - 1] ?? null;
+      nextFocusedId = nextOrder[previousTabIndex] ?? nextOrder[previousTabIndex - 1] ?? null;
     }
     this.setState({
       ...this.state,
@@ -706,11 +706,11 @@ export class SessionStore {
   setPendingReasons(reasons, sessionId) {
     const session = this.state.sessions.get(sessionId);
     if (!session) return;
-    const next2 = reasons.length === 0 ? EMPTY_PENDING_REASONS : reasons;
-    if (session.pendingReasons === next2) return;
+    const next = reasons.length === 0 ? EMPTY_PENDING_REASONS : reasons;
+    if (session.pendingReasons === next) return;
     this.setSession(sessionId, {
       ...session,
-      pendingReasons: next2,
+      pendingReasons: next,
     });
   }
   /** Check busy state for any session (not just focused) */
@@ -766,8 +766,8 @@ export class SessionStore {
   isMessageWithdrawn(sessionId, runtimeMessageId) {
     return this.withdrawals.has(sessionId, runtimeMessageId);
   }
-  projectMessages(sessionId, messages2) {
-    return this.withdrawals.project(sessionId, messages2);
+  projectMessages(sessionId, messages) {
+    return this.withdrawals.project(sessionId, messages);
   }
   withdrawMessage(request) {
     const session = this.state.sessions.get(request.sessionId);
@@ -781,9 +781,9 @@ export class SessionStore {
         ...session.messages,
         placeholder,
       ]).filter(
-        (message2) =>
-          message2.type !== "compaction_status" ||
-          message2.content === "compacted",
+        (message) =>
+          message.type !== "compaction_status" ||
+          message.content === "compacted",
       ),
       busy: false,
       hasUnread:
@@ -793,8 +793,8 @@ export class SessionStore {
     return true;
   }
   /** Convenience: push a new message to a session */
-  pushMessage(msg, sessionId) {
-    this.updateMessages(sessionId, (prev) => [...prev, msg]);
+  pushMessage(message, sessionId) {
+    this.updateMessages(sessionId, (prev) => [...prev, message]);
   }
   /**
    * Mark all unfinished task cards as 'error' for a given session.
@@ -805,22 +805,22 @@ export class SessionStore {
     const session = this.state.sessions.get(sessionId);
     if (!session) return;
     const hasPending = session.messages.some(
-      (m3) =>
-        m3.type === "tool" &&
-        m3.content === "task" &&
-        (m3.toolStatus === "pending" || m3.toolStatus === "running"),
+      (message) =>
+        message.type === "tool" &&
+        message.content === "task" &&
+        (message.toolStatus === "pending" || message.toolStatus === "running"),
     );
     if (!hasPending) return;
     this.updateMessages(sessionId, (prev) =>
-      prev.map((m3) =>
-        m3.type === "tool" &&
-        m3.content === "task" &&
-        (m3.toolStatus === "pending" || m3.toolStatus === "running")
+      prev.map((message) =>
+        message.type === "tool" &&
+        message.content === "task" &&
+        (message.toolStatus === "pending" || message.toolStatus === "running")
           ? {
-              ...m3,
+              ...message,
               toolStatus: "error",
             }
-          : m3,
+          : message,
       ),
     );
   }
@@ -836,20 +836,20 @@ export class SessionStore {
     const session = this.state.sessions.get(sessionId);
     if (!session) return;
     const hasPending = session.messages.some(
-      (m3) => m3.type === "tool_confirm_ask" && !m3.resolved,
+      (message) => message.type === "tool_confirm_ask" && !message.resolved,
     );
     if (!hasPending) return;
     this.updateMessages(
       sessionId,
       (prev) =>
-        prev.map((m3) =>
-          m3.type === "tool_confirm_ask" && !m3.resolved
+        prev.map((message) =>
+          message.type === "tool_confirm_ask" && !message.resolved
             ? {
-                ...m3,
+                ...message,
                 resolved: true,
                 toolConfirmDecision: "reject",
               }
-            : m3,
+            : message,
         ),
       {
         affectsUserAttention: true,
@@ -865,10 +865,10 @@ export class SessionStore {
   removeMessageById(sessionId, messageId) {
     const session = this.state.sessions.get(sessionId);
     if (!session) return;
-    if (!session.messages.some((m3) => m3.id === messageId)) return;
+    if (!session.messages.some((message) => message.id === messageId)) return;
     this.setSession(sessionId, {
       ...session,
-      messages: session.messages.filter((m3) => m3.id !== messageId),
+      messages: session.messages.filter((message) => message.id !== messageId),
     });
   }
   /**
@@ -878,7 +878,7 @@ export class SessionStore {
    * first user message clears safety — the session is created with a
    * default "New Chat" name and renamed once the content is allowed.
    */
-  renameSession(sessionId, name2, runtimeSessionId) {
+  renameSession(sessionId, sessionName, runtimeSessionId) {
     let resolvedId = sessionId;
     let session = this.state.sessions.get(sessionId);
     if (!session && runtimeSessionId) {
@@ -890,24 +890,24 @@ export class SessionStore {
       }
     }
     if (!session) return;
-    if (session.name === name2) return;
+    if (session.name === sessionName) return;
     this.setSession(resolvedId, {
       ...session,
-      name: name2,
+      name: sessionName,
     });
   }
   /**
    * Set a user-defined display name for a session.
    * Passing an empty string clears the override (reverts to server name).
    */
-  setSessionDisplayName(sessionId, displayName2) {
+  setSessionDisplayName(sessionId, displayName) {
     const session = this.state.sessions.get(sessionId);
     if (!session) return;
-    const next2 = displayName2.trim() || void 0;
-    if (session.displayName === next2) return;
+    const next = displayName.trim() || void 0;
+    if (session.displayName === next) return;
     this.setSession(sessionId, {
       ...session,
-      displayName: next2,
+      displayName: next,
     });
   }
   /**
@@ -946,7 +946,7 @@ export class SessionStore {
    * 4. Prunes `openedTabIds` and `focusedSessionId` for consistency.
    */
   reconcileServerSessions(sessions) {
-    const next2 = new Map();
+    const next = new Map();
     const existingByRuntimeId = new Map();
     for (const [sessionId, session] of this.state.sessions) {
       if (session.runtimeSessionId) {
@@ -954,13 +954,13 @@ export class SessionStore {
       }
     }
     const consumedExistingIds = new Set();
-    for (const info2 of sessions) {
-      let sessionId = info2.id;
-      let existing = this.state.sessions.get(info2.id);
-      const hasSelectionSnapshot = hasSelectedMediaModelsSnapshot(info2);
+    for (const info of sessions) {
+      let sessionId = info.id;
+      let existing = this.state.sessions.get(info.id);
+      const hasSelectionSnapshot = hasSelectedMediaModelsSnapshot(info);
       if (!existing) {
         const runtimeAlias = existingByRuntimeId.get(
-          info2.runtime_session_id ?? info2.id,
+          info.runtime_session_id ?? info.id,
         );
         if (runtimeAlias) {
           sessionId = runtimeAlias[0];
@@ -969,36 +969,36 @@ export class SessionStore {
       }
       if (existing && consumedExistingIds.has(sessionId)) continue;
       if (!existing) {
-        next2.set(sessionId, {
+        next.set(sessionId, {
           id: sessionId,
-          runtimeSessionId: info2.runtime_session_id,
-          name: resolveReconciledSessionName(info2),
+          runtimeSessionId: info.runtime_session_id,
+          name: resolveReconciledSessionName(info),
           messages: [],
           userAttentionRevision: 0,
           busy: false,
           hasUnread: false,
-          createdAt: info2.created_at,
-          folder: info2.folder,
-          modelId: info2.model_id,
-          selectedMediaModels: info2.selected_media_models,
-          origin: info2.origin,
+          createdAt: info.created_at,
+          folder: info.folder,
+          modelId: info.model_id,
+          selectedMediaModels: info.selected_media_models,
+          origin: info.origin,
           pendingReasons: EMPTY_PENDING_REASONS,
         });
       } else {
         consumedExistingIds.add(sessionId);
-        next2.set(sessionId, {
+        next.set(sessionId, {
           ...existing,
-          name: resolveReconciledSessionName(info2, existing.name),
+          name: resolveReconciledSessionName(info, existing.name),
           displayName: existing.displayName,
-          createdAt: info2.created_at || existing.createdAt,
-          folder: info2.folder ?? existing.folder,
-          modelId: info2.model_id ?? existing.modelId,
+          createdAt: info.created_at || existing.createdAt,
+          folder: info.folder ?? existing.folder,
+          modelId: info.model_id ?? existing.modelId,
           runtimeSessionId:
-            info2.runtime_session_id ?? existing.runtimeSessionId,
+            info.runtime_session_id ?? existing.runtimeSessionId,
           selectedMediaModels: hasSelectionSnapshot
-            ? info2.selected_media_models
+            ? info.selected_media_models
             : existing.selectedMediaModels,
-          origin: info2.origin ?? existing.origin,
+          origin: info.origin ?? existing.origin,
           busy: false,
           pendingReasons: EMPTY_PENDING_REASONS,
         });
@@ -1006,17 +1006,17 @@ export class SessionStore {
     }
     let nextOrder = this.state.openedTabOrder;
     let nextOpened = this.state.openedTabIds;
-    const hasStale = this.state.openedTabOrder.some((id2) => !next2.has(id2));
+    const hasStale = this.state.openedTabOrder.some((sessionId) => !next.has(sessionId));
     if (hasStale) {
-      nextOrder = this.state.openedTabOrder.filter((id2) => next2.has(id2));
+      nextOrder = this.state.openedTabOrder.filter((sessionId) => next.has(sessionId));
       nextOpened = this.deriveOpenedTabIds(nextOrder);
     }
     const focusedId =
-      this.state.focusedSessionId && next2.has(this.state.focusedSessionId)
+      this.state.focusedSessionId && next.has(this.state.focusedSessionId)
         ? this.state.focusedSessionId
         : null;
     this.setState({
-      sessions: next2,
+      sessions: next,
       focusedSessionId: focusedId,
       openedTabOrder: nextOrder,
       openedTabIds: nextOpened,
@@ -1047,9 +1047,9 @@ export class SessionStore {
     return () => this.canvasUpdateListeners.delete(listener);
   }
   /** Notify that canvas data has been updated */
-  notifyCanvasUpdated(update2) {
+  notifyCanvasUpdated(update) {
     for (const listener of this.canvasUpdateListeners) {
-      listener(update2);
+      listener(update);
     }
   }
   // --------------------------------------------------------
@@ -1062,9 +1062,9 @@ export class SessionStore {
     return () => this.pluginStorageChangeListeners.delete(listener);
   }
   /** Notify mounted plugin hosts without routing the change through canvas state. */
-  notifyPluginStorageChanged(update2) {
+  notifyPluginStorageChanged(update) {
     for (const listener of this.pluginStorageChangeListeners) {
-      listener(update2);
+      listener(update);
     }
   }
   // --------------------------------------------------------

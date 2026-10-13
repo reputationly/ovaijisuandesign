@@ -1,19 +1,19 @@
 import { reactExports, jsxRuntimeExports } from "../vendor.js";
-import { R as R$1 } from "./ae.jsx";
-import { Li } from "../media-editing/wt.js";
-import { At } from "./at.jsx";
-var R = ({ code: s, language: e, raw: t, className: h, startLine: d, lineNumbers: m, ...p }) => {
-  let { shikiTheme: l } = reactExports.useContext(R$1), o = Li(), [a, i] = reactExports.useState(t);
+import { R as markdownRenderOptionsContext } from "./ae.jsx";
+import { Li as useCodeHighlighter } from "../media-editing/wt.js";
+import { At as CodeBlockBody } from "./at.jsx";
+var R = ({ code, language, raw: rawResult, className, startLine, lineNumbers, ...restProps }) => {
+  let { shikiTheme } = reactExports.useContext(markdownRenderOptionsContext), highlighter = useCodeHighlighter(), [highlightedResult, setHighlightedResult] = reactExports.useState(rawResult);
   return reactExports.useEffect(() => {
-    if (!o) {
-      i(t);
+    if (!highlighter) {
+      setHighlightedResult(rawResult);
       return;
     }
-    let r = o.highlight({ code: s, language: e, themes: l }, (c) => {
-      i(c);
+    let initialHighlightResult = highlighter.highlight({ code, language, themes: shikiTheme }, (highlightResult) => {
+      setHighlightedResult(highlightResult);
     });
-    r && i(r);
-  }, [s, e, l, o, t]), jsxRuntimeExports.jsx(At, { className: h, language: e, lineNumbers: m, result: a, startLine: d, ...p });
+    initialHighlightResult && setHighlightedResult(initialHighlightResult);
+  }, [code, language, shikiTheme, highlighter, rawResult]), jsxRuntimeExports.jsx(CodeBlockBody, { className, language, lineNumbers, result: highlightedResult, startLine, ...restProps });
 };
 export {
   R as HighlightedCodeBlockBody

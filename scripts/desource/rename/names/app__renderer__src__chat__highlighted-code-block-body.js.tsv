@@ -1,0 +1,17 @@
+key	新名	依据
+R$1@2:15	markdownRenderOptionsContext	`markdownRenderOptionsContext` 提供 Shiki 主题等 Markdown 渲染选项；名称与现有使用别名及提议导出名一致。
+Li@3:10	useCodeHighlighter	`useCodeHighlighter` 从上下文取得代码高亮器实例或空值。
+At@4:10	CodeBlockBody	`CodeBlockBody` 是渲染高亮结果、语言及行号的代码块主体组件。
+s@5:18	code	`code` 是传给高亮器处理的源代码文本。
+e@5:31	language	`language` 是传给高亮器和主体组件的代码语言标识。
+t@5:39	rawResult	`rawResult` 是高亮结果到达前作为初始内容显示的原始代码结果。
+h@5:53	className	`className` 是传给代码块主体的 CSS 类名。
+d@5:67	startLine	`startLine` 是代码块主体显示的起始行号。
+m@5:83	lineNumbers	`lineNumbers` 控制代码块主体是否显示行号。
+p@5:89	restProps	`restProps` 是转发给代码块主体的其余属性。
+l@6:21	shikiTheme	`shikiTheme` 是从 Markdown 渲染选项上下文读取的 Shiki 主题。
+o@6:57	highlighter	`highlighter` 是从代码高亮上下文取得并执行高亮操作的实例。
+a@6:68	highlightedResult	`highlightedResult` 是代码高亮结果状态的当前值。
+i@6:71	setHighlightedResult	`setHighlightedResult` 更新代码高亮结果状态。
+r@12:9	initialHighlightResult	`initialHighlightResult` 是高亮器首次调用返回并可立即显示的结果。
+c@12:63	highlightResult	`highlightResult` 是高亮器回调逐次提供的结果。

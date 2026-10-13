@@ -16,100 +16,100 @@ function parseArgs(args) {
   }
 }
 
-function sameArgs(a2, b3) {
-  if (!a2) return false;
-  return JSON.stringify(a2) === JSON.stringify(b3);
+function sameArgs(actualArgs, expectedArgs) {
+  if (!actualArgs) return false;
+  return JSON.stringify(actualArgs) === JSON.stringify(expectedArgs);
 }
 
-function toolNameMatches(name2, target) {
-  return name2 === target;
+function toolNameMatches(toolName, target) {
+  return toolName === target;
 }
 
-function toolMessageMatches(message2, ask) {
-  if (message2.type !== "tool") return false;
-  const target = ask.toolConfirmData?.tool;
-  const originalArgs = ask.toolConfirmData?.args;
+function toolMessageMatches(message, confirmationAsk) {
+  if (message.type !== "tool") return false;
+  const target = confirmationAsk.toolConfirmData?.tool;
+  const originalArgs = confirmationAsk.toolConfirmData?.args;
   if (!target || !originalArgs) return false;
-  const tool2 = message2;
-  if (!toolNameMatches(tool2.toolName ?? tool2.content, target)) return false;
-  return sameArgs(parseArgs(tool2.toolArgs), originalArgs);
+  const tool = message;
+  if (!toolNameMatches(tool.toolName ?? tool.content, target)) return false;
+  return sameArgs(parseArgs(tool.toolArgs), originalArgs);
 }
 
-function subToolMatches(sub, ask) {
-  if (sub.type !== "tool") return false;
-  const target = ask.toolConfirmData?.tool;
-  const originalArgs = ask.toolConfirmData?.args;
+function subToolMatches(subMessage, confirmationAsk) {
+  if (subMessage.type !== "tool") return false;
+  const target = confirmationAsk.toolConfirmData?.tool;
+  const originalArgs = confirmationAsk.toolConfirmData?.args;
   if (!target || !originalArgs) return false;
-  if (!toolNameMatches(sub.content, target)) return false;
-  return sameArgs(parseArgs(sub.args), originalArgs);
+  if (!toolNameMatches(subMessage.content, target)) return false;
+  return sameArgs(parseArgs(subMessage.args), originalArgs);
 }
 
-function applyToolArgsToMessage(message2, modifiedArgs) {
-  if (message2.type !== "tool") return message2;
-  const tool2 = message2;
+function applyToolArgsToMessage(message, modifiedArgs) {
+  if (message.type !== "tool") return message;
+  const tool = message;
   const encoded = encodeArgs(modifiedArgs);
   return {
-    ...tool2,
+    ...tool,
     toolArgs: encoded,
-    url: tool2.url === tool2.toolArgs ? encoded : tool2.url,
+    url: tool.url === tool.toolArgs ? encoded : tool.url,
   };
 }
 
-function applyToolArgsToSubAgent(message2, ask, modifiedArgs) {
-  const subs = message2.subMessages ?? [];
-  for (let i2 = subs.length - 1; i2 >= 0; i2--) {
-    const sub = subs[i2];
-    if (!subToolMatches(sub, ask)) continue;
+function applyToolArgsToSubAgent(message, confirmationAsk, modifiedArgs) {
+  const subs = message.subMessages ?? [];
+  for (let index = subs.length - 1; index >= 0; index--) {
+    const subMessage = subs[index];
+    if (!subToolMatches(subMessage, confirmationAsk)) continue;
     const nextSubs = [...subs];
-    nextSubs[i2] = {
-      ...sub,
+    nextSubs[index] = {
+      ...subMessage,
       args: encodeArgs(modifiedArgs),
     };
     return {
-      ...message2,
+      ...message,
       subMessages: nextSubs,
     };
   }
   return void 0;
 }
 
-export function applyToolConfirmReplyOptimisticUpdate(messages2, reply) {
-  const askIndex = messages2.findIndex(
-    (message2) =>
-      message2.type === "tool_confirm_ask" && message2.requestId === reply.id,
+export function applyToolConfirmReplyOptimisticUpdate(messages, reply) {
+  const askIndex = messages.findIndex(
+    (message) =>
+      message.type === "tool_confirm_ask" && message.requestId === reply.id,
   );
-  if (askIndex < 0) return [...messages2];
-  const ask = messages2[askIndex];
-  const next2 = [...messages2];
+  if (askIndex < 0) return [...messages];
+  const confirmationAsk = messages[askIndex];
+  const next = [...messages];
   const modifiedArgs =
     reply.decision === "confirm" ? reply.modified_args : void 0;
-  next2[askIndex] = {
-    ...ask,
+  next[askIndex] = {
+    ...confirmationAsk,
     resolved: true,
     toolConfirmDecision: reply.decision,
-    ...(modifiedArgs && ask.toolConfirmData
+    ...(modifiedArgs && confirmationAsk.toolConfirmData
       ? {
           toolConfirmData: {
-            ...ask.toolConfirmData,
+            ...confirmationAsk.toolConfirmData,
             args: modifiedArgs,
           },
         }
       : {}),
   };
-  if (!modifiedArgs) return next2;
-  for (let i2 = askIndex - 1; i2 >= 0; i2--) {
-    const message2 = next2[i2];
-    if (toolMessageMatches(message2, ask)) {
-      next2[i2] = applyToolArgsToMessage(message2, modifiedArgs);
+  if (!modifiedArgs) return next;
+  for (let index = askIndex - 1; index >= 0; index--) {
+    const message = next[index];
+    if (toolMessageMatches(message, confirmationAsk)) {
+      next[index] = applyToolArgsToMessage(message, modifiedArgs);
       break;
     }
-    if (message2.type === "sub_agent") {
-      const updated = applyToolArgsToSubAgent(message2, ask, modifiedArgs);
+    if (message.type === "sub_agent") {
+      const updated = applyToolArgsToSubAgent(message, confirmationAsk, modifiedArgs);
       if (updated) {
-        next2[i2] = updated;
+        next[index] = updated;
         break;
       }
     }
   }
-  return next2;
+  return next;
 }

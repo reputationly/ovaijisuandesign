@@ -1,0 +1,38 @@
+key	新名	依据
+dt@3:3	tableToTsv	`tableToTsv` 将表格数据对象序列化为 TSV 文本。
+L@5:3	useIcons	`useIcons` 从图标上下文取得复制及已复制图标组件。
+ne@6:3	tableToCsv	`tableToCsv` 将表格数据对象序列化为 CSV 文本。
+re@7:3	tableToMarkdown	`tableToMarkdown` 将表格数据对象序列化为 Markdown 表格文本。
+ue@9:3	extractTableData	`extractTableData` 从 HTML 表格元素提取表头和单元格文本。
+R@12:10	markdownRenderOptionsContext	`markdownRenderOptionsContext` 提供 Markdown 控件的动画状态。
+y3@12:13	useClassNameMerger	`useClassNameMerger` 从渲染选项上下文取得类名合并函数。
+D3@13:10	useStreamdownLabels	`useStreamdownLabels` 从上下文取得表格复制操作的本地化文案。
+e2@16:13	children	`children` 是复制按钮内由调用方提供的可选内容。
+t2@17:14	className	`className` 是附加到复制按钮的 CSS 类名。
+o2@18:11	onCopy	`onCopy` 是复制成功后调用并接收所选格式的回调。
+n2@19:12	onError	`onError` 是剪贴板不可用或查找表格失败时接收异常的回调。
+r2@20:12	copyFeedbackDurationMs	`copyFeedbackDurationMs` 是复制成功图标保持显示的毫秒数。
+s2@22:7	mergeClassNames	`s2` 是复制菜单各层调用的 CSS 类名合并函数。
+a2@23:6	isMenuOpen	`isMenuOpen` 表示表格复制格式菜单当前是否展开。
+l2@23:10	setIsMenuOpen	`setIsMenuOpen` 更新复制格式菜单的展开状态。
+i2@24:6	isCopied	`isCopied` 表示最近一次表格内容是否复制成功。
+d2@24:10	setIsCopied	`setIsCopied` 更新复制成功状态。
+c3@25:5	menuRef	`menuRef` 指向复制按钮及弹出菜单的根元素。
+p3@26:5	copyFeedbackTimerRef	`copyFeedbackTimerRef` 保存用于清除复制成功反馈状态的计时器 ID。
+m3@27:20	isAnimating	`isAnimating` 表示 Markdown 渲染器当前是否处于动画状态。
+u4@28:5	translations	`translations` 是表格复制菜单使用的本地化文案。
+f2@29:5	copyTable	`copyTable` 按所选格式提取表格并写入系统剪贴板。
+h2@89:7	icons	`icons` 是根据复制状态选择图标时使用的组件集合。
+b3@90:5	copyStatusIcon	`copyStatusIcon` 是表示已复制或可复制状态的图标组件。
+g2@29:17	format	`format` 是选定的 TSV、CSV 或 Markdown 输出格式。
+T2@30:11	clipboardWrite	`clipboardWrite` 是剪贴板 API 提供的写入函数。
+v2@30:15	menuElement	`menuElement` 是复制菜单根引用指向的 DOM 元素。
+w3@42:13	tableWrapper	`tableWrapper` 是包含当前 Markdown 表格的包装 DOM 元素。
+P3@46:11	tableElement	`tableElement` 是从包装元素中查找到的 HTML 表格。
+M2@51:13	tableData	`tableData` 是由 HTML 表格提取出的表头和行数据。
+F2@52:11	serializedTable	`serializedTable` 是按所选格式生成并写入剪贴板的纯文本。
+j2@59:11	clipboardItem	`clipboardItem` 同时封装纯文本和 HTML 表格内容供剪贴板写入。
+w3@72:16	error	`error` 是剪贴板写入过程中捕获的异常。
+g2@77:9	handleOutsideMouseDown	`handleOutsideMouseDown` 在鼠标按下发生于菜单外时关闭菜单。
+T2@77:15	mouseEvent	`mouseEvent` 是文档级鼠标按下监听器收到的事件。
+v2@78:11	eventPath	`eventPath` 是鼠标事件的 composedPath 返回的传播路径。

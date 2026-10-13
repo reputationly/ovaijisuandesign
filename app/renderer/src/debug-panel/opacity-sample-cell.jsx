@@ -9,15 +9,15 @@ function colorAlpha(color) {
   const rgba = color.match(/^rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)/);
   return rgba?.[1] ?? "1";
 }
-function readSvgOpacityDiagnostics(svg, sample) {
-  let id = svgIds.get(svg);
-  if (!id) {
-    id = `svg-${++nextSvgId}`;
-    svgIds.set(svg, id);
+function readSvgOpacityDiagnostics(svgElement, sample) {
+  let svgDiagnosticId = svgIds.get(svgElement);
+  if (!svgDiagnosticId) {
+    svgDiagnosticId = `svg-${++nextSvgId}`;
+    svgIds.set(svgElement, svgDiagnosticId);
   }
-  const style = getComputedStyle(svg);
+  const style = getComputedStyle(svgElement);
   const ancestors = [];
-  let element = svg.parentElement;
+  let element = svgElement.parentElement;
   while (element) {
     const parentStyle = getComputedStyle(element);
     const actionId = element.getAttribute("data-action-ui-id");
@@ -28,7 +28,7 @@ function readSvgOpacityDiagnostics(svg, sample) {
     element = element.parentElement;
   }
   const primitives = new Set();
-  for (const primitive of svg.querySelectorAll(
+  for (const primitive of svgElement.querySelectorAll(
     "path, rect, circle, line, polyline, polygon, ellipse, use, g",
   )) {
     if (primitive.closest("defs")) continue;
@@ -37,7 +37,7 @@ function readSvgOpacityDiagnostics(svg, sample) {
       `stroke=${primitiveStyle.stroke}; fill=${primitiveStyle.fill}; opacity=${primitiveStyle.opacity}; stroke-opacity=${primitiveStyle.strokeOpacity}; fill-opacity=${primitiveStyle.fillOpacity}`,
     );
   }
-  const flood = svg.querySelector("feFlood");
+  const flood = svgElement.querySelector("feFlood");
   if (flood) {
     const paint = getComputedStyle(flood);
     primitives.add(
@@ -45,7 +45,7 @@ function readSvgOpacityDiagnostics(svg, sample) {
     );
   }
   return {
-    id,
+    id: svgDiagnosticId,
     color: style.color,
     colorAlpha: colorAlpha(style.color),
     rootOpacity: style.opacity,
@@ -55,14 +55,14 @@ function readSvgOpacityDiagnostics(svg, sample) {
   };
 }
 function readOpacityDiagnostics(sample) {
-  return Array.from(sample.querySelectorAll("svg")).map((svg) =>
-    readSvgOpacityDiagnostics(svg, sample),
+  return Array.from(sample.querySelectorAll("svg")).map((svgElement) =>
+    readSvgOpacityDiagnostics(svgElement, sample),
   );
 }
-function hasAlphaPaint(svg) {
+function hasAlphaPaint(svgElement) {
   return [
-    svg,
-    ...svg.querySelectorAll(
+    svgElement,
+    ...svgElement.querySelectorAll(
       "path, rect, circle, line, polyline, polygon, ellipse, use, g",
     ),
   ].some((node) => {
@@ -74,7 +74,7 @@ function hasAlphaPaint(svg) {
       style.strokeOpacity,
       style.fillOpacity,
     ];
-    if (node !== svg) alphaValues.push(style.opacity);
+    if (node !== svgElement) alphaValues.push(style.opacity);
     return alphaValues.some(
       (value) =>
         value !== "" &&
@@ -83,9 +83,9 @@ function hasAlphaPaint(svg) {
     );
   });
 }
-function isVisibleSvg(svg) {
-  if (svg.getClientRects().length === 0) return false;
-  let node = svg;
+function isVisibleSvg(svgElement) {
+  if (svgElement.getClientRects().length === 0) return false;
+  let node = svgElement;
   while (node) {
     const style = getComputedStyle(node);
     if (
@@ -101,46 +101,46 @@ function isVisibleSvg(svg) {
 function readPageIconDiagnostics() {
   return Array.from(document.querySelectorAll("svg"))
     .filter(
-      (svg) =>
-        !svg.closest(
+      (svgElement) =>
+        !svgElement.closest(
           '[data-icon-opacity-debug], [data-action-ui-id="debug-panel-dialog"]',
-        ) && isVisibleSvg(svg),
+        ) && isVisibleSvg(svgElement),
     )
     .filter(
-      (svg) =>
-        svg.hasAttribute("data-icon-tone") ||
-        svg.hasAttribute("data-icon-compositing") ||
-        hasAlphaPaint(svg),
+      (svgElement) =>
+        svgElement.hasAttribute("data-icon-tone") ||
+        svgElement.hasAttribute("data-icon-compositing") ||
+        hasAlphaPaint(svgElement),
     )
-    .map((svg) => {
+    .map((svgElement) => {
       const control =
-        svg.closest(
+        svgElement.closest(
           'button[data-action-ui-id], [role="button"][data-action-ui-id], [role="tab"][data-action-ui-id]',
-        ) ?? svg.closest("[data-action-ui-id]");
+        ) ?? svgElement.closest("[data-action-ui-id]");
       return {
-        ...readSvgOpacityDiagnostics(svg, document.body),
+        ...readSvgOpacityDiagnostics(svgElement, document.body),
         tone:
-          svg.getAttribute("data-icon-compositing") ??
-          svg.getAttribute("data-icon-tone") ??
+          svgElement.getAttribute("data-icon-compositing") ??
+          svgElement.getAttribute("data-icon-tone") ??
           "",
         control: control?.getAttribute("data-action-ui-id") ?? "",
         label:
           control?.getAttribute("aria-label") ??
-          svg.getAttribute("aria-label") ??
+          svgElement.getAttribute("aria-label") ??
           "",
       };
     });
 }
 function OpacitySampleCell({ sample, fixed, disabled, opacity, revision }) {
-  const { t } = useTranslation();
-  const ref = reactExports.useRef(null);
+  const { t: translate } = useTranslation();
+  const sampleElementRef = reactExports.useRef(null);
   const [metrics, setMetrics] = reactExports.useState([]);
   const handleMeasure = reactExports.useCallback(() => {
-    if (ref.current) setMetrics(readOpacityDiagnostics(ref.current));
+    if (sampleElementRef.current) setMetrics(readOpacityDiagnostics(sampleElementRef.current));
   }, []);
   reactExports.useEffect(() => {
-    const id = requestAnimationFrame(handleMeasure);
-    return () => cancelAnimationFrame(id);
+    const animationFrameId = requestAnimationFrame(handleMeasure);
+    return () => cancelAnimationFrame(animationFrameId);
   }, [revision, opacity, disabled, handleMeasure]);
   return (
     <div
@@ -148,7 +148,7 @@ function OpacitySampleCell({ sample, fixed, disabled, opacity, revision }) {
       data-opacity-case={`${sample.id}-${fixed ? "after" : "before"}`}
     >
       <div
-        ref={ref}
+        ref={sampleElementRef}
         style={{
           opacity,
         }}
@@ -160,7 +160,7 @@ function OpacitySampleCell({ sample, fixed, disabled, opacity, revision }) {
         className="flex min-h-12 items-center justify-center rounded-md border border-border/50 p-2"
       >
         <IconCompositingContext value={fixed}>
-          {sample.render(fixed, disabled, t)}
+          {sample.render(fixed, disabled, translate)}
         </IconCompositingContext>
       </div>
       <details
@@ -169,32 +169,32 @@ function OpacitySampleCell({ sample, fixed, disabled, opacity, revision }) {
         data-action-ui-id={`debug.icon-opacity.${sample.id}.${fixed ? "after" : "before"}.diagnostics`}
       >
         <summary className="cursor-pointer">
-          {t("debugPanel.iconOpacity.diagnostics")}
+          {translate("debugPanel.iconOpacity.diagnostics")}
         </summary>
         <dl className="mt-1 space-y-2 break-all font-mono">
           {metrics.map((metric) => (
             <div key={metric.id}>
-              <dt>{t("debugPanel.iconOpacity.colorAlpha")}</dt>
+              <dt>{translate("debugPanel.iconOpacity.colorAlpha")}</dt>
               <dd>
                 {metric.color}
                 {" / alpha="}
                 {metric.colorAlpha}
               </dd>
-              <dt>{t("debugPanel.iconOpacity.owner")}</dt>
+              <dt>{translate("debugPanel.iconOpacity.owner")}</dt>
               <dd>
                 {fixed
-                  ? t(`debugPanel.iconOpacity.owner.${sample.owner}`)
-                  : t("debugPanel.iconOpacity.owner.legacy")}
+                  ? translate(`debugPanel.iconOpacity.owner.${sample.owner}`)
+                  : translate("debugPanel.iconOpacity.owner.legacy")}
               </dd>
-              <dt>{t("debugPanel.iconOpacity.root")}</dt>
+              <dt>{translate("debugPanel.iconOpacity.root")}</dt>
               <dd>
                 {metric.rootOpacity}
                 {" / "}
                 {metric.filter}
               </dd>
-              <dt>{t("debugPanel.iconOpacity.ancestors")}</dt>
+              <dt>{translate("debugPanel.iconOpacity.ancestors")}</dt>
               <dd>{metric.ancestors}</dd>
-              <dt>{t("debugPanel.iconOpacity.primitives")}</dt>
+              <dt>{translate("debugPanel.iconOpacity.primitives")}</dt>
               <dd className="whitespace-pre-wrap">{metric.primitives}</dd>
             </div>
           ))}

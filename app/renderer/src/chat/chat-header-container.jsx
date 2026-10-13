@@ -7,7 +7,7 @@ import {
   useWorkspaceChatSelector,
 } from "../assets/use-canvas-model-registry-hydration.js";
 
-const ChatHeader = reactExports.memo(function ChatHeader2({
+const ChatHeader = reactExports.memo(function ChatHeaderView({
   sessions,
   openedTabOrder,
   openedTabIds,
@@ -117,7 +117,7 @@ export function ChatHeaderContainer({
         }
       }
       const visibleTabOrder = openedTabOrder.filter(
-        (id2) => !hiddenSessionIds.has(id2),
+        (openedTabId) => !hiddenSessionIds.has(openedTabId),
       );
       return {
         ordinarySessions: sessions.filter(

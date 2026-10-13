@@ -7,35 +7,35 @@ import {
   Plugin,
 } from "../vendor.js";
 import { highlightPluginKey } from "./use-composer-placeholder-actions.jsx";
-function textOffsetToPmPos(doc2, textOffset) {
+function textOffsetToPmPos(doc, textOffset) {
   if (textOffset <= 0) return 1;
-  let lo = 1;
-  let hi = doc2.content.size;
-  while (lo < hi) {
-    const mid = Math.floor((lo + hi) / 2);
-    const len = doc2.textBetween(0, mid, "\n", mentionRefLeafText).length;
-    if (len < textOffset) {
-      lo = mid + 1;
+  let lowerBound = 1;
+  let upperBound = doc.content.size;
+  while (lowerBound < upperBound) {
+    const middlePosition = Math.floor((lowerBound + upperBound) / 2);
+    const textLength = doc.textBetween(0, middlePosition, "\n", mentionRefLeafText).length;
+    if (textLength < textOffset) {
+      lowerBound = middlePosition + 1;
     } else {
-      hi = mid;
+      upperBound = middlePosition;
     }
   }
-  return lo;
+  return lowerBound;
 }
 const HIGHLIGHT_CLASS = {
   skill: "hl-skill",
 };
-function buildDecorations(doc2, ranges) {
+function buildDecorations(doc, ranges) {
   if (ranges.length === 0) return DecorationSet.empty;
-  const decorations2 = [];
-  for (const { start: start2, end: end2, kind, attrs } of ranges) {
-    const from2 = textOffsetToPmPos(doc2, start2);
-    const to = textOffsetToPmPos(doc2, end2);
-    if (from2 >= to || to > doc2.content.size + 1) continue;
-    decorations2.push(
+  const decorations = [];
+  for (const { start, end, kind, attrs } of ranges) {
+    const from = textOffsetToPmPos(doc, start);
+    const endPosition = textOffsetToPmPos(doc, end);
+    if (from >= endPosition || endPosition > doc.content.size + 1) continue;
+    decorations.push(
       Decoration.inline(
-        from2,
-        to,
+        from,
+        endPosition,
         {
           ...attrs,
           class: [HIGHLIGHT_CLASS[kind], attrs?.class]
@@ -48,7 +48,7 @@ function buildDecorations(doc2, ranges) {
       ),
     );
   }
-  return DecorationSet.create(doc2, decorations2);
+  return DecorationSet.create(doc, decorations);
 }
 export const HighlightDecoration = Extension.create({
   name: "chatHighlight",
@@ -63,17 +63,17 @@ export const HighlightDecoration = Extension.create({
               ranges: [],
             };
           },
-          apply(tr2, prev) {
-            const meta2 = tr2.getMeta(highlightPluginKey);
-            if (meta2) {
+          apply(transaction, prev) {
+            const meta = transaction.getMeta(highlightPluginKey);
+            if (meta) {
               return {
-                decorations: buildDecorations(tr2.doc, meta2),
-                ranges: meta2,
+                decorations: buildDecorations(transaction.doc, meta),
+                ranges: meta,
               };
             }
-            if (tr2.docChanged) {
+            if (transaction.docChanged) {
               return {
-                decorations: buildDecorations(tr2.doc, prev.ranges),
+                decorations: buildDecorations(transaction.doc, prev.ranges),
                 ranges: prev.ranges,
               };
             }
@@ -81,9 +81,9 @@ export const HighlightDecoration = Extension.create({
           },
         },
         props: {
-          decorations(state2) {
+          decorations(state) {
             return (
-              highlightPluginKey.getState(state2)?.decorations ??
+              highlightPluginKey.getState(state)?.decorations ??
               DecorationSet.empty
             );
           },

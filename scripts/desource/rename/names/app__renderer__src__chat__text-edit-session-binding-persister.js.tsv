@@ -1,0 +1,8 @@
+key	新名	依据
+record2@17:26	record	`record`是持久化或读取的文本编辑会话绑定记录。
+record2@56:17	record	`record`是持久化或读取的文本编辑会话绑定记录。
+record2@79:15	record	`record`是持久化或读取的文本编辑会话绑定记录。
+next2@93:17	next	`next`是合并当前工作区绑定后待写入的新记录。
+patch2@103:32	patch	`patch`是用于更新文本编辑会话绑定的部分字段。
+current2@111:47	current	`current`是当前节点已保存的文本编辑会话条目。
+current2@145:47	current	`current`是当前节点已保存的文本编辑会话条目。

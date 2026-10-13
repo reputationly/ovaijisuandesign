@@ -1,23 +1,23 @@
 // reduce-server-message.js
 
-export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
+export function reduceServerMessage(prev, serverMessage, _buffers, _sessionId) {
   const effects = [];
-  switch (msg.type) {
+  switch (serverMessage.type) {
     // === Session management ===
     case "session_created":
       effects.push({
         type: "session_created",
-        sessionId: msg.session_id,
-        name: msg.name,
-        folder: msg.folder,
-        modelId: msg.model_id,
-        createdAt: msg.created_at,
-        displayName: msg.display_name,
-        selectedMediaModels: msg.selected_media_models,
-        messages: msg.messages,
-        forkDraft: msg.fork_draft,
-        origin: msg.origin,
-        activated: msg.activated,
+        sessionId: serverMessage.session_id,
+        name: serverMessage.name,
+        folder: serverMessage.folder,
+        modelId: serverMessage.model_id,
+        createdAt: serverMessage.created_at,
+        displayName: serverMessage.display_name,
+        selectedMediaModels: serverMessage.selected_media_models,
+        messages: serverMessage.messages,
+        forkDraft: serverMessage.fork_draft,
+        origin: serverMessage.origin,
+        activated: serverMessage.activated,
       });
       return {
         messages: prev,
@@ -26,25 +26,25 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "session_switched":
       effects.push({
         type: "session_switched",
-        sessionId: msg.session_id,
-        name: msg.name,
-        displayName: msg.display_name,
-        folder: msg.folder,
-        modelId: msg.model_id,
-        messages: msg.messages,
-        historyLoadFailed: msg.history_load_failed,
-        agentRunning: msg.agent_running,
-        runtimeSessionId: msg.runtime_session_id,
-        selectedMediaModels: msg.selected_media_models,
+        sessionId: serverMessage.session_id,
+        name: serverMessage.name,
+        displayName: serverMessage.display_name,
+        folder: serverMessage.folder,
+        modelId: serverMessage.model_id,
+        messages: serverMessage.messages,
+        historyLoadFailed: serverMessage.history_load_failed,
+        agentRunning: serverMessage.agent_running,
+        runtimeSessionId: serverMessage.runtime_session_id,
+        selectedMediaModels: serverMessage.selected_media_models,
         selectedMediaModelsSnapshot: Object.hasOwn(
-          msg,
+          serverMessage,
           "selected_media_models",
         ),
-        pendingReasons: msg.pending_reasons,
-        pendingInteractions: msg.pending_interactions,
-        recentLoopGuardSettlements: msg.recent_loop_guard_settlements,
-        recentToolConfirmSettlements: msg.recent_tool_confirm_settlements,
-        activated: msg.activated,
+        pendingReasons: serverMessage.pending_reasons,
+        pendingInteractions: serverMessage.pending_interactions,
+        recentLoopGuardSettlements: serverMessage.recent_loop_guard_settlements,
+        recentToolConfirmSettlements: serverMessage.recent_tool_confirm_settlements,
+        activated: serverMessage.activated,
       });
       return {
         messages: prev,
@@ -53,7 +53,7 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "session_list":
       effects.push({
         type: "session_list",
-        sessions: msg.sessions,
+        sessions: serverMessage.sessions,
       });
       return {
         messages: prev,
@@ -62,8 +62,8 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "session_bound":
       effects.push({
         type: "session_bound",
-        uiSessionId: msg.ui_session_id,
-        runtimeSessionId: msg.runtime_session_id,
+        uiSessionId: serverMessage.ui_session_id,
+        runtimeSessionId: serverMessage.runtime_session_id,
       });
       return {
         messages: prev,
@@ -72,9 +72,9 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "session_renamed":
       effects.push({
         type: "session_renamed",
-        sessionId: msg.session_id,
-        runtimeSessionId: msg.runtime_session_id,
-        name: msg.name,
+        sessionId: serverMessage.session_id,
+        runtimeSessionId: serverMessage.runtime_session_id,
+        name: serverMessage.name,
       });
       return {
         messages: prev,
@@ -83,8 +83,8 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "selected_media_models_updated":
       effects.push({
         type: "selected_media_models_updated",
-        sessionId: msg.session_id,
-        selectedMediaModels: msg.selected_media_models,
+        sessionId: serverMessage.session_id,
+        selectedMediaModels: serverMessage.selected_media_models,
       });
       return {
         messages: prev,
@@ -98,7 +98,7 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "canvas_updated":
       effects.push({
         type: "canvas_updated",
-        update: msg,
+        update: serverMessage,
       });
       return {
         messages: prev,
@@ -107,7 +107,7 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "canvas_focus":
       effects.push({
         type: "canvas_focus",
-        payload: msg,
+        payload: serverMessage,
       });
       return {
         messages: prev,
@@ -116,7 +116,7 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "canvas_node_generating":
       effects.push({
         type: "canvas_node_generating",
-        payload: msg,
+        payload: serverMessage,
       });
       return {
         messages: prev,
@@ -125,7 +125,7 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "plugin_storage_changed":
       effects.push({
         type: "plugin_storage_changed",
-        payload: msg,
+        payload: serverMessage,
       });
       return {
         messages: prev,
@@ -134,7 +134,7 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "plugin_agent_invoke":
       effects.push({
         type: "plugin_agent_invoke",
-        payload: msg,
+        payload: serverMessage,
       });
       return {
         messages: prev,
@@ -143,7 +143,7 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "plugin_editor_open":
       effects.push({
         type: "plugin_editor_open",
-        payload: msg,
+        payload: serverMessage,
       });
       return {
         messages: prev,
@@ -152,7 +152,7 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "asset_changed":
       effects.push({
         type: "asset_changed",
-        event: msg,
+        event: serverMessage,
       });
       return {
         messages: prev,
@@ -161,7 +161,7 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "assets_changed_batch":
       effects.push({
         type: "asset_changed",
-        event: msg,
+        event: serverMessage,
       });
       return {
         messages: prev,
@@ -170,8 +170,8 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "session_status_changed":
       effects.push({
         type: "set_busy",
-        sessionId: msg.session_id,
-        busy: msg.status === "running",
+        sessionId: serverMessage.session_id,
+        busy: serverMessage.status === "running",
       });
       return {
         messages: prev,
@@ -180,20 +180,20 @@ export function reduceServerMessage(prev, msg, _buffers, _sessionId) {
     case "session_pending":
       effects.push({
         type: "set_pending_reasons",
-        sessionId: msg.session_id,
-        reasons: msg.reasons,
+        sessionId: serverMessage.session_id,
+        reasons: serverMessage.reasons,
       });
       return {
         messages: prev,
         effects,
       };
     case "user_message_id": {
-      for (let i2 = prev.length - 1; i2 >= 0; i2--) {
-        if (prev[i2].role === "user" && prev[i2].type === "text") {
+      for (let previousMessageIndex = prev.length - 1; previousMessageIndex >= 0; previousMessageIndex--) {
+        if (prev[previousMessageIndex].role === "user" && prev[previousMessageIndex].type === "text") {
           const updated = [...prev];
-          updated[i2] = {
-            ...prev[i2],
-            runtimeMessageId: msg.runtime_message_id,
+          updated[previousMessageIndex] = {
+            ...prev[previousMessageIndex],
+            runtimeMessageId: serverMessage.runtime_message_id,
           };
           return {
             messages: updated,

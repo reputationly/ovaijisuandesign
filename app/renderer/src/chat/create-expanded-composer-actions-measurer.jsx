@@ -11,32 +11,32 @@ export function computeComposerActions({ agentRunning, canSend, hasCancel }) {
     showStopButton,
   };
 }
-export function restoreMentionDraft(schema2, draft, text2, refreshMention) {
+export function restoreMentionDraft(schema, draft, text, refreshMention) {
   if (!draft) return null;
   try {
-    const doc2 = schema2.nodeFromJSON(draft);
-    doc2.check();
-    if (doc2.type !== schema2.topNodeType || getDocText(doc2) !== text2)
+    const doc = schema.nodeFromJSON(draft);
+    doc.check();
+    if (doc.type !== schema.topNodeType || getDocText(doc) !== text)
       return null;
-    const refresh = (node2) => {
-      if (node2.type === "mentionRef") {
-        const attrs = node2.attrs;
+    const refresh = (node) => {
+      if (node.type === "mentionRef") {
+        const attrs = node.attrs;
         if (typeof attrs.path !== "string" || typeof attrs.name !== "string") {
           throw new Error("Invalid mention draft");
         }
         return {
-          ...node2,
+          ...node,
           attrs: refreshMention(attrs),
         };
       }
-      return node2.content
+      return node.content
         ? {
-            ...node2,
-            content: node2.content.map(refresh),
+            ...node,
+            content: node.content.map(refresh),
           }
-        : node2;
+        : node;
     };
-    return refresh(doc2.toJSON());
+    return refresh(doc.toJSON());
   } catch {
     return null;
   }
@@ -44,7 +44,7 @@ export function restoreMentionDraft(schema2, draft, text2, refreshMention) {
 export const MENTION_THUMB_PX = 18;
 export const MENTION_PREVIEW_PX = 180;
 export function buildMentionMediaUrl(
-  gatewayUrl2,
+  gatewayUrl,
   kind,
   workspaceRelativePath,
   displayWidth,
@@ -55,11 +55,11 @@ export function buildMentionMediaUrl(
     .map(encodeURIComponent)
     .join("/");
   const prefix = kind === "image" ? "/files/" : "/api/thumbnail/";
-  const base2 = gatewayUrl2(`${prefix}${encoded}`);
-  return withThumbnail(base2, displayWidth);
+  const base = gatewayUrl(`${prefix}${encoded}`);
+  return withThumbnail(base, displayWidth);
 }
 export function buildMentionPlayableUrl(
-  gatewayUrl2,
+  gatewayUrl,
   kind,
   workspaceRelativePath,
 ) {
@@ -68,7 +68,7 @@ export function buildMentionPlayableUrl(
     .split("/")
     .map(encodeURIComponent)
     .join("/");
-  return gatewayUrl2(`/files/${encoded}`);
+  return gatewayUrl(`/files/${encoded}`);
 }
 export function buildFileMentionAttrs(file, scopedGatewayUrl) {
   return {
@@ -102,10 +102,10 @@ export function remapCommittedMentionPaths(
 ) {
   if (!editor || !committed?.length) return false;
   const pathMap = new Map(committed.map((entry) => [entry.from, entry.to]));
-  let tr2 = editor.state.tr;
-  editor.state.doc.descendants((node2, pos) => {
-    if (node2.type.name !== "mentionRef") return;
-    const attrs = node2.attrs;
+  let transaction = editor.state.tr;
+  editor.state.doc.descendants((node, position) => {
+    if (node.type.name !== "mentionRef") return;
+    const attrs = node.attrs;
     if (
       attrs.kind === "model" ||
       attrs.kind === "connector" ||
@@ -115,7 +115,7 @@ export function remapCommittedMentionPaths(
     const nextPath = pathMap.get(attrs.path);
     if (!nextPath) return;
     const kind = attrs.kind;
-    tr2 = tr2.setNodeMarkup(pos, void 0, {
+    transaction = transaction.setNodeMarkup(position, void 0, {
       ...attrs,
       path: nextPath,
       thumbUrl:
@@ -136,8 +136,8 @@ export function remapCommittedMentionPaths(
         buildMentionPlayableUrl(scopedGatewayUrl, kind, nextPath) ?? null,
     });
   });
-  if (!tr2.docChanged) return false;
-  editor.view.dispatch(tr2);
+  if (!transaction.docChanged) return false;
+  editor.view.dispatch(transaction);
   return true;
 }
 const COMPOSER_ACTIONS_RELEASE_BUFFER_PX = 8;
@@ -155,48 +155,48 @@ export function resolveComposerActionsCompact({
 const LEFT_ACTIONS_SELECTOR = '[data-composer-actions-left="true"]';
 const RIGHT_ACTIONS_SELECTOR = '[data-composer-actions-right="true"]';
 const TEST_DRIVER_SELECTOR = "[data-action-ui-id]";
-function forceIntrinsicWidth(element2) {
-  element2.style.flex = "0 0 auto";
-  element2.style.width = "max-content";
-  element2.style.minWidth = "max-content";
-  element2.style.maxWidth = "none";
-  element2.style.overflow = "visible";
+function forceIntrinsicWidth(element) {
+  element.style.flex = "0 0 auto";
+  element.style.width = "max-content";
+  element.style.minWidth = "max-content";
+  element.style.maxWidth = "none";
+  element.style.overflow = "visible";
 }
-function stripCloneMetadata(clone2) {
-  for (const element2 of [clone2, ...clone2.querySelectorAll("[id]")]) {
-    element2.removeAttribute("id");
+function stripCloneMetadata(clone) {
+  for (const element of [clone, ...clone.querySelectorAll("[id]")]) {
+    element.removeAttribute("id");
   }
-  for (const element2 of [
-    clone2,
-    ...clone2.querySelectorAll(TEST_DRIVER_SELECTOR),
+  for (const element of [
+    clone,
+    ...clone.querySelectorAll(TEST_DRIVER_SELECTOR),
   ]) {
-    element2.removeAttribute("data-action-ui-id");
+    element.removeAttribute("data-action-ui-id");
   }
-  clone2.removeAttribute("data-composer-action-row");
-  clone2
+  clone.removeAttribute("data-composer-action-row");
+  clone
     .querySelector(LEFT_ACTIONS_SELECTOR)
     ?.removeAttribute("data-composer-actions-left");
-  clone2
+  clone
     .querySelector(RIGHT_ACTIONS_SELECTOR)
     ?.removeAttribute("data-composer-actions-right");
 }
-function createIntrinsicClone(row) {
-  const clone2 = row.cloneNode(true);
-  const left = clone2.querySelector(LEFT_ACTIONS_SELECTOR);
-  const right = clone2.querySelector(RIGHT_ACTIONS_SELECTOR);
+function createIntrinsicClone(actionsRow) {
+  const clone = actionsRow.cloneNode(true);
+  const left = clone.querySelector(LEFT_ACTIONS_SELECTOR);
+  const right = clone.querySelector(RIGHT_ACTIONS_SELECTOR);
   const leftContent = left?.firstElementChild;
-  forceIntrinsicWidth(clone2);
-  clone2.style.display = "flex";
-  clone2.style.flexWrap = "nowrap";
+  forceIntrinsicWidth(clone);
+  clone.style.display = "flex";
+  clone.style.flexWrap = "nowrap";
   if (left) forceIntrinsicWidth(left);
   if (leftContent) forceIntrinsicWidth(leftContent);
   if (right) forceIntrinsicWidth(right);
-  stripCloneMetadata(clone2);
-  return clone2;
+  stripCloneMetadata(clone);
+  return clone;
 }
-export function createExpandedComposerActionsMeasurer(row) {
-  const ownerDocument2 = row.ownerDocument;
-  const host = ownerDocument2.createElement("div");
+export function createExpandedComposerActionsMeasurer(actionsRow) {
+  const ownerDocument = actionsRow.ownerDocument;
+  const host = ownerDocument.createElement("div");
   host.dataset.composerExpandedMeasurement = "true";
   host.setAttribute("aria-hidden", "true");
   host.setAttribute("inert", "");
@@ -210,9 +210,9 @@ export function createExpandedComposerActionsMeasurer(row) {
   host.style.pointerEvents = "none";
   host.style.contain = "layout style paint";
   host.style.zIndex = "-1";
-  (ownerDocument2.body ?? ownerDocument2.documentElement).append(host);
+  (ownerDocument.body ?? ownerDocument.documentElement).append(host);
   const refresh = () => {
-    host.replaceChildren(createIntrinsicClone(row));
+    host.replaceChildren(createIntrinsicClone(actionsRow));
   };
   const measure = () => {
     const width = Math.max(
@@ -221,7 +221,7 @@ export function createExpandedComposerActionsMeasurer(row) {
     );
     return Number.isFinite(width) && width > 0 ? Math.ceil(width) : 0;
   };
-  const dispose2 = () => {
+  const dispose = () => {
     host.remove();
   };
   refresh();
@@ -229,17 +229,17 @@ export function createExpandedComposerActionsMeasurer(row) {
     element: host,
     measure,
     refresh,
-    dispose: dispose2,
+    dispose,
   };
 }
 const ComposerActionsCompactContext = reactExports.createContext(false);
 export function ComposerActionsCompactProvider({
   compact,
-  children: children2,
+  children,
 }) {
   return (
     <ComposerActionsCompactContext.Provider value={compact}>
-      {children2}
+      {children}
     </ComposerActionsCompactContext.Provider>
   );
 }

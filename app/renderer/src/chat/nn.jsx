@@ -1,322 +1,322 @@
 // nn.jsx
-import { jsxRuntimeExports, L, reactExports } from "../vendor.js";
+import { jsxRuntimeExports, L as useIconComponents, reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { R, y3 } from "./ae.jsx";
-import { de } from "../media-editing/wt.js";
+import { R as markdownRenderOptionsContext, y3 as useClassNameMerger } from "./ae.jsx";
+import { de as useMermaidPluginOptions } from "../media-editing/wt.js";
 
-var Bn = 300;
+var DEFAULT_DEBOUNCE_DELAY_MS = 300;
 
-var An = "300px";
+var DEFAULT_INTERSECTION_ROOT_MARGIN = "300px";
 
-var On = 500;
+var DEFAULT_IDLE_TIMEOUT_MS = 500;
 
-function Rt(e2 = {}) {
+function useLazyIntersectionRendering(renderOptions = {}) {
   let {
-      immediate: t2 = false,
-      debounceDelay: o2 = Bn,
-      rootMargin: n2 = An,
-      idleTimeout: r2 = On,
-    } = e2,
-    [s2, a2] = reactExports.useState(false),
-    l2 = reactExports.useRef(null),
-    i2 = reactExports.useRef(null),
-    d2 = reactExports.useRef(null),
-    c3 = reactExports.useMemo(
-      () => (u4) => {
-        let f2 = Date.now();
+      immediate = false,
+      debounceDelay = DEFAULT_DEBOUNCE_DELAY_MS,
+      rootMargin = DEFAULT_INTERSECTION_ROOT_MARGIN,
+      idleTimeout = DEFAULT_IDLE_TIMEOUT_MS,
+    } = renderOptions,
+    [shouldRender, setShouldRender] = reactExports.useState(false),
+    containerRef = reactExports.useRef(null),
+    debounceTimeoutRef = reactExports.useRef(null),
+    idleCallbackRef = reactExports.useRef(null),
+    fallbackRequestIdleCallback = reactExports.useMemo(
+      () => (idleCallback) => {
+        let fallbackStartTime = Date.now();
         return window.setTimeout(() => {
-          u4({
+          idleCallback({
             didTimeout: false,
-            timeRemaining: () => Math.max(0, 50 - (Date.now() - f2)),
+            timeRemaining: () => Math.max(0, 50 - (Date.now() - fallbackStartTime)),
           });
         }, 1);
       },
       [],
     ),
-    p3 = reactExports.useMemo(
+    scheduleIdleCallback = reactExports.useMemo(
       () =>
         typeof window != "undefined" && window.requestIdleCallback
-          ? (u4, f2) => window.requestIdleCallback(u4, f2)
-          : c3,
-      [c3],
+          ? (idleCallback, idleOptions) => window.requestIdleCallback(idleCallback, idleOptions)
+          : fallbackRequestIdleCallback,
+      [fallbackRequestIdleCallback],
     ),
-    m3 = reactExports.useMemo(
+    cancelIdleWork = reactExports.useMemo(
       () =>
         typeof window != "undefined" && window.cancelIdleCallback
-          ? (u4) => window.cancelIdleCallback(u4)
-          : (u4) => {
-              clearTimeout(u4);
+          ? (idleCallbackId) => window.cancelIdleCallback(idleCallbackId)
+          : (timeoutId) => {
+              clearTimeout(timeoutId);
             },
       [],
     );
   return (
     reactExports.useEffect(() => {
-      if (t2) {
-        a2(true);
+      if (immediate) {
+        setShouldRender(true);
         return;
       }
-      let u4 = l2.current;
-      if (!u4) return;
-      (i2.current && (clearTimeout(i2.current), (i2.current = null)),
-        d2.current && (m3(d2.current), (d2.current = null)));
-      let f2 = () => {
-          (i2.current && (clearTimeout(i2.current), (i2.current = null)),
-            d2.current && (m3(d2.current), (d2.current = null)));
+      let observedContainer = containerRef.current;
+      if (!observedContainer) return;
+      (debounceTimeoutRef.current && (clearTimeout(debounceTimeoutRef.current), (debounceTimeoutRef.current = null)),
+        idleCallbackRef.current && (cancelIdleWork(idleCallbackRef.current), (idleCallbackRef.current = null)));
+      let cancelPendingTimers = () => {
+          (debounceTimeoutRef.current && (clearTimeout(debounceTimeoutRef.current), (debounceTimeoutRef.current = null)),
+            idleCallbackRef.current && (cancelIdleWork(idleCallbackRef.current), (idleCallbackRef.current = null)));
         },
-        h2 = (v2) => {
-          d2.current = p3(
-            (w3) => {
-              w3.timeRemaining() > 0 || w3.didTimeout
-                ? (a2(true), v2.disconnect())
-                : (d2.current = p3(
+        scheduleRenderWhenIdle = (intersectionObserver) => {
+          idleCallbackRef.current = scheduleIdleCallback(
+            (idleDeadline) => {
+              idleDeadline.timeRemaining() > 0 || idleDeadline.didTimeout
+                ? (setShouldRender(true), intersectionObserver.disconnect())
+                : (idleCallbackRef.current = scheduleIdleCallback(
                     () => {
-                      (a2(true), v2.disconnect());
+                      (setShouldRender(true), intersectionObserver.disconnect());
                     },
                     {
-                      timeout: r2 / 2,
+                      timeout: idleTimeout / 2,
                     },
                   ));
             },
             {
-              timeout: r2,
+              timeout: idleTimeout,
             },
           );
         },
-        b3 = (v2) => {
-          (f2(),
-            (i2.current = window.setTimeout(() => {
-              var M2, H2;
-              let w3 = v2.takeRecords();
-              (w3.length === 0 ||
-                ((H2 = (M2 = w3.at(-1)) == null ? void 0 : M2.isIntersecting) !=
+        handleIntersection = (intersectionObserver) => {
+          (cancelPendingTimers(),
+            (debounceTimeoutRef.current = window.setTimeout(() => {
+              var latestEntry, isLatestEntryIntersecting;
+              let intersectionRecords = intersectionObserver.takeRecords();
+              (intersectionRecords.length === 0 ||
+                ((isLatestEntryIntersecting = (latestEntry = intersectionRecords.at(-1)) == null ? void 0 : latestEntry.isIntersecting) !=
                   null &&
-                  H2)) &&
-                h2(v2);
-            }, o2)));
+                  isLatestEntryIntersecting)) &&
+                scheduleRenderWhenIdle(intersectionObserver);
+            }, debounceDelay)));
         },
-        g2 = (v2, w3) => {
-          v2.isIntersecting ? b3(w3) : f2();
+        processIntersectionEntry = (intersectionEntry, intersectionObserver) => {
+          intersectionEntry.isIntersecting ? handleIntersection(intersectionObserver) : cancelPendingTimers();
         },
-        T2 = new IntersectionObserver(
-          (v2) => {
-            for (let w3 of v2) g2(w3, T2);
+        intersectionObserver = new IntersectionObserver(
+          (intersectionEntries) => {
+            for (let intersectionEntry of intersectionEntries) processIntersectionEntry(intersectionEntry, intersectionObserver);
           },
           {
-            rootMargin: n2,
+            rootMargin,
             threshold: 0,
           },
         );
       return (
-        T2.observe(u4),
+        intersectionObserver.observe(observedContainer),
         () => {
-          (i2.current && clearTimeout(i2.current),
-            d2.current && m3(d2.current),
-            T2.disconnect());
+          (debounceTimeoutRef.current && clearTimeout(debounceTimeoutRef.current),
+            idleCallbackRef.current && cancelIdleWork(idleCallbackRef.current),
+            intersectionObserver.disconnect());
         }
       );
-    }, [t2, o2, n2, r2, m3, p3]),
+    }, [immediate, debounceDelay, rootMargin, idleTimeout, cancelIdleWork, scheduleIdleCallback]),
     {
-      shouldRender: s2,
-      containerRef: l2,
+      shouldRender,
+      containerRef,
     }
   );
 }
 
-var Nn = ({
-  children: e2,
-  className: t2,
-  minZoom: o2 = 0.5,
-  maxZoom: n2 = 3,
-  zoomStep: r2 = 0.1,
-  showControls: s2 = true,
-  initialZoom: a2 = 1,
-  fullscreen: l2 = false,
+var ZoomableDiagram = ({
+  children,
+  className,
+  minZoom = 0.5,
+  maxZoom = 3,
+  zoomStep = 0.1,
+  showControls = true,
+  initialZoom = 1,
+  fullscreen = false,
 }) => {
-  let { RotateCcwIcon: i2, ZoomInIcon: d2, ZoomOutIcon: c3 } = L(),
-    p3 = y3(),
-    m3 = reactExports.useRef(null),
-    u4 = reactExports.useRef(null),
-    [f2, h2] = reactExports.useState(a2),
-    [b3, g2] = reactExports.useState({
+  let { RotateCcwIcon: resetZoomIcon, ZoomInIcon: zoomInIcon, ZoomOutIcon: zoomOutIcon } = useIconComponents(),
+    mergeClassNames = useClassNameMerger(),
+    wheelContainerRef = reactExports.useRef(null),
+    pointerContainerRef = reactExports.useRef(null),
+    [zoomLevel, setZoomLevel] = reactExports.useState(initialZoom),
+    [panOffset, setPanOffset] = reactExports.useState({
       x: 0,
       y: 0,
     }),
-    [T2, v2] = reactExports.useState(false),
-    [w3, P3] = reactExports.useState({
+    [isDragging, setIsDragging] = reactExports.useState(false),
+    [pointerStartPosition, setPointerStartPosition] = reactExports.useState({
       x: 0,
       y: 0,
     }),
-    [M2, H2] = reactExports.useState({
+    [dragStartPanOffset, setDragStartPanOffset] = reactExports.useState({
       x: 0,
       y: 0,
     }),
-    S3 = reactExports.useCallback(
-      (x2) => {
-        h2((q2) => Math.max(o2, Math.min(n2, q2 + x2)));
+    adjustZoom = reactExports.useCallback(
+      (zoomDelta) => {
+        setZoomLevel((nextZoomLevel) => Math.max(minZoom, Math.min(maxZoom, nextZoomLevel + zoomDelta)));
       },
-      [o2, n2],
+      [minZoom, maxZoom],
     ),
-    F2 = reactExports.useCallback(() => {
-      S3(r2);
-    }, [S3, r2]),
-    j2 = reactExports.useCallback(() => {
-      S3(-r2);
-    }, [S3, r2]),
-    z3 = reactExports.useCallback(() => {
-      (h2(a2),
-        g2({
+    zoomIn = reactExports.useCallback(() => {
+      adjustZoom(zoomStep);
+    }, [adjustZoom, zoomStep]),
+    zoomOut = reactExports.useCallback(() => {
+      adjustZoom(-zoomStep);
+    }, [adjustZoom, zoomStep]),
+    resetZoomAndPan = reactExports.useCallback(() => {
+      (setZoomLevel(initialZoom),
+        setPanOffset({
           x: 0,
           y: 0,
         }));
-    }, [a2]),
-    B2 = reactExports.useCallback(
-      (x2) => {
-        x2.preventDefault();
-        let q2 = x2.deltaY > 0 ? -r2 : r2;
-        S3(q2);
+    }, [initialZoom]),
+    handleWheelZoom = reactExports.useCallback(
+      (wheelEvent) => {
+        wheelEvent.preventDefault();
+        let wheelZoomDelta = wheelEvent.deltaY > 0 ? -zoomStep : zoomStep;
+        adjustZoom(wheelZoomDelta);
       },
-      [S3, r2],
+      [adjustZoom, zoomStep],
     ),
-    _2 = reactExports.useCallback(
-      (x2) => {
-        if (x2.button !== 0 || x2.isPrimary === false) return;
-        (v2(true),
-          P3({
-            x: x2.clientX,
-            y: x2.clientY,
+    handlePointerDown = reactExports.useCallback(
+      (pointerEvent) => {
+        if (pointerEvent.button !== 0 || pointerEvent.isPrimary === false) return;
+        (setIsDragging(true),
+          setPointerStartPosition({
+            x: pointerEvent.clientX,
+            y: pointerEvent.clientY,
           }),
-          H2(b3));
-        let q2 = x2.currentTarget;
-        q2 instanceof HTMLElement && q2.setPointerCapture(x2.pointerId);
+          setDragStartPanOffset(panOffset));
+        let eventTarget = pointerEvent.currentTarget;
+        eventTarget instanceof HTMLElement && eventTarget.setPointerCapture(pointerEvent.pointerId);
       },
-      [b3],
+      [panOffset],
     ),
-    Q2 = reactExports.useCallback(
-      (x2) => {
-        if (!T2) return;
-        x2.preventDefault();
-        let q2 = x2.clientX - w3.x,
-          X2 = x2.clientY - w3.y;
-        g2({
-          x: M2.x + q2,
-          y: M2.y + X2,
+    handlePointerMove = reactExports.useCallback(
+      (pointerEvent) => {
+        if (!isDragging) return;
+        pointerEvent.preventDefault();
+        let pointerDeltaX = pointerEvent.clientX - pointerStartPosition.x,
+          pointerDeltaY = pointerEvent.clientY - pointerStartPosition.y;
+        setPanOffset({
+          x: dragStartPanOffset.x + pointerDeltaX,
+          y: dragStartPanOffset.y + pointerDeltaY,
         });
       },
-      [T2, w3, M2],
+      [isDragging, pointerStartPosition, dragStartPanOffset],
     ),
-    U2 = reactExports.useCallback((x2) => {
-      v2(false);
-      let q2 = x2.currentTarget;
-      q2 instanceof HTMLElement && q2.releasePointerCapture(x2.pointerId);
+    handlePointerEnd = reactExports.useCallback((pointerEvent) => {
+      setIsDragging(false);
+      let eventTarget = pointerEvent.currentTarget;
+      eventTarget instanceof HTMLElement && eventTarget.releasePointerCapture(pointerEvent.pointerId);
     }, []);
   return (
     reactExports.useEffect(() => {
-      let x2 = m3.current;
-      if (x2)
+      let wheelContainer = wheelContainerRef.current;
+      if (wheelContainer)
         return (
-          x2.addEventListener("wheel", B2, {
+          wheelContainer.addEventListener("wheel", handleWheelZoom, {
             passive: false,
           }),
           () => {
-            x2.removeEventListener("wheel", B2);
+            wheelContainer.removeEventListener("wheel", handleWheelZoom);
           }
         );
-    }, [B2]),
+    }, [handleWheelZoom]),
     reactExports.useEffect(() => {
-      let x2 = u4.current;
-      if (x2 && T2)
+      let pointerContainer = pointerContainerRef.current;
+      if (pointerContainer && isDragging)
         return (
           (document.body.style.userSelect = "none"),
-          x2.addEventListener("pointermove", Q2, {
+          pointerContainer.addEventListener("pointermove", handlePointerMove, {
             passive: false,
           }),
-          x2.addEventListener("pointerup", U2),
-          x2.addEventListener("pointercancel", U2),
+          pointerContainer.addEventListener("pointerup", handlePointerEnd),
+          pointerContainer.addEventListener("pointercancel", handlePointerEnd),
           () => {
             ((document.body.style.userSelect = ""),
-              x2.removeEventListener("pointermove", Q2),
-              x2.removeEventListener("pointerup", U2),
-              x2.removeEventListener("pointercancel", U2));
+              pointerContainer.removeEventListener("pointermove", handlePointerMove),
+              pointerContainer.removeEventListener("pointerup", handlePointerEnd),
+              pointerContainer.removeEventListener("pointercancel", handlePointerEnd));
           }
         );
-    }, [T2, Q2, U2]),
+    }, [isDragging, handlePointerMove, handlePointerEnd]),
     (
       <div
-        className={p3(
+        className={mergeClassNames(
           "relative flex flex-col",
-          l2 ? "h-full w-full" : "min-h-28 w-full",
-          t2,
+          fullscreen ? "h-full w-full" : "min-h-28 w-full",
+          className,
         )}
-        ref={m3}
+        ref={wheelContainerRef}
         style={{
-          cursor: T2 ? "grabbing" : "grab",
+          cursor: isDragging ? "grabbing" : "grab",
         }}
       >
-        {s2 ? (
+        {showControls ? (
           <div
-            className={p3(
+            className={mergeClassNames(
               "absolute z-10 flex flex-col gap-1 rounded-md border border-border bg-background/80 p-1 supports-[backdrop-filter]:bg-background/70 supports-[backdrop-filter]:backdrop-blur-sm",
-              l2 ? "bottom-4 left-4" : "bottom-2 left-2",
+              fullscreen ? "bottom-4 left-4" : "bottom-2 left-2",
             )}
           >
             <button
-              className={p3(
+              className={mergeClassNames(
                 "flex items-center justify-center rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
               )}
-              disabled={f2 >= n2}
-              onClick={F2}
+              disabled={zoomLevel >= maxZoom}
+              onClick={zoomIn}
               title="Zoom in"
               type="button"
             >
-              {jsxRuntimeExports.jsx(d2, {
+              {jsxRuntimeExports.jsx(zoomInIcon, {
                 size: 16,
               })}
             </button>
             <button
-              className={p3(
+              className={mergeClassNames(
                 "flex items-center justify-center rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
               )}
-              disabled={f2 <= o2}
-              onClick={j2}
+              disabled={zoomLevel <= minZoom}
+              onClick={zoomOut}
               title="Zoom out"
               type="button"
             >
-              {jsxRuntimeExports.jsx(c3, {
+              {jsxRuntimeExports.jsx(zoomOutIcon, {
                 size: 16,
               })}
             </button>
             <button
-              className={p3(
+              className={mergeClassNames(
                 "flex items-center justify-center rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
               )}
-              onClick={z3}
+              onClick={resetZoomAndPan}
               title="Reset zoom and pan"
               type="button"
             >
-              {jsxRuntimeExports.jsx(i2, {
+              {jsxRuntimeExports.jsx(resetZoomIcon, {
                 size: 16,
               })}
             </button>
           </div>
         ) : null}
         <div
-          className={p3(
+          className={mergeClassNames(
             "flex-1 origin-center transition-transform duration-150 ease-out",
-            l2
+            fullscreen
               ? "flex h-full w-full items-center justify-center"
               : "flex w-full items-center justify-center",
           )}
-          onPointerDown={_2}
-          ref={u4}
+          onPointerDown={handlePointerDown}
+          ref={pointerContainerRef}
           role="application"
           style={{
-            transform: `translate(${b3.x}px, ${b3.y}px) scale(${f2})`,
+            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
             transformOrigin: "center center",
             touchAction: "none",
             willChange: "transform",
           }}
         >
-          {e2}
+          {children}
         </div>
       </div>
     )
@@ -324,124 +324,124 @@ var Nn = ({
 };
 
 export var po = ({
-  chart: e2,
-  className: t2,
-  config: o2,
-  fullscreen: n2 = false,
-  showControls: r2 = true,
+  chart,
+  className,
+  config,
+  fullscreen = false,
+  showControls = true,
 }) => {
-  let s2 = y3(),
-    [a2, l2] = reactExports.useState(null),
-    [i2, d2] = reactExports.useState(false),
-    [c3, p3] = reactExports.useState(""),
-    [m3, u4] = reactExports.useState(""),
-    [f2, h2] = reactExports.useState(0),
-    { mermaid: b3 } = reactExports.useContext(R),
-    g2 = de(),
-    T2 = b3 == null ? void 0 : b3.errorComponent,
-    { shouldRender: v2, containerRef: w3 } = Rt({
-      immediate: n2,
+  let mergeClassNames = useClassNameMerger(),
+    [renderError, setRenderError] = reactExports.useState(null),
+    [isLoading, setIsLoading] = reactExports.useState(false),
+    [renderedSvg, setRenderedSvg] = reactExports.useState(""),
+    [displaySvg, setDisplaySvg] = reactExports.useState(""),
+    [retryCount, setRetryCount] = reactExports.useState(0),
+    { mermaid: mermaidOptions } = reactExports.useContext(markdownRenderOptionsContext),
+    mermaidPluginOptions = useMermaidPluginOptions(),
+    MermaidErrorComponent = mermaidOptions == null ? void 0 : mermaidOptions.errorComponent,
+    { shouldRender, containerRef } = useLazyIntersectionRendering({
+      immediate: fullscreen,
     });
   if (
     (reactExports.useEffect(() => {
-      if (!v2) return;
-      if (!g2) {
-        l2(
+      if (!shouldRender) return;
+      if (!mermaidPluginOptions) {
+        setRenderError(
           "Mermaid plugin not available. Please add the mermaid plugin to enable diagram rendering.",
         );
         return;
       }
       (async () => {
         try {
-          (l2(null), d2(true));
-          let H2 = g2.getMermaid(o2),
-            S3 = e2
+          (setRenderError(null), setIsLoading(true));
+          let mermaidRenderer = mermaidPluginOptions.getMermaid(config),
+            chartHash = chart
               .split("")
-              .reduce((z3, B2) => ((z3 << 5) - z3 + B2.charCodeAt(0)) | 0, 0),
-            F2 = `mermaid-${Math.abs(S3)}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            { svg: j2 } = await H2.render(F2, e2);
-          (p3(j2), u4(j2));
-        } catch (H2) {
-          if (!(m3 || c3)) {
-            let S3 =
-              H2 instanceof Error
-                ? H2.message
+              .reduce((hashAccumulator, character) => ((hashAccumulator << 5) - hashAccumulator + character.charCodeAt(0)) | 0, 0),
+            chartRenderId = `mermaid-${Math.abs(chartHash)}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            { svg: svgMarkup } = await mermaidRenderer.render(chartRenderId, chart);
+          (setRenderedSvg(svgMarkup), setDisplaySvg(svgMarkup));
+        } catch (error) {
+          if (!(displaySvg || renderedSvg)) {
+            let renderErrorMessage =
+              error instanceof Error
+                ? error.message
                 : "Failed to render Mermaid chart";
-            l2(S3);
+            setRenderError(renderErrorMessage);
           }
         } finally {
-          d2(false);
+          setIsLoading(false);
         }
       })();
-    }, [e2, o2, f2, v2, g2]),
-    !(v2 || c3 || m3))
+    }, [chart, config, retryCount, shouldRender, mermaidPluginOptions]),
+    !(shouldRender || renderedSvg || displaySvg))
   )
-    return <div className={s2("my-4 min-h-[200px]", t2)} ref={w3} />;
-  if (i2 && !c3 && !m3)
+    return <div className={mergeClassNames("my-4 min-h-[200px]", className)} ref={containerRef} />;
+  if (isLoading && !renderedSvg && !displaySvg)
     return (
-      <div className={s2("my-4 flex justify-center p-4", t2)} ref={w3}>
+      <div className={mergeClassNames("my-4 flex justify-center p-4", className)} ref={containerRef}>
         <div
-          className={s2("flex items-center space-x-2 text-muted-foreground")}
+          className={mergeClassNames("flex items-center space-x-2 text-muted-foreground")}
         >
           <div
-            className={s2(
+            className={mergeClassNames(
               "h-4 w-4 animate-spin rounded-full border-current border-b-2",
             )}
           />
-          <span className={s2("text-sm")}>Loading diagram...</span>
+          <span className={mergeClassNames("text-sm")}>Loading diagram...</span>
         </div>
       </div>
     );
-  if (a2 && !c3 && !m3) {
-    let M2 = () => h2((H2) => H2 + 1);
-    return T2 ? (
-      <div ref={w3}>
-        <T2 chart={e2} error={a2} retry={M2} />
+  if (renderError && !renderedSvg && !displaySvg) {
+    let handleRetry = () => setRetryCount((retryCount) => retryCount + 1);
+    return MermaidErrorComponent ? (
+      <div ref={containerRef}>
+        <MermaidErrorComponent chart={chart} error={renderError} retry={handleRetry} />
       </div>
     ) : (
-      <div className={s2("rounded-md bg-red-50 p-4", t2)} ref={w3}>
-        <p className={s2("font-mono text-red-700 text-sm")}>
+      <div className={mergeClassNames("rounded-md bg-red-50 p-4", className)} ref={containerRef}>
+        <p className={mergeClassNames("font-mono text-red-700 text-sm")}>
           {"Mermaid Error: "}
-          {a2}
+          {renderError}
         </p>
-        <details className={s2("mt-2")}>
-          <summary className={s2("cursor-pointer text-red-600 text-xs")}>
+        <details className={mergeClassNames("mt-2")}>
+          <summary className={mergeClassNames("cursor-pointer text-red-600 text-xs")}>
             Show Code
           </summary>
           <pre
-            className={s2(
+            className={mergeClassNames(
               "mt-2 overflow-x-auto rounded bg-red-100 p-2 text-red-800 text-xs",
             )}
           >
-            {e2}
+            {chart}
           </pre>
         </details>
       </div>
     );
   }
-  let P3 = c3 || m3;
+  let diagramMarkup = renderedSvg || displaySvg;
   return (
-    <div className={s2("size-full", t2)} data-streamdown="mermaid" ref={w3}>
-      <Nn
-        className={s2(n2 ? "size-full overflow-hidden" : "overflow-hidden", t2)}
-        fullscreen={n2}
+    <div className={mergeClassNames("size-full", className)} data-streamdown="mermaid" ref={containerRef}>
+      <ZoomableDiagram
+        className={mergeClassNames(fullscreen ? "size-full overflow-hidden" : "overflow-hidden", className)}
+        fullscreen={fullscreen}
         maxZoom={3}
         minZoom={0.5}
-        showControls={r2}
+        showControls={showControls}
         zoomStep={0.1}
       >
         <div
           aria-label="Mermaid chart"
-          className={s2(
+          className={mergeClassNames(
             "flex justify-center",
-            n2 ? "size-full items-center" : null,
+            fullscreen ? "size-full items-center" : null,
           )}
           dangerouslySetInnerHTML={{
-            __html: P3,
+            __html: diagramMarkup,
           }}
           role="img"
         />
-      </Nn>
+      </ZoomableDiagram>
     </div>
   );
 };

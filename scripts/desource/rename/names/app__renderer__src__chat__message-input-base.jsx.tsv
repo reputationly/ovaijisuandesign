@@ -1,0 +1,114 @@
+key	新名	依据
+src_default$1@2:100	Placeholder	`Placeholder` 是 Tiptap Placeholder 扩展，用于配置输入框的占位提示。
+MessageInput2@87:66	MessageInput	`MessageInput` 是 React forwardRef 中承载输入编辑器和发送操作的内部组件。
+ref@145:3	forwardedRef	`forwardedRef` 是由调用方传入并转交给编辑器容器的 React ref。
+t2@147:14	translate	`translate` 是获取消息输入组件本地化文案的函数。
+row@197:11	actionRow	`actionRow` 是用于测量输入框操作栏宽度的 DOM 行元素。
+a2@401:18	attachment	`attachment` 是正在检查状态和相对路径的附件记录。
+a2@402:15	attachment	`attachment` 是映射为可替换路径的附件记录。
+e2@479:26	editor	`editor` 是 ProseMirror 更新回调提供的编辑器实例。
+j2@528:21	nodeJson	`nodeJson` 是待由编辑器 schema 转换为 ProseMirror 节点的 JSON 项。
+n2@529:24	node	`node` 是从输入 JSON 成功构造出的 ProseMirror 节点。
+tr2@532:19	transaction	`transaction` 是将新节点插入当前选区的 ProseMirror 事务。
+i2@533:22	nodeIndex	`nodeIndex` 是内联内容节点数组中的当前位置。
+j2@540:26	nodeJson	`nodeJson` 是待检查类型并转成文本内容的内联 JSON 项。
+id2@594:6	attachmentId	`attachmentId` 标识待从编辑器引用中移除的附件。
+tr2@601:15	transaction	`transaction` 是更新编辑器中附件引用节点属性的事务。
+pos@603:46	nodePosition	`nodePosition` 是当前匹配节点在 ProseMirror 文档中的位置。
+a2@641:6	attachment	`attachment` 是待从输入内容中保留或恢复的附件记录。
+tr2@742:15	transaction	`transaction` 是替换文件夹引用属性的 ProseMirror 事务。
+pos@743:46	nodePosition	`nodePosition` 是文件夹引用节点在 ProseMirror 文档中的位置。
+id2@770:6	attachmentId	`attachmentId` 标识待用本地文件替换的附件。
+m3@787:41	modelCandidate	`modelCandidate` 是筛除隐藏项时检查的媒体模型记录；`model` 与全局名冲突。
+cat@794:13	mediaType	`mediaType` 用作已选媒体模型列表的键。
+m3@837:15	mediaModel	`mediaModel` 是当前附件条目关联的媒体模型。
+f2@872:15	attachmentFile	`attachmentFile` 是从附件条目取得的文件对象。
+el@1078:9	editorElement	`editorElement` 是编辑器视图中的根 DOM 元素。
+tr2@1123:37	transaction	`transaction` 是编辑器事务监听器接收的状态变更。
+pos@1158:11	searchPosition	`searchPosition` 是查找斜杠命令时继续搜索的文本位置。
+idx@1160:15	matchIndex	`matchIndex` 是当前斜杠命令在输入文本中的匹配起点。
+a2@1176:25	leftRange	`leftRange` 是范围排序比较中的左侧文本区间。
+b3@1176:29	rightRange	`rightRange` 是范围排序比较中的右侧文本区间。
+r2@1199:15	range	`range` 是技能高亮使用的起止文本区间。
+a2@1203:16	leftRange	`leftRange` 是高亮区间排序比较中的左侧区间。
+b3@1203:20	rightRange	`rightRange` 是高亮区间排序比较中的右侧区间。
+s2@1420:42	skill	`skill` 是按名称查找并选择的斜杠技能记录。
+seg@1453:18	segment	`segment` 是用于重建编辑器文档的一段文本或提及内容。
+tr2@1549:11	transaction	`transaction` 是更新文件夹提及路径和名称的事务。
+hit@1550:11	hasMatchingFolder	`hasMatchingFolder` 表示文档中是否找到符合目标 ID 的文件夹提及。
+pos@1551:44	nodePosition	`nodePosition` 是当前文件夹提及节点在文档中的位置。
+msg@1843:6	message	`message` 是从历史记录载入的聊天消息。
+att@1848:18	attachment	`attachment` 是从历史消息附件列表解析出的附件记录。
+att@1865:18	attachment	`attachment` 是重新加入编辑器的历史附件记录。
+e2@1874:13	keyboardEvent	`keyboardEvent` 是编辑器快捷键处理器接收的键盘事件。
+pos@1893:15	cursorPosition	`cursorPosition` 是光标前一个字符在编辑器文档中的偏移。
+msg@1898:17	historyMessage	`historyMessage` 是向上导航历史记录时恢复的消息。
+a2@1896:22	attachment	`attachment` 是历史消息中已完成且含相对路径的附件记录。
+a2@1897:19	attachment	`attachment` 是用于提取相对路径的历史附件记录。
+pos@1914:15	cursorPosition	`cursorPosition` 是向下导航时用于比较输入末尾的光标偏移。
+p3@1929:26	attachmentPath	`attachmentPath` 是从历史记录恢复并重新加入的附件路径。
+e2@1981:6	keyboardEvent	`keyboardEvent` 是编辑器级键盘处理函数收到的事件。
+rel@1995:6	relativePath	`relativePath` 是附件在工作区中的相对路径。
+running2@103:14	running	`running` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+remove2@310:13	remove	`remove` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+history2@1068:9	messageHistoryController	`messageHistoryController` 是输入框历史记录 hook 返回的导航和重置操作，避免与外层 `messageHistory` 属性冲突。
+reset2@1575:9	reset	`reset` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+handlePaste2@1980:9	handlePaste	`handlePaste` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+frame2@200:9	frame	`frame` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@203:27	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@221:13	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@269:46	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+snapshot2@349:38	snapshot	`snapshot` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+mode2@349:49	mode	`mode` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+current2@357:11	current	`current` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+snapshot2@370:12	snapshot	`snapshot` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+mode2@370:29	mode	`mode` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+path2@403:17	path	`path` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@482:15	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+slice2@491:35	slice	`slice` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+view2@494:23	view	`view` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@496:17	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+html2@497:17	html	`html` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+parser2@506:17	parser	`parser` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+doc2@508:17	doc	`doc` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+index2@515:67	index	`index` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+add2@538:21	add	`add` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+seen2@539:21	seen	`seen` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+slice2@559:27	slice	`slice` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+node2@603:39	node	`node` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+range2@616:20	range	`range` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+current2@627:11	current	`current` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+previous2@734:20	previous	`previous` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+next2@734:31	next	`next` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+node2@743:39	node	`node` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+list2@795:13	list	`list` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+state2@810:22	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+match2@818:13	match	`match` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+state2@913:22	state	`state` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+match2@921:13	match	`match` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+descendant2@1098:11	descendant	`descendant` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+cmd2@1157:13	cmd	`cmd` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@1185:6	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+name2@1229:13	mentionName	`mentionName` 是从 mention 节点属性读取的提及对象名称，避免与全局 `name` 冲突。
+handleClick2@1262:11	handleClick	`handleClick` 是事件或状态处理函数，末尾数字是打包器为避免重名添加的后缀。
+path2@1311:15	path	`path` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+count2@1388:11	count	`count` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+node2@1393:35	node	`node` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+name2@1419:6	skillName	`skillName` 是用于查找技能的名称参数，避免与全局 `name` 冲突。
+text2@1442:6	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+content2@1452:13	content	`content` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@1486:13	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+base2@1548:13	base	`base` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@1566:13	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+node2@1551:37	node	`node` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+editorDocSnapshot2@1687:11	editorDocSnapshot	`editorDocSnapshot` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@1688:11	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+node2@1702:38	node	`node` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+nav2@1922:17	nav	`nav` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+name2@1995:20	assetName	`assetName` 是添加资源路径时传入的文件名称，避免与全局 `name` 冲突。
+path2@2124:13	path	`path` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+doc@508:17	parsedDocument	`parsedDocument` 是解析输入文本或提及节点后得到的编辑器文档 JSON。
+add@538:21	addMentionedFileFromPath	`addMentionedFileFromPath` 将提及的文件路径加入附件，供编辑器提交。
+cmd@1157:13	slashCommandText	`slashCommandText` 是由技能名称构成、用于输入匹配的斜杠命令文本。
+nav@1922:17	historyNavigationResult	`historyNavigationResult` 是历史导航返回的消息或草稿状态。
+keyboardEvent@1981:6	clipboardEvent	`clipboardEvent` 是粘贴（onPaste）事件对象，从中读取剪贴板文件附加到输入框。

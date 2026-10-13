@@ -22,17 +22,17 @@ import { useFeedback } from "../settings/use-direct-feedback.jsx";
 const HOVER_MENU_CLOSE_DELAY_MS = 150;
 
 export function AssistantMessageActions({
-  content: content2,
+  content,
   requestId,
   alwaysVisible = false,
   ratingTarget,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const { openFeedback } = useFeedback();
   const { copied: messageCopied, copy: copyMessage } = useCopy();
   const handleRequestIdCopied = reactExports.useCallback(() => {
-    dedupedToast.success(t2("chat.requestIdCopied"));
-  }, [t2]);
+    dedupedToast.success(translate("chat.requestIdCopied"));
+  }, [translate]);
   const { copied: requestIdCopied, copy: copyRequestId } = useCopy(
     handleRequestIdCopied,
   );
@@ -95,14 +95,14 @@ export function AssistantMessageActions({
       logUploadReason: "chat_message_feedback",
     });
   }, [handleMenuOpenChange, openFeedback, requestId]);
-  const copyLabel = t2(messageCopied ? "chat.copied" : "chat.copyMessage");
+  const copyLabel = translate(messageCopied ? "chat.copied" : "chat.copyMessage");
   return (
     <div
       data-action-ui-id="chat-assistant-actions"
       data-always-visible={alwaysVisible ? "true" : void 0}
       className={`flex items-center gap-1 pt-1 text-muted-foreground transition-opacity duration-150 ${alwaysVisible || menuOpen || ratingOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0 group-hover/assistant:pointer-events-auto group-hover/assistant:opacity-100 group-focus-within/assistant:pointer-events-auto group-focus-within/assistant:opacity-100 focus-within:pointer-events-auto focus-within:opacity-100"}`}
     >
-      {content2 && (
+      {content && (
         <Tooltip>
           <TooltipTrigger
             closeOnClick={false}
@@ -110,7 +110,7 @@ export function AssistantMessageActions({
               <button
                 type="button"
                 data-action-ui-id="chat-assistant-copy"
-                onClick={() => void copyMessage(content2)}
+                onClick={() => void copyMessage(content)}
                 aria-label={copyLabel}
                 className="icon-muted-control inline-flex size-6 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
               >
@@ -145,7 +145,7 @@ export function AssistantMessageActions({
           <DropdownMenuTrigger
             type="button"
             data-action-ui-id="chat-assistant-more"
-            aria-label={t2("chat.moreActions")}
+            aria-label={translate("chat.moreActions")}
             className="icon-muted-control inline-flex size-6 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50 data-[popup-open]:bg-foreground/5 data-[popup-open]:text-foreground"
           >
             <MonochromeIcon tone="control">
@@ -164,16 +164,16 @@ export function AssistantMessageActions({
             <DropdownMenuItem
               data-action-ui-id="chat-assistant-menu-copy"
               className="px-3 py-2 text-body-14 font-normal"
-              onClick={() => void copyMessage(content2)}
+              onClick={() => void copyMessage(content)}
             >
-              {t2("chat.copyMessage")}
+              {translate("chat.copyMessage")}
             </DropdownMenuItem>
             <DropdownMenuItem
               data-action-ui-id="chat-assistant-menu-feedback"
               className="px-3 py-2 text-body-14 font-normal"
               onClick={handleFeedback}
             >
-              {t2("chat.submitFeedback")}
+              {translate("chat.submitFeedback")}
             </DropdownMenuItem>
             <DropdownMenuItem
               data-action-ui-id="chat-assistant-menu-copy-request-id"
@@ -181,7 +181,7 @@ export function AssistantMessageActions({
               disabled={!requestId}
               onClick={() => requestId && void copyRequestId(requestId)}
             >
-              {t2(
+              {translate(
                 requestIdCopied ? "chat.requestIdCopied" : "chat.copyRequestId",
               )}
             </DropdownMenuItem>

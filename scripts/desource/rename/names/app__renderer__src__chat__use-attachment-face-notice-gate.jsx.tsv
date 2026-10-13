@@ -1,0 +1,4 @@
+key	新名	依据
+t2@21:14	translate	`translate` 为附件人脸提示门控逻辑提供本地化文案。
+config2@59:10	config	`config` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@94:45	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。

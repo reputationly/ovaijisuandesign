@@ -35,9 +35,9 @@ const FILE_TOKEN_CLASS = `${TOKEN_CLASS} max-w-[120px] overflow-hidden text-elli
 const TOKEN_ICON_CLASS =
   "absolute left-1 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center border border-border bg-background bg-center bg-cover text-muted-foreground";
 
-function mentionKindFromPath(path2) {
-  const ext =
-    path2.split("?")[0]?.split("#")[0]?.split(".").pop()?.toLowerCase() ?? "";
+function mentionKindFromPath(path) {
+  const extension =
+    path.split("?")[0]?.split("#")[0]?.split(".").pop()?.toLowerCase() ?? "";
   if (
     [
       "png",
@@ -50,28 +50,28 @@ function mentionKindFromPath(path2) {
       "avif",
       "heic",
       "heif",
-    ].includes(ext)
+    ].includes(extension)
   )
     return "image";
-  if (["mp4", "webm", "mov", "m4v", "avi", "mkv"].includes(ext)) return "video";
-  if (["mp3", "wav", "m4a", "ogg", "flac", "aac"].includes(ext)) return "audio";
-  if (["txt", "md", "json"].includes(ext)) return "text";
+  if (["mp4", "webm", "mov", "m4v", "avi", "mkv"].includes(extension)) return "video";
+  if (["mp3", "wav", "m4a", "ogg", "flac", "aac"].includes(extension)) return "audio";
+  if (["txt", "md", "json"].includes(extension)) return "text";
   return "other";
 }
 
-function basename(path2) {
-  return path2.split("/").pop() || path2;
+function basename(path) {
+  return path.split("/").pop() || path;
 }
 
-function buildMediaThumbUrl(gatewayUrl2, kind, workspaceRelativePath) {
+function buildMediaThumbUrl(gatewayUrl, kind, workspaceRelativePath) {
   if (kind !== "image" && kind !== "video") return null;
   const encoded = workspaceRelativePath
     .split("/")
     .map(encodeURIComponent)
     .join("/");
   const prefix = kind === "image" ? "/files/" : "/api/thumbnail/";
-  const base2 = gatewayUrl2(`${prefix}${encoded}`);
-  return withThumbnailWidth(base2, MENTION_THUMB_PX) ?? null;
+  const base = gatewayUrl(`${prefix}${encoded}`);
+  return withThumbnailWidth(base, MENTION_THUMB_PX) ?? null;
 }
 
 function modelCandidates(models) {
@@ -107,26 +107,26 @@ function modelCandidates(models) {
       },
     ])
     .filter((entry) => entry.token.length > 0)
-    .sort((a2, b3) => b3.token.length - a2.token.length);
+    .sort((leftCandidate, rightCandidate) => rightCandidate.token.length - leftCandidate.token.length);
 }
 
-function findModelAt(text2, atIndex, models) {
-  for (const { token: token2, model } of modelCandidates(models)) {
-    if (!text2.startsWith(token2, atIndex + 1)) continue;
-    const next2 = text2[atIndex + 1 + token2.length];
-    if (next2 !== void 0 && !/\s/.test(next2)) continue;
+function findModelAt(text, atIndex, models) {
+  for (const { token, model } of modelCandidates(models)) {
+    if (!text.startsWith(token, atIndex + 1)) continue;
+    const next = text[atIndex + 1 + token.length];
+    if (next !== void 0 && !/\s/.test(next)) continue;
     return {
-      end: atIndex + 1 + token2.length,
+      end: atIndex + 1 + token.length,
       segment: {
         type: "model",
-        key: `model-${atIndex}-${token2}`,
+        key: `model-${atIndex}-${token}`,
         name: model.display_name,
         mediaType: model.type,
         thumbUrl: model.icon_url || null,
       },
     };
   }
-  const fallback = findAllMentions(text2).find(
+  const fallback = findAllMentions(text).find(
     (mention) => mention.start === atIndex,
   );
   if (!fallback?.path.startsWith("model:")) return null;
@@ -144,111 +144,111 @@ function findModelAt(text2, atIndex, models) {
   };
 }
 
-function findConnectorAt(text2, atIndex) {
-  const match2 = parseConnectorMentionAt(text2, atIndex);
-  if (!match2) return null;
-  const connector = connectorReferenceFromServerName(match2.serverName);
+function findConnectorAt(text, atIndex) {
+  const match = parseConnectorMentionAt(text, atIndex);
+  if (!match) return null;
+  const connector = connectorReferenceFromServerName(match.serverName);
   return {
-    end: match2.end,
+    end: match.end,
     segment: {
       type: "connector",
       key: `connector-${atIndex}-${connector.serverName}`,
-      name: match2.displayName ?? connector.displayName,
+      name: match.displayName ?? connector.displayName,
       iconUrl: connector.iconUrl,
     },
   };
 }
 
-function findSkillAt(text2, slashIndex) {
-  const previous2 = text2[slashIndex - 1];
-  if (previous2 !== void 0 && !/\s/.test(previous2)) return null;
-  const match2 = /^\/([A-Za-z0-9][A-Za-z0-9_-]*)/.exec(text2.slice(slashIndex));
-  if (!match2) return null;
-  const command2 = match2[0];
-  const next2 = text2[slashIndex + command2.length];
-  if (next2 !== void 0 && next2 !== " " && next2 !== "/") return null;
-  const name2 = command2.slice(1);
+function findSkillAt(text, slashIndex) {
+  const previous = text[slashIndex - 1];
+  if (previous !== void 0 && !/\s/.test(previous)) return null;
+  const match = /^\/([A-Za-z0-9][A-Za-z0-9_-]*)/.exec(text.slice(slashIndex));
+  if (!match) return null;
+  const command = match[0];
+  const next = text[slashIndex + command.length];
+  if (next !== void 0 && next !== " " && next !== "/") return null;
+  const skillName = command.slice(1);
   return {
-    end: slashIndex + command2.length,
+    end: slashIndex + command.length,
     segment: {
       type: "skill",
-      key: `skill-${slashIndex}-${name2}`,
-      name: name2,
+      key: `skill-${slashIndex}-${skillName}`,
+      name: skillName,
     },
   };
 }
 
-function pushText(segments, content2, start2, end2) {
-  if (end2 <= start2) return;
-  const text2 = content2.slice(start2, end2);
-  const tokens2 = findInlineVisualTokens(text2);
-  if (tokens2.length === 0) {
+function pushText(segments, content, start, end) {
+  if (end <= start) return;
+  const text = content.slice(start, end);
+  const tokens = findInlineVisualTokens(text);
+  if (tokens.length === 0) {
     segments.push({
       type: "text",
-      key: `text-${start2}-${end2}`,
-      text: text2,
+      key: `text-${start}-${end}`,
+      text,
     });
     return;
   }
   let cursor = 0;
-  for (const token2 of tokens2) {
-    if (token2.start > cursor) {
+  for (const token of tokens) {
+    if (token.start > cursor) {
       segments.push({
         type: "text",
-        key: `text-${start2 + cursor}-${start2 + token2.start}`,
-        text: text2.slice(cursor, token2.start),
+        key: `text-${start + cursor}-${start + token.start}`,
+        text: text.slice(cursor, token.start),
       });
     }
     segments.push({
       type: "color",
-      key: `color-${start2 + token2.start}-${token2.value}`,
-      value: token2.value,
-      text: token2.raw,
+      key: `color-${start + token.start}-${token.value}`,
+      value: token.value,
+      text: token.raw,
     });
-    cursor = token2.end;
+    cursor = token.end;
   }
-  if (cursor < text2.length) {
+  if (cursor < text.length) {
     segments.push({
       type: "text",
-      key: `text-${start2 + cursor}-${end2}`,
-      text: text2.slice(cursor),
+      key: `text-${start + cursor}-${end}`,
+      text: text.slice(cursor),
     });
   }
 }
 
-function parseRichUserPrompt(content2, models) {
-  const fileMentions = findAllMentions(content2);
+function parseRichUserPrompt(content, models) {
+  const fileMentions = findAllMentions(content);
   const fileMentionByStart = new Map();
   for (const mention of fileMentions)
     fileMentionByStart.set(mention.start, mention);
   const segments = [];
   let cursor = 0;
-  while (cursor < content2.length) {
-    const atIndex = content2.indexOf("@", cursor);
-    const slashIndex = content2.indexOf("/", cursor);
+  while (cursor < content.length) {
+    const atIndex = content.indexOf("@", cursor);
+    const slashIndex = content.indexOf("/", cursor);
     const tokenIndex = [atIndex, slashIndex]
-      .filter((idx) => idx >= 0)
-      .sort((a2, b3) => a2 - b3)[0];
+      .filter((index) => index >= 0)
+      .sort((leftIndex, rightIndex) => leftIndex - rightIndex)[0];
     if (tokenIndex === void 0) break;
-    pushText(segments, content2, cursor, tokenIndex);
+    pushText(segments, content, cursor, tokenIndex);
     if (tokenIndex === slashIndex) {
-      const skill = findSkillAt(content2, tokenIndex);
+      const skill = findSkillAt(content, tokenIndex);
       if (skill) {
         segments.push(skill.segment);
         cursor = skill.end;
       } else {
-        pushText(segments, content2, tokenIndex, tokenIndex + 1);
+        pushText(segments, content, tokenIndex, tokenIndex + 1);
         cursor = tokenIndex + 1;
       }
       continue;
     }
-    const connector = findConnectorAt(content2, tokenIndex);
+    const connector = findConnectorAt(content, tokenIndex);
     if (connector) {
       segments.push(connector.segment);
       cursor = connector.end;
       continue;
     }
-    const model = findModelAt(content2, tokenIndex, models);
+    const model = findModelAt(content, tokenIndex, models);
     if (model) {
       segments.push(model.segment);
       cursor = model.end;
@@ -266,10 +266,10 @@ function parseRichUserPrompt(content2, models) {
       cursor = fileMention.end;
       continue;
     }
-    pushText(segments, content2, tokenIndex, tokenIndex + 1);
+    pushText(segments, content, tokenIndex, tokenIndex + 1);
     cursor = tokenIndex + 1;
   }
-  pushText(segments, content2, cursor, content2.length);
+  pushText(segments, content, cursor, content.length);
   return segments;
 }
 
@@ -297,7 +297,7 @@ function redactRichSegments(segments) {
   });
 }
 
-function TokenIcon({ thumbUrl, children: children2 }) {
+function TokenIcon({ thumbUrl, children }) {
   const [failedUrl, setFailedUrl] = reactExports.useState(null);
   return (
     <span className={TOKEN_ICON_CLASS} aria-hidden="true">
@@ -309,15 +309,15 @@ function TokenIcon({ thumbUrl, children: children2 }) {
           onError={() => setFailedUrl(thumbUrl)}
         />
       ) : (
-        children2
+        children
       )}
     </span>
   );
 }
 
 function FileSegment({ segment }) {
-  const gatewayUrl2 = useGatewayUrl();
-  const thumbUrl = buildMediaThumbUrl(gatewayUrl2, segment.kind, segment.path);
+  const gatewayUrl = useGatewayUrl();
+  const thumbUrl = buildMediaThumbUrl(gatewayUrl, segment.kind, segment.path);
   return (
     <span
       className={`hl-mention-file ${FILE_TOKEN_CLASS}`}
@@ -409,41 +409,41 @@ function renderSegments(segments) {
 }
 
 export const RichUserPromptContent = reactExports.memo(
-  function RichUserPromptContent2({
-    content: content2,
+  function RichUserPromptContent({
+    content,
     collapsible = false,
     className,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t: translate } = useTranslation();
     const isPresented = useChatPresentation();
     const { data: mentionModels = [] } = useMentionModels();
     const segments = reactExports.useMemo(
-      () => redactRichSegments(parseRichUserPrompt(content2, mentionModels)),
-      [content2, mentionModels],
+      () => redactRichSegments(parseRichUserPrompt(content, mentionModels)),
+      [content, mentionModels],
     );
     const [expanded, setExpanded] = reactExports.useState(false);
     const contentRef = reactExports.useRef(null);
     const [overflows, setOverflows] = reactExports.useState(false);
     reactExports.useLayoutEffect(() => {
       if (!collapsible || expanded || !isPresented) return;
-      const el = contentRef.current;
-      if (!el) return;
+      const contentElement = contentRef.current;
+      if (!contentElement) return;
       const check = () => {
-        if (el.scrollHeight <= 0 || el.clientHeight <= 0) return;
-        setOverflows(el.scrollHeight > el.clientHeight + 1);
+        if (contentElement.scrollHeight <= 0 || contentElement.clientHeight <= 0) return;
+        setOverflows(contentElement.scrollHeight > contentElement.clientHeight + 1);
       };
       check();
-      const ro = new ResizeObserver(check);
-      ro.observe(el);
-      const mo = new MutationObserver(check);
-      mo.observe(el, {
+      const resizeObserver = new ResizeObserver(check);
+      resizeObserver.observe(contentElement);
+      const mutationObserver = new MutationObserver(check);
+      mutationObserver.observe(contentElement, {
         childList: true,
         characterData: true,
         subtree: true,
       });
       return () => {
-        ro.disconnect();
-        mo.disconnect();
+        resizeObserver.disconnect();
+        mutationObserver.disconnect();
       };
     }, [collapsible, expanded, isPresented]);
     const baseClass =
@@ -476,9 +476,9 @@ export const RichUserPromptContent = reactExports.memo(
           <button
             type="button"
             className="mt-1.5 text-xs text-muted-foreground hover:text-foreground"
-            onClick={() => setExpanded((v2) => !v2)}
+            onClick={() => setExpanded((isExpanded) => !isExpanded)}
           >
-            {expanded ? t2("chat.collapse") : t2("chat.expand")}
+            {expanded ? translate("chat.collapse") : translate("chat.expand")}
           </button>
         )}
       </>

@@ -1,98 +1,98 @@
 // pe.jsx
-import { L, ne, re, reactExports, ue } from "../vendor.js";
+import { L as useIcons, ne as tableToCsv, re as tableToMarkdown, reactExports, ue as extractTableData } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { R, W2, y3 } from "./ae.jsx";
-import { D3 } from "../media-editing/wt.js";
+import { R as markdownRenderOptionsContext, W2 as downloadFile, y3 as useClassNameMerger } from "./ae.jsx";
+import { D3 as useStreamdownLabels } from "../media-editing/wt.js";
 
 export var Pe = ({
-  children: e2,
-  className: t2,
-  onDownload: o2,
-  onError: n2,
+  children,
+  className,
+  onDownload,
+  onError,
 }) => {
-  let r2 = y3(),
-    [s2, a2] = reactExports.useState(false),
-    l2 = reactExports.useRef(null),
-    { isAnimating: i2 } = reactExports.useContext(R),
-    d2 = D3(),
-    c3 = L(),
-    p3 = (m3) => {
-      var u4;
+  let mergeClassNames = useClassNameMerger(),
+    [isMenuOpen, setIsMenuOpen] = reactExports.useState(false),
+    menuRef = reactExports.useRef(null),
+    { isAnimating } = reactExports.useContext(markdownRenderOptionsContext),
+    translations = useStreamdownLabels(),
+    icons = useIcons(),
+    downloadTable = (format) => {
+      var menuElement;
       try {
-        let f2 =
-            (u4 = l2.current) == null
+        let tableWrapper =
+            (menuElement = menuRef.current) == null
               ? void 0
-              : u4.closest('[data-streamdown="table-wrapper"]'),
-          h2 = f2 == null ? void 0 : f2.querySelector("table");
-        if (!h2) {
-          n2 == null || n2(new Error("Table not found"));
+              : menuElement.closest('[data-streamdown="table-wrapper"]'),
+          tableElement = tableWrapper == null ? void 0 : tableWrapper.querySelector("table");
+        if (!tableElement) {
+          onError == null || onError(new Error("Table not found"));
           return;
         }
-        let b3 = ue(h2),
-          g2 = m3 === "csv" ? ne(b3) : re(b3);
-        (W2(
-          `table.${m3 === "csv" ? "csv" : "md"}`,
-          g2,
-          m3 === "csv" ? "text/csv" : "text/markdown",
+        let tableData = extractTableData(tableElement),
+          serializedTable = format === "csv" ? tableToCsv(tableData) : tableToMarkdown(tableData);
+        (downloadFile(
+          `table.${format === "csv" ? "csv" : "md"}`,
+          serializedTable,
+          format === "csv" ? "text/csv" : "text/markdown",
         ),
-          a2(false),
-          o2 == null || o2(m3));
-      } catch (f2) {
-        n2 == null || n2(f2);
+          setIsMenuOpen(false),
+          onDownload == null || onDownload(format));
+      } catch (error) {
+        onError == null || onError(error);
       }
     };
   return (
     reactExports.useEffect(() => {
-      let m3 = (u4) => {
-        let f2 = u4.composedPath();
-        l2.current && !f2.includes(l2.current) && a2(false);
+      let handleOutsideMouseDown = (mouseEvent) => {
+        let eventPath = mouseEvent.composedPath();
+        menuRef.current && !eventPath.includes(menuRef.current) && setIsMenuOpen(false);
       };
       return (
-        document.addEventListener("mousedown", m3),
+        document.addEventListener("mousedown", handleOutsideMouseDown),
         () => {
-          document.removeEventListener("mousedown", m3);
+          document.removeEventListener("mousedown", handleOutsideMouseDown);
         }
       );
     }, []),
     (
-      <div className={r2("relative")} ref={l2}>
+      <div className={mergeClassNames("relative")} ref={menuRef}>
         <button
-          className={r2(
+          className={mergeClassNames(
             "cursor-pointer p-1 text-muted-foreground transition-all hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-            t2,
+            className,
           )}
-          disabled={i2}
-          onClick={() => a2(!s2)}
-          title={d2.downloadTable}
+          disabled={isAnimating}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          title={translations.downloadTable}
           type="button"
         >
-          {e2 != null ? e2 : <c3.DownloadIcon size={14} />}
+          {children != null ? children : <icons.DownloadIcon size={14} />}
         </button>
-        {s2 ? (
+        {isMenuOpen ? (
           <div
-            className={r2(
+            className={mergeClassNames(
               "absolute top-full right-0 z-20 mt-1 min-w-[120px] overflow-hidden rounded-md border border-border bg-background shadow-lg",
             )}
           >
             <button
-              className={r2(
+              className={mergeClassNames(
                 "w-full px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40",
               )}
-              onClick={() => p3("csv")}
-              title={d2.downloadTableAsCsv}
+              onClick={() => downloadTable("csv")}
+              title={translations.downloadTableAsCsv}
               type="button"
             >
-              {d2.tableFormatCsv}
+              {translations.tableFormatCsv}
             </button>
             <button
-              className={r2(
+              className={mergeClassNames(
                 "w-full px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40",
               )}
-              onClick={() => p3("markdown")}
-              title={d2.downloadTableAsMarkdown}
+              onClick={() => downloadTable("markdown")}
+              title={translations.downloadTableAsMarkdown}
               type="button"
             >
-              {d2.tableFormatMarkdown}
+              {translations.tableFormatMarkdown}
             </button>
           </div>
         ) : null}

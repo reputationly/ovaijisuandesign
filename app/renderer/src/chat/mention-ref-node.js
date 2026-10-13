@@ -91,18 +91,18 @@ export const MentionRefNode = Node.create({
   addKeyboardShortcuts() {
     return {
       Backspace: () =>
-        this.editor.commands.command(({ tr: tr2, state: state2 }) => {
-          const { selection: selection2 } = state2;
-          const { $from } = selection2;
-          if (!selection2.empty) return false;
+        this.editor.commands.command(({ tr: transaction, state }) => {
+          const { selection } = state;
+          const { $from } = selection;
+          if (!selection.empty) return false;
           const before = $from.nodeBefore;
           if (!before) return false;
           if (before.type.name === this.name) {
-            tr2.delete($from.pos - before.nodeSize, $from.pos);
+            transaction.delete($from.pos - before.nodeSize, $from.pos);
             return true;
           }
           if (before.isText && before.nodeSize === 1 && before.text === " ") {
-            tr2.delete($from.pos - 1, $from.pos);
+            transaction.delete($from.pos - 1, $from.pos);
             return true;
           }
           return false;

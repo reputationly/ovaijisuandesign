@@ -1,0 +1,13 @@
+key	新名	依据
+cn@14:18	mergeClassNames	`mergeClassNames` 合并 Tailwind 类名并消解冲突，用于合规提示的样式。
+obj@38:9	promotionPayload	`promotionPayload` 是包含促销与模型数据的原始响应对象。
+res@51:15	response	`response` 是账单促销接口返回并检查状态、解析 JSON 的响应。
+msg@85:24	message	`message` 是工作区 WebSocket 订阅回调收到的通知消息。
+e2@107:19	error	`error` 是无活动会话时重启 OpenCode 捕获的异常。
+e2@116:15	error	`error` 是用户触发重载时重启 OpenCode 捕获的异常。
+t2@127:20	translate	`translate` 是合规提示组件查询本地化文本的函数。
+raw2@36:20	raw	`raw` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+data2@47:17	data	`data` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+subscribe2@82:22	subscribe	`subscribe` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+pending2@91:15	pending	`pending` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+platform2@128:9	platform	`platform` 是标识值；末尾数字是打包器为避免重名添加的后缀。

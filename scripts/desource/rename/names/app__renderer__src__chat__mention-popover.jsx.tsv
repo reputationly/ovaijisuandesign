@@ -1,0 +1,67 @@
+key	新名	依据
+cn@19:26	mergeClassNames	`mergeClassNames` 按来源实现合并并消解冲突的 CSS 类名。
+gi@203:3	globalIndex	`globalIndex` 是该文件候选项在完整提及列表中的位置。
+gi@237:3	globalIndex	`globalIndex` 是该模型候选项在完整提及列表中的位置。
+gi@277:3	globalIndex	`globalIndex` 是该连接器候选项在完整提及列表中的位置。
+gi@311:3	globalIndex	`globalIndex` 是该工作流候选项在完整提及列表中的位置。
+t2@316:14	translate	`translate` 是工作流条目查询本地化文案的函数。
+id2@373:7	popoverId	`popoverId` 是传给弹出列表容器的 DOM 标识。
+t2@392:14	translate	`translate` 是提及弹窗查询本地化文案的函数。
+m3@420:16	modelEntry	`modelEntry` 是用于推导可用媒体分类的模型候选记录。
+mt2@421:13	mediaType	`mediaType` 是模型记录的媒体分类，用于筛选支持的标签。
+t22@432:37	mediaTab	`mediaTab` 是正在判断是否可用的图像、视频或音频标签。
+mt2@491:11	mediaType	`mediaType` 是当前候选模型的媒体分类。
+idx@512:13	categoryIndex	`categoryIndex` 是目标分类首个候选项在提及列表中的位置。
+it2@512:36	item	`item` 是被检查类别的任意提及候选记录。
+m3@521:30	modelEntry	`modelEntry` 是按媒体标签筛选的模型候选记录。
+i2@551:14	itemIndex	`itemIndex` 是建立候选项到完整列表位置映射时的数组下标。
+el@578:11	bodyElement	`bodyElement` 是设置滚动状态标记的弹窗主体 DOM 元素。
+e2@589:22	mouseEvent	`mouseEvent` 是文档级鼠标按下处理器收到的事件。
+gi@648:11	globalIndex	`globalIndex` 是文件候选项在完整提及列表中的位置。
+e2@669:21	mouseEvent	`mouseEvent` 是阻止弹窗鼠标按下默认行为的事件。
+e2@670:17	wheelEvent	`wheelEvent` 是阻止滚轮事件向外传播的事件。
+e2@671:21	touchEvent	`touchEvent` 是阻止触摸移动事件向外传播的事件。
+gi@733:25	globalIndex	`globalIndex` 是连接器候选项在完整提及列表中的位置。
+gi@883:25	globalIndex	`globalIndex` 是模型候选项在完整提及列表中的位置。
+gi@939:25	globalIndex	`globalIndex` 是工作流候选项在完整提及列表中的位置。
+gatewayUrl2@91:3	gatewayUrl	`gatewayUrl` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+base2@102:9	base	`base` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+MentionThumb2@105:49	MentionThumb	`MentionThumb` 是执行相应业务操作的函数，末尾数字是打包器为避免重名添加的后缀。
+gatewayUrl2@106:9	gatewayUrl	`gatewayUrl` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+url2@107:9	url	`url` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+wrapperStyle2@116:9	wrapperStyle	`wrapperStyle` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+ModelIcon2@160:46	ModelIcon	`ModelIcon` 是执行相应业务操作的函数，末尾数字是打包器为避免重名添加的后缀。
+wrapperStyle2@164:9	wrapperStyle	`wrapperStyle` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+text2@190:29	text	`text` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+isActive2@204:13	isActive	`isActive` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+MentionFileRow2@201:51	MentionFileRow	`MentionFileRow` 是执行相应业务操作的函数，末尾数字是打包器为避免重名添加的后缀。
+handleClick2@208:9	handleClick	`handleClick` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+isActive2@238:13	isActive	`isActive` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+MentionModelRow2@235:52	MentionModelRow	`MentionModelRow` 是执行相应业务操作的函数，末尾数字是打包器为避免重名添加的后缀。
+handleClick2@243:9	handleClick	`handleClick` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+isActive2@278:13	isActive	`isActive` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+MentionConnectorRow2@275:56	MentionConnectorRow	`MentionConnectorRow` 是执行相应业务操作的函数，末尾数字是打包器为避免重名添加的后缀。
+handleClick2@282:9	handleClick	`handleClick` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+isActive2@312:13	isActive	`isActive` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+MentionWorkflowRow2@309:55	MentionWorkflowRow	`MentionWorkflowRow` 是执行相应业务操作的函数，末尾数字是打包器为避免重名添加的后缀。
+handleClick2@317:9	handleClick	`handleClick` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+position2@389:13	position	`position` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+order2@424:11	order	`order` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+current2@465:11	current	`current` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+current2@477:11	current	`current` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+active2@489:11	active	`active` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+tab2@497:6	tab	`tab` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+map3@550:11	map	`map` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+index2@565:13	index	`index` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+update2@601:11	update	`update` 是执行相应状态更新或操作的函数，末尾数字是打包器为避免重名添加的后缀。
+top2@620:15	popoverTop	`popoverTop` 是弹出层用于定位的顶部坐标，避免与全局 `top` 冲突。
+tab2@686:12	tab	`tab` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+key2@691:23	key	`key` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+isActive2@692:17	isActive	`isActive` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+tab2@860:37	tab	`tab` 是此处持有的标识值，末尾数字是打包器为避免重名添加的后缀。
+url@107:9	thumbnailUrl	`thumbnailUrl` 是根据提及资源信息生成、用于预览图像的 URL。
+tab@497:6	targetTab	`targetTab` 是用户选择后要激活的提及面板标签。
+map@550:11	itemIndexByItem	`itemIndexByItem` 将项目对象映射到其在列表中的原始下标。
+tab@686:12	tabDefinition	`tabDefinition` 描述一个可用提及标签及其 key、文案配置。
+key@691:18	tabKey	`tabKey` 是标签配置中用于激活态、React key 和事件标识的标签键。
+tab@860:37	availableModelTab	`availableModelTab` 是可选的模型媒体类别，用于切换模型标签。

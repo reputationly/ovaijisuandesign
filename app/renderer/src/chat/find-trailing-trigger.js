@@ -3,8 +3,8 @@ import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js"
 
 export function hasFileDropPayload(dataTransfer) {
   if (!dataTransfer) return false;
-  const types2 = Array.from(dataTransfer.types ?? []);
-  return types2.includes("Files") || types2.includes(RESOURCE_DRAG_MIME);
+  const types = Array.from(dataTransfer.types ?? []);
+  return types.includes("Files") || types.includes(RESOURCE_DRAG_MIME);
 }
 
 export function currentCanvasWorkflowNodeKey(workflow) {
@@ -13,13 +13,13 @@ export function currentCanvasWorkflowNodeKey(workflow) {
 
 export function findTrailingTrigger(textBeforeCaret, trigger, invalidChars) {
   const escaped = trigger === "/" ? "\\/" : trigger;
-  const re2 = new RegExp(`${escaped}([^${invalidChars}]*)$`);
-  const match2 = textBeforeCaret.match(re2);
-  if (!match2) return null;
-  const start2 = match2.index ?? 0;
+  const trailingTriggerPattern = new RegExp(`${escaped}([^${invalidChars}]*)$`);
+  const match = textBeforeCaret.match(trailingTriggerPattern);
+  if (!match) return null;
+  const start = match.index ?? 0;
   return {
-    start: start2,
-    query: match2[1] ?? "",
+    start,
+    query: match[1] ?? "",
   };
 }
 

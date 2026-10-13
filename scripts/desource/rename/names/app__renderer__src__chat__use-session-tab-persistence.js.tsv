@@ -1,0 +1,11 @@
+key	新名	依据
+id2@11:14	sessionId	`sessionId` 是用于查询工作区会话并排除不应恢复的标签 ID。
+id2@21:11	sessionId	`sessionId` 是用于读取会话并生成持久化标签 ID 的标识。
+s2@55:46	session	`session` 是待与已保存打开标签 ID 匹配的可用会话对象。
+id2@56:51	sessionId	`sessionId` 是用于判断保存标签是否仍可恢复的 ID。
+s2@189:38	session	`session` 是用于选择默认会话标签的候选会话对象。
+state2@7:3	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+snapshot2@46:40	snapshot	`snapshot` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+state2@119:11	state	`state` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+snapshot2@121:9	snapshot	`snapshot` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+active2@189:13	active	`active` 是标识值；末尾数字是打包器为避免重名添加的后缀。

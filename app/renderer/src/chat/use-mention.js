@@ -33,65 +33,65 @@ function formatMentionInsert(item) {
   return formatFileMentionInsert(item.file);
 }
 
-async function defaultFetcher(gatewayFetch2, path2, signal) {
-  const resp = await gatewayFetch2(path2, {
+async function defaultFetcher(gatewayFetch, path, signal) {
+  const resp = await gatewayFetch(path, {
     signal,
   });
-  const data2 = await resp.json();
+  const data = await resp.json();
   return {
-    items: Array.isArray(data2?.items) ? data2.items : [],
-    truncated: Boolean(data2?.truncated),
+    items: Array.isArray(data?.items) ? data.items : [],
+    truncated: Boolean(data?.truncated),
   };
 }
 
 function modelScore(target, query) {
   if (!query) return 1;
-  const t2 = target.toLowerCase();
-  const q2 = query.toLowerCase();
-  let ti = 0;
-  let qi = 0;
+  const normalizedTarget = target.toLowerCase();
+  const normalizedQuery = query.toLowerCase();
+  let targetIndex = 0;
+  let queryIndex = 0;
   let score = 0;
-  while (ti < t2.length && qi < q2.length) {
-    if (t2[ti] === q2[qi]) {
+  while (targetIndex < normalizedTarget.length && queryIndex < normalizedQuery.length) {
+    if (normalizedTarget[targetIndex] === normalizedQuery[queryIndex]) {
       score += 10;
-      qi++;
+      queryIndex++;
     }
-    ti++;
+    targetIndex++;
   }
-  return qi === q2.length ? score : 0;
+  return queryIndex === normalizedQuery.length ? score : 0;
 }
 
 function matchModels(models, query) {
   const scored = [];
-  for (const m3 of models) {
-    if (m3.visibility === "hidden") continue;
-    const mentionName = m3.mention_name ?? m3.model_name;
-    const nameScore = modelScore(m3.display_name, query);
+  for (const mediaModel of models) {
+    if (mediaModel.visibility === "hidden") continue;
+    const mentionName = mediaModel.mention_name ?? mediaModel.model_name;
+    const nameScore = modelScore(mediaModel.display_name, query);
     const mentionNameScore = modelScore(mentionName, query);
-    const modelNameScore = modelScore(m3.model_name, query);
-    const idScore = modelScore(m3.id, query);
+    const modelNameScore = modelScore(mediaModel.model_name, query);
+    const idScore = modelScore(mediaModel.id, query);
     const best = Math.max(nameScore, mentionNameScore, modelNameScore, idScore);
     if (best > 0) {
       scored.push({
         item: {
           category: "model",
           model: {
-            id: m3.id,
-            displayName: m3.display_name,
-            modelName: m3.model_name,
+            id: mediaModel.id,
+            displayName: mediaModel.display_name,
+            modelName: mediaModel.model_name,
             mentionName,
-            mediaType: m3.type,
-            iconUrl: m3.icon_url,
-            description: m3.description,
-            seriesId: m3.series_id,
+            mediaType: mediaModel.type,
+            iconUrl: mediaModel.icon_url,
+            description: mediaModel.description,
+            seriesId: mediaModel.series_id,
           },
         },
         score: best,
       });
     }
   }
-  scored.sort((a2, b3) => b3.score - a2.score);
-  return scored.map((s2) => s2.item);
+  scored.sort((leftCandidate, rightCandidate) => rightCandidate.score - leftCandidate.score);
+  return scored.map((scoredResult) => scoredResult.item);
 }
 
 function matchWorkflows(
@@ -136,22 +136,22 @@ function matchWorkflows(
   ];
 }
 
-function setCacheEntry(cache2, key2, entry, maxEntries) {
-  const cap2 = Math.max(1, Math.floor(maxEntries));
-  cache2.delete(key2);
-  cache2.set(key2, entry);
-  while (cache2.size > cap2) {
-    const oldest = cache2.keys().next().value;
+function setCacheEntry(cache, key, entry, maxEntries) {
+  const cap = Math.max(1, Math.floor(maxEntries));
+  cache.delete(key);
+  cache.set(key, entry);
+  while (cache.size > cap) {
+    const oldest = cache.keys().next().value;
     if (oldest === void 0) return;
-    cache2.delete(oldest);
+    cache.delete(oldest);
   }
 }
 
-function touchCacheEntry(cache2, key2) {
-  const entry = cache2.get(key2);
+function touchCacheEntry(cache, key) {
+  const entry = cache.get(key);
   if (!entry) return void 0;
-  cache2.delete(key2);
-  cache2.set(key2, entry);
+  cache.delete(key);
+  cache.set(key, entry);
   return entry;
 }
 
@@ -162,7 +162,7 @@ export function useMention(
   _anchorRef,
   options = {},
 ) {
-  const gatewayFetch2 = useGatewayFetch();
+  const gatewayFetch = useGatewayFetch();
   const {
     getCaret,
     debounceMs = DEBOUNCE_MS,
@@ -184,8 +184,8 @@ export function useMention(
   const fetcher = reactExports.useMemo(
     () =>
       options.fetcher ??
-      ((path2, signal) => defaultFetcher(gatewayFetch2, path2, signal)),
-    [gatewayFetch2, options.fetcher],
+      ((path, signal) => defaultFetcher(gatewayFetch, path, signal)),
+    [gatewayFetch, options.fetcher],
   );
   const projectAssetFetcher = reactExports.useMemo(
     () => options.projectAssetFetcher ?? fetcher,
@@ -223,7 +223,7 @@ export function useMention(
     abortRef.current?.abort();
     abortRef.current = null;
   }, []);
-  const close2 = reactExports.useCallback(() => {
+  const closeMentionPopover = reactExports.useCallback(() => {
     cancelInFlight();
     browseInputRef.current = null;
     setOpen(false);
@@ -243,32 +243,32 @@ export function useMention(
     };
   }, [cancelInFlight]);
   const scheduleFetch = reactExports.useCallback(
-    (q2) => {
+    (query) => {
       cancelInFlight();
-      const ws2 = workspace;
-      if (!ws2) {
+      const workspacePath = workspace;
+      if (!workspacePath) {
         setFileItems([]);
         setProjectAssetItems([]);
         setTruncated(false);
         setLoading(false);
         return;
       }
-      const cacheKey = `${ws2}::${q2}`;
+      const cacheKey = `${workspacePath}::${query}`;
       const cached = touchCacheEntry(cacheRef.current, cacheKey);
       const cachedFiles =
         cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS ? cached : null;
       setLoading(true);
       const controller = new AbortController();
       abortRef.current = controller;
-      const seq2 = ++fetchSeqRef.current;
-      const run2 = () => {
+      const seq = ++fetchSeqRef.current;
+      const run = () => {
         const params = new URLSearchParams({
-          workspace: ws2,
-          q: q2,
+          workspace: workspacePath,
+          q: query,
           limit: String(SEARCH_LIMIT),
         });
         const projectAssetParams = new URLSearchParams({
-          q: q2,
+          q: query,
           limit: String(SEARCH_LIMIT),
         });
         const fileUrl = `${API_PATHS.filesMentionSearch}?${params.toString()}`;
@@ -289,7 +289,7 @@ export function useMention(
               }),
         ]).then(([fileResult, projectAssetResult]) => {
           if (controller.signal.aborted) return;
-          if (seq2 !== fetchSeqRef.current) return;
+          if (seq !== fetchSeqRef.current) return;
           const fileResponse =
             fileResult.status === "fulfilled"
               ? fileResult.value
@@ -326,9 +326,9 @@ export function useMention(
         });
       };
       if (debounceMs <= 0) {
-        run2();
+        run();
       } else {
-        debounceRef.current = setTimeout(run2, debounceMs);
+        debounceRef.current = setTimeout(run, debounceMs);
       }
     },
     [
@@ -342,21 +342,21 @@ export function useMention(
     ],
   );
   const onChange = reactExports.useCallback(
-    (text2, caret) => {
-      const before = text2.slice(0, caret);
-      const match2 = findMentionTrigger(before);
-      if (!match2) {
-        if (open && (!openedByButton || text2 !== browseInputRef.current))
-          close2();
+    (text, caret) => {
+      const before = text.slice(0, caret);
+      const match = findMentionTrigger(before);
+      if (!match) {
+        if (open && (!openedByButton || text !== browseInputRef.current))
+          closeMentionPopover();
         return;
       }
-      triggerStartRef.current = match2.start;
+      triggerStartRef.current = match.start;
       setOpenedByButton(false);
-      setQuery(match2.query);
+      setQuery(match.query);
       setOpen(true);
-      scheduleFetch(match2.query);
+      scheduleFetch(match.query);
     },
-    [open, openedByButton, close2, scheduleFetch],
+    [open, openedByButton, closeMentionPopover, scheduleFetch],
   );
   const openPopover = reactExports.useCallback(() => {
     const caret = getCaret ? getCaret() : inputRef.current.length;
@@ -383,22 +383,22 @@ export function useMention(
         category: "connector",
         connector,
       }));
-    const referencePathSet = new Set(referenceFiles.map((f2) => f2.path));
+    const referencePathSet = new Set(referenceFiles.map((referenceFile) => referenceFile.path));
     const referenceItems = isBrowsing
-      ? referenceFiles.map((f2) => ({
+      ? referenceFiles.map((referenceFile) => ({
           category: "reference",
-          file: f2,
+          file: referenceFile,
         }))
       : [];
     const fileItemsMapped = fileItems
-      .filter((f2) => {
+      .filter((referenceFile) => {
         if (!isBrowsing) return true;
-        if (referencePathSet.has(f2.path)) return false;
-        return fileKindFilter === "all" || f2.kind === fileKindFilter;
+        if (referencePathSet.has(referenceFile.path)) return false;
+        return fileKindFilter === "all" || referenceFile.kind === fileKindFilter;
       })
-      .map((f2) => ({
+      .map((referenceFile) => ({
         category: "file",
-        file: f2,
+        file: referenceFile,
       }));
     const projectItemsMapped = projectAssetItems.map((file) => ({
       category: "project-asset",
@@ -443,14 +443,14 @@ export function useMention(
       !connectorsLoading &&
       items.length === 0
     ) {
-      close2();
+      closeMentionPopover();
     }
-  }, [open, query, loading, connectorsLoading, items.length, close2]);
+  }, [open, query, loading, connectorsLoading, items.length, closeMentionPopover]);
   const onSelect = reactExports.useCallback(
     (item) => {
       const triggerStart = triggerStartRef.current;
       if (triggerStart === null) {
-        close2();
+        closeMentionPopover();
         return;
       }
       let inserted = true;
@@ -458,14 +458,14 @@ export function useMention(
         inserted = onInsertItem(item);
       } else {
         const caret = getCaret ? getCaret() : inputRef.current.length;
-        const text2 = inputRef.current;
+        const text = inputRef.current;
         const insertion = formatMentionInsert(item);
-        const next2 =
-          text2.slice(0, triggerStart) + insertion + text2.slice(caret);
-        setInput(next2);
+        const next =
+          text.slice(0, triggerStart) + insertion + text.slice(caret);
+        setInput(next);
       }
       if (!inserted) {
-        close2();
+        closeMentionPopover();
         return;
       }
       if (item.category === "file" || item.category === "project-asset") {
@@ -478,12 +478,12 @@ export function useMention(
       if (onAfterSelect) {
         requestAnimationFrame(() => onAfterSelect());
       }
-      close2();
+      closeMentionPopover();
     },
     [
       setInput,
       getCaret,
-      close2,
+      closeMentionPopover,
       onSelectMedia,
       onSelectModel,
       onSelectWorkflow,
@@ -492,42 +492,42 @@ export function useMention(
     ],
   );
   const onKeyDown = reactExports.useCallback(
-    (e2) => {
+    (keyboardEvent) => {
       if (!open) return false;
-      switch (e2.key) {
+      switch (keyboardEvent.key) {
         case "ArrowDown": {
           if (items.length === 0) return false;
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           setActiveIndex((prev) => (prev >= items.length - 1 ? 0 : prev + 1));
           return true;
         }
         case "ArrowUp": {
           if (items.length === 0) return false;
-          e2.preventDefault();
+          keyboardEvent.preventDefault();
           setActiveIndex((prev) => (prev <= 0 ? items.length - 1 : prev - 1));
           return true;
         }
         case "Enter":
         case "Tab": {
           if (items.length === 0) return false;
-          const selected2 = items[activeIndex];
-          if (!selected2) return false;
-          e2.preventDefault();
-          onSelect(selected2);
+          const selected = items[activeIndex];
+          if (!selected) return false;
+          keyboardEvent.preventDefault();
+          onSelect(selected);
           return true;
         }
         case "Escape": {
-          e2.preventDefault();
-          close2();
+          keyboardEvent.preventDefault();
+          closeMentionPopover();
           return true;
         }
         default:
           return false;
       }
     },
-    [open, items, activeIndex, onSelect, close2],
+    [open, items, activeIndex, onSelect, closeMentionPopover],
   );
-  const state2 = reactExports.useMemo(
+  const state = reactExports.useMemo(
     () => ({
       open,
       openedByButton,
@@ -551,13 +551,13 @@ export function useMention(
     ],
   );
   return {
-    state: state2,
+    state,
     setActiveIndex,
     setFileKindFilter,
     onChange,
     onKeyDown,
     onSelect,
     openPopover,
-    close: close2,
+    close: closeMentionPopover,
   };
 }

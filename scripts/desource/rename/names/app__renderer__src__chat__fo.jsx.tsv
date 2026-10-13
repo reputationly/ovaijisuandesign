@@ -1,0 +1,30 @@
+key	新名	依据
+L@4:3	useIcons	`useIcons` 从图标上下文取得全屏按钮和关闭按钮的组件。
+ce@9:10	unlockBodyScroll	`unlockBodyScroll` 在关闭全屏时减少滚动锁计数并按需恢复页面滚动。
+le@9:14	lockBodyScroll	`lockBodyScroll` 在进入全屏时增加计数并禁止页面滚动。
+R@9:18	markdownRenderOptionsContext	`markdownRenderOptionsContext` 提供 Markdown 渲染控制项和动画状态。
+y3@9:21	useClassNameMerger	`useClassNameMerger` 从渲染选项上下文取得类名合并函数。
+po@10:10	MermaidRenderer	`MermaidRenderer` 渲染 Mermaid 图表并处理加载和错误状态。
+D3@11:10	useStreamdownLabels	`useStreamdownLabels` 从上下文取得全屏按钮的本地化文案。
+e2@14:10	chart	`chart` 是传给 Mermaid 渲染器的图表文本。
+t2@15:11	config	`config` 是传给 Mermaid 渲染器的配置对象。
+o2@16:17	onFullscreen	`onFullscreen` 是进入全屏状态后调用的回调。
+n2@17:11	onExit	`onExit` 是退出全屏状态后调用的回调。
+r2@18:14	className	`className` 是附加到全屏按钮的 CSS 类名。
+s2@19:6	restProps	`restProps` 是转发给全屏按钮的其余属性。
+a2@21:24	maximizeIcon	`maximizeIcon` 是打开全屏按钮显示的放大图标组件。
+l2@21:35	closeIcon	`closeIcon` 是全屏界面退出按钮显示的关闭图标组件。
+i2@22:5	mergeClassNames	`mergeClassNames` 是用于构造按钮和全屏层 CSS 类名的函数。
+d2@23:6	isFullscreen	`isFullscreen` 表示 Mermaid 图表当前是否处于全屏状态。
+c3@23:10	setIsFullscreen	`setIsFullscreen` 更新 Mermaid 图表的全屏状态。
+p3@24:20	isAnimating	`isAnimating` 表示 Markdown 渲染器当前是否处于动画状态。
+m3@24:34	controls	`controls` 是控制 Mermaid 图表控件显示行为的配置。
+u4@25:5	translations	`translations` 是全屏和退出全屏按钮使用的本地化文案。
+f2@26:5	shouldShowControls	`shouldShowControls` 根据 Mermaid 控件及缩放设置决定是否显示图表控制项。
+h2@35:5	toggleFullscreen	`toggleFullscreen` 切换图表全屏状态。
+b3@28:11	mermaidControls	`mermaidControls` 是 controls 配置中的 Mermaid 专属选项。
+b3@42:13	handleEscapeKey	`handleEscapeKey` 在文档收到 Escape 按键时关闭全屏。
+g2@42:19	keyboardEvent	`keyboardEvent` 是文档级按键监听器收到的键盘事件。
+b3@80:29	keyboardEvent	`keyboardEvent` 是全屏层用于响应 Escape 键的键盘事件。
+b3@102:29	clickEvent	`clickEvent` 是阻止图表容器点击继续冒泡的鼠标事件。
+b3@103:31	keyboardEvent	`keyboardEvent` 是阻止图表容器按键事件继续冒泡的键盘事件。

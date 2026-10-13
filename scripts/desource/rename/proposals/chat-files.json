@@ -1,0 +1,12 @@
+{
+  "app/renderer/src/chat/ae.jsx": "app/renderer/src/chat/chat-markdown-rendering.jsx",
+  "app/renderer/src/chat/nn.jsx": "app/renderer/src/chat/mermaid-renderer.jsx",
+  "app/renderer/src/chat/yt.js": "app/renderer/src/chat/language-file-extensions.js",
+  "app/renderer/src/chat/xn.js": "app/renderer/src/chat/markdown-rendering-defaults.js",
+  "app/renderer/src/chat/at.jsx": "app/renderer/src/chat/code-block-body.jsx",
+  "app/renderer/src/chat/st.jsx": "app/renderer/src/chat/highlighted-code-block.jsx",
+  "app/renderer/src/chat/fo.jsx": "app/renderer/src/chat/mermaid-fullscreen-button.jsx",
+  "app/renderer/src/chat/pe.jsx": "app/renderer/src/chat/table-download-menu.jsx",
+  "app/renderer/src/chat/te.jsx": "app/renderer/src/chat/table-copy-button.jsx",
+  "app/renderer/src/chat/co.jsx": "app/renderer/src/chat/mermaid-download-button.jsx"
+}

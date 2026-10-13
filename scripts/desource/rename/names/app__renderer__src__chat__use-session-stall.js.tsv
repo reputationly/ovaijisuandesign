@@ -1,0 +1,11 @@
+key	新名	依据
+ms@7:30	durationMs	`durationMs` 是转换为分钟并按时长区间分桶的毫秒数。
+sid@21:49	sessionId	`sessionId` 是从停滞会话状态映射中移除的会话键。
+msg@32:6	message	`message` 是会话停滞通知，提供会话 ID、停滞标记及计时数据。
+sid@33:13	sessionId	`sessionId` 是停滞通知携带并用于更新状态与埋点的会话 ID。
+sid@64:6	sessionId	`sessionId` 是查询停滞数据并记录用户操作的会话键。
+sid@77:6	sessionId	`sessionId` 是记录继续等待操作并清除状态的会话 ID。
+sid@89:18	sessionId	`sessionId` 是待与存活会话集合核对并可能清理的状态键。
+next2@24:13	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+info2@65:13	info	`info` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@88:11	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。

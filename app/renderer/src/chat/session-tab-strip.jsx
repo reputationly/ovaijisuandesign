@@ -1,5 +1,5 @@
 // session-tab-strip.jsx
-import { CircleAlert, GripVertical, jsxRuntimeExports, NotebookPen, Pencil, PencilRuler, Plus, reactExports, Scissors, useQuery, useStorage, useTranslation, X$7 as X } from "../vendor.js";
+import { CircleAlert, GripVertical, jsxRuntimeExports, NotebookPen, Pencil, PencilRuler, Plus, reactExports, Scissors, useQuery, useStorage, useTranslation, X$7 as CloseIcon } from "../vendor.js";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import { FourCornerLoading, sessionDisplayName } from "./chat-empty-state.jsx";
@@ -16,7 +16,7 @@ import { Popover } from "../assets/credit-query-keys.jsx";
 import { PopoverTrigger } from "../assets/gateway-scope-provider.jsx";
 import { PopoverContent } from "../team/hailuo-credit-row.jsx";
 import { ContextMenu } from "../workspace/topbar-state-context.jsx";
-import { cn$2 as cn, TooltipContent } from "../infra/dialog-content.jsx";
+import { cn$2 as mergeClassNames, TooltipContent } from "../infra/dialog-content.jsx";
 import { InlineRenameInput } from "../infra/inline-rename-input.jsx";
 import {
   ContextMenuContent,
@@ -30,20 +30,20 @@ import { CoachMark } from "../assets/use-materialized-entities.jsx";
 import { useWorkspacePaneReorder } from "./use-browser-chat-media.jsx";
 import { SessionHistory } from "./session-history.jsx";
 function useSessionCostVisible(session) {
-  const { data: data2 } = usePricingConfig();
-  const statsSince = data2?.sessionStatsSinceMs;
+  const { data } = usePricingConfig();
+  const statsSince = data?.sessionStatsSinceMs;
   if (statsSince === void 0) return false;
   const createdAt = Date.parse(session.created_at);
   if (!Number.isFinite(createdAt)) return false;
   return createdAt >= statsSince;
 }
 function ChatTabLoadingIndicator() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <FourCornerLoading
       variant="tab"
       size="sm"
-      label={t2("session.tabs.status.generating", "Generating")}
+      label={translate("session.tabs.status.generating", "Generating")}
       className="ml-1"
     />
   );
@@ -53,38 +53,38 @@ const VIDEO_TYPES = new Set(["video"]);
 const AUDIO_TYPES = new Set(["audio", "music"]);
 const AGENT_TYPES = new Set(["agent"]);
 function bucketSessionCost(cost) {
-  let image2 = 0;
+  let image = 0;
   let video = 0;
   let audio = 0;
-  let agent2 = 0;
+  let agent = 0;
   for (const item of cost.items) {
-    if (IMAGE_TYPES.has(item.mediaType)) image2 += item.amount;
+    if (IMAGE_TYPES.has(item.mediaType)) image += item.amount;
     else if (VIDEO_TYPES.has(item.mediaType)) video += item.amount;
     else if (AUDIO_TYPES.has(item.mediaType)) audio += item.amount;
-    else if (AGENT_TYPES.has(item.mediaType)) agent2 += item.amount;
+    else if (AGENT_TYPES.has(item.mediaType)) agent += item.amount;
   }
-  const other = cost.totalAmount - image2 - video - audio - agent2;
+  const other = cost.totalAmount - image - video - audio - agent;
   return {
-    image: image2,
+    image,
     video,
     audio,
-    agent: agent2,
+    agent,
     other: Math.max(0, other),
     total: cost.totalAmount,
   };
 }
 const ALWAYS_VISIBLE = ["image", "video", "audio"];
 const CONDITIONAL = ["agent", "other"];
-function visibleCostCategories(buckets2) {
-  const rows = ALWAYS_VISIBLE.map((key2) => ({
-    key: key2,
-    amount: buckets2[key2],
+function visibleCostCategories(buckets) {
+  const rows = ALWAYS_VISIBLE.map((categoryKey) => ({
+    key: categoryKey,
+    amount: buckets[categoryKey],
   }));
-  for (const key2 of CONDITIONAL) {
-    if (buckets2[key2] > 0)
+  for (const categoryKey of CONDITIONAL) {
+    if (buckets[categoryKey] > 0)
       rows.push({
-        key: key2,
-        amount: buckets2[key2],
+        key: categoryKey,
+        amount: buckets[categoryKey],
       });
   }
   return rows;
@@ -97,16 +97,16 @@ function toNumber(value) {
   }
   return 0;
 }
-function mapResult(raw2) {
-  if (typeof raw2 !== "object" || raw2 === null)
+function mapResult(responseData) {
+  if (typeof responseData !== "object" || responseData === null)
     return {
       totalAmount: 0,
       items: [],
     };
-  const record2 = raw2;
-  const rawItems = Array.isArray(record2.items) ? record2.items : [];
+  const record = responseData;
+  const rawItems = Array.isArray(record.items) ? record.items : [];
   return {
-    totalAmount: toNumber(record2.total_amount),
+    totalAmount: toNumber(record.total_amount),
     items: rawItems.flatMap((entry) => {
       if (typeof entry !== "object" || entry === null) return [];
       const item = entry;
@@ -123,11 +123,11 @@ function mapResult(raw2) {
   };
 }
 const SESSION_COST_CHUNK_SIZE = 500;
-function chunk(items, size2) {
-  const out = [];
-  for (let i2 = 0; i2 < items.length; i2 += size2)
-    out.push(items.slice(i2, i2 + size2));
-  return out;
+function chunk(items, size) {
+  const chunks = [];
+  for (let startIndex = 0; startIndex < items.length; startIndex += size)
+    chunks.push(items.slice(startIndex, startIndex + size));
+  return chunks;
 }
 function mergeSessionCosts(parts) {
   const amountByMedia = new Map();
@@ -150,7 +150,7 @@ function mergeSessionCosts(parts) {
   };
 }
 async function fetchSessionCostChunk(sessionIds, signal) {
-  const res = await gatewayFetch("/api/v1/billing/session-cost", {
+  const response = await gatewayFetch("/api/v1/billing/session-cost", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -160,9 +160,9 @@ async function fetchSessionCostChunk(sessionIds, signal) {
     }),
     signal,
   });
-  const raw2 = await res.json();
+  const responseBody = await response.json();
   signal?.throwIfAborted();
-  return mapResult(raw2);
+  return mapResult(responseBody);
 }
 async function fetchSessionCost(sessionIds, options) {
   if (sessionIds.length === 0)
@@ -172,13 +172,13 @@ async function fetchSessionCost(sessionIds, options) {
     };
   const batches = chunk(sessionIds, SESSION_COST_CHUNK_SIZE);
   const parts = await Promise.all(
-    batches.map((batch2) => fetchSessionCostChunk(batch2, options?.signal)),
+    batches.map((batch) => fetchSessionCostChunk(batch, options?.signal)),
   );
   return mergeSessionCosts(parts);
 }
 const SESSION_TREE_TIMEOUT_MS = 3e3;
 let requestSeq = 0;
-function requestSessionTree(ws2, sessionId, signal) {
+function requestSessionTree(webSocketConnection, sessionId, signal) {
   return new Promise((resolve, reject) => {
     if (!sessionId) {
       resolve([]);
@@ -188,33 +188,33 @@ function requestSessionTree(ws2, sessionId, signal) {
     requestSeq += 1;
     const requestId = `session-tree-${requestSeq}`;
     let settled = false;
-    const finish = (fn2) => {
+    const finish = (settle) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timer2);
+      clearTimeout(timer);
       unsubscribe();
       signal?.removeEventListener("abort", onAbort);
-      fn2();
+      settle();
     };
     const onAbort = () =>
       finish(() => reject(signal?.reason ?? new Error("aborted")));
-    const unsubscribe = ws2.subscribe((msg) => {
-      if (msg.type !== "session_tree" || msg.request_id !== requestId) return;
-      if (msg.incomplete) {
+    const unsubscribe = webSocketConnection.subscribe((message) => {
+      if (message.type !== "session_tree" || message.request_id !== requestId) return;
+      if (message.incomplete) {
         finish(() =>
           reject(new Error(`session tree is incomplete for ${sessionId}`)),
         );
       } else {
-        finish(() => resolve(msg.session_ids));
+        finish(() => resolve(message.session_ids));
       }
     });
-    const timer2 = setTimeout(() => {
+    const timer = setTimeout(() => {
       finish(() =>
         reject(new Error(`session tree request timed out for ${sessionId}`)),
       );
     }, SESSION_TREE_TIMEOUT_MS);
     signal?.addEventListener("abort", onAbort);
-    const sent = ws2.send({
+    const sent = webSocketConnection.send({
       type: "get_session_tree",
       request_id: requestId,
       session_id: sessionId,
@@ -226,7 +226,7 @@ function requestSessionTree(ws2, sessionId, signal) {
 }
 const STALE_TIME_MS = 1e3;
 function useSessionCost(session, enabled) {
-  const ws2 = useWSConnection();
+  const webSocketConnection = useWSConnection();
   const runtimeSessionId = session.runtime_session_id ?? session.id;
   const query = useQuery({
     queryKey: ["credit", "session-cost", runtimeSessionId],
@@ -235,7 +235,7 @@ function useSessionCost(session, enabled) {
     retry: false,
     queryFn: async ({ signal }) => {
       const sessionIds = await requestSessionTree(
-        ws2,
+        webSocketConnection,
         runtimeSessionId,
         signal,
       );
@@ -260,116 +260,116 @@ function useSessionCost(session, enabled) {
 }
 const OPEN_DELAY_MS = 400;
 const CLOSE_DELAY_MS = 120;
-function CostBreakdown({ buckets: buckets2 }) {
-  const { t: t2 } = useTranslation();
+function CostBreakdown({ buckets }) {
+  const { t: translate } = useTranslation();
   const labels = {
-    image: t2("session.cost.image", "Image"),
-    video: t2("session.cost.video", "Video"),
-    audio: t2("session.cost.audio", "Audio"),
-    agent: t2("session.cost.agent", "Agent"),
-    other: t2("session.cost.other", "Other"),
+    image: translate("session.cost.image", "Image"),
+    video: translate("session.cost.video", "Video"),
+    audio: translate("session.cost.audio", "Audio"),
+    agent: translate("session.cost.agent", "Agent"),
+    other: translate("session.cost.other", "Other"),
   };
-  const rows = visibleCostCategories(buckets2);
+  const rows = visibleCostCategories(buckets);
   return (
     <div className="flex flex-col gap-1.5">
-      {rows.map((row) => (
+      {rows.map((costRow) => (
         <div
-          key={row.key}
+          key={costRow.key}
           className="flex items-center justify-between text-[13px]"
         >
-          <span className="text-muted-foreground">{labels[row.key]}</span>
-          <span className="tabular-nums text-foreground/70">{row.amount}</span>
+          <span className="text-muted-foreground">{labels[costRow.key]}</span>
+          <span className="tabular-nums text-foreground/70">{costRow.amount}</span>
         </div>
       ))}
       <div className="mt-1 flex items-center justify-between border-t border-border pt-1.5 text-[13px]">
         <span className="text-foreground/70">
-          {t2("session.cost.total", "Total")}
+          {translate("session.cost.total", "Total")}
         </span>
         <span className="tabular-nums font-medium text-foreground">
-          {buckets2.total}
+          {buckets.total}
         </span>
       </div>
     </div>
   );
 }
-function SessionCostPopover({ session, children: children2 }) {
-  const { t: t2 } = useTranslation();
+function SessionCostPopover({ session, children }) {
+  const { t: translate } = useTranslation();
   const [hovering, setHovering] = reactExports.useState(false);
   const timerRef = reactExports.useRef(null);
   const visible = useSessionCostVisible(session);
-  const state2 = useSessionCost(session, hovering && visible);
-  const clearTimer2 = reactExports.useCallback(() => {
+  const state = useSessionCost(session, hovering && visible);
+  const clearTimer = reactExports.useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
   }, []);
-  const schedule2 = reactExports.useCallback(
-    (next2, delay) => {
-      clearTimer2();
-      timerRef.current = setTimeout(() => setHovering(next2), delay);
+  const schedule = reactExports.useCallback(
+    (next, delay) => {
+      clearTimer();
+      timerRef.current = setTimeout(() => setHovering(next), delay);
     },
-    [clearTimer2],
+    [clearTimer],
   );
-  reactExports.useEffect(() => clearTimer2, [clearTimer2]);
-  if (!visible) return <>{children2}</>;
-  const hasContent2 =
-    state2.status === "error" ||
-    (state2.status === "ready" && state2.buckets.total > 0);
+  reactExports.useEffect(() => clearTimer, [clearTimer]);
+  if (!visible) return <>{children}</>;
+  const hasContent =
+    state.status === "error" ||
+    (state.status === "ready" && state.buckets.total > 0);
   return (
     <Popover
-      open={hovering && hasContent2}
+      open={hovering && hasContent}
       onOpenChange={() => {
-        clearTimer2();
+        clearTimer();
         setHovering(false);
       }}
     >
       <PopoverTrigger
-        render={children2}
+        render={children}
         nativeButton={false}
         aria-haspopup="dialog"
-        onMouseEnter={() => schedule2(true, OPEN_DELAY_MS)}
-        onMouseLeave={() => schedule2(false, CLOSE_DELAY_MS)}
+        onMouseEnter={() => schedule(true, OPEN_DELAY_MS)}
+        onMouseLeave={() => schedule(false, CLOSE_DELAY_MS)}
       />
       <PopoverContent
         side="bottom"
         align="start"
         sideOffset={6}
         className="w-[200px] p-3"
-        onMouseEnter={clearTimer2}
-        onMouseLeave={() => schedule2(false, CLOSE_DELAY_MS)}
+        onMouseEnter={clearTimer}
+        onMouseLeave={() => schedule(false, CLOSE_DELAY_MS)}
       >
         <div className="mb-2 border-b border-border pb-2">
           <div className="text-sm font-medium text-foreground">
-            {t2("session.cost.title", "Credits used")}
+            {translate("session.cost.title", "Credits used")}
           </div>
           <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-            {t2(
+            {translate(
               "session.cost.scopeNote",
               "Only includes usage generated within this chat",
             )}
           </div>
         </div>
-        {state2.status === "ready" ? (
-          <CostBreakdown buckets={state2.buckets} />
+        {state.status === "ready" ? (
+          <CostBreakdown buckets={state.buckets} />
         ) : (
           <div className="text-[13px] text-muted-foreground">
-            {t2("session.cost.unavailable", "Temporarily unavailable")}
+            {translate("session.cost.unavailable", "Temporarily unavailable")}
           </div>
         )}
       </PopoverContent>
     </Popover>
   );
 }
-function TabStatusBadge({ status, active: active2 }) {
-  const { t: t2 } = useTranslation();
-  if (active2) return null;
+function TabStatusBadge({ status, active }) {
+  const { t: translate } = useTranslation();
+  if (active) return null;
   switch (status.kind) {
     case "needs-user-action": {
       const needsAnswer = status.action === "answer";
       const label = needsAnswer
-        ? t2("session.tabs.status.awaitingAnswer", "Waiting for your answer")
-        : t2(
+        ? translate("session.tabs.status.awaitingAnswer", "Waiting for your answer")
+        : translate(
             "session.tabs.status.awaitingConfirmation",
             "Waiting for your confirmation",
           );
@@ -391,13 +391,13 @@ function TabStatusBadge({ status, active: active2 }) {
     case "failed":
       return (
         <span className="inline-flex items-center h-4 px-1.5 rounded-full text-[10px] font-medium bg-destructive/10 text-destructive shrink-0">
-          {t2("session.tabs.badge.failed", "Failed")}
+          {translate("session.tabs.badge.failed", "Failed")}
         </span>
       );
     case "blocked":
       return (
         <span className="inline-flex items-center h-4 px-1.5 rounded-full text-[10px] font-medium bg-destructive/10 text-destructive shrink-0">
-          {t2("session.tabs.badge.paused", "Paused")}
+          {translate("session.tabs.badge.paused", "Paused")}
         </span>
       );
     case "running":
@@ -406,7 +406,7 @@ function TabStatusBadge({ status, active: active2 }) {
       return (
         <span
           role="status"
-          aria-label={t2(
+          aria-label={translate(
             "session.tabs.status.completedUnread",
             "Completed, unread",
           )}
@@ -417,36 +417,36 @@ function TabStatusBadge({ status, active: active2 }) {
       return null;
   }
 }
-const SessionTab = reactExports.memo(function SessionTab2({
+const SessionTab = reactExports.memo(function SessionTab({
   session,
-  active: active2,
+  active,
   status,
   hideClose = false,
   onActivate,
   onClose,
   onRename,
 }) {
-  const { t: t2 } = useTranslation();
-  const title = sessionDisplayName(session, t2);
+  const { t: translate } = useTranslation();
+  const title = sessionDisplayName(session, translate);
   const [renaming, setRenaming] = reactExports.useState(false);
-  const handleClose = (e2) => {
-    e2.stopPropagation();
+  const handleClose = (clickEvent) => {
+    clickEvent.stopPropagation();
     onClose(session.id);
   };
   const handleActivate = () => {
-    if (!active2) onActivate(session.id);
+    if (!active) onActivate(session.id);
   };
   const handleRenameConfirm = reactExports.useCallback(
-    (name2) => {
-      const trimmed = name2.trim();
+    (newTitle) => {
+      const trimmed = newTitle.trim();
       if (trimmed && trimmed !== title) onRename(session.id, trimmed);
       setRenaming(false);
     },
     [onRename, session.id, title],
   );
-  const handleMouseDown2 = (e2) => {
-    if (e2.button === 1 && !hideClose) {
-      e2.preventDefault();
+  const handleMouseDown = (mouseEvent) => {
+    if (mouseEvent.button === 1 && !hideClose) {
+      mouseEvent.preventDefault();
       onClose(session.id);
     }
   };
@@ -456,9 +456,9 @@ const SessionTab = reactExports.memo(function SessionTab2({
         <ContextMenuTrigger
           data-action-ui-id={`session-tab-${session.id}`}
           data-window-drag-region="no-drag"
-          className={cn(
+          className={mergeClassNames(
             "no-drag group/tab relative flex h-7 w-full cursor-pointer select-none items-center rounded-md px-2 transition-colors duration-150 ease-out",
-            active2
+            active
               ? "bg-foreground/[0.08] text-foreground"
               : "bg-transparent text-foreground/55 hover:bg-foreground/[0.05] hover:text-foreground",
           )}
@@ -477,19 +477,19 @@ const SessionTab = reactExports.memo(function SessionTab2({
             <button
               type="button"
               role="tab"
-              aria-selected={active2}
-              tabIndex={active2 ? 0 : -1}
+              aria-selected={active}
+              tabIndex={active ? 0 : -1}
               onClick={handleActivate}
-              onMouseDown={handleMouseDown2}
+              onMouseDown={handleMouseDown}
               onDoubleClick={(event) => {
                 event.stopPropagation();
                 setRenaming(true);
               }}
-              className={cn(
+              className={mergeClassNames(
                 "flex h-full min-w-0 flex-1 cursor-pointer items-center gap-1.5 text-left transition-colors",
                 hideClose
                   ? "pr-0"
-                  : active2
+                  : active
                     ? "pr-5"
                     : "pr-0 group-hover/tab:pr-5",
               )}
@@ -501,14 +501,14 @@ const SessionTab = reactExports.memo(function SessionTab2({
               >
                 {title}
               </span>
-              {!active2 && status.kind !== "idle" && (
+              {!active && status.kind !== "idle" && (
                 <span
-                  className={cn(
+                  className={mergeClassNames(
                     "flex shrink-0 items-center",
                     "group-hover/tab:hidden",
                   )}
                 >
-                  <TabStatusBadge status={status} active={active2} />
+                  <TabStatusBadge status={status} active={active} />
                 </span>
               )}
             </button>
@@ -521,24 +521,24 @@ const SessionTab = reactExports.memo(function SessionTab2({
                     type="button"
                     onClick={handleClose}
                     onDoubleClick={(event) => event.stopPropagation()}
-                    aria-label={t2("session.tabs.close.tooltip", "Close tab")}
+                    aria-label={translate("session.tabs.close.tooltip", "Close tab")}
                     data-action-ui-id={`session-tab-close-${session.id}`}
-                    className={cn(
+                    className={mergeClassNames(
                       "absolute right-1 top-1/2 z-20 size-5 -translate-y-1/2 items-center justify-center rounded-sm transition-opacity",
                       "text-foreground/40 hover:bg-foreground/10 hover:text-foreground",
                       hideClose && "hidden",
                       !hideClose &&
-                        (active2
+                        (active
                           ? "flex opacity-100"
                           : "hidden opacity-0 group-hover/tab:flex group-hover/tab:opacity-100 focus-visible:flex focus-visible:opacity-100"),
                     )}
                   />
                 }
               >
-                <Icon icon={X} size="xs" />
+                <Icon icon={CloseIcon} size="xs" />
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                {t2("session.tabs.close.tooltip", "Close tab")}
+                {translate("session.tabs.close.tooltip", "Close tab")}
               </TooltipContent>
             </Tooltip>
           )}
@@ -550,7 +550,7 @@ const SessionTab = reactExports.memo(function SessionTab2({
           onClick={() => setRenaming(true)}
         >
           <Pencil />
-          {t2("common.rename")}
+          {translate("common.rename")}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -563,11 +563,11 @@ function isDocumentForeground() {
 }
 function SessionCostCoachMark({
   session,
-  running: running2,
+  running,
   isPresented,
   anchorRef,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [dismissedMarks, , , dismissedMarksHydrated] = useStorage(
     "global.dismissedCoachMarks",
   );
@@ -577,7 +577,7 @@ function SessionCostCoachMark({
     Array.isArray(dismissedMarks) &&
     dismissedMarks.includes(MARK_ID);
   const canCheckCost = dismissedMarksHydrated && !markAlreadySeen;
-  const wasRunningRef = reactExports.useRef(running2);
+  const wasRunningRef = reactExports.useRef(running);
   const completionTimerRef = reactExports.useRef(null);
   const [documentForeground, setDocumentForeground] =
     reactExports.useState(isDocumentForeground);
@@ -600,11 +600,11 @@ function SessionCostCoachMark({
       completionTimerRef.current = null;
     }
     if (!isPresented) {
-      wasRunningRef.current = running2;
+      wasRunningRef.current = running;
       setShouldCheckCost(false);
       return;
     }
-    if (running2) {
+    if (running) {
       wasRunningRef.current = true;
       setShouldCheckCost(false);
       return;
@@ -633,7 +633,7 @@ function SessionCostCoachMark({
     documentForeground,
     isPresented,
     markAlreadySeen,
-    running2,
+    running,
     visible,
   ]);
   const cost = useSessionCost(
@@ -659,8 +659,8 @@ function SessionCostCoachMark({
       side="bottom"
       align="start"
       showClose={true}
-      title={t2("coachMark.sessionCost.title", "View chat credit usage")}
-      description={t2(
+      title={translate("coachMark.sessionCost.title", "View chat credit usage")}
+      description={translate(
         "coachMark.sessionCost.desc",
         "Hover over the chat title to view credits used for images, videos, audio, and Agent activity in this chat. Usage updates after each task completes. Credit usage is not available for historical chats yet.",
       )}
@@ -689,64 +689,64 @@ function deriveTabStatus(input) {
     kind: "idle",
   };
 }
-function nodeEditSessionTitle(session, t2, agentTitle) {
+function nodeEditSessionTitle(session, translate, agentTitle) {
   const genericDefaults = new Set([
-    t2("chat.textEditAgent.sessionName", "Text Assistant"),
-    t2("chat.pluginEditAgent.sessionName", "Editor Agent"),
+    translate("chat.textEditAgent.sessionName", "Text Assistant"),
+    translate("chat.pluginEditAgent.sessionName", "Editor Agent"),
     "Text Agent",
     "文本 Agent",
   ]);
   if (genericDefaults.has(session.name)) return agentTitle;
-  return sessionDisplayName(session, t2);
+  return sessionDisplayName(session, translate);
 }
 function nodeEditTitleIcon(agentTitle) {
-  const identity2 = agentTitle.toLocaleLowerCase();
-  if (identity2.includes("director") || identity2.includes("导演"))
+  const identity = agentTitle.toLocaleLowerCase();
+  if (identity.includes("director") || identity.includes("导演"))
     return Clapperboard;
   if (
-    identity2.includes("dialogue") ||
-    identity2.includes("script") ||
-    identity2.includes("台词")
+    identity.includes("dialogue") ||
+    identity.includes("script") ||
+    identity.includes("台词")
   ) {
     return MessageSquareQuote;
   }
   if (
-    identity2.includes("editing") ||
-    identity2.includes("editor") ||
-    identity2.includes("剪辑")
+    identity.includes("editing") ||
+    identity.includes("editor") ||
+    identity.includes("剪辑")
   ) {
     return Scissors;
   }
   if (
-    identity2.includes("summary") ||
-    identity2.includes("brief") ||
-    identity2.includes("简介")
+    identity.includes("summary") ||
+    identity.includes("brief") ||
+    identity.includes("简介")
   ) {
     return NotebookPen;
   }
   return PencilRuler;
 }
 function snapshotStatuses(store, openedTabOrder) {
-  const state2 = store.getState();
-  const out = new Map();
-  for (const id2 of openedTabOrder) {
-    const s2 = state2.sessions.get(id2);
-    if (!s2) continue;
-    out.set(
-      id2,
+  const state = store.getState();
+  const statusBySessionId = new Map();
+  for (const sessionId of openedTabOrder) {
+    const sessionState = state.sessions.get(sessionId);
+    if (!sessionState) continue;
+    statusBySessionId.set(
+      sessionId,
       deriveTabStatus({
-        busy: s2.busy,
-        pendingReasons: s2.pendingReasons,
-        messages: s2.messages,
+        busy: sessionState.busy,
+        pendingReasons: sessionState.pendingReasons,
+        messages: sessionState.messages,
       }),
     );
   }
-  return out;
+  return statusBySessionId;
 }
 function equalTabStatusMaps(left, right) {
   if (left.size !== right.size) return false;
-  for (const [id2, leftStatus] of left) {
-    const rightStatus = right.get(id2);
+  for (const [sessionId, leftStatus] of left) {
+    const rightStatus = right.get(sessionId);
     if (!rightStatus || leftStatus.kind !== rightStatus.kind) return false;
     if (
       leftStatus.kind === "needs-user-action" &&
@@ -778,7 +778,7 @@ export function SessionTabStrip({
   nodeEditAgentName,
   textEditNav,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const paneReorder = useWorkspacePaneReorder();
   const activeTabRef = reactExports.useRef(null);
   const singleTitleRef = reactExports.useRef(null);
@@ -786,61 +786,61 @@ export function SessionTabStrip({
     snapshotStatuses(sessionStore, openedTabOrder),
   );
   reactExports.useEffect(() => {
-    const update2 = () => {
-      const next2 = snapshotStatuses(sessionStore, openedTabOrder);
-      setRawStatusById((current2) =>
-        equalTabStatusMaps(current2, next2) ? current2 : next2,
+    const update = () => {
+      const next = snapshotStatuses(sessionStore, openedTabOrder);
+      setRawStatusById((current) =>
+        equalTabStatusMaps(current, next) ? current : next,
       );
     };
-    update2();
-    return sessionStore.subscribe(update2);
+    update();
+    return sessionStore.subscribe(update);
   }, [sessionStore, openedTabOrder]);
   const prevRunningRef = reactExports.useRef(new Set());
   const [unreadIds, setUnreadIds] = reactExports.useState(() => new Set());
   reactExports.useEffect(() => {
     const currRunning = new Set();
-    for (const [id2, status] of rawStatusById) {
-      if (status.kind === "running") currRunning.add(id2);
+    for (const [sessionId, status] of rawStatusById) {
+      if (status.kind === "running") currRunning.add(sessionId);
     }
     const prevRunning = prevRunningRef.current;
     prevRunningRef.current = currRunning;
     setUnreadIds((prev) => {
-      let next2 = null;
-      for (const id2 of prevRunning) {
+      let next = null;
+      for (const sessionId of prevRunning) {
         if (
-          !currRunning.has(id2) &&
-          id2 !== focusedSessionId &&
-          !prev.has(id2)
+          !currRunning.has(sessionId) &&
+          sessionId !== focusedSessionId &&
+          !prev.has(sessionId)
         ) {
-          if (!next2) next2 = new Set(prev);
-          next2.add(id2);
+          if (!next) next = new Set(prev);
+          next.add(sessionId);
         }
       }
-      return next2 ?? prev;
+      return next ?? prev;
     });
   }, [rawStatusById, focusedSessionId]);
   reactExports.useEffect(() => {
     if (!focusedSessionId && openedTabOrder.length === 0) return;
     setUnreadIds((prev) => {
       if (prev.size === 0) return prev;
-      const next2 = new Set(prev);
-      if (focusedSessionId) next2.delete(focusedSessionId);
-      for (const id2 of prev) {
-        if (!openedTabOrder.includes(id2) && id2 !== focusedSessionId)
-          next2.delete(id2);
+      const next = new Set(prev);
+      if (focusedSessionId) next.delete(focusedSessionId);
+      for (const sessionId of prev) {
+        if (!openedTabOrder.includes(sessionId) && sessionId !== focusedSessionId)
+          next.delete(sessionId);
       }
-      return next2.size === prev.size &&
-        [...next2].every((id2) => prev.has(id2)) &&
-        [...prev].every((id2) => next2.has(id2))
+      return next.size === prev.size &&
+        [...next].every((sessionId) => prev.has(sessionId)) &&
+        [...prev].every((sessionId) => next.has(sessionId))
         ? prev
-        : next2;
+        : next;
     });
   }, [focusedSessionId, openedTabOrder]);
   const statusById = new Map(rawStatusById);
-  for (const id2 of unreadIds) {
-    const raw2 = statusById.get(id2);
-    if (!raw2 || raw2.kind === "idle") {
-      statusById.set(id2, {
+  for (const sessionId of unreadIds) {
+    const storedStatus = statusById.get(sessionId);
+    if (!storedStatus || storedStatus.kind === "idle") {
+      statusById.set(sessionId, {
         kind: "unread",
       });
     }
@@ -857,41 +857,41 @@ export function SessionTabStrip({
     });
   }, [focusedSessionId]);
   const handleActivate = reactExports.useCallback(
-    (id2) => {
-      if (id2 === focusedSessionId) return;
+    (sessionId) => {
+      if (sessionId === focusedSessionId) return;
       onSend({
         type: "switch_session",
-        session_id: id2,
+        session_id: sessionId,
       });
     },
     [onSend, focusedSessionId],
   );
   const handleClose = reactExports.useCallback(
-    (id2) => {
-      if (!onCloseTab(id2)) return;
+    (sessionId) => {
+      if (!onCloseTab(sessionId)) return;
       dedupedToast(
-        t2(
+        translate(
           "session.tabs.close.toast",
           "Tab closed. Reopen from History if needed.",
         ),
       );
     },
-    [onCloseTab, t2],
+    [onCloseTab, translate],
   );
   const handleRename = reactExports.useCallback(
-    (id2, name2) => {
-      onRename(id2, name2);
+    (sessionId, newTitle) => {
+      onRename(sessionId, newTitle);
     },
     [onRename],
   );
   const handleTabListKeyDown = reactExports.useCallback(
-    (e2) => {
+    (keyboardEvent) => {
       if (openedTabOrder.length === 0) return;
       let targetIndex = null;
       const currentIndex = focusedSessionId
         ? openedTabOrder.indexOf(focusedSessionId)
         : -1;
-      switch (e2.key) {
+      switch (keyboardEvent.key) {
         case "ArrowLeft":
           targetIndex =
             currentIndex <= 0 ? openedTabOrder.length - 1 : currentIndex - 1;
@@ -909,7 +909,7 @@ export function SessionTabStrip({
         default:
           return;
       }
-      e2.preventDefault();
+      keyboardEvent.preventDefault();
       const targetId = openedTabOrder[targetIndex];
       if (targetId && targetId !== focusedSessionId) {
         onSend({
@@ -920,11 +920,11 @@ export function SessionTabStrip({
     },
     [openedTabOrder, focusedSessionId, onSend],
   );
-  const sessionById = new Map(sessions.map((s2) => [s2.id, s2]));
+  const sessionById = new Map(sessions.map((session) => [session.id, session]));
   const visibleTabs = [];
-  for (const id2 of openedTabOrder) {
-    const s2 = sessionById.get(id2);
-    if (s2) visibleTabs.push(s2);
+  for (const sessionId of openedTabOrder) {
+    const session = sessionById.get(sessionId);
+    if (session) visibleTabs.push(session);
   }
   const presentationCount = visibleTabs.length + (pendingNewTab ? 1 : 0);
   const multiChat = sessions.length > 1 || presentationCount > 1;
@@ -934,28 +934,28 @@ export function SessionTabStrip({
     : void 0;
   const titleSession = focusedSession ?? visibleTabs[0] ?? sessions[0];
   const singleTitle = pendingNewTab
-    ? t2("chat.newChat", "New Chat")
+    ? translate("chat.newChat", "New Chat")
     : titleSession
-      ? sessionDisplayName(titleSession, t2)
-      : t2("chat.newChat", "New Chat");
+      ? sessionDisplayName(titleSession, translate)
+      : translate("chat.newChat", "New Chat");
   const paneReorderLabel =
     paneReorder?.paneOrder === "chat-canvas"
-      ? t2(
+      ? translate(
           "workspace.paneReorder.moveRight",
           "Move Chat to the right of Canvas",
         )
-      : t2("workspace.paneReorder.moveLeft", "Move Chat to the left of Canvas");
+      : translate("workspace.paneReorder.moveLeft", "Move Chat to the left of Canvas");
   if (variant === "text-edit" || variant === "plugin-edit") {
     const pluginEdit = variant === "plugin-edit";
     const nodeEditAgentTitle = pluginEdit
       ? (nodeEditAgentName?.trim() ?? "") ||
-        t2("chat.pluginEditAgent.title", "Editor Agent")
-      : t2("chat.textEditAgent.title", "Text Agent");
+        translate("chat.pluginEditAgent.title", "Editor Agent")
+      : translate("chat.textEditAgent.title", "Text Agent");
     const nodeEditNewSessionLabel = pluginEdit
-      ? t2("chat.pluginEditAgent.newSession", "New {{name}} chat", {
+      ? translate("chat.pluginEditAgent.newSession", "New {{name}} chat", {
           name: nodeEditAgentTitle,
         })
-      : t2("chat.textEditAgent.newSession", "New Text Assistant chat");
+      : translate("chat.textEditAgent.newSession", "New Text Assistant chat");
     const textEditSessions = textEditNav?.sessions ?? [];
     const activeTextEditSession = textEditNav?.activeSessionId
       ? textEditSessions.find((item) => item.id === textEditNav.activeSessionId)
@@ -986,7 +986,7 @@ export function SessionTabStrip({
             {activeTextEditSession
               ? nodeEditSessionTitle(
                   activeTextEditSession,
-                  t2,
+                  translate,
                   nodeEditAgentTitle,
                 )
               : nodeEditAgentTitle}
@@ -1036,7 +1036,7 @@ export function SessionTabStrip({
     <div
       data-action-ui-id="session-tabs"
       data-chat-header-mode={multiChat ? "multi" : "single"}
-      className={cn(
+      className={mergeClassNames(
         "mac-window-drag-region relative flex h-11 min-w-0 shrink-0 items-center overflow-hidden bg-card",
         multiChat && "border-b-[0.5px] border-border",
       )}
@@ -1060,7 +1060,7 @@ export function SessionTabStrip({
                 onPointerDown={paneReorder.onHandlePointerDown}
                 onPointerMove={paneReorder.onHandlePointerMove}
                 onPointerUp={paneReorder.onHandlePointerUp}
-                className={cn(
+                className={mergeClassNames(
                   "ml-2 flex size-7 shrink-0 touch-none items-center justify-center rounded-md border-0 bg-transparent p-0 text-foreground/35 transition-colors hover:bg-foreground/[0.06] hover:text-foreground/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                   paneReorder.phase === "dragging" ||
                     paneReorder.phase === "targeted"
@@ -1082,21 +1082,21 @@ export function SessionTabStrip({
         <div className="h-full min-w-0 flex-1 overflow-hidden">
           <div
             role="tablist"
-            aria-label={t2("session.tabs.list.label", "Chat sessions")}
+            aria-label={translate("session.tabs.list.label", "Chat sessions")}
             onKeyDown={handleTabListKeyDown}
             className="flex h-full items-center gap-1 px-2"
           >
             {visibleTabs.map((session) => {
-              const isActive2 = session.id === focusedSessionId;
+              const isActive = session.id === focusedSessionId;
               return (
                 <div
                   key={session.id}
-                  ref={isActive2 ? activeTabRef : void 0}
+                  ref={isActive ? activeTabRef : void 0}
                   className="relative flex min-w-0 max-w-[220px] flex-1 basis-0"
                 >
                   <SessionTab
                     session={session}
-                    active={isActive2}
+                    active={isActive}
                     status={
                       statusById.get(session.id) ?? {
                         kind: "idle",
@@ -1117,7 +1117,7 @@ export function SessionTabStrip({
                   className="flex h-7 w-full items-center rounded-md bg-foreground/[0.08] px-2 text-foreground"
                 >
                   <span className="min-w-0 flex-1 truncate text-[13px] font-normal leading-normal">
-                    {t2("chat.newChat", "New Chat")}
+                    {translate("chat.newChat", "New Chat")}
                   </span>
                 </div>
               </div>
@@ -1168,7 +1168,7 @@ export function SessionTabStrip({
               <button
                 type="button"
                 onClick={onNewTab}
-                aria-label={t2("session.tabs.new.tooltip", "New chat")}
+                aria-label={translate("session.tabs.new.tooltip", "New chat")}
                 data-action-ui-id="session-tab-new"
                 className="flex size-7 cursor-pointer items-center justify-center rounded-md text-foreground/55 transition-colors hover:bg-foreground/[0.06] hover:text-foreground"
               />
@@ -1177,7 +1177,7 @@ export function SessionTabStrip({
             <Icon icon={Plus} size="md" strokeWidth={1} />
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            {t2("session.tabs.new.tooltip", "New chat")}
+            {translate("session.tabs.new.tooltip", "New chat")}
           </TooltipContent>
         </Tooltip>
         {multiChat ? (
@@ -1186,10 +1186,10 @@ export function SessionTabStrip({
             openedTabIds={openedTabIds}
             loading={sessionsLoading}
             hasUnseen={hasEvicted}
-            onOpen={(id2) =>
+            onOpen={(sessionId) =>
               onSend({
                 type: "switch_session",
-                session_id: id2,
+                session_id: sessionId,
               })
             }
             onOpenChange={(open) => {

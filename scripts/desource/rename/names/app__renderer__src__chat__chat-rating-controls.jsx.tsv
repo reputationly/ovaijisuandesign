@@ -1,0 +1,38 @@
+key	新名	依据
+X@2:181	CloseIcon	`CloseIcon` 是评分弹层关闭操作使用的 X 形图标组件。
+cn@25:11	mergeClassNames	`mergeClassNames` 合并并规范化评分控件的 Tailwind class 名。
+t2@383:14	translate	`translate` 为聊天评分控件获取本地化文案。
+t2@568:14	translate	`translate` 为评分弹层内容获取本地化文案。
+code2@49:13	code	`code` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+comment2@190:3	comment	`comment` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+groupId2@244:9	groupId	`groupId` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+tokens2@248:29	tokens	`tokens` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+code2@277:35	code	`code` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@289:31	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+raw2@291:11	raw	`raw` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@300:31	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+groupId2@312:69	groupId	`groupId` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+client2@332:24	client	`client` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@332:33	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+client2@343:29	client	`client` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@343:38	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+events2@343:44	events	`events` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+client2@352:33	client	`client` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@352:42	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+events2@353:9	events	`events` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@354:9	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+event2@355:6	ratingEvent	`ratingEvent` 是待重试反馈事件列表中与请求 ID 匹配的事件，避免与全局 `event` 冲突。
+client2@374:37	client	`client` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@374:46	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+queryClient2@386:9	queryClient	`queryClient` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+storageKey2@389:9	storageKey	`storageKey` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@440:50	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+comment2@459:62	comment	`comment` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+option2@563:45	option	`option` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+current2@570:14	current	`current` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+comment2@581:10	comment	`comment` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+disabled2@587:9	disabled	`disabled` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@588:29	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+selected2@703:23	selected	`selected` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+previous2@717:35	previous	`previous` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+key2@747:50	key	`key` 是标识值；末尾数字是打包器为避免重名添加的后缀。

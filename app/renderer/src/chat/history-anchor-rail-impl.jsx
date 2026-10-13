@@ -14,9 +14,9 @@ const PREVIEW_CARD_ESTIMATED_HEIGHT_PX = 140;
 
 const PIANO_RADIUS = 2;
 
-const RailTick = reactExports.memo(function RailTick2({
-  index: index2,
-  top: top2,
+const RailTick = reactExports.memo(function RailTick({
+  index,
+  top: railTop,
   isPrimaryActive,
   isVisibleActive,
   hasHoveredMarker,
@@ -24,13 +24,13 @@ const RailTick = reactExports.memo(function RailTick2({
   compact,
   onJumpToTurn,
 }) {
-  const { t: t2 } = useTranslation();
-  const handleClick2 = reactExports.useCallback(
-    () => onJumpToTurn(index2),
-    [index2, onJumpToTurn],
+  const { t: translate } = useTranslation();
+  const handleClick = reactExports.useCallback(
+    () => onJumpToTurn(index),
+    [index, onJumpToTurn],
   );
-  const ariaLabel = t2("chat.historyRail.turn", "对话 {{n}}", {
-    n: index2 + 1,
+  const ariaLabel = translate("chat.historyRail.turn", "对话 {{n}}", {
+    n: index + 1,
   });
   let widthClass;
   if (compact) {
@@ -63,14 +63,14 @@ const RailTick = reactExports.memo(function RailTick2({
   return (
     <button
       type="button"
-      onClick={handleClick2}
+      onClick={handleClick}
       aria-label={ariaLabel}
       aria-current={isPrimaryActive ? "true" : void 0}
-      data-turn-index={index2}
+      data-turn-index={index}
       data-visible-active={isVisibleActive ? "true" : void 0}
       className="group absolute right-0 flex h-2.5 w-full shrink-0 items-center justify-end cursor-pointer"
       style={{
-        top: `${top2}px`,
+        top: `${railTop}px`,
       }}
     >
       <span
@@ -82,21 +82,21 @@ const RailTick = reactExports.memo(function RailTick2({
 
 RailTick.displayName = "RailTick";
 
-function formatAttachmentSummary(s2, t2) {
-  if (s2.kind === "single") return s2.filename;
-  if (s2.kind === "sameType") {
-    return t2(`chat.historyRail.attachmentCount.${s2.type}`, {
-      defaultValue: `${s2.count} 个附件`,
-      count: s2.count,
+function formatAttachmentSummary(attachmentSummary, translate) {
+  if (attachmentSummary.kind === "single") return attachmentSummary.filename;
+  if (attachmentSummary.kind === "sameType") {
+    return translate(`chat.historyRail.attachmentCount.${attachmentSummary.type}`, {
+      defaultValue: `${attachmentSummary.count} 个附件`,
+      count: attachmentSummary.count,
     });
   }
-  return t2("chat.historyRail.attachmentCount.mixed", {
-    defaultValue: `${s2.count} 个附件`,
-    count: s2.count,
+  return translate("chat.historyRail.attachmentCount.mixed", {
+    defaultValue: `${attachmentSummary.count} 个附件`,
+    count: attachmentSummary.count,
   });
 }
 
-function UserSignalRow({ signal, t: t2 }) {
+function UserSignalRow({ signal, t: translate }) {
   if (signal.kind === "text") {
     return (
       <div>
@@ -105,7 +105,7 @@ function UserSignalRow({ signal, t: t2 }) {
         </div>
         {signal.attachments && (
           <div className="mt-0.5 text-caption-10 text-muted-foreground truncate">
-            {formatAttachmentSummary(signal.attachments, t2)}
+            {formatAttachmentSummary(signal.attachments, translate)}
           </div>
         )}
       </div>
@@ -113,12 +113,12 @@ function UserSignalRow({ signal, t: t2 }) {
   }
   return (
     <div className="text-sm font-semibold text-foreground leading-snug line-clamp-2 break-words">
-      {formatAttachmentSummary(signal.attachments, t2)}
+      {formatAttachmentSummary(signal.attachments, translate)}
     </div>
   );
 }
 
-function AgentSignalRow({ signal, t: t2 }) {
+function AgentSignalRow({ signal, t: translate }) {
   if (signal.kind === "text") {
     return (
       <div className="text-xs text-muted-foreground leading-snug line-clamp-3 break-words">
@@ -127,10 +127,10 @@ function AgentSignalRow({ signal, t: t2 }) {
     );
   }
   if (signal.kind === "subAgent") {
-    const roleLabel = t2(`chat.historyRail.agentRole.${signal.role}`, {
+    const roleLabel = translate(`chat.historyRail.agentRole.${signal.role}`, {
       defaultValue: signal.role,
     });
-    const primary = t2("chat.historyRail.subAgentProcessing", {
+    const primary = translate("chat.historyRail.subAgentProcessing", {
       defaultValue: "{{role}} 处理中",
       role: roleLabel,
     });
@@ -148,7 +148,7 @@ function AgentSignalRow({ signal, t: t2 }) {
   }
   return (
     <div className="text-xs text-muted-foreground leading-snug line-clamp-2 break-words">
-      {t2("chat.historyRail.toolCall", {
+      {translate("chat.historyRail.toolCall", {
         defaultValue: "调用了 {{tool}}",
         tool: signal.toolName,
       })}
@@ -156,13 +156,13 @@ function AgentSignalRow({ signal, t: t2 }) {
   );
 }
 
-const PreviewCard = reactExports.memo(function PreviewCard2({
+const PreviewCard = reactExports.memo(function PreviewCard({
   userSignal,
   agentSignal,
   topStyle,
   compact,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div
       style={topStyle}
@@ -170,8 +170,8 @@ const PreviewCard = reactExports.memo(function PreviewCard2({
       className={`elevated-surface-border pointer-events-none absolute right-full mr-2 rounded-lg bg-popover shadow-lg text-popover-foreground p-3 space-y-1.5 ${compact ? "w-56 -translate-y-1/2" : "w-64 max-w-[320px]"}`}
       role="tooltip"
     >
-      {userSignal && <UserSignalRow signal={userSignal} t={t2} />}
-      {agentSignal && <AgentSignalRow signal={agentSignal} t={t2} />}
+      {userSignal && <UserSignalRow signal={userSignal} t={translate} />}
+      {agentSignal && <AgentSignalRow signal={agentSignal} t={translate} />}
     </div>
   );
 });
@@ -185,7 +185,7 @@ const HistoryAnchorRailImpl = ({
   onJumpToTurn,
   compact = false,
 }) => {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [hoveredIndex, setHoveredIndex] = reactExports.useState(null);
   const [hoverYInNav, setHoverYInNav] = reactExports.useState(-1);
   const [railScrollTop, setRailScrollTop] = reactExports.useState(0);
@@ -194,7 +194,7 @@ const HistoryAnchorRailImpl = ({
   const rafIdRef = reactExports.useRef(null);
   const turnsRef = reactExports.useRef(turns);
   turnsRef.current = turns;
-  const ariaLabel = t2("chat.historyRail.label", "对话锚点");
+  const ariaLabel = translate("chat.historyRail.label", "对话锚点");
   const activeIndexSet = reactExports.useMemo(
     () => new Set(activeIndexes),
     [activeIndexes],
@@ -204,7 +204,7 @@ const HistoryAnchorRailImpl = ({
     [turns],
   );
   const turnPositionByIndex = reactExports.useMemo(
-    () => new Map(turns.map((turn, position2) => [turn.index, position2])),
+    () => new Map(turns.map((turn, position) => [turn.index, position])),
     [turns],
   );
   const totalRailHeight = turns.length * RAIL_TICK_HEIGHT_PX;
@@ -213,17 +213,17 @@ const HistoryAnchorRailImpl = ({
     const firstVisiblePosition = Math.floor(
       railScrollTop / RAIL_TICK_HEIGHT_PX,
     );
-    const start2 = Math.max(
+    const start = Math.max(
       0,
       firstVisiblePosition - RAIL_WINDOW_OVERSCAN_TURNS,
     );
-    const end2 = Math.min(
+    const end = Math.min(
       turns.length,
       Math.ceil((railScrollTop + railViewportHeight) / RAIL_TICK_HEIGHT_PX) +
         RAIL_WINDOW_OVERSCAN_TURNS,
     );
-    return turns.slice(start2, end2).map((turn, offset2) => ({
-      position: start2 + offset2,
+    return turns.slice(start, end).map((turn, offset) => ({
+      position: start + offset,
       turn,
     }));
   }, [railScrollTop, railViewportHeight, turns]);
@@ -236,35 +236,35 @@ const HistoryAnchorRailImpl = ({
   const previewAgentSignal = compact
     ? null
     : (hoveredTurn?.agentSignal ?? null);
-  const handleMouseMove2 = reactExports.useCallback((e2) => {
+  const handleMouseMove = reactExports.useCallback((mouseEvent) => {
     if (rafIdRef.current != null) return;
-    const clientY = e2.clientY;
+    const clientY = mouseEvent.clientY;
     rafIdRef.current = requestAnimationFrame(() => {
       rafIdRef.current = null;
-      const nav2 = navRef.current;
-      const list2 = listRef.current;
-      if (!nav2 || !list2) return;
-      const navRect = nav2.getBoundingClientRect();
+      const nav = navRef.current;
+      const list = listRef.current;
+      if (!nav || !list) return;
+      const navRect = nav.getBoundingClientRect();
       const yInNav = clientY - navRect.top;
       setHoverYInNav((prev) => (Math.abs(prev - yInNav) < 1 ? prev : yInNav));
       const currentTurns = turnsRef.current;
       if (currentTurns.length === 0) return;
-      const listRect = list2.getBoundingClientRect();
-      const position2 = Math.max(
+      const listRect = list.getBoundingClientRect();
+      const position = Math.max(
         0,
         Math.min(
           currentTurns.length - 1,
           Math.floor(
-            (list2.scrollTop + clientY - listRect.top) / RAIL_TICK_HEIGHT_PX,
+            (list.scrollTop + clientY - listRect.top) / RAIL_TICK_HEIGHT_PX,
           ),
         ),
       );
-      const nextIndex = currentTurns[position2]?.index;
+      const nextIndex = currentTurns[position]?.index;
       if (nextIndex == null) return;
       setHoveredIndex((prev) => (prev === nextIndex ? prev : nextIndex));
     });
   }, []);
-  const handleMouseLeave2 = reactExports.useCallback(() => {
+  const handleMouseLeave = reactExports.useCallback(() => {
     if (rafIdRef.current != null) {
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;
@@ -283,19 +283,19 @@ const HistoryAnchorRailImpl = ({
     setRailScrollTop((prev) => (prev === nextScrollTop ? prev : nextScrollTop));
   }, []);
   reactExports.useEffect(() => {
-    const list2 = listRef.current;
+    const list = listRef.current;
     const activePosition = turnPositionByIndex.get(activeIndex);
-    if (!list2 || activePosition == null) return;
+    if (!list || activePosition == null) return;
     const targetTop = activePosition * RAIL_TICK_HEIGHT_PX;
     const targetBottom = targetTop + RAIL_TICK_HEIGHT_PX;
-    const viewportHeight = list2.clientHeight || railViewportHeight;
-    let nextScrollTop = list2.scrollTop;
+    const viewportHeight = list.clientHeight || railViewportHeight;
+    let nextScrollTop = list.scrollTop;
     if (targetTop < nextScrollTop) {
       nextScrollTop = targetTop;
     } else if (targetBottom > nextScrollTop + viewportHeight) {
       nextScrollTop = targetBottom - viewportHeight;
     }
-    if (list2.scrollTop !== nextScrollTop) list2.scrollTop = nextScrollTop;
+    if (list.scrollTop !== nextScrollTop) list.scrollTop = nextScrollTop;
     setRailScrollTop((prev) => (prev === nextScrollTop ? prev : nextScrollTop));
   }, [activeIndex, railViewportHeight, turnPositionByIndex]);
   const previewTopStyle = reactExports.useMemo(() => {
@@ -304,8 +304,8 @@ const HistoryAnchorRailImpl = ({
       return {
         top: `${hoverYInNav}px`,
       };
-    const nav2 = navRef.current;
-    const navH = nav2?.clientHeight ?? 0;
+    const nav = navRef.current;
+    const navH = nav?.clientHeight ?? 0;
     if (navH <= 0)
       return {
         top: 0,
@@ -326,8 +326,8 @@ const HistoryAnchorRailImpl = ({
       data-action-ui-id="chat-history-rail"
       data-overflowing={turns.length > MAX_VISIBLE_RAIL_TURNS ? "true" : void 0}
       data-compact={compact ? "true" : void 0}
-      onMouseMove={handleMouseMove2}
-      onMouseLeave={handleMouseLeave2}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       className={`absolute right-2 top-12 z-10 py-2 ${compact ? "w-[18px]" : "w-8"}`}
     >
       <div
@@ -343,7 +343,7 @@ const HistoryAnchorRailImpl = ({
             height: `${totalRailHeight}px`,
           }}
         >
-          {visibleTurns.map(({ position: position2, turn }) => {
+          {visibleTurns.map(({ position, turn }) => {
             const rawDistance =
               hoveredIndex != null
                 ? Math.abs(turn.index - hoveredIndex)
@@ -356,7 +356,7 @@ const HistoryAnchorRailImpl = ({
               <RailTick
                 key={turn.index}
                 index={turn.index}
-                top={position2 * RAIL_TICK_HEIGHT_PX}
+                top={position * RAIL_TICK_HEIGHT_PX}
                 isPrimaryActive={turn.index === activeIndex}
                 isVisibleActive={activeIndexSet.has(turn.index)}
                 hasHoveredMarker={hoveredIndex != null}

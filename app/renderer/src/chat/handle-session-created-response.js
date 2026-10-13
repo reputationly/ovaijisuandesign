@@ -3,9 +3,9 @@ import { DRAFT_NEW_TAB } from "../workspace/resolve-retry-message-payload.jsx";
 import { recordAction } from "../infra/gateway-http-error.jsx";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { ErrorCodes } from "../generation/normalize-skill-detail-metadata.js";
-export function isSessionCachePolicyEnabled(storageKey2) {
+export function isSessionCachePolicyEnabled(storageKey) {
   try {
-    return localStorage.getItem(storageKey2) === "1";
+    return localStorage.getItem(storageKey) === "1";
   } catch {
     return false;
   }
@@ -32,8 +32,8 @@ export const ACTIVE_MESSAGE_DELIVERY_STATUSES = new Set([
   "accepted",
   "started",
 ]);
-export function isMessagePreflight(state2) {
-  return state2?.status === "sent" && state2.phase !== void 0;
+export function isMessagePreflight(state) {
+  return state?.status === "sent" && state.phase !== void 0;
 }
 const MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES = new Set([
   "part_updated",
@@ -67,8 +67,8 @@ export function messageDeliveryErrorMessageId(clientMessageId) {
 export function messageDeliveryTimeoutToastId(clientMessageId) {
   return `message-delivery-timeout-${clientMessageId}`;
 }
-export function isBridgeDeliveryTimeout(state2) {
-  return state2?.status === "timeout" && state2.stage === "bridge_error";
+export function isBridgeDeliveryTimeout(state) {
+  return state?.status === "timeout" && state.stage === "bridge_error";
 }
 export function sanitizeMessageDeliveryError(error) {
   return error
@@ -124,67 +124,67 @@ export function errorCodeForMessageDeliveryStage(stage) {
       return ErrorCodes.RUNTIME_CONNECTION_LOST;
   }
 }
-export function messageDeliveryRuntimeProgressSessionId(msg) {
-  if (!MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(msg.type)) return null;
-  return "session_id" in msg && typeof msg.session_id === "string"
-    ? msg.session_id
+export function messageDeliveryRuntimeProgressSessionId(message) {
+  if (!MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(message.type)) return null;
+  return "session_id" in message && typeof message.session_id === "string"
+    ? message.session_id
     : null;
 }
-export function rootRuntimeTerminalSessionId(msg) {
-  if (!MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(msg.type)) return null;
-  if (!("session_id" in msg) || typeof msg.session_id !== "string") return null;
-  if (msg.type === "session_idle" && msg.childSessionId) {
+export function rootRuntimeTerminalSessionId(message) {
+  if (!MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(message.type)) return null;
+  if (!("session_id" in message) || typeof message.session_id !== "string") return null;
+  if (message.type === "session_idle" && message.childSessionId) {
     return null;
   }
-  return msg.session_id;
+  return message.session_id;
 }
-export function isRuntimeBusyProgress(msg) {
+export function isRuntimeBusyProgress(message) {
   return (
-    MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(msg.type) &&
-    !MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(msg.type)
+    MESSAGE_DELIVERY_RUNTIME_PROGRESS_TYPES.has(message.type) &&
+    !MESSAGE_DELIVERY_RUNTIME_TERMINAL_TYPES.has(message.type)
   );
 }
 export function clearBridgeTimeoutPresentation(
   sessionStore,
-  state2,
+  state,
   restoreBusy,
 ) {
-  if (!isBridgeDeliveryTimeout(state2)) return false;
+  if (!isBridgeDeliveryTimeout(state)) return false;
   sessionStore.removeMessageById(
-    state2.sessionId,
-    messageDeliveryErrorMessageId(state2.clientMessageId),
+    state.sessionId,
+    messageDeliveryErrorMessageId(state.clientMessageId),
   );
-  dedupedToast.dismiss(messageDeliveryTimeoutToastId(state2.clientMessageId));
-  if (restoreBusy && state2.delivery === "normal") {
-    sessionStore.setBusy(true, state2.sessionId);
+  dedupedToast.dismiss(messageDeliveryTimeoutToastId(state.clientMessageId));
+  if (restoreBusy && state.delivery === "normal") {
+    sessionStore.setBusy(true, state.sessionId);
   }
   return true;
 }
 export function recordMessageDeliveryTimeoutRecovered(
-  state2,
+  state,
   recoveredBy,
   gatewayTimestamp,
 ) {
   const rendererReceivedAt = Date.now();
   recordAction("chat:message-timeout-recovered", {
-    sessionId: state2.sessionId,
-    clientMessageId: state2.clientMessageId,
+    sessionId: state.sessionId,
+    clientMessageId: state.clientMessageId,
     recoveredBy,
-    timeoutAt: state2.updatedAt,
+    timeoutAt: state.updatedAt,
     rendererReceivedAt,
-    recoveryDelayMs: rendererReceivedAt - state2.updatedAt,
+    recoveryDelayMs: rendererReceivedAt - state.updatedAt,
     ...(gatewayTimestamp == null
       ? {}
       : {
           gatewayTimestamp,
-          gatewayAfterTimeoutMs: gatewayTimestamp - state2.updatedAt,
+          gatewayAfterTimeoutMs: gatewayTimestamp - state.updatedAt,
           rendererAfterGatewayMs: rendererReceivedAt - gatewayTimestamp,
         }),
   });
 }
-export function settleCreatedComposerDraft(message2, payload, drafts, editor) {
+export function settleCreatedComposerDraft(message, payload, drafts, editor) {
   if (payload.preserveComposer) {
-    drafts.setNow(message2.session_id, payload.draft);
+    drafts.setNow(message.session_id, payload.draft);
     if (editor.active) {
       editor.input.current = payload.draft.text;
       editor.editorDoc.current = payload.draft.editorDoc;
@@ -207,7 +207,7 @@ export function settleCreatedComposerDraft(message2, payload, drafts, editor) {
   }
 }
 export function handleSessionCreatedResponse({
-  message: message2,
+  message,
   refs,
   draftController,
   dispatchUserMessage,
@@ -216,21 +216,21 @@ export function handleSessionCreatedResponse({
   handleCreateDispatched,
   handleCreateDispatchFailed,
 }) {
-  const activated = message2.activated !== false;
-  const requestId = message2.request_id;
+  const activated = message.activated !== false;
+  const requestId = message.request_id;
   const pendingCreate = refs.createPayload.current;
   const isPendingCreateResponse =
     requestId !== void 0 && pendingCreate?.requestId === requestId;
   const pendingForkDraft = requestId
     ? refs.forkDrafts.current.get(requestId)
     : void 0;
-  if (activated) handleActivated(message2);
+  if (activated) handleActivated(message);
   if (pendingForkDraft !== void 0 && requestId) {
-    const forkDraft = message2.fork_draft ?? pendingForkDraft;
+    const forkDraft = message.fork_draft ?? pendingForkDraft;
     if (activated) {
       handleActivatedForkDraft(forkDraft);
     } else {
-      draftController.setNow(message2.session_id, {
+      draftController.setNow(message.session_id, {
         text: forkDraft,
         attachments: [],
       });
@@ -243,7 +243,7 @@ export function handleSessionCreatedResponse({
       pendingCreate.canvasNodeAttachments ?? void 0,
       pendingCreate.entityRefs ?? void 0,
       pendingCreate.pluginNodeAttachments ?? void 0,
-      message2.session_id,
+      message.session_id,
       pendingCreate.clientMessageId,
       pendingCreate.documentEditRequest ?? void 0,
       pendingCreate.textEditContext ?? void 0,
@@ -254,42 +254,42 @@ export function handleSessionCreatedResponse({
     );
     if (dispatched) {
       refs.createPayload.current = null;
-      handleCreateDispatched(message2, pendingCreate);
+      handleCreateDispatched(message, pendingCreate);
     } else {
-      handleCreateDispatchFailed(message2, pendingCreate);
+      handleCreateDispatchFailed(message, pendingCreate);
     }
   }
 }
 export const TEXT_AGENT_INTRO_MESSAGE_ID_PREFIX = "text-agent-intro:";
-export function nodeEditSessionName(kind, t2, agentName) {
+export function nodeEditSessionName(kind, translate, agentName) {
   if (kind === "plugin") {
     return (
       agentName?.trim() ||
-      t2("chat.pluginEditAgent.sessionName", "Editor Agent")
+      translate("chat.pluginEditAgent.sessionName", "Editor Agent")
     );
   }
-  return t2("chat.textEditAgent.sessionName", "Text Assistant");
+  return translate("chat.textEditAgent.sessionName", "Text Assistant");
 }
-function addTextAgentIntro(messages2, sessionId, content2) {
-  if (messages2.length > 0) return messages2;
+function addTextAgentIntro(messages, sessionId, content) {
+  if (messages.length > 0) return messages;
   return [
     {
       id: `${TEXT_AGENT_INTRO_MESSAGE_ID_PREFIX}${sessionId}`,
       role: "agent",
       type: "text",
-      content: content2,
+      content,
     },
   ];
 }
-export function createTextAgentIntroEnsurer(sessionStore, kindRef, t2) {
+export function createTextAgentIntroEnsurer(sessionStore, kindRef, translate) {
   return (sessionId) => {
     if (kindRef.current !== "text") return;
-    const intro = t2(
+    const intro = translate(
       "chat.textEditAgent.intro",
       "Hi, I’m your Text Assistant. I’m here to help you shape this draft. Tell me how you want the whole piece changed, or select a passage and add an annotation for a focused edit.\n\nI can help you:\n- Rewrite a scene to improve pacing, conflict, or dialogue\n- Rework a piece of copy to sharpen its message and selling points\n- Polish, expand, shorten, or reorganize content\n- Translate text and keep its tone and style consistent\n- Refine selected passages one annotation at a time\n\nA quick tip:\n- **For a focused edit**, select the text and state clearly in the annotation what you want changed, such as “add suspense,” “make the tone more restrained,” or “shorten to 100 words”\n- **For a full-document edit**, leave everything unselected and tell me the overall goal, such as “make it more conversational” or “use a professional brand voice throughout”",
     );
-    sessionStore.updateMessages(sessionId, (previous2) =>
-      addTextAgentIntro(previous2, sessionId, intro),
+    sessionStore.updateMessages(sessionId, (previous) =>
+      addTextAgentIntro(previous, sessionId, intro),
     );
   };
 }
@@ -320,28 +320,28 @@ function normalizeEntry(value) {
     updatedAt,
   };
 }
-export function sameTextEditSessionEntry(a2, b3) {
-  if (a2.runtimeSessionId && b3.runtimeSessionId)
-    return a2.runtimeSessionId === b3.runtimeSessionId;
-  if (a2.uiSessionId && b3.uiSessionId && a2.uiSessionId === b3.uiSessionId)
+export function sameTextEditSessionEntry(leftEntry, rightEntry) {
+  if (leftEntry.runtimeSessionId && rightEntry.runtimeSessionId)
+    return leftEntry.runtimeSessionId === rightEntry.runtimeSessionId;
+  if (leftEntry.uiSessionId && rightEntry.uiSessionId && leftEntry.uiSessionId === rightEntry.uiSessionId)
     return true;
   if (
-    a2.uiSessionId &&
-    b3.runtimeSessionId &&
-    a2.uiSessionId === b3.runtimeSessionId
+    leftEntry.uiSessionId &&
+    rightEntry.runtimeSessionId &&
+    leftEntry.uiSessionId === rightEntry.runtimeSessionId
   )
     return true;
   if (
-    a2.runtimeSessionId &&
-    b3.uiSessionId &&
-    a2.runtimeSessionId === b3.uiSessionId
+    leftEntry.runtimeSessionId &&
+    rightEntry.uiSessionId &&
+    leftEntry.runtimeSessionId === rightEntry.uiSessionId
   )
     return true;
   return false;
 }
-export function mergeEntry(a2, b3) {
-  const newer = a2.updatedAt >= b3.updatedAt ? a2 : b3;
-  const older = newer === a2 ? b3 : a2;
+export function mergeEntry(existingEntry, incomingEntry) {
+  const newer = existingEntry.updatedAt >= incomingEntry.updatedAt ? existingEntry : incomingEntry;
+  const older = newer === existingEntry ? incomingEntry : existingEntry;
   return {
     ...(older.uiSessionId
       ? {
@@ -366,37 +366,37 @@ export function mergeEntry(a2, b3) {
     updatedAt: Math.max(older.updatedAt, newer.updatedAt),
   };
 }
-export function normalizeEntryList(values3) {
-  const entries2 = [];
-  for (const value of values3) {
+export function normalizeEntryList(values) {
+  const entries = [];
+  for (const value of values) {
     const entry = normalizeEntry(value);
     if (!entry) continue;
-    const existingIndex = entries2.findIndex((candidate) =>
+    const existingIndex = entries.findIndex((candidate) =>
       sameTextEditSessionEntry(candidate, entry),
     );
-    if (existingIndex === -1) entries2.push(entry);
-    else entries2[existingIndex] = mergeEntry(entries2[existingIndex], entry);
+    if (existingIndex === -1) entries.push(entry);
+    else entries[existingIndex] = mergeEntry(entries[existingIndex], entry);
   }
-  return entries2.sort((a2, b3) => b3.updatedAt - a2.updatedAt);
+  return entries.sort((leftEntry, rightEntry) => rightEntry.updatedAt - leftEntry.updatedAt);
 }
 function normalizeBinding(value) {
   if (!isRecord(value)) return null;
-  const active2 = normalizeEntry(value);
+  const active = normalizeEntry(value);
   const rawSessions = Array.isArray(value.sessions) ? value.sessions : [];
   const sessions = normalizeEntryList(
-    active2 ? [...rawSessions, active2] : rawSessions,
+    active ? [...rawSessions, active] : rawSessions,
   );
-  if (!active2 && sessions.length === 0) return null;
-  const updatedAt = active2?.updatedAt ?? sessions[0]?.updatedAt ?? 0;
+  if (!active && sessions.length === 0) return null;
+  const updatedAt = active?.updatedAt ?? sessions[0]?.updatedAt ?? 0;
   return {
-    ...(active2?.uiSessionId
+    ...(active?.uiSessionId
       ? {
-          uiSessionId: active2.uiSessionId,
+          uiSessionId: active.uiSessionId,
         }
       : {}),
-    ...(active2?.runtimeSessionId
+    ...(active?.runtimeSessionId
       ? {
-          runtimeSessionId: active2.runtimeSessionId,
+          runtimeSessionId: active.runtimeSessionId,
         }
       : {}),
     updatedAt,
@@ -405,9 +405,9 @@ function normalizeBinding(value) {
 }
 export function listTextEditSessionEntries(binding) {
   if (!binding) return [];
-  const active2 = normalizeEntry(binding);
+  const active = normalizeEntry(binding);
   return normalizeEntryList(
-    active2 ? [...(binding.sessions ?? []), active2] : (binding.sessions ?? []),
+    active ? [...(binding.sessions ?? []), active] : (binding.sessions ?? []),
   );
 }
 export function upsertTextEditSessionEntry(binding, entry, options) {
@@ -415,11 +415,11 @@ export function upsertTextEditSessionEntry(binding, entry, options) {
     entry,
     ...listTextEditSessionEntries(binding),
   ]);
-  const active2 = options?.active === false ? normalizeEntry(binding) : entry;
-  const merged = active2
+  const active = options?.active === false ? normalizeEntry(binding) : entry;
+  const merged = active
     ? (sessions.find((candidate) =>
-        sameTextEditSessionEntry(candidate, active2),
-      ) ?? active2)
+        sameTextEditSessionEntry(candidate, active),
+      ) ?? active)
     : null;
   return {
     ...(merged?.uiSessionId
@@ -454,11 +454,11 @@ function normalizeWorkspaceBindings(value) {
 }
 export function normalizeTextEditSessionRecord(value) {
   if (!isRecord(value)) return {};
-  const record2 = {};
+  const record = {};
   for (const [workspaceKey, rawBindings] of Object.entries(value)) {
     if (!workspaceKey) continue;
     const bindings = normalizeWorkspaceBindings(rawBindings);
-    if (Object.keys(bindings).length > 0) record2[workspaceKey] = bindings;
+    if (Object.keys(bindings).length > 0) record[workspaceKey] = bindings;
   }
-  return record2;
+  return record;
 }

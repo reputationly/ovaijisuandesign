@@ -1,0 +1,8 @@
+key	新名	依据
+el@66:13	scrollElement	`scrollElement` 是历史导航轨道读取滚动尺寸与位置的容器。
+el@93:11	scrollElement	`scrollElement` 是用于注册滚动监听器的历史记录容器。
+el@107:11	scrollElement	`scrollElement` 是 ResizeObserver 观察的历史记录容器。
+mode2@49:10	mode	`mode` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+next2@81:13	next	`next` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+index2@84:28	index	`index` 是标识值；末尾数字是打包器为避免重名添加的后缀。
+observer2@109:11	observer	`observer` 是标识值；末尾数字是打包器为避免重名添加的后缀。

@@ -1,0 +1,48 @@
+key	新名	依据
+L@2:10	useIcons	`useIcons` 从图标上下文取得图表下载图标组件。
+R@4:10	markdownRenderOptionsContext	`markdownRenderOptionsContext` 提供 Markdown 控件的动画状态。
+W2@4:13	downloadFile	`downloadFile` 将图表文件名、内容和 MIME 类型转换为浏览器下载。
+y3@4:17	useClassNameMerger	`useClassNameMerger` 从渲染选项上下文取得类名合并函数。
+D3@5:10	useStreamdownLabels	`useStreamdownLabels` 从上下文取得 Mermaid 下载菜单的本地化文案。
+de@5:14	useMermaidPlugin	`useMermaidPlugin` 从媒体编辑上下文取得 Mermaid 插件对象。
+io@7:5	convertSvgToPngBlob	`convertSvgToPngBlob` 将 SVG 图像绘制到画布并异步导出 PNG Blob。
+e2@7:11	svgMarkup	`svgMarkup` 是编码成数据 URI 并绘制到画布的 SVG 文本。
+t2@7:15	options	`options` 是转换辅助函数保留但未读取的可选参数。
+n2@8:7	undefinedValue	`undefinedValue` 是默认缩放比例回退表达式中的未定义值。
+o2@9:7	scale	`scale` 是 SVG 图像绘制到画布时使用的放大比例。
+r2@10:23	resolve	`resolve` 是 PNG Blob 生成成功时兑现 Promise 的回调。
+s2@10:27	reject	`reject` 是画布或图像转换失败时拒绝 Promise 的回调。
+a2@11:9	svgDataUrl	`svgDataUrl` 是供 Image 加载的 SVG Base64 数据 URI。
+l2@13:7	image	`image` 是加载 SVG 数据并提供尺寸的 Image 对象。
+i2@16:13	canvas	`canvas` 是承载 SVG 图像并用于导出 PNG 的画布元素。
+d2@17:11	canvasWidth	`canvasWidth` 是按 SVG 图像宽度及比例计算出的画布宽度。
+c3@18:11	canvasHeight	`canvasHeight` 是按 SVG 图像高度及比例计算出的画布高度。
+p3@20:13	context	`context` 是用于将 SVG 图像绘制到画布的 2D 上下文。
+m3@26:22	pngBlob	`pngBlob` 是画布导出的 PNG 文件数据。
+e2@40:10	chart	`chart` 是导出为 MMD、SVG 或 PNG 的 Mermaid 图表文本。
+t2@41:13	children	`children` 是下载按钮内由调用方提供的可选内容。
+o2@42:14	className	`className` 是附加到下载按钮的 CSS 类名。
+n2@43:15	onDownload	`onDownload` 是图表下载完成后调用并接收格式的回调。
+r2@44:11	config	`config` 是传给 Mermaid 插件的图表渲染配置对象。
+s2@45:12	onError	`onError` 是 Mermaid 不可用或图表导出失败时接收异常的回调。
+a2@47:7	mergeClassNames	`mergeClassNames` 是下载菜单各层调用的 CSS 类名合并函数。
+l2@48:6	isMenuOpen	`isMenuOpen` 表示图表下载格式菜单当前是否展开。
+i2@48:10	setIsMenuOpen	`setIsMenuOpen` 更新图表下载格式菜单的展开状态。
+d2@49:5	menuRef	`menuRef` 指向下载按钮及弹出菜单的根元素。
+c3@50:20	isAnimating	`isAnimating` 表示 Markdown 渲染器当前是否处于动画状态。
+p3@51:5	icons	`icons` 是下载菜单渲染操作图标时使用的组件集合。
+m3@52:5	mermaidPlugin	`mermaidPlugin` 是提供 Mermaid 图表实例的插件对象。
+u4@53:5	translations	`translations` 是图表下载菜单使用的本地化文案。
+f2@54:5	downloadDiagram	`downloadDiagram` 按所选格式导出 Mermaid 图表并通知调用方。
+h2@54:17	format	`format` 是选定的 MMD、SVG 或 PNG 导出格式。
+b3@66:13	mermaid	`mermaid` 是从插件配置取得的 Mermaid 图表实例。
+g2@67:11	chartHash	`chartHash` 是由图表文本字符逐步计算出的数值哈希。
+T2@70:11	renderId	`renderId` 是本次 Mermaid SVG 渲染使用的唯一标识。
+v2@71:18	svgOutput	`svgOutput` 是 Mermaid 渲染返回的 SVG 图像文本。
+w3@69:22	hash	`hash` 是图表文本哈希计算中的累积数值。
+P3@69:26	character	`character` 是参与图表文本哈希计算的单个字符。
+w3@88:15	pngBlob	`pngBlob` 是 SVG 转换函数生成的 PNG 文件数据。
+b3@92:16	error	`error` 是 Mermaid 渲染或格式转换过程中捕获的异常。
+h2@98:11	handleOutsideMouseDown	`handleOutsideMouseDown` 在鼠标按下发生于菜单外时关闭菜单。
+b3@98:17	mouseEvent	`mouseEvent` 是文档级鼠标按下监听器收到的事件。
+g2@99:13	eventPath	`eventPath` 是鼠标事件的 composedPath 返回的传播路径。
