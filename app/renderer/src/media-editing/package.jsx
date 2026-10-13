@@ -3,14 +3,14 @@ import { AlignCenter$1 as AlignCenterIcon, AlignLeft$1 as AlignLeftIcon, AlignRi
 import { useAssetMetadataStore } from "../infra/agent-http-client.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 export function hasMessagePayload(
-  content2,
+  content,
   attachments,
   entityRefs,
   canvasNodeAttachments,
   pluginNodeAttachments,
 ) {
   return (
-    !!content2.trim() ||
+    !!content.trim() ||
     !!attachments?.length ||
     !!entityRefs?.length ||
     !!canvasNodeAttachments?.length ||
@@ -24,8 +24,8 @@ export function useDelayedFalse(flag, delayMs) {
   }
   reactExports.useEffect(() => {
     if (flag) return;
-    const timer2 = window.setTimeout(() => setValue(false), delayMs);
-    return () => window.clearTimeout(timer2);
+    const timer = window.setTimeout(() => setValue(false), delayMs);
+    return () => window.clearTimeout(timer);
   }, [flag, delayMs]);
   return flag || value;
 }
@@ -53,42 +53,42 @@ export function useCanvasIsBoxSelecting() {
   return reactExports.useContext(IsBoxSelectingContext);
 }
 export function isDraggingSelector(state) {
-  for (const [, node2] of state.nodeLookup) {
-    if (node2.dragging) return true;
+  for (const [, node] of state.nodeLookup) {
+    if (node.dragging) return true;
   }
   return false;
 }
 export function isMultiSelectSelector(state) {
-  let count2 = 0;
+  let count = 0;
   for (const node of state.nodes) {
-    if (node.selected && ++count2 > 1) return true;
+    if (node.selected && ++count > 1) return true;
   }
   return false;
 }
 export function isBoxSelectingSelector(state) {
   return state.userSelectionActive;
 }
-export function useAssetMeta(key2) {
-  return useAssetMetadataStore((state) => state.assets.get(key2));
+export function useAssetMeta(key) {
+  return useAssetMetadataStore((state) => state.assets.get(key));
 }
 export function createGeneratingStateStore() {
-  return createStore((set2) => ({
+  return createStore((set) => ({
     byNode: new Map(),
-    mark: (nodeId, info2) =>
-      set2((state2) => {
-        const next2 = new Map(state2.byNode);
-        next2.set(nodeId, info2);
+    mark: (nodeId, info) =>
+      set((state) => {
+        const next = new Map(state.byNode);
+        next.set(nodeId, info);
         return {
-          byNode: next2,
+          byNode: next,
         };
       }),
     clear: (nodeId) =>
-      set2((state2) => {
-        if (!state2.byNode.has(nodeId)) return state2;
-        const next2 = new Map(state2.byNode);
-        next2.delete(nodeId);
+      set((state) => {
+        if (!state.byNode.has(nodeId)) return state;
+        const next = new Map(state.byNode);
+        next.delete(nodeId);
         return {
-          byNode: next2,
+          byNode: next,
         };
       }),
   }));
@@ -101,22 +101,22 @@ export function useGeneratingStateApi() {
     defaultGeneratingStateStore
   );
 }
-export const useGeneratingStateStore = (selector2) =>
-  useStore(useGeneratingStateApi(), selector2);
+export const useGeneratingStateStore = (selector) =>
+  useStore(useGeneratingStateApi(), selector);
 useGeneratingStateStore.getState = defaultGeneratingStateStore.getState;
 useGeneratingStateStore.setState = defaultGeneratingStateStore.setState;
 useGeneratingStateStore.subscribe = defaultGeneratingStateStore.subscribe;
 export function useGenerating(nodeId) {
   return useGeneratingStateStore((state) => state.byNode.get(nodeId));
 }
-export const useMediaPlayback = create((set2) => ({
+export const useMediaPlayback = create((set) => ({
   playingId: null,
   play: (mediaId) =>
-    set2({
+    set({
       playingId: mediaId,
     }),
   stop: () =>
-    set2({
+    set({
       playingId: null,
     }),
 }));
@@ -333,12 +333,12 @@ export const Type = withIconCompositing(TypeIcon);
 export const Upload = withIconCompositing(UploadIcon);
 export const Users = withIconCompositing(UsersIcon);
 export const VolumeX = withIconCompositing(VolumeXIcon);
-export function RotateIcon({ size: size2 = 20, ...props }) {
+export function RotateIcon({ size = 20, ...props }) {
   return (
     <CompositedSvg
       {...props}
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden="true"

@@ -188,16 +188,16 @@ function safeDecodeURIComponent(value) {
 export function cleanPath(src) {
   if (!src) return "";
   try {
-    const url2 = new URL(src);
-    return safeDecodeURIComponent(url2.pathname);
+    const url = new URL(src);
+    return safeDecodeURIComponent(url.pathname);
   } catch {
     return safeDecodeURIComponent(src.split(/[?#]/)[0] ?? src);
   }
 }
 export const MEDIA_CATEGORIES = ["image", "video", "audio"];
-function buildSelectionAliasIndex(entries2) {
+function buildSelectionAliasIndex(entries) {
   const mutable = new Map();
-  for (const entry of entries2) {
+  for (const entry of entries) {
     const aliases = [
       entry.id,
       entry.model_name,
@@ -229,31 +229,31 @@ function selectionIdMatchesVisibleModel(selectionId, model, category) {
   if (!aliases) return false;
   return aliases.rowIds.has(model.id);
 }
-export function isVisibleMediaModelSelected(selected2, model) {
+export function isVisibleMediaModelSelected(selected, model) {
   if (!isMediaCategory(model.type)) return false;
   const category = model.type;
-  const selectedIds = selected2[category];
+  const selectedIds = selected[category];
   if (selectedIds === void 0) return true;
   return selectedIds.some((selectionId) =>
     selectionIdMatchesVisibleModel(selectionId, model, category),
   );
 }
-export function countVisibleSelectedMediaModels(selected2, models) {
+export function countVisibleSelectedMediaModels(selected, models) {
   return models.filter(
     (model) =>
       model.visibility !== "hidden" &&
       isMediaCategory(model.type) &&
-      isVisibleMediaModelSelected(selected2, model),
+      isVisibleMediaModelSelected(selected, model),
   ).length;
 }
-export function isAllVisibleMediaModelsSelected(selected2, models) {
+export function isAllVisibleMediaModelsSelected(selected, models) {
   for (const category of MEDIA_CATEGORIES) {
     const visibleModels = models.filter(
       (model) => model.type === category && model.visibility !== "hidden",
     );
     if (
       !visibleModels.every((model) =>
-        isVisibleMediaModelSelected(selected2, model),
+        isVisibleMediaModelSelected(selected, model),
       )
     )
       return false;
