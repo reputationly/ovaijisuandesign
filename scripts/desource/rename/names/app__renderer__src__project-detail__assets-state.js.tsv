@@ -1,0 +1,4 @@
+key	new	reason
+by@22:48	sortField	要排序的字段（name/type/…），写入排序状态的 by
+a@56:13	anchorIndex	范围选择锚点在 allKeys 中的下标
+b@57:13	targetIndex	本次点击目标在 allKeys 中的下标

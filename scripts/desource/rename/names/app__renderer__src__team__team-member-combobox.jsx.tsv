@@ -1,0 +1,3 @@
+key	new	reason
+t2@37:14	t	useTranslation() 返回的翻译函数 t
+id2@17:7	id	从 props.id 解构的元素 id

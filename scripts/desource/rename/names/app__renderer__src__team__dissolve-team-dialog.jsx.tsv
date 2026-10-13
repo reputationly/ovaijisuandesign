@@ -1,0 +1,4 @@
+key	new	reason
+TeamScopeChangedError$2@27:5	DissolveScopeChangedError	解散/退出流程中团队范围变化时抛出的错误类（内部类名占用了同名）
+TeamExitResultError$1@29:5	DissolveExitResultError	解散/退出流程结果失败时抛出、携带结果的错误类（内部类名占用了同名）
+t2@45:14	t	useTranslation() 返回的翻译函数 t

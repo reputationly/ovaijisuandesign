@@ -1,0 +1,3 @@
+key	new	reason
+ScopeChangedError$2@76:5	BatchRemoveScopeChangedError	批量移除过程中账号范围变化时抛出的错误类（内部类名 ScopeChangedError 占用了同名）
+t2@88:14	t	useTranslation() 返回的翻译函数 t

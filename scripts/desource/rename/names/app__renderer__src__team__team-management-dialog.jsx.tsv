@@ -1,0 +1,6 @@
+key	new	reason
+t2@120:14	t	useTranslation() 返回的翻译函数 t
+t2@196:14	t	useTranslation() 返回的翻译函数 t
+t2@248:14	t	useTranslation() 返回的翻译函数 t
+id2@419:37	memberId	已加载可选成员 ID，检查是否都已选中
+id2@420:61	memberId	已加载可选成员 ID，检查是否有被选中的

@@ -95,7 +95,7 @@ function ReviewBadge({ node }) {
     </span>
   );
 }
-function NodeMenu$1({
+function NodeMenu({
   node,
   syncMap,
   downloadingIds,
@@ -158,7 +158,7 @@ function NodeMenu$1({
     </DropdownMenu>
   );
 }
-function NodeContextMenuContent$1({
+function NodeContextMenuContent({
   node,
   syncMap,
   downloadingIds,
@@ -301,7 +301,7 @@ export function NodeCard$1({
               <SyncBadge state={syncState} />
             </div>
             <div className="absolute bottom-2 right-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
-              <NodeMenu$1
+              <NodeMenu
                 node={node}
                 syncMap={syncMap}
                 downloadingIds={downloadingIds}
@@ -316,7 +316,7 @@ export function NodeCard$1({
           </div>
         }
       />
-      <NodeContextMenuContent$1
+      <NodeContextMenuContent
         node={node}
         syncMap={syncMap}
         downloadingIds={downloadingIds}
@@ -429,7 +429,7 @@ export function NodeRow$1({
               </span>
             </button>
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
-              <NodeMenu$1
+              <NodeMenu
                 node={node}
                 syncMap={syncMap}
                 downloadingIds={downloadingIds}
@@ -444,7 +444,7 @@ export function NodeRow$1({
           </div>
         }
       />
-      <NodeContextMenuContent$1
+      <NodeContextMenuContent
         node={node}
         syncMap={syncMap}
         downloadingIds={downloadingIds}

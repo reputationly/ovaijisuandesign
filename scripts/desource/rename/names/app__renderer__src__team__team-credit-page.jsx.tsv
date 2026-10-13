@@ -1,0 +1,5 @@
+key	new	reason
+t2@88:14	t	useTranslation() 返回的翻译函数 t
+t2@370:14	t	useTranslation() 返回的翻译函数 t
+id2@347:9	counterpartyGroupId	transfer.counterpartyGroupId 对方团队 ID
+w3@69:6	wallet	wallets 中的单个钱包，按 source 过滤

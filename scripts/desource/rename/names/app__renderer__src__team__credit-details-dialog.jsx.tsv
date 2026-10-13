@@ -1,0 +1,18 @@
+key	new	reason
+formatNumber$1@676:10	formatLocaleNumber	对 number 调 toLocaleString（区别于本文件按 BigInt 格式化的 formatNumber）
+t2@378:50	t	调用方传入的翻译函数 t
+t2@431:14	t	useTranslation() 返回的翻译函数 t
+t2@487:14	t	useTranslation() 返回的翻译函数 t
+t2@514:14	t	useTranslation() 返回的翻译函数 t
+t2@566:14	t	useTranslation() 返回的翻译函数 t
+t2@767:14	t	useTranslation() 返回的翻译函数 t
+t2@841:14	t	useTranslation() 返回的翻译函数 t
+t2@906:14	t	useTranslation() 返回的翻译函数 t
+n2@676:25	value	要格式化的数值
+cta@594:9	subscriptionCtaLabel	订阅按钮文案：免费用户为升级、否则为查看订阅
+qs@211:9	queryString	searchParams.toString() 得到的查询串
+id2@681:9	counterpartyGroupId	transfer.counterpartyGroupId 对方团队 ID
+a2@729:14	a	sort 比较函数的前一个积分批次
+b3@729:18	b	sort 比较函数的后一个积分批次
+t2@353:36	t	调用方传入的翻译函数 t，转交 getBillingModelDisplayName
+t2@368:46	t	调用方传入的翻译函数 t，转交 getPackageCreditCategoryLabel

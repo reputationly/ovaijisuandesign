@@ -1,0 +1,4 @@
+key	new	reason
+t2@42:14	t	useTranslation() 返回的翻译函数 t
+t2@121:14	t	useTranslation() 返回的翻译函数 t
+t2@233:35	t	调用方传入的翻译函数 t
