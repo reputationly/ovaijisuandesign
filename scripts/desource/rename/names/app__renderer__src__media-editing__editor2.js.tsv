@@ -1,0 +1,41 @@
+key	new	依据
+loadImage$4@23:16	loadImageElement	导入的辅助函数加载并返回 HTMLImageElement，避免与实例 loadImage 方法混淆。
+ta2@32:29	textareaElement	接收需要根据内容自动调整大小的 textarea。
+w3@40:11	measuredWidth	保存隐藏测量元素当前文本行的宽度。
+sel@125:11	selectedShape	读取当前选中图形并更新其样式。
+id2@194:15	shapeId	接收需要删除的图形标识。
+id2@224:10	selectedShapeId	接收需要设为当前选中项的图形标识。
+p3@236:15	point	接收用于命中测试的画布坐标。
+i2@237:14	shapeIndex	从前向后遍历图形以查找最上层命中项。
+s2@264:32	shape	复制当前图形的数据快照。
+img@297:13	imageElement	保存加载得到并绘制为画布背景的图片元素。
+e2@310:14	error	接收图片加载或绘制失败时抛出的异常。
+ta2@394:11	textareaElement	创建并配置文字编辑用的 textarea 元素。
+e2@485:20	keyboardEvent	接收文字编辑框的键盘事件并处理 Escape 取消。
+fg@514:11	foregroundColor	保存标签编辑文字使用的前景色和光标颜色。
+ta2@515:11	textareaElement	创建用于编辑标签文字的 textarea 元素。
+e2@567:20	keyboardEvent	接收标签编辑框的键盘事件并处理提交或取消。
+ta2@583:11	textareaElement	读取当前正在编辑的 textarea 内容。
+idx@598:15	shapeIndex	查找需要从图形列表移除的标签位置。
+s2@598:44	shape	按标识查找当前图形列表中的标签。
+idx@617:17	shapeIndex	查找需要从图形列表移除的新建文字位置。
+s2@617:46	shape	按标识查找当前图形列表中的文字图形。
+idx@631:15	shapeIndex	查找需要从图形列表移除的空文字位置。
+s2@631:44	shape	按标识查找当前图形列表中的文字图形。
+s2@678:29	shape	复制当前所有图形的数据快照。
+s2@681:45	shape	为当前图形建立按标识查找的映射。
+old@683:13	existingShape	读取快照更新前已存在的同标识图形。
+s2@690:46	shape	重建当前图形集合的标识映射。
+c3@702:11	canvasElement	读取用于绑定指针和双击事件的主画布。
+c3@713:11	canvasElement	读取用于移除指针和双击事件的主画布。
+e2@723:15	pointerEvent	接收转换为工具坐标事件的原生指针事件。
+e2@740:24	pointerEvent	接收开始画布交互的指针按下事件。
+ev@743:11	toolEvent	保存转换后传给交互工具的指针事件数据。
+e2@757:24	pointerEvent	接收更新当前工具或悬停光标的指针移动事件。
+ev@759:11	toolEvent	保存转换后传给交互工具的指针移动数据。
+e2@771:22	pointerEvent	接收结束交互并释放指针捕获的指针事件。
+sel@787:11	selectedShape	读取当前选中图形以判断是否委托给选择工具。
+sel@793:11	selectedShape	读取当前选中图形并检测角点手柄命中。
+e2@807:24	mouseEvent	接收主画布上的双击事件以编辑命中的文字图形。
+hit@815:11	hitShape	保存双击坐标命中的图形。
+e2@824:20	keyboardEvent	接收窗口快捷键事件并转发给当前工具。

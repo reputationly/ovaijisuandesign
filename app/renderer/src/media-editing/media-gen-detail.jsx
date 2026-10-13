@@ -73,10 +73,10 @@ const VIDEO_MODE_I18N_KEYS = new Map([
   ["video-extend", "chat.videoMode.videoExtend"],
   ["avatar", "chat.videoMode.avatar"],
 ]);
-function resolveVideoModeValueDisplay(value, t2) {
+function resolveVideoModeValueDisplay(value, translate) {
   const i18nKey = VIDEO_MODE_I18N_KEYS.get(value);
   if (!i18nKey) return value;
-  return t2(i18nKey, {
+  return translate(i18nKey, {
     defaultValue: value,
   });
 }
@@ -126,18 +126,18 @@ function isBillingInsufficientFailure({ errorCode, rawError }) {
     CREDITS_INSUFFICIENT_TEXT_PATTERN.test(raw2)
   );
 }
-function generationFailureDisplayText(input, t2) {
+function generationFailureDisplayText(input, translate) {
   const userMessage = stripErrorHtml(input.userMessage).trim();
   if (userMessage) return userMessage;
   const errorCode = mappedErrorCode(input);
   if (errorCode)
-    return stripErrorHtml(t2(GENERATION_ERROR_CODE_I18N[errorCode])).trim();
+    return stripErrorHtml(translate(GENERATION_ERROR_CODE_I18N[errorCode])).trim();
   if (isBillingInsufficientFailure(input)) {
-    return stripErrorHtml(t2("chat.billingInsufficient.title")).trim();
+    return stripErrorHtml(translate("chat.billingInsufficient.title")).trim();
   }
   return (
     stripErrorHtml(input.rawError).trim() ||
-    stripErrorHtml(t2("chat.activity.mediaGenFailed")).trim()
+    stripErrorHtml(translate("chat.activity.mediaGenFailed")).trim()
   );
 }
 function MediaGenCardLayout({
@@ -176,21 +176,21 @@ const TAG_I18N_KEYS = {
   speed: "canvas.params.speed",
 };
 function TagsRow({ tags: tags2, tagIcons, categoryIcon }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (tags2.length === 0) return null;
   return (
     <TooltipProvider delay={0}>
       <div className="flex items-center gap-1 h-7 text-body-12 text-foreground/70 overflow-x-auto scrollbar-none">
-        {tags2.map((tag, i2) => {
-          const TagIcon = MODEL_TAG_KEYS.has(tag.key)
+        {tags2.map((displayTag, tagIndex) => {
+          const TagIcon = MODEL_TAG_KEYS.has(displayTag.key)
             ? categoryIcon
-            : tagIcons?.[tag.key];
-          const i18nKey = TAG_I18N_KEYS[tag.key];
-          const tooltip = i18nKey ? t2(i18nKey) : tag.key;
-          const isLast = i2 === tags2.length - 1;
+            : tagIcons?.[displayTag.key];
+          const i18nKey = TAG_I18N_KEYS[displayTag.key];
+          const tooltip = i18nKey ? t(i18nKey) : displayTag.key;
+          const isLast = tagIndex === tags2.length - 1;
           return (
             <span
-              key={tag.key}
+              key={displayTag.key}
               className="inline-flex items-center gap-1 shrink-0"
             >
               <Tooltip>
@@ -203,7 +203,7 @@ function TagsRow({ tags: tags2, tagIcons, categoryIcon }) {
                   {TagIcon && (
                     <TagIcon size={16} strokeWidth={1} className="shrink-0" />
                   )}
-                  <span className="whitespace-nowrap">{tag.value}</span>
+                  <span className="whitespace-nowrap">{displayTag.value}</span>
                 </TooltipTrigger>
                 <TooltipContent>{tooltip}</TooltipContent>
               </Tooltip>
@@ -283,7 +283,7 @@ function formatVersionTag(value) {
   if (niji) return `Niji ${niji[1]}`;
   return /^\d/.test(value) ? `v${value}` : value;
 }
-function tagDisplayValue(key2, value, t2, preferType, modelDisplayMap) {
+function tagDisplayValue(key2, value, translate, preferType, modelDisplayMap) {
   if (MODEL_TAG_FIELDS.has(key2)) {
     const modelName = String(value);
     return (
@@ -294,18 +294,18 @@ function tagDisplayValue(key2, value, t2, preferType, modelDisplayMap) {
   if (key2 === "mode") {
     const str2 = String(value);
     if (isHiddenVideoGenerationMode(str2)) return null;
-    return resolveVideoModeValueDisplay(str2, t2);
+    return resolveVideoModeValueDisplay(str2, translate);
   }
   if (key2 === "version") return formatVersionTag(String(value));
   const raw2 = String(value);
-  return t2(`canvas.param.option.${raw2}`, {
+  return translate(`canvas.param.option.${raw2}`, {
     defaultValue: raw2,
   });
 }
 function vendorParamsHasMode(args) {
-  const vp = args.vendor_params;
+  const vendorParameters = args.vendor_params;
   return (
-    vp != null && typeof vp === "object" && !Array.isArray(vp) && "mode" in vp
+    vendorParameters != null && typeof vendorParameters === "object" && !Array.isArray(vendorParameters) && "mode" in vendorParameters
   );
 }
 const BATCH_PROMPT_FIELDS = new Set(["prompts", "texts"]);
@@ -355,10 +355,10 @@ function collectRefPaths(parsed) {
     if (typeof value === "string" && value.length > 0) {
       if (value.startsWith("[")) {
         try {
-          const arr = JSON.parse(value);
-          if (Array.isArray(arr)) {
-            for (const v2 of arr) {
-              if (typeof v2 === "string" && v2.length > 0) paths.push(v2);
+          const parsedPaths = JSON.parse(value);
+          if (Array.isArray(parsedPaths)) {
+            for (const path of parsedPaths) {
+              if (typeof path === "string" && path.length > 0) paths.push(path);
             }
             continue;
           }
@@ -366,14 +366,14 @@ function collectRefPaths(parsed) {
       }
       paths.push(value);
     } else if (Array.isArray(value)) {
-      for (const v2 of value) {
-        if (typeof v2 === "string" && v2.length > 0) paths.push(v2);
+      for (const path of value) {
+        if (typeof path === "string" && path.length > 0) paths.push(path);
       }
     }
   }
   return paths;
 }
-function parseGenInput(toolArgs, t2, preferType, toolName2, modelDisplayMap) {
+function parseGenInput(toolArgs, translate, preferType, toolName2, modelDisplayMap) {
   if (!toolArgs) return void 0;
   try {
     const parsed = JSON.parse(toolArgs);
@@ -407,7 +407,7 @@ function parseGenInput(toolArgs, t2, preferType, toolName2, modelDisplayMap) {
         Array.isArray(value)
       ) {
         const first2 = value.find(
-          (v2) => typeof v2 === "string" && v2.length > 0,
+          (candidateValue) => typeof candidateValue === "string" && candidateValue.length > 0,
         );
         if (first2) prompt = first2;
       } else if (
@@ -418,7 +418,7 @@ function parseGenInput(toolArgs, t2, preferType, toolName2, modelDisplayMap) {
         const display = tagDisplayValue(
           key2,
           value,
-          t2,
+          translate,
           preferType,
           modelDisplayMap,
         );
@@ -430,17 +430,17 @@ function parseGenInput(toolArgs, t2, preferType, toolName2, modelDisplayMap) {
       typeof parsed.vendor_params === "object" &&
       !Array.isArray(parsed.vendor_params)
     ) {
-      for (const [vk, vv] of Object.entries(parsed.vendor_params)) {
-        if (!VENDOR_PARAM_TAG_KEYS.has(vk)) continue;
-        if (vv == null || vv === "") continue;
+      for (const [vendorKey, vendorValue] of Object.entries(parsed.vendor_params)) {
+        if (!VENDOR_PARAM_TAG_KEYS.has(vendorKey)) continue;
+        if (vendorValue == null || vendorValue === "") continue;
         const display = tagDisplayValue(
-          vk,
-          vv,
-          t2,
+          vendorKey,
+          vendorValue,
+          translate,
           preferType,
           modelDisplayMap,
         );
-        if (display !== null) pushTag(vk, display);
+        if (display !== null) pushTag(vendorKey, display);
       }
     }
     const refPaths = collectRefPaths(parsed);
@@ -456,7 +456,7 @@ function parseGenInput(toolArgs, t2, preferType, toolName2, modelDisplayMap) {
 function parseBatchItems(
   toolArgs,
   toolResult,
-  t2,
+  translate,
   preferType,
   modelDisplayMap,
 ) {
@@ -476,26 +476,26 @@ function parseBatchItems(
     const sanitizedToolResult = normalizeStructuredToolResult(toolResult);
     if (sanitizedToolResult) {
       try {
-        const out = JSON.parse(sanitizedToolResult);
-        if (Array.isArray(out?.results)) {
-          for (const r2 of out.results) results.push(r2 ?? {});
-        } else if (Array.isArray(out?.paths)) {
-          for (const p3 of out.paths)
+        const parsedResult = JSON.parse(sanitizedToolResult);
+        if (Array.isArray(parsedResult?.results)) {
+          for (const resultEntry of parsedResult.results) results.push(resultEntry ?? {});
+        } else if (Array.isArray(parsedResult?.paths)) {
+          for (const outputPath of parsedResult.paths)
             results.push({
-              paths: [p3],
+              paths: [outputPath],
             });
         }
       } catch {}
     }
     const items = [];
-    for (let i2 = 0; i2 < batchCount; i2++) {
+    for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
       let prompt;
       const tags2 = [];
       for (const [key2, value] of Object.entries(args)) {
         if (INTERNAL_FIELDS.has(key2) || key2 === "count") continue;
         if (key2 === "mode" && vendorParamsHasMode(args)) continue;
         if (BATCH_ARRAY_FIELDS.has(key2) && Array.isArray(value)) {
-          const itemValue = value[i2];
+          const itemValue = value[batchIndex];
           if (itemValue == null || itemValue === "") continue;
           const singular = key2.replace(/s$/, "").replace(/ies$/, "y");
           if (BATCH_PROMPT_FIELDS.has(key2) && typeof itemValue === "string") {
@@ -508,7 +508,7 @@ function parseBatchItems(
             const display = tagDisplayValue(
               singular,
               itemValue,
-              t2,
+              translate,
               preferType,
               modelDisplayMap,
             );
@@ -526,11 +526,11 @@ function parseBatchItems(
             value != null &&
             value !== ""
           ) {
-            if (!tags2.some((tag) => tag.key === key2)) {
+            if (!tags2.some((existingTag) => existingTag.key === key2)) {
               const display = tagDisplayValue(
                 key2,
                 value,
-                t2,
+                translate,
                 preferType,
                 modelDisplayMap,
               );
@@ -548,32 +548,32 @@ function parseBatchItems(
         typeof args.vendor_params === "object" &&
         !Array.isArray(args.vendor_params)
       ) {
-        for (const [vk, vv] of Object.entries(args.vendor_params)) {
-          if (!VENDOR_PARAM_TAG_KEYS.has(vk)) continue;
-          if (vv == null || vv === "") continue;
-          if (tags2.some((tag) => tag.key === vk)) continue;
+        for (const [vendorKey, vendorValue] of Object.entries(args.vendor_params)) {
+          if (!VENDOR_PARAM_TAG_KEYS.has(vendorKey)) continue;
+          if (vendorValue == null || vendorValue === "") continue;
+          if (tags2.some((existingTag) => existingTag.key === vendorKey)) continue;
           const display = tagDisplayValue(
-            vk,
-            vv,
-            t2,
+            vendorKey,
+            vendorValue,
+            translate,
             preferType,
             modelDisplayMap,
           );
           if (display !== null)
             tags2.push({
-              key: vk,
+              key: vendorKey,
               value: display,
             });
         }
       }
-      const r2 = results[i2];
+      const resultEntry = results[batchIndex];
       const outputPaths = [];
-      if (r2) {
-        if (Array.isArray(r2.paths)) {
-          for (const p3 of r2.paths)
-            if (typeof p3 === "string") outputPaths.push(p3);
-        } else if (typeof r2.path === "string") {
-          outputPaths.push(r2.path);
+      if (resultEntry) {
+        if (Array.isArray(resultEntry.paths)) {
+          for (const outputPath of resultEntry.paths)
+            if (typeof outputPath === "string") outputPaths.push(outputPath);
+        } else if (typeof resultEntry.path === "string") {
+          outputPaths.push(resultEntry.path);
         }
       }
       const refPaths = collectRefPaths(args);
@@ -584,9 +584,9 @@ function parseBatchItems(
           refPaths,
         },
         outputPaths,
-        error: sanitizeDisplayText(r2?.error),
-        errorCode: sanitizeDisplayText(r2?.error_code),
-        userMessage: sanitizeDisplayText(r2?.user_message),
+        error: sanitizeDisplayText(resultEntry?.error),
+        errorCode: sanitizeDisplayText(resultEntry?.error_code),
+        userMessage: sanitizeDisplayText(resultEntry?.user_message),
       });
     }
     return items;
@@ -707,18 +707,18 @@ function parseGenOutput(toolResult, toolName2) {
     const parsed = JSON.parse(sanitizedToolResult);
     const paths = [];
     if (Array.isArray(parsed?.paths)) {
-      for (const p3 of parsed.paths) {
-        if (typeof p3 === "string" && p3.length > 0 && !p3.startsWith("["))
-          paths.push(p3);
+      for (const outputPath of parsed.paths) {
+        if (typeof outputPath === "string" && outputPath.length > 0 && !outputPath.startsWith("["))
+          paths.push(outputPath);
       }
     } else if (Array.isArray(parsed?.results)) {
-      for (const r2 of parsed.results) {
-        if (Array.isArray(r2?.paths)) {
-          for (const p3 of r2.paths) {
-            if (typeof p3 === "string") paths.push(p3);
+      for (const resultEntry of parsed.results) {
+        if (Array.isArray(resultEntry?.paths)) {
+          for (const outputPath of resultEntry.paths) {
+            if (typeof outputPath === "string") paths.push(outputPath);
           }
-        } else if (typeof r2?.path === "string") {
-          paths.push(r2.path);
+        } else if (typeof resultEntry?.path === "string") {
+          paths.push(resultEntry.path);
         }
       }
     } else if (typeof parsed?.path === "string" && parsed.path.length > 0) {
@@ -806,15 +806,15 @@ const GENERATION_TAG_ORDER = {
 };
 function sortGenerationTags(tags2) {
   return [...tags2].sort(
-    (a2, b3) =>
-      (GENERATION_TAG_ORDER[tagSemanticKey(a2.key)] ?? 3) -
-      (GENERATION_TAG_ORDER[tagSemanticKey(b3.key)] ?? 3),
+    (firstTag, secondTag) =>
+      (GENERATION_TAG_ORDER[tagSemanticKey(firstTag.key)] ?? 3) -
+      (GENERATION_TAG_ORDER[tagSemanticKey(secondTag.key)] ?? 3),
   );
 }
 function applyEffectiveParamTags(
   input,
   effectiveParams,
-  t2,
+  translate,
   preferType,
   modelDisplayMap,
 ) {
@@ -825,7 +825,7 @@ function applyEffectiveParamTags(
     const display = tagDisplayValue(
       key2,
       value,
-      t2,
+      translate,
       preferType,
       modelDisplayMap,
     );
@@ -837,15 +837,15 @@ function applyEffectiveParamTags(
   }
   if (effectiveTags.length === 0) return input;
   const effectiveBySemanticKey = new Map(
-    effectiveTags.map((tag) => [tagSemanticKey(tag.key), tag]),
+    effectiveTags.map((effectiveTag) => [tagSemanticKey(effectiveTag.key), effectiveTag]),
   );
   const consumedSemanticKeys = new Set();
   const tags2 = [];
-  for (const tag of input.tags) {
-    const semanticKey = tagSemanticKey(tag.key);
+  for (const inputTag of input.tags) {
+    const semanticKey = tagSemanticKey(inputTag.key);
     const effectiveTag = effectiveBySemanticKey.get(semanticKey);
     if (!effectiveTag) {
-      tags2.push(tag);
+      tags2.push(inputTag);
       continue;
     }
     if (!consumedSemanticKeys.has(semanticKey)) {
@@ -853,10 +853,10 @@ function applyEffectiveParamTags(
       consumedSemanticKeys.add(semanticKey);
     }
   }
-  for (const tag of effectiveTags) {
-    const semanticKey = tagSemanticKey(tag.key);
+  for (const effectiveTag of effectiveTags) {
+    const semanticKey = tagSemanticKey(effectiveTag.key);
     if (consumedSemanticKeys.has(semanticKey)) continue;
-    tags2.push(tag);
+    tags2.push(effectiveTag);
     consumedSemanticKeys.add(semanticKey);
   }
   return {
@@ -867,8 +867,8 @@ function applyEffectiveParamTags(
 function PromptBlock({ text: text2, lineClamp }) {
   const [copied, setCopied] = reactExports.useState(false);
   const handleCopy = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       navigator.clipboard.writeText(text2);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
@@ -935,8 +935,8 @@ function FailureBlock({
   reason,
   pending: pending2 = false,
 }) {
-  const { t: t2 } = useTranslation();
-  const label = labelOverride ?? t2("chat.activity.mediaGenFailed");
+  const { t } = useTranslation();
+  const label = labelOverride ?? t("chat.activity.mediaGenFailed");
   const trimmedReason = redactForCurrentRegion(reason).trim();
   const showReason = trimmedReason.length > 0 && trimmedReason !== label;
   return (
@@ -962,19 +962,19 @@ function FailureBlock({
   );
 }
 function GenerationFailureBlock({ label, rawError, errorCode, userMessage }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const reason = generationFailureDisplayText(
     {
       rawError,
       errorCode,
       userMessage,
     },
-    (key2) => t2(key2),
+    (key2) => t(key2),
   );
   return <FailureBlock label={label} reason={reason} />;
 }
 function BatchSummaryFooter({ succeeded, total, failures }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const hasFailures = failures.length > 0;
   return (
     <div className="flex items-center gap-1.5 text-body-14 text-foreground">
@@ -985,7 +985,7 @@ function BatchSummaryFooter({ succeeded, total, failures }) {
         className="text-muted-foreground shrink-0"
       />
       <span>
-        {t2("chat.activity.batchSummary", {
+        {t("chat.activity.batchSummary", {
           success: succeeded,
           failed: total - succeeded,
         })}
@@ -998,26 +998,26 @@ function BatchSummaryFooter({ succeeded, total, failures }) {
               cursor: "pointer",
             }}
           >
-            {t2("chat.activity.failureView", {
+            {t("chat.activity.failureView", {
               count: failures.length,
             })}
           </PopoverTrigger>
           <PopoverContent align="end" className="w-80 p-2">
             <div className="text-muted-foreground mb-1.5 px-1.5 font-medium text-caption-10">
-              {t2("chat.activity.failureReasons")}
+              {t("chat.activity.failureReasons")}
             </div>
             <div className="flex flex-col gap-2 max-h-80 overflow-y-auto">
-              {failures.map((f2) => (
+              {failures.map((failure) => (
                 <div
-                  key={f2.index}
+                  key={failure.index}
                   className="rounded-sm bg-muted/60 border border-border/30 p-1.5"
                 >
                   <div className="text-muted-foreground mb-0.5 font-medium">
-                    #{f2.index + 1}
+                    #{failure.index + 1}
                   </div>
                   <pre className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-foreground font-sans leading-relaxed">
                     {redactForCurrentRegion(
-                      generationFailureDisplayText(f2, (key2) => t2(key2)),
+                      generationFailureDisplayText(failure, (key2) => t(key2)),
                     )}
                   </pre>
                 </div>
@@ -1030,7 +1030,7 @@ function BatchSummaryFooter({ succeeded, total, failures }) {
   );
 }
 function GenerationHandoffTargetCard({ target }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const workspacePath = useCurrentWorkspace();
   const resolveUrl = useResolveMediaUrl();
   const asset = useAssetMeta(target.node_id);
@@ -1072,7 +1072,7 @@ function GenerationHandoffTargetCard({ target }) {
       data-action-ui-id="chat-generation-handoff-target"
       onClick={handleLocate}
       className="inline-flex h-10 min-w-32 items-center gap-2 rounded-md border border-border bg-card p-0.5 pr-2 text-left text-body-12 text-foreground transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
-      aria-label={t2("chat.activity.mediaGenHandoffOpenCanvas")}
+      aria-label={t("chat.activity.mediaGenHandoffOpenCanvas")}
     >
       {generating ? (
         <GeneratingMediaArea
@@ -1090,7 +1090,7 @@ function GenerationHandoffTargetCard({ target }) {
         </span>
       )}
       <span className="min-w-0 flex-1">
-        {t2(
+        {t(
           generating
             ? "chat.activity.mediaGenHandoffGenerating"
             : "chat.activity.mediaGenHandoffViewOnCanvas",
@@ -1106,7 +1106,7 @@ function GenerationHandoffTargetCard({ target }) {
   );
 }
 function GenerationHandoffNotice({ targets }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       className="flex min-w-0 flex-col gap-2"
@@ -1125,14 +1125,14 @@ function GenerationHandoffNotice({ targets }) {
         // Legacy pure-text markers / target-less acks carry no node identity;
         // keep a textual hint instead of rendering nothing.
         <span className="text-body-12 text-muted-foreground">
-          {t2("chat.activity.mediaGenInterruptedDescription")}
+          {t("chat.activity.mediaGenInterruptedDescription")}
         </span>
       )}
     </div>
   );
 }
 export function MediaGenDetail({ entry }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const promptLineClamp =
     entry.category === "imageGen" || entry.category === "videoGen" ? 2 : void 0;
   const resolveUrl = useResolveMediaUrl();
@@ -1152,16 +1152,16 @@ export function MediaGenDetail({ entry }) {
     failurePresentation === "cancelled";
   const managedFailureLabel =
     failurePresentation === "recoverable"
-      ? t2("chat.activity.mediaGenRecoverable")
+      ? t("chat.activity.mediaGenRecoverable")
       : failurePresentation === "cancelled"
-        ? t2("chat.activity.mediaGenCancelled")
-        : t2("chat.activity.mediaGenUnknown");
+        ? t("chat.activity.mediaGenCancelled")
+        : t("chat.activity.mediaGenUnknown");
   const managedFailureReason =
     failurePresentation === "recoverable"
-      ? t2("chat.activity.mediaGenRecoverableDescription")
+      ? t("chat.activity.mediaGenRecoverableDescription")
       : failurePresentation === "cancelled"
-        ? t2("chat.activity.mediaGenCancelledDescription")
-        : t2("chat.activity.mediaGenUnknownDescription");
+        ? t("chat.activity.mediaGenCancelledDescription")
+        : t("chat.activity.mediaGenUnknownDescription");
   const category = resolveMediaTaskCategory(entry.toolName ?? "");
   const preferType = registryMediaTypeForCategory(category);
   const mediaType = preferType ?? "audio";
@@ -1191,22 +1191,22 @@ export function MediaGenDetail({ entry }) {
       parseBatchItems(
         entry.toolArgs,
         entry.toolResult,
-        t2,
+        t,
         preferType,
         modelDisplayMap,
       ),
-    [entry.toolArgs, entry.toolResult, modelDisplayMap, preferType, t2],
+    [entry.toolArgs, entry.toolResult, modelDisplayMap, preferType, t],
   );
   const rawInput = reactExports.useMemo(
     () =>
       parseGenInput(
         entry.toolArgs,
-        t2,
+        t,
         preferType,
         entry.toolName,
         modelDisplayMap,
       ),
-    [entry.toolArgs, entry.toolName, modelDisplayMap, preferType, t2],
+    [entry.toolArgs, entry.toolName, modelDisplayMap, preferType, t],
   );
   const output = reactExports.useMemo(
     () => parseGenOutput(entry.toolResult, entry.toolName),
@@ -1217,11 +1217,11 @@ export function MediaGenDetail({ entry }) {
       applyEffectiveParamTags(
         rawInput,
         output?.effectiveParams,
-        t2,
+        t,
         preferType,
         modelDisplayMap,
       ),
-    [modelDisplayMap, output?.effectiveParams, preferType, rawInput, t2],
+    [modelDisplayMap, output?.effectiveParams, preferType, rawInput, t],
   );
   const displayToolResult = sanitizeDisplayText(entry.toolResult);
   const resolveFilePath = (path2) => {
@@ -1250,9 +1250,9 @@ export function MediaGenDetail({ entry }) {
         <button
           type="button"
           disabled={pageIndex === 0}
-          onClick={(e2) => {
-            e2.stopPropagation();
-            setPageIndex((i2) => i2 - 1);
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
+            setPageIndex((previousPageIndex) => previousPageIndex - 1);
           }}
           className="p-0.5 rounded-sm hover:bg-muted disabled:opacity-30 transition-colors"
           style={{
@@ -1267,9 +1267,9 @@ export function MediaGenDetail({ entry }) {
         <button
           type="button"
           disabled={pageIndex === total - 1}
-          onClick={(e2) => {
-            e2.stopPropagation();
-            setPageIndex((i2) => i2 + 1);
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
+            setPageIndex((previousPageIndex) => previousPageIndex + 1);
           }}
           className="p-0.5 rounded-sm hover:bg-muted disabled:opacity-30 transition-colors"
           style={{
@@ -1410,7 +1410,7 @@ export function MediaGenDetail({ entry }) {
           entry.toolArgs && (
             <div>
               <div className="text-body-12 text-muted-foreground mb-0.5">
-                {t2("chat.input")}
+                {t("chat.input")}
               </div>
               <pre className="whitespace-pre-wrap break-words text-body-14 font-sans text-muted-foreground">
                 {formatArgs(entry.toolArgs)}
@@ -1422,7 +1422,7 @@ export function MediaGenDetail({ entry }) {
           displayToolResult && (
             <div>
               <div className="text-body-12 text-muted-foreground mb-0.5">
-                {t2("chat.output")}
+                {t("chat.output")}
               </div>
               <pre className="whitespace-pre-wrap break-words text-body-14 font-sans text-muted-foreground">
                 {displayToolResult.length > 500
@@ -1496,7 +1496,7 @@ export function MediaGenDetail({ entry }) {
     ) : output?.voiceId ? (
       <div className="flex items-center gap-1.5 min-w-0">
         <span className="text-muted-foreground shrink-0">
-          {t2("chat.activity.voiceClone.id")}
+          {t("chat.activity.voiceClone.id")}
         </span>
         <code className="text-foreground font-mono text-caption-10 truncate">
           {output.voiceId}
@@ -1504,7 +1504,7 @@ export function MediaGenDetail({ entry }) {
       </div>
     ) : output?.voiceCount ? (
       <div className="text-muted-foreground">
-        {t2("chat.activity.voicePrepare.catalog", {
+        {t("chat.activity.voicePrepare.catalog", {
           count: output.voiceCount,
         })}
       </div>
@@ -1516,7 +1516,7 @@ export function MediaGenDetail({ entry }) {
             {[
               output.structureResult,
               typeof output.audioDuration === "number"
-                ? t2("chat.activity.coverPreprocess.duration", {
+                ? t("chat.activity.coverPreprocess.duration", {
                     duration: Math.round(output.audioDuration),
                   })
                 : void 0,
@@ -1533,7 +1533,7 @@ export function MediaGenDetail({ entry }) {
   const rawFailureReason = extractFailureReason(entry.toolResult);
   const rejectReason = resolveToolConfirmRejectReason(entry);
   const rejectLabel = rejectReason
-    ? toolConfirmRejectLabel(rejectReason, t2)
+    ? toolConfirmRejectLabel(rejectReason, t)
     : void 0;
   const hasMissingOutput =
     !!output &&
@@ -1549,7 +1549,7 @@ export function MediaGenDetail({ entry }) {
       : rejectLabel ||
         output?.error ||
         (entry.rejectedConfirm
-          ? t2("chat.activity.toolRejected")
+          ? t("chat.activity.toolRejected")
           : rawFailureReason &&
               (entry.toolStatus === "error" ||
                 unparsedFailure ||
@@ -1558,7 +1558,7 @@ export function MediaGenDetail({ entry }) {
             : void 0) ||
         ((entry.toolStatus === "error" && !hasSuccessfulOutput) ||
         hasMissingOutput
-          ? t2("chat.activity.mediaGenFailed")
+          ? t("chat.activity.mediaGenFailed")
           : void 0);
   const failureErrorCode =
     output?.errorCode ?? extractFailureCode(entry.toolResult);

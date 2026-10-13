@@ -1,0 +1,47 @@
+key	new	依据
+t2@76:46	translate	接收用于解析视频模式本地化文案的翻译函数。
+t2@129:46	translate	接收用于生成错误显示文案的翻译函数。
+t2@179:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
+tag@184:21	displayTag	渲染标签行中的单个显示标签。
+i2@184:26	tagIndex	记录当前标签在行中的位置以控制分隔线。
+t2@286:39	translate	接收用于格式化参数标签的翻译函数。
+vp@306:9	vendorParameters	读取工具参数中的供应商参数对象。
+arr@358:17	parsedPaths	保存从 JSON 字符串解析出的引用路径数组。
+v2@360:24	path	读取解析数组中的引用媒体路径。
+v2@369:18	path	读取引用媒体路径数组中的单个路径。
+t2@376:34	translate	接收生成输入解析过程所需的翻译函数。
+v2@410:12	candidateValue	检查批量输入中的候选字符串是否有效。
+vk@433:19	vendorKey	遍历供应商参数键以生成显示标签。
+vv@433:23	vendorValue	读取当前供应商参数的值并生成显示标签。
+t2@459:3	translate	接收批量生成条目解析所需的翻译函数。
+out@479:15	parsedResult	保存标准化工具输出解析得到的对象。
+r2@481:22	resultEntry	读取批量结果数组中的单项结果。
+p3@483:22	outputPath	读取工具输出路径列表中的单个路径。
+i2@491:14	batchIndex	遍历批量生成条目并读取同一位置的输入值。
+r2@569:13	resultEntry	读取与当前批量输入对应的输出结果。
+tag@529:30	existingTag	检查是否已有相同参数键的标签。
+vk@551:21	vendorKey	遍历批量输入中的供应商参数键。
+vv@551:25	vendorValue	读取当前供应商参数值并生成标签。
+tag@554:27	existingTag	检查当前参数键是否已存在于标签列表。
+p3@573:22	outputPath	收集当前结果中的输出路径。
+p3@710:18	outputPath	筛选生成结果中的有效输出路径。
+r2@715:18	resultEntry	遍历生成结果并读取其中的路径。
+p3@717:22	outputPath	读取单项结果中的输出路径。
+a2@809:6	firstTag	比较排序中两项标签的语义顺序。
+b3@809:10	secondTag	比较排序中两项标签的语义顺序。
+t2@817:3	translate	接收有效参数标签处理所需的翻译函数。
+tag@840:24	effectiveTag	构建有效参数标签的语义键映射。
+tag@844:14	inputTag	遍历原始输入标签并按语义键替换。
+tag@856:14	effectiveTag	遍历有效参数标签并补充尚未消费的标签。
+e2@870:6	clickEvent	接收复制提示按钮的点击事件并阻止事件冒泡。
+t2@938:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
+t2@965:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
+t2@977:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
+f2@1010:30	failure	显示批量生成失败列表中的单项错误。
+t2@1033:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
+t2@1109:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
+t2@1135:14	t	绑定 useTranslation 返回的 i18n 翻译函数。
+e2@1253:21	clickEvent	接收批次上一项分页按钮的点击事件并阻止冒泡。
+i2@1255:27	previousPageIndex	读取状态更新前的分页索引以递减一页。
+e2@1270:21	clickEvent	接收批次下一项分页按钮的点击事件并阻止冒泡。
+i2@1272:27	previousPageIndex	读取状态更新前的分页索引以递增一页。
