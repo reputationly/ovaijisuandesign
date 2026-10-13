@@ -113,13 +113,13 @@ export function TeamCreditHistorySection({
   showInfo = true,
   action,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <section className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1">
           <h3 className="font-heading text-sm font-medium text-foreground">
-            {t2("team.credit.history", {
+            {t("team.credit.history", {
               defaultValue: "积分流水",
             })}
           </h3>
@@ -131,7 +131,7 @@ export function TeamCreditHistorySection({
                     <button
                       type="button"
                       className="inline-flex size-4 items-center justify-center text-muted-foreground hover:text-foreground"
-                      aria-label={t2("team.credit.historyHelp", {
+                      aria-label={t("team.credit.historyHelp", {
                         defaultValue: "积分流水说明",
                       })}
                       data-action-ui-id="team.credit-history-info"
@@ -144,7 +144,7 @@ export function TeamCreditHistorySection({
                   side="top"
                   className="!max-w-[26rem] leading-relaxed"
                 >
-                  {t2("team.credit.historyHelpContent", {
+                  {t("team.credit.historyHelpContent", {
                     defaultValue:
                       "该积分流水仅展示该用户在该团队下使用过的积分明细，无法查看团队其他人的用量。",
                   })}
@@ -160,7 +160,7 @@ export function TeamCreditHistorySection({
   );
 }
 export function TeamCreditSummaryLoading() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       role="status"
@@ -169,7 +169,7 @@ export function TeamCreditSummaryLoading() {
       data-action-ui-id="team.credit-summary-loading"
     >
       <span className="sr-only">
-        {t2("common.loading", {
+        {t("common.loading", {
           defaultValue: "加载中…",
         })}
       </span>

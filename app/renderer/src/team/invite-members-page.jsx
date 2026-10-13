@@ -79,7 +79,7 @@ function inviteResultBadgeVariant(status) {
   return "warning";
 }
 export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [emails, setEmails] = reactExports.useState([]);
   const [emailText, setEmailText] = reactExports.useState("");
   const [quotaLimit, setQuotaLimit] = reactExports.useState("");
@@ -107,16 +107,16 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
     };
   }, [quotaLimit]);
   const statusLabels = {
-    PENDING: t2("team.inviteMembers.status.pending", {
+    PENDING: t("team.inviteMembers.status.pending", {
       defaultValue: "Invitation sent",
     }),
-    FAILED: t2("team.inviteMembers.status.failed", {
+    FAILED: t("team.inviteMembers.status.failed", {
       defaultValue: "Failed",
     }),
-    ACCEPTED: t2("team.inviteMembers.status.accepted", {
+    ACCEPTED: t("team.inviteMembers.status.accepted", {
       defaultValue: "Already a member",
     }),
-    UNKNOWN: t2("team.inviteMembers.status.unknown", {
+    UNKNOWN: t("team.inviteMembers.status.unknown", {
       defaultValue: "Unknown",
     }),
   };
@@ -136,20 +136,20 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
   const showParseError = (parsed) => {
     if (parsed.reason === "EMPTY") {
       dedupedToast.error(
-        t2("team.inviteMembers.emptyError", {
+        t("team.inviteMembers.emptyError", {
           defaultValue: "Enter at least one email address.",
         }),
       );
     } else if (parsed.reason === "TOO_MANY") {
       dedupedToast.error(
-        t2("team.inviteMembers.tooManyError", {
+        t("team.inviteMembers.tooManyError", {
           defaultValue: "You can invite up to {{count}} members at a time.",
           count: MAX_TEAM_INVITES,
         }),
       );
     } else {
       dedupedToast.error(
-        t2("team.inviteMembers.invalidError", {
+        t("team.inviteMembers.invalidError", {
           defaultValue: "Invalid email address: {{emails}}",
           emails: parsed.invalidEmails.slice(0, 3).join(", "),
         }),
@@ -216,21 +216,21 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
       setEmailText("");
       if (nextResult.successCount > 0) {
         dedupedToast.success(
-          t2("team.inviteMembers.success", {
+          t("team.inviteMembers.success", {
             defaultValue: "Invitations sent.",
           }),
         );
         onInvited();
       } else {
         dedupedToast.error(
-          t2("team.inviteMembers.noneSent", {
+          t("team.inviteMembers.noneSent", {
             defaultValue: "No invitations were sent.",
           }),
         );
       }
     } catch {
       dedupedToast.error(
-        t2("team.inviteMembers.sendFailed", {
+        t("team.inviteMembers.sendFailed", {
           defaultValue: "Failed to send invitations.",
         }),
       );
@@ -255,13 +255,13 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
       >
         <PageHeader className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pr-16">
           <PageTitle>
-            {t2("team.inviteMembers.title", {
+            {t("team.inviteMembers.title", {
               defaultValue: "Invite members",
             })}
           </PageTitle>
           {!result && tab2 === "email" ? (
             <PageDescription>
-              {t2("team.inviteMembers.description", {
+              {t("team.inviteMembers.description", {
                 defaultValue:
                   "Enter up to {{count}} email addresses. Press Enter to confirm one, then continue with the next.",
                 count: MAX_TEAM_INVITES,
@@ -279,21 +279,21 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                 setTab(next2);
                 if (next2 === "past-teams") setPastTabMounted(true);
               }}
-              ariaLabel={t2("team.inviteMembers.title", {
+              ariaLabel={t("team.inviteMembers.title", {
                 defaultValue: "Invite members",
               })}
               dataActionUiId="team.invite-tab-switch"
               options={[
                 {
                   value: "email",
-                  label: t2("team.inviteMembers.tabEmail", {
+                  label: t("team.inviteMembers.tabEmail", {
                     defaultValue: "Invite by email",
                   }),
                   dataActionUiId: "team.invite-tab-email",
                 },
                 {
                   value: "past-teams",
-                  label: t2("team.pastTeams.tabPast", {
+                  label: t("team.pastTeams.tabPast", {
                     defaultValue: "Add from past teams",
                   }),
                   dataActionUiId: "team.invite-tab-past-teams",
@@ -314,7 +314,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
               data-action-ui-id="team.invite-members-results"
             >
               <p className="text-xs text-muted-foreground">
-                {t2("team.inviteMembers.summary", {
+                {t("team.inviteMembers.summary", {
                   defaultValue: "{{success}} sent, {{failed}} failed",
                   success: result.successCount,
                   failed: result.failedCount,
@@ -357,7 +357,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                       <button
                         type="button"
                         className="inline-flex size-5 shrink-0 items-center justify-center rounded-sm text-current opacity-70 hover:bg-background/20 hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        aria-label={t2("team.inviteMembers.removeEmail", {
+                        aria-label={t("team.inviteMembers.removeEmail", {
                           defaultValue: "Remove {{email}}",
                           email,
                         })}
@@ -374,14 +374,14 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                     onPaste={handleEmailPaste}
                     placeholder={
                       emails.length > 0
-                        ? t2("team.inviteMembers.continuePlaceholder", {
+                        ? t("team.inviteMembers.continuePlaceholder", {
                             defaultValue: "Enter another email and press Enter",
                           })
-                        : t2("team.inviteMembers.placeholder", {
+                        : t("team.inviteMembers.placeholder", {
                             defaultValue: "name@example.com",
                           })
                     }
-                    aria-label={t2("team.inviteMembers.emailInput", {
+                    aria-label={t("team.inviteMembers.emailInput", {
                       defaultValue: "Member email addresses",
                     })}
                     className="h-7 min-w-52 flex-1 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
@@ -389,7 +389,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {t2("team.inviteMembers.helper", {
+                  {t("team.inviteMembers.helper", {
                     defaultValue:
                       "Press Enter to confirm each email. You can also paste multiple addresses separated by commas, semicolons, or new lines.",
                   })}
@@ -397,11 +397,11 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
               </div>
               <section className="space-y-3">
                 <h3 className="text-sm font-medium text-foreground">
-                  {t2("team.inviteLink.quotaLimit", {
+                  {t("team.inviteLink.quotaLimit", {
                     defaultValue: "Credit quota",
                   })}
                   <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                    {t2("common.optional", {
+                    {t("common.optional", {
                       defaultValue: "Optional",
                     })}
                   </span>
@@ -410,18 +410,18 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                   type="text"
                   inputMode="numeric"
                   value={quotaLimit}
-                  placeholder={t2("team.inviteLink.quotaLimitPlaceholder", {
+                  placeholder={t("team.inviteLink.quotaLimitPlaceholder", {
                     defaultValue: "Leave empty for no credit limit",
                   })}
                   aria-invalid={!quotaLimitValue.valid}
                   onChange={(event) => setQuotaLimit(event.target.value)}
-                  aria-label={t2("team.inviteLink.quotaLimit", {
+                  aria-label={t("team.inviteLink.quotaLimit", {
                     defaultValue: "Credit quota",
                   })}
                   data-action-ui-id="team.invite-members-quota"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {t2("team.inviteMembers.quotaNote", {
+                  {t("team.inviteMembers.quotaNote", {
                     defaultValue:
                       "Invited members will automatically receive this credit limit.",
                   })}
@@ -461,7 +461,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                   onClick={handleRetryFailed}
                   data-action-ui-id="team.invite-members-retry-failed"
                 >
-                  {t2("team.inviteMembers.retryFailed", {
+                  {t("team.inviteMembers.retryFailed", {
                     defaultValue: "修正失败项并重试",
                   })}
                 </Button>
@@ -471,7 +471,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                 onClick={() => handleOpenChange(false)}
                 data-action-ui-id="team.invite-members-done"
               >
-                {t2("common.done", {
+                {t("common.done", {
                   defaultValue: "Done",
                 })}
               </Button>
@@ -483,7 +483,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
               >
-                {t2("common.cancel", {
+                {t("common.cancel", {
                   defaultValue: "Cancel",
                 })}
               </Button>
@@ -497,7 +497,7 @@ export function InviteMembersPage({ open, scope, onOpenChange, onInvited }) {
                 onClick={() => void handleInvite()}
                 data-action-ui-id="team.invite-members-submit"
               >
-                {t2("team.inviteMembers.send", {
+                {t("team.inviteMembers.send", {
                   defaultValue: "Send invitations",
                 })}
               </Button>

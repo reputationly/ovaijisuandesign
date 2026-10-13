@@ -47,7 +47,7 @@ function hasUserStoppableReason(reasons) {
   return reasons.some((reason) => USER_STOPPABLE_REASONS.includes(reason));
 }
 function CreateTeamDialog({ open, onOpenChange }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { createTeamAndSwitch, lastTransitionAttempt } = useTeamAccount();
   const [teamName, setTeamName] = reactExports.useState("");
   const [submitting, setSubmitting] = reactExports.useState(false);
@@ -56,11 +56,11 @@ function CreateTeamDialog({ open, onOpenChange }) {
   const recovering = statusAttempt?.kind === "recovering";
   const statusText =
     statusAttempt?.kind === "busy"
-      ? getTeamReasonText(t2, "switch_busy")
+      ? getTeamReasonText(t, "switch_busy")
       : statusAttempt?.kind === "rejected"
-        ? getTeamReasonText(t2, statusAttempt.code)
+        ? getTeamReasonText(t, statusAttempt.code)
         : statusAttempt?.kind === "recovering"
-          ? getTeamReasonText(t2, statusAttempt.reasonCode)
+          ? getTeamReasonText(t, statusAttempt.reasonCode)
           : null;
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -104,13 +104,13 @@ function CreateTeamDialog({ open, onOpenChange }) {
       >
         <DialogHeader className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pt-5 sm:pr-16 sm:pb-4">
           <DialogTitle>
-            {t2("team.create.title", {
+            {t("team.create.title", {
               defaultValue: "创建团队",
             })}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1">
             <span>
-              {t2("team.create.description", {
+              {t("team.create.description", {
                 defaultValue:
                   "团队拥有独立积分账户，购买的积分由团队成员共享，每位成员可单独配置额度。",
               })}
@@ -128,7 +128,7 @@ function CreateTeamDialog({ open, onOpenChange }) {
                   <Info size={14} strokeWidth={1.5} aria-hidden={true} />
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  {t2("team.create.creditInfo", {
+                  {t("team.create.creditInfo", {
                     defaultValue: "团队账号积分需单独购买，不与个人账号互通。",
                   })}
                 </TooltipContent>
@@ -146,7 +146,7 @@ function CreateTeamDialog({ open, onOpenChange }) {
             cancelActionId="team.create-cancel"
             submitActionId="team.create-submit"
             teamName={teamName}
-            placeholder={t2("team.create.namePlaceholder", {
+            placeholder={t("team.create.namePlaceholder", {
               defaultValue: "输入团队名称",
             })}
             disabled={submitting || recovering}
@@ -157,7 +157,7 @@ function CreateTeamDialog({ open, onOpenChange }) {
               statusAttempt?.kind === "rejected" ? "destructive" : "neutral"
             }
             autoFocus={true}
-            submitLabel={t2("team.create.submit", {
+            submitLabel={t("team.create.submit", {
               defaultValue: "创建并切换",
             })}
             onTeamNameChange={setTeamName}
@@ -169,18 +169,18 @@ function CreateTeamDialog({ open, onOpenChange }) {
   );
 }
 function DissolveTransferSuccessDialog({ result, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <AlertDialog open={true} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent data-action-ui-id="team.management-dissolve-transfer-success">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("team.management.dissolveTransferSuccessTitle", {
+            {t("team.management.dissolveTransferSuccessTitle", {
               defaultValue: "积分转移成功",
             })}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {t2("team.management.dissolveTransferSuccessDescription", {
+            {t("team.management.dissolveTransferSuccessDescription", {
               defaultValue: "已成功将 {{amount}} 积分转入“{{target}}”。",
               amount: formatCreditAmount(result.amount),
               target: result.targetName,
@@ -189,7 +189,7 @@ function DissolveTransferSuccessDialog({ result, onClose }) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogAction onClick={onClose}>
-            {t2("common.confirm", {
+            {t("common.confirm", {
               defaultValue: "确认",
             })}
           </AlertDialogAction>
@@ -199,14 +199,14 @@ function DissolveTransferSuccessDialog({ result, onClose }) {
   );
 }
 function TeamSwitchBlockedDialog({ open, blockingReasons, onOpenChange }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const stoppable = hasUserStoppableReason(blockingReasons);
   const description = stoppable
-    ? t2("team.switchBlocked.stoppableDescription", {
+    ? t("team.switchBlocked.stoppableDescription", {
         defaultValue:
           "当前有生成中的任务，无法切换 Group。请先停止该任务，然后再切换。",
       })
-    : t2("team.switchBlocked.waitDescription", {
+    : t("team.switchBlocked.waitDescription", {
         defaultValue:
           "当前有正在进行的操作，无法切换 Group。请等待其完成后重试。",
       });
@@ -215,7 +215,7 @@ function TeamSwitchBlockedDialog({ open, blockingReasons, onOpenChange }) {
       <AlertDialogContent data-action-ui-id="team.switch-blocked-dialog">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {t2("team.switchBlocked.title", {
+            {t("team.switchBlocked.title", {
               defaultValue: "无法切换 Group",
             })}
           </AlertDialogTitle>
@@ -232,7 +232,7 @@ function TeamSwitchBlockedDialog({ open, blockingReasons, onOpenChange }) {
                 data-action-ui-id="team.switch-blocked-reason"
                 data-team-blocking-reason={reason}
               >
-                {t2(BLOCKING_REASON_KEYS[reason], {
+                {t(BLOCKING_REASON_KEYS[reason], {
                   defaultValue: BLOCKING_REASON_FALLBACKS[reason],
                 })}
               </li>
@@ -244,7 +244,7 @@ function TeamSwitchBlockedDialog({ open, blockingReasons, onOpenChange }) {
             onClick={() => onOpenChange(false)}
             data-action-ui-id="team.switch-blocked-confirm"
           >
-            {t2("team.switchBlocked.confirm", {
+            {t("team.switchBlocked.confirm", {
               defaultValue: "知道了",
             })}
           </AlertDialogAction>
@@ -265,7 +265,7 @@ function dialogScopeIdentityEquals(left, right) {
   );
 }
 export function TeamDialogHost() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const {
     integrationEnabled,
     snapshot: snapshot2,
@@ -321,12 +321,12 @@ export function TeamDialogHost() {
         >
           <DialogHeader className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pt-5 sm:pr-16 sm:pb-4">
             <DialogTitle>
-              {t2("team.credit.detailTitle", {
+              {t("team.credit.detailTitle", {
                 defaultValue: "消耗明细",
               })}
             </DialogTitle>
             <DialogDescription>
-              {t2("team.credit.detailDescription", {
+              {t("team.credit.detailDescription", {
                 defaultValue: "仅展示当前账号的消耗明细，不包含团队整体消耗。",
               })}
             </DialogDescription>

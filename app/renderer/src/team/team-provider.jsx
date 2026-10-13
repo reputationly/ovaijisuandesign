@@ -263,7 +263,7 @@ export function TeamProvider({
   enabled = true,
 }) {
   if (enabled) activateAccountSubmissionGuard();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const queryClient2 = useQueryClient();
   const service2 = reactExports.useMemo(
     () => (enabled ? resolveService(serviceOverride) : null),
@@ -1093,7 +1093,7 @@ export function TeamProvider({
             latest2.activeContext.groupId !== activeTeamGroupId);
         if (switchedToAnotherAccount) {
           dedupedToast.warning(
-            t2("team.account.autoSwitching", {
+            t("team.account.autoSwitching", {
               defaultValue: "当前团队账号已不可用，将自动切换到其他账号。",
             }),
           );
@@ -1113,7 +1113,7 @@ export function TeamProvider({
     observedContextsKey,
     service2,
     snapshot2,
-    t2,
+    t,
   ]);
   const getSubmissionDecision = reactExports.useCallback(
     (kind) => evaluateAccountSubmission(kind),

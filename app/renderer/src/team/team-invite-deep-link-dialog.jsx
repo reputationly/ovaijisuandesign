@@ -81,7 +81,7 @@ export function TeamInviteDeepLinkDialog({
   onClose,
   onError,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { revalidateContext, switchContext } = useTeamAccount();
   const [info2, setInfo] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(true);
@@ -135,7 +135,7 @@ export function TeamInviteDeepLinkDialog({
       if (!isInvitationAcceptSuccessStatus(result.status)) {
         const copy2 = getInvitationStatusErrorCopy(result.status);
         onError(
-          t2(copy2.i18nKey, {
+          t(copy2.i18nKey, {
             defaultValue: copy2.defaultValue,
           }),
         );
@@ -160,14 +160,14 @@ export function TeamInviteDeepLinkDialog({
         }
       }
       dedupedToast.success(
-        t2("team.invitation.acceptSucceeded", {
+        t("team.invitation.acceptSucceeded", {
           defaultValue: "已接受邀请并加入团队。",
         }),
       );
       onAccepted();
     } catch {
       onError(
-        t2("team.invitation.acceptFailed", {
+        t("team.invitation.acceptFailed", {
           defaultValue: "邀请失败，请稍后重试或联系团队管理员。",
         }),
       );
@@ -197,16 +197,16 @@ export function TeamInviteDeepLinkDialog({
       >
         <DialogHeader>
           <DialogTitle>
-            {t2("team.invitation.pendingTitle", {
+            {t("team.invitation.pendingTitle", {
               defaultValue: "待处理团队邀请",
             })}
           </DialogTitle>
           <DialogDescription>
             {isOverseas
-              ? t2("team.invitation.emailDescription", {
+              ? t("team.invitation.emailDescription", {
                   defaultValue: "你收到了一封团队邀请，接受后即可加入团队。",
                 })
-              : t2("team.invitation.pendingDescription", {
+              : t("team.invitation.pendingDescription", {
                   defaultValue: "确认邀请信息后接受邀请。",
                 })}
           </DialogDescription>
@@ -221,7 +221,7 @@ export function TeamInviteDeepLinkDialog({
         ) : null}
         {loadFailed ? (
           <div className="rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground">
-            {t2("team.invitation.notFound", {
+            {t("team.invitation.notFound", {
               defaultValue: "该邀请不存在、已失效，或暂时无法读取。",
             })}
           </div>
@@ -242,11 +242,11 @@ export function TeamInviteDeepLinkDialog({
                 </h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {info2.inviterName.trim()
-                    ? t2("team.invitation.invitedBy", {
+                    ? t("team.invitation.invitedBy", {
                         defaultValue: "{{name}} 邀请你加入团队",
                         name: info2.inviterName.trim(),
                       })
-                    : t2("team.invitation.invitedByUnknown", {
+                    : t("team.invitation.invitedByUnknown", {
                         defaultValue: "团队管理员邀请你加入团队",
                       })}
                 </p>
@@ -260,7 +260,7 @@ export function TeamInviteDeepLinkDialog({
                     strokeWidth={1.5}
                     aria-hidden={true}
                   />
-                  {t2("team.invitation.members", {
+                  {t("team.invitation.members", {
                     defaultValue: "团队成员",
                   })}
                 </dt>
@@ -273,12 +273,12 @@ export function TeamInviteDeepLinkDialog({
                     strokeWidth={1.5}
                     aria-hidden={true}
                   />
-                  {t2("team.invitation.role", {
+                  {t("team.invitation.role", {
                     defaultValue: "受邀角色",
                   })}
                 </dt>
                 <dd className="text-foreground">
-                  {t2(`team.role.${info2.role.toLowerCase()}`, {
+                  {t(`team.role.${info2.role.toLowerCase()}`, {
                     defaultValue: info2.role,
                   })}
                 </dd>
@@ -290,14 +290,14 @@ export function TeamInviteDeepLinkDialog({
                     strokeWidth={1.5}
                     aria-hidden={true}
                   />
-                  {t2("team.invitation.validity", {
+                  {t("team.invitation.validity", {
                     defaultValue: "链接有效期",
                   })}
                 </dt>
                 <dd className="text-foreground">
                   {formatExpiry(
                     info2.expiresAtMs,
-                    t2("team.inviteLink.neverExpires", {
+                    t("team.inviteLink.neverExpires", {
                       defaultValue: "永久有效",
                     }),
                   )}
@@ -308,14 +308,14 @@ export function TeamInviteDeepLinkDialog({
         ) : null}
         {alreadyJoined ? (
           <div className="rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground">
-            {t2("team.invitation.alreadyJoined", {
+            {t("team.invitation.alreadyJoined", {
               defaultValue: "已加入过该团队",
             })}
           </div>
         ) : null}
         {!alreadyJoined && isExhausted ? (
           <div className="rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground">
-            {t2("team.invitation.exhausted", {
+            {t("team.invitation.exhausted", {
               defaultValue: "该邀请链接的使用次数已用完。",
             })}
           </div>
@@ -329,7 +329,7 @@ export function TeamInviteDeepLinkDialog({
               onClick={() => void handleAccept()}
               data-action-ui-id="team.invitation-accept-link"
             >
-              {t2("team.invitation.accept", {
+              {t("team.invitation.accept", {
                 defaultValue: "接受",
               })}
             </Button>

@@ -84,7 +84,7 @@ export function TeamLedgerFilters({
   onFilterChange,
   trailing,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [memberId, setMemberId] = reactExports.useState(null);
   const [datePreset, setDatePreset] = reactExports.useState("last7Days");
   const [dateRange, setDateRange] = reactExports.useState(() => presetRange(7));
@@ -113,7 +113,7 @@ export function TeamLedgerFilters({
       })),
     [members],
   );
-  const presetLabel = t2(`team.credit.ledgerFilter.${datePreset}`, {
+  const presetLabel = t(`team.credit.ledgerFilter.${datePreset}`, {
     defaultValue:
       datePreset === "today"
         ? "今天"
@@ -151,9 +151,9 @@ export function TeamLedgerFilters({
       emitFilter(memberId, dateRange);
     }
   };
-  const handleMemberChange = (id2) => {
-    setMemberId(id2);
-    emitFilter(id2, dateRange);
+  const handleMemberChange = (nextMemberId) => {
+    setMemberId(nextMemberId);
+    emitFilter(nextMemberId, dateRange);
   };
   return (
     <div
@@ -176,13 +176,13 @@ export function TeamLedgerFilters({
           hasMore={hasMoreMembers}
           loadingMore={loadingMoreMembers}
           onLoadMore={onLoadMoreMembers}
-          placeholder={t2("team.credit.ledgerFilter.allMembers", {
+          placeholder={t("team.credit.ledgerFilter.allMembers", {
             defaultValue: "全部成员",
           })}
-          searchPlaceholder={t2("team.credit.ledgerFilter.searchMember", {
+          searchPlaceholder={t("team.credit.ledgerFilter.searchMember", {
             defaultValue: "搜索名称或 UID",
           })}
-          emptyText={t2("team.credit.ledgerFilter.memberEmpty", {
+          emptyText={t("team.credit.ledgerFilter.memberEmpty", {
             defaultValue: "没有匹配的成员",
           })}
           data-action-ui-id="team.credit-ledger-member-filter"
@@ -193,12 +193,12 @@ export function TeamLedgerFilters({
           type="button"
           className="rounded-lg border border-input px-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           onClick={() => handleMemberChange(null)}
-          aria-label={t2("team.credit.ledgerFilter.clearMember", {
+          aria-label={t("team.credit.ledgerFilter.clearMember", {
             defaultValue: "清除成员筛选",
           })}
           data-action-ui-id="team.credit-ledger-member-clear"
         >
-          {t2("common.clear", {
+          {t("common.clear", {
             defaultValue: "清除",
           })}
         </button>
@@ -239,7 +239,7 @@ export function TeamLedgerFilters({
                 onClick={() => handlePresetSelect(value, days)}
                 data-action-ui-id={`team.credit-ledger-date-${value}`}
               >
-                {t2(`team.credit.ledgerFilter.${value}`, {
+                {t(`team.credit.ledgerFilter.${value}`, {
                   defaultValue:
                     value === "today"
                       ? "今天"
@@ -260,7 +260,7 @@ export function TeamLedgerFilters({
               onClick={() => setDatePreset("custom")}
               data-action-ui-id="team.credit-ledger-date-custom"
             >
-              {t2("team.credit.ledgerFilter.custom", {
+              {t("team.credit.ledgerFilter.custom", {
                 defaultValue: "自定义日期",
               })}
             </button>

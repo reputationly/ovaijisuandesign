@@ -15,11 +15,11 @@ const PACKAGE_CREDIT_CATEGORY_LABELS = {
   },
 };
 
-export function getPackageCreditCategoryLabel(creditCategory, t2) {
+export function getPackageCreditCategoryLabel(creditCategory, t) {
   const category = PACKAGE_CREDIT_CATEGORY_LABELS[creditCategory ?? ""];
   if (!category) return void 0;
-  return category.key && t2
-    ? t2(category.key, {
+  return category.key && t
+    ? t(category.key, {
         defaultValue: category.fallback,
       })
     : category.fallback;

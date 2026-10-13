@@ -14,7 +14,7 @@ import { Button, cn$2 as cn } from "../infra/dialog-content.jsx";
 import { Input3 } from "../infra/select-content.jsx";
 import { PopoverContent } from "./hailuo-credit-row.jsx";
 export function TeamMemberCombobox({
-  id: id2,
+  id,
   value,
   onValueChange,
   options,
@@ -34,7 +34,7 @@ export function TeamMemberCombobox({
   popupZClassName = "z-[70]",
   "data-action-ui-id": dataActionUiId = "team.member-combobox",
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = reactExports.useState(false);
   const listboxId = reactExports.useId();
   const selected2 = options.find((option2) => option2.userId === value) ?? null;
@@ -49,7 +49,7 @@ export function TeamMemberCombobox({
   const selectedDescription = selected2
     ? (selected2.description ??
       (selected2.role
-        ? `UID ${selected2.userId} · ${t2(
+        ? `UID ${selected2.userId} · ${t(
             `team.role.${selected2.role.toLowerCase()}`,
             {
               defaultValue: selected2.role,
@@ -62,7 +62,7 @@ export function TeamMemberCombobox({
       ? selected2.displayName
       : `${selected2.displayName} · ${selectedDescription}`
     : (placeholder ??
-      t2("team.management.successorPlaceholder", {
+      t("team.management.successorPlaceholder", {
         defaultValue: "搜索并选择继任 Owner",
       }));
   return (
@@ -75,7 +75,7 @@ export function TeamMemberCombobox({
       }}
     >
       <PopoverTrigger
-        id={id2}
+        id={id}
         type="button"
         disabled={disabled2}
         role="combobox"
@@ -110,13 +110,13 @@ export function TeamMemberCombobox({
             startIcon={<Icon icon={Search} size="sm" aria-hidden={true} />}
             placeholder={
               searchPlaceholder ??
-              t2("team.management.searchPlaceholder", {
+              t("team.management.searchPlaceholder", {
                 defaultValue: "搜索姓名或 UID",
               })
             }
             aria-label={
               searchPlaceholder ??
-              t2("team.management.searchPlaceholder", {
+              t("team.management.searchPlaceholder", {
                 defaultValue: "搜索姓名或 UID",
               })
             }
@@ -132,7 +132,7 @@ export function TeamMemberCombobox({
         >
           {loading ? (
             <div className="px-2 py-3 text-xs text-muted-foreground">
-              {t2("common.loading", {
+              {t("common.loading", {
                 defaultValue: "加载中…",
               })}
             </div>
@@ -140,7 +140,7 @@ export function TeamMemberCombobox({
           {error ? (
             <div className="flex flex-col gap-2 px-2 py-3">
               <p className="text-xs text-muted-foreground">
-                {t2("team.management.membersLoadFailed", {
+                {t("team.management.membersLoadFailed", {
                   defaultValue: "成员列表加载失败",
                 })}
               </p>
@@ -151,7 +151,7 @@ export function TeamMemberCombobox({
                   variant="outline"
                   onClick={() => onRetry()}
                 >
-                  {t2("common.retry", {
+                  {t("common.retry", {
                     defaultValue: "重试",
                   })}
                 </Button>
@@ -164,7 +164,7 @@ export function TeamMemberCombobox({
               data-action-ui-id={`${dataActionUiId}-empty`}
             >
               {emptyText ??
-                t2("team.management.successorSearchEmpty", {
+                t("team.management.successorSearchEmpty", {
                   defaultValue: "没有匹配的成员，请调整筛选。",
                 })}
             </div>
@@ -174,7 +174,7 @@ export function TeamMemberCombobox({
             const description =
               option2.description ??
               (option2.role
-                ? `UID ${option2.userId} · ${t2(
+                ? `UID ${option2.userId} · ${t(
                     `team.role.${option2.role.toLowerCase()}`,
                     {
                       defaultValue: option2.role,
@@ -232,10 +232,10 @@ export function TeamMemberCombobox({
                 data-action-ui-id={`${dataActionUiId}-more`}
               >
                 {loadingMore
-                  ? t2("common.loading", {
+                  ? t("common.loading", {
                       defaultValue: "加载中…",
                     })
-                  : t2("team.management.loadMoreMembers", {
+                  : t("team.management.loadMoreMembers", {
                       defaultValue: "加载更多成员",
                     })}
               </Button>

@@ -53,7 +53,7 @@ function mapHubCancelCheck(value) {
     };
   }
   const blockingTeams = Array.isArray(raw2.blocking_teams)
-    ? raw2.blocking_teams.map(mapBlockingTeam).filter((t2) => t2 !== null)
+    ? raw2.blocking_teams.map(mapBlockingTeam).filter((blockingTeam) => blockingTeam !== null)
     : [];
   return {
     canDelete: raw2.can_delete === true,

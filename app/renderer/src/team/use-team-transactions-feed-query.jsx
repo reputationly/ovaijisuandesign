@@ -382,11 +382,11 @@ export function useTeamTransactionsFeedQuery({
   });
 }
 export function Spinner({ className, ...props }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <Loader2Icon
       role="status"
-      aria-label={t2("a11y.loading")}
+      aria-label={t("a11y.loading")}
       className={cn("size-4 animate-spin", className)}
       {...props}
     />

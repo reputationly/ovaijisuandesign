@@ -23,13 +23,13 @@ export function CreateTeamFormSurface({
   onTeamNameChange,
   onCancel,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <>
       <div className="space-y-4 px-4 py-4 sm:px-6 sm:py-5">
         <div className="space-y-1.5">
           <Label htmlFor={inputId}>
-            {t2("team.create.nameLabel", {
+            {t("team.create.nameLabel", {
               defaultValue: "团队名称",
             })}
           </Label>
@@ -67,7 +67,7 @@ export function CreateTeamFormSurface({
           onClick={onCancel}
           data-action-ui-id={cancelActionId}
         >
-          {t2("common.cancel", {
+          {t("common.cancel", {
             defaultValue: "取消",
           })}
         </Button>
@@ -79,7 +79,7 @@ export function CreateTeamFormSurface({
           data-action-ui-id={submitActionId}
         >
           {submitLabel ??
-            t2("team.create.submit", {
+            t("team.create.submit", {
               defaultValue: "创建并切换",
             })}
         </Button>

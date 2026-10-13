@@ -57,7 +57,7 @@ export function TeamMemberSettingsPage({
   quotaMutationEnabled,
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const queryClient2 = useQueryClient();
   const { activeScope } = useTeamAccount();
   const canChangeRole = member.permissions.changeRole.allowed;
@@ -143,7 +143,7 @@ export function TeamMemberSettingsPage({
       clearActionError();
       await invalidateMembership();
       dedupedToast.success(
-        t2("team.management.settingsSaved", {
+        t("team.management.settingsSaved", {
           defaultValue: "成员设置已更新。",
         }),
       );
@@ -152,7 +152,7 @@ export function TeamMemberSettingsPage({
     onError: (error) => {
       if (error instanceof ScopeChangedError3) {
         dedupedToast.error(
-          t2("team.management.scopeChanged", {
+          t("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
           }),
         );
@@ -162,10 +162,10 @@ export function TeamMemberSettingsPage({
       const detail = describeTeamMutationError(error);
       const suffix = formatTeamMutationErrorSuffix(detail);
       const primary = isUpstreamContractFailure(detail)
-        ? t2("team.management.settingsUpstreamUnavailable", {
+        ? t("team.management.settingsUpstreamUnavailable", {
             defaultValue: "成员设置更新暂不可用（上游异常），请稍后重试。",
           })
-        : t2("team.management.settingsSaveFailed", {
+        : t("team.management.settingsSaveFailed", {
             defaultValue: "成员设置更新失败，请稍后重试。",
           });
       setActionError(suffix ? `${primary}（${suffix}）` : primary);
@@ -182,7 +182,7 @@ export function TeamMemberSettingsPage({
       clearActionError();
       await invalidateMembership();
       dedupedToast.success(
-        t2("team.management.removeMemberSucceeded", {
+        t("team.management.removeMemberSucceeded", {
           defaultValue: "已移除成员。",
         }),
       );
@@ -192,7 +192,7 @@ export function TeamMemberSettingsPage({
     onError: (error) => {
       if (error instanceof ScopeChangedError3) {
         dedupedToast.error(
-          t2("team.management.scopeChanged", {
+          t("team.management.scopeChanged", {
             defaultValue: "当前请求与计费 Group 已变化，请重新打开团队管理。",
           }),
         );
@@ -201,7 +201,7 @@ export function TeamMemberSettingsPage({
         return;
       }
       setActionError(
-        t2("team.management.removeMemberFailed", {
+        t("team.management.removeMemberFailed", {
           defaultValue: "移除成员失败，请稍后重试。",
         }),
       );
@@ -230,12 +230,12 @@ export function TeamMemberSettingsPage({
         >
           <PageHeader className="shrink-0 border-b border-border px-4 pt-4 pr-14 pb-3 sm:px-6 sm:pr-16">
             <PageTitle>
-              {t2("team.management.memberSettings", {
+              {t("team.management.memberSettings", {
                 defaultValue: "成员设置",
               })}
             </PageTitle>
             <PageDescription>
-              {t2("team.management.memberSettingsDescription", {
+              {t("team.management.memberSettingsDescription", {
                 defaultValue: "管理 {{name}} 在“{{team}}”中的角色与额度。",
                 name: member.displayName,
                 team: teamName,
@@ -255,7 +255,7 @@ export function TeamMemberSettingsPage({
               </div>
               <div className="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-3 border-t border-border px-4 py-3">
                 <div className="text-xs text-muted-foreground">
-                  {t2("team.management.role", {
+                  {t("team.management.role", {
                     defaultValue: "角色",
                   })}
                 </div>
@@ -271,14 +271,14 @@ export function TeamMemberSettingsPage({
                   >
                     <SelectTrigger
                       className="h-10! w-72 px-3 text-sm"
-                      aria-label={t2("team.management.role", {
+                      aria-label={t("team.management.role", {
                         defaultValue: "角色",
                       })}
                       data-action-ui-id="team.management-member-role-select"
                       data-selected-role={role}
                     >
                       <SelectValue>
-                        {t2(`team.role.${role.toLowerCase()}`, {
+                        {t(`team.role.${role.toLowerCase()}`, {
                           defaultValue: role,
                         })}
                       </SelectValue>
@@ -293,17 +293,17 @@ export function TeamMemberSettingsPage({
                         >
                           <div className="flex min-w-0 flex-col items-start gap-0.5">
                             <span className="text-sm font-medium text-foreground">
-                              {t2(`team.role.${candidate.toLowerCase()}`, {
+                              {t(`team.role.${candidate.toLowerCase()}`, {
                                 defaultValue: candidate,
                               })}
                             </span>
                             <span className="text-xs font-normal text-muted-foreground">
                               {candidate === "ADMIN"
-                                ? t2("team.management.adminRoleDescription", {
+                                ? t("team.management.adminRoleDescription", {
                                     defaultValue:
                                       "可分配成员积分，并查看成员消耗明细。",
                                   })
-                                : t2("team.management.memberRoleDescription", {
+                                : t("team.management.memberRoleDescription", {
                                     defaultValue:
                                       "可使用团队积分，不能管理其他成员。",
                                   })}
@@ -315,7 +315,7 @@ export function TeamMemberSettingsPage({
                   </Select>
                 ) : (
                   <p className="text-xs font-medium text-foreground">
-                    {t2(`team.role.${member.role.toLowerCase()}`, {
+                    {t(`team.role.${member.role.toLowerCase()}`, {
                       defaultValue: member.role,
                     })}
                   </p>
@@ -325,18 +325,18 @@ export function TeamMemberSettingsPage({
                 <div className="grid grid-cols-[5rem_minmax(0,1fr)] items-start gap-3 border-t border-border px-4 py-3">
                   <div className="flex min-h-8 items-center gap-1 text-xs text-muted-foreground">
                     {member.quota.mode === "LIMITED"
-                      ? t2("team.management.quotaAdjustment", {
+                      ? t("team.management.quotaAdjustment", {
                           defaultValue: "额度调整",
                         })
-                      : t2("team.management.addQuotaLimit", {
+                      : t("team.management.addQuotaLimit", {
                           defaultValue: "添加限额",
                         })}
                     {member.quota.mode !== "LIMITED" ? (
                       <TeamHelpTip
-                        label={t2("team.management.addQuotaLimitHelp", {
+                        label={t("team.management.addQuotaLimitHelp", {
                           defaultValue: "添加限额说明",
                         })}
-                        content={t2(
+                        content={t(
                           "team.management.addQuotaLimitHelpContent",
                           {
                             defaultValue:
@@ -352,7 +352,7 @@ export function TeamMemberSettingsPage({
                       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
                         <div className="inline-flex items-center gap-1 whitespace-nowrap">
                           <span className="text-muted-foreground">
-                            {t2("team.management.quotaUsedInlineLabel", {
+                            {t("team.management.quotaUsedInlineLabel", {
                               defaultValue: "已用额度：",
                             })}
                           </span>
@@ -365,7 +365,7 @@ export function TeamMemberSettingsPage({
                             htmlFor="team-member-settings-quota"
                             className="text-muted-foreground"
                           >
-                            {t2("team.management.quotaLimitInlineLabel", {
+                            {t("team.management.quotaLimitInlineLabel", {
                               defaultValue: "额度上限：",
                             })}
                           </label>
@@ -398,7 +398,7 @@ export function TeamMemberSettingsPage({
                           htmlFor="team-member-settings-quota"
                           className="sr-only"
                         >
-                          {t2("team.management.addQuotaLimit", {
+                          {t("team.management.addQuotaLimit", {
                             defaultValue: "添加限额",
                           })}
                         </label>
@@ -407,7 +407,7 @@ export function TeamMemberSettingsPage({
                           value={limit ?? ""}
                           inputMode="numeric"
                           disabled={busy}
-                          placeholder={t2(
+                          placeholder={t(
                             "team.management.addQuotaLimitPlaceholder",
                             {
                               defaultValue: "输入额度上限",
@@ -426,7 +426,7 @@ export function TeamMemberSettingsPage({
                     ) : null}
                     {limitTouched && !validLimit ? (
                       <p className="text-xs text-destructive">
-                        {t2("team.management.quotaLimitInvalid", {
+                        {t("team.management.quotaLimitInvalid", {
                           defaultValue: "请输入不超过安全整数范围的非负整数。",
                         })}
                       </p>
@@ -436,7 +436,7 @@ export function TeamMemberSettingsPage({
                     className="col-span-2 text-xs text-muted-foreground"
                     data-action-ui-id="team.management-member-team-remaining"
                   >
-                    {t2("team.management.teamCreditBalance", {
+                    {t("team.management.teamCreditBalance", {
                       defaultValue: "团队积分余额：{{amount}}",
                       amount: formattedTeamRemaining,
                     })}
@@ -466,7 +466,7 @@ export function TeamMemberSettingsPage({
                   onClick={() => setRemoveConfirmOpen(true)}
                   data-action-ui-id="team.management-member-remove"
                 >
-                  {t2("team.management.removeMember", {
+                  {t("team.management.removeMember", {
                     defaultValue: "移除成员",
                   })}
                 </Button>
@@ -480,7 +480,7 @@ export function TeamMemberSettingsPage({
                   onClick={() => saveMutation.mutate()}
                   data-action-ui-id="team.management-member-settings-save"
                 >
-                  {t2("team.management.saveSettings", {
+                  {t("team.management.saveSettings", {
                     defaultValue: "保存修改",
                   })}
                 </Button>
@@ -501,12 +501,12 @@ export function TeamMemberSettingsPage({
         >
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t2("team.management.removeMemberTitle", {
+              {t("team.management.removeMemberTitle", {
                 defaultValue: "移除成员",
               })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t2("team.management.removeMemberDescription", {
+              {t("team.management.removeMemberDescription", {
                 defaultValue:
                   "确认将 {{name}}（UID {{uid}}）从“{{team}}”移除？此操作不可撤销。",
                 name: member.displayName,
@@ -523,7 +523,7 @@ export function TeamMemberSettingsPage({
               data-action-ui-id="team.management-member-remove-confirm-cancel"
               onClick={() => setRemoveConfirmOpen(false)}
             >
-              {t2("common.cancel", {
+              {t("common.cancel", {
                 defaultValue: "取消",
               })}
             </Button>
@@ -537,7 +537,7 @@ export function TeamMemberSettingsPage({
               }}
               data-action-ui-id="team.management-member-remove-confirm-action"
             >
-              {t2("team.management.removeMemberConfirm", {
+              {t("team.management.removeMemberConfirm", {
                 defaultValue: "确认移除",
               })}
             </AlertDialogAction>

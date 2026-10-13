@@ -56,7 +56,7 @@ const MEMBER_SEARCH_DEBOUNCE_MS = 250;
 const MEMBER_ALREADY_EXISTS_CODE = "member_already_exists";
 const EMPTY_MEMBERS = [];
 export function PastTeamMembersPanel({ scope, active: active2 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [searchInput, setSearchInput] = reactExports.useState("");
   const [keyword2, setKeyword] = reactExports.useState("");
   const [selected2, setSelected] = reactExports.useState(new Map());
@@ -96,14 +96,14 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
     };
   }, [quotaLimit]);
   const atLimit = selected2.size >= MAX_PAST_TEAM_SELECTION;
-  const selectedInList = members.filter((m3) =>
-    selected2.has(m3.userId),
+  const selectedInList = members.filter((member) =>
+    selected2.has(member.userId),
   ).length;
   const allSelected = members.length > 0 && selectedInList === members.length;
   const someSelected = selectedInList > 0;
   const notifyMaxReached = () => {
     dedupedToast.error(
-      t2("team.pastTeams.maxReached", {
+      t("team.pastTeams.maxReached", {
         defaultValue: "单次最多添加 {{count}} 人",
         count: MAX_PAST_TEAM_SELECTION,
       }),
@@ -177,7 +177,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
       );
       if (added.length > 0) {
         dedupedToast.success(
-          t2("team.pastTeams.addSuccess", {
+          t("team.pastTeams.addSuccess", {
             defaultValue: "成功添加 {{count}} 人",
             count: added.length,
           }),
@@ -188,7 +188,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
       }
       if (alreadyExists.length > 0) {
         dedupedToast.info(
-          t2("team.pastTeams.addExists", {
+          t("team.pastTeams.addExists", {
             defaultValue: "{{count}} 人已在团队中",
             count: alreadyExists.length,
           }),
@@ -196,7 +196,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
       }
       if (failed.length > 0) {
         dedupedToast.error(
-          t2("team.pastTeams.addFailed", {
+          t("team.pastTeams.addFailed", {
             defaultValue: "{{count}} 人添加失败，请重试",
             count: failed.length,
           }),
@@ -212,7 +212,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
       const suffix = formatTeamMutationErrorSuffix(
         describeTeamMutationError(error),
       );
-      const primary = t2("team.pastTeams.addRequestFailed", {
+      const primary = t("team.pastTeams.addRequestFailed", {
         defaultValue: "添加成员失败，请稍后重试",
       });
       dedupedToast.error(suffix ? `${primary}（${suffix}）` : primary);
@@ -236,10 +236,10 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
             <Input3
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder={t2("team.pastTeams.searchPlaceholder", {
+              placeholder={t("team.pastTeams.searchPlaceholder", {
                 defaultValue: "搜索姓名或 UID",
               })}
-              aria-label={t2("team.pastTeams.searchPlaceholder", {
+              aria-label={t("team.pastTeams.searchPlaceholder", {
                 defaultValue: "搜索姓名或 UID",
               })}
               className="pl-9"
@@ -253,7 +253,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
                 : "shrink-0 text-sm text-muted-foreground"
             }
           >
-            {t2("team.pastTeams.selectedCount", {
+            {t("team.pastTeams.selectedCount", {
               defaultValue: "已选择 {{count}}/{{max}} 人",
               count: selected2.size,
               max: MAX_PAST_TEAM_SELECTION,
@@ -275,7 +275,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
                 <button
                   type="button"
                   className="inline-flex size-5 shrink-0 items-center justify-center rounded-sm text-current opacity-70 hover:bg-background/20 hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  aria-label={t2("team.pastTeams.removeSelected", {
+                  aria-label={t("team.pastTeams.removeSelected", {
                     defaultValue: "移除 {{name}}",
                     name: member.userName,
                   })}
@@ -293,7 +293,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
               onClick={handleClearSelected}
               data-action-ui-id="team.past-teams-clear-selected"
             >
-              {t2("team.pastTeams.clearAll", {
+              {t("team.pastTeams.clearAll", {
                 defaultValue: "清空",
               })}
             </Button>
@@ -307,7 +307,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
           ) : feed.isError ? (
             <div className="space-y-2 p-6 text-center">
               <p className="text-sm text-muted-foreground">
-                {t2("team.pastTeams.loadFailed", {
+                {t("team.pastTeams.loadFailed", {
                   defaultValue: "过往团队成员加载失败",
                 })}
               </p>
@@ -317,14 +317,14 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
                 variant="outline"
                 onClick={() => void feed.refetch()}
               >
-                {t2("common.retry", {
+                {t("common.retry", {
                   defaultValue: "重试",
                 })}
               </Button>
             </div>
           ) : isEmpty2 ? (
             <p className="p-6 text-center text-sm text-muted-foreground">
-              {t2("team.pastTeams.empty", {
+              {t("team.pastTeams.empty", {
                 defaultValue: "没有可添加的过往团队成员",
               })}
             </p>
@@ -338,12 +338,12 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
                   onCheckedChange={(checked) =>
                     handleToggleAll(members, checked === true)
                   }
-                  aria-label={t2("team.pastTeams.selectAll", {
+                  aria-label={t("team.pastTeams.selectAll", {
                     defaultValue: "全选",
                   })}
                 />
                 <p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
-                  {t2("team.pastTeams.selectAll", {
+                  {t("team.pastTeams.selectAll", {
                     defaultValue: "全选",
                   })}
                 </p>
@@ -391,20 +391,20 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
         </div>
         <section className="space-y-3">
           <h3 className="text-sm font-medium text-foreground">
-            {t2("team.inviteLink.quotaLimit", {
+            {t("team.inviteLink.quotaLimit", {
               defaultValue: "积分额度",
             })}
           </h3>
           <Input3
             type="text"
             value={quotaLimit}
-            placeholder={t2("team.pastTeams.quotaLimitPlaceholder", {
+            placeholder={t("team.pastTeams.quotaLimitPlaceholder", {
               defaultValue:
                 "设置成员积分上限；不设置时，成员可自由共享团队积分",
             })}
             aria-invalid={!quotaLimitValue.valid}
             onChange={(event) => setQuotaLimit(event.target.value)}
-            aria-label={t2("team.inviteLink.quotaLimit", {
+            aria-label={t("team.inviteLink.quotaLimit", {
               defaultValue: "积分额度",
             })}
             data-action-ui-id="team.past-teams-quota"
@@ -424,7 +424,7 @@ export function PastTeamMembersPanel({ scope, active: active2 }) {
             strokeWidth={1.5}
             aria-hidden={true}
           />
-          {t2("team.pastTeams.addSelected", {
+          {t("team.pastTeams.addSelected", {
             defaultValue: "添加所选成员",
           })}
         </Button>

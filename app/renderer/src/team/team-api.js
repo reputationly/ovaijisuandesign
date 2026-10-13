@@ -91,7 +91,7 @@ function isAbortError(error) {
   return error instanceof DOMException && error.name === "AbortError";
 }
 const SIGNED_DECIMAL_RE = /^-?(0|[1-9]\d*)$/;
-const MAX_SIGNED_INT64$1 = 9223372036854775807n;
+const INT64_MAX = 9223372036854775807n;
 function asArray(value, field) {
   if (!Array.isArray(value))
     throw new TeamContractError(field, "expected array");
@@ -100,9 +100,9 @@ function asArray(value, field) {
 function asTransactionId(value, field) {
   return asNonEmptyString(value, field);
 }
-function asPositiveInt64Decimal$1(value, field) {
+function asPositiveInt64DecimalString(value, field) {
   const result = asPositiveDecimal(value, field);
-  if (BigInt(result) > MAX_SIGNED_INT64$1) {
+  if (BigInt(result) > INT64_MAX) {
     throw new TeamContractError(
       field,
       "expected positive int64 decimal string",
@@ -1020,11 +1020,11 @@ function mapTeamCheckoutSession(value) {
 function mapTeamCreditTransferResult(value) {
   const record2 = asRecord(value, "credit_transfer");
   return {
-    transferRecordId: asPositiveInt64Decimal$1(
+    transferRecordId: asPositiveInt64DecimalString(
       record2.transfer_record_id,
       "credit_transfer.transfer_record_id",
     ),
-    transferredCredit: asPositiveInt64Decimal$1(
+    transferredCredit: asPositiveInt64DecimalString(
       record2.transferred_credit,
       "credit_transfer.transferred_credit",
     ),

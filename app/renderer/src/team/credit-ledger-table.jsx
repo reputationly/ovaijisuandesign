@@ -78,7 +78,7 @@ export function CreditLedgerTable({
             <div>
               {Array.from({
                 length: 5,
-              }).map((_2, index2) => (
+              }).map((_, index2) => (
                 <div
                   key={index2}
                   className={cn(

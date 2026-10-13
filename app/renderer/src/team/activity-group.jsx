@@ -26,7 +26,7 @@ import { parseJsonRecord } from "../media-editing/unwrap-mcp-json-record.js";
 import { categorizeToolAction } from "../chat/has-structured-success-payload.js";
 import { TimelineItem } from "../media-editing/timeline-item.jsx";
 function BrowserOpenCard({ onContinue }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [opening2, setOpening] = reactExports.useState(false);
   const [opened, setOpened] = reactExports.useState(false);
   const openBrowser = () => {
@@ -54,10 +54,10 @@ function BrowserOpenCard({ onContinue }) {
       <Icon icon={Globe} size="md" className="shrink-0 text-muted-foreground" />
       <div className="min-w-0 flex-1">
         <div className="font-medium text-foreground">
-          {t2("chat.browser.openRequired", "需要开启内置浏览器")}
+          {t("chat.browser.openRequired", "需要开启内置浏览器")}
         </div>
         <div className="mt-0.5 text-xs text-muted-foreground">
-          {t2(
+          {t(
             "chat.browser.openRequiredDescription",
             "Agent 需要使用内置浏览器完成此任务。",
           )}
@@ -70,10 +70,10 @@ function BrowserOpenCard({ onContinue }) {
         onClick={openBrowser}
       >
         {opening2
-          ? t2("chat.browser.opening", "正在开启…")
+          ? t("chat.browser.opening", "正在开启…")
           : opened
-            ? t2("chat.browser.opened", "已开启")
-            : t2("chat.browser.open", "开启浏览器")}
+            ? t("chat.browser.opened", "已开启")
+            : t("chat.browser.open", "开启浏览器")}
       </Button>
     </div>
   );
@@ -149,7 +149,7 @@ function ToolActivityDisclosure({
   keepExpanded,
   children: children2,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const contentId = reactExports.useId();
   const [userExpanded, setUserExpanded] = reactExports.useState(null);
   const expanded = userExpanded ?? (keepExpanded || isActive2);
@@ -163,7 +163,7 @@ function ToolActivityDisclosure({
       const key2 =
         (inFlight && CATEGORY_RUNNING_I18N[category]) ||
         CATEGORY_I18N[category];
-      return t2(key2, {
+      return t(key2, {
         count: count2,
       });
     })
@@ -244,7 +244,7 @@ export function ActivityGroup({
   keepToolsExpanded = false,
 }) {
   const { items } = data2;
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const rawToolView = useDebugFlag(DEBUG_FLAGS.rawToolView);
   const displayItems =
     treatHubReadAsThinking && !rawToolView
@@ -316,7 +316,7 @@ export function ActivityGroup({
           if (!focusedSessionId) return;
           onSend?.({
             type: "message",
-            content: t2(
+            content: t(
               "chat.browser.continueMessage",
               "内置浏览器已打开，请继续刚才的网页任务，仍然使用内置浏览器完成，不要更换来源。",
             ),

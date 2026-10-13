@@ -49,7 +49,7 @@ export function CreditThresholdReminderCard({
   decision,
   settlementStatus,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [state2, setState] = reactExports.useState("pending");
   const [actionFailed, setActionFailed] = reactExports.useState(false);
   const [selectedItemIds, setSelectedItemIds] = reactExports.useState(() =>
@@ -79,21 +79,21 @@ export function CreditThresholdReminderCard({
   const settlementFailed =
     settlementStatus === "insufficient" || settlementStatus === "unavailable";
   const settledSummary = settlementExpired
-    ? t2(
+    ? t(
         "chat.creditReminder.expired",
         "Confirmation timed out; this generation was cancelled.",
       )
     : settlementFailed
-      ? t2(
+      ? t(
           "chat.creditReminder.actionError",
           "Could not update this generation. Try again.",
         )
       : decision === "continue" || state2 === "continued"
-        ? t2(
+        ? t(
             "chat.creditReminder.continued",
             "Confirmed. Generation is continuing.",
           )
-        : t2("chat.creditReminder.cancelled", "Generation cancelled.");
+        : t("chat.creditReminder.cancelled", "Generation cancelled.");
   const { collapsed, expand, collapse } = useSettledCollapse(resolved);
   const selectedCredits = reactExports.useMemo(
     () =>
@@ -131,7 +131,7 @@ export function CreditThresholdReminderCard({
     return (
       <CollapsedSettledRow
         icon={CircleAlert}
-        title={t2("chat.creditReminder.cardTitle", "Credit usage reminder")}
+        title={t("chat.creditReminder.cardTitle", "Credit usage reminder")}
         summary={settledSummary}
         onExpand={expand}
         actionUiId="chat.credit-threshold-card.expand"
@@ -141,7 +141,7 @@ export function CreditThresholdReminderCard({
   return (
     <section
       className="w-full rounded-lg border border-border bg-card p-4"
-      aria-label={t2("chat.creditReminder.cardTitle", "Credit usage reminder")}
+      aria-label={t("chat.creditReminder.cardTitle", "Credit usage reminder")}
       data-action-ui-id="chat.credit-threshold-card"
     >
       <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export function CreditThresholdReminderCard({
           className="text-foreground/70"
         />
         <h3 className="font-heading text-sm font-medium text-foreground">
-          {t2("chat.creditReminder.cardTitle", "Credit usage reminder")}
+          {t("chat.creditReminder.cardTitle", "Credit usage reminder")}
         </h3>
         {countdown && (
           <span
@@ -166,7 +166,7 @@ export function CreditThresholdReminderCard({
       </div>
       {showSelection ? (
         <p className="mt-3 text-[14px] leading-[22px] text-muted-foreground">
-          {t2("chat.creditReminder.batchDescription", {
+          {t("chat.creditReminder.batchDescription", {
             estimated: estimatedCredits ?? "-",
             defaultValue:
               "This generation is estimated to use {{estimated}} credits. Confirm what you want to generate (you can change the reminder threshold under “Agent Mode” in the input box).",
@@ -174,7 +174,7 @@ export function CreditThresholdReminderCard({
         </p>
       ) : estimatedCredits && thresholdCredits ? (
         <p className="mt-3 text-[14px] leading-[22px] text-muted-foreground">
-          {t2("chat.creditReminder.cardDescription", {
+          {t("chat.creditReminder.cardDescription", {
             estimated: estimatedCredits,
             threshold: thresholdCredits,
             defaultValue:
@@ -183,7 +183,7 @@ export function CreditThresholdReminderCard({
         </p>
       ) : (
         <p className="mt-3 text-[14px] leading-[22px] text-muted-foreground">
-          {t2(
+          {t(
             "chat.creditReminder.cardDescriptionFallback",
             "This generation has reached your credit usage reminder.",
           )}
@@ -192,7 +192,7 @@ export function CreditThresholdReminderCard({
       {showSelection && (
         <div className="mt-3 rounded-md border border-border/70 bg-secondary/40 p-2.5">
           <p className="text-xs font-medium text-foreground">
-            {t2("chat.creditReminder.batchTitle", "Choose what to generate")}
+            {t("chat.creditReminder.batchTitle", "Choose what to generate")}
           </p>
           <div className="mt-2 flex flex-col gap-1.5">
             {estimate.batchItems?.map((item) => {
@@ -218,7 +218,7 @@ export function CreditThresholdReminderCard({
                     onCheckedChange={() =>
                       setSelectedItemIds((current2) =>
                         checked
-                          ? current2.filter((id2) => id2 !== item.itemId)
+                          ? current2.filter((selectedItemId) => selectedItemId !== item.itemId)
                           : [...current2, item.itemId],
                       )
                     }
@@ -249,7 +249,7 @@ export function CreditThresholdReminderCard({
             })}
           </div>
           <p className="mt-2 text-[11px] text-muted-foreground">
-            {t2("chat.creditReminder.batchSelectionSummary", {
+            {t("chat.creditReminder.batchSelectionSummary", {
               selected: selectedCredits.toLocaleString(),
               limit: estimate.maxSelectableCredits?.toLocaleString() ?? "-",
               defaultValue:
@@ -263,7 +263,7 @@ export function CreditThresholdReminderCard({
           {currentCredits && (
             <div>
               <dt className="text-muted-foreground">
-                {t2("chat.creditReminder.currentCredits", "Current credits")}
+                {t("chat.creditReminder.currentCredits", "Current credits")}
               </dt>
               <dd className="mt-0.5 text-foreground">{currentCredits}</dd>
             </div>
@@ -271,7 +271,7 @@ export function CreditThresholdReminderCard({
           {remainingCredits && (
             <div>
               <dt className="text-muted-foreground">
-                {t2(
+                {t(
                   "chat.creditReminder.remainingCredits",
                   "Estimated remaining",
                 )}
@@ -283,7 +283,7 @@ export function CreditThresholdReminderCard({
       )}
       {actionFailed && (
         <p className="mt-3 text-xs text-destructive" role="alert">
-          {t2(
+          {t(
             "chat.creditReminder.actionError",
             "Could not update this generation. Try again.",
           )}
@@ -306,7 +306,7 @@ export function CreditThresholdReminderCard({
             }
             data-action-ui-id="chat.credit-threshold.cancel"
           >
-            {t2("chat.creditReminder.cancelGeneration", "Cancel generation")}
+            {t("chat.creditReminder.cancelGeneration", "Cancel generation")}
           </Button>
           <Button
             type="button"
@@ -327,7 +327,7 @@ export function CreditThresholdReminderCard({
             }
             data-action-ui-id="chat.credit-threshold.continue"
           >
-            {t2(
+            {t(
               "chat.creditReminder.continueGeneration",
               "Continue generation",
             )}

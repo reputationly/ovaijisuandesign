@@ -39,7 +39,7 @@ export function TeamPanelStale({
   title,
   description,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [pending2, setPending] = reactExports.useState(false);
   const busy = isFetching || pending2;
   const handleRetry = () => {
@@ -72,13 +72,13 @@ export function TeamPanelStale({
       <div className="min-w-0 flex-1">
         <p className="break-words text-xs font-medium text-foreground">
           {title ??
-            t2("team.common.refreshFailedTitle", {
+            t("team.common.refreshFailedTitle", {
               defaultValue: "数据可能不是最新",
             })}
         </p>
         <p className="mt-0.5 break-words text-xs/relaxed text-muted-foreground">
           {description ??
-            t2("team.common.refreshFailedDescription", {
+            t("team.common.refreshFailedDescription", {
               defaultValue: "暂时无法获取最新数据，请重试以确认当前状态。",
             })}
         </p>
@@ -93,10 +93,10 @@ export function TeamPanelStale({
         data-action-ui-id="team.panel-stale-retry"
       >
         {busy
-          ? t2("common.refreshing", {
+          ? t("common.refreshing", {
               defaultValue: "刷新中…",
             })
-          : t2("common.retry", {
+          : t("common.retry", {
               defaultValue: "重试",
             })}
       </Button>
@@ -118,22 +118,22 @@ export const BLOCKING_REASON_FALLBACKS = {
   GATEWAY_SYNC: "Account information is still syncing. Please wait.",
 };
 export function TeamTransitionFeedback({ attempt }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (!attempt) return null;
   const message2 =
     attempt.kind === "busy"
-      ? t2("team.reason.switch_busy", {
+      ? t("team.reason.switch_busy", {
           defaultValue:
             "The request and billing Group cannot be switched yet. Try again shortly.",
         })
       : attempt.kind === "rejected"
-        ? t2(`team.reason.${attempt.code}`, {
-            defaultValue: t2("team.reason.rejected", {
+        ? t(`team.reason.${attempt.code}`, {
+            defaultValue: t("team.reason.rejected", {
               defaultValue: "The request was rejected. Refresh and try again.",
             }),
           })
-        : t2(`team.reason.${attempt.reasonCode}`, {
-            defaultValue: t2("team.reason.recovering", {
+        : t(`team.reason.${attempt.reasonCode}`, {
+            defaultValue: t("team.reason.recovering", {
               defaultValue: "Restoring account information. Please wait.",
             }),
           });
@@ -171,7 +171,7 @@ export function TeamTransitionFeedback({ attempt }) {
           <ul className="mt-1 list-disc space-y-0.5 break-words pl-4 text-muted-foreground">
             {attempt.blockingReasons.map((reason) => (
               <li key={reason}>
-                {t2(BLOCKING_REASON_KEYS[reason], {
+                {t(BLOCKING_REASON_KEYS[reason], {
                   defaultValue: BLOCKING_REASON_FALLBACKS[reason],
                 })}
               </li>
@@ -230,12 +230,12 @@ export function TeamUnavailableAction({
     </>
   );
 }
-export function getTeamReasonText(t2, reasonCode, fallback) {
-  const defaultValue2 = t2("team.reason.default", {
+export function getTeamReasonText(t, reasonCode, fallback) {
+  const defaultValue2 = t("team.reason.default", {
     defaultValue: "请稍后重试或升级客户端。",
   });
   if (!reasonCode) return defaultValue2;
-  return t2(`team.reason.${reasonCode}`, {
+  return t(`team.reason.${reasonCode}`, {
     defaultValue: defaultValue2,
   });
 }

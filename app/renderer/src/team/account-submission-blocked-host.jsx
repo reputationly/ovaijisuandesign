@@ -24,18 +24,18 @@ export function TeamInviteDeepLinkHost() {
   );
 }
 export function AccountSubmissionBlockedHost() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   reactExports.useEffect(() => {
     const handleBlocked = (event) => {
       const detail = event.detail;
       if (!detail?.kind || !detail.reasonCode) return;
       dedupedToast.warning(
-        t2("team.submission.blocked", {
+        t("team.submission.blocked", {
           defaultValue: "账号状态尚未就绪，暂时无法提交",
         }),
         {
           id: `team-account-submission-${detail.reasonCode}`,
-          description: t2(`team.submission.reason.${detail.reasonCode}`, {
+          description: t(`team.submission.reason.${detail.reasonCode}`, {
             defaultValue: "正在同步团队账号信息，请稍后重试。",
           }),
         },
@@ -47,7 +47,7 @@ export function AccountSubmissionBlockedHost() {
         ACCOUNT_SUBMISSION_BLOCKED_EVENT,
         handleBlocked,
       );
-  }, [t2]);
+  }, [t]);
   return null;
 }
 export function asRecord(value) {

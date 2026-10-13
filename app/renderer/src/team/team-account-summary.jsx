@@ -32,7 +32,7 @@ export function TeamAccountSummary({
   onOpenSubscription,
   switcherExpanded = false,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const {
     integrationEnabled,
     snapshot: snapshot2,
@@ -81,10 +81,10 @@ export function TeamAccountSummary({
     ? deriveMemberCreditDisplay(creditDisplay)
     : null;
   const accountIcon = isTeam ? Users : UserRound;
-  const personalLabel = t2("team.account.personal", {
+  const personalLabel = t("team.account.personal", {
     defaultValue: "个人账号",
   });
-  const switchTeamLabel = t2("team.switcher.tooltip", {
+  const switchTeamLabel = t("team.switcher.tooltip", {
     defaultValue: "切换团队",
   });
   const selectedGroupPending =
@@ -99,19 +99,19 @@ export function TeamAccountSummary({
     (isPersonal
       ? personalLabel
       : accountDataVisible
-        ? t2("team.account.unknown", {
+        ? t("team.account.unknown", {
             defaultValue: "账号",
           })
         : selectedGroupPending
-          ? t2("team.account.syncing", {
+          ? t("team.account.syncing", {
               defaultValue: "正在同步 Group…",
             })
-          : t2("team.account.unavailable", {
+          : t("team.account.unavailable", {
               defaultValue: "Group 暂不可用",
             }));
   const accountMeta =
     accountPresentation?.showsTeamMetadata && activeDisplayRole
-      ? t2(`team.role.${activeDisplayRole.toLowerCase()}`, {
+      ? t(`team.role.${activeDisplayRole.toLowerCase()}`, {
           defaultValue: activeDisplayRole,
         })
       : null;
@@ -136,22 +136,22 @@ export function TeamAccountSummary({
             ? memberCreditDisplay.mode
             : memberCreditDisplay.status,
         status: memberCreditDisplay.status,
-        label: t2("team.credit.available", {
+        label: t("team.credit.available", {
           defaultValue: "可用额度",
         }),
         value: value2,
         ariaLabel:
           memberCreditDisplay.status !== "READY"
-            ? t2("team.credit.sidebarAriaAvailableUnavailable", {
+            ? t("team.credit.sidebarAriaAvailableUnavailable", {
                 defaultValue: "可用额度暂不可用",
               })
             : memberCreditDisplay.mode === "LIMITED"
-              ? t2("team.credit.sidebarAriaMemberLimited", {
+              ? t("team.credit.sidebarAriaMemberLimited", {
                   defaultValue:
                     "可用额度 {{available}}，取我的剩余额度和团队剩余积分中较小的值",
                   available: value2,
                 })
-              : t2("team.credit.sidebarAriaMemberUnlimited", {
+              : t("team.credit.sidebarAriaMemberUnlimited", {
                   defaultValue:
                     "可用额度 {{available}}，未设置个人限额，以团队剩余积分为准",
                   available: value2,
@@ -169,22 +169,22 @@ export function TeamAccountSummary({
           ? creditDisplay.mode
           : creditDisplay.status,
       status: creditDisplay.status,
-      label: t2("team.credit.available", {
+      label: t("team.credit.available", {
         defaultValue: "可用额度",
       }),
       value,
       ariaLabel:
         creditDisplay.status !== "READY"
-          ? t2("team.credit.sidebarAriaAvailableUnavailable", {
+          ? t("team.credit.sidebarAriaAvailableUnavailable", {
               defaultValue: "可用额度暂不可用",
             })
           : creditDisplay.mode === "UNLIMITED"
-            ? t2("team.credit.sidebarAriaMemberUnlimited", {
+            ? t("team.credit.sidebarAriaMemberUnlimited", {
                 defaultValue:
                   "可用额度 {{available}}，未设置个人限额，以团队剩余积分为准",
                 available: value,
               })
-            : t2("team.credit.sidebarAriaMemberLimited", {
+            : t("team.credit.sidebarAriaMemberLimited", {
                 defaultValue:
                   "可用额度 {{available}}，取我的剩余额度和团队剩余积分中较小的值",
                 available: value,
@@ -201,7 +201,7 @@ export function TeamAccountSummary({
         className="size-8 rounded-md text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground"
         onClick={onOpenSwitcher}
         disabled={!accountSwitcherAvailable}
-        aria-label={t2("team.switcher.title", {
+        aria-label={t("team.switcher.title", {
           defaultValue: "切换请求与计费 Group",
         })}
         data-action-ui-id="team.account-summary-compact"
@@ -227,7 +227,7 @@ export function TeamAccountSummary({
         onClick={onOpenSwitcher}
         disabled={!accountSwitcherAvailable}
         aria-expanded={switcherExpanded}
-        aria-label={t2("team.switcher.menuLabel", {
+        aria-label={t("team.switcher.menuLabel", {
           defaultValue: "切换账号",
         })}
         data-action-ui-id="team.account-summary-current"
@@ -326,7 +326,7 @@ export function TeamAccountSummary({
           data-action-ui-id="team.account-summary-subscription"
         >
           <span className="min-w-0 flex-1 truncate text-left font-normal text-body-13 text-muted-foreground">
-            {t2("team.account.purchase", {
+            {t("team.account.purchase", {
               defaultValue: "购买",
             })}
           </span>

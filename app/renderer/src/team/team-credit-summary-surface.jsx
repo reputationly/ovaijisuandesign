@@ -10,7 +10,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { TooltipContent } from "../infra/dialog-content.jsx";
 import { formatCreditAmount } from "./team-panel-stale.jsx";
 export function TeamCreditSummarySurface(props) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   if (props.visibility === "team") {
     const {
       status: status2,
@@ -33,7 +33,7 @@ export function TeamCreditSummarySurface(props) {
             className="break-words text-xs text-muted-foreground"
             data-action-ui-id="team.credit-team-remaining"
           >
-            {t2("team.credit.teamRemaining", {
+            {t("team.credit.teamRemaining", {
               defaultValue: "团队剩余积分",
             })}
           </p>
@@ -46,19 +46,19 @@ export function TeamCreditSummarySurface(props) {
             <div>
               <dt className="break-words text-muted-foreground">
                 {mode22 === "UNLIMITED"
-                  ? t2("team.credit.quotaMode", {
+                  ? t("team.credit.quotaMode", {
                       defaultValue: "个人额度",
                     })
-                  : t2("team.credit.quotaUsage", {
+                  : t("team.credit.quotaUsage", {
                       defaultValue: "额度使用",
                     })}
               </dt>
               <dd className="mt-1 break-words font-medium text-foreground tabular-nums">
                 {mode22 === "UNLIMITED"
-                  ? t2("team.credit.unlimited", {
+                  ? t("team.credit.unlimited", {
                       defaultValue: "无限额",
                     })
-                  : t2("team.credit.quotaUsageValue", {
+                  : t("team.credit.quotaUsageValue", {
                       defaultValue: "已用 {{used}} / 个人限额 {{limit}}",
                       used: formatCreditAmount(memberUsed2 ?? ""),
                       limit: formatCreditAmount(memberLimit2 ?? ""),
@@ -83,7 +83,7 @@ export function TeamCreditSummarySurface(props) {
   const isManager = props.visibility === "manager-self";
   const usageAvailable =
     status === "READY" && mode2 === "LIMITED" && showUsageDetails;
-  const unavailableHelp = t2("team.credit.availableUnavailableHelp", {
+  const unavailableHelp = t("team.credit.availableUnavailableHelp", {
     defaultValue: "额度数据暂不可用，请稍后重试。",
   });
   const helpContent = (() => {
@@ -92,11 +92,11 @@ export function TeamCreditSummarySurface(props) {
       return (
         <p>
           {mode2 === "LIMITED"
-            ? t2("team.credit.memberLimitedAvailableRule", {
+            ? t("team.credit.memberLimitedAvailableRule", {
                 defaultValue:
                   "可用额度取我的剩余额度和团队剩余积分中较小的值。",
               })
-            : t2("team.credit.memberUnlimitedAvailableRule", {
+            : t("team.credit.memberUnlimitedAvailableRule", {
                 defaultValue: "未设置个人限额，可用额度以团队剩余积分为准。",
               })}
         </p>
@@ -106,13 +106,13 @@ export function TeamCreditSummarySurface(props) {
       return (
         <div className="space-y-1">
           <p>
-            {t2("team.credit.managerMemberRemaining", {
+            {t("team.credit.managerMemberRemaining", {
               defaultValue: "我的剩余额度：{{remaining}}",
               remaining: formatCreditAmount(memberRemaining ?? ""),
             })}
           </p>
           <p>
-            {t2("team.credit.managerTeamRemaining", {
+            {t("team.credit.managerTeamRemaining", {
               defaultValue: "团队剩余积分：{{team}}",
               team:
                 props.teamRemaining === null
@@ -121,7 +121,7 @@ export function TeamCreditSummarySurface(props) {
             })}
           </p>
           <p>
-            {t2("team.credit.managerLimitedAvailableRule", {
+            {t("team.credit.managerLimitedAvailableRule", {
               defaultValue: "可用额度取我的剩余额度和团队剩余积分中较小的值。",
             })}
           </p>
@@ -131,12 +131,12 @@ export function TeamCreditSummarySurface(props) {
     return (
       <div className="space-y-1">
         <p>
-          {t2("team.credit.managerUnlimitedMember", {
+          {t("team.credit.managerUnlimitedMember", {
             defaultValue: "我的积分额度：无限额",
           })}
         </p>
         <p>
-          {t2("team.credit.managerTeamRemaining", {
+          {t("team.credit.managerTeamRemaining", {
             defaultValue: "团队剩余积分：{{team}}",
             team:
               props.teamRemaining === null
@@ -145,7 +145,7 @@ export function TeamCreditSummarySurface(props) {
           })}
         </p>
         <p>
-          {t2("team.credit.managerUnlimitedAvailableRule", {
+          {t("team.credit.managerUnlimitedAvailableRule", {
             defaultValue: "未设置个人限额时，可用额度以团队剩余积分为准。",
           })}
         </p>
@@ -163,7 +163,7 @@ export function TeamCreditSummarySurface(props) {
       <div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <span>
-            {t2("team.credit.available", {
+            {t("team.credit.available", {
               defaultValue: "可用额度",
             })}
           </span>
@@ -174,7 +174,7 @@ export function TeamCreditSummarySurface(props) {
                   <button
                     type="button"
                     className="inline-flex size-4 items-center justify-center text-muted-foreground hover:text-foreground"
-                    aria-label={t2("team.credit.availableHelp", {
+                    aria-label={t("team.credit.availableHelp", {
                       defaultValue: "可用额度说明",
                     })}
                     data-action-ui-id="team.credit-available-info"
@@ -200,12 +200,12 @@ export function TeamCreditSummarySurface(props) {
         <dl className="grid gap-3 border-y border-border py-3 text-xs">
           <div>
             <dt className="break-words text-muted-foreground">
-              {t2("team.credit.quotaUsage", {
+              {t("team.credit.quotaUsage", {
                 defaultValue: "额度使用",
               })}
             </dt>
             <dd className="mt-1 break-words font-medium text-foreground tabular-nums">
-              {t2("team.credit.quotaUsageValue", {
+              {t("team.credit.quotaUsageValue", {
                 defaultValue: "已用 {{used}} / 个人限额 {{limit}}",
                 used: formatCreditAmount(memberUsed ?? ""),
                 limit: formatCreditAmount(memberLimit ?? ""),

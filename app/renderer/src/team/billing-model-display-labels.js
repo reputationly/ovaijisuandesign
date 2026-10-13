@@ -158,13 +158,13 @@ function isMiniMaxH3BillingKey(model) {
   );
 }
 
-function getBillingModelLabel(model, t2, region) {
+function getBillingModelLabel(model, t, region) {
   const normalized = model?.trim();
   if (!normalized) return void 0;
   const normalizedBillingKey = normalized.toLowerCase();
   if (normalizedBillingKey === MINIMAX_H3_MAX_BILLING_KEY) {
-    return t2
-      ? t2("credits.minimaxH3Max", {
+    return t
+      ? t("credits.minimaxH3Max", {
           defaultValue: "MiniMax H3 Max",
         })
       : "MiniMax H3 Max";
@@ -186,8 +186,8 @@ function getBillingModelLabel(model, t2, region) {
       : void 0);
   if (label) {
     const fallback = redactModelAliasesForDisplay(label.fallback, region);
-    return label.key && t2
-      ? t2(label.key, {
+    return label.key && t
+      ? t(label.key, {
           defaultValue: fallback,
         })
       : fallback;
@@ -221,13 +221,13 @@ function getCatalogModelDisplayName(metadata, models) {
   return match2?.display_name.trim() || void 0;
 }
 
-export function getBillingModelDisplayName(metadata, t2, models) {
+export function getBillingModelDisplayName(metadata, t, models) {
   const isAgent =
     metadata.billingType.trim().toLowerCase() === "token" ||
     metadata.mediaType.trim().toLowerCase() === "agent";
   if (isAgent) {
-    return t2
-      ? t2("credits.tabAgent", {
+    return t
+      ? t("credits.tabAgent", {
           defaultValue: AGENT_DISPLAY_NAME,
         })
       : AGENT_DISPLAY_NAME;
@@ -242,8 +242,8 @@ export function getBillingModelDisplayName(metadata, t2, models) {
   if (catalogDisplayName)
     return redactModelAliasesForDisplay(catalogDisplayName, region);
   const billingModelLabel =
-    getBillingModelLabel(modelKey, t2, region) ??
-    getBillingModelLabel(metadata.modelDisplayName, t2, region);
+    getBillingModelLabel(modelKey, t, region) ??
+    getBillingModelLabel(metadata.modelDisplayName, t, region);
   if (billingModelLabel) return billingModelLabel;
   if (displayName2 && (!rawModelKey || displayName2 !== rawModelKey)) {
     if (normalizeLegacyModelId(displayName2) !== displayName2) {

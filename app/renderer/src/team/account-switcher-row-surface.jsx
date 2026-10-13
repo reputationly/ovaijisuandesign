@@ -36,7 +36,7 @@ export function AccountSwitcherRowSurface({
   onClick,
 }) {
   const reasonId = reactExports.useId();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const unavailable = disabled2 && !active2 && Boolean(disabledReason);
   const nativeDisabled = active2 || (disabled2 && !disabledReason);
   const content2 = (
@@ -62,7 +62,7 @@ export function AccountSwitcherRowSurface({
         </span>
         {groupId2 ? (
           <span className="block truncate text-caption-11 font-normal text-muted-foreground">
-            {t2("team.management.groupId", {
+            {t("team.management.groupId", {
               defaultValue: "Group ID",
             })}
             {": "}

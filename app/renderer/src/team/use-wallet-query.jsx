@@ -33,35 +33,35 @@ export function Skeleton({ className, ...props }) {
   );
 }
 function sanitizeWalletInfo(raw2) {
-  const toNum = (v2) => {
-    if (typeof v2 === "number") return v2;
-    if (typeof v2 === "string" && v2 !== "") {
-      const n2 = Number(v2);
-      return Number.isFinite(n2) ? n2 : 0;
+  const toNum = (value) => {
+    if (typeof value === "number") return value;
+    if (typeof value === "string" && value !== "") {
+      const parsedNumber = Number(value);
+      return Number.isFinite(parsedNumber) ? parsedNumber : 0;
     }
     return 0;
   };
-  const toCreditNum = (v2, source) => {
-    if (typeof v2 === "string" && v2 !== "" && !Number.isFinite(Number(v2))) {
+  const toCreditNum = (value, source) => {
+    if (typeof value === "string" && value !== "" && !Number.isFinite(Number(value))) {
       creditLog.warn("wallet.total_credit_coerced_zero", {
         source,
-        raw: v2,
+        raw: value,
       });
     }
-    return toNum(v2);
+    return toNum(value);
   };
   return {
     ...raw2,
     migrate_end_time: toNum(raw2.migrate_end_time),
-    wallets: (raw2.wallets ?? []).map((w3) => ({
-      ...w3,
-      total_credit: toCreditNum(w3.total_credit, w3.source),
-      debit_credit: toNum(w3.debit_credit),
-      sub_credits: (w3.sub_credits ?? []).map((sc) => ({
-        ...sc,
-        credit: toNum(sc.credit),
-        end_time: toNum(sc.end_time),
-        records: (sc.records ?? []).map((record2) => ({
+    wallets: (raw2.wallets ?? []).map((wallet) => ({
+      ...wallet,
+      total_credit: toCreditNum(wallet.total_credit, wallet.source),
+      debit_credit: toNum(wallet.debit_credit),
+      sub_credits: (wallet.sub_credits ?? []).map((subCredit) => ({
+        ...subCredit,
+        credit: toNum(subCredit.credit),
+        end_time: toNum(subCredit.end_time),
+        records: (subCredit.records ?? []).map((record2) => ({
           ...record2,
           credit: toNum(record2.credit),
           end_time: toNum(record2.end_time),

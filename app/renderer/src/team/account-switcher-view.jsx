@@ -88,7 +88,7 @@ export function AccountSwitcherView({
   onSwitchComplete,
   showSectionHeadings = !embedded,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const {
     integrationEnabled,
     snapshot: snapshot2,
@@ -168,34 +168,34 @@ export function AccountSwitcherView({
   const getSwitchDisabledReason = (item) => {
     if (switchingGroupId !== null) return void 0;
     if (contextsStale) {
-      return t2("team.common.refreshFailedDescription", {
+      return t("team.common.refreshFailedDescription", {
         defaultValue: "暂时无法获取最新数据，请重试以确认当前状态。",
       });
     }
     if (item.lifecycle === "DISSOLVED") {
-      return t2("team.reason.resource_closed", {
+      return t("team.reason.resource_closed", {
         defaultValue: "该团队已解散。",
       });
     }
     if (!item.switchDecision.allowed) {
-      return getTeamReasonText(t2, item.switchDecision.reasonCode);
+      return getTeamReasonText(t, item.switchDecision.reasonCode);
     }
     return void 0;
   };
-  const createLabel = t2("team.create.title", {
+  const createLabel = t("team.create.title", {
     defaultValue: "创建团队",
   });
-  const personalAccountLabel = t2("team.account.personal", {
+  const personalAccountLabel = t("team.account.personal", {
     defaultValue: "个人账号",
   });
   const createUnavailableReason = capabilitiesQuery.isError
-    ? getTeamReasonText(t2, "user_capability_unavailable")
+    ? getTeamReasonText(t, "user_capability_unavailable")
     : capabilitiesQuery.isPending && !capabilitiesQuery.data
-      ? t2("team.gated.permissionsSyncing", {
+      ? t("team.gated.permissionsSyncing", {
           defaultValue: "正在确认团队权限",
         })
       : capabilitiesQuery.data && !capabilitiesQuery.data.createTeam.allowed
-        ? getTeamReasonText(t2, capabilitiesQuery.data.createTeam.reasonCode)
+        ? getTeamReasonText(t, capabilitiesQuery.data.createTeam.reasonCode)
         : null;
   if (!integrationEnabled) return null;
   return (
@@ -214,7 +214,7 @@ export function AccountSwitcherView({
               size="icon-sm"
               className="shrink-0"
               onClick={onBack}
-              aria-label={t2("common.back", {
+              aria-label={t("common.back", {
                 defaultValue: "返回",
               })}
               data-action-ui-id="team.account-switcher-back"
@@ -223,7 +223,7 @@ export function AccountSwitcherView({
             </Button>
           ) : null}
           <p className="min-w-0 flex-1 truncate whitespace-nowrap font-medium text-body-14 text-foreground">
-            {t2("team.switcher.title", {
+            {t("team.switcher.title", {
               defaultValue: "切换请求与计费 Group",
             })}
           </p>
@@ -253,7 +253,7 @@ export function AccountSwitcherView({
           >
             <Spinner />
             <span className="sr-only">
-              {t2("common.loading", {
+              {t("common.loading", {
                 defaultValue: "加载中…",
               })}
             </span>
@@ -262,7 +262,7 @@ export function AccountSwitcherView({
         {query.isError && !query.data ? (
           <div role="alert" className="space-y-2 px-3 py-4 text-center">
             <p className="text-xs text-muted-foreground">
-              {t2("team.switcher.loadFailed", {
+              {t("team.switcher.loadFailed", {
                 defaultValue: "账号列表加载失败",
               })}
             </p>
@@ -280,7 +280,7 @@ export function AccountSwitcherView({
               }}
               data-action-ui-id="team.account-switcher-retry"
             >
-              {t2("common.retry", {
+              {t("common.retry", {
                 defaultValue: "重试",
               })}
             </Button>
@@ -298,7 +298,7 @@ export function AccountSwitcherView({
                       ? result.error.message
                       : "refresh_failed";
                   dedupedToast.error(
-                    t2("team.common.refreshFailedToast", {
+                    t("team.common.refreshFailedToast", {
                       defaultValue: "刷新失败：{{code}}",
                       code: code2,
                     }),
@@ -306,7 +306,7 @@ export function AccountSwitcherView({
                   return;
                 }
                 dedupedToast.success(
-                  t2("team.common.refreshOk", {
+                  t("team.common.refreshOk", {
                     defaultValue: "数据已刷新",
                   }),
                 );
@@ -323,7 +323,7 @@ export function AccountSwitcherView({
             <div key={item.groupId}>
               {showSectionHeadings && showHeading ? (
                 <p className="px-2 pt-2 pb-1 text-caption-11 font-normal text-foreground/30">
-                  {t2(`team.switcher.section.${section}`, {
+                  {t(`team.switcher.section.${section}`, {
                     defaultValue:
                       section === "personal"
                         ? "Personal"
@@ -348,7 +348,7 @@ export function AccountSwitcherView({
                 loading={switchingGroupId === item.groupId}
                 meta={
                   presentation.showsTeamMetadata && item.role
-                    ? t2(`team.role.${item.role.toLowerCase()}`, {
+                    ? t(`team.role.${item.role.toLowerCase()}`, {
                         defaultValue: item.role,
                       })
                     : void 0

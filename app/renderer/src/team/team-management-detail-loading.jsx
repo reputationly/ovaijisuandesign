@@ -21,7 +21,7 @@ import {
   TooltipTrigger,
 } from "../vendor-inline/vscode-base/graph.jsx";
 import { Skeleton } from "./use-wallet-query.jsx";
-const ProgressTrack$1 = reactExports.forwardRef(
+const ProgressTrackPrimitive = reactExports.forwardRef(
   function ProgressTrack2(componentProps, forwardedRef) {
     const { render: render2, className, ...elementProps } = componentProps;
     const { state: state2 } = useProgressRootContext();
@@ -34,7 +34,7 @@ const ProgressTrack$1 = reactExports.forwardRef(
     return element2;
   },
 );
-const ProgressIndicator$1 = reactExports.forwardRef(
+const ProgressIndicatorPrimitive = reactExports.forwardRef(
   function ProgressIndicator2(componentProps, forwardedRef) {
     const { render: render2, className, ...elementProps } = componentProps;
     const {
@@ -104,7 +104,7 @@ export function TeamHelpTip({
 const DETAIL_MEMBER_ROW_IDS = ["first", "second", "third"];
 const DETAIL_QUOTA_CELL_IDS = ["default", "remaining", "members"];
 export function TeamManagementDetailLoading() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       role="status"
@@ -113,7 +113,7 @@ export function TeamManagementDetailLoading() {
       data-action-ui-id="team.management-detail-loading"
     >
       <span className="sr-only">
-        {t2("common.loading", {
+        {t("common.loading", {
           defaultValue: "加载中…",
         })}
       </span>
@@ -183,7 +183,7 @@ export function TeamManagementDetailLoading() {
 }
 const MEMBER_ROW_IDS = ["first", "second", "third", "fourth"];
 export function TeamManagementMemberLoading() {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       role="status"
@@ -192,7 +192,7 @@ export function TeamManagementMemberLoading() {
       data-action-ui-id="team.management-members-loading"
     >
       <span className="sr-only">
-        {t2("common.loading", {
+        {t("common.loading", {
           defaultValue: "加载中…",
         })}
       </span>
@@ -281,7 +281,7 @@ export function TeamManagementQuotaMetrics({ metrics }) {
 }
 export function ProgressTrack({ className, ...props }) {
   return (
-    <ProgressTrack$1
+    <ProgressTrackPrimitive
       className={cn(
         "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
         className,
@@ -293,7 +293,7 @@ export function ProgressTrack({ className, ...props }) {
 }
 export function ProgressIndicator({ className, ...props }) {
   return (
-    <ProgressIndicator$1
+    <ProgressIndicatorPrimitive
       data-slot="progress-indicator"
       className={cn("h-full bg-primary transition-all", className)}
       {...props}

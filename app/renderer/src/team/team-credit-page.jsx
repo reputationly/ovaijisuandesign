@@ -66,7 +66,7 @@ function useTeamWalletCreditSummary(scope, enabled = true) {
     retry: false,
   });
   const mpWallet = query.data?.wallets?.find(
-    (w3) => w3.source === WalletSource.WALLET_SOURCE_OP,
+    (wallet) => wallet.source === WalletSource.WALLET_SOURCE_OP,
   );
   const summary = deriveMpCreditSummary(mpWallet);
   const trusted =
@@ -85,25 +85,25 @@ function BreakdownOperator({ symbol }) {
   );
 }
 function TeamCreditBreakdownRow({ teamRemaining, summary }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const parts = [
     {
       key: "membership",
-      label: t2("credits.membership", {
+      label: t("credits.membership", {
         defaultValue: "订阅",
       }),
       value: summary.membership,
     },
     {
       key: "topUp",
-      label: t2("credits.topUp", {
+      label: t("credits.topUp", {
         defaultValue: "充值",
       }),
       value: summary.topUp,
     },
     {
       key: "transfer",
-      label: t2("credits.transfer", {
+      label: t("credits.transfer", {
         defaultValue: "转移",
       }),
       value: summary.transfer,
@@ -116,7 +116,7 @@ function TeamCreditBreakdownRow({ teamRemaining, summary }) {
     >
       <div className="min-w-0" data-action-ui-id="team.credit-team-remaining">
         <div className="mb-1.5 truncate text-xs text-muted-foreground">
-          {t2("credits.remaining", {
+          {t("credits.remaining", {
             defaultValue: "剩余",
           })}
         </div>
@@ -344,17 +344,17 @@ const LEDGER_TAB = {
 };
 function formatTransferCounterparty(transfer) {
   const name2 = transfer.counterpartyGroupName;
-  const id2 = transfer.counterpartyGroupId;
-  if (!name2 && !id2) return "—";
+  const counterpartyGroupId = transfer.counterpartyGroupId;
+  if (!name2 && !counterpartyGroupId) return "—";
   return (
     <span className="flex min-w-0 flex-wrap items-baseline gap-x-1">
       {name2 ? <span className="min-w-0 break-words">{name2}</span> : null}
-      {name2 && id2 ? (
+      {name2 && counterpartyGroupId ? (
         <span className="shrink-0 text-muted-foreground">/</span>
       ) : null}
-      {id2 ? (
+      {counterpartyGroupId ? (
         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-          {id2}
+          {counterpartyGroupId}
         </span>
       ) : null}
     </span>
@@ -367,7 +367,7 @@ function amountTone(amount) {
   return "neutral";
 }
 export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { data: mediaModels } = useMediaModels();
   const queryClient2 = useQueryClient();
   const { accountDataVisible, contract } = useTeamAccount();
@@ -514,13 +514,13 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     ) ?? null;
   const refreshOnOpenRef = reactExports.useRef(false);
   const formatDescription = (transaction) =>
-    t2(`team.transaction.${transaction.category}`, {
+    t(`team.transaction.${transaction.category}`, {
       defaultValue: transaction.category,
       ...transaction.localizationParams,
     });
   const formatModel = (transaction) =>
     transaction.category === "GRANT" || transaction.category === "EXPIRED"
-      ? (getPackageCreditCategoryLabel(transaction.creditCategory, t2) ?? "")
+      ? (getPackageCreditCategoryLabel(transaction.creditCategory, t) ?? "")
       : getBillingModelDisplayName(
           {
             billingType: transaction.billingType,
@@ -528,7 +528,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
             modelDisplayName: transaction.modelDisplayName,
             mediaType: transaction.mediaType,
           },
-          t2,
+          t,
           mediaModels,
         );
   const formatAmount = (transaction) => formatCreditAmount(transaction.amount);
@@ -536,30 +536,30 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     formatConsumerLabel(transaction.userName, transaction.memberUid) ?? void 0;
   const formatTransferDirection = (direction) =>
     direction === "IN"
-      ? t2("team.credit.transferIn", {
+      ? t("team.credit.transferIn", {
           defaultValue: "转入",
         })
       : direction === "OUT"
-        ? t2("team.credit.transferOut", {
+        ? t("team.credit.transferOut", {
             defaultValue: "转出",
           })
         : "—";
   const formatDirection = (direction) => {
     switch (direction) {
       case "consume":
-        return t2("team.credit.directionConsume", {
+        return t("team.credit.directionConsume", {
           defaultValue: "扣费",
         });
       case "refund":
-        return t2("team.credit.directionRefund", {
+        return t("team.credit.directionRefund", {
           defaultValue: "退费",
         });
       case "grant":
-        return t2("team.credit.directionGrant", {
+        return t("team.credit.directionGrant", {
           defaultValue: "发放",
         });
       case "expired":
-        return t2("team.credit.directionExpired", {
+        return t("team.credit.directionExpired", {
           defaultValue: "过期",
         });
       default:
@@ -594,28 +594,28 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
         (rows) =>
           buildCreditLedgerCsv(rows, {
             labels: {
-              time: t2("team.credit.time", {
+              time: t("team.credit.time", {
                 defaultValue: "时间",
               }),
-              operator: t2("team.credit.operator", {
+              operator: t("team.credit.operator", {
                 defaultValue: "消耗人",
               }),
-              memberUid: t2("team.credit.memberUid", {
+              memberUid: t("team.credit.memberUid", {
                 defaultValue: "UID",
               }),
-              description: t2("team.credit.transaction", {
+              description: t("team.credit.transaction", {
                 defaultValue: "类型",
               }),
-              model: t2("team.credit.model", {
+              model: t("team.credit.model", {
                 defaultValue: "模型",
               }),
-              amount: t2("team.credit.amount", {
+              amount: t("team.credit.amount", {
                 defaultValue: "积分",
               }),
-              direction: t2("team.credit.direction", {
+              direction: t("team.credit.direction", {
                 defaultValue: "方向",
               }),
-              transactionId: t2("team.credit.transactionId", {
+              transactionId: t("team.credit.transactionId", {
                 defaultValue: "交易 ID",
               }),
             },
@@ -633,7 +633,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
               ? error.message
               : "export_failed";
         dedupedToast.error(
-          t2("team.credit.exportFailed", {
+          t("team.credit.exportFailed", {
             defaultValue: "导出失败：{{code}}",
             code: code2,
           }),
@@ -642,13 +642,13 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
       });
     if (result === "ok") {
       dedupedToast.success(
-        t2("team.credit.exportOk", {
+        t("team.credit.exportOk", {
           defaultValue: "已导出 CSV",
         }),
       );
     } else if (result === "empty") {
       dedupedToast.info(
-        t2("team.credit.empty", {
+        t("team.credit.empty", {
           defaultValue: "暂无积分流水",
         }),
       );
@@ -690,11 +690,11 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
     >
       <Download className="size-4" />
       {ledgerExport.exporting
-        ? t2("team.credit.exporting", {
+        ? t("team.credit.exporting", {
             defaultValue: "导出中…{{loaded}}",
             loaded: ledgerExport.loadedCount,
           })
-        : t2("team.credit.exportCsv", {
+        : t("team.credit.exportCsv", {
             defaultValue: "导出 CSV",
           })}
     </Button>
@@ -745,7 +745,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
               const failed = results.filter((result) => result.isError);
               if (failed.length === 0) {
                 dedupedToast.success(
-                  t2("team.common.refreshOk", {
+                  t("team.common.refreshOk", {
                     defaultValue: "数据已刷新",
                   }),
                 );
@@ -759,7 +759,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                     ? firstError.message
                     : "refresh_failed";
               dedupedToast.error(
-                t2("team.common.refreshFailedToast", {
+                t("team.common.refreshFailedToast", {
                   defaultValue: "刷新失败：{{code}}",
                   code: code2,
                 }),
@@ -818,7 +818,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                     data-action-ui-id="team.credit-team-remaining"
                   >
                     <span>
-                      {t2("team.credit.teamRemaining", {
+                      {t("team.credit.teamRemaining", {
                         defaultValue: "团队剩余积分",
                       })}
                     </span>
@@ -845,33 +845,33 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                 descriptionLabel={
                   ledgerScope === "GROUP"
                     ? void 0
-                    : t2("team.credit.transaction", {
+                    : t("team.credit.transaction", {
                         defaultValue: "类型",
                       })
                 }
-                modelLabel={t2("team.credit.model", {
+                modelLabel={t("team.credit.model", {
                   defaultValue: "模型",
                 })}
                 operatorLabel={
                   ledgerScope === "GROUP"
-                    ? t2("team.credit.operator", {
+                    ? t("team.credit.operator", {
                         defaultValue: "消耗人",
                       })
                     : void 0
                 }
-                timeLabel={t2("team.credit.time", {
+                timeLabel={t("team.credit.time", {
                   defaultValue: "时间",
                 })}
-                amountLabel={t2("team.credit.amount", {
+                amountLabel={t("team.credit.amount", {
                   defaultValue: "积分",
                 })}
-                emptyLabel={t2("team.credit.empty", {
+                emptyLabel={t("team.credit.empty", {
                   defaultValue: "暂无积分流水",
                 })}
-                errorLabel={t2("team.common.loadFailed", {
+                errorLabel={t("team.common.loadFailed", {
                   defaultValue: "加载失败",
                 })}
-                retryLabel={t2("common.retry", {
+                retryLabel={t("common.retry", {
                   defaultValue: "重试",
                 })}
                 onRetry={() => void detailQuery.refetch()}
@@ -918,7 +918,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                     value={LEDGER_TAB.INTERNAL}
                     data-action-ui-id="team.credit-tab-internal"
                   >
-                    {t2("team.credit.tabInternal", {
+                    {t("team.credit.tabInternal", {
                       defaultValue: "内部明细",
                     })}
                   </TabsTrigger>
@@ -926,7 +926,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                     value={LEDGER_TAB.TRANSFER}
                     data-action-ui-id="team.credit-tab-transfer"
                   >
-                    {t2("team.credit.tabTransfer", {
+                    {t("team.credit.tabTransfer", {
                       defaultValue: "积分转移",
                     })}
                   </TabsTrigger>
@@ -971,25 +971,25 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                       loading={transfersQuery.isPending && !transfersQuery.data}
                       error={transfersQuery.isError && !transfersQuery.data}
                       scrollable={false}
-                      descriptionLabel={t2("team.credit.transferType", {
+                      descriptionLabel={t("team.credit.transferType", {
                         defaultValue: "类型",
                       })}
-                      modelLabel={t2("team.credit.transferCounterparty", {
+                      modelLabel={t("team.credit.transferCounterparty", {
                         defaultValue: "团队 / 账号",
                       })}
-                      timeLabel={t2("team.credit.time", {
+                      timeLabel={t("team.credit.time", {
                         defaultValue: "时间",
                       })}
-                      amountLabel={t2("team.credit.amount", {
+                      amountLabel={t("team.credit.amount", {
                         defaultValue: "积分",
                       })}
-                      emptyLabel={t2("team.credit.transferEmpty", {
+                      emptyLabel={t("team.credit.transferEmpty", {
                         defaultValue: "暂无积分转移",
                       })}
-                      errorLabel={t2("team.common.loadFailed", {
+                      errorLabel={t("team.common.loadFailed", {
                         defaultValue: "加载失败",
                       })}
-                      retryLabel={t2("common.retry", {
+                      retryLabel={t("common.retry", {
                         defaultValue: "重试",
                       })}
                       onRetry={() => void transfersQuery.refetch()}
@@ -1009,7 +1009,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                               ? result.error.message
                               : "refresh_failed";
                         dedupedToast.error(
-                          t2("team.common.refreshFailedToast", {
+                          t("team.common.refreshFailedToast", {
                             defaultValue: "刷新失败：{{code}}",
                             code: code2,
                           }),
@@ -1017,7 +1017,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                         return;
                       }
                       dedupedToast.success(
-                        t2("team.common.refreshOk", {
+                        t("team.common.refreshOk", {
                           defaultValue: "数据已刷新",
                         }),
                       );
@@ -1054,33 +1054,33 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                       descriptionLabel={
                         ledgerScope === "GROUP"
                           ? void 0
-                          : t2("team.credit.transaction", {
+                          : t("team.credit.transaction", {
                               defaultValue: "类型",
                             })
                       }
-                      modelLabel={t2("team.credit.model", {
+                      modelLabel={t("team.credit.model", {
                         defaultValue: "模型",
                       })}
                       operatorLabel={
                         ledgerScope === "GROUP"
-                          ? t2("team.credit.operator", {
+                          ? t("team.credit.operator", {
                               defaultValue: "消耗人",
                             })
                           : void 0
                       }
-                      timeLabel={t2("team.credit.time", {
+                      timeLabel={t("team.credit.time", {
                         defaultValue: "时间",
                       })}
-                      amountLabel={t2("team.credit.amount", {
+                      amountLabel={t("team.credit.amount", {
                         defaultValue: "积分",
                       })}
-                      emptyLabel={t2("team.credit.empty", {
+                      emptyLabel={t("team.credit.empty", {
                         defaultValue: "暂无积分流水",
                       })}
-                      errorLabel={t2("team.common.loadFailed", {
+                      errorLabel={t("team.common.loadFailed", {
                         defaultValue: "加载失败",
                       })}
-                      retryLabel={t2("common.retry", {
+                      retryLabel={t("common.retry", {
                         defaultValue: "重试",
                       })}
                       onRetry={() => void transactionsQuery.refetch()}
@@ -1093,7 +1093,7 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                     data-action-ui-id="team.credit-total-used"
                   >
                     <span className="text-muted-foreground">
-                      {t2("team.credit.totalUsed", {
+                      {t("team.credit.totalUsed", {
                         defaultValue: "消耗总计",
                       })}
                     </span>
@@ -1113,33 +1113,33 @@ export function TeamCreditPage({ open, scope, ledgerScope = "SELF" }) {
                   descriptionLabel={
                     ledgerScope === "GROUP"
                       ? void 0
-                      : t2("team.credit.transaction", {
+                      : t("team.credit.transaction", {
                           defaultValue: "类型",
                         })
                   }
-                  modelLabel={t2("team.credit.model", {
+                  modelLabel={t("team.credit.model", {
                     defaultValue: "模型",
                   })}
                   operatorLabel={
                     ledgerScope === "GROUP"
-                      ? t2("team.credit.operator", {
+                      ? t("team.credit.operator", {
                           defaultValue: "消耗人",
                         })
                       : void 0
                   }
-                  timeLabel={t2("team.credit.time", {
+                  timeLabel={t("team.credit.time", {
                     defaultValue: "时间",
                   })}
-                  amountLabel={t2("team.credit.amount", {
+                  amountLabel={t("team.credit.amount", {
                     defaultValue: "积分",
                   })}
-                  emptyLabel={t2("team.credit.empty", {
+                  emptyLabel={t("team.credit.empty", {
                     defaultValue: "暂无积分流水",
                   })}
-                  errorLabel={t2("team.common.loadFailed", {
+                  errorLabel={t("team.common.loadFailed", {
                     defaultValue: "加载失败",
                   })}
-                  retryLabel={t2("common.retry", {
+                  retryLabel={t("common.retry", {
                     defaultValue: "重试",
                   })}
                   onRetry={() => void detailQuery.refetch()}
