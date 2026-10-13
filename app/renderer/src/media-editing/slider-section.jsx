@@ -7,7 +7,7 @@ import { Button } from "../infra/dialog-content.jsx";
 import { Slider } from "../generation/slider.jsx";
 export function SliderSection() {
   const { t: t2 } = useTranslation();
-  const { theme: theme2, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const id2 = reactExports.useId();
   const [samples, setSamples] = reactExports.useState({
     standard: {
@@ -29,7 +29,7 @@ export function SliderSection() {
       committed: 40,
     },
   });
-  const [range2, setRange] = reactExports.useState([20, 80]);
+  const [range, setRange] = reactExports.useState([20, 80]);
   const [vertical, setVertical] = reactExports.useState(50);
   const [duration, setDuration] = reactExports.useState(8);
   const [fontSize, setFontSize] = reactExports.useState(12);
@@ -40,16 +40,16 @@ export function SliderSection() {
       description={t2("uiSpec.slider.description")}
     >
       <div className="flex flex-wrap gap-1">
-        {["light", "dark", "system"].map((next2) => (
+        {["light", "dark", "system"].map((next) => (
           <Button
-            key={next2}
+            key={next}
             size="xs"
-            variant={theme2 === next2 ? "default" : "outline"}
-            aria-pressed={theme2 === next2}
-            data-action-ui-id={`ui-spec-slider-theme-${next2}`}
-            onClick={() => setTheme(next2)}
+            variant={theme === next ? "default" : "outline"}
+            aria-pressed={theme === next}
+            data-action-ui-id={`ui-spec-slider-theme-${next}`}
+            onClick={() => setTheme(next)}
           >
-            {t2(`uiSpec.slider.theme.${next2}`)}
+            {t2(`uiSpec.slider.theme.${next}`)}
           </Button>
         ))}
       </div>
@@ -117,24 +117,24 @@ export function SliderSection() {
                   "data-action-ui-id": `ui-spec-slider-${variant}`,
                 }}
                 onValueChange={(value) => {
-                  const next2 = Array.isArray(value) ? value[0] : value;
-                  setSamples((current2) => ({
-                    ...current2,
+                  const next = Array.isArray(value) ? value[0] : value;
+                  setSamples((current) => ({
+                    ...current,
                     [variant]: {
-                      ...current2[variant],
-                      value: next2,
-                      changes: current2[variant].changes + 1,
+                      ...current[variant],
+                      value: next,
+                      changes: current[variant].changes + 1,
                     },
                   }));
                 }}
                 onValueCommitted={(value) => {
-                  const next2 = Array.isArray(value) ? value[0] : value;
-                  setSamples((current2) => ({
-                    ...current2,
+                  const next = Array.isArray(value) ? value[0] : value;
+                  setSamples((current) => ({
+                    ...current,
                     [variant]: {
-                      ...current2[variant],
-                      committed: next2,
-                      commits: current2[variant].commits + 1,
+                      ...current[variant],
+                      committed: next,
+                      commits: current[variant].commits + 1,
                     },
                   }));
                 }}
@@ -161,10 +161,10 @@ export function SliderSection() {
                     size="xs"
                     data-action-ui-id={`ui-spec-slider-${variant}-set-${value}`}
                     onClick={() =>
-                      setSamples((current2) => ({
-                        ...current2,
+                      setSamples((current) => ({
+                        ...current,
                         [variant]: {
-                          ...current2[variant],
+                          ...current[variant],
                           value,
                         },
                       }))
@@ -230,8 +230,8 @@ export function SliderSection() {
             }}
           />
           <div className="hilo-slider-field__marks flex justify-between text-xs text-muted-foreground tabular-nums">
-            {[0, 5, 10, 15].map((mark2) => (
-              <span key={mark2}>{mark2}s</span>
+            {[0, 5, 10, 15].map((mark) => (
+              <span key={mark}>{mark}s</span>
             ))}
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
@@ -263,10 +263,10 @@ export function SliderSection() {
       </VariantGrid>
       <VariantGrid label={t2("uiSpec.slider.range")}>
         <div className="w-full min-w-0">
-          <output className="text-xs tabular-nums">{range2.join(" – ")}</output>
+          <output className="text-xs tabular-nums">{range.join(" – ")}</output>
           <Slider
             variant="filled"
-            value={range2}
+            value={range}
             onValueChange={(value) =>
               setRange(Array.isArray(value) ? value : [value])
             }

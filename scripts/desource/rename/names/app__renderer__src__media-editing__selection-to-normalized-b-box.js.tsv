@@ -1,0 +1,2 @@
+key	new	依据
+n2@9:9	toNormalizedCoordinate	将选择框坐标缩放到 0–999 的整数范围并夹取边界，供规范化边界框返回值使用。
