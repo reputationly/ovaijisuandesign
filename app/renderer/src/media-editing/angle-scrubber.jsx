@@ -254,7 +254,7 @@ function AngleInput({ value, onChange }) {
 function ImageRotateEditToolbarInner({
   angle,
   onAngleChange,
-  onRotate90: onRotate9,
+  onRotate90,
   flipH,
   flipV,
   onFlipHorizontal,
@@ -288,7 +288,7 @@ function ImageRotateEditToolbarInner({
         <AngleInput value={angle} onChange={onAngleChange} />
         <Divider />
         <IconButton
-          onClick={onRotate9}
+          onClick={onRotate90}
           title={t("canvas.rotate.step90", {
             degrees: ROTATE_STEP_DEG,
           })}
