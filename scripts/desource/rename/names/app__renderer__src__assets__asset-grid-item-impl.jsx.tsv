@@ -1,0 +1,5 @@
+key	old	new	依据
+t2@66:14	t2	translate	该绑定是缺失素材占位组件读取界面文案的翻译函数。
+e2@238:6	e2	dragEvent	该事件携带拖拽传输对象并设置拖放数据。
+e2@248:6	e2	pointerEvent	该事件提供悬停锚点对应的当前元素。
+e2@293:23	e2	clickEvent	该事件随素材路径传给选择处理函数。

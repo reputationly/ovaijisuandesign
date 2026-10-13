@@ -1,0 +1,26 @@
+key	old	new	依据
+X@2:241	X	CloseIcon	该导入组件用于资产面板中的关闭按钮。
+io2@116:11	io2	intersectionObserver	该对象观察悬停预览锚点是否离开视口。
+id2@159:11	id2	animationFrameId	该值是用于取消定位状态更新的动画帧编号。
+s2@219:13	s2	hoverState	该值是悬停预览宿主当前保存的状态。
+s2@226:13	s2	hoverState	该值是悬停预览宿主当前保存的状态。
+s2@231:13	s2	hoverState	该值是悬停预览宿主当前保存的状态。
+e2@289:22	e2	keyboardEvent	该事件用于在按下 Escape 时关闭浮层。
+t2@297:14	t2	translate	该绑定是关闭按钮读取界面文案的翻译函数。
+e2@303:17	e2	clickEvent	该事件用于阻止关闭按钮点击继续冒泡。
+e2@320:17	e2	clickEvent	该事件用于判断音频灯箱点击是否落在背景上。
+e2@364:17	e2	clickEvent	该事件用于判断文本灯箱点击是否落在背景上。
+t2@390:14	t2	translate	该绑定是搜索输入框读取界面文案的翻译函数。
+e2@398:24	e2	inputEvent	该事件提供搜索输入框当前的值。
+t2@456:14	t2	translate	该绑定是资产面板读取界面文案的翻译函数。
+a2@474:11	a2	downloadLink	该 DOM 节点是触发实体导出的临时链接。
+id2@486:11	id2	debounceTimerId	该编号用于取消搜索输入的延迟更新。
+a2@587:10	a2	candidateAttachment	该回调参数是待匹配的素材附件记录。
+e2@643:31	e2	materializedEntry	该回调参数是包含实体标识的已物化记录。
+e2@646:48	e2	materializedEntry	该回调参数是包含实体标识的已物化记录。
+e2@652:16	e2	entity	该循环项是当前资产中心实体记录。
+e2@669:16	e2	entity	该循环项是当前资产中心实体记录。
+e2@736:33	e2	keyboardEvent	该事件用于响应列表项上的键盘操作。
+e2@787:37	e2	entity	该回调参数是待检查是否已物化的实体记录。
+e2@792:33	e2	keyboardEvent	该事件用于响应列表项上的键盘操作。
+e2@814:36	e2	entity	该回调参数是过滤中的资产中心实体记录。

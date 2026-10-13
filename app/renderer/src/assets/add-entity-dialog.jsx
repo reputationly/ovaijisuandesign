@@ -85,7 +85,7 @@ const TYPE_RULES = {
   },
 };
 export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const [type2, setType] = reactExports.useState(initialType ?? "character");
   const [name2, setName] = reactExports.useState("");
   const [description, setDescription] = reactExports.useState("");
@@ -107,7 +107,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
     !descriptionMissing &&
     !isSubmitting &&
     true &&
-    staged.every((s2) => s2.status !== "error");
+    staged.every((stagedAttachment) => stagedAttachment.status !== "error");
   const reset2 = reactExports.useCallback(() => {
     setType(initialType ?? "character");
     setName("");
@@ -153,22 +153,22 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
     [staged.length, type2],
   );
   const metadata = reactExports.useMemo(() => {
-    const m3 = {};
-    if (tags2.length > 0) m3.tags = tags2;
-    return m3;
+    const entityMetadata = {};
+    if (tags2.length > 0) entityMetadata.tags = tags2;
+    return entityMetadata;
   }, [tags2]);
   const handleSubmit = reactExports.useCallback(async () => {
     if (!canSubmit) return;
     setSubmitError(null);
     const filesForServer = [];
-    for (const s2 of staged) {
-      if (s2.status !== "staged") continue;
+    for (const stagedAttachment of staged) {
+      if (stagedAttachment.status !== "staged") continue;
       const absolutePath =
-        window.hilo?.webUtils?.getPathForFile?.(s2.file) ?? "";
+        window.hilo?.webUtils?.getPathForFile?.(stagedAttachment.file) ?? "";
       if (!absolutePath) {
         setSubmitError(
-          t2("assetCenter.create.errorNoFilePath", {
-            filename: s2.file.name,
+          translate("assetCenter.create.errorNoFilePath", {
+            filename: stagedAttachment.file.name,
           }),
         );
         return;
@@ -176,7 +176,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
       const entry = {
         absolutePath,
       };
-      const userDesc = s2.caption?.trim();
+      const userDesc = stagedAttachment.caption?.trim();
       if (userDesc) entry.user_desc = userDesc;
       filesForServer.push(entry);
     }
@@ -244,7 +244,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
       reset2();
       onClose();
     } catch (err) {
-      setSubmitError(formatAssetCenterError(err, t2));
+      setSubmitError(formatAssetCenterError(err, translate));
       trackAssetCreate({
         source: workspacePath ? "canvas_sidebar" : "asset_center_page",
         method: "manual",
@@ -268,21 +268,21 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
     metadata,
     reset2,
     onClose,
-    t2,
+    translate,
   ]);
   const maxAttachments = rules.maxAttachments;
   return (
     <Dialog
       open={open}
-      onOpenChange={(o2, details) => {
+      onOpenChange={(isOpen, details) => {
         if (
-          !o2 &&
+          !isOpen &&
           (details?.reason === "outside-press" ||
             details?.reason === "focus-out")
         ) {
           return;
         }
-        if (!o2) handleClose();
+        if (!isOpen) handleClose();
       }}
     >
       <DialogContent
@@ -290,9 +290,9 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
         data-action-ui-id="asset-center-add-entity-dialog"
       >
         <DialogHeader className="sr-only">
-          <DialogTitle>{t2("assetCenter.create.title")}</DialogTitle>
+          <DialogTitle>{translate("assetCenter.create.title")}</DialogTitle>
           <DialogDescription>
-            {t2("assetCenter.create.description")}
+            {translate("assetCenter.create.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -300,7 +300,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
             <AtSign size={12} className="shrink-0 text-muted-foreground" />
             <input
               value={name2}
-              onChange={(e2) => setName(e2.target.value)}
+              onChange={(changeEvent) => setName(changeEvent.target.value)}
               onBlur={() => {
                 if (trimmedName) {
                   trackAssetCenterAction({
@@ -312,7 +312,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
                   });
                 }
               }}
-              placeholder={t2("assetCenter.create.namePlaceholder")}
+              placeholder={translate("assetCenter.create.namePlaceholder")}
               className="flex-1 min-w-0 bg-transparent font-heading text-sm font-medium outline-none placeholder:text-muted-foreground/50"
               data-action-ui-id="asset-center-add-entity-name"
             />
@@ -327,7 +327,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
                   variant="secondary"
                   className="text-xs h-6 px-1.5 font-medium gap-0.5 rounded-[4px] text-secondary-foreground"
                 >
-                  {t2(`assetCenter.types.${type2}`)}
+                  {translate(`assetCenter.types.${type2}`)}
                   <ChevronDown size={12} className="text-muted-foreground" />
                 </Badge>
               </DropdownMenuTrigger>
@@ -346,7 +346,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
                       }
                     }}
                   >
-                    {t2(`assetCenter.types.${opt}`)}
+                    {translate(`assetCenter.types.${opt}`)}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -354,7 +354,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
             <div className="w-0.5 h-3 shrink-0 bg-muted-foreground/20 mr-3" />
             <textarea
               value={description}
-              onChange={(e2) => setDescription(e2.target.value)}
+              onChange={(changeEvent) => setDescription(changeEvent.target.value)}
               onBlur={() => {
                 if (trimmedDescription) {
                   trackAssetCenterAction({
@@ -366,7 +366,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
                   });
                 }
               }}
-              placeholder={t2("assetCenter.create.descriptionPlaceholder")}
+              placeholder={translate("assetCenter.create.descriptionPlaceholder")}
               rows={1}
               className="flex-1 min-w-0 bg-transparent text-xs text-muted-foreground outline-none placeholder:text-muted-foreground/40 resize-none field-sizing-content break-words"
               data-action-ui-id="asset-center-add-entity-description"
@@ -384,7 +384,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
           />
           {staged.length > 0 && (
             <span className="text-[10px] text-muted-foreground mb-1 block text-right">
-              {t2("assetCenter.create.attachmentCount", {
+              {translate("assetCenter.create.attachmentCount", {
                 count: staged.length,
               })}
             </span>
@@ -409,7 +409,7 @@ export function AddEntityDialog({ open, onClose, workspacePath, initialType }) {
             data-action-ui-id="asset-center-add-entity-submit"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
-            {t2("assetCenter.create.submitAsset", "创建资产")}
+            {translate("assetCenter.create.submitAsset", "创建资产")}
           </Button>
         </DialogFooter>
       </DialogContent>

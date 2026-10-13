@@ -1,0 +1,22 @@
+key	old	new	依据
+X@2:214	X	CloseIcon	该导入组件在页面的多个关闭控件中绘制关闭图标。
+id2@67:31	id2	entityId	该回调参数是编码后用于批量导出的实体标识。
+qs@71:9	qs	queryString	该字符串保存建议列表请求的 limit 查询参数。
+t2@143:14	t2	translate	该绑定是工具栏读取界面文案的翻译函数。
+e2@200:24	e2	changeEvent	该事件提供文件选择框的文件列表和重置入口。
+e2@238:26	e2	changeEvent	该事件提供搜索输入框变更后的文本值。
+v2@278:35	v2	sortMode	该回调参数是用户选中的排序模式。
+a2@371:10	a2	leftEntity	该排序参数是比较中的左侧实体记录。
+b3@371:14	b3	rightEntity	该排序参数是比较中的右侧实体记录。
+t2@400:14	t2	translate	该绑定是空状态组件读取界面文案的翻译函数。
+a2@480:13	a2	downloadLink	该 DOM 节点是触发实体导出的临时链接。
+t2@535:14	t2	translate	该绑定是导入冲突对话框读取界面文案的翻译函数。
+t2@619:14	t2	translate	该绑定是建议卡片读取界面文案的翻译函数。
+t2@731:14	t2	translate	该绑定是建议面板读取界面文案的翻译函数。
+c3@767:40	c3	isCollapsed	该布尔值表示建议面板当前是否折叠。
+t2@792:14	t2	translate	该绑定是资产中心页面读取界面文案的翻译函数。
+id2@853:18	id2	entityId	该循环值是当前待批量删除的实体标识。
+a2@872:11	a2	downloadLink	该 DOM 节点是触发批量导出的临时链接。
+i2@970:16	i2	fileIndex	该循环索引定位当前正在导入的文件。
+f2@1150:49	f2	failedImport	该回调参数是批量导入失败摘要中的一项。
+w3@1198:48	w3	warning	该回调参数是导入成功结果中的一条警告。

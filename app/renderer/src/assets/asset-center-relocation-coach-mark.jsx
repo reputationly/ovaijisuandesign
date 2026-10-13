@@ -75,7 +75,7 @@ const ASSET_CENTER_NAV_SELECTOR =
   '[data-action-ui-id="home-sidebar-nav-asset-center-coachmark-anchor"]';
 
 export function AssetCenterRelocationCoachMark() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const navigate = useNavigate();
   const [config2, , , configHydrated] = useStorage("global.config");
   const [recentWorkspaces] = useStorage("global.recentWorkspaces");
@@ -195,7 +195,7 @@ export function AssetCenterRelocationCoachMark() {
           await stageWorkspacePreview({
             hiloApp: homeService.hiloApp,
             folderPath: recentEntry.path,
-            t: t2,
+            t: translate,
             onStaged: (entry) =>
               navigate({
                 to: "/workspace",
@@ -207,7 +207,7 @@ export function AssetCenterRelocationCoachMark() {
         );
       }
       return createWorkspace(
-        t2(
+        translate(
           "coachMark.home.assetCenterRelocation.defaultWorkspaceName",
           "New project",
         ),
@@ -234,12 +234,12 @@ export function AssetCenterRelocationCoachMark() {
       anchorEl={anchorEl}
       side="right"
       align="center"
-      title={t2("coachMark.home.assetCenterRelocation.title", "资产中心搬家啦")}
-      description={t2(
+      title={translate("coachMark.home.assetCenterRelocation.title", "资产中心搬家啦")}
+      description={translate(
         "coachMark.home.assetCenterRelocation.desc",
         "资产中心已改名为「主体库」，搬到了创作页（画布）里，让你在创作时更方便地取用素材。",
       )}
-      ctaLabel={t2("coachMark.next", "下一步")}
+      ctaLabel={translate("coachMark.next", "下一步")}
       ctaLoading={ctaLoading}
       stepCurrent={1}
       stepTotal={2}

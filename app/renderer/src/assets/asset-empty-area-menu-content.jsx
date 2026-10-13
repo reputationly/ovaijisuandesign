@@ -20,11 +20,11 @@ import {
 import { ShortcutHint } from "../workspace/shortcut-hint.jsx";
 
 function sortEntries(entries2, fileComparator) {
-  return [...entries2].sort((a2, b3) => {
-    if (a2.isDirectory !== b3.isDirectory) return a2.isDirectory ? -1 : 1;
-    if (a2.isDirectory) return a2.name.localeCompare(b3.name);
-    if (fileComparator) return fileComparator(a2, b3);
-    return a2.name.localeCompare(b3.name);
+  return [...entries2].sort((leftEntry, rightEntry) => {
+    if (leftEntry.isDirectory !== rightEntry.isDirectory) return leftEntry.isDirectory ? -1 : 1;
+    if (leftEntry.isDirectory) return leftEntry.name.localeCompare(rightEntry.name);
+    if (fileComparator) return fileComparator(leftEntry, rightEntry);
+    return leftEntry.name.localeCompare(rightEntry.name);
   });
 }
 
@@ -75,11 +75,11 @@ export function useFlattenTree(tree, expanded, creatingEntry, fileComparator) {
     if (
       creatingEntry &&
       !rows.some(
-        (r2) => r2.entry.path === `${creatingEntry.parentPath}/__creating__`,
+        (treeRow) => treeRow.entry.path === `${creatingEntry.parentPath}/__creating__`,
       )
     ) {
       const isRootLevel = !sortedTree.some(
-        (e2) => e2.isDirectory && e2.path === creatingEntry.parentPath,
+        (directoryEntry) => directoryEntry.isDirectory && directoryEntry.path === creatingEntry.parentPath,
       );
       if (isRootLevel) {
         rows.unshift({
@@ -109,11 +109,11 @@ export function AssetEmptyAreaMenuContent(props) {
     onPaste,
     clipboardHasContent,
   } = props;
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const oppositeViewLabel =
     viewMode === "tree"
-      ? t2("fileExplorer.gridView")
-      : t2("fileExplorer.treeView");
+      ? translate("fileExplorer.gridView")
+      : translate("fileExplorer.treeView");
   return (
     <ActionContextMenuContent>
       <ActionContextMenuItem
@@ -121,7 +121,7 @@ export function AssetEmptyAreaMenuContent(props) {
         data-action-ui-id="asset-panel.menu-new-folder"
       >
         <StrokeIcon icon={FolderPlus} size={14} />
-        {t2("fileExplorer.newFolder", {
+        {translate("fileExplorer.newFolder", {
           defaultValue: "新建文件夹",
         })}
       </ActionContextMenuItem>
@@ -130,7 +130,7 @@ export function AssetEmptyAreaMenuContent(props) {
         data-action-ui-id="asset-panel.menu-import-files"
       >
         <StrokeIcon icon={FileInput} size={14} />
-        {t2("fileExplorer.importFiles", {
+        {translate("fileExplorer.importFiles", {
           defaultValue: "导入文件…",
         })}
       </ActionContextMenuItem>
@@ -140,7 +140,7 @@ export function AssetEmptyAreaMenuContent(props) {
         data-action-ui-id="asset-panel.menu-paste"
       >
         <StrokeIcon icon={ClipboardPaste} size={14} />
-        {t2("fileExplorer.paste", {
+        {translate("fileExplorer.paste", {
           defaultValue: "粘贴",
         })}
         <ContextMenuShortcut>
@@ -157,7 +157,7 @@ export function AssetEmptyAreaMenuContent(props) {
         ) : (
           <StrokeIcon icon={LayoutList} size={14} />
         )}
-        {t2("fileExplorer.switchViewTo", {
+        {translate("fileExplorer.switchViewTo", {
           view: oppositeViewLabel,
         })}
       </ActionContextMenuItem>
@@ -167,7 +167,7 @@ export function AssetEmptyAreaMenuContent(props) {
         data-action-ui-id="asset-panel.menu-refresh"
       >
         <RetryIcon size={16} />
-        {t2("fileExplorer.refreshList")}
+        {translate("fileExplorer.refreshList")}
       </ActionContextMenuItem>
       <ActionContextMenuItem
         onClick={onShowRootInFolder}

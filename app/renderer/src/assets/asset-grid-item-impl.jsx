@@ -63,7 +63,7 @@ function FormatBadge({ ext, className }) {
   );
 }
 function MissingPlaceholder() {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   return (
     <div className="flex flex-col items-center gap-1">
       <AlertTriangle
@@ -72,7 +72,7 @@ function MissingPlaceholder() {
         className="text-foreground/30"
       />
       <span className="text-[9px] text-foreground/30">
-        {t2("fileExplorer.assetMissing")}
+        {translate("fileExplorer.assetMissing")}
       </span>
     </div>
   );
@@ -235,21 +235,21 @@ export function AssetGridItemImpl({
     return base2.slice(dotIdx + 1).toLowerCase();
   }, [asset.path]);
   const handleDragStart = reactExports.useCallback(
-    (e2) => {
-      e2.dataTransfer.setData(
+    (dragEvent) => {
+      dragEvent.dataTransfer.setData(
         RESOURCE_DRAG_MIME,
         buildDragPayload(absolutePath),
       );
-      e2.dataTransfer.effectAllowed = "copyMove";
+      dragEvent.dataTransfer.effectAllowed = "copyMove";
     },
     [buildDragPayload, absolutePath],
   );
   const handlePointerEnter = reactExports.useCallback(
-    (e2) => {
+    (pointerEvent) => {
       if (!onHoverIntent) return;
       onHoverIntent({
         asset,
-        anchor: e2.currentTarget,
+        anchor: pointerEvent.currentTarget,
         absolutePath,
       });
     },
@@ -290,7 +290,7 @@ export function AssetGridItemImpl({
                 ? "bg-foreground/[0.12]"
                 : "hover:bg-foreground/5",
             )}
-            onClick={(e2) => onSelect(asset.path, e2)}
+            onClick={(clickEvent) => onSelect(asset.path, clickEvent)}
             onContextMenu={handleContextMenu}
             onDoubleClick={() => onDoubleClick?.(asset.path)}
             onDragStart={handleDragStart}
