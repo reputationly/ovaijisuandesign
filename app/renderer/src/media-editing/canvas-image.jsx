@@ -36,8 +36,8 @@ class BitmapLru {
   bytes() {
     return this.totalBytes;
   }
-  has(key2) {
-    return this.entries.has(key2);
+  has(key) {
+    return this.entries.has(key);
   }
   /**
    * Acquire a bitmap. Bumps `refCount` and `lastUsed`. Returns null if
@@ -46,8 +46,8 @@ class BitmapLru {
    * The returned bitmap is borrowed; release it via `release(key)` when
    * done so it can become eligible for eviction.
    */
-  acquire(key2) {
-    const entry = this.entries.get(key2);
+  acquire(key) {
+    const entry = this.entries.get(key);
     if (!entry) return null;
     entry.refCount += 1;
     entry.lastUsed = ++this.clock;
@@ -61,11 +61,11 @@ class BitmapLru {
    * Throws if called with a refCount that's already zero — that's a bug
    * in the caller (double-release).
    */
-  release(key2) {
-    const entry = this.entries.get(key2);
+  release(key) {
+    const entry = this.entries.get(key);
     if (!entry) return;
     if (entry.refCount === 0) {
-      throw new Error(`BitmapLru: double release of ${key2}`);
+      throw new Error(`BitmapLru: double release of ${key}`);
     }
     entry.refCount -= 1;
     entry.lastUsed = ++this.clock;
@@ -80,28 +80,28 @@ class BitmapLru {
    *
    * Triggers eviction if over budget afterward.
    */
-  set(key2, bitmap, bytes2) {
-    const existing = this.entries.get(key2);
+  set(key, bitmap, bytes) {
+    const existing = this.entries.get(key);
     if (existing) {
       this.totalBytes -= existing.bytes;
       try {
         existing.bitmap.close();
       } catch {}
       existing.bitmap = bitmap;
-      existing.bytes = bytes2;
+      existing.bytes = bytes;
       existing.lastUsed = ++this.clock;
-      this.totalBytes += bytes2;
+      this.totalBytes += bytes;
       this.evictUntilUnderBudget();
       return existing;
     }
     const entry = {
       bitmap,
-      bytes: bytes2,
+      bytes,
       refCount: 0,
       lastUsed: ++this.clock,
     };
-    this.entries.set(key2, entry);
-    this.totalBytes += bytes2;
+    this.entries.set(key, entry);
+    this.totalBytes += bytes;
     this.evictUntilUnderBudget();
     return entry;
   }
@@ -110,16 +110,16 @@ class BitmapLru {
    * known stale, no point keeping it around). Refuses to drop pinned
    * entries to avoid yanking a bitmap out from under a renderer.
    */
-  delete(key2) {
-    const entry = this.entries.get(key2);
+  delete(key) {
+    const entry = this.entries.get(key);
     if (!entry) return false;
     if (entry.refCount > 0) return false;
-    this.entries.delete(key2);
+    this.entries.delete(key);
     this.totalBytes -= entry.bytes;
     try {
       entry.bitmap.close();
     } catch {}
-    this.opts.onEvict?.(key2, entry);
+    this.opts.onEvict?.(key, entry);
     return true;
   }
   /** Close every entry and drop the table. Used on canvas teardown. */
@@ -153,20 +153,20 @@ class BitmapLru {
     if (this.totalBytes <= this.opts.byteBudget) return;
     const protectedClock = this.clock;
     const eligible = [];
-    for (const [key2, entry] of this.entries) {
+    for (const [key, entry] of this.entries) {
       if (entry.refCount > 0) continue;
       if (entry.lastUsed >= protectedClock) continue;
-      eligible.push([key2, entry]);
+      eligible.push([key, entry]);
     }
     eligible.sort((leftEntry, rightEntry) => leftEntry[1].lastUsed - rightEntry[1].lastUsed);
-    for (const [key2, entry] of eligible) {
+    for (const [key, entry] of eligible) {
       if (this.totalBytes <= this.opts.byteBudget) break;
-      this.entries.delete(key2);
+      this.entries.delete(key);
       this.totalBytes -= entry.bytes;
       try {
         entry.bitmap.close();
       } catch {}
-      this.opts.onEvict?.(key2, entry);
+      this.opts.onEvict?.(key, entry);
     }
     if (this.totalBytes > this.opts.byteBudget) {
       this.opts.onOverBudget?.(this.totalBytes, this.opts.byteBudget);
@@ -177,8 +177,8 @@ class DecodeFailureError extends Error {
   kind;
   /** HTTP status code — only set when `kind === 'http'`. */
   status;
-  constructor(message2, kind, status) {
-    super(message2);
+  constructor(message, kind, status) {
+    super(message);
     this.name = "DecodeFailureError";
     this.kind = kind;
     this.status = status;
@@ -240,9 +240,9 @@ class DecodeWorkerPool {
   taskIdSeq = 0;
   disposed = false;
   constructor(opts = {}) {
-    const size2 = opts.size ?? recommendedPoolSize();
+    const size = opts.size ?? recommendedPoolSize();
     const factory = opts.workerFactory ?? defaultWorkerFactory;
-    for (let workerIndex = 0; workerIndex < size2; workerIndex++) {
+    for (let workerIndex = 0; workerIndex < size; workerIndex++) {
       const worker = factory();
       const slot = {
         worker,
@@ -314,8 +314,8 @@ class DecodeWorkerPool {
   dispose() {
     if (this.disposed) return;
     this.disposed = true;
-    const pending2 = Array.from(this.tasks.values());
-    for (const task of pending2) {
+    const pending = Array.from(this.tasks.values());
+    for (const task of pending) {
       task.cancelled = true;
       task.signalCleanup?.();
       task.reject(makeWorkerAbortError());
@@ -418,8 +418,8 @@ function pickTier(displayWidth, displayPixelRatio) {
   }
   return SIZE_TIERS[SIZE_TIERS.length - 1];
 }
-function bitmapCacheKey(url2, tier, dprBucket) {
-  return `${url2}@${tier}@${dprBucket}`;
+function bitmapCacheKey(url, tier, dprBucket) {
+  return `${url}@${tier}@${dprBucket}`;
 }
 const DEFAULT_BYTE_BUDGET = 512 * 1024 * 1024;
 function defaultDpr() {
@@ -450,9 +450,9 @@ class BitmapManager {
       onEvict: opts.lruOptions?.onEvict,
       onOverBudget:
         opts.lruOptions?.onOverBudget ??
-        ((bytes2, budget) => {
+        ((bytes, budget) => {
           console.warn(
-            `[hilo-canvas] BitmapManager over budget: ${(bytes2 / 1048576).toFixed(1)}MB / ${(budget / 1048576).toFixed(1)}MB`,
+            `[hilo-canvas] BitmapManager over budget: ${(bytes / 1048576).toFixed(1)}MB / ${(budget / 1048576).toFixed(1)}MB`,
           );
         }),
     });
@@ -486,24 +486,24 @@ class BitmapManager {
     const displayPixelRatio = opts.dpr ?? defaultDpr();
     const tier = pickTier(opts.displayWidth, displayPixelRatio);
     const dprBucket = bucketDpr(displayPixelRatio);
-    const key2 = bitmapCacheKey(opts.url, tier, dprBucket);
+    const key = bitmapCacheKey(opts.url, tier, dprBucket);
     if (opts.signal?.aborted) throw makeAbortError();
-    const cached = this.lru.acquire(key2);
+    const cached = this.lru.acquire(key);
     if (cached) {
-      return this.makeHandle(key2, cached);
+      return this.makeHandle(key, cached);
     }
-    let decodePromise = this.inflight.get(key2);
+    let decodePromise = this.inflight.get(key);
     if (!decodePromise) {
       decodePromise = this.startDecode(
         opts.url,
         tier,
         dprBucket,
-        key2,
+        key,
         opts.priority ?? 0,
       );
-      this.inflight.set(key2, decodePromise);
+      this.inflight.set(key, decodePromise);
     }
-    return this.waitForDecode(key2, decodePromise, opts.signal);
+    return this.waitForDecode(key, decodePromise, opts.signal);
   }
   /** Tear down: terminate workers, drop all bitmaps. */
   dispose() {
@@ -514,17 +514,17 @@ class BitmapManager {
     this.inflight.clear();
   }
   // ---- Internals -----------------------------------------------------
-  startDecode(url2, tier, dprBucket, key2, priority) {
+  startDecode(url, tier, dprBucket, key, priority) {
     return this.pool
       .submit({
-        url: url2,
+        url,
         tier,
         dprBucket,
         priority,
       })
       .then((resp) => {
         if (!this.disposed) {
-          this.lru.set(key2, resp.bitmap, resp.bytes);
+          this.lru.set(key, resp.bitmap, resp.bytes);
         } else {
           try {
             resp.bitmap.close();
@@ -537,10 +537,10 @@ class BitmapManager {
         return decodedDimensions;
       })
       .finally(() => {
-        if (this.inflight.get(key2)) this.inflight.delete(key2);
+        if (this.inflight.get(key)) this.inflight.delete(key);
       });
   }
-  waitForDecode(key2, decodePromise, signal) {
+  waitForDecode(key, decodePromise, signal) {
     return new Promise((resolve, reject) => {
       let aborted = false;
       const onAbort = () => {
@@ -558,12 +558,12 @@ class BitmapManager {
         .then(() => {
           if (aborted) return;
           cleanup();
-          const entry = this.lru.acquire(key2);
+          const entry = this.lru.acquire(key);
           if (!entry) {
             reject(new Error("bitmap evicted before delivery"));
             return;
           }
-          resolve(this.makeHandle(key2, entry));
+          resolve(this.makeHandle(key, entry));
         })
         .catch((err) => {
           if (aborted) return;
@@ -572,15 +572,15 @@ class BitmapManager {
         });
     });
   }
-  makeHandle(key2, entry) {
+  makeHandle(key, entry) {
     let released = false;
     const release = () => {
       if (released) return;
       released = true;
-      this.lru.release(key2);
+      this.lru.release(key);
     };
     return {
-      key: key2,
+      key,
       bitmap: entry.bitmap,
       width: entry.bitmap.width,
       height: entry.bitmap.height,
@@ -643,10 +643,10 @@ function computeCanvasBackingSize(
 ) {
   const wantW = Math.max(1, Math.round(displayWidth * displayPixelRatio));
   const wantH = Math.max(1, Math.round(displayHeight * displayPixelRatio));
-  const scale2 = Math.min(1, bitmapWidth / wantW, bitmapHeight / wantH);
+  const scale = Math.min(1, bitmapWidth / wantW, bitmapHeight / wantH);
   return {
-    width: Math.min(bitmapWidth, Math.max(1, Math.round(wantW * scale2))),
-    height: Math.min(bitmapHeight, Math.max(1, Math.round(wantH * scale2))),
+    width: Math.min(bitmapWidth, Math.max(1, Math.round(wantW * scale))),
+    height: Math.min(bitmapHeight, Math.max(1, Math.round(wantH * scale))),
   };
 }
 function drawBitmap(
@@ -736,7 +736,7 @@ export function CanvasImage(props) {
       setHoveredAnimationSrc(animationSrc ?? null);
     }, GIF_HOVER_DELAY_MS);
   };
-  const handleMouseLeave2 = () => {
+  const handleMouseLeave = () => {
     cancelPendingAnimation();
     setHoveredAnimationSrc(null);
   };
@@ -756,11 +756,11 @@ export function CanvasImage(props) {
         canvasPresented &&
         handleRef.current !== null,
       recover: () => {
-        const handle2 = handleRef.current;
-        if (!handle2) return false;
+        const handle = handleRef.current;
+        if (!handle) return false;
         return drawBitmap(
           canvasRef.current,
-          handle2.bitmap,
+          handle.bitmap,
           effectiveWidth,
           effectiveHeight,
           displayPixelRatio,
@@ -854,7 +854,7 @@ export function CanvasImage(props) {
   reactExports.useEffect(() => {
     return () => releaseHandle(handleRef);
   }, []);
-  const wrapperStyle2 = {
+  const wrapperStyle = {
     width,
     height,
     position: "relative",
@@ -896,7 +896,7 @@ export function CanvasImage(props) {
     return (
       <div
         className={className}
-        style={wrapperStyle2}
+        style={wrapperStyle}
         role="img"
         aria-label={alt}
       />
@@ -905,11 +905,11 @@ export function CanvasImage(props) {
   return (
     <div
       className={className}
-      style={wrapperStyle2}
+      style={wrapperStyle}
       role="img"
       aria-label={alt}
       onMouseEnter={animationSrc ? handleMouseEnter : void 0}
-      onMouseLeave={animationSrc ? handleMouseLeave2 : void 0}
+      onMouseLeave={animationSrc ? handleMouseLeave : void 0}
     >
       <canvas ref={canvasRef} style={canvasStyle} />
       {showAnimation && (

@@ -3,23 +3,23 @@ import { BaseBackend } from "./base-backend.jsx";
 import { isWebGLSupported } from "./parse-cube-lut.js";
 import { defaultLUTParams } from "./default-settings.js";
 function lutToFlat2D(lookupTable) {
-  const { size: size2, data: data2, domainMin, domainMax } = lookupTable;
-  const width = size2 * size2;
-  const height = size2;
+  const { size, data, domainMin, domainMax } = lookupTable;
+  const width = size * size;
+  const height = size;
   const rgbaData = new Uint8Array(width * height * 4);
   const redDomainRange = domainMax[0] - domainMin[0] || 1;
   const greenDomainRange = domainMax[1] - domainMin[1] || 1;
   const blueDomainRange = domainMax[2] - domainMin[2] || 1;
-  for (let bSlice = 0; bSlice < size2; bSlice++) {
-    for (let gRow = 0; gRow < size2; gRow++) {
-      for (let rCol = 0; rCol < size2; rCol++) {
-        const srcIdx = (bSlice * size2 * size2 + gRow * size2 + rCol) * 3;
-        const dstX = bSlice * size2 + rCol;
+  for (let bSlice = 0; bSlice < size; bSlice++) {
+    for (let gRow = 0; gRow < size; gRow++) {
+      for (let rCol = 0; rCol < size; rCol++) {
+        const srcIdx = (bSlice * size * size + gRow * size + rCol) * 3;
+        const dstX = bSlice * size + rCol;
         const dstY = gRow;
         const dstIdx = (dstY * width + dstX) * 4;
-        const normalizedRed = (data2[srcIdx] - domainMin[0]) / redDomainRange;
-        const normalizedGreen = (data2[srcIdx + 1] - domainMin[1]) / greenDomainRange;
-        const normalizedBlue = (data2[srcIdx + 2] - domainMin[2]) / blueDomainRange;
+        const normalizedRed = (data[srcIdx] - domainMin[0]) / redDomainRange;
+        const normalizedGreen = (data[srcIdx + 1] - domainMin[1]) / greenDomainRange;
+        const normalizedBlue = (data[srcIdx + 2] - domainMin[2]) / blueDomainRange;
         rgbaData[dstIdx] = Math.max(0, Math.min(255, Math.round(normalizedRed * 255)));
         rgbaData[dstIdx + 1] = Math.max(0, Math.min(255, Math.round(normalizedGreen * 255)));
         rgbaData[dstIdx + 2] = Math.max(0, Math.min(255, Math.round(normalizedBlue * 255)));
@@ -743,8 +743,8 @@ void main() {
   gl_FragColor = vec4(finalColor, base.a);
 }
 `;
-function createShader(webGLContext, type2, source) {
-  const shader = webGLContext.createShader(type2);
+function createShader(webGLContext, type, source) {
+  const shader = webGLContext.createShader(type);
   if (!shader) return null;
   webGLContext.shaderSource(shader, source);
   webGLContext.compileShader(shader);
@@ -768,9 +768,9 @@ function createProgram(webGLContext, vertexShader, fragmentShader) {
   }
   return program;
 }
-function buildProgram(webGLContext, vertex, fragment2, uniforms) {
+function buildProgram(webGLContext, vertex, fragment, uniforms) {
   const vertexShader = createShader(webGLContext, webGLContext.VERTEX_SHADER, vertex);
-  const fragmentShader = createShader(webGLContext, webGLContext.FRAGMENT_SHADER, fragment2);
+  const fragmentShader = createShader(webGLContext, webGLContext.FRAGMENT_SHADER, fragment);
   if (!vertexShader || !fragmentShader) {
     throw new Error("Shader compile failed.");
   }
@@ -785,8 +785,8 @@ function buildProgram(webGLContext, vertex, fragment2, uniforms) {
     auv: webGLContext.getAttribLocation(program, "auv"),
   };
   const uniformMap = {};
-  ["uFlipY", ...uniforms].forEach((name2) => {
-    uniformMap[name2] = webGLContext.getUniformLocation(program, name2);
+  ["uFlipY", ...uniforms].forEach((uniformName) => {
+    uniformMap[uniformName] = webGLContext.getUniformLocation(program, uniformName);
   });
   return {
     program,
@@ -844,17 +844,17 @@ const cubicBezier = (interpolationFactor, startValue, firstControlValue, secondC
   );
 };
 const buildCurvePalette = (lowControl, highControl) => {
-  const data2 = new Uint8Array(PALETTE_SIZE * 3);
+  const data = new Uint8Array(PALETTE_SIZE * 3);
   for (let paletteIndex = 0; paletteIndex < PALETTE_SIZE; paletteIndex += 1) {
     const interpolationFactor = paletteIndex / (PALETTE_SIZE - 1);
     const curveValue = cubicBezier(interpolationFactor, 0, lowControl, highControl, 1);
     const channelByte = Math.round(clampToUnitInterval(curveValue) * 255);
     const paletteOffset = paletteIndex * 3;
-    data2[paletteOffset] = channelByte;
-    data2[paletteOffset + 1] = channelByte;
-    data2[paletteOffset + 2] = channelByte;
+    data[paletteOffset] = channelByte;
+    data[paletteOffset + 1] = channelByte;
+    data[paletteOffset + 2] = channelByte;
   }
-  return data2;
+  return data;
 };
 const buildBlackPalette = (amount) => {
   const normalizedAmount = Math.max(-100, Math.min(100, amount)) / 100;
@@ -863,7 +863,7 @@ const buildBlackPalette = (amount) => {
   const highControl = 0.66;
   return buildCurvePalette(lowControl, highControl);
 };
-const createPaletteTexture = (webGLContext, data2) => {
+const createPaletteTexture = (webGLContext, data) => {
   const texture = webGLContext.createTexture();
   if (!texture) {
     throw new Error("Unable to create palette texture");
@@ -878,7 +878,7 @@ const createPaletteTexture = (webGLContext, data2) => {
     0,
     webGLContext.RGB,
     webGLContext.UNSIGNED_BYTE,
-    data2,
+    data,
   );
   webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MIN_FILTER, webGLContext.NEAREST);
   webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MAG_FILTER, webGLContext.NEAREST);
@@ -886,7 +886,7 @@ const createPaletteTexture = (webGLContext, data2) => {
   webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_T, webGLContext.CLAMP_TO_EDGE);
   return texture;
 };
-const updatePaletteTexture = (webGLContext, texture, data2) => {
+const updatePaletteTexture = (webGLContext, texture, data) => {
   webGLContext.bindTexture(webGLContext.TEXTURE_2D, texture);
   webGLContext.texSubImage2D(
     webGLContext.TEXTURE_2D,
@@ -897,29 +897,29 @@ const updatePaletteTexture = (webGLContext, texture, data2) => {
     1,
     webGLContext.RGB,
     webGLContext.UNSIGNED_BYTE,
-    data2,
+    data,
   );
 };
 const buildContrastMatrix = (amount) => {
   const normalizedAmount = Math.max(-100, Math.min(100, amount)) / 100;
-  const scale2 = 1 + normalizedAmount;
-  const offset2 = 0.5 * (1 - scale2);
+  const scale = 1 + normalizedAmount;
+  const offset = 0.5 * (1 - scale);
   return new Float32Array([
-    scale2,
+    scale,
     0,
     0,
     0,
-    offset2,
+    offset,
     0,
-    scale2,
-    0,
-    0,
-    offset2,
+    scale,
     0,
     0,
-    scale2,
+    offset,
     0,
-    offset2,
+    0,
+    scale,
+    0,
+    offset,
     0,
     0,
     0,
@@ -929,25 +929,25 @@ const buildContrastMatrix = (amount) => {
 };
 const buildSaturationMatrix = (amount) => {
   const normalizedAmount = Math.max(-100, Math.min(100, amount)) / 100;
-  const scale2 = 1 + normalizedAmount;
+  const scale = 1 + normalizedAmount;
   const lumR = 0.299;
   const lumG = 0.587;
   const lumB = 0.114;
-  const inverseScale = 1 - scale2;
+  const inverseScale = 1 - scale;
   return new Float32Array([
-    inverseScale * lumR + scale2,
+    inverseScale * lumR + scale,
     inverseScale * lumG,
     inverseScale * lumB,
     0,
     0,
     inverseScale * lumR,
-    inverseScale * lumG + scale2,
+    inverseScale * lumG + scale,
     inverseScale * lumB,
     0,
     0,
     inverseScale * lumR,
     inverseScale * lumG,
-    inverseScale * lumB + scale2,
+    inverseScale * lumB + scale,
     0,
     0,
     0,
@@ -999,13 +999,13 @@ export class WebGLBackend extends BaseBackend {
     }
     this.initialized = true;
   }
-  loadFromImage(image2) {
+  loadFromImage(image) {
     if (!this.gl) this.init();
     const webGLContext = this.gl;
     if (!webGLContext) throw new Error("WebGL context not available");
     this.sourceNeedsFlipY = false;
-    const width = image2.naturalWidth || image2.width;
-    const height = image2.naturalHeight || image2.height;
+    const width = image.naturalWidth || image.width;
+    const height = image.naturalHeight || image.height;
     this.width = width;
     this.height = height;
     this.canvas.width = width;
@@ -1017,7 +1017,7 @@ export class WebGLBackend extends BaseBackend {
     const sourceTexture = webGLContext.createTexture();
     if (!sourceTexture) throw new Error("Failed to create texture");
     webGLContext.bindTexture(webGLContext.TEXTURE_2D, sourceTexture);
-    webGLContext.texImage2D(webGLContext.TEXTURE_2D, 0, webGLContext.RGBA, webGLContext.RGBA, webGLContext.UNSIGNED_BYTE, image2);
+    webGLContext.texImage2D(webGLContext.TEXTURE_2D, 0, webGLContext.RGBA, webGLContext.RGBA, webGLContext.UNSIGNED_BYTE, image);
     webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MIN_FILTER, webGLContext.LINEAR);
     webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MAG_FILTER, webGLContext.LINEAR);
     webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_WRAP_S, webGLContext.CLAMP_TO_EDGE);
@@ -1029,7 +1029,7 @@ export class WebGLBackend extends BaseBackend {
     const webGLContext = this.gl;
     if (!webGLContext) throw new Error("WebGL context not available");
     this.sourceNeedsFlipY = true;
-    const { width, height, data: data2 } = imageData;
+    const { width, height, data } = imageData;
     this.width = width;
     this.height = height;
     this.canvas.width = width;
@@ -1049,7 +1049,7 @@ export class WebGLBackend extends BaseBackend {
       0,
       webGLContext.RGBA,
       webGLContext.UNSIGNED_BYTE,
-      data2,
+      data,
     );
     webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MIN_FILTER, webGLContext.LINEAR);
     webGLContext.texParameteri(webGLContext.TEXTURE_2D, webGLContext.TEXTURE_MAG_FILTER, webGLContext.LINEAR);

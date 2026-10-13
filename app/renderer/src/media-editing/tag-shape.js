@@ -15,10 +15,10 @@ const CORNER_RADIUS = 6;
 
 const POINTER_BASE = 8;
 
-function wrapTagLines(text2, context, maxWidth) {
-  if (!Number.isFinite(maxWidth)) return text2.split("\n");
+function wrapTagLines(text, context, maxWidth) {
+  if (!Number.isFinite(maxWidth)) return text.split("\n");
   const result = [];
-  for (const sourceLine of text2.split("\n")) {
+  for (const sourceLine of text.split("\n")) {
     let line = "";
     for (const char of sourceLine || " ") {
       const candidate = line + char;
@@ -108,17 +108,17 @@ function appendPointerPath(context, card, side) {
 
 export class TagShape extends Shape {
   draw(context) {
-    const { text: text2, style: style2 } = this.data;
-    const fontSize = style2.fontSize ?? DEFAULT_FONT_SIZE;
+    const { text, style } = this.data;
+    const fontSize = style.fontSize ?? DEFAULT_FONT_SIZE;
     const fontFamily =
-      style2.fontFamily ??
+      style.fontFamily ??
       'system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-    const fontWeight = style2.fontWeight ?? 500;
+    const fontWeight = style.fontWeight ?? 500;
     const lineHeight = 1.4;
-    const backgroundColor = style2.tagBackground ?? "rgba(0, 0, 0, 0.6)";
-    const textColor = style2.tagTextColor ?? "#FFFFFF";
-    const anchorColor = style2.stroke ?? "#FF3B30";
-    const anchorRadius = Math.max(1, style2.tagAnchorRadius ?? ANCHOR_RADIUS);
+    const backgroundColor = style.tagBackground ?? "rgba(0, 0, 0, 0.6)";
+    const textColor = style.tagTextColor ?? "#FFFFFF";
+    const anchorColor = style.stroke ?? "#FF3B30";
+    const anchorRadius = Math.max(1, style.tagAnchorRadius ?? ANCHOR_RADIUS);
     const anchorOffset = Math.max(TAG_ANCHOR_OFFSET, anchorRadius + ANCHOR_GAP);
     context.save();
     context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
@@ -127,7 +127,7 @@ export class TagShape extends Shape {
     const maxInnerWidth = this.data.maxWidth
       ? Math.max(fontSize, this.data.maxWidth - PADDING_X * 2)
       : Number.POSITIVE_INFINITY;
-    const lines = wrapTagLines(text2 || " ", context, maxInnerWidth);
+    const lines = wrapTagLines(text || " ", context, maxInnerWidth);
     let maxLineW = 0;
     for (const line of lines) {
       const measuredWidth = context.measureText(line || " ").width;
@@ -188,9 +188,9 @@ export class TagShape extends Shape {
       height,
       anchorX,
       anchorY,
-      style: style2,
+      style,
     } = this.data;
-    const anchorRadius = Math.max(1, style2.tagAnchorRadius ?? ANCHOR_RADIUS);
+    const anchorRadius = Math.max(1, style.tagAnchorRadius ?? ANCHOR_RADIUS);
     const minX = Math.min(x, anchorX - anchorRadius);
     const minY = Math.min(y, anchorY - anchorRadius);
     const maxX = Math.max(x + width, anchorX + anchorRadius);

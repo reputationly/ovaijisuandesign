@@ -20,13 +20,13 @@ export function loadImage(src) {
 }
 export class RectangleShape extends Shape {
   draw(context) {
-    const { x, y, width, height, style: style2 } = this.data;
+    const { x, y, width, height, style } = this.data;
     if (width === 0 || height === 0) return;
     context.save();
-    context.lineWidth = style2.strokeWidth;
-    context.strokeStyle = style2.stroke;
-    if (style2.fill) {
-      context.fillStyle = style2.fill;
+    context.lineWidth = style.strokeWidth;
+    context.strokeStyle = style.stroke;
+    if (style.fill) {
+      context.fillStyle = style.fill;
       context.fillRect(x, y, width, height);
     }
     context.strokeRect(x, y, width, height);
@@ -104,20 +104,20 @@ export function inferSide(card, anchorX, anchorY) {
   }
   return deltaY < 0 ? "top" : "bottom";
 }
-export function keepTagInCanvas(data2, canvasWidth, canvasHeight) {
+export function keepTagInCanvas(data, canvasWidth, canvasHeight) {
   if (canvasWidth <= 0 || canvasHeight <= 0) return false;
   const margin = 4;
-  const cardW = Math.max(1, data2.width);
-  const cardH = Math.max(1, data2.height);
+  const cardW = Math.max(1, data.width);
+  const cardH = Math.max(1, data.height);
   const anchorSide = inferSide(
     {
-      x: data2.x,
-      y: data2.y,
+      x: data.x,
+      y: data.y,
       w: cardW,
       h: cardH,
     },
-    data2.anchorX,
-    data2.anchorY,
+    data.anchorX,
+    data.anchorY,
   );
   const preferredCardSide =
     anchorSide === "left"
@@ -130,8 +130,8 @@ export function keepTagInCanvas(data2, canvasWidth, canvasHeight) {
   const fits = (side) =>
     placeCardForAnchor(
       {
-        x: data2.anchorX,
-        y: data2.anchorY,
+        x: data.anchorX,
+        y: data.anchorY,
       },
       side,
       cardW,
@@ -142,25 +142,25 @@ export function keepTagInCanvas(data2, canvasWidth, canvasHeight) {
     cardPosition.y >= margin &&
     cardPosition.x + cardW <= canvasWidth - margin &&
     cardPosition.y + cardH <= canvasHeight - margin;
-  let next2 = fits(preferredCardSide);
-  if (!inCanvas(next2)) {
+  let next = fits(preferredCardSide);
+  if (!inCanvas(next)) {
     const alternate = fits(anchorSide);
-    if (inCanvas(alternate)) next2 = alternate;
+    if (inCanvas(alternate)) next = alternate;
     else {
-      next2 = {
-        x: Math.max(margin, Math.min(next2.x, canvasWidth - cardW - margin)),
-        y: Math.max(margin, Math.min(next2.y, canvasHeight - cardH - margin)),
+      next = {
+        x: Math.max(margin, Math.min(next.x, canvasWidth - cardW - margin)),
+        y: Math.max(margin, Math.min(next.y, canvasHeight - cardH - margin)),
       };
     }
   }
-  const changed = data2.x !== next2.x || data2.y !== next2.y;
-  data2.x = next2.x;
-  data2.y = next2.y;
+  const changed = data.x !== next.x || data.y !== next.y;
+  data.x = next.x;
+  data.y = next.y;
   return changed;
 }
-function parseHex(hex2) {
-  if (!hex2) return null;
-  let colorHex = hex2.trim();
+function parseHex(hex) {
+  if (!hex) return null;
+  let colorHex = hex.trim();
   if (colorHex.startsWith("#")) colorHex = colorHex.slice(1);
   if (colorHex.length === 3) colorHex = colorHex.replace(/(.)/g, "$1$1");
   if (colorHex.length !== 6) return null;
@@ -170,14 +170,14 @@ function parseHex(hex2) {
   if (Number.isNaN(redChannel) || Number.isNaN(green) || Number.isNaN(blue)) return null;
   return [redChannel, green, blue];
 }
-function isLightColor(hex2) {
-  const rgb2 = parseHex(hex2);
-  if (!rgb2) return false;
-  const [redChannel, green, blue] = rgb2;
+function isLightColor(hex) {
+  const rgb = parseHex(hex);
+  if (!rgb) return false;
+  const [redChannel, green, blue] = rgb;
   return (redChannel * 299 + green * 587 + blue * 114) / 1e3 > 165;
 }
-export function pickContrastColor(hex2) {
-  return isLightColor(hex2) ? "#1C1C1E" : "#FFFFFF";
+export function pickContrastColor(hex) {
+  return isLightColor(hex) ? "#1C1C1E" : "#FFFFFF";
 }
 let counter = 0;
 export function uid(prefix = "sh") {
@@ -204,7 +204,7 @@ export class BrushTool extends Tool {
   working = null;
   onPointerDown(pointerEvent) {
     if (pointerEvent.button !== 0) return;
-    const data2 = {
+    const data = {
       id: uid("brush"),
       type: "brush",
       points: [pointerEvent.point],
@@ -212,7 +212,7 @@ export class BrushTool extends Tool {
         ...this.editor.getStyle(),
       },
     };
-    this.working = new FreePathShape(data2);
+    this.working = new FreePathShape(data);
     this.editor.setPreviewShape(this.working);
   }
   onPointerMove(pointerEvent) {

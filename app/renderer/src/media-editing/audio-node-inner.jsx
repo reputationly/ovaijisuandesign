@@ -63,12 +63,12 @@ import {
 } from "./use-warn-missing-asset-meta.jsx";
 import { NodeHeader } from "../canvas/node-header-inner.jsx";
 import { NodeHandles } from "../canvas/proximity-handle-inner.jsx";
-function hashCode(str2) {
-  let hash2 = 5381;
-  for (let characterIndex = 0; characterIndex < str2.length; characterIndex++) {
-    hash2 = ((hash2 << 5) + hash2 + str2.charCodeAt(characterIndex)) | 0;
+function hashCode(str) {
+  let hash = 5381;
+  for (let characterIndex = 0; characterIndex < str.length; characterIndex++) {
+    hash = ((hash << 5) + hash + str.charCodeAt(characterIndex)) | 0;
   }
-  return Math.abs(hash2);
+  return Math.abs(hash);
 }
 function seededRandom(seed) {
   let randomState = seed;
@@ -84,10 +84,10 @@ const BAR_RADIUS = BAR_WIDTH / 2;
 const MAX_BAR_HEIGHT_RATIO = 40 / WAVEFORM_HEIGHT;
 const MIN_BAR_HEIGHT_RATIO = BAR_WIDTH / WAVEFORM_HEIGHT;
 const PLAYHEAD_HIT_WIDTH = 12;
-function generateBarHeights(fileName, count2) {
+function generateBarHeights(fileName, count) {
   const randomValueGenerator = seededRandom(hashCode(fileName));
   const heights = [];
-  for (let barIndex = 0; barIndex < count2; barIndex++) {
+  for (let barIndex = 0; barIndex < count; barIndex++) {
     heights.push(
       MIN_BAR_HEIGHT_RATIO +
         randomValueGenerator() * (MAX_BAR_HEIGHT_RATIO - MIN_BAR_HEIGHT_RATIO),
@@ -103,10 +103,10 @@ function roundedBarPath(x, y, width, height) {
 }
 function buildWaveformPath(barHeights, height) {
   return barHeights
-    .map((ratio, index2) => {
+    .map((ratio, index) => {
       const barHeight = ratio * height;
       return roundedBarPath(
-        index2 * (BAR_WIDTH + BAR_GAP),
+        index * (BAR_WIDTH + BAR_GAP),
         (height - barHeight) / 2,
         BAR_WIDTH,
         barHeight,
@@ -114,7 +114,7 @@ function buildWaveformPath(barHeights, height) {
     })
     .join("");
 }
-const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformInner2(
+const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformImplementation(
   { fileName, progress, width, height, onClick },
   ref,
 ) {
@@ -158,12 +158,12 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformInner2(
     [width],
   );
   const getProgressFromClientX = reactExports.useCallback((clientX) => {
-    const svg2 = svgRef.current;
-    if (!svg2) return 0;
-    const rect = svg2.getBoundingClientRect();
+    const svg = svgRef.current;
+    if (!svg) return 0;
+    const rect = svg.getBoundingClientRect();
     return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
   }, []);
-  const handleClick2 = reactExports.useCallback(
+  const handleClick = reactExports.useCallback(
     (activationEvent) => {
       if (!onClick || isDraggingRef.current) return;
       onClick(getProgressFromClientX(activationEvent.clientX));
@@ -210,10 +210,10 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformInner2(
         display: "block",
         cursor: onClick ? "pointer" : "default",
       }}
-      onClick={handleClick2}
+      onClick={handleClick}
       onKeyDown={(keyboardEvent) => {
         if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
-          handleClick2(keyboardEvent);
+          handleClick(keyboardEvent);
         }
       }}
     >
@@ -262,32 +262,32 @@ const AudioWaveformInner = reactExports.forwardRef(function AudioWaveformInner2(
     </svg>
   );
 });
-const AudioWaveform = reactExports.memo(AudioWaveformInner, (prev, next2) => {
+const AudioWaveform = reactExports.memo(AudioWaveformInner, (prev, next) => {
   return (
-    prev.fileName === next2.fileName &&
-    prev.progress === next2.progress &&
-    prev.width === next2.width &&
-    prev.height === next2.height &&
-    prev.onClick === next2.onClick
+    prev.fileName === next.fileName &&
+    prev.progress === next.progress &&
+    prev.width === next.width &&
+    prev.height === next.height &&
+    prev.onClick === next.onClick
   );
 });
 function resolveCanvasAudioSource({
   resourceActive,
-  url: url2,
+  url,
   viewportStatus,
   isPlaying = false,
 }) {
   if (!resourceActive) return void 0;
   if (viewportStatus === "far" && !isPlaying) return void 0;
-  return url2;
+  return url;
 }
 const WAVEFORM_H_PADDING = 16;
 const WAVEFORM_CONTAINER_HEIGHT = 64;
 const WAVEFORM_WIDTH = AUDIO_CARD_SIZE.width - WAVEFORM_H_PADDING * 2;
-export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 }) {
+export function AudioNodeInner({ id: nodeId, data, selected }) {
   const { t } = useTranslation();
   const generatingStateStore = useGeneratingStateApi();
-  const meta2 = useAssetMeta(nodeId);
+  const meta = useAssetMeta(nodeId);
   const {
     onAddToChat,
     cropImage,
@@ -302,16 +302,16 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
   const isMultiSelect = useCanvasIsMultiSelect();
   const isDragging = useCanvasNodeIsDragging(nodeId);
   const isBoxSelecting = useCanvasIsBoxSelecting();
-  const onRename = useNodeRename(nodeId, isCloneData(data2));
+  const onRename = useNodeRename(nodeId, isCloneData(data));
   const hasEmptyId = useNodeIsEmpty(nodeId);
-  const isUserEmpty = hasEmptyId && !meta2;
+  const isUserEmpty = hasEmptyId && !meta;
   const isVoiceDesign =
-    meta2?.model_id === "voice-design" || meta2?.source_tool === "design_voice";
+    meta?.model_id === "voice-design" || meta?.source_tool === "design_voice";
   const isVoiceClone =
-    meta2?.model_id === "voice-clone" || meta2?.source_tool === "voice_clone";
+    meta?.model_id === "voice-clone" || meta?.source_tool === "voice_clone";
   const liveGenerating = useGenerating(nodeId);
   const persistedGenerating = reactExports.useMemo(() => {
-    const persisted = data2;
+    const persisted = data;
     if (persisted?.status !== "pending" && persisted?.status !== "generating")
       return void 0;
     const prompt = typeof persisted.prompt === "string" ? persisted.prompt : "";
@@ -325,26 +325,26 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
       prompt,
       model,
       phase: persisted.status,
-      prevUrl: meta2?.url,
+      prevUrl: meta?.url,
       generationStartedAt: readGenerationStartedAt(persisted),
     };
-  }, [data2, meta2?.url, t]);
+  }, [data, meta?.url, t]);
   const persistedErrorMessage =
-    isGenerationErrorStatus(data2.status) &&
-    typeof data2.errorMessage === "string"
-      ? data2.errorMessage
+    isGenerationErrorStatus(data.status) &&
+    typeof data.errorMessage === "string"
+      ? data.errorMessage
       : void 0;
   const persistedErrorReason =
-    isGenerationErrorStatus(data2.status) &&
-    typeof data2.errorReason === "string"
-      ? data2.errorReason
+    isGenerationErrorStatus(data.status) &&
+    typeof data.errorReason === "string"
+      ? data.errorReason
       : void 0;
-  const persistedQueuePaused = data2.status === "queue_paused";
+  const persistedQueuePaused = data.status === "queue_paused";
   const persistedRetryPayload =
-    (isGenerationErrorStatus(data2.status) || persistedQueuePaused) &&
-    data2.retryPayload &&
-    typeof data2.retryPayload === "object"
-      ? data2.retryPayload
+    (isGenerationErrorStatus(data.status) || persistedQueuePaused) &&
+    data.retryPayload &&
+    typeof data.retryPayload === "object"
+      ? data.retryPayload
       : void 0;
   reactExports.useEffect(() => {
     if (persistedErrorMessage !== void 0 || persistedQueuePaused) {
@@ -375,12 +375,12 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
   );
   const reactFlow = useReactFlow();
   reactExports.useEffect(() => {
-    if (isGenerating && meta2?.url && meta2.url !== generating?.prevUrl) {
+    if (isGenerating && meta?.url && meta.url !== generating?.prevUrl) {
       generatingStateStore.getState().clear(nodeId);
     }
   }, [
     isGenerating,
-    meta2?.url,
+    meta?.url,
     generating?.prevUrl,
     nodeId,
     generatingStateStore,
@@ -392,8 +392,8 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
   const generationErrorStatus = generationErrorMessage
     ? isGenerating
       ? (generating?.errorStatus ?? "error")
-      : isGenerationErrorStatus(data2.status)
-        ? data2.status
+      : isGenerationErrorStatus(data.status)
+        ? data.status
         : "error"
     : void 0;
   const lastSyncActionRef = reactExports.useRef("none");
@@ -426,10 +426,10 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
   const mediaActions = useMediaNodeActions({
     nodeId,
     toolbarActive:
-      !!selected2 && !isMultiSelect && !isDragging && !isBoxSelecting,
-    meta: meta2,
+      !!selected && !isMultiSelect && !isDragging && !isBoxSelecting,
+    meta,
     fallbackPath:
-      typeof data2.path === "string" ? data2.path || void 0 : void 0,
+      typeof data.path === "string" ? data.path || void 0 : void 0,
     fallbackWidth: AUDIO_CARD_SIZE.width,
     onAddToChat,
     cropImage,
@@ -440,9 +440,9 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
   const showLightbox = mediaActions.showLightbox;
   const canOpenPopover =
     isUserEmpty ||
-    (!!meta2?.model &&
-      !isUserProvidedAssetModel(meta2.model) &&
-      meta2.model !== "voice-isolation");
+    (!!meta?.model &&
+      !isUserProvidedAssetModel(meta.model) &&
+      meta.model !== "voice-isolation");
   const isInteractiveSelect = !isMultiSelect && !isDragging && !isBoxSelecting;
   const audioRef = reactExports.useRef(null);
   const rafRef = reactExports.useRef(0);
@@ -465,13 +465,13 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
   const resourceActive = useCanvasActiveDeferred();
   const audioSource = resolveCanvasAudioSource({
     resourceActive,
-    url: meta2?.url,
+    url: meta?.url,
     viewportStatus,
     isPlaying,
   });
   reactExports.useEffect(() => {
     resetAudioRetry();
-  }, [meta2?.url, resetAudioRetry]);
+  }, [meta?.url, resetAudioRetry]);
   reactExports.useEffect(() => {
     if ((showClipPanel || showLightbox) && isPlaying) stop();
   }, [showClipPanel, showLightbox, isPlaying, stop]);
@@ -527,22 +527,22 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
   const handleTogglePlay = reactExports.useCallback(
     (clickEvent) => {
       clickEvent.stopPropagation();
-      if (!meta2?.url) return;
+      if (!meta?.url) return;
       if (isPlaying) {
         stop();
       } else {
         play(nodeId);
       }
     },
-    [isPlaying, nodeId, play, stop, meta2?.url],
+    [isPlaying, nodeId, play, stop, meta?.url],
   );
   const handleDownload = reactExports.useCallback(
     (clickEvent) => {
       clickEvent.stopPropagation();
-      if (!onSaveAs || !meta2?.path) return;
-      onSaveAs(meta2.path, meta2.name);
+      if (!onSaveAs || !meta?.path) return;
+      onSaveAs(meta.path, meta.name);
     },
-    [onSaveAs, meta2?.path, meta2?.name],
+    [onSaveAs, meta?.path, meta?.name],
   );
   const handleSeek = reactExports.useCallback(
     (progress) => {
@@ -563,29 +563,29 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
   useWarnMissingAssetMeta({
     nodeId,
     nodeType: "audio",
-    data: data2,
-    meta: meta2,
+    data,
+    meta,
     isUserEmpty,
   });
-  const isEmpty2 = isUserEmpty || !meta2?.url;
+  const isEmpty = isUserEmpty || !meta?.url;
   useMediaFallbackSize(
     nodeId,
     audioError &&
-      !isEmpty2 &&
+      !isEmpty &&
       !isErrorGenerating &&
       !isGenerating &&
       !persistedQueuePaused &&
-      !isMissingAssetNodeData(data2),
+      !isMissingAssetNodeData(data),
   );
-  if (isMissingAssetNodeData(data2)) {
+  if (isMissingAssetNodeData(data)) {
     return (
       <MissingAssetCard
         nodeId={nodeId}
-        name={typeof data2?.name === "string" ? data2.name : void 0}
+        name={typeof data?.name === "string" ? data.name : void 0}
       />
     );
   }
-  if (!meta2 && !isUserEmpty) return null;
+  if (!meta && !isUserEmpty) return null;
   const shellWidth = audioError
     ? MEDIA_FALLBACK_NODE_SIZE.width
     : AUDIO_CARD_SIZE.width;
@@ -593,11 +593,11 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
     ? MEDIA_FALLBACK_NODE_SIZE.height
     : AUDIO_CARD_SIZE.height;
   const useBodyPanelChrome =
-    isEmpty2 && !isErrorGenerating && !isGenerating && !persistedQueuePaused;
+    isEmpty && !isErrorGenerating && !isGenerating && !persistedQueuePaused;
   return (
     <NodeShell
       id={nodeId}
-      tagIds={meta2?.tagIds}
+      tagIds={meta?.tagIds}
       width={shellWidth}
       dataActionUiId="canvas.audio-node"
       dataState={
@@ -607,7 +607,7 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
             ? "empty"
             : isGenerating
               ? "generating"
-              : meta2?.url
+              : meta?.url
                 ? "generated"
                 : "empty"
       }
@@ -616,25 +616,25 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
     >
       <NodeHeader
         nodeType="audio"
-        tagIds={meta2?.tagIds}
+        tagIds={meta?.tagIds}
         name={
           isVoiceDesign
-            ? meta2?.voiceId
-              ? `${t("canvas.voiceDesign.nodeName", "音色设计")} · ${meta2.voiceId}`
+            ? meta?.voiceId
+              ? `${t("canvas.voiceDesign.nodeName", "音色设计")} · ${meta.voiceId}`
               : t("canvas.voiceDesign.nodeName", "音色设计")
             : isVoiceClone
-              ? meta2?.voiceId
-                ? `${t("canvas.voiceClone.nodeName", "音色克隆")} · ${meta2.voiceId}`
+              ? meta?.voiceId
+                ? `${t("canvas.voiceClone.nodeName", "音色克隆")} · ${meta.voiceId}`
                 : t("canvas.voiceClone.nodeName", "音色克隆")
-              : meta2?.name || t("canvas.audio")
+              : meta?.name || t("canvas.audio")
         }
-        selected={selected2}
+        selected={selected}
         maxWidth={shellWidth}
         onRename={isVoiceDesign || isVoiceClone ? void 0 : onRename}
       />
       <NodeBody
         width={shellWidth}
-        tagIds={meta2?.tagIds}
+        tagIds={meta?.tagIds}
         height={
           isErrorGenerating ||
           isGenerating ||
@@ -643,7 +643,7 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
             ? bodyHeight
             : void 0
         }
-        selected={selected2}
+        selected={selected}
         borderRadius={MEDIA_NODE_RADIUS}
         variant={useBodyPanelChrome ? "panel" : "media"}
       >
@@ -697,7 +697,7 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
               )
             }
           />
-        ) : isEmpty2 ? (
+        ) : isEmpty ? (
           <PlaceholderUploadButton
             icon={<AudioPlaceholderIcon />}
             label={t("canvas.uploadAudio")}
@@ -705,9 +705,9 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
           />
         ) : audioError ? (
           <MediaUnpreviewableFallback
-            displayName={meta2?.name ?? t("canvas.audio")}
-            extension={getFileExtension(meta2?.name)}
-            sizeLabel={formatFileSize(meta2?.fileSize)}
+            displayName={meta?.name ?? t("canvas.audio")}
+            extension={getFileExtension(meta?.name)}
+            sizeLabel={formatFileSize(meta?.fileSize)}
           />
         ) : (
           <>
@@ -749,7 +749,7 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
               >
                 <AudioWaveform
                   ref={waveformRef}
-                  fileName={meta2?.name ?? ""}
+                  fileName={meta?.name ?? ""}
                   progress={progressRef.current}
                   width={WAVEFORM_WIDTH}
                   height={WAVEFORM_CONTAINER_HEIGHT}
@@ -818,7 +818,7 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
                 >
                   <PlaybackCircleToggleIcon playing={isPlaying} size={24} />
                 </button>
-                {onSaveAs && meta2?.path ? (
+                {onSaveAs && meta?.path ? (
                   <button
                     type="button"
                     onClick={handleDownload}
@@ -853,15 +853,15 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
         )}
       </NodeBody>
       {shouldRenderMediaActionSurface({
-        selected: !!selected2,
+        selected: !!selected,
         showLightbox: mediaActions.showLightbox,
         showClipPanel: mediaActions.showClipPanel,
       }) && (
         <AudioActionSurface
           nodeId={nodeId}
-          meta={meta2}
-          data={data2}
-          selected={!!selected2}
+          meta={meta}
+          data={data}
+          selected={!!selected}
           generating={generating}
           isGenerating={isGenerating}
           isUserEmpty={isUserEmpty}
@@ -872,7 +872,7 @@ export function AudioNodeInner({ id: nodeId, data: data2, selected: selected2 })
           mediaActions={mediaActions}
         />
       )}
-      <NodeHandles nodeId={nodeId} selected={!!selected2} />
+      <NodeHandles nodeId={nodeId} selected={!!selected} />
     </NodeShell>
   );
 }

@@ -88,42 +88,42 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 const LEGACY_ERROR_CODE_MATCHERS = Object.keys(GENERATION_ERROR_CODE_I18N).map(
-  (code2) => [
-    code2,
+  (code) => [
+    code,
     new RegExp(
-      `(?:\\[\\s*${escapeRegExp(code2)}\\s*\\]|["']?error_code["']?\\s*[:=]\\s*["']?${escapeRegExp(code2)}(?![a-z0-9_]))`,
+      `(?:\\[\\s*${escapeRegExp(code)}\\s*\\]|["']?error_code["']?\\s*[:=]\\s*["']?${escapeRegExp(code)}(?![a-z0-9_]))`,
       "i",
     ),
   ],
 );
-function hasMappedErrorCode(code2) {
-  return Object.hasOwn(GENERATION_ERROR_CODE_I18N, code2);
+function hasMappedErrorCode(code) {
+  return Object.hasOwn(GENERATION_ERROR_CODE_I18N, code);
 }
 function mappedErrorCode({ errorCode, rawError }) {
   const normalizedCode = errorCode?.trim().toLowerCase();
   if (normalizedCode && hasMappedErrorCode(normalizedCode))
     return normalizedCode;
-  const raw2 = rawError?.trim();
-  if (!raw2) return void 0;
-  if (IMAGE_ASPECT_RATIO_CONFLICT_TEXT_PATTERN.test(raw2)) {
+  const raw = rawError?.trim();
+  if (!raw) return void 0;
+  if (IMAGE_ASPECT_RATIO_CONFLICT_TEXT_PATTERN.test(raw)) {
     return GENERATE_ERROR_CODE_IMAGE_ASPECT_RATIO_CONFLICT;
   }
   return LEGACY_ERROR_CODE_MATCHERS.find(([, pattern]) =>
-    pattern.test(raw2),
+    pattern.test(raw),
   )?.[0];
 }
 function isBillingInsufficientFailure({ errorCode, rawError }) {
   const normalizedCode = errorCode?.trim().toLowerCase();
   if (normalizedCode === GENERATE_ERROR_CODE_BILLING_INSUFFICIENT_BALANCE)
     return true;
-  const raw2 = rawError?.trim();
-  if (!raw2) return false;
+  const raw = rawError?.trim();
+  if (!raw) return false;
   return (
-    raw2
+    raw
       .toLowerCase()
       .includes(GENERATE_ERROR_CODE_BILLING_INSUFFICIENT_BALANCE) ||
-    INSUFFICIENT_BALANCE_TEXT_PATTERN.test(raw2) ||
-    CREDITS_INSUFFICIENT_TEXT_PATTERN.test(raw2)
+    INSUFFICIENT_BALANCE_TEXT_PATTERN.test(raw) ||
+    CREDITS_INSUFFICIENT_TEXT_PATTERN.test(raw)
   );
 }
 function generationFailureDisplayText(input, translate) {
@@ -142,9 +142,9 @@ function generationFailureDisplayText(input, translate) {
 }
 function MediaGenCardLayout({
   prompt,
-  tags: tags2,
+  tags,
   media,
-  footer: footer2,
+  footer,
   header,
   className,
 }) {
@@ -152,9 +152,9 @@ function MediaGenCardLayout({
     <div className={`w-full min-w-0 flex flex-col gap-2 ${className ?? ""}`}>
       {header}
       {prompt}
-      {tags2}
+      {tags}
       {media}
-      {footer2}
+      {footer}
     </div>
   );
 }
@@ -175,19 +175,19 @@ const TAG_I18N_KEYS = {
   emotion: "canvas.params.emotion",
   speed: "canvas.params.speed",
 };
-function TagsRow({ tags: tags2, tagIcons, categoryIcon }) {
+function TagsRow({ tags, tagIcons, categoryIcon }) {
   const { t } = useTranslation();
-  if (tags2.length === 0) return null;
+  if (tags.length === 0) return null;
   return (
     <TooltipProvider delay={0}>
       <div className="flex items-center gap-1 h-7 text-body-12 text-foreground/70 overflow-x-auto scrollbar-none">
-        {tags2.map((displayTag, tagIndex) => {
+        {tags.map((displayTag, tagIndex) => {
           const TagIcon = MODEL_TAG_KEYS.has(displayTag.key)
             ? categoryIcon
             : tagIcons?.[displayTag.key];
           const i18nKey = TAG_I18N_KEYS[displayTag.key];
           const tooltip = i18nKey ? t(i18nKey) : displayTag.key;
-          const isLast = tagIndex === tags2.length - 1;
+          const isLast = tagIndex === tags.length - 1;
           return (
             <span
               key={displayTag.key}
@@ -283,23 +283,23 @@ function formatVersionTag(value) {
   if (niji) return `Niji ${niji[1]}`;
   return /^\d/.test(value) ? `v${value}` : value;
 }
-function tagDisplayValue(key2, value, translate, preferType, modelDisplayMap) {
-  if (MODEL_TAG_FIELDS.has(key2)) {
+function tagDisplayValue(key, value, translate, preferType, modelDisplayMap) {
+  if (MODEL_TAG_FIELDS.has(key)) {
     const modelName = String(value);
     return (
       modelDisplayMap?.get(modelName) ??
       resolveModelNameForCurrentRegion(modelName, preferType)
     );
   }
-  if (key2 === "mode") {
-    const str2 = String(value);
-    if (isHiddenVideoGenerationMode(str2)) return null;
-    return resolveVideoModeValueDisplay(str2, translate);
+  if (key === "mode") {
+    const str = String(value);
+    if (isHiddenVideoGenerationMode(str)) return null;
+    return resolveVideoModeValueDisplay(str, translate);
   }
-  if (key2 === "version") return formatVersionTag(String(value));
-  const raw2 = String(value);
-  return translate(`canvas.param.option.${raw2}`, {
-    defaultValue: raw2,
+  if (key === "version") return formatVersionTag(String(value));
+  const raw = String(value);
+  return translate(`canvas.param.option.${raw}`, {
+    defaultValue: raw,
   });
 }
 function vendorParamsHasMode(args) {
@@ -350,8 +350,8 @@ const REF_MEDIA_FIELDS = new Set([
 ]);
 function collectRefPaths(parsed) {
   const paths = [];
-  for (const [key2, value] of Object.entries(parsed)) {
-    if (!REF_MEDIA_FIELDS.has(key2)) continue;
+  for (const [key, value] of Object.entries(parsed)) {
+    if (!REF_MEDIA_FIELDS.has(key)) continue;
     if (typeof value === "string" && value.length > 0) {
       if (value.startsWith("[")) {
         try {
@@ -373,56 +373,56 @@ function collectRefPaths(parsed) {
   }
   return paths;
 }
-function parseGenInput(toolArgs, translate, preferType, toolName2, modelDisplayMap) {
+function parseGenInput(toolArgs, translate, preferType, toolName, modelDisplayMap) {
   if (!toolArgs) return void 0;
   try {
     const parsed = JSON.parse(toolArgs);
     if (!parsed || typeof parsed !== "object") return void 0;
     let prompt;
-    const tags2 = [];
+    const tags = [];
     const tagKeys = new Set();
-    const pushTag = (key2, value) => {
-      if (tagKeys.has(key2)) return;
-      tags2.push({
-        key: key2,
+    const pushTag = (key, value) => {
+      if (tagKeys.has(key)) return;
+      tags.push({
+        key,
         value,
       });
-      tagKeys.add(key2);
+      tagKeys.add(key);
     };
-    for (const [key2, value] of Object.entries(parsed)) {
-      if (INTERNAL_FIELDS.has(key2)) continue;
+    for (const [key, value] of Object.entries(parsed)) {
+      if (INTERNAL_FIELDS.has(key)) continue;
       if (
-        toolName2 &&
-        CAPABILITY_VIDEO_TOOL_NAMES.has(toolName2) &&
-        MISPLACED_CAPABILITY_VIDEO_TAG_FIELDS.has(key2)
+        toolName &&
+        CAPABILITY_VIDEO_TOOL_NAMES.has(toolName) &&
+        MISPLACED_CAPABILITY_VIDEO_TAG_FIELDS.has(key)
       ) {
         continue;
       }
-      if (key2 === "mode" && vendorParamsHasMode(parsed)) continue;
-      if (!prompt && PROMPT_FIELDS.has(key2) && typeof value === "string") {
+      if (key === "mode" && vendorParamsHasMode(parsed)) continue;
+      if (!prompt && PROMPT_FIELDS.has(key) && typeof value === "string") {
         prompt = value;
       } else if (
         !prompt &&
-        BATCH_PROMPT_FIELDS.has(key2) &&
+        BATCH_PROMPT_FIELDS.has(key) &&
         Array.isArray(value)
       ) {
-        const first2 = value.find(
+        const first = value.find(
           (candidateValue) => typeof candidateValue === "string" && candidateValue.length > 0,
         );
-        if (first2) prompt = first2;
+        if (first) prompt = first;
       } else if (
-        DISPLAY_TAG_FIELDS.has(key2) &&
+        DISPLAY_TAG_FIELDS.has(key) &&
         value != null &&
         value !== ""
       ) {
         const display = tagDisplayValue(
-          key2,
+          key,
           value,
           translate,
           preferType,
           modelDisplayMap,
         );
-        if (display !== null) pushTag(key2, display);
+        if (display !== null) pushTag(key, display);
       }
     }
     if (
@@ -446,7 +446,7 @@ function parseGenInput(toolArgs, translate, preferType, toolName2, modelDisplayM
     const refPaths = collectRefPaths(parsed);
     return {
       prompt,
-      tags: tags2,
+      tags,
       refPaths,
     };
   } catch {
@@ -465,9 +465,9 @@ function parseBatchItems(
     const args = JSON.parse(toolArgs);
     if (!args || typeof args !== "object") return void 0;
     let batchCount = 0;
-    for (const key2 of BATCH_PROMPT_FIELDS) {
-      if (Array.isArray(args[key2]) && args[key2].length > 1) {
-        batchCount = args[key2].length;
+    for (const key of BATCH_PROMPT_FIELDS) {
+      if (Array.isArray(args[key]) && args[key].length > 1) {
+        batchCount = args[key].length;
         break;
       }
     }
@@ -490,15 +490,15 @@ function parseBatchItems(
     const items = [];
     for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
       let prompt;
-      const tags2 = [];
-      for (const [key2, value] of Object.entries(args)) {
-        if (INTERNAL_FIELDS.has(key2) || key2 === "count") continue;
-        if (key2 === "mode" && vendorParamsHasMode(args)) continue;
-        if (BATCH_ARRAY_FIELDS.has(key2) && Array.isArray(value)) {
+      const tags = [];
+      for (const [key, value] of Object.entries(args)) {
+        if (INTERNAL_FIELDS.has(key) || key === "count") continue;
+        if (key === "mode" && vendorParamsHasMode(args)) continue;
+        if (BATCH_ARRAY_FIELDS.has(key) && Array.isArray(value)) {
           const itemValue = value[batchIndex];
           if (itemValue == null || itemValue === "") continue;
-          const singular = key2.replace(/s$/, "").replace(/ies$/, "y");
-          if (BATCH_PROMPT_FIELDS.has(key2) && typeof itemValue === "string") {
+          const singular = key.replace(/s$/, "").replace(/ies$/, "y");
+          if (BATCH_PROMPT_FIELDS.has(key) && typeof itemValue === "string") {
             prompt = itemValue;
           } else if (
             DISPLAY_TAG_FIELDS.has(singular) &&
@@ -513,30 +513,30 @@ function parseBatchItems(
               modelDisplayMap,
             );
             if (display !== null)
-              tags2.push({
+              tags.push({
                 key: singular,
                 value: display,
               });
           }
-        } else if (!BATCH_ARRAY_FIELDS.has(key2)) {
-          if (!prompt && PROMPT_FIELDS.has(key2) && typeof value === "string") {
+        } else if (!BATCH_ARRAY_FIELDS.has(key)) {
+          if (!prompt && PROMPT_FIELDS.has(key) && typeof value === "string") {
             prompt = value;
           } else if (
-            DISPLAY_TAG_FIELDS.has(key2) &&
+            DISPLAY_TAG_FIELDS.has(key) &&
             value != null &&
             value !== ""
           ) {
-            if (!tags2.some((existingTag) => existingTag.key === key2)) {
+            if (!tags.some((existingTag) => existingTag.key === key)) {
               const display = tagDisplayValue(
-                key2,
+                key,
                 value,
                 translate,
                 preferType,
                 modelDisplayMap,
               );
               if (display !== null)
-                tags2.push({
-                  key: key2,
+                tags.push({
+                  key,
                   value: display,
                 });
             }
@@ -551,7 +551,7 @@ function parseBatchItems(
         for (const [vendorKey, vendorValue] of Object.entries(args.vendor_params)) {
           if (!VENDOR_PARAM_TAG_KEYS.has(vendorKey)) continue;
           if (vendorValue == null || vendorValue === "") continue;
-          if (tags2.some((existingTag) => existingTag.key === vendorKey)) continue;
+          if (tags.some((existingTag) => existingTag.key === vendorKey)) continue;
           const display = tagDisplayValue(
             vendorKey,
             vendorValue,
@@ -560,7 +560,7 @@ function parseBatchItems(
             modelDisplayMap,
           );
           if (display !== null)
-            tags2.push({
+            tags.push({
               key: vendorKey,
               value: display,
             });
@@ -580,7 +580,7 @@ function parseBatchItems(
       items.push({
         input: {
           prompt,
-          tags: tags2,
+          tags,
           refPaths,
         },
         outputPaths,
@@ -603,16 +603,16 @@ function extractFailureReason(toolResult) {
     const parsed = JSON.parse(trimmed);
     if (typeof parsed === "string") return sanitizeDisplayText(parsed);
     if (!parsed || typeof parsed !== "object") return void 0;
-    const record2 = parsed;
-    for (const key2 of ["error", "message", "reason", "detail", "content"]) {
-      const value = record2[key2];
+    const record = parsed;
+    for (const key of ["error", "message", "reason", "detail", "content"]) {
+      const value = record[key];
       if (typeof value === "string" && value.trim())
         return sanitizeDisplayText(value);
     }
     if (
-      record2.is_error === true ||
-      record2.ok === false ||
-      record2.success === false
+      record.is_error === true ||
+      record.ok === false ||
+      record.success === false
     ) {
       return void 0;
     }
@@ -630,13 +630,13 @@ function extractFailureCode(toolResult) {
     const parsed = JSON.parse(trimmed);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
       return void 0;
-    const record2 = parsed;
-    for (const key2 of ["error_code", "code"]) {
-      const value = record2[key2];
+    const record = parsed;
+    for (const key of ["error_code", "code"]) {
+      const value = record[key];
       if (typeof value === "string" && value.trim())
         return sanitizeDisplayText(value);
     }
-    const nestedError = record2.error;
+    const nestedError = record.error;
     if (
       !nestedError ||
       typeof nestedError !== "object" ||
@@ -644,8 +644,8 @@ function extractFailureCode(toolResult) {
     ) {
       return void 0;
     }
-    for (const key2 of ["error_code", "code"]) {
-      const value = nestedError[key2];
+    for (const key of ["error_code", "code"]) {
+      const value = nestedError[key];
       if (typeof value === "string" && value.trim())
         return sanitizeDisplayText(value);
     }
@@ -663,12 +663,12 @@ function extractUserMessage(toolResult) {
     const parsed = JSON.parse(trimmed);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
       return void 0;
-    const record2 = parsed;
-    const userMessage = record2.user_message;
+    const record = parsed;
+    const userMessage = record.user_message;
     if (typeof userMessage === "string" && userMessage.trim()) {
       return sanitizeDisplayText(userMessage);
     }
-    const nestedError = record2.error;
+    const nestedError = record.error;
     if (
       !nestedError ||
       typeof nestedError !== "object" ||
@@ -694,12 +694,12 @@ function looksLikeFailureReason(reason) {
 function parseEffectiveParams(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     return void 0;
-  const entries2 = Object.entries(value).filter(
+  const entries = Object.entries(value).filter(
     (entry) => typeof entry[1] === "string",
   );
-  return entries2.length > 0 ? Object.fromEntries(entries2) : void 0;
+  return entries.length > 0 ? Object.fromEntries(entries) : void 0;
 }
-function parseGenOutput(toolResult, toolName2) {
+function parseGenOutput(toolResult, toolName) {
   if (!toolResult) return void 0;
   try {
     const sanitizedToolResult = normalizeStructuredToolResult(toolResult);
@@ -724,7 +724,7 @@ function parseGenOutput(toolResult, toolName2) {
     } else if (typeof parsed?.path === "string" && parsed.path.length > 0) {
       paths.push(parsed.path);
     }
-    const category = resolveMediaTaskCategory(toolName2 ?? "");
+    const category = resolveMediaTaskCategory(toolName ?? "");
     const mediaType =
       category === "imageGen"
         ? "image"
@@ -742,7 +742,7 @@ function parseGenOutput(toolResult, toolName2) {
       parsed.song_title.trim().length > 0
         ? parsed.song_title
         : void 0;
-    const styleTags2 =
+    const styleTags =
       typeof parsed?.style_tags === "string" &&
       parsed.style_tags.trim().length > 0
         ? parsed.style_tags
@@ -783,7 +783,7 @@ function parseGenOutput(toolResult, toolName2) {
       effectiveParams,
       lyrics,
       songTitle,
-      styleTags: styleTags2,
+      styleTags,
       voiceId,
       voiceCount: voiceCount > 0 ? voiceCount : void 0,
       formattedLyrics,
@@ -794,18 +794,18 @@ function parseGenOutput(toolResult, toolName2) {
     return void 0;
   }
 }
-function tagSemanticKey(key2) {
-  if (MODEL_TAG_FIELDS.has(key2)) return "model";
-  if (key2 === "ratio" || key2 === "aspect_ratio") return "aspect_ratio";
-  return key2;
+function tagSemanticKey(key) {
+  if (MODEL_TAG_FIELDS.has(key)) return "model";
+  if (key === "ratio" || key === "aspect_ratio") return "aspect_ratio";
+  return key;
 }
 const GENERATION_TAG_ORDER = {
   model: 0,
   aspect_ratio: 1,
   resolution: 2,
 };
-function sortGenerationTags(tags2) {
-  return [...tags2].sort(
+function sortGenerationTags(tags) {
+  return [...tags].sort(
     (firstTag, secondTag) =>
       (GENERATION_TAG_ORDER[tagSemanticKey(firstTag.key)] ?? 3) -
       (GENERATION_TAG_ORDER[tagSemanticKey(secondTag.key)] ?? 3),
@@ -820,10 +820,10 @@ function applyEffectiveParamTags(
 ) {
   if (!input || !effectiveParams) return input;
   const effectiveTags = [];
-  for (const [key2, value] of Object.entries(effectiveParams)) {
-    if (!DISPLAY_TAG_FIELDS.has(key2) || value === "") continue;
+  for (const [key, value] of Object.entries(effectiveParams)) {
+    if (!DISPLAY_TAG_FIELDS.has(key) || value === "") continue;
     const display = tagDisplayValue(
-      key2,
+      key,
       value,
       translate,
       preferType,
@@ -831,7 +831,7 @@ function applyEffectiveParamTags(
     );
     if (display !== null)
       effectiveTags.push({
-        key: key2,
+        key,
         value: display,
       });
   }
@@ -840,40 +840,40 @@ function applyEffectiveParamTags(
     effectiveTags.map((effectiveTag) => [tagSemanticKey(effectiveTag.key), effectiveTag]),
   );
   const consumedSemanticKeys = new Set();
-  const tags2 = [];
+  const tags = [];
   for (const inputTag of input.tags) {
     const semanticKey = tagSemanticKey(inputTag.key);
     const effectiveTag = effectiveBySemanticKey.get(semanticKey);
     if (!effectiveTag) {
-      tags2.push(inputTag);
+      tags.push(inputTag);
       continue;
     }
     if (!consumedSemanticKeys.has(semanticKey)) {
-      tags2.push(effectiveTag);
+      tags.push(effectiveTag);
       consumedSemanticKeys.add(semanticKey);
     }
   }
   for (const effectiveTag of effectiveTags) {
     const semanticKey = tagSemanticKey(effectiveTag.key);
     if (consumedSemanticKeys.has(semanticKey)) continue;
-    tags2.push(effectiveTag);
+    tags.push(effectiveTag);
     consumedSemanticKeys.add(semanticKey);
   }
   return {
     ...input,
-    tags: tags2,
+    tags,
   };
 }
-function PromptBlock({ text: text2, lineClamp }) {
+function PromptBlock({ text, lineClamp }) {
   const [copied, setCopied] = reactExports.useState(false);
   const handleCopy = reactExports.useCallback(
     (clickEvent) => {
       clickEvent.stopPropagation();
-      navigator.clipboard.writeText(text2);
+      navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     },
-    [text2],
+    [text],
   );
   return (
     <div className="relative group/prompt">
@@ -897,11 +897,11 @@ function PromptBlock({ text: text2, lineClamp }) {
           ellipsis={true}
           className="text-body-14 text-muted-foreground pr-6"
         >
-          {text2}
+          {text}
         </ExpandableText>
       ) : (
         <p className="text-body-14 text-muted-foreground whitespace-pre-wrap break-words [overflow-wrap:anywhere] pr-6">
-          {text2}
+          {text}
         </p>
       )}
     </div>
@@ -911,16 +911,16 @@ function RefPreviews({ paths, resolveFilePath }) {
   if (paths.length === 0) return null;
   return (
     <div className="flex items-center gap-1 overflow-x-auto min-w-0">
-      {paths.map((path2) => {
-        const src = resolveFilePath(path2);
+      {paths.map((path) => {
+        const src = resolveFilePath(path);
         if (!src) return null;
         return (
           <ArtifactAssetCard
-            key={path2}
+            key={path}
             artifact={{
-              type: artifactAssetTypeFromPath(path2),
-              path: path2,
-              url: path2,
+              type: artifactAssetTypeFromPath(path),
+              path,
+              url: path,
             }}
             src={src}
             size="sm"
@@ -933,7 +933,7 @@ function RefPreviews({ paths, resolveFilePath }) {
 function FailureBlock({
   label: labelOverride,
   reason,
-  pending: pending2 = false,
+  pending = false,
 }) {
   const { t } = useTranslation();
   const label = labelOverride ?? t("chat.activity.mediaGenFailed");
@@ -942,7 +942,7 @@ function FailureBlock({
   return (
     <div className="flex gap-1.5 items-start text-body-14 text-foreground min-w-0">
       <Icon
-        icon={pending2 ? Clock : CircleAlert}
+        icon={pending ? Clock : CircleAlert}
         size="sm"
         strokeWidth={1.5}
         className="shrink-0 mt-1 text-muted-foreground"
@@ -969,7 +969,7 @@ function GenerationFailureBlock({ label, rawError, errorCode, userMessage }) {
       errorCode,
       userMessage,
     },
-    (key2) => t(key2),
+    (key) => t(key),
   );
   return <FailureBlock label={label} reason={reason} />;
 }
@@ -1017,7 +1017,7 @@ function BatchSummaryFooter({ succeeded, total, failures }) {
                   </div>
                   <pre className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-foreground font-sans leading-relaxed">
                     {redactForCurrentRegion(
-                      generationFailureDisplayText(failure, (key2) => t(key2)),
+                      generationFailureDisplayText(failure, (key) => t(key)),
                     )}
                   </pre>
                 </div>
@@ -1167,13 +1167,13 @@ export function MediaGenDetail({ entry }) {
   const mediaType = preferType ?? "audio";
   const { data: mentionModels } = useMentionModels();
   const modelDisplayMap = reactExports.useMemo(() => {
-    const map3 = new Map();
+    const map = new Map();
     const models =
       mentionModels?.filter(
         (model) => !preferType || model.type === preferType,
       ) ?? [];
-    const addModelKey = (key2, displayName2) => {
-      if (key2 && !map3.has(key2)) map3.set(key2, displayName2);
+    const addModelKey = (key, displayName) => {
+      if (key && !map.has(key)) map.set(key, displayName);
     };
     for (const keyOf of [
       (model) => model.id,
@@ -1184,7 +1184,7 @@ export function MediaGenDetail({ entry }) {
         addModelKey(keyOf(model), redactForCurrentRegion(model.display_name));
       }
     }
-    return map3;
+    return map;
   }, [mentionModels, preferType]);
   const batchItems = reactExports.useMemo(
     () =>
@@ -1224,9 +1224,9 @@ export function MediaGenDetail({ entry }) {
     [modelDisplayMap, output?.effectiveParams, preferType, rawInput, t],
   );
   const displayToolResult = sanitizeDisplayText(entry.toolResult);
-  const resolveFilePath = (path2) => {
-    if (path2.startsWith("asset://")) return void 0;
-    const resolved = resolveUrl(API_PATHS.serveFile(path2));
+  const resolveFilePath = (path) => {
+    if (path.startsWith("asset://")) return void 0;
+    const resolved = resolveUrl(API_PATHS.serveFile(path));
     if (!resolved) return void 0;
     if (/^https?:\/\//i.test(resolved)) return resolved;
     try {
@@ -1237,11 +1237,11 @@ export function MediaGenDetail({ entry }) {
   };
   if (batchItems && batchItems.length > 1) {
     const total = batchItems.length;
-    const current2 = batchItems[pageIndex];
-    if (!current2) return null;
-    const currentTags = sortGenerationTags(current2.input.tags);
-    const promptNode2 = current2.input.prompt ? (
-      <PromptBlock text={current2.input.prompt} lineClamp={promptLineClamp} />
+    const current = batchItems[pageIndex];
+    if (!current) return null;
+    const currentTags = sortGenerationTags(current.input.tags);
+    const batchPromptNode = current.input.prompt ? (
+      <PromptBlock text={current.input.prompt} lineClamp={promptLineClamp} />
     ) : (
       void 0
     );
@@ -1280,8 +1280,8 @@ export function MediaGenDetail({ entry }) {
         </button>
       </div>
     );
-    const hasReferencePreviews = current2.input.refPaths.length > 0;
-    const tagsNode2 =
+    const hasReferencePreviews = current.input.refPaths.length > 0;
+    const batchTagsNode =
       currentTags.length > 0 || hasReferencePreviews ? (
         <div className="flex flex-col gap-1.5 min-w-0">
           {currentTags.length > 0 && (
@@ -1299,7 +1299,7 @@ export function MediaGenDetail({ entry }) {
           {hasReferencePreviews && (
             <div className="flex items-center gap-1.5 min-w-0">
               <RefPreviews
-                paths={current2.input.refPaths}
+                paths={current.input.refPaths}
                 resolveFilePath={resolveFilePath}
               />
               {pager}
@@ -1309,27 +1309,27 @@ export function MediaGenDetail({ entry }) {
       ) : (
         <div className="flex items-center gap-1.5 min-w-0">
           <RefPreviews
-            paths={current2.input.refPaths}
+            paths={current.input.refPaths}
             resolveFilePath={resolveFilePath}
           />
           {pager}
         </div>
       );
     const allOutputPaths = batchItems.flatMap((item) => item.outputPaths);
-    const currentOutputPaths = current2.outputPaths;
+    const currentOutputPaths = current.outputPaths;
     const succeeded = batchItems.filter(
       (item) => item.outputPaths.length > 0,
     ).length;
     const failures = batchItems
-      .map((item, index2) => ({
+      .map((item, index) => ({
         item,
-        index: index2,
+        index,
       }))
       .filter(
         ({ item }) => !!(item.userMessage || item.error || item.errorCode),
       )
-      .map(({ item, index: index2 }) => ({
-        index: index2,
+      .map(({ item, index }) => ({
+        index,
         rawError: item.error,
         errorCode: item.errorCode,
         userMessage: item.userMessage,
@@ -1346,7 +1346,7 @@ export function MediaGenDetail({ entry }) {
       (entry.toolStatus === "error" ||
         !!rawBatchFailure ||
         !!rawBatchUserMessage);
-    const footerNode2 = isHandedOffToCanvas ? (
+    const batchFooterNode = isHandedOffToCanvas ? (
       <GenerationHandoffNotice targets={entry.generationHandoffTargets ?? []} />
     ) : hasManagedFailurePresentation ? (
       <FailureBlock
@@ -1369,18 +1369,18 @@ export function MediaGenDetail({ entry }) {
     ) : (
       void 0
     );
-    const mediaNode2 =
+    const batchMediaNode =
       currentOutputPaths.length > 0 ? (
         <div className="flex gap-1.5 overflow-x-auto">
-          {currentOutputPaths.map((path2) => {
-            const src = resolveFilePath(path2);
+          {currentOutputPaths.map((path) => {
+            const src = resolveFilePath(path);
             return src ? (
               <ArtifactAssetCard
-                key={path2}
+                key={path}
                 artifact={{
-                  type: artifactAssetTypeFromPath(path2, mediaType),
-                  path: path2,
-                  url: path2,
+                  type: artifactAssetTypeFromPath(path, mediaType),
+                  path,
+                  url: path,
                 }}
                 src={src}
                 size="md"
@@ -1395,10 +1395,10 @@ export function MediaGenDetail({ entry }) {
     return (
       <MediaGenCardLayout
         className=""
-        prompt={promptNode2}
-        tags={tagsNode2}
-        media={mediaNode2}
-        footer={footerNode2}
+        prompt={batchPromptNode}
+        tags={batchTagsNode}
+        media={batchMediaNode}
+        footer={batchFooterNode}
       />
     );
   }
@@ -1440,13 +1440,13 @@ export function MediaGenDetail({ entry }) {
   ) : (
     void 0
   );
-  const inputTags2 = input ? sortGenerationTags(input.tags) : [];
+  const inputTags = input ? sortGenerationTags(input.tags) : [];
   const tagsNode =
-    input && (inputTags2.length > 0 || input.refPaths.length > 0) ? (
+    input && (inputTags.length > 0 || input.refPaths.length > 0) ? (
       <div className="flex flex-col gap-1.5 min-w-0">
-        {inputTags2.length > 0 && (
+        {inputTags.length > 0 && (
           <TagsRow
-            tags={inputTags2}
+            tags={inputTags}
             tagIcons={TAG_ICON}
             categoryIcon={CATEGORY_ICON[entry.category] ?? SkillIcon}
           />
@@ -1464,15 +1464,15 @@ export function MediaGenDetail({ entry }) {
   const mediaNode =
     output && output.paths.length > 0 ? (
       <div className="flex gap-1.5 overflow-x-auto">
-        {output.paths.map((path2) => {
-          const src = resolveFilePath(path2);
+        {output.paths.map((path) => {
+          const src = resolveFilePath(path);
           return src ? (
             <ArtifactAssetCard
-              key={path2}
+              key={path}
               artifact={{
-                type: artifactAssetTypeFromPath(path2, output.mediaType),
-                path: path2,
-                url: path2,
+                type: artifactAssetTypeFromPath(path, output.mediaType),
+                path,
+                url: path,
               }}
               src={src}
               size="md"

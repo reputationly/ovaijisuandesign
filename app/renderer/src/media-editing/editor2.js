@@ -41,8 +41,8 @@ function autoResizeTextarea(textareaElement, fontSize, lineHeight, maxWidth) {
     if (measuredWidth > maxW) maxW = measuredWidth;
   }
   document.body.removeChild(measure);
-  const cap2 = Math.max(8, Math.floor(maxWidth));
-  textareaElement.style.width = `${Math.min(cap2, Math.max(8, Math.ceil(maxW) + 2))}px`;
+  const cap = Math.max(8, Math.floor(maxWidth));
+  textareaElement.style.width = `${Math.min(cap, Math.max(8, Math.ceil(maxW) + 2))}px`;
   textareaElement.style.height = `${Math.max(1, lines.length) * fontSize * lineHeight}px`;
 }
 export class Editor2 {
@@ -100,52 +100,52 @@ export class Editor2 {
     void this.loadImage(options.image).catch(() => void 0);
   }
   // ==================== 公共 API ====================
-  setTool(name2) {
-    if (this.currentToolName === name2) return;
+  setTool(toolName) {
+    if (this.currentToolName === toolName) return;
     this.currentTool.onDeactivate();
-    this.currentToolName = name2;
-    this.currentTool = this.makeTool(name2);
+    this.currentToolName = toolName;
+    this.currentTool = this.makeTool(toolName);
     this.currentTool.onActivate();
     this.applyCursor();
     this.interactionTool = null;
-    if (name2 !== "select") {
+    if (toolName !== "select") {
       this.select(null);
     }
-    this.bus.emit("tool:change", name2);
+    this.bus.emit("tool:change", toolName);
     this.emitChange();
   }
   getTool() {
     return this.currentToolName;
   }
-  setStyle(style2) {
+  setStyle(style) {
     this.style = {
       ...this.style,
-      ...style2,
+      ...style,
     };
     const selectedShape = this.getSelectedShape();
     if (selectedShape) {
       this.beginInteraction();
       selectedShape.data.style = {
         ...selectedShape.data.style,
-        ...style2,
+        ...style,
       };
       if (selectedShape instanceof MosaicShape) {
-        const next2 = selectedShape.data;
-        const newMode = style2.mosaicMode ?? next2.mode;
+        const next = selectedShape.data;
+        const newMode = style.mosaicMode ?? next.mode;
         const newStrength =
           newMode === "blur"
-            ? (style2.blurRadius ?? selectedShape.data.style.blurRadius ?? next2.strength)
-            : (style2.mosaicBlockSize ??
+            ? (style.blurRadius ?? selectedShape.data.style.blurRadius ?? next.strength)
+            : (style.mosaicBlockSize ??
               selectedShape.data.style.mosaicBlockSize ??
-              next2.strength);
-        next2.mode = newMode;
-        next2.strength = newStrength;
-        if (next2.shape === "brush") {
+              next.strength);
+        next.mode = newMode;
+        next.strength = newStrength;
+        if (next.shape === "brush") {
           const newBrush =
-            style2.mosaicBrushSize ??
+            style.mosaicBrushSize ??
             selectedShape.data.style.mosaicBrushSize ??
-            next2.brushSize;
-          if (newBrush > 0) next2.brushSize = newBrush;
+            next.brushSize;
+          if (newBrush > 0) next.brushSize = newBrush;
         }
       }
       this.commitInteraction();
@@ -163,13 +163,13 @@ export class Editor2 {
     };
   }
   /** 公共：在画布上添加一个形状（自动 push history）。 */
-  addShape(data2) {
+  addShape(data) {
     this.beginInteraction();
-    const shape = createShape(data2);
+    const shape = createShape(data);
     this.shapes.push(shape);
     this.shapeMap.set(shape.id, shape);
     this.commitInteraction();
-    this.bus.emit("shape:add", cloneShapeData(data2));
+    this.bus.emit("shape:add", cloneShapeData(data));
   }
   /**
    * @internal Tool 用：直接传入 Shape 实例，避免重新构造时丢失 bitmap。
@@ -195,8 +195,8 @@ export class Editor2 {
     this.deleteShapes([shapeId]);
   }
   /** 公共：一次事务删除多个形状（浏览器批注用它成组移除框与文字标签）。 */
-  deleteShapes(ids2) {
-    const idSet = new Set(ids2);
+  deleteShapes(ids) {
+    const idSet = new Set(ids);
     if (idSet.size === 0) return;
     const removed = this.shapes.filter((shape) => idSet.has(shape.id));
     if (removed.length === 0) return;
@@ -240,24 +240,24 @@ export class Editor2 {
     return null;
   }
   undo() {
-    const snapshot2 = this.cloneShapesData();
-    const prev = this.history.undo(snapshot2);
+    const snapshot = this.cloneShapesData();
+    const prev = this.history.undo(snapshot);
     if (prev !== null) {
       this.applySnapshot(prev);
     }
   }
   redo() {
-    const snapshot2 = this.cloneShapesData();
-    const next2 = this.history.redo(snapshot2);
-    if (next2 !== null) {
-      this.applySnapshot(next2);
+    const snapshot = this.cloneShapesData();
+    const next = this.history.redo(snapshot);
+    if (next !== null) {
+      this.applySnapshot(next);
     }
   }
-  on(type2, handler) {
-    return this.bus.on(type2, handler);
+  on(type, handler) {
+    return this.bus.on(type, handler);
   }
-  off(type2, handler) {
-    this.bus.off(type2, handler);
+  off(type, handler) {
+    this.bus.off(type, handler);
   }
   getState() {
     return {
@@ -271,10 +271,10 @@ export class Editor2 {
       canRedo: this.history.canRedo,
     };
   }
-  toDataURL(type2 = "image/png", quality = 0.92) {
-    return this.renderer.exportComposed().toDataURL(type2, quality);
+  toDataURL(type = "image/png", quality = 0.92) {
+    return this.renderer.exportComposed().toDataURL(type, quality);
   }
-  toBlob(type2 = "image/png", quality = 0.92) {
+  toBlob(type = "image/png", quality = 0.92) {
     const canvas = this.renderer.exportComposed();
     return new Promise((resolve, reject) => {
       canvas.toBlob(
@@ -282,7 +282,7 @@ export class Editor2 {
           if (blob) resolve(blob);
           else reject(new Error("Canvas.toBlob returned null"));
         },
-        type2,
+        type,
         quality,
       );
     });
@@ -292,10 +292,10 @@ export class Editor2 {
    * 不清空 shapes（用户已画的标注会保留在新图上）。
    */
   async loadImage(src) {
-    const version2 = ++this.imageLoadVersion;
+    const version = ++this.imageLoadVersion;
     try {
       const imageElement = typeof src === "string" ? await loadImageElement(src) : src;
-      if (this.destroyed || version2 !== this.imageLoadVersion) return;
+      if (this.destroyed || version !== this.imageLoadVersion) return;
       const targetW = this.width;
       const targetH = Math.round(
         targetW * (imageElement.naturalHeight / imageElement.naturalWidth),
@@ -308,7 +308,7 @@ export class Editor2 {
       this.bus.emit("ready", void 0);
       this.emitChange();
     } catch (error) {
-      if (this.destroyed || version2 !== this.imageLoadVersion) return;
+      if (this.destroyed || version !== this.imageLoadVersion) return;
       this.bus.emit("error", error);
       console.error("[Editor] load image failed", error);
       throw error;
@@ -319,8 +319,8 @@ export class Editor2 {
    * 用于让选中框 / 4 角手柄保持屏幕像素大小、不随外层 zoom 一起放大缩小。
    * SelectTool 也会读这个值来按"屏幕像素"语义做手柄命中判定。
    */
-  setUiScale(scale2) {
-    this.renderer.setUiScale(scale2);
+  setUiScale(scale) {
+    this.renderer.setUiScale(scale);
   }
   getUiScale() {
     return this.renderer.getUiScale();
@@ -389,20 +389,20 @@ export class Editor2 {
    * 关键：编辑期间的整个生命周期被包裹在一次 beginInteraction 事务里，
    * 这样无论是"编辑提交"、"编辑清空 → 删除"、"取消编辑"，都只产生一个 history 入口。
    */
-  openTextEditor(point2, existing) {
+  openTextEditor(point, existing) {
     this.closeTextEditor(false);
     const textareaElement = document.createElement("textarea");
-    const style2 = existing ? existing.data.style : this.style;
-    const fontSize = style2.fontSize ?? 18;
+    const style = existing ? existing.data.style : this.style;
+    const fontSize = style.fontSize ?? 18;
     const fontFamily =
-      style2.fontFamily ??
+      style.fontFamily ??
       'system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-    const fontWeight = String(style2.fontWeight ?? 500);
+    const fontWeight = String(style.fontWeight ?? 500);
     const lineHeight = 1.4;
-    const variant = style2.textVariant ?? "plain";
-    const mainColor = style2.stroke;
+    const variant = style.textVariant ?? "plain";
+    const mainColor = style.stroke;
     const inverseColor =
-      style2.textOutlineColor ?? pickContrastColor(mainColor);
+      style.textOutlineColor ?? pickContrastColor(mainColor);
     Object.assign(textareaElement.style, {
       position: "absolute",
       background: "transparent",
@@ -442,8 +442,8 @@ export class Editor2 {
     if (existing) {
       shape = existing;
     } else {
-      const data2 = buildTextShapeData(point2, "", this.style);
-      shape = new TextShape(data2);
+      const data = buildTextShapeData(point, "", this.style);
+      shape = new TextShape(data);
     }
     const originalText = shape.data.text;
     const padXForCanvas =
@@ -504,14 +504,14 @@ export class Editor2 {
     this.closeTextEditor(false);
     const shape = this.shapeMap.get(tagId);
     if (!(shape instanceof TagShape)) return;
-    const data2 = shape.data;
-    const style2 = data2.style;
-    const fontSize = style2.fontSize ?? TAG_DEFAULT_FONT_SIZE;
+    const data = shape.data;
+    const style = data.style;
+    const fontSize = style.fontSize ?? TAG_DEFAULT_FONT_SIZE;
     const fontFamily =
-      style2.fontFamily ??
+      style.fontFamily ??
       'system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-    const fontWeight = String(style2.fontWeight ?? 500);
-    const foregroundColor = style2.tagTextColor ?? "#FFFFFF";
+    const fontWeight = String(style.fontWeight ?? 500);
+    const foregroundColor = style.tagTextColor ?? "#FFFFFF";
     const textareaElement = document.createElement("textarea");
     Object.assign(textareaElement.style, {
       position: "absolute",
@@ -539,26 +539,26 @@ export class Editor2 {
       letterSpacing: "normal",
       WebkitFontSmoothing: "antialiased",
     });
-    textareaElement.value = data2.text || "";
-    if (keepTagInCanvas(data2, this.width, this.height)) {
+    textareaElement.value = data.text || "";
+    if (keepTagInCanvas(data, this.width, this.height)) {
       this.renderer.drawShapes(this.shapes);
     }
     const placeTextarea = () => {
-      const innerW = Math.max(fontSize * 2, data2.width - TAG_PADDING_X * 2);
-      const innerH = Math.max(fontSize * 1.4, data2.height - TAG_PADDING_Y * 2);
+      const innerW = Math.max(fontSize * 2, data.width - TAG_PADDING_X * 2);
+      const innerH = Math.max(fontSize * 1.4, data.height - TAG_PADDING_Y * 2);
       textareaElement.style.width = `${innerW}px`;
       textareaElement.style.height = `${innerH}px`;
-      textareaElement.style.left = `${data2.x + (data2.width - innerW) / 2}px`;
-      textareaElement.style.top = `${data2.y + (data2.height - innerH) / 2}px`;
+      textareaElement.style.left = `${data.x + (data.width - innerW) / 2}px`;
+      textareaElement.style.top = `${data.y + (data.height - innerH) / 2}px`;
     };
     placeTextarea();
     this.editingTagShape = shape;
     this.container.appendChild(textareaElement);
     setTimeout(() => textareaElement.focus(), 0);
     const onInput = () => {
-      data2.text = textareaElement.value;
+      data.text = textareaElement.value;
       this.renderer.drawShapes(this.shapes);
-      if (keepTagInCanvas(data2, this.width, this.height)) {
+      if (keepTagInCanvas(data, this.width, this.height)) {
         this.renderer.drawShapes(this.shapes);
       }
       placeTextarea();
@@ -581,7 +581,7 @@ export class Editor2 {
   closeTextEditor(commit) {
     if (!this.textarea) return;
     const textareaElement = this.textarea;
-    const text2 = textareaElement.value;
+    const text = textareaElement.value;
     const editing = this.editingTextShape;
     const editingTag = this.editingTagShape;
     const isNew = this.editingTextIsNew;
@@ -593,7 +593,7 @@ export class Editor2 {
     this.editingTextOriginal = "";
     textareaElement.parentElement?.removeChild(textareaElement);
     if (editingTag) {
-      const removeTag = !commit || !text2.trim();
+      const removeTag = !commit || !text.trim();
       if (removeTag) {
         const shapeIndex = this.shapes.findIndex((shape) => shape.id === editingTag.id);
         let removed = null;
@@ -606,7 +606,7 @@ export class Editor2 {
         if (removed) this.bus.emit("shape:remove", removed);
         return;
       }
-      editingTag.data.text = text2;
+      editingTag.data.text = text;
       this.commitInteraction();
       this.bus.emit("shape:update", cloneShapeData(editingTag.data));
       return;
@@ -626,7 +626,7 @@ export class Editor2 {
         this.cancelInteraction();
         return;
       }
-      if (!text2.trim()) {
+      if (!text.trim()) {
         const removed = cloneShapeData(editing.data);
         const shapeIndex = this.shapes.findIndex((shape) => shape.id === editing.id);
         if (shapeIndex >= 0) {
@@ -638,7 +638,7 @@ export class Editor2 {
         this.bus.emit("shape:remove", removed);
         return;
       }
-      editing.data.text = text2;
+      editing.data.text = text;
       this.renderer.drawShapes(this.shapes);
       this.commitInteraction();
       this.bus.emit(
@@ -649,8 +649,8 @@ export class Editor2 {
     }
   }
   // ==================== 内部 ====================
-  makeTool(name2) {
-    switch (name2) {
+  makeTool(toolName) {
+    switch (toolName) {
       case "select":
         return new SelectTool(this);
       case "rectangle":
@@ -677,15 +677,15 @@ export class Editor2 {
   cloneShapesData() {
     return this.shapes.map((shape) => cloneShapeData(shape.data));
   }
-  applySnapshot(snapshot2) {
+  applySnapshot(snapshot) {
     const oldMap = new Map(this.shapes.map((shape) => [shape.id, shape]));
-    this.shapes = snapshot2.map((data2) => {
-      const existingShape = oldMap.get(data2.id);
+    this.shapes = snapshot.map((data) => {
+      const existingShape = oldMap.get(data.id);
       if (existingShape) {
-        Object.assign(existingShape.data, data2);
+        Object.assign(existingShape.data, data);
         return existingShape;
       }
-      return createShape(data2);
+      return createShape(data);
     });
     this.shapeMap = new Map(this.shapes.map((shape) => [shape.id, shape]));
     if (this.selectedId && !this.shapeMap.has(this.selectedId))
@@ -773,9 +773,9 @@ export class Editor2 {
     try {
       this.renderer.main.releasePointerCapture(pointerEvent.pointerId);
     } catch {}
-    const tool2 = this.interactionTool ?? this.currentTool;
+    const tool = this.interactionTool ?? this.currentTool;
     this.interactionTool = null;
-    tool2.onPointerUp(this.toToolEvent(pointerEvent));
+    tool.onPointerUp(this.toToolEvent(pointerEvent));
   };
   getDelegationSelectTool() {
     if (!this.delegationSelectTool) {
@@ -783,22 +783,22 @@ export class Editor2 {
     }
     return this.delegationSelectTool;
   }
-  shouldDelegateToSelection(point2) {
+  shouldDelegateToSelection(point) {
     const selectedShape = this.getSelectedShape();
-    if (selectedShape && hitHandle(point2, selectedShape.getBounds(), this.getUiScale()))
+    if (selectedShape && hitHandle(point, selectedShape.getBounds(), this.getUiScale()))
       return true;
-    return this.findShapeAt(point2) !== null;
+    return this.findShapeAt(point) !== null;
   }
-  updateHoverCursorForCreationTool(point2) {
+  updateHoverCursorForCreationTool(point) {
     const selectedShape = this.getSelectedShape();
     if (selectedShape) {
-      const corner = hitHandle(point2, selectedShape.getBounds(), this.getUiScale());
+      const corner = hitHandle(point, selectedShape.getBounds(), this.getUiScale());
       if (corner) {
         this.setCursor(cornerCursor(corner));
         return;
       }
     }
-    if (this.findShapeAt(point2)) {
+    if (this.findShapeAt(point)) {
       this.setCursor("move");
       return;
     }
@@ -808,14 +808,14 @@ export class Editor2 {
     const rect = this.renderer.main.getBoundingClientRect();
     const scaleX = rect.width === 0 ? 1 : this.width / rect.width;
     const scaleY = rect.height === 0 ? 1 : this.height / rect.height;
-    const point2 = {
+    const point = {
       x: (mouseEvent.clientX - rect.left) * scaleX,
       y: (mouseEvent.clientY - rect.top) * scaleY,
     };
-    const hitShape = this.findShapeAt(point2);
+    const hitShape = this.findShapeAt(point);
     if (hitShape instanceof TextShape) {
       this.setTool("text");
-      this.openTextEditor(point2, hitShape);
+      this.openTextEditor(point, hitShape);
     } else if (hitShape instanceof TagShape) {
       this.setTool("select");
       this.openTagTextEditor(hitShape.id);

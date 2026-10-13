@@ -2,6 +2,9 @@
   "app/renderer/src/media-editing/package.jsx": {
     "File$1": "FileIcon"
   },
+  "app/renderer/src/media-editing/editor2.js": {
+    "Editor2": "CanvasEditor"
+  },
   "app/renderer/src/media-editing/wt.js": {
     "et": "IncompleteCodeContext",
     "tt": "useIsIncompleteCode",

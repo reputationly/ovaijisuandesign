@@ -8,7 +8,7 @@ export const I2VPopover = withReferenceNavigationSnapshot(
 );
 
 export function shouldShowImageBottomPopover({
-  selected: selected2,
+  selected,
   deferredSelected,
   isInteractiveSelect,
   isExpandedMediaOverlayVisible,
@@ -25,7 +25,7 @@ export function shouldShowImageBottomPopover({
   showLayerDecomposePrompt,
 }) {
   return (
-    selected2 &&
+    selected &&
     deferredSelected &&
     isInteractiveSelect &&
     !isExpandedMediaOverlayVisible &&
@@ -93,8 +93,8 @@ export function pointsBounds(points) {
 
 export class Shape {
   data;
-  constructor(data2) {
-    this.data = data2;
+  constructor(data) {
+    this.data = data;
   }
   get id() {
     return this.data.id;
@@ -117,8 +117,8 @@ export class Shape {
     context.save();
     context.strokeStyle = this.data.style.selectionStroke ?? "#3370FF";
     context.lineWidth = inverseScale;
-    const dash2 = this.data.style.selectionLineDash ?? [4, 4];
-    context.setLineDash(dash2.map((value) => value * inverseScale));
+    const dash = this.data.style.selectionLineDash ?? [4, 4];
+    context.setLineDash(dash.map((value) => value * inverseScale));
     const selectionPadding = 2 * inverseScale;
     context.strokeRect(
       bounds.x - selectionPadding,
@@ -132,30 +132,30 @@ export class Shape {
 
 export class FreePathShape extends Shape {
   draw(context) {
-    const { points, style: style2 } = this.data;
+    const { points, style } = this.data;
     if (points.length === 0) return;
     context.save();
-    context.lineWidth = style2.strokeWidth;
-    context.strokeStyle = style2.stroke;
+    context.lineWidth = style.strokeWidth;
+    context.strokeStyle = style.stroke;
     context.lineCap = "round";
     context.lineJoin = "round";
     context.beginPath();
     if (points.length === 1) {
       const point = points[0];
-      context.arc(point.x, point.y, style2.strokeWidth / 2, 0, Math.PI * 2);
-      context.fillStyle = style2.stroke;
+      context.arc(point.x, point.y, style.strokeWidth / 2, 0, Math.PI * 2);
+      context.fillStyle = style.stroke;
       context.fill();
     } else {
       context.moveTo(points[0].x, points[0].y);
       for (let pointIndex = 1; pointIndex < points.length - 1; pointIndex++) {
         const point = points[pointIndex];
-        const next2 = points[pointIndex + 1];
-        const centerX = (point.x + next2.x) / 2;
-        const centerY = (point.y + next2.y) / 2;
+        const next = points[pointIndex + 1];
+        const centerX = (point.x + next.x) / 2;
+        const centerY = (point.y + next.y) / 2;
         context.quadraticCurveTo(point.x, point.y, centerX, centerY);
       }
-      const last2 = points[points.length - 1];
-      context.lineTo(last2.x, last2.y);
+      const last = points[points.length - 1];
+      context.lineTo(last.x, last.y);
       context.stroke();
     }
     context.restore();
