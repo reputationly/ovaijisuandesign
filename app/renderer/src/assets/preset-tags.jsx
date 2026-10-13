@@ -17,15 +17,15 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
     () => new Set(value.filter((tag) => !PRESET_TAGS.includes(tag))),
   );
   const toggle = (tag) => {
-    const selected2 = !value.includes(tag);
+    const selected = !value.includes(tag);
     trackAssetCenterAction({
       action: "tag_toggle",
       surface: trackingSurface,
       tag_kind: PRESET_TAGS.includes(tag) ? "preset" : "custom",
-      selected: selected2,
-      tag_count: selected2 ? value.length + 1 : value.length - 1,
+      selected,
+      tag_count: selected ? value.length + 1 : value.length - 1,
     });
-    onChange(selected2 ? [...value, tag] : value.filter((existingTag) => existingTag !== tag));
+    onChange(selected ? [...value, tag] : value.filter((existingTag) => existingTag !== tag));
   };
   const commitCustom = () => {
     const trimmed = customDraft.trim();
@@ -33,9 +33,9 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
       const isNew = !customAddedTags.has(trimmed);
       setCustomAddedTags((prev) => {
         if (prev.has(trimmed)) return prev;
-        const next2 = new Set(prev);
-        next2.add(trimmed);
-        return next2;
+        const next = new Set(prev);
+        next.add(trimmed);
+        return next;
       });
       if (!value.includes(trimmed)) {
         onChange([...value, trimmed]);
@@ -54,9 +54,9 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
   const removeCustomTag = (tag) => {
     setCustomAddedTags((prev) => {
       if (!prev.has(tag)) return prev;
-      const next2 = new Set(prev);
-      next2.delete(tag);
-      return next2;
+      const next = new Set(prev);
+      next.delete(tag);
+      return next;
     });
     if (value.includes(tag)) {
       onChange(value.filter((existingTag) => existingTag !== tag));
@@ -78,7 +78,7 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
         </button>
       ))}
       {Array.from(customAddedTags).map((tag) => {
-        const selected2 = value.includes(tag);
+        const selected = value.includes(tag);
         return (
           // biome-ignore lint/a11y/useSemanticElements: nested click targets (chip + X) — a <button>-in-<button> is invalid; div+role keeps both clickable while staying valid.
           <div
@@ -93,8 +93,8 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
               }
             }}
             data-action-ui-id="asset-center-add-entity-tags-custom-chip"
-            data-tag-selected={selected2}
-            className={`group inline-flex items-center h-[21px] pl-1.5 pr-0.5 text-xs rounded-[4px] cursor-pointer transition-colors ${selected2 ? "bg-foreground text-background" : "bg-muted-foreground/15 text-secondary-foreground hover:bg-muted-foreground/25"}`}
+            data-tag-selected={selected}
+            className={`group inline-flex items-center h-[21px] pl-1.5 pr-0.5 text-xs rounded-[4px] cursor-pointer transition-colors ${selected ? "bg-foreground text-background" : "bg-muted-foreground/15 text-secondary-foreground hover:bg-muted-foreground/25"}`}
           >
             <span>{tag}</span>
             <button
@@ -107,7 +107,7 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
                 defaultValue: "Remove",
               })}
               tabIndex={-1}
-              className={`ml-0.5 inline-flex items-center justify-center size-3.5 rounded-[2px] transition-colors ${selected2 ? "text-background/70 hover:text-background hover:bg-background/15" : "text-muted-foreground hover:text-foreground hover:bg-foreground/10"}`}
+              className={`ml-0.5 inline-flex items-center justify-center size-3.5 rounded-[2px] transition-colors ${selected ? "text-background/70 hover:text-background hover:bg-background/15" : "text-muted-foreground hover:text-foreground hover:bg-foreground/10"}`}
             >
               <CloseIcon size={10} />
             </button>
@@ -151,7 +151,7 @@ function PresetTags({ value, onChange, trackingSurface = "create_dialog" }) {
   );
 }
 export function CollapsibleTags({
-  tags: tags2,
+  tags,
   onChange,
   trackingSurface = "create_dialog",
 }) {
@@ -167,7 +167,7 @@ export function CollapsibleTags({
             action: "tags_toggle",
             surface: trackingSurface,
             expanded,
-            tag_count: tags2.length,
+            tag_count: tags.length,
           });
           setOpen(expanded);
         }}
@@ -179,16 +179,16 @@ export function CollapsibleTags({
           className={`transition-transform ${open ? "rotate-90" : ""}`}
         />
         {translate("assetCenter.create.addTagsOptional", "添加标签（可选）")}
-        {tags2.length > 0 && (
+        {tags.length > 0 && (
           <span className="text-[11px] text-muted-foreground/60">
-            ({tags2.length})
+            ({tags.length})
           </span>
         )}
       </button>
       {open && (
         <div className="mt-1.5">
           <PresetTags
-            value={tags2}
+            value={tags}
             onChange={onChange}
             trackingSurface={trackingSurface}
           />

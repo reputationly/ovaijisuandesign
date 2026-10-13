@@ -12,7 +12,7 @@ import {
   DialogHeader,
 } from "../infra/dialog-content.jsx";
 import { DialogDescription, DialogTitle } from "../infra/badge-variants.jsx";
-import { Input3 } from "../infra/select-content.jsx";
+import { Input3 as Input } from "../infra/select-content.jsx";
 import {
   AssetRenameInput,
   buildRenamedFilename,
@@ -24,16 +24,16 @@ import { RESOURCE_DRAG_MIME } from "../text-editor/build-asr-gateway-request.js"
 import { toggleVariants } from "../infra/use-online.jsx";
 export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
   const { t: translate } = useTranslation();
-  const [name2, setName] = reactExports.useState("");
-  const [pending2, setPending] = reactExports.useState(false);
-  const trimmed = name2.trim();
+  const [folderName, setName] = reactExports.useState("");
+  const [pending, setPending] = reactExports.useState(false);
+  const trimmed = folderName.trim();
   reactExports.useEffect(() => {
     if (open) return;
     setName("");
     setPending(false);
   }, [open]);
   const handleConfirm = reactExports.useCallback(async () => {
-    if (!trimmed || pending2) return;
+    if (!trimmed || pending) return;
     setPending(true);
     try {
       const safety = await checkTextSafety(trimmed);
@@ -48,7 +48,7 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
     } finally {
       setPending(false);
     }
-  }, [onCreate, onOpenChange, pending2, translate, trimmed]);
+  }, [onCreate, onOpenChange, pending, translate, trimmed]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -63,9 +63,9 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
             {translate("localAssets.newFolderTitle")}
           </DialogDescription>
         </DialogHeader>
-        <Input3
+        <Input
           autoFocus={true}
-          value={name2}
+          value={folderName}
           onChange={(event) => setName(event.target.value)}
           onKeyDown={(event) => {
             if (event.key !== "Enter") return;
@@ -86,7 +86,7 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
           </Button>
           <Button
             size="sm"
-            disabled={!trimmed || pending2}
+            disabled={!trimmed || pending}
             onClick={() => void handleConfirm()}
           >
             {translate("common.confirm")}
@@ -96,35 +96,35 @@ export function NewLocalFolderDialog({ open, onOpenChange, onCreate }) {
     </Dialog>
   );
 }
-export function RenameLocalNodeDialog({ node: node2, onOpenChange, onRename }) {
+export function RenameLocalNodeDialog({ node, onOpenChange, onRename }) {
   const { t: translate } = useTranslation();
-  const [name2, setName] = reactExports.useState("");
-  const [pending2, setPending] = reactExports.useState(false);
-  const { tail: extension2 } = splitFilename(node2?.name ?? "", node2?.kind);
-  const fullName = buildRenamedFilename(node2?.name ?? "", name2, node2?.kind);
+  const [nodeName, setName] = reactExports.useState("");
+  const [pending, setPending] = reactExports.useState(false);
+  const { tail: extension } = splitFilename(node?.name ?? "", node?.kind);
+  const fullName = buildRenamedFilename(node?.name ?? "", nodeName, node?.kind);
   reactExports.useEffect(() => {
-    setName(splitFilename(node2?.name ?? "", node2?.kind).head);
+    setName(splitFilename(node?.name ?? "", node?.kind).head);
     setPending(false);
-  }, [node2]);
+  }, [node]);
   const handleConfirm = reactExports.useCallback(async () => {
-    if (!node2 || !fullName || pending2 || fullName === node2.name) return;
+    if (!node || !fullName || pending || fullName === node.name) return;
     setPending(true);
     try {
-      await onRename(node2, fullName);
+      await onRename(node, fullName);
       onOpenChange(false);
     } catch (err) {
-      const message2 = err instanceof Error ? err.message : String(err);
+      const message = err instanceof Error ? err.message : String(err);
       dedupedToast.error(
-        message2.includes("duplicate_name")
+        message.includes("duplicate_name")
           ? translate("localAssets.renameDuplicate")
-          : message2,
+          : message,
       );
     } finally {
       setPending(false);
     }
-  }, [fullName, node2, onOpenChange, onRename, pending2, translate]);
+  }, [fullName, node, onOpenChange, onRename, pending, translate]);
   return (
-    <Dialog open={node2 !== null} onOpenChange={onOpenChange}>
+    <Dialog open={node !== null} onOpenChange={onOpenChange}>
       <DialogContent size="sm" data-action-ui-id="local-assets.rename-dialog">
         <DialogHeader>
           <DialogTitle className="text-body-14 leading-5 font-medium">
@@ -135,10 +135,10 @@ export function RenameLocalNodeDialog({ node: node2, onOpenChange, onRename }) {
           </DialogDescription>
         </DialogHeader>
         <AssetRenameInput
-          extension={extension2}
+          extension={extension}
           data-action-ui-id="local-assets.rename-input"
           autoFocus={true}
-          value={name2}
+          value={nodeName}
           onChange={(event) => setName(event.target.value)}
           onKeyDown={(event) => {
             if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
@@ -159,7 +159,7 @@ export function RenameLocalNodeDialog({ node: node2, onOpenChange, onRename }) {
           </Button>
           <Button
             size="sm"
-            disabled={!fullName || pending2 || fullName === node2?.name}
+            disabled={!fullName || pending || fullName === node?.name}
             onClick={() => void handleConfirm()}
           >
             {translate("common.confirm")}
@@ -184,8 +184,8 @@ export function useAnchorProjectAssets() {
         }),
       });
       if (!res.ok) throw new Error(`Anchor failed: ${res.status}`);
-      const data2 = await res.json();
-      return (data2.anchored ?? []).filter((row) =>
+      const data = await res.json();
+      return (data.anchored ?? []).filter((row) =>
         Boolean(row?.path && row?.filename),
       );
     },
@@ -241,7 +241,7 @@ export function AssetRowThumb({ thumbSrc, filename, mime }) {
 export function Toggle({
   className,
   variant = "default",
-  size: size2 = "default",
+  size = "default",
   ...props
 }) {
   return (
@@ -250,7 +250,7 @@ export function Toggle({
       className={cn(
         toggleVariants({
           variant,
-          size: size2,
+          size,
           className,
         }),
       )}

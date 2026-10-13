@@ -56,19 +56,19 @@ export function PromoteToAssetForm({
   const appendMutation = useAppendAttachmentFromWorkspace();
   const createMutation = useCreateEntityFromPaths();
   const materializeMutation = useMaterializeEntity();
-  const [mode2, setMode] = reactExports.useState("new");
+  const [mode, setMode] = reactExports.useState("new");
   const existingEntitiesQuery = useEntities();
   const hasExistingEntities = (existingEntitiesQuery.data ?? []).length > 0;
   reactExports.useEffect(() => {
-    if (!hasExistingEntities && mode2 !== "new") {
+    if (!hasExistingEntities && mode !== "new") {
       setMode("new");
     }
-  }, [hasExistingEntities, mode2]);
+  }, [hasExistingEntities, mode]);
   const [pickedEntity, setPickedEntity] = reactExports.useState(null);
   const [newType, setNewType] = reactExports.useState("character");
   const [newName, setNewName] = reactExports.useState("");
   const [newDescription, setNewDescription] = reactExports.useState("");
-  const [tags2, setTags] = reactExports.useState([]);
+  const [tags, setTags] = reactExports.useState([]);
   const [submitAttempted, setSubmitAttempted] = reactExports.useState(false);
   const nameInputRef = reactExports.useRef(null);
   const [perFileMeta, setPerFileMeta] = reactExports.useState({});
@@ -81,8 +81,8 @@ export function PromoteToAssetForm({
   const isPopover = variant === "popover";
   const pickerMaxHeight = isPopover ? 180 : 220;
   const trimmedNewName = newName.trim();
-  const nameMissing = mode2 === "new" && trimmedNewName.length === 0;
-  const appendTargetMissing = mode2 === "append" && !pickedEntity;
+  const nameMissing = mode === "new" && trimmedNewName.length === 0;
+  const appendTargetMissing = mode === "append" && !pickedEntity;
   const showNameError = submitAttempted && nameMissing;
   const showAppendTargetError = submitAttempted && appendTargetMissing;
   const submitDisabled = isSubmitting || filesLen === 0;
@@ -90,23 +90,23 @@ export function PromoteToAssetForm({
     (absPath) => perFileMeta[absPath] ?? emptyPerFileMeta(),
     [perFileMeta],
   );
-  const updateMeta = reactExports.useCallback((absPath, patch2) => {
+  const updateMeta = reactExports.useCallback((absPath, patch) => {
     setPerFileMeta((prev) => {
       const existing = prev[absPath] ?? emptyPerFileMeta();
       return {
         ...prev,
         [absPath]: {
           ...existing,
-          ...patch2,
+          ...patch,
         },
       };
     });
   }, []);
   const toggleExpand = reactExports.useCallback(
     (absPath) => {
-      const current2 = getMeta(absPath);
+      const current = getMeta(absPath);
       updateMeta(absPath, {
-        expanded: !current2.expanded,
+        expanded: !current.expanded,
       });
     },
     [getMeta, updateMeta],
@@ -126,8 +126,8 @@ export function PromoteToAssetForm({
     if (submitDisabled) {
       if (filesLen === 0) {
         trackAssetPromoteValidationFailed({
-          promote_mode: mode2,
-          entity_type: mode2 === "new" ? newType : pickedEntity?.entityType,
+          promote_mode: mode,
+          entity_type: mode === "new" ? newType : pickedEntity?.entityType,
           attachment_count: 0,
           reason: "no_files",
         });
@@ -135,7 +135,7 @@ export function PromoteToAssetForm({
       return;
     }
     setError(null);
-    if (mode2 === "new" && newName.trim().length === 0) {
+    if (mode === "new" && newName.trim().length === 0) {
       trackAssetPromoteValidationFailed({
         promote_mode: "new",
         entity_type: newType,
@@ -145,7 +145,7 @@ export function PromoteToAssetForm({
       nameInputRef.current?.focus();
       return;
     }
-    if (mode2 === "append" && !pickedEntity) {
+    if (mode === "append" && !pickedEntity) {
       trackAssetPromoteValidationFailed({
         promote_mode: "append",
         attachment_count: filesLen,
@@ -153,12 +153,12 @@ export function PromoteToAssetForm({
       });
       return;
     }
-    if (mode2 === "append" && pickedEntity) {
+    if (mode === "append" && pickedEntity) {
       let successCount = 0;
       try {
         for (const file of files) {
-          const meta2 = getMeta(file.absolutePath);
-          const trimmedDesc = meta2.user_desc.trim();
+          const meta = getMeta(file.absolutePath);
+          const trimmedDesc = meta.user_desc.trim();
           await appendMutation.mutateAsync({
             entityId: pickedEntity.entityId,
             input: {
@@ -228,13 +228,13 @@ export function PromoteToAssetForm({
       }
       return;
     }
-    if (mode2 === "new") {
+    if (mode === "new") {
       try {
         const trimmedName = newName.trim();
         const trimmedDesc = newDescription.trim();
         const filesForServer = files.map((file) => {
-          const meta2 = getMeta(file.absolutePath);
-          const trimmedFileDesc = meta2.user_desc.trim();
+          const meta = getMeta(file.absolutePath);
+          const trimmedFileDesc = meta.user_desc.trim();
           return {
             absolutePath: file.absolutePath,
             ...(trimmedFileDesc
@@ -253,10 +253,10 @@ export function PromoteToAssetForm({
                   description: trimmedDesc,
                 }
               : {}),
-            ...(tags2.length > 0
+            ...(tags.length > 0
               ? {
                   metadata: {
-                    tags: tags2,
+                    tags,
                   },
                 }
               : {}),
@@ -318,7 +318,7 @@ export function PromoteToAssetForm({
     files,
     filesLen,
     submitDisabled,
-    mode2,
+    mode,
     pickedEntity,
     getMeta,
     appendMutation,
@@ -327,14 +327,14 @@ export function PromoteToAssetForm({
     newType,
     newName,
     newDescription,
-    tags2,
+    tags,
     workspaceRoot,
     onSuccess,
     translate,
   ]);
   return (
     <>
-      <Tabs value={mode2} onValueChange={handleModeChange}>
+      <Tabs value={mode} onValueChange={handleModeChange}>
         {hasExistingEntities && (
           <TabsList className="w-full bg-muted/40 p-0.5 gap-0 rounded-md h-auto">
             <TabsTrigger
@@ -503,7 +503,7 @@ export function PromoteToAssetForm({
             data-action-ui-id="asset-panel.promote-files-list"
           >
             {files.map((file) => {
-              const meta2 = getMeta(file.absolutePath);
+              const meta = getMeta(file.absolutePath);
               const rowButton = (
                 <button
                   type="button"
@@ -518,7 +518,7 @@ export function PromoteToAssetForm({
                   <span className="flex-1 truncate text-left">
                     {file.displayName}
                   </span>
-                  {meta2.expanded ? (
+                  {meta.expanded ? (
                     <ChevronDown
                       size={12}
                       className="shrink-0 text-muted-foreground opacity-50"
@@ -546,11 +546,11 @@ export function PromoteToAssetForm({
                   ) : (
                     rowButton
                   )}
-                  {meta2.expanded && (
+                  {meta.expanded && (
                     <div className="px-2.5 pb-2 pt-0.5 flex items-start">
                       <div className="w-0.5 shrink-0 self-stretch bg-muted-foreground/15 rounded-full mr-2.5 ml-[3px]" />
                       <textarea
-                        value={meta2.user_desc}
+                        value={meta.user_desc}
                         onChange={(changeEvent) =>
                           updateMeta(file.absolutePath, {
                             user_desc: changeEvent.target.value,
@@ -571,7 +571,7 @@ export function PromoteToAssetForm({
           </ul>
         </TooltipProvider>
       </div>
-      {mode2 === "new" && <CollapsibleTags tags={tags2} onChange={setTags} />}
+      {mode === "new" && <CollapsibleTags tags={tags} onChange={setTags} />}
       {error && (
         <div
           className="flex items-start gap-2 border border-destructive/50 bg-destructive/10 px-3 py-2 rounded-md"
@@ -601,7 +601,7 @@ export function PromoteToAssetForm({
             data-action-ui-id="asset-panel.promote-submit"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
-            {mode2 === "append"
+            {mode === "append"
               ? translate("assetCenter.promote.submitAppend")
               : translate("assetCenter.promote.submitNew")}
           </Button>

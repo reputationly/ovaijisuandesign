@@ -6,3 +6,10 @@ e2@428:28	e2	changeEvent	该事件提供新实体名称输入框的新文本。
 e2@487:26	e2	changeEvent	该事件提供新实体描述输入框的新文本。
 f2@505:25	f2	file	该值是当前展示在提升资产列表中的工作区文件记录。
 e2@554:36	e2	changeEvent	该事件提供附件描述输入框的新文本。
+mode2@59:10	mode2	mode	去掉打包器防重名追加的后缀，恢复原名 mode，即该绑定持有的值。
+tags2@71:10	tags2	tags	去掉打包器防重名追加的后缀，恢复原名 tags，即该绑定持有的值。
+patch2@93:57	patch2	patch	去掉打包器防重名追加的后缀，恢复原名 patch，即该绑定持有的值。
+current2@107:13	current2	current	去掉打包器防重名追加的后缀，恢复原名 current，即该绑定持有的值。
+meta2@160:17	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+meta2@236:17	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
+meta2@506:21	meta2	meta	去掉打包器防重名追加的后缀，恢复原名 meta，即该绑定持有的值。
