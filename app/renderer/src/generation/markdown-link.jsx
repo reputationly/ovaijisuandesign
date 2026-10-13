@@ -1,5 +1,6 @@
 // markdown-link.jsx
-import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, defaultSchema, ExternalLink, G$1 as codeHighlighterPlugin, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
+import { API_PATHS, ArrowUpRight, classifyFileType, Copy, Crosshair, ExternalLink, G$1 as codeHighlighterPlugin, Globe, jsxRuntimeExports, reactExports, useCurrentWorkspace, usePlatform, useTranslation, Video, VideoOff } from "../vendor.js";
+import { defaultSchema } from "hast-util-sanitize";
 import { dedupedToast } from "../infra/agent-http-client.js";
 import {
   cleanRaw,
@@ -12,7 +13,7 @@ import {
   redactForCurrentRegion,
 } from "./replace-configured-model-names-for-current-region.js";
 import { findInlineVisualTokens } from "../text-editor/get-wire-content-text.jsx";
-import { rehypeSanitize } from "../settings/request-prompt-prefill.jsx";
+import rehypeSanitize from "rehype-sanitize";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import { trackEvent } from "../infra/sanitize-track-props.js";
 import { Icon, openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
@@ -40,11 +41,9 @@ import {
 } from "../workspace/context-menu-content.jsx";
 import { InlineColorValue } from "./use-mention-models.jsx";
 import { SkillIcon } from "../workspace/use-prompt-icon.jsx";
-import { Ae as CodeBlockCopyButton, ot as CodeBlockContainer, rt as CodeBlockHeader } from "../chat/ae.jsx";
-import { st as HighlightedCodeBlock } from "../chat/st.jsx";
 import { useAssets } from "../settings/use-assets.js";
 import { resolveChatFileReference } from "./resolve-chat-file-reference.js";
-import { cleanPath, tt as useIsIncompleteCode } from "../media-editing/wt.js";
+import { cleanPath } from "../media-editing/wt.js";
 import { FileTypeIcon } from "../infra/file-type-icon.jsx";
 import {
   useResolveMediaUrl,
@@ -70,7 +69,14 @@ import {
 } from "./use-astra-send-gate.js";
 import { joinFilePath } from "../assets/use-file-explorer-canvas-integration.js";
 import { MarkdownAudio } from "../media-editing/markdown-audio.jsx";
-import { Streamdown } from "../chat/streamdown.jsx";
+import {
+  CodeBlock as HighlightedCodeBlock,
+  CodeBlockContainer,
+  CodeBlockCopyButton,
+  CodeBlockHeader,
+  Streamdown,
+  useIsCodeFenceIncomplete as useIsIncompleteCode,
+} from "streamdown";
 function resolveMediaUrl(relativeUrl) {
   if (!relativeUrl) return void 0;
   if (/^https?:\/\//.test(relativeUrl)) return relativeUrl;

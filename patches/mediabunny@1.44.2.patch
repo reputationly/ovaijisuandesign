@@ -1,3 +1,16 @@
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -24,4 +24,8 @@
+       "default": "./dist/modules/src/index.js"
+-    }
++    },
++    "./dist/modules/shared/bitstream.js": {
++      "import": "./dist/modules/shared/bitstream.js",
++      "default": "./dist/modules/shared/bitstream.js"
++    }
+   },
+   "files": [
 diff --git a/dist/modules/src/codec-data.js b/dist/modules/src/codec-data.js
 index 299349e345d937506ebb9a64d0b39863cbafb0f2..3e0f4d62183a4e1822038eea3c1653c2d37596ad 100644
 --- a/dist/modules/src/codec-data.js

@@ -937,66 +937,7 @@ export const stateAttributesMapping$a = {
 
 export const FRAME_HEADER_SIZE$1 = 4;
 
-export var Bitstream2 = class _Bitstream {
-  constructor(bytes) {
-    this.bytes = bytes;
-    this.pos = 0;
-  }
-  seekToByte(byteOffset) {
-    this.pos = 8 * byteOffset;
-  }
-  readBit() {
-    const byteIndex = Math.floor(this.pos / 8);
-    const byte = this.bytes[byteIndex] ?? 0;
-    const bitIndex = 7 - (this.pos & 7);
-    const bit = (byte & 1 << bitIndex) >> bitIndex;
-    this.pos++;
-    return bit;
-  }
-  readBits(bitCount) {
-    if (bitCount === 1) {
-      return this.readBit();
-    }
-    let result = 0;
-    for (let i = 0; i < bitCount; i++) {
-      result <<= 1;
-      result |= this.readBit();
-    }
-    return result;
-  }
-  writeBits(bitCount, value) {
-    const end = this.pos + bitCount;
-    for (let i = this.pos; i < end; i++) {
-      const byteIndex = Math.floor(i / 8);
-      let byte = this.bytes[byteIndex];
-      const bitIndex = 7 - (i & 7);
-      byte &= ~(1 << bitIndex);
-      byte |= (value & 1 << end - i - 1) >> end - i - 1 << bitIndex;
-      this.bytes[byteIndex] = byte;
-    }
-    this.pos = end;
-  }
-  readAlignedByte() {
-    if (this.pos % 8 !== 0) {
-      throw new Error("Bitstream is not byte-aligned.");
-    }
-    const byteIndex = this.pos / 8;
-    const byte = this.bytes[byteIndex] ?? 0;
-    this.pos += 8;
-    return byte;
-  }
-  skipBits(bitCount) {
-    this.pos += bitCount;
-  }
-  getBitsLeft() {
-    return this.bytes.length * 8 - this.pos;
-  }
-  clone() {
-    const clone = new _Bitstream(this.bytes);
-    clone.pos = this.pos;
-    return clone;
-  }
-};
+export { Bitstream as Bitstream2 } from "mediabunny/dist/modules/shared/bitstream.js";
 
 export const NOT_DIRTY = 0,
   CHILD_DIRTY = 1,
@@ -1006,7 +947,7 @@ export const NOT_DIRTY = 0,
 export const none$3 = [],
   noSpec = {};
 
-export const own$a = {}.hasOwnProperty;
+
 
 export function normalizeTableCellAlign(value) {
   if (value === "left" || value === "right" || value === "center") return value;
@@ -1314,89 +1255,7 @@ export function renderTableToMarkdown(node, helpers, options = {}) {
 export let rangeFrom = [],
   rangeTo = [];
 
-export class WidgetType2 {
-  /**
-  Compare this instance to another instance of the same type.
-  (TypeScript can't express this, but only instances of the same
-  specific class will be passed to this method.) This is used to
-  avoid redrawing widgets when they are replaced by a new
-  decoration of the same type. The default implementation just
-  returns `false`, which will cause new instances of the widget to
-  always be redrawn.
-  */
-  eq(widget) {
-    return false;
-  }
-  /**
-  Update a DOM element created by a widget of the same type (but
-  different, non-`eq` content) to reflect this widget. May return
-  true to indicate that it could update, false to indicate it
-  couldn't (in which case the widget will be redrawn). The default
-  implementation just returns false.
-  */
-  updateDOM(dom, view, from) {
-    return false;
-  }
-  /**
-  @internal
-  */
-  compare(other) {
-    return this == other || this.constructor == other.constructor && this.eq(other);
-  }
-  /**
-  The estimated height this widget will have, to be used when
-  estimating the height of content that hasn't been drawn. May
-  return -1 to indicate you don't know. The default implementation
-  returns -1.
-  */
-  get estimatedHeight() {
-    return -1;
-  }
-  /**
-  For inline widgets that are displayed inline (as opposed to
-  `inline-block`) and introduce line breaks (through `<br>` tags
-  or textual newlines), this must indicate the amount of line
-  breaks they introduce. Defaults to 0.
-  */
-  get lineBreaks() {
-    return 0;
-  }
-  /**
-  Can be used to configure which kinds of events inside the widget
-  should be ignored by the editor. The default is to ignore all
-  events.
-  */
-  ignoreEvent(event) {
-    return true;
-  }
-  /**
-  Override the way screen coordinates for positions at/in the
-  widget are found. `pos` will be the offset into the widget, and
-  `side` the side of the position that is being queried—less than
-  zero for before, greater than zero for after, and zero for
-  directly at that position.
-  */
-  coordsAt(dom, pos, side) {
-    return null;
-  }
-  /**
-  @internal
-  */
-  get isHidden() {
-    return false;
-  }
-  /**
-  @internal
-  */
-  get editable() {
-    return false;
-  }
-  /**
-  This is called when the an instance of the widget is removed
-  from the editor view.
-  */
-  destroy(dom) {}
-}
+export { WidgetType as WidgetType2 } from "@codemirror/view";
 
 export const EmptyLine = /^[ \t]*$/,
   CommentEnd = /-->/,
@@ -1542,54 +1401,6 @@ export function getRuntimeConfig() {
   return _cachedConfig;
 }
 
-export function getCssSelector(el) {
-  const path = [];
-  let parent;
-  while (parent = el.parentNode) {
-    path.push(`${el.tagName}:nth-child(${Array.prototype.indexOf.call(parent.children, el) + 1})`);
-    el = parent;
-  }
-  return `${path.reverse().join(" > ")}`.toLowerCase();
-}
-
-export var CatchBoundaryImpl = class extends reactExports.Component {
-  constructor(..._args) {
-    super(..._args);
-    this.state = {
-      error: null
-    };
-  }
-  static getDerivedStateFromProps(props) {
-    return {
-      resetKey: props.getResetKey()
-    };
-  }
-  static getDerivedStateFromError(error) {
-    return {
-      error
-    };
-  }
-  reset() {
-    this.setState({
-      error: null
-    });
-  }
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.error && prevState.resetKey !== this.state.resetKey) this.reset();
-  }
-  componentDidCatch(error, errorInfo) {
-    if (this.props.onCatch) this.props.onCatch(error, errorInfo);
-  }
-  render() {
-    return this.props.children({
-      error: this.state.resetKey !== this.props.getResetKey() ? null : this.state.error,
-      reset: () => {
-        this.reset();
-      }
-    });
-  }
-};
-
 export var dummyStore = {
   state: void 0,
   get: () => void 0,
@@ -1603,10 +1414,6 @@ export var STATIC_TRANSITIONING_PROPS = {
 export var intersectionObserverOptions = {
   rootMargin: "100px"
 };
-
-export function isCtrlEvent(uiEvent) {
-  return !!(uiEvent.metaKey || uiEvent.altKey || uiEvent.ctrlKey || uiEvent.shiftKey);
-}
 
 export var define_process_env_default = {};
 
@@ -2570,7 +2377,7 @@ export var Target2 = /** @type {const} */
   ES2018: "ES2018"
 };
 
-export var $2 = Object.getOwnPropertySymbols;
+
 
 export function tryParseJson$1(raw) {
   try {

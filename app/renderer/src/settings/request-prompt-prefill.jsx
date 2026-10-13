@@ -6,7 +6,6 @@ import {
   jsxRuntimeExports,
   namesMatch,
   reactExports,
-  sanitize,
   SPECIAL_CONNECTORS,
   useTranslation,
 } from "../vendor.js";
@@ -156,12 +155,6 @@ export function clearClaimsForUser(userID) {
     }
     for (const key of toRemove) window.localStorage.removeItem(key);
   } catch {}
-}
-export function rehypeSanitize(options) {
-  return function (tree) {
-    const result = /** @type {Root} */ sanitize(tree, options);
-    return result;
-  };
 }
 const listeners = new Set();
 const emitPromptPrefillChange = () => {

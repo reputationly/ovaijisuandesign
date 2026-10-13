@@ -1,12 +1,9 @@
 // calendar.jsx
 import {
-  Animation,
   ChevronDownIcon$1 as ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  DayFlag,
   reactExports,
-  UI,
 } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 import {
@@ -14,7 +11,7 @@ import {
   buttonVariants,
   cn$2 as cn,
 } from "../infra/dialog-content.jsx";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
 var SelectionState2;
 (function (SelectionState3) {
   SelectionState3["range_end"] = "range_end";
@@ -22,22 +19,6 @@ var SelectionState2;
   SelectionState3["range_start"] = "range_start";
   SelectionState3["selected"] = "selected";
 })(SelectionState2 || (SelectionState2 = {}));
-function getDefaultClassNames() {
-  const classNames = {};
-  for (const key in UI) {
-    classNames[UI[key]] = `rdp-${UI[key]}`;
-  }
-  for (const key in DayFlag) {
-    classNames[DayFlag[key]] = `rdp-${DayFlag[key]}`;
-  }
-  for (const key in SelectionState2) {
-    classNames[SelectionState2[key]] = `rdp-${SelectionState2[key]}`;
-  }
-  for (const key in Animation) {
-    classNames[Animation[key]] = `rdp-${Animation[key]}`;
-  }
-  return classNames;
-}
 function CalendarDayButton({
   className,
   day,

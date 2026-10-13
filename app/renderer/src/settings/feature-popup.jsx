@@ -14,7 +14,7 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { H3_LAUNCH_POPUP_ID } from "./normalize-hailuo03-video-trial-eligibility.js";
 import { useFeaturePopupAction } from "./use-feature-popup-action.js";
 import { DialogClose } from "../infra/gateway-http-error.jsx";
-import { rehypeSanitize } from "./request-prompt-prefill.jsx";
+import rehypeSanitize from "rehype-sanitize";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import {
   Button,

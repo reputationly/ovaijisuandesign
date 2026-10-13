@@ -3,7 +3,7 @@ import { Markdown$1 as Markdown, remarkGfm, usePlatform, useTranslation } from "
 import { dedupedToast } from "../infra/agent-http-client.js";
 import { openExternalUrl } from "../vendor-inline/vscode-base/graph.jsx";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { rehypeSanitize } from "./request-prompt-prefill.jsx";
+import rehypeSanitize from "rehype-sanitize";
 import { TRACK_EVENTS } from "../infra/track-events.js";
 import {
   Button,

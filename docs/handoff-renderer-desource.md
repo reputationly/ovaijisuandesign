@@ -1,3 +1,55 @@
+## Streamdown/remend 闭包：从内联实现改为 npm
+
+只读依据为 `devin/analysis-remaining-artifacts` 的 `c77efcb` 报告及 `streamdown/`、`s2/`、`scan/` 证据。Streamdown 闭包共 179 条声明、分布于 15 个文件；176 条一致，3 条为构建期改写。`s2.js` 含 `remend@1.3.0` 的 88 条一致声明和 Streamdown 的 `be` 11 条一致声明。AST 移除工具针对整个闭包及依赖副本发现 539 个目标绑定。
+
+依赖使用以下精确版本；Streamdown manifest 的范围覆盖候选版本。此前迁移的包沿用 renderer 当前 lockfile 版本。
+
+| 包 | 版本 | 依据 |
+|---|---:|---|
+| `streamdown` | `2.5.0` | 闭包匹配；3 处构建期改写经调用场景核对 |
+| `remend` | `1.3.0` | s2 声明匹配；源码无直接 importer |
+| `rehype-sanitize` | `6.0.0` | 现有 lockfile pin；匹配 Streamdown 范围 |
+| `rehype-raw` | `7.0.0` | 现有 lockfile pin；匹配 Streamdown 范围 |
+| `tailwind-merge` | `3.5.0` | 声明比对、精确 pin |
+| `marked` | `17.0.6` | inline AST 比对；剩余 `I$3` 差异为可选第三参数省略时的构建特化 |
+| `clsx` | `2.1.1` | 声明比对、精确 pin |
+| `unist-util-visit` | `5.1.0` | 现有 lockfile pin |
+| `unist-util-visit-parents` | `6.0.2` | 声明比对、精确 pin |
+| `hast-util-sanitize` | `5.0.2` | `rehype-sanitize@6.0.0` 范围 `^5.0.0` |
+| `remark-gfm` | `4.0.1` | 现有 lockfile pin |
+| `hast-util-to-jsx-runtime` | `2.3.6` | 现有 lockfile pin |
+| `unified` | `11.0.5` | 现有 lockfile pin |
+| `remark-parse` | `11.0.0` | 现有 lockfile pin |
+| `remark-rehype` | `11.1.2` | 现有 lockfile pin |
+| `html-url-attributes` | `3.0.1` | 声明比对、精确 pin |
+| `rehype-harden` | `1.1.8` | 声明比对、精确 pin |
+| `vfile` | `6.0.3` | `Markdown$1` 仍需 `VFile`；与 unified 闭包使用同一版本 |
+
+Streamdown、remend 与 Marked 导入均来自 npm；`generation/markdown-link.jsx` 从 `streamdown` 导入 `Streamdown`、`CodeBlock as HighlightedCodeBlock`、`CodeBlockCopyButton`、`CodeBlockContainer`、`CodeBlockHeader`、`useIsCodeFenceIncomplete as useIsIncompleteCode`。Shiki、CodeMirror 保持各自原有 npm 导入路径。`marked@16.4.2` 仍因 `mermaid@11.17.2` 出现在依赖树，但 Streamdown 的已发布 dist 不导入 Mermaid，Mermaid 渲染仅经 `plugins.mermaid.getMermaid()` 插件接口；应用未配置插件。最终可达 JS 中也没有 Mermaid 库特征，因此该依赖树副版本不可达，不设置 override。
+
+### 相关源码与 Router
+
+`main.jsx` 移除 s2 side-effect import。删除 `chat/streamdown.jsx`、`chat/mermaid-ghxkkrxx.js`、`chat/highlighted-code-block-body.js`、`vendor-inline/minified/s2.js`。`vendor.js` 移除闭包副本；本地 `Markdown$1` 使用的 npm `VFile` 来自 `vfile@6.0.3`，并移除未绑定的旧 Marked/GFM 残片。
+
+零散导入：`Bitstream2` 来自 `mediabunny/dist/modules/shared/bitstream.js`（package exports patch 仅开放该深路径）；`WidgetType2` 来自 `@codemirror/view`；`getDefaultClassNames` 来自 `react-day-picker@9.14.0`。`i18next` 的 `EventEmitter` 是模块私有 class，未从未公开路径导入，原 `EventEmitter3` 保留。
+
+Router 源码使用 manifest 中的 `@tanstack/react-router@1.170.32` / `@tanstack/router-core@1.171.13` npm 入口；`vendor.js` 的 `getCssSelector`、`CatchBoundaryImpl`、`isCtrlEvent` 是旧版本残片，应用无 importer，最终构建 assets 中也无其符号，因此已删除。
+
+### 构建产物审计与 UI gate
+
+最终干净 renderer build 后，从 `index.html` 遍历 331 个静态及动态可达 JS；完整 AST 报告为 `.probe/desource/baseui-built-audit.json`。结构性 Marked `Lexer` 候选恰为 1 个，归属 `marked@17.0.6`（`marked` 17.0.6 是唯一可达版本）；`mermaidAPI`、`flowchart parser`、`flowchart-elk`、`FlowDB`、`flowchartDiagram` 均不存在。`twMerge` 有 1 个声明；`unified` 有 3 个同名 AST 声明节点，但只有 1 个 Program 顶层 binding。Streamdown/remend 标识符被 minifier 改写，名称计数为 0，不能单独作为单实例证明；源码只有 `generation/markdown-link.jsx` 一个 `streamdown` import，`streamdown@2.5.0` 只解析一版，应用闭包副本已删除，`remend@1.3.0` 是该 Streamdown 依赖树中唯一解析版本。Shiki/CodeMirror 的 lock 解析分别只有 `@shikijs/core@3.23.0`、`@codemirror/view@6.43.6` 和 `@codemirror/state@6.7.5`；vendor 与应用沿用同一 npm 导入路径。
+
+同份构建审计确认 Base UI 的 Store、`useDialogRoot`、floating fork 及 11 个深路径导出各只有一个 binding；五个内部 context 的创建、hook 和 Provider 引用共享同一 binding。`fastHooks` 只有一个 `hooks` array，`register` 和 `FastComponent` 都引用它。`@floating-ui/dom@1.7.6` 的 `computePosition` wrapper 只有一个；构建中另外两个同名调用来自其他模块，不是 DOM 副本。
+
+与 golden build 的 `assets/`（`/home/ubuntu/ov-golden/app/desktop/out/recovered-ui/assets`）按完整文件名比较：两边各 357 个文件，25 个名称一致、332 个名称只在当前 build、332 个名称只在 golden；全量清单保存在 `.probe/streamdown-audit/chunks-added.txt` 和 `chunks-removed.txt`，且已与本次干净 build 复核一致。当前 build 包含 `highlighted-body-OFNGDK62-NXkHVvkk.js`、`mermaid-C9Q6ykpW.js`；golden 对应文件名为 `highlighted-body-OFNGDK62-D2hkhc6K-BphYaYWd.js`、`mermaid-z_1ejSlp-Cq6jXZTm.js`，后者是 Shiki 语法 chunk 而不是 Mermaid 库。文件名集合有大量内容 hash 差异，不等于相同数量的新增代码模块。当前 PDF worker 只有 `pdf.worker.min-yatZIOMy.mjs` 一份，与 `pdfjs-dist@4.10.38` 源文件均为 1,375,838 bytes、SHA-256 `1baa1844c89c80a5b2797c916e75ab29254be46d8e9cb53cb6364d7aad84be36`；golden 文件名为 `pdf.worker.min-yatZIOMy-yatZIOMy.mjs`。
+
+两轮 gate 报告：
+
+1. `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T20-55-26-912Z/report.json`
+2. `/home/ubuntu/repos/ovaijisuandesign/.probe/ui-compare/2026-10-13T21-22-23-766Z/report.json`
+
+两轮各覆盖 40 页并通过；所有页面的网络、DOM、state、新增错误及非 AA 像素差异均为 0。`ws-markdown`、`ws-chat-skill`、`ws-text-editor`、`ws-code-editor` 两轮均无差异。`ws-a` 两轮各有 5 个 raw-only AA 像素；第二轮 `ws-layout` 有 7 个 raw-only AA 像素，其非 AA 差异为 0。`ws-chat-skill`、`ws-layout` 曾重拍 8 次后仍提示帧不稳定，比较采用最后一帧，结果仍通过。另有两次 `ws-a` runtime readiness 超时且未生成报告的尝试（`20-47-24-577Z`、`21-14-15-146Z`），均未计入有效轮次。
+
 # 界面源码还原 · 交接文档（2026-10-11）
 
 写给下一个接手的人或 agent。上一份交接 [`handoff-phase1-npm-swap.md`](handoff-phase1-npm-swap.md) 讲的是 npm 换包工具，里面「剩 112 个包」等数字已过时，以本文为准。

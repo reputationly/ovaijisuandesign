@@ -1,12 +1,12 @@
 // markdown-manager.js
 import { STANDARD_HTML_TAGS } from "./standard-html-tags.js";
+import { marked as g } from "marked";
 import {
   attrsEqual,
   callOrReturn,
   decodeHtmlEntities,
   encodeHtmlEntities,
   flattenExtensions,
-  g$2 as g,
   generateJSON,
   getExtensionField,
   getSchema,
