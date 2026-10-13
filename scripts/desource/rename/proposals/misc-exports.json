@@ -10,5 +10,18 @@
   },
   "app/renderer/src/infra/dialog-content.jsx": {
     "cn$2": "cn"
+  },
+  "app/renderer/src/infra/from-vendor.js": {
+    "Bitstream2": "Bitstream",
+    "TableView2": "TableView",
+    "WidgetType2": "WidgetType",
+    "slash$1": "slash",
+    "question$1": "question",
+    "dash$1": "dash",
+    "identifier$2": "identifier",
+    "EventEmitter3": "EventEmitter",
+    "noop2": "noop",
+    "Context2": "Context",
+    "Target2": "Target"
   }
 }
