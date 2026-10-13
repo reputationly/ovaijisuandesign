@@ -1,0 +1,11 @@
+key	new	依据
+t2@32:14	t	useTranslation 返回的文本函数，用语言键和值生成 ASR 语言选项标签。
+t2@76:14	t	useTranslation 返回的文本函数，用于字幕识别弹窗的标题、说明和操作文案。
+s2@82:6	storeState	此 Zustand 状态参数供选择器从 nodeLookup 中读取当前节点数据。
+e2@110:25	pointerEvent	该指针事件在控件处理后调用 stopPropagation，阻止事件传到画布。
+e2@111:25	doubleClickEvent	该双击事件调用 stopPropagation，避免双击继续触发画布操作。
+option2@40:27	option	该语言选项用于查找对应标签并显示在 ASR 语言选择器中。
+active2@41:15	isActive	此布尔值由 option 是否等于当前 value 决定，控制选中按钮的样式。
+AsrPopover2@71:54	AsrPopover	该组件根据默认语言和提交回调渲染字幕识别设置弹窗。
+language2@77:10	language	此状态保存用户选中的识别语言，并随 onSubmit 一并提交。
+selected2@85:9	isSelected	此布尔值来自节点选择器；节点未选中时弹窗关闭效果会执行。

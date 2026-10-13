@@ -29,12 +29,12 @@ new Set(LINEAR_STARTUP_PHASES);
 
 const SUCCESS_STATES = new Set(["bound"]);
 
-export function isReadyState(s2) {
-  return SUCCESS_STATES.has(s2);
+export function isReadyState(sessionState) {
+  return SUCCESS_STATES.has(sessionState);
 }
 
-export function isGatewayReady(s2) {
-  return s2 === "gateway-ready" || s2 === "opencode-starting" || s2 === "bound";
+export function isGatewayReady(gatewayState) {
+  return gatewayState === "gateway-ready" || gatewayState === "opencode-starting" || gatewayState === "bound";
 }
 
 export function requestRecentWorkspacesRefresh() {
@@ -52,32 +52,32 @@ export function useGlobalSidebar() {
   return value;
 }
 
-export function pruneExpiredDrafts(now2 = Date.now()) {
-  let keys2;
+export function pruneExpiredDrafts(now = Date.now()) {
+  let keys;
   try {
-    keys2 = [];
-    for (let i2 = 0; i2 < localStorage.length; i2++) {
-      const k2 = localStorage.key(i2);
-      if (k2?.startsWith(`${KEY_PREFIX}:`)) {
-        keys2.push(k2);
+    keys = [];
+    for (let index = 0; index < localStorage.length; index++) {
+      const storageKey = localStorage.key(index);
+      if (storageKey?.startsWith(`${KEY_PREFIX}:`)) {
+        keys.push(storageKey);
       }
     }
   } catch {
     return;
   }
-  for (const key2 of keys2) {
-    const envelope = readEnvelope(key2);
-    if (!envelope || now2 - envelope.savedAt > DRAFT_TTL_MS) {
-      removeKey(key2);
+  for (const key of keys) {
+    const envelope = readEnvelope(key);
+    if (!envelope || now - envelope.savedAt > DRAFT_TTL_MS) {
+      removeKey(key);
     }
   }
 }
 
 function readPendingHomeHandoff() {
   try {
-    const raw2 = localStorage.getItem(PENDING_HOME_HANDOFF_KEY);
-    if (!raw2) return void 0;
-    const value = JSON.parse(raw2);
+    const raw = localStorage.getItem(PENDING_HOME_HANDOFF_KEY);
+    if (!raw) return void 0;
+    const value = JSON.parse(raw);
     if (!value || typeof value !== "object" || Array.isArray(value))
       return void 0;
     const operationId = value.operationId;
@@ -103,32 +103,32 @@ const CONFIRMATION_REASON_KINDS = new Set([
   "tool_confirm_ask",
 ]);
 
-function isUnresolvedAnswerRequest(message2) {
-  if (message2.type === "question" || message2.type === "interact")
-    return !message2.resolved;
+function isUnresolvedAnswerRequest(message) {
+  if (message.type === "question" || message.type === "interact")
+    return !message.resolved;
   return false;
 }
 
-function isUnresolvedConfirmation(message2) {
-  if (message2.type === "confirm" || message2.type === "loop_guard_ask")
-    return !message2.resolved;
-  if (message2.type === "tool_confirm_ask")
-    return !message2.resolved && message2.expired !== true;
+function isUnresolvedConfirmation(message) {
+  if (message.type === "confirm" || message.type === "loop_guard_ask")
+    return !message.resolved;
+  if (message.type === "tool_confirm_ask")
+    return !message.resolved && message.expired !== true;
   return false;
 }
 
 function deriveSessionTaskSnapshot(input) {
   let confirmationActionId;
-  for (let index2 = input.messages.length - 1; index2 >= 0; index2 -= 1) {
-    const message2 = input.messages[index2];
-    if (isUnresolvedAnswerRequest(message2)) {
+  for (let index = input.messages.length - 1; index >= 0; index -= 1) {
+    const message = input.messages[index];
+    if (isUnresolvedAnswerRequest(message)) {
       return {
         status: "needs-answer",
-        userActionId: `${message2.type}:${message2.requestId ?? message2.id}`,
+        userActionId: `${message.type}:${message.requestId ?? message.id}`,
       };
     }
-    if (!confirmationActionId && isUnresolvedConfirmation(message2)) {
-      confirmationActionId = `${message2.type}:${message2.requestId ?? message2.id}`;
+    if (!confirmationActionId && isUnresolvedConfirmation(message)) {
+      confirmationActionId = `${message.type}:${message.requestId ?? message.id}`;
     }
   }
   if (confirmationActionId) {
@@ -137,8 +137,8 @@ function deriveSessionTaskSnapshot(input) {
       userActionId: confirmationActionId,
     };
   }
-  for (let index2 = input.pendingReasons.length - 1; index2 >= 0; index2 -= 1) {
-    const reason = input.pendingReasons[index2];
+  for (let index = input.pendingReasons.length - 1; index >= 0; index -= 1) {
+    const reason = input.pendingReasons[index];
     if (CONFIRMATION_REASON_KINDS.has(reason.kind)) {
       return {
         status: "needs-confirmation",
@@ -167,15 +167,15 @@ export class SessionTaskSnapshotCache {
     ) {
       return cached.snapshot;
     }
-    const snapshot2 = deriveSessionTaskSnapshot(input);
+    const snapshot = deriveSessionTaskSnapshot(input);
     this.entries.set(input.sessionId, {
       userAttentionRevision: input.userAttentionRevision,
       messageCount: input.messages.length,
       busy: input.busy,
       pendingReasons: input.pendingReasons,
-      snapshot: snapshot2,
+      snapshot,
     });
-    return snapshot2;
+    return snapshot;
   }
   retain(sessionIds) {
     for (const sessionId of this.entries.keys()) {
@@ -184,7 +184,7 @@ export class SessionTaskSnapshotCache {
   }
 }
 
-export function RemoteToolDialogShell({ width, height, children: children2 }) {
+export function RemoteToolDialogShell({ width, height, children }) {
   return (
     <div
       className={
@@ -204,7 +204,7 @@ export function RemoteToolDialogShell({ width, height, children: children2 }) {
       }
     >
       <div className="relative flex-1 overflow-y-auto overflow-x-hidden">
-        {children2}
+        {children}
       </div>
     </div>
   );

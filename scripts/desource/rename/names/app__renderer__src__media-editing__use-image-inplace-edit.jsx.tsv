@@ -1,0 +1,13 @@
+key	new	依据
+id2@49:7	nodeId	此处是超分辨率与去背景操作所针对的画布图像节点 ID。
+id2@69:7	nodeId	此节点 ID 用于查找图像节点并计算就地编辑所需的画布矩形。
+id2@110:7	nodeId	此节点 ID 标识当前正在内联编辑并等待应用或放弃的图像。
+cur@219:15	currentIndex	clampIndex 接收状态中的当前素材索引，并把它限制在素材列表范围内。
+meta2@50:9	meta	该图像元数据提供资源 path，供超分辨率和去背景请求使用。
+meta2@70:9	meta	该图像元数据提供源 URL 与路径，供就地裁切编辑读取原图。
+meta2@111:9	meta	该图像元数据提供当前编辑图像的源 URL，供预览和应用操作使用。
+selected2@112:13	isSelected	此布尔值表示 React Flow 是否选中了当前图像节点，未选中时结束编辑。
+enter2@133:9	enter	该回调在图像有源 URL 时计算节点矩形并打开内联编辑界面。
+length2@187:28	itemCount	工具将 length 判为全局名；clampIndex 用此数值判断素材列表是否为空并计算最大有效索引。
+index2@195:10	index	该状态保存当前选中的素材位置，并传给编辑面板和应用回调。
+close2@198:9	closeEdit	工具将 close 判为全局名；该回调把编辑面板的 open 状态设为 false 并作为 onClose 传出。

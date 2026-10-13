@@ -39,18 +39,18 @@ function longEdge(width, height) {
   if (!width || !height || width <= 0 || height <= 0) return void 0;
   return Math.max(width, height);
 }
-function isEnhanceImageResolutionBelowSource(option2, width, height) {
+function isEnhanceImageResolutionBelowSource(option, width, height) {
   const long = longEdge(width, height);
   if (long === void 0) return false;
-  return RESOLUTION_LONG_EDGE[option2] <= long;
+  return RESOLUTION_LONG_EDGE[option] <= long;
 }
-function computeEnhanceImageTarget(option2, width, height) {
+function computeEnhanceImageTarget(option, width, height) {
   if (!width || !height || width <= 0 || height <= 0) return void 0;
   const long = Math.max(width, height);
-  const targetLong = Math.min(RESOLUTION_LONG_EDGE[option2], OUTPUT_EDGE_MAX);
-  const scale2 = targetLong / long;
-  const targetWidth = Math.min(Math.round(width * scale2), OUTPUT_EDGE_MAX);
-  const targetHeight = Math.min(Math.round(height * scale2), OUTPUT_EDGE_MAX);
+  const targetLong = Math.min(RESOLUTION_LONG_EDGE[option], OUTPUT_EDGE_MAX);
+  const scale = targetLong / long;
+  const targetWidth = Math.min(Math.round(width * scale), OUTPUT_EDGE_MAX);
+  const targetHeight = Math.min(Math.round(height * scale), OUTPUT_EDGE_MAX);
   return {
     targetWidth,
     targetHeight,
@@ -59,13 +59,13 @@ function computeEnhanceImageTarget(option2, width, height) {
 function suggestEnhanceImageResolution(width, height) {
   const long = longEdge(width, height);
   if (long === void 0) return DEFAULT_ENHANCE_IMAGE_RESOLUTION;
-  for (const option2 of ENHANCE_IMAGE_RESOLUTIONS) {
-    if (RESOLUTION_LONG_EDGE[option2] > long) return option2;
+  for (const option of ENHANCE_IMAGE_RESOLUTIONS) {
+    if (RESOLUTION_LONG_EDGE[option] > long) return option;
   }
   return "8k";
 }
 function ResolutionToggle({ value, width, height, onChange }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       className="flex h-8 items-center gap-0.5 rounded-md p-0.5"
@@ -73,41 +73,41 @@ function ResolutionToggle({ value, width, height, onChange }) {
         background: "var(--canvas-controls-active, #ffffff14)",
       }}
     >
-      {ENHANCE_IMAGE_RESOLUTIONS.map((option2) => {
-        const active2 = option2 === value;
-        const disabled2 = isEnhanceImageResolutionBelowSource(
-          option2,
+      {ENHANCE_IMAGE_RESOLUTIONS.map((option) => {
+        const isActive = option === value;
+        const isDisabled = isEnhanceImageResolutionBelowSource(
+          option,
           width,
           height,
         );
         return (
           <button
-            key={option2}
+            key={option}
             type="button"
-            disabled={disabled2}
+            disabled={isDisabled}
             onClick={() => {
-              if (disabled2) return;
-              if (option2 !== value) onChange(option2);
+              if (isDisabled) return;
+              if (option !== value) onChange(option);
             }}
-            data-action-ui-id={`canvas.enhance-image.resolution-${option2}`}
+            data-action-ui-id={`canvas.enhance-image.resolution-${option}`}
             title={
-              disabled2
-                ? t2("canvas.enhanceImage.belowSource", "目标分辨率不高于原图")
+              isDisabled
+                ? t("canvas.enhanceImage.belowSource", "目标分辨率不高于原图")
                 : void 0
             }
             className="flex-1 h-7 rounded-md px-2.5 text-[13px] font-medium transition-colors"
             style={{
-              background: active2
+              background: isActive
                 ? "var(--canvas-primary-btn-bg, #ffffff)"
                 : "transparent",
-              color: active2
+              color: isActive
                 ? "var(--canvas-primary-btn-icon, #000)"
                 : "var(--canvas-controls-text, #fff)",
-              cursor: disabled2 ? "not-allowed" : "pointer",
-              opacity: disabled2 ? 0.5 : 1,
+              cursor: isDisabled ? "not-allowed" : "pointer",
+              opacity: isDisabled ? 0.5 : 1,
             }}
           >
-            {formatEnhanceImageResolution(option2)}
+            {formatEnhanceImageResolution(option)}
           </button>
         );
       })}
@@ -115,14 +115,14 @@ function ResolutionToggle({ value, width, height, onChange }) {
   );
 }
 export const EnhanceImagePopover = reactExports.memo(
-  function EnhanceImagePopover2({
+  function EnhanceImagePopover({
     onSubmit,
     onClose,
     width,
     height,
     creditCost,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t } = useTranslation();
     const [resolution, setResolution] = reactExports.useState(() =>
       width && height
         ? suggestEnhanceImageResolution(width, height)
@@ -132,16 +132,16 @@ export const EnhanceImagePopover = reactExports.memo(
     onCloseRef.current = onClose;
     const nodeId = useNodeId();
     const selectedSelector = reactExports.useCallback(
-      (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
+      (storeState) => (nodeId ? !!storeState.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     );
-    const selected2 = useStore(selectedSelector);
+    const isSelected = useStore(selectedSelector);
     const isDragging = useCanvasIsDragging();
     const isMultiSelect = useCanvasIsMultiSelect();
     const isBoxSelecting = useCanvasIsBoxSelecting();
     reactExports.useEffect(() => {
-      if (!selected2) onCloseRef.current();
-    }, [selected2]);
+      if (!isSelected) onCloseRef.current();
+    }, [isSelected]);
     const hidden = isDragging || isMultiSelect || isBoxSelecting;
     const isBelowSource = isEnhanceImageResolutionBelowSource(
       resolution,
@@ -169,14 +169,14 @@ export const EnhanceImagePopover = reactExports.memo(
           style={{
             display: hidden ? "none" : void 0,
           }}
-          onPointerDown={(e2) => e2.stopPropagation()}
+          onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
         >
           <div className="font-heading text-[13px] font-medium text-[var(--canvas-controls-text)]">
-            {t2("canvas.enhanceImage.title", "高清增强")}
+            {t("canvas.enhanceImage.title", "高清增强")}
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] text-[var(--canvas-controls-text-muted)]">
-              {t2("canvas.enhanceImage.resolutionLabel", "分辨率")}
+              {t("canvas.enhanceImage.resolutionLabel", "分辨率")}
             </span>
             <ResolutionToggle
               value={resolution}
@@ -191,8 +191,8 @@ export const EnhanceImagePopover = reactExports.memo(
               onClick={onClose}
               data-action-ui-id="canvas.enhance-image.cancel"
               className="flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)]"
-              aria-label={t2("canvas.enhanceImage.cancel", "取消")}
-              title={t2("canvas.enhanceImage.cancel", "取消")}
+              aria-label={t("canvas.enhanceImage.cancel", "取消")}
+              title={t("canvas.enhanceImage.cancel", "取消")}
             >
               <CloseIcon />
             </button>
@@ -204,10 +204,10 @@ export const EnhanceImagePopover = reactExports.memo(
                 disabled={isBelowSource}
                 onClick={handleSubmit}
                 data-action-ui-id="canvas.enhance-image.submit"
-                aria-label={t2("canvas.enhanceImage.submit", "生成")}
+                aria-label={t("canvas.enhanceImage.submit", "生成")}
                 title={
                   isBelowSource
-                    ? t2(
+                    ? t(
                         "canvas.enhanceImage.belowSource",
                         "目标分辨率不高于原图",
                       )

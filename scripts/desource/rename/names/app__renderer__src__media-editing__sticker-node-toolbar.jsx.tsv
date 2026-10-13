@@ -1,0 +1,17 @@
+key	new	依据
+t2@49:30	t	choiceLabel 用此翻译函数把贴纸资源的 labelKey 转为显示名称。
+t2@174:14	t	useTranslation 返回的文本函数供贴纸工具栏生成选项标签。
+id2@173:35	nodeId	该 ID 标识工具栏操作所针对的贴纸节点，用于拖动检测和更新节点数据。
+id2@345:7	nodeId	该 ID 是当前贴纸节点的 React Flow 标识，并传给贴纸工具栏。
+emoji2@34:33	emoji	此字符串来自 CANVAS_EMOJI_STICKERS，作为表情贴纸选项及其数据。
+index2@34:41	index	此数组索引用于生成 emoji 选项 ID，并保存在选项对象中。
+active2@77:11	isActive	此布尔属性控制工具按钮的 pressed 状态和 active 数据属性。
+active2@150:21	isActive	此布尔值表示候选贴纸 ID 是否等于当前选择 ID，决定按钮选中态。
+data2@173:46	data	此对象是当前贴纸节点数据，读取 brandId 与 emoji 并参与节点更新。
+selected2@173:63	isSelected	此布尔属性表示贴纸节点是否选中，用于关闭选择器并控制工具栏显示。
+handleDelete2@227:9	handleDelete	该事件回调阻止默认行为与冒泡，然后通过 removeNode 删除当前贴纸。
+emoji2@201:6	emoji	该值是用户选中的表情字符，写入节点数据并同步到贴纸选择状态。
+key2@236:38	key	该值是贴纸标签的 i18n 键，传给 t 取得显示文案。
+data2@346:9	data	此对象保存贴纸的品牌 ID、表情和旋转角度等节点属性。
+selected2@347:13	isSelected	此布尔属性控制节点选中框的数据属性及工具栏的 selected 状态。
+StickerNode2@344:55	StickerNode	此函数根据节点数据渲染贴纸图像或表情及选中框，再由 React.memo 包装。

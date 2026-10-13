@@ -1,0 +1,11 @@
+key	new	依据
+t2@37:14	t	useTranslation 返回的文本函数，用模式键和值生成擦除模式选项标签。
+t2@83:16	t	useTranslation 返回的文本函数，用于弹窗标题、说明和提交按钮文案。
+s2@88:8	storeState	此 Zustand 状态参数供选择器从 nodeLookup 中读取当前节点数据。
+e2@118:27	pointerEvent	该指针事件在控件处理后调用 stopPropagation，避免事件传到画布。
+e2@119:27	doubleClickEvent	该双击事件调用 stopPropagation，避免双击动作继续触发画布逻辑。
+option2@45:19	option	该模式选项用于查找对应的本地化标签并显示在按钮上。
+active2@46:15	isActive	此布尔值由 option 与当前 value 相等得出，决定按钮是否呈现选中样式。
+mode2@78:11	mode	此弹窗属性是当前擦除模式，提交时作为参数传给 onSubmit。
+EraseSubtitlePopover2@77:12	EraseSubtitlePopover	该组件根据擦除模式和回调渲染字幕擦除设置弹窗。
+selected2@91:11	isSelected	此布尔值来自节点选择器；变为 false 时触发关闭弹窗的效果。
