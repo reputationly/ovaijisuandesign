@@ -9,10 +9,10 @@ import {
   useCanvasActiveDeferred,
   useViewportStatus,
 } from "../canvas/fullscreen-icon.jsx";
-function subscribe(cb) {
-  subscribers.add(cb);
+function subscribe(callback) {
+  subscribers.add(callback);
   return () => {
-    subscribers.delete(cb);
+    subscribers.delete(callback);
   };
 }
 function getSnapshot() {
@@ -36,8 +36,8 @@ class BitmapLru {
   bytes() {
     return this.totalBytes;
   }
-  has(key2) {
-    return this.entries.has(key2);
+  has(key) {
+    return this.entries.has(key);
   }
   /**
    * Acquire a bitmap. Bumps `refCount` and `lastUsed`. Returns null if
@@ -46,8 +46,8 @@ class BitmapLru {
    * The returned bitmap is borrowed; release it via `release(key)` when
    * done so it can become eligible for eviction.
    */
-  acquire(key2) {
-    const entry = this.entries.get(key2);
+  acquire(key) {
+    const entry = this.entries.get(key);
     if (!entry) return null;
     entry.refCount += 1;
     entry.lastUsed = ++this.clock;
@@ -61,11 +61,11 @@ class BitmapLru {
    * Throws if called with a refCount that's already zero — that's a bug
    * in the caller (double-release).
    */
-  release(key2) {
-    const entry = this.entries.get(key2);
+  release(key) {
+    const entry = this.entries.get(key);
     if (!entry) return;
     if (entry.refCount === 0) {
-      throw new Error(`BitmapLru: double release of ${key2}`);
+      throw new Error(`BitmapLru: double release of ${key}`);
     }
     entry.refCount -= 1;
     entry.lastUsed = ++this.clock;
@@ -80,28 +80,28 @@ class BitmapLru {
    *
    * Triggers eviction if over budget afterward.
    */
-  set(key2, bitmap, bytes2) {
-    const existing = this.entries.get(key2);
+  set(key, bitmap, bytes) {
+    const existing = this.entries.get(key);
     if (existing) {
       this.totalBytes -= existing.bytes;
       try {
         existing.bitmap.close();
       } catch {}
       existing.bitmap = bitmap;
-      existing.bytes = bytes2;
+      existing.bytes = bytes;
       existing.lastUsed = ++this.clock;
-      this.totalBytes += bytes2;
+      this.totalBytes += bytes;
       this.evictUntilUnderBudget();
       return existing;
     }
     const entry = {
       bitmap,
-      bytes: bytes2,
+      bytes,
       refCount: 0,
       lastUsed: ++this.clock,
     };
-    this.entries.set(key2, entry);
-    this.totalBytes += bytes2;
+    this.entries.set(key, entry);
+    this.totalBytes += bytes;
     this.evictUntilUnderBudget();
     return entry;
   }
@@ -110,16 +110,16 @@ class BitmapLru {
    * known stale, no point keeping it around). Refuses to drop pinned
    * entries to avoid yanking a bitmap out from under a renderer.
    */
-  delete(key2) {
-    const entry = this.entries.get(key2);
+  delete(key) {
+    const entry = this.entries.get(key);
     if (!entry) return false;
     if (entry.refCount > 0) return false;
-    this.entries.delete(key2);
+    this.entries.delete(key);
     this.totalBytes -= entry.bytes;
     try {
       entry.bitmap.close();
     } catch {}
-    this.opts.onEvict?.(key2, entry);
+    this.opts.onEvict?.(key, entry);
     return true;
   }
   /** Close every entry and drop the table. Used on canvas teardown. */
@@ -153,20 +153,20 @@ class BitmapLru {
     if (this.totalBytes <= this.opts.byteBudget) return;
     const protectedClock = this.clock;
     const eligible = [];
-    for (const [key2, entry] of this.entries) {
+    for (const [key, entry] of this.entries) {
       if (entry.refCount > 0) continue;
       if (entry.lastUsed >= protectedClock) continue;
-      eligible.push([key2, entry]);
+      eligible.push([key, entry]);
     }
-    eligible.sort((a2, b3) => a2[1].lastUsed - b3[1].lastUsed);
-    for (const [key2, entry] of eligible) {
+    eligible.sort((leftEntry, rightEntry) => leftEntry[1].lastUsed - rightEntry[1].lastUsed);
+    for (const [key, entry] of eligible) {
       if (this.totalBytes <= this.opts.byteBudget) break;
-      this.entries.delete(key2);
+      this.entries.delete(key);
       this.totalBytes -= entry.bytes;
       try {
         entry.bitmap.close();
       } catch {}
-      this.opts.onEvict?.(key2, entry);
+      this.opts.onEvict?.(key, entry);
     }
     if (this.totalBytes > this.opts.byteBudget) {
       this.opts.onOverBudget?.(this.totalBytes, this.opts.byteBudget);
@@ -177,8 +177,8 @@ class DecodeFailureError extends Error {
   kind;
   /** HTTP status code — only set when `kind === 'http'`. */
   status;
-  constructor(message2, kind, status) {
-    super(message2);
+  constructor(message, kind, status) {
+    super(message);
     this.name = "DecodeFailureError";
     this.kind = kind;
     this.status = status;
@@ -218,14 +218,14 @@ function defaultWorkerFactory() {
   );
 }
 function recommendedPoolSize() {
-  const hwc =
+  const hardwareConcurrency =
     typeof navigator !== "undefined" &&
     typeof navigator.hardwareConcurrency === "number"
       ? navigator.hardwareConcurrency
       : 2;
-  return Math.max(2, Math.min(4, hwc - 1));
+  return Math.max(2, Math.min(4, hardwareConcurrency - 1));
 }
-function makeAbortError$1() {
+function makeWorkerAbortError() {
   if (typeof DOMException !== "undefined") {
     return new DOMException("aborted", "AbortError");
   }
@@ -240,9 +240,9 @@ class DecodeWorkerPool {
   taskIdSeq = 0;
   disposed = false;
   constructor(opts = {}) {
-    const size2 = opts.size ?? recommendedPoolSize();
+    const size = opts.size ?? recommendedPoolSize();
     const factory = opts.workerFactory ?? defaultWorkerFactory;
-    for (let i2 = 0; i2 < size2; i2++) {
+    for (let workerIndex = 0; workerIndex < size; workerIndex++) {
       const worker = factory();
       const slot = {
         worker,
@@ -264,9 +264,9 @@ class DecodeWorkerPool {
   }
   /** Number of currently-busy workers. For tests / metrics. */
   busyCount() {
-    let n2 = 0;
-    for (const slot of this.slots) if (slot.busyTask) n2++;
-    return n2;
+    let busyWorkerCount = 0;
+    for (const slot of this.slots) if (slot.busyTask) busyWorkerCount++;
+    return busyWorkerCount;
   }
   /**
    * Submit a decode request. Returns a promise that resolves with the
@@ -296,7 +296,7 @@ class DecodeWorkerPool {
         workerSlot: null,
       };
       if (opts.signal?.aborted) {
-        reject(makeAbortError$1());
+        reject(makeWorkerAbortError());
         return;
       }
       if (opts.signal) {
@@ -314,11 +314,11 @@ class DecodeWorkerPool {
   dispose() {
     if (this.disposed) return;
     this.disposed = true;
-    const pending2 = Array.from(this.tasks.values());
-    for (const task of pending2) {
+    const pending = Array.from(this.tasks.values());
+    for (const task of pending) {
       task.cancelled = true;
       task.signalCleanup?.();
-      task.reject(makeAbortError$1());
+      task.reject(makeWorkerAbortError());
     }
     this.tasks.clear();
     this.queue.length = 0;
@@ -334,7 +334,7 @@ class DecodeWorkerPool {
   dispatch() {
     if (this.disposed) return;
     if (this.queue.length === 0) return;
-    this.queue.sort((a2, b3) => a2.priority - b3.priority);
+    this.queue.sort((firstTask, secondTask) => firstTask.priority - secondTask.priority);
     while (this.queue.length > 0) {
       const slot = this.findIdleSlot();
       if (!slot) break;
@@ -352,37 +352,37 @@ class DecodeWorkerPool {
     }
     return null;
   }
-  handleWorkerMessage(slot, msg) {
-    const task = this.tasks.get(msg.taskId);
-    if (slot.busyTask?.taskId === msg.taskId) {
+  handleWorkerMessage(slot, workerMessage) {
+    const task = this.tasks.get(workerMessage.taskId);
+    if (slot.busyTask?.taskId === workerMessage.taskId) {
       slot.busyTask = null;
     }
     if (!task) {
-      if (msg.type === "success") {
+      if (workerMessage.type === "success") {
         try {
-          msg.bitmap.close();
+          workerMessage.bitmap.close();
         } catch {}
       }
       this.dispatch();
       return;
     }
     if (task.cancelled) {
-      if (msg.type === "success") {
+      if (workerMessage.type === "success") {
         try {
-          msg.bitmap.close();
+          workerMessage.bitmap.close();
         } catch {}
       }
-      this.tasks.delete(msg.taskId);
+      this.tasks.delete(workerMessage.taskId);
       this.dispatch();
       return;
     }
     task.signalCleanup?.();
-    this.tasks.delete(msg.taskId);
-    if (msg.type === "success") {
-      task.resolve(msg);
+    this.tasks.delete(workerMessage.taskId);
+    if (workerMessage.type === "success") {
+      task.resolve(workerMessage);
     } else {
       task.reject(
-        new DecodeFailureError(msg.message, msg.kind ?? "decode", msg.status),
+        new DecodeFailureError(workerMessage.message, workerMessage.kind ?? "decode", workerMessage.status),
       );
     }
     this.dispatch();
@@ -397,29 +397,29 @@ class DecodeWorkerPool {
         taskId: task.taskId,
       });
     } else {
-      const idx = this.queue.indexOf(task);
-      if (idx >= 0) this.queue.splice(idx, 1);
+      const queuedTaskIndex = this.queue.indexOf(task);
+      if (queuedTaskIndex >= 0) this.queue.splice(queuedTaskIndex, 1);
       this.tasks.delete(task.taskId);
     }
-    task.reject(makeAbortError$1());
+    task.reject(makeWorkerAbortError());
   }
 }
 const SIZE_TIERS = [64, 128, 256, 512, 1024, 2048];
 const DPR_CAP = 2;
-function bucketDpr(dpr) {
-  return dpr >= 1.5 ? "2x" : "1x";
+function bucketDpr(displayPixelRatio) {
+  return displayPixelRatio >= 1.5 ? "2x" : "1x";
 }
-function pickTier(displayWidth, dpr) {
+function pickTier(displayWidth, displayPixelRatio) {
   if (!Number.isFinite(displayWidth) || displayWidth <= 0) return SIZE_TIERS[0];
-  const cappedDpr = Math.min(Math.max(dpr || 1, 1), DPR_CAP);
+  const cappedDpr = Math.min(Math.max(displayPixelRatio || 1, 1), DPR_CAP);
   const physical = displayWidth * cappedDpr;
-  for (const t2 of SIZE_TIERS) {
-    if (physical <= t2) return t2;
+  for (const sizeTier of SIZE_TIERS) {
+    if (physical <= sizeTier) return sizeTier;
   }
   return SIZE_TIERS[SIZE_TIERS.length - 1];
 }
-function bitmapCacheKey(url2, tier, dprBucket) {
-  return `${url2}@${tier}@${dprBucket}`;
+function bitmapCacheKey(url, tier, dprBucket) {
+  return `${url}@${tier}@${dprBucket}`;
 }
 const DEFAULT_BYTE_BUDGET = 512 * 1024 * 1024;
 function defaultDpr() {
@@ -450,9 +450,9 @@ class BitmapManager {
       onEvict: opts.lruOptions?.onEvict,
       onOverBudget:
         opts.lruOptions?.onOverBudget ??
-        ((bytes2, budget) => {
+        ((bytes, budget) => {
           console.warn(
-            `[hilo-canvas] BitmapManager over budget: ${(bytes2 / 1048576).toFixed(1)}MB / ${(budget / 1048576).toFixed(1)}MB`,
+            `[hilo-canvas] BitmapManager over budget: ${(bytes / 1048576).toFixed(1)}MB / ${(budget / 1048576).toFixed(1)}MB`,
           );
         }),
     });
@@ -483,27 +483,27 @@ class BitmapManager {
    */
   async acquire(opts) {
     if (this.disposed) throw new Error("manager disposed");
-    const dpr = opts.dpr ?? defaultDpr();
-    const tier = pickTier(opts.displayWidth, dpr);
-    const dprBucket = bucketDpr(dpr);
-    const key2 = bitmapCacheKey(opts.url, tier, dprBucket);
+    const displayPixelRatio = opts.dpr ?? defaultDpr();
+    const tier = pickTier(opts.displayWidth, displayPixelRatio);
+    const dprBucket = bucketDpr(displayPixelRatio);
+    const key = bitmapCacheKey(opts.url, tier, dprBucket);
     if (opts.signal?.aborted) throw makeAbortError();
-    const cached = this.lru.acquire(key2);
+    const cached = this.lru.acquire(key);
     if (cached) {
-      return this.makeHandle(key2, cached);
+      return this.makeHandle(key, cached);
     }
-    let decodePromise = this.inflight.get(key2);
+    let decodePromise = this.inflight.get(key);
     if (!decodePromise) {
       decodePromise = this.startDecode(
         opts.url,
         tier,
         dprBucket,
-        key2,
+        key,
         opts.priority ?? 0,
       );
-      this.inflight.set(key2, decodePromise);
+      this.inflight.set(key, decodePromise);
     }
-    return this.waitForDecode(key2, decodePromise, opts.signal);
+    return this.waitForDecode(key, decodePromise, opts.signal);
   }
   /** Tear down: terminate workers, drop all bitmaps. */
   dispose() {
@@ -514,33 +514,33 @@ class BitmapManager {
     this.inflight.clear();
   }
   // ---- Internals -----------------------------------------------------
-  startDecode(url2, tier, dprBucket, key2, priority) {
+  startDecode(url, tier, dprBucket, key, priority) {
     return this.pool
       .submit({
-        url: url2,
+        url,
         tier,
         dprBucket,
         priority,
       })
       .then((resp) => {
         if (!this.disposed) {
-          this.lru.set(key2, resp.bitmap, resp.bytes);
+          this.lru.set(key, resp.bitmap, resp.bytes);
         } else {
           try {
             resp.bitmap.close();
           } catch {}
         }
-        const ok2 = {
+        const decodedDimensions = {
           width: resp.width,
           height: resp.height,
         };
-        return ok2;
+        return decodedDimensions;
       })
       .finally(() => {
-        if (this.inflight.get(key2)) this.inflight.delete(key2);
+        if (this.inflight.get(key)) this.inflight.delete(key);
       });
   }
-  waitForDecode(key2, decodePromise, signal) {
+  waitForDecode(key, decodePromise, signal) {
     return new Promise((resolve, reject) => {
       let aborted = false;
       const onAbort = () => {
@@ -558,12 +558,12 @@ class BitmapManager {
         .then(() => {
           if (aborted) return;
           cleanup();
-          const entry = this.lru.acquire(key2);
+          const entry = this.lru.acquire(key);
           if (!entry) {
             reject(new Error("bitmap evicted before delivery"));
             return;
           }
-          resolve(this.makeHandle(key2, entry));
+          resolve(this.makeHandle(key, entry));
         })
         .catch((err) => {
           if (aborted) return;
@@ -572,15 +572,15 @@ class BitmapManager {
         });
     });
   }
-  makeHandle(key2, entry) {
+  makeHandle(key, entry) {
     let released = false;
     const release = () => {
       if (released) return;
       released = true;
-      this.lru.release(key2);
+      this.lru.release(key);
     };
     return {
-      key: key2,
+      key,
       bitmap: entry.bitmap,
       width: entry.bitmap.width,
       height: entry.bitmap.height,
@@ -611,16 +611,16 @@ function readDpr() {
   return Math.max(1, window.devicePixelRatio || 1);
 }
 function releaseHandle(ref) {
-  const h2 = ref.current;
-  if (!h2) return;
+  const handle = ref.current;
+  if (!handle) return;
   ref.current = null;
-  h2.release();
+  handle.release();
 }
 function getDrawSig(canvas) {
   return canvas.__drawSig;
 }
-function setDrawSig(canvas, sig) {
-  canvas.__drawSig = sig;
+function setDrawSig(canvas, drawSignature) {
+  canvas.__drawSig = drawSignature;
 }
 let bitmapIdCounter = 0;
 function bitmapId(bitmap) {
@@ -637,16 +637,16 @@ function resetCanvasBackingStore(canvas) {
 function computeCanvasBackingSize(
   displayWidth,
   displayHeight,
-  dpr,
+  displayPixelRatio,
   bitmapWidth,
   bitmapHeight,
 ) {
-  const wantW = Math.max(1, Math.round(displayWidth * dpr));
-  const wantH = Math.max(1, Math.round(displayHeight * dpr));
-  const scale2 = Math.min(1, bitmapWidth / wantW, bitmapHeight / wantH);
+  const wantW = Math.max(1, Math.round(displayWidth * displayPixelRatio));
+  const wantH = Math.max(1, Math.round(displayHeight * displayPixelRatio));
+  const scale = Math.min(1, bitmapWidth / wantW, bitmapHeight / wantH);
   return {
-    width: Math.min(bitmapWidth, Math.max(1, Math.round(wantW * scale2))),
-    height: Math.min(bitmapHeight, Math.max(1, Math.round(wantH * scale2))),
+    width: Math.min(bitmapWidth, Math.max(1, Math.round(wantW * scale))),
+    height: Math.min(bitmapHeight, Math.max(1, Math.round(wantH * scale))),
   };
 }
 function drawBitmap(
@@ -654,28 +654,28 @@ function drawBitmap(
   bitmap,
   displayWidth,
   displayHeight,
-  dpr,
+  displayPixelRatio,
   options = {},
 ) {
   if (!canvas) return false;
   const backing = computeCanvasBackingSize(
     displayWidth,
     displayHeight,
-    dpr,
+    displayPixelRatio,
     bitmap.width,
     bitmap.height,
   );
   const backingW = backing.width;
   const backingH = backing.height;
-  const sig = `${backingW}x${backingH}@${bitmapId(bitmap)}`;
-  if (!options.force && getDrawSig(canvas) === sig) return false;
+  const drawSignature = `${backingW}x${backingH}@${bitmapId(bitmap)}`;
+  if (!options.force && getDrawSig(canvas) === drawSignature) return false;
   if (canvas.width !== backingW) canvas.width = backingW;
   if (canvas.height !== backingH) canvas.height = backingH;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return false;
-  ctx.clearRect(0, 0, backingW, backingH);
-  ctx.drawImage(bitmap, 0, 0, backingW, backingH);
-  setDrawSig(canvas, sig);
+  const context = canvas.getContext("2d");
+  if (!context) return false;
+  context.clearRect(0, 0, backingW, backingH);
+  context.drawImage(bitmap, 0, 0, backingW, backingH);
+  setDrawSig(canvas, drawSignature);
   return true;
 }
 export function CanvasImage(props) {
@@ -694,7 +694,7 @@ export function CanvasImage(props) {
   const handleRef = reactExports.useRef(null);
   const [loadState, setLoadState] = reactExports.useState("pending");
   const status = useViewportStatus(nodeId, width, height);
-  const dpr = reactExports.useMemo(() => readDpr(), []);
+  const displayPixelRatio = reactExports.useMemo(() => readDpr(), []);
   const zoomBucket = useStableZoomBucket();
   const effectiveWidth = Math.max(1, Math.round(width * zoomBucket));
   const effectiveHeight = Math.max(1, Math.round(height * zoomBucket));
@@ -736,7 +736,7 @@ export function CanvasImage(props) {
       setHoveredAnimationSrc(animationSrc ?? null);
     }, GIF_HOVER_DELAY_MS);
   };
-  const handleMouseLeave2 = () => {
+  const handleMouseLeave = () => {
     cancelPendingAnimation();
     setHoveredAnimationSrc(null);
   };
@@ -756,14 +756,14 @@ export function CanvasImage(props) {
         canvasPresented &&
         handleRef.current !== null,
       recover: () => {
-        const handle2 = handleRef.current;
-        if (!handle2) return false;
+        const handle = handleRef.current;
+        if (!handle) return false;
         return drawBitmap(
           canvasRef.current,
-          handle2.bitmap,
+          handle.bitmap,
           effectiveWidth,
           effectiveHeight,
-          dpr,
+          displayPixelRatio,
           {
             force: true,
           },
@@ -788,7 +788,7 @@ export function CanvasImage(props) {
         .acquire({
           url: src,
           displayWidth: effectiveWidth,
-          dpr,
+          dpr: displayPixelRatio,
           signal: ctrl.signal,
           // Closer-to-viewport tasks get lower priority numbers (dispatch
           // first). Without a per-node distance we collapse to two
@@ -797,22 +797,22 @@ export function CanvasImage(props) {
           // flip during an existing acquire doesn't re-fire the effect.
           priority: statusRef.current === "inView" ? 0 : 100,
         })
-        .then((h2) => {
+        .then((bitmapHandle) => {
           if (cancelled) {
-            h2.release();
+            bitmapHandle.release();
             return;
           }
           releaseHandle(handleRef);
-          handleRef.current = h2;
-          if (h2.bitmap.width > 0 && h2.bitmap.height > 0) {
-            onNaturalSizeRef.current?.(h2.bitmap.width, h2.bitmap.height);
+          handleRef.current = bitmapHandle;
+          if (bitmapHandle.bitmap.width > 0 && bitmapHandle.bitmap.height > 0) {
+            onNaturalSizeRef.current?.(bitmapHandle.bitmap.width, bitmapHandle.bitmap.height);
           }
           drawBitmap(
             canvasRef.current,
-            h2.bitmap,
+            bitmapHandle.bitmap,
             effectiveWidth,
             effectiveHeight,
-            dpr,
+            displayPixelRatio,
           );
           setLoadState("ready");
         })
@@ -839,7 +839,7 @@ export function CanvasImage(props) {
       if (retryTimer) clearTimeout(retryTimer);
       ctrl.abort();
     };
-  }, [src, effectiveWidth, effectiveHeight, dpr, isFar]);
+  }, [src, effectiveWidth, effectiveHeight, displayPixelRatio, isFar]);
   reactExports.useEffect(() => {
     if (handleRef.current) {
       drawBitmap(
@@ -847,14 +847,14 @@ export function CanvasImage(props) {
         handleRef.current.bitmap,
         effectiveWidth,
         effectiveHeight,
-        dpr,
+        displayPixelRatio,
       );
     }
-  }, [effectiveWidth, effectiveHeight, dpr]);
+  }, [effectiveWidth, effectiveHeight, displayPixelRatio]);
   reactExports.useEffect(() => {
     return () => releaseHandle(handleRef);
   }, []);
-  const wrapperStyle2 = {
+  const wrapperStyle = {
     width,
     height,
     position: "relative",
@@ -896,7 +896,7 @@ export function CanvasImage(props) {
     return (
       <div
         className={className}
-        style={wrapperStyle2}
+        style={wrapperStyle}
         role="img"
         aria-label={alt}
       />
@@ -905,11 +905,11 @@ export function CanvasImage(props) {
   return (
     <div
       className={className}
-      style={wrapperStyle2}
+      style={wrapperStyle}
       role="img"
       aria-label={alt}
       onMouseEnter={animationSrc ? handleMouseEnter : void 0}
-      onMouseLeave={animationSrc ? handleMouseLeave2 : void 0}
+      onMouseLeave={animationSrc ? handleMouseLeave : void 0}
     >
       <canvas ref={canvasRef} style={canvasStyle} />
       {showAnimation && (

@@ -47,9 +47,9 @@ export class TimelineRenderer {
   hooks;
   constructor(canvas, getState, thumbnailStore, waveformService, options) {
     this.canvas = canvas;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("无法获取 Canvas 2D 上下文");
-    this.ctx = ctx;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("无法获取 Canvas 2D 上下文");
+    this.ctx = context;
     this.dpr = window.devicePixelRatio || 1;
     this.getState = getState;
     this.thumbnailStore = thumbnailStore;
@@ -97,15 +97,15 @@ export class TimelineRenderer {
     this.rulerCtx = this.rulerLayer.getContext("2d");
     this.rulerCacheKey = "";
   }
-  render(state2) {
+  render(state) {
     this.needsRender = false;
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this.clear();
     this.drawBackground();
-    this.drawRulerCached(state2);
-    this.drawTrack(state2);
-    this.drawCropOverlay(state2);
-    this.drawPlayhead(state2);
+    this.drawRulerCached(state);
+    this.drawTrack(state);
+    this.drawCropOverlay(state);
+    this.drawPlayhead(state);
   }
   clear() {
     this.ctx.clearRect(0, 0, this.width, this.height);
@@ -118,196 +118,196 @@ export class TimelineRenderer {
     this.ctx.fillStyle = this.colors.BACKGROUND;
     this.ctx.fillRect(0, 0, this.width, this.height);
   }
-  drawRulerCached(state2) {
+  drawRulerCached(state) {
     if (!this.rulerLayer || !this.rulerCtx) return;
-    const cacheKey = `${state2.scale}:${state2.scrollX}:${state2.totalDuration}:${this.width}`;
+    const cacheKey = `${state.scale}:${state.scrollX}:${state.totalDuration}:${this.width}`;
     if (this.rulerCacheKey !== cacheKey) {
-      this.drawRulerToLayer(state2);
+      this.drawRulerToLayer(state);
       this.rulerCacheKey = cacheKey;
     }
     this.ctx.drawImage(this.rulerLayer, 0, 0, this.width, this.rulerHeight);
   }
-  drawRulerToLayer(state2) {
-    const ctx = this.rulerCtx;
-    if (!ctx) return;
+  drawRulerToLayer(state) {
+    const context = this.rulerCtx;
+    if (!context) return;
     const rulerH = this.rulerHeight;
-    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    ctx.clearRect(0, 0, this.width, rulerH);
+    context.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    context.clearRect(0, 0, this.width, rulerH);
     const { RULER_LINE, RULER_TEXT } = this.colors;
     const { TRACK_PADDING_H } = TIMELINE_CONFIG;
-    const { scale: scale2, scrollX } = state2;
+    const { scale, scrollX } = state;
     const contentLeft = TRACK_PADDING_H;
     const contentRight = this.width - TRACK_PADDING_H;
-    const { interval: interval2, subDivisions } =
-      this.calculateInterval(scale2);
-    const startTime = Math.floor(scrollX / scale2 / interval2) * interval2;
+    const { interval, subDivisions } =
+      this.calculateInterval(scale);
+    const startTime = Math.floor(scrollX / scale / interval) * interval;
     const endTime =
-      Math.ceil((scrollX + this.width) / scale2 / interval2) * interval2;
+      Math.ceil((scrollX + this.width) / scale / interval) * interval;
     const centerY = rulerH / 2;
-    ctx.font = "11px Inter, sans-serif";
-    ctx.textBaseline = "middle";
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(contentLeft, 0, contentRight - contentLeft, rulerH);
-    ctx.clip();
-    for (let time = startTime; time <= endTime; time += interval2) {
-      const x2 = time * scale2 - scrollX + TRACK_PADDING_H;
-      if (x2 >= contentLeft - 8 && x2 <= contentRight + 8) {
-        ctx.fillStyle = RULER_TEXT;
+    context.font = "11px Inter, sans-serif";
+    context.textBaseline = "middle";
+    context.save();
+    context.beginPath();
+    context.rect(contentLeft, 0, contentRight - contentLeft, rulerH);
+    context.clip();
+    for (let time = startTime; time <= endTime; time += interval) {
+      const tickX = time * scale - scrollX + TRACK_PADDING_H;
+      if (tickX >= contentLeft - 8 && tickX <= contentRight + 8) {
+        context.fillStyle = RULER_TEXT;
         const label = formatTimeShort(time);
-        if (x2 < contentLeft + 4) {
-          ctx.textAlign = "left";
-          ctx.fillText(label, contentLeft, centerY);
-        } else if (x2 > contentRight - 4) {
-          ctx.textAlign = "right";
-          ctx.fillText(label, contentRight, centerY);
+        if (tickX < contentLeft + 4) {
+          context.textAlign = "left";
+          context.fillText(label, contentLeft, centerY);
+        } else if (tickX > contentRight - 4) {
+          context.textAlign = "right";
+          context.fillText(label, contentRight, centerY);
         } else {
-          ctx.textAlign = "center";
-          ctx.fillText(label, x2, centerY);
+          context.textAlign = "center";
+          context.fillText(label, tickX, centerY);
         }
       }
     }
-    ctx.fillStyle = RULER_LINE;
-    ctx.beginPath();
-    for (let time = startTime; time <= endTime; time += interval2) {
-      const x2 = time * scale2 - scrollX + TRACK_PADDING_H;
+    context.fillStyle = RULER_LINE;
+    context.beginPath();
+    for (let time = startTime; time <= endTime; time += interval) {
+      const tickX = time * scale - scrollX + TRACK_PADDING_H;
       const lastSubX =
-        x2 + (interval2 / subDivisions) * (subDivisions - 1) * scale2;
-      if (x2 > contentRight || lastSubX < contentLeft) continue;
-      for (let i2 = 1; i2 < subDivisions; i2++) {
-        const subX = x2 + (interval2 / subDivisions) * i2 * scale2;
+        tickX + (interval / subDivisions) * (subDivisions - 1) * scale;
+      if (tickX > contentRight || lastSubX < contentLeft) continue;
+      for (let subdivisionIndex = 1; subdivisionIndex < subDivisions; subdivisionIndex++) {
+        const subX = tickX + (interval / subDivisions) * subdivisionIndex * scale;
         if (subX > contentRight) break;
         if (subX < contentLeft) continue;
-        ctx.moveTo(subX + 0.5, centerY);
-        ctx.ellipse(subX, centerY, 0.5, 1, 0, 0, Math.PI * 2);
+        context.moveTo(subX + 0.5, centerY);
+        context.ellipse(subX, centerY, 0.5, 1, 0, 0, Math.PI * 2);
       }
     }
-    ctx.fill();
-    ctx.restore();
+    context.fill();
+    context.restore();
   }
-  drawTrack(state2) {
+  drawTrack(state) {
     const trackY = this.rulerHeight + this.trackGap;
     const trackHeight = this.height - trackY;
     const { TRACK_PADDING_H } = TIMELINE_CONFIG;
-    const ctx = this.ctx;
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(
+    const context = this.ctx;
+    context.save();
+    context.beginPath();
+    context.rect(
       TRACK_PADDING_H,
       trackY,
       this.width - TRACK_PADDING_H * 2,
       trackHeight,
     );
-    ctx.clip();
-    this.drawClips(state2, trackY);
-    ctx.restore();
+    context.clip();
+    this.drawClips(state, trackY);
+    context.restore();
   }
-  drawClips(state2, trackY) {
+  drawClips(state, trackY) {
     const { CLIP_BORDER_RADIUS, CLIP_PADDING, TRACK_PADDING_H } =
       TIMELINE_CONFIG;
     const trackHeight = this.height - this.rulerHeight - this.trackGap;
-    const { scale: scale2, scrollX, clips } = state2;
+    const { scale, scrollX, clips } = state;
     const contentRight = this.width - TRACK_PADDING_H;
-    clips.forEach((clip2) => {
-      const x2 = clip2.startTime * scale2 - scrollX + TRACK_PADDING_H;
+    clips.forEach((clip) => {
+      const clipX = clip.startTime * scale - scrollX + TRACK_PADDING_H;
       const sourceX =
-        (clip2.startTime - clip2.sourceOffset) * scale2 -
+        (clip.startTime - clip.sourceOffset) * scale -
         scrollX +
         TRACK_PADDING_H;
-      const clipWidth = clip2.duration * scale2;
-      const y4 = trackY + CLIP_PADDING;
+      const clipWidth = clip.duration * scale;
+      const clipY = trackY + CLIP_PADDING;
       const clipHeight = trackHeight - CLIP_PADDING * 2;
-      if (x2 + clipWidth < TRACK_PADDING_H || x2 > contentRight) return;
-      const visibleX = Math.max(x2, TRACK_PADDING_H);
-      const visibleWidth = Math.min(x2 + clipWidth, contentRight) - visibleX;
+      if (clipX + clipWidth < TRACK_PADDING_H || clipX > contentRight) return;
+      const visibleX = Math.max(clipX, TRACK_PADDING_H);
+      const visibleWidth = Math.min(clipX + clipWidth, contentRight) - visibleX;
       if (visibleWidth <= 0) return;
       const rect = {
-        x: x2,
-        y: y4,
+        x: clipX,
+        y: clipY,
         width: clipWidth,
         height: clipHeight,
         sourceX,
       };
       this.ctx.save();
-      this.drawRoundRect(x2, y4, clipWidth, clipHeight, CLIP_BORDER_RADIUS);
+      this.drawRoundRect(clipX, clipY, clipWidth, clipHeight, CLIP_BORDER_RADIUS);
       this.ctx.fillStyle = this.colors.VIDEO_CLIP;
       this.ctx.fill();
-      const handled = this.hooks.drawClipContent?.(this.ctx, clip2, rect);
+      const handled = this.hooks.drawClipContent?.(this.ctx, clip, rect);
       if (!handled) {
-        if (clip2.type === "audio") {
-          this.drawAudioWaveform(clip2, x2, y4, clipWidth, clipHeight);
+        if (clip.type === "audio") {
+          this.drawAudioWaveform(clip, clipX, clipY, clipWidth, clipHeight);
         } else {
           this.drawVideoThumbnails(
-            clip2,
-            x2,
-            y4,
+            clip,
+            clipX,
+            clipY,
             clipWidth,
             clipHeight,
             sourceX,
           );
         }
       }
-      this.hooks.drawClipOverlay?.(this.ctx, clip2, rect);
+      this.hooks.drawClipOverlay?.(this.ctx, clip, rect);
       this.ctx.restore();
     });
   }
-  drawVideoThumbnails(clip2, x2, y4, width, height, sourceX) {
-    const ctx = this.ctx;
+  drawVideoThumbnails(clip, clipX, clipY, width, height, sourceX) {
+    const context = this.ctx;
     const radius = TIMELINE_CONFIG.CLIP_BORDER_RADIUS;
-    ctx.save();
-    this.drawRoundRect(x2, y4, width, height, radius);
-    ctx.clip();
-    ctx.fillStyle = this.colors.THUMBNAIL_PLACEHOLDER;
-    ctx.fillRect(x2, y4, width, height);
-    if (!this.thumbnailStore.has(clip2.assetId)) {
-      ctx.restore();
+    context.save();
+    this.drawRoundRect(clipX, clipY, width, height, radius);
+    context.clip();
+    context.fillStyle = this.colors.THUMBNAIL_PLACEHOLDER;
+    context.fillRect(clipX, clipY, width, height);
+    if (!this.thumbnailStore.has(clip.assetId)) {
+      context.restore();
       return;
     }
     const aspect =
-      clip2.width && clip2.height ? clip2.width / clip2.height : 16 / 9;
+      clip.width && clip.height ? clip.width / clip.height : 16 / 9;
     const thumbH = Math.max(8, Math.floor(height));
     const thumbW = Math.max(12, Math.floor(thumbH * aspect));
     const maxTiles = Math.ceil(width / thumbW) + 1;
-    for (let i2 = 0; i2 < maxTiles; i2++) {
-      const tileX = sourceX + i2 * thumbW;
-      if (tileX > x2 + width) break;
-      if (tileX + thumbW < x2) continue;
+    for (let thumbnailIndex = 0; thumbnailIndex < maxTiles; thumbnailIndex++) {
+      const tileX = sourceX + thumbnailIndex * thumbW;
+      if (tileX > clipX + width) break;
+      if (tileX + thumbW < clipX) continue;
       const tileCenterT =
-        ((tileX + thumbW / 2 - sourceX) / width) * clip2.duration;
+        ((tileX + thumbW / 2 - sourceX) / width) * clip.duration;
       const thumb = this.thumbnailStore.getFrameAtTime(
-        clip2.assetId,
+        clip.assetId,
         tileCenterT,
       );
       if (thumb) {
         try {
-          ctx.drawImage(thumb, tileX, y4, thumbW, height);
+          context.drawImage(thumb, tileX, clipY, thumbW, height);
         } catch {
-          ctx.fillRect(tileX, y4, thumbW, height);
+          context.fillRect(tileX, clipY, thumbW, height);
         }
       }
     }
-    ctx.strokeStyle = this.colors.THUMBNAIL_SEPARATOR;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let i2 = 0; i2 < maxTiles; i2++) {
-      const tileX = sourceX + i2 * thumbW;
-      if (tileX > x2 + width) break;
-      if (tileX + thumbW < x2) continue;
-      ctx.moveTo(tileX + thumbW, y4);
-      ctx.lineTo(tileX + thumbW, y4 + height);
+    context.strokeStyle = this.colors.THUMBNAIL_SEPARATOR;
+    context.lineWidth = 1;
+    context.beginPath();
+    for (let thumbnailIndex = 0; thumbnailIndex < maxTiles; thumbnailIndex++) {
+      const tileX = sourceX + thumbnailIndex * thumbW;
+      if (tileX > clipX + width) break;
+      if (tileX + thumbW < clipX) continue;
+      context.moveTo(tileX + thumbW, clipY);
+      context.lineTo(tileX + thumbW, clipY + height);
     }
-    ctx.stroke();
-    ctx.restore();
+    context.stroke();
+    context.restore();
   }
-  drawAudioWaveform(clip2, x2, y4, width, height) {
-    const ctx = this.ctx;
+  drawAudioWaveform(clip, clipX, clipY, width, height) {
+    const context = this.ctx;
     const radius = TIMELINE_CONFIG.CLIP_BORDER_RADIUS;
-    ctx.save();
-    this.drawRoundRect(x2, y4, width, height, radius);
-    ctx.clip();
-    const peaks = this.waveformService?.getPeaks(clip2.assetId);
+    context.save();
+    this.drawRoundRect(clipX, clipY, width, height, radius);
+    context.clip();
+    const peaks = this.waveformService?.getPeaks(clip.assetId);
     if (!peaks) {
-      ctx.restore();
+      context.restore();
       return;
     }
     const peakCount = peaks.peaks.length / 2;
@@ -317,44 +317,44 @@ export class TimelineRenderer {
     const barStep = barWidth + barGap;
     const barCount = Math.floor(width / barStep);
     if (barCount <= 0) {
-      ctx.restore();
+      context.restore();
       return;
     }
-    const secondsPerBar = clip2.duration / barCount;
-    const centerY = y4 + height / 2;
+    const secondsPerBar = clip.duration / barCount;
+    const centerY = clipY + height / 2;
     const amplitude = height / 2;
-    ctx.fillStyle = this.colors.AUDIO_WAVEFORM;
-    ctx.beginPath();
-    for (let i2 = 0; i2 < barCount; i2++) {
-      const timeStart = clip2.sourceOffset + i2 * secondsPerBar;
+    context.fillStyle = this.colors.AUDIO_WAVEFORM;
+    context.beginPath();
+    for (let waveformBarIndex = 0; waveformBarIndex < barCount; waveformBarIndex++) {
+      const timeStart = clip.sourceOffset + waveformBarIndex * secondsPerBar;
       const timeEnd = timeStart + secondsPerBar;
       const peakStart = Math.floor(timeStart * peaksPerSecond);
       const peakEnd = Math.min(Math.ceil(timeEnd * peaksPerSecond), peakCount);
       let minVal = 0;
       let maxVal = 0;
-      for (let j2 = peakStart; j2 < peakEnd; j2++) {
-        minVal = Math.min(minVal, peaks.peaks[j2 * 2]);
-        maxVal = Math.max(maxVal, peaks.peaks[j2 * 2 + 1]);
+      for (let peakIndex = peakStart; peakIndex < peakEnd; peakIndex++) {
+        minVal = Math.min(minVal, peaks.peaks[peakIndex * 2]);
+        maxVal = Math.max(maxVal, peaks.peaks[peakIndex * 2 + 1]);
       }
-      const barX = x2 + i2 * barStep;
+      const barX = clipX + waveformBarIndex * barStep;
       const barTop = centerY - maxVal * amplitude;
       const barBottom = centerY - minVal * amplitude;
       const barH = Math.max(1, barBottom - barTop);
-      ctx.rect(barX, barTop, barWidth, barH);
+      context.rect(barX, barTop, barWidth, barH);
     }
-    ctx.fill();
-    ctx.restore();
+    context.fill();
+    context.restore();
   }
-  drawCropOverlay(state2) {
-    if (state2.cropRange) {
-      this.drawRangeFrame(state2, state2.cropRange, true);
+  drawCropOverlay(state) {
+    if (state.cropRange) {
+      this.drawRangeFrame(state, state.cropRange, true);
     }
-    for (const range2 of state2.segmentRanges) {
-      this.drawRangeFrame(state2, range2, false);
+    for (const range of state.segmentRanges) {
+      this.drawRangeFrame(state, range, false);
     }
   }
   /** Draws the trim frame and, for the active trim, its dimmed outside area. */
-  drawRangeFrame(state2, range2, drawMask) {
+  drawRangeFrame(state, range, drawMask) {
     const {
       CLIP_PADDING,
       CROP_HANDLE_WIDTH,
@@ -363,34 +363,34 @@ export class TimelineRenderer {
     } = TIMELINE_CONFIG;
     const { CROP_MASK, SEGMENT_MASK, CROP_HANDLE, CROP_HANDLE_INNER } =
       this.colors;
-    const { scale: scale2, scrollX } = state2;
-    const ctx = this.ctx;
+    const { scale, scrollX } = state;
+    const context = this.ctx;
     const trackY = this.rulerHeight + this.trackGap + CLIP_PADDING;
     const trackH =
       this.height - this.rulerHeight - this.trackGap - CLIP_PADDING * 2;
     const cropLeftX =
-      range2.start * scale2 - scrollX + TRACK_PADDING_H - CROP_HANDLE_OUTSET;
+      range.start * scale - scrollX + TRACK_PADDING_H - CROP_HANDLE_OUTSET;
     const cropRightX =
-      range2.end * scale2 - scrollX + TRACK_PADDING_H + CROP_HANDLE_OUTSET;
+      range.end * scale - scrollX + TRACK_PADDING_H + CROP_HANDLE_OUTSET;
     const INDICATOR_W = 2;
     const INDICATOR_H = 12;
     const BORDER_W = 2;
     const windowLeft = cropLeftX + CROP_HANDLE_WIDTH;
     const windowRight = cropRightX - CROP_HANDLE_WIDTH;
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, trackY, this.width, trackH);
-    ctx.clip();
+    context.save();
+    context.beginPath();
+    context.rect(0, trackY, this.width, trackH);
+    context.clip();
     if (drawMask) {
-      ctx.fillStyle =
-        state2.segmentRanges.length > 0 ? SEGMENT_MASK : CROP_MASK;
+      context.fillStyle =
+        state.segmentRanges.length > 0 ? SEGMENT_MASK : CROP_MASK;
       const maskLeftEnd = Math.min(windowLeft, this.width);
       if (maskLeftEnd > 0) {
-        ctx.fillRect(0, trackY, maskLeftEnd, trackH);
+        context.fillRect(0, trackY, maskLeftEnd, trackH);
       }
       const maskRightStart = Math.max(windowRight, 0);
       if (maskRightStart < this.width) {
-        ctx.fillRect(
+        context.fillRect(
           maskRightStart,
           trackY,
           this.width - maskRightStart,
@@ -400,12 +400,12 @@ export class TimelineRenderer {
     }
     const frameVisible = cropRightX > 0 && cropLeftX < this.width;
     if (frameVisible) {
-      ctx.fillStyle = CROP_HANDLE;
+      context.fillStyle = CROP_HANDLE;
       const borderLeft = Math.max(windowLeft, 0);
       const borderRight = Math.min(windowRight, this.width);
       if (borderRight > borderLeft) {
-        ctx.fillRect(borderLeft, trackY, borderRight - borderLeft, BORDER_W);
-        ctx.fillRect(
+        context.fillRect(borderLeft, trackY, borderRight - borderLeft, BORDER_W);
+        context.fillRect(
           borderLeft,
           trackY + trackH - BORDER_W,
           borderRight - borderLeft,
@@ -414,32 +414,32 @@ export class TimelineRenderer {
       }
       const HANDLE_R = CROP_HANDLE_WIDTH / 2;
       const drawHandle = (handleX, isLeft) => {
-        ctx.fillStyle = CROP_HANDLE;
-        ctx.beginPath();
-        if (typeof ctx.roundRect === "function") {
+        context.fillStyle = CROP_HANDLE;
+        context.beginPath();
+        if (typeof context.roundRect === "function") {
           const radii = isLeft
             ? [HANDLE_R, 0, 0, HANDLE_R]
             : [0, HANDLE_R, HANDLE_R, 0];
-          ctx.roundRect(handleX, trackY, CROP_HANDLE_WIDTH, trackH, radii);
-          ctx.fill();
+          context.roundRect(handleX, trackY, CROP_HANDLE_WIDTH, trackH, radii);
+          context.fill();
         } else {
-          ctx.fillRect(handleX, trackY, CROP_HANDLE_WIDTH, trackH);
+          context.fillRect(handleX, trackY, CROP_HANDLE_WIDTH, trackH);
         }
         const indicatorX = handleX + (CROP_HANDLE_WIDTH - INDICATOR_W) / 2;
         const indicatorY = trackY + (trackH - INDICATOR_H) / 2;
-        ctx.fillStyle = CROP_HANDLE_INNER;
-        ctx.beginPath();
-        if (typeof ctx.roundRect === "function") {
-          ctx.roundRect(
+        context.fillStyle = CROP_HANDLE_INNER;
+        context.beginPath();
+        if (typeof context.roundRect === "function") {
+          context.roundRect(
             indicatorX,
             indicatorY,
             INDICATOR_W,
             INDICATOR_H,
             INDICATOR_W / 2,
           );
-          ctx.fill();
+          context.fill();
         } else {
-          ctx.fillRect(indicatorX, indicatorY, INDICATOR_W, INDICATOR_H);
+          context.fillRect(indicatorX, indicatorY, INDICATOR_W, INDICATOR_H);
         }
       };
       const clampedLeftX = Math.max(0, cropLeftX);
@@ -451,66 +451,66 @@ export class TimelineRenderer {
         drawHandle(clampedRightX - CROP_HANDLE_WIDTH, false);
       }
     }
-    ctx.restore();
+    context.restore();
   }
-  drawPlayhead(state2) {
-    if (state2.clips.length === 0) return;
+  drawPlayhead(state) {
+    if (state.clips.length === 0) return;
     const { TRACK_PADDING_H, CLIP_PADDING } = TIMELINE_CONFIG;
     const { PLAYHEAD, PLAYHEAD_FILL, PLAYHEAD_STROKE } = this.colors;
-    const { currentTime, scale: scale2, scrollX } = state2;
-    const x2 = currentTime * scale2 - scrollX + TRACK_PADDING_H;
-    if (x2 < TRACK_PADDING_H || x2 > this.width - TRACK_PADDING_H) return;
-    const ctx = this.ctx;
+    const { currentTime, scale, scrollX } = state;
+    const playheadX = currentTime * scale - scrollX + TRACK_PADDING_H;
+    if (playheadX < TRACK_PADDING_H || playheadX > this.width - TRACK_PADDING_H) return;
+    const context = this.ctx;
     const trackBottom = this.height - CLIP_PADDING;
-    ctx.strokeStyle = PLAYHEAD;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(x2, 14);
-    ctx.lineTo(x2, trackBottom);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x2 - 2, 0.75);
-    ctx.lineTo(x2 + 2, 0.75);
-    ctx.bezierCurveTo(x2 + 3.821, 0.75, x2 + 5.25, 2.167, x2 + 5.25, 3.858);
-    ctx.lineTo(x2 + 5.25, 11.507);
-    ctx.bezierCurveTo(
-      x2 + 5.25,
+    context.strokeStyle = PLAYHEAD;
+    context.lineWidth = 1.5;
+    context.beginPath();
+    context.moveTo(playheadX, 14);
+    context.lineTo(playheadX, trackBottom);
+    context.stroke();
+    context.beginPath();
+    context.moveTo(playheadX - 2, 0.75);
+    context.lineTo(playheadX + 2, 0.75);
+    context.bezierCurveTo(playheadX + 3.821, 0.75, playheadX + 5.25, 2.167, playheadX + 5.25, 3.858);
+    context.lineTo(playheadX + 5.25, 11.507);
+    context.bezierCurveTo(
+      playheadX + 5.25,
       11.889,
-      x2 + 5.051,
+      playheadX + 5.051,
       12.258,
-      x2 + 4.702,
+      playheadX + 4.702,
       12.481,
     );
-    ctx.lineTo(x2 + 0.702, 15.046);
-    ctx.bezierCurveTo(
-      x2 + 0.278,
+    context.lineTo(playheadX + 0.702, 15.046);
+    context.bezierCurveTo(
+      playheadX + 0.278,
       15.318,
-      x2 - 0.278,
+      playheadX - 0.278,
       15.318,
-      x2 - 0.702,
+      playheadX - 0.702,
       15.046,
     );
-    ctx.lineTo(x2 - 4.702, 12.481);
-    ctx.bezierCurveTo(x2 - 5.051, 12.258, x2 - 5.25, 11.889, x2 - 5.25, 11.507);
-    ctx.lineTo(x2 - 5.25, 3.858);
-    ctx.bezierCurveTo(x2 - 5.25, 2.167, x2 - 3.821, 0.75, x2 - 2, 0.75);
-    ctx.closePath();
-    ctx.fillStyle = PLAYHEAD_FILL;
-    ctx.fill();
-    ctx.strokeStyle = PLAYHEAD_STROKE;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    context.lineTo(playheadX - 4.702, 12.481);
+    context.bezierCurveTo(playheadX - 5.051, 12.258, playheadX - 5.25, 11.889, playheadX - 5.25, 11.507);
+    context.lineTo(playheadX - 5.25, 3.858);
+    context.bezierCurveTo(playheadX - 5.25, 2.167, playheadX - 3.821, 0.75, playheadX - 2, 0.75);
+    context.closePath();
+    context.fillStyle = PLAYHEAD_FILL;
+    context.fill();
+    context.strokeStyle = PLAYHEAD_STROKE;
+    context.lineWidth = 1.5;
+    context.stroke();
   }
-  drawRoundRect(x2, y4, width, height, radius) {
+  drawRoundRect(rectX, rectY, width, height, radius) {
     this.ctx.beginPath();
-    this.ctx.roundRect(x2, y4, width, height, radius);
+    this.ctx.roundRect(rectX, rectY, width, height, radius);
   }
-  calculateInterval(scale2) {
-    for (const config2 of TIME_INTERVALS) {
-      if (scale2 >= config2.minScale) {
+  calculateInterval(scale) {
+    for (const config of TIME_INTERVALS) {
+      if (scale >= config.minScale) {
         return {
-          interval: config2.interval,
-          subDivisions: config2.subDivisions,
+          interval: config.interval,
+          subDivisions: config.subDivisions,
         };
       }
     }
@@ -519,13 +519,13 @@ export class TimelineRenderer {
       subDivisions: 5,
     };
   }
-  destroy(clearCanvas2 = true) {
+  destroy(clearCanvas = true) {
     this.destroyed = true;
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
-    if (clearCanvas2) {
+    if (clearCanvas) {
       this.ctx.setTransform(1, 0, 0, 1, 0, 0);
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }

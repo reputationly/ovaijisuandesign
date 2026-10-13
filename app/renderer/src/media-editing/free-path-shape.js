@@ -8,7 +8,7 @@ export const I2VPopover = withReferenceNavigationSnapshot(
 );
 
 export function shouldShowImageBottomPopover({
-  selected: selected2,
+  selected,
   deferredSelected,
   isInteractiveSelect,
   isExpandedMediaOverlayVisible,
@@ -25,7 +25,7 @@ export function shouldShowImageBottomPopover({
   showLayerDecomposePrompt,
 }) {
   return (
-    selected2 &&
+    selected &&
     deferredSelected &&
     isInteractiveSelect &&
     !isExpandedMediaOverlayVisible &&
@@ -43,25 +43,25 @@ export function shouldShowImageBottomPopover({
   );
 }
 
-export function pointInBounds(p3, b3, padding = 0) {
+export function pointInBounds(point, bounds, padding = 0) {
   return (
-    p3.x >= b3.x - padding &&
-    p3.x <= b3.x + b3.width + padding &&
-    p3.y >= b3.y - padding &&
-    p3.y <= b3.y + b3.height + padding
+    point.x >= bounds.x - padding &&
+    point.x <= bounds.x + bounds.width + padding &&
+    point.y >= bounds.y - padding &&
+    point.y <= bounds.y + bounds.height + padding
   );
 }
 
-export function distanceToSegment(p3, a2, b3) {
-  const dx = b3.x - a2.x;
-  const dy = b3.y - a2.y;
-  const lenSq = dx * dx + dy * dy;
-  if (lenSq === 0) return Math.hypot(p3.x - a2.x, p3.y - a2.y);
-  let t2 = ((p3.x - a2.x) * dx + (p3.y - a2.y) * dy) / lenSq;
-  t2 = Math.max(0, Math.min(1, t2));
-  const projX = a2.x + t2 * dx;
-  const projY = a2.y + t2 * dy;
-  return Math.hypot(p3.x - projX, p3.y - projY);
+export function distanceToSegment(point, startPoint, endPoint) {
+  const segmentX = endPoint.x - startPoint.x;
+  const segmentY = endPoint.y - startPoint.y;
+  const lenSq = segmentX * segmentX + segmentY * segmentY;
+  if (lenSq === 0) return Math.hypot(point.x - startPoint.x, point.y - startPoint.y);
+  let segmentRatio = ((point.x - startPoint.x) * segmentX + (point.y - startPoint.y) * segmentY) / lenSq;
+  segmentRatio = Math.max(0, Math.min(1, segmentRatio));
+  const projX = startPoint.x + segmentRatio * segmentX;
+  const projY = startPoint.y + segmentRatio * segmentY;
+  return Math.hypot(point.x - projX, point.y - projY);
 }
 
 export function pointsBounds(points) {
@@ -76,12 +76,12 @@ export function pointsBounds(points) {
   let maxX = points[0].x;
   let minY = points[0].y;
   let maxY = points[0].y;
-  for (let i2 = 1; i2 < points.length; i2++) {
-    const p3 = points[i2];
-    if (p3.x < minX) minX = p3.x;
-    if (p3.x > maxX) maxX = p3.x;
-    if (p3.y < minY) minY = p3.y;
-    if (p3.y > maxY) maxY = p3.y;
+  for (let pointIndex = 1; pointIndex < points.length; pointIndex++) {
+    const point = points[pointIndex];
+    if (point.x < minX) minX = point.x;
+    if (point.x > maxX) maxX = point.x;
+    if (point.y < minY) minY = point.y;
+    if (point.y > maxY) maxY = point.y;
   }
   return {
     x: minX,
@@ -93,8 +93,8 @@ export function pointsBounds(points) {
 
 export class Shape {
   data;
-  constructor(data2) {
-    this.data = data2;
+  constructor(data) {
+    this.data = data;
   }
   get id() {
     return this.data.id;
@@ -111,64 +111,64 @@ export class Shape {
    * 用来把虚线宽度 / dash / 外扩量按 1/uiScale 反缩，让用户看到的选框始终是
    * 固定屏幕像素大小，不会随画布缩放被一起放大。
    */
-  drawSelection(ctx, uiScale = 1) {
-    const b3 = this.getBounds();
-    const inv = uiScale > 0 ? 1 / uiScale : 1;
-    ctx.save();
-    ctx.strokeStyle = this.data.style.selectionStroke ?? "#3370FF";
-    ctx.lineWidth = inv;
-    const dash2 = this.data.style.selectionLineDash ?? [4, 4];
-    ctx.setLineDash(dash2.map((value) => value * inv));
-    const pad = 2 * inv;
-    ctx.strokeRect(
-      b3.x - pad,
-      b3.y - pad,
-      b3.width + pad * 2,
-      b3.height + pad * 2,
+  drawSelection(context, uiScale = 1) {
+    const bounds = this.getBounds();
+    const inverseScale = uiScale > 0 ? 1 / uiScale : 1;
+    context.save();
+    context.strokeStyle = this.data.style.selectionStroke ?? "#3370FF";
+    context.lineWidth = inverseScale;
+    const dash = this.data.style.selectionLineDash ?? [4, 4];
+    context.setLineDash(dash.map((value) => value * inverseScale));
+    const selectionPadding = 2 * inverseScale;
+    context.strokeRect(
+      bounds.x - selectionPadding,
+      bounds.y - selectionPadding,
+      bounds.width + selectionPadding * 2,
+      bounds.height + selectionPadding * 2,
     );
-    ctx.restore();
+    context.restore();
   }
 }
 
 export class FreePathShape extends Shape {
-  draw(ctx) {
-    const { points, style: style2 } = this.data;
+  draw(context) {
+    const { points, style } = this.data;
     if (points.length === 0) return;
-    ctx.save();
-    ctx.lineWidth = style2.strokeWidth;
-    ctx.strokeStyle = style2.stroke;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.beginPath();
+    context.save();
+    context.lineWidth = style.strokeWidth;
+    context.strokeStyle = style.stroke;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.beginPath();
     if (points.length === 1) {
-      const p3 = points[0];
-      ctx.arc(p3.x, p3.y, style2.strokeWidth / 2, 0, Math.PI * 2);
-      ctx.fillStyle = style2.stroke;
-      ctx.fill();
+      const point = points[0];
+      context.arc(point.x, point.y, style.strokeWidth / 2, 0, Math.PI * 2);
+      context.fillStyle = style.stroke;
+      context.fill();
     } else {
-      ctx.moveTo(points[0].x, points[0].y);
-      for (let i2 = 1; i2 < points.length - 1; i2++) {
-        const p3 = points[i2];
-        const next2 = points[i2 + 1];
-        const cx2 = (p3.x + next2.x) / 2;
-        const cy = (p3.y + next2.y) / 2;
-        ctx.quadraticCurveTo(p3.x, p3.y, cx2, cy);
+      context.moveTo(points[0].x, points[0].y);
+      for (let pointIndex = 1; pointIndex < points.length - 1; pointIndex++) {
+        const point = points[pointIndex];
+        const next = points[pointIndex + 1];
+        const centerX = (point.x + next.x) / 2;
+        const centerY = (point.y + next.y) / 2;
+        context.quadraticCurveTo(point.x, point.y, centerX, centerY);
       }
-      const last2 = points[points.length - 1];
-      ctx.lineTo(last2.x, last2.y);
-      ctx.stroke();
+      const last = points[points.length - 1];
+      context.lineTo(last.x, last.y);
+      context.stroke();
     }
-    ctx.restore();
+    context.restore();
   }
-  hitTest(p3) {
+  hitTest(point) {
     const padding = Math.max(8, this.data.style.strokeWidth);
     const points = this.data.points;
     if (points.length === 0) return false;
     if (points.length === 1) {
-      return Math.hypot(p3.x - points[0].x, p3.y - points[0].y) <= padding;
+      return Math.hypot(point.x - points[0].x, point.y - points[0].y) <= padding;
     }
-    for (let i2 = 0; i2 < points.length - 1; i2++) {
-      if (distanceToSegment(p3, points[i2], points[i2 + 1]) <= padding)
+    for (let pointIndex = 0; pointIndex < points.length - 1; pointIndex++) {
+      if (distanceToSegment(point, points[pointIndex], points[pointIndex + 1]) <= padding)
         return true;
     }
     return false;
@@ -176,24 +176,24 @@ export class FreePathShape extends Shape {
   getBounds() {
     return pointsBounds(this.data.points);
   }
-  move(dx, dy) {
-    for (const p3 of this.data.points) {
-      p3.x += dx;
-      p3.y += dy;
+  move(deltaX, deltaY) {
+    for (const point of this.data.points) {
+      point.x += deltaX;
+      point.y += deltaY;
     }
   }
-  resize(b3) {
-    const cur = this.getBounds();
-    if (cur.width === 0 || cur.height === 0) return;
-    const sx = b3.width / cur.width;
-    const sy = b3.height / cur.height;
-    for (const p3 of this.data.points) {
-      p3.x = b3.x + (p3.x - cur.x) * sx;
-      p3.y = b3.y + (p3.y - cur.y) * sy;
+  resize(bounds) {
+    const currentBounds = this.getBounds();
+    if (currentBounds.width === 0 || currentBounds.height === 0) return;
+    const scaleX = bounds.width / currentBounds.width;
+    const scaleY = bounds.height / currentBounds.height;
+    for (const point of this.data.points) {
+      point.x = bounds.x + (point.x - currentBounds.x) * scaleX;
+      point.y = bounds.y + (point.y - currentBounds.y) * scaleY;
     }
   }
   /** 给画笔工具实时追加点用。 */
-  addPoint(p3) {
-    this.data.points.push(p3);
+  addPoint(point) {
+    this.data.points.push(point);
   }
 }

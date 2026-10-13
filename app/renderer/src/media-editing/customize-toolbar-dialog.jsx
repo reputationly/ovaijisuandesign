@@ -32,32 +32,32 @@ import {
   DialogDescription,
   DialogTitle,
 } from "./use-preview-text.jsx";
-function SortablePreviewChip({ id: id2, meta: meta2, showLabel, onUnpin }) {
-  const { t: t2 } = useTranslation();
-  const label = t2(meta2.labelKey, meta2.defaultLabel);
+function SortablePreviewChip({ id: toolId, meta, showLabel, onUnpin }) {
+  const { t } = useTranslation();
+  const label = t(meta.labelKey, meta.defaultLabel);
   const {
     attributes,
-    listeners: listeners2,
+    listeners,
     setNodeRef,
-    transform: transform2,
-    transition: transition2,
+    transform,
+    transition,
     isDragging,
   } = useSortable({
-    id: id2,
+    id: toolId,
     transition: {
       duration: 220,
       easing: "cubic-bezier(0.18, 0.67, 0.16, 1)",
     },
   });
-  const style2 = {
-    transform: CSS.Transform.toString(transform2),
-    transition: transition2,
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
   };
   return (
     <div
       ref={setNodeRef}
       style={{
-        ...style2,
+        ...style,
         ...(isDragging
           ? {
               visibility: "hidden",
@@ -66,7 +66,7 @@ function SortablePreviewChip({ id: id2, meta: meta2, showLabel, onUnpin }) {
       }}
       className={`relative group outline-none ${isDragging ? "pointer-events-none" : ""}`}
       {...attributes}
-      {...listeners2}
+      {...listeners}
     >
       <div
         className="flex h-10 min-w-10 items-center justify-center gap-0.5 p-2.5 rounded-[6px] cursor-grab active:cursor-grabbing"
@@ -74,7 +74,7 @@ function SortablePreviewChip({ id: id2, meta: meta2, showLabel, onUnpin }) {
           color: "var(--canvas-controls-text)",
         }}
       >
-        {meta2.icon}
+        {meta.icon}
         {showLabel && (
           <span className="text-sm font-normal tracking-tight whitespace-nowrap">
             {label}
@@ -84,14 +84,14 @@ function SortablePreviewChip({ id: id2, meta: meta2, showLabel, onUnpin }) {
       {!isDragging && (
         <button
           type="button"
-          onClick={(e2) => {
-            e2.stopPropagation();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
             onUnpin();
           }}
-          onPointerDown={(e2) => e2.stopPropagation()}
+          onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
           className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-background opacity-0 group-hover:opacity-100 transition-opacity outline-none"
-          aria-label={t2("canvas.customizeToolbar.unpin", "Unpin")}
-          title={t2("canvas.customizeToolbar.unpin", "Unpin")}
+          aria-label={t("canvas.customizeToolbar.unpin", "Unpin")}
+          title={t("canvas.customizeToolbar.unpin", "Unpin")}
         >
           <X size={10} strokeWidth={2} />
         </button>
@@ -99,9 +99,9 @@ function SortablePreviewChip({ id: id2, meta: meta2, showLabel, onUnpin }) {
     </div>
   );
 }
-function DragGhost({ meta: meta2, showLabel }) {
-  const { t: t2 } = useTranslation();
-  const label = t2(meta2.labelKey, meta2.defaultLabel);
+function DragGhost({ meta, showLabel }) {
+  const { t } = useTranslation();
+  const label = t(meta.labelKey, meta.defaultLabel);
   return (
     <div
       className="flex h-10 min-w-10 items-center justify-center gap-0.5 p-2.5 rounded-[6px] cursor-grabbing"
@@ -115,7 +115,7 @@ function DragGhost({ meta: meta2, showLabel }) {
         transition: "none",
       }}
     >
-      {meta2.icon}
+      {meta.icon}
       {showLabel && (
         <span className="text-sm font-normal tracking-tight whitespace-nowrap">
           {label}
@@ -156,9 +156,9 @@ function FixedChip({ icon, label, showLabel }) {
     </div>
   );
 }
-function ToolTile({ id: _id, meta: meta2, pinned, onTogglePin }) {
-  const { t: t2 } = useTranslation();
-  const label = t2(meta2.labelKey, meta2.defaultLabel);
+function ToolTile({ id: _toolId, meta, pinned, onTogglePin }) {
+  const { t } = useTranslation();
+  const label = t(meta.labelKey, meta.defaultLabel);
   return (
     <button
       type="button"
@@ -168,7 +168,7 @@ function ToolTile({ id: _id, meta: meta2, pinned, onTogglePin }) {
       className={`flex items-center gap-2 h-10 rounded-lg border px-3 select-none transition-colors text-left ${pinned ? "border-foreground/30 bg-[var(--canvas-controls-active)] text-foreground hover:bg-[var(--canvas-controls-hover)]" : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground"}`}
     >
       <span className="flex h-5 w-5 shrink-0 items-center justify-center">
-        {meta2.icon}
+        {meta.icon}
       </span>
       <span className="flex-1 min-w-0 truncate text-sm">{label}</span>
       <span
@@ -226,13 +226,13 @@ function PreviewBar({
       }}
     >
       <SortableContext items={pinned} strategy={horizontalListSortingStrategy}>
-        {pinned.map((id2) => (
+        {pinned.map((toolId) => (
           <SortablePreviewChip
-            key={id2}
-            id={id2}
-            meta={toolMeta[id2]}
+            key={toolId}
+            id={toolId}
+            meta={toolMeta[toolId]}
             showLabel={showLabels}
-            onUnpin={() => onUnpin(id2)}
+            onUnpin={() => onUnpin(toolId)}
           />
         ))}
       </SortableContext>
@@ -259,12 +259,12 @@ export function CustomizeToolbarDialog({
   allToolIds,
   toolMeta,
   store,
-  defaults: defaults2,
+  defaults,
   fixedRightChips,
   onApply,
   onAbandon,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [draftPinned, setDraftPinned] = reactExports.useState([
     ...store.pinned,
   ]);
@@ -278,17 +278,17 @@ export function CustomizeToolbarDialog({
       setDraftShowLabels(store.showLabels);
     }
   }, [open, store.pinned, store.showLabels]);
-  const togglePin = (id2) => {
+  const togglePin = (toolId) => {
     setDraftPinned((prev) =>
-      prev.includes(id2) ? prev.filter((x2) => x2 !== id2) : [...prev, id2],
+      prev.includes(toolId) ? prev.filter((candidateId) => candidateId !== toolId) : [...prev, toolId],
     );
   };
-  const unpin = (id2) => {
-    setDraftPinned((prev) => prev.filter((x2) => x2 !== id2));
+  const unpin = (toolId) => {
+    setDraftPinned((prev) => prev.filter((candidateId) => candidateId !== toolId));
   };
-  const reset2 = () => {
-    setDraftPinned([...defaults2.pinned]);
-    setDraftShowLabels(defaults2.showLabels);
+  const reset = () => {
+    setDraftPinned([...defaults.pinned]);
+    setDraftShowLabels(defaults.showLabels);
   };
   const save = () => {
     onApply?.({
@@ -305,7 +305,7 @@ export function CustomizeToolbarDialog({
     onAbandon?.(
       draftShowLabels !== store.showLabels ||
         draftPinned.length !== store.pinned.length ||
-        draftPinned.some((id2, index2) => id2 !== store.pinned[index2]),
+        draftPinned.some((pinnedToolId, index) => pinnedToolId !== store.pinned[index]),
     );
     onOpenChange(false);
   };
@@ -331,10 +331,10 @@ export function CustomizeToolbarDialog({
   };
   const onDragEnd = (event) => {
     setActiveDragId(null);
-    const { active: active2, over } = event;
-    if (!over || active2.id === over.id) return;
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
     setDraftPinned((prev) => {
-      const oldIdx = prev.indexOf(active2.id);
+      const oldIdx = prev.indexOf(active.id);
       const newIdx = prev.indexOf(over.id);
       if (oldIdx === -1 || newIdx === -1) return prev;
       return arrayMove(prev, oldIdx, newIdx);
@@ -346,7 +346,7 @@ export function CustomizeToolbarDialog({
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent
         className="!max-w-[760px] gap-0 p-0"
-        onClick={(e2) => e2.stopPropagation()}
+        onClick={(clickEvent) => clickEvent.stopPropagation()}
       >
         <DndContext
           sensors={sensors}
@@ -357,10 +357,10 @@ export function CustomizeToolbarDialog({
         >
           <div className="flex flex-col gap-1 px-6 pt-6">
             <DialogTitle className="text-lg font-medium">
-              {t2("canvas.customizeToolbar.title", "Customize Toolbar")}
+              {t("canvas.customizeToolbar.title", "Customize Toolbar")}
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
-              {t2(
+              {t(
                 "canvas.customizeToolbar.subtitle",
                 "Choose the tools you want in your edit bar",
               )}
@@ -385,26 +385,26 @@ export function CustomizeToolbarDialog({
             </div>
             <button
               type="button"
-              onClick={reset2}
+              onClick={reset}
               className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--canvas-controls-bg)] backdrop-blur text-muted-foreground hover:bg-[var(--canvas-controls-hover)] hover:text-foreground border border-[var(--canvas-controls-border)] transition-colors"
-              aria-label={t2(
+              aria-label={t(
                 "canvas.customizeToolbar.reset",
                 "Reset to defaults",
               )}
-              title={t2("canvas.customizeToolbar.reset", "Reset to defaults")}
+              title={t("canvas.customizeToolbar.reset", "Reset to defaults")}
             >
               <RotateCcw size={14} strokeWidth={1.75} />
             </button>
           </div>
           <div className="px-6">
             <div className="grid grid-cols-3 gap-2">
-              {allToolIds.map((id2) => (
+              {allToolIds.map((toolId) => (
                 <ToolTile
-                  key={id2}
-                  id={id2}
-                  meta={toolMeta[id2]}
-                  pinned={draftPinned.includes(id2)}
-                  onTogglePin={() => togglePin(id2)}
+                  key={toolId}
+                  id={toolId}
+                  meta={toolMeta[toolId]}
+                  pinned={draftPinned.includes(toolId)}
+                  onTogglePin={() => togglePin(toolId)}
                 />
               ))}
             </div>
@@ -415,7 +415,7 @@ export function CustomizeToolbarDialog({
                 type="button"
                 role="switch"
                 aria-checked={draftShowLabels}
-                onClick={() => setDraftShowLabels((v2) => !v2)}
+                onClick={() => setDraftShowLabels((isVisible) => !isVisible)}
                 className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${draftShowLabels ? "bg-foreground" : "bg-muted-foreground/30"}`}
               >
                 <span
@@ -423,7 +423,7 @@ export function CustomizeToolbarDialog({
                 />
               </button>
               <span>
-                {t2("canvas.customizeToolbar.showLabels", "Show tool names")}
+                {t("canvas.customizeToolbar.showLabels", "Show tool names")}
               </span>
             </label>
             <div className="flex gap-2">
@@ -432,14 +432,14 @@ export function CustomizeToolbarDialog({
                 onClick={abandon}
                 className="h-9 rounded-md px-4 text-sm text-foreground/70 hover:text-foreground hover:bg-muted transition-colors"
               >
-                {t2("common.cancel", "Cancel")}
+                {t("common.cancel", "Cancel")}
               </button>
               <button
                 type="button"
                 onClick={save}
                 className="h-9 rounded-md bg-foreground px-4 text-sm text-background hover:bg-foreground/90 transition-colors"
               >
-                {t2("common.save", "Save")}
+                {t("common.save", "Save")}
               </button>
             </div>
           </div>

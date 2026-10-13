@@ -13,11 +13,11 @@ import { __jsx } from "../shared/jsx-runtime.js";
 import { VolumeX } from "./package.jsx";
 const VIDEO_AUX_ICON_SIZE = 20;
 const VIDEO_AUX_ICON_STROKE_WIDTH = 1.25;
-export function PlayIcon({ size: size2 = 14 }) {
-  return <PlaybackPlayIcon size={size2} />;
+export function PlayIcon({ size = 14 }) {
+  return <PlaybackPlayIcon size={size} />;
 }
-export function PauseIcon({ size: size2 = 14 }) {
-  return <PlaybackPauseIcon size={size2} />;
+export function PauseIcon({ size = 14 }) {
+  return <PlaybackPauseIcon size={size} />;
 }
 export function VolumeIcon() {
   return (
@@ -69,12 +69,12 @@ function physicalWidth(displayWidth) {
   const dpr = Math.min(window.devicePixelRatio || 1, 3);
   return Math.round(displayWidth * dpr);
 }
-export function buildThumbnailUrl(url2, displayWidth) {
-  return appendWidth(url2, physicalWidth(displayWidth));
+export function buildThumbnailUrl(url, displayWidth) {
+  return appendWidth(url, physicalWidth(displayWidth));
 }
 function buildSrcSet(baseUrl, displayWidth) {
   const dpr = Math.min(window.devicePixelRatio || 1, 3);
-  const candidates2 = [
+  const candidates = [
     Math.max(
       Math.min(Math.round(displayWidth * dpr * 0.5), MAX_SERVER_WIDTH),
       16,
@@ -85,13 +85,13 @@ function buildSrcSet(baseUrl, displayWidth) {
       16,
     ),
   ];
-  const unique2 = [...new Set(candidates2)];
-  return unique2
+  const unique = [...new Set(candidates)];
+  return unique
     .map((width) => `${appendWidth(baseUrl, width)} ${width}w`)
     .join(", ");
 }
-export function buildThumbnailSrcSet(url2, displayWidth) {
-  return buildSrcSet(url2, displayWidth);
+export function buildThumbnailSrcSet(url, displayWidth) {
+  return buildSrcSet(url, displayWidth);
 }
 export function buildVideoThumbBase(baseUrl, filePath) {
   try {
@@ -118,6 +118,6 @@ export function buildVideoThumbBase(baseUrl, filePath) {
   }
 }
 export function buildVideoThumbnailUrl(baseUrl, filePath, displayWidth) {
-  const base2 = buildVideoThumbBase(baseUrl, filePath);
-  return base2 ? appendWidth(base2, physicalWidth(displayWidth)) : void 0;
+  const base = buildVideoThumbBase(baseUrl, filePath);
+  return base ? appendWidth(base, physicalWidth(displayWidth)) : void 0;
 }

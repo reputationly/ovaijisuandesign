@@ -54,46 +54,46 @@ function resolveCssColor(value, fallback) {
     ? value
     : fallback;
 }
-function resolvePluginEditorOverlayModel(data2) {
-  if (!data2 || typeof data2 !== "object") return null;
-  const message2 = data2;
-  if (message2.type !== PLUGIN_EDITOR_OVERLAY_MESSAGE || message2.open !== true)
+function resolvePluginEditorOverlayModel(data) {
+  if (!data || typeof data !== "object") return null;
+  const message = data;
+  if (message.type !== PLUGIN_EDITOR_OVERLAY_MESSAGE || message.open !== true)
     return null;
   if (
-    typeof message2.destination !== "string" ||
-    !isFiniteNumber(message2.left) ||
-    !isFiniteNumber(message2.top) ||
-    !Array.isArray(message2.items) ||
-    !message2.items.every(isOverlayItem)
+    typeof message.destination !== "string" ||
+    !isFiniteNumber(message.left) ||
+    !isFiniteNumber(message.top) ||
+    !Array.isArray(message.items) ||
+    !message.items.every(isOverlayItem)
   ) {
     return null;
   }
   return {
-    destination: message2.destination,
-    left: Math.max(0, message2.left),
-    top: Math.max(0, message2.top),
-    items: message2.items,
-    customLabel: message2.customLabel ?? "Custom export...",
-    customDescription: message2.customDescription ?? "Full export settings",
-    bestMatchLabel: message2.bestMatchLabel ?? "Best match",
+    destination: message.destination,
+    left: Math.max(0, message.left),
+    top: Math.max(0, message.top),
+    items: message.items,
+    customLabel: message.customLabel ?? "Custom export...",
+    customDescription: message.customDescription ?? "Full export settings",
+    bestMatchLabel: message.bestMatchLabel ?? "Best match",
     palette: {
       rowBackground: resolveCssColor(
-        message2.palette?.rowBackground,
+        message.palette?.rowBackground,
         "var(--muted)",
       ),
       iconBackground: resolveCssColor(
-        message2.palette?.iconBackground,
+        message.palette?.iconBackground,
         "var(--muted)",
       ),
       iconColor: resolveCssColor(
-        message2.palette?.iconColor,
+        message.palette?.iconColor,
         "var(--foreground)",
       ),
     },
   };
 }
 function PluginEditorSurface({
-  children: children2,
+  children,
   visible,
   onContainerChange,
 }) {
@@ -104,14 +104,14 @@ function PluginEditorSurface({
   const portalTarget = pinnedRootRef.current;
   const [, forceRender] = reactExports.useState(0);
   reactExports.useEffect(() => {
-    if (canvasRootEl && portalTarget === null) forceRender((n2) => n2 + 1);
+    if (canvasRootEl && portalTarget === null) forceRender((renderVersion) => renderVersion + 1);
   }, [canvasRootEl, portalTarget]);
   const containerRef = reactExports.useRef(null);
   const [overlayModel, setOverlayModel] = reactExports.useState(null);
   const setContainerRef = reactExports.useCallback(
-    (element2) => {
-      containerRef.current = element2;
-      onContainerChange?.(element2);
+    (element) => {
+      containerRef.current = element;
+      onContainerChange?.(element);
     },
     [onContainerChange],
   );
@@ -126,13 +126,13 @@ function PluginEditorSurface({
       const iframe = container?.querySelector("iframe");
       if (!container || !iframe || event.source !== iframe.contentWindow)
         return;
-      const data2 = event.data;
-      if (data2?.type !== PLUGIN_EDITOR_OVERLAY_MESSAGE) return;
-      if (data2.open !== true) {
+      const data = event.data;
+      if (data?.type !== PLUGIN_EDITOR_OVERLAY_MESSAGE) return;
+      if (data.open !== true) {
         setOverlayModel(null);
         return;
       }
-      setOverlayModel(resolvePluginEditorOverlayModel(data2));
+      setOverlayModel(resolvePluginEditorOverlayModel(data));
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
@@ -178,10 +178,10 @@ function PluginEditorSurface({
         pointerEvents: visible ? "auto" : "none",
       }}
       inert={!visible}
-      onKeyDown={(e2) => e2.stopPropagation()}
-      onKeyUp={(e2) => e2.stopPropagation()}
+      onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
+      onKeyUp={(keyboardEvent) => keyboardEvent.stopPropagation()}
     >
-      {children2}
+      {children}
       {overlayModel ? (
         <div
           data-action-ui-id="clip-studio-export-host-preset-panel"
@@ -274,39 +274,39 @@ export function PluginLauncher({
   nodeId,
   pluginId,
   filePath,
-  displayName: displayName2,
+  displayName,
   width,
   height,
-  selected: selected2,
+  selected,
   onReportAction,
   editorSurface,
 }) {
-  const { i18n, t: t2 } = useTranslation();
-  const meta2 = usePluginMeta(pluginId);
+  const { i18n, t } = useTranslation();
+  const meta = usePluginMeta(pluginId);
   const rawLang = i18n.language || "en-US";
   const locale = rawLang.startsWith("zh")
     ? "zh-CN"
     : rawLang.startsWith("en")
       ? "en-US"
       : rawLang;
-  const name2 =
-    (meta2 ? pickLocalized(meta2.name, locale) : "") || displayName2;
-  const description = meta2
-    ? pickLocalized(meta2.description ?? {}, locale)
+  const pluginName =
+    (meta ? pickLocalized(meta.name, locale) : "") || displayName;
+  const description = meta
+    ? pickLocalized(meta.description ?? {}, locale)
     : "";
   const openLabel =
     pluginId === CLIP_STUDIO_PLUGIN_ID
-      ? t2("canvas.plugin.openVideoEditor", {
+      ? t("canvas.plugin.openVideoEditor", {
           defaultValue: "Open Video Editor",
         })
-      : t2("canvas.plugin.openLauncher", {
-          name: name2,
+      : t("canvas.plugin.openLauncher", {
+          name: pluginName,
           defaultValue: "Open {{name}}",
         });
   const agentSessionName =
-    (meta2?.agent?.sessionName
-      ? pickLocalized(meta2.agent.sessionName, locale)
-      : "") || name2;
+    (meta?.agent?.sessionName
+      ? pickLocalized(meta.agent.sessionName, locale)
+      : "") || pluginName;
   const [open, setOpen] = reactExports.useState(false);
   const fullscreenApi = useHtmlFullscreenApi();
   const isFullscreen = useIsHtmlFullscreen(nodeId);
@@ -347,14 +347,14 @@ export function PluginLauncher({
     [agentSessionName, pluginId],
   );
   const requestExitFullscreen = reactExports.useCallback(() => {
-    const state2 = fullscreenApi.getState();
-    if (state2.nodeId !== nodeId || state2.presentation !== "fullscreen")
+    const state = fullscreenApi.getState();
+    if (state.nodeId !== nodeId || state.presentation !== "fullscreen")
       return false;
     const session = editSessionRef.current;
     try {
       if (editorSurface && session) detachEditSession(session);
     } finally {
-      state2.exit(nodeId);
+      state.exit(nodeId);
     }
     return true;
   }, [detachEditSession, editorSurface, fullscreenApi, nodeId]);
@@ -418,14 +418,14 @@ export function PluginLauncher({
     if (!wasFullscreenRef.current) return;
     wasFullscreenRef.current = false;
     onReportAction?.("fullscreen", "exit");
-    const timer2 = setTimeout(() => setOpen(false), LAUNCHER_UNMOUNT_GRACE_MS);
-    return () => clearTimeout(timer2);
+    const timer = setTimeout(() => setOpen(false), LAUNCHER_UNMOUNT_GRACE_MS);
+    return () => clearTimeout(timer);
   }, [isFullscreen, onReportAction]);
   return (
     <NodeBody
       width={width}
       height={height}
-      selected={selected2}
+      selected={selected}
       variant="media"
     >
       <div
@@ -458,13 +458,13 @@ export function PluginLauncher({
         <div className="mt-4 flex h-16 max-w-full flex-col items-center gap-1">
           <div
             className="max-w-full truncate text-sm font-medium text-[var(--canvas-controls-text)]"
-            title={name2}
+            title={pluginName}
           >
-            {name2}
+            {pluginName}
           </div>
           <div
             className="line-clamp-2 h-10 max-w-full whitespace-pre-line text-[13px] leading-5 text-[var(--canvas-controls-text-muted)]"
-            title={description || name2}
+            title={description || pluginName}
           >
             {description}
           </div>
@@ -472,8 +472,8 @@ export function PluginLauncher({
         <Button
           type="button"
           variant="secondary"
-          onClick={(e2) => {
-            e2.stopPropagation();
+          onClick={(clickEvent) => {
+            clickEvent.stopPropagation();
             openStage();
           }}
           onMouseDown={(event) => event.stopPropagation()}
@@ -493,7 +493,7 @@ export function PluginLauncher({
               <HtmlViewer
                 filePath={filePath ?? ""}
                 interactive={true}
-                displayName={name2}
+                displayName={pluginName}
                 eagerActivate={true}
                 surface="inline"
                 requestExitFullscreen={requestExitFullscreen}
@@ -507,7 +507,7 @@ export function PluginLauncher({
               <HtmlViewer
                 filePath={filePath ?? ""}
                 interactive={true}
-                displayName={name2}
+                displayName={pluginName}
                 eagerActivate={true}
               />
             </div>

@@ -19,11 +19,11 @@ import { MediaHoverPreview } from "./media-hover-preview.jsx";
 import { canAnnotateCanvasImage } from "./append-width.js";
 import { buildVideoThumbnailUrl } from "./build-video-thumb-base.jsx";
 function ReferenceImageEditButton({ visible, onClick }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <button
       type="button"
-      aria-label={t2("chat.imageAnnotation.annotate")}
+      aria-label={t("chat.imageAnnotation.annotate")}
       data-action-ui-id="popover.attachment-annotate"
       className={`absolute bottom-0.5 left-0.5 z-[3] flex size-4 cursor-pointer items-center justify-center rounded-[3px] bg-[var(--attachment-annotation-background)] text-[var(--attachment-annotation-foreground)] shadow-sm transition-opacity focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${visible ? "opacity-100" : "pointer-events-none opacity-0"}`}
       onMouseDown={(event) => {
@@ -53,10 +53,10 @@ function fillImageSlotsFromIndex(
   while (nextPaths.length <= startIndex) nextPaths.push("");
   let writeIndex = startIndex;
   const newlyWritten = [];
-  for (const path2 of incomingPaths) {
+  for (const path of incomingPaths) {
     if (writeIndex >= maxSlots) break;
-    if (nextPaths[writeIndex] !== path2) newlyWritten.push(path2);
-    nextPaths[writeIndex] = path2;
+    if (nextPaths[writeIndex] !== path) newlyWritten.push(path);
+    nextPaths[writeIndex] = path;
     writeIndex++;
   }
   return {
@@ -113,7 +113,7 @@ export function ImageSlotList({
   contextKey,
   renderedSlotCount,
   maxSlots,
-  disabled: disabled2,
+  disabled,
   resolveFileUrl,
   getSlotLabel,
   getSlotActionUiId,
@@ -125,12 +125,12 @@ export function ImageSlotList({
   onEditImage,
   onUpdatePaths,
   onReplacePath,
-  mediaKind: mediaKind2 = "image",
+  mediaKind = "image",
   hostNodeId,
   audioPerClipMinSec = SEEDANCE_REFERENCE_AUDIO_MIN_SEC,
   audioPerClipMaxSec = SEEDANCE_REFERENCE_AUDIO_MAX_SEC,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const assetMetadataStore = useAssetMetadataApi();
   const {
     getNodeIdByPath,
@@ -146,15 +146,15 @@ export function ImageSlotList({
   const replacementBusyRef = reactExports.useRef(false);
   const latestSlotsRef = reactExports.useRef({
     imagePaths,
-    disabled: disabled2,
-    mediaKind: mediaKind2,
+    disabled,
+    mediaKind,
     maxSlots,
     contextKey,
   });
   latestSlotsRef.current = {
     imagePaths,
-    disabled: disabled2,
-    mediaKind: mediaKind2,
+    disabled,
+    mediaKind,
     maxSlots,
     contextKey,
   };
@@ -168,29 +168,29 @@ export function ImageSlotList({
   const filledSlotElementsRef = reactExports.useRef(new Map());
   const previewCloseTimerRef = reactExports.useRef(null);
   const emptySlotLabel =
-    mediaKind2 === "video"
-      ? t2("canvas.imageSlot.entryVideo")
-      : mediaKind2 === "audio"
-        ? t2("canvas.imageSlot.entryAudio", {
+    mediaKind === "video"
+      ? t("canvas.imageSlot.entryVideo")
+      : mediaKind === "audio"
+        ? t("canvas.imageSlot.entryAudio", {
             defaultValue: "选择参考音频",
           })
-        : t2("canvas.imageSlot.entry");
+        : t("canvas.imageSlot.entry");
   const existingAttachments = reactExports.useMemo(() => {
     if (imagePaths.length === 0) return [];
     const filled = new Set(imagePaths.filter(Boolean));
     if (filled.size === 0) return [];
-    const list2 = [];
-    assetMetadataStore.getState().assets.forEach((meta2, id2) => {
-      if (meta2.path && filled.has(meta2.path)) {
-        list2.push({
-          assetId: id2,
-          name: meta2.name,
-          kind: mediaKind2,
+    const list = [];
+    assetMetadataStore.getState().assets.forEach((meta, assetId) => {
+      if (meta.path && filled.has(meta.path)) {
+        list.push({
+          assetId,
+          name: meta.name,
+          kind: mediaKind,
         });
       }
     });
-    return list2;
-  }, [assetMetadataStore, imagePaths, mediaKind2]);
+    return list;
+  }, [assetMetadataStore, imagePaths, mediaKind]);
   const handlePickFile = reactExports.useCallback(
     async (slotIdx, anchor) => {
       if (!pickAsset) {
@@ -201,9 +201,9 @@ export function ImageSlotList({
       try {
         const resources = await pickAsset(
           {
-            type: mediaKind2,
+            type: mediaKind,
             multiple: true,
-            existingAssetIds: existingAttachments.map((a2) => a2.assetId),
+            existingAssetIds: existingAttachments.map((attachment) => attachment.assetId),
             uploadMode: "attach",
             tabs: ["canvas", "upload"],
           },
@@ -213,11 +213,11 @@ export function ImageSlotList({
         );
         if (!resources) return;
         picks = resources
-          .filter((r2) => r2.type === mediaKind2)
-          .map((r2) => ({
-            assetId: r2.assetId,
-            name: r2.name,
-            kind: r2.type,
+          .filter((assetRecord) => assetRecord.type === mediaKind)
+          .map((assetRecord) => ({
+            assetId: assetRecord.assetId,
+            name: assetRecord.name,
+            kind: assetRecord.type,
           }));
       } catch (err) {
         if (err?.code === "picker_busy") return;
@@ -227,13 +227,13 @@ export function ImageSlotList({
       if (!picks || picks.length === 0) return;
       const startIdx = activeSlotRef.current;
       if (startIdx < 0) return;
-      const assets2 = assetMetadataStore.getState().assets;
+      const assetMap = assetMetadataStore.getState().assets;
       const paths = picks
-        .map((p3) => assets2.get(p3.assetId)?.path)
-        .filter((p3) => Boolean(p3));
+        .map((pickedAsset) => assetMap.get(pickedAsset.assetId)?.path)
+        .filter((assetPath) => Boolean(assetPath));
       if (paths.length === 0) return;
       const existing = new Set(imagePaths.filter(Boolean));
-      const dedupedPaths = paths.filter((p3) => !existing.has(p3));
+      const dedupedPaths = paths.filter((assetPath) => !existing.has(assetPath));
       if (dedupedPaths.length === 0) return;
       const { nextPaths, newlyWritten } = fillImageSlotsFromIndex(
         imagePaths,
@@ -243,8 +243,8 @@ export function ImageSlotList({
       );
       onUpdatePaths(nextPaths);
       if (hostNodeId) {
-        for (const p3 of newlyWritten) {
-          const sourceId = ensureStandaloneNodeForPath(p3);
+        for (const writtenPath of newlyWritten) {
+          const sourceId = ensureStandaloneNodeForPath(writtenPath);
           if (sourceId) ensureDerivationEdge(sourceId, hostNodeId);
         }
       }
@@ -252,7 +252,7 @@ export function ImageSlotList({
     [
       pickAsset,
       existingAttachments,
-      mediaKind2,
+      mediaKind,
       assetMetadataStore,
       imagePaths,
       maxSlots,
@@ -265,9 +265,9 @@ export function ImageSlotList({
   const handleSlotClear = reactExports.useCallback(
     (slotIdx) => {
       const removedPath = imagePaths[slotIdx];
-      const next2 = [...imagePaths];
-      next2[slotIdx] = "";
-      onUpdatePaths(next2);
+      const next = [...imagePaths];
+      next[slotIdx] = "";
+      onUpdatePaths(next);
       if (hostNodeId && removedPath) {
         const sourceId = getNodeIdByPath(removedPath);
         if (sourceId) removeDerivationEdge(sourceId, hostNodeId);
@@ -300,7 +300,7 @@ export function ImageSlotList({
         filledSlotElementsRef.current
           .get(slotIdx)
           ?.contains(document.activeElement);
-      if (!enableHoverReplace && mediaKind2 === "audio") {
+      if (!enableHoverReplace && mediaKind === "audio") {
         if (!slotHasFocus()) {
           setHoveredSlotIndex((currentIndex) =>
             currentIndex === slotIdx ? null : currentIndex,
@@ -317,7 +317,7 @@ export function ImageSlotList({
         previewCloseTimerRef.current = null;
       }, 120);
     },
-    [clearPreviewCloseTimer, enableHoverReplace, mediaKind2],
+    [clearPreviewCloseTimer, enableHoverReplace, mediaKind],
   );
   reactExports.useEffect(
     () => clearPreviewCloseTimer,
@@ -326,7 +326,7 @@ export function ImageSlotList({
   const handleReplaceSlot = reactExports.useCallback(
     async (slotIdx) => {
       const currentPath = imagePaths[slotIdx];
-      if (!currentPath || !pickAsset || disabled2 || replacementBusyRef.current)
+      if (!currentPath || !pickAsset || disabled || replacementBusyRef.current)
         return;
       replacementBusyRef.current = true;
       setReplacingSlot(slotIdx);
@@ -338,7 +338,7 @@ export function ImageSlotList({
       try {
         resources = await pickAsset(
           {
-            type: mediaKind2,
+            type: mediaKind,
             multiple: false,
             existingAssetIds: existingAttachments.map(
               (attachment) => attachment.assetId,
@@ -364,21 +364,21 @@ export function ImageSlotList({
       if (
         !mountedRef.current ||
         latestSlotsRef.current.disabled ||
-        latestSlotsRef.current.mediaKind !== mediaKind2 ||
+        latestSlotsRef.current.mediaKind !== mediaKind ||
         latestSlotsRef.current.maxSlots !== maxSlots ||
         latestSlotsRef.current.contextKey !== contextKey ||
         latestSlotsRef.current.imagePaths[slotIdx] !== currentPath
       )
         return;
       const resource = resources?.[0];
-      if (!resource || resource.type !== mediaKind2) return;
+      if (!resource || resource.type !== mediaKind) return;
       const nextPath =
         assetMetadataStore.getState().assets.get(resource.assetId)?.path ??
         resource.path;
       if (!nextPath || nextPath === currentPath) return;
       if (
         latestSlotsRef.current.imagePaths.some(
-          (path2, index2) => index2 !== slotIdx && path2 === nextPath,
+          (path, index) => index !== slotIdx && path === nextPath,
         )
       )
         return;
@@ -398,14 +398,14 @@ export function ImageSlotList({
     [
       assetMetadataStore,
       clearPreviewCloseTimer,
-      disabled2,
+      disabled,
       ensureDerivationEdge,
       ensureStandaloneNodeForPath,
       existingAttachments,
       getNodeIdByPath,
       hostNodeId,
       imagePaths,
-      mediaKind2,
+      mediaKind,
       onUpdatePaths,
       onReplacePath,
       maxSlots,
@@ -414,57 +414,57 @@ export function ImageSlotList({
       removeDerivationEdge,
     ],
   );
-  const assets = useAssetMetadataStore((s2) => s2.assets);
+  const assets = useAssetMetadataStore((storeState) => storeState.assets);
   const videoDurationByPath = reactExports.useMemo(() => {
-    if (mediaKind2 !== "video") return null;
-    const map3 = new Map();
-    assets.forEach((meta2) => {
+    if (mediaKind !== "video") return null;
+    const assetDurationsByPath = new Map();
+    assets.forEach((meta) => {
       if (
-        meta2.path &&
-        typeof meta2.durationSec === "number" &&
-        meta2.durationSec > 0
+        meta.path &&
+        typeof meta.durationSec === "number" &&
+        meta.durationSec > 0
       ) {
-        map3.set(meta2.path, meta2.durationSec);
+        assetDurationsByPath.set(meta.path, meta.durationSec);
       }
     });
-    return map3;
-  }, [assets, mediaKind2]);
+    return assetDurationsByPath;
+  }, [assets, mediaKind]);
   const audioDurationByPath = reactExports.useMemo(() => {
-    if (mediaKind2 !== "audio") return null;
-    const map3 = new Map();
-    assets.forEach((meta2) => {
+    if (mediaKind !== "audio") return null;
+    const assetDurationsByPath = new Map();
+    assets.forEach((meta) => {
       if (
-        meta2.path &&
-        typeof meta2.durationSec === "number" &&
-        meta2.durationSec > 0
+        meta.path &&
+        typeof meta.durationSec === "number" &&
+        meta.durationSec > 0
       ) {
-        map3.set(meta2.path, meta2.durationSec);
+        assetDurationsByPath.set(meta.path, meta.durationSec);
       }
     });
-    return map3;
-  }, [assets, mediaKind2]);
+    return assetDurationsByPath;
+  }, [assets, mediaKind]);
   return (
     <div className={`flex flex-wrap ${getSlotLabel ? "gap-1" : "gap-2"}`}>
       {Array.from({
         length: renderedSlotCount,
-      }).map((_2, idx) => {
-        const path2 = imagePaths[idx];
-        const rawUrl = path2 ? (resolveFileUrl?.(path2) ?? "") : "";
-        const slotLabel = getSlotLabel?.(idx);
+      }).map((_unusedValue, slotIndex) => {
+        const path = imagePaths[slotIndex];
+        const rawUrl = path ? (resolveFileUrl?.(path) ?? "") : "";
+        const slotLabel = getSlotLabel?.(slotIndex);
         const slotWidth = slotLabel ? FRAME_CHIP_W : CHIP_W;
         const slotHeight = slotLabel ? FRAME_CHIP_H : CHIP_H;
         const thumbUrl =
-          path2 && rawUrl && mediaKind2 === "video"
-            ? (buildVideoThumbnailUrl(rawUrl, path2, slotWidth) ?? rawUrl)
+          path && rawUrl && mediaKind === "video"
+            ? (buildVideoThumbnailUrl(rawUrl, path, slotWidth) ?? rawUrl)
             : rawUrl;
-        const slotActionUiId = getSlotActionUiId?.(idx);
-        const slotClassName = getSlotClassName?.(idx) ?? "";
-        const titleText = path2
-          ? basename$c(path2)
+        const slotActionUiId = getSlotActionUiId?.(slotIndex);
+        const slotClassName = getSlotClassName?.(slotIndex) ?? "";
+        const titleText = path
+          ? basename$c(path)
           : (slotLabel ?? emptySlotLabel);
         const durationSec =
-          mediaKind2 === "video" && path2
-            ? (videoDurationByPath?.get(path2) ?? 0)
+          mediaKind === "video" && path
+            ? (videoDurationByPath?.get(path) ?? 0)
             : 0;
         const durationLabel =
           durationSec > 0 ? formatTime(durationSec, true) : "";
@@ -473,19 +473,19 @@ export function ImageSlotList({
           jsxRuntimeExports.jsxs(
             reactExports.Fragment,
             {
-              children: [idx > 0 ? renderSlotSeparator?.(idx) : null, slot],
+              children: [slotIndex > 0 ? renderSlotSeparator?.(slotIndex) : null, slot],
             },
-            idx,
+            slotIndex,
           );
-        if (!path2) {
+        if (!path) {
           return wrapSlot(
             <button
               type="button"
-              onClick={(e2) => {
-                e2.stopPropagation();
-                void handlePickFile(idx, e2.currentTarget);
+              onClick={(clickEvent) => {
+                clickEvent.stopPropagation();
+                void handlePickFile(slotIndex, clickEvent.currentTarget);
               }}
-              disabled={disabled2}
+              disabled={disabled}
               title={titleText}
               aria-label={slotLabel ?? titleText}
               data-action-ui-id={slotActionUiId}
@@ -499,9 +499,9 @@ export function ImageSlotList({
                 <Plus size={16} />
               ) : (
                 <>
-                  {mediaKind2 === "video" ? (
+                  {mediaKind === "video" ? (
                     <ReferenceVideoIcon />
-                  ) : mediaKind2 === "audio" ? (
+                  ) : mediaKind === "audio" ? (
                     <ReferenceAudioIcon />
                   ) : (
                     <ReferenceImageIcon />
@@ -517,9 +517,9 @@ export function ImageSlotList({
             </button>,
           );
         }
-        const isAudio = mediaKind2 === "audio";
+        const isAudio = mediaKind === "audio";
         const audioDuration = isAudio
-          ? (audioDurationByPath?.get(path2) ?? 0)
+          ? (audioDurationByPath?.get(path) ?? 0)
           : 0;
         const audioOutOfRange =
           isAudio &&
@@ -528,29 +528,29 @@ export function ImageSlotList({
             audioDuration > audioPerClipMaxSec);
         const audioOutOfRangeLabel = audioOutOfRange
           ? audioDuration < audioPerClipMinSec
-            ? t2("canvas.audioSlot.tooShort", {
+            ? t("canvas.audioSlot.tooShort", {
                 defaultValue: "小于{{min}}s 不支持",
                 min: audioPerClipMinSec,
               })
-            : t2("canvas.audioSlot.tooLong", {
+            : t("canvas.audioSlot.tooLong", {
                 defaultValue: "超过{{max}}s 不支持",
                 max: audioPerClipMaxSec,
               })
           : "";
         const hoveredSlotElement =
-          hoveredSlotIndex === idx && replacingSlot === null
-            ? filledSlotElementsRef.current.get(idx)
+          hoveredSlotIndex === slotIndex && replacingSlot === null
+            ? filledSlotElementsRef.current.get(slotIndex)
             : void 0;
         return wrapSlot(
           // biome-ignore lint/a11y/noStaticElementInteractions: the full-size nested button provides keyboard access; this handler also covers the slot border.
           // biome-ignore lint/a11y/useKeyWithClickEvents: the nested reference button owns keyboard activation.
           <span
-            ref={(element2) => {
-              if (element2) filledSlotElementsRef.current.set(idx, element2);
-              else filledSlotElementsRef.current.delete(idx);
+            ref={(element) => {
+              if (element) filledSlotElementsRef.current.set(slotIndex, element);
+              else filledSlotElementsRef.current.delete(slotIndex);
             }}
             data-action-ui-id={slotActionUiId}
-            className={`group/chip relative shrink-0 inline-flex items-center justify-center overflow-hidden rounded-[8px] border-[1.5px] border-transparent bg-[var(--bg-subtle)] ${disabled2 ? "cursor-default" : !isAudio ? "cursor-pointer" : ""} transition-[border-color,transform] duration-150 hover:border-foreground/30 motion-reduce:transform-none ${hoveredSlotIndex === idx && !isAudio ? "scale-[1.04]" : ""} ${slotClassName}`}
+            className={`group/chip relative shrink-0 inline-flex items-center justify-center overflow-hidden rounded-[8px] border-[1.5px] border-transparent bg-[var(--bg-subtle)] ${disabled ? "cursor-default" : !isAudio ? "cursor-pointer" : ""} transition-[border-color,transform] duration-150 hover:border-foreground/30 motion-reduce:transform-none ${hoveredSlotIndex === slotIndex && !isAudio ? "scale-[1.04]" : ""} ${slotClassName}`}
             style={{
               width: slotWidth,
               height: slotHeight,
@@ -574,7 +574,7 @@ export function ImageSlotList({
               event.stopPropagation();
               if (
                 isAudio ||
-                disabled2 ||
+                disabled ||
                 !event.currentTarget.contains(event.target)
               )
                 return;
@@ -583,27 +583,27 @@ export function ImageSlotList({
                 event.target.closest("button")
               )
                 return;
-              showPreview(idx);
-              onReference?.(path2);
+              showPreview(slotIndex);
+              onReference?.(path);
             }}
-            onFocus={() => showPreview(idx)}
-            onBlur={() => schedulePreviewClose(idx)}
-            onMouseEnter={() => showPreview(idx)}
-            onMouseLeave={() => schedulePreviewClose(idx)}
+            onFocus={() => showPreview(slotIndex)}
+            onBlur={() => schedulePreviewClose(slotIndex)}
+            onMouseEnter={() => showPreview(slotIndex)}
+            onMouseLeave={() => schedulePreviewClose(slotIndex)}
           >
             {!isAudio && (
               <button
                 type="button"
-                disabled={disabled2}
+                disabled={disabled}
                 aria-label={
-                  onReference ? t2("canvas.reference.addReference") : titleText
+                  onReference ? t("canvas.reference.addReference") : titleText
                 }
                 className="absolute inset-0 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-foreground"
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={(event) => {
                   event.stopPropagation();
-                  showPreview(idx);
-                  onReference?.(path2);
+                  showPreview(slotIndex);
+                  onReference?.(path);
                 }}
               />
             )}
@@ -613,43 +613,43 @@ export function ImageSlotList({
               >
                 <ReferenceAudioIcon />
                 <span className="truncate max-w-full text-[10px] leading-none">
-                  {basename$c(path2)}
+                  {basename$c(path)}
                 </span>
               </span>
             ) : thumbUrl ? (
               <img
                 src={thumbUrl}
-                alt={basename$c(path2)}
+                alt={basename$c(path)}
                 className="pointer-events-none h-full w-full object-cover"
                 loading="lazy"
                 decoding="async"
               />
             ) : (
               <span className="truncate max-w-full px-1 text-[10px] text-[var(--canvas-controls-text)]">
-                {basename$c(path2)}
+                {basename$c(path)}
               </span>
             )}
             {!isAudio && onReference && (
               <ReferenceThumbnailOverlay
-                visible={hoveredSlotIndex === idx}
-                disabled={disabled2}
+                visible={hoveredSlotIndex === slotIndex}
+                disabled={disabled}
                 onReference={() => {
-                  showPreview(idx);
-                  onReference(path2);
+                  showPreview(slotIndex);
+                  onReference(path);
                 }}
               />
             )}
             {onEditImage &&
-              !disabled2 &&
+              !disabled &&
               replacingSlot === null &&
-              canAnnotateCanvasImage(mediaKind2, path2, rawUrl) && (
+              canAnnotateCanvasImage(mediaKind, path, rawUrl) && (
                 <ReferenceImageEditButton
-                  visible={hoveredSlotIndex === idx}
+                  visible={hoveredSlotIndex === slotIndex}
                   onClick={() => {
                     clearPreviewCloseTimer();
                     setHoveredSlotIndex(null);
-                    setReplacingSlot(idx);
-                    void Promise.resolve(onEditImage(path2, idx)).finally(() =>
+                    setReplacingSlot(slotIndex);
+                    void Promise.resolve(onEditImage(path, slotIndex)).finally(() =>
                       setReplacingSlot(null),
                     );
                   }}
@@ -665,29 +665,29 @@ export function ImageSlotList({
                 {slotLabel}
               </span>
             )}
-            {mediaKind2 === "video" && (
+            {mediaKind === "video" && (
               <ReferenceThumbnailVideoInfo
-                visible={hoveredSlotIndex !== idx}
+                visible={hoveredSlotIndex !== slotIndex}
                 durationLabel={durationLabel || void 0}
               />
             )}
-            {replacingSlot === idx && (
+            {replacingSlot === slotIndex && (
               <div className="absolute inset-0 z-[4] flex items-center justify-center bg-background/60">
                 <Loader2 size={16} className="animate-spin" />
               </div>
             )}
             <button
               type="button"
-              onClick={(e2) => {
-                e2.stopPropagation();
-                handleSlotClear(idx);
+              onClick={(clickEvent) => {
+                clickEvent.stopPropagation();
+                handleSlotClear(slotIndex);
               }}
-              disabled={disabled2}
-              aria-label={t2("canvas.imageSlot.remove")}
+              disabled={disabled}
+              aria-label={t("canvas.imageSlot.remove")}
               data-action-ui-id={
                 slotActionUiId ? `${slotActionUiId}.remove` : void 0
               }
-              className={`absolute z-10 flex cursor-pointer items-center justify-center rounded-full bg-[var(--canvas-media-control-bg)] text-[var(--canvas-media-control-fg)] transition-opacity duration-150 motion-reduce:transition-none hover:bg-[var(--canvas-media-control-bg-hover)] focus-visible:opacity-100 disabled:cursor-default disabled:opacity-40 ${hoveredSlotIndex === idx ? "opacity-100" : "pointer-events-none opacity-0"}`}
+              className={`absolute z-10 flex cursor-pointer items-center justify-center rounded-full bg-[var(--canvas-media-control-bg)] text-[var(--canvas-media-control-fg)] transition-opacity duration-150 motion-reduce:transition-none hover:bg-[var(--canvas-media-control-bg-hover)] focus-visible:opacity-100 disabled:cursor-default disabled:opacity-40 ${hoveredSlotIndex === slotIndex ? "opacity-100" : "pointer-events-none opacity-0"}`}
               style={{
                 width: 16,
                 height: 16,
@@ -712,57 +712,57 @@ export function ImageSlotList({
               <MediaHoverPreview
                 showFileName={true}
                 description={audioOutOfRangeLabel || void 0}
-                kind={mediaKind2}
+                kind={mediaKind}
                 url={rawUrl}
-                name={basename$c(path2)}
+                name={basename$c(path)}
                 durationSec={isAudio ? audioDuration : durationSec || void 0}
-                posterUrl={mediaKind2 === "video" ? thumbUrl : void 0}
+                posterUrl={mediaKind === "video" ? thumbUrl : void 0}
                 anchorElement={hoveredSlotElement}
                 anchorRect={hoveredSlotElement.getBoundingClientRect()}
                 previewAction={
                   !isAudio
                     ? {
-                        label: t2("canvas.fullscreenPreview"),
+                        label: t("canvas.fullscreenPreview"),
                         onClick: () => {
                           clearPreviewCloseTimer();
                           setHoveredSlotIndex(null);
                           setLightboxItem({
-                            kind: mediaKind2,
+                            kind: mediaKind,
                             url: rawUrl,
-                            filePath: path2,
-                            fileName: basename$c(path2),
+                            filePath: path,
+                            fileName: basename$c(path),
                           });
                         },
                       }
                     : void 0
                 }
                 locateAction={
-                  getLocateAction?.(path2)
+                  getLocateAction?.(path)
                     ? {
-                        label: t2("canvas.referenceNavigation.locate"),
+                        label: t("canvas.referenceNavigation.locate"),
                         onClick: () => {
                           clearPreviewCloseTimer();
                           setHoveredSlotIndex(null);
-                          getLocateAction(path2)?.();
+                          getLocateAction(path)?.();
                         },
                       }
                     : void 0
                 }
                 action={
-                  enableHoverReplace && !disabled2
+                  enableHoverReplace && !disabled
                     ? {
-                        label: t2("canvas.attachment.replace", {
+                        label: t("canvas.attachment.replace", {
                           defaultValue: "Replace",
                         }),
-                        onClick: () => void handleReplaceSlot(idx),
+                        onClick: () => void handleReplaceSlot(slotIndex),
                         actionUiId: slotActionUiId
                           ? `${slotActionUiId}.replace`
                           : "popover.image-slot.replace",
                       }
                     : void 0
                 }
-                onPreviewMouseEnter={() => showPreview(idx)}
-                onPreviewMouseLeave={() => schedulePreviewClose(idx)}
+                onPreviewMouseEnter={() => showPreview(slotIndex)}
+                onPreviewMouseLeave={() => schedulePreviewClose(slotIndex)}
               />
             )}
           </span>,

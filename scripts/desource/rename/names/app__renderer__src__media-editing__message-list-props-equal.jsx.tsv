@@ -1,0 +1,11 @@
+key	new	依据
+AccordionItem$1@4:3	AccordionItemPrimitive	vendor 导出的底层手风琴条目组件，供本地 AccordionItem 包装器渲染。
+AccordionTrigger$1@7:3	AccordionTriggerPrimitive	vendor 导出的底层手风琴触发组件，供本地 AccordionTrigger 包装器渲染。
+RadioGroup$1@10:3	RadioGroupPrimitive	vendor 导出的底层单选组组件；本文件未声明同名包装器。
+next2@21:38	next	传入属性比较器的下一份消息列表 props 对象。
+workspaceId2@55:9	workspaceId	当前网关范围对应的工作区标识。
+children2@92:57	children	AccordionTrigger 或 AccordionContent 接收并渲染的子元素。
+children2@116:57	children	AccordionTrigger 或 AccordionContent 接收并渲染的子元素。
+cn@17:18	mergeClassNames	合并 clsx 输入并用 Tailwind Merge 消除冲突类名的函数。
+i2@43:12	messageIndex	从消息列表尾部向前比较的当前索引。
+tag@136:9	tagName	被检查的 HTML 元素标签名。

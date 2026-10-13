@@ -1,0 +1,4 @@
+key	new	依据
+tool2@57:3	tool	根据工具名查找该工具的图片编辑价格配置。
+tool2@80:3	tool	作为定价记录中的工具标识，传入价格计算逻辑。
+children2@95:63	children	CanvasOverlayStoreProvider 接收并渲染的 React 子节点。

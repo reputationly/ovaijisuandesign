@@ -1,0 +1,11 @@
+key	new	依据
+name2@16:9	memoryEntryName	用于生成 toast ID 的编码后记忆条目名称；原名 name 会被识别为全局名。
+workspaceId2@24:16	workspaceId	点击项目记忆提示后导航到的工作区标识。
+isActive2@25:13	isActive	当前工作区是否处于活动状态的布尔属性。
+subscribe2@28:9	subscribe	工作区 WebSocket 连接提供的消息订阅函数。
+queryClient2@31:9	queryClient	用于使记忆查询缓存失效的 QueryClient 实例。
+evt@15:30	autoFeedbackEvent	生成记忆 toast ID 时读取的自动反馈事件对象。
+t2@30:14	t	根据当前语言返回自动反馈提示及撤销结果文案的翻译函数。
+msg@48:24	websocketMessage	WebSocket 订阅回调收到的原始消息对象。
+evt@50:13	memoryChangedEvent	通过 type 检查后作为记忆变更事件处理的消息对象。
+res@87:25	deleteResult	deleteMemory 返回并提供 deleted 状态的结果对象。

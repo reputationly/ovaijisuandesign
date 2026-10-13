@@ -27,8 +27,8 @@ import {
   HILO_SOURCE_HEADER,
   pickUserMessage,
 } from "../generation/normalize-skill-detail-metadata.js";
-function isEnoentErrorMessage(message2) {
-  return /ENOENT|no such file or directory/i.test(message2);
+function isEnoentErrorMessage(message) {
+  return /ENOENT|no such file or directory/i.test(message);
 }
 function classifyVideoGenerationMode(input) {
   const kinds = [
@@ -88,9 +88,9 @@ const CANVAS_VIDEO_MODEL_DISPLAY_ORDER = {
 };
 function visibleCanvasVideoModels(models) {
   return visibleCanvasModels(models)
-    .map((model, index2) => ({
+    .map((model, index) => ({
       model,
-      index: index2,
+      index,
     }))
     .sort((left, right) => {
       const leftOrder = CANVAS_VIDEO_MODEL_DISPLAY_ORDER[left.model.id] ?? 100;
@@ -154,13 +154,13 @@ function buildCanvasVideoSubmitTracking(input) {
 const GENERATE_ERROR_CODE_QUEUE_PAUSED = "queue_paused";
 const MODEL_LIST_TIMEOUT_MS = 1e4;
 const MAX_VIDEOS_PER_SUBMIT = 9;
-function formatGenerateError(message2) {
-  if (isEnoentErrorMessage(message2)) {
+function formatGenerateError(message) {
+  if (isEnoentErrorMessage(message)) {
     return instance.t("canvas.generateRefFileMissing", {
       defaultValue: "参考素材文件不存在或路径已失效，请确认文件仍在工作区内",
     });
   }
-  return message2;
+  return message;
 }
 function trackCanvasVideoSubmit(input) {
   trackEvent(TRACK_EVENTS.CANVAS_GENERATE_SUBMIT, {
@@ -202,7 +202,7 @@ export function useImg2Video({
       audioPaths,
       replaceNodeId,
       displayPrompt,
-      count2,
+      count,
       newRound,
       backendOverride,
       textPaths,
@@ -233,7 +233,7 @@ export function useImg2Video({
       try {
         const effectiveCount = Math.max(
           1,
-          Math.min(MAX_VIDEOS_PER_SUBMIT, Math.floor(count2 ?? 1)),
+          Math.min(MAX_VIDEOS_PER_SUBMIT, Math.floor(count ?? 1)),
         );
         const models =
           videoModelsCache.peek(catalogScopeKey) ??

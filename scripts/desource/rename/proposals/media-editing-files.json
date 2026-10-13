@@ -1,0 +1,4 @@
+{
+  "app/renderer/src/media-editing/wt.js": "app/renderer/src/media-editing/markdown-and-media-model-utils.js",
+  "app/renderer/src/media-editing/editor2.js": "app/renderer/src/media-editing/canvas-editor.js"
+}

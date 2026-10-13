@@ -39,7 +39,7 @@ function DownloadButton({ onDownload, label }) {
 }
 export function ReadySubVideoCard({
   slot,
-  position: position2,
+  position,
   cardWidth,
   cardHeight,
   onSelectSlot,
@@ -52,22 +52,22 @@ export function ReadySubVideoCard({
 }) {
   const frameRef = reactExports.useRef(null);
   useRegisterZoomCounter(frameRef);
-  const { t: t2 } = useTranslation();
-  const meta2 = useAssetMeta(slot.id);
-  const fileVersion = usePathFileVersion(meta2?.path);
+  const { t } = useTranslation();
+  const meta = useAssetMeta(slot.id);
+  const fileVersion = usePathFileVersion(meta?.path);
   const slotUrl =
     slot.url !== void 0 && fileVersion > 0
       ? appendCanvasFileVersion(slot.url, fileVersion)
       : slot.url;
-  const selectLabel = t2("canvas.multiVideo.setAsPrimary", "设为主视频");
-  const splitLabel = t2("canvas.multiImage.splitToNode", "独立展示");
-  const previewLabel = t2("canvas.fullscreenPreview", "全屏预览");
+  const selectLabel = t("canvas.multiVideo.setAsPrimary", "设为主视频");
+  const splitLabel = t("canvas.multiImage.splitToNode", "独立展示");
+  const previewLabel = t("canvas.fullscreenPreview", "全屏预览");
   const [hovered, setHovered] = reactExports.useState(false);
   const [durationLabel, setDurationLabel] = reactExports.useState(void 0);
   const hoverTimerRef = reactExports.useRef(null);
-  const stop = useMediaPlayback((s2) => s2.stop);
+  const stop = useMediaPlayback((playbackState) => playbackState.stop);
   const playerNodeId = `sub-video:${slot.id}`;
-  const isPlaying = useMediaPlayback((s2) => s2.playingId === playerNodeId);
+  const isPlaying = useMediaPlayback((playbackState) => playbackState.playingId === playerNodeId);
   const clearHoverTimer = reactExports.useCallback(() => {
     if (!hoverTimerRef.current) return;
     clearTimeout(hoverTimerRef.current);
@@ -77,13 +77,13 @@ export function ReadySubVideoCard({
     if (useMediaPlayback.getState().playingId === playerNodeId) stop();
   }, [playerNodeId, stop]);
   reactExports.useEffect(() => {
-    const durationSec = meta2?.durationSec;
+    const durationSec = meta?.durationSec;
     setDurationLabel(
       durationSec != null && Number.isFinite(durationSec) && durationSec > 0
         ? formatTime(durationSec, true)
         : void 0,
     );
-  }, [meta2?.durationSec]);
+  }, [meta?.durationSec]);
   const handleMouseEnter = reactExports.useCallback(() => {
     if (
       !shouldPreviewReadySubVideo({
@@ -98,7 +98,7 @@ export function ReadySubVideoCard({
       setHovered(true);
     }, 150);
   }, [clearHoverTimer, readonly, slot.url]);
-  const handleMouseLeave2 = reactExports.useCallback(() => {
+  const handleMouseLeave = reactExports.useCallback(() => {
     clearHoverTimer();
     setHovered(false);
     stopSubPlayback();
@@ -116,48 +116,48 @@ export function ReadySubVideoCard({
         hasUrl: Boolean(slot.url),
       })
     ) {
-      handleMouseLeave2();
+      handleMouseLeave();
     }
-  }, [handleMouseLeave2, readonly, slot.url]);
-  const handleCardClick = (e2) => {
-    e2.stopPropagation();
+  }, [handleMouseLeave, readonly, slot.url]);
+  const handleCardClick = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (!slot.url) return;
-    onOpenSlot(position2.originalIndex);
+    onOpenSlot(position.originalIndex);
   };
-  const handleSelectSlot = (e2) => {
-    e2.stopPropagation();
+  const handleSelectSlot = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (readonly || !slot.url) return;
-    onSelectSlot(position2.originalIndex);
+    onSelectSlot(position.originalIndex);
   };
-  const handleContextMenu = (e2) => {
-    e2.preventDefault();
-    e2.stopPropagation();
+  const handleContextMenu = (contextMenuEvent) => {
+    contextMenuEvent.preventDefault();
+    contextMenuEvent.stopPropagation();
     if (readonly) return;
-    onSubContextMenu(position2.originalIndex, e2);
+    onSubContextMenu(position.originalIndex, contextMenuEvent);
   };
-  const handleDoubleClick2 = (e2) => {
-    e2.preventDefault();
-    e2.stopPropagation();
+  const handleDoubleClick = (mouseEvent) => {
+    mouseEvent.preventDefault();
+    mouseEvent.stopPropagation();
     if (!slot.url) return;
-    onOpenSlot(position2.originalIndex);
+    onOpenSlot(position.originalIndex);
   };
-  const handleSplit = (e2) => {
-    e2.stopPropagation();
+  const handleSplit = (clickEvent) => {
+    clickEvent.stopPropagation();
     if (readonly || !slot.url) return;
-    onSplitSub(position2.originalIndex);
+    onSplitSub(position.originalIndex);
   };
-  const handleDelete2 = (e2) => {
-    e2.stopPropagation();
+  const handleDelete = (deleteClickEvent) => {
+    deleteClickEvent.stopPropagation();
     if (readonly || !slot.url) return;
-    onDeleteSub(position2.originalIndex);
+    onDeleteSub(position.originalIndex);
   };
-  const handleDownload = (e2) => {
-    e2.stopPropagation();
+  const handleDownload = (downloadClickEvent) => {
+    downloadClickEvent.stopPropagation();
     if (!slot.url) return;
-    onDownloadSub(position2.originalIndex);
+    onDownloadSub(position.originalIndex);
   };
-  const handleLoadedMetadata = reactExports.useCallback((e2) => {
-    const durationSec = e2.currentTarget.duration;
+  const handleLoadedMetadata = reactExports.useCallback((metadataEvent) => {
+    const durationSec = metadataEvent.currentTarget.duration;
     if (Number.isFinite(durationSec) && durationSec > 0) {
       setDurationLabel(formatTime(durationSec, true));
     }
@@ -166,11 +166,11 @@ export function ReadySubVideoCard({
     <CardWrapper
       cardWidth={cardWidth}
       cardHeight={cardHeight}
-      position={position2}
+      position={position}
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave2}
+      onMouseLeave={handleMouseLeave}
       onContextMenu={handleContextMenu}
-      onDoubleClick={handleDoubleClick2}
+      onDoubleClick={handleDoubleClick}
     >
       <button
         ref={frameRef}
@@ -178,7 +178,7 @@ export function ReadySubVideoCard({
         data-action-ui-id="canvas.video-node.sub-video-card.ready"
         onClick={handleCardClick}
         onContextMenu={handleContextMenu}
-        onDoubleClick={handleDoubleClick2}
+        onDoubleClick={handleDoubleClick}
         aria-label={previewLabel}
         title={previewLabel}
         className="pointer-events-auto absolute inset-0 z-10 block cursor-zoom-in canvas-node-frame overflow-hidden border-0 p-px bg-[var(--canvas-node-bg)] transition-shadow hover:shadow-[var(--canvas-shadow-dropdown)] focus-visible:outline-none"
@@ -256,14 +256,14 @@ export function ReadySubVideoCard({
       )}
       {!readonly && slot.url && (
         <DeleteButton
-          onDelete={handleDelete2}
-          label={t2("canvas.multiVideo.deleteVideo", "删除该视频")}
+          onDelete={handleDelete}
+          label={t("canvas.multiVideo.deleteVideo", "删除该视频")}
         />
       )}
       {slot.url && (
         <DownloadButton
           onDownload={handleDownload}
-          label={t2("canvas.multiVideo.downloadVideo", "下载该视频")}
+          label={t("canvas.multiVideo.downloadVideo", "下载该视频")}
         />
       )}
     </CardWrapper>

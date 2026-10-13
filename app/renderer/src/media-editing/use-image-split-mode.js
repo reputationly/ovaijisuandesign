@@ -5,89 +5,89 @@ import { rectCellIndices } from "./node-tool-interaction.js";
 import { splitSelectedCellsToBlobs } from "./split-selected-cells-to-blobs.js";
 
 export function useImageSplitMode({
-  id: id2,
-  selected: selected2,
-  meta: meta2,
+  id: nodeId,
+  selected: isSelected,
+  meta,
   batchCropAndUpscale,
   cropSplit,
   onApply,
-  url: url2,
+  url,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [grid, setGrid] = reactExports.useState(null);
   const [selectedCells, setSelectedCells] = reactExports.useState(
     () => new Set(),
   );
-  const [magnification, setMag] = reactExports.useState(
+  const [magnificationValue, setMagnificationValue] = reactExports.useState(
     SPLIT_MAGNIFICATIONS[0],
   );
   const [processing, setProcessing] = reactExports.useState(false);
   const anchorRef = reactExports.useRef(null);
   const editing = grid !== null;
-  const enter2 = reactExports.useCallback((rows, cols) => {
-    const r2 = Math.max(1, Math.floor(rows));
-    const c3 = Math.max(1, Math.floor(cols));
+  const enter = reactExports.useCallback((rows, cols) => {
+    const rowCount = Math.max(1, Math.floor(rows));
+    const columnCount = Math.max(1, Math.floor(cols));
     setGrid({
-      rows: r2,
-      cols: c3,
+      rows: rowCount,
+      cols: columnCount,
     });
     setSelectedCells(new Set());
     anchorRef.current = null;
   }, []);
-  const exit2 = reactExports.useCallback(() => {
+  const exit = reactExports.useCallback(() => {
     setGrid(null);
     setSelectedCells(new Set());
     setProcessing(false);
     anchorRef.current = null;
   }, []);
   const toggleCell = reactExports.useCallback(
-    (index2, range2 = false) => {
-      const g2 = grid;
-      if (range2 && g2 && anchorRef.current != null) {
-        const block = rectCellIndices(anchorRef.current, index2, g2.cols);
+    (index, isRangeSelection = false) => {
+      const currentGrid = grid;
+      if (isRangeSelection && currentGrid && anchorRef.current != null) {
+        const block = rectCellIndices(anchorRef.current, index, currentGrid.cols);
         setSelectedCells((prev) => {
-          const next2 = new Set(prev);
-          for (const i2 of block) next2.add(i2);
-          return next2;
+          const next = new Set(prev);
+          for (const cellIndex of block) next.add(cellIndex);
+          return next;
         });
         return;
       }
-      anchorRef.current = index2;
+      anchorRef.current = index;
       setSelectedCells((prev) => {
-        const next2 = new Set(prev);
-        if (next2.has(index2)) next2.delete(index2);
-        else next2.add(index2);
-        return next2;
+        const next = new Set(prev);
+        if (next.has(index)) next.delete(index);
+        else next.add(index);
+        return next;
       });
     },
     [grid],
   );
-  const setMagnification = reactExports.useCallback((next2) => {
-    setMag(
-      SPLIT_MAGNIFICATIONS.find((m3) => m3.id === next2) ??
+  const setMagnification = reactExports.useCallback((next) => {
+    setMagnificationValue(
+      SPLIT_MAGNIFICATIONS.find((magnification) => magnification.id === next) ??
         SPLIT_MAGNIFICATIONS[0],
     );
   }, []);
   const selectCells = reactExports.useCallback((indices) => {
     if (indices.length === 0) return;
     setSelectedCells((prev) => {
-      const next2 = new Set(prev);
-      for (const i2 of indices) next2.add(i2);
-      return next2;
+      const next = new Set(prev);
+      for (const cellIndex of indices) next.add(cellIndex);
+      return next;
     });
     anchorRef.current = indices[indices.length - 1];
   }, []);
   const sliceSelectedCells = reactExports.useCallback(
     async (baseName) => {
-      if (!url2 || !grid) return [];
+      if (!url || !grid) return [];
       const { rows, cols } = grid;
       const blobs = await splitSelectedCellsToBlobs(
-        url2,
+        url,
         rows,
         cols,
         selectedCells,
-        meta2?.width,
-        meta2?.height,
+        meta?.width,
+        meta?.height,
       );
       return blobs.map((cell) => ({
         blob: cell.blob,
@@ -110,29 +110,29 @@ export function useImageSplitMode({
           : {}),
       }));
     },
-    [grid, meta2?.height, meta2?.width, selectedCells, url2],
+    [grid, meta?.height, meta?.width, selectedCells, url],
   );
   const generateHighRes = reactExports.useCallback(async () => {
     if (processing) return;
-    if (!url2 || !grid) return;
+    if (!url || !grid) return;
     if (selectedCells.size === 0) return;
     if (!batchCropAndUpscale) return;
-    const baseName = meta2?.name?.replace(/\.[^.]+$/, "") ?? "image";
+    const baseName = meta?.name?.replace(/\.[^.]+$/, "") ?? "image";
     setProcessing(true);
     try {
-      const cells2 = await sliceSelectedCells(baseName);
-      if (cells2.length === 0) return;
+      const cells = await sliceSelectedCells(baseName);
+      if (cells.length === 0) return;
       onApply?.({
         output_mode: "enhance",
-        cell_count: cells2.length,
-        magnification: magnification.id,
+        cell_count: cells.length,
+        magnification: magnificationValue.id,
       });
-      exit2();
+      exit();
       void batchCropAndUpscale(
-        id2,
-        cells2,
-        magnification.multiplier,
-        t2("canvas.splitGrid.groupLabel", "宫格高清组"),
+        nodeId,
+        cells,
+        magnificationValue.multiplier,
+        t("canvas.splitGrid.groupLabel", "宫格高清组"),
       ).catch((err) => {
         console.error("[canvas] grid-split batch failed:", err);
       });
@@ -142,65 +142,65 @@ export function useImageSplitMode({
   }, [
     processing,
     batchCropAndUpscale,
-    url2,
+    url,
     grid,
     selectedCells,
-    meta2?.name,
-    id2,
-    magnification.multiplier,
-    magnification.id,
-    exit2,
-    t2,
+    meta?.name,
+    nodeId,
+    magnificationValue.multiplier,
+    magnificationValue.id,
+    exit,
+    t,
     onApply,
     sliceSelectedCells,
   ]);
   const splitLocal = reactExports.useCallback(async () => {
-    if (!url2 || !grid) return;
+    if (!url || !grid) return;
     if (selectedCells.size === 0) return;
     if (!cropSplit) return;
-    const baseName = meta2?.name?.replace(/\.[^.]+$/, "") ?? "image";
-    const cells2 = await sliceSelectedCells(baseName);
-    if (cells2.length === 0) return;
+    const baseName = meta?.name?.replace(/\.[^.]+$/, "") ?? "image";
+    const cells = await sliceSelectedCells(baseName);
+    if (cells.length === 0) return;
     onApply?.({
       output_mode: "crop",
-      cell_count: cells2.length,
+      cell_count: cells.length,
     });
-    exit2();
+    exit();
     void cropSplit(
-      id2,
-      cells2.map(({ blob, filename }) => ({
+      nodeId,
+      cells.map(({ blob, filename }) => ({
         blob,
         filename,
       })),
-      t2("canvas.splitGrid.cropSplitGroupLabel", "宫格编组"),
+      t("canvas.splitGrid.cropSplitGroupLabel", "宫格编组"),
     ).catch((err) => {
       console.error("[canvas] crop-split batch failed:", err);
     });
   }, [
-    url2,
+    url,
     grid,
     selectedCells,
     cropSplit,
-    meta2?.name,
-    id2,
-    exit2,
+    meta?.name,
+    nodeId,
+    exit,
     sliceSelectedCells,
-    t2,
+    t,
     onApply,
   ]);
   reactExports.useEffect(() => {
     if (!editing) return;
     if (processing) return;
-    if (!selected2) exit2();
-  }, [editing, processing, selected2, exit2]);
+    if (!isSelected) exit();
+  }, [editing, processing, isSelected, exit]);
   return {
     editing,
     grid,
     selectedCells,
-    magnification,
+    magnification: magnificationValue,
     processing,
-    enter: enter2,
-    exit: exit2,
+    enter,
+    exit,
     toggleCell,
     selectCells,
     setMagnification,

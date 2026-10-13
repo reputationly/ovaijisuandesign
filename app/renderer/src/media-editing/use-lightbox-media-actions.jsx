@@ -33,13 +33,13 @@ function isLightboxItemDownloadable(item, onSaveAs, onSaveUrlAs) {
 }
 function getBatchDownloadableLightboxItems(items) {
   if (!items || items.length === 0) return [];
-  const seen2 = new Set();
+  const seen = new Set();
   const downloadable = [];
   for (const item of items) {
     const downloadSource = getLightboxDownloadSource(item);
     if (!downloadSource) continue;
-    if (seen2.has(downloadSource)) continue;
-    seen2.add(downloadSource);
+    if (seen.has(downloadSource)) continue;
+    seen.add(downloadSource);
     downloadable.push({
       ...item,
       downloadSource,
@@ -52,8 +52,8 @@ const CONTEXT_MENU_ROW_HEIGHT = 32;
 const CONTEXT_MENU_PADDING = 8;
 const VIEWPORT_MARGIN = 8;
 function LightboxMediaContextMenu({
-  x: x2,
-  y: y4,
+  x,
+  y,
   copyLabel,
   saveLabel,
   saveAllLabel,
@@ -74,8 +74,8 @@ function LightboxMediaContextMenu({
       data-action-ui-id="canvas.media-lightbox.context-menu"
       className="fixed z-[10000] min-w-44 rounded-lg border border-white/10 bg-neutral-950/95 p-1 text-xs text-white/85 shadow-lg"
       style={{
-        left: x2,
-        top: y4,
+        left: x,
+        top: y,
       }}
       onContextMenu={(event) => {
         event.preventDefault();
@@ -131,7 +131,7 @@ function LightboxMediaContextMenu({
     document.body,
   );
 }
-function clampMenuPoint(x2, y4, rowCount) {
+function clampMenuPoint(x, y, rowCount) {
   const viewportWidth =
     typeof window === "undefined" ? 1024 : window.innerWidth;
   const viewportHeight =
@@ -147,12 +147,12 @@ function clampMenuPoint(x2, y4, rowCount) {
     viewportHeight - height - VIEWPORT_MARGIN,
   );
   return {
-    x: Math.min(Math.max(x2, VIEWPORT_MARGIN), maxX),
-    y: Math.min(Math.max(y4, VIEWPORT_MARGIN), maxY),
+    x: Math.min(Math.max(x, VIEWPORT_MARGIN), maxX),
+    y: Math.min(Math.max(y, VIEWPORT_MARGIN), maxY),
   };
 }
 export function useLightboxMediaActions({ item, items }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const { onCopyImage, onSaveAs, onSaveManyAs, onSaveUrlAs, onShowInFolder } =
     useCanvasBridge();
   const [menuPoint, setMenuPoint] = reactExports.useState(null);
@@ -252,24 +252,24 @@ export function useLightboxMediaActions({ item, items }) {
   }, [batchDownloadableItems, onSaveManyAs]);
   const itemActionKey = `${item?.kind ?? ""}\0${item?.url ?? ""}\0${item?.filePath ?? ""}`;
   reactExports.useEffect(() => {
-    setMenuPoint((point2) => (point2 && itemActionKey ? null : point2));
+    setMenuPoint((point) => (point && itemActionKey ? null : point));
   }, [itemActionKey]);
   reactExports.useEffect(() => {
     if (!menuPoint) return;
-    const close2 = () => setMenuPoint(null);
-    const handleKeyDown2 = (event) => {
+    const closeMenu = () => setMenuPoint(null);
+    const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         event.stopPropagation();
-        close2();
+        closeMenu();
       }
     };
-    document.addEventListener("mousedown", close2);
-    document.addEventListener("keydown", handleKeyDown2, true);
-    window.addEventListener("blur", close2);
+    document.addEventListener("mousedown", closeMenu);
+    document.addEventListener("keydown", handleKeyDown, true);
+    window.addEventListener("blur", closeMenu);
     return () => {
-      document.removeEventListener("mousedown", close2);
-      document.removeEventListener("keydown", handleKeyDown2, true);
-      window.removeEventListener("blur", close2);
+      document.removeEventListener("mousedown", closeMenu);
+      document.removeEventListener("keydown", handleKeyDown, true);
+      window.removeEventListener("blur", closeMenu);
     };
   }, [menuPoint]);
   const contextMenu = reactExports.useMemo(() => {
@@ -278,10 +278,10 @@ export function useLightboxMediaActions({ item, items }) {
       <LightboxMediaContextMenu
         x={menuPoint.x}
         y={menuPoint.y}
-        copyLabel={t2("common.copy")}
-        saveLabel={t2("common.saveAs")}
-        saveAllLabel={t2("canvas.lightbox.downloadAll")}
-        showInFolderLabel={t2(getCanvasFileManagerLabelKey())}
+        copyLabel={t("common.copy")}
+        saveLabel={t("common.saveAs")}
+        saveAllLabel={t("canvas.lightbox.downloadAll")}
+        showInFolderLabel={t(getCanvasFileManagerLabelKey())}
         canCopy={canCopy}
         canSave={canSave}
         canSaveAll={canSaveAll}
@@ -295,7 +295,7 @@ export function useLightboxMediaActions({ item, items }) {
   }, [
     menuPoint,
     canOpenMenu,
-    t2,
+    t,
     canCopy,
     canSave,
     canSaveAll,

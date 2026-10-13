@@ -2,17 +2,17 @@ export class MediaRegistry {
   assets = new Map();
 
   registerVideoAsset(file) {
-    const id = crypto.randomUUID();
+    const assetId = crypto.randomUUID();
     const objectUrl = URL.createObjectURL(file);
     const asset = {
-      id,
+      id: assetId,
       file,
       objectUrl,
       mime: file.type,
       name: file.name,
       size: file.size,
     };
-    this.assets.set(id, asset);
+    this.assets.set(assetId, asset);
     return asset;
   }
 

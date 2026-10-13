@@ -1,0 +1,14 @@
+key	new	依据
+msg@17:30	message	函数根据 message.type 和工具内容判断该消息是否应独立于活动组显示。
+i2@50:12	candidateIndex	循环从此候选位置继续向后查找与当前工具调用匹配的成功重试。
+i2@71:12	toolMessageIndex	此索引遍历活动组中的工具消息，以汇总运行、等待和错误状态。
+msg@72:11	message	此处是 toolMessageIndex 指向的消息，后续读取它的工具状态与结果。
+msg@121:14	message	循环逐条检查输入消息的类型和确认状态，再决定单独输出或暂存成组。
+toolName2@33:11	toolName	此值来自工具消息的 content，用于识别应单独显示的 question 和 todowrite。
+index2@40:53	index	此索引定位正在判断是否被后续成功重试替代的工具消息。
+current2@41:9	current	此对象是 index 所指的当前工具消息，用来读取重试身份及工具内容。
+identity2@44:9	identity	此值由当前工具类别、名称和参数生成，用来匹配后续的媒体重试。
+next2@51:11	next	此值是循环检查的后续消息，只有成功的工具输出才参与重试身份比较。
+messages2@94:41	messages	此参数是按顺序分组的会话消息列表。
+raw2@94:52	raw	此布尔参数为真时保留原始活动消息，不过滤已被替代的旧媒体请求。
+flush2@97:9	flush	该函数汇总缓冲消息的状态、构造活动组并清空缓冲区。

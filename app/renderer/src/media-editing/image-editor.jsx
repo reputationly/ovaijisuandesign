@@ -1,14 +1,14 @@
 // image-editor.jsx
-import { Editor2 } from "./editor2.js";
+import { Editor2 as CanvasEditor } from "./editor2.js";
 import { reactExports } from "../vendor.js";
 import { __jsx } from "../shared/jsx-runtime.js";
 
 function createEditor(options) {
-  return new Editor2(options);
+  return new CanvasEditor(options);
 }
 
 export const ImageEditor = reactExports.forwardRef(
-  function ImageEditor2(props, ref) {
+  function ImageEditor(props, ref) {
     const containerRef = reactExports.useRef(null);
     const editorRef = reactExports.useRef(null);
     const callbacksRef = reactExports.useRef({
@@ -38,8 +38,8 @@ export const ImageEditor = reactExports.forwardRef(
       if (initRef.current.initialTool) {
         editor.setTool(initRef.current.initialTool);
       }
-      const offChange = editor.on("change", (state2) => {
-        callbacksRef.current.onChange?.(state2);
+      const offChange = editor.on("change", (state) => {
+        callbacksRef.current.onChange?.(state);
       });
       const offReady = editor.on("ready", () => {
         callbacksRef.current.onReady?.();
@@ -72,8 +72,8 @@ export const ImageEditor = reactExports.forwardRef(
     reactExports.useImperativeHandle(
       ref,
       () => ({
-        setTool: (t2) => editorRef.current?.setTool(t2),
-        setStyle: (s2) => editorRef.current?.setStyle(s2),
+        setTool: (tool) => editorRef.current?.setTool(tool),
+        setStyle: (style) => editorRef.current?.setStyle(style),
         undo: () => editorRef.current?.undo(),
         redo: () => editorRef.current?.redo(),
         clear: () => editorRef.current?.clear(),
@@ -83,16 +83,16 @@ export const ImageEditor = reactExports.forwardRef(
           if (!editor) return Promise.resolve();
           return editor.loadImage(src);
         },
-        toBlob: (type2, quality) => {
+        toBlob: (type, quality) => {
           const editor = editorRef.current;
           if (!editor)
             return Promise.reject(new Error("ImageEditor not ready"));
-          return editor.toBlob(type2, quality);
+          return editor.toBlob(type, quality);
         },
-        toDataURL: (type2, quality) => {
+        toDataURL: (type, quality) => {
           const editor = editorRef.current;
           if (!editor) return "";
-          return editor.toDataURL(type2, quality);
+          return editor.toDataURL(type, quality);
         },
         getEditor: () => editorRef.current,
         getSize: () => editorRef.current?.getSize() ?? null,

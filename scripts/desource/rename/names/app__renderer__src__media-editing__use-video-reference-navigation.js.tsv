@@ -1,0 +1,2 @@
+key	new	依据
+navigation2@13:6	referenceNavigation	合并进导航结果的引用导航状态对象，供调用方读取当前导航记录及操作。

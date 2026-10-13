@@ -1,0 +1,14 @@
+key	new	依据
+raw2@6:28	raw	待解析的原始 JSON 参数字符串。
+values3@98:24	values	该工具提示可用的枚举字符串数组，合并到当前取值后去重。
+current2@98:33	current	已有的单值或字符串数组，作为生成唯一选项列表的初始内容。
+next2@99:9	next	累积唯一字符串值的 Set，最终展开为可选值数组。
+add2@100:9	add	忽略空值并将转换后的字符串插入累积集合的辅助函数。
+visit2@115:9	visit	递归检查参数对象并构造枚举或范围提示的函数。
+entries2@115:19	entries	当前递归遍历的参数键值对象。
+key2@116:17	key	Object.entries 返回的参数键，用于识别 vendor_params 和提示类型。
+message2@152:43	message	当前 mock tool 消息，用于筛选工具调用并构造确认弹窗数据。
+selected2@173:9	selected	下拉框选中的 mock 工具来源，提供待注入的工具消息和参数。
+now2@178:11	now	生成工具消息及确认消息 ID 时共用的当前时间戳。
+
+e2@211:20	changeEvent	工具来源下拉框的 change 事件，从 target.value 读取当前选中的工具 ID。

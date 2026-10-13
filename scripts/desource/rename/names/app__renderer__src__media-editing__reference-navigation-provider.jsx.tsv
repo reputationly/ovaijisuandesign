@@ -1,0 +1,12 @@
+key	new	依据
+children2@12:13	children	Provider 接收的 React 子节点，渲染在上下文提供器内部。
+record2@19:10	record	useState 保存的引用导航记录；其配套 setter setRecord 名称与状态名保持一致。
+current2@28:16	currentRecord	setRecord 更新器收到的当前记录，仅在作用域不匹配时清空。
+snapshot2@31:24	snapshot	进入引用节点前保存的编辑器快照，随导航记录一起保存以便返回恢复。
+current2@50:16	currentRecord	setRecord 更新器收到的当前记录，用于只清除已标记为 returning 的目标节点记录。
+current2@56:13	currentRecord	recordRef.current 中待检查节点是否仍存在的导航记录。
+timer2@62:11	timeoutId	延迟清除引用导航记录的定时器 ID，清理函数用 clearTimeout 取消。
+latest2@64:18	latestRecord	setRecord 更新器收到的最新记录，仅在它仍等于捕获的当前记录时清除。
+current2@69:11	currentRecord	recordRef.current 中待处理的返回导航记录，后续用于选择来源节点和恢复状态。
+latest2@83:16	latestRecord	setRecord 更新器收到的最新记录，确认当前返回记录未变化后才将 returning 置为 false。
+children2@108:13	children	Provider 接收的 React 子节点，渲染在引用导航上下文内部。

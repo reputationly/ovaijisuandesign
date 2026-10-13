@@ -36,7 +36,7 @@ const DarkLoadingIcon = ({ className = "" }) => (
     />
   </CompositedSvg>
 );
-function StudioPreview({ children: children2 }) {
+function StudioPreview({ children }) {
   return (
     <section className="flex size-full items-center justify-center">
       <div className="flex aspect-square h-full max-w-full items-center justify-center">
@@ -47,7 +47,7 @@ function StudioPreview({ children: children2 }) {
             height: CANVAS_SIZE,
           }}
         >
-          {children2}
+          {children}
         </div>
       </div>
     </section>
@@ -135,23 +135,23 @@ function clampHAngle(value) {
 function clampVAngle(value) {
   return Math.max(V_RANGE.min, Math.min(V_RANGE.max, value));
 }
-const formatDegree = (v2) => {
-  const rounded = Math.round(v2);
+const formatDegree = (degrees) => {
+  const rounded = Math.round(degrees);
   return `${rounded > 0 ? "+" : ""}${rounded}°`;
 };
-function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
+function MultiAngleCustomPanel({ camera, onUpdateCamera, t: translations }) {
   const zoomOptions = [
     {
       value: "0",
-      label: t2.zoom_long_shot,
+      label: translations.zoom_long_shot,
     },
     {
       value: "5",
-      label: t2.zoom_medium_shot,
+      label: translations.zoom_medium_shot,
     },
     {
       value: "10",
-      label: t2.zoom_close_up,
+      label: translations.zoom_close_up,
     },
   ];
   const horizontalSliderValue =
@@ -164,45 +164,45 @@ function MultiAngleCustomPanel({ camera, onUpdateCamera, t: t2 }) {
         <ToolSlider
           className="flex-1"
           dataActionUiId="canvas.multi-angle.horizontal-angle"
-          label={t2.horizontal_angle}
+          label={translations.horizontal_angle}
           value={horizontalSliderValue}
           min={H_RANGE.min}
           max={H_RANGE.max}
           step={ANGLE_STEP}
           formatValue={formatDegree}
-          onChange={(v2) =>
+          onChange={(horizontalAngle) =>
             onUpdateCamera({
-              horizontalAngle: v2,
+              horizontalAngle,
             })
           }
         />
         <ToolSlider
           className="flex-1"
           dataActionUiId="canvas.multi-angle.vertical-angle"
-          label={t2.vertical_angle}
+          label={translations.vertical_angle}
           value={camera.verticalAngle}
           min={V_RANGE.min}
           max={V_RANGE.max}
           step={ANGLE_STEP}
           formatValue={formatDegree}
-          onChange={(v2) =>
+          onChange={(verticalAngle) =>
             onUpdateCamera({
-              verticalAngle: v2,
+              verticalAngle,
             })
           }
         />
       </div>
       <div className="flex flex-col gap-1.5">
         <span className="text-hl_text_02 text-[13px] font-medium leading-5">
-          {t2.zoom}
+          {translations.zoom}
         </span>
         <SegmentedControl
           options={zoomOptions}
           value={String(camera.zoom)}
           dataActionUiIdPrefix="canvas.multi-angle.zoom"
-          onChange={(v2) =>
+          onChange={(zoom) =>
             onUpdateCamera({
-              zoom: Number(v2),
+              zoom: Number(zoom),
             })
           }
         />
@@ -215,11 +215,11 @@ function MultiAngleGenerateBar({
   isDisabled,
   isSubmitting,
   onSubmit,
-  t: t2,
+  t: translations,
 }) {
-  const { t: translate2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const canGenerate = !isDisabled;
-  const estimatedCostLabel = translate2("canvas.billing.estimatedCost", {
+  const estimatedCostLabel = translate("canvas.billing.estimatedCost", {
     cost: totalCreditCost,
     defaultValue: "预计消耗 {{cost}} 积分",
   });
@@ -242,8 +242,8 @@ function MultiAngleGenerateBar({
           data-action-ui-id="canvas.multi-angle.generate"
           onClick={onSubmit}
           disabled={isDisabled}
-          aria-label={t2.generate}
-          title={t2.generate}
+          aria-label={translations.generate}
+          title={translations.generate}
           className={`bg-hl_text_00 text-hl_text_05 flex size-8 items-center justify-center rounded-md text-[13px] transition-opacity ${!canGenerate ? "cursor-not-allowed opacity-50" : "hover:opacity-90"}`}
         >
           {isSubmitting ? (
@@ -266,16 +266,16 @@ function CoverSkeleton() {
     />
   );
 }
-function PresetMediaCover({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
+function PresetMediaCover({ coverUrl, videoUrl, alt, isActive }) {
   const [isHovering, setIsHovering] = reactExports.useState(false);
   const [loadedCoverUrl, setLoadedCoverUrl] = reactExports.useState(null);
   const videoRef = reactExports.useRef(null);
   const imageRef = reactExports.useRef(null);
   const enterTimerRef = reactExports.useRef(null);
   const hasVideo = !!videoUrl;
-  const shouldShowVideo = hasVideo && (isActive2 || isHovering);
+  const shouldShowVideo = hasVideo && (isActive || isHovering);
   const isCoverLoaded = loadedCoverUrl === coverUrl;
-  const clearTimer2 = () => {
+  const clearTimer = () => {
     if (enterTimerRef.current) {
       clearTimeout(enterTimerRef.current);
       enterTimerRef.current = null;
@@ -288,10 +288,10 @@ function PresetMediaCover({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
       video.play().catch(() => {});
     } else {
       video.pause();
-      const timer2 = setTimeout(() => {
+      const timer = setTimeout(() => {
         video.currentTime = 0;
       }, 100);
-      return () => clearTimeout(timer2);
+      return () => clearTimeout(timer);
     }
   }, [shouldShowVideo]);
   reactExports.useEffect(
@@ -301,8 +301,8 @@ function PresetMediaCover({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
     [],
   );
   reactExports.useEffect(() => {
-    const image2 = imageRef.current;
-    if (image2?.complete) setLoadedCoverUrl(coverUrl);
+    const image = imageRef.current;
+    if (image?.complete) setLoadedCoverUrl(coverUrl);
   }, [coverUrl]);
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: hover only controls decorative preview playback inside the parent button
@@ -311,7 +311,7 @@ function PresetMediaCover({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
       className="bg-hl_bg_05 relative size-full overflow-hidden"
       onMouseEnter={() => {
         if (!hasVideo) return;
-        clearTimer2();
+        clearTimer();
         enterTimerRef.current = setTimeout(() => {
           setIsHovering(true);
           enterTimerRef.current = null;
@@ -319,7 +319,7 @@ function PresetMediaCover({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
       }}
       onMouseLeave={() => {
         if (!hasVideo) return;
-        clearTimer2();
+        clearTimer();
         setIsHovering(false);
       }}
     >
@@ -351,21 +351,21 @@ function PresetMediaCover({ coverUrl, videoUrl, alt, isActive: isActive2 }) {
     </div>
   );
 }
-function PresetCardItem({ preset: preset2, label, isSelected, onSelect }) {
+function PresetCardItem({ preset, label, isSelected, onSelect }) {
   return (
     <button
       type="button"
       className="group flex w-[90px] flex-col items-center gap-1"
-      onClick={() => onSelect(preset2)}
+      onClick={() => onSelect(preset)}
       aria-pressed={isSelected}
-      data-action-ui-id={`canvas.multi-angle.preset.${preset2.id}`}
+      data-action-ui-id={`canvas.multi-angle.preset.${preset.id}`}
     >
       <div
         className={`ring-hl_text_00 relative size-[90px] overflow-hidden rounded-md transition-all duration-200 ${isSelected ? "ring-[1.5px]" : "ring-0"}`}
       >
         <PresetMediaCover
-          coverUrl={preset2.thumbUrl}
-          videoUrl={preset2.videoUrl}
+          coverUrl={preset.thumbUrl}
+          videoUrl={preset.videoUrl}
           alt={label}
           isActive={isSelected}
         />
@@ -380,20 +380,20 @@ function PresetCardItem({ preset: preset2, label, isSelected, onSelect }) {
   );
 }
 function MultiAnglePresetsPanel({
-  presets: presets2,
+  presets,
   selectedPresetId,
   onSelect,
-  t: t2,
+  t: translations,
 }) {
   return (
     <div className="grid grid-cols-[repeat(3,90px)] gap-x-3 gap-y-2">
-      {presets2.map((preset2) => {
-        const isSelected = selectedPresetId === preset2.id;
+      {presets.map((preset) => {
+        const isSelected = selectedPresetId === preset.id;
         return (
           <PresetCardItem
-            key={preset2.id}
-            preset={preset2}
-            label={t2[preset2.titleKey]}
+            key={preset.id}
+            preset={preset}
+            label={translations[preset.titleKey]}
             isSelected={isSelected}
             onSelect={onSelect}
           />
@@ -404,13 +404,13 @@ function MultiAnglePresetsPanel({
 }
 const CDN_BASE = "https://cdn.hailuoai.com/asset/2026-04-03-17/multiview";
 const THUMB_SUFFIX = "?x-oss-process=image/resize,w_540/format,webp";
-function preset(id2, asset, titleKey, horizontalAngle, verticalAngle, zoom2) {
+function preset(presetId, asset, titleKey, horizontalAngle, verticalAngle, zoom) {
   return {
-    id: id2,
+    id: presetId,
     titleKey,
     horizontalAngle,
     verticalAngle,
-    zoom: zoom2,
+    zoom,
     thumbUrl: `${CDN_BASE}/${asset}.png${THUMB_SUFFIX}`,
     videoUrl: `${CDN_BASE}/${asset}.mp4`,
   };
@@ -427,17 +427,17 @@ const ANGLE_PRESETS = [
   preset("dutch", "dutch_angle", "preset_dutch", 45, -30, 0),
 ];
 function buildDefaultCamera() {
-  const preset2 = ANGLE_PRESETS[0];
+  const preset = ANGLE_PRESETS[0];
   return {
-    horizontalAngle: preset2.horizontalAngle,
-    verticalAngle: preset2.verticalAngle,
-    zoom: preset2.zoom,
-    presetId: preset2.id,
+    horizontalAngle: preset.horizontalAngle,
+    verticalAngle: preset.verticalAngle,
+    zoom: preset.zoom,
+    presetId: preset.id,
   };
 }
 function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
   const { i18n } = useTranslation();
-  const t2 = reactExports.useMemo(
+  const translations = reactExports.useMemo(
     () => (i18n.resolvedLanguage?.startsWith("zh") ? messages.zh : messages.en),
     [i18n.resolvedLanguage],
   );
@@ -456,38 +456,38 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
     });
   }, [imagePath, imageUrl]);
   const handleUpdateCamera = reactExports.useCallback((updates) => {
-    setCamera((previous2) => {
-      const next2 = {
-        ...previous2,
+    setCamera((previous) => {
+      const next = {
+        ...previous,
         ...updates,
         presetId: void 0,
       };
       if (updates.horizontalAngle !== void 0) {
-        next2.horizontalAngle = clampHAngle(updates.horizontalAngle);
+        next.horizontalAngle = clampHAngle(updates.horizontalAngle);
       }
-      next2.verticalAngle = clampVAngle(next2.verticalAngle);
-      return next2;
+      next.verticalAngle = clampVAngle(next.verticalAngle);
+      return next;
     });
   }, []);
   const handleRotateCamera = reactExports.useCallback(
     (horizontalDelta, verticalDelta) => {
-      setCamera((previous2) => ({
-        ...previous2,
+      setCamera((previous) => ({
+        ...previous,
         horizontalAngle: wrapHAngle(
-          previous2.horizontalAngle + horizontalDelta,
+          previous.horizontalAngle + horizontalDelta,
         ),
-        verticalAngle: clampVAngle(previous2.verticalAngle + verticalDelta),
+        verticalAngle: clampVAngle(previous.verticalAngle + verticalDelta),
         presetId: void 0,
       }));
     },
     [],
   );
-  const handleSelectPreset = reactExports.useCallback((preset2) => {
+  const handleSelectPreset = reactExports.useCallback((preset) => {
     setCamera({
-      horizontalAngle: preset2.horizontalAngle,
-      verticalAngle: preset2.verticalAngle,
-      zoom: preset2.zoom,
-      presetId: preset2.id,
+      horizontalAngle: preset.horizontalAngle,
+      verticalAngle: preset.verticalAngle,
+      zoom: preset.zoom,
+      presetId: preset.id,
     });
   }, []);
   const handleReset = reactExports.useCallback(() => {
@@ -499,22 +499,22 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
       const resources = await pickAsset({
         type: "image",
       });
-      const selected2 = resources?.[0];
-      if (!selected2) return;
-      if (!selected2.url || !selected2.path) {
-        dedupedToast.error(t2.error_asset_missing);
+      const selected = resources?.[0];
+      if (!selected) return;
+      if (!selected.url || !selected.path) {
+        dedupedToast.error(translations.error_asset_missing);
         return;
       }
       setSource({
-        url: selected2.url,
-        path: selected2.path,
+        url: selected.url,
+        path: selected.path,
       });
     } catch (error) {
       dedupedToast.error(
-        `${t2.error_asset_picker}: ${readableGenerationError(error)}`,
+        `${translations.error_asset_picker}: ${readableGenerationError(error)}`,
       );
     }
-  }, [pickAsset, t2]);
+  }, [pickAsset, translations]);
   const isButtonDisabled =
     isSubmitting || !source.url || !source.path || !submitImg2Image;
   const handleSubmit = reactExports.useCallback(async () => {
@@ -544,18 +544,18 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
       if (!result.success && result.error) throw new Error(result.error);
     } catch (error) {
       dedupedToast.error(
-        `${t2.error_generate}: ${readableGenerationError(error)}`,
+        `${translations.error_generate}: ${readableGenerationError(error)}`,
       );
     } finally {
       submitLockRef.current = false;
       setIsSubmitting(false);
     }
-  }, [camera, nodeId, onClose, source.path, submitImg2Image, t2]);
+  }, [camera, nodeId, onClose, source.path, submitImg2Image, translations]);
   return (
     <div className="multi-angle-theme flex h-full min-h-0 flex-col bg-hl_bg_01">
       <header className="shrink-0 px-4 pb-1 pt-3 pr-10">
         <h2 className="text-hl_text_00 text-sm font-semibold leading-5">
-          {t2.title}
+          {translations.title}
         </h2>
       </header>
       <div className="min-h-0 flex-1">
@@ -574,7 +574,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
                   onClick={handleReset}
                 >
                   <ToolResetIcon />
-                  <span>{t2.reset}</span>
+                  <span>{translations.reset}</span>
                 </button>
                 <div className="h-[212px] shrink-0">
                   <StudioPreview>
@@ -584,7 +584,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
                       disabled={isSubmitting}
                       onRotate={handleRotateCamera}
                       onUpload={handlePickImage}
-                      t={t2}
+                      t={translations}
                     />
                   </StudioPreview>
                 </div>
@@ -592,7 +592,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
                   <MultiAngleCustomPanel
                     camera={camera}
                     onUpdateCamera={handleUpdateCamera}
-                    t={t2}
+                    t={translations}
                   />
                 </section>
               </div>
@@ -602,13 +602,13 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
           rightContent={
             <section className="flex flex-col gap-2 px-4 pb-3 pt-2">
               <h3 className="text-hl_text_01 text-[13px] font-medium">
-                {t2.preset_section}
+                {translations.preset_section}
               </h3>
               <MultiAnglePresetsPanel
                 presets={ANGLE_PRESETS}
                 selectedPresetId={camera.presetId}
                 onSelect={handleSelectPreset}
-                t={t2}
+                t={translations}
               />
             </section>
           }
@@ -618,7 +618,7 @@ function MultiAngleEditor({ nodeId, imageUrl, imagePath, onClose }) {
               isDisabled={isButtonDisabled}
               isSubmitting={isSubmitting}
               onSubmit={() => void handleSubmit()}
-              t={t2}
+              t={translations}
             />
           }
         />
@@ -631,29 +631,29 @@ const MULTI_ANGLE_POPOVER_MAX_HEIGHT = 490;
 const MULTI_ANGLE_POPOVER_MIN_HEIGHT = 360;
 const MULTI_ANGLE_POPOVER_VIEWPORT_MARGIN = 16;
 export function MultiAnglePopover({ onClose, imageUrl, imagePath }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const nodeId = useNodeId() ?? "";
   const onCloseRef = reactExports.useRef(onClose);
   onCloseRef.current = onClose;
   const selectedSelector = reactExports.useCallback(
-    (state2) => (nodeId ? !!state2.nodeLookup.get(nodeId)?.selected : true),
+    (state) => (nodeId ? !!state.nodeLookup.get(nodeId)?.selected : true),
     [nodeId],
   );
-  const selected2 = useStore(selectedSelector);
-  const sourceScreenBottom = useStore((state2) => {
-    const sourceNode = nodeId ? state2.nodeLookup.get(nodeId) : void 0;
+  const selected = useStore(selectedSelector);
+  const sourceScreenBottom = useStore((state) => {
+    const sourceNode = nodeId ? state.nodeLookup.get(nodeId) : void 0;
     const sourcePosition = sourceNode?.internals.positionAbsolute;
     const sourceHeight = sourceNode?.measured.height ?? sourceNode?.height ?? 0;
     if (!sourcePosition) return 0;
-    const [, viewportY, zoom2] = state2.transform;
-    return viewportY + (sourcePosition.y + sourceHeight) * zoom2;
+    const [, viewportY, zoom] = state.transform;
+    return viewportY + (sourcePosition.y + sourceHeight) * zoom;
   });
   const isDragging = useCanvasIsDragging();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isBoxSelecting = useCanvasIsBoxSelecting();
   reactExports.useEffect(() => {
-    if (!selected2) onCloseRef.current();
-  }, [selected2]);
+    if (!selected) onCloseRef.current();
+  }, [selected]);
   const hidden = isDragging || isMultiSelect || isBoxSelecting;
   const availableHeight =
     window.innerHeight -
@@ -693,7 +693,7 @@ export function MultiAnglePopover({ onClose, imageUrl, imagePath }) {
           type="button"
           onClick={onClose}
           className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text-muted)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] hover:text-[var(--canvas-controls-text)]"
-          aria-label={t2("common.close", "Close")}
+          aria-label={t("common.close", "Close")}
           data-action-ui-id="canvas.multi-angle.close"
         >
           <X size={20} strokeWidth={1.5} aria-hidden="true" />

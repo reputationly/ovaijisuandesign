@@ -3,7 +3,7 @@ import {
   placeCardForAnchor,
   TAG_DEFAULT_FONT_SIZE,
   Tool,
-  uid,
+  uid as createUniqueId,
 } from "./keep-tag-in-canvas.js";
 import { TagShape } from "./tag-shape.js";
 
@@ -20,20 +20,20 @@ export class TagTool extends Tool {
   constructor(editor) {
     super(editor);
   }
-  onPointerDown(e2) {
-    if (e2.button !== 0) return;
-    this.anchor = e2.point;
-    const data2 = this.buildInitialData(e2.point, this.editor.getStyle());
-    this.workingShape = new TagShape(data2);
+  onPointerDown(pointerEvent) {
+    if (pointerEvent.button !== 0) return;
+    this.anchor = pointerEvent.point;
+    const data = this.buildInitialData(pointerEvent.point, this.editor.getStyle());
+    this.workingShape = new TagShape(data);
     this.placeCardOnSide("right");
     this.editor.setPreviewShape(this.workingShape);
   }
-  onPointerMove(e2) {
+  onPointerMove(pointerEvent) {
     if (!this.anchor || !this.workingShape) return;
-    const dx = e2.point.x - this.anchor.x;
-    const dy = e2.point.y - this.anchor.y;
-    const dist2 = Math.hypot(dx, dy);
-    if (dist2 >= MIN_DRAG_DISTANCE) {
+    const dx = pointerEvent.point.x - this.anchor.x;
+    const dy = pointerEvent.point.y - this.anchor.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist >= MIN_DRAG_DISTANCE) {
       let cardSide;
       if (Math.abs(dx) >= Math.abs(dy)) {
         cardSide = dx >= 0 ? "right" : "left";
@@ -44,16 +44,16 @@ export class TagTool extends Tool {
     }
     this.editor.requestPreviewRender();
   }
-  onPointerUp(_e2) {
+  onPointerUp(pointerEvent) {
     if (!this.anchor || !this.workingShape) return;
-    const data2 = this.workingShape.data;
+    const data = this.workingShape.data;
     const shape = this.workingShape;
     this.editor.setPreviewShape(null);
     this.workingShape = null;
     this.anchor = null;
     this.editor.beginInteraction();
     this.editor.addShapeInstanceWithoutHistory(shape);
-    this.editor.openTagTextEditor(data2.id);
+    this.editor.openTagTextEditor(data.id);
   }
   /**
    * 把 working shape 的卡片摆到 anchor 的指定侧紧贴。
@@ -62,21 +62,21 @@ export class TagTool extends Tool {
    */
   placeCardOnSide(cardSide) {
     if (!this.workingShape || !this.anchor) return;
-    const data2 = this.workingShape.data;
-    const pos = placeCardForAnchor(
+    const data = this.workingShape.data;
+    const cardPosition = placeCardForAnchor(
       this.anchor,
       cardSide,
-      data2.width,
-      data2.height,
+      data.width,
+      data.height,
     );
-    data2.x = pos.x;
-    data2.y = pos.y;
-    data2.anchorX = this.anchor.x;
-    data2.anchorY = this.anchor.y;
+    data.x = cardPosition.x;
+    data.y = cardPosition.y;
+    data.anchorX = this.anchor.x;
+    data.anchorY = this.anchor.y;
   }
-  buildInitialData(anchor, style2) {
+  buildInitialData(anchor, style) {
     return {
-      id: uid("tag"),
+      id: createUniqueId("tag"),
       type: "tag",
       anchorX: anchor.x,
       anchorY: anchor.y,
@@ -89,8 +89,8 @@ export class TagTool extends Tool {
       // tag 字号沿用 editor 当前 style.fontSize（toolbar 的字号下拉），
       // 仅在未设置时回退到 TAG_DEFAULT_FONT_SIZE
       style: {
-        ...style2,
-        fontSize: style2.fontSize ?? TAG_DEFAULT_FONT_SIZE,
+        ...style,
+        fontSize: style.fontSize ?? TAG_DEFAULT_FONT_SIZE,
       },
     };
   }

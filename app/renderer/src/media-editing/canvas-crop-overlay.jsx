@@ -16,7 +16,7 @@ import { CloseIcon, SendArrowIcon } from "../canvas/file-missing-icon.jsx";
 import { DropdownArrowIcon } from "../canvas/generating-media-area.jsx";
 function useImageCrop(containerWidth, containerHeight) {
   const [cropRect, setCropRect] = reactExports.useState(DEFAULT_CROP);
-  const [aspectRatio, setAspectRatioState] = reactExports.useState("free");
+  const [aspectRatioState, setAspectRatioState] = reactExports.useState("free");
   const [isDragging, setIsDragging] = reactExports.useState(false);
   const [activeHandle, setActiveHandle] = reactExports.useState(null);
   const dragRef = reactExports.useRef(null);
@@ -24,42 +24,42 @@ function useImageCrop(containerWidth, containerHeight) {
   const latestRef = reactExports.useRef({
     containerWidth,
     containerHeight,
-    aspectRatio,
+    aspectRatio: aspectRatioState,
   });
   latestRef.current = {
     containerWidth,
     containerHeight,
-    aspectRatio,
+    aspectRatio: aspectRatioState,
   };
-  const handleMove = reactExports.useCallback((e2) => {
-    const drag2 = dragRef.current;
-    if (!drag2) return;
+  const handleMove = reactExports.useCallback((pointerEvent) => {
+    const drag = dragRef.current;
+    if (!drag) return;
     const {
-      containerWidth: cw,
-      containerHeight: ch,
-      aspectRatio: ar,
+      containerWidth: viewportWidth,
+      containerHeight: viewportHeight,
+      aspectRatio: selectedAspectRatio,
     } = latestRef.current;
-    if (!cw || !ch) return;
-    const deltaX = (e2.clientX - drag2.startX) / cw;
-    const deltaY = (e2.clientY - drag2.startY) / ch;
-    const numericRatio = ASPECT_RATIOS[ar];
-    const next2 = calcCropRect({
-      initialRect: drag2.initialRect,
+    if (!viewportWidth || !viewportHeight) return;
+    const deltaX = (pointerEvent.clientX - drag.startX) / viewportWidth;
+    const deltaY = (pointerEvent.clientY - drag.startY) / viewportHeight;
+    const numericRatio = ASPECT_RATIOS[selectedAspectRatio];
+    const next = calcCropRect({
+      initialRect: drag.initialRect,
       deltaX,
       deltaY,
-      handle: drag2.handle,
+      handle: drag.handle,
       aspectRatio: numericRatio,
-      containerWidth: cw,
-      containerHeight: ch,
+      containerWidth: viewportWidth,
+      containerHeight: viewportHeight,
     });
-    setCropRect(next2);
+    setCropRect(next);
   }, []);
   reactExports.useEffect(() => {
     if (!isDragging) return;
     let pendingEvent = null;
-    const onMove = (e2) => {
-      if (e2.cancelable) e2.preventDefault();
-      pendingEvent = e2;
+    const onMove = (pointerEvent) => {
+      if (pointerEvent.cancelable) pointerEvent.preventDefault();
+      pendingEvent = pointerEvent;
       if (rafRef.current === null) {
         rafRef.current = requestAnimationFrame(() => {
           rafRef.current = null;
@@ -96,42 +96,42 @@ function useImageCrop(containerWidth, containerHeight) {
     };
   }, [isDragging, handleMove]);
   const handlePointerDown = reactExports.useCallback(
-    (e2, handle2 = null) => {
-      if (!e2.isPrimary) return;
-      e2.stopPropagation();
-      e2.preventDefault();
+    (pointerEvent, handle = null) => {
+      if (!pointerEvent.isPrimary) return;
+      pointerEvent.stopPropagation();
+      pointerEvent.preventDefault();
       dragRef.current = {
-        startX: e2.clientX,
-        startY: e2.clientY,
+        startX: pointerEvent.clientX,
+        startY: pointerEvent.clientY,
         initialRect: {
           ...cropRect,
         },
-        handle: handle2,
+        handle,
       };
       setIsDragging(true);
-      setActiveHandle(handle2);
+      setActiveHandle(handle);
     },
     [cropRect],
   );
-  const setAspectRatio = reactExports.useCallback((preset2) => {
-    setAspectRatioState(preset2);
-    const ratio = ASPECT_RATIOS[preset2];
-    const { containerWidth: cw, containerHeight: ch } = latestRef.current;
-    setCropRect(cropRectForAspectRatio(ratio, cw, ch));
+  const setAspectRatio = reactExports.useCallback((preset) => {
+    setAspectRatioState(preset);
+    const ratio = ASPECT_RATIOS[preset];
+    const { containerWidth: viewportWidth, containerHeight: viewportHeight } = latestRef.current;
+    setCropRect(cropRectForAspectRatio(ratio, viewportWidth, viewportHeight));
   }, []);
-  const reset2 = reactExports.useCallback(() => {
+  const reset = reactExports.useCallback(() => {
     setAspectRatioState("free");
     setCropRect(DEFAULT_CROP);
   }, []);
   return {
     cropRect,
-    aspectRatio,
+    aspectRatio: aspectRatioState,
     isDragging,
     activeHandle,
     handlePointerDown,
     setAspectRatio,
     setCropRect,
-    reset: reset2,
+    reset,
   };
 }
 const EDGE_HANDLE_THRESHOLD = 80;
@@ -161,7 +161,7 @@ const ASPECT_OPTIONS = [
     value: "9:16",
   },
 ];
-function ToolbarButton({ children: children2, onClick, title }) {
+function ToolbarButton({ children, onClick, title }) {
   return (
     <button
       type="button"
@@ -169,7 +169,7 @@ function ToolbarButton({ children: children2, onClick, title }) {
       onClick={onClick}
       className="canvas-toolbar-action"
     >
-      {children2}
+      {children}
     </button>
   );
 }
@@ -200,12 +200,12 @@ const CORNER_LINES = {
     "absolute bottom-0 right-0 h-full w-[3px] bg-white",
   ],
 };
-function CornerHandle({ position: position2, onPointerDown: onPointerDown2 }) {
-  const [lineA, lineB] = CORNER_LINES[position2];
+function CornerHandle({ position, onPointerDown }) {
+  const [lineA, lineB] = CORNER_LINES[position];
   return (
     <div
-      className={CORNER_CLASSES[position2]}
-      onPointerDown={(e2) => onPointerDown2(e2, position2)}
+      className={CORNER_CLASSES[position]}
+      onPointerDown={(pointerEvent) => onPointerDown(pointerEvent, position)}
     >
       <div className={lineA} />
       <div className={lineB} />
@@ -224,37 +224,37 @@ const EDGE_BAR_CLASSES = {
   l: "h-8 w-[3px] rounded-full bg-white",
   r: "h-8 w-[3px] rounded-full bg-white",
 };
-function EdgeHandle({ position: position2, onPointerDown: onPointerDown2 }) {
+function EdgeHandle({ position, onPointerDown }) {
   return (
     <div
-      className={EDGE_CLASSES[position2]}
-      onPointerDown={(e2) => onPointerDown2(e2, position2)}
+      className={EDGE_CLASSES[position]}
+      onPointerDown={(pointerEvent) => onPointerDown(pointerEvent, position)}
     >
-      <div className={EDGE_BAR_CLASSES[position2]} />
+      <div className={EDGE_BAR_CLASSES[position]} />
     </div>
   );
 }
 export const CanvasCropOverlay = reactExports.memo(
-  function CanvasCropOverlay2() {
-    const { meta: meta2, cancelCrop, croppingNodeId } = useCropState();
+  function CanvasCropOverlayView() {
+    const { meta, cancelCrop, croppingNodeId } = useCropState();
     const { onNodeAction } = useCanvasBridge();
-    const { t: t2 } = useTranslation();
+    const { t } = useTranslation();
     const enterTimeRef = reactExports.useRef(Date.now());
     const appliedRef = reactExports.useRef(false);
-    useCropViewportZoom(meta2);
-    const transform2 = useStore((s2) => s2.transform);
-    const [vpX, vpY, vpZoom] = transform2;
+    useCropViewportZoom(meta);
+    const transform = useStore((state) => state.transform);
+    const [viewportOffsetX, viewportOffsetY, vpZoom] = transform;
     const [confirming, setConfirming] = reactExports.useState(false);
     const [showAspectMenu, setShowAspectMenu] = reactExports.useState(false);
     const panelPos = reactExports.useMemo(() => {
-      if (!meta2) return null;
+      if (!meta) return null;
       return {
-        x: meta2.nodeFlowX * vpZoom + vpX,
-        y: meta2.nodeFlowY * vpZoom + vpY,
-        w: meta2.nodeWidth * vpZoom,
-        h: meta2.nodeHeight * vpZoom,
+        x: meta.nodeFlowX * vpZoom + viewportOffsetX,
+        y: meta.nodeFlowY * vpZoom + viewportOffsetY,
+        w: meta.nodeWidth * vpZoom,
+        h: meta.nodeHeight * vpZoom,
       };
-    }, [meta2, vpX, vpY, vpZoom]);
+    }, [meta, viewportOffsetX, viewportOffsetY, vpZoom]);
     const panelW = panelPos?.w ?? 0;
     const panelH = panelPos?.h ?? 0;
     const {
@@ -266,9 +266,9 @@ export const CanvasCropOverlay = reactExports.memo(
     } = useImageCrop(panelW, panelH);
     reactExports.useEffect(() => {
       if (!showAspectMenu) return;
-      const close2 = () => setShowAspectMenu(false);
-      document.addEventListener("pointerdown", close2);
-      return () => document.removeEventListener("pointerdown", close2);
+      const closeAspectMenu = () => setShowAspectMenu(false);
+      document.addEventListener("pointerdown", closeAspectMenu);
+      return () => document.removeEventListener("pointerdown", closeAspectMenu);
     }, [showAspectMenu]);
     const trackedCancelCrop = reactExports.useCallback(() => {
       if (onNodeAction && croppingNodeId && !appliedRef.current) {
@@ -292,9 +292,9 @@ export const CanvasCropOverlay = reactExports.memo(
       cancelCrop();
     }, [onNodeAction, croppingNodeId, aspectRatio, cropRect, cancelCrop]);
     reactExports.useEffect(() => {
-      const handleKey = (e2) => {
-        if (e2.key === "Escape") {
-          e2.stopPropagation();
+      const handleKey = (keyboardEvent) => {
+        if (keyboardEvent.key === "Escape") {
+          keyboardEvent.stopPropagation();
           trackedCancelCrop();
         }
       };
@@ -302,7 +302,7 @@ export const CanvasCropOverlay = reactExports.memo(
       return () => document.removeEventListener("keydown", handleKey, true);
     }, [trackedCancelCrop]);
     const handleConfirm = reactExports.useCallback(async () => {
-      if (confirming || !meta2) return;
+      if (confirming || !meta) return;
       setConfirming(true);
       appliedRef.current = true;
       if (onNodeAction && croppingNodeId) {
@@ -323,19 +323,19 @@ export const CanvasCropOverlay = reactExports.memo(
       }
       try {
         const blob = await cropImageToBlob(
-          meta2.src,
+          meta.src,
           cropRect,
-          meta2.originalWidth,
-          meta2.originalHeight,
+          meta.originalWidth,
+          meta.originalHeight,
         );
-        await meta2.onConfirm(blob);
+        await meta.onConfirm(blob);
         cancelCrop();
       } catch {
         setConfirming(false);
       }
     }, [
       confirming,
-      meta2,
+      meta,
       cropRect,
       cancelCrop,
       onNodeAction,
@@ -343,8 +343,8 @@ export const CanvasCropOverlay = reactExports.memo(
       aspectRatio,
     ]);
     const backdropPointerDown = reactExports.useRef(false);
-    if (!meta2 || !panelPos) return null;
-    const px = {
+    if (!meta || !panelPos) return null;
+    const cropPixelRect = {
       x: cropRect.x * panelPos.w,
       y: cropRect.y * panelPos.h,
       w: cropRect.width * panelPos.w,
@@ -354,11 +354,11 @@ export const CanvasCropOverlay = reactExports.memo(
       <div className="absolute inset-0 z-50 pointer-events-none animate-[crop-panel-in_0.2s_ease-out]">
         <div
           className="absolute inset-0 pointer-events-auto"
-          onPointerDown={(e2) => {
-            backdropPointerDown.current = e2.target === e2.currentTarget;
+          onPointerDown={(pointerEvent) => {
+            backdropPointerDown.current = pointerEvent.target === pointerEvent.currentTarget;
           }}
-          onClick={(e2) => {
-            if (e2.target === e2.currentTarget && backdropPointerDown.current)
+          onClick={(clickEvent) => {
+            if (clickEvent.target === clickEvent.currentTarget && backdropPointerDown.current)
               trackedCancelCrop();
             backdropPointerDown.current = false;
           }}
@@ -382,7 +382,7 @@ export const CanvasCropOverlay = reactExports.memo(
             }}
           >
             <img
-              src={meta2.src}
+              src={meta.src}
               alt=""
               className="pointer-events-none absolute left-0 top-0 h-full w-full object-fill"
               style={{
@@ -393,23 +393,23 @@ export const CanvasCropOverlay = reactExports.memo(
             <div
               className="absolute"
               style={{
-                left: px.x,
-                top: px.y,
-                width: px.w,
-                height: px.h,
+                left: cropPixelRect.x,
+                top: cropPixelRect.y,
+                width: cropPixelRect.w,
+                height: cropPixelRect.h,
                 boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.5)",
               }}
             >
               <div className="absolute inset-0 overflow-hidden">
                 <img
-                  src={meta2.src}
+                  src={meta.src}
                   alt=""
                   className="absolute max-w-none"
                   style={{
                     width: panelPos.w,
                     height: panelPos.h,
-                    left: -px.x,
-                    top: -px.y,
+                    left: -cropPixelRect.x,
+                    top: -cropPixelRect.y,
                   }}
                   draggable={false}
                 />
@@ -430,13 +430,13 @@ export const CanvasCropOverlay = reactExports.memo(
               <CornerHandle position="tr" onPointerDown={handlePointerDown} />
               <CornerHandle position="bl" onPointerDown={handlePointerDown} />
               <CornerHandle position="br" onPointerDown={handlePointerDown} />
-              {px.w > EDGE_HANDLE_THRESHOLD && (
+              {cropPixelRect.w > EDGE_HANDLE_THRESHOLD && (
                 <>
                   <EdgeHandle position="t" onPointerDown={handlePointerDown} />
                   <EdgeHandle position="b" onPointerDown={handlePointerDown} />
                 </>
               )}
-              {px.h > EDGE_HANDLE_THRESHOLD && (
+              {cropPixelRect.h > EDGE_HANDLE_THRESHOLD && (
                 <>
                   <EdgeHandle position="l" onPointerDown={handlePointerDown} />
                   <EdgeHandle position="r" onPointerDown={handlePointerDown} />
@@ -444,7 +444,7 @@ export const CanvasCropOverlay = reactExports.memo(
               )}
               <div
                 className="absolute inset-0 cursor-move"
-                onPointerDown={(e2) => handlePointerDown(e2, null)}
+                onPointerDown={(pointerEvent) => handlePointerDown(pointerEvent, null)}
               />
             </div>
           </div>
@@ -456,22 +456,22 @@ export const CanvasCropOverlay = reactExports.memo(
             >
               <ToolbarButton
                 onClick={trackedCancelCrop}
-                title={t2("common.close")}
+                title={t("common.close")}
               >
                 <CloseIcon />
               </ToolbarButton>
               <Divider />
               <div className="relative">
                 <ToolbarButton
-                  onClick={(e2) => {
-                    e2.stopPropagation();
-                    setShowAspectMenu((v2) => !v2);
+                  onClick={(clickEvent) => {
+                    clickEvent.stopPropagation();
+                    setShowAspectMenu((isOpen) => !isOpen);
                   }}
-                  title={t2("canvas.aspectRatio")}
+                  title={t("canvas.aspectRatio")}
                 >
                   <span className="canvas-toolbar-label whitespace-nowrap">
                     {aspectRatio === "free"
-                      ? t2("canvas.freeAspect")
+                      ? t("canvas.freeAspect")
                       : aspectRatio}
                   </span>
                   <DropdownArrowIcon />
@@ -479,22 +479,22 @@ export const CanvasCropOverlay = reactExports.memo(
                 {showAspectMenu && (
                   <div
                     className="canvas-toolbar-menu absolute bottom-full left-1/2 mb-2 -translate-x-1/2 p-1"
-                    onPointerDown={(e2) => e2.stopPropagation()}
+                    onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
                   >
-                    {ASPECT_OPTIONS.map((opt) => (
+                    {ASPECT_OPTIONS.map((aspectOption) => (
                       <button
-                        key={opt.value}
+                        key={aspectOption.value}
                         type="button"
                         className="canvas-toolbar-menu-item flex w-full items-center px-3 py-2 whitespace-nowrap"
                         onClick={() => {
-                          setAspectRatio(opt.value);
+                          setAspectRatio(aspectOption.value);
                           setShowAspectMenu(false);
                         }}
-                        data-active={aspectRatio === opt.value || void 0}
+                        data-active={aspectRatio === aspectOption.value || void 0}
                       >
-                        {opt.value === "free"
-                          ? t2("canvas.freeAspect")
-                          : opt.label}
+                        {aspectOption.value === "free"
+                          ? t("canvas.freeAspect")
+                          : aspectOption.label}
                       </button>
                     ))}
                   </div>
@@ -507,10 +507,10 @@ export const CanvasCropOverlay = reactExports.memo(
                 onClick={handleConfirm}
                 className="canvas-toolbar-action"
                 aria-label={
-                  confirming ? t2("canvas.cropping") : t2("common.confirm")
+                  confirming ? t("canvas.cropping") : t("common.confirm")
                 }
                 title={
-                  confirming ? t2("canvas.cropping") : t2("common.confirm")
+                  confirming ? t("canvas.cropping") : t("common.confirm")
                 }
                 data-variant="primary"
               >

@@ -9,26 +9,26 @@ import {
 } from "./use-canvas-actions.js";
 
 function ReferenceNavigationProvider({
-  children: children2,
+  children,
   cancelPendingFocus,
   scope,
 }) {
   const actions = useCanvasActions();
   const { getViewport, setViewport } = useReactFlow();
   const storeApi = useStoreApi();
-  const [record2, setRecord] = reactExports.useState(null);
-  const currentRecord = record2?.scope === scope ? record2 : null;
-  const recordRef = reactExports.useRef(record2);
+  const [record, setRecord] = reactExports.useState(null);
+  const currentRecord = record?.scope === scope ? record : null;
+  const recordRef = reactExports.useRef(record);
   recordRef.current = currentRecord;
   const returningRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (!currentRecord || currentRecord.returning) returningRef.current = null;
   }, [currentRecord]);
   reactExports.useEffect(() => {
-    setRecord((current2) => (current2?.scope === scope ? current2 : null));
+    setRecord((currentRecord) => (currentRecord?.scope === scope ? currentRecord : null));
   }, [scope]);
   const locate = reactExports.useCallback(
-    (nodeId, targetId, snapshot2) => {
+    (nodeId, targetId, snapshot) => {
       if (!actions.getNodeById(nodeId) || !actions.getNodeById(targetId))
         return;
       returningRef.current = null;
@@ -37,7 +37,7 @@ function ReferenceNavigationProvider({
         scope,
         nodeId,
         viewport: getViewport(),
-        snapshot: snapshot2,
+        snapshot,
         returning: false,
       });
       actions.focusNodeIds([targetId], {
@@ -47,46 +47,46 @@ function ReferenceNavigationProvider({
     [actions, cancelPendingFocus, getViewport, scope],
   );
   const acknowledgeReturn = reactExports.useCallback((nodeId) => {
-    setRecord((current2) =>
-      current2?.nodeId === nodeId && current2.returning ? null : current2,
+    setRecord((currentRecord) =>
+      currentRecord?.nodeId === nodeId && currentRecord.returning ? null : currentRecord,
     );
   }, []);
   reactExports.useEffect(() => {
     return storeApi.subscribe(() => {
-      const current2 = recordRef.current;
-      if (current2 && !actions.getNodeById(current2.nodeId)) setRecord(null);
+      const currentRecord = recordRef.current;
+      if (currentRecord && !actions.getNodeById(currentRecord.nodeId)) setRecord(null);
     });
   }, [actions, storeApi]);
   reactExports.useEffect(() => {
     if (!currentRecord || currentRecord.returning) return;
-    const timer2 = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       if (returningRef.current) return;
-      setRecord((latest2) => (latest2 === currentRecord ? null : latest2));
+      setRecord((latestRecord) => (latestRecord === currentRecord ? null : latestRecord));
     }, 5e3);
-    return () => clearTimeout(timer2);
+    return () => clearTimeout(timeoutId);
   }, [currentRecord]);
   const handleReturn = async () => {
-    const current2 = recordRef.current;
-    if (!current2 || !actions.getNodeById(current2.nodeId)) {
+    const currentRecord = recordRef.current;
+    if (!currentRecord || !actions.getNodeById(currentRecord.nodeId)) {
       setRecord(null);
       return;
     }
-    if (returningRef.current === current2) return;
-    returningRef.current = current2;
+    if (returningRef.current === currentRecord) return;
+    returningRef.current = currentRecord;
     cancelPendingFocus();
-    actions.selectNodeExclusive(current2.nodeId);
-    await setViewport(current2.viewport, {
+    actions.selectNodeExclusive(currentRecord.nodeId);
+    await setViewport(currentRecord.viewport, {
       duration: 400,
     });
-    if (recordRef.current !== current2) return;
+    if (recordRef.current !== currentRecord) return;
     syncStableZoomSignals(getViewport().zoom);
-    setRecord((latest2) =>
-      latest2 === current2
+    setRecord((latestRecord) =>
+      latestRecord === currentRecord
         ? {
-            ...current2,
+            ...currentRecord,
             returning: true,
           }
-        : latest2,
+        : latestRecord,
     );
   };
   const value = {
@@ -98,14 +98,14 @@ function ReferenceNavigationProvider({
   };
   return (
     <ReferenceNavigationContext.Provider value={value}>
-      {children2}
+      {children}
     </ReferenceNavigationContext.Provider>
   );
 }
 
 export function CanvasReferenceNavigationScope({
   actions,
-  children: children2,
+  children,
   cancelPendingFocus,
   scope,
 }) {
@@ -115,7 +115,7 @@ export function CanvasReferenceNavigationScope({
         cancelPendingFocus={cancelPendingFocus}
         scope={scope}
       >
-        {children2}
+        {children}
       </ReferenceNavigationProvider>
     </CanvasActionsContext.Provider>
   );

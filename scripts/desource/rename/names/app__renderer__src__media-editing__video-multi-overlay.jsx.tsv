@@ -1,0 +1,12 @@
+key	new	依据
+position2@36:14	position	当前子卡片在展开画框中的偏移位置，用其 dx/dy 更新边界。
+position2@52:13	position	加载中子视频卡片的位置对象，包含网格偏移和原始槽位索引。
+position2@137:13	position	错误子视频卡片的位置对象，提供该槽位的原始索引。
+message2@149:9	message	根据可恢复状态选择并显示的本地化错误说明文本。
+handleDelete2@161:9	handleDeleteSub	删除当前错误子视频槽位的回调，先阻止事件冒泡并检查只读状态。
+view2@213:9	view	多视频视图数据，包含槽位列表和主槽位索引。
+closing2@223:12	isClosing	标记多视频覆盖层是否正在关闭，用于设置 data-state。
+VideoMultiOverlay2@212:61	VideoMultiOverlay	memo 包装中的内部组件与对外导出同名，渲染多视频槽位覆盖层。
+position2@254:23	position	正在渲染的子视频槽位位置，决定对应卡片类型和属性。
+t2@62:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。
+t2@143:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。

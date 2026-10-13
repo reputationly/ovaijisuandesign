@@ -1,0 +1,4 @@
+key	new	依据
+RelationshipTypes2@5:12	RelationshipTypes	Office 文档 XML 中各类 relationship 的枚举表，包含主文档、样式和图片等类型。
+SectionType2@50:12	SectionType	文档节属性中连续、下一页及奇偶页分节方式的枚举表。
+DomType2@60:12	DomType	文档解析树使用的节点类型枚举表，包括段落、文本运行和换行等类型。

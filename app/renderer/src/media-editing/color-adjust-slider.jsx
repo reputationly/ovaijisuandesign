@@ -4,9 +4,9 @@ import { Slider } from "../generation/slider.jsx";
 export function ColorAdjustSlider({
   label,
   value,
-  min: min2,
-  max: max2,
-  disabled: disabled2,
+  min,
+  max,
+  disabled,
   onChange,
   dataActionUiId,
 }) {
@@ -22,16 +22,16 @@ export function ColorAdjustSlider({
         variant="rounded"
         size="compact"
         value={value}
-        min={min2}
-        max={max2}
+        min={min}
+        max={max}
         step={1}
-        disabled={disabled2}
+        disabled={disabled}
         aria-label={label}
         thumbProps={{
           "data-action-ui-id": dataActionUiId,
         }}
-        onValueChange={(next2) =>
-          onChange(Array.isArray(next2) ? next2[0] : next2)
+        onValueChange={(next) =>
+          onChange(Array.isArray(next) ? next[0] : next)
         }
       />
     </div>

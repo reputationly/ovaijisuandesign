@@ -1,0 +1,14 @@
+key	new	依据
+disabled2@11:13	disabled	禁用整个质量滑块和下方选项按钮的布尔属性。
+selected2@20:9	selectedIndex	当前质量值在 options 数组中的位置，找不到时回退到第 0 项。
+option2@22:33	option	正在检查是否被禁用的质量选项值。
+option2@23:24	option	需要转换为本地化显示文本的质量选项值。
+next2@34:26	next	滑块拖动或键盘操作产生的候选索引值或索引数组。
+index2@36:11	index	把候选滑块值四舍五入后的预览选项索引。
+current2@38:11	current	尚无预览时回退使用的当前选中索引。
+next2@63:25	next	滑块提交时的候选索引值或索引数组。
+index2@64:11	index	优先采用预览索引，否则从提交值推导出的质量选项索引。
+option2@67:11	option	提交索引对应的质量选项值，随后交给 onChange。
+index2@116:42	index	辅助功能回调正在格式化的质量选项索引。
+option2@121:23	option	当前渲染质量标记按钮对应的选项值。
+t2@15:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。

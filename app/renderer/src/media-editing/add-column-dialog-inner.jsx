@@ -35,31 +35,31 @@ const TYPE_OPTIONS = [
   },
 ];
 function AddColumnDialogInner({ onCommit, onClose }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [title, setTitle] = reactExports.useState("");
-  const [type2, setType] = reactExports.useState("text");
+  const [type, setType] = reactExports.useState("text");
   const inputRef = reactExports.useRef(null);
   const typeLabels = reactExports.useMemo(
     () =>
       Object.fromEntries(
-        TYPE_OPTIONS.map((opt) => [
-          opt.value,
-          t2(opt.labelKey, opt.defaultLabel),
+        TYPE_OPTIONS.map((option) => [
+          option.value,
+          t(option.labelKey, option.defaultLabel),
         ]),
       ),
-    [t2],
+    [t],
   );
   reactExports.useEffect(() => {
     requestAnimationFrame(() => inputRef.current?.focus());
   }, []);
   const handleSubmit = reactExports.useCallback(() => {
     const trimmed =
-      title.trim() || t2("canvas.table.untitledColumn", "Untitled");
+      title.trim() || t("canvas.table.untitledColumn", "Untitled");
     onCommit({
       title: trimmed,
-      type: type2,
+      type,
     });
-  }, [title, type2, onCommit, t2]);
+  }, [title, type, onCommit, t]);
   const handleOpenChange = reactExports.useCallback(
     (open) => {
       if (!open) onClose();
@@ -70,30 +70,30 @@ function AddColumnDialogInner({ onCommit, onClose }) {
     <Dialog open={true} onOpenChange={handleOpenChange}>
       <DialogContent
         className="gap-4 sm:max-w-[360px]"
-        onKeyDown={(e2) => e2.stopPropagation()}
+        onKeyDown={(keyboardEvent) => keyboardEvent.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle>
-            {t2("canvas.table.addColumn", "Add column")}
+            {t("canvas.table.addColumn", "Add column")}
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="add-col-title" className="text-muted-foreground">
-            {t2("canvas.table.fieldName", "Title")}
+            {t("canvas.table.fieldName", "Title")}
           </Label>
           <Input
             id="add-col-title"
             ref={inputRef}
             type="text"
             value={title}
-            onChange={(e2) => setTitle(e2.target.value)}
-            onKeyDown={(e2) => {
-              if (e2.key === "Enter") {
-                e2.preventDefault();
+            onChange={(changeEvent) => setTitle(changeEvent.target.value)}
+            onKeyDown={(keyboardEvent) => {
+              if (keyboardEvent.key === "Enter") {
+                keyboardEvent.preventDefault();
                 handleSubmit();
               }
             }}
-            placeholder={t2(
+            placeholder={t(
               "canvas.table.fieldNamePlaceholder",
               "Enter field title",
             )}
@@ -101,10 +101,10 @@ function AddColumnDialogInner({ onCommit, onClose }) {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label className="text-muted-foreground">
-            {t2("canvas.table.fieldType", "Type")}
+            {t("canvas.table.fieldType", "Type")}
           </Label>
           <Select
-            value={type2}
+            value={type}
             items={typeLabels}
             onValueChange={(value) => {
               if (value != null) setType(value);
@@ -114,9 +114,9 @@ function AddColumnDialogInner({ onCommit, onClose }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {TYPE_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {t2(opt.labelKey, opt.defaultLabel)}
+              {TYPE_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {t(option.labelKey, option.defaultLabel)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -124,9 +124,9 @@ function AddColumnDialogInner({ onCommit, onClose }) {
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>
-            {t2("common.cancel", "Cancel")}
+            {t("common.cancel", "Cancel")}
           </Button>
-          <Button onClick={handleSubmit}>{t2("common.confirm", "Add")}</Button>
+          <Button onClick={handleSubmit}>{t("common.confirm", "Add")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

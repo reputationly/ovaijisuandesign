@@ -33,8 +33,8 @@ function MenuItem({ icon, label, onClick }) {
     </button>
   );
 }
-function FieldTypeIcon({ type: type2 }) {
-  if (type2 === "number") {
+function FieldTypeIcon({ type }) {
+  if (type === "number") {
     return (
       <CompositedSvg
         width="13"
@@ -50,7 +50,7 @@ function FieldTypeIcon({ type: type2 }) {
       </CompositedSvg>
     );
   }
-  if (type2 === "attachment") {
+  if (type === "attachment") {
     return (
       <CompositedSvg
         width="13"
@@ -101,9 +101,9 @@ function EditIcon() {
   );
 }
 function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const menuRef = reactExports.useRef(null);
-  const [pos, setPos] = reactExports.useState(null);
+  const [menuPosition, setMenuPosition] = reactExports.useState(null);
   reactExports.useLayoutEffect(() => {
     const anchor = anchorRef.current;
     if (!anchor) return;
@@ -113,27 +113,27 @@ function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
       left = rect.left - MENU_WIDTH - MENU_GAP;
     }
     if (left < 8) left = 8;
-    setPos({
+    setMenuPosition({
       top: rect.top,
       left,
     });
   }, [anchorRef]);
   reactExports.useEffect(() => {
-    const handler = (e2) => {
-      const target = e2.target;
+    const handler = (mouseEvent) => {
+      const target = mouseEvent.target;
       if (menuRef.current?.contains(target)) return;
       if (anchorRef.current?.contains(target)) return;
       onClose();
     };
-    const id2 = window.setTimeout(() => {
+    const timeoutId = window.setTimeout(() => {
       document.addEventListener("mousedown", handler);
     }, 0);
     return () => {
-      window.clearTimeout(id2);
+      window.clearTimeout(timeoutId);
       document.removeEventListener("mousedown", handler);
     };
   }, [onClose, anchorRef.current?.contains]);
-  if (!pos) return null;
+  if (!menuPosition) return null;
   return reactDomExports.createPortal(
     <div
       ref={menuRef}
@@ -141,8 +141,8 @@ function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
       className="flex w-[140px] flex-col gap-0.5 rounded-lg p-1 shadow-xl overflow-hidden"
       style={{
         position: "fixed",
-        top: pos.top,
-        left: pos.left,
+        top: menuPosition.top,
+        left: menuPosition.left,
         width: MENU_WIDTH,
         // Above the fullscreen modal (z-[9999] in table-fullscreen.tsx).
         zIndex: 1e4,
@@ -153,12 +153,12 @@ function FieldRowMenu({ anchorRef, onClose, onEdit, onDelete }) {
     >
       <MenuItem
         icon={<EditIcon />}
-        label={t2("canvas.table.field.edit", "Edit")}
+        label={t("canvas.table.field.edit", "Edit")}
         onClick={onEdit}
       />
       <MenuItem
         icon={<TrashIcon />}
-        label={t2("canvas.table.field.delete", "Delete")}
+        label={t("canvas.table.field.delete", "Delete")}
         onClick={onDelete}
       />
     </div>,
@@ -200,7 +200,7 @@ function EyeOffIcon() {
   );
 }
 export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const visible = column.visible !== false;
   const [editing, setEditing] = reactExports.useState(false);
   const [menuOpen, setMenuOpen] = reactExports.useState(false);
@@ -217,40 +217,40 @@ export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
     }
   }, [editing]);
   const commitEdit = () => {
-    const next2 = inputRef.current?.value ?? column.title;
-    if (next2.trim() !== column.title) onRename(next2);
+    const next = inputRef.current?.value ?? column.title;
+    if (next.trim() !== column.title) onRename(next);
     setEditing(false);
   };
-  const handleDragStart = (e2) => {
-    e2.dataTransfer.setData(COLUMN_DRAG_MIME, column.id);
-    e2.dataTransfer.effectAllowed = "move";
+  const handleDragStart = (dragStartEvent) => {
+    dragStartEvent.dataTransfer.setData(COLUMN_DRAG_MIME, column.id);
+    dragStartEvent.dataTransfer.effectAllowed = "move";
     if (rowRef.current) {
-      e2.dataTransfer.setDragImage(
+      dragStartEvent.dataTransfer.setDragImage(
         rowRef.current,
         12,
         rowRef.current.offsetHeight / 2,
       );
     }
   };
-  const handleDragOver = (e2) => {
-    if (!e2.dataTransfer.types.includes(COLUMN_DRAG_MIME)) return;
-    e2.preventDefault();
-    e2.dataTransfer.dropEffect = "move";
-    const rect = e2.currentTarget.getBoundingClientRect();
-    const isAfter2 = e2.clientY > rect.top + rect.height / 2;
-    setDropEdge(isAfter2 ? "after" : "before");
+  const handleDragOver = (dragOverEvent) => {
+    if (!dragOverEvent.dataTransfer.types.includes(COLUMN_DRAG_MIME)) return;
+    dragOverEvent.preventDefault();
+    dragOverEvent.dataTransfer.dropEffect = "move";
+    const rect = dragOverEvent.currentTarget.getBoundingClientRect();
+    const isAfter = dragOverEvent.clientY > rect.top + rect.height / 2;
+    setDropEdge(isAfter ? "after" : "before");
   };
-  const handleDragLeave = (e2) => {
-    if (!e2.currentTarget.contains(e2.relatedTarget)) {
+  const handleDragLeave = (dragLeaveEvent) => {
+    if (!dragLeaveEvent.currentTarget.contains(dragLeaveEvent.relatedTarget)) {
       setDropEdge(null);
     }
   };
-  const handleDrop2 = (e2) => {
-    const fromId = e2.dataTransfer.getData(COLUMN_DRAG_MIME);
+  const handleDrop = (dropEvent) => {
+    const fromId = dropEvent.dataTransfer.getData(COLUMN_DRAG_MIME);
     const edge = dropEdge;
     setDropEdge(null);
     if (!fromId || fromId === column.id || !edge) return;
-    e2.preventDefault();
+    dropEvent.preventDefault();
     onMove(fromId, column.id, edge);
   };
   return (
@@ -259,7 +259,7 @@ export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
       ref={rowRef}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
-      onDrop={handleDrop2}
+      onDrop={handleDrop}
       className="group relative flex items-center gap-1.5 rounded-md px-1 py-1.5 transition-colors hover:bg-[var(--canvas-controls-hover,#0000000d)]"
     >
       {dropEdge === "before" && (
@@ -288,7 +288,7 @@ export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
         style={{
           color: "var(--fg-muted,#999)",
         }}
-        title={t2("canvas.table.dragField", "Drag to reorder")}
+        title={t("canvas.table.dragField", "Drag to reorder")}
       >
         <DragHandleIcon />
       </span>
@@ -306,13 +306,13 @@ export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
           type="text"
           defaultValue={column.title}
           onBlur={commitEdit}
-          onKeyDown={(e2) => {
-            e2.stopPropagation();
-            if (e2.key === "Enter") {
-              e2.preventDefault();
+          onKeyDown={(keyboardEvent) => {
+            keyboardEvent.stopPropagation();
+            if (keyboardEvent.key === "Enter") {
+              keyboardEvent.preventDefault();
               commitEdit();
-            } else if (e2.key === "Escape") {
-              e2.preventDefault();
+            } else if (keyboardEvent.key === "Escape") {
+              keyboardEvent.preventDefault();
               setEditing(false);
             }
           }}
@@ -339,8 +339,8 @@ export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
         onClick={onToggle}
         title={
           visible
-            ? t2("canvas.table.hideField", "Hide")
-            : t2("canvas.table.showField", "Show")
+            ? t("canvas.table.hideField", "Hide")
+            : t("canvas.table.showField", "Show")
         }
         className="flex h-6 w-6 shrink-0 items-center justify-center transition-colors hover:bg-[var(--canvas-controls-hover,#0000000d)]"
         style={{
@@ -353,8 +353,8 @@ export function FieldRow({ column, onToggle, onRename, onDelete, onMove }) {
         <button
           ref={moreButtonRef}
           type="button"
-          onClick={() => setMenuOpen((v2) => !v2)}
-          title={t2("canvas.table.fieldMore", "More")}
+          onClick={() => setMenuOpen((isOpen) => !isOpen)}
+          title={t("canvas.table.fieldMore", "More")}
           className="flex h-6 w-6 items-center justify-center transition-colors hover:bg-[var(--canvas-controls-hover,#0000000d)]"
           style={{
             color: "var(--fg-muted,#666)",

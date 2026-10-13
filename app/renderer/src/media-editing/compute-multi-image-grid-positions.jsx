@@ -36,17 +36,17 @@ function MultiImageCountIcon() {
 }
 
 export function CountBadge({
-  count: count2,
+  count,
   expanded = false,
   onClick,
   unit = "",
 }) {
-  const { t: t2 } = useTranslation();
-  if (count2 <= 1) return null;
-  const label = count2 > 9 ? "9+" : String(count2);
+  const { t } = useTranslation();
+  if (count <= 1) return null;
+  const label = count > 9 ? "9+" : String(count);
   const displayLabel = `${label}${unit}`;
-  const collapseLabel = t2("canvas.multiMedia.collapseView", "收起视图");
-  const expandLabel = t2("canvas.multiMedia.expandView", {
+  const collapseLabel = t("canvas.multiMedia.collapseView", "收起视图");
+  const expandLabel = t("canvas.multiMedia.expandView", {
     count: displayLabel,
   });
   const visibleLabel = expanded && onClick ? collapseLabel : displayLabel;
@@ -113,7 +113,7 @@ function calculateStaticRemainingWaitSeconds(
 }
 
 export function useGenerationWaitEstimate({
-  active: active2,
+  active,
   liveRemainingWaitSeconds,
   estimatedGenerationSeconds,
   startedAt,
@@ -126,14 +126,14 @@ export function useGenerationWaitEstimate({
     estimatedGenerationSeconds > 0 &&
     parseGenerationStartedAt(startedAt) != null;
   reactExports.useEffect(() => {
-    if (!active2 || liveSeconds != null || !hasStaticEstimate) return;
+    if (!active || liveSeconds != null || !hasStaticEstimate) return;
     const intervalId = window.setInterval(
       () => setRevision((revision) => revision + 1),
       WAIT_ESTIMATE_UPDATE_INTERVAL_MS,
     );
     return () => window.clearInterval(intervalId);
-  }, [active2, liveSeconds, hasStaticEstimate]);
-  if (!active2) return void 0;
+  }, [active, liveSeconds, hasStaticEstimate]);
+  if (!active) return void 0;
   return (
     liveSeconds ??
     calculateStaticRemainingWaitSeconds(
@@ -187,41 +187,41 @@ export function computeMultiImageGridPositions(
   primaryIndex,
   cardWidth,
   cardHeight,
-  gap,
+  cardGap,
   statuses,
 ) {
   if (imageIds.length <= 1) return [];
   const subs = [];
-  for (let i2 = 0; i2 < imageIds.length; i2++) {
-    if (i2 === primaryIndex) continue;
-    const id2 = imageIds[i2];
-    if (typeof id2 !== "string" || !id2) continue;
-    const status = statuses?.[i2] ?? "ready";
+  for (let imageIndex = 0; imageIndex < imageIds.length; imageIndex++) {
+    if (imageIndex === primaryIndex) continue;
+    const imageId = imageIds[imageIndex];
+    if (typeof imageId !== "string" || !imageId) continue;
+    const status = statuses?.[imageIndex] ?? "ready";
     subs.push({
-      id: id2,
-      originalIndex: i2,
+      id: imageId,
+      originalIndex: imageIndex,
       status,
     });
   }
-  const max2 = Math.min(subs.length, FILL_ORDER.length);
-  const stepX = cardWidth + gap;
-  const stepY = cardHeight + gap;
-  const out = [];
-  for (let i2 = 0; i2 < max2; i2++) {
-    const slot = FILL_ORDER[i2];
+  const max = Math.min(subs.length, FILL_ORDER.length);
+  const stepX = cardWidth + cardGap;
+  const stepY = cardHeight + cardGap;
+  const positions = [];
+  for (let slotIndex = 0; slotIndex < max; slotIndex++) {
+    const slot = FILL_ORDER[slotIndex];
     if (!slot) continue;
-    const [row, col] = slot;
-    const sub = subs[i2];
-    if (!sub) continue;
-    out.push({
-      imageId: sub.id,
-      status: sub.status,
-      originalIndex: sub.originalIndex,
-      dx: (col - PRIMARY_COL) * stepX,
+    const [row, column] = slot;
+    const subImage = subs[slotIndex];
+    if (!subImage) continue;
+    positions.push({
+      imageId: subImage.id,
+      status: subImage.status,
+      originalIndex: subImage.originalIndex,
+      dx: (column - PRIMARY_COL) * stepX,
       dy: (row - PRIMARY_ROW) * stepY,
     });
   }
-  return out;
+  return positions;
 }
 
 export const SUB_CARD_GAP = MULTI_IMAGE_SUB_CARD_GAP;

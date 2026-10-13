@@ -1,0 +1,6 @@
+key	new	依据
+properties2@6:42	properties	与事件一同传给 trackEvent 的埋点属性对象。
+url2@44:30	url	用于生成规范书签身份的原始 URL，无法解析时保留原字符串。
+current2@60:39	current	已保存的书签列表，作为合并基准并用于计算新增数量。
+ids2@62:9	ids	当前书签 ID 集合，用于跳过重复书签并登记新 ID。
+identity2@70:11	identity	当前书签的内容身份键，用于检查并排除重复项。

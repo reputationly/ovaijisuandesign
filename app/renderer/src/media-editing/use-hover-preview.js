@@ -2,17 +2,17 @@
 import { reactExports } from "../vendor.js";
 const ANCHOR_GAP = 8;
 const VIEWPORT_PADDING = 8;
-function isPointInPreviewBridge(x2, y4, anchor, preview) {
-  const contains2 = (rect) =>
-    x2 >= rect.left &&
-    x2 <= rect.left + rect.width &&
-    y4 >= rect.top &&
-    y4 <= rect.bottom;
-  if (contains2(anchor) || contains2(preview)) return true;
+function isPointInPreviewBridge(x, y, anchor, preview) {
+  const contains = (rect) =>
+    x >= rect.left &&
+    x <= rect.left + rect.width &&
+    y >= rect.top &&
+    y <= rect.bottom;
+  if (contains(anchor) || contains(preview)) return true;
   const above = preview.bottom <= anchor.top;
   const below = anchor.bottom <= preview.top;
   if (!above && !below) return false;
-  const start2 = above
+  const start = above
     ? {
         y: preview.bottom,
         left: preview.left,
@@ -23,7 +23,7 @@ function isPointInPreviewBridge(x2, y4, anchor, preview) {
         left: anchor.left,
         right: anchor.left + anchor.width,
       };
-  const end2 = above
+  const end = above
     ? {
         y: anchor.bottom,
         left: anchor.left,
@@ -34,15 +34,15 @@ function isPointInPreviewBridge(x2, y4, anchor, preview) {
         left: preview.left,
         right: preview.left + preview.width,
       };
-  if (y4 < start2.y || y4 > end2.y || end2.y === start2.y) return false;
-  const progress = (y4 - start2.y) / (end2.y - start2.y);
+  if (y < start.y || y > end.y || end.y === start.y) return false;
+  const progress = (y - start.y) / (end.y - start.y);
   return (
-    x2 >= start2.left + (end2.left - start2.left) * progress &&
-    x2 <= start2.right + (end2.right - start2.right) * progress
+    x >= start.left + (end.left - start.left) * progress &&
+    x <= start.right + (end.right - start.right) * progress
   );
 }
-function clamp(value, min2, max2) {
-  return Math.min(Math.max(value, min2), max2);
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 function getMediaPreviewPosition(anchorRect, previewSize, viewport) {
   const preferredTop = anchorRect.top - previewSize.height - ANCHOR_GAP;
@@ -51,7 +51,7 @@ function getMediaPreviewPosition(anchorRect, previewSize, viewport) {
   const fitsBelow =
     fallbackTop + previewSize.height <= viewport.height - VIEWPORT_PADDING;
   const moreSpaceAbove = anchorRect.top > viewport.height - anchorRect.bottom;
-  const top2 = clamp(
+  const previewTop = clamp(
     fitsAbove || (!fitsBelow && moreSpaceAbove) ? preferredTop : fallbackTop,
     VIEWPORT_PADDING,
     Math.max(
@@ -68,7 +68,7 @@ function getMediaPreviewPosition(anchorRect, previewSize, viewport) {
     ),
   );
   return {
-    top: top2,
+    top: previewTop,
     left,
   };
 }
@@ -86,19 +86,19 @@ function getMediaPreviewLayout(
     bottom: viewport.height,
   };
   const left = Math.max(0, boundary.left);
-  const top2 = Math.max(0, boundary.top);
+  const boundaryTop = Math.max(0, boundary.top);
   const width = Math.max(0, Math.min(viewport.width, boundary.right) - left);
-  const height = Math.max(0, Math.min(viewport.height, boundary.bottom) - top2);
-  const scale2 = Math.min(
+  const height = Math.max(0, Math.min(viewport.height, boundary.bottom) - boundaryTop);
+  const scale = Math.min(
     1,
     Math.max(1, width - VIEWPORT_PADDING * 2) / previewSize.width,
     Math.max(1, height - VIEWPORT_PADDING * 2) / previewSize.height,
   );
-  const size2 =
+  const size =
     fit === "contain"
       ? {
-          width: previewSize.width * scale2,
-          height: previewSize.height * scale2,
+          width: previewSize.width * scale,
+          height: previewSize.height * scale,
         }
       : {
           width: Math.min(
@@ -110,24 +110,24 @@ function getMediaPreviewLayout(
             Math.max(1, height - VIEWPORT_PADDING * 2),
           ),
         };
-  const position2 = getMediaPreviewPosition(
+  const position = getMediaPreviewPosition(
     {
       width: anchorRect.width,
       height: anchorRect.height,
       left: anchorRect.left - left,
-      top: anchorRect.top - top2,
-      bottom: anchorRect.bottom - top2,
+      top: anchorRect.top - boundaryTop,
+      bottom: anchorRect.bottom - boundaryTop,
     },
-    size2,
+    size,
     {
       width,
       height,
     },
   );
   return {
-    ...size2,
-    left: position2.left + left,
-    top: position2.top + top2,
+    ...size,
+    left: position.left + left,
+    top: position.top + boundaryTop,
   };
 }
 function getBoundary(anchor) {
@@ -140,7 +140,7 @@ function getBoundary(anchor) {
 export function useHoverPreview({
   anchorElement,
   anchorRect,
-  size: size2,
+  size,
   fit = "contain",
   interactive = false,
   onPreviewMouseEnter,
@@ -155,7 +155,7 @@ export function useHoverPreview({
     onPreviewMouseEnter,
     onPreviewMouseLeave,
   };
-  const { top: top2, bottom, left, width, height } = anchorRect;
+  const { top: anchorTop, bottom, left, width, height } = anchorRect;
   const measure = reactExports.useCallback(() => {
     const boundary = getBoundary(anchorElement);
     const boundaryRect =
@@ -164,15 +164,15 @@ export function useHoverPreview({
         : void 0;
     return getMediaPreviewLayout(
       anchorElement?.getBoundingClientRect() ?? {
-        top: top2,
+        top: anchorTop,
         bottom,
         left,
         width,
         height,
       },
       {
-        width: size2.width,
-        height: size2.height,
+        width: size.width,
+        height: size.height,
       },
       {
         width: document.documentElement.clientWidth || window.innerWidth,
@@ -185,59 +185,59 @@ export function useHoverPreview({
     );
   }, [
     anchorElement,
-    top2,
+    anchorTop,
     bottom,
     left,
     width,
     height,
-    size2.width,
-    size2.height,
+    size.width,
+    size.height,
     fit,
   ]);
   const [layout, setLayout] = reactExports.useState(measure);
   reactExports.useLayoutEffect(() => {
-    const update2 = () => {
-      const next2 = measure();
-      setLayout((previous2) =>
-        previous2.left === next2.left &&
-        previous2.top === next2.top &&
-        previous2.width === next2.width &&
-        previous2.height === next2.height
-          ? previous2
-          : next2,
+    const update = () => {
+      const next = measure();
+      setLayout((previous) =>
+        previous.left === next.left &&
+        previous.top === next.top &&
+        previous.width === next.width &&
+        previous.height === next.height
+          ? previous
+          : next,
       );
     };
-    update2();
+    update();
     const boundary = getBoundary(anchorElement);
     const resizeObserver =
       typeof ResizeObserver === "undefined"
         ? null
-        : new ResizeObserver(update2);
+        : new ResizeObserver(update);
     if (anchorElement) resizeObserver?.observe(anchorElement);
     if (boundary) resizeObserver?.observe(boundary);
-    const mutationObserver = new MutationObserver(update2);
+    const mutationObserver = new MutationObserver(update);
     if (boundary) {
       mutationObserver.observe(boundary, {
         attributes: true,
         attributeFilter: ["data-media-preview-boundary"],
       });
     }
-    let frame2;
+    let frame;
     const follow = () => {
-      update2();
-      frame2 = requestAnimationFrame(follow);
+      update();
+      frame = requestAnimationFrame(follow);
     };
     if (anchorElement && typeof requestAnimationFrame !== "undefined") {
-      frame2 = requestAnimationFrame(follow);
+      frame = requestAnimationFrame(follow);
     }
-    window.addEventListener("resize", update2);
-    document.addEventListener("scroll", update2, true);
+    window.addEventListener("resize", update);
+    document.addEventListener("scroll", update, true);
     return () => {
-      if (frame2 !== void 0) cancelAnimationFrame(frame2);
+      if (frame !== void 0) cancelAnimationFrame(frame);
       resizeObserver?.disconnect();
       mutationObserver.disconnect();
-      window.removeEventListener("resize", update2);
-      document.removeEventListener("scroll", update2, true);
+      window.removeEventListener("resize", update);
+      document.removeEventListener("scroll", update, true);
     };
   }, [anchorElement, measure]);
   reactExports.useEffect(() => {

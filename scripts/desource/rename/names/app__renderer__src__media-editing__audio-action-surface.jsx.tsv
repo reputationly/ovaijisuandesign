@@ -1,0 +1,33 @@
+key	new	依据
+t2@153:14	t	useTranslation 返回的翻译函数，为音色克隆卡片生成标签、说明和复制按钮文案。
+t2@278:14	t	useTranslation 返回的翻译函数，为音色设计卡片生成标签、说明和复制按钮文案。
+e2@362:24	changeEvent	音色描述文本框的输入事件；将 target.value 写入 draftPrompt。
+e2@381:24	changeEvent	试听文本框的输入事件；将 target.value 写入 draftPreview。
+s2@427:23	storeState	画布视口 store 的当前状态；选择器从 transform 元组中读取缩放值。
+e2@536:21	mouseEvent	固定弹层内的鼠标按下事件被阻止冒泡，避免画布将交互识别为拖动。
+e2@537:17	clickEvent	固定弹层内的点击事件被阻止冒泡，避免点击内容触发画布操作。
+t2@558:14	t	useTranslation 返回的翻译函数，用于音频工具栏提示、错误提示和状态标签。
+id2@712:23	itemId	findItem 接收工具项 id，并据此在 baseToolbarItems 中查找配置。
+i2@712:54	toolbarItem	baseToolbarItems 中当前检查的配置项，其 id 与 findItem 的参数比较。
+e2@965:29	mouseEvent	工具栏 portal 内的鼠标按下事件被阻止冒泡，避免启动画布拖动。
+e2@966:25	clickEvent	工具栏 portal 内的点击事件被阻止冒泡，避免触发画布级点击处理。
+pos@980:17	popoverPosition	buildPopoverPosition 根据锚点和弹层尺寸计算的视口位置及高度，用于放置固定弹层。
+CopyIcon$1@119:10	VoiceCloneCopyIcon	原名 CopyIcon 会与后方 CopyIcon@238:10 冲突，因此改为 VoiceCloneCopyIcon；此图标用于音色克隆 voice_id 复制按钮。
+CheckIcon$2@255:10	VoiceDesignCheckIcon	原名 CheckIcon 会与外层 CheckIcon@136:10 冲突，因此改为 VoiceDesignCheckIcon；此图标表示音色设计 voice_id 已复制。
+meta2@47:44	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存音频资源的元数据。
+state2@113:9	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存音频操作面板的当前状态。
+meta2@438:31	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存音频资源的元数据。
+meta2@456:71	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存音频资源的元数据。
+base2@457:7	base	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存音频资源或界面布局的基础值。
+children2@476:13	children	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存组件接收并渲染的 React 子节点。
+zoom2@478:9	zoom	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存画布视口当前缩放比例。
+top2@494:9	popoverTop	原名 top 被工具识别为全局名，因此按用途改为 popoverTop；此处保存提示弹层的垂直位置。
+top2@504:8	portalTop	原名 top 被工具识别为全局名，因此按用途改为 portalTop；此处接收固定弹层容器的顶部坐标。
+children2@510:13	children	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存组件接收并渲染的 React 子节点。
+meta2@546:9	meta	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存音频资源的元数据。
+data2@547:9	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存音频操作面板用于读取或更新资源的画布节点数据。
+selected2@549:13	selected	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存音频操作面板对应的画布节点当前是否被选中。
+clip2@713:11	clip	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前音频剪辑对象。
+replace2@890:6	replace	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存替换音频资源或提示内容的操作。
+children2@945:10	children	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存组件接收并渲染的 React 子节点。
+top2@948:17	toolbarTop	原名 top 被工具识别为全局名，因此按用途改为 toolbarTop；此处保存工具栏锚点的垂直坐标。

@@ -27,13 +27,13 @@ import {
 } from "../generation/select-content.jsx";
 const H3_TARGET_RESOLUTION = "2K";
 export const Hailuo03SuperResolutionPopover = reactExports.memo(
-  function Hailuo03SuperResolutionPopover2({
+  function Hailuo03SuperResolutionPopover({
     onSubmit,
     onClose,
     durationSec,
     renderShell,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t } = useTranslation();
     const {
       accountSubmissionAllowed = true,
       beforeAccountSubmission = () => true,
@@ -46,17 +46,17 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
     onCloseRef.current = onClose;
     const nodeId = useNodeId();
     const selectedSelector = reactExports.useCallback(
-      (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
+      (storeState) => (nodeId ? !!storeState.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     );
-    const selected2 = useStore(selectedSelector);
+    const isSelected = useStore(selectedSelector);
     const isDragging = useCanvasIsDragging();
     const isMultiSelect = useCanvasIsMultiSelect();
     const isBoxSelecting = useCanvasIsBoxSelecting();
     reactExports.useEffect(() => {
       if (renderShell) return;
-      if (!selected2) onCloseRef.current();
-    }, [renderShell, selected2]);
+      if (!isSelected) onCloseRef.current();
+    }, [renderShell, isSelected]);
     const hidden =
       !renderShell && (isDragging || isMultiSelect || isBoxSelecting);
     const handleSubmit = reactExports.useCallback(() => {
@@ -65,25 +65,25 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
     }, [beforeAccountSubmission, onSubmit]);
     const nativeBadge = (
       <span className="rounded-full border border-brand-accent px-1.5 py-px text-[10px] leading-[14px] text-brand-accent">
-        {t2("canvas.hailuo03SuperResolution.nativeBadge", "H3 原生超分")}
+        {t("canvas.hailuo03SuperResolution.nativeBadge", "H3 原生超分")}
       </span>
     );
-    const body2 = (
+    const body = (
       // biome-ignore lint/a11y/noStaticElementInteractions: event barrier only — pointer/dblclick must not leak to the host node
       <div
         className="flex w-64 flex-col gap-3 rounded-lg bg-[var(--canvas-controls-bg)] p-3 shadow-[var(--canvas-shadow-dropdown)] animate-[i2v-popover-in_0.15s_ease-out]"
         style={{
           display: hidden ? "none" : void 0,
         }}
-        onPointerDown={(e2) => e2.stopPropagation()}
-        onDoubleClick={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+        onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
       >
         <div className="font-heading text-[13px] font-medium text-[var(--canvas-controls-text)]">
-          {t2("canvas.hailuo03SuperResolution.title", "H3 2K超分")}
+          {t("canvas.hailuo03SuperResolution.title", "H3 2K超分")}
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] text-[var(--canvas-controls-text-muted)]">
-            {t2("canvas.hailuo03SuperResolution.resolutionLabel", "分辨率")}
+            {t("canvas.hailuo03SuperResolution.resolutionLabel", "分辨率")}
           </span>
           <Select value={H3_TARGET_RESOLUTION}>
             <SelectTrigger
@@ -113,7 +113,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
             onClick={onClose}
             data-action-ui-id="canvas.hailuo03-super-resolution.cancel"
           >
-            {t2("canvas.hailuo03SuperResolution.cancel", "取消")}
+            {t("canvas.hailuo03SuperResolution.cancel", "取消")}
           </Button>
           <Button
             variant="default"
@@ -123,7 +123,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
             data-action-ui-id="canvas.hailuo03-super-resolution.submit"
             className="inline-flex items-center gap-1.5"
           >
-            <span>{t2("canvas.hailuo03SuperResolution.submit", "生成")}</span>
+            <span>{t("canvas.hailuo03SuperResolution.submit", "生成")}</span>
             {creditCost != null && creditCost > 0 && (
               <CreditCostBadge
                 cost={creditCost}
@@ -139,7 +139,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
         <>
           {renderShell({
             onClose,
-            children: body2,
+            children: body,
           })}
         </>
       );
@@ -150,7 +150,7 @@ export const Hailuo03SuperResolutionPopover = reactExports.memo(
         offset={NODE_POPOVER_SAFE_GAP}
         align="center"
       >
-        {body2}
+        {body}
       </NodeToolbar>
     );
   },

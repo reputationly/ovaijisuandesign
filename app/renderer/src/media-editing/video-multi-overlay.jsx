@@ -33,11 +33,11 @@ function computeExpandedFrameRect(positions, cardWidth, cardHeight) {
   let minY = 0;
   let maxX = cardWidth;
   let maxY = cardHeight;
-  for (const position2 of positions) {
-    minX = Math.min(minX, position2.dx);
-    minY = Math.min(minY, position2.dy);
-    maxX = Math.max(maxX, position2.dx + cardWidth);
-    maxY = Math.max(maxY, position2.dy + cardHeight);
+  for (const position of positions) {
+    minX = Math.min(minX, position.dx);
+    minY = Math.min(minY, position.dy);
+    maxX = Math.max(maxX, position.dx + cardWidth);
+    maxY = Math.max(maxY, position.dy + cardHeight);
   }
   return {
     left: minX - EXPANDED_FRAME_INSET,
@@ -49,7 +49,7 @@ function computeExpandedFrameRect(positions, cardWidth, cardHeight) {
 
 function LoadingSubVideoCard({
   slot,
-  position: position2,
+  position,
   cardWidth,
   cardHeight,
   onCancelQueue,
@@ -59,7 +59,7 @@ function LoadingSubVideoCard({
 }) {
   const frameRef = reactExports.useRef(null);
   useRegisterZoomCounter(frameRef);
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const queued = slot.status === "pending";
   const paused = slot.status === "queue_paused";
   const progress = useSimulatedProgress(
@@ -69,10 +69,10 @@ function LoadingSubVideoCard({
     isMiniMaxH3MaxModelValue(slot.model) ? "h3-max-video" : void 0,
   );
   const label = queued
-    ? t2("canvas.pending")
+    ? t("canvas.pending")
     : paused
-      ? t2("canvas.queuePaused")
-      : t2("canvas.multiVideo.slotLoading", "生成中…");
+      ? t("canvas.queuePaused")
+      : t("canvas.multiVideo.slotLoading", "生成中…");
   const handleCancelQueue = reactExports.useCallback(() => {
     onCancelQueue?.(slot.id);
   }, [onCancelQueue, slot.id]);
@@ -84,7 +84,7 @@ function LoadingSubVideoCard({
     <CardWrapper
       cardWidth={cardWidth}
       cardHeight={cardHeight}
-      position={position2}
+      position={position}
     >
       <div
         ref={frameRef}
@@ -134,39 +134,39 @@ function LoadingSubVideoCard({
 
 function ErrorSubVideoCard({
   slot,
-  position: position2,
+  position,
   cardWidth,
   cardHeight,
   onDeleteSub,
   readonly,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const recoverable = slot.status === "recoverable_error";
   const uncertain = slot.status === "status_unknown";
   const title = recoverable
-    ? t2("canvas.generationRecovery.title", "结果待恢复")
-    : t2("canvas.multiVideo.slotFailed", "生成失败");
-  const message2 = recoverable
-    ? t2(
+    ? t("canvas.generationRecovery.title", "结果待恢复")
+    : t("canvas.multiVideo.slotFailed", "生成失败");
+  const message = recoverable
+    ? t(
         "canvas.generationRecovery.description",
         "原任务已保留，结果将在恢复后自动回填。",
       )
     : uncertain
-      ? t2(
+      ? t(
           "canvas.generationStatusUnknown.description",
           "生成请求未能完成，系统不会自动重试。",
         )
-      : (slot.error ?? t2("canvas.multiVideo.slotFailed", "生成失败"));
+      : (slot.error ?? t("canvas.multiVideo.slotFailed", "生成失败"));
   const neutral = recoverable;
-  const handleDelete2 = (event) => {
+  const handleDeleteSub = (event) => {
     event.stopPropagation();
-    if (!readonly) onDeleteSub(position2.originalIndex);
+    if (!readonly) onDeleteSub(position.originalIndex);
   };
   return (
     <CardWrapper
       cardWidth={cardWidth}
       cardHeight={cardHeight}
-      position={position2}
+      position={position}
     >
       <div
         data-action-ui-id="canvas.video-node.sub-video-card.error"
@@ -174,13 +174,13 @@ function ErrorSubVideoCard({
         style={{
           borderRadius: MEDIA_NODE_RADIUS,
         }}
-        title={message2}
+        title={message}
         role={neutral ? "status" : "alert"}
       >
         <VideoPlaceholderIcon />
         <span className="font-medium">{title}</span>
         <span className="line-clamp-2 break-all text-muted-foreground">
-          {message2}
+          {message}
         </span>
         {!recoverable &&
         !uncertain &&
@@ -197,11 +197,11 @@ function ErrorSubVideoCard({
       </div>
       {!readonly && !recoverable ? (
         <DeleteButton
-          onDelete={handleDelete2}
+          onDelete={handleDeleteSub}
           label={
             uncertain
-              ? t2("canvas.removeLocalPlaceholder", "移除本地占位")
-              : t2("canvas.multiVideo.deleteVideo", "删除该视频")
+              ? t("canvas.removeLocalPlaceholder", "移除本地占位")
+              : t("canvas.multiVideo.deleteVideo", "删除该视频")
           }
         />
       ) : null}
@@ -209,8 +209,8 @@ function ErrorSubVideoCard({
   );
 }
 
-export const VideoMultiOverlay = reactExports.memo(function VideoMultiOverlay2({
-  view: view2,
+export const VideoMultiOverlay = reactExports.memo(function VideoMultiOverlay({
+  view,
   cardWidth,
   cardHeight,
   onSelectSlot,
@@ -220,7 +220,7 @@ export const VideoMultiOverlay = reactExports.memo(function VideoMultiOverlay2({
   onDownloadSub,
   onOpenSlot,
   readonly,
-  closing: closing2 = false,
+  closing: isClosing = false,
 }) {
   const {
     onCancelGenerationQueue,
@@ -228,11 +228,11 @@ export const VideoMultiOverlay = reactExports.memo(function VideoMultiOverlay2({
     onRetryGeneration,
     isRetryGenerationPending,
   } = useCanvasBridge();
-  const videoIds = view2.slots.map((slot) => slot.id);
-  const videoStatuses = view2.slots.map((slot) => slot.status);
+  const videoIds = view.slots.map((slot) => slot.id);
+  const videoStatuses = view.slots.map((slot) => slot.status);
   const positions = computeMultiImageGridPositions(
     videoIds,
-    view2.primaryIndex,
+    view.primaryIndex,
     cardWidth,
     cardHeight,
     SUB_CARD_GAP,
@@ -243,7 +243,7 @@ export const VideoMultiOverlay = reactExports.memo(function VideoMultiOverlay2({
   return (
     <div
       data-action-ui-id="canvas.video-node.multi-video-overlay"
-      data-state={closing2 ? "closing" : "open"}
+      data-state={isClosing ? "closing" : "open"}
       className="pointer-events-none absolute inset-0 z-50"
     >
       <div
@@ -251,20 +251,20 @@ export const VideoMultiOverlay = reactExports.memo(function VideoMultiOverlay2({
         className="canvas-media-expanded-frame pointer-events-none absolute z-0"
         style={frameRect}
       />
-      {positions.map((position2) => {
-        const slot = view2.slots[position2.originalIndex];
+      {positions.map((position) => {
+        const slot = view.slots[position.originalIndex];
         if (!slot) return null;
         if (
-          position2.status === "pending" ||
-          position2.status === "generating" ||
-          position2.status === "loading" ||
-          position2.status === "queue_paused"
+          position.status === "pending" ||
+          position.status === "generating" ||
+          position.status === "loading" ||
+          position.status === "queue_paused"
         ) {
           return (
             <LoadingSubVideoCard
-              key={`loading:${position2.imageId}:${position2.status}`}
+              key={`loading:${position.imageId}:${position.status}`}
               slot={slot}
-              position={position2}
+              position={position}
               cardWidth={cardWidth}
               cardHeight={cardHeight}
               onCancelQueue={onCancelGenerationQueue}
@@ -274,12 +274,12 @@ export const VideoMultiOverlay = reactExports.memo(function VideoMultiOverlay2({
             />
           );
         }
-        if (isGenerationErrorStatus(position2.status) || slot.error != null) {
+        if (isGenerationErrorStatus(position.status) || slot.error != null) {
           return (
             <ErrorSubVideoCard
-              key={`error:${position2.originalIndex}:${position2.imageId}`}
+              key={`error:${position.originalIndex}:${position.imageId}`}
               slot={slot}
-              position={position2}
+              position={position}
               cardWidth={cardWidth}
               cardHeight={cardHeight}
               onDeleteSub={onDeleteSub}
@@ -289,9 +289,9 @@ export const VideoMultiOverlay = reactExports.memo(function VideoMultiOverlay2({
         }
         return (
           <ReadySubVideoCard
-            key={`ready:${position2.imageId}`}
+            key={`ready:${position.imageId}`}
             slot={slot}
-            position={position2}
+            position={position}
             cardWidth={cardWidth}
             cardHeight={cardHeight}
             onSelectSlot={onSelectSlot}

@@ -25,10 +25,10 @@ export function ReferenceMediaLightbox({ item, onClose }) {
 }
 export function ReferenceThumbnailOverlay({
   visible,
-  disabled: disabled2,
+  disabled,
   onReference,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div
       data-testid="reference-thumbnail-overlay"
@@ -36,9 +36,9 @@ export function ReferenceThumbnailOverlay({
     >
       <button
         type="button"
-        aria-label={t2("canvas.reference.addReference")}
+        aria-label={t("canvas.reference.addReference")}
         data-action-ui-id="popover.attachment-reference"
-        disabled={disabled2}
+        disabled={disabled}
         tabIndex={visible ? 0 : -1}
         className={`absolute bottom-0.5 right-0.5 flex size-4 items-center justify-center text-[var(--canvas-media-control-fg)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground ${visible ? "pointer-events-auto cursor-pointer" : "pointer-events-none"}`}
         onMouseDown={(event) => event.preventDefault()}

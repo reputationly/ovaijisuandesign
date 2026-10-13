@@ -1,0 +1,30 @@
+activeTagId@62:10	activeTagIdState	useState 状态与 setActiveTagIdState setter 配对，保存当前激活的快捷标签 ID。
+key	new	依据
+selector2@41:9	selector	用于查找前景键盘交互界面的 CSS 选择器字符串。
+activeElement2@47:9	activeElement	当前获得键盘焦点的 DOM 元素。
+workspaceId2@59:16	workspaceId	当前画布所属工作区的标识。
+gatewayFetch2@323:29	gatewayFetch	携带当前网关配置发送请求的函数。
+path2@323:44	path	项目归档活动接口的请求路径。
+body2@323:51	body	将序列化发送的项目活动请求负载。
+raw2@334:31	raw	尚未按 renewed 字段校验的心跳响应 JSON 对象。
+gatewayFetch2@350:30	gatewayFetch	携带当前网关配置发送请求的函数。
+raw2@356:9	raw	尚未按 renewed 字段校验的心跳响应 JSON 对象。
+gatewayFetch2@371:34	gatewayFetch	携带当前网关配置发送请求的函数。
+gatewayFetch2@388:17	gatewayFetch	携带当前网关配置发送请求的函数。
+workspaceId2@462:16	workspaceId	当前画布所属工作区的标识。
+registry2@466:9	registry	当前画布的标签注册表。
+gatewayFetch2@469:9	gatewayFetch	携带当前网关配置发送请求的函数。
+isActive2@648:13	isActive	控制画布标签筛选界面是否处于活动状态的布尔值。
+workspaceId2@652:16	workspaceId	当前画布所属工作区的标识。
+asset2@698:32	asset	当前工作区标签关联的媒体资产记录。
+current2@705:18	current	标签选择器状态更新回调收到的当前状态值。
+asset2@730:13	asset	当前工作区标签关联的媒体资产记录。
+current2@737:18	current	标签选择器状态更新回调收到的当前状态值。
+current2@761:16	current	标签选择器状态更新回调收到的当前状态值。
+current2@846:22	current	标签选择器状态更新回调收到的当前状态值。
+current2@863:20	current	标签选择器状态更新回调收到的当前状态值。
+current2@874:20	current	标签选择器状态更新回调收到的当前状态值。
+t2@465:14	t	根据当前语言返回标签界面文案的翻译函数。
+t2@655:14	t	根据当前语言返回标签界面文案的翻译函数。
+raw@334:31	responseBody	尚未校验的项目活动心跳响应 JSON 请求体。
+raw@356:9	responseBody	从 Response.json() 取得并交给 mapHeartbeatResponse 校验的心跳 JSON 响应体。

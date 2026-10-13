@@ -21,11 +21,11 @@ function decideCanvasShortcutGuardKeydown(event, targetEditable) {
   if (CANVAS_DIRECTIONAL_KEYS.has(event.key) && !targetEditable) {
     return "stop";
   }
-  const meta2 = event.metaKey === true || event.ctrlKey === true;
+  const isModifierKeyPressed = event.metaKey === true || event.ctrlKey === true;
   const viewportShortcut =
     event.shiftKey === true &&
     (event.code === "Digit1" || event.code === "Digit2");
-  if (meta2 || viewportShortcut) {
+  if (isModifierKeyPressed || viewportShortcut) {
     return "stop";
   }
   return "allow";
@@ -53,18 +53,18 @@ function isEditableTarget(target) {
   );
 }
 function isInsideGuardRoot(target, rootRef) {
-  const root2 = rootRef?.current;
-  return !!root2 && target instanceof Node && root2.contains(target);
+  const root = rootRef?.current;
+  return !!root && target instanceof Node && root.contains(target);
 }
 export function useCanvasShortcutGuard(
   enabled = true,
   rootRef,
   allowHorizontalArrowKeys = false,
 ) {
-  const active2 = useCanvasActive();
+  const isCanvasActive = useCanvasActive();
   useSuspendCanvasInteractions(enabled);
   reactExports.useEffect(() => {
-    if (!enabled || !active2) return;
+    if (!enabled || !isCanvasActive) return;
     const deleteKeyCapture = (event) => {
       const decision = decideCanvasShortcutGuardKeydown(
         event,
@@ -117,5 +117,5 @@ export function useCanvasShortcutGuard(
       document.removeEventListener("cut", clipboardCapture, true);
       document.removeEventListener("paste", clipboardCapture, true);
     };
-  }, [active2, enabled, rootRef, allowHorizontalArrowKeys]);
+  }, [isCanvasActive, enabled, rootRef, allowHorizontalArrowKeys]);
 }

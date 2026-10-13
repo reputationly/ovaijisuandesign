@@ -5,36 +5,36 @@ const DEFAULT_MAX_BYTES = 200 * 1024 * 1024;
 function findNearest(frames, time) {
   if (frames.length === 0) return null;
   if (frames.length === 1) return frames[0];
-  let lo = 0;
-  let hi = frames.length - 1;
-  while (lo < hi) {
-    const mid = (lo + hi) >> 1;
-    if (frames[mid].timestamp < time) {
-      lo = mid + 1;
+  let low = 0;
+  let high = frames.length - 1;
+  while (low < high) {
+    const middle = (low + high) >> 1;
+    if (frames[middle].timestamp < time) {
+      low = middle + 1;
     } else {
-      hi = mid;
+      high = middle;
     }
   }
-  if (lo === 0) return frames[0];
-  const prev = frames[lo - 1];
-  const curr = frames[lo];
+  if (low === 0) return frames[0];
+  const prev = frames[low - 1];
+  const curr = frames[low];
   return Math.abs(prev.timestamp - time) <= Math.abs(curr.timestamp - time)
     ? prev
     : curr;
 }
 
 function lowerBound(frames, target) {
-  let lo = 0;
-  let hi = frames.length;
-  while (lo < hi) {
-    const mid = (lo + hi) >> 1;
-    if (frames[mid].timestamp < target) {
-      lo = mid + 1;
+  let low = 0;
+  let high = frames.length;
+  while (low < high) {
+    const middle = (low + high) >> 1;
+    if (frames[middle].timestamp < target) {
+      low = middle + 1;
     } else {
-      hi = mid;
+      high = middle;
     }
   }
-  return lo;
+  return low;
 }
 
 export class ThumbnailStore {
@@ -79,8 +79,8 @@ export class ThumbnailStore {
       frames = [];
       this.frameAtlas.set(assetId, frames);
     }
-    const idx = lowerBound(frames, frame.timestamp);
-    frames.splice(idx, 0, frame);
+    const index = lowerBound(frames, frame.timestamp);
+    frames.splice(index, 0, frame);
     const bytes = estimateBytes(frame);
     this.bytesPerAsset.set(
       assetId,
@@ -93,10 +93,10 @@ export class ThumbnailStore {
   hasFrameAt(assetId, target, epsilon = 1e-3) {
     const frames = this.frameAtlas.get(assetId);
     if (!frames || frames.length === 0) return false;
-    const idx = lowerBound(frames, target - epsilon);
-    if (idx < frames.length && Math.abs(frames[idx].timestamp - target) <= epsilon)
+    const index = lowerBound(frames, target - epsilon);
+    if (index < frames.length && Math.abs(frames[index].timestamp - target) <= epsilon)
       return true;
-    if (idx > 0 && Math.abs(frames[idx - 1].timestamp - target) <= epsilon)
+    if (index > 0 && Math.abs(frames[index - 1].timestamp - target) <= epsilon)
       return true;
     return false;
   }
@@ -156,16 +156,16 @@ export class ThumbnailStore {
 
   evictIfNeeded(protectedId) {
     if (this.maxBytes <= 0 || this.currentBytes <= this.maxBytes) return;
-    for (const id of Array.from(this.frameAtlas.keys())) {
-      if (id === protectedId) continue;
-      this.releaseAsset(id);
+    for (const assetId of Array.from(this.frameAtlas.keys())) {
+      if (assetId === protectedId) continue;
+      this.releaseAsset(assetId);
       if (this.currentBytes <= this.maxBytes) break;
     }
   }
 
   releaseFrames(frames) {
-    frames?.forEach(({ img }) => {
-      if (img instanceof ImageBitmap) img.close();
+    frames?.forEach(({ img: image }) => {
+      if (image instanceof ImageBitmap) image.close();
     });
   }
 }

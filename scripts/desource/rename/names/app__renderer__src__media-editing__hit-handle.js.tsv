@@ -1,0 +1,20 @@
+key	new	依据
+p3@4:27	pointer	画布指针坐标，与四个控制点坐标比较以确定命中的缩放手柄。
+b3@4:31	bounds	被检测图形的矩形边界，提供 x、y、width 和 height 以计算四角位置。
+c3@28:19	corner	当前候选四角中的角点标识，命中时由 hitHandle 返回。
+x2@28:26	cornerX	当前候选角点的横坐标，用于和指针横坐标比较命中范围。
+y4@28:33	cornerY	当前候选角点的纵坐标，用于和指针纵坐标比较命中范围。
+c3@33:30	corner	cornerCursor 根据该角点标识返回对应的对角线缩放光标。
+e2@38:17	pointerEvent	文本工具的指针按下事件；左键时将指针位置交给 openTextEditor。
+h2@74:16	handler	当前事件类型注册的监听回调，由 EventBus.emit 逐个调用。
+e2@77:16	error	监听回调抛出的异常，被记录到 EventBus 的错误日志。
+point2@43:36	point	新建文本形状的初始坐标，写入返回对象的 x 和 y 字段。
+text2@43:44	text	文本形状将显示的字符串，写入返回数据的 text 字段。
+style2@43:51	style	文本形状的样式配置，展开复制到返回数据的 style 对象。
+type2@59:6	type	EventBus 当前注册、移除或派发监听器所对应的事件名称。
+set2@60:9	handlerSet	该事件类型对应的 Set，保存 on 注册的监听回调。
+type2@68:7	type	EventBus.off 要移除监听器的事件名称。
+type2@71:8	type	EventBus.emit 要派发给已注册监听器的事件名称。
+set2@72:11	handlerSet	该事件类型当前注册的监听器 Set，供 emit 遍历并调用。
+set@60:9	handlerSet	将事件类型对应的 Set 明确命名为监听回调集合，避免把集合误读为 setter。
+set@72:11	handlerSet	emit 遍历的事件监听器 Set，明确其中保存的是处理回调。

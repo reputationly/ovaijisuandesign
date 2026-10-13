@@ -52,8 +52,8 @@ export class TimelineEventHandler {
     };
     this.bindEvents();
   }
-  updateCropConfig(config2) {
-    this.cropConfig = config2;
+  updateCropConfig(config) {
+    this.cropConfig = config;
   }
   /** 同步 Canvas 布局尺寸，resize 后需调用 */
   updateLayout(layout) {
@@ -105,9 +105,9 @@ export class TimelineEventHandler {
    * max = totalDuration * scale - viewportInnerWidth；当内容比视口短时 max=0
    * （即时间线根本不需要滚动，禁止任何正向滚动到空白区）。
    */
-  clampScrollX(scrollX, scale2, totalDuration) {
+  clampScrollX(scrollX, scale, totalDuration) {
     const viewportWidth = this.getCanvasRect().width;
-    const contentWidth = totalDuration * scale2;
+    const contentWidth = totalDuration * scale;
     const innerWidth = Math.max(
       0,
       viewportWidth - TIMELINE_CONFIG.TRACK_PADDING_H * 2,
@@ -115,52 +115,52 @@ export class TimelineEventHandler {
     const maxScroll = Math.max(0, contentWidth - innerWidth);
     return Math.max(0, Math.min(scrollX, maxScroll));
   }
-  onKeyDown(e2) {
-    const target = e2.target;
-    const tag = target?.tagName?.toLowerCase();
-    if (tag === "input" || tag === "textarea" || target?.isContentEditable)
+  onKeyDown(keyboardEvent) {
+    const target = keyboardEvent.target;
+    const tagName = target?.tagName?.toLowerCase();
+    if (tagName === "input" || tagName === "textarea" || target?.isContentEditable)
       return;
-    if (e2.key === "Escape" && this.getState().cropRange) {
-      e2.preventDefault();
+    if (keyboardEvent.key === "Escape" && this.getState().cropRange) {
+      keyboardEvent.preventDefault();
       this.callbacks.onStateChange({
         cropRange: null,
       });
       this.callbacks.onRequestRender();
     }
   }
-  onMouseDown(e2) {
+  onMouseDown(mouseEvent) {
     this.cachedRect = this.getCanvasRect();
     const rect = this.cachedRect;
-    const x2 = e2.clientX - rect.left;
-    const y4 = e2.clientY - rect.top;
-    const state2 = this.getState();
-    this.dragStartX = x2;
-    this.dragStartScrollX = state2.scrollX;
-    if (y4 < this.rulerHeight) {
+    const pointerX = mouseEvent.clientX - rect.left;
+    const pointerY = mouseEvent.clientY - rect.top;
+    const state = this.getState();
+    this.dragStartX = pointerX;
+    this.dragStartScrollX = state.scrollX;
+    if (pointerY < this.rulerHeight) {
       if (this.getState().clips.length === 0) return;
       this.isDragging = true;
       this.dragType = "playhead";
-      this.updatePlayheadPosition(x2);
+      this.updatePlayheadPosition(pointerX);
       this.canvas.style.cursor = "col-resize";
       document.addEventListener("mousemove", this.boundMouseMove);
       document.addEventListener("mouseup", this.boundMouseUp);
       return;
     }
-    const cropHit = this.hitTestCropHandle(x2, y4);
+    const cropHit = this.hitTestCropHandle(pointerX, pointerY);
     if (cropHit) {
       this.isDragging = true;
       this.dragType = cropHit;
-      const cr2 = state2.cropRange ?? {
+      const cropRange = state.cropRange ?? {
         start: 0,
         end: 0,
       };
-      this.cropDragStartStart = cr2.start;
-      this.cropDragStartEnd = cr2.end;
+      this.cropDragStartStart = cropRange.start;
+      this.cropDragStartEnd = cropRange.end;
       if (cropHit === "crop-body") {
         const time =
-          (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + state2.scrollX) /
-          state2.scale;
-        this.cropBodyGrabOffset = time - cr2.start;
+          (pointerX - TIMELINE_CONFIG.TRACK_PADDING_H + state.scrollX) /
+          state.scale;
+        this.cropBodyGrabOffset = time - cropRange.start;
       }
       this.canvas.style.cursor = cropHit === "crop-body" ? "grab" : "ew-resize";
       this.callbacks.onUserInteraction?.();
@@ -169,9 +169,9 @@ export class TimelineEventHandler {
       return;
     }
     const clickedTime =
-      (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + state2.scrollX) / state2.scale;
-    const clickedSegment = state2.segmentRanges.find(
-      (range2) => clickedTime > range2.start && clickedTime < range2.end,
+      (pointerX - TIMELINE_CONFIG.TRACK_PADDING_H + state.scrollX) / state.scale;
+    const clickedSegment = state.segmentRanges.find(
+      (range) => clickedTime > range.start && clickedTime < range.end,
     );
     if (clickedSegment) {
       this.callbacks.onStateChange({
@@ -186,7 +186,7 @@ export class TimelineEventHandler {
     this.isDragging = true;
     if (this.disableScrollDrag) {
       this.dragType = "playhead";
-      this.updatePlayheadPosition(x2);
+      this.updatePlayheadPosition(pointerX);
       this.canvas.style.cursor = "col-resize";
     } else {
       this.dragType = "scroll";
@@ -195,50 +195,50 @@ export class TimelineEventHandler {
     document.addEventListener("mousemove", this.boundMouseMove);
     document.addEventListener("mouseup", this.boundMouseUp);
   }
-  onMouseMove(e2) {
+  onMouseMove(mouseEvent) {
     const rect =
       this.isDragging && this.cachedRect
         ? this.cachedRect
         : this.getCanvasRect();
-    const x2 = e2.clientX - rect.left;
-    const y4 = e2.clientY - rect.top;
+    const pointerX = mouseEvent.clientX - rect.left;
+    const pointerY = mouseEvent.clientY - rect.top;
     if (this.isDragging) {
-      this.handleDrag(x2, y4);
+      this.handleDrag(pointerX, pointerY);
       return;
     }
-    this.updateHoverState(x2, y4);
+    this.updateHoverState(pointerX, pointerY);
   }
-  handleDrag(x2, _y) {
-    const { scale: scale2, scrollX, totalDuration } = this.getState();
+  handleDrag(pointerX, _y) {
+    const { scale, scrollX, totalDuration } = this.getState();
     const { minDuration, maxDuration } = this.cropConfig;
     switch (this.dragType) {
       case "playhead":
-        this.updatePlayheadPosition(x2);
+        this.updatePlayheadPosition(pointerX);
         break;
       case "crop-left": {
-        const time = (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale2;
-        const end2 = this.cropDragStartEnd;
-        const minStart = Math.max(0, end2 - maxDuration);
-        const maxStart = end2 - minDuration;
+        const time = (pointerX - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale;
+        const end = this.cropDragStartEnd;
+        const minStart = Math.max(0, end - maxDuration);
+        const maxStart = end - minDuration;
         const clamped = Math.max(minStart, Math.min(time, maxStart));
         this.callbacks.onStateChange({
           cropRange: {
             start: clamped,
-            end: end2,
+            end,
           },
         });
         this.callbacks.onRequestRender();
         break;
       }
       case "crop-right": {
-        const time = (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale2;
-        const start2 = this.cropDragStartStart;
-        const minEnd = start2 + minDuration;
-        const maxEnd = Math.min(totalDuration, start2 + maxDuration);
+        const time = (pointerX - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale;
+        const start = this.cropDragStartStart;
+        const minEnd = start + minDuration;
+        const maxEnd = Math.min(totalDuration, start + maxDuration);
         const clamped = Math.max(minEnd, Math.min(time, maxEnd));
         this.callbacks.onStateChange({
           cropRange: {
-            start: start2,
+            start,
             end: clamped,
           },
         });
@@ -246,7 +246,7 @@ export class TimelineEventHandler {
         break;
       }
       case "crop-body": {
-        const time = (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale2;
+        const time = (pointerX - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale;
         const duration = this.cropDragStartEnd - this.cropDragStartStart;
         let newStart = time - this.cropBodyGrabOffset;
         newStart = Math.max(0, Math.min(newStart, totalDuration - duration));
@@ -260,10 +260,10 @@ export class TimelineEventHandler {
         break;
       }
       case "scroll": {
-        const deltaX = this.dragStartX - x2;
+        const deltaX = this.dragStartX - pointerX;
         const newScrollX = this.clampScrollX(
           this.dragStartScrollX + deltaX,
-          scale2,
+          scale,
           totalDuration,
         );
         this.callbacks.onStateChange({
@@ -299,53 +299,53 @@ export class TimelineEventHandler {
       this.canvas.style.cursor = "default";
     }
   }
-  onWheel(e2) {
-    e2.preventDefault();
-    const { scale: scale2, scrollX, totalDuration } = this.getState();
+  onWheel(wheelEvent) {
+    wheelEvent.preventDefault();
+    const { scale, scrollX, totalDuration } = this.getState();
     const {
-      MIN_SCALE: MIN_SCALE2,
-      MAX_SCALE: MAX_SCALE2,
+      MIN_SCALE,
+      MAX_SCALE,
       ZOOM_FACTOR,
     } = TIMELINE_CONFIG;
-    if (e2.ctrlKey || e2.metaKey) {
+    if (wheelEvent.ctrlKey || wheelEvent.metaKey) {
       const rect = this.getCanvasRect();
-      const mouseX = e2.clientX - rect.left;
-      const delta = e2.deltaY > 0 ? 1 / ZOOM_FACTOR : ZOOM_FACTOR;
+      const mouseX = wheelEvent.clientX - rect.left;
+      const delta = wheelEvent.deltaY > 0 ? 1 / ZOOM_FACTOR : ZOOM_FACTOR;
       const newScale = Math.min(
-        MAX_SCALE2,
-        Math.max(MIN_SCALE2, scale2 * delta),
+        MAX_SCALE,
+        Math.max(MIN_SCALE, scale * delta),
       );
       const mouseTime =
-        (mouseX - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale2;
-      const newScrollX2 = this.clampScrollX(
+        (mouseX - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale;
+      const clampedScrollX = this.clampScrollX(
         mouseTime * newScale - (mouseX - TIMELINE_CONFIG.TRACK_PADDING_H),
         newScale,
         totalDuration,
       );
       this.callbacks.onStateChange({
         scale: newScale,
-        scrollX: newScrollX2,
+        scrollX: clampedScrollX,
       });
       this.callbacks.onUserInteraction?.();
       this.callbacks.onRequestRender();
       return;
     }
-    if (e2.deltaX !== 0) {
-      const newScrollX2 = this.clampScrollX(
-        scrollX + e2.deltaX,
-        scale2,
+    if (wheelEvent.deltaX !== 0) {
+      const clampedScrollX = this.clampScrollX(
+        scrollX + wheelEvent.deltaX,
+        scale,
         totalDuration,
       );
       this.callbacks.onStateChange({
-        scrollX: newScrollX2,
+        scrollX: clampedScrollX,
       });
       this.callbacks.onUserInteraction?.();
       this.callbacks.onRequestRender();
       return;
     }
     const newScrollX = this.clampScrollX(
-      scrollX + e2.deltaY,
-      scale2,
+      scrollX + wheelEvent.deltaY,
+      scale,
       totalDuration,
     );
     this.callbacks.onStateChange({
@@ -354,13 +354,13 @@ export class TimelineEventHandler {
     this.callbacks.onUserInteraction?.();
     this.callbacks.onRequestRender();
   }
-  updateHoverState(x2, y4) {
-    if (y4 < this.rulerHeight) {
+  updateHoverState(pointerX, pointerY) {
+    if (pointerY < this.rulerHeight) {
       this.canvas.style.cursor =
         this.getState().clips.length > 0 ? "col-resize" : "default";
       return;
     }
-    const cropHit = this.hitTestCropHandle(x2, y4);
+    const cropHit = this.hitTestCropHandle(pointerX, pointerY);
     if (cropHit === "crop-left" || cropHit === "crop-right") {
       this.canvas.style.cursor = "ew-resize";
       return;
@@ -371,9 +371,9 @@ export class TimelineEventHandler {
     }
     this.canvas.style.cursor = "default";
   }
-  updatePlayheadPosition(x2) {
-    const { scale: scale2, scrollX, totalDuration } = this.getState();
-    const time = (x2 - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale2;
+  updatePlayheadPosition(pointerX) {
+    const { scale, scrollX, totalDuration } = this.getState();
+    const time = (pointerX - TIMELINE_CONFIG.TRACK_PADDING_H + scrollX) / scale;
     const clampedTime = Math.max(0, Math.min(time, totalDuration));
     this.callbacks.onStateChange({
       currentTime: clampedTime,
@@ -381,9 +381,9 @@ export class TimelineEventHandler {
     this.callbacks.onPlayheadSeek?.(clampedTime);
     this.callbacks.onRequestRender();
   }
-  hitTestCropHandle(x2, y4) {
-    const state2 = this.getState();
-    const { cropRange } = state2;
+  hitTestCropHandle(pointerX, pointerY) {
+    const state = this.getState();
+    const { cropRange } = state;
     if (!cropRange) return null;
     const {
       CLIP_PADDING,
@@ -391,41 +391,41 @@ export class TimelineEventHandler {
       CROP_HANDLE_OUTSET,
       TRACK_PADDING_H,
     } = TIMELINE_CONFIG;
-    const { scale: scale2, scrollX } = state2;
+    const { scale, scrollX } = state;
     const trackY = this.rulerHeight + this.trackGap + CLIP_PADDING;
     const trackH = this.thumbnailHeight - CLIP_PADDING * 2;
-    if (y4 < trackY || y4 > trackY + trackH) return null;
+    if (pointerY < trackY || pointerY > trackY + trackH) return null;
     const canvasWidth = this.getCanvasRect().width;
     const contentLeft = Math.max(0, TRACK_PADDING_H - CROP_HANDLE_OUTSET);
     const contentRight = Math.min(
       canvasWidth,
       canvasWidth - TRACK_PADDING_H + CROP_HANDLE_OUTSET,
     );
-    if (x2 < contentLeft || x2 > contentRight) return null;
+    if (pointerX < contentLeft || pointerX > contentRight) return null;
     const cropLeftX = Math.max(
       0,
-      cropRange.start * scale2 - scrollX + TRACK_PADDING_H - CROP_HANDLE_OUTSET,
+      cropRange.start * scale - scrollX + TRACK_PADDING_H - CROP_HANDLE_OUTSET,
     );
     const cropRightX = Math.min(
       canvasWidth,
-      cropRange.end * scale2 - scrollX + TRACK_PADDING_H + CROP_HANDLE_OUTSET,
+      cropRange.end * scale - scrollX + TRACK_PADDING_H + CROP_HANDLE_OUTSET,
     );
     const HIT_EXTEND = 2;
     if (
-      x2 >= cropLeftX - HIT_EXTEND &&
-      x2 <= cropLeftX + CROP_HANDLE_WIDTH + HIT_EXTEND
+      pointerX >= cropLeftX - HIT_EXTEND &&
+      pointerX <= cropLeftX + CROP_HANDLE_WIDTH + HIT_EXTEND
     ) {
       return "crop-left";
     }
     if (
-      x2 >= cropRightX - CROP_HANDLE_WIDTH - HIT_EXTEND &&
-      x2 <= cropRightX + HIT_EXTEND
+      pointerX >= cropRightX - CROP_HANDLE_WIDTH - HIT_EXTEND &&
+      pointerX <= cropRightX + HIT_EXTEND
     ) {
       return "crop-right";
     }
     if (
-      x2 > cropLeftX + CROP_HANDLE_WIDTH &&
-      x2 < cropRightX - CROP_HANDLE_WIDTH
+      pointerX > cropLeftX + CROP_HANDLE_WIDTH &&
+      pointerX < cropRightX - CROP_HANDLE_WIDTH
     ) {
       return "crop-body";
     }

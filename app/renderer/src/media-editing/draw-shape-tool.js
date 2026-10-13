@@ -1,39 +1,39 @@
 // draw-shape-tool.js
 import { createShape } from "./arrow-shape.js";
-import { Tool, uid } from "./keep-tag-in-canvas.js";
+import { Tool, uid as createUniqueId } from "./keep-tag-in-canvas.js";
 
 export class DrawShapeTool extends Tool {
   cursor = "crosshair";
   startPoint = null;
   workingShape = null;
   shapeType;
-  constructor(editor, type2) {
+  constructor(editor, type) {
     super(editor);
-    this.shapeType = type2;
+    this.shapeType = type;
   }
-  onPointerDown(e2) {
-    if (e2.button !== 0) return;
-    this.startPoint = e2.point;
-    const data2 = this.buildInitialData(e2.point, this.editor.getStyle());
-    this.workingShape = createShape(data2);
+  onPointerDown(pointerEvent) {
+    if (pointerEvent.button !== 0) return;
+    this.startPoint = pointerEvent.point;
+    const data = this.buildInitialData(pointerEvent.point, this.editor.getStyle());
+    this.workingShape = createShape(data);
     this.editor.setPreviewShape(this.workingShape);
   }
-  onPointerMove(e2) {
+  onPointerMove(pointerEvent) {
     if (!this.startPoint || !this.workingShape) return;
-    this.updateShape(this.workingShape, this.startPoint, e2.point);
+    this.updateShape(this.workingShape, this.startPoint, pointerEvent.point);
     this.editor.requestPreviewRender();
   }
-  onPointerUp(e2) {
+  onPointerUp(pointerEvent) {
     if (!this.startPoint || !this.workingShape) return;
-    this.updateShape(this.workingShape, this.startPoint, e2.point);
-    const b3 = this.workingShape.getBounds();
+    this.updateShape(this.workingShape, this.startPoint, pointerEvent.point);
+    const shapeBounds = this.workingShape.getBounds();
     const tooSmall =
       this.shapeType === "line" || this.shapeType === "arrow"
         ? Math.hypot(
-            e2.point.x - this.startPoint.x,
-            e2.point.y - this.startPoint.y,
+            pointerEvent.point.x - this.startPoint.x,
+            pointerEvent.point.y - this.startPoint.y,
           ) < 4
-        : b3.width < 4 || b3.height < 4;
+        : shapeBounds.width < 4 || shapeBounds.height < 4;
     this.editor.setPreviewShape(null);
     if (!tooSmall) {
       this.editor.addShape(this.workingShape.data);
@@ -41,66 +41,66 @@ export class DrawShapeTool extends Tool {
     this.startPoint = null;
     this.workingShape = null;
   }
-  buildInitialData(p3, style2) {
-    const id2 = uid(this.shapeType);
+  buildInitialData(initialPoint, style) {
+    const shapeId = createUniqueId(this.shapeType);
     const baseStyle = {
-      ...style2,
+      ...style,
     };
     switch (this.shapeType) {
       case "rectangle":
         return {
-          id: id2,
+          id: shapeId,
           type: "rectangle",
-          x: p3.x,
-          y: p3.y,
+          x: initialPoint.x,
+          y: initialPoint.y,
           width: 0,
           height: 0,
           style: baseStyle,
         };
       case "ellipse":
         return {
-          id: id2,
+          id: shapeId,
           type: "ellipse",
-          x: p3.x,
-          y: p3.y,
+          x: initialPoint.x,
+          y: initialPoint.y,
           width: 0,
           height: 0,
           style: baseStyle,
         };
       case "line":
         return {
-          id: id2,
+          id: shapeId,
           type: "line",
-          x1: p3.x,
-          y1: p3.y,
-          x2: p3.x,
-          y2: p3.y,
+          x1: initialPoint.x,
+          y1: initialPoint.y,
+          x2: initialPoint.x,
+          y2: initialPoint.y,
           style: baseStyle,
         };
       case "arrow":
         return {
-          id: id2,
+          id: shapeId,
           type: "arrow",
-          x1: p3.x,
-          y1: p3.y,
-          x2: p3.x,
-          y2: p3.y,
+          x1: initialPoint.x,
+          y1: initialPoint.y,
+          x2: initialPoint.x,
+          y2: initialPoint.y,
           style: baseStyle,
         };
     }
   }
-  updateShape(shape, start2, current2) {
-    const data2 = shape.data;
-    if (data2.type === "rectangle" || data2.type === "ellipse") {
-      data2.x = Math.min(start2.x, current2.x);
-      data2.y = Math.min(start2.y, current2.y);
-      data2.width = Math.abs(current2.x - start2.x);
-      data2.height = Math.abs(current2.y - start2.y);
-    } else if (data2.type === "line" || data2.type === "arrow") {
-      data2.x1 = start2.x;
-      data2.y1 = start2.y;
-      data2.x2 = current2.x;
-      data2.y2 = current2.y;
+  updateShape(shape, start, current) {
+    const data = shape.data;
+    if (data.type === "rectangle" || data.type === "ellipse") {
+      data.x = Math.min(start.x, current.x);
+      data.y = Math.min(start.y, current.y);
+      data.width = Math.abs(current.x - start.x);
+      data.height = Math.abs(current.y - start.y);
+    } else if (data.type === "line" || data.type === "arrow") {
+      data.x1 = start.x;
+      data.y1 = start.y;
+      data.x2 = current.x;
+      data.y2 = current.y;
     }
   }
 }

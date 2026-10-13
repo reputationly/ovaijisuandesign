@@ -1,0 +1,7 @@
+key	new	依据
+name2@36:9	audioName	工具将 name 判为全局名；此属性是显示在音频播放器上方的音轨名称。
+AudioLightbox2@34:57	AudioLightbox	此组件按音频 URL、歌词和媒体项渲染灯箱播放器及下载操作。
+current2@42:9	current	此值是优先使用的音频媒体项；缺少时从旧式 lightbox 参数归一化得到。
+
+e2@55:19	clickEvent	音频灯箱容器收到点击事件后阻止冒泡，避免同一次点击触发外层画布操作。
+t2@41:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。

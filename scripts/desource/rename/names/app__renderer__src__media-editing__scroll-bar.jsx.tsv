@@ -1,0 +1,6 @@
+key	new	依据
+children2@30:51	children	ScrollArea 的子节点，渲染在滚动视口内部。
+name2@49:9	componentName	组件展示名称，用于标题文本和生成 UI 操作标识。
+children2@52:13	children	组件示例区的子节点，显示在标题和说明下方。
+children2@79:48	children	变体网格中的子节点，显示各个变体示例。
+size2@89:41	size	卡片尺寸变体，写入 data-size 并影响样式类。

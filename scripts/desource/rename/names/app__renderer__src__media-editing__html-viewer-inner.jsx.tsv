@@ -1,0 +1,19 @@
+containerEl@151:10	containerElState	useState 状态与 setContainerElState setter 配对，保存当前 HTML 预览容器元素。
+key	new	依据
+t2@28:14	t	useTranslation 返回的翻译函数，用于 HTML 预览加载失败等状态文案。
+res@69:14	response	fetch 返回的 HTTP 响应对象，代码检查其 status 是否为 404。
+t2@98:14	t	useTranslation 返回的翻译函数，用于文件节点菜单、预览和连接状态操作标签。
+pid@110:11	pluginId	从节点 data 中验证得到的插件 ID，和 manifest entry 一起解析资源 URL。
+el@153:6	element	HTML 容器 ref 回调收到的 DOM 元素，同时写入本地状态和 fullscreen API。
+e2@222:23	toggleEvent	document picture-in-picture 切换事件，提供新的 presentation 状态。
+tev@223:13	presentationEvent	当前 picture-in-picture 切换事件，用于读取 newState 并处理关闭状态。
+e2@236:20	keyboardEvent	HTML 预览上的 keydown 事件；仅 Escape 会阻止默认行为和冒泡并关闭视图。
+c3@261:39	connectionState	连接 store 的状态对象，isConnecting 从中读取 inProgress 标记。
+url2@47:29	url	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存供查看器探测或加载的文件 URL。
+state2@48:10	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存文件 URL 探测得到的查看器状态。
+platform2@84:9	platform	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存宿主环境提供的平台信息对象。
+displayName2@90:16	displayName	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存传入 HTML 查看器的文件展示名称。
+active2@101:9	active	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存HTML 查看器所在画布是否处于活动状态。
+data2@109:11	data	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前插件节点的序列化数据。
+url2@123:11	url	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存供查看器探测或加载的文件 URL。
+observer2@197:11	observer	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存监听画布容器尺寸变化的 ResizeObserver。

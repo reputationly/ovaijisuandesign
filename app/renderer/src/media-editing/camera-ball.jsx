@@ -42,9 +42,9 @@ const PHOTO_SIZE_MAX = 68;
 const UPLOAD_BTN_SIZE = 56;
 const MARKER_SIZE = 32;
 const CAMERA_GRID_FOLLOW = 0.2;
-const DEG = Math.PI / 180;
-function getPhotoSize(zoom2) {
-  const clampedZoom = Math.max(0, Math.min(10, zoom2));
+const RADIANS_PER_DEGREE = Math.PI / 180;
+function getPhotoSize(zoom) {
+  const clampedZoom = Math.max(0, Math.min(10, zoom));
   if (clampedZoom <= 5) {
     return (
       PHOTO_SIZE_MIN + (PHOTO_SIZE_MEDIUM - PHOTO_SIZE_MIN) * (clampedZoom / 5)
@@ -55,20 +55,20 @@ function getPhotoSize(zoom2) {
     (PHOTO_SIZE_MAX - PHOTO_SIZE_MEDIUM) * ((clampedZoom - 5) / 5)
   );
 }
-function CenterImage({ imageUrl, size: size2 }) {
+function CenterImage({ imageUrl, size }) {
   const [loadedUrl, setLoadedUrl] = reactExports.useState(null);
   const imgRef = reactExports.useRef(null);
   const isLoaded = loadedUrl === imageUrl;
   reactExports.useEffect(() => {
-    const img = imgRef.current;
-    if (img?.complete) setLoadedUrl(imageUrl);
+    const imageElement = imgRef.current;
+    if (imageElement?.complete) setLoadedUrl(imageUrl);
   }, [imageUrl]);
   return (
     <div
       className="border-hl_line_00 bg-hl_bg_05 relative mx-auto overflow-hidden rounded-lg border transition-[width,height] duration-200 ease-out"
       style={{
-        width: size2,
-        height: size2,
+        width: size,
+        height: size,
       }}
     >
       {!isLoaded && (
@@ -89,59 +89,59 @@ function CenterImage({ imageUrl, size: size2 }) {
     </div>
   );
 }
-function project(lx, ly, lz, yaw, pitch, cx2, cy, r2) {
-  const cP = Math.cos(pitch);
-  const sP = Math.sin(pitch);
-  const y1 = ly * cP + lz * sP;
-  const z1 = -ly * sP + lz * cP;
-  const cY = Math.cos(yaw);
-  const sY = Math.sin(yaw);
-  const x2 = lx * cY + z1 * sY;
-  const z22 = -lx * sY + z1 * cY;
+function project(pointX, pointY, pointZ, yawRadians, pitch, centerX, centerY, radius) {
+  const cosPitch = Math.cos(pitch);
+  const sinPitch = Math.sin(pitch);
+  const rotatedY = pointY * cosPitch + pointZ * sinPitch;
+  const rotatedZ = -pointY * sinPitch + pointZ * cosPitch;
+  const cosYaw = Math.cos(yawRadians);
+  const sinYaw = Math.sin(yawRadians);
+  const rotatedX = pointX * cosYaw + rotatedZ * sinYaw;
+  const rotatedDepth = -pointX * sinYaw + rotatedZ * cosYaw;
   return {
-    x: cx2 + x2 * r2,
-    y: cy - y1 * r2,
-    z: z22,
+    x: centerX + rotatedX * radius,
+    y: centerY - rotatedY * radius,
+    z: rotatedDepth,
   };
 }
-function strokeWithDepth(ctx, pts, frontAlpha, backAlpha) {
-  const flush2 = (start2, end2, isFront) => {
-    if (end2 - start2 < 2) return;
-    ctx.globalAlpha = isFront ? frontAlpha : backAlpha;
-    ctx.beginPath();
-    ctx.moveTo(pts[start2].x, pts[start2].y);
-    for (let j2 = start2 + 1; j2 < end2; j2++) ctx.lineTo(pts[j2].x, pts[j2].y);
-    ctx.stroke();
+function strokeWithDepth(canvasContext, points, frontAlpha, backAlpha) {
+  const flush = (start, end, isFront) => {
+    if (end - start < 2) return;
+    canvasContext.globalAlpha = isFront ? frontAlpha : backAlpha;
+    canvasContext.beginPath();
+    canvasContext.moveTo(points[start].x, points[start].y);
+    for (let pointIndex = start + 1; pointIndex < end; pointIndex++) canvasContext.lineTo(points[pointIndex].x, points[pointIndex].y);
+    canvasContext.stroke();
   };
   let runStart = 0;
-  let runFront = pts[0].z >= 0;
-  for (let i2 = 1; i2 < pts.length; i2++) {
-    const isFront = pts[i2].z >= 0;
+  let runFront = points[0].z >= 0;
+  for (let pointIndex = 1; pointIndex < points.length; pointIndex++) {
+    const isFront = points[pointIndex].z >= 0;
     if (isFront !== runFront) {
-      flush2(runStart, i2, runFront);
-      runStart = i2 - 1;
+      flush(runStart, pointIndex, runFront);
+      runStart = pointIndex - 1;
       runFront = isFront;
     }
   }
-  flush2(runStart, pts.length, runFront);
-  ctx.globalAlpha = 1;
+  flush(runStart, points.length, runFront);
+  canvasContext.globalAlpha = 1;
 }
-function cameraScreenPos(h2, v2, cx2, cy, r2) {
-  const hr = h2 * DEG;
-  const vr = v2 * DEG;
+function cameraScreenPos(horizontalAngle, verticalAngle, centerX, centerY, radius) {
+  const horizontalRadians = horizontalAngle * RADIANS_PER_DEGREE;
+  const verticalRadians = verticalAngle * RADIANS_PER_DEGREE;
   return {
-    x: cx2 + r2 * Math.cos(vr) * Math.sin(hr),
-    y: cy - r2 * Math.sin(vr),
-    z: Math.cos(vr) * Math.cos(hr),
+    x: centerX + radius * Math.cos(verticalRadians) * Math.sin(horizontalRadians),
+    y: centerY - radius * Math.sin(verticalRadians),
+    z: Math.cos(verticalRadians) * Math.cos(horizontalRadians),
   };
 }
 export function CameraBall({
   camera,
   imageUrl,
-  disabled: disabled2,
+  disabled,
   onRotate,
   onUpload,
-  t: t2,
+  t: translations,
 }) {
   const canvasRef = reactExports.useRef(null);
   const [ballYaw, setBallYaw] = reactExports.useState(0);
@@ -149,31 +149,31 @@ export function CameraBall({
   const [themeTick, setThemeTick] = reactExports.useState(0);
   const dragRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
-    const observer2 = new MutationObserver(() => setThemeTick((v2) => v2 + 1));
-    observer2.observe(document.documentElement, {
+    const observer = new MutationObserver(() => setThemeTick((previousThemeTick) => previousThemeTick + 1));
+    observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-    return () => observer2.disconnect();
+    return () => observer.disconnect();
   }, []);
   reactExports.useEffect(() => {
     if (!camera.presetId) return;
     setBallYaw(0);
     setBallPitch(0);
   }, [camera.presetId]);
-  const cx2 = CANVAS_SIZE / 2;
-  const cy = CANVAS_SIZE / 2;
+  const centerX = CANVAS_SIZE / 2;
+  const centerY = CANVAS_SIZE / 2;
   const photoSize = getPhotoSize(camera.zoom);
   reactExports.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.round(CANVAS_SIZE * dpr);
-    canvas.height = Math.round(CANVAS_SIZE * dpr);
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    const canvasPixelRatio = window.devicePixelRatio || 1;
+    canvas.width = Math.round(CANVAS_SIZE * canvasPixelRatio);
+    canvas.height = Math.round(CANVAS_SIZE * canvasPixelRatio);
+    const canvasContext = canvas.getContext("2d");
+    if (!canvasContext) return;
+    canvasContext.scale(canvasPixelRatio, canvasPixelRatio);
+    canvasContext.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
     const themeRoot =
       canvas.closest(".multi-angle-theme") ?? document.documentElement;
     const rootStyle = getComputedStyle(themeRoot);
@@ -185,127 +185,127 @@ export function CameraBall({
       "rgba(192,192,208,0.8)";
     const rayColor =
       rootStyle.getPropertyValue("--hl_text_02").trim() || "rgba(20,22,31,0.7)";
-    const yaw = ballYaw * DEG;
-    const pitch = ballPitch * DEG;
+    const yawRadians = ballYaw * RADIANS_PER_DEGREE;
+    const pitch = ballPitch * RADIANS_PER_DEGREE;
     const STEPS = 64;
-    ctx.lineWidth = 0.8;
-    ctx.strokeStyle = wireColor;
-    for (let i2 = 0; i2 < MERIDIANS; i2++) {
-      const phase = (i2 / MERIDIANS) * Math.PI;
-      const sPh = Math.sin(phase);
-      const cPh = Math.cos(phase);
-      const pts = [];
-      for (let s2 = 0; s2 <= STEPS; s2++) {
-        const theta = -Math.PI + (s2 / STEPS) * 2 * Math.PI;
-        const cT = Math.cos(theta);
-        const sT = Math.sin(theta);
-        pts.push(project(sPh * cT, sT, cPh * cT, yaw, pitch, cx2, cy, RADIUS));
+    canvasContext.lineWidth = 0.8;
+    canvasContext.strokeStyle = wireColor;
+    for (let meridianIndex = 0; meridianIndex < MERIDIANS; meridianIndex++) {
+      const phase = (meridianIndex / MERIDIANS) * Math.PI;
+      const sinPhase = Math.sin(phase);
+      const cosPhase = Math.cos(phase);
+      const points = [];
+      for (let stepIndex = 0; stepIndex <= STEPS; stepIndex++) {
+        const theta = -Math.PI + (stepIndex / STEPS) * 2 * Math.PI;
+        const cosTheta = Math.cos(theta);
+        const sinTheta = Math.sin(theta);
+        points.push(project(sinPhase * cosTheta, sinTheta, cosPhase * cosTheta, yawRadians, pitch, centerX, centerY, RADIUS));
       }
-      strokeWithDepth(ctx, pts, 0.72, 0.28);
+      strokeWithDepth(canvasContext, points, 0.72, 0.28);
     }
-    for (let i2 = 1; i2 <= PARALLELS; i2++) {
+    for (let parallelIndex = 1; parallelIndex <= PARALLELS; parallelIndex++) {
       for (const sign of [1, -1]) {
-        const lat = sign * (i2 / (PARALLELS + 1)) * (Math.PI / 2);
-        const sL = Math.sin(lat);
-        const cL = Math.cos(lat);
-        const pts = [];
-        for (let s2 = 0; s2 <= STEPS; s2++) {
-          const lon = (s2 / STEPS) * 2 * Math.PI;
-          pts.push(
+        const latitude = sign * (parallelIndex / (PARALLELS + 1)) * (Math.PI / 2);
+        const sinLatitude = Math.sin(latitude);
+        const cosLatitude = Math.cos(latitude);
+        const points = [];
+        for (let stepIndex = 0; stepIndex <= STEPS; stepIndex++) {
+          const longitude = (stepIndex / STEPS) * 2 * Math.PI;
+          points.push(
             project(
-              cL * Math.sin(lon),
-              sL,
-              cL * Math.cos(lon),
-              yaw,
+              cosLatitude * Math.sin(longitude),
+              sinLatitude,
+              cosLatitude * Math.cos(longitude),
+              yawRadians,
               pitch,
-              cx2,
-              cy,
+              centerX,
+              centerY,
               RADIUS,
             ),
           );
         }
-        strokeWithDepth(ctx, pts, 0.72, 0.28);
+        strokeWithDepth(canvasContext, points, 0.72, 0.28);
       }
     }
-    ctx.strokeStyle = equatorColor;
+    canvasContext.strokeStyle = equatorColor;
     {
-      const pts = [];
-      for (let s2 = 0; s2 <= STEPS; s2++) {
-        const lon = (s2 / STEPS) * 2 * Math.PI;
-        pts.push(
-          project(Math.sin(lon), 0, Math.cos(lon), yaw, pitch, cx2, cy, RADIUS),
+      const points = [];
+      for (let stepIndex = 0; stepIndex <= STEPS; stepIndex++) {
+        const longitude = (stepIndex / STEPS) * 2 * Math.PI;
+        points.push(
+          project(Math.sin(longitude), 0, Math.cos(longitude), yawRadians, pitch, centerX, centerY, RADIUS),
         );
       }
-      strokeWithDepth(ctx, pts, 0.6, 0.22);
+      strokeWithDepth(canvasContext, points, 0.6, 0.22);
     }
-    const pos = cameraScreenPos(
+    const cameraPosition = cameraScreenPos(
       camera.horizontalAngle,
       camera.verticalAngle,
-      cx2,
-      cy,
+      centerX,
+      centerY,
       RADIUS,
     );
-    if (pos.z < 0) {
-      ctx.strokeStyle = rayColor;
-      ctx.globalAlpha = 0.2;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(cx2, cy);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
-      ctx.globalAlpha = 1;
+    if (cameraPosition.z < 0) {
+      canvasContext.strokeStyle = rayColor;
+      canvasContext.globalAlpha = 0.2;
+      canvasContext.lineWidth = 1.5;
+      canvasContext.beginPath();
+      canvasContext.moveTo(centerX, centerY);
+      canvasContext.lineTo(cameraPosition.x, cameraPosition.y);
+      canvasContext.stroke();
+      canvasContext.globalAlpha = 1;
     }
-  }, [camera, ballYaw, ballPitch, themeTick, cx2, cy]);
+  }, [camera, ballYaw, ballPitch, themeTick, centerX, centerY]);
   const applyDrag = reactExports.useCallback(
-    (e2) => {
-      const drag2 = dragRef.current;
-      if (!drag2 || disabled2) return;
-      const dx = e2.clientX - drag2.x;
-      const dy = e2.clientY - drag2.y;
-      const dh = (dx / (Math.PI * RADIUS)) * 180;
-      const dv = (-dy / (Math.PI * RADIUS)) * 180;
-      if (Math.abs(dh) < 0.5 && Math.abs(dv) < 0.5) return;
-      drag2.x = e2.clientX;
-      drag2.y = e2.clientY;
-      const gridFollow = drag2.kind === "ball" ? 1 : CAMERA_GRID_FOLLOW;
-      setBallYaw((v2) => v2 + dh * gridFollow);
-      setBallPitch((v2) => Math.max(-85, Math.min(85, v2 + dv * gridFollow)));
-      onRotate(dh, dv);
+    (pointerEvent) => {
+      const drag = dragRef.current;
+      if (!drag || disabled) return;
+      const deltaX = pointerEvent.clientX - drag.x;
+      const deltaY = pointerEvent.clientY - drag.y;
+      const horizontalAngleDelta = (deltaX / (Math.PI * RADIUS)) * 180;
+      const verticalAngleDelta = (-deltaY / (Math.PI * RADIUS)) * 180;
+      if (Math.abs(horizontalAngleDelta) < 0.5 && Math.abs(verticalAngleDelta) < 0.5) return;
+      drag.x = pointerEvent.clientX;
+      drag.y = pointerEvent.clientY;
+      const gridFollow = drag.kind === "ball" ? 1 : CAMERA_GRID_FOLLOW;
+      setBallYaw((previousYaw) => previousYaw + horizontalAngleDelta * gridFollow);
+      setBallPitch((previousPitch) => Math.max(-85, Math.min(85, previousPitch + verticalAngleDelta * gridFollow)));
+      onRotate(horizontalAngleDelta, verticalAngleDelta);
     },
-    [disabled2, onRotate],
+    [disabled, onRotate],
   );
-  const handleBallPointerDown = (e2) => {
-    if (disabled2) return;
-    e2.currentTarget.setPointerCapture(e2.pointerId);
+  const handleBallPointerDown = (pointerEvent) => {
+    if (disabled) return;
+    pointerEvent.currentTarget.setPointerCapture(pointerEvent.pointerId);
     dragRef.current = {
       kind: "ball",
-      x: e2.clientX,
-      y: e2.clientY,
+      x: pointerEvent.clientX,
+      y: pointerEvent.clientY,
     };
   };
-  const handleMarkerPointerDown = (e2) => {
-    if (disabled2) return;
-    e2.stopPropagation();
-    const container = e2.currentTarget.closest("[data-camera-ball]");
+  const handleMarkerPointerDown = (pointerEvent) => {
+    if (disabled) return;
+    pointerEvent.stopPropagation();
+    const container = pointerEvent.currentTarget.closest("[data-camera-ball]");
     if (container instanceof HTMLElement)
-      container.setPointerCapture(e2.pointerId);
+      container.setPointerCapture(pointerEvent.pointerId);
     dragRef.current = {
       kind: "marker",
-      x: e2.clientX,
-      y: e2.clientY,
+      x: pointerEvent.clientX,
+      y: pointerEvent.clientY,
     };
   };
-  const handlePointerUp = (e2) => {
-    if (e2.currentTarget.hasPointerCapture(e2.pointerId)) {
-      e2.currentTarget.releasePointerCapture(e2.pointerId);
+  const handlePointerUp = (pointerEvent) => {
+    if (pointerEvent.currentTarget.hasPointerCapture(pointerEvent.pointerId)) {
+      pointerEvent.currentTarget.releasePointerCapture(pointerEvent.pointerId);
     }
     dragRef.current = null;
   };
   const cameraPosition = cameraScreenPos(
     camera.horizontalAngle,
     camera.verticalAngle,
-    cx2,
-    cy,
+    centerX,
+    centerY,
     RADIUS,
   );
   return (
@@ -313,7 +313,7 @@ export function CameraBall({
       data-camera-ball={true}
       data-action-ui-id="canvas.multi-angle.camera-ball"
       className={
-        disabled2
+        disabled
           ? "relative cursor-not-allowed opacity-60"
           : "relative cursor-grab active:cursor-grabbing"
       }
@@ -340,8 +340,8 @@ export function CameraBall({
           className="pointer-events-none absolute inset-0 z-[4] size-full"
         >
           <line
-            x1={cx2}
-            y1={cy}
+            x1={centerX}
+            y1={centerY}
             x2={cameraPosition.x}
             y2={cameraPosition.y}
             stroke="var(--hl_text_02)"
@@ -352,15 +352,15 @@ export function CameraBall({
       )}
       {(() => {
         const nearCenter =
-          Math.abs(cameraPosition.x - cx2) < photoSize / 2 + 8 &&
-          Math.abs(cameraPosition.y - cy) < photoSize / 2 + 8;
+          Math.abs(cameraPosition.x - centerX) < photoSize / 2 + 8 &&
+          Math.abs(cameraPosition.y - centerY) < photoSize / 2 + 8;
         const isBehindOverlap =
           nearCenter && cameraPosition.z < 0 && !!imageUrl;
         if (nearCenter && !imageUrl) return null;
         return (
           <button
             type="button"
-            aria-label={t2.adjust_section}
+            aria-label={translations.adjust_section}
             onPointerDown={handleMarkerPointerDown}
             className="group absolute flex items-center justify-center transition-opacity"
             style={{
@@ -371,7 +371,7 @@ export function CameraBall({
               transform: "translate(-50%, -50%)",
               opacity: isBehindOverlap ? 0.46 : 1,
               zIndex: cameraPosition.z >= 0 || isBehindOverlap ? 4 : 1,
-              cursor: disabled2 ? "not-allowed" : "grab",
+              cursor: disabled ? "not-allowed" : "grab",
             }}
           >
             <div className="size-8 scale-[1.331]">
@@ -404,7 +404,7 @@ export function CameraBall({
             <button
               type="button"
               onClick={onUpload}
-              onPointerDown={(e2) => e2.stopPropagation()}
+              onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
               className="border-hl_line_00 text-hl_text_03 hover:border-hl_brand_00 hover:text-hl_brand_00 bg-hl_bg_05 pointer-events-auto flex items-center justify-center rounded-[10px] border border-dashed transition-colors"
               style={{
                 width: UPLOAD_BTN_SIZE,
@@ -414,16 +414,16 @@ export function CameraBall({
               <ToolUploadIcon />
             </button>
             <p className="text-hl_text_03 pointer-events-auto whitespace-nowrap text-xs">
-              {t2.upload_prefix}
+              {translations.upload_prefix}
               <button
                 type="button"
                 onClick={onUpload}
-                onPointerDown={(e2) => e2.stopPropagation()}
+                onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
                 className="text-hl_text_00 underline"
               >
-                {t2.upload_action}
+                {translations.upload_action}
               </button>
-              {t2.upload_suffix}
+              {translations.upload_suffix}
             </p>
           </div>
         )}

@@ -17,16 +17,16 @@ import {
 import { useLightboxMediaActions } from "./use-lightbox-media-actions.jsx";
 import { MediaLightbox } from "./media-lightbox.jsx";
 import { resolveVideoPlaybackUrl } from "../generation/to-workspace-browser-url.js";
-import { cn } from "../infra/dialog-content.jsx";
+import { cn as mergeClassNames } from "../infra/dialog-content.jsx";
 const VIDEO_LIGHTBOX_MAX_WIDTH_RATIO = 0.8;
 const VIDEO_LIGHTBOX_MAX_HEIGHT_RATIO = 0.8;
 const VIDEO_LIGHTBOX_VERTICAL_RESERVED_PX = 176;
 const VIDEO_LIGHTBOX_MIN_HEIGHT_PX = 240;
 const DEFAULT_VIDEO_ASPECT_RATIO = 16 / 9;
-function clampIndex(value, length2) {
-  if (length2 <= 0) return 0;
+function clampIndex(value, collectionLength) {
+  if (collectionLength <= 0) return 0;
   if (!Number.isFinite(value)) return 0;
-  return Math.min(Math.max(Math.floor(value), 0), length2 - 1);
+  return Math.min(Math.max(Math.floor(value), 0), collectionLength - 1);
 }
 function getViewportSize() {
   if (typeof window === "undefined") {
@@ -71,7 +71,7 @@ function normalizePlaybackTime(currentTime, duration) {
   }
   return currentTime;
 }
-export const VideoLightbox = reactExports.memo(function VideoLightbox2({
+export const VideoLightbox = reactExports.memo(function VideoLightbox({
   src,
   sources,
   item,
@@ -84,21 +84,21 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
   actions = [],
   onClose,
 }) {
-  const { t: t2 } = useTranslation();
-  const active2 = useCanvasActive();
+  const { t } = useTranslation();
+  const active = useCanvasActive();
   const videoItems = reactExports.useMemo(
     () => normalizeLegacyLightboxItems("video", items, item, sources, src),
     [items, item, sources, src],
   );
-  const [index2, setIndex] = reactExports.useState(() =>
+  const [index, setIndex] = reactExports.useState(() =>
     clampIndex(initialIndex, videoItems.length),
   );
   const [loadedVideoSize, setLoadedVideoSize] = reactExports.useState(null);
   const [viewport, setViewport] = reactExports.useState(getViewportSize);
   const total = videoItems.length;
   const isMulti = total > 1;
-  const current2 = videoItems[index2] ?? videoItems[0];
-  const activeSrc = current2?.url ? resolveVideoPlaybackUrl(current2.url) : "";
+  const currentVideoItem = videoItems[index] ?? videoItems[0];
+  const activeSrc = currentVideoItem?.url ? resolveVideoPlaybackUrl(currentVideoItem.url) : "";
   const videoRef = reactExports.useRef(null);
   const initialPlaybackTargetRef = reactExports.useRef({
     src: activeSrc,
@@ -111,9 +111,9 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
     () => getVideoDisplaySize(viewport, naturalSize),
     [viewport, naturalSize],
   );
-  const downloadLabel = t2("canvas.lightbox.downloadCurrent");
-  const downloadAllLabel = t2("canvas.lightbox.downloadAll");
-  const showInFolderLabel = t2(getCanvasFileManagerLabelKey());
+  const downloadLabel = t("canvas.lightbox.downloadCurrent");
+  const downloadAllLabel = t("canvas.lightbox.downloadAll");
+  const showInFolderLabel = t(getCanvasFileManagerLabelKey());
   const {
     canSave,
     canSaveAll,
@@ -124,27 +124,27 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
     handleContextMenu,
     contextMenu,
   } = useLightboxMediaActions({
-    item: current2,
+    item: currentVideoItem,
     items: videoItems,
   });
   const goPrev = reactExports.useCallback(() => {
     if (total <= 1) return;
-    setIndex((current22) => (current22 - 1 + total) % total);
+    setIndex((current) => (current - 1 + total) % total);
   }, [total]);
   const goNext = reactExports.useCallback(() => {
     if (total <= 1) return;
-    setIndex((current22) => (current22 + 1) % total);
+    setIndex((current) => (current + 1) % total);
   }, [total]);
   const handlePrevClick = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       goPrev();
     },
     [goPrev],
   );
   const handleNextClick = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       goNext();
     },
     [goNext],
@@ -190,19 +190,19 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   reactExports.useEffect(() => {
-    if (!isMulti || !active2) return;
-    const handler = (e2) => {
-      if (e2.key === "ArrowLeft") {
-        e2.preventDefault();
+    if (!isMulti || !active) return;
+    const handler = (keyboardEvent) => {
+      if (keyboardEvent.key === "ArrowLeft") {
+        keyboardEvent.preventDefault();
         goPrev();
-      } else if (e2.key === "ArrowRight") {
-        e2.preventDefault();
+      } else if (keyboardEvent.key === "ArrowRight") {
+        keyboardEvent.preventDefault();
         goNext();
       }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [isMulti, active2, goPrev, goNext]);
+  }, [isMulti, active, goPrev, goNext]);
   if (!activeSrc) return null;
   return (
     <MediaLightbox
@@ -220,7 +220,7 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
             key={activeSrc}
             ref={videoRef}
             src={activeSrc}
-            className={cn(
+            className={mergeClassNames(
               "block rounded-lg bg-black",
               showShadow && "shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
             )}
@@ -261,7 +261,7 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
                 className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 px-1 text-[11px] text-white/60 tabular-nums"
                 data-action-ui-id="canvas.video-lightbox.counter"
               >
-                {index2 + 1}
+                {index + 1}
                 {" / "}
                 {total}
               </div>
@@ -320,7 +320,7 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
         <>
           <button
             type="button"
-            aria-label={t2(
+            aria-label={t(
               "canvas.videoLightbox.previousVideo",
               "Previous video",
             )}
@@ -332,7 +332,7 @@ export const VideoLightbox = reactExports.memo(function VideoLightbox2({
           </button>
           <button
             type="button"
-            aria-label={t2("canvas.videoLightbox.nextVideo", "Next video")}
+            aria-label={t("canvas.videoLightbox.nextVideo", "Next video")}
             data-action-ui-id="canvas.video-lightbox.next"
             className="absolute right-8 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/55 hover:bg-black/70 text-white/80 hover:text-white transition-colors cursor-pointer pointer-events-auto"
             onClick={handleNextClick}

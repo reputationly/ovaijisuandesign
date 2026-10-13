@@ -9,28 +9,28 @@
     { k: 7e3, r: 232, g: 241, b: 255 },
     { k: 1e4, r: 150, g: 157, b: 245 },
   ];
-  const lerp = (a, b, t) => Math.round(a + (b - a) * t);
+  const lerp = (startValue, endValue, interpolationFactor) => Math.round(startValue + (endValue - startValue) * interpolationFactor);
   function kelvinToHex(kelvin) {
     const clamped = Math.max(
       COLOR_STOPS[0].k,
       Math.min(COLOR_STOPS[COLOR_STOPS.length - 1].k, kelvin),
     );
-    let lo = COLOR_STOPS[0];
-    let hi = COLOR_STOPS[COLOR_STOPS.length - 1];
+    let lowerStop = COLOR_STOPS[0];
+    let upperStop = COLOR_STOPS[COLOR_STOPS.length - 1];
     for (let i = 0; i < COLOR_STOPS.length - 1; i++) {
       if (clamped >= COLOR_STOPS[i].k && clamped <= COLOR_STOPS[i + 1].k) {
-        lo = COLOR_STOPS[i];
-        hi = COLOR_STOPS[i + 1];
+        lowerStop = COLOR_STOPS[i];
+        upperStop = COLOR_STOPS[i + 1];
         break;
       }
     }
-    const t = hi.k === lo.k ? 0 : (clamped - lo.k) / (hi.k - lo.k);
-    const r = lerp(lo.r, hi.r, t);
-    const g = lerp(lo.g, hi.g, t);
-    const b = lerp(lo.b, hi.b, t);
-    const toHex = (v) =>
-      Math.max(0, Math.min(255, v)).toString(16).padStart(2, "0");
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    const temperatureFactor = upperStop.k === lowerStop.k ? 0 : (clamped - lowerStop.k) / (upperStop.k - lowerStop.k);
+    const redChannel = lerp(lowerStop.r, upperStop.r, temperatureFactor);
+    const greenChannel = lerp(lowerStop.g, upperStop.g, temperatureFactor);
+    const blueChannel = lerp(lowerStop.b, upperStop.b, temperatureFactor);
+    const toHex = (channelValue) =>
+      Math.max(0, Math.min(255, channelValue)).toString(16).padStart(2, "0");
+    return `#${toHex(redChannel)}${toHex(greenChannel)}${toHex(blueChannel)}`;
   }
   const MAX_EDGE = 1024;
   const REFERENCE_FALLBACK_INPUT_SIZE = { width: MAX_EDGE, height: 512 };
@@ -74,10 +74,10 @@
           : 1.055 * clamped ** (1 / 2.4) - 0.055),
     );
   }
-  function colorRGB(hex) {
-    const expanded = /^#[0-9a-f]{3}$/i.test(hex)
-      ? `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`
-      : hex;
+  function colorRGB(hexColor) {
+    const expanded = /^#[0-9a-f]{3}$/i.test(hexColor)
+      ? `#${hexColor[1]}${hexColor[1]}${hexColor[2]}${hexColor[2]}${hexColor[3]}${hexColor[3]}`
+      : hexColor;
     const value = /^#[0-9a-f]{6}$/i.test(expanded)
       ? Number.parseInt(expanded.slice(1), 16)
       : 16777215;
@@ -95,15 +95,15 @@
   const finite = (value, fallback) =>
     Number.isFinite(value) ? value : fallback;
   function prepareLight(light) {
-    const az = (finite(light.horizontalAngle, 0) * Math.PI) / 180;
-    const el = (finite(light.verticalAngle, 0) * Math.PI) / 180;
+    const azimuthRadians = (finite(light.horizontalAngle, 0) * Math.PI) / 180;
+    const elevationRadians = (finite(light.verticalAngle, 0) * Math.PI) / 180;
     const soft = light.type === "rectAreaLight";
     const directional = light.type === "directionalLight";
     const angle = Math.PI / (soft ? 2.5 : 5.5);
     return {
-      x: Math.cos(el) * Math.sin(az),
-      y: Math.sin(el),
-      z: Math.cos(el) * Math.cos(az),
+      x: Math.cos(elevationRadians) * Math.sin(azimuthRadians),
+      y: Math.sin(elevationRadians),
+      z: Math.cos(elevationRadians) * Math.cos(azimuthRadians),
       directional,
       intensity:
         ((Math.max(0, Math.min(100, finite(light.intensity, 50))) / 100) * 3.2 +
@@ -148,72 +148,72 @@
     const maxY = Math.min(height - 1, Math.ceil(height / 2 + radius + 1));
     for (let y = minY; y <= maxY; y++) {
       for (let x = minX; x <= maxX; x++) {
-        let px = x + 0.5 - width / 2;
-        let py = height / 2 - y - 0.5;
-        const distance = Math.hypot(px, py);
+        let pixelOffsetX = x + 0.5 - width / 2;
+        let pixelOffsetY = height / 2 - y - 0.5;
+        const distance = Math.hypot(pixelOffsetX, pixelOffsetY);
         if (distance > radius + Math.SQRT1_2) continue;
         let coverage = 1;
         if (distance > radius - Math.SQRT1_2) {
           let hits = 0;
-          for (let sy = 0; sy < 4; sy++) {
-            for (let sx = 0; sx < 4; sx++) {
-              const dx = px + (sx + 0.5) / 4 - 0.5;
-              const dy = py + (sy + 0.5) / 4 - 0.5;
-              if (dx * dx + dy * dy <= radiusSquared) hits++;
+          for (let sampleYIndex = 0; sampleYIndex < 4; sampleYIndex++) {
+            for (let sampleXIndex = 0; sampleXIndex < 4; sampleXIndex++) {
+              const sampleXOffset = pixelOffsetX + (sampleXIndex + 0.5) / 4 - 0.5;
+              const sampleYOffset = pixelOffsetY + (sampleYIndex + 0.5) / 4 - 0.5;
+              if (sampleXOffset * sampleXOffset + sampleYOffset * sampleYOffset <= radiusSquared) hits++;
             }
           }
           if (!hits) continue;
           coverage = hits / 16;
           if (distance >= radius) {
             const shrink = (radius * (1 - 1e-8)) / distance;
-            px *= shrink;
-            py *= shrink;
+            pixelOffsetX *= shrink;
+            pixelOffsetY *= shrink;
           }
         }
-        const u = px * scale;
-        const v = py * scale;
-        const a = 1 + u * u + v * v;
-        const t =
+        const viewPlaneX = pixelOffsetX * scale;
+        const viewPlaneY = pixelOffsetY * scale;
+        const rayDirectionLengthSquared = 1 + viewPlaneX * viewPlaneX + viewPlaneY * viewPlaneY;
+        const rayDistance =
           (CAMERA_Z -
             Math.sqrt(
-              Math.max(0, CAMERA_Z * CAMERA_Z - a * (CAMERA_Z * CAMERA_Z - 1)),
+              Math.max(0, CAMERA_Z * CAMERA_Z - rayDirectionLengthSquared * (CAMERA_Z * CAMERA_Z - 1)),
             )) /
-          a;
-        const nx = t * u;
-        const ny = t * v;
-        const nz = CAMERA_Z - t;
-        const invView = 1 / Math.sqrt(a);
-        const vx = -u * invView;
-        const vy = -v * invView;
-        const vz = invView;
-        const nv = Math.max(1e-5, nx * vx + ny * vy + nz * vz);
-        const sky = ny * 0.5 + 0.5;
-        let r =
+          rayDirectionLengthSquared;
+        const surfaceNormalX = rayDistance * viewPlaneX;
+        const surfaceNormalY = rayDistance * viewPlaneY;
+        const surfaceNormalZ = CAMERA_Z - rayDistance;
+        const invView = 1 / Math.sqrt(rayDirectionLengthSquared);
+        const viewDirectionX = -viewPlaneX * invView;
+        const viewDirectionY = -viewPlaneY * invView;
+        const viewDirectionZ = invView;
+        const normalViewDot = Math.max(1e-5, surfaceNormalX * viewDirectionX + surfaceNormalY * viewDirectionY + surfaceNormalZ * viewDirectionZ);
+        const skyBlend = surfaceNormalY * 0.5 + 0.5;
+        let linearRed =
           (studio.ambient +
-            studio.hemisphere * (studio.ground[0] * (1 - sky) + sky)) /
+            studio.hemisphere * (studio.ground[0] * (1 - skyBlend) + skyBlend)) /
           Math.PI;
-        let g =
+        let linearGreen =
           (studio.ambient +
-            studio.hemisphere * (studio.ground[1] * (1 - sky) + sky)) /
+            studio.hemisphere * (studio.ground[1] * (1 - skyBlend) + skyBlend)) /
           Math.PI;
-        let b =
+        let linearBlue =
           (studio.ambient +
-            studio.hemisphere * (studio.ground[2] * (1 - sky) + sky)) /
+            studio.hemisphere * (studio.ground[2] * (1 - skyBlend) + skyBlend)) /
           Math.PI;
         for (const light of lights) {
-          let lx = light.x;
-          let ly = light.y;
-          let lz = light.z;
+          let lightDirectionX = light.x;
+          let lightDirectionY = light.y;
+          let lightDirectionZ = light.z;
           let attenuation = 1;
           if (!light.directional) {
-            lx = lx * LIGHT_DISTANCE - nx;
-            ly = ly * LIGHT_DISTANCE - ny;
-            lz = lz * LIGHT_DISTANCE - nz;
-            const inverseLength = 1 / Math.hypot(lx, ly, lz);
-            lx *= inverseLength;
-            ly *= inverseLength;
-            lz *= inverseLength;
-            const cosine = lx * light.x + ly * light.y + lz * light.z;
+            lightDirectionX = lightDirectionX * LIGHT_DISTANCE - surfaceNormalX;
+            lightDirectionY = lightDirectionY * LIGHT_DISTANCE - surfaceNormalY;
+            lightDirectionZ = lightDirectionZ * LIGHT_DISTANCE - surfaceNormalZ;
+            const inverseLength = 1 / Math.hypot(lightDirectionX, lightDirectionY, lightDirectionZ);
+            lightDirectionX *= inverseLength;
+            lightDirectionY *= inverseLength;
+            lightDirectionZ *= inverseLength;
+            const cosine = lightDirectionX * light.x + lightDirectionY * light.y + lightDirectionZ * light.z;
             const ramp = Math.max(
               0,
               Math.min(
@@ -223,39 +223,39 @@
             );
             attenuation = ramp * ramp * (3 - 2 * ramp);
           }
-          const nl = Math.max(0, nx * lx + ny * ly + nz * lz);
-          if (nl <= 0 || attenuation === 0) continue;
-          const hx = lx + vx;
-          const hy = ly + vy;
-          const hz = lz + vz;
-          const invHalf = 1 / Math.hypot(hx, hy, hz);
-          const nh = Math.max(0, (nx * hx + ny * hy + nz * hz) * invHalf);
-          const vh = Math.max(
+          const normalLightDot = Math.max(0, surfaceNormalX * lightDirectionX + surfaceNormalY * lightDirectionY + surfaceNormalZ * lightDirectionZ);
+          if (normalLightDot <= 0 || attenuation === 0) continue;
+          const halfwayVectorX = lightDirectionX + viewDirectionX;
+          const halfwayVectorY = lightDirectionY + viewDirectionY;
+          const halfwayVectorZ = lightDirectionZ + viewDirectionZ;
+          const invHalf = 1 / Math.hypot(halfwayVectorX, halfwayVectorY, halfwayVectorZ);
+          const normalHalfwayDot = Math.max(0, (surfaceNormalX * halfwayVectorX + surfaceNormalY * halfwayVectorY + surfaceNormalZ * halfwayVectorZ) * invHalf);
+          const viewHalfwayDot = Math.max(
             0,
-            Math.min(1, (vx * hx + vy * hy + vz * hz) * invHalf),
+            Math.min(1, (viewDirectionX * halfwayVectorX + viewDirectionY * halfwayVectorY + viewDirectionZ * halfwayVectorZ) * invHalf),
           );
           const alphaSquared = 0.3 ** 4;
-          const denominator = nh * nh * (alphaSquared - 1) + 1;
+          const denominator = normalHalfwayDot * normalHalfwayDot * (alphaSquared - 1) + 1;
           const distribution =
             alphaSquared / (Math.PI * denominator * denominator);
           const visibility =
             0.5 /
-            (nl * Math.sqrt(nv * nv * (1 - alphaSquared) + alphaSquared) +
-              nv * Math.sqrt(nl * nl * (1 - alphaSquared) + alphaSquared));
-          const fresnel = 0.04 + 0.96 * (1 - vh) ** 5;
+            (normalLightDot * Math.sqrt(normalViewDot * normalViewDot * (1 - alphaSquared) + alphaSquared) +
+              normalViewDot * Math.sqrt(normalLightDot * normalLightDot * (1 - alphaSquared) + alphaSquared));
+          const fresnel = 0.04 + 0.96 * (1 - viewHalfwayDot) ** 5;
           const radiance =
             light.intensity *
             attenuation *
-            nl *
+            normalLightDot *
             (1 / Math.PI + distribution * visibility * fresnel);
-          r += light.color[0] * radiance;
-          g += light.color[1] * radiance;
-          b += light.color[2] * radiance;
+          linearRed += light.color[0] * radiance;
+          linearGreen += light.color[1] * radiance;
+          linearBlue += light.color[2] * radiance;
         }
         const offset = (y * width + x) * 4;
-        data[offset] = toSRGB(r);
-        data[offset + 1] = toSRGB(g);
-        data[offset + 2] = toSRGB(b);
+        data[offset] = toSRGB(linearRed);
+        data[offset + 1] = toSRGB(linearGreen);
+        data[offset + 2] = toSRGB(linearBlue);
         data[offset + 3] = Math.round(coverage * 255);
       }
     }

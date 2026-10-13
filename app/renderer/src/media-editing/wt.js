@@ -54,128 +54,128 @@ export var D3 = () => reactExports.useContext(Be);
 export var Ve = reactExports.createContext(null);
 export var ct2 = () => reactExports.useContext(Ve);
 export var Li = () => {
-  var t2;
-  let e2 = ct2();
-  return (t2 = e2 == null ? void 0 : e2.code) != null ? t2 : null;
+  var codeText;
+  let renderContext = ct2();
+  return (codeText = renderContext == null ? void 0 : renderContext.code) != null ? codeText : null;
 };
 export var de = () => {
-  var t2;
-  let e2 = ct2();
-  return (t2 = e2 == null ? void 0 : e2.mermaid) != null ? t2 : null;
+  var mermaidOptions;
+  let renderContext = ct2();
+  return (mermaidOptions = renderContext == null ? void 0 : renderContext.mermaid) != null ? mermaidOptions : null;
 };
-var Go = () => (e2) => {
-  visit(e2, "html", (t2, o2, n2) => {
-    !n2 ||
-      typeof o2 != "number" ||
-      (n2.children[o2] = {
+var textifyRawHtmlPlugin = () => (tree) => {
+  visit(tree, "html", (node, childIndex, parentNode) => {
+    !parentNode ||
+      typeof childIndex != "number" ||
+      (parentNode.children[childIndex] = {
         type: "text",
-        value: t2.value,
+        value: node.value,
       });
   });
 };
-var Qo = [];
-var en = {
+var emptyPluginList = [];
+var defaultRemarkRehypeOptions = {
   allowDangerousHtml: true,
 };
-var We = new WeakMap();
+var pluginFunctionNameCache = new WeakMap();
 export var wt = class {
   constructor() {
     this.cache = new Map();
     this.keyCache = new WeakMap();
     this.maxSize = 100;
   }
-  generateCacheKey(t2) {
-    let o2 = this.keyCache.get(t2);
-    if (o2) return o2;
-    let n2 = t2.rehypePlugins,
-      r2 = t2.remarkPlugins,
-      s2 = t2.remarkRehypeOptions;
-    if (!(n2 || r2 || s2)) {
-      let p3 = "default";
-      return (this.keyCache.set(t2, p3), p3);
+  generateCacheKey(processorOptions) {
+    let cachedKey = this.keyCache.get(processorOptions);
+    if (cachedKey) return cachedKey;
+    let rehypePlugins = processorOptions.rehypePlugins,
+      remarkPlugins = processorOptions.remarkPlugins,
+      remarkRehypeOptions = processorOptions.remarkRehypeOptions;
+    if (!(rehypePlugins || remarkPlugins || remarkRehypeOptions)) {
+      let defaultCacheKey = "default";
+      return (this.keyCache.set(processorOptions, defaultCacheKey), defaultCacheKey);
     }
-    let a2 = (p3) => {
-        if (!p3 || p3.length === 0) return "";
-        let m3 = "";
-        for (let u4 = 0; u4 < p3.length; u4 += 1) {
-          let f2 = p3[u4];
-          if ((u4 > 0 && (m3 += ","), Array.isArray(f2))) {
-            let [h2, b3] = f2;
-            if (typeof h2 == "function") {
-              let g2 = We.get(h2);
-              (g2 || ((g2 = h2.name), We.set(h2, g2)), (m3 += g2));
-            } else m3 += String(h2);
-            ((m3 += ":"), (m3 += JSON.stringify(b3)));
-          } else if (typeof f2 == "function") {
-            let h2 = We.get(f2);
-            (h2 || ((h2 = f2.name), We.set(f2, h2)), (m3 += h2));
-          } else m3 += String(f2);
+    let serializePluginList = (pluginList) => {
+        if (!pluginList || pluginList.length === 0) return "";
+        let pluginSignature = "";
+        for (let pluginIndex = 0; pluginIndex < pluginList.length; pluginIndex += 1) {
+          let pluginEntry = pluginList[pluginIndex];
+          if ((pluginIndex > 0 && (pluginSignature += ","), Array.isArray(pluginEntry))) {
+            let [plugin, pluginOptions] = pluginEntry;
+            if (typeof plugin == "function") {
+              let cachedFunctionName = pluginFunctionNameCache.get(plugin);
+              (cachedFunctionName || ((cachedFunctionName = plugin.name), pluginFunctionNameCache.set(plugin, cachedFunctionName)), (pluginSignature += cachedFunctionName));
+            } else pluginSignature += String(plugin);
+            ((pluginSignature += ":"), (pluginSignature += JSON.stringify(pluginOptions)));
+          } else if (typeof pluginEntry == "function") {
+            let cachedFunctionName = pluginFunctionNameCache.get(pluginEntry);
+            (cachedFunctionName || ((cachedFunctionName = pluginEntry.name), pluginFunctionNameCache.set(pluginEntry, cachedFunctionName)), (pluginSignature += cachedFunctionName));
+          } else pluginSignature += String(pluginEntry);
         }
-        return m3;
+        return pluginSignature;
       },
-      l2 = a2(n2),
-      i2 = a2(r2),
-      d2 = s2 ? JSON.stringify(s2) : "",
-      c3 = `${i2}::${l2}::${d2}`;
-    return (this.keyCache.set(t2, c3), c3);
+      rehypePluginKey = serializePluginList(rehypePlugins),
+      remarkPluginKey = serializePluginList(remarkPlugins),
+      remarkRehypeOptionsKey = remarkRehypeOptions ? JSON.stringify(remarkRehypeOptions) : "",
+      cacheKey = `${remarkPluginKey}::${rehypePluginKey}::${remarkRehypeOptionsKey}`;
+    return (this.keyCache.set(processorOptions, cacheKey), cacheKey);
   }
-  get(t2) {
-    let o2 = this.generateCacheKey(t2),
-      n2 = this.cache.get(o2);
-    return (n2 && (this.cache.delete(o2), this.cache.set(o2, n2)), n2);
+  get(processorOptions) {
+    let cacheKey = this.generateCacheKey(processorOptions),
+      cachedProcessor = this.cache.get(cacheKey);
+    return (cachedProcessor && (this.cache.delete(cacheKey), this.cache.set(cacheKey, cachedProcessor)), cachedProcessor);
   }
-  set(t2, o2) {
-    let n2 = this.generateCacheKey(t2);
+  set(processorOptions, processor) {
+    let cacheKey = this.generateCacheKey(processorOptions);
     if (this.cache.size >= this.maxSize) {
-      let r2 = this.cache.keys().next().value;
-      r2 && this.cache.delete(r2);
+      let oldestCacheKey = this.cache.keys().next().value;
+      oldestCacheKey && this.cache.delete(oldestCacheKey);
     }
-    this.cache.set(n2, o2);
+    this.cache.set(cacheKey, processor);
   }
   clear() {
     this.cache.clear();
   }
 };
-var Cs = (e2) =>
-  e2.some((t2) => (Array.isArray(t2) ? t2[0] === rehypeRaw : t2 === rehypeRaw));
-export var ks = (e2) => {
-  let t2 = e2.rehypePlugins || Qo,
-    o2 = e2.remarkPlugins || Qo,
-    n2 = Cs(t2) ? o2 : [...o2, Go],
-    r2 = e2.remarkRehypeOptions
+var hasRehypeRawPlugin = (pluginList) =>
+  pluginList.some((pluginEntry) => (Array.isArray(pluginEntry) ? pluginEntry[0] === rehypeRaw : pluginEntry === rehypeRaw));
+export var ks = (processorOptions) => {
+  let rehypePlugins = processorOptions.rehypePlugins || emptyPluginList,
+    remarkPlugins = processorOptions.remarkPlugins || emptyPluginList,
+    remarkPluginsWithHtmlFallback = hasRehypeRawPlugin(rehypePlugins) ? remarkPlugins : [...remarkPlugins, textifyRawHtmlPlugin],
+    remarkRehypeOptions = processorOptions.remarkRehypeOptions
       ? {
-          ...en,
-          ...e2.remarkRehypeOptions,
+          ...defaultRemarkRehypeOptions,
+          ...processorOptions.remarkRehypeOptions,
         }
-      : en;
-  return unified().use(remarkParse).use(n2).use(remarkRehype, r2).use(t2);
+      : defaultRemarkRehypeOptions;
+  return unified().use(remarkParse).use(remarkPluginsWithHtmlFallback).use(remarkRehype, remarkRehypeOptions).use(rehypePlugins);
 };
-export var on = (e2) => e2;
-export var vs = (e2, t2, o2, n2) => {
-  o2
-    ? e2.children.splice(t2, 1)
-    : (e2.children[t2] = {
+export var on = (url) => url;
+export var vs = (parentNode, childIndex, shouldRemoveChild, textContent) => {
+  shouldRemoveChild
+    ? parentNode.children.splice(childIndex, 1)
+    : (parentNode.children[childIndex] = {
         type: "text",
-        value: n2,
+        value: textContent,
       });
 };
-export var xs = (e2, t2) => {
-  var o2;
-  for (let n2 in urlAttributes)
-    if (Object.hasOwn(urlAttributes, n2) && Object.hasOwn(e2.properties, n2)) {
-      let r2 = e2.properties[n2],
-        s2 = urlAttributes[n2];
-      (s2 === null || s2.includes(e2.tagName)) &&
-        (e2.properties[n2] =
-          (o2 = t2(String(r2 || ""), n2, e2)) != null ? o2 : void 0);
+export var xs = (element, urlTransform) => {
+  var transformedUrl;
+  for (let attributeName in urlAttributes)
+    if (Object.hasOwn(urlAttributes, attributeName) && Object.hasOwn(element.properties, attributeName)) {
+      let attributeValue = element.properties[attributeName],
+        allowedTags = urlAttributes[attributeName];
+      (allowedTags === null || allowedTags.includes(element.tagName)) &&
+        (element.properties[attributeName] =
+          (transformedUrl = urlTransform(String(attributeValue || ""), attributeName, element)) != null ? transformedUrl : void 0);
     }
 };
-export var Ts = (e2, t2, o2, n2, r2, s2) => {
-  let a2 = false;
+export var Ts = (element, childIndex, parentNode, allowedElements, disallowedElements, allowElement) => {
+  let shouldSkipElement = false;
   return (
-    n2 ? (a2 = !n2.includes(e2.tagName)) : r2 && (a2 = r2.includes(e2.tagName)),
-    !a2 && s2 && typeof t2 == "number" && (a2 = !s2(e2, t2, o2)),
-    a2
+    allowedElements ? (shouldSkipElement = !allowedElements.includes(element.tagName)) : disallowedElements && (shouldSkipElement = disallowedElements.includes(element.tagName)),
+    !shouldSkipElement && allowElement && typeof childIndex == "number" && (shouldSkipElement = !allowElement(element, childIndex, parentNode)),
+    shouldSkipElement
   );
 };
 function safeDecodeURIComponent(value) {
@@ -188,16 +188,16 @@ function safeDecodeURIComponent(value) {
 export function cleanPath(src) {
   if (!src) return "";
   try {
-    const url2 = new URL(src);
-    return safeDecodeURIComponent(url2.pathname);
+    const url = new URL(src);
+    return safeDecodeURIComponent(url.pathname);
   } catch {
     return safeDecodeURIComponent(src.split(/[?#]/)[0] ?? src);
   }
 }
 export const MEDIA_CATEGORIES = ["image", "video", "audio"];
-function buildSelectionAliasIndex(entries2) {
+function buildSelectionAliasIndex(entries) {
   const mutable = new Map();
-  for (const entry of entries2) {
+  for (const entry of entries) {
     const aliases = [
       entry.id,
       entry.model_name,
@@ -229,31 +229,31 @@ function selectionIdMatchesVisibleModel(selectionId, model, category) {
   if (!aliases) return false;
   return aliases.rowIds.has(model.id);
 }
-export function isVisibleMediaModelSelected(selected2, model) {
+export function isVisibleMediaModelSelected(selected, model) {
   if (!isMediaCategory(model.type)) return false;
   const category = model.type;
-  const selectedIds = selected2[category];
+  const selectedIds = selected[category];
   if (selectedIds === void 0) return true;
-  return selectedIds.some((id2) =>
-    selectionIdMatchesVisibleModel(id2, model, category),
+  return selectedIds.some((selectionId) =>
+    selectionIdMatchesVisibleModel(selectionId, model, category),
   );
 }
-export function countVisibleSelectedMediaModels(selected2, models) {
+export function countVisibleSelectedMediaModels(selected, models) {
   return models.filter(
     (model) =>
       model.visibility !== "hidden" &&
       isMediaCategory(model.type) &&
-      isVisibleMediaModelSelected(selected2, model),
+      isVisibleMediaModelSelected(selected, model),
   ).length;
 }
-export function isAllVisibleMediaModelsSelected(selected2, models) {
+export function isAllVisibleMediaModelsSelected(selected, models) {
   for (const category of MEDIA_CATEGORIES) {
     const visibleModels = models.filter(
       (model) => model.type === category && model.visibility !== "hidden",
     );
     if (
       !visibleModels.every((model) =>
-        isVisibleMediaModelSelected(selected2, model),
+        isVisibleMediaModelSelected(selected, model),
       )
     )
       return false;

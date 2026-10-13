@@ -17,34 +17,34 @@ import { MediaGenerationErrorOverlay } from "../generation/media-generation-erro
 import { CanvasImage } from "./canvas-image.jsx";
 import { resolveGifAnimationSrc } from "./base-backend.jsx";
 function ImageSlotErrorTile({
-  message: message2,
+  message,
   recoverable = false,
   uncertain = false,
   refundStatus,
   refundedCredits,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const neutralDescription = recoverable
-    ? t2(
+    ? t(
         "canvas.generationRecovery.description",
         "原任务已保留，结果将在恢复后自动回填。",
       )
     : uncertain
-      ? t2(
+      ? t(
           "canvas.generationStatusUnknown.description",
           "生成请求未能完成，系统不会自动重试。",
         )
       : void 0;
-  const text2 =
+  const text =
     neutralDescription ??
-    message2 ??
-    t2("canvas.multiImage.slotErrorGeneric", "生成失败");
-  const tooltip = text2;
+    message ??
+    t("canvas.multiImage.slotErrorGeneric", "生成失败");
+  const tooltip = text;
   return (
     <div
       role="alert"
       data-action-ui-id="canvas.image-node.slot-body.error.compact"
-      aria-label={text2}
+      aria-label={text}
       title={tooltip}
       className={`pointer-events-auto absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 overflow-hidden px-2 py-2 ${recoverable ? "border border-border bg-card" : "border border-destructive/40 bg-destructive/10"}`}
     >
@@ -65,11 +65,11 @@ function ImageSlotErrorTile({
         }
       >
         {recoverable
-          ? t2("canvas.generationRecovery.title", "结果待恢复")
-          : t2("canvas.generationFailed", "生成失败")}
+          ? t("canvas.generationRecovery.title", "结果待恢复")
+          : t("canvas.generationFailed", "生成失败")}
       </span>
       <span className="line-clamp-2 w-full min-w-0 break-all text-center text-[9px] leading-tight text-muted-foreground">
-        {text2}
+        {text}
       </span>
       {!recoverable && !uncertain && isGenerationRefundStatus(refundStatus) ? (
         <div className="pointer-events-none absolute bottom-2 left-2 z-20">
@@ -103,7 +103,7 @@ function computeContainSize(imgW, imgH, boxW, boxH) {
     height: boxH,
   };
 }
-export const ImageSlotBody = reactExports.memo(function ImageSlotBody2({
+export const ImageSlotBody = reactExports.memo(function ImageSlotBody({
   nodeId,
   slot,
   width,
@@ -147,11 +147,11 @@ export const ImageSlotBody = reactExports.memo(function ImageSlotBody2({
     status === "recoverable_error" ||
     status === "status_unknown"
   ) {
-    const message2 = overrideError ?? slot.error ?? null;
+    const message = overrideError ?? slot.error ?? null;
     if (errorVariant === "compact") {
       return (
         <ImageSlotErrorTile
-          message={message2}
+          message={message}
           recoverable={status === "recoverable_error"}
           uncertain={status === "status_unknown"}
           refundStatus={slot.refundDisplayOwner ? slot.refundStatus : void 0}
@@ -165,7 +165,7 @@ export const ImageSlotBody = reactExports.memo(function ImageSlotBody2({
       <MediaGenerationErrorOverlay
         nodeId={nodeId}
         nodeType="image"
-        message={message2 ?? ""}
+        message={message ?? ""}
         recoverable={status === "recoverable_error"}
         uncertain={status === "status_unknown"}
       />

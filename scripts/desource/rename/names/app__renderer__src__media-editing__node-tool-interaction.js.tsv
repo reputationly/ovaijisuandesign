@@ -1,0 +1,14 @@
+key	new	依据
+a2@75:33	firstCellIndex	矩形选择起点单元格的线性索引，用 cols 换算出起始行和列。
+b3@75:37	secondCellIndex	矩形选择终点单元格的线性索引，用 cols 换算出结束行和列。
+ar@76:9	firstRow	起点单元格除以列数得到的行号，与 secondRow 比较确定遍历范围。
+ac@77:9	firstColumn	起点单元格对 cols 取余得到的列号，与 secondColumn 比较确定遍历范围。
+br@78:9	secondRow	终点单元格除以列数得到的行号，与 firstRow 比较确定遍历范围。
+bc@79:9	secondColumn	终点单元格对 cols 取余得到的列号，与 firstColumn 比较确定遍历范围。
+r0@80:9	firstRowIndex	两端行号的较小值，作为矩形选区遍历的首行。
+r1@81:9	lastRowIndex	两端行号的较大值，作为矩形选区遍历的末行。
+c0@82:9	firstColumnIndex	两端列号的较小值，作为矩形选区遍历的首列。
+c1@83:9	lastColumnIndex	两端列号的较大值，作为矩形选区遍历的末列。
+out@84:9	cellIndices	矩形覆盖的线性单元格索引数组，按行列循环逐项填充并返回。
+r2@85:12	rowIndex	当前遍历的矩形选区行号，和 columnIndex 组合成线性单元格索引。
+c3@86:14	columnIndex	当前遍历的矩形选区列号，与 rowIndex、cols 共同计算单元格索引。

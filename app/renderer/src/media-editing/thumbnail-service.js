@@ -12,11 +12,11 @@ export class ThumbnailService {
   }
 
   async getVideoMeta(assetId) {
-    const ctx = await this.videoFrameCache.getVideoDecoderCtx(assetId);
+    const decoderContext = await this.videoFrameCache.getVideoDecoderCtx(assetId);
     return {
-      sourceDuration: ctx.sourceDuration,
-      width: ctx.width,
-      height: ctx.height,
+      sourceDuration: decoderContext.sourceDuration,
+      width: decoderContext.width,
+      height: decoderContext.height,
     };
   }
 
@@ -35,9 +35,9 @@ export class ThumbnailService {
       sampleInterval = DEFAULT_SAMPLE_INTERVAL,
       priorityRange,
     } = options;
-    const dpr =
+    const pixelScale =
       typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-    const physThumbHeight = Math.max(8, Math.round(thumbHeight * dpr));
+    const physThumbHeight = Math.max(8, Math.round(thumbHeight * pixelScale));
     const aspect = videoWidth && videoHeight ? videoWidth / videoHeight : 16 / 9;
     const physThumbW = Math.max(12, Math.floor(physThumbHeight * aspect));
     const count = Math.max(1, Math.ceil(duration / sampleInterval));
@@ -47,9 +47,9 @@ export class ThumbnailService {
         time: ((i + 0.5) * duration) / count,
       });
     }
-    const ctx = await this.videoFrameCache.getVideoDecoderCtx(assetId);
+    const decoderContext = await this.videoFrameCache.getVideoDecoderCtx(assetId);
     if (signal?.aborted) return;
-    const maxClamp = Math.max(0, ctx.sourceDuration - 1e-3);
+    const maxClamp = Math.max(0, decoderContext.sourceDuration - 1e-3);
     const clampedSamples = allSamples.map((sample) => ({
       time: Math.max(0, Math.min(sample.time, maxClamp)),
     }));
@@ -58,7 +58,7 @@ export class ThumbnailService {
       if (signal?.aborted) return;
       if (batch.length === 0) continue;
       await this.decodeBatch(
-        ctx.track,
+        decoderContext.track,
         batch,
         physThumbW,
         physThumbHeight,
@@ -100,16 +100,16 @@ export class ThumbnailService {
         if (realTimestamp <= lastTimestamp) continue;
         lastTimestamp = realTimestamp;
         if (this.thumbnailStore.hasFrameAt(assetId, realTimestamp)) continue;
-        const img = await createImageBitmap(canvas.value.canvas);
+        const imageBitmap = await createImageBitmap(canvas.value.canvas);
         this.thumbnailStore.appendFrameSorted(assetId, {
           timestamp: realTimestamp,
-          img,
+          img: imageBitmap,
         });
-        const now = performance.now();
+        const flushTimeMs = performance.now();
         const isLast = i === samples.length - 1;
-        if (isLast || now - lastFlush >= FLUSH_MIN_INTERVAL_MS) {
+        if (isLast || flushTimeMs - lastFlush >= FLUSH_MIN_INTERVAL_MS) {
           onUpdate?.();
-          lastFlush = now;
+          lastFlush = flushTimeMs;
         }
       }
     } finally {

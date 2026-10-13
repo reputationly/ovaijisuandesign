@@ -1,0 +1,4 @@
+key	new	依据
+meta2@24:9	isModifierKeyPressed	键盘事件按下 Meta 或 Ctrl 时为 true，用于判断是否触发画布快捷键。
+root2@56:9	root	rootRef.current 指向的根 DOM 节点，用于判断事件目标是否位于画布内。
+active2@64:9	isCanvasActive	useCanvasActive 返回的画布激活状态，未启用或未激活时不注册快捷键处理。

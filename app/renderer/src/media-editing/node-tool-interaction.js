@@ -72,18 +72,18 @@ export function abandonToolInteractionSession(session, hadProgressOverride) {
   return hadProgressOverride ?? session.hadProgress;
 }
 
-export function rectCellIndices(a2, b3, cols) {
-  const ar = Math.floor(a2 / cols);
-  const ac = a2 % cols;
-  const br = Math.floor(b3 / cols);
-  const bc = b3 % cols;
-  const r0 = Math.min(ar, br);
-  const r1 = Math.max(ar, br);
-  const c0 = Math.min(ac, bc);
-  const c1 = Math.max(ac, bc);
-  const out = [];
-  for (let r2 = r0; r2 <= r1; r2++) {
-    for (let c3 = c0; c3 <= c1; c3++) out.push(r2 * cols + c3);
+export function rectCellIndices(firstCellIndex, secondCellIndex, cols) {
+  const firstRow = Math.floor(firstCellIndex / cols);
+  const firstColumn = firstCellIndex % cols;
+  const secondRow = Math.floor(secondCellIndex / cols);
+  const secondColumn = secondCellIndex % cols;
+  const firstRowIndex = Math.min(firstRow, secondRow);
+  const lastRowIndex = Math.max(firstRow, secondRow);
+  const firstColumnIndex = Math.min(firstColumn, secondColumn);
+  const lastColumnIndex = Math.max(firstColumn, secondColumn);
+  const cellIndices = [];
+  for (let rowIndex = firstRowIndex; rowIndex <= lastRowIndex; rowIndex++) {
+    for (let columnIndex = firstColumnIndex; columnIndex <= lastColumnIndex; columnIndex++) cellIndices.push(rowIndex * cols + columnIndex);
   }
-  return out;
+  return cellIndices;
 }

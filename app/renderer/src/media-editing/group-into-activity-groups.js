@@ -14,50 +14,50 @@ import { mergeIntoTimelineEntries } from "./merge-into-timeline-entries.js";
 
 const STANDALONE_TOOL_NAMES = new Set(["question"]);
 
-function isStandaloneMessage(msg) {
-  if (msg.type === "text") return true;
-  if (msg.type === "sub_agent") return true;
-  if (msg.type === "image" || msg.type === "video" || msg.type === "audio")
+function isStandaloneMessage(message) {
+  if (message.type === "text") return true;
+  if (message.type === "sub_agent") return true;
+  if (message.type === "image" || message.type === "video" || message.type === "audio")
     return true;
-  if (msg.type === "error") return true;
-  if (msg.type === "cancelled") return true;
-  if (msg.type === "withdrawn") return true;
-  if (msg.type === "question") return true;
-  if (msg.type === "loop_guard_ask") return true;
-  if (msg.type === "file_added") return true;
-  if (msg.type === "tool_confirm_ask") return true;
-  if (msg.type === "interact") return true;
-  if (msg.type === "credit_threshold") return true;
-  if (msg.type === "compaction_status") return true;
-  if (msg.type === "tool") {
-    const toolName2 = msg.content;
-    if (STANDALONE_TOOL_NAMES.has(toolName2)) return true;
-    if (toolName2 === "todowrite") return true;
+  if (message.type === "error") return true;
+  if (message.type === "cancelled") return true;
+  if (message.type === "withdrawn") return true;
+  if (message.type === "question") return true;
+  if (message.type === "loop_guard_ask") return true;
+  if (message.type === "file_added") return true;
+  if (message.type === "tool_confirm_ask") return true;
+  if (message.type === "interact") return true;
+  if (message.type === "credit_threshold") return true;
+  if (message.type === "compaction_status") return true;
+  if (message.type === "tool") {
+    const toolName = message.content;
+    if (STANDALONE_TOOL_NAMES.has(toolName)) return true;
+    if (toolName === "todowrite") return true;
   }
   return false;
 }
 
-function hasLaterSuccessfulMediaRetryMessage(items, index2) {
-  const current2 = items[index2];
-  if (!current2 || current2.type !== "tool") return false;
-  const currentTool = current2;
-  const identity2 = mediaRetryIdentityFromParts(
+function hasLaterSuccessfulMediaRetryMessage(items, index) {
+  const current = items[index];
+  if (!current || current.type !== "tool") return false;
+  const currentTool = current;
+  const identity = mediaRetryIdentityFromParts(
     categorizeToolAction(currentTool.content),
     currentTool.content,
     currentTool.toolArgs,
   );
-  if (!identity2) return false;
-  for (let i2 = index2 + 1; i2 < items.length; i2++) {
-    const next2 = items[i2];
-    if (next2.type !== "tool") continue;
-    const nextTool = next2;
+  if (!identity) return false;
+  for (let candidateIndex = index + 1; candidateIndex < items.length; candidateIndex++) {
+    const next = items[candidateIndex];
+    if (next.type !== "tool") continue;
+    const nextTool = next;
     if (!hasSuccessfulMediaOutput(nextTool.toolResult)) continue;
     if (
       mediaRetryIdentityFromParts(
         categorizeToolAction(nextTool.content),
         nextTool.content,
         nextTool.toolArgs,
-      ) === identity2
+      ) === identity
     ) {
       return true;
     }
@@ -68,10 +68,10 @@ function hasLaterSuccessfulMediaRetryMessage(items, index2) {
 function aggregateStatus(items) {
   let hasRunning = false;
   let hasPending = false;
-  for (let i2 = 0; i2 < items.length; i2++) {
-    const msg = items[i2];
-    if (msg.type !== "tool") continue;
-    const toolMsg = msg;
+  for (let toolMessageIndex = 0; toolMessageIndex < items.length; toolMessageIndex++) {
+    const message = items[toolMessageIndex];
+    if (message.type !== "tool") continue;
+    const toolMsg = message;
     const status = toolMsg.toolStatus ?? "pending";
     if (
       status === "error" &&
@@ -79,7 +79,7 @@ function aggregateStatus(items) {
       !isToolRecoveredInterrupted(toolMsg.toolResult) &&
       !resolveToolInterruption(toolMsg.toolResult, toolMsg.interruption) &&
       !hasSuccessfulMediaOutput(toolMsg.toolResult) &&
-      !hasLaterSuccessfulMediaRetryMessage(items, i2)
+      !hasLaterSuccessfulMediaRetryMessage(items, toolMessageIndex)
     ) {
       return "error";
     }
@@ -91,19 +91,19 @@ function aggregateStatus(items) {
   return "ok";
 }
 
-export function groupIntoActivityGroups(messages2, raw2 = false) {
+export function groupIntoActivityGroups(messages, raw = false) {
   const result = [];
   let buffer = [];
-  const flush2 = () => {
+  const flush = () => {
     if (buffer.length === 0) return;
-    const visibleBuffer = raw2
+    const visibleBuffer = raw
       ? buffer
       : dropSupersededLegacyInFlightMediaMessages(buffer);
     const aggregatedStatus = aggregateStatus(visibleBuffer);
     if (
       aggregatedStatus === "ok" &&
       mergeIntoTimelineEntries(visibleBuffer, {
-        raw: raw2,
+        raw,
         legacyMediaReconciliationApplied: true,
       }).length === 0
     ) {
@@ -118,32 +118,32 @@ export function groupIntoActivityGroups(messages2, raw2 = false) {
     });
     buffer = [];
   };
-  for (const msg of messages2) {
+  for (const message of messages) {
     if (
-      msg.type === "tool_confirm_ask" &&
-      (!msg.resolved || msg.toolConfirmDecision === "reject")
+      message.type === "tool_confirm_ask" &&
+      (!message.resolved || message.toolConfirmDecision === "reject")
     ) {
       if (buffer.some((item) => item.type === "tool")) {
-        buffer.push(msg);
+        buffer.push(message);
       } else {
-        flush2();
+        flush();
         result.push({
           kind: "standalone",
-          msg,
+          msg: message,
         });
       }
       continue;
     }
-    if (isStandaloneMessage(msg)) {
-      flush2();
+    if (isStandaloneMessage(message)) {
+      flush();
       result.push({
         kind: "standalone",
-        msg,
+        msg: message,
       });
     } else {
-      buffer.push(msg);
+      buffer.push(message);
     }
   }
-  flush2();
+  flush();
   return result;
 }

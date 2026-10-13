@@ -60,13 +60,13 @@ function isEnhanceVideoNoop(
     currentFps === nextFps
   );
 }
-function isResolutionBelowCurrent(option2, current2) {
-  if (!current2) return false;
-  return RESOLUTION_RANK[option2] < RESOLUTION_RANK[current2];
+function isResolutionBelowCurrent(option, current) {
+  if (!current) return false;
+  return RESOLUTION_RANK[option] < RESOLUTION_RANK[current];
 }
-function isFpsBelowCurrent(option2, current2) {
-  if (!current2) return false;
-  return option2 < current2;
+function isFpsBelowCurrent(option, current) {
+  if (!current) return false;
+  return option < current;
 }
 const ENHANCE_VIDEO_PRICING_MODEL_ID = "mediakit-enhance-video";
 function FpsToggle({ value, currentFps, onChange }) {
@@ -77,32 +77,32 @@ function FpsToggle({ value, currentFps, onChange }) {
         background: "var(--canvas-controls-active, #ffffff14)",
       }}
     >
-      {ENHANCE_VIDEO_FPS_OPTIONS.map((option2) => {
-        const active2 = option2 === value;
-        const disabled2 = isFpsBelowCurrent(option2, currentFps);
+      {ENHANCE_VIDEO_FPS_OPTIONS.map((option) => {
+        const active = option === value;
+        const disabled = isFpsBelowCurrent(option, currentFps);
         return (
           <button
-            key={option2}
+            key={option}
             type="button"
-            disabled={disabled2}
+            disabled={disabled}
             onClick={() => {
-              if (disabled2) return;
-              if (option2 !== value) onChange(option2);
+              if (disabled) return;
+              if (option !== value) onChange(option);
             }}
-            data-action-ui-id={`canvas.enhance-video.fps-${option2}`}
+            data-action-ui-id={`canvas.enhance-video.fps-${option}`}
             className="flex-1 h-7 rounded-md px-2.5 text-[13px] font-medium transition-colors focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-text)]"
             style={{
-              background: active2
+              background: active
                 ? "var(--canvas-primary-btn-bg, #ffffff)"
                 : "transparent",
-              color: active2
+              color: active
                 ? "var(--canvas-primary-btn-icon, #000)"
                 : "var(--canvas-controls-text, #fff)",
-              cursor: disabled2 ? "not-allowed" : "pointer",
-              opacity: disabled2 ? 0.5 : 1,
+              cursor: disabled ? "not-allowed" : "pointer",
+              opacity: disabled ? 0.5 : 1,
             }}
           >
-            {option2}
+            {option}
           </button>
         );
       })}
@@ -110,7 +110,7 @@ function FpsToggle({ value, currentFps, onChange }) {
   );
 }
 export const EnhanceVideoPopover = reactExports.memo(
-  function EnhanceVideoPopover2({
+  function EnhanceVideoPopover({
     onSubmit,
     onClose,
     currentResolution,
@@ -120,7 +120,7 @@ export const EnhanceVideoPopover = reactExports.memo(
     durationSec,
     renderShell,
   }) {
-    const { t: t2 } = useTranslation();
+    const { t } = useTranslation();
     const [resolution, setResolution] =
       reactExports.useState(defaultResolution);
     const [fps, setFps] = reactExports.useState(defaultFps);
@@ -128,17 +128,17 @@ export const EnhanceVideoPopover = reactExports.memo(
     onCloseRef.current = onClose;
     const nodeId = useNodeId();
     const selectedSelector = reactExports.useCallback(
-      (s2) => (nodeId ? !!s2.nodeLookup.get(nodeId)?.selected : true),
+      (storeState) => (nodeId ? !!storeState.nodeLookup.get(nodeId)?.selected : true),
       [nodeId],
     );
-    const selected2 = useStore(selectedSelector);
+    const selected = useStore(selectedSelector);
     const isDragging = useCanvasIsDragging();
     const isMultiSelect = useCanvasIsMultiSelect();
     const isBoxSelecting = useCanvasIsBoxSelecting();
     reactExports.useEffect(() => {
       if (renderShell) return;
-      if (!selected2) onCloseRef.current();
-    }, [renderShell, selected2]);
+      if (!selected) onCloseRef.current();
+    }, [renderShell, selected]);
     const hidden =
       !renderShell && (isDragging || isMultiSelect || isBoxSelecting);
     const isNoop = isEnhanceVideoNoop(
@@ -174,24 +174,24 @@ export const EnhanceVideoPopover = reactExports.memo(
         fps,
       });
     }, [isNoop, beforeAccountSubmission, onSubmit, resolution, fps]);
-    const body2 = (
+    const body = (
       // biome-ignore lint/a11y/noStaticElementInteractions: event barrier only — pointer/dblclick must not leak to the host node
       <div
         className="flex w-64 flex-col gap-3 rounded-lg border border-[var(--canvas-controls-border)] bg-[var(--canvas-controls-bg)] p-3 shadow-[var(--canvas-shadow-dropdown)] animate-[i2v-popover-in_0.15s_ease-out]"
         style={{
           display: hidden ? "none" : void 0,
         }}
-        onPointerDown={(e2) => e2.stopPropagation()}
-        onDoubleClick={(e2) => e2.stopPropagation()}
+        onPointerDown={(pointerEvent) => pointerEvent.stopPropagation()}
+        onDoubleClick={(mouseEvent) => mouseEvent.stopPropagation()}
       >
         <div className="font-heading text-[13px] font-medium text-[var(--canvas-controls-text)]">
-          {t2("canvas.enhanceVideo.title", "高清 & 补帧")}
+          {t("canvas.enhanceVideo.title", "高清 & 补帧")}
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] text-[var(--canvas-controls-text-muted)]">
-            {t2("canvas.enhanceVideo.resolutionLabel", "分辨率")}
+            {t("canvas.enhanceVideo.resolutionLabel", "分辨率")}
           </span>
-          <Select value={resolution} onValueChange={(v2) => setResolution(v2)}>
+          <Select value={resolution} onValueChange={(resolutionValue) => setResolution(resolutionValue)}>
             <SelectTrigger
               size="sm"
               data-action-ui-id="canvas.enhance-video.resolution-select"
@@ -200,16 +200,16 @@ export const EnhanceVideoPopover = reactExports.memo(
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {ENHANCE_VIDEO_RESOLUTIONS.map((option2) => (
+              {ENHANCE_VIDEO_RESOLUTIONS.map((option) => (
                 <SelectItem
-                  key={option2}
-                  value={option2}
+                  key={option}
+                  value={option}
                   disabled={isResolutionBelowCurrent(
-                    option2,
+                    option,
                     currentResolution,
                   )}
                 >
-                  {formatEnhanceVideoResolution(option2)}
+                  {formatEnhanceVideoResolution(option)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -217,7 +217,7 @@ export const EnhanceVideoPopover = reactExports.memo(
         </div>
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] text-[var(--canvas-controls-text-muted)]">
-            {t2("canvas.enhanceVideo.fpsLabel", "帧率")}
+            {t("canvas.enhanceVideo.fpsLabel", "帧率")}
           </span>
           <FpsToggle value={fps} currentFps={currentFps} onChange={setFps} />
         </div>
@@ -226,8 +226,8 @@ export const EnhanceVideoPopover = reactExports.memo(
             type="button"
             onClick={onClose}
             data-action-ui-id="canvas.enhance-video.cancel"
-            aria-label={t2("canvas.enhanceVideo.cancel", "取消")}
-            title={t2("canvas.enhanceVideo.cancel", "取消")}
+            aria-label={t("canvas.enhanceVideo.cancel", "取消")}
+            title={t("canvas.enhanceVideo.cancel", "取消")}
             className="flex size-8 items-center justify-center rounded-md text-[var(--canvas-controls-text)] transition-colors duration-150 hover:bg-[var(--canvas-controls-hover)] focus-visible:ring-1 focus-visible:ring-[var(--canvas-controls-text)]"
           >
             <CloseIcon />
@@ -240,10 +240,10 @@ export const EnhanceVideoPopover = reactExports.memo(
               disabled={isNoop || !accountSubmissionAllowed}
               onClick={handleSubmit}
               data-action-ui-id="canvas.enhance-video.submit"
-              aria-label={t2("canvas.enhanceVideo.submit", "生成")}
+              aria-label={t("canvas.enhanceVideo.submit", "生成")}
               title={
                 isNoop
-                  ? t2(
+                  ? t(
                       "canvas.enhanceVideo.noChange",
                       "目标分辨率与帧率与原视频相同",
                     )
@@ -261,7 +261,7 @@ export const EnhanceVideoPopover = reactExports.memo(
         <>
           {renderShell({
             onClose,
-            children: body2,
+            children: body,
           })}
         </>
       );
@@ -272,7 +272,7 @@ export const EnhanceVideoPopover = reactExports.memo(
         offset={NODE_POPOVER_SAFE_GAP}
         align="center"
       >
-        {body2}
+        {body}
       </NodeToolbar>
     );
   },

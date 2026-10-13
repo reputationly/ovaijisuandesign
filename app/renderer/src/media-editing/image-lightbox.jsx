@@ -40,8 +40,8 @@ function isLightboxCopyShortcut(event) {
     (event.metaKey || event.ctrlKey) && !event.altKey && event.code === "KeyC"
   );
 }
-function clampScale(scale2) {
-  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale2));
+function clampScale(scale) {
+  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
 }
 function getWheelZoomScale(currentScale, event) {
   if (!Number.isFinite(currentScale) || currentScale <= 0) return 1;
@@ -51,19 +51,19 @@ function getWheelZoomScale(currentScale, event) {
     currentScale * Math.exp(-clampedDelta * WHEEL_ZOOM_SENSITIVITY),
   );
 }
-export const ImageLightbox = reactExports.memo(function ImageLightbox2({
+export const ImageLightbox = reactExports.memo(function ImageLightboxView({
   items,
-  index: index2,
+  index,
   onIndexChange,
   alt,
   onClose,
   onSetAsPrimary,
   onSplitToNode,
 }) {
-  const { t: t2 } = useTranslation();
-  const active2 = useCanvasActive();
-  const [scale2, setScale] = reactExports.useState(1);
-  const [translate2, setTranslate] = reactExports.useState({
+  const { t } = useTranslation();
+  const active = useCanvasActive();
+  const [scale, setScale] = reactExports.useState(1);
+  const [translate, setTranslate] = reactExports.useState({
     x: 0,
     y: 0,
   });
@@ -81,19 +81,19 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     y: 0,
   });
   const didDragRef = reactExports.useRef(false);
-  const scaleRef = reactExports.useRef(scale2);
-  const translateRef = reactExports.useRef(translate2);
-  scaleRef.current = scale2;
-  translateRef.current = translate2;
+  const scaleRef = reactExports.useRef(scale);
+  const translateRef = reactExports.useRef(translate);
+  scaleRef.current = scale;
+  translateRef.current = translate;
   const total = items.length;
   const isMulti = total > 1;
-  const current2 = items[index2];
-  const src = current2?.url ?? "";
-  const downloadLabel = t2("canvas.lightbox.downloadCurrent");
-  const downloadAllLabel = t2("canvas.lightbox.downloadAll");
-  const showInFolderLabel = t2(getCanvasFileManagerLabelKey());
-  const setAsPrimaryLabel = t2("canvas.multiImage.setAsPrimary", "设为主图");
-  const splitToNodeLabel = t2("canvas.multiImage.splitToNode", "独立展示");
+  const current = items[index];
+  const src = current?.url ?? "";
+  const downloadLabel = t("canvas.lightbox.downloadCurrent");
+  const downloadAllLabel = t("canvas.lightbox.downloadAll");
+  const showInFolderLabel = t(getCanvasFileManagerLabelKey());
+  const setAsPrimaryLabel = t("canvas.multiImage.setAsPrimary", "设为主图");
+  const splitToNodeLabel = t("canvas.multiImage.splitToNode", "独立展示");
   const {
     canCopy,
     canSave,
@@ -106,7 +106,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
     handleContextMenu,
     contextMenu,
   } = useLightboxMediaActions({
-    item: current2,
+    item: current,
     items,
   });
   const hasActionButtons =
@@ -129,63 +129,63 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
   );
   const goPrev = reactExports.useCallback(() => {
     if (total <= 1) return;
-    onIndexChange((index2 - 1 + total) % total);
-  }, [index2, total, onIndexChange]);
+    onIndexChange((index - 1 + total) % total);
+  }, [index, total, onIndexChange]);
   const goNext = reactExports.useCallback(() => {
     if (total <= 1) return;
-    onIndexChange((index2 + 1) % total);
-  }, [index2, total, onIndexChange]);
+    onIndexChange((index + 1) % total);
+  }, [index, total, onIndexChange]);
   const handlePrevClick = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       goPrev();
     },
     [goPrev],
   );
   const handleNextClick = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       goNext();
     },
     [goNext],
   );
   reactExports.useEffect(() => {
-    if (!isMulti || !active2) return;
-    const handler = (e2) => {
-      if (e2.key === "ArrowLeft") {
-        e2.preventDefault();
-        e2.stopPropagation();
+    if (!isMulti || !active) return;
+    const handler = (keyboardEvent) => {
+      if (keyboardEvent.key === "ArrowLeft") {
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopPropagation();
         goPrev();
-      } else if (e2.key === "ArrowRight") {
-        e2.preventDefault();
-        e2.stopPropagation();
+      } else if (keyboardEvent.key === "ArrowRight") {
+        keyboardEvent.preventDefault();
+        keyboardEvent.stopPropagation();
         goNext();
       }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [isMulti, active2, goPrev, goNext]);
+  }, [isMulti, active, goPrev, goNext]);
   reactExports.useEffect(() => {
-    if (!active2 || !canCopy) return;
-    const handler = (e2) => {
-      if (!isLightboxCopyShortcut(e2)) return;
-      e2.preventDefault();
-      e2.stopPropagation();
+    if (!active || !canCopy) return;
+    const handler = (keyboardEvent) => {
+      if (!isLightboxCopyShortcut(keyboardEvent)) return;
+      keyboardEvent.preventDefault();
+      keyboardEvent.stopPropagation();
       handleCopyImage();
     };
     document.addEventListener("keydown", handler, true);
     return () => document.removeEventListener("keydown", handler, true);
-  }, [active2, canCopy, handleCopyImage]);
+  }, [active, canCopy, handleCopyImage]);
   reactExports.useEffect(() => {
-    if (!active2 || !canCopy) return;
-    const handler = (e2) => {
-      e2.preventDefault();
-      e2.stopPropagation();
+    if (!active || !canCopy) return;
+    const handler = (clipboardEvent) => {
+      clipboardEvent.preventDefault();
+      clipboardEvent.stopPropagation();
       handleCopyImage();
     };
     document.addEventListener("copy", handler, true);
     return () => document.removeEventListener("copy", handler, true);
-  }, [active2, canCopy, handleCopyImage]);
+  }, [active, canCopy, handleCopyImage]);
   reactExports.useEffect(() => {
     setScale(1);
     setTranslate({
@@ -193,21 +193,21 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
       y: 0,
     });
     setTransitioning(false);
-  }, [index2, src]);
-  const handleWheel = reactExports.useCallback((e2) => {
-    e2.preventDefault();
-    e2.stopPropagation();
+  }, [index, src]);
+  const handleWheel = reactExports.useCallback((wheelEvent) => {
+    wheelEvent.preventDefault();
+    wheelEvent.stopPropagation();
     const container = containerRef.current;
     if (!container) return;
     const rect = container.getBoundingClientRect();
-    const cx2 = e2.clientX - rect.left - rect.width / 2;
-    const cy = e2.clientY - rect.top - rect.height / 2;
+    const pointerOffsetX = wheelEvent.clientX - rect.left - rect.width / 2;
+    const pointerOffsetY = wheelEvent.clientY - rect.top - rect.height / 2;
     const prevScale = scaleRef.current;
-    const nextScale = getWheelZoomScale(prevScale, e2);
+    const nextScale = getWheelZoomScale(prevScale, wheelEvent);
     if (nextScale === prevScale) return;
     const ratio = 1 - nextScale / prevScale;
-    const tx = translateRef.current.x + (cx2 - translateRef.current.x) * ratio;
-    const ty = translateRef.current.y + (cy - translateRef.current.y) * ratio;
+    const translationX = translateRef.current.x + (pointerOffsetX - translateRef.current.x) * ratio;
+    const translationY = translateRef.current.y + (pointerOffsetY - translateRef.current.y) * ratio;
     setScale(nextScale);
     setTranslate(
       nextScale <= 1
@@ -216,33 +216,33 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
             y: 0,
           }
         : {
-            x: tx,
-            y: ty,
+            x: translationX,
+            y: translationY,
           },
     );
   }, []);
-  const handleZoomIn = reactExports.useCallback((e2) => {
-    e2.stopPropagation();
+  const handleZoomIn = reactExports.useCallback((clickEvent) => {
+    clickEvent.stopPropagation();
     setTransitioning(true);
-    setScale((s2) => Math.min(MAX_SCALE, s2 * BUTTON_ZOOM_FACTOR));
+    setScale((currentScale) => Math.min(MAX_SCALE, currentScale * BUTTON_ZOOM_FACTOR));
   }, []);
-  const handleZoomOut = reactExports.useCallback((e2) => {
-    e2.stopPropagation();
+  const handleZoomOut = reactExports.useCallback((clickEvent) => {
+    clickEvent.stopPropagation();
     setTransitioning(true);
-    setScale((s2) => {
-      const next2 = Math.max(MIN_SCALE, s2 / BUTTON_ZOOM_FACTOR);
-      if (next2 <= 1) {
+    setScale((currentScale) => {
+      const next = Math.max(MIN_SCALE, currentScale / BUTTON_ZOOM_FACTOR);
+      if (next <= 1) {
         setTranslate({
           x: 0,
           y: 0,
         });
         return 1;
       }
-      return next2;
+      return next;
     });
   }, []);
-  const handleResetZoom = reactExports.useCallback((e2) => {
-    e2.stopPropagation();
+  const handleResetZoom = reactExports.useCallback((clickEvent) => {
+    clickEvent.stopPropagation();
     setTransitioning(true);
     setScale(1);
     setTranslate({
@@ -250,45 +250,45 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
       y: 0,
     });
   }, []);
-  const handlePointerDown = reactExports.useCallback((e2) => {
-    if (e2.button !== 0) return;
-    e2.preventDefault();
-    e2.stopPropagation();
+  const handlePointerDown = reactExports.useCallback((pointerEvent) => {
+    if (pointerEvent.button !== 0) return;
+    pointerEvent.preventDefault();
+    pointerEvent.stopPropagation();
     draggingRef.current = true;
     didDragRef.current = false;
     dragStartRef.current = {
-      x: e2.clientX,
-      y: e2.clientY,
+      x: pointerEvent.clientX,
+      y: pointerEvent.clientY,
     };
     translateAtDragStart.current = {
       ...translateRef.current,
     };
-    e2.target.setPointerCapture(e2.pointerId);
+    pointerEvent.target.setPointerCapture(pointerEvent.pointerId);
   }, []);
-  const handlePointerMove = reactExports.useCallback((e2) => {
+  const handlePointerMove = reactExports.useCallback((pointerEvent) => {
     if (!draggingRef.current) return;
-    const dx = e2.clientX - dragStartRef.current.x;
-    const dy = e2.clientY - dragStartRef.current.y;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+    const dragDeltaX = pointerEvent.clientX - dragStartRef.current.x;
+    const dragDeltaY = pointerEvent.clientY - dragStartRef.current.y;
+    if (Math.abs(dragDeltaX) > 3 || Math.abs(dragDeltaY) > 3) {
       didDragRef.current = true;
     }
     setTranslate({
-      x: translateAtDragStart.current.x + dx,
-      y: translateAtDragStart.current.y + dy,
+      x: translateAtDragStart.current.x + dragDeltaX,
+      y: translateAtDragStart.current.y + dragDeltaY,
     });
   }, []);
-  const handlePointerUp = reactExports.useCallback((e2) => {
+  const handlePointerUp = reactExports.useCallback((pointerEvent) => {
     draggingRef.current = false;
-    e2.target.releasePointerCapture(e2.pointerId);
+    pointerEvent.target.releasePointerCapture(pointerEvent.pointerId);
   }, []);
-  const handleDoubleClick2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+  const handleDoubleClick = reactExports.useCallback(
+    (mouseEvent) => {
+      mouseEvent.stopPropagation();
       setTransitioning(true);
-      if (scale2 === 1) {
-        const img = imgRef.current;
-        if (!img) return;
-        setScale(img.naturalWidth / img.width);
+      if (scale === 1) {
+        const imageElement = imgRef.current;
+        if (!imageElement) return;
+        setScale(imageElement.naturalWidth / imageElement.width);
       } else {
         setScale(1);
       }
@@ -297,37 +297,37 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
         y: 0,
       });
     },
-    [scale2],
+    [scale],
   );
   reactExports.useEffect(() => {
     if (!transitioning) return;
-    const id2 = setTimeout(() => setTransitioning(false), 200);
-    return () => clearTimeout(id2);
+    const transitionTimeoutId = setTimeout(() => setTransitioning(false), 200);
+    return () => clearTimeout(transitionTimeoutId);
   }, [transitioning]);
   reactExports.useEffect(() => {
-    const image2 = imgRef.current;
-    if (!image2 || typeof ResizeObserver === "undefined") return;
+    const image = imgRef.current;
+    if (!image || typeof ResizeObserver === "undefined") return;
     const updateHeaderLayout = (width) => {
       setIsCompactHeader(width < COMPACT_HEADER_MAX_WIDTH_PX);
     };
-    if (image2.clientWidth > 0) updateHeaderLayout(image2.clientWidth);
+    if (image.clientWidth > 0) updateHeaderLayout(image.clientWidth);
     const resizeObserver = new ResizeObserver(([entry]) => {
-      updateHeaderLayout(entry?.contentRect.width ?? image2.clientWidth);
+      updateHeaderLayout(entry?.contentRect.width ?? image.clientWidth);
     });
-    resizeObserver.observe(image2);
+    resizeObserver.observe(image);
     return () => resizeObserver.disconnect();
   }, []);
-  const handleContainerClick = reactExports.useCallback((e2) => {
+  const handleContainerClick = reactExports.useCallback((clickEvent) => {
     if (didDragRef.current) {
-      e2.stopPropagation();
+      clickEvent.stopPropagation();
     }
   }, []);
   const cursor = draggingRef.current
     ? "grabbing"
-    : scale2 > 1
+    : scale > 1
       ? "grab"
       : "default";
-  const scalePercent = `${Math.round(scale2 * 100)}%`;
+  const scalePercent = `${Math.round(scale * 100)}%`;
   return (
     <MediaLightbox
       onClose={onClose}
@@ -380,7 +380,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onDoubleClick={handleDoubleClick2}
+          onDoubleClick={handleDoubleClick}
           onClick={handleContainerClick}
         >
           {isMulti && (
@@ -388,7 +388,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
               className={`pointer-events-none absolute right-0 bottom-full z-50 whitespace-nowrap px-1 text-[11px] text-white/60 tabular-nums ${isCompactHeader ? "mb-14" : "mb-3"}`}
               data-action-ui-id="canvas.image-lightbox.counter"
             >
-              {index2 + 1}
+              {index + 1}
               {" / "}
               {total}
             </div>
@@ -399,7 +399,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
             alt={alt}
             className="relative z-0 max-w-[80vw] max-h-[calc(80vh-5.5rem)] object-contain rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.5)] select-none"
             style={{
-              transform: `translate(${translate2.x}px, ${translate2.y}px) scale(${scale2})`,
+              transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
               transition: transitioning ? "transform 0.2s ease-out" : "none",
             }}
             draggable={false}
@@ -465,7 +465,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
         <>
           <button
             type="button"
-            aria-label={t2(
+            aria-label={t(
               "canvas.imageLightbox.previousImage",
               "Previous image",
             )}
@@ -477,7 +477,7 @@ export const ImageLightbox = reactExports.memo(function ImageLightbox2({
           </button>
           <button
             type="button"
-            aria-label={t2("canvas.imageLightbox.nextImage", "Next image")}
+            aria-label={t("canvas.imageLightbox.nextImage", "Next image")}
             data-action-ui-id="canvas.image-lightbox.next"
             className="absolute right-8 top-1/2 z-50 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-black/55 hover:bg-black/70 text-white/80 hover:text-white transition-colors cursor-pointer pointer-events-auto"
             onClick={handleNextClick}

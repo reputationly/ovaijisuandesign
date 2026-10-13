@@ -21,26 +21,26 @@ const HUB_PROTOCOL_VERSION = "2";
 
 function isHubFrame(value) {
   if (!value || typeof value !== "object") return false;
-  const v2 = value;
-  if (v2.v !== HUB_PROTOCOL_VERSION) return false;
+  const hubFrame = value;
+  if (hubFrame.v !== HUB_PROTOCOL_VERSION) return false;
   return (
-    v2.kind === "hub:rpc:request" ||
-    v2.kind === "hub:rpc:response" ||
-    v2.kind === "hub:event" ||
-    v2.kind === "hub:handshake"
+    hubFrame.kind === "hub:rpc:request" ||
+    hubFrame.kind === "hub:rpc:response" ||
+    hubFrame.kind === "hub:event" ||
+    hubFrame.kind === "hub:handshake"
   );
 }
 
-function isRpcRequest(frame2) {
-  return frame2.kind === "hub:rpc:request";
+function isRpcRequest(frame) {
+  return frame.kind === "hub:rpc:request";
 }
 
-function isHubEvent(frame2) {
-  return frame2.kind === "hub:event";
+function isHubEvent(frame) {
+  return frame.kind === "hub:event";
 }
 
-function isHandshake(frame2) {
-  return frame2.kind === "hub:handshake";
+function isHandshake(frame) {
+  return frame.kind === "hub:handshake";
 }
 
 function setPluginAgentRegistered(nodeId, registered) {
@@ -53,18 +53,18 @@ function clearPluginAgentNode(nodeId) {
   byNode.delete(nodeId);
 }
 
-function subscribePluginConfigChange(pluginId, cb) {
-  let set2 = configChangeListeners.get(pluginId);
-  if (!set2) {
-    set2 = new Set();
-    configChangeListeners.set(pluginId, set2);
+function subscribePluginConfigChange(pluginId, listener) {
+  let set = configChangeListeners.get(pluginId);
+  if (!set) {
+    set = new Set();
+    configChangeListeners.set(pluginId, set);
   }
-  set2.add(cb);
+  set.add(listener);
   return () => {
-    const s2 = configChangeListeners.get(pluginId);
-    if (!s2) return;
-    s2.delete(cb);
-    if (s2.size === 0) configChangeListeners.delete(pluginId);
+    const listeners = configChangeListeners.get(pluginId);
+    if (!listeners) return;
+    listeners.delete(listener);
+    if (listeners.size === 0) configChangeListeners.delete(pluginId);
   };
 }
 
@@ -110,48 +110,48 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
   reactExports.useEffect(() => {
     if (!nodeId) return;
     if (!iframe) return;
-    const send2 = (frame2) => {
-      iframe.contentWindow?.postMessage(frame2, "*");
+    const send = (frame) => {
+      iframe.contentWindow?.postMessage(frame, "*");
     };
     const invokeMain = () => {
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "main:invoke",
         payload: null,
       };
-      send2(evt);
+      send(hubEvent);
     };
-    const sendResponse = (id2, ok2, payload) => {
-      const frame2 = ok2
+    const sendResponse = (requestId, isSuccess, payload) => {
+      const frame = isSuccess
         ? {
             kind: "hub:rpc:response",
             v: HUB_PROTOCOL_VERSION,
-            id: id2,
+            id: requestId,
             ok: true,
             result: payload,
           }
         : {
             kind: "hub:rpc:response",
             v: HUB_PROTOCOL_VERSION,
-            id: id2,
+            id: requestId,
             ok: false,
             error: payload,
           };
-      send2(frame2);
+      send(frame);
     };
     const postIncomingChange = () => {
       if (fullscreenApiRef.current.getState().nodeId !== nodeId) return;
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "incoming",
         payload: null,
       };
-      send2(evt);
+      send(hubEvent);
     };
     const postFullscreenChange = () => {
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "fullscreen:changed",
@@ -161,10 +161,10 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
             fullscreenApiRef.current.getState().presentation === "fullscreen",
         },
       };
-      send2(evt);
+      send(hubEvent);
     };
-    const handleRpc = async (req) => {
-      const dispatch2 = buildDispatch({
+    const handleRpc = async (rpcRequest) => {
+      const dispatch = buildDispatch({
         nodeId,
         actions: actionsRef.current,
         bridge: bridgeRef.current,
@@ -172,30 +172,30 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
         fullscreenApi: fullscreenApiRef.current,
         requestExitFullscreen: requestExitFullscreenRef.current,
       });
-      const handler = dispatch2[req.method];
+      const handler = dispatch[rpcRequest.method];
       if (!handler) {
-        sendResponse(req.id, false, {
+        sendResponse(rpcRequest.id, false, {
           code: "unknown_method",
-          message: `unknown hub method: ${req.method}`,
+          message: `unknown hub method: ${rpcRequest.method}`,
         });
         return;
       }
       try {
-        const result = await handler(req.args);
-        sendResponse(req.id, true, result);
+        const result = await handler(rpcRequest.args);
+        sendResponse(rpcRequest.id, true, result);
       } catch (err) {
-        const e2 = err;
-        sendResponse(req.id, false, {
-          code: e2.code ?? "internal_error",
-          message: e2.message ?? "internal error",
+        const pluginError = err;
+        sendResponse(rpcRequest.id, false, {
+          code: pluginError.code ?? "internal_error",
+          message: pluginError.message ?? "internal error",
         });
       }
     };
     const onMessage = (event) => {
       if (event.source !== iframe.contentWindow) return;
-      const frame2 = event.data;
-      if (!isHubFrame(frame2)) return;
-      if (isHandshake(frame2) && frame2.from === "sdk") {
+      const frame = event.data;
+      if (!isHubFrame(frame)) return;
+      if (isHandshake(frame) && frame.from === "sdk") {
         const reply = {
           kind: "hub:handshake",
           v: HUB_PROTOCOL_VERSION,
@@ -203,35 +203,35 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
           nodeId,
           app: appInfoRef.current,
         };
-        send2(reply);
+        send(reply);
         postFullscreenChange();
         postIncomingChange();
         return;
       }
-      if (isRpcRequest(frame2)) {
-        void handleRpc(frame2);
+      if (isRpcRequest(frame)) {
+        void handleRpc(frame);
         return;
       }
-      if (isHubEvent(frame2)) {
-        if (frame2.topic === "main:registered") {
+      if (isHubEvent(frame)) {
+        if (frame.topic === "main:registered") {
           pluginRunStateApiRef.current.getState().set(nodeId, {
             hasMain: true,
             invoke: invokeMain,
           });
           return;
         }
-        if (frame2.topic === "main:unregistered") {
+        if (frame.topic === "main:unregistered") {
           pluginRunStateApiRef.current.getState().set(nodeId, {
             hasMain: false,
             invoke: invokeMain,
           });
           return;
         }
-        if (frame2.topic === "agent:registered") {
+        if (frame.topic === "agent:registered") {
           setPluginAgentRegistered(nodeId, true);
           return;
         }
-        if (frame2.topic === "agent:unregistered") {
+        if (frame.topic === "agent:unregistered") {
           setPluginAgentRegistered(nodeId, false);
           return;
         }
@@ -245,13 +245,13 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
     );
     const ownPluginId = installedPluginId(actionsRef.current, nodeId);
     const sendStorageChanged = () => {
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "storage",
         payload: null,
       };
-      send2(evt);
+      send(hubEvent);
     };
     const unsubInstalledStorage = ownPluginId
       ? subscribePluginStorageChangeForNode(
@@ -260,13 +260,13 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
           sendStorageChanged,
         )
       : () => {};
-    const bucketOf = (data2) => data2?.[PLUGIN_STORAGE_KEY] ?? null;
+    const bucketOf = (data) => data?.[PLUGIN_STORAGE_KEY] ?? null;
     let lastBucket = bucketOf(actionsRef.current.getNodeById(nodeId)?.data);
     let lastStorageJson = JSON.stringify(lastBucket);
     const unsubLocalStorage = ownPluginId
       ? () => {}
-      : actionsRef.current.subscribeNodeDataChange(nodeId, (data2) => {
-          const nextBucket = bucketOf(data2);
+      : actionsRef.current.subscribeNodeDataChange(nodeId, (data) => {
+          const nextBucket = bucketOf(data);
           if (nextBucket === lastBucket) return;
           let nextJson;
           try {
@@ -281,46 +281,46 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
         });
     const unsubConfig = ownPluginId
       ? subscribePluginConfigChange(ownPluginId, () => {
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "config",
             payload: null,
           };
-          send2(evt);
+          send(hubEvent);
         })
       : () => {};
     const unsubChatMessage = bridgeRef.current.pluginHost?.subscribeChatMessages
       ? bridgeRef.current.pluginHost.subscribeChatMessages((envelope) => {
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "chat:message",
             payload: envelope,
           };
-          send2(evt);
+          send(hubEvent);
         })
       : () => {};
     const unsubChatDone = bridgeRef.current.pluginHost?.subscribeChatDone
       ? bridgeRef.current.pluginHost.subscribeChatDone((payload) => {
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "chat:done",
             payload,
           };
-          send2(evt);
+          send(hubEvent);
         })
       : () => {};
     const unsubDagDone = bridgeRef.current.pluginHost?.subscribeDagDone
       ? bridgeRef.current.pluginHost.subscribeDagDone(nodeId, (envelope) => {
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "dag:done",
             payload: envelope,
           };
-          send2(evt);
+          send(hubEvent);
         })
       : () => {};
     const agentHost = bridgeRef.current.pluginHost;
@@ -341,7 +341,7 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
               .catch(() => {});
             return;
           }
-          const evt = {
+          const hubEvent = {
             kind: "hub:event",
             v: HUB_PROTOCOL_VERSION,
             topic: "agent:invoke",
@@ -351,7 +351,7 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
               args: event.args,
             },
           };
-          send2(evt);
+          send(hubEvent);
         })
       : () => {};
     return () => {
@@ -371,9 +371,9 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
   }, [iframe, nodeId]);
   const {
     locale,
-    theme: theme2,
+    theme,
     region,
-    version: version2,
+    version,
     gpuAccelerationDisabled,
     gpuAccelerationDisabledReason,
     currentChatSessionId,
@@ -381,7 +381,7 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
   reactExports.useEffect(() => {
     if (!nodeId) return;
     if (!iframe) return;
-    const evt = {
+    const hubEvent = {
       kind: "hub:event",
       v: HUB_PROTOCOL_VERSION,
       topic: "app:changed",
@@ -390,29 +390,29 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
       // no diff bookkeeping host-side.
       payload: {
         locale,
-        theme: theme2,
+        theme,
         region,
-        version: version2,
+        version,
         gpuAccelerationDisabled,
         gpuAccelerationDisabledReason,
         currentChatSessionId: currentChatSessionId ?? null,
       },
     };
-    iframe.contentWindow?.postMessage(evt, "*");
+    iframe.contentWindow?.postMessage(hubEvent, "*");
   }, [
     iframe,
     nodeId,
     locale,
-    theme2,
+    theme,
     region,
-    version2,
+    version,
     gpuAccelerationDisabled,
     gpuAccelerationDisabledReason,
     currentChatSessionId,
   ]);
   reactExports.useEffect(() => {
     if (!nodeId || !iframe) return;
-    const evt = {
+    const hubEvent = {
       kind: "hub:event",
       v: HUB_PROTOCOL_VERSION,
       topic: "billing:changed",
@@ -421,14 +421,14 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
         promotionEndUnix: pricingConfig?.promotionEndUnix ?? null,
       },
     };
-    iframe.contentWindow?.postMessage(evt, "*");
+    iframe.contentWindow?.postMessage(hubEvent, "*");
   }, [iframe, locale, nodeId, pricingConfig]);
   reactExports.useEffect(() => {
     if (!nodeId) return;
     if (!iframe) return;
     const store = fullscreenApi;
-    const post2 = (fullscreen) => {
-      const evt = {
+    const post = (fullscreen) => {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "fullscreen:changed",
@@ -436,30 +436,30 @@ export function usePluginHost(iframe, nodeId, requestExitFullscreen) {
           fullscreen,
         },
       };
-      iframe.contentWindow?.postMessage(evt, "*");
+      iframe.contentWindow?.postMessage(hubEvent, "*");
     };
     const postIncoming = () => {
-      const evt = {
+      const hubEvent = {
         kind: "hub:event",
         v: HUB_PROTOCOL_VERSION,
         topic: "incoming",
         payload: null,
       };
-      iframe.contentWindow?.postMessage(evt, "*");
+      iframe.contentWindow?.postMessage(hubEvent, "*");
     };
     const initialState = store.getState();
     let lastPresented = initialState.nodeId === nodeId;
     let lastFullscreen =
       lastPresented && initialState.presentation === "fullscreen";
-    post2(lastFullscreen);
+    post(lastFullscreen);
     if (lastPresented) postIncoming();
-    const unsub = store.subscribe((state2) => {
-      const nextPresented = state2.nodeId === nodeId;
+    const unsub = store.subscribe((state) => {
+      const nextPresented = state.nodeId === nodeId;
       const nextFullscreen =
-        nextPresented && state2.presentation === "fullscreen";
+        nextPresented && state.presentation === "fullscreen";
       if (nextFullscreen !== lastFullscreen) {
         lastFullscreen = nextFullscreen;
-        post2(nextFullscreen);
+        post(nextFullscreen);
       }
       if (!lastPresented && nextPresented) postIncoming();
       lastPresented = nextPresented;

@@ -5,8 +5,8 @@ import { pointInBounds, Shape } from "./free-path-shape.js";
 const baselineCache = new Map();
 
 function measureFirstLineBaseline(font, lineHeight) {
-  const key2 = `${font}|${lineHeight}`;
-  const cached = baselineCache.get(key2);
+  const key = `${font}|${lineHeight}`;
+  const cached = baselineCache.get(key);
   if (cached !== void 0) return cached;
   const probeWrap = document.createElement("div");
   probeWrap.style.cssText = [
@@ -31,7 +31,7 @@ function measureFirstLineBaseline(font, lineHeight) {
   const probeRect = baselineProbe.getBoundingClientRect();
   const baselineY = probeRect.bottom - wrapRect.top;
   document.body.removeChild(probeWrap);
-  baselineCache.set(key2, baselineY);
+  baselineCache.set(key, baselineY);
   return baselineY;
 }
 
@@ -49,18 +49,18 @@ const TEXT_VARIANT_METRICS = {
 
 export class TextShape extends Shape {
   draw(ctx) {
-    const { text: text2, x: x2, y: y4, style: style2 } = this.data;
-    if (!text2) return;
-    const fontSize = style2.fontSize ?? 18;
+    const { text, x, y, style } = this.data;
+    if (!text) return;
+    const fontSize = style.fontSize ?? 18;
     const fontFamily =
-      style2.fontFamily ||
+      style.fontFamily ||
       'system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-    const fontWeight = style2.fontWeight ?? 400;
+    const fontWeight = style.fontWeight ?? 400;
     const fontShort = `${fontWeight} ${fontSize}px ${fontFamily}`;
-    const variant = style2.textVariant ?? "plain";
-    const mainColor = style2.stroke;
+    const variant = style.textVariant ?? "plain";
+    const mainColor = style.stroke;
     const inverseColor =
-      style2.textOutlineColor ?? pickContrastColor(mainColor);
+      style.textOutlineColor ?? pickContrastColor(mainColor);
     ctx.save();
     ctx.font = fontShort;
     ctx.textBaseline = "alphabetic";
@@ -71,11 +71,11 @@ export class TextShape extends Shape {
       fontShort,
       LINE_HEIGHT_RATIO,
     );
-    const lines = text2.split("\n");
+    const lines = text.split("\n");
     let maxWidth = 0;
     for (const line of lines) {
-      const w3 = ctx.measureText(line).width;
-      if (w3 > maxWidth) maxWidth = w3;
+      const textWidth = ctx.measureText(line).width;
+      if (textWidth > maxWidth) maxWidth = textWidth;
     }
     const textBoxH = lines.length * lineHeight;
     if (variant === "filled") {
@@ -89,13 +89,13 @@ export class TextShape extends Shape {
       );
       const cardW = maxWidth + padX * 2;
       const cardH = textBoxH + padY * 2;
-      const cardX = x2 - padX;
-      const cardY = y4 - padY;
+      const cardX = x - padX;
+      const cardY = y - padY;
       ctx.fillStyle = mainColor;
       ctx.fillRect(cardX, cardY, cardW, cardH);
       ctx.fillStyle = inverseColor;
-      lines.forEach((line, i2) => {
-        ctx.fillText(line, x2, y4 + baselineOffset + i2 * lineHeight);
+      lines.forEach((line, lineIndex) => {
+        ctx.fillText(line, x, y + baselineOffset + lineIndex * lineHeight);
       });
       this.data.width = cardW;
       this.data.height = cardH;
@@ -104,31 +104,31 @@ export class TextShape extends Shape {
       ctx.lineWidth = strokeW;
       ctx.strokeStyle = mainColor;
       ctx.fillStyle = inverseColor;
-      lines.forEach((line, i2) => {
-        const lx = x2;
-        const ly = y4 + baselineOffset + i2 * lineHeight;
-        ctx.strokeText(line, lx, ly);
+      lines.forEach((line, lineIndex) => {
+        const lineX = x;
+        const lineY = y + baselineOffset + lineIndex * lineHeight;
+        ctx.strokeText(line, lineX, lineY);
       });
       const padPerSide = strokeW / 2;
       this.data.width = maxWidth + padPerSide * 2;
       this.data.height = textBoxH + padPerSide * 2;
     } else {
       ctx.fillStyle = mainColor;
-      lines.forEach((line, i2) => {
-        ctx.fillText(line, x2, y4 + baselineOffset + i2 * lineHeight);
+      lines.forEach((line, lineIndex) => {
+        ctx.fillText(line, x, y + baselineOffset + lineIndex * lineHeight);
       });
       this.data.width = maxWidth;
       this.data.height = textBoxH;
     }
     ctx.restore();
   }
-  hitTest(p3) {
-    return pointInBounds(p3, this.getBounds(), 4);
+  hitTest(point) {
+    return pointInBounds(point, this.getBounds(), 4);
   }
   getBounds() {
-    const { x: x2, y: y4, width, height, style: style2 } = this.data;
-    const fontSize = style2.fontSize ?? 18;
-    const variant = style2.textVariant ?? "plain";
+    const { x, y, width, height, style } = this.data;
+    const fontSize = style.fontSize ?? 18;
+    const variant = style.textVariant ?? "plain";
     if (variant === "filled") {
       const padX = Math.max(
         TEXT_VARIANT_METRICS.filledMinPadX,
@@ -139,15 +139,15 @@ export class TextShape extends Shape {
         fontSize * TEXT_VARIANT_METRICS.filledPadYRatio,
       );
       return {
-        x: x2 - padX,
-        y: y4 - padY,
+        x: x - padX,
+        y: y - padY,
         width: Math.max(width, fontSize + padX * 2),
         height: Math.max(height, fontSize + padY * 2),
       };
     }
     return {
-      x: x2,
-      y: y4,
+      x,
+      y,
       width: Math.max(width, fontSize),
       height: Math.max(height, fontSize),
     };
@@ -156,10 +156,10 @@ export class TextShape extends Shape {
     this.data.x += dx;
     this.data.y += dy;
   }
-  resize(b3) {
-    const cur = this.getBounds();
-    if (cur.height > 0) {
-      const ratio = b3.height / cur.height;
+  resize(bounds) {
+    const currentBounds = this.getBounds();
+    if (currentBounds.height > 0) {
+      const ratio = bounds.height / currentBounds.height;
       this.data.style = {
         ...this.data.style,
         fontSize: Math.max(
@@ -179,11 +179,11 @@ export class TextShape extends Shape {
         TEXT_VARIANT_METRICS.filledMinPadY,
         fontSize * TEXT_VARIANT_METRICS.filledPadYRatio,
       );
-      this.data.x = b3.x + padX;
-      this.data.y = b3.y + padY;
+      this.data.x = bounds.x + padX;
+      this.data.y = bounds.y + padY;
     } else {
-      this.data.x = b3.x;
-      this.data.y = b3.y;
+      this.data.x = bounds.x;
+      this.data.y = bounds.y;
     }
   }
 }

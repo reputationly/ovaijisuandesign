@@ -1,0 +1,12 @@
+key	new	依据
+text2@41:30	text	待解析的 .cube 查找表完整文本。
+size2@43:7	size	LUT_3D_SIZE 指令声明的立方体采样边长。
+raw2@49:11	rawLine	从输入文本逐行取得、尚未 trim 的 LUT 源行。
+tokens2@52:11	tokens	按空白拆分后的当前 LUT 行字段列表。
+head2@53:11	head	用于识别 LUT 指令的当前行首字段大写形式。
+gl@14:11	webglContext	从 canvas 获取并用于检查 WebGL 支持的上下文对象。
+i2@48:12	lineIndex	当前 LUT 源行在文本中的零基索引。
+m3@55:13	quotedTitleMatch	从 TITLE 指令中提取引号包围标题的正则匹配结果。
+r2@82:13	redChannel	当前 LUT 样本的红色通道数值。
+g2@83:13	greenChannel	当前 LUT 样本的绿色通道数值。
+b3@84:13	blueChannel	当前 LUT 样本的蓝色通道数值。

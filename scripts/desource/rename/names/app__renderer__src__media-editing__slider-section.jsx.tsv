@@ -1,0 +1,12 @@
+key	new	依据
+theme2@10:18	theme	当前主题设置，决定 light、dark、system 主题按钮的选中样式。
+range2@32:10	range	双端范围滑块当前的起止值数组。
+next2@43:43	next	正在遍历的主题选项，作为点击后写入的主题值。
+next2@120:25	next	从滑块回调值中提取的当前单值，用于更新示例滑块。
+current2@121:31	current	所有滑块示例的状态对象，用于更新当前 variant 的值和变更次数。
+next2@131:25	next	从提交回调值中提取的滑块最终值。
+current2@132:31	current	所有滑块示例的状态对象，用于记录当前 variant 的提交值和次数。
+current2@164:35	current	所有滑块示例的状态对象，用于替换当前 variant 的示例值。
+mark2@233:34	mark	紧凑时长滑块刻度数组中当前遍历的刻度数值。
+t2@9:14	t	组件取得的 i18n 翻译函数，用于把文案 key 转为界面显示文本。
+id2@11:9	sliderId	useId 生成的滑块标识，用于关联表单控件与其标签。

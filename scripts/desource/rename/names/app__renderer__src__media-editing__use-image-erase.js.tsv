@@ -1,0 +1,18 @@
+key	new	依据
+a2@4:24	firstPoint	矩形归一化的第一个拖拽角点，参与计算 x/y 最小值和最大值。
+b3@4:28	secondPoint	矩形归一化的第二个拖拽角点，与第一个角点共同确定边界。
+undoSelection2@46:9	undoSelection	撤销最后一个擦除选区，并把移除的选区加入可重做栈。
+redo2@55:9	redo	恢复可重做栈中最后一个擦除选区并追加回选区列表。
+selection2@70:9	selection	当前选区列表中的最后一个矩形，作为对外暴露的活动选区。
+point2@25:52	point	开始绘制选区时记录的图像坐标点。
+point2@30:53	point	拖动过程中更新矩形边界所用的当前图像坐标点。
+next2@32:11	next	由起点和当前点归一化得到的草稿矩形。
+current2@38:11	current	指针抬起时待确认的草稿选区矩形。
+previous2@42:20	previous	确认选区前的矩形列表，用于将草稿矩形追加到历史选区。
+previous2@47:20	previous	撤销前的选区列表，用于移除最后一个矩形并存入重做栈。
+next2@49:13	next	撤销后保留的选区列表，不含最后一个已移除矩形。
+redo22@51:26	previousRedoSelections	撤销前的重做历史，用于追加刚从选区栈移除的矩形。
+previous2@56:24	previous	重做前的待恢复矩形列表。
+current2@59:22	current	当前选区列表，用于追加从重做栈恢复的矩形。
+point2@89:6	point	转发给 beginSelection 的当前绘制坐标点。
+point2@93:6	point	转发给 extendSelection 的当前拖动坐标点。

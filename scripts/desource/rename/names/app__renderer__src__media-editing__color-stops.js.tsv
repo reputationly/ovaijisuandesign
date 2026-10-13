@@ -1,0 +1,13 @@
+key	new	依据
+deg@3:28	degrees	roundAngle 将输入的角度数值四舍五入到整数度。
+a2@44:15	fromValue	线性插值的起始颜色通道值，来自低色温停靠点。
+b3@44:19	toValue	线性插值的目标颜色通道值，来自高色温停靠点。
+t2@44:23	progress	低、高色温停靠点之间的归一化插值比例。
+lo@51:7	lowerStop	在当前 clamped kelvin 区间中温度较低的颜色停靠点。
+hi@52:7	upperStop	在当前 clamped kelvin 区间中温度较高的颜色停靠点。
+t2@60:9	stopProgress	clamped kelvin 在 lowerStop 与 upperStop 温度区间内的位置比例。
+r2@61:9	redChannel	按 stopProgress 在两个停靠点的红色分量之间插值得到的通道值。
+g2@62:9	greenChannel	按 stopProgress 在两个停靠点的绿色分量之间插值得到的通道值。
+b3@63:9	blueChannel	按 stopProgress 在两个停靠点的蓝色分量之间插值得到的通道值。
+i2@53:12	stopIndex	遍历 COLOR_STOPS 相邻项的数组索引，用于定位包围 clamped kelvin 的区间。
+v2@64:18	channelValue	待限制到 0–255 并转换为两位十六进制字符串的颜色通道数值。

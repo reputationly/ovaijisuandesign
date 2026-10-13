@@ -27,14 +27,14 @@ export function shouldActivateVideoHover({
 export function CardWrapper({
   cardWidth,
   cardHeight,
-  position: position2,
-  children: children2,
+  position,
+  children,
   onMouseEnter,
   onMouseLeave,
   onContextMenu,
   onDoubleClick,
 }) {
-  const animationDelayMs = Math.min(position2.originalIndex, 6) * 18;
+  const animationDelayMs = Math.min(position.originalIndex, 6) * 18;
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: mirrors the main video node's hover preview zone.
     <div
@@ -45,14 +45,14 @@ export function CardWrapper({
       onContextMenu={onContextMenu}
       onDoubleClick={onDoubleClick}
       style={{
-        left: position2.dx,
-        top: position2.dy,
+        left: position.dx,
+        top: position.dy,
         width: cardWidth,
         height: cardHeight,
         animationDelay: `${animationDelayMs}ms`,
       }}
     >
-      {children2}
+      {children}
     </div>
   );
 }
@@ -70,20 +70,20 @@ export function DeleteButton({ onDelete, label }) {
     </button>
   );
 }
-export function VideoSplitAllButton({ onSplitAll, disabled: disabled2 }) {
-  const { t: t2 } = useTranslation();
-  const label = t2("canvas.multiImage.splitAll", "全部独立");
-  const handleClick2 = (e2) => {
-    e2.stopPropagation();
-    if (disabled2) return;
+export function VideoSplitAllButton({ onSplitAll, disabled }) {
+  const { t } = useTranslation();
+  const label = t("canvas.multiImage.splitAll", "全部独立");
+  const handleClick = (clickEvent) => {
+    clickEvent.stopPropagation();
+    if (disabled) return;
     onSplitAll();
   };
-  if (disabled2) return null;
+  if (disabled) return null;
   return (
     <button
       type="button"
       data-action-ui-id="canvas.video-node.split-all"
-      onClick={handleClick2}
+      onClick={handleClick}
       aria-label={label}
       title={label}
       className="pointer-events-auto flex h-6 items-center gap-1 rounded-[8px] bg-black/55 px-2 text-[11px] font-medium text-white transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
@@ -93,20 +93,20 @@ export function VideoSplitAllButton({ onSplitAll, disabled: disabled2 }) {
     </button>
   );
 }
-export function VideoSplitMainButton({ onSplitMain, disabled: disabled2 }) {
-  const { t: t2 } = useTranslation();
-  const label = t2("canvas.multiImage.splitMain", "独立展示");
-  const handleClick2 = (e2) => {
-    e2.stopPropagation();
-    if (disabled2) return;
+export function VideoSplitMainButton({ onSplitMain, disabled }) {
+  const { t } = useTranslation();
+  const label = t("canvas.multiImage.splitMain", "独立展示");
+  const handleClick = (clickEvent) => {
+    clickEvent.stopPropagation();
+    if (disabled) return;
     onSplitMain();
   };
-  if (disabled2) return null;
+  if (disabled) return null;
   return (
     <button
       type="button"
       data-action-ui-id="canvas.video-node.split-main"
-      onClick={handleClick2}
+      onClick={handleClick}
       aria-label={label}
       title={label}
       className="pointer-events-auto flex h-6 items-center gap-1 rounded-[8px] bg-black/55 px-2 text-[11px] font-medium text-white transition-colors hover:bg-black/70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/50"
@@ -189,8 +189,8 @@ const CANVAS_STICKER_ASSET_BY_ID = new Map(
   CANVAS_STICKER_ASSETS.map((asset) => [asset.id, asset]),
 );
 export const CANVAS_STICKER_PICKER_ASSETS =
-  CANVAS_STICKER_PICKER_ASSET_IDS.flatMap((id2) => {
-    const asset = CANVAS_STICKER_ASSET_BY_ID.get(id2);
+  CANVAS_STICKER_PICKER_ASSET_IDS.flatMap((assetId) => {
+    const asset = CANVAS_STICKER_ASSET_BY_ID.get(assetId);
     return asset ? [asset] : [];
   });
 export const CANVAS_DEFAULT_STICKER_ASSET_ID =
@@ -206,33 +206,33 @@ export const CANVAS_EMOJI_STICKERS = [
   "🚀",
 ];
 export const CANVAS_STAMP_CURSOR_URL = stampCursorUrl;
-export function getCanvasStickerAsset(id2) {
-  return CANVAS_STICKER_ASSETS.find((asset) => asset.id === id2);
+export function getCanvasStickerAsset(assetId) {
+  return CANVAS_STICKER_ASSETS.find((asset) => asset.id === assetId);
 }
 export const CanvasToolModeContext = reactExports.createContext("select");
-export function CanvasToolModeProvider({ value, children: children2 }) {
+export function CanvasToolModeProvider({ value, children }) {
   return (
     <CanvasToolModeContext.Provider value={value}>
-      {children2}
+      {children}
     </CanvasToolModeContext.Provider>
   );
 }
-export function attachmentThumbnailUrl(attachment, meta2, displayWidth) {
-  if (!meta2) return void 0;
+export function attachmentThumbnailUrl(attachment, meta, displayWidth) {
+  if (!meta) return void 0;
   if (attachment.kind === "text") return void 0;
   if (attachment.kind === "audio") return void 0;
   if (attachment.kind === "file") return void 0;
   if (attachment.kind === "image") {
-    return buildThumbnailUrl(meta2.url, displayWidth);
+    return buildThumbnailUrl(meta.url, displayWidth);
   }
-  if (!meta2.path) return void 0;
-  return buildVideoThumbnailUrl(meta2.url, meta2.path, displayWidth);
+  if (!meta.path) return void 0;
+  return buildVideoThumbnailUrl(meta.url, meta.path, displayWidth);
 }
 export function ChipTooltip({
-  x: x2,
+  x: anchorX,
   anchorTop,
   anchorBottom,
-  children: children2,
+  children,
 }) {
   const ref = reactExports.useRef(null);
   const [adjusted, setAdjusted] = reactExports.useState(null);
@@ -241,18 +241,18 @@ export function ChipTooltip({
     if (!el) return;
     const rect = el.getBoundingClientRect();
     const margin = 4;
-    let left = x2 - rect.width / 2;
+    let left = anchorX - rect.width / 2;
     if (left < margin) left = margin;
     if (left + rect.width > window.innerWidth - margin) {
       left = window.innerWidth - rect.width - margin;
     }
-    let top2 = anchorTop - rect.height - 6;
-    if (top2 < margin) top2 = anchorBottom + 6;
+    let tooltipTop = anchorTop - rect.height - 6;
+    if (tooltipTop < margin) tooltipTop = anchorBottom + 6;
     setAdjusted({
       left,
-      top: top2,
+      top: tooltipTop,
     });
-  }, [x2, anchorTop, anchorBottom]);
+  }, [anchorX, anchorTop, anchorBottom]);
   const [host] = reactExports.useState(() =>
     typeof document !== "undefined" ? document.body : null,
   );
@@ -269,16 +269,16 @@ export function ChipTooltip({
         color: "var(--canvas-tooltip-fg, #fff)",
       }}
     >
-      {children2}
+      {children}
     </div>,
     host,
   );
 }
-export function PlusIcon({ size: size2 = 12 } = {}) {
+export function PlusIcon({ size = 12 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 12 12"
       fill="none"
       stroke="currentColor"
@@ -307,12 +307,12 @@ export function DragHandleIcon() {
     </CompositedSvg>
   );
 }
-export function PaperclipIcon({ size: size2 = 12 } = {}) {
+export function PaperclipIcon({ size = 12 } = {}) {
   return (
     <CompositedSvg
       className="shrink-0"
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       aria-hidden="true"
@@ -324,11 +324,11 @@ export function PaperclipIcon({ size: size2 = 12 } = {}) {
     </CompositedSvg>
   );
 }
-export function TrashIcon({ size: size2 = 12 } = {}) {
+export function TrashIcon({ size = 12 } = {}) {
   return (
     <CompositedSvg
-      width={size2}
-      height={size2}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
@@ -367,8 +367,8 @@ const ROW_HEIGHT_PRESETS = {
   tall: 86,
   extraTall: 122,
 };
-export function operatorsForFieldType(type2) {
-  if (type2 === "text")
+export function operatorsForFieldType(type) {
+  if (type === "text")
     return [
       "equals",
       "notEquals",
@@ -377,7 +377,7 @@ export function operatorsForFieldType(type2) {
       "empty",
       "notEmpty",
     ];
-  if (type2 === "number")
+  if (type === "number")
     return [
       "equals",
       "notEquals",
@@ -390,82 +390,82 @@ export function operatorsForFieldType(type2) {
     ];
   return ["empty", "notEmpty"];
 }
-export function defaultOpForFieldType(type2) {
-  if (type2 === "attachment") return "empty";
+export function defaultOpForFieldType(type) {
+  if (type === "attachment") return "empty";
   return "equals";
 }
-export function renameColumn(doc2, columnId, title) {
+export function renameColumn(canvasDocument, columnId, title) {
   const trimmed = title.trim() || "Untitled";
   return {
-    ...doc2,
-    columns: doc2.columns.map((c3) =>
-      c3.id === columnId
+    ...canvasDocument,
+    columns: canvasDocument.columns.map((column) =>
+      column.id === columnId
         ? {
-            ...c3,
+            ...column,
             title: trimmed,
           }
-        : c3,
+        : column,
     ),
   };
 }
-export function moveItem(list2, fromId, toId, position2) {
-  if (fromId === toId) return list2;
-  const fromIdx = list2.findIndex((c3) => c3.id === fromId);
-  const toIdx = list2.findIndex((c3) => c3.id === toId);
-  if (fromIdx < 0 || toIdx < 0) return list2;
-  const next2 = list2.slice();
-  const [moved] = next2.splice(fromIdx, 1);
-  if (!moved) return list2;
-  const baseIdx = next2.findIndex((c3) => c3.id === toId);
-  if (baseIdx < 0) return list2;
-  const insertAt = position2 === "after" ? baseIdx + 1 : baseIdx;
-  if (insertAt === fromIdx) return list2;
-  next2.splice(insertAt, 0, moved);
-  return next2;
+export function moveItem(list, fromId, toId, position) {
+  if (fromId === toId) return list;
+  const fromIdx = list.findIndex((column) => column.id === fromId);
+  const toIdx = list.findIndex((column) => column.id === toId);
+  if (fromIdx < 0 || toIdx < 0) return list;
+  const next = list.slice();
+  const [moved] = next.splice(fromIdx, 1);
+  if (!moved) return list;
+  const baseIdx = next.findIndex((column) => column.id === toId);
+  if (baseIdx < 0) return list;
+  const insertAt = position === "after" ? baseIdx + 1 : baseIdx;
+  if (insertAt === fromIdx) return list;
+  next.splice(insertAt, 0, moved);
+  return next;
 }
-export function removeFilterCondition(doc2, conditionId) {
-  if (!doc2.filter) return doc2;
-  const conditions = doc2.filter.conditions.filter(
-    (c3) => c3.id !== conditionId,
+export function removeFilterCondition(canvasDocument, conditionId) {
+  if (!canvasDocument.filter) return canvasDocument;
+  const conditions = canvasDocument.filter.conditions.filter(
+    (filterCondition) => filterCondition.id !== conditionId,
   );
   if (conditions.length === 0)
     return {
-      ...doc2,
+      ...canvasDocument,
       filter: void 0,
     };
   return {
-    ...doc2,
+    ...canvasDocument,
     filter: {
-      ...doc2.filter,
+      ...canvasDocument.filter,
       conditions,
     },
   };
 }
-export function pruneFilterColumn(filter2, columnId) {
-  if (!filter2) return void 0;
-  const conditions = filter2.conditions.filter(
-    (c3) => c3.columnId !== columnId,
+export function pruneFilterColumn(filter, columnId) {
+  if (!filter) return void 0;
+  const conditions = filter.conditions.filter(
+    (filterCondition) => filterCondition.columnId !== columnId,
   );
   if (conditions.length === 0) return void 0;
-  if (conditions.length === filter2.conditions.length) return filter2;
+  if (conditions.length === filter.conditions.length) return filter;
   return {
-    ...filter2,
+    ...filter,
     conditions,
   };
 }
-export function getRowHeight(doc2) {
-  return doc2.rowHeight ?? DEFAULT_ROW_HEIGHT;
+export function getRowHeight(canvasDocument) {
+  return canvasDocument.rowHeight ?? DEFAULT_ROW_HEIGHT;
 }
-export function setRowHeight(doc2, rowHeight) {
-  if (getRowHeight(doc2) === rowHeight) return doc2;
+export function setRowHeight(canvasDocument, rowHeight) {
+  if (getRowHeight(canvasDocument) === rowHeight) return canvasDocument;
   return {
-    ...doc2,
+    ...canvasDocument,
     rowHeight,
   };
 }
-export function getRowHeightPx(doc2) {
-  return ROW_HEIGHT_PRESETS[getRowHeight(doc2)];
+export function getRowHeightPx(canvasDocument) {
+  return ROW_HEIGHT_PRESETS[getRowHeight(canvasDocument)];
 }
-export function getRowHeightLines(doc2) {
-  return ROW_HEIGHT_LINES[getRowHeight(doc2)];
+export function getRowHeightLines(canvasDocument) {
+  return ROW_HEIGHT_LINES[getRowHeight(canvasDocument)];
 }

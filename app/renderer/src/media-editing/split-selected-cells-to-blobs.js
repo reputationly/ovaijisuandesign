@@ -8,51 +8,51 @@ function computeGridCells(
   cols,
   gutterRatio = DEFAULT_SPLIT_GUTTER_RATIO,
 ) {
-  const r2 = Math.max(1, Math.floor(rows));
-  const c3 = Math.max(1, Math.floor(cols));
-  const cellW = width / c3;
-  const cellH = height / r2;
+  const rowCount = Math.max(1, Math.floor(rows));
+  const columnCount = Math.max(1, Math.floor(cols));
+  const cellW = width / columnCount;
+  const cellH = height / rowCount;
   const gutter = Math.max(0, Math.round(Math.min(cellW, cellH) * gutterRatio));
-  const cells2 = [];
-  for (let row = 0; row < r2; row++) {
-    for (let col = 0; col < c3; col++) {
-      const rawX = col * cellW;
-      const rawY = row * cellH;
-      const sx = Math.round(rawX + gutter);
-      const sy = Math.round(rawY + gutter);
-      const sw = Math.max(1, Math.round(cellW - gutter * 2));
-      const sh = Math.max(1, Math.round(cellH - gutter * 2));
-      cells2.push({
-        sx,
-        sy,
-        sw,
-        sh,
-        row,
-        col,
+  const cells = [];
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+    for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+      const rawX = columnIndex * cellW;
+      const rawY = rowIndex * cellH;
+      const sourceX = Math.round(rawX + gutter);
+      const sourceY = Math.round(rawY + gutter);
+      const sourceWidth = Math.max(1, Math.round(cellW - gutter * 2));
+      const sourceHeight = Math.max(1, Math.round(cellH - gutter * 2));
+      cells.push({
+        sx: sourceX,
+        sy: sourceY,
+        sw: sourceWidth,
+        sh: sourceHeight,
+        row: rowIndex,
+        col: columnIndex,
       });
     }
   }
-  return cells2;
+  return cells;
 }
 function loadImage(src) {
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = (e2) => reject(e2);
-    img.src = src;
+    const imageElement = new Image();
+    imageElement.crossOrigin = "anonymous";
+    imageElement.onload = () => resolve(imageElement);
+    imageElement.onerror = (errorEvent) => reject(errorEvent);
+    imageElement.src = src;
   });
 }
-function cellToBlob(img, cell) {
+function cellToBlob(sourceImage, cell) {
   const canvas = document.createElement("canvas");
   canvas.width = cell.sw;
   canvas.height = cell.sh;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("split-utils: 2d context unavailable");
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(
-    img,
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("split-utils: 2d context unavailable");
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  context.drawImage(
+    sourceImage,
     cell.sx,
     cell.sy,
     cell.sw,
@@ -76,22 +76,22 @@ export async function splitSelectedCellsToBlobs(
   src,
   rows,
   cols,
-  selected2,
+  selected,
   originalWidth,
   originalHeight,
   gutterRatio = 0,
 ) {
-  if (selected2.size === 0) return [];
-  const img = await loadImage(src);
-  const sw = originalWidth || img.naturalWidth;
-  const sh = originalHeight || img.naturalHeight;
-  const cells2 = computeGridCells(sw, sh, rows, cols, gutterRatio);
-  const out = [];
-  for (let i2 = 0; i2 < cells2.length; i2++) {
-    if (!selected2.has(i2)) continue;
-    const cell = cells2[i2];
-    const blob = await cellToBlob(img, cell);
-    out.push({
+  if (selected.size === 0) return [];
+  const imageElement = await loadImage(src);
+  const sourceWidth = originalWidth || imageElement.naturalWidth;
+  const sourceHeight = originalHeight || imageElement.naturalHeight;
+  const cells = computeGridCells(sourceWidth, sourceHeight, rows, cols, gutterRatio);
+  const selectedCells = [];
+  for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+    if (!selected.has(cellIndex)) continue;
+    const cell = cells[cellIndex];
+    const blob = await cellToBlob(imageElement, cell);
+    selectedCells.push({
       blob,
       row: cell.row,
       col: cell.col,
@@ -99,5 +99,5 @@ export async function splitSelectedCellsToBlobs(
       sh: cell.sh,
     });
   }
-  return out;
+  return selectedCells;
 }

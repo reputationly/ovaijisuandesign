@@ -74,7 +74,7 @@ import { VideoColorAdjustDialog } from "./video-color-adjust-dialog.jsx";
 import { I2VPopover } from "./free-path-shape.js";
 
 function useVideoStarterPresetToken(nodeId) {
-  return useVideoStarterPresetStore((state2) => state2.tokens[nodeId] ?? 0);
+  return useVideoStarterPresetStore((state) => state.tokens[nodeId] ?? 0);
 }
 
 function buildPopoverPosition(rect, width, height) {
@@ -84,24 +84,24 @@ function buildPopoverPosition(rect, width, height) {
     VIEWPORT_MARGIN,
     Math.min(window.innerWidth - width - VIEWPORT_MARGIN, desiredLeft),
   );
-  const top2 = placeBelow
+  const popoverTop = placeBelow
     ? rect.bottom + NODE_POPOVER_SAFE_GAP
     : Math.max(VIEWPORT_MARGIN, rect.top - height - NODE_POPOVER_SAFE_GAP);
   return {
-    top: top2,
+    top: popoverTop,
     left: clampedLeft,
     height,
   };
 }
 
 function FixedPortalCard({
-  top: top2,
+  top: cardTop,
   left,
   width,
   height,
   transitionHeight,
   promptLayout = false,
-  children: children2,
+  children,
 }) {
   return reactDomExports.createPortal(
     // biome-ignore lint/a11y/noStaticElementInteractions: portaled popover frame; child popover owns all interactive surfaces
@@ -112,7 +112,7 @@ function FixedPortalCard({
       data-action-ui-id={promptLayout ? "popover.shell" : void 0}
       style={{
         position: "fixed",
-        top: top2,
+        top: cardTop,
         left,
         width,
         height,
@@ -127,10 +127,10 @@ function FixedPortalCard({
         animation: "i2v-popover-in 0.15s ease-out",
         transition: transitionHeight ? "height 250ms ease-out" : void 0,
       }}
-      onMouseDown={(e2) => e2.stopPropagation()}
-      onClick={(e2) => e2.stopPropagation()}
+      onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+      onClick={(clickEvent) => clickEvent.stopPropagation()}
     >
-      {children2}
+      {children}
     </div>,
     document.body,
   );
@@ -138,9 +138,9 @@ function FixedPortalCard({
 
 export function VideoActionSurface({
   nodeId,
-  meta: meta2,
-  data: data2,
-  selected: selected2,
+  meta,
+  data,
+  selected,
   isInteractiveSelect: isInteractiveSelectProp,
   generating,
   isGenerating,
@@ -156,7 +156,7 @@ export function VideoActionSurface({
   popoverGapOffset = 0,
 }) {
   const generatingStateStore = useGeneratingStateApi();
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const assetMetadataStore = useAssetMetadataApi();
   const {
     submitImg2Video,
@@ -181,20 +181,20 @@ export function VideoActionSurface({
   useReactFlow();
   const actionEnterTimesRef = reactExports.useRef(new Map());
   const handleToolClickTrack = reactExports.useCallback(
-    (info2) => {
+    (info) => {
       if (
-        info2.interaction === "opens_mode" ||
-        info2.interaction === "opens_dialog"
+        info.interaction === "opens_mode" ||
+        info.interaction === "opens_dialog"
       ) {
-        actionEnterTimesRef.current.set(info2.action, Date.now());
+        actionEnterTimesRef.current.set(info.action, Date.now());
       }
       onNodeAction?.({
         nodeId,
         nodeType: "video",
-        action: info2.action,
+        action: info.action,
         phase: "click",
-        interaction: info2.interaction,
-        source: info2.source,
+        interaction: info.interaction,
+        source: info.source,
       });
     },
     [nodeId, onNodeAction],
@@ -218,17 +218,17 @@ export function VideoActionSurface({
     },
     [nodeId, onNodeAction],
   );
-  const modelInfo = useModelForAsset(meta2?.backend, meta2?.model_id, "video");
+  const modelInfo = useModelForAsset(meta?.backend, meta?.model_id, "video");
   const hailuo03SuperResolutionVisible = reactExports.useMemo(
-    () => isHailuo03SuperResolutionEligible(meta2, modelInfo),
-    [meta2, modelInfo],
+    () => isHailuo03SuperResolutionEligible(meta, modelInfo),
+    [meta, modelInfo],
   );
-  const playbackUrl = meta2?.url ? resolveVideoPlaybackUrl(meta2.url) : void 0;
-  const i2vDraft = resolveActivePopoverDraft(data2, "i2v");
-  const providerTaskId = resolveVideoPopoverProviderTaskId(meta2, data2);
+  const playbackUrl = meta?.url ? resolveVideoPlaybackUrl(meta.url) : void 0;
+  const i2vDraft = resolveActivePopoverDraft(data, "i2v");
+  const providerTaskId = resolveVideoPopoverProviderTaskId(meta, data);
   const starterPresetToken = useVideoStarterPresetToken(nodeId);
   const isInteractiveSelect =
-    anchor.kind === "rect" || (selected2 && (isInteractiveSelectProp ?? true));
+    anchor.kind === "rect" || (selected && (isInteractiveSelectProp ?? true));
   const [showI2VPopover, setShowI2VPopover] = reactExports.useState(false);
   const [showEnhancePopover, setShowEnhancePopover] =
     reactExports.useState(false);
@@ -253,13 +253,13 @@ export function VideoActionSurface({
     watermark.onOpen();
   }, [watermark]);
   const handleAddToClipNode = reactExports.useCallback(async () => {
-    if (!onInstantiatePlugin || anchor.kind !== "node" || !meta2?.path) return;
+    if (!onInstantiatePlugin || anchor.kind !== "node" || !meta?.path) return;
     const editorNodeId = await onInstantiatePlugin({
       pluginId: CLIP_STUDIO_PLUGIN_ID,
       sourceNodeIds: [nodeId],
     });
     if (editorNodeId) fullscreenApi.getState().enter(editorNodeId);
-  }, [anchor.kind, fullscreenApi, meta2?.path, nodeId, onInstantiatePlugin]);
+  }, [anchor.kind, fullscreenApi, meta?.path, nodeId, onInstantiatePlugin]);
   const {
     showLightbox,
     lightboxIndexOverride,
@@ -294,7 +294,7 @@ export function VideoActionSurface({
       audioPaths,
       replaceNodeId,
       displayPrompt,
-      count2,
+      count,
       textPaths,
     ) => {
       const isNewRound =
@@ -311,7 +311,7 @@ export function VideoActionSurface({
           audioPaths,
           replaceNodeId,
           displayPrompt,
-          shouldSubmitCount ? count2 : void 0,
+          shouldSubmitCount ? count : void 0,
           isNewRound,
           void 0,
           textPaths,
@@ -321,7 +321,7 @@ export function VideoActionSurface({
             phase: "generating",
             prompt,
             model: modelId,
-            prevUrl: meta2?.url,
+            prevUrl: meta?.url,
             modelId,
             params,
             generationStartedAt: new Date().toISOString(),
@@ -333,34 +333,34 @@ export function VideoActionSurface({
         flushDraft: flushPersist,
         submit,
         onFlushError: () =>
-          dedupedToast.error(t2("canvas.promptDraftSaveFailed")),
+          dedupedToast.error(t("canvas.promptDraftSaveFailed")),
       });
     },
     [
       nodeId,
       submitImg2Video,
-      meta2?.url,
+      meta?.url,
       generatingStateStore,
       anchor.kind,
       isUserEmpty,
       flushPersist,
-      t2,
+      t,
     ],
   );
   const forceShowPromptPopover =
-    !!data2 && data2.forceShowPromptPopover === true;
+    !!data && data.forceShowPromptPopover === true;
   const canOpenPopover =
     forceShowPromptPopover ||
     isUserEmpty ||
-    (!!meta2?.model && !isUserProvidedAssetModel(meta2.model));
+    (!!meta?.model && !isUserProvidedAssetModel(meta.model));
   const selfAssetIds = reactExports.useMemo(() => {
-    const ids2 = new Set();
+    const ids = new Set();
     if (nodeId) {
-      ids2.add(nodeId);
+      ids.add(nodeId);
       const { assetId } = parseNodeId(nodeId);
-      if (assetId) ids2.add(assetId);
+      if (assetId) ids.add(assetId);
     }
-    return ids2;
+    return ids;
   }, [nodeId]);
   const [referenceImagePaths, setReferenceImagePaths] = reactExports.useState(
     [],
@@ -383,7 +383,7 @@ export function VideoActionSurface({
     i2vDraft?.textPaths,
   );
   reactExports.useEffect(() => {
-    if (!selected2) return;
+    if (!selected) return;
     if (!canOpenPopover) return;
     if (!isInteractiveSelect) return;
     if (showI2VPopover) return;
@@ -398,7 +398,7 @@ export function VideoActionSurface({
     setReferenceImagePaths(
       resolveReferenceImages(
         sources,
-        meta2?.referenceImageIds,
+        meta?.referenceImageIds,
         assetMetadataStore,
         getNodeById,
       ),
@@ -406,24 +406,24 @@ export function VideoActionSurface({
     setReferenceVideoPaths(
       resolveReferenceVideos(
         sources,
-        meta2?.referenceVideoIds,
+        meta?.referenceVideoIds,
         assetMetadataStore,
       ),
     );
     setReferenceAudioPaths(
       resolveReferenceAudios(
         sources,
-        meta2?.referenceAudioIds,
+        meta?.referenceAudioIds,
         assetMetadataStore,
       ),
     );
-    const persistedTextIds = data2?.referenceTextIds;
+    const persistedTextIds = data?.referenceTextIds;
     setReferenceTextPaths(
       resolveReferenceTexts(
         sources,
         Array.isArray(persistedTextIds)
           ? persistedTextIds
-          : meta2?.referenceTextIds,
+          : meta?.referenceTextIds,
         assetMetadataStore,
         getNodeById,
       ),
@@ -431,7 +431,7 @@ export function VideoActionSurface({
     refreshUpstreamText(sources);
     setShowI2VPopover(true);
   }, [
-    selected2,
+    selected,
     canOpenPopover,
     isInteractiveSelect,
     showI2VPopover,
@@ -449,21 +449,21 @@ export function VideoActionSurface({
   ]);
   const { submit: submitEnhance } = useEnhanceVideoSubmit({
     id: nodeId,
-    meta: meta2,
+    meta,
     submitEnhanceVideo,
   });
-  const sourceHeight = meta2?.height;
+  const sourceHeight = meta?.height;
   const defaultEnhanceResolution = reactExports.useMemo(
     () => suggestNextResolution(sourceHeight),
     [sourceHeight],
   );
   const currentEnhanceResolution = reactExports.useMemo(
-    () => parseEnhanceResolution(meta2?.params?.resolution),
-    [meta2?.params?.resolution],
+    () => parseEnhanceResolution(meta?.params?.resolution),
+    [meta?.params?.resolution],
   );
   const currentEnhanceFps = reactExports.useMemo(
-    () => parseEnhanceFps(meta2?.params?.fps),
-    [meta2?.params?.fps],
+    () => parseEnhanceFps(meta?.params?.fps),
+    [meta?.params?.fps],
   );
   const handleEnhanceOpen = reactExports.useCallback(() => {
     setShowI2VPopover(false);
@@ -516,8 +516,8 @@ export function VideoActionSurface({
   const handleHailuo03SuperResolution = reactExports.useCallback(() => {
     if (
       !submitHailuo03VideoSuperResolution ||
-      !meta2?.path ||
-      !meta2.providerTaskId
+      !meta?.path ||
+      !meta.providerTaskId
     )
       return;
     trackActionEnd("hailuo03-super-resolution", "apply", {
@@ -525,13 +525,13 @@ export function VideoActionSurface({
     });
     void submitHailuo03VideoSuperResolution(
       nodeId,
-      meta2.path,
-      meta2.providerTaskId,
+      meta.path,
+      meta.providerTaskId,
     );
     handleHailuo03SuperResolutionClose();
   }, [
-    meta2?.path,
-    meta2?.providerTaskId,
+    meta?.path,
+    meta?.providerTaskId,
     nodeId,
     submitHailuo03VideoSuperResolution,
     trackActionEnd,
@@ -539,7 +539,7 @@ export function VideoActionSurface({
   ]);
   const { submit: submitEraseSubtitleHook } = useEraseSubtitleSubmit({
     id: nodeId,
-    meta: meta2,
+    meta,
     submitEraseSubtitle,
   });
   const handleEraseSubtitleOpen = reactExports.useCallback(() => {
@@ -563,8 +563,8 @@ export function VideoActionSurface({
     deselectEraseSubtitleClose();
   }, [anchor, deselectEraseSubtitleClose, trackActionEnd]);
   const handleEraseSubtitleSubmit = reactExports.useCallback(
-    (mode2) => {
-      if (mode2 === "auto") {
+    (mode) => {
+      if (mode === "auto") {
         trackActionEnd("erase-subtitle", "apply", {
           mode: "auto",
         });
@@ -605,7 +605,7 @@ export function VideoActionSurface({
   );
   const { submit: submitAsrHook } = useAsrSubmit({
     id: nodeId,
-    meta: meta2,
+    meta,
     submitAsr,
   });
   const handleAsrOpen = reactExports.useCallback(() => {
@@ -645,7 +645,7 @@ export function VideoActionSurface({
     const sources = [...getIncomingSourceIds(nodeId)].sort();
     const imagePaths = resolveReferenceImages(
       sources,
-      meta2?.referenceImageIds,
+      meta?.referenceImageIds,
       assetMetadataStore,
       getNodeById,
     );
@@ -655,7 +655,7 @@ export function VideoActionSurface({
     });
   }, [
     nodeId,
-    meta2?.referenceImageIds,
+    meta?.referenceImageIds,
     assetMetadataStore,
     getIncomingSourceIds,
     getNodeById,
@@ -665,8 +665,8 @@ export function VideoActionSurface({
   );
   reactExports.useEffect(() => {
     const unsubscribe = subscribeGraphChange(() => {
-      const key2 = buildIncomingReferenceKey();
-      setIncomingSourceKey((prev) => (prev === key2 ? prev : key2));
+      const key = buildIncomingReferenceKey();
+      setIncomingSourceKey((prev) => (prev === key ? prev : key));
     });
     return unsubscribe;
   }, [buildIncomingReferenceKey, subscribeGraphChange]);
@@ -676,7 +676,7 @@ export function VideoActionSurface({
     setReferenceImagePaths(
       resolveReferenceImages(
         sources,
-        meta2?.referenceImageIds,
+        meta?.referenceImageIds,
         assetMetadataStore,
         getNodeById,
       ),
@@ -694,7 +694,7 @@ export function VideoActionSurface({
   }, [
     incomingSourceKey,
     showI2VPopover,
-    meta2?.referenceImageIds,
+    meta?.referenceImageIds,
     nodeId,
     assetMetadataStore,
     getIncomingSourceIds,
@@ -708,30 +708,30 @@ export function VideoActionSurface({
       lastUsedModelId: lastUsedVideo?.modelId,
       draftModelId: i2vDraft?.modelId,
       assetModelId: modelInfo?.id,
-      assetMetadataModelId: meta2?.model_id,
-      assetParamsModelName: meta2?.params?.model_name,
+      assetMetadataModelId: meta?.model_id,
+      assetParamsModelName: meta?.params?.model_name,
       generatingModelId: generating?.modelId,
       upstreamModelId: upstreamVideoMeta?.modelId,
     });
   const i2vDefaultParams =
     i2vDraft?.params ??
-    meta2?.params ??
+    meta?.params ??
     generating?.params ??
     upstreamVideoMeta?.params;
-  const surfaceVisible = anchor.kind === "rect" || selected2;
+  const surfaceVisible = anchor.kind === "rect" || selected;
   const i2vOriginalGenerationDraft = reactExports.useMemo(
     () =>
       buildOriginalGenerationDraft(
-        meta2?.prompt,
-        modelInfo?.id ?? meta2?.model_id,
-        meta2?.params,
+        meta?.prompt,
+        modelInfo?.id ?? meta?.model_id,
+        meta?.params,
         referenceImagePaths,
       ),
     [
-      meta2?.prompt,
+      meta?.prompt,
       modelInfo?.id,
-      meta2?.model_id,
-      meta2?.params,
+      meta?.model_id,
+      meta?.params,
       referenceImagePaths,
     ],
   );
@@ -742,9 +742,9 @@ export function VideoActionSurface({
       : void 0;
   const resolvedLightboxItems = reactExports.useMemo(() => {
     if (lightboxItems && lightboxItems.length > 0) return lightboxItems;
-    const fallback = lightboxItemFromAssetMeta("video", meta2);
+    const fallback = lightboxItemFromAssetMeta("video", meta);
     return fallback ? [fallback] : [];
-  }, [lightboxItems, meta2]);
+  }, [lightboxItems, meta]);
   const toolbarVisible =
     anchor.kind === "rect"
       ? !isGenerating && !isUserEmpty
@@ -754,10 +754,10 @@ export function VideoActionSurface({
         !watermark?.open;
   const toolbarRenderShell =
     anchor.kind === "rect"
-      ? (children2) => {
+      ? (children) => {
           const rect = anchor.rect;
           const placeAbove = rect.top > TOOLBAR_HEIGHT + 16;
-          const top2 = placeAbove
+          const portalTop = placeAbove
             ? rect.top - TOOLBAR_HEIGHT - TOOLBAR_GAP
             : rect.bottom + TOOLBAR_GAP;
           const left = rect.left + rect.width / 2;
@@ -769,15 +769,15 @@ export function VideoActionSurface({
               data-clip-popover-portal="true"
               style={{
                 position: "fixed",
-                top: top2,
+                top: portalTop,
                 left,
                 transform: "translateX(-50%)",
                 zIndex: PORTAL_TOOLBAR_Z,
               }}
-              onMouseDown={(e2) => e2.stopPropagation()}
-              onClick={(e2) => e2.stopPropagation()}
+              onMouseDown={(mouseEvent) => mouseEvent.stopPropagation()}
+              onClick={(clickEvent) => clickEvent.stopPropagation()}
             >
-              {children2}
+              {children}
             </div>,
             document.body,
           );
@@ -786,7 +786,7 @@ export function VideoActionSurface({
   const i2vRenderShell =
     anchor.kind === "rect"
       ? (props) => {
-          const pos = buildPopoverPosition(
+          const popoverPosition = buildPopoverPosition(
             anchor.rect,
             I2V_POPOVER_WIDTH,
             props.expanded
@@ -795,10 +795,10 @@ export function VideoActionSurface({
           );
           return (
             <FixedPortalCard
-              top={pos.top}
-              left={pos.left}
+              top={popoverPosition.top}
+              left={popoverPosition.left}
               width={I2V_POPOVER_WIDTH}
-              height={pos.height}
+              height={popoverPosition.height}
               transitionHeight={true}
               promptLayout={true}
             >
@@ -810,15 +810,15 @@ export function VideoActionSurface({
   const enhanceRenderShell =
     anchor.kind === "rect"
       ? (props) => {
-          const pos = buildPopoverPosition(
+          const popoverPosition = buildPopoverPosition(
             anchor.rect,
             ENHANCE_POPOVER_WIDTH,
             ENHANCE_POPOVER_HEIGHT,
           );
           return (
             <FixedPortalCard
-              top={pos.top}
-              left={pos.left}
+              top={popoverPosition.top}
+              left={popoverPosition.left}
               width={ENHANCE_POPOVER_WIDTH}
               height={void 0}
             >
@@ -831,13 +831,13 @@ export function VideoActionSurface({
     <>
       {toolbarVisible && (
         <VideoNodeToolbarSection
-          hasVideo={!!meta2?.path}
+          hasVideo={!!meta?.path}
           enhanceDisabled={!submitEnhanceVideo}
           onEnhance={handleEnhanceOpen}
           hailuo03SuperResolutionVisible={hailuo03SuperResolutionVisible}
           hailuo03SuperResolutionDisabled={!submitHailuo03VideoSuperResolution}
           hailuo03SuperResolutionDurationSec={resolveHailuo03SuperResolutionDuration(
-            meta2,
+            meta,
           )}
           onHailuo03SuperResolution={handleHailuo03SuperResolutionOpen}
           eraseSubtitleDisabled={!submitEraseSubtitle}
@@ -847,7 +847,7 @@ export function VideoActionSurface({
           contentToolbarItems={contentToolbarItems}
           onWatermark={watermark ? handleWatermarkOpen : void 0}
           onAddToClipNode={
-            onInstantiatePlugin && anchor.kind === "node" && meta2?.path
+            onInstantiatePlugin && anchor.kind === "node" && meta?.path
               ? handleAddToClipNode
               : void 0
           }
@@ -860,7 +860,7 @@ export function VideoActionSurface({
         open={showCustomizeToolbar}
         onOpenChange={setShowCustomizeToolbar}
         hasPromoteToAsset={contentToolbarItems.some(
-          (it2) => it2.id === "promote-to-asset",
+          (toolbarItem) => toolbarItem.id === "promote-to-asset",
         )}
         onApply={(detail) =>
           trackActionEnd("customize-toolbar", "apply", detail)
@@ -879,7 +879,7 @@ export function VideoActionSurface({
       {showClipPanel && playbackUrl && (
         <VideoClipPanel
           videoUrl={playbackUrl}
-          videoName={meta2?.name ?? "video"}
+          videoName={meta?.name ?? "video"}
           onClose={() => {
             trackActionEnd("clip", "abandon");
             closeClipPanel();
@@ -895,7 +895,7 @@ export function VideoActionSurface({
       {showFramePanel && playbackUrl && (
         <VideoFramePanel
           videoUrl={playbackUrl}
-          videoName={meta2?.name ?? "video"}
+          videoName={meta?.name ?? "video"}
           onClose={() => {
             trackActionEnd("extract-frame", "abandon");
             closeFramePanel();
@@ -922,7 +922,7 @@ export function VideoActionSurface({
             await colorAdjust.dialogProps.onConfirm(blob);
           }}
           videoSrc={playbackUrl}
-          videoName={meta2?.name}
+          videoName={meta?.name}
         />
       )}
       {surfaceVisible && showI2VPopover && (
@@ -942,7 +942,7 @@ export function VideoActionSurface({
             i2vDraft?.audioPaths,
           )}
           defaultPrompt={
-            i2vDraft?.prompt ?? meta2?.prompt ?? generating?.prompt
+            i2vDraft?.prompt ?? meta?.prompt ?? generating?.prompt
           }
           defaultPromptJson={i2vDraft?.promptJson}
           defaultModelId={videoPopoverModelInitialization.defaultModelId}
@@ -967,7 +967,7 @@ export function VideoActionSurface({
           }
           submitLabel={
             anchor.kind === "rect"
-              ? t2("canvas.clipUpstream.submitGenerate", {
+              ? t("canvas.clipUpstream.submitGenerate", {
                   defaultValue: "生成",
                 })
               : void 0
@@ -990,7 +990,7 @@ export function VideoActionSurface({
             currentEnhanceResolution ?? defaultEnhanceResolution
           }
           defaultFps={currentEnhanceFps ?? 60}
-          durationSec={meta2?.durationSec}
+          durationSec={meta?.durationSec}
           renderShell={enhanceRenderShell}
         />
       )}
@@ -998,7 +998,7 @@ export function VideoActionSurface({
         <Hailuo03SuperResolutionPopover
           onSubmit={handleHailuo03SuperResolution}
           onClose={handleHailuo03SuperResolutionClose}
-          durationSec={resolveHailuo03SuperResolutionDuration(meta2)}
+          durationSec={resolveHailuo03SuperResolutionDuration(meta)}
           renderShell={enhanceRenderShell}
         />
       )}
@@ -1016,7 +1016,7 @@ export function VideoActionSurface({
         playbackUrl && (
           <EraseSubtitleEditor
             videoSrc={playbackUrl}
-            videoName={meta2?.name}
+            videoName={meta?.name}
             initialRegions={eraseSubRegions}
             onCancel={handleEraseSubEditorCancel}
             onConfirm={handleEraseSubEditorConfirm}

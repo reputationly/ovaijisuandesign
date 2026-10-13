@@ -40,30 +40,30 @@ const COLOR_GROUPS = {
 };
 
 function useTokenValues(names) {
-  const [values3, setValues] = reactExports.useState({});
+  const [values, setValues] = reactExports.useState({});
   reactExports.useEffect(() => {
     const read = () => {
-      const next2 = {};
+      const next = {};
       const styles = getComputedStyle(document.documentElement);
-      for (const n2 of names) {
-        next2[n2] = styles.getPropertyValue(`--${n2}`).trim();
+      for (const tokenName of names) {
+        next[tokenName] = styles.getPropertyValue(`--${tokenName}`).trim();
       }
-      setValues(next2);
+      setValues(next);
     };
     read();
-    const observer2 = new MutationObserver(read);
-    observer2.observe(document.documentElement, {
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-    return () => observer2.disconnect();
+    return () => observer.disconnect();
   }, [names]);
-  return values3;
+  return values;
 }
 
 export function ColorTokens() {
   const allNames = Object.values(COLOR_GROUPS).flat();
-  const values3 = useTokenValues(allNames);
+  const values = useTokenValues(allNames);
   return (
     <div className="flex flex-col gap-4">
       <p className="text-[11px] text-muted-foreground">
@@ -75,29 +75,29 @@ export function ColorTokens() {
             {group}
           </h3>
           <div className="grid grid-cols-2 gap-1.5">
-            {names.map((name2) => (
+            {names.map((tokenName) => (
               <div
-                key={name2}
+                key={tokenName}
                 className="flex flex-col gap-1 rounded-lg border border-border p-1.5"
-                title={values3[name2] || ""}
+                title={values[tokenName] || ""}
               >
                 <div
                   className="h-8 w-full rounded-sm border border-border/60"
                   style={{
-                    backgroundColor: `var(--${name2})`,
+                    backgroundColor: `var(--${tokenName})`,
                   }}
                 />
                 <div
                   className="text-[10px] font-mono text-foreground truncate"
-                  title={name2}
+                  title={tokenName}
                 >
-                  {name2}
+                  {tokenName}
                 </div>
                 <div
                   className="text-[9px] font-mono text-muted-foreground truncate"
-                  title={values3[name2] || ""}
+                  title={values[tokenName] || ""}
                 >
-                  {values3[name2] || "—"}
+                  {values[tokenName] || "—"}
                 </div>
               </div>
             ))}

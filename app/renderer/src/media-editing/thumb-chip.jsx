@@ -59,18 +59,18 @@ function ReferenceAudioIcon() {
 }
 export function ThumbChip({
   item,
-  disabled: disabled2,
-  readOnly: readOnly2,
+  disabled: isDisabled,
+  readOnly: isReadOnly,
   videoDurationExcessSec,
   audioDurationExcessSec,
   onClipVideo,
   onClipAudio,
   onReplace,
-  onRemove: onRemove2,
+  onRemove,
   onClick,
   onLocate,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t } = useTranslation();
   const [hovered, setHovered] = reactExports.useState(false);
   const [reading, setReading] = reactExports.useState(false);
   const [lightboxItem, setLightboxItem] = reactExports.useState(null);
@@ -94,11 +94,11 @@ export function ThumbChip({
       ? "popover.reference-audio-duration-warning"
       : "popover.reference-video-duration-warning";
   const handleRemove = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      onRemove2(item.path);
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      onRemove(item.path);
     },
-    [item.path, onRemove2],
+    [item.path, onRemove],
   );
   const clearPreviewCloseTimer = reactExports.useCallback(() => {
     if (previewCloseTimerRef.current === null) return;
@@ -125,26 +125,26 @@ export function ThumbChip({
     setHovered(false);
     onReplace?.(item);
   }, [clearPreviewCloseTimer, item, onReplace]);
-  const handleClick2 = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
-      if (!e2.currentTarget.contains(e2.target)) return;
-      if (e2.target instanceof Element && e2.target.closest("button")) return;
+  const handleClick = reactExports.useCallback(
+    (clickEvent) => {
+      clickEvent.stopPropagation();
+      if (!clickEvent.currentTarget.contains(clickEvent.target)) return;
+      if (clickEvent.target instanceof Element && clickEvent.target.closest("button")) return;
       showPreview();
       onClick(item);
     },
     [item, onClick, showPreview],
   );
   const handleClipVideo = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       onClipVideo?.(item);
     },
     [item, onClipVideo],
   );
   const handleClipAudio = reactExports.useCallback(
-    (e2) => {
-      e2.stopPropagation();
+    (clickEvent) => {
+      clickEvent.stopPropagation();
       onClipAudio?.(item);
     },
     [item, onClipAudio],
@@ -162,9 +162,9 @@ export function ThumbChip({
     <div
       ref={setChipEl}
       role="button"
-      tabIndex={disabled2 || isDurationExceeded ? -1 : 0}
-      aria-disabled={disabled2 || isDurationExceeded || void 0}
-      className={`group/thumb relative transition-transform duration-150 motion-reduce:transform-none ${hovered && isPreviewable ? "scale-[1.04]" : ""} shrink-0 flex items-center justify-center border-[1.5px] ${item.kind === "video" ? "border-[var(--canvas-node-border)]" : "border-transparent"} ${item.kind === "text" || item.kind === "file" ? "bg-[var(--canvas-controls-hover)]" : ""} rounded-[8px] overflow-hidden ${item.durationOutOfRange ? "opacity-50" : ""} ${disabled2 ? "cursor-default opacity-60" : isDurationExceeded ? "cursor-default" : "cursor-pointer"}`}
+      tabIndex={isDisabled || isDurationExceeded ? -1 : 0}
+      aria-disabled={isDisabled || isDurationExceeded || void 0}
+      className={`group/thumb relative transition-transform duration-150 motion-reduce:transform-none ${hovered && isPreviewable ? "scale-[1.04]" : ""} shrink-0 flex items-center justify-center border-[1.5px] ${item.kind === "video" ? "border-[var(--canvas-node-border)]" : "border-transparent"} ${item.kind === "text" || item.kind === "file" ? "bg-[var(--canvas-controls-hover)]" : ""} rounded-[8px] overflow-hidden ${item.durationOutOfRange ? "opacity-50" : ""} ${isDisabled ? "cursor-default opacity-60" : isDurationExceeded ? "cursor-default" : "cursor-pointer"}`}
       style={{
         width: THUMB_SIZE,
         height: THUMB_SIZE,
@@ -175,22 +175,22 @@ export function ThumbChip({
           return;
         event.preventDefault();
       }}
-      onClick={(e2) => {
-        if (disabled2 || isDurationExceeded) {
-          e2.stopPropagation();
+      onClick={(clickEvent) => {
+        if (isDisabled || isDurationExceeded) {
+          clickEvent.stopPropagation();
           return;
         }
-        handleClick2(e2);
+        handleClick(clickEvent);
       }}
-      onKeyDown={(e2) => {
-        if (e2.target !== e2.currentTarget) return;
-        if (disabled2 || isDurationExceeded) {
-          e2.stopPropagation();
+      onKeyDown={(keyboardEvent) => {
+        if (keyboardEvent.target !== keyboardEvent.currentTarget) return;
+        if (isDisabled || isDurationExceeded) {
+          keyboardEvent.stopPropagation();
           return;
         }
-        if (e2.key === "Enter" || e2.key === " ") {
-          e2.preventDefault();
-          handleClick2(e2);
+        if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+          keyboardEvent.preventDefault();
+          handleClick(keyboardEvent);
         }
       }}
       onMouseEnter={showPreview}
@@ -225,9 +225,9 @@ export function ThumbChip({
           muted={true}
           playsInline={true}
           preload="metadata"
-          onLoadedMetadata={(e2) => {
+          onLoadedMetadata={(loadedMetadataEvent) => {
             try {
-              e2.currentTarget.currentTime = 1e-3;
+              loadedMetadataEvent.currentTarget.currentTime = 1e-3;
             } catch {}
           }}
           className="h-full w-full appearance-none border-0 object-cover outline-none ring-0 shadow-none pointer-events-none"
@@ -248,7 +248,7 @@ export function ThumbChip({
       {isPreviewable && (
         <ReferenceThumbnailOverlay
           visible={hovered}
-          disabled={disabled2 || isDurationExceeded}
+          disabled={isDisabled || isDurationExceeded}
           onReference={() => {
             showPreview();
             onClick(item);
@@ -279,7 +279,7 @@ export function ThumbChip({
           <CircleAlert
             size={16}
             strokeWidth={2}
-            aria-label={t2(durationWarningKey, {
+            aria-label={t(durationWarningKey, {
               min: item.durationMinSec,
               max: item.durationMaxSec,
               defaultValue: "参考媒体时长需在 {{min}}-{{max}} 秒之间",
@@ -289,12 +289,12 @@ export function ThumbChip({
       )}
       {videoDurationExcessSec != null &&
         onClipVideo &&
-        !disabled2 &&
-        !readOnly2 && (
-          <Tooltip content={t2("canvas.videoSlot.durationTooLong")} side="top">
+        !isDisabled &&
+        !isReadOnly && (
+          <Tooltip content={t("canvas.videoSlot.durationTooLong")} side="top">
             <button
               type="button"
-              aria-label={t2("canvas.clip", {
+              aria-label={t("canvas.clip", {
                 defaultValue: "裁剪",
               })}
               data-action-ui-id="popover.reference-video-duration-warning.clip"
@@ -307,12 +307,12 @@ export function ThumbChip({
         )}
       {audioDurationExcessSec != null &&
         onClipAudio &&
-        !disabled2 &&
-        !readOnly2 && (
-          <Tooltip content={t2("canvas.audioSlot.durationTooLong")} side="top">
+        !isDisabled &&
+        !isReadOnly && (
+          <Tooltip content={t("canvas.audioSlot.durationTooLong")} side="top">
             <button
               type="button"
-              aria-label={t2("canvas.clip", {
+              aria-label={t("canvas.clip", {
                 defaultValue: "裁剪",
               })}
               data-action-ui-id="popover.reference-audio-duration-warning.clip"
@@ -323,13 +323,13 @@ export function ThumbChip({
             </button>
           </Tooltip>
         )}
-      {!disabled2 && !readOnly2 && (
+      {!isDisabled && !isReadOnly && (
         <div
           className={`absolute top-px right-px z-[3] flex transition-opacity duration-150 motion-reduce:transition-none focus-within:opacity-100 ${hovered ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
           <button
             type="button"
-            aria-label={t2("a11y.removeAttachment", "Remove attachment")}
+            aria-label={t("a11y.removeAttachment", "Remove attachment")}
             data-action-ui-id="popover.attachment-remove"
             className="flex size-4 cursor-pointer items-center justify-center rounded-full bg-[var(--canvas-media-control-bg)] text-[var(--canvas-media-control-fg)] transition-colors hover:bg-[var(--canvas-media-control-bg-hover)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
             onClick={handleRemove}
@@ -364,9 +364,9 @@ export function ThumbChip({
                 : void 0
             }
             action={
-              onReplace && !disabled2 && !readOnly2
+              onReplace && !isDisabled && !isReadOnly
                 ? {
-                    label: t2("canvas.attachment.replace", {
+                    label: t("canvas.attachment.replace", {
                       defaultValue: "Replace",
                     }),
                     onClick: handleReplace,
@@ -394,7 +394,7 @@ export function ThumbChip({
             previewAction={
               isPreviewable
                 ? {
-                    label: t2("canvas.fullscreenPreview"),
+                    label: t("canvas.fullscreenPreview"),
                     onClick: () => {
                       clearPreviewCloseTimer();
                       setHovered(false);
@@ -413,7 +413,7 @@ export function ThumbChip({
             locateAction={
               onLocate
                 ? {
-                    label: t2("canvas.referenceNavigation.locate"),
+                    label: t("canvas.referenceNavigation.locate"),
                     onClick: () => {
                       clearPreviewCloseTimer();
                       setHovered(false);
@@ -423,9 +423,9 @@ export function ThumbChip({
                 : void 0
             }
             action={
-              onReplace && !disabled2 && !readOnly2
+              onReplace && !isDisabled && !isReadOnly
                 ? {
-                    label: t2("canvas.attachment.replace", {
+                    label: t("canvas.attachment.replace", {
                       defaultValue: "Replace",
                     }),
                     onClick: handleReplace,

@@ -1,0 +1,36 @@
+key	new	依据
+ms@24:9	centiseconds	秒的小数部分乘 100 后取整的厘秒数，在 showMs 模式下补零显示。
+t2@135:14	t	useTranslation 返回的翻译函数，用于媒体剪辑面板标题、撤销和切分按钮文案。
+eng@158:11	mediaClipEngine	新建的剪辑引擎实例，传入颜色和裁剪配置后存入组件状态并在卸载时销毁。
+cb@178:6	listener	useSyncExternalStore 订阅回调，传给 engine.subscribe 以监听剪辑状态变化。
+el@187:11	element	containerRef 当前指向的 DOM 容器，交给 ResizeObserver 观察宽度变化。
+ro@189:11	resizeObserver	监听剪辑容器尺寸的 ResizeObserver，卸载时 disconnect。
+s2@245:13	engineState	剪辑引擎当前状态快照，用其 currentTime 与 totalDuration 更新时间显示。
+ext@322:13	extension	从导出 Blob 的 MIME 类型解析出的文件扩展名，拼入导出文件名。
+p3@309:64	progress	produceExport 回调报告的导出进度值，立即写入 exportProgress 状态。
+p3@318:22	progress	engine.exportCrop 的 onProgress 回调收到的导出进度值，写入 exportProgress 状态。
+e2@382:29	keyboardEvent	剪辑浮层的 keydown 事件；Escape 关闭浮层，空格切换引擎播放状态。
+e2@396:61	mouseEvent	遮罩层 mousedown 事件，用 target 记录按下位置以识别真正的背景点击。
+e2@400:6	clickEvent	遮罩层 click 事件；仅按下和释放都落在遮罩本身时调用 onClose。
+e2@423:19	clickEvent	剪辑对话框内容区的 click 事件被阻止冒泡，避免触发遮罩关闭。
+e2@424:25	mouseEvent	剪辑对话框内容区的 double-click 事件被阻止冒泡，避免触发外层交互。
+range2@35:3	range	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体剪辑的起止时间范围。
+range2@68:6	range	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体剪辑的起止时间范围。
+range2@85:6	range	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体剪辑的起止时间范围。
+index2@85:14	index	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存时间范围或预览项的数组索引。
+renderPreview2@125:18	renderPreview	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存生成媒体剪辑预览的函数。
+getExtFromMime2@128:19	getExtFromMime	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存根据媒体 MIME 类型取得文件扩展名的函数。
+active2@136:9	active	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体剪辑面板是否处于活动状态。
+subscribe2@177:9	subscribe	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存订阅剪辑引擎状态变更的函数。
+getSnapshot2@181:9	getSnapshot	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存读取剪辑引擎状态快照的函数。
+state2@185:9	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存剪辑引擎的当前状态。
+entries2@189:36	entries	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前剪辑可导出的媒体条目。
+scale2@231:11	scale	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存时间轴显示使用的缩放比例。
+rafId2@243:9	rafId	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存待执行动画帧的 requestAnimationFrame ID。
+range2@266:10	range	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体剪辑的起止时间范围。
+range2@292:43	range	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体剪辑的起止时间范围。
+index2@292:51	index	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存时间范围或预览项的数组索引。
+range2@347:8	range	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体剪辑的起止时间范围。
+range2@366:8	range	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存当前媒体剪辑的起止时间范围。
+handleKeyDown2@382:11	handleKeyDown	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存处理剪辑面板键盘输入的回调。
+milliseconds@24:9	centiseconds	原 milliseconds 数值实际是小数秒乘 100 得到的厘秒；名称修正为厘秒并按两位显示。

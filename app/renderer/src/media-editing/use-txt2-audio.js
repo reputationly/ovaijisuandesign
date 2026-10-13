@@ -86,10 +86,10 @@ export function useTxt2Audio({ httpClient, catalogScopeKey }) {
       try {
         const models = audioModelsCache.peek(catalogScopeKey) ?? [];
         const model = models.find(
-          (m3) =>
-            m3.id === modelId ||
-            m3.model_name === modelId ||
-            m3.name === modelId,
+          (audioModel) =>
+            audioModel.id === modelId ||
+            audioModel.model_name === modelId ||
+            audioModel.name === modelId,
         );
         const backend = backendOverride ?? model?.backend ?? "minimax_tts";
         const refImagePaths = imagePaths ?? [];

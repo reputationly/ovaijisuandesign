@@ -1,0 +1,16 @@
+key	new	依据
+s2@32:30	sessionState	isReadyState 根据此会话状态判断它是否属于 SUCCESS_STATES。
+s2@36:32	gatewayState	isGatewayReady 根据此网关状态匹配 gateway-ready、opencode-starting 或 bound。
+i2@59:14	index	此索引逐个遍历 localStorage 中的条目位置。
+k2@60:13	storageKey	此键来自 localStorage.key(index)，用于筛选草稿前缀并收集待检查条目。
+now2@55:36	now	此时间戳与草稿 savedAt 比较，以删除超过 TTL 的过期草稿。
+keys2@56:7	keys	此数组收集所有匹配草稿前缀的 localStorage 键，随后逐一检查有效期。
+key2@68:14	key	循环中的草稿存储键传给 readEnvelope 和 removeKey 读取或删除对应条目。
+raw2@78:11	raw	此值是待处理 home handoff 的原始 JSON 字符串，先判空再交给 JSON.parse。
+message2@106:36	message	isUnresolvedAnswerRequest 根据此消息的类型与 resolved 状态判断是否仍需用户作答。
+message2@112:35	message	isUnresolvedConfirmation 根据此消息类型、resolved 和 expired 状态判断是否仍需确认。
+index2@122:12	index	此索引从消息列表末尾向前遍历，以优先寻找最近的待答消息或确认请求。
+message2@123:11	message	此值是 index 指向的会话消息，用于读取类型、请求 ID 和未解决状态。
+index2@140:12	index	此索引从 pendingReasons 末尾向前查找最近的确认原因。
+snapshot2@170:11	snapshot	此对象是 deriveSessionTaskSnapshot(input) 的缓存结果，写入缓存并返回给调用方。
+children2@187:66	children	此属性是对话外壳内部需要渲染的 React 子元素。

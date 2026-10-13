@@ -1,0 +1,102 @@
+key	new	依据
+AlignCenter$1@2:10	AlignCenterIcon	持有用于 withIconCompositing 包装并导出居中对齐图标的组件。
+AlignLeft$1@2:25	AlignLeftIcon	持有用于 withIconCompositing 包装并导出左对齐图标的组件。
+AlignRight$1@2:38	AlignRightIcon	持有用于 withIconCompositing 包装并导出右对齐图标的组件。
+Ban$1@2:52	BanIcon	持有用于 withIconCompositing 包装并导出禁止图标的组件。
+Blocks$1@2:59	BlocksIcon	持有用于 withIconCompositing 包装并导出积木图标的组件。
+Bookmark$1@2:69	BookmarkIcon	持有用于 withIconCompositing 包装并导出书签图标的组件。
+BookOpen$1@2:81	BookOpenIcon	持有用于 withIconCompositing 包装并导出打开书本图标的组件。
+Brain$1@2:93	BrainIcon	持有用于 withIconCompositing 包装并导出大脑图标的组件。
+Brush$1@2:102	BrushIcon	持有用于 withIconCompositing 包装并导出画笔图标的组件。
+Building2$1@2:111	Building2Icon	持有用于 withIconCompositing 包装并导出建筑图标的组件。
+Cable$1@2:124	CableIcon	持有用于 withIconCompositing 包装并导出线缆图标的组件。
+CalendarDays$1@2:133	CalendarDaysIcon	持有用于 withIconCompositing 包装并导出日历图标的组件。
+Camera$1@2:149	CameraIcon	持有用于 withIconCompositing 包装并导出相机图标的组件。
+CaseSensitive$1@2:159	CaseSensitiveIcon	持有用于 withIconCompositing 包装并导出大小写图标的组件。
+Chrome$1@2:194	ChromeIcon	持有用于 withIconCompositing 包装并导出 Chrome 图标的组件。
+Circle$1@2:204	CircleIcon	持有用于 withIconCompositing 包装并导出圆形图标的组件。
+CircleHelp$1@2:214	CircleHelpIcon	持有用于 withIconCompositing 包装并导出帮助图标的组件。
+CircleUserRound$1@2:228	CircleUserRoundIcon	持有用于 withIconCompositing 包装并导出圆形用户图标的组件。
+Clapperboard$1@2:247	ClapperboardIcon	持有用于 withIconCompositing 包装并导出场记板图标的组件。
+ClipboardPaste$1@2:263	ClipboardPasteIcon	持有用于 withIconCompositing 包装并导出粘贴板图标的组件。
+Clock$1@2:281	ClockIcon	持有用于 withIconCompositing 包装并导出时钟图标的组件。
+Clock3$1@2:290	Clock3Icon	持有用于 withIconCompositing 包装并导出带三点样式的时钟图标组件。
+CloudOff$1@2:300	CloudOffIcon	持有用于 withIconCompositing 包装并导出云关闭图标的组件。
+CornerDownRight$1@2:327	CornerDownRightIcon	持有用于 withIconCompositing 包装并导出右下转向图标的组件。
+Download$1@2:414	DownloadIcon	持有用于 withIconCompositing 包装并导出下载图标的组件。
+Droplet$1@2:426	DropletIcon	持有用于 withIconCompositing 包装并导出水滴图标的组件。
+Expand$1@2:437	ExpandIcon	持有用于 withIconCompositing 包装并导出展开图标的组件。
+FileArchive$1@2:447	FileArchiveIcon	持有用于 withIconCompositing 包装并导出压缩文件图标的组件。
+FileAudio$1@2:462	FileAudioIcon	持有用于 withIconCompositing 包装并导出音频文件图标的组件。
+FileClock$1@2:475	FileClockIcon	持有用于 withIconCompositing 包装并导出文件时钟图标的组件。
+FileCode$1@2:488	FileCodeIcon	持有用于 withIconCompositing 包装并导出代码文件图标的组件。
+FileDiff$1@2:500	FileDiffIcon	持有用于 withIconCompositing 包装并导出文件差异图标的组件。
+FileInput$1@2:512	FileInputIcon	持有用于 withIconCompositing 包装并导出文件输入图标的组件。
+FileJson2$1@2:525	FileJson2Icon	持有用于 withIconCompositing 包装并导出 JSON 文件图标的组件。
+Files$1@2:538	FilesIcon	持有用于 withIconCompositing 包装并导出多文件图标的组件。
+FileText$1@2:547	FileTextIcon	持有用于 withIconCompositing 包装并导出文本文件图标的组件。
+FileVideo$1@2:559	FileVideoIcon	持有用于 withIconCompositing 包装并导出视频文件图标的组件。
+FileWarning$1@2:572	FileWarningIcon	持有用于 withIconCompositing 包装并导出警告文件图标的组件。
+Flag$1@2:587	FlagIcon	持有用于 withIconCompositing 包装并导出旗帜图标的组件。
+Folder$1@2:595	FolderIcon	持有用于 withIconCompositing 包装并导出文件夹图标的组件。
+FolderKey$1@2:605	FolderKeyIcon	持有用于 withIconCompositing 包装并导出密钥文件夹图标的组件。
+FolderOpen$1@2:618	FolderOpenIcon	持有用于 withIconCompositing 包装并导出打开文件夹图标的组件。
+HardDrive$1@2:632	HardDriveIcon	持有用于 withIconCompositing 包装并导出硬盘图标的组件。
+History$1@2:645	HistoryIcon	持有用于 withIconCompositing 包装并导出历史记录图标的组件。
+List$1@2:656	ListIcon	持有用于 withIconCompositing 包装并导出列表图标的组件。
+LogOut$1@2:664	LogOutIcon	持有用于 withIconCompositing 包装并导出退出图标的组件。
+Maximize2$1@2:674	Maximize2Icon	持有用于 withIconCompositing 包装并导出最大化图标的组件。
+Megaphone$1@2:687	MegaphoneIcon	持有用于 withIconCompositing 包装并导出扩音器图标的组件。
+MessageSquare$1@2:700	MessageSquareIcon	持有用于 withIconCompositing 包装并导出消息方框图标的组件。
+MessageSquarePlus$1@2:717	MessageSquarePlusIcon	持有用于 withIconCompositing 包装并导出新增消息图标的组件。
+MessageSquareQuote$1@2:738	MessageSquareQuoteIcon	持有用于 withIconCompositing 包装并导出引用消息图标的组件。
+Mic$1@2:760	MicIcon	持有用于 withIconCompositing 包装并导出麦克风图标的组件。
+Minimize2$1@2:767	Minimize2Icon	持有用于 withIconCompositing 包装并导出最小化图标的组件。
+Moon$1@2:780	MoonIcon	持有用于 withIconCompositing 包装并导出月亮图标的组件。
+MousePointer2$1@2:788	MousePointer2Icon	持有用于 withIconCompositing 包装并导出鼠标指针图标的组件。
+Paperclip$1@2:805	PaperclipIcon	持有用于 withIconCompositing 包装并导出回形针图标的组件。
+PencilLine$1@2:818	PencilLineIcon	持有用于 withIconCompositing 包装并导出铅笔线条图标的组件。
+PenLine$1@2:832	PenLineIcon	持有用于 withIconCompositing 包装并导出钢笔线条图标的组件。
+Plug$1@2:843	PlugIcon	持有用于 withIconCompositing 包装并导出插头图标的组件。
+Puzzle$1@2:851	PuzzleIcon	持有用于 withIconCompositing 包装并导出拼图图标的组件。
+ReceiptText$1@2:875	ReceiptTextIcon	持有用于 withIconCompositing 包装并导出文本收据图标的组件。
+Replace$1@2:890	ReplaceIcon	持有用于 withIconCompositing 包装并导出替换图标的组件。
+ReplaceAll$1@2:901	ReplaceAllIcon	持有用于 withIconCompositing 包装并导出全部替换图标的组件。
+Settings$1@2:915	SettingsIcon	持有用于 withIconCompositing 包装并导出设置图标的组件。
+Settings2$1@2:927	Settings2Icon	持有用于 withIconCompositing 包装并导出第二种设置图标的组件。
+ShoppingBag$1@2:940	ShoppingBagIcon	持有用于 withIconCompositing 包装并导出购物袋图标的组件。
+SlidersHorizontal$1@2:955	SlidersHorizontalIcon	持有用于 withIconCompositing 包装并导出水平滑杆图标的组件。
+Sparkles$1@2:976	SparklesIcon	持有用于 withIconCompositing 包装并导出闪光图标的组件。
+Sprout$1@2:988	SproutIcon	持有用于 withIconCompositing 包装并导出幼苗图标的组件。
+Stamp$1@2:998	StampIcon	持有用于 withIconCompositing 包装并导出印章图标的组件。
+Trash2$1@2:1007	Trash2Icon	持有用于 withIconCompositing 包装并导出垃圾桶图标的组件。
+Type$2@2:1017	TypeIcon	持有用于 withIconCompositing 包装并导出文本类型图标的组件。
+Upload$1@2:1025	UploadIcon	持有用于 withIconCompositing 包装并导出上传图标的组件。
+Users$1@2:1035	UsersIcon	持有用于 withIconCompositing 包装并导出用户群图标的组件。
+VolumeX$1@2:1068	VolumeXIcon	持有用于 withIconCompositing 包装并导出静音图标的组件。
+Package$1@146:7	PackageIcon	持有 Package 图标组件，供 withIconCompositing 包装后导出。
+Square$1@176:7	SquareIcon	持有 Square 图标组件，供 withIconCompositing 包装后导出。
+ctx@36:9	isCanvasActive	保存 CanvasActiveContext 提供的活动状态，缺省时返回 true。
+s2@55:36	state	接收画布节点选择器的 store state，供读取 nodeLookup。
+s2@61:39	state	接收多选选择器的 store state，供读取 nodes。
+n2@63:14	node	遍历 store state 中的节点并检查其 selected 状态。
+s2@68:40	state	接收框选选择器的 store state，供读取 userSelectionActive。
+s2@72:33	state	接收资产元数据 store state，供读取 assets 映射。
+s2@110:35	state	接收生成状态 store state，供读取 byNode 映射。
+id2@114:10	mediaId	保存正在播放媒体的标识并写入 playingId。
+m3@126:9	minuteCount	保存总秒数换算得到的分钟数。
+s2@127:9	remainingSeconds	保存总秒数除以 60 后剩余的秒数。
+content2@6:3	content	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存消息正文文本。
+timer2@27:11	timer	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存延迟隐藏状态使用的定时器句柄。
+node2@56:17	node	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存画布节点对象。
+count2@62:7	count	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存已选节点数量。
+key2@71:30	key	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存资产元数据键。
+set2@75:23	set	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存生成状态 store 的更新函数。
+info2@77:20	info	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存节点生成状态数据。
+state2@78:13	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存生成状态 store 的当前状态对象。
+next2@79:15	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存更新后的节点生成状态 Map。
+state2@86:13	state	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存生成状态 store 的当前状态对象。
+next2@88:15	next	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存更新后的节点生成状态 Map。
+selector2@104:41	selector	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存从 store 状态中选取所需值的函数。
+set2@112:41	set	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存生成状态 store 的更新函数。
+size2@336:36	size	去掉打包器为避免重名添加的数字后缀并恢复原名；此处保存RotateIcon 使用的尺寸值。
