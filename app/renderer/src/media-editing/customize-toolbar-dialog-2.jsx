@@ -16,7 +16,7 @@ import {
   FullscreenIcon,
 } from "../canvas/fullscreen-icon.jsx";
 import { PromoteToAssetIcon } from "../canvas/generating-media-area.jsx";
-import { CustomizeToolbarDialog as CustomizeToolbarDialog$2 } from "./customize-toolbar-dialog.jsx";
+import { CustomizeToolbarDialog as CustomizeToolbarDialogBase } from "./customize-toolbar-dialog.jsx";
 const IMAGE_TOOLBAR_DEFAULT_PINNED = DEFAULT_PINNED;
 const IMAGE_TOOLBAR_DEFAULT_SHOW_LABELS = DEFAULT_SHOW_LABELS;
 const TOOL_META = IMAGE_TOOL_META;
@@ -58,7 +58,7 @@ export function CustomizeToolbarDialog({ open, onOpenChange }) {
     },
   ];
   return (
-    <CustomizeToolbarDialog$2
+    <CustomizeToolbarDialogBase
       open={open}
       onOpenChange={onOpenChange}
       allToolIds={allToolIds}
@@ -69,12 +69,12 @@ export function CustomizeToolbarDialog({ open, onOpenChange }) {
     />
   );
 }
-export function MultiImageOverlayStoreProvider({ store, children: children2 }) {
+export function MultiImageOverlayStoreProvider({ store, children }) {
   return reactExports.createElement(
     MultiImageOverlayStoreContext.Provider,
     {
       value: store,
     },
-    children2,
+    children,
   );
 }

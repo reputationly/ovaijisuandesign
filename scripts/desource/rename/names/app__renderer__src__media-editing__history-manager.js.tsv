@@ -1,0 +1,5 @@
+key	new	依据
+snapshot2@10:8	snapshot	push 将此形状快照压入撤销栈，超出上限时丢弃最旧项并清空重做栈。
+previous2@22:11	previous	此值是从撤销栈弹出的前一形状快照，返回给调用方恢复。
+next2@28:11	next	此值是从重做栈弹出的下一形状快照，返回给调用方恢复。
+data2@63:32	data	此形状数据被浅复制，并单独复制 style 与 points 坐标对象。

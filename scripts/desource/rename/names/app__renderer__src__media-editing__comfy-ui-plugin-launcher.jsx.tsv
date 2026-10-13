@@ -1,0 +1,5 @@
+key	new	依据
+displayName2@104:16	displayName	此属性是父节点传入的插件显示名，在插件元数据没有可本地化名称时作为回退。
+selected2@107:13	isSelected	此布尔属性表示画布中的 ComfyUI 插件节点当前是否选中。
+meta2@121:9	pluginMeta	usePluginMeta 根据 pluginId 返回此插件元数据，供后续读取名称和展示信息。
+name2@150:9	pluginDisplayName	此值优先取插件元数据的本地化名称，否则使用父节点传入的显示名。

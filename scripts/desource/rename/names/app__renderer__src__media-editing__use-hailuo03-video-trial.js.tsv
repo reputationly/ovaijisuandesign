@@ -1,0 +1,2 @@
+key	new	依据
+queryClient2@54:9	queryClient	此 React Query 客户端用于写入领取后的试用状态、刷新结果及缓存兜底状态。

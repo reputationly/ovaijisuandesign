@@ -1,0 +1,9 @@
+key	new	依据
+size2@18:28	size	此尺寸对象含媒体宽高，函数据此判断是否为有限的正数。
+scale2@39:9	scale	此比例取宽高上限对应缩放值中的较小者，用于保持媒体宽高比。
+size2@48:41	size	此参数提供媒体预览尺寸，函数将宽度和高度分别抬高到交互预览的最小值。
+url2@83:8	url	此媒体资源地址用于加载图片、视频或音频，并参与音频时长与已加载尺寸关联。
+name2@84:9	mediaName	工具将 name 判为全局名；此媒体名称用于图片 alt、预览文件名及音频播放器文件名。
+active2@82:11	isActive	此布尔属性与画布 previewActive 状态共同决定是否显示悬浮预览。
+top2@144:16	previewTop	工具将 top 判为全局名；此值是布局计算出的悬浮预览面板顶部屏幕坐标。
+image2@155:13	image	此对象是加载完成的 img 元素，读取其 naturalWidth 和 naturalHeight 更新媒体尺寸。

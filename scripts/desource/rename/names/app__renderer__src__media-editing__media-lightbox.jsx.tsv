@@ -1,0 +1,13 @@
+key	new	依据
+t2@43:14	t	useTranslation 返回的 i18n 函数，用于生成灯箱关闭和预览的无障碍标签。
+e2@49:6	keyboardEvent	此键盘事件读取按键与 Shift 状态，在 Escape 时关闭灯箱并用 Tab 循环焦点。
+e2@111:6	clickEvent	此点击事件仅在目标就是灯箱背景时触发 onClose。
+root2@22:31	root	此根 DOM 元素用于查询灯箱内可聚焦的控件。
+element2@24:6	element	此候选控件会按隐藏属性及计算样式过滤，决定是否可获得焦点。
+style2@27:13	style	此对象是候选控件的计算样式，用于排除 display 或 visibility 隐藏的元素。
+platform2@33:9	platform	此平台桥接对象提供窗口 API，供灯箱切换原生窗口按钮显示状态。
+children2@38:13	children	此内容节点被放入全屏灯箱对话框中。
+MediaLightbox2@36:57	MediaLightbox	该组件在活动画布上创建全屏 portal，并管理焦点、快捷键和窗口按钮。
+active2@44:9	isActive	useCanvasActive 返回此布尔值，决定是否渲染灯箱并启用其焦点和窗口副作用。
+handleKeyDown2@48:9	handleKeyDown	此回调在 Escape 时关闭灯箱，在 Tab 时将焦点限制在灯箱内部。
+root2@56:13	root	此 DOM 根节点供键盘回调查询焦点项，并在无焦点项时接收焦点。

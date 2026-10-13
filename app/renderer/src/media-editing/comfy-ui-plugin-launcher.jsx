@@ -101,10 +101,10 @@ export function ComfyUiPluginLauncher({
   nodeId,
   pluginId,
   filePath,
-  displayName: displayName2,
+  displayName,
   width,
   height,
-  selected: selected2,
+  selected: isSelected,
   currentWorkflowId,
   currentWorkflowName,
   templateCopyOrdinal,
@@ -118,7 +118,7 @@ export function ComfyUiPluginLauncher({
   onReportAction,
 }) {
   const { i18n, t: t2 } = useTranslation();
-  const meta2 = usePluginMeta(pluginId);
+  const pluginMeta = usePluginMeta(pluginId);
   const {
     fetchComfyUiWorkflows,
     onAddPluginNodeToChat,
@@ -147,8 +147,8 @@ export function ComfyUiPluginLauncher({
     : rawLang.startsWith("en")
       ? "en-US"
       : rawLang;
-  const name2 =
-    (meta2 ? pickLocalized(meta2.name, locale) : "") || displayName2;
+  const pluginDisplayName =
+    (pluginMeta ? pickLocalized(pluginMeta.name, locale) : "") || displayName;
   const currentWorkflowLabel =
     resolveWorkflowDisplayName(currentWorkflowName) ??
     t2("canvas.comfyui.untitledWorkflow", "未命名工作流");
@@ -455,7 +455,7 @@ export function ComfyUiPluginLauncher({
       <NodeBody
         width={width}
         height={height}
-        selected={selected2}
+        selected={isSelected}
         variant="media"
         onDoubleClick={openStage}
       >
@@ -484,7 +484,7 @@ export function ComfyUiPluginLauncher({
                   interactive={shouldAllowComfyUiPreviewInteraction(
                     comfyuiBackendReady,
                   )}
-                  displayName={name2}
+                  displayName={pluginDisplayName}
                   pluginOpenRequest={
                     agentPluginOpenRequest ??
                     pluginOpenRequest ??
@@ -608,7 +608,7 @@ export function ComfyUiPluginLauncher({
           </div>
         </div>
       </NodeBody>
-      <NodeToolbar items={nodeToolbarActions} visible={!!selected2} />
+      <NodeToolbar items={nodeToolbarActions} visible={!!isSelected} />
       <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
         <DialogContent
           className="max-w-2xl"

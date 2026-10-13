@@ -52,34 +52,34 @@ import {
 } from "./director-stage-header-icon.jsx";
 import { PluginLauncher } from "./plugin-launcher.jsx";
 function PluginPreview({
-  selected: selected2,
+  selected: isSelected,
   interactive,
   filePath,
   pluginId,
-  displayName: displayName2,
-  extension: extension2,
+  displayName,
+  extension,
   width,
   height,
 }) {
   const paneWidth = width - 2;
   const { i18n } = useTranslation();
-  const meta2 = usePluginMeta(pluginId);
+  const pluginMeta = usePluginMeta(pluginId);
   const rawLang = i18n.language || "en-US";
   const locale = rawLang.startsWith("zh")
     ? "zh-CN"
     : rawLang.startsWith("en")
       ? "en-US"
       : rawLang;
-  const localizedName = meta2 ? pickLocalized(meta2.name, locale) : "";
-  const headerName = localizedName || displayName2;
-  const iconUrl = meta2 ? pickLocalized(meta2.iconUrl, locale) : "";
+  const localizedName = pluginMeta ? pickLocalized(pluginMeta.name, locale) : "";
+  const headerName = localizedName || displayName;
+  const iconUrl = pluginMeta ? pickLocalized(pluginMeta.iconUrl, locale) : "";
   const [iconBroken, setIconBroken] = reactExports.useState(false);
   const showIcon = !!iconUrl && !iconBroken;
   return (
     <NodeBody
       width={width}
       height={height}
-      selected={selected2}
+      selected={isSelected}
       variant="media"
     >
       <div
@@ -148,8 +148,8 @@ function PluginPreview({
         <div className="flex-1 overflow-hidden">
           <FileViewerRouter
             filePath={filePath}
-            extension={extension2}
-            displayName={displayName2}
+            extension={extension}
+            displayName={displayName}
             paneWidth={paneWidth}
             interactive={interactive}
           />
@@ -160,14 +160,14 @@ function PluginPreview({
 }
 export function PluginNodeInner({
   id: id2,
-  data: data2,
-  selected: selected2,
+  data: nodeData,
+  selected: isSelected,
   width,
   height,
 }) {
   const { i18n, t: t2 } = useTranslation();
-  const meta2 = useAssetMeta(id2);
-  const persisted = data2;
+  const assetMeta = useAssetMeta(id2);
+  const persisted = nodeData;
   const { onPluginAction } = useCanvasBridge();
   const isMultiSelect = useCanvasIsMultiSelect();
   const isDragging = useCanvasNodeIsDragging(id2);
@@ -186,13 +186,13 @@ export function PluginNodeInner({
   reactExports.useEffect(() => {
     if (typeof height === "number" && height > 0) setPreviewHeight(height);
   }, [height]);
-  const filePath = meta2?.path ?? persisted?.path;
-  const displayName2 =
-    meta2?.name ||
+  const filePath = assetMeta?.path ?? persisted?.path;
+  const displayName =
+    assetMeta?.name ||
     persisted?.name ||
     filePath?.split("/").pop() ||
     t2("canvas.file.untitled", "Untitled");
-  const extension2 = ".html";
+  const extension = ".html";
   const pluginMeta = usePluginMeta(persisted?.pluginId);
   const rawLang = i18n.language || "en-US";
   const locale = rawLang.startsWith("zh")
@@ -200,13 +200,13 @@ export function PluginNodeInner({
     : rawLang.startsWith("en")
       ? "en-US"
       : rawLang;
-  const savedName = meta2?.name || persisted?.name;
+  const savedName = assetMeta?.name || persisted?.name;
   const isCustomName =
     savedName &&
     pluginMeta &&
     !Object.values(pluginMeta.name).includes(savedName);
   const headerName =
-    (!isCustomName && pickLocalized(pluginMeta?.name, locale)) || displayName2;
+    (!isCustomName && pickLocalized(pluginMeta?.name, locale)) || displayName;
   const displayMode =
     pluginMeta?.displayMode ?? persisted?.pluginDisplayMode ?? "inline";
   const isLauncher = displayMode === "launcher";
@@ -218,16 +218,16 @@ export function PluginNodeInner({
   const isHtmlFullscreen = useIsHtmlFullscreen(id2);
   const fullscreenApi = useHtmlFullscreenApi();
   const reportPluginAction = reactExports.useCallback(
-    (action, state2, runPath) => {
+    (action, actionState, runPath) => {
       if (!persisted.pluginId) return;
       onPluginAction?.({
         pluginId: persisted.pluginId,
         pluginVersion: persisted.pluginVersion,
         pluginInstanceId: id2,
         action,
-        ...(state2
+        ...(actionState
           ? {
-              state: state2,
+              state: actionState,
             }
           : {}),
         ...(runPath
@@ -301,12 +301,12 @@ export function PluginNodeInner({
       : []),
   ];
   const isInteractiveSelect = !isMultiSelect && !isDragging && !isBoxSelecting;
-  const isPreviewInteractive = !!selected2 && isInteractiveSelect;
+  const isPreviewInteractive = !!isSelected && isInteractiveSelect;
   const handlePreviewResize = reactExports.useCallback((newW, newH) => {
     setPreviewWidth(newW);
     setPreviewHeight(newH);
   }, []);
-  const handleDoubleClick2 = reactExports.useCallback(() => {
+  const handleDoubleClick = reactExports.useCallback(() => {
     if (isLauncher) {
       fullscreenApi.getState().enter(id2);
       reportPluginAction("fullscreen", "enter");
@@ -315,13 +315,13 @@ export function PluginNodeInner({
   return (
     <NodeShell
       width={previewWidth}
-      onDoubleClick={isLauncher ? handleDoubleClick2 : void 0}
+      onDoubleClick={isLauncher ? handleDoubleClick : void 0}
     >
       <NodeHeader
         nodeType="file"
         name={headerName}
         maxWidth={previewWidth}
-        selected={selected2}
+        selected={isSelected}
         icon={
           persisted.pluginId === DIRECTOR_STAGE_PLUGIN_ID ? (
             <DirectorStageHeaderIcon />
@@ -338,10 +338,10 @@ export function PluginNodeInner({
             nodeId={id2}
             pluginId={persisted.pluginId}
             filePath={filePath}
-            displayName={displayName2}
+            displayName={displayName}
             width={previewWidth}
             height={previewHeight}
-            selected={!!selected2}
+            selected={!!isSelected}
             currentWorkflowId={persisted.currentWorkflowId}
             currentWorkflowName={persisted.currentWorkflowName}
             templateCopyOrdinal={persisted.comfyuiTemplateCopyOrdinal}
@@ -359,17 +359,17 @@ export function PluginNodeInner({
             nodeId={id2}
             pluginId={persisted.pluginId}
             filePath={filePath}
-            displayName={displayName2}
+            displayName={displayName}
             width={previewWidth}
             height={previewHeight}
-            selected={!!selected2}
+            selected={!!isSelected}
             onReportAction={reportPluginAction}
             editorSurface={isEditorSurface}
           />
         )
       ) : (
         <PluginPreview
-          selected={selected2}
+          selected={isSelected}
           interactive={isPreviewInteractive}
           filePath={filePath}
           {...(persisted?.pluginId
@@ -377,16 +377,16 @@ export function PluginNodeInner({
                 pluginId: persisted.pluginId,
               }
             : {})}
-          displayName={displayName2}
-          extension={extension2}
+          displayName={displayName}
+          extension={extension}
           width={previewWidth}
           height={previewHeight}
         />
       )}
-      {selected2 && isInteractiveSelect && toolbarItems.length > 0 && (
+      {isSelected && isInteractiveSelect && toolbarItems.length > 0 && (
         <NodeToolbar items={toolbarItems} visible={true} />
       )}
-      {selected2 && (
+      {isSelected && (
         <NodeResizeFrame
           nodeId={id2}
           minWidth={FILE_PREVIEW_MIN_SIZE.width}
@@ -396,7 +396,7 @@ export function PluginNodeInner({
       )}
       <NodeHandles
         nodeId={id2}
-        selected={!!selected2}
+        selected={!!isSelected}
         showSourceAffordance={shouldShowPluginNodeSourceAffordance(
           persisted?.pluginId,
         )}

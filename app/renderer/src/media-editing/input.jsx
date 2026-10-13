@@ -6,7 +6,7 @@ import {
   workspaceScope,
 } from "../infra/use-plugin-metadata-store.js";
 import { __jsx } from "../shared/jsx-runtime.js";
-import { cn, Input as Input$2 } from "../infra/dialog-content.jsx";
+import { cn, Input as BaseInput } from "../infra/dialog-content.jsx";
 import { reactExports, useTranslation } from "../vendor.js";
 export function exitFullscreenForRemovedNode(store, nodeId) {
   if (store.getState().nodeId === nodeId) {
@@ -17,15 +17,15 @@ const inputBaseClass =
   "h-8 w-full min-w-0 rounded-md border border-input bg-transparent px-2.5 py-1 text-xs transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-xs file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-foreground focus-visible:ring-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive/20 md:text-xs dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40";
 export function Input({
   className,
-  type: type2,
+  type,
   startIcon,
   endIcon,
   ...props
 }) {
   if (!startIcon && !endIcon) {
     return (
-      <Input$2
-        type={type2}
+      <BaseInput
+        type={type}
         data-slot="input"
         className={cn(inputBaseClass, className)}
         {...props}
@@ -39,8 +39,8 @@ export function Input({
           {startIcon}
         </span>
       )}
-      <Input$2
-        type={type2}
+      <BaseInput
+        type={type}
         data-slot="input"
         className={cn(
           inputBaseClass,
@@ -79,16 +79,16 @@ export const CANVAS_ZOOM_PRESETS = [0.5, 1, 2, 3, CANVAS_MAX_ZOOM];
 export const CANVAS_INITIAL_FIT_MIN_ZOOM = 0.2;
 export const CANVAS_INITIAL_FIT_MAX_ZOOM = 1;
 export const byNode = new Map();
-export function upsert(nodeId, patch2) {
-  const current2 = byNode.get(nodeId) ?? {
+export function upsert(nodeId, patch) {
+  const current = byNode.get(nodeId) ?? {
     registered: false,
     editorState: null,
     editSessionId: null,
     updatedAt: 0,
   };
   byNode.set(nodeId, {
-    ...current2,
-    ...patch2,
+    ...current,
+    ...patch,
     updatedAt: Date.now(),
   });
 }
@@ -106,10 +106,10 @@ export function installedPluginId(actions, nodeId) {
   const pluginId = actions.getNodeById(nodeId)?.data?.pluginId;
   return typeof pluginId === "string" && pluginId ? pluginId : void 0;
 }
-export function ViewerStateShell({ children: children2 }) {
+export function ViewerStateShell({ children }) {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-muted px-6 text-center">
-      {children2}
+      {children}
     </div>
   );
 }
@@ -127,14 +127,14 @@ export function ViewerLoading({ label }) {
     </ViewerStateShell>
   );
 }
-function resetWorkspaceContentBudget(workspaceId2) {
-  statesByWorkspace.delete(workspaceScope(workspaceId2));
+function resetWorkspaceContentBudget(workspaceId) {
+  statesByWorkspace.delete(workspaceScope(workspaceId));
 }
 export function WorkspaceContentBudgetScopeProvider({
-  workspaceId: workspaceId2,
-  children: children2,
+  workspaceId,
+  children,
 }) {
-  const scopedWorkspaceId = workspaceScope(workspaceId2);
+  const scopedWorkspaceId = workspaceScope(workspaceId);
   reactExports.useEffect(() => {
     return () => resetWorkspaceContentBudget(scopedWorkspaceId);
   }, [scopedWorkspaceId]);
@@ -143,6 +143,6 @@ export function WorkspaceContentBudgetScopeProvider({
     {
       value: scopedWorkspaceId,
     },
-    children2,
+    children,
   );
 }

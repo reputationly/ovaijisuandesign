@@ -1,0 +1,9 @@
+key	new	依据
+Input$2@9:23	BaseInput	工具别名原名 Input 与本文件导出的带图标包装 Input 冲突；此导入是 dialog-content 提供的基础输入控件。
+type2@20:9	type	此属性值指定基础输入控件的 HTML input 类型。
+patch2@82:32	patch	此对象包含要合并到指定节点插件编辑状态中的部分字段。
+current2@83:9	current	此值是按 nodeId 查得的既有插件编辑状态，缺省时初始化为空状态。
+children2@109:46	children	此内容是加载或错误外壳中间显示的 React 子节点。
+workspaceId2@130:38	workspaceId	此标识用于删除对应工作区的内容预算状态。
+workspaceId2@134:16	workspaceId	此属性标识 Provider 应使用的工作区作用域。
+children2@135:13	children	此内容被渲染在工作区内容预算作用域 Provider 内。

@@ -25,6 +25,9 @@
     "Ts": "shouldSkipElement"
   },
   "app/renderer/src/media-editing/video-tool-meta.jsx": {
-    "TextNode3": "MemoizedTextNode"
+    "TextNode3": "TextNode"
+  },
+  "app/renderer/src/media-editing/history-manager.js": {
+    "HistoryManager$1": "HistoryManager"
   }
 }

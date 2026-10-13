@@ -51,7 +51,7 @@ export function useHailuo03VideoSuperResolutionSubmit({
 }
 
 export function useHailuo03VideoTrial() {
-  const queryClient2 = useQueryClient();
+  const queryClient = useQueryClient();
   const statusQuery = useQuery({
     queryKey: HAILUO03_VIDEO_TRIAL_QUERY_KEY,
     queryFn: fetchHailuo03VideoTrialStatus,
@@ -63,21 +63,21 @@ export function useHailuo03VideoTrial() {
   const claimMutation = useMutation({
     mutationFn: claimHailuo03VideoTrial,
     onSuccess: (status) => {
-      queryClient2.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
+      queryClient.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
     },
   });
   const refresh = reactExports.useCallback(async () => {
     try {
       const status = await fetchHailuo03VideoTrialStatus();
-      queryClient2.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
+      queryClient.setQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY, status);
       return status;
     } catch {
       return (
-        queryClient2.getQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY) ??
+        queryClient.getQueryData(HAILUO03_VIDEO_TRIAL_QUERY_KEY) ??
         EMPTY_HAILUO03_VIDEO_TRIAL_STATUS
       );
     }
-  }, [queryClient2]);
+  }, [queryClient]);
   return {
     status: statusQuery.data ?? EMPTY_HAILUO03_VIDEO_TRIAL_STATUS,
     isLoading: statusQuery.isLoading,
