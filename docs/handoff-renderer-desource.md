@@ -581,7 +581,7 @@ const header = readMp3FrameHeader(word, null).header;
 
 `@base-ui/utils` 已有 `./*` exports，因此 `fastHooks`、`store` 无需新增 patch。已确认 `create-recently-added-store.js` 是 `vendor.js` hooks shim 的唯一 importer；它现在直接使用 npm `register`，并且 shim 与 `registerFastHook` 导入已删除。`useProgressRootContext` 和 `clamp$a` 通过 `vendor.js` 与应用的 deep-path 导入都指向同一 npm 文件。
 
-PDF.js worker 已改为 `pdfjs-dist/build/pdf.worker.min.mjs?url`；源 npm worker 与原 hashed app worker 均为 1,375,838 bytes，SHA-256 为 `1baa1844c89c80a5b2797c916e75ab29254be46d8e9cb53cb6364d7aad84be36`。最后一次干净的 renderer build 产物仅有一份 PDF worker，字节与 npm 源文件一致；Vite 生成的文件名仍为 `pdf.worker.min-yatZIOMy.mjs`。Turbo 缓存恢复后曾暂时残留先前构建的同字节 worker；再次直接运行 renderer build（`emptyOutDir: true`）后，输出目录只剩当前构建的一份 worker。两轮 gate 的 `ws-pdf` 页面均无网络差异。
+PDF.js worker 已改为 `pdfjs-dist/build/pdf.worker.min.mjs?url`；源 npm worker 与原 hashed app worker 均为 1,375,838 bytes，SHA-256 为 `1baa1844c89c80a5b2797c916e75ab29254be46d8e9cb53cb6364d7aad84be36`。最后一次干净的 renderer build 产物仅有一份 PDF worker，字节与 npm 源文件一致；Vite 生成的文件名仍为 `pdf.worker.min-yatZIOMy.mjs`。检查全工作区构建后的输出目录时曾暂时看到两份同字节 worker；直接运行 renderer build（`emptyOutDir: true`）清理并重建后，输出目录只剩当前构建的一份 worker。两轮 gate 的 `ws-pdf` 页面均无网络差异。
 
 #### PR #5/#6 合入后的 app-file 与 worker 验收
 
