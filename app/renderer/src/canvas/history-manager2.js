@@ -1,6 +1,6 @@
 // history-manager2.js
 import { createEmptyGraph } from "./use-active-mode.js";
-import { Tt } from "../text-editor/is-diff-review-session-ready.js";
+import { Tt as createHistoryStore } from "../text-editor/is-diff-review-session-ready.js";
 export class HistoryManager2 {
   travels;
   unsubscribe;
@@ -32,7 +32,7 @@ export class HistoryManager2 {
   transactionDepth = 0;
   constructor(initialState, maxHistory = 100) {
     this.maxHistorySize = maxHistory;
-    this.travels = Tt(initialState ?? createEmptyGraph(), {
+    this.travels = createHistoryStore(initialState ?? createEmptyGraph(), {
       maxHistory,
       autoArchive: false,
     });
@@ -89,7 +89,7 @@ export class HistoryManager2 {
     const history2 = this.travels.getHistory();
     const position2 = this.travels.getPosition();
     const rebased = history2.map((state2) => {
-      const temporary = Tt(state2, {
+      const temporary = createHistoryStore(state2, {
         maxHistory: 1,
         autoArchive: false,
       });
@@ -99,7 +99,7 @@ export class HistoryManager2 {
     const initial = rebased[0];
     if (!initial) return;
     this.unsubscribe();
-    this.travels = Tt(initial, {
+    this.travels = createHistoryStore(initial, {
       maxHistory: this.maxHistorySize,
       autoArchive: false,
     });
@@ -233,7 +233,7 @@ export class HistoryManager2 {
   snapshot() {
     const currentState = this.travels.getState();
     this.unsubscribe();
-    this.travels = Tt(currentState, {
+    this.travels = createHistoryStore(currentState, {
       maxHistory: this.maxHistorySize,
       autoArchive: false,
     });

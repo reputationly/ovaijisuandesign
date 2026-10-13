@@ -187,10 +187,10 @@ export function GeneratingMediaArea({
 }) {
   const interactive = !!onClick;
   const handleKeyDown2 = interactive
-    ? (e2) => {
-        if (e2.key === "Enter" || e2.key === " ") {
-          e2.preventDefault();
-          onClick?.(e2);
+    ? (keyboardEvent) => {
+        if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+          keyboardEvent.preventDefault();
+          onClick?.(keyboardEvent);
         }
       }
     : void 0;

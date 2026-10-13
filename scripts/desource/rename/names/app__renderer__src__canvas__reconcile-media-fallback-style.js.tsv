@@ -1,0 +1,2 @@
+key	old	new	依据
+id2@44:38	id2	nodeId	该标识用于从 nodeLookup 查找节点并核对节点 id。

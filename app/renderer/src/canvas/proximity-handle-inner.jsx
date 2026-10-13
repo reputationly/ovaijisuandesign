@@ -145,7 +145,7 @@ function NodeHandlesInner({
   showSourceAffordance = true,
   sourcePosition = Position.Right,
 }) {
-  const connectable = useStore((s2) => s2.nodesConnectable);
+  const connectable = useStore((storeState) => storeState.nodesConnectable);
   const targetPosition =
     sourcePosition === Position.Left ? Position.Right : Position.Left;
   if (!nodeId) {

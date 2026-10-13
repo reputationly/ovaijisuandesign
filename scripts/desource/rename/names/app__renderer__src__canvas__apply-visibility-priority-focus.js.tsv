@@ -1,0 +1,2 @@
+key	old	new	依据
+id2@20:14	id2	nodeId	循环中的节点标识用于 nodeLookup 查找节点并写入矩形记录。

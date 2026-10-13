@@ -5,7 +5,7 @@ import {
   POPOVER_DRAFT_DATA_KEY,
 } from "./compute-group-bounds-from-children.js";
 
-function asDraftMap$1(value) {
+function asPopoverDraftMap(value) {
   return value && typeof value === "object" && !Array.isArray(value)
     ? value
     : void 0;
@@ -13,8 +13,8 @@ function asDraftMap$1(value) {
 
 function mergePopoverDraftMaps(base2, override) {
   if (override === null) return void 0;
-  const baseMap = asDraftMap$1(base2);
-  const overrideMap = asDraftMap$1(override);
+  const baseMap = asPopoverDraftMap(base2);
+  const overrideMap = asPopoverDraftMap(override);
   if (!baseMap) return overrideMap;
   if (!overrideMap) return baseMap;
   const merged = {
@@ -25,8 +25,8 @@ function mergePopoverDraftMaps(base2, override) {
       delete merged[key2];
       continue;
     }
-    const baseEntryMap = asDraftMap$1(baseMap[key2]);
-    const overrideEntryMap = asDraftMap$1(overrideEntry);
+    const baseEntryMap = asPopoverDraftMap(baseMap[key2]);
+    const overrideEntryMap = asPopoverDraftMap(overrideEntry);
     merged[key2] =
       baseEntryMap && overrideEntryMap
         ? {

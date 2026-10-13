@@ -1,0 +1,2 @@
+key	old	new	依据
+s2@148:33	s2	storeState	useStore 回调接收 store 状态并读取 nodesConnectable。

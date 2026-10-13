@@ -41,9 +41,9 @@ function reconcileMediaFallbackStyle(style2, active2, saved) {
     saved: active2 ? baseline : null,
   };
 }
-export function useMediaFallbackSize(id2, active2) {
+export function useMediaFallbackSize(nodeId, active2) {
   const { setNodes } = useReactFlow();
-  const style2 = useStore((state2) => state2.nodeLookup.get(id2)?.style);
+  const style2 = useStore((state2) => state2.nodeLookup.get(nodeId)?.style);
   const saved = reactExports.useRef(
     style2 ? (savedStyles.get(style2) ?? null) : null,
   );
@@ -52,7 +52,7 @@ export function useMediaFallbackSize(id2, active2) {
     setNodes((nodes) => {
       let changed = false;
       const next2 = nodes.map((node2) => {
-        if (node2.id !== id2) return node2;
+        if (node2.id !== nodeId) return node2;
         const result = reconcileMediaFallbackStyle(
           node2.style,
           active2,
@@ -70,5 +70,5 @@ export function useMediaFallbackSize(id2, active2) {
       });
       return changed ? next2 : nodes;
     });
-  }, [id2, active2, style2, setNodes]);
+  }, [nodeId, active2, style2, setNodes]);
 }

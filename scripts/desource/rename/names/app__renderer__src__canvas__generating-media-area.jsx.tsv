@@ -1,0 +1,2 @@
+key	old	new	依据
+e2@190:8	e2	keyboardEvent	keydown 回调检查按键并阻止默认行为，再将键盘事件传给 onClick。

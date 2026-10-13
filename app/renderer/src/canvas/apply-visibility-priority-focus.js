@@ -17,14 +17,14 @@ export function applyVisibilityPriorityFocus({
   syncViewportChange,
 }) {
   const nodeRects = [];
-  for (const id2 of nodeIds) {
-    const node2 = state2.nodeLookup.get(id2);
+  for (const nodeId of nodeIds) {
+    const node2 = state2.nodeLookup.get(nodeId);
     const width = node2?.measured?.width;
     const height = node2?.measured?.height;
     if (!node2 || !width || !height) return;
     const position2 = node2.internals.positionAbsolute;
     nodeRects.push({
-      id: id2,
+      id: nodeId,
       x: position2.x,
       y: position2.y,
       width,

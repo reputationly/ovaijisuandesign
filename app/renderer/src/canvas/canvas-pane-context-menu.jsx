@@ -86,7 +86,7 @@ export function CanvasPaneContextMenu({
   onRedo,
   onPaste,
 }) {
-  const { t: t2 } = useTranslation();
+  const { t: translate } = useTranslation();
   const hasClipboard = getClipboard() !== null;
   const { menuRef, clampedPosition } = useClampedMenuPosition({
     position: position2,
@@ -118,27 +118,27 @@ export function CanvasPaneContextMenu({
       }}
     >
       <PaneMenuItem
-        label={t2("canvas.upload")}
+        label={translate("canvas.upload")}
         testId="canvas-handle-menu-upload-item"
         dataActionUiId="canvas.pane-menu-upload"
         onClick={() => handleAction(onUpload)}
       />
       <PaneMenuItem
-        label={t2("canvas.addNode")}
+        label={translate("canvas.addNode")}
         testId="canvas-pane-context-menu-new-block-item"
         dataActionUiId="canvas.pane-menu-add-block"
         onClick={() => handleAction(onAddNode)}
       />
       <ActionListSeparator />
       <PaneMenuItem
-        label={t2("canvas.undo")}
+        label={translate("canvas.undo")}
         shortcut={resolveCanvasShortcut("undo")}
         disabled={!canUndo}
         dataActionUiId="canvas.pane-menu-undo"
         onClick={() => handleAction(onUndo)}
       />
       <PaneMenuItem
-        label={t2("canvas.redo")}
+        label={translate("canvas.redo")}
         shortcut={resolveCanvasShortcut("redo")}
         disabled={!canRedo}
         dataActionUiId="canvas.pane-menu-redo"
@@ -146,7 +146,7 @@ export function CanvasPaneContextMenu({
       />
       <ActionListSeparator />
       <PaneMenuItem
-        label={t2("canvas.paste")}
+        label={translate("canvas.paste")}
         shortcut={resolveCanvasShortcut("paste")}
         disabled={!hasClipboard}
         testId="canvas-pane-context-menu-paste-item"

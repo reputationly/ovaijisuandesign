@@ -1,0 +1,2 @@
+key	old	new	依据
+id2@95:13	id2	edgeId	deriveEdgeId 返回值用于去重并写入新增边的 id 字段。

@@ -92,12 +92,12 @@ function buildDetachedReferenceEdges(
     for (const sourceId of sourceIds) {
       if (sourceId === targetId) continue;
       const template = incoming.find((edge) => edge.source === sourceId);
-      const id2 = deriveEdgeId(sourceId, targetId);
-      if (seen2.has(id2)) continue;
-      seen2.add(id2);
+      const edgeId = deriveEdgeId(sourceId, targetId);
+      if (seen2.has(edgeId)) continue;
+      seen2.add(edgeId);
       additions.push({
         ...(template ?? {}),
-        id: id2,
+        id: edgeId,
         source: sourceId,
         target: targetId,
         type: "derivation",

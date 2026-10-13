@@ -1,0 +1,2 @@
+key	old	new	依据
+asDraftMap$1@8:10	asDraftMap$1	asPopoverDraftMap	asPopoverDraftMap 仅返回非数组对象，用于读取合并弹出层草稿映射。
